@@ -25,12 +25,10 @@ export function isChoiceAttributesComplete(choice: Choice): boolean
 	}
 	else
 	{
-		isComplete = checkLocationAttributeSelections
-		(
-			choice,
-			choice.mappedLocationGroups ? choice.mappedLocationGroups.map(x => x.id) : [],
-			choice.mappedAttributeGroups ? choice.mappedAttributeGroups.map(x => x.id) : []
-		);
+		let locations = choice.mappedLocationGroups ? choice.mappedLocationGroups.map(x => x.id) : [];
+		let attributes = choice.mappedAttributeGroups ? choice.mappedAttributeGroups.map(x => x.id) : [];
+
+		isComplete = checkLocationAttributeSelections(choice, locations, attributes);
 	}
 
 	return isComplete;
@@ -80,10 +78,11 @@ function checkLocationAttributeSelections(choice: Choice, locationGroups: number
 	}
 	else if (hasAttributes)
 	{
-		let distinctAttributeIds = selectedAttributes.map(a => a.attributeGroupId).filter((value, index, self) => self.indexOf(value) === index);
+		let distinctSelectedAttributeIds = selectedAttributes.map(a => a.attributeGroupId).filter((value, index, self) => self.indexOf(value) === index);
+		let distinctAttributeIds = attributeGroups.filter((value, index, self) => self.indexOf(value) === index);
 
 		// check attributes to make a value has been selected for each attributeGroup
-		allAttrSelected = distinctAttributeIds.length === attributeGroups.length;
+		allAttrSelected = distinctSelectedAttributeIds.length === distinctAttributeIds.length;
 	}
 
 	return allAttrSelected;
