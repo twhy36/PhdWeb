@@ -142,9 +142,9 @@ export class AttributeGroupActionPanelComponent implements OnInit, AfterContentI
 					this.startSearch(event['searchFilter'], event['keyword']);
 				}
 			}, (reason) =>
-			{
+				{
 
-			});
+				});
 		}
 		else
 		{
@@ -187,15 +187,24 @@ export class AttributeGroupActionPanelComponent implements OnInit, AfterContentI
 
 	private orderSearchResultGroups()
 	{
-		this.searchResultGroups = orderBy(this.searchResultGroups, [grp => {
-			if (this.groupType === 'sorted-attribute') {
-				return [grp.sortOrder, grp.groupName];
-			} else {
+		if (this.groupType === 'sorted-attribute')
+		{
+			this.searchResultGroups.sort((a: AttributeGroupMarket, b: AttributeGroupMarket) =>
+				a.sortOrder < b.sortOrder
+					? -1
+					: a.sortOrder > b.sortOrder
+						? 1
+						: a.groupName.localeCompare(b.groupName));
+		}
+		else
+		{
+			this.searchResultGroups = orderBy(this.searchResultGroups, [grp =>
+			{
 				let name = this.groupType === 'location' ? grp.locationGroupName : grp.groupName;
 
 				return name ? name.toLocaleLowerCase() : '';
-			}
-		}]);
+			}]);
+		}
 	}
 
 	private filterByKeyword(searchFilter: any, keyword: string): Array<AttributeGroupMarket | LocationGroupMarket>
