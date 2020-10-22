@@ -1,0 +1,21 @@
+<div class="row div-tab-panel">
+	<phd-table [value]="attributes" [displayTooltip]="false" tableId="expansionAttributeTabPanel" [rowClass]="getRowClass">
+		<phd-column columnId="select" width="50px">
+			<ng-template #header>
+				<p-checkbox [ngModel]="areAllAttributesSelected()" (ngModelChange)="toggleAllAttributes($event)" [binary]="true" [disabled]="isReadOnly || attributes.length === 0"></p-checkbox>
+			</ng-template>
+			<ng-template let-attribute #body>
+				<p-checkbox [ngModel]="isAttributeSelected(attribute)" (ngModelChange)="setAttributeSelected(attribute, $event)" [binary]="true" [disabled]="isReadOnly"></p-checkbox>
+			</ng-template>
+		</phd-column>
+		<phd-column field="name" header="Name"></phd-column>
+		<phd-column field="manufacturer" header="Manufacturer"></phd-column>
+		<phd-column field="sku" header="SKU"></phd-column>
+		<phd-column field="formattedTags" header="Search Tags"></phd-column>
+		<phd-column field="attributeDescription" header="Description"></phd-column>
+	</phd-table>
+</div>
+<div class="d-flex justify-content-end pt-3">
+	<button class="btn btn-primary phd-btn-left" (click)="onAssociate()" [disabled]="isReadOnly">Associate Attributes</button>
+	<button class="btn btn-primary" (click)="onRemoveAttributes()" [disabled]="isReadOnly || saveDisabled">Remove Attributes</button>
+</div>

@@ -1,0 +1,57 @@
+<div class="summary-header d-flex flex-column" [class.is-sticky]="isSticky">
+	<div class="d-flex">
+		<div class="d-flex flex-column flex-grow-1">
+			<span class="phd-label">COMMUNITY:</span>
+			<h2>{{communityName}}</h2>
+
+			<span class="phd-label">PLAN:</span>
+			<span class="phd-content">{{planName}}</span>
+
+			<span class="phd-label">LOT:</span>
+			<span [class.font-weight-bold]="!this.summaryHeader.lot">
+				<span class="phd-content">{{ homesite }}</span>
+				<span *ngIf="canEditHanding && (summaryHeader.handing || summaryHeader.lot?.handings)" class="phd-change-order-handing">
+					
+					<div ngbDropdown class="d-inline-block" [autoClose]="true">
+						<button class="btn btn-outline-primary" id="handingMenu" ngbDropdownToggle [disabled]="disableHanding && !canOverride">{{handing}}</button>
+						<div ngbDropdownMenu aria-labelledby="handingMenu" class="dropdown-menu">
+							<button *ngFor="let handing of summaryHeader.lot?.handings" class="dropdown-item" (click)="onChangeHanding(handing.name)">{{handing.name}}</button>
+						</div>
+						<span class="phd-content">Garage</span>
+						<div *ngIf="disableHanding" class="phd-past-cut-off"><i class="fas fa-info-circle fa-sm"></i>Past Cut-Off</div>
+					</div>
+					
+				</span>
+			</span>
+
+			<span class="phd-label">ADDRESS:</span>
+			<span class="phd-content">{{ address }}</span>
+		</div>
+
+		<div class="d-flex flex-column flex-grow-1 ml-3 mt-3">
+			<pricing-breakdown [priceBreakdown]="priceBreakdown" [allowEstimates]="allowEstimates" [isPreview]="isPreview" [hasHomesite]="hasHomesite" [canConfigure]="canConfigure"></pricing-breakdown>
+		</div>
+	</div>
+
+	<div>
+		<decision-point-filter [pointStatusFilter]="pointStatusFilter" (pointStatusFilterChanged)="filtersUpdated($event)"></decision-point-filter>
+	</div>
+
+	<div>
+		<div class="phd-filter">
+			<div (click)="toggleAllAttributes()" class="phd-attribute-toggle phd-clickable">
+				<span *ngIf="!showAllAttributes"><i class="fas fa-fw fa-chevron-circle-right"></i></span>
+				<span *ngIf="showAllAttributes"><i class="fas fa-fw fa-chevron-circle-down"></i></span>
+				Attributes
+			</div>
+
+			<div class="phd-image-toggle">
+				<label class="switch-small">
+					<input type="checkbox" (change)="toggleImages()">
+					<span class="slider-small round"></span>
+				</label>
+				<div class="phd-switch-text">Images</div>
+			</div>
+		</div>
+	</div>
+</div>

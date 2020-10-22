@@ -1,0 +1,27 @@
+@import "../../../../../scss/color-pallet.scss";
+@import "../../../../../scss/sizes.scss";
+
+#phd-navigation-bar {
+	background: $twilight-blue;
+	color: white;
+	height: 50px;
+
+	.phd-navigation-bar-header {
+		background: $marine;
+		display: inline-block;
+		height: 50px;
+		margin-left: -1rem;
+		margin-right: 15px;
+
+		.logo {
+			max-width: 100%;
+			max-height: 100%;
+			margin: 0 15px;
+		}
+	}
+
+	.phd-navigation-bar-title {
+		font-size: 22px;
+		font-weight: 300;
+	}
+}

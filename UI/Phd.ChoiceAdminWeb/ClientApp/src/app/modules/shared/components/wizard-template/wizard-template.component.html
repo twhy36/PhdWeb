@@ -1,0 +1,24 @@
+<div class="phd-wizard-template">
+	<div class="phd-wizard-header bg-primary">
+		<div class="phd-wizard-step">{{step}}</div>
+
+		<ng-container *ngTemplateOutlet="headerTemplate"></ng-container>
+	</div>
+	<div class="phd-wizard-body">
+		<router-outlet (activate)="onRouterOutletActivate($event)"></router-outlet>
+	</div>
+	<div class="phd-wizard-footer">
+		<div class="phd-footer-btn">
+			<div>
+				<button class="btn btn-secondary mr-3" (click)="back();" *ngIf="showBackBtn">Back</button>
+				<button class="btn btn-primary" (click)="continue();" [disabled]="disableContinue" *ngIf="showContinueBtn">Continue</button>
+				<button class="btn btn-primary" (click)="complete();" [disabled]="disableContinue" *ngIf="showSubmitBtn">Submit</button>
+
+				<ng-container *ngTemplateOutlet="buttonTemplate"></ng-container>
+			</div>
+
+			<button class="btn btn-secondary" [disabled]="disableCancel" (click)="cancel();" *ngIf="showCancelBtn">Cancel</button>
+			<button class="btn btn-secondary" (click)="close();" *ngIf="!showCancelBtn">Close</button>
+		</div>
+	</div>
+</div>

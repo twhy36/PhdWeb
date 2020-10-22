@@ -1,0 +1,24 @@
+@import "../scss/sizes.scss";
+
+#phd-app {
+	display: -webkit-flex;
+	display: flex;
+	flex-direction: row;
+	flex: 1;
+}
+
+#phd-page-buttonbar {
+	display: block;
+	width: $button-bar-width;
+	transition: width .5s ease-in-out;
+	background-color: #eeeeee;
+	box-shadow: 0 4px 2px 0 #bbbbbb;
+	box-sizing: border-box;
+	margin-right:2px;
+}
+
+::ng-deep .phd-lower-header {
+	div {
+		margin-left: 1rem;
+	}
+}

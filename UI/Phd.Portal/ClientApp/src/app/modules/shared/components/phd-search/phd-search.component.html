@@ -1,0 +1,262 @@
+<div class="modal-header">
+	<span class="modal-title">Search</span>
+
+	<button type="button" class="close" aria-label="Close" (click)="onClose.emit()">
+		<span aria-hidden="true">&times;</span>
+	</button>
+</div>
+
+<div class="modal-body">
+	<div class="d-flex flex-column phd-search-container" [class.phd-search-closed]="!optionsShown" [class.phd-results-opened]="resultsShown">
+		<sales-community-selector (onMarketChange)="onMarketChange($event)"
+								  (onSalesCommunityChange)="onCommunityChange($event)"
+								  (onFinancialCommunityChange)="onFinancialCommunityChange($event)"
+								  showFinancialCommunity="true"></sales-community-selector>
+
+		<div class="phd-search-options d-flex w-100 justify-content-between px-4 py-2 bg-white">
+
+			<section class="d-flex flex-row w-100 flex-wrap" *ngIf="!!optionsShown">
+				<div class="form-inline" (keyup.enter)="search()">
+					<div class="phd-flexbox">
+						<label>Lot #</label>
+						<input type="text" [(ngModel)]="homesiteNumber" #homesiteField />
+					</div>
+
+					<div class="phd-flexbox">
+						<label>Sales Agreement #</label>
+						<input type="text" [(ngModel)]="salesAgreementNumber" #salesAgreementNumberField />
+					</div>
+
+					<div class="phd-flexbox">
+						<label>Buyer First Name</label>
+						<input type="text" [(ngModel)]="firstName" #firstNameField />
+					</div>
+
+					<div class="phd-flexbox">
+						<label>Buyer Last Name</label>
+						<input type="text" [(ngModel)]="lastName" #lastNameField />
+					</div>
+					<div class="phd-flexbox">
+						<label>Street Address</label>
+						<input type="text" [(ngModel)]="streetAddress" #streetAddressField />
+					</div>
+				</div>
+			</section>
+
+			<section *ngIf="!!optionsShown" class="d-flex flex-row w-100 flex-wrap">
+				<div class="form-inline">
+					<div class="phd-flexbox">
+						<label>Lot Status</label>
+						<p-multiSelect class="phd-select-homesite-status ui-multiselect-label-container ui-inputwrapper-filled flex-fill"
+									   defaultLabel="Select Lot Status"
+									   [displaySelectedLabel]="true"
+									   [filter]="false"
+									   id="phdHomesiteStatus"
+									   [maxSelectedLabels]="5"
+									   [(ngModel)]="selectedHomesiteStatus"
+									   [options]="homesiteStatusOptions"
+									   [showHeader]="true"
+									   [showToggleAll]="true"
+									   (onPanelHide)="onOptionPanelClosed()">
+						</p-multiSelect>
+					</div>
+
+					<div class="phd-flexbox">
+						<label>Lot Type</label>
+						<p-multiSelect class="phd-select-homesite-type ui-multiselect-label-container ui-inputwrapper-filled flex-fill"
+									   defaultLabel="Select Lot Type"
+									   [displaySelectedLabel]="true"
+									   [filter]="false"
+									   id="phdHomesiteType"
+									   [maxSelectedLabels]="5"
+									   [(ngModel)]="selectedHomesiteTypes"
+									   [options]="homesiteTypeOptions"
+									   [showHeader]="true"
+									   [showToggleAll]="true"
+									   (onPanelHide)="onOptionPanelClosed()">
+						</p-multiSelect>
+					</div>
+
+					<div class="phd-flexbox">
+						<label>Build Type</label>
+						<p-multiSelect class="phd-select-build-type ui-multiselect-label-container ui-inputwrapper-filled flex-fill"
+									   defaultLabel="Select Build Type"
+									   [displaySelectedLabel]="true"
+									   [filter]="false"
+									   id="phdBuildType"
+									   [maxSelectedLabels]="5"
+									   [(ngModel)]="selectedBuildTypes"
+									   [options]="buildTypesOptions"
+									   [showHeader]="true"
+									   [showToggleAll]="true"
+									   (onPanelHide)="onOptionPanelClosed()">
+						</p-multiSelect>
+					</div>
+				</div>
+			</section>
+
+			<section class="d-flex flex-column flex-wrap phd-buttons-holder" *ngIf="!!optionsShown">
+				<div class="form-inline">
+					<div class="phd-flexbox">
+						<label>Sales Agreement Status</label>
+						<p-multiSelect class="ui-multiselect-label-container ui-inputwrapper-filled flex-fill"
+									   defaultLabel="Select Agreement Status"
+									   [displaySelectedLabel]="true"
+									   [filter]="false"
+									   id="phdSalesStatus"
+									   [maxSelectedLabels]="5"
+									   [(ngModel)]="selectedSalesAgreementStatus"
+									   [options]="salesAgreementStatusOptions"
+									   [showHeader]="true"
+									   [showToggleAll]="true"
+									   (onPanelHide)="onOptionPanelClosed()">
+						</p-multiSelect>
+					</div>
+
+					<div class="w-100">
+						<div>
+							<button class="btn btn-primary align-self-start" (click)="searchPending()">All Pending Agreements</button>
+						</div>
+						<div>
+							<button class="btn btn-primary align-self-start" (click)="searchSpec()">Available Specs</button>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<section *ngIf="!!!optionsShown">
+				<span class="phd-badge phd-back" (click)="optionsShown = true">
+					<span><i class="fas fa-caret-square-left"></i></span>
+					<strong>Edit</strong>
+				</span>
+
+				<span class="phd-badge" *ngIf="homesiteNumber" (click)="edit('homesiteRef')">
+					<span>Lot #</span>
+					<strong>{{homesiteNumber}}</strong>
+				</span>
+				<span class="phd-badge" *ngIf="salesAgreementNumber" (click)="edit('salesAgreementNumberRef')">
+					<span>Sales Agreement #</span>
+					<strong>{{salesAgreementNumber}}</strong>
+				</span>
+				<span class="phd-badge" *ngIf="firstName" (click)="edit('firstNameRef')">
+					<span>First Name</span>
+					<strong>{{firstName}}</strong>
+				</span>
+				<span class="phd-badge" *ngIf="lastName" (click)="edit('lastNameRef')">
+					<span>Last Name</span>
+					<strong>{{lastName}}</strong>
+				</span>
+				<span class="phd-badge" *ngIf="streetAddress" (click)="edit('streetAddressRef')">
+				  <span>Street Address</span>
+				  <strong>{{streetAddress}}</strong>
+				</span>
+				<span class="phd-badge" *ngIf="selectedHomesiteTypes.length > 0" (click)="edit()">
+					<span>Lot Type</span>
+					<strong>{{selectedHomesiteTypes.join(', ')}}</strong>
+				</span>
+				<span class="phd-badge" *ngIf="selectedHomesiteStatus.length > 0" (click)="edit()">
+					<span>Lot Status</span>
+					<strong>{{selectedHomesiteStatus.join(', ')}}</strong>
+				</span>
+				<span class="phd-badge" *ngIf="!optionsShown && selectedBuildTypes.length > 0" (click)="edit()">
+					<span>Build Type</span>
+					<strong>{{selectedBuildTypes.join(', ')}}</strong>
+				</span>
+				<span class="phd-badge" *ngIf="!optionsShown && selectedSalesAgreementStatus.length > 0" (click)="edit()">
+					<span>Agreement Status</span>
+					<span>{{ selectedSalesAgreementStatus.join(', ') }}</span>
+				</span>
+			</section>
+		</div>
+
+		<div class="d-flex px-4 justify-content-center bg-white pb-3 phd-search-button-holder">
+			<button class="btn btn-primary" (click)="search()" [disabled]="!isValid" #searchButton>{{ search_button_label || SEARCH_STATUS.READY}}</button>
+		</div>
+
+		<div class="px-4 justify-content-center phd-search-results bg-white" *ngIf="searchResults">
+			<div class="d-flex phd-search-results-holder">
+
+				<phd-table [value]="searchResults" tableId="searchResults" sortMode="single" [displayTooltip]="false" [noRecordsMessage]="filterSpecs ? NO_RECORDS_MESSAGES.SPECS : NO_RECORDS_MESSAGES.SEARCH" [nonOverflow]="true">
+					<!--Homesite #-->
+					<phd-column field="homesiteNumber" header="Lot #"></phd-column>
+					<!--Address (street 1, 2, unit #, city, state, country, postal code)-->
+					<phd-column field="streetAddress1" header="Street Address" canSort="true">
+						<ng-template #body let-lot>
+							<div class="phd-street-unit" *ngIf="lot.streetAddress1 || lot.streetAddress2 || lot.unitNumber">
+								<span *ngIf="lot.streetAddress1">{{lot.streetAddress1}}</span>
+								<span *ngIf="lot.streetAddress2">{{lot.streetAddress2}}</span>
+								<span *ngIf="lot.unitNumber">{{lot.unitNumber}}</span>
+							</div>
+							<div class="phd-city-state-country" *ngIf="lot.city || lot.state || lot.country">
+								<span *ngIf="lot.city">{{lot.city}}</span>
+								<span *ngIf="lot.stateProvince"><span *ngIf="lot.city">,</span> {{lot.stateProvince}}</span>
+								<span *ngIf="lot.country"> {{lot.country}}</span>
+							</div>
+							<div class="phd-zip" *ngIf="lot.postalCode">{{lot.postalCode}}</div>
+						</ng-template>
+					</phd-column>
+					<!--Buyers-->
+					<phd-column field="buyerString" header="Buyers"></phd-column>
+					<!--build type-->
+					<phd-column field="buildType" header="Build Type">
+						<ng-template #body let-lot>
+							<div *ngIf="!isHslMigrated(lot.jobCreatedBy) && (lot.lotStatusDescription.trim() === 'Available' || lot.lotStatusDescription.trim() === 'Unavailable') && (lot.buildType.trim() ==='Spec' || lot.buildType.trim() ==='Model'); else elseBody">
+								<div *ngIf="(lot.lotStatusDescription.trim() === 'Available' || lot.lotStatusDescription.trim() === 'Unavailable') && (lot.buildType.trim() ==='Spec')">
+									<a href="{{environment.baseUrl.designTool}}spec/{{lot.jobId}}" target="_blank">{{lot.buildType}}</a>
+								</div>
+								<div *ngIf="(lot.lotStatusDescription.trim() === 'Available' || lot.lotStatusDescription.trim() === 'Unavailable') && (lot.buildType.trim() ==='Model')">
+									<a href="{{environment.baseUrl.designTool}}scenario-summary/{{lot.jobId}}" target="_blank">{{lot.buildType}}</a>
+								</div>
+							</div>
+							<ng-template #elseBody>{{getLotBuildType(lot)}}</ng-template>
+						</ng-template>
+					</phd-column>
+					<!--Premium (cost)-->
+					<phd-column header="Premium" field="premium">
+						<ng-template #body let-lot>
+							{{lot.premium | currency:'USD':'symbol':'0.0-0'}}
+						</ng-template>
+					</phd-column>
+					<!--Homesite/Lot type-->
+					<phd-column field="homesiteType" header="Lot Type"></phd-column>
+					<phd-column field="lotStatusDescription" header="Lot Status"></phd-column>
+					<!--Plans available with lot-->
+					<phd-column header="Plans">
+						<ng-template #body let-lot>
+							<div *ngFor="let plan of lot.plans" [attr.title]="plan.name">{{plan.name}}</div>
+						</ng-template>
+					</phd-column>
+					<!--Financial Community-->
+					<phd-column field="financialCommunity" header="Financial Community" [canSort]="false"></phd-column>
+					<!--Scenarios/Configuartions-->
+					<phd-column header="Pre-Sale Configurations">
+						<ng-template #body let-lot>
+							<div *ngFor="let scenario of lot.scenarios">
+								<a href="{{environment.baseUrl[action.envBaseUrl]}}edit-home/{{scenario.id}}" target="_blank" *ngIf="scenario && scenario.name" [attr.title]="scenario.name">
+									{{scenario.name}}
+								</a>
+							</div>
+						</ng-template>
+					</phd-column>
+					<!--Every sales agreement within every change order group within one of the lot's jobs *whew* -->
+					<phd-column header="Agreements">
+						<ng-template #body let-lot>
+							<!--If sold in Home Selections-->
+							<em *ngIf="lot.lotStatusDescription === 'Sold' && !!!lot.salesAgreements.length">{{SOLD_IN_HOMES}}</em>
+
+							<!--Otherwise loop through sales agreements if any-->
+							<div *ngFor="let agreement of lot.salesAgreements">
+								<a href="{{getSalesAgreementLink(agreement)}}" target="_blank" *ngIf="agreement && agreement.salesAgreementNumber && agreement.isOnFinalLot" [attr.title]="agreement.salesAgreementNumber">
+									{{agreement.salesAgreementNumber}} - {{agreement.status}}
+								</a>
+							</div>
+						</ng-template>
+					</phd-column>
+				</phd-table>
+			</div>
+			<div class="font-weight-bold p-1" *ngIf="searchResults">{{searchResults.length}} Lot<span *ngIf="searchResults.length != 1">s</span> returned.</div>
+			<h5 class="pt-3 m-0 text-danger text-center" *ngIf="searchError">{{searchError}}</h5>
+		</div>
+	</div>
+
+</div>

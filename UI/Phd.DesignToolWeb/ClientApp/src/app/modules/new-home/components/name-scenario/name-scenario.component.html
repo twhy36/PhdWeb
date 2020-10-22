@@ -1,0 +1,36 @@
+<page-header mainTitle="Configuration Name" subTitle="Name the new configuration"></page-header>
+
+<div id="name-scenario" [ngClass]="{'d-flex' : true, 'flex-column': true, 'align-items-center': !(isTablet$ | async)}">
+	<div *ngIf="loadingOpportunity"><i class="fas fa-spinner fa-spin fa-5x"></i></div>
+	<error-message *ngIf="!loadingOpportunity && !opportunityId" [@flipOver]>
+		<ng-template #body>Seems that the Opportunity has not been provided.<br />Please try starting from CRM again or contact the TSC.</ng-template>
+	</error-message>
+	<form [formGroup]="scenarioForm" *ngIf="!loadingOpportunity && opportunityId" #ngForm="ngForm">
+		<div class="form-group input-group">
+			<input type="text" id="scenarioName" name="scenarioName" [controlDisabled]="!canConfigure" placeholder="Configuration Name" maxlength="100" class="form-control phd-scenario-name-input" formControlName="scenarioName" autocomplete="off" (keyup)="onKey()" required>
+
+			<div class="input-group-append">
+				<button class="btn btn-primary phd-scenario-name-btn" [disabled]="!nameCheckComplete || scenarioForm.invalid || scenarioName || ngForm.submitted || !canConfigure" type="submit" (click)="createScenario()">Create</button>
+			</div>
+		</div>
+
+		<div *ngIf="!scenarioForm.pristine && scenarioForm.invalid && (scenarioForm.dirty || scenarioForm.touched)" class="alert-message">
+			<div *ngIf="scenarioForm.controls.scenarioName.errors.maxlength">The maximum length for a configuration name is 100 characters.</div>
+			<div *ngIf="scenarioForm.controls.scenarioName.errors.required">Configuration name is required.</div>
+		</div>
+		<div *ngIf="isDuplicateScenarioName" class="alert-message">The configuration name you entered is already in use. Please enter a different name to proceed.</div>
+	</form>
+</div>
+
+<ng-template #content let-close="close">
+	<div class="modal-body">
+		<div class="row">
+			<a class="text-center flex-column" (click)="navigateToPlans()">
+				Choose a <span>Plan</span>
+			</a>
+			<a class="text-center flex-column" (click)="navigateToLots()">
+				Choose a <span>Lot</span>
+			</a>
+		</div>
+	</div>
+</ng-template>

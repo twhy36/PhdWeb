@@ -1,0 +1,40 @@
+<div class="modal-header">
+	<span class="modal-title">Cancel Agreement</span>
+	<button type="button" class="close" aria-label="Close" (click)="closeClicked()">
+		<span aria-hidden="true">&times;</span>
+	</button>
+</div>
+
+<div class="modal-body">
+	<form [formGroup]="cancelForm">
+		<div class="form-group">
+			<label for="reason" class="col-form-label">Cancellation Reason</label>
+			<select class="form-control" id="reason" formControlName="reason" required>
+				<option [ngValue]="null">Select Reason</option>
+				<option *ngFor="let reason of salesAgreementCancelReason | enumToArray" [ngValue]="reason">{{ reason }}</option>
+			</select>
+		</div>
+
+		<div class="form-group">
+			<label for="cancelDate">Cancel Date</label>
+			<input type="text" id="cancelDate" class="form-control" readonly value="{{ cancelDate | date: 'L/dd/yyyy' }}" />
+		</div>
+
+		<div class="form-group">
+			<label for="detail" class="col-form-label">Detail</label>
+			<textarea class="form-control" id="detail" rows="3" maxlength="50" formControlName="detail"></textarea>
+		</div>
+	</form>
+</div>
+
+<div class="modal-footer">
+	<button class="btn btn-primary" (click)="cancelAgreement('Spec');" [disabled]="disableButtons">
+		{{ revertToSpecBtnName }}
+	</button>
+
+	<button class="btn btn-primary" (click)="cancelAgreement('Dirt');" [disabled]="disableButtons" *ngIf="constructionStageName == 'Configured'">
+		Revert To Dirt
+	</button>
+
+	<button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
+</div>

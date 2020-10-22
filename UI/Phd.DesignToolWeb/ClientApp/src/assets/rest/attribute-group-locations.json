@@ -1,0 +1,67 @@
+{
+    "attributeLocations": [
+        {
+            "id": 1,
+            "name": "Family Room",
+            "displayOrder": 1
+        },
+        {
+            "id": 2,
+            "name": "Living Room",
+            "displayOrder": 2
+        },
+        {
+            "id": 3,
+            "name": "Master Bedroom",
+            "displayOrder": 4
+        },
+        {
+            "id": 4,
+            "name": "Den",
+            "displayOrder": 3
+        }
+    ],
+    "attributeGroups": [
+        {
+            "id": 1,
+            "name": "Style",
+            "attributes": [
+                {
+                    "id": 1,
+                    "name": "Satin",
+                    "imageUrl": "https://images.homedepot-static.com/productImages/a82472ee-ad53-4e9c-8970-b9145d4cb0a5/svn/brushed-steel-with-dark-walnut-blades-monte-carlo-ceiling-fans-without-lights-3mavr60bs-64_400_compressed.jpg"
+                },
+                {
+                    "id": 2,
+                    "name": "Stainless",
+                    "imageUrl": "https://images.homedepot-static.com/productImages/d2242c5b-a73c-4656-be94-27f1f55449c1/svn/brushed-nickel-hunter-ceiling-fans-with-lights-54131-64_400_compressed.jpg"
+                },
+                {
+                    "id": 3,
+                    "name": "Brass",
+                    "imageUrl": "https://images.homedepot-static.com/productImages/8ae118c6-2f6f-40e3-98ae-9061349a41bc/svn/regal-bronze-hunter-ceiling-fans-with-lights-53331-64_400_compressed.jpg"
+                },
+                {
+                    "id": 4,
+                    "name": "Wood",
+                    "imageUrl": "https://images.homedepot-static.com/productImages/8a5e508d-2bba-4752-affe-eb5a1420ed23/svn/brushed-nickel-hunter-ceiling-fans-with-lights-51075-64_400_compressed.jpg"
+                },
+                {
+                    "id": 5,
+                    "name": "Oil",
+                    "imageUrl": "https://images.homedepot-static.com/productImages/2a241494-9525-4123-a1ba-8674539f1e5a/svn/oil-rubbed-bronze-home-decorators-collection-ceiling-fans-with-lights-54729-64_400_compressed.jpg"
+                },
+                {
+                    "id": 6,
+                    "name": "White",
+                    "imageUrl": "https://images.homedepot-static.com/productImages/c294fee2-3b7c-454a-9262-c9724524da6f/svn/fresh-white-hunter-ceiling-fans-with-lights-59215-64_400_compressed.jpg"
+                },
+                {
+                    "id": 7,
+                    "name": "Bronze",
+                    "imageUrl": "https://images.homedepot-static.com/productImages/9f5d364d-c901-48b4-9f25-90488527895b/svn/new-bronze-hunter-ceiling-fans-with-lights-52079-64_400_compressed.jpg"
+                }
+            ]
+        }
+    ]
+}

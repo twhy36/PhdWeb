@@ -1,0 +1,15 @@
+@import "../scss/sizes.scss";
+
+#phd-app {
+	display: -webkit-flex;
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	overflow-y: hidden;
+}
+
+@media only screen and (max-width: 700px) {
+	#phd-app {
+		overflow-y: auto;
+	}
+}

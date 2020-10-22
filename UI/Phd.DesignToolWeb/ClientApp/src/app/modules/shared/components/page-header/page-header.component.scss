@@ -1,0 +1,37 @@
+@import "../../../../../scss/animations.scss";
+@import "../../../../../scss/sizes.scss";
+div {
+    line-height: 30px;
+    padding-top: 75px;
+}
+
+h1 {
+    font-size: 30px;
+    font-weight: normal;
+    text-transform: capitalize;
+    &:empty {
+        height: 30px;
+        width: 60%;
+        @include shimmer();
+    }
+}
+
+h2 {
+    font-size: 18px;
+    padding: 25px;
+    &:empty {
+        height: 30px;
+        width: 100%;
+        @include shimmer();
+    }
+}
+
+@media(max-width: $tablet-max-width) {
+	:host {
+        padding-top: calc(#{$responsive-menu-height} * 2);        
+    }
+    
+    div {
+        margin-top: 30px;
+    }
+}

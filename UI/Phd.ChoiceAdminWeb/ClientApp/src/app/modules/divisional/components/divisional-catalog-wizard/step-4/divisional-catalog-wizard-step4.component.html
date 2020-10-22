@@ -1,0 +1,79 @@
+<ng-template #headerTemplate>
+	Drafts Created
+</ng-template>
+
+<ng-template #buttonTemplate>
+	<button class="btn btn-primary mr-3" (click)="onDivisionMappingClick();">Division Mapping</button>
+	<button class="btn btn-primary mr-3" (click)="onDownloadListClick();">Download List</button>
+</ng-template>
+
+<div class="mx-2 phd-selected-choices">
+	<div class="phd-table-collection">
+		<table class="table table-striped table-sm">
+			<thead class="thead-light">
+				<tr>
+					<th class="phd-col-width">CHOICE(S):</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let choice of selectedChoices; let x = index">
+					<td class="phd-col-width phd-bullet"><strong>{{ choice.pointLabel }}:</strong> {{ choice.choiceLabel }} - <span [innerHTML]="getChoiceAction(choice)"></span></td>
+				</tr>
+			</tbody>
+		</table>
+
+		<table class="table table-striped table-sm" *ngIf="selectedPlansCreated.length > 0">
+			<thead class="thead-light">
+				<tr>
+					<th class="phd-col-width">NEW DRAFTS CREATED FOR:</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let plan of selectedPlansCreated; let x = index">
+					<td class="phd-col-width phd-bullet">{{ plan.financialCommunityName }} - {{ plan.financialCommunityNumber }}: <strong>{{ plan.planSalesName }}</strong></td>
+				</tr>
+			</tbody>
+		</table>
+
+		<table class="table table-striped table-sm" *ngIf="selectedPlansExisting.length > 0">
+			<thead class="thead-light">
+				<tr>
+					<th class="phd-col-width">EXISTING DRAFTS UPDATED FOR:</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let plan of selectedPlansExisting; let x = index">
+					<td class="phd-col-width phd-bullet">{{ plan.financialCommunityName }} - {{ plan.financialCommunityNumber }}: <strong>{{ plan.planSalesName }}</strong></td>
+				</tr>
+			</tbody>
+		</table>
+
+	</div>
+
+	<div>
+		<div class="phd-panel">
+			<div class="phd-panel-header">NEXT STEPS:</div>
+			<div class="phd-panel-body">
+				<ol>
+					<li>
+						<strong>Review open drafts to determine if:</strong>
+						<ul class="phd-list-bullet phd-list-inline">
+							<li>Rule changes are necessary</li>
+							<li>Sort orders need to be adjusted</li>
+							<li>Option mapping is needed</li>
+						</ul>
+					</li>
+					<li>
+						<strong>If mapping is required:</strong>
+						<ul class="phd-list-bullet phd-list-inline">
+							<li>Click on <strong>Division Mapping</strong> button below, <strong>OR</strong>, Complete mapping in the trees</li>
+						</ul>
+					</li>
+					<li><strong>When all changes are complete, publish the drafts</strong></li>
+				</ol>
+			</div>
+		</div>
+	</div>
+</div>
+
+

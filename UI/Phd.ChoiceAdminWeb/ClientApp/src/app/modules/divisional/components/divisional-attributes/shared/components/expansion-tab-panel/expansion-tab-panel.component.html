@@ -1,0 +1,8 @@
+<div class="row div-tab-panel">
+	<ng-container *ngIf="displayColumns$ | async; let displayColumns">
+		<phd-table [value]="dataItems" [columns]="displayColumns" [displayTooltip]="false" [nonOverflow]="false" tableId="expansionTabPanel" *ngIf="dataItems.length">
+		</phd-table>
+	</ng-container>
+
+	<ng-container *ngIf="!dataItems.length">{{emptyMessage}}</ng-container>
+</div>

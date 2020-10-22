@@ -1,0 +1,20 @@
+<divisional-attribute-template>
+	<ng-template #panel>
+		<attribute-groups-panel (onAssociateAttributes)="onAssociateAttributes($event)" (onEditAttributeGroup)="onEditAttributeGroup($event)"></attribute-groups-panel>
+	</ng-template>
+
+	<ng-template #actionPanel *requiresClaim="'Attributes'; permission: Permission.Edit; market: marketKey">
+		<divisional-attribute-actions [buttons]="actionButtons" [customClasses]="'d-flex justify-content-end'"></divisional-attribute-actions>
+	</ng-template>
+
+    <ng-template #sidePanel>
+        <attribute-groups-side-panel *ngIf="sidePanelOpen" [sidePanelOpen]="sidePanelOpen" [selectedAttributeGroup]="selectedAttributeGroup" [existingAttributeGroups]="existingAttributeGroups" (onSidePanelClose)="onSidePanelClose($event)" (onSaveAttributeGroup)="onSaveAttributeGroup($event)"></attribute-groups-side-panel>
+        <associate-attributes-side-panel *ngIf="associateSidePanelOpen"
+										 [attributes]="attributes"
+										 [callback]="callback"
+										 [attributeGroup$]="attributeGroup$"
+										 [sidePanelOpen]="associateSidePanelOpen"
+										 (onSidePanelClose)="onAssociateSidePanelClose($event)"></associate-attributes-side-panel>
+    </ng-template>
+
+</divisional-attribute-template>

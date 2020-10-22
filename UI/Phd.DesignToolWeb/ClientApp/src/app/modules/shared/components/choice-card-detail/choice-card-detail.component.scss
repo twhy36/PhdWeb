@@ -1,0 +1,153 @@
+@import "../../../../../scss/color-pallet.scss";
+
+.phd-choice-detail-card {
+	border-radius: 5px;
+	padding: 10px;
+
+	quantity-input {
+		display: inline-block;
+	}
+
+	.phd-title {
+		text-transform: uppercase;
+	}
+
+	.phd-card-detail-header {
+		text-align: right;
+		padding-bottom: 0;
+	}
+
+	.phd-card-detail-body {
+		max-height: 600px;
+		overflow-y: auto;
+		padding-top: 0;
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
+		flex-wrap: wrap;
+	}
+
+	button {
+		height: 40px;
+		margin-bottom: 5px;
+		margin-top: 10px;
+		text-transform: uppercase;
+
+		&:focus {
+			box-shadow: none;
+		}
+
+		&:empty {
+			visibility: hidden;
+		}
+
+		&.selected {
+			background-color: #fff;
+			color: $link-blue;
+			font-size: 14px;
+			text-transform: capitalize;
+		}
+
+		&.disabled {
+			pointer-events: none;
+		}
+	}
+
+	.phd-choice-content {
+		display: flex;
+		flex-direction: column;
+		overflow: auto;
+
+		.phd-choice-description {
+			margin: 10px 0;
+		}
+	}
+
+	.phd-card-detail-choice-body {
+		flex: 1;
+		padding: 0 10px;
+	}
+
+	.fa-times-circle {
+		color: #dc5767;
+		font-size: 25px;
+		cursor: pointer;
+	}
+
+	.fa-times-circle:hover {
+		color: #ad3543;
+	}
+
+	.phd-image-loading {
+		height: 367px;
+		width: 550px;
+		position: absolute;
+		background-color: lightgray;
+		z-index: 999 !important;
+		text-align: center;
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+
+	.phd-image-loader {
+		position: relative;
+		top: 40%;
+	}
+
+	.phd-monotony-conflict-message {
+		color: red;
+		font-weight: bold;
+	}
+
+	.phd-past-cutt-off {
+		color: $dodger-blue;
+	}
+
+	.phd-attr-loc-group-container {
+		display: flex;
+		max-height: 400px;
+		overflow-y: auto;
+		margin-top: 1em;
+	}
+
+	.phd-image-carousel-container {
+		border: .5px solid lightgrey;
+		padding: 10px;
+	}
+
+	.phd-card-detail-image-body {
+
+		.carousel:focus {
+			outline: none;
+		}
+
+		::ng-deep .carousel-control-prev, ::ng-deep .carousel-control-next {
+			cursor: pointer;
+		}
+
+		.phd-image-warning {
+			font-weight: bold;
+			font-size: 12px;
+		}
+	}
+
+	.phd-choice-disabled-msg {
+		color: $turquoise-blue;
+	}
+
+	.phd-disable-hovering {
+		pointer-events: none;
+	}
+
+	.phd-attribute-location-body {
+		padding-right: 10px;
+
+		&:not(:last-child) {
+			margin-bottom: 1em;
+		}
+	}
+
+	.phd-card-detail-footer {
+		margin-top: 1em;
+	}
+}

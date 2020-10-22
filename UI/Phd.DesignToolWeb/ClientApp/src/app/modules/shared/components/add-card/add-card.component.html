@@ -1,0 +1,27 @@
+<div class="phd-box justify-content-center" [class.phd-add]="hasPlus" (click)="add()" *ngIf="!!!isNA">
+	<div class="phd-add-button" *ngIf="hasPlus">
+		<div class="fas fa-plus fa-3x"></div>
+	</div>
+	<div class="phd-add-button pb-4">
+		<h4 class="a-color-tertiary">{{action}} {{label}}</h4>
+	</div>
+	<div class="phd-add-button pb-3" *ngIf="hasNA">
+		<button type="button" class="btn phd-experience-btn-choice" (click)="setNA($event)">
+			{{ btnLabel }}
+		</button>
+	</div>
+</div>
+
+<div class="phd-box" *ngIf="isNA">
+	<div class="phd-card-header">
+		<span>{{labels}}</span>
+	</div>
+	<div class="phd-card-body d-flex flex-column pl-3 pt-2 text-center justify-content-center pt-5">
+		<div class="display-4">
+			N/A
+		</div>
+	</div>
+	<div class="phd-card-footer">
+		<a class="btn m-0 p-0" (click)="add()">{{action}} {{label}}</a>
+	</div>
+</div>

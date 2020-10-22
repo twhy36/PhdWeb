@@ -1,0 +1,14 @@
+<navigation-bar [canAccessSalesAdmin]="canAccessSalesAdmin$ | async"></navigation-bar>
+
+<ng-container *ngIf="(canAccessSalesAdmin$ | async); else noAccess">
+	<div id="phd-app">
+		<button-bar id="phd-page-buttonbar"></button-bar>
+	
+		<router-outlet></router-outlet>
+	</div>
+	<common-spinner></common-spinner>
+</ng-container>
+
+<ng-template #noAccess>
+	You do not have access to this application. Please contact TSC to be granted access.
+</ng-template>

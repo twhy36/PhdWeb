@@ -1,0 +1,105 @@
+<div class="phd-non-standard-change">
+	<div class="phd-non-standard-change-header d-flex justify-content-center text-center">
+		<span>Non-Standard Option Change</span>
+	</div>
+
+	<div class="phd-nss-form phd-margin">
+		<div *ngIf="jobNonStandardOptions.length">
+			<label class="switch-small">
+				<input type="checkbox" (change)="onToggleAdd()" [ngModel]="!!currentAddedOption" [disabled]="!canEdit">
+				<span class="slider-small round"></span>
+			</label>
+			<span class="phd-add-nso-text">Add New Non-Standard Selection</span>
+		</div>
+
+		<div *ngIf="canAdd" [ngClass]="{'phd-nss-form-div': jobNonStandardOptions.length}">
+			<form [formGroup]="nssForm">
+				<div class="form-group row ">
+					<div class="col-sm-2">
+						<label for="name" class="phd-col-form-label">Name:</label>
+					</div>
+					<div class="col-sm-10">
+						<input type="text" class="form-control" id="name" maxlength="50" formControlName="name" required [controlDisabled]="!canEdit" (blur)="onBlur()"/>
+					</div>
+					<div class="col-sm-12">
+						<span class="validation-error"
+							  *ngIf="nssForm.controls.name && nssForm.controls.name.invalid && (nssForm.controls.name.dirty || nssForm.controls.name.touched) && nssForm.controls.name.errors.required">
+							A name is required.
+						</span>
+					</div>
+				</div>
+				<div class="form-group row ">
+					<div class="col-sm-2">
+						<label for="quantity" class="phd-col-form-label">Quantity:</label>
+					</div>
+					<div class="col-sm-10">
+						<input type="text" class="form-control" id="quantity" maxlength="5" formControlName="quantity" pattern="^[1-9][0-9]*$" required [controlDisabled]="!canEdit" (blur)="onBlur()"/>
+					</div>
+					<div class="col-sm-12">
+						<span class="validation-error"
+							  *ngIf="nssForm.controls.quantity && nssForm.controls.quantity.invalid && (nssForm.controls.quantity.dirty || nssForm.controls.quantity.touched) && nssForm.controls.quantity.errors.required">
+							A quantity is required.
+						</span>
+						<span class="validation-error"
+							  *ngIf="nssForm.controls.quantity && nssForm.controls.quantity.invalid && nssForm.controls.quantity.dirty && !nssForm.controls.quantity.errors.required">
+							Quantity should be 1 - 99999.
+						</span>
+					</div>
+				</div>
+				<div class="form-group row ">
+					<div class="col-sm-2">
+						<label for="price" class="phd-col-form-label">Unit Price:</label>
+					</div>
+					<div class="col-sm-10">
+						<input type="text" class="form-control" id="price" maxlength="20" formControlName="price" pattern="^[\d]{1,15}(\.[\d]{1,4})?$" required [controlDisabled]="!canEdit" (blur)="onBlur()"/>
+					</div>
+					<div class="col-sm-12">
+						<span class="validation-error"
+							  *ngIf="nssForm.controls.price && nssForm.controls.price.invalid && (nssForm.controls.price.dirty || nssForm.controls.price.touched) && nssForm.controls.price.errors.required">
+							A unit price is required.
+						</span>
+						<span class="validation-error"
+							  *ngIf="nssForm.controls.price && nssForm.controls.price.invalid && nssForm.controls.price.dirty && !nssForm.controls.price.errors.required">
+							Invalid Price Format.
+						</span>
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="description" class="phd-col-form-label">Description:</label>
+					<textarea class="form-control" id="description" rows="4" maxlength="500" formControlName="description" [controlDisabled]="!canEdit" (blur)="onBlur()"></textarea>
+				</div>
+			</form>
+		</div>
+
+	</div>
+
+	<div class="phd-nss-form phd-margin" *ngIf="jobNonStandardOptions.length">
+		<label class="switch-small">
+			<input type="checkbox" (change)="onToggleDelete()" [ngModel]="!!currentDeletedOptions.length" [controlDisabled]="!canEdit">
+			<span class="slider-small round"></span>
+		</label>
+		<span class="phd-delete-nso-text">Delete Existing Non-Standard Selection</span>
+		<div class="phd-nss-options" *ngIf="canDelete">
+			<ul class="phd-nss-option-list">
+				<li *ngFor="let option of jobNonStandardOptions">
+					<label class="switch-small">
+						<input type="checkbox" (change)="onSelectNss(option)" [ngModel]="isOptionSelected(option)" [controlDisabled]="!canEdit">
+						<span class="slider-small round"></span>
+					</label>
+					<span class="phd-delete-nso-text">{{option.financialOptionNumber}}</span>
+					<span class="phd-delete-nso-text">{{option.name}}</span>
+				</li>
+			</ul>
+		</div>
+	</div>
+
+</div>
+
+<action-bar primaryAction="Personalize It"
+			[actionBarStatus]="actionBarStatus"
+			[price]="(priceBreakdown$ | async)?.totalPrice"
+            [changePrice]="(priceBreakdown$ | async)?.changePrice"
+			[inChangeOrder]="true"
+			[canChange]="canEdit"
+			(onSaveNSO)="saveChangeNote($event)">
+</action-bar>

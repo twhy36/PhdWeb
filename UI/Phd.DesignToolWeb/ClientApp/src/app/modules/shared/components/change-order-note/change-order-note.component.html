@@ -1,0 +1,27 @@
+<div class="modal-header">
+	<span class="modal-title">Change Order Description and Note</span>
+
+	<button type="button" class="close" aria-label="Close" (click)="onCancel()">
+		<span aria-hidden="true">&times;</span>
+	</button>
+</div>
+
+<div class="modal-body">
+	<form [formGroup]="noteForm">
+		<div class="form-group">
+			<label for="description" class="col-form-label">Change Order Description</label>
+			<input type="text" class="form-control" id="description" maxlength="50" formControlName="description" required />
+		</div>
+
+		<div class="form-group">
+			<label for="note" class="col-form-label">Change Order Note</label>
+			<textarea class="form-control" id="note" rows="6" maxlength="3000" formControlName="note"></textarea>
+		</div>
+	</form>
+</div>
+
+<div class="modal-footer">
+	<button class="btn btn-primary" (click)="onSave();" [disabled]="saveDisabled">Save</button>
+
+	<button type="button" class="btn btn-secondary" (click)="onCancel()">Cancel</button>
+</div>

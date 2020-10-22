@@ -1,0 +1,24 @@
+ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+
+	li {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+
+	&.phd-multi-error {
+		list-style: initial;
+		padding: 0 0 0 20px;
+
+		li {
+			list-style: initial;
+		}
+	}
+}
+
+.phd-point {
+	font-weight: bold;
+}

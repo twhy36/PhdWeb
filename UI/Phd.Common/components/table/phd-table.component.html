@@ -1,0 +1,165 @@
+<p-table [columns]="columns" [value]="value" [loading]="loading" loadingIcon="fa-spinner" [resizableColumns]="true" (onFilter)="onFilter($event)" (onColResize)="resizeColumn($event)" (onRowReorder)="onRowReorder($event)" (onRowSelect)="onRowSelect($event)" (onRowUnselect)="onRowUnselect($event)"
+		 [selection]="selection" (selectionChange)="selectionChange($event)" [dataKey]="dataKey" [sortMode]="sortMode" [sortField]="sortField || '__index'">
+
+	<!--TABLE CAPTION-->
+	<ng-template pTemplate="caption" *ngIf="hideableColumns?.length > 0 || filterableColumns?.length > 0 || showCaption">
+		<div class="col-data-filter-container">
+			<ng-template ngFor let-col [ngForOf]="filterableColumns">
+				<div class="col-data-filter align-left phd-filter-container" *ngIf="col.filterMode === 'search'" [class.align-filters]="filterableColumns?.length > 1">
+					<i class="fa fa-search phd-filter-icon"></i>
+					<input type="text" pInputText (input)="table.filter($event.target.value, col.field, col.filterMatchMode)" [placeholder]="col.header" />
+				</div>
+			</ng-template>
+
+			<!--FILTER DATA-->
+			<ng-template ngFor let-col [ngForOf]="filterableColumns">
+				<div class="col-data-filter align-right phd-filter-container" *ngIf="col.filterMode !== 'search'" [class.align-filters]="filterableColumns?.length > 1">
+					<!--MULTI-SELECT FILTER-->
+					<i class="fa fa-filter phd-filter-icon"></i>
+					<p-multiSelect class="ui-multiselect-label-container" *ngIf="col.filterMode == 'multiple'" [styleClass]="col.showFilterHeader ? 'multiselect-width' : ''" [options]="col.filterOptions" [defaultLabel]="col.filterLabel || col.header" [showToggleAll]="true" [hidden]="!col.filterVisible"
+								   [(ngModel)]="filterSelections[col.field]" (ngModelChange)="filterTableMulti($event, col, col.filterMode)"
+								   [displaySelectedLabel]="col.displaySelectedLabel" [maxSelectedLabels]="col.maxSelectedLabels" [showHeader]="col.showFilterHeader"></p-multiSelect>
+					<!--SINGLE-SELECT FILTER-->
+					<p-dropdown #dropdown *ngIf="col.filterMode == 'single'" [options]="col.filterOptions" [placeholder]="' ' + col.filterPlaceholder" [hidden]="!col.filterVisible"
+								[(ngModel)]="filterSelections[col.field]" (ngModelChange)="filterTableSingle($event, col, col.filterMode, dropdown)">
+					</p-dropdown>
+				</div>
+			</ng-template>
+			<!--HIDE/SHOW COLUMNS-->
+			<div class="col-toggler" *ngIf="hideableColumns?.length > 0">
+				<p-multiSelect [options]="hideableColumns" [(ngModel)]="visibleColumns" optionLabel="header"
+							   [displaySelectedLabel]="false" defaultLabel="" (ngModelChange)="updateVisibleColumns($event)"></p-multiSelect>
+			</div>
+		</div>
+	</ng-template>
+
+	<!--TABLE HEADER-->
+	<ng-template pTemplate="header" let-columns *ngIf="showColumnHeaders">
+		<!--ng-template is used in the table header-->
+		<tr *ngIf="tableHeaderTemplate" class="ui-datatable-header">
+			<th [attr.colspan]="columns.length">
+				<ng-container *ngTemplateOutlet="tableHeaderTemplate"></ng-container>
+			</th>
+		</tr>
+		<!--ng-template is NOT used in the row group header OR row group header mode is single-->
+		<tr *ngIf="!rowGroupHeaderTemplate || rowGroupHeaderMode === 'single'" class="phd-table-header">
+			<ng-container *ngTemplateOutlet="header; context: {$implicit: columns}"></ng-container>
+		</tr>
+	</ng-template>
+
+	<!--EMPTY MESSAGE-->
+	<ng-template pTemplate="emptymessage" let-columns>
+		<tr>
+		    <td [attr.colspan]="columns.length">
+ 		        {{noRecordsMessage}}
+		    </td>
+		</tr>
+	</ng-template>
+
+	<!--TABLE BODY-->
+    <ng-template pTemplate="body" let-rowData let-columns="columns" let-rowIndex="rowIndex" let-expanded="expanded">
+        <!--Row Group Header Display-->
+        <ng-template [ngIf]="rowGroupHeaderTemplate && rowGroupMetadata[rowData[groupByKey]].startIndex === rowIndex">
+            <tr class="ui-widget-header ui-rowgroup-header">
+                <td [attr.colspan]="columns.length" class="ui-resizable-column">
+                    <ng-container *ngTemplateOutlet="rowGroupHeaderTemplate; context: {$implicit: rowData, count: rowGroupMetadata[rowData[groupByKey]].count}"></ng-container>
+                </td>
+            </tr>
+            <tr *ngIf="rowGroupHeaderMode === 'repeat'">
+                <ng-container *ngTemplateOutlet="header; context: {$implicit: columns}"></ng-container>
+            </tr>
+        </ng-template>
+
+        <!--Data Row-->
+        <tr *ngIf="!rowFilter || rowFilter(rowData)" [ngClass]="rowClass ? rowClass(rowData) : getDefaultRowClass(rowIndex)"
+            [pSelectableRow]="selectionMode ? rowData : ''" [pSelectableRowIndex]="selectionMode ? rowIndex : ''" [pReorderableRow]="canReorderRows ? rowIndex : ''">
+            <ng-container *ngTemplateOutlet="rowBody; context: {$implicit: rowData, columns: columns, reorderableRow: canReorderRows, expanded: expanded}"></ng-container>
+        </tr>
+
+        <!--Row Group Footer Display-->
+        <ng-template [ngIf]="rowGroupHeaderTemplate && rowGroupFooterTemplate && rowIndex === (rowGroupMetadata[rowData[groupByKey]].startIndex + rowGroupMetadata[rowData[groupByKey]].count-1)">
+            <ng-container *ngTemplateOutlet="rowGroupFooterTemplate; context: {$implicit: rowData, count: rowGroupMetadata[rowData[groupByKey]].count, numCols: columns.length}"></ng-container>
+        </ng-template>
+    </ng-template>
+
+	<!--ROW EXPANSION-->
+	<ng-template pTemplate="rowexpansion" let-rowData let-columns="columns" *ngIf="rowExpansionTemplate">
+		<ng-container *ngTemplateOutlet="rowExpansionTemplate; context: {$implicit: rowData, columns: columns}"></ng-container>
+	</ng-template>
+
+	<!--HEADER TEMPLATE-->
+	<ng-template #header let-columns>
+		<ng-template ngFor [ngForOf]="columns" let-col>
+			<ng-template [ngIf]="rowGroupHeaderTemplate && rowGroupHeaderMode === 'repeat'" [ngIfElse]="resizableHeader">
+				<th [attr.data-columnId]="col.columnId" [style.width]="col.width" [class]="col.columnClass"><ng-container *ngTemplateOutlet="colHeader; context: {$implicit: col}"></ng-container></th>
+			</ng-template>
+			<ng-template #resizableHeader>
+				<th *ngIf="sortMode && col.canSort" [pSortableColumn]="col.field" pResizableColumn [attr.data-columnId]="col.columnId" [style.width]="col.width" [class]="col.columnClass">
+					<ng-container *ngTemplateOutlet="colHeader; context: {$implicit: col}"></ng-container>
+				</th>
+				<th *ngIf="(!sortMode || !col.canSort)" pResizableColumn [attr.data-columnId]="col.columnId" [style.width]="col.width" [class]="col.columnClass">
+					<ng-container *ngTemplateOutlet="colHeader; context: {$implicit: col}"></ng-container>
+				</th>
+			</ng-template>
+		</ng-template>
+	</ng-template>
+
+	<!--COLUMN HEADER TEMPLATE-->
+	<ng-template #colHeader let-col>
+		<ng-template [ngIf]="col.headerTemplate" [ngIfElse]="defaultHeader">
+			<ng-container *ngTemplateOutlet="col.headerTemplate"></ng-container>
+		</ng-template>
+		<ng-template #defaultHeader>
+			<div [class]="col.headerStyleClass">{{col.header}} <p-sortIcon *ngIf="sortMode && col.canSort" [field]="col.field"></p-sortIcon></div>
+		</ng-template>
+	</ng-template>
+</p-table>
+
+<!--ROW BODY TEMPLATE-->
+<ng-template #rowBody let-rowData let-columns="columns" let-reorderable="reorderableRow" let-expanded="expanded">
+    <ng-template ngFor [ngForOf]="columns" let-col let-index="index">
+        <td [ngClass]="col.styleClass" [style.width]="col.width" [class.reorderable-row]="reorderable && index === 0" class="ui-resizable-column">
+            <!--BODY TEMPLATE DEFINED-->
+            <ng-template [ngIf]="col.bodyTemplate">
+                <ng-container *ngTemplateOutlet="col.bodyTemplate; context: {$implicit: rowData, expanded: expanded}"></ng-container>
+            </ng-template>
+
+            <!--USING FIELD PROPERTY-->
+            <ng-template [ngIf]="!col.bodyTemplate && col.field">
+                <!--REORDER ICON-->
+                <i *ngIf="reorderable && index === 0" class="fa fa-lg fa-bars reorder-icon move" pReorderableRowHandle></i>
+
+                <!--NON-EDITABLE-->
+                <span [ngClass]="nonOverflow ? 'phd-non-overflow' : null"
+                      *ngIf="reorderable && col.isDragHandler && !col.canEdit"
+                      pReorderableRowHandle
+                      (mouseenter)="showTooltip($event, rowData[col.field])"
+                      (mouseleave)="hideTooltip()">
+                    {{rowData[col.field]}}
+                </span>
+                <span [ngClass]="nonOverflow ? 'phd-non-overflow' : null"
+                      *ngIf="(!reorderable || !col.isDragHandler) && !col.canEdit"
+                      (mouseenter)="showTooltip($event, rowData[col.field])"
+                      (mouseleave)="hideTooltip()">
+                    {{rowData[col.field]}}
+                </span>
+
+                <!--EDITABLE-->
+                <span *ngIf="col.canEdit" pEditableColumn>
+                    <p-cellEditor>
+                        <ng-template pTemplate="input">
+                            <input type="text" [(ngModel)]="rowData[col.field]" (ngModelChange)="onModelChange($event, rowData)" (blur)="onBlurDeselect($event)">
+                        </ng-template>
+                        <ng-template pTemplate="output">
+                            <span [class.deleted-row]="rowData['isDeleted']" class="pointer" title="Click to Edit">{{rowData[col.field]}}</span>
+                        </ng-template>
+                    </p-cellEditor>
+                </span>
+            </ng-template>
+        </td>
+    </ng-template>
+</ng-template>
+
+<p-overlayPanel #tt [style]="{'background-color': 'black'}">
+    <div class="custom-tooltip">{{tooltipText}}</div>
+</p-overlayPanel>

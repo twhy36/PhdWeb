@@ -1,0 +1,29 @@
+@import "../../../../../scss/color-pallet.scss";
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+
+span {
+	color: $link-blue;
+	cursor: pointer;
+	opacity: .8;
+	font-weight: 500;
+	font-size: 15px;
+
+	&:hover {
+		opacity: 1;
+	}
+}
+
+.phd-negative-price {
+	&:before {
+		content: '(';
+	}
+
+	&:after {
+		content: ')';
+	}
+}

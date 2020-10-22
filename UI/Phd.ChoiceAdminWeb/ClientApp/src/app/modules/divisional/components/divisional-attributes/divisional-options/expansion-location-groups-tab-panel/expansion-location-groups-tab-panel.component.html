@@ -1,0 +1,21 @@
+<div class="row div-tab-panel">
+	<phd-table [value]="groups" [displayTooltip]="false" tableId="expansionLocationGroupsTabPanel">
+		<phd-column columnId="select" width="50px">
+			<ng-template #header>
+				<p-checkbox [ngModel]="areAllGroupsSelected()" (ngModelChange)="toggleAllGroups($event)" [binary]="true" [disabled]="isReadOnly || isSaving"></p-checkbox>
+			</ng-template>
+			<ng-template let-group #body>
+				<p-checkbox [ngModel]="isGroupSelected(group)" (ngModelChange)="setGroupSelected(group, $event)" [binary]="true" [disabled]="isReadOnly || isSaving"></p-checkbox>
+			</ng-template>
+		</phd-column>
+		<phd-column field="locationGroupName" header="Location Group Name"></phd-column>
+		<phd-column field="groupLabel" header="Label"></phd-column>
+		<phd-column field="locationGroupDescription" header="Description"></phd-column>
+	</phd-table>
+</div>
+
+<div class="d-flex justify-content-end phd-div-button-panel">
+	<button class="btn btn-primary phd-btn-add phd-btn-left" (click)="onAddGroup()" [disabled]="isReadOnly">Add Group</button>
+	<button class="btn btn-primary phd-btn-remove phd-btn-left" *ngIf="groups.length" (click)="createMsgModal()" [disabled]="isReadOnly || saveDisabled">Remove Group(s) <i class="fa fa-spinner fa-spin fa-fw" *ngIf="isSaving"></i></button>
+	<button class="btn btn-primary" *ngIf="groups.length" [disabled]="isReadOnly || this.selectedGroups.length !== 1" (click)="onAssociateCommunities()">Associate Communities</button>
+</div>

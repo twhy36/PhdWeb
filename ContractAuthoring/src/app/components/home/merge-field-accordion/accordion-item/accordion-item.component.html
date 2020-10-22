@@ -1,0 +1,14 @@
+<mat-expansion-panel>
+    <mat-expansion-panel-header>
+        <mat-panel-title>
+            {{title}}
+        </mat-panel-title>
+    </mat-expansion-panel-header>
+    <mat-nav-list>
+        <mat-list-item *ngFor="let mergeField of (mergeFields | async)"
+                       (click)="click.emit(mergeField)">
+            <span> {{mergeField.fieldName}} </span>
+        </mat-list-item>
+    </mat-nav-list>
+</mat-expansion-panel>
+

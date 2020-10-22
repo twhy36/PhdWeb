@@ -1,0 +1,23 @@
+
+
+button {
+	height: 40px;
+	transition: background-color linear 300ms;
+	width: auto;
+
+	/*
+		Shouldn't need these classes defined here.
+		However, .phd-experience-btn-choice overrides the background color.
+		We need to fix this in the near future so it doesn't.
+	*/
+	&.btn-danger {
+		color: #fff;
+		background-color: #dc3545;
+		border-color: #dc3545;
+	}
+
+	&.btn-success {
+		background-color: #28a745;
+		border-color: #28a745;
+	}
+}

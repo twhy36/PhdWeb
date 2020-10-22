@@ -1,0 +1,41 @@
+@import "../../../../../../scss/color-pallet.scss";
+@import "../../../../../../scss/sizes.scss";
+@import "../../../../../../scss/styles.scss";
+
+.div-search-bar {
+	margin-bottom:15px;
+}
+
+::ng-deep wizard-template {
+	flex: 1;
+	overflow: auto;
+}
+
+$border-radius-base: 4px;
+
+::ng-deep search-results {
+	.phd-item-multiselect-results {
+		height: 100% !important;
+		overflow-y: auto;
+		padding: 10px;
+		border: none !important;
+		box-shadow: none !important;
+		border-radius: 0 0 $border-radius-base $border-radius-base;
+		background-color: white;
+
+		a:hover {
+			cursor: pointer;
+			text-decoration: none;
+		}
+
+		a.close {
+			color: white !important;
+		}
+
+		select[multiple] {
+			border: none;
+			width: 100%;
+			overflow-y: auto;
+		}
+	}
+}

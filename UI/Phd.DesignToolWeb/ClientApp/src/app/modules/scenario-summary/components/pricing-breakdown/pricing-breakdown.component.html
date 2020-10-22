@@ -1,0 +1,98 @@
+<div class="phd-price-breakdown">
+	<div>
+		<span class="phd-label">Base Price:</span>
+		<span class="phd-content">{{priceBreakdown.baseHouse | currency:'USD':'symbol':'0.0-0'}}</span>
+	</div>
+	<div *ngIf="!breakdownFilters.includes(breakdownStatus.HOMESITE)">
+		<span class="phd-label">Lot Premium:</span>
+		<span class="phd-content">
+			<ng-container *ngIf="hasHomesite">{{priceBreakdown.homesite | currency:'USD':'symbol':'0.0-0'}}</ng-container>
+			<ng-container *ngIf="!hasHomesite">Not Selected</ng-container>
+		</span>
+	</div>
+	<div *ngIf="breakdownFilters.includes(breakdownStatus.HOMESITE)">
+		<span class="phd-label">Lot Premium Estimate:</span>
+		<price-input [defaultValue]="priceBreakdown.homesiteEstimate" (valueChanged)="onPriceChanged(breakdownStatus.HOMESITE, $event);"></price-input>
+	</div>
+	<div>
+		<span class="phd-label">Options Total:</span>
+		<span class="phd-content">{{priceBreakdown.selections | currency:'USD':'symbol':'0.0-0'}}</span>
+	</div>
+
+	<div *ngIf="priceBreakdown.nonStandardSelections">
+		<span class="phd-label">Non-Standard Options:</span>
+		<span class="phd-content">{{priceBreakdown.nonStandardSelections | currency:'USD':'symbol':'0.0-0'}}</span>
+	</div>
+
+	<div *ngIf="breakdownFilters.includes(breakdownStatus.DESIGN)">
+		<span class="phd-label">Design Estimate:</span>
+		<price-input [defaultValue]="priceBreakdown.designEstimate" (valueChanged)="onPriceChanged(breakdownStatus.DESIGN, $event);"></price-input>
+	</div>
+	<div *ngIf="breakdownFilters.includes(breakdownStatus.DISCOUNT) && allowEstimates">
+		<span class="phd-label">Sales Incentive Estimate:</span>
+		<price-input [defaultValue]="priceBreakdown.salesProgram" [showAsNegative]="true" (valueChanged)="onPriceChanged(breakdownStatus.DISCOUNT, $event);"></price-input>
+	</div>
+	<div *ngIf="breakdownFilters.includes(breakdownStatus.DISCOUNT) && !allowEstimates">
+		<span class="phd-label">Sales Incentive:</span>
+		<span class="phd-content">({{priceBreakdown.salesProgram | currency:'USD':'symbol':'0.0-0'}})</span>
+	</div>
+
+	<div *ngIf="priceBreakdown.priceAdjustments">
+		<span class="phd-label">Price Adjustments:</span>
+		<span class="phd-content">{{priceBreakdown.priceAdjustments | currency:'USD':'symbol':'0.0-0' | minusSignToParens}}</span>
+	</div>
+
+	<div class="phd-total">
+		<span class="phd-label">TOTAL PURCHASE PRICE:</span>
+		<span class="phd-content">{{priceBreakdown.totalPrice | currency:'USD':'symbol':'0.0-0'}}</span>
+	</div>
+	<div class="phd-closing-incentive" *ngIf="breakdownFilters.includes(breakdownStatus.CLOSING) && allowEstimates">
+		<span class="phd-label">Closing Cost Incentive Estimate:</span>
+		<price-input [defaultValue]="priceBreakdown.closingIncentive" (valueChanged)="onPriceChanged(breakdownStatus.CLOSING, $event);"></price-input>
+	</div>
+	<div class="phd-closing-incentive" *ngIf="(breakdownFilters.includes(breakdownStatus.CLOSING) || breakdownFilters.includes(breakdownStatus.CLOSINGCOSTADJUSTMENT)) && !allowEstimates">
+		<span class="phd-label">Closing Cost Incentive:</span>
+		<span class="phd-content">{{(priceBreakdown.closingIncentive + priceBreakdown.closingCostAdjustment) | currency:'USD':'symbol':'0.0-0'}}</span>
+	</div>
+</div>
+
+<div class="phd-price-breakdown-filter" *ngIf="allowEstimates && canConfigure">
+	<div ngbDropdown class="phd-price-breakdown-filter-dropdown d-inline-block" placement="bottom-right" autoClose="outside">
+		<div id="breakdownDropdown" ngbDropdownToggle class="phd-breakdown-link d-flex align-items-center">
+			<i class="fas fa-angle-down"></i>
+			Add Field(s):
+		</div>
+		<div ngbDropdownMenu aria-labelledby="breakdownDropdown">
+			<ul class="list-group list-group-flush phd-breakdown">
+				<li class="list-group-item phd-breakdown-item" *ngIf="!hasHomesite">
+					<div>Lot Premium Estimate</div>
+					<label class="switch">
+						<input type="checkbox" (change)="onBreakdownFilterChange(breakdownStatus.HOMESITE)" [checked]="breakdownFilters?.includes(breakdownStatus.HOMESITE)">
+						<span class="slider round"></span>
+					</label>
+				</li>
+				<li class="list-group-item phd-breakdown-item">
+					<div>Design Estimate</div>
+					<label class="switch">
+						<input type="checkbox" (change)="onBreakdownFilterChange(breakdownStatus.DESIGN)" [checked]="breakdownFilters?.includes(breakdownStatus.DESIGN)">
+						<span class="slider round"></span>
+					</label>
+				</li>
+				<li class="list-group-item phd-breakdown-item">
+					<div>Sales Incentive Estimate</div>
+					<label class="switch">
+						<input type="checkbox" (change)="onBreakdownFilterChange(breakdownStatus.DISCOUNT)" [checked]="breakdownFilters?.includes(breakdownStatus.DISCOUNT)">
+						<span class="slider round"></span>
+					</label>
+				</li>
+				<li class="list-group-item phd-breakdown-item">
+					<div>Closing Cost Incentive Estimate</div>
+					<label class="switch">
+						<input type="checkbox" (change)="onBreakdownFilterChange(breakdownStatus.CLOSING)" [checked]="breakdownFilters?.includes(breakdownStatus.CLOSING)">
+						<span class="slider round"></span>
+					</label>
+				</li>
+			</ul>
+		</div>
+	</div>
+</div>

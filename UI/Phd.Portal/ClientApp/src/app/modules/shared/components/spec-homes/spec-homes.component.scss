@@ -1,0 +1,31 @@
+.phd-spec-home {
+  padding: 20px;
+
+  sales-community-selector {
+    border-bottom: none;
+  }
+}
+
+/* Modal styling specific to the spec homes modal */
+.phd-home-modal {
+
+  .phd-button-group {
+    background: #fff;
+    margin: 0;
+    padding: 1em;
+  }
+
+  sales-community-selector {
+    background: #fff !important;
+
+    form > div {
+      flex-direction: column !important;
+    }
+
+    .phd-select-menus .form-group {
+      margin: 0;
+      padding: .25em;
+      width: 100%;
+    }
+  }
+}

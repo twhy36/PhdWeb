@@ -1,0 +1,45 @@
+<ng-template #headerTemplate>
+	Select Choices to Update or Inactivate in Trees
+</ng-template>
+
+<div class="d-flex flex-row mx-2 phd-table-container">
+	<table class="table table-striped table-sm">
+		<tbody>
+			<ng-container *ngFor="let group of groups">
+				<tr *ngIf="group.matched" class="phd-group">
+					<td>
+						<i class="fa fa-fw" (click)="group.open = !group.open" [class.fa-chevron-up]="group.open" [class.fa-chevron-down]="!group.open"></i>
+						<span>{{group.label}}</span>
+					</td>
+				</tr>
+
+				<ng-container *ngFor="let subGroup of group.subGroups">
+					<tr *ngIf="group.open && subGroup.matched" class="phd-subgroup">
+						<td class="phd-child">
+							<i class="fa fa-fw" (click)="subGroup.open = !subGroup.open" [class.fa-chevron-up]="subGroup.open" [class.fa-chevron-down]="!subGroup.open"></i>
+							<span>{{subGroup.label}}</span>
+						</td>
+					</tr>
+
+					<ng-container *ngFor="let point of subGroup.points">
+						<tr *ngIf="group.open && subGroup.open && point.matched" class="phd-point">
+							<td class="phd-grand-child">
+								<i class="fa fa-fw" (click)="point.open = !point.open" [class.fa-chevron-up]="point.open" [class.fa-chevron-down]="!point.open"></i>
+								<span>{{point.label}}</span>
+							</td>
+						</tr>
+
+						<ng-container *ngFor="let choice of point.choices">
+							<tr *ngIf="point.open && subGroup.open && group.open && choice.matched" class="phd-choice">
+								<td class="phd-great-grand-child">
+									<input type="checkbox" id="chocie-{{choice.id}}" (change)="updateChoiceList(choice)" [checked]="isChecked(choice)" class="form-check-input phd-choice-checkbox" />
+									<label for="chocie-{{choice.id}}" class="form-check-label">{{choice.label}}</label>
+								</td>
+							</tr>
+						</ng-container>
+					</ng-container>
+				</ng-container>
+			</ng-container>
+		</tbody>
+	</table>
+</div>

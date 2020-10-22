@@ -1,0 +1,45 @@
+@import "../../../../../scss/color-pallet.scss";
+@import "../../../../../scss/sizes.scss";
+
+::ng-deep .inactive-plan {
+	color: hsl(0,0,55) !important;
+	font-style: italic;
+}
+
+.phd-align-right {
+    position: absolute;
+    right: 0px;
+    margin-right: 150px;
+}
+
+.phd-phase-check {
+    margin-right:20px;
+    font-size:1.2rem;
+}
+
+::ng-deep th {
+	position: relative;
+
+	a {
+		font-weight: normal;
+		border-bottom: 1px dotted #999;
+		cursor: pointer;
+	}
+}
+
+.phd-icon-container {
+	display: flex;
+	justify-content: flex-end;
+	margin-right: 15px;
+
+	i {
+		width: 30px;
+		text-align: center;
+		
+		&:hover {
+			background-color: #1a5e80;
+			color: #fff;
+			cursor: pointer;
+		}
+	}
+}

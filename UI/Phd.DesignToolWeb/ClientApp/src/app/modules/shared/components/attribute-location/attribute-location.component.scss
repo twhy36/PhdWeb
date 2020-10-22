@@ -1,0 +1,53 @@
+.phd-attribute-location {
+	min-width: 400px;
+
+	h5 {
+		display: inline;
+	}
+
+	a {
+		cursor: pointer;
+	}
+
+	.heading {
+		margin-left: auto;
+		display: inline;
+	}
+
+	.arrow {
+		color: #4a4a4a;
+	}
+
+	.phd-selected-item {
+		margin-left: 5px;
+
+		label {
+			font-size: 12px;
+			display: inline;
+		}
+	}
+
+	.phd-qty-label {
+		margin-left: auto;
+	}
+
+	.phd-qty {
+		margin-left: 5px;
+
+		input {
+			width: 4em;
+		}
+	}
+
+	.phd-attr-group-arrows {
+		margin-left: 5px;
+		width: 25px;
+	}
+
+	.phd-attribute-group-container {
+		max-height: 250px;
+		overflow-y: auto;
+		border: .5px solid lightgrey;
+		margin-top: 0.5em;
+	}
+}

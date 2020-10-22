@@ -1,0 +1,7 @@
+<div class="row div-tab-panel">
+	<phd-table [value]="locationGroups" [displayTooltip]="false" tableId="expansionAssociatedLocationGroupTabPanel" *ngIf="locationGroups.length">
+		<phd-column field="locationGroupName" header="Associated Location Groups"></phd-column>
+	</phd-table>
+
+	<ng-container *ngIf="!locationGroups.length">No Associated Location Groups Found.</ng-container>
+</div>

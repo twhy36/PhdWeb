@@ -1,0 +1,123 @@
+@import "../../../../../scss/color-pallet.scss";
+
+.detail-container {
+	width: 100%;
+	max-width: 1400px;
+	background-color: white;
+	border-radius: 4px;
+	min-height: 45px;
+	font-size: 14px;
+	line-height: 1.36;
+	padding: 20px;
+
+	.header {
+		font-weight: 500;
+		max-height: 40px;
+		height: 100%;
+		padding-bottom: 15px;
+		text-transform: uppercase;
+		border: none;
+		transition: all .3s;
+	}
+
+	.form-control {
+		max-width: 300px;
+
+		&.phd-email-input {
+			min-width: 300px;
+		}
+
+		&.phd-phone-number-input {
+			max-width: 150px;
+		}
+
+		&.phd-phone-ext-input {
+			max-width: 100px;
+		}
+	}
+
+	.name-input-group {
+		#first-name,
+		#middle-name,
+		#last-name {
+			flex-basis: 20%;
+			min-width: 100px
+		}
+
+		#prefix,
+		#suffix {
+			flex-basis: 10%;
+			min-width: 100px
+		}
+	}
+
+	.fa-times-circle {
+		color: $darkish-pink;
+		position: absolute;
+		right: 10px;
+		top: 10px;
+		font-size: 18px;
+		cursor: pointer;
+
+		&:hover {
+			color: $darkish-pink-hover;
+		}
+	}
+
+	.edit {
+		cursor: pointer;
+		color: $marine;
+
+		&:hover {
+			color: #1a5e80;
+		}
+	}
+
+	.view-detail-container {
+		* {
+			flex-grow: 1;
+		}
+
+		.label {
+			font-weight: 500;
+			line-height: 2;
+			text-transform: uppercase;
+		}
+	}
+}
+
+.form-group {
+	margin-bottom: 0;
+}
+
+.form-group.ng-invalid {
+	border: solid 1px $darkish-pink;
+	border-left-width: 5px;
+	box-shadow: none;
+}
+
+/*.form-group.ng-valid {
+	border: solid 1px #5cb85c;
+	border-left-width: 5px;
+	box-shadow: none;
+}*/
+
+.phd-array-group {
+	background-color: #f2f2f2;
+	border-radius: 4px;
+	box-shadow: 2px 2px 1px 0 rgba(0,0,0,.16);
+}
+
+.phd-form-label {
+	padding-top: 4px;
+	font-size: .8em;
+}
+
+a.btn {
+	color: $link-blue;
+	font-size: .9em;
+}
+
+.phd-error-message {
+	padding-left: 10px
+}

@@ -1,0 +1,9 @@
+@import "../../../../../scss/color-pallet.scss";
+
+.modal-footer {
+	justify-content:flex-end;
+}
+
+.ng-invalid:not(form):not(p-calendar) {
+	border-left: 5px solid $brand-danger;
+}

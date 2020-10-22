@@ -1,0 +1,40 @@
+@import "../../../../../scss/color-pallet.scss";
+@import "../../../../../scss/animations.scss";
+@import "../../../../../scss/sizes.scss";
+
+.nav {
+    max-width: 450px;
+    width: 100%;
+    margin-bottom: 30px;
+    li {
+        flex-basis: 33.33%;
+        a {
+            border-bottom-style: solid;
+            border-bottom-width: 1px;
+            font-size: 18px;
+            font-weight: 300;
+            &.active {
+                font-weight: normal;
+                border-bottom-width: 4px;
+            }
+        }
+    }
+}
+
+#plan-experience-header {
+    font-size: 36px;
+    font-weight: 300;
+    margin-bottom: 35px;
+}
+
+.modal-buttons {
+    button {
+        flex-basis: 50%;
+        height: 75px;
+        border-radius: 0;
+    }
+}
+
+.phd-plans-bottom-margin {
+	margin-bottom: 80px;
+}

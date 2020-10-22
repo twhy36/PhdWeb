@@ -1,0 +1,68 @@
+<phd-side-panel-component [headerTemplate]="header" [subheaderTemplate]="subheader" [bodyTemplate]="body" [footerTemplate]="footer" [sidePanelOpen]="sidePanelOpen" (onSidePanelClose)="onCloseSidePanel($event)" [isDirty]="isDirty">
+	<ng-template #header>
+		<h4 class="phd-side-panel-header"><strong>Homesite Plan Assignments</strong></h4>
+	</ng-template>
+
+	<ng-template #subheader>
+		<div class="phd-side-panel-subheader-text">{{ sidePanelSubheader }}</div>
+	</ng-template>
+
+	<ng-template #body>
+		<div class="container pt-3">
+			<form [formGroup]="planAssignmentForm">
+				<div class="phd-item-multiselect">
+
+					<div class="form-group">
+						<label for="searchForItems">{{ searchForItemsLabel }}</label>
+
+						<div class="phd-item-multiselect-results">
+							<ng-container *ngIf="notFoundLabel.length > 0">{{ notFoundLabel }}</ng-container>
+
+							<select id="phd-select-lots" *ngIf="(selectedItems.length !== 0 || filteredLotTags.length !== 0)" formControlName="pendingSelection" multiple size="9" [ngClass]="selectLotClass">
+								<option *ngFor="let tag of filteredLotTags" [ngValue]="tag.id">{{ tag.label }}</option>
+							</select>
+						</div>
+
+						<div class="text-center phd-buttons-row">
+							<button class="btn btn-sm btn-secondary mr-1" (click)="addHighlightedItems();" [disabled]="filteredLotTags.length === 0"><i class="fa fa-angle-down fa-fw"></i></button>
+							<button class="btn btn-sm btn-secondary mr-1" (click)="addAllItems();" [disabled]="filteredLotTags.length === 0"><i class="fa fa-angle-double-down fa-fw"></i></button>
+							<button class="btn btn-sm btn-secondary" (click)="removeAllItems();"><i class="fa fa-angle-double-up fa-fw"></i></button>
+						</div>
+
+						<div class="form-group">
+							<label for="selectedItemsTags">{{ selectedItemsTagsLabel }}</label>
+							<div id="selectedItemsTags" *ngIf="selectedItems.length > 0" class="phd-tagsinput" [class.phd-tags-4row]="selectedItems.length > 16">
+								<div class="phd-tag" *ngFor="let tag of selectedItems">
+									<span>{{ tag.label }}</span>
+									<a class="phd-tagsinput-remove-link" (click)="removeItem(tag)"></a>
+								</div>
+							</div>
+
+							<div id="noSelectedItemsTags" class="phd-tagsinput" *ngIf="selectedItems.length === 0">
+								<div class="phd-tag">
+									<span>No Homesites Selected</span>
+								</div>
+							</div>
+
+							<input type="hidden" id="selectedLots" name="selectedLots" formControlName="selectedLots" />
+						</div>
+					</div>
+				</div>
+			</form>
+		</div>
+	</ng-template>
+
+	<ng-template #footer>
+		<div class="pull-right">
+			<button class="btn btn-primary phd-btn-save" (click)="assignPlanLot();" [disabled]="canSave">
+				Save
+
+				<ng-container *ngIf="saving">
+					<i class="fa fa-spinner fa-spin fa-fw"></i>
+				</ng-container>
+			</button>
+
+			<button class="btn btn-secondary" (click)="onCancel()">Cancel</button>
+		</div>
+	</ng-template>
+</phd-side-panel-component>

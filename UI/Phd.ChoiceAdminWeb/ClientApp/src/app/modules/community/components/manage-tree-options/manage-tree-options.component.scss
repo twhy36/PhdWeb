@@ -1,0 +1,44 @@
+@import "../../../../../scss/color-pallet.scss";
+@import "../../../../../scss/sizes.scss";
+
+:host {
+    display: -webkit-flex;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.page-container, .page-body {
+    display: -webkit-flex;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.page-body {
+    background-color: #fff;
+    overflow-y: auto;
+}
+
+.phd-msg-list-group-item {
+	cursor: pointer;
+}
+
+#newTreeButtons {
+	.dropdown-item {
+		cursor: pointer;
+	}
+}
+
+phd-action-buttons-item {
+	i {
+		&.disabled {
+			opacity: 0.65;
+			cursor: not-allowed !important;
+		}
+	}
+}
+
+::ng-deep .phd-main-title-addon {
+	color: #007bff;
+}

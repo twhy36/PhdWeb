@@ -1,0 +1,66 @@
+@import "../../../../../scss/color-pallet.scss";
+
+.phd-label-col {
+	top:5px;
+	text-align: right;
+}
+
+.phd-commission {
+	max-width: 85px;
+}
+
+.ng-invalid:not(form):not(tr):not(.ng-pristine) {
+	border: solid 1px $darkish-pink;
+	border-left-width: 5px;
+	box-shadow: none;
+}
+
+.ui-inputtext {
+	border-bottom-color: none;
+}
+
+p-autocomplete.ng-invalid {
+	border: initial !important;
+	border-left-width: initial !important;
+	box-shadow: initial !important;
+}
+
+p-autocomplete.ng-dirty.ng-invalid ::ng-deep > .ui-autocomplete > .ui-inputtext {
+	border: solid 1px $darkish-pink;
+	border-left-width: 5px;
+	box-shadow: none;
+}
+
+::ng-deep .ui-autocomplete-loader {
+	display: none;
+}
+
+.phd-spinner-container {
+	display: inline-block;
+	position: absolute;
+}
+
+.phd-spinner-position {
+	position: relative;
+	right: 1.75em;
+	margin-top: 0.7em;
+}
+
+.phd-commission-div {
+	max-width: 90px;
+}
+
+.phd-consultant-table {
+	width: auto;
+
+	th {
+		background: none;
+		color: inherit;
+		text-transform: none;
+	}
+}
+
+.phd-consultant-auto {
+	overflow:visible;
+	white-space: nowrap;
+}

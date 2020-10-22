@@ -1,0 +1,10 @@
+.div-tab-panel .phd-expansion-padding-override {
+	padding: .25em 1em;
+}
+
+::ng-deep .div-sub-tab-panel {
+	height: 160px;
+	padding: 10px 20px;
+	overflow-y: auto;
+}
+

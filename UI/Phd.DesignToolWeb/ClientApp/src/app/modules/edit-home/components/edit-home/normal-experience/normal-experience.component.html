@@ -1,0 +1,52 @@
+<div class="phd-normal-experience">
+	<div>
+		<tree-filter [treeFilter]="treeFilter"></tree-filter>
+	</div>
+
+	<page-header [mainTitle]="point?.label" [subTitle]="getSubTitle()" [class.phd-hide]="errorMessage.length > 0"></page-header>
+
+	<div class="phd-error-msg-body" *ngIf="errorMessage.length > 0">
+		<error-message  [@flipOver]>
+			<ng-template #body>{{ errorMessage }}</ng-template>
+		</error-message>
+	</div>
+
+	<div class="phd-experience-body" [class.phd-hide]="errorMessage.length > 0">
+		<div class="phd-point-bar">
+			<decision-bar (onSelectDecisionPoint)="selectDecisionPoint($event)" [decisionPoints]="subGroup.points" [showStatusIndicator]="showStatusIndicator"></decision-bar>
+		</div>
+
+		<div class="p-2 d-flex flex-wrap phd-choice-cards">
+			<choice-card *ngFor="let choice of choices"
+							[currentChoice]="choice"
+							[currentDecisionPoint]="point"
+							[canConfigure]="canConfigure"
+							[canOverride]="canOverride"
+							[agreementStatus]="agreementStatus"
+							[overrideReason]="overrideReason"
+							[buildMode]="buildMode"
+							(toggled)="choiceToggleHandler($event)"
+							(onChoiceModal)="onChoiceModal.emit($event)"
+							(saveAttributes)="saveAttributes()">
+			</choice-card>
+		</div>
+	</div>
+</div>
+
+<action-bar [actionBarStatus]='!complete ? "INCOMPLETE" : "COMPLETE"'
+			[primaryAction]='primaryAction'
+            [price]="priceBreakdown.totalPrice"
+            [changePrice]="priceBreakdown.changePrice"
+            (callToAction)="onCallToAction($event)"
+            [currentDecisionPoint]="point"
+            [inChangeOrder]="inChangeOrder"
+			[canChange]="canConfigure">
+	<ng-template #leftCellTemplate>
+	    <div>
+	        <experience-filter [selectedPointFilter]="selectedPointFilter" [enabledPointFilters]="enabledPointFilters" (pointTypeFilterChanged)="onPointTypeFilterChanged($event)"></experience-filter>
+	    </div>
+	    <div class="flex-grow-1">
+	        <scenario-status [scenarioStatus]="scenarioStatus"></scenario-status>
+	    </div>
+	</ng-template>
+</action-bar>

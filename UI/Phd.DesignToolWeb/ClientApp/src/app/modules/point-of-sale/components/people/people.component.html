@@ -1,0 +1,103 @@
+<ng-container *ngIf="selectedBuyer === null">
+	<div class="d-flex flex-wrap ml-5">
+		<people-card [person]="primaryBuyer$ | async"
+					 personType="Buyer"
+					 [salesAgreementStatus]="salesAgreement ? salesAgreement.status : null"
+					 [isChangingOrder]="isChangingOrder"
+		             [canEditAgreement]="canEditAgreement && (canSell || canDesign)"
+					 [canSell]="canSell || canDesign"
+					 (onEdit)="editBuyer($event)">
+		</people-card>
+
+		<add-card *ngIf="canEditAgreement && (canSell || canDesign) && !(coBuyerNA$ | async)"
+				  [hasNA]="!(coBuyers$ | async) || (coBuyers$ | async).length === 0"
+				  [isNA]="coBuyerNA$ | async"
+				  [label]="'Co-Buyer'"
+				  [labels]="'CoBuyers'"
+				  [btnLabel]="'N/A'"
+				  (onAdd)="addCoBuyer()"
+				  (onNA)="setCoBuyerNA()"></add-card>
+
+		<people-card *ngIf="canEditAgreement && (coBuyerNA$ | async)"
+					 [coBuyerNA]="(coBuyerNA$ | async)"
+		             [canEditAgreement]="canEditAgreement && (canSell || canDesign)"
+		             [canSell]="canSell || canDesign"
+					 personType="Buyer"
+					 (onSetAsNA)="setCoBuyerNA()"
+					 (onAddCoBuyer)="addCoBuyer()"></people-card>
+
+		<people-card *ngFor="let coBuyer of (coBuyers$ | async);"
+					 [person]="coBuyer"
+					 personType="Buyer"
+					 [salesAgreementStatus]="salesAgreement ? salesAgreement.status : null"
+					 [isChangingOrder]="isChangingOrder"
+		             [canEditAgreement]="canEditAgreement && (canSell || canDesign)"
+		             [canSell]="canSell || canDesign"
+					 [originalSignersCount]="originalSignersCount"
+					 (onSetAsPrimaryBuyer)="setPrimaryBuyer($event)"
+					 (onDelete)="deleteCoBuyer($event)"
+					 (onEdit)="editBuyer($event)"
+					 [dragSource]="coBuyer.sortKey"
+					 targetsSelector=".phd-drag-drop"
+					 dragTarget
+					 (handledrop)="handleDrop($event, coBuyer.sortKey)"
+					 (handledragenter)="handleDragEnter($event, coBuyer.sortKey)"
+					 (handledragstart)="handleDragStart($event, coBuyer.sortKey)"
+					 [coBuyerNA]="coBuyerNA$ | async"
+					 (onSetAsNA)="setCoBuyerNA()"
+					 class="phd-drag-drop">
+		</people-card>
+
+		<!-- only display Add Trust box if trust is null and N/A has not been selected -->
+		<add-card *ngIf="!(trust$ | async) && !(trustNA$ | async) && canEditAgreement && (canSell || canDesign)"
+				  [hasNA]="!(trust$ | async) || (trust$ | async).length === 0"
+				  [isNA]="trustNA$ | async"
+				  [label]="'Trust'"
+				  [labels]="'Trusts'"
+				  [btnLabel]="'N/A'"
+				  (onAdd)="addTrust()"
+				  (onNA)="setTrustNA($event)"></add-card>
+
+
+		<!-- show trust if it is not null or N/A has been selected -->
+		<people-card *ngIf="(trust$ | async) || (trustNA$ | async)"
+					 [salesAgreementStatus]="salesAgreement ? salesAgreement.status : null"
+					 [trust]="trust$ | async"
+					 [trustNA]="trustNA$ | async"
+		             [canEditAgreement]="canEditAgreement && (canSell || canDesign)"
+		             [canSell]="canSell || canDesign"
+					 personType="Trust"
+					 (onSetAsNA)="setTrustNA()"
+					 (onEdit)="editTrust($event)"
+					 (onAddTrust)="addTrust()"></people-card>
+
+		<!-- only display Add Realtor box if realtor is null and N/A has not been selected-->
+		<add-card *ngIf="!isChangingOrder && !(realtor$ | async) && !(realtorNA$ | async) && canEditAgreement && canSell"
+				  [hasNA]="!(realtor$ | async) || (realtor$ | async).length === 0"
+				  [isNA]="realtorNA$ | async"
+				  [label]="'Real Estate Agent'"
+				  [labels]="'Real Estate Agents'"
+				  [btnLabel]="'N/A'"
+				  (onAdd)="addRealtor()"
+				  (onNA)="setRealtorNA($event)"></add-card>
+
+		<ng-container *ngIf="!isChangingOrder">
+			<!-- show realtor if it is not null and N/A has been selected -->
+			<people-card *ngIf="(realtor$ | async) || (realtorNA$ | async)"
+						 [salesAgreementStatus]="salesAgreement ? salesAgreement.status : null"
+						 [realtor]="realtor$ | async"
+						 [realtorNA]="realtorNA$ | async"
+						 personType="Realtor"
+			             [canEditAgreement]="canEditAgreement && canSell"
+			             [canSell]="canSell"
+						 (onSetAsNA)="setRealtorNA()"
+						 (onEdit)="editRealtor($event)"
+						 (onAddRealtor)="addRealtor()"></people-card>
+		</ng-container>
+
+	</div>
+</ng-container>
+
+<ng-container *ngIf="selectedBuyer !== null">
+	<buyer-info-detail [buyer]="selectedBuyer" [isChangingOrder]="isChangingOrder" [salesAgreementStatus]="salesAgreement ? salesAgreement.status : null" (onCancel)="selectedBuyer = null" (onSave)="saveBuyer($event)"></buyer-info-detail>
+</ng-container>

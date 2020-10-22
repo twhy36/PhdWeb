@@ -1,0 +1,95 @@
+@import "../../../../../../scss/color-pallet.scss";
+@import "../../../../../../scss/sizes.scss";
+
+$choice-side-panel-width: $side-panel-width;
+
+:host {
+	display: -webkit-flex;
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	position: absolute;
+	bottom: 0;
+	top: 0;
+}
+
+::ng-deep .nav-item {
+	font-size: small;
+}
+
+::ng-deep .container {
+	background-color: #fff;
+	border: 1px solid #dee2e6;
+	border-top: none;
+}
+
+::ng-deep .phd-side-panel {
+	width: $choice-side-panel-width !important;
+	left: -$choice-side-panel-width !important;
+}
+
+::ng-deep .phd-side-panel-open {
+	margin-left: $choice-side-panel-width !important;
+}
+
+::ng-deep .disabled-overlay {
+	position: fixed !important;
+	margin-left: $choice-side-panel-width !important;
+}
+
+input[disabled] {
+	cursor: not-allowed;
+}
+
+.phd-image-card-overview {
+	width: 14.12rem;
+	height: 14.12rem;
+	margin: .5rem;
+}
+
+image-card {
+	i:hover {
+		cursor: pointer;
+	}
+}
+
+.phd-image-container {
+	margin-top: 15px;
+}
+
+.phd-flex-container {
+	padding: 0;
+	margin: 0;
+	list-style: none;
+	display: -webkit-box;
+	display: -moz-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-flex-flow: row wrap;
+	flex-direction: row;
+	justify-content: space-around;
+	align-content: space-around;
+}
+
+.phd-description-label {
+	margin-bottom: 0;
+}
+
+.phd-description-caption {
+	font-size: 10px;
+	font-style: italic;
+	display: block;
+}
+
+.phd-side-panel-body {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
+
+.phd-nav-tab-content {
+	display: flex;
+	flex-direction: column;
+	overflow-y: auto;
+	height: 100%;
+}

@@ -1,0 +1,34 @@
+<div class="phd-page-container">
+    <page-header mainTitle="Monotony Rules"></page-header>
+    <div class="phd-page-body">
+        <div class="phd-table-container mx-2">
+            <phd-table #dt [value]="financialCommunityInfo" sortMode="single">
+                <phd-column header="Community">
+                    <ng-template #body let-financialCommunityInfo>
+                        {{ financialCommunityInfo.financialCommunityName }}
+                    </ng-template>
+                </phd-column>
+                <phd-column header="">
+					<ng-template #body let-financialCommunityInfo>
+						<button type="button" class="btn btn-md btn-link" (click)="setCurrentCommunity(financialCommunityInfo)"
+								[routerLink]="['/lot-management/manage-homesites']" [queryParams]="{activeTab:'monotony'}" queryParamsHandling="merge" [routerLinkActive]="['active']">Manage</button>
+					</ng-template>
+                </phd-column>
+                <phd-column header="Elevation/Plan">
+                    <ng-template #body let-financialCommunityInfo>
+                        <button class="btn btn-sm btn-toggle btn-monotonyrule" [disabled]="!canEdit ? 'disabled' : null" [ngClass]="{'active': !financialCommunityInfo.isElevationMonotonyRuleEnabled, 'btn-success':  financialCommunityInfo.isElevationMonotonyRuleEnabled, 'btn-secondary': !financialCommunityInfo.isElevationMonotonyRuleEnabled }" (click)="toggleElevationRule(financialCommunityInfo)">
+                            <div class="handle"></div>
+                        </button>
+                    </ng-template>
+                </phd-column>
+                <phd-column header="Color Scheme">
+                    <ng-template #body let-financialCommunityInfo>
+                        <button class="btn btn-sm btn-toggle btn-monotonyrule" [disabled]="!canEdit ? 'disabled' : null" [ngClass]="{'active': !financialCommunityInfo.isColorSchemeMonotonyRuleEnabled, 'btn-success':  financialCommunityInfo.isColorSchemeMonotonyRuleEnabled, 'btn-secondary': !financialCommunityInfo.isColorSchemeMonotonyRuleEnabled }" (click)="toggleColorScheme(financialCommunityInfo)">
+                            <div class="handle"></div>
+                        </button>
+                    </ng-template>
+                </phd-column>
+            </phd-table>
+        </div>
+    </div>
+</div>

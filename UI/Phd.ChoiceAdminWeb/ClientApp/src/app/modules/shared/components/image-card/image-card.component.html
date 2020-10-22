@@ -1,0 +1,13 @@
+<div class="phd-image-card" [ngClass]="customClasses">
+	<div class="phd-image-card-header" *ngIf="showHeader && headerTemplate">
+		<ng-container *ngTemplateOutlet="headerTemplate"></ng-container>
+	</div>
+
+	<div class="phd-image-card-body" *ngIf="bodyTemplate">
+		<ng-container *ngTemplateOutlet="bodyTemplate"></ng-container>
+	</div>
+
+	<div class="phd-image-card-footer" *ngIf="showFooter && footerTemplate">
+		<ng-container *ngTemplateOutlet="footerTemplate"></ng-container>
+	</div>
+</div>

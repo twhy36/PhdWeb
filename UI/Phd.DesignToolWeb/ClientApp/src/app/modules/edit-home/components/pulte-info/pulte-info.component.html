@@ -1,0 +1,209 @@
+<h2>Spec Information</h2>
+<form *ngIf="pulteInfoSet" [formGroup]="pulteInfoForm">
+    <div class="phd-pulteinfo-flexbox">
+       <div>
+            <div class="phd-info">
+                <div class="phd-items">
+                    <label>Projected Final Date</label>
+                </div>
+                <div class="phd-items" *ngIf="projectedFinalDate">
+                    <input class="phd-items form-control" type="text" readonly [value]="projectedFinalDate | date:'shortDate'">
+                </div>
+                <div class="phd-items" *ngIf="!projectedFinalDate">
+                    <input class="phd-items form-control" type="text" readonly>
+                </div>
+            </div>
+		   <div class="phd-info">
+			   <div class="phd-items">
+				   <label>Construction Stage</label>
+			   </div>
+			   <div class="phd-items">
+				   <input class="phd-items form-control" type="text" readonly [value]="job?.constructionStageName">
+			   </div>
+		   </div>
+            <div class="phd-info">
+                <div class="phd-items">
+                    <label>Tagline</label>
+                </div>
+                <div class="phd-items">
+                    <input formControlName="tagLines" class="form-control" type="text" id="tagLines"
+                    maxlength="250" [value]="pulteInfo.webSiteDescription" [controlDisabled]="!canEdit" />
+                </div>
+            </div>
+            <div class="phd-info">
+                <div class="phd-items">
+                    <label>Display On Pulte.com</label>
+                </div>
+                <div class="phd-items">
+                    <input formControlName="displayOnPulte" type="checkbox" [value]="pulteInfo.isPublishOnWebSite"
+                        id="displayOnPulte" [controlDisabled]="!canEdit">
+                </div>
+            </div>
+            <div class="phd-info">
+                <div class="phd-items">
+                    <label>Discount from sales price</label>
+                </div>
+                <div class="phd-items">
+                    <input formControlName="discountAmount" type="number" class="form-control" id="discountAmount"
+                        [value]="pulteInfo.discountAmount" min="0" [controlDisabled]="!canEdit">
+                </div>
+            </div>
+            <div class="phd-info">
+                <div class="phd-items">
+                    <label>Discount Expiration Date</label>
+                </div>
+                <div class="phd-items">
+                    <p-calendar formControlName="discountExpirationDate" dateFormat="mm/dd/yy"
+                        readonlyInput="true" [minDate]="minDate" [(ngModel)]="pulteInfo.discountExpirationDate" *ngIf="canEdit; else readonlyDiscExpDate"></p-calendar>
+					<ng-template #readonlyDiscExpDate>
+						<input type="text" class="form-control" [value]="pulteInfo.discountExpirationDate" disabled />
+					</ng-template>
+                </div>
+            </div>
+            <div class="phd-info">
+                <div class="phd-items">
+                    <label>Hot Home</label>
+                </div>
+                <div class="phd-items">
+                    <input formControlName="hotHome" type="checkbox"  [value]="pulteInfo.isHotHomeActive" id="hotHome" [controlDisabled]="!canEdit">
+                </div>
+            </div>
+            <br>
+            <div class="phd-info">
+                <div class="phd-items">
+                    <label>Key Selling Point #1</label>
+                </div>
+                <div class="phd-items">
+                    <input type="text" class="form-control" id="keySellingPoint1" [value]="pulteInfo.hotHomeBullet1"
+                        formControlName="keySellingPoint1" maxlength="40" [controlDisabled]="!canEdit"/>
+                </div>
+            </div>
+            <div class="phd-info">
+                <div class="phd-items">
+                    <label>Key Selling Point #2</label>
+                </div>
+                <div class="phd-items">
+                    <input type="text" class="form-control" id="keySellingPoint2" [value]="pulteInfo.hotHomeBullet2"
+                        formControlName="keySellingPoint2" maxlength="40" [controlDisabled]="!canEdit" />
+                </div>
+            </div>
+            <div class="phd-info">
+                <div class="phd-items">
+                    <label>Key Selling Point #3</label>
+                </div>
+                <div class="phd-items">
+                    <input type="text" class="form-control" id="keySellingPoint3" [value]="pulteInfo.hotHomeBullet3"
+                        formControlName="keySellingPoint3" maxlength="40" [controlDisabled]="!canEdit" />
+                </div>
+            </div>
+            <div class="phd-info">
+                <div class="phd-items">
+                    <label>Key Selling Point #4</label>
+                </div>
+                <div class="phd-items">
+                    <input type="text" class="form-control" id="keySellingPoint4" [value]="pulteInfo.hotHomeBullet4"
+                        formControlName="keySellingPoint4" maxlength="40" [controlDisabled]="!canEdit" />
+                </div>
+            </div>
+            <div class="phd-info">
+                <div class="phd-items">
+                    <label>Key Selling Point #5</label>
+                </div>
+                <div class="phd-items">
+                    <input type="text" class="form-control" id="keySellingPoint5" [value]="pulteInfo.hotHomeBullet5"
+                        formControlName="keySellingPoint5" maxlength="40" [controlDisabled]="!canEdit" />
+                </div>
+            </div>
+            <div class="phd-info">
+                <div class="phd-items">
+                    <label>Key Selling Point #6</label>
+                </div>
+                <div class="phd-items">
+                    <input type="text" class="form-control" id="keySellingPoint6" [value]="pulteInfo.hotHomeBullet6"
+                        formControlName="keySellingPoint6" maxlength="40" [controlDisabled]="!canEdit" />
+                </div>
+            </div>
+            <br>
+            <div class="phd-info">
+                <div class="phd-items">
+                </div>
+                <div class="phd-items">
+                    <label class="phd-underline">Default</label>
+                </div>
+                <div class="phd-items">
+                    <label class="phd-underline">Overwrite</label>
+                </div>
+            </div>
+            <div class="phd-info">
+                <div class="phd-items">
+                    <label>Full Baths</label>
+                </div>
+                <div class="phd-items">
+                    <label>{{fullBathsDefault}}</label>
+                </div>
+                <div class="phd-items-default">
+                    <input type="number" class="form-control" id="fullBaths" [value]="pulteInfo.numberFullBathOverride"
+                        maxlength="25" min="0" formControlName="fullBaths" [controlDisabled]="!canEdit" />
+                </div>
+            </div>
+            <div class="phd-info">
+                <div class="phd-items">
+                    <label>Half Baths</label>
+                </div>
+                <div class="phd-items">
+                    <label>{{halfBathsDefault}}</label>
+                </div>
+                <div class="phd-items-default">
+                    <input type="number" class="form-control" id="halfBaths" [value]="pulteInfo.numberHalfBathOverride"
+                        maxlength="25" min="0" formControlName="halfBaths" [controlDisabled]="!canEdit" />
+                </div>
+            </div>
+            <div class="phd-info">
+                <div class="phd-items">
+                    <label>Bedrooms</label>
+                </div>
+                <div class="phd-items">
+                    <label>{{bedroomsDefault}}</label>
+                </div>
+                <div class="phd-items-default">
+                    <input type="number" class="form-control" id="bedrooms" [value]="pulteInfo.numberBedOverride"
+                        maxlength="25" min="0" formControlName="bedrooms" [controlDisabled]="!canEdit" />
+                </div>
+            </div>
+            <div class="phd-info">
+                <div class="phd-items">
+                    <label>Square Feet</label>
+                </div>
+                <div class="phd-items">
+                    <label>{{squareFeetDefault}}</label>
+                </div>
+                <div class="phd-items-default">
+                    <input type="number" class="form-control" id="squareFeet" [value]="pulteInfo.squareFeetOverride"
+                        maxlength="25" min="0" formControlName="squareFeet" [controlDisabled]="!canEdit" />
+                </div>
+            </div>
+            <div class="phd-info">
+                <div class="phd-items">
+                    <label>Number Of Garages</label>
+                </div>
+                <div class="phd-items">
+                    <label>{{numberOfGaragesDefault}}</label>
+                </div>
+                <div class="phd-items-default">
+                    <input type="number" class="form-control" id="numberOfGarages" min="0"
+                        [value]="pulteInfo.numberGarageOverride" maxlength="25" formControlName="numberOfGarages" [controlDisabled]="!canEdit" />
+                </div>
+            </div>
+            <br>
+        </div>
+    </div>
+</form>
+<action-bar
+    [actionBarStatus]="actionBarStatus"
+	[price]="(priceBreakdown$ | async)?.totalPrice"
+	[changePrice]="(priceBreakdown$ | async)?.changePrice"
+	[inChangeOrder]="(isChangingOrder$ | async)"
+	primaryAction='Save'
+	(callToAction)="savePulteInformation()"
+    [canChange]="canSell$ | async">
+</action-bar>

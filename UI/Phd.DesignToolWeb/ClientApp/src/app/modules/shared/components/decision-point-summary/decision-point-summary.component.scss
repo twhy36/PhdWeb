@@ -1,0 +1,180 @@
+@import "../../../../../scss/color-pallet.scss";
+
+.phd-point {
+	font-size: 14px;
+	line-height: 1.36;
+	margin: 0 20px;
+	transition: all .3s;
+	min-height: 60px;
+	display: flex;
+	justify-content: flex-start;
+
+
+
+	&.filtered {
+		height: 25px;
+		opacity: .5;
+		overflow: hidden;
+		font-size: 10px;
+
+		.actions {
+			button {
+				visibility: hidden;
+			}
+		}
+	}
+
+	.phd-point-details {
+		text-transform: capitalize;
+		flex-basis: 100%;
+
+		.phd-point-label {
+			flex-basis: 20%;
+		}
+
+		.phd-point-status {
+			flex-basis: 5%;
+			font-size: 12px;
+			width: 12px;
+			height: 12px;
+			font-weight: 500;
+			position: relative;
+
+			::ng-deep .phd-status-indicator {
+				position: absolute;
+				top: 0;
+				width: 12px !important;
+				transition: all .3s ease;
+			}
+		}
+
+		select {
+			max-width: 130px;
+			width: 100%;
+			font-weight: normal;
+			line-height: normal;
+			font-size: 14px;
+			padding-right: 10px;
+		}
+
+		.phd-choice {
+			display: flex;
+			flex-direction: column;
+			flex: 1;
+			margin-top: 5px;
+
+			.phd-choice-detail {
+				display: flex;
+				margin-bottom: 5px;
+				margin-right: 5px;
+
+				.phd-choice-header {
+					flex: 1;
+				}
+
+				.phd-choice-expand {
+					width: 1.5em;
+				}
+
+				.phd-choice-body {
+					flex: 1;
+
+					.phd-choice-quantity {
+						font-weight: bold;
+						display: flex;
+						justify-content: space-between;
+					}
+
+					.phd-choice-attributes-body {
+						display: flex;
+						flex-direction: column;
+						flex: 1;
+
+						&:not(:last-child) {
+							margin-bottom: 3em;
+						}
+
+						.phd-label {
+							font-weight: bold;
+						}
+
+						.phd-location {
+							display: flex;
+							justify-content: space-between;
+						}
+
+						.phd-attribute {
+							display: flex;
+							justify-content: space-between;
+						}
+					}
+				}
+
+				.phd-divider {
+					margin: 0px 15px;
+					background: #d4d4d4;
+					width: 1.5px;
+				}
+
+				.actions {
+					flex-basis: 35%;
+					font-size: 14px;
+					font-weight: 500;
+				}
+			}
+		}
+	}
+
+	.actions {
+		font-size: 14px;
+		font-weight: 500;
+
+		a {
+			color: $bluish;
+			text-transform: lowercase;
+			cursor: pointer;
+		}
+
+		button {
+			width: 85px;
+			height: 40px;
+			font-weight: 500;
+			font-size: 12px;
+
+			&.dirty {
+				color: white;
+				border: none;
+				background-color: $bluish;
+			}
+		}
+	}
+}
+
+.phd-quantity {
+	width: 60px !important;
+	display: inline-block !important;
+	height: 25px;
+	font-size: 13px;
+}
+
+.dropdown-toggle {
+	width: 150px;
+	font-size: 13px;
+	text-align: left;
+	background-color: transparent;
+	border: 1px solid lightgrey;
+}
+
+.dropdown-item {
+	text-transform: none;
+	font-size: 13px;
+	padding: .20rem 1.5rem;
+}
+
+.dropdown-active-item {
+	font-weight: bold;
+}
+
+a:hover {
+	background-color: #E6E6FA;
+}

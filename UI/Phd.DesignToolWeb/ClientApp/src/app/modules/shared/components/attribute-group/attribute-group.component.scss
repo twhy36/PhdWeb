@@ -1,0 +1,81 @@
+.phd-attribute-group-container {
+	display: flex;
+	align-items: flex-start;
+	flex-direction: column;
+	min-width: 400px;
+	padding-top: 10px;
+
+	.phd-attribute-group-header {
+		display: flex;
+		width: 100%;
+	}
+
+	.phd-attribute-group-body {
+		width: 100%;
+	}
+
+	.label {
+		flex: 1;
+		text-overflow: ellipsis;
+		overflow: hidden;
+		padding-left: 10px;
+	}
+
+	.phd-expand {
+		padding-right: 10px;
+
+		span {
+			cursor: pointer;
+		}
+	}
+
+	.phd-preview-preview {
+		position: absolute;
+		right: 40%;
+		top: 50px;
+		z-index: 9999;
+
+		.phd-preview-header {
+			position: absolute;
+			display: flex;
+			width: 100%;
+			padding: 10px;
+		}
+
+		.phd-label {
+			display: flex;
+			flex: 1;
+		}
+
+		.phd-preview-fader {
+			background: rgba(100, 100, 100, 0.4);
+			box-shadow: 0 0 8px 1px rgba(100, 100, 100, 0.3);
+			max-height: 300px;
+			max-width: 300px;
+			min-height: 200px;
+			min-width: 200px;
+			opacity: 0.1;
+			transition: opacity 100ms;
+
+			&.on {
+				opacity: 1;
+			}
+		}
+
+		.phd-close-preview {
+			display: flex;
+			flex: 1;
+			flex-direction: row-reverse;
+
+			label {
+				color: red;
+				cursor: pointer;
+			}
+		}
+	}
+}
+
+.phd-attribute-group-container:not(:last-child) {
+	border-bottom: solid 1px #ccc;
+	padding-bottom: 10px;
+}

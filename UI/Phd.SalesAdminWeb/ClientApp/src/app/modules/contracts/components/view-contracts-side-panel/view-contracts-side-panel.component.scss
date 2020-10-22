@@ -1,0 +1,148 @@
+@import "../../../../../scss/color-pallet.scss";
+@import "../../../../../scss/sizes.scss";
+
+.alert-small {
+	padding: 5px;
+	margin-bottom: 0px;
+	margin-top: 5px;
+}
+
+.ng-invalid:not(form):not(input) {
+	border-left: 5px solid $brand-danger;
+}
+
+.phd-fieldRequired {
+	border-left: 5px solid #d9534f;
+}
+
+.validation-error-message {
+	margin-top: 3px;
+}
+
+.phd-item-multiselect-results {
+	padding: 10px;
+	border: solid 1px $gray-lighter;
+	box-shadow: 0 1px 4px 0 darken($gray-lighter,20%);
+	border-radius: 0 0 $border-radius-base $border-radius-base;
+	background-color: white;
+
+	a:hover {
+		cursor: pointer;
+		text-decoration: none;
+	}
+
+	a.close {
+		color: $gray;
+	}
+
+	select[multiple] {
+		border: none;
+		width: 100%;
+		overflow-y: auto;
+	}
+
+	.phd-item-multiselect-results-save {
+		padding-right: 10px;
+		padding-bottom: 5px;
+	}
+}
+
+.phd-version-control-container {
+	display: flex;
+	justify-content: space-around;
+	margin: 1.3rem 0rem;
+}
+
+.phd-version-input {
+	display: none;
+}
+
+.phd-tags-input {
+	border: 1px solid #e3e6ed;
+	border-radius: 6px;
+	/*height: 100px;*/
+	max-height: calc(36px * 5);
+	padding: 6px 1px 1px 6px;
+	overflow-y: auto;
+	text-align: left;
+	background-color: white;
+}
+
+.phd-tags-input .phd-tag {
+	border-radius: 4px;
+	background-color: $brand-primary;
+	color: #ffffff;
+	cursor: pointer;
+	margin-right: 5px;
+	margin-bottom: 5px;
+	overflow: hidden;
+	line-height: 15px;
+	padding: 6px 24px 8px 14px;
+	position: relative;
+	vertical-align: middle;
+	display: inline-block;
+	zoom: 1;
+	*display: inline;
+	transition: 0.14s linear;
+	-webkit-backface-visibility: hidden;
+	backface-visibility: hidden;
+}
+
+.phd-tags-input .phd-tag:hover {
+	background-color: lighten($brand-primary,10%);
+	color: #ffffff;
+}
+
+.phd-tags-input input {
+	background: transparent;
+	border: none;
+	margin: 0px;
+	padding: 0 0 0 5px;
+	outline: 0;
+	margin-right: 5px;
+	margin-bottom: 5px;
+	width: 12px;
+}
+
+.phd-tags-input-remove-link {
+	bottom: 0;
+	color: #ffffff;
+	cursor: pointer;
+	font-size: 12px;
+	padding: 7px 7px 5px 0;
+	position: absolute;
+	right: 0;
+	text-align: right;
+	text-decoration: none;
+	top: 0;
+	width: 100%;
+	display: block;
+
+	&:hover, &:focus {
+		text-decoration: none;
+	}
+}
+
+.phd-tags-input-remove-link:before {
+	color: #ffffff;
+	content: "\f00d";
+	font-family: "FontAwesome";
+}
+
+.phd-upload-file {
+	visibility: hidden;
+}
+
+.phd-upload-file-label {
+	border-color: black;
+	border-width: 2px;
+	border-radius: 10px;
+}
+
+.phd-preview-icon {
+	margin-left: 10px;
+}
+
+.phd-arrow-icon {
+	margin-right: 10px;
+}

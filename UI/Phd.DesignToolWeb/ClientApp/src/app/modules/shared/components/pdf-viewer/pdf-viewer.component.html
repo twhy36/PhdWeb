@@ -1,0 +1,12 @@
+<div class="modal-header">
+	<span class="modal-title" *ngIf="pdfModalTitle.length">{{ pdfModalTitle }}</span>
+	<button type="button" class="close" aria-label="Close" (click)="closePDFModal()">
+		<span aria-hidden="true">&times;</span>
+	</button>
+</div>
+<div class="modal-body">
+	<iframe [src]="safePDFUrl" #iframe></iframe>
+</div>
+<div class="modal-footer" *ngIf="footerTemplate">
+	<ng-container *ngTemplateOutlet="footerTemplate"></ng-container>
+</div>

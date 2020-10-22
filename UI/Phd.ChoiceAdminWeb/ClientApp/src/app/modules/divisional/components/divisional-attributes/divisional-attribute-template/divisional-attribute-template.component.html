@@ -1,0 +1,11 @@
+<div *ngIf="panelTemplate" name="panel" class="phd-div-attr-panel">
+	<ng-container *ngTemplateOutlet="panelTemplate"></ng-container>
+</div>
+
+<div *ngIf="actionPanelTemplate" name="actionPanel">
+	<ng-container *ngTemplateOutlet="actionPanelTemplate"></ng-container>
+</div>
+
+<div *ngIf="sidePanelTemplate" name="sidePanel">
+	<ng-container *ngTemplateOutlet="sidePanelTemplate"></ng-container>
+</div>

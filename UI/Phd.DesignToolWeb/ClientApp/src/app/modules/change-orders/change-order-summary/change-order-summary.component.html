@@ -1,0 +1,69 @@
+<div class="d-flex flex-column phd-change-orders">
+	<h2 class="justify-content-center text-center my-5">Change Orders</h2>
+
+	<div class="phd-status-table">
+		<h4>ACTIVE CHANGE ORDERS</h4>
+		<div *ngIf="activeChangeOrders.length === 0 && ((canSell$ | async) || (canDesign$ | async)) && !(cancelOrVoid || (specCancelled$ | async))">
+			<select class="phd-changeOrder-types" (change)="onSelectChangeOrderType($event.target.value)" #addChangeOrder>
+				<option *ngFor="let changeOrderType of changeOrderTypes"
+						[ngValue]="changeOrderType.id"
+						[disabled]="changeOrderType.id === 0 || (constructionStageName !== 'Configured' ? changeOrderType.id === 3 : null)"
+						[hidden]="changeOrderType.id === 0 || ((buildMode === 'spec' || buildMode === 'model') ? (changeOrderType.id === 4 || changeOrderType.id === 5) : null) || (!((canSell$ | async) || (canDesign$ | async)) && (!(canAddIncentive$ | async) || changeOrderType.id !== 5) && changeOrderType.id !== 1) ">
+					{{changeOrderType.value}}
+				</option>
+			</select>
+		</div>
+		<div *ngIf="activeChangeOrders.length > 0">
+			<change-order-table [changeOrders]="activeChangeOrders"
+								[canApprove]="canApprove$ | async"
+								[canSell]="canSell$ | async"
+								[canDesign]="canDesign$ | async"
+								[contactId]="contactId$ | async"
+								[isSaving]="isSaving"
+								(onActionSelected)="onActionSelected($event)"
+								(onGenerateDocument)="onGenerateDocument($event)">
+			</change-order-table>
+		</div>
+	</div>
+
+	<div class="phd-status-table phd-header-pastOrders">
+		<h4>PAST CHANGE ORDERS</h4>
+		<change-order-table [changeOrders]="pastChangeOrders"
+							(onGenerateDocument)="onGenerateDocument($event)"></change-order-table>
+	</div>
+</div>
+
+<ng-template #updateChangeOrderModal>
+	<div class="modal-body">
+		<form [formGroup]="updateChangeOrderForm">
+			<div class="form-group">
+				<label>Reason</label>
+				<textarea class="form-control phd-field-required " rows="8" maxlength="500" formControlName="salesStatusReason" required></textarea>
+			</div>
+		</form>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn btn-primary" (click)="save()" [disabled]="saveDisabled">
+			Save
+		</button>
+		<button type="button" class="btn btn-secondary" (click)="onCancel()">
+			Cancel
+		</button>
+	</div>
+</ng-template>
+
+<ng-template #content let-c="close" let-d="dismiss">
+	<distribution-list (close)="closeModal()" (onEnvelopeSent)="envelopeSent()" [currentEnvelopeID]="envelopeID"></distribution-list>
+</ng-template>
+
+<ng-template #rejectedChangeOrderModal>
+	<div class="modal-body">
+		<form [formGroup]="rejectedChangeOrderForm"></form>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn btn-primary phd-withdraw-button" (click)="withdrawChangeOrder()">Withdraw</button>
+		<button type="button" class="btn btn-primary" (click)="resubmitChangeOrder()">Resubmit</button>
+		<button type="button" class="btn btn-primary" (click)="onCancel()">Cancel</button>
+	</div>
+</ng-template>
+

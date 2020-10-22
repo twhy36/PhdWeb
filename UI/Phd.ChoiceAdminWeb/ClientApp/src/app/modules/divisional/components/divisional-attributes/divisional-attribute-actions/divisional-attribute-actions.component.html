@@ -1,0 +1,4 @@
+<div [ngClass]="customClasses">
+
+	<button *ngFor="let button of buttons" [ngClass]="button.class" (click)="onClicked(button);" [disabled]="button.disabled">{{ button.text }}</button>
+</div>

@@ -1,0 +1,50 @@
+.custom-tooltip {
+    color: white !important;
+    max-width: 800px;
+    height: auto;
+    word-wrap: break-word;
+}
+
+.phd-icon {
+    width: 50px;
+    text-align: center;
+}
+
+.phd-alternate-row:not(.ui-state-highlight) {
+    background-color: rgba(0,0,0,.05) !important;
+}
+
+.phd-non-overflow {
+    white-space: nowrap;
+    overflow: hidden;
+    display: block;
+}
+
+.phd-table-header {
+    background-color: #e9ecef !important;
+}
+
+.col-data-filter-container {
+    display: flex !important;
+    justify-content: flex-end;
+    flex-direction: row;
+    margin-right:10%;
+    height: 55px;
+}
+
+.phd-filter-container {
+    display: flex;
+    flex-direction: row;
+    content: "\f0b0";
+    font-family: FontAwesome;
+    font-size: 14px;
+    margin-left: 30px;
+    height: 36px;
+}
+
+.phd-filter-icon {
+    margin-top: 3px;
+    padding-right: 5px;
+    text-align: center;
+    font-size: 25px;
+}

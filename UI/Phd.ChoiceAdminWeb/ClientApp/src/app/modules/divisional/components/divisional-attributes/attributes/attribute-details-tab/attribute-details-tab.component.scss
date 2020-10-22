@@ -1,0 +1,48 @@
+@import "../../../../../../../scss/styles.scss";
+
+.ng-invalid:not(form):not(p-calendar) {
+	border-left: 5px solid $brand-danger;
+}
+
+form label {
+    font-size: 0.85em;
+}
+
+.div-panel-body {
+    padding: 0px 15px 0px 0px;
+}
+
+.button {
+	font-size: 8px;
+	padding: .5px;
+}
+
+.phd-image-container {
+	margin-top: 15px;
+}
+
+image-card {
+	i:hover {
+		cursor: pointer;
+	}
+}
+
+.phd-flex-container {
+	padding: 0;
+	margin: 0;
+	list-style: none;
+	display: -webkit-box;
+	display: -moz-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-flex-flow: row wrap;
+	flex-direction: row;
+	justify-content: space-around;
+	align-content: space-around;
+}
+
+.phd-image-card-overview {
+	max-width: 300px;
+	max-height: 100px;
+	margin: .5rem;
+}

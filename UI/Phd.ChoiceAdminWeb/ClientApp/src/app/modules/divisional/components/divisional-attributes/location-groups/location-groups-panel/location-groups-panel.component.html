@@ -1,0 +1,94 @@
+<div class="phd-div-attr-body">
+	<div class="d-flex flex-row-reverse">
+		<div class="col-md-4 phd-div-search-bar">
+			<search-bar [searchFilters]="filterGroupNames" [selectedSearchFilter]="selectedSearchFilter" (onClearFilter)="clearFilter()" (onKeywordSearch)="keywordSearch($event)"></search-bar>
+		</div>
+		<status-bar (statusChanged)="onStatusChanged($event)"></status-bar>
+	</div>
+
+	<div class="phd-div-attr-panel" infiniteScroll [infiniteScrollThrottle]="settings.infiniteScrollThrottle" [infiniteScrollDisabled]="keyword || selectedStatus || allDataLoaded" (scrolled)="onPanelScroll()" [scrollWindow]="false">
+		<phd-table [value]="filteredLocationGroupsList" dataKey="id" tableId="divisionalLocationGroups">
+			<ng-template #rowExpansion let-group let-columns="columns">
+				<tr>
+					<td [attr.colspan]="columns.length">
+						<div class="phd-div-row-expansion">
+							<phd-tabView orientation="left">
+								<phd-tabPanel header="Locations" [data]="group.locationMarkets$">
+									<ng-template let-locations>
+										<expansion-locations-tab-panel [group]="group"
+										                               [locations]="locations"
+																	   [isReadOnly]="isReadOnly"
+										                               (onAssociateLocations)="associateLocations($event)"></expansion-locations-tab-panel>
+									</ng-template>
+								</phd-tabPanel>
+
+								<phd-tabPanel header="Options" [data]="group | groupOptions">
+									<ng-template let-options>
+										<expansion-tab-panel [dataItems]="options" [emptyMessage]="'No Associated Options Found.'">
+											<phd-column field="financialOptionIntegrationKey" header="Lawson Number"></phd-column>
+											<phd-column field="optionSalesName" header="Option Name"></phd-column>
+											<phd-column field="optionDescription" header="Option Description"></phd-column>
+										</expansion-tab-panel>
+									</ng-template>
+								</phd-tabPanel>
+
+								<phd-tabPanel header="Choices" [data]="group | groupChoices">
+									<ng-template let-choices>
+										<expansion-tab-panel [dataItems]="choices" [emptyMessage]="'No Associated Choices Found.'">
+											<phd-column field="choiceLabel" header="Choice"></phd-column>
+											<phd-column field="pointLabel" header="Decision Point"></phd-column>
+											<phd-column field="subGroupLabel" header="SubGroup"></phd-column>
+											<phd-column field="groupLabel" header="Group"></phd-column>
+										</expansion-tab-panel>
+									</ng-template>
+								</phd-tabPanel>
+
+								<phd-tabPanel header="Communities" [data]="group | groupCommunities">
+									<ng-template let-communities>
+										<expansion-tab-panel [dataItems]="communities" [emptyMessage]="'No Associated Communities Found.'">
+											<phd-column header="Associated Communities">
+												<ng-template #body let-community>
+													{{ community.name }} - {{ community.number }}
+												</ng-template>
+											</phd-column>
+										</expansion-tab-panel>
+									</ng-template>
+								</phd-tabPanel>
+							</phd-tabView>
+						</div>
+					</td>
+				</tr>
+			</ng-template>
+
+			<phd-column columnId="edit" width="50px">
+				<ng-template #body let-group>
+					<i class="fa fa-fw fa-pencil" [ngClass]="isReadOnly ? 'phd-disabled' : 'phd-clickable'" [title]="isReadOnly ? '' : 'Edit location group'" (click)="editLocationGroup(group);"></i>
+				</ng-template>
+			</phd-column>
+
+			<phd-column columnId="inactivate" width="50px">
+				<ng-template #body let-group>
+					<i class="fa fa-sm phd-clickable" *ngIf="!isSaving || workingId !== group.id" (click)="createMsgModal(group)"
+					   [ngClass]="{'fa-trash': group.isActive, 'fa-undo text-danger': !group.isActive, 'phd-clickable': !isReadOnly, 'phd-disabled': isReadOnly}"
+					   [title]="isReadOnly ? '' : (group.isActive ? 'Inactivate location group' : 'Reactivate location group')"></i>
+					<i class="fa fa-spinner fa-spin fa-fw" [ngClass]="isReadOnly ? 'phd-disabled' : 'phd-clickable'" *ngIf="isSaving && workingId === group.id"></i>
+				</ng-template>
+			</phd-column>
+
+			<phd-column columnId="details" width="50px">
+				<ng-template #body let-group let-expanded="expanded">
+					<i class="fa fa-fw phd-clickable" [ngClass]="expanded ? 'fa-chevron-circle-down' : 'fa-chevron-circle-right'" [phdRowToggler]="group" title="Click to associate locations to group"></i>
+				</ng-template>
+			</phd-column>
+
+			<phd-column field="locationGroupName" header="Name"></phd-column>
+			<phd-column field="groupLabel" header="Label"></phd-column>
+			<phd-column field="formattedTags" header="Search Tags"></phd-column>
+			<phd-column field="locationGroupDescription" header="Description"></phd-column>
+		</phd-table>
+	</div>
+
+	<p-toast></p-toast>
+
+	</div>
+

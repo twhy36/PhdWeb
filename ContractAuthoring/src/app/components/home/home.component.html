@@ -1,0 +1,43 @@
+<app-toolbar [showToolBarButtons]="!!selectedTemplateId" (backToTemplates)="selectedTemplateId = null" (saveToCloud)="saveToCloud()"></app-toolbar>
+<div id="pulte-overlay" *ngIf="isLoading">
+    <div class="pulte-overlay-background"></div>
+    <div class="pulte-overlay-spinner-container">
+        <mat-spinner class="pulte-spinner"></mat-spinner>
+    </div>
+</div>
+<div class="pulte-addin-content">
+    <ng-container *ngIf="!!selectedTemplateId">
+        <app-merge-field-accordion [customMergeFields]="customMergeFields$"></app-merge-field-accordion>
+    </ng-container>
+    <ng-container *ngIf="!selectedTemplateId">
+        <mat-form-field>
+            <mat-label>Markets</mat-label>
+            <mat-select [ngModel]="orgService.currentMarket$ | async" (ngModelChange)="onSelectedMarketChange($event)">
+                <mat-option *ngFor="let market of markets" [value]="market">
+                    {{market.name}}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+
+        <div *ngIf="templatesLoading" class="pulte-spinner-container">
+            <mat-spinner class="pulte-spinner"></mat-spinner>
+        </div>
+        <mat-nav-list *ngIf="!templatesLoading">
+            <h3 mat-subheader>Templates</h3>
+            <mat-list-item *ngFor="let template of templates" (click)="loadTemplate(template)">
+                <!-- Home Purchase Agreement -->
+                <mat-icon *ngIf="template.templateTypeId === 1" matListIcon>home</mat-icon>
+                <!-- Addendum -->
+                <mat-icon *ngIf="template.templateTypeId === 2" matListIcon>attachment</mat-icon>
+                <!-- Cancel Form -->
+                <mat-icon *ngIf="template.templateTypeId === 3" matListIcon>cancel_presentation</mat-icon>
+
+                <h3 class="pulte-list-item-text" matLine> {{template.documentName}} </h3>
+                <p class="pulte-list-item-text" matLine>
+                    <span> {{template.displayName}} </span>
+                    <span> -- v{{template.version}} </span>
+                </p>
+            </mat-list-item>
+        </mat-nav-list>
+    </ng-container>
+</div>

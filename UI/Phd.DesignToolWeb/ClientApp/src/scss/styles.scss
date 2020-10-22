@@ -1,0 +1,508 @@
+/* You can add global styles to this file, and also import other style files */
+
+@import './bootstrap.min.css';
+@import url(https://fonts.googleapis.com/css?family=Roboto:400,100,100italic,300,300itaÃ¢â‚¬Å’Ã¢â‚¬â€¹lic,400italic,500,500italic,700,700italic,900italic,900);
+@import "./color-pallet.scss";
+@import "./sizes.scss";
+
+body {
+	font-family: 'Roboto', sans-serif;
+	background: #f8f8f8;
+	color: #4a4a4a;
+}
+
+a,
+a:hover,
+a:focus {
+	color: inherit;
+	text-decoration: none;
+	transition: all 0.5s;
+}
+
+.phd-second-backdrop {
+	z-index: 1050;
+}
+
+.disabled {
+	cursor: help;
+	opacity: .85;
+}
+
+.phd-experience-btn-choice {
+	background-color: #073e59;
+	color: $white;
+	text-align: center;
+	text-transform: capitalize;
+	transition: all 0.12s;
+	transition-timing-function: cubic-bezier(.42, 0, 1, 1);
+
+	&:focus {
+		outline: none;
+		box-shadow: none;
+	}
+
+	&:hover {
+		background-color: #1a5e80;
+		color: $white;
+	}
+
+	&.secondary {
+		background-color: $white;
+		color: $link-blue;
+		font-size: 12px;
+	}
+}
+
+$switch-default-width: 60px;
+$switch-default-height: 34px;
+
+/* The switch - the box around the slider */
+@mixin phd-switch-mixin($switch-width: $switch-default-width, $switch-height: $switch-default-height) {
+	position: relative;
+	display: inline-block;
+	width: $switch-width;
+	height: $switch-height;
+	margin-bottom: 0px;
+	/* Hide default HTML checkbox */
+	input {
+		display: none;
+	}
+}
+
+$slider-default-bg-color: #ccc;
+$slider-default-bg-color-checked: $link-blue;
+$slider-default-transform: 26px;
+$slider-default-icon-height: 26px;
+$slider-default-icon-width: 26px;
+$slider-default-icon-left: 4px;
+$slider-default-icon-bottom: 4px;
+$slider-default-icon-bg-color: white;
+
+/* The slider */
+@mixin phd-slider-mixin($slider-bg-color: $slider-default-bg-color, $slider-bg-color-checked: $slider-default-bg-color-checked, $slider-transform: $slider-default-transform, $slider-icon-height: $slider-default-icon-height, $slider-icon-width: $slider-default-icon-width, $slider-icon-left: $slider-default-icon-left, $slider-icon-bottom: $slider-default-icon-bottom, $slider-icon-bg-color: $slider-default-icon-bg-color) {
+	position: absolute;
+	cursor: pointer;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: $slider-bg-color;
+	-webkit-transition: .4s;
+	transition: .4s;
+
+	&.round {
+		border-radius: 34px;
+
+		&:before {
+			border-radius: 50%;
+		}
+	}
+
+	&:before {
+		position: absolute;
+		content: "";
+		height: $slider-icon-height;
+		width: $slider-icon-width;
+		left: $slider-icon-left;
+		bottom: $slider-icon-bottom;
+		background-color: $slider-icon-bg-color;
+		-webkit-transition: .4s;
+		transition: .4s;
+	}
+
+	input:checked + & {
+		background-color: $slider-bg-color-checked;
+
+		&:before {
+			-webkit-transform: translateX($slider-transform);
+			-ms-transform: translateX($slider-transform);
+			transform: translateX($slider-transform);
+		}
+	}
+}
+
+.switch {
+	@include phd-switch-mixin;
+}
+
+.switch-small {
+	@include phd-switch-mixin($switch-width: 40px, $switch-height: 20px);
+}
+
+.slider {
+	@include phd-slider-mixin;
+}
+
+.slider-small {
+	@include phd-slider-mixin($slider-icon-height: 16px, $slider-icon-width: 16px, $slider-icon-bottom: 2px, $slider-transform: 16px);
+}
+
+[draggable=true] {
+	-moz-user-select: none;
+	-khtml-user-select: none;
+	-webkit-user-select: none;
+	user-select: none;
+	/* Required to make elements draggable in old WebKit */
+	-khtml-user-drag: element;
+	-webkit-user-drag: element;
+	cursor: move;
+}
+
+.drag-active.over {
+	border: dashed 2px green;
+	background-color: lighten(green, 20%) !important;
+}
+
+.phd-choice-details-card {
+	/* override bootstrap defaults */
+	.modal-lg {
+		max-width: 100%;
+		width: 100%;
+	}
+}
+
+/* desktop and larger */
+@media (min-width: 992px) {
+	.phd-choice-details-card {
+		/* override bootstrap defaults */
+		.modal-lg {
+			width: 75%;
+		}
+	}
+}
+
+.phd-modal-window {
+	.modal-dialog {
+		max-width: 1200px;
+		justify-content: center !important;
+
+		.modal-content {
+			width: auto;
+		}
+	}
+}
+
+.phd-link, a.phd-link {
+	cursor: pointer;
+	color: $twilight-blue !important;
+	text-decoration: none;
+
+	&:hover {
+		text-decoration: underline !important;
+	}
+}
+
+.phd-link-light, a.phd-link-light {
+	cursor: pointer;
+	color: $link-blue !important;
+	text-decoration: none;
+
+	&:hover {
+		text-decoration: underline !important;
+	}
+}
+
+.phd-clickable:hover {
+	cursor: pointer;
+}
+
+.phd-box {
+	height: 265px;
+	width: 335px;
+	border-width: 1px;
+	border-style: solid;
+	border-color: #C7C7C7;
+	border-radius: 4px;
+	-webkit-box-shadow: 0 2px 1px 0 rgba(0, 0, 0, 0.16);
+	box-shadow: 0 2px 1px 0 rgba(0, 0, 0, 0.16);
+	background-color: $white;
+	display: flex !important;
+	min-height: 45px;
+	line-height: 1.36;
+	margin: .5rem !important;
+	position: relative;
+	flex-direction: column !important;
+}
+
+/* use this class instead of bootstrap's flex-fill to create same-width columns */
+.phd-flex-fill {
+	flex: 1;
+}
+
+.validation-error {
+	color: red;
+}
+
+.phd-modal-backdrop {
+	z-index: 1051 !important;
+}
+
+.phd-modal-window {
+	z-index: 1052 !important;
+}
+
+ngb-carousel {
+	.carousel-indicators li {
+		background-color: $light-grey;
+	}
+
+	.carousel-indicators .active {
+		background-color: $dark-grey;
+	}
+
+	.carousel-control-prev-icon {
+		background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23d3d3d3' viewBox='0 0 8 8'%3E%3Cpath d='M5.25 0l-4 4 4 4 1.5-1.5-2.5-2.5 2.5-2.5-1.5-1.5z'/%3E%3C/svg%3E");
+	}
+
+	.carousel-control-next-icon {
+		background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23d3d3d3' viewBox='0 0 8 8'%3E%3Cpath d='M2.75 0l-1.5 1.5 2.5 2.5-2.5 2.5 1.5 1.5 4-4-4-4z'/%3E%3C/svg%3E");
+	}
+}
+
+/* RESPONSIVE FIXED-HEADER TABLE LAYOUT */
+
+.phd-lot-table {
+	border: none;
+	table-layout: fixed;
+	width: 100%;
+	background: white;
+
+	th, td {
+		border: none;
+		padding: 8px;
+		overflow: hidden;
+		white-space: normal;
+		text-align: center;
+
+		&:first-child {
+		}
+
+		&:last-child {
+			text-align: right;
+		}
+
+		&:nth-child(3),
+		&:nth-child(5) {
+			text-align: left;
+		}
+
+		&:nth-child(5) {
+			width: 25%;
+			overflow: visible;
+		}
+	}
+
+	th {
+		background: #0d4b6b;
+		color: white;
+		text-transform: uppercase;
+		text-align: center;
+		font-weight: normal;
+	}
+}
+
+.phd-table {
+	height: 100%;
+	overflow: hidden;
+
+	&-wrapper {
+		height: 100%;
+		overflow: hidden;
+		display: flex;
+		flex-direction: column;
+
+		&-head {
+			flex: 0 0 37px; // for Safari and IE
+		}
+
+		&-body {
+			overflow-y: auto;
+		}
+	}
+}
+
+@media(max-width: $tablet-max-width) {
+	body.phd-flex-view {
+
+		app-root {
+			display: flex;
+			flex-direction: row;
+
+			#experience {
+				position: initial;
+				left: initial;
+				width: 100%;
+			}
+		}
+
+		phase-progress-bar {
+			padding: 0 10px;
+			display: block;
+
+			#phd-phase-bar {
+				// Reset from existing stylesheet
+				background-color: initial;
+				max-width: initial;
+				width: initial;
+				position: initial;
+				left: initial;
+				top: initial;
+				box-shadow: initial;
+				min-height: initial;
+				overflow: initial;
+				transition-timing-function: initial;
+				// Adding new styles
+				transition: all .3s;
+
+				.phd-phase-bar-header {
+					display: initial;
+					height: 70px;
+				}
+			}
+		}
+
+		new-home {
+			display: flex;
+			flex-direction: row;
+			position: initial;
+			left: initial;
+			width: initial;
+
+			.phd-progress-bar {
+				box-shadow: 10px 0 10px -10px rgba(153, 153, 153, 0.5);
+				min-height: 100vh;
+				background-color: white;
+				display: block;
+			}
+
+			.phd-new-home {
+				flex-grow: 1;
+				height: 100vh;
+				overflow: hidden;
+				max-width: initial;
+				padding-bottom: 1em;
+			}
+
+			.phd-content {
+				flex: 1;
+				overflow-y: auto;
+				border-radius: 10px;
+			}
+		}
+
+		navigation {
+			position: initial;
+			z-index: initial;
+		}
+
+		.row {
+			margin-left: 0;
+			margin-right: 0;
+		}
+		/*Center error message when on the new lot only flexbox layout*/
+		error-message {
+			display: flex;
+			justify-content: center;
+
+			.phd-error-message {
+				max-width: 600px;
+			}
+		}
+	}
+}
+
+.modal-header {
+	background: $twilight-blue;
+	border-top-left-radius: 0.2rem;
+	border-top-right-radius: 0.2rem;
+	color: $white;
+
+	.close {
+		color: $white;
+	}
+}
+
+.modal-title {
+	font-size: 1.25em;
+}
+
+.modal-content a {
+	color: #007bff;
+	text-decoration: underline;
+}
+
+.phd-ngb-modal {
+
+	header {
+		display: flex;
+		flex-direction: row;
+		background: $twilight-blue;
+		color: $white;
+		margin: 0;
+		padding: 1em;
+
+		h3 {
+			font-size: 1.2em;
+			flex: 1 1 auto;
+			margin: 0;
+			padding: 0;
+		}
+
+		div {
+			justify-content: center;
+			cursor: pointer;
+		}
+	}
+
+	> h3 {
+		background: $twilight-blue;
+		color: $white;
+		font-size: 1.2em;
+		margin: 0;
+		padding: 1em;
+	}
+}
+
+edit-home > choice-card {
+	display: none;
+}
+
+.phd-btn-save, .phd-btn-left {
+	margin-right: 15px;
+}
+
+/* bootstrap override start */
+.btn-secondary, .btn-secondary.dropdown-toggle, .btn-secondary.disabled, .btn-secondary:disabled {
+	color: #000;
+	background-color: #D7DBDD;
+	border-color: #D7DBDD;
+}
+
+.btn-secondary:not(:disabled):not(.disabled).active,
+.btn-secondary:not(:disabled):not(.disabled):active,
+.show > .btn-secondary.dropdown-toggle {
+	color: #000;
+	background-color: #BDC3C7;
+	border-color: #A6ACAF;
+}
+
+.btn-secondary.focus, .btn-secondary:focus {
+	color: #000;
+	background-color: #CACFD2;
+	border-color: #BDC3C7;
+	box-shadow: 0 0 0 0.2rem rgba(185, 185, 185,.5);
+}
+
+.btn-secondary:not(:disabled):not(.disabled).active:focus,
+.btn-secondary:not(:disabled):not(.disabled):active:focus,
+.show > .btn-secondary.dropdown-toggle:focus {
+	box-shadow: 0 0 0 0.2rem rgba(185, 185, 185,.5);
+}
+
+.btn-secondary:hover {
+	color: #000;
+	background-color: #CACFD2;
+	border-color: #BDC3C7;
+}
+
+/* bootstrap override end */

@@ -1,0 +1,165 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.757
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6A0FF65E-ECBD-48CE-9349-FD2B696A389B}"
+	ProjectSection(SolutionItems) = preProject
+		.angular-cli.json = .angular-cli.json
+		.editorconfig = .editorconfig
+		.gitignore = .gitignore
+		.tfignore = .tfignore
+		karma.conf.js = karma.conf.js
+		manifest.dev.xml = manifest.dev.xml
+		manifest.prod.xml = manifest.prod.xml
+		manifest.qa.xml = manifest.qa.xml
+		manifest.staging.xml = manifest.staging.xml
+		manifest.xml = manifest.xml
+		package-lock.json = package-lock.json
+		package.json = package.json
+		patch.js = patch.js
+		protractor.conf.js = protractor.conf.js
+		README.md = README.md
+		tsconfig.json = tsconfig.json
+		tslint.json = tslint.json
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "certs", "certs", "{C0CADDE8-5A34-4B4F-85DE-002881A6A875}"
+	ProjectSection(SolutionItems) = preProject
+		certs\server.crt = certs\server.crt
+		certs\server.key = certs\server.key
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{B97A326A-6A83-4F76-A355-C2D9054D4C69}"
+	ProjectSection(SolutionItems) = preProject
+		src\favicon.ico = src\favicon.ico
+		src\index.html = src\index.html
+		src\main.ts = src\main.ts
+		src\polyfills.ts = src\polyfills.ts
+		src\styles.scss = src\styles.scss
+		src\test.ts = src\test.ts
+		src\tsconfig.app.json = src\tsconfig.app.json
+		src\tsconfig.spec.json = src\tsconfig.spec.json
+		src\typings.d.ts = src\typings.d.ts
+		src\variables.scss = src\variables.scss
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "app", "app", "{F2E402CC-FE6F-490E-9D50-E0C1BB1BF035}"
+	ProjectSection(SolutionItems) = preProject
+		src\app\app.component.html = src\app\app.component.html
+		src\app\app.component.scss = src\app\app.component.scss
+		src\app\app.component.ts = src\app\app.component.ts
+		src\app\app.module.ts = src\app\app.module.ts
+		src\app\material.module.ts = src\app\material.module.ts
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "assets", "assets", "{745671D3-D565-4A66-9917-58F0E4EE1065}"
+	ProjectSection(SolutionItems) = preProject
+		src\assets\.gitkeep = src\assets\.gitkeep
+		src\assets\icon-16.png = src\assets\icon-16.png
+		src\assets\icon-32.png = src\assets\icon-32.png
+		src\assets\icon-80.png = src\assets\icon-80.png
+		src\assets\logo-filled.png = src\assets\logo-filled.png
+		src\assets\Pulte_Homes_White.png = src\assets\Pulte_Homes_White.png
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "environments", "environments", "{15B6866A-4F80-46D3-9F62-434CAEA36608}"
+	ProjectSection(SolutionItems) = preProject
+		src\environments\environment.prod.ts = src\environments\environment.prod.ts
+		src\environments\environment.qa.ts = src\environments\environment.qa.ts
+		src\environments\environment.staging.ts = src\environments\environment.staging.ts
+		src\environments\environment.ts = src\environments\environment.ts
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "components", "components", "{B15FCE44-C65B-4711-8EB5-A009EE7D8841}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "models", "models", "{4A82258B-01A3-4E8F-AA2D-7B3FD3560A9A}"
+	ProjectSection(SolutionItems) = preProject
+		src\app\models\file-state.ts = src\app\models\file-state.ts
+		src\app\models\financial-community.model.ts = src\app\models\financial-community.model.ts
+		src\app\models\financial-market.model.ts = src\app\models\financial-market.model.ts
+		src\app\models\merge-field.model.ts = src\app\models\merge-field.model.ts
+		src\app\models\org.model.ts = src\app\models\org.model.ts
+		src\app\models\settings.model.ts = src\app\models\settings.model.ts
+		src\app\models\template.model.ts = src\app\models\template.model.ts
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "services", "services", "{FDFAFB3F-75D8-40F2-9358-05F2595A4D24}"
+	ProjectSection(SolutionItems) = preProject
+		src\app\services\contract.service.ts = src\app\services\contract.service.ts
+		src\app\services\identity.service.ts = src\app\services\identity.service.ts
+		src\app\services\org.service.ts = src\app\services\org.service.ts
+		src\app\services\settings.service.ts = src\app\services\settings.service.ts
+		src\app\services\storage.service.ts = src\app\services\storage.service.ts
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "utils", "utils", "{91C7DDB5-EC38-4269-9E83-4A67FB4D8E81}"
+	ProjectSection(SolutionItems) = preProject
+		src\app\utils\decorators.ts = src\app\utils\decorators.ts
+		src\app\utils\handle-error.ts = src\app\utils\handle-error.ts
+		src\app\utils\unsubscribe-on-destroy.ts = src\app\utils\unsubscribe-on-destroy.ts
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "interceptors", "interceptors", "{DF5C0EF4-A6BC-49CC-A039-2763F02F45DB}"
+	ProjectSection(SolutionItems) = preProject
+		src\app\services\interceptors\auth-interceptor.service.ts = src\app\services\interceptors\auth-interceptor.service.ts
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "home", "home", "{A8C3C030-3589-4F9A-91B0-660BDCC7CED7}"
+	ProjectSection(SolutionItems) = preProject
+		src\app\components\home\home.component.html = src\app\components\home\home.component.html
+		src\app\components\home\home.component.scss = src\app\components\home\home.component.scss
+		src\app\components\home\home.component.ts = src\app\components\home\home.component.ts
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "merge-field-accordion", "merge-field-accordion", "{D837FA0E-856F-4EE8-B886-186F27EABD41}"
+	ProjectSection(SolutionItems) = preProject
+		src\app\components\home\merge-field-accordion\merge-field-accordion.component.html = src\app\components\home\merge-field-accordion\merge-field-accordion.component.html
+		src\app\components\home\merge-field-accordion\merge-field-accordion.component.scss = src\app\components\home\merge-field-accordion\merge-field-accordion.component.scss
+		src\app\components\home\merge-field-accordion\merge-field-accordion.component.ts = src\app\components\home\merge-field-accordion\merge-field-accordion.component.ts
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "accordion-item", "accordion-item", "{C088B14D-AC2F-47B6-B201-CE44FCCDEB46}"
+	ProjectSection(SolutionItems) = preProject
+		src\app\components\home\merge-field-accordion\accordion-item\accordion-item.component.html = src\app\components\home\merge-field-accordion\accordion-item\accordion-item.component.html
+		src\app\components\home\merge-field-accordion\accordion-item\accordion-item.component.scss = src\app\components\home\merge-field-accordion\accordion-item\accordion-item.component.scss
+		src\app\components\home\merge-field-accordion\accordion-item\accordion-item.component.ts = src\app\components\home\merge-field-accordion\accordion-item\accordion-item.component.ts
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "toolbar", "toolbar", "{5B2E8E19-F068-4932-9247-25B1A47373BC}"
+	ProjectSection(SolutionItems) = preProject
+		src\app\components\home\toolbar\toolbar.component.html = src\app\components\home\toolbar\toolbar.component.html
+		src\app\components\home\toolbar\toolbar.component.scss = src\app\components\home\toolbar\toolbar.component.scss
+		src\app\components\home\toolbar\toolbar.component.ts = src\app\components\home\toolbar\toolbar.component.ts
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{C0CADDE8-5A34-4B4F-85DE-002881A6A875} = {6A0FF65E-ECBD-48CE-9349-FD2B696A389B}
+		{B97A326A-6A83-4F76-A355-C2D9054D4C69} = {6A0FF65E-ECBD-48CE-9349-FD2B696A389B}
+		{F2E402CC-FE6F-490E-9D50-E0C1BB1BF035} = {B97A326A-6A83-4F76-A355-C2D9054D4C69}
+		{745671D3-D565-4A66-9917-58F0E4EE1065} = {B97A326A-6A83-4F76-A355-C2D9054D4C69}
+		{15B6866A-4F80-46D3-9F62-434CAEA36608} = {B97A326A-6A83-4F76-A355-C2D9054D4C69}
+		{B15FCE44-C65B-4711-8EB5-A009EE7D8841} = {F2E402CC-FE6F-490E-9D50-E0C1BB1BF035}
+		{4A82258B-01A3-4E8F-AA2D-7B3FD3560A9A} = {F2E402CC-FE6F-490E-9D50-E0C1BB1BF035}
+		{FDFAFB3F-75D8-40F2-9358-05F2595A4D24} = {F2E402CC-FE6F-490E-9D50-E0C1BB1BF035}
+		{91C7DDB5-EC38-4269-9E83-4A67FB4D8E81} = {F2E402CC-FE6F-490E-9D50-E0C1BB1BF035}
+		{DF5C0EF4-A6BC-49CC-A039-2763F02F45DB} = {FDFAFB3F-75D8-40F2-9358-05F2595A4D24}
+		{A8C3C030-3589-4F9A-91B0-660BDCC7CED7} = {B15FCE44-C65B-4711-8EB5-A009EE7D8841}
+		{D837FA0E-856F-4EE8-B886-186F27EABD41} = {A8C3C030-3589-4F9A-91B0-660BDCC7CED7}
+		{C088B14D-AC2F-47B6-B201-CE44FCCDEB46} = {D837FA0E-856F-4EE8-B886-186F27EABD41}
+		{5B2E8E19-F068-4932-9247-25B1A47373BC} = {A8C3C030-3589-4F9A-91B0-660BDCC7CED7}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0E84FF48-7DCB-4306-82CD-361E69F7A01B}
+	EndGlobalSection
+	GlobalSection(TeamFoundationVersionControl) = preSolution
+		SccNumberOfProjects = 1
+		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccTeamFoundationServer = https://pultevsts.visualstudio.com/
+		SccLocalPath0 = .
+	EndGlobalSection
+EndGlobal

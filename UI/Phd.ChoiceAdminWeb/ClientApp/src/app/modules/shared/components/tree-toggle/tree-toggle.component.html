@@ -1,0 +1,5 @@
+<div class="phd-tree-toggle btn-group">
+	<button type="button" class="btn btn-filter btn-secondary" (click)="toggleGroups();" [disabled]="disableButtons">Groups <i class="fa" [class.fa-chevron-down]="!openGroups" [class.fa-chevron-up]="openGroups"></i></button>
+	<button type="button" class="btn btn-filter btn-secondary" (click)="toggleSubGroups();" [disabled]="disableButtons">SubGroups <i class="fa" [class.fa-chevron-down]="!openSubGroups" [class.fa-chevron-up]="openSubGroups"></i></button>
+	<button type="button" class="btn btn-filter btn-secondary" (click)="togglePoints();" *ngIf="showPoints" [disabled]="disableButtons">Points <i class="fa" [class.fa-chevron-down]="!openPoints" [class.fa-chevron-up]="openPoints"></i></button>
+</div>

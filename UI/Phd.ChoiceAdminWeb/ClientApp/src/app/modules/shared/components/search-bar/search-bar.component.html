@@ -1,0 +1,21 @@
+<div class="input-group">
+	<div ngbDropdown class="btn-group input-group-prepend" *ngIf="searchFilters">
+		<button type="button" class="btn btn-secondary" [disabled]="isDisabled" ngbDropdownToggle>
+			<span>{{selectedSearchFilter}}</span>
+			<span class="caret"></span>
+		</button>
+
+		<div ngbDropdownMenu>
+			<button class="dropdown-item" [disabled]="isDisabled" *ngFor="let searchFilter of searchFilters" (click)="onSearchFilterChanged(searchFilter);">{{searchFilter}}</button>
+		</div>
+	</div>
+
+	<input type="text" [(ngModel)]="keyword" class="form-control phd-search-input" [disabled]="isDisabled" placeholder="Search" (keyup)="onKeywordUp();" (keyup.enter)="keywordSearch();">
+	<span [ngClass]="isDisabled ? 'phd-search-clear-disabled' : ''" class="phd-search-clear" (click)="clearFilter()"><i class="fa fa-fw fa-close"></i></span>
+
+	<div class="input-group-append" (click)="keywordSearch();">
+		<button type="button" class="btn btn-secondary" [disabled]="!keyword && searchButtonDisabled">
+			<i class="fa fa-fw fa-search"></i>
+		</button>
+	</div>
+</div>

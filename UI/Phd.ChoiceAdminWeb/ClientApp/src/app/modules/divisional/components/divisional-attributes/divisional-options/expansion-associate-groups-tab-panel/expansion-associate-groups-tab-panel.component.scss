@@ -1,0 +1,13 @@
+.phd-checkbox-label
+{
+	margin-bottom: 0;
+}
+
+.phd-group-market-list {
+	font-weight: bold;
+
+	> div {
+		max-height: 120px;
+		overflow-y: auto;
+	}	
+}

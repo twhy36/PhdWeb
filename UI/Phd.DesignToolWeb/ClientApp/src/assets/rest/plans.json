@@ -1,0 +1,52 @@
+{
+    "value": [
+        {
+            "id": 1,
+            "title": "Plan 1",
+            "subtitle": "Single Level 1, 1,800 sq. ft.",
+            "feature": "3 bedrooms, 3 baths, gathering room, Cafe, Den, 3-car garage",
+            "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque interdum pellentesque viverra. Fusce nec consectetur orci. Cras blandit iaculis elit, non malesuada mauris.",
+            "price": 410222
+        },
+        {
+            "id": 2,
+            "title": "Plan 2",
+            "subtitle": "Single Level 2, 2,200 sq. ft.",
+            "feature": "3 bedrooms, 3 baths, gathering room, Cafe, Den, 3-car garage",
+            "description": "Cras blandit iaculis elit, non malesuada mauris. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque interdum pellentesque viverra. Fusce nec consectetur orci.",
+            "price": 440999
+        },
+        {
+            "id": 3,
+            "title": "Plan 3",
+            "subtitle": "Single Level 3, 2,800 sq. ft.",
+            "feature": "3 bedrooms, 3.5 baths, bonus room",
+            "description": "Cras blandit iaculis elit, non malesuada mauris. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque interdum pellentesque viverra. Fusce nec consectetur orci.",
+            "price": 499999
+        },
+        {
+            "id": 4,
+            "title": "Plan 4",
+            "subtitle": "Single Level 3, 1,000,000 sq. ft.",
+            "feature": "3 bedrooms, 3.5 baths, bonus room",
+            "description": "Cras blandit iaculis elit, non malesuada mauris. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque interdum pellentesque viverra. Fusce nec consectetur orci.",
+            "price": 165000
+        },
+        {
+            "id": 5,
+            "title": "Plan 5",
+            "subtitle": "Single Level 3, 2,800 sq. ft.",
+            "feature": "3 bedrooms, 3.5 baths, bonus room",
+            "description": "Cras blandit iaculis elit, non malesuada mauris. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque interdum pellentesque viverra. Fusce nec consectetur orci.",
+            "price": 200000
+        },
+        {
+            "id": 6,
+            "title": "Plan 6",
+            "subtitle": "Single Level 3, 2,800 sq. ft.",
+            "feature": "3 bedrooms, 3.5 baths, bonus room",
+            "description": "Cras blandit iaculis elit, non malesuada mauris. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque interdum pellentesque viverra. Fusce nec consectetur orci.",
+            "price": 340000
+        }
+    ]
+}

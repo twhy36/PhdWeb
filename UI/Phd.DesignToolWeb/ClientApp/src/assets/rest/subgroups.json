@@ -1,0 +1,25 @@
+{
+	"value": [
+		{
+			"id": 1,
+			"name": "Create New Configuration",
+			"parent": {
+				"id": 0
+			}
+		},
+		{
+			"id": 2,
+			"name": "Choose Plan",
+			"parent": {
+				"id": 0
+			}
+		},
+		{
+			"id": 3,
+			"name": "Choose A Lot",
+			"parent": {
+				"id": 0
+			}
+		}
+	]
+}

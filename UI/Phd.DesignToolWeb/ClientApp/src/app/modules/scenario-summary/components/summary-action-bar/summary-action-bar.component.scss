@@ -1,0 +1,66 @@
+@import "../../../../../scss/color-pallet.scss";
+@import "../../../../../scss/sizes.scss";
+
+.links {
+	font-size: 14px;
+	line-height: 1.43;
+	min-width: 200px;
+}
+
+a,
+a:hover,
+a:focus {
+	color: $link-blue !important;
+	text-decoration: none;
+	font-size: 14px;
+	line-height: 1.43;
+	transition: all .05s;
+	cursor: pointer;
+
+	&.error {
+		color: $darkish-pink;
+	}
+
+	&.loading,
+	&.disabled {
+		color: lightgray;
+		pointer-events: none;
+		cursor: default;
+	}
+}
+
+.phd-print-link {
+	color: $link-blue;
+	cursor: pointer;
+
+	&::after {
+		display: none;
+	}
+}
+
+.phd-print-list {
+	width: 222px;
+
+	.phd-print-item {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 0.5rem 1.25rem
+	}
+}
+
+@media (max-width: $tablet-max-width) { 
+	.links {
+		min-width: 100px;
+	}
+
+	.flex-grow-1 {
+		width:100%;
+	}
+}
+
+@media (max-width: 700px) {
+	.flex-grow-1 {
+		width:auto;
+	}
+}

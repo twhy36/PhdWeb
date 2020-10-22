@@ -1,0 +1,31 @@
+<div class="phd-choice-multiselect">
+	<div *ngIf="selectedChoices.length > 0" class="form-group">
+		<div class="phd-selected-body">
+			<div class="phd-selected-left">
+				<label for="selectedChoicesTags">{{ selectedLabel }}</label>
+			</div>
+			<div *ngIf="selectedChoices.length > 0 && displayButtons" class="phd-selected-right">
+				<button class="btn btn-secondary" (click)="cancelClick()">Cancel</button>
+				<button class="btn btn-primary" (click)="saveClick()" [disabled]="disableSaveButton">Save</button>
+			</div>
+		</div>
+		<div id="selectedChoicesTags" class="phd-tagsinput">
+			<div class="phd-tag" *ngFor="let choiceTag of selectedChoices">
+				<span>{{choiceTag.label}}</span>
+				<a class="phd-tagsinput-remove-link" (click)="removeItemClick(choiceTag)"></a>
+			</div>
+		</div>
+	</div>
+
+	<div class="form-group">
+		<label for=" ">{{ searchLabel }}</label>
+
+		<div id="searchForChoices" class="phd-search-input-group" [class.phd-search-results-visible]="showSearchResults">
+			<search-bar [searchFilters]="searchFilters" [selectedSearchFilter]="selectedSearchFilter" (onClearFilter)="clearFilter()" (onKeywordSearch)="keywordSearch($event)" [keyword]="keyword" [searchButtonDisabled]="searchButtonDisabled"></search-bar>
+		</div>
+
+		<search-results [showSearchResults]="showSearchResults" [searchResultsCount]="searchResultsCount" (onClearFilter)="clearFilter()">
+			<ng-content></ng-content>
+		</search-results>
+	</div>
+</div>

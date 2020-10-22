@@ -1,0 +1,9 @@
+@import '../../../../../variables.scss';
+
+.mat-nav-list {
+    width: 100%;
+}
+
+.mat-expansion-panel-header {
+    background-color: $mat-word-panel-header-color !important;
+}

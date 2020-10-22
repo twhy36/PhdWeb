@@ -1,0 +1,43 @@
+
+<div class="phd-loading" *ngIf="!!!markets">Loading...</div>
+
+<form [formGroup]="specHomesForm" *ngIf="markets && markets.length > 0">
+  <div class="phd-select-menus d-flex w-100 justify-content-between">
+    <div class="form-group">
+      <label for="phdFinancialMarkets" *ngIf="showLabels">Choose a Market</label>
+      <select class="form-control"
+              (change)="onChangeMarket()"
+              id="phdFinancialMarkets"
+              formControlName="marketsControl"
+              [(ngModel)]="selectedMarket"
+              required>
+        <option [ngValue]="null" disabled>Select a market</option>
+        <option *ngFor="let market of markets" [ngValue]="market">{{ market.name }} - {{ market.number }}</option>
+      </select>
+    </div>
+    <div class="form-group" *ngIf="selectedMarket">
+      <label for="phdSalesCommunities" *ngIf="showLabels">Choose a Community</label>
+      <select class="form-control"
+              (change)="onChangeCommunity()"
+              id="phdSalesCommunities"
+              formControlName="communitiesControl"
+              [(ngModel)]="selectedCommunity"
+              required>
+        <option [ngValue]="null" disabled>{{communityStatus}}</option>
+        <option *ngFor="let salesComm of communities" [ngValue]="salesComm">{{ salesComm.name }}</option>
+      </select>
+    </div>
+    <div class="form-group" *ngIf="showFinancialCommunity">
+      <label for="phdSalesCommunities" *ngIf="showLabels">Choose a Community</label>
+      <select class="form-control"
+              (change)="onChangeFinancialCommunity()"
+              id="phdFinancialCommunities"
+              formControlName="financialCommunitiesControl"
+              [(ngModel)]="selectedFinancialCommunity"
+              *ngIf="selectedCommunity">
+        <option [ngValue]="null">{{financialCommunityStatus}}</option>
+        <option *ngFor="let finComm of selectedCommunity.financialCommunities" [ngValue]="finComm">{{ finComm.name }}</option>
+      </select>
+    </div>
+  </div>
+</form>

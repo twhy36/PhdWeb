@@ -1,0 +1,249 @@
+@import "../../../../../scss/color-pallet.scss";
+@import "../../../../../scss/sizes.scss";
+
+#nav-bar {
+	width: $nav-menu;
+	background: $twilight-blue;
+	color: white;
+	transition: all 0.3s;
+	height: 100vh;
+	overflow-y: auto;
+	float: left;
+
+	.phd-no-transform {
+		text-transform: none;
+	}
+
+	.phd-group-menu-header {
+		height: 70px;
+		padding-bottom: 7px;
+		padding-top: 7px;
+		background: $marine;
+
+		img {
+			width: 75px;
+		}
+
+		.phd-site-button {
+			box-sizing: content-box;
+			width: 25px;
+			padding-top: 5px;
+			padding-bottom: 5px;
+			border-top: 3px solid white;
+			border-bottom: 3px solid white;
+			cursor: pointer;
+
+			&::before {
+				content: "";
+				display: block;
+				width: 100%;
+				height: 3px;
+				background-color: white;
+			}
+		}
+	}
+
+	hr {
+		border: none;
+		height: 1px;
+		border-bottom: 1px solid #47748b;
+	}
+
+	ul {
+		margin-bottom: 0;
+
+		p {
+			color: white;
+			font-size: 14px;
+			font-weight: lighter;
+			margin-bottom: 0;
+		}
+
+		.phd-summary {
+			padding: 13px 0 0 13px;
+			overflow-wrap: break-word;
+			word-wrap: break-word; // depricated but required for MS Edge, should be removed as soon as edge is current
+		}
+
+		li {
+			a {
+				padding: 13px;
+				font-weight: normal;
+				display: block;
+				transition: padding .5s ease-out;
+
+				&:hover {
+					color: $twilight-blue;
+					background: white;
+				}
+
+				&.active-link {
+					color: $twilight-blue;
+					background: white;
+					border-left: 4px solid #3fa2f7;
+					transition: all .1s;
+				}
+			}
+		}
+
+		&.list-unstyled {
+			li a {
+				padding: 1px 0;
+
+				&:hover {
+					padding-left: 3px;
+				}
+			}
+		}
+	}
+
+	.phd-summary-link {
+		outline: none;
+		color:#fff;
+
+		&.disabled {
+			opacity: 0.5;
+			cursor: not-allowed;
+
+			&:hover {
+				cursor: not-allowed;
+			}
+
+			a {
+				cursor: not-allowed;
+			}
+		}
+
+		&:hover {
+			color: $twilight-blue;
+			background: white;
+			cursor: pointer;
+		}
+
+		&.active-link {
+			color: $twilight-blue;
+			background: white;
+			border-left: 4px solid #3fa2f7;
+			transition: all .1s;
+		}
+	}
+}
+
+@media(max-width: $tablet-max-width) {
+
+	.show-menu {
+		text-decoration: none;
+		color: #fff;
+		background: transparent;
+		text-align: center;
+		display: none;
+	}
+
+	.responsive-menu-one:hover .menu {
+		display: block;
+		cursor: pointer;
+	}
+
+	.responsive-menu-two:hover .menu {
+		display: block;
+		cursor: pointer;
+	}
+
+	.menu {
+		display: none;
+		width: 200px;
+	}
+
+	.phd-menu-item-color {
+		color: $twilight-blue;
+	}
+
+	.menu-button-one {
+		width: 35px;
+		height: 5px;
+		background-color: white;
+		margin: 6px 0;
+		margin-left: 10px;
+		border-radius: 25px;
+		display: block;
+	}
+
+	.menu-button-two {
+		width: 35px;
+		height: 5px;
+		background-color: $twilight-blue;
+		margin: 6px 0;
+		margin-left: 10px;
+		border-radius: 25px;
+		display: block;
+	}
+
+	#nav-bar {
+		width: 100%;
+		height: $responsive-menu-height;
+		background: $twilight-blue;
+		position: absolute;
+		overflow: hidden;
+		top: 0px;
+		left: 0px;
+		right: 0px;
+
+		.phd-group-menu-header {
+			padding-bottom: 7px;
+			background: $marine;
+			width: 100%;
+
+			ul {
+				align-self: flex-start;
+
+				li {
+					display: flex;
+					justify-content: left;
+
+					div {
+						float: left;
+						padding: 0px 10px 0 10px !important;
+					}
+				}
+
+				p {
+					font-size: 11px;
+				}
+			}
+		}
+
+		.phd-summary {
+			padding: 0;
+			overflow-wrap: unset;
+			display: inline;
+		}
+	}
+
+	:host {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0px;
+		z-index: 100;
+	}
+
+	.show-menu {
+		display: block;
+	}
+
+	.responsive-menu-one {
+		position: fixed;
+		top: calc(#{$responsive-menu-height} + 10px);
+		left: 0px;
+		background: $twilight-blue;
+		width: auto;
+	}
+
+	.responsive-menu-two {
+		position: fixed;
+		top: calc(#{$responsive-menu-height} + 10px);
+		left: 0px;
+		background-color: white;
+		width: auto;
+	}
+}

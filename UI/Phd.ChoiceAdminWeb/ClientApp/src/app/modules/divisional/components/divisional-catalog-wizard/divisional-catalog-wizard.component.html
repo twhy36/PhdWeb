@@ -1,0 +1,47 @@
+<div class="phd-page-container">
+	<page-header mainTitle="Division Catalog - Update Tree">
+		<ng-template>
+			<div class="col">
+				<span class="phd-market-label">{{ selectedMarket?.name }}</span>
+			</div>
+		</ng-template>
+	</page-header>
+
+	<div class="phd-page-body">
+		<div class="d-flex flex-row justify-content-between phd-filter-body" *ngIf="currentStep === 1">
+			<div class="col">
+				<tree-toggle [groups]="groups"></tree-toggle>
+			</div>
+
+			<div class="col">
+				<div class="input-group">
+					<div ngbDropdown class="btn-group input-group-prepend">
+						<button type="button" class="btn btn-secondary" ngbDropdownToggle>
+							<span>{{selectedSearchFilter}}</span>
+							<span class="caret"></span>
+						</button>
+
+						<div ngbDropdownMenu>
+							<button class="dropdown-item" *ngFor="let searchFilter of searchFilters" (click)="selectedSearchFilter = searchFilter;">{{searchFilter}}</button>
+						</div>
+					</div>
+
+					<input type="text" [(ngModel)]="keyword" class="form-control phd-search-input" placeholder="Search" (keyup.enter)="keywordSearch();">
+					<span class="phd-search-clear" (click)="clearFilter()"><i class="fa fa-fw fa-close"></i></span>
+
+					<div class="input-group-append" (click)="keywordSearch();">
+						<button type="button" class="btn btn-secondary">
+							<i class="fa fa-fw fa-search"></i>
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<ng-container *ngIf="marketsLoaded">
+			<wizard-template [disableContinue]="disableContinue" [completeFunc]="complete" (onCancel)="cancel()" (onStepChange)="stepChange($event)" (onError)="error($event)" [isDirty]="isDirty"></wizard-template>
+		</ng-container>
+	</div>
+</div>
+
+<p-toast></p-toast>

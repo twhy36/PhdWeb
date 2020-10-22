@@ -1,0 +1,35 @@
+<portal-item title="Pulte Home Designer - Sales Admin" icon="calendar-check" [action]="salesAdminAction" *ngIf="canAccessSalesAdmin"></portal-item>
+
+<portal-item title="Dynamics 365" icon="users" [action]="d365Action"></portal-item>
+
+<portal-item title="Buyer Tracker" icon="tasks" [action]="buyerTrackerAction"></portal-item>
+
+<portal-item title="Pulte Home Designer - Create Spec or Model Homes" icon="home" *requiresClaim="'SalesAgreements'; permission: Permission.Approve" #spec>
+	<ng-template>
+		<spec-homes [action]="specAction" (onClose)="spec.close()"></spec-homes>
+	</ng-template>
+</portal-item>
+
+<portal-item title="Pulte Home Designer - Choice Admin" icon="wrench" [action]="choiceAdminAction" *requiresClaim="'NationalCatalog'; permission: Permission.Read"></portal-item>
+
+<!-- If user doesn't have PHD Reports access, take them straight to Sales Tally Report -->
+<portal-item title="Reporting" [action]="salesTallyAction" icon="chart-pie" *ngIf="!canAccessReports"></portal-item>
+
+<!-- If user has acccess to PHD Reports, show modal where they can select where they want to go -->
+<portal-item title="Reporting"  icon="chart-pie" *ngIf="canAccessReports" #reporting>
+	<ng-template>
+		<reporting [action]="reportsAction" (onClose)="reporting.close()"></reporting>
+	</ng-template>
+</portal-item>
+
+<portal-item title="Search" icon="search" *requiresClaim="'SalesAgreements'; permission: Permission.Read" modalSize="lg" #search>
+	<ng-template>
+		<phd-search [action]="searchAction" (onClose)="search.close()"></phd-search>
+	</ng-template>
+</portal-item>
+
+<portal-item title="Plan Preview" icon="binoculars" *requiresClaim="'SalesAgreements'; permission: Permission.Read" #preview>
+	<ng-template>
+		<plan-preview [action]="previewAction" (onClose)="preview.close()"></plan-preview>
+	</ng-template>
+</portal-item>

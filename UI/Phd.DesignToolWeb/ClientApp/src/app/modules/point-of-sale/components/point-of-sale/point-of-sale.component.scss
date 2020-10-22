@@ -1,0 +1,17 @@
+@import "../../../../../scss/color-pallet.scss";
+
+.point-of-sale-body {
+	width: 100%;
+	max-width: 1500px;
+	padding-bottom: 100px;
+
+	::ng-deep .ng-invalid:not(form):not(p-calendar):not(div) {
+		border: solid 1px $darkish-pink;
+		border-left-width: 5px;
+		box-shadow: none;
+	}
+}
+
+.phd-hpa-footer-info {
+	width: 100%;
+}

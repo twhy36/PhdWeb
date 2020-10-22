@@ -1,0 +1,104 @@
+@import "../../../../../scss/color-pallet.scss";
+@import "../../../../../scss/sizes.scss";
+
+.alert-small {
+	padding: 5px;
+	margin-bottom: 0px;
+	margin-top: 5px;
+}
+
+.ng-invalid:not(form):not(input) {
+	border-left: 5px solid $brand-danger;
+}
+
+.phd-checkboxes-block {
+	display: block !important;
+}
+
+.phd-selectBox {
+	position: relative;
+}
+
+.phd-bottomleft {
+	position: absolute;
+	top: -30px;
+}
+
+.phd-selectBox select {
+	width: 100%;
+	font-weight: bold;
+}
+
+.phd-overSelect {
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+}
+
+.phd-red-asterisk {
+	font-size: 12px;
+	color: red;
+}
+
+phd-form-check {
+	padding: 10px 0 0 5px;
+}
+
+#phd-checkboxes {
+	display: block;
+	border: 1px #dadada solid;
+	padding: 10px 0 0 5px;
+	background-color: #fff;
+}
+
+#phd-checkboxes label {
+	display: block;
+}
+
+#phd-checkboxes label:hover {
+	background-color: #1e90ff;
+}
+
+#phd-checkboxes-block {
+	display: block;
+}
+
+
+
+.phd-disabled-span {
+	background-color: grey;
+}
+
+.phd-smaller {
+	font-size: smaller;
+}
+
+.phd-extra-small {
+	font-size: x-small;
+}
+
+.phd-copy-button {
+	text-align: center;
+}
+
+.phd-selected-lots {
+	height: 122px;
+}
+
+.phd-arrow-buttons {
+	padding-top: 5px;
+}
+
+.phd-available-lots {
+	min-width: 100px;
+}
+
+.phd-required {
+	border-left: 5px solid #d9534f !important;
+}
+
+.phd-btn-copy {
+	width: 95px;
+}

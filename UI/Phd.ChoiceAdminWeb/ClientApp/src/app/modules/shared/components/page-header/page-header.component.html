@@ -1,0 +1,7 @@
+<div class="d-flex flex-row justify-content-between">
+	<h1>{{mainTitle}}<span *ngIf="mainTitleAddon" class="phd-main-title-addon">{{mainTitleAddon}}</span></h1>
+
+    <div class="m-0" *ngIf="headerTemplate">
+        <ng-container *ngTemplateOutlet="headerTemplate"></ng-container>
+    </div>
+</div>

@@ -1,0 +1,33 @@
+<div>
+	<attribute-group-action-panel #addGroups
+	                              [headerText]="'Select Attribute Groups'"
+	                              [actionButtons]="addAssocButtons"
+	                              [tableId]="'associateGroupsToAttribute'"
+	                              [searchEnabled]="true"
+	                              [searchResultStyle]="{'max-height':'200px'}"
+	                              [isDisabled]="isSaving"
+	                              [groups]="availableGroups$"
+	                              [customClass]="'card mb-2'"
+	                              [customBodyClass]="'card-body'"
+	                              [searchKeyword]="searchKeyword"
+	                              [selectedSearchFilter]="searchFilter"
+								  [selectedGroups]="searchSelectedAddGroup"
+	                              (displayErrorMessage)="displayErrorMessage($event)">
+	</attribute-group-action-panel>
+</div>
+
+<div *ngIf="selectedGroups.length">
+	<attribute-group-action-panel #removeGroups
+	                              [headerText]="'Selected Groups'"
+	                              [actionButtons]="removeAssocButtons"
+	                              [tableId]="'removeAssociatedGroupsFromAttribute'"
+	                              [searchEnabled]="false"
+	                              [searchResultStyle]="{'max-height':'200px'}"
+	                              [isDisabled]="isSaving"
+	                              [groups]="selectedGroups$"
+	                              [customClass]="'card mb-2'"
+	                              [customBodyClass]="'card-body'"
+	                              [selectedGroups]="searchSelectedRemoveGroup"
+	                              (displayErrorMessage)="displayErrorMessage($event)">
+	</attribute-group-action-panel>
+</div>

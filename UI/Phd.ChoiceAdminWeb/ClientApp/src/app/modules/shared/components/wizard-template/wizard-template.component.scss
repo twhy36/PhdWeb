@@ -1,0 +1,37 @@
+@import "../../../../../scss/color-pallet.scss";
+@import "../../../../../scss/sizes.scss";
+
+.phd-wizard-template {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+
+	.phd-wizard-header {
+		color: white;
+		font-size: 22px;
+		font-weight: bold;
+
+		.phd-wizard-step {
+			margin-right: 0.5em;
+			width: 1.5em;
+			display: inline-block;
+			text-align: center;
+			background: $twilight-blue;
+		}
+	}
+
+	.phd-wizard-body {
+		flex: 1;
+		overflow: auto;
+	}
+
+	.phd-wizard-footer {
+		padding: 1em;
+		background: $bg-white;
+	}
+
+	.phd-footer-btn {
+		display: flex;
+		justify-content: space-between;
+	}
+}

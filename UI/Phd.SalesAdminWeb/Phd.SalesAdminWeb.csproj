@@ -1,0 +1,146 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup Label="Globals">
+    <SccProjectName>SAK</SccProjectName>
+    <SccProvider>SAK</SccProvider>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccLocalPath>SAK</SccLocalPath>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
+    <TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
+    <IsPackable>false</IsPackable>
+    <SpaRoot>ClientApp\</SpaRoot>
+    <DefaultItemExcludes>$(DefaultItemExcludes);$(SpaRoot)node_modules\**</DefaultItemExcludes>
+
+    <!-- Set this to true if you enable server-side prerendering -->
+    <BuildServerSideRenderer>false</BuildServerSideRenderer>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="2.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Don't publish the SPA source files, but do show them in the project files list -->
+    <Content Remove="$(SpaRoot)**" />
+    <None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="ClientApp\src\app\modules\contracts\components\contracts\contracts.component.ts" />
+    <None Remove="ClientApp\src\app\modules\contracts\components\merge-fields-side-panel\merge-fields-side-panel.component.ts" />
+    <None Remove="ClientApp\src\app\modules\contracts\components\merge-fields\merge-fields.component.ts" />
+    <None Remove="ClientApp\src\app\modules\contracts\components\sign-fields\sign-fields.component.ts" />
+    <None Remove="ClientApp\src\app\modules\contracts\components\view-contracts-side-panel\view-contracts-side-panel.component.ts" />
+    <None Remove="ClientApp\src\app\modules\contracts\components\view-contracts\view-contracts.component.ts" />
+    <None Remove="ClientApp\src\app\modules\contracts\contracts.module.ts" />
+    <None Remove="ClientApp\src\app\modules\core\components\navigation-bar\navigation-bar.component.ts" />
+    <None Remove="ClientApp\src\app\modules\core\core.module.ts" />
+    <None Remove="ClientApp\src\app\modules\core\services\contract.service.ts" />
+    <None Remove="ClientApp\src\app\modules\core\services\logging.service.ts" />
+    <None Remove="ClientApp\src\app\modules\core\services\sales.service.ts" />
+    <None Remove="ClientApp\src\app\modules\core\services\settings.service.ts" />
+    <None Remove="ClientApp\src\app\modules\core\services\storage.service.ts" />
+    <None Remove="ClientApp\src\app\modules\lot-managment\components\sales-programs\sales-programs.component.ts" />
+    <None Remove="ClientApp\src\app\modules\lot-managment\lot-management.module.ts" />
+    <None Remove="ClientApp\src\app\modules\shared\models\contracts.model.ts" />
+    <None Remove="ClientApp\src\app\modules\shared\models\ESignFields.model.ts" />
+    <None Remove="ClientApp\src\app\modules\shared\models\mergeField.model.ts" />
+    <None Remove="ClientApp\src\app\modules\shared\models\salesPrograms.model.ts" />
+    <None Remove="ClientApp\src\app\modules\shared\models\settings.model.ts" />
+    <None Remove="ClientApp\src\app\modules\shared\pipes\availability.pipe.ts" />
+    <None Remove="ClientApp\src\app\modules\shared\pipes\capitalCaseSpace.pipe.ts" />
+    <None Remove="ClientApp\src\app\modules\shared\pipes\handings.pipe.ts" />
+    <None Remove="ClientApp\src\app\modules\shared\shared.module.ts" />
+    <None Remove="ClientApp\src\app\modules\shared\utils\guid.util.ts" />
+    <None Remove="ClientApp\src\app\modules\shared\utils\odata.util.ts" />
+    <None Remove="ClientApp\src\app\modules\pricing\pricing.module.ts" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <TypeScriptCompile Include="ClientApp\src\app\modules\contracts\components\contracts\contracts.component.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\modules\contracts\components\merge-fields-side-panel\merge-fields-side-panel.component.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\modules\contracts\components\merge-fields\merge-fields.component.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\modules\contracts\components\sign-fields\sign-fields.component.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\modules\contracts\components\view-contracts-side-panel\view-contracts-side-panel.component.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\modules\contracts\components\view-contracts\view-contracts.component.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\modules\contracts\contracts.module.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\modules\core\components\navigation-bar\navigation-bar.component.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\modules\core\core.module.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\modules\core\services\contract.service.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\modules\core\services\logging.service.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\modules\core\services\sales.service.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\modules\core\services\settings.service.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\modules\core\services\storage.service.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\modules\lot-managment\components\sales-programs\sales-programs.component.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\modules\lot-managment\lot-management.module.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\modules\shared\models\contracts.model.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\modules\shared\models\ESignFields.model.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\modules\shared\models\mergeField.model.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\modules\shared\models\salesPrograms.model.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\modules\shared\models\settings.model.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\modules\shared\pipes\availability.pipe.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\modules\shared\pipes\capitalCaseSpace.pipe.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\modules\shared\pipes\handings.pipe.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\modules\shared\shared.module.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\modules\shared\utils\guid.util.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\modules\shared\utils\odata.util.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\modules\pricing\pricing.module.ts" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="ClientApp\src\app\modules\pricing\components\" />
+  </ItemGroup>
+
+  <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
+    <!-- Ensure Node.js is installed -->
+    <Exec Command="node --version" ContinueOnError="true">
+      <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
+    </Exec>
+    <Error Condition="'$(ErrorCode)' != '0'" Text="Node.js is required to build and run this project. To continue, please install Node.js from https://nodejs.org/, and then restart your command prompt or IDE." />
+    <Message Importance="high" Text="Restoring dependencies using 'npm'. This may take several minutes..." />
+    <Exec WorkingDirectory="$(SpaRoot)" Command="npm install" />
+  </Target>
+
+  <Target Name="PublishRunWebpack" AfterTargets="ComputeFilesToPublish">
+    <!-- As part of publishing, ensure the JS resources are freshly built in production mode -->
+    <Exec WorkingDirectory="$(SpaRoot)" Command="npm install" />
+    <Exec WorkingDirectory="$(SpaRoot)" Command="npm run build -- --prod" />
+    <Exec WorkingDirectory="$(SpaRoot)" Command="npm run build:ssr -- --prod" Condition=" '$(BuildServerSideRenderer)' == 'true' " />
+
+    <!-- Include the newly-built files in the publish output -->
+    <ItemGroup>
+      <DistFiles Include="$(SpaRoot)dist\**; $(SpaRoot)dist-server\**" />
+      <DistFiles Include="$(SpaRoot)node_modules\**" Condition="'$(BuildServerSideRenderer)' == 'true'" />
+      <ResolvedFileToPublish Include="@(DistFiles->'%(FullPath)')" Exclude="@(ResolvedFileToPublish)">
+        <RelativePath>%(DistFiles.Identity)</RelativePath>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      </ResolvedFileToPublish>
+    </ItemGroup>
+  </Target>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <TypeScriptTarget>ES5</TypeScriptTarget>
+    <TypeScriptJSXEmit>None</TypeScriptJSXEmit>
+    <TypeScriptModuleKind>CommonJS</TypeScriptModuleKind>
+    <TypeScriptCompileOnSaveEnabled>True</TypeScriptCompileOnSaveEnabled>
+    <TypeScriptNoImplicitAny>False</TypeScriptNoImplicitAny>
+    <TypeScriptRemoveComments>False</TypeScriptRemoveComments>
+    <TypeScriptOutFile />
+    <TypeScriptOutDir />
+    <TypeScriptGeneratesDeclarations>False</TypeScriptGeneratesDeclarations>
+    <TypeScriptNoEmitOnError>True</TypeScriptNoEmitOnError>
+    <TypeScriptSourceMap>True</TypeScriptSourceMap>
+    <TypeScriptMapRoot />
+    <TypeScriptSourceRoot />
+  </PropertyGroup>
+
+</Project>

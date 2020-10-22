@@ -1,0 +1,20 @@
+<ul class="list-unstyled">
+	<li *ngFor="let point of points" (click)="onDecisionPointClick(point)" [class.active]="currentDecisionPoint === point" class="d-flex align-items-center justify-content-end" [@slideOut]>
+		<div class="label" [class.phd-past-cutt-off]="point.isPastCutOff" title="{{point.label}}">{{point.label | ellipsis: 40}}</div>
+		<div class="icon" *ngIf="showStatusIndicator">
+			<status-indicator [pointStatus]="point.status"></status-indicator>
+		</div>
+	</li>
+	<li *ngIf="!points?.length" class="d-flex align-items-center justify-content-end" [@slideOut]>
+		<div class="label"></div>
+		<div class="status-placeholder"></div>
+	</li>
+	<li *ngIf="!points?.length" class="d-flex align-items-center justify-content-end" [@slideOut]>
+		<div class="label"></div>
+		<div class="status-placeholder"></div>
+	</li>
+	<li *ngIf="!points?.length" class="d-flex align-items-center justify-content-end" [@slideOut]>
+		<div class="label"></div>
+		<div class="status-placeholder"></div>
+	</li>
+</ul>

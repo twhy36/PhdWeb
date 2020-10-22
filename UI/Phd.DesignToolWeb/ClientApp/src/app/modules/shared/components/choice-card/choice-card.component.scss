@@ -1,0 +1,258 @@
+@import "../../../../../scss/color-pallet.scss";
+@import "../../../../../scss/animations.scss";
+
+.phd-choice-card-div {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.phd-choice-card {
+	@extend .phd-choice-card-div;
+	width: 269px;
+	height: 425px;
+	background-color: white;
+	margin: 5px;
+	margin-bottom: 10px;
+	border: 1px solid rgba(0,0,0,.125);
+	border-radius: .25rem;
+	cursor: pointer;
+
+	.phd-header {
+		flex: 0 1 auto;
+		position: relative;
+	}
+
+	.phd-circles {
+		display: flex;
+		justify-content: flex-end;
+		margin-top: .25em;
+		margin-right: .25em;
+
+		.phd-circle-one {
+			color: $squash;
+		}
+
+		.phd-circle-two {
+			color: $weird-green;
+		}
+
+		.phd-circle-three {
+			color: $twilight-blue;
+		}
+	}
+
+	.phd-body {
+		flex: 1 1 auto;
+		display: flex;
+		flex-direction: column;
+		width: 100%;
+
+		.phd-choice-body {
+			display: flex;
+			justify-content: center;
+			flex-direction: column;
+		}
+
+		.phd-quantity {
+			text-align: center;
+			font-size: 12px;
+			font-weight: bold;
+		}
+	}
+
+	.phd-footer {
+		@extend .phd-choice-card-div;
+		flex: 0 1 auto;
+		padding-bottom: 6px;
+		width: 100%;
+
+		.phd-footer-btn-container {
+			cursor: default;
+			padding: 5px 15px;
+		}
+	}
+
+	&.active {
+		box-shadow: 0 0 0 2pt $weird-green;
+		transition: all 0.12s;
+		transition-timing-function: cubic-bezier(.42, 0, 1, 1);
+
+		&.selected button {
+			background-color: $white;
+			color: $link-blue;
+			font-size: 12px;
+			text-transform: capitalize;
+		}
+	}
+
+	&.disabled {
+		z-index: 2;
+		background-color: #e8e8e8;
+		opacity: 0.50;
+	}
+
+	.phd-disable-hover {
+		pointer-events: none;
+	}
+
+	.phd-choice-image {
+		width: 100%;
+		flex-basis: 75%;
+		border-bottom: 1px solid lightgrey;
+		min-height:190px;
+
+		::ng-deep img {
+			height: 190px;
+			width: 100%;
+			cursor: pointer;
+			border-radius: .25rem .25rem 0 0;
+		}
+
+		&:empty {
+			background-color: lightgrey;
+			@include shimmer();
+		}
+	}
+
+	.phd-image-loading {
+		height: 100%;
+		width: 100%;
+		position: absolute;
+		background-color: lightgray;
+		z-index: 999 !important;
+		text-align: center;
+		opacity: 0.5;
+		cursor: not-allowed;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+
+	.phd-past-cutt-off {
+		color: $dodger-blue;
+	}
+
+	.phd-choice-details {
+		margin: 16px 20px 0 20px;
+		max-height: 220px;
+
+		*:empty {
+			height: 20px;
+			width: 100%;
+			background-color: lightgrey;
+			@include shimmer();
+		}
+
+		h1 {
+			font-size: 16px;
+			font-weight: 500;
+			text-transform: uppercase;
+		}
+
+		p {
+			font-size: 14px;
+			font-weight: 300;
+			margin-bottom: 0;
+
+			strong {
+				font-weight: 500;
+				text-transform: capitalize;
+			}
+
+			.star {
+				font-size: 12px;
+				color: $squash;
+			}
+		}
+	}
+
+	.phd-2-line-limit {
+		display: -webkit-box;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 2;
+		overflow: hidden;
+	}
+
+	.phd-choice-attribute {
+		font-size: 12px;
+		width: 100%;
+		padding: 0px 5px;
+	}
+
+	.phd-choice-disabled-msg {
+		color: #0b8bb3;
+		font-size: 13px;
+		line-height: 40px;
+	}
+
+	.phd-choice-disabled {
+		opacity: 0.5;
+	}
+
+	.phd-qty-selector {
+		width: 100%;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+
+		& > * {
+			flex-basis: 33.33%;
+		}
+
+		.phd-quantity-input {
+			margin: 5px;
+		}
+	}
+
+	button {
+		//width: 110px;
+		height: 40px;
+		text-transform: uppercase;
+
+		&:focus {
+			box-shadow: none;
+		}
+
+		&:empty {
+			visibility: hidden;
+		}
+	}
+
+	&.phd-monotony-conflict {
+		> div:not(.phd-monotony-conflict-message) {
+			opacity: 0.5;
+		}
+	}
+
+	.phd-monotony-conflict-message {
+		color: red;
+		font-weight: bold;
+		height: 40px;
+		margin-bottom: 5px;
+		margin-top: 10px;
+	}
+
+	.phd-override {
+		width: 175px;
+		height: 40px;
+	}
+
+	.phd-override-box {
+		display: flex;
+		align-items: center;
+		margin-top: 0px;
+	}
+
+	.phd-override-button {
+		margin-top: 4px;
+		margin-left: 5px;
+		padding: 0px 10px;
+	}
+
+	.phd-clickable {
+		text-decoration: underline;
+	}
+}
+
+

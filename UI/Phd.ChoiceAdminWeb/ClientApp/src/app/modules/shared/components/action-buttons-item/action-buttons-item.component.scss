@@ -1,0 +1,13 @@
+@import "../../../../../scss/color-pallet.scss";
+
+li:hover {
+    cursor: pointer;
+}
+
+.disabled {
+	cursor: not-allowed;
+
+	span {
+		cursor: not-allowed;
+	}
+}

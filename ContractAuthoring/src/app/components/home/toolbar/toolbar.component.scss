@@ -1,0 +1,17 @@
+.pulte-vertical-align {
+    align-items: center; /* for vertical align */
+    display: flex;
+    height: 60px;
+    /* justify-content: center; <- for horizontal align */
+    width: 60px;
+  }
+
+.fill-remaining-space {
+    flex: 1 1 auto;
+  }
+
+.mat-toolbar {
+  .mat-raised-button:not(:last-child) {
+    margin-right: 5px;
+  }
+}

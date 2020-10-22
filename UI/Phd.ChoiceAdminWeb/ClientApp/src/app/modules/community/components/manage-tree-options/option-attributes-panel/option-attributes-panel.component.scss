@@ -1,0 +1,54 @@
+@import "../../../../../../scss/styles.scss";
+
+.div-section {
+	margin-bottom: 1em;
+}
+
+#attributeList ul, #attributeList li {
+	margin: 0;
+	padding: 0;
+}
+
+.phd-option-loading {
+	margin-bottom: 15px;
+}
+
+.phd-attribute-reassign {
+	border-top: 1px solid #dee2e6;
+	padding-top: 1em;
+
+	.phd-attribute-reassign-header {
+		font-weight: bold;
+		font-size: 1.25em;
+	}
+
+	.phd-attribute-reassign-rules-label {
+		font-weight: bold;
+	}
+
+	.phd-attribute-reassign-rules div {
+		font-size: .75em;
+		padding-left: 1em;
+	}
+}
+
+.phd-tree-rule, .phd-delete {
+	cursor: pointer;
+}
+
+.phd-tree-rule-disabled {
+	color: #ccc;
+	cursor: auto;
+}
+
+.phd-child-sp {
+	padding-left: 20px !important;
+}
+
+.phd-grand-child-sp {
+	padding-left: 40px !important;
+}
+
+.phd-great-grand-child-sp {
+	padding-left: 60px !important;
+}

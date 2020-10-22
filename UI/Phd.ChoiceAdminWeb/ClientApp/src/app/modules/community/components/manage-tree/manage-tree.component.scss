@@ -1,0 +1,57 @@
+@import "../../../../../scss/color-pallet.scss";
+@import "../../../../../scss/sizes.scss";
+@import "../../../../../scss/styles.scss";
+
+:host {
+    display: -webkit-flex;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.page-container, .page-body {
+    display: -webkit-flex;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.page-body {
+    background-color: #fff;
+    overflow-y: auto;
+}
+
+.phd-msg-list-group-item {
+	cursor: pointer;
+}
+
+#newTreeButtons {
+	.dropdown-item {
+		cursor: pointer;
+	}
+}
+
+phd-action-buttons-item {
+	i {
+		&.disabled {
+			opacity: 0.65;
+			cursor: not-allowed !important;
+		}
+	}
+}
+
+.phd-search-clear {
+	position: absolute;
+	right: 70px;
+	top: 0;
+	bottom: 0;
+	margin: auto;
+	font-size: 14px;
+	cursor: pointer;
+	z-index: 10;
+	padding-top: 8px;
+}
+
+::ng-deep .phd-main-title-addon {
+	color: #007bff;
+}

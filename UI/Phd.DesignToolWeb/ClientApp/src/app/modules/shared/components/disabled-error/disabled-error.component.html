@@ -1,0 +1,47 @@
+<div class="p-3">
+	<ng-template #displayErrorOverride>
+		<div><span>{{errorOverride}}</span></div>
+	</ng-template>
+
+	<ng-template [ngIf]="!errorOverride" [ngIfElse]="displayErrorOverride">
+		<!--Header message if there are multiple error messages-->
+		<div class="mb-3" *ngIf="isMultiError"><strong>The following criteria needs to be satisfied:</strong></div>
+
+		<!--The errors array adds choice errors and point errors together-->
+		<ul [class.phd-multi-error]="isMultiError">
+			<!--Within each type of error is the disabledBy array which makes up a single line -->
+			<li *ngFor="let e of errors; let i = index">
+
+				<span *ngIf="e.errorType === ErrorTypeEnum.C2C">
+					<span *ngIf="!isMultiError">Disabled due to </span>
+					<span *ngIf="isMultiError">Choice disabled due to </span>
+				</span>
+
+				<span *ngFor="let d of e.disabledBy; let di = index">
+					<span *ngIf="di > 0"> or </span>
+					<span *ngFor="let r of d.rules; let ri = index">
+						<span *ngIf="ri > 0"> or </span>
+						<span *ngFor="let p of r.points; let pi = index">
+							<span *ngIf="pi > 0"> and </span>
+							<span *ngIf="r.points.length > 1 && pi == 0">(</span>
+							<a class="phd-clickable phd-link phd-point" (click)="onPointNav(p)">{{p | pointIdToName | async }}</a>
+							<span *ngIf="r.points.length > 1 && r.points.length == pi + 1">)</span>
+						</span>
+						<span *ngFor="let c of r.choices; let ci = index">
+							<span *ngIf="ci > 0"> and </span>
+							<span *ngIf="r.choices.length > 1 && ci == 0">(</span>
+							<a class="phd-clickable phd-link phd-choice" (click)="onChoiceNav(c)">{{c | choiceIdToName | async }}</a>
+							<span *ngIf="r.choices.length > 1 && r.choices.length == ci + 1">)</span>
+						</span>
+					</span>
+				</span>
+
+				selection
+
+				<span *ngIf="e.errorType === ErrorTypeEnum.DP2C || e.errorType === ErrorTypeEnum.DP2DP"> required to enable this choice</span>
+			</li>
+		</ul>
+	</ng-template>
+
+</div>
+

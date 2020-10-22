@@ -1,0 +1,70 @@
+<phd-side-panel-component [headerTemplate]="header" [bodyTemplate]="body" [footerTemplate]="footer" [sidePanelOpen]="sidePanelOpen" (onSidePanelClose)="onCloseSidePanel($event)" [isDirty]="isDirty">
+	<ng-template #header>
+		<h4 class="phd-side-panel-title"><strong>Manage Field</strong></h4>
+	</ng-template>
+
+	<ng-template #body>
+		<div class="container pt-3">
+			<form [formGroup]="mergeFieldsForm">
+				<div class="form-group">
+					<label>Field Name</label>
+					<input type="text" class="form-control phd-field-required" maxlength="100" id="fieldName" formControlName="fieldName" required />
+					<div class="col-sm-12">
+						<span class="text-danger"
+							  *ngIf="mergeFieldsForm.controls.fieldName.invalid && (mergeFieldsForm.controls.fieldName.dirty || mergeFieldsForm.controls.fieldName.touched) && mergeFieldsForm.controls.fieldName.errors.required">
+							Invalid: A Field Name is required.
+						</span>
+						<span class="text-danger"
+							  *ngIf="mergeFieldsForm.controls.fieldName.invalid && mergeFieldsForm.controls.fieldName.dirty && mergeFieldsForm.controls.fieldName.errors.fieldNameDuplicateCheck">
+							Invalid: This Field Name already exists.
+						</span>
+						<span class="text-danger"
+							  *ngIf="mergeFieldsForm.controls.fieldName.invalid && mergeFieldsForm.controls.fieldName.dirty && mergeFieldsForm.controls.fieldName.errors.whiteSpaceValidator">
+							Invalid: Field Name must have alpha/numeric characters
+						</span>
+					</div>
+				</div>
+				<div class="form-group">
+					<label>Field Value</label>
+					<textarea class="form-control phd-field-required " rows="8" maxlength="1000" formControlName="fieldValue" required></textarea>
+					<div class="col-sm-12">
+						<span class="text-danger"
+							  *ngIf="mergeFieldsForm.controls.fieldValue.invalid && (mergeFieldsForm.controls.fieldValue.dirty || mergeFieldsForm.controls.fieldValue.touched) && mergeFieldsForm.controls.fieldValue.errors.required">
+							Invalid: A Field Value is required.
+						</span>
+						<span class="text-danger"
+							  *ngIf="mergeFieldsForm.controls.fieldValue.invalid && mergeFieldsForm.controls.fieldValue.dirty && mergeFieldsForm.controls.fieldValue.errors.fieldValueDuplicateCheck">
+							Invalid: This Field Value already exists.
+						</span>
+						<span class="text-danger"
+							  *ngIf="mergeFieldsForm.controls.fieldValue.invalid && mergeFieldsForm.controls.fieldValue.dirty && mergeFieldsForm.controls.fieldValue.errors.whiteSpaceValidator">
+							Invalid: Field Value must have alpha/numeric characters
+						</span>
+					</div>
+				</div>
+				<div class="form-group" >
+					<div class="form-check">
+						<label class="form-check-label" for="isActive">
+							<input class="form-check-input" name="isActive" formControlName="isActive" type="checkbox" id="isActive" [ngModel]="isActive">
+							Active
+						</label>
+					</div>
+				</div>
+			</form>
+		</div>
+	</ng-template>
+
+	<ng-template #footer>
+		<div class="pull-right">
+			<button class="btn btn-primary phd-btn-save" (click)="save();" [disabled]="saveDisabled">
+				Save
+
+				<ng-container *ngIf="saving">
+					<i class="fa fa-spinner fa-spin fa-fw"></i>
+				</ng-container>
+			</button>
+
+			<button class="btn btn-secondary" (click)="onCancel()">Cancel</button>
+		</div>
+	</ng-template>
+</phd-side-panel-component>

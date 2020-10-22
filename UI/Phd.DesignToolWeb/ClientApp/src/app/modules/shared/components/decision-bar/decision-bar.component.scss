@@ -1,0 +1,70 @@
+@import "../../../../../scss/color-pallet.scss";
+@import "../../../../../scss/animations.scss";
+
+ul {
+
+	li {
+		text-transform: capitalize;
+		font-size: 14px;
+		padding-bottom: 20px;
+		text-align: right;
+		cursor: pointer;
+		overflow-wrap: break-word;
+		word-wrap: break-word; // depricated but required for MS Edge, should be removed as soon as edge is current
+		.phd-past-cutt-off {
+			opacity: .5;
+		}
+
+		.label {
+			margin-right: 20px;
+			transition: all .3s ease;
+
+			&:empty {
+				background-color: lightgray;
+				width: 200px;
+				height: 14px;
+				@include shimmer();
+			}
+		}
+
+		.icon {
+			& ::ng-deep .phd-status-indicator {
+
+				* {
+					width: 12px !important;
+					height: 12px !important;
+					transition: all .3s ease;
+				}
+			}
+		}
+
+		.status-placeholder {
+			border-radius: 50%;
+			width: 12px;
+			height: 12px;
+			background-color: lightgray;
+			@include shimmer();
+		}
+
+		&.active {
+			text-decoration: underline;
+			font-weight: 500;
+
+			span {
+				* {
+					width: 16px !important;
+					height: 16px;
+				}
+			}
+
+			.label {
+				margin-right: 34px;
+			}
+		}
+
+		&:hover {
+			transition: all .5s;
+			font-weight: 500;
+		}
+	}
+}

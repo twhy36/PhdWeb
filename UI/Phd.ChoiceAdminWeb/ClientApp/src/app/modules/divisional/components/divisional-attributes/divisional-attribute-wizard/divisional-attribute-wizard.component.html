@@ -1,0 +1,16 @@
+<div class="phd-page-container">
+	<div class="phd-page-body">
+		<div *ngIf="currentStep === 1" class="row m-0">
+			<div class="col-md-4 div-search-bar">
+				<search-bar [searchFilters]="filterNames" [selectedSearchFilter]="selectedSearchFilter" [keyword]="keyword"
+							(onClearFilter)="clearFilter()" (onKeywordSearch)="keywordSearch($event)" [searchButtonDisabled]="true"></search-bar>
+			</div>
+		</div>
+
+		<ng-container *ngIf="marketLoaded">
+			<wizard-template [disableContinue]="disableContinue" [disableCancel]="disableCancel" [completeFunc]="complete" (onCancel)="cancel()" (onStepChange)="stepChange($event)" (onError)="error($event)" [isDirty]="isDirty"></wizard-template>
+		</ng-container>
+	</div>
+</div>
+
+<p-toast></p-toast>

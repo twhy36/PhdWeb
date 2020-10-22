@@ -1,0 +1,167 @@
+@import "../../../../../scss/color-pallet.scss";
+@import "../../../../../scss/sizes.scss";
+
+#phd-phase-bar {
+	background-color: white;
+	box-shadow: 10px 0 10px -10px rgba(153, 153, 153, 0.5);
+	left: $nav-menu;
+	max-width: $phase-bar;
+	min-height: 100vh;
+	overflow: hidden;
+	position: fixed;
+	text-align: center;
+	top: 0;
+	transition-timing-function: cubic-bezier(.42, 0, 1, 1);
+	width: $phase-bar;
+
+	&,
+	* {
+		transition: all .3s;
+	}
+
+	.phd-phase-bar-header {
+		align-items: flex-end;
+		display: flex;
+		font-size: 12px;
+		font-weight: 500;
+		height: 50px;
+		justify-content: space-around;
+		padding-bottom: 7px;
+		padding-top: 7px;
+		white-space: nowrap;
+	}
+
+	&.closed {
+		min-width: 0px;
+		width: 0px;
+		visibility: hidden;
+	}
+
+	ul li {
+		font-size: 10px;
+		font-weight: 300;
+		border-radius: 8px;
+		border: solid 1px #d4d4d4;
+		min-width: 125px;
+		width: 125px;
+		height: 35px;
+		display: inline-block;
+		margin-top: 20px;
+		position: relative;
+		color: grey;
+		text-transform: uppercase;
+		cursor: pointer;
+
+		& ::ng-deep .phd-status-indicator {
+			position: absolute;
+			margin: auto;
+			width: 50%;
+			height: 50%;
+			top: 0;
+			bottom: 0;
+		}
+
+		& .phd-status-container {
+			flex-basis: 20%;
+			position: relative;
+			height: 100%;
+		}
+
+		& .label {
+			flex-basis: 80%;
+		}
+
+		&.active-link {
+			border-color: $twilight-blue;
+			cursor: default;
+		}
+
+		&.disabled {
+			cursor: default;
+			pointer-events: none;
+		}
+	}
+}
+
+@media (min-width: calc(#{$tablet-max-width}+1)) {
+
+	/*TOP GREY LINE*/
+	/*&::before {
+		content: "";
+		background-color: #f8f8f8;
+		position: absolute;
+		width: 8px;
+		height: 20px;
+		left: 50%;
+		bottom: 102%;
+	}*/
+}
+
+@media (max-width: $tablet-max-width) {
+	:host {
+		width: 100%;
+		position: fixed;
+		top: 56px;
+		height: $responsive-menu-height;
+		left: 0px;
+		background: $twilight-blue;
+		justify-content: center;
+		z-index: 99;
+	}
+
+	#phd-phase-bar {
+		& ::ng-deep .phd-status-indicator {
+			right: 10px;
+			margin: initial;
+		}
+
+		:hover {
+			.active-link {
+				display: block !important;
+			}
+
+			li:not(.active-link) {
+				display: block !important;
+			}
+		}
+	}
+
+	#phase-items {
+		background: $twilight-blue;
+		display: block;
+		position: absolute;
+		left: 100px;
+		top: 0px;
+		flex-direction: column !important;
+		padding: 0px 5px 10px 5px;
+
+		& ::ng-deep .phd-status-indicator {
+			right: 10px;
+			margin: initial;
+			width: initial !important;
+		}
+
+		.active-link {
+			display: block !important;
+			align-items: center;
+		}
+
+		li:not(.active-link) {
+			display: none !important;
+			align-items: center;
+		}
+
+		.label {
+			position: absolute;
+			top: 5px;
+			left: 0px;
+			font-size: 90%;
+			align-items: center;
+			width: 100%;
+		}
+
+		li {
+			background: white;
+		}
+	}
+}

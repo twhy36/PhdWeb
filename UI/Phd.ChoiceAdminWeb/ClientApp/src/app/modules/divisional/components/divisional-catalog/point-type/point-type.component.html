@@ -1,0 +1,68 @@
+<form [formGroup]="catalogForm">
+	<div class="form-group" *ngIf="catalogItem.isFlooring">
+		<label for="itemLabel" class="col-form-label">Label</label>
+		<input type="text" class="form-control" id="itemLabel" name="itemLabel" maxlength="50" formControlName="itemLabel" />
+		<span *ngIf="catalogForm.controls.itemLabel && catalogForm.controls.itemLabel.invalid && (catalogForm.controls.itemLabel.dirty || catalogForm.controls.itemLabel.touched) && catalogForm.controls.itemLabel.errors.alreadyExist">This Label already exists.</span>
+	</div>
+
+	<div class="form-group" *ngIf="catalogItem.isFlooring">
+		<label for="description" class="col-form-label">Description</label>
+		<textarea class="form-control" id="description" rows="3" maxlength="250" formControlName="itemDescription"></textarea>
+	</div>
+
+	<div class="form-group">
+		<label for="pointType" class="col-form-label">Decision Point Type</label>
+		<select class="form-control" id="pointType" formControlName="pointPickType" required>
+			<option [ngValue]="null">Select Type</option>
+			<option *ngFor="let pickType of pickTypes" [ngValue]="pickType.dPointPickTypeID">{{ pickType.dPointPickTypeLabel }}</option>
+		</select>
+	</div>
+
+	<div class="form-check">
+		<input id="quick-quote-check" class="form-check-input" type="checkbox" formControlName="isQuickQuote" />
+		<label for="quick-quote-check" class="icon-spacing-right form-check-label">Quick Quote</label>
+		<span class="fa-stack phd-fa-quick-quote" ngbTooltip="Quick Quote" container="body">
+			<i class="fa fa-comment-o"></i>
+			<strong class="fa-stack-1x">QQ</strong>
+		</span>
+	</div>
+
+	<div class="form-check">
+		<input id="structural-check" class="form-check-input" type="checkbox" formControlName="isStructural" />
+		<label for="structural-check" class="form-check-label">Sales</label>
+		<i class="fa fa-gavel icon-spacing-left" aria-hidden="true" ngbTooltip="Sales" container="body"></i>
+	</div>
+
+	<fieldset class="phd-fieldset mt-3">
+		<legend class="phd-legend">Cut-Off</legend>
+
+		<div>
+			<div class="form-check phd-cutoff-label">
+				<input type="radio" id="stage" name="cutOffType" class="form-check-input" (change)="onCutOffTypeChange(0)" formControlName="cutOffType" [value]="0" [(ngModel)]="selectedCutOffType" />
+				<label for="stage" class="form-check-label">Stage:</label>
+			</div>
+
+			<div class="phd-cutoff-field">
+				<select class="form-control" id="cutOffStage" formControlName="cutOffStage">
+					<option [ngValue]="undefined">Select Type</option>
+					<option *ngFor="let stageType of stageTypes" [ngValue]="stageTypeEnum[stageType]">{{ stageType }}</option>
+				</select>
+			</div>
+		</div>
+
+		<div>
+			<div class="phd-cutoff-label"></div>
+			<div class="phd-cutoff-field phd-cutoff-or">or</div>
+		</div>
+
+		<div>
+			<div class="form-check phd-cutoff-label">
+				<input type="radio" id="days" name="cutOffType" class="form-check-input" (change)="onCutOffTypeChange(1)" formControlName="cutOffType" [value]="1" [(ngModel)]="selectedCutOffType" />
+				<label for="days" class="form-check-label">Days:</label>
+			</div>
+			<div class="phd-cutoff-field">
+				<input id="cutOffDays" formControlName="cutOffDays" type="number" step="1" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode === 45" />
+			</div>
+		</div>
+	</fieldset>
+</form>

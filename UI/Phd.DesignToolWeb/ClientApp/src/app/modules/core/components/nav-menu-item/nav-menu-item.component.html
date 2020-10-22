@@ -1,0 +1,11 @@
+<li [class.active-link]="isActive" [class.disabled]="disabled">
+	<a class="position-relative">
+		<ng-template [ngIf]="template">
+			<ng-container *ngTemplateOutlet="template"></ng-container>
+		</ng-template>
+		<ng-template [ngIf]="!template">{{label}}</ng-template>
+		<span *ngIf="showStatusIndicator">
+			<status-indicator [pointStatus]="status" [isActive]="isActive"></status-indicator>
+		</span>
+	</a>
+</li>

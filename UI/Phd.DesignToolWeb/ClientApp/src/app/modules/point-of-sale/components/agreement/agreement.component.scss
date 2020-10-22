@@ -1,0 +1,43 @@
+@import "../../../../../scss/color-pallet.scss";
+
+.phd-detail-container {
+	width: 100%;
+	max-width: 1500px;
+	min-height: 45px;
+	font-size: 14px;
+	line-height: 1.36;
+}
+
+.flex-column {
+	.d-flex {
+		.flex-column:first-child {
+			text-align: left;
+			margin-left: 20px;
+		}
+	}
+}
+
+.phd-scar-popover {
+	cursor: pointer;
+	color: $link-blue !important;
+}
+
+.phd-stage-label {
+	font-weight: bold;
+	padding-right: 10px;
+}
+
+::ng-deep .popover-header {
+	text-align: center;
+}
+
+.phd-scar-stage {
+	display: flex;
+	justify-content: space-between;
+}
+
+.phd-detail-container {
+	&.phd-collapsed {
+		display: none !important;
+	}
+}

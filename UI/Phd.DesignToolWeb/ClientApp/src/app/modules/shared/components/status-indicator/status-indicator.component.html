@@ -1,0 +1,18 @@
+<span class="phd-status-indicator" *ngIf="pointStatus === ePointStatus.UNVIEWED" [@flipOver]>
+	<i class="far fa-circle" [class.phd-icon-active]="isActive"></i>
+</span>
+<span class="phd-status-indicator" *ngIf="pointStatus === ePointStatus.VIEWED" [@flipOver]>
+	<i class="far fa-circle phd-viewed"></i>
+</span>
+<span  class="phd-status-indicator" *ngIf="pointStatus === ePointStatus.REQUIRED" [@flipOver]>
+	<i class="fas fa-exclamation-circle phd-required"></i>
+</span>
+<span class="phd-status-indicator" *ngIf="pointStatus === ePointStatus.PARTIALLY_COMPLETED" [@flipOver]>
+	<i class="fas fa-adjust phd-partially-completed" ></i>
+</span>
+<span class="phd-status-indicator" *ngIf="pointStatus === ePointStatus.COMPLETED" [@flipOver]>
+	<i class="fas fa-check-circle phd-completed"></i>
+</span>
+<span class="phd-status-indicator" *ngIf="pointStatus === ePointStatus.CONFLICTED" [@flipOver]>
+	<i class="fas fa-ban phd-conflicted"></i>
+</span>

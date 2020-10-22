@@ -1,0 +1,75 @@
+<page-header mainTitle="Lot Transfer Change order"></page-header>
+
+<div class="d-flex justify-content-center">
+	<div class="phd-lot-transfer-container">
+
+		<div class="d-flex flex-row phd-row">
+			<div class="d-flex align-items-center phd-label p-2">Choose the new lot</div>
+			<div class="phd-selection-container p-2">
+				<div ngbDropdown class="d-inline-block" [autoClose]="true">
+					<button class="btn btn-outline-secondary phd-selection" id="lotMenu" ngbDropdownToggle [disabled]="lotsDisabled || !canEdit">{{selectedLotDisplay}}</button>
+					<div ngbDropdownMenu aria-labelledby="lotMenu" class="dropdown-menu phd-selection">
+						<button *ngFor="let lot of lots" class="dropdown-item" (click)="onChangeLot(lot)" [disabled]="lotsDisabled">
+							<div class="d-flex flex-row">
+								<span class="p-3">{{lot.lotBlock}}</span>
+								<span class="w-50 p-3">{{lot.streetAddress1}}</span>
+								<span class="p-3">{{lot.premium | currency:'USD':'symbol':'0.0-0'}}</span>
+								<span class="p-3">{{lot.lotBuildTypeDesc === 'Spec' ? 'Spec' : ' '}}</span>
+							</div>
+						</button>
+					</div>
+				</div>
+				<div *ngIf="lotsDisabled" class="phd-no-lots">No lots available!</div>
+			</div>
+		</div>
+
+		<div *ngIf="selectedLot" class="d-flex flex-row phd-row">
+			<div class="d-flex align-items-center phd-label p-2">Handing</div>
+			<div class="d-flex align-items-center phd-selection-container p-2">
+				<div *ngIf="selectedLot?.handings?.length === 1 || selectedLot?.lotBuildTypeDesc === 'Spec'" class="phd-selection">
+					{{selectedHanding}}
+				</div>
+				<div *ngIf="selectedLot?.handings?.length > 1 && selectedLot?.lotBuildTypeDesc !== 'Spec'" class="d-inline-block phd-handings">
+					<div class="d-flex flex-row phd-selection-container p-2">
+						<div *ngFor="let handing of selectedLot.handings">
+							<div class="pr-3 pt-3">
+								<label class="phd-radio-container">
+									{{handing.name}}
+									<input type="radio" name="handing" value={{handing.name}} (change)="onChangeHanding($event.target.value)" [checked]="selectedHanding === handing.name" [disabled]="!canEdit">
+									<span class="phd-radio-checkmark"></span>
+								</label>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div *ngIf="displayRevertQuestion && selectedLot" class="d-flex flex-row phd-row">
+			<div class="d-flex align-items-center phd-label p-2">What do you want to do with the previous lot?</div>
+			<div class="d-flex flex-row phd-selection-container p-2">
+				<div class="pr-3 pt-3">
+					<label class="phd-radio-container">
+						Revert to Dirt
+						<input type="radio" id="selectionDirt" name="revert" [value]="true" [(ngModel)]="revertToDirt" (change)="onRevertTo()" [controlDisabled]="!canEdit">
+						<span class="phd-radio-checkmark"></span>
+					</label>
+				</div>
+				<div class="p-3">
+					<label class="phd-radio-container">
+						Revert to Spec
+						<input type="radio" id="selectionSpec" name="revert" [value]="false" [(ngModel)]="revertToDirt" (change)="onRevertTo()" [controlDisabled]="!canEdit">
+						<span class="phd-radio-checkmark"></span>
+					</label>
+				</div>
+			</div>
+		</div>
+
+	</div>
+</div>
+
+<action-bar primaryAction="Change It"
+			[actionBarStatus]="selectionComplete ? 'COMPLETE' : 'INCOMPLETE'"
+			[inChangeOrder]="true"
+			[canChange]="canEdit">
+</action-bar>

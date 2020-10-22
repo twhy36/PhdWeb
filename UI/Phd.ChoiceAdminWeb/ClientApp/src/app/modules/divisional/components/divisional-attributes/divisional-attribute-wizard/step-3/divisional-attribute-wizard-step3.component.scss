@@ -1,0 +1,60 @@
+@import "../../../../../../../scss/color-pallet.scss";
+@import "../../../../../../../scss/sizes.scss";
+
+.phd-communities {
+	height: 75%;
+}
+
+.phd-col-width-chkbox {
+	width: 40px;
+}
+
+.phd-plan-chkbox {
+	margin-left: 2em;
+}
+
+.phd-wiz-checkbox {
+	margin-right: 1em;
+	position: initial;
+	vertical-align: middle;
+	border: 1px solid #a6a6a6;
+	background-color: #ffffff;
+	width: 20px;
+	height: 20px;
+	text-align: center;
+	border-radius: 3px;
+	-webkit-transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
+	transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+
+.phd-mapping {
+	.phd-mapping-header {
+		font-weight: bold;
+		color: #495057;
+		background-color: #e9ecef;
+		border-color: #dee2e6;
+		padding: .3rem;
+		margin-bottom: 1em;
+	}
+
+	.phd-mapping-body {
+		margin-left: 1em;
+		margin-bottom: 1em;
+
+		.phd-mapping-item {
+			margin-bottom: 1em;
+		}
+
+		.phd-mapping-item-header {
+			font-weight: bold;
+		}
+
+		.phd-mapping-item-body {
+		}
+
+		ul {
+			list-style-type: none;
+			padding: 0;
+		}
+	}
+}

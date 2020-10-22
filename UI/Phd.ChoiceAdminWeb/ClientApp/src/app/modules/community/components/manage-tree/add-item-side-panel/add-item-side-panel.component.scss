@@ -1,0 +1,26 @@
+@import "../../../../../../scss/color-pallet.scss";
+@import "../../../../../../scss/sizes.scss";
+
+:host {
+	display: -webkit-flex;
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	position: absolute;
+	bottom: 0;
+	top: 0;
+}
+
+::ng-deep .phd-side-panel {
+	width: $side-panel-width !important;
+	left: -$side-panel-width !important;
+}
+
+::ng-deep .phd-side-panel-open {
+	margin-left: $side-panel-width !important;
+}
+
+::ng-deep .disabled-overlay {
+	position: fixed !important;
+	margin-left: $side-panel-width !important;
+}

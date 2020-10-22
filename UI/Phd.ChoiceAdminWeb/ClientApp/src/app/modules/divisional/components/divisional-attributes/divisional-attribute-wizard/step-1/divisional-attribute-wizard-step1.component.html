@@ -1,0 +1,23 @@
+<ng-template #headerTemplate>
+	Search for the Option
+</ng-template>
+
+<div class="d-flex flex-row mx-2 phd-table-container">
+	<div class="d-flex flex-row mx-2 phd-table-container">
+		<phd-table class="table table-striped table-sm" [value]="filteredOptions">
+			<phd-column>
+				<ng-template let-option pTemplate #body>
+					<input type="radio" [checked]="selectedOption?.id === option.id" (change)="updateOptionList(option)" name="radio-attributes" class="phd-choice-radio"/>
+				</ng-template>
+			</phd-column>
+			<phd-column header="Lawson Number">
+				<ng-template let-option pTemplate #body>
+					<span>{{ option.financialOptionIntegrationKey }}</span>
+				</ng-template>
+			</phd-column>
+			<phd-column field="optionSalesName" header="Option Name"></phd-column>
+			<phd-column field="category" header="Category"></phd-column>
+			<phd-column field="subCategory" header="Subcategory"></phd-column>
+		</phd-table>
+	</div>
+</div>

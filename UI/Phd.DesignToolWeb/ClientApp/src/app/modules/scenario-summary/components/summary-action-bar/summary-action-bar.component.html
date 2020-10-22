@@ -1,0 +1,33 @@
+<action-bar [actionBarStatus]="isComplete ? 'COMPLETE' : 'INCOMPLETE'"
+			[primaryAction]='primaryAction'
+            [price]="priceBreakdown.totalPrice"
+			[changePrice]="priceBreakdown.changePrice"
+            [inChangeOrder]="inChangeOrder"
+			[canChange]="canChange"
+            (callToAction)="onCallToAction()">
+
+	<ng-template #leftCellTemplate>
+		<div>
+			<experience-filter [selectedPointFilter]="selectedPointFilter" [enabledPointFilters]="enabledPointFilters" (pointTypeFilterChanged)="onPointTypeFilterChanged($event)"></experience-filter>
+		</div>
+		<div class="flex-grow-1">
+			<scenario-status [scenarioStatus]="scenarioStatus"></scenario-status>
+		</div>
+	</ng-template>
+	<ng-template #rightCellTemplate>
+		<div class="d-flex flex-column flex-grow-1 align-items-center mr-4 links">
+			<div ngbDropdown placement="top" [autoClose]="true" class="d-inline-block">
+				<div id="printDropdown" ngbDropdownToggle class="phd-print-link d-flex align-items-center">
+					Print Configuration
+				</div>
+				<div ngbDropdownMenu aria-labelledby="printDropdown">
+					<ul class="list-group list-group-flush phd-print-list">
+						<li class="list-group-item phd-print-item" *ngFor="let reportType of summaryReportType | enumToArray">
+							<a (click)="printConfig(reportType)">{{ reportType }}</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</ng-template>
+</action-bar>

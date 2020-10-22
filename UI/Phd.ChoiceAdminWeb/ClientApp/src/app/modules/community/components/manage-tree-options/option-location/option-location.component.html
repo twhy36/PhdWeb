@@ -1,0 +1,36 @@
+<div *ngIf="optionLocationMessage.length > 0" class="alert alert-info">{{optionLocationMessage}}</div>
+
+<div class="phd-option-location-group" *ngIf="optionLocationMessage.length === 0 && locationGroupLoaded">
+	<div class="form-group row">
+		<div class="col-sm-4 phd-option-label">Location Name:</div>
+		<div class="col-sm-8  phd-option-text">{{ locationGroup?.locationGroupName }}</div>
+	</div>
+	<div class="form-group row">
+		<div class="col-sm-4 phd-option-label">Group Label:</div>
+		<div class="col-sm-8  phd-option-text">{{ locationGroup?.groupLabel }}</div>
+	</div>
+	<div class="form-group row">
+		<div class="col-sm-4 phd-option-label">Locations:</div>
+		<div class="col-sm-8  phd-option-text" id="locationList">
+			<ul style="list-style-type: none">
+				<li *ngFor="let locationAssoc of locationGroup.locationGroupLocationCommunityAssocs">
+					<span [class.phd-inactive]="!locationAssoc.isActive">{{ locationAssoc?.locationCommunity?.locationName }}</span>
+				</li>
+			</ul>
+		</div>
+	</div>
+	<div class="form-group row">
+		<div class="col-sm-4 phd-option-label">Description:</div>
+
+		<div class="col-sm-8  phd-option-text">{{ locationGroup?.locationGroupDescription }}</div>
+	</div>
+	<div class="form-group row">
+		<div class="col-sm-4 phd-option-label">Search Tags:</div>
+
+		<div class="col-sm-8  phd-option-text">{{ searchTags }}</div>
+	</div>
+</div>
+
+<div *ngIf="!locationGroupLoaded" class="phd-option-loading container-fluid text-center">
+	<i class="fa fa-spinner fa-spin fa-3x"></i>
+</div>

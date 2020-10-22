@@ -1,0 +1,16 @@
+<div class="input-group">
+    <div class="btn-group input-group-prepend" >
+        <button type="button" class="btn btn-secondary" [disabled]="false" >
+            <span>{{selectedSearchFilter}}</span>
+        </button>    
+    </div>
+
+    <input type="text" [(ngModel)]="keyword" class="form-control phd-search-input" [disabled]="isDisabled" placeholder="Search" (keyup)="onKeywordUp();" (keyup.enter)="keywordSearch();">
+    <span [ngClass]="isDisabled ? 'phd-search-clear-disabled' : ''" class="phd-search-clear" (click)="clearFilter()"><i class="fa fa-fw fa-close"></i></span>
+
+    <div class="input-group-append" (click)="keywordSearch();">
+        <button type="button" class="btn btn-secondary" [disabled]="isDisabled">
+            <i class="fa fa-fw fa-search"></i>
+        </button>
+    </div>
+</div>

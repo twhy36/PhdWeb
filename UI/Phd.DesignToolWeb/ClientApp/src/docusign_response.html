@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body onload="handleResponse();">
+	<script type="text/javascript">
+		function handleResponse() {
+			if (window.opener) {
+				window.opener.postMessage({
+					closed: true,
+					sent: window.location.search.indexOf('event=Send') !== -1
+				}, "*");
+			}
+		}
+	</script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+@import "../../../../../scss/color-pallet.scss";
+
+.phd-pulteinfo-flexbox {
+  display: flex;
+  justify-content: flex-start;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  margin: 12px 12px 100px 50px;
+}
+
+.phd-info {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-end;
+
+}
+
+.phd-items {
+  min-width: 240px;
+  margin: 4px 0 4px 0;
+}
+
+.phd-items-default {
+  width: 70px;
+  margin: 4px;
+}
+
+.phd-underline {
+    text-decoration: underline;
+}
+
+.phd-flex-buttons {
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
+}
+
+.phd-button {
+    margin: 4px 10px 20px;
+    padding-bottom: 10px;
+}
+
+h2 {
+    margin-top: 60px;
+    text-align: center;
+}
+
+.ng-invalid:not(form):not(p-calendar):not(div) {
+  border: solid 1px $darkish-pink;
+  border-left-width: 5px;
+  box-shadow: none;
+}

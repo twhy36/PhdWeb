@@ -1,0 +1,49 @@
+<div class="phd-page-container" [class.phd-side-panel-open]="sidePanelOpen">
+    <page-header mainTitle="Division Attributes">
+        <ng-template>
+            <div class="header-item">
+                <select class="form-control" [ngModel]="selectedMarket" (ngModelChange)="onMarketSelected($event)" [disabled]="selectDisabled">
+                    <option *ngFor="let market of markets" [ngValue]="market">
+                        {{market.name}}
+                    </option>
+                </select>
+            </div>
+        </ng-template>
+    </page-header>
+
+
+    <div class="phd-page-body">
+		<div class="phd-div-attr-tabs">
+			<ul class="nav nav-tabs">
+				<li>
+					<a class="nav-link" [routerLink]="['attributes']" [routerLinkActive]="['active']" (click)="selectDisabled = false">
+						Attribute
+					</a>
+				</li>
+				<li>
+					<a class="nav-link" [routerLink]="['attribute-groups']" [routerLinkActive]="['active']" (click)="selectDisabled = false">
+						Attribute Groups
+					</a>
+				</li>
+				<li>
+					<a class="nav-link" [routerLink]="['locations']" [routerLinkActive]="['active']" (click)="selectDisabled = false">
+						Location
+					</a>
+				</li>
+				<li>
+					<a class="nav-link" [routerLink]="['location-groups']" [routerLinkActive]="['active']" (click)="selectDisabled = false">
+						Location Groups
+					</a>
+				</li>
+				<li>
+					<a class="nav-link" [routerLink]="['divisional-options']" [routerLinkActive]="['active']" (click)="selectDisabled = false">Division Options</a>
+				</li>
+				<li>
+					<a class="nav-link" [routerLink]="['divisional-attribute-wizard']" [routerLinkActive]="['active']" (click)="selectDisabled = true">Division Mapping</a>
+				</li>
+			</ul>
+		</div>
+
+        <router-outlet></router-outlet>
+    </div>
+</div>

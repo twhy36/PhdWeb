@@ -1,0 +1,63 @@
+@import "../../../../../scss/color-pallet.scss";
+@import "../../../../../scss/animations.scss";
+
+ul {
+	list-style: none;
+
+	&.progress-indicators li {
+		div {
+			background-color: $weird-green;
+			border-radius: 50%;
+			color: white;
+			cursor: pointer;
+			font-size: 18px;
+			font-weight: bold;
+			height: 50px;
+			outline: none;
+			width: 50px;
+
+			&.active {
+				border: solid 2px $dodger-blue;
+			}
+
+			&.disabled {
+				background-color: $squash;
+				cursor: not-allowed;
+			}
+		}
+
+		&:not(:last-child)::after {
+			background-color: $weird-green;
+			content: '';
+			height: 12px;
+			left: 50%;
+			position: absolute;
+			top: 40%;
+			width: 100%;
+			z-index: -1;
+		}
+
+		&.phd-not-complete {
+			div {
+				background-color: $dark-grey;
+			}
+
+			&:not(:last-child)::after {
+				background-color: $dark-grey;
+			}
+		}
+
+		position: relative;
+	}
+
+	li {
+		width: 100%;
+
+		.disabled,
+		&.disabled {
+			cursor: not-allowed;
+		}
+	}
+}
+
+

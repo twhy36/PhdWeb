@@ -1,0 +1,14 @@
+<div class="phd-flex-container">
+    	<ng-container *ngIf="filteredSpecJobs.length === 0">
+                <error-message [@flipOver]>
+                    <ng-template #body><br />Seems that there aren't Quick Move-In homes at this moment. Click on Plan or Lot to start to configure your new home!</ng-template>
+                </error-message>
+            </ng-container>
+    <quick-move-in-card
+        *ngFor="let job of filteredSpecJobs"
+        [plans]="plans$ | async"
+		[canConfigure]="canConfigure$ | async"
+        [specJob]="job"
+        class="phd-quick-move-in-card"
+    ></quick-move-in-card>
+</div>

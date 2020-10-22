@@ -1,0 +1,136 @@
+<div class="phd-box" *ngIf="!editing">
+
+	<div class="phd-card-header">
+		<span>Deposit Detail</span>
+
+		<a (click)="!deleting && delete()" class="phd-delete-button" [class.phd-deleting]="deleting" *ngIf="!deposit.paidDate && canEdit">
+			<span>
+				<i class="fas fa-spinner"></i>
+			</span>
+			<span>
+				<i class="fa fa-times-circle"></i>
+			</span>
+		</a>
+	</div>
+
+	<div class="phd-card-body">
+		<div class="d-flex">
+			<h6 *ngIf="ngbDueDate" class="mr-auto">
+				Due: {{ngbDueDate.month}}/{{ngbDueDate.day}}/{{ngbDueDate.year}}
+			</h6>
+			<h6 *ngIf="deposit.paidDate">
+				Paid: {{deposit.paidDate.toLocaleDateString('en-US')}}
+			</h6>
+		</div>
+		<div class="flex-fill">
+			<div class="phd-text-description" *ngIf="deposit.description">
+				{{deposit.description}}
+			</div>
+		</div>
+		<div>
+			<span class="phd-currency">{{deposit && deposit.amount || 0 | currency:'USD':'symbol':'1.2-2'}}</span>
+			<span class="phd-text-note" *ngIf="deposit && deposit.depositTypeDesc">{{deposit.depositTypeDesc | capitalCaseSpace}}</span>
+		</div>
+	</div>
+
+	<div class="phd-card-footer">
+		<a class="btn m-0 p-0" (click)="edit()" *ngIf="canEdit">Edit</a>
+	</div>
+</div>
+
+<form class="p-3" *ngIf="editing === deposit" [formGroup]="form">
+	<h6>Deposit</h6>
+	<div class="d-flex flex-column justify-content-around">
+		<div class="form-group d-flex justify-content-between">
+
+			<div class="w-auto">
+				<label for="depositTypeDesc">Deposit Type *</label>
+				<select class="form-control" formControlName="depositTypeDesc" id="depositTypeDesc" name="depositTypeDesc" [attr.disabled]="deposit.paidDate">
+					<option [ngValue]="'EarnestMoney'"> Earnest Money </option>
+					<option [ngValue]="'Options'"> Options </option>
+					<option [ngValue]="'DownPayment'"> Down Payment </option>
+					<option [ngValue]="'Other'"> Other </option>
+					<option [ngValue]="'EarnestMoneyVA'"> Earnest Money - VA </option>
+					<option [ngValue]="'OptionVA'"> Options - VA </option>
+				</select>
+			</div>
+
+			<div>
+				<label for="amount">Amount *</label>
+				<div class="input-group phd-form-container w-auto">
+					<div class="input-group-prepend">
+						<span class="input-group-text">$</span>
+					</div>
+					<input class="form-control" type="textbox" formControlName="amount" id="amount" name="amount" [attr.readonly]="deposit.paidDate" [inputFilter]="'^\\d{1,19}(\\.?\\d{0,2})$'">
+				</div>
+			</div>
+		</div>
+
+		<div>
+			<label for="description">Description</label>
+			<input class="form-control form-group mw-100"
+				   id="description"
+				   name="description"
+				   type="text"
+				   formControlName="description"
+				   maxlength="{{maxDescriptionLength}}">
+		</div>
+
+		<div class="d-flex justify-content-between">
+
+			<div class="d-flex flex-column">
+				<label for="dueDate">Due Date *</label>
+				<div class="form-group d-inline-flex w-auto align-items-center">
+					<div class="input-group">
+						<input class="form-control"
+							   formControlName="dueDate"
+							   id="dueDatePicker"
+							   name="dueDatePicker"
+							   ngbDatepicker
+							   readonly
+							   #dueDatePicker="ngbDatepicker"
+							   (click)="toggle(dueDatePicker)">
+						<div class="input-group-append" *ngIf="!deposit.paidDate">
+							<button class="btn phd-experience-btn-choice" (click)="toggle(dueDatePicker)" type="button">
+								<i class="fa fa-calendar" aria-hidden="true" style="cursor: pointer;"></i>
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="d-flex flex-column flex-grow-2 w-auto align-self-center">
+				<div class="form-group d-block">
+					<input type="checkbox" class="form-control" id="processElectronically" formControlName="processElectronically" (change)="toggleEBill($event)" />
+					<span>Process Electronically</span>
+				</div>
+			</div>
+
+			<div class="d-flex flex-column">
+				<label for="paidDate">Paid Date</label>
+				<div class="form-group d-inline-flex w-auto align-items-center">
+					<div class="input-group">
+						<input class="form-control"
+							   formControlName="paidDate"
+							   id="paidDatePicker"
+							   name="paidDatePicker"
+							   ngbDatepicker
+							   readonly
+							   #paidDatePicker="ngbDatepicker"
+							   (click)="toggle(paidDatePicker)">
+						<div class="input-group-append">
+							<button class="btn phd-experience-btn-choice" (click)="toggle(paidDatePicker)" type="button" [disabled]="paidDateReadonly">
+								<i class="fa fa-calendar" aria-hidden="true" style="cursor: pointer;"></i>
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="d-flex align-items-center justify-content-center">
+
+		<save-cancel-buttons (onSave)="save()" (onCancel)="cancel()" [form]="form"></save-cancel-buttons>
+
+	</div>
+</form>

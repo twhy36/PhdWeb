@@ -1,0 +1,38 @@
+<side-panel-component [headerTemplate]="header" [bodyTemplate]="body" [footerTemplate]="footer" [sidePanelOpen]="sidePanelOpen" (onSidePanelClose)="onCloseSidePanel($event)">
+	<ng-template #header>
+		<h4 class="phd-side-panel-header"><strong>{{ sidePanelHeader }}</strong></h4>
+	</ng-template>
+
+	<ng-template #body>
+		<div>
+			<search-bar [searchFilters]="filterNames" [selectedSearchFilter]="selectedSearchFilter"
+						(onClearFilter)="clearFilter()" (onKeywordSearch)="keywordSearch($event)"></search-bar>
+
+			<div class="phd-div-error" *ngIf="errors?.length > 0">
+				<p-messages [(value)]="errors"></p-messages>
+			</div>
+
+			<div class="phd-div-location-table">
+				<phd-table [value]="filteredLocations" tableId="associateLocations">
+					<phd-column columnId="select" width="50px">
+						<ng-template #header>
+							<p-checkbox [ngModel]="areAllLocationsSelected()" (ngModelChange)="toggleAllLocations($event)" [binary]="true" [disabled]="filteredLocations.length === 0"></p-checkbox>
+						</ng-template>
+						<ng-template let-location #body>
+							<p-checkbox [ngModel]="isLocationSelected(location)" (ngModelChange)="setLocationSelected(location, $event)" [binary]="true"></p-checkbox>
+						</ng-template>
+					</phd-column>
+					<phd-column field="locationName" header="Name" width="100px"></phd-column>
+				</phd-table>
+			</div>
+		</div>
+
+	</ng-template>
+
+	<ng-template #footer>
+		<div class="pull-right">
+			<button class="btn btn-primary phd-btn-save" (click)="saveAndClose()" [disabled]="saveDisabled">Associate</button>
+			<button class="btn btn-secondary" (click)="toggleSidePanel(false)">Cancel</button>
+		</div>
+	</ng-template>
+</side-panel-component>

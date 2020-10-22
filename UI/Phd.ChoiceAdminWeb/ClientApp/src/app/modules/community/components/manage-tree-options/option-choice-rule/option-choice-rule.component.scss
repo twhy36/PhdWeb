@@ -1,0 +1,70 @@
+@import "../../../../../../scss/color-pallet.scss";
+@import "../../../../../../scss/sizes.scss";
+
+$border-radius-base: 4px;
+
+.phd-indicator {
+	font-size: 8pt;
+	padding-left: 5px;
+}
+
+.phd-rules-list {
+	border: solid 1px lightgray;
+	border-radius: 4px;
+	margin-top: 15px;
+	margin-bottom: 15px;
+
+	table {
+		margin-bottom: 0;
+
+		.phd-icon-col {
+			width: 38px;
+
+			i:hover {
+				cursor: pointer;
+			}
+		}
+	}
+
+	caption {
+		padding-left: 8px;
+
+		.phd-caption-header {
+			display: block;
+		}
+
+		.phd-caption-text {
+			padding-left: 8px;
+			font-size: .75em;
+		}
+	}
+}
+
+.phd-tree-rule {
+	cursor: pointer;
+}
+
+.phd-tree-rule-disabled {
+	color: #ccc;
+	cursor: auto;
+}
+
+.phd-child-sp {
+	padding-left: 20px !important;
+}
+
+.phd-grand-child-sp {
+	padding-left: 40px !important;
+}
+
+.phd-great-grand-child-sp {
+	padding-left: 60px !important;
+}
+
+.selections-made {
+	.phd-item-multiselect-results {
+		height: 120px;
+	}
+}
+
+/*item selector - END*/

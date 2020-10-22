@@ -1,0 +1,33 @@
+<div [ngClass]="customClass">
+	<div class="card-header" *ngIf="headerText">
+		<strong>{{headerText}}</strong>
+		<div class="pull-right">
+			<button *ngFor="let button of actionButtons" [ngClass]="button.class" class="attribute-group-action-button"
+					(click)="onClicked(button);" [disabled]="isDisabled || (button.disabled && selectedGroups.length === 0)">
+				{{ button.text }}
+			</button>
+		</div>
+	</div>
+
+	<div [ngClass]="customBodyClass">
+		<div class="form-group">
+			<div *ngIf="searchEnabled">
+				<search-bar [searchFilters]="filterNames" [selectedSearchFilter]="selectedSearchFilter" [isDisabled]="isDisabled" (onClearFilter)="clearFilter()" (onKeywordSearch)="keywordSearch($event)"></search-bar>
+			</div>
+
+			<div *ngIf="searchResultGroups.length > 0" class="phd-item-multiselect-results" [ngStyle]="searchResultStyle">
+				<phd-table [value]="searchResultGroups" [displayTooltip]="false" tableId="tableId"  [canReorderRows]="canReorderRows" (onRowReorder)="onRowReorder($event)">
+					<phd-column columnId="select" width="50px">
+						<ng-template #header>
+							<p-checkbox [ngModel]="areAllGroupsSelected()" (ngModelChange)="toggleAllGroups($event)" [binary]="true" *ngIf="allowMultipleSelect" [disabled]="isDisabled || !searchResultGroups.length"></p-checkbox>
+						</ng-template>
+						<ng-template let-group #body>
+							<p-checkbox [ngModel]="isGroupSelected(group)" (ngModelChange)="setGroupSelected(group, $event)" [binary]="true" [disabled]="isDisabled"></p-checkbox>
+						</ng-template>
+					</phd-column>
+					<phd-column [field]="groupNameField" header="Group Name" isDragHandler="canReorderRows"></phd-column>
+				</phd-table>
+			</div>
+		</div>
+	</div>
+</div>

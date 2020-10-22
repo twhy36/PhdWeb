@@ -1,0 +1,38 @@
+@import "../../../../../scss/color-pallet.scss";
+
+form {
+	max-height: 300px;
+	overflow-y: auto;
+	overflow-x: hidden;
+}
+
+.phd-header-row {
+	span {
+		font-weight: bold;
+	}
+}
+
+.phd-label-col {
+	max-width: 20%;
+}
+
+.form-row {
+	margin-bottom: 10px;
+}
+
+.ng-invalid:not(form):not(.ng-pristine), input.ng-invalid:placeholder-shown {
+	border: solid 1px $darkish-pink;
+	border-left-width: 5px;
+	box-shadow: none;
+}
+
+.phd-loading {
+	padding: 10px;
+	text-align: center;
+	height: 50px;
+	font-style: italic
+}
+
+input.phd-name::placeholder {
+	color: $darkish-pink;
+}

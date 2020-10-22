@@ -1,0 +1,65 @@
+@import "../../../../../../scss/color-pallet.scss";
+
+.phd-panel {
+	border: 1px solid $phd-secondary;
+	margin: 1em;
+
+	.phd-panel-header {
+		background-color: $phd-secondary;
+		font-weight: bold;
+		padding-left: 1em;
+	}
+
+	.phd-panel-body {
+	}
+}
+
+.phd-list-inline > li {
+	display: inline-block;
+}
+
+ul {
+	padding-left: 0;
+
+	> li::before {
+		color: $phd-primary;
+
+	}
+}
+
+/* ol number coloring - start */
+ol {
+	list-style: none;
+	counter-reset: li;
+
+	> li {
+		counter-increment: li;
+		margin-bottom: 1em;
+	}
+
+	> li::before {
+		content: "."counter(li); // can't color ol numbering so replace with this so we can.  example: 1.
+		color: $phd-primary;
+		display: inline-block;
+		width: 1em;
+		margin-left: -1.5em;
+		margin-right: 0.5em;
+		text-align: right;
+		direction: rtl;
+		font-weight: bold;
+		font-size: 20px;
+	}
+}
+/* ol number coloring - end */
+
+
+.phd-table-collection {
+	flex: 1;
+	overflow-x: auto;
+}
+
+.phd-selected-choices {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}

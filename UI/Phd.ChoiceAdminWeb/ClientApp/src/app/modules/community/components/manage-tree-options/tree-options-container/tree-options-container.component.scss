@@ -1,0 +1,75 @@
+@import "../../../../../../scss/color-pallet.scss";
+@import "../../../../../../scss/sizes.scss";
+
+:host {
+	display: -webkit-flex;
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+}
+
+.div-options {
+	display: -webkit-flex;
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	overflow-y: auto;
+
+	.div-search-bar {
+		margin: 5px 0px 12px 0px;
+		padding: 0px;
+	}
+
+	.table-container {
+		display: -webkit-flex;
+		display: flex;
+		flex-direction: column;
+		flex: 1;
+		background-color: #fff;
+		overflow-y: auto;
+
+		.phd-icon-col {
+			width: 38px;
+		}
+
+		.phd-icon-col-med {
+			width: 48px;
+		}
+
+		.phd-small-col {
+			width: 80px;
+		}
+
+		.phd-med-col {
+			width: 250px;
+		}
+
+		tr.phd-tr-error {
+			background-color: lighten($brand-danger, 20%) !important;
+		}
+
+		tr.selected.phd-tr-error {
+			background-color: lighten($brand-danger, 20%) !important;
+		}
+
+		tr.row-group {
+			td {
+				a, i {
+					cursor: pointer;
+				}
+
+				a {
+					color: #0078d4;
+				}
+
+				a:hover {
+					text-decoration: underline;
+				}
+			}
+		}
+	}
+
+	.phd-img-count {
+		margin-left: 0.2em;
+	}
+}

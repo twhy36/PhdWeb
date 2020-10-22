@@ -1,0 +1,78 @@
+<ng-template #headerTemplate>
+	Which Trees Should be Updated ?
+</ng-template>
+
+<div class="phd-page-container">
+	<div class="phd-mapping">
+		<div class="phd-mapping-header">MAPPING:</div>
+
+		<div class="phd-mapping-body">
+			<div class="phd-mapping-item">
+				<div class="phd-mapping-item-header">
+					OPTION:
+				</div>
+				<div class="phd-mapping-item-body pl-3">
+					{{selectedOptionHeader}}
+				</div>
+			</div>
+
+			<div *ngIf="selectedMapping === 'AddUpdate'" class="phd-mapping-item">
+				<div class="phd-mapping-item-header">
+					CHOICE(S):
+				</div>
+				<div class="phd-mapping-item-body">
+					<ul>
+						<li *ngFor="let choice of selectedChoices" class="phd-bullet">
+							{{choice.label}}
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="d-flex flex-row mx-2 phd-table-container phd-communities">
+		<table class="table table-sm phd-table-fixed">
+			<thead class="thead-light">
+				<tr>
+					<th class="phd-col-width-chkbox">
+						<input type="checkbox" id="chkAllPlans" (change)="toggleAllPlans($event)" [checked]="areAllPlansSelected()" class="phd-wiz-checkbox" />
+					</th>
+					<th>
+						COMMUNITIES
+					</th>
+				</tr>
+			</thead>
+			<tbody *ngIf="communities.length > 0">
+				<ng-container *ngFor="let community of communities">
+					<tr>
+						<td class="phd-col-width-chkbox">
+							<i class="fa fa-fw phd-clickable" (click)="community.open = !community.open" [class.fa-chevron-circle-right]="!community.open" [class.fa-chevron-circle-down]="community.open"></i>
+						</td>
+						<td>
+							<input [disabled]="isCommunityDisabled(community) && selectedMapping === 'AddUpdate'" type="checkbox" id="community-{{community.id}}" (change)="toggleAllCommunityPlans(community, $event)" [checked]="isCommunitySelected(community)" class="phd-wiz-checkbox" />
+							<label for="community-{{community.id}}" class="form-check-label">{{ community.name }} - {{ community.number }}</label>
+						</td>
+					</tr>
+
+					<ng-container *ngFor="let plan of community.planCommunities">
+						<tr *ngIf="community.open">
+							<td class="phd-col-width-chkbox"></td>
+							<td>
+								<input [disabled]="!plan.hasChoices && selectedMapping === 'AddUpdate'" type="checkbox" id="plan-{{plan.id}}" (change)="setPlanSelected(community, plan)" [checked]="isPlanSelected(plan)" class="phd-wiz-checkbox phd-plan-chkbox" />
+								<label for="plan-{{plan.id}}" class="form-check-label">{{ plan.planSalesName }}</label>
+							</td>
+						</tr>
+					</ng-container>
+				</ng-container>
+			</tbody>
+			<tbody *ngIf="communities.length === 0">
+				<tr>
+					<td>
+						<h6 class="pt-3 mb-0 pl-2">No Communities found for the selected Option.</h6>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</div>

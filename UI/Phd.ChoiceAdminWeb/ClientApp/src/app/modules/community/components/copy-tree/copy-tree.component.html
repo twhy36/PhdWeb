@@ -1,0 +1,78 @@
+<div class="phd-page-container">
+	<page-header mainTitle="Copy Community Plan / Decision Tree">
+		<ng-template>
+			<div class="col">
+				<select id="market" class="form-control" (change)="onChangeMarket()" [(ngModel)]="ddMarket.selectedOption" [disabled]="saving">
+					<option [ngValue]="undefined">{{ ddMarket.defaultText }}</option>
+					<option *ngFor="let market of ddMarket.data" [ngValue]="market">{{ market.name }}</option>
+				</select>
+			</div>
+		</ng-template>
+	</page-header>
+
+	<div class="phd-page-body">
+		<div>
+			<form [formGroup]="copyForm">
+				<div class="d-flex flex-row justify-content-between">
+					<div class="col">
+						<label>From:</label>
+						<div class="form-inline">
+							<div class="form-group">
+								<select class="form-control" id="communityFrom" formControlName="communityFrom" required>
+									<option [ngValue]="null">{{ ddCommunityFrom.defaultText }}</option>
+									<option *ngFor="let communityFrom of ddCommunityFrom.data" [ngValue]="communityFrom">{{ communityFrom.name }} - {{ communityFrom.number }}</option>
+								</select>
+							</div>
+							<div class="form-group">
+								<select class="form-control" id="planFrom" formControlName="planFrom" required>
+									<option [ngValue]="null">{{ ddPlanFrom.defaultText }}</option>
+									<option *ngFor="let planFrom of ddPlanFrom.data" [ngValue]="planFrom">{{ planFrom.planSalesName }}</option>
+								</select>
+							</div>
+							<div class="form-group">
+								<select class="form-control" id="treeFrom" formControlName="treeFrom" required>
+									<option [ngValue]="null">{{ ddTreeFrom.defaultText }}</option>
+									<option *ngFor="let treeFrom of ddTreeFrom.data" [ngValue]="treeFrom">{{ treeDisplayName(treeFrom) }}</option>
+								</select>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="d-flex flex-row justify-content-between">
+					<div class="col">
+						<label>To:</label>
+						<div class="form-inline">
+							<div class="form-group">
+								<select class="form-control" id="communityTo" formControlName="communityTo" required>
+									<option [ngValue]="null">{{ ddCommunityTo.defaultText }}</option>
+									<option *ngFor="let communityTo of ddCommunityTo.data" [ngValue]="communityTo">{{ communityTo.name }} - {{ communityTo.number }}</option>
+								</select>
+							</div>
+
+							<div class="form-group">
+								<select class="form-control" id="planTo" formControlName="planTo" required>
+									<option [ngValue]="null">{{ ddPlanTo.defaultText }}</option>
+									<option *ngFor="let planTo of ddPlanTo.data" [ngValue]="planTo" [disabled]="disablePlanOption(planTo)">{{ planTo.planSalesName }}</option>
+								</select>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="d-flex flex-row justify-content-between phd-button-row">
+					<div class="col">
+						<div class="phd-buttons">
+							<button class="btn btn-primary phd-btn-save" [disabled]="canSave" (click)="onClickSave();">Save</button>
+							<button class="btn btn-secondary" (click)="onClickCancel();" [disabled]="saving">Cancel</button>
+						</div>
+
+						<p-messages [(value)]="msgs" [closable]="false"></p-messages>
+
+						<div *ngIf="treeVersionId && treeVersionId != 0">To Navigate to the new tree <a [routerLink]="['/community/tree', treeVersionId]" class="alert-link">Click Here</a></div>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>

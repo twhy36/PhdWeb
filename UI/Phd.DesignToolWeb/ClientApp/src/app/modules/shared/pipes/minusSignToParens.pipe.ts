@@ -1,0 +1,11 @@
+import { Pipe, PipeTransform } from '@angular/core';
+
+@Pipe({
+	name: 'minusSignToParens'
+})
+export class MinusSignToParens implements PipeTransform {
+
+	transform(value: string): string {
+		return value && value.length && value.charAt(0) === '-' ? '(' + value.substring(1, value.length) + ')' : value;
+	}
+}

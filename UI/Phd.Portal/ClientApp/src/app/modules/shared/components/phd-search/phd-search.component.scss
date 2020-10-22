@@ -1,0 +1,375 @@
+:host {
+	display: block;
+}
+
+/*
+  Had to restyle the multiselect menu since it uses padding and margins outside the clickable areas,
+  making it easy to accidentally close the menu instead of selecting an item.
+*/
+
+.phd-flexbox {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: space-between;
+	min-width: 100%;
+	border-right: 1px solid #fff;
+	border-bottom-right-radius: 3px;
+	border-top-right-radius: 3px;
+	margin: 0;
+}
+
+p-multiselect {
+	flex: 1 1 auto !important;
+	max-width: 60%;
+	min-width: 50%;
+	margin-bottom: .5em;
+
+	.ui-table .ui-sortable-column.ui-state-highlight:hover {
+		background: #d3d5d8;
+		border-color: #d9d9d9;
+	}
+
+	.ui-multiselect {
+		display: block;
+		width: 100%;
+		border-radius: 7px;
+
+		.ui-multiselect-header {
+			padding: .25em;
+			background: linear-gradient(to bottom, #f6f7f9 0%, #ebedf0 100%);
+			border: 1px solid #d9d9d9;
+			border-radius: 3px;
+		}
+
+		.ui-multiselect-panel {
+			padding: .2em;
+		}
+
+		&-label-container {
+			display: block;
+			margin: 0;
+			padding: 0;
+			width: 100%;
+		}
+
+		.ui-multiselect-label {
+			display: block;
+			width: auto;
+			padding: .3em 1em;
+			margin: 0;
+		}
+
+		&-trigger {
+			display: flex;
+			align-items: center;
+			padding: 0;
+		}
+
+		.ui-multiselect-trigger {
+			border-radius: 7px;
+		}
+
+		.ui-chkbox-box {
+			width: 1.125em;
+			height: 1.125em;
+			line-height: 1.125em;
+			border-radius: 2px;
+			text-align: center;
+
+			.ui-chkbox-icon {
+				font-size: 14px;
+			}
+		}
+
+		&-panel .ui-multiselect-items-wrapper .ui-multiselect-items {
+			.ui-multiselect-item {
+				align-content: center;
+				background: #eee;
+				display: flex !important;
+				flex-direction: row;
+				margin: 0;
+				padding: 0;
+
+				&.ui-state-highlight {
+					background: #186ba0;
+
+					.ui-chkbox-icon, label {
+						background: #186ba0;
+						border-color: none;
+						padding: 6px 4px 6px 8px;
+					}
+
+					.ui-chkbox {
+						&-box.ui-state-active {
+							background: none;
+						}
+					}
+				}
+
+				.ui-chkbox-icon, label {
+					background: #eeeeee;
+					border-bottom: 1px solid #fff;
+					border-top: 1px solid #fff;
+					cursor: pointer;
+				}
+
+				label {
+					border-right: 1px solid #fff;
+					border-bottom-right-radius: 3px;
+					border-top-right-radius: 3px;
+					display: block;
+					flex: 1 1 auto;
+					line-height: 16px;
+					margin: 0;
+					padding: 6px 8px;
+				}
+
+				.ui-chkbox {
+					display: none;
+				}
+			}
+		}
+	}
+}
+
+/* Modal styling specific to the search modal */
+.phd-search-modal .modal-dialog {
+	min-width: 30%;
+	max-width: 90%;
+}
+
+.phd-search-container {
+	/*WHEN SEARCH INPUTS ARE VISIBLE*/
+	.phd-search-options {
+		flex-shrink: 1;
+		font-size: 14px !important;
+		transition: flex 400ms ease-out;
+
+		section {
+			max-width: 33%;
+			min-width: 33%;
+			padding: 0 1em;
+			white-space: nowrap;
+
+			&:first-child {
+				padding-left: 0;
+			}
+
+			&.phd-buttons-holder button {
+				font-size: 12px;
+				margin-bottom: 4px;
+				padding: 4px;
+				white-space: normal;
+				width: 35%;
+			}
+
+			label {
+				font-weight: bold !important;
+			}
+
+			input {
+				border: 1px solid #ccc;
+				border-radius: 7px;
+				display: block;
+				margin-bottom: .5em;
+				padding: 3px;
+				width: 60%;
+			}
+		}
+	}
+	/*WHEN SEARCH INPUTS ARE HIDDEN*/
+	&.phd-search-closed {
+		.phd-search-options {
+			display: flex !important;
+			flex-direction: row;
+			justify-content: flex-start !important;
+			margin-right: 4px;
+
+			section {
+				display: flex;
+				margin-bottom: 1em;
+				min-width: unset;
+			}
+
+			.phd-badge {
+				cursor: pointer;
+				display: flex;
+				flex: 1 1 auto;
+				flex-direction: row;
+				margin: 0 3px;
+				width: auto;
+
+				&:first-child {
+					margin-left: 0;
+				}
+
+				&.phd-back {
+					strong, span {
+						background: #eee;
+						box-shadow: -1px 1px 0px #aaa;
+						color: #999;
+					}
+				}
+
+				strong, span {
+					background: #0d4b6b;
+					color: #fff;
+					display: inline-block;
+					padding: 4px 8px;
+				}
+
+				&:hover {
+					strong, span {
+						background: #007bff;
+						box-shadow: -1px 1px 0px #0d4b6b;
+						color: #fff;
+					}
+				}
+
+				span {
+					border-radius: .25rem;
+					border-right: 1px solid #fff;
+				}
+
+				strong {
+					border-bottom-right-radius: .25rem;
+					border-top-right-radius: .25rem;
+				}
+			}
+		}
+	}
+}
+
+.phd-search-button-holder {
+	border-bottom-left-radius: 10px;
+	border-bottom-right-radius: 10px;
+}
+
+.ui-table .ui-sortable-column .ui-sortable-column-icon {
+	color: #fff;
+}
+
+.phd-search-results {
+	&-holder {
+		border-radius: 2px;
+		max-height: .1px;
+		min-height: .1px;
+		overflow-y: hidden;
+		transition: min-height 400ms, max-height 400ms ease-out;
+	}
+
+	&-result {
+
+		&.no-results {
+			display: block;
+		}
+
+		&.has-results {
+			display: block;
+		}
+	}
+
+	p-table, table, phd-table {
+		width: 100%;
+	}
+
+	phd-table {
+		display: block;
+		overflow-y: auto;
+	}
+
+	.ui-table {
+
+		td:nth-child(1),
+		th:nth-child(1) {
+			padding-left: 1rem;
+		}
+
+		thead {
+			th {
+				background: #999;
+				color: #fff;
+				padding-bottom: .25rem;
+				padding-top: .25rem;
+				position: relative;
+				vertical-align: top;
+
+				&.ui-state-highlight {
+					background-color: #186ba0;
+					color: #fff;
+				}
+
+				> div {
+					display: block;
+					padding-right: 10px;
+					position: relative;
+
+					p-sorticon {
+						position: absolute;
+						right: 0;
+						top: 0;
+					}
+				}
+			}
+		}
+
+		tbody {
+			tr:nth-child(odd) {
+				background: #fff;
+			}
+
+			tr:nth-child(even) {
+				background: #eee;
+
+				td {
+					border: 1px solid #f3f3f3;
+				}
+			}
+
+			td .phd-non-overflow {
+				white-space: normal;
+			}
+		}
+	}
+}
+
+.phd-results-opened {
+
+	.phd-search-results {
+		border-bottom-left-radius: 10px;
+		border-bottom-right-radius: 10px;
+		padding-bottom: 1.5rem;
+
+		&-holder {
+			background: linear-gradient(0deg, #e7e7e7 0%, white 100%);
+			border: 1px solid #ccc;
+			box-shadow: 2px 2px 5px #ccc;
+			max-height: 500px;
+			min-height: 100px;
+		}
+	}
+
+	.phd-search-button-holder {
+		border-bottom-left-radius: 0;
+		border-bottom-right-radius: 0;
+	}
+}
+
+span.phd-badge.phd-back {
+	color: #0d4b6b;
+	height: 100%;
+
+	&:hover {
+		color: #007bff;
+	}
+
+	svg {
+		height: 100%;
+	}
+}
+
+.phd-panel-style {
+	font-size: 12px;
+	color: pink;
+}

@@ -1,0 +1,64 @@
+<div class="phd-div-attr-body">
+	<div class="d-flex flex-row-reverse">
+		<div class="col-md-4 phd-div-search-bar">
+			<search-bar [searchFilters]="filterNames" [selectedSearchFilter]="selectedSearchFilter"
+						(onClearFilter)="clearFilter()" (onKeywordSearch)="keywordSearch($event)"></search-bar>
+		</div>
+		<status-bar (statusChanged)="onStatusChanged($event)"></status-bar>
+	</div>
+
+	<div class="phd-div-attr-panel" infiniteScroll [infiniteScrollThrottle]="settings.infiniteScrollThrottle" [infiniteScrollDisabled]="keyword || selectedStatus || allDataLoaded" (scrolled)="onPanelScroll()" [scrollWindow]="false">
+		<phd-table [value]="filteredAttributeList" dataKey="id" tableId="divisionalAttributes">
+			<ng-template #rowExpansion let-attribute let-columns="columns">
+				<tr>
+					<td [attr.colspan]="columns.length">
+						<div class="phd-div-row-expansion">
+							<phd-tabView orientation="left">
+								<phd-tabPanel header="Attribute Groups" [data]="attribute.attributeGroups$">
+									<ng-template let-attributeGroups>
+										<expansion-tab-panel [dataItems]="attributeGroups" [emptyMessage]="'No Associated Attribute Groups Found.'">
+											<phd-column field="name" header="Associated Attribute Groups"></phd-column>
+										</expansion-tab-panel>
+									</ng-template>
+								</phd-tabPanel>
+							</phd-tabView>
+						</div>
+					</td>
+				</tr>
+			</ng-template>
+
+			<phd-column columnId="editAttribute" width="50px">
+				<ng-template #body let-attribute>
+					<i class="fa fa-pencil fa-sm" [ngClass]="isReadOnly && !canEditImages ? 'phd-disabled' : 'phd-clickable'" (click)="editAttribute(attribute)" [title]="isReadOnly ? '' : 'Edit attribute'"></i>
+				</ng-template>
+			</phd-column>
+			<phd-column columnId="inactivateAttribute" width="50px">
+				<ng-template #body let-attribute>
+					<i class="fa fa-sm" (click)="onToggleAttribute(attribute)"
+					   [ngClass]="{'fa-trash': attribute.active, 'fa-undo text-danger': !attribute.active, 'phd-clickable': !isReadOnly, 'phd-disabled': isReadOnly}"
+					   [title]="isReadOnly ? '' : (attribute.active ? 'Inactivate attribute' : 'Reactivate attribute')">
+					</i>
+				</ng-template>
+			</phd-column>
+			<phd-column columnId="expandAttribute" width="50px">
+				<ng-template #body let-attribute let-expanded="expanded">
+					<i class="fa fa-fw phd-clickable" [ngClass]="expanded ? 'fa-chevron-circle-down' : 'fa-chevron-circle-right'"
+					   [phdRowToggler]="attribute" title="View associated attribute groups">
+					</i>
+				</ng-template>
+			</phd-column>
+			<phd-column field="name" header="Name"></phd-column>
+			<phd-column field="imageUrl" header="Image URL"></phd-column>
+			<phd-column field="manufacturer" header="Manufacturer"></phd-column>
+			<phd-column field="sku" header="SKU"></phd-column>
+			<phd-column field="formattedTags" header="Search Tags"></phd-column>
+			<phd-column field="attributeDescription" header="Description"></phd-column>
+			<phd-column field="formattedStartDate" header="Start Date"></phd-column>
+			<phd-column field="formattedEndDate" header="End Date"></phd-column>
+		</phd-table>
+	</div>
+
+	<p-toast></p-toast>
+
+</div>
+

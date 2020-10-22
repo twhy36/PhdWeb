@@ -1,0 +1,22 @@
+<ng-template #headerTemplate>
+	Choices: Update or Inactivate?
+</ng-template>
+
+<div class="d-flex flex-row mx-2 phd-table-container">
+	<table class="table table-striped table-sm phd-table-fixed">
+		<thead class="thead-light">
+			<tr>
+				<th class="phd-col-width">SELECTED CHOICES</th>
+				<th class="phd-col-center">UPDATE</th>
+				<th class="phd-col-center">INACTIVATE</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr *ngFor="let choice of selectedChoices; let x = index">
+				<td class="phd-col-width phd-bullet"><strong>{{ choice.pointLabel }}:</strong> {{ choice.choiceLabel }}</td>
+				<td class="phd-col-center"><input type="radio" name="updateOption-{{x}}" (change)="setChoiceAction(choice, 'Update')" [checked]="isChecked(choice, 'Update')" /></td>
+				<td class="phd-col-center"><input type="radio" name="updateOption-{{x}}" (change)="setChoiceAction(choice, 'Inactivate')" [checked]="isChecked(choice, 'Inactivate')" /></td>
+			</tr>
+		</tbody>
+	</table>
+</div>

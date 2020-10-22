@@ -1,0 +1,92 @@
+.phd-lot-transfer-container {
+	width: 1000px;
+	margin-top: 50px;
+
+	.phd-row {
+		min-height: 65px;
+	}
+
+	.phd-label {
+		font-family: 'Roboto', sans-serif;
+		color: #4a4a4a;
+		font-size: 16px;
+		font-weight: 500;
+		min-width: 421px;
+	}
+
+	.phd-selection-container {
+		margin-left: 100px;
+	}
+
+	.phd-selection {
+		min-width: 200px;
+		max-height: 500px;
+		overflow-y: auto;
+	}
+
+	.phd-no-lots {
+		margin: 5px 0px 0px 40px;
+		color: red;
+	}
+
+	/* The radio container */
+	.phd-radio-container {
+		display: block;
+		position: relative;
+		padding-left: 35px;
+		margin-bottom: 1px;
+		cursor: pointer;
+		font-size: 16px;
+		-webkit-user-select: none;
+		-moz-user-select: none;
+		-ms-user-select: none;
+		user-select: none;
+	}
+	/* Hide the browser's default radio button */
+	.phd-radio-container input {
+		position: absolute;
+		opacity: 0;
+		cursor: pointer;
+	}
+	/* Create a custom radio button */
+	.phd-radio-checkmark {
+		position: absolute;
+		top: 0;
+		left: 0;
+		height: 21px;
+		width: 21px;
+		background-color: #eee;
+		border-radius: 50%;
+	}
+	/* On mouse-over, add a grey background color */
+	.phd-radio-container:hover input ~ .phd-radio-checkmark {
+		background-color: #ccc;
+	}
+	/* When the radio button is checked, add a blue background */
+	.phd-radio-container input:checked ~ .phd-radio-checkmark {
+		background-color: #0d4b6b;
+	}
+	/* Create the indicator (the dot/circle - hidden when not checked) */
+	.phd-radio-checkmark:after {
+		content: "";
+		position: absolute;
+		display: none;
+	}
+	/* Show the indicator (dot/circle) when checked */
+	.phd-radio-container input:checked ~ .phd-radio-checkmark:after {
+		display: block;
+	}
+	/* Style the indicator (dot/circle) */
+	.phd-radio-container .phd-radio-checkmark:after {
+		top: 7px;
+		left: 7px;
+		width: 7px;
+		height: 7px;
+		border-radius: 50%;
+		background: white;
+	}
+
+	.phd-handings{
+		margin-left: -110px;
+	}
+}

@@ -1,0 +1,117 @@
+<div ngbDropdown class="d-inline-block" autoClose="outside">
+	<div id="filterDropdown" ngbDropdownToggle class="phd-filter-link d-flex align-items-center">
+		<i class="fas fa-angle-down"></i>
+		filter(s):
+	</div>
+	<div ngbDropdownMenu aria-labelledby="filterDropdown">
+		<ul class="list-group list-group-flush phd-filter">
+			<li class="list-group-item phd-filter-item">
+				<div class="phd-filter-item-icon">
+					<i class="fas fa-exclamation-circle phd-required"></i>
+				</div>
+				<div>Action Required</div>
+				<label class="switch">
+					<input type="checkbox" (change)="onStatusFilterChange(PointStatus.REQUIRED)" [checked]="pointStatusFilter?.statusFilters.includes(PointStatus.REQUIRED)">
+					<span class="slider round"></span>
+				</label>
+			</li>
+			<li class="list-group-item phd-filter-item">
+				<div class="phd-filter-item-icon">
+					<i class="far fa-circle phd-unviewed"></i>
+				</div>
+				<div>Unviewed</div>
+				<label class="switch">
+					<input type="checkbox" (change)="onStatusFilterChange(PointStatus.UNVIEWED)" [checked]="pointStatusFilter?.statusFilters.includes(PointStatus.UNVIEWED)">
+					<span class="slider round"></span>
+				</label>
+			</li>
+			<li class="list-group-item phd-filter-item">
+				<div class="phd-filter-item-icon">
+					<i class="far fa-circle phd-viewed"></i>
+				</div>
+				<div>Viewed</div>
+				<label class="switch">
+					<input type="checkbox" (change)="onStatusFilterChange(PointStatus.VIEWED)" [checked]="pointStatusFilter?.statusFilters.includes(PointStatus.VIEWED)">
+					<span class="slider round"></span>
+				</label>
+			</li>
+			<li class="list-group-item phd-filter-item">
+				<div class="phd-filter-item-icon">
+					<i class="fas fa-adjust phd-partial-complete"></i>
+				</div>
+				<div>Partial</div>
+				<label class="switch">
+					<input type="checkbox" (change)="onStatusFilterChange(PointStatus.PARTIALLY_COMPLETED)" [checked]="pointStatusFilter?.statusFilters.includes(PointStatus.PARTIALLY_COMPLETED)">
+					<span class="slider round"></span>
+				</label>
+			</li>
+			<li class="list-group-item phd-filter-item">
+				<div class="phd-filter-item-icon">
+					<i class="fas fa-check-circle phd-complete"></i>
+				</div>
+				<div>Completed</div>
+				<label class="switch">
+					<input type="checkbox" (change)="onStatusFilterChange(PointStatus.COMPLETED)" [checked]="pointStatusFilter?.statusFilters.includes(PointStatus.COMPLETED)">
+					<span class="slider round"></span>
+				</label>
+			</li>
+			<li class="list-group-item phd-filter-item">
+				<div class="phd-filter-item-icon">
+					<i class="fas fa-ban phd-conflicted"></i>
+				</div>
+				<div>Conflicted</div>
+				<label class="switch">
+					<input type="checkbox" (change)="onStatusFilterChange(PointStatus.CONFLICTED)" [checked]="pointStatusFilter?.statusFilters.includes(PointStatus.CONFLICTED)">
+					<span class="slider round"></span>
+				</label>
+			</li>
+
+			<button class="list-group-item" (click)="resetActionStatusFilters()">Reset</button>
+		</ul>
+	</div>
+</div>
+
+<ng-container *ngFor="let filter of pointStatusFilter.statusFilters">
+	<div *ngIf="filter === PointStatus.REQUIRED" class="phd-filter-badge phd-required">
+		<i class="fas fa-exclamation-circle"></i>
+		<div>Action Required</div>
+		<span class="phd-close" (click)="onStatusFilterChange(PointStatus.REQUIRED)">
+			<i class="fas fa-times"></i>
+		</span>
+	</div>
+	<div *ngIf="filter === PointStatus.UNVIEWED" class="phd-filter-badge phd-unviewed">
+		<i class="far fa-circle"></i>
+		<div>Unviewed</div>
+		<span class="phd-close" (click)="onStatusFilterChange(PointStatus.UNVIEWED)">
+			<i class="fas fa-times"></i>
+		</span>
+	</div>
+	<div *ngIf="filter === PointStatus.VIEWED" class="phd-filter-badge phd-viewed">
+		<i class="far fa-circle"></i>
+		<div>Viewed</div>
+		<span class="phd-close" (click)="onStatusFilterChange(PointStatus.VIEWED)">
+			<i class="fas fa-times"></i>
+		</span>
+	</div>
+	<div *ngIf="filter === PointStatus.PARTIALLY_COMPLETED" class="phd-filter-badge phd-partial-complete">
+		<i class="fas fa-adjust"></i>
+		<div>Partial</div>
+		<span class="phd-close" (click)="onStatusFilterChange(PointStatus.PARTIALLY_COMPLETED)">
+			<i class="fas fa-times"></i>
+		</span>
+	</div>
+	<div *ngIf="filter === PointStatus.COMPLETED" class="phd-filter-badge phd-complete">
+		<i class="fas fa-check-circle"></i>
+		<div>Completed</div>
+		<span class="phd-close" (click)="onStatusFilterChange(PointStatus.COMPLETED)">
+			<i class="fas fa-times"></i>
+		</span>
+	</div>
+	<div *ngIf="filter === PointStatus.CONFLICTED" class="phd-filter-badge phd-conflicted">
+		<i class="fas fa-ban"></i>
+		<div>Conflicted</div>
+		<span class="phd-close" (click)="onStatusFilterChange(PointStatus.CONFLICTED)">
+			<i class="fas fa-times"></i>
+		</span>
+	</div>
+</ng-container>

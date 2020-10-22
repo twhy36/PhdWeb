@@ -1,0 +1,93 @@
+@import "../../../../../../../scss/color-pallet.scss";
+@import "../../../../../../../scss/sizes.scss";
+
+.phd-panel {
+	border: 1px solid $phd-secondary;
+	margin: 1em;
+
+	.phd-panel-header {
+		background-color: $phd-secondary;
+		font-weight: bold;
+		padding-left: 1em;
+	}
+
+	.phd-panel-body {
+	}
+}
+
+.phd-table-collection {
+	flex: 1;
+	overflow-x: auto;
+}
+
+.phd-list-inline > li {
+	display: inline-block;
+}
+
+/* ol number coloring - start */
+.phd-panel-body {
+	ul {
+		padding-left: 0;
+
+		> li::before {
+			color: $phd-primary;
+		}
+	}
+	
+	ol {
+		list-style: none;
+		counter-reset: li;
+
+		> li {
+			counter-increment: li;
+			margin-bottom: 1em;
+		}
+
+		> li::before {
+			content: "."counter(li); // can't color ol numbering so replace with this so we can.  example: 1.
+			color: $phd-primary;
+			display: inline-block;
+			width: 1em;
+			margin-left: -1.5em;
+			margin-right: 0.5em;
+			text-align: right;
+			direction: rtl;
+			font-weight: bold;
+			font-size: 20px;
+		}
+	}
+}
+/* ol number coloring - end */
+
+.phd-mapping {
+	.phd-mapping-header {
+		font-weight: bold;
+		color: #495057;
+		background-color: #e9ecef;
+		border-color: #dee2e6;
+		padding: .3rem;
+		margin-bottom: 1em;
+	}
+
+	.phd-mapping-body {
+		margin-left: 1em;
+		margin-bottom: 1em;
+
+		.phd-mapping-item {
+			margin-bottom: 1em;
+		}
+
+		.phd-mapping-item-header {
+			font-weight: bold;
+		}
+
+		.phd-mapping-item-body {
+
+		}
+
+		ul {
+			list-style-type: none;
+			padding: 0;
+		}
+	}
+}

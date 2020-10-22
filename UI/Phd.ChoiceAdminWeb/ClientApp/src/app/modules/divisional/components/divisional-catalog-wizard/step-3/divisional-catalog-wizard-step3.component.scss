@@ -1,0 +1,30 @@
+.phd-selected-choices {
+	height:25%;
+}
+
+.phd-communities {
+	height:75%;
+}
+
+.phd-col-width-chkbox {
+	width: 40px;
+}
+
+.phd-plan-chkbox {
+	margin-left: 2em;
+}
+
+.phd-wiz-checkbox {
+	margin-right: 1em;
+	position: initial;
+	vertical-align: middle;
+
+	border: 1px solid #a6a6a6;
+	background-color: #ffffff;
+	width: 20px;
+	height: 20px;
+	text-align: center;
+	border-radius: 3px;
+	-webkit-transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
+	transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
+}

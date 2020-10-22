@@ -1,0 +1,38 @@
+@import "../../../../../scss/color-pallet.scss";
+@import "../../../../../scss/sizes.scss";
+
+%phd-base-text {
+	text-transform:uppercase;
+}
+
+.phd-selections {
+	@extend %phd-base-text;
+	color: $brand-danger;
+}
+
+.phd-structural {
+	@extend %phd-base-text;
+	color: $squash;
+}
+
+.phd-design {
+	@extend %phd-base-text;
+	color: $dodger-blue;
+}
+
+.phd-build {
+	@extend %phd-base-text;
+	color: $weird-green;
+}
+
+@media (max-width: $tablet-max-width) {
+	:host {
+		font-size:10px;
+	}
+}
+
+@media (max-width: 725px) {
+	:host {
+		font-size:7.5px;
+	}
+}

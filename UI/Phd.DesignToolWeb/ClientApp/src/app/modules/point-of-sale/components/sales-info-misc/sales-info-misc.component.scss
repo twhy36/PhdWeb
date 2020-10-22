@@ -1,0 +1,59 @@
+@import "../../../../../scss/color-pallet.scss";
+
+.sales-info-misc {
+
+
+	.label {
+		font-weight: 500;
+	}
+
+	ngb-datepicker {
+		top: 2em !important;
+		left: .5em !important;
+		width: 332px;
+	}
+
+	.ngb-dp-month {
+		width: 100%;
+	}
+
+	.ngb-dp-weekdays,
+	.ngb-dp-week {
+		justify-content: space-evenly;
+	}
+
+	.custom-day {
+		display: inline-block;
+		height: 2rem;
+		padding: 0.185rem 0.25rem;
+		text-align: center;
+		width: 100%;
+
+		&.focused {
+			background-color: #e6e6e6;
+		}
+
+		&.range,
+		&:hover {
+			background-color: rgb(2, 117, 216);
+			color: white;
+		}
+
+		&.faded {
+			background-color: rgba(2, 117, 216, 0.5);
+		}
+
+		&.disabled {
+			color: #ccc;
+
+			&:hover {
+				background-color: #fff;
+				color: #ccc;
+			}
+		}
+	}
+
+	.form-control {
+		max-width: 350px;
+	}
+}

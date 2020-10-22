@@ -1,0 +1,46 @@
+<div class="phd-attribute-location">
+	<div class="d-flex">
+		<div class="d-flex flex-column">
+			<h5>{{attributeLocation.name}}</h5>
+		</div>
+
+		<div class="d-flex flex-column phd-qty-label">
+			<span>Qty:</span>
+		</div>
+
+		<div class="d-flex flex-column phd-qty">
+			<quantity-input [min]="0" [max]="maxQuantity" [quantity]="locationQuantityTotal" (quantityChange)="quantityChangeHandler($event)" [canEditAgreement]="canEditAgreement && !isPastCutOff"></quantity-input>
+		</div>
+
+		<div class="d-flex flex-column phd-attr-group-arrows" *ngIf="attributeGroups.length">
+			<a (click)="isCollapsed = !isCollapsed" aria-controls="collapseAttributeGroups">
+				<span *ngIf="isCollapsed">
+					<i class="fas fa-angle-right arrow"></i>
+				</span>
+				<span *ngIf="!isCollapsed">
+					<i class="fas fa-angle-down arrow"></i>
+				</span>
+			</a>
+		</div>
+	</div>
+
+	<div class="d-flex flex-column justify-content-end phd-selected-item" *ngIf="selectedAttributes && selectedAttributes.length > 0">
+		<label class="phd-selected-item">
+			<span>[Selected: <span *ngFor="let selectedAttribute of selectedAttributes; let isLast=last">{{selectedAttribute.attributeName}}{{isLast ? '' : ', '}}</span> ]</span>
+		</label>
+	</div>
+	
+	<div id="collapseAttributeGroups" [ngbCollapse]="isCollapsed" *ngIf="attributeGroups.length" class="phd-attribute-group-container">
+		<attribute-group [selectedAttributes]="selectedLocationAttributes"
+						 [attributeGroups]="attributeGroups"
+						 [isActive]="isActive"
+						 [isPastCutOff]="isPastCutOff"
+						 [canEditAgreement]="canEditAgreement"
+						 [canOverride]="canOverride"
+						 [overrideReason]="overrideReason"
+						 [monotonyConflict]="monotonyConflict"
+						 [isCollapsed]="isCollapsed"
+						 (onAttributeGroupSelected)="attributeGroupSelected($event)">
+		</attribute-group>
+	</div>
+</div>

@@ -1,0 +1,94 @@
+@import "../../../../scss/color-pallet.scss";
+
+.phd-non-standard-change {
+	border-radius: 5px;
+
+	.phd-non-standard-change-header {
+		font-size: 24px;
+		font-weight: 500;
+		padding: 10px 20px 10px 20px;
+	}
+
+	button {
+		width: 110px;
+		height: 40px;
+		margin-bottom: 5px;
+		margin-top: 10px;
+		text-transform: uppercase;
+		margin-left: 15px;
+		background-color: #073e59;
+		color: #fff;
+
+		&:disabled {
+			opacity: 0.5;
+			cursor: not-allowed;
+
+			&:hover {
+				cursor: not-allowed;
+			}
+		}
+
+		&:focus {
+			outline: none;
+			box-shadow: none;
+		}
+
+		&:hover {
+			background-color: #1a5e80;
+			color: #fff;
+			cursor: pointer;
+		}
+	}
+
+	.phd-col-form-label {
+		font-weight: 500;
+	}
+
+	.phd-nss-form {
+		padding: 20px 20px 0px 20px;
+
+		.phd-nss-form-div {
+			border: 1px solid #ced4da;
+			border-radius: 4px;
+			padding: 10px 10px 0px 10px;
+		}
+	}
+
+	.phd-nss-buttons {
+		padding: 15px 20px 15px 20px;
+	}
+
+	.phd-add-nso-text {
+		font-size: large;
+		font-weight: 900;
+		vertical-align: top;
+		padding-left: 10px;
+	}
+
+	.phd-delete-nso-text {
+		font-weight: 500;
+		vertical-align: top;
+		padding-left: 10px;
+	}
+
+	.phd-margin {
+		margin-left: 100px;
+		margin-right: 100px;
+	}
+
+	.phd-nss-options {
+		border: 1px solid #ced4da;
+		border-radius: 4px;
+		max-height: 150px;
+		overflow-y: scroll;
+
+		.phd-nss-option-list {
+			list-style: none;
+			padding-top: 15px;
+		}
+	}
+}
+
+.ng-invalid:not(form):not(p-calendar) {
+	border-left: 5px solid $brand-danger;
+}

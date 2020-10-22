@@ -1,0 +1,69 @@
+@import "../../../../../scss/color-pallet.scss";
+@import "../../../../../scss/sizes.scss";
+
+.phd-item-multiselect {
+
+	.phd-search-results-visible {
+		margin-bottom: 0 !important;
+
+		.btn {
+			border-bottom-left-radius: 0;
+			border-bottom-right-radius: 0;
+		}
+	}
+
+	.phd-search-input-group {
+		margin-bottom: $form-group-margin-bottom;
+	}
+
+	.phd-buttons-row {
+		margin: $form-group-margin-bottom 0px;
+
+		.btn {
+			padding: 3px 6px;
+		}
+
+		i {
+			font-size: 24px;
+		}
+	}
+}
+
+.phd-fieldRequired,
+::ng-deep .ui-calendar input {
+	&.ng-invalid {
+		border-left: 5px solid #d9534f;
+	}
+}
+
+.phd-item-multiselect-results {
+	padding: 10px;
+	border: solid 1px $gray-lighter;
+	box-shadow: 0 1px 4px 0 darken($gray-lighter,20%);
+	border-radius: 0 0 $border-radius-base $border-radius-base;
+	background-color: white;
+
+	a:hover {
+		cursor: pointer;
+		text-decoration: none;
+	}
+
+	a.close {
+		color: $gray;
+	}
+
+	select[multiple] {
+		border: none;
+		width: 100%;
+		overflow-y: auto;
+	}
+
+	.phd-item-multiselect-results-save {
+		padding-right: 10px;
+		padding-bottom: 5px;
+	}
+}
+
+.phd-pmcAffiliate {
+	margin-right: 10px;
+}

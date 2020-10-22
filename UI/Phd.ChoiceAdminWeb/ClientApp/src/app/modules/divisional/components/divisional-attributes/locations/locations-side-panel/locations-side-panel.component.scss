@@ -1,0 +1,15 @@
+@import "../../../../../../../scss/styles.scss";
+
+::ng-deep .container {
+	background-color: #fff;
+	border: 1px solid #dee2e6;
+	border-top: none;
+}
+
+.phd-footer-row {
+	text-align: right;
+}
+
+.phd-footer-add-another {
+	margin-bottom: 20px;
+}

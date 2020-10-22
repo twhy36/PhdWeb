@@ -1,0 +1,76 @@
+@import "../../../../../scss/color-pallet.scss";
+@import "../../../../../scss/sizes.scss";
+
+.alert-small {
+	padding: 5px;
+	margin-bottom: 0px;
+	margin-top: 5px;
+}
+
+.ng-invalid:not(form):not(.form-row):not(.ng-pristine) {
+	border: solid 1px $darkish-pink;
+	border-left-width: 5px;
+	box-shadow: none;
+}
+
+.phd-inactive-phase {
+	background-color: #e9ecef;
+	border-left: none;
+	cursor: not-allowed;
+	border-left-style: none !important;
+	opacity: 1;
+}
+
+.phd-bottomleft {
+	position: absolute;
+	top: -30px;
+}
+
+.phd-fieldRequired {
+	border-left: 5px solid #d9534f;
+}
+
+.phd-selectBox select {
+	width: 100%;
+	font-weight: bold;
+}
+
+.phd-overSelect {
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+}
+
+.validation-error-message {
+	margin-top: 3px;
+}
+
+.phd-item-multiselect-results {
+	padding: 10px;
+	border: solid 1px $gray-lighter;
+	box-shadow: 0 1px 4px 0 darken($gray-lighter,20%);
+	border-radius: 0 0 $border-radius-base $border-radius-base;
+	background-color: white;
+
+	a:hover {
+		cursor: pointer;
+		text-decoration: none;
+	}
+
+	a.close {
+		color: $gray;
+	}
+
+	select[multiple] {
+		border: none;
+		width: 100%;
+		overflow-y: auto;
+	}
+
+	.phd-item-multiselect-results-save {
+		padding-right: 10px;
+		padding-bottom: 5px;
+	}
+}

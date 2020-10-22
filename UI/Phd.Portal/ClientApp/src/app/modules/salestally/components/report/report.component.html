@@ -1,0 +1,161 @@
+<div class="phd-salestally">
+	<div class="row align-items-center justify-content-center">
+		<h2>Sales Tally</h2>
+	</div>
+
+	<div class="row align-items-center justify-content-center phd-stlly-options">
+		
+			<span class="phd-stlly-time">
+				<input type="radio" id="currentweek" (click)="updateTop10Data(TimeFrameType.CurrentWeek)" [checked]="timeFrame == TimeFrameType.CurrentWeek" />
+				<label class="phd-stlly-time-label">Current Week</label>
+			</span>
+
+			<span class="phd-stlly-time">
+				<input type="radio" id="mtd" (click)="updateTop10Data(TimeFrameType.MonthToDate)" [checked]="timeFrame == TimeFrameType.MonthToDate" />
+				<label class="phd-stlly-time-label">Month To Date</label>
+			</span>
+
+			<span>
+				<input type="radio" id="ytd" (click)="updateTop10Data(TimeFrameType.YearToDate)" [checked]="timeFrame == TimeFrameType.YearToDate" />
+				<label class="phd-stlly-time-label">Year To Date</label>
+			</span>
+	</div>
+	<hr />
+
+	<div class="align-items-top row">
+
+		<div class="col">
+			<table class="table table-bordered">
+				<tr class="phd-salestally-top10-hdr">
+					<th>Top 10 Markets</th>
+					<th>Signups</th>
+				</tr>
+				<tr *ngFor="let mkt of topMarkets; let odd = odd" [ngClass]="odd ? 'phd-stlly-top10-row-odd' : 'phd-stlly-top10-row-even'">
+					<td>{{mkt.market}}</td>
+					<td>{{mkt.net}}</td>
+				</tr>
+			</table>
+		</div>
+
+		<div class="col">
+			<table class="table table-bordered">
+				<tr class="phd-salestally-top10-hdr">
+					<th>Top 10 Communities</th>
+					<th>Signups</th>
+				</tr>
+				<tr *ngFor="let cmts of topCommunities; let odd = odd" [ngClass]="odd ? 'phd-stlly-top10-row-odd' : 'phd-stlly-top10-row-even'">
+					<td>{{cmts.community}}</td>
+					<td>{{cmts.net}}</td>
+				</tr>
+			</table>
+		</div>
+
+		<div class="col">
+			<table class="table table-bordered">
+				<tr class="phd-salestally-top10-hdr">
+					<th>Top 10 Sales Agents</th>
+					<th>Signups</th>
+				</tr>
+				<tr *ngFor="let sa of topSalesConsultants; let odd = odd" [ngClass]="odd ? 'phd-stlly-top10-row-odd' : 'phd-stlly-top10-row-even'">
+					<td>{{sa.salesAssociate}}</td>
+					<td>{{sa.totalSales}}</td>
+				</tr>
+			</table>
+		</div>
+
+	</div>
+
+	<button class="btn btn-link" (click)="expandAll()">Expand All</button>
+	<button class="btn btn-link" (click)="collapseAll()">Collapse All</button>
+
+	<div>
+		<p-treeTable [value]="areaSales" [scrollable]="true" scrollHeight="400px">
+			<ng-template pTemplate="header">
+				<tr class="phd-stlly-area-hdr-gold">
+					<th colspan="3"></th>
+					<th>
+						<span class="phd-stlly-full-text">Total</span>
+						<span class="phd-stlly-abbrv-text phd-stlly-abbrv-header">TT</span>
+					</th>
+					<th>
+						<span class="phd-stlly-full-text">Previous Day</span>
+						<span class="phd-stlly-abbrv-text phd-stlly-abbrv-header">PD</span>
+					</th>
+					<th>
+						<span class="phd-stlly-full-text">Current Day</span>
+						<span class="phd-stlly-abbrv-text phd-stlly-abbrv-header">CD</span>
+					</th>
+					<th colspan="3">
+						<span class="phd-stlly-full-text">Current Week</span>
+						<span class="phd-stlly-abbrv-text">CW</span>
+					</th>
+					<th colspan="3">
+						<span class="phd-stlly-full-text">Month To Date</span>
+						<span class="phd-stlly-abbrv-text">MTD</span>
+					</th>
+				</tr>
+				<tr class="phd-stlly-area-hdr-blue">
+					<td colspan="3"></td>
+					<td>
+						<span class="phd-stlly-full-text">In Process</span>
+						<span class="phd-stlly-abbrv-text">IP</span>
+					</td>
+					<td>
+						<span class="phd-stlly-full-text">Net</span>
+						<span class="phd-stlly-abbrv-text">NT</span>
+					</td>
+					<td>
+						<span class="phd-stlly-full-text">Net</span>
+						<span class="phd-stlly-abbrv-text">NT</span>
+					</td>
+
+					<td>
+						<span class="phd-stlly-full-text">Signups</span>
+						<span class="phd-stlly-abbrv-text">SU</span>
+					</td>
+					<td>
+						<span class="phd-stlly-full-text">Cancels</span>
+						<span class="phd-stlly-abbrv-text">CC</span>
+					</td>
+					<td>
+						<span class="phd-stlly-full-text">Net</span>
+						<span class="phd-stlly-abbrv-text">NT</span>
+					</td>
+
+					<td>
+						<span class="phd-stlly-full-text">Signups</span>
+						<span class="phd-stlly-abbrv-text">SU</span>
+					</td>
+					<td>
+						<span class="phd-stlly-full-text">Cancels</span>
+						<span class="phd-stlly-abbrv-text">CC</span>
+					</td>
+					<td>
+						<span class="phd-stlly-full-text">Net</span>
+						<span class="phd-stlly-abbrv-text">NT</span>
+					</td>
+				</tr>
+			</ng-template>
+
+			<ng-template pTemplate="body" let-rowNode let-rowData="rowData">
+				<tr>
+					<td colspan="3" class="phd-stlly-abbrv-cell">
+						<p-treeTableToggler [rowNode]="rowNode"></p-treeTableToggler>
+						{{rowData.name}}
+					</td>
+					<td class="phd-stlly-abbrv-cell phd-stlly-abbrv-cell-padding">{{rowData.pending}}</td>
+					<td class="phd-stlly-abbrv-cell">{{rowData.previousDaySignups}}</td>
+					<td class="phd-stlly-abbrv-cell">{{rowData.currentDaySignups}}</td>
+
+					<td class="phd-stlly-abbrv-cell">{{rowData.currentSignups}}</td>
+					<td class="phd-stlly-abbrv-cell">{{rowData.currentCancellations}}</td>
+					<td class="phd-stlly-abbrv-cell">{{rowData.currentNet}}</td>
+
+					<td class="phd-stlly-abbrv-cell">{{rowData.mtdSignups}}</td>
+					<td class="phd-stlly-abbrv-cell">{{rowData.mtdCancellations}}</td>
+					<td class="phd-stlly-abbrv-cell">{{rowData.mtdNet}}</td>
+				</tr>
+			</ng-template>
+		</p-treeTable>
+	</div>
+</div>

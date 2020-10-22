@@ -1,0 +1,140 @@
+@import "../../../../../scss/color-pallet.scss";
+@import "../../../../../scss/animations.scss";
+@import "../../../../../scss/sizes.scss";
+
+:host {
+	height: 100%;
+	overflow-y: hidden;
+	display: block;
+}
+
+.nav {
+    max-width: 450px;
+    width: 100%;
+    margin-bottom: 30px;
+    li {
+        flex-basis: 33.33%;
+        a {
+            border-bottom-style: solid;
+            border-bottom-width: 1px;
+            font-size: 18px;
+            font-weight: 300;
+            &.active {
+                font-weight: normal;
+                border-bottom-width: 4px;
+            }
+        }
+    }
+}
+
+#lot-experience-header {
+    font-size: 36px;
+    font-weight: 300;
+    margin-bottom: 35px;
+}
+
+.phd-lot-card {
+	background: #ffffff;
+
+	&.active {
+		box-shadow: 0 0 5px rgba(81, 203, 238, 1) inset;
+		transition: all 0.25s;
+		transition-timing-function: cubic-bezier(.42, 0, 1, 1);
+	}
+
+	&.phd-monotony-conflict {
+		> div:not(.phd-incompatible-plan) {
+			opacity: 0.5;
+		}
+
+		.phd-incompatible-plan {
+			color: red;
+			font-weight: bold;
+		}
+	}
+
+	> div:first-child {
+		@media (max-width: 1024px) {
+			width: 100%;
+			text-align: center;
+		}
+	}
+
+	> div:last-child {
+		min-width: 105px;
+
+		@media (max-width: 1024px) {
+			width: 100%;
+			text-align: center;
+		}
+	}
+
+	&.phd-no-plan-assocation {
+		> div:not(.phd-incompatible-plan) {
+			opacity: 0.5;
+		}
+
+		.phd-incompatible-plan {
+			color: red;
+			font-weight: bold;
+		}
+	}
+
+	.phd-lot-spec {
+		color: hsl(188, 78%, 41%);
+	}
+
+	.phd-lot-card-details {
+		> div:not(.phd-incompatible-plan) {
+			width: 33%;
+
+			@media (max-width: 1024px) {
+				width: 100%;
+				text-align: center;
+			}
+		}
+	}
+}
+
+.phd-lot-card:nth-child(even) {
+	background: #e0e0e0;
+}
+
+.phd-borderless-select {
+	border: none;
+	background-color: transparent;
+	box-shadow: none;
+	color: #0d4b6b;
+	cursor: pointer;
+
+	option {
+		min-height: 1em;
+		line-height: 1;
+	}
+}
+
+.phd-borderless-select-disabled {
+	border: none;
+	background-color: transparent;
+	box-shadow: none;
+	color: #4A4A4A;
+	cursor: text;
+}
+
+.phd-lot-button {
+	background-color: #073e59;
+	cursor: pointer;
+
+	&:hover {
+		background-color: #1a5e80;
+		color: #fff;
+	}
+}
+
+.phd-fw-col-md {
+	min-width: 180px;
+}
+
+.phd-table-wrapper-body {
+	margin-bottom: 99px;
+}

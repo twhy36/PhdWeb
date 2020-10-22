@@ -1,0 +1,107 @@
+<div *ngIf="!isReadOnly" class="phd-add-new-rule-form">
+	<div class="card mb-2">
+		<div class="card-header">
+			<strong>Add New Rule</strong>
+			<div class="pull-right" *ngIf="selectedItems.length > 0">
+				<button class="btn btn-secondary" (click)="localCancelRule()">Cancel</button>
+				<button class="btn btn-primary" (click)="localSaveRule()" [disabled]="disableSaveButton">Save</button>
+			</div>
+		</div>
+		<div class="card-body">
+			<div class="phd-choice-multiselect" [class.selections-made]="selectedItems.length > 0">
+				<div *ngIf="selectedItems.length > 0" class="form-group">
+					<label for="selectedItemsTags">Selected Options:</label>
+					<div id="selectedItemsTags" class="phd-tagsinput">
+						<div class="phd-tag" *ngFor="let item of selectedItems">
+							<span class="phd-truncate phd-selected-tag">{{item.id}} {{item.optionHeaderName}}</span>
+							<a class="phd-tagsinput-remove-link" (click)="removeItem(item.id)"></a>
+						</div>
+					</div>
+				</div>
+
+				<div class="form-group">
+					<label for="searchFor">Add Options to Rule:</label>
+					<div id="searchFor" class="phd-search-input-group" [class.phd-search-results-visible]="showSearchResults">
+						<div class="input-group">
+							<input type="text" class="form-control" aria-label="Search" placeholder="Search" [(ngModel)]="keyword" (keyup.enter)="keywordSearch()">
+							<div class="input-group-append">
+								<button type="button" class="btn btn-secondary" (click)="keywordSearch()">
+									<i class="fa fa-fw fa-search"></i>
+								</button>
+							</div>
+						</div>
+
+						<div *ngIf="showSearchResults && searchResultsCount > 0" class="phd-item-multiselect-results">
+							<div>
+								<a class="close" (click)="showSearchResults = false">&times;</a>
+							</div>
+							<ng-container *ngFor="let category of optionsList">
+								<ng-container *ngIf="category.matched">
+									<div>
+										<i class="fa fa-fw" [class.fa-chevron-up]="category.open" [class.fa-chevron-down]="!category.open" (click)="category.open = !category.open"></i>
+										<span class="font-weight-bold">{{category.label}}</span>
+									</div>
+									<ng-container *ngFor="let subCategory of category.subCategories">
+										<ng-container *ngIf="category.open && subCategory.matched">
+											<div class="phd-child-sp">
+												<i class="fa fa-fw" [class.fa-chevron-up]="subCategory.open" [class.fa-chevron-down]="!subCategory.open" (click)="subCategory.open = !subCategory.open"></i>
+												<span class="phd-bold">{{subCategory.label}}</span>
+											</div>
+											<ng-container *ngFor="let option of subCategory.optionItems">
+												<div *ngIf="subCategory.open && category.open && option.matched" class="phd-grand-child-sp">
+													<span class="phd-truncate phd-tree-rule" [title]="option.optionText" [class.phd-tree-rule-disabled]="option.baseHouse" (click)="option.baseHouse ? '' : onAddItemClick(option.treeOption)">
+														{{option.optionText}}
+													</span>
+													<span *ngIf="option.baseHouse" class="text-danger">*</span>
+												</div>
+											</ng-container>
+										</ng-container>
+									</ng-container>
+								</ng-container>
+							</ng-container>
+						</div>
+						<div *ngIf="showSearchResults && searchResultsCount === 0">
+							<div class="text-danger text-center">
+								No results found. Please try another search.
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="card-footer">
+			<div class="pull-left">
+				<div class="phd-indicator"><span class="text-danger">*</span> Base House</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div *ngIf="!isLoading && rules.length > 0" class="phd-rules-list">
+	<table class="table table-sm table-striped">
+		<thead>
+			<tr>
+				<th scope="col">Associated Options</th>
+				<th scope="col" *ngIf="!isReadOnly"></th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr *ngIf="isLoading">
+				<td [attr.colspan]="isReadOnly ? '1' : '2'"><div class="alert alert-info" style="margin: 0; padding:5px;">Loading</div></td>
+			</tr>
+			<tr *ngFor="let rule of rules">
+				<td scope="row">
+					<span class="phd-truncate phd-associated-rule" [title]="rule.integrationKey + ' ' + rule.label">
+						{{rule.integrationKey}} {{rule.label}}
+					</span>
+				</td>
+
+				<td *ngIf="!isReadOnly" class="phd-icon-col">
+					<i class="fa fa-fw fa-trash" (click)="localDeleteRule(rule)" title="Delete"></i>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+<div *ngIf="isLoading" class="phd-rules-list container-fluid text-center">
+	<i class="fa fa-spinner fa-spin fa-3x"></i>
+</div>

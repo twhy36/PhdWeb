@@ -1,0 +1,16 @@
+<mat-toolbar color="primary">
+    <span class="pulte-vertical-align">
+        <img width="50" src="../assets/Pulte_Homes_White.png" alt="PHD Contract Setup" title="PHD Contract Setup" />
+    </span>
+    <!-- This fills the remaining space of the current row -->
+    <span class="fill-remaining-space"></span>
+    <button mat-raised-button *ngIf="showToolBarButtons" color="accent" (click)="backToTemplates.emit()">
+        <mat-icon>arrow_back</mat-icon>
+        Templates
+    </button>
+
+    <button mat-raised-button *ngIf="showToolBarButtons" color="accent" (click)="saveToCloud.emit()">
+        <mat-icon>cloud_upload</mat-icon>
+        Save
+    </button>
+</mat-toolbar>

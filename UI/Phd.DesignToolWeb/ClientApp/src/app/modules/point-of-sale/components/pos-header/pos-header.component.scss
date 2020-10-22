@@ -1,0 +1,40 @@
+@import "../../../../../scss/sizes.scss";
+
+.phd-pos-header {
+	width: 100%;
+	max-width: 1500px;
+	min-height: 45px;
+	line-height: 1.36;
+
+	strong {
+		white-space: nowrap;
+	}
+
+	.phd-span {
+		font-family: monospace;
+		letter-spacing: -.25px;
+		color: #999;
+		margin-left: .5rem;
+	}
+
+	@media (max-width: $tablet-max-width) {
+		display: block !important;
+		text-align: center;
+
+		strong {
+			text-decoration: underline;
+		}
+	}
+
+	@media (max-width: 750px) {
+		flex-wrap: wrap !important;
+	}
+}
+
+.phd-toggle-arrow {
+	justify-content: center;
+	align-items: center;
+	color: grey;
+	padding-right: 8px;
+	cursor: pointer;
+}

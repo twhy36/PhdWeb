@@ -1,0 +1,100 @@
+@import "../../../../scss/color-pallet.scss";
+@import "../../../../scss/sizes.scss";
+
+.phd-table-changeOrders {
+	background-color: white;
+}
+
+.phd-change-order-table {
+	font-size: 88%;
+
+	th, td {
+		width: 10%;
+		max-width: 152px;
+		font-weight: normal;
+		text-align: center;
+
+		&:nth-child(3),
+		&:nth-child(5) {
+			text-align: left;
+			overflow: visible;
+		}
+	}
+
+	th {
+		text-transform: uppercase;
+	}
+
+	.phd-index {
+		margin-left: -10px;
+	}
+
+	.phd-change-order-index {
+		margin-left: -30px;
+		margin-top: -5px;
+	}
+
+	display: inline-block;
+	overflow: auto;
+}
+
+.phd-line {
+	width:100%;
+}
+
+.phd-orderId-header {
+	margin-left: 25px;
+}
+
+.phd-sales-status {
+	a,
+	a:hover,
+	a:focus {
+		color: $link-blue;
+		text-decoration: underline;
+		font-size: 16px;
+		line-height: 1.43;
+		transition: all .05s;
+		cursor: pointer;
+
+		&.error {
+			color: $darkish-pink;
+		}
+
+		&.loading,
+		&.disabled {
+			color: lightgray;
+			pointer-events: none;
+			cursor: default;
+			font-weight: normal;
+		}
+	}
+}
+
+.phd-margin-top{
+	margin-top:20px;
+}
+
+.phd-button {
+	margin-top: -5px;
+}
+
+@media(max-width:$tablet-max-width) {
+
+	:host{
+		th {
+			font-size: 8px;
+		}
+
+		td {
+			font-size: 8px;
+		}
+	
+		.phd-amount-margin {
+			margin-left: 0px;
+		}
+		.phd-button {
+			font-size: 10px;
+		}
+	}	
+}

@@ -1,0 +1,31 @@
+<div class="modal-header">
+	<span class="modal-title">Pulte Home Designer<br />Create Spec or Model Homes</span>
+
+	<button type="button" class="close" aria-label="Close" (click)="close()">
+		<span aria-hidden="true">&times;</span>
+	</button>
+</div>
+
+<div class="modal-body">
+	<sales-community-selector (onMarketChange)="onMarketChange($event)"
+							  (onSalesCommunityChange)="onSalesCommunityChange($event)"
+							  (onFinancialCommunityChange)="onFinancialCommunityChange($event)"
+							  [showLabels]="true"></sales-community-selector>
+
+	<div class="btn-group btn-group-toggle phd-button-group w-100" ngbRadioGroup name="radioBasic" [(ngModel)]="selectedSpecOrHomes">
+
+		<label ngbButtonLabel class="btn-primary">
+			<input ngbButton type="radio" value="spec"> Spec
+		</label>
+		<label ngbButtonLabel class="btn-primary">
+			<input ngbButton type="radio" value="model"> Model
+		</label>
+	</div>
+</div>
+
+<div class="modal-footer">
+	<button class="btn btn-primary phd-btn-save" [disabled]="!!!selectedSalesCommunity" (click)="save();">Submit</button>
+
+	<button class="btn btn-secondary" (click)="close();">Close</button>
+</div>
+

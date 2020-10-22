@@ -1,0 +1,7 @@
+@import "../../../../../scss/color-pallet.scss";
+
+.ng-invalid:not(form):not(.form-group):not(.ng-pristine) {
+	border: solid 1px $darkish-pink;
+	border-left-width: 5px;
+	box-shadow: none;
+}

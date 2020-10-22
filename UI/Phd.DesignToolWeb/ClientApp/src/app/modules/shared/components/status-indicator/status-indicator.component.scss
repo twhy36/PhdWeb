@@ -1,0 +1,14 @@
+@import "../../../../../scss/color-pallet.scss";
+@import "../../../../../scss/animations.scss";
+
+.phd-required {
+	color: $squash;
+}
+
+.phd-completed, .phd-partially-completed, .phd-viewed {
+	color: $weird-green;
+}
+
+.phd-icon-active {
+	color: $white;
+}

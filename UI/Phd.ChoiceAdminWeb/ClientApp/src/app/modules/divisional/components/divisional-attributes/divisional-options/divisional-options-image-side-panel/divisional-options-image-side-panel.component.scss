@@ -1,0 +1,60 @@
+@import "../../../../../../../scss/color-pallet.scss";
+@import "../../../../../../../scss/sizes.scss";
+
+$border-radius-base: 4px;
+
+.phd-indicator {
+	font-size: 8pt;
+	padding-left: 5px;
+}
+
+.phd-option-images-list {
+	border: solid 1px lightgray;
+	border-radius: 4px;
+	margin-top: 15px;
+	margin-bottom: 15px;
+
+	table {
+		margin-bottom: 0;
+
+		.phd-icon-col {
+			width: 38px;
+
+			i:hover {
+				cursor: pointer;
+			}
+		}
+	}
+}
+
+.phd-image-container {
+
+	i {
+		cursor: pointer;
+	}
+
+	.phd-image-card-overview {
+		max-width: 300px;
+		max-height: 100px;
+		border-radius: 4px 4px 0 0;
+	}
+
+	.phd-image-card-hide {
+		opacity: 0.3;
+	}
+}
+
+.phd-flex-container {
+	padding: 0;
+	margin: 0 50px;
+	list-style: none;
+	display: flex;
+	flex-direction: row;
+	flex-flow: wrap;
+	justify-content: space-around;
+}
+
+.phd-i-btn-disabled {
+	cursor: not-allowed;
+	opacity: .65
+}

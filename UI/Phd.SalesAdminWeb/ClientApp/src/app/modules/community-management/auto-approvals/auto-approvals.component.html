@@ -1,0 +1,91 @@
+<div class="phd-page-container">
+	<page-header mainTitle="Auto Approval Management">
+		<ng-template>
+			<div class="col">
+				<select class="form-control" [ngModel]="selectedCommunity ? selectedCommunity.dto : null" (ngModelChange)="onChangeCommunity($event)">
+					<option [ngValue]="null" disabled="disabled">Community</option>
+					<option *ngFor="let comm of (activeCommunities | async)" [ngValue]="comm.dto">{{ comm.name }}</option>
+				</select>
+			</div>
+		</ng-template>
+	</page-header>
+	<div class="phd-page-body">
+		<div class="container-fluid mx-auto">
+			<div class="row">
+				<div class="col-md font-weight-bold">
+					Change Order Type
+				</div>
+				<div class="col-md">
+					<div class="font-weight-bold">Auto Approval</div>
+					<p-checkbox [(ngModel)]="selectAll" binary="true" label="Select All" (onChange)="selectAllToggle($event)" *ngIf="canEdit"></p-checkbox>
+				</div>
+			</div>
+			<div class="row phd-row-background">
+				<div class="col-md">Job initiation Order (JIO)</div>
+				<div class="col-md" *ngIf="!isLoading">
+					<button class="btn btn-sm btn-toggle btn-auto-approval" [disabled]="true"
+							[ngClass]="{'active': !jio?.isAutoApproval, 'btn-success':  jio?.isAutoApproval, 'btn-secondary': !jio?.isAutoApproval}">
+						<div class="handle"></div>
+					</button>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md">Plan</div>
+				<div class="col-md" *ngIf="!isLoading">
+					<button class="btn btn-sm btn-toggle btn-auto-approval" [disabled]="!canEdit ? 'disabled' : null" [ngClass]="{'active': !plan?.isAutoApproval, 'btn-success':  plan?.isAutoApproval, 'btn-secondary': !plan?.isAutoApproval}"
+							(click)="toggleRule(1)">
+						<div class="handle"></div>
+					</button>
+				</div>
+			</div>
+			<div class="row phd-row-background">
+				<div class="col-md">Homesite Transfer</div>
+				<div class="col-md" *ngIf="!isLoading">
+					<button class="btn btn-sm btn-toggle btn-auto-approval" [disabled]="!canEdit ? 'disabled' : null" [ngClass]="{'active': !homesiteTransfer?.isAutoApproval, 'btn-success':  homesiteTransfer?.isAutoApproval, 'btn-secondary': !homesiteTransfer?.isAutoApproval}"
+							(click)="toggleRule(5)">
+						<div class="handle"></div>
+					</button>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md">Elevation</div>
+				<div class="col-md" *ngIf="!isLoading">
+					<button class="btn btn-sm btn-toggle btn-auto-approval" [disabled]="!canEdit ? 'disabled' : null" [ngClass]="{'active': !elevation?.isAutoApproval, 'btn-success':  elevation?.isAutoApproval, 'btn-secondary': !elevation?.isAutoApproval}"
+							(click)="toggleRule(2)">
+						<div class="handle"></div>
+					</button>
+				</div>
+			</div>
+			<div class="row phd-row-background">
+				<div class="col-md">Handing</div>
+				<div class="col-md" *ngIf="!isLoading">
+					<button class="btn btn-sm btn-toggle btn-auto-approval" [disabled]="!canEdit ? 'disabled' : null" [ngClass]="{'active': !handing?.isAutoApproval, 'btn-success': handing?.isAutoApproval, 'btn-secondary': !handing?.isAutoApproval}"
+							(click)="toggleRule(3)">
+						<div class="handle"></div>
+					</button>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md">Choice/Attribute</div>
+				<div class="col-md" *ngIf="!isLoading">
+					<button class="btn btn-sm btn-toggle btn-auto-approval" [disabled]="!canEdit ? 'disabled' : null" [ngClass]="{'active': !choiceAttribute?.isAutoApproval, 'btn-success':  choiceAttribute?.isAutoApproval, 'btn-secondary': !choiceAttribute?.isAutoApproval}"
+							(click)="toggleRule(4)">
+						<div class="handle"></div>
+					</button>
+				</div>
+			</div>
+			<div class="row phd-row-background">
+				<div class="col-md">Non-Standard</div>
+				<div class="col-md" *ngIf="!isLoading">
+					<button class="btn btn-sm btn-toggle btn-auto-approval" [disabled]="!canEdit ? 'disabled' : null" [ngClass]="{'active': !nonStandardOption?.isAutoApproval, 'btn-success':  nonStandardOption?.isAutoApproval, 'btn-secondary': !nonStandardOption?.isAutoApproval}"
+							(click)="toggleRule(6)">
+						<div class="handle"></div>
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+</div>
+
+<p-toast></p-toast>

@@ -1,0 +1,7 @@
+@import "../../../../../../scss/sizes.scss";
+
+.phd-div-attr-tabs {
+	padding: 20px;
+
+	li > a.active { font-weight: bold; }
+}

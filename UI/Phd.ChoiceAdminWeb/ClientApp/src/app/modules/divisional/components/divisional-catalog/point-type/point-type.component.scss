@@ -1,0 +1,61 @@
+.phd-fa-quick-quote, .phd-fa-quick-quote-grid {
+	font-size: 9px;
+
+	i {
+		font-size: 2.5em;
+		bottom: 0px;
+		left: -2px;
+		position: absolute;
+		width: 100%;
+		text-align: center;
+	}
+
+	strong {
+		font-size: 10px;
+		bottom: 2px;
+	}
+}
+
+.phd-fa-quick-quote-grid:hover {
+	cursor: pointer;
+}
+
+.phd-cutoff-label {
+	display: inline-block;
+	width: 5rem;
+
+	> input, > label {
+		cursor: pointer;
+	}
+}
+
+.phd-cutoff-field {
+	display: inline-block;
+	width: 12rem;
+
+	&.phd-cutoff-or {
+		text-align: center;
+	}
+}
+
+.phd-fieldset {
+	border: 1px solid;
+	padding-left: 10px;
+	padding-bottom: 10px;
+	margin-bottom: 10px;
+}
+
+.phd-legend {
+	width: auto;
+	font-size: 1rem;
+	padding: 0 5px;
+	margin-left: 15px;
+}
+
+.icon-spacing-left {
+	padding-left: 5px;
+}
+
+.icon-spacing-right {
+	 padding-right: 5px;
+ }

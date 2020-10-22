@@ -1,0 +1,87 @@
+<div class="phd-box" *ngIf="!editing">
+
+	<div class="phd-card-header">
+		<span>Contingency</span>
+
+		<a (click)="!deleting && delete()" class="phd-delete-button" [class.phd-deleting]="deleting" *ngIf="canEdit">
+			<span>
+				<i class="fas fa-spinner"></i>
+			</span>
+			<span>
+				<i class="fa fa-times-circle"></i>
+			</span>
+		</a>
+	</div>
+
+	<div class="phd-card-body">
+		<h6 *ngIf="ngbExpirationDate" class="mr-auto">
+			Expires: {{ngbExpirationDate.month}}/{{ngbExpirationDate.day}}/{{ngbExpirationDate.year}}
+		</h6>
+		<h6 *ngIf="ngbCompletionDate">
+			Completed: {{ngbCompletionDate.month}}/{{ngbCompletionDate.day}}/{{ngbCompletionDate.year}}
+		</h6>
+		<h6>{{ contingency.contingencyTypeDesc  | capitalCaseSpace }}</h6>
+	</div>
+
+	<div class="phd-card-footer">
+		<a class="btn m-0 p-0" (click)="edit()" *ngIf="canEdit">Edit</a>
+	</div>
+</div>
+
+
+
+<form *ngIf="editing === contingency" class="p-3" [formGroup]="form">
+	<div>
+		<h6>Contingency</h6>
+		<div class="d-flex align-items-end">
+			<div class="form-group">
+				<label for="contingencyTypeDesc">Type *</label>
+				<select class="form-control" formControlName="contingencyTypeDesc" id="contingencyTypeDesc" name="contingencyTypeDesc">
+					<option [ngValue]="'HouseNotSold'">House Not Sold</option>
+					<option [ngValue]="'HouseSoldNotClosed'">House Sold, Not Closed</option>
+				</select>
+			</div>
+		</div>
+		<div>
+			<label for="expirationDate">Expiration Date *</label>
+			<div class="input-group phd-contingency-date">
+				<input class="form-control w-50"
+					   formControlName="expirationDate"
+					   id="expirationDate"
+					   name="expirationDate"
+					   ngbDatepicker
+					   readonly
+					   (click)="ed.toggle();"
+					   (dateSelect)="onDateSelection($event)"
+					   #ed="ngbDatepicker">
+				<div class="input-group-append">
+					<button class="btn phd-experience-btn-choice" (click)="ed.toggle();" type="button">
+						<i class="fa fa-calendar" aria-hidden="true" style="cursor: pointer;"></i>
+					</button>
+				</div>
+			</div>
+		</div>
+		<div>
+			<label for="completionDate">Completion Date</label>
+			<div class="input-group phd-contingency-date">
+				<input class="form-control"
+					   formControlName="completionDate"
+					   id="completionDate"
+					   name="completionDate"
+					   ngbDatepicker
+					   readonly
+					   (click)="cd.toggle();"
+					   [maxDate]="maxDate"
+					   #cd="ngbDatepicker">
+				<div class="input-group-append">
+					<button class="btn phd-experience-btn-choice" (click)="cd.toggle();" type="button">
+						<i class="fa fa-calendar" aria-hidden="true" style="cursor: pointer;"></i>
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="d-flex align-items-end justify-content-center mt-5">
+		<save-cancel-buttons (onSave)="save()" (onCancel)="cancel()" [form]="form"></save-cancel-buttons>
+	</div>
+</form>

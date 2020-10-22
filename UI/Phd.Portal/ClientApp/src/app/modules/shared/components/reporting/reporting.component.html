@@ -1,0 +1,22 @@
+<div class="phd-reporting">
+	<header>
+		<h3>Pulte Home Designer Reporting</h3>
+		<div class="phd-close" (click)="close()">
+			<i class="fas fa-times-circle"></i>
+		</div>
+	</header>
+
+	<div class="phd-plan-select d-flex w-100 justify-content-between">
+		<div class="form-group">
+			<label for="plan">Choose a Report</label>
+			<select class="form-control" id="report" [(ngModel)]="selectedReport" #reportSelect>
+				<option *ngFor="let report of reportTypes" [ngValue]="report">{{ report | capitalCaseSpace }}</option>
+			</select>
+		</div>
+	</div>
+
+	<div class="form-group phd-button-group">
+		<button class="btn btn-secondary" (click)="close()">Cancel</button>
+		<button class="btn btn-primary" (click)="viewReport()">View</button>
+	</div>
+</div>

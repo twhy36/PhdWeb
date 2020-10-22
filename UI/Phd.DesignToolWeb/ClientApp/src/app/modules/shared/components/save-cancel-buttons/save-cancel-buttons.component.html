@@ -1,0 +1,5 @@
+<button type="button" class="btn phd-experience-btn-choice secondary" (click)="cancel()">{{cancelText}}</button>
+<button type="submit" class="btn phd-experience-btn-choice"
+		[class.btn-danger]="buttonText === errorText ? true : false"
+		[class.btn-success]="buttonText === savedText ? true : false"
+		(click)="save()" [disabled]="!formIsValid()">{{buttonText}}</button>

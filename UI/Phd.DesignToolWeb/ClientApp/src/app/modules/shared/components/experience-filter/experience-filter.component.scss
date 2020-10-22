@@ -1,0 +1,137 @@
+@import "../../../../../scss/color-pallet.scss";
+@import "../../../../../scss/sizes.scss";
+
+:host {
+	display: flex;
+	align-items: center;
+	padding-top: 10px;
+
+	> * {
+		margin: 4px;
+	}
+}
+
+.phd-filter-link {
+	width: 10%;
+	font-size: 14px;
+	font-weight: 500;
+	color: $link-blue;
+	cursor: pointer;
+
+	&::after {
+		display: none;
+	}
+
+	> * {
+		margin: 4px;
+	}
+}
+
+.phd-filter-item {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.phd-filter-item-icon {
+	font-size: 14px;
+}
+
+.phd-filter-badge {
+	font-size: 10px;
+	border-radius: 4px;
+	border: solid 1px;
+	display: flex;
+	align-items: center;
+	color: white !important;
+	white-space: nowrap;
+
+	& > * {
+		margin: 4px;
+	}
+
+	&.phd-complete {
+		background-color: $weird-green;
+	}
+
+	&.phd-required {
+		background-color: $squash;
+	}
+
+	&.phd-unviewed {
+		background-color: $marine;
+	}
+
+	&.phd-viewed {
+		background-color: $weird-green;
+	}
+
+	&.phd-conflicted {
+		background-color: grey;
+	}
+}
+
+.phd-filter {
+	width: 300px;
+
+	li {
+		> * {
+			padding: 0 5px;
+			border: none;
+		}
+	}
+
+	button {
+		color: $link-blue;
+		cursor: pointer;
+		font-weight: 500;
+		font-size: 20px;
+	}
+}
+
+.phd-required {
+	color: $squash;
+	border-color: $squash;
+}
+
+.phd-unviewed {
+	color: $marine;
+	border-color: $marine;
+}
+
+.phd-viewed {
+	color: $weird-green;
+	border-color: $weird-green;
+}
+
+.phd-complete {
+	color: $weird-green;
+	border-color: $weird-green;
+}
+
+.phd-conflicted {
+	color: grey;
+	border-color: grey;
+}
+
+.phd-close {
+	cursor: pointer;
+	opacity: .6;
+
+	&:hover {
+		opacity: 1;
+	}
+}
+
+@media(max-width:$tablet-max-width) {
+	:host {
+		padding-top: 0px;
+		margin-bottom:5px;
+		margin-top:5px;
+		//margin-left:5px;
+		
+		> * {
+			margin: 0px;
+		}
+	}
+}

@@ -1,0 +1,17 @@
+@import "../../../../../scss/color-pallet.scss";
+@import "../../../../../scss/sizes.scss";
+
+.phd-selected-body {
+	display: flex;
+	margin-bottom: .5em;
+
+	.phd-selected-left {
+		flex: 1;
+	}
+
+	.phd-selected-right {
+		button.btn-secondary {
+			margin-right: 15px;
+		}
+	}
+}

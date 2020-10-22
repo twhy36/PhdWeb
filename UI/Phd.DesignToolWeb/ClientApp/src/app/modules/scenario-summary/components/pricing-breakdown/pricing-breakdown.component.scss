@@ -1,0 +1,70 @@
+@import "../../../../../scss/color-pallet.scss";
+
+.phd-price-breakdown {
+	div {
+		display: flex;
+		justify-content: space-between;
+		line-height: 1.5em;
+	}
+
+	.phd-label {
+		float: left;
+		font-size: 15px;
+		white-space: nowrap;
+		margin-right: 5px;
+	}
+
+	.phd-content {
+		font-size: 15px;
+		font-weight: 500;
+	}
+
+	.phd-total {
+		margin-top: 10px;
+
+		span {
+			font-size: 25px;
+		}
+	}
+
+	.phd-closing-incentive {
+		margin-top: 10px;
+	}
+}
+
+.phd-price-breakdown-filter-dropdown {
+	float: right;
+	margin-top: 20px;
+}
+
+.phd-breakdown-link {
+	font-size: 14px;
+	font-weight: 500;
+	color: $link-blue;
+	cursor: pointer;
+
+	&::after {
+		display: none;
+	}
+
+	> * {
+		margin: 4px;
+	}
+}
+
+.phd-breakdown-item {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.phd-breakdown {
+	width: 300px;
+
+	li {
+		> * {
+			padding: 0 5px;
+			border: none;
+		}
+	}
+}

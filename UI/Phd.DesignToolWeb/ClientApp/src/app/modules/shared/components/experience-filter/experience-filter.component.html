@@ -1,0 +1,3 @@
+<select class="form-control form-group" [ngModel]="selectedPointFilter" (ngModelChange)="onStatusFilterChange($event)">
+	<option *ngFor="let filterOption of filterOptions" [ngValue]="filterOption.filterType">{{ filterOption.name }}</option>
+</select>

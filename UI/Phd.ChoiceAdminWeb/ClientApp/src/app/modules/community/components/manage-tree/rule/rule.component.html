@@ -1,0 +1,101 @@
+<div *ngIf="!isReadOnly" class="phd-add-new-rule-form">
+	<div class="card mb-2">
+		<div class="card-header">
+			<strong>{{selectedRuleId === 0 ? 'Add New Rule' : 'Edit Rule'}}</strong>
+		</div>
+
+		<div class="card-body">
+			<!--Rule Item Selector - BEGIN-->
+			<choice-selector [selectedChoices]="selectedItems"
+							 [showSearchResults]="showSearchResults"
+							 [searchResultsCount]="searchResultsCount"
+							 [searchFilters]="searchFilters"
+							 [selectedSearchFilter]="selectedSearchFilter"
+							 [selectedLabel]="'Selected ' + title + 's:'"
+							 [searchLabel]="'Add ' + title + ' to Rule:'"
+							 (onKeywordSearch)="keywordSearch($event)"
+							 (onRemoveItemClick)="removeItem($event)"
+							 (onClearFilter)="clearFilter()"
+							 (onCancel)="localCancelRule()"
+							 (onSave)="localSaveRule()">
+				<ng-container *ngFor="let group of groups">
+					<ng-container *ngIf="group.matched">
+						<div>
+							<i class="fa fa-fw" [class.fa-chevron-up]="group.open" [class.fa-chevron-down]="!group.open" (click)="group.open = !group.open"></i>
+							<span>{{group.label}}</span>
+						</div>
+						<ng-container *ngFor="let subGroup of group.subGroups">
+							<ng-container *ngIf="group.open && subGroup.matched">
+								<div class="phd-child-sp">
+									<i class="fa fa-fw" [class.fa-chevron-up]="subGroup.open" [class.fa-chevron-down]="!subGroup.open" (click)="subGroup.open = !subGroup.open"></i>
+									<span>{{subGroup.label}}</span>
+								</div>
+								<ng-container *ngFor="let point of subGroup.points">
+									<ng-container *ngIf="subGroup.open && group.open && point.matched">
+										<div class="phd-grand-child-sp">
+											<i *ngIf="ruleType !== 'point'" class="fa fa-fw" [class.fa-chevron-up]="point.open" [class.fa-chevron-down]="!point.open" (click)="point.open = !point.open"></i>
+											<span (click)="onAddItemClick(id, ruleType, point)" [class.phd-tree-rule]="ruleType == 'point'" [class.phd-tree-rule-disabled]="isPointDisabled(point)">
+												{{point.label}}
+											</span>
+										</div>
+										<ng-container *ngIf="ruleType !== 'point'">
+											<ng-container *ngFor="let choice of point.choices">
+												<div *ngIf="point.open && subGroup.open && group.open && choice.matched" class="phd-great-grand-child-sp">
+													<span class="phd-tree-rule" (click)="onAddItemClick(id, ruleType, choice)" [class.phd-tree-rule-disabled]="id == point.id || id == choice.id">{{choice.label}}</span>
+													<span *ngIf="choice.isDecisionDefault" class="text-danger">*</span>
+												</div>
+											</ng-container>
+										</ng-container>
+									</ng-container>
+								</ng-container>
+							</ng-container>
+						</ng-container>
+					</ng-container>
+				</ng-container>
+			</choice-selector>
+			<!--Choice Selector - END-->
+		</div>
+		<div class="card-footer" *ngIf="ruleType !== 'point'">
+			<div class="pull-left">
+				<div class="phd-indicator"><span class="text-danger">*</span> Default Choice</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div *ngIf="!isLoading && rules.length > 0" class="phd-rules-list">
+	<table class="table table-sm table-striped">
+		<thead>
+			<tr>
+				<th scope="col">{{title}}</th>
+				<th scope="col">Type</th>
+				<th scope="col" *ngIf="!isReadOnly"></th>
+				<th scope="col" *ngIf="!isReadOnly"></th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr *ngFor="let rule of rules">
+				<td scope="row">
+					<ng-container *ngFor="let ruleItem of rule.ruleItems; index as i;">
+						<div>{{ruleItem.label + (i + 1 < rule.ruleItems.length ? ',' : '' )}}</div>
+					</ng-container>
+				</td>
+				<td>
+					<button type="button" class="btn btn-sm btn-toggle" *ngIf="!isReadOnly" [ngClass]="{'active': rule.typeId === 1, 'btn-primary':  rule.typeId === 1, 'btn-secondary': rule.typeId != 1 }" (click)="toggleMustHave(rule)">
+						<div class="handle"></div>
+					</button>
+
+					<span *ngIf="isReadOnly">{{rule.typeId == 1 ? 'Must Have' : 'Must Not Have'}}</span>
+				</td>
+				<td *ngIf="!isReadOnly" class="phd-icon-col">
+					<i class="fa fa-fw fa-pencil" (click)="localEditRule(rule)" title="Edit"></i>
+				</td>
+				<td *ngIf="!isReadOnly" class="phd-icon-col">
+					<i class="fa fa-fw fa-trash" (click)="localDeleteRule(rule)" title="Delete"></i>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+<div *ngIf="isLoading" class="phd-rules-list container-fluid text-center">
+	<i class="fa fa-spinner fa-spin fa-3x"></i>
+</div>

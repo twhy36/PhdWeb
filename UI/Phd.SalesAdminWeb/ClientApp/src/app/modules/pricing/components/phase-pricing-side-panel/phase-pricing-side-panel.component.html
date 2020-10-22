@@ -1,0 +1,89 @@
+<phd-side-panel-component [headerTemplate]="header" [bodyTemplate]="body" [footerTemplate]="footer" [sidePanelOpen]="sidePanelOpen" (onSidePanelClose)="onCloseSidePanel($event)" [isDirty]="isDirty">
+
+	<ng-template #header>
+		<h4 class="phd-side-panel-header"><strong>Manage Phase</strong></h4>
+	</ng-template>
+
+	<ng-template #body>
+		<div class="container pt-3">
+			<form [formGroup]="phasePriceForm">
+				<div class="form-group">
+					<label class="font-weight-bold" for="salesPhaseName">Description</label>
+					<input type="text" class="form-control" id="salesPhaseName" maxlength="10" formControlName="salesPhaseName" />
+
+					<div class="col-sm-12">
+						<span class="text-danger"
+							  *ngIf="phasePriceForm.controls.salesPhaseName && phasePriceForm.controls.salesPhaseName.invalid && (phasePriceForm.controls.salesPhaseName.dirty || phasePriceForm.controls.salesPhaseName.touched) && phasePriceForm.controls.salesPhaseName.errors.required">
+							Invalid: A Phase Description is required.
+						</span>
+						<span class="text-danger"
+							  *ngIf="phasePriceForm.controls.salesPhaseName && phasePriceForm.controls.salesPhaseName.invalid && phasePriceForm.controls.salesPhaseName.dirty && phasePriceForm.controls.salesPhaseName.errors.duplicateName">
+							Invalid: This Sales Phase Name already exists.
+						</span>
+						<span class="text-danger"
+							  *ngIf="phasePriceForm.controls.salesPhaseName && phasePriceForm.controls.salesPhaseName.invalid && phasePriceForm.controls.salesPhaseName.dirty && !phasePriceForm.controls.salesPhaseName.errors.pattern && !phasePriceForm.controls.salesPhaseName.errors.required">
+							Invalid: "List Price" value is not allow to be used.
+						</span>
+					</div>
+				</div>
+
+				<div class="form-group row" *ngFor="let phase of salesPhase.phasePlans; let i = index" for="salesPhaseName">
+					<label class="col-form-label font-weight-bold">{{getPhasePlanName(phase)}}</label>
+					<div class="col-sm-7">
+						<input type="number" min="0" class="form-control" id="salesPhaseName" name="salesPhaseName" formControlName="{{phase.plan.id}}">
+					</div>
+				</div>
+
+				<div class="form-group">
+					<label for="selectedItemsTags">Unassigned Homesite</label>
+					<div class="phd-item-multiselect-results">
+						<span *ngIf="filteredLotTags.length === 0">No items found</span>
+
+						<select id="phd-select-lots" *ngIf="filteredLotTags.length !== 0" formControlName="lotsPendingSelection" multiple size="9">
+							<option *ngFor="let lot of filteredLotTags" [ngValue]="lot.id">{{ lot.lotBlock }}</option>
+						</select>
+					</div>
+				</div>
+
+				<div class="form-group text-center phd-buttons-row">
+					<button class="btn btn-sm btn-secondary mr-1" (click)="addHighlightedItems()"><i class="fa fa-angle-down fa-fw"></i></button>
+					<button class="btn btn-sm btn-secondary mr-1" (click)="addAllItems()"><i class="fa fa-angle-double-down fa-fw"></i></button>
+					<button class="btn btn-sm btn-secondary" (click)="removeAllItems()"><i class="fa fa-angle-double-up fa-fw"></i></button>
+				</div>
+
+				<div class="form-group">
+					<label for="selectedItemsTags">Assigned Homesite</label>
+					<div id="selectedItemsTags" *ngIf="selectedItems.length > 0" class="phd-tagsinput" [class.phd-tags-4row]="selectedItems.length > 16">
+						<div class="phd-tag" *ngFor="let tag of selectedItems">
+							<span>{{ tag.lotBlock }}</span>
+							<span *ngIf="tag.lotStatusDescription === 'Closed' || tag.lotStatusDescription === 'Sold'"> - {{ tag.lotStatusDescription }}</span>
+							<a *ngIf="tag.lotStatusDescription !== 'Closed' && tag.lotStatusDescription !== 'Sold'" class="phd-tagsinput-remove-link" (click)="removeItem(tag)"></a>
+						</div>
+					</div>
+
+					<div id="noSelectedItemsTags" class="phd-tagsinput" *ngIf="selectedItems.length === 0">
+						<div class="phd-tag">
+							<span>No Lots Selected</span>
+						</div>
+					</div>
+
+					<input type="hidden" id="selectedLots" name="selectedLots" formControlName="selectedLots" />
+				</div>
+			</form>
+		</div>
+	</ng-template>
+
+	<ng-template #footer>
+		<div class="pull-right">
+			<button class="btn btn-primary phd-btn-save" (click)="saveSalesPhase();" [disabled]="saveDisabled">
+				Save
+
+				<ng-container *ngIf="saving">
+					<i class="fa fa-spinner fa-spin fa-fw"></i>
+				</ng-container>
+			</button>
+
+			<button class="btn btn-secondary" (click)="onCancel()">Cancel</button>
+		</div>
+	</ng-template>
+</phd-side-panel-component>

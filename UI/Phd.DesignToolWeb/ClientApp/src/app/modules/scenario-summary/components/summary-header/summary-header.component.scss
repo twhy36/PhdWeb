@@ -1,0 +1,125 @@
+@import "../../../../../scss/color-pallet.scss";
+
+:host {
+	width: 100%;
+
+	.summary-header {
+		background-color: white;
+		padding: 15px 30px;
+		font-weight: 300;
+		z-index: 1;
+
+		&,
+		::ng-deep & * {
+			transition: all .2s;
+		}
+
+		::ng-deep .phd-label {
+			font-size: 12px;
+			font-weight: 500;
+		}
+
+		::ng-deep .phd-content {
+			font-size: 20px;
+			font-weight: 500;
+			padding-left: 5px;
+		}
+
+		h2 {
+			font-size: 52px;
+			font-weight: inherit;
+			margin: 0;
+			line-height: 0.79;
+			padding: 10px 0 15px 5px;
+		}
+
+		&.is-sticky {
+			// class and associated js should be removed once 'position:sticky' is supported by edge.
+			position: fixed;
+			width: 60%;
+			max-width: 1000px;
+			top: 0;
+			background-color: #f8f8f8;
+
+			&,
+			::ng-deep & * {
+				transition: all .2s;
+			}
+
+			&::after {
+				content: ' ';
+				position: fixed;
+				width: 101%;
+				height: 175px;
+				z-index: -1;
+				left: 0;
+				background-color: #f8f8f8;
+				box-shadow: 0 9px 4px -8px #9b9b9b;
+			}
+
+			h1 {
+				font-size: 32px;
+			}
+
+			::ng-deep .phd-price-breakdown,
+			::ng-deep .phd-price-breakdown-filter-dropdown,
+			::ng-deep .phd-label,
+			::ng-deep .phd-content {
+				font-size: 0;
+				max-height: 0;
+				opacity: 0;
+			}
+		}
+
+		a,
+		a:hover,
+		a:focus {
+			color: $link-blue;
+			text-decoration: none;
+			font-size: 14px;
+			font-weight: 500;
+			cursor: pointer;
+
+			&.error {
+				color: $darkish-pink;
+			}
+
+			&.loading,
+			&.disabled {
+				color: lightgray;
+				pointer-events: none;
+				cursor: default;
+			}
+		}
+
+		h1 + a {
+			margin-left: 15px;
+		}
+
+		.phd-filter {
+			display: flex;
+			margin-top: 5px;
+
+			.phd-attribute-toggle {
+				margin-right: 20px;
+			}
+
+			.phd-image-toggle {
+				.phd-switch-text {
+					vertical-align: top;
+					display: inline-block;
+				}
+			}
+		}
+
+		.phd-change-order-handing {
+			font-size: 16px;
+			margin-left: 10px;
+		}
+
+		.phd-past-cut-off {
+			color: $dodger-blue;
+			font-size: 12px;
+		}
+	}
+}

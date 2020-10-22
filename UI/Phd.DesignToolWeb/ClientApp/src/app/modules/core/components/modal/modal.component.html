@@ -1,0 +1,29 @@
+<div class="modal-content mx-auto" [class.alert]="['success', 'error'].indexOf(modalType) != -1" [class.alert-success]="modalType == 'success'" [class.alert-danger]="modalType == 'error'" [class.alert-warning]="modalType == 'warning'" [class.alert-light]="modalType == 'normal'">
+	<div *ngIf="header" class="row justify-content-start modal-header m-0">
+		<div class="col-12">{{header}}</div>
+	</div>
+
+	<div class="modal-text p-2">
+		<ng-template [ngIf]="hasTemplate">
+			<ng-container *ngTemplateOutlet="content"></ng-container>
+		</ng-template>
+
+		<div innerHTML="{{content}}" *ngIf="!hasTemplate"></div>
+	</div>
+
+	<ng-template [ngIf]="buttons?.length > 0">
+		<div *ngIf="needsInput">
+			<div class="phd-override-reason">
+				<label>{{inputLabel}}</label>
+				<input maxlength="1000" class='phd-override' type='text' #textInput>
+			</div>
+		</div>
+		<div class="modal-footer">
+			<div *ngFor="let button of buttons">
+				<button type="submit" (click)="buttonClick(button.result)" class="btn modal-button"	[ngClass]="button.cssClass">
+					{{button.text}}
+				</button>
+			</div>
+		</div>
+	</ng-template>
+</div>

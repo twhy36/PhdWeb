@@ -1,0 +1,20 @@
+<div class="row div-tab-panel">
+	<phd-table [value]="locations" [displayTooltip]="false" tableId="expansionLocationTabPanel" [rowClass]="getRowClass">
+		<phd-column columnId="select" width="50px">
+			<ng-template #header>
+				<p-checkbox [ngModel]="areAllLocationsSelected()" (ngModelChange)="toggleAllLocations($event)" [binary]="true" [disabled]="isReadOnly || locations.length === 0"></p-checkbox>
+			</ng-template>
+			<ng-template let-location #body>
+				<p-checkbox [ngModel]="isLocationSelected(location)" (ngModelChange)="setLocationSelected(location, $event)" [binary]="true" [disabled]="isReadOnly"></p-checkbox>
+			</ng-template>
+		</phd-column>
+		<phd-column field="locationName" header="Name"></phd-column>
+		<phd-column field="formattedTags" header="Search Tags"></phd-column>
+		<phd-column field="locationDescription" header="Description"></phd-column>
+	</phd-table>
+</div>
+
+<div class="d-flex justify-content-end pt-3">
+	<button class="btn btn-primary phd-btn-left" (click)="onAssociate()" [disabled]="isReadOnly">Associate Locations</button>
+	<button class="btn btn-primary" (click)="onRemoveLocations()" [disabled]="isReadOnly || saveDisabled">Remove Locations</button>
+</div>

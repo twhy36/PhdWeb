@@ -1,0 +1,7 @@
+<div id="phd-message-bar" class="d-flex flex-row">
+	<div class="alert" role="alert" [ngClass]="alertClass" *ngFor="let message of messages">
+		<div (click)="onMessageClick(message)" [ngClass]="textClass">
+			<span>{{message}}</span>
+		</div>
+	</div>
+</div>

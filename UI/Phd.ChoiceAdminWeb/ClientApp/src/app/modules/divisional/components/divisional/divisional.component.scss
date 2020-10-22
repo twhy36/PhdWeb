@@ -1,0 +1,55 @@
+@import "../../../../../scss/sizes.scss";
+
+:host {
+	display: -webkit-box;
+	display: -webkit-flex;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	height:100%;
+}
+
+::ng-deep .phd-div-attr-body {
+	height: calc(100vh - #{$nav-menu-height} - #{$attribute-page-header-height} - #{$attribute-action-bar-height});
+	padding: 5px 0px 5px 0px;
+	margin: 0px 8px 20px 8px;
+	overflow-y: auto;
+	display: flex;
+	flex-direction: column;
+
+	.phd-div-search-bar {
+		margin-left: 22px;
+		padding: 0px;
+		float: right;
+	}
+
+	.phd-div-row-expansion {
+		border-top: 1px solid lightgrey;
+		border-bottom: 1px solid lightgrey;
+	}
+
+	.phd-div-attr-panel {
+		height: 600px;
+		overflow-y: auto;
+		margin-top: 20px;
+	}
+}
+
+::ng-deep .phd-tag {
+	padding: 8px;
+	margin-right: 10px;
+	margin-bottom: 10px;
+	background-color: #003359;
+	color: white;
+	border: 0.2px solid grey;
+	border-radius: 6px;
+	display: inline-block;
+	max-width: 365px;
+}
+
+::ng-deep .phd-tag-text {
+	width: auto;
+	max-width: 320px;
+	word-wrap: break-word;
+}

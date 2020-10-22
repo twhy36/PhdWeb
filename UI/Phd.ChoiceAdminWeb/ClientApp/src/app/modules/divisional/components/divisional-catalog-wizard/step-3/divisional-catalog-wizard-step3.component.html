@@ -1,0 +1,56 @@
+<ng-template #headerTemplate>
+	Which Trees Should be Updated?
+</ng-template>
+
+<div class="d-flex flex-row mx-2 phd-table-container phd-selected-choices">
+	<table class="table table-striped table-sm phd-table-fixed">
+		<thead class="thead-light">
+			<tr>
+				<th class="phd-col-width">CHOICE(S):</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr *ngFor="let choice of selectedChoices; let x = index">
+				<td class="phd-col-width phd-bullet"><strong>{{ choice.pointLabel }}:</strong> {{ choice.choiceLabel }} - <span [innerHTML]="getChoiceAction(choice)"></span></td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+
+<div class="d-flex flex-row mx-2 phd-table-container phd-communities">
+	<table class="table table-sm phd-table-fixed">
+		<thead class="thead-light">
+			<tr>
+				<th class="phd-col-width-chkbox">
+					<input type="checkbox" id="chkAllPlans" (change)="toggleAllPlans($event)" [checked]="areAllPlansSelected()" class="phd-wiz-checkbox" />
+				</th>
+				<th>
+					COMMUNITIES
+				</th>
+			</tr>
+		</thead>
+		<tbody>
+			<ng-container *ngFor="let community of communities">
+				<tr>
+					<td class="phd-col-width-chkbox">
+						<i class="fa fa-fw phd-clickable" (click)="community.open = !community.open" [class.fa-chevron-circle-right]="!community.open" [class.fa-chevron-circle-down]="community.open"></i>
+					</td>
+					<td>
+						<input type="checkbox" id="community-{{community.id}}" (change)="toggleAllCommunityPlans(community, $event)" [checked]="isCommunitySelected(community)" class="phd-wiz-checkbox" />
+						<label for="community-{{community.id}}" class="form-check-label">{{ community.name }} - {{ community.number }}</label>						
+					</td>
+				</tr>
+
+				<ng-container *ngFor="let plan of community.planCommunities">
+					<tr *ngIf="community.open">
+						<td class="phd-col-width-chkbox"></td>
+						<td>
+							<input type="checkbox" id="plan-{{plan.id}}" (change)="setPlanSelected(community, plan)" [checked]="isPlanSelected(plan)" class="phd-wiz-checkbox phd-plan-chkbox" />
+							<label for="plan-{{plan.id}}" class="form-check-label">{{ plan.planSalesName }}</label>
+						</td>
+					</tr>
+				</ng-container>
+			</ng-container>
+		</tbody>
+	</table>
+</div>

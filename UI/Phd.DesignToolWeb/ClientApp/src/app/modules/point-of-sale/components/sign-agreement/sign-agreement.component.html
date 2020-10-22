@@ -1,0 +1,66 @@
+<div class="modal-header">
+	<span class="modal-title">Sign Sales Agreement</span>
+	<button type="button" class="close" aria-label="Close" (click)="dismiss('Modal Dismissed')">
+		<span aria-hidden="true">&times;</span>
+	</button>
+</div>
+<div class="modal-body">
+	<form [formGroup]="signAgreementForm" class="p-3 sign-agreement-form">
+		<div class="phd-detail-container mx-auto d-flex mb-1 p-2 bg-white rounded">
+			<div class="flex-column phd-flex-fill">
+				<div class="d-flex flex-wrap py-2">
+					<div class="flex-column phd-flex-fill">
+						<strong>Customer:</strong>
+					</div>
+					<div class="flex-column phd-flex-fill pl-1">
+						{{customerName$ | async}}
+					</div>
+				</div>
+				<div class="d-flex flex-wrap py-2">
+					<div class="flex-column phd-flex-fill">
+						<strong>Sales Agreement:</strong>
+					</div>
+					<div class="flex-column phd-flex-fill pl-1">
+						{{agreementNumber$ | async}}
+					</div>
+				</div>
+				<div class="d-flex flex-wrap py-2">
+					<div class="flex-column phd-flex-fill">
+						<strong>Agreement Date:</strong>
+					</div>
+					<div class="flex-column phd-flex-fill pl-1">
+						{{(agreementDate$ | async) | date: 'shortDate'}}
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div>
+			<label for="signedDate">Signed Date</label>
+			<div class="input-group">
+				<input class="form-control"
+					   formControlName="signedDate"
+					   id="signedDate"
+					   name="signedDate"
+					   ngbDatepicker
+					   readonly
+					   (click)="dd.toggle();"
+					   #dd="ngbDatepicker"
+					   [minDate]="minDate">
+				<div class="input-group-append">
+					<button class="btn phd-experience-btn-choice" (click)="dd.toggle();" type="button">
+						<i class="fa fa-calendar" aria-hidden="true" style="cursor: pointer;"></i>
+					</button>
+				</div>
+			</div>
+		</div>
+	</form>
+</div>
+<div class="modal-footer">
+	<button type="button" class="btn btn-primary ml-auto" (click)="signAgreement()">
+		<span class="">Sign</span>
+	</button>
+	<button type="button" class="btn btn-secondary ml-2" (click)="dismiss()">
+		<span class="">Cancel</span>
+	</button>
+</div>

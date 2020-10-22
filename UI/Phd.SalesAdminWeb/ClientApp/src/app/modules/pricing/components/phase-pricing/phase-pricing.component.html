@@ -1,0 +1,52 @@
+<phase-pricing-side-panel-component *ngIf="sidePanelOpen" [salesPhases]="phases" [activePhase]="activePhase" [sidePanelOpen]="sidePanelOpen" (onSidePanelClose)="onSidePanelClose($event)"  (onSaveSalesPhase)="saveSalePhase($event)" [saving]="saving">
+</phase-pricing-side-panel-component>
+
+<div class="phd-page-container" [class.phd-side-panel-open]="sidePanelOpen">
+	<page-header mainTitle="Phase Pricing">
+		<ng-template>
+			<div class="col">
+				<select class="form-control" [ngModel]="selectedCommunity ? selectedCommunity.dto : null" (ngModelChange)="onChangeCommunity($event)">
+					<option [ngValue]="null" disabled="disabled">Community</option>
+					<option *ngFor="let comm of (activeCommunities | async)" [ngValue]="comm.dto">{{ comm.name }}</option>
+				</select>
+			</div>
+		</ng-template>
+	</page-header>
+
+	<div class="phd-page-body">
+		<div class="my-3 phd-filter-body">
+			<div class="form-group pull-right">
+				<div class="form-check">
+					<label class="form-check-label phd-phase-check" for="IsPhasedPricingEnabled">
+						<input #phaseEnableCheckBox name="IsPhasedPricingEnabled" type="checkbox" (ngModelChange)="showPrompt($event)" [ngModel]="isPhaseEnable" [disabled]='!selectedCommunity || !canEdit' />
+						Enable Phase Price
+					</label>
+					<button type="button" class="btn btn-lg btn-link" (click)="managePhase();" *ngIf="isPhaseEnable && canEdit">Add Phase</button>
+				</div>
+			</div>
+		</div>
+
+		<div class="phd-table-container mx-2">
+			<phd-table #dt [value]="pagedPhases | planPhases" [rowClass]="getRowClass" *ngIf="showGrid" [nonOverflow]="false">
+				<phd-column field="_name" header="Plan Name"></phd-column>
+				<phd-column *ngFor="let phase of pagedPhases" [header]="phase.salesPhaseName">
+					<ng-template #header>
+						<a (click)="managePhase(phase)" *ngIf="phase.id && isPhaseEnable && canEdit" class="btn-link" data-id="{{phase.id}}">
+							<span>{{phase.salesPhaseName}}</span>
+						</a>
+						<span *ngIf="!phase.id || !isPhaseEnable || !canEdit">{{phase.salesPhaseName}}</span>
+					</ng-template>
+					<ng-template #body let-row>
+						<ng-container *ngIf="row[phase.salesPhaseName] | currency:'USD':'symbol':'1.0-0'; let formattedValue">
+							<span (mouseenter)="showTooltip($event, formattedValue, dt)" (mouseleave)="hideTooltip(dt)">{{ formattedValue }}</span>
+						</ng-container>
+					</ng-template>
+				</phd-column>
+			</phd-table>
+			<div class="phd-icon-container">
+				<span><i class="fa fa-angle-double-left" (click)="previousPage()" [hidden]="currentPage === 1"></i></span>
+				<span>Additional Phases</span>
+				<span><i class="fa fa-angle-double-right" (click)="nextPage()" [hidden]="currentPage === numberPages()"></i></span></div>
+		</div>
+	</div>
+</div>

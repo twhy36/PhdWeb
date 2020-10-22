@@ -1,0 +1,43 @@
+<div class="d-flex flex-column align-items-center">
+	
+	<ng-container *ngIf="(plans$ | async) as plans; else loadingplans">
+		<error-message *ngIf="plans.length === 0" [@flipOver]>
+			<ng-template #body>Seems that the Plans are having trouble loading.<br />Please contact the TSC.</ng-template>
+		</error-message>
+
+		<div class="p-2 d-flex flex-wrap phd-plans-bottom-margin">
+			<plan-card class="d-flex"
+			           *ngFor="let plan of plans"
+			           [plan]="plan"
+			           [selectedPlan]="selectedPlan$ | async"
+			           [selectedLot]="selectedLot$ | async"
+					   [isJobPlan]="inChangeOrder && jobPlanId === plan.id"
+					   [canConfigure]="canConfigure"
+			           (onTogglePlan)="toggleSelectedPlan($event)"></plan-card>
+		</div>
+	</ng-container>
+
+	<ng-template #loadingplans>
+		<div class="d-flex phd-plan-card w-100" [@flipOver]>
+			<div class="plan-image"></div>
+			<div class="d-flex flex-column w-100">
+				<h1></h1>
+				<p></p>
+				<p></p>
+				<div class="d-flex mt-auto justify-content-end align-items-end">
+					<span class="price"></span>
+				</div>
+			</div>
+		</div>
+	</ng-template>
+</div>
+
+<action-bar primaryAction="Personalize It"
+			[actionBarStatus]="(!!(selectedPlan$ | async) && !(isChangingOrder$ | async)) || ((isChangingOrder$ | async) && this.selectedPlan && this.selectedPlan.id !== jobPlanId ) ? 'COMPLETE' : 'INCOMPLETE'"
+			(callToAction)="onCallToAction($event)"
+            [price]="(selectedPlanPrice$ | async) + (selectedLot$ | async)?.premium + selectionPrice"
+            [changePrice]="(selectedPlanPrice$ | async) + (selectedLot$ | async)?.premium + selectionPrice - salesPrice"
+            [inChangeOrder]="(isChangingOrder$ | async)"
+			[skipSaving]="(isChangingOrder$ | async)"
+			[canChange]="canConfigure">
+</action-bar>

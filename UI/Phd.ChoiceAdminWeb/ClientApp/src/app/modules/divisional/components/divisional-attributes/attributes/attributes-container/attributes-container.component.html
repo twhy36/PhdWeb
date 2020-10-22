@@ -1,0 +1,23 @@
+<divisional-attribute-template>
+    <ng-template #panel>
+        <attributes-panel (onEditAttribute)="onEditAttribute($event)" [isReadOnly]="isReadOnly" [canEditImages]="canEditImages"></attributes-panel>
+    </ng-template>
+
+    <ng-template #actionPanel *requiresClaim="'Attributes'; permission: Permission.Edit; market: marketKey">
+        <divisional-attribute-actions [buttons]="actionButtons" [customClasses]="'d-flex justify-content-end'"></divisional-attribute-actions>
+    </ng-template>
+
+    <ng-template #sidePanel>
+	    <attributes-side-panel *ngIf="sidePanelOpen"
+	                           [sidePanelOpen]="sidePanelOpen"
+	                           [selectedAttribute]="selectedAttribute"
+	                           [existingAttributes]="existingAttributes"
+	                           [activeAttributeGroups]="activeAttributeGroups"
+							   [isAdd]="isAddingAttribute"
+							   [isReadOnly]="isReadOnly"
+	                           (onSidePanelClose)="onSidePanelClose($event)"
+	                           (onSaveAttribute)="onSaveAttribute($event)">
+	    </attributes-side-panel>
+    </ng-template>
+
+</divisional-attribute-template>

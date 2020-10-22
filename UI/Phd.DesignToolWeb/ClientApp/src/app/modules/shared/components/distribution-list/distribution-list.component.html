@@ -1,0 +1,58 @@
+<div class="modal-header">
+	<span class="modal-title">Distribution List</span>
+	<button type="button" class="close" aria-label="Close" (click)="closeClicked()" [disabled]="disableCancel">
+		<span aria-hidden="true">&times;</span>
+	</button>
+</div>
+
+<div class="modal-body">
+	<div class="form-row phd-header-row">
+		<div class="col phd-label-col">
+			<span>Role</span>
+		</div>
+		<div class="col">
+			<span>Recipient</span>
+		</div>
+		<div class="col">
+			<span>Email</span>
+		</div>
+	</div>
+
+	<form [formGroup]="distributionForm">
+		<ng-container *ngIf="!isLoading; else loading">
+			<div class="form-row" *ngFor="let item of distributionList; let currentIndex = index;" [@flipOver]>
+				<div class="col phd-label-col">
+					<span>{{ item.label }}</span>
+				</div>
+				<div class="col">
+					<input type="text" class="form-control phd-name" [formControlName]="item.nameFormKey" [attr.disabled]="true" [placeholder]="getPlaceholder(item.label)" />
+				</div>
+				<div class="col">
+					<input type="email" class="form-control" [formControlName]="item.emailFormKey" />
+				</div>
+			</div>
+		</ng-container>
+
+		<ng-template #loading>
+			<div class="phd-loading">
+				<i class="fa fa-spinner fa-spin"></i> Loading Distribution List...
+			</div>
+		</ng-template>
+	</form>
+</div>
+
+<div class="modal-footer">
+	<button class="btn btn-primary" (click)="sendNow();" [disabled]="disableButtons">
+		Send Now
+
+		<i class="fa fa-spinner fa-spin fa-fw" *ngIf="isSending"></i>
+	</button>
+
+	<button class="btn btn-primary" (click)="edit();" [disabled]="disableButtons">
+		Edit Before Sending
+
+		<i class="fa fa-spinner fa-spin fa-fw" *ngIf="isEditBefore"></i>
+	</button>
+
+	<button type="button" class="btn btn-secondary" (click)="cancel()" [disabled]="disableCancel">Cancel</button>
+</div>

@@ -1,0 +1,68 @@
+@import "../../../../../scss/color-pallet.scss";
+@import "../../../../../scss/sizes.scss";
+
+li {
+	padding: 13px;
+	font-weight: normal;
+	display: block;
+	text-transform: capitalize;
+
+	&.disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+
+		&:hover {
+			cursor: not-allowed;
+		}
+
+		a {
+			cursor: not-allowed;
+		}
+	}
+
+	&:hover {
+		color: $twilight-blue;
+		background: white;
+		cursor: pointer;
+	}
+
+	&.active-link {
+		color: $twilight-blue;
+		background: white;
+		border-left: 4px solid #3fa2f7;
+		transition: all .1s;
+	}
+
+	a {
+		outline: none;
+	}
+}
+
+span ::ng-deep .phd-status-indicator {
+	position: absolute;
+	margin: auto;
+	font-size: 12px;
+	top: 10%;
+	right: -20px;
+}
+
+
+@media (max-width: $tablet-max-width) {
+
+	li {
+		&:hover {
+			color: #3fa2f7;
+			background: white;
+			cursor: pointer;
+			background-color:rgb(226, 222, 222);
+			opacity: .7;
+		}
+
+		&.active-link {
+			color: $twilight-blue;
+			background: #3fa2f7;
+			border-left: 4px solid #3fa2f7;
+			transition: all .1s;
+		}
+	}
+}

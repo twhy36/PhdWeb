@@ -1,0 +1,43 @@
+<div class="phd-indicator" *ngIf="!isReadOnly || isReadOnly && hasGroupAssociated && !(isLoading | async)"><span class="text-danger">*</span> Attribute Groups only apply to unmapped choices.</div>
+
+<div *ngIf="isReadOnly && !hasGroupAssociated && !(isLoading | async)" class="alert alert-info">No attribute groups associated.</div>
+
+<div *ngIf="!isReadOnly">
+	<attribute-group-action-panel #addGroups
+								  [headerText]="'Attribute Groups'"
+								  [actionButtons]="addAssocButtons"
+								  [tableId]="'associateGroupsToChoice'"
+								  [searchEnabled]="true"
+								  [searchResultStyle]="{'max-height':'200px'}"
+								  [isDisabled]="isLoading | async"
+								  [groups]="availableGroups"
+								  [customClass]="'card mb-2'"
+								  [customBodyClass]="'card-body'"
+								  (displayErrorMessage)="displayErrorMessage($event)">
+	</attribute-group-action-panel>
+</div>
+
+<div *ngIf="isLoading | async" class="container-fluid text-center phd-loading">
+	<i class="fa fa-spinner fa-spin fa-3x"></i>
+</div>
+
+<div *ngIf="hasGroupAssociated" class="phd-rules-list">
+	<attribute-group-action-panel #removeGroups
+								  [headerText]="'Associated Groups'"
+								  [actionButtons]="removeAssocButtons"
+								  [tableId]="'removeChoiceAssociatedGroups'"
+								  [searchEnabled]="false"
+								  [searchResultStyle]="{'max-height':'200px'}"
+								  [isDisabled]="isReadOnly || (isLoading | async)"
+								  [groups]="associatedGroups"
+								  [customClass]="'card mb-2'"
+	                              [customBodyClass]="'card-body'"
+								  groupType="sorted-attribute"
+	                              [canReorderRows]="!isReadOnly"
+								  (onRowReorder)="onChangeAssociatedGroupOrder($event)"
+								  (displayErrorMessage)="displayErrorMessage($event)"
+								  (isLoadingChange)="isLoadingChange($event)">
+	</attribute-group-action-panel>
+</div>
+
+<p-toast id="growl-attributes-choice" key="growl-attributes-choice"></p-toast>

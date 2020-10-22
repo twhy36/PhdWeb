@@ -1,0 +1,18 @@
+<nav id="site-menu" [class.closed]="!siteMenuIsOpen">
+    <div class="site-menu-header d-flex justify-content-end align-items-center" (click)="toggleSiteMenuState()">
+        <span>CLOSE</span>
+        <span class="circle d-inline-block">x</span>
+    </div>
+
+    <ul class="list-unstyled">
+        <li>
+			<a [class.phd-disabled]="salesAgreementId === 0" class="d-block" [routerLink]="['/change-orders']" (click)="toggleSiteMenuState()">Change Order Status</a>
+            <a class="d-block" href="#">Item 1</a>
+            <a class="d-block" href="#">Item 2</a>
+            <a class="d-block" href="#">Item 3</a>
+            <a class="d-block" href="#">Item 4</a>
+            <a class="d-block" href="#">Item 5</a>
+            <a class="d-block" href="#">Log Out</a>
+        </li>
+    </ul>
+</nav>

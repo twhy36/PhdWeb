@@ -1,0 +1,11 @@
+<div class="detail-container d-flex flex-column justify-content-start m-auto position-relative">
+  <div class="header">
+    Key Choices
+  </div>
+  <ng-container *ngFor="let group of (groups$ | async)">
+    <ng-container *ngFor="let subGroup of group.subGroups">
+      <ng-container *ngFor="let dp of subGroup.points">
+      </ng-container>
+    </ng-container>
+  </ng-container>
+</div>

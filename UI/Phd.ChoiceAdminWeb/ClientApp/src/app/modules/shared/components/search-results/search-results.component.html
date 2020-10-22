@@ -1,0 +1,11 @@
+<div *ngIf="showSearchResults && searchResultsCount > 0" class="phd-item-multiselect-results">
+	<div>
+		<a class="close" (click)="clearFilter()">&times;</a>
+	</div>
+	<ng-content></ng-content>
+</div>
+<div *ngIf="showSearchResults && searchResultsCount === 0">
+	<div class="text-danger text-center">
+		No results found. Please try another search.
+	</div>
+</div>

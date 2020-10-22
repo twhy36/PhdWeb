@@ -1,0 +1,13 @@
+<mat-accordion multi="true">
+    <app-accordion-item title="Community Information" [mergeFields]="contractService.CommunityMergeFields$" (mergeFieldClicked)="addToDocument($event)"></app-accordion-item>
+    <app-accordion-item title="Buyer Information" [mergeFields]="contractService.BuyerMergeFields" (mergeFieldClicked)="addToDocument($event)"></app-accordion-item>
+    <app-accordion-item title="Custom Fields" [mergeFields]="customMergeFields" (mergeFieldClicked)="addToDocument($event)"></app-accordion-item>
+    <app-accordion-item title="Dates" [mergeFields]="contractService.DateMergeFields" (mergeFieldClicked)="addToDocument($event)"></app-accordion-item>
+    <app-accordion-item title="Financing" [mergeFields]="contractService.FinancingMergeFields" (mergeFieldClicked)="addToDocument($event)"></app-accordion-item>
+    <app-accordion-item title="Lender and Title" [mergeFields]="contractService.LenderMergeFields" (mergeFieldClicked)="addToDocument($event)"></app-accordion-item>
+    <app-accordion-item title="Deposits" [mergeFields]="contractService.DepositMergeFields" (mergeFieldClicked)="addToDocument($event)"></app-accordion-item>
+    <app-accordion-item title="Lot Information" [mergeFields]="contractService.LotMergeFields" (mergeFieldClicked)="addToDocument($event)"></app-accordion-item>
+    <app-accordion-item title="Sales Agreement" [mergeFields]="contractService.SalesAgreementMergeFields" (mergeFieldClicked)="addToDocument($event)"></app-accordion-item>
+    <app-accordion-item title="Broker/Realtor" [mergeFields]="contractService.RealtorMergeFields" (mergeFieldClicked)="addToDocument($event)"></app-accordion-item>
+    <app-accordion-item title="Pricing" [mergeFields]="contractService.PricingMergeFields" (mergeFieldClicked)="addToDocument($event)"></app-accordion-item>
+</mat-accordion>

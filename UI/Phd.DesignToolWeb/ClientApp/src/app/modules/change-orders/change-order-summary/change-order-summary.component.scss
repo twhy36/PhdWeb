@@ -1,0 +1,38 @@
+@import '../../../../scss/sizes.scss';
+@import "../../../../scss/color-pallet.scss";
+
+.phd-change-orders {
+	max-width: 100%;
+	margin: 0 2em;
+}
+
+@media(max-width:$tablet-max-width) {
+	.phd-change-orders {
+		margin-top: 50px;
+	}
+}
+
+.phd-withdraw-button {
+	margin-left: 90px;
+}
+
+.phd-status-table {
+	margin: 0px 15px 0px 15px;
+}
+
+.phd-header-pastOrders {
+	margin-top: 30px;
+}
+
+.phd-changeOrder-types {
+	height: 30px;
+	margin-left: 20px;
+}
+
+.modal-footer {
+	justify-content: flex-end;
+}
+
+.ng-invalid:not(form):not(p-calendar) {
+	border-left: 5px solid $brand-danger;
+}

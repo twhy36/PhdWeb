@@ -1,0 +1,76 @@
+@import "../../../../../scss/color-pallet.scss";
+@import "../../../../../scss/sizes.scss";
+
+.sign-agreement-form {
+	max-width: 350px;
+
+	.phd-detail-container {
+		width: 100%;
+		max-width: 1500px;
+		min-height: 45px;
+		font-size: 14px;
+		line-height: 1.36;
+	}
+
+	.flex-column {
+		.d-flex {
+			.flex-column:first-child {
+				text-align: left;
+			}
+		}
+	}
+	
+	.label {
+		font-weight: 500;
+	}
+
+	ngb-datepicker {
+		top: 2em !important;
+		left: .5em !important;
+		width: 332px;
+	}
+
+	.ngb-dp-month {
+		width: 100%;
+	}
+
+	.ngb-dp-weekdays,
+	.ngb-dp-week {
+		justify-content: space-evenly;
+	}
+
+	.custom-day {
+		display: inline-block;
+		height: 2rem;
+		padding: 0.185rem 0.25rem;
+		text-align: center;
+		width: 100%;
+
+		&.focused {
+			background-color: #e6e6e6;
+		}
+
+		&.range,
+		&:hover {
+			background-color: rgb(2, 117, 216);
+			color: white;
+		}
+
+		&.faded {
+			background-color: rgba(2, 117, 216, 0.5);
+		}
+
+		&.disabled {
+			color: #ccc;
+
+			&:hover {
+				background-color: #fff;
+				color: #ccc;
+			}
+		}
+	}
+
+	.form-control {
+		max-width: 350px;
+	}
+}

@@ -1,0 +1,34 @@
+{
+	"value": [
+		{
+			"id": 1,
+			"parentId": 4,
+			"name": "Elevation"
+		},
+        {
+            "id": 2,
+            "parentId": 4,
+            "name": "Garage Door"
+        },
+		{
+			"id": 3,
+			"parentId": 4,
+			"name": "Entry Door Style"
+		},
+		{
+			"id": 4,
+			"parentId": 4,
+			"name": "Walkway"
+		},
+		{
+			"id": 5,
+			"parentId": 4,
+			"name": "Driveway"
+		},
+		{
+			"id": 6,
+			"parentId": 4,
+			"name": "Gate"
+		}
+	]
+}

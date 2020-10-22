@@ -1,0 +1,44 @@
+<side-panel-component [headerTemplate]="header" [subheaderTemplate]="subheader" [bodyTemplate]="body" [footerTemplate]="footer" [sidePanelOpen]="sidePanelOpen" (onSidePanelClose)="onCloseClick($event)">
+	<ng-template #header>
+		<h5 class="phd-side-panel-header"><strong>{{ title }}</strong></h5>
+	</ng-template>
+
+	<ng-template #subheader>
+		<h6 class="pt-3 mb-0 pl-2"><strong>{{ subtitle }}</strong></h6>
+	</ng-template>
+
+	<ng-template #body>
+		<div *ngIf="!isLoading">
+			<ul *ngIf="unusedItems.length > 0" class="list-group phd-div-cat-choice-list">
+				<li class="list-group-item" *ngFor="let item of unusedItems">
+					<label class="form-check">
+						<input type="checkbox" class="form-check-input" name="selectedItems" (change)="toggleSelectedItem(item)" [checked]="selectedItems.includes(item)" />
+						<span>{{item.text}}</span>
+					</label>
+
+					<span *ngIf="item.isDefault" class="pull-right text-danger">*</span>
+				</li>
+			</ul>
+			<ng-container *ngIf="unusedItems.length === 0">
+				No records found.
+			</ng-container>
+		</div>
+		<div *ngIf="isLoading" class="container-fluid text-center">
+			<i class="fa fa-spinner fa-spin fa-3x"></i>
+		</div>
+
+		<div *ngIf="showIndicatorText">
+			<div class="phd-indicator"><span class="text-danger">*</span> Default Choice</div>
+		</div>
+	</ng-template>
+
+	<ng-template #footer>
+		<div class="pull-left">
+			<div *ngIf="isSaving" class="alert alert-info m-0 py-1 px-2" role="alert">Saving...</div>
+		</div>
+		<div class="pull-right">
+			<button class="btn btn-primary phd-btn-save" (click)="onSaveClick()" [disabled]="!canSave">Add</button>
+			<button class="btn btn-secondary" (click)="onCloseClick()">Cancel</button>
+		</div>
+	</ng-template>
+</side-panel-component>

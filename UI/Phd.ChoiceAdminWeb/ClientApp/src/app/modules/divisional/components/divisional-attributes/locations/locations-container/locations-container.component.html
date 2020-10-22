@@ -1,0 +1,22 @@
+<divisional-attribute-template>
+    <ng-template #panel>
+        <locations-panel (onSidePanelOpen)="onSidePanelOpen($event)"></locations-panel>
+    </ng-template>
+
+    <ng-template #actionPanel *requiresClaim="'Attributes'; permission: Permission.Edit; market: marketKey">
+        <divisional-attribute-actions [buttons]="actionButtons" [customClasses]="'d-flex justify-content-end'"></divisional-attribute-actions>
+    </ng-template>
+
+    <ng-template #sidePanel>
+	    <locations-side-panel *ngIf="sidePanelOpen"
+	                          [sidePanelOpen]="sidePanelOpen"
+	                          [selectedLocation]="selectedLocation"
+	                          [existingLocations]="existingLocations"
+	                          [activeLocationGroups]="activeLocationGroups"
+	                          [isAdd]="isAddingLocation"
+	                          (onSidePanelClose)="onSidePanelClose($event)"
+	                          (onSaveLocation)="onSaveLocation($event)">
+	    </locations-side-panel>
+    </ng-template>
+
+</divisional-attribute-template>

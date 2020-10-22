@@ -1,0 +1,14 @@
+<p-tabView [orientation]="orientation" [styleClass]="styleClass" (onChange)="tabClick($event)">
+	<ng-template ngFor [ngForOf]="tabs" let-tab let-i="index">
+		<p-tabPanel [header]="tab.header" [selected]="i === 0">
+			<ng-template pTemplate="content">
+				<ng-template [ngIf]="tab.data$ | async" let-data [ngIfElse]="loading">
+					<ng-container *ngTemplateOutlet="tab.template; context: {$implicit: data}"></ng-container>
+				</ng-template>
+				<ng-template #loading>
+					Loading...
+				</ng-template>
+			</ng-template>
+		</p-tabPanel>
+	</ng-template>
+</p-tabView>

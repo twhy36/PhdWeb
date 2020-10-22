@@ -1,0 +1,8 @@
+<li class="nav-item" (click)="buttonClick()" [class.disabled]="buttonDisabled">
+    <span class="nav-link p-1 align-middle" [class.active]="isActive || routerLinkActive">
+        <ng-template [ngIf]="template">
+            <ng-container *ngTemplateOutlet="template"></ng-container>
+        </ng-template>
+        <ng-template [ngIf]="!template">{{label}}</ng-template>
+    </span>
+</li>

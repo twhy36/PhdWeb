@@ -1,0 +1,18 @@
+@import "../../../../../scss/color-pallet.scss";
+@import "../../../../../scss/sizes.scss";
+
+
+.phd-image-card {
+	margin: 1rem;
+	border: solid 1px #555555;
+	border-radius: 4px;
+}
+
+.phd-image-card-footer {
+	padding: 0px 5px 5px 5px;
+	overflow: hidden;
+
+	i:hover {
+		cursor: pointer;
+	}
+}
