@@ -1,0 +1,133 @@
+<releases-side-panel-component *ngIf="sidePanelOpen" [saving]="saving" [sidePanelOpen]="sidePanelOpen" [selectedRelease]="selectedRelease" (onSidePanelClose)="onSidePanelClose($event)" (onSaveRelease)="saveRelease($event)"></releases-side-panel-component>
+
+<div class="phd-page-container" [class.phd-side-panel-open]="sidePanelOpen">
+	<page-header mainTitle="Homesite Releases">
+		<ng-template>
+			<div class="col">
+					<select class="form-control" [ngModel]="selectedCommunity ? selectedCommunity.dto : null" (ngModelChange)="onChangeCommunity($event)">
+						<option [ngValue]="null" disabled="disabled">Community</option>
+							<option *ngFor="let comm of (activeCommunities | async)" [ngValue]="comm.dto">{{ comm.name }}</option>
+					</select>
+			</div>
+		</ng-template>
+	</page-header>
+
+	<div class="phd-page-body">
+		<div class="my-3 phd-filter-body">
+			<div class="pull-right mr-3">
+				<button class="btn btn-primary" (click)="createRelease();" [disabled]="loading" *ngIf="canEdit">Create Release</button>
+			</div>
+		</div>
+
+		<div class="phd-table-container mx-2">
+			<table class="table table-sm table-striped phd-table phd-table-scrollable phd-stage-table">
+				<thead>
+					<tr>
+						<th scope="col" class="phd-icon-col" *ngIf="canEdit"></th>
+						<th scope="col" class="phd-icon-col" *ngIf="canEdit"></th>
+						<th scope="col" class="phd-medium-col">Date</th>
+						<th scope="col" class="phd-icon-col-wide">Homesite</th>
+						<th scope="col">Description</th>
+						<th scope="col">Release Rank</th>
+					</tr>
+				</thead>
+
+				<tbody *ngIf="loading">
+					<tr>
+						<td scope="row" colspan="6">
+							<span>Loading...</span>
+						</td>
+					</tr>
+				</tbody>
+
+				<tbody class="phd-no-records-found" *ngIf="!loading && releases.length === 0">
+					<tr>
+						<td scope="row" colspan="6">
+							<span>No Releases Found</span>
+						</td>
+					</tr>
+				</tbody>
+
+				<tbody>
+					<ng-container *ngFor="let release of releases; let i = index">
+						<tr [class.selected]="selectedRelease && selectedRelease.homeSiteRelease === release">
+							<td scope="row" class="phd-icon-col" *ngIf="canEdit">
+								<div *ngIf="editDateCheck(release)">
+									<i class="fa fa-pencil fa-fw" (click)="editRelease(release);" phd-tooltip="Edit / View Assignments"></i>
+								</div>
+							</td>
+							<td class="phd-icon-col" *ngIf="canEdit">
+								<div *ngIf="editDateCheck(release)">
+									<i class="fa fa-trash fa-fw" [ngClass]="{'fa-trash':!saving || (saving && i != workingReleaseIndex), 'fa-spinner':saving && i == workingReleaseIndex, 'fa-spin':saving && i == workingReleaseIndex}" (click)="confirmDelete(release, i);" phd-tooltip="Delete Release"></i>
+								</div>
+							</td>
+							<td class="phd-medium-col">{{ release.dateString }}</td>
+							<td class="phd-icon-col-wide">
+								<i class="fa fa-map-marker fa-fw" (click)="toggleHomeSites(release)" phd-tooltip="Show Homesites"></i>
+								<span>{{ ' (' + release.homeSites.length + ')' }}</span>
+							</td>
+							<td>{{ release.description }}</td>
+							<td>{{ release.releaseRank }}</td>
+						</tr>
+
+						<tr class="phd-grid-table-child-row" *ngIf="release.showHomeSites && release.homeSites.length > 0">
+							<td colspan="6">
+								<div class="row" style="margin-top: 10px;">
+									<div class="col-1 th">Homesite</div>
+									<div class="col-3 th">Address</div>
+									<div class="col-2 th">View / Adjacency</div>
+									<div class="col-2 th">Handing</div>
+									<div class="col-2 th">Build Type</div>
+									<div class="col-2 th">Homesite Status</div>
+								</div>
+
+								<div *ngFor="let lot of release.homeSites">
+									<div class="row">
+										<div class="col-1">{{ lot.lotBlock }}</div>
+										<div class="col-3">
+											<div>
+												<span>{{ lot.address.streetAddress1 }}</span>
+											</div>
+
+											<div *ngIf="lot.address.streetAddress2 && lot.address.streetAddress2.length > 0">
+												<span>{{ lot.address.streetAddress2 }}</span>
+											</div>
+
+											<div>
+												<span>{{ lot.address.city + ', ' }}</span>
+												<span>{{ lot.address.stateProvince }}</span>
+												<span>{{ lot.address.postalCode }}</span>
+											</div>
+										</div>
+										<div class="col-2">
+											<div *ngIf="lot.viewAdjacency">{{ lot.viewAdjacency }}</div>
+										</div>
+
+										<div class="col-2">
+											<span *ngIf="lot.handing">{{ lot.handing | handings }}</span>
+										</div>
+										<div class="col-2">
+											<span>{{ lot.lotBuildTypeDescription }}</span>
+										</div>
+										<div class="col-2">
+											<span *ngIf="lot.lotStatusDescription">{{ lot.lotStatusDescription }}</span>
+										</div>
+									</div>
+								</div>
+							</td>
+						</tr>
+					</ng-container>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+
+<p-toast></p-toast>
+
+<p-confirmDialog header="Delete Confirmation" icon="fa fa-trash" appendTo="body" #cd>
+	<p-footer>
+		<button type="button" pButton icon="fa-check" label="Continue" (click)="cd.accept()"></button>
+		<button type="button" pButton class="ui-button-secondary" icon="fa-close" label="Cancel" (click)="cd.reject()"></button>
+	</p-footer>
+</p-confirmDialog>
