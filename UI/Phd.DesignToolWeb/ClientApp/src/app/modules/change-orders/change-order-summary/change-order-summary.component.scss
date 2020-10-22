@@ -1,9 +1,17 @@
 @import '../../../../scss/sizes.scss';
 @import "../../../../scss/color-pallet.scss";
 
+:host {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	height: 100%;
+}
+
 .phd-change-orders {
 	max-width: 100%;
 	margin: 0 2em;
+	overflow-y: auto;
 }
 
 @media(max-width:$tablet-max-width) {
@@ -18,10 +26,9 @@
 
 .phd-status-table {
 	margin: 0px 15px 0px 15px;
-}
-
-.phd-header-pastOrders {
-	margin-top: 30px;
+	display: flex;
+	flex-direction: column;
+	overflow-y: hidden;
 }
 
 .phd-changeOrder-types {
@@ -35,4 +42,9 @@
 
 .ng-invalid:not(form):not(p-calendar) {
 	border-left: 5px solid $brand-danger;
+}
+
+.phd-change-order-table {
+	flex: 1;
+	overflow: auto;
 }

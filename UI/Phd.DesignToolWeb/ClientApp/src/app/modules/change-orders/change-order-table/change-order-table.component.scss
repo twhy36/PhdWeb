@@ -23,6 +23,8 @@
 
 	th {
 		text-transform: uppercase;
+		position: sticky;
+		top: 0px;
 	}
 
 	.phd-index {
@@ -35,11 +37,10 @@
 	}
 
 	display: inline-block;
-	overflow: auto;
 }
 
 .phd-line {
-	width:100%;
+	width: 100%;
 }
 
 .phd-orderId-header {
@@ -71,8 +72,8 @@
 	}
 }
 
-.phd-margin-top{
-	margin-top:20px;
+.phd-margin-top {
+	margin-top: 20px;
 }
 
 .phd-button {
@@ -81,7 +82,7 @@
 
 @media(max-width:$tablet-max-width) {
 
-	:host{
+	:host {
 		th {
 			font-size: 8px;
 		}
@@ -89,12 +90,13 @@
 		td {
 			font-size: 8px;
 		}
-	
+
 		.phd-amount-margin {
 			margin-left: 0px;
 		}
+
 		.phd-button {
 			font-size: 10px;
 		}
-	}	
+	}
 }

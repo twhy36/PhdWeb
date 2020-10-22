@@ -51,6 +51,7 @@
     <None Remove="ClientApp\src\app\modules\core\services\storage.service.ts" />
     <None Remove="ClientApp\src\app\modules\lot-managment\components\sales-programs\sales-programs.component.ts" />
     <None Remove="ClientApp\src\app\modules\lot-managment\lot-management.module.ts" />
+    <None Remove="ClientApp\src\app\modules\shared\components\lot-table\lot-table.component.ts" />
     <None Remove="ClientApp\src\app\modules\shared\models\contracts.model.ts" />
     <None Remove="ClientApp\src\app\modules\shared\models\ESignFields.model.ts" />
     <None Remove="ClientApp\src\app\modules\shared\models\mergeField.model.ts" />
@@ -82,6 +83,7 @@
     <TypeScriptCompile Include="ClientApp\src\app\modules\core\services\storage.service.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\modules\lot-managment\components\sales-programs\sales-programs.component.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\modules\lot-managment\lot-management.module.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\modules\shared\components\lot-table\lot-table.component.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\modules\shared\models\contracts.model.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\modules\shared\models\ESignFields.model.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\modules\shared\models\mergeField.model.ts" />

@@ -6,105 +6,51 @@
 			<div class="col">
 				<select class="form-control" [ngModel]="selectedCommunity ? selectedCommunity.dto : null" (ngModelChange)="onChangeCommunity($event)">
 					<option [ngValue]="null" disabled="disabled">Community</option>
-						<option *ngFor="let comm of (activeCommunities | async)" [ngValue]="comm.dto">{{ comm.name }}</option>
+					<option *ngFor="let comm of (activeCommunities | async)" [ngValue]="comm.dto">{{ comm.name }}</option>
 				</select>
 			</div>
 		</ng-template>
 	</page-header>
 
 	<div class="phd-page-body">
-
 		<div class="phd-table-container mx-2">
-			<table class="table table-sm table-striped phd-table phd-table-scrollable phd-stage-table">
-				<thead>
-					<tr>
-						<th scope="col" class="phd-icon-col" *ngIf="canEdit"></th>
-						<th scope="col" class="phd-medium-col">Plan</th>
-						<th scope="col" class="phd-icon-col-wide">Homesite</th>
-						<th scope="col">Details</th>
-					</tr>
-				</thead>
-
-				<tbody *ngIf="loading">
-					<tr>
-						<td scope="row" colspan="5">
-							<span>Loading...</span>
+			<phd-table #dt [value]="plans" [nonOverflow]="false" dataKey="id">
+				<ng-template #rowExpansion let-plan let-columns="columns">
+					<tr *ngIf="plan.lots.length > 0">
+						<td [attr.colspan]="columns.length">
+							<div class="phd-row-expansion">
+								<lot-table [lots]="plan.lots"></lot-table>
+							</div>
 						</td>
 					</tr>
-				</tbody>
+				</ng-template>
 
-				<tbody class="phd-no-records-found" *ngIf="!loading && (selectedCommunity == null || (selectedCommunity != null && selectedCommunity.plans.length === 0))">
-					<tr>
-						<td scope="row" colspan="5">
-							<span>No Plans Found</span>
-						</td>
-					</tr>
-				</tbody>
+				<phd-column header="" columnClass="phd-icon">
+					<ng-template #body let-plan>
+						<i class="fa fa-pencil fa-fw" (click)="editPlan(plan);" *ngIf="canEdit" phd-tooltip="Edit / View Assignments"></i>
+					</ng-template>
+				</phd-column>
 
-				<ng-container *ngIf="selectedCommunity != null">
-					<tbody>
-						<ng-container *ngFor="let plan of selectedCommunity.plans">
-							<tr [class.selected]="selectedPlan === plan">
-								<td scope="row" class="phd-icon-col" *ngIf="canEdit">
-									<i class="fa fa-pencil fa-fw" (click)="editPlan(plan);" phd-tooltip="Edit / View Assignments"></i>
-								</td>
-								<td class="phd-medium-col">{{ plan.displayName }}</td>
-								<td class="phd-icon-col-wide">
-									<i class="fa fa-map-marker fa-fw" *ngIf="plan.lots.length > 0" (click)="toggleHomeSites(plan)" phd-tooltip="Show Homesites"></i>
+				<phd-column header="Plan" field="plan.displayName">
+					<ng-template #body let-plan>
+						<span (mouseenter)="showTooltip($event, plan.displayName, dt)" (mouseleave)="hideTooltip(dt)">{{ plan.displayName }}</span>
+					</ng-template>
+				</phd-column>
 
-									<span>{{ "(" + plan.lots.length + ")" }}</span>
-								</td>
-								<td>{{ plan.details }}</td>
-							</tr>
+				<phd-column header="Homesite">
+					<ng-template #body let-plan let-expanded="expanded">
+						<i class="fa fa-map-marker fa-fw" *ngIf="plan.lots.length > 0" phd-tooltip="Show Homesites" [phdRowToggler]="plan"></i>
 
-							<tr class="phd-grid-table-child-row" *ngIf="plan.showHomeSites && plan.lots.length > 0">
-								<td colspan="5">
-									<div class="row" style="margin-top: 10px;">
-										<div class="col-1 th">Homesite</div>
-										<div class="col-3 th">Address</div>
-										<div class="col-2 th">View / Adjacency</div>
-										<div class="col-2 th">Handing</div>
-										<div class="col-2 th">Build Type</div>
-										<div class="col-2 th">Homesite Status</div>
-									</div>
+						<span (mouseenter)="showTooltip($event, plan.lots.length, dt)" (mouseleave)="hideTooltip(dt)">{{ "(" + plan.lots.length + ")" }}</span>
+					</ng-template>
+				</phd-column>
 
-									<div class="row" *ngFor="let lot of plan.lots">
-										<div class="col-1">{{ lot.lotBlock }}</div>
-										<div class="col-3">
-											<div>
-												<span>{{ lot.address.streetAddress1 }}</span>
-											</div>
-
-											<div *ngIf="lot.address.streetAddress2 && lot.address.streetAddress2.length > 0">
-												<span>{{ lot.address.streetAddress2 }}</span>
-											</div>
-
-											<div>
-												<span>{{ lot.address.city + ', ' }}</span>
-												<span>{{ lot.address.stateProvince }}</span>
-												<span>{{ lot.address.postalCode }}</span>
-											</div>
-										</div>
-										<div class="col-2">
-											<div>{{ lot.view.label }}</div>
-										</div>
-
-										<div class="col-2">
-											<span>{{ lot.handing | handings }}</span>
-										</div>
-										<div class="col-2">
-											<span>{{ lot.lotBuildTypeDescription }}</span>
-										</div>
-										<div class="col-2">
-											<span>{{ lot.lotStatusDescription }}</span>
-										</div>
-									</div>
-								</td>
-							</tr>
-						</ng-container>
-					</tbody>
-				</ng-container>
-			</table>
+				<phd-column header="Details" field="plan.details">
+					<ng-template #body let-plan>
+						<span (mouseenter)="showTooltip($event, plan.details, dt)" (mouseleave)="hideTooltip(dt)">{{ plan.details }}</span>
+					</ng-template>
+				</phd-column>
+			</phd-table>
 		</div>
 	</div>
 </div>

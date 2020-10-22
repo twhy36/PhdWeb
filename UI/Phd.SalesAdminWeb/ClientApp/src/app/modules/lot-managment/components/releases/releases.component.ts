@@ -1,10 +1,12 @@
 import { Component, OnInit, ViewChild, HostListener } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
-import { Observable ,  of } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { tap, switchMap, map, finalize } from 'rxjs/operators';
 
 import { MessageService } from 'primeng/api';
+
+import { PhdTableComponent } from 'phd-common/components/table/phd-table.component';
 
 import { OrganizationService } from '../../../core/services/organization.service';
 import { ReleasesService } from '../../../core/services/releases.service';
@@ -22,7 +24,7 @@ import { ReleasesSidePanelComponent } from '../releases-side-panel/releases-side
 	templateUrl: './releases.component.html',
 	styleUrls: ['./releases.component.scss']
 })
-export class ReleasesComponent extends UnsubscribeOnDestroy implements OnInit 
+export class ReleasesComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	@ViewChild(ReleasesSidePanelComponent)
 	private sidePanel: ReleasesSidePanelComponent;
@@ -157,9 +159,9 @@ export class ReleasesComponent extends UnsubscribeOnDestroy implements OnInit
 			},
 			error =>
 			{
-				this._msgService.add({ severity: 'error', summary: 'Error', detail: 'Release failed to save.' });
-				console.log(error);
-			});
+					this._msgService.add({ severity: 'error', summary: 'Error', detail: 'Release failed to save.' });
+					console.log(error);
+				});
 	}
 
 	editRelease(release?: HomeSiteRelease)
@@ -200,7 +202,7 @@ export class ReleasesComponent extends UnsubscribeOnDestroy implements OnInit
 
 			this._releaseService.deleteRelease(dto.releaseId)
 				.pipe(finalize(() => { this.saving = false; this.workingReleaseIndex = null; }))
-				.subscribe(() => 
+				.subscribe(() =>
 				{
 					//updates any associated homesites.
 					this._releaseService.updateAssociatedHomesites(dto);
@@ -208,9 +210,9 @@ export class ReleasesComponent extends UnsubscribeOnDestroy implements OnInit
 				},
 				error =>
 				{
-					this._msgService.add({ severity: 'error', summary: 'Error', detail: error });
-					console.log(error);
-				});
+						this._msgService.add({ severity: 'error', summary: 'Error', detail: error });
+						console.log(error);
+					});
 		}
 		else
 		{
@@ -229,8 +231,13 @@ export class ReleasesComponent extends UnsubscribeOnDestroy implements OnInit
 		return release.date.isAfter(release.minDate);
 	}
 
-	toggleHomeSites(release: HomeSiteRelease)
+	showTooltip(event: any, tooltipText: string, tableComponent: PhdTableComponent): void
 	{
-		release.showHomeSites = !release.showHomeSites;
+		tableComponent.showTooltip(event, tooltipText);
+	}
+
+	hideTooltip(tableComponent: PhdTableComponent): void
+	{
+		tableComponent.hideTooltip();
 	}
 }

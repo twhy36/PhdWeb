@@ -1,7 +1,7 @@
 /* You can add global styles to this file, and also import other style files */
 
 @import './bootstrap.min.css';
-@import url(https://fonts.googleapis.com/css?family=Roboto:400,100,100italic,300,300itaÃ¢â‚¬Å’Ã¢â‚¬â€¹lic,400italic,500,500italic,700,700italic,900italic,900);
+@import url(https://fonts.googleapis.com/css?family=Roboto:400,100,100italic,300,300itaÃƒÂ¢Ã¢â€šÂ¬Ã…â€™ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â¹lic,400italic,500,500italic,700,700italic,900italic,900);
 @import "./color-pallet.scss";
 @import "./sizes.scss";
 
@@ -298,6 +298,9 @@ ngb-carousel {
 		text-transform: uppercase;
 		text-align: center;
 		font-weight: normal;
+		position: sticky;
+		top: 0;
+		z-index: 1;
 	}
 }
 

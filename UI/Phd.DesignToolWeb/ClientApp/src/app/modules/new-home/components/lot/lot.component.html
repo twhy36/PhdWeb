@@ -1,97 +1,90 @@
 <!--Loading...-->
 <ng-container *ngIf="!(lotsLoading$ | async)">
-	
 	<!--If has loaded, but no lots to show...-->
 	<ng-container *ngIf="!!!filteredLots || filteredLots.length === 0; else hasLots">
 		<error-message [@flipOver]>
 			<ng-template #body>Seems that the Lots are having trouble loading.<br />Please contact the TSC.</ng-template>
 		</error-message>
-	
+
 		<action-bar primaryAction="Personalize It"
 					[actionBarStatus]="!!(selectedPlan$ | async) ? 'COMPLETE' : 'INCOMPLETE'"
 					(callToAction)="onCallToAction($event)"
 					[price]="(selectedPlan$ | async)?.price + (selectedLot$ | async)?.premium">
 		</action-bar>
 	</ng-container>
-		
+
 	<!--If there are lots to show...-->
 	<ng-template #hasLots>
-		<div class="phd-table flex-fill">
-			<div class="phd-table-wrapper">
-				<div class="phd-table-wrapper-head">
-					<table class="phd-lot-table">
-						<thead>
-							<tr>
-								<th>Lot #</th>
-								<th>Foundation</th>
-								<th>Garage</th>
-								<th>Premium</th>
-								<th></th>
-								<th></th>
-							</tr>
-						</thead>
-					</table>
-				</div>
-				<div class="phd-table-wrapper-body" #lotTableElement>
-					<table class="phd-lot-table">
-						<tbody>
-							<tr *ngFor="let lot of filteredLots"
-								[class.phd-no-plan-assocation]="!isAssociatedWithSelectedPlan(lot)"
-								[class.active]="selectedLot?.id === lot?.id"
-								[class.phd-monotony-conflict]="(!!lot.monotonyConflictMessage && !canOverride)"
-								class="phd-lot-card">
-								<td>
-									<h3 [class.phd-lot-spec]="lot.lotBuildTypeDesc ==='Spec'"><strong>{{lot.lotBlock}}</strong></h3>
-								</td>
-								<td>{{lot.foundationType}}</td>
-								<td>
-									<select *ngIf="lot.handings.length > 1"
-											[class.phd-borderless-select]="isAssociatedWithSelectedPlan(lot)"
-											[class.phd-borderless-select-disabled]="!isAssociatedWithSelectedPlan(lot) || !canConfigure"
-											id="handing"
-									        [(ngModel)]="lot.selectedHanding"
-											[disabled]="!isAssociatedWithSelectedPlan(lot) || !canConfigure"
-											(change)="changeHanding(lot.id, lot.selectedHanding, !!monotonyConflictMessage(lot))">
-										<option [ngValue]="null">Select Handing</option>
-										<option class="p-0" *ngFor="let handing of lot.handings" [ngValue]="handing.name">{{ handing.name }}</option>
-									</select>
-									<ng-container *ngIf="lot.handings.length === 1">
-										{{lot.handings | mapjoin:'name':', '}}
-									</ng-container>
-								</td>
-								<td><strong>{{lot.premium | currency:'USD':'symbol':'0.0-0'}}</strong></td>
-								<td>
-									<div *ngIf="!isAssociatedWithSelectedPlan(lot)" class="phd-incompatible-plan">
-										Unavailable with {{(selectedPlan$ | async)?.salesName}}
-									</div>
-									<div *ngIf="isAssociatedWithSelectedPlan(lot) && !!monotonyConflictMessage(lot) && !override">
-										{{monotonyConflictMessage(lot)}}
-									</div>
-								</td>
-								<td>
-									<button *ngIf="(isAssociatedWithSelectedPlan(lot) && (!monotonyConflictMessage(lot) || canOverride)) && canConfigure"
-											class="btn phd-lot-button"
-											type="button"
-											[disabled]="(lot.handings.length > 1 && !lot.selectedHanding)"
-											[ngClass]="{'phd-lot-button btn-primary': selectedLot?.id !== lot?.id, 'btn-outline-primary': selectedLot?.id === lot?.id}"
-											(click)="toggleSelection(lot, selectedLot?.id === lot.id)">
-										{{selectedLot?.id === lot.id ? 'Unselect' : 'CHOOSE'}}
-									</button>
-								</td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-			</div>
-		</div>
+		<div class="phd-lots">
+			<div class="phd-lots-body" #lotTableElement>
+				<table class="phd-lot-table">
+					<thead>
+						<tr>
+							<th>Lot #</th>
+							<th>Foundation</th>
+							<th>Garage</th>
+							<th>Premium</th>
+							<th></th>
+							<th></th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr *ngFor="let lot of filteredLots"
+							[class.phd-no-plan-assocation]="!isAssociatedWithSelectedPlan(lot)"
+							[class.active]="selectedLot?.id === lot?.id"
+							[class.phd-monotony-conflict]="(!!lot.monotonyConflictMessage && !canOverride)"
+							class="phd-lot-card">
+							<td>
+								<h3 [class.phd-lot-spec]="lot.lotBuildTypeDesc ==='Spec'"><strong>{{lot.lotBlock}}</strong></h3>
+							</td>
+							<td>{{lot.foundationType}}</td>
+							<td>
+								<select *ngIf="lot.handings.length > 1"
+										[class.phd-borderless-select]="isAssociatedWithSelectedPlan(lot)"
+										[class.phd-borderless-select-disabled]="!isAssociatedWithSelectedPlan(lot) || !canConfigure"
+										id="handing"
+										[(ngModel)]="lot.selectedHanding"
+										[disabled]="!isAssociatedWithSelectedPlan(lot) || !canConfigure"
+										(change)="changeHanding(lot.id, lot.selectedHanding, !!monotonyConflictMessage(lot))">
+									<option [ngValue]="null">Select Handing</option>
+									<option class="p-0" *ngFor="let handing of lot.handings" [ngValue]="handing.name">{{ handing.name }}</option>
+								</select>
 
-		<action-bar primaryAction="Personalize It"
-					[actionBarStatus]="!!(selectedPlan$ | async) ? 'COMPLETE' : 'INCOMPLETE'"
-					(callToAction)="onCallToAction($event)"
-					[scrollListener]="lotTableElement"
-					[price]="(selectedPlanPrice$ | async) + (selectedLot$ | async)?.premium"
-					[canChange]="canConfigure">
-		</action-bar>
+								<ng-container *ngIf="lot.handings.length === 1">
+									{{lot.handings | mapjoin:'name':', '}}
+								</ng-container>
+							</td>
+							<td><strong>{{lot.premium | currency:'USD':'symbol':'0.0-0'}}</strong></td>
+							<td>
+								<div *ngIf="!isAssociatedWithSelectedPlan(lot)" class="phd-incompatible-plan">
+									Unavailable with {{(selectedPlan$ | async)?.salesName}}
+								</div>
+								<div *ngIf="isAssociatedWithSelectedPlan(lot) && !!monotonyConflictMessage(lot) && !override">
+									{{monotonyConflictMessage(lot)}}
+								</div>
+							</td>
+							<td>
+								<button *ngIf="(isAssociatedWithSelectedPlan(lot) && (!monotonyConflictMessage(lot) || canOverride)) && canConfigure"
+										class="btn phd-lot-button"
+										type="button"
+										[disabled]="(lot.handings.length > 1 && !lot.selectedHanding)"
+										[ngClass]="{'phd-lot-button btn-primary': selectedLot?.id !== lot?.id, 'btn-outline-primary': selectedLot?.id === lot?.id}"
+										(click)="toggleSelection(lot, selectedLot?.id === lot.id)">
+									{{selectedLot?.id === lot.id ? 'Unselect' : 'CHOOSE'}}
+								</button>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+
+			<action-bar primaryAction="Personalize It"
+						[actionBarStatus]="!!(selectedPlan$ | async) ? 'COMPLETE' : 'INCOMPLETE'"
+						(callToAction)="onCallToAction($event)"
+						[price]="(selectedPlanPrice$ | async) + (selectedLot$ | async)?.premium"
+						[canChange]="canConfigure">
+			</action-bar>
+		</div>
 	</ng-template>
 
 </ng-container>

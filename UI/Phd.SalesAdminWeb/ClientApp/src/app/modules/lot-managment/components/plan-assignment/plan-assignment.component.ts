@@ -6,9 +6,10 @@ import { map, switchMap, tap, finalize } from 'rxjs/operators';
 
 import { MessageService } from 'primeng/api';
 
+import { PhdTableComponent } from 'phd-common/components/table/phd-table.component';
+
 import { OrganizationService } from '../../../core/services/organization.service';
 import { PlanService } from '../../../core/services/plan.service';
-import { ReleasesService } from '../../../core/services/releases.service';
 import { HomeSiteService } from '../../../core/services/homesite.service';
 
 import { UnsubscribeOnDestroy } from '../../../shared/utils/unsubscribe-on-destroy';
@@ -21,7 +22,7 @@ import { PlanAssignmentSidePanelComponent } from '../plan-assignment-side-panel/
 	templateUrl: './plan-assignment.component.html',
 	styleUrls: ['./plan-assignment.component.scss']
 })
-export class PlanAssignmentComponent extends UnsubscribeOnDestroy implements OnInit 
+export class PlanAssignmentComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	@ViewChild(PlanAssignmentSidePanelComponent)
 	private sidePanel: PlanAssignmentSidePanelComponent;
@@ -36,15 +37,17 @@ export class PlanAssignmentComponent extends UnsubscribeOnDestroy implements OnI
 	saving: boolean = false;
 	canEdit: boolean = false;
 
+	get plans(): PlanViewModel[]
+	{
+		return this.selectedCommunity ? this.selectedCommunity.plans : [];
+	}
+
 	constructor(
-		private _activatedRoute: ActivatedRoute,
 		private _orgService: OrganizationService,
 		private _planService: PlanService,
 		private _homeSiteService: HomeSiteService,
-		private _releaseService: ReleasesService,
 		private _msgService: MessageService,
-		private _route: ActivatedRoute)
-	{ super(); }
+		private _route: ActivatedRoute) { super(); }
 
 	loading: boolean = false;
 
@@ -92,7 +95,8 @@ export class PlanAssignmentComponent extends UnsubscribeOnDestroy implements OnI
 					this.selectedCommunity = new FinancialCommunityViewModel(comm);
 					this.loadPlansAndHomeSites();
 				}
-			} else
+			}
+			else
 			{
 				this.selectedCommunity = null;
 			}
@@ -197,14 +201,19 @@ export class PlanAssignmentComponent extends UnsubscribeOnDestroy implements OnI
 			},
 			error =>
 			{
-				this._msgService.add({ severity: 'error', summary: 'Error', detail: error });
+					this._msgService.add({ severity: 'error', summary: 'Error', detail: error });
 
-				console.log(error);
-			});
+					console.log(error);
+				});
 	}
 
-	toggleHomeSites(plan: PlanViewModel)
+	showTooltip(event: any, tooltipText: string, tableComponent: PhdTableComponent): void
 	{
-		plan.showHomeSites = !plan.showHomeSites;
+		tableComponent.showTooltip(event, tooltipText);
 	}
-}//End
+
+	hideTooltip(tableComponent: PhdTableComponent): void
+	{
+		tableComponent.hideTooltip();
+	}
+}

@@ -4,10 +4,10 @@
 	<page-header mainTitle="Homesite Releases">
 		<ng-template>
 			<div class="col">
-					<select class="form-control" [ngModel]="selectedCommunity ? selectedCommunity.dto : null" (ngModelChange)="onChangeCommunity($event)">
-						<option [ngValue]="null" disabled="disabled">Community</option>
-							<option *ngFor="let comm of (activeCommunities | async)" [ngValue]="comm.dto">{{ comm.name }}</option>
-					</select>
+				<select class="form-control" [ngModel]="selectedCommunity ? selectedCommunity.dto : null" (ngModelChange)="onChangeCommunity($event)">
+					<option [ngValue]="null" disabled="disabled">Community</option>
+					<option *ngFor="let comm of (activeCommunities | async)" [ngValue]="comm.dto">{{ comm.name }}</option>
+				</select>
 			</div>
 		</ng-template>
 	</page-header>
@@ -20,105 +20,59 @@
 		</div>
 
 		<div class="phd-table-container mx-2">
-			<table class="table table-sm table-striped phd-table phd-table-scrollable phd-stage-table">
-				<thead>
-					<tr>
-						<th scope="col" class="phd-icon-col" *ngIf="canEdit"></th>
-						<th scope="col" class="phd-icon-col" *ngIf="canEdit"></th>
-						<th scope="col" class="phd-medium-col">Date</th>
-						<th scope="col" class="phd-icon-col-wide">Homesite</th>
-						<th scope="col">Description</th>
-						<th scope="col">Release Rank</th>
-					</tr>
-				</thead>
-
-				<tbody *ngIf="loading">
-					<tr>
-						<td scope="row" colspan="6">
-							<span>Loading...</span>
+			<phd-table #dt [value]="releases" [nonOverflow]="false" dataKey="releaseId">
+				<ng-template #rowExpansion let-release let-columns="columns">
+					<tr *ngIf="release.homeSites.length > 0">
+						<td [attr.colspan]="columns.length">
+							<div class="phd-row-expansion">
+								<lot-table [lots]="release.homeSites"></lot-table>
+							</div>
 						</td>
 					</tr>
-				</tbody>
+				</ng-template>
 
-				<tbody class="phd-no-records-found" *ngIf="!loading && releases.length === 0">
-					<tr>
-						<td scope="row" colspan="6">
-							<span>No Releases Found</span>
-						</td>
-					</tr>
-				</tbody>
+				<phd-column header="" columnClass="phd-icon">
+					<ng-template #body let-release>
+						<ng-container *ngIf="canEdit">
+							<i class="fa fa-pencil fa-fw" (click)="editRelease(release);" *ngIf="editDateCheck(release)" phd-tooltip="Edit / View Assignments"></i>
+						</ng-container>
+					</ng-template>
+				</phd-column>
 
-				<tbody>
-					<ng-container *ngFor="let release of releases; let i = index">
-						<tr [class.selected]="selectedRelease && selectedRelease.homeSiteRelease === release">
-							<td scope="row" class="phd-icon-col" *ngIf="canEdit">
-								<div *ngIf="editDateCheck(release)">
-									<i class="fa fa-pencil fa-fw" (click)="editRelease(release);" phd-tooltip="Edit / View Assignments"></i>
-								</div>
-							</td>
-							<td class="phd-icon-col" *ngIf="canEdit">
-								<div *ngIf="editDateCheck(release)">
-									<i class="fa fa-trash fa-fw" [ngClass]="{'fa-trash':!saving || (saving && i != workingReleaseIndex), 'fa-spinner':saving && i == workingReleaseIndex, 'fa-spin':saving && i == workingReleaseIndex}" (click)="confirmDelete(release, i);" phd-tooltip="Delete Release"></i>
-								</div>
-							</td>
-							<td class="phd-medium-col">{{ release.dateString }}</td>
-							<td class="phd-icon-col-wide">
-								<i class="fa fa-map-marker fa-fw" (click)="toggleHomeSites(release)" phd-tooltip="Show Homesites"></i>
-								<span>{{ ' (' + release.homeSites.length + ')' }}</span>
-							</td>
-							<td>{{ release.description }}</td>
-							<td>{{ release.releaseRank }}</td>
-						</tr>
+				<phd-column header="" columnClass="phd-icon">
+					<ng-template #body let-release>
+						<ng-container *ngIf="canEdit">
+							<i class="fa fa-trash fa-fw" [ngClass]="{'fa-trash':!saving || (saving && i != workingReleaseIndex), 'fa-spinner':saving && i == workingReleaseIndex, 'fa-spin':saving && i == workingReleaseIndex}" *ngIf="editDateCheck(release)" (click)="confirmDelete(release, i);" phd-tooltip="Delete Release"></i>
+						</ng-container>
+					</ng-template>
+				</phd-column>
 
-						<tr class="phd-grid-table-child-row" *ngIf="release.showHomeSites && release.homeSites.length > 0">
-							<td colspan="6">
-								<div class="row" style="margin-top: 10px;">
-									<div class="col-1 th">Homesite</div>
-									<div class="col-3 th">Address</div>
-									<div class="col-2 th">View / Adjacency</div>
-									<div class="col-2 th">Handing</div>
-									<div class="col-2 th">Build Type</div>
-									<div class="col-2 th">Homesite Status</div>
-								</div>
+				<phd-column header="Date" field="release.dateString">
+					<ng-template #body let-release>
+						<span (mouseenter)="showTooltip($event, release.dateString, dt)" (mouseleave)="hideTooltip(dt)">{{ release.dateString }}</span>
+					</ng-template>
+				</phd-column>
 
-								<div *ngFor="let lot of release.homeSites">
-									<div class="row">
-										<div class="col-1">{{ lot.lotBlock }}</div>
-										<div class="col-3">
-											<div>
-												<span>{{ lot.address.streetAddress1 }}</span>
-											</div>
+				<phd-column header="Homesite">
+					<ng-template #body let-release let-expanded="expanded">
+						<i class="fa fa-map-marker fa-fw" *ngIf="release.homeSites.length > 0" phd-tooltip="Show Homesites" [phdRowToggler]="release"></i>
 
-											<div *ngIf="lot.address.streetAddress2 && lot.address.streetAddress2.length > 0">
-												<span>{{ lot.address.streetAddress2 }}</span>
-											</div>
+						<span (mouseenter)="showTooltip($event, release.homeSites.length, dt)" (mouseleave)="hideTooltip(dt)">{{ "(" + release.homeSites.length + ")" }}</span>
+					</ng-template>
+				</phd-column>
 
-											<div>
-												<span>{{ lot.address.city + ', ' }}</span>
-												<span>{{ lot.address.stateProvince }}</span>
-												<span>{{ lot.address.postalCode }}</span>
-											</div>
-										</div>
-										<div class="col-2">
-											<div *ngIf="lot.viewAdjacency">{{ lot.viewAdjacency }}</div>
-										</div>
+				<phd-column header="Description" field="release.description">
+					<ng-template #body let-release>
+						<span (mouseenter)="showTooltip($event, release.description, dt)" (mouseleave)="hideTooltip(dt)">{{ release.description }}</span>
+					</ng-template>
+				</phd-column>
 
-										<div class="col-2">
-											<span *ngIf="lot.handing">{{ lot.handing | handings }}</span>
-										</div>
-										<div class="col-2">
-											<span>{{ lot.lotBuildTypeDescription }}</span>
-										</div>
-										<div class="col-2">
-											<span *ngIf="lot.lotStatusDescription">{{ lot.lotStatusDescription }}</span>
-										</div>
-									</div>
-								</div>
-							</td>
-						</tr>
-					</ng-container>
-				</tbody>
-			</table>
+				<phd-column header="Release Rank" field="release.releaseRank">
+					<ng-template #body let-release>
+						<span (mouseenter)="showTooltip($event, release.releaseRank, dt)" (mouseleave)="hideTooltip(dt)">{{ release.releaseRank }}</span>
+					</ng-template>
+				</phd-column>
+			</phd-table>
 		</div>
 	</div>
 </div>

@@ -4,9 +4,9 @@ import { IPlanDto } from './plan.model';
 
 export class FinancialCommunityViewModel
 {
-    readonly dto: FinancialCommunity;
+	readonly dto: FinancialCommunity;
 
-    constructor(dto: FinancialCommunity)
+	constructor(dto: FinancialCommunity)
 	{
 		this.dto = dto;
 	}
@@ -18,8 +18,8 @@ export class FinancialCommunityViewModel
 	get marketId() { return this.dto.marketId; }
 	get id() { return this.dto.id; }
 	get name() { return this.dto.name; }
-    get key() { return this.dto.key; }
-    get isActive() { return (this.dto.salesStatusDescription === "Active" || this.dto.salesStatusDescription === "New"); }
+	get key() { return this.dto.key; }
+	get isActive() { return (this.dto.salesStatusDescription === "Active" || this.dto.salesStatusDescription === "New"); }
 
 	static sorter(left: FinancialCommunityViewModel, right: FinancialCommunityViewModel): number
 	{
@@ -29,12 +29,12 @@ export class FinancialCommunityViewModel
 
 export class HomeSiteViewModel extends HomeSite
 {
-    readonly community: FinancialCommunity;
+	readonly community: FinancialCommunity;
 	// properties custom to this page
 	plans: Array<number> = [];
 	plansRef: Array<PlanViewModel> = [];
 
-    constructor(dto: HomeSiteDtos.ILotDto, community: FinancialCommunity)
+	constructor(dto: HomeSiteDtos.ILotDto, community: FinancialCommunity)
 	{
 		super(dto);
 
@@ -68,7 +68,6 @@ export class PlanViewModel
 	financialCommunityId: number;
 	financialCommunityName: string;
 	details: string;
-	showHomeSites: boolean = false;
 	loadingLots: boolean = true;
 
 	constructor(dto: IPlanDto, selectedCommunity: FinancialCommunityViewModel)
@@ -82,7 +81,7 @@ export class PlanViewModel
 			this.displayName = `${dto.salesName} - (${dto.integrationKey})`;
 			this.financialCommunityId = dto.communityId;
 			this.details = `${dto.numBed}/BD ${dto.numFullBath}/BA ${dto.numHalfBath}/Half BA ${dto.squareFeet} SF`;
-            this.financialCommunityName = selectedCommunity.name;
+			this.financialCommunityName = selectedCommunity.name;
 		}
 	}
 

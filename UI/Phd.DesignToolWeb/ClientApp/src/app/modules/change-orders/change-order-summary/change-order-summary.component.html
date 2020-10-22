@@ -1,8 +1,12 @@
 <div class="d-flex flex-column phd-change-orders">
-	<h2 class="justify-content-center text-center my-5">Change Orders</h2>
+	<div>
+		<h2 class="justify-content-center text-center my-5">Change Orders</h2>
+	</div>
 
 	<div class="phd-status-table">
-		<h4>ACTIVE CHANGE ORDERS</h4>
+		<div class="mb-3">
+			<h4>ACTIVE CHANGE ORDERS</h4>
+		</div>
 		<div *ngIf="activeChangeOrders.length === 0 && ((canSell$ | async) || (canDesign$ | async)) && !(cancelOrVoid || (specCancelled$ | async))">
 			<select class="phd-changeOrder-types" (change)="onSelectChangeOrderType($event.target.value)" #addChangeOrder>
 				<option *ngFor="let changeOrderType of changeOrderTypes"
@@ -13,7 +17,7 @@
 				</option>
 			</select>
 		</div>
-		<div *ngIf="activeChangeOrders.length > 0">
+		<div class="phd-change-order-table" *ngIf="activeChangeOrders.length > 0">
 			<change-order-table [changeOrders]="activeChangeOrders"
 								[canApprove]="canApprove$ | async"
 								[canSell]="canSell$ | async"
@@ -26,10 +30,13 @@
 		</div>
 	</div>
 
-	<div class="phd-status-table phd-header-pastOrders">
-		<h4>PAST CHANGE ORDERS</h4>
-		<change-order-table [changeOrders]="pastChangeOrders"
-							(onGenerateDocument)="onGenerateDocument($event)"></change-order-table>
+	<div class="phd-status-table mt-3">
+		<div>
+			<h4>PAST CHANGE ORDERS</h4>
+		</div>
+		<div class="phd-change-order-table">
+			<change-order-table [changeOrders]="pastChangeOrders" (onGenerateDocument)="onGenerateDocument($event)"></change-order-table>
+		</div>
 	</div>
 </div>
 

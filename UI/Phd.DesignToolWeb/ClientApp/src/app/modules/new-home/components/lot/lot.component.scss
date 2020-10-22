@@ -5,32 +5,6 @@
 :host {
 	height: 100%;
 	overflow-y: hidden;
-	display: block;
-}
-
-.nav {
-    max-width: 450px;
-    width: 100%;
-    margin-bottom: 30px;
-    li {
-        flex-basis: 33.33%;
-        a {
-            border-bottom-style: solid;
-            border-bottom-width: 1px;
-            font-size: 18px;
-            font-weight: 300;
-            &.active {
-                font-weight: normal;
-                border-bottom-width: 4px;
-            }
-        }
-    }
-}
-
-#lot-experience-header {
-    font-size: 36px;
-    font-weight: 300;
-    margin-bottom: 35px;
 }
 
 .phd-lot-card {
@@ -83,17 +57,6 @@
 	.phd-lot-spec {
 		color: hsl(188, 78%, 41%);
 	}
-
-	.phd-lot-card-details {
-		> div:not(.phd-incompatible-plan) {
-			width: 33%;
-
-			@media (max-width: 1024px) {
-				width: 100%;
-				text-align: center;
-			}
-		}
-	}
 }
 
 .phd-lot-card:nth-child(even) {
@@ -131,10 +94,14 @@
 	}
 }
 
-.phd-fw-col-md {
-	min-width: 180px;
+.phd-lots {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
 }
 
-.phd-table-wrapper-body {
-	margin-bottom: 99px;
+.phd-lots-body {
+	flex: 1;
+	overflow: auto;
+	margin-bottom: 100px;
 }

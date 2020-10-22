@@ -1,106 +1,19 @@
 @import "../../../../../scss/color-pallet.scss";
 @import "../../../../../scss/sizes.scss";
 
-.phd-icon-col {
-    // IE doesn't like mixing percent and px for width in tables (bootstrap's "col-*" styles uses percent)
-    width: 3%;
-    padding-left: 6px !important;
-    padding-right: 6px !important;
-}
+i {
+	font-size: 1rem;
 
-.phd-icon-col-wide {
-	width: 100px;
-}
-
-.phd-narrow-col {
-	width: 120px;
-}
-
-.phd-medium-col {
-	width: 225px;
-}
-
-.phd-grid-table-child-row {
-	border: solid 2px lighten($brand-primary,20%);
-
-	.row {
-		margin-right: 0;
-		margin-left: 0;
-	}
-
-	.row:nth-of-type(odd) {
-		background-color: #fff;
-	}
-
-	.row:nth-of-type(even) {
-		background-color: #f9f9f9;
-		border-top: 1px solid lightgray;
-		border-bottom: 1px solid lightgray;
-	}
-}
-
-.th {
-	font-weight: bold;
-	text-align: left;
-}
-
-.phd-table-scrollable {
-	$scrollbar-width: 0.9em;
-	display: flex;
-	flex-flow: column;
-	margin-bottom: 0;
-
-	thead,
-	tbody tr {
-		display: table;
-		table-layout: fixed;
-	}
-
-	thead {
-		flex: 0 0 auto;
-		width: 100%;
-
-        tr {
-            th {
-                border-top: 0 none transparent;
-            }
-        }
-	}
-
-	tbody {
-		display: block;
-		flex: 1 1 auto;
-		overflow-y: auto;
-		overflow-x: hidden;
-
-		tr {
-			width: 100%;
-		}
-	}
-
-	i {
-		font-size: 18px;
-	}
-
-	i:hover {
+	&:hover {
 		cursor: pointer;
 	}
+}
 
-	a:hover {
-		cursor: pointer;
-	}
+a:hover {
+	cursor: pointer;
+}
 
-	tr.selected {
-		border: solid 2px $brand-success;
-		background-color: lighten($brand-success, 20%) !important;
-	}
-
-
-	tr.phd-tr-error {
-		background-color: lighten($brand-danger, 20%) !important;
-	}
-
-	tr.selected.phd-tr-error {
-		background-color: lighten($brand-danger, 20%) !important;
-	}
+.phd-row-expansion {
+	max-height: 300px;
+	overflow-y: auto;
 }

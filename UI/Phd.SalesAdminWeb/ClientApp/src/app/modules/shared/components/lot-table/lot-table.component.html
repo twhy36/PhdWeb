@@ -1,0 +1,49 @@
+<phd-table #dt [value]="lots" [nonOverflow]="false" dataKey="id">
+	<phd-column header="Homesite" field="lot.lotBlock">
+		<ng-template #body let-lot>
+			<span (mouseenter)="showTooltip($event, lot.lotBlock, dt)" (mouseleave)="hideTooltip(dt)">{{ lot.lotBlock }}</span>
+		</ng-template>
+	</phd-column>
+
+	<phd-column header="Address" field="address.streetAddress1">
+		<ng-template #body let-lot>
+			<div (mouseenter)="showTooltip($event, formatAddress(lot.address), dt)" (mouseleave)="hideTooltip(dt)">
+				<div>
+					<span>{{ lot.address.streetAddress1 }}</span>
+				</div>
+				<div>
+					<span>{{ lot.address.streetAddress2 }}</span>
+				</div>
+				<div>
+					<span>{{ lot.address.city + ', ' }}</span>
+					<span>{{ lot.address.stateProvince }}</span>
+					<span>{{ lot.address.postalCode }}</span>
+				</div>
+			</div>
+		</ng-template>
+	</phd-column>
+
+	<phd-column header="View / Adjacency" field="lot.view.label">
+		<ng-template #body let-lot>
+			<span (mouseenter)="showTooltip($event, lot.view.label, dt)" (mouseleave)="hideTooltip(dt)">{{ lot.view.label }}</span>
+		</ng-template>
+	</phd-column>
+
+	<phd-column header="Handing" field="lot.handing">
+		<ng-template #body let-lot>
+			<span (mouseenter)="showTooltip($event, lot.handing, dt)" (mouseleave)="hideTooltip(dt)">{{ lot.handing | handings }}</span>
+		</ng-template>
+	</phd-column>
+
+	<phd-column header="Build Type" field="lot.lotBuildTypeDescription">
+		<ng-template #body let-lot>
+			<span (mouseenter)="showTooltip($event, lot.lotBuildTypeDescription, dt)" (mouseleave)="hideTooltip(dt)">{{ lot.lotBuildTypeDescription }}</span>
+		</ng-template>
+	</phd-column>
+
+	<phd-column header="Homesite Status" field="lot.lotStatusDescription">
+		<ng-template #body let-lot>
+			<span (mouseenter)="showTooltip($event, lot.lotStatusDescription, dt)" (mouseleave)="hideTooltip(dt)">{{ lot.lotStatusDescription }}</span>
+		</ng-template>
+	</phd-column>
+</phd-table>

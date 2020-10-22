@@ -4,6 +4,10 @@
 	position: absolute;
 	left: $phase-bar;
 	width: calc(100% - #{$phase-bar});
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	height: 100%;
 }
 
 
@@ -41,17 +45,27 @@
 }
 
 .phd-community {
-	padding-left: 05%;
+	padding-left: 5%;
+	display: flex;
 }
 
 .phd-new-home {
 	max-width: 100%;
 	margin: 0 2em;
+	display: flex;
+	flex-direction: column;
+	overflow-y: auto;
+}
+
+.phd-content {
+	flex: 1;
+	overflow: auto;
 }
 
 .phd-tabs {
-	margin-bottom: 30px;
+	margin-bottom: 1.5rem;
 	width: 100%;
+	text-align: center;
 
 	.phd-selection {
 		align-self: flex-end;
@@ -89,6 +103,6 @@
 
 @media(max-width: $tablet-max-width) {
 	.phd-new-home {
-        padding-top: calc(#{$responsive-menu-height} * 2);
+		padding-top: calc(#{$responsive-menu-height} * 2);
 	}
 }
