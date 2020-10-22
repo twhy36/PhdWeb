@@ -4,6 +4,8 @@ import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
 import { distinctUntilChanged, filter, switchMap, tap } from 'rxjs/operators';
 
+import * as moment from 'moment';
+
 import { ContractTemplate } from '../../../shared/models/contracts.model';
 import { ContractService } from '../../../core/services/contract.service';
 import { MessageService } from 'primeng/api';
@@ -270,7 +272,7 @@ export class ViewContractsComponent extends UnsubscribeOnDestroy implements OnIn
 
 		if (this.selected)
 		{
-			if (this.selected.status === "In Use")
+			if (this.selected.status === 'In Use')
 			{
 				contractTemplateDto.documentName = this.selected.documentName;
 				contractTemplateDto.displayName = this.selected.displayName;
@@ -297,13 +299,16 @@ export class ViewContractsComponent extends UnsubscribeOnDestroy implements OnIn
 
 					if (newDto.parentTemplateId !== null)
 					{
-						if (newDto.effectiveDate !== null && (contractTemplateDto.effectiveDate === Date.now().toString() || contractTemplateDto.effectiveDate < Date.now().toString()))
+						let effectiveDate = newDto.effectiveDate !== null ? moment.utc(newDto.effectiveDate).format('L') : null;
+						let currDate = moment.utc(new Date()).format('L');
+
+						if (effectiveDate !== null && (effectiveDate === currDate || effectiveDate < currDate))
 						{
 							let index = this.filteredContractTemplates.findIndex(t => t.templateId === newDto.parentTemplateId);
 
 							this.filteredContractTemplates[index] = updatedTemplate;
 						}
-						else if (newDto.status === "In Use" || !this.filteredContractTemplates.find(t => t.templateId === newDto.parentTemplateId))
+						else if (newDto.status === 'In Use' || !this.filteredContractTemplates.find(t => t.templateId === newDto.parentTemplateId))
 						{
 							this.filteredContractTemplates.push(updatedTemplate);
 						}
@@ -329,12 +334,13 @@ export class ViewContractsComponent extends UnsubscribeOnDestroy implements OnIn
 
 				this.sort();
 				this.onSidePanelClose(false);
+
 				this._msgService.add({ severity: 'success', summary: 'Contract Document', detail: `has been saved!` });
 			},
-				error =>
-				{
-					this._msgService.add({ severity: 'error', summary: 'Error', detail: error.message });
-				});
+			error =>
+			{
+				this._msgService.add({ severity: 'error', summary: 'Error', detail: error.message });
+			});
 	}
 
 	previewFile(templateId: number)
@@ -447,6 +453,7 @@ export class ViewContractsComponent extends UnsubscribeOnDestroy implements OnIn
 		}
 
 		itemList.splice(newIndex, 0, itemList.splice(oldIndex, 1)[0]);
+
 		let counter = 1;
 
 		itemList.forEach(item =>

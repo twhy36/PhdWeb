@@ -9,7 +9,7 @@
 					<button type="button" class="btn btn-md btn-link" (click)="addendumOrder()">Addendum Order</button>
 				</ng-template>
 
-				<i class="fa fa-code fa-2x" [routerLink]="['/contracts/merge-fields']"></i>
+				<i class="fa fa-code fa-2x" [routerLink]="['/contracts/merge-fields']" title="Merge Fields"></i>
 			</div>
 		</ng-template>
 	</page-header>
@@ -32,15 +32,15 @@
 					<ng-template #header *ngIf="!isSorting"></ng-template>
 					<ng-template #body let-template *ngIf="!isSorting">
 						<div class="phd-icon-container">
-							<i *ngIf="template.status !== 'In Use' && canEdit" class="fa fa-fw fa-trash-o" phd-tooltip='Delete Draft' (click)="deleteDraft(template)"></i>
-							<i *ngIf="canEdit" class="fa fa-pencil fa-fw" phd-tooltip='Edit Document' (click)="editTemplate(template)"></i>
-							<i *ngIf="template.status === 'In Use' && canEdit" class="fa fa-files-o" phd-tooltip="New Draft " (click)="newDraft(template)"></i>
-							<i class="fa fa-search-plus fa-fw" phd-tooltip="Preview Document" (click)="previewFile(template.templateId)"></i>
+							<i *ngIf="template.status !== 'In Use' && canEdit" class="fa fa-fw fa-trash-o" title="Delete Draft" (click)="deleteDraft(template)"></i>
+							<i *ngIf="canEdit" class="fa fa-pencil fa-fw" title="Edit Document" (click)="editTemplate(template)"></i>
+							<i *ngIf="template.status === 'In Use' && canEdit" class="fa fa-files-o" title="New Draft" (click)="newDraft(template)"></i>
+							<i class="fa fa-search-plus fa-fw" title="Preview Document" (click)="previewFile(template.templateId)"></i>
 						</div>
 						<div *ngIf="template.childContractTemplate !== undefined" class="phd-icon-container mt-3">
-							<i *ngIf="template.childContractTemplate.status !== 'In Use' && canEdit" class="fa fa-fw fa-trash-o" phd-tooltip='Delete Draft' (click)="deleteDraft(template.childContractTemplate)"></i>
-							<i class="fa fa-pencil fa-fw" phd-tooltip='Edit Document' (click)="editDraft(template)" *ngIf="canEdit"></i>
-							<i class="fa fa-search-plus fa-fw" phd-tooltip="Preview Document" (click)="previewFile(template.childContractTemplate.templateId)"></i>
+							<i *ngIf="template.childContractTemplate.status !== 'In Use' && canEdit" class="fa fa-fw fa-trash-o" title="Delete Draft" (click)="deleteDraft(template.childContractTemplate)"></i>
+							<i class="fa fa-pencil fa-fw" title="Edit Document" (click)="editDraft(template)" *ngIf="canEdit"></i>
+							<i class="fa fa-search-plus fa-fw" title="Preview Document" (click)="previewFile(template.childContractTemplate.templateId)"></i>
 						</div>
 					</ng-template>
 					<ng-template #body let-template *ngIf="isSorting">
