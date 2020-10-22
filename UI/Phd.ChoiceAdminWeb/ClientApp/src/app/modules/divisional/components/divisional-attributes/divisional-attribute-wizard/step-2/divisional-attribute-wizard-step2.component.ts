@@ -23,11 +23,7 @@ export class DivisionalAttributeWizardStep2Component implements OnInit
 	displayButtons: boolean = false;
 	displayChoiceSelector: boolean = false;
 	mappingChecked: boolean = null;
-
-	get groups(): DivDGroup[]
-	{
-		return this.wizardService.groups;
-	}
+	groups: DivDGroup[];
 
 	get selectedChoices(): DivAttributeWizChoice[]
 	{
@@ -94,7 +90,13 @@ export class DivisionalAttributeWizardStep2Component implements OnInit
 			this._divService.getDivisionalCatalog(this.marketId).subscribe(catalog =>
 			{
 				this.wizardService.groups = catalog.groups;
+				this.groups = this.wizardService.groups;
+
 			});
+		}
+		else
+		{
+			this.groups = this.wizardService.groups;
 		}
 	}
 
@@ -105,6 +107,10 @@ export class DivisionalAttributeWizardStep2Component implements OnInit
 		if (mapping === 'AddUpdate')
 		{
 			this.getDivisionalCatalog();
+		}
+		else
+		{
+			this.clearFilter();
 		}
 	}
 
@@ -330,5 +336,6 @@ export class DivisionalAttributeWizardStep2Component implements OnInit
 	{
 		this.wizardService.showSearchResults = false;
 		this.wizardService.keywordStep2 = '';
+		this.wizardService.selectedChoices = [];
 	}
 }
