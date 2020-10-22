@@ -28,7 +28,7 @@
     display: flex !important;
     justify-content: flex-end;
     flex-direction: row;
-    margin-right:10%;
+    margin-right: 10%;
     height: 55px;
 }
 
@@ -47,4 +47,25 @@
     padding-right: 5px;
     text-align: center;
     font-size: 25px;
+}
+
+:host ::ng-deep .ui-table .ui-table-thead > tr > th {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0px;
+    z-index: 1;
+}
+
+:host ::ng-deep .ui-table-resizable > .ui-table-wrapper {
+    overflow-x: initial !important;
+}
+
+:host ::ng-deep .ui-table-resizable .ui-resizable-column {
+    position: sticky !important;
+}
+
+@media screen and (max-width: 64em) {
+    :host ::ng-deep .ui-table .ui-table-thead > tr > th {
+        top: 0px;
+    }
 }
