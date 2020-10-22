@@ -16,7 +16,7 @@ export const environment: IEnvironment = {
 		designTool: 'https://phd.staging.pulte.com/designtool/',
 		reports: 'http://powerbi.staging.pulte.com/Reports/browse/IDEA/Sales/PHD',
 		homeSelections: 'https://homebuilder.staging.pulte.com/HomeSelections/',
-		salesTally: 'http://powerbi.staging.pulte.com/Reports/browse/SalesTally'
+		salesTally: 'https://phd.staging.pulte.com/salesportal/salestally'
     },
     clientId: "d6e4e999-c413-4d1d-b0fb-618759cb69e5",
     appInsights: {
