@@ -1,0 +1,48 @@
+<div class="modal-header">
+	<span class="modal-title">Create New Tree</span>
+
+	<button type="button" class="close" aria-label="Close" (click)="cancel()">
+		<span aria-hidden="true">&times;</span>
+	</button>
+</div>
+
+<div class="modal-body">
+	<div>
+		<div class="form-check phd-newTree-label">
+			<input type="radio" id="stage" name="newTreeType" class="form-check-input" (change)="onNewTreeTypeChange()" [value]="0" [(ngModel)]="selectedNewTreeType" />
+			<label for="stage" class="form-check-label">Division Catalog</label>
+		</div>
+		<div class="phd-newTree-field phd-newTree-warning">
+			<span class="text-danger">WARNING</span>: Creating a new draft from the catalog will clear all existing tree content
+		</div>
+	</div>
+
+	<div>
+		<div class="phd-newTree-field phd-newTree-or">OR</div>
+	</div>
+
+	<div>
+		<div class="form-check phd-newTree-label">
+			<input type="radio" id="days" name="newTreeType" class="form-check-input" (change)="onNewTreeTypeChange()" [value]="1" [(ngModel)]="selectedNewTreeType" [disabled]="!hasTreeVersions" />
+			<label for="days" class="form-check-label">Previously Published Draft</label>
+		</div>
+		<div class="phd-newTree-field">
+			<select class="form-control" id="tree" [(ngModel)]="selectedTreeVersion" [disabled]="selectedNewTreeType !== 1">
+				<option [ngValue]="null">Select a Tree Version</option>
+				<option *ngFor="let treeVersion of treeVersions" [ngValue]="treeVersion">{{ treeVersion.displayName }}</option>
+			</select>
+		</div>
+	</div>
+</div>
+
+<div class="modal-footer">
+	<button type="button" class="btn btn-sm btn-primary" (click)="continue()" [disabled]="disableContinue">
+		<span class="fa fa-fw fa-check"></span>
+		<span class="">Continue</span>
+	</button>
+
+	<button type="button" class="btn btn-sm ml-auto btn-secondary" (click)="cancel()">
+		<span class="fa fa-fw fa-close"></span>
+		<span class="">Cancel</span>
+	</button>
+</div>

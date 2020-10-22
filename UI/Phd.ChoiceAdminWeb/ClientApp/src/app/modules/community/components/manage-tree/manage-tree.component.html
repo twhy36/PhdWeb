@@ -122,7 +122,7 @@
 			</select>
 
 			<select class="form-control m-2 col" id="plan" [(ngModel)]="selectedPlan" (change)="onChangePlan()"
-				[disabled]="disableButtons || isDeletingTree">
+					[disabled]="disableButtons || isDeletingTree">
 				<option [ngValue]="null">{{ planDefaultText }}</option>
 				<optgroup label="Active Plans">
 					<option *ngFor="let plan of activePlans" [ngValue]="plan">{{ plan.planSalesName }}</option>
@@ -133,13 +133,8 @@
 			</select>
 
 			<div class="input-group m-2 col">
-				<div ngbDropdown class="input-group-prepend" *ngIf="canEdit">
-					<button class="btn btn-primary" id="btnNewTree" ngbDropdownToggle [disabled]="disableNewTree">New Tree</button>
-					<div id="newTreeButtons" ngbDropdownMenu aria-labelledby="btnNewTree">
-						<a class="dropdown-item" *ngIf="treeVersions?.length >= 1" (click)="onNewTreeClick('Published')">Last Published</a>
-						<a class="dropdown-item" (click)="onNewTreeClick('Catalog')">Catalog</a>
-					</div>
-				</div>
+				<button class="btn btn-primary input-group-prepend" id="btnNewTree" [disabled]="disableNewTree" (click)="onNewTree();" *ngIf="canEdit">New Tree</button>
+
 				<select class="form-control" id="tree" [(ngModel)]="selectedTreeVersion" (change)="onChangeTreeVersion()" [disabled]="noVersions || disableButtons || isDeletingTree">
 					<option [ngValue]="null">{{ treeVersionDefaultText }}</option>
 					<option *ngFor="let treeVersion of treeVersions" [ngValue]="treeVersion">{{ treeVersion.displayName }}</option>
@@ -200,3 +195,7 @@
 
 	<p-toast id="growl-manage-tree"></p-toast>
 </div>
+
+<ng-template #newTree let-c="close" let-d="dismiss">
+	<new-tree [treeVersions]="treeVersions" (createNewTree)="onCreateNewTree($event)" (close)="closeModal()"></new-tree>
+</ng-template>

@@ -25,7 +25,8 @@ import {
 	PointSidePanelComponent,
 	RuleComponent,
 	TreeSidePanelComponent,
-	TreeTableComponent
+	TreeTableComponent,
+	NewTreeComponent
 } from './components/manage-tree';
 
 import {
@@ -84,7 +85,8 @@ const moduleRoutes: Routes = [
 		TreeSidePanelComponent,
 		TreeTableComponent,
 		AssociateAttributeGroupComponent,
-		AssociateLocationGroupComponent
+		AssociateLocationGroupComponent,
+		NewTreeComponent
 	],
 	imports: [
 		CommonModule,

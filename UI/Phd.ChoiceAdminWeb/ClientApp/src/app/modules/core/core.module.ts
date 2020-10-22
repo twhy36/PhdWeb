@@ -27,54 +27,56 @@ import { TreeService } from './services/tree.service';
 import { UiUtilsService } from './services/ui-utils.service';
 import { ImageService } from './services/image.service';
 import { LoadingService } from './services/loading.service';
+import { ModalService } from './services/modal.service';
 
 import { CanDeactivateGuard } from './guards/can-deactivate.guard';
 import { PhdCommonModule } from 'phd-common';
 
 
 @NgModule({
-    exports: [
-        NavigationBarComponent,
-        ConfirmModalComponent
-    ],
-    declarations: [
-        NavigationBarComponent,
-        ConfirmModalComponent
-    ],
-    imports: [
-        CommonModule,
-        FormsModule,
-        HttpClientModule,
-        RouterModule,
-        NgbModule,
+	exports: [
+		NavigationBarComponent,
+		ConfirmModalComponent
+	],
+	declarations: [
+		NavigationBarComponent,
+		ConfirmModalComponent
+	],
+	imports: [
+		CommonModule,
+		FormsModule,
+		HttpClientModule,
+		RouterModule,
+		NgbModule,
 		NgbCollapseModule,
 		NgbDropdownModule,
 		NgbTabsetModule,
 		PhdCommonModule
-    ],
-    providers: [
-        LoggingService,
+	],
+	providers: [
+		LoggingService,
 		NationalService,
 		DivisionalOptionService,
-        DivisionalService,
+		DivisionalService,
 		PlanService,
 		PlanOptionService,
-        SettingsService,
-        StorageService,
-        UiUtilsService,
-        MessageService,
-        OrganizationService,
-        CatalogService,
-        TreeService,
-        PlanService,
+		SettingsService,
+		StorageService,
+		UiUtilsService,
+		MessageService,
+		OrganizationService,
+		CatalogService,
+		TreeService,
+		PlanService,
 		CopyTreeService,
 		AttributeService,
 		LocationService,
 		ImageService,
 		LoadingService,
-        CanDeactivateGuard,
-        { provide: ErrorHandler, useClass: PhdErrorHandler }
-    ],
-    entryComponents: [ConfirmModalComponent]
+		CanDeactivateGuard,
+		ModalService,
+		{ provide: ErrorHandler, useClass: PhdErrorHandler }
+	],
+	entryComponents: [ConfirmModalComponent]
 })
 export class CoreModule { }

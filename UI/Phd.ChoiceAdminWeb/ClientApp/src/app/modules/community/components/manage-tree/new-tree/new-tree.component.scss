@@ -1,0 +1,25 @@
+.phd-newTree-label {
+	display: inline-block;
+
+	> input, > label {
+		cursor: pointer;
+		font-weight: bold;
+	}
+}
+
+.phd-newTree-field {
+	padding-left: 1.25em;
+
+	&.phd-newTree-or {
+		margin: .5em 0;
+		font-weight: bold;
+	}
+}
+
+.phd-newTree-warning {
+	font-size: 14px;
+
+	span {
+		font-weight: bold;
+	}
+}

@@ -58,6 +58,7 @@
     <None Remove="ClientApp\src\app\modules\community\components\manage-tree-options\option-location\option-location.component.ts" />
     <None Remove="ClientApp\src\app\modules\community\components\manage-tree\index.ts" />
     <None Remove="ClientApp\src\app\modules\community\components\manage-tree\manage-tree.component.ts" />
+    <None Remove="ClientApp\src\app\modules\community\components\manage-tree\new-tree\new-tree.component.ts" />
     <None Remove="ClientApp\src\app\modules\community\components\message-bar\message-bar.component.ts" />
     <None Remove="ClientApp\src\app\modules\community\components\messages-side-panel\messages-side-panel.component.ts" />
     <None Remove="ClientApp\src\app\modules\core\components\navigation-bar\navigation-bar.component.ts" />
@@ -71,6 +72,7 @@
     <None Remove="ClientApp\src\app\modules\core\services\image.service.ts" />
     <None Remove="ClientApp\src\app\modules\core\services\location.service.ts" />
     <None Remove="ClientApp\src\app\modules\core\services\logging.service.ts" />
+    <None Remove="ClientApp\src\app\modules\core\services\modal.service.ts" />
     <None Remove="ClientApp\src\app\modules\core\services\national.service.ts" />
     <None Remove="ClientApp\src\app\modules\core\services\plan-option.service.ts" />
     <None Remove="ClientApp\src\app\modules\core\services\plan.service.ts" />
@@ -105,6 +107,7 @@
     <None Remove="ClientApp\src\app\modules\national\national.module.ts" />
     <None Remove="ClientApp\src\app\modules\shared\classes\component-can-nav-away.class.ts" />
     <None Remove="ClientApp\src\app\modules\shared\classes\encode.class.ts" />
+    <None Remove="ClientApp\src\app\modules\shared\classes\modal.class.ts" />
     <None Remove="ClientApp\src\app\modules\shared\classes\utils.class.ts" />
     <None Remove="ClientApp\src\app\modules\shared\components\action-buttons-item\action-buttons-item.component.ts" />
     <None Remove="ClientApp\src\app\modules\shared\components\choice-selector\choice-selector.component.ts" />
@@ -153,6 +156,7 @@
     <TypeScriptCompile Include="ClientApp\src\app\modules\community\components\manage-tree\index.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\modules\community\components\manage-tree\manage-tree.component.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\modules\community\community.module.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\modules\community\components\manage-tree\new-tree\new-tree.component.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\modules\community\components\message-bar\message-bar.component.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\modules\community\components\messages-side-panel\messages-side-panel.component.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\modules\core\components\navigation-bar\navigation-bar.component.ts" />
@@ -166,6 +170,7 @@
     <TypeScriptCompile Include="ClientApp\src\app\modules\core\services\image.service.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\modules\core\services\location.service.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\modules\core\services\logging.service.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\modules\core\services\modal.service.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\modules\core\services\national.service.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\modules\core\services\plan-option.service.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\modules\core\services\plan.service.ts" />
@@ -188,9 +193,9 @@
     <TypeScriptCompile Include="ClientApp\src\app\modules\divisional\components\divisional-catalog-wizard\step-3\divisional-catalog-wizard-step3.component.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\modules\divisional\components\divisional-catalog-wizard\step-4\divisional-catalog-wizard-step4.component.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\modules\divisional\components\divisional-catalog\choice-side-panel\choice-side-panel.component.ts" />
-	<TypeScriptCompile Include="ClientApp\src\app\modules\divisional\components\divisional-catalog\divisional-catalog.component.ts" />
-	<TypeScriptCompile Include="ClientApp\src\app\modules\divisional\components\divisional-catalog\point-side-panel\point-side-panel.component.ts" />
-	<TypeScriptCompile Include="ClientApp\src\app\modules\divisional\components\divisional-catalog\point-type\point-type.component.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\modules\divisional\components\divisional-catalog\divisional-catalog.component.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\modules\divisional\components\divisional-catalog\point-side-panel\point-side-panel.component.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\modules\divisional\components\divisional-catalog\point-type\point-type.component.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\modules\divisional\components\divisional\divisional.component.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\modules\divisional\divisional.module.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\modules\national\components\national-catalog-reactivate\national-catalog-reactivate.component.ts" />
@@ -200,6 +205,7 @@
     <TypeScriptCompile Include="ClientApp\src\app\modules\national\national.module.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\modules\shared\classes\component-can-nav-away.class.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\modules\shared\classes\encode.class.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\modules\shared\classes\modal.class.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\modules\shared\classes\utils.class.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\modules\shared\components\action-buttons-item\action-buttons-item.component.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\modules\shared\components\choice-selector\choice-selector.component.ts" />

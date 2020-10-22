@@ -7,3 +7,4 @@ export { TreeSidePanelComponent } from './tree-side-panel/tree-side-panel.compon
 export { TreeTableComponent } from './tree-table/tree-table.component';
 export { AssociateAttributeGroupComponent } from './associate-attribute-groups/associate-attribute-groups.component';
 export { AssociateLocationGroupComponent } from './associate-location-groups/associate-location-groups.component';
+export { NewTreeComponent } from './new-tree/new-tree.component';
