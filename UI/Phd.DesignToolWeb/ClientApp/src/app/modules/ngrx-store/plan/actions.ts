@@ -17,7 +17,7 @@ export enum PlanActionTypes {
 export class LoadPlans implements Action {
     readonly type = PlanActionTypes.LoadPlans;
 
-    constructor(public salesCommunityId: number) { }
+	constructor(public salesCommunityId: number, public selectedPlanPrice?: { planId: number, listPrice: number }) { }
 }
 
 export class PlansLoaded implements Action {
