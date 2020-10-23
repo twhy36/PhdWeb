@@ -381,6 +381,8 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 			return { ...state, scenario: { ...state.scenario, lotId: action.lotId, handing: action.handing }, lotPremium: action.premium, isGanked: false };
 		case ScenarioActionTypes.SetScenarioLotHanding:
 			return { ...state, scenario: { ...state.scenario, handing: action.handing } };
+		case ScenarioActionTypes.SetScenarioName:
+			return { ...state, scenario: { ...state.scenario, scenarioName: action.scenarioName } };
 		case ScenarioActionTypes.SaveScenario:
 			return { ...state, savingScenario: true };
 		case ScenarioActionTypes.ScenarioSaved:

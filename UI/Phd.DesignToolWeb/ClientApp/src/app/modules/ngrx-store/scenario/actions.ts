@@ -38,6 +38,7 @@ export enum ScenarioActionTypes
 	SetScenarioLot = 'Set Scenario Lot',
 	SetScenarioLotHanding = 'Set Scenario Lot Handing',
 	SetScenarioPlan = 'Set Scenario Plan',
+	SetScenarioName = 'Set Scenario Name',
 	SetTreeFilter = 'Set Tree filter',
 	TreeLoaded = 'Tree Loaded',
 	TreeLoadedFromJob = 'Tree Loaded From Job',
@@ -125,6 +126,12 @@ export class SetScenarioLotHanding implements Action
 	readonly type = ScenarioActionTypes.SetScenarioLotHanding;
 
 	constructor(public handing: ChangeOrderHanding) { }
+}
+
+export class SetScenarioName implements Action {
+	readonly type = ScenarioActionTypes.SetScenarioName;
+
+	constructor(public scenarioName: string) { }
 }
 
 export class SaveScenario implements Action
@@ -256,6 +263,7 @@ export type ScenarioActions =
 	SetScenarioLot |
 	SetScenarioLotHanding |
 	SetScenarioPlan |
+	SetScenarioName |
 	SetTreeFilter |
 	TreeLoaded |
 	TreeLoadedFromJob |

@@ -16,6 +16,7 @@ import { flipOver } from '../../../shared/classes/animations.class';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromOpportunity from '../../../ngrx-store/opportunity/reducer';
+import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 import * as NavActions from '../../../ngrx-store/nav/actions';
@@ -40,9 +41,13 @@ export class NameScenarioComponent extends UnsubscribeOnDestroy implements OnIni
 	loadingOpportunity: boolean;
 	opportunityId: string;
 	scenarioName: string = "";
+	scenarioId: number = 0;
+	scenarioHasSalesAgreement: boolean;
 	isTablet$: Observable<boolean>;
 	canConfigure: boolean;
 	isDuplicateScenarioName: boolean = false;
+	scenarioNameInput: string = "";
+
 	private noOppInRoute = false;
 
 	@ViewChild('content') content;
@@ -59,10 +64,16 @@ export class NameScenarioComponent extends UnsubscribeOnDestroy implements OnIni
 		this.isTablet$ = this.browserService.isTablet();
 		this.store.pipe(
 			this.takeUntilDestroyed(),
-			select(state => state.scenario.scenario)
-		).subscribe(scenario =>
+			select(state => state.scenario.scenario),
+			combineLatest(
+				this.store.pipe(select(fromScenario.scenarioHasSalesAgreement))
+			)
+		).subscribe(([scenario, hasAgreement]) =>
 		{
 			this.scenarioName = scenario && scenario.scenarioName.length ? scenario.scenarioName : '';
+			this.scenarioNameInput = this.scenarioName;
+			this.scenarioId = scenario ? scenario.scenarioId : 0;
+			this.scenarioHasSalesAgreement = hasAgreement;
 		});
 
 		this.store.pipe(
@@ -96,22 +107,20 @@ export class NameScenarioComponent extends UnsubscribeOnDestroy implements OnIni
 	createForm()
 	{
 		this.scenarioForm = new FormGroup({
-			'scenarioName': new FormControl(this.scenarioName,
+			'scenarioName': new FormControl(this.scenarioNameInput,
 				[Validators.maxLength(100), Validators.required])
 		});
 	}
 
 	createScenario()
 	{
-		const scenarioName = this.scenarioForm.get('scenarioName').value.trim();
-
-		if (scenarioName.length > 0 && scenarioName !== this.scenarioName)
+		if (this.scenarioNameInput.length > 0 && this.scenarioNameInput !== this.scenarioName)
 		{
 			this.nameCheckComplete = false;
 
 			this.store.pipe(
 				select(fromOpportunity.opportunityId),
-				switchMap(oppId => this.scenarioService.isScenarioNameUsed(scenarioName, oppId)),
+				switchMap(oppId => this.scenarioService.isScenarioNameUsed(this.scenarioNameInput, oppId)),
 				switchMap(isNameUsed =>
 				{
 					this.nameCheckComplete = true;
@@ -138,15 +147,22 @@ export class NameScenarioComponent extends UnsubscribeOnDestroy implements OnIni
 				})
 			).subscribe(opp =>
 			{
-				this.store.dispatch(new ScenarioActions.CreateScenario(opp.toString(), scenarioName));
+				if (!this.scenarioId && !this.scenarioName) {
+					this.store.dispatch(new ScenarioActions.CreateScenario(opp.toString(), this.scenarioNameInput));
 
-				this.store.dispatch(new NavActions.SetSubNavItemStatus(1, PointStatus.COMPLETED));
-				this.store.dispatch(new NavActions.SetSubNavItemStatus(2, PointStatus.REQUIRED));
-				this.store.dispatch(new NavActions.SetSubNavItemStatus(3, PointStatus.REQUIRED));
-				this.store.dispatch(new NavActions.SetSubNavItemStatus(4, PointStatus.REQUIRED));
-				this.store.dispatch(new NavActions.SetSelectedSubNavItem(2));
+					this.store.dispatch(new NavActions.SetSubNavItemStatus(1, PointStatus.COMPLETED));
+					this.store.dispatch(new NavActions.SetSubNavItemStatus(2, PointStatus.REQUIRED));
+					this.store.dispatch(new NavActions.SetSubNavItemStatus(3, PointStatus.REQUIRED));
+					this.store.dispatch(new NavActions.SetSubNavItemStatus(4, PointStatus.REQUIRED));
+					this.store.dispatch(new NavActions.SetSelectedSubNavItem(2));
 
-				this.router.navigate([this.noOppInRoute ? '..' : '../..', 'plan'], { relativeTo: this.activatedRoute });
+					this.router.navigate([this.noOppInRoute ? '..' : '../..', 'plan'], { relativeTo: this.activatedRoute });
+				} else if (!this.scenarioId) {
+					this.store.dispatch(new ScenarioActions.SetScenarioName(this.scenarioNameInput));
+				} else {
+					this.store.dispatch(new ScenarioActions.SetScenarioName(this.scenarioNameInput));
+					this.store.dispatch(new ScenarioActions.SaveScenario());
+				}
 			});
 		}
 	}
@@ -154,5 +170,9 @@ export class NameScenarioComponent extends UnsubscribeOnDestroy implements OnIni
 	onKey()
 	{
 		this.isDuplicateScenarioName = false;
+	}
+
+	get subTitle() : string {
+		return this.scenarioHasSalesAgreement ? "" : "Enter a unique name for this customer's configuration";
 	}
 }

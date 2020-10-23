@@ -8,21 +8,24 @@
 }
 
 .phd-scenario-name-btn {
-    background-color: #073e59;
-    text-transform: uppercase;
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-    height: 60px;
-    width: 170px;
-    font-size: 16px;
-    &:hover {
-        background-color: #1a5e80;
-        border-color: #1a5e80;
-    }
-    &:active {
-        background-color: #073e59;
-        border-color: #1a5e80;
-    }
+	background-color: #073e59;
+	text-transform: uppercase;
+	border-top-left-radius: 0;
+	border-bottom-left-radius: 0;
+	height: 60px;
+	width: 170px;
+	font-size: 16px;
+
+	&:hover:enabled {
+		background-color: #1a5e80;
+		border-color: #1a5e80;
+		cursor: pointer;
+	}
+
+	&:active:enabled {
+		background-color: #073e59;
+		border-color: #1a5e80;
+	}
 }
 
 .phd-scenario-name-input {
@@ -32,6 +35,12 @@
     font-size: 18px;
     font-weight: bold;
     width: 460px;
+}
+
+.phd-scenario-name-label {
+	font-size: 28px;
+	font-weight: bold;
+	margin-top: 50px;
 }
 
 .form-group .ng-invalid:not(form):not(.ng-pristine) {
