@@ -206,4 +206,5 @@ export function reducer(state: State = initialState, action: JobActions): State
 
 export const jobState = createFeatureSelector<State>('job');
 export const specJobs = createSelector(jobState, (state) => state.specJobs);
-export const isCancelled = createSelector(jobState, (job) => job.changeOrderGroups && job.changeOrderGroups.length ? job.changeOrderGroups[0].jobChangeOrderGroupDescription === 'Cancellation' : false);
+export const isCancelled = createSelector(jobState, (job) => 
+	job.changeOrderGroups && job.changeOrderGroups.length ? job.changeOrderGroups[0].jobChangeOrderGroupDescription === 'Cancellation' && !((<any>job.changeOrderGroups[0]).jobChangeOrderGroupSalesAgreementAssocs || []).length : false);

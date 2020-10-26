@@ -22,8 +22,18 @@ export class PlanEffects
 	loadPlans$: Observable<Action> = this.actions$.pipe(
 		ofType<LoadPlans>(PlanActionTypes.LoadPlans),
 		tryCatch(source => source.pipe(
-			switchMap(action => this.planService.loadPlans(action.salesCommunityId)),
-			switchMap(plans => of(new PlansLoaded(plans)))
+			switchMap(action => this.planService.loadPlans(action.salesCommunityId).pipe(
+				map(plans => {
+					if (action.selectedPlanPrice) {
+						let plan = plans.find(p => p.id === action.selectedPlanPrice.planId);
+						if (plan) {
+							plan.price = action.selectedPlanPrice.listPrice;
+						}
+					}
+					return plans;
+				})
+			)),
+			map(plans => new PlansLoaded(plans))
 		), LoadError, "Error loading plan!!")
 	);
 
