@@ -19,15 +19,12 @@
 [Rr]eleases/
 x64/
 x86/
-build/
+# build/
 bld/
 bin/
 Bin/
 obj/
 Obj/
-
-# keep the pdf-js build folder
-!pdfjs-dist/build
 
 # Visual Studio 2015 cache/options directory
 .vs/
