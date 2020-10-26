@@ -512,11 +512,18 @@ export class CommonEffects
 				{
 					//make sure base price is locked in.
 					let baseHouseOption = result.job.jobPlanOptions.find(o => o.jobOptionTypeName === 'BaseHouse');
-					let selectedPlanPrice = { planId: result.selectedPlanId, listPrice: baseHouseOption ? baseHouseOption.listPrice : 0 };
-					if (result.changeOrder && result.changeOrder.salesStatusDescription !== 'Pending') {
-						let co = result.changeOrder.jobChangeOrders.find(co => co.jobChangeOrderPlanOptions && co.jobChangeOrderPlanOptions.some(po => po.integrationKey === '00001' && po.action === 'Add'));
-						if (co) {
-							selectedPlanPrice.listPrice = co.jobChangeOrderPlanOptions.find(po => po.action === 'Add' && po.integrationKey === '00001').listPrice;
+					let selectedPlanPrice: { planId: number, listPrice: number } = null;
+
+					if (['OutforSignature', 'Signed', 'Approved'].indexOf(result.salesAgreement.status) !== -1) {
+						if (baseHouseOption) {
+							selectedPlanPrice = { planId: result.selectedPlanId, listPrice: baseHouseOption ? baseHouseOption.listPrice : 0 };
+						}
+
+						if (result.changeOrder && result.changeOrder.salesStatusDescription !== 'Pending') {
+							let co = result.changeOrder.jobChangeOrders.find(co => co.jobChangeOrderPlanOptions && co.jobChangeOrderPlanOptions.some(po => po.integrationKey === '00001' && po.action === 'Add'));
+							if (co) {
+								selectedPlanPrice.listPrice = co.jobChangeOrderPlanOptions.find(po => po.action === 'Add' && po.integrationKey === '00001').listPrice;
+							}
 						}
 					}
 
