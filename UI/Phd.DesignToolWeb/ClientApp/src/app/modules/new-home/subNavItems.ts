@@ -1,10 +1,10 @@
 import { PointStatus } from '../shared/models/point.model';
 
 export const SubNavItems: Array<{ label: string, status: any, id: number }> = [
-	{ label: "Create New Configuration", status: PointStatus.REQUIRED, id: 1 },
-	{ label: "Quick Move-ins", status: PointStatus.CONFLICTED, id: 4 },
+	{ label: "Configuration Name", status: PointStatus.REQUIRED, id: 1 },
 	{ label: "Choose Plan", status: PointStatus.CONFLICTED, id: 2 },
-	{ label: "Choose Lot", status: PointStatus.CONFLICTED, id: 3 }
+	{ label: "Choose Lot", status: PointStatus.CONFLICTED, id: 3 },
+	{ label: "Quick Move-ins", status: PointStatus.CONFLICTED, id: 4 }
 ];
 
 export const SpecSubNavItems: Array<{ label: string, status: any, id: number }> = [
