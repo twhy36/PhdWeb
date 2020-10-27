@@ -63,6 +63,14 @@ namespace Phd.WebHost
                     spa.Options.DefaultPage = "/salesportal/index.html";
                 });
             });
+
+            app.Map("/homedesigner", app1 => 
+            {
+                app1.UseSpa(spa => 
+                {
+                    spa.Options.DefaultPage = "/homedesigner/index.html";
+                });
+            });
         }
     }
 }
