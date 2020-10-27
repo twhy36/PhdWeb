@@ -25,15 +25,16 @@
 		<h2 *ngIf="showNav" class="col-6 justify-content-center text-center my-5">Let's start</h2>
 	</div>
 	<div *ngIf="showNav" class="phd-tabs">
-		<a *ngIf="buildMode != 'spec' && buildMode != 'model'" class="phd-selection"
-		   [ngClass]="{'active': this.active === 'quick'}"
-		   (click)="navigateToQuickMoveIn()">Quick Move-in</a>
 		<a class="phd-selection justify-content-center"
 		   [ngClass]="{'active': this.active === 'plan'}"
 		   (click)="navigateToPlans()">Plans</a>
 		<a class="phd-selection"
 		   [ngClass]="{'active': this.active === 'lot'}"
 		   (click)="navigateToLots()">Lots</a>
+		<a *ngIf="buildMode != 'spec' && buildMode != 'model'"
+		   class="phd-selection"
+		   [ngClass]="{'active': this.active === 'quick'}"
+		   (click)="navigateToQuickMoveIn()">Quick Move-in</a>
 	</div>
 	<div class="phd-content">
 		<router-outlet></router-outlet>
