@@ -4,7 +4,7 @@
 
 <portal-item title="Buyer Tracker" icon="tasks" [action]="buyerTrackerAction"></portal-item>
 
-<portal-item title="Pulte Home Designer - Create Spec or Model Homes" icon="home" *requiresClaim="'SalesAgreements'; permission: Permission.Approve" #spec>
+<portal-item title="Pulte Home Designer - Create Spec or Model Homes" icon="home" *requiresClaim="'SpecOrModel'; permission: Permission.Create" #spec>
 	<ng-template>
 		<spec-homes [action]="specAction" (onClose)="spec.close()"></spec-homes>
 	</ng-template>
@@ -16,7 +16,7 @@
 <portal-item title="Reporting" [action]="salesTallyAction" icon="chart-pie" *ngIf="!canAccessReports"></portal-item>
 
 <!-- If user has acccess to PHD Reports, show modal where they can select where they want to go -->
-<portal-item title="Reporting"  icon="chart-pie" *ngIf="canAccessReports" #reporting>
+<portal-item title="Reporting" icon="chart-pie" *ngIf="canAccessReports" #reporting>
 	<ng-template>
 		<reporting [action]="reportsAction" (onClose)="reporting.close()"></reporting>
 	</ng-template>
