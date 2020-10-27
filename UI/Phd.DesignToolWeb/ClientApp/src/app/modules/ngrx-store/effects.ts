@@ -522,7 +522,7 @@ export class CommonEffects
 						if (result.changeOrder && result.changeOrder.salesStatusDescription !== 'Pending') {
 							let co = result.changeOrder.jobChangeOrders.find(co => co.jobChangeOrderPlanOptions && co.jobChangeOrderPlanOptions.some(po => po.integrationKey === '00001' && po.action === 'Add'));
 							if (co) {
-								selectedPlanPrice.listPrice = co.jobChangeOrderPlanOptions.find(po => po.action === 'Add' && po.integrationKey === '00001').listPrice;
+								selectedPlanPrice = { planId: result.selectedPlanId, listPrice: co.jobChangeOrderPlanOptions.find(po => po.action === 'Add' && po.integrationKey === '00001').listPrice };
 							}
 						}
 					}
