@@ -31,6 +31,7 @@ export class DistributionListComponent extends UnsubscribeOnDestroy implements O
 	@Input() currentEnvelopeID: any;
 
 	distributionList: DistributionListItem[] = [];
+	recipients: IESignRecipient[] = [];
 
 	distributionForm: FormGroup;
 	salesAgreementId: number;
@@ -139,6 +140,26 @@ export class DistributionListComponent extends UnsubscribeOnDestroy implements O
 				this.addControl(dListItem);
 
 				this.distributionList.push(dListItem);
+
+				// Add carbon copy recipients
+				var splitRecipients = eSign.defaultEmailForSignedCopies.split(';');
+
+				let carbonCopyRecipientID = 11;
+
+				splitRecipients.forEach(splitRecipient =>
+				{
+					if (splitRecipient)
+					{
+						let recipientObj = {} as IESignRecipient;
+
+						recipientObj.id = carbonCopyRecipientID++;
+						recipientObj.email = splitRecipient;
+						recipientObj.name = "Default Copy";
+						recipientObj.role = ESignRecipientRoles.carbonCopyRecipient.toString();
+
+						this.recipients.push(recipientObj);
+					}
+				});
 			}
 		});
 	}
@@ -239,7 +260,7 @@ export class DistributionListComponent extends UnsubscribeOnDestroy implements O
 			item.email = this.distributionForm.controls[item.emailFormKey].value;
 		});
 
-		let recipients = this.distributionList.map(item =>
+		this.distributionList.forEach(item =>
 		{
 			let recipient = {
 				id: item.id,
@@ -248,10 +269,10 @@ export class DistributionListComponent extends UnsubscribeOnDestroy implements O
 				role: item.role.toString()
 			} as IESignRecipient
 
-			return recipient;
+			this.recipients.push(recipient);
 		});
 
-		return recipients;
+		return this.recipients;
 	}
 
 	getPlaceholder(label: string)
