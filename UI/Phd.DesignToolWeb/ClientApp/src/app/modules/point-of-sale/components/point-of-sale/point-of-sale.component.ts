@@ -2,7 +2,7 @@ import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, ViewChil
 import { Router, ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
 import { Observable, of } from 'rxjs';
-import { map, combineLatest, filter, switchMap, distinctUntilChanged } from 'rxjs/operators';
+import { map, combineLatest, filter, switchMap, distinctUntilChanged, take } from 'rxjs/operators';
 import { Store, select } from '@ngrx/store';
 
 import * as _ from 'lodash';
@@ -26,6 +26,8 @@ import { SignAgreementComponent } from '../sign-agreement/sign-agreement.compone
 import { ConfirmModalComponent } from '../../../core/components/confirm-modal/confirm-modal.component';
 import { ModalService } from '../../../core/services/modal.service';
 import { ModalRef } from '../../../shared/classes/modal.class';
+import { Actions, ofType } from '@ngrx/effects';
+import * as CommonActions from '../../../ngrx-store/actions';
 
 type ActionBarStatusType = 'INCOMPLETE' | 'COMPLETE' | 'DISABLED';
 
@@ -39,8 +41,10 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	@ViewChild('content') content: any;
 	@ViewChild('cancelAgreement') cancelAgreementTemplate: any;
+	@ViewChild('terminateAgreement') terminateAgreementTemplate: any;
 	@ViewChild('salesConsultant') salesConsultant: any;
 
+	displaySaveAndView: boolean = false;
 	isChangingOrder: boolean;
 	waitingForPdf = false;
 	salesAgreementActionBarStatus$: Observable<ActionBarStatusType>;
@@ -75,7 +79,8 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 		private _activatedRoute: ActivatedRoute,
 		private _location: Location,
 		private elRef: ElementRef,
-		private renderer: Renderer2
+		private renderer: Renderer2,
+		private _actions$: Actions
 	)
 	{
 		super();
@@ -333,7 +338,14 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 
 				break;
 			case (ActionBarCallType.TERMINATION_AGREEMENT):
-				this.generateHPA(ESignTypeEnum.TerminationAgreement);
+				this.terminateAgreement();
+
+				this._actions$.pipe(
+					ofType<SalesAgreementActions.SalesAgreementTerminated>(SalesAgreementActions.SalesAgreementActionTypes.SalesAgreementTerminated),
+					take(1)).subscribe(() =>
+					{
+						this.generateHPA(ESignTypeEnum.TerminationAgreement);
+					});
 
 				break;
 		}
@@ -452,6 +464,8 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 
 	async cancelAgreement()
 	{
+		this.displaySaveAndView = false;
+
 		const confirmMessage: string = 'You have opted to cancel this Home Purchase Agreement. Confirming to do so will result in the loss of this agreement and corresponding home configuration, and the Homesite will become available for others to select.<br><br>Do you wish to proceed with the cancellation?';
 		const confirmTitle: string = 'Cancel Agreement';
 		const confirmDefaultOption: string = 'Cancel';
@@ -460,6 +474,21 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 
 		if (await this.showConfirmModal(confirmMessage, confirmTitle, confirmDefaultOption, primaryButton, secondaryButton))
 		{
+			this.modalReference = this.modalService.open(this.cancelAgreementTemplate, { windowClass: 'phd-cancel-agreement', keyboard: false });
+		}
+	}
+
+	async terminateAgreement()
+	{
+		this.displaySaveAndView = true;
+
+		const confirmMessage: string = 'You have opted to terminate this Home Purchase Agreement. <br><br>Do you wish to proceed with the termination?';
+		const confirmTitle: string = 'Termination Agreement';
+		const confirmDefaultOption: string = 'Cancel';
+		const primaryButton = { hide: false, text: 'Yes' };
+		const secondaryButton = { hide: false, text: 'No' };
+
+		if (await this.showConfirmModal(confirmMessage, confirmTitle, confirmDefaultOption, primaryButton, secondaryButton)) {
 			this.modalReference = this.modalService.open(this.cancelAgreementTemplate, { windowClass: 'phd-cancel-agreement', keyboard: false });
 		}
 	}

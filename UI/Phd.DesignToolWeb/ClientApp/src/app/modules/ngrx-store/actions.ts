@@ -7,7 +7,7 @@ import { PlanOption } from '../shared/models/option.model';
 import { SalesCommunity } from '../shared/models/community.model';
 import { OpportunityContactAssoc } from '../shared/models/opportunity.model';
 import { Stopwatch } from './stopwatch';
-import { SalesAgreement, SalesAgreementInfo } from '../shared/models/sales-agreement.model';
+import { SalesAgreement, SalesAgreementInfo, SalesAgreementCancelInfo } from '../shared/models/sales-agreement.model';
 import { Job, JobChoice } from '../shared/models/job.model';
 import { ChangeOrderGroup, ChangeOrderHanding } from '../shared/models/job-change-order.model';
 import { ESignEnvelope } from '../shared/models/esign-envelope.model';

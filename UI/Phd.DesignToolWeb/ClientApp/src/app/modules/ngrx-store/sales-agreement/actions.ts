@@ -77,7 +77,14 @@ export enum SalesAgreementActionTypes
 	// Sales Agreement Info
 	SaveSalesAgreementInfoNA = 'Save Sales Agreement Info NA',
 	SalesAgreementInfoNASaved = 'Sales Agreement Info NA Saved',
-	SalesAgreementInfoViewed = 'Sales Agreement Info Viewed'
+	SalesAgreementInfoViewed = 'Sales Agreement Info Viewed',
+	SalesAgreementTerminated = 'Sales Agreement Terminated'
+}
+
+export class SalesAgreementTerminated implements Action {
+	readonly type = SalesAgreementActionTypes.SalesAgreementTerminated;
+
+	constructor(public cancelReason: SalesAgreementCancelInfo) { }
 }
 
 export class SalesAgreementInfoViewed implements Action {
@@ -545,4 +552,5 @@ export type SalesAgreementActions =
 	SalesConsultantsSaved |
 	SaveSalesAgreementInfoNA |
 	SalesAgreementInfoNASaved |
-	SalesAgreementInfoViewed;
+	SalesAgreementInfoViewed |
+	SalesAgreementTerminated;

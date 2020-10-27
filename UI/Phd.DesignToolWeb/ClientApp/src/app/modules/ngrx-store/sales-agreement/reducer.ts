@@ -300,6 +300,8 @@ export function reducer(state: State = initialState, action: SalesAgreementActio
 			return { ...state, savingSpecHome: true };
 		case SalesAgreementActionTypes.JIOForSpecCreated:
 			return { ...state, savingSpecHome: false };
+		case SalesAgreementActionTypes.SalesAgreementTerminated:
+			return { ...state, cancellations: action.cancelReason, savingSalesAgreement: false, saveError: false, isUnsaved: false };
 		case CommonActionTypes.SalesAgreementCancelled:
 			// Set lastModifiedDate to current datetime UTC. The last modified date on Sales Agreement record is not always updated
 			// by the time the API call returns. There seems to be a delay, but the record does get updated properly

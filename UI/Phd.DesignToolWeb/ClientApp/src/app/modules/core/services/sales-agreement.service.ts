@@ -500,7 +500,7 @@ export class SalesAgreementService
 		const endpoint = environment.apiUrl + entity;
 		const method = newNote.id ? 'patch' : 'post';
 
-		return this._http[method](endpoint, newNote, { headers: { 'Prefer': 'return=representation' } }).pipe(
+		return withSpinner(this._http)[method](endpoint, newNote, { headers: { 'Prefer': 'return=representation' } }).pipe(
 			map((dto: Note) => new Note(dto)),
 			catchError(error =>
 			{
@@ -658,7 +658,7 @@ export class SalesAgreementService
 			noteId: noteId
 		};
 
-		return this._http.post(endpoint, data, { headers: { 'Prefer': 'return=representation' } }).pipe(
+		return withSpinner(this._http).post(endpoint, data, { headers: { 'Prefer': 'return=representation' } }).pipe(
 			map((dto: ISalesAgreementCancelInfo) =>
 			{
 				let cancelInfo = new SalesAgreementCancelInfo(dto);

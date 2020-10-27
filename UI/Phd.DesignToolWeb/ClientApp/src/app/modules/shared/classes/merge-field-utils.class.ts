@@ -175,6 +175,8 @@ export function mapSystemMergeFields(sag: SalesAgreement, job: Job, elevationDp:
 		sagCancelDate = new Date(sag.statusUtcDate);
 	}
 
+	sagCancelReason = sag.cancellations ? sag.cancellations.cancelReasonDesc : null;
+	sagCancelDetail = sag.cancellations && sag.cancellations.note ? sag.cancellations.note.noteContent : null;
 	const salesProgram = sag.programs && sag.programs.find(p => p.salesProgram.salesProgramType === "DiscountFlatAmount");
 	const buyerClosingCost = sag.programs && sag.programs.find(p => p.salesProgram.salesProgramType === "BuyersClosingCost");
 	const elevationChoice = elevationDp && elevationDp.choices.find(c => c.quantity > 0);

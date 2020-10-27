@@ -38,7 +38,7 @@
 </ng-template>
 
 <ng-template #cancelAgreement let-c="close" let-d="dismiss">
-	<cancel-agreement (close)="closeModal()"></cancel-agreement>
+	<cancel-agreement [displaySaveAndView]="displaySaveAndView" [agreement]="salesAgreement" (close)="closeModal()"></cancel-agreement>
 </ng-template>
 
 <ng-template #salesConsultant let-c="close" let-d="dismiss">

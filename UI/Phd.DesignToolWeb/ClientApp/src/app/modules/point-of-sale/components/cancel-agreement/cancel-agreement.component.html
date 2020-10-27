@@ -1,5 +1,5 @@
 <div class="modal-header">
-	<span class="modal-title">Cancel Agreement</span>
+	<span class="modal-title"> {{ displaySaveAndView ? 'Termination Agreement' : 'Cancel Agreement'}}</span>
 	<button type="button" class="close" aria-label="Close" (click)="closeClicked()">
 		<span aria-hidden="true">&times;</span>
 	</button>
@@ -28,13 +28,15 @@
 </div>
 
 <div class="modal-footer">
-	<button class="btn btn-primary" (click)="cancelAgreement('Spec');" [disabled]="disableButtons">
+	<button class="btn btn-primary" *ngIf="!displaySaveAndView" (click)="cancelAgreement('Spec');" [disabled]="disableButtons">
 		{{ revertToSpecBtnName }}
 	</button>
 
-	<button class="btn btn-primary" (click)="cancelAgreement('Dirt');" [disabled]="disableButtons" *ngIf="constructionStageName == 'Configured'">
+	<button class="btn btn-primary" (click)="cancelAgreement('Dirt');" [disabled]="disableButtons" *ngIf="constructionStageName == 'Configured' && !displaySaveAndView">
 		Revert To Dirt
 	</button>
 
 	<button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
+
+	<button type="button" class="btn btn-primary" *ngIf="displaySaveAndView" (click)="saveAndViewAgreement()" [disabled]="disableButtons">Save and View</button>
 </div>

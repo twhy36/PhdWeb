@@ -329,6 +329,7 @@ export class SalesAgreementCancelInfo
 			this.salesAgreementId = dto.salesAgreementId;
 			this.cancelReasonDesc = dto.cancelReasonDesc;
 			this.noteId = dto.noteId;
+			this.note = dto.note;
 		}
 	}
 }
@@ -337,7 +338,8 @@ export interface ISalesAgreementCancelInfo
 {
 	salesAgreementId: number;
 	cancelReasonDesc: string;
-	noteId: number;
+	noteId?: number;
+	note?: Note;
 }
 
 export enum SalesAgreementCancelReason
