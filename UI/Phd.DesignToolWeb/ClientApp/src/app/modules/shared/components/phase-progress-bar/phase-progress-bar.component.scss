@@ -19,18 +19,6 @@
 		transition: all .3s;
 	}
 
-	.phd-phase-bar-header {
-		align-items: flex-end;
-		display: flex;
-		font-size: 12px;
-		font-weight: 500;
-		height: 50px;
-		justify-content: space-around;
-		padding-bottom: 7px;
-		padding-top: 7px;
-		white-space: nowrap;
-	}
-
 	&.closed {
 		min-width: 0px;
 		width: 0px;

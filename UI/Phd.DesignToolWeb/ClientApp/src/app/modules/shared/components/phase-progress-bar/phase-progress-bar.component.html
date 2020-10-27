@@ -1,7 +1,4 @@
 <nav [class.closed]="items?.length === 0" id="phd-phase-bar" class="sidebar">
-	<div class="phd-phase-bar-header" *ngIf="!(isTablet$ | async)">
-		PHASE PROGRESS
-	</div>
 
 	<ul id="phase-items" [ngClass]="!(isTablet$ | async) ? 'list-unstyled d-flex flex-column align-items-center justify-content-around' : 'list-unstyled d-flex flex-row align-items-center justify-content-center responsive-phase-items'" *ngIf="showItems">
 		<li *ngFor="let phaseItem of items" (click)="onSubGroupClick(phaseItem)" [class.active-link]="selectedItem === phaseItem?.id"
