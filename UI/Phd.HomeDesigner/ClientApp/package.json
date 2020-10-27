@@ -1,10 +1,10 @@
 {
-  "name": "Phd.DesignPreview",
+  "name": "Phd.HomeDesigner",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
     "start": "ng serve --base-href=/ --port 14765",
-    "build": "ng build --base-href=/designpreview/ --aot=true --output-hashing=all --verbose=true",
+    "build": "ng build --base-href=/homedesigner/ --aot=true --output-hashing=all --verbose=true",
     "build:ssr": "npm run build -- --app=ssr --output-hashing=media",
     "test": "ng test",
     "lint": "ng lint",
