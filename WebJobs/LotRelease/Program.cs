@@ -20,6 +20,8 @@ namespace LotRelease
 
         private static async Task UpdateReleases()
         {
+            throw new Exception();
+
             IConfigurationRoot configuration;
 
             var builder = new ConfigurationBuilder()
