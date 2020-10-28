@@ -15,25 +15,8 @@ namespace LotRelease
         public string LastModifiedBy { get; set; }
         [DataMember(Name = "lastModifiedUtcDate")]
         public DateTime LastModifiedUtcDate { get; set; }
-
-        [IgnoreDataMember]
-        public LotBuildTypeEnum? LotBuildTypeDesc { get; set; }
-
         [DataMember(Name = "lotBuildTypeDesc")]
-        public string LotBuildTypeStr
-        {
-            get
-            {
-                return LotBuildTypeDesc != null ? LotBuildTypeDesc.ToString() : null;
-            }
-            set
-            {
-                if (value != null)
-                {
-                    LotBuildTypeDesc = Enum.Parse<LotBuildTypeEnum>(value);
-                }
-            }
-        }
+        public LotBuildTypeEnum? LotBuildTypeDesc { get; set; }
     }
 
     public enum LotStatusEnum
@@ -44,6 +27,8 @@ namespace LotRelease
 
     public enum LotBuildTypeEnum
     {
-        Dirt
+        Dirt,
+        Spec,
+        Model
     }
 }
