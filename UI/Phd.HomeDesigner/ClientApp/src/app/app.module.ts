@@ -19,7 +19,7 @@ const appRoutes: Routes = [
 
 const setTitle = (titleService: Title) => {
     return () => {
-        titleService.setTitle("Pulte Design Preview");
+        titleService.setTitle("Pulte Home Designer");
         return Promise.resolve();
     }
 }

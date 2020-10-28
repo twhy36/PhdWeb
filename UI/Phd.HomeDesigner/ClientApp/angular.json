@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "Phd.DesignPreview": {
+    "Phd.HomeDesigner": {
       "root": "",
       "sourceRoot": "src",
       "projectType": "application",
@@ -70,24 +70,24 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "Phd.DesignPreview:build"
+            "browserTarget": "Phd.HomeDesigner:build"
           },
           "configurations": {
             "qa": {
-              "browserTarget": "Phd.DesignPreview:build:qa"
+              "browserTarget": "Phd.HomeDesigner:build:qa"
             },
             "staging": {
-              "browserTarget": "Phd.DesignPreview:build:staging"
+              "browserTarget": "Phd.HomeDesigner:build:staging"
             },
             "production": {
-              "browserTarget": "Phd.DesignPreview:build:production"
+              "browserTarget": "Phd.HomeDesigner:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "Phd.DesignPreview:build"
+            "browserTarget": "Phd.HomeDesigner:build"
           }
         },
         "test": {
@@ -125,7 +125,7 @@
         }
       }
     },
-    "Phd.DesignPreview-e2e": {
+    "Phd.HomeDesigner-e2e": {
       "root": "e2e",
       "sourceRoot": "e2e",
       "projectType": "application",
@@ -134,7 +134,7 @@
           "builder": "@angular-devkit/build-angular:protractor",
           "options": {
             "protractorConfig": "./protractor.conf.js",
-            "devServerTarget": "Phd.DesignPreview:serve"
+            "devServerTarget": "Phd.HomeDesigner:serve"
           }
         },
         "lint": {
@@ -149,7 +149,7 @@
       }
     }
   },
-  "defaultProject": "Phd.DesignPreview",
+  "defaultProject": "Phd.HomeDesigner",
   "schematics": {
     "@schematics/angular:component": {
       "prefix": "app",

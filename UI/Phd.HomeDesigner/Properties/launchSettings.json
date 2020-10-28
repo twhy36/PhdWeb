@@ -15,7 +15,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "Phd.DesignPreview": {
+    "Phd.HomeDesigner": {
       "commandName": "Project",
       "launchBrowser": true,
       "applicationUrl": "http://localhost:62860",
