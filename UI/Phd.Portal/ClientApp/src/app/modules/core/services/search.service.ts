@@ -109,10 +109,9 @@ export class SearchService
 		expandData.jobSalesAgreementAssocs = `jobSalesAgreementAssocs($select=${selectData.jobSalesAgreementAssocs};$expand=${expandData.salesAgreement})`;
 		expandData.jobChangeOrderGroup = `jobChangeOrderGroups($select=${selectData.jobChangeOrderGroup})`;
 		expandData.jobs = `jobs($select=${selectData.jobs};$expand=${expandData.jobSalesAgreementAssocs},${expandData.jobChangeOrderGroup},planCommunity($select=id,planSalesName);)`;
-		expandData.viewAdjacencies = `lotViewAdjacencyAssocs($expand=viewAdjacency)`;
 
 		// top level expands
-		let expands = `${expandData.jobs},${expandData.financialCommunity},${expandData.planAssociations},${expandData.physicalLotTypes},${expandData.scenarios},${expandData.viewAdjacencies}`;
+		let expands = `${expandData.jobs},${expandData.financialCommunity},${expandData.planAssociations},${expandData.physicalLotTypes},${expandData.scenarios}`;
 
 		// putting it all together - DO NOT encode since it will be encoded during the batch process
 		const qryStr = `$expand=${expands}` +

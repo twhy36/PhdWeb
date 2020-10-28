@@ -140,11 +140,6 @@ export class PHDSearchComponent
 			filters.push({ items: addresses });
 		}
 
-		if (this.selectedHomesiteTypes.length > 0)
-		{
-			filters.push(this.getFilterFromSelectItems('description', this.selectedHomesiteTypes, 'viewAdjacency'));
-		}
-
 		if (this.selectedHomesiteStatus.length > 0)
 		{
 			filters.push(this.getFilterFromSelectItems('lotStatusDescription', this.selectedHomesiteStatus));
@@ -405,7 +400,6 @@ export class PHDSearchComponent
 			!!this.salesAgreementNumber ||
 			this.selectedBuildTypes.length > 0 ||
 			this.selectedHomesiteStatus.length > 0 ||
-			this.selectedHomesiteTypes.length > 0 ||
 			this.selectedSalesAgreementStatus.length > 0 ;
 	}
 

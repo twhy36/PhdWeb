@@ -46,6 +46,22 @@
 			<section *ngIf="!!optionsShown" class="d-flex flex-row w-100 flex-wrap">
 				<div class="form-inline">
 					<div class="phd-flexbox">
+						<label>Sales Agreement Status</label>
+						<p-multiSelect class="ui-multiselect-label-container ui-inputwrapper-filled flex-fill"
+									   defaultLabel="Select Agreement Status"
+									   [displaySelectedLabel]="true"
+									   [filter]="false"
+									   id="phdSalesStatus"
+									   [maxSelectedLabels]="5"
+									   [(ngModel)]="selectedSalesAgreementStatus"
+									   [options]="salesAgreementStatusOptions"
+									   [showHeader]="true"
+									   [showToggleAll]="true"
+									   (onPanelHide)="onOptionPanelClosed()">
+						</p-multiSelect>
+					</div>
+
+					<div class="phd-flexbox">
 						<label>Lot Status</label>
 						<p-multiSelect class="phd-select-homesite-status ui-multiselect-label-container ui-inputwrapper-filled flex-fill"
 									   defaultLabel="Select Lot Status"
@@ -55,22 +71,6 @@
 									   [maxSelectedLabels]="5"
 									   [(ngModel)]="selectedHomesiteStatus"
 									   [options]="homesiteStatusOptions"
-									   [showHeader]="true"
-									   [showToggleAll]="true"
-									   (onPanelHide)="onOptionPanelClosed()">
-						</p-multiSelect>
-					</div>
-
-					<div class="phd-flexbox">
-						<label>Lot Type</label>
-						<p-multiSelect class="phd-select-homesite-type ui-multiselect-label-container ui-inputwrapper-filled flex-fill"
-									   defaultLabel="Select Lot Type"
-									   [displaySelectedLabel]="true"
-									   [filter]="false"
-									   id="phdHomesiteType"
-									   [maxSelectedLabels]="5"
-									   [(ngModel)]="selectedHomesiteTypes"
-									   [options]="homesiteTypeOptions"
 									   [showHeader]="true"
 									   [showToggleAll]="true"
 									   (onPanelHide)="onOptionPanelClosed()">
@@ -97,22 +97,6 @@
 
 			<section class="d-flex flex-column flex-wrap phd-buttons-holder" *ngIf="!!optionsShown">
 				<div class="form-inline">
-					<div class="phd-flexbox">
-						<label>Sales Agreement Status</label>
-						<p-multiSelect class="ui-multiselect-label-container ui-inputwrapper-filled flex-fill"
-									   defaultLabel="Select Agreement Status"
-									   [displaySelectedLabel]="true"
-									   [filter]="false"
-									   id="phdSalesStatus"
-									   [maxSelectedLabels]="5"
-									   [(ngModel)]="selectedSalesAgreementStatus"
-									   [options]="salesAgreementStatusOptions"
-									   [showHeader]="true"
-									   [showToggleAll]="true"
-									   (onPanelHide)="onOptionPanelClosed()">
-						</p-multiSelect>
-					</div>
-
 					<div class="w-100">
 						<div>
 							<button class="btn btn-primary align-self-start" (click)="searchPending()">All Pending Agreements</button>
@@ -147,8 +131,8 @@
 					<strong>{{lastName}}</strong>
 				</span>
 				<span class="phd-badge" *ngIf="streetAddress" (click)="edit('streetAddressRef')">
-				  <span>Street Address</span>
-				  <strong>{{streetAddress}}</strong>
+					<span>Street Address</span>
+					<strong>{{streetAddress}}</strong>
 				</span>
 				<span class="phd-badge" *ngIf="selectedHomesiteTypes.length > 0" (click)="edit()">
 					<span>Lot Type</span>
