@@ -67,14 +67,24 @@ namespace LotRelease
                 rq.Headers.Add("Authorization", $"Basic {configuration["edhSettings:apiKey"]}");
             };
 
-            void logResponse(HttpResponseMessage rs)
+            async Task logResponse(HttpResponseMessage rs)
             {
                 try
                 {
+                    string requestBody = null;
+                    if (rs.RequestMessage.Method == HttpMethod.Patch)
+                    {
+                        requestBody = await rs.RequestMessage.Content.ReadAsStringAsync();
+                    }
+
                     Console.Out.WriteLine($@"{rs.RequestMessage.Method} {rs.RequestMessage.RequestUri.AbsolutePath}
     Request Path: {rs.RequestMessage.RequestUri.OriginalString}
     Response Status: {rs.StatusCode}
     Response Reason: {rs.ReasonPhrase}");
+                    if (requestBody != null)
+                    {
+                        Console.Out.WriteLine($"\tRequest Body: {requestBody}");
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -82,8 +92,8 @@ namespace LotRelease
                 }
             }
             
-            edhClientSettings.AfterResponse = logResponse;
-            phdClientSettings.AfterResponse = logResponse;
+            edhClientSettings.AfterResponseAsync = logResponse;
+            phdClientSettings.AfterResponseAsync = logResponse;
 
             var _edhclient = new ODataClient(edhClientSettings);
             var _phdclient = new ODataClient(phdClientSettings);
