@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Simple.OData.Client;
 using Microsoft.Azure.Storage;
 using Microsoft.Azure.Storage.Blob;
+using System.Net.Http;
 
 namespace LotRelease
 {
@@ -15,8 +16,8 @@ namespace LotRelease
         static void Main(string[] args)
         {
             UpdateReleases().Wait();
-        }       
-       
+        }
+
         private static async Task UpdateReleases()
         {
             IConfigurationRoot configuration;
@@ -26,6 +27,8 @@ namespace LotRelease
                 .AddJsonFile("appsettings.json");
 
             configuration = builder.Build();
+
+            Console.Out.Write("Test 1");
 
             var blobAccount = CloudStorageAccount.Parse(configuration["AzureDocumentStorage"]);
             var blobClient = blobAccount.CreateCloudBlobClient();
@@ -59,12 +62,37 @@ namespace LotRelease
             {
                 rq.Headers.Add("Authorization", $"Basic {configuration["phdSettings:apiKey"]}");
             };
-            
+
             var edhClientSettings = new ODataClientSettings(new Uri(configuration["edhSettings:url"]), new NetworkCredential(configuration["edhSettings:user"], configuration["edhSettings:password"]));
             edhClientSettings.BeforeRequest = rq =>
             {
                 rq.Headers.Add("Authorization", $"Basic {configuration["edhSettings:apiKey"]}");
             };
+
+            void logResponse(HttpResponseMessage rs)
+            {
+                try
+                {
+                    Console.Out.WriteLine($@"{rs.RequestMessage.Method} {rs.RequestMessage.RequestUri.AbsolutePath}
+    Request Path: {rs.RequestMessage.RequestUri.OriginalString}
+    Response Status: {rs.StatusCode}
+    Response Reason: {rs.ReasonPhrase}");
+                }
+                catch (Exception ex)
+                {
+                    Console.Error.WriteLine(ex.ToString());
+                }
+            }
+
+            try
+            {
+                edhClientSettings.AfterResponse = logResponse;
+                phdClientSettings.AfterResponse = logResponse;
+            }
+            catch
+            {
+                Console.Error.WriteLine("Error");
+            }
 
             var _edhclient = new ODataClient(edhClientSettings);
             var _phdclient = new ODataClient(phdClientSettings);
@@ -72,9 +100,10 @@ namespace LotRelease
             //Go back x days in case the job did not finish successfully
             var today = DateTime.Now;
             var prevDate = DateTime.Today.AddDays(-1 * int.Parse(configuration["general:nbrDaysBack"]));
-            
+
             try
             {
+                Console.Out.Write("Test 2");
                 var releases = await _phdclient.For<Release>()
                     .Expand(r => r.Release_LotAssoc)
                     .Filter(r => r.ReleaseDate >= prevDate && r.ReleaseDate <= DateTime.Now)
@@ -119,6 +148,8 @@ namespace LotRelease
                     }
                 }
 
+                Console.Out.Write("Test 3");
+
                 await blob.UploadTextAsync(DateTime.Now.ToString(), null, new AccessCondition { LeaseId = leaseId }, null, null);
             }
             catch (Exception ex)
@@ -128,6 +159,8 @@ namespace LotRelease
             finally
             {
                 await blob.ReleaseLeaseAsync(new AccessCondition { LeaseId = leaseId });
+                Console.Out.Flush();
+                Console.Error.Flush();
             }
         }
     }
