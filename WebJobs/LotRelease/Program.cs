@@ -20,8 +20,6 @@ namespace LotRelease
 
         private static async Task UpdateReleases()
         {
-            throw new Exception();
-
             IConfigurationRoot configuration;
 
             var builder = new ConfigurationBuilder()
@@ -29,9 +27,7 @@ namespace LotRelease
                 .AddJsonFile("appsettings.json");
 
             configuration = builder.Build();
-
-            Console.Out.Write("Test 1");
-
+            
             var blobAccount = CloudStorageAccount.Parse(configuration["AzureDocumentStorage"]);
             var blobClient = blobAccount.CreateCloudBlobClient();
             var container = blobClient.GetContainerReference("web-jobs");
@@ -85,16 +81,9 @@ namespace LotRelease
                     Console.Error.WriteLine(ex.ToString());
                 }
             }
-
-            try
-            {
-                edhClientSettings.AfterResponse = logResponse;
-                phdClientSettings.AfterResponse = logResponse;
-            }
-            catch
-            {
-                Console.Error.WriteLine("Error");
-            }
+            
+            edhClientSettings.AfterResponse = logResponse;
+            phdClientSettings.AfterResponse = logResponse;
 
             var _edhclient = new ODataClient(edhClientSettings);
             var _phdclient = new ODataClient(phdClientSettings);
@@ -105,7 +94,6 @@ namespace LotRelease
 
             try
             {
-                Console.Out.Write("Test 2");
                 var releases = await _phdclient.For<Release>()
                     .Expand(r => r.Release_LotAssoc)
                     .Filter(r => r.ReleaseDate >= prevDate && r.ReleaseDate <= DateTime.Now)
@@ -149,9 +137,7 @@ namespace LotRelease
                         await batch.ExecuteAsync();
                     }
                 }
-
-                Console.Out.Write("Test 3");
-
+                
                 await blob.UploadTextAsync(DateTime.Now.ToString(), null, new AccessCondition { LeaseId = leaseId }, null, null);
             }
             catch (Exception ex)
