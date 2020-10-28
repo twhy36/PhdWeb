@@ -40,7 +40,7 @@ export class SummaryHeaderComponent implements OnInit, OnDestroy
 	@Output() isStickyChanged = new EventEmitter<boolean>();
 	@Output() toggleImagesChanged = new EventEmitter<boolean>();
 	@Output() handingChanged = new EventEmitter<string>();
-	
+
 	get communityName(): string
 	{
 		return this.summaryHeader.communitySalesName || 'N/A';
@@ -50,7 +50,7 @@ export class SummaryHeaderComponent implements OnInit, OnDestroy
 	{
 		return this.summaryHeader.plan ? `${this.summaryHeader.plan.salesName}, ${this.summaryHeader.plan.integrationKey}` : 'N/A';
 	}
-	
+
 	get homesite(): string
 	{
 		let homesite = 'No Lot Selected';
@@ -72,7 +72,7 @@ export class SummaryHeaderComponent implements OnInit, OnDestroy
 	{
 		return this.summaryHeader.lot != null;
 	}
-	
+
 	get isPreview(): boolean
 	{
 		return this.summaryHeader.isPreview;
@@ -97,7 +97,8 @@ export class SummaryHeaderComponent implements OnInit, OnDestroy
 		return address;
 	}
 
-	get handing(): string {
+	get handing(): string
+	{
 		return this.summaryHeader.handing || 'Select ...';
 	}
 
@@ -172,7 +173,8 @@ export class SummaryHeaderComponent implements OnInit, OnDestroy
 		this.toggleImagesChanged.emit(this.showImages);
 	}
 
-	onChangeHanding(handing: string) {
+	onChangeHanding(handing: string)
+	{
 		this.summaryHeader.handing = handing;
 		this.handingChanged.emit(handing);
 	}

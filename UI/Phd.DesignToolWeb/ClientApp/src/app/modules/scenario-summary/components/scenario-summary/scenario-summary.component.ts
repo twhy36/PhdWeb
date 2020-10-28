@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChildren, QueryList, AfterViewInit, ChangeDetect
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { Store, select } from '@ngrx/store';
-import { ReplaySubject, Observable, of, NEVER as never } from 'rxjs';
+import { ReplaySubject, Observable, of } from 'rxjs';
 import { withLatestFrom, map, switchMap, combineLatest, take, distinctUntilChanged } from 'rxjs/operators';
 
 import { ToastrService } from 'ngx-toastr';
@@ -27,7 +27,7 @@ import { ModalOverrideSaveComponent } from '../../../core/components/modal-overr
 import { SelectedChoice, PriceBreakdown, ScenarioStatusType } from '../../../shared/models/scenario.model';
 import { PointStatusFilter, DecisionPointFilterType } from '../../../shared/models/decisionPointFilter';
 import { PointStatus } from '../../../shared/models/point.model';
-import { Group, Choice, DecisionPoint, FloorPlanImage } from '../../../shared/models/tree.model.new';
+import { Group, Choice, DecisionPoint } from '../../../shared/models/tree.model.new';
 import { ChangeOrderHanding } from '../../../shared/models/job-change-order.model';
 import { PlanOption } from '../../../shared/models/option.model';
 import { ChangeTypeEnum } from '../../../shared/models/job-change-order.model';
@@ -218,7 +218,6 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 				this.store.pipe(select(state => state.salesAgreement)))
 		).subscribe(([changeOrder, scenario, job, sag]) =>
 		{
-
 			if (changeOrder.isChangingOrder)
 			{
 				this.summaryHeader.handing = changeOrder.changeInput && changeOrder.changeInput.handing ? changeOrder.changeInput.handing.handing : null;

@@ -116,7 +116,8 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(fromScenario.buildMode)
-		).subscribe(build => {
+		).subscribe(build =>
+		{
 			this.buildMode = build;
 		});
 
@@ -295,17 +296,26 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 				if (isGanked && this.lotConflictModal && !this.lotcheckModalDisplayed)
 				{
 					this.lotcheckModalDisplayed = true;
-					this.showConfirmModal(this.lotConflictModal, 'Attention!', 'Continue').subscribe(result => {
-						if (result) {
-							if (this.scenarioHasSalesAgreement) {
+
+					this.showConfirmModal(this.lotConflictModal, 'Attention!', 'Continue').subscribe(result =>
+					{
+						if (result)
+						{
+							if (this.scenarioHasSalesAgreement)
+							{
 								this.router.navigateByUrl('/scenario-summary');
-							} else {
+							}
+							else
+							{
 								this.store.dispatch(new LotActions.DeselectLot());
 								this.store.dispatch(new ScenarioActions.SetScenarioLot(null, null, 0));
 								this.store.dispatch(new NavActions.SetSelectedSubNavItem(3));
+
 								this.router.navigateByUrl('/new-home/lot');
 							}
-						} else {
+						}
+						else
+						{
 							window.close();
 						}
 					});
@@ -652,7 +662,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 	private showOptionMappingChangedModal(choices: Array<Choice>): Observable<boolean>
 	{
 		this.impactedChoices = choices.map(c => c.label).sort().join(', ');
-		
+
 		return this.showConfirmModal(this.optionMappingChangedModal, 'Warning', 'Continue');
 	}
 

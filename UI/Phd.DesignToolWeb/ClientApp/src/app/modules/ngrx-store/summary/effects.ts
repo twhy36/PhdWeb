@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Actions, Effect, ofType } from '@ngrx/effects';
 import { Action, Store } from '@ngrx/store';
 import { Observable } from 'rxjs/Observable';
-import { switchMap, withLatestFrom, share, combineLatest, flatMap, map, take, delay } from 'rxjs/operators';
+import { switchMap, withLatestFrom } from 'rxjs/operators';
 import { from } from 'rxjs/observable/from';
 
 import * as _ from 'lodash';
@@ -21,14 +21,20 @@ export class SummaryEffects
 	setHanding$: Observable<Action> = this.actions$.pipe(
 		ofType<SetHanding>(SummaryActionTypes.SetHanding),
 		withLatestFrom(this.store),
-		switchMap(([action, store]) => {
+		switchMap(([action, store]) =>
+		{
 			const actions = [];
 
-			if (store.changeOrder.isChangingOrder) {
+			if (store.changeOrder.isChangingOrder)
+			{
 				actions.push(new SetChangeOrderHanding(action.handing));
-			} else if (!!store.salesAgreement.id && store.salesAgreement.status === 'Pending') {
+			}
+			else if (!!store.salesAgreement.id && store.salesAgreement.status === 'Pending')
+			{
 				actions.push(new SavePendingJio(action.handing));
-			} else if (store.scenario.scenario) {
+			}
+			else if (store.scenario.scenario)
+			{
 				actions.push(new SelectHanding(action.lotId, action.handing.handing));
 				actions.push(new SetScenarioLotHanding(action.handing));
 			}

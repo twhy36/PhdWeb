@@ -248,7 +248,7 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 
 		return lot.planAssociations ? lot.planAssociations.some(p => p.planId === this.selectedPlanId) : false;
 	}
-	
+
 	monotonyConflictMessage(lot: LotComponentLot): string 
 	{
 		if (this.colorSchemeChoice && !this.colorSchemeConflictOverride) 
@@ -373,11 +373,9 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 
 		if (!selected)
 		{
-			lot.monotonyConflictMessage = '';
-
 			const handing = new ChangeOrderHanding();
 
-			handing.handing = lot.selectedHanding;
+			lot.monotonyConflictMessage = '';
 
 			if (!lot.selectedHanding)
 			{
@@ -387,7 +385,10 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 					lot.selectedHanding = lot.handings[0].name;
 				}
 			}
-			else
+
+			handing.handing = lot.selectedHanding;
+
+			if(lot.selectedHanding)
 			{
 				// Set handing that was selected from drop down
 				this.store.dispatch(new LotActions.SelectHanding(lot.id, lot.selectedHanding));
