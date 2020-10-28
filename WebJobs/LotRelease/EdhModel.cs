@@ -11,12 +11,12 @@ namespace LotRelease
         public int Id { get; set; }
         [DataMember(Name = "lotStatusDescription")]
         public LotStatusEnum LotStatusDescription { get; set; }
+        [DataMember(Name = "lotBuildTypeDesc")]
+        public LotBuildTypeEnum? LotBuildTypeDesc { get; set; }
         [DataMember(Name = "lastModifiedBy")]
         public string LastModifiedBy { get; set; }
         [DataMember(Name = "lastModifiedUtcDate")]
         public DateTime LastModifiedUtcDate { get; set; }
-        [DataMember(Name = "lotBuildTypeDesc")]
-        public LotBuildTypeEnum? LotBuildTypeDesc { get; set; }
     }
 
     public enum LotStatusEnum
