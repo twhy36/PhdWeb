@@ -41,7 +41,7 @@
 					<div class="mt-auto align-self-left">
 						<span class="text-right">
 							Qty
-							<quantity-input [min]="quantityMin" [max]="choice?.maxQuantity" [quantity]="choice?.quantity" (quantityChange)="changeSelectedQuantity($event)" [canEditAgreement]="canEditAgreement && !isPastCutOff && canConfigure && choice.enabled"></quantity-input>
+							<quantity-input [min]="quantityMin" [max]="choice?.maxQuantity" [quantity]="choice?.quantity" (quantityChange)="changeSelectedQuantity($event)" [canEditAgreement]="canEditAgreement && (!isPastCutOff || overrideReason) && canConfigure && choice.enabled"></quantity-input>
 							Max {{choice?.maxQuantity}}
 						</span>
 					</div>
