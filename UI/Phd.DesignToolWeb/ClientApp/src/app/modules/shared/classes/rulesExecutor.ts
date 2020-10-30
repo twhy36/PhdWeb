@@ -500,7 +500,20 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 		choice.mappedLocationGroups = mappedLocationGroups;
 
 		// make sure the selected attributes are available to be selected
-		choice.selectedAttributes = choice.selectedAttributes.filter(x => choice.mappedAttributeGroups.findIndex(ag => ag.id === x.attributeGroupId) !== -1);
+		choice.selectedAttributes = choice.selectedAttributes.filter(x =>
+		{
+			if (choice.mappedLocationGroups && choice.mappedLocationGroups.length)
+			{
+				// it would really be more accurate to check if these are valid locations, but I don't think
+				// that is available here, and this should work for the purposes of attribute reassignment
+				return choice.mappedLocationGroups.findIndex(lg => lg.id === x.locationGroupId) !== -1
+					&& (!x.attributeGroupId || choice.mappedAttributeGroups.findIndex(ag => ag.id === x.attributeGroupId) !== -1);
+			}
+			else
+			{
+				return choice.mappedAttributeGroups.findIndex(ag => ag.id === x.attributeGroupId) !== -1;
+			}
+		});
 	};
 
 	rules.optionRules.forEach(optionRule => executeOptionRule(optionRule));

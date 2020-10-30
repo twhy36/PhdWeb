@@ -14,7 +14,7 @@
 		<div *ngIf="!choice" class="phd-choice-image"></div>
 	</div>
 
-	<div class="phd-body" [class.phd-choice-disabled]="monotonyConflict.monotonyConflict || isPastCutOff" >
+	<div class="phd-body" [class.phd-choice-disabled]="monotonyConflict.monotonyConflict || (isPastCutOff && !overrideReason)" >
 		<div *ngIf="hasAttributes" class="phd-circles">
 			<i class="fas fa-circle fa-xs phd-circle-one"></i><i class="fas fa-circle fa-xs phd-circle-two"></i><i class="fas fa-circle fa-xs phd-circle-three"></i>
 		</div>
