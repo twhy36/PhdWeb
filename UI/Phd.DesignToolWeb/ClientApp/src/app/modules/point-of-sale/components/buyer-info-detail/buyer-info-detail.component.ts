@@ -152,6 +152,7 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 
 		modal.componentInstance.contact = contact;
 		modal.componentInstance.matchingContacts = matchingContacts;
+		modal.componentInstance.defaultPrimaryAddress = !this.isRealtor();
 
 		// modal promise will return selected contact
 		// modal promise will return undefined if cancel button is clicked
@@ -383,7 +384,7 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 			// check for matching contacts
 			if (contact.id === 0)
 			{
-				this.contactService.getMatchingContacts(contact.firstName, contact.phoneAssocs[0].phone.phoneNumber, contact.emailAssocs[0].email.emailAddress)
+				this.contactService.getMatchingContacts(contact.firstName, contact.phoneAssocs[0].phone.phoneNumber, contact.emailAssocs[0].email.emailAddress, this.isRealtor())
 					.subscribe(async matchingContacts =>
 					{
 						let modalCancelled = false;

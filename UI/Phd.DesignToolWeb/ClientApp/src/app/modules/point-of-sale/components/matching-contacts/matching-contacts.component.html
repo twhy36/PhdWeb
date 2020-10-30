@@ -32,9 +32,9 @@
 				<span class="text-secondary" *ngIf="!matchingContact.isExactMatch">Potential Match</span>
 			</div>
 			<div class="d-flex flex-column pl-3 pt-2">
-				<div><strong>{{matchingContact.firstName + ' ' + matchingContact.lastName}}</strong></div>
+				<div><strong>{{ matchingContact.firstName + ' ' + matchingContact.lastName }}</strong></div>
 				<ng-container *ngIf="matchingContact.addressAssocs.length">
-					<people-card-address [address]="matchingContact.addressAssocs | contactaddress: true"></people-card-address>
+					<people-card-address [address]="matchingContact.addressAssocs | contactaddress: defaultPrimaryAddress"></people-card-address>
 				</ng-container>
 				<div *ngIf="matchingContact.emailAssocs.length">{{matchingContact.emailAssocs | contactprimaryemail}}</div>
 				<div *ngIf="matchingContact.phoneAssocs.length">{{matchingContact.phoneAssocs | contactprimaryphone}}</div>

@@ -82,7 +82,7 @@ export class ContactService
 		);
 	}
 
-	getMatchingContacts(firstName: string, phone: string, email: string): Observable<Array<MatchingContact>>
+	getMatchingContacts(firstName: string, phone: string, email: string, isRealtor: boolean): Observable<Array<MatchingContact>>
 	{
 		const expandArray = [
 			"addressAssocs($expand=address)",
@@ -91,12 +91,13 @@ export class ContactService
 		];
 		const expand = `${this._ds}expand=${encodeURIComponent(expandArray.join(','))}`;
 
-		const endpoint = `${environment.apiUrl}GetMatchingContacts(firstName='${firstName}',phone='${phone}',email='${email}')?${expand}`;
+		const endpoint = `${environment.apiUrl}GetMatchingContacts(firstName='${firstName}',phone='${phone}',email='${email}',isRealtor=${isRealtor})?${expand}`;
 
 		return this._http.get<any>(endpoint).pipe(
 			map(result =>
 			{
 				const dtos = result.value as Array<MatchingContact>;
+
 				return dtos.map(dto =>
 				{
 					return new MatchingContact(dto);

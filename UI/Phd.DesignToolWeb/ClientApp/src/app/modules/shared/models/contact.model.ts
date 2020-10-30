@@ -1,4 +1,5 @@
-export interface CrmContact {
+export interface CrmContact
+{
 	contactid: string;
 	fullname: string;
 	salutation: string;
@@ -41,7 +42,8 @@ export interface CrmContact {
 	donotpostalmail: boolean;
 }
 
-export interface IContact {
+export interface IContact
+{
 	id: number,
 	prefix: string,
 	firstName: string,
@@ -55,7 +57,8 @@ export interface IContact {
 	phoneAssocs: Array<PhoneAssoc>
 }
 
-export class Contact {
+export class Contact
+{
 	id = 0;
 	prefix: string = null;
 	firstName: string = null;
@@ -68,8 +71,10 @@ export class Contact {
 	emailAssocs: Array<EmailAssoc> = [];
 	phoneAssocs: Array<PhoneAssoc> = [];
 
-	constructor(dto: IContact = null) {
-		if (dto) {
+	constructor(dto: IContact = null)
+	{
+		if (dto)
+		{
 			this.id = dto.id;
 			this.prefix = dto.prefix;
 			this.firstName = dto.firstName;
@@ -85,30 +90,37 @@ export class Contact {
 	}
 }
 
-export class MatchingContact extends Contact {
+export class MatchingContact extends Contact
+{
 	isExactMatch: boolean;
 
-	constructor(dto: MatchingContact) {
+	constructor(dto: MatchingContact)
+	{
 		super(dto);
+
 		this.isExactMatch = dto.isExactMatch;
 	}
 }
 
-export interface IAddressAssoc {
+export interface IAddressAssoc
+{
 	id: number,
 	doNotContact: boolean,
 	isPrimary: boolean,
 	address: IAddress
 }
 
-export class AddressAssoc {
+export class AddressAssoc
+{
 	id = 0;
 	doNotContact = false;
 	isPrimary = false;
 	address: Address = null;
 
-	constructor(dto: IAddressAssoc = null) {
-		if (dto) {
+	constructor(dto: IAddressAssoc = null)
+	{
+		if (dto)
+		{
 			this.id = dto.id;
 			this.doNotContact = dto.doNotContact;
 			this.isPrimary = dto.isPrimary;
@@ -117,7 +129,8 @@ export class AddressAssoc {
 	}
 }
 
-export interface IAddress {
+export interface IAddress
+{
 	id: number,
 	address1: string,
 	address2: string,
@@ -127,18 +140,21 @@ export interface IAddress {
 	county: string,
 	country: string
 }
-export class Address {
+export class Address
+{
 	id = 0;
 	address1: string = null;
 	address2: string = null;
-	city:string = null;
-	stateProvince:string = null;
+	city: string = null;
+	stateProvince: string = null;
 	postalCode: string = null;
 	county: string = null;
 	country: string = null;
 
-	constructor(dto: IAddress) {
-		if (dto) {
+	constructor(dto: IAddress)
+	{
+		if (dto)
+		{
 			this.id = dto.id;
 			this.address1 = dto.address1;
 			this.address2 = dto.address2;
@@ -151,21 +167,25 @@ export class Address {
 	}
 }
 
-export interface IEmailAssoc {
+export interface IEmailAssoc
+{
 	id: number,
 	doNotContact: boolean,
 	isPrimary: boolean,
 	email: IEmail
 }
 
-export class EmailAssoc {
+export class EmailAssoc
+{
 	id = 0;
 	doNotContact = false;
 	isPrimary = false;
 	email: Email = null;
 
-	constructor(dto: IEmailAssoc = null) {
-		if (dto) {
+	constructor(dto: IEmailAssoc = null)
+	{
+		if (dto)
+		{
 			this.id = dto.id;
 			this.doNotContact = dto.doNotContact;
 			this.isPrimary = dto.isPrimary;
@@ -174,37 +194,45 @@ export class EmailAssoc {
 	}
 }
 
-export interface IEmail {
+export interface IEmail
+{
 	id: number,
 	emailAddress: string
 }
-export class Email {
+export class Email
+{
 	id = 0;
 	emailAddress: string = null;
 
-	constructor(dto: IEmail = null) {
-		if (dto) {
+	constructor(dto: IEmail = null)
+	{
+		if (dto)
+		{
 			this.id = dto.id;
 			this.emailAddress = dto.emailAddress;
 		}
 	}
 }
 
-export interface IPhoneAssoc {
+export interface IPhoneAssoc
+{
 	id: number,
 	doNotContact: boolean,
 	isPrimary: boolean,
 	phone: IPhone
 }
 
-export class PhoneAssoc {
+export class PhoneAssoc
+{
 	id = 0;
 	doNotContact = false;
 	isPrimary = false;
 	phone: Phone = null;
 
-	constructor(dto: IPhoneAssoc = null) {
-		if (dto) {
+	constructor(dto: IPhoneAssoc = null)
+	{
+		if (dto)
+		{
 			this.id = dto.id;
 			this.doNotContact = dto.doNotContact;
 			this.isPrimary = dto.isPrimary;
@@ -213,21 +241,25 @@ export class PhoneAssoc {
 	}
 }
 
-export interface IPhone {
+export interface IPhone
+{
 	id: number,
 	phoneType: PhoneType,
 	phoneNumber: string,
 	phoneExt: string
 }
 
-export class Phone {
+export class Phone
+{
 	id = 0;
 	phoneType: PhoneType = null;
 	phoneNumber: string = null;
 	phoneExt: string = null;
 
-	constructor(dto: IPhone = null) {
-		if (dto) {
+	constructor(dto: IPhone = null)
+	{
+		if (dto)
+		{
 			this.id = dto.id;
 			this.phoneType = dto.phoneType;
 			this.phoneNumber = dto.phoneNumber;
@@ -236,7 +268,8 @@ export class Phone {
 	}
 }
 
-export enum PreferredCommunicationMethod {
+export enum PreferredCommunicationMethod
+{
 	Phone = "Phone",
 	Text = "Text",
 	Email = "Email",
@@ -244,7 +277,8 @@ export enum PreferredCommunicationMethod {
 	Fax = "Fax"
 }
 
-export enum PhoneType {
+export enum PhoneType
+{
 	Mobile = "Mobile",
 	Business = "Business",
 	Home = "Home",

@@ -8,11 +8,14 @@ type Person = "Buyer" | "Trust" | "Realtor";
 	templateUrl: './people-card-address.component.html',
 	styleUrls: ['./people-card-address.component.scss']
 })
-export class PeopleCardAddressComponent implements OnInit {
+export class PeopleCardAddressComponent implements OnInit
+{
 	@Input() address: Address;
 
 	constructor() { }
 
-	ngOnInit() {
+	ngOnInit()
+	{
+
 	}
 }

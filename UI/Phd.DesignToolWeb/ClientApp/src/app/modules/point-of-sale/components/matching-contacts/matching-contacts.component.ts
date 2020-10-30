@@ -13,6 +13,7 @@ export class MatchingContactsComponent extends ModalContent
 {
 	@Input() contact: Contact;
 	@Input() matchingContacts: Array<MatchingContact>;
+	@Input() defaultPrimaryAddress: boolean = true;
 
 	constructor()
 	{
