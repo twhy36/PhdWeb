@@ -117,7 +117,7 @@ namespace LotRelease
                     if (idList.Any())
                     {
                         var filterLot = String.Join(" or ", idList.Select(x => "id eq " + x).ToArray());
-                        filterLot = filterLot + " and lotStatusDescription eq 'PendingRelease'";
+                        filterLot = $"({filterLot}) and lotStatusDescription eq 'PendingRelease'";
                         var lots = await _edhclient.For<Lot>()
                             .Filter(filterLot)
                             .FindEntriesAsync();
