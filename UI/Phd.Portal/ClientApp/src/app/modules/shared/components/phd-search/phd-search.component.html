@@ -160,7 +160,7 @@
 		<div class="px-4 justify-content-center phd-search-results bg-white" *ngIf="searchResults">
 			<div class="d-flex phd-search-results-holder">
 
-				<phd-table [value]="searchResults" tableId="searchResults" sortMode="single" [displayTooltip]="false" [noRecordsMessage]="filterSpecs ? NO_RECORDS_MESSAGES.SPECS : NO_RECORDS_MESSAGES.SEARCH" [nonOverflow]="true">
+				<phd-table #dt [value]="searchResults" tableId="searchResults" sortMode="single" [noRecordsMessage]="filterSpecs ? NO_RECORDS_MESSAGES.SPECS : NO_RECORDS_MESSAGES.SEARCH" [nonOverflow]="true">
 					<!--Homesite #-->
 					<phd-column field="homesiteNumber" header="Lot #"></phd-column>
 					<!--Address (street 1, 2, unit #, city, state, country, postal code)-->
@@ -220,6 +220,12 @@
 									{{scenario.name}}
 								</a>
 							</div>
+						</ng-template>
+					</phd-column>
+					<phd-column header="Active Change Order">
+						<ng-template #body let-lot>
+							<!--If sold in Home Selections-->
+							<span *ngIf="lot.activeChangeOrderText" (mouseenter)="showTooltip($event, lot.activeChangeOrderText, dt)" (mouseleave)="hideTooltip(dt)" class="phd-active-change-order">{{lot.activeChangeOrderText}}</span>
 						</ng-template>
 					</phd-column>
 					<!--Every sales agreement within every change order group within one of the lot's jobs *whew* -->

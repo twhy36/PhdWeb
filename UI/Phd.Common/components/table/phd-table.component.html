@@ -161,5 +161,7 @@
 </ng-template>
 
 <p-overlayPanel #tt [style]="{'background-color': 'black'}">
-    <div class="custom-tooltip">{{tooltipText}}</div>
+	<ng-template pTemplate>
+		<div class="custom-tooltip">{{tooltipText}}</div>
+	</ng-template>
 </p-overlayPanel>
