@@ -32,7 +32,26 @@ export interface AreaSales
 	areaSort: number;
 	divisionSort: number;
 	communityName: string;
+	communityId: number;
 	salesConsultant: string;
+	salesConsultantId: number;
+	pending: number;
+	currentSignups: number;
+	currentCancellations: number;
+	currentNet: number;
+	mtdSignups: number;
+	mtdCancellations: number;
+	mtdNet: number;
+	currentDaySignups: number;
+	previousDaySignups: number;
+}
+
+export interface ConsultantBuyer {
+	salesConsultantId: number;
+	commission: number;
+	lotBlock: string;
+	customerFirstName: string;
+	customerLastName: string;
 	pending: number;
 	currentSignups: number;
 	currentCancellations: number;

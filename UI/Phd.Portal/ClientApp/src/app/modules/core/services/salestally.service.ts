@@ -5,7 +5,7 @@ import { map, catchError, mergeMap } from "rxjs/operators";
 import { _throw } from 'rxjs/observable/throw';
 
 import { environment } from '../../../../environments/environment';
-import { TopCommunity, TopSalesConsultant, TopMarket, TimeFrame, AreaSales } from '../../shared/models/salestally.model';
+import { TopCommunity, TopSalesConsultant, TopMarket, TimeFrame, AreaSales, ConsultantBuyer } from '../../shared/models/salestally.model';
 
 @Injectable()
 export class SalesTallyService
@@ -51,6 +51,16 @@ export class SalesTallyService
 
 		return this.http.get<any>(endPoint).pipe(
 			map(response => response.value as AreaSales[]),
+			catchError(this.handleError)
+		);
+	}
+
+	public getConsultantBuyers(salesConsultantId: number, communityId: number): Observable<ConsultantBuyer[]> {
+		const entity = `GetSalesTallyConsultantBuyers(salesConsultantId=${salesConsultantId},communityId=${communityId})`;
+		const endPoint = `${environment.apiUrl}${entity}`;
+
+		return this.http.get<any>(endPoint).pipe(
+			map(response => response.value as ConsultantBuyer[]),
 			catchError(this.handleError)
 		);
 	}

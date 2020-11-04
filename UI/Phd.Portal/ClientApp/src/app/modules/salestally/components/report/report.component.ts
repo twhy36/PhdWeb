@@ -5,7 +5,7 @@ import * as _ from 'lodash';
 import { Observable } from 'rxjs';
 
 import { SalesTallyService } from '../../../core/services/salestally.service';
-import { TopCommunity, TopMarket, TopSalesConsultant, TimeFrame, AreaSales } from '../../../shared/models/salestally.model';
+import { TopCommunity, TopMarket, TopSalesConsultant, TimeFrame, AreaSales, ConsultantBuyer } from '../../../shared/models/salestally.model';
 
 @Component({
 	selector: 'report',
@@ -21,6 +21,7 @@ export class ReportComponent implements OnInit
 	topSalesConsultants: TopSalesConsultant[] = [];
 	timeFrame = TimeFrame.CurrentWeek;
 	TimeFrameType = TimeFrame;
+	isMobile: boolean = false;
 
 	constructor(private salesTallyService: SalesTallyService) { }
 
@@ -30,6 +31,11 @@ export class ReportComponent implements OnInit
 		this.getAreaSalesData().subscribe(salesData =>
 			this.areaSales = this.getSalesData(salesData)
 		);
+
+		var ua = window.navigator.userAgent;
+		if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS/i.test(ua)) {
+			this.isMobile = true;
+		}
 	}
 
 	updateTop10Data(updateTimeFrame: TimeFrame)
@@ -69,19 +75,6 @@ export class ReportComponent implements OnInit
 		this.areaSales = this.areaSales.slice();
 	}
 
-	expandAll(): void {
-		function expand(data: TreeNode[]) {
-			data.forEach(node => {
-				node.expanded = true;
-				expand(node.children);
-			});
-		}
-
-		expand(this.areaSales);
-
-		this.areaSales = this.areaSales.slice();
-	}
-
 	/*
 	 * Create summary of sales data for all the sales data objects passed in
 	 */
@@ -109,7 +102,43 @@ export class ReportComponent implements OnInit
 			allPreviousDaySignups += area.previousDaySignups;
 		}
 
-		function getNodes(data: AreaSales[], groupBy: string[]) {
+		function getLastNode(isMobile: boolean, groupData: Array<AreaSales>) {
+			if (isMobile || !groupData || !groupData.length) {
+				return [];
+			}
+
+			// Will not display buyers for pending sales
+			const nonPendingSales = groupData.find(x => {
+				return (x.currentSignups + x.currentCancellations
+					+ x.currentNet + x.mtdSignups + x.mtdCancellations
+					+ x.mtdNet + x.currentDaySignups + x.previousDaySignups) > 0;
+			});
+
+			if (!nonPendingSales) {
+				return [];
+			}
+
+			return [{
+						data: {
+							name: '...',
+							pending: 0,
+							currentSignups: 0,
+							currentCancellations: 0,
+							currentNet: 0,
+							mtdSignups: 0,
+							mtdCancellations: 0,
+							mtdNet: 0,
+							currentDaySignups: 0,
+							previousDaySignups: 0,
+							salesConsultantId: groupData[0].salesConsultantId,
+							communityId: groupData[0].communityId
+						},
+						children: [],
+						expanded: false
+					}];
+		}
+
+		function getNodes(data: AreaSales[], groupBy: string[], isMobile: boolean) {
 			let groups = _.groupBy(data, groupBy[0]);
 			return Object.keys(groups).sort().map(group => ({
 				data: {
@@ -124,7 +153,7 @@ export class ReportComponent implements OnInit
 					currentDaySignups: _.sumBy(groups[group], 'currentDaySignups'),
 					previousDaySignups: _.sumBy(groups[group], 'previousDaySignups')
 				},
-				children: groupBy.length > 1 ? getNodes(groups[group], groupBy.slice(1)) : [],
+				children: groupBy.length > 1 ? getNodes(groups[group], groupBy.slice(1), isMobile) : getLastNode(isMobile, groups[group]),
 				expanded: false
 			}));
 		}
@@ -143,10 +172,38 @@ export class ReportComponent implements OnInit
 				currentDaySignups: allCurrentDaySignups,
 				previousDaySignups: allPreviousDaySignups
 			},
-			children: getNodes(areaData, ['area', 'division', 'communityName', 'salesConsultant']),
+			children: getNodes(areaData, ['area', 'division', 'communityName', 'salesConsultant'], this.isMobile),
 			expanded: false
 		};
 
 		return [salesData];
+	}
+
+	onNodeExpand(event) {
+		const node = event.node;
+		if (node.children.length === 1 && node.children[0].data.name === '...') {
+			const salesConsultantId = node.children[0].data.salesConsultantId;
+			const communityId = node.children[0].data.communityId;
+			this.salesTallyService.getConsultantBuyers(salesConsultantId, communityId).subscribe((data: ConsultantBuyer[]) => {
+				node.children = data.map(buyer => ({
+					data: {
+						name: `${buyer.customerFirstName} ${buyer.customerLastName} - ${buyer.lotBlock}`,
+						pending: buyer.pending,
+						currentSignups: buyer.currentSignups,
+						currentCancellations: buyer.currentCancellations,
+						currentNet: buyer.currentNet,
+						mtdSignups: buyer.mtdSignups,
+						mtdCancellations: buyer.mtdCancellations,
+						mtdNet: buyer.mtdNet,
+						currentDaySignups: buyer.currentDaySignups,
+						previousDaySignups: buyer.previousDaySignups
+					},
+					children: [],
+					expanded: false
+				}));
+
+				this.areaSales = this.areaSales.slice();
+			});
+		}
 	}
 }
