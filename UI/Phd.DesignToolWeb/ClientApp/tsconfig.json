@@ -12,6 +12,7 @@
 	"strict": false,
 	"noImplicitUseStrict": true,
 	"alwaysStrict": false,
+	"resolveJsonModule": true,
 	"strictPropertyInitialization": false,
     "target": "es5",
     "typeRoots": [

@@ -18,6 +18,7 @@ import { RowTogglerDirective } from './components/table/phd-rowtoggler.directive
 import { DragSourceDirective, DragTargetDirective, RequiresClaimDirective, ControlDisabledDirective } from './directives';
 import { SpinnerInterceptor } from './services/interceptors/spinner.interceptor';
 import { SpinnerComponent } from './components/spinner/spinner.component';
+import { BuildVersionComponent } from './components/build-version/build-version.component';
 import { CanDeactivateGuard } from './guards/can-deactivate.guard';
 import { ClaimGuard } from './guards/claim.guard';
 import { IdentityService, IdentitySettings } from './services';
@@ -28,8 +29,8 @@ export const API_URL = new InjectionToken<string>('apiUrl');
 
 @NgModule({
     imports: [TableModule, MultiSelectModule, DropdownModule, OverlayPanelModule, CommonModule, FormsModule],
-    declarations: [PhdTableComponent, ConfirmModalComponent, SidePanelComponent, PhdColumnDirective, RowTogglerDirective, DragSourceDirective, DragTargetDirective, SpinnerComponent, RequiresClaimDirective, ControlDisabledDirective],
-    exports: [PhdTableComponent, ConfirmModalComponent, SidePanelComponent, PhdColumnDirective, RowTogglerDirective, DragSourceDirective, DragTargetDirective, SpinnerComponent, RequiresClaimDirective, ControlDisabledDirective],
+    declarations: [PhdTableComponent, ConfirmModalComponent, SidePanelComponent, PhdColumnDirective, RowTogglerDirective, DragSourceDirective, DragTargetDirective, SpinnerComponent, RequiresClaimDirective, ControlDisabledDirective, BuildVersionComponent],
+    exports: [PhdTableComponent, ConfirmModalComponent, SidePanelComponent, PhdColumnDirective, RowTogglerDirective, DragSourceDirective, DragTargetDirective, SpinnerComponent, RequiresClaimDirective, ControlDisabledDirective, BuildVersionComponent],
 })
 export class PhdCommonModule {
     static forRoot(settings: IdentitySettings, apiUrl?: string): ModuleWithProviders {

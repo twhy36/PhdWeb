@@ -1,0 +1,21 @@
+#buildVersion {
+    position: absolute;
+    left: 10px;
+    bottom: 10px;
+    color: white;
+    font-size: smaller;
+    z-index: 2;
+    background-color: #073e59;
+    border: 5px solid white;
+    border-radius: 5px;
+    padding: 5px;
+    min-width: 100px;
+    cursor: pointer;
+
+    &.hidden
+    {
+        opacity: 0;
+        visibility: hidden;
+        transition: 0.5s ease-out;
+    }
+}

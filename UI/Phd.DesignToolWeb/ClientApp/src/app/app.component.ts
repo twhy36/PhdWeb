@@ -6,6 +6,7 @@ import { filter } from 'rxjs/operators';
 import { loadScript } from 'phd-common/utils';
 import { LoggingService } from './modules/core/services/logging.service';
 import { environment } from '../environments/environment';
+import * as build from './build.json';
 import { NotificationService } from './modules/core/services/notification.service';
 
 @Component({
@@ -14,7 +15,14 @@ import { NotificationService } from './modules/core/services/notification.servic
 	styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-    constructor(private router: Router, private loggingService: LoggingService, private route: ActivatedRoute, private notificationService: NotificationService) {
+	build = (build as any).default;
+	environment = environment;
+
+	get branch(): string {
+		return build.branch.split('/').slice(2).join('/');
+	}
+
+	constructor(private router: Router, private loggingService: LoggingService, private route: ActivatedRoute, private notificationService: NotificationService) {
         this.router.events.pipe(
             filter(evt => evt instanceof NavigationEnd)
         ).subscribe((evt: NavigationEnd) => {
