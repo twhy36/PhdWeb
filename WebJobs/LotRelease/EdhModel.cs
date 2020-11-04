@@ -27,6 +27,8 @@ namespace LotRelease
 
     public enum LotBuildTypeEnum
     {
-        Dirt
+        Dirt,
+        Spec,
+        Model
     }
 }
