@@ -63,16 +63,7 @@ export class ProgramDetailComponent extends ComponentCanNavAway implements OnIni
 	{
 		return this.salesPrograms.filter(p =>
 		{
-			let hasLeftoverAmount = true;
-			let programNotFound = (this.isChangingOrder ? this.changeOrderPrograms : this.agreement.programs || []).findIndex(x => x.salesProgramId === p.id) < 0;
-
-			if (programNotFound && this.isChangingOrder)
-			{
-				// look to see if we have an amount leftover to allow a change to an incentive
-				hasLeftoverAmount = p.maximumAmount > this.getSalesProgramTotalAmount(p.id);
-			}
-
-			return programNotFound && hasLeftoverAmount;
+			return p.maximumAmount > this.getSalesProgramTotalAmount(p.id);
 		});
 	}
 
@@ -113,8 +104,9 @@ export class ProgramDetailComponent extends ComponentCanNavAway implements OnIni
 	 */
 	getSalesProgramTotalAmount(salesProgramId: number)
 	{
-		const agreementProgram = this.agreement.programs.find(x => x.salesProgram && x.salesProgram.id === salesProgramId);
-		const agreementAmount = agreementProgram ? agreementProgram.amount : 0;
+		const sumAmounts = (total: number, program: SalesAgreementProgram) => { return total + program.amount; };
+		const agreementPrograms = this.agreement.programs.filter(x => x.salesProgramId === salesProgramId);
+		const agreementAmount = agreementPrograms && agreementPrograms.length > 0 ? agreementPrograms.reduce(sumAmounts, 0) : 0;
 
 		return agreementAmount;
 	}
@@ -142,7 +134,7 @@ export class ProgramDetailComponent extends ComponentCanNavAway implements OnIni
 		// reset the validators on the maximumAmount since it needs new values
 		if (this.selectedSalesProgram && this.selectedSalesProgram.maximumAmount)
 		{
-			let totalAmount = this.agreement.status !== 'Pending' && this.getSalesProgramTotalAmount(this.selectedSalesProgram.id);
+			let totalAmount = this.getSalesProgramTotalAmount(this.selectedSalesProgram.id);
 			let maxAmount = this.selectedSalesProgram.maximumAmount - totalAmount;
 
 			this.discountAmount.setValidators([Validators.required, Validators.max(maxAmount), Validators.min(1)]);
