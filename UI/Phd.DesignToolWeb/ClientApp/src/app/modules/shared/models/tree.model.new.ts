@@ -227,3 +227,18 @@ export class FloorPlanImage
 	floorIndex?: number;
 	svg?: string;
 }
+
+export class TreeBaseHouseOption
+{
+	baseHouseOptionID?: number;
+	dTreeVersionID?: number;
+	planOptionID?: number;
+	planOption?: TreePlanOption;
+}
+
+export class TreePlanOption
+{
+	planOptionID?: number;
+	planID?: number;
+	integrationKey?: string;
+}

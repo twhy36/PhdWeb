@@ -232,12 +232,15 @@ export class ScenarioEffects
 				return this.treeService.getTree(action.treeVersionId).pipe(
 					combineLatest(
 						this.treeService.getRules(action.treeVersionId),
-						this.treeService.getOptionImages(action.treeVersionId)
+						this.treeService.getOptionImages(action.treeVersionId),
+						this.treeService.getTreeBaseHouseOptions(action.treeVersionId)
 					)
 				);
 			}),
-			switchMap(([tree, rules, optionImages]) =>
+			switchMap(([tree, rules, optionImages, baseHouseOptions]) =>
 			{
+				const optionIds = baseHouseOptions.map(bho => bho.planOption.integrationKey);
+
 				return this.optionService.getPlanOptionsByPlanKey(tree.financialCommunityId, tree.planKey).pipe(
 					map(opt =>
 					{
@@ -250,15 +253,16 @@ export class ScenarioEffects
 					}),
 					combineLatest(
 						this.planService.getWebPlanMapping(tree.planKey, tree.financialCommunityId),
-						this.planService.getPlanByPlanKey(tree.planKey, tree.financialCommunityId),
-						this.orgService.getSalesCommunityByFinancialCommunityId(tree.financialCommunityId)
+						this.orgService.getSalesCommunityByFinancialCommunityId(tree.financialCommunityId),
+						this.planService.getPlanByPlanKey(tree.planKey, tree.financialCommunityId, optionIds)
 					)
-				)
+				);
 			}),
 			switchMap(result =>
 			{
-				const plan: Plan = result[2];
+				const plan: Plan = result[3];
 				const plans: Plan[] = [plan];
+
 				this.router.navigate(['edit-home', 0, result[0].tree.treeVersion.groups[0].subGroups[0].points[0].divPointCatalogId]);
 
 				return from([
@@ -266,10 +270,10 @@ export class ScenarioEffects
 					new PlansLoaded(plans),
 					new SelectPlan(plan.id, plan.treeVersionId, plan.marketingPlanId),
 					new SetWebPlanMapping(result[1]),
-					new SalesCommunityLoaded(result[3])
+					new SalesCommunityLoaded(result[2])
 				]);
 			})
-		), LoadError, "Error loading preview!!")
+		), LoadError, 'Error loading preview!!')
 	);
 
 	@Effect()

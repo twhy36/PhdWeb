@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable ,  from ,  EMPTY as empty ,  throwError as _throw } from 'rxjs';
+import { Observable, from, EMPTY as empty, throwError as _throw, of } from 'rxjs';
 import { combineLatest, map, catchError, flatMap, toArray, switchMap } from 'rxjs/operators';
 import { environment } from '../../../../environments/environment';
 
@@ -25,55 +25,56 @@ export class PlanService
 		return this.treeService.getTreeVersions(communityIds)
 			.pipe
 			(
-			// tslint:disable-next-line: deprecation
-			combineLatest(this.getCommunityPlans(salesCommunity.id)),
-			flatMap(([treeVersions, plans]: [any, Plan[]]) =>
-			{
-				return from(plans)
-					.pipe(
-						flatMap(plan =>
-						{
-							const activePlans = treeVersions.find(p => p.planKey === plan.integrationKey && p.communityId === plan.communityId);
-
-							if (activePlans != null)
+				// tslint:disable-next-line: deprecation
+				combineLatest(this.getCommunityPlans(salesCommunity.id)),
+				flatMap(([treeVersions, plans]: [any, Plan[]]) =>
+				{
+					return from(plans)
+						.pipe(
+							flatMap(plan =>
 							{
+								const activePlans = treeVersions.find(p => p.planKey === plan.integrationKey && p.communityId === plan.communityId);
 
-								includedPlanOptions = activePlans.includedOptions;
-								plan.treeVersionId = activePlans.id;
-								includedPlanOptions.push(baseHouseKey);
+								if (activePlans != null)
+								{
+									includedPlanOptions = activePlans.includedOptions;
+									plan.treeVersionId = activePlans.id;
+									includedPlanOptions.push(baseHouseKey);
 
-								return this.optionService.getPlanOptions(plan.id, includedPlanOptions, true)
-									.pipe(
-										combineLatest(this.treeService.getOptionImages(plan.treeVersionId, includedPlanOptions, null, true)),
-										map(([optionsResponse, optionImages]) =>
-										{
-											if (optionsResponse && optionsResponse.length > 0)
+									return this.optionService.getPlanOptions(plan.id, includedPlanOptions, true)
+										.pipe(
+											combineLatest(this.treeService.getOptionImages(plan.treeVersionId, includedPlanOptions, null, true)),
+											map(([optionsResponse, optionImages]) =>
 											{
-												// DEVNOTE: currently only returning where baseHouseKey = '00001'
-												// In a future sprint, we'll be pushing more id's from the treeVersion.include options.
-												plan.price = optionsResponse[0].listPrice;
-											}
-											plan.baseHouseElevationImageUrl = optionImages && optionImages.length > 0
-												? optionImages[0].imageURL : 'assets/pultegroup_logo.jpg';
-											return plan;
-										})
-									);
-							}
-							else
-							{
-								return empty;
-							}
+												if (optionsResponse && optionsResponse.length > 0)
+												{
+													// DEVNOTE: currently only returning where baseHouseKey = '00001'
+													// In a future sprint, we'll be pushing more id's from the treeVersion.include options.
+													plan.price = optionsResponse[0].listPrice;
+												}
 
-						})
-						, toArray()
-					);
-			})
-			, catchError(error =>
-			{
-				console.error(error);
+												plan.baseHouseElevationImageUrl = optionImages && optionImages.length > 0
+													? optionImages[0].imageURL : 'assets/pultegroup_logo.jpg';
 
-				return _throw(error);
-			}));
+												return plan;
+											})
+										);
+								}
+								else
+								{
+									return empty;
+								}
+
+							})
+							, toArray()
+						);
+				})
+				, catchError(error =>
+				{
+					console.error(error);
+
+					return _throw(error);
+				}));
 	}
 
 	private getBaseHouseElevationImage(planId: number, marketId: number): Observable<string>
@@ -81,7 +82,8 @@ export class PlanService
 		const func = `GetPlanBaseHouseElevationImage(planId=${planId},marketId=${marketId})`;
 		return this._http.get<any>(environment.apiUrl + func).pipe(
 			map(response => response.value),
-			catchError(error => {
+			catchError(error =>
+			{
 				console.error(error);
 
 				return _throw(error);
@@ -152,16 +154,33 @@ export class PlanService
 		);
 	}
 
-	public getPlanByPlanKey(planKey: string, financialCommunityId: number): Observable<Plan>
+	public getPlanByPlanKey(planKey: string, financialCommunityId: number, optionIds: string[]): Observable<Plan>
 	{
+		optionIds.push('00001'); // include base house key
+
 		const filter = `financialPlanIntegrationKey eq '${planKey}' and financialCommunityId eq ${financialCommunityId}`;
 		const url = `${environment.apiUrl}planCommunities?${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}`;
 
 		return this._http.get<any>(url).pipe(
-			map(resp => {
-				return this.mapPlan(resp.value[0]);
+			switchMap(resp =>
+			{
+				let plan = this.mapPlan(resp.value[0]);
+
+				return this.optionService.getPlanOptions(plan.id, optionIds, true)
+					.pipe(
+						map(optionsResponse =>
+						{
+							if (optionsResponse && optionsResponse.length > 0)
+							{
+								plan.price = optionsResponse.reduce((sum, opt) => sum += (opt.listPrice || 0), 0);
+							}
+
+							return plan;
+						})
+					);
 			}),
-			catchError(error => {
+			catchError(error =>
+			{
 				console.error(error);
 
 				return _throw(error);
@@ -169,7 +188,8 @@ export class PlanService
 		);
 	}
 
-	getWebPlanMapping(planKey: string, financialCommunityId: number): Observable<Array<number>> {
+	getWebPlanMapping(planKey: string, financialCommunityId: number): Observable<Array<number>>
+	{
 		const filter = `financialPlanIntegrationKey eq '${planKey}' and financialCommunityId eq ${financialCommunityId}`;
 		const expand = `webSitePlanCommunityAssocs($expand=webSitePlan($select=webSitePlanIntegrationKey))`;
 		const select = `id,webSitePlanCommunityAssocs`;
@@ -179,14 +199,16 @@ export class PlanService
 		//return of([686440]);
 		return withSpinner(this._http).get<any>(url).pipe(
 			map(resp => !!resp.value.length ? resp.value[0]['webSitePlanCommunityAssocs'].map(p => p.webSitePlan.webSitePlanIntegrationKey) : []),
-			catchError(error => {
+			catchError(error =>
+			{
 				console.error(error);
 				return _throw(error);
 			})
 		);
 	}
 
-	getWebPlanMappingByPlanId(planId: number): Observable<Array<number>> {
+	getWebPlanMappingByPlanId(planId: number): Observable<Array<number>>
+	{
 		const filter = `id eq ${planId}`;
 		const expand = `webSitePlanCommunityAssocs($expand=webSitePlan($select=webSitePlanIntegrationKey))`;
 		const select = `id,webSitePlanCommunityAssocs`;
@@ -196,8 +218,10 @@ export class PlanService
 		//return of([686440]);
 		return this._http.get<any>(url).pipe(
 			map(resp => !!resp.value.length ? resp.value[0]['webSitePlanCommunityAssocs'].map(p => p.webSitePlan.webSitePlanIntegrationKey) : []),
-			catchError(error => {
+			catchError(error =>
+			{
 				console.error(error);
+
 				return _throw(error);
 			})
 		);
@@ -219,7 +243,7 @@ export class PlanService
 			productType: data['productType'],
 			salesDescription: data['planSalesDescription'],
 			integrationKey: data['financialPlanIntegrationKey'],
-			communityId: data['financialCommunityId']			
+			communityId: data['financialCommunityId']
 		} as Plan;
 	}
 }

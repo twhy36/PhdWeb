@@ -9,7 +9,7 @@ import { of } from 'rxjs/observable/of';
 
 import { environment } from '../../../../environments/environment';
 
-import { Tree } from '../../shared/models/tree.model.new';
+import { Tree, TreeBaseHouseOption } from '../../shared/models/tree.model.new';
 import { TreeVersionRules, OptionRule } from '../../shared/models/rule.model.new';
 
 import { OptionImage } from '../../shared/models/tree.model.new';
@@ -96,6 +96,30 @@ export class TreeService
 			})
 		);
 	}
+
+	getTreeBaseHouseOptions(treeVersionId: number): Observable<TreeBaseHouseOption[]>
+	{
+		const entity = `baseHouseOptions`;
+		const expand = `planOption($select=integrationKey)`;
+		const select = `planOption`;
+		const filter = `dTreeVersionID eq ${treeVersionId}`;
+
+		const endPoint = environment.apiUrl + `${entity}?${encodeURIComponent("$")}expand=${encodeURIComponent(expand)}&${encodeURIComponent("$")}filter=${encodeURIComponent(filter)}&${encodeURIComponent("$")}select=${encodeURIComponent(select)}`;
+
+		return this.http.get<any>(endPoint).pipe(
+			map(response =>
+			{
+				return response.value as TreeBaseHouseOption[];
+			}),
+			catchError(error =>
+			{
+				console.error(error);
+
+				return _throw(error);
+			})
+		);
+	}
+
 
 	getRules(treeVersionId: number, skipSpinner?: boolean): Observable<TreeVersionRules>
 	{
