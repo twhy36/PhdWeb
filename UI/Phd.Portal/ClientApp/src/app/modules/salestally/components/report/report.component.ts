@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 
+import { TreeTable } from 'primeng/treetable';
 import { TreeNode } from 'primeng/api';
 import * as _ from 'lodash';
 import { Observable } from 'rxjs';
@@ -22,6 +23,8 @@ export class ReportComponent implements OnInit
 	timeFrame = TimeFrame.CurrentWeek;
 	TimeFrameType = TimeFrame;
 	isMobile: boolean = false;
+
+	@ViewChild("salesTree") salesTree: TreeTable;
 
 	constructor(private salesTallyService: SalesTallyService) { }
 
@@ -204,6 +207,20 @@ export class ReportComponent implements OnInit
 
 				this.areaSales = this.areaSales.slice();
 			});
-		}
-	}
+        }
+
+        this.scrollToSelection(event.node);
+    }
+
+    scrollToSelection(selection) {
+        if (this.salesTree.serializedValue !== null) {
+            let index = this.salesTree.serializedValue.findIndex(x => x.node.data.name === selection.data.name);
+            if (index > -1) {
+                const selectedElement = document.getElementsByClassName('phd-stlly-name').item(index);
+                if (selectedElement) {
+                    selectedElement.scrollIntoView({ block: 'start' });
+                }
+            }
+        }
+    }
 }
