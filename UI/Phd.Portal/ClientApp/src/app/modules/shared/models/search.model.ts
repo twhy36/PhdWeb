@@ -26,8 +26,6 @@ export class SearchResult
 	jobId: number;
 	jobCreatedBy: string;
 	buyers: Array<Buyer>;
-	activeChangeOrder: ActiveChangeOrder;
-	activeChangeOrderText: string;
 
 	get buyerString(): string {
 		return this.buyers && this.buyers.length > 0 ? this.buyers.map(fm => fm.firstName + ' ' + fm.lastName).join(', ') : '';
@@ -81,18 +79,6 @@ export class SearchResult
 					this.salesAgreements.push(jsa.salesAgreement);
 				}
 			});
-			if (job.jobChangeOrderGroups.some(cog => ['Pending', 'Signed', 'OutforSignature', 'Rejected'].indexOf(cog.salesStatusDescription) !== -1))
-			{
-				const activeCOG = job.jobChangeOrderGroups.find(cog => ['Pending', 'Signed', 'OutforSignature', 'Rejected'].indexOf(cog.salesStatusDescription) !== -1);
-				this.activeChangeOrder = {
-					changeOrderDescription: activeCOG.jobChangeOrderGroupDescription,
-					changeOrderNumber: activeCOG.jobChangeOrderGroupSalesAgreementAssocs.length > 0 ? activeCOG.jobChangeOrderGroupSalesAgreementAssocs[0].changeOrderGroupSequence.toString() : '0',
-					changeOrderStatus: activeCOG.salesStatusDescription
-				};
-				this.activeChangeOrderText = 'CO# ' +
-					(activeCOG.jobChangeOrderGroupSalesAgreementAssocs.length > 0 ? activeCOG.jobChangeOrderGroupSalesAgreementAssocs[0].changeOrderGroupSequence.toString() : '0') +
-					' ' + activeCOG.salesStatusDescription + ' ' + activeCOG.jobChangeOrderGroupDescription;
-			}
 		});
 
 		this.scenarios = dto.scenarios && dto.scenarios.map(s => new SearchResultItem(s)) || null;
@@ -184,8 +170,6 @@ export interface IJobChangeOrderGroup
 {
 	id: number;
 	jobChangeOrderGroupDescription: string;
-	salesStatusDescription: string;
-	jobChangeOrderGroupSalesAgreementAssocs: Array<ChangeOrderGroupSalesAgreementAssoc>;
 }
 
 export interface ISearchResultAgreement
@@ -244,14 +228,4 @@ export interface IFilterItem
 export class Buyer {
 	firstName: string;
 	lastName: string;
-}
-
-export class ActiveChangeOrder {
-	changeOrderNumber: string;
-	changeOrderStatus: string;
-	changeOrderDescription: string;
-}
-
-export class ChangeOrderGroupSalesAgreementAssoc {
-	changeOrderGroupSequence: number;
 }
