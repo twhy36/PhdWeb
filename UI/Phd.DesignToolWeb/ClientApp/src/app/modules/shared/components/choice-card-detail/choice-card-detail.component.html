@@ -25,11 +25,8 @@
 					{{choice?.label}}
 				</h4>
 
-				<strong *ngIf="choice?.enabled && choice?.price">{{choice.price | currency:'USD':'symbol':'0.0-0'}}</strong>
-				<strong *ngIf="choice?.enabled && !choice?.price">$0</strong>
-
-				<!--<strong *ngIf="choice?.enabled && !optionDisabled">{{choice.price | currency:'USD':'symbol':'0.0-0'}}</strong>
-				<strong *ngIf="!choice?.enabled && !optionDisabled">{{ choicePriceRanges | priceRange: choice.id }}</strong>-->
+				<strong *ngIf="choice?.enabled && !optionDisabled">{{choice.price | currency:'USD':'symbol':'0.0-0'}}</strong>
+				<strong *ngIf="!choice?.enabled && !optionDisabled">{{ choice.id | priceRange | async }}</strong>
 			</div>
 
 			<div class="phd-choice-content">
