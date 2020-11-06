@@ -461,50 +461,76 @@ export class CommonEffects
 			}),
 			switchMap(result =>
 			{
-				return this.changeOrderService.getTreeVersionIdByJobPlan(result.selectedPlanId).pipe(
-					switchMap(treeVersionId =>
-					{
-						return this.treeService.getTree(treeVersionId).pipe(
-							combineLatest<any, any>(
-								this.treeService.getRules(treeVersionId, true),
-								this.optionService.getPlanOptions(result.selectedPlanId, null, true),
-								this.treeService.getOptionImages(treeVersionId, [], null, true),
-								this.planService.getWebPlanMappingByPlanId(result.selectedPlanId),
-								this.lotService.getLot(result.selectedLotId)
-							),
-							map(([tree, rules, options, images, mappings, lot]) =>
-							{
-								return {
-									tree,
-									rules,
-									options,
-									images,
-									job: result.job,
-									mappings,
-									lot,
-									sc: result.sc,
-									changeOrder: result.changeOrderGroup,
-									selectedHanding: result.selectedHanding,
-									selectedChoices: result.selectedChoices,
-									selectedPlanId: result.selectedPlanId,
-									salesAgreement: result.salesAgreement,
-									salesAgreementInfo: result.salesAgreementInfo
-								};
-							}),
-							mergeIntoTree(
-								[...result.job.jobChoices, ...(result.changeOrderGroup ? _.flatMap(result.changeOrderGroup.jobChangeOrders.map(co => co.jobChangeOrderChoices.filter(c => c.action === 'Add'))) : [])],
-								[...result.job.jobPlanOptions, ...((result.changeOrderGroup && result.changeOrderGroup.salesStatusDescription !== 'Pending') ? result.changeOrderPlanOptions : [])],
-								this.treeService,
-								result.changeOrderGroup),
-							map(data =>
-							{
-								setTreePointsPastCutOff(data.tree, data.job);
+				if (result.selectedPlanId)
+				{
+					return this.changeOrderService.getTreeVersionIdByJobPlan(result.selectedPlanId).pipe(
+						switchMap(treeVersionId =>
+						{
+							return this.treeService.getTree(treeVersionId).pipe(
+								combineLatest<any, any>(
+									this.treeService.getRules(treeVersionId, true),
+									this.optionService.getPlanOptions(result.selectedPlanId, null, true),
+									this.treeService.getOptionImages(treeVersionId, [], null, true),
+									this.planService.getWebPlanMappingByPlanId(result.selectedPlanId),
+									this.lotService.getLot(result.selectedLotId)
+								),
+								map(([tree, rules, options, images, mappings, lot]) =>
+								{
+									return {
+										tree,
+										rules,
+										options,
+										images,
+										job: result.job,
+										mappings,
+										lot,
+										sc: result.sc,
+										changeOrder: result.changeOrderGroup,
+										selectedHanding: result.selectedHanding,
+										selectedChoices: result.selectedChoices,
+										selectedPlanId: result.selectedPlanId,
+										salesAgreement: result.salesAgreement,
+										salesAgreementInfo: result.salesAgreementInfo
+									};
+								}),
+								mergeIntoTree(
+									[...result.job.jobChoices, ...(result.changeOrderGroup ? _.flatMap(result.changeOrderGroup.jobChangeOrders.map(co => co.jobChangeOrderChoices.filter(c => c.action === 'Add'))) : [])],
+									[...result.job.jobPlanOptions, ...((result.changeOrderGroup && result.changeOrderGroup.salesStatusDescription !== 'Pending') ? result.changeOrderPlanOptions : [])],
+									this.treeService,
+									result.changeOrderGroup),
+								map(data =>
+								{
+									setTreePointsPastCutOff(data.tree, data.job);
 
-								return data;
-							})
-						);
-					})
-				);
+									return data;
+								})
+							);
+						})
+					);
+				}
+				else
+				{
+					return this.lotService.getLot(result.selectedLotId).pipe(
+						map(data => {
+							return {
+								tree: null,
+								rules: null,
+								options: null,
+								images: null,
+								job: result.job,
+								mappings: null,
+								lot: data,
+								sc: result.sc,
+								changeOrder: result.changeOrderGroup,
+								selectedHanding: result.selectedHanding,
+								selectedChoices: result.selectedChoices,
+								selectedPlanId: result.selectedPlanId,
+								salesAgreement: result.salesAgreement,
+								salesAgreementInfo: result.salesAgreementInfo
+							}
+						})
+					)
+				}
 			}),
 			switchMap(result =>
 			{

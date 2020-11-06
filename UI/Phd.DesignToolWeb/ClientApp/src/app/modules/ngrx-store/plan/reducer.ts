@@ -51,7 +51,7 @@ export function reducer(state: State = initialState, action: PlanActions): State
 			return { ...state, selectedPlanLoading: false, hasError: false };
 		case CommonActionTypes.SalesAgreementLoaded:
 		case CommonActionTypes.JobLoaded:
-			return { ...state, marketingPlanId: action.webPlanMappings, selectedPlan: action.selectedPlanId, selectedTree: action.tree.treeVersion.id };
+			return { ...state, marketingPlanId: action.webPlanMappings, selectedPlan: action.selectedPlanId, selectedTree: action.tree && action.tree.treeVersion ? action.tree.treeVersion.id : null };
 		default:
 			return state;
 	}
