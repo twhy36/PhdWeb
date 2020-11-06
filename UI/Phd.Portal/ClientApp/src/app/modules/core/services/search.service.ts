@@ -94,7 +94,7 @@ export class SearchService
 		selectData.salesCommunity = 'id,name,number';
 		selectData.financialCommunity = 'id,name,number,marketId,salesCommunityId';
         selectData.scenarios = 'id,name';
-		selectData.jobChangeOrderGroup = 'id, jobChangeOrderGroupDescription,salesStatusDescription';
+		selectData.jobChangeOrderGroup = 'id,jobId,jobChangeOrderGroupDescription,salesStatusDescription';
 
 		let expandData: SearchEntities = new SearchEntities();
 

@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Observable ,  of ,  NEVER as never } from 'rxjs';
 import { distinctUntilChanged, combineLatest, switchMap, map, take } from 'rxjs/operators';
 import { Store, select } from '@ngrx/store';
@@ -56,6 +56,7 @@ export class PeopleComponent extends UnsubscribeOnDestroy implements OnInit, Con
 
 	constructor(private activatedRoute: ActivatedRoute,
 		private store: Store<fromRoot.State>,
+		private router: Router,
 		private _actions$: Actions
 	)
 	{
@@ -81,6 +82,10 @@ export class PeopleComponent extends UnsubscribeOnDestroy implements OnInit, Con
 					{
 						this.store.dispatch(new CommonActions.LoadSalesAgreement(salesAgreementId));
 						return new Observable<never>();
+					}
+					if (params.get('changeOrder'))
+					{
+						this.router.navigate(['/change-orders']);
 					}
 
 					return of(_.pick(salesAgreementState, _.keys(new SalesAgreement())));

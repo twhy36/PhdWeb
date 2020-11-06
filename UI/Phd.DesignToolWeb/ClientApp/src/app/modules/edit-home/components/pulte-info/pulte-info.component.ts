@@ -2,7 +2,7 @@ import { ChangeTypeEnum } from './../../../shared/models/job-change-order.model'
 import { ReplaySubject } from 'rxjs';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
 import { Store, select } from '@ngrx/store';
 import { map, distinctUntilChanged, combineLatest } from 'rxjs/operators';
@@ -18,7 +18,7 @@ import { PriceBreakdown } from '../../../shared/models/scenario.model';
     styleUrls: ['./pulte-info.component.scss']
 })
 export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit {
-    params$ = new ReplaySubject<{ jobId: number }>(1);
+    params$ = new ReplaySubject<{ jobId: number, changeOrder: string }>(1);
     job: Job;
     jobId: number;
     pulteInfoForm: FormGroup;
@@ -41,12 +41,14 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit {
 	priceBreakdown$: Observable<PriceBreakdown>;
     isChangingOrder$: Observable<boolean>;
     isChangingOrder: boolean;
+    navChangeOrder = false;
     
     get actionBarStatus(): string {
         return !((this.pulteInfoForm && this.pulteInfoForm.pristine) || !this.canEdit || this.pulteInfoForm.invalid) ? 'COMPLETE' : 'INCOMPLETE';
     }
     constructor(
         private store: Store<fromRoot.State>,
+		private router: Router,
         private route: ActivatedRoute) { super(); }
 
     ngOnInit() {
@@ -70,7 +72,7 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit {
 		);
         this.route.paramMap.pipe(
 			this.takeUntilDestroyed(),
-            map(params => ({ jobId: +params.get('jobId') })),
+            map(params => ({ jobId: +params.get('jobId'), changeOrder: params.get('changeOrder')})),
             distinctUntilChanged()
         ).subscribe(params => this.params$.next(params));
 
@@ -91,6 +93,11 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit {
                     this.jobId = params.jobId;
                     this.loadingJob = true;
                     this.store.dispatch(new JobActions.LoadJobForJob(this.jobId));
+                    if (params.changeOrder)
+                    {
+                        this.navChangeOrder = true;
+                        this.router.navigate(['/change-orders']);
+                    }
                 }
             });
 
@@ -120,7 +127,7 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit {
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(fromRoot.canConfigure)
-		).subscribe(canConfigure => this.canEdit = canConfigure);
+        ).subscribe(canConfigure => this.canEdit = canConfigure);
     }
 
     createForm() {
@@ -186,6 +193,6 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit {
     }
 
     allowNavigation(): boolean {
-        return !this.pulteInfoForm.dirty;
+        return (this.pulteInfoForm && !this.pulteInfoForm.dirty) || this.navChangeOrder;
     }
 }

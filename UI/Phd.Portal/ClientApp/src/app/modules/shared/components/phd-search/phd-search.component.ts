@@ -335,6 +335,21 @@ export class PHDSearchComponent
         return agreementUrl;
 	}
 
+	getChangeOrderLink(lot: SearchResult): string
+	{
+		let agreementUrl = '';
+		if (lot.activeChangeOrder.SalesAgreementId)
+		{
+			agreementUrl = `${environment.baseUrl[this.action.envBaseUrl]}point-of-sale/people/${lot.activeChangeOrder.SalesAgreementId}/ChangeOrder`;
+		}
+		else
+		{
+			agreementUrl = `${environment.baseUrl[this.action.envBaseUrl]}spec/${lot.jobId}/ChangeOrder`;
+		}
+
+		return agreementUrl;
+	}
+
 	isHslMigrated(jobCreatedBy: string): boolean
 	{
 		return jobCreatedBy && (jobCreatedBy.toUpperCase().startsWith('PHCORP') || jobCreatedBy.toUpperCase().startsWith('PHBSSYNC'));

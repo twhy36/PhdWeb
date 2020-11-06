@@ -46,6 +46,11 @@ const moduleRoutes: Routes = [
 				canDeactivate: [ConfirmNavigationGuard]
 			},
 			{
+				path: 'people/:salesAgreementId/:changeOrder',
+				component: PeopleComponent,
+				canDeactivate: [ConfirmNavigationGuard]
+			},
+			{
 				path: 'people',
 				component: PeopleComponent,
 				canDeactivate: [ConfirmNavigationGuard]
