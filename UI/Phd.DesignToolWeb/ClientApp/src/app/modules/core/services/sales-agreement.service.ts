@@ -493,6 +493,12 @@ export class SalesAgreementService
 
 	saveNote(note: Note): Observable<Note>
 	{
+		// Don't create note if the note content is empty
+		if (!note.noteContent)
+		{
+			return of(<Note>({}));
+		}
+
 		let omit: Array<string> = ["targetAudiences", note.id && note.id === 0 ? "id" : ""];
 		const newNote = _.omit(note, omit);
 
