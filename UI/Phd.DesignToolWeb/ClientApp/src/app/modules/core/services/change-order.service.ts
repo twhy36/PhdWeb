@@ -583,7 +583,7 @@ export class ChangeOrderService
 		if (attributes.length || locations.length || curChoice.price !== origChoice.dpChoiceCalculatedPrice || curChoice.quantity !== origChoice.dpChoiceQuantity)
 		{
 			choicesDto.push({
-				dpChoiceId: curChoice.id,
+				dpChoiceId: origChoice.dpChoiceId,
 				divChoiceCatalogId: curChoice.divChoiceCatalogId,
 				dpChoiceQuantity: curChoice.quantity,
 				dpChoiceCalculatedPrice: curChoice.price || 0,
@@ -606,7 +606,7 @@ export class ChangeOrderService
 		} else if (addedOptions.length || removedOptions.length)
 		{
 			choicesDto.push({
-				dpChoiceId: curChoice.id,
+				dpChoiceId: origChoice.dpChoiceId,
 				divChoiceCatalogId: curChoice.divChoiceCatalogId,
 				dpChoiceQuantity: curChoice.quantity,
 				dpChoiceCalculatedPrice: curChoice.price || 0,
