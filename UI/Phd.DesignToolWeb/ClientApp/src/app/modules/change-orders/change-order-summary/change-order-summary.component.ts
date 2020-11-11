@@ -181,8 +181,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 		this.activatedRoute.paramMap
 			.pipe(
 				combineLatest(this.store.pipe(select(state => state.salesAgreement)),
-				this.store.pipe(select(jobState => jobState.job))),
-				
+					this.store.pipe(select(jobState => jobState.job))),
 			).subscribe(([params, salesAgreementState, jobState]) =>
 			{
 				if (!this.jobId)
@@ -207,13 +206,10 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 						{
 							return new Observable<never>();
 						}
-
-						// if sales agreement is not in the store and the id has been passed in to the url
-						// or the passed in sales agreement id is different than that of the id in the store...
 						if (id > 0 && salesAgreementState.id !== id)
 						{
-						this.store.dispatch(new CommonActions.LoadSalesAgreement(id));
-						this.loaded = true;
+							this.store.dispatch(new CommonActions.LoadSalesAgreement(id));
+							this.loaded = true;
 						}
 					}
 				}
