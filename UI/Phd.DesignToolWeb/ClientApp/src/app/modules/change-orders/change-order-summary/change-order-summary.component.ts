@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, Renderer2, ElementRef } from '@angular/core';
-import { Router } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { Store, select } from '@ngrx/store';
 import { Actions, ofType } from '@ngrx/effects';
 import { FormGroup, FormControl, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
@@ -63,6 +63,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 	specCancelled$: Observable<boolean>;
 	signedDate: Date;
 	isSaving: boolean = false;
+	loaded = false;
 
 	JOB_CHANGEORDER_TYPES = [
 		{ value: 'SalesJIO', id: 0 },
@@ -165,6 +166,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 	}
 
 	constructor(
+		private activatedRoute: ActivatedRoute,
 		private router: Router,
 		private store: Store<fromRoot.State>,
 		private _changeOrderService: ChangeOrderService,
@@ -176,6 +178,47 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 
 	ngOnInit()
 	{
+		this.activatedRoute.paramMap
+			.pipe(
+				combineLatest(this.store.pipe(select(state => state.salesAgreement)),
+				this.store.pipe(select(jobState => jobState.job))),
+				
+			).subscribe(([params, salesAgreementState, jobState]) =>
+			{
+				if (!this.jobId)
+				{
+					const id = +params.get('id');
+					const isSpec = params.get('spec');
+					if (!this.loaded && isSpec === 'spec')
+					{
+						if (jobState.jobLoading && jobState.id === id)
+						{
+							return new Observable<never>();
+						}
+						else
+						{
+							this.loaded = true;
+							this.store.dispatch(new JobActions.LoadJobForJob(id));
+						}
+					}
+					if (!this.loaded && isSpec === 'salesagreement')
+					{
+						if (salesAgreementState.salesAgreementLoading || salesAgreementState.savingSalesAgreement || salesAgreementState.loadError)
+						{
+							return new Observable<never>();
+						}
+
+						// if sales agreement is not in the store and the id has been passed in to the url
+						// or the passed in sales agreement id is different than that of the id in the store...
+						if (id > 0 && salesAgreementState.id !== id)
+						{
+						this.store.dispatch(new CommonActions.LoadSalesAgreement(id));
+						this.loaded = true;
+						}
+					}
+				}
+			});
+
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(state => state.job),

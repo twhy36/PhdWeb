@@ -49,11 +49,6 @@ const moduleRoutes: Routes = [
         path: 'spec/:jobId',
         component: PulteInfoComponent,
         canDeactivate: [ConfirmNavigationGuard]
-    },
-    {
-        path: 'spec/:jobId/:changeOrder',
-        component: PulteInfoComponent,
-        canDeactivate: [ConfirmNavigationGuard]
     }
 ];
 
