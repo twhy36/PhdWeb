@@ -5,6 +5,7 @@ import { environment } from '../../../../../environments/environment';
 import { LinkAction } from '../../models/action.model';
 import { SearchResult, IFilterItem, IFilterItems, ISearchResultAgreement } from '../../models/search.model';
 import { SearchService } from '../../../core/services/search.service';
+import { PhdTableComponent } from 'phd-common/components/table/phd-table.component';
 
 @Component({
 	encapsulation: ViewEncapsulation.None,
@@ -414,4 +415,15 @@ export class PHDSearchComponent
 			? `${lot.buildType} - HS`
 			: lot.buildType;
 	}
+
+	showTooltip(event: any, tooltipText: string, tableComponent: PhdTableComponent): void
+	{
+		tableComponent.showTooltip(event, tooltipText);
+	}
+
+	hideTooltip(tableComponent: PhdTableComponent): void
+	{
+		tableComponent.hideTooltip();
+	}
+
 }

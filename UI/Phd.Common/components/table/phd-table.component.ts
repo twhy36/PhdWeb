@@ -431,7 +431,7 @@ export class PhdTableComponent implements AfterContentInit, OnChanges
 		if (this.displayTooltip)
 		{
 			this.tooltipText = tooltipText;
-			this.tooltipOverlay.appendTo = event.target;
+			this.tooltipOverlay.appendTo = event.target.parentElement;
 			this.tooltipOverlay.show(event, event.target);
 		}
 	}

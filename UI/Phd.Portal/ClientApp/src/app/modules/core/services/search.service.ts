@@ -94,7 +94,7 @@ export class SearchService
 		selectData.salesCommunity = 'id,name,number';
 		selectData.financialCommunity = 'id,name,number,marketId,salesCommunityId';
         selectData.scenarios = 'id,name';
-		selectData.jobChangeOrderGroup = 'id, jobChangeOrderGroupDescription';
+		selectData.jobChangeOrderGroup = 'id, jobChangeOrderGroupDescription,salesStatusDescription';
 
 		let expandData: SearchEntities = new SearchEntities();
 
@@ -107,7 +107,7 @@ export class SearchService
 		expandData.financialCommunity = `financialCommunity($select=${selectData.financialCommunity};$expand=${expandData.salesCommunity})`;
 		expandData.salesAgreement = `salesAgreement($select=${selectData.salesAgreement};$expand=jobSalesAgreementAssocs($select=jobId,isActive,salesAgreementId;$orderby=createdUtcDate desc;$top=1))`;
 		expandData.jobSalesAgreementAssocs = `jobSalesAgreementAssocs($select=${selectData.jobSalesAgreementAssocs};$expand=${expandData.salesAgreement})`;
-		expandData.jobChangeOrderGroup = `jobChangeOrderGroups($select=${selectData.jobChangeOrderGroup})`;
+		expandData.jobChangeOrderGroup = `jobChangeOrderGroups($select=${selectData.jobChangeOrderGroup};$expand=jobChangeOrderGroupSalesAgreementAssocs($select=jobChangeOrderGroupId,salesAgreementId,changeOrderGroupSequence))`;
 		expandData.jobs = `jobs($select=${selectData.jobs};$expand=${expandData.jobSalesAgreementAssocs},${expandData.jobChangeOrderGroup},planCommunity($select=id,planSalesName);)`;
 
 		// top level expands
