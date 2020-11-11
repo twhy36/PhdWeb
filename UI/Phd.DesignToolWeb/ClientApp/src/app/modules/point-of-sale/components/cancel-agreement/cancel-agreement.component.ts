@@ -107,7 +107,7 @@ export class CancelAgreementComponent extends UnsubscribeOnDestroy implements On
 
 		this._saService.saveNote(note).pipe(
 			switchMap(notes => {
-				return this._saService.createSalesAgreementCancellation(this.salesAgreementId, notes.id, reasonKey);
+				return this._saService.createSalesAgreementCancellation(this.salesAgreementId, notes ? notes.id : null, reasonKey);
 			})
 		).subscribe(cancelInfo => {
 			this.store.dispatch(new SalesAgreementActions.SalesAgreementTerminated(cancelInfo));

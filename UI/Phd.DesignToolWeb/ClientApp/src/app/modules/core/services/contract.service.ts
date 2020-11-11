@@ -576,8 +576,8 @@ export class ContractService
 
 					const inChangeOrderOrSpecSale = store.changeOrder.isChangingOrder || isSpecSalePending;
 					let buyer = inChangeOrderOrSpecSale ? coPrimaryBuyer : store.salesAgreement.buyers.find(t => t.isPrimaryBuyer === true);
-					const buyerContact = buyer.opportunityContactAssoc.contact;
-					const currentBuyerName = `${buyerContact.firstName ? buyerContact.firstName : ''}${buyerContact.middleName ? ' ' + buyerContact.middleName : ''} ${buyerContact.lastName ? ' ' + buyerContact.lastName : ''}${buyerContact.suffix ? ' ' + buyerContact.suffix : ''}`;
+					const buyerContact = buyer && buyer.opportunityContactAssoc ? buyer.opportunityContactAssoc.contact : null;
+					const currentBuyerName = buyerContact ? (`${buyerContact.firstName ? buyerContact.firstName : ''}${buyerContact.middleName ? ' ' + buyerContact.middleName : ''} ${buyerContact.lastName ? ' ' + buyerContact.lastName : ''}${buyerContact.suffix ? ' ' + buyerContact.suffix : ''}`) : '';
 
 					const sagBuyers = store.salesAgreement.buyers.filter(t => t.isPrimaryBuyer === false);
 					let coBuyerList = sagBuyers;

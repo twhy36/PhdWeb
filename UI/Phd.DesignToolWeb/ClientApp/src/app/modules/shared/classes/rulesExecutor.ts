@@ -348,15 +348,31 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 			{
 				lockedInChoice = choice.lockedInChoice as JobChoice;
 
-				currentAttributeGroupIds = [...currentAttributeGroupIds, ...lockedInChoice.jobChoiceAttributes.map(x => new MappedAttributeGroup({ id: x.attributeGroupCommunityId }))];
-				currentLocationGroupIds = [...currentLocationGroupIds, ...lockedInChoice.jobChoiceLocations.map(x => new MappedLocationGroup({ id: x.locationGroupCommunityId }))];
+				currentAttributeGroupIds = [...currentAttributeGroupIds,
+					...lockedInChoice.jobChoiceAttributes
+						.filter(jca => !currentAttributeGroupIds.some(cag => cag.id === jca.attributeGroupCommunityId))
+						.map(x => new MappedAttributeGroup({ id: x.attributeGroupCommunityId }))
+				];
+				currentLocationGroupIds = [...currentLocationGroupIds,
+					...lockedInChoice.jobChoiceLocations
+						.filter(jcl => !currentLocationGroupIds.some(clg => clg.id === jcl.locationGroupCommunityId))
+						.map(x => new MappedLocationGroup({ id: x.locationGroupCommunityId }))
+				];
 			}
 			else if (choice.lockedInChoice.hasOwnProperty('jobChangeOrderChoiceAttributes'))
 			{
 				lockedInChoice = choice.lockedInChoice as ChangeOrderChoice;
 
-				currentAttributeGroupIds = [...currentAttributeGroupIds, ...lockedInChoice.jobChangeOrderChoiceAttributes.map(x => new MappedAttributeGroup({ id: x.attributeGroupCommunityId }))];
-				currentLocationGroupIds = [...currentLocationGroupIds, ...lockedInChoice.jobChangeOrderChoiceLocations.map(x => new MappedLocationGroup({ id: x.locationGroupCommunityId }))];
+				currentAttributeGroupIds = [...currentAttributeGroupIds,
+					...lockedInChoice.jobChangeOrderChoiceAttributes
+						.filter(coca => !currentAttributeGroupIds.some(cag => cag.id === coca.attributeGroupCommunityId))
+						.map(x => new MappedAttributeGroup({ id: x.attributeGroupCommunityId }))
+				];
+				currentLocationGroupIds = [...currentLocationGroupIds,
+					...lockedInChoice.jobChangeOrderChoiceLocations
+						.filter(cocl => !currentLocationGroupIds.some(clg => clg.id === cocl.locationGroupCommunityId))
+						.map(x => new MappedLocationGroup({ id: x.locationGroupCommunityId }))
+				];
 			}
 
 			if (choice.lockedInOptions && choice.lockedInOptions.length > 0)
