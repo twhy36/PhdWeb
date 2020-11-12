@@ -87,7 +87,8 @@ export class SearchResult
 				this.activeChangeOrder = {
 					changeOrderDescription: activeCOG.jobChangeOrderGroupDescription,
 					changeOrderNumber: activeCOG.jobChangeOrderGroupSalesAgreementAssocs.length > 0 ? activeCOG.jobChangeOrderGroupSalesAgreementAssocs[0].changeOrderGroupSequence.toString() : '0',
-					changeOrderStatus: activeCOG.salesStatusDescription
+					changeOrderStatus: activeCOG.salesStatusDescription,
+					SalesAgreementId: activeCOG.jobChangeOrderGroupSalesAgreementAssocs.length > 0 ? activeCOG.jobChangeOrderGroupSalesAgreementAssocs[0].salesAgreementId : null
 				};
 				this.activeChangeOrderText = 'CO# ' +
 					(activeCOG.jobChangeOrderGroupSalesAgreementAssocs.length > 0 ? activeCOG.jobChangeOrderGroupSalesAgreementAssocs[0].changeOrderGroupSequence.toString() : '0') +
@@ -186,6 +187,7 @@ export interface IJobChangeOrderGroup
 	jobChangeOrderGroupDescription: string;
 	salesStatusDescription: string;
 	jobChangeOrderGroupSalesAgreementAssocs: Array<ChangeOrderGroupSalesAgreementAssoc>;
+	jobId: number;
 }
 
 export interface ISearchResultAgreement
@@ -250,8 +252,10 @@ export class ActiveChangeOrder {
 	changeOrderNumber: string;
 	changeOrderStatus: string;
 	changeOrderDescription: string;
+	SalesAgreementId: number;
 }
 
 export class ChangeOrderGroupSalesAgreementAssoc {
 	changeOrderGroupSequence: number;
+	salesAgreementId: number;
 }

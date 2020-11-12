@@ -26,6 +26,7 @@ const moduleRoutes: Routes = [
 		children: [
 			{ path: '', pathMatch: 'full', redirectTo: 'change-orders-summary' },
 			{ path: 'change-orders-summary', component: ChangeOrderSummaryComponent },
+			{ path: 'change-orders-summary/:spec/:id', component: ChangeOrderSummaryComponent },
 			{ path: 'plan-change', component: PlanChangeComponent },
 			{ path: 'lot-transfer', component: LotTransferComponent },
 			{ path: 'non-standard', component: NonStandardChangeComponent }

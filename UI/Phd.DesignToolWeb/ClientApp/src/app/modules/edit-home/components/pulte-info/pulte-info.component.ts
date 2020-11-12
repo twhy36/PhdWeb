@@ -120,7 +120,7 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit {
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(fromRoot.canConfigure)
-		).subscribe(canConfigure => this.canEdit = canConfigure);
+        ).subscribe(canConfigure => this.canEdit = canConfigure);
     }
 
     createForm() {
