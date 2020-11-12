@@ -340,11 +340,11 @@ export class PHDSearchComponent
 		let agreementUrl = '';
 		if (lot.activeChangeOrder.SalesAgreementId)
 		{
-			agreementUrl = `${environment.baseUrl[this.action.envBaseUrl]}change-orders/change-orders-summary/${lot.activeChangeOrder.SalesAgreementId}/salesagreement`;
+			agreementUrl = `${environment.baseUrl[this.action.envBaseUrl]}change-orders/change-orders-summary/salesagreement/${lot.activeChangeOrder.SalesAgreementId}`;
 		}
 		else
 		{
-			agreementUrl = `${environment.baseUrl[this.action.envBaseUrl]}change-orders/change-orders-summary/${lot.jobId}/spec`;
+			agreementUrl = `${environment.baseUrl[this.action.envBaseUrl]}change-orders/change-orders-summary/spec/${lot.jobId}`;
 		}
 
 		return agreementUrl;
