@@ -6,6 +6,8 @@ import { Routes, RouterModule } from '@angular/router';
 import { CloudinaryModule } from '@cloudinary/angular-5.x';
 import { Cloudinary } from 'cloudinary-core';
 
+import { PhdCommonModule } from 'phd-common';
+
 import { environment } from '../environments/environment';
 import { AppComponent } from './app.component';
 import { HomeModule } from './modules/home/home.module';
@@ -29,7 +31,8 @@ const setTitle = (titleService: Title) => {
         AppComponent
     ],
     imports: [
-        BrowserModule,
+		BrowserModule,
+		PhdCommonModule.forRoot(null),
 		FormsModule,
 		CoreModule,
         SharedModule,

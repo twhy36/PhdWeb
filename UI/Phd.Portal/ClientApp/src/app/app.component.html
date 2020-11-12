@@ -1,8 +1,9 @@
 <header>
-  <h1>PulteGroup</h1>
-  <aside>
-    <div class="user" *ngIf="user"><i class="fas fa-user"></i>{{user.profile.name}}</div>
-  </aside>
+	<h1>PulteGroup</h1>
+	<aside>
+		<div class="user" *ngIf="user"><i class="fas fa-user"></i>{{user.profile.name}}</div>
+	</aside>
 </header>
 
 <router-outlet></router-outlet>
+<build-version *ngIf="!environment.production" [branch]="branch" [version]="build.version"></build-version>

@@ -3,7 +3,7 @@
 <ng-container *ngIf="(canAccessSalesAdmin$ | async); else noAccess">
 	<div id="phd-app">
 		<button-bar id="phd-page-buttonbar"></button-bar>
-	
+
 		<router-outlet></router-outlet>
 	</div>
 	<common-spinner></common-spinner>
@@ -12,3 +12,4 @@
 <ng-template #noAccess>
 	You do not have access to this application. Please contact TSC to be granted access.
 </ng-template>
+<build-version *ngIf="!environment.production" [branch]="branch" [version]="build.version"></build-version>
