@@ -13,6 +13,7 @@ import { NgbDateNativeAdapter } from '../../../shared/classes/ngbDatePicker/ngbD
 import { NgbInputDatepicker } from '@ng-bootstrap/ng-bootstrap';
 import { SalesAgreementService } from '../../../core/services/sales-agreement.service';
 import { ModalService } from '../../../../modules/core/services/modal.service';
+import { convertDateToUtcString } from "../../../shared/classes/date-utils.class";
 
 @Component({
 	selector: 'deposit-detail',
@@ -65,11 +66,11 @@ export class DepositDetailComponent extends ComponentCanNavAway implements OnIni
 
 	ngOnInit()
 	{
-		this.deposit.dueDate = new Date(this.deposit.dueDate);
+		this.deposit.dueDate = new Date(convertDateToUtcString(this.deposit.dueDate));
 
 		if (this.deposit.paidDate)
 		{
-			this.deposit.paidDate = new Date(this.deposit.paidDate);
+			this.deposit.paidDate = new Date(convertDateToUtcString(this.deposit.paidDate));
 		}
 
 		this.default = new SalesAgreementDeposit({ ...this.deposit });
