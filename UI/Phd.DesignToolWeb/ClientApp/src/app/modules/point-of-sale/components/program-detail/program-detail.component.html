@@ -21,10 +21,10 @@
 		<div class="phd-incentive-footer">
 			<div class="phd-currency phd-incentive-amount">
 				<ng-container *ngIf="selectedSalesProgram && selectedSalesProgram.salesProgramType === 'DiscountFlatAmount'; else buyersClosingCost">
-					({{program && program.amount || 0 | currency:'USD':'symbol':'0.0-0'}})
+					({{program && program.amount || 0 | currency:'USD':'symbol':'0.2-2'}})
 				</ng-container>
 				<ng-template #buyersClosingCost>
-					{{program && program.amount || 0 | currency:'USD':'symbol':'0.0-0'}}
+					{{program && program.amount || 0 | currency:'USD':'symbol':'0.2-2'}}
 				</ng-template>
 			</div>
 			<div>
@@ -82,10 +82,6 @@
 				</div>
 
 				<input class="form-control" type="number" name="discount" id="discount" min="1" formControlName="discountAmount" required>
-
-				<div class="input-group-append">
-					<span class="input-group-text">.00</span>
-				</div>
 			</div>
 		</div>
 
