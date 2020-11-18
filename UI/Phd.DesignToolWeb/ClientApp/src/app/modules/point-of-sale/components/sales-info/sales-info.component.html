@@ -30,11 +30,10 @@
 					(onEdit)="edit($event)"
 					(onRemove)="remove('programs', $event)"
 					(onSavingProgram)="saveSalesChangeOrderSalesPrograms($event)"
-					(onUpdateProgram)="updateSalesChangeOrderSalesProgram($event)"
 					(checkChanges)="changes($event)">
 	</program-detail>
 
-	<add-card *ngIf="!editing && canEditAgreement && (canSell || canDesign || canAddIncentive) && !cancelOrVoid"
+	<add-card *ngIf="!editing && canEditAgreement && (canSell || canDesign || canAddIncentive) && !cancelOrVoid && hasAvailableSalesPrograms"
 			  [hasNA]="!programs || programs.length === 0 && !isChangingOrder"
 			  [isNA]="isProgramNa"
 			  [label]="'Incentive'"

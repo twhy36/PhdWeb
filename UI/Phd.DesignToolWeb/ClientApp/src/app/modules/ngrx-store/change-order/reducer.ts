@@ -574,15 +574,25 @@ export function reducer(state: State = initialState, action: ChangeOrderActions)
 				if (programAction === 'Add')
 				{
 					let salesChangeOrderSalesPrograms = _.cloneDeep(action.salesChangeOrderSalesPrograms);
+					let originalProgramId = action.originalProgramId;
 
 					salesChangeOrderSalesPrograms.forEach(program =>
 					{
 						// try to see if the program has already been added
-						const existingProgram = priceAdjustmentChangeOrder.jobSalesChangeOrderSalesPrograms.findIndex(x => x.salesProgramId === program.salesProgramId && x.action === program.action);
-						const agreementProgram = salesAgreement.programs.find(x => x.salesProgramId === program.salesProgramId);
+						let existingProgram = priceAdjustmentChangeOrder.jobSalesChangeOrderSalesPrograms.findIndex(x => x.salesProgramId === program.salesProgramId && x.action === program.action);
+
+						if (existingProgram === -1)
+						{
+							// if the salesProgramId was changed lets try to find it with the original
+							existingProgram = priceAdjustmentChangeOrder.jobSalesChangeOrderSalesPrograms.findIndex(x => x.salesProgramId === originalProgramId && x.action === program.action);
+						}
+
+						const agreementProgram = salesAgreement.programs.find(x => x.salesProgramId === program.salesProgramId && x.id === 0);
+
 						if (existingProgram > -1)
 						{
 							program.amount = (agreementProgram && agreementProgram.amount ? agreementProgram.amount : 0) + program.amount;
+
 							// replace the current incentive
 							priceAdjustmentChangeOrder.jobSalesChangeOrderSalesPrograms.splice(existingProgram, 1, program);
 						}
