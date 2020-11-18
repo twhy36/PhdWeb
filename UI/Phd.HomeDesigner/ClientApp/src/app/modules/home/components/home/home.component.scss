@@ -1,8 +1,10 @@
 @import "../../../../../../../../Phd.Common/scss/color-pallet.scss";
+@import "../../../../../../../../Phd.Common/scss/sizes.scss";
 
 .phd-home-plan {
 	background-color: #e4e5e4;
 	width: calc(44vw);
+	max-height: calc(65vh);
 
 	span {
 		color: $bright_grey;
@@ -10,8 +12,8 @@
 }
 
 .phd-floor-plan-image {
-	padding-left: calc(11vw);
-	padding-right: calc(15vw);
+	padding-left: calc(13vw);
+	padding-right: calc(13vw);
 	padding-top: calc(5vh);
 	padding-bottom: calc(2vh);
 }
@@ -46,10 +48,51 @@
 	a:hover {
 		color: black;
 	}
+
+	.phd-options-link {
+		width: 40%;
+	}
+
+	.phd-floor-plan-link {
+		width: 20%;
+	}
+
+	.phd-favorites-link {
+		width: 40%;
+	}
 }
 
 .phd-design-list-button {
 	background-color: $medium_blue;
 	color: white;
 	padding: 6px 25px;
+}
+
+@media(max-width: $tablet-max-width) {
+	.phd-start-reviewing {
+		font-size: 20px;
+	}
+
+	.phd-click-instruction {
+		font-size: 12px;
+	}
+
+	.phd-action-links {
+		a {
+			font-size: 14px;
+			color: $aegean_blue;
+		}
+
+		.phd-options-link {
+			width: 33%;
+		}
+
+		.phd-floor-plan-link {
+			width: 34%;
+		}
+
+		.phd-favorites-link {
+			width: 33%;
+		}
+	}
 }

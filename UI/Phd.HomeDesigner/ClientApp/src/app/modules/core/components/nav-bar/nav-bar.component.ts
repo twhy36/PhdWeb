@@ -1,4 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+import { Router, NavigationEnd } from '@angular/router';
+import { Observable } from 'rxjs';
+
+import { BrowserService } from '../../services/browser.service';
 import { UnsubscribeOnDestroy } from '../../../shared/classes/unsubscribe-on-destroy';
 
 @Component({
@@ -9,12 +13,26 @@ import { UnsubscribeOnDestroy } from '../../../shared/classes/unsubscribe-on-des
 
 export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 {
-    constructor()
+	currentRoute: string;
+	isTablet$: Observable<boolean>;
+	isMenuCollapsed: boolean = true;
+
+	constructor(private router: Router, private browser: BrowserService)
     {
-      super();
+		super();
     }
 
-	  ngOnInit()
-	  {
-	  }
+	ngOnInit()
+	{
+		this.router.events.subscribe(evt => {
+			if (evt instanceof NavigationEnd) {
+				this.currentRoute = evt.url.toLowerCase();
+			}
+		});
+
+		this.isTablet$ = this.browser.isTablet();
+		this.isTablet$.subscribe(data => {
+			this.isMenuCollapsed = true;
+		});
+	}
 }

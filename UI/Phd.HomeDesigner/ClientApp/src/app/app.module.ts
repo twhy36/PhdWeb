@@ -1,4 +1,5 @@
 import { BrowserModule, Title } from '@angular/platform-browser';
+import { CommonModule } from '@angular/common';
 import { NgModule, APP_INITIALIZER } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Routes, RouterModule } from '@angular/router';
@@ -10,12 +11,14 @@ import { PhdCommonModule } from 'phd-common';
 
 import { environment } from '../environments/environment';
 import { AppComponent } from './app.component';
-import { HomeModule } from './modules/home/home.module';
 import { CoreModule } from './modules/core/core.module';
 import { SharedModule } from './modules/shared/shared.module';
+import { HomeModule } from './modules/home/home.module';
+import { FavoritesModule } from './modules/favorites/favorites.module';
 
 const appRoutes: Routes = [
     { path: 'home', component: HomeModule },
+	{ path: 'favorites', component: FavoritesModule },
     { path: '', pathMatch: 'full', redirectTo: 'home' }
 ];
 
@@ -31,12 +34,14 @@ const setTitle = (titleService: Title) => {
         AppComponent
     ],
     imports: [
-		BrowserModule,
+        BrowserModule,
+        CommonModule,
 		PhdCommonModule.forRoot(null),
 		FormsModule,
 		CoreModule,
         SharedModule,
-        HomeModule,
+		HomeModule,
+		FavoritesModule,
 		RouterModule.forRoot(appRoutes),
 		CloudinaryModule.forRoot({ Cloudinary }, environment.cloudinary)
     ],
