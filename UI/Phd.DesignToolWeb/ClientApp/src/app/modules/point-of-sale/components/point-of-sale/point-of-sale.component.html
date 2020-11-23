@@ -44,3 +44,7 @@
 <ng-template #salesConsultant let-c="close" let-d="dismiss">
 	<sales-consultant [consultants]="salesAgreementConsultants$ | async" [salesAgreement]="salesAgreement" [canEdit]="canSell$ | async" (close)="closeModal()"></sales-consultant>
 </ng-template>
+
+<ng-template #voidAgreement let-c="close" let-d="dismiss">
+	<void-agreement (close)="closeModal()"></void-agreement>
+</ng-template>

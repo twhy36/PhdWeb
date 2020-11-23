@@ -43,6 +43,7 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 	@ViewChild('cancelAgreement') cancelAgreementTemplate: any;
 	@ViewChild('terminateAgreement') terminateAgreementTemplate: any;
 	@ViewChild('salesConsultant') salesConsultant: any;
+	@ViewChild('voidAgreement') voidAgreementTemplate: any;
 
 	displaySaveAndView: boolean = false;
 	isChangingOrder: boolean;
@@ -348,6 +349,10 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 					});
 
 				break;
+
+			case (ActionBarCallType.VOID_AGREEMENT):
+				this.voidAgreement();
+				break;
 		}
 	}
 
@@ -490,6 +495,18 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 
 		if (await this.showConfirmModal(confirmMessage, confirmTitle, confirmDefaultOption, primaryButton, secondaryButton)) {
 			this.modalReference = this.modalService.open(this.cancelAgreementTemplate, { windowClass: 'phd-cancel-agreement', keyboard: false });
+		}
+	}
+
+	async voidAgreement() {
+		const confirmMessage: string = 'You are about to Void an agreement. Do you wish to continue?';
+		const confirmTitle: string = 'Void Home Purchase Agreement';
+		const confirmDefaultOption: string = 'Cancel';
+		const primaryButton = { hide: false, text: 'Continue' };
+		const secondaryButton = { hide: false, text: 'Cancel' };
+
+		if (await this.showConfirmModal(confirmMessage, confirmTitle, confirmDefaultOption, primaryButton, secondaryButton)) {
+			this.modalReference = this.modalService.open(this.voidAgreementTemplate, { windowClass: 'phd-cancel-agreement', keyboard: false });
 		}
 	}
 

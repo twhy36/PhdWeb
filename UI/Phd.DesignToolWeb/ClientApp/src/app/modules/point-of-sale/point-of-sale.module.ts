@@ -31,6 +31,7 @@ import { SalesInfoMiscComponent } from './components/sales-info-misc/sales-info-
 import { SalesNoteComponent } from './components/sales-note/sales-note.component';
 import { SignAgreementComponent } from './components/sign-agreement/sign-agreement.component';
 import { SalesConsultantComponent } from './components/sales-consultant/sales-consultant.component';
+import { VoidAgreementComponent } from './components/void-agreement/void-agreement.component';
 
 const moduleRoutes: Routes = [
 	{
@@ -105,7 +106,8 @@ const moduleRoutes: Routes = [
 		SalesInfoMiscComponent,
 		SalesNoteComponent,
 		SignAgreementComponent,
-		SalesConsultantComponent
+		SalesConsultantComponent,
+		VoidAgreementComponent
 	],
 	entryComponents: [
 		MatchingContactsComponent,

@@ -1,5 +1,5 @@
 import { Action } from '@ngrx/store';
-import { SalesAgreement, Realtor, SalesAgreementProgram, SalesAgreementDeposit, SalesAgreementContingency, SalesAgreementCancelInfo, Consultant, SalesAgreementInfo } from '../../shared/models/sales-agreement.model';
+import { SalesAgreement, Realtor, SalesAgreementProgram, SalesAgreementDeposit, SalesAgreementContingency, SalesAgreementCancelVoidInfo, Consultant, SalesAgreementInfo } from '../../shared/models/sales-agreement.model';
 import { Buyer } from '../../shared/models/buyer.model';
 import { Note } from '../../shared/models/note.model';
 import { ErrorAction } from '../error.action';
@@ -84,7 +84,7 @@ export enum SalesAgreementActionTypes
 export class SalesAgreementTerminated implements Action {
 	readonly type = SalesAgreementActionTypes.SalesAgreementTerminated;
 
-	constructor(public cancelReason: SalesAgreementCancelInfo) { }
+	constructor(public cancelReason: SalesAgreementCancelVoidInfo) { }
 }
 
 export class SalesAgreementInfoViewed implements Action {
@@ -146,7 +146,7 @@ export class VoidSalesAgreement implements Action
 {
 	readonly type = SalesAgreementActionTypes.VoidSalesAgreement;
 
-	constructor() { }
+	constructor(public reasonKey: string) { }
 }
 
 export class CancelSalesAgreement implements Action
