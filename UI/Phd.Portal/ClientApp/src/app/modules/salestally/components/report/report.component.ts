@@ -112,9 +112,9 @@ export class ReportComponent implements OnInit
 
 			// Will not display buyers for pending sales
 			const nonPendingSales = groupData.find(x => {
-				return (x.currentSignups + x.currentCancellations
-					+ x.currentNet + x.mtdSignups + x.mtdCancellations
-					+ x.mtdNet + x.currentDaySignups + x.previousDaySignups) > 0;
+				return x.currentSignups !== 0 || x.currentCancellations !== 0
+					|| x.currentNet !== 0 || x.mtdSignups !== 0 || x.mtdCancellations !== 0
+					|| x.mtdNet !== 0 || x.currentDaySignups !== 0 || x.previousDaySignups !== 0;
 			});
 
 			if (!nonPendingSales) {

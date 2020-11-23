@@ -118,60 +118,63 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 
 			if (action.type === ScenarioActionTypes.TreeLoadedFromJob || action.type === CommonActionTypes.SalesAgreementLoaded || action.type === CommonActionTypes.JobLoaded)
 			{
-				action.choices.forEach(choice =>
+				if (newState.tree)
 				{
-					let c = _.flatMap(newState.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)))
-						.find(ch => ch.divChoiceCatalogId === choice.divChoiceCatalogId);
-
-					if (c)
+					action.choices.forEach(choice =>
 					{
-						// get locations
-						let selectedAttributes = choice.jobChoiceLocations ? _.flatten(choice.jobChoiceLocations.map(l =>
+						let c = _.flatMap(newState.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)))
+							.find(ch => ch.divChoiceCatalogId === choice.divChoiceCatalogId);
+
+						if (c)
 						{
-							return l.jobChoiceLocationAttributes && l.jobChoiceLocationAttributes.length ? l.jobChoiceLocationAttributes.map(a =>
+							// get locations
+							let selectedAttributes = choice.jobChoiceLocations ? _.flatten(choice.jobChoiceLocations.map(l =>
 							{
-								return <DesignToolAttribute>{
+								return l.jobChoiceLocationAttributes && l.jobChoiceLocationAttributes.length ? l.jobChoiceLocationAttributes.map(a =>
+								{
+									return <DesignToolAttribute>{
+										attributeId: a.attributeCommunityId,
+										attributeGroupId: a.attributeGroupCommunityId,
+										scenarioChoiceLocationId: a.id,
+										scenarioChoiceLocationAttributeId: l.id,
+										locationGroupId: l.locationGroupCommunityId,
+										locationId: l.locationCommunityId,
+										locationQuantity: l.quantity,
+										attributeGroupLabel: a.attributeGroupLabel,
+										attributeName: a.attributeName,
+										locationGroupLabel: l.locationGroupLabel,
+										locationName: l.locationName,
+										sku: a.sku,
+										manufacturer: a.manufacturer
+									};
+								}) : [<DesignToolAttribute>{
+									locationGroupId: l.locationGroupCommunityId,
+									locationGroupLabel: l.locationGroupLabel,
+									locationId: l.locationCommunityId,
+									locationName: l.locationName,
+									locationQuantity: l.quantity
+								}];
+							})) : [];
+
+							// get attributes
+							c.selectedAttributes && choice.jobChoiceAttributes && choice.jobChoiceAttributes.forEach(a =>
+							{
+								selectedAttributes.push({
 									attributeId: a.attributeCommunityId,
 									attributeGroupId: a.attributeGroupCommunityId,
 									scenarioChoiceLocationId: a.id,
-									scenarioChoiceLocationAttributeId: l.id,
-									locationGroupId: l.locationGroupCommunityId,
-									locationId: l.locationCommunityId,
-									locationQuantity: l.quantity,
 									attributeGroupLabel: a.attributeGroupLabel,
 									attributeName: a.attributeName,
-									locationGroupLabel: l.locationGroupLabel,
-									locationName: l.locationName,
 									sku: a.sku,
 									manufacturer: a.manufacturer
-								};
-							}) : [<DesignToolAttribute>{
-								locationGroupId: l.locationGroupCommunityId,
-								locationGroupLabel: l.locationGroupLabel,
-								locationId: l.locationCommunityId,
-								locationName: l.locationName,
-								locationQuantity: l.quantity
-							}];
-						})) : [];
+								} as DesignToolAttribute);
+							});
 
-						// get attributes
-						c.selectedAttributes && choice.jobChoiceAttributes && choice.jobChoiceAttributes.forEach(a =>
-						{
-							selectedAttributes.push({
-								attributeId: a.attributeCommunityId,
-								attributeGroupId: a.attributeGroupCommunityId,
-								scenarioChoiceLocationId: a.id,
-								attributeGroupLabel: a.attributeGroupLabel,
-								attributeName: a.attributeName,
-								sku: a.sku,
-								manufacturer: a.manufacturer
-							} as DesignToolAttribute);
-						});
-
-						c.quantity = choice.dpChoiceQuantity;
-						c.selectedAttributes = selectedAttributes;
-					}
-				});
+							c.quantity = choice.dpChoiceQuantity;
+							c.selectedAttributes = selectedAttributes;
+						}
+					});
+				}
 
 				let scenario = _.cloneDeep(newState.scenario || state.scenario);
 
@@ -183,7 +186,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 				{
 					scenario.lotId = action.job.lotId;
 					scenario.planId = action.job.planId;
-					scenario.treeVersionId = action.tree.treeVersion.id;
+					scenario.treeVersionId = action.tree ? action.tree.treeVersion.id : null;
 				}
 
 				newState = { ...newState, scenario: scenario };

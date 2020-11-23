@@ -41,9 +41,9 @@ export class SalesAgreementService
 		const entity = `salesAgreements(${salesAgreementId})`;
 		const expands = `programs($select=id,salesAgreementId,salesProgramId,salesProgramDescription,amount;$expand=salesProgram($select=id, salesProgramType, name)),deposits,contingencies,salesAgreementNoteAssocs($expand=note($expand=noteTargetAudienceAssocs($expand=targetAudience)))`;
 		const expandCancellations = `cancellations($expand=note($select=id,noteContent);$select=salesAgreementId,cancelReasonDesc,voidReasonDesc,noteId)`;
-		const expandRealtors = `realtors($expand=contact($expand=addressAssocs($expand=address),phoneAssocs($expand=phone),emailAssocs($expand=email)))`;
-		const expandBuyers = `buyers($expand=opportunityContactAssoc($expand=opportunity($select=dynamicsOpportunityId,salesCommunityId),contact($expand=addressAssocs($expand=address),phoneAssocs($expand=phone),emailAssocs($expand=email))))`;
-		const expandConsultants = `consultants($expand=contact($expand=emailAssocs($expand=email)))`;
+		const expandRealtors = `realtors($expand=contact($select=id,prefix,firstName,middleName,lastName,suffix,preferredCommunicationMethod,dynamicsIntegrationKey;$expand=addressAssocs($expand=address),phoneAssocs($expand=phone),emailAssocs($expand=email)))`;
+		const expandBuyers = `buyers($expand=opportunityContactAssoc($expand=opportunity($select=dynamicsOpportunityId,salesCommunityId),contact($select=id,prefix,firstName,middleName,lastName,suffix,preferredCommunicationMethod,dynamicsIntegrationKey;$expand=addressAssocs($expand=address),phoneAssocs($expand=phone),emailAssocs($expand=email))))`;
+		const expandConsultants = `consultants($expand=contact($select=id,prefix,firstName,middleName,lastName,suffix,preferredCommunicationMethod,dynamicsIntegrationKey;$expand=emailAssocs($expand=email)))`;
 		const expandJobAssocs = `jobSalesAgreementAssocs($select=jobId;$orderby=createdUtcDate desc;$top=1)`;
 		const expandPriceAdjustments = `salesAgreementPriceAdjustmentAssocs($select=id,salesAgreementId,priceAdjustmentType,amount)`;
 		const expand = `${expands},${expandCancellations},${expandRealtors},${expandBuyers},${expandConsultants},${expandJobAssocs},${expandPriceAdjustments}`;

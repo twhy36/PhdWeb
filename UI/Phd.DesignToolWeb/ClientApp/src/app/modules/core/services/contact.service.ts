@@ -75,7 +75,9 @@ export class ContactService
 			expand = `${this._ds}expand=${encodeURIComponent(expandArray.join(','))}`;
 		}
 
-		const endpoint = `${environment.apiUrl}${entity}?${expand}`;
+		const select = 'id,prefix,firstName,middleName,lastName,suffix,preferredCommunicationMethod,dynamicsIntegrationKey';
+
+		const endpoint = `${environment.apiUrl}${entity}?${expand}&${this._ds}select=${encodeURIComponent(select)}`;
 
 		return this._http.get<Contact>(endpoint).pipe(
 			defaultOnNotFound("getSalesAgreementRealtor")

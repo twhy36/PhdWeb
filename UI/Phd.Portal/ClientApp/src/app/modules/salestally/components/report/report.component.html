@@ -128,17 +128,17 @@
 						<p-treeTableToggler [rowNode]="rowNode"></p-treeTableToggler>
 						{{rowData.name}}
 					</td>
-					<td class="phd-stlly-abbrv-cell phd-stlly-abbrv-cell-padding">{{rowData.pending}}</td>
-					<td class="phd-stlly-abbrv-cell">{{rowData.previousDaySignups}}</td>
-					<td class="phd-stlly-abbrv-cell">{{rowData.currentDaySignups}}</td>
+					<td class="phd-stlly-abbrv-cell phd-stlly-abbrv-cell-padding">{{rowData.pending | number:'1.0-2'}}</td>
+					<td class="phd-stlly-abbrv-cell">{{rowData.previousDaySignups | number:'1.0-2'}}</td>
+					<td class="phd-stlly-abbrv-cell">{{rowData.currentDaySignups | number:'1.0-2'}}</td>
 
-					<td class="phd-stlly-abbrv-cell">{{rowData.currentSignups}}</td>
-					<td class="phd-stlly-abbrv-cell">{{rowData.currentCancellations}}</td>
-					<td class="phd-stlly-abbrv-cell">{{rowData.currentNet}}</td>
+					<td class="phd-stlly-abbrv-cell">{{rowData.currentSignups | number:'1.0-2'}}</td>
+					<td class="phd-stlly-abbrv-cell">{{rowData.currentCancellations | number:'1.0-2'}}</td>
+					<td class="phd-stlly-abbrv-cell">{{rowData.currentNet | number:'1.0-2'}}</td>
 
-					<td class="phd-stlly-abbrv-cell">{{rowData.mtdSignups}}</td>
-					<td class="phd-stlly-abbrv-cell">{{rowData.mtdCancellations}}</td>
-					<td class="phd-stlly-abbrv-cell">{{rowData.mtdNet}}</td>
+					<td class="phd-stlly-abbrv-cell">{{rowData.mtdSignups | number:'1.0-2'}}</td>
+					<td class="phd-stlly-abbrv-cell">{{rowData.mtdCancellations | number:'1.0-2'}}</td>
+					<td class="phd-stlly-abbrv-cell">{{rowData.mtdNet | number:'1.0-2'}}</td>
 				</tr>
 			</ng-template>
 		</p-treeTable>
