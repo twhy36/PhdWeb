@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { NgModule, APP_INITIALIZER } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Routes, RouterModule } from '@angular/router';
+import { APP_BASE_HREF, PlatformLocation } from "@angular/common";
 
 import { CloudinaryModule } from '@cloudinary/angular-5.x';
 import { Cloudinary } from 'cloudinary-core';
@@ -29,6 +30,10 @@ const setTitle = (titleService: Title) => {
     }
 }
 
+export function getBaseHref(platformLocation: PlatformLocation): string {
+	return platformLocation.getBaseHrefFromDOM();
+}
+
 @NgModule({
     declarations: [
         AppComponent
@@ -46,7 +51,8 @@ const setTitle = (titleService: Title) => {
 		CloudinaryModule.forRoot({ Cloudinary }, environment.cloudinary)
     ],
     providers: [
-        { provide: APP_INITIALIZER, useFactory: setTitle, deps: [Title], multi: true }
+		{ provide: APP_INITIALIZER, useFactory: setTitle, deps: [Title], multi: true },
+		{ provide: APP_BASE_HREF, useFactory: getBaseHref, deps: [PlatformLocation] }
     ],
     bootstrap: [AppComponent]
 })
