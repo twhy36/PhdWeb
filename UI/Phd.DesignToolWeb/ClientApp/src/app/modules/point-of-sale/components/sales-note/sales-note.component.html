@@ -44,14 +44,18 @@
 	<div class="w-100">
 		<label for="subCategory">Category *</label>
 		<select class="form-control" formControlName="subCategory" id="subCategory" name="subCategory" (change)="selectChange($event)">
-			<optgroup label="Internal">
-				<option *ngFor="let item of internalCategoryOptions" [ngValue]="item.id">{{ item.value }}</option>
-			</optgroup>
-			<optgroup label="Public">
-				<option *ngFor="let item of externalCategoryOptions" [disabled]="!canAddPublicNote" [ngValue]="item.id">{{ item.value }}</option>
-			</optgroup>
+			<option *ngFor="let item of subCategoryOptions" [ngValue]="item.id"> {{item.value}} </option>
 		</select>
 	</div>
+
+	<div class="w-100">
+		<label for="noteType">Type *</label>
+		<select class="form-control" formControlName="noteType" id="noteType" name="noteType">
+			<option [ngValue]="'Internal'"> Internal </option>
+			<option [ngValue]="'Public'"> Public </option>
+		</select>
+	</div>
+
 	<div>
 		<label for="noteContent">Note *</label>
 		<textarea class="form-control form-group mw-200"
