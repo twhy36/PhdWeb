@@ -18,12 +18,11 @@ export const environment: IEnvironment = {
 		homeSelections: 'https://homebuilder.staging.pulte.com/HomeSelections/',
 		salesTally: 'https://phd.staging.pulte.com/salesportal/salestally'
     },
-    clientId: "d6e4e999-c413-4d1d-b0fb-618759cb69e5",
     appInsights: {
         instrumentationKey: '08875504-9c0f-45a6-8cc5-8a819e51aff0'
     },
-    production: false,
-    tenant: "pulte.onmicrosoft.com",
+	production: false,
+	msalConfig: null,
     whatFix: {
         scriptUrl: '//whatfix.com/01caf5e0-cb2f-11e8-b979-04013d24cd02/embed/embed.nocache.js'
     }

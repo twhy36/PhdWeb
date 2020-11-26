@@ -15,10 +15,9 @@ export const environment: IEnvironment = {
     },
     appInsights: {
         instrumentationKey: '08875504-9c0f-45a6-8cc5-8a819e51aff0'
-    },
-    clientId: "d21266c1-108b-4141-8200-fffa205f205e",
+	},
+	msalConfig: null,
     production: true,
-    tenant: "pulte.onmicrosoft.com",
     whatFix: {
         scriptUrl: '//cdn.whatfix.com/prod/01caf5e0-cb2f-11e8-b979-04013d24cd02/embed/embed.nocache.js'
     }

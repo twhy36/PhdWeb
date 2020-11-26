@@ -8,7 +8,8 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { DropdownModule } from 'primeng/dropdown';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
 
-import { AdalService } from 'adal-angular4';
+import { MsalModule, MsalService, MsalAngularConfiguration, MSAL_CONFIG, MSAL_CONFIG_ANGULAR } from '@azure/msal-angular';
+import { Configuration } from 'msal';
 
 import { PhdTableComponent } from './components/table/phd-table.component';
 import { ConfirmModalComponent } from './components/confirm-modal/confirm-modal.component';
@@ -21,23 +22,39 @@ import { SpinnerComponent } from './components/spinner/spinner.component';
 import { BuildVersionComponent } from './components/build-version/build-version.component';
 import { CanDeactivateGuard } from './guards/can-deactivate.guard';
 import { ClaimGuard } from './guards/claim.guard';
-import { IdentityService, IdentitySettings } from './services';
+import { IdentityService } from './services';
 import { AuthInterceptor } from './http-interceptors/auth-interceptor';
 import { SpinnerService } from './services/spinner.service';
 
 export const API_URL = new InjectionToken<string>('apiUrl');
 
+function MSALAngularConfigFactory(popup: boolean): () => MsalAngularConfiguration {
+    return function () {
+        return {
+            popUp: popup,
+            consentScopes: [
+                "user.read",
+                "openid",
+                "profile"
+            ],
+            unprotectedResources: [],
+            protectedResourceMap: [],
+            extraQueryParameters: {}
+        };
+    }
+}
+
 @NgModule({
-    imports: [TableModule, MultiSelectModule, DropdownModule, OverlayPanelModule, CommonModule, FormsModule],
+    imports: [TableModule, MultiSelectModule, DropdownModule, OverlayPanelModule, CommonModule, FormsModule, MsalModule],
     declarations: [PhdTableComponent, ConfirmModalComponent, SidePanelComponent, PhdColumnDirective, RowTogglerDirective, DragSourceDirective, DragTargetDirective, SpinnerComponent, RequiresClaimDirective, ControlDisabledDirective, BuildVersionComponent],
     exports: [PhdTableComponent, ConfirmModalComponent, SidePanelComponent, PhdColumnDirective, RowTogglerDirective, DragSourceDirective, DragTargetDirective, SpinnerComponent, RequiresClaimDirective, ControlDisabledDirective, BuildVersionComponent],
 })
 export class PhdCommonModule {
-    static forRoot(settings: IdentitySettings, apiUrl?: string): ModuleWithProviders {
+    static forRoot(msalConfig: Configuration, apiUrl?: string, popupLogin: boolean = true): ModuleWithProviders {
         return {
             ngModule: PhdCommonModule,
             providers: [
-                { provide: "AdalService", useClass: AdalService },
+                //{ provide: "AdalService", useClass: AdalService },
                 CanDeactivateGuard,
                 SpinnerService,
                 {
@@ -45,8 +62,16 @@ export class PhdCommonModule {
                     useClass: SpinnerInterceptor,
                     multi: true
                 },
-                { provide: IdentitySettings, useValue: settings },
                 { provide: API_URL, useValue: apiUrl || '' },
+                {
+                    provide: MSAL_CONFIG,
+                    useValue: msalConfig
+                },
+                {
+                    provide: MSAL_CONFIG_ANGULAR,
+                    useFactory: MSALAngularConfigFactory(popupLogin)
+				},
+                MsalService,
                 IdentityService,
                 ClaimGuard,
                 { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }

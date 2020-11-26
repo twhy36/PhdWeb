@@ -21,6 +21,6 @@ if (!window.frameElement) {
   platformBrowserDynamic(providers).bootstrapModule(AppModule)
     .catch(err => console.log(err));
 } else {
-  IdentityService.handleWindowCallback();
+  //IdentityService.handleWindowCallback();
 }
 

@@ -17,13 +17,12 @@ export const environment: IEnvironment = {
 		reports: 'http://powerbi.qa.pulte.com/Reports/browse/IDEA/Sales/PHD',
 		homeSelections: 'https://homebuilder.qa.pulte.com/HomeSelections/',
 		salesTally: 'https://phd.qa.pulte.com/salesportal/salestally'
-    },
-    clientId: "9d433c6a-9bfc-4d5e-917b-3bfe08942b6e",
+	},
+	msalConfig: null,
     appInsights: {
         instrumentationKey: '08875504-9c0f-45a6-8cc5-8a819e51aff0'
     },
     production: false,
-    tenant: "pulte.onmicrosoft.com",
     whatFix: {
         scriptUrl: '//whatfix.com/01caf5e0-cb2f-11e8-b979-04013d24cd02/embed/embed.nocache.js'
     }

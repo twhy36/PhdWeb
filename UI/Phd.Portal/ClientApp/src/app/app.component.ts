@@ -25,9 +25,9 @@ export class AppComponent implements OnInit {
     };
 
     ngOnInit() {
-        this._idService.user.subscribe(user => {
-            this.user = user;
-        });
+        //this._idService.user.subscribe(user => {
+        //    this.user = user;
+        //});
     }
 
 }

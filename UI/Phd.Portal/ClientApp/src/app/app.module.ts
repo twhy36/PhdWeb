@@ -20,7 +20,8 @@ import { environment } from '../environments/environment';
 
 const appInitializerFn = (identityService: IdentityService) => {
     // the APP_INITIALIZER provider waits for promises to be resolved
-    return () => identityService.init().toPromise();
+	return () => Promise.resolve();
+    //return () => identityService.init().toPromise();
 };
 
 const setTitle = (titleService: Title) => {
@@ -47,12 +48,9 @@ const setTitle = (titleService: Title) => {
 		NgbModule,
 		NgbButtonsModule,
 		PhdCommonModule.forRoot(
-			{
-				authQueryParams: environment.authQueryParams,
-				clientId: environment.clientId,
-				tenant: environment.tenant
-			},
-			environment.apiUrl
+			environment.msalConfig,
+			environment.apiUrl,
+			false
 		),
 		ReactiveFormsModule,
 		RouterModule.forRoot([
