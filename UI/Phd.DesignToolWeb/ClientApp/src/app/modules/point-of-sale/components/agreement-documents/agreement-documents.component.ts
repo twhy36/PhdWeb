@@ -22,6 +22,7 @@ export class AgreementDocumentsComponent extends UnsubscribeOnDestroy implements
 	terminationAgreementTemplate: AgreementTemplate;
 	selectedTemplates: Array<number>;
 	salesOptions: boolean;
+	isLockedIn: boolean = false;
 
 	constructor(private store: Store<fromRoot.State>)
 	{
@@ -35,12 +36,14 @@ export class AgreementDocumentsComponent extends UnsubscribeOnDestroy implements
 			select(state => state.contract.templates),
 			combineLatest(
 				this.store.pipe(select(state => state.contract.selectedTemplates)),
-				this.store.pipe(select(state => state.salesAgreement.status))
+				this.store.pipe(select(state => state.salesAgreement.status)),
+				this.store.pipe(select(state => state.salesAgreement.isLockedIn))
 			)
-		).subscribe(([templates, selectedTemplates, salesAgreementStatus]) =>
+		).subscribe(([templates, selectedTemplates, salesAgreementStatus, isLockedIn]) =>
 		{
 			let cancelForm = templates.find(x => x.templateTypeId === TemplateTypeEnum['Cancel Form']);
 
+			this.isLockedIn = isLockedIn;
 			this.terminationAgreementTemplate = cancelForm ? new AgreementTemplate(cancelForm, selectedTemplates) : null;
 
 			this.contractTemplates = templates

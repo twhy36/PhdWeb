@@ -13,7 +13,7 @@
 					 [editing]="editing"
 					 (onEdit)="edit($event)"
 					 [jobsProjectedFinalDate]="jobsProjectedFinalDate$ | async"
-					 [canEdit]="canSell && !cancelOrVoid"
+					 [canEdit]="canSell && !cancelOrVoid && !isLockedIn"
 					 *ngIf="agreement && !isChangingOrder"></sales-info-misc>
 
 	<!--Programs and Add Program Cards-->
@@ -26,7 +26,7 @@
 					[salesPrograms]="salesPrograms"
 					[isChangingOrder]="isChangingOrder"
 					[changeOrderPrograms]="salesChangeOrderSalesPrograms"
-					[canEditAgreement]="canEditProgramIncentive(program)"
+					[canEdit]="canEditProgramIncentive(program) && !isLockedIn"
 					(onEdit)="edit($event)"
 					(onRemove)="remove('programs', $event)"
 					(onSavingProgram)="saveSalesChangeOrderSalesPrograms($event)"
@@ -38,6 +38,7 @@
 			  [isNA]="isProgramNa"
 			  [label]="'Incentive'"
 			  [labels]="'Incentive'"
+			  [canAdd]="!isLockedIn"
 			  (onAdd)="add('programs')"
 			  (onNA)="setNA('programs')"></add-card>
 
@@ -71,14 +72,14 @@
 						[deposit]="deposit"
 						[editing]="editing"
 						[position]="i"
-						[canEdit]="canSell && !cancelOrVoid"
+						[canEdit]="canSell && !cancelOrVoid && !isLockedIn"
 						(onRemove)="remove('deposits', $event)"
 						(onEdit)="edit($event)"
 						(checkChanges)="changes($event)"
 						*ngFor="let deposit of deposits; let i = index">
 		</deposit-detail>
 
-		<add-card *ngIf="!editing && canSell && !cancelOrVoid"
+		<add-card *ngIf="!editing && canSell && !cancelOrVoid && !isLockedIn"
 				  [hasNA]="false"
 				  [label]="'Deposit'"
 				  [labels]="'Deposits'"
@@ -90,7 +91,7 @@
 							[contingency]="contingency"
 							[editing]="editing"
 							[position]="i"
-							[canEdit]="canSell && !cancelOrVoid"
+							[canEdit]="canSell && !cancelOrVoid && !isLockedIn"
 							(onRemove)="remove('contingencies', $event)"
 							(onEdit)="edit($event)"
 							(checkChanges)="changes($event)"
@@ -102,9 +103,9 @@
 				  [isNA]="isContingenciesNa"
 				  [label]="'Contingency'"
 				  [labels]="'Contingency'"
+				  [canAdd]="!isLockedIn"
 				  (onAdd)="add('contingencies')"
 				  (onNA)="setNA('contingency')"></add-card>
-
 
 		<!--Notes and Add Note Cards-->
 		<sales-note class="phd-editable-box"

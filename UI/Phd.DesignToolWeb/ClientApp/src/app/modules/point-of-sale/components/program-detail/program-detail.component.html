@@ -2,7 +2,7 @@
 	<div class="phd-card-header">
 		<span>Incentive Detail</span>
 
-		<a (click)="delete()" class="phd-delete-button" [class.phd-deleting]="deleting" *ngIf="canEditAgreement">
+		<a (click)="delete()" class="phd-delete-button" [class.phd-deleting]="deleting" *ngIf="canEdit">
 			<span>
 				<i class="fas fa-spinner"></i>
 			</span>
@@ -37,7 +37,7 @@
 			</div>
 		</div>
 	</div>
-	<div *ngIf="canEditAgreement" class="phd-card-footer">
+	<div *ngIf="canEdit" class="phd-card-footer">
 		<a class="btn m-0 p-0" (click)="edit()">Edit</a>
 	</div>
 </div>

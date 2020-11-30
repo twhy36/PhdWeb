@@ -1,4 +1,4 @@
-<div class="phd-box justify-content-center" [class.phd-add]="hasPlus" (click)="add()" *ngIf="!!!isNA">
+<div class="phd-box phd-box-add justify-content-center" [class.phd-add]="hasPlus" (click)="add()" *ngIf="!!!isNA">
 	<div class="phd-add-button" *ngIf="hasPlus">
 		<div class="fas fa-plus fa-3x"></div>
 	</div>
@@ -12,7 +12,7 @@
 	</div>
 </div>
 
-<div class="phd-box" *ngIf="isNA">
+<div class="phd-box" *ngIf="isNA" [class.phd-box-add]="canAdd">
 	<div class="phd-card-header">
 		<span>{{labels}}</span>
 	</div>
@@ -21,7 +21,7 @@
 			N/A
 		</div>
 	</div>
-	<div class="phd-card-footer">
+	<div class="phd-card-footer" *ngIf="canAdd">
 		<a class="btn m-0 p-0" (click)="add()">{{action}} {{label}}</a>
 	</div>
 </div>

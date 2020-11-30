@@ -4,8 +4,11 @@
 			<ng-container *ngTemplateOutlet="template"></ng-container>
 		</ng-template>
 		<ng-template [ngIf]="!template">{{label}}</ng-template>
-		<span *ngIf="showStatusIndicator">
+		<ng-container *ngIf="showStatusIndicator">
 			<status-indicator [pointStatus]="status" [isActive]="isActive"></status-indicator>
+		</ng-container>
+		<span *ngIf="isLockedIn" class="phd-lock-icon">
+			<i class="fas fa-lock"></i>
 		</span>
 	</a>
 </li>

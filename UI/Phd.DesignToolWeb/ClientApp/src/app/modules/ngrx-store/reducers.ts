@@ -69,13 +69,18 @@ export const title = createSelector(
 	fromOpp.oppPrimaryContact,
 	(scenario, sag, primaryBuyer, primaryOppContact) =>
 	{
-		if (scenario.buildMode === 'preview') {
+		if (scenario.buildMode === 'preview')
+		{
 			return 'Preview Home';
 		}
-		else if (sag && sag.id) {
-			if (sag.salesAgreementName) {
+		else if (sag && sag.id)
+		{
+			if (sag.salesAgreementName)
+			{
 				return sag.salesAgreementName;
-			} else {
+			}
+			else
+			{
 				// For existing sales agreement without a name
 				let contact = primaryBuyer && primaryBuyer.opportunityContactAssoc
 					? primaryBuyer.opportunityContactAssoc.contact
@@ -84,10 +89,12 @@ export const title = createSelector(
 				return `${contact ? contact.lastName || '' : ''} Home`;
 			}
 		}
-		else if (scenario.scenario && scenario.buildMode === 'buyer') {
+		else if (scenario.scenario && scenario.buildMode === 'buyer')
+		{
 			return scenario.scenario.scenarioName;
 		}
-		else {
+		else
+		{
 			return 'Home';
 		}
 	}
@@ -102,8 +109,8 @@ export const canConfigure = createSelector(
 	fromChangeOrder.currentChangeOrder,
 	(scenario, market, user, sag, co) => scenario.buildMode === 'preview'
 		|| ((scenario.buildMode === 'model' || scenario.buildMode === 'spec') && !!market && user.canSell && user.assignedMarkets && user.assignedMarkets.some(m => m.number === market.number))
-			// if there is a sales agreement, user can make changes if (a) user is at least Sales Consultant or (b) user is Design Consultant and created the current change order
-			// if the change order hasn't been saved yet, the contact field on the change order will be null
+		// if there is a sales agreement, user can make changes if (a) user is at least Sales Consultant or (b) user is Design Consultant and created the current change order
+		// if the change order hasn't been saved yet, the contact field on the change order will be null
 		|| ((sag && sag.id ? (user.canSell || (user.canDesign && !!co && (!co.createdByContactId || co.createdByContactId === user.contactId))) : user.canConfigure) && !!market && user.assignedMarkets && user.assignedMarkets.some(m => m.number === market.number))
 )
 
@@ -146,6 +153,12 @@ export const canAddIncentive = createSelector(
 	fromOrg.market,
 	fromUser.selectUser,
 	(market, user) => !!market && user.canAddIncentive && user.assignedMarkets.some(m => m.number === market.number)
+)
+
+export const canLockSalesAgreement = createSelector(
+	fromOrg.market,
+	fromUser.selectUser,
+	(market, user) => !!market && user.canLockSalesAgreement && user.assignedMarkets.some(m => m.number === market.number)
 )
 
 export const monotonyConflict = createSelector(
@@ -229,7 +242,8 @@ export const hasSpecPlanId = createSelector(
 	fromScenario.buildMode,
 	fromPlan.planState,
 	fromChangeOrder.changeOrderState,
-	(buildMode, plan, changeOrder) => {
+	(buildMode, plan, changeOrder) =>
+	{
 		return (buildMode === 'spec' || buildMode === 'model') && changeOrder && changeOrder.isChangingOrder && changeOrder.changeInput && changeOrder.changeInput.type === ChangeTypeEnum.PLAN
 			? !!plan.selectedPlan
 			: false;
@@ -284,7 +298,8 @@ export const canEditAgreementOrSpec = createSelector(
 export const canEditCancelOrVoidAgreement = createSelector(
 	fromSalesAgreement.salesAgreementState,
 	fromScenario.buildMode,
-	(salesAgreement, buildMode) => {
+	(salesAgreement, buildMode) =>
+	{
 		return ((salesAgreement.id === 0 && buildMode !== 'spec' && buildMode !== 'model') || salesAgreement.status === 'Cancel' || salesAgreement.status === 'Void' || salesAgreement.status === 'Closed');
 	}
 )
@@ -362,7 +377,8 @@ export const scenarioStatus = createSelector(
 				});
 			};
 
-			if (scenario.tree.treeVersion) {
+			if (scenario.tree.treeVersion)
+			{
 				const points = _.flatMap(scenario.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points)) || null;
 
 				const structuralDPs = points.filter(x => x.isStructuralItem == true);
@@ -453,11 +469,14 @@ export const salesAgreementStatus = createSelector(
 export const selectedPlanPrice = createSelector(
 	fromPlan.selectedPlanData,
 	fromLot.selectSelectedLot,
-	(selectedPlan, selectedLot) => {
+	(selectedPlan, selectedLot) =>
+	{
 		let price = selectedPlan ? selectedPlan.price : 0;
-		if (selectedPlan && selectedLot && selectedLot.salesPhase && selectedLot.salesPhase.salesPhasePlanPriceAssocs) {
+		if (selectedPlan && selectedLot && selectedLot.salesPhase && selectedLot.salesPhase.salesPhasePlanPriceAssocs)
+		{
 			const phasePlanPrice = selectedLot.salesPhase.salesPhasePlanPriceAssocs.find(x => x.planId === selectedPlan.id);
-			if (phasePlanPrice) {
+			if (phasePlanPrice)
+			{
 				price = phasePlanPrice.price;
 			}
 		}
@@ -713,11 +732,13 @@ export const agreementColorScheme = createSelector(
 		const colorSchemeChoice = colorSchemeDp && colorSchemeDp.choices.find(c => c.quantity > 0);
 
 		// if there is a color scheme choice then use that
-		if (colorSchemeChoice) {
+		if (colorSchemeChoice)
+		{
 			colorScheme = colorSchemeChoice.label;
 		}
 		// no color scheme choice so check for attributes/locations on the elevation choice
-		else if (elevationChoice && elevationChoice.selectedAttributes && elevationChoice.selectedAttributes.length) {
+		else if (elevationChoice && elevationChoice.selectedAttributes && elevationChoice.selectedAttributes.length)
+		{
 			colorScheme = elevationChoice.selectedAttributes.map(att => att.attributeName).join(', ');
 		}
 		else
@@ -812,7 +833,7 @@ export const canCancelSpec = createSelector(
 	fromJob.jobState,
 	(job) =>
 	{
-		return job.constructionStageName === 'Configured' && job.lot.lotBuildTypeDesc === 'Spec' && !(job.jobSalesAgreementAssocs && job.jobSalesAgreementAssocs.length > 0) ;
+		return job.constructionStageName === 'Configured' && job.lot.lotBuildTypeDesc === 'Spec' && !(job.jobSalesAgreementAssocs && job.jobSalesAgreementAssocs.length > 0);
 	});
 
 export const showSpinner = createSelector(

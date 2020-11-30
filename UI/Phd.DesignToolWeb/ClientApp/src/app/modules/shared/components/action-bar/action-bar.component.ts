@@ -25,7 +25,7 @@ import * as CommonActions from '../../../ngrx-store/actions';
 import { SalesAgreement } from '../../../shared/models/sales-agreement.model';
 
 import * as ChangeOrderActions from '../../../ngrx-store/change-order/actions';
-import { ChangeTypeEnum } from '../../../shared/models/job-change-order.model';
+import { ChangeTypeEnum, ChangeOrderGroup } from '../../../shared/models/job-change-order.model';
 import { ChangeOrderService } from './../../../core/services/change-order.service';
 import { ModalService } from '../../../core/services/modal.service';
 import { Permission } from 'phd-common/models';
@@ -90,6 +90,8 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 	job: Job;
 	canSell: boolean;
 	canCancelSalesAgreement: boolean;
+	canLockSalesAgreement: boolean;
+	hasOpenChangeOrder: boolean = false;
 
 	setSummaryText()
 	{
@@ -164,8 +166,15 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 		).subscribe(job =>
 		{
 			this.job = _.cloneDeep(job);
+
 			// look at the last changeOrderGroup which should be the JIO
-			let cog = (job.changeOrderGroups && job.changeOrderGroups.length > 0) ? job.changeOrderGroups.reduce((r, a) => r.createdUtcDate > a.createdUtcDate ? r : a) : null;
+			let cog: ChangeOrderGroup;
+
+			if (job.changeOrderGroups && job.changeOrderGroups.length > 0)
+			{
+				cog = job.changeOrderGroups.reduce((r, a) => r.createdUtcDate > a.createdUtcDate ? r : a);
+				this.hasOpenChangeOrder = job.changeOrderGroups.findIndex(x => x.salesStatusDescription !== 'Approved' && x.salesStatusDescription !== 'Withdrawn') > -1;
+			}
 
 			if (cog)
 			{
@@ -200,6 +209,10 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 			select(fromRoot.canCancelSalesAgreement)
 		).subscribe(canCancel => this.canCancelSalesAgreement = canCancel);
 
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromRoot.canLockSalesAgreement)
+		).subscribe(canLockSalesAgreement => this.canLockSalesAgreement = canLockSalesAgreement);
 
 		this.setSummaryText();
 	}
@@ -231,7 +244,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 	get canCancelAgreement(): boolean
 	{
-		return this.canCancelSalesAgreement && this.inPointOfSale && this.agreement.status === "Approved" && !this.inChangeOrder;
+		return this.canCancelSalesAgreement && this.inPointOfSale && this.agreement.status === "Approved" && !this.inChangeOrder && !this.agreement.isLockedIn;
 	}
 
 	get inAgreement(): boolean
@@ -267,6 +280,21 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 	get canPreviewAgreement(): boolean
 	{
 		return !this.canTerminateAgreement && this.agreement && this.agreement.status !== 'Void';
+	}
+
+	get showToggleSalesAgreementLock(): boolean
+	{
+		return !this.inChangeOrder && this.canLockSalesAgreement && this.agreement.status === 'Approved';
+	}
+
+	get toggleAgreementLockLabel(): string
+	{
+		return this.agreement.isLockedIn ? 'Unlock Sales Agreement' : 'Ready to Close';
+	}
+
+	get toggleAgreementLockTitle(): string
+	{
+		return this.hasOpenChangeOrder ? 'Pending change orders exist - Cannot Lock Sales Agreement' : '';
 	}
 
 	scrollHandler($event: any)
@@ -337,6 +365,11 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 		this.callToAction.emit({ actionBarCallType: ActionBarCallType.TERMINATION_AGREEMENT });
 	}
 
+	onToggleAgreementLock()
+	{
+		this.callToAction.emit({ actionBarCallType: ActionBarCallType.TOGGLE_AGREEMENT_LOCK });
+	}
+
 	async onCancel()
 	{
 		if (!this.savingAgreement)
@@ -345,8 +378,10 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 		}
 	}
 
-	async onVoid() {
-		if (!this.savingAgreement) {
+	async onVoid()
+	{
+		if (!this.savingAgreement)
+		{
 			this.callToAction.emit({ actionBarCallType: ActionBarCallType.VOID_AGREEMENT });
 		}
 	}

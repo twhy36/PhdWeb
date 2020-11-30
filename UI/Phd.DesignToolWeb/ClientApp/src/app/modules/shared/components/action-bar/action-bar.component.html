@@ -44,6 +44,7 @@
 			</div>
 		</div>
 	</div>
+
 	<div class="phd-action-bar-price flex-grow-0" *ngIf="inChangeOrder">
 		<div class="d-flex flex-column ml-r mr-4">
 			<div class="phd-action-bar-change-price">Estimated Change Price</div>
@@ -52,6 +53,7 @@
 			</div>
 		</div>
 	</div>
+
 	<div class="phd-action-bar-price flex-grow-0">
 		<div class="d-flex flex-column ml-r mr-4">
 			<div>Estimated Price</div>
@@ -60,6 +62,7 @@
 			</div>
 		</div>
 	</div>
+
 	<div *ngIf="canSignAgreement && canChange" class="phd-action-bar-action-btn flex-grow-0">
 		<button class="btn btn-lg d-flex justify-content-center align-items-center mx-4 complete"
 				type="button"
@@ -73,6 +76,7 @@
 			<span>Sign Agreement</span>
 		</button>
 	</div>
+
 	<div *ngIf="canApproveAgreement && canChange" class="phd-action-bar-action-btn flex-grow-0">
 		<button *requiresClaim="'SalesAgreements'; permission: Permission.Approve"
 				class="btn btn-lg d-flex justify-content-center align-items-center mx-4 complete"
@@ -87,6 +91,23 @@
 			<span>Approve Agreement</span>
 		</button>
 	</div>
+
+	<div *ngIf="showToggleSalesAgreementLock" class="phd-action-bar-action-btn flex-grow-0">
+		<button
+				class="btn btn-lg d-flex justify-content-center align-items-center mx-4 complete"
+				type="button"
+				(click)="onToggleAgreementLock()"
+				[disabled]="savingAgreement || hasOpenChangeOrder"
+				title="{{toggleAgreementLockTitle}}">
+			<div class="circle d-flex align-items-center justify-content-center">
+				<span>
+					<i class="fa fa-check"></i>
+				</span>
+			</div>
+			<span>{{ toggleAgreementLockLabel }}</span>
+		</button>
+	</div>
+
 	<div *ngIf="(canEditAgreement$ | async) && canChange && !canSignAgreement && !canApproveAgreement || inSpec" class="phd-action-bar-action-btn flex-grow-0">
 		<button class="btn btn-lg d-flex justify-content-center align-items-center mx-4"
 				[class.incomplete]="getActionBarStatus()==='INCOMPLETE' && !isChangePartiallyComplete()"
@@ -109,6 +130,5 @@
 </div>
 
 <ng-template #changeNoteModal let-c="close" let-d="dismiss">
-	<change-order-note (saveNote)="saveChangeNote()" (cancelNote)="cancelChangeNote()">
-	</change-order-note>
+	<change-order-note (saveNote)="saveChangeNote()" (cancelNote)="cancelChangeNote()"></change-order-note>
 </ng-template>

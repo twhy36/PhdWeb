@@ -4,8 +4,9 @@
 					 personType="Buyer"
 					 [salesAgreementStatus]="salesAgreement ? salesAgreement.status : null"
 					 [isChangingOrder]="isChangingOrder"
-		             [canEditAgreement]="canEditAgreement && (canSell || canDesign)"
+					 [canEditAgreement]="canEditAgreement && (canSell || canDesign)"
 					 [canSell]="canSell || canDesign"
+					 [isLockedIn]="isLockedIn"
 					 (onEdit)="editBuyer($event)">
 		</people-card>
 
@@ -20,8 +21,9 @@
 
 		<people-card *ngIf="canEditAgreement && (coBuyerNA$ | async)"
 					 [coBuyerNA]="(coBuyerNA$ | async)"
-		             [canEditAgreement]="canEditAgreement && (canSell || canDesign)"
-		             [canSell]="canSell || canDesign"
+					 [canEditAgreement]="canEditAgreement && (canSell || canDesign)"
+					 [canSell]="canSell || canDesign"
+					 [isLockedIn]="isLockedIn"
 					 personType="Buyer"
 					 (onSetAsNA)="setCoBuyerNA()"
 					 (onAddCoBuyer)="addCoBuyer()"></people-card>
@@ -31,8 +33,9 @@
 					 personType="Buyer"
 					 [salesAgreementStatus]="salesAgreement ? salesAgreement.status : null"
 					 [isChangingOrder]="isChangingOrder"
-		             [canEditAgreement]="canEditAgreement && (canSell || canDesign)"
-		             [canSell]="canSell || canDesign"
+					 [canEditAgreement]="canEditAgreement && (canSell || canDesign)"
+					 [canSell]="canSell || canDesign"
+					 [isLockedIn]="isLockedIn"
 					 [originalSignersCount]="originalSignersCount"
 					 (onSetAsPrimaryBuyer)="setPrimaryBuyer($event)"
 					 (onDelete)="deleteCoBuyer($event)"
@@ -64,8 +67,9 @@
 					 [salesAgreementStatus]="salesAgreement ? salesAgreement.status : null"
 					 [trust]="trust$ | async"
 					 [trustNA]="trustNA$ | async"
-		             [canEditAgreement]="canEditAgreement && (canSell || canDesign)"
-		             [canSell]="canSell || canDesign"
+					 [canEditAgreement]="canEditAgreement && (canSell || canDesign)"
+					 [canSell]="canSell || canDesign"
+					 [isLockedIn]="isLockedIn"
 					 personType="Trust"
 					 (onSetAsNA)="setTrustNA()"
 					 (onEdit)="editTrust($event)"
@@ -88,13 +92,13 @@
 						 [realtor]="realtor$ | async"
 						 [realtorNA]="realtorNA$ | async"
 						 personType="Realtor"
-			             [canEditAgreement]="canEditAgreement && canSell"
-			             [canSell]="canSell"
+						 [canEditAgreement]="canEditAgreement && canSell"
+						 [canSell]="canSell"
+						 [isLockedIn]="isLockedIn"
 						 (onSetAsNA)="setRealtorNA()"
 						 (onEdit)="editRealtor($event)"
 						 (onAddRealtor)="addRealtor()"></people-card>
 		</ng-container>
-
 	</div>
 </ng-container>
 

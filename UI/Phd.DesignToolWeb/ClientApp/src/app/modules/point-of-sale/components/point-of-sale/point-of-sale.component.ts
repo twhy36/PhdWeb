@@ -4,6 +4,7 @@ import { Location } from '@angular/common';
 import { Observable, of } from 'rxjs';
 import { map, combineLatest, filter, switchMap, distinctUntilChanged, take } from 'rxjs/operators';
 import { Store, select } from '@ngrx/store';
+import { Actions, ofType } from '@ngrx/effects';
 
 import * as _ from 'lodash';
 import * as fromRoot from '../../../ngrx-store/reducers';
@@ -26,8 +27,6 @@ import { SignAgreementComponent } from '../sign-agreement/sign-agreement.compone
 import { ConfirmModalComponent } from '../../../core/components/confirm-modal/confirm-modal.component';
 import { ModalService } from '../../../core/services/modal.service';
 import { ModalRef } from '../../../shared/classes/modal.class';
-import { Actions, ofType } from '@ngrx/effects';
-import * as CommonActions from '../../../ngrx-store/actions';
 
 type ActionBarStatusType = 'INCOMPLETE' | 'COMPLETE' | 'DISABLED';
 
@@ -70,6 +69,7 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 	canSell$: Observable<boolean>;
 	canDesign$: Observable<boolean>;
 	canAddIncentive$: Observable<boolean>;
+	canLockSalesAgreement$: Observable<boolean>;
 
 	constructor(
 		private store: Store<fromRoot.State>,
@@ -296,6 +296,7 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 		this.canSell$ = this.store.pipe(select(fromRoot.canSell));
 		this.canDesign$ = this.store.pipe(select(fromRoot.canDesign));
 		this.canAddIncentive$ = this.store.pipe(select(fromRoot.canAddIncentive));
+		this.canLockSalesAgreement$ = this.store.pipe(select(fromRoot.canLockSalesAgreement));
 	}
 
 	isComplete(list: any, isNa: boolean = false)
@@ -352,6 +353,11 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 
 			case (ActionBarCallType.VOID_AGREEMENT):
 				this.voidAgreement();
+
+				break;
+			case (ActionBarCallType.TOGGLE_AGREEMENT_LOCK):
+				this.toggleAgreementLock();
+
 				break;
 		}
 	}
@@ -493,20 +499,45 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 		const primaryButton = { hide: false, text: 'Yes' };
 		const secondaryButton = { hide: false, text: 'No' };
 
-		if (await this.showConfirmModal(confirmMessage, confirmTitle, confirmDefaultOption, primaryButton, secondaryButton)) {
+		if (await this.showConfirmModal(confirmMessage, confirmTitle, confirmDefaultOption, primaryButton, secondaryButton))
+		{
 			this.modalReference = this.modalService.open(this.cancelAgreementTemplate, { windowClass: 'phd-cancel-agreement', keyboard: false });
 		}
 	}
 
-	async voidAgreement() {
+	async voidAgreement() 
+	{
 		const confirmMessage: string = 'You are about to Void an agreement. Do you wish to continue?';
 		const confirmTitle: string = 'Void Home Purchase Agreement';
 		const confirmDefaultOption: string = 'Cancel';
 		const primaryButton = { hide: false, text: 'Continue' };
 		const secondaryButton = { hide: false, text: 'Cancel' };
 
-		if (await this.showConfirmModal(confirmMessage, confirmTitle, confirmDefaultOption, primaryButton, secondaryButton)) {
+		if (await this.showConfirmModal(confirmMessage, confirmTitle, confirmDefaultOption, primaryButton, secondaryButton)) 
+		{
 			this.modalReference = this.modalService.open(this.voidAgreementTemplate, { windowClass: 'phd-cancel-agreement', keyboard: false });
+		}
+	}
+
+	async toggleAgreementLock()
+	{
+		const isLockedIn = this.salesAgreement.isLockedIn;
+		let lockText = isLockedIn ? 'Unlock' : 'Lock';
+
+		const confirmMessage: string = `Are you sure you want to ${lockText} Sales Agreement?`;
+		const confirmTitle: string = 'Home Purchase Agreement';
+		const confirmDefaultOption: string = 'Cancel';
+
+		if (await this.showConfirmModal(confirmMessage, confirmTitle, confirmDefaultOption))
+		{
+			const agreement: SalesAgreement = new SalesAgreement(
+				{
+					id: this.salesAgreement.id,
+					isLockedIn: !this.salesAgreement.isLockedIn
+				}
+			);
+
+			this.store.dispatch(new SalesAgreementActions.UpdateSalesAgreement(agreement));
 		}
 	}
 

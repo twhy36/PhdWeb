@@ -23,6 +23,7 @@ export class PeopleCardComponent implements OnInit
 	@Input() canSell: boolean = true;
 	@Input() originalSignersCount: number;
 	@Input() salesAgreementStatus: string;
+	@Input() isLockedIn: boolean;
 
 	@Output() onEdit = new EventEmitter<Buyer | Realtor | string>();
 	@Output() onDelete = new EventEmitter<Buyer>();
@@ -92,7 +93,8 @@ export class PeopleCardComponent implements OnInit
 		this.onSetAsNA.emit();
 	}
 
-	canEditBuyer() {
+	canEditBuyer()
+	{
 		return this.canSell && (this.salesAgreementStatus === 'Pending' || this.salesAgreementStatus === 'OutforSignature'
 			|| this.salesAgreementStatus === 'Signed' || this.salesAgreementStatus === 'Approved');
 	}
