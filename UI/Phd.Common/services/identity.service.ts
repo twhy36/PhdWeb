@@ -60,9 +60,7 @@ export class IdentityService
 					}
 					else
 					{
-						this.authService.acquireTokenRedirect({ scopes: ['User.Read'] }).then(result => {
-							this._token.next(result.idToken.rawIdToken);
-						});
+						this.authService.acquireTokenRedirect({ scopes: ['User.Read'] });
 					}
 				} else {
 					this._token.next(response.idToken.rawIdToken);
@@ -75,9 +73,7 @@ export class IdentityService
 					});
 				}
 				else {
-					this.authService.acquireTokenRedirect({ scopes: ['User.Read'] }).then(result => {
-						this._token.next(result.idToken.rawIdToken);
-					});
+					this.authService.acquireTokenRedirect({ scopes: ['User.Read'] });
 				}
 			});
 		}
