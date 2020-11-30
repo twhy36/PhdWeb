@@ -41,41 +41,16 @@ export class IdentityService
 
 	constructor(private httpClient: HttpClient, private authService: MsalService, private injector: Injector, @Inject(MSAL_CONFIG_ANGULAR) private msalAngularConfig: MsalAngularConfiguration)
 	{
-		console.log(this.authService);
 		if (!this.authService.getAccount()) {
 			if (msalAngularConfig.popUp) {
 				this.authService.loginPopup().then(result => {
-					this._token.next(result.idToken.rawIdToken);
+					this.acquireToken(true);
 				});
 			} else {
 				this.authService.loginRedirect();
 			}
 		} else {
-			this.authService.acquireTokenSilent({ scopes: ['User.Read'] }).then(response => {
-				if (!response.idToken) {
-					if (msalAngularConfig.popUp) {
-						this.authService.acquireTokenPopup({ scopes: ['User.Read'] }).then(result => {
-							this._token.next(result.idToken.rawIdToken);
-						});
-					}
-					else
-					{
-						this.authService.acquireTokenRedirect({ scopes: ['User.Read'] });
-					}
-				} else {
-					this._token.next(response.idToken.rawIdToken);
-				}
-			})
-			.catch(error => {
-				if (msalAngularConfig.popUp) {
-					this.authService.acquireTokenPopup({ scopes: ['User.Read'] }).then(result => {
-						this._token.next(result.idToken.rawIdToken);
-					});
-				}
-				else {
-					this.authService.acquireTokenRedirect({ scopes: ['User.Read'] });
-				}
-			});
+			this.acquireToken(msalAngularConfig.popUp);
 		}
 
 		this.apiUrl = this.injector.get(API_URL);
@@ -90,7 +65,31 @@ export class IdentityService
             tap(mkts => this.assignedMarkets = mkts),
             share()
         );
-    }
+	}
+
+	private acquireToken(popUp: boolean): void {
+		function acquireTokenFallback() {
+			if (popUp) {
+				this.authService.acquireTokenPopup({ scopes: ['User.Read'] }).then(result => {
+					this._token.next(result.accessToken);
+				});
+			}
+			else {
+				this.authService.acquireTokenRedirect({ scopes: ['User.Read'] });
+			}
+		}
+
+		this.authService.acquireTokenSilent({ scopes: ['User.Read'] }).then(response => {
+			if (!response.accessToken) {
+				acquireTokenFallback();
+			} else {
+				this._token.next(response.accessToken);
+			}
+		})
+		.catch(error => {
+			acquireTokenFallback();
+		});
+	}
 
 	//public init(): Observable<any>
  //   {
