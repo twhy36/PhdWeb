@@ -280,6 +280,9 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 			// Apply the option price to the max sort order choice, if the rule is satisfied
 			if (choice && optionRule.choices.every(c => c.id === choice.id || (c.mustHave && find(c.id).quantity >= 1) || (!c.mustHave && find(c.id).quantity === 0)))
 			{
+				choice.price += calculatedPrice;
+				choice.options = [...choice.options, option];
+
 				//handle replace
 				if (choice.quantity >= 1 && optionRule.replaceOptions.length > 0)
 				{
@@ -289,24 +292,10 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 
 						if (c)
 						{
-							// Assume that there is only one option on a choice being replaced ???
-							// Update the choice price with option being replaced
-							// Update the calculated price on choice
-							if (c.lockedInChoice
-								&& c.lockedInChoice.dpChoiceCalculatedPrice !== c.price
-								&& c.lockedInOptions.findIndex(o => o.optionId === opt) === -1)
-							{
-								calculatedPrice += (c.price - c.lockedInChoice.dpChoiceCalculatedPrice);
-								c.price = c.lockedInChoice.dpChoiceCalculatedPrice;
-							}
-
 							c.options = c.options.filter(o => o.financialOptionIntegrationKey !== opt);
 						}
 					});
 				}
-
-				choice.price += calculatedPrice;
-				choice.options = [...choice.options, option];
 			}
 		}
 	};
@@ -536,12 +525,17 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 
 	choices.forEach(choice =>
 	{
+		//lock in prices
+		if (choice.lockedInChoice)
+		{
+			choice.price = choice.lockedInChoice.dpChoiceCalculatedPrice;
+		}
+
 		//find choices that are locked in, with option mappings changed
 		if (choice.options && choice.lockedInOptions && choice.lockedInOptions.length && (choice.lockedInOptions.some(o => !choice.options.some(co => co.financialOptionIntegrationKey === o.optionId))
 			|| choice.options.some(co => !choice.lockedInOptions.some(o => o.optionId === co.financialOptionIntegrationKey))))
 		{
 			choice.options = choice.lockedInOptions.map(o => options.find(po => po.financialOptionIntegrationKey === o.optionId));
-			choice.price = choice.options.reduce((price, opt) => price + opt.listPrice, 0) * choice.quantity;
 			choice.mappingChanged = true;
 
 			//since the option mapping is changed, flag each dependency 
