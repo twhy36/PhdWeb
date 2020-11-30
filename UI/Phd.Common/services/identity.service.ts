@@ -78,24 +78,33 @@ export class IdentityService
 		}
 	}
 
+	private acquireTokenFallback(popUp: boolean): void
+	{
+		if (popUp) {
+			this.authService.acquireTokenPopup({ scopes: ['User.Read'] }).then(result => {
+				this._token.next(result.idToken.rawIdToken);
+			});
+		}
+		else {
+			this.authService.acquireTokenRedirect({ scopes: ['User.Read'] });
+		}
+	}
+
 	private acquireToken(popUp: boolean): void
 	{
 		this.authService.acquireTokenSilent({ scopes: ['User.Read'] }).then(response => {
 			if (!response.idToken) {
-				if (popUp) {
-					this.authService.acquireTokenPopup({ scopes: ['User.Read'] }).then(result => {
-						this._token.next(result.idToken.rawIdToken);
-					});
-				}
-				else {
-					this.authService.acquireTokenRedirect({ scopes: ['User.Read'] });
-				}
+				this.acquireTokenFallback(popUp);
 			} else {
 				this._token.next(response.idToken.rawIdToken);
 			}
 		})
 		.catch(error => {
-			this.login(popUp);
+			if (error.code === 'id_token_null_or_empty') {
+				this.login(popUp);
+			} else {
+				this.acquireTokenFallback(popUp);
+			}
 		});
 	}
 
