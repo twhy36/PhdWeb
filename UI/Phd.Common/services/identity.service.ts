@@ -53,7 +53,7 @@ export class IdentityService
 		} else {
 			this.authService.acquireTokenSilent({ scopes: ['User.Read'] }).then(response => {
 				if (!response.idToken) {
-					this.authService.acquireTokenPopup().then(result => {
+					this.authService.acquireTokenPopup({ scopes: ['User.Read'] }).then(result => {
 						this._token.next(response.idToken.rawIdToken);
 					});
 				} else {
