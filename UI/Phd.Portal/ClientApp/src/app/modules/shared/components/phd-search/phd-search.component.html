@@ -221,17 +221,6 @@
 								</a>
 							</div>
 						</ng-template>
-					</phd-column>
-					<phd-column header="Active Change Order">
-						<ng-template #body let-lot>
-							<!--If sold in Home Selections-->
-							<span *ngIf="lot.activeChangeOrderText" (mouseenter)="showTooltip($event, lot.activeChangeOrderText, dt)"
-								(mouseleave)="hideTooltip(dt)" class="phd-active-change-order">
-								<a href="{{getChangeOrderLink(lot)}}" target="_blank">{{lot.activeChangeOrderText}}</a>
-							</span>
-							
-						</ng-template>
-					</phd-column>
 					<!--Every sales agreement within every change order group within one of the lot's jobs *whew* -->
 					<phd-column header="Agreements">
 						<ng-template #body let-lot>
@@ -246,6 +235,17 @@
 							</div>
 						</ng-template>
 					</phd-column>
+				</phd-column>
+				<phd-column header="Active Change Order">
+					<ng-template #body let-lot>
+						<!--If sold in Home Selections-->
+						<span *ngIf="lot.activeChangeOrderText" (mouseenter)="showTooltip($event, lot.activeChangeOrderText, dt)"
+							(mouseleave)="hideTooltip(dt)" class="phd-active-change-order">
+							<a href="{{getChangeOrderLink(lot)}}" target="_blank">{{lot.activeChangeOrderText}}</a>
+						</span>
+						
+					</ng-template>
+				</phd-column>
 				</phd-table>
 			</div>
 			<div class="font-weight-bold p-1" *ngIf="searchResults">{{searchResults.length}} Lot<span *ngIf="searchResults.length != 1">s</span> returned.</div>
