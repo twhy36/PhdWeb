@@ -41,7 +41,6 @@ export class IdentityService
 
 	constructor(private httpClient: HttpClient, private authService: MsalService, private injector: Injector, @Inject(MSAL_CONFIG_ANGULAR) private msalAngularConfig: MsalAngularConfiguration)
 	{
-		console.log(this.authService.getAccount());
 		if (!this.authService.getAccount())
 		{
 			this.login(msalAngularConfig.popUp);
@@ -81,20 +80,16 @@ export class IdentityService
 
 	private acquireToken(popUp: boolean): void
 	{
-		function acquireTokenFallback() {
-			if (popUp) {
-				this.authService.acquireTokenPopup({ scopes: ['User.Read'] }).then(result => {
-					this._token.next(result.idToken.rawIdToken);
-				});
-			}
-			else {
-				this.authService.acquireTokenRedirect({ scopes: ['User.Read'] });
-			}
-		}
-
 		this.authService.acquireTokenSilent({ scopes: ['User.Read'] }).then(response => {
 			if (!response.idToken) {
-				acquireTokenFallback.apply(this);
+				if (popUp) {
+					this.authService.acquireTokenPopup({ scopes: ['User.Read'] }).then(result => {
+						this._token.next(result.idToken.rawIdToken);
+					});
+				}
+				else {
+					this.authService.acquireTokenRedirect({ scopes: ['User.Read'] });
+				}
 			} else {
 				this._token.next(response.idToken.rawIdToken);
 			}
