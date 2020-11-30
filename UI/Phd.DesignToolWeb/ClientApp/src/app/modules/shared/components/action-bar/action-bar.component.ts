@@ -284,12 +284,12 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 	get showToggleSalesAgreementLock(): boolean
 	{
-		return !this.inChangeOrder && this.canLockSalesAgreement && this.agreement.status === 'Approved';
+		return !this.inChangeOrder && this.canLockSalesAgreement && this.agreement?.status === 'Approved';
 	}
 
 	get toggleAgreementLockLabel(): string
 	{
-		return this.agreement.isLockedIn ? 'Unlock Sales Agreement' : 'Ready to Close';
+		return this.agreement?.isLockedIn ? 'Unlock Sales Agreement' : 'Ready to Close';
 	}
 
 	get toggleAgreementLockTitle(): string

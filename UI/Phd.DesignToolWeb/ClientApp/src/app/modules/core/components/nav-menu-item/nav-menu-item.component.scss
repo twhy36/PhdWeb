@@ -45,9 +45,12 @@ li {
 	top: 10%;
 }
 
-::ng-deep .phd-status-indicator {
-	@extend %phd-menu-item-icon;
-	right: -20px;
+.phd-nav-menu-item {
+
+	::ng-deep .phd-status-indicator {
+		@extend %phd-menu-item-icon;
+		right: -20px;
+	}
 }
 
 .phd-lock-icon {
