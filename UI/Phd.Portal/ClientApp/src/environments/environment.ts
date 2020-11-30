@@ -6,8 +6,8 @@ import { IEnvironment } from './environment.model';
 // The list of which env maps to which file can be found in `.angular-cli.json`.
 
 export const environment: IEnvironment = {
-	//apiUrl: 'https://phdapi.dev.pulte.com/odata/',
-	apiUrl: 'http://localhost:2845/odata/',
+	apiUrl: 'https://phdapi.dev.pulte.com/odata/',
+	//apiUrl: 'http://localhost:2845/odata/',
 	authQueryParams: "domain_hint=pulte.com",
 	baseUrl: {
 		buyerTracker: 'http://buyertracker.dev.pulte.com/',
