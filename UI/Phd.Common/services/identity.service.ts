@@ -100,7 +100,7 @@ export class IdentityService
 			}
 		})
 		.catch(error => {
-			if (error.code === 'id_token_null_or_empty') {
+			if (['login_required', 'id_token_null_or_empty'].indexOf(error.errorCode.toLowerCase()) !== -1) {
 				this.login(popUp);
 			} else {
 				this.acquireTokenFallback(popUp);
