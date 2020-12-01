@@ -28,6 +28,8 @@ export class IdentityService
 	private getClaims$: Observable<Claims>;
 	private getAssignedMarkets$: Observable<Array<{ id: number, number: string }>>;
 
+	private readonly _tokenRefreshInterval = 3300000; // 55 minutes
+
     public get token(): Observable<string> {
 		return this._token;
 	}
@@ -60,7 +62,14 @@ export class IdentityService
             map(response => response.value.map(mkt => <{ id: number, number: string }>mkt)),
             tap(mkts => this.assignedMarkets = mkts),
             share()
-        );
+		);
+
+		//start automatic token renewal
+		this._token.pipe(
+			take(1)
+		).subscribe(() => {
+			setInterval(this.acquireToken.bind(this, msalAngularConfig.popUp), this._tokenRefreshInterval);
+		});
 	}
 
 	private login(popUp: boolean): void
@@ -93,8 +102,10 @@ export class IdentityService
 	private acquireToken(popUp: boolean): void
 	{
 		this.authService.acquireTokenSilent({ scopes: ['User.Read'] }).then(response => {
-			if (!response.idToken) {
+			if (!response.idToken && !response.accessToken) {
 				this.acquireTokenFallback(popUp);
+			} else if (!response.idToken) {
+				this.login(popUp);
 			} else {
 				this._token.next(response.idToken.rawIdToken);
 			}
