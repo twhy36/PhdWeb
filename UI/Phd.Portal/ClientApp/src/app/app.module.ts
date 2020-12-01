@@ -7,6 +7,7 @@ import { RouterModule } from '@angular/router';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { NgbModule, NgbButtonsModule } from '@ng-bootstrap/ng-bootstrap';
+import { AppInsights } from 'applicationinsights-js';
 
 import { IdentityService } from 'phd-common/services';
 import { PhdCommonModule } from 'phd-common';
@@ -17,6 +18,8 @@ import { SalesTallyModule } from './modules/salestally/salestally.module';
 import { AppComponent } from './app.component';
 
 import { environment } from '../environments/environment';
+
+AppInsights.downloadAndSetup({ instrumentationKey: environment.appInsights.instrumentationKey });
 
 const appInitializerFn = (identityService: IdentityService) => {
     // the APP_INITIALIZER provider waits for promises to be resolved

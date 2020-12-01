@@ -111,6 +111,7 @@ export class IdentityService
 			}
 		})
 		.catch(error => {
+			AppInsights.trackTrace(JSON.stringify(error));
 			if (['login_required', 'id_token_null_or_empty'].indexOf(error.errorCode.toLowerCase()) !== -1) {
 				this.login(popUp);
 			} else {
