@@ -13,7 +13,7 @@ import { SettingsService } from './settings.service';
 import { StorageService } from './storage.service';
 import { PhdEntityDto } from '../../shared/models/api-dtos.model';
 import { withSpinner } from 'phd-common/extensions/withSpinner.extension';
-import { IPlanOptionResult } from '../../shared/models/plan.model';
+import * as _ from 'lodash';
 
 import * as odataUtils from '../../shared/classes/odata-utils.class';
 
@@ -205,12 +205,14 @@ export class OrganizationService
 	{
 		const batchGuid = odataUtils.getNewGuid();
 
-		let requests = plans.map(p =>
+		let requests = _(plans).groupBy('org.edhFinancialCommunityId').map((p, communityID) =>
 		{
+			var financialPlanIntegrationKey = p.map(x => `'${x.integrationKey}'`).join(',');
+
 			const entity = `financialCommunities`;
-			const expand = `planCommunities($filter=financialPlanIntegrationKey eq '${p.integrationKey}' and productType ne 'MultiUnit Shell';$select=id, financialPlanIntegrationKey, planSalesName; $orderby=planSalesName)`
+			const expand = `planCommunities($filter=financialPlanIntegrationKey in (${financialPlanIntegrationKey}) and productType ne 'MultiUnit Shell';$select=id, financialPlanIntegrationKey, planSalesName; $orderby=planSalesName)`
 			const select = `id,number,name,salesCommunityId,salesStatusDescription,marketId`;
-			const filter = `id eq ${p.org.edhFinancialCommunityId} and marketId eq ${marketId} and (salesStatusDescription eq 'Active' or salesStatusDescription eq 'New') and planCommunities/any(pc: pc/financialPlanIntegrationKey eq '${p.integrationKey}' and pc/isActive eq true and pc/productType ne 'MultiUnit Shell')`;
+			const filter = `id eq ${communityID} and marketId eq ${marketId} and (salesStatusDescription eq 'Active' or salesStatusDescription eq 'New') and planCommunities/any(pc: pc/financialPlanIntegrationKey in (${financialPlanIntegrationKey}) and pc/isActive eq true and pc/productType ne 'MultiUnit Shell')`;
 			const orderBy = `name`;
 
 			const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}orderby=${encodeURIComponent(orderBy)}&${this._ds}count=true`;

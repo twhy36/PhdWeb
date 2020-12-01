@@ -6,6 +6,7 @@ import { filter } from 'rxjs/operators';
 import { loadScript } from 'phd-common/utils';
 import { LoggingService } from './modules/core/services/logging.service';
 import { environment } from '../environments/environment';
+import * as build from './build.json';
 
 @Component({
 	selector: 'app-root',
@@ -14,7 +15,14 @@ import { environment } from '../environments/environment';
 })
 export class AppComponent
 {
-    title = 'app';
+	build = (build as any).default;
+	environment = environment;
+
+	title = 'app';
+
+	get branch(): string {
+		return build.branch.split('/').slice(2).join('/');
+	}
 
     constructor(private router: Router, private loggingService: LoggingService, private route: ActivatedRoute) {
         this.router.events.pipe(

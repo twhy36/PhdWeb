@@ -113,7 +113,8 @@ export function reducer(state: State = initialState, action: SalesAgreementActio
 				signedDate: sa.signedDate,
 				status: sa.status,
 				statusUtcDate: sa.statusUtcDate,
-				trustName: sa.trustName
+				trustName: sa.trustName,
+				isLockedIn: sa.isLockedIn
 			};
 
 			return { ...state, ...newSA, savingSalesAgreement: false, saveError: false, isUnsaved: false };
@@ -167,7 +168,7 @@ export function reducer(state: State = initialState, action: SalesAgreementActio
 			const coBuyersReSorted = state.buyers.map<Buyer>(b =>
 			{
 				const foundBuyer = _.cloneDeep(action.coBuyers).find(x => x.id == b.id);
-				
+
 				if (foundBuyer)
 				{
 					return { ...b, sortKey: foundBuyer.sortKey };

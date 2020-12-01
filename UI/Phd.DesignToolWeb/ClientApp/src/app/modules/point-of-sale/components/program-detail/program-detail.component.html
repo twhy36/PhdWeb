@@ -2,7 +2,7 @@
 	<div class="phd-card-header">
 		<span>Incentive Detail</span>
 
-		<a (click)="delete()" class="phd-delete-button" [class.phd-deleting]="deleting" *ngIf="canEditAgreement">
+		<a (click)="delete()" class="phd-delete-button" [class.phd-deleting]="deleting" *ngIf="canEdit">
 			<span>
 				<i class="fas fa-spinner"></i>
 			</span>
@@ -21,10 +21,10 @@
 		<div class="phd-incentive-footer">
 			<div class="phd-currency phd-incentive-amount">
 				<ng-container *ngIf="selectedSalesProgram && selectedSalesProgram.salesProgramType === 'DiscountFlatAmount'; else buyersClosingCost">
-					({{program && program.amount || 0 | currency:'USD':'symbol':'0.0-0'}})
+					({{program && program.amount || 0 | currency:'USD':'symbol':'0.2-2'}})
 				</ng-container>
 				<ng-template #buyersClosingCost>
-					{{program && program.amount || 0 | currency:'USD':'symbol':'0.0-0'}}
+					{{program && program.amount || 0 | currency:'USD':'symbol':'0.2-2'}}
 				</ng-template>
 			</div>
 			<div>
@@ -37,7 +37,7 @@
 			</div>
 		</div>
 	</div>
-	<div *ngIf="canEditAgreement" class="phd-card-footer">
+	<div *ngIf="canEdit" class="phd-card-footer">
 		<a class="btn m-0 p-0" (click)="edit()">Edit</a>
 	</div>
 </div>
@@ -82,10 +82,6 @@
 				</div>
 
 				<input class="form-control" type="number" name="discount" id="discount" min="1" formControlName="discountAmount" required>
-
-				<div class="input-group-append">
-					<span class="input-group-text">.00</span>
-				</div>
 			</div>
 		</div>
 

@@ -29,15 +29,14 @@ export class ProgramDetailComponent extends ComponentCanNavAway implements OnIni
 	@Input() editing: any;
 	@Input() isChangingOrder: boolean;
 	@Input() changeOrderPrograms: Array<SalesChangeOrderSalesProgram>;
-	@Input() canEditAgreement: boolean = true;
+	@Input() canEdit: boolean = true;
 
 	default: SalesAgreementProgram = new SalesAgreementProgram();
 
 	@Output() onRemove = new EventEmitter<number>();
 	@Output() onEdit = new EventEmitter<SalesAgreementProgram>();
 	@Output() checkChanges = new EventEmitter<boolean>();
-	@Output() onSavingProgram = new EventEmitter<{ action: string, programs: Array<SalesChangeOrderSalesProgram> }>();
-	@Output() onUpdateProgram = new EventEmitter<{ item: SalesChangeOrderSalesProgram, position: number }>();
+	@Output() onSavingProgram = new EventEmitter<{ action: string, programs: Array<SalesChangeOrderSalesProgram>, originalProgramId?: number }>();
 
 	// The Sales Program the user has selected from the drop down menu
 	selectedSalesProgram: SalesProgram;
@@ -63,7 +62,17 @@ export class ProgramDetailComponent extends ComponentCanNavAway implements OnIni
 	{
 		return this.salesPrograms.filter(p =>
 		{
-			return p.maximumAmount > this.getSalesProgramTotalAmount(p.id);
+			let isProgramOwner = this.program?.salesProgramId === p.id;
+			let isInUse = this.changeOrderPrograms.findIndex(x => x.salesProgramId === p.id) > -1;
+
+			if (this.isChangingOrder && isInUse && !isProgramOwner)
+			{
+				return false;
+			}
+			else
+			{
+				return p.maximumAmount > this.getSalesProgramTotalAmount(p.id);
+			}
 		});
 	}
 
@@ -76,14 +85,9 @@ export class ProgramDetailComponent extends ComponentCanNavAway implements OnIni
 
 	setFormData()
 	{
-		const changeOrderPrograms = (this.changeOrderPrograms && this.program && this.program.salesProgram && this.agreement.programs &&
-			this.changeOrderPrograms.find(coProgram => coProgram.action === 'Add' && this.program.salesProgram.id === coProgram.salesProgramId &&
-			this.agreement.programs.some(programs => programs.salesProgram.id === coProgram.salesProgramId)));
 		let totalAmount = this.selectedSalesProgram ? this.getSalesProgramTotalAmount(this.selectedSalesProgram.id) : 0;
-		let maxAmount = this.selectedSalesProgram ? this.selectedSalesProgram.maximumAmount - totalAmount : null;
-		const agreementAmount = this.agreement.programs && this.program && this.program.salesProgram && this.agreement.programs.find(saProgram => saProgram.salesProgram.id === this.program.salesProgram.id) && this.agreement.programs.find(saProgram => saProgram.salesProgram.id === this.program.salesProgram.id).amount;
-		const coAmount = changeOrderPrograms ? changeOrderPrograms.amount : null;
-		const programAmount = coAmount ? coAmount - agreementAmount : this.program && this.program.amount ? this.program.amount : null;
+		let programAmount = this.program && this.program.amount ? this.program.amount : null;
+		let maxAmount = this.selectedSalesProgram ? (this.selectedSalesProgram.maximumAmount - totalAmount) + programAmount : null;
 
 		// Setup form controls, only on component creation/init
 		this.discountAmount = new FormControl(programAmount, [
@@ -104,11 +108,13 @@ export class ProgramDetailComponent extends ComponentCanNavAway implements OnIni
 	 */
 	getSalesProgramTotalAmount(salesProgramId: number)
 	{
-		const sumAmounts = (total: number, program: SalesAgreementProgram) => { return total + program.amount; };
+		const sumAmounts = (total: number, program: SalesAgreementProgram | SalesChangeOrderSalesProgram) => { return total + program.amount; };
 		const agreementPrograms = this.agreement.programs.filter(x => x.salesProgramId === salesProgramId);
 		const agreementAmount = agreementPrograms && agreementPrograms.length > 0 ? agreementPrograms.reduce(sumAmounts, 0) : 0;
+		const changeOrderPrograms = this.changeOrderPrograms.filter(x => x.salesProgramId === salesProgramId);
+		const changeOrderAmount = changeOrderPrograms && changeOrderPrograms.length > 0 ? changeOrderPrograms.reduce(sumAmounts, 0) : 0;
 
-		return agreementAmount;
+		return agreementAmount + changeOrderAmount;
 	}
 
 	createForm()
@@ -135,7 +141,14 @@ export class ProgramDetailComponent extends ComponentCanNavAway implements OnIni
 		if (this.selectedSalesProgram && this.selectedSalesProgram.maximumAmount)
 		{
 			let totalAmount = this.getSalesProgramTotalAmount(this.selectedSalesProgram.id);
-			let maxAmount = this.selectedSalesProgram.maximumAmount - totalAmount;
+			let programAmount = this.program && this.program.amount ? this.program.amount : null;
+			let maxAmount = this.selectedSalesProgram ? this.selectedSalesProgram.maximumAmount - totalAmount : null;
+
+			if (this.default.salesProgramId === this.selectedSalesProgram?.id)
+			{
+				// add the amount back to the maxAmount so we can include what was already added.
+				maxAmount += programAmount;
+			}
 
 			this.discountAmount.setValidators([Validators.required, Validators.max(maxAmount), Validators.min(1)]);
 			this.discountAmount.updateValueAndValidity();
@@ -196,7 +209,9 @@ export class ProgramDetailComponent extends ComponentCanNavAway implements OnIni
 				salesChangeOrderSalesPrograms.push({ salesProgramId: this.selectedSalesProgram.id, salesProgramDescription: this.form.controls['description'].value, amount: this.form.controls['discountAmount'].value, action: 'Add', salesProgramType: this.selectedSalesProgram.salesProgramType.toString() });
 			}
 
-			this.onSavingProgram.emit({ action: 'Add', programs: salesChangeOrderSalesPrograms });
+			let originalProgramId = this.default.salesProgramId !== salesChangeOrderSalesPrograms[0].salesProgramId ? this.default.salesProgramId : null;
+
+			this.onSavingProgram.emit({ action: 'Add', programs: salesChangeOrderSalesPrograms, originalProgramId: originalProgramId });
 
 			this.onEdit.emit(null);
 		}

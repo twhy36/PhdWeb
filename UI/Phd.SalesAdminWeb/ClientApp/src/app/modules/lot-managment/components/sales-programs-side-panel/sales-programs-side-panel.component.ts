@@ -98,7 +98,8 @@ export class SalesProgramsSidePanelComponent implements OnInit
 			this.releaseForm.addControl('createdUtcDate', new FormControl(this.selected.createdUtcDate));
 		}
 
-		if(this.agreementLocked) {
+		if (this.agreementLocked)
+		{
 			this.releaseForm.get('isPMCAffiliate').disable();
 			this.releaseForm.get('startDate').disable();
 			this.releaseForm.get('salesProgramType').disable();
@@ -131,7 +132,7 @@ export class SalesProgramsSidePanelComponent implements OnInit
 	{
 		if (this.releaseForm.valid)
 		{
-			this.onSave.emit(this.releaseForm.value as SalesProgram);
+			this.onSave.emit(this.releaseForm.getRawValue() as SalesProgram);
 		}
 	}
 

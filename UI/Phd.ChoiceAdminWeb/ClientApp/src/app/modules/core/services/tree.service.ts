@@ -337,9 +337,12 @@ export class TreeService {
 	getTreeWithChoices(planOptionCommunity: IPlanOptionCommunityResult[], selectedChoices: DivAttributeWizChoice[]): Observable<Array<IPlanOptionResult>> {
 		const batchGuid = odataUtils.getNewGuid();
 
-		let requests = planOptionCommunity.map(poc => {
+		let requests = _(planOptionCommunity).groupBy('financialCommunityId').map((poc, financialCommunityId) =>
+		{
+			var financialPlanIntegrationKey = poc.map(p => `'${p.financialPlanIntegrationKey}'`).join(',');
+
 			const entity = `dTreeVersions`;
-			const filter = `dTree/plan/org/edhFinancialCommunityId eq ${poc.financialCommunityId} and dTree/plan/integrationKey eq '${poc.financialPlanIntegrationKey}' and (publishStartDate eq null or publishStartDate le now())`;
+			const filter = `dTree/plan/org/edhFinancialCommunityId eq ${financialCommunityId} and dTree/plan/integrationKey in (${financialPlanIntegrationKey}) and (publishStartDate eq null or publishStartDate le now())`;
 			const expand = `dpChoices($select=dpChoiceID,divChoiceCatalogID),dTree($select=dTreeID;$expand=plan($select=planId,integrationKey;$expand=org($select=orgId,edhFinancialCommunityId)))`
 			const select = `dTreeVersionID, dTreeVersionName, publishStartDate, lastModifiedDate`;
 			const orderBy = `publishStartDate`;
@@ -356,17 +359,33 @@ export class TreeService {
 			map((response: any) => {
 				let bodies = response.responses.map(r => r.body);
 
-				return bodies.map(body => {
-					// pick draft(publishStartDate is null) or latest publishStartDate(last element)
-					let value = body.value.length > 0 ? !body.value[0].publishStartDate ? body.value[0] : body.value[body.value.length - 1] : null;
+				return _.flatten(bodies.map(body =>
+				{
+					var result: Array<IPlanOptionResult> = [];
 
-					return value ?
+					// Group by financial plan integration key
+					let groupedValue = body.value.length ? _.groupBy(body.value, poc => poc.dTree.plan.integrationKey) : null;
+
+					for (let val in groupedValue)
+					{
+						let valObject = groupedValue[val];
+
+						// pick draft(publishStartDate is null) or latest publishStartDate(last element)
+						let value = valObject.length > 0 ? !valObject[0].publishStartDate ? valObject[0] : valObject[valObject.length - 1] : null;
+
+						if (value)
 						{
-							org: { edhFinancialCommunityId: value.dTree.plan.org.edhFinancialCommunityId },
-							integrationKey: value.dTree.plan.integrationKey,
-							choicesExist: selectedChoices.every(selectedChoice => value.dpChoices.some(dp => dp.divChoiceCatalogID === selectedChoice.id))
-						} as IPlanOptionResult : null;
-				}).filter(res => res);
+							result.push(
+								{
+									org: { edhFinancialCommunityId: value.dTree.plan.org.edhFinancialCommunityId },
+									integrationKey: value.dTree.plan.integrationKey,
+									choicesExist: selectedChoices.every(selectedChoice => value.dpChoices.some(dp => dp.divChoiceCatalogID === selectedChoice.id))
+								} as IPlanOptionResult);
+						}
+					}
+
+					return result;
+				}));
 			})
 		);
 	}

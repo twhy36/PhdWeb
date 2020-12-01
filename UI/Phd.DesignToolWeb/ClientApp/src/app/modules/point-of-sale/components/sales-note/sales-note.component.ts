@@ -23,7 +23,7 @@ export class SalesNoteComponent extends ComponentCanNavAway implements OnInit
 	@Input() editing: any;
 	@Input() note: Note;
 	@Input() canEdit: boolean;
-	@Input() inChangeOrder:boolean;
+
 	default: Note;
 
 	@Output() onRemove = new EventEmitter<number>();
@@ -40,26 +40,15 @@ export class SalesNoteComponent extends ComponentCanNavAway implements OnInit
 
 	maxDescriptionLength: number = 3000;
 
-	subCategoryOptions: Array<{ id: number, value: string, internal: boolean }> = [
-		{ id: 5, value: 'Agreement Detail', internal: true },
-		{ id: 6, value: 'Deposit', internal: true },
-		{ id: 7, value: 'Financing', internal: true },
-		{ id: 8, value: 'JIO/Change Order', internal: true },
-		{ id: 9, value: 'Sales Agreement', internal: true },
-		{ id: 10, value: 'Terms & Conditions', internal: false }
+	subCategoryOptions: Array<{ id: number, value: string }> = [
+		{ id: 5, value: 'Agreement Detail' },
+		{ id: 6, value: 'Deposit' },
+		{ id: 7, value: 'Financing' },
+		{ id: 8, value: 'JIO/Change Order' },
+		{ id: 9, value: 'Sales Agreement' },
+		{ id: 10, value: 'Terms & Conditions' }
 	];
 
-	get internalCategoryOptions() {
-		return this.subCategoryOptions.filter(cat => cat.internal);
-	}
-
-	get externalCategoryOptions() {
-		return this.subCategoryOptions.filter(cat => !cat.internal);
-	}
-
-	get canAddPublicNote() {
-		return this.agreement.status === 'Pending' || this.inChangeOrder;
-	}
 	selectedSubCategory;
 
 	constructor(
@@ -80,6 +69,7 @@ export class SalesNoteComponent extends ComponentCanNavAway implements OnInit
 	{
 		this.form = new FormGroup({
 			subCategory: this.subCategory,
+			noteType: this.noteType,
 			noteContent: this.noteContent
 		});
 	}
@@ -88,9 +78,11 @@ export class SalesNoteComponent extends ComponentCanNavAway implements OnInit
 	{
 		// Setup form controls, only on component creation/init
 		this.subCategory = new FormControl(this.note.noteSubCategoryId || null, [Validators.required]);
+		this.noteType = new FormControl(this.note.targetAudiences && this.note.targetAudiences.length > 0 && this.note.targetAudiences[0].name || null, [Validators.required]);
 		this.noteContent = new FormControl(this.note.noteContent || '', [Validators.required, Validators.maxLength(this.maxDescriptionLength)]);
 
 		this.setSelectedSubCategory(this.note.noteSubCategoryId);
+
 		this.createForm();
 	}
 
@@ -108,8 +100,9 @@ export class SalesNoteComponent extends ComponentCanNavAway implements OnInit
 	{
 		const saveNote: Note = new Note({
 			noteSubCategoryId: this.subCategory.value,
-			noteType: this.subCategoryOptions.find(opt => opt.id === this.subCategory.value).internal ? 'Internal' : 'Public',
+			noteType: this.noteType.value,
 			noteContent: this.noteContent.value,
+			notTargetAudienceAssocs: new Array(this.noteType.value)
 		});
 
 		if (this.note.id)

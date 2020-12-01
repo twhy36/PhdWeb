@@ -246,7 +246,7 @@ export class SetSalesChangeOrderSalesPrograms implements Action
 {
 	readonly type = ChangeOrderActionTypes.SetSalesChangeOrderSalesPrograms;
 
-	constructor(public action: string, public salesChangeOrderSalesPrograms: Array<SalesChangeOrderSalesProgram>, public agreement?: SalesAgreement) { }
+	constructor(public action: string, public salesChangeOrderSalesPrograms: Array<SalesChangeOrderSalesProgram>, public agreement?: SalesAgreement, public originalProgramId?: number) { }
 }
 
 export class CancelLotTransferChangeOrder implements Action

@@ -1,4 +1,6 @@
 <nav-bar></nav-bar>
-<div>
+<div class="phd-main-container">
 	<router-outlet></router-outlet>
 </div>
+
+<build-version *ngIf="!environment.production" [branch]="branch" [version]="build.version"></build-version>

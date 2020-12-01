@@ -14,11 +14,11 @@ export class SearchResult
 	homesiteType: string;
 	id: number;
 	lotStatusDescription: string;
-	plans: Array<SearchResultItem> //[{ id: 93493, planId: 513, lotId: 2387, isActive: true, createdBy: "Migration", â€¦ }, â€¦]
+	plans: Array<SearchResultItem>;
 	postalCode: string;
 	premium: number;
 	salesAgreements: Array<ISearchResultAgreement> = [];
-	scenarios: Array<SearchResultItem> // [{ id: 1613, name: "2019/02/18", planId: 3931, lotId: 9771, opportunityContactAssocId: 114, â€¦ }]
+	scenarios: Array<SearchResultItem>;
 	stateProvince: string;
 	streetAddress1: string;
 	streetAddress2: string;
@@ -86,16 +86,15 @@ export class SearchResult
 				const activeCOG = job.jobChangeOrderGroups.find(cog => ['Pending', 'Signed', 'OutforSignature', 'Rejected'].indexOf(cog.salesStatusDescription) !== -1
 					&& cog.jobChangeOrderGroupDescription !== 'Pulte Home Designer Generated Job Initiation Change Order'
 					&& cog.jobChangeOrderGroupDescription !== 'Pulte Home Designer Generated Spec Customer Change Order');
-				if (activeCOG)
-				{
+				if (activeCOG) {
 					this.activeChangeOrder = {
 						changeOrderDescription: activeCOG.jobChangeOrderGroupDescription,
-						changeOrderNumber: activeCOG.jobChangeOrderGroupSalesAgreementAssocs.length > 0 ? activeCOG.jobChangeOrderGroupSalesAgreementAssocs[0].changeOrderGroupSequence.toString() : '0',
+						changeOrderNumber: activeCOG.jobChangeOrderGroupSalesAgreementAssocs.length > 0 ? (activeCOG.jobChangeOrderGroupSalesAgreementAssocs[0].changeOrderGroupSequence || '').toString() : '0',
 						changeOrderStatus: activeCOG.salesStatusDescription,
 						SalesAgreementId: activeCOG.jobChangeOrderGroupSalesAgreementAssocs.length > 0 ? activeCOG.jobChangeOrderGroupSalesAgreementAssocs[0].salesAgreementId : null
 					};
 					this.activeChangeOrderText = 'CO# ' +
-						(activeCOG.jobChangeOrderGroupSalesAgreementAssocs.length > 0 ? activeCOG.jobChangeOrderGroupSalesAgreementAssocs[0].changeOrderGroupSequence.toString() : '0') +
+						(activeCOG.jobChangeOrderGroupSalesAgreementAssocs.length > 0 ? (activeCOG.jobChangeOrderGroupSalesAgreementAssocs[0].changeOrderGroupSequence || '').toString() : '0') +
 						' ' + activeCOG.salesStatusDescription + ' ' + activeCOG.jobChangeOrderGroupDescription;
 				}
 			}

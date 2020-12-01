@@ -31,10 +31,11 @@ export interface ISalesAgreement
 	statusUtcDate?: Date;
 	trustName?: string;
 	jobSalesAgreementAssocs?: Array<JobSalesAgreementAssoc>;
-	cancellations?: SalesAgreementCancelInfo;
+	cancellations?: SalesAgreementCancelVoidInfo;
 	salePrice?: number;
 	salesAgreementPriceAdjustmentAssocs?: Array<SalesAgreementPriceAdjustment>;
 	salesAgreementName?: string;
+	isLockedIn?: boolean;
 }
 
 export class SalesAgreement
@@ -62,10 +63,11 @@ export class SalesAgreement
 	statusUtcDate: Date = null;
 	trustName: string = null;
 	jobSalesAgreementAssocs?: Array<JobSalesAgreementAssoc> = [];
-	cancellations?: SalesAgreementCancelInfo;
+	cancellations?: SalesAgreementCancelVoidInfo;
 	salePrice: number = 0;
 	priceAdjustments?: Array<SalesAgreementPriceAdjustment> = [];
 	salesAgreementName: string = null;
+	isLockedIn: boolean = false;
 
 	constructor(dto: ISalesAgreement | SalesAgreement = null)
 	{
@@ -97,6 +99,7 @@ export class SalesAgreement
 			this.cancellations = dto.cancellations;
 			this.salePrice = dto.salePrice;			
 			this.salesAgreementName = dto.salesAgreementName;
+			this.isLockedIn = dto.isLockedIn;
 
 			if (dto.jobSalesAgreementAssocs)
 			{
@@ -315,29 +318,32 @@ export class JobSalesAgreementAssoc
 	}
 }
 
-export class SalesAgreementCancelInfo
+export class SalesAgreementCancelVoidInfo
 {
 	salesAgreementId?: number;
 	cancelReasonDesc?: string;
+	voidReasonDesc?: string;
 	noteId?: number;
 	note?: Note = null;
 
-	constructor(dto: ISalesAgreementCancelInfo = null)
+	constructor(dto: ISalesAgreementCancelVoidInfo = null)
 	{
 		if (dto)
 		{
 			this.salesAgreementId = dto.salesAgreementId;
 			this.cancelReasonDesc = dto.cancelReasonDesc;
+			this.voidReasonDesc = dto.voidReasonDesc;
 			this.noteId = dto.noteId;
 			this.note = dto.note;
 		}
 	}
 }
 
-export interface ISalesAgreementCancelInfo
+export interface ISalesAgreementCancelVoidInfo
 {
 	salesAgreementId: number;
 	cancelReasonDesc: string;
+	voidReasonDesc: string;
 	noteId?: number;
 	note?: Note;
 }
@@ -363,4 +369,28 @@ export enum SalesAgreementCancelReason
 	FullDepositNotReceived = 'Full Deposit Not Received',
 	NaturalDisaster = 'Natural Disaster',
 	LotTransfer = 'Lot Transfer Within Community'
+}
+
+export enum SalesAgreementVoidReason
+{
+	BuyersRemorse = 'Buyers Remorse',
+	IllnessOrDeath = 'Illness or Death',
+	FamilyIssues = 'Family Issues',
+	ConsideringAnotherPulteGroupCommunity = 'Considering Another PulteGroup Community',
+	ContingencyRequestNotApproved = 'Contingency Request Not Approved',
+	FinancialDifficulties = 'Financial Difficulties',
+	//FinancingRejected = 7,
+	ConstructionOrOptionObjection = 'Construction or Option Objection',
+	EmploymentStatus = 'Employment Status',
+	BoughtFromCompetitor = 'Bought from Competitor',
+	BreachOfContract = 'Breach of Contract',
+	WithinRightsToRescindPeriod = 'Within Rights to Rescind Period',
+	BoughtResale = 'Bought Resale',
+	DivisionInitiated = 'Division Initiated',
+	DepositNotReceived = 'Deposit Not Received',
+	NaturalDisaster = 'Natural Disaster',
+	LotTransferWithinCommunity = 'Lot Transfer Within Community',
+	FailedToSignInTime = 'Failed to Sign in Time',
+	FinancingGateNotAchieved = 'Financing Gate Not Achieved',
+	PurchaseAgreementCorrectionNeeded = 'Purchase Agreement Correction Needed'
 }

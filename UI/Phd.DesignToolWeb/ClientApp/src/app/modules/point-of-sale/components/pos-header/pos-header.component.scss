@@ -5,6 +5,7 @@
 	max-width: 1500px;
 	min-height: 45px;
 	line-height: 1.36;
+	justify-content: space-around;
 
 	strong {
 		white-space: nowrap;
@@ -37,4 +38,12 @@
 	color: grey;
 	padding-right: 8px;
 	cursor: pointer;
+}
+
+.phd-agreement-hidden {
+	justify-content: start;
+
+	.phd-toggle-arrow {
+		margin-left: 3em;
+	}
 }

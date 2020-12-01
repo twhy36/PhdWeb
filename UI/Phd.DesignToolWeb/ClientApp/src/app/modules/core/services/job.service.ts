@@ -96,6 +96,7 @@ export class JobService
 	getChangeOrderBuyerContacts(changeOrderGroups: any): Observable<Array<ChangeOrderGroup>>
 	{
 		const contactIds = _.flatMap(changeOrderGroups, g => _.flatMap(g.jobChangeOrders, co => _.flatMap(co.jobSalesChangeOrderBuyers, b => b.opportunityContactAssoc.contactId)));
+		const select = 'id,prefix,firstName,middleName,lastName,suffix,preferredCommunicationMethod,dynamicsIntegrationKey';
 
 		if (contactIds && contactIds.length)
 		{
@@ -103,7 +104,7 @@ export class JobService
 				switchMap((token: string) =>
 				{
 					let guid = newGuid();
-					let requests = contactIds.map(id => createBatchGet(`${environment.apiUrl}contacts(${id})?$expand=addressAssocs($expand=address),emailAssocs($expand=email),phoneAssocs($expand=phone)`));
+					let requests = contactIds.map(id => createBatchGet(`${environment.apiUrl}contacts(${id})?$expand=addressAssocs($expand=address),emailAssocs($expand=email),phoneAssocs($expand=phone)&$select=${select}`));
 					let headers = createBatchHeaders(token, guid);
 					let batch = createBatchBody(guid, requests);
 

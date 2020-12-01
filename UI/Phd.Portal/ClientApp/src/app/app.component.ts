@@ -3,6 +3,7 @@ import { IdentityService } from 'phd-common/services';
 import { loadScript } from 'phd-common/utils';
 
 import { environment } from '../environments/environment';
+import * as build from './build.json';
 
 @Component({
     selector: 'div.app-root',
@@ -10,7 +11,14 @@ import { environment } from '../environments/environment';
     styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
-    user;
+	user;
+
+	build = (build as any).default;
+	environment = environment;
+
+	get branch(): string {
+		return build.branch.split('/').slice(2).join('/');
+	}
 
     constructor(private _idService: IdentityService) {
         loadScript(environment.whatFix.scriptUrl).subscribe();

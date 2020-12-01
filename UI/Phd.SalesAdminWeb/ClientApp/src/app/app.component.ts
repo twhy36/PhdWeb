@@ -7,6 +7,7 @@ import { filter, map, scan } from 'rxjs/operators';
 import { LoggingService } from './modules/core/services/logging.service';
 import { loadScript } from 'phd-common/utils';
 import { environment } from '../environments/environment';
+import * as build from './build.json';
 import { IdentityService } from 'phd-common/services';
 import { Claims } from 'phd-common/models';
 
@@ -18,6 +19,13 @@ import { Claims } from 'phd-common/models';
 export class AppComponent
 {
 	canAccessSalesAdmin$: Observable<boolean>;
+
+	build = (build as any).default;
+	environment = environment;
+
+	get branch(): string {
+		return build.branch.split('/').slice(2).join('/');
+	}
 
 	constructor(private router: Router, private loggingService: LoggingService, private route: ActivatedRoute, private identityService: IdentityService) {
 		this.router.events.pipe(

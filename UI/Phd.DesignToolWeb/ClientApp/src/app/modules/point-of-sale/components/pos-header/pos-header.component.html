@@ -1,18 +1,18 @@
-<div class="phd-pos-header mx-auto d-flex mb-1 p-2 bg-white phd-expanded">
+<div class="phd-pos-header mx-auto d-flex mb-1 p-2 bg-white phd-expanded" [ngClass]="{'phd-agreement-hidden' : !showAgreement }">
 	<div class="d-flex flex-wrap py-2 flex-row phd-toggle-arrow" *ngIf="agreementSelected()" id="toggleArrow" #toggleArrow (click)="toggle($event)">
 		<span *ngIf="showAgreement"><i class="fa fa-fw fa-chevron-up"></i></span>
 		<span *ngIf="!showAgreement"><i class="fa fa-fw fa-chevron-down"></i></span>
 	</div>
 
 	<ng-container *ngIf="showAgreement">
-		<div class="d-flex flex-wrap py-2 flex-row phd-flex-fill">
+		<div class="d-flex flex-wrap py-2 flex-row">
 			<strong>Sales Agreement ID:</strong>
 			<div class="pl-1">
 				{{salesAgreementNumber$ | async}}
 			</div>
 		</div>
 
-		<div class="d-flex flex-wrap py-2 flex-row phd-flex-fill">
+		<div class="d-flex flex-wrap py-2 flex-row">
 			<strong>Sales Agreement Status:</strong>
 			<div class="pl-1">
 				{{ salesAgreementStatus | capitalCaseSpace}}
@@ -20,15 +20,15 @@
 			</div>
 		</div>
 
-		<div class="d-flex flex-wrap py-2 flex-row phd-flex-fill">
+		<div class="d-flex flex-wrap py-2 flex-row">
 			<strong>Sales Consultant(s):</strong>
 			<div class="pl-1" *ngIf="salesAgreementConsultants$ | async; let consultants">
-				<a (click)="onShowConsultants()" class="phd-link-light" *ngIf="salesAgreementStatus !== 'Void'">{{ consultants.name }} <span *ngIf="consultants.count > 1"><i class="fas fa-plus"></i></span></a>
-				<span *ngIf="salesAgreementStatus === 'Void'">{{ consultants.name }}</span>
+				<a (click)="onShowConsultants()" class="phd-link-light" *ngIf="salesAgreementStatus !== 'Void' && !isLockedIn">{{ consultants.name }} <span *ngIf="consultants.count > 1"><i class="fas fa-plus"></i></span></a>
+				<span *ngIf="salesAgreementStatus === 'Void' || isLockedIn">{{ consultants.name }}</span>
 			</div>
 		</div>
 
-		<div *ngIf="showEBill" class="d-flex flex-wrap py-2 flex-row phd-flex-fill">
+		<div *ngIf="showEBill" class="d-flex flex-wrap py-2 flex-row">
 			<a href="{{ eBillUrl }}" target="_blank" class="phd-link-light"><i>Go to E-Bill Express</i></a>
 		</div>
 	</ng-container>

@@ -1,6 +1,8 @@
 import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { NavBarComponent } from './components/nav-bar/nav-bar.component';
 
+import { BrowserService } from './services/browser.service';
 
 @NgModule({
 	exports: [
@@ -9,7 +11,11 @@ import { NavBarComponent } from './components/nav-bar/nav-bar.component';
 	declarations: [
 		NavBarComponent
 	],
-	imports: [],
-	providers: []
+	imports: [
+		CommonModule
+	],
+	providers: [
+		BrowserService
+	]
 })
 export class CoreModule { }

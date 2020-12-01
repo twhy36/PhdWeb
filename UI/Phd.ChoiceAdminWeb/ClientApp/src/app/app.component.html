@@ -4,3 +4,5 @@
 	<router-outlet></router-outlet>
 </div>
 <common-spinner></common-spinner>
+
+<build-version *ngIf="!environment.production" [branch]="branch" [version]="build.version"></build-version>

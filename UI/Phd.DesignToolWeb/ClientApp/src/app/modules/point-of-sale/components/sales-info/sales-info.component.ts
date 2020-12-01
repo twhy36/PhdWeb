@@ -61,8 +61,10 @@ export class SalesInfoComponent extends UnsubscribeOnDestroy implements OnInit, 
 	canDesign: boolean;
 	cancelOrVoid: boolean;
 	canAddIncentive: boolean;
+	canLockSalesAgreement: boolean;
 	jobsProjectedFinalDate$: Observable<Date>;
 	hasPriceAdjustments: boolean = false;
+	isLockedIn: boolean = false;
 
 	private cdSubject = new Subject<void>();
 
@@ -82,6 +84,39 @@ export class SalesInfoComponent extends UnsubscribeOnDestroy implements OnInit, 
 		{
 			this.cd.detectChanges();
 		})
+	}
+
+	get hasAvailableSalesPrograms(): boolean
+	{
+		if (this.isChangingOrder)
+		{
+			const sumAmounts = (total: number, program: SalesAgreementProgram | SalesChangeOrderSalesProgram) => { return total + program.amount; };
+
+			let programs =  this.salesPrograms.filter(p =>
+			{
+				let isInUse = this.salesChangeOrderSalesPrograms.findIndex(x => x.salesProgramId === p.id) > -1;
+
+				if (this.isChangingOrder && isInUse)
+				{
+					return false;
+				}
+				else
+				{					
+					const agreementPrograms = this.agreement.programs.filter(x => x.salesProgramId === p.id);
+					const agreementAmount = agreementPrograms && agreementPrograms.length > 0 ? agreementPrograms.reduce(sumAmounts, 0) : 0;
+					const changeOrderPrograms = this.salesChangeOrderSalesPrograms.filter(x => x.salesProgramId === p.id);
+					const changeOrderAmount = changeOrderPrograms && changeOrderPrograms.length > 0 ? changeOrderPrograms.reduce(sumAmounts, 0) : 0;
+
+					return p.maximumAmount > agreementAmount + changeOrderAmount;
+				}
+			});
+
+			return programs.length > 0;
+		}
+		else
+		{
+			return true;
+		}
 	}
 
 	ngOnInit()
@@ -122,6 +157,11 @@ export class SalesInfoComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
+			select(state => state.salesAgreement.isLockedIn)
+		).subscribe(isLockedIn => this.isLockedIn = isLockedIn);
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
 			select(fromRoot.canEditAgreementOrSpec)
 		).subscribe(canEditAgreement =>
 		{
@@ -147,6 +187,11 @@ export class SalesInfoComponent extends UnsubscribeOnDestroy implements OnInit, 
 			this.takeUntilDestroyed(),
 			select(fromRoot.canAddIncentive)
 		).subscribe(canAddIncentive => this.canAddIncentive = canAddIncentive);
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromRoot.canLockSalesAgreement)
+		).subscribe(canLockSalesAgreement => this.canLockSalesAgreement = canLockSalesAgreement);
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
@@ -247,8 +292,8 @@ export class SalesInfoComponent extends UnsubscribeOnDestroy implements OnInit, 
 			this.store.pipe(
 				this.takeUntilDestroyed(),
 				select(state => state.salesAgreement.programs),
-				combineLatest(this.store.select(state => state.changeOrder), this.store.select(state => state.job))
-			).subscribe(([programs, changeOrderState, job]) =>
+				combineLatest(this.store.select(state => state.changeOrder))
+			).subscribe(([programs, changeOrderState]) =>
 			{
 				this.isChangingOrder = changeOrderState.isChangingOrder && !!changeOrderState.changeInput;
 
@@ -424,56 +469,9 @@ export class SalesInfoComponent extends UnsubscribeOnDestroy implements OnInit, 
 		this.store.dispatch(new ChangeOrderActions.UpdateSalesChangeOrderPriceAdjustment(data.item, data.position));
 	}
 
-	saveSalesChangeOrderSalesPrograms(data: { action: string, programs: Array<SalesChangeOrderSalesProgram> })
+	saveSalesChangeOrderSalesPrograms(data: { action: string, programs: Array<SalesChangeOrderSalesProgram>, originalProgramId?: number })
 	{
-		this.store.dispatch(new ChangeOrderActions.SetSalesChangeOrderSalesPrograms(data.action, data.programs, this.agreement));
-	}
-
-	updateSalesChangeOrderSalesProgram(data: { item: SalesChangeOrderSalesProgram, position: number })
-	{
-		let updatedPrograms: Array<SalesChangeOrderSalesProgram> = [];
-		let action: string = '';
-
-		if (this.programs.length > data.position)
-		{
-			const existingProgram = this.programs[data.position];
-
-			if (existingProgram)
-			{
-				const existingChangeOrderProgram = this.salesChangeOrderSalesPrograms.find(x => x.id === existingProgram.id);
-
-				if (existingChangeOrderProgram)
-				{
-					updatedPrograms.push({ ...data.item, id: existingChangeOrderProgram.id });
-					action = 'Add';
-				}
-				else
-				{
-					let programType = null;
-
-					if (existingProgram.salesProgram && existingProgram.salesProgram.salesProgramType)
-					{
-						programType = existingProgram.salesProgram.salesProgramType === 'BuyersClosingCost'
-							? SalesProgramTypeEnum.BuyersClosingCost.toString()
-							: SalesProgramTypeEnum.DiscountFlatAmount.toString();
-					}
-
-					updatedPrograms.push({
-						salesProgramDescription: existingProgram.salesProgramDescription,
-						salesProgramId: existingProgram.salesProgramId,
-						amount: existingProgram.amount,
-						action: 'Delete',
-						salesProgramType: programType
-					});
-
-					updatedPrograms.push(data.item);
-
-					action = 'Delete';
-				}
-
-				this.store.dispatch(new ChangeOrderActions.SetSalesChangeOrderSalesPrograms(action, updatedPrograms));
-			}
-		}
+		this.store.dispatch(new ChangeOrderActions.SetSalesChangeOrderSalesPrograms(data.action, data.programs, this.agreement, data.originalProgramId));
 	}
 
 	mergeSalesChangeOrderSalesPrograms(changeOrder: ChangeOrder, programList: SalesAgreementProgram[])
