@@ -37,12 +37,12 @@ export const environment: IEnvironment = {
 		},
 		system: {
 			logger: <any>{
-				info: (message) => AppInsights.trackTrace(message, { source: 'msal.js' }, AI.SeverityLevel.Information),
-				verbose: (message) => AppInsights.trackTrace(message, { source: 'msal.js' }, AI.SeverityLevel.Verbose),
-				error: (message) => AppInsights.trackTrace(message, { source: 'msal.js' }, AI.SeverityLevel.Error),
-				errorPii: (message) => AppInsights.trackTrace(message, { source: 'msal.js' }, AI.SeverityLevel.Error),
-				infoPii: (message) => AppInsights.trackTrace(message, { source: 'msal.js' }, AI.SeverityLevel.Information),
-				verbosePii: (message) => AppInsights.trackTrace(message, { source: 'msal.js' }, AI.SeverityLevel.Verbose),
+				info: (message) => AppInsights.trackTrace(message, { source: 'msal.js' }, 1),
+				verbose: (message) => AppInsights.trackTrace(message, { source: 'msal.js' }, 0),
+				error: (message) => AppInsights.trackTrace(message, { source: 'msal.js' }, 3),
+				errorPii: (message) => AppInsights.trackTrace(message, { source: 'msal.js' }, 3),
+				infoPii: (message) => AppInsights.trackTrace(message, { source: 'msal.js' }, 1),
+				verbosePii: (message) => AppInsights.trackTrace(message, { source: 'msal.js' }, 0),
 				isPiiLoggingEnabled: () => true
 			}
 		}
