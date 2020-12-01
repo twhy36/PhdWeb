@@ -1,4 +1,5 @@
 import { IEnvironment } from './environment.model';
+import { AppInsights } from 'applicationinsights-js';
 
 // The file contents for the current environment will overwrite these during build.
 // The build system defaults to the dev environment which uses `environment.ts`, but if you do
@@ -33,6 +34,17 @@ export const environment: IEnvironment = {
 		cache: {
 			cacheLocation: 'localStorage',
 			storeAuthStateInCookie: true
+		},
+		system: {
+			logger: <any>{
+				info: (message) => AppInsights.trackTrace(message, { source: 'msal.js' }, AI.SeverityLevel.Information),
+				verbose: (message) => AppInsights.trackTrace(message, { source: 'msal.js' }, AI.SeverityLevel.Verbose),
+				error: (message) => AppInsights.trackTrace(message, { source: 'msal.js' }, AI.SeverityLevel.Error),
+				errorPii: (message) => AppInsights.trackTrace(message, { source: 'msal.js' }, AI.SeverityLevel.Error),
+				infoPii: (message) => AppInsights.trackTrace(message, { source: 'msal.js' }, AI.SeverityLevel.Information),
+				verbosePii: (message) => AppInsights.trackTrace(message, { source: 'msal.js' }, AI.SeverityLevel.Verbose),
+				isPiiLoggingEnabled: () => true
+			}
 		}
 	},
 	production: false,
