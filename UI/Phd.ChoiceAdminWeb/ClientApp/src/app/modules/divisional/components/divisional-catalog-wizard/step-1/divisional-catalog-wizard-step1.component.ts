@@ -15,7 +15,7 @@ export class DivisionalCatalogWizardStep1Component implements OnInit
 
 	get groups(): DivDGroup[]
 	{
-		return this.wizardService.groups;
+		return this.wizardService.catalogGroups;
 	}
 
 	get selectedChoices(): DivCatWizChoice[]
