@@ -62,7 +62,6 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 	changeOrderPlanId: number;
 	selectedPlanId: number;
 	specCancelled = false;
-	isLockedIn: boolean = false;
 
 	constructor(private lotService: LotService,
 		private identityService: IdentityService,
@@ -105,14 +104,17 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
+			select(state => state.salesAgreement.status),
+			map(status => status === 'OutforSignature' ? 'OutForSignature' : status)
+		).subscribe(status => this.salesAgreementStatus = status);
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
 			select(state => state.salesAgreement)
 		).subscribe(sag =>
 		{
-			this.salesAgreementStatus = sag.status === 'OutforSignature' ? 'OutForSignature' : sag.status;
 			this.salesAgreementNumber = sag && sag.salesAgreementNumber;
 			this.salesAgreementId = sag && sag.id;
-
-			this.isLockedIn = sag.isLockedIn;
 		});
 
 		this.store.pipe(

@@ -35,7 +35,6 @@ export interface ISalesAgreement
 	salePrice?: number;
 	salesAgreementPriceAdjustmentAssocs?: Array<SalesAgreementPriceAdjustment>;
 	salesAgreementName?: string;
-	isLockedIn?: boolean;
 }
 
 export class SalesAgreement
@@ -67,7 +66,6 @@ export class SalesAgreement
 	salePrice: number = 0;
 	priceAdjustments?: Array<SalesAgreementPriceAdjustment> = [];
 	salesAgreementName: string = null;
-	isLockedIn: boolean = false;
 
 	constructor(dto: ISalesAgreement | SalesAgreement = null)
 	{
@@ -99,7 +97,6 @@ export class SalesAgreement
 			this.cancellations = dto.cancellations;
 			this.salePrice = dto.salePrice;			
 			this.salesAgreementName = dto.salesAgreementName;
-			this.isLockedIn = dto.isLockedIn;
 
 			if (dto.jobSalesAgreementAssocs)
 			{

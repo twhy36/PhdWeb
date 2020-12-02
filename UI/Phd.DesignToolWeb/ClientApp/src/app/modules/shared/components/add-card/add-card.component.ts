@@ -14,7 +14,6 @@ export class AddCardComponent
 	@Input() hasNA: boolean = false;
 	@Input() hasPlus: boolean = true;
 	@Input() isNA: boolean = false;
-	@Input() canAdd: boolean = true;
 
 	@Output() onAdd = new EventEmitter();
 	@Output() onNA = new EventEmitter();
@@ -29,7 +28,6 @@ export class AddCardComponent
 	setNA( $event )
 	{
 		this.onNA.emit();
-
 		$event.stopPropagation();
 	}
 }

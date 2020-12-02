@@ -3,8 +3,7 @@ import { UserActions, UserActionTypes } from "./actions";
 import { Permission } from "phd-common/models";
 import { createFeatureSelector, createSelector } from "@ngrx/store";
 
-export interface State
-{
+export interface State {
 	assignedMarkets: IMarket[];
 	canConfigure: boolean;
 	canSell: boolean;
@@ -14,16 +13,13 @@ export interface State
 	canDesign: boolean;
 	canAddIncentive: boolean;
 	canUpdateECOE: boolean;
-	canLockSalesAgreement: boolean;
 	contactId: number;
 }
 
-export const initialState: State = { assignedMarkets: [], canApprove: false, canConfigure: false, canSell: false, canOverride: false, canCancel: false, canDesign: false, canAddIncentive: false, contactId: null, canUpdateECOE: false, canLockSalesAgreement: false };
+export const initialState: State = { assignedMarkets: [], canApprove: false, canConfigure: false, canSell: false, canOverride: false, canCancel: false, canDesign: false, canAddIncentive: false, contactId: null, canUpdateECOE: false };
 
-export function reducer(state: State = initialState, action: UserActions): State
-{
-	switch (action.type)
-	{
+export function reducer(state: State = initialState, action: UserActions): State {
+	switch (action.type) {
 		case UserActionTypes.SetPermissions:
 			return {
 				assignedMarkets: action.assignedMarkets,
@@ -35,7 +31,6 @@ export function reducer(state: State = initialState, action: UserActions): State
 				canDesign: action.claims.JobChangeOrders && !!(action.claims.JobChangeOrders & Permission.Create),
 				canAddIncentive: action.claims.Incentives && !!(action.claims.Incentives & Permission.Create),
 				canUpdateECOE: action.claims.ECOE && !!(action.claims.ECOE & Permission.Edit),
-				canLockSalesAgreement: action.claims.LockSalesAgreement && !!(action.claims.LockSalesAgreement && Permission.Edit),
 				contactId: action.contactId
 			};
 		default:

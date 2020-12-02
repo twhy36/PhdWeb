@@ -61,10 +61,8 @@ export class SalesInfoComponent extends UnsubscribeOnDestroy implements OnInit, 
 	canDesign: boolean;
 	cancelOrVoid: boolean;
 	canAddIncentive: boolean;
-	canLockSalesAgreement: boolean;
 	jobsProjectedFinalDate$: Observable<Date>;
 	hasPriceAdjustments: boolean = false;
-	isLockedIn: boolean = false;
 
 	private cdSubject = new Subject<void>();
 
@@ -157,11 +155,6 @@ export class SalesInfoComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
-			select(state => state.salesAgreement.isLockedIn)
-		).subscribe(isLockedIn => this.isLockedIn = isLockedIn);
-
-		this.store.pipe(
-			this.takeUntilDestroyed(),
 			select(fromRoot.canEditAgreementOrSpec)
 		).subscribe(canEditAgreement =>
 		{
@@ -187,11 +180,6 @@ export class SalesInfoComponent extends UnsubscribeOnDestroy implements OnInit, 
 			this.takeUntilDestroyed(),
 			select(fromRoot.canAddIncentive)
 		).subscribe(canAddIncentive => this.canAddIncentive = canAddIncentive);
-
-		this.store.pipe(
-			this.takeUntilDestroyed(),
-			select(fromRoot.canLockSalesAgreement)
-		).subscribe(canLockSalesAgreement => this.canLockSalesAgreement = canLockSalesAgreement);
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),

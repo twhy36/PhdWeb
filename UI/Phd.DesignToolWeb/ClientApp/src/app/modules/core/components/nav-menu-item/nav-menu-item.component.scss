@@ -38,26 +38,14 @@ li {
 	}
 }
 
-%phd-menu-item-icon {
+span ::ng-deep .phd-status-indicator {
 	position: absolute;
 	margin: auto;
 	font-size: 12px;
 	top: 10%;
+	right: -20px;
 }
 
-.phd-nav-menu-item {
-
-	::ng-deep .phd-status-indicator {
-		@extend %phd-menu-item-icon;
-		right: -20px;
-	}
-}
-
-.phd-lock-icon {
-	@extend %phd-menu-item-icon;
-	right: -40px;
-	color: black;
-}
 
 @media (max-width: $tablet-max-width) {
 

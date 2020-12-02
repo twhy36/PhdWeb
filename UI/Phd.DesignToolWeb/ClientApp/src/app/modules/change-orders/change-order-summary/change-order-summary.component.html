@@ -7,7 +7,7 @@
 		<div class="mb-3">
 			<h4>ACTIVE CHANGE ORDERS</h4>
 		</div>
-		<div *ngIf="activeChangeOrders.length === 0 && ((canSell$ | async) || (canDesign$ | async)) && !(cancelOrVoid || (specCancelled$ | async)) && !isLockedIn">
+		<div *ngIf="activeChangeOrders.length === 0 && ((canSell$ | async) || (canDesign$ | async)) && !(cancelOrVoid || (specCancelled$ | async))">
 			<select class="phd-changeOrder-types" (change)="onSelectChangeOrderType($event.target.value)" #addChangeOrder>
 				<option *ngFor="let changeOrderType of changeOrderTypes"
 						[ngValue]="changeOrderType.id"

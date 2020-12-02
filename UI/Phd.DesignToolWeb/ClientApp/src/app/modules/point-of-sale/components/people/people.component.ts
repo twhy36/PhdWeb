@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Observable, of, NEVER as never } from 'rxjs';
+import { Observable ,  of ,  NEVER as never } from 'rxjs';
 import { distinctUntilChanged, combineLatest, switchMap, map, take } from 'rxjs/operators';
 import { Store, select } from '@ngrx/store';
 import * as _ from 'lodash';
@@ -49,7 +49,6 @@ export class PeopleComponent extends UnsubscribeOnDestroy implements OnInit, Con
 	canAddIncentive: boolean;
 	primaryBuyer: Buyer;
 	isSpecSalePending: boolean;
-	isLockedIn: boolean;
 
 	@ViewChild(BuyerInfoDetailComponent) buyerInfoDetail: BuyerInfoDetailComponent;
 
@@ -78,11 +77,9 @@ export class PeopleComponent extends UnsubscribeOnDestroy implements OnInit, Con
 					// if sales agreement is not in the store and the id has been passed in to the url
 					// or the passed in sales agreement id is different than that of the id in the store...
 					const salesAgreementId = +params.get('salesAgreementId');
-
 					if (salesAgreementId > 0 && salesAgreementState.id !== salesAgreementId)
 					{
 						this.store.dispatch(new CommonActions.LoadSalesAgreement(salesAgreementId));
-
 						return new Observable<never>();
 					}
 
@@ -94,8 +91,6 @@ export class PeopleComponent extends UnsubscribeOnDestroy implements OnInit, Con
 			.subscribe((salesAgreement: SalesAgreement) =>
 			{
 				this.salesAgreement = salesAgreement;
-
-				this.isLockedIn = this.salesAgreement.isLockedIn;
 			});
 
 		this.salesAgreementNumber$ = this.store.pipe(
@@ -108,10 +103,8 @@ export class PeopleComponent extends UnsubscribeOnDestroy implements OnInit, Con
 			fromRoot.activePrimaryBuyer,
 			fromChangeOrder.changeOrderPrimaryBuyer,
 			fromRoot.isSpecSalePending,
-			(state, sag, co, isSpecSalePending) =>
-			{
+			(state, sag, co, isSpecSalePending) => {
 				this.primaryBuyer = state.isChangingOrder || isSpecSalePending ? co : sag;
-
 				return this.primaryBuyer;
 			}
 		);
@@ -126,7 +119,7 @@ export class PeopleComponent extends UnsubscribeOnDestroy implements OnInit, Con
 			fromRoot.activeCoBuyers,
 			fromChangeOrder.changeOrderCoBuyers,
 			fromRoot.isSpecSalePending,
-			(state, sag, co, isSpecSalePending) =>
+			(state, sag, co, isSpecSalePending ) =>
 			{
 				return state.isChangingOrder || isSpecSalePending ? co : sag;
 			}
@@ -142,8 +135,7 @@ export class PeopleComponent extends UnsubscribeOnDestroy implements OnInit, Con
 			fromChangeOrder.changeOrderState,
 			fromSalesAgreement.salesAgreementState,
 			fromRoot.isSpecSalePending,
-			(co, sag, isSpecSalePending) =>
-			{
+			(co, sag, isSpecSalePending) => {
 				return co.isChangingOrder || isSpecSalePending ? co.changeInput.trustName : sag.trustName;
 			}
 		);
@@ -162,8 +154,7 @@ export class PeopleComponent extends UnsubscribeOnDestroy implements OnInit, Con
 			fromChangeOrder.changeOrderState,
 			fromSalesAgreement.salesAgreementState,
 			fromRoot.isSpecSalePending,
-			(co, sag, isSpecSalePending) =>
-			{
+			(co, sag, isSpecSalePending) => {
 				return co.isChangingOrder || isSpecSalePending ? co.changeInput.isTrustNa : sag.isTrustNa;
 			}
 		);
@@ -210,8 +201,7 @@ export class PeopleComponent extends UnsubscribeOnDestroy implements OnInit, Con
 			this.takeUntilDestroyed(),
 			select(fromRoot.canDesign),
 			combineLatest(this.store.pipe(select(state => state.changeOrder)))
-		).subscribe(([canDesign, changeOrder]) =>
-		{
+		).subscribe(([canDesign, changeOrder]) => {
 			this.canDesign = canDesign && changeOrder && changeOrder.isChangingOrder;
 		});
 
@@ -281,10 +271,9 @@ export class PeopleComponent extends UnsubscribeOnDestroy implements OnInit, Con
 
 			this._actions$.pipe(
 				ofType<SalesAgreementActions.SalesAgreementInfoNASaved>(SalesAgreementActions.SalesAgreementActionTypes.SalesAgreementInfoNASaved),
-				take(1)).subscribe(() =>
-				{
+				take(1)).subscribe(() => {
 					this.store.dispatch(new ChangeOrderActions.SavePendingJio());
-				});
+			});
 		}
 		else
 		{
@@ -468,13 +457,10 @@ export class PeopleComponent extends UnsubscribeOnDestroy implements OnInit, Con
 		}
 	}
 
-	allowNavigation(): ConfirmWithCallback
-	{
+	allowNavigation(): ConfirmWithCallback {
 		return {
-			confirmCallback: (result: boolean) =>
-			{
-				if (result)
-				{
+			confirmCallback: (result: boolean) => {
+				if (result) {
 					this.selectedBuyer = null;
 				}
 			},
