@@ -14,3 +14,13 @@
 .phd-lot-info-incomplete {
 	color: red;
 }
+
+.phd-icon-container {
+	display: flex;
+	justify-content: space-around;
+
+	i {
+		width: 50px;
+		text-align: center;
+	}
+}

@@ -14,6 +14,8 @@ export class ConfirmModalComponent
 	@Input() title: string = '';
 	@Input() body: string =  '';
 	@Input() defaultOption: string = 'Continue';
+	@Input() primaryButtonText: string = 'Continue';
+	@Input() secondaryButtonText: string = 'Cancel';
 
 	constructor(public activeModal: NgbActiveModal) { }
 }
