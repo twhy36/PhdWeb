@@ -13,7 +13,7 @@ export enum JobActionTypes
 	ChangeOrdersCreatedForJob = 'Change Orders Created For Job',
 	CreateChangeOrderEnvelope = 'Create Change Order Envelope',
 	EnvelopeError = 'Envelope Error',
-	LoadSpecs = 'Load Specs',
+	LoadSpecsAndModels = 'Load Specs and Models',
 	LoadJobForJob = 'Load Job For Job',
 	JobLoadedByJobId = 'Job Loaded By Job Id',
 	LoadPulteInfo = 'Load Pulte Info',
@@ -64,9 +64,9 @@ export class EnvelopeError extends ErrorAction
 	constructor(public error: Error, public friendlyMessage?: string) { super(error, friendlyMessage); }
 }
 
-export class LoadSpecs implements Action
+export class LoadSpecsAndModels implements Action
 {
-	readonly type = JobActionTypes.LoadSpecs;
+	readonly type = JobActionTypes.LoadSpecsAndModels;
 
 	constructor() { }
 }
@@ -122,7 +122,7 @@ export type JobActions =
 	SpecsLoaded |
 	CreateChangeOrderEnvelope |
 	EnvelopeError |
-	LoadSpecs |
+	LoadSpecsAndModels |
 	ChangeOrderEnvelopeCreated |
 	JobLoaded |
 	SalesAgreementCancelled |

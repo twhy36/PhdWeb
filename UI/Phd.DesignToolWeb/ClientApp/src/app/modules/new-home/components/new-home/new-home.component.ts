@@ -17,7 +17,7 @@ import { ChangeTypeEnum } from '../../../shared/models/job-change-order.model';
 import { PointStatus } from '../../../shared/models/point.model';
 import { UnsubscribeOnDestroy } from '../../../shared/classes/unsubscribe-on-destroy';
 
-import { LoadSpecs } from '../../../ngrx-store/job/actions';
+import { LoadSpecsAndModels } from '../../../ngrx-store/job/actions';
 import * as LotActions from '../../../ngrx-store/lot/actions';
 import * as NavActions from '../../../ngrx-store/nav/actions';
 import * as OrgActions from '../../../ngrx-store/org/actions';
@@ -151,7 +151,7 @@ export class NewHomeComponent extends UnsubscribeOnDestroy implements OnInit
 
 				if (buildMode === 'buyer' && lotsLoaded && specJobs == null)
 				{
-					this.store.dispatch(new LoadSpecs());
+					this.store.dispatch(new LoadSpecsAndModels());
 				}
 			});
 

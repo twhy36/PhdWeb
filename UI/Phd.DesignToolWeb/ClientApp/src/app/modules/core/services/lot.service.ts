@@ -36,7 +36,7 @@ export class LotService
 			filter =
 			`financialCommunity/salesCommunityId eq ${salesCommunityId} and
 			((lotStatusDescription eq 'Available' or lotStatusDescription eq 'Unavailable' or lotStatusDescription eq 'PendingRelease')
-			and (lotBuildTypeDesc eq 'Dirt' or lotBuildTypeDesc eq null or lotBuildTypeDesc eq 'Spec')
+			and (lotBuildTypeDesc eq 'Dirt' or lotBuildTypeDesc eq null or lotBuildTypeDesc eq 'Spec' or lotBuildTypeDesc eq 'Model')
 			${includeSelectedLot}) and isMasterUnit eq false`;
 		}
 		else
