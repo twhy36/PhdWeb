@@ -21,9 +21,14 @@
 
 		<div class="phd-table-container mx-2">
 			<phd-table #dt [value]="lots" sortMode="single" sortField="lotBlock" showCaption="true" (onFilter)="onFilter($event)" [nonOverflow]="false">
-				<phd-column header="" columnClass="phd-icon">
+				<phd-column header="">
 					<ng-template #body let-lot>
-						<i class="fa fa-pencil fa-fw" [ngClass]="lot.hasRequiredInfo ? null : 'phd-lot-info-incomplete'" (click)="editHomesite(lot);" phd-tooltip="Edit Homesite" *ngIf="canEdit"></i>
+						<div class="phd-icon-container">
+							<i class="fa fa-pencil fa-fw" [ngClass]="lot.hasRequiredInfo ? null : 'phd-lot-info-incomplete'"
+								(click)="editHomesite(lot);" phd-tooltip="Edit Homesite" *ngIf="canEdit"></i>
+							<i class="fa fa-share-square" (click)="releaseLot(lot)"
+								*ngIf="canEdit && lot.hasRequiredInfo && lot.lotStatusDescription == 'Unavailable' && lot.lotBuildTypeDescription !=='Model'"></i>
+						</div>
 					</ng-template>
 				</phd-column>
 				<phd-column header="Homesite" field="lotBlock" canFilter="true" filterMode="search" filterMatchMode="contains"></phd-column>

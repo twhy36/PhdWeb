@@ -8,6 +8,8 @@ import { forkJoin } from 'rxjs/observable/forkJoin';
 
 import { MessageService, SelectItem } from 'primeng/api';
 
+import { PhdTableComponent } from 'phd-common/components/table/phd-table.component';
+import { NgbModal, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 import { OrganizationService } from '../../../core/services/organization.service';
 import { ReleasesService } from '../../../core/services/releases.service';
 import { HomeSiteService } from '../../../core/services/homesite.service';
@@ -19,9 +21,9 @@ import { HomeSite, HomeSiteDtos } from '../../../shared/models/homesite.model';
 import { UnsubscribeOnDestroy } from '../../../shared/utils/unsubscribe-on-destroy';
 import { ManageHomesitesSidePanelComponent } from '../manage-homesites-side-panel/manage-homesites-side-panel.component';
 
-import * as moment from "moment";
+import { ConfirmModalComponent } from 'phd-common/components/confirm-modal/confirm-modal.component';
+import * as moment from 'moment';
 import { MonotonyRule } from '../../../shared/models/monotonyRule.model';
-import { PhdTableComponent } from 'phd-common/components/table/phd-table.component';
 
 @Component({
 	selector: 'manage-homesites',
@@ -50,6 +52,7 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 		private _orgService: OrganizationService,
 		private _homeSiteService: HomeSiteService,
 		private _releaseService: ReleasesService,
+		private _modalService: NgbModal,
 		private _msgService: MessageService,
 		private _route: ActivatedRoute) { super() }
 
@@ -201,6 +204,52 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 				this._msgService.add({ severity: 'error', summary: 'Error', detail: error });
 				console.log(error);
 			});
+	}
+
+	releaseLot(homesite: HomeSite)
+	{
+		const ngbModalOptions: NgbModalOptions = {
+			centered: true,
+			backdrop: 'static',
+			keyboard: false
+		};
+		const confirm = this._modalService.open(ConfirmModalComponent, ngbModalOptions);
+		confirm.componentInstance.title = 'Release Homesite';
+		confirm.componentInstance.body = 'Click the Release button to release the lot for sale';
+		confirm.componentInstance.defaultOption = 'Continue';
+		confirm.componentInstance.primaryButtonText = 'Release';
+
+		confirm.result.then((result) =>
+		{
+			if (result === 'Continue')
+			{
+				this.saving = true;
+				const dto: IHomeSiteReleaseDto = {
+					releaseDate: new Date().toDateString(),
+					releaseDescription: 'Single release of ' + homesite.lotBlock,
+					releaseRank: null,
+					homeSitesAssociated: [homesite.commLbid]
+				};
+				dto.financialCommunityId = this.selectedCommunity.id;
+				this._releaseService.saveRelease(dto).pipe(
+					finalize(() => { this.saving = false; })
+				)
+					.subscribe(newDto =>
+					{
+						this._releaseService.updateHomeSiteAndReleases(newDto);
+						this._msgService.add({ severity: 'success', summary: 'Release', detail: `has been saved!` });
+					},
+						error =>
+						{
+							this._msgService.add({ severity: 'error', summary: 'Error', detail: 'Release failed to save.' });
+							console.log(error);
+						});
+			}
+		}, (reason) =>
+		{
+			console.log('Error:', reason);
+		});
+
 	}
 
 	saveMonotonyRules(rule: {lotId: number, monotonyRules: Array<MonotonyRule>})

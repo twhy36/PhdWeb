@@ -59,6 +59,7 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 	colorSchemeMonotonyConflict: boolean;
 	overrideReason: string;
 	selectedPlanPrice$: Observable<number>;
+	buildMode: 'buyer' | 'spec' | 'model' | 'preview' = 'buyer';
 
 	constructor(private router: Router,
 		private store: Store<fromRoot.State>,
@@ -73,6 +74,15 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 
 	ngOnInit()
 	{
+		
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromScenario.buildMode)).subscribe((buildMode) =>
+			{
+				this.buildMode = buildMode;
+
+			});
+
 		this.plans$ = this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(state => state.plan.plans),
@@ -175,8 +185,6 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 			)
 		).subscribe(([lots, selectedLot, selectedHanding, selectedFilter]) =>
 		{
-			lots = lots.filter(lot => lot.lotStatusDescription === 'Available');
-
 			this.lots = lots.map(l => new LotComponentLot(l, selectedLot, selectedHanding));
 			this.filteredLots = this.lots;
 

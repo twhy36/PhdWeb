@@ -21,6 +21,7 @@
 					<thead>
 						<tr>
 							<th>Lot #</th>
+							<th *ngIf="buildMode === 'model'">Lot Status</th>
 							<th>Foundation</th>
 							<th>Garage</th>
 							<th>Premium</th>
@@ -36,6 +37,9 @@
 							class="phd-lot-card">
 							<td>
 								<h3 [class.phd-lot-spec]="lot.lotBuildTypeDesc ==='Spec'"><strong>{{lot.lotBlock}}</strong></h3>
+							</td>
+							<td *ngIf="buildMode === 'model'">
+								{{lot.lotStatusDescription}}
 							</td>
 							<td>{{lot.foundationType}}</td>
 							<td>

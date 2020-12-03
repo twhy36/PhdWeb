@@ -241,7 +241,7 @@ export class NewHomeComponent extends UnsubscribeOnDestroy implements OnInit
 						this.marketId = +params.marketid;
 						this.communityId = +params.communityid;
 
-						this.store.dispatch(new LotActions.LoadLots(this.communityId));
+						this.store.dispatch(new LotActions.LoadLots(this.communityId, (this.buildMode === 'model')));
 						this.store.dispatch(new OrgActions.LoadSalesCommunity(this.communityId));
 						this.store.dispatch(new PlanActions.LoadPlans(this.communityId));
 						this.store.dispatch(new NavActions.SetSelectedSubNavItem(3));

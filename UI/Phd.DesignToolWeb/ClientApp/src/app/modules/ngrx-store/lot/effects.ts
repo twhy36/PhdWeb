@@ -32,7 +32,7 @@ export class LotEffects
 					? store.lot.selectedLot.id
 					: (store.scenario.scenario && store.scenario.scenario.lotId ? store.scenario.scenario.lotId : null);
 
-				return this.lotService.loadLots(action.salesCommunityId, selectedLotId, false);
+				return this.lotService.loadLots(action.salesCommunityId, selectedLotId, false, action.isModel);
 			}),
 			switchMap(results => of(new LotsLoaded(results)))
 		), LoadError, "Error loading lots!!")
