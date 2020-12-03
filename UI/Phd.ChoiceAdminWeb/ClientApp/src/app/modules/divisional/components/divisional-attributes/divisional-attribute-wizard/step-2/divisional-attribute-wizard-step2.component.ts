@@ -81,6 +81,11 @@ export class DivisionalAttributeWizardStep2Component implements OnInit
 		{
 			this.wizardService.getSelectedChoices();
 		}
+
+		if (this.wizardService.groups || this.wizardService.groups.length)
+		{
+			this.groups = this.wizardService.groups;
+		}
 	}
 
 	getDivisionalCatalog()
