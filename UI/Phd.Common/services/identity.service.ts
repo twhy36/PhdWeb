@@ -2,8 +2,8 @@ import { Injectable, Injector, Inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, ReplaySubject, Observer ,  NEVER as never ,  throwError as _throw ,  of } from "rxjs";
 
-import { MsalService, MSAL_CONFIG_ANGULAR, MsalAngularConfiguration } from '@azure/msal-angular';
-import { Account } from 'msal';
+import { MsalService, MSAL_GUARD_CONFIG, MsalGuardConfiguration } from '@azure/msal-angular';
+import { InteractionType } from '@azure/msal-browser';
 import { AppInsights } from "applicationinsights-js";
 
 import { UserProfile } from '../models/user-profile.model';
@@ -41,15 +41,29 @@ export class IdentityService
  //       );
 	//}
 
-	constructor(private httpClient: HttpClient, private authService: MsalService, private injector: Injector, @Inject(MSAL_CONFIG_ANGULAR) private msalAngularConfig: MsalAngularConfiguration)
+	constructor(private httpClient: HttpClient, private authService: MsalService, private injector: Injector, @Inject(MSAL_GUARD_CONFIG) private msalGuardConfig: MsalGuardConfiguration)
 	{
-		if (!this.authService.getAccount())
-		{
-			this.login(msalAngularConfig.popUp);
-		} else
-		{
-			this.acquireToken(msalAngularConfig.popUp);
-		}
+		debugger;
+
+		this.authService.handleRedirectObservable().subscribe({
+			next: (result) => {
+				if (!result) {
+					this.login();
+				} else {
+
+				}
+			},
+			error: (error) => console.log(error)
+		});
+
+
+		//if (!this.authService.getAccount())
+		//{
+		//	this.login(msalAngularConfig.popUp);
+		//} else
+		//{
+		//	this.acquireToken(msalAngularConfig.popUp);
+		//}
 
 		this.apiUrl = this.injector.get(API_URL);
 
@@ -65,59 +79,54 @@ export class IdentityService
 		);
 
 		//start automatic token renewal
-		this._token.pipe(
-			take(1)
-		).subscribe(() => {
-			setInterval(this.acquireToken.bind(this, msalAngularConfig.popUp), this._tokenRefreshInterval);
-		});
+		//this._token.pipe(
+		//	take(1)
+		//).subscribe(() => {
+		//	setInterval(this.acquireToken.bind(this, msalAngularConfig.popUp), this._tokenRefreshInterval);
+		//});
 	}
 
-	private login(popUp: boolean): void
+	private login(): void
 	{
-		if (popUp)
-		{
-			this.authService.loginPopup({ scopes: ['User.Read'] }).then(result =>
-			{
-				this.acquireToken(true);
-			});
-		}
-		else
-		{
-			this.authService.loginRedirect({ scopes: ['User.Read'] });
+		if (this.msalGuardConfig.interactionType === InteractionType.Popup) {
+			this.authService.loginPopup({ ...this.msalGuardConfig.authRequest })
+				.subscribe();
+		} else {
+			this.authService.loginRedirect({ ...this.msalGuardConfig.authRequest });
 		}
 	}
 
 	private acquireTokenFallback(popUp: boolean): void
 	{
-		if (popUp) {
-			this.authService.acquireTokenPopup({ scopes: ['User.Read'] }).then(result => {
-				this._token.next(result.idToken.rawIdToken);
-			});
-		}
-		else {
-			this.authService.acquireTokenRedirect({ scopes: ['User.Read'] });
-		}
+		//if (popUp) {
+		//	this.authService.acquireTokenPopup({ scopes: ['User.Read'] }).then(result => {
+		//		this._token.next(result.idToken.rawIdToken);
+		//	});
+		//}
+		//else {
+		//	this.authService.acquireTokenRedirect({ scopes: ['User.Read'] });
+		//}
 	}
 
 	private acquireToken(popUp: boolean): void
 	{
-		this.authService.acquireTokenSilent({ scopes: ['User.Read'] }).then(response => {
-			if (!response.idToken && !response.accessToken) {
-				this.acquireTokenFallback(popUp);
-			} else if (!response.idToken) {
-				this.login(popUp);
-			} else {
-				this._token.next(response.idToken.rawIdToken);
-			}
-		})
-		.catch(error => {
-			AppInsights.trackTrace(JSON.stringify(error));
-			if (['login_required', 'id_token_null_or_empty'].indexOf(error.errorCode.toLowerCase()) !== -1) {
-				this.login(popUp);
-			} else {
-				this.acquireTokenFallback(popUp);
-			}
-		});
+		//this.authService.acquireTokenSilent({ scopes: ['User.Read'] }).then(response => {
+		//	if (!response.idToken && !response.accessToken) {
+		//		this.acquireTokenFallback(popUp);
+		//	} else if (!response.idToken) {
+		//		this.login(popUp);
+		//	} else {
+		//		this._token.next(response.idToken.rawIdToken);
+		//	}
+		//})
+		//.catch(error => {
+		//	AppInsights.trackTrace(JSON.stringify(error));
+		//	if (['login_required', 'id_token_null_or_empty'].indexOf(error.errorCode.toLowerCase()) !== -1) {
+		//		this.login(popUp);
+		//	} else {
+		//		this.acquireTokenFallback(popUp);
+		//	}
+		//});
 	}
 
 	//public init(): Observable<any>

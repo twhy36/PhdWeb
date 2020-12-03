@@ -1,5 +1,3 @@
-import { Configuration } from 'msal';
-
 export interface IEnvironment {
     apiUrl: string;
     authQueryParams: string;
@@ -17,6 +15,6 @@ export interface IEnvironment {
         instrumentationKey: string;
     };
 	production: boolean;
-	msalConfig: Configuration;
+	msalConfig: any;
     whatFix: { scriptUrl: string };
 };

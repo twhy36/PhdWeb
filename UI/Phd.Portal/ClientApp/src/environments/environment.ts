@@ -26,7 +26,7 @@ export const environment: IEnvironment = {
 	msalConfig: {
 		auth: {
 			authority: 'https://login.microsoftonline.com/pulte.onmicrosoft.com',
-			clientId: "9d498056-e6cd-4e53-b89b-cf2f5e60adf7",
+			clientId: "f9c9611d-6a23-4d2e-8dce-14da56bd8acc",
 			validateAuthority: true,
 			redirectUri: window.location.origin,
 			navigateToLoginRequestUrl: true
