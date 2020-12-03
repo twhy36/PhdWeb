@@ -22,16 +22,21 @@ export class DivisionalCatalogWizardService
 	selectedPlans: DivCatWizPlan[];
 	step: number;
 	error$: Subject<any>;
+	catalogGroups: DivDGroup[];
 
 	get groups(): DivDGroup[]
 	{
 		let groupDtos = this._storageService.getLocal<IDivisionalCatalogGroupDto[]>('CA_DIV_CAT_GROUPS');
 
-		return groupDtos ?  this._divService.buildDivisionalCatalog(groupDtos) : [];
+		this.catalogGroups = groupDtos ? this._divService.buildDivisionalCatalog(groupDtos) : [];
+
+		return this.catalogGroups;
 	}
 
 	set groups(val: DivDGroup[])
 	{
+		this.catalogGroups = val; // preserve matched and open property
+
 		let groupDtos = val.map(g => g.dto);
 
 		this._storageService.setLocal('CA_DIV_CAT_GROUPS', groupDtos);

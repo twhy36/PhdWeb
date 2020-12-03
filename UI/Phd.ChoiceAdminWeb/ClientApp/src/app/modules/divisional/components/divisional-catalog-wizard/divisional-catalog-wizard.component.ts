@@ -40,7 +40,7 @@ export class DivisionalCatalogWizardComponent implements OnInit, OnDestroy
 
 	get groups(): DivDGroup[]
 	{
-		return this.wizardService.groups;
+		return this.wizardService.catalogGroups;
 	}
 
 	get currentStep(): number
