@@ -1,5 +1,5 @@
 import { Component, Input, NgZone, Renderer2, OnInit, ChangeDetectorRef } from '@angular/core';
-import { UnsubscribeOnDestroy } from '../../classes/unsubscribe-on-destroy';
+import { UnsubscribeOnDestroy } from 'phd-common/utils/unsubscribe-on-destroy';
 
 @Component({
 	selector: 'action-bar',

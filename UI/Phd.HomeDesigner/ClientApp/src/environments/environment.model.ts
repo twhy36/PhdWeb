@@ -4,6 +4,10 @@ export interface IEnvironment
 {
 	production: boolean;
 	apiUrl: string;
+	tenant: string;
+	clientId: string;
+	authQueryParams: string;
+	appInsights: any;
 	cloudinary: CloudinaryConfiguration;
 	alphavision: { builderId: string };
 }
