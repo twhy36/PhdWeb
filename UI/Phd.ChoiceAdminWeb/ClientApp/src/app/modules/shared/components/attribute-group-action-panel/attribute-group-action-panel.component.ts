@@ -71,7 +71,8 @@ export class AttributeGroupActionPanelComponent implements OnInit, AfterContentI
 			this.orderSearchResultGroups();
 		});
 
-		if (!this.selectedSearchFilter) {
+		if (!this.selectedSearchFilter)
+		{
 			this.selectedSearchFilter = 'All';
 		}
 	}
@@ -81,8 +82,10 @@ export class AttributeGroupActionPanelComponent implements OnInit, AfterContentI
 		this.isLoadingChange.emit(false);
 	}
 
-	ngAfterViewInit() {
-		if (this.searchEnabled && this.searchKeyword) {
+	ngAfterViewInit()
+	{
+		if (this.searchEnabled && this.searchKeyword)
+		{
 			let inputSelectedGroups = this.selectedGroups;
 
 			this.searchBar.keyword = this.searchKeyword;
@@ -142,9 +145,9 @@ export class AttributeGroupActionPanelComponent implements OnInit, AfterContentI
 					this.startSearch(event['searchFilter'], event['keyword']);
 				}
 			}, (reason) =>
-				{
+			{
 
-				});
+			});
 		}
 		else
 		{
@@ -154,6 +157,8 @@ export class AttributeGroupActionPanelComponent implements OnInit, AfterContentI
 
 	startSearch(selectedFilter: string, keyword: string)
 	{
+		keyword = keyword || '';
+
 		this.displayErrorMessage.emit('');
 		this.searchResultGroups = [];
 		this.selectedGroups = [];
@@ -270,7 +275,8 @@ export class AttributeGroupActionPanelComponent implements OnInit, AfterContentI
 		}
 	}
 
-	onRowReorder(event: any) {
+	onRowReorder(event: any)
+	{
 		this.onRowReorderEmitter.emit(event);
 	}
 }

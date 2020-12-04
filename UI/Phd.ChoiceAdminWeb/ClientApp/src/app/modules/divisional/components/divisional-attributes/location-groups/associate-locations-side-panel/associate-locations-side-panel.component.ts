@@ -164,7 +164,8 @@ export class AssociateLocationsSidePanelComponent extends UnsubscribeOnDestroy i
 			{
 
 			});
-		} else
+		}
+		else
 		{
 			this.startSearch(event['searchFilter'], event['keyword']);
 		}
@@ -172,13 +173,17 @@ export class AssociateLocationsSidePanelComponent extends UnsubscribeOnDestroy i
 
 	private startSearch(searchFilter: string, keyword: string)
 	{
+		keyword = keyword || '';
+
 		this.selectedSearchFilter = searchFilter;
 		this.filterLocations(searchFilter, keyword);
 
 		this.errors = [];
+
 		if (this.filteredLocations.length === 0)
 		{
 			this.selectedLocations = [];
+
 			this.errors.push({ severity: 'error', detail: 'No results found.' });
 		}
 	}
