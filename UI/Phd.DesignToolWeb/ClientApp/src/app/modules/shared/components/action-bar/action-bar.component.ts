@@ -345,10 +345,31 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 		}
 	}
 
-	async onVoid() {
-		if (!this.savingAgreement) {
-			this.callToAction.emit({ actionBarCallType: ActionBarCallType.VOID_AGREEMENT });
+	onVoid()
+	{
+		if (this.savingAgreement)
+		{
+			return;
 		}
+
+		const options = new ModalOptions();
+
+		options.content = 'You are about to Void an agreement. Do you wish to continue?';
+		options.type = 'normal';
+		options.header = 'Void Home Purchase Agreement';
+		options.buttons = [
+			{ text: 'Continue', cssClass: ['btn-secondary'], result: true },
+			{ text: 'Cancel', cssClass: ['btn-primary'], result: false }
+		];
+
+		this.modalService.showModal(options)
+			.pipe(map((modalResult) =>
+			{
+				if (modalResult)
+				{
+					this.store.dispatch(new SalesAgreementActions.VoidSalesAgreement());
+				}
+			})).subscribe();
 	}
 
 	async onCancelSpec()
