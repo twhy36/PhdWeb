@@ -8,7 +8,7 @@ import { from } from 'rxjs/observable/from';
 import { forkJoin } from 'rxjs/observable/forkJoin';
 import { ToastrService } from 'ngx-toastr';
 
-import { JobActionTypes, CreateChangeOrderEnvelope, EnvelopeError, LoadSpecsAndModels, SpecsLoaded, LoadJobForJob, JobLoadedByJobId, LoadPulteInfo, PulteInfoLoaded, SavePulteInfo, PulteInfoSaved } from './actions';
+import { JobActionTypes, CreateChangeOrderEnvelope, EnvelopeError, LoadSpecs, SpecsLoaded, LoadJobForJob, JobLoadedByJobId, LoadPulteInfo, PulteInfoLoaded, SavePulteInfo, PulteInfoSaved } from './actions';
 import { convertMapToMergeFieldDto } from '../../shared/classes/merge-field-utils.class';
 import { ContractService } from '../../core/services/contract.service';
 import { ChangeOrderService } from '../../core/services/change-order.service';
@@ -34,8 +34,8 @@ export class JobEffects
 		private changeOrderService: ChangeOrderService) { }
 
 	@Effect()
-	loadSpecsAndModels$: Observable<Action> = this.actions$.pipe(
-		ofType<LoadSpecsAndModels>(JobActionTypes.LoadSpecsAndModels),
+	loadSpecs: Observable<Action> = this.actions$.pipe(
+		ofType<LoadSpecs>(JobActionTypes.LoadSpecs),
 		withLatestFrom(this.store),
 		tryCatch(source => source.pipe(
 			switchMap(([, store]) =>
