@@ -34,13 +34,13 @@ export class JobEffects
 		private changeOrderService: ChangeOrderService) { }
 
 	@Effect()
-	loadSpecs: Observable<Action> = this.actions$.pipe(
+	loadSpecs$: Observable<Action> = this.actions$.pipe(
 		ofType<LoadSpecs>(JobActionTypes.LoadSpecs),
 		withLatestFrom(this.store),
 		tryCatch(source => source.pipe(
 			switchMap(([, store]) =>
 			{
-				let lotIDs = store.lot.lots.filter(x => (x.lotBuildTypeDesc === 'Spec' || x.lotBuildTypeDesc === 'Model') && x.lotStatusDescription === 'Available')
+				let lotIDs = store.lot.lots.filter(x => x.lotBuildTypeDesc === 'Spec' && x.lotStatusDescription === 'Available')
 					.map(l => l.id);
 
 				return (lotIDs.length > 0) ? this.jobService.getSpecJobs(lotIDs) : of([]);
