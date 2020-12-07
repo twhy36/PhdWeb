@@ -112,11 +112,6 @@ export const specLots = createSelector(
 	(state) => state.lots ? state.lots.filter(x => x.lotBuildTypeDesc === 'Spec') : []
 );
 
-export const modelLots = createSelector(
-	selectLot,
-	(state) => state.lots ? state.lots.filter(x => x.lotBuildTypeDesc === 'Model') : []
-);
-
 export const lotsLoaded = createSelector(
 	selectLot,
 	(state) => state.lots && state.lots.length > 0
