@@ -104,7 +104,7 @@ export const monotonyChoiceIds = createSelector(
 
 export const dirtLots = createSelector(
 	selectLot,
-	(state) => state.lots ? state.lots.filter(x => x.lotBuildTypeDesc === 'Dirt') : []
+	(state) => state.lots ? state.lots.filter(x => x.lotBuildTypeDesc !== 'Spec' && x.lotBuildTypeDesc !== 'Model') : []
 );
 
 export const specLots = createSelector(
