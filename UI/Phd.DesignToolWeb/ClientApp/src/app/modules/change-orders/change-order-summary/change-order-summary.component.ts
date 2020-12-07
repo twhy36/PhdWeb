@@ -189,6 +189,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 				{
 					const id = +params.get('id');
 					const isSpec = params.get('spec');
+
 					if (!this.loaded && isSpec === 'spec')
 					{
 						if (jobState.jobLoading && jobState.id === id)
@@ -198,19 +199,23 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 						else
 						{
 							this.loaded = true;
+
 							this.store.dispatch(new JobActions.LoadJobForJob(id));
 						}
 					}
+
 					if (!this.loaded && isSpec === 'salesagreement')
 					{
 						if (salesAgreementState.salesAgreementLoading || salesAgreementState.savingSalesAgreement || salesAgreementState.loadError)
 						{
 							return new Observable<never>();
 						}
+
 						if (id > 0 && salesAgreementState.id !== id)
 						{
-							this.store.dispatch(new CommonActions.LoadSalesAgreement(id));
 							this.loaded = true;
+
+							this.store.dispatch(new CommonActions.LoadSalesAgreement(id));
 						}
 					}
 				}
@@ -365,8 +370,10 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 				{
 					const suffixA = a.changeOrderGroupSequenceSuffix || '';
 					const suffixB = b.changeOrderGroupSequenceSuffix || '';
+
 					if (suffixA < suffixB) { return -1; }
 					if (suffixA > suffixB) { return 1; }
+
 					return 0;
 				}
 				return diffSequence;
