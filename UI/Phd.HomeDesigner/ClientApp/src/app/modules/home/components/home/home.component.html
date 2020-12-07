@@ -1,13 +1,18 @@
 <div class="d-flex flex-column">
 	<div class="d-flex flex-row">
-		<cl-image public-id="{{planImageUrl}}" type="fetch" style="width:calc(56vw);height:calc(65vh);" crop="fill">
+		<cl-image *ngIf="planImageUrl" public-id="{{planImageUrl}}" type="fetch" style="width:calc(56vw);height:calc(65vh);" crop="fill">
 		</cl-image>
+		<img class="phd-logo-image" src="assets/pultegroup_logo.jpg" *ngIf="!planImageUrl">
+
 		<div class="d-flex flex-column phd-home-plan">
 			<div class="phd-floor-plan-image">
-				<floor-plan [width]="fpImageWidth"></floor-plan>
+				<floor-plan
+					[width]="fpImageWidth"
+					[planId$]="marketingPlanId$">
+				</floor-plan>
 			</div>
 			<div class="d-flex flex-row justify-content-center">
-				<span class="phd-sales-community">{{salesCommunityName}}</span>
+				<span class="phd-sales-community">{{communityName}}</span>
 				<span>{{planName}}</span>
 			</div>
 		</div>

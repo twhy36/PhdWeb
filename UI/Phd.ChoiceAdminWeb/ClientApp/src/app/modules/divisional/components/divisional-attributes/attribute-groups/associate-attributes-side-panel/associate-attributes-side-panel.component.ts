@@ -175,7 +175,8 @@ export class AssociateAttributesSidePanelComponent extends UnsubscribeOnDestroy 
 			{
 
 			});
-		} else
+		}
+		else
 		{
 			this.startSearch(event['searchFilter'], event['keyword']);
 		}
@@ -183,13 +184,17 @@ export class AssociateAttributesSidePanelComponent extends UnsubscribeOnDestroy 
 
 	private startSearch(searchFilter: string, keyword: string)
 	{
+		keyword = keyword || '';
+
 		this.selectedSearchFilter = searchFilter;
 		this.filterAttributes(searchFilter, keyword);
 
 		this.errors = [];
+
 		if (this.filteredAttributes.length === 0)
 		{
 			this.selectedAttributes = [];
+
 			this.errors.push({ severity: 'error', detail: 'No results found.' });
 		}
 	}

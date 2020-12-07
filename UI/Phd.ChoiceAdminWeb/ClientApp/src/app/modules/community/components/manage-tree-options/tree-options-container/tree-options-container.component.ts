@@ -27,7 +27,7 @@ export class TreeOptionsContainerComponent extends UnsubscribeOnDestroy
 	@Output() optionSelected = new EventEmitter<{ item: ITreeOption, tab: string }>();
 
 	optionsList: Array<ITreeOption> = [];
-	
+
 	searchFilters = [
 		{ name: 'All', field: '' },
 		{ name: 'Category', field: 'categoryName' },
@@ -38,7 +38,8 @@ export class TreeOptionsContainerComponent extends UnsubscribeOnDestroy
 	selectedSearchFilter = 'All';
 	keyword: string;
 
-	get filterNames(): Array<string> {
+	get filterNames(): Array<string>
+	{
 		return this.searchFilters.map(f => f.name);
 	}
 
@@ -58,12 +59,14 @@ export class TreeOptionsContainerComponent extends UnsubscribeOnDestroy
 		this.optionSelected.emit({ item: option, tab: tab });
 	}
 
-	resetSearchBar() {
+	resetSearchBar()
+	{
 		this.selectedSearchFilter = 'All';
 		this.searchBar.clearFilter();
 	}
 
-	clearFilter() {
+	clearFilter()
+	{
 		this.optionsList.forEach(o => o.matched = true);
 	}
 
@@ -75,7 +78,7 @@ export class TreeOptionsContainerComponent extends UnsubscribeOnDestroy
 			this._uiUtilsService.scrollToId(`option_${value.id}`);
 		}
 	}
-	
+
 	keywordSearch(event: any)
 	{
 		this.selectedSearchFilter = event['searchFilter'];

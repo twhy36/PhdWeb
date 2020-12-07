@@ -57,7 +57,7 @@ export class OptionChoiceRuleComponent implements OnInit, OnDestroy
 				group.subGroups = g.subGroups.map(s =>
 				{
 					const subGroup = Object.assign({}, s);
-					
+
 					subGroup.points = s.points.map(p =>
 					{
 						const point = Object.assign({}, p);
@@ -95,7 +95,7 @@ export class OptionChoiceRuleComponent implements OnInit, OnDestroy
 		if (this.optionRule.id !== 0)
 		{
 			// group choices by pointId
-			const groupedChoices  = _.groupBy(this.optionRule.choices, c => c.pointId);
+			const groupedChoices = _.groupBy(this.optionRule.choices, c => c.pointId);
 
 			for (const key in groupedChoices)
 			{
@@ -134,7 +134,7 @@ export class OptionChoiceRuleComponent implements OnInit, OnDestroy
 
 		return text;
 	}
-	
+
 	onAddItemClick(item: DTChoice)
 	{
 		this.addItem(item);
@@ -180,7 +180,7 @@ export class OptionChoiceRuleComponent implements OnInit, OnDestroy
 
 	localSaveRule()
 	{
-		this.saveRule.emit({selectedItems: this.selectedChoices, callback: this.onSaveRuleCallback });
+		this.saveRule.emit({ selectedItems: this.selectedChoices, callback: this.onSaveRuleCallback });
 	}
 
 	@bind
@@ -226,7 +226,7 @@ export class OptionChoiceRuleComponent implements OnInit, OnDestroy
 	keywordSearch(event: any)
 	{
 		this.selectedSearchFilter = event['searchFilter'];
-		this.keyword = event['keyword'];
+		this.keyword = event['keyword'] || '';
 
 		// reset everything to unmatched.
 		this._resetAllMatchValues(false);
@@ -390,8 +390,6 @@ export class OptionChoiceRuleComponent implements OnInit, OnDestroy
 
 	private _isMatch = (label: string, keyword: string): boolean =>
 	{
-		keyword = keyword || '';
-
 		return label.toLowerCase().indexOf(keyword.toLowerCase()) >= 0;
 	}
 

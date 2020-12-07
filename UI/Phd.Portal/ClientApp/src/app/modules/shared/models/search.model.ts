@@ -83,16 +83,21 @@ export class SearchResult
 			});
 			if (job.jobChangeOrderGroups.some(cog => ['Pending', 'Signed', 'OutforSignature', 'Rejected'].indexOf(cog.salesStatusDescription) !== -1))
 			{
-				const activeCOG = job.jobChangeOrderGroups.find(cog => ['Pending', 'Signed', 'OutforSignature', 'Rejected'].indexOf(cog.salesStatusDescription) !== -1);
-				this.activeChangeOrder = {
-					changeOrderDescription: activeCOG.jobChangeOrderGroupDescription,
-					changeOrderNumber: activeCOG.jobChangeOrderGroupSalesAgreementAssocs.length > 0 ? (activeCOG.jobChangeOrderGroupSalesAgreementAssocs[0].changeOrderGroupSequence || '').toString() : '0',
-					changeOrderStatus: activeCOG.salesStatusDescription,
-					SalesAgreementId: activeCOG.jobChangeOrderGroupSalesAgreementAssocs.length > 0 ? activeCOG.jobChangeOrderGroupSalesAgreementAssocs[0].salesAgreementId : null
-				};
-				this.activeChangeOrderText = 'CO# ' +
-					(activeCOG.jobChangeOrderGroupSalesAgreementAssocs.length > 0 ? (activeCOG.jobChangeOrderGroupSalesAgreementAssocs[0].changeOrderGroupSequence || '').toString() : '0') +
-					' ' + activeCOG.salesStatusDescription + ' ' + activeCOG.jobChangeOrderGroupDescription;
+				const activeCOG = job.jobChangeOrderGroups.find(cog => ['Pending', 'Signed', 'OutforSignature', 'Rejected'].indexOf(cog.salesStatusDescription) !== -1
+					&& cog.jobChangeOrderGroupDescription !== 'Pulte Home Designer Generated Job Initiation Change Order'
+					&& cog.jobChangeOrderGroupDescription !== 'Pulte Home Designer Generated Spec Customer Change Order');
+				if (activeCOG)
+				{
+					this.activeChangeOrder = {
+						changeOrderDescription: activeCOG.jobChangeOrderGroupDescription,
+						changeOrderNumber: activeCOG.jobChangeOrderGroupSalesAgreementAssocs.length > 0 ? (activeCOG.jobChangeOrderGroupSalesAgreementAssocs[0].changeOrderGroupSequence || '').toString() : '0',
+						changeOrderStatus: activeCOG.salesStatusDescription,
+						SalesAgreementId: activeCOG.jobChangeOrderGroupSalesAgreementAssocs.length > 0 ? activeCOG.jobChangeOrderGroupSalesAgreementAssocs[0].salesAgreementId : null
+					};
+					this.activeChangeOrderText = 'CO# ' +
+						(activeCOG.jobChangeOrderGroupSalesAgreementAssocs.length > 0 ? (activeCOG.jobChangeOrderGroupSalesAgreementAssocs[0].changeOrderGroupSequence || '').toString() : '0') +
+						' ' + activeCOG.salesStatusDescription + ' ' + activeCOG.jobChangeOrderGroupDescription;
+				}
 			}
 		});
 

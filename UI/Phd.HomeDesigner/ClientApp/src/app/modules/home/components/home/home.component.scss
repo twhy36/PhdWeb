@@ -1,6 +1,11 @@
 @import "../../../../../../../../Phd.Common/scss/color-pallet.scss";
 @import "../../../../../../../../Phd.Common/scss/sizes.scss";
 
+.phd-logo-image {
+	width: calc(56vw);
+	height: calc(65vh);
+}
+
 .phd-home-plan {
 	background-color: #e4e5e4;
 	width: calc(44vw);

@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy, ViewChild, Input } from '@angular/core';
-import { UnsubscribeOnDestroy } from '../../classes/unsubscribe-on-destroy';
+import { UnsubscribeOnDestroy } from 'phd-common/utils/unsubscribe-on-destroy';
+import { Observable } from 'rxjs';
 import { flatMap } from 'rxjs/operators';
 
 import { loadScript, unloadScript } from 'phd-common/utils';
@@ -18,10 +19,12 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 	@ViewChild('av_floor_plan') img: any;
 
 	@Input() width: string = '100%';
+	@Input() planId$: Observable<number>;
 
 	fp: any;
 	private readonly avAPISrc = "//vpsstorage.blob.core.windows.net/api/floorplanAPIv2.3.js";
 	private readonly jquerySrc = "//cdnjs.cloudflare.com/ajax/libs/jquery/1.11.1/jquery.min.js";
+	planId: number = 0;
 
 	constructor()
     {
@@ -34,17 +37,19 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 		wd.message = function (str) { };
 
 		loadScript(this.jquerySrc).pipe(
-			flatMap(() => loadScript(this.avAPISrc))
-		).subscribe(() => {
-			try {
-				// Hardcode plan id temporarily to retrieve a floor plan image for place holder
-				const planId = 687223;
-				this.fp = wd.fp = new AVFloorplan(environment.alphavision.builderId, "" + planId, document.querySelector("#av-floor-plan"), [], this.fpInitialized.bind(this));
-			}
-			catch (err) {
-				this.fp = { graphic: undefined };
+			flatMap(() => loadScript(this.avAPISrc)),
+			flatMap(() => this.planId$)			
+		).subscribe(planId => {
+			if (planId > 0 && this.planId !== planId) {
+				this.planId = planId;
+				try {
+					this.fp = wd.fp = new AVFloorplan(environment.alphavision.builderId, "" + planId, document.querySelector("#av-floor-plan"), [], this.fpInitialized.bind(this));
+				}
+				catch (err) {
+					this.fp = { graphic: undefined };
 
-				this.fpInitialized();
+					this.fpInitialized();
+				}
 			}
 		});
 	}

@@ -210,7 +210,7 @@ export class OrganizationService
 			var financialPlanIntegrationKey = p.map(x => `'${x.integrationKey}'`).join(',');
 
 			const entity = `financialCommunities`;
-			const expand = `planCommunities($filter=financialPlanIntegrationKey in (${financialPlanIntegrationKey}) and productType ne 'MultiUnit Shell';$select=id, financialPlanIntegrationKey, planSalesName; $orderby=planSalesName)`
+			const expand = `planCommunities($filter=financialPlanIntegrationKey in (${financialPlanIntegrationKey}) and productType ne 'MultiUnit Shell' and isActive eq true;$select=id, financialPlanIntegrationKey, planSalesName; $orderby=planSalesName)`
 			const select = `id,number,name,salesCommunityId,salesStatusDescription,marketId`;
 			const filter = `id eq ${communityID} and marketId eq ${marketId} and (salesStatusDescription eq 'Active' or salesStatusDescription eq 'New') and planCommunities/any(pc: pc/financialPlanIntegrationKey in (${financialPlanIntegrationKey}) and pc/isActive eq true and pc/productType ne 'MultiUnit Shell')`;
 			const orderBy = `name`;

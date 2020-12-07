@@ -27,7 +27,7 @@
 							<i class="fa fa-pencil fa-fw" [ngClass]="lot.hasRequiredInfo ? null : 'phd-lot-info-incomplete'"
 								(click)="editHomesite(lot);" phd-tooltip="Edit Homesite" *ngIf="canEdit"></i>
 							<i class="fa fa-share-square" (click)="releaseLot(lot)"
-								*ngIf="canEdit && lot.hasRequiredInfo && lot.lotStatusDescription == 'Unavailable' && lot.lotBuildTypeDescription !=='Model'"></i>
+								*ngIf="canEdit && lot.hasRequiredInfo && lot.lotStatusDescription == 'Unavailable'"></i>
 						</div>
 					</ng-template>
 				</phd-column>
