@@ -12,24 +12,24 @@
 			<span class="phd-nav-bar-config">Welcome To Your Home</span>
 		</div>
 		<div *ngIf="!(isTablet$ | async)" class="col-6 d-flex justify-content-between align-items-center ml-auto">
-			<div><a href="/">Floorplan</a></div>
-			<div><a href="/">Contracted Options</a></div>
+			<div><a href="./">Floorplan</a></div>
+			<div><a href="./">Contracted Options</a></div>
 			<div>
-				<a [attr.href]="currentRoute?.startsWith('/favorites') ? null : '/favorites'"
+				<a [attr.href]="currentRoute?.startsWith('/favorites') ? null : './favorites'"
 				   [class.phd-active-link]="currentRoute?.startsWith('/favorites')">
 					Manage Favorites
 				</a>
 			</div>
-			<div><a href="/">Instructions</a></div>
+			<div><a href="./">Instructions</a></div>
 		</div>
 	</div>
 </nav>
 
 <div *ngIf="(isTablet$ | async) && !isMenuCollapsed" class="phd-collapsable-menu">
-	<div><a href="/">Floorplan</a></div>
-	<div><a href="/">Contracted Options</a></div>
+	<div><a href="./">Floorplan</a></div>
+	<div><a href="./">Contracted Options</a></div>
 	<div [class.phd-active-link]="currentRoute?.startsWith('/favorites')">
-		<a [attr.href]="currentRoute?.startsWith('/favorites') ? null : '/favorites'">Manage Favorites</a>
+		<a [attr.href]="currentRoute?.startsWith('/favorites') ? null : './favorites'">Manage Favorites</a>
 	</div>
-	<div><a href="/">Instructions</a></div>
+	<div><a href="./">Instructions</a></div>
 </div>
