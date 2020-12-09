@@ -192,21 +192,6 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 				newState = { ...newState, scenario: scenario };
 			}
 
-			if (newState.options)
-			{
-				// apply images to options
-				newState.options.forEach(option =>
-				{
-					let images = action.optionImages.filter(x => x.integrationKey === option.financialOptionIntegrationKey);
-
-					if (images.length)
-					{
-						// make sure they're sorted properly
-						option.optionImages = images.sort((a, b) => a.sortKey < b.sortKey ? -1 : 1);
-					}
-				});
-			}
-
 			if (newState.tree)
 			{
 				_.flatMap(newState.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points))

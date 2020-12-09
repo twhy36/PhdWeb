@@ -250,6 +250,7 @@ export class ChangeOrderChoice
 	subgroupLabel?: string = null;
 	isColorScheme?: boolean = false;
 	isElevation?: boolean = false;
+	outForSignatureDate?: Date;
 
 	get dpChoiceId(): number
 	{
@@ -327,6 +328,7 @@ export class ChangeOrderPlanOption
 	integrationKey: string;
 	jobChangeOrderPlanOptionAttributes?: Array<ChangeOrderPlanOptionAttribute>;
 	jobChangeOrderPlanOptionLocations?: Array<ChangeOrderPlanOptionLocation>;
+	outForSignatureDate?: Date;
 
 	constructor(dto?: ChangeOrderPlanOption)
 	{

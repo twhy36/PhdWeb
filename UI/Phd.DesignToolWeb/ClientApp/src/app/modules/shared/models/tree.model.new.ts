@@ -216,6 +216,19 @@ export class OptionImage
 	integrationKey?: string;
 }
 
+export class ChoiceImageAssoc
+{
+	dpChoiceId: number;
+	imageUrl: string;
+}
+
+export class PlanOptionCommunityImageAssoc
+{
+	planOptionCommunityId: number;
+	imageUrl: string;
+	sortOrder: number;
+}
+
 export class FloorPlanImage
 {
 	constructor(dto: FloorPlanImage)
