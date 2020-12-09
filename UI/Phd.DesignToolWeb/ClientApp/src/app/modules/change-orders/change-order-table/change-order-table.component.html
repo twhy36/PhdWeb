@@ -37,7 +37,7 @@
 					</div>
 				</div>
 			</td>
-			<td>{{changeOrder.createdUtcDate | date:'L/dd/yyyy'}}</td>
+			<td>{{convertDate(changeOrder.createdUtcDate) | date:'L/dd/yyyy'}}</td>
 			<td>{{changeOrder.signedDate | date:'L/dd/yyyy'}}</td>
 			<td>
 				<span>{{getChangeOrderType(changeOrder)}}</span>
