@@ -35,6 +35,8 @@ export class PosHeaderComponent extends UnsubscribeOnDestroy implements OnInit
 
 	showAgreement: boolean = true;
 
+	isLockedIn: boolean = false;
+
 	get showDate(): boolean
 	{
 		const statuses = ['Void', 'OutForSignature', 'Cancel', 'Signed', 'Approved', 'Closed'];
@@ -83,6 +85,11 @@ export class PosHeaderComponent extends UnsubscribeOnDestroy implements OnInit
 			this.takeUntilDestroyed(),
 			select(state => state.salesAgreement.salesAgreementNumber)
 		);
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(state => state.salesAgreement.isLockedIn)
+		).subscribe(isLockedIn => this.isLockedIn = isLockedIn);
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),

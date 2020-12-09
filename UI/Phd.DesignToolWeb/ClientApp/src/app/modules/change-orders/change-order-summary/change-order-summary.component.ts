@@ -64,6 +64,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 	signedDate: Date;
 	isSaving: boolean = false;
 	loaded = false;
+	isLockedIn: boolean = false;
 
 	JOB_CHANGEORDER_TYPES = [
 		{ value: 'SalesJIO', id: 0 },
@@ -236,6 +237,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 			this.jobId = job.id;
 			this.approvedDate = salesAgreement.approvedDate;
 			this.signedDate = salesAgreement.signedDate;
+			this.isLockedIn = salesAgreement.isLockedIn;
 
 			let index = job.changeOrderGroups.findIndex(t => (t.jobChangeOrders.find(c => c.jobChangeOrderTypeDescription === "SpecJIO" || c.jobChangeOrderTypeDescription === "SalesJIO")) !== undefined);
 			let changeOrders = [];
@@ -570,18 +572,21 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 				break;
 			case this.ACTION_TYPES.E_SIGN:
 
-				this._contractService.createSnapShot(changeOrder).subscribe(snapshot => {
+				this._contractService.createSnapShot(changeOrder).subscribe(snapshot =>
+				{
 					this.isSaving = true;
 					this._actions$.pipe(
 						ofType<CommonActions.ChangeOrderEnvelopeCreated>(CommonActions.CommonActionTypes.ChangeOrderEnvelopeCreated),
-						take(1)).subscribe(() => {
+						take(1)).subscribe(() =>
+						{
 							this.isSaving = false;
 							this.modalReference = this.modalService.open(this.content, { size: 'lg', windowClass: 'phd-distribution-list', keyboard: false });
 						});
 
 					this.store.dispatch(new JobActions.CreateChangeOrderEnvelope(snapshot));
 
-					if (changeOrder.id !== this.changeOrders[0].id) {
+					if (changeOrder.id !== this.changeOrders[0].id)
+					{
 						this.store.dispatch(new ContractActions.SetESignType(ESignTypeEnum.ChangeOrder));
 					}
 				});

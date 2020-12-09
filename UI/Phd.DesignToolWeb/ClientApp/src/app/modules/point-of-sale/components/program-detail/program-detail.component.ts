@@ -29,7 +29,7 @@ export class ProgramDetailComponent extends ComponentCanNavAway implements OnIni
 	@Input() editing: any;
 	@Input() isChangingOrder: boolean;
 	@Input() changeOrderPrograms: Array<SalesChangeOrderSalesProgram>;
-	@Input() canEditAgreement: boolean = true;
+	@Input() canEdit: boolean = true;
 
 	default: SalesAgreementProgram = new SalesAgreementProgram();
 

@@ -7,7 +7,7 @@ import { flatMap, map, catchError } from 'rxjs/operators';
 import * as _ from 'lodash';
 
 import * as odataUtils from '../../shared/classes/odata-utils.class';
-import { SalesAgreement, ISalesAgreement, SalesAgreementInfo, Realtor, ISalesAgreementInfo, IRealtor, SalesAgreementProgram, SalesAgreementDeposit, SalesAgreementContingency, ISalesAgreementCancelInfo, SalesAgreementCancelInfo, Consultant, ISalesAgreementSalesConsultantDto } from '../../shared/models/sales-agreement.model';
+import { SalesAgreement, ISalesAgreement, SalesAgreementInfo, Realtor, ISalesAgreementInfo, IRealtor, SalesAgreementProgram, SalesAgreementDeposit, SalesAgreementContingency, ISalesAgreementCancelVoidInfo, SalesAgreementCancelVoidInfo, Consultant, ISalesAgreementSalesConsultantDto } from '../../shared/models/sales-agreement.model';
 import { Buyer, IBuyer } from '../../shared/models/buyer.model';
 import { defaultOnNotFound } from '../../shared/classes/default-on-not-found';
 import { environment } from '../../../../environments/environment';
@@ -40,7 +40,7 @@ export class SalesAgreementService
 	{
 		const entity = `salesAgreements(${salesAgreementId})`;
 		const expands = `programs($select=id,salesAgreementId,salesProgramId,salesProgramDescription,amount;$expand=salesProgram($select=id, salesProgramType, name)),deposits,contingencies,salesAgreementNoteAssocs($expand=note($expand=noteTargetAudienceAssocs($expand=targetAudience)))`;
-		const expandCancellations = `cancellations($expand=note($select=id,noteContent);$select=salesAgreementId,cancelReasonDesc,noteId)`;
+		const expandCancellations = `cancellations($expand=note($select=id,noteContent);$select=salesAgreementId,cancelReasonDesc,voidReasonDesc,noteId)`;
 		const expandRealtors = `realtors($expand=contact($select=id,prefix,firstName,middleName,lastName,suffix,preferredCommunicationMethod,dynamicsIntegrationKey;$expand=addressAssocs($expand=address),phoneAssocs($expand=phone),emailAssocs($expand=email)))`;
 		const expandBuyers = `buyers($expand=opportunityContactAssoc($expand=opportunity($select=dynamicsOpportunityId,salesCommunityId),contact($select=id,prefix,firstName,middleName,lastName,suffix,preferredCommunicationMethod,dynamicsIntegrationKey;$expand=addressAssocs($expand=address),phoneAssocs($expand=phone),emailAssocs($expand=email))))`;
 		const expandConsultants = `consultants($expand=contact($select=id,prefix,firstName,middleName,lastName,suffix,preferredCommunicationMethod,dynamicsIntegrationKey;$expand=emailAssocs($expand=email)))`;
@@ -618,12 +618,12 @@ export class SalesAgreementService
 		);
 	}
 
-	voidSalesAgreement(salesAgreementId: number): Observable<SalesAgreement>
+	voidSalesAgreement(salesAgreementId: number, reasonKey: string): Observable<SalesAgreement>
 	{
 		const entity = `voidSalesAgreement`;
 		const endpoint = environment.apiUrl + entity;
 
-		return this._http.patch(endpoint, { id: salesAgreementId }, { headers: { 'Prefer': 'return=representation' } }).pipe(
+		return this._http.patch(endpoint, { id: salesAgreementId, reasonKey: reasonKey }, { headers: { 'Prefer': 'return=representation' } }).pipe(
 			map((results: ISalesAgreement) => new SalesAgreement(results)),
 			catchError(error =>
 			{
@@ -653,21 +653,22 @@ export class SalesAgreementService
 		);
 	}
 
-	createSalesAgreementCancellation(salesAgreementId: number, noteId: number, reasonKey: string): Observable<SalesAgreementCancelInfo>
+	createSalesAgreementCancellation(salesAgreementId: number, noteId: number, reasonKey: string): Observable<SalesAgreementCancelVoidInfo>
 	{
 		const entity = `salesAgreements(${salesAgreementId})/cancellations`;
 		const endpoint = environment.apiUrl + entity;
 
-		const data: ISalesAgreementCancelInfo = {
+		const data: ISalesAgreementCancelVoidInfo = {
 			salesAgreementId: salesAgreementId,
 			cancelReasonDesc: reasonKey,
+			voidReasonDesc: null,
 			noteId: noteId
 		};
 
 		return withSpinner(this._http).post(endpoint, data, { headers: { 'Prefer': 'return=representation' } }).pipe(
-			map((dto: ISalesAgreementCancelInfo) =>
+			map((dto: ISalesAgreementCancelVoidInfo) =>
 			{
-				let cancelInfo = new SalesAgreementCancelInfo(dto);
+				let cancelInfo = new SalesAgreementCancelVoidInfo(dto);
 
 				return cancelInfo;
 			}),

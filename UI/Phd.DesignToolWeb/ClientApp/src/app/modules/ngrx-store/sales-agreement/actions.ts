@@ -1,5 +1,5 @@
 import { Action } from '@ngrx/store';
-import { SalesAgreement, Realtor, SalesAgreementProgram, SalesAgreementDeposit, SalesAgreementContingency, SalesAgreementCancelInfo, Consultant, SalesAgreementInfo } from '../../shared/models/sales-agreement.model';
+import { SalesAgreement, Realtor, SalesAgreementProgram, SalesAgreementDeposit, SalesAgreementContingency, SalesAgreementCancelVoidInfo, Consultant, SalesAgreementInfo } from '../../shared/models/sales-agreement.model';
 import { Buyer } from '../../shared/models/buyer.model';
 import { Note } from '../../shared/models/note.model';
 import { ErrorAction } from '../error.action';
@@ -81,13 +81,15 @@ export enum SalesAgreementActionTypes
 	SalesAgreementTerminated = 'Sales Agreement Terminated'
 }
 
-export class SalesAgreementTerminated implements Action {
+export class SalesAgreementTerminated implements Action
+{
 	readonly type = SalesAgreementActionTypes.SalesAgreementTerminated;
 
-	constructor(public cancelReason: SalesAgreementCancelInfo) { }
+	constructor(public cancelReason: SalesAgreementCancelVoidInfo) { }
 }
 
-export class SalesAgreementInfoViewed implements Action {
+export class SalesAgreementInfoViewed implements Action
+{
 	readonly type = SalesAgreementActionTypes.SalesAgreementInfoViewed;
 
 	constructor() { }
@@ -146,7 +148,7 @@ export class VoidSalesAgreement implements Action
 {
 	readonly type = SalesAgreementActionTypes.VoidSalesAgreement;
 
-	constructor() { }
+	constructor(public reasonKey: string) { }
 }
 
 export class CancelSalesAgreement implements Action
@@ -170,7 +172,8 @@ export class SignSalesAgreement implements Action
 	constructor(public signedDate: Date) { }
 }
 
-export class ApproveSalesAgreement implements Action {
+export class ApproveSalesAgreement implements Action
+{
 	readonly type = SalesAgreementActionTypes.ApproveSalesAgreement;
 
 	constructor() { }
@@ -463,13 +466,15 @@ export class SetIsFloorplanFlippedAgreement implements Action
 	constructor(public isFlipped: boolean) { }
 }
 
-export class LoadConsultants implements Action {
+export class LoadConsultants implements Action
+{
 	readonly type = SalesAgreementActionTypes.LoadConsultants;
 
 	constructor(public salesAgreementId: number) { }
 }
 
-export class ConsultantsLoaded implements Action {
+export class ConsultantsLoaded implements Action
+{
 	readonly type = SalesAgreementActionTypes.ConsultantsLoaded;
 
 	constructor(public consultants: Array<Consultant>) { }
