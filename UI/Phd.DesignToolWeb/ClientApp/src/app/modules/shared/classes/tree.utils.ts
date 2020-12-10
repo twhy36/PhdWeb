@@ -12,7 +12,7 @@ import { PlanOption } from '../models/option.model';
 import { ChangeOrderGroup, ChangeOrderChoice, ChangeOrderPlanOption, ChangeOrderChoiceAttribute, ChangeOrderChoiceLocation } from '../models/job-change-order.model';
 import { TreeService } from '../../core/services/tree.service';
 import { PointStatus, ConstructionStageTypes } from '../../shared/models/point.model';
-import { LocationGroup, Location, AttributeGroup, Attribute, DesignToolAttribute } from '../models/attribute.model';
+import { LocationGroup, Location, AttributeGroup, Attribute, DesignToolAttribute, AttributeCommunityImageAssoc } from '../models/attribute.model';
 import { Scenario, SelectedChoice } from '../../shared/models/scenario.model';
 import { TreeVersionRules } from '../../shared/models/rule.model.new';
 import { applyRules, findChoice } from '../../shared/classes/rulesExecutor';
@@ -544,6 +544,26 @@ export function mergeAttributes(attributes: Array<any>, missingAttributes: Array
 			}
 		}
 	});
+}
+
+export function mergeAttributeImages(attributeGroups: Array<AttributeGroup>, attributeCommunityImageAssocs: Array<AttributeCommunityImageAssoc>)
+{
+	if (attributeCommunityImageAssocs && attributeCommunityImageAssocs.length > 0)
+	{
+		// Map image URL for attribute
+		attributeGroups.map(ag =>
+		{
+			return ag.attributes.map(a =>
+			{
+				const imageAssoc = attributeCommunityImageAssocs.find(aci => aci.attributeCommunityId === a.id);
+
+				if (imageAssoc)
+				{
+					a.imageUrl = imageAssoc.imageUrl;
+				}
+			});
+		})
+	}
 }
 
 export function mergeLocations(locations: Array<any>, missingLocations: Array<DesignToolAttribute>, locationGroups: Array<LocationGroup>)

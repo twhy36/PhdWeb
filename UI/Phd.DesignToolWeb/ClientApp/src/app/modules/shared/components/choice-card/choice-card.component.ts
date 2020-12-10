@@ -16,7 +16,7 @@ import { ChangeTypeEnum } from '../../models/job-change-order.model';
 import { MonotonyConflict } from '../../models/monotony-conflict.model';
 import { ModalOverrideSaveComponent } from '../../../core/components/modal-override-save/modal-override-save.component';
 import { ChangeOrderGroup } from '../../../shared/models/job-change-order.model';
-import { mergeAttributes, mergeLocations } from '../../../shared/classes/tree.utils';
+import { mergeAttributes, mergeLocations, mergeAttributeImages } from '../../../shared/classes/tree.utils';
 
 import { AttributeService } from '../../../core/services/attribute.service';
 
@@ -153,12 +153,14 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 					: of([])
 				).pipe(combineLatest(missingLocations && missingLocations.length
 					? this.attributeService.getLocationCommunities(missingLocations.map(x => x.locationId))
-					: of([]))
+					: of([]),
+					this.attributeService.getAttributeCommunityImageAssoc(attributeIds, this.choice.lockedInChoice ? this.choice.lockedInChoice.outForSignatureDate : null))
 				).pipe(
-					map(([attributes, locations]) =>
+					map(([attributes, locations, attributeCommunityImageAssocs]) =>
 					{
 						mergeAttributes(attributes, missingAttributes, attributeGroups);
 						mergeLocations(locations, missingLocations, locationGroups);
+						mergeAttributeImages(attributeGroups, attributeCommunityImageAssocs);
 
 						return { attributeGroups, locationGroups };
 					}));
