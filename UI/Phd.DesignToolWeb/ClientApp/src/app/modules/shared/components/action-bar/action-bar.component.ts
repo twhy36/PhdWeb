@@ -92,6 +92,8 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 	canCancelSalesAgreement: boolean;
 	canLockSalesAgreement: boolean;
 	hasOpenChangeOrder: boolean = false;
+	canCancelModel$: Observable<boolean>;
+	cancancelmodelcheck: any;
 
 	setSummaryText()
 	{
@@ -128,6 +130,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 	{
 		this.canEditAgreement$ = this.store.select(fromRoot.canEditAgreementOrSpec);
 		this.canCancelSpec$ = this.store.select(fromRoot.canCancelSpec);
+		this.canCancelModel$ = this.store.select(fromRoot.canCancelModel);
 		this.isTemplatesSelected$ = this.store.pipe(
 			select(state => state.contract),
 			map(contract =>
@@ -202,7 +205,9 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(fromRoot.canSell)
-		).subscribe(canSell => this.canSell = canSell);
+		).subscribe(canSell => {
+			this.canSell = canSell;
+		});
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
@@ -215,6 +220,10 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 		).subscribe(canLockSalesAgreement => this.canLockSalesAgreement = canLockSalesAgreement);
 
 		this.setSummaryText();
+
+		this.canCancelModel$.subscribe(can => {
+			this.cancancelmodelcheck = can;
+		});
 	}
 
 	ngOnDestroy()
@@ -386,10 +395,11 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 		}
 	}
 
-	async onCancelSpec()
+	async onCancelSpecOrModel(isSpec: boolean)
 	{
-		const confirmMessage = 'You have opted to return this spec to dirt. Confirming to do so will result in the loss of the corresponding home configuration and the lot will return to dirt.<br/><br/> Do you wish to proceed with the cancellation?';
-		const confirmTitle = 'Cancel Spec';
+		const confirmMessage = isSpec ? 'You have opted to return this spec to dirt. Confirming to do so will result in the loss of the corresponding home configuration and the lot will return to dirt.<br/><br/> Do you wish to proceed with the cancellation?'
+									  : 'You have opted to return this model to dirt. Confirming to do so will result in the loss of the corresponding home configuration and the lot will return to dirt.<br/><br/> Do you wish to proceed with the cancellation?'
+		const confirmTitle = isSpec ? 'Cancel Spec' : 'Cancel Model';
 		const confirmDefaultOption = 'Continue';
 		const primaryButton = { hide: false, text: 'Yes' };
 		const secondaryButton = { hide: false, text: 'No' };

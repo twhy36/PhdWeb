@@ -1,5 +1,5 @@
 <div id="phd-action-bar" class="d-flex" [class.justify-content-between]="!inPointOfSale" [class.justify-content-end]="inPointOfSale" [class.is-hidden]="isActionBarHidden">
-	<div id="agreement-action" *ngIf="((inAgreement || canVoidAgreement || canCancelAgreement ) && canChange) || (canCancelSpec$ | async)">
+	<div id="agreement-action" *ngIf="((inAgreement || canVoidAgreement || canCancelAgreement ) && canChange) || ((canCancelSpec$ | async) || (canCancelModel$ | async))">
 		<div *ngIf="canVoidAgreement">
 			<a (click)="onVoid()" class="phd-void" [class.disabled]="savingAgreement">Void Agreement</a>
 		</div>
@@ -9,7 +9,11 @@
 		</div>
 
 		<div *ngIf="(canCancelSpec$ | async) && canSell">
-			<a (click)="onCancelSpec()" class="phd-cancel" [class.disabled]="savingAgreement">Cancel Spec</a>
+			<a (click)="onCancelSpecOrModel()" class="phd-cancel" [class.disabled]="savingAgreement">Cancel Spec</a>
+		</div>
+
+		<div *ngIf="(canCancelModel$ | async) && canSell">
+			<a (click)="onCancelSpecOrModel()" class="phd-cancel" [class.disabled]="savingAgreement">Cancel Model</a>
 		</div>
 
 		<div *ngIf="inAgreement">
