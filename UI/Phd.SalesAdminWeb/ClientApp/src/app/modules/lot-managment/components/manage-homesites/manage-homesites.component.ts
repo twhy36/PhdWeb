@@ -98,6 +98,7 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 			{
 				this.selectedCommunity = comm;
 				this.loadHomeSites();
+				this.setReleaseData();
 			}
 		});
 
@@ -106,6 +107,10 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 		).subscribe(canEdit => this.canEdit = canEdit);
 	}
 
+	setReleaseData()
+	{
+		this._releaseService.trySetCommunity(this.selectedCommunity.dto).subscribe();
+	}
 	loadHomeSites()
 	{
 		this.isLoading = true;
@@ -237,6 +242,8 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 					.subscribe(newDto =>
 					{
 						this._releaseService.updateHomeSiteAndReleases(newDto);
+						this.selectedCommunity.lotsInited = false;
+						this.loadHomeSites();
 						this._msgService.add({ severity: 'success', summary: 'Release', detail: `has been saved!` });
 					},
 						error =>
