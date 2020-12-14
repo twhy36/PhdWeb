@@ -2,11 +2,11 @@
   "compileOnSave": false,
   "compilerOptions": {
 	"importHelpers": true,
-	"resolveJsonModule": true,
     "outDir": "./dist/out-tsc",
     "sourceMap": true,
     "declaration": false,
     "moduleResolution": "node",
+		"resolveJsonModule": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "target": "es5",
