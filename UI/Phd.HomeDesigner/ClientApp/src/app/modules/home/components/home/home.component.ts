@@ -16,7 +16,7 @@ import * as CommonActions from '../../../ngrx-store/actions';
 
 import { PlanOption } from '../../../shared/models/option.model';
 import { SalesAgreement } from '../../../shared/models/sales-agreement.model';
-import { BrowserService } from '../../../core/services/browser.service';
+import { BrowserService } from 'phd-common/services/browser.service';
 import { UnsubscribeOnDestroy } from 'phd-common/utils/unsubscribe-on-destroy';
 
 @Component({

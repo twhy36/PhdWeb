@@ -1,13 +1,26 @@
 {
   "extends": "../tsconfig.json",
-  "compilerOptions": {
-    "outDir": "../out-tsc/app",
-    "baseUrl": "./",
-    "module": "es2015",
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "types": []
-  },
+	"compilerOptions": {
+		"outDir": "../out-tsc/app",
+		"baseUrl": "./",
+		"module": "es2015",
+		"emitDecoratorMetadata": true,
+		"experimentalDecorators": true,
+		"strict": false,
+		"noImplicitUseStrict": true,
+		"alwaysStrict": false,
+		"strictPropertyInitialization": false,
+		"types": [],
+		"lib": [
+			"es6",
+			"es2017",
+			"dom"
+		],
+		"paths": {
+			"@shared/*": [ "app/modules/shared/*" ],
+			"@core/*": [ "app/modules/core/*" ]
+		}
+	},
   "exclude": [
     "test.ts",
     "**/*.spec.ts"

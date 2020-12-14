@@ -1,8 +1,26 @@
-<div id="phd-action-bar" [class.is-hidden]="isActionBarHidden">
-	<a href="./">
-		<div class="d-flex phd-home-icon">
-			<i class="fa fa-home fa-2x"></i>
-			<span class="align-self-center">Home Page</span>
+<div id="phd-action-bar" class="d-flex align-items-center" [class.is-hidden]="isActionBarHidden">
+	<div class="flex-grow-1">
+		<a href="/">
+			<div class="d-flex phd-home-icon">
+				<i class="fa fa-home fa-2x"></i>
+				<span class="align-self-center">Home Page</span>
+			</div>
+		</a>
+	</div>
+
+	<div *ngIf="primaryAction" class="d-flex flex-column align-items-end">
+		<div>
+			<span class="phd-price-label">Estimated Favorites Total : </span>
+			<span class="phd-price">{{ favoritesPrice | currency:'USD':'symbol':'0.0-0' }}</span>
 		</div>
-	</a>
+		<div>
+			<span class="phd-price-label">Estimated Total Price : </span>
+			<span class="phd-price">{{ price | currency:'USD':'symbol':'0.0-0' }}</span>
+		</div>
+
+	</div>
+
+	<div *ngIf="primaryAction">
+		<button class="btn btn-lg phd-action-bar-action-btn" (click)="onPrimaryCallToActionClick()">{{primaryAction}}</button>
+	</div>
 </div>

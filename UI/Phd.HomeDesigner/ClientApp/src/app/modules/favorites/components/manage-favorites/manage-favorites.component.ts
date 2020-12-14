@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { Router } from "@angular/router";
+
 import { UnsubscribeOnDestroy } from 'phd-common/utils/unsubscribe-on-destroy';
 
 @Component({
@@ -14,7 +16,7 @@ export class ManageFavoritesComponent extends UnsubscribeOnDestroy implements On
 	favoriteList = [];
 	isDuplicateName: boolean = false;
 
-	constructor()
+	constructor(private router: Router)
     {
 		super();
 	}
@@ -39,6 +41,8 @@ export class ManageFavoritesComponent extends UnsubscribeOnDestroy implements On
 			} else {
 				this.favoriteList.push(favoriteName);
 				this.favoriteForm.reset();
+
+				this.router.navigateByUrl('/favorites/my-favorites');
 			}
 		}
 	}

@@ -1,0 +1,9 @@
+<div class="phd-error-message" [ngClass]="customClasses">
+	<div class="phd-error-message-title">
+		<h1>{{ title }}</h1>
+	</div>
+
+	<div *ngIf="bodyTemplate" class="phd-error-message-body">
+		<ng-container *ngTemplateOutlet="bodyTemplate"></ng-container>
+	</div>
+</div>

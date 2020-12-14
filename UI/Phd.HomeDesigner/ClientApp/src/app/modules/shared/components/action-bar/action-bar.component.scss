@@ -26,7 +26,7 @@
 	}
 
 	.phd-home-icon {
-		margin: 18px 0px 0px 20px;
+		margin-left: 20px;
 
 		i {
 			color: #044465;
@@ -36,5 +36,23 @@
 		span {
 			color: $midnight_blue;
 		}
+	}
+
+	.phd-action-bar-action-btn {
+		background: $pantone_blue;
+		color: white;
+		min-width: 120px;
+		margin: 0px 10px 0px 20px;
+	}
+
+	.phd-price-label {
+		font-size: 14px;
+	}
+
+	.phd-price {
+		margin-left: 10px;
+		font-size: 15px;
+		font-weight: bold;
+		color: $dark_gray;
 	}
 }

@@ -40,6 +40,7 @@
     "@angular/platform-browser-dynamic": "^9.0.5",
     "@angular/platform-server": "^9.0.5",
     "@angular/router": "^9.0.5",
+    "@angular/material": "9.1.2",
     "@cloudinary/angular-5.x": "1.2.0-rc.0",
     "@ng-bootstrap/ng-bootstrap": "^6.0.0",
     "@ngrx/effects": "^9.0.0",
