@@ -162,6 +162,14 @@ export class DivisionalAttributeWizardComponent extends UnsubscribeOnDestroy imp
 		{
 			switch (newStep)
 			{
+				case 1:
+					if (this.wizardService.step === 2)
+					{
+						// Moving from step 2 to 1, the choices were cleared but not from storage, saving will do this
+						this.wizardService.saveSelectedChoices();
+					}
+
+					break;
 				case 2:
 					this.wizardService.saveFilteredOptions();
 					this.wizardService.saveSelectedOption();

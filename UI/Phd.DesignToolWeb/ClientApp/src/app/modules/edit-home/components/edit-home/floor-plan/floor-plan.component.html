@@ -56,13 +56,19 @@
 										</a>
 
 										<div [for]="'opt-'+choice.id" class="flex-fill justify-content-end pr-2">
-											<div *ngIf="choice.enabled" class="phd-choice-price phd-ifp-right">
+											<span *ngIf="choice.price" class="phd-choice-price phd-ifp-right">
+												{{ choice.price | currency : 'USD' : 'symbol' : '0.0-0'}}
+											</span>
+
+											<span *ngIf="!choice.price" class="phd-choice-price phd-ifp-right">$0</span>
+
+											<!--<div *ngIf="choice.enabled" class="phd-choice-price phd-ifp-right">
 												{{ choice.price | currency : 'USD' : 'symbol' : '0.0-0'}}
 											</div>
 
 											<div *ngIf="!choice.enabled" class="phd-choice-price phd-ifp-right">
-												{{ choice.id | priceRange | async }}
-											</div>
+												{{ choicePriceRanges | priceRange: choice.id }}
+											</div>-->
 
 											<div *ngIf="choice.disabledBy.length" class="phd-disabled-link phd-link phd-clickable phd-ifp-choice-disabled" (click)="showDisabledChoiceMessage(choice);">
 												<i class="fas fa-info-circle"></i> Disabled

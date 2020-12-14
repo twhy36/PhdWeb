@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { UnsubscribeOnDestroy } from '../../../shared/classes/unsubscribe-on-destroy';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { UnsubscribeOnDestroy } from 'phd-common/utils/unsubscribe-on-destroy';
 
 @Component({
 	selector: 'manage-favorites',

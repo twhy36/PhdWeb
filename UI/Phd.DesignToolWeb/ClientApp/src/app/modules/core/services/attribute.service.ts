@@ -6,7 +6,7 @@ import { map, catchError, combineLatest } from 'rxjs/operators';
 
 import { environment } from '../../../../environments/environment';
 
-import { AttributeGroup, LocationGroup, Location, Attribute } from '../../shared/models/attribute.model';
+import { AttributeGroup, LocationGroup, Location, Attribute, AttributeCommunityImageAssoc } from '../../shared/models/attribute.model';
 import { Choice } from '../../shared/models/tree.model.new';
 
 import { orderBy } from "lodash";
@@ -162,6 +162,29 @@ export class AttributeService
 				return _throw(error);
 			})
 		);
+	}
+
+	getAttributeCommunityImageAssoc(attributeCommunityId: Array<number>, outForSignatureDate: Date): Observable<Array<AttributeCommunityImageAssoc>>
+	{
+		if (attributeCommunityId.length && outForSignatureDate)
+		{
+			let url = environment.apiUrl;
+			const filter = `attributeCommunity/id in (${attributeCommunityId.join(',')}) and startDate le ${outForSignatureDate} and (endDate eq null or endDate gt ${outForSignatureDate})`;
+
+			const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=attributeCommunityId, imageUrl, startDate, endDate`;
+
+			url += `attributeCommunityImageAssocs?${qryStr}`;
+
+			return this._http.get(url).pipe(
+				map(response => {
+					let acImageAssoc = response['value'] as Array<AttributeCommunityImageAssoc>;
+
+					return acImageAssoc;
+				})
+			);
+		}
+
+		return of(null);
 	}
 
 	getLocationCommunities(locationCommunityIds: number[]): Observable<any[]>

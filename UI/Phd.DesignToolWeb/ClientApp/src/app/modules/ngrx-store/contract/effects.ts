@@ -24,7 +24,7 @@ import { Buyer } from '../../shared/models/buyer.model';
 import * as fromLot from '../lot/reducer';
 import * as fromScenario from '../scenario/reducer';
 import * as fromChangeOrder from '../change-order/reducer';
-import * as _ from 'lodash'; 
+import * as _ from 'lodash';
 import { MergeFieldData } from '../../shared/models/contract.model';
 import { formatPhoneNumber } from 'phd-common/utils';
 import { ChangeOrderGroup, ChangeOrderChoice } from '../../shared/models/job-change-order.model';
@@ -52,16 +52,16 @@ export class ContractEffects
 	@Effect()
 	createEnvelope$: Observable<Action> = this.actions$.pipe(
 		ofType<CreateEnvelope>(ContractActionTypes.CreateEnvelope),
-			withLatestFrom(this.store,
-				this.store.select(fromRoot.priceBreakdown),
-				this.store.select(fromRoot.isSpecSalePending),
-				this.store.select(fromLot.selectLot),
-				this.store.select(fromScenario.elevationDP),
-				this.store.select(fromChangeOrder.changeOrderPrimaryBuyer),
-				this.store.select(fromChangeOrder.changeOrderCoBuyers)
-			),
-			tryCatch(source => source.pipe(
-				switchMap(([action, store, priceBreakdown, isSpecSalePending, selectLot, elevationDP, coPrimaryBuyer, coCoBuyers]) =>
+		withLatestFrom(this.store,
+			this.store.select(fromRoot.priceBreakdown),
+			this.store.select(fromRoot.isSpecSalePending),
+			this.store.select(fromLot.selectLot),
+			this.store.select(fromScenario.elevationDP),
+			this.store.select(fromChangeOrder.changeOrderPrimaryBuyer),
+			this.store.select(fromChangeOrder.changeOrderCoBuyers)
+		),
+		tryCatch(source => source.pipe(
+			switchMap(([action, store, priceBreakdown, isSpecSalePending, selectLot, elevationDP, coPrimaryBuyer, coCoBuyers]) =>
 			{
 				const isPreview = action.isPreview;
 				// get selected templates and sort by display order
@@ -70,10 +70,9 @@ export class ContractEffects
 					return store.contract.templates.find(t => t.templateId === id);
 				}).sort((a, b) => a.displayOrder < b.displayOrder ? -1 : a.displayOrder > b.displayOrder ? 1 : 0) : [{ displayName: "JIO", displayOrder: 2, documentName: "JIO", templateId: 0, templateTypeId: 4, marketId: 0, version: 0 }];
 
-				
 				let salesAgreementNotes = !!store.salesAgreement.notes && store.salesAgreement.notes.length ? store.salesAgreement.notes.filter(n => n.targetAudiences.find(x => x.name === "Public") && n.noteSubCategoryId !== 10).map(n => n.noteContent).join(", ") : '';
 				let termsAndConditions = !!store.salesAgreement.notes && store.salesAgreement.notes.length ? store.salesAgreement.notes.filter(n => n.targetAudiences.find(x => x.name === "Public") && n.noteSubCategoryId === 10).map(n => n.noteContent).join() : '';
-				
+
 				const currentHouseSelections = templates.some(t => t.templateId === 0) ? getCurrentHouseSelections(store.scenario.tree.treeVersion.groups) : [];
 
 				let jioSelections = {
@@ -147,7 +146,8 @@ export class ContractEffects
 						primaryBuyerTrustName: isNull(store.changeOrder && store.changeOrder.changeInput && store.changeOrder.changeInput.trustName && store.changeOrder.changeInput.trustName.length > 20 ? `${store.changeOrder.changeInput.trustName.substring(0, 20)}...` : store.changeOrder && store.changeOrder.changeInput ? store.changeOrder.changeInput.trustName : null, `${primaryBuyer.firstName ? primaryBuyer.firstName : ''}${primaryBuyer.middleName ? ' ' + primaryBuyer.middleName : ''} ${primaryBuyer.lastName ? ' ' + primaryBuyer.lastName : ''}${primaryBuyer.suffix ? ' ' + primaryBuyer.suffix : ''}`),
 						salesAgreementNotes: salesAgreementNotes,
 						termsAndConditions: termsAndConditions,
-						coBuyers: coBuyers ? coBuyers.map(result => {
+						coBuyers: coBuyers ? coBuyers.map(result =>
+						{
 							return {
 								firstName: result.opportunityContactAssoc.contact.firstName,
 								lastName: result.opportunityContactAssoc.contact.lastName,
@@ -158,12 +158,14 @@ export class ContractEffects
 						nsoSummary: this.contractService.getNsoOptionDetailsData(nsoSummary, store.job.jobNonStandardOptions),
 						closingCostInformation: this.contractService.getProgramDetails(store.salesAgreement.programs, store.job.changeOrderGroups, 'BuyersClosingCost')
 							.concat(store.salesAgreement.priceAdjustments ? store.salesAgreement.priceAdjustments.filter(a => a.priceAdjustmentType === 'ClosingCost')
-								.map(a => {
+								.map(a =>
+								{
 									return { salesProgramDescription: '', amount: a.amount, name: 'Price Adjustment', salesProgramId: 0 };
 								}) : []),
 						salesIncentiveInformation: this.contractService.getProgramDetails(store.salesAgreement.programs, store.job.changeOrderGroups, 'DiscountFlatAmount')
 							.concat(store.salesAgreement.priceAdjustments ? store.salesAgreement.priceAdjustments.filter(a => a.priceAdjustmentType === 'Discount')
-								.map(a => {
+								.map(a =>
+								{
 									return { salesProgramDescription: '', amount: a.amount, name: 'Price Adjustment', salesProgramId: 0 };
 								}) : []),
 						baseHousePrice: baseHousePrice,
@@ -177,25 +179,26 @@ export class ContractEffects
 						jobAgreementHeaderInfo: jobAgreementHeaderInfo
 					};
 
-					const changeOrderGroupId = store.job.changeOrderGroups[store.job.changeOrderGroups.length - 1].id;
-					const envelopeId = store.job.changeOrderGroups[store.job.changeOrderGroups.length - 1].envelopeId;
-
 					// Create a snapshot
 
 					let planChangeOrderSelections = null;
 					let constructionChangeOrderSelections = [];
 					let nonStandardChangeOrderSelections = [];
 					let lotTransferChangeOrderSelections = null;
-					let mappedTemplates = templates.map(t => {
+					let mappedTemplates = templates.map(t =>
+					{
 						return { templateId: t.templateId, displayOrder: templates.indexOf(t) + 1, documentName: t.documentName, templateTypeId: t.templateTypeId };
 					});
 
 					let planId = 0;
 					let planName = '';
 
-					if (store.plan.plans) {
-						store.plan.plans.forEach(t => {
-							if (t.id === store.plan.selectedPlan) {
+					if (store.plan.plans)
+					{
+						store.plan.plans.forEach(t =>
+						{
+							if (t.id === store.plan.selectedPlan)
+							{
 								planId = t.id;
 								planName = t.salesName;
 							}
@@ -212,11 +215,16 @@ export class ContractEffects
 
 					const sagBuyers = store.salesAgreement.buyers.filter(t => t.isPrimaryBuyer === false);
 					let coBuyerList = sagBuyers;
-					if (inChangeOrderOrSpecSale) {
+
+					if (inChangeOrderOrSpecSale)
+					{
 						const deletedBuyers = sagBuyers.filter(x => coCoBuyers.findIndex(b => b.opportunityContactAssoc.id === x.opportunityContactAssoc.id) < 0);
+
 						coBuyerList = coCoBuyers.concat(deletedBuyers);
 					}
-					const currentCoBuyers = coBuyerList ? coBuyerList.map(b => {
+
+					const currentCoBuyers = coBuyerList ? coBuyerList.map(b =>
+					{
 						return {
 							firstName: b.opportunityContactAssoc.contact.firstName,
 							lastName: b.opportunityContactAssoc.contact.lastName,
@@ -230,12 +238,16 @@ export class ContractEffects
 					let workPhone = "";
 					let buyerCurrentAddress = "";
 
-					if (buyer && buyer.opportunityContactAssoc && buyer.opportunityContactAssoc.contact.phoneAssocs.length > 0) {
-						buyer.opportunityContactAssoc.contact.phoneAssocs.forEach(t => {
-							if (t.isPrimary === true) {
+					if (buyer && buyer.opportunityContactAssoc && buyer.opportunityContactAssoc.contact.phoneAssocs.length > 0)
+					{
+						buyer.opportunityContactAssoc.contact.phoneAssocs.forEach(t =>
+						{
+							if (t.isPrimary === true)
+							{
 								homePhone = t.phone.phoneNumber;
 							}
-							else if (t.isPrimary === false) {
+							else if (t.isPrimary === false)
+							{
 								workPhone = t.phone.phoneNumber;
 							}
 						})
@@ -243,7 +255,8 @@ export class ContractEffects
 
 					let buyerAddressAssoc = buyer && buyer.opportunityContactAssoc.contact.addressAssocs.length > 0 ? buyer.opportunityContactAssoc.contact.addressAssocs.find(t => t.isPrimary === true) : null;
 
-					if (buyerAddressAssoc) {
+					if (buyerAddressAssoc)
+					{
 						buyerCurrentAddress = (buyerAddressAssoc.address.address1 ? buyerAddressAssoc.address.address1 : "") + " " + (buyerAddressAssoc.address.address2 ? buyerAddressAssoc.address.address2 : "") + "," + (buyerAddressAssoc.address.city ? buyerAddressAssoc.address.city : "") + "," + (buyerAddressAssoc.address.stateProvince ? buyerAddressAssoc.address.stateProvince : "") + " " + (buyerAddressAssoc.address.postalCode ? buyerAddressAssoc.address.postalCode : "");
 					}
 
@@ -255,7 +268,8 @@ export class ContractEffects
 						? decisionPoints.find(t => t.dPointTypeId === 1).choices.find(c => c.quantity > 0)
 						: null;
 
-					let jobChangeOrderGroups = store.job.changeOrderGroups.map(o => {
+					let jobChangeOrderGroups = store.job.changeOrderGroups.map(o =>
+					{
 						return {
 							id: o.id,
 							createdUtcDate: o.createdUtcDate,
@@ -264,16 +278,18 @@ export class ContractEffects
 							changeOrderTypeDescription: o.jobChangeOrders.length ? o.jobChangeOrders[0].jobChangeOrderTypeDescription : '',
 							jobChangeOrderGroupDescription: o.jobChangeOrderGroupDescription,
 							changeOrderNotes: o.note ? o.note.noteContent : '',
-							jobChangeOrderChoices: o.jobChangeOrders.length ? _.flatten(o.jobChangeOrders.map(t => t.jobChangeOrderChoices)) : null
+							jobChangeOrderChoices: o.jobChangeOrders.length ? _.flatten(o.jobChangeOrders.map(t => t.jobChangeOrderChoices)) : null,
+							envelopeId: o.envelopeId
 						}
 					});
 
-					jobChangeOrderGroups.sort((a: any, b: any) => {
+					jobChangeOrderGroups.sort((a: any, b: any) =>
+					{
 						return new Date(a.createdUtcDate).getTime() - new Date(b.createdUtcDate).getTime();
 					});
 
 					// Fetches SalesJIO, SpecJIO and Spec Customer JIO since they will be the first on the agreement. Not checking for pending since SpecJIO would be approved at this point.
-					let activeChangeOrders = jobChangeOrderGroups[jobChangeOrderGroups.length - 1];
+					let activeChangeOrderGroup = jobChangeOrderGroups[jobChangeOrderGroups.length - 1];
 
 					let currentChangeOrderChoices = store.changeOrder && store.changeOrder.currentChangeOrder
 						? _.flatten(store.changeOrder.currentChangeOrder.jobChangeOrders.map(t => t.jobChangeOrderChoices))
@@ -313,13 +329,13 @@ export class ContractEffects
 						currentAddress: buyerCurrentAddress,
 						salesConsultant: salesConsultant,
 						salesAgreementNotes: salesAgreementNotes,
-						changeOrderCreatedDate: new Date(activeChangeOrders.createdUtcDate).toLocaleDateString('en-US', { month: "2-digit", day: "2-digit", year: "numeric" }),
-						changeOrderId: activeChangeOrders.id,
-						changeOrderNumber: activeChangeOrders.index.toString(),
-						changeOrderType: activeChangeOrders.changeOrderTypeDescription,
-						changeOrderDescription: activeChangeOrders.jobChangeOrderGroupDescription,
-						changeOrderNotes: activeChangeOrders.changeOrderNotes,
-						changeOrderStatus: activeChangeOrders.salesStatus,
+						changeOrderCreatedDate: new Date(activeChangeOrderGroup.createdUtcDate).toLocaleDateString('en-US', { month: "2-digit", day: "2-digit", year: "numeric" }),
+						changeOrderId: activeChangeOrderGroup.id,
+						changeOrderNumber: activeChangeOrderGroup.index.toString(),
+						changeOrderType: activeChangeOrderGroup.changeOrderTypeDescription,
+						changeOrderDescription: activeChangeOrderGroup.jobChangeOrderGroupDescription,
+						changeOrderNotes: activeChangeOrderGroup.changeOrderNotes,
+						changeOrderStatus: activeChangeOrderGroup.salesStatus,
 						jobChangeOrderChoices: jobChangeOrderChoices
 					};
 
@@ -328,7 +344,7 @@ export class ContractEffects
 						jioSelections: jioSelections,
 						financialCommunityId: financialCommunityId,
 						jobId: store.job.id,
-						changeOrderGroupId: changeOrderGroupId,
+						changeOrderGroupId: activeChangeOrderGroup.id,
 						salesAgreementNumber: salesAgreement.salesAgreementNumber,
 						salesAgreementStatus: salesAgreementStatus,
 						constructionChangeOrderSelections: constructionChangeOrderSelections,
@@ -342,15 +358,16 @@ export class ContractEffects
 
 					const mergeFieldData = salesAgreementStatus != 'Pending' ? this.contractService.getLockedMergeFields(store.job.id) : of(new MergeFieldData());
 					const customMergeFields = salesAgreementStatus == 'Pending' ? this.contractService.getCustomMergeFields(marketId, financialCommunityId) : of<Map<string, string>>(null);
-					const lockedSnapshot = this.contractService.getSnapShot(store.job.id, changeOrderGroupId);
+					const lockedSnapshot = this.contractService.getSnapShot(store.job.id, activeChangeOrderGroup.id);
 
 					const systemMergeFields = salesAgreementStatus == 'Pending' ? this.store.pipe(select(fromRoot.systemMergeFields)) : of<Map<string, string>>(null);
 					const changeOrderData = new ChangeOrderGroup(store.changeOrder.currentChangeOrder);
 
 					return customMergeFields.pipe(
 						combineLatest(mergeFieldData, systemMergeFields, lockedSnapshot),
-						map(([customMergeFields, mergeFieldData, systemMergeFields, lockedSnapshot]) => {
-							return { customMergeFields, mergeFieldData, systemMergeFields, lockedSnapshot, jioSelections: jioSelections, templates: mappedTemplates, financialCommunityId: financialCommunityId, salesAgreement: salesAgreement, changeOrder: changeOrderData, envelopeInfo: envelopeInfo, isPreview: isPreview, jobId: store.job.id, changeOrderGroupId: changeOrderGroupId, envelopeId: envelopeId, currentSnapshot: currentSnapshot };
+						map(([customMergeFields, mergeFieldData, systemMergeFields, lockedSnapshot]) =>
+						{
+							return { customMergeFields, mergeFieldData, systemMergeFields, lockedSnapshot, jioSelections: jioSelections, templates: mappedTemplates, financialCommunityId: financialCommunityId, salesAgreement: salesAgreement, changeOrder: changeOrderData, envelopeInfo: envelopeInfo, isPreview: isPreview, jobId: store.job.id, changeOrderGroupId: activeChangeOrderGroup.id, envelopeId: activeChangeOrderGroup.envelopeId, currentSnapshot: currentSnapshot };
 						}),
 						take(1)
 					);
@@ -360,13 +377,16 @@ export class ContractEffects
 					throw 'No Documents Selected';
 				}
 			}),
-			exhaustMap(data => {
+			exhaustMap(data =>
+			{
 				//save the merge fields for later user if this envelope is intended for
 				//signing
-				if (data.isPreview || data.salesAgreement.status !== 'Pending') {
+				if (data.isPreview || data.salesAgreement.status !== 'Pending')
+				{
 					return of(data);
 				}
-				else {
+				else
+				{
 					return this.contractService.lockMergeFields(data.customMergeFields, data.systemMergeFields, data.jobId).pipe(
 						map(() => data)
 					);
@@ -380,7 +400,8 @@ export class ContractEffects
 				if (data.isPreview)
 				{
 					return this.contractService.createEnvelope([...convertedCustomMergeFields, ...convertedSystemMergeFields], data.jioSelections, data.templates, data.financialCommunityId, data.salesAgreement.salesAgreementNumber, data.salesAgreement.status, data.envelopeInfo, data.jobId, data.changeOrderGroupId, data.currentSnapshot.constructionChangeOrderSelections, null, null, null, null, data.currentSnapshot.changeOrderInformation, data.isPreview).pipe(
-						map(envelopeId => {
+						map(envelopeId =>
+						{
 							return { envelopeId, changeOrder: data.changeOrder, isPreview: data.isPreview };
 						})
 					);
@@ -401,7 +422,8 @@ export class ContractEffects
 						return this.contractService.saveSnapshot(data.currentSnapshot, data.jobId, data.changeOrderGroupId).pipe(
 							switchMap(() =>
 								this.contractService.createEnvelope([...convertedCustomMergeFields, ...convertedSystemMergeFields], data.jioSelections, data.templates, data.financialCommunityId, data.salesAgreement.salesAgreementNumber, data.salesAgreement.status, data.envelopeInfo, data.jobId, data.changeOrderGroupId, data.currentSnapshot.constructionChangeOrderSelections, null, null, null, null, data.currentSnapshot.changeOrderInformation, data.isPreview)),
-							map(envelopeId => {
+							map(envelopeId =>
+							{
 								return { envelopeId, changeOrder: data.changeOrder, isPreview: data.isPreview };
 							}
 							));
@@ -471,7 +493,7 @@ export class ContractEffects
 	@Effect()
 	createTerminationEnvelope$: Observable<Action> = this.actions$.pipe(
 		ofType<CreateTerminationEnvelope>(ContractActionTypes.CreateTerminationEnvelope),
-			withLatestFrom(this.store, this.store.select(fromRoot.priceBreakdown), this.store.select(fromRoot.isSpecSalePending), this.store.select(fromLot.selectLot), this.store.select(fromScenario.elevationDP)),
+		withLatestFrom(this.store, this.store.select(fromRoot.priceBreakdown), this.store.select(fromRoot.isSpecSalePending), this.store.select(fromLot.selectLot), this.store.select(fromScenario.elevationDP)),
 		tryCatch(source => source.pipe(
 			switchMap(([action, store, priceBreakdown, isSpecSalePending, selectLot, elevationDP]) =>
 			{
@@ -550,7 +572,8 @@ export class ContractEffects
 						primaryBuyerTrustName: isNull(store.changeOrder && store.changeOrder.changeInput && store.changeOrder.changeInput.trustName && store.changeOrder.changeInput.trustName.length > 20 ? `${store.changeOrder.changeInput.trustName.substring(0, 20)}...` : store.changeOrder && store.changeOrder.changeInput ? store.changeOrder.changeInput.trustName : null, `${primaryBuyer.firstName ? primaryBuyer.firstName : ''}${primaryBuyer.middleName ? ' ' + primaryBuyer.middleName : ''} ${primaryBuyer.lastName ? ' ' + primaryBuyer.lastName : ''}${primaryBuyer.suffix ? ' ' + primaryBuyer.suffix : ''}`),
 						salesAgreementNotes: salesAgreementNotes,
 						termsAndConditions: termsAndConditions,
-						coBuyers: coBuyers ? coBuyers.map(result => {
+						coBuyers: coBuyers ? coBuyers.map(result =>
+						{
 							return {
 								firstName: result.opportunityContactAssoc.contact.firstName,
 								lastName: result.opportunityContactAssoc.contact.lastName,
@@ -561,12 +584,14 @@ export class ContractEffects
 						nsoSummary: this.contractService.getNsoOptionDetailsData(nsoSummary, store.job.jobNonStandardOptions),
 						closingCostInformation: this.contractService.getProgramDetails(store.salesAgreement.programs, store.job.changeOrderGroups, 'BuyersClosingCost')
 							.concat(store.salesAgreement.priceAdjustments ? store.salesAgreement.priceAdjustments.filter(a => a.priceAdjustmentType === 'ClosingCost')
-								.map(a => {
+								.map(a =>
+								{
 									return { salesProgramDescription: '', amount: a.amount, name: 'Price Adjustment', salesProgramId: 0 };
 								}) : []),
 						salesIncentiveInformation: this.contractService.getProgramDetails(store.salesAgreement.programs, store.job.changeOrderGroups, 'DiscountFlatAmount')
 							.concat(store.salesAgreement.priceAdjustments ? store.salesAgreement.priceAdjustments.filter(a => a.priceAdjustmentType === 'Discount')
-								.map(a => {
+								.map(a =>
+								{
 									return { salesProgramDescription: '', amount: a.amount, name: 'Price Adjustment', salesProgramId: 0 };
 								}) : []),
 						baseHousePrice: baseHousePrice,
@@ -579,7 +604,8 @@ export class ContractEffects
 						jobAgreementHeaderInfo: jobAgreementHeaderInfo
 					};
 
-					const mappedTemplates = templates.map(t => {
+					const mappedTemplates = templates.map(t =>
+					{
 						return { templateId: t.templateId, displayOrder: templates.indexOf(t) + 1, documentName: t.documentName, templateTypeId: t.templateTypeId };
 					});
 
@@ -602,7 +628,7 @@ export class ContractEffects
 				}
 			}),
 			exhaustMap(([customMergeFields, systemMergeFields, jioSelections, templates, financialCommunityId, salesAgreement, envelopeInfo, jobId, changeOrderGroupId]) =>
-			{				
+			{
 				const convertedCustomMergeFields = convertMapToMergeFieldDto(customMergeFields);
 				const convertedSystemMergeFields = convertMapToMergeFieldDto(systemMergeFields);
 

@@ -3,7 +3,7 @@ import { Router, NavigationEnd } from '@angular/router';
 import { Observable } from 'rxjs';
 
 import { BrowserService } from '../../services/browser.service';
-import { UnsubscribeOnDestroy } from '../../../shared/classes/unsubscribe-on-destroy';
+import { UnsubscribeOnDestroy } from 'phd-common/utils/unsubscribe-on-destroy';
 
 @Component({
 	  selector: 'nav-bar',

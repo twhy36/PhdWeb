@@ -189,6 +189,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 				{
 					const id = +params.get('id');
 					const isSpec = params.get('spec');
+
 					if (!this.loaded && isSpec === 'spec')
 					{
 						if (jobState.jobLoading && jobState.id === id)
@@ -198,19 +199,23 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 						else
 						{
 							this.loaded = true;
+
 							this.store.dispatch(new JobActions.LoadJobForJob(id));
 						}
 					}
+
 					if (!this.loaded && isSpec === 'salesagreement')
 					{
 						if (salesAgreementState.salesAgreementLoading || salesAgreementState.savingSalesAgreement || salesAgreementState.loadError)
 						{
 							return new Observable<never>();
 						}
+
 						if (id > 0 && salesAgreementState.id !== id)
 						{
-							this.store.dispatch(new CommonActions.LoadSalesAgreement(id));
 							this.loaded = true;
+
+							this.store.dispatch(new CommonActions.LoadSalesAgreement(id));
 						}
 					}
 				}
@@ -287,7 +292,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 
 				return {
 					id: o.id,
-					createdUtcDate: o.createdUtcDate ? convertDateToUtcString(o.createdUtcDate) : '',
+					createdUtcDate: o.createdUtcDate || '',
 					signedDate: signedStatusHistory && signedStatusHistory.salesStatusUtcDate ? convertDateToUtcString(signedStatusHistory.salesStatusUtcDate) : '',
 					changeOrderTypeDescription: this._changeOrderService.getTypeFromChangeOrderGroup(o),
 					jobChangeOrderGroupDescription: o.jobChangeOrderGroupDescription,
@@ -323,13 +328,13 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 			{
 				return new Date(a.createdUtcDate).getTime() - new Date(b.createdUtcDate).getTime();
 			});
-
-			this.setSpecChangeAmount(salesAgreement.salePrice);
-
+						
 			if (this.buildMode === 'spec' || this.buildMode === 'model')
 			{
 				this.setGroupSequenceForSpec();
 			}
+
+			this.setSpecChangeAmount(salesAgreement.salePrice);
 
 			this.currentChangeOrderGroupSequence = this.changeOrders && this.changeOrders.length
 				? this.changeOrders[this.changeOrders.length - 1].changeOrderGroupSequence
@@ -365,8 +370,10 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 				{
 					const suffixA = a.changeOrderGroupSequenceSuffix || '';
 					const suffixB = b.changeOrderGroupSequenceSuffix || '';
+
 					if (suffixA < suffixB) { return -1; }
 					if (suffixA > suffixB) { return 1; }
+
 					return 0;
 				}
 				return diffSequence;
@@ -1101,6 +1108,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 	setSpecChangeAmount(salePrice: number)
 	{
 		const specChangeOrders = this.changeOrders.filter(o => o.jobChangeOrderGroupDescription === 'Pulte Home Designer Generated Spec Customer Change Order');
+
 		if (specChangeOrders)
 		{
 			specChangeOrders.forEach(o =>

@@ -120,6 +120,7 @@ export class JobChoice
 	jobChoiceAttributes?: Array<JobChoiceAttribute>;
 	jobChoiceLocations?: Array<JobChoiceLocation>;
 	jobChoiceJobPlanOptionAssocs?: Array<JobChoiceJobPlanOptionAssoc>;
+	outForSignatureDate?: Date;
 
 	constructor(dto?: JobChoice)
 	{
@@ -181,6 +182,7 @@ export class JobPlanOption
 	jobPlanOptionAttributes?: Array<JobPlanOptionAttribute>;
 	jobPlanOptionLocations?: Array<JobPlanOptionLocation>;
 	jobChoiceJobPlanOptionAssocs?: Array<JobChoiceJobPlanOptionAssoc>;
+	outForSignatureDate?: Date;
 
 	constructor(dto?: JobPlanOption)
 	{

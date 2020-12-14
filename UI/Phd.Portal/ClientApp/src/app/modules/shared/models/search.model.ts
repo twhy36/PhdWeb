@@ -86,7 +86,8 @@ export class SearchResult
 				const activeCOG = job.jobChangeOrderGroups.find(cog => ['Pending', 'Signed', 'OutforSignature', 'Rejected'].indexOf(cog.salesStatusDescription) !== -1
 					&& cog.jobChangeOrderGroupDescription !== 'Pulte Home Designer Generated Job Initiation Change Order'
 					&& cog.jobChangeOrderGroupDescription !== 'Pulte Home Designer Generated Spec Customer Change Order');
-				if (activeCOG) {
+				if (activeCOG)
+				{
 					this.activeChangeOrder = {
 						changeOrderDescription: activeCOG.jobChangeOrderGroupDescription,
 						changeOrderNumber: activeCOG.jobChangeOrderGroupSalesAgreementAssocs.length > 0 ? (activeCOG.jobChangeOrderGroupSalesAgreementAssocs[0].changeOrderGroupSequence || '').toString() : '0',

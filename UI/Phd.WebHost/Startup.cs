@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -39,6 +39,35 @@ namespace Phd.WebHost
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            //check uri_state cookie for potential login redirect
+            app.Use(async (context, next) =>
+            {
+                if ((context.Request.Path.Value == "" || context.Request.Path.Value == "/"))
+                {
+                    if (context.Request.Cookies.ContainsKey("uri_state"))
+                    {
+                        var uri = context.Request.Cookies["uri_state"];
+                        context.Response.Redirect(uri + context.Request.QueryString.Value);
+                        return;
+                    }
+                }
+
+                await next();
+            });
+
+            //Custom redirect for salestally.pulte.com url
+            app.Use(async (context, next) =>
+            {
+                if (context.Request.Host.Host.ToLower().StartsWith("salestally"))
+                {
+                    context.Response.Redirect($"https://{context.Request.Host.Host.Replace("salestally", "salesportal")}/salesportal/salestally");
+                }
+                else
+                {
+                    await next();
+                }
+            });
+
             var rewriteOptions = new RewriteOptions();
             rewriteOptions.AddRedirectToHttpsPermanent();
             rewriteOptions.AddRedirect(@"^$", "/salesportal/index.html");
@@ -46,6 +75,21 @@ namespace Phd.WebHost
 
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
+
+            //write uri_state cookie
+            app.Use(async (context, next) =>
+            {
+                if (!context.Request.Cookies.ContainsKey("uri_state"))
+                {
+                    context.Response.Cookies.Append("uri_state", context.Request.Path.Value, 
+                        new CookieOptions { 
+                            SameSite = SameSiteMode.Strict,
+                            MaxAge = TimeSpan.FromMinutes(5)
+                        });
+                }
+                await next();
+            });
+
             app.Map("/designtool", app1 =>
             {
                 app1.UseSpa(spa =>

@@ -173,16 +173,20 @@ export class ChangeOrderService
 		{
 			currentBuyers.forEach(curBuyer =>
 			{
-				const existingBuyer = salesAgreementBuyers.find(x => x.opportunityContactAssoc.id === curBuyer.opportunityContactAssoc.id); 
+				const existingBuyer = salesAgreementBuyers.find(x => x.opportunityContactAssoc.id === curBuyer.opportunityContactAssoc.id);
 
-				if (existingBuyer) {
-					if (this.buyerSwapped(existingBuyer, curBuyer)) {
+				if (existingBuyer)
+				{
+					if (this.buyerSwapped(existingBuyer, curBuyer))
+					{
 						buyers.push(this.mapChangeOrderBuyer(existingBuyer, 'Delete'));
 						buyers.push(this.mapChangeOrderBuyer(curBuyer, 'Add'));
-					} else if (this.buyerNameChanged(existingBuyer, curBuyer)) {
+					} else if (this.buyerNameChanged(existingBuyer, curBuyer))
+					{
 						buyers.push(this.mapChangeOrderBuyer(curBuyer, 'Change'));
 					}
-				} else {
+				} else
+				{
 					buyers.push(this.mapChangeOrderBuyer(curBuyer, 'Add'));
 				}
 
@@ -207,7 +211,8 @@ export class ChangeOrderService
 			|| prevBuyer.opportunityContactAssoc.contact.suffix !== currentBuyer.opportunityContactAssoc.contact.suffix;
 	}
 
-	buyerSwapped(prevBuyer: Buyer, currentBuyer: Buyer): boolean {
+	buyerSwapped(prevBuyer: Buyer, currentBuyer: Buyer): boolean
+	{
 		return prevBuyer.isPrimaryBuyer !== currentBuyer.isPrimaryBuyer
 			|| prevBuyer.sortKey !== currentBuyer.sortKey;
 	}
@@ -412,6 +417,7 @@ export class ChangeOrderService
 					co.jobChangeOrderChoices.forEach(c =>
 					{
 						const origChoice = data.choices && data.choices.find(ch => ch.dpChoiceId === c.decisionPointChoiceID);
+
 						if (origChoice)
 						{
 							c.divChoiceCatalogId = origChoice.divChoiceCatalogId;
@@ -1163,7 +1169,7 @@ export class ChangeOrderService
 			);
 		});
 	}
-	
+
 	getSelectedHanding(job: Job): ChangeOrderHanding
 	{
 		let handing = new ChangeOrderHanding();
@@ -1486,7 +1492,9 @@ export class ChangeOrderService
 			addedBuyers.forEach(b =>
 			{
 				let buyer = _.cloneDeep(b);
-				if (buyer.opportunityContactAssoc && buyer.opportunityContactAssoc.contact) {
+
+				if (buyer.opportunityContactAssoc && buyer.opportunityContactAssoc.contact)
+				{
 					buyer.opportunityContactAssoc.contact.firstName = b.firstName;
 					buyer.opportunityContactAssoc.contact.middleName = b.middleName;
 					buyer.opportunityContactAssoc.contact.lastName = b.lastName;
@@ -1500,16 +1508,19 @@ export class ChangeOrderService
 			{
 				let buyer = buyers.find(x => x.opportunityContactAssoc.id === updatedBuyer.opportunityContactAssoc.id);
 
-				if (buyer && buyer.opportunityContactAssoc && buyer.opportunityContactAssoc.contact) {
-					if (buyer.opportunityContactAssoc.contact) {
+				if (buyer && buyer.opportunityContactAssoc && buyer.opportunityContactAssoc.contact)
+				{
+					if (buyer.opportunityContactAssoc.contact)
+					{
 						buyer.opportunityContactAssoc.contact.firstName = updatedBuyer.firstName;
 						buyer.opportunityContactAssoc.contact.middleName = updatedBuyer.middleName;
 						buyer.opportunityContactAssoc.contact.lastName = updatedBuyer.lastName;
 						buyer.opportunityContactAssoc.contact.suffix = updatedBuyer.suffix;
 					}
 				}
-			});			
+			});
 		}
+
 		return buyers;
 	}
 
