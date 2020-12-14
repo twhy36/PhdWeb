@@ -92,7 +92,7 @@ export class SearchResult
 				};
 				this.activeChangeOrderText = 'CO# ' +
 					(activeCOG.jobChangeOrderGroupSalesAgreementAssocs.length > 0 ? (activeCOG.jobChangeOrderGroupSalesAgreementAssocs[0].changeOrderGroupSequence || '').toString() : '0') +
-					' ' + activeCOG.salesStatusDescription + ' ' + activeCOG.jobChangeOrderGroupDescription;
+					' - ' + activeCOG.salesStatusDescription + ' - ' + activeCOG.jobChangeOrderGroupDescription;
 			}
 		});
 
