@@ -22,7 +22,17 @@ export const environment: IEnvironment = {
         instrumentationKey: '08875504-9c0f-45a6-8cc5-8a819e51aff0'
     },
 	production: false,
-	authConfig: null,
+	authConfig: {
+		issuer: "https://login.microsoftonline.com/pulte.onmicrosoft.com",
+		clientId: "90bf975f-6a55-42cb-9016-1103586c8f50",
+		responseType: 'code',
+		clearHashAfterLogin: true,
+		requestAccessToken: true,
+		scope: 'user.read openid',
+		showDebugInformation: true,
+		skipIssuerCheck: true,
+		strictDiscoveryDocumentValidation: false
+	},
     whatFix: {
         scriptUrl: '//whatfix.com/01caf5e0-cb2f-11e8-b979-04013d24cd02/embed/embed.nocache.js'
     }
