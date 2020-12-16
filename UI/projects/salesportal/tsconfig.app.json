@@ -7,14 +7,15 @@
     "module": "es2015",
 	"types": [],
 	"paths": {
-		"phd-common": [ "../phd-common/src/public-api" ]
+		"phd-common": [ "../phd-common/src/internal" ]
 	}
   },
 	"exclude": [
 		"src/test.ts",
-		"**/*.spec.ts"
+		"**/*.spec.ts",
+		"../phd-common/**/*.spec.ts"
 	],
 	"angularCompilerOptions": {
-		"enableIvy": false
+		"enableIvy": true
 	}
 }

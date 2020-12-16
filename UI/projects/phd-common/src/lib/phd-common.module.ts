@@ -29,7 +29,7 @@ import { ClaimGuard } from './guards/claim.guard';
 import { IdentityService } from './services/identity.service';
 import { SpinnerService } from './services/spinner.service';
 
-const oAuthModuleConfigFactory = (apiUrl: string) => {
+export function oAuthModuleConfigFactory(apiUrl: string) {
     return {
         resourceServer:
         {
@@ -39,7 +39,7 @@ const oAuthModuleConfigFactory = (apiUrl: string) => {
     };
 }
 
-const getOrigin = () => {
+export function getOrigin() {
 	return window.origin;
 }
 
