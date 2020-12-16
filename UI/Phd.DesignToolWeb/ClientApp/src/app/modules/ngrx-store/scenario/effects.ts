@@ -298,24 +298,29 @@ export class ScenarioEffects
 		withLatestFrom(this.store),
 		switchMap(([, state]) =>
 		{
-			if (typeof Worker !== 'undefined')
-			{
-				AppInsights.startTrackEvent(`Calculate Price Ranges - TreeVersionID: ${state.scenario.tree.treeVersion.id}`);
-				return new Observable<any>(observer => {
-					const worker = new Worker('../../../app.worker', { type: 'module' });
-					worker.onmessage = ({ data }) => {
-						observer.next(data);
-						observer.complete();
-						AppInsights.stopTrackEvent(`Calculate Price Ranges - TreeVersionID: ${state.scenario.tree.treeVersion.id}`);
-					};
+			if (state.scenario.tree) {
 
-					worker.postMessage({
-						function: 'getChoicePriceRanges',
-						args: [state.scenario]
+				if (typeof Worker !== 'undefined') {
+					AppInsights.startTrackEvent(`Calculate Price Ranges - TreeVersionID: ${state.scenario.tree.treeVersion.id}`);
+					return new Observable<any>(observer => {
+						const worker = new Worker('../../../app.worker', { type: 'module' });
+						worker.onmessage = ({ data }) => {
+							observer.next(data);
+							observer.complete();
+							AppInsights.stopTrackEvent(`Calculate Price Ranges - TreeVersionID: ${state.scenario.tree.treeVersion.id}`);
+						};
+
+						worker.postMessage({
+							function: 'getChoicePriceRanges',
+							args: [state.scenario]
+						});
 					});
-				});
-			} else {
-				return never();
+				} else {
+					return never();
+				}
+			}
+			else {
+				return of(null);
 			}
 		}),
 		map(priceRanges => new SetChoicePriceRanges(priceRanges))
