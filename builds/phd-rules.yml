@@ -4,7 +4,12 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
 
 trigger:
-- next
+  branches:
+   include:
+     - next
+  paths:
+    include:
+     - UI/projects/phd-common
 
 pool:
   vmImage: 'ubuntu-latest'
