@@ -12,7 +12,7 @@ import { DecisionPoint, PickType, SubGroup, Choice } from '../../../../shared/mo
 	styleUrls: ['./normal-experience.component.scss'],
 	animations: [flipOver]
 })
-export class NormalExperienceComponent extends UnsubscribeOnDestroy implements OnInit//, OnDestroy, OnChanges
+export class NormalExperienceComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	@Input() groupName$: Observable<string>;
 	@Input() subGroup$: Observable<SubGroup>;
