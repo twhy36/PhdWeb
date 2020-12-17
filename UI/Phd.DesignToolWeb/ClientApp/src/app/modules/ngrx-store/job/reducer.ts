@@ -29,6 +29,12 @@ export function reducer(state: State = initialState, action: JobActions): State
 	{
 		case JobActionTypes.SpecsLoaded:
 			return { ...state, jobLoading: false, loadError: false, specJobs: action.jobs };
+		case JobActionTypes.DeselectSpec:
+			let initial = _.cloneDeep(initialState);
+
+			initial.specJobs = state.specJobs;
+
+			return initial;
 		case CommonActionTypes.SalesAgreementLoaded:
 		case CommonActionTypes.JobLoaded:
 			return { ...state, ...action.job, jobLoading: false, loadError: false };
@@ -87,11 +93,14 @@ export function reducer(state: State = initialState, action: JobActions): State
 				let handing = state.handing;
 
 				let jio = actionChangeOrderGroups.find(cog => cog.jobChangeOrders.some(co => co.jobChangeOrderTypeDescription === "SalesJIO" || co.jobChangeOrderTypeDescription === "SpecJIO"));
+
 				if (jio && jio.salesStatusDescription === 'Pending')
 				{
 					let handingCO = jio.jobChangeOrders.find(co => co.jobChangeOrderHandings && co.jobChangeOrderHandings.length > 0);
 					let coHanding = handingCO.jobChangeOrderHandings.find(h => h.action === 'Add');
-					if (coHanding && coHanding.handing !== handing) {
+
+					if (coHanding && coHanding.handing !== handing)
+					{
 						handing = coHanding.handing;
 					}
 				}
@@ -206,5 +215,5 @@ export function reducer(state: State = initialState, action: JobActions): State
 
 export const jobState = createFeatureSelector<State>('job');
 export const specJobs = createSelector(jobState, (state) => state.specJobs);
-export const isCancelled = createSelector(jobState, (job) => 
+export const isCancelled = createSelector(jobState, (job) =>
 	job.changeOrderGroups && job.changeOrderGroups.length ? job.changeOrderGroups[0].jobChangeOrderGroupDescription === 'Cancellation' && !((<any>job.changeOrderGroups[0]).jobChangeOrderGroupSalesAgreementAssocs || []).length : false);

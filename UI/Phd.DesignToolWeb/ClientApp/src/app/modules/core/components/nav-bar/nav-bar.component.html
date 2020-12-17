@@ -81,7 +81,7 @@
 
 <ng-template #navMenu>
 	<phd-nav-menu class="menu">
-		<phd-nav-menu-item *ngIf="!salesAgreementNumber && job.id === 0" label="New Home" (click)="!isPreview && navigate(['/new-home/name-scenario'])"
+		<phd-nav-menu-item *ngIf="!salesAgreementNumber" label="New Home" (click)="newHomeNavPath()"
 						   [isActive]="currentRoute?.startsWith('/new-home')" [showStatusIndicator]="true"
 						   [status]="groups?.length > 0 && scenarioName?.length > 0 ? PointStatus.COMPLETED : PointStatus.REQUIRED"
 						   [disabled]="isPreview"

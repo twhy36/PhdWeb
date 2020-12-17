@@ -8,13 +8,14 @@ import * as fromRoot from '../../../ngrx-store/reducers';
 	selector: 'plan-container',
 	templateUrl: './plan-container.component.html'
 })
-export class PlanContainerComponent implements OnInit {
-
+export class PlanContainerComponent implements OnInit
+{
 	canConfigure$: Observable<boolean>;
 
 	constructor(private store: Store<fromRoot.State>) { }
 
-	ngOnInit() {
+	ngOnInit()
+	{
 		this.canConfigure$ = this.store.pipe(select(fromRoot.canConfigure));
 	}
 }

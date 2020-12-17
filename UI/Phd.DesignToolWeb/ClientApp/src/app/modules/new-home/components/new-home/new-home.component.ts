@@ -184,19 +184,24 @@ export class NewHomeComponent extends UnsubscribeOnDestroy implements OnInit
 			.pipe(
 				this.takeUntilDestroyed(),
 				select(state => state.scenario),
+				combineLatest(
+					this.store.pipe(select(fromJobs.jobState))
+				),
 				take(1)
 			)
-			.subscribe(scenarioState =>
+			.subscribe(([scenarioState, job]) =>
 			{
+				this.store.dispatch(new NavActions.SetSubNavItems(SubNavItems));
+
 				if (scenarioState.scenario)
 				{
 					// check if scenario name has already been entered
 					if (this.buildMode === 'buyer' && scenarioState.scenario.scenarioName.length)
 					{
-						SubNavItems[0].status = PointStatus.COMPLETED;
-						SubNavItems[1].status = PointStatus.REQUIRED;
-						SubNavItems[2].status = PointStatus.REQUIRED;
-						SubNavItems[3].status = PointStatus.REQUIRED;
+						this.store.dispatch(new NavActions.SetSubNavItemStatus(1, PointStatus.COMPLETED));
+						this.store.dispatch(new NavActions.SetSubNavItemStatus(2, PointStatus.REQUIRED));
+						this.store.dispatch(new NavActions.SetSubNavItemStatus(3, PointStatus.REQUIRED));
+						this.store.dispatch(new NavActions.SetSubNavItemStatus(4, PointStatus.REQUIRED));
 					}
 
 					// check if plan has already been selected
@@ -204,7 +209,7 @@ export class NewHomeComponent extends UnsubscribeOnDestroy implements OnInit
 					{
 						this.store.dispatch(new PlanActions.SelectPlan(scenarioState.scenario.planId, scenarioState.scenario.treeVersionId));
 
-						SubNavItems[2].status = PointStatus.COMPLETED;
+						this.store.dispatch(new NavActions.SetSubNavItemStatus(2, PointStatus.COMPLETED));
 					}
 
 					// check if lot has already been selected
@@ -218,7 +223,12 @@ export class NewHomeComponent extends UnsubscribeOnDestroy implements OnInit
 							this.store.dispatch(new LotActions.SelectHanding(scenarioState.scenario.lotId, scenarioState.scenario.handing.handing));
 						}
 
-						SubNavItems[3].status = PointStatus.COMPLETED;
+						this.store.dispatch(new NavActions.SetSubNavItemStatus(3, PointStatus.COMPLETED));
+					}
+
+					if (job && job.id !== 0)
+					{
+						this.store.dispatch(new NavActions.SetSubNavItemStatus(4, PointStatus.COMPLETED));
 					}
 				}
 			});
@@ -269,10 +279,6 @@ export class NewHomeComponent extends UnsubscribeOnDestroy implements OnInit
 							this.store.dispatch(new NavActions.SetSubNavItemStatus(2, PointStatus.REQUIRED));
 						}
 					}
-				}
-				else
-				{
-					this.store.dispatch(new NavActions.SetSubNavItems(SubNavItems));
 				}
 			});
 
