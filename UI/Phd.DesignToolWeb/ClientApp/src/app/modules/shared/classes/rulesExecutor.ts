@@ -319,8 +319,8 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 			// get attributes and locations from the choice before adding in locked in data.
 			if (choice.options && choice.options.length > 0)
 			{
-				let optionAttributeGroupIds = _.flatMap(choice.options, o => o.attributeGroups);
-				let optionLocationGroupIds = _.flatMap(choice.options, o => o.locationGroups);
+				let optionAttributeGroupIds = _.flatMap(choice.options, o => o && o.attributeGroups);
+				let optionLocationGroupIds = _.flatMap(choice.options, o => o && o.locationGroups);
 
 				// apply option attributes and locations
 				currentAttributeGroupIds = [...currentAttributeGroupIds, ...optionAttributeGroupIds.map(x => new MappedAttributeGroup({ id: x }))];
@@ -366,7 +366,7 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 
 			if (choice.lockedInOptions && choice.lockedInOptions.length > 0)
 			{
-				let optionRule = choice.lockedInOptions.find(o => o.choices.some(c => c.attributeReassignments.length > 0));
+				let optionRule = choice.lockedInOptions.find(o => o && o.choices.some(c => c.attributeReassignments.length > 0));
 
 				if (optionRule)
 				{
@@ -390,7 +390,7 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 			mappedAttributeGroups = [...mappedAttributeGroups, ...currentAttributeGroupIds];
 			mappedLocationGroups = [...mappedLocationGroups, ...currentLocationGroupIds];
 
-			let lockedInChoicesWithReassignments = choices.filter(c => c.lockedInOptions && c.lockedInOptions.length > 0 && c.lockedInOptions.some(lo => lo.choices.some(lc => lc.attributeReassignments.length > 0)));
+			let lockedInChoicesWithReassignments = choices.filter(c => c.lockedInOptions && c.lockedInOptions.length > 0 && c.lockedInOptions.some(lo => lo && lo.choices.some(lc => lc.attributeReassignments.length > 0)));
 
 			lockedInChoicesWithReassignments.forEach(c =>
 			{
@@ -532,37 +532,34 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 		}
 
 		//find choices that are locked in, with option mappings changed
-		if (choice.options && choice.lockedInOptions && choice.lockedInOptions.length && (choice.lockedInOptions.some(o => !choice.options.some(co => co.financialOptionIntegrationKey === o.optionId))
+		if (choice.options && choice.lockedInOptions && choice.lockedInOptions.length && (choice.lockedInOptions.some(o => !choice.options.some(co => o && co.financialOptionIntegrationKey === o.optionId))
 			|| choice.options.some(co => !choice.lockedInOptions.some(o => o.optionId === co.financialOptionIntegrationKey))))
 		{
-			choice.options = choice.lockedInOptions.map(o => options.find(po => po.financialOptionIntegrationKey === o.optionId));
+			choice.options = choice.lockedInOptions.map(o => options.find(po => o && po.financialOptionIntegrationKey === o.optionId));
 			choice.mappingChanged = true;
 
 			//since the option mapping is changed, flag each dependency 
 			choice.lockedInOptions.forEach(o =>
 			{
-				o.choices.forEach(c =>
-				{
-					let pt = points.find(p => p.choices.some(ch => ch.divChoiceCatalogId === c.id));
+				if (o) {
+					o.choices.forEach(c => {
+						let pt = points.find(p => p.choices.some(ch => ch.divChoiceCatalogId === c.id));
 
-					if (pt && pt.pointPickTypeId <= 2)
-					{
-						//Pick 1 or Pick 0-1
-						pt.choices.filter(ch => ch.divChoiceCatalogId !== c.id).forEach(depChoice =>
-						{
-							depChoice.changedDependentChoiceIds = _.uniq([...depChoice.changedDependentChoiceIds, c.id]);
-						})
-					}
-					else
-					{
-						let depChoice = choices.find(ch => ch.divChoiceCatalogId === c.id);
-
-						if (depChoice && depChoice.divChoiceCatalogId !== c.id)
-						{
-							depChoice.changedDependentChoiceIds = _.uniq([...depChoice.changedDependentChoiceIds, c.id]);
+						if (pt && pt.pointPickTypeId <= 2) {
+							//Pick 1 or Pick 0-1
+							pt.choices.filter(ch => ch.divChoiceCatalogId !== c.id).forEach(depChoice => {
+								depChoice.changedDependentChoiceIds = _.uniq([...depChoice.changedDependentChoiceIds, c.id]);
+							})
 						}
-					}
-				});
+						else {
+							let depChoice = choices.find(ch => ch.divChoiceCatalogId === c.id);
+
+							if (depChoice && depChoice.divChoiceCatalogId !== c.id) {
+								depChoice.changedDependentChoiceIds = _.uniq([...depChoice.changedDependentChoiceIds, c.id]);
+							}
+						}
+					});
+				}
 			});
 		}
 

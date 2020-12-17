@@ -43,8 +43,12 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 	ngOnInit() {
 
 		this.browser.clientWidth().subscribe(width => {
+			if (width > 1024) {
+				this.fpImageWidth = '90%';
+			}
+
 			if (width > 1280) {
-				this.fpImageWidth = '100%';
+				this.fpImageWidth = '80%';
 			}
 		});
 
@@ -78,6 +82,7 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 			select(fromScenario.elevationDP),
 			withLatestFrom(this.store.pipe(select(state => state.scenario)))
 		).subscribe(([dp, scenario]) => {
+			this.planImageUrl = '';
 			const elevationOption = scenario.options ? scenario.options.find(x => x.isBaseHouseElevation) : null;
 
 			if (dp) {
@@ -86,7 +91,7 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 
 				if (selectedChoice && selectedChoice.options && selectedChoice.options.length) {
 					// look for a selected choice to pull the image from
-					option = selectedChoice.options.find(x => x.optionImages != null);
+					option = selectedChoice.options.find(x => x && x.optionImages != null);
 				}
 				else if (!selectedChoice && elevationOption) {
 					// if a choice hasn't been selected then get the default option
@@ -95,16 +100,25 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 
 				if (option && option.optionImages.length > 0) {
 					this.planImageUrl = option.optionImages[0].imageURL;
+				} else if (selectedChoice && selectedChoice.imagePath) {
+					this.planImageUrl = selectedChoice.imagePath;
 				}
 			}
 		});
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
-			select(fromPlan.planState)
-		).subscribe(plan => {
+			select(fromPlan.planState),
+			withLatestFrom(this.store.pipe(select(state => state.scenario)))
+		).subscribe(([plan, scenario]) => {
 			if (plan && plan.marketingPlanId && plan.marketingPlanId.length) {
-				this.marketingPlanId$.next(plan.marketingPlanId[0]);
+				if (scenario.tree && scenario.tree.treeVersion) {
+					const subGroups = _.flatMap(scenario.tree.treeVersion.groups, g => g.subGroups) || [];
+					const fpSubGroup = subGroups.find(sg => sg.useInteractiveFloorplan);
+					if (fpSubGroup) {
+						this.marketingPlanId$.next(plan.marketingPlanId[0]);
+					}
+				}
 			}
 		});
 
