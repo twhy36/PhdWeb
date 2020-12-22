@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 import { Observable, throwError as _throw, of } from 'rxjs';
 import { map, catchError, switchMap } from 'rxjs/operators';
@@ -8,9 +8,10 @@ import { environment } from '../../../../environments/environment';
 
 import { withSpinner } from 'phd-common/extensions/withSpinner.extension';
 import { ESignEnvelope } from '../../shared/models/esign-envelope.model';
+import * as odataUtils from '../../shared/classes/odata-utils.class';
 
 import { FloorPlanImage } from '../../shared/models/tree.model.new';
-import { Job, IJob } from '../../shared/models/job.model';
+import { Job, IJob, JobChoice } from '../../shared/models/job.model';
 import { ChangeOrderGroup } from '../../shared/models/job-change-order.model';
 import { Contact } from '../../shared/models/contact.model';
 
@@ -27,6 +28,7 @@ import * as _ from 'lodash';
 export class JobService
 {
 	private _ds = encodeURIComponent('$');
+	private _batch = "$batch";
 
 	constructor(private _http: HttpClient, private identityService: IdentityService, private changeOrderService: ChangeOrderService) { }
 
@@ -354,6 +356,23 @@ export class JobService
 				console.error(error);
 
 				return _throw(error);
+			})
+		);
+	}
+
+	updateSpecJobPrices(jobId: number, jobChoices: JobChoice[]): Observable<void>
+	{
+		return this.identityService.token.pipe(
+			switchMap((token: string) => {
+				const batchRequests = odataUtils.createBatchPatch<any>(jobChoices, 'id', `jobs(${jobId})/jobChoices`, 'dpChoiceCalculatedPrice');
+
+				const batchGuid = odataUtils.getNewGuid();
+				const batchBody = odataUtils.createBatchBody(batchGuid, [batchRequests]);
+				const headers = new HttpHeaders(odataUtils.createBatchHeaders(token, batchGuid));
+
+				const endPoint = `${environment.apiUrl}${this._batch}`;
+
+				return this._http.post(endPoint, batchBody, { headers, responseType: 'text' });
 			})
 		);
 	}

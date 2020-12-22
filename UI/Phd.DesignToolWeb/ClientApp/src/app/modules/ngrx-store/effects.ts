@@ -15,7 +15,7 @@ import { LotService } from '../core/services/lot.service';
 import { OrganizationService } from '../core/services/organization.service';
 import { from } from 'rxjs/observable/from';
 import { of } from 'rxjs/observable/of';
-import { setTreePointsPastCutOff, mergeIntoTree, updateWithNewTreeVersion, mapAttributes } from '../shared/classes/tree.utils';
+import { setTreePointsPastCutOff, mergeIntoTree, updateWithNewTreeVersion, mapAttributes, updateSpecJobChoices } from '../shared/classes/tree.utils';
 import { JobService } from '../core/services/job.service';
 import { IdentityService } from 'phd-common/services';
 import { DecisionPoint, Choice } from '../shared/models/tree.model.new';
@@ -142,6 +142,7 @@ export class CommonEffects
 										return of({ job, salesCommunity: sc, claims, markets, tree: result.tree, options: result.options }).pipe(
 											//do this before checking cutoffs
 											mergeIntoTree(job[0].jobChoices, job[0].jobPlanOptions, this.treeService),
+											updateSpecJobChoices(result.rules, this.jobService, !result.lotNoLongerAvailable),
 											map(res =>
 											{
 												//add selections from the job into the tree
