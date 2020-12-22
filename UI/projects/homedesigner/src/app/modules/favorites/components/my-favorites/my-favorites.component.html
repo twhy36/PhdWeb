@@ -1,0 +1,14 @@
+<div>
+	<group-bar [communityName]="communityName"
+			   [planName]="planName"
+			   [groups$]="groups$"
+			   [selectedSubGroupId]="selectedSubgroupId"
+			   (onSubgroupSelected)="onSubgroupSelected($event)"></group-bar>
+</div>
+<div class="phd-my-favorites">
+	<normal-experience [groupName$]="groupName$"
+					   [subGroup$]="selectedSubGroup$"
+					   [errorMessage]="errorMessage"></normal-experience>
+</div>
+
+<action-bar [primaryAction]="'Next'" [price]="priceBreakdown.totalPrice" (callToAction)="onNextSubGroup()"></action-bar>

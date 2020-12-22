@@ -2,6 +2,7 @@ import { NgModule, ModuleWithProviders, InjectionToken } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { TableModule } from 'primeng/table';
 import { MultiSelectModule } from 'primeng/multiselect';
@@ -16,6 +17,7 @@ import { ConfirmModalComponent } from './components/confirm-modal/confirm-modal.
 import { SidePanelComponent } from './components/side-panel/side-panel.component';
 import { SpinnerComponent } from './components/spinner/spinner.component';
 import { BuildVersionComponent } from './components/build-version/build-version.component';
+import { ErrorMessageComponent } from './components/error-message/error-message.component';
 import { PhdColumnDirective } from './components/table/phd-column.directive';
 import { RowTogglerDirective } from './components/table/phd-rowtoggler.directive';
 import { DragSourceDirective } from './directives/drag-source.directive';
@@ -28,6 +30,8 @@ import { CanDeactivateGuard } from './guards/can-deactivate.guard';
 import { ClaimGuard } from './guards/claim.guard';
 import { IdentityService } from './services/identity.service';
 import { SpinnerService } from './services/spinner.service';
+import { BrowserService } from './services/browser.service';
+import { EllipsisPipe } from './pipes/ellipsis.pipe';
 
 export function oAuthModuleConfigFactory(apiUrl: string) {
     return {
@@ -44,9 +48,47 @@ export function getOrigin() {
 }
 
 @NgModule({
-    imports: [TableModule, MultiSelectModule, DropdownModule, OverlayPanelModule, CommonModule, FormsModule, HttpClientModule, OAuthModule.forRoot()],
-    declarations: [PhdTableComponent, ConfirmModalComponent, SidePanelComponent, PhdColumnDirective, RowTogglerDirective, DragSourceDirective, DragTargetDirective, SpinnerComponent, RequiresClaimDirective, ControlDisabledDirective, BuildVersionComponent],
-    exports: [PhdTableComponent, ConfirmModalComponent, SidePanelComponent, PhdColumnDirective, RowTogglerDirective, DragSourceDirective, DragTargetDirective, SpinnerComponent, RequiresClaimDirective, ControlDisabledDirective, BuildVersionComponent],
+    imports: [
+		TableModule,
+		MultiSelectModule,
+		DropdownModule,
+		OverlayPanelModule,
+		CommonModule,
+		FormsModule,
+		BrowserAnimationsModule,
+		HttpClientModule,
+		OAuthModule.forRoot()
+	],
+    declarations: [
+		PhdTableComponent,
+		ConfirmModalComponent,
+		SidePanelComponent,
+		PhdColumnDirective,
+		RowTogglerDirective,
+		DragSourceDirective,
+		DragTargetDirective,
+		SpinnerComponent,
+		RequiresClaimDirective,
+		ControlDisabledDirective,
+		BuildVersionComponent,
+		ErrorMessageComponent,
+        EllipsisPipe
+	],
+    exports: [
+		PhdTableComponent,
+		ConfirmModalComponent,
+		SidePanelComponent,
+		PhdColumnDirective,
+		RowTogglerDirective,
+		DragSourceDirective,
+		DragTargetDirective,
+		SpinnerComponent,
+		RequiresClaimDirective,
+		ControlDisabledDirective,
+		BuildVersionComponent,
+        ErrorMessageComponent,
+        EllipsisPipe
+	],
 })
 export class PhdCommonModule {
     static forRoot(authConfig: AuthConfig, apiUrl?: string): ModuleWithProviders<PhdCommonModule> {
@@ -70,6 +112,7 @@ export class PhdCommonModule {
                     deps: [API_URL]
                 },
                 IdentityService,
+				BrowserService,
                 ClaimGuard
             ]
         };

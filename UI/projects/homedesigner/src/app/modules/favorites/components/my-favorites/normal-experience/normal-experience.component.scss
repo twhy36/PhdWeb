@@ -1,0 +1,83 @@
+@import "../../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
+
+.phd-normal-experience {
+	display: flex;
+	flex-direction: row;
+	margin-right: 10px;
+	overflow: hidden;
+}
+
+.phd-point-panel {
+	position: fixed;
+	width: 220px;
+	height: calc(100vh - 220px);
+
+	.phd-selected-group {
+		padding: 10px;
+		background: $gray-lighter;
+
+		span {
+			font-weight: bold;
+			text-transform: uppercase;
+		}
+	}
+
+	.phd-decisions {
+		padding: 10px;
+	}
+
+	.phd-point-bar {
+		overflow-y: auto;
+		width: 220px;
+		padding-left: 25px;
+	}
+
+	.phd-collapse-icon {
+		cursor: pointer;
+		width: 15px;
+		margin-left: 5px;
+	}
+
+	.phd-collapsed-icon-bg {
+		background: $gray-lighter;
+	}
+}
+
+.phd-card-panel {
+	margin: 10px 10px 10px 225px;
+	padding-left: 10px;
+	overflow-y: auto;
+	width: 100%;
+
+	.phd-point-label {
+		padding-left: 10px;
+		font-size: 16px;
+		font-weight: bold;
+	}
+
+	.phd-point-title {
+		padding-left: 10px;
+		font-size: 14px;
+	}
+
+	.phd-choice-cards {
+		overflow-y: auto;
+		width: 100%;
+		margin-bottom: 50px;
+	}
+}
+
+.phd-card-panel-collapsed {
+	margin-left: 15px;
+}
+
+.phd-error-msg-body {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: calc(100vh - 220px);
+}
+
+.phd-hide {
+	display: none !important;
+}

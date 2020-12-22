@@ -1,0 +1,89 @@
+@import "../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
+@import "../../../../../../../phd-common/src/lib/scss/sizes.scss";
+
+#phd-group-bar {
+	background: $pantone_blue;
+	position: fixed;
+	top: 70px;
+	width: 100%;
+	z-index: 10;
+
+	.phd-group-bar-content {
+		padding: 8px;
+	}
+
+	.phd-community-name {
+		color: $pale_white;
+		font-size: 15px;
+		font-weight: bold;
+		text-transform: uppercase;
+	}
+
+	.phd-plan-name {
+		color: $pale_white;
+		font-size: 13px;
+	}
+
+	.phd-group-menu {
+		display: flex;
+		justify-content: center;
+		align-content: center;
+		flex-grow: 1;
+
+		.phd-group-menu-item {
+			color: $pale_white;
+			text-transform: uppercase;
+			font-size: 13px;
+			outline: none;
+		}
+
+		.phd-group-menu-selected {
+			color: white;
+			font-size: 15px;
+			font-weight: bold;
+		}
+	}
+
+	.phd-tree-filter {
+		min-width: 300px;
+	}
+}
+
+::ng-deep .phd-sub-menu {
+	color: #4D4D4D;
+
+	button {
+		outline: none;
+	}
+}
+
+::ng-deep .phd-sub-menu-selected {
+	font-weight: bold;
+}
+
+
+@media(max-width: $tablet-max-width) {
+	.phd-group-menu {
+		justify-content: flex-start !important;
+		margin-left: 30px;
+
+		.phd-menu-bars {
+			outline: none;
+
+			i {
+				color: white;
+				outline: none;
+			}
+		}
+	}
+
+	::ng-deep .phd-pop-menu {
+		button {
+			outline: none;
+		}
+	}
+
+	::ng-deep .phd-pop-menu-selected {
+		font-weight: bold;
+	}
+}

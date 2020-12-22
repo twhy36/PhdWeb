@@ -32,7 +32,6 @@
 	"exclude": [
 		"Phd.ChoiceAdminWeb/**",
 		"Phd.DesignToolWeb/**",
-		"Phd.HomeDesigner/**",
 		"Phd.SalesAdminWeb/**",
 		"Phd.WebHost/**"
 	]

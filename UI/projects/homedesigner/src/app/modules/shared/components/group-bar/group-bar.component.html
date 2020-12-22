@@ -1,0 +1,54 @@
+<nav id="phd-group-bar">
+	<div class="d-flex align-items-center phd-group-bar-content">
+		<div class="d-flex flex-column">
+			<div class="phd-community-name">{{communityName}} : </div>
+			<div class="phd-plan-name">{{planName}}</div>
+		</div>
+
+		<!--Group menu-->
+		<div *ngIf="!(isTablet$ | async)" class="phd-group-menu">
+			<ng-container *ngFor="let group of groups">
+				<button mat-button [matMenuTriggerFor]="group_menu"
+						class="phd-group-menu-item"
+						[class.phd-group-menu-selected]="isGroupSelected(group.id)">
+					{{group.label}}
+				</button>
+				<mat-menu #group_menu="matMenu" [class]="'phd-sub-menu'">
+					<button mat-menu-item
+							*ngFor="let subGroup of group.subGroups"
+							[class.phd-sub-menu-selected]="subGroup.id === selectedSubGroupId"
+							(click)="selectSubgroup(group.id, subGroup.id)">
+						{{subGroup.label}}
+					</button>
+				</mat-menu>
+			</ng-container>
+		</div>
+
+		<!--Group menu in mobile view -->
+		<div *ngIf="(isTablet$ | async)"  class="phd-group-menu">
+			<button mat-button [matMenuTriggerFor]="main_menu" class="phd-menu-bars">
+				<i class="fa fa-bars fa-2x"></i>
+			</button>
+			<mat-menu #main_menu="matMenu" [class]="'phd-pop-menu'">
+				<ng-container *ngFor="let group of groups">
+					<button mat-menu-item [matMenuTriggerFor]="sub_menu"
+							[class.phd-sub-menu-selected]="isGroupSelected(group.id)">
+						{{group.label}}
+					</button>
+					<mat-menu #sub_menu="matMenu" [class]="'phd-pop-menu'">
+						<button mat-menu-item
+								*ngFor="let subGroup of group.subGroups"
+								[class.phd-sub-menu-selected]="subGroup.id === selectedSubGroupId"
+								(click)="selectSubgroup(group.id, subGroup.id)">
+							{{subGroup.label}}
+						</button>
+					</mat-menu>
+				</ng-container>
+			</mat-menu>
+		</div>
+
+		<div class="phd-tree-filter">
+			<tree-filter></tree-filter>
+		</div>
+	</div>
+</nav>
