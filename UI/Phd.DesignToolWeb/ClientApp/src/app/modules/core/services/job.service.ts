@@ -360,7 +360,7 @@ export class JobService
 		);
 	}
 
-	updateSpecJobPrices(jobId: number, jobChoices: JobChoice[]): Observable<void>
+	updateSpecJobPrices(jobId: number, jobChoices: JobChoice[]): Observable<string>
 	{
 		return this.identityService.token.pipe(
 			switchMap((token: string) => {
