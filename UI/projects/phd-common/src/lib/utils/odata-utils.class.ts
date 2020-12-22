@@ -5,13 +5,19 @@ export function getNewGuid(): string {
 }
 
 export function createBatchHeaders(batchGuid: string, token?: string): any {
-	const headers = {
-		'Authorization': !!token ? 'Bearer ' + token : null,
+	let headers: any = {
 		'Content-Type': `multipart/mixed; boundary=batch_${batchGuid}`,
 		'OData-Version': '4.0;NetFx',
 		'OData-MaxVersion': '4.0;NetFx',
 		'Accept': 'application/json'
 	};
+
+	if (!!token) {
+		headers = {
+			'Authorization': 'Bearer ' + token,
+			...headers
+		};
+	}
 
 	return headers;
 }

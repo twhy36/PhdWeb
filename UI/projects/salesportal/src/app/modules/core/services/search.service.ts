@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from "@angular/common/http";
 
 import { Observable ,  throwError as _throw, of } from "rxjs";
 import { map, catchError, mergeMap } from "rxjs/operators";
+import * as _ from "lodash";
 
 import { environment } from '../../../../environments/environment';
 import { createBatchGet, getNewGuid, createBatchBody, createBatchHeaders, parseBatchResults } from 'phd-common';
@@ -125,12 +126,10 @@ export class SearchService
 		const batchBody = createBatchBody(batchGuid, [batchRequests], createBatchHeaders(batchGuid));
 		const headers = new HttpHeaders(createBatchHeaders(batchGuid));
 
-		return this._http.post<string>(`${environment.apiUrl}${this._batch}`, batchBody, { headers: headers, responseType: 'json' }).pipe(
-			map(responses =>
+		return this._http.post<any>(`${environment.apiUrl}${this._batch}`, batchBody, { headers: headers, responseType: 'json' }).pipe(
+			map(batchResponse =>
 			{
-				const returned = parseBatchResults<ISearchResults>(responses);
-
-				return returned[0].value.map(item => new SearchResult(item));
+				return _.flatMap(batchResponse.responses, response => response.body.value).map(value => new SearchResult(value));
 			}),
 			mergeMap(result => {
 				const needBuyers = result.filter(item => item.salesAgreements.some(sa => sa.jobSalesAgreementAssocs.some(jsaa => jsaa.isActive)));
