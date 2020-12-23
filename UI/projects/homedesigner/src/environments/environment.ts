@@ -6,17 +6,17 @@ import { IEnvironment } from './environment.model';
 
 export const environment: IEnvironment = {
 	production: false,
-	//apiUrl: 'https://phdapi.dev.pulte.com/odata/',
-	apiUrl: 'http://localhost:2845/odata/',
+	apiUrl: 'https://phdapi.dev.pulte.com/odata/',
+	//apiUrl: 'http://localhost:2845/odata/',
 	authConfig: {
-		issuer: "https://login.microsoftonline.com/pulte.onmicrosoft.com",
+		issuer: "https://login.microsoftonline.com/1a9277a3-ef66-41f6-96b5-c5390ee468a7/v2.0",
 		clientId: "f9c9611d-6a23-4d2e-8dce-14da56bd8acc",
 		responseType: 'code',
 		clearHashAfterLogin: true,
 		requestAccessToken: true,
-		scope: 'user.read openid',
+		scope: 'api://f9c9611d-6a23-4d2e-8dce-14da56bd8acc/user_impersonation profile',
 		showDebugInformation: true,
-		skipIssuerCheck: true,
+		skipIssuerCheck: false,
 		strictDiscoveryDocumentValidation: false
 	},
 	authQueryParams: 'domain_hint=pulte.com',
