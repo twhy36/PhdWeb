@@ -30,7 +30,7 @@ export const environment: IEnvironment = {
 		responseType: 'code',
 		clearHashAfterLogin: true,
 		requestAccessToken: true,
-		scope: 'api://f9c9611d-6a23-4d2e-8dce-14da56bd8acc/user_impersonation',
+		scope: 'api://f9c9611d-6a23-4d2e-8dce-14da56bd8acc/user_impersonation profile',
 		showDebugInformation: true,
 		skipIssuerCheck: false,
 		strictDiscoveryDocumentValidation: false
