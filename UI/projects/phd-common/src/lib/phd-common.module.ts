@@ -38,7 +38,7 @@ export function oAuthModuleConfigFactory(apiUrl: string) {
         resourceServer:
         {
             allowedUrls: [apiUrl], //URL of your API
-            sendAccessToken: false
+            sendAccessToken: true
         }
     };
 }
@@ -102,7 +102,6 @@ export class PhdCommonModule {
                     useClass: SpinnerInterceptor,
                     multi: true
                 },
-				{ provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
 				{ provide: WINDOW_ORIGIN, useFactory: getOrigin },
                 { provide: AUTH_CONFIG, useValue: authConfig },
 				{ provide: API_URL, useValue: apiUrl },

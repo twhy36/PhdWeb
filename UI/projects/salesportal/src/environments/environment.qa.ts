@@ -23,14 +23,14 @@ export const environment: IEnvironment = {
     },
 	production: false,
 	authConfig: {
-		issuer: "https://login.microsoftonline.com/pulte.onmicrosoft.com",
+		issuer: "https://login.microsoftonline.com/1a9277a3-ef66-41f6-96b5-c5390ee468a7/v2.0",
 		clientId: "90bf975f-6a55-42cb-9016-1103586c8f50",
 		responseType: 'code',
 		clearHashAfterLogin: true,
 		requestAccessToken: true,
-		scope: 'user.read openid',
+		scope: 'api://90bf975f-6a55-42cb-9016-1103586c8f50/user_impersonation',
 		showDebugInformation: true,
-		skipIssuerCheck: true,
+		skipIssuerCheck: false,
 		strictDiscoveryDocumentValidation: false
 	},
     whatFix: {

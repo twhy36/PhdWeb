@@ -26,7 +26,7 @@ export class IdentityService {
 	public get token(): Observable<string> {
 		return this.loggedInSubject$.pipe(
 			take(1),
-			map(() => this.osvc.getIdToken())
+			map(() => this.osvc.getAccessToken())
 		);
 	}
 
