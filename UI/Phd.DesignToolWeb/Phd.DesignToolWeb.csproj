@@ -71,6 +71,7 @@
     <None Remove="ClientApp\src\app\modules\edit-home\edit-home.module.ts" />
     <None Remove="ClientApp\src\app\modules\edit-home\pipes\floor-options.pipe.ts" />
     <None Remove="ClientApp\src\app\modules\new-home\new-home.module.ts" />
+    <None Remove="ClientApp\src\app\modules\new-home\services\new-home.service.ts" />
     <None Remove="ClientApp\src\app\modules\new-home\subNavItems.ts" />
     <None Remove="ClientApp\src\app\modules\ngrx-store\actions.ts" />
     <None Remove="ClientApp\src\app\modules\ngrx-store\change-order\actions.ts" />
@@ -190,6 +191,7 @@
     <TypeScriptCompile Include="ClientApp\src\app\modules\edit-home\edit-home.module.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\modules\edit-home\pipes\floor-options.pipe.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\modules\new-home\new-home.module.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\modules\new-home\services\new-home.service.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\modules\new-home\subNavItems.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\modules\ngrx-store\actions.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\modules\ngrx-store\change-order\actions.ts" />

@@ -1,8 +1,9 @@
 import { Component, OnInit } from "@angular/core";
 
-import { Store, select } from "@ngrx/store";
+import { Store, select, ActionsSubject } from "@ngrx/store";
+import { ofType } from '@ngrx/effects';
 import { Observable, ReplaySubject } from "rxjs";
-import { combineLatest } from 'rxjs/operators';
+import { combineLatest, take } from 'rxjs/operators';
 
 import * as _ from 'lodash';
 
@@ -11,6 +12,16 @@ import { UnsubscribeOnDestroy } from "phd-common/utils/unsubscribe-on-destroy";
 import * as fromRoot from '../../../ngrx-store/reducers';
 import { Plan } from "../../../shared/models/plan.model";
 import { Job } from "../../../shared/models/job.model";
+import * as CommonActions from '../../../ngrx-store/actions';
+import * as PlanActions from '../../../ngrx-store/plan/actions';
+import * as LotActions from '../../../ngrx-store/lot/actions';
+import * as JobActions from '../../../ngrx-store/job/actions';
+import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
+import { ChangeOrderService } from './../../../core/services/change-order.service';
+import { CommonActionTypes } from '../../../ngrx-store/actions';
+import { Router } from "@angular/router";
+import { NewHomeService } from "../../services/new-home.service";
+import { Scenario } from "../../../shared/models/scenario.model";
 
 @Component({
 	selector: 'quick-move-in',
@@ -25,8 +36,15 @@ export class QuickMoveInComponent extends UnsubscribeOnDestroy implements OnInit
 	filteredSpecJobs: Job[];
 	canConfigure$: Observable<boolean>;
 	selectedJob$: Observable<Job>;
+	scenario: Scenario;
+	buildMode: string;
 
-	constructor(private store: Store<fromRoot.State>)
+	constructor(
+		private store: Store<fromRoot.State>,
+		private router: Router,
+		private actions: ActionsSubject,
+		private changeOrderService: ChangeOrderService,
+		private newHomeService: NewHomeService)
 	{
 		super();
 
@@ -79,5 +97,49 @@ export class QuickMoveInComponent extends UnsubscribeOnDestroy implements OnInit
 		this.canConfigure$ = this.store.pipe(select(fromRoot.canConfigure));
 
 		this.selectedJob$ = this.store.pipe(select(fromJobs.jobState));
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(state => state.scenario)
+		).subscribe(scenario =>
+		{
+			this.scenario = scenario.scenario;
+			this.buildMode = scenario.buildMode;
+		});
+	}
+
+	toggleSpecHome(event: { job: Job, selectedJobId: number })
+	{
+		let job = event.job;
+
+		// quick move-in
+		if (event.selectedJobId === job.id)
+		{
+			// remove the spec
+			this.store.dispatch(new JobActions.DeselectSpec());
+
+			// remove the plan
+			this.store.dispatch(new PlanActions.DeselectPlan());
+			this.store.dispatch(new ScenarioActions.SetScenarioPlan(null, null));
+
+			// remove the lot
+			this.store.dispatch(new LotActions.DeselectLot());
+			this.store.dispatch(new ScenarioActions.SetScenarioLot(null, null, 0));
+
+			this.newHomeService.setSubNavItemsStatus(this.scenario, this.buildMode, null)
+		}
+		else
+		{
+			this.changeOrderService.getTreeVersionIdByJobPlan(job.planId).subscribe(() =>
+			{
+				this.store.dispatch(new CommonActions.LoadSpec(job));
+
+				this.actions.pipe(
+					ofType<CommonActions.JobLoaded>(CommonActionTypes.JobLoaded), take(1)).subscribe(() =>
+					{
+						this.router.navigate(['/scenario-summary']);
+					});
+			});
+		}
 	}
 }

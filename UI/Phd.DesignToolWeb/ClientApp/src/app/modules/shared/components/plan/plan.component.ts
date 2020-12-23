@@ -27,6 +27,7 @@ import * as JobActions from '../../../ngrx-store/job/actions';
 import * as LotActions from '../../../ngrx-store/lot/actions';
 import { selectSelectedLot } from '../../../ngrx-store/lot/reducer';
 import { Job } from '../../models/job.model';
+import { NewHomeService } from '../../../new-home/services/new-home.service';
 
 type planSortByType = "Price - Low to High" | "Price - High to Low";
 
@@ -64,10 +65,12 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 	constructor(public planService: PlanService,
 		private router: Router,
 		private store: Store<fromRoot.State>,
-		private route: ActivatedRoute
+		private route: ActivatedRoute,
+		private newHomeService: NewHomeService
 	)
 	{
 		super();
+
 		this.selectedSortBy$.next("Price - Low to High");
 		this.selectedFilterBy$.next(null);
 	}
@@ -221,12 +224,10 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 		{
 			// remove the spec
 			this.store.dispatch(new JobActions.DeselectSpec());
-			this.store.dispatch(new NavActions.SetSubNavItemStatus(4, PointStatus.REQUIRED));
 
 			// remove the lot
 			this.store.dispatch(new LotActions.DeselectLot());
 			this.store.dispatch(new ScenarioActions.SetScenarioLot(null, null, 0));
-			this.store.dispatch(new NavActions.SetSubNavItemStatus(3, PointStatus.REQUIRED));
 		}
 
 		if (!event.isSelected)
@@ -236,8 +237,6 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 
 			if (!this.inChangeOrder)
 			{
-				this.store.dispatch(new NavActions.SetSubNavItemStatus(2, PointStatus.COMPLETED));
-
 				this.selectedLot$.subscribe(lot =>
 				{
 					if (!lot)
@@ -256,8 +255,9 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 		{
 			this.store.dispatch(new PlanActions.DeselectPlan());
 			this.store.dispatch(new ScenarioActions.SetScenarioPlan(null, null));
-			this.store.dispatch(new NavActions.SetSubNavItemStatus(2, PointStatus.REQUIRED));
 		}
+
+		this.newHomeService.setSubNavItemsStatus(this.scenario, this.buildMode, this.job);
 	}
 
 	onCallToAction($event: { actionBarCallType: ActionBarCallType })

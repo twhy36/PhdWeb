@@ -21,13 +21,14 @@ import * as JobActions from '../../../ngrx-store/job/actions';
 import * as fromJobs from '../../../ngrx-store/job/reducer';
 
 import { ActionBarCallType } from '../../../shared/classes/constants.class';
-import { PointStatus } from '../../../shared/models/point.model';
 import { Choice } from '../../../shared/models/tree.model.new';
 import { FinancialCommunity } from '../../../shared/models/community.model';
 import { ModalOverrideSaveComponent } from '../../../core/components/modal-override-save/modal-override-save.component';
 import { Job } from '../../../shared/models/job.model';
 import { selectSelectedLot } from '../../../ngrx-store/lot/reducer';
 import { ModalService } from '../../../core/services/modal.service';
+import { NewHomeService } from '../../services/new-home.service';
+import { Scenario } from '../../../shared/models/scenario.model';
 
 @Component({
 	selector: 'lot',
@@ -63,11 +64,13 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 	selectedPlanPrice$: Observable<number>;
 	buildMode: 'buyer' | 'spec' | 'model' | 'preview' = 'buyer';
 	job: Job;
+	scenario: Scenario;
 
 	constructor(private router: Router,
 		private store: Store<fromRoot.State>,
 		private route: ActivatedRoute,
-		private modalService: ModalService
+		private modalService: ModalService,
+		private newHomeService: NewHomeService
 	)
 	{
 		super();
@@ -251,6 +254,11 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 			this.takeUntilDestroyed(),
 			select(fromJobs.jobState)
 		).subscribe(job => this.job = job);
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(state => state.scenario)
+		).subscribe(scenario => this.scenario = scenario.scenario);
 	}
 
 	isAssociatedWithSelectedPlan(lot: Lot): boolean
@@ -392,7 +400,6 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 			{
 				// remove the spec
 				this.store.dispatch(new JobActions.DeselectSpec());
-				this.store.dispatch(new NavActions.SetSubNavItemStatus(4, PointStatus.REQUIRED));
 			}
 
 			const handing = new ChangeOrderHanding();
@@ -419,7 +426,6 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 
 			this.store.dispatch(new LotActions.SelectLot(lot.id));
 			this.store.dispatch(new ScenarioActions.SetScenarioLot(lot.id, handing, lot.premium));
-			this.store.dispatch(new NavActions.SetSubNavItemStatus(3, PointStatus.COMPLETED));
 
 			if (!this.selectedPlanId)
 			{
@@ -432,10 +438,11 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 
 			this.store.dispatch(new LotActions.DeselectLot());
 			this.store.dispatch(new ScenarioActions.SetScenarioLot(null, null, 0));
-			this.store.dispatch(new NavActions.SetSubNavItemStatus(3, PointStatus.REQUIRED));
 
 			this.getLotsMontonyConflictMessage();
 		}
+
+		this.newHomeService.setSubNavItemsStatus(this.scenario, this.buildMode, this.job);
 	}
 
 	changeHanding(lotId: number, handing: string, monotonyconflict: boolean)

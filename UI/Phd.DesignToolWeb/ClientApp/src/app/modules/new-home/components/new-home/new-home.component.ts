@@ -14,7 +14,6 @@ import
 import { Store, select } from '@ngrx/store';
 
 import { ChangeTypeEnum } from '../../../shared/models/job-change-order.model';
-import { PointStatus } from '../../../shared/models/point.model';
 import { UnsubscribeOnDestroy } from '../../../shared/classes/unsubscribe-on-destroy';
 
 import { LoadSpecs } from '../../../ngrx-store/job/actions';
@@ -34,11 +33,14 @@ import * as fromOpportunity from '../../../ngrx-store/opportunity/reducer';
 import { FinancialCommunity } from '../../../shared/models/community.model';
 import { ReplaySubject } from 'rxjs/ReplaySubject';
 import { SubNavItems, SpecSubNavItems } from '../../subNavItems';
+import { Job } from '../../../shared/models/job.model';
+import { NewHomeService } from '../../services/new-home.service';
 
 @Component({
 	selector: 'new-home',
 	templateUrl: './new-home.component.html',
-	styleUrls: ['./new-home.component.scss']
+	styleUrls: ['./new-home.component.scss'],
+	providers: [NewHomeService]
 })
 export class NewHomeComponent extends UnsubscribeOnDestroy implements OnInit
 {
@@ -57,12 +59,15 @@ export class NewHomeComponent extends UnsubscribeOnDestroy implements OnInit
 	buildMode: 'buyer' | 'spec' | 'model' | 'preview' = 'buyer';
 	selectedLot: number;
 	selectedPlan: number;
+	scenarioName: string = '';
+	job: Job;
 	isChangingOrder$: Observable<boolean>;
 
 	constructor(
 		private store: Store<fromRoot.State>,
 		private router: Router,
-		private activatedRoute: ActivatedRoute
+		private activatedRoute: ActivatedRoute,
+		private newHomeService: NewHomeService
 	)
 	{
 		super();
@@ -189,47 +194,38 @@ export class NewHomeComponent extends UnsubscribeOnDestroy implements OnInit
 				),
 				take(1)
 			)
-			.subscribe(([scenarioState, job]) =>
+			.subscribe(([scenario, job]) =>
 			{
+				this.job = job;
+
+				// set default nav items
 				this.store.dispatch(new NavActions.SetSubNavItems(SubNavItems));
 
-				if (scenarioState.scenario)
+				if (scenario.scenario)
 				{
-					// check if scenario name has already been entered
-					if (this.buildMode === 'buyer' && scenarioState.scenario.scenarioName.length)
-					{
-						this.store.dispatch(new NavActions.SetSubNavItemStatus(1, PointStatus.COMPLETED));
-						this.store.dispatch(new NavActions.SetSubNavItemStatus(2, PointStatus.REQUIRED));
-						this.store.dispatch(new NavActions.SetSubNavItemStatus(3, PointStatus.REQUIRED));
-						this.store.dispatch(new NavActions.SetSubNavItemStatus(4, PointStatus.REQUIRED));
-					}
+					this.scenarioName = scenario.scenario.scenarioName;
+					this.selectedPlan = scenario.scenario.planId;
+					this.selectedLot = scenario.scenario.lotId;
 
 					// check if plan has already been selected
-					if (scenarioState.scenario.planId)
+					if (this.selectedPlan)
 					{
-						this.store.dispatch(new PlanActions.SelectPlan(scenarioState.scenario.planId, scenarioState.scenario.treeVersionId));
-
-						this.store.dispatch(new NavActions.SetSubNavItemStatus(2, PointStatus.COMPLETED));
+						this.store.dispatch(new PlanActions.SelectPlan(scenario.scenario.planId, scenario.scenario.treeVersionId));
 					}
 
 					// check if lot has already been selected
-					if (scenarioState.scenario.lotId)
+					if (this.selectedLot)
 					{
-						this.store.dispatch(new LotActions.SelectLot(scenarioState.scenario.lotId));
+						this.store.dispatch(new LotActions.SelectLot(scenario.scenario.lotId));
 
 						// check if lot handing has already been selected
-						if (scenarioState.scenario.handing)
+						if (scenario.scenario.handing)
 						{
-							this.store.dispatch(new LotActions.SelectHanding(scenarioState.scenario.lotId, scenarioState.scenario.handing.handing));
+							this.store.dispatch(new LotActions.SelectHanding(scenario.scenario.lotId, scenario.scenario.handing.handing));
 						}
-
-						this.store.dispatch(new NavActions.SetSubNavItemStatus(3, PointStatus.COMPLETED));
 					}
 
-					if (job && job.id !== 0)
-					{
-						this.store.dispatch(new NavActions.SetSubNavItemStatus(4, PointStatus.COMPLETED));
-					}
+					this.newHomeService.setSubNavItemsStatus(scenario.scenario, scenario.buildMode, this.job);
 				}
 			});
 
@@ -254,6 +250,8 @@ export class NewHomeComponent extends UnsubscribeOnDestroy implements OnInit
 						this.store.dispatch(new LotActions.LoadLots(this.communityId, (this.buildMode === 'model')));
 						this.store.dispatch(new OrgActions.LoadSalesCommunity(this.communityId));
 						this.store.dispatch(new PlanActions.LoadPlans(this.communityId));
+
+						// select lots tab
 						this.store.dispatch(new NavActions.SetSelectedSubNavItem(3));
 					}
 					else
@@ -261,23 +259,7 @@ export class NewHomeComponent extends UnsubscribeOnDestroy implements OnInit
 						this.selectedLot = scenario.scenario.lotId;
 						this.selectedPlan = scenario.scenario.planId;
 
-						if (this.selectedLot)
-						{
-							this.store.dispatch(new NavActions.SetSubNavItemStatus(3, PointStatus.COMPLETED));
-						}
-						else
-						{
-							this.store.dispatch(new NavActions.SetSubNavItemStatus(3, PointStatus.REQUIRED));
-						}
-
-						if (this.selectedPlan)
-						{
-							this.store.dispatch(new NavActions.SetSubNavItemStatus(2, PointStatus.COMPLETED));
-						}
-						else
-						{
-							this.store.dispatch(new NavActions.SetSubNavItemStatus(2, PointStatus.REQUIRED));
-						}
+						this.newHomeService.setSubNavItemsStatus(scenario.scenario, scenario.buildMode, this.job);
 					}
 				}
 			});
@@ -304,6 +286,8 @@ export class NewHomeComponent extends UnsubscribeOnDestroy implements OnInit
 	{
 		this.store.dispatch(new ScenarioActions.SetBuildMode('model'));
 		this.store.dispatch(new NavActions.SetSubNavItems(SpecSubNavItems));
+
+		// select lots tab
 		this.store.dispatch(new NavActions.SetSelectedSubNavItem(3));
 	}
 
@@ -311,6 +295,8 @@ export class NewHomeComponent extends UnsubscribeOnDestroy implements OnInit
 	{
 		this.store.dispatch(new ScenarioActions.SetBuildMode('spec'));
 		this.store.dispatch(new NavActions.SetSubNavItems(SpecSubNavItems));
+
+		// select lots tab
 		this.store.dispatch(new NavActions.SetSelectedSubNavItem(3));
 	}
 
@@ -323,6 +309,7 @@ export class NewHomeComponent extends UnsubscribeOnDestroy implements OnInit
 	{
 		this.setNavActions(2);
 		this.active = 'plan';
+
 		this.router.navigate(['plan'], { relativeTo: this.activatedRoute });
 	}
 
@@ -330,6 +317,7 @@ export class NewHomeComponent extends UnsubscribeOnDestroy implements OnInit
 	{
 		this.setNavActions(3);
 		this.active = 'lot';
+
 		this.router.navigate(['lot'], { relativeTo: this.activatedRoute });
 	}
 
@@ -337,12 +325,16 @@ export class NewHomeComponent extends UnsubscribeOnDestroy implements OnInit
 	{
 		this.setNavActions(4);
 		this.active = 'quick';
+
 		this.router.navigate(['quick-move-in'], { relativeTo: this.activatedRoute });
 	}
 
 	setCommunityFilter(filterBy: FinancialCommunity)
 	{
 		this.selectedFilterBy$.next(filterBy);
+
 		this.store.dispatch(new ScenarioActions.SetFinancialCommunityFilter(filterBy ? filterBy.id : 0));
 	}
+
+	
 }

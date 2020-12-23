@@ -10,5 +10,6 @@
                         [canConfigure]="canConfigure$ | async"
                         [specJob]="job"
                         [selectedJob]="selectedJob$ | async"
+                        (onToggleSpecHome)="toggleSpecHome($event)"
                         class="phd-quick-move-in-card"></quick-move-in-card>
 </div>
