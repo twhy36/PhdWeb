@@ -52,7 +52,7 @@ export class SearchResult
 			this.plans = [item];
 		}
 		else {
-			this.plans = dto.planAssociations && dto.planAssociations.map(p => {
+			this.plans = dto.planAssociations && dto.planAssociations.filter(p => p.isActive).map(p => {
 				const item: SearchResultItem = new SearchResultItem();
 				item.name = p.planCommunity && p.planCommunity.planSalesName || null;
 				item.id = p.planCommunity && p.planCommunity.id || null;
