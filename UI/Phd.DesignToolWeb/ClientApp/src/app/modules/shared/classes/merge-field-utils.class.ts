@@ -58,14 +58,16 @@ export function getCurrentHouseSelections(groups: Array<Group>)
 	return selectionSummary;
 }
 
-let formatPhoneNumber = (str) => {
+let formatPhoneNumber = (str) =>
+{
 	//Filter numbers
 	let numbers = ('' + str).replace(/\D/g, '');
 
 	//Check if input matches the length
 	let match = numbers.match(/^(\d{3})(\d{3})(\d{4})$/);
 
-	if (match) {
+	if (match)
+	{
 		return '(' + match[1] + ') ' + match[2] + '-' + match[3]
 	};
 	return null;
@@ -73,23 +75,30 @@ let formatPhoneNumber = (str) => {
 
 export function getChangeOrderGroupSelections(groups: Array<Group>, jobChangeOrderChoices: Array<ChangeOrderChoice>)
 {
-	return _.flatMap(groups, g => {
-		return _.flatMap(g.subGroups, sg => {
-			return sg.points.map(dp => {
+	return _.flatMap(groups, g =>
+	{
+		return _.flatMap(g.subGroups, sg =>
+		{
+			return sg.points.map(dp =>
+			{
 				let point = new SDPoint(dp);
 				point.groupName = g.label;
 				point.subGroupName = sg.label;
 
-				point.choices = dp.choices.map<SDChoice>(ch => {
+				point.choices = dp.choices.map<SDChoice>(ch =>
+				{
 					let c = jobChangeOrderChoices.find(c => c.divChoiceCatalogId === ch.divChoiceCatalogId);
-					if (!!c) {
+					if (!!c)
+					{
 						let choice = new SDChoice(ch);
 						choice.quantity = c.quantity;
-						if (dp.dPointTypeId === 1) {
+						if (dp.dPointTypeId === 1)
+						{
 							choice.isElevationChoice = true;
 						}
 						return choice;
-					} else {
+					} else
+					{
 						return null;
 					}
 				}).filter(ch => !!ch);
@@ -177,6 +186,7 @@ export function mapSystemMergeFields(sag: SalesAgreement, job: Job, elevationDp:
 
 	sagCancelReason = sag.cancellations ? sag.cancellations.cancelReasonDesc : null;
 	sagCancelDetail = sag.cancellations && sag.cancellations.note ? sag.cancellations.note.noteContent : null;
+
 	const salesProgram = sag.programs && sag.programs.find(p => p.salesProgram.salesProgramType === "DiscountFlatAmount");
 	const buyerClosingCost = sag.programs && sag.programs.find(p => p.salesProgram.salesProgramType === "BuyersClosingCost");
 	const elevationChoice = elevationDp && elevationDp.choices.find(c => c.quantity > 0);
@@ -188,6 +198,8 @@ export function mapSystemMergeFields(sag: SalesAgreement, job: Job, elevationDp:
 	const realtorWorkPhone = realtor && realtor.contact.phoneAssocs.find(a => a.phone.phoneType === PhoneType.Business);
 	const realtorMobilePhone = realtor && realtor.contact.phoneAssocs.find(a => a.phone.phoneType === PhoneType.Mobile);
 	const realtorEmail = realtor && realtor.contact.emailAssocs.find(a => a.isPrimary);
+
+	const brokerAddress = realtor && realtor.contact.addressAssocs.find(a => !a.isPrimary);
 
 	const currentDate = new Date();
 	const communityCityStateZip = `${!isNullOrEmpty(financialCommunity.city) ? financialCommunity.city + ", " : ""}${!isNullOrEmpty(financialCommunity.state) ? financialCommunity.state + " " : ""}${isNull(financialCommunity.zip, "")}`;
@@ -212,7 +224,7 @@ export function mapSystemMergeFields(sag: SalesAgreement, job: Job, elevationDp:
 	map.set("Customer Full Address", customerAddress ? `${isNull(primaryBuyer.firstName, "") + isNull(primaryBuyer.lastName, "")}<<break>>${map.get("Customer Address")}<<break>>${isNull(customerAddress.address.city, "")}, ${isNull(customerAddress.address.stateProvince, "")} ${isNull(customerAddress.address.postalCode, "")}` : "");
 	map.set("Sales Associate", sag.consultants && sag.consultants.length ? sag.consultants[0].contact.firstName + " " + sag.consultants[0].contact.lastName : "");
 	map.set("Spec Created By", jioCreatedBy);
-	map.set("Build Type", buildType); 
+	map.set("Build Type", buildType);
 	map.set("Sales Description", jioDescription);
 	map.set("Community Number", financialCommunity.number);
 	map.set("Community Name", financialCommunity.name);
@@ -286,29 +298,33 @@ export function mapSystemMergeFields(sag: SalesAgreement, job: Job, elevationDp:
 	map.set("Deposit Description", sagDeposits.length ? sagDeposits.filter(d => !!d.paidDate).map(d => d.description).join(", ") : "");
 	map.set("Elevation", !!elevationChoice ? elevationChoice.label : "");
 	map.set("Handing", isNull(job.handing, ""));
-	map.set("Co-Broker First Name", !!realtor ? realtor.contact.firstName : "");
+
 	map.set("Agent First Name", !!realtor ? realtor.contact.firstName : "");
-	map.set("Co-Broker Last Name", !!realtor ? realtor.contact.lastName : "");
 	map.set("Agent Last Name", !!realtor ? realtor.contact.lastName : "");
+	map.set("Agent Primary Phone", !!realtorPrimaryPhone ? isNull(realtorPrimaryPhone.phone.phoneNumber, "") : "");
+	map.set("Agent Secondary Phone", !!realtorSecondaryPhone ? isNull(realtorSecondaryPhone.phone.phoneNumber, "") : "");
+	map.set("Agent Primary Email", !!realtorEmail ? isNull(realtorEmail.email.emailAddress, "") : "");
+
+	map.set("Broker Company", !!realtor ? isNull(realtor.brokerName, "") : "");
+	map.set("Broker Address", !!brokerAddress ? `${isNull(brokerAddress.address.address1, "") + " " + isNull(brokerAddress.address.address2, "")}<<break>>${isNull(brokerAddress.address.city, "")}, ${isNull(brokerAddress.address.stateProvince, "")} ${isNull(brokerAddress.address.postalCode, "")}` : "");
+	map.set("Broker City", !!brokerAddress ? isNull(brokerAddress.address.city, "") : "");
+	map.set("Broker State", !!brokerAddress ? isNull(brokerAddress.address.stateProvince, "") : "");
+	map.set("Broker Zip", !!brokerAddress ? isNull(brokerAddress.address.postalCode, "") : "");
+
+	map.set("Co-Broker First Name", !!realtor ? realtor.contact.firstName : "");
+	map.set("Co-Broker Last Name", !!realtor ? realtor.contact.lastName : "");
 	map.set("Co-Broker Address", !!realtorAddress ? isNull(realtorAddress.address.address1, "") + " " + isNull(realtorAddress.address.address2, "") : "");
 	map.set("Co-Broker City", !!realtorAddress ? isNull(realtorAddress.address.city, "") : "");
-	map.set("Broker City", !!realtorAddress ? isNull(realtorAddress.address.city, "") : "");
 	map.set("Co-Broker State", !!realtorAddress ? isNull(realtorAddress.address.stateProvince, "") : "");
-	map.set("Broker State", !!realtorAddress ? isNull(realtorAddress.address.stateProvince, "") : "");
 	map.set("Co-Broker Zip", !!realtorAddress ? isNull(realtorAddress.address.postalCode, "") : "");
-	map.set("Broker Zip", !!realtorAddress ? isNull(realtorAddress.address.postalCode, "") : "");
 	map.set("Co-Broker Home Phone", !!realtorHomePhone ? isNull(realtorHomePhone.phone.phoneNumber, "") : "");
-	map.set("Agent Primary Phone", !!realtorPrimaryPhone ? isNull(realtorPrimaryPhone.phone.phoneNumber, "") : "");
 	map.set("Co-Broker Work Phone", !!realtorWorkPhone ? isNull(realtorWorkPhone.phone.phoneNumber, "") : "");
-	map.set("Agent Secondary Phone", !!realtorSecondaryPhone ? isNull(realtorSecondaryPhone.phone.phoneNumber, "") : "");
 	map.set("Co-Broker Mobile Phone", !!realtorMobilePhone ? isNull(realtorMobilePhone.phone.phoneNumber, "") : "");
 	map.set("Co-Broker Email", !!realtorEmail ? isNull(realtorEmail.email.emailAddress, "") : "");
-	map.set("Agent Primary Email", !!realtorEmail ? isNull(realtorEmail.email.emailAddress, "") : "");
 	map.set("Co-Broker Company", !!realtor ? isNull(realtor.brokerName, "") : "");
-	map.set("Broker Company", !!realtor ? isNull(realtor.brokerName, "") : "");
 	map.set("Co-Broker Company City State Zip", !!realtorAddress ? `${isNull(realtorAddress.address.city, "")}, ${isNull(realtorAddress.address.stateProvince, "")} ${isNull(realtorAddress.address.postalCode, "")}` : "");
 	map.set("Co-Broker Company Full Address", !!realtorAddress ? `${isNull(realtor.brokerName, "")}<<break>>${map.get("Co-Broker Address")}<<break>>${isNull(realtorAddress.address.city, "")}, ${isNull(realtorAddress.address.stateProvince, "")} ${isNull(realtorAddress.address.postalCode, "")}` : "");
-	map.set("Broker Address", !!realtorAddress ? `${map.get("Co-Broker Address")}<<break>>${isNull(realtorAddress.address.city, "")}, ${isNull(realtorAddress.address.stateProvince, "")} ${isNull(realtorAddress.address.postalCode, "")}` : "");
+
 	map.set("Current Date", currentDate.toLocaleDateString('en-US', { month: "2-digit", day: "2-digit", year: "numeric" }));
 	map.set("Current Day", currentDate.toLocaleDateString('en-US', { day: "2-digit" }));
 	map.set("Current Month Number", currentDate.toLocaleDateString('en-US', { month: "2-digit" }));
@@ -492,7 +508,8 @@ export function mapSystemMergeFields(sag: SalesAgreement, job: Job, elevationDp:
 
 	// get contingency expiration date
 	let contingencyExpirationDate: Date = null;
-	if (sag.contingencies && sag.contingencies.length) {
+	if (sag.contingencies && sag.contingencies.length)
+	{
 		const expiresFirst = sag.contingencies.sort((a, b) => a.expirationDate < b.expirationDate ? -1 : (a.expirationDate > b.expirationDate ? 1 : 0))[0];
 		contingencyExpirationDate = new Date(expiresFirst.expirationDate);
 	}
