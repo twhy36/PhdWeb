@@ -8,6 +8,7 @@ import { Settings } from '../../shared/models/settings.model';
 import { SettingsService } from "./settings.service";
 import { ChangeOrderTypeAutoApproval } from '../../shared/models/changeOrderTypeAutoApproval.model';
 import { withSpinner } from 'phd-common/extensions/withSpinner.extension';
+import { FinancialCommunity } from '../../shared/models/financialCommunity.model';
 
 const settings: Settings = new SettingsService().getSettings();
 
@@ -65,5 +66,19 @@ export class CommunityService
 				return odataUtils.parseBatchResults<ChangeOrderTypeAutoApproval>(results);
 			})
 		);
+	}
+
+	patchFinancialCommunity(financialCommunityId: number, updatedFields: {}): Observable<FinancialCommunity>
+	{
+		let dto = {
+			id: financialCommunityId,
+			...updatedFields
+		};
+
+		let url = settings.apiUrl;
+
+		url += `financialCommunities(${financialCommunityId})`;
+
+		return this._http.patch<FinancialCommunity>(url, dto);
 	}
 }

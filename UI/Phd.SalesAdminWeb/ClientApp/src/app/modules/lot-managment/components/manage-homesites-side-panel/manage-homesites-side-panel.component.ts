@@ -228,13 +228,13 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 
 		this.monotonyRules.forEach(rule =>
 		{
-			if (rule.monotonyRuleTypeId === 1)
+			if (rule.monotonyRuleType === 'Elevation')
 			{
-				this.elevationSelectedLots.push(String(this.lots.find(x => x.dto.id === rule.relatedEdhLotId).lotBlock));
+				this.elevationSelectedLots.push(String(this.lots.find(x => x.dto.id === rule.relatedLotId).lotBlock));
 			}
 			else
 			{
-				this.colorSelectedLots.push(String(this.lots.find(x => x.dto.id === rule.relatedEdhLotId).lotBlock));
+				this.colorSelectedLots.push(String(this.lots.find(x => x.dto.id === rule.relatedLotId).lotBlock));
 			}
 		})
 
@@ -383,20 +383,18 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 		this.elevationSelectedLots.forEach(lot =>
 		{
 			monotonyRulesToSave.push({
-				monotonyRuleId: 0,
-				monotonyRuleTypeId: 1,
-				edhLotId: lotId,
-				relatedEdhLotId: this.lots.find(x => x.lotBlock === lot).dto.id
+				monotonyRuleType: 'Elevation',
+				lotId: lotId,
+				relatedLotId: this.lots.find(x => x.lotBlock === lot).dto.id
 			})
 		});
 
 		this.colorSelectedLots.forEach(lot =>
 		{
 			monotonyRulesToSave.push({
-				monotonyRuleId: 0,
-				monotonyRuleTypeId: 2,
-				edhLotId: lotId,
-				relatedEdhLotId: this.lots.find(x => x.lotBlock === lot).dto.id
+				monotonyRuleType: 'ColorScheme',
+				lotId: lotId,
+				relatedLotId: this.lots.find(x => x.lotBlock === lot).dto.id
 			})
 		});
 

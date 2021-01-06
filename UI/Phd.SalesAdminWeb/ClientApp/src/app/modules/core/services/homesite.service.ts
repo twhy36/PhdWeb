@@ -224,7 +224,7 @@ export class HomeSiteService
 	{
 		let url = settings.apiUrl;
 
-		const filter = `edhLotId eq ${lotId}`;
+		const filter = `lotId eq ${lotId}`;
 
 		const qryStr = `${encodeURIComponent("$")}filter=${encodeURIComponent(filter)}`;
 
@@ -237,9 +237,9 @@ export class HomeSiteService
 				{
 					return {
 						monotonyRuleId: data.monotonyRuleId,
-						monotonyRuleTypeId: data.monotonyRuleTypeId,
-						edhLotId: data.edhLotId,
-						relatedEdhLotId: data.relatedEdhLotId
+						monotonyRuleType: data.monotonyRuleType,
+						lotId: data.lotId,
+						relatedLotId: data.relatedLotId
 					} as MonotonyRule
 				});
 
