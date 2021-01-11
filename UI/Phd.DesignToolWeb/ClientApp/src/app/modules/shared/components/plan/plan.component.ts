@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store, select } from '@ngrx/store';
 import { Observable, ReplaySubject } from 'rxjs';
@@ -27,7 +27,6 @@ import * as JobActions from '../../../ngrx-store/job/actions';
 import * as LotActions from '../../../ngrx-store/lot/actions';
 import { selectSelectedLot } from '../../../ngrx-store/lot/reducer';
 import { Job } from '../../models/job.model';
-import { NewHomeService } from '../../../new-home/services/new-home.service';
 
 type planSortByType = "Price - Low to High" | "Price - High to Low";
 
@@ -42,6 +41,7 @@ type planSortByType = "Price - Low to High" | "Price - High to Low";
 export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	@Input() canConfigure: boolean;
+	@Output() onPlanToggled = new EventEmitter<void>();
 
 	selectedSortBy$ = new ReplaySubject<planSortByType>(1);
 	selectedFilterBy$ = new ReplaySubject<number>(1);
@@ -65,8 +65,7 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 	constructor(public planService: PlanService,
 		private router: Router,
 		private store: Store<fromRoot.State>,
-		private route: ActivatedRoute,
-		private newHomeService: NewHomeService
+		private route: ActivatedRoute
 	)
 	{
 		super();
@@ -257,7 +256,7 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 			this.store.dispatch(new ScenarioActions.SetScenarioPlan(null, null));
 		}
 
-		this.newHomeService.setSubNavItemsStatus(this.scenario, this.buildMode, this.job);
+		this.onPlanToggled.emit();
 	}
 
 	onCallToAction($event: { actionBarCallType: ActionBarCallType })
