@@ -108,7 +108,7 @@ export class SearchService
 		expandData.financialCommunity = `financialCommunity($select=${selectData.financialCommunity};$expand=${expandData.salesCommunity})`;
 		expandData.salesAgreement = `salesAgreement($select=${selectData.salesAgreement};$expand=jobSalesAgreementAssocs($select=jobId,isActive,salesAgreementId;$orderby=createdUtcDate desc;$top=1))`;
 		expandData.jobSalesAgreementAssocs = `jobSalesAgreementAssocs($select=${selectData.jobSalesAgreementAssocs};$expand=${expandData.salesAgreement})`;
-		expandData.jobChangeOrderGroup = `jobChangeOrderGroups($select=${selectData.jobChangeOrderGroup};$expand=jobChangeOrderGroupSalesAgreementAssocs($select=jobChangeOrderGroupId,salesAgreementId,changeOrderGroupSequence))`;
+		expandData.jobChangeOrderGroup = `jobChangeOrderGroups($select=${selectData.jobChangeOrderGroup};$orderby=createdUtcDate desc;$expand=jobChangeOrderGroupSalesAgreementAssocs($select=jobChangeOrderGroupId,salesAgreementId,changeOrderGroupSequence), jobChangeOrders($select=id,jobChangeOrderGroupId,jobChangeOrderTypeDescription;$expand=jobSalesChangeOrderBuyers($select=id,jobChangeOrderId,buyerName, firstName, lastName, isPrimaryBuyer, sortKey)))`;
 		expandData.jobs = `jobs($select=${selectData.jobs};$expand=${expandData.jobSalesAgreementAssocs},${expandData.jobChangeOrderGroup},planCommunity($select=id,planSalesName);)`;
 
 		// top level expands
@@ -131,18 +131,26 @@ export class SearchService
 			{
 				return _.flatMap(batchResponse.responses, response => response.body.value).map(value => new SearchResult(value));
 			}),
-			mergeMap(result => {
+			mergeMap(result =>
+			{
 				const needBuyers = result.filter(item => item.salesAgreements.some(sa => sa.jobSalesAgreementAssocs.some(jsaa => jsaa.isActive)));
-				if (needBuyers.length > 0) {
+				if (needBuyers.length > 0)
+				{
 					const salesAgreementIds = needBuyers.map(sr => sr.salesAgreements.find(sa => sa.jobSalesAgreementAssocs.some(jsaa => jsaa.isActive)).id);
 					const expandBuyers = `buyers($expand=opportunityContactAssoc($expand=contact($select=firstName,lastName)))`;
 					const saFilter = `id in (${salesAgreementIds})`;
 					const saUrl = `${environment.apiUrl}salesAgreements?${encodeURIComponent('$')}filter=${encodeURIComponent(saFilter)}&${encodeURIComponent('$')}expand=${encodeURIComponent(expandBuyers)}`;
 					return this._http.get<any>(saUrl).pipe(
-						map(response => {
-							response.value.forEach(sa => {
+						map(response =>
+						{
+							response.value.forEach(sa =>
+							{
 								const saLot = result.find(lot => !!lot.salesAgreements.find(salesAgreement => salesAgreement.id === sa.id));
-								saLot.buyers = sa.buyers.map(buyer => buyer.opportunityContactAssoc.contact);
+
+								if (sa.buyers.length > 0)
+								{
+									saLot.buyers = sa.buyers.map(buyer => buyer.opportunityContactAssoc.contact);
+								}
 							});
 							return result;
 						})
