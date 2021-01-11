@@ -28,11 +28,8 @@ export class TreeService
 	 * gets active tree versions for communities
 	 * @param communityIds
 	 */
-	public getTreeVersions(communityIds: Array<number>): Observable<any> {
-		const communityFilterArray = communityIds.map(id => `dTree/plan/org/edhFinancialCommunityId eq ${id}`);
-		const communityFilter = communityFilterArray && communityFilterArray.length
-			? ` and (${communityFilterArray.join(" or ")})`
-			: '';
+	public getTreeVersions(planKey: number, communityId: number): Observable<any> {
+		const communityFilter = ` and (dTree/plan/org/edhFinancialCommunityId eq ${communityId}) and (dTree/plan/integrationKey eq '${planKey}')`;
 
 		const entity = 'dTreeVersions';
 		const expand = `dTree($select=dTreeID;$expand=plan($select=integrationKey),org($select = edhFinancialCommunityId)),baseHouseOptions($select=planOption;$expand=planOption($select=integrationKey))`;

@@ -15,6 +15,7 @@ import { TreeFilterComponent } from './components/tree-filter/tree-filter.compon
 import { GroupBarComponent } from './components/group-bar/group-bar.component';
 import { DecisionBarComponent } from './components/decision-bar/decision-bar.component';
 import { ChoiceCardComponent } from './components/choice-card/choice-card.component';
+import { DecisionPointSummaryComponent } from './components/decision-point-summary/decision-point-summary.component';
 
 @NgModule({
 	exports: [
@@ -23,7 +24,8 @@ import { ChoiceCardComponent } from './components/choice-card/choice-card.compon
 		TreeFilterComponent,
 		GroupBarComponent,
 		DecisionBarComponent,
-		ChoiceCardComponent
+		ChoiceCardComponent,
+		DecisionPointSummaryComponent
     ],
 	declarations: [
 		ActionBarComponent,
@@ -31,7 +33,8 @@ import { ChoiceCardComponent } from './components/choice-card/choice-card.compon
 		TreeFilterComponent,
 		GroupBarComponent,
 		DecisionBarComponent,
-		ChoiceCardComponent
+		ChoiceCardComponent,
+		DecisionPointSummaryComponent
     ],
 	imports: [
 		BrowserModule,

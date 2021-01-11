@@ -209,10 +209,27 @@ export class CommonEffects
 			}),
 			switchMap(result =>
 			{
+				//make sure base price is locked in.
+				let baseHouseOption = result.job.jobPlanOptions.find(o => o.jobOptionTypeName === 'BaseHouse');
+				let selectedPlanPrice: number = 0;
+
+				if (['OutforSignature', 'Signed', 'Approved'].indexOf(result.salesAgreement.status) !== -1) {
+					if (baseHouseOption) {
+						selectedPlanPrice = baseHouseOption ? baseHouseOption.listPrice : 0;
+					}
+
+					if (result.changeOrder && result.changeOrder.salesStatusDescription !== 'Pending') {
+						let co = result.changeOrder.jobChangeOrders.find(co => co.jobChangeOrderPlanOptions && co.jobChangeOrderPlanOptions.some(po => po.integrationKey === '00001' && po.action === 'Add'));
+						if (co) {
+							selectedPlanPrice = co.jobChangeOrderPlanOptions.find(po => po.action === 'Add' && po.integrationKey === '00001').listPrice;
+						}
+					}
+				}
+
 				return <Observable<Action>>from([
 					new SalesAgreementLoaded(result.salesAgreement, result.job, result.sc, result.selectedChoices, result.selectedPlanId, result.selectedHanding, result.tree, result.rules, result.options, result.images, result.mappings, result.changeOrder, result.lot),
 					new LoadLots(result.sc.id),
-					new LoadSelectedPlan(result.selectedPlanId)
+					new LoadSelectedPlan(result.selectedPlanId, selectedPlanPrice)
 				]);
 
 			})

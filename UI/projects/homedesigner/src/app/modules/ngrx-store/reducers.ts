@@ -2,7 +2,7 @@ import { ActionReducerMap, createSelector } from '@ngrx/store';
 
 import * as _ from 'lodash';
 
-import { PriceBreakdown, TreeVersion } from 'phd-common';
+import { PriceBreakdown, TreeVersion, PlanOption } from 'phd-common';
 
 import * as fromScenario from './scenario/reducer';
 import * as fromLot from './lot/reducer';
@@ -12,6 +12,7 @@ import * as fromOrg from './org/reducer';
 import * as fromSalesAgreement from './sales-agreement/reducer';
 import * as fromJob from './job/reducer';
 import * as fromChangeOrder from './change-order/reducer';
+import * as fromFavorite from './favorite/reducer';
 
 export interface State
 {
@@ -23,6 +24,7 @@ export interface State
 	salesAgreement: fromSalesAgreement.State;
 	job: fromJob.State;
 	changeOrder: fromChangeOrder.State;
+	favorite: fromFavorite.State;
 }
 
 export const reducers: ActionReducerMap<State> = {
@@ -33,7 +35,8 @@ export const reducers: ActionReducerMap<State> = {
 	org: fromOrg.reducer,
 	salesAgreement: fromSalesAgreement.reducer,
 	job: fromJob.reducer,
-	changeOrder: fromChangeOrder.reducer
+	changeOrder: fromChangeOrder.reducer,
+	favorite: fromFavorite.reducer
 }
 
 export const filteredTree = createSelector(
@@ -95,23 +98,138 @@ export const selectedPlanPrice = createSelector(
 			}
 		}
 		return price;
-	})
+	}
+)
 
 export const priceBreakdown = createSelector(
+	fromScenario.selectScenario,
 	fromSalesAgreement.salesAgreementState,
 	fromChangeOrder.currentChangeOrder,
-	(salesAgreement, currentChangeOrder) => {
+	selectedPlanPrice,
+	(scenario, salesAgreement, currentChangeOrder, planPrice) => {
 		let breakdown = new PriceBreakdown();
 
-		if (salesAgreement) {
-			const salesPrice = salesAgreement.salePrice || 0;
-			if (currentChangeOrder) {
-				breakdown.changePrice = currentChangeOrder.amount || 0;
+		if (salesAgreement && scenario) {
+			breakdown.baseHouse = planPrice;
+			breakdown.homesite = scenario.lotPremium;
+
+			let base = scenario.options ? scenario.options.find(o => o.isBaseHouse) : null;
+			if (base && scenario.tree) {
+				breakdown.selections = _.flatMap(scenario.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, p => p.choices)))
+					.reduce((acc, ch) => acc + (ch.quantity * ch.price), 0);
 			}
-			breakdown.totalPrice = salesPrice + breakdown.changePrice;
+
+			const programs = salesAgreement.programs;
+			programs && programs.forEach(p => {
+				if (p.salesProgram.salesProgramType === 'BuyersClosingCost') {
+					breakdown.closingIncentive += p.amount;
+				}
+				else if (p.salesProgram.salesProgramType === 'DiscountFlatAmount') {
+					breakdown.salesProgram += p.amount;
+				}
+			});
+
+			if (salesAgreement.priceAdjustments && salesAgreement.priceAdjustments.length) {
+				salesAgreement.priceAdjustments.forEach(adj => {
+					if (adj.priceAdjustmentType === 'ClosingCost') {
+						breakdown.closingCostAdjustment += adj.amount;
+					}
+				});
+			}
+
+			if (currentChangeOrder && currentChangeOrder.jobChangeOrders) {
+				const priceAdjustmentCO = currentChangeOrder.jobChangeOrders.find(x => x.jobChangeOrderTypeDescription === 'PriceAdjustment');
+				if (priceAdjustmentCO) {
+					const salesChangeOrderSalesPrograms = priceAdjustmentCO.jobSalesChangeOrderSalesPrograms;
+					if (salesChangeOrderSalesPrograms && salesChangeOrderSalesPrograms.length) {
+						salesChangeOrderSalesPrograms.forEach(salesProgram => {
+							if (salesProgram.action === 'Add') {
+								if (salesProgram.salesProgramType === 'DiscountFlatAmount') {
+									breakdown.salesProgram += salesProgram.amount;
+								} else if (salesProgram.salesProgramType === 'BuyersClosingCost') {
+									breakdown.closingIncentive += salesProgram.amount;
+								}
+							} else if (salesProgram.action === 'Delete') {
+								if (salesProgram.salesProgramType === 'DiscountFlatAmount') {
+									breakdown.salesProgram -= salesProgram.amount;
+								} else if (salesProgram.salesProgramType === 'BuyersClosingCost') {
+									breakdown.closingIncentive -= salesProgram.amount;
+								}
+							}
+						});
+					}
+
+					const salesChangeOrderPriceAdjustments = priceAdjustmentCO.jobSalesChangeOrderPriceAdjustments;
+					if (salesChangeOrderPriceAdjustments && salesChangeOrderPriceAdjustments.length) {
+						salesChangeOrderPriceAdjustments.forEach(priceAdjustment => {
+							if (priceAdjustment.priceAdjustmentTypeName === 'ClosingCost') {
+								if (priceAdjustment.action === 'Add') {
+									breakdown.closingCostAdjustment += priceAdjustment.amount;
+								} else if (priceAdjustment.action === 'Delete') {
+									breakdown.closingCostAdjustment -= priceAdjustment.amount;
+								}
+							}
+						});
+					}
+				}
+			}
+
+			let changePrice = currentChangeOrder && currentChangeOrder.amount || 0;
+			const salesPrice = salesAgreement.salePrice || 0;
+			breakdown.totalPrice = salesPrice + changePrice + breakdown.favoritesPrice;
 		}
 
 		return breakdown;
+	}
+)
+
+export const financialCommunityName = createSelector(
+	fromOrg.selectOrg,
+	fromJob.jobState,
+	(org, job) => {
+		let communityName = '';
+		if (org && org.salesCommunity && org.salesCommunity.financialCommunities && org.salesCommunity.financialCommunities.length) {
+			const financialCommunity = org.salesCommunity.financialCommunities.find(x => x.id === job.financialCommunityId);
+			if (financialCommunity) {
+				communityName = financialCommunity.name;
+			}
+		}
+		return communityName;
+	}
+)
+
+export const elevationImageUrl = createSelector(
+	fromScenario.selectScenario,
+	fromScenario.elevationDP,
+	fromPlan.selectedPlanData,
+	(scenario, dp, plan) => {
+		let imageUrl = '';
+		const elevationOption = scenario && scenario.options ? scenario.options.find(x => x.isBaseHouseElevation) : null;
+
+		if (dp) {
+			const selectedChoice = dp.choices.find(x => x.quantity > 0);
+			let option: PlanOption = null;
+
+			if (selectedChoice && selectedChoice.options && selectedChoice.options.length) {
+				// look for a selected choice to pull the image from
+				option = selectedChoice.options.find(x => x && x.optionImages != null);
+			}
+			else if (!selectedChoice && elevationOption) {
+				// if a choice hasn't been selected then get the default option
+				option = elevationOption;
+			}
+
+			if (option && option.optionImages.length > 0) {
+				imageUrl = option.optionImages[0].imageURL;
+			} else if (selectedChoice && selectedChoice.imagePath) {
+				imageUrl = selectedChoice.imagePath;
+			}
+		}
+
+		if (!imageUrl && plan) {
+			imageUrl = plan.baseHouseElevationImageUrl;
+		}
+		return imageUrl;
 	}
 )
 

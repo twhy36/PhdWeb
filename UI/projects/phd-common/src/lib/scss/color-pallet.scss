@@ -25,6 +25,7 @@ $medium_gray: #565656;
 $light_gray: #F2F2F2;
 $dark_gray: #444444;
 $pale_white: #E9F3F8;
+$mid_gray: #d4d4d4;
 
 // Grays
 $gray-base: #000;
@@ -44,3 +45,4 @@ $brand-info: #5C7F92; //selection
 // Choices
 $selected-choice-color: lighten($brand-primary, 70%);
 $list-group-item-active-bg: darken($gray-lighter, 15%);
+$sub-group-bg: darken($gray-lighter, 3%);

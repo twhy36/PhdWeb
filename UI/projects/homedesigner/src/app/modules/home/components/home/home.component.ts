@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { Observable, of, BehaviorSubject } from 'rxjs';
@@ -8,13 +8,10 @@ import * as _ from 'lodash';
 
 import { Store, select } from '@ngrx/store';
 import * as fromRoot from '../../../ngrx-store/reducers';
-import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 import * as fromPlan from '../../../ngrx-store/plan/reducer';
-import * as fromOrg from '../../../ngrx-store/org/reducer';
-import * as fromJob from '../../../ngrx-store/job/reducer';
 import * as CommonActions from '../../../ngrx-store/actions';
 
-import { BrowserService, UnsubscribeOnDestroy, PlanOption, SalesAgreement } from 'phd-common';
+import { BrowserService, UnsubscribeOnDestroy, SalesAgreement } from 'phd-common';
 
 @Component({
 	selector: 'home',
@@ -72,35 +69,13 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 			)
 			.subscribe((salesAgreement: SalesAgreement) => {
 				this.salesAgreement = salesAgreement;
-			});
+		});
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
-			select(fromScenario.elevationDP),
-			withLatestFrom(this.store.pipe(select(state => state.scenario)))
-		).subscribe(([dp, scenario]) => {
-			this.planImageUrl = '';
-			const elevationOption = scenario.options ? scenario.options.find(x => x.isBaseHouseElevation) : null;
-
-			if (dp) {
-				const selectedChoice = dp.choices.find(x => x.quantity > 0);
-				let option: PlanOption = null;
-
-				if (selectedChoice && selectedChoice.options && selectedChoice.options.length) {
-					// look for a selected choice to pull the image from
-					option = selectedChoice.options.find(x => x && x.optionImages != null);
-				}
-				else if (!selectedChoice && elevationOption) {
-					// if a choice hasn't been selected then get the default option
-					option = elevationOption;
-				}
-
-				if (option && option.optionImages.length > 0) {
-					this.planImageUrl = option.optionImages[0].imageURL;
-				} else if (selectedChoice && selectedChoice.imagePath) {
-					this.planImageUrl = selectedChoice.imagePath;
-				}
-			}
+			select(fromRoot.elevationImageUrl)
+		).subscribe(imageUrl => {
+			this.planImageUrl = imageUrl;
 		});
 
 		this.store.pipe(
@@ -128,15 +103,9 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
-			select(fromOrg.selectOrg),
-			combineLatest(this.store.pipe(select(fromJob.jobState)))
-		).subscribe(([org, job]) => {
-			if (org && org.salesCommunity && org.salesCommunity.financialCommunities && org.salesCommunity.financialCommunities.length) {
-				const financialCommunity = org.salesCommunity.financialCommunities.find(x => x.id === job.financialCommunityId);
-				if (financialCommunity) {
-					this.communityName = financialCommunity.name;
-				}
-			}
+			select(fromRoot.financialCommunityName),
+		).subscribe(communityName => {
+			this.communityName = communityName;
 		});
 
 	}

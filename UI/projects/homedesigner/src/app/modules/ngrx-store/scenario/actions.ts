@@ -5,14 +5,7 @@ import { SalesAgreementLoaded } from '../actions';
 
 export enum ScenarioActionTypes
 {
-	SetSelectedSubgroup = 'Set Selected Subgroup',
 	SetTreeFilter = 'Set Tree filter'
-}
-
-export class SetSelectedSubgroup implements Action {
-	readonly type = ScenarioActionTypes.SetSelectedSubgroup;
-
-	constructor(public selectedSubGroup: number) { }
 }
 
 export class SetTreeFilter implements Action
@@ -23,6 +16,5 @@ export class SetTreeFilter implements Action
 }
 
 export type ScenarioActions =
-	SetSelectedSubgroup |
 	SetTreeFilter |
 	SalesAgreementLoaded;

@@ -12,12 +12,11 @@ export class GroupBarComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	@Input() communityName: string;
 	@Input() planName: string;
-	@Input() groups$: Observable<Group[]>;
+	@Input() groups: Group[];
 	@Input() selectedSubGroupId: number;
 
 	@Output() onSubgroupSelected = new EventEmitter<number>();
 
-	groups: Group[];
 	highlightedStyle: any = { 'font-weight': 'bold' };
 	isTablet$: Observable<boolean>;
 
@@ -27,10 +26,6 @@ export class GroupBarComponent extends UnsubscribeOnDestroy implements OnInit
 	}
 
 	ngOnInit() {
-		this.groups$.subscribe(groups => {
-			this.groups = groups;
-		});
-
 		this.isTablet$ = this.browser.isTablet();
 	}
 

@@ -14,8 +14,8 @@ import { UnsubscribeOnDestroy, flipOver2, slideOut, DecisionPoint } from 'phd-co
 })
 export class DecisionBarComponent extends UnsubscribeOnDestroy implements OnInit
 {
-	@Input() points$: Observable<DecisionPoint[]>;
-	@Input() currentPointId$: Observable<number>;
+	@Input() points: DecisionPoint[];
+	@Input() currentPointId: number;
 
 	@Output() onSelectDecisionPoint = new EventEmitter<number>();
 

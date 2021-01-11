@@ -31,6 +31,7 @@ export * from './lib/models/rule.model';
 export * from './lib/models/sales-agreement.model';
 export * from './lib/models/sales-change-order.model';
 export * from './lib/models/scenario.model';
+export * from './lib/models/summary.model';
 export * from './lib/models/tree.model';
 
 export * from './lib/extensions/withSpinner.extension';

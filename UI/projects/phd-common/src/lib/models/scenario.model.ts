@@ -260,6 +260,7 @@ export class PriceBreakdown
 
 	totalPrice: number = 0;
 	changePrice: number = 0;
+	favoritesPrice: number = 0;
 
 	constructor(dto?: DtoScenarioInfo)
 	{

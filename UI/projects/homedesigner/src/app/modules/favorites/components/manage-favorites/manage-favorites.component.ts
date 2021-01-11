@@ -1,8 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { Router } from "@angular/router";
-
+import { Store } from '@ngrx/store';
 import { UnsubscribeOnDestroy } from 'phd-common';
+
+import * as fromRoot from '../../../ngrx-store/reducers';
+import * as FavoriteActions from '../../../ngrx-store/favorite/actions';
 
 @Component({
 	selector: 'manage-favorites',
@@ -16,7 +19,7 @@ export class ManageFavoritesComponent extends UnsubscribeOnDestroy implements On
 	favoriteList = [];
 	isDuplicateName: boolean = false;
 
-	constructor(private router: Router)
+	constructor(private store: Store<fromRoot.State>, private router: Router)
     {
 		super();
 	}
@@ -42,6 +45,7 @@ export class ManageFavoritesComponent extends UnsubscribeOnDestroy implements On
 				this.favoriteList.push(favoriteName);
 				this.favoriteForm.reset();
 
+				this.store.dispatch(new FavoriteActions.SetCurrentFavorites(favoriteName));
 				this.router.navigateByUrl('/favorites/my-favorites');
 			}
 		}

@@ -1,13 +1,13 @@
 <div>
 	<group-bar [communityName]="communityName"
 			   [planName]="planName"
-			   [groups$]="groups$"
+			   [groups]="groups"
 			   [selectedSubGroupId]="selectedSubgroupId"
 			   (onSubgroupSelected)="onSubgroupSelected($event)"></group-bar>
 </div>
 <div class="phd-my-favorites">
-	<normal-experience [groupName$]="groupName$"
-					   [subGroup$]="selectedSubGroup$"
+	<normal-experience [groupName]="groupName"
+					   [currentSubgroup]="selectedSubGroup"
 					   [errorMessage]="errorMessage"></normal-experience>
 </div>
 

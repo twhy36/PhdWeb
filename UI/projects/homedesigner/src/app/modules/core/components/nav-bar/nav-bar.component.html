@@ -15,9 +15,9 @@
 			<div><a href="./">Floorplan</a></div>
 			<div><a href="./">Contracted Options</a></div>
 			<div>
-				<a [attr.href]="currentPath === 'favorites' ? null : './favorites'"
-				   [class.phd-active-link]="currentPath === 'favorites'">
-					{{currentPath === 'my-favorites' ? 'My Favorites' : 'Manage Favorites'}}
+				<a [attr.href]="getFavoritesLink()"
+				   [class.phd-active-link]="currentPath === 'favorites' || currentPath === 'summary'">
+					{{currentPath === 'my-favorites' || currentPath === 'summary' ? 'My Favorites' : 'Manage Favorites' }}
 				</a>
 			</div>
 			<div><a href="./">Instructions</a></div>
@@ -28,10 +28,8 @@
 <div *ngIf="(isTablet$ | async) && !isMenuCollapsed" class="phd-collapsable-menu">
 	<div><a href="./">Floorplan</a></div>
 	<div><a href="./">Contracted Options</a></div>
-	<div [class.phd-active-link]="currentPath === 'favorites'">
-		<a [attr.href]="currentPath === 'favorites' ? null : './favorites'">
-			{{currentPath === 'my-favorites' ? 'My Favorites' : 'Manage Favorites'}}
-		</a>
+	<div [class.phd-active-link]="currentRoute?.startsWith('/favorites')">
+		<a [attr.href]="currentRoute?.startsWith('/favorites') ? null : '/favorites'">Manage Favorites</a>
 	</div>
 	<div><a href="./">Instructions</a></div>
 </div>

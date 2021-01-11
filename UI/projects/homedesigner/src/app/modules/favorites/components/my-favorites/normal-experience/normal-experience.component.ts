@@ -1,5 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
-import { Observable, ReplaySubject } from 'rxjs';
+import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
 
 import { UnsubscribeOnDestroy, flipOver, DecisionPoint, PickType, SubGroup, Choice } from 'phd-common';
 
@@ -9,30 +8,31 @@ import { UnsubscribeOnDestroy, flipOver, DecisionPoint, PickType, SubGroup, Choi
 	styleUrls: ['./normal-experience.component.scss'],
 	animations: [flipOver]
 })
-export class NormalExperienceComponent extends UnsubscribeOnDestroy implements OnInit
+export class NormalExperienceComponent extends UnsubscribeOnDestroy implements OnInit, OnChanges
 {
-	@Input() groupName$: Observable<string>;
-	@Input() subGroup$: Observable<SubGroup>;
+	@Input() groupName: string;
+	@Input() currentSubgroup: SubGroup;
 	@Input() errorMessage: string;
 
 	isPointPanelCollapsed: boolean = false;
 	points: DecisionPoint[];
-	points$ = new ReplaySubject<DecisionPoint[]>(1);
-	currentPointId$ = new ReplaySubject<number>(1);
 	currentPointId: number;
+	subGroup: SubGroup;
 	
 	constructor() { super(); }
 
-	ngOnInit()
+	ngOnInit() { }
+
+	ngOnChanges(changes: SimpleChanges) 
 	{
-		this.subGroup$.subscribe(sg => {
-			this.points$.next(sg.points);
-			this.points = sg.points;
+		if (changes['currentSubgroup']) 
+		{
+			this.subGroup = changes['currentSubgroup'].currentValue;
+			this.points = this.subGroup.points;
 			if (this.points.length) {
 				this.currentPointId = this.points[0].id;
-				this.currentPointId$.next(this.currentPointId)
 			}
-		});
+		}
 	}
 
 	getSubTitle(point: DecisionPoint): string
@@ -69,14 +69,12 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 		}
 
 		this.currentPointId = pointId;
-		this.currentPointId$.next(pointId);
 	}
 
 	choiceToggleHandler(choice: Choice) {
 		const point = this.points.find(p => p.choices.some(c => c.id === choice.id));
 		if (point) {
 			this.currentPointId = point.id;
-			this.currentPointId$.next(point.id);
 		}
 	}
 }

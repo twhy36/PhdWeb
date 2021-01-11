@@ -8,9 +8,7 @@ import * as _ from 'lodash';
 import { Store, select } from '@ngrx/store';
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromPlan from '../../../ngrx-store/plan/reducer';
-import * as fromOrg from '../../../ngrx-store/org/reducer';
-import * as fromJob from '../../../ngrx-store/job/reducer';
-import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
+import * as NavActions from '../../../ngrx-store/nav/actions';
 
 import { UnsubscribeOnDestroy, PriceBreakdown, Group, SubGroup } from 'phd-common';
 import { GroupBarComponent } from '../../../shared/components/group-bar/group-bar.component';
@@ -28,10 +26,9 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 	communityName: string = '';
 	planName: string = '';
 	groups: Group[];
-	groups$ = new ReplaySubject<Group[]>(1);
 	params$ = new ReplaySubject<{ favoritesId: number, divDPointCatalogId: number }>(1);
-	groupName$ = new ReplaySubject<string>(1);
-	selectedSubGroup$ = new ReplaySubject<SubGroup>(1);
+	groupName: string = '';
+	selectedSubGroup : SubGroup;
 	selectedSubgroupId: number;
 	errorMessage: string = '';
 
@@ -54,15 +51,9 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
-			select(fromOrg.selectOrg),
-			combineLatest(this.store.pipe(select(fromJob.jobState)))
-		).subscribe(([org, job]) => {
-			if (org && org.salesCommunity && org.salesCommunity.financialCommunities && org.salesCommunity.financialCommunities.length) {
-				const financialCommunity = org.salesCommunity.financialCommunities.find(x => x.id === job.financialCommunityId);
-				if (financialCommunity) {
-					this.communityName = financialCommunity.name;
-				}
-			}
+			select(fromRoot.financialCommunityName),
+		).subscribe(communityName => {
+			this.communityName = communityName;
 		});
 
 		this.store.pipe(
@@ -71,7 +62,6 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		).subscribe(tree => {
 			if (tree) {
 				this.groups = tree.groups;
-				this.groups$.next(tree.groups);
 			}
 		});
 
@@ -169,13 +159,13 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 	}
 
 	setSelectedGroup(newGroup: Group, newSubGroup: SubGroup) {
-		this.groupName$.next(newGroup.label);
-		this.selectedSubGroup$.next(newSubGroup);
+		this.groupName = newGroup.label;
+		this.selectedSubGroup = newSubGroup;
 		this.selectedSubgroupId = newSubGroup.id;
 	}
 
 	onSubgroupSelected(id: number) {
-		this.store.dispatch(new ScenarioActions.SetSelectedSubgroup(id));
+		this.store.dispatch(new NavActions.SetSelectedSubgroup(id));
 	}
 
 	onNextSubGroup() {

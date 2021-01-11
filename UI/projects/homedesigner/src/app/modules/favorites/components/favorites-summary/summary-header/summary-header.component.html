@@ -1,0 +1,60 @@
+<div class="summary-header" [class.is-sticky]="isSticky">
+	<div *ngIf="!isSticky">
+		<cl-image *ngIf="summaryHeader.elevationImageUrl" public-id="{{summaryHeader.elevationImageUrl}}" type="fetch" style="width:calc(45vw);height:calc(45vh);" crop="fill">
+		</cl-image>
+		<img class="phd-logo-image" src="assets/pultegroup_logo.jpg" *ngIf="!summaryHeader.elevationImageUrl">
+	</div>
+
+	<div class="phd-header-body">
+		<div class="phd-upper-header">
+			<div id="favoritesListName" class="phd-favorites-list">{{summaryHeader.favoritesListName}}</div>
+			<div>
+				<span class="phd-lot-label">{{summaryHeader.communityName}},</span>
+				<span class="phd-lot-details">{{summaryHeader.planName}}</span>
+			</div>
+			<div>
+				<span class="phd-lot-label">LOT </span>
+				<span class="phd-lot-label">{{summaryHeader.lot?.lotBlock}},</span>
+				<span class="phd-lot-details">{{address}}</span>
+			</div>
+		</div>
+		<div *ngIf="!isSticky" class="phd-divider"></div>
+		<div *ngIf="!isSticky" class="phd-price-breakdown">
+			<div class="d-flex">
+				<span class="phd-breakdown-label">Base House:</span>
+				<span class="phd-breakdown-content">{{priceBreakdown?.baseHouse | currency:'USD':'symbol':'0.0-0'}}</span>
+			</div>
+			<div class="d-flex">
+				<span class="phd-breakdown-label">Lot Premium:</span>
+				<span class="phd-breakdown-content">{{priceBreakdown?.homesite | currency:'USD':'symbol':'0.0-0'}}</span>
+			</div>
+			<div class="d-flex">
+				<span class="phd-breakdown-label">Contracted Options:</span>
+				<span class="phd-breakdown-content">{{priceBreakdown?.selections | currency:'USD':'symbol':'0.0-0'}}</span>
+			</div>
+			<div class="d-flex">
+				<span class="phd-breakdown-label">Sales Incentive:</span>
+				<span class="phd-breakdown-content">({{priceBreakdown.salesProgram | currency:'USD':'symbol':'0.0-0'}})</span>
+			</div>
+			<div class="phd-estimate">
+				<span class="phd-breakdown-label">Estimated Favorites Price:</span>
+				<span class="phd-breakdown-content">{{priceBreakdown?.favoritesPrice | currency:'USD':'symbol':'0.0-0'}}</span>
+			</div>
+			<div class="phd-estimate">
+				<span class="phd-breakdown-label">Estimated Total Price:</span>
+				<span class="phd-breakdown-content">{{priceBreakdown?.totalPrice | currency:'USD':'symbol':'0.0-0'}}</span>
+			</div>
+			<div class="d-flex">
+				<span class="phd-breakdown-label">Closing Cost Incentive:</span>
+				<span class="phd-breakdown-content">{{(priceBreakdown.closingIncentive + priceBreakdown.closingCostAdjustment) | currency:'USD':'symbol':'0.0-0'}}</span>
+			</div>
+		</div>
+		<div *ngIf="!isSticky" class="phd-divider"></div>
+		<div *ngIf="!isSticky" class="phd-contracted-options">
+			<label>
+				<input type="checkbox" (change)="toggleContractedOptions($event)" [ngModel]="includeContractedOptions" class="phd-clickable" />
+				Include Contracted Options Below
+			</label>	
+		</div>
+	</div>
+</div>

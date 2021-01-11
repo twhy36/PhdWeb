@@ -1,11 +1,16 @@
 <div id="phd-action-bar" class="d-flex align-items-center" [class.is-hidden]="isActionBarHidden">
-	<div class="flex-grow-1">
+	<div class="d-flex flex-row flex-grow-1 phd-action-icons">
 		<a href="./">
-			<div class="d-flex phd-home-icon">
+			<div class="d-flex">
 				<i class="fa fa-home fa-2x"></i>
 				<span class="align-self-center">Home Page</span>
 			</div>
 		</a>
+
+		<div *ngIf="showPrint" class="d-flex phd-print-icon">
+			<i class="fa fa-print fa-2x"></i>
+			<span class="align-self-center">Print</span>
+		</div>
 	</div>
 
 	<div *ngIf="primaryAction" class="d-flex flex-column align-items-end">

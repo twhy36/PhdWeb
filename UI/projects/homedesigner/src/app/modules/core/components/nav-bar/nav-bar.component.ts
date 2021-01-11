@@ -36,7 +36,9 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 						this.currentPath = 'favorites';
 					}
 
-					if (paths.find(x => x === 'my-favorites')) {
+					if (paths.find(x => x === 'summary')) {
+						this.currentPath = 'summary';
+					} else if (paths.find(x => x === 'my-favorites')) {
 						this.currentPath = 'my-favorites';
 					}
 				}
@@ -49,4 +51,15 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 		});
 	}
 
+	getFavoritesLink() {
+		if (this.currentPath === 'favorites' || this.currentPath === 'summary') {
+			return null;
+		}
+
+		if (this.currentPath === 'my-favorites') {
+			return './favorites/summary';
+		}
+
+		return './favorites';
+	}
 }
