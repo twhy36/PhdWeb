@@ -62,6 +62,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 	selectedPlanId: number;
 	specCancelled = false;
 	isLockedIn: boolean = false;
+	newHomeStatus: PointStatus;
 
 	constructor(private lotService: LotService,
 		private identityService: IdentityService,
@@ -69,7 +70,10 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 		private browser: BrowserService,
 		private store: Store<fromRoot.State>,
 		private modalService: ModalService
-	) { super(); }
+	)
+	{
+		super();
+	}
 
 	ngOnInit()
 	{
@@ -157,6 +161,25 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 					currentChangeOrder.jobChangeOrders[0].id > 0 &&
 					currentChangeOrder.jobChangeOrders[0].jobChangeOrderTypeDescription !== 'SalesJIO' &&
 					['Pending', 'OutforSignature', 'Signed'].indexOf(this.salesAgreementStatus) === -1;
+			}
+		});
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(state => state.nav.subNavItems)
+		).subscribe(navItems =>
+		{
+			if (navItems)
+			{
+				let plan = navItems.find(x => x.id === 2);
+				let lot = navItems.find(x => x.id === 3);
+				let qmi = navItems.find(x => x.id === 4);
+
+				this.newHomeStatus = (plan.status === PointStatus.COMPLETED && lot.status === PointStatus.COMPLETED) || qmi?.status === PointStatus.COMPLETED ? PointStatus.COMPLETED : PointStatus.REQUIRED;
+			}
+			else
+			{
+				this.newHomeStatus = PointStatus.REQUIRED;
 			}
 		});
 

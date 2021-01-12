@@ -137,6 +137,8 @@ export class QuickMoveInComponent extends UnsubscribeOnDestroy implements OnInit
 				this.actions.pipe(
 					ofType<CommonActions.JobLoaded>(CommonActionTypes.JobLoaded), take(1)).subscribe(() =>
 					{
+						this.newHomeService.setSubNavItemsStatus(this.scenario, this.buildMode, null)
+
 						this.router.navigate(['/scenario-summary']);
 					});
 			});
