@@ -67,6 +67,21 @@ export class SearchResult
 		{
 			this.jobId = job.id;
 			this.jobCreatedBy = job.createdBy;
+
+			if (dto.lotBuildTypeDesc === 'Spec')
+			{
+				const activeCOG = job.jobChangeOrderGroups.find(cog => ['Pending', 'Signed', 'OutforSignature', 'Rejected'].indexOf(cog.salesStatusDescription) !== -1);
+
+				let buyerChangeOrders = activeCOG ? activeCOG.jobChangeOrders.filter(jco => jco.jobChangeOrderTypeDescription === 'BuyerChangeOrder') : [];
+
+				buyerChangeOrders.forEach(bco =>
+				{
+					this.buyers = bco.jobSalesChangeOrderBuyers.map(buyer => ({ firstName: buyer.firstName, lastName: buyer.lastName, sortKey: buyer.sortKey, isPrimaryBuyer: buyer.isPrimaryBuyer }))
+						.filter(buyer => buyer.firstName !== null && buyer.lastName !== null)
+						.sort((a, b) => a.isPrimaryBuyer ? -1 : (b.isPrimaryBuyer ? 1 : a.sortKey - b.sortKey));
+				})
+			}
+
 			job.jobSalesAgreementAssocs.map(jsa =>
 			{
 				if (jsa.salesAgreement && jsa.salesAgreement.id) {
@@ -192,6 +207,7 @@ export interface IJobChangeOrderGroup
 	jobChangeOrderGroupDescription: string;
 	salesStatusDescription: string;
 	jobChangeOrderGroupSalesAgreementAssocs: Array<ChangeOrderGroupSalesAgreementAssoc>;
+	jobChangeOrders: Array<JobChangeOrder>;
 	jobId: number;
 }
 
@@ -251,6 +267,8 @@ export interface IFilterItem
 export class Buyer {
 	firstName: string;
 	lastName: string;
+	sortKey?: number;
+	isPrimaryBuyer?: boolean;
 }
 
 export class ActiveChangeOrder {
@@ -263,4 +281,20 @@ export class ActiveChangeOrder {
 export class ChangeOrderGroupSalesAgreementAssoc {
 	changeOrderGroupSequence: number;
 	salesAgreementId: number;
+}
+
+export class JobChangeOrder {
+	id: number;
+	jobChangeOrderGroupId: number;
+	jobChangeOrderTypeDescription: string;
+	jobSalesChangeOrderBuyers: Array<JobSalesChangeOrderBuyers>;
+}
+
+export class JobSalesChangeOrderBuyers {
+	id: number;
+	jobChangeOrderId: number;
+	firstName: string;
+	lastName: string;
+	isPrimaryBuyer: boolean;
+	sortKey: number;
 }
