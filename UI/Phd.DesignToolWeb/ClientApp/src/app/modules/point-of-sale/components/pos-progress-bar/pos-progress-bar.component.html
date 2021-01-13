@@ -1,5 +1,5 @@
 <div class="d-flex flex-column">
-	<ul class="phd-progress-indicators d-flex justify-content-around">
+	<ul class="progress-indicators d-flex justify-content-around">
 		<li class="d-flex justify-content-center" [ngClass]="{ 'phd-not-complete': !isPeopleComplete }">
 			<div class="d-flex align-items-center justify-content-center" routerLinkActive="active" [routerLink]="['/point-of-sale/people']">
 				1
@@ -10,7 +10,7 @@
 				2
 			</div>
 		</li>
-		<li class="d-flex justify-content-center" [ngClass]="{ 'phd-not-complete': !isPeopleComplete || !isSalesInfoComplete || !isAgreementInfoViewed}">
+		<li class="d-flex justify-content-center" *ngIf="displayAgreement" [ngClass]="{ 'phd-not-complete': !isPeopleComplete || !isSalesInfoComplete || !isAgreementInfoViewed}">
 			<div class="d-flex align-items-center justify-content-center" routerLinkActive="active" [routerLink]="['/point-of-sale/agreement']" (click)="openAgreementInfo()">
 				3
 			</div>
@@ -19,6 +19,6 @@
 	<ul class="d-flex justify-content-around text-center">
 		<li>People</li>
 		<li>Sales Info</li>
-		<li>Agreement</li>
+		<li *ngIf="displayAgreement">Agreement</li>
 	</ul>
 </div>
