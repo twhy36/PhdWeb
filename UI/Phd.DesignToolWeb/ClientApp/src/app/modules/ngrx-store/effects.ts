@@ -24,7 +24,6 @@ import { PlanService } from '../core/services/plan.service';
 import { OpportunityService } from '../core/services/opportunity.service';
 import { LoadPlans, PlansLoaded, PlanActionTypes } from './plan/actions';
 import { LoadLots, LotsLoaded, LotActionTypes } from './lot/actions';
-import { JobUpdated } from './job/actions';
 import { forkJoin } from 'rxjs/observable/forkJoin';
 import { SalesAgreementService } from '../core/services/sales-agreement.service';
 import { ChangeOrderService } from '../core/services/change-order.service';
@@ -41,8 +40,6 @@ import { SavePendingJio, CreateJobChangeOrders, CreatePlanChangeOrder } from './
 import { EMPTY as empty } from 'rxjs';
 import { State, canDesign, showSpinner } from './reducers';
 import { SpinnerService } from 'phd-common/services/spinner.service';
-import * as fromJob from './job/reducer';
-import * as fromScenario from './scenario/reducer';
 
 @Injectable()
 export class CommonEffects
@@ -651,37 +648,7 @@ export class CommonEffects
 
 					if (res.salesAgreement.status === 'Pending')
 					{
-						return this.store.pipe(
-							select(fromJob.jobState),
-							combineLatest(this.store.pipe(select(fromScenario.selectScenario))),
-							take(1),
-							switchMap(([job, scenario]) =>
-							{
-								//if this is a pending spec sale, check to see if option prices have changed
-								if (job.lot.lotBuildTypeDesc === 'spec' || job.lot.lotBuildTypeDesc === 'model')
-								{
-									const treeChoices = _.flatMap(scenario.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, p => _.flatMap(p.choices.filter(c => c.quantity > 0)))));
-									const changedChoices = job.jobChoices.filter(jc => {
-										const treeChoice = treeChoices.find(tc => tc.divChoiceCatalogId === jc.divChoiceCatalogId);
-										if (treeChoice && treeChoice.price !== jc.dpChoiceCalculatedPrice) {
-											jc.dpChoiceCalculatedPrice = treeChoice.price;
-											return true;
-										}
-										else {
-											return false;
-										}
-									});
-
-									return this.jobService.updateSpecJobPrices(job.id, changedChoices).pipe(
-										switchMap(() => from([new JobUpdated(job), new SavePendingJio()]))
-									);
-								}
-								else
-								{
-									return of(new SavePendingJio());
-								}
-							})
-						);
+						return of(new SavePendingJio());
 					}
 					else if (res.salesAgreement.status === 'Approved' && res.currentChangeOrder && res.currentChangeOrder.salesStatusDescription === 'Pending')
 					{
