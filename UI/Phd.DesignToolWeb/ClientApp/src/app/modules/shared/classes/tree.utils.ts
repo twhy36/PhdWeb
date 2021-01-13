@@ -16,7 +16,6 @@ import { LocationGroup, Location, AttributeGroup, Attribute, DesignToolAttribute
 import { Scenario, SelectedChoice } from '../../shared/models/scenario.model';
 import { TreeVersionRules } from '../../shared/models/rule.model.new';
 import { applyRules, findChoice } from '../../shared/classes/rulesExecutor';
-import { JobService } from '../../core/services/job.service';
 
 export function isJobChoice(choice: JobChoice | ChangeOrderChoice): choice is JobChoice
 {
@@ -764,43 +763,4 @@ export function updateWithNewTreeVersion<T extends { tree: Tree, rules: TreeVers
 			);
 		}
 	};
-}
-
-export function updateSpecJobChoices<T extends { tree: Tree, options: PlanOption[], job: Job[] }>(rules: TreeVersionRules, jobService: JobService, isLotAvailable: boolean): (source: Observable<T>) => Observable<T>
-{
-	return (source: Observable<T>) =>
-	{
-		if (isLotAvailable) { //don't do anything if the lot isn't available
-			return source.pipe(
-				switchMap(input => {
-					let newTree = _.cloneDeep(input.tree);
-					applyRules(newTree, rules, input.options);
-					const newTreeChoices = _.flatMap(newTree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)));
-
-					if (input.job && input.job.length && input.job[0].jobChoices) {
-						//find out if any choice prices have changed since the spec was last viewed
-						const changedChoices = input.job[0].jobChoices.filter(jc => {
-							const treeChoice = newTreeChoices.find(tc => tc.divChoiceCatalogId === jc.divChoiceCatalogId);
-							if (treeChoice && treeChoice.price !== jc.dpChoiceCalculatedPrice) {
-								jc.dpChoiceCalculatedPrice = treeChoice.price;
-								return true;
-							}
-							else {
-								return false;
-							}
-						});
-
-						return jobService.updateSpecJobPrices(input.job[0].id, changedChoices).pipe(
-							map(() => input)
-						);
-					}
-					else {
-						return of(input);
-					}
-				})
-			);
-		} else {
-			return source;
-		}
-	}
 }
