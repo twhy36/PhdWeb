@@ -22,7 +22,17 @@ export const environment: IEnvironment = {
         instrumentationKey: '08875504-9c0f-45a6-8cc5-8a819e51aff0'
     },
 	production: false,
-	authConfig: null,
+	authConfig: {
+		issuer: "https://login.microsoftonline.com/1a9277a3-ef66-41f6-96b5-c5390ee468a7/v2.0",
+		clientId: "7d88528c-ab8d-4757-8b17-e7bc1b84ca15",
+		responseType: 'code',
+		clearHashAfterLogin: true,
+		requestAccessToken: true,
+		scope: 'api://7d88528c-ab8d-4757-8b17-e7bc1b84ca15/user_impersonation profile',
+		showDebugInformation: true,
+		skipIssuerCheck: false,
+		strictDiscoveryDocumentValidation: false
+	},
     whatFix: {
         scriptUrl: '//whatfix.com/01caf5e0-cb2f-11e8-b979-04013d24cd02/embed/embed.nocache.js'
     }
