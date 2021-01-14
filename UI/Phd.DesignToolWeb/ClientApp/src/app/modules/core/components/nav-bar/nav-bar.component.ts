@@ -175,7 +175,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 				let lot = navItems.find(x => x.id === 3);
 				let qmi = navItems.find(x => x.id === 4);
 
-				this.newHomeStatus = (plan.status === PointStatus.COMPLETED && lot.status === PointStatus.COMPLETED) || qmi?.status === PointStatus.COMPLETED ? PointStatus.COMPLETED : PointStatus.REQUIRED;
+				this.newHomeStatus = (plan?.status === PointStatus.COMPLETED && lot?.status === PointStatus.COMPLETED) || qmi?.status === PointStatus.COMPLETED ? PointStatus.COMPLETED : PointStatus.REQUIRED;
 			}
 			else
 			{
