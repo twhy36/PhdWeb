@@ -42,7 +42,7 @@ namespace Phd.WebHost
             //check uri_state cookie for potential login redirect
             app.Use(async (context, next) =>
             {
-                if ((context.Request.Path.Value == "" || context.Request.Path.Value == "/"))
+                if (context.Request.Query.ContainsKey("code") && (context.Request.Path.Value == "" || context.Request.Path.Value == "/"))
                 {
                     if (context.Request.Cookies.ContainsKey("uri_state"))
                     {
@@ -81,11 +81,16 @@ namespace Phd.WebHost
             {
                 if (!context.Request.Cookies.ContainsKey("uri_state"))
                 {
-                    context.Response.Cookies.Append("uri_state", context.Request.Path.Value, 
-                        new CookieOptions { 
+                    context.Response.Cookies.Append("uri_state", context.Request.Path.Value,
+                        new CookieOptions
+                        {
                             SameSite = SameSiteMode.Strict,
                             MaxAge = TimeSpan.FromMinutes(5)
                         });
+                }
+                else
+                {
+                    context.Response.Cookies.Delete("uri_state");
                 }
                 await next();
             });
@@ -126,9 +131,9 @@ namespace Phd.WebHost
                 });
             });
 
-            app.Map("/homedesigner", app1 => 
+            app.Map("/homedesigner", app1 =>
             {
-                app1.UseSpa(spa => 
+                app1.UseSpa(spa =>
                 {
                     spa.Options.DefaultPage = "/homedesigner/index.html";
                     spa.Options.DefaultPageStaticFileOptions = NoCacheStaticFileOptions;
