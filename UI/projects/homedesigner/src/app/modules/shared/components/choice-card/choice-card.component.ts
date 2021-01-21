@@ -2,6 +2,7 @@ import { Component, Input, Output, OnInit, OnChanges, SimpleChanges, Inject, Eve
 import { APP_BASE_HREF } from '@angular/common';
 
 import { UnsubscribeOnDestroy, flipOver3, Choice, OptionImage } from 'phd-common';
+import { MyFavoritesChoice } from '../../models/my-favorite.model';
 
 @Component({
 	selector: 'choice-card',
@@ -14,13 +15,13 @@ import { UnsubscribeOnDestroy, flipOver3, Choice, OptionImage } from 'phd-common
 export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit, OnChanges
 {
 	@Input() currentChoice: Choice;
+	@Input() myFavoritesChoices: MyFavoritesChoice[];
 
 	@Output() toggled = new EventEmitter<Choice>();
 
 	choice: Choice;
 	choiceMsg: object[] = [];
 	optionImages: OptionImage[];
-	isSelected: boolean = false;
 	imageUrl: string = '';
 
 	constructor(@Inject(APP_BASE_HREF) private _baseHref: string)
@@ -77,7 +78,13 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 	}
 
 	toggleChoice() {
-		this.isSelected = !this.isSelected;
 		this.toggled.emit(this.choice);
+	}
+
+	get isSelected()
+	{
+		return this.myFavoritesChoices 
+			? this.myFavoritesChoices.findIndex(x => x.divChoiceCatalogId === this.choice.divChoiceCatalogId) > -1
+			: false;
 	}
 }

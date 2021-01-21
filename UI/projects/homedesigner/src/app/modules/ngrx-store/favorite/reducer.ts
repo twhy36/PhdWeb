@@ -1,31 +1,94 @@
 import { createSelector, createFeatureSelector } from '@ngrx/store';
 import * as _ from "lodash";
 
-import { MyFavorite } from '../../shared/models/my-favorite.model';
+import { JobChoice } from 'phd-common';
+
+import { MyFavorite, MyFavoritesChoice } from '../../shared/models/my-favorite.model';
+import { CommonActionTypes } from '../actions';
 import { FavoriteActions, FavoriteActionTypes } from './actions';
+
 
 export interface State
 {
-	currentFavorites: MyFavorite
+	myFavorites: MyFavorite[],
+	selectedFavoritesId: number,
+	saveError: boolean,
+	selectedChoices: JobChoice[]
 }
 
 export const initialState: State = {
-	currentFavorites: null
+	myFavorites: null,
+	selectedFavoritesId: null,
+	saveError: false,
+	selectedChoices: null
 };
 
 export function reducer(state: State = initialState, action: FavoriteActions): State
 {
 	switch (action.type)
 	{
+		case CommonActionTypes.SalesAgreementLoaded:
+			{
+				return { ...state, myFavorites: action.myFavorites, selectedChoices: action.choices };
+			}	
+			
 		case FavoriteActionTypes.SetCurrentFavorites:
 			{
-				let currentFavorites = _.cloneDeep(state.currentFavorites);
-				if (!currentFavorites) {
-					currentFavorites = new MyFavorite();
+				return { ...state, selectedFavoritesId: action.favoritesId };
+			}
+			
+		case FavoriteActionTypes.MyFavoriteCreated:
+			{
+				let myFavorites = _.cloneDeep(state.myFavorites);
+				if (!myFavorites)
+				{
+					myFavorites = new Array<MyFavorite>();
 				}
-				currentFavorites.name = action.name;
+				myFavorites.push(action.myFavorite);
 
-				return { ...state, currentFavorites: currentFavorites };
+				return { ...state, saveError: false, myFavorites: myFavorites, selectedFavoritesId: action.myFavorite.id };
+			}
+
+		case FavoriteActionTypes.MyFavoritesChoicesSaved:
+			{
+				let myFavorites = _.cloneDeep(state.myFavorites);
+				if (myFavorites && action.choices && action.choices.length) 
+				{
+					let currentMyFavorite = myFavorites.find(x => x.id === state.selectedFavoritesId);
+					if (currentMyFavorite)
+					{
+						if (!currentMyFavorite.myFavoritesChoice)
+						{
+							currentMyFavorite.myFavoritesChoice = new Array<MyFavoritesChoice>();
+						}
+
+						action.choices.forEach(c => {
+							let choiceIndex = currentMyFavorite.myFavoritesChoice.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId);
+							if (choiceIndex === -1 && c.id > 0)
+							{
+								currentMyFavorite.myFavoritesChoice.push(c);
+							}
+							else if (choiceIndex > -1)
+							{
+								if (c.id === 0)
+								{
+									currentMyFavorite.myFavoritesChoice.splice(choiceIndex, 1);
+								}
+								else if (currentMyFavorite.myFavoritesChoice[choiceIndex].id === 0)
+								{
+									currentMyFavorite.myFavoritesChoice[choiceIndex] = c;
+								}
+							}
+						});
+					}
+				}
+
+				return { ...state, saveError: false, myFavorites: myFavorites };
+			}
+
+		case FavoriteActionTypes.SaveError:
+			{
+				return { ...state, saveError: true };				
 			}
 
 		default:
@@ -35,7 +98,7 @@ export function reducer(state: State = initialState, action: FavoriteActions): S
 
 export const favoriteState = createFeatureSelector<State>('favorite');
 
-export const currentFavorites = createSelector(
+export const currentMyFavorite = createSelector(
 	favoriteState,
-	(state) => state ? state.currentFavorites : null
+	(state) => state && state.myFavorites ? state.myFavorites.find(x => x.id === state.selectedFavoritesId) : null
 );

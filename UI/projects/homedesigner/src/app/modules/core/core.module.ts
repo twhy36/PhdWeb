@@ -6,6 +6,7 @@ import { SharedModule } from '../shared/shared.module';
 import { NavBarComponent } from './components/nav-bar/nav-bar.component';
 
 import { ChangeOrderService } from './services/change-order.service';
+import { FavoriteService } from './services/favorite.service';
 import { JobService } from './services/job.service';
 import { LotService } from './services/lot.service';
 import { OptionService } from './services/option.service';
@@ -28,6 +29,7 @@ import { TreeService } from './services/tree.service';
 	],
 	providers: [
 		ChangeOrderService,
+		FavoriteService,
 		JobService,
 		LotService,
 		OptionService,

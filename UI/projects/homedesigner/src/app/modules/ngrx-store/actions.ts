@@ -7,6 +7,7 @@ import {
 
 import { ErrorAction } from './error.action';
 import { Stopwatch } from './stopwatch';
+import { MyFavorite } from '../shared/models/my-favorite.model';
 
 export enum CommonActionTypes {
     LoadSalesAgreement = 'Load Sales Agreement',
@@ -46,7 +47,8 @@ export class SalesAgreementLoaded implements Action
 		public optionImages: OptionImage[],
 		public webPlanMappings: number[],
 		public changeOrder: ChangeOrderGroup,
-		public lot: LotExt
+		public lot: LotExt,
+		public myFavorites: MyFavorite[]
 	)
 	{}
 }

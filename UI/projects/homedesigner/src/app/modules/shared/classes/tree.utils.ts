@@ -13,6 +13,7 @@ import {
 } from 'phd-common';
 
 import { TreeService } from '../../core/services/tree.service';
+import { MyFavoritesChoice } from '../models/my-favorite.model';
 
 export function isJobChoice(choice: JobChoice | ChangeOrderChoice): choice is JobChoice
 {
@@ -22,6 +23,11 @@ export function isJobChoice(choice: JobChoice | ChangeOrderChoice): choice is Jo
 export function isJobPlanOption(option: JobPlanOption | ChangeOrderPlanOption): option is JobPlanOption
 {
 	return (<any>option).action === undefined;
+}
+
+export function isChangeOrderChoice(choice: JobChoice | ChangeOrderChoice | MyFavoritesChoice): choice is ChangeOrderChoice
+{
+	return (<any>choice).action !== undefined;
 }
 
 function getOptions(newChoice: any, treeChoices: Choice[]): string[]
@@ -436,5 +442,50 @@ export function setTreePointsPastCutOff(tree: Tree, job: Job)
 				point.isPastCutOff = pointCutOffDays <= dateDiff; // example:  10 < 7 = False
 			}
 		}
+	});
+}
+
+/**
+ * Make sure the selected Attributes are still valid. Best ran after applying rules
+ * @param choices
+ */
+export function checkSelectedAttributes(choices: Choice[])
+{
+	choices.forEach(choice =>
+	{
+		//if the choice is locked, we don't want to mess with attributes
+		if (choice.lockedInChoice) {
+			return;
+		}
+
+		if (choice.quantity === 0)
+		{
+			choice.selectedAttributes = [];
+		}
+		else if (choice.selectedAttributes.length > 0)
+		{
+			var selectedAttributes = [];
+			let attributeGroups = choice.mappedAttributeGroups;
+			let locationGroups = choice.mappedLocationGroups;
+
+			if (attributeGroups && attributeGroups.length > 0 || locationGroups && locationGroups.length > 0)
+			{
+				// check selectedAttributes against the group lists
+				selectedAttributes = getSelectedAttributes(locationGroups.map(x => x.id), attributeGroups.map(x => x.id), choice.selectedAttributes);
+			}
+
+			choice.selectedAttributes = selectedAttributes.filter(x => !!x);
+		}
+	});
+}
+
+function getSelectedAttributes(locationGroups: number[], attributeGroups: number[], selectedAttributes: DesignToolAttribute[])
+{
+	return selectedAttributes.map(sa =>
+	{
+		let hasAttribute = attributeGroups.length > 0 && attributeGroups.findIndex(x => x === sa.attributeGroupId) > -1;
+		let hasLocation = locationGroups.length > 0 && locationGroups.findIndex(x => x === sa.locationGroupId) > -1
+
+		return hasAttribute || hasLocation ? sa : null;
 	});
 }

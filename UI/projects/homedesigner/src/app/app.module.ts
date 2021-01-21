@@ -7,6 +7,7 @@ import { APP_BASE_HREF, PlatformLocation } from "@angular/common";
 
 import { CloudinaryModule } from '@cloudinary/angular-5.x';
 import { Cloudinary } from 'cloudinary-core';
+import { ToastrModule } from 'ngx-toastr';
 
 import { tap } from 'rxjs/operators';
 
@@ -56,7 +57,8 @@ export function getBaseHref(platformLocation: PlatformLocation): string {
 		FavoritesModule,
 		RouterModule.forRoot(appRoutes),
 		StoreModule,
-		CloudinaryModule.forRoot({ Cloudinary }, environment.cloudinary)
+		CloudinaryModule.forRoot({ Cloudinary }, environment.cloudinary),
+		ToastrModule.forRoot({ closeButton: true })
     ],
     providers: [
 		{ provide: APP_INITIALIZER, useFactory: appInitializerFn, deps: [IdentityService], multi: true },

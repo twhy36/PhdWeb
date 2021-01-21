@@ -36,7 +36,6 @@ export class ChangeOrderService
 		);
 	}
 
-
 	getSelectedChoices(job: Job, changeOrder?: ChangeOrderGroup): Array<JobChoice>
 	{
 		let jobChangeOrderChoices = [];

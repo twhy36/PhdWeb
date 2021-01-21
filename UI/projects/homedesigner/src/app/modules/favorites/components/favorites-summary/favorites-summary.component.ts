@@ -26,6 +26,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 	summaryHeader: SummaryHeader = new SummaryHeader();
 	isSticky: boolean = false;
 	includeContractedOptions: boolean = true;
+	favoritesId: number;
 
 	constructor(private store: Store<fromRoot.State>, 
 		private router: Router,
@@ -38,9 +39,10 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 	{
 		this.store.pipe(
 			this.takeUntilDestroyed(),
-			select(fromFavorite.currentFavorites)
+			select(fromFavorite.currentMyFavorite)
 		).subscribe(favorites => {
 			this.summaryHeader.favoritesListName = favorites && favorites.name;
+			this.favoritesId = favorites && favorites.id;
 		});
 
 		this.store.pipe(
@@ -90,7 +92,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 
 	onBack()
 	{
-		this.router.navigateByUrl('/favorites/my-favorites');
+		this.router.navigateByUrl(`/favorites/my-favorites/${this.favoritesId}`);
 	}
 
 	getGroupSubTotals(group: SDGroup)

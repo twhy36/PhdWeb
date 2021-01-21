@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { combineLatest, map, filter, distinctUntilChanged, withLatestFrom, debounceTime } from 'rxjs/operators';
+import { combineLatest, map, filter, distinctUntilChanged, withLatestFrom, debounceTime, take } from 'rxjs/operators';
 import { ReplaySubject } from 'rxjs/ReplaySubject';
 
 import * as _ from 'lodash';
@@ -8,10 +8,14 @@ import * as _ from 'lodash';
 import { Store, select } from '@ngrx/store';
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromPlan from '../../../ngrx-store/plan/reducer';
+import * as fromFavorite from '../../../ngrx-store/favorite/reducer';
 import * as NavActions from '../../../ngrx-store/nav/actions';
+import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
+import * as FavoriteActions from '../../../ngrx-store/favorite/actions';
 
-import { UnsubscribeOnDestroy, PriceBreakdown, Group, SubGroup } from 'phd-common';
+import { UnsubscribeOnDestroy, PriceBreakdown, Group, SubGroup, Choice, Tree, TreeVersionRules, getDependentChoices } from 'phd-common';
 import { GroupBarComponent } from '../../../shared/components/group-bar/group-bar.component';
+import { MyFavoritesChoice } from '../../../shared/models/my-favorite.model';
 
 @Component({
 	selector: 'my-favorites',
@@ -31,6 +35,9 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 	selectedSubGroup : SubGroup;
 	selectedSubgroupId: number;
 	errorMessage: string = '';
+	tree: Tree;
+	treeVersionRules: TreeVersionRules;
+	myFavoritesChoices: MyFavoritesChoice[];
 
 	priceBreakdown: PriceBreakdown;
 
@@ -156,6 +163,22 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			this.takeUntilDestroyed(),
 			select(fromRoot.priceBreakdown)
 		).subscribe(pb => this.priceBreakdown = pb);
+
+		this.store.pipe(
+			take(1),
+			select(state => state.scenario),
+		).subscribe(scenario =>
+		{
+			this.tree = scenario.tree;
+			this.treeVersionRules = scenario.rules;
+		});		
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromFavorite.currentMyFavorite)
+		).subscribe(favorite => {
+			this.myFavoritesChoices = favorite && favorite.myFavoritesChoice;	
+		});	
 	}
 
 	setSelectedGroup(newGroup: Group, newSubGroup: SubGroup) {
@@ -180,4 +203,19 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			this.groupBar.selectSubgroup(nextGroup.id, nextSubgroup.id);
 		}
 	}
+
+	toggleChoice(choice: Choice)
+	{
+		let selectedChoices = [{ choiceId: choice.id, quantity: !choice.quantity ? 1 : 0, attributes: choice.selectedAttributes }];
+		const impactedChoices = getDependentChoices(this.tree, this.treeVersionRules, choice);
+
+		impactedChoices.forEach(c =>
+		{
+			selectedChoices.push({ choiceId: c.id, quantity: 0, attributes: c.selectedAttributes });
+		});
+
+		this.store.dispatch(new ScenarioActions.SelectChoices(...selectedChoices));
+		this.store.dispatch(new FavoriteActions.SaveMyFavoritesChoices());
+	}	
+
 }

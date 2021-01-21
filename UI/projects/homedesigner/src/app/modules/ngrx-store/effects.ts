@@ -22,6 +22,7 @@ import { JobService } from '../core/services/job.service';
 import { PlanService } from '../core/services/plan.service';
 import { SalesAgreementService } from '../core/services/sales-agreement.service';
 import { ChangeOrderService } from '../core/services/change-order.service';
+import { FavoriteService } from '../core/services/favorite.service';
 
 import { State, showSpinner } from './reducers';
 import { setTreePointsPastCutOff, mergeIntoTree } from '../shared/classes/tree.utils';
@@ -39,9 +40,10 @@ export class CommonEffects
 					switchMap(sag =>
 					{
 						return this.jobService.loadJob(sag.jobSalesAgreementAssocs[0].jobId).pipe(
-							map(job =>
+							combineLatest(this.favoriteService.loadMyFavorites(sag.id)),
+							map(([job, fav]) =>
 							{
-								return { job, salesAgreement: sag };
+								return { job, salesAgreement: sag, myFavorites: fav };
 							})
 						);
 					})
@@ -57,9 +59,11 @@ export class CommonEffects
 					changeOrderChoices = this.changeOrderService.getJobChangeOrderChoices([currentChangeOrder])
 				}
 
+				const favoriteChoices = _.flatMap(result.myFavorites, x => x.myFavoritesChoice);
+
 				return this.orgService.getSalesCommunityByFinancialCommunityId(result.job.financialCommunityId, true).pipe(
 					combineLatest(
-						this.treeService.getChoiceCatalogIds([...result.job.jobChoices, ...changeOrderChoices])
+						this.treeService.getChoiceCatalogIds([...result.job.jobChoices, ...changeOrderChoices, ...favoriteChoices])
 					),
 					//assign divChoiceCatalogIDs to choices for job and current change order
 					map(([sc, choices]) =>
@@ -97,6 +101,18 @@ export class CommonEffects
 						});
 
 						newResult.job.jobChoices = changedChoices;
+
+						if (newResult.myFavorites)
+						{
+							_.flatMap(newResult.myFavorites, fav => fav.myFavoritesChoice).forEach(ch => {
+								let ch1 = choices.find(c => c.dpChoiceId === ch.dpChoiceId);
+
+								if (ch1)
+								{
+									ch.divChoiceCatalogId = ch1.divChoiceCatalogId;
+								}
+							});							
+						}
 
 						return { ...newResult, sc, currentChangeOrderGroup };
 					})
@@ -166,7 +182,8 @@ export class CommonEffects
 										selectedHanding: result.selectedHanding,
 										selectedChoices: result.selectedChoices,
 										selectedPlanId: result.selectedPlanId,
-										salesAgreement: result.salesAgreement
+										salesAgreement: result.salesAgreement,
+										myFavorites: result.myFavorites
 									};
 								}),
 								mergeIntoTree(
@@ -201,7 +218,8 @@ export class CommonEffects
 								selectedHanding: result.selectedHanding,
 								selectedChoices: result.selectedChoices,
 								selectedPlanId: result.selectedPlanId,
-								salesAgreement: result.salesAgreement
+								salesAgreement: result.salesAgreement,
+								myFavorites: result.myFavorites
 							}
 						})
 					)
@@ -227,7 +245,7 @@ export class CommonEffects
 				}
 
 				return <Observable<Action>>from([
-					new SalesAgreementLoaded(result.salesAgreement, result.job, result.sc, result.selectedChoices, result.selectedPlanId, result.selectedHanding, result.tree, result.rules, result.options, result.images, result.mappings, result.changeOrder, result.lot),
+					new SalesAgreementLoaded(result.salesAgreement, result.job, result.sc, result.selectedChoices, result.selectedPlanId, result.selectedHanding, result.tree, result.rules, result.options, result.images, result.mappings, result.changeOrder, result.lot, result.myFavorites),
 					new LoadLots(result.sc.id),
 					new LoadSelectedPlan(result.selectedPlanId, selectedPlanPrice)
 				]);
@@ -261,5 +279,6 @@ export class CommonEffects
 		private planService: PlanService,
 		private salesAgreementService: SalesAgreementService,
 		private changeOrderService: ChangeOrderService,
+		private favoriteService: FavoriteService,
 		private spinnerService: SpinnerService) { }
 }

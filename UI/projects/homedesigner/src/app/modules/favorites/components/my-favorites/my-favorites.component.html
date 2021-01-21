@@ -8,7 +8,9 @@
 <div class="phd-my-favorites">
 	<normal-experience [groupName]="groupName"
 					   [currentSubgroup]="selectedSubGroup"
-					   [errorMessage]="errorMessage"></normal-experience>
+					   [errorMessage]="errorMessage"
+					   [myFavoritesChoices]="myFavoritesChoices"
+					   (onToggleChoice)="toggleChoice($event)"></normal-experience>
 </div>
 
 <action-bar [primaryAction]="'Next'" [price]="priceBreakdown.totalPrice" (callToAction)="onNextSubGroup()"></action-bar>

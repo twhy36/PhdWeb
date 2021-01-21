@@ -13,9 +13,10 @@ import {
 } from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
-import { isJobChoice } from '../../shared/classes/tree.utils';
+import { isChangeOrderChoice } from '../../shared/classes/tree.utils';
 
 import * as _ from 'lodash';
+import { MyFavoritesChoice } from '../../shared/models/my-favorite.model';
 
 @Injectable()
 export class TreeService
@@ -153,12 +154,12 @@ export class TreeService
 		);
 	}
 
-	getChoiceCatalogIds(choices: Array<JobChoice | ChangeOrderChoice>): Observable<Array<JobChoice | ChangeOrderChoice>>
+	getChoiceCatalogIds(choices: Array<JobChoice | ChangeOrderChoice | MyFavoritesChoice>): Observable<Array<JobChoice | ChangeOrderChoice>>
 	{
 		return this.identityService.token.pipe(
 			switchMap((token: string) =>
 			{
-				const choiceIds: Array<number> = choices.map(x => isJobChoice(x) ? x.dpChoiceId : x.decisionPointChoiceID);
+				const choiceIds: Array<number> = choices.map(x => isChangeOrderChoice(x) ? x.decisionPointChoiceID : x.dpChoiceId);
 				const filter = `dpChoiceID in (${choiceIds})`;
 				const select = 'dpChoiceID,divChoiceCatalogID';
 				const url = `${environment.apiUrl}dPChoices?${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
@@ -172,7 +173,7 @@ export class TreeService
 				const updatedChoices = [];
 				if (newChoices.length > 0) {
 					newChoices.forEach(c => {
-						const choiceId = isJobChoice(c) ? c.dpChoiceId : c.decisionPointChoiceID;
+						const choiceId = isChangeOrderChoice(c) ? c.decisionPointChoiceID : c.dpChoiceId;
 						const respChoice = response.value.find(r => r.dpChoiceID === choiceId);
 
 						if (respChoice) {
@@ -183,10 +184,10 @@ export class TreeService
 					});
 
 					changedChoices.forEach(cc => {
-						if (isJobChoice(cc)) {
-							updatedChoices.push(new JobChoice(cc));
-						} else {
+						if (isChangeOrderChoice(cc)) {
 							updatedChoices.push(new ChangeOrderChoice(cc));
+						} else {
+							updatedChoices.push(new JobChoice(cc));
 						}
 					});
 				}

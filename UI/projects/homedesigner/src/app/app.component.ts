@@ -13,7 +13,7 @@ export class AppComponent {
 
 	build = (build as any).default;
 	environment = environment;
-
+    
 	get branch(): string {
 		return build.branch.split('/').slice(2).join('/');
 	}

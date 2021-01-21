@@ -48,7 +48,7 @@ export function createBatchBody(batchGuid: string, requests: Array<string[]>, he
 	return body;
 }
 
-export function createBatch<T>(items: Array<T>, nameOfIdProperty: string, endpoint: string, token?: string): string[] {
+export function createBatch<T>(items: Array<T>, nameOfIdProperty: string, endpoint: string, token?: string, deleted?: boolean): string[] {
 	let batchRequests: string[] = [];
 
 	if (items.length > 0) {
@@ -66,8 +66,8 @@ export function createBatch<T>(items: Array<T>, nameOfIdProperty: string, endpoi
 			batchRequests.push(`Content-ID: ${contentId++}`);
 			batchRequests.push('');
 
-			if (g[nameOfIdProperty] === 0) {
-				batchRequests.push(`POST ${endpoint} HTTP/1.1`);
+			if (deleted) {
+				batchRequests.push(`DELETE ${endpoint}(${g[nameOfIdProperty]}) HTTP/1.1`);
 				batchRequests.push('OData-Version: 4.0;NetFx');
 				batchRequests.push('OData-MaxVersion: 4.0;NetFx');
 				batchRequests.push('Content-Type: application/json;odata.metadata=minimal');
@@ -78,42 +78,61 @@ export function createBatch<T>(items: Array<T>, nameOfIdProperty: string, endpoi
 				if (token) {
 					batchRequests.push(`Authorization: Bearer ${token}`);
 				}
-
 				batchRequests.push('');
-				batchRequests.push('{');
-
-				let keycount = 0;
-				for (let key in g) {
-					keycount++;
-					batchRequests.push(`${keycount > 1 ? "," : ""}${getKeyValueString(key, g)}`);
-				}
-				batchRequests.push('}');
+				batchRequests.push('{}');
 			}
 			else {
-				batchRequests.push(`PATCH ${endpoint}(${g[nameOfIdProperty]}) HTTP/1.1`);
-				batchRequests.push('OData-Version: 4.0;NetFx');
-				batchRequests.push('OData-MaxVersion: 4.0;NetFx');
-				batchRequests.push('Content-Type: application/json;odata.metadata=minimal');
-				batchRequests.push('Prefer: return=representation');
-				batchRequests.push('Accept: application/json;odata.metadata=minimal');
-				batchRequests.push('Accept-Charset: UTF-8');
 
-				if (token) {
-					batchRequests.push(`Authorization: Bearer ${token}`);
+				if (g[nameOfIdProperty] === 0) {
+					batchRequests.push(`POST ${endpoint} HTTP/1.1`);
+					batchRequests.push('OData-Version: 4.0;NetFx');
+					batchRequests.push('OData-MaxVersion: 4.0;NetFx');
+					batchRequests.push('Content-Type: application/json;odata.metadata=minimal');
+					batchRequests.push('Prefer: return=representation');
+					batchRequests.push('Accept: application/json;odata.metadata=minimal');
+					batchRequests.push('Accept-Charset: UTF-8');
+
+					if (token) {
+						batchRequests.push(`Authorization: Bearer ${token}`);
+					}
+
+					batchRequests.push('');
+					batchRequests.push('{');
+
+					let keycount = 0;
+					for (let key in g) {
+						keycount++;
+						batchRequests.push(`${keycount > 1 ? "," : ""}${getKeyValueString(key, g)}`);
+					}
+					batchRequests.push('}');
 				}
+				else {
+					batchRequests.push(`PATCH ${endpoint}(${g[nameOfIdProperty]}) HTTP/1.1`);
+					batchRequests.push('OData-Version: 4.0;NetFx');
+					batchRequests.push('OData-MaxVersion: 4.0;NetFx');
+					batchRequests.push('Content-Type: application/json;odata.metadata=minimal');
+					batchRequests.push('Prefer: return=representation');
+					batchRequests.push('Accept: application/json;odata.metadata=minimal');
+					batchRequests.push('Accept-Charset: UTF-8');
 
-				batchRequests.push('');
-				batchRequests.push('{');
+					if (token) {
+						batchRequests.push(`Authorization: Bearer ${token}`);
+					}
 
-				let keycount = 0;
+					batchRequests.push('');
+					batchRequests.push('{');
 
-				for (let key in g) {
-					keycount++;
-					batchRequests.push(`${keycount > 1 ? "," : ""}${getKeyValueString(key, g)}`);
+					let keycount = 0;
+
+					for (let key in g) {
+						keycount++;
+						batchRequests.push(`${keycount > 1 ? "," : ""}${getKeyValueString(key, g)}`);
+					}
+
+					batchRequests.push('}');
 				}
-
-				batchRequests.push('}');
 			}
+
 		});
 
 		batchRequests.push(`--changeset_${changeSetGuid}--`);

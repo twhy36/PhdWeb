@@ -1,5 +1,10 @@
 import { Component, Input, Output, NgZone, Renderer2, OnInit, ChangeDetectorRef, EventEmitter } from '@angular/core';
+import { Router } from '@angular/router';
+import { Store } from '@ngrx/store';
 import { UnsubscribeOnDestroy } from 'phd-common';
+
+import * as fromRoot from '../../../ngrx-store/reducers';
+import * as FavoriteActions from '../../../ngrx-store/favorite/actions';
 
 import { ActionBarCallType } from '../../classes/constants.class';
 
@@ -30,7 +35,9 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit
 	constructor(
 		private ngZone: NgZone,
 		private renderer: Renderer2,
-		private cd: ChangeDetectorRef
+		private cd: ChangeDetectorRef,
+		private router: Router,
+		private store: Store<fromRoot.State>
 	) { super(); }
 
 	ngOnInit()
@@ -89,5 +96,10 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit
 
 	onPrimaryCallToActionClick() {
 		this.callToAction.emit({ actionBarCallType: ActionBarCallType.PRIMARY_CALL_TO_ACTION });
+	}
+
+	onHomePage() {
+		this.store.dispatch(new FavoriteActions.ResetCurrentFavorites());
+		this.router.navigateByUrl('/home');
 	}
 }

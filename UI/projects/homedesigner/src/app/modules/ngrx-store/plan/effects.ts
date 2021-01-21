@@ -57,7 +57,7 @@ export class PlanEffects
 											}
 
 											plan.baseHouseElevationImageUrl = optionImages && optionImages.length > 0
-												? optionImages[0].imageURL : 'assets/pultegroup_logo.jpg';
+												? optionImages[0].imageURL : '';
 
 											return result.plans;
 										})

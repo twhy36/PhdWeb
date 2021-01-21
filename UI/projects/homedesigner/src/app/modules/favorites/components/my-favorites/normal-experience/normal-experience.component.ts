@@ -1,6 +1,9 @@
-import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, OnInit, Input, OnChanges, SimpleChanges, Output, EventEmitter } from '@angular/core';
+import * as _ from 'lodash';
 
 import { UnsubscribeOnDestroy, flipOver, DecisionPoint, PickType, SubGroup, Choice } from 'phd-common';
+
+import { MyFavoritesChoice } from '../../../../shared/models/my-favorite.model';
 
 @Component({
 	selector: 'normal-experience',
@@ -13,12 +16,16 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	@Input() groupName: string;
 	@Input() currentSubgroup: SubGroup;
 	@Input() errorMessage: string;
+	@Input() myFavoritesChoices: MyFavoritesChoice[];
+
+	@Output() onToggleChoice = new EventEmitter<Choice>();
 
 	isPointPanelCollapsed: boolean = false;
 	points: DecisionPoint[];
 	currentPointId: number;
 	subGroup: SubGroup;
-	
+	choiceToggled: boolean = false;
+
 	constructor() { super(); }
 
 	ngOnInit() { }
@@ -27,10 +34,28 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	{
 		if (changes['currentSubgroup']) 
 		{
-			this.subGroup = changes['currentSubgroup'].currentValue;
-			this.points = this.subGroup.points;
-			if (this.points.length) {
-				this.currentPointId = this.points[0].id;
+			const newSubGroup = (changes['currentSubgroup'].currentValue) as SubGroup;
+			if (this.choiceToggled)
+			{
+				// Prevent reloading the page
+				const newChoices = _.flatMap(newSubGroup.points, pt => pt.choices);
+				let choices = _.flatMap(this.subGroup.points, pt => pt.choices);
+				newChoices.forEach(nc => {
+					let choice = choices.find(x => x.divChoiceCatalogId === nc.divChoiceCatalogId);
+					if (choice)
+					{
+						choice.quantity = nc.quantity;
+					}
+				});
+				this.choiceToggled = false;
+			}
+			else
+			{
+				this.subGroup = changes['currentSubgroup'].currentValue;
+				this.points = this.subGroup ? this.subGroup.points : null;
+				if (this.points && this.points.length) {
+					this.currentPointId = this.points[0].id;
+				}				
 			}
 		}
 	}
@@ -73,8 +98,11 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 
 	choiceToggleHandler(choice: Choice) {
 		const point = this.points.find(p => p.choices.some(c => c.id === choice.id));
-		if (point) {
+		if (point && this.currentPointId != point.id) {
 			this.currentPointId = point.id;
 		}
+
+		this.choiceToggled = true;
+		this.onToggleChoice.emit(choice);
 	}
 }

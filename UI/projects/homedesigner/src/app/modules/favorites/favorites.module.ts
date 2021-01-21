@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Routes, RouterModule } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CloudinaryModule } from '@cloudinary/angular-5.x';
+import { ToastrModule } from 'ngx-toastr';
 
 import { SharedModule } from '../shared/shared.module';
 import { PhdCommonModule } from 'phd-common';
@@ -15,8 +16,8 @@ import { SummaryHeaderComponent } from './components/favorites-summary/summary-h
 const moduleRoutes: Routes = [
 	{ path: 'favorites', component: ManageFavoritesComponent },
 	{ path: 'favorites/summary', component: FavoritesSummaryComponent },
-	{ path: 'favorites/my-favorites/:divDPointCatalogId', component: MyFavoritesComponent },
-	{ path: 'favorites/my-favorites', component: MyFavoritesComponent }
+	{ path: 'favorites/my-favorites/:favoritesId/:divDPointCatalogId', component: MyFavoritesComponent },
+	{ path: 'favorites/my-favorites/:favoritesId', component: MyFavoritesComponent }
 ];
 
 @NgModule({
@@ -41,7 +42,8 @@ const moduleRoutes: Routes = [
 		CloudinaryModule,
         SharedModule,
 		PhdCommonModule,
-        RouterModule.forChild(moduleRoutes),
+		RouterModule.forChild(moduleRoutes),
+		ToastrModule
     ],
     providers: []
 })

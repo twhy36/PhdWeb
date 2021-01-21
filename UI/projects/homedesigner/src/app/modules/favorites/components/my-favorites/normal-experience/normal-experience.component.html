@@ -26,6 +26,7 @@
 			<div class="d-flex flex-wrap phd-choice-cards">
 				<choice-card *ngFor="let choice of point.choices"
 							 [currentChoice]="choice"
+							 [myFavoritesChoices]="myFavoritesChoices"
 							 (toggled)="choiceToggleHandler($event)">
 				</choice-card>
 			</div>

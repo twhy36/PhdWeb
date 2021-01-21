@@ -20,7 +20,7 @@
 		<div class="phd-select-prev">Select from your previously created lists below</div>
 		<div class="d-flex justify-content-center">
 			<div class="d-flex flex-column">
-				<button class="btn btn-primary phd-fav-button" *ngFor="let fav of favoriteList">{{fav}}</button>
+				<button class="btn btn-primary phd-fav-button" *ngFor="let fav of favoriteList" (click)="onMyFavorites(fav)">{{fav?.name}}</button>
 			</div>
 		</div>
 	</div>

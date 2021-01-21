@@ -3,11 +3,12 @@ import { createSelector, createFeatureSelector } from '@ngrx/store';
 import * as _ from "lodash";
 
 import {
-	applyRules, getMaxSortOrderChoice, findChoice, findPoint,
+	applyRules, getMaxSortOrderChoice, findChoice, findPoint, selectChoice,
 	DesignToolAttribute, SalesCommunity, PlanOption, TreeVersionRules, Scenario, TreeFilter,
 	Tree, Choice, Group, SubGroup, DecisionPoint, PickType
 } from 'phd-common';
 
+import { checkSelectedAttributes } from '../../shared/classes/tree.utils';
 import { RehydrateMap } from '../sessionStorage';
 import { CommonActionTypes } from '../actions';
 import { ScenarioActions, ScenarioActionTypes } from './actions';
@@ -45,8 +46,12 @@ RehydrateMap.onRehydrate<State>('scenario', state => { return { ...state, saving
 
 export function reducer(state: State = initialState, action: ScenarioActions): State
 {
+	let newTree: Tree;
+	let choices: Choice[];
 	let points: DecisionPoint[];
 	let subGroups: SubGroup[];
+	let rules: TreeVersionRules;
+	let options: PlanOption[];
 
 	switch (action.type)
 	{
@@ -151,6 +156,76 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 
 		case ScenarioActionTypes.SetTreeFilter:
 			return { ...state, treeFilter: action.treeFilter };
+
+		case ScenarioActionTypes.SelectChoices:
+			newTree = _.cloneDeep(state.tree);
+			rules = _.cloneDeep(state.rules);
+			options = _.cloneDeep(state.options);
+			subGroups = _.flatMap(newTree.treeVersion.groups, g => g.subGroups);
+			points = _.flatMap(subGroups, sg => sg.points);
+			choices = _.flatMap(points, p => p.choices);
+
+			for (let choice of action.choices)
+			{
+				let c = choices.find(ch => ch.id === choice.choiceId);
+
+				if (c)
+				{
+					c.quantity = choice.quantity;
+
+					if (choice.attributes)
+					{
+						if (choice.attributes.length)
+						{
+							c.selectedAttributes = [];
+
+							choice.attributes.forEach(actionAttribute =>
+							{
+								c.selectedAttributes.push({
+									attributeId: actionAttribute.attributeId,
+									attributeName: actionAttribute.attributeName,
+									attributeImageUrl: actionAttribute.attributeImageUrl,
+									attributeGroupId: actionAttribute.attributeGroupId,
+									attributeGroupName: actionAttribute.attributeGroupName,
+									attributeGroupLabel: actionAttribute.attributeGroupLabel,
+									locationGroupId: actionAttribute.locationGroupId,
+									locationGroupLabel: actionAttribute.locationGroupLabel,
+									locationGroupName: actionAttribute.locationGroupName,
+									locationId: actionAttribute.locationId,
+									locationName: actionAttribute.locationName,
+									locationQuantity: actionAttribute.locationQuantity,
+									scenarioChoiceLocationId: null,
+									scenarioChoiceLocationAttributeId: null,
+									sku: actionAttribute.sku,
+									manufacturer: actionAttribute.manufacturer
+								});
+							});
+						}
+						else
+						{
+							c.selectedAttributes = [];
+						}
+					}
+
+					if (c.quantity === 0)
+					{
+						c.lockedInOptions = [];
+						c.lockedInChoice = null;
+					}
+				}
+
+				if (choice.quantity > 0)
+				{
+					selectChoice(newTree, choice.choiceId);
+				}
+			}
+
+			applyRules(newTree, rules, options);
+
+			// check selected attributes to make sure they're still valid after applying rules
+			checkSelectedAttributes(choices);
+
+			return { ...state, tree: newTree, rules: rules, options: options, isUnsaved: true, pointHasChanges: true };
 
 		default:
 			return state;

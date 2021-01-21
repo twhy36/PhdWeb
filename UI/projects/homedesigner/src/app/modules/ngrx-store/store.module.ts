@@ -12,6 +12,7 @@ import { sessionStateReducer } from './sessionStorage';
 import { stateReset } from './state-reset';
 import { exceptionHandler } from './exceptionHandler';
 
+import { FavoriteEffects } from './favorite/effects';
 import { LotEffects } from './lot/effects';
 import { PlanEffects } from './plan/effects';
 import { CommonEffects } from './effects';
@@ -25,6 +26,7 @@ import { CommonEffects } from './effects';
 		}),
 
 		EffectsModule.forRoot([
+			FavoriteEffects,
 			LotEffects,
 			PlanEffects,
 			CommonEffects
