@@ -212,9 +212,23 @@ export class ReportComponent implements OnInit
         this.scrollToSelection(event.node);
     }
 
-    scrollToSelection(selection) {
+	scrollToSelection(selection) {
+		function isEqual(treeNode: any, selectedNode: any) : boolean {
+			if (treeNode.data.name === selectedNode.data.name) {
+				if (treeNode.parent && selectedNode.parent) {
+					return isEqual(treeNode.parent, selectedNode.parent);
+				} else {
+					return !treeNode.parent && !selectedNode.parent;
+				}
+			}
+
+			return false;
+		}
+
         if (this.salesTree.serializedValue !== null) {
-            let index = this.salesTree.serializedValue.findIndex(x => x.node.data.name === selection.data.name);
+			let index = this.salesTree.serializedValue.findIndex(x => {
+				return isEqual(x.node, selection);
+			});
             if (index > -1) {
                 const selectedElement = document.getElementsByClassName('phd-stlly-name').item(index);
                 if (selectedElement) {
