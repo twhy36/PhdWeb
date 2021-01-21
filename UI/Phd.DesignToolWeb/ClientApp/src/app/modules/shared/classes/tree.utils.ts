@@ -332,7 +332,7 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[] }>(c
 						{
 							opt.optionImages = existingAssoc.map(image =>
 							{
-								return { imageURL: image.imageUrl, integrationKey: opt.optionImages[0].integrationKey, sortKey: image.sortOrder } as OptionImage;
+								return { imageURL: image.imageUrl, integrationKey: opt.financialOptionIntegrationKey, sortKey: image.sortOrder } as OptionImage;
 							});
 						}
 
