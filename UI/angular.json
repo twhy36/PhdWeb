@@ -1,0 +1,301 @@
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "newProjectRoot": "projects",
+	"projects": {
+		"phd-common": {
+			"projectType": "library",
+			"root": "projects/phd-common",
+			"sourceRoot": "projects/phd-common/src",
+			"prefix": "lib",
+			"architect": {
+				"build": {
+					"builder": "@angular-devkit/build-ng-packagr:build",
+					"options": {
+						"tsConfig": "projects/phd-common/tsconfig.lib.json",
+						"project": "projects/phd-common/ng-package.json"
+					},
+					"configurations": {
+						"production": {
+							"tsConfig": "projects/phd-common/tsconfig.lib.prod.json"
+						}
+					}
+				},
+				"test": {
+					"builder": "@angular-devkit/build-angular:karma",
+					"options": {
+						"main": "projects/phd-common/src/test.ts",
+						"tsConfig": "projects/phd-common/tsconfig.spec.json",
+						"karmaConfig": "projects/phd-common/karma.conf.js"
+					}
+				},
+				"lint": {
+					"builder": "@angular-devkit/build-angular:tslint",
+					"options": {
+						"tsConfig": [
+							"projects/phd-common/tsconfig.lib.json",
+							"projects/phd-common/tsconfig.spec.json"
+						],
+						"exclude": [
+							"**/node_modules/**"
+						]
+					}
+				}
+			}
+		},
+		"salesportal": {
+			"root": "",
+			"sourceRoot": "projects/salesportal/src",
+			"projectType": "application",
+			"architect": {
+				"build": {
+					"builder": "@angular-devkit/build-angular:browser",
+					"options": {
+						"aot": true,
+						"baseHref": "/salesportal/",
+						"outputHashing": "all",
+						"outputPath": "dist/salesportal",
+						"index": "projects/salesportal/src/index.html",
+						"main": "projects/salesportal/src/main.ts",
+						"tsConfig": "projects/salesportal/tsconfig.app.json",
+						"progress": true,
+						"preserveSymlinks": true,
+						"polyfills": "projects/salesportal/src/polyfills.ts",
+						"verbose": true,
+						"assets": [
+							"projects/salesportal/src/assets"
+						],
+						"styles": [
+							"node_modules/font-awesome/css/font-awesome.min.css",
+							"node_modules/primeng/resources/themes/nova-light/theme.css",
+							"node_modules/primeng/resources/primeng.min.css",
+							"node_modules/primeicons/primeicons.css",
+							"projects/salesportal/src/scss/styles.scss"
+						],
+						"scripts": []
+					},
+					"configurations": {
+						"qa": {
+							"fileReplacements": [
+								{
+									"replace": "projects/salesportal/src/environments/environment.ts",
+									"with": "projects/salesportal/src/environments/environment.qa.ts"
+								}
+							]
+						},
+						"staging": {
+							"fileReplacements": [
+								{
+									"replace": "projects/salesportal/src/environments/environment.ts",
+									"with": "projects/salesportal/src/environments/environment.staging.ts"
+								}
+							]
+						},
+						"production": {
+							"optimization": true,
+							"sourceMap": false,
+							"extractCss": true,
+							"namedChunks": false,
+							"extractLicenses": true,
+							"vendorChunk": false,
+							"buildOptimizer": true,
+							"fileReplacements": [
+								{
+									"replace": "projects/salesportal/src/environments/environment.ts",
+									"with": "projects/salesportal/src/environments/environment.prod.ts"
+								}
+							]
+						}
+					}
+				},
+				"serve": {
+					"builder": "@angular-devkit/build-angular:dev-server",
+					"options": {
+						"baseHref": "/",
+						"browserTarget": "salesportal:build",
+						"port": 14769
+					},
+					"configurations": {
+						"qa": {
+							"browserTarget": "salesportal:build:qa"
+						},
+						"staging": {
+							"browserTarget": "salesportal:build:staging"
+						},
+						"production": {
+							"browserTarget": "salesportal:build:production"
+						}
+					}
+				},
+				"extract-i18n": {
+					"builder": "@angular-devkit/build-angular:extract-i18n",
+					"options": {
+						"browserTarget": "salesportal:build"
+					}
+				},
+				"test": {
+					"builder": "@angular-devkit/build-angular:karma",
+					"options": {
+						"main": "projects/salesportal/src/test.ts",
+						"karmaConfig": "projects/salesportal/karma.conf.js",
+						"polyfills": "projects/salesportal/src/polyfills.ts",
+						"tsConfig": "projects/salesportal//tsconfig.spec.json",
+						"scripts": [],
+						"styles": [
+							"node_modules/bootstrap/scss/bootstrap.scss",
+							"node_modules/font-awesome/css/font-awesome.min.css",
+							"node_modules/primeng/resources/themes/nova-light/theme.css",
+							"node_modules/primeng/resources/primeng.min.css",
+							"node_modules/primeicons/primeicons.css",
+							"projects/salesportal/src/scss/styles.scss"
+						],
+						"assets": [
+							"projects/salesportal/src/assets"
+						]
+					}
+				},
+				"lint": {
+					"builder": "@angular-devkit/build-angular:tslint",
+					"options": {
+						"tsConfig": [
+							"projects/salesportal/tsconfig.app.json",
+							"projects/salesportal/tsconfig.spec.json"
+						],
+						"exclude": [
+							"**/node_modules/**"
+						]
+					}
+				}
+			}
+		},
+		"homedesigner": {
+			"root": "",
+			"sourceRoot": "projects/homedesigner/src",
+			"projectType": "application",
+			"architect": {
+				"build": {
+					"builder": "@angular-devkit/build-angular:browser",
+					"options": {
+						"progress": true,
+						"preserveSymlinks": true,
+						"aot": true,
+						"baseHref": "/homedesigner/",
+						"outputHashing": "all",
+						"outputPath": "dist/homedesigner",
+						"index": "projects/homedesigner/src/index.html",
+						"main": "projects/homedesigner/src/main.ts",
+						"polyfills": "projects/homedesigner/src/polyfills.ts",
+						"tsConfig": "projects/homedesigner/tsconfig.app.json",
+						"verbose": true,
+						"assets": [
+							"projects/homedesigner/src/assets"
+						],
+						"styles": [
+							"node_modules/ngx-toastr/toastr.css",
+							"node_modules/bootstrap/dist/css/bootstrap.min.css",
+							"node_modules/font-awesome/css/font-awesome.min.css",
+							"node_modules/primeng/resources/themes/nova-light/theme.css",
+							"node_modules/primeng/resources/primeng.min.css",
+							"node_modules/primeicons/primeicons.css",
+							"projects/homedesigner/src/scss/styles.scss"
+						],
+						"scripts": []
+					},
+					"configurations": {
+						"qa": {
+							"fileReplacements": [
+								{
+									"replace": "projects/homedesigner/src/environments/environment.ts",
+									"with": "projects/homedesigner/src/environments/environment.qa.ts"
+								}
+							]
+						},
+						"staging": {
+							"fileReplacements": [
+								{
+									"replace": "projects/homedesigner/src/environments/environment.ts",
+									"with": "projects/homedesigner/src/environments/environment.staging.ts"
+								}
+							]
+						},
+						"production": {
+							"fileReplacements": [
+								{
+									"replace": "projects/homedesigner/src/environments/environment.ts",
+									"with": "projects/homedesigner/src/environments/environment.prod.ts"
+								}
+							],
+							"optimization": true,
+							"sourceMap": false,
+							"extractCss": true,
+							"namedChunks": false,
+							"extractLicenses": true,
+							"vendorChunk": false,
+							"buildOptimizer": true
+						}
+					}
+				},
+				"serve": {
+					"builder": "@angular-devkit/build-angular:dev-server",
+					"options": {
+						"baseHref": "/",
+						"browserTarget": "homedesigner:build",
+						"port": 14765
+					},
+					"configurations": {
+						"qa": {
+							"browserTarget": "homedesigner:build:qa"
+						},
+						"staging": {
+							"browserTarget": "homedesigner:build:staging"
+						},
+						"production": {
+							"browserTarget": "homedesigner:build:production"
+						}
+					}
+				},
+				"extract-i18n": {
+					"builder": "@angular-devkit/build-angular:extract-i18n",
+					"options": {
+						"browserTarget": "homedesigner:build"
+					}
+				},
+				"test": {
+					"builder": "@angular-devkit/build-angular:karma",
+					"options": {
+						"main": "projects/homedesigner/src/test.ts",
+						"polyfills": "projects/homedesigner/src/polyfills.ts",
+						"tsConfig": "projects/homedesigner/tsconfig.spec.json",
+						"karmaConfig": "projects/homedesigner/karma.conf.js",
+						"styles": [
+							"node_modules/ngx-toastr/toastr.css",
+							"node_modules/bootstrap/scss/bootstrap.scss",
+							"node_modules/font-awesome/css/font-awesome.min.css",
+							"node_modules/primeng/resources/themes/nova-light/theme.css",
+							"node_modules/primeng/resources/primeng.min.css",
+							"node_modules/primeicons/primeicons.css",
+							"projects/homedesigner/src/scss/styles.scss"
+						],
+						"scripts": [],
+						"assets": [
+							"projects/homedesigner/src/assets"
+						]
+					}
+				},
+				"lint": {
+					"builder": "@angular-devkit/build-angular:tslint",
+					"options": {
+						"tsConfig": [
+							"projects/homedesigner/tsconfig.app.json",
+							"projects/homedesigner/tsconfig.spec.json"
+						],
+						"exclude": [
+							"**/node_modules/**"
+						]
+					}
+				}
+			}
+		}
+	},
+  "defaultProject": "phd-common"
+}

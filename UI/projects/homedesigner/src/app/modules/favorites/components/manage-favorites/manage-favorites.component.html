@@ -1,0 +1,29 @@
+<div class="d-flex flex-column phd-manage-favorites">
+	<div class="d-flex flex-column">
+		<div class="phd-new-favorite">Create New Favorites List</div>
+		<div class="phd-unique-name">Enter a unique name for your new list</div>
+		<form [formGroup]="favoriteForm">
+			<div class="form-group input-group d-flex justify-content-center">
+				<div>
+					<input type="text" formControlName="favoriteName" [controlDisabled]="saveDisabled" class="form-control phd-favorite-name-input" placeholder="Favorite List" maxlength="50" autocomplete="off" (keyup)="onKeyup()" required />
+				</div> 
+				<div class="input-group-append">
+					<button class="btn btn-primary phd-favorite-name-btn" type="submit" [disabled]="saveDisabled || favoriteForm.pristine || favoriteForm.invalid || isDuplicateName" (click)="createFavorite()">Save</button>
+				</div>
+			</div>
+			<div *ngIf="isDuplicateName" class="phd-alert-message">The favorite list name you entered is already in use. Please enter a different name to proceed.</div>
+		</form>
+	</div>
+	<div class="d-flex flex-column" *ngIf="favoriteList.length">
+		<div class="phd-or-separator">- OR -</div>
+		<div class="phd-return-prev">Return to Previous List</div>
+		<div class="phd-select-prev">Select from your previously created lists below</div>
+		<div class="d-flex justify-content-center">
+			<div class="d-flex flex-column">
+				<button class="btn btn-primary phd-fav-button" *ngFor="let fav of favoriteList" (click)="onMyFavorites(fav)">{{fav?.name}}</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<action-bar></action-bar>

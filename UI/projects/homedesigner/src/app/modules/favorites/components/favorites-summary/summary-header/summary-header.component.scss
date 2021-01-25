@@ -1,0 +1,90 @@
+@import "../../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
+
+.phd-logo-image {
+	width: calc(45vw);
+	height: calc(45vh);
+}
+
+.phd-header-body {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-around;
+	width: calc(55vw);
+	max-height: calc(45vh);
+
+	.phd-upper-header {
+		padding-left: 15px;
+	}
+
+	.phd-favorites-list {
+		font-size: 28px;
+		font-weight: 500;
+		margin-top: 5px;
+	}
+
+	.phd-lot-label {
+		text-transform: uppercase;
+		font-size: 16px;
+	}
+
+	.phd-lot-details {
+		font-size: 15px;
+		margin-left: 10px;
+	}
+
+	.phd-price-breakdown {
+		padding-left: 15px;
+		font-size: 14px;
+	}
+
+	.phd-breakdown-label {
+		flex-basis: 40%;
+	}
+
+	.phd-breakdown-content {
+		flex-basis: 60%;
+	}	
+
+	.phd-estimate {
+		display: flex;
+		font-weight: bold;
+	}
+
+	.phd-contracted-options {
+		padding-left: 15px;
+	}
+
+	.phd-divider {
+		width: 100%;
+		height: 1px;
+		min-height: 1px;
+		background-color: $mid_gray;
+	}
+}
+
+.summary-header {
+	display: flex;
+	flex-direction: row;
+	z-index: 1;
+
+	&.is-sticky {
+		position: fixed;
+		top: 125px;
+	
+		&,
+		::ng-deep & * {
+			transition: all .2s;
+		}
+	
+		&::after {
+			content: ' ';
+			position: fixed;
+			width: 100%;
+			height: 115px;
+			z-index: -1;
+			left: 0;
+			background-color: white;
+			box-shadow: 0 9px 4px -8px $mid_gray;
+		}
+	}	
+}
