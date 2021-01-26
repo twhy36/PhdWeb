@@ -1,0 +1,216 @@
+<phd-side-panel-component [headerTemplate]="header" [subheaderTemplate]="subheader" [bodyTemplate]="body" [footerTemplate]="footer" [sidePanelOpen]="sidePanelOpen" (onSidePanelClose)="onCloseSidePanel($event)" [isDirty]="isDirty">
+	<ng-template #header>
+		<h4 class="phd-side-panel-header"><strong>Homesite Details</strong></h4>
+	</ng-template>
+
+	<ng-template #subheader>
+		<h6 class="pt-3 mb-0 pl-2"><strong>{{ sidePanelSubheader }}</strong></h6>
+	</ng-template>
+
+	<ng-template #body>
+		<div class="phd-side-panel-body">
+			<ul ngbNav #nav="ngbNav" [(activeId)]="currentTab" class="nav-tabs" (navChange)="onNavChange($event)">
+				<li [ngbNavItem]="'details'">
+					<a ngbNavLink>Details</a>
+					<ng-template ngbNavContent>
+						<div class="container pt-3">
+							<form [formGroup]="homesiteForm">
+
+								<div class="form-group mt-3" *ngIf="canEditAvailability">
+									<div class="form-check">
+										<label class="form-check-label" for="lotStatusDescription">
+											<input class="form-check-input" name="lotStatusDescription" formControlName="lotStatusDescription" type="checkbox" id="lotStatusDescription">
+											Make Lot Unavailable
+										</label>
+									</div>
+								</div>
+								<div class="form-group">
+									<label for="altLotBlock">Alternate Lot Block</label>
+									<input type="text" class="form-control" id="altLotBlock" [value]="selectedHomesite.dto.altLotBlock" maxlength="25"
+										   formControlName="altLotBlock" />
+								</div>
+								<div class="form-group">
+									<label for="viewAdjacency.value">View/Adjacency</label>
+									<select id="viewAdjacency.value" class="form-control" formControlName="viewAdjacency" required>
+										<option *ngFor="let viewAdjacency of viewAdjacencies" [ngValue]="viewAdjacency.value">{{ viewAdjacency.label }}</option>
+									</select>
+								</div>
+
+								<div class="form-group">
+									<label for="physicalLotTypes.value">Physical Description</label>
+									<select id="physicalLotTypes.value" class="form-control" formControlName="physicalLotTypes" required>
+										<option *ngFor="let physicalLotType of physicalLotTypes" [ngValue]="physicalLotType.value">{{ physicalLotType.label }}</option>
+									</select>
+								</div>
+
+								<div class="phd-multiselect">
+									<div class="phd-selectBox form-group">
+										<label for="handings">Handing</label>
+										<div id="phd-checkboxes" [ngClass]="{'phd-required': handingChecked}">
+											<div class="form-group">
+												<div class="form-check phd-form-check">
+													<label *ngFor="let handing of handings; let i = index" class="form-check-label" for="handing">
+														<input class="form-check-input" formControlName="handing-{{handing}}" type="checkbox" [attr.disabled]="lotInaccessible && isHandingSelected(handing) ? 'disabled' : null">
+														{{Handing[handing]}}
+													</label>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+
+
+								<div class="form-group">
+									<label for="foundationType">Foundation</label>
+									<select id="foundationType" class="form-control" formControlName="foundationType" required>
+										<option *ngFor="let foundationType of foundationTypes" [ngValue]="foundationType">{{ foundationType }}</option>
+									</select>
+								</div>
+
+								<div class="form-group">
+									<label for="facing">Front Facing</label>
+									<select id="facing" class="form-control" formControlName="facing">
+										<option *ngFor="let facing of facings" [ngValue]="facing">{{ facing }}</option>
+									</select>
+								</div>
+
+
+								<div class="form-group">
+									<label for="premium">Premium</label>
+									<div class="input-group col-xs-12 col-sm-8 col-md-8 col-lg-8">
+										<div class="input-group-prepend" [class.ng-invalid]="homesiteForm.get('premium').invalid">
+											<span class="input-group-text">$</span>
+										</div>
+										<input id="premium" name="premium" formControlName="premium" type="number" min="0" step="1" class="form-control"
+											   aria-label="Amount (to the nearest dollar)">
+										<div class="input-group-append">
+											<span class="input-group-text">.00</span>
+										</div>
+									</div>
+								</div>
+								<div class="form-group">
+									<label for="warranty">Warranty</label>
+									<select id="warranty" class="form-control" formControlName="warranty" required>
+										<option *ngFor="let warranty of warrantyTypes" [ngValue]="warranty">{{ warranty }}</option>
+									</select>
+								</div>
+								<div *ngIf="selectedHomesite.lotBuildTypeDescription === 'Model'" class="form-group">
+									<label for="changeModelToSpec">Change Lot Build Type</label>
+									<select id="changeModelToSpec" class="form-control" formControlName="changeModelToSpec" required>
+										<option *ngFor="let buildType of lotBuildTypes" [ngValue]="buildType">{{ buildType }}</option>
+									</select>
+								</div>
+							</form>
+						</div>
+					</ng-template>
+				</li>
+
+				<li [ngbNavItem]="'monotony'">
+					<a ngbNavLink>Monotony</a>
+					<ng-template ngbNavContent>
+						<div class="container pt-3">
+							<form [formGroup]="monotonyForm">
+								<div>
+									<label>Elevation/Plan</label>
+									<div class="container">
+										<div class="row">
+											<label class="col-sm-5 phd-smaller" for="lots">Available Homesite</label>
+											<label class="col-sm-5 offset-sm-2 phd-smaller" for="selectedLots">Assigned Homesite</label>
+										</div>
+										<div class="row">
+											<div class="col-sm-5">
+												<select class="phd-available-lots" id="elevation-lots" multiple size="6" formControlName="elevation">
+													<option *ngFor="let lot of elevationAvailableLots" [ngValue]="lot"> {{ lot }}</option>
+												</select>
+											</div>
+											<div class="col-sm-2 p-0 text-center">
+												<button class="btn btn-sm btn-secondary mb-1" (click)="addHighlightedElevations()" [disabled]="disableMonotonyForm"><i class="fa fa-angle-right fa-fw"></i></button>
+												<button class="btn btn-sm btn-secondary mb-1" (click)="addAllElevations()" [disabled]="disableMonotonyForm"><i class="fa fa-angle-double-right fa-fw"></i></button>
+												<button class="btn btn-sm btn-secondary" (click)="removeAllElevations()" [disabled]="disableMonotonyForm"><i class="fa fa-angle-double-left fa-fw"></i></button>
+											</div>
+											<div class="col-sm-5">
+												<div class="phd-tagsinput phd-selected-lots">
+													<div *ngFor="let lot of elevationSelectedLots" [ngClass]="{'phd-disabled-span': disableMonotonyForm, 'phd-tag': !disableMonotonyForm}">
+														<span>{{ lot }}</span>
+														<a *ngIf="!disableMonotonyForm" class="phd-tagsinput-remove-link" (click)="removeLotFromElevation(lot)"></a>
+														<a *ngIf="disableMonotonyForm" class="phd-tagsinput-remove-link"></a>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+									<br>
+									<div class="phd-copy-button">
+										<button class="btn btn-primary phd-extra-small phd-btn-copy" (click)="copyAssignedLots('elevation')" [disabled]="disableMonotonyForm">Copy from Color Scheme</button>
+									</div>
+								</div>
+								<div>
+									<label>Color Scheme</label>
+									<div class="container">
+										<div class="row">
+											<label class="col-sm-5 phd-smaller" for="lots">Available Homesite</label>
+											<label class="col-sm-5 offset-sm-2 phd-smaller" for="selectedLots">Assigned Homesite</label>
+										</div>
+										<div class="row">
+											<div class="col-sm-5">
+												<select class="phd-available-lots" id="color-lots" multiple size="6" formControlName="color">
+													<option *ngFor="let lot of colorAvailableLots" [ngValue]="lot"> {{ lot }}</option>
+												</select>
+											</div>
+											<div class="col-sm-2 p-0 text-center">
+												<button class="btn btn-sm btn-secondary mb-1" (click)="addHighlightedColors()" [disabled]="disableMonotonyForm"><i class="fa fa-angle-right fa-fw"></i></button>
+												<button class="btn btn-sm btn-secondary mb-1" (click)="addAllColors()" [disabled]="disableMonotonyForm"><i class="fa fa-angle-double-right fa-fw"></i></button>
+												<button class="btn btn-sm btn-secondary" (click)="removeAllColors()" [disabled]="disableMonotonyForm"><i class="fa fa-angle-double-left fa-fw"></i></button>
+											</div>
+											<div class="col-sm-5">
+												<div class="phd-tagsinput phd-selected-lots">
+													<div class="phd-tag" *ngFor="let lot of colorSelectedLots">
+														<span [ngClass]="{'phd-disabled-span': disableMonotonyForm}">{{ lot }}</span>
+														<a *ngIf="!disableMonotonyForm" class="phd-tagsinput-remove-link" (click)="removeLotFromColorScheme(lot)"></a>
+														<a *ngIf="disableMonotonyForm" class="phd-tagsinput-remove-link"></a>
+													</div>
+
+												</div>
+											</div>
+										</div>
+									</div>
+									<br>
+									<div class="phd-copy-button">
+										<button class="btn btn-primary phd-extra-small phd-btn-copy" (click)="copyAssignedLots('color')" [disabled]="disableMonotonyForm">Copy from Elevation/Plan</button>
+									</div>
+								</div>
+							</form>
+						</div>
+					</ng-template>
+				</li>
+			</ul>
+
+			<div class="phd-nav-tab-content">
+				<div [ngbNavOutlet]="nav"></div>
+			</div>
+		</div>
+	</ng-template>
+	<ng-template #footer>
+		<div class="pull-right">
+			<button class="btn btn-primary phd-btn-save" (click)="saveHomesite();" [disabled]="canSave" *ngIf="currentTab == 'details'">
+				Save
+
+				<ng-container *ngIf="saving">
+					<i class="fa fa-spinner fa-spin fa-fw"></i>
+				</ng-container>
+			</button>
+
+			<button class="btn btn-primary phd-btn-save" (click)="saveMonotonyRules()" [disabled]="canSaveMonotony" *ngIf="currentTab == 'monotony'">
+				Save
+
+				<ng-container *ngIf="saving">
+					<i class="fa fa-spinner fa-spin fa-fw"></i>
+				</ng-container>
+			</button>
+
+			<button class="btn btn-secondary" (click)="onCancel()">Cancel</button>
+		</div>
+	</ng-template>
+</phd-side-panel-component>
+
+<p-toast></p-toast>
