@@ -228,15 +228,19 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 
 		this.monotonyRules.forEach(rule =>
 		{
-			if (rule.monotonyRuleType === 'Elevation')
+			const lot = this.lots.find(x => x.dto.id === rule.relatedLotId);
+			if (!!lot)
 			{
-				this.elevationSelectedLots.push(String(this.lots.find(x => x.dto.id === rule.relatedLotId).lotBlock));
+				if (rule.monotonyRuleType === 'Elevation')
+				{
+					this.elevationSelectedLots.push(String(lot.lotBlock));
+				}
+				else
+				{
+					this.colorSelectedLots.push(String(lot.lotBlock));
+				}
 			}
-			else
-			{
-				this.colorSelectedLots.push(String(this.lots.find(x => x.dto.id === rule.relatedLotId).lotBlock));
-			}
-		})
+		});
 
 		this.lots.forEach(lot =>
 		{

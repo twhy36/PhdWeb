@@ -224,7 +224,7 @@ export class HomeSiteService
 	{
 		let url = settings.apiUrl;
 
-		const filter = `lotId eq ${lotId}`;
+		const filter = `lotId eq ${lotId} and isActive eq true`;
 
 		const qryStr = `${encodeURIComponent("$")}filter=${encodeURIComponent(filter)}`;
 
