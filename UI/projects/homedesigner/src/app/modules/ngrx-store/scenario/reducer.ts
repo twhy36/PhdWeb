@@ -227,9 +227,6 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 
 			return { ...state, tree: newTree, rules: rules, options: options, isUnsaved: true, pointHasChanges: true };
 
-		case ScenarioActionTypes.SetTreeFilter:
-			return { ...state, treeFilter: action.treeFilter };
-
 		default:
 			return state;
 	}
