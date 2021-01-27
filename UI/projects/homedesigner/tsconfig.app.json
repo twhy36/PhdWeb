@@ -22,6 +22,7 @@
 	"exclude": [
 		"src/test.ts",
 		"**/*.spec.ts",
+		"../phd-common/src/test.ts",
 		"../phd-common/**/*.spec.ts"
 	],
 	"angularCompilerOptions": {
