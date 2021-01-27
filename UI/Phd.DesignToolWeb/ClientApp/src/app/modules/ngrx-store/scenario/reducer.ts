@@ -198,12 +198,16 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 				// apply images to options
 				newState.options.forEach(option =>
 				{
-					let images = action.optionImages.filter(x => x.integrationKey === option.financialOptionIntegrationKey);
-
-					if (images.length)
+					// Don't update locked option images. Locked option images will already be set inside mergeIntoTree call. 
+					if (!option.optionImages?.length)
 					{
-						// make sure they're sorted properly
-						option.optionImages = images.sort((a, b) => a.sortKey < b.sortKey ? -1 : 1);
+						let images = action.optionImages.filter(x => x.integrationKey === option.financialOptionIntegrationKey);
+
+						if (images.length)
+						{
+							// make sure they're sorted properly
+							option.optionImages = images.sort((a, b) => a.sortKey < b.sortKey ? -1 : 1);
+						}
 					}
 				});
 			}
