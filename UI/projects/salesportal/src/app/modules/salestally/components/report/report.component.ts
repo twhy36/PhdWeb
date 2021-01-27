@@ -5,6 +5,7 @@ import { TreeNode } from 'primeng/api';
 import * as _ from 'lodash';
 import { Observable } from 'rxjs';
 
+import { BrowserService } from 'phd-common';
 import { SalesTallyService } from '../../../core/services/salestally.service';
 import { TopCommunity, TopMarket, TopSalesConsultant, TimeFrame, AreaSales, ConsultantBuyer } from '../../../shared/models/salestally.model';
 
@@ -23,10 +24,16 @@ export class ReportComponent implements OnInit
 	timeFrame = TimeFrame.CurrentWeek;
 	TimeFrameType = TimeFrame;
 	isMobile: boolean = false;
+	showTopMarkets: boolean = true;
+	showTopCommunities: boolean = true;
+	showTopSalesConsultants: boolean = true;
+	cols: any[];
+	isPortrait: boolean = false;
+	frozenWidth: string = '280px';
 
 	@ViewChild("salesTree") salesTree: TreeTable;
 
-	constructor(private salesTallyService: SalesTallyService) { }
+	constructor(private salesTallyService: SalesTallyService, private browser: BrowserService) { }
 
 	ngOnInit()
 	{
@@ -38,7 +45,145 @@ export class ReportComponent implements OnInit
 		var ua = window.navigator.userAgent;
 		if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS/i.test(ua)) {
 			this.isMobile = true;
+			this.showTopMarkets = false;
+			this.showTopCommunities = false;
+			this.showTopSalesConsultants = false;
 		}
+
+		this.cols = [
+			{ 
+				field: 'name',
+				firstHeader: '', 
+				secondHeader: '', 
+				headerColspan: '4',
+				bodyColspan: '4', 
+				displayHeader: true,
+				headerClass: '',
+				displayInMobile: true
+			},		
+			{ 
+				field: 'pending', 
+				firstHeader: 'Total', 
+				secondHeader: 'In Process', 
+				headerColspan: '1', 
+				bodyColspan: '1', 
+				displayHeader: true,
+				headerClass: 'phd-stlly-first-header',
+				displayInMobile: true 
+			},
+			{ 
+				field: 'previousDayNetAdd', 
+				firstHeader: 'Previous Day', 
+				secondHeader: 'Net', 
+				headerColspan: '1', 
+				bodyColspan: '1', 
+				displayHeader: true,
+				headerClass: 'phd-stlly-first-header',
+				displayInMobile: false 
+			},		
+			{ 
+				field: 'currentDayNetAdd', 
+				firstHeader: 'Current Day', 
+				secondHeader: 'Net', 
+				headerColspan: '1', 
+				bodyColspan: '1', 
+				displayHeader: true,
+				headerClass: 'phd-stlly-first-header',
+				displayInMobile: false 
+			},						
+			{ 
+				field: 'currentSignups', 
+				firstHeader: 'Current Week', 
+				secondHeader: 'Signups', 
+				headerColspan: '3', 
+				bodyColspan: '1', 
+				displayHeader: true,
+				headerClass: 'phd-stlly-first-header-wide',
+				displayInMobile: true 
+			},
+			{ 
+				field: 'currentCancellations', 
+				firstHeader: 'Current Week', 
+				secondHeader: 'Cancels', 
+				headerColspan: '1', 
+				bodyColspan: '1', 
+				displayHeader: false,
+				headerClass: '',
+				displayInMobile: true
+			},
+			{ 
+				field: 'currentNet', 
+				firstHeader: 'Current Week', 
+				secondHeader: 'Net', 
+				headerColspan: '1', 
+				bodyColspan: '1', 
+				displayHeader: false,
+				headerClass: '',
+				displayInMobile: true 
+			},
+			{ 
+				field: 'mtdSignups', 
+				firstHeader: 'Month To Date', 
+				secondHeader: 'Signups', 
+				headerColspan: '3', 
+				bodyColspan: '1', 
+				displayHeader: true,
+				headerClass: 'phd-stlly-first-header-wide',
+				displayInMobile: true  
+			},
+			{ 
+				field: 'mtdCancellations', 
+				firstHeader: 'Month To Date', 
+				secondHeader: 'Cancels', 
+				headerColspan: '1', 
+				bodyColspan: '1', 
+				displayHeader: false,
+				headerClass: '',
+				displayInMobile: true 
+			},
+			{ 
+				field: 'mtdNet', 
+				firstHeader: 'Month To Date', 
+				secondHeader: 'Net', 
+				headerColspan: '1', 
+				bodyColspan: '1', 
+				displayHeader: false,
+				headerClass: '',
+				displayInMobile: true
+			}
+		];
+
+		this.browser.clientWidth().subscribe(width => {
+			if (!this.isPortrait && width < 500) 
+			{
+				this.isPortrait = true;
+			} 
+			else if (this.isPortrait && width >= 500)
+			{
+				this.isPortrait = false;
+			}
+
+			if (width < 400 && this.frozenWidth === '280px')
+			{
+				this.frozenWidth = '250px';
+			}
+		});
+		
+	}
+
+	get scrollableCols() : any[] 
+	{
+		return this.cols.filter(c => c.field !== 'name' && !!c.displayInMobile);
+	}
+
+	get frozenCols() : any[] 
+	{
+		return this.cols.filter(c => c.field === 'name' );
+	}
+
+	displayInMobile(col: any) : boolean
+	{
+		return !this.isMobile || col.displayInMobile;
 	}
 
 	updateTop10Data(updateTimeFrame: TimeFrame)
@@ -90,8 +235,8 @@ export class ReportComponent implements OnInit
 		let allMtdSignups: number = 0;
 		let allMtdCancel: number = 0;
 		let allMtdNet: number = 0;
-		let allCurrentDaySignups: number = 0;
-		let allPreviousDaySignups: number = 0;
+		let allCurrentDayNetAdd: number = 0;
+		let allPreviousDayNetAdd: number = 0;
 
 		for (let area of areaData) {
 			allPending += area.pending;
@@ -101,8 +246,8 @@ export class ReportComponent implements OnInit
 			allMtdSignups += area.mtdSignups;
 			allMtdCancel += area.mtdCancellations;
 			allMtdNet += area.mtdNet;
-			allCurrentDaySignups += area.currentDaySignups;
-			allPreviousDaySignups += area.previousDaySignups;
+			allCurrentDayNetAdd += area.currentDayNetAdd;
+			allPreviousDayNetAdd += area.previousDayNetAdd;
 		}
 
 		function getLastNode(isMobile: boolean, groupData: Array<AreaSales>) {
@@ -114,7 +259,7 @@ export class ReportComponent implements OnInit
 			const nonPendingSales = groupData.find(x => {
 				return x.currentSignups !== 0 || x.currentCancellations !== 0
 					|| x.currentNet !== 0 || x.mtdSignups !== 0 || x.mtdCancellations !== 0
-					|| x.mtdNet !== 0 || x.currentDaySignups !== 0 || x.previousDaySignups !== 0;
+					|| x.mtdNet !== 0 || x.currentDayNetAdd !== 0 || x.previousDayNetAdd !== 0;
 			});
 
 			if (!nonPendingSales) {
@@ -131,8 +276,8 @@ export class ReportComponent implements OnInit
 							mtdSignups: 0,
 							mtdCancellations: 0,
 							mtdNet: 0,
-							currentDaySignups: 0,
-							previousDaySignups: 0,
+							currentDayNetAdd: 0,
+							previousDayNetAdd: 0,
 							salesConsultantId: groupData[0].salesConsultantId,
 							communityId: groupData[0].communityId
 						},
@@ -153,14 +298,15 @@ export class ReportComponent implements OnInit
 					mtdSignups: _.sumBy(groups[group], 'mtdSignups'),
 					mtdCancellations: _.sumBy(groups[group], 'mtdCancellations'),
 					mtdNet: _.sumBy(groups[group], 'mtdNet'),
-					currentDaySignups: _.sumBy(groups[group], 'currentDaySignups'),
-					previousDaySignups: _.sumBy(groups[group], 'previousDaySignups')
+					currentDayNetAdd: _.sumBy(groups[group], 'currentDayNetAdd'),
+					previousDayNetAdd: _.sumBy(groups[group], 'previousDayNetAdd')
 				},
 				children: groupBy.length > 1 ? getNodes(groups[group], groupBy.slice(1), isMobile) : getLastNode(isMobile, groups[group]),
 				expanded: false
 			}));
 		}
 
+		const groupBys = this.isMobile ? ['area', 'division', 'communityName'] : ['area', 'division', 'communityName', 'salesConsultant'];
 		const salesData: TreeNode =
 		{
 			data: {
@@ -172,10 +318,10 @@ export class ReportComponent implements OnInit
 				mtdSignups: allMtdSignups,
 				mtdCancellations: allMtdCancel,
 				mtdNet: allMtdNet,
-				currentDaySignups: allCurrentDaySignups,
-				previousDaySignups: allPreviousDaySignups
+				currentDayNetAdd: allCurrentDayNetAdd,
+				previousDayNetAdd: allPreviousDayNetAdd
 			},
-			children: getNodes(areaData, ['area', 'division', 'communityName', 'salesConsultant'], this.isMobile),
+			children: getNodes(areaData, groupBys, this.isMobile),
 			expanded: false
 		};
 
@@ -192,14 +338,14 @@ export class ReportComponent implements OnInit
 					data: {
 						name: `${buyer.customerFirstName} ${buyer.customerLastName} - ${buyer.lotBlock}`,
 						pending: buyer.pending,
-						currentSignups: buyer.currentSignups,
-						currentCancellations: buyer.currentCancellations,
-						currentNet: buyer.currentNet,
-						mtdSignups: buyer.mtdSignups,
-						mtdCancellations: buyer.mtdCancellations,
-						mtdNet: buyer.mtdNet,
-						currentDaySignups: buyer.currentDaySignups,
-						previousDaySignups: buyer.previousDaySignups
+						currentSignups: 0,
+						currentCancellations: 0,
+						currentNet: 0,
+						mtdSignups: 0,
+						mtdCancellations: 0,
+						mtdNet: 0,
+						currentDayNetAdd: 0,
+						previousDayNetAdd: 0
 					},
 					children: [],
 					expanded: false
@@ -236,5 +382,21 @@ export class ReportComponent implements OnInit
                 }
             }
         }
-    }
+	}
+
+	onToggleTable(name: string) {
+		if (this.isMobile) {
+			switch (name) {
+				case 'market':
+					this.showTopMarkets = !this.showTopMarkets;
+					break;
+				case 'community':
+					this.showTopCommunities = !this.showTopCommunities;
+					break;
+				case 'agent':
+					this.showTopSalesConsultants = !this.showTopSalesConsultants;
+					break;
+			}
+		}
+	}
 }

@@ -26,11 +26,11 @@
 
 		<div class="col">
 			<table class="table table-bordered">
-				<tr class="phd-salestally-top10-hdr">
+				<tr class="phd-salestally-top10-hdr" (click)="onToggleTable('market')">
 					<th>Top 10 Markets</th>
 					<th>Signups</th>
 				</tr>
-				<tr *ngFor="let mkt of topMarkets; let odd = odd" [ngClass]="odd ? 'phd-stlly-top10-row-odd' : 'phd-stlly-top10-row-even'">
+				<tr *ngFor="let mkt of topMarkets; let odd = odd" [ngClass]="odd ? 'phd-stlly-top10-row-odd' : 'phd-stlly-top10-row-even'" [class.phd-hide-table]="!showTopMarkets">
 					<td>{{mkt.market}}</td>
 					<td>{{mkt.net}}</td>
 				</tr>
@@ -39,11 +39,11 @@
 
 		<div class="col">
 			<table class="table table-bordered">
-				<tr class="phd-salestally-top10-hdr">
+				<tr class="phd-salestally-top10-hdr" (click)="onToggleTable('community')">
 					<th>Top 10 Communities</th>
 					<th>Signups</th>
 				</tr>
-				<tr *ngFor="let cmts of topCommunities; let odd = odd" [ngClass]="odd ? 'phd-stlly-top10-row-odd' : 'phd-stlly-top10-row-even'">
+				<tr *ngFor="let cmts of topCommunities; let odd = odd" [ngClass]="odd ? 'phd-stlly-top10-row-odd' : 'phd-stlly-top10-row-even'" [class.phd-hide-table]="!showTopCommunities">
 					<td>{{cmts.community}}</td>
 					<td>{{cmts.net}}</td>
 				</tr>
@@ -52,11 +52,11 @@
 
 		<div class="col">
 			<table class="table table-bordered">
-				<tr class="phd-salestally-top10-hdr">
+				<tr class="phd-salestally-top10-hdr" (click)="onToggleTable('agent')">
 					<th>Top 10 Sales Agents</th>
 					<th>Signups</th>
 				</tr>
-				<tr *ngFor="let sa of topSalesConsultants; let odd = odd" [ngClass]="odd ? 'phd-stlly-top10-row-odd' : 'phd-stlly-top10-row-even'">
+				<tr *ngFor="let sa of topSalesConsultants; let odd = odd" [ngClass]="odd ? 'phd-stlly-top10-row-odd' : 'phd-stlly-top10-row-even'" [class.phd-hide-table]="!showTopSalesConsultants">
 					<td>{{sa.salesAssociate}}</td>
 					<td>{{sa.totalSales}}</td>
 				</tr>
@@ -67,80 +67,91 @@
 
 	<button class="btn btn-link" (click)="collapseAll()">Collapse All</button>
 
-	<div>
-		<p-treeTable #salesTree [value]="areaSales" [scrollable]="true" scrollHeight="400px" (onNodeExpand)="onNodeExpand($event)">
-			<ng-template pTemplate="header">
-				<tr class="phd-stlly-area-hdr-gold">
-					<th colspan="3"></th>
-					<th>
-						<div class="phd-stlly-first-header">Total</div>
-					</th>
-					<th>
-						<div class="phd-stlly-first-header">Previous Day</div>
-					</th>
-					<th>
-						<div class="phd-stlly-first-header">Current Day</div>
-					</th>
-					<th colspan="3">
-						<div class="phd-stlly-first-header-wide">Current Week</div>
-					</th>
-					<th colspan="3">
-						<div class="phd-stlly-first-header-wide">Month To Date</div>
-					</th>
+	<ng-container *ngIf="isPortrait">
+		<p-treeTable #salesTree [value]="areaSales" [columns]="scrollableCols" [frozenColumns]="frozenCols"
+			[scrollable]="true" scrollHeight="400px" [frozenWidth]="frozenWidth">
+			<ng-template pTemplate="colgroup" let-columns>
+				<colgroup>
+					<col *ngFor="let col of columns" style="width:55px">
+				</colgroup>
+			</ng-template>			
+			<ng-template pTemplate="header" let-columns>
+				<tr>
+					<ng-container *ngFor="let col of columns">
+						<th *ngIf="col.displayHeader" [attr.colspan]="col.headerColspan">
+							<div [ngClass]="col.headerClass">{{col.firstHeader}}</div>
+						</th>
+					</ng-container>
 				</tr>
-				<tr class="phd-stlly-area-hdr-blue">
-					<td colspan="3"></td>
-					<td>
-						<div class="phd-stlly-second-header">In Process</div>
-					</td>
-					<td>
-						<div class="phd-stlly-second-header">Net</div>
-					</td>
-					<td>
-						<div class="phd-stlly-second-header">Net</div>
-					</td>
-
-					<td>
-						<div class="phd-stlly-second-header">Signups</div>
-					</td>
-					<td>
-						<div class="phd-stlly-second-header">Cancels</div>
-					</td>
-					<td>
-						<div class="phd-stlly-second-header">Net</div>
-					</td>
-
-					<td>
-						<div class="phd-stlly-second-header">Signups</div>
-					</td>
-					<td>
-						<div class="phd-stlly-second-header">Cancels</div>
-					</td>
-					<td>
-						<div class="phd-stlly-second-header">Net</div>
-					</td>
+				<tr>
+					<th *ngFor="let col of columns">
+						<div class="phd-stlly-second-header">{{col.secondHeader}}</div>
+					</th>
 				</tr>
 			</ng-template>
-
 			<ng-template pTemplate="body" let-rowNode let-rowData="rowData">
 				<tr>
-					<td colspan="3" class="phd-stlly-abbrv-cell phd-stlly-name">
-						<p-treeTableToggler [rowNode]="rowNode"></p-treeTableToggler>
-						{{rowData.name}}
-					</td>
-					<td class="phd-stlly-abbrv-cell phd-stlly-abbrv-cell-padding">{{rowData.pending | number:'1.0-2'}}</td>
-					<td class="phd-stlly-abbrv-cell">{{rowData.previousDaySignups | number:'1.0-2'}}</td>
-					<td class="phd-stlly-abbrv-cell">{{rowData.currentDaySignups | number:'1.0-2'}}</td>
-
-					<td class="phd-stlly-abbrv-cell">{{rowData.currentSignups | number:'1.0-2'}}</td>
-					<td class="phd-stlly-abbrv-cell">{{rowData.currentCancellations | number:'1.0-2'}}</td>
-					<td class="phd-stlly-abbrv-cell">{{rowData.currentNet | number:'1.0-2'}}</td>
-
-					<td class="phd-stlly-abbrv-cell">{{rowData.mtdSignups | number:'1.0-2'}}</td>
-					<td class="phd-stlly-abbrv-cell">{{rowData.mtdCancellations | number:'1.0-2'}}</td>
-					<td class="phd-stlly-abbrv-cell">{{rowData.mtdNet | number:'1.0-2'}}</td>
+					<ng-container *ngFor="let col of scrollableCols">
+						<td>
+							{{rowData[col.field]  | number:'1.0-2'}}
+						</td>
+					</ng-container>
 				</tr>
 			</ng-template>
+			<ng-template pTemplate="frozenheader">
+				<tr>
+					<th></th>
+				</tr>
+				<tr>
+					<th></th>
+				</tr>				
+			</ng-template>
+			<ng-template pTemplate="frozenbody" let-rowNode let-rowData="rowData">
+				<tr>
+					<td>
+						<div class="d-flex flex-row">
+							<p-treeTableToggler [rowNode]="rowNode"></p-treeTableToggler>
+							<span>{{rowData.name}}</span>
+						</div>
+					</td>
+				</tr>            
+			</ng-template>			
 		</p-treeTable>
-	</div>
+	</ng-container>
+
+	<ng-container *ngIf="!isPortrait">
+		<p-treeTable #salesTree [value]="areaSales" [columns]="cols" [scrollable]="true" scrollHeight="400px" (onNodeExpand)="onNodeExpand($event)">
+			<ng-template pTemplate="header" let-columns>
+				<tr class="phd-stlly-area-hdr-gold">
+					<ng-container *ngFor="let col of columns">
+						<th *ngIf="col.displayHeader && displayInMobile(col)" [attr.colspan]="col.headerColspan">
+							<div [ngClass]="col.headerClass">{{col.firstHeader}}</div>
+						</th>
+					</ng-container>
+				</tr>
+				<tr class="phd-stlly-area-hdr-blue">
+					<ng-container *ngFor="let col of columns">
+						<th *ngIf="displayInMobile(col)" [attr.colspan]="col.bodyColspan">
+							<div class="phd-stlly-second-header">{{col.secondHeader}}</div>
+						</th>						
+					</ng-container>
+
+				</tr>
+			</ng-template>
+			<ng-template pTemplate="body" let-rowNode let-rowData="rowData">
+				<tr>
+					<ng-container *ngFor="let col of cols; let i = index">
+						<td *ngIf="displayInMobile(col)" [attr.colspan]="col.bodyColspan">
+							<div *ngIf="i === 0" class="d-flex flex-row">
+								<p-treeTableToggler [rowNode]="rowNode"></p-treeTableToggler>
+								<span>{{rowData[col.field]}}</span>
+							</div>
+							<div *ngIf="i !== 0">{{rowData[col.field]  | number:'1.0-2'}}</div>
+						</td>
+					</ng-container>
+				</tr>
+			</ng-template>
+		</p-treeTable>		
+	</ng-container>
+	
 </div>

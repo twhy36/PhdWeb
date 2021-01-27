@@ -42,8 +42,8 @@ export interface AreaSales
 	mtdSignups: number;
 	mtdCancellations: number;
 	mtdNet: number;
-	currentDaySignups: number;
-	previousDaySignups: number;
+	currentDayNetAdd: number;
+	previousDayNetAdd: number;
 }
 
 export interface ConsultantBuyer {
@@ -53,14 +53,6 @@ export interface ConsultantBuyer {
 	customerFirstName: string;
 	customerLastName: string;
 	pending: number;
-	currentSignups: number;
-	currentCancellations: number;
-	currentNet: number;
-	mtdSignups: number;
-	mtdCancellations: number;
-	mtdNet: number;
-	currentDaySignups: number;
-	previousDaySignups: number;
 }
 
 export enum TimeFrame
