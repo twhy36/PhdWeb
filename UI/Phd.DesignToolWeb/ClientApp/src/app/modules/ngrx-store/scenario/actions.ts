@@ -35,6 +35,7 @@ export enum ScenarioActionTypes
 	SetIsFloorplanFlippedScenario = 'Set Scenario Floorplan Flipped',
 	SetPointTypeFilter = 'Set Point Type Filter',
 	SetPointViewed = 'Set Point Viewed',
+	SetChoicePriceRanges = 'Set Choice Price Ranges',
 	SetScenarioLot = 'Set Scenario Lot',
 	SetScenarioLotHanding = 'Set Scenario Lot Handing',
 	SetScenarioPlan = 'Set Scenario Plan',
@@ -238,6 +239,13 @@ export class SetOverrideReason implements Action
 	constructor(public overrideReason: string) { }
 }
 
+export class SetChoicePriceRanges implements Action
+{
+	readonly type = ScenarioActionTypes.SetChoicePriceRanges;
+
+	constructor(public priceRanges: { choiceId: number, min: number, max: number }[]) { }
+}
+
 export type ScenarioActions =
 	CreateScenario |
 	DeleteScenarioInfo |
@@ -269,4 +277,5 @@ export type ScenarioActions =
 	TreeLoadedFromJob |
 	SetOverrideReason |
 	SalesAgreementLoaded |
-	JobLoaded;
+	JobLoaded |
+	SetChoicePriceRanges;

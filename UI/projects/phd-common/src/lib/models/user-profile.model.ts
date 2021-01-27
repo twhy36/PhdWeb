@@ -7,5 +7,6 @@ export interface UserProfile
     mobilePhone: string;
     postalCode: string;
     state: string;
-    streetAddress: string;
+	streetAddress: string;
+	upn: string;
 }

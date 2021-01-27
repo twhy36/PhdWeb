@@ -6,13 +6,13 @@ import { _throw } from 'rxjs/observable/throw';
 import * as _ from 'lodash';
 import * as moment from "moment";
 
-import { Tree, Choice, DecisionPoint, MappedAttributeGroup, MappedLocationGroup } from '../models/tree.model.new';
+import { Tree, Choice, DecisionPoint, MappedAttributeGroup, MappedLocationGroup, OptionImage } from '../models/tree.model.new';
 import { JobChoice, JobPlanOption, JobChoiceAttribute, JobChoiceLocation, Job } from '../models/job.model';
 import { PlanOption } from '../models/option.model';
 import { ChangeOrderGroup, ChangeOrderChoice, ChangeOrderPlanOption, ChangeOrderChoiceAttribute, ChangeOrderChoiceLocation } from '../models/job-change-order.model';
 import { TreeService } from '../../core/services/tree.service';
 import { PointStatus, ConstructionStageTypes } from '../../shared/models/point.model';
-import { LocationGroup, Location, AttributeGroup, Attribute, DesignToolAttribute } from '../models/attribute.model';
+import { LocationGroup, Location, AttributeGroup, Attribute, DesignToolAttribute, AttributeCommunityImageAssoc } from '../models/attribute.model';
 import { Scenario, SelectedChoice } from '../../shared/models/scenario.model';
 import { TreeVersionRules } from '../../shared/models/rule.model.new';
 import { applyRules, findChoice } from '../../shared/classes/rulesExecutor';
@@ -309,21 +309,32 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[] }>(c
 
 			return of(data);
 		}),
+		combineLatest(treeService.getPlanOptionCommunityImageAssoc(options.filter(o => o.outForSignatureDate !== undefined))),
 		//update pricing information for locked-in options/choices
-		map(data =>
+		map(([res,optImageAssoc]) =>
 		{
 			//override option prices if prices are locked
-			if (options)
+			if (options.length)
 			{
 				options.filter(isOptionLocked(changeOrder)).forEach(option =>
 				{
-					let opt = data.options.find(o => o.financialOptionIntegrationKey === option.integrationKey);
+					let opt = res.options.find(o => o.financialOptionIntegrationKey === option.integrationKey);
 
 					if (opt)
 					{
 						opt.listPrice = option.listPrice;
 						opt.description = option.optionDescription;
 						opt.name = option.optionSalesName;
+
+						let existingAssoc = optImageAssoc ? optImageAssoc.filter(optImage => optImage.planOptionCommunityId === opt.id) : [];
+
+						if (existingAssoc.length)
+						{
+							opt.optionImages = existingAssoc.map(image =>
+							{
+								return { imageURL: image.imageUrl, integrationKey: opt.financialOptionIntegrationKey, sortKey: image.sortOrder } as OptionImage;
+							});
+						}
 
 						//add in missing attribute/location groups
 						if (!opt.isBaseHouse) {
@@ -355,7 +366,7 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[] }>(c
 				});
 			}
 
-			return data;
+			return res;
 		}),
 		//capture original option mappings for locked-in options/choices
 		combineLatest(treeService.getHistoricOptionMapping(_.flatten(choices.map(c =>
@@ -378,17 +389,25 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[] }>(c
 						return { optionNumber: options.find(opt => opt.id === o.jobChangeOrderPlanOptionId).integrationKey, dpChoiceId: c.decisionPointChoiceID };
 					});
 			}
-		})))),
+		}))),
+		treeService.getChoiceImageAssoc(choices.map(x => x.dpChoiceId))),
 		//store the original option mapping on the choice where it was selected
 		//rules engine can use this to 'override' current option mappings
-		map(([data, mapping]) =>
+		map(([res, mapping, choiceImageAssoc]) =>
 		{
 			choices.filter(isLocked(changeOrder)).forEach(c =>
 			{
-				let choice = findChoice(data.tree, ch => ch.divChoiceCatalogId === c.divChoiceCatalogId);
+				let choice = findChoice(res.tree, ch => ch.divChoiceCatalogId === c.divChoiceCatalogId);
 
 				if (!!choice)
 				{
+					let existingChoice = choiceImageAssoc.length ? choiceImageAssoc.find(r => r.dpChoiceId === c.dpChoiceId) : null;
+
+					if (existingChoice)
+					{
+						choice.imagePath = existingChoice.imageUrl;
+					}
+
 					if (isJobChoice(c))
 					{
 						choice.lockedInOptions = c.jobChoiceJobPlanOptionAssocs.filter(o => o.choiceEnabledOption).map(o => mapping[options.find(opt => opt.id === o.jobPlanOptionId).integrationKey]);
@@ -400,7 +419,7 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[] }>(c
 				}
 			});
 
-			return data;
+			return res;
 		}),
 		catchError(err => { console.error(err); return _throw(err); })
 	);
@@ -525,6 +544,26 @@ export function mergeAttributes(attributes: Array<any>, missingAttributes: Array
 			}
 		}
 	});
+}
+
+export function mergeAttributeImages(attributeGroups: Array<AttributeGroup>, attributeCommunityImageAssocs: Array<AttributeCommunityImageAssoc>)
+{
+	if (attributeCommunityImageAssocs && attributeCommunityImageAssocs.length > 0)
+	{
+		// Map image URL for attribute
+		attributeGroups.map(ag =>
+		{
+			return ag.attributes.map(a =>
+			{
+				const imageAssoc = attributeCommunityImageAssocs.find(aci => aci.attributeCommunityId === a.id);
+
+				if (imageAssoc)
+				{
+					a.imageUrl = imageAssoc.imageUrl;
+				}
+			});
+		})
+	}
 }
 
 export function mergeLocations(locations: Array<any>, missingLocations: Array<DesignToolAttribute>, locationGroups: Array<LocationGroup>)

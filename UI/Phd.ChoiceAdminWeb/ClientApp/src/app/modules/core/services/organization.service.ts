@@ -205,9 +205,10 @@ export class OrganizationService
 	{
 		const batchGuid = odataUtils.getNewGuid();
 
-		let requests = _(plans).groupBy('org.edhFinancialCommunityId').map((p, communityID) =>
+		const planGroups = _(plans).groupBy('org.edhFinancialCommunityId');
+		let requests = Object.keys(planGroups).map(communityID =>
 		{
-			var financialPlanIntegrationKey = p.map(x => `'${x.integrationKey}'`).join(',');
+			var financialPlanIntegrationKey = planGroups[communityID].map(x => `'${x.integrationKey}'`).join(',');
 
 			const entity = `financialCommunities`;
 			const expand = `planCommunities($filter=financialPlanIntegrationKey in (${financialPlanIntegrationKey}) and productType ne 'MultiUnit Shell' and isActive eq true;$select=id, financialPlanIntegrationKey, planSalesName; $orderby=planSalesName)`

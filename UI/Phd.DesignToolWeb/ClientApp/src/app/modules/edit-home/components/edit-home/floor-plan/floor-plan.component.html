@@ -56,11 +56,11 @@
 										</a>
 
 										<div [for]="'opt-'+choice.id" class="flex-fill justify-content-end pr-2">
-											<div *ngIf="choice.enabled" class="phd-choice-price phd-ifp-right">
+											<div *ngIf="choice?.enabled" class="phd-choice-price phd-ifp-right">
 												{{ choice.price | currency : 'USD' : 'symbol' : '0.0-0'}}
 											</div>
 
-											<div *ngIf="!choice.enabled" class="phd-choice-price phd-ifp-right">
+											<div *ngIf="choice && !choice.enabled" class="phd-choice-price phd-ifp-right">
 												{{ choice.id | priceRange | async }}
 											</div>
 

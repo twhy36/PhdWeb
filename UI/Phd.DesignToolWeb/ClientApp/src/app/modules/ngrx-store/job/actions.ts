@@ -8,6 +8,7 @@ import { SpecInformation } from './../../shared/models/job.model';
 export enum JobActionTypes
 {
 	SpecsLoaded = 'Specs Loaded',
+	DeselectSpec = 'Deselect Spec',
 	JobUpdated = 'Job Updated',
 	SaveError = 'Save Error',
 	ChangeOrdersCreatedForJob = 'Change Orders Created For Job',
@@ -27,6 +28,13 @@ export class SpecsLoaded implements Action
 	readonly type = JobActionTypes.SpecsLoaded;
 
 	constructor(public jobs: Job[]) { }
+}
+
+export class DeselectSpec implements Action
+{
+	readonly type = JobActionTypes.DeselectSpec;
+
+	constructor() { }
 }
 
 export class SaveError extends ErrorAction
@@ -120,6 +128,7 @@ export type JobActions =
 	SaveError |
 	ChangeOrdersCreatedForJob |
 	SpecsLoaded |
+	DeselectSpec |
 	CreateChangeOrderEnvelope |
 	EnvelopeError |
 	LoadSpecs |

@@ -45,7 +45,8 @@ export class IdentityService {
 						mobilePhone: null,
 						postalCode: null,
 						state: null,
-						streetAddress: null
+						streetAddress: null,
+						upn: claims.preferred_username
 					};
 				} else {
 					return null;

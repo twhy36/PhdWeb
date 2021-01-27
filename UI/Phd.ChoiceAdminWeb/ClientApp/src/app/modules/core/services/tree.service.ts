@@ -324,7 +324,7 @@ export class TreeService {
 
 				return planOptionCommunity.map(poc => {
 					return {
-						planId: poc.planId,
+						planID: poc.planId,
 						financialPlanIntegrationKey: poc.planCommunity.financialPlanIntegrationKey,
 						planSalesName: poc.planCommunity.planSalesName,
 						financialCommunityId: poc.planCommunity.financialCommunity.id
@@ -337,9 +337,10 @@ export class TreeService {
 	getTreeWithChoices(planOptionCommunity: IPlanOptionCommunityResult[], selectedChoices: DivAttributeWizChoice[]): Observable<Array<IPlanOptionResult>> {
 		const batchGuid = odataUtils.getNewGuid();
 
-		let requests = _(planOptionCommunity).groupBy('financialCommunityId').map((poc, financialCommunityId) =>
+		const optionGroups = _(planOptionCommunity).groupBy('financialCommunityId');
+		let requests = Object.keys(optionGroups).map(financialCommunityId =>
 		{
-			var financialPlanIntegrationKey = poc.map(p => `'${p.financialPlanIntegrationKey}'`).join(',');
+			var financialPlanIntegrationKey = optionGroups[financialCommunityId].map(p => `'${p.financialPlanIntegrationKey}'`).join(',');
 
 			const entity = `dTreeVersions`;
 			const filter = `dTree/plan/org/edhFinancialCommunityId eq ${financialCommunityId} and dTree/plan/integrationKey in (${financialPlanIntegrationKey}) and (publishStartDate eq null or publishStartDate le now())`;

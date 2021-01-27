@@ -37,7 +37,7 @@ export class JobService
 
 		let expand = `jobSalesAgreementAssocs($filter=isActive eq true ),lot($expand=lotPhysicalLotTypeAssocs($expand=physicalLotType),fieldManagerLotAssocs($expand=fieldManager($select=firstname,lastname)),customerCareManagerLotAssocs($expand=contact($select=firstname,lastname)),salesPhase($select=id,salesPhaseName),lotHandingAssocs($expand=handing);$select=id,lotBlock,premium,lotStatusDescription,streetAddress1,streetAddress2,city,stateProvince,postalCode,foundationType,lotBuildTypeDesc,unitNumber,salesBldgNbr,alternateLotBlock,constructionPhaseNbr,county),planCommunity($select=bedrooms,financialCommunityId,financialPlanIntegrationKey,footPrintDepth,footPrintWidth,foundation,fullBaths,garageConfiguration,halfBaths,id,isActive,isCommonPlan,masterBedLocation,masterPlanNumber,npcNumber,planSalesDescription,planSalesName,productConfiguration,productType,revisionNumber,specLevel,squareFeet,tcg,versionNumber),${expandJobChoices},${expandJobOptions},jobNonStandardOptions($select=id,name,description,financialOptionNumber,quantity,unitPrice), pendingConstructionStages($select=id, constructionStageName, constructionStageStartDate), jobConstructionStageHistories($select=id,constructionStageId,constructionStageStartDate), projectedDates($select=jobId, projectedStartDate, projectedFrameDate, projectedSecondDate, projectedFinalDate)`;
 		let filter = `id eq ${jobId}`;
-		let select = `id,financialCommunityId,constructionStageName,lotId,planId,handing,warrantyTypeDesc,startDate,projectedFinalDate`;
+		let select = `id,financialCommunityId,constructionStageName,lotId,planId,handing,warrantyTypeDesc,startDate,projectedFinalDate,jobTypeName`;
 
 		const url = `${environment.apiUrl}jobs?${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}&${encodeURIComponent('$')}expand=${encodeURIComponent(expand)}&${encodeURIComponent('$')}select=${encodeURIComponent(select)}`;
 
@@ -67,7 +67,7 @@ export class JobService
 		const expandOpportunityContact = `opportunityContactAssoc($expand=opportunity)`;
 		const expandSalesChanges = `jobSalesChangeOrderBuyers($expand=${expandOpportunityContact}),jobSalesChangeOrderPriceAdjustments,jobSalesChangeOrderSalesPrograms($expand=salesProgram($select=id, salesProgramType, name)),jobSalesChangeOrderTrusts`;
 		const expandSalesAgreementAssoc = `jobChangeOrderGroupSalesAgreementAssocs($select=changeOrderGroupSequence,changeOrderGroupSequenceSuffix)`;
-		const expand = `contact($select=displayName),jobChangeOrders($expand=${expandJobChoices},${expandPlanOptions},jobChangeOrderHandings,jobChangeOrderNonStandardOptions,jobChangeOrderPlans,jobChangeOrderLots,${expandSalesChanges}),jobChangeOrderGroupSalesStatusHistories,note,${expandSalesAgreementAssoc}`;
+		const expand = `contact($select=displayName),jobChangeOrders($expand=${expandJobChoices},${expandPlanOptions},jobChangeOrderHandings,jobChangeOrderNonStandardOptions,jobChangeOrderPlans,jobChangeOrderLots,${expandSalesChanges}),jobChangeOrderGroupSalesStatusHistories($orderby=salesStatusUtcDate desc),note,${expandSalesAgreementAssoc}`;
 		const filter = !!salesAgreementId ? `jobChangeOrderGroupSalesAgreementAssocs/any(a: a/salesAgreementId eq ${salesAgreementId})` : `jobId eq ${jobDto.id}`;
 		const orderby = 'createdUtcDate desc';
 
@@ -79,6 +79,59 @@ export class JobService
 			map(response =>
 			{
 				const dtos = (response as Array<ChangeOrderGroup>).map(o => new ChangeOrderGroup(o));
+
+				// Fetch OFS date for job choices/plan options - JIO OFS date
+				let outForSignatureDate = dtos[dtos.length - 1].jobChangeOrderGroupSalesStatusHistories.find(t => t.salesStatusId === 6);
+
+				if (outForSignatureDate)
+				{
+					jobDto.jobChoices.forEach(jc =>
+					{
+						jc.outForSignatureDate = outForSignatureDate.salesStatusUtcDate;
+					});
+
+					jobDto.jobPlanOptions.forEach(jp =>
+					{
+						jp.outForSignatureDate = outForSignatureDate.salesStatusUtcDate;
+					});
+				}
+
+				// Fetch OFS date for change order choices/change order plan options
+
+				_.sortBy(dtos, 'createdUtcDate').forEach(cog =>
+				{
+					let coOutForSignatureDate = cog.jobChangeOrderGroupSalesStatusHistories.find(t => t.salesStatusId === 6);
+
+					if (coOutForSignatureDate)
+					{
+						cog.jobChangeOrders.forEach(jco =>
+						{
+							jco.jobChangeOrderChoices.forEach(jcoc =>
+							{
+								jcoc.outForSignatureDate = coOutForSignatureDate.salesStatusUtcDate;
+
+								let index = jobDto.jobChoices.findIndex(jc => jc.dpChoiceId === jcoc.decisionPointChoiceID);
+
+								if (index > -1)
+								{
+									jobDto.jobChoices[index].outForSignatureDate = jcoc.outForSignatureDate;
+								}
+							});
+
+							jco.jobChangeOrderPlanOptions.forEach(jcop =>
+							{
+								jcop.outForSignatureDate = coOutForSignatureDate.salesStatusUtcDate;
+
+								let index = jobDto.jobPlanOptions.findIndex(jc => jc.integrationKey === jcop.integrationKey);
+
+								if (index > -1)
+								{
+									jobDto.jobPlanOptions[index].outForSignatureDate = jcop.outForSignatureDate;
+								}
+							});
+						});
+					}
+				});
 
 				jobDto.jobChangeOrderGroups = dtos;
 

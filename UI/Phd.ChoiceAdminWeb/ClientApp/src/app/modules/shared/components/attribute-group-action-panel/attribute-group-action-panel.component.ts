@@ -205,7 +205,7 @@ export class AttributeGroupActionPanelComponent implements OnInit, AfterContentI
 		{
 			this.searchResultGroups = orderBy(this.searchResultGroups, [grp =>
 			{
-				let name = this.groupType === 'location' ? grp.locationGroupName : grp.groupName;
+				let name = this.groupType === 'location' ? (<LocationGroupMarket>grp).locationGroupName : (<AttributeGroupMarket>grp).groupName;
 
 				return name ? name.toLocaleLowerCase() : '';
 			}]);

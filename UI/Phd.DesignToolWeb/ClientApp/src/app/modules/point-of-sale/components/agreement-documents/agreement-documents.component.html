@@ -17,7 +17,7 @@
 				</div>
 			</div>
 
-			<div class="flex-column flex-fill pl-3" *ngIf="!isLockedIn && !isChangingOrder">
+			<div class="flex-column flex-fill pl-3" *ngIf="!isLockedIn">
 				<div class="custom-control custom-radio custom-control-inline">
 					<label class="radio-inline phd-clickable">
 						<input type="radio" [(ngModel)]="salesOptions" name="salesOptions" [value]="false" [checked]="!salesOptions" [disabled]="!canEdit" (change)="onChangeAgreement()" />

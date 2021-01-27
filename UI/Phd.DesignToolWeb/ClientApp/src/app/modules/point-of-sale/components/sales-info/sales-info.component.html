@@ -65,26 +65,26 @@
 				  (onAdd)="add('priceAdjustments')"></add-card>
 	</ng-template>
 
-	<!--Deposits and Add Deposit Cards-->
-	<deposit-detail class="phd-editable-box"
-					[agreement]="agreement"
-					[deposit]="deposit"
-					[editing]="editing"
-					[position]="i"
-					[canEdit]="canSell && !cancelOrVoid && !isLockedIn"
-					(onRemove)="remove('deposits', $event)"
-					(onEdit)="edit($event)"
-					(checkChanges)="changes($event)"
-					*ngFor="let deposit of deposits; let i = index">
-	</deposit-detail>
-
-	<add-card *ngIf="!editing && canSell && !cancelOrVoid && !isLockedIn"
-			  [hasNA]="false"
-			  [label]="'Deposit'"
-			  [labels]="'Deposits'"
-			  (onAdd)="add('deposits')"></add-card>
-
 	<ng-template [ngIf]="!isChangingOrder">
+		<!--Deposits and Add Deposit Cards-->
+		<deposit-detail class="phd-editable-box"
+						[agreement]="agreement"
+						[deposit]="deposit"
+						[editing]="editing"
+						[position]="i"
+						[canEdit]="canSell && !cancelOrVoid && !isLockedIn"
+						(onRemove)="remove('deposits', $event)"
+						(onEdit)="edit($event)"
+						(checkChanges)="changes($event)"
+						*ngFor="let deposit of deposits; let i = index">
+		</deposit-detail>
+
+		<add-card *ngIf="!editing && canSell && !cancelOrVoid && !isLockedIn"
+				  [hasNA]="false"
+				  [label]="'Deposit'"
+				  [labels]="'Deposits'"
+				  (onAdd)="add('deposits')"></add-card>
+
 		<!--Contingencies and Add Contingency Cards-->
 		<contingency-detail class="phd-editable-box"
 							[agreement]="agreement"

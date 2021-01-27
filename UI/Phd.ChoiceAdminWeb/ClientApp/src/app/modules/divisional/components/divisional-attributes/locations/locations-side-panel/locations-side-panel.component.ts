@@ -252,7 +252,7 @@ export class LocationsSidePanelComponent implements OnInit
 	onGroupSelectionChanged() {
 		const addedGroups = differenceBy(this.selectedGroups, this.origSelectedGroups, 'id');
 		const removedGroups = differenceBy(this.origSelectedGroups, this.selectedGroups, 'id');
-		this.isGroupSelectionChanged = (addedGroups != null && addedGroups.length) || (removedGroups != null && removedGroups.length);
+		this.isGroupSelectionChanged = (addedGroups != null && !!addedGroups.length) || (removedGroups != null && !!removedGroups.length);
 	}
 
 	resetTabs() {

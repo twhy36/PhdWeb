@@ -292,7 +292,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 
 				return {
 					id: o.id,
-					createdUtcDate: o.createdUtcDate ? convertDateToUtcString(o.createdUtcDate) : '',
+					createdUtcDate: o.createdUtcDate || '',
 					signedDate: signedStatusHistory && signedStatusHistory.salesStatusUtcDate ? convertDateToUtcString(signedStatusHistory.salesStatusUtcDate) : '',
 					changeOrderTypeDescription: this._changeOrderService.getTypeFromChangeOrderGroup(o),
 					jobChangeOrderGroupDescription: o.jobChangeOrderGroupDescription,
@@ -328,13 +328,13 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 			{
 				return new Date(a.createdUtcDate).getTime() - new Date(b.createdUtcDate).getTime();
 			});
-
-			this.setSpecChangeAmount(salesAgreement.salePrice);
-
+						
 			if (this.buildMode === 'spec' || this.buildMode === 'model')
 			{
 				this.setGroupSequenceForSpec();
 			}
+
+			this.setSpecChangeAmount(salesAgreement.salePrice);
 
 			this.currentChangeOrderGroupSequence = this.changeOrders && this.changeOrders.length
 				? this.changeOrders[this.changeOrders.length - 1].changeOrderGroupSequence
@@ -1108,6 +1108,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 	setSpecChangeAmount(salePrice: number)
 	{
 		const specChangeOrders = this.changeOrders.filter(o => o.jobChangeOrderGroupDescription === 'Pulte Home Designer Generated Spec Customer Change Order');
+
 		if (specChangeOrders)
 		{
 			specChangeOrders.forEach(o =>

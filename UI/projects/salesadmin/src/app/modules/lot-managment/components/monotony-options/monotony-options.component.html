@@ -1,0 +1,34 @@
+<div class="phd-page-container">
+    <page-header mainTitle="Monotony Rules"></page-header>
+    <div class="phd-page-body">
+        <div class="phd-table-container mx-2">
+            <phd-table #dt [value]="communities" sortMode="single">
+                <phd-column header="Community">
+                    <ng-template #body let-community>
+                        {{ community.name }}
+                    </ng-template>
+                </phd-column>
+                <phd-column header="">
+					<ng-template #body let-community>
+						<button type="button" class="btn btn-md btn-link" (click)="setCurrentCommunity(community)"
+								[routerLink]="['/lot-management/manage-homesites']" [queryParams]="{activeTab:'monotony'}" queryParamsHandling="merge" [routerLinkActive]="['active']">Manage</button>
+					</ng-template>
+                </phd-column>
+                <phd-column header="Elevation/Plan">
+                    <ng-template #body let-community>
+                        <button class="btn btn-sm btn-toggle btn-monotonyrule" [disabled]="!canEdit ? 'disabled' : null" [ngClass]="{'active': !community.isElevationMonotonyRuleEnabled, 'btn-success': community.isElevationMonotonyRuleEnabled, 'btn-secondary': !community.isElevationMonotonyRuleEnabled }" (click)="toggleElevationRule(community)">
+                            <div class="handle"></div>
+                        </button>
+                    </ng-template>
+                </phd-column>
+                <phd-column header="Color Scheme">
+                    <ng-template #body let-community>
+                        <button class="btn btn-sm btn-toggle btn-monotonyrule" [disabled]="!canEdit ? 'disabled' : null" [ngClass]="{'active': !community.isColorSchemeMonotonyRuleEnabled, 'btn-success': community.isColorSchemeMonotonyRuleEnabled, 'btn-secondary': !community.isColorSchemeMonotonyRuleEnabled }" (click)="toggleColorScheme(community)">
+                            <div class="handle"></div>
+                        </button>
+                    </ng-template>
+                </phd-column>
+            </phd-table>
+        </div>
+    </div>
+</div>

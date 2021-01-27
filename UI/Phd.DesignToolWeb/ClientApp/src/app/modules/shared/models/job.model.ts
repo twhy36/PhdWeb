@@ -26,6 +26,7 @@ export interface IJob
 	jobSalesInfos: SpecInformation;
 	projectedDates?: ProjectedDate;
 	jobSalesAgreementAssocs: JobSalesAgreementAssoc[];
+	jobTypeName: string;
 }
 
 export class Job
@@ -50,6 +51,7 @@ export class Job
 	jobSalesInfo?: SpecInformation;
 	projectedDates?: ProjectedDate;
 	jobSalesAgreementAssocs: JobSalesAgreementAssoc[] = [];
+	jobTypeName: string;
 
 	constructor(dto: IJob = null)
 	{
@@ -75,6 +77,7 @@ export class Job
 			this.jobSalesInfo = dto.jobSalesInfos ? dto.jobSalesInfos[0] : null;
 			this.projectedDates = dto.projectedDates ? new ProjectedDate(dto.projectedDates) : null;
 			this.jobSalesAgreementAssocs = dto.jobSalesAgreementAssocs ? dto.jobSalesAgreementAssocs : null;
+			this.jobTypeName = dto.jobTypeName;
 		}
 	}
 }
@@ -120,6 +123,7 @@ export class JobChoice
 	jobChoiceAttributes?: Array<JobChoiceAttribute>;
 	jobChoiceLocations?: Array<JobChoiceLocation>;
 	jobChoiceJobPlanOptionAssocs?: Array<JobChoiceJobPlanOptionAssoc>;
+	outForSignatureDate?: Date;
 
 	constructor(dto?: JobChoice)
 	{
@@ -181,6 +185,7 @@ export class JobPlanOption
 	jobPlanOptionAttributes?: Array<JobPlanOptionAttribute>;
 	jobPlanOptionLocations?: Array<JobPlanOptionLocation>;
 	jobChoiceJobPlanOptionAssocs?: Array<JobChoiceJobPlanOptionAssoc>;
+	outForSignatureDate?: Date;
 
 	constructor(dto?: JobPlanOption)
 	{

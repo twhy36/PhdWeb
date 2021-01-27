@@ -36,6 +36,7 @@ export class CancelAgreementComponent extends UnsubscribeOnDestroy implements On
 	buildType: string;
 	reasonValue: string;
 	default: Note;
+	jobTypeName: string;
 
 	constructor(private store: Store<fromRoot.State>, private _saService: SalesAgreementService) { super(); }
 
@@ -51,7 +52,7 @@ export class CancelAgreementComponent extends UnsubscribeOnDestroy implements On
 
 	get revertToSpecBtnName(): string
 	{
-		return this.constructionStageName == 'Configured' ? 'Revert To Spec' : 'Ok';
+		return this.constructionStageName == 'Configured' ? this.jobTypeName === 'Model' ? 'Revert To Model' : 'Revert To Spec' : 'Ok';
 	}
 	
 	ngOnInit()
@@ -66,9 +67,10 @@ export class CancelAgreementComponent extends UnsubscribeOnDestroy implements On
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
-			select(store => store.job.constructionStageName)
-		).subscribe(stageName => {
-			this.constructionStageName = stageName;
+			select(store => store.job)
+		).subscribe(job => {
+			this.jobTypeName = job.jobTypeName
+			this.constructionStageName = job.constructionStageName;
 		});
 
 		if (this.agreement.cancellations)

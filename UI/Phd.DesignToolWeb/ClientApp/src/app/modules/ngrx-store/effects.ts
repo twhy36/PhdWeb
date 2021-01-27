@@ -60,7 +60,22 @@ export class CommonEffects
 						this.planService.getWebPlanMappingByPlanId(scenario.planId),
 						this.oppService.getOpportunityContactAssoc(scenario.opportunityId)
 					),
-					map(([tree, rules, options, optionImages, lot, webPlanMapping, opportunity]) => { return { tree, rules, options, optionImages, lot, webPlanMapping, opportunity }; }),
+					map(([tree, rules, options, optionImages, lot, webPlanMapping, opportunity]) =>
+					{
+						// apply images to options
+						options.forEach(option =>
+						{
+							let filteredImages = optionImages.filter(x => x.integrationKey === option.financialOptionIntegrationKey);
+
+							if (filteredImages.length)
+							{
+								// make sure they're sorted properly
+								option.optionImages = filteredImages.sort((a, b) => a.sortKey < b.sortKey ? -1 : 1);
+							}
+						});
+
+						return { tree, rules, options, optionImages, lot, webPlanMapping, opportunity };
+					}),
 					updateWithNewTreeVersion(scenario, this.treeService),
 					map(data =>
 					{

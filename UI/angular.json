@@ -43,6 +43,131 @@
 				}
 			}
 		},
+		"salesadmin": {
+			"root": "",
+			"sourceRoot": "projects/salesadmin/src",
+			"projectType": "application",
+			"architect": {
+				"build": {
+					"builder": "@angular-devkit/build-angular:browser",
+					"options": {
+						"aot": true,
+						"baseHref": "/salesadmin/",
+						"outputHashing": "all",
+						"outputPath": "dist/salesadmin",
+						"index": "projects/salesadmin/src/index.html",
+						"main": "projects/salesadmin/src/main.ts",
+						"tsConfig": "projects/salesadmin/tsconfig.app.json",
+						"progress": true,
+						"preserveSymlinks": true,
+						"polyfills": "projects/salesadmin/src/polyfills.ts",
+						"verbose": true,
+						"assets": [
+							"projects/salesadmin/src/assets"
+						],
+						"styles": [
+							"node_modules/font-awesome/css/font-awesome.min.css",
+							"node_modules/primeng/resources/themes/nova-light/theme.css",
+							"node_modules/primeng/resources/primeng.min.css",
+							"node_modules/primeicons/primeicons.css",
+							"projects/salesadmin/src/scss/styles.scss"
+						],
+						"scripts": []
+					},
+					"configurations": {
+						"qa": {
+							"fileReplacements": [
+								{
+									"replace": "projects/salesadmin/src/environments/environment.ts",
+									"with": "projects/salesadmin/src/environments/environment.qa.ts"
+								}
+							]
+						},
+						"staging": {
+							"fileReplacements": [
+								{
+									"replace": "projects/salesadmin/src/environments/environment.ts",
+									"with": "projects/salesadmin/src/environments/environment.staging.ts"
+								}
+							]
+						},
+						"production": {
+							"optimization": true,
+							"sourceMap": false,
+							"extractCss": true,
+							"namedChunks": false,
+							"extractLicenses": true,
+							"vendorChunk": false,
+							"buildOptimizer": true,
+							"fileReplacements": [
+								{
+									"replace": "projects/salesadmin/src/environments/environment.ts",
+									"with": "projects/salesadmin/src/environments/environment.prod.ts"
+								}
+							]
+						}
+					}
+				},
+				"serve": {
+					"builder": "@angular-devkit/build-angular:dev-server",
+					"options": {
+						"baseHref": "/",
+						"browserTarget": "salesadmin:build",
+						"port": 14769
+					},
+					"configurations": {
+						"qa": {
+							"browserTarget": "salesadmin:build:qa"
+						},
+						"staging": {
+							"browserTarget": "salesadmin:build:staging"
+						},
+						"production": {
+							"browserTarget": "salesadmin:build:production"
+						}
+					}
+				},
+				"extract-i18n": {
+					"builder": "@angular-devkit/build-angular:extract-i18n",
+					"options": {
+						"browserTarget": "salesadmin:build"
+					}
+				},
+				"test": {
+					"builder": "@angular-devkit/build-angular:karma",
+					"options": {
+						"main": "projects/salesadmin/src/test.ts",
+						"karmaConfig": "projects/salesadmin/karma.conf.js",
+						"polyfills": "projects/salesadmin/src/polyfills.ts",
+						"tsConfig": "projects/salesadmin/tsconfig.spec.json",
+						"scripts": [],
+						"styles": [
+							"node_modules/bootstrap/scss/bootstrap.scss",
+							"node_modules/font-awesome/css/font-awesome.min.css",
+							"node_modules/primeng/resources/themes/nova-light/theme.css",
+							"node_modules/primeng/resources/primeng.min.css",
+							"node_modules/primeicons/primeicons.css",
+							"projects/salesadmin/src/scss/styles.scss"
+						],
+						"assets": [
+							"projects/salesadmin/src/assets"
+						]
+					}
+				},
+				"lint": {
+					"builder": "@angular-devkit/build-angular:tslint",
+					"options": {
+						"tsConfig": [
+							"projects/salesadmin/tsconfig.app.json",
+							"projects/salesadmin/tsconfig.spec.json"
+						],
+						"exclude": [
+							"**/node_modules/**"
+						]
+					}
+				}
+			}
+		},
 		"salesportal": {
 			"root": "",
 			"sourceRoot": "projects/salesportal/src",
@@ -139,7 +264,7 @@
 						"main": "projects/salesportal/src/test.ts",
 						"karmaConfig": "projects/salesportal/karma.conf.js",
 						"polyfills": "projects/salesportal/src/polyfills.ts",
-						"tsConfig": "projects/salesportal//tsconfig.spec.json",
+						"tsConfig": "projects/salesportal/tsconfig.spec.json",
 						"scripts": [],
 						"styles": [
 							"node_modules/bootstrap/scss/bootstrap.scss",

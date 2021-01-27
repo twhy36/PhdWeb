@@ -2,16 +2,16 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Store, select } from '@ngrx/store';
+import { Actions, ofType } from '@ngrx/effects';
 
 import { Observable } from 'rxjs/Observable';
-import { distinctUntilChanged, combineLatest, switchMap, take, withLatestFrom } from 'rxjs/operators';
+import { combineLatest, map, switchMap, take, withLatestFrom } from 'rxjs/operators';
 import { never } from 'rxjs/observable/never';
 
 import { ScenarioService } from '../../../core/services/scenario.service';
 import { OpportunityService } from '../../../core/services/opportunity.service';
 import { UnsubscribeOnDestroy } from '../../../shared/classes/unsubscribe-on-destroy';
 import { Scenario } from '../../../shared/models/scenario.model';
-import { PointStatus } from '../../../shared/models/point.model';
 import { flipOver } from '../../../shared/classes/animations.class';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
@@ -20,9 +20,9 @@ import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 import * as NavActions from '../../../ngrx-store/nav/actions';
-import * as OppActions from '../../../ngrx-store/opportunity/actions';
 
 import { BrowserService } from '../../../core/services/browser.service';
+import { NewHomeService } from '../../services/new-home.service';
 
 @Component({
 	selector: 'name-scenario',
@@ -57,7 +57,12 @@ export class NameScenarioComponent extends UnsubscribeOnDestroy implements OnIni
 		public oppService: OpportunityService,
 		private activatedRoute: ActivatedRoute,
 		private store: Store<fromRoot.State>,
-		private browserService: BrowserService) { super(); }
+		private browserService: BrowserService,
+		private _actions$: Actions,
+		private newHomeService: NewHomeService)
+	{
+		super();
+	}
 
 	ngOnInit()
 	{
@@ -147,20 +152,33 @@ export class NameScenarioComponent extends UnsubscribeOnDestroy implements OnIni
 				})
 			).subscribe(opp =>
 			{
-				if (!this.scenarioId && !this.scenarioName) {
+				if (!this.scenarioId && !this.scenarioName)
+				{
+					this._actions$.pipe(
+						ofType<ScenarioActions.CreateScenario>(ScenarioActions.ScenarioActionTypes.CreateScenario),
+						withLatestFrom(this.store),
+						map(([action, store]) =>
+						{
+							return store.scenario
+						})).subscribe(scenario =>
+						{
+							this.newHomeService.setSubNavItemsStatus(scenario.scenario, scenario.buildMode, null);
+
+							this.store.dispatch(new NavActions.SetSelectedSubNavItem(2));
+
+							this.router.navigate([this.noOppInRoute ? '..' : '../..', 'plan'], { relativeTo: this.activatedRoute });
+						});
+
 					this.store.dispatch(new ScenarioActions.CreateScenario(opp.toString(), this.scenarioNameInput));
-
-					this.store.dispatch(new NavActions.SetSubNavItemStatus(1, PointStatus.COMPLETED));
-					this.store.dispatch(new NavActions.SetSubNavItemStatus(2, PointStatus.REQUIRED));
-					this.store.dispatch(new NavActions.SetSubNavItemStatus(3, PointStatus.REQUIRED));
-					this.store.dispatch(new NavActions.SetSubNavItemStatus(4, PointStatus.REQUIRED));
-					this.store.dispatch(new NavActions.SetSelectedSubNavItem(2));
-
-					this.router.navigate([this.noOppInRoute ? '..' : '../..', 'plan'], { relativeTo: this.activatedRoute });
-				} else if (!this.scenarioId) {
+				}
+				else if (!this.scenarioId)
+				{
 					this.store.dispatch(new ScenarioActions.SetScenarioName(this.scenarioNameInput));
-				} else {
+				}
+				else
+				{
 					this.store.dispatch(new ScenarioActions.SetScenarioName(this.scenarioNameInput));
+
 					this.store.dispatch(new ScenarioActions.SaveScenario());
 				}
 			});
@@ -172,7 +190,8 @@ export class NameScenarioComponent extends UnsubscribeOnDestroy implements OnIni
 		this.isDuplicateScenarioName = false;
 	}
 
-	get subTitle() : string {
+	get subTitle(): string
+	{
 		return this.scenarioHasSalesAgreement ? "" : "Enter a unique name for this customer's configuration";
 	}
 }

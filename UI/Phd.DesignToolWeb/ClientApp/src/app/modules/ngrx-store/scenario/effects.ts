@@ -11,9 +11,11 @@ import { timer } from 'rxjs/observable/timer';
 import { never } from 'rxjs/observable/never';
 import { filter } from 'rxjs/operators';
 
+import { AppInsights } from 'applicationinsights-js';
+
 import * as _ from 'lodash';
 
-import { CommonActionTypes, JobLoaded } from './../actions';
+import { CommonActionTypes, JobLoaded, SalesAgreementLoaded, ScenarioLoaded } from './../actions';
 import { OptionService } from '../../core/services/option.service';
 import { OrganizationService } from '../../core/services/organization.service';
 import { PlanService } from '../../core/services/plan.service';
@@ -22,9 +24,9 @@ import { TreeService } from '../../core/services/tree.service';
 
 import
 {
-	ScenarioActionTypes, SaveScenario, ScenarioSaved, SaveError,
+	ScenarioActionTypes, SaveScenario, ScenarioSaved, SaveError, SetChoicePriceRanges,
 	SetScenarioPlan, SetScenarioLot, SetScenarioLotHanding, TreeLoaded, LoadError, SetPointViewed, SetOverrideReason,
-	LoadPreview, SaveScenarioInfo, ScenarioInfoSaved, LoadTree, SelectChoices, SetIsFloorplanFlippedScenario, IsFloorplanFlippedScenario
+	LoadPreview, SaveScenarioInfo, ScenarioInfoSaved, LoadTree, SelectChoices, SetIsFloorplanFlippedScenario, IsFloorplanFlippedScenario, TreeLoadedFromJob
 } from './actions';
 import { SaveChangeOrderScenario, SavePendingJio } from '../change-order/actions';
 import { SetWebPlanMapping, PlansLoaded, SelectPlan } from '../plan/actions';
@@ -288,6 +290,40 @@ export class ScenarioEffects
 					));
 			})
 		), SaveError, "Error saving scenario info!!")
+	);
+
+	@Effect()
+	calculatePriceRanges$: Observable<Action> = this.actions$.pipe(
+		ofType<ScenarioLoaded | TreeLoaded | JobLoaded | SalesAgreementLoaded | TreeLoadedFromJob>(ScenarioActionTypes.TreeLoaded, CommonActionTypes.ScenarioLoaded, CommonActionTypes.JobLoaded, CommonActionTypes.SalesAgreementLoaded, ScenarioActionTypes.TreeLoadedFromJob),
+		withLatestFrom(this.store),
+		switchMap(([, state]) =>
+		{
+			if (state.scenario.tree) {
+
+				if (typeof Worker !== 'undefined') {
+					AppInsights.startTrackEvent(`Calculate Price Ranges - TreeVersionID: ${state.scenario.tree.treeVersion.id}`);
+					return new Observable<any>(observer => {
+						const worker = new Worker('../../../app.worker', { type: 'module' });
+						worker.onmessage = ({ data }) => {
+							observer.next(data);
+							observer.complete();
+							AppInsights.stopTrackEvent(`Calculate Price Ranges - TreeVersionID: ${state.scenario.tree.treeVersion.id}`);
+						};
+
+						worker.postMessage({
+							function: 'getChoicePriceRanges',
+							args: [state.scenario]
+						});
+					});
+				} else {
+					return never();
+				}
+			}
+			else {
+				return of(null);
+			}
+		}),
+		map(priceRanges => new SetChoicePriceRanges(priceRanges))
 	);
 
 	constructor(
