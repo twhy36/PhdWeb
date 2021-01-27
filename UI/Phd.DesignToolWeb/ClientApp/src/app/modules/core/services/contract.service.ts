@@ -423,8 +423,17 @@ export class ContractService
 				),
 				map(([store, priceBreakdown, isSpecSalePending, selectLot, coPrimaryBuyer, coCoBuyers]) =>
 				{
+					const templates = store.contract.selectedTemplates.map(id =>
+					{
+						return store.contract.templates.find(t => t.templateId === id);
+					}).sort((a, b) => a.displayOrder < b.displayOrder ? -1 : a.displayOrder > b.displayOrder ? 1 : 0);
 
-					const templates = store.contract.templates.filter(t => t.templateId === 0);
+					let template = store.contract.templates.find(t => t.templateId === 0);
+
+					if (template)
+					{
+						templates.unshift(template);
+					}
 
 					let currentHouseSelections = templates.some(t => t.templateId === 0) ? getCurrentHouseSelections(store.scenario.tree.treeVersion.groups) : [];
 
@@ -442,7 +451,8 @@ export class ContractService
 
 					const changeOrderBuyers = changeOrder.salesChangeOrderBuyers;
 
-					if (changeOrderBuyers && changeOrderBuyers.length) {
+					if (changeOrderBuyers && changeOrderBuyers.length)
+					{
 						const salesAgreemenetBuyers = store.salesAgreement.buyers;
 						const buyerIndexes = _.groupBy(changeOrderBuyers, 'sortKey');
 
@@ -462,7 +472,7 @@ export class ContractService
 										new: added.buyerName,
 										previous: removed.buyerName,
 										action: 'Swap Buyer',
-										isPrimaryBuyer : true
+										isPrimaryBuyer: true
 									});
 								}
 							}
@@ -474,7 +484,7 @@ export class ContractService
 										new: added.buyerName,
 										previous: '',
 										action: 'Add Buyer',
-										isPrimaryBuyer : added.isPrimaryBuyer
+										isPrimaryBuyer: added.isPrimaryBuyer
 									});
 								}
 
@@ -488,12 +498,15 @@ export class ContractService
 									});
 								}
 
-								if (changed) {
+								if (changed)
+								{
 									const sagBuyer = salesAgreemenetBuyers && salesAgreemenetBuyers.length
 										? salesAgreemenetBuyers.find(x => x.opportunityContactAssoc.id === changed.opportunityContactAssoc.id)
 										: null;
 									let sagBuyerName = '';
-									if (sagBuyer && sagBuyer.opportunityContactAssoc && sagBuyer.opportunityContactAssoc.contact) {
+
+									if (sagBuyer && sagBuyer.opportunityContactAssoc && sagBuyer.opportunityContactAssoc.contact)
+									{
 										const sagBuyerMiddleName = sagBuyer.opportunityContactAssoc.contact.middleName && sagBuyer.opportunityContactAssoc.contact.middleName.length
 											? ` ${sagBuyer.opportunityContactAssoc.contact.middleName[0]}.`
 											: '';
@@ -581,11 +594,15 @@ export class ContractService
 
 					const sagBuyers = store.salesAgreement.buyers.filter(t => t.isPrimaryBuyer === false);
 					let coBuyerList = sagBuyers;
-					if (inChangeOrderOrSpecSale) {
+
+					if (inChangeOrderOrSpecSale)
+					{
 						const deletedBuyers = sagBuyers.filter(x => coCoBuyers.findIndex(b => b.opportunityContactAssoc.id === x.opportunityContactAssoc.id) < 0);
+
 						coBuyerList = coCoBuyers.concat(deletedBuyers);
 					}
-					const currentCoBuyers = coBuyerList ? coBuyerList.map(b => {
+					const currentCoBuyers = coBuyerList ? coBuyerList.map(b =>
+					{
 						return {
 							firstName: b.opportunityContactAssoc.contact.firstName,
 							lastName: b.opportunityContactAssoc.contact.lastName,
@@ -816,6 +833,7 @@ export class ContractService
 							changeOrderInformation: changeOrderInformation,
 							envelopeInfo: envelopeInfo
 						}
+
 						return currentSnapshot;
 					}
 				}),

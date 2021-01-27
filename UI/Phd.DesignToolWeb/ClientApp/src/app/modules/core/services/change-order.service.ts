@@ -318,6 +318,7 @@ export class ChangeOrderService
 			: null;
 
 		const changeOrderTrusts = buyerChangeOrder ? buyerChangeOrder.jobSalesChangeOrderTrusts : null;
+
 		return {
 			addedTrust: changeOrderTrusts ? changeOrderTrusts.find(x => x.action === 'Add') : null,
 			deletedTrust: changeOrderTrusts ? changeOrderTrusts.find(x => x.action === 'Delete') : null
@@ -326,7 +327,6 @@ export class ChangeOrderService
 
 	createESignEnvelope(eSignEnvelope: ESignEnvelope): Observable<ESignEnvelope>
 	{
-
 		let url = environment.apiUrl + `eSignEnvelopes`;
 
 		return withSpinner(this._http).post(url, eSignEnvelope, { headers: { 'Prefer': 'return=representation' } }).pipe(

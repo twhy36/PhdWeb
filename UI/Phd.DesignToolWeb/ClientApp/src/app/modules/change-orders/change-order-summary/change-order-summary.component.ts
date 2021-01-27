@@ -328,7 +328,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 			{
 				return new Date(a.createdUtcDate).getTime() - new Date(b.createdUtcDate).getTime();
 			});
-						
+
 			if (this.buildMode === 'spec' || this.buildMode === 'model')
 			{
 				this.setGroupSequenceForSpec();
@@ -524,6 +524,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 							{
 								this.setOutForSignature(changeOrder, true);
 							});
+
 						this.store.dispatch(new JobActions.CreateChangeOrderEnvelope(currentSnapshot));
 					}
 					else
@@ -536,6 +537,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 			case this.ACTION_TYPES.CANCEL_SIGNATURE:
 				// First CO on the table - SalesJIO/ Spec Customer
 				this.isSaving = true;
+
 				if (changeOrder.id === this.changeOrders[0].id)
 				{
 					this._contractService.voidOutForSignatureEnvelope(this.salesAgreementId, changeOrder.envelopeId, changeOrder.eSignStatus, this.jobId, changeOrder.id)
@@ -575,6 +577,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 				this._contractService.createSnapShot(changeOrder).subscribe(snapshot =>
 				{
 					this.isSaving = true;
+
 					this._actions$.pipe(
 						ofType<CommonActions.ChangeOrderEnvelopeCreated>(CommonActions.CommonActionTypes.ChangeOrderEnvelopeCreated),
 						take(1)).subscribe(() =>
@@ -902,6 +905,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 		}
 
 		this.isSaving = true;
+
 		this._changeOrderService.updateJobChangeOrder(changeOrdersTobeUpdated)
 			.pipe(finalize(() => this.isSaving = false))
 			.subscribe(updatedChangeOrders =>
@@ -911,10 +915,12 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 				if (changeOrderId === this.currentChangeOrderId)
 				{
 					this.store.dispatch(new ChangeOrderActions.SetChangingOrder(false, null));
+
 					if (changeOrder.salesStatusDescription === 'Approved')
 					{
 						this.store.dispatch(new ChangeOrderActions.CurrentChangeOrderCancelled());
 					}
+
 					if (changeOrder.salesStatusDescription === 'Withdrawn')
 					{
 						this.store.dispatch(new CommonActions.LoadSalesAgreement(this.salesAgreementId, false));
