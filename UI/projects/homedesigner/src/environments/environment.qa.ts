@@ -9,7 +9,7 @@ export const environment: IEnvironment = {
 		responseType: 'code',
 		clearHashAfterLogin: true,
 		requestAccessToken: true,
-		scope: 'api://90bf975f-6a55-42cb-9016-1103586c8f50/user_impersonation profile',
+		scope: 'api://90bf975f-6a55-42cb-9016-1103586c8f50/user_impersonation profile openid',
 		showDebugInformation: true,
 		skipIssuerCheck: false,
 		strictDiscoveryDocumentValidation: false
