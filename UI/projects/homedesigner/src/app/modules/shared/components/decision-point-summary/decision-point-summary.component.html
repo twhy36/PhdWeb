@@ -58,7 +58,7 @@
 		</div>
 	</div>
 	<div class="actions d-flex justify-content-between align-items-start actionLinks">
-		<a>{{actionLabel}}</a>
-		<i *ngIf="!decisionPoint.isStructuralItem" class="fa fa-times phd-clickable"></i>
+		<a (click)="onViewOrEdit()">{{actionLabel}}</a>
+		<i *ngIf="!isReadonly" class="fa fa-times phd-clickable" (click)="onRemove()"></i>
 	</div>
 </div>

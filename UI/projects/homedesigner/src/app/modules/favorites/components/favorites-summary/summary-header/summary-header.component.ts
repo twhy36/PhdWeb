@@ -11,15 +11,14 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 {
 	@Input() summaryHeader: SummaryHeader;
 	@Input() priceBreakdown: PriceBreakdown;
+	@Input() includeContractedOptions: boolean;
 
 	@Output() isStickyChanged = new EventEmitter<boolean>();
-	@Output() contractedOptionsChanged = new EventEmitter<boolean>();
+	@Output() contractedOptionsToggled = new EventEmitter<boolean>();
 	
 	scrolling: boolean = false;
 	isSticky: boolean = false;
 	listener: () => void;
-
-	includeContractedOptions: boolean = true;
 
 	constructor(
 		private ngZone: NgZone,
@@ -91,8 +90,7 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 	}
 
 	toggleContractedOptions(event: any) {
-		this.includeContractedOptions = !this.includeContractedOptions;
-		this.contractedOptionsChanged.emit(this.includeContractedOptions);
+		this.contractedOptionsToggled.emit();
 	}
 }
 

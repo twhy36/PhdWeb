@@ -16,7 +16,7 @@ import { SummaryHeaderComponent } from './components/favorites-summary/summary-h
 const moduleRoutes: Routes = [
 	{ path: 'favorites', component: ManageFavoritesComponent },
 	{ path: 'favorites/summary', component: FavoritesSummaryComponent },
-	{ path: 'favorites/my-favorites/:favoritesId/:divDPointCatalogId', component: MyFavoritesComponent },
+	{ path: 'favorites/my-favorites/:favoritesId/:subGroupCatalogId', component: MyFavoritesComponent },
 	{ path: 'favorites/my-favorites/:favoritesId', component: MyFavoritesComponent }
 ];
 

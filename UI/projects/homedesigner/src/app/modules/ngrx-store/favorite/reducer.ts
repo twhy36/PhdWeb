@@ -13,14 +13,14 @@ export interface State
 	myFavorites: MyFavorite[],
 	selectedFavoritesId: number,
 	saveError: boolean,
-	selectedChoices: JobChoice[]
+	salesChoices: JobChoice[]
 }
 
 export const initialState: State = {
 	myFavorites: null,
 	selectedFavoritesId: null,
 	saveError: false,
-	selectedChoices: null
+	salesChoices: null
 };
 
 export function reducer(state: State = initialState, action: FavoriteActions): State
@@ -29,7 +29,7 @@ export function reducer(state: State = initialState, action: FavoriteActions): S
 	{
 		case CommonActionTypes.SalesAgreementLoaded:
 			{
-				return { ...state, myFavorites: action.myFavorites, selectedChoices: action.choices };
+				return { ...state, myFavorites: action.myFavorites, salesChoices: action.choices };
 			}	
 			
 		case FavoriteActionTypes.SetCurrentFavorites:

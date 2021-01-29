@@ -1,9 +1,9 @@
-import { Component, OnInit, Input, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnChanges, Input, Output, ChangeDetectionStrategy, ChangeDetectorRef, SimpleChanges, EventEmitter } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { NgbDropdownConfig } from '@ng-bootstrap/ng-bootstrap';
 
-import { DecisionPoint, Group, SubGroup, Choice, UnsubscribeOnDestroy, flipOver2, isChoiceAttributesComplete } from 'phd-common';
+import { DecisionPoint, Group, SubGroup, Choice, JobChoice, UnsubscribeOnDestroy, flipOver2, isChoiceAttributesComplete } from 'phd-common';
 
 @Component({
 	selector: 'decision-point-summary',
@@ -14,14 +14,20 @@ import { DecisionPoint, Group, SubGroup, Choice, UnsubscribeOnDestroy, flipOver2
 	],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implements OnInit
+export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implements OnInit, OnChanges
 {
 	@Input() decisionPoint: DecisionPoint;
 	@Input() group: Group;
 	@Input() subGroup: SubGroup;
+	@Input() salesChoices: JobChoice[];
+	@Input() includeContractedOptions: boolean;
+
+	@Output() onViewFavorites = new EventEmitter<DecisionPoint>();
+	@Output() onRemoveFavorites = new EventEmitter<DecisionPoint>();
 	
 	selections: Choice[] = [];
 	choicesCustom: ChoiceCustom[] = [];
+	isReadonly: boolean = false;
 
 	constructor(private router: Router, private config: NgbDropdownConfig, private cd: ChangeDetectorRef)
 	{
@@ -35,7 +41,20 @@ export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implemen
 		this.setDisplayName();
 		this.setPointChoices();
 		this.setPointPrice();
+
+		const choices = this.decisionPoint.choices.filter(c => c.quantity > 0) || [];
+		const favoriteChoices = choices.filter(c => this.salesChoices.findIndex(sc => sc.divChoiceCatalogId === c.divChoiceCatalogId) === -1);
+		this.isReadonly = !favoriteChoices || favoriteChoices.length < 1;
 	}
+
+	ngOnChanges(changes: SimpleChanges)
+	{
+		if (changes['includeContractedOptions'])
+		{
+			this.includeContractedOptions = changes['includeContractedOptions'].currentValue;
+			this.setPointChoices();
+		}
+	}	
 
 	setPointPrice()
 	{
@@ -51,12 +70,16 @@ export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implemen
 
 	setPointChoices()
 	{
-		this.choicesCustom = this.decisionPoint.choices.map(c => new ChoiceCustom(c));
+		const choices = this.includeContractedOptions
+							? this.decisionPoint.choices
+							: this.decisionPoint.choices.filter(c => this.salesChoices.findIndex(sc => sc.divChoiceCatalogId === c.divChoiceCatalogId) === -1);
+		this.choicesCustom = choices.map(c => new ChoiceCustom(c));
 	}
 
 	toggleCollapsed(choice: ChoiceCustom): void
 	{
 		choice.showAttributes = !choice.showAttributes;
+		this.cd.detectChanges();
 	}
 
 	isChoiceComplete(choice: ChoiceCustom): boolean
@@ -74,7 +97,17 @@ export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implemen
 	}
 
 	get actionLabel() {
-		return this.decisionPoint.isStructuralItem ? 'VIEW' : 'EDIT';
+		return this.isReadonly ? 'VIEW' : 'EDIT';
+	}
+
+	onViewOrEdit()
+	{
+		this.onViewFavorites.emit(this.decisionPoint);
+	}
+
+	onRemove()
+	{
+		this.onRemoveFavorites.emit(this.decisionPoint);
 	}
 }
 

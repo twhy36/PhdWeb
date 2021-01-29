@@ -17,7 +17,7 @@
 					<button mat-menu-item
 							*ngFor="let subGroup of group.subGroups"
 							[class.phd-sub-menu-selected]="subGroup.id === selectedSubGroupId"
-							(click)="selectSubgroup(group.id, subGroup.id)">
+							(click)="selectSubgroup(subGroup.id)">
 						{{subGroup.label}}
 					</button>
 				</mat-menu>
@@ -39,7 +39,7 @@
 						<button mat-menu-item
 								*ngFor="let subGroup of group.subGroups"
 								[class.phd-sub-menu-selected]="subGroup.id === selectedSubGroupId"
-								(click)="selectSubgroup(group.id, subGroup.id)">
+								(click)="selectSubgroup(subGroup.id)">
 							{{subGroup.label}}
 						</button>
 					</mat-menu>

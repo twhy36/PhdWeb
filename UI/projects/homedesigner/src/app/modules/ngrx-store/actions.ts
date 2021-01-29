@@ -11,7 +11,8 @@ import { MyFavorite } from '../shared/models/my-favorite.model';
 
 export enum CommonActionTypes {
     LoadSalesAgreement = 'Load Sales Agreement',
-    SalesAgreementLoaded = 'Sales Agreement Loaded',
+	SalesAgreementLoaded = 'Sales Agreement Loaded',
+	ResetFavorites = 'Reset Favorites',
     LoadError = 'Load Error'
 };
 
@@ -51,4 +52,11 @@ export class SalesAgreementLoaded implements Action
 		public myFavorites: MyFavorite[]
 	)
 	{}
+}
+
+export class ResetFavorites implements Action
+{
+	readonly type = CommonActionTypes.ResetFavorites;
+
+	constructor() {	}
 }

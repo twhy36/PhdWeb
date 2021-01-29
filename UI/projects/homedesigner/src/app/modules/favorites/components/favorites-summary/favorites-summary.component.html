@@ -10,8 +10,9 @@
 	<div class="phd-favorites-summary">
 		<summary-header [summaryHeader]="summaryHeader"
 						[priceBreakdown]="priceBreakdown"
+						[includeContractedOptions]="includeContractedOptions"
 						(isStickyChanged)="onIsStickyChanged($event)"
-						(contractedOptionsChanged)="onContractedOptionsChanged($event)">
+						(contractedOptionsToggled)="onContractedOptionsToggled()">
 		</summary-header>
 
 		<div class="tree-view" [class.phd-is-sticky]="isSticky">
@@ -32,7 +33,11 @@
 							<decision-point-summary *ngIf="displayPoint(dp)"
 													[decisionPoint]="dp"
 													[subGroup]="subGroup"
-													[group]="group">
+													[group]="group"
+													[salesChoices]="salesChoices"
+													[includeContractedOptions]="includeContractedOptions"
+													(onViewFavorites)="onViewFavorites($event)"
+													(onRemoveFavorites)="onRemoveFavorites($event)">
 							</decision-point-summary>
 						</ng-container>
 					</div>								

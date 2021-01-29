@@ -30,10 +30,11 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 	communityName: string = '';
 	planName: string = '';
 	groups: Group[];
-	params$ = new ReplaySubject<{ favoritesId: number, divDPointCatalogId: number }>(1);
+	params$ = new ReplaySubject<{ favoritesId: number, subGroupCatalogId: number }>(1);
 	groupName: string = '';
 	selectedSubGroup : SubGroup;
 	selectedSubgroupId: number;
+	selectedPointId: number;
 	errorMessage: string = '';
 	tree: Tree;
 	treeVersionRules: TreeVersionRules;
@@ -74,7 +75,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 
 		this.route.paramMap.pipe(
 			this.takeUntilDestroyed(),
-			map(params => { return { favoritesId: +params.get('favoritesId'), divDPointCatalogId: +params.get('divDPointCatalogId') }; }),
+			map(params => { return { favoritesId: +params.get('favoritesId'), subGroupCatalogId: +params.get('subGroupCatalogId') }; }),
 			distinctUntilChanged()
 		).subscribe(params => this.params$.next(params));
 
@@ -91,19 +92,17 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 				return;
 			}
 
-			if (filteredTree && params.divDPointCatalogId > 0) {
+			if (filteredTree && params.subGroupCatalogId > 0) {
 				let groups = filteredTree.groups;
 				let sg;
-				let dp;
 
 				if (groups.length) {
-					sg = _.flatMap(groups, g => g.subGroups).find(sg => sg.points.some(p => p.divPointCatalogId === params.divDPointCatalogId));
-					dp = !!sg ? sg.points.find(p => p.divPointCatalogId === params.divDPointCatalogId) : null;
+					sg = _.flatMap(groups, g => g.subGroups).find(sg => sg.subGroupCatalogId === params.subGroupCatalogId);
 
-					if (!dp) {
-						let divPointCatalogId = groups[0].subGroups[0].points[0].divPointCatalogId;
+					if (!sg) {
+						let subGroupCatalogId = groups[0].subGroups[0].subGroupCatalogId;
 
-						//this happens if the decision point has been filtered out of the tree - find a new decision point to navigate to
+						//this happens if the subgroup has been filtered out of the tree - find a new subgroup to navigate to
 						if (!!this.selectedSubgroupId) {
 							let origGroup = groups.find(g => g.subGroups.some(sg => sg.id === this.selectedSubgroupId));
 
@@ -111,27 +110,26 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 								let origSg = origGroup.subGroups.find(sg => sg.id === this.selectedSubgroupId);
 
 								if (origSg) {
-									divPointCatalogId = origSg.points[0].divPointCatalogId;
+									subGroupCatalogId = origSg.subGroupCatalogId;
 								}
 								else {
-									divPointCatalogId = origGroup.subGroups[0].points[0].divPointCatalogId;
+									subGroupCatalogId = origGroup.subGroups[0].subGroupCatalogId;
 								}
 							}
 						}
 
-						this.router.navigate(['..', divPointCatalogId], { relativeTo: this.route });
+						this.router.navigate(['..', subGroupCatalogId], { relativeTo: this.route });
 					}
 					else {
 						this.setSelectedGroup(groups.find(g => g.subGroups.some(sg1 => sg1.id === sg.id)), sg);
 					}
 				}
 				else if (scenarioState.treeFilter) {
-					// find the last point we were on using the full tree
+					// find the last subgroup we were on using the full tree
 					groups = scenarioState.tree.treeVersion.groups;
-					sg = _.flatMap(groups, g => g.subGroups).find(sg => sg.points.some(p => p.divPointCatalogId === params.divDPointCatalogId));
-					dp = !!sg ? sg.points.find(p => p.divPointCatalogId === params.divDPointCatalogId) : null;
+					sg = _.flatMap(groups, g => g.subGroups).find(sg => sg.subGroupCatalogId === params.subGroupCatalogId);
 
-					if (dp) {
+					if (sg) {
 						this.setSelectedGroup(groups.find(g => g.subGroups.some(sg1 => sg1.id === sg.id)), sg);
 					}
 
@@ -139,25 +137,30 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 				}
 			}
 			else if (filteredTree) {
-				this.router.navigate([filteredTree.groups[0].subGroups[0].points[0].divPointCatalogId], { relativeTo: this.route });
+				this.router.navigate([filteredTree.groups[0].subGroups[0].subGroupCatalogId], { relativeTo: this.route });
 			}
 		});
 
 		//subscribe to changes in subgroup selection
 		this.store.pipe(
 			this.takeUntilDestroyed(),
-			select(state => state.nav.selectedSubGroup),
+			select(state => state.nav),
 			withLatestFrom(this.store.pipe(select(fromRoot.filteredTree), map(tree => tree && tree.groups), filter(groups => !!groups))),
 			debounceTime(100)
-		).subscribe(([sg, groups]) => {
-			if (sg && sg !== this.selectedSubgroupId) {
-				let subGroup = _.flatMap(groups, g => g.subGroups).find(s => s.id === sg);
+		).subscribe(([nav, groups]) => {
+			const sgId = nav && nav.selectedSubGroup;
+			const subGroup = _.flatMap(groups, g => g.subGroups).find(s => s.id === sgId);
 
-				if (subGroup) {
-					this.router.navigate(['..', subGroup.points[0].divPointCatalogId], { relativeTo: this.route });
-				}
+			this.selectedPointId = nav && nav.selectedPoint;
+			if (!this.selectedPointId && subGroup && subGroup.points && subGroup.points.length)
+			{
+				this.selectedPointId = subGroup.points[0].id;
 			}
-			});
+
+			if (sgId && sgId !== this.selectedSubgroupId && subGroup) {
+				this.router.navigate(['..', subGroup.subGroupCatalogId], { relativeTo: this.route });
+			}
+		});
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
@@ -198,9 +201,8 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			const nextSubgroup = subGroupIndex === subGroups.length - 1
 				? subGroups[0]
 				: subGroups[subGroupIndex + 1];
-			const nextGroup = this.groups.find(g => g.subGroups.some(sg => sg.id === nextSubgroup.id));
 
-			this.groupBar.selectSubgroup(nextGroup.id, nextSubgroup.id);
+				this.groupBar.selectSubgroup(nextSubgroup.id);
 		}
 	}
 

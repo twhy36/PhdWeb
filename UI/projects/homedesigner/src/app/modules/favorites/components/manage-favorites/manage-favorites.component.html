@@ -14,7 +14,7 @@
 			<div *ngIf="isDuplicateName" class="phd-alert-message">The favorite list name you entered is already in use. Please enter a different name to proceed.</div>
 		</form>
 	</div>
-	<div class="d-flex flex-column" *ngIf="favoriteList.length">
+	<div class="d-flex flex-column" *ngIf="favoriteList?.length">
 		<div class="phd-or-separator">- OR -</div>
 		<div class="phd-return-prev">Return to Previous List</div>
 		<div class="phd-select-prev">Select from your previously created lists below</div>

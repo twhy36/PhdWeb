@@ -1,4 +1,5 @@
 import { Component, OnInit, Input, OnChanges, SimpleChanges, Output, EventEmitter } from '@angular/core';
+
 import * as _ from 'lodash';
 
 import { UnsubscribeOnDestroy, flipOver, DecisionPoint, PickType, SubGroup, Choice } from 'phd-common';
@@ -17,6 +18,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	@Input() currentSubgroup: SubGroup;
 	@Input() errorMessage: string;
 	@Input() myFavoritesChoices: MyFavoritesChoice[];
+	@Input() decisionPointId: number;
 
 	@Output() onToggleChoice = new EventEmitter<Choice>();
 
@@ -37,7 +39,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 			const newSubGroup = (changes['currentSubgroup'].currentValue) as SubGroup;
 			if (this.choiceToggled)
 			{
-				// Prevent reloading the page
+				// Prevent from reloading the page
 				const newChoices = _.flatMap(newSubGroup.points, pt => pt.choices);
 				let choices = _.flatMap(this.subGroup.points, pt => pt.choices);
 				newChoices.forEach(nc => {
@@ -53,10 +55,12 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 			{
 				this.subGroup = changes['currentSubgroup'].currentValue;
 				this.points = this.subGroup ? this.subGroup.points : null;
-				if (this.points && this.points.length) {
-					this.currentPointId = this.points[0].id;
-				}				
 			}
+		}
+
+		if (changes['decisionPointId']) 
+		{
+			this.selectDecisionPoint(changes['decisionPointId'].currentValue);
 		}
 	}
 
@@ -87,13 +91,21 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	}
 
 	selectDecisionPoint(pointId: number) {
-		const decision = document.getElementById(pointId.toString());
-
-		if (decision) {
-			decision.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+		if (pointId !== this.currentPointId)
+		{
+			if (pointId)
+			{
+				setTimeout(() =>
+				{
+					const decision = document.getElementById(pointId.toString());
+					if (decision)
+					{
+						decision.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+					}
+				}, 250);
+			}
+			this.currentPointId = pointId;			
 		}
-
-		this.currentPointId = pointId;
 	}
 
 	choiceToggleHandler(choice: Choice) {

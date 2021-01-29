@@ -1,7 +1,7 @@
 import { Action } from '@ngrx/store';
 import { ErrorAction } from '../error.action';
 import { MyFavorite, MyFavoritesChoice } from '../../shared/models/my-favorite.model';
-import { SalesAgreementLoaded } from '../actions';
+import { SalesAgreementLoaded, ResetFavorites } from '../actions';
 
 export enum FavoriteActionTypes
 {
@@ -9,7 +9,6 @@ export enum FavoriteActionTypes
 	SetCurrentFavorites = 'Set Current Favorites',
 	SaveMyFavoritesChoices = 'Save My Favorites Choices',
 	MyFavoritesChoicesSaved = 'My Favorites Choices Saved',
-	ResetCurrentFavorites = 'Reset Current Favorites',
 	SaveError = 'Save Error'
 }
 
@@ -41,13 +40,6 @@ export class MyFavoritesChoicesSaved implements Action
 	constructor(public choices: MyFavoritesChoice[]) {	}
 }
 
-export class ResetCurrentFavorites implements Action
-{
-	readonly type = FavoriteActionTypes.ResetCurrentFavorites;
-
-	constructor() {	}
-}
-
 export class SaveError extends ErrorAction
 {
 	readonly type = FavoriteActionTypes.SaveError;
@@ -60,6 +52,6 @@ export type FavoriteActions =
 	SetCurrentFavorites |
 	SaveMyFavoritesChoices |
 	MyFavoritesChoicesSaved |
-	ResetCurrentFavorites |
+	ResetFavorites |
 	SalesAgreementLoaded |
 	SaveError;

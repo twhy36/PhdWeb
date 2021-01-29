@@ -10,6 +10,7 @@ import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromSalesAgreement from '../../../ngrx-store/sales-agreement/reducer';
 import * as fromFavorite from '../../../ngrx-store/favorite/reducer';
 import * as FavoriteActions from '../../../ngrx-store/favorite/actions';
+import * as CommonActions from '../../../ngrx-store/actions';
 import { FavoriteService } from '../../../core/services/favorite.service';
 import { MyFavorite } from '../../../shared/models/my-favorite.model';
 
@@ -51,6 +52,7 @@ export class ManageFavoritesComponent extends UnsubscribeOnDestroy implements On
 		});	
 
 		this.createForm();
+		this.store.dispatch(new CommonActions.ResetFavorites());
 	}
 
 	createForm() {
@@ -87,12 +89,12 @@ export class ManageFavoritesComponent extends UnsubscribeOnDestroy implements On
 	}
 
 	get saveDisabled(): boolean {
-		return this.favoriteList.length >= 3;
+		return this.favoriteList && this.favoriteList.length >= 3;
 	}
 
 	onMyFavorites(fav: MyFavorite)
 	{
 		this.store.dispatch(new FavoriteActions.SetCurrentFavorites(fav.id));
-		this.router.navigateByUrl(`/favorites/my-favorites/${fav.id}`);
+		this.router.navigateByUrl('/favorites/summary');
 	}
 }

@@ -142,13 +142,13 @@ export class FavoriteService
 		);
 	}	
 
-	getFavoriteChoices(tree: Tree, selectedChoices: JobChoice[], favorites: MyFavorite) : any[]
+	getFavoriteChoices(tree: Tree, salesChoices: JobChoice[], favorites: MyFavorite) : any[]
 	{
 		let choices = [];
 		const treeChoices = _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices.filter(ch => ch.quantity > 0)))) || [];
 		const favoriteChoices = (favorites ? favorites.myFavoritesChoice : []) || [];
 		
-		const newFavoriteChoices = treeChoices.filter(c => selectedChoices.findIndex(sc => sc.divChoiceCatalogId === c.divChoiceCatalogId) === -1);
+		const newFavoriteChoices = treeChoices.filter(c => salesChoices.findIndex(sc => sc.divChoiceCatalogId === c.divChoiceCatalogId) === -1);
 		newFavoriteChoices.forEach(nc => {
 			const existingChoice = favoriteChoices.find(fav => fav.divChoiceCatalogId === nc.divChoiceCatalogId);
 			if (!existingChoice)

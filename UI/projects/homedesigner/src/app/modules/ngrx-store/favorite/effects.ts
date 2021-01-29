@@ -8,9 +8,10 @@ import { from } from 'rxjs/observable/from';
 
 import 
 { 	FavoriteActionTypes, SetCurrentFavorites, MyFavoriteCreated, SaveMyFavoritesChoices, 
-	MyFavoritesChoicesSaved, ResetCurrentFavorites, SaveError 
+	MyFavoritesChoicesSaved, SaveError 
 } from './actions';
 
+import { CommonActionTypes, ResetFavorites } from '../actions';
 import { SelectChoices } from '../scenario/actions';
 import { tryCatch } from '../error.action';
 
@@ -53,8 +54,8 @@ export class FavoriteEffects
 	);
 
 	@Effect()
-	resetCurrentFavorites$: Observable<Action> = this.actions$.pipe(
-		ofType<ResetCurrentFavorites>(FavoriteActionTypes.ResetCurrentFavorites),
+	resetFavorites$: Observable<Action> = this.actions$.pipe(
+		ofType<ResetFavorites>(CommonActionTypes.ResetFavorites),
 		withLatestFrom(this.store.pipe(select(fromFavorite.currentMyFavorite))),
 		tryCatch(source => source.pipe(
 			switchMap(([action, fav]) => {
@@ -89,7 +90,7 @@ export class FavoriteEffects
 		withLatestFrom(this.store, this.store.pipe(select(fromFavorite.currentMyFavorite))),
 		tryCatch(source => source.pipe(
 			switchMap(([action, store, fav]) => {
-				const choices = this.favoriteService.getFavoriteChoices(store.scenario.tree, store.favorite.selectedChoices, fav);
+				const choices = this.favoriteService.getFavoriteChoices(store.scenario.tree, store.favorite.salesChoices, fav);
                 return this.favoriteService.saveMyFavoritesChoices(fav.id, choices);
   			}),
 			switchMap(results => of(new MyFavoritesChoicesSaved(results)))

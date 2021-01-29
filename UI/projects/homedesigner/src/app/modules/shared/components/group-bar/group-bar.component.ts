@@ -29,7 +29,7 @@ export class GroupBarComponent extends UnsubscribeOnDestroy implements OnInit
 		this.isTablet$ = this.browser.isTablet();
 	}
 
-	selectSubgroup(gId: number, sgId: number) {
+	selectSubgroup(sgId: number) {
 		this.onSubgroupSelected.emit(sgId);
 	}
 
