@@ -20,21 +20,18 @@ import { defaultOnNotFound } from '../../shared/classes/default-on-not-found';
 import { withSpinner } from 'phd-common/extensions/withSpinner.extension';
 import { MonotonyConflict } from '../../shared/models/monotony-conflict.model';
 import { DecisionPoint } from '../../shared/models/tree.model.new';
-import * as build from '../../../build.json';
 
 @Injectable()
 export class LotService
 {
 	constructor(private _http: HttpClient, private store: Store<fromRoot.State>, private actions: ActionsSubject, private router: Router) { }
 
-	build = (build as any).default;
-
 	loadLots(salesCommunityId: number, selectedLot: number, skipSpinner: boolean = true, isModel: boolean = false): Observable<Array<Lot>>
 	{
 		const expand = `lotHandingAssocs($expand=handing($select=id,name)),planAssociations($select=id,isActive,planId,lotId;$filter=isActive eq true),jobs($select=id,lotId,handing,planId)`;
 		const includeSelectedLot = selectedLot ? `or id eq ${selectedLot}` : '';
 		let filter = '';
-		if (isModel && !(build.branch.includes('release') || build.branch.includes('hotfix')))
+		if (isModel)
 		{
 			filter =
 			`financialCommunity/salesCommunityId eq ${salesCommunityId} and
