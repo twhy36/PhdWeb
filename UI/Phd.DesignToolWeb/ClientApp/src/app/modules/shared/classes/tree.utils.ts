@@ -154,7 +154,7 @@ function saveLockedInChoices(choices: Array<JobChoice | ChangeOrderChoice>, tree
 	});
 }
 
-export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[] }>(choices: Array<JobChoice | ChangeOrderChoice>, options: Array<JobPlanOption | ChangeOrderPlanOption>, treeService: TreeService, changeOrder?: ChangeOrderGroup): (source: Observable<T>) => Observable<T>
+export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], images?: OptionImage[] }>(choices: Array<JobChoice | ChangeOrderChoice>, options: Array<JobPlanOption | ChangeOrderPlanOption>, treeService: TreeService,  changeOrder?: ChangeOrderGroup): (source: Observable<T>) => Observable<T>
 {
 	return (source: Observable<T>) => source.pipe(
 		switchMap(data =>
@@ -328,12 +328,9 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[] }>(c
 
 						let existingAssoc = optImageAssoc ? optImageAssoc.filter(optImage => optImage.planOptionCommunityId === opt.id) : [];
 
-						if (existingAssoc.length)
+						if (existingAssoc.length && res.images)
 						{
-							opt.optionImages = existingAssoc.map(image =>
-							{
-								return { imageURL: image.imageUrl, integrationKey: opt.financialOptionIntegrationKey, sortKey: image.sortOrder } as OptionImage;
-							});
+							res.images = [...res.images.filter(o => o.integrationKey !== opt.financialOptionIntegrationKey), ...existingAssoc.map(i => ({ integrationKey: opt.financialOptionIntegrationKey, imageURL: i.imageUrl, sortKey: i.sortOrder }))];
 						}
 
 						//add in missing attribute/location groups
