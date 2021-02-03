@@ -142,15 +142,15 @@ export class AutoApprovalComponent extends UnsubscribeOnDestroy implements OnIni
 		});
 	}
 
-	selectAllToggle(event: any)
+	selectAllToggle({ checked }: { checked: boolean })
 	{
-		const changedApprovals = this.approvals.filter(a => a.isAutoApproval !== event && a.edhChangeOrderTypeId !== 0).map(a => { return { ...a, isAutoApproval: event }; })
+		const changedApprovals = this.approvals.filter(a => a.isAutoApproval !== checked && a.edhChangeOrderTypeId !== 0).map(a => { return { ...a, isAutoApproval: checked }; })
 
 		this.saveRule(changedApprovals).subscribe(response =>
 		{
 			this._msgService.add({ severity: 'success', summary: 'Auto Approval', detail: 'Auto Approval saved successfully' });
 
-			this.approvals.map(a => a.edhChangeOrderTypeId === 0 ? a.isAutoApproval : a.isAutoApproval = event);
+			this.approvals.map(a => a.edhChangeOrderTypeId === 0 ? a.isAutoApproval : a.isAutoApproval = checked);
 		},
 		() =>
 		{
