@@ -66,13 +66,17 @@
 		margin-bottom: 20px;
 	}
 
+	.phd-fav-button-div {
+		margin-top: 10px;
+	}
+
 	.phd-fav-button {
 		background-color: $pantone_blue;
 		width: calc(55vw);
 		min-height: 50px;
 		font-size: 18px;
-		margin-top: 10px;
 		word-wrap: break-word !important;
+		margin-right: 5px;
 	}
 
 	.phd-alert-message {

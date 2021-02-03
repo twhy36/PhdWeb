@@ -3,8 +3,9 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { Router } from "@angular/router";
 import { Store, select } from '@ngrx/store';
 import { ToastrService } from 'ngx-toastr';
+import { NgbModal, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 
-import { UnsubscribeOnDestroy } from 'phd-common';
+import { UnsubscribeOnDestroy, ConfirmModalComponent } from 'phd-common';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromSalesAgreement from '../../../ngrx-store/sales-agreement/reducer';
@@ -31,6 +32,7 @@ export class ManageFavoritesComponent extends UnsubscribeOnDestroy implements On
 		private store: Store<fromRoot.State>, 
 		private router: Router,
 		private toastr: ToastrService,
+		private modalService: NgbModal,
 		private favoriteService: FavoriteService)
     {
 		super();
@@ -97,4 +99,33 @@ export class ManageFavoritesComponent extends UnsubscribeOnDestroy implements On
 		this.store.dispatch(new FavoriteActions.SetCurrentFavorites(fav.id));
 		this.router.navigateByUrl('/favorites/summary');
 	}
+
+	deleteFavorite(fav: MyFavorite)
+	{
+		let ngbModalOptions: NgbModalOptions = {
+			centered: true,
+			backdrop: 'static',
+			keyboard: false
+		};
+
+		let msgBody = 'This will permanently delete your list.';
+
+		let confirm = this.modalService.open(ConfirmModalComponent, ngbModalOptions);
+
+		confirm.componentInstance.title = 'WARNING';
+		confirm.componentInstance.body = msgBody;
+		confirm.componentInstance.defaultOption = 'Cancel';
+
+		confirm.result.then((result) =>
+		{
+			if (result == 'Continue')
+			{
+				this.store.dispatch(new FavoriteActions.DeleteMyFavorite(fav));
+			}
+		}, (reason) =>
+			{
+
+			});
+	}	
+
 }

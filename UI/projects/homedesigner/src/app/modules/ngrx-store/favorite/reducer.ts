@@ -91,6 +91,24 @@ export function reducer(state: State = initialState, action: FavoriteActions): S
 				return { ...state, saveError: true };				
 			}
 
+		case FavoriteActionTypes.MyFavoriteDeleted:
+			{
+				let myFavorites = _.cloneDeep(state.myFavorites);
+				const myFavoriteIndex = myFavorites.findIndex(x => x.id === action.myFavoriteId);
+				if (myFavoriteIndex > -1)
+				{
+					myFavorites.splice(myFavoriteIndex);
+				}
+
+				let newSelectedFavoritesId = state.selectedFavoritesId;
+				if (state.selectedFavoritesId === action.myFavoriteId)
+				{
+					newSelectedFavoritesId = null;
+				}
+
+				return { ...state, myFavorites: myFavorites, selectedFavoritesId: newSelectedFavoritesId };
+			}
+
 		default:
 			return state;
 	}

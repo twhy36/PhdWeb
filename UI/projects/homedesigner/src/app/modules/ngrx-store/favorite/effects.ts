@@ -8,7 +8,7 @@ import { from } from 'rxjs/observable/from';
 
 import 
 { 	FavoriteActionTypes, SetCurrentFavorites, MyFavoriteCreated, SaveMyFavoritesChoices, 
-	MyFavoritesChoicesSaved, SaveError 
+	MyFavoritesChoicesSaved, SaveError, DeleteMyFavorite, MyFavoriteDeleted 
 } from './actions';
 
 import { CommonActionTypes, ResetFavorites } from '../actions';
@@ -96,4 +96,16 @@ export class FavoriteEffects
 			switchMap(results => of(new MyFavoritesChoicesSaved(results)))
 		), SaveError, "Error saving my favorite choices!")
 	);
+
+	@Effect()
+	deleteMyFavorites$: Observable<Action> = this.actions$.pipe(
+		ofType<DeleteMyFavorite>(FavoriteActionTypes.DeleteMyFavorite),
+		tryCatch(source => source.pipe(
+			switchMap(action => {
+                return this.favoriteService.deleteMyFavorite(action.myFavorite);
+  			}),
+			switchMap(result => of(new MyFavoriteDeleted(result)))
+		), SaveError, "Error deleting my favorite!")
+	);
+
 }
