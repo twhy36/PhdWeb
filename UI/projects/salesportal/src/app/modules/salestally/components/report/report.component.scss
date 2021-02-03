@@ -201,7 +201,8 @@
 	}
 
 	::ng-deep .ui-treetable .ui-treetable-tbody > tr > td {
-		height: 58px !important;
+		min-height: 58px !important;
+		max-height: 58px !important;
 	}
 
 }
