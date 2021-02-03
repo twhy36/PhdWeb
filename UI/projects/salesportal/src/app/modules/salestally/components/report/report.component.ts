@@ -163,9 +163,13 @@ export class ReportComponent implements OnInit
 				this.isPortrait = false;
 			}
 
-			if (width < 400 && this.frozenWidth === '280px')
+			if (width >= 400 && width < 450 && this.frozenWidth !== '260px')
 			{
-				this.frozenWidth = '250px';
+				this.frozenWidth = '260px';
+			}
+			else if (width < 400 && this.frozenWidth !== '240px')
+			{
+				this.frozenWidth = '240px';
 			}
 		});
 		

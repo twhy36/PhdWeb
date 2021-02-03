@@ -68,7 +68,7 @@
  }
 
 ::ng-deep .ui-treetable .ui-treetable-thead > tr {
-	height: 57px;
+	height: 58px;
 
 	&:first-child {
 		th {
@@ -86,7 +86,7 @@
 }
 
 ::ng-deep .ui-treetable .ui-treetable-tbody > tr {
-	height: 57px;
+	height: 58px;
 
 	td {
 		text-align: center;
@@ -199,4 +199,9 @@
 			}
 		}
 	}
+
+	::ng-deep .ui-treetable .ui-treetable-tbody > tr > td {
+		height: 58px !important;
+	}
+
 }
