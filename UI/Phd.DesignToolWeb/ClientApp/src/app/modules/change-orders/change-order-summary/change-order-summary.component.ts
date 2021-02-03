@@ -691,6 +691,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 		let jobChangeOrderTypeId = this.JOB_CHANGEORDER_TYPES.find(t => t.value === changeOrderGroup.jobChangeOrders[0].jobChangeOrderTypeDescription).id;
 
 		this.isSaving = true;
+
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(state => state.job.financialCommunityId),
@@ -712,6 +713,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 						const autoApprovals = communityAutoApprovals && communityAutoApprovals.length
 							? communityAutoApprovals.filter(aa => changeOrderTypeIds.findIndex(x => x.id === aa.edhChangeOrderTypeId) > -1)
 							: null;
+
 						isAutoApproval = autoApprovals && autoApprovals.length ? autoApprovals.findIndex(x => !x.isAutoApproval) < 0 : false;
 					}
 					else
@@ -719,6 +721,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 						const autoApproval = communityAutoApprovals && communityAutoApprovals.length
 							? communityAutoApprovals.find(aa => aa.edhChangeOrderTypeId === jobChangeOrderTypeId)
 							: null;
+
 						isAutoApproval = autoApproval ? autoApproval.isAutoApproval : false;
 					}
 
