@@ -585,6 +585,7 @@ export namespace PhdApiDto
 		label: string;
 		description: string;
 		imagePath: string;
+		hasImage: boolean;
 		choiceMaxQuantity?: number;
 	}
 

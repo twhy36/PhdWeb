@@ -85,34 +85,18 @@
 					<a ngbNavLink>Images</a>
 					<ng-template ngbNavContent>
 						<div class="container pt-3">
-							<div class="phd-add-choice-image-form">
-								<div class="card mb-2">
-									<div class="card-header">
-										<strong>Choice Image</strong>
-
-										<div class="pull-right" *requiresClaim="'TreeImages'; permission: Permission.Edit; market: selectedMarket.number">
-											<image-search (getImages)="addChoiceImageClick($event)" [isSaving]="isSaving">
-												<span *ngIf="isSaving">Saving <i class="fa fa-spinner fa-spin"></i></span>
-											</image-search>
-										</div>
-									</div>
-
-									<div class="card-body phd-image-container phd-flex-container" *ngIf="choiceImageUrl.length > 0">
-										<image-card showFooter="true" [bodyTemplate]="cardbody" [footerTemplate]="cardfooter">
-											<ng-template #cardbody>
-												<img class="phd-image-card-overview" [src]="choiceImageUrl" />
-											</ng-template>
-											<ng-template #cardfooter>
-												<i class="fa fa-fw fa-trash pull-right" (click)="removeChoiceImageClick()" [title]="'Delete Image'" *requiresClaim="'TreeImages'; permission: Permission.Edit; market: selectedMarket.number"></i>
-											</ng-template>
-										</image-card>
-									</div>
-
-									<div class="card-body text-center" *ngIf="choiceImageUrl.length === 0">
-										<div>No Image Found</div>
-									</div>
-								</div>
-							</div>
+							<div *ngIf="choiceImagesMessage.length > 0" class="alert alert-info">{{choiceImagesMessage}}</div>
+							<choice-images-panel *ngIf="choiceImagesMessage.length === 0"
+												 [isReadOnly]="isReadOnly"
+												 [isSaving]="isSaving"
+												 [choiceImageList]="choiceImageList"
+												 [imagesLoaded]="choiceImagesLoaded"
+												 [dragEnable]="dragEnable"
+												 (delete)="onDeleteImage($event)"
+												 (edit)="onEditImage($event)"
+												 (save)="onSaveImage($event)"
+												 (dragHasChanged)="onDragHasChanged()">
+							</choice-images-panel>
 						</div>
 					</ng-template>
 				</li>
@@ -150,7 +134,18 @@
 
 	<ng-template #footer>
 		<div class="pull-left">
-			<div *ngIf="isSaving" class="alert alert-info m-0 py-1 px-2" role="alert">Saving...</div>
+			<ng-container *ngIf="choiceImageList.length > 0 && !isReadOnly && currentTab === 'images'">
+				<div class="btn-group">
+					<button type="button" class="btn btn-primary" *ngIf="!dragEnable" (click)="editImageSort()">Edit Sort</button>
+				</div>
+				<div class="btn-group">
+					<button type="button" class="btn btn-secondary" *ngIf="dragEnable" (click)="cancelImageSort()">Cancel</button>
+					<button type="button" class="btn btn-primary" *ngIf="dragEnable" (click)="saveImageSort()">Save Sort</button>
+				</div>
+			</ng-container>
+
+			<div *ngIf="isSaving" id="choice-side-panel-saving" class="alert alert-info m-0 py-1 px-2 pull-right" role="alert">Saving...</div>
+
 			<div hidden *ngIf="sidePanelHasChanges"></div>
 		</div>
 
