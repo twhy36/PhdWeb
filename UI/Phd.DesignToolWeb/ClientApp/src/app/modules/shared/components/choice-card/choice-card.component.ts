@@ -10,7 +10,7 @@ import { Store, select } from '@ngrx/store';
 import { UnsubscribeOnDestroy } from '../../classes/unsubscribe-on-destroy';
 import { flipOver3 } from '../../classes/animations.class';
 
-import { Choice, OptionImage, DecisionPoint } from '../../models/tree.model.new';
+import { Choice, OptionImage, DecisionPoint, ChoiceImageAssoc } from '../../models/tree.model.new';
 import { LocationGroup, AttributeGroup } from '../../models/attribute.model';
 import { ChangeTypeEnum } from '../../models/job-change-order.model';
 import { MonotonyConflict } from '../../models/monotony-conflict.model';
@@ -32,6 +32,7 @@ import * as _ from 'lodash';
 import { LotExt } from '../../models/lot.model';
 import { ModalService } from '../../../core/services/modal.service';
 import { ModalRef } from '../../../shared/classes/modal.class';
+import { TreeService } from '../../../core/services/tree.service';
 
 @Component({
 	selector: 'choice-card',
@@ -64,6 +65,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 	canEditAgreement: boolean = true;
 	changeOrderOverrideReason: string;
 	choice: Choice;
+	choiceImages: ChoiceImageAssoc[] = [];
 	choiceMsg: object[] = [];
 	hasAttributes: boolean;
 	imageLoading: boolean = false;
@@ -83,7 +85,9 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 		private route: ActivatedRoute,
 		private router: Router,
 		private store: Store<fromRoot.State>,
-		@Inject(APP_BASE_HREF) private _baseHref: string)
+		@Inject(APP_BASE_HREF) private _baseHref: string,
+		private treeService: TreeService
+	)
 	{
 		super();
 	}
@@ -234,9 +238,11 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(fromLot.monotonyChoiceIds),
-			combineLatest(this.store.pipe(select(fromScenario.choiceOverrides)), this.store.pipe(select(selectSelectedLot))))
-			.subscribe(([monotonyChoices, choiceOverride, lots]) =>
+			combineLatest(this.store.pipe(select(fromScenario.choiceOverrides)), this.store.pipe(select(selectSelectedLot)), this.treeService.getChoiceImageAssoc([this.choice.id])))
+			.subscribe(([monotonyChoices, choiceOverride, lots, choiceImages]) =>
 			{
+				this.choiceImages = choiceImages;
+
 				let conflictMessage: MonotonyConflict = new MonotonyConflict();
 
 				if (choiceOverride)
@@ -408,9 +414,9 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 		{
 			imagePath = this.optionImages[0].imageURL;
 		}
-		else if (this.choice && this.choice.imagePath)
+		else if (this.choice && this.choice.hasImage && this.choiceImages.length)
 		{
-			imagePath = this.choice.imagePath;
+			imagePath = this.choiceImages[0].imageUrl;
 		}
 
 		return imagePath;
