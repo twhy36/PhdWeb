@@ -30,7 +30,6 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit {
         super();
     }
 
-    @bind
     ngOnInit() {
         let me = this;
 
