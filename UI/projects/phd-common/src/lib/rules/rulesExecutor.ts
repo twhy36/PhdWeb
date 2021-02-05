@@ -86,6 +86,8 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 	{
 		pt.enabled = true;
 		pt.disabledBy = [];
+
+		pt.completed = pt.choices.some(c => c.quantity > 0);
 	});
 
 	let find = id => choices.find(ch => ch.id === id);
