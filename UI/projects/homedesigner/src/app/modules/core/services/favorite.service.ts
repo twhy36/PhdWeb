@@ -238,16 +238,19 @@ export class FavoriteService
 	{
 		const endPoint = `${environment.apiUrl}${this._batch}`;
 
-		const locAttributes = _.flatMap(fav.myFavoritesChoice, c => _.flatMap(c.myFavoritesChoiceLocations, loc => loc.myFavoritesChoiceLocationAttributes)) || [];
+		let locAttributes = _.flatMap(fav.myFavoritesChoice, c => _.flatMap(c.myFavoritesChoiceLocations, loc => loc.myFavoritesChoiceLocationAttributes));
+		locAttributes = locAttributes ? locAttributes.filter(c => !!c) : [];
 		const batchLocationAttributes = createBatch<MyFavoritesChoiceAttribute>(locAttributes, 'id', 'myFavoritesChoiceLocationAttributes', null, true);
 		
-		const choiceLocations = _.flatMap(fav.myFavoritesChoice, c => c.myFavoritesChoiceLocations) || [];
+		let choiceLocations = _.flatMap(fav.myFavoritesChoice, c => c.myFavoritesChoiceLocations);
+		choiceLocations = choiceLocations ? choiceLocations.filter(c => !!c) : [];
 		const batchChoiceLocations = createBatch<MyFavoritesChoiceLocation>(choiceLocations, 'id', 'myFavoritesChoiceLocations', null, true);
 
-		const choiceAttributes = _.flatMap(fav.myFavoritesChoice, c => c.myFavoritesChoiceAttributes) || [];
+		let choiceAttributes = _.flatMap(fav.myFavoritesChoice, c => c.myFavoritesChoiceAttributes);
+		choiceAttributes = choiceAttributes ? choiceAttributes.filter(c => !!c) : [];
 		const batchChoiceAttributes = createBatch<MyFavoritesChoiceAttribute>(choiceAttributes, 'id', 'myFavoritesChoiceAttributes', null, true);
 
-		const favoritesChoices = fav.myFavoritesChoice || [];
+		const favoritesChoices = fav.myFavoritesChoice ? fav.myFavoritesChoice.filter(c => !!c) : [];
 		const batchFavoritesChoices = createBatch<MyFavoritesChoice>(favoritesChoices, 'id', 'myFavoritesChoices', null, true);
 
 		const myFavorites = [fav];
