@@ -238,7 +238,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(fromLot.monotonyChoiceIds),
-			combineLatest(this.store.pipe(select(fromScenario.choiceOverrides)), this.store.pipe(select(selectSelectedLot)), this.treeService.getChoiceImageAssoc([this.choice.id])))
+			combineLatest(this.store.pipe(select(fromScenario.choiceOverrides)), this.store.pipe(select(selectSelectedLot)), this.treeService.getChoiceImageAssoc([this.choice.lockedInChoice ? this.choice.lockedInChoice.dpChoiceId : this.choice.id])))
 			.subscribe(([monotonyChoices, choiceOverride, lots, choiceImages]) =>
 			{
 				this.choiceImages = choiceImages;

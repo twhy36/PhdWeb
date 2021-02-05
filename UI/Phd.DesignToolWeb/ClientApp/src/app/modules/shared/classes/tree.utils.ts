@@ -386,25 +386,17 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 						return { optionNumber: options.find(opt => opt.id === o.jobChangeOrderPlanOptionId).integrationKey, dpChoiceId: c.decisionPointChoiceID };
 					});
 			}
-		}))),
-		treeService.getChoiceImageAssoc(choices.map(x => x.dpChoiceId))),
+		})))),
 		//store the original option mapping on the choice where it was selected
 		//rules engine can use this to 'override' current option mappings
-		map(([res, mapping, choiceImageAssoc]) =>
+		map(([data, mapping]) =>
 		{
 			choices.filter(isLocked(changeOrder)).forEach(c =>
 			{
-				let choice = findChoice(res.tree, ch => ch.divChoiceCatalogId === c.divChoiceCatalogId);
+				let choice = findChoice(data.tree, ch => ch.divChoiceCatalogId === c.divChoiceCatalogId);
 
 				if (!!choice)
 				{
-					let existingChoice = choiceImageAssoc.length ? choiceImageAssoc.find(r => r.dpChoiceId === c.dpChoiceId) : null;
-
-					if (existingChoice)
-					{
-						choice.imagePath = existingChoice.imageUrl;
-					}
-
 					if (isJobChoice(c))
 					{
 						choice.lockedInOptions = c.jobChoiceJobPlanOptionAssocs.filter(o => o.choiceEnabledOption).map(o => mapping[options.find(opt => opt.id === o.jobPlanOptionId).integrationKey]);
@@ -416,7 +408,7 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 				}
 			});
 
-			return res;
+			return data;
 		}),
 		catchError(err => { console.error(err); return _throw(err); })
 	);
