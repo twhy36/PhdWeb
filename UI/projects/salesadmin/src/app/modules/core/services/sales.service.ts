@@ -3,7 +3,9 @@ import { SalesProgram } from "../../shared/models/salesPrograms.model";
 import { HttpClient } from '@angular/common/http';
 import { SettingsService } from "./settings.service";
 import { Settings } from "../../shared/models/settings.model";
-import { Observable ,  throwError as _throw } from 'rxjs';
+import { Observable, throwError as _throw } from 'rxjs';
+import * as _ from 'lodash';
+
 import { catchError, map } from 'rxjs/operators';
 import { withSpinner } from 'phd-common';
 
@@ -23,6 +25,8 @@ export class SalesService
 	 */
 	saveSalesProgram(salesProgramDto: SalesProgram): Observable<SalesProgram>
 	{
+		salesProgramDto = <SalesProgram>_.omit(salesProgramDto, "salesAgreementSalesProgramAssocs");
+
 		if (salesProgramDto.id)
 		{
 			return this._http.patch(settings.apiUrl + `salesPrograms(${salesProgramDto.id})`, salesProgramDto, { headers: { 'Prefer': 'return=representation' } }).pipe(
