@@ -11,7 +11,8 @@ export enum FavoriteActionTypes
 	MyFavoritesChoicesSaved = 'My Favorites Choices Saved',
 	SaveError = 'Save Error',
 	DeleteMyFavorite = 'Delete My Favorite',
-	MyFavoriteDeleted = 'My Favorite Deleted'
+	MyFavoriteDeleted = 'My Favorite Deleted',
+	ToggleContractedOptions = 'Toggle Include Contracted Options'
 }
 
 export class MyFavoriteCreated implements Action
@@ -63,6 +64,13 @@ export class MyFavoriteDeleted implements Action
 	constructor(public myFavoriteId: number) {  }
 }
 
+export class ToggleContractedOptions implements Action
+{
+	readonly type = FavoriteActionTypes.ToggleContractedOptions;
+
+	constructor() {	}
+}
+
 export type FavoriteActions = 
 	MyFavoriteCreated |
 	SetCurrentFavorites |
@@ -72,4 +80,5 @@ export type FavoriteActions =
 	SalesAgreementLoaded |
 	SaveError |
 	DeleteMyFavorite |
-	MyFavoriteDeleted;
+	MyFavoriteDeleted |
+	ToggleContractedOptions;

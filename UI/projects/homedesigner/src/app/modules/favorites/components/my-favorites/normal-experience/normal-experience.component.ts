@@ -2,7 +2,7 @@ import { Component, OnInit, Input, OnChanges, SimpleChanges, Output, EventEmitte
 
 import * as _ from 'lodash';
 
-import { UnsubscribeOnDestroy, flipOver, DecisionPoint, PickType, SubGroup, Choice } from 'phd-common';
+import { UnsubscribeOnDestroy, flipOver, DecisionPoint, PickType, SubGroup, Choice, JobChoice } from 'phd-common';
 
 import { MyFavoritesChoice } from '../../../../shared/models/my-favorite.model';
 
@@ -19,8 +19,11 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	@Input() errorMessage: string;
 	@Input() myFavoritesChoices: MyFavoritesChoice[];
 	@Input() decisionPointId: number;
+	@Input() includeContractedOptions: boolean = true;
+	@Input() salesChoices: JobChoice[];
 
 	@Output() onToggleChoice = new EventEmitter<Choice>();
+	@Output() onToggleContractedOptions = new EventEmitter();
 
 	isPointPanelCollapsed: boolean = false;
 	points: DecisionPoint[];
@@ -68,16 +71,27 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	{
 		if (point)
 		{
+			const contractedChoices = point.choices.filter(c => this.salesChoices.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1);
+			const isPreviouslyContracted = contractedChoices && contractedChoices.length;
+			
 			switch (point.pointPickTypeId)
 			{
 				case PickType.Pick1:
-					return 'Please select 1 of the choices below';
+					return isPreviouslyContracted
+							? 'Previously Contracted Option'
+							: 'Please select 1 of the choices below';
 				case PickType.Pick1ormore:
-					return 'Please select 1 or more of the Choices below';
+					return isPreviouslyContracted
+							? 'Previously Contracted Options'
+							: 'Please select 1 or more of the Choices below';
 				case PickType.Pick0ormore:
-					return 'Please select 0 or more of the choices below';
+					return isPreviouslyContracted
+							? 'Previously Contracted Options'
+							: 'Please select 0 or more of the choices below';
 				case PickType.Pick0or1:
-					return 'Please select 0 or 1 of the Choices below';
+					return isPreviouslyContracted
+							? 'Previously Contracted Option'
+							: 'Please select 0 or 1 of the Choices below';
 				default:
 					return '';
 			}
@@ -116,5 +130,26 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 
 		this.choiceToggled = true;
 		this.onToggleChoice.emit(choice);
+	}
+
+	toggleContractedOptions(event: any) {
+		this.onToggleContractedOptions.emit();
+	}
+
+	getChoiceStatus(choice: Choice, point: DecisionPoint) : string 
+	{
+		if (this.salesChoices.findIndex(c => c.divChoiceCatalogId === choice.divChoiceCatalogId) > -1)
+		{
+			return 'Contracted'
+		}
+
+		const contractedChoices = point.choices.filter(c => this.salesChoices.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1);
+		if (contractedChoices && contractedChoices.length && 
+			(point.pointPickTypeId === PickType.Pick1 || point.pointPickTypeId === PickType.Pick0or1))
+		{
+			return 'ViewOnly'
+		}
+
+		return 'Available';
 	}
 }

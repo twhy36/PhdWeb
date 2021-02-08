@@ -11,7 +11,10 @@
 					   [errorMessage]="errorMessage"
 					   [myFavoritesChoices]="myFavoritesChoices"
 					   [decisionPointId]="selectedPointId"
-					   (onToggleChoice)="toggleChoice($event)"></normal-experience>
+					   [includeContractedOptions]="includeContractedOptions"
+					   [salesChoices]="salesChoices"
+					   (onToggleChoice)="toggleChoice($event)"
+					   (onToggleContractedOptions)="toggleContractedOptions()"></normal-experience>
 </div>
 
 <action-bar [primaryAction]="'Next'" [price]="priceBreakdown.totalPrice" (callToAction)="onNextSubGroup()"></action-bar>

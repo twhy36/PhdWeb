@@ -1,7 +1,7 @@
 import { Component, Input, Output, OnInit, OnChanges, SimpleChanges, Inject, EventEmitter } from '@angular/core';
 import { APP_BASE_HREF } from '@angular/common';
 
-import { UnsubscribeOnDestroy, flipOver3, Choice, OptionImage } from 'phd-common';
+import { UnsubscribeOnDestroy, flipOver3, Choice, OptionImage, JobChoice } from 'phd-common';
 import { MyFavoritesChoice } from '../../models/my-favorite.model';
 
 @Component({
@@ -16,6 +16,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 {
 	@Input() currentChoice: Choice;
 	@Input() myFavoritesChoices: MyFavoritesChoice[];
+	@Input() choiceStatus: 'Available' | 'Contracted' | 'ViewOnly';
 
 	@Output() toggled = new EventEmitter<Choice>();
 

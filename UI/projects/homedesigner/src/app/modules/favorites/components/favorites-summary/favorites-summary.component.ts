@@ -104,6 +104,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 			select(fromFavorite.favoriteState)
 		).subscribe(fav => {
 			this.salesChoices = fav && fav.salesChoices;
+			this.includeContractedOptions = fav && fav.includeContractedOptions;
 		});	
 		
 		this.store.pipe(
@@ -161,8 +162,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 
 	onContractedOptionsToggled()
 	{
-		this.includeContractedOptions = !this.includeContractedOptions;
-		this.cd.detectChanges();
+		this.store.dispatch(new FavoriteActions.ToggleContractedOptions());
 	}
 
 	onViewFavorites(point: DecisionPoint)

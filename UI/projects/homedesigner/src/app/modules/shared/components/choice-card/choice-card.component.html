@@ -17,10 +17,15 @@
 				<div>
 					<strong>{{choice.price | currency:'USD':'symbol':'0.0-0'}}</strong>
 				</div>
-				<div class="phd-select-favorite">
-					<span class="phd-icon-selected"><i *ngIf="isSelected" class="fa fa-heart" (click)="toggleChoice()"></i></span>
-					<i *ngIf="!isSelected" class="fa fa-heart-o" (click)="toggleChoice()"></i>
-				</div>
+				<ng-container *ngIf="choiceStatus === 'Contracted'">
+					<i class="fa fa-check phd-icon-selected"></i>
+				</ng-container>
+				<ng-container *ngIf="choiceStatus === 'Available'">
+					<div class="phd-clickable">
+						<span class="phd-icon-selected"><i *ngIf="isSelected" class="fa fa-heart" (click)="toggleChoice()"></i></span>
+						<i *ngIf="!isSelected" class="fa fa-heart-o" (click)="toggleChoice()"></i>
+					</div>
+				</ng-container>				
 			</div>
 		</div>
 	</div>

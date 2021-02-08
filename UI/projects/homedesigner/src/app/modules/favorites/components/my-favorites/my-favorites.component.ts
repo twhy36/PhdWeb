@@ -13,7 +13,10 @@ import * as NavActions from '../../../ngrx-store/nav/actions';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 import * as FavoriteActions from '../../../ngrx-store/favorite/actions';
 
-import { UnsubscribeOnDestroy, PriceBreakdown, Group, SubGroup, Choice, Tree, TreeVersionRules, getDependentChoices } from 'phd-common';
+import { UnsubscribeOnDestroy, PriceBreakdown, Group, SubGroup, Choice, Tree, TreeVersionRules, JobChoice, 
+	getDependentChoices 
+} from 'phd-common';
+
 import { GroupBarComponent } from '../../../shared/components/group-bar/group-bar.component';
 import { MyFavoritesChoice } from '../../../shared/models/my-favorite.model';
 
@@ -39,6 +42,8 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 	tree: Tree;
 	treeVersionRules: TreeVersionRules;
 	myFavoritesChoices: MyFavoritesChoice[];
+	includeContractedOptions: boolean;
+	salesChoices: JobChoice[];
 
 	priceBreakdown: PriceBreakdown;
 
@@ -83,7 +88,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			this.takeUntilDestroyed(),
 			select(state => state.scenario),
 			combineLatest(this.params$),
-			withLatestFrom(this.store.pipe(select(fromRoot.filteredTree)))
+			combineLatest(this.store.pipe(select(fromRoot.filteredTree)))
 		).subscribe(([[scenarioState, params], filteredTree]) =>
 		{
 			this.errorMessage = '';
@@ -182,6 +187,14 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		).subscribe(favorite => {
 			this.myFavoritesChoices = favorite && favorite.myFavoritesChoice;	
 		});	
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromFavorite.favoriteState)
+		).subscribe(fav => {
+			this.includeContractedOptions = fav && fav.includeContractedOptions;
+			this.salesChoices = fav && fav.salesChoices;
+		});		
 	}
 
 	setSelectedGroup(newGroup: Group, newSubGroup: SubGroup) {
@@ -220,4 +233,8 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		this.store.dispatch(new FavoriteActions.SaveMyFavoritesChoices());
 	}	
 
+	toggleContractedOptions()
+	{
+		this.store.dispatch(new FavoriteActions.ToggleContractedOptions());
+	}
 }

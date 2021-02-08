@@ -20,18 +20,23 @@
 	</div>
 
 	<div class="d-flex flex-column phd-card-panel" [ngClass]="isPointPanelCollapsed ? 'phd-card-panel-collapsed' : ''">
+		<div class="phd-include-options">
+			<input type="checkbox" (change)="toggleContractedOptions($event)" [ngModel]="includeContractedOptions" class="phd-clickable" />
+			<span class="phd-contracted-options">Include Contracted Options</span>
+		</div>			
 		<ng-container *ngFor="let point of points">
 			<div class="phd-point-label" [attr.id]="point.id">{{point?.label}}</div>
 			<div class="phd-point-title">{{getSubTitle(point)}}</div>
 			<div class="d-flex flex-wrap phd-choice-cards">
 				<choice-card *ngFor="let choice of point.choices"
-							 [currentChoice]="choice"
-							 [myFavoritesChoices]="myFavoritesChoices"
-							 (toggled)="choiceToggleHandler($event)">
+							[currentChoice]="choice"
+							[myFavoritesChoices]="myFavoritesChoices"
+							[choiceStatus]="getChoiceStatus(choice, point)"
+							(toggled)="choiceToggleHandler($event)">
 				</choice-card>
 			</div>
 		</ng-container>
-	</div>
+	</div>		
 
 </div>
 

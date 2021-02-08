@@ -14,13 +14,15 @@ export interface State
 	selectedFavoritesId: number,
 	saveError: boolean,
 	salesChoices: JobChoice[]
+	includeContractedOptions: boolean;
 }
 
 export const initialState: State = {
 	myFavorites: null,
 	selectedFavoritesId: null,
 	saveError: false,
-	salesChoices: null
+	salesChoices: null,
+	includeContractedOptions: true
 };
 
 export function reducer(state: State = initialState, action: FavoriteActions): State
@@ -34,7 +36,12 @@ export function reducer(state: State = initialState, action: FavoriteActions): S
 			
 		case FavoriteActionTypes.SetCurrentFavorites:
 			{
-				return { ...state, selectedFavoritesId: action.favoritesId };
+				let includeContractedOptions = state.includeContractedOptions;
+				if (!action.favoritesId)
+				{
+					includeContractedOptions = true;
+				}
+				return { ...state, selectedFavoritesId: action.favoritesId, includeContractedOptions: includeContractedOptions };
 			}
 			
 		case FavoriteActionTypes.MyFavoriteCreated:
@@ -107,6 +114,11 @@ export function reducer(state: State = initialState, action: FavoriteActions): S
 				}
 
 				return { ...state, myFavorites: myFavorites, selectedFavoritesId: newSelectedFavoritesId };
+			}
+
+		case FavoriteActionTypes.ToggleContractedOptions:
+			{
+				return { ...state, includeContractedOptions: !state.includeContractedOptions };
 			}
 
 		default:

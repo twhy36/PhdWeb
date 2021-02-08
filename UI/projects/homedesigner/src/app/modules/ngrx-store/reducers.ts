@@ -41,9 +41,10 @@ export const reducers: ActionReducerMap<State> = {
 
 export const filteredTree = createSelector(
 	fromScenario.selectScenario,
-	(state) => {
-		let tree = _.cloneDeep(state.tree);
-		const treeFilter = state.treeFilter;
+	fromFavorite.favoriteState,
+	(scenario, favorite) => {
+		let tree = _.cloneDeep(scenario.tree);
+		const treeFilter = scenario.treeFilter;
 		let filteredTree: TreeVersion;
 
 		if (tree && tree.treeVersion) {
@@ -64,7 +65,11 @@ export const filteredTree = createSelector(
 							let choices = p.choices.filter(c => {
 								let isValid = treeMatched.point || filter(c.label);
 
-								return isValid;
+								const isIncluded = p.isStructuralItem
+									? favorite.includeContractedOptions && c.quantity > 0
+									: true;
+
+								return isValid && isIncluded;
 							});
 
 							return { ...p, choices: choices };
