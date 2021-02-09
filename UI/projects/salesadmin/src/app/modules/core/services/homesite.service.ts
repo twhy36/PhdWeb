@@ -20,18 +20,11 @@ export class HomeSiteService
 	public viewAdjacencies: Array<HomeSiteDtos.ILabel> = [
 		{ label: 'Base View', value: 'BaseView', id: 14 },
 		{ label: 'City View', value: 'CityView', id: 8 },
-		{ label: 'Corner', value: 'Corner', id: 7 },
-		{ label: 'Cul De Sac', value: 'ColDeSac', id: 1 },
 		{ label: 'Golf Course', value: 'GolfCourse', id: 3 },
-		{ label: 'Lookout', value: 'Lookout', id: 11 },
 		{ label: 'Nature/Preserve', value: 'Nature/Preserve', id: 6 },
 		{ label: 'None', value: 'None', id: 16 },
 		{ label: 'Open Space', value: 'OpenSpace', id: 13 },
 		{ label: 'Other View', value: 'OtherView', id: 15 },
-		{ label: 'Oversized', value: 'Oversized', id: 12 },
-		{ label: 'Standard', value: 'Standard', id: 9 },
-		{ label: 'View', value: 'View', id: 2 },
-		{ label: 'Walkout', value: 'Walkout', id: 10 },
 		{ label: 'Water View', value: 'WaterView', id: 5 },
 		{ label: 'Waterfront', value: 'Waterfront', id: 4 }
 	];
