@@ -121,7 +121,8 @@ export class CommonEffects
 				if (result.isSpecScenario)
 				{
 					return this.jobService.getJobByLotId(result.scenario.lotId).pipe(
-						switchMap(job => {
+						switchMap(job =>
+						{
 							if (job && job.length)
 							{
 								return this.orgService.getSalesCommunityByFinancialCommunityId(result.tree.financialCommunityId).pipe(
@@ -330,14 +331,18 @@ export class CommonEffects
 					return of({ ...result });
 				}
 			}),
-			switchMap(result => {
+			switchMap(result =>
+			{
 				let actions: any[] = [
 					new ScenarioLoaded(result.scenario, result.tree, result.rules, result.options, result.optionImages, result.lot, result.salesCommunity, result.lotNoLongerAvailable, result.opportunity, result.webPlanMapping, result.overrideNote, result.job),
 				];
-				if (result.opportunity && result.opportunity.opportunity && result.opportunity.opportunity.salesCommunityId) {
+
+				if (result.opportunity && result.opportunity.opportunity && result.opportunity.opportunity.salesCommunityId)
+				{
 					actions.push(new LoadPlans(result.opportunity.opportunity.salesCommunityId));
 					actions.push(new LoadLots(result.opportunity.opportunity.salesCommunityId));
 				}
+
 				return from(actions);
 			})
 		), LoadError, 'Error loading scenario!!')
@@ -526,7 +531,8 @@ export class CommonEffects
 				else
 				{
 					return this.lotService.getLot(result.selectedLotId).pipe(
-						map(data => {
+						map(data =>
+						{
 							return {
 								tree: null,
 								rules: null,
@@ -555,14 +561,19 @@ export class CommonEffects
 					let baseHouseOption = result.job.jobPlanOptions.find(o => o.jobOptionTypeName === 'BaseHouse');
 					let selectedPlanPrice: { planId: number, listPrice: number } = null;
 
-					if (['OutforSignature', 'Signed', 'Approved'].indexOf(result.salesAgreement.status) !== -1) {
-						if (baseHouseOption) {
+					if (['OutforSignature', 'Signed', 'Approved'].indexOf(result.salesAgreement.status) !== -1)
+					{
+						if (baseHouseOption)
+						{
 							selectedPlanPrice = { planId: result.selectedPlanId, listPrice: baseHouseOption ? baseHouseOption.listPrice : 0 };
 						}
 
-						if (result.changeOrder && result.changeOrder.salesStatusDescription !== 'Pending') {
+						if (result.changeOrder && result.changeOrder.salesStatusDescription !== 'Pending')
+						{
 							let co = result.changeOrder.jobChangeOrders.find(co => co.jobChangeOrderPlanOptions && co.jobChangeOrderPlanOptions.some(po => po.integrationKey === '00001' && po.action === 'Add'));
-							if (co) {
+
+							if (co)
+							{
 								selectedPlanPrice = { planId: result.selectedPlanId, listPrice: co.jobChangeOrderPlanOptions.find(po => po.action === 'Add' && po.integrationKey === '00001').listPrice };
 							}
 						}
@@ -671,14 +682,16 @@ export class CommonEffects
 		})
 	);
 
-	@Effect({dispatch: false})
+	@Effect({ dispatch: false })
 	showLoadingSpinner$: Observable<any> = this.actions$.pipe(
 		withLatestFrom(this.store.pipe(select(showSpinner))),
-		map(([action, showSpinner]) => {
+		map(([action, showSpinner]) =>
+		{
 			return showSpinner;
 		}),
-		scan((prev, current) => ({prev: prev.current, current: current}) , {prev: false, current: false}),
-		tap((showSpinnerScan: {prev: boolean; current: boolean}) => {
+		scan((prev, current) => ({ prev: prev.current, current: current }), { prev: false, current: false }),
+		tap((showSpinnerScan: { prev: boolean; current: boolean }) =>
+		{
 			if (showSpinnerScan.prev !== showSpinnerScan.current)
 			{
 				this.spinnerService.showSpinner(showSpinnerScan.current);
