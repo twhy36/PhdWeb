@@ -14,12 +14,18 @@
 	.phd-selected-group {
 		padding: 10px;
 		background: $gray-lighter;
-		min-height: 44px;
+		min-height: 64px;
 		font-size: 15px;
+		display: flex;
+		flex-direction: column;
 
-		span {
+		.phd-group-name {
 			font-weight: bold;
 			text-transform: uppercase;
+		}
+
+		.phd-subgroup-name {
+			padding-left: 15px;
 		}
 	}
 
@@ -88,7 +94,7 @@
 .phd-include-options {
 	background: $gray-lighter;
 	padding-left: 10px;
-	min-height: 44px;
+	min-height: 64px;
 	display: flex;
 	align-items: center;
 	flex-grow: 1;	

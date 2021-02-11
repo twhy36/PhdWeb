@@ -7,7 +7,10 @@
 <div class="phd-normal-experience" [class.phd-hide]="errorMessage.length > 0">
 	<div class="d-flex flex-row phd-point-panel">
 		<div *ngIf="!isPointPanelCollapsed" class="d-flex flex-column">
-			<div class="phd-selected-group"><span>{{groupName}}: </span>{{subGroup?.label}}</div>
+			<div class="phd-selected-group">
+				<div class="phd-group-name">{{groupName}}: </div>
+				<div class="phd-subgroup-name">{{subGroup?.label}}</div>
+			</div>
 			<div class="phd-decisions"><span>DECISIONS:</span></div>
 			<div class="phd-point-bar">
 				<decision-bar [points]="points" [currentPointId]="currentPointId" (onSelectDecisionPoint)="selectDecisionPoint($event)"></decision-bar>

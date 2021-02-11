@@ -2,7 +2,7 @@ import { ActionReducerMap, createSelector } from '@ngrx/store';
 
 import * as _ from 'lodash';
 
-import { PriceBreakdown, TreeVersion, PlanOption } from 'phd-common';
+import { PriceBreakdown, TreeVersion, PlanOption, PickType } from 'phd-common';
 
 import * as fromScenario from './scenario/reducer';
 import * as fromLot from './lot/reducer';
@@ -61,13 +61,22 @@ export const filteredTree = createSelector(
 
 						let points = sg.points.map(p => {
 							treeMatched.point = treeMatched.subGroup || filter(p.label);
+							const contractedChoices = p.choices.filter(c => favorite.salesChoices.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1);
+							const isComplete = contractedChoices && contractedChoices.length 
+								&& (p.pointPickTypeId === PickType.Pick1 || p.pointPickTypeId === PickType.Pick0or1);
 
 							let choices = p.choices.filter(c => {
 								let isValid = treeMatched.point || filter(c.label);
 
-								const isIncluded = p.isStructuralItem
-									? favorite.includeContractedOptions && c.quantity > 0
-									: true;
+								let isIncluded = true;
+								if (p.isStructuralItem)
+								{
+									isIncluded = favorite.includeContractedOptions && c.quantity > 0;
+								}
+								else if (!favorite.includeContractedOptions)
+								{
+									isIncluded = c.quantity === 0 && !isComplete;
+								}
 
 								return isValid && isIncluded;
 							});
