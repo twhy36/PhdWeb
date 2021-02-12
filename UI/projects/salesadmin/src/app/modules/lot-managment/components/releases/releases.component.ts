@@ -168,12 +168,9 @@ export class ReleasesComponent extends UnsubscribeOnDestroy implements OnInit
 	{
 		this.sidePanelOpen = false;
 
-		// filter lots that have already been added to a release.
-		let lots = this._releaseService.homeSites.filter(l => !this.releases.some(x => (release == null || release.releaseId != x.releaseId) && x.associatedHomeSites.indexOf(l.commLbid) > -1));
-
 		this.selectedRelease = {
 			homeSiteRelease: release,
-			homeSites: lots
+			homeSites: this._releaseService.homeSites
 		} as IHomeSiteReleaseSidePanelItem;
 
 		this.sidePanelOpen = true;
