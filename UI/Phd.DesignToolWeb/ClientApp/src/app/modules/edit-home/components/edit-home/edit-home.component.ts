@@ -93,7 +93,6 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 	viewPoint: DecisionPoint;
 	salesAgreementId: number;
 	impactedChoices: string = '';
-	lotStatus: string;
 
 	private params$ = new ReplaySubject<{ scenarioId: number, divDPointCatalogId: number, treeVersionId: number, choiceId?: number }>(1);
 	private selectedGroupId: number;
@@ -109,15 +108,6 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 
 	ngOnInit()
 	{
-		this.store.pipe(
-			this.takeUntilDestroyed(),
-			select(state => state.lot)
-		).subscribe(lot => {
-			if(lot.selectedLot)
-			{
-				this.lotStatus = lot.selectedLot.lotStatusDescription;
-			}
-		})
 		this.enabledPointFilters$ = this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(state => state.scenario.enabledPointFilters)
@@ -306,10 +296,8 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 				if (isGanked && this.lotConflictModal && !this.lotcheckModalDisplayed)
 				{
 					this.lotcheckModalDisplayed = true;
-					const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
-					const secondaryButton = { text: 'Cancel', result: true, cssClass: 'btn-secondary' };
 
-					this.showConfirmModal(this.lotConflictModal, 'Attention!', primaryButton, secondaryButton).subscribe(result =>
+					this.showConfirmModal(this.lotConflictModal, 'Attention!', 'Continue').subscribe(result =>
 					{
 						if (result)
 						{
@@ -488,17 +476,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 			{
 				if (this.buildMode === 'spec' || this.buildMode === 'model')
 				{
-					if (this.buildMode === 'model' && this.lotStatus === 'Available')
-					{
-						const title = 'Create Model';
-						const body = 'The Lot Status for this model will be set to UNAVAILABLE.';
-						const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
-
-						this.showConfirmModal(body, title, primaryButton).subscribe(result =>
-						{
-							this.lotService.buildScenario();
-						});
-					}
+					this.lotService.buildScenario();
 				}
 				else if (this.salesAgreementId)
 				{
@@ -508,9 +486,8 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 				{
 					const title = 'Generate Home Purchase Agreement';
 					const body = 'You are about to generate an Agreement for your configuration. Do you wish to continue?';
-					const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
-					const secondaryButton = { text: 'Cancel', result: true, cssClass: 'btn-secondary' };
-					this.showConfirmModal(body, title, primaryButton, secondaryButton).subscribe(result =>
+
+					this.showConfirmModal(body, title, 'Continue').subscribe(result =>
 					{
 						if (result)
 						{
@@ -551,22 +528,13 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		this.cd.detectChanges();
 	}
 
-	private showConfirmModal(body: TemplateRef<any> | string, title: string, primaryButton: any = null, secondaryButton: any = null): Observable<boolean>
+	private showConfirmModal(body: TemplateRef<any> | string, title: string, defaultButton: string): Observable<boolean>
 	{
-		const buttons = [];
-
-		if (primaryButton)
-		{
-			buttons.push(primaryButton);
-		}
-
-		if (secondaryButton)
-		{
-			buttons.push(secondaryButton);
-		}
-
 		return this.modalService.showModal({
-			buttons: buttons,
+			buttons: [
+				{ text: 'Continue', result: true, cssClass: [defaultButton === 'Continue' ? 'btn-primary' : 'btn-secondary'] },
+				{ text: 'Cancel', result: false, cssClass: [defaultButton === 'Cancel' ? 'btn-primary' : 'btn-secondary'] }
+			],
 			content: body,
 			header: title,
 			type: 'normal'
@@ -687,17 +655,15 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 	private showChoiceImpactModal(choices: Array<Choice>): Observable<boolean>
 	{
 		this.impactedChoices = choices.map(c => c.label).sort().join(', ');
-		const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
-		const secondaryButton = { text: 'Cancel', result: true, cssClass: 'btn-secondary' };
-		return this.showConfirmModal(this.impactedChoicesModal, 'Impact', primaryButton, secondaryButton);
+
+		return this.showConfirmModal(this.impactedChoicesModal, 'Impact', 'Continue');
 	}
 
 	private showOptionMappingChangedModal(choices: Array<Choice>): Observable<boolean>
 	{
 		this.impactedChoices = choices.map(c => c.label).sort().join(', ');
-		const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
-		const secondaryButton = { text: 'Cancel', result: true, cssClass: 'btn-secondary' };
-		return this.showConfirmModal(this.optionMappingChangedModal, 'Warning', primaryButton, secondaryButton);
+
+		return this.showConfirmModal(this.optionMappingChangedModal, 'Warning', 'Continue');
 	}
 
 }
