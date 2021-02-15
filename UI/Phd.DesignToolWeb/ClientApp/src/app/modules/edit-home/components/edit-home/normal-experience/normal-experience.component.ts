@@ -95,7 +95,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 
 		this.monotonyElevationChoiceIds$ = this.store.pipe(
 			this.takeUntilDestroyed(),
-			select(fromLot.monotonyChoiceIds),
+			select(fromRoot.monotonyChoiceIds),
 			map(ids =>
 			{
 				return this.point.dPointTypeId === 1 ? ids.ElevationDivChoiceCatalogIds as number[] : [];

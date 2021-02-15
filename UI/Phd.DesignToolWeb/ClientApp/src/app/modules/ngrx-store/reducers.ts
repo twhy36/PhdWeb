@@ -163,10 +163,11 @@ export const canLockSalesAgreement = createSelector(
 
 export const monotonyConflict = createSelector(
 	fromLot.selectSelectedLot,
+	fromPlan.selectedPlanData,
 	fromScenario.elevationDP,
 	fromScenario.hasMonotonyAdvisement,
 	fromScenario.colorSchemeDP,
-	(selectedLot, elevation, advisement, colorScheme) =>
+	(selectedLot, selectedPlan, elevation, advisement, colorScheme) =>
 	{
 		let conflict = {
 			monotonyConflict: false,
@@ -179,6 +180,7 @@ export const monotonyConflict = createSelector(
 
 		if (selectedLot !== null)
 		{
+			let planId = selectedPlan !== null ? selectedPlan.id : 0;
 			let monotonyrules = selectedLot && selectedLot.monotonyRules ? selectedLot.monotonyRules : [];
 			let elevationOverride = elevation && elevation.choices ? elevation.choices.some(choice => !!choice.overrideNote) : false;
 			let colorSchemeOverride = colorScheme && colorScheme.choices ? colorScheme.choices.some(choice => !!choice.overrideNote) : false;
@@ -187,26 +189,30 @@ export const monotonyConflict = createSelector(
 			{
 				let choice = elevation.choices.find(x => x.quantity > 0);
 
-				conflict.elevationConflict = monotonyrules.some(x => x.elevationDivChoiceCatalogId === choice.divChoiceCatalogId);
+				conflict.elevationConflict = monotonyrules.some(x => x.elevationDivChoiceCatalogId === choice.divChoiceCatalogId && x.edhPlanId === planId);
 
 				if (!colorScheme && choice.selectedAttributes.length > 0)
 				{
 					monotonyrules.forEach(rule =>
 					{
-						let colorAttributeConflicts = [];
-
-						if (!conflict.colorSchemeConflict)
+						// check rules of plans match
+						if (rule.edhPlanId === planId)
 						{
-							choice.selectedAttributes.forEach(x =>
+							let colorAttributeConflicts = [];
+
+							if (!conflict.colorSchemeConflict)
 							{
-								colorAttributeConflicts.push(rule.colorSchemeAttributeCommunityIds.some(colorAttributeIds => colorAttributeIds === x.attributeId));
-							});
-						}
+								choice.selectedAttributes.forEach(x =>
+								{
+									colorAttributeConflicts.push(rule.colorSchemeAttributeCommunityIds.some(colorAttributeIds => colorAttributeIds === x.attributeId));
+								});
+							}
 
-						if (!colorAttributeConflicts.some(x => x === false))
-						{
-							conflict.colorSchemeConflict = true;
-							conflict.colorSchemeAttributeConflict = true;
+							if (!colorAttributeConflicts.some(x => x === false))
+							{
+								conflict.colorSchemeConflict = true;
+								conflict.colorSchemeAttributeConflict = true;
+							}
 						}
 					});
 				}
@@ -216,13 +222,44 @@ export const monotonyConflict = createSelector(
 			{
 				let colorChoice = colorScheme.choices.find(x => x.quantity > 0);
 
-				conflict.colorSchemeConflict = monotonyrules.some(x => x.colorSchemeDivChoiceCatalogId === colorChoice.divChoiceCatalogId);
+				conflict.colorSchemeConflict = monotonyrules.some(x => x.colorSchemeDivChoiceCatalogId === colorChoice.divChoiceCatalogId && x.edhPlanId === planId);
 			}
 
 			conflict.monotonyConflict = (conflict.colorSchemeConflict || conflict.elevationConflict);
 		}
 
 		return conflict;
+	}
+)
+
+export const monotonyChoiceIds = createSelector(
+	fromLot.selectSelectedLot,
+	fromPlan.selectedPlanData,
+	(selectedLot, selectedPlan) =>
+	{
+		let monotonyChoices = { colorSchemeAttributeCommunityIds: [], ColorSchemeDivChoiceCatalogIds: [], ElevationDivChoiceCatalogIds: [] };
+
+		if (selectedLot)
+		{
+			if (selectedLot.monotonyRules && selectedLot.monotonyRules.length)
+			{
+				let planId = selectedPlan !== null ? selectedPlan.id : 0;
+
+				monotonyChoices.colorSchemeAttributeCommunityIds = selectedLot.monotonyRules
+					.filter(r => (r.ruleType === "ColorScheme" || r.ruleType === "Both") && r.colorSchemeAttributeCommunityIds.length && r.edhPlanId === planId)
+					.map(r => r.colorSchemeAttributeCommunityIds);
+
+				monotonyChoices.ElevationDivChoiceCatalogIds = selectedLot.monotonyRules
+					.filter(r => (r.ruleType === "Elevation" || r.ruleType === "Both") && !!r.elevationDivChoiceCatalogId && r.edhPlanId === planId)
+					.map(r => r.elevationDivChoiceCatalogId);
+
+				monotonyChoices.ColorSchemeDivChoiceCatalogIds = selectedLot.monotonyRules
+					.filter(r => (r.ruleType === "ColorScheme" || r.ruleType === "Both") && !!r.colorSchemeDivChoiceCatalogId && r.edhPlanId === planId)
+					.map(r => r.colorSchemeDivChoiceCatalogId);
+			}
+		}
+
+		return monotonyChoices;
 	}
 )
 
