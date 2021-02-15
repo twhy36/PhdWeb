@@ -491,7 +491,17 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 			{
 				if (this.buildMode === 'spec' || this.buildMode === 'model')
 				{
-					this.lotService.buildScenario();
+					if (this.buildMode === 'model' && this.summaryHeader.lot.lotStatusDescription === 'Available')
+					{
+						const title = 'Create Model';
+						const body = 'The Lot Status for this model will be set to UNAVAILABLE.';
+						const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
+
+						this.showConfirmModal(body, title, primaryButton).subscribe(result =>
+						{
+							this.lotService.buildScenario();
+						});
+					}
 				}
 				else if (this.salesAgreementId)
 				{
