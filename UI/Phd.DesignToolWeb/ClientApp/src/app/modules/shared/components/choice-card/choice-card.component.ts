@@ -20,7 +20,6 @@ import { mergeAttributes, mergeLocations, mergeAttributeImages } from '../../../
 
 import { AttributeService } from '../../../core/services/attribute.service';
 
-import * as fromLot from '../../../ngrx-store/lot/reducer';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 import * as fromChangeOrder from '../../../ngrx-store/change-order/reducer';
 import { selectSelectedLot } from '../../../ngrx-store/lot/reducer';
@@ -32,6 +31,8 @@ import * as _ from 'lodash';
 import { LotExt } from '../../models/lot.model';
 import { ModalService } from '../../../core/services/modal.service';
 import { ModalRef } from '../../../shared/classes/modal.class';
+import { selectedPlanData } from '../../../ngrx-store/plan/reducer';
+import { Plan } from '../../models/plan.model';
 import { TreeService } from '../../../core/services/tree.service';
 
 @Component({
@@ -79,6 +80,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 	override$ = new ReplaySubject<boolean>(1);
 	unsavedQty: number = 0;
 	lots: LotExt;
+	plan: Plan;
 
 	constructor(private modalService: ModalService,
 		private attributeService: AttributeService,
@@ -237,9 +239,14 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
-			select(fromLot.monotonyChoiceIds),
-			combineLatest(this.store.pipe(select(fromScenario.choiceOverrides)), this.store.pipe(select(selectSelectedLot)), this.treeService.getChoiceImageAssoc([this.choice.lockedInChoice ? this.choice.lockedInChoice.dpChoiceId : this.choice.id])))
-			.subscribe(([monotonyChoices, choiceOverride, lots, choiceImages]) =>
+			select(fromRoot.monotonyChoiceIds),
+			combineLatest(
+				this.store.pipe(select(fromScenario.choiceOverrides)),
+				this.store.pipe(select(selectSelectedLot)),
+				this.store.pipe(select(selectedPlanData)),
+				this.treeService.getChoiceImageAssoc([this.choice.lockedInChoice ? this.choice.lockedInChoice.dpChoiceId : this.choice.id])
+			))
+			.subscribe(([monotonyChoices, choiceOverride, lots, plan, choiceImages]) =>
 			{
 				this.choiceImages = choiceImages;
 
@@ -264,6 +271,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 				this.monotonyConflict = conflictMessage;
 
 				this.lots = lots;
+				this.plan = plan;
 				this.setAttributeMonotonyConflict();
 			});
 
@@ -555,7 +563,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 				{
 					this.lots.monotonyRules && this.lots.monotonyRules.forEach(rule => 
 					{
-						if (rule.colorSchemeAttributeCommunityIds.length > 0) 
+						if (rule.colorSchemeAttributeCommunityIds.length > 0 && rule.edhPlanId === this.plan.id) 
 						{
 							if (this.attributeGroups.length > 1) 
 							{
