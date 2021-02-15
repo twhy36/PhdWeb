@@ -511,7 +511,7 @@ export const selectedPlanPrice = createSelector(
 	{
 		let price = selectedPlan ? selectedPlan.price : 0;
 
-		if (selectedPlan && selectedLot && selectedLot.salesPhase && selectedLot.salesPhase.salesPhasePlanPriceAssocs && ((salesAgreement && salesAgreement.status === 'Pending') || !salesAgreement))
+		if (selectedPlan && selectedLot && selectedLot.salesPhase && selectedLot.salesPhase.salesPhasePlanPriceAssocs && ((salesAgreement && salesAgreement.status === 'Pending') || !salesAgreement?.id))
 		{
 			const phasePlanPrice = selectedLot.salesPhase.salesPhasePlanPriceAssocs.find(x => x.planId === selectedPlan.id);
 
