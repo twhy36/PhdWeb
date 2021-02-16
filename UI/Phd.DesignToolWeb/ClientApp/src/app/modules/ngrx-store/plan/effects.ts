@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Actions, Effect, ofType } from '@ngrx/effects';
 import { Action, Store } from '@ngrx/store';
-import { Observable, of, from } from 'rxjs';
+import { Observable, from } from 'rxjs';
 import { switchMap, withLatestFrom, combineLatest, map } from 'rxjs/operators';
 
 import { PlanService } from '../../core/services/plan.service';
@@ -23,13 +23,18 @@ export class PlanEffects
 		ofType<LoadPlans>(PlanActionTypes.LoadPlans),
 		tryCatch(source => source.pipe(
 			switchMap(action => this.planService.loadPlans(action.salesCommunityId).pipe(
-				map(plans => {
-					if (action.selectedPlanPrice) {
+				map(plans =>
+				{
+					if (action.selectedPlanPrice)
+					{
 						let plan = plans.find(p => p.id === action.selectedPlanPrice.planId);
-						if (plan) {
+
+						if (plan)
+						{
 							plan.price = action.selectedPlanPrice.listPrice;
 						}
 					}
+
 					return plans;
 				})
 			)),

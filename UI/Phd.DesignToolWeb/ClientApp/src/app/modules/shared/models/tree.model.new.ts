@@ -144,6 +144,7 @@ export class Choice
 	hasOptionRules: boolean;
 	id: number;
 	imagePath: string;
+	hasImage: boolean;
 	isDecisionDefault: boolean;
 	isSelectable: boolean;
 	label: string;
@@ -219,7 +220,9 @@ export class OptionImage
 export class ChoiceImageAssoc
 {
 	dpChoiceId: number;
+	dpChoiceImageAssocId: number;
 	imageUrl: string;
+	sortKey: number;
 }
 
 export class PlanOptionCommunityImageAssoc

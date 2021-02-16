@@ -17,7 +17,7 @@ import { PlanOptionService } from './plan-option.service';
 import { PhdApiDto, PhdEntityDto } from '../../shared/models/api-dtos.model';
 import { TreeOption, ITreeOption, Option } from '../../shared/models/option.model';
 import { IDivCatalogPointDto } from '../../shared/models/point.model';
-import { IDivCatalogChoiceDto, DivDChoice } from '../../shared/models/choice.model';
+import { IDivCatalogChoiceDto, IChoiceImageAssoc } from '../../shared/models/choice.model';
 
 import { withSpinner } from 'phd-common/extensions/withSpinner.extension';
 import { RuleType } from '../../shared/models/rule.model';
@@ -513,6 +513,74 @@ export class TreeService {
 		const endPoint = `${settings.apiUrl}dPChoices(${choiceId})`;
 
 		return this._http.patch(endPoint, choiceDto);
+	}
+
+	getChoiceImages(choice: number): Observable<Array<IChoiceImageAssoc>>
+	{
+		const entity = `dPChoiceImageAssocs`;
+		const filter = `dpChoiceId eq (${choice})`;
+		const orderby = `sortKey`;
+
+		const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}orderBy=${orderby}&${this._ds}select=dpChoiceImageAssocId, dpChoiceId, imageUrl, sortKey`;
+
+		const endPoint = `${settings.apiUrl}${entity}?${qryStr}`;
+
+		return this._http.get(endPoint).pipe(
+			map(response => {
+				let choiceImageAssoc = response['value'] as Array<IChoiceImageAssoc>;
+
+				return choiceImageAssoc;
+			})
+		);
+	}
+
+	saveChoiceImages(choiceImages: PhdEntityDto.IDPChoiceDto[], treeVersionId: number): Observable<IChoiceImageAssoc[]>
+	{
+		// calling unbound odata action 
+		const body = {
+			'choiceImages': choiceImages,
+			'treeVersionId' : treeVersionId, 
+		};
+
+		const action = `SaveChoiceImages`;
+		const endpoint = `${settings.apiUrl}${action}`;
+
+		return this._http.post<any>(endpoint, body, { headers: { 'Prefer': 'return=representation' } }).pipe(
+			map(response =>
+			{
+				return response.value as Array<IChoiceImageAssoc>;
+			}));
+	}
+
+	deleteChoiceImage(choiceImageId: number, choiceId: number): Observable<any>
+	{
+		// calling unbound odata action
+		const body =
+		{
+			'dpChoiceImageAssocId': choiceImageId,
+			'dpChoiceId': choiceId
+		};
+
+		const action = 'DeleteChoiceImage';
+		const endPoint = `${settings.apiUrl}${action}`;
+
+		return this._http.post<any>(endPoint, body);
+	}
+
+	saveChoiceImageSortOrder(images: Array<IChoiceImageAssoc>, treeVersionId: number): Observable<any>
+	{
+		let url = settings.apiUrl + `UpdateChoiceImages`;
+
+		let data = {
+			'treeVersionId': treeVersionId,
+			'choiceImages': images
+		};
+
+		return this._http.patch(url, data, { headers: { 'Prefer': 'return=representation' } }).pipe(
+			map(response => {
+				return response;
+			}),
+			catchError(this.handleError));
 	}
 
 	getDPointPointRules(pointId: number): Observable<Array<PhdApiDto.IDPointRule>> {
@@ -1117,6 +1185,7 @@ export class TreeService {
 								divChoiceCatalogId: c.divChoiceCatalogID,
 								id: c.dpChoiceID,
 								imagePath: c.imagePath,
+								hasImage: c.hasImage,
 								isDecisionDefault: c.isDecisionDefault,
 								isSelectable: c.isSelectable,
 								label: c.divChoiceCatalog.choiceLabel,
@@ -1176,6 +1245,7 @@ export class TreeService {
 						divChoiceCatalogId: x.divChoiceCatalogID,
 						id: x.dpChoiceID,
 						imagePath: x.imagePath,
+						hasImage: x.hasImage,
 						isDecisionDefault: x.isDecisionDefault,
 						isSelectable: x.isSelectable,
 						label: x.divChoiceCatalog.choiceLabel,

@@ -143,18 +143,18 @@ function saveLockedInChoices(choices: Array<JobChoice | ChangeOrderChoice>, tree
 		{
 			treeChoice.lockedInChoice = choice;
 			treeChoice.mappedAttributeGroups = (isJobChoice(choice)
-					? _.uniq(choice.jobChoiceAttributes.map(jca => jca.attributeGroupCommunityId))
-					: _.uniq(choice.jobChangeOrderChoiceAttributes.map(coca => coca.attributeGroupCommunityId))
-				).map(att => new MappedAttributeGroup({ id: att }));
+				? _.uniq(choice.jobChoiceAttributes.map(jca => jca.attributeGroupCommunityId))
+				: _.uniq(choice.jobChangeOrderChoiceAttributes.map(coca => coca.attributeGroupCommunityId))
+			).map(att => new MappedAttributeGroup({ id: att }));
 			treeChoice.mappedLocationGroups = (isJobChoice(choice)
-					? _.uniq(choice.jobChoiceLocations.map(jcl => jcl.locationGroupCommunityId))
-					: _.uniq(choice.jobChangeOrderChoiceLocations.map(cocl => cocl.locationGroupCommunityId))
-				).map(loc => new MappedLocationGroup({ id: loc }));
+				? _.uniq(choice.jobChoiceLocations.map(jcl => jcl.locationGroupCommunityId))
+				: _.uniq(choice.jobChangeOrderChoiceLocations.map(cocl => cocl.locationGroupCommunityId))
+			).map(loc => new MappedLocationGroup({ id: loc }));
 		}
 	});
 }
 
-export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], images?: OptionImage[] }>(choices: Array<JobChoice | ChangeOrderChoice>, options: Array<JobPlanOption | ChangeOrderPlanOption>, treeService: TreeService,  changeOrder?: ChangeOrderGroup): (source: Observable<T>) => Observable<T>
+export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], images?: OptionImage[] }>(choices: Array<JobChoice | ChangeOrderChoice>, options: Array<JobPlanOption | ChangeOrderPlanOption>, treeService: TreeService, changeOrder?: ChangeOrderGroup): (source: Observable<T>) => Observable<T>
 {
 	return (source: Observable<T>) => source.pipe(
 		switchMap(data =>
@@ -189,6 +189,7 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 							if (ch)
 							{
 								let point = currentPoints.find(p => p.divPointCatalogId === ch.dPoint.divDPointCatalogID);
+
 								//get a list of all the original mapped options for the choice
 								let opt = getOptions(ch, currentChoices).map(o1 =>
 								{
@@ -202,7 +203,9 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 										let locationGroups = option instanceof JobPlanOption ? option.jobPlanOptionLocations.map(loc => loc.locationGroupCommunityId) : option.jobChangeOrderPlanOptionLocations.map(loc => loc.locationGroupCommunityId);
 
 										let existingOption = data.options.find(o => o.financialOptionIntegrationKey === option.integrationKey);
-										if (existingOption) {
+
+										if (existingOption)
+										{
 											attributeGroups.push(...existingOption.attributeGroups.filter(ag => !attributeGroups.some(ag2 => ag2 === ag)));
 										}
 
@@ -311,7 +314,7 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 		}),
 		combineLatest(treeService.getPlanOptionCommunityImageAssoc(options.filter(o => o.outForSignatureDate !== undefined))),
 		//update pricing information for locked-in options/choices
-		map(([res,optImageAssoc]) =>
+		map(([res, optImageAssoc]) =>
 		{
 			//override option prices if prices are locked
 			if (options.length)
@@ -334,29 +337,43 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 						}
 
 						//add in missing attribute/location groups
-						if (!opt.isBaseHouse) {
-							if (isJobPlanOption(option)) {
-								option.jobPlanOptionAttributes.forEach(jpoAtt => {
-									if (!opt.attributeGroups.find(a => a === jpoAtt.attributeGroupCommunityId)) {
+						if (!opt.isBaseHouse)
+						{
+							if (isJobPlanOption(option))
+							{
+								option.jobPlanOptionAttributes.forEach(jpoAtt =>
+								{
+									if (!opt.attributeGroups.find(a => a === jpoAtt.attributeGroupCommunityId))
+									{
 										opt.attributeGroups.push(jpoAtt.attributeGroupCommunityId);
 									}
-								})
-								option.jobPlanOptionLocations.forEach(jpoLoc => {
-									if (!opt.locationGroups.find(l => l === jpoLoc.locationGroupCommunityId)) {
+								});
+
+								option.jobPlanOptionLocations.forEach(jpoLoc =>
+								{
+									if (!opt.locationGroups.find(l => l === jpoLoc.locationGroupCommunityId))
+									{
 										opt.locationGroups.push(jpoLoc.locationGroupCommunityId);
 									}
-								})
-							} else {
-								option.jobChangeOrderPlanOptionAttributes.forEach(jpoAtt => {
-									if (!opt.attributeGroups.find(a => a === jpoAtt.attributeGroupCommunityId)) {
+								});
+							}
+							else
+							{
+								option.jobChangeOrderPlanOptionAttributes.forEach(jpoAtt =>
+								{
+									if (!opt.attributeGroups.find(a => a === jpoAtt.attributeGroupCommunityId))
+									{
 										opt.attributeGroups.push(jpoAtt.attributeGroupCommunityId);
 									}
-								})
-								option.jobChangeOrderPlanOptionLocations.forEach(jpoLoc => {
-									if (!opt.locationGroups.find(l => l === jpoLoc.locationGroupCommunityId)) {
+								});
+
+								option.jobChangeOrderPlanOptionLocations.forEach(jpoLoc =>
+								{
+									if (!opt.locationGroups.find(l => l === jpoLoc.locationGroupCommunityId))
+									{
 										opt.locationGroups.push(jpoLoc.locationGroupCommunityId);
 									}
-								})
+								});
 							}
 						}
 					}
@@ -386,25 +403,17 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 						return { optionNumber: options.find(opt => opt.id === o.jobChangeOrderPlanOptionId).integrationKey, dpChoiceId: c.decisionPointChoiceID };
 					});
 			}
-		}))),
-		treeService.getChoiceImageAssoc(choices.map(x => x.dpChoiceId))),
+		})))),
 		//store the original option mapping on the choice where it was selected
 		//rules engine can use this to 'override' current option mappings
-		map(([res, mapping, choiceImageAssoc]) =>
+		map(([data, mapping]) =>
 		{
 			choices.filter(isLocked(changeOrder)).forEach(c =>
 			{
-				let choice = findChoice(res.tree, ch => ch.divChoiceCatalogId === c.divChoiceCatalogId);
+				let choice = findChoice(data.tree, ch => ch.divChoiceCatalogId === c.divChoiceCatalogId);
 
 				if (!!choice)
 				{
-					let existingChoice = choiceImageAssoc.length ? choiceImageAssoc.find(r => r.dpChoiceId === c.dpChoiceId) : null;
-
-					if (existingChoice)
-					{
-						choice.imagePath = existingChoice.imageUrl;
-					}
-
 					if (isJobChoice(c))
 					{
 						choice.lockedInOptions = c.jobChoiceJobPlanOptionAssocs.filter(o => o.choiceEnabledOption).map(o => mapping[options.find(opt => opt.id === o.jobPlanOptionId).integrationKey]);
@@ -416,7 +425,7 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 				}
 			});
 
-			return res;
+			return data;
 		}),
 		catchError(err => { console.error(err); return _throw(err); })
 	);
@@ -467,7 +476,8 @@ export function checkSelectedAttributes(choices: Choice[])
 	choices.forEach(choice =>
 	{
 		//if the choice is locked, we don't want to mess with attributes
-		if (choice.lockedInChoice) {
+		if (choice.lockedInChoice)
+		{
 			return;
 		}
 
@@ -477,7 +487,7 @@ export function checkSelectedAttributes(choices: Choice[])
 		}
 		else if (choice.selectedAttributes.length > 0)
 		{
-			var selectedAttributes = [];
+			let selectedAttributes = [];
 			let attributeGroups = choice.mappedAttributeGroups;
 			let locationGroups = choice.mappedLocationGroups;
 

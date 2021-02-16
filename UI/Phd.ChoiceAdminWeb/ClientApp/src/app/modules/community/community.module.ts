@@ -45,6 +45,7 @@ import { MessageBarComponent } from './components/message-bar/message-bar.compon
 import { MessagesSidePanelComponent } from './components/messages-side-panel/messages-side-panel.component';
 
 import { CanDeactivateGuard } from '../core/guards/can-deactivate.guard';
+import { ChoiceImagesPanelComponent } from './components/manage-tree/choice-images-panel/choice-images-panel.component';
 
 const moduleRoutes: Routes = [
 	{
@@ -74,6 +75,7 @@ const moduleRoutes: Routes = [
 		ManageTreeOptionsComponent,
 		OptionChoiceRuleComponent,
 		OptionImagesPanelComponent,
+		ChoiceImagesPanelComponent,
 		OptionLocationComponent,
 		OptionRuleComponent,
 		OptionAttributesPanelComponent,
