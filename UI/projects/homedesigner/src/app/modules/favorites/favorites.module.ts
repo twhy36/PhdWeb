@@ -4,6 +4,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CloudinaryModule } from '@cloudinary/angular-5.x';
 import { ToastrModule } from 'ngx-toastr';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { SharedModule } from '../shared/shared.module';
 import { PhdCommonModule } from 'phd-common';
@@ -43,7 +44,8 @@ const moduleRoutes: Routes = [
         SharedModule,
 		PhdCommonModule,
 		RouterModule.forChild(moduleRoutes),
-		ToastrModule
+		ToastrModule,
+		NgbModule
     ],
     providers: []
 })

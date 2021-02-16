@@ -1,0 +1,120 @@
+@import "../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
+
+.phd-choice-card-detail {
+	display: flex;
+	flex-direction: row;
+	overflow: hidden;
+}
+
+.phd-image-section {
+    position: fixed;
+    background: $gray-lighter;
+    width: calc(52vw);
+    height: calc(100vh - 197px);
+    display: flex;
+    flex-direction: column;
+    padding: 0px 10px;
+
+    .phd-choice-path {
+        span {
+            margin: 5px 0px 5px 10px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+    }
+
+    .phd-image-caption {
+        font-size: 11px;
+        font-weight: bold;
+        padding: 5px 0px;
+    }
+
+	.phd-image-loading {
+		height: 367px;
+		width: 550px;
+		position: absolute;
+		background-color: lightgray;
+		z-index: 999 !important;
+		text-align: center;
+		opacity: 0.5;
+		cursor: not-allowed;
+    }  
+      
+    .phd-image-loader {
+		position: relative;
+		top: 40%;
+    } 
+          
+    .phd-icon-selected {
+        color: $pantone_blue;
+    }
+
+	.phd-image-thumbnail {
+        margin-right: 10px;	
+    }
+    
+    .phd-price {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        margin-top: 10px;
+    }
+}
+
+::ng-deep .phd-attribute-item-image {
+    border: 2px solid #ccc;
+    cursor: pointer;
+
+    .phd-attribute-item-image-selected {
+        border: solid 2px #50e3c2;
+    }
+
+    .phd-image-is-inactive, &.disabled {
+        cursor: no-drop;
+        opacity: .65;
+    }
+}
+
+.phd-card-detail-image-body {
+    .carousel:focus {
+        outline: none;
+    }
+}
+
+.phd-info-section {
+    width: calc(48vw);
+    display: flex;
+    flex-direction: column;
+    padding: 5px;
+    margin-left: calc(52vw);
+
+    .phd-choice-label {
+        font-size: 22px;
+        font-weight: bold;
+        margin-left: 10px;
+    }
+
+    .phd-choice-desc {
+        margin-left: 10px;
+    }
+
+    .phd-available-selections {
+        background-color: $pantone_blue;
+        color: white;
+        margin-top: 30px;
+        
+        span {
+            padding: 8px 0px 8px 10px;
+            font-weight: bold;
+        }
+    }
+}
+
+::ng-deep .carousel-item {
+    display: flex !important;
+    justify-content: center !important; 
+}
+
+.phd-favorite-selector {
+    font-size: 24px;
+}

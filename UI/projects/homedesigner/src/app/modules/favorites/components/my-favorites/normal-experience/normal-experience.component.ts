@@ -5,6 +5,7 @@ import * as _ from 'lodash';
 import { UnsubscribeOnDestroy, flipOver, DecisionPoint, PickType, SubGroup, Choice, JobChoice } from 'phd-common';
 
 import { MyFavoritesChoice } from '../../../../shared/models/my-favorite.model';
+import { ChoiceExt } from '../../../../shared/models/choice-ext.model';
 
 @Component({
 	selector: 'normal-experience',
@@ -22,8 +23,9 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	@Input() includeContractedOptions: boolean = true;
 	@Input() salesChoices: JobChoice[];
 
-	@Output() onToggleChoice = new EventEmitter<Choice>();
+	@Output() onToggleChoice = new EventEmitter<ChoiceExt>();
 	@Output() onToggleContractedOptions = new EventEmitter();
+	@Output() onViewChoiceDetail = new EventEmitter<ChoiceExt>();
 
 	isPointPanelCollapsed: boolean = false;
 	points: DecisionPoint[];
@@ -122,7 +124,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 		}
 	}
 
-	choiceToggleHandler(choice: Choice) {
+	choiceToggleHandler(choice: ChoiceExt) {
 		const point = this.points.find(p => p.choices.some(c => c.id === choice.id));
 		if (point && this.currentPointId != point.id) {
 			this.currentPointId = point.id;
@@ -136,20 +138,32 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 		this.onToggleContractedOptions.emit();
 	}
 
-	getChoiceStatus(choice: Choice, point: DecisionPoint) : string 
+	getChoiceExt(choice: Choice, point: DecisionPoint) : ChoiceExt 
 	{
+		let choiceStatus = 'Available';
 		if (this.salesChoices.findIndex(c => c.divChoiceCatalogId === choice.divChoiceCatalogId) > -1)
 		{
-			return 'Contracted'
+			choiceStatus = 'Contracted';
 		}
-
-		const contractedChoices = point.choices.filter(c => this.salesChoices.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1);
-		if (contractedChoices && contractedChoices.length && 
-			(point.pointPickTypeId === PickType.Pick1 || point.pointPickTypeId === PickType.Pick0or1))
+		else
 		{
-			return 'ViewOnly'
+			const contractedChoices = point.choices.filter(c => this.salesChoices.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1);
+			if (contractedChoices && contractedChoices.length && 
+				(point.pointPickTypeId === PickType.Pick1 || point.pointPickTypeId === PickType.Pick0or1))
+			{
+				choiceStatus = 'ViewOnly';
+			}			
 		}
 
-		return 'Available';
+		const isFavorite = this.myFavoritesChoices 
+			? this.myFavoritesChoices.findIndex(x => x.divChoiceCatalogId === choice.divChoiceCatalogId) > -1
+			: false;		
+
+		return new ChoiceExt(choice, choiceStatus, isFavorite);
+	}
+
+	viewChoiceDetail(choice: ChoiceExt)
+	{
+		this.onViewChoiceDetail.emit(choice);
 	}
 }

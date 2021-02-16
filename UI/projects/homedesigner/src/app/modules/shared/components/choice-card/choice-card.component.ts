@@ -1,8 +1,7 @@
-import { Component, Input, Output, OnInit, OnChanges, SimpleChanges, Inject, EventEmitter } from '@angular/core';
-import { APP_BASE_HREF } from '@angular/common';
+import { Component, Input, Output, OnInit, OnChanges, SimpleChanges, EventEmitter } from '@angular/core';
 
-import { UnsubscribeOnDestroy, flipOver3, Choice, OptionImage, JobChoice } from 'phd-common';
-import { MyFavoritesChoice } from '../../models/my-favorite.model';
+import { UnsubscribeOnDestroy, flipOver3, OptionImage } from 'phd-common';
+import { ChoiceExt } from '../../models/choice-ext.model';
 
 @Component({
 	selector: 'choice-card',
@@ -14,18 +13,17 @@ import { MyFavoritesChoice } from '../../models/my-favorite.model';
 })
 export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit, OnChanges
 {
-	@Input() currentChoice: Choice;
-	@Input() myFavoritesChoices: MyFavoritesChoice[];
-	@Input() choiceStatus: 'Available' | 'Contracted' | 'ViewOnly';
+	@Input() currentChoice: ChoiceExt;
+	
+	@Output() toggled = new EventEmitter<ChoiceExt>();
+	@Output() onViewChoiceDetail = new EventEmitter<ChoiceExt>();
 
-	@Output() toggled = new EventEmitter<Choice>();
-
-	choice: Choice;
+	choice: ChoiceExt;
 	choiceMsg: object[] = [];
 	optionImages: OptionImage[];
 	imageUrl: string = '';
 
-	constructor(@Inject(APP_BASE_HREF) private _baseHref: string)
+	constructor()
 	{
 		super();
 	}
@@ -82,10 +80,8 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 		this.toggled.emit(this.choice);
 	}
 
-	get isSelected()
+	viewChoiceDetail()
 	{
-		return this.myFavoritesChoices 
-			? this.myFavoritesChoices.findIndex(x => x.divChoiceCatalogId === this.choice.divChoiceCatalogId) > -1
-			: false;
-	}
+		this.onViewChoiceDetail.emit(this.choice);
+	}	
 }

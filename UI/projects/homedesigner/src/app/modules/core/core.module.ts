@@ -14,6 +14,7 @@ import { OrganizationService } from './services/organization.service';
 import { PlanService } from './services/plan.service';
 import { SalesAgreementService } from './services/sales-agreement.service';
 import { TreeService } from './services/tree.service';
+import { AttributeService } from './services/attribute.service';
 
 @NgModule({
 	exports: [
@@ -36,7 +37,8 @@ import { TreeService } from './services/tree.service';
 		OrganizationService,
 		PlanService,
 		SalesAgreementService,
-		TreeService
+		TreeService,
+		AttributeService
 	]
 })
 export class CoreModule { }

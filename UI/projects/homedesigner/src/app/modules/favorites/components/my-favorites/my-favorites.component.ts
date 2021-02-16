@@ -19,6 +19,7 @@ import { UnsubscribeOnDestroy, PriceBreakdown, Group, SubGroup, Choice, Tree, Tr
 
 import { GroupBarComponent } from '../../../shared/components/group-bar/group-bar.component';
 import { MyFavoritesChoice } from '../../../shared/models/my-favorite.model';
+import { ChoiceExt } from '../../../shared/models/choice-ext.model';
 
 @Component({
 	selector: 'my-favorites',
@@ -44,6 +45,8 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 	myFavoritesChoices: MyFavoritesChoice[];
 	includeContractedOptions: boolean;
 	salesChoices: JobChoice[];
+	showDetails: boolean = false;
+	selectedChoice: ChoiceExt;
 
 	priceBreakdown: PriceBreakdown;
 
@@ -185,7 +188,8 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			this.takeUntilDestroyed(),
 			select(fromFavorite.currentMyFavorite)
 		).subscribe(favorite => {
-			this.myFavoritesChoices = favorite && favorite.myFavoritesChoice;	
+			this.myFavoritesChoices = favorite && favorite.myFavoritesChoice;
+			this.updateSelectedChoice();	
 		});	
 
 		this.store.pipe(
@@ -204,6 +208,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 	}
 
 	onSubgroupSelected(id: number) {
+		this.hideDetails();
 		this.store.dispatch(new NavActions.SetSelectedSubgroup(id));
 	}
 
@@ -219,7 +224,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		}
 	}
 
-	toggleChoice(choice: Choice)
+	toggleChoice(choice: ChoiceExt)
 	{
 		let selectedChoices = [{ choiceId: choice.id, quantity: !choice.quantity ? 1 : 0, attributes: choice.selectedAttributes }];
 		const impactedChoices = getDependentChoices(this.tree, this.treeVersionRules, choice);
@@ -236,5 +241,51 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 	toggleContractedOptions()
 	{
 		this.store.dispatch(new FavoriteActions.ToggleContractedOptions());
+	}
+
+	viewChoiceDetail(choice: ChoiceExt)
+	{
+		this.selectedChoice = choice;
+		this.showDetails = true;
+	}
+
+	hideDetails()
+	{
+		this.showDetails = false;
+		this.selectedChoice = null;
+	}
+
+	getChoicePath() : string
+	{
+		let subGroupName = '';
+		let pointName = '';
+
+		if (this.selectedSubGroup)
+		{
+			subGroupName = this.selectedSubGroup.label;
+			const selectedPoint = this.selectedSubGroup.points.find(p => p.id === this.selectedPointId);
+			if (selectedPoint)
+			{
+				pointName = selectedPoint.label;
+			}
+		}
+
+		return `${this.groupName} / ${subGroupName} / ${pointName}`;
+	}
+
+	updateSelectedChoice()
+	{
+		if (this.selectedChoice)
+		{
+			const choices = _.flatMap(this.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices))) || [];
+			const updatedChoice = choices.find(c => c.divChoiceCatalogId === this.selectedChoice.divChoiceCatalogId);
+			if (updatedChoice)
+			{
+				this.selectedChoice.quantity = updatedChoice.quantity;
+				this.selectedChoice.isFavorite = this.myFavoritesChoices 
+					? this.myFavoritesChoices.findIndex(x => x.divChoiceCatalogId === this.selectedChoice.divChoiceCatalogId) > -1
+					: false;	
+			}
+		}
 	}
 }

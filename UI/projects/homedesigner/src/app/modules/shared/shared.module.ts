@@ -6,6 +6,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
 import { CloudinaryModule } from '@cloudinary/angular-5.x';
+import { CarouselModule } from 'primeng/carousel';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { PhdCommonModule } from 'phd-common';
 
@@ -15,6 +17,7 @@ import { TreeFilterComponent } from './components/tree-filter/tree-filter.compon
 import { GroupBarComponent } from './components/group-bar/group-bar.component';
 import { DecisionBarComponent } from './components/decision-bar/decision-bar.component';
 import { ChoiceCardComponent } from './components/choice-card/choice-card.component';
+import { ChoiceCardDetailComponent } from './components/choice-card-detail/choice-card-detail.component';
 import { DecisionPointSummaryComponent } from './components/decision-point-summary/decision-point-summary.component';
 
 @NgModule({
@@ -25,6 +28,7 @@ import { DecisionPointSummaryComponent } from './components/decision-point-summa
 		GroupBarComponent,
 		DecisionBarComponent,
 		ChoiceCardComponent,
+		ChoiceCardDetailComponent,
 		DecisionPointSummaryComponent
     ],
 	declarations: [
@@ -34,6 +38,7 @@ import { DecisionPointSummaryComponent } from './components/decision-point-summa
 		GroupBarComponent,
 		DecisionBarComponent,
 		ChoiceCardComponent,
+		ChoiceCardDetailComponent,
 		DecisionPointSummaryComponent
     ],
 	imports: [
@@ -43,6 +48,8 @@ import { DecisionPointSummaryComponent } from './components/decision-point-summa
 		FormsModule,
 		ReactiveFormsModule,
 		CloudinaryModule,
+		CarouselModule,
+		NgbModule,
 		MatMenuModule,
 		MatButtonModule,
 		PhdCommonModule

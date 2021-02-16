@@ -9,7 +9,8 @@ import * as moment from "moment";
 import {
 	findChoice, DesignToolAttribute, JobChoice, JobPlanOption, JobChoiceAttribute, JobChoiceLocation, Job, 
 	ChangeOrderGroup, ChangeOrderChoice, ChangeOrderPlanOption, ChangeOrderChoiceAttribute, ChangeOrderChoiceLocation,
-	PlanOption, PointStatus, ConstructionStageTypes, Tree, Choice, DecisionPoint, MappedAttributeGroup, MappedLocationGroup
+	PlanOption, PointStatus, ConstructionStageTypes, Tree, Choice, DecisionPoint, MappedAttributeGroup, MappedLocationGroup,
+	Attribute, AttributeGroup, AttributeCommunityImageAssoc, Location, LocationGroup, OptionImage
 } from 'phd-common';
 
 import { TreeService } from '../../core/services/tree.service';
@@ -312,21 +313,32 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[] }>(c
 
 			return of(data);
 		}),
+		combineLatest(treeService.getPlanOptionCommunityImageAssoc(options.filter(o => o.outForSignatureDate !== undefined))),
 		//update pricing information for locked-in options/choices
-		map(data =>
+		map(([res,optImageAssoc]) =>
 		{
 			//override option prices if prices are locked
-			if (options)
+			if (options && options.length)
 			{
 				options.filter(isOptionLocked(changeOrder)).forEach(option =>
 				{
-					let opt = data.options.find(o => o.financialOptionIntegrationKey === option.integrationKey);
+					let opt = res.options.find(o => o.financialOptionIntegrationKey === option.integrationKey);
 
 					if (opt)
 					{
 						opt.listPrice = option.listPrice;
 						opt.description = option.optionDescription;
 						opt.name = option.optionSalesName;
+
+						let existingAssoc = optImageAssoc ? optImageAssoc.filter(optImage => optImage.planOptionCommunityId === opt.id) : [];
+
+						if (existingAssoc.length)
+						{
+							opt.optionImages = existingAssoc.map(image =>
+							{
+								return { imageURL: image.imageUrl, integrationKey: opt.financialOptionIntegrationKey, sortKey: image.sortOrder } as OptionImage;
+							});
+						}
 
 						//add in missing attribute/location groups
 						if (!opt.isBaseHouse) {
@@ -358,7 +370,7 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[] }>(c
 				});
 			}
 
-			return data;
+			return res;
 		}),
 		//capture original option mappings for locked-in options/choices
 		combineLatest(treeService.getHistoricOptionMapping(_.flatten(choices.map(c =>
@@ -487,5 +499,101 @@ function getSelectedAttributes(locationGroups: number[], attributeGroups: number
 		let hasLocation = locationGroups.length > 0 && locationGroups.findIndex(x => x === sa.locationGroupId) > -1
 
 		return hasAttribute || hasLocation ? sa : null;
+	});
+}
+
+export function mergeAttributes(attributes: Array<any>, missingAttributes: Array<DesignToolAttribute>, attributeGroups: Array<AttributeGroup>)
+{
+	const lastGroup = attributeGroups.length ? _.maxBy(attributeGroups, 'sortOrder') : null;
+	let sortOrder = lastGroup ? lastGroup.sortOrder + 1 : 0;
+
+	attributes.forEach(att =>
+	{
+		const choiceAttribute = missingAttributes.find(x => x.attributeId === att.id);
+
+		if (choiceAttribute)
+		{
+			const newAttribute = att as Attribute;
+			let choiceAttributeGroup = attributeGroups.find(x => x.id === choiceAttribute.attributeGroupId);
+
+			if (choiceAttributeGroup)
+			{
+				// add the missing attribute
+				if (!choiceAttributeGroup.attributes)
+				{
+					choiceAttributeGroup.attributes = [];
+				}
+
+				choiceAttributeGroup.attributes.push(newAttribute);
+			}
+			else if (att.attributeGroups)
+			{
+				// add the missing attribute and the attribute group
+				let newAttributeGroup = att.attributeGroups.find(x => x.id === choiceAttribute.attributeGroupId);
+
+				if (newAttributeGroup)
+				{
+					newAttributeGroup.sortOrder = sortOrder++;
+					newAttributeGroup.attributes.push(newAttribute);
+					attributeGroups.push(newAttributeGroup);
+				}
+			}
+		}
+	});
+}
+
+export function mergeAttributeImages(attributeGroups: Array<AttributeGroup>, attributeCommunityImageAssocs: Array<AttributeCommunityImageAssoc>)
+{
+	if (attributeCommunityImageAssocs && attributeCommunityImageAssocs.length > 0)
+	{
+		// Map image URL for attribute
+		attributeGroups.map(ag =>
+		{
+			return ag.attributes.map(a =>
+			{
+				const imageAssoc = attributeCommunityImageAssocs.find(aci => aci.attributeCommunityId === a.id);
+
+				if (imageAssoc)
+				{
+					a.imageUrl = imageAssoc.imageUrl;
+				}
+			});
+		})
+	}
+}
+
+export function mergeLocations(locations: Array<any>, missingLocations: Array<DesignToolAttribute>, locationGroups: Array<LocationGroup>)
+{
+	locations.forEach(loc =>
+	{
+		const choiceAttribute = missingLocations.find(x => x.locationId === loc.id);
+
+		if (choiceAttribute)
+		{
+			const newLocation = loc as Location;
+			let choiceLocationGroup = locationGroups.find(x => x.id === choiceAttribute.locationGroupId);
+
+			if (choiceLocationGroup)
+			{
+				// add the missing location
+				if (!choiceLocationGroup.locations)
+				{
+					choiceLocationGroup.locations = [];
+				}
+
+				choiceLocationGroup.locations.push(newLocation);
+			}
+			else if (loc.locationGroups)
+			{
+				// add the missing location and the location group
+				let newLocationGroup = loc.locationGroups.find(x => x.id === choiceAttribute.locationGroupId);
+
+				if (newLocationGroup)
+				{
+					newLocationGroup.locations.push(newLocation);
+					locationGroups.push(newLocationGroup);
+				}
+			}
+		}
 	});
 }

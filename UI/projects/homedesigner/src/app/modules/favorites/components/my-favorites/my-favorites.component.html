@@ -6,15 +6,26 @@
 			   (onSubgroupSelected)="onSubgroupSelected($event)"></group-bar>
 </div>
 <div class="phd-my-favorites">
-	<normal-experience [groupName]="groupName"
-					   [currentSubgroup]="selectedSubGroup"
-					   [errorMessage]="errorMessage"
-					   [myFavoritesChoices]="myFavoritesChoices"
-					   [decisionPointId]="selectedPointId"
-					   [includeContractedOptions]="includeContractedOptions"
-					   [salesChoices]="salesChoices"
-					   (onToggleChoice)="toggleChoice($event)"
-					   (onToggleContractedOptions)="toggleContractedOptions()"></normal-experience>
+	<ng-container *ngIf="!showDetails">
+		<normal-experience [groupName]="groupName"
+						[currentSubgroup]="selectedSubGroup"
+						[errorMessage]="errorMessage"
+						[myFavoritesChoices]="myFavoritesChoices"
+						[decisionPointId]="selectedPointId"
+						[includeContractedOptions]="includeContractedOptions"
+						[salesChoices]="salesChoices"
+						(onToggleChoice)="toggleChoice($event)"
+						(onToggleContractedOptions)="toggleContractedOptions()"
+						(onViewChoiceDetail)="viewChoiceDetail($event)">
+		</normal-experience>
+	</ng-container>
+	<ng-container *ngIf="showDetails">
+		<choice-card-detail	[choice]="selectedChoice"
+						[path]="getChoicePath()"
+						(onBack)="hideDetails()"
+						(onToggleChoice)="toggleChoice($event)">
+		</choice-card-detail>
+	</ng-container>
 </div>
 
-<action-bar [primaryAction]="'Next'" [price]="priceBreakdown.totalPrice" (callToAction)="onNextSubGroup()"></action-bar>
+<action-bar [primaryAction]="showDetails ? 'Back' : 'Next'" [price]="priceBreakdown.totalPrice" (callToAction)="showDetails ? hideDetails() : onNextSubGroup()"></action-bar>

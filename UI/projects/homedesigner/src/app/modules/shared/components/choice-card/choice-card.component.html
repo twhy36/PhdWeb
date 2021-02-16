@@ -1,4 +1,4 @@
-<div class="phd-choice-card" [class.active]="choice?.quantity" [class.selected]="choice?.quantity" [@flipOver]>
+<div class="phd-choice-card" [class.active]="choice?.quantity" [class.selected]="choice?.quantity" [@flipOver] (click)="viewChoiceDetail()">
 	<div class="phd-header">
 		<div class="phd-choice-image">
 			<cl-image *ngIf="imageUrl" public-id="{{imageUrl}}" type="fetch" background="#ffffff" crop="lpad" height="190" width="270"
@@ -17,15 +17,15 @@
 				<div>
 					<strong>{{choice.price | currency:'USD':'symbol':'0.0-0'}}</strong>
 				</div>
-				<ng-container *ngIf="choiceStatus === 'Contracted'">
+				<ng-container *ngIf="choice.choiceStatus === 'Contracted'">
 					<i class="fa fa-check phd-icon-selected"></i>
 				</ng-container>
-				<ng-container *ngIf="choiceStatus === 'Available'">
-					<div class="phd-clickable">
-						<span class="phd-icon-selected"><i *ngIf="isSelected" class="fa fa-heart" (click)="toggleChoice()"></i></span>
-						<i *ngIf="!isSelected" class="fa fa-heart-o" (click)="toggleChoice()"></i>
+				<ng-container *ngIf="choice.choiceStatus === 'Available'">
+					<div class="phd-clickable" (click)="$event.stopPropagation()">
+						<span class="phd-icon-selected"><i *ngIf="choice.isFavorite" class="fa fa-heart" (click)="toggleChoice()"></i></span>
+						<i *ngIf="!choice.isFavorite" class="fa fa-heart-o" (click)="toggleChoice()"></i>
 					</div>
-				</ng-container>				
+				</ng-container>
 			</div>
 		</div>
 	</div>
