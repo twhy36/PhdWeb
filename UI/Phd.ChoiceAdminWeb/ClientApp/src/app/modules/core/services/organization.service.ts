@@ -205,7 +205,7 @@ export class OrganizationService
 	{
 		const batchGuid = odataUtils.getNewGuid();
 
-		const planGroups = _(plans).groupBy('org.edhFinancialCommunityId');
+		const planGroups = _.groupBy(plans, 'org.edhFinancialCommunityId');
 		let requests = Object.keys(planGroups).map(communityID =>
 		{
 			var financialPlanIntegrationKey = planGroups[communityID].map(x => `'${x.integrationKey}'`).join(',');
