@@ -632,6 +632,7 @@ describe('Common reducer', function ()
 				selectedLot: {
 					monotonyRules: [{
 						edhLotId: 1234,
+						edhPlanId: 5,
 						ruleType: 'Elevation',
 						colorSchemeAttributeCommunityIds: [],
 						elevationDivChoiceCatalogId: 17713,
@@ -665,6 +666,10 @@ describe('Common reducer', function ()
 						}]
 					}
 				}
+			},
+			plan: {
+				plans: [{ id: 5 }],
+				selectedPlan: 5
 			}
 		};
 
@@ -679,6 +684,7 @@ describe('Common reducer', function ()
 				selectedLot: {
 					monotonyRules: [{
 						edhLotId: 1234,
+						edhPlanId: 5,
 						ruleType: 'Elevation',
 						colorSchemeAttributeCommunityIds: [],
 						elevationDivChoiceCatalogId: 17713,
@@ -712,6 +718,10 @@ describe('Common reducer', function ()
 						}]
 					}
 				}
+			},
+			plan: {
+				plans: [{ id: 5 }],
+				selectedPlan: 5
 			}
 		};
 
@@ -726,6 +736,7 @@ describe('Common reducer', function ()
 				selectedLot: {
 					monotonyRules: [{
 						edhLotId: 1234,
+						edhPlanId: 5,
 						ruleType: 'Elevation',
 						colorSchemeAttributeCommunityIds: [],
 						elevationDivChoiceCatalogId: 17713,
@@ -759,6 +770,10 @@ describe('Common reducer', function ()
 						}]
 					}
 				}
+			},
+			plan: {
+				plans: [{ id: 5 }],
+				selectedPlan: 5
 			}
 		};
 
@@ -773,6 +788,7 @@ describe('Common reducer', function ()
 				selectedLot: {
 					monotonyRules: [{
 						edhLotId: 1234,
+						edhPlanId: 5,
 						ruleType: 'ColorScheme',
 						colorSchemeAttributeCommunityIds: [],
 						elevationDivChoiceCatalogId: null,
@@ -806,6 +822,10 @@ describe('Common reducer', function ()
 						}]
 					}
 				}
+			},
+			plan: {
+				plans: [{ id: 5 }],
+				selectedPlan: 5
 			}
 		};
 
@@ -820,6 +840,7 @@ describe('Common reducer', function ()
 				selectedLot: {
 					monotonyRules: [{
 						edhLotId: 1234,
+						edhPlanId: 5,
 						ruleType: 'ColorScheme',
 						colorSchemeAttributeCommunityIds: [],
 						elevationDivChoiceCatalogId: null,
@@ -853,6 +874,10 @@ describe('Common reducer', function ()
 						}]
 					}
 				}
+			},
+			plan: {
+				plans: [{ id: 5 }],
+				selectedPlan: 5
 			}
 		};
 
@@ -867,6 +892,7 @@ describe('Common reducer', function ()
 				selectedLot: {
 					monotonyRules: [{
 						edhLotId: 1234,
+						edhPlanId: 5,
 						ruleType: 'Elevation',
 						colorSchemeAttributeCommunityIds: [1115],
 						elevationDivChoiceCatalogId: 17713,
@@ -893,6 +919,10 @@ describe('Common reducer', function ()
 						}]
 					}
 				}
+			},
+			plan: {
+				plans: [{ id: 5 }],
+				selectedPlan: 5
 			}
 		};
 
@@ -1059,6 +1089,7 @@ describe('Common reducer', function ()
 				selectedLot: {
 					monotonyRules: [{
 						edhLotId: 1234,
+						edhPlanId: 1111,
 						ruleType: 'Elevation',
 						colorSchemeAttributeCommunityIds: [1115],
 						elevationDivChoiceCatalogId: 17713,
@@ -1120,12 +1151,14 @@ describe('Common reducer', function ()
 				planId: 12345
 			},
 			plan: {
+				plans: [{ id: 12345 }],
 				selectedPlan: 12345
 			},
 			lot: {
 				selectedLot: {
 					monotonyRules: [{
 						edhLotId: 1234,
+						edhPlanId: 12345,
 						ruleType: 'Elevation',
 						colorSchemeAttributeCommunityIds: [1115],
 						elevationDivChoiceCatalogId: 17713,
@@ -1191,6 +1224,7 @@ describe('Common reducer', function ()
 				selectedLot: {
 					monotonyRules: [{
 						edhLotId: 1234,
+						edhPlanId: 0,
 						ruleType: 'Elevation',
 						colorSchemeAttributeCommunityIds: [1115],
 						elevationDivChoiceCatalogId: 17713,
@@ -1250,12 +1284,14 @@ describe('Common reducer', function ()
 				planId: 12345
 			},
 			plan: {
+				plans: [{ id: 12345 }],
 				selectedPlan: 12345
 			},
 			lot: {
 				selectedLot: {
 					monotonyRules: [{
 						edhLotId: 1234,
+						edhPlanId: 12345,
 						ruleType: 'Elevation',
 						colorSchemeAttributeCommunityIds: [1115],
 						elevationDivChoiceCatalogId: 17713,
@@ -1315,12 +1351,14 @@ describe('Common reducer', function ()
 				planId: 12345
 			},
 			plan: {
+				plans: [{ id: 12345 }],
 				selectedPlan: 12345
 			},
 			lot: {
 				selectedLot: {
 					monotonyRules: [{
 						edhLotId: 1234,
+						edhPlanId: 12345,
 						ruleType: 'Elevation',
 						colorSchemeAttributeCommunityIds: [1115],
 						elevationDivChoiceCatalogId: 17713,
@@ -1382,12 +1420,14 @@ describe('Common reducer', function ()
 				planId: 12345
 			},
 			plan: {
+				plans: [{ id: 12345 }],
 				selectedPlan: 12345
 			},
 			lot: {
 				selectedLot: {
 					monotonyRules: [{
 						edhLotId: 1234,
+						edhPlanId: 12345,
 						ruleType: 'Elevation',
 						colorSchemeAttributeCommunityIds: [1115],
 						elevationDivChoiceCatalogId: 17713,
@@ -1449,12 +1489,14 @@ describe('Common reducer', function ()
 				planId: 12345
 			},
 			plan: {
+				plans: [{ id: 12345 }],
 				selectedPlan: 12345
 			},
 			lot: {
 				selectedLot: {
 					monotonyRules: [{
 						edhLotId: 1234,
+						edhPlanId: 12345,
 						ruleType: 'Elevation',
 						colorSchemeAttributeCommunityIds: [1115],
 						elevationDivChoiceCatalogId: 17713,
@@ -1516,12 +1558,14 @@ describe('Common reducer', function ()
 				planId: 12345
 			},
 			plan: {
+				plans: [{ id: 12345 }],
 				selectedPlan: 12345
 			},
 			lot: {
 				selectedLot: {
 					monotonyRules: [{
 						edhLotId: 1234,
+						edhPlanId: 12345,
 						ruleType: 'Elevation',
 						colorSchemeAttributeCommunityIds: [1115],
 						elevationDivChoiceCatalogId: 17713,
@@ -2611,12 +2655,14 @@ describe('Common reducer', function ()
 				planId: 12345
 			},
 			plan: {
+				plans: [{ id: 12345 }],
 				selectedPlan: 12345
 			},
 			lot: {
 				selectedLot: {
 					monotonyRules: [{
 						edhLotId: 1234,
+						edhPlanId: 12345,
 						ruleType: 'Elevation',
 						colorSchemeAttributeCommunityIds: [1115],
 						elevationDivChoiceCatalogId: 17713,
@@ -2688,12 +2734,14 @@ describe('Common reducer', function ()
 				planId: 12345
 			},
 			plan: {
+				plans: [{ id: 12345 }],
 				selectedPlan: 12345
 			},
 			lot: {
 				selectedLot: {
 					monotonyRules: [{
 						edhLotId: 1234,
+						edhPlanId: 12345,
 						ruleType: 'Elevation',
 						colorSchemeAttributeCommunityIds: [1115],
 						elevationDivChoiceCatalogId: 17713,
@@ -2765,12 +2813,14 @@ describe('Common reducer', function ()
 				planId: 12345
 			},
 			plan: {
+				plans: [{ id: 12345 }],
 				selectedPlan: 12345
 			},
 			lot: {
 				selectedLot: {
 					monotonyRules: [{
 						edhLotId: 1234,
+						edhPlanId: 12345,
 						ruleType: 'Elevation',
 						colorSchemeAttributeCommunityIds: [1115],
 						elevationDivChoiceCatalogId: 17713,
@@ -2842,12 +2892,14 @@ describe('Common reducer', function ()
 				planId: 12345
 			},
 			plan: {
+				plans: [{ id: 12345 }],
 				selectedPlan: 12345
 			},
 			lot: {
 				selectedLot: {
 					monotonyRules: [{
 						edhLotId: 1234,
+						edhPlanId: 12345,
 						ruleType: 'Elevation',
 						colorSchemeAttributeCommunityIds: [1115],
 						elevationDivChoiceCatalogId: 17713,
@@ -4226,6 +4278,7 @@ describe('Common reducer', function ()
 				selectedLot: {
 					monotonyRules: [{
 						edhLotId: 1234,
+						edhPlanId: 5,
 						ruleType: 'Elevation',
 						colorSchemeAttributeCommunityIds: [],
 						elevationDivChoiceCatalogId: 17713,
@@ -4260,6 +4313,10 @@ describe('Common reducer', function ()
 						}]
 					}
 				}
+			},
+			plan: {
+				plans: [{ id: 5 }],
+				selectedPlan: 5
 			}
 		};
 
@@ -4274,6 +4331,7 @@ describe('Common reducer', function ()
 				selectedLot: {
 					monotonyRules: [{
 						edhLotId: 1234,
+						edhPlanId: 5,
 						ruleType: 'Elevation',
 						colorSchemeAttributeCommunityIds: [],
 						elevationDivChoiceCatalogId: 17713,
@@ -4311,6 +4369,10 @@ describe('Common reducer', function ()
 						}]
 					}
 				}
+			},
+			plan: {
+				plans: [{ id: 5 }],
+				selectedPlan: 5
 			}
 		};
 
@@ -4325,6 +4387,7 @@ describe('Common reducer', function ()
 				selectedLot: {
 					monotonyRules: [{
 						edhLotId: 1234,
+						edhPlanId: 5,
 						ruleType: 'Elevation',
 						colorSchemeAttributeCommunityIds: [],
 						elevationDivChoiceCatalogId: 17713,
@@ -4359,6 +4422,10 @@ describe('Common reducer', function ()
 						}]
 					}
 				}
+			},
+			plan: {
+				plans: [{ id: 5 }],
+				selectedPlan: 5
 			}
 		};
 
