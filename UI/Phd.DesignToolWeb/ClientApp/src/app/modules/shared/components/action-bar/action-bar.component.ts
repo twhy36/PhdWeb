@@ -172,6 +172,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 			if (job.changeOrderGroups && job.changeOrderGroups.length > 0)
 			{
 				cog = job.changeOrderGroups.reduce((r, a) => r.createdUtcDate > a.createdUtcDate ? r : a);
+
 				this.hasOpenChangeOrder = job.changeOrderGroups.findIndex(x => x.salesStatusDescription !== 'Approved' && x.salesStatusDescription !== 'Withdrawn') > -1;
 			}
 
@@ -288,7 +289,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 	get showToggleSalesAgreementLock(): boolean
 	{
-		return !this.inChangeOrder && this.canLockSalesAgreement && this.agreement?.status === 'Approved';
+		return (!this.inChangeOrder || !this.canSell) && this.canLockSalesAgreement && this.agreement?.status === 'Approved';
 	}
 
 	get toggleAgreementLockLabel(): string

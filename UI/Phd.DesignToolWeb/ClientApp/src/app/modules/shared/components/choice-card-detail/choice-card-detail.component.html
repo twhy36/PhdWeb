@@ -15,11 +15,13 @@
 					</ng-template>
 				</ngb-carousel>
 
-				<ngb-carousel *ngIf="choiceImages.length > 0" [interval]="0" (slide)="onSlide($event)">
-					<ng-template #choiceTemplate ngbSlide *ngFor="let choiceImage of choiceImages; let currentIndex = index;" [id]="currentIndex">
-						<cl-image public-id="{{choiceImage.imageUrl}}" (onLoad)="onLoadImage($event, currentIndex)" (onError)="onLoadImageError($event)" type="fetch" background="#ffffff" crop="lpad" height="367" width="550" *ngIf="activeIndex?.current == currentIndex"></cl-image>
-					</ng-template>
-				</ngb-carousel>
+				<ng-template #choiceTemplate>
+					<ngb-carousel *ngIf="choiceImages.length > 0" [interval]="0" (slide)="onSlide($event)">
+						<ng-template ngbSlide *ngFor="let choiceImage of choiceImages; let currentIndex = index;" [id]="currentIndex">
+							<cl-image public-id="{{choiceImage.imageUrl}}" (onLoad)="onLoadImage($event, currentIndex)" (onError)="onLoadImageError($event)" type="fetch" background="#ffffff" crop="lpad" height="367" width="550" *ngIf="activeIndex?.current == currentIndex"></cl-image>
+						</ng-template>
+					</ngb-carousel>
+				</ng-template>
 			</div>
 
 			<div class="phd-image-warning">Images are examples only. Products are subject to change.</div>
