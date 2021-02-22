@@ -14,7 +14,7 @@ import { TreeService } from '../../core/services/tree.service';
 import { PointStatus, ConstructionStageTypes } from '../../shared/models/point.model';
 import { LocationGroup, Location, AttributeGroup, Attribute, DesignToolAttribute, AttributeCommunityImageAssoc } from '../models/attribute.model';
 import { Scenario, SelectedChoice } from '../../shared/models/scenario.model';
-import { TreeVersionRules } from '../../shared/models/rule.model.new';
+import { OptionRule, TreeVersionRules } from '../../shared/models/rule.model.new';
 import { applyRules, findChoice } from '../../shared/classes/rulesExecutor';
 
 export function isJobChoice(choice: JobChoice | ChangeOrderChoice): choice is JobChoice
@@ -131,6 +131,19 @@ function isLocked(changeOrder: ChangeOrderGroup): (choice: JobChoice | ChangeOrd
 function isOptionLocked(changeOrder: ChangeOrderGroup): (option: JobPlanOption | ChangeOrderPlanOption) => boolean
 {
 	return (option: JobPlanOption | ChangeOrderPlanOption) => isJobPlanOption(option) || (!!changeOrder && ['Pending', 'Withdrawn'].indexOf(changeOrder.salesStatusDescription) === -1);
+}
+
+function getDefaultOptionRule(optionNumber: string, choice: Choice): OptionRule {
+	return <OptionRule>{
+		optionId: optionNumber, choices: [
+			{
+				id: choice.divChoiceCatalogId,
+				mustHave: true,
+				attributeReassignments: []
+			}
+		],
+		ruleId: 0, replaceOptions: []
+	};
 }
 
 function saveLockedInChoices(choices: Array<JobChoice | ChangeOrderChoice>, treeChoices: Choice[], changeOrder?: ChangeOrderGroup)
@@ -416,11 +429,11 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 				{
 					if (isJobChoice(c))
 					{
-						choice.lockedInOptions = c.jobChoiceJobPlanOptionAssocs.filter(o => o.choiceEnabledOption).map(o => mapping[options.find(opt => opt.id === o.jobPlanOptionId).integrationKey]);
+						choice.lockedInOptions = c.jobChoiceJobPlanOptionAssocs.filter(o => o.choiceEnabledOption).map(o => mapping[options.find(opt => opt.id === o.jobPlanOptionId).integrationKey] || getDefaultOptionRule(options.find(opt => opt.id === o.jobPlanOptionId).integrationKey, choice));
 					}
 					else
 					{
-						choice.lockedInOptions = c.jobChangeOrderChoiceChangeOrderPlanOptionAssocs.filter(o => o.jobChoiceEnabledOption).map(o => mapping[options.find(opt => opt.id === o.jobChangeOrderPlanOptionId).integrationKey]);
+						choice.lockedInOptions = c.jobChangeOrderChoiceChangeOrderPlanOptionAssocs.filter(o => o.jobChoiceEnabledOption).map(o => mapping[options.find(opt => opt.id === o.jobChangeOrderPlanOptionId).integrationKey] || getDefaultOptionRule(options.find(opt => opt.id === o.jobChangeOrderPlanOptionId).integrationKey, choice));
 					}
 				}
 			});
