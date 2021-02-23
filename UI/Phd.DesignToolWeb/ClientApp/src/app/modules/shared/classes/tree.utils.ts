@@ -6,7 +6,7 @@ import { _throw } from 'rxjs/observable/throw';
 import * as _ from 'lodash';
 import * as moment from "moment";
 
-import { Tree, Choice, DecisionPoint, MappedAttributeGroup, MappedLocationGroup, OptionImage } from '../models/tree.model.new';
+import { Tree, Choice, DecisionPoint, MappedAttributeGroup, MappedLocationGroup, OptionImage, SubGroup, Group } from '../models/tree.model.new';
 import { JobChoice, JobPlanOption, JobChoiceAttribute, JobChoiceLocation, Job } from '../models/job.model';
 import { PlanOption } from '../models/option.model';
 import { ChangeOrderGroup, ChangeOrderChoice, ChangeOrderPlanOption, ChangeOrderChoiceAttribute, ChangeOrderChoiceLocation } from '../models/job-change-order.model';
@@ -228,6 +228,7 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 											calculatedPrice: option.listPrice * qty,
 											listPrice: option.listPrice,
 											id: option.planOptionId,
+											isActive: existingOption?.isActive || false,
 											maxOrderQuantity: qty,
 											name: option.optionSalesName,
 											description: option.optionDescription,
@@ -302,6 +303,80 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 										};
 
 										subgroup.points.push(newPoint);
+									}
+									else
+									{
+										let group = data.tree.treeVersion.groups.find(g => ch.dPoint.dSubGroup.dGroup.dGroupCatalogID === g.groupCatalogId);
+										if (group)
+										{
+											let newSubGroup = <SubGroup>{
+												groupId: ch.dPoint.dSubGroup.dGroup.dGroupID,
+												id: ch.dPoint.dSubGroupID,
+												label: ch.dPoint.dSubGroup.dSubGroupCatalog.dSubGroupLabel,
+												points: [<DecisionPoint>{
+													choices: [newChoice],
+													completed: true,
+													divPointCatalogId: ch.dPoint.divDPointCatalogID,
+													enabled: true,
+													id: ch.dPoint.dPointID,
+													isQuickQuoteItem: ch.dPoint.divDPointCatalog.isQuickQuoteItem,
+													isStructuralItem: ch.dPoint.divDPointCatalog.isStructuralItem,
+													label: ch.dPoint.divDPointCatalog.dPointLabel,
+													sortOrder: ch.dPoint.dPointSortOrder,
+													status: PointStatus.COMPLETED,
+													subGroupCatalogId: ch.dPoint.dSubGroup.dSubGroupCatalogID,
+													subGroupId: ch.dPoint.dSubGroupID,
+													treeVersionId: ch.dTreeVersionID,
+													viewed: true
+												}],
+												sortOrder: ch.dPoint.dSubGroup.dSubGroupSortOrder,
+												status: PointStatus.COMPLETED,
+												subGroupCatalogId: ch.dPoint.dSubGroup.dSubGroupCatalogID,
+												treeVersionId: ch.dTreeVersionID,
+												useInteractiveFloorplan: false
+											};
+
+											group.subGroups.push(newSubGroup);
+										}
+										else
+										{
+											const newGroup = <Group>{
+												groupCatalogId: ch.dPoint.dSubGroup.dGroup.dGroupCatalogID,
+												id: ch.dPoint.dSubGroup.dGroup.dGroupID,
+												label: ch.dPoint.dSubGroup.dGroup.dGroupCatalog.dGroupLabel,
+												sortOrder: ch.dPoint.dSubGroup.dGroup.dGroupSortOrder,
+												status: PointStatus.COMPLETED,
+												subGroups: [{
+													groupId: ch.dPoint.dSubGroup.dGroup.dGroupID,
+													id: ch.dPoint.dSubGroupID,
+													label: ch.dPoint.dSubGroup.dSubGroupCatalog.dSubGroupLabel,
+													points: [<DecisionPoint>{
+														choices: [newChoice],
+														completed: true,
+														divPointCatalogId: ch.dPoint.divDPointCatalogID,
+														enabled: true,
+														id: ch.dPoint.dPointID,
+														isQuickQuoteItem: ch.dPoint.divDPointCatalog.isQuickQuoteItem,
+														isStructuralItem: ch.dPoint.divDPointCatalog.isStructuralItem,
+														label: ch.dPoint.divDPointCatalog.dPointLabel,
+														sortOrder: ch.dPoint.dPointSortOrder,
+														status: PointStatus.COMPLETED,
+														subGroupCatalogId: ch.dPoint.dSubGroup.dSubGroupCatalogID,
+														subGroupId: ch.dPoint.dSubGroupID,
+														treeVersionId: ch.dTreeVersionID,
+														viewed: true
+													}],
+													sortOrder: ch.dPoint.dSubGroup.dSubGroupSortOrder,
+													status: PointStatus.COMPLETED,
+													subGroupCatalogId: ch.dPoint.dSubGroup.dSubGroupCatalogID,
+													treeVersionId: ch.dTreeVersionID,
+													useInteractiveFloorplan: false
+												}],
+												treeVersionId: ch.dTreeVersionID
+											};
+
+											data.tree.treeVersion.groups.splice(data.tree.treeVersion.groups.findIndex(g => g.sortOrder > newGroup.sortOrder), 0, newGroup);
+										}
 									}
 								}
 							}
