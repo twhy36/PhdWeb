@@ -228,6 +228,7 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 											calculatedPrice: option.listPrice * qty,
 											listPrice: option.listPrice,
 											id: option.planOptionId,
+											isActive: existingOption?.isActive || false,
 											maxOrderQuantity: qty,
 											name: option.optionSalesName,
 											description: option.optionDescription,
