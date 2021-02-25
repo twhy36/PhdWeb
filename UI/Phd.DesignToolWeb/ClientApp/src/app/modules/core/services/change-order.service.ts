@@ -467,6 +467,13 @@ export class ChangeOrderService
 
 	private createJobChangeOrderChoices(origChoices: Array<JobChoice>, currentChoices: Array<Choice>, elevationDP: DecisionPoint, colorSchemeDP: DecisionPoint, tree: Tree, jobPlanOptions: Array<JobPlanOption>): Array<any>
 	{
+		const mappingsChanged = function (orig: JobChoice, curr: Choice) {
+			const addedOptions = curr.options.filter(o1 => !orig.jobChoiceJobPlanOptionAssocs.some(o2 => o1.id === jobPlanOptions.find(po => po.id === o2.jobPlanOptionId).planOptionId));
+			const removedOptions = orig.jobChoiceJobPlanOptionAssocs.map(jp => jobPlanOptions.find(o => o.id === jp.jobPlanOptionId))
+				.filter(po => !curr.options.some(o => o.id === po.planOptionId) && po.jobOptionTypeName !== 'BaseHouse');
+			return addedOptions.length || removedOptions.length;
+		};
+
 		let choicesDto = [];
 		const currentSelectedChoices = currentChoices.filter(x => x.quantity > 0);
 
@@ -475,7 +482,7 @@ export class ChangeOrderService
 			const origChoice = origChoices.find(orig => orig.dpChoiceId === cur.id || orig.divChoiceCatalogId === cur.divChoiceCatalogId);
 			const labels = this.getChoiceLabels(cur, tree);
 
-			if (origChoice)
+			if (origChoice && !mappingsChanged(origChoice, cur))
 			{
 				const changedChoices = this.mapChangedChoice({ ...cur, ...labels }, origChoice, elevationDP, colorSchemeDP, jobPlanOptions);
 
@@ -509,7 +516,7 @@ export class ChangeOrderService
 			const currentChoice = currentSelectedChoices.find(cur => cur.id === orig.dpChoiceId || cur.divChoiceCatalogId === orig.divChoiceCatalogId);
 			const labels = this.getChoiceLabels(orig, tree);
 
-			if (!currentChoice)
+			if (!currentChoice || (currentChoice && mappingsChanged(orig, currentChoice)))
 			{
 				// deleted choice
 				choicesDto.push({
