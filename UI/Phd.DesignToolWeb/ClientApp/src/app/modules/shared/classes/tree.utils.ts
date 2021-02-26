@@ -6,7 +6,7 @@ import { _throw } from 'rxjs/observable/throw';
 import * as _ from 'lodash';
 import * as moment from "moment";
 
-import { Tree, Choice, DecisionPoint, MappedAttributeGroup, MappedLocationGroup, OptionImage } from '../models/tree.model.new';
+import { Tree, Choice, DecisionPoint, MappedAttributeGroup, MappedLocationGroup, OptionImage, SubGroup, Group } from '../models/tree.model.new';
 import { JobChoice, JobPlanOption, JobChoiceAttribute, JobChoiceLocation, Job } from '../models/job.model';
 import { PlanOption } from '../models/option.model';
 import { ChangeOrderGroup, ChangeOrderChoice, ChangeOrderPlanOption, ChangeOrderChoiceAttribute, ChangeOrderChoiceLocation } from '../models/job-change-order.model';
@@ -14,7 +14,7 @@ import { TreeService } from '../../core/services/tree.service';
 import { PointStatus, ConstructionStageTypes } from '../../shared/models/point.model';
 import { LocationGroup, Location, AttributeGroup, Attribute, DesignToolAttribute, AttributeCommunityImageAssoc } from '../models/attribute.model';
 import { Scenario, SelectedChoice } from '../../shared/models/scenario.model';
-import { TreeVersionRules } from '../../shared/models/rule.model.new';
+import { OptionRule, TreeVersionRules } from '../../shared/models/rule.model.new';
 import { applyRules, findChoice } from '../../shared/classes/rulesExecutor';
 
 export function isJobChoice(choice: JobChoice | ChangeOrderChoice): choice is JobChoice
@@ -133,6 +133,19 @@ function isOptionLocked(changeOrder: ChangeOrderGroup): (option: JobPlanOption |
 	return (option: JobPlanOption | ChangeOrderPlanOption) => isJobPlanOption(option) || (!!changeOrder && ['Pending', 'Withdrawn'].indexOf(changeOrder.salesStatusDescription) === -1);
 }
 
+function getDefaultOptionRule(optionNumber: string, choice: Choice): OptionRule {
+	return <OptionRule>{
+		optionId: optionNumber, choices: [
+			{
+				id: choice.divChoiceCatalogId,
+				mustHave: true,
+				attributeReassignments: []
+			}
+		],
+		ruleId: 0, replaceOptions: []
+	};
+}
+
 function saveLockedInChoices(choices: Array<JobChoice | ChangeOrderChoice>, treeChoices: Choice[], changeOrder?: ChangeOrderGroup)
 {
 	choices.filter(isLocked(changeOrder)).forEach(choice =>
@@ -215,6 +228,7 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 											calculatedPrice: option.listPrice * qty,
 											listPrice: option.listPrice,
 											id: option.planOptionId,
+											isActive: existingOption?.isActive || false,
 											maxOrderQuantity: qty,
 											name: option.optionSalesName,
 											description: option.optionDescription,
@@ -289,6 +303,80 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 										};
 
 										subgroup.points.push(newPoint);
+									}
+									else
+									{
+										let group = data.tree.treeVersion.groups.find(g => ch.dPoint.dSubGroup.dGroup.dGroupCatalogID === g.groupCatalogId);
+										if (group)
+										{
+											let newSubGroup = <SubGroup>{
+												groupId: ch.dPoint.dSubGroup.dGroup.dGroupID,
+												id: ch.dPoint.dSubGroupID,
+												label: ch.dPoint.dSubGroup.dSubGroupCatalog.dSubGroupLabel,
+												points: [<DecisionPoint>{
+													choices: [newChoice],
+													completed: true,
+													divPointCatalogId: ch.dPoint.divDPointCatalogID,
+													enabled: true,
+													id: ch.dPoint.dPointID,
+													isQuickQuoteItem: ch.dPoint.divDPointCatalog.isQuickQuoteItem,
+													isStructuralItem: ch.dPoint.divDPointCatalog.isStructuralItem,
+													label: ch.dPoint.divDPointCatalog.dPointLabel,
+													sortOrder: ch.dPoint.dPointSortOrder,
+													status: PointStatus.COMPLETED,
+													subGroupCatalogId: ch.dPoint.dSubGroup.dSubGroupCatalogID,
+													subGroupId: ch.dPoint.dSubGroupID,
+													treeVersionId: ch.dTreeVersionID,
+													viewed: true
+												}],
+												sortOrder: ch.dPoint.dSubGroup.dSubGroupSortOrder,
+												status: PointStatus.COMPLETED,
+												subGroupCatalogId: ch.dPoint.dSubGroup.dSubGroupCatalogID,
+												treeVersionId: ch.dTreeVersionID,
+												useInteractiveFloorplan: false
+											};
+
+											group.subGroups.push(newSubGroup);
+										}
+										else
+										{
+											const newGroup = <Group>{
+												groupCatalogId: ch.dPoint.dSubGroup.dGroup.dGroupCatalogID,
+												id: ch.dPoint.dSubGroup.dGroup.dGroupID,
+												label: ch.dPoint.dSubGroup.dGroup.dGroupCatalog.dGroupLabel,
+												sortOrder: ch.dPoint.dSubGroup.dGroup.dGroupSortOrder,
+												status: PointStatus.COMPLETED,
+												subGroups: [{
+													groupId: ch.dPoint.dSubGroup.dGroup.dGroupID,
+													id: ch.dPoint.dSubGroupID,
+													label: ch.dPoint.dSubGroup.dSubGroupCatalog.dSubGroupLabel,
+													points: [<DecisionPoint>{
+														choices: [newChoice],
+														completed: true,
+														divPointCatalogId: ch.dPoint.divDPointCatalogID,
+														enabled: true,
+														id: ch.dPoint.dPointID,
+														isQuickQuoteItem: ch.dPoint.divDPointCatalog.isQuickQuoteItem,
+														isStructuralItem: ch.dPoint.divDPointCatalog.isStructuralItem,
+														label: ch.dPoint.divDPointCatalog.dPointLabel,
+														sortOrder: ch.dPoint.dPointSortOrder,
+														status: PointStatus.COMPLETED,
+														subGroupCatalogId: ch.dPoint.dSubGroup.dSubGroupCatalogID,
+														subGroupId: ch.dPoint.dSubGroupID,
+														treeVersionId: ch.dTreeVersionID,
+														viewed: true
+													}],
+													sortOrder: ch.dPoint.dSubGroup.dSubGroupSortOrder,
+													status: PointStatus.COMPLETED,
+													subGroupCatalogId: ch.dPoint.dSubGroup.dSubGroupCatalogID,
+													treeVersionId: ch.dTreeVersionID,
+													useInteractiveFloorplan: false
+												}],
+												treeVersionId: ch.dTreeVersionID
+											};
+
+											data.tree.treeVersion.groups.splice(data.tree.treeVersion.groups.findIndex(g => g.sortOrder > newGroup.sortOrder), 0, newGroup);
+										}
 									}
 								}
 							}
@@ -416,11 +504,11 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 				{
 					if (isJobChoice(c))
 					{
-						choice.lockedInOptions = c.jobChoiceJobPlanOptionAssocs.filter(o => o.choiceEnabledOption).map(o => mapping[options.find(opt => opt.id === o.jobPlanOptionId).integrationKey]);
+						choice.lockedInOptions = c.jobChoiceJobPlanOptionAssocs.filter(o => o.choiceEnabledOption).map(o => mapping[options.find(opt => opt.id === o.jobPlanOptionId).integrationKey] || getDefaultOptionRule(options.find(opt => opt.id === o.jobPlanOptionId).integrationKey, choice));
 					}
 					else
 					{
-						choice.lockedInOptions = c.jobChangeOrderChoiceChangeOrderPlanOptionAssocs.filter(o => o.jobChoiceEnabledOption).map(o => mapping[options.find(opt => opt.id === o.jobChangeOrderPlanOptionId).integrationKey]);
+						choice.lockedInOptions = c.jobChangeOrderChoiceChangeOrderPlanOptionAssocs.filter(o => o.jobChoiceEnabledOption).map(o => mapping[options.find(opt => opt.id === o.jobChangeOrderPlanOptionId).integrationKey] || getDefaultOptionRule(options.find(opt => opt.id === o.jobChangeOrderPlanOptionId).integrationKey, choice));
 					}
 				}
 			});
