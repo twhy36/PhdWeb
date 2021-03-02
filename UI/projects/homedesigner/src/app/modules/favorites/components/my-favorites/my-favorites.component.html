@@ -16,7 +16,8 @@
 						[salesChoices]="salesChoices"
 						(onToggleChoice)="toggleChoice($event)"
 						(onToggleContractedOptions)="toggleContractedOptions()"
-						(onViewChoiceDetail)="viewChoiceDetail($event)">
+						(onViewChoiceDetail)="viewChoiceDetail($event)"
+						(onSelectDecisionPoint)="selectDecisionPoint($event)">
 		</normal-experience>
 	</ng-container>
 	<ng-container *ngIf="showDetails">

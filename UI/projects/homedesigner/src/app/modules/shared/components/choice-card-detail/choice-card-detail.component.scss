@@ -61,17 +61,16 @@
     }
 }
 
+::ng-deep .ui-carousel-dots-container {
+    display: none !important;
+}
+
 ::ng-deep .phd-attribute-item-image {
     border: 2px solid #ccc;
     cursor: pointer;
 
     .phd-attribute-item-image-selected {
         border: solid 2px #50e3c2;
-    }
-
-    .phd-image-is-inactive, &.disabled {
-        cursor: no-drop;
-        opacity: .65;
     }
 }
 

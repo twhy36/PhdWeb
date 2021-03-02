@@ -26,6 +26,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	@Output() onToggleChoice = new EventEmitter<ChoiceExt>();
 	@Output() onToggleContractedOptions = new EventEmitter();
 	@Output() onViewChoiceDetail = new EventEmitter<ChoiceExt>();
+	@Output() onSelectDecisionPoint = new EventEmitter<number>();
 
 	isPointPanelCollapsed: boolean = false;
 	points: DecisionPoint[];
@@ -120,7 +121,8 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 					}
 				}, 250);
 			}
-			this.currentPointId = pointId;			
+			this.currentPointId = pointId;	
+			this.onSelectDecisionPoint.emit(pointId);		
 		}
 	}
 

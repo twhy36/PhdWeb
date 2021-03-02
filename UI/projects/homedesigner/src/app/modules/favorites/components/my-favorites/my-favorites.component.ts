@@ -288,4 +288,9 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			}
 		}
 	}
+	
+	selectDecisionPoint(pointId: number)
+	{
+		this.selectedPointId = pointId;
+	}
 }
