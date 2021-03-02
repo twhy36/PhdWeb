@@ -2,7 +2,7 @@ import { Component, OnInit, Input, OnChanges, SimpleChanges, Output, EventEmitte
 
 import * as _ from 'lodash';
 
-import { UnsubscribeOnDestroy, flipOver, DecisionPoint, PickType, SubGroup, Choice, JobChoice } from 'phd-common';
+import { UnsubscribeOnDestroy, flipOver, DecisionPoint, PickType, SubGroup, Choice, JobChoice, DesignToolAttribute } from 'phd-common';
 
 import { MyFavoritesChoice } from '../../../../shared/models/my-favorite.model';
 import { ChoiceExt } from '../../../../shared/models/choice-ext.model';
@@ -114,11 +114,8 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 			{
 				setTimeout(() =>
 				{
-					const decision = document.getElementById(pointId.toString());
-					if (decision)
-					{
-						decision.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
-					}
+					const firstPointId = this.points && this.points.length ? this.points[0].id : 0;
+					this.scrollPointIntoView(pointId, pointId === firstPointId);
 				}, 250);
 			}
 			this.currentPointId = pointId;	
@@ -157,15 +154,40 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 			}			
 		}
 
-		const isFavorite = this.myFavoritesChoices 
-			? this.myFavoritesChoices.findIndex(x => x.divChoiceCatalogId === choice.divChoiceCatalogId) > -1
-			: false;		
+		const myFavoritesChoice = this.myFavoritesChoices ? this.myFavoritesChoices.find(x => x.divChoiceCatalogId === choice.divChoiceCatalogId) : null;
+		return new ChoiceExt(choice, choiceStatus, myFavoritesChoice, point.isStructuralItem);
+	}
 
-		return new ChoiceExt(choice, choiceStatus, isFavorite);
+	scrollPointIntoView(pointId: number, isFirstPoint: boolean)
+	{
+		const decision = document.getElementById(pointId.toString());
+		if (decision)
+		{
+			if (isFirstPoint)
+			{
+				decision.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+			}
+			else
+			{
+				// Workaround to display the element moved under the nav bar
+				const pos = decision.style.position;
+				const top = decision.style.top;
+				decision.style.position = 'relative';
+				decision.style.top = '-150px';
+				decision.scrollIntoView({behavior: 'smooth', block: 'start'});
+				decision.style.top = top;
+				decision.style.position = pos;				
+			}
+		}
 	}
 
 	viewChoiceDetail(choice: ChoiceExt)
 	{
-		this.onViewChoiceDetail.emit(choice);
+		setTimeout(() =>
+		{
+			const pointId = this.points && this.points.length ? this.points[0].id : 0;
+			this.scrollPointIntoView(pointId, true);
+			this.onViewChoiceDetail.emit(choice);
+		}, 50);
 	}
 }

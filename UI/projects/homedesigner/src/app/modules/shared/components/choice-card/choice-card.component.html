@@ -15,7 +15,7 @@
 			</h1>
 			<div class="d-flex flex-row justify-content-between">
 				<div>
-					<strong>{{choice.price | currency:'USD':'symbol':'0.0-0'}}</strong>
+					<strong>{{choice.price * (choice.quantity > 0 ? choice.quantity : 1) | currency:'USD':'symbol':'0.0-0'}}</strong>
 				</div>
 				<ng-container *ngIf="choice.choiceStatus === 'Contracted'">
 					<i class="fa fa-check phd-icon-selected"></i>

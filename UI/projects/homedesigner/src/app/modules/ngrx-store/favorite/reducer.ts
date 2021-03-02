@@ -81,7 +81,7 @@ export function reducer(state: State = initialState, action: FavoriteActions): S
 								{
 									currentMyFavorite.myFavoritesChoice.splice(choiceIndex, 1);
 								}
-								else if (currentMyFavorite.myFavoritesChoice[choiceIndex].id === 0)
+								else
 								{
 									currentMyFavorite.myFavoritesChoice[choiceIndex] = c;
 								}

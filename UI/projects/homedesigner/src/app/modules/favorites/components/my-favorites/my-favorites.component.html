@@ -3,7 +3,9 @@
 			   [planName]="planName"
 			   [groups]="groups"
 			   [selectedSubGroupId]="selectedSubgroupId"
-			   (onSubgroupSelected)="onSubgroupSelected($event)"></group-bar>
+			   (onSubgroupSelected)="onSubgroupSelected($event)"
+			   (onSetTreeFilter)="hideDetails()">
+	</group-bar>
 </div>
 <div class="phd-my-favorites">
 	<ng-container *ngIf="!showDetails">

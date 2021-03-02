@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
-import { Observable ,  throwError as _throw } from 'rxjs';
+import { Observable, throwError as _throw } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import * as _ from 'lodash';
 
@@ -68,70 +68,34 @@ export class FavoriteService
 		);
 	}
 
-	saveMyFavoritesChoices(myFavoriteId: number, choices: any[]): Observable<MyFavoritesChoice[]>
+	saveMyFavoritesChoices(tree: Tree, salesChoices: JobChoice[], favorites: MyFavorite): Observable<MyFavoritesChoice[]>
 	{
-		const savedChoices = _.filter(choices, (c => c.removed !== undefined));
-		const newChoices = [];
-		const deletedChoices = [];
-		
-		savedChoices.forEach(c => {
-			const choice = {
-				id: c.id,
-				myFavoriteId: myFavoriteId,
-				choiceDescription: c.choiceDescription,
-				dpChoiceId: c.dpChoiceId,
-				dpChoiceQuantity: c.dpChoiceQuantity,
-				decisionPointLabel: c.decisionPointLabel,
-				subGroupLabel: c.subGroupLabel,
-				groupLabel: c.groupLabel				
-			};
+		const favoriteChoices = (favorites ? favorites.myFavoritesChoice : []) || [];
+		const updatedChoices = this.getMyFavoritesChoices(tree, salesChoices, favoriteChoices);
+		const savedChoices = updatedChoices.map(c => _.omit(c, ['divChoiceCatalogId']));
 
-			c.removed ? deletedChoices.push(choice) : newChoices.push(choice);
-		});
+		const data = {
+			myFavoriteId: favorites.id,
+			choices: savedChoices
+		}
 
-		const endPoint = `${environment.apiUrl}${this._batch}`;
-		const batchNewChoices = createBatch<MyFavoritesChoice>(newChoices, 'id', 'myFavoritesChoices');
-		const batchDeletedChoices = createBatch<MyFavoritesChoice>(deletedChoices, 'id', 'myFavoritesChoices', null, true);
-		const batchGuid = getNewGuid();
-		const batchBody = createBatchBody(batchGuid, [batchNewChoices, batchDeletedChoices]);
-		const headers = new HttpHeaders(createBatchHeaders(batchGuid));
+		const endPoint = environment.apiUrl + `SaveMyFavoritesChoices`;
 
-		return withSpinner(this._http).post(endPoint, batchBody, { headers }).pipe(
+		return withSpinner(this._http).post(endPoint, data, { headers: { 'Prefer': 'return=representation' } }).pipe(
 			map(results =>
 			{
-				const responses = (results['responses']) as any[];
-				let responseChoices = [];
-				
-				responses.forEach(res => {
-					let resChoice = res['body'] as MyFavoritesChoice;
-					if (resChoice && resChoice.dpChoiceId)
+				const responses = (results['value']) as any[];
+				const choices = [...updatedChoices, ...favoriteChoices];
+
+				return responses.map(res => {
+					let resChoice = res as MyFavoritesChoice;
+					if (resChoice)
 					{
 						const choice = choices.find(x => x.dpChoiceId === resChoice.dpChoiceId);
-						responseChoices.push({
-							id: resChoice.id,
-							myFavoriteId: resChoice.myFavoriteId,
-							choiceDescription: resChoice.choiceDescription,
-							dpChoiceId: resChoice.dpChoiceId,
-							dpChoiceQuantity: resChoice.dpChoiceQuantity,
-							groupLabel: resChoice.groupLabel,
-							subGroupLabel: resChoice.subGroupLabel,
-							decisionPointLabel: resChoice.decisionPointLabel,
-							sortOrder: resChoice.sortOrder,
-							divChoiceCatalogId: (choice ? choice.divChoiceCatalogId : 0) || 0							
-						});
+						resChoice.divChoiceCatalogId = (choice ? choice.divChoiceCatalogId : 0) || 0;
 					}
+					return res;
 				});
-
-				deletedChoices.forEach(del => {
-					const choice = choices.find(x => x.dpChoiceId === del.dpChoiceId);
-					responseChoices.push({
-						id: 0,
-						dpChoiceId: del.dpChoiceId,
-						divChoiceCatalogId: choice.divChoiceCatalogId
-					});
-				});
-
-				return responseChoices;
 			}),
 			catchError(error =>
 			{
@@ -142,16 +106,36 @@ export class FavoriteService
 		);
 	}	
 
-	getFavoriteChoices(tree: Tree, salesChoices: JobChoice[], favorites: MyFavorite) : any[]
+	getMyFavoritesChoices(tree: Tree, salesChoices: JobChoice[], favoriteChoices: MyFavoritesChoice[]) : any[]
 	{
 		let choices = [];
 		const treeChoices = _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices.filter(ch => ch.quantity > 0)))) || [];
-		const favoriteChoices = (favorites ? favorites.myFavoritesChoice : []) || [];
 		
 		const newFavoriteChoices = treeChoices.filter(c => salesChoices.findIndex(sc => sc.divChoiceCatalogId === c.divChoiceCatalogId) === -1);
 		newFavoriteChoices.forEach(nc => {
 			const existingChoice = favoriteChoices.find(fav => fav.divChoiceCatalogId === nc.divChoiceCatalogId);
-			if (!existingChoice)
+			if (existingChoice)
+			{
+				const updatedAttributes = this.getMyFavoritesChoiceAttributes(nc, existingChoice);
+				const updatedLocations = this.getMyFavoritesChoiceLocations(nc, existingChoice);
+				if (updatedAttributes.length || updatedLocations.length || existingChoice.dpChoiceQuantity !== nc.quantity)
+				{
+					choices.push({
+						id: existingChoice.id,
+						choiceDescription: existingChoice.choiceDescription,
+						dpChoiceId: existingChoice.dpChoiceId,
+						dpChoiceQuantity: nc.quantity,
+						decisionPointLabel: existingChoice.decisionPointLabel,
+						subGroupLabel: existingChoice.subGroupLabel,
+						groupLabel: existingChoice.groupLabel,
+						divChoiceCatalogId: existingChoice.divChoiceCatalogId,
+						attributes: updatedAttributes,
+						locations: updatedLocations,
+						removed: false
+					});					
+				}
+			}
+			else
 			{
 				const labels = this.getChoiceLabels(nc, tree);
 				choices.push({
@@ -163,8 +147,10 @@ export class FavoriteService
 					subGroupLabel: labels.subgroupLabel,
 					groupLabel: labels.groupLabel,
 					divChoiceCatalogId: nc.divChoiceCatalogId,
+					attributes: this.getMyFavoritesChoiceAttributes(nc, null),
+					locations: this.getMyFavoritesChoiceLocations(nc, null),
 					removed: false
-				});
+				});				
 			}
 		});
 
@@ -180,12 +166,257 @@ export class FavoriteService
 				subGroupLabel: labels.subgroupLabel,
 				groupLabel: labels.groupLabel,
 				divChoiceCatalogId: dc.divChoiceCatalogId,
+				attributes: this.getMyFavoritesChoiceAttributes(null, dc),
+				locations: this.getMyFavoritesChoiceLocations(null, dc),
 				removed: true
 			});			
 		})
 
-		return [ ...choices, ...favoriteChoices ];
+		return choices;
 	}
+
+	private getMyFavoritesChoiceAttributes(choice: Choice, favoriteChoice: MyFavoritesChoice): Array<any>
+	{
+		const attributesDto: Array<any> = [];
+		const selectedAttributes = this.mapAttributes(choice);
+		const favoriteAttributes = (favoriteChoice ? favoriteChoice.myFavoritesChoiceAttributes : null) || [];
+
+		const newAttributes = selectedAttributes
+			.filter(a => favoriteAttributes
+				.findIndex(fa => fa.attributeGroupCommunityId === a.attributeGroupCommunityId 
+					&& fa.attributeCommunityId === a.attributeCommunityId) === -1);
+		
+		newAttributes.forEach(nc => {
+			attributesDto.push({
+				id: 0,
+				attributeCommunityId: nc.attributeCommunityId,
+				attributeGroupCommunityId: nc.attributeGroupCommunityId,
+				attributeName: nc.attributeName,
+				attributeGroupLabel: nc.attributeGroupLabel,
+				removed: false
+			});
+		});
+
+		const deletedAttributes = favoriteAttributes
+			.filter(fa => selectedAttributes
+				.findIndex(sa => sa.attributeGroupCommunityId === fa.attributeGroupCommunityId
+					&& sa.attributeCommunityId === fa.attributeCommunityId) === -1);
+					
+		deletedAttributes.forEach(da => {
+			attributesDto.push({
+				id: da.id,
+				attributeCommunityId: da.attributeCommunityId,
+				attributeGroupCommunityId: da.attributeGroupCommunityId,
+				attributeName: da.attributeName,
+				attributeGroupLabel: da.attributeGroupLabel,
+				removed: true
+			});
+		});
+
+		return attributesDto;
+	}
+
+	private getMyFavoritesChoiceLocations(choice: Choice, favoriteChoice: MyFavoritesChoice): Array<any>
+	{
+		const locationsDto: Array<any> = [];
+		const selectedLocations = this.mapLocations(choice);
+		const favoriteLocations = (favoriteChoice ? favoriteChoice.myFavoritesChoiceLocations : null) || [];
+
+		selectedLocations.forEach(loc => {
+			const existingLocation = favoriteLocations.find(fl => fl.locationGroupCommunityId === loc.locationGroupCommunityId && fl.locationCommunityId === loc.locationCommunityId);
+			if (existingLocation)
+			{
+				const locAttributesDto = this.mapExistingLocationAttributes(loc, existingLocation);
+				if (locAttributesDto.length || existingLocation.quantity !== loc.quantity)
+				{
+					locationsDto.push({
+						id: existingLocation.id,
+						locationCommunityId: existingLocation.locationCommunityId,
+						locationGroupCommunityId: existingLocation.locationGroupCommunityId,
+						locationName: existingLocation.locationName,
+						locationGroupLabel: existingLocation.locationGroupLabel,
+						quantity: loc.quantity,
+						attributes: locAttributesDto,
+						removed: false
+					});					
+				}
+			}
+			else
+			{
+				let locAttributesDto = [];
+				if (loc.attributes)
+				{
+					loc.attributes.forEach(la => {
+						locAttributesDto.push({
+							id: 0,
+							attributeCommunityId: la.attributeCommunityId,
+							attributeGroupCommunityId: la.attributeGroupCommunityId,
+							attributeName: la.attributeName,
+							attributeGroupLabel: la.attributeGroupLabel,
+							removed: false
+						})
+					})
+				}
+				locationsDto.push({
+					id: 0,
+					locationCommunityId: loc.locationCommunityId,
+					locationGroupCommunityId: loc.locationGroupCommunityId,
+					locationName: loc.locationName,
+					locationGroupLabel: loc.locationGroupLabel,
+					quantity: loc.quantity,
+					attributes: locAttributesDto,
+					removed: false
+				});
+			}
+		});
+
+		const deletedLocations = favoriteLocations
+			.filter(fl => selectedLocations
+				.findIndex(sl => sl.locationGroupCommunityId === fl.locationGroupCommunityId
+					&& sl.locationCommunityId === fl.locationCommunityId) === -1);
+
+		deletedLocations.forEach(dl => {
+			let locAttributesDto = [];
+			if (dl.myFavoritesChoiceLocationAttributes)
+			{
+				dl.myFavoritesChoiceLocationAttributes.forEach(la => {
+					locAttributesDto.push({
+						id: la.id,
+						attributeCommunityId: la.attributeCommunityId,
+						attributeGroupCommunityId: la.attributeGroupCommunityId,
+						attributeName: la.attributeName,
+						attributeGroupLabel: la.attributeGroupLabel,
+						removed: true
+					})
+				})
+			}
+			locationsDto.push({
+				id: dl.id,
+				locationCommunityId: dl.locationCommunityId,
+				locationGroupCommunityId: dl.locationGroupCommunityId,
+				locationName: dl.locationName,
+				locationGroupLabel: dl.locationGroupLabel,
+				quantity: dl.quantity,
+				attributes: locAttributesDto,
+				removed: true
+			});
+		});
+
+		return locationsDto;
+	}
+
+	private mapExistingLocationAttributes(selectedLocation: any, existingLocation: MyFavoritesChoiceLocation): Array<any>
+	{
+		let locAttributesDto = [];
+		const existingLocAttributes = existingLocation.myFavoritesChoiceLocationAttributes || [];
+		const newLocAttributes = selectedLocation.attributes.filter(la => 
+			existingLocAttributes.findIndex(ea => ea.attributeGroupCommunityId === la.attributeGroupCommunityId
+				&& ea.attributeCommunityId === la.attributeCommunityId) === -1);
+		newLocAttributes.forEach(att => {
+			locAttributesDto.push({
+				id: 0,
+				attributeCommunityId: att.attributeCommunityId,
+				attributeGroupCommunityId: att.attributeGroupCommunityId,
+				attributeName: att.attributeName,
+				attributeGroupLabel: att.attributeGroupLabel,
+				removed: false
+			});
+		});
+
+		const deletedLocAttriutes = existingLocAttributes.filter(ea => 
+			selectedLocation.attributes.findIndex(la => la.attributeGroupCommunityId === ea.attributeGroupCommunityId
+				&& la.attributeCommunityId === ea.attributeCommunityId) === -1);
+		deletedLocAttriutes.forEach(att => {
+			locAttributesDto.push({
+				id: att.id,
+				attributeCommunityId: att.attributeCommunityId,
+				attributeGroupCommunityId: att.attributeGroupCommunityId,
+				attributeName: att.attributeName,
+				attributeGroupLabel: att.attributeGroupLabel,
+				removed: true
+			});
+		});	
+		
+		return locAttributesDto;
+	}
+	
+	private mapAttributes(choice: Choice): Array<any>
+	{
+		const attributes: Array<any> = [];
+
+		if (choice && choice.selectedAttributes)
+		{
+			choice.selectedAttributes.forEach(a =>
+			{
+				if (!a.locationGroupId)
+				{
+					let attribute = {
+						attributeCommunityId: a.attributeId,
+						attributeGroupCommunityId: a.attributeGroupId,
+						attributeName: a.attributeName,
+						attributeGroupLabel: a.attributeGroupLabel
+					};
+					attributes.push(attribute);
+				}
+			});
+		}
+
+		return attributes;
+	}
+
+	private mapLocations(choice: Choice): Array<any>
+	{
+		const locationsDto: Array<any> = [];
+
+		if (choice && choice.selectedAttributes)
+		{
+			choice.selectedAttributes.forEach(a =>
+			{
+				if (a.locationGroupId)
+				{
+					const locationDto = locationsDto.find(dto => dto.locationCommunityId === a.locationId);
+
+					if (locationDto)
+					{
+						if (a.attributeId)
+						{
+							let attribute = {
+								attributeCommunityId: a.attributeId,
+								attributeGroupCommunityId: a.attributeGroupId,
+								attributeName: a.attributeName,
+								attributeGroupLabel: a.attributeGroupLabel
+							};
+							locationDto.attributes.push(attribute);
+						}
+					}
+					else
+					{
+						let location = {
+							locationCommunityId: a.locationId,
+							locationGroupCommunityId: a.locationGroupId,
+							locationName: a.locationName,
+							locationGroupLabel: a.locationGroupLabel,
+							quantity: a.locationQuantity,
+							attributes: a.attributeId
+								? [
+									{
+										attributeCommunityId: a.attributeId,
+										attributeGroupCommunityId: a.attributeGroupId,
+										attributeName: a.attributeName,
+										attributeGroupLabel: a.attributeGroupLabel
+									}
+								]
+								: []
+						};
+
+						locationsDto.push(location);
+					}
+				}
+			});
+		}
+
+		return locationsDto;
+	}	
 
 	private getChoiceLabels(choice: Choice | MyFavoritesChoice, tree: Tree): ChoiceExt
 	{

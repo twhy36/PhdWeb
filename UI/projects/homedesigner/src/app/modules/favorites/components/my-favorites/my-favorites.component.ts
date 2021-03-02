@@ -13,7 +13,7 @@ import * as NavActions from '../../../ngrx-store/nav/actions';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 import * as FavoriteActions from '../../../ngrx-store/favorite/actions';
 
-import { UnsubscribeOnDestroy, PriceBreakdown, Group, SubGroup, Choice, Tree, TreeVersionRules, JobChoice, 
+import { UnsubscribeOnDestroy, PriceBreakdown, Group, SubGroup, Tree, TreeVersionRules, JobChoice, 
 	getDependentChoices 
 } from 'phd-common';
 
@@ -282,9 +282,9 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			if (updatedChoice)
 			{
 				this.selectedChoice.quantity = updatedChoice.quantity;
-				this.selectedChoice.isFavorite = this.myFavoritesChoices 
-					? this.myFavoritesChoices.findIndex(x => x.divChoiceCatalogId === this.selectedChoice.divChoiceCatalogId) > -1
-					: false;	
+				this.selectedChoice.myFavoritesChoice = this.myFavoritesChoices 
+					? this.myFavoritesChoices.find(x => x.divChoiceCatalogId === this.selectedChoice.divChoiceCatalogId)
+					: null;	
 			}
 		}
 	}

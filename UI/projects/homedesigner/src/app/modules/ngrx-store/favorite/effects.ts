@@ -6,6 +6,10 @@ import { switchMap, withLatestFrom } from 'rxjs/operators';
 import { of } from 'rxjs/observable/of';
 import { from } from 'rxjs/observable/from';
 
+import * as _ from 'lodash';
+
+import { DesignToolAttribute } from 'phd-common';
+
 import 
 { 	FavoriteActionTypes, SetCurrentFavorites, MyFavoriteCreated, SaveMyFavoritesChoices, 
 	MyFavoritesChoicesSaved, SaveError, DeleteMyFavorite, MyFavoriteDeleted 
@@ -38,9 +42,53 @@ export class FavoriteEffects
 				if (fav && fav.myFavoritesChoice && fav.myFavoritesChoice.length)
 				{
 					let choices = fav.myFavoritesChoice.map(c => {
+						// get favorites locations
+						let attributes = c.myFavoritesChoiceLocations ? _.flatten(c.myFavoritesChoiceLocations.map(l =>
+							{
+								return l.myFavoritesChoiceLocationAttributes && l.myFavoritesChoiceLocationAttributes.length ? l.myFavoritesChoiceLocationAttributes.map(a =>
+								{
+									return <DesignToolAttribute>{
+										attributeId: a.attributeCommunityId,
+										attributeGroupId: a.attributeGroupCommunityId,
+										scenarioChoiceLocationId: l.id,
+										scenarioChoiceLocationAttributeId: a.id,
+										locationGroupId: l.locationGroupCommunityId,
+										locationId: l.locationCommunityId,
+										locationQuantity: l.quantity,
+										attributeGroupLabel: a.attributeGroupLabel,
+										attributeName: a.attributeName,
+										locationGroupLabel: l.locationGroupLabel,
+										locationName: l.locationName,
+										sku: null,
+										manufacturer: null
+									};
+								}) : [<DesignToolAttribute>{
+									locationGroupId: l.locationGroupCommunityId,
+									locationGroupLabel: l.locationGroupLabel,
+									locationId: l.locationCommunityId,
+									locationName: l.locationName,
+									locationQuantity: l.quantity
+								}];
+							})) : [];
+			
+						// gets favorites attributes
+						c.myFavoritesChoiceAttributes && c.myFavoritesChoiceAttributes.forEach(a =>
+						{
+							attributes.push({
+								attributeId: a.attributeCommunityId,
+								attributeGroupId: a.attributeGroupCommunityId,
+								scenarioChoiceLocationId: a.id,
+								attributeGroupLabel: a.attributeGroupLabel,
+								attributeName: a.attributeName,
+								sku: null,
+								manufacturer: null
+							} as DesignToolAttribute);
+						});
+
 						return {
 							choiceId: c.dpChoiceId,
-							quantity: c.dpChoiceQuantity
+							quantity: c.dpChoiceQuantity,
+							attributes: attributes
 						};
 					});
 					return of(new SelectChoices(...choices));
@@ -68,7 +116,8 @@ export class FavoriteEffects
 						let choices = fav.myFavoritesChoice.map(c => {
 							return {
 								choiceId: c.dpChoiceId,
-								quantity: 0
+								quantity: 0,
+								attributes: []
 							};
 						});	
 						actions.push(new SelectChoices(...choices));				
@@ -90,8 +139,7 @@ export class FavoriteEffects
 		withLatestFrom(this.store, this.store.pipe(select(fromFavorite.currentMyFavorite))),
 		tryCatch(source => source.pipe(
 			switchMap(([action, store, fav]) => {
-				const choices = this.favoriteService.getFavoriteChoices(store.scenario.tree, store.favorite.salesChoices, fav);
-                return this.favoriteService.saveMyFavoritesChoices(fav.id, choices);
+                return this.favoriteService.saveMyFavoritesChoices(store.scenario.tree, store.favorite.salesChoices, fav);
   			}),
 			switchMap(results => of(new MyFavoritesChoicesSaved(results)))
 		), SaveError, "Error saving my favorite choices!")

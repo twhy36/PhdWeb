@@ -51,6 +51,9 @@
 
 	.phd-image-thumbnail {
         margin-right: 10px;	
+        cl-image {
+			border: none;
+		}
     }
     
     .phd-price {
@@ -65,16 +68,19 @@
     display: none !important;
 }
 
-::ng-deep .phd-attribute-item-image {
+::ng-deep .phd-choice-image {
     border: 2px solid #ccc;
     cursor: pointer;
 
-    .phd-attribute-item-image-selected {
-        border: solid 2px #50e3c2;
+    .phd-choice-image-selected {
+        border: solid 4px $pantone_blue;
     }
 }
 
 .phd-card-detail-image-body {
+    display: flex !important;
+    justify-content: center !important; 
+
     .carousel:focus {
         outline: none;
     }
@@ -116,4 +122,16 @@
 
 .phd-favorite-selector {
     font-size: 24px;
+}
+
+.phd-attribute-group-container {
+	display: flex;
+	align-items: flex-start;
+	flex-direction: column;
+	padding-top: 10px;
+}
+
+.phd-attribute-group-container:not(:last-child) {
+	border-bottom: solid 1px #ccc;
+	padding-bottom: 10px;
 }

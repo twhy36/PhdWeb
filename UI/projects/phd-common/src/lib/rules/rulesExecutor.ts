@@ -57,7 +57,7 @@ export function selectChoice(tree: Tree, selectedChoice: number)
 {
 	let point = findPoint(tree, (pt) => pt.choices.some(c => c.id === selectedChoice));
 
-	if (point.pointPickTypeId <= 2)
+	if (point && point.pointPickTypeId <= 2)
 	{
 		point.choices.filter(c => c.id !== selectedChoice).forEach(c => {
 			c.quantity = 0;

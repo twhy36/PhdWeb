@@ -1,0 +1,66 @@
+.phd-attribute-location {
+	display: flex;
+	flex-direction: row;
+	margin: 0px 0px 25px 10px;
+
+	.phd-location {
+		display: flex;
+		flex-direction: column;
+		width: 200px;
+	
+		.phd-location-name {
+			text-transform: uppercase;
+			font-size: 16px;
+			font-weight: bold;
+			padding: 5px 0px 2px 0px;
+			overflow: hidden;
+			word-break: break-word;
+			height: 30px;
+		}
+
+		.phd-qty {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+		
+			span {
+				font-size: 14px;			
+			}
+
+			.phd-qty-input {
+				margin-left: 5px;
+				input {
+					width: 4em;
+				}
+			}
+		}
+	}
+
+	.phd-attribute-group-container {
+		display: flex;
+		align-items: flex-start;
+		flex-direction: column;
+		padding-top: 10px;
+	}
+	
+	.phd-attribute-group-container:not(:last-child) {
+		border-bottom: solid 1px #ccc;
+		padding-bottom: 10px;
+	}
+}
+
+::ng-deep .phd-max-quantity-modal .modal-dialog {
+	max-width: 240px;
+	position: relative;
+	top: 30%;
+	left: -10%;
+}
+
+.phd-close {
+	cursor: pointer;
+	padding: 5px 5px 0px 0px;
+}
+
+.phd-max-quantity-message {
+	padding: 2px 0px 10px 10px;
+}

@@ -8,18 +8,23 @@
 			<div *ngIf="imageLoading" class="phd-image-loading">
 				<i class="fa fa-spinner fa-spin fa-3x phd-image-loader"></i>
 			</div>
-			<ngb-carousel #imageCarousel [interval]="0" (slide)="onSlide($event)">
-				<ng-template ngbSlide *ngFor="let image of choiceImages; let currentIndex = index;" id="{{currentIndex}}">
-					<cl-image public-id="{{image.imageURL}}" (onLoad)="onLoadImage()" (onError)="onLoadImageError($event)" type="fetch" background="#ffffff" crop="lpad" style="height:calc(100vh - 355px);" *ngIf="activeIndex?.current == currentIndex"></cl-image>
-				</ng-template>
-			</ngb-carousel>
+			<div *ngIf="highlightedAttribute">
+				<cl-image public-id="{{attributeImageUrl}}" (onLoad)="onLoadImage()" (onError)="onLoadImageError($event)" type="fetch" background="#ffffff" crop="lpad" style="height:calc(100vh - 355px);"></cl-image>
+			</div>
+			<div *ngIf="!highlightedAttribute">
+				<ngb-carousel #imageCarousel [interval]="0" (slide)="onSlide($event)">
+					<ng-template ngbSlide *ngFor="let image of choiceImages; let currentIndex = index;" id="{{currentIndex}}">
+						<cl-image public-id="{{image.imageURL}}" (onLoad)="onLoadImage()" (onError)="onLoadImageError($event)" type="fetch" background="#ffffff" crop="lpad" style="height:calc(100vh - 355px);" *ngIf="activeIndex?.current == currentIndex"></cl-image>
+					</ng-template>
+				</ngb-carousel>
+			</div>
 		</div>		
 		<span class="phd-image-caption">Images are examples only. Products are subject to change.</span>
 		<div>
 			<ng-container *ngIf="choiceImages.length <= 10">
 				<span *ngFor="let image of choiceImages" class="phd-image-thumbnail phd-clickable">
-					<cl-image public-id="{{image.imageURL}}" type="fetch" background="#ffffff" crop="lpad" height="50" width="50"
-						class="phd-attribute-item-image" [class.phd-attribute-item-image-selected]="selectedImageUrl === image.imageURL"	
+					<cl-image public-id="{{image.imageURL}}" type="fetch" background="#ffffff" crop="fill" height="50" width="50"
+						class="phd-choice-image" [class.phd-choice-image-selected]="!highlightedAttribute && selectedImageUrl === image.imageURL"	
 						(onError)="onLoadImageError($event)" (click)="imageClick(image)">
 					</cl-image>
 				</span>
@@ -27,8 +32,8 @@
 			<ng-container *ngIf="choiceImages.length > 10">
 				<p-carousel [value]="choiceImages" [numVisible]="10" [numScroll]="1">
 					<ng-template let-image pTemplate="item">
-						<cl-image public-id="{{image.imageURL}}" type="fetch" background="#ffffff" crop="lpad" height="50" width="50"
-							class="phd-attribute-item-image" [class.phd-attribute-item-image-selected]="selectedImageUrl === image.imageURL"
+						<cl-image public-id="{{image.imageURL}}" type="fetch" background="#ffffff" crop="fill" height="50" width="50"
+							class="phd-choice-image" [class.phd-choice-image-selected]="!highlightedAttribute && selectedImageUrl === image.imageURL"
 							(onError)="onLoadImageError($event)" (click)="imageClick(image)">
 						</cl-image>
 					</ng-template>
@@ -37,7 +42,7 @@
 		</div>
 		<div class="phd-price">
 			<div>
-				<strong>{{choice.price | currency:'USD':'symbol':'0.0-0'}}</strong>
+				<strong>{{choice.price * (choice.quantity > 0 ? choice.quantity : 1) | currency:'USD':'symbol':'0.0-0'}}</strong>
 			</div>
 			<ng-container *ngIf="choice.choiceStatus === 'Contracted'">
 				<i class="fa fa-check phd-icon-selected phd-favorite-selector"></i>
@@ -52,12 +57,43 @@
 		</div>
 	</div>
 	<div class="phd-info-section">
-		<div class="phd-choice-label" id="choiceLabel">{{choice?.label}}</div>
-		<div class="phd-choice-desc">{{choice?.description}}</div>
+		<div class="phd-choice-label">{{choice?.label}}</div>
+		<div *ngIf="choiceDescriptions.length && !optionDisabled" class="phd-choice-desc">
+			<div *ngFor="let description of choiceDescriptions">{{ description }}</div>
+		</div>
 		<div class="d-flex flex-column flex-grow-1" *ngIf="hasAttributes">
 			<div class="phd-available-selections">
 				<span>AVAILABLE SELECTIONS:</span>
 			</div>
+
+			<div class="phd-attr-loc-group-container" *ngIf="!optionDisabled && (locationGroups?.length || (!locationGroups?.length && attributeGroups?.length))">
+				<div *ngIf="locationGroups?.length" class="d-flex flex-column w-100">
+					<ng-container *ngFor="let group of locationGroups">
+						<div *ngFor="let attributeLocation of group.locations" class="phd-attribute-location-body">
+							<attribute-location [currentChoice]="choice"
+												[attributeLocation]="attributeLocation"
+												[attributeLocationGroup]="group"
+												[currentAttributeGroups]="attributeGroups"
+												[maxQuantity]="getLocationMaxQuantity(attributeLocation.id)"
+												[highlightedAttribute]="getHighlightedLocationAttribute(attributeLocation, group)"
+												(onLocationAttributeClick)="locationAttributeClick($event)"
+												(onToggleAttribute)="toggleAttribute($event)"
+												(onQuantiyChange)="changeQuantiy($event)">
+							</attribute-location>
+						</div>
+					</ng-container>
+				</div>
+
+				<div *ngIf="!optionDisabled && (!locationGroups?.length && attributeGroups?.length)" class="d-flex flex-column w-100">
+					<div *ngFor="let attributeGroup of attributeGroups" class="phd-attribute-group-container">
+						<attribute-group [attributeGroup]="attributeGroup"
+										[highlightedAttributeId]="getHighlightedAttributeId(attributeGroup)"
+										(onAttributeClick)="attributeClick($event)"
+										(onToggleAttribute)="toggleAttribute($event)">
+						</attribute-group>						
+					</div>
+				</div>
+			</div>			
 		</div>
 	</div>	
 </div>

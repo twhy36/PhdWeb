@@ -12,9 +12,9 @@
 	height: calc(100vh - 220px);
 
 	.phd-selected-group {
-		padding: 10px;
+		padding: 5px 10px 5px 10px;
 		background: $gray-lighter;
-		min-height: 64px;
+		min-height: 56px;
 		font-size: 15px;
 		display: flex;
 		flex-direction: column;
@@ -94,7 +94,7 @@
 .phd-include-options {
 	background: $gray-lighter;
 	padding-left: 10px;
-	min-height: 64px;
+	min-height: 56px;
 	display: flex;
 	align-items: center;
 	flex-grow: 1;	

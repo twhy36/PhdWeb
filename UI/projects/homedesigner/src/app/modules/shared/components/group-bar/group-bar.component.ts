@@ -16,6 +16,7 @@ export class GroupBarComponent extends UnsubscribeOnDestroy implements OnInit
 	@Input() selectedSubGroupId: number;
 
 	@Output() onSubgroupSelected = new EventEmitter<number>();
+	@Output() onSetTreeFilter = new EventEmitter();
 
 	highlightedStyle: any = { 'font-weight': 'bold' };
 	isTablet$: Observable<boolean>;
@@ -35,5 +36,10 @@ export class GroupBarComponent extends UnsubscribeOnDestroy implements OnInit
 
 	isGroupSelected(groupId: number) : boolean {
 		return this.groups.some(g => g.id === groupId && g.subGroups.some(sg => sg.id === this.selectedSubGroupId));
+	}
+
+	setTreeFilter()
+	{
+		this.onSetTreeFilter.emit();
 	}
 }

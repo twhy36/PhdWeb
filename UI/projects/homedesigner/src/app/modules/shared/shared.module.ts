@@ -19,6 +19,10 @@ import { DecisionBarComponent } from './components/decision-bar/decision-bar.com
 import { ChoiceCardComponent } from './components/choice-card/choice-card.component';
 import { ChoiceCardDetailComponent } from './components/choice-card-detail/choice-card-detail.component';
 import { DecisionPointSummaryComponent } from './components/decision-point-summary/decision-point-summary.component';
+import { AttributeGroupComponent } from './components/attribute-group/attribute-group.component';
+import { AttributeListComponent } from './components/attribute-list/attribute-list.component';
+import { AttributeLocationComponent } from './components/attribute-location/attribute-location.component';
+import { QuantityInputComponent } from './components/quantity-input/quantity-input.component';
 
 @NgModule({
 	exports: [
@@ -29,7 +33,11 @@ import { DecisionPointSummaryComponent } from './components/decision-point-summa
 		DecisionBarComponent,
 		ChoiceCardComponent,
 		ChoiceCardDetailComponent,
-		DecisionPointSummaryComponent
+		DecisionPointSummaryComponent,
+		AttributeGroupComponent,
+		AttributeListComponent,
+		AttributeLocationComponent,
+		QuantityInputComponent
     ],
 	declarations: [
 		ActionBarComponent,
@@ -39,7 +47,11 @@ import { DecisionPointSummaryComponent } from './components/decision-point-summa
 		DecisionBarComponent,
 		ChoiceCardComponent,
 		ChoiceCardDetailComponent,
-		DecisionPointSummaryComponent
+		DecisionPointSummaryComponent,
+		AttributeGroupComponent,
+		AttributeListComponent,
+		AttributeLocationComponent,
+		QuantityInputComponent
     ],
 	imports: [
 		BrowserModule,
