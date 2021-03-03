@@ -138,6 +138,7 @@ export class ChangeOrder
 	jobSalesChangeOrderTrusts: Array<SalesChangeOrderTrust> = [];
 	jobSalesChangeOrderPriceAdjustments: Array<SalesChangeOrderPriceAdjustment> = [];
 	jobSalesChangeOrderSalesPrograms: Array<SalesChangeOrderSalesProgram> = [];
+	salesNotesChangeOrders: Array<SalesNotesChangeOrders> = []
 
 	constructor(dto?: ChangeOrder)
 	{
@@ -454,6 +455,15 @@ export class ChangeOrderChoiceChangeOrderPlanOption
 			Object.assign(this, dto);
 		}
 	}
+}
+
+export class SalesNotesChangeOrders
+{
+	id: number;
+	changeOrderId: number;
+	noteId: number;
+	note: Note;
+	action: string;
 }
 
 export enum ChangeTypeEnum
