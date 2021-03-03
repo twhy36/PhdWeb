@@ -650,9 +650,9 @@ export class ChoiceSidePanelComponent implements OnInit
 					{
 						this.choiceImageList.push(newImage as IChoiceImageAssoc);
 					});
-				});
 
-			this.setImageInfo();
+					this.setImageInfo();
+				});
 		}
 		else
 		{
