@@ -1,7 +1,7 @@
 import { createSelector, createFeatureSelector } from '@ngrx/store';
 import * as _ from "lodash";
 
-import { ChangeOrderGroup, ChangeInput, ChangeTypeEnum, ChangeOrder, ChangeOrderLot, SalesStatusEnum, ChangeOrderGroupSalesStatusHistory } from '../../shared/models/job-change-order.model';
+import { ChangeOrderGroup, ChangeInput, ChangeTypeEnum, ChangeOrder, ChangeOrderLot, SalesStatusEnum, ChangeOrderGroupSalesStatusHistory, SalesNotesChangeOrders } from '../../shared/models/job-change-order.model';
 import { isSalesChangeOrder } from '../../shared/models/sales-change-order.model';
 import { Buyer } from '../../shared/models/buyer.model';
 import { ChangeOrderActions, ChangeOrderActionTypes } from './actions';
@@ -856,6 +856,118 @@ export function reducer(state: State = initialState, action: ChangeOrderActions)
 				return { ...state, changeInput: newInput };
 			}
 
+		case ChangeOrderActionTypes.SetSalesChangeOrderTermsAndConditions:
+			{
+				const changeOrder = _.cloneDeep(state.currentChangeOrder);
+				let salesChangeOrder = changeOrder.jobChangeOrders ? changeOrder.jobChangeOrders.find(x => x.jobChangeOrderTypeDescription === 'SalesNotes') : null;
+
+				if (!salesChangeOrder)
+				{
+					salesChangeOrder = new ChangeOrder();
+					salesChangeOrder.id = 0;
+					salesChangeOrder.jobChangeOrderTypeDescription = 'SalesNotes';
+
+					if (!changeOrder.jobChangeOrders)
+					{
+						changeOrder.jobChangeOrders = new Array<ChangeOrder>();
+					}
+
+					changeOrder.jobChangeOrders.push(salesChangeOrder);
+				}
+
+				if (!salesChangeOrder.salesNotesChangeOrders)
+				{
+					salesChangeOrder.salesNotesChangeOrders = [];
+				}
+				if (!salesChangeOrder.salesNotesChangeOrders.some(snco => snco.noteId === action.termsAndConditionsNote.id))
+				{
+					const salesNote = new SalesNotesChangeOrders();
+					salesNote.noteId = action.agreementNote ? 0 : action.termsAndConditionsNote.id;
+					salesNote.changeOrderId = salesChangeOrder.id;
+					salesNote.action = 'Add';
+					salesNote.note = action.termsAndConditionsNote
+					salesChangeOrder.salesNotesChangeOrders.push(salesNote)
+
+					if (action.agreementNote)
+					{
+						const deleteAgreementNote = new SalesNotesChangeOrders();
+						deleteAgreementNote.noteId = action.termsAndConditionsNote.id;
+						deleteAgreementNote.changeOrderId = salesChangeOrder.id;
+						deleteAgreementNote.action = 'Delete';
+						salesChangeOrder.salesNotesChangeOrders.push(deleteAgreementNote)
+					}
+				}
+
+				const newInput = _.cloneDeep(state.changeInput);
+				if (state.isChangingOrder && state.changeInput)
+				{
+					newInput.isDirty = true;
+				}
+
+				return { ...state, currentChangeOrder: changeOrder, changeInput: newInput };
+			}
+		case ChangeOrderActionTypes.SalesChangeOrderTermsAndConditionsSaved:
+			{
+				let changeOrder = _.cloneDeep(state.currentChangeOrder);
+				let salesChangeOrder = changeOrder.jobChangeOrders ? changeOrder.jobChangeOrders.find(x => x.jobChangeOrderTypeDescription === 'SalesNotes') : null;
+				let notes = salesChangeOrder.salesNotesChangeOrders || [];
+				let addedNotes = notes.find(note => (note.noteId === action.termsAndConditionsNote.id || !note.noteId) && note.action === 'Add');
+				if (addedNotes)
+				{
+					addedNotes.noteId = action.termsAndConditionsNote.id;
+					addedNotes.action = 'Add';
+					addedNotes.note.id = action.termsAndConditionsNote.id;
+					addedNotes.note.noteContent = action.termsAndConditionsNote.noteContent;
+					addedNotes.note.createdBy = action.termsAndConditionsNote.createdBy;
+					addedNotes.note.createdUtcDate = action.termsAndConditionsNote.createdUtcDate;
+					addedNotes.note.lastModifiedUtcDate = action.termsAndConditionsNote.lastModifiedUtcDate;
+
+				}
+				
+				return { ...state, currentChangeOrder: changeOrder };
+			}
+		case ChangeOrderActionTypes.DeleteTermsAndConditions:
+			{
+				let changeOrder = _.cloneDeep(state.currentChangeOrder);
+				let salesChangeOrder = changeOrder.jobChangeOrders ? changeOrder.jobChangeOrders.find(x => x.jobChangeOrderTypeDescription === 'SalesNotes') : null;
+				if (!salesChangeOrder)
+				{
+					salesChangeOrder = new ChangeOrder();
+					salesChangeOrder.id = 0;
+					salesChangeOrder.jobChangeOrderTypeDescription = 'SalesNotes';
+
+					if (!changeOrder.jobChangeOrders)
+					{
+						changeOrder.jobChangeOrders = new Array<ChangeOrder>();
+					}
+
+					changeOrder.jobChangeOrders.push(salesChangeOrder);
+				}
+
+				let salesNotesChangeOrders = salesChangeOrder.salesNotesChangeOrders || [];
+				let savedNote = salesNotesChangeOrders.find(note => note.noteId === action.termsAndConditionsNote.id);
+				if (savedNote)
+				{
+					const noteIndex = salesNotesChangeOrders.findIndex(salesNotesChangeOrder => salesNotesChangeOrder.noteId === action.termsAndConditionsNote.id);
+	
+					salesNotesChangeOrders.splice(noteIndex, 1);
+				}
+				else
+				{
+					const salesNote = new SalesNotesChangeOrders();
+					salesNote.noteId = action.termsAndConditionsNote.id;
+					salesNote.changeOrderId = salesChangeOrder.id;
+					salesNote.action = 'Delete';
+					salesChangeOrder.salesNotesChangeOrders.push(salesNote);
+				}
+
+				const newInput = _.cloneDeep(state.changeInput);
+				if (state.isChangingOrder && state.changeInput)
+				{
+					newInput.isDirty = true;
+				}
+				return { ...state, currentChangeOrder: changeOrder, changeInput: newInput };
+			}
 		default:
 			return state;
 	}
