@@ -89,12 +89,14 @@ export class PhasePricingSidePanelComponent implements OnInit
 
 			validators.push(Validators.min(0));
 
-			if (this.salesPhases[0].phasePlans[i].plan.isActive)
+			const phasePlan = this.salesPhases[0].phasePlans.find(x => x.plan.id === p.plan.id);
+			if (phasePlan && phasePlan.plan.isActive)
 			{
 				validators.push(Validators.required);
 			}
 
-			this.phasePriceForm.addControl(p.plan.id.toString(), new FormControl({ value: p.listPrice, disabled: !this.salesPhases[0].phasePlans[i].plan.isActive }, validators));
+			const isPhasePlanActive = phasePlan && phasePlan.plan.isActive;
+			this.phasePriceForm.addControl(p.plan.id.toString(), new FormControl({ value: p.listPrice, disabled: !isPhasePlanActive }, validators));
 		});
 	}
 
