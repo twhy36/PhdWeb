@@ -66,15 +66,19 @@ export class PhasePricingSidePanelComponent implements OnInit
 
 		this.salesPhase = {
 			id: this.activePhase ? lastPhase.id : 0,
-			salesPhaseName: this.activePhase ? this.activePhase.salesPhaseName : "",
+			salesPhaseName: this.activePhase ? this.activePhase.salesPhaseName : '',
 			lots: this.activePhase ? this.activePhase.lots : [],
-			phasePlans: lastPhase.phasePlans.map(pp =>
-				<ISalesPhasePlan>{
-					listPrice: pp.listPrice,
+			phasePlans: this.salesPhases[0].phasePlans.map(pp =>
+			{
+				let prevPhase = lastPhase.phasePlans.find(x => x.plan.id === pp.plan.id);
+
+				return <ISalesPhasePlan> {
+					listPrice: prevPhase ? prevPhase.listPrice : pp.listPrice,
 					plan: {
 						id: pp.plan.id
 					}
-				})
+				};
+			})
 		};
 
 		this.phasePriceForm = new FormGroup({
@@ -90,12 +94,13 @@ export class PhasePricingSidePanelComponent implements OnInit
 			validators.push(Validators.min(0));
 
 			const phasePlan = this.salesPhases[0].phasePlans.find(x => x.plan.id === p.plan.id);
-			if (phasePlan && phasePlan.plan.isActive)
+			const isPhasePlanActive = phasePlan && phasePlan.plan.isActive;
+
+			if (isPhasePlanActive)
 			{
 				validators.push(Validators.required);
 			}
 
-			const isPhasePlanActive = phasePlan && phasePlan.plan.isActive;
 			this.phasePriceForm.addControl(p.plan.id.toString(), new FormControl({ value: p.listPrice, disabled: !isPhasePlanActive }, validators));
 		});
 	}
@@ -318,8 +323,10 @@ export class PhasePricingSidePanelComponent implements OnInit
 		});
 	}
 
-	getPhasePlanName(phase: ISalesPhasePlan): string {
+	getPhasePlanName(phase: ISalesPhasePlan): string
+	{
 		const phasePlan = this.salesPhases[0].phasePlans.find(x => x.plan.id === phase.plan.id);
+
 		return phasePlan ? phasePlan.plan.salesName : '';
 	}
 }
