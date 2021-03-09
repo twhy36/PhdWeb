@@ -3172,7 +3172,7 @@ describe('Common reducer', function ()
 		expect(result).toBe('Pending Change Order');
 	});
 
-	it('selectedPlanPrice is salesPhasePlanPrice when there is a salesPhasePlan ', () =>
+	it('selectedPlanPrice is salesPhasePlanPrice when the phase is enabled and there is a salesPhasePlan ', () =>
 	{
 		const state: State = <any>{
 			plan: {
@@ -3189,6 +3189,9 @@ describe('Common reducer', function ()
 							planId: 17,
 							price: 99921
 						}]
+					},
+					financialCommunity: {
+						isPhasedPricingEnabled: true
 					}
 				}
 			}
@@ -3196,6 +3199,34 @@ describe('Common reducer', function ()
 
 		const result = selectedPlanPrice(state);
 		expect(result).toBe(99921);
+	});
+
+	it('selectedPlanPrice is planPrice when the phase is disabled and there is a salesPhasePlan ', () => {
+		const state: State = <any>{
+			plan: {
+				plans: [{
+					id: 17,
+					price: 12999
+				}],
+				selectedPlan: 17
+			},
+			lot: {
+				selectedLot: {
+					salesPhase: {
+						salesPhasePlanPriceAssocs: [{
+							planId: 17,
+							price: 99921
+						}]
+					},
+					financialCommunity: {
+						isPhasedPricingEnabled: false
+					}
+				}
+			}
+		};
+
+		const result = selectedPlanPrice(state);
+		expect(result).toBe(12999);
 	});
 
 	it('selectedPlanPrice is planPrice when there is not a salesPhasePlan ', () =>
