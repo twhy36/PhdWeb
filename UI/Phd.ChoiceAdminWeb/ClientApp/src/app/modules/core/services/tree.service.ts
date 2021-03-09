@@ -528,7 +528,7 @@ export class TreeService
 	getPlanOptions(treeVersionId: number): Observable<Array<PhdApiDto.IDTPlanOption>>
 	{
 		const entity = `dTreeVersions`;
-		const expand = `dTree($expand=plan($expand=planOptions($expand=baseHouseOptions($top=1;$filter=dTreeVersionID eq ${treeVersionId};$select=baseHouseOptionId), optionImages($filter=hideImage eq false and dTreeVersionID eq ${treeVersionId};$select=optionImageId), optionRules($top=1;$filter=dTreeVersionID eq ${treeVersionId};$select=optionRuleID))))`;
+		const expand = `dTree($expand=plan($expand=planOptions($expand=baseHouseOptions($top=1;$filter=dTreeVersionID eq ${treeVersionId};$select=baseHouseOptionId), optionImages($filter=hideImage eq false and dTreeVersionID eq ${treeVersionId};$select=optionImageId), optionRules($top=1;$filter=dTreeVersionID eq ${treeVersionId};$select=optionRuleID), optionRuleReplaces($top=1;$filter=dTreeVersionID eq ${treeVersionId};$select=optionRuleReplaceID))))`;
 		const select = "dTree";
 		const filter = `dTreeVersionId eq ${treeVersionId}`;
 
@@ -549,7 +549,7 @@ export class TreeService
 						planId: o.planID,
 						optionKey: o.integrationKey,
 						baseHouse: !!o.baseHouseOptions.length,
-						hasRules: !!o.optionRules.length,
+						hasRules: !!o.optionRules.length || !!o.optionRuleReplaces.length,
 						hasImages: imageCount > 0,
 						imageCount: imageCount
 					} as PhdApiDto.IDTPlanOption;
