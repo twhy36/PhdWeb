@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { combineLatest, map, filter, distinctUntilChanged, withLatestFrom, debounceTime, take } from 'rxjs/operators';
 import { ReplaySubject } from 'rxjs/ReplaySubject';
@@ -18,6 +18,7 @@ import { UnsubscribeOnDestroy, PriceBreakdown, Group, SubGroup, Tree, TreeVersio
 } from 'phd-common';
 
 import { GroupBarComponent } from '../../../shared/components/group-bar/group-bar.component';
+import { NormalExperienceComponent } from './normal-experience/normal-experience.component';
 import { MyFavoritesChoice } from '../../../shared/models/my-favorite.model';
 import { ChoiceExt } from '../../../shared/models/choice-ext.model';
 
@@ -28,8 +29,8 @@ import { ChoiceExt } from '../../../shared/models/choice-ext.model';
 })
 export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 {
-	@ViewChild(GroupBarComponent)
-	private groupBar: GroupBarComponent;
+	@ViewChild(GroupBarComponent) private groupBar: GroupBarComponent;
+	@ViewChild(NormalExperienceComponent) private mainPanel: NormalExperienceComponent;
 
 	communityName: string = '';
 	planName: string = '';
@@ -52,7 +53,8 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 
 	constructor(private store: Store<fromRoot.State>,
 		private route: ActivatedRoute,
-		private router: Router)
+		private router: Router,
+		private cd: ChangeDetectorRef)
     {
 		super();
 	}
@@ -253,6 +255,12 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 	{
 		this.showDetails = false;
 		this.selectedChoice = null;
+
+		this.cd.detectChanges();
+		setTimeout(() => {
+			const firstPointId = this.selectedSubGroup.points && this.selectedSubGroup.points.length ? this.selectedSubGroup.points[0].id : 0;
+			this.mainPanel.scrollPointIntoView(this.selectedPointId, this.selectedPointId === firstPointId);
+		}, 350);
 	}
 
 	getChoicePath() : string
