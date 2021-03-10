@@ -1,4 +1,3 @@
-import { DeleteTermsAndConditions, SetSalesChangeOrderTermsAndConditions } from './../../../ngrx-store/change-order/actions';
 import { Component, OnInit, Input, EventEmitter, Output, OnChanges, SimpleChanges } from '@angular/core';
 import { Validators, FormGroup, FormControl } from '@angular/forms';
 import { Store } from '@ngrx/store';
@@ -6,8 +5,7 @@ import { Store } from '@ngrx/store';
 import * as _ from "lodash";
 import * as fromRoot from '../../../ngrx-store/reducers';
 import { ComponentCanNavAway } from '../../../shared/classes/component-can-nav-away.class';
-import { ChangeOrderGroup } from './../../../shared/models/job-change-order.model';
-import { currentChangeOrder, isChangingOrder } from './../../../ngrx-store/change-order/reducer';
+
 import { SalesAgreement } from '@shared/models/sales-agreement.model';
 import { Note } from '../../../shared/models/note.model';
 import { DeleteNote, SaveNote } from '../../../ngrx-store/sales-agreement/actions';
@@ -25,7 +23,7 @@ export class SalesNoteComponent extends ComponentCanNavAway implements OnInit
 	@Input() editing: any;
 	@Input() note: Note;
 	@Input() canEdit: boolean;
-	@Input() inChangeOrder: boolean;
+
 	default: Note;
 
 	@Output() onRemove = new EventEmitter<number>();
@@ -33,8 +31,8 @@ export class SalesNoteComponent extends ComponentCanNavAway implements OnInit
 	@Output() onEdit = new EventEmitter<Note>();
 
 	form: FormGroup;
-	noteType: FormControl;
 	subCategory: FormControl;
+	noteType: FormControl;
 	noteContent: FormControl;
 
 	disableForm: boolean = true;
@@ -42,30 +40,15 @@ export class SalesNoteComponent extends ComponentCanNavAway implements OnInit
 
 	maxDescriptionLength: number = 3000;
 
-	subCategoryOptions: Array<{ id: number, value: string, internal: boolean }> = [
-		{ id: 5, value: 'Agreement Detail', internal: true },
-		{ id: 6, value: 'Deposit', internal: true },
-		{ id: 7, value: 'Financing', internal: true },
-		{ id: 8, value: 'JIO/Change Order', internal: true },
-		{ id: 9, value: 'Sales Agreement', internal: true },
-		{ id: 10, value: 'Terms & Conditions', internal: false }
+	subCategoryOptions: Array<{ id: number, value: string }> = [
+		{ id: 5, value: 'Agreement Detail' },
+		{ id: 6, value: 'Deposit' },
+		{ id: 7, value: 'Financing' },
+		{ id: 8, value: 'JIO/Change Order' },
+		{ id: 9, value: 'Sales Agreement' },
+		{ id: 10, value: 'Terms & Conditions' }
 	];
 
-	get internalCategoryOptions() {
-		return this.subCategoryOptions.filter(cat => cat.internal);
-	}
-
-	get externalCategoryOptions() {
-		return this.subCategoryOptions.filter(cat => !cat.internal);
-	}
-
-	get canAddPublicNote() {
-		return this.agreement.status === 'Pending' || this.inChangeOrder;
-	}
-
-	get canAddInternalNote() {
-		return this.agreement.status === 'Pending' || (this.agreement.status !== 'Pending' && !this.inChangeOrder);
-	}
 	selectedSubCategory;
 
 	constructor(
@@ -78,6 +61,7 @@ export class SalesNoteComponent extends ComponentCanNavAway implements OnInit
 	ngOnInit()
 	{
 		this.default = new Note({ ...this.note });
+
 		this.setFormData();
 	}
 
@@ -85,6 +69,7 @@ export class SalesNoteComponent extends ComponentCanNavAway implements OnInit
 	{
 		this.form = new FormGroup({
 			subCategory: this.subCategory,
+			noteType: this.noteType,
 			noteContent: this.noteContent
 		});
 	}
@@ -93,7 +78,9 @@ export class SalesNoteComponent extends ComponentCanNavAway implements OnInit
 	{
 		// Setup form controls, only on component creation/init
 		this.subCategory = new FormControl(this.note.noteSubCategoryId || null, [Validators.required]);
+		this.noteType = new FormControl(this.note.targetAudiences && this.note.targetAudiences.length > 0 && this.note.targetAudiences[0].name || null, [Validators.required]);
 		this.noteContent = new FormControl(this.note.noteContent || '', [Validators.required, Validators.maxLength(this.maxDescriptionLength)]);
+
 		this.setSelectedSubCategory(this.note.noteSubCategoryId);
 
 		this.createForm();
@@ -106,36 +93,30 @@ export class SalesNoteComponent extends ComponentCanNavAway implements OnInit
 
 	setSelectedSubCategory(id)
 	{
-		this.subCategory.setValue((this.agreement.status !== 'Pending' && this.inChangeOrder) ? 10 : id ? this.subCategoryOptions.find(item => item.id === id).id : null);
+		this.selectedSubCategory = this.subCategoryOptions.find(item => item.id === id);
 	}
 
 	save()
 	{
 		const saveNote: Note = new Note({
 			noteSubCategoryId: this.subCategory.value,
-			noteType: this.subCategoryOptions.find(opt => opt.id === this.subCategory.value).internal ? 'Internal' : 'Public',
-			noteContent: this.noteContent.value
+			noteType: this.noteType.value,
+			noteContent: this.noteContent.value,
+			notTargetAudienceAssocs: new Array(this.noteType.value)
 		});
 
 		if (this.note.id)
 		{
 			saveNote.id = this.note.id;
 		}
-		saveNote.noteAssoc =
-		{
-			id: this.agreement.id,
-			type: 'salesAgreements'
-		};
 
-		if (saveNote.noteSubCategoryId === 10 && this.agreement.status !== 'Pending')
-		{
-			const agreementNote = this.agreement.notes.some(note => note.id === saveNote.id);
-			this.store.dispatch(new SetSalesChangeOrderTermsAndConditions(saveNote, agreementNote));
-		}
-		else
-		{
-			this.store.dispatch(new SaveNote(saveNote));
-		}
+		saveNote.noteAssoc =
+			{
+				id: this.agreement.id,
+				type: 'salesAgreements'
+			}
+
+		this.store.dispatch(new SaveNote(saveNote));
 	}
 
 	edit()
@@ -153,22 +134,15 @@ export class SalesNoteComponent extends ComponentCanNavAway implements OnInit
 		{
 			if (result)
 			{
-				if (this.note.noteSubCategoryId == 10 && this.agreement.status !== 'Pending')
+				this.deleting = true;
+
+				if (this.note.id)
 				{
-					this.store.dispatch(new DeleteTermsAndConditions(this.note))
+					this.store.dispatch(new DeleteNote(this.note.id));
 				}
 				else
 				{
-					this.deleting = true;
-
-					if (this.note.id)
-					{
-						this.store.dispatch(new DeleteNote(this.note.id));
-					}
-					else
-					{
-						this.cancel();
-					}	
+					this.cancel();
 				}
 			}
 		});

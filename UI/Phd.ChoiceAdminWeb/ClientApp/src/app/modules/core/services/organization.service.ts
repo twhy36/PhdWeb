@@ -319,9 +319,7 @@ export class OrganizationService
 	{
 		const filter = `financialCommunities/any() and companyType eq 'HB' and salesStatusDescription eq 'Active'`;
 		const expand = `financialCommunities($top = 1; $select = salesStatusDescription, id; $filter = salesStatusDescription eq 'Active')`;
-		const orderBy = `name`;
-
-		return withSpinner(this._http).get<any>(`${settings.apiUrl}assignedMarkets?${this._ds}select=id,number,name&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}orderby=${encodeURIComponent(orderBy)}`).pipe(
+		return withSpinner(this._http).get<any>(`${settings.apiUrl}assignedMarkets?${this._ds}select=id,number,name&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}expand=${encodeURIComponent(expand)}`).pipe(
 			map((response: any) => response.value.map(mkt => <{ id: number, number: string }>mkt))
 		);
 	}

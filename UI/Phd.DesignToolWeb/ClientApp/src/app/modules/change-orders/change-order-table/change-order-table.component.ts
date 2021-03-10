@@ -78,67 +78,24 @@ export class ChangeOrderTableComponent extends UnsubscribeOnDestroy implements O
 					else if (changeOrder.salesChangeOrderBuyers.length > 0 || changeOrder.salesChangeOrderPriceAdjustments.length > 0
 						|| changeOrder.salesChangeOrderSalesPrograms.length > 0 || changeOrder.salesChangeOrderTrusts.length > 0)
 					{
-						let changeOrderDescription = 'Construction'
-						if (changeOrder.salesChangeOrderBuyers.length > 0 || changeOrder.salesChangeOrderTrusts.length > 0)
-						{
-							changeOrderDescription += '/Buyer Change'
-						}
-						if (changeOrder.salesChangeOrderPriceAdjustments.length > 0 || changeOrder.salesChangeOrderSalesPrograms.length > 0)
-						{
-							changeOrderDescription += '/Price Change'
-						}
-						if (changeOrder.salesNotesChangeOrders.length > 0)
-						{
-							changeOrderDescription += '/Ts&Cs'
-						}
-						return changeOrderDescription;
+						return 'Construction & Sales Change';
 					}
 					else
 					{
 						return 'Construction Change';
 					}
 				case 'BuyerChangeOrder':
-				case 'SalesNotes':
 				case 'PriceAdjustment':
 					if (changeOrder.jobChangeOrderGroupDescription === 'Pulte Home Designer Generated Spec Customer Change Order')
 					{
 						return 'Spec Customer';
 					}
-					else
-					{
-						let changeOrderDescription = ''
-						if (changeOrder.salesChangeOrderBuyers.length > 0 || changeOrder.salesChangeOrderTrusts.length > 0)
-						{
-							changeOrderDescription += 'Buyer Change';
-						}
-						if (changeOrder.salesChangeOrderPriceAdjustments.length > 0 || changeOrder.salesChangeOrderSalesPrograms.length > 0)
-						{
-							changeOrderDescription += changeOrderDescription === '' ? 'Price Change' : '/Price Change';
-						}
-						if (changeOrder.salesNotesChangeOrders.length > 0)
-						{
-							changeOrderDescription += changeOrderDescription === '' ? 'Ts&Cs' : '/Ts&Cs'
-						}
-						return changeOrderDescription;
-					}
+					return 'Sales Change';
 				case 'HomesiteTransfer':
 					if (changeOrder.salesChangeOrderBuyers.length > 0 || changeOrder.salesChangeOrderPriceAdjustments.length > 0
 						|| changeOrder.salesChangeOrderSalesPrograms.length > 0 || changeOrder.salesChangeOrderTrusts.length > 0)
 					{
-						let changeOrderDescription = 'Lot Transfer Change'
-						if (changeOrder.salesChangeOrderBuyers.length > 0 || changeOrder.salesChangeOrderTrusts.length > 0)
-						{
-							changeOrderDescription += '/Buyer Change'
-						}
-						if (changeOrder.salesChangeOrderPriceAdjustments.length > 0 || changeOrder.salesChangeOrderSalesPrograms.length > 0)
-						{
-							changeOrderDescription += '/Price Change'
-						}
-						if (changeOrder.salesNotesChangeOrders.length > 0)
-						{
-							changeOrderDescription += '/Ts&Cs'
-						}
-						return changeOrderDescription;
+						return 'Lot Transfer & Sales Change';
 					}
 					else
 					{
@@ -150,21 +107,7 @@ export class ChangeOrderTableComponent extends UnsubscribeOnDestroy implements O
 					if (changeOrder.salesChangeOrderBuyers.length > 0 || changeOrder.salesChangeOrderPriceAdjustments.length > 0
 						|| changeOrder.salesChangeOrderSalesPrograms.length > 0 || changeOrder.salesChangeOrderTrusts.length > 0)
 					{
-						
-						let changeOrderDescription = changeOrder.changeOrderTypeDescription
-						if (changeOrder.salesChangeOrderBuyers.length > 0 || changeOrder.salesChangeOrderTrusts.length > 0)
-						{
-							changeOrderDescription += '/Buyer Change'
-						}
-						if (changeOrder.salesChangeOrderPriceAdjustments.length > 0 || changeOrder.salesChangeOrderSalesPrograms.length > 0)
-						{
-							changeOrderDescription += '/Price Change'
-						}
-						if (changeOrder.salesNotesChangeOrders.length > 0)
-						{
-							changeOrderDescription += '/Ts&Cs'
-						}
-						return changeOrderDescription;
+						return changeOrder.changeOrderTypeDescription + ' & Sales Change';
 					}
 					else
 					{

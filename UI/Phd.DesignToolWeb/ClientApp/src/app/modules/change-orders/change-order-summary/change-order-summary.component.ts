@@ -77,8 +77,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 		{ value: 'Cancellation', id: 7 },
 		{ value: 'SpecJIO', id: 8 },
 		{ value: 'BuyerChangeOrder', id: 9 },
-		{ value: 'PriceAdjustment', id: 10 },
-		{ value: 'SalesNotes', id: 11 }
+		{ value: 'PriceAdjustment', id: 10 }
 	];
 
 	ACTION_TYPES = {
@@ -315,7 +314,6 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 					salesChangeOrderPriceAdjustments: _.flatten(o.jobChangeOrders.map(t => t.jobSalesChangeOrderPriceAdjustments)),
 					salesChangeOrderSalesPrograms: _.flatten(o.jobChangeOrders.map(t => t.jobSalesChangeOrderSalesPrograms)),
 					salesChangeOrderTrusts: _.flatten(o.jobChangeOrders.map(t => t.jobSalesChangeOrderTrusts)),
-					salesNotesChangeOrders: _.flatten(o.jobChangeOrders.map(t => t.salesNotesChangeOrders)),
 					isResubmittedChangeOrder: false,
 					isActiveChangeOrder: false,
 					eSignStatus: this.getESignStatus(o),
@@ -704,7 +702,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 			switchMap(communityAutoApprovals =>
 			{
 				//checking for Sales Change Order Type
-				if (jobChangeOrderTypeId !== 9 && jobChangeOrderTypeId !== 10 && jobChangeOrderTypeId !== 11)
+				if (jobChangeOrderTypeId !== 9 && jobChangeOrderTypeId !== 10)
 				{
 					let isAutoApproval;
 

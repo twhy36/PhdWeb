@@ -438,10 +438,8 @@ export class ContractService
 					let currentHouseSelections = templates.some(t => t.templateId === 0) ? getCurrentHouseSelections(store.scenario.tree.treeVersion.groups) : [];
 
 					let salesAgreementNotes = !!store.salesAgreement.notes && store.salesAgreement.notes.length ? store.salesAgreement.notes.filter(n => n.targetAudiences.find(x => x.name === "Public") && n.noteSubCategoryId !== 10).map(n => n.noteContent).join(", ") : '';
-					let currentTermsAndConditions = store.changeOrder.currentChangeOrder.jobChangeOrders.find(co => co.jobChangeOrderTypeDescription === 'SalesNotes') ? store.changeOrder.currentChangeOrder.jobChangeOrders.find(co => co.jobChangeOrderTypeDescription === 'SalesNotes').salesNotesChangeOrders.map(snco => snco.note) : [];
-					let previousTermsAndConditions = !!store.salesAgreement.notes && store.salesAgreement.notes.length ? store.salesAgreement.notes.filter(n => n.targetAudiences.find(x => x.name === "Public") && n.noteSubCategoryId === 10) : [];
-					previousTermsAndConditions.push(...currentTermsAndConditions)
-					let termsAndConditions = previousTermsAndConditions.map(tcs => tcs.noteContent).join();
+					let termsAndConditions = !!store.salesAgreement.notes && store.salesAgreement.notes.length ? store.salesAgreement.notes.filter(n => n.targetAudiences.find(x => x.name === "Public") && n.noteSubCategoryId === 10).map(n => n.noteContent).join() : '';
+
 					let jioSelections = {
 						currentHouseSelections: currentHouseSelections,
 						salesAgreementNotes: salesAgreementNotes
@@ -533,16 +531,14 @@ export class ContractService
 					if (changeOrder.salesChangeOrderPriceAdjustments.length > 0 ||
 						changeOrder.salesChangeOrderSalesPrograms.length > 0 ||
 						salesChangeOrderBuyers.length > 0 ||
-						changeOrder.salesChangeOrderTrusts.length > 0 ||
-						changeOrder.salesNotesChangeOrders.length > 0)
+						changeOrder.salesChangeOrderTrusts.length > 0)
 					{
 						salesChangeOrderSelections = {
 							salesChangeOrderTypeDescription: changeOrder.jobChangeOrderGroupDescription,
 							salesChangeOrderPriceAdjustments: changeOrder.salesChangeOrderPriceAdjustments,
 							salesChangeOrderSalesPrograms: changeOrder.salesChangeOrderSalesPrograms,
 							salesChangeOrderBuyers: salesChangeOrderBuyers,
-							salesChangeOrderTrusts: changeOrder.salesChangeOrderTrusts,
-							salesNotesChangeOrders: changeOrder.salesNotesChangeOrders.length > 0
+							salesChangeOrderTrusts: changeOrder.salesChangeOrderTrusts
 						};
 					}
 

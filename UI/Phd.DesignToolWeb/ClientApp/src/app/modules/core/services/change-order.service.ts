@@ -124,10 +124,6 @@ export class ChangeOrderService
 			? currentChangeOrder.jobChangeOrders.find(x => x.jobChangeOrderTypeDescription === 'PriceAdjustment')
 			: null;
 
-		const salesNotesChangeOrder = currentChangeOrder && currentChangeOrder.jobChangeOrders
-			? currentChangeOrder.jobChangeOrders.find(x => x.jobChangeOrderTypeDescription === 'SalesNotes')
-			: null;
-
 		let data: any = {
 			changeOrderGroupId: currentChangeOrder.id,
 			changeOrderType: 'Sales',
@@ -154,17 +150,6 @@ export class ChangeOrderService
 			data.salesChangeOrderSalesPrograms = priceAdjustmentChangeOrder.jobSalesChangeOrderSalesPrograms;
 		}
 
-		if (salesNotesChangeOrder && salesNotesChangeOrder.salesNotesChangeOrders && salesNotesChangeOrder.salesNotesChangeOrders.length)
-		{
-			data.salesNotesChangeOrders = salesNotesChangeOrder.salesNotesChangeOrders.map(snco => {
-				return {
-					id: snco.id,
-					changeOrderId: snco.changeOrderId,
-					noteId: snco.noteId,
-					action: snco.action
-				}
-			});
-		}
 		const buyers = this.getSalesChangeOrderBuyers(salesAgreement.buyers, changeInput.buyers);
 		if (buyers && buyers.length)
 		{
@@ -1702,11 +1687,6 @@ export class ChangeOrderService
 			{
 				result.salesChangeOrderTrusts = salesData.salesChangeOrderTrusts;
 			}
-
-			if (salesData.salesNotesChangeOrder && salesData.salesNotesChangeOrder.length)
-			{
-				result.salesNotesChangeOrders = salesData.salesNotesChangeOrder;
-			}
 		}
 
 		return result;
@@ -1744,8 +1724,7 @@ export class ChangeOrderService
 			return (data.salesChangeOrderPriceAdjustments && data.salesChangeOrderPriceAdjustments.length)
 				|| (data.salesChangeOrderSalesPrograms && data.salesChangeOrderSalesPrograms.length)
 				|| (data.salesChangeOrderBuyers && data.salesChangeOrderBuyers.length)
-				|| (data.salesChangeOrderTrusts && data.salesChangeOrderTrusts.length)
-				|| (data.salesNotesChangeOrders && data.salesNotesChangeOrders.length);
+				|| (data.salesChangeOrderTrusts && data.salesChangeOrderTrusts.length);
 		}
 		else if (changeInput.type === ChangeTypeEnum.NON_STANDARD)
 		{

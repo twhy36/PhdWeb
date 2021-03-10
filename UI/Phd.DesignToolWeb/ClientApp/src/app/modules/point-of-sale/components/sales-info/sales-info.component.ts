@@ -20,7 +20,6 @@ import * as ChangeOrderActions from '../../../ngrx-store/change-order/actions';
 import * as CommonActions from '../../../ngrx-store/actions';
 import { NEVER as never, of, Observable, Subject } from 'rxjs';
 
-import { isSalesChangeOrder } from '../../../shared/models/sales-change-order.model';
 import * as _ from 'lodash';
 import { selectSelectedLot } from '../../../ngrx-store/lot/reducer';
 
@@ -66,7 +65,6 @@ export class SalesInfoComponent extends UnsubscribeOnDestroy implements OnInit, 
 	jobsProjectedFinalDate$: Observable<Date>;
 	hasPriceAdjustments: boolean = false;
 	isLockedIn: boolean = false;
-	inSalesChangeOrder = false;
 
 	private cdSubject = new Subject<void>();
 
@@ -86,16 +84,6 @@ export class SalesInfoComponent extends UnsubscribeOnDestroy implements OnInit, 
 		{
 			this.cd.detectChanges();
 		})
-	}
-
-	get canAddTnCs()
-	{
-		return this.agreement.status === 'Pending' || this.isChangingOrder;
-	}
-
-	get canAddNotes()
-	{ 
-		return this.agreement.status === 'Pending' || !this.isChangingOrder;
 	}
 
 	get hasAvailableSalesPrograms(): boolean
@@ -176,7 +164,7 @@ export class SalesInfoComponent extends UnsubscribeOnDestroy implements OnInit, 
 			this.takeUntilDestroyed(),
 			select(fromRoot.canEditAgreementOrSpec)
 		).subscribe(canEditAgreement =>
-			{
+		{
 			this.canEditAgreement = canEditAgreement;
 		});
 
@@ -214,7 +202,7 @@ export class SalesInfoComponent extends UnsubscribeOnDestroy implements OnInit, 
 		this.currentDiscount$ = this.store.pipe(
 			select(state => state.salesAgreement),
 			map(sag =>
-				{
+			{
 				let adjustments = (sag && sag.priceAdjustments && sag.priceAdjustments.filter(p => p.priceAdjustmentType === 'Discount').map(p => p.amount)) || [];
 
 				return adjustments.reduce((a, b) => a + b, 0);
@@ -225,7 +213,7 @@ export class SalesInfoComponent extends UnsubscribeOnDestroy implements OnInit, 
 		this.currentClosingCostIncentive$ = this.store.pipe(
 			select(state => state.salesAgreement),
 			map(sag =>
-				{
+			{
 				let adjustments = (sag && sag.priceAdjustments && sag.priceAdjustments.filter(p => p.priceAdjustmentType === 'ClosingCost').map(p => p.amount)) || [];
 
 				return adjustments.reduce((a, b) => a + b, 0);
@@ -236,24 +224,13 @@ export class SalesInfoComponent extends UnsubscribeOnDestroy implements OnInit, 
 		this.totalCurrentClosingCostAmount$ = this.store.pipe(
 			select(state => state.salesAgreement),
 			map(sag =>
-				{
+			{
 				let adjustments = (sag && sag.priceAdjustments && sag.priceAdjustments.filter(p => p.priceAdjustmentType === 'ClosingCost').map(p => p.amount)) || [];
 				let programs = (sag && sag.programs && sag.programs.filter(p => p.salesProgram.salesProgramType === 'BuyersClosingCost').map(p => p.amount)) || [];
 
 				return programs.reduce((a, b) => a + b, 0) + adjustments.reduce((a, b) => a + b, 0);
 			})
 		);
-
-		this.store.pipe(
-			this.takeUntilDestroyed(),
-			select(state => state.changeOrder)).subscribe(changeOrder =>
-				{
-				if (changeOrder.isChangingOrder && !!changeOrder.changeInput)
-				{
-					this.inSalesChangeOrder = isSalesChangeOrder(changeOrder.currentChangeOrder);
-				}
-			}
-			);
 	}
 
 	setupPrograms()
@@ -264,7 +241,7 @@ export class SalesInfoComponent extends UnsubscribeOnDestroy implements OnInit, 
 			take(1),
 			select(state => state.lot.selectedLot),
 			switchMap(selectedLotId =>
-				{
+			{
 				// If there is no selectedLot, then we need to get the financialCommunityId from the API
 				if (!selectedLotId)
 				{
@@ -287,7 +264,7 @@ export class SalesInfoComponent extends UnsubscribeOnDestroy implements OnInit, 
 			}),
 			switchMap(financialCommId => this._salesInfoService.getSalesPrograms(financialCommId))
 		).subscribe(salesPrograms =>
-			{
+		{
 			this.salesPrograms = salesPrograms;
 
 			// Need to only watch salesAgreement for changes from sales-info-misc, and not everything above, so creating a new subscription
@@ -295,7 +272,7 @@ export class SalesInfoComponent extends UnsubscribeOnDestroy implements OnInit, 
 				this.takeUntilDestroyed(),
 				select(state => state.salesAgreement)
 			).subscribe(agreement =>
-				{
+			{
 				// If we are currently editing the misc info, we need to update the editing object to continue to show it.
 				if (this.editing === this.agreement)
 				{
@@ -341,47 +318,34 @@ export class SalesInfoComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 			// Need a watch on deposits since they can change without triggering an event above.
 			this.store.pipe(this.takeUntilDestroyed(), select(state => state.salesAgreement.deposits)).subscribe(deposits =>
-				{
+			{
 				this.reset(deposits, 'deposits');
 			});
 
 			// Need a watch on deposits since they can change without triggering an event above.
 			this.store.pipe(this.takeUntilDestroyed(), select(state => state.salesAgreement.contingencies)).subscribe(contingencies =>
-				{
+			{
 				this.reset(contingencies, 'contingencies');
 			});
 
 			// Need a watch on notes since they can change without triggering an event above.
-			this.store.pipe(
-				this.takeUntilDestroyed(), 
-				select(state => state.salesAgreement.notes),
-				combineLatest(this.store.select(state => state.changeOrder.currentChangeOrder))).subscribe(([notes, changeOrder]) => {
-				let allNotes = [...notes];
-				let salesChangeOrder = changeOrder && changeOrder.jobChangeOrders ? changeOrder.jobChangeOrders.find(x => x.jobChangeOrderTypeDescription === 'SalesNotes' || x.jobChangeOrderTypeDescription === 'SalesJIO') : null;
-				let addedSalesNotesChangeOrders = salesChangeOrder ? salesChangeOrder.salesNotesChangeOrders.filter(salesNotesChangeOrder => salesNotesChangeOrder.action === 'Add') : [];
-				let salesNotes = addedSalesNotesChangeOrders.map(salesNotesChangeOrder => {
-					return salesNotesChangeOrder.note
-				})
-				allNotes.push(...salesNotes);
-				let deletedSalesNotesChangeOrders = salesChangeOrder ? salesChangeOrder.salesNotesChangeOrders.filter(salesNotesChangeOrder => salesNotesChangeOrder.action === 'Delete') : [];
-				deletedSalesNotesChangeOrders.forEach(deletedNote => {
-					allNotes = allNotes.filter(note => note.id !== deletedNote.noteId)
-				})
-				this.reset(allNotes, 'notes');
+			this.store.pipe(this.takeUntilDestroyed(), select(state => state.salesAgreement.notes)).subscribe(notes =>
+			{
+				this.reset(notes, 'notes');
 			});
 
 			this.store.pipe(this.takeUntilDestroyed(), select(state => state.salesAgreement.isProgramNa)).subscribe(isProgramNa =>
-				{
+			{
 				this.isProgramNa = isProgramNa;
 			});
 
 			this.store.pipe(this.takeUntilDestroyed(), select(state => state.salesAgreement.isContingenciesNa)).subscribe(isContingenciesNa =>
-				{
+			{
 				this.isContingenciesNa = isContingenciesNa;
 			});
 
 			this.store.pipe(this.takeUntilDestroyed(), select(state => state.salesAgreement.isNoteNa)).subscribe(isNoteNa =>
-				{
+			{
 				this.isNoteNa = isNoteNa;
 			});
 
@@ -517,7 +481,7 @@ export class SalesInfoComponent extends UnsubscribeOnDestroy implements OnInit, 
 		if (salesChangeOrderSalesPrograms)
 		{
 			salesChangeOrderSalesPrograms.forEach(p =>
-				{
+			{
 				const salesProgram = this.salesPrograms.find(x => x.id === p.salesProgramId);
 
 				if (p.action === 'Add')
@@ -550,7 +514,7 @@ export class SalesInfoComponent extends UnsubscribeOnDestroy implements OnInit, 
 		}
 	}
 
-	canEditProgramIncentive(program: SalesChangeOrderSalesProgram | SalesAgreementProgram) 
+	canEditProgramIncentive(program: SalesChangeOrderSalesProgram | SalesAgreementProgram)
 	{
 		// can edit as long as it's not cancel or void, or in a pending status, or was created on the current change order
 		return this.canEditAgreement && (this.canSell || this.canDesign || this.canAddIncentive) && !this.cancelOrVoid && (this.isChangingOrder && this.salesChangeOrderSalesPrograms.findIndex(x => x.id === program.id && x.salesProgramId === program.salesProgramId) > -1 || !this.isChangingOrder);

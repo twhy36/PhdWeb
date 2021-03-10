@@ -107,38 +107,26 @@
 				  (onAdd)="add('contingencies')"
 				  (onNA)="setNA('contingency')"></add-card>
 
-		<add-card *ngIf="!editing && canSell && !cancelOrVoid && !inSalesChangeOrder"
+		<!--Notes and Add Note Cards-->
+		<sales-note class="phd-editable-box"
+					[agreement]="agreement"
+					[note]="note"
+					[editing]="editing"
+					[position]="i"
+					[canEdit]="canSell && !cancelOrVoid"
+					(onRemove)="remove('notes', $event)"
+					(onEdit)="edit($event)"
+					(checkChanges)="changes($event)"
+					*ngFor="let note of notes; let i = index">
+		</sales-note>
+
+		<add-card *ngIf="!editing && canSell && !cancelOrVoid"
 				  [hasNA]="!notes || notes.length === 0"
 				  [isNA]="isNoteNa"
 				  [label]="'Note'"
 				  [labels]="'Notes'"
 				  (onAdd)="add('notes')"
-				  (onNA)="setNA('notes')">
-		</add-card>
+				  (onNA)="setNA('notes')"></add-card>
 	</ng-template>
-
-
-	<!--Notes and Add Note Cards-->
-	<sales-note class="phd-editable-box"
-				[agreement]="agreement"
-				[note]="note"
-				[editing]="editing"
-				[position]="i"
-				[inChangeOrder]="isChangingOrder"
-				[canEdit]="canSell && !cancelOrVoid"
-				(onRemove)="remove('notes', $event)"
-				(onEdit)="edit($event)"
-				(checkChanges)="changes($event)"
-				*ngFor="let note of notes; let i = index">
-	</sales-note>
-
-	<add-card *ngIf="!editing && canSell && !cancelOrVoid && canAddTnCs && agreement.status !== 'Pending'"
-			  [hasNA]="!notes || notes.length === 0"
-			  [isNA]="isNoteNa"
-			  [label]="'Terms & Conditions'"
-			  [labels]="'Terms & Conditions'"
-			  (onAdd)="add('notes')"
-			  (onNA)="setNA('notes')">
-	</add-card>
 
 </div>
