@@ -27,11 +27,11 @@ export class SalesInfoMiscComponent extends ComponentCanNavAway implements OnIni
 	@Input() saveError: boolean;
 	@Input() editing: any;
 	@Input() canEdit: boolean;
+	@Input() canUpdateECOE: boolean;
 	@Input() jobsProjectedFinalDate: Date = null;
 
 	@Output() onEdit = new EventEmitter<SalesAgreement>();
 
-	canUpdateECOE: boolean;
 	selectedLenderType;
 	selectedPropertyType;
 	selectedQuoteRequested;
@@ -85,10 +85,6 @@ export class SalesInfoMiscComponent extends ComponentCanNavAway implements OnIni
 				this.minDate = ngbDate;
 			}
 		}
-
-		this.store.pipe(select(fromRoot.canUpdateECOE)).subscribe(canUpdate => {
-			this.canUpdateECOE = canUpdate;
-		});
 
 		this.initializeData();
 		this.createForm();

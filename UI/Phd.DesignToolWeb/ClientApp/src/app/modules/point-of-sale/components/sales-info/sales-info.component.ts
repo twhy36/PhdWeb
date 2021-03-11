@@ -63,6 +63,7 @@ export class SalesInfoComponent extends UnsubscribeOnDestroy implements OnInit, 
 	cancelOrVoid: boolean;
 	canAddIncentive: boolean;
 	canLockSalesAgreement: boolean;
+	canUpdateECOE: boolean;
 	jobsProjectedFinalDate$: Observable<Date>;
 	hasPriceAdjustments: boolean = false;
 	isLockedIn: boolean = false;
@@ -209,6 +210,13 @@ export class SalesInfoComponent extends UnsubscribeOnDestroy implements OnInit, 
 			this.takeUntilDestroyed(),
 			select(fromRoot.canEditCancelOrVoidAgreement)
 		).subscribe(cancelOrVoid => this.cancelOrVoid = cancelOrVoid);
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromRoot.canUpdateECOE)
+		).subscribe(canUpdate => {
+			this.canUpdateECOE = canUpdate;
+		});
 
 		// Price Adjustment Details
 		this.currentDiscount$ = this.store.pipe(
