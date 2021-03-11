@@ -14,6 +14,7 @@
 					 (onEdit)="edit($event)"
 					 [jobsProjectedFinalDate]="jobsProjectedFinalDate$ | async"
 					 [canEdit]="canSell && !cancelOrVoid && !isLockedIn"
+					 [canUpdateECOE]="canUpdateECOE"
 					 *ngIf="agreement && !isChangingOrder"></sales-info-misc>
 
 	<!--Programs and Add Program Cards-->

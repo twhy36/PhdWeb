@@ -34,7 +34,8 @@ export class TreeService
 	 * gets active tree versions for communities
 	 * @param communityIds
 	 */
-	public getTreeVersions(communityIds: Array<number>): Observable<any> {
+	public getTreeVersions(communityIds: Array<number>): Observable<any>
+	{
 		const communityFilterArray = communityIds.map(id => `dTree/plan/org/edhFinancialCommunityId eq ${id}`);
 		const communityFilter = communityFilterArray && communityFilterArray.length
 			? ` and (${communityFilterArray.join(" or ")})`
@@ -49,8 +50,10 @@ export class TreeService
 		const endPoint = environment.apiUrl + `${entity}?${encodeURIComponent("$")}expand=${encodeURIComponent(expand)}&${encodeURIComponent("$")}filter=${encodeURIComponent(filter)}&${encodeURIComponent("$")}select=${encodeURIComponent(select)}&${encodeURIComponent("$")}orderby=${orderBy}`;
 
 		return this.http.get<any>(endPoint).pipe(
-			map(response => {
-				return response.value.map(data => {
+			map(response =>
+			{
+				return response.value.map(data =>
+				{
 					return {
 						// DEVNOTE: will change late bound to object if these mappings are repeated.
 						id: data['dTreeVersionID'],
@@ -66,7 +69,8 @@ export class TreeService
 					};
 				});
 			}),
-			catchError(error => {
+			catchError(error =>
+			{
 				console.error(error);
 
 				return _throw(error);
@@ -179,22 +183,29 @@ export class TreeService
 				const newChoices = [...choices];
 				const changedChoices = [];
 				const updatedChoices = [];
-				if (newChoices.length > 0) {
-					newChoices.forEach(c => {
+				if (newChoices.length > 0)
+				{
+					newChoices.forEach(c =>
+					{
 						const choiceId = isJobChoice(c) ? c.dpChoiceId : c.decisionPointChoiceID;
 						const respChoice = response.value.find(r => r.dpChoiceID === choiceId);
 
-						if (respChoice) {
+						if (respChoice)
+						{
 							changedChoices.push({ ...c, divChoiceCatalogId: respChoice.divChoiceCatalogID });
-						} else {
+						} else
+						{
 							changedChoices.push({ ...c });
 						}
 					});
 
-					changedChoices.forEach(cc => {
-						if (isJobChoice(cc)) {
+					changedChoices.forEach(cc =>
+					{
+						if (isJobChoice(cc))
+						{
 							updatedChoices.push(new JobChoice(cc));
-						} else {
+						} else
+						{
 							updatedChoices.push(new ChangeOrderChoice(cc));
 						}
 					});
