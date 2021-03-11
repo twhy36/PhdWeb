@@ -181,7 +181,7 @@ export class TreeService
 		const entity = `GetTreeDto(TreeVersionID=${treeVersionId})`;
 		const expand = `treeVersion($expand=groups($expand=subGroups($expand=points($expand=choices)))) `;
 
-		const qryStr = `${this._ds}expand=${encodeURIComponent(expand)}`;
+		const qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&useCache=false`;
 
 		const endPoint = `${settings.apiUrl}${entity}?${qryStr}`;
 
