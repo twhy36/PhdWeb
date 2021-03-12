@@ -513,6 +513,8 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 			}
 		}
 		
+		const totalQuantity = this.getTotalQuantiy();
+		this.choice.quantity = this.choice.quantity > 0 && totalQuantity === 0 ? 1 : totalQuantity;
 		this.store.dispatch(new ScenarioActions.SelectChoices({ choiceId: this.choice.id, quantity: this.choice.quantity, attributes: this.choice.selectedAttributes }));
 		this.store.dispatch(new FavoriteActions.SaveMyFavoritesChoices());
 	}	
