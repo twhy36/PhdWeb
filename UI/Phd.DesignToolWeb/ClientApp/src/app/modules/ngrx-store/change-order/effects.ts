@@ -1,3 +1,4 @@
+import { SalesAgreementService } from './../../core/services/sales-agreement.service';
 import { Injectable } from '@angular/core';
 import { Actions, Effect, ofType } from '@ngrx/effects';
 import { Action, Store, select } from '@ngrx/store';
@@ -14,7 +15,7 @@ import
 	ChangeOrderActionTypes, LoadError, CurrentChangeOrderLoaded, SetChangingOrder, ChangeInputInitialized,
 	CreateJobChangeOrders, ChangeOrdersCreated, SaveError, CancelJobChangeOrder, CreateSalesChangeOrder, CreateNonStandardChangeOrder, CreatePlanChangeOrder, CancelPlanChangeOrder,
 	CancelLotTransferChangeOrder, CancelSalesChangeOrder, SetCurrentChangeOrder, CancelNonStandardChangeOrder, SavePendingJio, CreateCancellationChangeOrder, CreateLotTransferChangeOrder,
-	ResubmitChangeOrder, ChangeOrderOutForSignature
+	ResubmitChangeOrder, ChangeOrderOutForSignature, SetSalesChangeOrderTermsAndConditions
 } from './actions';
 import { ChangeInput, ChangeTypeEnum, ChangeOrderGroup, ChangeOrderHanding } from '../../shared/models/job-change-order.model';
 import { TreeLoadedFromJob, SelectChoices } from '../scenario/actions';
@@ -742,6 +743,27 @@ export class ChangeOrderEffects
 		), SaveError, 'Error setting change order out for signature!!')
 	);
 
+	@Effect()
+	setSalesChangeOrderTermsAndConditions$: Observable<Action> = this.actions$.pipe(
+		ofType<SetSalesChangeOrderTermsAndConditions>(ChangeOrderActionTypes.SetSalesChangeOrderTermsAndConditions),
+		withLatestFrom(this.store),
+		tryCatch(source => source.pipe(
+			switchMap(([action, store]) => {
+				let note = _.cloneDeep(action.termsAndConditionsNote);
+				if(action.agreementNote)
+				{
+					note.id = 0;
+				}
+				return forkJoin(this.salesAgreementService.saveNote(note), of(store))
+			}),
+			switchMap(([result, store]) => {
+				let actions = [];
+				actions.push(new ChangeOrderActions.SalesChangeOrderTermsAndConditionsSaved(result))
+				return from(actions)
+			})
+		), SaveError, "Error saving Terms and Conditions!!")
+	);
+
 	constructor(
 		private actions$: Actions,
 		private store: Store<fromRoot.State>,
@@ -749,6 +771,7 @@ export class ChangeOrderEffects
 		private treeService: TreeService,
 		private optionService: OptionService,
 		private planService: PlanService,
+		private salesAgreementService: SalesAgreementService,
 		private contractService: ContractService,
 		private modalService: ModalService) { }
 }

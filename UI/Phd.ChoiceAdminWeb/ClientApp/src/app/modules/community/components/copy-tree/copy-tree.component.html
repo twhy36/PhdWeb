@@ -1,22 +1,28 @@
 <div class="phd-page-container">
 	<page-header mainTitle="Copy Community Plan / Decision Tree">
 		<ng-template>
-			<div class="col">
-				<select id="market" class="form-control" (change)="onChangeMarket()" [(ngModel)]="ddMarket.selectedOption" [disabled]="saving">
-					<option [ngValue]="undefined">{{ ddMarket.defaultText }}</option>
-					<option *ngFor="let market of ddMarket.data" [ngValue]="market">{{ market.name }}</option>
+			<div class="col" *ngIf="!hasDivisionCatalogEdit">
+				<select id="marketFrom" class="form-control" (change)="onChangeMainMarketFrom()" [(ngModel)]="ddMarketFrom.selectedOption" [disabled]="saving">
+					<option [ngValue]="undefined">{{ ddMarketFrom.defaultText }}</option>
+					<option *ngFor="let marketFrom of ddMarketFrom.data" [ngValue]="marketFrom">{{ marketFrom.name }}</option>
 				</select>
 			</div>
 		</ng-template>
 	</page-header>
 
 	<div class="phd-page-body">
-		<div>
+		<div *ngIf="hasLoaded">
 			<form [formGroup]="copyForm">
 				<div class="d-flex flex-row justify-content-between">
 					<div class="col">
 						<label>From:</label>
 						<div class="form-inline">
+							<div class="form-group" *ngIf="hasDivisionCatalogEdit">
+								<select id="marketFrom" class="form-control" formControlName="marketFrom" required>
+									<option [ngValue]="null">{{ ddMarketFrom.defaultText }}</option>
+									<option *ngFor="let marketFrom of ddMarketFrom.data" [ngValue]="marketFrom">{{ marketFrom.name }}</option>
+								</select>
+							</div>
 							<div class="form-group">
 								<select class="form-control" id="communityFrom" formControlName="communityFrom" required>
 									<option [ngValue]="null">{{ ddCommunityFrom.defaultText }}</option>
@@ -43,6 +49,12 @@
 					<div class="col">
 						<label>To:</label>
 						<div class="form-inline">
+							<div class="form-group" *ngIf="hasDivisionCatalogEdit">
+								<select id="marketTo" class="form-control" formControlName="marketTo" required>
+									<option [ngValue]="null">{{ ddMarketTo.defaultText }}</option>
+									<option *ngFor="let marketTo of ddMarketTo.data" [ngValue]="marketTo">{{ marketTo.name }}</option>
+								</select>
+							</div>
 							<div class="form-group">
 								<select class="form-control" id="communityTo" formControlName="communityTo" required>
 									<option [ngValue]="null">{{ ddCommunityTo.defaultText }}</option>
