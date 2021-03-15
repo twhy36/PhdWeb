@@ -14,8 +14,8 @@
 	</div>
 
 	<div class="phd-card-body">
-		<div *ngIf="selectedSubCategory && selectedSubCategory.value">
-			<strong>Category</strong> {{selectedSubCategory.value}}
+		<div *ngIf="note && note.noteSubCategoryId">
+			<strong>Category</strong> {{subCategoryName}}
 		</div>
 		<div *ngIf="note.targetAudiences && note.targetAudiences.length > 0">
 			<strong>Type</strong> {{ note.targetAudiences[0].name }}

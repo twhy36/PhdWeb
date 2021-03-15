@@ -76,7 +76,8 @@ export class ChangeOrderTableComponent extends UnsubscribeOnDestroy implements O
 						return 'Spec Customer';
 					}
 					else if (changeOrder.salesChangeOrderBuyers.length > 0 || changeOrder.salesChangeOrderPriceAdjustments.length > 0
-						|| changeOrder.salesChangeOrderSalesPrograms.length > 0 || changeOrder.salesChangeOrderTrusts.length > 0)
+						|| changeOrder.salesChangeOrderSalesPrograms.length > 0 || changeOrder.salesChangeOrderTrusts.length > 0 
+						|| changeOrder.salesNotesChangeOrders.length > 0)
 					{
 						let changeOrderDescription = 'Construction'
 						if (changeOrder.salesChangeOrderBuyers.length > 0 || changeOrder.salesChangeOrderTrusts.length > 0)

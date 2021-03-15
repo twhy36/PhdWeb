@@ -1703,9 +1703,9 @@ export class ChangeOrderService
 				result.salesChangeOrderTrusts = salesData.salesChangeOrderTrusts;
 			}
 
-			if (salesData.salesNotesChangeOrder && salesData.salesNotesChangeOrder.length)
+			if (salesData.salesNotesChangeOrders && salesData.salesNotesChangeOrders.length)
 			{
-				result.salesNotesChangeOrders = salesData.salesNotesChangeOrder;
+				result.salesNotesChangeOrders = salesData.salesNotesChangeOrders;
 			}
 		}
 
