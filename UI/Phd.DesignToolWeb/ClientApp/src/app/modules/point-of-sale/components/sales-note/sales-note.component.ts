@@ -1,13 +1,11 @@
 import { DeleteTermsAndConditions, SetSalesChangeOrderTermsAndConditions } from './../../../ngrx-store/change-order/actions';
-import { Component, OnInit, Input, EventEmitter, Output, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
 import { Validators, FormGroup, FormControl } from '@angular/forms';
 import { Store } from '@ngrx/store';
 
 import * as _ from "lodash";
 import * as fromRoot from '../../../ngrx-store/reducers';
 import { ComponentCanNavAway } from '../../../shared/classes/component-can-nav-away.class';
-import { ChangeOrderGroup } from './../../../shared/models/job-change-order.model';
-import { currentChangeOrder, isChangingOrder } from './../../../ngrx-store/change-order/reducer';
 import { SalesAgreement } from '@shared/models/sales-agreement.model';
 import { Note } from '../../../shared/models/note.model';
 import { DeleteNote, SaveNote } from '../../../ngrx-store/sales-agreement/actions';
@@ -65,6 +63,10 @@ export class SalesNoteComponent extends ComponentCanNavAway implements OnInit
 
 	get canAddInternalNote() {
 		return this.agreement.status === 'Pending' || (this.agreement.status !== 'Pending' && !this.inChangeOrder);
+	}
+
+	get subCategoryName() {
+		return this.subCategoryOptions.find(category => category.id === this.note.noteSubCategoryId).value;
 	}
 	selectedSubCategory;
 
@@ -179,6 +181,7 @@ export class SalesNoteComponent extends ComponentCanNavAway implements OnInit
 		if (this.note.id && this.note.id > 0)
 		{
 			this.note = new Note(_.cloneDeep(this.default))
+			this.note.targetAudiences = [{name: this.note.noteSubCategoryId === 10 ? 'Public' : 'Internal' }]
 			this.setFormData();
 		}
 		else
