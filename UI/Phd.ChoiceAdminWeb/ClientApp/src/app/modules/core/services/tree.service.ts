@@ -1709,7 +1709,7 @@ export class TreeService
 	getChoiceRulesByChoiceId(choiceId: number): Observable<PhdEntityDto.IDPChoiceDto>
 	{
 		const entity = `dPChoices`;
-		const expand = `dPChoiceRule_DPChoiceAssoc($select=dpChoiceRuleAssocID;$expand=dPChoice_DPChoiceRuleAssoc($select=dpChoiceID)), dPointRuleAssoc_DPChoiceAssoc($select=dPointRuleDPointAssocID;$expand=dPoint_DPointRuleAssoc($select=dPointID))`;
+		const expand = `dPChoiceRule_DPChoiceAssoc($select=dpChoiceRuleAssocID;$expand=dpChoice_DPChoiceRuleAssoc($select=dpChoiceID)), dPointRuleAssoc_DPChoiceAssoc($select=dPointRuleDPointAssocID;$expand=dPoint_DPointRuleAssoc($select=dPointID))`;
 		const filter = `dpChoiceID eq ${choiceId}`;
 		const select = `dpChoiceID`;
 		const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}select=${encodeURIComponent(select)}`;

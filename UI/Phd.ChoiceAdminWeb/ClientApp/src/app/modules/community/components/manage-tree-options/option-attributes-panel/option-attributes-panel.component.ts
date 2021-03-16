@@ -79,7 +79,7 @@ export class OptionAttributesPanelComponent implements OnInit, OnDestroy
 		let points: number[] = _.flatMap(pointToChoices, p => p.dPoint_DPointRuleAssoc.dPointID);
 
 		// choices in the choice to choice rules featuring the option mapped choice
-		let choices: number[] = _.flatMap(choiceToChoices, c => c.dPChoice_DPChoiceRuleAssoc.dpChoiceID)
+		let choices: number[] = _.flatMap(choiceToChoices, c => c.dpChoice_DPChoiceRuleAssoc.dpChoiceID)
 
 		// find groups that appear in the point and choice rules
 		let filteredGroups = this.currentTree.version.groups.filter(g => g.subGroups.some(sg => sg.points.some(p => (points.findIndex(x => x === p.id) > -1 || p.choices.some(c => choices.findIndex(x => x === c.id) > -1)))));
