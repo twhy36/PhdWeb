@@ -124,7 +124,8 @@ export class ChangeOrderTableComponent extends UnsubscribeOnDestroy implements O
 					}
 				case 'HomesiteTransfer':
 					if (changeOrder.salesChangeOrderBuyers.length > 0 || changeOrder.salesChangeOrderPriceAdjustments.length > 0
-						|| changeOrder.salesChangeOrderSalesPrograms.length > 0 || changeOrder.salesChangeOrderTrusts.length > 0)
+						|| changeOrder.salesChangeOrderSalesPrograms.length > 0 || changeOrder.salesChangeOrderTrusts.length > 0 
+						|| changeOrder.salesNotesChangeOrders.length > 0)
 					{
 						let changeOrderDescription = 'Lot Transfer Change'
 						if (changeOrder.salesChangeOrderBuyers.length > 0 || changeOrder.salesChangeOrderTrusts.length > 0)
@@ -149,7 +150,8 @@ export class ChangeOrderTableComponent extends UnsubscribeOnDestroy implements O
 					return changeOrder.changeOrderTypeDescription;
 				default:
 					if (changeOrder.salesChangeOrderBuyers.length > 0 || changeOrder.salesChangeOrderPriceAdjustments.length > 0
-						|| changeOrder.salesChangeOrderSalesPrograms.length > 0 || changeOrder.salesChangeOrderTrusts.length > 0)
+						|| changeOrder.salesChangeOrderSalesPrograms.length > 0 || changeOrder.salesChangeOrderTrusts.length > 0 
+						|| changeOrder.salesNotesChangeOrders.length > 0)
 					{
 						
 						let changeOrderDescription = changeOrder.changeOrderTypeDescription
