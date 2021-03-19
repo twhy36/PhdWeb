@@ -632,6 +632,7 @@ describe('Common reducer', function ()
 				selectedLot: {
 					monotonyRules: [{
 						edhLotId: 1234,
+						edhPlanId: 5,
 						ruleType: 'Elevation',
 						colorSchemeAttributeCommunityIds: [],
 						elevationDivChoiceCatalogId: 17713,
@@ -665,6 +666,10 @@ describe('Common reducer', function ()
 						}]
 					}
 				}
+			},
+			plan: {
+				plans: [{ id: 5 }],
+				selectedPlan: 5
 			}
 		};
 
@@ -679,6 +684,7 @@ describe('Common reducer', function ()
 				selectedLot: {
 					monotonyRules: [{
 						edhLotId: 1234,
+						edhPlanId: 5,
 						ruleType: 'Elevation',
 						colorSchemeAttributeCommunityIds: [],
 						elevationDivChoiceCatalogId: 17713,
@@ -712,6 +718,10 @@ describe('Common reducer', function ()
 						}]
 					}
 				}
+			},
+			plan: {
+				plans: [{ id: 5 }],
+				selectedPlan: 5
 			}
 		};
 
@@ -726,6 +736,7 @@ describe('Common reducer', function ()
 				selectedLot: {
 					monotonyRules: [{
 						edhLotId: 1234,
+						edhPlanId: 5,
 						ruleType: 'Elevation',
 						colorSchemeAttributeCommunityIds: [],
 						elevationDivChoiceCatalogId: 17713,
@@ -759,6 +770,10 @@ describe('Common reducer', function ()
 						}]
 					}
 				}
+			},
+			plan: {
+				plans: [{ id: 5 }],
+				selectedPlan: 5
 			}
 		};
 
@@ -773,6 +788,7 @@ describe('Common reducer', function ()
 				selectedLot: {
 					monotonyRules: [{
 						edhLotId: 1234,
+						edhPlanId: 5,
 						ruleType: 'ColorScheme',
 						colorSchemeAttributeCommunityIds: [],
 						elevationDivChoiceCatalogId: null,
@@ -806,6 +822,10 @@ describe('Common reducer', function ()
 						}]
 					}
 				}
+			},
+			plan: {
+				plans: [{ id: 5 }],
+				selectedPlan: 5
 			}
 		};
 
@@ -820,6 +840,7 @@ describe('Common reducer', function ()
 				selectedLot: {
 					monotonyRules: [{
 						edhLotId: 1234,
+						edhPlanId: 5,
 						ruleType: 'ColorScheme',
 						colorSchemeAttributeCommunityIds: [],
 						elevationDivChoiceCatalogId: null,
@@ -853,6 +874,10 @@ describe('Common reducer', function ()
 						}]
 					}
 				}
+			},
+			plan: {
+				plans: [{ id: 5 }],
+				selectedPlan: 5
 			}
 		};
 
@@ -867,6 +892,7 @@ describe('Common reducer', function ()
 				selectedLot: {
 					monotonyRules: [{
 						edhLotId: 1234,
+						edhPlanId: 5,
 						ruleType: 'Elevation',
 						colorSchemeAttributeCommunityIds: [1115],
 						elevationDivChoiceCatalogId: 17713,
@@ -893,6 +919,10 @@ describe('Common reducer', function ()
 						}]
 					}
 				}
+			},
+			plan: {
+				plans: [{ id: 5 }],
+				selectedPlan: 5
 			}
 		};
 
@@ -1059,6 +1089,7 @@ describe('Common reducer', function ()
 				selectedLot: {
 					monotonyRules: [{
 						edhLotId: 1234,
+						edhPlanId: 1111,
 						ruleType: 'Elevation',
 						colorSchemeAttributeCommunityIds: [1115],
 						elevationDivChoiceCatalogId: 17713,
@@ -1120,12 +1151,14 @@ describe('Common reducer', function ()
 				planId: 12345
 			},
 			plan: {
+				plans: [{ id: 12345 }],
 				selectedPlan: 12345
 			},
 			lot: {
 				selectedLot: {
 					monotonyRules: [{
 						edhLotId: 1234,
+						edhPlanId: 12345,
 						ruleType: 'Elevation',
 						colorSchemeAttributeCommunityIds: [1115],
 						elevationDivChoiceCatalogId: 17713,
@@ -1191,6 +1224,7 @@ describe('Common reducer', function ()
 				selectedLot: {
 					monotonyRules: [{
 						edhLotId: 1234,
+						edhPlanId: 0,
 						ruleType: 'Elevation',
 						colorSchemeAttributeCommunityIds: [1115],
 						elevationDivChoiceCatalogId: 17713,
@@ -1250,12 +1284,14 @@ describe('Common reducer', function ()
 				planId: 12345
 			},
 			plan: {
+				plans: [{ id: 12345 }],
 				selectedPlan: 12345
 			},
 			lot: {
 				selectedLot: {
 					monotonyRules: [{
 						edhLotId: 1234,
+						edhPlanId: 12345,
 						ruleType: 'Elevation',
 						colorSchemeAttributeCommunityIds: [1115],
 						elevationDivChoiceCatalogId: 17713,
@@ -1315,12 +1351,14 @@ describe('Common reducer', function ()
 				planId: 12345
 			},
 			plan: {
+				plans: [{ id: 12345 }],
 				selectedPlan: 12345
 			},
 			lot: {
 				selectedLot: {
 					monotonyRules: [{
 						edhLotId: 1234,
+						edhPlanId: 12345,
 						ruleType: 'Elevation',
 						colorSchemeAttributeCommunityIds: [1115],
 						elevationDivChoiceCatalogId: 17713,
@@ -1382,12 +1420,14 @@ describe('Common reducer', function ()
 				planId: 12345
 			},
 			plan: {
+				plans: [{ id: 12345 }],
 				selectedPlan: 12345
 			},
 			lot: {
 				selectedLot: {
 					monotonyRules: [{
 						edhLotId: 1234,
+						edhPlanId: 12345,
 						ruleType: 'Elevation',
 						colorSchemeAttributeCommunityIds: [1115],
 						elevationDivChoiceCatalogId: 17713,
@@ -1449,12 +1489,14 @@ describe('Common reducer', function ()
 				planId: 12345
 			},
 			plan: {
+				plans: [{ id: 12345 }],
 				selectedPlan: 12345
 			},
 			lot: {
 				selectedLot: {
 					monotonyRules: [{
 						edhLotId: 1234,
+						edhPlanId: 12345,
 						ruleType: 'Elevation',
 						colorSchemeAttributeCommunityIds: [1115],
 						elevationDivChoiceCatalogId: 17713,
@@ -1516,12 +1558,14 @@ describe('Common reducer', function ()
 				planId: 12345
 			},
 			plan: {
+				plans: [{ id: 12345 }],
 				selectedPlan: 12345
 			},
 			lot: {
 				selectedLot: {
 					monotonyRules: [{
 						edhLotId: 1234,
+						edhPlanId: 12345,
 						ruleType: 'Elevation',
 						colorSchemeAttributeCommunityIds: [1115],
 						elevationDivChoiceCatalogId: 17713,
@@ -2611,12 +2655,14 @@ describe('Common reducer', function ()
 				planId: 12345
 			},
 			plan: {
+				plans: [{ id: 12345 }],
 				selectedPlan: 12345
 			},
 			lot: {
 				selectedLot: {
 					monotonyRules: [{
 						edhLotId: 1234,
+						edhPlanId: 12345,
 						ruleType: 'Elevation',
 						colorSchemeAttributeCommunityIds: [1115],
 						elevationDivChoiceCatalogId: 17713,
@@ -2688,12 +2734,14 @@ describe('Common reducer', function ()
 				planId: 12345
 			},
 			plan: {
+				plans: [{ id: 12345 }],
 				selectedPlan: 12345
 			},
 			lot: {
 				selectedLot: {
 					monotonyRules: [{
 						edhLotId: 1234,
+						edhPlanId: 12345,
 						ruleType: 'Elevation',
 						colorSchemeAttributeCommunityIds: [1115],
 						elevationDivChoiceCatalogId: 17713,
@@ -2765,12 +2813,14 @@ describe('Common reducer', function ()
 				planId: 12345
 			},
 			plan: {
+				plans: [{ id: 12345 }],
 				selectedPlan: 12345
 			},
 			lot: {
 				selectedLot: {
 					monotonyRules: [{
 						edhLotId: 1234,
+						edhPlanId: 12345,
 						ruleType: 'Elevation',
 						colorSchemeAttributeCommunityIds: [1115],
 						elevationDivChoiceCatalogId: 17713,
@@ -2842,12 +2892,14 @@ describe('Common reducer', function ()
 				planId: 12345
 			},
 			plan: {
+				plans: [{ id: 12345 }],
 				selectedPlan: 12345
 			},
 			lot: {
 				selectedLot: {
 					monotonyRules: [{
 						edhLotId: 1234,
+						edhPlanId: 12345,
 						ruleType: 'Elevation',
 						colorSchemeAttributeCommunityIds: [1115],
 						elevationDivChoiceCatalogId: 17713,
@@ -3120,7 +3172,7 @@ describe('Common reducer', function ()
 		expect(result).toBe('Pending Change Order');
 	});
 
-	it('selectedPlanPrice is salesPhasePlanPrice when there is a salesPhasePlan ', () =>
+	it('selectedPlanPrice is salesPhasePlanPrice when the phase is enabled and there is a salesPhasePlan ', () =>
 	{
 		const state: State = <any>{
 			plan: {
@@ -3137,6 +3189,9 @@ describe('Common reducer', function ()
 							planId: 17,
 							price: 99921
 						}]
+					},
+					financialCommunity: {
+						isPhasedPricingEnabled: true
 					}
 				}
 			}
@@ -3144,6 +3199,34 @@ describe('Common reducer', function ()
 
 		const result = selectedPlanPrice(state);
 		expect(result).toBe(99921);
+	});
+
+	it('selectedPlanPrice is planPrice when the phase is disabled and there is a salesPhasePlan ', () => {
+		const state: State = <any>{
+			plan: {
+				plans: [{
+					id: 17,
+					price: 12999
+				}],
+				selectedPlan: 17
+			},
+			lot: {
+				selectedLot: {
+					salesPhase: {
+						salesPhasePlanPriceAssocs: [{
+							planId: 17,
+							price: 99921
+						}]
+					},
+					financialCommunity: {
+						isPhasedPricingEnabled: false
+					}
+				}
+			}
+		};
+
+		const result = selectedPlanPrice(state);
+		expect(result).toBe(12999);
 	});
 
 	it('selectedPlanPrice is planPrice when there is not a salesPhasePlan ', () =>
@@ -3389,6 +3472,7 @@ describe('Common reducer', function ()
 											hasOptionRules: false,
 											id: 5,
 											imagePath: 'string',
+											hasImage: false,
 											isDecisionDefault: false,
 											isSelectable: false,
 											maxQuantity:  1,
@@ -3446,6 +3530,7 @@ describe('Common reducer', function ()
 											hasOptionRules: false,
 											id: 5,
 											imagePath: 'string',
+											hasImage: false,
 											isDecisionDefault: false,
 											isSelectable: false,
 											maxQuantity:  1,
@@ -3577,6 +3662,7 @@ describe('Common reducer', function ()
 								hasOptionRules: false,
 								id: 5,
 								imagePath: 'string',
+								hasImage: false,
 								isDecisionDefault: false,
 								isSelectable: false,
 								maxQuantity:  1,
@@ -3634,6 +3720,7 @@ describe('Common reducer', function ()
 								hasOptionRules: false,
 								id: 5,
 								imagePath: 'string',
+								hasImage: false,
 								isDecisionDefault: false,
 								isSelectable: false,
 								maxQuantity:  1,
@@ -3724,6 +3811,7 @@ describe('Common reducer', function ()
 											hasOptionRules: false,
 											id: 5,
 											imagePath: 'string',
+											hasImage: false,
 											isDecisionDefault: false,
 											isSelectable: false,
 											maxQuantity:  1,
@@ -3781,6 +3869,7 @@ describe('Common reducer', function ()
 											hasOptionRules: false,
 											id: 5,
 											imagePath: 'string',
+											hasImage: false,
 											isDecisionDefault: false,
 											isSelectable: false,
 											maxQuantity:  1,
@@ -3912,6 +4001,7 @@ describe('Common reducer', function ()
 								hasOptionRules: false,
 								id: 5,
 								imagePath: 'string',
+								hasImage: false,
 								isDecisionDefault: false,
 								isSelectable: false,
 								maxQuantity:  1,
@@ -4002,6 +4092,7 @@ describe('Common reducer', function ()
 											hasOptionRules: false,
 											id: 5,
 											imagePath: 'string',
+											hasImage: false,
 											isDecisionDefault: false,
 											isSelectable: false,
 											maxQuantity:  1,
@@ -4059,6 +4150,7 @@ describe('Common reducer', function ()
 											hasOptionRules: false,
 											id: 5,
 											imagePath: 'string',
+											hasImage: false,
 											isDecisionDefault: false,
 											isSelectable: false,
 											maxQuantity:  1,
@@ -4190,6 +4282,7 @@ describe('Common reducer', function ()
 								hasOptionRules: false,
 								id: 5,
 								imagePath: 'string',
+								hasImage: false,
 								isDecisionDefault: false,
 								isSelectable: false,
 								maxQuantity:  1,
@@ -4216,6 +4309,7 @@ describe('Common reducer', function ()
 				selectedLot: {
 					monotonyRules: [{
 						edhLotId: 1234,
+						edhPlanId: 5,
 						ruleType: 'Elevation',
 						colorSchemeAttributeCommunityIds: [],
 						elevationDivChoiceCatalogId: 17713,
@@ -4250,6 +4344,10 @@ describe('Common reducer', function ()
 						}]
 					}
 				}
+			},
+			plan: {
+				plans: [{ id: 5 }],
+				selectedPlan: 5
 			}
 		};
 
@@ -4264,6 +4362,7 @@ describe('Common reducer', function ()
 				selectedLot: {
 					monotonyRules: [{
 						edhLotId: 1234,
+						edhPlanId: 5,
 						ruleType: 'Elevation',
 						colorSchemeAttributeCommunityIds: [],
 						elevationDivChoiceCatalogId: 17713,
@@ -4301,6 +4400,10 @@ describe('Common reducer', function ()
 						}]
 					}
 				}
+			},
+			plan: {
+				plans: [{ id: 5 }],
+				selectedPlan: 5
 			}
 		};
 
@@ -4315,6 +4418,7 @@ describe('Common reducer', function ()
 				selectedLot: {
 					monotonyRules: [{
 						edhLotId: 1234,
+						edhPlanId: 5,
 						ruleType: 'Elevation',
 						colorSchemeAttributeCommunityIds: [],
 						elevationDivChoiceCatalogId: 17713,
@@ -4349,6 +4453,10 @@ describe('Common reducer', function ()
 						}]
 					}
 				}
+			},
+			plan: {
+				plans: [{ id: 5 }],
+				selectedPlan: 5
 			}
 		};
 

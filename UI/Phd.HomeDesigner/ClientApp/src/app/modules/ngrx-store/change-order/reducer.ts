@@ -1,4 +1,4 @@
-import { Action, createFeatureSelector } from '@ngrx/store';
+import { Action, createSelector, createFeatureSelector } from '@ngrx/store';
 import * as _ from "lodash";
 
 import { ChangeOrderGroup } from '../../shared/models/job-change-order.model';
@@ -62,3 +62,8 @@ export function reducer(state: State = initialState, action: Action): State
 
 //selectors
 export const changeOrderState = createFeatureSelector<State>('changeOrder');
+
+export const currentChangeOrder = createSelector(
+	changeOrderState,
+	(state) => state ? state.currentChangeOrder : null
+);

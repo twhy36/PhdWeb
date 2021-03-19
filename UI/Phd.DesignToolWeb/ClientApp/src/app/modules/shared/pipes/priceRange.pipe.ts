@@ -1,5 +1,10 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { ChoicePriceRange } from '../models/tree.model.new';
+import { Observable } from 'rxjs';
+import { map, takeWhile } from 'rxjs/operators';
+import { Store, select } from '@ngrx/store';
+
+import * as fromRoot from '../../ngrx-store/reducers';
+import * as fromScenario from '../../ngrx-store/scenario/reducer';
 
 @Pipe({
 	name: 'priceRange'
@@ -7,20 +12,31 @@ import { ChoicePriceRange } from '../models/tree.model.new';
 
 export class PriceRangePipe implements PipeTransform
 {
-	transform(values: Array<ChoicePriceRange>, choiceId: number): string
-	{
-		let range = '$0';
-		if (values) {
-			const priceRange = values.find(x => x.choiceId === choiceId);
-			if (priceRange && (priceRange.min === priceRange.max))
-			{
-				range = `\$${priceRange.min}`;
-			}
-			else if (priceRange && (priceRange.min !== priceRange.max)) {
-				range = `\$${priceRange.min} - \$${priceRange.max}`;
-			}
-		}
+	constructor(private store: Store<fromRoot.State>) { }
 
-		return range;
+	transform(choiceId: number): Observable<string>
+	{
+		return this.store.pipe(
+			select(fromScenario.selectScenario),
+			map(scenarioState => {
+				if (!!scenarioState.priceRanges) {
+					let range = '$0';
+
+					const priceRange = scenarioState.priceRanges.find(x => x.choiceId === choiceId);
+					if (priceRange && (priceRange.min === priceRange.max)) {
+						range = `\$${priceRange.min}`;
+					}
+					else if (priceRange && (priceRange.min !== priceRange.max)) {
+						range = `\$${priceRange.min} - \$${priceRange.max}`;
+					}
+
+					return range;
+				} else {
+					return null;
+				}
+			}),
+			takeWhile(res => !res, true),
+			map(res => res || 'TBD')
+		);
 	}
 }

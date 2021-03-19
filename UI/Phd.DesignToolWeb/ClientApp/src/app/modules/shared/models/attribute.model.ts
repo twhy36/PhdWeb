@@ -22,6 +22,13 @@ export interface AttributeGroup
 	sortOrder: number;
 }
 
+export interface AttributeCommunityImageAssoc
+{
+	attributeCommunityImageAssocId: number;
+	attributeCommunityId: number;
+	imageUrl: string;
+}
+
 export interface Attribute
 {
 	id: number;

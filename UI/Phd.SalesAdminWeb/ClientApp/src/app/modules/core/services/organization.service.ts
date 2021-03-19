@@ -10,9 +10,7 @@ import { StorageService } from './storage.service';
 import { FinancialMarket } from '../../shared/models/financialMarket.model';
 import { Settings } from '../../shared/models/settings.model';
 import { FinancialCommunity } from '../../shared/models/financialCommunity.model';
-import { FinancialCommunityInfo } from '../../shared/models/financialCommunityInfo.model';
 import { Org } from '../../shared/models/org.model';
-import { withSpinner } from 'phd-common/extensions/withSpinner.extension';
 import { IdentityService } from 'phd-common/services';
 import { ClaimTypes, Permission } from 'phd-common/models';
 
@@ -195,7 +193,7 @@ export class OrganizationService
 			let url = settings.apiUrl;
 
 			const filter = `marketId eq ${marketId}`;
-			const select = 'id, marketId, name, number, salesStatusDescription, isPhasedPricingEnabled';
+			const select = 'id, marketId, name, number, salesStatusDescription, isPhasedPricingEnabled, isElevationMonotonyRuleEnabled, isColorSchemeMonotonyRuleEnabled';
 			const expand = 'market($select=id,number)';
 			const orderBy = 'name';
 			const qryStr = `${encodeURIComponent('$')}expand=${encodeURIComponent(expand)}&${encodeURIComponent('$')}select=${encodeURIComponent(select)}&${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}&${encodeURIComponent('$')}orderby=${encodeURIComponent(orderBy)}`;
@@ -214,7 +212,9 @@ export class OrganizationService
 							key: data.number,
 							marketKey: data.market.number,
 							salesStatusDescription: data.salesStatusDescription,
-							isPhasedPricingEnabled: data.isPhasedPricingEnabled
+							isPhasedPricingEnabled: data.isPhasedPricingEnabled,
+							isElevationMonotonyRuleEnabled: data.isElevationMonotonyRuleEnabled,
+							isColorSchemeMonotonyRuleEnabled: data.isColorSchemeMonotonyRuleEnabled
 						} as FinancialCommunity;
 					});
 				}),
@@ -323,54 +323,6 @@ export class OrganizationService
 		console.error(error);
 
 		return _throw(error || 'Server error');
-	}
-
-	getFinancialCommunitySettings(marketId: number): Observable<Array<FinancialCommunityInfo>>
-	{
-		const filter = `org/edhMarketId eq ${marketId}`
-		const expand = `org`
-
-		const qryStr = `${encodeURIComponent('$')}expand=${encodeURIComponent(expand)}&${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}`;
-		const url = `${settings.apiUrl}financialCommunityInfos?${qryStr}`;
-
-		return withSpinner(this._http).get(url).pipe(
-			map(response =>
-			{
-				return response['value'] as Array<FinancialCommunityInfo>;
-			})
-		);
-	}
-
-	updateFinancialCommunityInfo(financialCommunityInfo: FinancialCommunityInfo, financialCommunityInfoChange: any)
-	{
-		if (financialCommunityInfo.financialCommunityId === 0)
-		{
-			const body = {
-				'financialCommunityId': financialCommunityInfo.financialCommunityId,
-				'isColorSchemeMonotonyRuleEnabled': financialCommunityInfo.isColorSchemeMonotonyRuleEnabled,
-				'isElevationMonotonyRuleEnabled': financialCommunityInfo.isElevationMonotonyRuleEnabled,
-				'org': {
-					'edhFinancialCommunityId': financialCommunityInfo.org.edhFinancialCommunityId,
-					'edhMarketId': financialCommunityInfo.org.edhMarketId,
-					'integrationKey': financialCommunityInfo.org.integrationKey,
-				}
-			}
-
-			const endPoint = `${settings.apiUrl}financialCommunityInfos`;
-
-			return this._http.post(endPoint, body).pipe(
-				map((response: FinancialCommunityInfo) =>
-				{
-					return response;
-				}));
-		}
-		else
-		{
-			const endPoint = `${settings.apiUrl}financialCommunityInfos(${financialCommunityInfo.financialCommunityId})`;
-
-			return this._http.patch(endPoint, financialCommunityInfoChange)
-		}
-
 	}
 
 	canEdit(claimType: ClaimTypes): Observable<boolean>

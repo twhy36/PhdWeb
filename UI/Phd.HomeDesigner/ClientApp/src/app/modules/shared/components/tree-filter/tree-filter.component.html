@@ -1,0 +1,10 @@
+<div class="input-group">
+	<input type="text" [(ngModel)]="keyword" class="form-control phd-search-input" placeholder="Search" maxlength="100">
+	<span class="phd-search-clear" (click)="clearFilter()"><i class="fa fa-fw fa-times"></i></span>
+
+	<div (click)="keywordSearch()">
+		<button type="button" class="btn btn-secondary" [disabled]="!canSearch">
+			<i class="fa fa-fw fa-search"></i>
+		</button>
+	</div>
+</div>

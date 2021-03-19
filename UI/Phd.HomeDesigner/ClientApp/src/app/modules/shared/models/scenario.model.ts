@@ -245,32 +245,9 @@ export interface SelectedChoice
 
 export class PriceBreakdown
 {
-	baseHouse: number = 0;
-	homesite: number = 0;
-	selections: number = 0;
-	salesProgram: number = 0;
-	closingIncentive: number = 0;
-
-	nonStandardSelections: number = 0;
-	priceAdjustments: number = 0;
-	closingCostAdjustment: number = 0;
-
-	homesiteEstimate: number = 0;
-	designEstimate: number = 0;
-
-	totalPrice: number = 0;
+	salesPrice: number = 0;
 	changePrice: number = 0;
-
-	constructor(dto?: DtoScenarioInfo)
-	{
-		if (dto)
-		{
-			this.homesiteEstimate = dto.homesiteEstimate;
-			this.designEstimate = dto.designEstimate;
-			this.salesProgram = dto.discount;
-			this.closingIncentive = dto.closingIncentive;
-		}
-	}
+	totalPrice: number = 0;
 }
 
 export type modes = 'sales' | 'preview';

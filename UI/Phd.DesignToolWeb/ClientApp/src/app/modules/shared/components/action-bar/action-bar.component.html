@@ -97,19 +97,31 @@
 	</div>
 
 	<div *ngIf="showToggleSalesAgreementLock" class="phd-action-bar-action-btn flex-grow-0">
-		<button
-				class="btn btn-lg d-flex justify-content-center align-items-center mx-4 complete"
-				type="button"
-				(click)="onToggleAgreementLock()"
-				[disabled]="savingAgreement || hasOpenChangeOrder"
-				title="{{toggleAgreementLockTitle}}">
-			<div class="circle d-flex align-items-center justify-content-center">
-				<span>
-					<i class="fa fa-check"></i>
-				</span>
+		<span [ngbTooltip]="readyToCloseTemplate" tooltipClass="phd-lock-tooltip" [disableTooltip]="!hasOpenChangeOrder && allDepositsReconciled">
+			<button class="btn btn-lg d-flex justify-content-center align-items-center mx-4" 
+					type="button"
+					(click)="onToggleAgreementLock()"
+					[class.incomplete]="hasOpenChangeOrder || !allDepositsReconciled"
+					[class.complete]="!hasOpenChangeOrder && allDepositsReconciled"
+					[disabled]="savingAgreement || hasOpenChangeOrder || !allDepositsReconciled">
+				<div class="circle d-flex align-items-center justify-content-center">
+					<span *ngIf="!hasOpenChangeOrder && allDepositsReconciled">
+						<i class="fa fa-check"></i>
+					</span>
+					<span *ngIf="hasOpenChangeOrder || !allDepositsReconciled">
+						<i class="fas fa-exclamation"></i>
+					</span>
+				</div>
+				<span>{{ toggleAgreementLockLabel }}</span>
+			</button>
+		</span>
+		<ng-template #readyToCloseTemplate >
+			<div class="phd-lock-tooltip-text">
+				<div>Cannot Lock Sales Agreement</div>
+				<div *ngIf="hasOpenChangeOrder">- Change Orders Exist</div>
+				<div *ngIf="!allDepositsReconciled">- Unpaid Deposits Exist</div>
 			</div>
-			<span>{{ toggleAgreementLockLabel }}</span>
-		</button>
+		</ng-template>
 	</div>
 
 	<div *ngIf="(canEditAgreement$ | async) && canChange && !canSignAgreement && !canApproveAgreement || inSpec" class="phd-action-bar-action-btn flex-grow-0">

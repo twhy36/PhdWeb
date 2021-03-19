@@ -30,7 +30,8 @@
 							"node_modules/primeng/resources/primeng.min.css",
 							"src/scss/styles.scss"
 						],
-						"scripts": []
+						"scripts": [],
+						"webWorkerTsConfig": "tsconfig.worker.json"
 					},
 					"configurations": {
 						"qa": {
@@ -117,7 +118,8 @@
 					"options": {
 						"tsConfig": [
 							"src/tsconfig.app.json",
-							"src/tsconfig.spec.json"
+							"src/tsconfig.spec.json",
+							"tsconfig.worker.json"
 						],
 						"exclude": [
 							"**/node_modules/**"

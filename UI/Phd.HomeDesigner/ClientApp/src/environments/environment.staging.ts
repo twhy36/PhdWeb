@@ -1,7 +1,7 @@
 import { IEnvironment } from './environment.model';
 
 export const environment: IEnvironment = {
-	production: true,
+	production: false,
 	apiUrl: 'https://phdapi.staging.pulte.com/odata/',
 	tenant: "pulte.onmicrosoft.com",
 	clientId: "d6e4e999-c413-4d1d-b0fb-618759cb69e5",

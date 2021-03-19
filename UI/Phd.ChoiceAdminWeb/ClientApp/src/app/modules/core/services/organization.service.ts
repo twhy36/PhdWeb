@@ -205,9 +205,10 @@ export class OrganizationService
 	{
 		const batchGuid = odataUtils.getNewGuid();
 
-		let requests = _(plans).groupBy('org.edhFinancialCommunityId').map((p, communityID) =>
+		const planGroups = _.groupBy(plans, 'org.edhFinancialCommunityId');
+		let requests = Object.keys(planGroups).map(communityID =>
 		{
-			var financialPlanIntegrationKey = p.map(x => `'${x.integrationKey}'`).join(',');
+			var financialPlanIntegrationKey = planGroups[communityID].map(x => `'${x.integrationKey}'`).join(',');
 
 			const entity = `financialCommunities`;
 			const expand = `planCommunities($filter=financialPlanIntegrationKey in (${financialPlanIntegrationKey}) and productType ne 'MultiUnit Shell' and isActive eq true;$select=id, financialPlanIntegrationKey, planSalesName; $orderby=planSalesName)`
@@ -318,7 +319,9 @@ export class OrganizationService
 	{
 		const filter = `financialCommunities/any() and companyType eq 'HB' and salesStatusDescription eq 'Active'`;
 		const expand = `financialCommunities($top = 1; $select = salesStatusDescription, id; $filter = salesStatusDescription eq 'Active')`;
-		return withSpinner(this._http).get<any>(`${settings.apiUrl}assignedMarkets?${this._ds}select=id,number,name&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}expand=${encodeURIComponent(expand)}`).pipe(
+		const orderBy = `name`;
+
+		return withSpinner(this._http).get<any>(`${settings.apiUrl}assignedMarkets?${this._ds}select=id,number,name&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}orderby=${encodeURIComponent(orderBy)}`).pipe(
 			map((response: any) => response.value.map(mkt => <{ id: number, number: string }>mkt))
 		);
 	}

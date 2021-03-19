@@ -79,10 +79,10 @@ export class ContractService
 
 		url += `contractTemplates?${qryStr}`;
 
-		return this._http.get(url).pipe(
+		return this._http.get<any>(url).pipe(
 			map(response =>
 			{
-				let communityIds = _.uniq(_.flatten(response['value'].filter(ct => !!ct.templateFinancialCommunityAssocs.length)
+				let communityIds: number[] = _.uniq(_.flatten(response['value'].filter(ct => !!ct.templateFinancialCommunityAssocs.length)
 					.map(t => t.templateFinancialCommunityAssocs.map(t => t.org.edhFinancialCommunityId))));
 
 				return communityIds;

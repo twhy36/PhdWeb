@@ -27,6 +27,7 @@ import { SignAgreementComponent } from '../sign-agreement/sign-agreement.compone
 import { ConfirmModalComponent } from '../../../core/components/confirm-modal/confirm-modal.component';
 import { ModalService } from '../../../core/services/modal.service';
 import { ModalRef } from '../../../shared/classes/modal.class';
+import { PointStatus } from '@shared/models/point.model';
 
 type ActionBarStatusType = 'INCOMPLETE' | 'COMPLETE' | 'DISABLED';
 
@@ -53,6 +54,7 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 	salesAgreement: SalesAgreement;
 	salesAgreement$: Observable<SalesAgreement>;
 	priceBreakdown$: Observable<PriceBreakdown>;
+	isElevationColorSchemeComplete$: Observable<PointStatus>;
 	isPeopleComplete$: Observable<boolean>;
 	isSalesInfoComplete$: Observable<boolean>;
 	salesChangeOrderActionBarStatus$: Observable<ActionBarStatusType>;
@@ -198,6 +200,15 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 			})
 		);
 
+		this.isElevationColorSchemeComplete$ = this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromRoot.isComplete),
+			map(isComplete =>
+			{
+				return isComplete ? PointStatus.COMPLETED : PointStatus.REQUIRED;
+			})
+		);
+
 		this.isPeopleComplete$ = this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(state => state.salesAgreement),
@@ -233,13 +244,13 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 		this.salesAgreementActionBarStatus$ = this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(state => state.contract),
-			combineLatest(this.isSalesInfoComplete$, this.isPeopleComplete$, this.isAgreementInfoViewed$),
-			map(([contract, isSalesInfoComplete, isPeopleComplete, isAgreementInfoViewed]) =>
+			combineLatest(this.isSalesInfoComplete$, this.isPeopleComplete$, this.isAgreementInfoViewed$, this.isElevationColorSchemeComplete$),
+			map(([contract, isSalesInfoComplete, isPeopleComplete, isAgreementInfoViewed, isElevationColorSchemeComplete]) =>
 			{
 				let status: ActionBarStatusType = 'INCOMPLETE';
 				const selectedTemplates = contract.selectedTemplates;
 
-				if ((selectedTemplates && selectedTemplates.length) && contract.selectedAgreementType !== ESignTypeEnum.TerminationAgreement && isPeopleComplete && isSalesInfoComplete && isAgreementInfoViewed)
+				if ((selectedTemplates && selectedTemplates.length) && contract.selectedAgreementType !== ESignTypeEnum.TerminationAgreement && isPeopleComplete && isSalesInfoComplete && isAgreementInfoViewed && isElevationColorSchemeComplete)
 				{
 					status = 'COMPLETE';
 				}

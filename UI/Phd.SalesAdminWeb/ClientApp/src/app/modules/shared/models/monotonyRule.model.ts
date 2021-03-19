@@ -1,6 +1,5 @@
 export class MonotonyRule {
-    monotonyRuleId: number;
-    monotonyRuleTypeId: number;
-    edhLotId: number;
-    relatedEdhLotId: number;
+    monotonyRuleType: 'ColorScheme' | 'Elevation';
+    lotId: number;
+    relatedLotId: number;
 }

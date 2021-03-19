@@ -63,7 +63,7 @@ export class HomeSiteService
 	{
 		let url = settings.apiUrl;
 
-		const expand = `planAssociations($select=id;$expand=planCommunity($select=id, financialPlanIntegrationKey)), salesPhase($select=id, salesPhaseName), financialCommunity($select=id, number, marketId; $expand=market($select=id, number)), lotHandingAssocs, lotViewAdjacencyAssocs($expand=viewAdjacency), lotPhysicalLotTypeAssocs($expand=physicalLotType)`;
+		const expand = `planAssociations($select=id,isActive;$expand=planCommunity($select=id, financialPlanIntegrationKey)), salesPhase($select=id, salesPhaseName), financialCommunity($select=id, number, marketId; $expand=market($select=id, number)), lotHandingAssocs, lotViewAdjacencyAssocs($expand=viewAdjacency), lotPhysicalLotTypeAssocs($expand=physicalLotType)`;
 		const filter = `financialCommunity/id eq ${communityId} and lotStatusDescription ne 'Deleted' and isMasterUnit eq false`;
 
 		const qryStr = `${encodeURIComponent("$")}expand=${encodeURIComponent(expand)}&${encodeURIComponent("$")}filter=${encodeURIComponent(filter)}`;
@@ -88,7 +88,7 @@ export class HomeSiteService
 		let filter = '';
 		let url = settings.apiUrl;
 
-		const expand = `planAssociations($select=id;$expand=planCommunity($select=id, financialPlanIntegrationKey)), salesPhase($select=id, salesPhaseName), financialCommunity($select=id, number, marketId; $expand=market($select=id, number)), lotHandingAssocs, lotViewAdjacencyAssocs($expand=viewAdjacency), lotPhysicalLotTypeAssocs($expand=physicalLotType)`;
+		const expand = `planAssociations($select=id,isActive;$expand=planCommunity($select=id, financialPlanIntegrationKey)), salesPhase($select=id, salesPhaseName), financialCommunity($select=id, number, marketId; $expand=market($select=id, number)), lotHandingAssocs, lotViewAdjacencyAssocs($expand=viewAdjacency), lotPhysicalLotTypeAssocs($expand=physicalLotType)`;
 		const select = `id, financialCommunityId, lotBlock, lotCost, lotStatusDescription, lotBuildTypeDesc, foundationType, facing, premium, streetAddress1, streetAddress2, city, stateProvince, postalCode`;
 
 		commLbIds.forEach(id =>
@@ -124,7 +124,7 @@ export class HomeSiteService
 			postalCode: data.postalCode
 		} as HomeSiteDtos.IAddress;
 
-		let plans = data.planAssociations.map(d =>
+		let plans = data.planAssociations.filter(p => p.isActive).map(d =>
 		{
 			return d.planCommunity.id;
 		});
@@ -224,7 +224,7 @@ export class HomeSiteService
 	{
 		let url = settings.apiUrl;
 
-		const filter = `edhLotId eq ${lotId}`;
+		const filter = `lotId eq ${lotId}`;
 
 		const qryStr = `${encodeURIComponent("$")}filter=${encodeURIComponent(filter)}`;
 
@@ -237,9 +237,9 @@ export class HomeSiteService
 				{
 					return {
 						monotonyRuleId: data.monotonyRuleId,
-						monotonyRuleTypeId: data.monotonyRuleTypeId,
-						edhLotId: data.edhLotId,
-						relatedEdhLotId: data.relatedEdhLotId
+						monotonyRuleType: data.monotonyRuleType,
+						lotId: data.lotId,
+						relatedLotId: data.relatedLotId
 					} as MonotonyRule
 				});
 

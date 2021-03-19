@@ -2,6 +2,7 @@
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { TableModule } from 'primeng/table';
 import { MultiSelectModule } from 'primeng/multiselect';
@@ -19,18 +20,56 @@ import { DragSourceDirective, DragTargetDirective, RequiresClaimDirective, Contr
 import { SpinnerInterceptor } from './services/interceptors/spinner.interceptor';
 import { SpinnerComponent } from './components/spinner/spinner.component';
 import { BuildVersionComponent } from './components/build-version/build-version.component';
+import { ErrorMessageComponent } from './components/error-message/error-message.component';
 import { CanDeactivateGuard } from './guards/can-deactivate.guard';
 import { ClaimGuard } from './guards/claim.guard';
 import { IdentityService, IdentitySettings } from './services';
 import { AuthInterceptor } from './http-interceptors/auth-interceptor';
 import { SpinnerService } from './services/spinner.service';
+import { BrowserService } from './services/browser.service';
+import { EllipsisPipe } from './pipes/ellipsis.pipe';
 
 export const API_URL = new InjectionToken<string>('apiUrl');
 
 @NgModule({
-    imports: [TableModule, MultiSelectModule, DropdownModule, OverlayPanelModule, CommonModule, FormsModule],
-    declarations: [PhdTableComponent, ConfirmModalComponent, SidePanelComponent, PhdColumnDirective, RowTogglerDirective, DragSourceDirective, DragTargetDirective, SpinnerComponent, RequiresClaimDirective, ControlDisabledDirective, BuildVersionComponent],
-    exports: [PhdTableComponent, ConfirmModalComponent, SidePanelComponent, PhdColumnDirective, RowTogglerDirective, DragSourceDirective, DragTargetDirective, SpinnerComponent, RequiresClaimDirective, ControlDisabledDirective, BuildVersionComponent],
+    imports: [
+        TableModule,
+        MultiSelectModule,
+        DropdownModule,
+        OverlayPanelModule,
+        CommonModule,
+        FormsModule,
+        BrowserAnimationsModule],
+    declarations: [
+        PhdTableComponent,
+        ConfirmModalComponent,
+        SidePanelComponent,
+        PhdColumnDirective,
+        RowTogglerDirective,
+        DragSourceDirective,
+        DragTargetDirective,
+        SpinnerComponent,
+        RequiresClaimDirective,
+        ControlDisabledDirective,
+        BuildVersionComponent,
+        ErrorMessageComponent,
+        EllipsisPipe
+    ],
+    exports: [
+        PhdTableComponent,
+        ConfirmModalComponent,
+        SidePanelComponent,
+        PhdColumnDirective,
+        RowTogglerDirective,
+        DragSourceDirective,
+        DragTargetDirective,
+        SpinnerComponent,
+        RequiresClaimDirective,
+        ControlDisabledDirective,
+        BuildVersionComponent,
+        ErrorMessageComponent,
+        EllipsisPipe
+    ],
 })
 export class PhdCommonModule {
     static forRoot(settings: IdentitySettings, apiUrl?: string): ModuleWithProviders {
@@ -48,6 +87,7 @@ export class PhdCommonModule {
                 { provide: IdentitySettings, useValue: settings },
                 { provide: API_URL, useValue: apiUrl || '' },
                 IdentityService,
+                BrowserService,
                 ClaimGuard,
                 { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }
             ]

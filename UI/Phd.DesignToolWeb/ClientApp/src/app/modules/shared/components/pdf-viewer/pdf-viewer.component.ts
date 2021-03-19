@@ -4,6 +4,9 @@ import { SafeResourceUrl, DomSanitizer } from '@angular/platform-browser';
 import { environment } from '../../../../../environments/environment';
 import { ModalContent } from '../../../shared/classes/modal.class';
 
+import { interval } from 'rxjs';
+import { startWith, skipWhile, take, tap } from 'rxjs/operators';
+
 @Component({
 	selector: 'pdf-viewer',
 	templateUrl: './pdf-viewer.component.html',
@@ -42,7 +45,14 @@ export class PDFViewerComponent extends ModalContent implements OnInit
 		{
 			this.pdfIframe.nativeElement.onload = () =>
 			{
-				this.pdfIframe.nativeElement.contentWindow.PDFViewerApplication.open(this.pdfData);
+				interval(100).pipe(
+					startWith(0),
+					skipWhile(() => !this.pdfIframe.nativeElement.contentWindow.PDFViewerApplication.initialized),
+					take(1)
+				).subscribe(() =>
+				{
+					this.pdfIframe.nativeElement.contentWindow.PDFViewerApplication.open(this.pdfData)
+				});
 			};
 		}
 	}

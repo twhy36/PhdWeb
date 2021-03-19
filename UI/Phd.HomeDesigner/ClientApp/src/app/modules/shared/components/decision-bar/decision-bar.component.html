@@ -1,0 +1,9 @@
+<ul class="list-unstyled">
+	<li *ngFor="let point of (points$ | async)"
+		[class.active]="(currentPointId$ | async) === point.id"
+		class="d-flex align-items-center justify-content-start"
+		(click)="onDecisionPointClick(point)"
+		[@slideOut]>
+		<div class="label" title="{{point.label}}">{{point.label | ellipsis: 40}}</div>
+	</li>
+</ul>

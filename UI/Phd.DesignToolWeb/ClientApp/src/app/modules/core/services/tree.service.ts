@@ -255,8 +255,9 @@ export class TreeService
 	{
 		let url = environment.apiUrl;
 		const filter = `dpChoiceId in (${choices.join(',')})`;
+		const orderby = `sortKey`;
 
-		const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=dpChoiceId, imageUrl`;
+		const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}orderBy=${orderby}&${this._ds}select=dpChoiceImageAssocId, dpChoiceId, imageUrl, sortKey`;
 
 		url += `dPChoiceImageAssocs?${qryStr}`;
 
@@ -311,12 +312,10 @@ export class TreeService
 				{
 					let bodies: any[] = response.responses.map(r => r.body);
 
-					return bodies.map(body => {
-						// pick draft(publishStartDate is null) or latest publishStartDate(last element)
-						let value = body.value.length > 0 ? body.value[0] : null;
-
-						return value ? value as PlanOptionCommunityImageAssoc : null;
-					}).filter(res => res);
+					return _.flatten(bodies.map(body =>
+					{
+						return body.value.length > 0 ? body.value : null;
+					}).filter(res => res));
 				})
 			);
 		}

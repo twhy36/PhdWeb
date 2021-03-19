@@ -17,15 +17,18 @@ import * as fromLot from '../../../ngrx-store/lot/reducer';
 import * as LotActions from '../../../ngrx-store/lot/actions';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 import * as NavActions from '../../../ngrx-store/nav/actions';
+import * as JobActions from '../../../ngrx-store/job/actions';
+import * as fromJobs from '../../../ngrx-store/job/reducer';
 
 import { ActionBarCallType } from '../../../shared/classes/constants.class';
-import { PointStatus } from '../../../shared/models/point.model';
 import { Choice } from '../../../shared/models/tree.model.new';
 import { FinancialCommunity } from '../../../shared/models/community.model';
 import { ModalOverrideSaveComponent } from '../../../core/components/modal-override-save/modal-override-save.component';
-import { Job } from "../../../shared/models/job.model";
+import { Job } from '../../../shared/models/job.model';
 import { selectSelectedLot } from '../../../ngrx-store/lot/reducer';
 import { ModalService } from '../../../core/services/modal.service';
+import { NewHomeService } from '../../services/new-home.service';
+import { Scenario } from '../../../shared/models/scenario.model';
 
 @Component({
 	selector: 'lot',
@@ -60,11 +63,14 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 	overrideReason: string;
 	selectedPlanPrice$: Observable<number>;
 	buildMode: 'buyer' | 'spec' | 'model' | 'preview' = 'buyer';
+	job: Job;
+	scenario: Scenario;
 
 	constructor(private router: Router,
 		private store: Store<fromRoot.State>,
 		private route: ActivatedRoute,
-		private modalService: ModalService
+		private modalService: ModalService,
+		private newHomeService: NewHomeService
 	)
 	{
 		super();
@@ -74,7 +80,6 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 
 	ngOnInit()
 	{
-		
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(fromScenario.buildMode)).subscribe((buildMode) =>
@@ -244,6 +249,16 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 			this.takeUntilDestroyed(),
 			select(fromRoot.selectedPlanPrice)
 		);
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromJobs.jobState)
+		).subscribe(job => this.job = job);
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(state => state.scenario)
+		).subscribe(scenario => this.scenario = scenario.scenario);
 	}
 
 	isAssociatedWithSelectedPlan(lot: Lot): boolean
@@ -259,37 +274,43 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 
 	monotonyConflictMessage(lot: LotComponentLot): string 
 	{
+		let planId = this.selectedPlanId ?? 0;
+
 		if (this.colorSchemeChoice && !this.colorSchemeConflictOverride) 
 		{
-			lot.colorSchemeMonotonyConflict = lot.monotonyRules.some(x => x.colorSchemeDivChoiceCatalogId === this.colorSchemeChoice.divChoiceCatalogId);
+			lot.colorSchemeMonotonyConflict = lot.monotonyRules.some(x => x.colorSchemeDivChoiceCatalogId === this.colorSchemeChoice.divChoiceCatalogId && x.edhPlanId === planId);
 		}
 
 		if (this.elevationChoice && !this.elevationConflictOverride) 
 		{
-			lot.elevationMonotonyConflict = lot.monotonyRules.some(r => r.elevationDivChoiceCatalogId === this.elevationChoice.divChoiceCatalogId);
+			lot.elevationMonotonyConflict = lot.monotonyRules.some(r => r.elevationDivChoiceCatalogId === this.elevationChoice.divChoiceCatalogId && r.edhPlanId === planId);
 
 			if (!this.colorSchemeChoice && this.elevationChoice.selectedAttributes.length > 0) 
 			{
 				lot.monotonyRules.forEach(rule => 
 				{
-					let colorAttributeConflicts = [];
-
-					if (!this.colorSchemeMonotonyConflict) 
+					// must be on the same plan
+					if (rule.edhPlanId === planId)
 					{
-						this.elevationChoice.selectedAttributes.forEach(x => 
-						{
-							if (rule.colorSchemeAttributeCommunityIds.some(colorAttributeIds => colorAttributeIds === x.attributeId)) 
-							{
-								colorAttributeConflicts.push(true);
-							}
-							else 
-							{
-								colorAttributeConflicts.push(false);
-							}
-						});
-					}
+						let colorAttributeConflicts = [];
 
-					this.colorSchemeMonotonyConflict = !colorAttributeConflicts.some(x => x === false);
+						if (!this.colorSchemeMonotonyConflict) 
+						{
+							this.elevationChoice.selectedAttributes.forEach(x => 
+							{
+								if (rule.colorSchemeAttributeCommunityIds.some(colorAttributeIds => colorAttributeIds === x.attributeId)) 
+								{
+									colorAttributeConflicts.push(true);
+								}
+								else 
+								{
+									colorAttributeConflicts.push(false);
+								}
+							});
+						}
+
+						this.colorSchemeMonotonyConflict = !colorAttributeConflicts.some(x => x === false);
+					}
 				})
 			}
 		}
@@ -381,6 +402,12 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 
 		if (!selected)
 		{
+			if (this.job && this.job.id !== 0)
+			{
+				// remove the spec
+				this.store.dispatch(new JobActions.DeselectSpec());
+			}
+
 			const handing = new ChangeOrderHanding();
 
 			lot.monotonyConflictMessage = '';
@@ -396,7 +423,7 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 
 			handing.handing = lot.selectedHanding;
 
-			if(lot.selectedHanding)
+			if (lot.selectedHanding)
 			{
 				// Set handing that was selected from drop down
 				this.store.dispatch(new LotActions.SelectHanding(lot.id, lot.selectedHanding));
@@ -405,7 +432,6 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 
 			this.store.dispatch(new LotActions.SelectLot(lot.id));
 			this.store.dispatch(new ScenarioActions.SetScenarioLot(lot.id, handing, lot.premium));
-			this.store.dispatch(new NavActions.SetSubNavItemStatus(3, PointStatus.COMPLETED));
 
 			if (!this.selectedPlanId)
 			{
@@ -418,10 +444,11 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 
 			this.store.dispatch(new LotActions.DeselectLot());
 			this.store.dispatch(new ScenarioActions.SetScenarioLot(null, null, 0));
-			this.store.dispatch(new NavActions.SetSubNavItemStatus(3, PointStatus.REQUIRED));
 
 			this.getLotsMontonyConflictMessage();
 		}
+
+		this.newHomeService.setSubNavItemsStatus(this.scenario, this.buildMode, this.job);
 	}
 
 	changeHanding(lotId: number, handing: string, monotonyconflict: boolean)

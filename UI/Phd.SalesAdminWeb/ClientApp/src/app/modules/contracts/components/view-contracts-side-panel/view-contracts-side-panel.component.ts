@@ -290,7 +290,9 @@ export class ViewContractsSidePanelComponent implements OnInit
 					key: currentTag[0].key,
 					marketId: currentTag[0].marketId,
 					name: currentTag[0].name,
-					salesStatusDescription: currentTag[0].salesStatusDescription
+					salesStatusDescription: currentTag[0].salesStatusDescription,
+					isColorSchemeMonotonyRuleEnabled: currentTag[0].isColorSchemeMonotonyRuleEnabled,
+					isElevationMonotonyRuleEnabled: currentTag[0].isElevationMonotonyRuleEnabled
 				});
 			}
 		}

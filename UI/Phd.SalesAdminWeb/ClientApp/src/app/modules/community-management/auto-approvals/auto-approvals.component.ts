@@ -90,7 +90,12 @@ export class AutoApprovalComponent extends UnsubscribeOnDestroy implements OnIni
 
 		this._communityService.getChangeOrderTypeAutoApprovals(this.selectedCommunity.id).subscribe(data =>
 		{
-			this.approvals = data;
+			// valid typeIds
+			let changeOrderTypeIds = [0, 1, 2, 3, 4, 5, 6];
+
+			// filter out unused typeIds
+			this.approvals = data.filter(x => changeOrderTypeIds.findIndex(y => y === x.edhChangeOrderTypeId) > -1);
+
 			this.jio = this.approvals.find(x => x.edhChangeOrderTypeId === 0);
 			this.plan = this.approvals.find(x => x.edhChangeOrderTypeId === 1);
 			this.elevation = this.approvals.find(x => x.edhChangeOrderTypeId === 2);
@@ -147,12 +152,12 @@ export class AutoApprovalComponent extends UnsubscribeOnDestroy implements OnIni
 
 			this.approvals.map(a => a.edhChangeOrderTypeId === 0 ? a.isAutoApproval : a.isAutoApproval = event);
 		},
-			() =>
-			{
-				this._msgService.add({ severity: 'error', summary: 'Error', detail: 'Auto Approval failed to save' });
+		() =>
+		{
+			this._msgService.add({ severity: 'error', summary: 'Error', detail: 'Auto Approval failed to save' });
 
-				this.selectAll = !this.selectAll;
-			});
+			this.selectAll = !this.selectAll;
+		});
 	}
 
 	saveRule(rule: Array<ChangeOrderTypeAutoApproval>)
@@ -165,6 +170,7 @@ export class AutoApprovalComponent extends UnsubscribeOnDestroy implements OnIni
 		if (comm != null)
 		{
 			this.isLoading = true;
+
 			this._orgService.selectCommunity(comm);
 		}
 	}

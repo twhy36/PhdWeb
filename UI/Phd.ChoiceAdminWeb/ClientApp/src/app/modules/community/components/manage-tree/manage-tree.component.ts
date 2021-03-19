@@ -704,7 +704,7 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 		{
 			const inactiveOptionText = '<ul>' + inactiveOptions.map(option => '<li>' + option.id + '</li>').join('') + '</ul>';
 
-			this.showConfirmModal('<span class="font-weight-bold text-primary">Warning:</span> The following inactive options are mapped to choices. Please remove the mapping from the inactive options and determine if you need to map new option(s) or remove the affected choice(s). </br> ' + inactiveOptionText, 'Inactive Options', '', { hide: true, text: '' }, { hide: true, text: '' })
+			this.showConfirmModal('<span class="font-weight-bold text-primary">Warning:</span> The following inactive options are mapped to choices. Please adjust your mapping/rules, remove any images, and then publish. </br> ' + inactiveOptionText, 'Inactive Options', '', { hide: true, text: '' }, { hide: true, text: '' })
 		}
 		else
 		{
@@ -1514,6 +1514,7 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 				hasAttributes: choice.hasAttributes,
 				hasLocations: choice.hasLocations,
 				imagePath: choice.imagePath,
+				hasImage: choice.hasImage,
 				isDecisionDefault: choice.isDecisionDefault,
 				isSelectable: choice.isSelectable,
 				label: choice.label,

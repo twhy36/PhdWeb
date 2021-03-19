@@ -11,10 +11,10 @@ import { NgbTabChangeEvent, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { TreeService } from '../../../../core/services/tree.service';
 
-import { IPictureParkAsset } from '../../../../shared/models/image.model';
 import { PhdApiDto, PhdEntityDto } from '../../../../shared/models/api-dtos.model';
 import { ITreeOption } from '../../../../shared/models/option.model';
 import { DTChoice, DTAttributeGroupCollection } from '../../../../shared/models/tree.model';
+import { IChoiceImageAssoc } from '../../../../shared/models/choice.model';
 import { IRule, IRuleItem, RuleType } from '../../../../shared/models/rule.model';
 
 import { AssociateAttributeGroupComponent } from '../associate-attribute-groups/associate-attribute-groups.component';
@@ -23,6 +23,7 @@ import { SidePanelComponent } from '../../../../shared/components/side-panel/sid
 import { ConfirmModalComponent } from '../../../../core/components/confirm-modal/confirm-modal.component';
 import { IFinancialMarket } from '../../../../shared/models/financial-market.model';
 import { Permission } from 'phd-common/models';
+import { cloneDeep } from 'lodash';
 
 @Component({
 	selector: 'choice-side-panel',
@@ -76,6 +77,12 @@ export class ChoiceSidePanelComponent implements OnInit
 	choiceRulesMessage = '';
 	originalSelectedItems: IRuleItem[] = [];
 	dependentChoiceIds: Array<number> = [];
+	choiceImageList: Array<IChoiceImageAssoc> = [];
+	origChoiceImageList: Array<IChoiceImageAssoc> = [];
+	choiceImagesLoaded = false;
+	dragEnable = false;
+	dragHasChanged = false;
+	lockedFromChanges = false;
 
 	optionRules: Array<PhdApiDto.IChoiceOptionRule> = [];
 	optionSelectedItems: Array<ITreeOption> = [];
@@ -90,6 +97,7 @@ export class ChoiceSidePanelComponent implements OnInit
 	{
 		this.getChoiceRules();
 		this.getOptionRules();
+		this.getImages();
 		this.createChoiceDetailsForm();
 	}
 
@@ -150,9 +158,111 @@ export class ChoiceSidePanelComponent implements OnInit
 		return this.choice.imagePath;
 	}
 
+	getImages()
+	{
+		this.choiceImagesLoaded = false;
+		this.choiceImageList = [];
+		this.origChoiceImageList = [];
+
+		this._treeService.getChoiceImages(this.choice.id)
+			.pipe(finalize(() => this.choiceImagesLoaded = true))
+			.subscribe(choiceImages =>
+			{
+				if (choiceImages != null)
+				{
+					choiceImages.forEach(image =>
+					{
+						const choiceImage = image as IChoiceImageAssoc;
+
+						this.choiceImageList.push(choiceImage);
+					});
+
+					// update the flag and count for the image indicator
+					this.setImageInfo();
+					this.origChoiceImageList = _.cloneDeep(this.choiceImageList);
+				}
+			})
+	}
+
+	saveImageSort()
+	{
+		this.dragEnable = false;
+		this.lockedFromChanges = false;
+
+		if (this.dragHasChanged)
+		{
+			this.dragHasChanged = false;
+			this.isSaving = true;
+
+			const imagesArr = this.choiceImageList.map(g =>
+			{
+				return {
+					dpChoiceId: g.dpChoiceId,
+					dpChoiceImageAssocId: g.dpChoiceImageAssocId,
+					imageUrl: g.imageUrl,
+					sortKey: g.sortKey
+				} as IChoiceImageAssoc
+			});
+
+			this._treeService.saveChoiceImageSortOrder(imagesArr, this.versionId)
+				.pipe(finalize(() => this.isSaving = false))
+				.subscribe(response =>
+				{
+					this._msgService.add({ severity: 'success', summary: 'Sort Saved!' });
+
+					this.origChoiceImageList = cloneDeep(this.choiceImageList);
+				},
+				(error) =>
+				{
+						this._msgService.add({ severity: 'error', summary: 'Error Saving Sort.' });
+				});
+		}
+		else
+		{
+			this._msgService.add({ severity: 'info', summary: 'Sort was not saved. No changes were made.' });
+		}
+	}
+
+	editImageSort()
+	{
+		this.dragEnable = true;
+	}
+
+	async cancelImageSort()
+	{
+		if (!this.dragHasChanged || await this.confirmNavAway())
+		{
+			this.resetImageSort();
+		}
+	}
+
+	resetImageSort()
+	{
+		this.dragEnable = false;
+		if (this.dragHasChanged)
+		{
+			this.choiceImageList = this.origChoiceImageList;
+			this.dragHasChanged = false;
+		}
+	}
+
+	onDragHasChanged()
+	{
+		this.dragHasChanged = true;
+	}
+
 	set choiceImageUrl(imgUrl: string)
 	{
 		this.choice.imagePath = imgUrl;
+	}
+
+	private setImageInfo()
+	{
+		const imgCount = this.choiceImageList.length;
+
+		// update the flag and count for the image indicator
+		this.choice.hasImage = imgCount > 0;
+		this.choice.imageCount = imgCount;
 	}
 
 	getChoiceRules()
@@ -487,40 +597,86 @@ export class ChoiceSidePanelComponent implements OnInit
 		}
 	}
 
-	addChoiceImageClick(assets: IPictureParkAsset[])
+	get choiceImagesMessage()
 	{
-		if (assets && assets.length > 0)
+		let message = '';
+
+		if (!this.choice.hasImage && this.isReadOnly)
+		{
+			message = 'There are no images added to selected choice.';
+		}
+
+		return message;
+	}
+
+	onSaveImage(params: { imageUrls: string[], callback: Function })
+	{
+		if (this.choiceImageList.length + params.imageUrls.length <= 10)
 		{
 			this.isSaving = true;
-			const img = assets[0].url;
-			const choiceId = this.choice.id;
-			const choiceDto: PhdEntityDto.IDPChoiceDto = { imagePath: img } as PhdEntityDto.IDPChoiceDto;
+			let imgUrls = params.imageUrls;
+			let choiceImages = [];
 
-			this._treeService.patchChoice(choiceId, choiceDto)
-				.pipe(finalize(() => this.isSaving = false))
-				.subscribe(response =>
+			let sort = 0;
+
+
+			if (this.choiceImageList.length > 0)
+			{
+				sort = Math.max.apply(Math, this.choiceImageList.map(s => s.sortKey)) + 1;
+			}
+
+			imgUrls.forEach(imageUrl =>
+			{
+				const choiceImage =
+					{
+					dpChoiceID: this.choice.id,
+					imagePath: imageUrl,
+					dpChoiceSortOrder: sort,
+				} as PhdEntityDto.IDPChoiceDto;
+
+				choiceImages.push(choiceImage);
+
+				sort++;
+			});
+
+			this._treeService.saveChoiceImages(choiceImages, this.versionId)
+				.pipe(finalize(() =>
 				{
-					this.choiceImageUrl = img;
+					this.isSaving = false;
+				}))
+				.subscribe(newImages =>
+				{
+					newImages.map(newImage =>
+					{
+						this.choiceImageList.push(newImage as IChoiceImageAssoc);
+					});
+
+					this.setImageInfo();
 				});
 		}
 		else
 		{
-			this._msgService.add({ severity: 'error', summary: 'Unable to get images from Picture Park.' });
+			this._msgService.add({ severity: 'error', summary: 'Unable to attach more than 10 images.' });
 		}
 	}
 
-	removeChoiceImageClick()
+	onDeleteImage(choice: IChoiceImageAssoc)
 	{
-		this.isSaving = true;
-		const choiceId = this.choice.id;
-		const choiceDto: PhdEntityDto.IDPChoiceDto = { imagePath: '' } as PhdEntityDto.IDPChoiceDto;
+		this._treeService.deleteChoiceImage(choice.dpChoiceImageAssocId, choice.dpChoiceId).subscribe(response =>
+		{
+			this._msgService.add({ severity: 'success', summary: 'Image Deleted!' });
 
-		this._treeService.patchChoice(choiceId, choiceDto)
-			.pipe(finalize(() => this.isSaving = false))
-			.subscribe(response =>
-			{
-				this.choiceImageUrl = '';
-			});
+			const index = this.choiceImageList.indexOf(choice);
+
+			this.choiceImageList.splice(index, 1);
+
+			// update the flag and count for the image indicator
+			this.setImageInfo();
+		},
+		(error) =>
+		{
+			this._msgService.add({ severity: 'error', summary: 'Error deleting image.' });
+		});
 	}
 
 	async onCloseClick(status: boolean)

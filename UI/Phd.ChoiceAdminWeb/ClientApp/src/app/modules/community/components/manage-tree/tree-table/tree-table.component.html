@@ -129,7 +129,7 @@
 									<i class="fa fa-fw fa-check-square" *ngIf="choice.isDecisionDefault" title="Default"></i>
 								</td>
 								<td class="phd-icon-col">
-									<i class="fa fa-fw fa-image" *ngIf="!lockedFromChanges && choice.imagePath.length > 0" (click)="onShowChoiceDetailsClick(choice, 'images')" title="Images"></i>
+									<i class="fa fa-fw fa-image" *ngIf="!lockedFromChanges && choice.hasImage" (click)="onShowChoiceDetailsClick(choice, 'images')" title="Images"></i>
 								</td>
 								<td class="phd-text-col"></td>
 								<td class="phd-text-col"></td>

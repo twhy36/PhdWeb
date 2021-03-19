@@ -26,11 +26,8 @@
 				</h1>
 				<div *ngIf="!optionDisabled" class="d-flex justify-content-end">
 					<p>
-						<strong *ngIf="choice?.price">{{choice.price | currency:'USD':'symbol':'0.0-0'}}</strong>
-						<strong *ngIf="choice && !choice.price">$0</strong>
-
-						<!--<strong *ngIf="choice?.enabled">{{choice.price | currency:'USD':'symbol':'0.0-0'}}</strong>
-						<strong *ngIf="choice && !choice.enabled">{{ choicePriceRanges | priceRange: choice.id }}</strong>-->
+						<strong *ngIf="choice?.enabled">{{choice.price | currency:'USD':'symbol':'0.0-0'}}</strong>
+						<strong *ngIf="choice && !choice.enabled">{{ choice.id | priceRange | async }}</strong>
 					</p>
 				</div>
 				<p *ngIf="choiceDescription && !optionDisabled" class="phd-2-line-limit">{{ choiceDescription }}</p>
@@ -100,6 +97,7 @@
 
 <ng-template #content let-c="close" let-d="dismiss">
 	<choice-card-detail [choice]="choice"
+						[choiceImages]="choiceImages"
 						[attributeGroups]="attributeGroups"
 						[locationGroups]="locationGroups"
 						[monotonyConflict]="monotonyConflict"

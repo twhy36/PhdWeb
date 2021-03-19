@@ -109,7 +109,7 @@ export class ProgramDetailComponent extends ComponentCanNavAway implements OnIni
 	getSalesProgramTotalAmount(salesProgramId: number)
 	{
 		const sumAmounts = (total: number, program: SalesAgreementProgram | SalesChangeOrderSalesProgram) => { return total + program.amount; };
-		const agreementPrograms = this.agreement.programs.filter(x => x.salesProgramId === salesProgramId);
+		const agreementPrograms = this.agreement.programs?.filter(x => x.salesProgramId === salesProgramId);
 		const agreementAmount = agreementPrograms && agreementPrograms.length > 0 ? agreementPrograms.reduce(sumAmounts, 0) : 0;
 		const changeOrderPrograms = this.changeOrderPrograms.filter(x => x.salesProgramId === salesProgramId);
 		const changeOrderAmount = changeOrderPrograms && changeOrderPrograms.length > 0 ? changeOrderPrograms.reduce(sumAmounts, 0) : 0;

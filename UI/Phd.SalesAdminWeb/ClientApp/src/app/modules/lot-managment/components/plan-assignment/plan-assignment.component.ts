@@ -141,7 +141,7 @@ export class PlanAssignmentComponent extends UnsubscribeOnDestroy implements OnI
 			let obs = forkJoin(lotDtosObs, plansObs).pipe(map(([lotDto, plansDto]) =>
 			{
 
-				fc.lots = lotDto.filter(l => l.lotStatusDescription !== "Sold" && l.lotStatusDescription !== "Closed").map(l => new HomeSiteViewModel(l, fc.dto)).sort(HomeSiteViewModel.sorter);
+				fc.lots = lotDto.filter(l => l.lotStatusDescription !== "Closed").map(l => new HomeSiteViewModel(l, fc.dto)).sort(HomeSiteViewModel.sorter);
 				fc.plans = plansDto.map(p => new PlanViewModel(p, fc)).sort(PlanViewModel.sorter);
 
 				// add lots to plans

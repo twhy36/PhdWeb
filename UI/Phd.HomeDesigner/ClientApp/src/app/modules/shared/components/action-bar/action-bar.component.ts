@@ -1,5 +1,7 @@
-import { Component, Input, NgZone, Renderer2, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, Input, Output, NgZone, Renderer2, OnInit, ChangeDetectorRef, EventEmitter } from '@angular/core';
 import { UnsubscribeOnDestroy } from 'phd-common/utils/unsubscribe-on-destroy';
+
+import { ActionBarCallType } from '../../classes/constants.class';
 
 @Component({
 	selector: 'action-bar',
@@ -10,6 +12,11 @@ import { UnsubscribeOnDestroy } from 'phd-common/utils/unsubscribe-on-destroy';
 export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	@Input() scrollListener: any = window;
+	@Input() primaryAction: string;
+	@Input() price: number = 0;
+	@Input() favoritesPrice: number = 0;
+
+	@Output() callToAction = new EventEmitter<{ actionBarCallType: ActionBarCallType }>();
 
 	autoHideTimer: any;
 	isActionBarHidden = false;
@@ -77,5 +84,9 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit
 
 		this.previousTopPosition = this.currentTopPosition;
 		this.scrolling = false;
+	}
+
+	onPrimaryCallToActionClick() {
+		this.callToAction.emit({ actionBarCallType: ActionBarCallType.PRIMARY_CALL_TO_ACTION });
 	}
 }

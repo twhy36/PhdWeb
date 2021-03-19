@@ -1,5 +1,6 @@
 @import '~bootstrap/dist/css/bootstrap.min.css';
 @import url(https://fonts.googleapis.com/css?family=Roboto:400,100,100italic,300,300itaâ€Œâ€‹lic,400italic,500,500italic,700,700italic,900italic,900);
+@import '~@angular/material/prebuilt-themes/deeppurple-amber.css';
 
 html, body, app-root {
 	margin: 0;
@@ -9,7 +10,7 @@ html, body, app-root {
 
 body {
 	font-family: 'Roboto', sans-serif;
-	background: #f8f8f8;
+	background: white;
 	color: #4a4a4a;
 }
 

@@ -228,7 +228,7 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 			}
 			else if (scenario.scenario)
 			{
-				this.summaryHeader.handing = scenario.scenario.handing ? scenario.scenario.handing.handing : job.handing;
+				this.summaryHeader.handing = scenario.scenario.handing && scenario.scenario.handing.handing ? scenario.scenario.handing.handing : job.handing;
 			}
 
 			this.selectedHanding = this.summaryHeader.handing;

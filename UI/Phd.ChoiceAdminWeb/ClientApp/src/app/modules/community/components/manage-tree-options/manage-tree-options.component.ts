@@ -160,6 +160,15 @@ export class ManageTreeOptionsComponent extends ComponentCanNavAway implements O
 		if (this.inactiveOptions.length > 0)
 		{
 			msgs.push(this.inactiveOptionsMessage);
+
+			const inactiveOptionsWithImage = this.inactiveOptions.filter(io => io.hasImages);
+
+			const imageCnt = inactiveOptionsWithImage.length;
+
+			if (imageCnt > 0)
+			{
+				msgs.push(`${imageCnt} Inactive Option${imageCnt > 1 ? 's have' : ' has'} an image associated with it.`);
+			}
 		}
 
 		return msgs;

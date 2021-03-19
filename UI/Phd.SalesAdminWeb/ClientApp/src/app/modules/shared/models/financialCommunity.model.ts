@@ -8,4 +8,6 @@ export interface FinancialCommunity {
     salesStatusDescription: "Active" | "New" | "Closed" | "Inactive";
 	isPhasedPricingEnabled: boolean;
 	market?: FinancialMarket;
+	isElevationMonotonyRuleEnabled: boolean;
+	isColorSchemeMonotonyRuleEnabled: boolean;
 }

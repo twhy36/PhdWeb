@@ -32,6 +32,7 @@
 	display: flex;
 	margin-top: 50px;
 	margin-bottom: 80px;
+	overflow: auto;
 }
 
 .phd-hide {
@@ -48,7 +49,6 @@
 }
 
 #choices {
-    height: 75vh;
     padding-right: 10px;
 }
 
@@ -92,9 +92,12 @@
 	font-weight: bold;
 }
 
+#phd-scroll-choices {
+	overflow: auto;
+}
+
 /*FLOORPLAN SIDEBAR*/
 /*Replacing the switch buttons with Material's UI checkbox buttons*/
-
 aside {
 	margin-right: 3%;
 	overflow-x: hidden;
@@ -155,6 +158,7 @@ aside {
 					border-bottom: 1px dotted #ccc;
 					cursor: pointer;
 					text-decoration: none;
+
 					&:hover {
 						border-bottom: 1px solid #999;
 					}
@@ -168,6 +172,7 @@ aside {
 				.phd-circles {
 					display: flex;
 					justify-content: flex-start;
+
 					.phd-circle-one {
 						color: $squash;
 					}
@@ -299,7 +304,6 @@ aside {
 	}
 
 	#phd-scroll-choices {
-		height: 100vh;
 		border: 1px solid rgba(91, 93, 94, 0.1);
 		margin: 0px 0px $action-bar 0px;
 	}

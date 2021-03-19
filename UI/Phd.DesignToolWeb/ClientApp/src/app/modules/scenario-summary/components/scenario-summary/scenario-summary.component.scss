@@ -4,9 +4,10 @@
 	width: 1000px;
 	margin-top: 30px;
 
-	.summary-header-image {
+	.phd-summary-header-image {
+		text-align: center;
+
 		::ng-deep img {
-			width: 100%;
 			max-width: 1000px;
 			max-height: 649px;
 		}

@@ -120,7 +120,7 @@ export class ScenarioService
 				designEstimate: scenarioInfo ? scenarioInfo.designEstimate : 0,
 				discount: scenarioInfo ? scenarioInfo.discount : 0
 			} as DtoScenarioInfo,
-            choices: newScenario.scenarioChoices ? newScenario.scenarioChoices
+			choices: newScenario.scenarioChoices ? newScenario.scenarioChoices
 				.map<DtoScenarioChoice>(choice =>
 				{
 					return {
@@ -132,7 +132,7 @@ export class ScenarioService
 						attributes: this.mapAttributes(choice),
 						locations: this.mapLocations(choice)
 					};
-                }) : [],
+				}) : [],
 			viewedDivDPointCatalogIds: newScenario.viewedDecisionPoints
 		};
 
@@ -145,7 +145,7 @@ export class ScenarioService
 				let choice = choices.find(c => c.id === ch.dpChoiceID);
 
 				//for spec sales, include the scenario choice iff the job choice quantity doesn't match
-				let jobChoice = jobChoices.find(jc => jc.divChoiceCatalogId === choice.divChoiceCatalogId);
+				let jobChoice = choice ? jobChoices.find(jc => jc.divChoiceCatalogId === choice.divChoiceCatalogId) : null;
 
 				return !choice || !choice.enabled || (!jobChoice && !choice.quantity) || (jobChoice && choice.quantity === jobChoice.dpChoiceQuantity);
 			});

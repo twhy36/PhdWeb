@@ -9,11 +9,19 @@
 				<div *ngIf="imageLoading" class="phd-image-loading">
 					<i class="fa fa-spinner fa-spin fa-3x phd-image-loader"></i>
 				</div>
-				<ngb-carousel [interval]="0" (slide)="onSlide($event)">
-					<ng-template ngbSlide *ngFor="let image of choiceImages; let currentIndex = index;" [id]="currentIndex">
-						<cl-image public-id="{{image.imageURL}}" (onLoad)="onLoadImage($event, currentIndex)" (onError)="onLoadImageError($event)" type="fetch" background="#ffffff" crop="lpad" height="367" width="550" *ngIf="activeIndex?.current == currentIndex"></cl-image>
+				<ngb-carousel *ngIf="optionImages.length > 0; else choiceTemplate" [interval]="0" (slide)="onSlide($event)">
+					<ng-template ngbSlide *ngFor="let optionImage of optionImages; let currentIndex = index;" [id]="currentIndex">
+						<cl-image public-id="{{optionImage.imageURL}}" (onLoad)="onLoadImage($event, currentIndex)" (onError)="onLoadImageError($event)" type="fetch" background="#ffffff" crop="lpad" height="367" width="550" *ngIf="activeIndex?.current == currentIndex"></cl-image>
 					</ng-template>
 				</ngb-carousel>
+
+				<ng-template #choiceTemplate>
+					<ngb-carousel *ngIf="choiceImages.length > 0" [interval]="0" (slide)="onSlide($event)">
+						<ng-template ngbSlide *ngFor="let choiceImage of choiceImages; let currentIndex = index;" [id]="currentIndex">
+							<cl-image public-id="{{choiceImage.imageUrl}}" (onLoad)="onLoadImage($event, currentIndex)" (onError)="onLoadImageError($event)" type="fetch" background="#ffffff" crop="lpad" height="367" width="550" *ngIf="activeIndex?.current == currentIndex"></cl-image>
+						</ng-template>
+					</ngb-carousel>
+				</ng-template>
 			</div>
 
 			<div class="phd-image-warning">Images are examples only. Products are subject to change.</div>
@@ -25,11 +33,8 @@
 					{{choice?.label}}
 				</h4>
 
-				<strong *ngIf="choice?.enabled && choice?.price">{{choice.price | currency:'USD':'symbol':'0.0-0'}}</strong>
-				<strong *ngIf="choice?.enabled && !choice?.price">$0</strong>
-
-				<!--<strong *ngIf="choice?.enabled && !optionDisabled">{{choice.price | currency:'USD':'symbol':'0.0-0'}}</strong>
-				<strong *ngIf="!choice?.enabled && !optionDisabled">{{ choicePriceRanges | priceRange: choice.id }}</strong>-->
+				<strong *ngIf="choice?.enabled && !optionDisabled">{{choice.price | currency:'USD':'symbol':'0.0-0'}}</strong>
+				<strong *ngIf="!choice?.enabled && !optionDisabled">{{ choice.id | priceRange | async }}</strong>
 			</div>
 
 			<div class="phd-choice-content">

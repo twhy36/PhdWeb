@@ -163,10 +163,11 @@ export const canLockSalesAgreement = createSelector(
 
 export const monotonyConflict = createSelector(
 	fromLot.selectSelectedLot,
+	fromPlan.selectedPlanData,
 	fromScenario.elevationDP,
 	fromScenario.hasMonotonyAdvisement,
 	fromScenario.colorSchemeDP,
-	(selectedLot, elevation, advisement, colorScheme) =>
+	(selectedLot, selectedPlan, elevation, advisement, colorScheme) =>
 	{
 		let conflict = {
 			monotonyConflict: false,
@@ -179,6 +180,7 @@ export const monotonyConflict = createSelector(
 
 		if (selectedLot !== null)
 		{
+			let planId = selectedPlan !== null ? selectedPlan.id : 0;
 			let monotonyrules = selectedLot && selectedLot.monotonyRules ? selectedLot.monotonyRules : [];
 			let elevationOverride = elevation && elevation.choices ? elevation.choices.some(choice => !!choice.overrideNote) : false;
 			let colorSchemeOverride = colorScheme && colorScheme.choices ? colorScheme.choices.some(choice => !!choice.overrideNote) : false;
@@ -187,26 +189,30 @@ export const monotonyConflict = createSelector(
 			{
 				let choice = elevation.choices.find(x => x.quantity > 0);
 
-				conflict.elevationConflict = monotonyrules.some(x => x.elevationDivChoiceCatalogId === choice.divChoiceCatalogId);
+				conflict.elevationConflict = monotonyrules.some(x => x.elevationDivChoiceCatalogId === choice.divChoiceCatalogId && x.edhPlanId === planId);
 
 				if (!colorScheme && choice.selectedAttributes.length > 0)
 				{
 					monotonyrules.forEach(rule =>
 					{
-						let colorAttributeConflicts = [];
-
-						if (!conflict.colorSchemeConflict)
+						// check rules of plans match
+						if (rule.edhPlanId === planId)
 						{
-							choice.selectedAttributes.forEach(x =>
+							let colorAttributeConflicts = [];
+
+							if (!conflict.colorSchemeConflict)
 							{
-								colorAttributeConflicts.push(rule.colorSchemeAttributeCommunityIds.some(colorAttributeIds => colorAttributeIds === x.attributeId));
-							});
-						}
+								choice.selectedAttributes.forEach(x =>
+								{
+									colorAttributeConflicts.push(rule.colorSchemeAttributeCommunityIds.some(colorAttributeIds => colorAttributeIds === x.attributeId));
+								});
+							}
 
-						if (!colorAttributeConflicts.some(x => x === false))
-						{
-							conflict.colorSchemeConflict = true;
-							conflict.colorSchemeAttributeConflict = true;
+							if (!colorAttributeConflicts.some(x => x === false))
+							{
+								conflict.colorSchemeConflict = true;
+								conflict.colorSchemeAttributeConflict = true;
+							}
 						}
 					});
 				}
@@ -216,13 +222,44 @@ export const monotonyConflict = createSelector(
 			{
 				let colorChoice = colorScheme.choices.find(x => x.quantity > 0);
 
-				conflict.colorSchemeConflict = monotonyrules.some(x => x.colorSchemeDivChoiceCatalogId === colorChoice.divChoiceCatalogId);
+				conflict.colorSchemeConflict = monotonyrules.some(x => x.colorSchemeDivChoiceCatalogId === colorChoice.divChoiceCatalogId && x.edhPlanId === planId);
 			}
 
 			conflict.monotonyConflict = (conflict.colorSchemeConflict || conflict.elevationConflict);
 		}
 
 		return conflict;
+	}
+)
+
+export const monotonyChoiceIds = createSelector(
+	fromLot.selectSelectedLot,
+	fromPlan.selectedPlanData,
+	(selectedLot, selectedPlan) =>
+	{
+		let monotonyChoices = { colorSchemeAttributeCommunityIds: [], ColorSchemeDivChoiceCatalogIds: [], ElevationDivChoiceCatalogIds: [] };
+
+		if (selectedLot)
+		{
+			if (selectedLot.monotonyRules && selectedLot.monotonyRules.length)
+			{
+				let planId = selectedPlan !== null ? selectedPlan.id : 0;
+
+				monotonyChoices.colorSchemeAttributeCommunityIds = selectedLot.monotonyRules
+					.filter(r => (r.ruleType === "ColorScheme" || r.ruleType === "Both") && r.colorSchemeAttributeCommunityIds.length && r.edhPlanId === planId)
+					.map(r => r.colorSchemeAttributeCommunityIds);
+
+				monotonyChoices.ElevationDivChoiceCatalogIds = selectedLot.monotonyRules
+					.filter(r => (r.ruleType === "Elevation" || r.ruleType === "Both") && !!r.elevationDivChoiceCatalogId && r.edhPlanId === planId)
+					.map(r => r.elevationDivChoiceCatalogId);
+
+				monotonyChoices.ColorSchemeDivChoiceCatalogIds = selectedLot.monotonyRules
+					.filter(r => (r.ruleType === "ColorScheme" || r.ruleType === "Both") && !!r.colorSchemeDivChoiceCatalogId && r.edhPlanId === planId)
+					.map(r => r.colorSchemeDivChoiceCatalogId);
+			}
+		}
+
+		return monotonyChoices;
 	}
 )
 
@@ -469,17 +506,22 @@ export const salesAgreementStatus = createSelector(
 export const selectedPlanPrice = createSelector(
 	fromPlan.selectedPlanData,
 	fromLot.selectSelectedLot,
-	(selectedPlan, selectedLot) =>
+	fromSalesAgreement.salesAgreementState,
+	(selectedPlan, selectedLot, salesAgreement) =>
 	{
 		let price = selectedPlan ? selectedPlan.price : 0;
-		if (selectedPlan && selectedLot && selectedLot.salesPhase && selectedLot.salesPhase.salesPhasePlanPriceAssocs)
+
+		if (selectedPlan && selectedLot && selectedLot.salesPhase && selectedLot.salesPhase.salesPhasePlanPriceAssocs && ((salesAgreement && salesAgreement.status === 'Pending') || !salesAgreement?.id))
 		{
+			const isPhaseEnabled = selectedLot.financialCommunity && selectedLot.financialCommunity.isPhasedPricingEnabled;
 			const phasePlanPrice = selectedLot.salesPhase.salesPhasePlanPriceAssocs.find(x => x.planId === selectedPlan.id);
-			if (phasePlanPrice)
+
+			if (isPhaseEnabled && phasePlanPrice)
 			{
 				price = phasePlanPrice.price;
 			}
 		}
+
 		return price;
 	})
 
@@ -504,6 +546,7 @@ export const priceBreakdown = createSelector(
 			}
 
 			const programs = salesAgreement.programs;
+
 			programs && programs.forEach(p =>
 			{
 				if (p.salesProgram.salesProgramType === 'BuyersClosingCost')
@@ -523,7 +566,8 @@ export const priceBreakdown = createSelector(
 					if (adj.priceAdjustmentType === 'Discount')
 					{
 						breakdown.priceAdjustments += adj.amount;
-					} else if (adj.priceAdjustmentType === 'ClosingCost')
+					}
+					else if (adj.priceAdjustmentType === 'ClosingCost')
 					{
 						breakdown.closingCostAdjustment += adj.amount;
 					}
@@ -535,10 +579,11 @@ export const priceBreakdown = createSelector(
 
 				//check price adjustment COs
 				const priceAdjustmentCO = currentChangeOrder.jobChangeOrders.find(x => x.jobChangeOrderTypeDescription === 'PriceAdjustment');
+
 				if (priceAdjustmentCO)
 				{
-
 					const salesChangeOrderSalesPrograms = priceAdjustmentCO.jobSalesChangeOrderSalesPrograms;
+
 					if (salesChangeOrderSalesPrograms && salesChangeOrderSalesPrograms.length)
 					{
 						salesChangeOrderSalesPrograms.forEach(salesProgram =>
@@ -548,16 +593,19 @@ export const priceBreakdown = createSelector(
 								if (salesProgram.salesProgramType === 'DiscountFlatAmount')
 								{
 									breakdown.salesProgram += salesProgram.amount;
-								} else if (salesProgram.salesProgramType === 'BuyersClosingCost')
+								}
+								else if (salesProgram.salesProgramType === 'BuyersClosingCost')
 								{
 									breakdown.closingIncentive += salesProgram.amount;
 								}
-							} else if (salesProgram.action === 'Delete')
+							}
+							else if (salesProgram.action === 'Delete')
 							{
 								if (salesProgram.salesProgramType === 'DiscountFlatAmount')
 								{
 									breakdown.salesProgram -= salesProgram.amount;
-								} else if (salesProgram.salesProgramType === 'BuyersClosingCost')
+								}
+								else if (salesProgram.salesProgramType === 'BuyersClosingCost')
 								{
 									breakdown.closingIncentive -= salesProgram.amount;
 								}
@@ -566,6 +614,7 @@ export const priceBreakdown = createSelector(
 					}
 
 					const salesChangeOrderPriceAdjustments = priceAdjustmentCO.jobSalesChangeOrderPriceAdjustments;
+
 					if (salesChangeOrderPriceAdjustments && salesChangeOrderPriceAdjustments.length)
 					{
 						salesChangeOrderPriceAdjustments.forEach(priceAdjustment =>
@@ -575,7 +624,8 @@ export const priceBreakdown = createSelector(
 								if (priceAdjustment.priceAdjustmentTypeName === 'Discount')
 								{
 									breakdown.priceAdjustments += priceAdjustment.amount;
-								} else if (priceAdjustment.priceAdjustmentTypeName === 'ClosingCost')
+								}
+								else if (priceAdjustment.priceAdjustmentTypeName === 'ClosingCost')
 								{
 									breakdown.closingCostAdjustment += priceAdjustment.amount;
 								}
@@ -585,7 +635,8 @@ export const priceBreakdown = createSelector(
 								if (priceAdjustment.priceAdjustmentTypeName === 'Discount')
 								{
 									breakdown.priceAdjustments -= priceAdjustment.amount;
-								} else if (priceAdjustment.priceAdjustmentTypeName === 'ClosingCost')
+								}
+								else if (priceAdjustment.priceAdjustmentTypeName === 'ClosingCost')
 								{
 									breakdown.closingCostAdjustment -= priceAdjustment.amount;
 								}
@@ -596,12 +647,14 @@ export const priceBreakdown = createSelector(
 
 				//check NSO COs
 				const nsos = _.flatMap(currentChangeOrder.jobChangeOrders, co => co.jobChangeOrderNonStandardOptions);
+
 				nsos.forEach(nso =>
 				{
 					if (nso.action === 'Add')
 					{
 						breakdown.nonStandardSelections += (nso.unitPrice * nso.qty);
-					} else
+					}
+					else
 					{
 						breakdown.nonStandardSelections -= (nso.unitPrice * nso.qty);
 					}

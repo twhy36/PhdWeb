@@ -1,4 +1,4 @@
-import { Action, createSelector, createFeatureSelector } from '@ngrx/store';
+import { createSelector, createFeatureSelector } from '@ngrx/store';
 
 import * as _ from "lodash";
 
@@ -13,7 +13,8 @@ import { DecisionPointFilterType } from '../../shared/models/decisionPointFilter
 import { HomeDesignerAttribute } from '../../shared/models/attribute.model';
 
 import { RehydrateMap } from '../sessionStorage';
-import { CommonActionTypes, SalesAgreementLoaded } from '../actions';
+import { CommonActionTypes } from '../actions';
+import { ScenarioActions, ScenarioActionTypes } from './actions';
 
 export interface State
 {
@@ -48,7 +49,7 @@ export const initialState: State = {
 
 RehydrateMap.onRehydrate<State>('scenario', state => { return { ...state, savingScenario: false, saveError: false, treeLoading: false, loadError: false }; });
 
-export function reducer(state: State = initialState, action: Action): State
+export function reducer(state: State = initialState, action: ScenarioActions): State
 {
 	let points: DecisionPoint[];
 	let subGroups: SubGroup[];
@@ -56,20 +57,19 @@ export function reducer(state: State = initialState, action: Action): State
 	switch (action.type)
 	{
 		case CommonActionTypes.SalesAgreementLoaded:
-			const saAction = action as SalesAgreementLoaded;
 			let newState = {
-				tree: _.cloneDeep(saAction.tree),
-				rules: _.cloneDeep(saAction.rules),
-				options: _.cloneDeep(saAction.options),
-				lotPremium: saAction.lot && saAction.lot.premium ? saAction.lot.premium : state.lotPremium,
-				salesCommunity: saAction.salesCommunity,
+				tree: _.cloneDeep(action.tree),
+				rules: _.cloneDeep(action.rules),
+				options: _.cloneDeep(action.options),
+				lotPremium: action.lot && action.lot.premium ? action.lot.premium : state.lotPremium,
+				salesCommunity: action.salesCommunity,
 				treeLoading: false,
 				loadError: false
 			} as State;
 
 			if (newState.tree)
 			{
-				saAction.choices.forEach(choice =>
+				action.choices.forEach(choice =>
 				{
 					let c = _.flatMap(newState.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)))
 						.find(ch => ch.divChoiceCatalogId === choice.divChoiceCatalogId);
@@ -126,7 +126,7 @@ export function reducer(state: State = initialState, action: Action): State
 			}
 
 			let scenario = _.cloneDeep(newState.scenario || state.scenario);
-			scenario = <any>{ scenarioId: 0, scenarioName: '--PREVIEW--', lotId: saAction.job.lotId, scenarioInfo: null };
+			scenario = <any>{ scenarioId: 0, scenarioName: '--PREVIEW--', lotId: action.job.lotId, scenarioInfo: null };
 
 			newState = { ...newState, scenario: scenario };
 
@@ -135,7 +135,7 @@ export function reducer(state: State = initialState, action: Action): State
 				// apply images to options
 				newState.options.forEach(option =>
 				{
-					let images = saAction.optionImages.filter(x => x.integrationKey === option.financialOptionIntegrationKey);
+					let images = action.optionImages.filter(x => x.integrationKey === option.financialOptionIntegrationKey);
 
 					if (images.length)
 					{
@@ -183,6 +183,9 @@ export function reducer(state: State = initialState, action: Action): State
 			}
 
 			return { ...state, ...newState };
+
+		case ScenarioActionTypes.SetTreeFilter:
+			return { ...state, treeFilter: action.treeFilter };
 
 		default:
 			return state;

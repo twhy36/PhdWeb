@@ -2,7 +2,6 @@ import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { Store, select } from '@ngrx/store';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
 
 import * as _ from "lodash";
 
@@ -63,6 +62,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 	selectedPlanId: number;
 	specCancelled = false;
 	isLockedIn: boolean = false;
+	newHomeStatus: PointStatus;
 
 	constructor(private lotService: LotService,
 		private identityService: IdentityService,
@@ -70,7 +70,10 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 		private browser: BrowserService,
 		private store: Store<fromRoot.State>,
 		private modalService: ModalService
-	) { super(); }
+	)
+	{
+		super();
+	}
 
 	ngOnInit()
 	{
@@ -161,6 +164,25 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 			}
 		});
 
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(state => state.nav.subNavItems)
+		).subscribe(navItems =>
+		{
+			if (navItems)
+			{
+				let plan = navItems.find(x => x.id === 2);
+				let lot = navItems.find(x => x.id === 3);
+				let qmi = navItems.find(x => x.id === 4);
+
+				this.newHomeStatus = (plan?.status === PointStatus.COMPLETED && lot?.status === PointStatus.COMPLETED) || qmi?.status === PointStatus.COMPLETED ? PointStatus.COMPLETED : PointStatus.REQUIRED;
+			}
+			else
+			{
+				this.newHomeStatus = PointStatus.REQUIRED;
+			}
+		});
+
 		this.showStatusIndicator$ = this.store.select(fromRoot.canEditAgreementOrSpec);
 		this.isTablet$ = this.browser.isTablet();
 	}
@@ -214,7 +236,8 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 					this.store.dispatch(new NavActions.SetSelectedSubNavItem(3));
 					newPath = ['/new-home/lot'];
 
-				} else
+				}
+				else
 				{
 					this.store.dispatch(new NavActions.SetSelectedSubNavItem(1));
 				}
@@ -223,6 +246,22 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 			this.router.navigate(newPath);
 		}
 
+	}
+
+	newHomeNavPath()
+	{
+		if (!this.salesAgreementNumber && this.job.id !== 0)
+		{
+			this.store.dispatch(new NavActions.SetSelectedSubNavItem(4));
+
+			this.router.navigate(['/new-home/quick-move-in']);
+		}
+		else if (!this.isPreview)
+		{
+			this.store.dispatch(new NavActions.SetSelectedSubNavItem(1));
+
+			this.router.navigate(['/new-home/name-scenario']);
+		}
 	}
 
 	async buildIt()

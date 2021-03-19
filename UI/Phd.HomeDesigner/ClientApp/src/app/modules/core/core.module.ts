@@ -5,7 +5,6 @@ import { SharedModule } from '../shared/shared.module';
 
 import { NavBarComponent } from './components/nav-bar/nav-bar.component';
 
-import { BrowserService } from './services/browser.service';
 import { ChangeOrderService } from './services/change-order.service';
 import { JobService } from './services/job.service';
 import { LotService } from './services/lot.service';
@@ -28,7 +27,6 @@ import { TreeService } from './services/tree.service';
 		SharedModule
 	],
 	providers: [
-		BrowserService,
 		ChangeOrderService,
 		JobService,
 		LotService,
