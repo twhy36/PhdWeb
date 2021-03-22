@@ -27,16 +27,11 @@ export function isJobPlanOption(option: JobPlanOption | ChangeOrderPlanOption): 
 	return (<any>option).action === undefined;
 }
 
-function getOptions(newChoice: any, treeChoices: Choice[]): string[]
+function getOptions(choice: JobChoice | ChangeOrderChoice, options: (JobPlanOption | ChangeOrderPlanOption)[]): (JobPlanOption | ChangeOrderPlanOption)[]
 {
-	return newChoice.dpChoice_OptionRuleAssoc.filter(optRule =>
-	{
-		return optRule.mustHave && optRule.optionRule.dpChoice_OptionRuleAssoc.every(assoc =>
-		{
-			let treeChoice = treeChoices.find(c => c.id === assoc.dpChoiceID);
-			return (assoc.mustHave && treeChoice && treeChoice.quantity > 0) || (!assoc.mustHave && (!treeChoice || treeChoice.quantity === 0));
-		})
-	}).map(optRule => optRule.optionRule.planOption.integrationKey)
+	return isJobChoice(choice)
+		? choice.jobChoiceJobPlanOptionAssocs.filter(a => a.choiceEnabledOption).map(a => options.find(o => o.id === a.jobPlanOptionId))
+		: choice.jobChangeOrderChoiceChangeOrderPlanOptionAssocs.filter(a => a.jobChoiceEnabledOption).map(a => options.find(o => o.id === a.jobChangeOrderPlanOptionId));
 }
 
 function mapLocation(loc: JobChoiceLocation | ChangeOrderChoiceLocation): DesignToolAttribute
@@ -204,25 +199,20 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 								let point = currentPoints.find(p => p.divPointCatalogId === ch.dPoint.divDPointCatalogID);
 
 								//get a list of all the original mapped options for the choice
-								let opt = getOptions(ch, currentChoices).map(o1 =>
+								let opt = getOptions(choice, options).map(option =>
 								{
-									let option = options.find(o => o.integrationKey === o1);
-									let newOption;
-
-									if (option)
-									{
+									if (option) {
 										let qty = option instanceof JobPlanOption ? option.optionQty : option.qty;
 										let attributeGroups = option instanceof JobPlanOption ? option.jobPlanOptionAttributes.map(att => att.attributeGroupCommunityId) : option.jobChangeOrderPlanOptionAttributes.map(att => att.attributeGroupCommunityId);
 										let locationGroups = option instanceof JobPlanOption ? option.jobPlanOptionLocations.map(loc => loc.locationGroupCommunityId) : option.jobChangeOrderPlanOptionLocations.map(loc => loc.locationGroupCommunityId);
 
 										let existingOption = data.options.find(o => o.financialOptionIntegrationKey === option.integrationKey);
 
-										if (existingOption)
-										{
+										if (existingOption) {
 											attributeGroups.push(...existingOption.attributeGroups.filter(ag => !attributeGroups.some(ag2 => ag2 === ag)));
 										}
 
-										newOption = <any>{
+										return <any>{
 											attributeGroups: attributeGroups,
 											locationGroups: locationGroups,
 											calculatedPrice: option.listPrice * qty,
@@ -235,8 +225,10 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 											financialOptionIntegrationKey: option.integrationKey
 										};
 									}
-
-									return newOption;
+									else
+									{
+										return null;
+									}
 								}).filter(o => !!o);
 
 								let maxQuantity = 1;
