@@ -30,8 +30,8 @@ export function isJobPlanOption(option: JobPlanOption | ChangeOrderPlanOption): 
 function getOptions(choice: JobChoice | ChangeOrderChoice, options: (JobPlanOption | ChangeOrderPlanOption)[]): (JobPlanOption | ChangeOrderPlanOption)[]
 {
 	return isJobChoice(choice)
-		? choice.jobChoiceJobPlanOptionAssocs.filter(a => a.choiceEnabledOption).map(a => options.find(o => o.id === a.jobPlanOptionId))
-		: choice.jobChangeOrderChoiceChangeOrderPlanOptionAssocs.filter(a => a.jobChoiceEnabledOption).map(a => options.find(o => o.id === a.jobChangeOrderPlanOptionId));
+		? choice.jobChoiceJobPlanOptionAssocs.filter(a => a.choiceEnabledOption).map(a => options.find(o => isJobPlanOption(o) && o.id === a.jobPlanOptionId))
+		: choice.jobChangeOrderChoiceChangeOrderPlanOptionAssocs.filter(a => a.jobChoiceEnabledOption).map(a => options.find(o => !isJobPlanOption(o) && o.id === a.jobChangeOrderPlanOptionId));
 }
 
 function mapLocation(loc: JobChoiceLocation | ChangeOrderChoiceLocation): DesignToolAttribute
