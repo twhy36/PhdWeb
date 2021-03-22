@@ -83,7 +83,7 @@ export class TreeService
 
 	getTreeByVersionId(treeVersionId: number): Observable<DTree>
 	{
-		if (this.currentTreeVersionId$.value === treeVersionId)
+		if (this.currentTreeVersionId$.value === treeVersionId && this._currentTree.value !== null)
 		{
 			return this.currentTree;
 		}
@@ -109,7 +109,6 @@ export class TreeService
 		this._currentTree.next(null);
 		this._currentTreeOptions.next(null);
 	}
-
 
 	updateCurrentTree(tree: DTree)
 	{
