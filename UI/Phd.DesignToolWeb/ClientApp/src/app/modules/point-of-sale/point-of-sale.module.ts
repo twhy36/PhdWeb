@@ -18,6 +18,8 @@ import { ContingencyDetailComponent } from './components/contingency-detail/cont
 import { DepositDetailComponent } from './components/deposit-detail/deposit-detail.component';
 import { KeyChoicesComponent } from './components/key-choices/key-choices.component';
 import { MatchingContactsComponent } from './components/matching-contacts/matching-contacts.component';
+import { MatchingContactCardComponent } from './components/matching-contact-card/matching-contact-card.component';
+import { ContactItemComponent } from './components/contact-item/contact-item.component';
 import { PeopleCardAddressComponent } from './components/people-card-address/people-card-address.component';
 import { PeopleCardComponent } from './components/people-card/people-card.component';
 import { PeopleComponent } from './components/people/people.component';
@@ -94,6 +96,8 @@ const moduleRoutes: Routes = [
 		DepositDetailComponent,
 		KeyChoicesComponent,
 		MatchingContactsComponent,
+		MatchingContactCardComponent,
+		ContactItemComponent,
 		PeopleCardAddressComponent,
 		PeopleCardComponent,
 		PeopleComponent,

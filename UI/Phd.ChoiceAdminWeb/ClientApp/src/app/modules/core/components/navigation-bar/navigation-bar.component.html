@@ -29,7 +29,7 @@
 				<a class="nav-link dropdown-toggle" id="ddCommunity" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ngbDropdownToggle>Community</a>
 				<div ngbDropdownMenu class="dropdown-menu" aria-labelledby="ddCommunity">
 					<a class="dropdown-item" [routerLink]="['/community/copy-tree']" *requiresClaim="'CommunityTree'; permission: Permission.Edit">Copy Tree</a>
-					<a class="dropdown-item" [routerLink]="['/community/tree',currentTree?.version?.id || '']">Tree</a>
+					<a class="dropdown-item" [routerLink]="['/community/tree',currentTreeVersionId]">Tree</a>
 				</div>
 			</li>
 		</ul>
