@@ -282,6 +282,7 @@ export class SalesAgreementService
 		contact = removeProperty(contact, 'addressAssocs');
 		contact = removeProperty(contact, 'emailAssocs');
 		contact = removeProperty(contact, 'phoneAssocs');
+		contact = removeProperty(contact, 'realEstateAgents');
 
 		const data = {
 			salesAgreementId: salesAgreementId,

@@ -9,7 +9,7 @@
 	<div class="d-flex">
 		<matching-contact-card [contact]="contact"
 							   [hasExactMatch]="hasExactMatch"
-							   [defaultPrimaryAddress]="true"
+							   [defaultPrimaryAddress]="defaultPrimaryAddress"
 							   [contactCardType]="'Current'"
 							   (onSelectContact)="selectContact($event)">
 		</matching-contact-card>
@@ -35,7 +35,7 @@
 <ng-template #confirmation let-c="close" let-d="dismiss">
 	<div class="phd-contact-confirmation">
 		<div class="modal-header">
-			<span class="modal-title">Are you sure you want to update this contact record and save as Co-Buyer?</span>
+			<span class="modal-title">Are you sure you want to update this contact record and save as {{defaultPrimaryAddress ? 'Co-Buyer' : 'Real Estate Agent'}}?</span>
 		</div>
 		<div class="modal-body">
 			<div class="d-flex justify-content-around">
@@ -44,7 +44,7 @@
 									   [contactCardType]="'Previous'">
 				</matching-contact-card>
 				<matching-contact-card [contact]="contact"
-									   [defaultPrimaryAddress]="true"
+									   [defaultPrimaryAddress]="defaultPrimaryAddress"
 									   [contactCardType]="'New'">
 				</matching-contact-card>
 			</div>

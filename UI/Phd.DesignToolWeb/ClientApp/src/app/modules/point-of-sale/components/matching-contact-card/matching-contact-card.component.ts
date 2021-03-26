@@ -17,10 +17,18 @@ export class MatchingContactCardComponent implements OnInit
 
 	@Output() onSelectContact = new EventEmitter<{ contact: Contact | MatchingContact, isUpdated: boolean}>();
 
+	contactType: string = null;
+	brokerName: string = null;
+
 	constructor() {	}
 
 	ngOnInit()
 	{
+		this.contactType = this.defaultPrimaryAddress ? 'Co-Buyer' : 'Real Estate Agent';
+		if (!this.defaultPrimaryAddress && this.contact.realEstateAgents && this.contact.realEstateAgents.length)
+		{
+			this.brokerName = this.contact.realEstateAgents[0].brokerOfficeName;
+		}
 	}
 
 	getTitle() 

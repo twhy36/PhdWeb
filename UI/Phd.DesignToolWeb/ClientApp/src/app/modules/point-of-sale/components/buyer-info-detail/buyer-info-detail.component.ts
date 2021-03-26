@@ -225,8 +225,21 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 
 			if (this.isRealtor())
 			{
-				(buyer as Realtor).brokerName = trim(this.buyerForm.get("brokerName").value);
+				const brokerName = trim(this.buyerForm.get("brokerName").value);
+				(buyer as Realtor).brokerName = brokerName;
 				contact = (buyer as Realtor).contact;
+
+				if (contact.realEstateAgents.length)
+				{
+					contact.realEstateAgents[0].brokerOfficeName = brokerName;
+				}
+				else
+				{
+					contact.realEstateAgents = [{
+						id: 0,
+						brokerOfficeName: brokerName
+					}];					
+				}
 			}
 			else
 			{
@@ -408,6 +421,9 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 								if (this.isRealtor())
 								{
 									(buyer as Realtor).contact = selectedContact;
+									(buyer as Realtor).brokerName = selectedContact.realEstateAgents && selectedContact.realEstateAgents.length 
+											? selectedContact.realEstateAgents[0].brokerOfficeName
+											: '';
 								}
 								else
 								{
