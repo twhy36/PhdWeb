@@ -108,7 +108,7 @@ export class SearchService
 		expandData.financialCommunity = `financialCommunity($select=${selectData.financialCommunity};$expand=${expandData.salesCommunity})`;
 		expandData.salesAgreement = `salesAgreement($select=${selectData.salesAgreement};$expand=jobSalesAgreementAssocs($select=jobId,isActive,salesAgreementId;$orderby=createdUtcDate desc;$top=1))`;
 		expandData.jobSalesAgreementAssocs = `jobSalesAgreementAssocs($select=${selectData.jobSalesAgreementAssocs};$expand=${expandData.salesAgreement})`;
-		expandData.jobChangeOrderGroup = `jobChangeOrderGroups($select=${selectData.jobChangeOrderGroup};$orderby=createdUtcDate desc;$expand=jobChangeOrderGroupSalesAgreementAssocs($select=jobChangeOrderGroupId,salesAgreementId,changeOrderGroupSequence), jobChangeOrders($select=id,jobChangeOrderGroupId,jobChangeOrderTypeDescription;$expand=jobSalesChangeOrderBuyers($select=id,jobChangeOrderId,buyerName, firstName, lastName, isPrimaryBuyer, sortKey)))`;
+		expandData.jobChangeOrderGroup = `jobChangeOrderGroups($select=${selectData.jobChangeOrderGroup};$orderby=createdUtcDate desc;$top=1;$expand=jobChangeOrderGroupSalesAgreementAssocs($select=jobChangeOrderGroupId,salesAgreementId,changeOrderGroupSequence), jobChangeOrders($select=id,jobChangeOrderGroupId,jobChangeOrderTypeDescription;$expand=jobSalesChangeOrderBuyers($select=id,jobChangeOrderId,buyerName, firstName, lastName, isPrimaryBuyer, sortKey)))`;
 		expandData.jobs = `jobs($select=${selectData.jobs};$expand=${expandData.jobSalesAgreementAssocs},${expandData.jobChangeOrderGroup},planCommunity($select=id,planSalesName);)`;
 
 		// top level expands
