@@ -14,18 +14,19 @@ export class NavigationBarComponent extends UnsubscribeOnDestroy implements OnIn
 	Permission = Permission;
 
 	isCollapsed = true;
-	currentTree: DTree;
+	currentTreeVersionId: number;
 
 	toggleCollapsed(): void
 	{
 		this.isCollapsed = !this.isCollapsed;
 	}
 
-	constructor(private _treeService: TreeService ) { super(); }
+	constructor(private _treeService: TreeService) { super(); }
 
-	ngOnInit() {
-		this._treeService.currentTree.pipe(
+	ngOnInit()
+	{
+		this._treeService.currentTreeVersionId$.pipe(
 			this.takeUntilDestroyed()
-			).subscribe((tree: DTree) => this.currentTree = tree);
+		).subscribe((treeVersionId: number) => this.currentTreeVersionId = treeVersionId);
 	}
 }
