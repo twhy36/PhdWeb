@@ -889,6 +889,13 @@ export const canCancelSpec = createSelector(
 		return job.constructionStageName === 'Configured' && job.lot.lotBuildTypeDesc === 'Spec' && !(job.jobSalesAgreementAssocs && job.jobSalesAgreementAssocs.length > 0);
 	});
 
+export const canCancelModel = createSelector(
+	fromJob.jobState,
+	(job) =>
+	{
+		return job.constructionStageName === 'Configured' && job.lot.lotBuildTypeDesc === 'Model' && !(job.jobSalesAgreementAssocs && job.jobSalesAgreementAssocs.length > 0);
+	});
+
 export const showSpinner = createSelector(
 	fromSalesAgreement.salesAgreementState,
 	fromJob.jobState,
