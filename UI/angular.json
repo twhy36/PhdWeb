@@ -113,7 +113,7 @@
 					"options": {
 						"baseHref": "/",
 						"browserTarget": "salesadmin:build",
-						"port": 14769
+						"port": 14765
 					},
 					"configurations": {
 						"qa": {

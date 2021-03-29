@@ -87,7 +87,7 @@ export class SearchService
 		// Top level select that will appear as the value of $select in the call's parameters
 		selectData.lots = `id,lotBlock,streetAddress1,streetAddress2,unitNumber,city,stateProvince,postalCode,country,foundationType,lotBuildTypeDesc,lotStatusDescription,premium`;
 		// Selects that are going to be included inside the expands below
-		selectData.jobs = 'id, planId, createdBy';
+		selectData.jobs = 'id, planId, createdBy,jobTypeName';
 		selectData.jobSalesAgreementAssocs = 'id';
 		selectData.planAssociations = 'isActive';
 		selectData.planCommunity = 'id,planSalesName';

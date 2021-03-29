@@ -4,7 +4,7 @@ export class HomeSite
 	premium: number;
 	cost: number;
 	phdLotWarranty: string;
-
+	job: Job;
 	constructor(dto: HomeSiteDtos.ILotDto)
 	{
 		this.dto = dto;
@@ -57,6 +57,12 @@ export class HomeSite
 			return false;
 		}
 	}
+}
+
+export class Job
+{
+	jobId: number;
+	jobTypeName: string;
 }
 
 export type HomeSiteStatus = "Sold" | "Available" | "Unavailable" | "Closed" | "Pending Release" | "Pending Sale" | "Spec" | "Model" | "Spec Unavailable";
@@ -114,6 +120,7 @@ export namespace HomeSiteDtos
 		address: IAddress;
 		premium: number;
 		plans: Array<number>;
+		job: Job;
 	}
 	export interface IHanding
 	{

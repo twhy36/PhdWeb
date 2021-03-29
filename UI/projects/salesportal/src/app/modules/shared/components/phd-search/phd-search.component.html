@@ -185,11 +185,11 @@
 					<phd-column field="buildType" header="Build Type">
 						<ng-template #body let-lot>
 							<div *ngIf="!isHslMigrated(lot.jobCreatedBy) && (lot.lotStatusDescription.trim() === 'Available' || lot.lotStatusDescription.trim() === 'Unavailable') && (lot.buildType.trim() ==='Spec' || lot.buildType.trim() ==='Model'); else elseBody">
-								<div *ngIf="(lot.lotStatusDescription.trim() === 'Available' || lot.lotStatusDescription.trim() === 'Unavailable') && (lot.buildType.trim() ==='Spec')">
-									<a href="{{environment.baseUrl.designTool}}spec/{{lot.jobId}}" target="_blank">{{lot.buildType}}</a>
+								<div *ngIf="(lot.lotStatusDescription.trim() === 'Available' || lot.lotStatusDescription.trim() === 'Unavailable') && (lot.buildTypeDisplayName ==='Spec')">
+									<a href="{{environment.baseUrl.designTool}}spec/{{lot.jobId}}" target="_blank">{{lot.buildTypeDisplayName}}</a>
 								</div>
-								<div *ngIf="(lot.lotStatusDescription.trim() === 'Available' || lot.lotStatusDescription.trim() === 'Unavailable') && (lot.buildType.trim() ==='Model')">
-									<a href="{{environment.baseUrl.designTool}}scenario-summary/{{lot.jobId}}" target="_blank">{{lot.buildType}}</a>
+								<div *ngIf="(lot.lotStatusDescription.trim() === 'Available' || lot.lotStatusDescription.trim() === 'Unavailable') && (lot.buildTypeDisplayName ==='Model')">
+									<a href="{{environment.baseUrl.designTool}}scenario-summary/{{lot.jobId}}" target="_blank">{{lot.buildTypeDisplayName}}</a>
 								</div>
 							</div>
 							<ng-template #elseBody>{{getLotBuildType(lot)}}</ng-template>

@@ -25,9 +25,11 @@ export class SearchResult
 	unitNumber: string;
 	jobId: number;
 	jobCreatedBy: string;
+	jobTypeName: string;
 	buyers: Array<Buyer>;
 	activeChangeOrder: ActiveChangeOrder;
 	activeChangeOrderText: string;
+	buildTypeDisplayName: string;
 
 	get buyerString(): string {
 		return this.buyers && this.buyers.length > 0 ? this.buyers.map(fm => fm.firstName + ' ' + fm.lastName).join(', ') : '';
@@ -35,6 +37,7 @@ export class SearchResult
 	constructor(dto: ISearchResult)
     {
 		this.buildType = dto.lotBuildTypeDesc || 'Dirt';
+		this.buildTypeDisplayName = dto.lotBuildTypeDesc || 'Dirt';
 		this.city = dto.city || null;
 		this.country = dto.country || null;
 		this.financialCommunity = dto.financialCommunity && dto.financialCommunity.name || null;
@@ -67,6 +70,11 @@ export class SearchResult
 		{
 			this.jobId = job.id;
 			this.jobCreatedBy = job.createdBy;
+			this.jobTypeName = job.jobTypeName
+			if (dto.lotBuildTypeDesc === 'Spec' && job.jobTypeName === 'Model')
+			{
+				this.buildTypeDisplayName = 'Model';
+			}
 
 			if (dto.lotBuildTypeDesc === 'Spec')
 			{
@@ -210,6 +218,7 @@ export interface ISearchResultJob
 {
 	id: number;
 	createdBy: string;
+	jobTypeName: string;
 	jobSalesAgreementAssocs: Array<IJobSalesAgreementAssocs>;
 	jobChangeOrderGroups: Array<IJobChangeOrderGroup>;
 	planCommunity: { id: number, planSalesName: string };

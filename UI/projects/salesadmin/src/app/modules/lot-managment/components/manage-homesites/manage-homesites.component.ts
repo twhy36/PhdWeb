@@ -322,6 +322,7 @@ class HomeSiteViewModel extends HomeSite
 {
 	community: FinancialCommunity;
 	release: IHomeSiteReleaseDto;
+	lotJobType: string;
 
 	get availabilityDate()
 	{
@@ -331,7 +332,7 @@ class HomeSiteViewModel extends HomeSite
 	constructor(dto: HomeSiteDtos.ILotDto, community: FinancialCommunity, release: IHomeSiteReleaseDto)
 	{
 		super(dto);
-
+		this.lotJobType = (dto.lotBuildTypeDescription === 'Spec' && (dto.job && dto.job.jobTypeName === 'Model')) ? 'Model' : dto.lotBuildTypeDescription;
 		this.community = community;
 		this.release = release;
 	}

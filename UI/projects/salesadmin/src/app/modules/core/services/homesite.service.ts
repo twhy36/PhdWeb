@@ -56,7 +56,7 @@ export class HomeSiteService
 	{
 		let url = settings.apiUrl;
 
-		const expand = `planAssociations($select=id,isActive;$expand=planCommunity($select=id, financialPlanIntegrationKey)), salesPhase($select=id, salesPhaseName), financialCommunity($select=id, number, marketId; $expand=market($select=id, number)), lotHandingAssocs, lotViewAdjacencyAssocs($expand=viewAdjacency), lotPhysicalLotTypeAssocs($expand=physicalLotType)`;
+		const expand = `jobs($select=id,jobTypeName),planAssociations($select=id,isActive;$expand=planCommunity($select=id, financialPlanIntegrationKey)), salesPhase($select=id, salesPhaseName), financialCommunity($select=id, number, marketId; $expand=market($select=id, number)), lotHandingAssocs, lotViewAdjacencyAssocs($expand=viewAdjacency), lotPhysicalLotTypeAssocs($expand=physicalLotType)`;
 		const filter = `financialCommunity/id eq ${communityId} and lotStatusDescription ne 'Deleted' and isMasterUnit eq false`;
 
 		const qryStr = `${encodeURIComponent("$")}expand=${encodeURIComponent(expand)}&${encodeURIComponent("$")}filter=${encodeURIComponent(filter)}`;
@@ -145,7 +145,8 @@ export class HomeSiteService
 			lotType: data.lotPhysicalLotTypeAssocs &&
 				data.lotPhysicalLotTypeAssocs[0] &&
 			this.physicalLotTypes.find(item => item.label === data.lotPhysicalLotTypeAssocs[0].physicalLotType.description) as HomeSiteDtos.ILabel || '',
-			isMasterUnit: data.isMasterUnit
+			isMasterUnit: data.isMasterUnit,
+			job: data.jobs && data.jobs[0] ? data.jobs[0] : null
 		} as HomeSiteDtos.ILotDto;
 	}
 

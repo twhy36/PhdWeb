@@ -154,6 +154,11 @@ export class PHDSearchComponent
 			{
 				buildTypesCopy.push(null);
 			};
+			// if only searching Models pull back specs as well so we can get the PHD Models that have been released and have a lotbuildtypedesc of spec
+			if (this.selectedBuildTypes.find(type => type === 'Model') && !this.selectedBuildTypes.find(type => type === 'Spec'))
+			{
+				buildTypesCopy.push('Spec');
+			}
 
 			filters.push(this.getFilterFromSelectItems('lotBuildTypeDesc', buildTypesCopy));
 		}
@@ -195,6 +200,12 @@ export class PHDSearchComponent
 				} else {
 					filteredLots = results.filter(lot => lot.buyers && lot.buyers.some(buyer => (this.firstName ? buyer.firstName.toLowerCase().includes(this.firstName.toLowerCase()) : true) && (this.lastName ? buyer.lastName.toLowerCase().includes(this.lastName.toLowerCase()) : true)));
 				}
+			}
+			// if only searching for Models filter out specs that do not have a jobTypeName of Model.
+			if (this.selectedBuildTypes && this.selectedBuildTypes.includes('Model') && !this.selectedBuildTypes.includes('Spec'))
+			{
+				filteredLots = filteredLots ? filteredLots : results;
+				filteredLots = filteredLots.filter(lot => lot.jobTypeName === 'Model' || lot.buildType === 'Model')
 			}
 			this.searchResults = filteredLots ? filteredLots : results;
 		}, error =>
