@@ -229,7 +229,7 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 				(buyer as Realtor).brokerName = brokerName;
 				contact = (buyer as Realtor).contact;
 
-				if (contact.realEstateAgents.length)
+				if (contact.realEstateAgents && contact.realEstateAgents.length)
 				{
 					contact.realEstateAgents[0].brokerOfficeName = brokerName;
 				}
