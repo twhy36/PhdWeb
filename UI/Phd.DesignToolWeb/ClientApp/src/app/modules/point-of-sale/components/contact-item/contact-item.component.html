@@ -1,0 +1,13 @@
+<div class="d-flex">
+	<span>{{isPrimary ? 'P' : 'S'}}</span>
+	<div class="mx-1 phd-contact-icons">
+		<ng-container *ngIf="itemType === 'Email'">
+			<i class="far fa-envelope"></i>
+		</ng-container>
+		<ng-container *ngIf="itemType === 'Phone'">
+			<i class="fas fa-phone"></i>
+		</ng-container>
+	</div>
+	<span>:</span>
+	<span class="ml-2">{{getContent()}}</span>		
+</div>
