@@ -109,7 +109,7 @@ export function getChangeOrderGroupSelections(groups: Array<Group>, jobChangeOrd
 	});
 }
 
-export function mapSystemMergeFields(sag: SalesAgreement, job: Job, elevationDp: DecisionPoint, price: PriceBreakdown, financialCommunity: FinancialCommunity, buyers: Buyer[], handing: string)
+export function mapSystemMergeFields(sag: SalesAgreement, job: Job, elevationDp: DecisionPoint, price: PriceBreakdown, financialCommunity: FinancialCommunity, buyers: Buyer[], handing: string, salesCommunityName: string)
 {
 	// deposits
 	const sagDeposits = !!sag.deposits ? sag.deposits : [];
@@ -228,7 +228,7 @@ export function mapSystemMergeFields(sag: SalesAgreement, job: Job, elevationDp:
 	map.set("Sales Description", jioDescription);
 	map.set("Community Number", financialCommunity.number);
 	map.set("Community Name", financialCommunity.name);
-	map.set("Community Marketing Name", financialCommunity.name);
+	map.set("Community Marketing Name", salesCommunityName);
 	map.set("Community County", isNull(job.lot.county, ""));
 	map.set("Community City", isNull(financialCommunity.city, ""));
 	map.set("Community State", isNull(financialCommunity.state, ""));
