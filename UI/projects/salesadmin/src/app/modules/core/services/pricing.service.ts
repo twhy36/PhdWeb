@@ -152,7 +152,7 @@ export class PricingService
 		let body = {
 			'financialCommunityId': commId,
 			'salesPhaseName': salesPhase.salesPhaseName,
-			'prices': salesPhase.phasePlans.map(pp => <any>{ price: pp.listPrice, planId: pp.plan.id, salesPhaseId: salesPhase.id || 0 }),
+			'prices': salesPhase.phasePlans.filter(pp => pp.plan.isActive).map(pp => <any>{ price: pp.listPrice, planId: pp.plan.id, salesPhaseId: salesPhase.id || 0 }),
 			'salesPhaseLots': salesPhase.lots.map(l => <any>{ id: l.id, salesPhaseId: l.salesPhaseId, lotBlock: l.lotBlock, lotStatusDescription: l.lotStatusDescription }),
 			'oldSalesPhaseLotAssoc': oldSalesPhaseLotAssoc.map(l => <any>{ id: l.id, salesPhaseId: l.salesPhaseId, lotBlock: l.lotBlock, lotStatusDescription: l.lotStatusDescription })
 		};

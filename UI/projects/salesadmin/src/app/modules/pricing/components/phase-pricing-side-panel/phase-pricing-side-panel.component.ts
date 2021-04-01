@@ -75,7 +75,8 @@ export class PhasePricingSidePanelComponent implements OnInit
 				return <ISalesPhasePlan> {
 					listPrice: prevPhase ? prevPhase.listPrice : pp.listPrice,
 					plan: {
-						id: pp.plan.id
+						id: pp.plan.id,
+						isActive: pp.plan.isActive
 					}
 				};
 			})

@@ -207,6 +207,11 @@ export class PHDSearchComponent
 				filteredLots = filteredLots ? filteredLots : results;
 				filteredLots = filteredLots.filter(lot => lot.jobTypeName === 'Model' || lot.buildType === 'Model')
 			}
+			else if (this.selectedBuildTypes && !this.selectedBuildTypes.includes('Model') && this.selectedBuildTypes.includes('Spec'))
+			{
+				filteredLots = filteredLots ? filteredLots : results;
+				filteredLots = filteredLots.filter(lot => lot.jobTypeName === 'Spec' && lot.buildType === 'Spec')
+			}
 			this.searchResults = filteredLots ? filteredLots : results;
 		}, error =>
 			{
@@ -439,7 +444,7 @@ export class PHDSearchComponent
 	getLotBuildType(lot: SearchResult): string {
 		return this.isHslMigrated(lot.jobCreatedBy)
 			? `${lot.buildType} - HS`
-			: lot.buildType;
+			: lot.buildTypeDisplayName;
 	}
 
 	showTooltip(event: any, tooltipText: string, tableComponent: PhdTableComponent): void
