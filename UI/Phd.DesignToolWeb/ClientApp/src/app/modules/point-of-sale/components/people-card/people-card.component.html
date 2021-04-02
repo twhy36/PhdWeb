@@ -44,7 +44,7 @@
 		<div class="phd-people-card-body" *ngSwitchCase="'Realtor'" [ngClass]="{'text-center pt-5' : realtorNA, 'pl-3 pt-2' : realtor}">
 			<ng-container *ngIf="realtor">
 				<div><strong>{{realtor.brokerName}}</strong></div>
-				<div>{{realtor.contact.firstName + ' ' + realtor.contact.lastName}}</div>
+				<div>{{realtor.contact | contactfullname}}</div>
 				<ng-container *ngIf="realtor.contact.addressAssocs.length">
 					<people-card-address [address]="realtor.contact.addressAssocs | contactaddress: false"></people-card-address>
 				</ng-container>

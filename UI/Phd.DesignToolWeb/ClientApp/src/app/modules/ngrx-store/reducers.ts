@@ -808,20 +808,20 @@ export const systemMergeFields = createSelector(
 	fromSalesAgreement.salesAgreementState,
 	fromScenario.elevationDP,
 	priceBreakdown,
-	fromLot.selectSelectedLot,
+	fromOrg.selectOrg,
 	isSpecSalePending,
 	fromChangeOrder.changeOrderBuyers,
 	fromChangeOrder.changeInput,
-	(job, sag, elevationDp, price, selectedLot, isSpecSale, changeOrderBuyers, changeInput) =>
+	(job, sag, elevationDp, price, selectedOrg, isSpecSale, changeOrderBuyers, changeInput) =>
 	{
 		let buyers = isSpecSale ? changeOrderBuyers : sag.buyers;
 
 		buyers = buyers.map(b => new Buyer(b));
-
-		const financialCommunity = selectedLot.financialCommunity;
+		const salesCommunity = selectedOrg.salesCommunity;
+		const financialCommunity = salesCommunity.financialCommunities.find(fc => fc.id == job.financialCommunityId);
 
 		const handing = changeInput && changeInput.handing ? changeInput.handing.handing : job.handing;
-		const map = mapSystemMergeFields(sag, job, elevationDp, price, financialCommunity, buyers, handing);
+		const map = mapSystemMergeFields(sag, job, elevationDp, price, financialCommunity, buyers, handing, salesCommunity.name);
 
 		return map;
 	}
@@ -887,6 +887,13 @@ export const canCancelSpec = createSelector(
 	(job) =>
 	{
 		return job.constructionStageName === 'Configured' && job.lot.lotBuildTypeDesc === 'Spec' && !(job.jobSalesAgreementAssocs && job.jobSalesAgreementAssocs.length > 0);
+	});
+
+export const canCancelModel = createSelector(
+	fromJob.jobState,
+	(job) =>
+	{
+		return job.constructionStageName === 'Configured' && job.lot.lotBuildTypeDesc === 'Model' && !(job.jobSalesAgreementAssocs && job.jobSalesAgreementAssocs.length > 0);
 	});
 
 export const showSpinner = createSelector(
