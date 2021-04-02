@@ -1,0 +1,27 @@
+stages:
+- stage: Build
+  pool: pgazadob1p
+  jobs:
+  - job: Build
+    steps:
+    - template: build.yml
+      parameters:
+        configurations:
+        - qa
+        - staging
+        - production
+- stage: Qa
+  dependsOn: Build
+  pool: PGAZADOR1P
+  variables:
+  - group: 'PHD QA'
+  jobs:
+  - template: deploy.yml
+    parameters:
+      resources:
+      - jobName: 'Qa'
+        environment: 'PhdQa'
+        webAppName: 'PhdQa'
+        resourceGroup: 'PHD-Qa'
+        subscription: 'QA'
+      buildConfiguration: 'qa'
