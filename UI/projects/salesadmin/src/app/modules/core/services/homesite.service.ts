@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
 import { Observable ,  throwError as _throw } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { combineLatest, catchError, map } from 'rxjs/operators';
 
 import { Settings } from '../../shared/models/settings.model';
 import { HomeSiteDtos } from '../../shared/models/homesite.model';
@@ -16,34 +16,6 @@ const settings: Settings = new SettingsService().getSettings();
 @Injectable()
 export class HomeSiteService
 {
-	// TECH DEBT - Use list from EDH
-	public viewAdjacencies: Array<HomeSiteDtos.ILabel> = [
-		{ label: 'Base View', value: 'BaseView', id: 14 },
-		{ label: 'City View', value: 'CityView', id: 8 },
-		{ label: 'Golf Course', value: 'GolfCourse', id: 3 },
-		{ label: 'Nature/Preserve', value: 'Nature/Preserve', id: 6 },
-		{ label: 'None', value: 'None', id: 16 },
-		{ label: 'Open Space', value: 'OpenSpace', id: 13 },
-		{ label: 'Other View', value: 'OtherView', id: 15 },
-		{ label: 'Water View', value: 'WaterView', id: 5 },
-		{ label: 'Waterfront', value: 'Waterfront', id: 4 }
-	];
-
-	public physicalLotTypes: Array<HomeSiteDtos.ILabel> = [
-		{ label: 'Base', value: 'Base', id: 10 },
-		{ label: 'Corner', value: 'Corner', id: 3 },
-		{ label: 'Cul de sac', value: 'CulDeSac', id: 4 },
-		{ label: 'End Unit', value: 'EndUnit', id: 11 },
-		{ label: 'Extra Deep', value: 'ExtraDeep', id: 6 },
-		{ label: 'Extra Wide', value: 'ExtraWide', id: 5 },
-		{ label: 'Extra Wide and Deep', value: 'ExtraWideAndDeep', id: 7 },
-		{ label: 'Interior Unit', value: 'InteriorUnit', id: 12 },
-		{ label: 'Lookout', value: 'Lookout', id: 2 },
-		{ label: 'Standard', value: 'Standard', id: 9 },
-		{ label: 'Walkout', value: 'Walkout', id: 1 },
-		{ label: 'Wedge', value: 'Wedge', id: 8 }
-	];
-
 	constructor(
 		private _http: HttpClient
 	) { }
@@ -63,11 +35,12 @@ export class HomeSiteService
 
 		url += `lots?${qryStr}`;
 		return withSpinner(this._http).get(url).pipe(
-			map((response: any) =>
+			combineLatest(this.getViewAdjacencies(), this.getPhysicalLotTypes()),
+			map(([response, viewAdjacencies, lotTypes]: [any, HomeSiteDtos.ILabel[], HomeSiteDtos.ILabel[]]) =>
 			{
 				let retVal = response.value.map(data =>
 				{
-					let lotDto = this.mapLotDto(data);
+					let lotDto = this.mapLotDto(data, viewAdjacencies, lotTypes);
 
 					return lotDto;
 				});
@@ -95,11 +68,12 @@ export class HomeSiteService
 		url += `lots?${qryStr}`;
 
 		return this._http.get(url).pipe(
-			map((response: any) =>
+			combineLatest(this.getViewAdjacencies(), this.getPhysicalLotTypes()),
+			map(([response, viewAdjacencies, lotTypes]: [any, HomeSiteDtos.ILabel[], HomeSiteDtos.ILabel[]]) =>
 			{
 				let retVal = response.value.map(data =>
 				{
-					return this.mapLotDto(data);
+					return this.mapLotDto(data, viewAdjacencies, lotTypes);
 				});
 
 				return retVal as Array<HomeSiteDtos.ILotDto>;
@@ -107,7 +81,7 @@ export class HomeSiteService
 			catchError(this.handleError));
 	}
 
-	mapLotDto(data: any): HomeSiteDtos.ILotDto
+	mapLotDto(data: any, viewAdjacencies: HomeSiteDtos.ILabel[], lotTypes: HomeSiteDtos.ILabel[]): HomeSiteDtos.ILotDto
 	{
 		let address = {
 			streetAddress1: data.streetAddress1,
@@ -141,10 +115,10 @@ export class HomeSiteService
 			edhWarrantyType: !!data.phdLotWarrantyId ? data.phdLotWarrantyId : '',
 			view: data.lotViewAdjacencyAssocs &&
 				data.lotViewAdjacencyAssocs[0] &&
-				this.viewAdjacencies.find(item => item.label === data.lotViewAdjacencyAssocs[0].viewAdjacency.description) as HomeSiteDtos.ILabel || '',
+				viewAdjacencies.find(item => item.label === data.lotViewAdjacencyAssocs[0].viewAdjacency.description) as HomeSiteDtos.ILabel || '',
 			lotType: data.lotPhysicalLotTypeAssocs &&
 				data.lotPhysicalLotTypeAssocs[0] &&
-			this.physicalLotTypes.find(item => item.label === data.lotPhysicalLotTypeAssocs[0].physicalLotType.description) as HomeSiteDtos.ILabel || '',
+				lotTypes.find(item => item.label === data.lotPhysicalLotTypeAssocs[0].physicalLotType.description) as HomeSiteDtos.ILabel || '',
 			isMasterUnit: data.isMasterUnit,
 			job: data.jobs && data.jobs[0] ? data.jobs[0] : null
 		} as HomeSiteDtos.ILotDto;
@@ -194,11 +168,11 @@ export class HomeSiteService
 			lotBuildTypeDesc: homesiteDto.lotBuildTypeDescription,
 			view: {
 				id: homesiteDto.view.id,
-				description: homesiteDto.view.value
+				description: homesiteDto.view.label
 			},
 			lotType: {
 				id: homesiteDto.lotType.id,
-				description: homesiteDto.lotType.value
+				description: homesiteDto.lotType.label
 			},
 			lotBuildTypeUpdated: lotBuildTypeUpdated
 		};
@@ -259,6 +233,43 @@ export class HomeSiteService
 			catchError(this.handleError)
 		);
 	}
+
+	getViewAdjacencies() : Observable<Array<HomeSiteDtos.ILabel>>
+	{
+		let url = settings.apiUrl + 'viewAdjacencies';
+
+		return this._http.get(url).pipe(
+			map((response: any) =>
+			{
+				return response.value.map(data =>
+					{
+						return {
+							id: data.id,
+							label: data.description,
+							value: data.id as string
+						} as HomeSiteDtos.ILabel;
+					});
+			}), catchError(this.handleError));		
+	}
+
+	getPhysicalLotTypes() : Observable<Array<HomeSiteDtos.ILabel>>
+	{
+		let url = settings.apiUrl + 'physicalLotTypes';
+
+		return this._http.get(url).pipe(
+			map((response: any) =>
+			{
+				return response.value.map(data =>
+					{
+						return {
+							id: data.id,
+							label: data.description,
+							value: data.id as string
+						} as HomeSiteDtos.ILabel;
+					});
+			}), catchError(this.handleError));		
+	}
+
 	private handleError(error: Response)
 	{
 		// In the future, we may send the server to some remote logging infrastructure

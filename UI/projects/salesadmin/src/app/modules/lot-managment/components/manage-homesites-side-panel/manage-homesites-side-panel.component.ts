@@ -30,6 +30,9 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 	@Input() selectedHomesite: HomeSite;
 	@Input() monotonyRules: Array<MonotonyRule>;
 	@Input() lots: Array<HomeSite> = [];
+	@Input() viewAdjacencies: Array<HomeSiteDtos.ILabel> = [];
+	@Input() physicalLotTypes: Array<HomeSiteDtos.ILabel> = [];
+
 	@Output() onSaveHomesite = new EventEmitter<{ homesiteDto: HomeSiteDtos.ILotDto, lotBuildTypeUpdated: boolean}>();
 	@Output() onSaveMonotonyRules = new EventEmitter <{ lotId: number, monotonyRules: MonotonyRule[] }>();
 
@@ -98,16 +101,6 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 	get foundationTypes(): Array<string>
 	{
 		return this.enumKeys(HomeSiteDtos.FoundationType);
-	}
-
-	get viewAdjacencies(): Array<HomeSiteDtos.ILabel>
-	{
-		return this.homeSiteService.viewAdjacencies;
-	}
-
-	get physicalLotTypes(): Array<HomeSiteDtos.ILabel>
-	{
-		return this.homeSiteService.physicalLotTypes;
 	}
 
 	get homesiteFormValues()

@@ -46,6 +46,8 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 	monotonyRules: Array<MonotonyRule>;
 	lotCount: number = 0;
 	canEdit: boolean = false;
+	viewAdjacencies: Array<HomeSiteDtos.ILabel> = [];
+	physicalLotTypes: Array<HomeSiteDtos.ILabel> = [];
 
 	constructor(
 		private _orgService: OrganizationService,
@@ -104,6 +106,14 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 		this._orgService.canEdit(this._route.parent.snapshot.data['requiresClaim']).pipe(
 			this.takeUntilDestroyed()
 		).subscribe(canEdit => this.canEdit = canEdit);
+
+		this._homeSiteService.getViewAdjacencies().subscribe(data => {
+			this.viewAdjacencies = data;
+		});
+
+		this._homeSiteService.getPhysicalLotTypes().subscribe(data => {
+			this.physicalLotTypes = data;
+		});
 	}
 
 	setReleaseData()
