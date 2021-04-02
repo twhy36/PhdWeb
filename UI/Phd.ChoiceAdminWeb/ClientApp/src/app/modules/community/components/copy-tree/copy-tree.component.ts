@@ -43,6 +43,7 @@ export class CopyTreeComponent implements OnInit
 	saving: boolean = false;
 	msgs: Message[] = [];
 	treeVersionId: number = 0;
+	originalTreeVersionId: number = 0;
 
 	hasDivisionCatalogEdit: boolean = false;
 
@@ -454,6 +455,8 @@ export class CopyTreeComponent implements OnInit
 	onClickSave()
 	{
 		this.saving = true;
+
+		this.clearResults();
 		this.toggleControls(true);
 
 		const commKey = this.copyForm.get('communityTo').value.id;
@@ -505,6 +508,13 @@ export class CopyTreeComponent implements OnInit
 		});
 	}
 
+	clearResults()
+	{
+		this.msgs = []; // clear messages if any
+		this.treeVersionId = 0;
+		this.originalTreeVersionId = 0;
+	}
+
 	createMessage(msg: Message)
 	{
 		this.msgs = [];
@@ -513,12 +523,13 @@ export class CopyTreeComponent implements OnInit
 
 	copyVersion()
 	{
-		this.treeVersionId = 0;
 		this.createMessage({ severity: 'info', summary: 'Copy Tree', detail: 'Copying Tree...' });
 
 		const treeVersionId = this.copyForm.get('treeFrom').value.dTreeVersionID;
 		const commId = this.copyForm.get('communityTo').value.id;
 		const planKey = this.copyForm.get('planTo').value.financialPlanIntegrationKey;
+
+		this.originalTreeVersionId = treeVersionId;
 
 		// copying tree from one plan to another
 		this._copyTreeService.copyTreeVersionTo(commId, planKey, treeVersionId)
@@ -554,17 +565,12 @@ export class CopyTreeComponent implements OnInit
 
 	overrideVersion(treeVersionId: number)
 	{
-		this.treeVersionId = 0;
-
 		if (treeVersionId != 0)
 		{
 			this.createMessage({ severity: 'info', summary: 'Override Draft', detail: 'Deleting Draft...' });
 
 			// delete the current draft
 			this._copyTreeService.deleteDraftTreeVersion(treeVersionId)
-				.pipe(
-					finalize(() => this.reEnableForm())
-				)
 				.subscribe(() =>
 				{
 					this.copyVersion();
@@ -572,6 +578,8 @@ export class CopyTreeComponent implements OnInit
 				error =>
 				{
 					this.createMessage({ severity: 'error', summary: 'Override Draft', detail: 'There was an issue trying to override the existing draft tree.' });
+
+					this.reEnableForm();
 				});
 		}
 		else
@@ -586,6 +594,30 @@ export class CopyTreeComponent implements OnInit
 	{
 		this.toggleControls(false);
 		this.saving = false;
+	}
+
+	getPlanCopyValidation()
+	{
+		this._copyTreeService.getPlanCopyValidation(this.originalTreeVersionId, this.treeVersionId).subscribe(xlsData =>
+		{
+			let formattedDate = moment(new Date()).format('M.DD.YYYY');
+
+			const anchor = document.createElement('a');
+
+			document.body.appendChild(anchor);
+
+			anchor.href = xlsData;
+			anchor.download = `Copy Plan Validation - ${formattedDate}.xlsx`;
+			anchor.click();
+
+			document.body.removeChild(anchor);
+
+			window.URL.revokeObjectURL(xlsData);
+		},
+		error =>
+		{
+			this.createMessage({ severity: 'error', summary: 'Copy Plan Validation', detail: 'There was an issue trying to create the Copy Plan Validation document.' });
+		});
 	}
 }
 
