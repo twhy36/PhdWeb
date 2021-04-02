@@ -81,7 +81,7 @@
 
 						<p-messages [(value)]="msgs" [closable]="false"></p-messages>
 
-						<div *ngIf="treeVersionId && treeVersionId != 0">To Navigate to the new tree <a [routerLink]="['/community/tree', treeVersionId]" class="alert-link">Click Here</a></div>
+						<div *ngIf="treeVersionId && treeVersionId != 0">To Navigate to the new tree <a [routerLink]="['/community/tree', treeVersionId]" class="btn-link alert-link">Click Here</a>. <ng-container *ngIf="hasDivisionCatalogEdit">Plan Copy Validation <button (click)="getPlanCopyValidation()" class="btn btn-link alert-link p-0">Download</button>.</ng-container></div>
 					</div>
 				</div>
 			</form>
