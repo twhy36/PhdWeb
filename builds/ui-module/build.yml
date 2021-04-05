@@ -4,9 +4,6 @@ parameters:
   default: 
   - dev
   displayName:
-- name: runTests
-  type: boolean
-  default: false  
 
 steps:
 - task: NodeTool@0
@@ -25,7 +22,7 @@ steps:
     command: 'custom'
     workingDir: 'UI'
     customCommand: ci --also=dev
-- ${{ if eq(parameters.runTests, true) }}:
+- ${{ if eq(variables['runTests'], true) }}:
   - task: Npm@1
     displayName: Run Unit Tests
     inputs:
@@ -49,7 +46,7 @@ steps:
       ArtifactName: 'Site\${{ configuration }}'
       publishLocation: 'Container'
 
-- ${{ if eq(parameters.runTests, true) }}:
+- ${{ if eq(variables['runTests'], true) }}:
   - task: PublishTestResults@2
     displayName: Publish Test Results
     condition: succeededOrFailed()

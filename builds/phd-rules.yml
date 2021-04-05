@@ -3,14 +3,6 @@
 # Add steps that analyze code, save build artifacts, deploy, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
 
-trigger:
-  branches:
-   include:
-     - next
-  paths:
-    include:
-     - UI/projects/phd-common
-
 pool:
   vmImage: 'ubuntu-latest'
 
@@ -47,21 +39,22 @@ steps:
     prod: false
     DisableAnalytics: false
   displayName: 'build phd-common'
-- task: setjsonvalue@1
-  inputs:
-    filename: 'UI/dist/phd-common/package.json'
-    numberOfLevels: '1'
-    keyname1: 'version'
-    valueToSet: '$(packageVersion)'
-  displayName: 'set package version'
-- task: Npm@1
-  inputs:
-    command: 'custom'
-    workingDir: 'UI/dist/phd-common'
-    customCommand: 'publish --ignore-scripts'
-    customRegistry: 'useFeed'
-    customFeed: '6d26cbbb-94e5-4db9-ac14-039e14cd6ff9/484bd538-a8f3-4ad5-a52d-e1c1d14f5e1f'
-  displayName: 'npm publish'
+- ${{ if ne(variables['Build.Reason'], 'PullRequest') }}:
+  - task: setjsonvalue@1
+    inputs:
+      filename: 'UI/dist/phd-common/package.json'
+      numberOfLevels: '1'
+      keyname1: 'version'
+      valueToSet: '$(packageVersion)'
+      displayName: 'set package version'
+  - task: Npm@1
+    inputs:
+      command: 'custom'
+      workingDir: 'UI/dist/phd-common'
+      customCommand: 'publish --ignore-scripts'
+      customRegistry: 'useFeed'
+      customFeed: '6d26cbbb-94e5-4db9-ac14-039e14cd6ff9/484bd538-a8f3-4ad5-a52d-e1c1d14f5e1f'
+      displayName: 'npm publish'
 - task: PublishBuildArtifacts@1
   inputs:
     PathtoPublish: 'UI/dist/phd-common'
