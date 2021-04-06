@@ -4703,9 +4703,7 @@ describe('Common reducer', function ()
 		const state: State = <any>{
 			job: {
 				constructionStageName: 'Configured',
-				lot: {
-					lotBuildTypeDesc: 'Spec'
-				},
+				jobTypeName: 'Spec',
 				jobSalesAgreementAssocs: null
 			}
 		};
