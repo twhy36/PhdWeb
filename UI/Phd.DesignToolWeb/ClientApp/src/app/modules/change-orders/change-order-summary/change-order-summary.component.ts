@@ -77,7 +77,8 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 		{ value: 'Cancellation', id: 7 },
 		{ value: 'SpecJIO', id: 8 },
 		{ value: 'BuyerChangeOrder', id: 9 },
-		{ value: 'PriceAdjustment', id: 10 }
+		{ value: 'PriceAdjustment', id: 10 },
+		{ value: 'SalesNotes', id: 11 }
 	];
 
 	ACTION_TYPES = {
@@ -314,6 +315,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 					salesChangeOrderPriceAdjustments: _.flatten(o.jobChangeOrders.map(t => t.jobSalesChangeOrderPriceAdjustments)),
 					salesChangeOrderSalesPrograms: _.flatten(o.jobChangeOrders.map(t => t.jobSalesChangeOrderSalesPrograms)),
 					salesChangeOrderTrusts: _.flatten(o.jobChangeOrders.map(t => t.jobSalesChangeOrderTrusts)),
+					salesNotesChangeOrders: _.flatten(o.jobChangeOrders.map(t => t.salesNotesChangeOrders)),
 					isResubmittedChangeOrder: false,
 					isActiveChangeOrder: false,
 					eSignStatus: this.getESignStatus(o),
@@ -328,7 +330,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 			{
 				return new Date(a.createdUtcDate).getTime() - new Date(b.createdUtcDate).getTime();
 			});
-						
+
 			if (this.buildMode === 'spec' || this.buildMode === 'model')
 			{
 				this.setGroupSequenceForSpec();
@@ -524,6 +526,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 							{
 								this.setOutForSignature(changeOrder, true);
 							});
+
 						this.store.dispatch(new JobActions.CreateChangeOrderEnvelope(currentSnapshot));
 					}
 					else
@@ -536,6 +539,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 			case this.ACTION_TYPES.CANCEL_SIGNATURE:
 				// First CO on the table - SalesJIO/ Spec Customer
 				this.isSaving = true;
+
 				if (changeOrder.id === this.changeOrders[0].id)
 				{
 					this._contractService.voidOutForSignatureEnvelope(this.salesAgreementId, changeOrder.envelopeId, changeOrder.eSignStatus, this.jobId, changeOrder.id)
@@ -575,6 +579,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 				this._contractService.createSnapShot(changeOrder).subscribe(snapshot =>
 				{
 					this.isSaving = true;
+
 					this._actions$.pipe(
 						ofType<CommonActions.ChangeOrderEnvelopeCreated>(CommonActions.CommonActionTypes.ChangeOrderEnvelopeCreated),
 						take(1)).subscribe(() =>
@@ -688,6 +693,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 		let jobChangeOrderTypeId = this.JOB_CHANGEORDER_TYPES.find(t => t.value === changeOrderGroup.jobChangeOrders[0].jobChangeOrderTypeDescription).id;
 
 		this.isSaving = true;
+
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(state => state.job.financialCommunityId),
@@ -698,7 +704,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 			switchMap(communityAutoApprovals =>
 			{
 				//checking for Sales Change Order Type
-				if (jobChangeOrderTypeId !== 9 && jobChangeOrderTypeId !== 10)
+				if (jobChangeOrderTypeId !== 9 && jobChangeOrderTypeId !== 10 && jobChangeOrderTypeId !== 11)
 				{
 					let isAutoApproval;
 
@@ -709,6 +715,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 						const autoApprovals = communityAutoApprovals && communityAutoApprovals.length
 							? communityAutoApprovals.filter(aa => changeOrderTypeIds.findIndex(x => x.id === aa.edhChangeOrderTypeId) > -1)
 							: null;
+
 						isAutoApproval = autoApprovals && autoApprovals.length ? autoApprovals.findIndex(x => !x.isAutoApproval) < 0 : false;
 					}
 					else
@@ -716,6 +723,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 						const autoApproval = communityAutoApprovals && communityAutoApprovals.length
 							? communityAutoApprovals.find(aa => aa.edhChangeOrderTypeId === jobChangeOrderTypeId)
 							: null;
+
 						isAutoApproval = autoApproval ? autoApproval.isAutoApproval : false;
 					}
 
@@ -902,6 +910,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 		}
 
 		this.isSaving = true;
+
 		this._changeOrderService.updateJobChangeOrder(changeOrdersTobeUpdated)
 			.pipe(finalize(() => this.isSaving = false))
 			.subscribe(updatedChangeOrders =>
@@ -911,10 +920,12 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 				if (changeOrderId === this.currentChangeOrderId)
 				{
 					this.store.dispatch(new ChangeOrderActions.SetChangingOrder(false, null));
+
 					if (changeOrder.salesStatusDescription === 'Approved')
 					{
 						this.store.dispatch(new ChangeOrderActions.CurrentChangeOrderCancelled());
 					}
+
 					if (changeOrder.salesStatusDescription === 'Withdrawn')
 					{
 						this.store.dispatch(new CommonActions.LoadSalesAgreement(this.salesAgreementId, false));

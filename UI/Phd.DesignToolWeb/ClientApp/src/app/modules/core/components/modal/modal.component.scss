@@ -14,6 +14,20 @@
   height: 40px;
 }
 
+.modal-footer {
+
+  .phd-single-button {
+    width: 100%;
+    text-align: center;
+  }
+
+  .phd-multiple-buttons {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+  }
+}
+
 .modal-body {
 
   .phd-override-reason {

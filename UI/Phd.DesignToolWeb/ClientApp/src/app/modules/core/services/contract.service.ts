@@ -423,14 +423,26 @@ export class ContractService
 				),
 				map(([store, priceBreakdown, isSpecSalePending, selectLot, coPrimaryBuyer, coCoBuyers]) =>
 				{
+					const templates = store.contract.selectedTemplates.map(id =>
+					{
+						return store.contract.templates.find(t => t.templateId === id);
+					}).sort((a, b) => a.displayOrder < b.displayOrder ? -1 : a.displayOrder > b.displayOrder ? 1 : 0);
 
-					const templates = store.contract.templates.filter(t => t.templateId === 0);
+					let template = store.contract.templates.find(t => t.templateId === 0);
+
+					if (template)
+					{
+						templates.unshift(template);
+					}
 
 					let currentHouseSelections = templates.some(t => t.templateId === 0) ? getCurrentHouseSelections(store.scenario.tree.treeVersion.groups) : [];
 
 					let salesAgreementNotes = !!store.salesAgreement.notes && store.salesAgreement.notes.length ? store.salesAgreement.notes.filter(n => n.targetAudiences.find(x => x.name === "Public") && n.noteSubCategoryId !== 10).map(n => n.noteContent).join(", ") : '';
-					let termsAndConditions = !!store.salesAgreement.notes && store.salesAgreement.notes.length ? store.salesAgreement.notes.filter(n => n.targetAudiences.find(x => x.name === "Public") && n.noteSubCategoryId === 10).map(n => n.noteContent).join() : '';
-
+					let addedTermsAndConditions = store.changeOrder.currentChangeOrder.jobChangeOrders.find(co => co.jobChangeOrderTypeDescription === 'SalesNotes') ? store.changeOrder.currentChangeOrder.jobChangeOrders.find(co => co.jobChangeOrderTypeDescription === 'SalesNotes').salesNotesChangeOrders.filter(sncos => sncos.action === 'Add').map(snco => snco.note) : [];
+					let removedTermsAndConditions = store.changeOrder.currentChangeOrder.jobChangeOrders.find(co => co.jobChangeOrderTypeDescription === 'SalesNotes') ? store.changeOrder.currentChangeOrder.jobChangeOrders.find(co => co.jobChangeOrderTypeDescription === 'SalesNotes').salesNotesChangeOrders.filter(sncos => sncos.action === 'Delete').map(snco => snco.note) : [];
+					let previousTermsAndConditions = !!store.salesAgreement.notes && store.salesAgreement.notes.length ? store.salesAgreement.notes.filter(n => n.targetAudiences.find(x => x.name === "Public") && n.noteSubCategoryId === 10 && !removedTermsAndConditions.some(rtnc => rtnc.id === n.id)) : [];
+					previousTermsAndConditions.push(...addedTermsAndConditions)
+					let termsAndConditions = previousTermsAndConditions.map(tcs => tcs.noteContent).join(', ');
 					let jioSelections = {
 						currentHouseSelections: currentHouseSelections,
 						salesAgreementNotes: salesAgreementNotes
@@ -442,7 +454,8 @@ export class ContractService
 
 					const changeOrderBuyers = changeOrder.salesChangeOrderBuyers;
 
-					if (changeOrderBuyers && changeOrderBuyers.length) {
+					if (changeOrderBuyers && changeOrderBuyers.length)
+					{
 						const salesAgreemenetBuyers = store.salesAgreement.buyers;
 						const buyerIndexes = _.groupBy(changeOrderBuyers, 'sortKey');
 
@@ -462,7 +475,7 @@ export class ContractService
 										new: added.buyerName,
 										previous: removed.buyerName,
 										action: 'Swap Buyer',
-										isPrimaryBuyer : true
+										isPrimaryBuyer: true
 									});
 								}
 							}
@@ -474,7 +487,7 @@ export class ContractService
 										new: added.buyerName,
 										previous: '',
 										action: 'Add Buyer',
-										isPrimaryBuyer : added.isPrimaryBuyer
+										isPrimaryBuyer: added.isPrimaryBuyer
 									});
 								}
 
@@ -488,12 +501,15 @@ export class ContractService
 									});
 								}
 
-								if (changed) {
+								if (changed)
+								{
 									const sagBuyer = salesAgreemenetBuyers && salesAgreemenetBuyers.length
 										? salesAgreemenetBuyers.find(x => x.opportunityContactAssoc.id === changed.opportunityContactAssoc.id)
 										: null;
 									let sagBuyerName = '';
-									if (sagBuyer && sagBuyer.opportunityContactAssoc && sagBuyer.opportunityContactAssoc.contact) {
+
+									if (sagBuyer && sagBuyer.opportunityContactAssoc && sagBuyer.opportunityContactAssoc.contact)
+									{
 										const sagBuyerMiddleName = sagBuyer.opportunityContactAssoc.contact.middleName && sagBuyer.opportunityContactAssoc.contact.middleName.length
 											? ` ${sagBuyer.opportunityContactAssoc.contact.middleName[0]}.`
 											: '';
@@ -518,14 +534,16 @@ export class ContractService
 					if (changeOrder.salesChangeOrderPriceAdjustments.length > 0 ||
 						changeOrder.salesChangeOrderSalesPrograms.length > 0 ||
 						salesChangeOrderBuyers.length > 0 ||
-						changeOrder.salesChangeOrderTrusts.length > 0)
+						changeOrder.salesChangeOrderTrusts.length > 0 ||
+						changeOrder.salesNotesChangeOrders.length > 0)
 					{
 						salesChangeOrderSelections = {
 							salesChangeOrderTypeDescription: changeOrder.jobChangeOrderGroupDescription,
 							salesChangeOrderPriceAdjustments: changeOrder.salesChangeOrderPriceAdjustments,
 							salesChangeOrderSalesPrograms: changeOrder.salesChangeOrderSalesPrograms,
 							salesChangeOrderBuyers: salesChangeOrderBuyers,
-							salesChangeOrderTrusts: changeOrder.salesChangeOrderTrusts
+							salesChangeOrderTrusts: changeOrder.salesChangeOrderTrusts,
+							salesNotesChangeOrders: changeOrder.salesNotesChangeOrders.length > 0
 						};
 					}
 
@@ -581,11 +599,15 @@ export class ContractService
 
 					const sagBuyers = store.salesAgreement.buyers.filter(t => t.isPrimaryBuyer === false);
 					let coBuyerList = sagBuyers;
-					if (inChangeOrderOrSpecSale) {
+
+					if (inChangeOrderOrSpecSale)
+					{
 						const deletedBuyers = sagBuyers.filter(x => coCoBuyers.findIndex(b => b.opportunityContactAssoc.id === x.opportunityContactAssoc.id) < 0);
+
 						coBuyerList = coCoBuyers.concat(deletedBuyers);
 					}
-					const currentCoBuyers = coBuyerList ? coBuyerList.map(b => {
+					const currentCoBuyers = coBuyerList ? coBuyerList.map(b =>
+					{
 						return {
 							firstName: b.opportunityContactAssoc.contact.firstName,
 							lastName: b.opportunityContactAssoc.contact.lastName,
@@ -816,6 +838,7 @@ export class ContractService
 							changeOrderInformation: changeOrderInformation,
 							envelopeInfo: envelopeInfo
 						}
+
 						return currentSnapshot;
 					}
 				}),

@@ -50,57 +50,32 @@ export function reducer(state: State = initialState, action: LotActions): State
 
 			return { ...state, selectedLot: action.lot, lots: state.lots && state.lots.length > 0 ? state.lots : lots };
 		case LotActionTypes.MonotonyRulesLoaded:
-		{
-			let newLots = _.cloneDeep(state.lots);
-			let newSelectedLot = _.cloneDeep(state.selectedLot);
+			{
+				let newLots = _.cloneDeep(state.lots);
+				let newSelectedLot = _.cloneDeep(state.selectedLot);
 
-			newLots.forEach(l => {
-				const rule = action.monotonyRules && action.monotonyRules.length
-					? action.monotonyRules.find(r => r.edhLotId === l.id)
-					: null;
-				l.monotonyRules = rule ? rule.relatedLotsElevationColorScheme : [];
+				newLots.forEach(l =>
+				{
+					const rule = action.monotonyRules && action.monotonyRules.length
+						? action.monotonyRules.find(r => r.edhLotId === l.id)
+						: null;
 
-				if (newSelectedLot.id === l.id) {
-					newSelectedLot.monotonyRules = rule ? rule.relatedLotsElevationColorScheme : [];
-				}
-			});
+					l.monotonyRules = rule ? rule.relatedLotsElevationColorScheme : [];
 
-			return { ...state, selectedLot: newSelectedLot, lots: newLots };
-		}
+					if (newSelectedLot.id === l.id)
+					{
+						newSelectedLot.monotonyRules = rule ? rule.relatedLotsElevationColorScheme : [];
+					}
+				});
+
+				return { ...state, selectedLot: newSelectedLot, lots: newLots };
+			}
 		default:
 			return state;
 	}
 }
 
 export const selectLot = createFeatureSelector<State>('lot');
-
-export const monotonyChoiceIds = createSelector(
-	selectLot,
-	(state) =>
-	{
-		let monotonyChoices = { colorSchemeAttributeCommunityIds: [], ColorSchemeDivChoiceCatalogIds: [], ElevationDivChoiceCatalogIds: [] };
-
-		if (state.selectedLot)
-		{
-			if (state.selectedLot.monotonyRules && state.selectedLot.monotonyRules.length)
-			{
-				monotonyChoices.colorSchemeAttributeCommunityIds = state.selectedLot.monotonyRules
-					.filter(r => (r.ruleType === "ColorScheme" || r.ruleType === "Both") && r.colorSchemeAttributeCommunityIds.length)
-					.map(r => r.colorSchemeAttributeCommunityIds);
-
-				monotonyChoices.ElevationDivChoiceCatalogIds = state.selectedLot.monotonyRules
-					.filter(r => (r.ruleType === "Elevation" || r.ruleType === "Both") && !!r.elevationDivChoiceCatalogId)
-					.map(r => r.elevationDivChoiceCatalogId);
-
-				monotonyChoices.ColorSchemeDivChoiceCatalogIds = state.selectedLot.monotonyRules
-					.filter(r => (r.ruleType === "ColorScheme" || r.ruleType === "Both") && !!r.colorSchemeDivChoiceCatalogId)
-					.map(r => r.colorSchemeDivChoiceCatalogId);
-			}
-		}
-
-		return monotonyChoices;
-	}
-)
 
 export const dirtLots = createSelector(
 	selectLot,

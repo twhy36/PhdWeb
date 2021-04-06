@@ -235,3 +235,10 @@
 		font-size: 14px;
 	}
 }
+
+::ng-deep .phd-lock-tooltip {
+	.phd-lock-tooltip-text {
+		text-align: left;
+		white-space:nowrap;
+	}
+}

@@ -27,11 +27,11 @@ export class SalesInfoMiscComponent extends ComponentCanNavAway implements OnIni
 	@Input() saveError: boolean;
 	@Input() editing: any;
 	@Input() canEdit: boolean;
+	@Input() canUpdateECOE: boolean;
 	@Input() jobsProjectedFinalDate: Date = null;
 
 	@Output() onEdit = new EventEmitter<SalesAgreement>();
 
-	canUpdateECOE$: Observable<boolean>;
 	selectedLenderType;
 	selectedPropertyType;
 	selectedQuoteRequested;
@@ -85,7 +85,7 @@ export class SalesInfoMiscComponent extends ComponentCanNavAway implements OnIni
 				this.minDate = ngbDate;
 			}
 		}
-		this.canUpdateECOE$ = this.store.pipe(select(fromRoot.canUpdateECOE));
+
 		this.initializeData();
 		this.createForm();
 	}
@@ -146,7 +146,7 @@ export class SalesInfoMiscComponent extends ComponentCanNavAway implements OnIni
 	private createForm()
 	{
 		this.salesInfoForm = this.fb.group({
-			ecoeDate: [{ value: this.ecoeDate || null, disabled: !this.canEdit }, [Validators.required]],
+			ecoeDate: [{ value: this.ecoeDate || null, disabled: !this.canEdit && !this.canUpdateECOE }, [Validators.required]],
 			lenderType: [{ value: this.selectedLenderType, disabled: !this.canEdit }, [Validators.required]],
 			propertyType: [{ value: this.selectedPropertyType, disabled: !this.canEdit }, [Validators.required]],
 			quoteRequested: [{ value: this.selectedQuoteRequested, disabled: !this.canEdit }, [Validators.required]]

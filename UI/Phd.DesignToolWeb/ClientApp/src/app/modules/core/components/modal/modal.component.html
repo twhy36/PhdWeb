@@ -19,10 +19,13 @@
 			</div>
 		</div>
 		<div class="modal-footer">
-			<div *ngFor="let button of buttons">
-				<button type="submit" (click)="buttonClick(button.result)" class="btn modal-button"	[ngClass]="button.cssClass">
-					{{button.text}}
-				</button>
+			<div [class.phd-single-button]="buttons.length == 1" [class.phd-multiple-buttons]="buttons.length > 1" >
+				<div *ngFor="let button of buttons">
+					<button type="submit" (click)="buttonClick(button.result)" class="btn modal-button"
+						[ngClass]="button.cssClass">
+						{{button.text}}
+					</button>
+				</div>
 			</div>
 		</div>
 	</ng-template>

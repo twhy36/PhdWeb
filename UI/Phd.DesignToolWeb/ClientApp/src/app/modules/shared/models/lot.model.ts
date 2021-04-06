@@ -24,7 +24,7 @@ export class Lot implements ILot
 		{
 			this[key] = dto[key];
 		}
-		
+
 		this.handings = this.lotHandingAssocs ? this.lotHandingAssocs.map(h => h.handing) : [];
 	}
 }
@@ -86,7 +86,8 @@ export interface SalesPhase
 	salesPhasePlanPriceAssocs: Array<SalesPhasePlanPriceAssoc>;
 }
 
-export interface SalesPhasePlanPriceAssoc {
+export interface SalesPhasePlanPriceAssoc
+{
 	planId: number;
 	price: number;
 }
@@ -140,24 +141,28 @@ export interface MonotonyRule
 export interface MonotonyRuleLot
 {
 	edhLotId: number;
+	edhPlanId: number;
 	ruleType: MonotonyRuleType;
 	colorSchemeAttributeCommunityIds: Array<number>;
 	elevationDivChoiceCatalogId?: number;
 	colorSchemeDivChoiceCatalogId?: number;
 }
 
-export interface ManagerName {
+export interface ManagerName
+{
 	firstName: string;
 	lastName: string;
 }
 
-export interface FieldManagerLotAssocs {
+export interface FieldManagerLotAssocs
+{
 	contactId: number;
 	lotId: number;
 	fieldManager: ManagerName;
 }
 
-export interface CustomerCareManagerLotAssocs {
+export interface CustomerCareManagerLotAssocs
+{
 	contactId: number;
 	lotId: number;
 	contact: ManagerName;

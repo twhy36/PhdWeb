@@ -532,7 +532,7 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 		}
 
 		//find choices that are locked in, with option mappings changed
-		if (choice.options && choice.lockedInOptions && choice.lockedInOptions.length && (choice.lockedInOptions.some(o => !choice.options.some(co => o && co.financialOptionIntegrationKey === o.optionId))
+		if (choice.options && choice.lockedInChoice && (choice.lockedInOptions && choice.lockedInOptions.length && choice.lockedInOptions.some(o => !choice.options.some(co => o && co.financialOptionIntegrationKey === o.optionId))
 			|| choice.options.some(co => !choice.lockedInOptions.some(o => o.optionId === co.financialOptionIntegrationKey))))
 		{
 			choice.options = choice.lockedInOptions.map(o => options.find(po => o && po.financialOptionIntegrationKey === o.optionId));
@@ -565,6 +565,10 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 
 		mapLocationAttributes(choice);
 	});
+
+	points.forEach(point => {
+		point.completed = point && point.choices && point.choices.some(ch => ch.quantity > 0);
+	});	
 }
 
 function getMaxQuantity(option: PlanOption, choice: Choice): number

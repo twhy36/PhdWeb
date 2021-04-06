@@ -1,7 +1,9 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ViewChild } from '@angular/core';
 
 import { Contact, MatchingContact } from '../../../shared/models/contact.model';
 import { ModalContent } from '../../../shared/classes/modal.class';
+import { ModalService } from '../../../core/services/modal.service';
+import { ModalRef } from '../../../shared/classes/modal.class';
 
 @Component({
 	selector: 'matching-contacts-component',
@@ -15,19 +17,59 @@ export class MatchingContactsComponent extends ModalContent
 	@Input() matchingContacts: Array<MatchingContact>;
 	@Input() defaultPrimaryAddress: boolean = true;
 
-	constructor()
+	@ViewChild('confirmation') confirmation: any;
+
+	modalReference: ModalRef;
+	previousContact: Contact;
+
+	constructor(private modalService: ModalService)
 	{
 		super();
 	}
 
-	selectContact(contact: Contact | MatchingContact)
+	selectContact(data: { contact: Contact | MatchingContact, isUpdated: boolean })
 	{
-		if (contact.hasOwnProperty("isExactMatch"))
+		if (data.contact.hasOwnProperty("isExactMatch"))
 		{
-			delete (contact as MatchingContact).isExactMatch;
+			delete (data.contact as MatchingContact).isExactMatch;
 		}
 
-		this.close(contact as Contact);
+		let selectedContact = data.contact as Contact;
+
+		if (data.isUpdated)
+		{
+			this.previousContact = selectedContact;
+			this.modalReference = this.modalService.open(this.confirmation, { size: "lg", windowClass: "phd-modal-window" });
+		}
+		else
+		{
+			this.close(selectedContact);
+		}
+	}
+
+	closeConfirmation(isContinue: boolean)
+	{
+		if (isContinue)
+		{
+			this.contact.id = this.previousContact.id;
+
+			const addresseAssocs = this.previousContact.addressAssocs 
+				? this.previousContact.addressAssocs.filter(x => x.isPrimary !== this.defaultPrimaryAddress)
+				: null;
+			if (addresseAssocs && addresseAssocs.length)
+			{
+				addresseAssocs.forEach(a => {
+					this.contact.addressAssocs.push(a);
+				});
+			}
+
+			this.modalReference.close();
+			this.close(this.contact);
+		}
+		else
+		{
+			this.modalReference.close();
+		}
 	}
 
 	get hasExactMatch(): boolean

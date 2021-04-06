@@ -1,54 +1,57 @@
 <div class="modal-header">
-	<span class="modal-title">Potential Duplicate Contact Found</span>
+	<span class="modal-title">{{hasExactMatch ? 'Duplicate Contacts Found' : 'Potential Duplicate Contacts Found'}}</span>
 	<button type="button" class="close" aria-label="Close" (click)="dismiss('Modal Dismissed')">
 		<span aria-hidden="true">&times;</span>
 	</button>
 </div>
 
 <div class="modal-body">
-	<div class="d-flex flex-wrap">
-		<div class="d-flex flex-column m-2 phd-buyer-box">
-			<div class="pl-3 pt-2 pb-2 phd-buyer-box-title">
-				You Entered...
-			</div>
-			<div class="d-flex flex-column pl-3 pt-2">
-				<div><strong>{{contact.firstName + ' ' + contact.lastName}}</strong></div>
-				<ng-container *ngIf="contact.addressAssocs.length">
-					<people-card-address [address]="contact.addressAssocs | contactaddress: true"></people-card-address>
-				</ng-container>
-				<div *ngIf="contact.emailAssocs.length">{{contact.emailAssocs | contactprimaryemail}}</div>
-				<div *ngIf="contact.phoneAssocs.length">{{contact.phoneAssocs | contactprimaryphone}}</div>
-			</div>
-			<div class="mt-auto d-flex flex-no-wrap phd-buyer-box-footer">
-				<button class="btn btn-outline-primary btn-block m-0 p-0" (click)="selectContact(contact)" [disabled]="hasExactMatch">Keep this one</button>
-			</div>
+	<div class="d-flex">
+		<matching-contact-card [contact]="contact"
+							   [hasExactMatch]="hasExactMatch"
+							   [defaultPrimaryAddress]="defaultPrimaryAddress"
+							   [contactCardType]="'Current'"
+							   (onSelectContact)="selectContact($event)">
+		</matching-contact-card>
+
+		<div class="phd-matching-contact-container">
+			<ng-container *ngFor="let matchingContact of matchingContacts">
+				<matching-contact-card [contact]="matchingContact"
+									   [hasExactMatch]="hasExactMatch"
+									   [defaultPrimaryAddress]="defaultPrimaryAddress"
+									   [contactCardType]="matchingContact.isExactMatch ? 'Exact' : 'Potential'"
+									   (onSelectContact)="selectContact($event)">
+				</matching-contact-card>
+			</ng-container>
 		</div>
 
-		<div class="d-flex flex-column phd-contact-divider"></div>
-
-		<div class="d-flex flex-column m-2 phd-buyer-box" *ngFor="let matchingContact of matchingContacts">
-			<div class="pl-3 pt-2 pb-2 phd-buyer-box-title">
-				<span class="text-success" *ngIf="matchingContact.isExactMatch">Exact Match</span>
-				<span class="text-secondary" *ngIf="!matchingContact.isExactMatch">Potential Match</span>
-			</div>
-			<div class="d-flex flex-column pl-3 pt-2">
-				<div><strong>{{ matchingContact.firstName + ' ' + matchingContact.lastName }}</strong></div>
-				<ng-container *ngIf="matchingContact.addressAssocs.length">
-					<people-card-address [address]="matchingContact.addressAssocs | contactaddress: defaultPrimaryAddress"></people-card-address>
-				</ng-container>
-				<div *ngIf="matchingContact.emailAssocs.length">{{matchingContact.emailAssocs | contactprimaryemail}}</div>
-				<div *ngIf="matchingContact.phoneAssocs.length">{{matchingContact.phoneAssocs | contactprimaryphone}}</div>
-			</div>
-			<div class="mt-auto d-flex flex-no-wrap phd-buyer-box-footer">
-				<button class="btn btn-outline-primary btn-block m-0 p-0" (click)="selectContact(matchingContact)">Use this one</button>
-			</div>
-		</div>
 	</div>
 </div>
 
-<div class="modal-footer">
-	<button type="button" class="btn ml-auto" (click)="close()">
-		<span class="fa fa-fw fa-close"></span>
-		<span class="">Cancel</span>
-	</button>
+<div class="modal-footer phd-contact-button">
+	<button type="button" class="btn ml-auto" (click)="close()">Cancel</button>
 </div>
+
+<ng-template #confirmation let-c="close" let-d="dismiss">
+	<div class="phd-contact-confirmation">
+		<div class="modal-header">
+			<span class="modal-title">Are you sure you want to update this contact record and save as {{defaultPrimaryAddress ? 'Co-Buyer' : 'Real Estate Agent'}}?</span>
+		</div>
+		<div class="modal-body">
+			<div class="d-flex justify-content-around">
+				<matching-contact-card [contact]="previousContact"
+									   [defaultPrimaryAddress]="defaultPrimaryAddress"
+									   [contactCardType]="'Previous'">
+				</matching-contact-card>
+				<matching-contact-card [contact]="contact"
+									   [defaultPrimaryAddress]="defaultPrimaryAddress"
+									   [contactCardType]="'New'">
+				</matching-contact-card>
+			</div>
+		</div>
+		<div class="modal-footer mt-auto d-flex justify-content-around phd-contact-button">
+			<button type="button" class="btn" (click)="closeConfirmation(true)">Continue</button>
+			<button type="button" class="btn" (click)="closeConfirmation(false)">Cancel</button>
+		</div>
+	</div>
+</ng-template>
