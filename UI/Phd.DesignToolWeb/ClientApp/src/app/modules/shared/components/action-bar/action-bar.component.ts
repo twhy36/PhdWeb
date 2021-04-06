@@ -92,6 +92,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 	canLockSalesAgreement: boolean;
 	hasOpenChangeOrder: boolean = false;
 	canCancelModel$: Observable<boolean>;
+	lotStatus: string;
 
 	setSummaryText()
 	{
@@ -129,6 +130,13 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 		this.canEditAgreement$ = this.store.select(fromRoot.canEditAgreementOrSpec);
 		this.canCancelSpec$ = this.store.select(fromRoot.canCancelSpec);
 		this.canCancelModel$ = this.store.select(fromRoot.canCancelModel);
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(state => state.lot)
+		).subscribe(lot =>
+		{
+			this.lotStatus = lot.selectedLot ? lot.selectedLot.lotStatusDescription : ''
+		});
 		this.isTemplatesSelected$ = this.store.pipe(
 			select(state => state.contract),
 			map(contract =>
@@ -393,7 +401,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 	async onCancelSpecOrModel(isSpec: boolean)
 	{
 		const confirmMessage = isSpec ? 'You have opted to return this spec to dirt. Confirming to do so will result in the loss of the corresponding home configuration and the lot will return to dirt.<br/><br/> Do you wish to proceed with the cancellation?'
-									  : 'You have opted to return this model to dirt. Confirming to do so will result in the loss of the corresponding home configuration and the lot will return to dirt.<br/><br/> Do you wish to proceed with the cancellation?'
+									  : 'You have opted to return this model to dirt. Confirming to do so will result in the loss of the corresponding home configuration and the lot will return to dirt.<br/><br/>The lot status will remain ' + this.lotStatus + '. <br/><br/>Do you wish to proceed with the cancellation?'
 		const confirmTitle = isSpec ? 'Cancel Spec' : 'Cancel Model';
 		const confirmDefaultOption = 'Continue';
 		const primaryButton = { hide: false, text: 'Yes' };
