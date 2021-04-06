@@ -24,10 +24,11 @@
     <PackageReference Include="Microsoft.Azure.Storage.Blob" Version="11.1.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="2.0.2" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.0.2" />
-    <PackageReference Include="Microsoft.OData.Client" Version="7.4.4" />
-    <PackageReference Include="Microsoft.OData.Core" Version="7.4.4" />
-    <PackageReference Include="Microsoft.OData.Edm" Version="7.4.4" />
-    <PackageReference Include="Microsoft.Spatial" Version="7.4.4" />
+    <PackageReference Include="Microsoft.OData.Client" Version="7.8.3" />
+    <PackageReference Include="Microsoft.OData.Core" Version="7.8.3" />
+    <PackageReference Include="Microsoft.OData.Edm" Version="7.8.3" />
+    <PackageReference Include="Microsoft.Spatial" Version="7.8.3" />
+    <PackageReference Include="Simple.OData.V4.Client" Version="5.20.1" />
   </ItemGroup>
 
   <ItemGroup>
