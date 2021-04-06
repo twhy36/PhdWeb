@@ -31,6 +31,7 @@ export class LotTransferComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	lots: Array<Lot>;
 	plans: Array<Plan>;
+	selectedPlanId: number;
 	job: Job;
 	treeVersion: TreeVersion;
 	selectedLot: LotExt;
@@ -45,7 +46,10 @@ export class LotTransferComponent extends UnsubscribeOnDestroy implements OnInit
 	constructor(private store: Store<fromRoot.State>,
 		private modalService: ModalService,
 		private lotService: LotService
-	) { super(); }
+	)
+	{
+		super();
+	}
 
 	ngOnInit()
 	{
@@ -56,6 +60,7 @@ export class LotTransferComponent extends UnsubscribeOnDestroy implements OnInit
 				this.store.pipe(select(state => state.plan)))
 		).subscribe(([lot, job, plan]) =>
 		{
+			this.selectedPlanId = plan.selectedPlan;
 			this.job = job;
 			this.plans = plan.plans.filter(x => x.id === plan.selectedPlan);
 			this.lots = this.getAvailableLots(lot.lots);
@@ -149,6 +154,7 @@ export class LotTransferComponent extends UnsubscribeOnDestroy implements OnInit
 
 			return `${this.selectedLot.lotBlock}${space}${this.selectedLot.streetAddress1}${space}${premium}${space}${specDisplay}`;
 		}
+
 		return 'Select lot';
 	}
 
@@ -186,8 +192,7 @@ export class LotTransferComponent extends UnsubscribeOnDestroy implements OnInit
 	{
 		if (!this.selectedLot || this.selectedLot.id !== lot.id)
 		{
-
-			const conflict = this.lotService.checkMonotonyConflict(lot, this.elevationDp, this.colorSchemeDp);
+			const conflict = this.lotService.checkMonotonyConflict(lot, this.selectedPlanId, this.elevationDp, this.colorSchemeDp);
 
 			if (conflict && conflict.monotonyConflict)
 			{
@@ -204,6 +209,7 @@ export class LotTransferComponent extends UnsubscribeOnDestroy implements OnInit
 	{
 		// Reset
 		this.store.dispatch(new ChangeOrderActions.SetChangeOrderHanding(null));
+
 		this.resetRadioInputs();
 
 		this.store.dispatch(new LotActions.SelectLot(lot.id));
@@ -213,7 +219,9 @@ export class LotTransferComponent extends UnsubscribeOnDestroy implements OnInit
 	onChangeHanding(handing: string)
 	{
 		const coHanding = new ChangeOrderHanding();
+
 		coHanding.handing = handing;
+
 		this.store.dispatch(new ChangeOrderActions.SetChangeOrderHanding(coHanding));
 	}
 
@@ -237,7 +245,9 @@ export class LotTransferComponent extends UnsubscribeOnDestroy implements OnInit
 		if (handing)
 		{
 			const coHanding = new ChangeOrderHanding();
+
 			coHanding.handing = handing;
+
 			this.store.dispatch(new ChangeOrderActions.SetChangeOrderHanding(coHanding, false));
 		}
 	}

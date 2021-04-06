@@ -77,8 +77,9 @@ export class PlanCardComponent implements OnInit
 	get planPrice(): number
 	{
 		if (this.selectedLot && this.selectedLot.salesPhase && this.selectedLot.salesPhase.salesPhasePlanPriceAssocs) {
+			const isPhaseEnabled = this.selectedLot.financialCommunity && this.selectedLot.financialCommunity.isPhasedPricingEnabled;
 			const phasePlanPrice = this.selectedLot.salesPhase.salesPhasePlanPriceAssocs.find(x => x.planId === this.plan.id);
-			if (phasePlanPrice) {
+			if (isPhaseEnabled && phasePlanPrice) {
 				return phasePlanPrice.price;
 			}
 		}
