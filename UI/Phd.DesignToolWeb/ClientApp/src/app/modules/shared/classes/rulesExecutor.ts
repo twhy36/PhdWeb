@@ -565,10 +565,6 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 
 		mapLocationAttributes(choice);
 	});
-
-	points.forEach(point => {
-		point.completed = point && point.choices && point.choices.some(ch => ch.quantity > 0);
-	});	
 }
 
 function getMaxQuantity(option: PlanOption, choice: Choice): number
