@@ -23,6 +23,10 @@ import { ManageHomesitesSidePanelComponent } from '../manage-homesites-side-pane
 
 import * as moment from 'moment';
 import { MonotonyRule } from '../../../shared/models/monotonyRule.model';
+import { Settings } from '../../../shared/models/settings.model';
+import { SettingsService } from '../../../core/services/settings.service';
+import { intersection, orderBy, union, unionBy } from "lodash";
+import { SearchBarComponent } from '../../../shared/components/search-bar/search-bar.component';
 
 @Component({
 	selector: 'manage-homesites',
@@ -34,18 +38,33 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 	@ViewChild(ManageHomesitesSidePanelComponent)
 	private sidePanel: ManageHomesitesSidePanelComponent;
 
+	@ViewChild(SearchBarComponent)
+	private searchBar: SearchBarComponent;
+
 	saving: boolean = false;
 	sidePanelOpen: boolean = false;
 	activeCommunities: Observable<Array<FinancialCommunityViewModel>>;
 	selectedHomesite: HomeSite;
 	selectedCommunity: FinancialCommunityViewModel = null;
 	lots: Array<HomeSite> = [];
+	filteredLots: Array<HomeSite> = [];
 	lotStatus: SelectItem[] = [{ label: 'Available', value: 'Available' }, { label: 'Sold', value: 'Sold' }, { label: 'Unavailable', value: 'Unavailable' }, { label: 'Closed', value: 'Closed' }, { label: 'Model', value: 'Model' }, { label: 'Pending Release', value: 'Pending Release' }, { label: 'Pending Sale', value: 'Pending Sale' }, { label: 'Spec', value: 'Spec' }, { label: 'Spec Unavailable', value: 'Spec Unavailable' }];
-	handingOptions: SelectItem[] = [{ label: 'Left', value: 1 }, { label: 'Right', value: 2 }, { label: 'N/A', value: 3 }];
+	handingOptions: SelectItem[] = [{ label: 'Left', value: 'Left' }, { label: 'Right', value: 'Right' }, { label: 'N/A', value: 'NA' }];
+	currentPage: number = 0;
+	filteredCurrentPage: number = 0;
+	allDataLoaded: boolean;
+	allFilteredDataLoaded: boolean;
+	isSearchingFromServer: boolean;
 	isLoading: boolean = true;
 	monotonyRules: Array<MonotonyRule>;
 	lotCount: number = 0;
 	canEdit: boolean = false;
+	settings: Settings;
+	releaseDTOs: IHomeSiteReleaseDto[];
+	keyword: string = null;
+	statusFilter: string[] = [];
+	handingFilter: string[] = [];
+	selectedSearchFilter: string = 'Homesite';
 	viewAdjacencies: Array<HomeSiteDtos.ILabel> = [];
 	physicalLotTypes: Array<HomeSiteDtos.ILabel> = [];
 
@@ -55,7 +74,8 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 		private _releaseService: ReleasesService,
 		private _modalService: NgbModal,
 		private _msgService: MessageService,
-		private _route: ActivatedRoute) { super() }
+		private _route: ActivatedRoute,
+		private _settingsService: SettingsService) { super() }
 
 	@HostListener('window:beforeunload')
 	canDeactivate(): Observable<boolean> | boolean
@@ -65,6 +85,8 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 
 	ngOnInit()
 	{
+		this.settings = this._settingsService.getSettings();
+
 		this.activeCommunities = this._orgService.currentMarket$.pipe(
 			this.takeUntilDestroyed(),
 			tap(mkt =>
@@ -122,6 +144,7 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 	}
 	loadHomeSites()
 	{
+		this.allDataLoaded = false;
 		this.isLoading = true;
 		this.lots = [];
 
@@ -131,11 +154,12 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 		{
 			const commId = fc.id;
 
-			const lotDtosObs = this._homeSiteService.getCommunityHomeSites(commId);
+			const lotDtosObs = this._homeSiteService.getCommunityHomeSites(commId, this.settings.infiniteScrollPageSize, 0);
 			const releasesDtosObs = this._releaseService.getHomeSiteReleases(commId);
 
 			let obs = forkJoin(lotDtosObs, releasesDtosObs).pipe(map(([lotDto, rDto]) =>
 			{
+				this.releaseDTOs = rDto;
 				return lotDto.map(l => new HomeSiteViewModel(l, fc.dto, rDto.find(r => r.homeSitesAssociated.findIndex(x => x == l.id) != -1)));
 			})).subscribe(l =>
 			{
@@ -151,12 +175,267 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 				this.lotCount = l.length;
 				fc.lotsInited = true;
 				this.isLoading = false;
+
+				// Initial load, sets page count to 1. No filters added yet.
+				this.currentPage = 1;
+				this.allDataLoaded = l.length < this.settings.infiniteScrollPageSize;
+				this.resetSearchBar();
 			});
 		}
 		else
 		{
 			this.isLoading = false;
 		}
+	}
+
+	resetSearchBar()
+	{
+		this.keyword = '';
+		this.searchBar.clearFilter();
+	}
+
+	onPanelScroll()
+	{
+		this.isLoading = true;
+		const top = this.settings.infiniteScrollPageSize;
+
+		// Use filtered page numbering in case of active filters
+		const skip = this.keyword || this.statusFilter.length || this.handingFilter.length ? this.filteredCurrentPage * this.settings.infiniteScrollPageSize : this.currentPage * this.settings.infiniteScrollPageSize;
+
+		this._homeSiteService.getCommunityHomeSites(this.selectedCommunity.id, top, skip, this.keyword, this.statusFilter, this.handingFilter).subscribe(data =>
+		{
+			var result = data.map(l => new HomeSiteViewModel(l, this.selectedCommunity.dto, this.releaseDTOs.find(r => r.homeSitesAssociated.findIndex(x => x == l.id) != -1)));
+
+			const pipe = new HandingsPipe();
+
+			result.forEach(n =>
+			{
+				(<any>n).handingDisplay = pipe.transform(n.handing);
+				(<any>n).handingValues = (n.handing || []).map(h => h.handingId);
+			});
+
+			// If filtered data is being scrolled, then combine filtered result
+			if (this.keyword || this.statusFilter.length || this.handingFilter.length)
+			{
+				this.filteredLots = unionBy(this.filteredLots, result);
+				this.allFilteredDataLoaded = !result.length || result.length < this.settings.infiniteScrollPageSize;
+				this.filteredCurrentPage++;
+			}
+			else
+			{
+				// Scrolling unfiltered data, combine initially loaded lots with new ones
+				this.lots = unionBy(this.lots, result);
+				this.filteredLots = this.lots;
+				this.allDataLoaded = !result.length || result.length < this.settings.infiniteScrollPageSize;
+				this.currentPage++;
+			}
+
+			this.lotCount = this.filteredLots.length;
+			this.isLoading = false;
+
+		})
+	}
+
+	resetFilteredData()
+	{
+		this.filteredCurrentPage = 0;
+		this.allFilteredDataLoaded = false;
+	}
+
+	keywordSearch(event: any)
+	{
+		this.resetFilteredData(); // Any filter change should re run the query and remove current filters
+
+		this.keyword = event['keyword'];
+		this.filterHomesites();
+
+		if (!this.isSearchingFromServer)
+		{
+			this.onSearchResultUpdated();
+		}
+	}
+
+	onStatusChange(event: any)
+	{
+		this.resetFilteredData(); // Any filter change should re run the query and remove current filters
+
+		this.statusFilter = event.value;
+		console.log(this.statusFilter);
+
+		this.filterHomesites();
+
+		if (!this.isSearchingFromServer)
+		{
+			this.onSearchResultUpdated();
+		}
+	}
+
+	onHandingChange(event: any)
+	{
+		this.resetFilteredData(); // Any filter change should re run the query and remove current filters
+
+		this.handingFilter = event.value;
+		console.log(this.handingFilter);
+
+		this.filterHomesites();
+
+		if (!this.isSearchingFromServer)
+		{
+			this.onSearchResultUpdated();
+		}
+	}
+
+	filterHomesites()
+	{
+		this.isSearchingFromServer = false;
+
+		if (this.keyword || this.statusFilter.length || this.handingFilter.length)
+		{
+			if (this.allDataLoaded)
+			{
+				this.filteredLots = [];
+
+				var keywordLots = [];
+				var statusLots = [];
+				var handingLots = [];
+
+				if (this.keyword)
+				{
+					let splittedKeywords = this.keyword.split(' ');
+
+					splittedKeywords.forEach(keyword =>
+					{
+						if (keyword)
+						{
+							let filteredResults = this.lots.filter(lot => this.searchBar.wildcardMatch(lot.lotBlock, keyword));
+
+							keywordLots = union(keywordLots, filteredResults);
+						}
+					});
+				}
+
+				this.filteredLots = keywordLots;
+
+				this.statusFilter.forEach(status =>
+				{
+					if (status === 'Spec')
+					{
+						let filteredResults = this.lots.filter(lot => lot.lotBuildTypeDescription === status && lot.dto.job.jobTypeName !== 'Model');
+
+						statusLots = union(statusLots, filteredResults);
+					}
+					if (status === 'Model')
+					{
+						let filteredResults = this.lots.filter(lot => (lot.lotBuildTypeDescription === status || lot.lotBuildTypeDescription === 'Spec') && lot.dto.job.jobTypeName === 'Model');
+
+						statusLots = union(statusLots, filteredResults);
+					}
+					else if (status === 'Spec Unavailable')
+					{
+						let filteredResults = this.lots.filter(lot => lot.lotBuildTypeDescription === 'Spec' && lot.dto.job.jobTypeName !== 'Model' && lot.lotStatusDescription === 'Unavailable');
+
+						statusLots = union(statusLots, filteredResults);
+					}
+					else
+					{
+						let filteredResults = this.lots.filter(lot => lot.lotStatusDescription === status);
+
+						statusLots = union(statusLots, filteredResults);
+					}
+				});
+
+				// Intersect results if there are filtered results from keywordSearch & statusSearch, else just set the non empty results
+				this.filteredLots = this.filteredLots.length > 0 && statusLots.length > 0 ? intersection(this.filteredLots, statusLots) : this.filteredLots.length > 0 ? this.filteredLots : statusLots;
+
+				this.handingFilter.forEach(handing =>
+				{
+					let filteredResults = this.lots.filter(lot =>
+					{
+						var handingRec = (<any>lot).handingDisplay;
+
+						return handingRec.includes(handing);
+					});
+
+					handingLots = union(handingLots, filteredResults);
+				});
+
+				// Intersect results if there are filtered results from keywordSearch + statusSearch & handingSearch, else just set the non empty results
+				this.filteredLots = this.filteredLots.length > 0 && handingLots.length > 0 ? intersection(this.filteredLots, handingLots) : this.filteredLots.length > 0 ? this.filteredLots : handingLots;
+			}
+			else
+			{
+				// filter server to fetch data
+				this.filterHomesitesFromServer(this.keyword, this.statusFilter, this.handingFilter);
+			}
+		}
+		else
+		{
+			// Set filtered lots to the list of lots, before the filters were set
+			this.filteredLots = orderBy(this.lots, [lot => lot.lotBlock.toLowerCase()]);
+		}
+
+		this.lotCount = this.filteredLots.length;
+	}
+
+	private onSearchResultUpdated()
+	{
+		if (this.filteredLots.length === 0)
+		{
+			this._msgService.clear();
+			this._msgService.add({ severity: 'error', summary: 'Search Results', detail: `No results found. Please try another search.` });
+		}
+		else
+		{
+			this.filteredLots = orderBy(this.filteredLots, [lot => lot.lotBlock.toLowerCase()]);
+		}
+	}
+
+	filterHomesitesFromServer(keyword: string, statusFilter?: string[], handingFilter?: string[])
+	{
+		this.isSearchingFromServer = true;
+
+		keyword = this.searchBar.handleSingleQuotes(keyword);
+
+		const top = this.settings.infiniteScrollPageSize;
+		const skip = this.filteredCurrentPage * this.settings.infiniteScrollPageSize;
+
+		this._homeSiteService.getCommunityHomeSites(this.selectedCommunity.id, top, skip, keyword, statusFilter, handingFilter).subscribe(data =>
+		{
+			this.isSearchingFromServer = false;
+
+			if (data.length)
+			{
+				var result = data.map(l => new HomeSiteViewModel(l, this.selectedCommunity.dto, this.releaseDTOs.find(r => r.homeSitesAssociated.findIndex(x => x == l.id) != -1)));
+
+				const pipe = new HandingsPipe();
+
+				result.forEach(n => {
+					(<any>n).handingDisplay = pipe.transform(n.handing);
+					(<any>n).handingValues = (n.handing || []).map(h => h.handingId);
+				});
+
+				this.filteredLots = result;
+				this.lotCount = this.filteredLots.length;
+
+				this.filteredCurrentPage++;
+				this.allFilteredDataLoaded = !result.length || result.length < this.settings.infiniteScrollPageSize;
+			}
+			else
+			{
+				// No results found
+				this.filteredLots = [];
+			}
+
+			this.isLoading = false;
+		})
+	}
+
+	clearFilter()
+	{
+		this.keyword = null;
+		this.allFilteredDataLoaded = false;
+		this.filteredCurrentPage = 0;
+		this.filterHomesites();
 	}
 
 	onSidePanelClose(status: boolean)
@@ -213,11 +492,11 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 
 				this.sidePanelOpen = false;
 			},
-			error =>
-			{
-				this._msgService.add({ severity: 'error', summary: 'Error', detail: error });
-				console.log(error);
-			});
+				error =>
+				{
+					this._msgService.add({ severity: 'error', summary: 'Error', detail: error });
+					console.log(error);
+				});
 	}
 
 	releaseLot(homesite: HomeSite)
@@ -277,10 +556,10 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 			this._msgService.add({ severity: 'success', summary: 'Monotony Rules', detail: 'Monotony Rules Saved successfully' });
 			this.sidePanelOpen = false;
 		},
-		error =>
-		{
-			this._msgService.add({ severity: 'error', summary: 'Error', detail: error });
-		});
+			error =>
+			{
+				this._msgService.add({ severity: 'error', summary: 'Error', detail: error });
+			});
 	}
 
 	formatAddress(address: HomeSiteDtos.IAddress)
