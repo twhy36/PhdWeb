@@ -377,7 +377,7 @@ export class TreeService
 	{
 		const batchGuid = odataUtils.getNewGuid();
 
-		const optionGroups = _(planOptionCommunity).groupBy('financialCommunityId');
+		const optionGroups = _.groupBy(planOptionCommunity, 'financialCommunityId');
 		let requests = Object.keys(optionGroups).map(financialCommunityId =>
 		{
 			var financialPlanIntegrationKey = optionGroups[financialCommunityId].map(p => `'${p.financialPlanIntegrationKey}'`).join(',');

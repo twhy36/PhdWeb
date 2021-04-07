@@ -19,7 +19,7 @@
 	primaryAction='Get Signatures'
 	(callToAction)="onCallToAction($event)"
 	(onSaveNSO)="saveChangeNote($event)"
-	[canChange]="(canSell$ | async) || (canDesign$ | async) ||(canAddIncentive$ | async)">
+	[canChange]="(canSell$ | async) || (canDesign$ | async) ||(canAddIncentive$ | async) || (canCancelSalesAgreement$ | async)">
 </action-bar>
 
 <ng-template #pdfViewerFooterTemplate>
