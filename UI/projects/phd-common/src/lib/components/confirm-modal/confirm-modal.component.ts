@@ -1,19 +1,22 @@
 import { Component, Input } from '@angular/core';
-import { NgTemplateOutlet } from '@angular/common';
 
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { ModalContent } from '../../utils/modal.class';
 
 @Component({
 	selector: 'confirm-modal-component',
 	templateUrl: './confirm-modal.component.html',
 	styleUrls: ['./confirm-modal.component.scss']
 })
-
-export class ConfirmModalComponent
+export class ConfirmModalComponent extends ModalContent
 {
-	@Input() title: string = '';
-	@Input() body: string =  '';
-	@Input() defaultOption: string = 'Continue';
+	@Input() title = '';
+	@Input() body = '';
+	@Input() defaultOption = 'Continue';
+	@Input() primaryButton: { hide: boolean, text: string } = { hide: false, text: 'Continue' };
+	@Input() secondaryButton: { hide: boolean, text: string } = { hide: false, text: 'Cancel' };
 
-	constructor(public activeModal: NgbActiveModal) { }
+	constructor()
+	{
+		super();
+	}
 }

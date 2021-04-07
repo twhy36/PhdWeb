@@ -28,71 +28,71 @@ export class NotificationService {
 	constructor(private store: Store<fromRoot.State>) {	}
 
 	public init(): void {
-		//this.connection = new signalR.HubConnectionBuilder()
-		//	.withUrl(environment.hubUrl)
-		//	.build();
+		this.connection = new signalR.HubConnectionBuilder()
+			.withUrl(environment.hubUrl)
+			.build();
 
-		//let connectObs = of(null).pipe(
-		//	switchMap(() => from(this.connection.start())),
-		//	retryWhen(errors => errors.pipe(
-		//		take(5),
-		//		tap(err => console.error(err)),
-		//		delayWhen((_err, count) => timer(1000 * (2**count))) //exponential retry time
-		//	))
-		//);
+		let connectObs = of(null).pipe(
+			switchMap(() => from(this.connection.start())),
+			retryWhen(errors => errors.pipe(
+				take(5),
+				tap(err => console.error(err)),
+				delayWhen((_err, count) => timer(1000 * (2**count))) //exponential retry time
+			))
+		);
 
-		//const initializeSubscriptions = () => {
-		//	this.salesAgreementSub = this.store.select(fromSalesAgreement.salesAgreementState).subscribe(sag => {
-		//		if (sag && sag.id && this.salesAgreementID !== sag.id) {
-		//			this.salesAgreementID = sag.id;
-		//			this.connection.send("TrackSalesAgreement", sag.id);
-		//		}
-		//	});
+		const initializeSubscriptions = () => {
+			this.salesAgreementSub = this.store.select(fromSalesAgreement.salesAgreementState).subscribe(sag => {
+				if (sag && sag.id && this.salesAgreementID !== sag.id) {
+					this.salesAgreementID = sag.id;
+					this.connection.send("TrackSalesAgreement", sag.id);
+				}
+			});
 
-		//	this.salesCommunitySub = this.store.select(fromOpportunity.salesCommunityId).subscribe((scid: number) => {
-		//		if (scid && this.salesCommunityId !== scid) {
-		//			this.salesCommunityId = scid;
-		//			this.connection.send("TrackLotsMonotony", scid);
-		//		}
-		//	});
+			this.salesCommunitySub = this.store.select(fromOpportunity.salesCommunityId).subscribe((scid: number) => {
+				if (scid && this.salesCommunityId !== scid) {
+					this.salesCommunityId = scid;
+					this.connection.send("TrackLotsMonotony", scid);
+				}
+			});
 
-		//	this.selectedLotSub = this.store.select(fromLot.selectSelectedLot).subscribe((lot: LotExt) => {
-		//		if (lot && this.selectedLotId !== lot.id) {
-		//			this.selectedLotId = lot.id;
-		//		}
-		//	});
-		//};
+			this.selectedLotSub = this.store.select(fromLot.selectSelectedLot).subscribe((lot: LotExt) => {
+				if (lot && this.selectedLotId !== lot.id) {
+					this.selectedLotId = lot.id;
+				}
+			});
+		};
 
-		//connectObs.subscribe(initializeSubscriptions);
+		connectObs.subscribe(initializeSubscriptions);
 
-		//this.connection.onclose(err => {
-		//	this.salesAgreementSub.unsubscribe();
-		//	this.salesAgreementID = null;
+		this.connection.onclose(err => {
+			this.salesAgreementSub.unsubscribe();
+			this.salesAgreementID = null;
 
-		//	this.salesCommunitySub.unsubscribe();
-		//	this.salesCommunityId = null;
+			this.salesCommunitySub.unsubscribe();
+			this.salesCommunityId = null;
 
-		//	this.selectedLotSub.unsubscribe();
-		//	this.selectedLotId = null;
+			this.selectedLotSub.unsubscribe();
+			this.selectedLotId = null;
 
-		//	console.error(err);
+			console.error(err);
 
-		//	connectObs.subscribe(initializeSubscriptions);
-		//});
+			connectObs.subscribe(initializeSubscriptions);
+		});
 	}
 
 	public registerHandlers(): void {
-		//this.connection.on("SalesAgreementUpdated", () => {
-		//	if (this.salesAgreementID) {
-		//		this.store.dispatch(new CommonActionTypes.LoadSalesAgreement(this.salesAgreementID));
-		//	}
-		//});
+		this.connection.on("SalesAgreementUpdated", () => {
+			if (this.salesAgreementID) {
+				this.store.dispatch(new CommonActionTypes.LoadSalesAgreement(this.salesAgreementID));
+			}
+		});
 
-		//this.connection.on("LotsMonotonyUpdated", (lotId: number) => {
-		//	if (this.salesCommunityId && this.selectedLotId !== lotId) {
-		//		this.store.dispatch(new LotActionTypes.LoadMonotonyRules(this.salesCommunityId));
-		//	}
-		//});
+		this.connection.on("LotsMonotonyUpdated", (lotId: number) => {
+			if (this.salesCommunityId && this.selectedLotId !== lotId) {
+				this.store.dispatch(new LotActionTypes.LoadMonotonyRules(this.salesCommunityId));
+			}
+		});
 	}
 }
 

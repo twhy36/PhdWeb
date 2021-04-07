@@ -43,6 +43,132 @@
 				}
 			}
 		},
+		"designtool": {
+			"root": "",
+			"sourceRoot": "projects/designtool/src",
+			"projectType": "application",
+			"architect": {
+				"build": {
+					"builder": "@angular-devkit/build-angular:browser",
+					"options": {
+						"aot": true,
+						"baseHref": "/designtool/",
+						"outputHashing": "all",
+						"outputPath": "dist/designtool",
+						"index": "projects/designtool/src/index.html",
+						"main": "projects/designtool/src/main.ts",
+						"tsConfig": "projects/designtool/tsconfig.app.json",
+						"progress": true,
+						"preserveSymlinks": true,
+						"polyfills": "projects/designtool/src/polyfills.ts",
+						"verbose": true,
+						"assets": [
+							"projects/designtool/src/assets",
+							"projects/designtool/src/docusign_response.html"
+						],
+						"styles": [
+							"node_modules/ngx-toastr/toastr.css",
+							"node_modules/primeicons/primeicons.css",
+							"node_modules/primeng/resources/themes/nova-light/theme.css",
+							"node_modules/primeng/resources/primeng.min.css",
+							"projects/designtool/src/scss/styles.scss"
+						],
+						"scripts": []
+					},
+					"configurations": {
+						"qa": {
+							"fileReplacements": [
+								{
+									"replace": "projects/designtool/src/environments/environment.ts",
+									"with": "projects/designtool/src/environments/environment.qa.ts"
+								}
+							]
+						},
+						"staging": {
+							"fileReplacements": [
+								{
+									"replace": "projects/designtool/src/environments/environment.ts",
+									"with": "projects/designtool/src/environments/environment.staging.ts"
+								}
+							]
+						},
+						"production": {
+							"optimization": true,
+							"sourceMap": false,
+							"extractCss": true,
+							"namedChunks": false,
+							"extractLicenses": true,
+							"vendorChunk": false,
+							"buildOptimizer": true,
+							"fileReplacements": [
+								{
+									"replace": "projects/designtool/src/environments/environment.ts",
+									"with": "projects/designtool/src/environments/environment.prod.ts"
+								}
+							]
+						}
+					}
+				},
+				"serve": {
+					"builder": "@angular-devkit/build-angular:dev-server",
+					"options": {
+						"baseHref": "/",
+						"browserTarget": "designtool:build",
+						"port": 14767
+					},
+					"configurations": {
+						"qa": {
+							"browserTarget": "designtool:build:qa"
+						},
+						"staging": {
+							"browserTarget": "designtool:build:staging"
+						},
+						"production": {
+							"browserTarget": "designtool:build:production"
+						}
+					}
+				},
+				"extract-i18n": {
+					"builder": "@angular-devkit/build-angular:extract-i18n",
+					"options": {
+						"browserTarget": "designtool:build"
+					}
+				},
+				"test": {
+					"builder": "@angular-devkit/build-angular:karma",
+					"options": {
+						"main": "projects/designtool/src/test.ts",
+						"karmaConfig": "projects/designtool/karma.conf.js",
+						"polyfills": "projects/designtool/src/polyfills.ts",
+						"tsConfig": "projects/designtool/tsconfig.spec.json",
+						"preserveSymlinks": true,
+						"scripts": [],
+						"styles": [
+							"node_modules/ngx-toastr/toastr.css",
+							"node_modules/primeng/resources/themes/nova-light/theme.css",
+							"node_modules/primeng/resources/primeng.min.css",
+							"projects/designtool/src/scss/styles.scss"
+						],
+						"assets": [
+							"projects/designtool/src/assets"
+						]
+					}
+				},
+				"lint": {
+					"builder": "@angular-devkit/build-angular:tslint",
+					"options": {
+						"tsConfig": [
+							"projects/designtool/tsconfig.app.json",
+							"projects/designtool/tsconfig.spec.json",
+							"projects/designtool/tsconfig.worker.json"
+						],
+						"exclude": [
+							"**/node_modules/**"
+						]
+					}
+				}
+			}
+		},
 		"salesadmin": {
 			"root": "",
 			"sourceRoot": "projects/salesadmin/src",
@@ -238,7 +364,7 @@
 					"options": {
 						"baseHref": "/",
 						"browserTarget": "salesportal:build",
-						"port": 14769
+						"port": 14766
 					},
 					"configurations": {
 						"qa": {

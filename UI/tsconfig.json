@@ -31,7 +31,6 @@
 	],
 	"exclude": [
 		"Phd.ChoiceAdminWeb/**",
-		"Phd.DesignToolWeb/**",
 		"Phd.WebHost/**"
 	]
 }

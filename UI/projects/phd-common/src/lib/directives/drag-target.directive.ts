@@ -93,6 +93,8 @@ export class DragTargetDirective implements OnInit {
             scrollZone.removeChild(scrollBottom);
         }
 
-        this.drop.emit([this.el, null]);
+		var data = <any[]>JSON.parse(event.dataTransfer.getData('text'));
+
+		this.drop.emit([this.el, data]);
     }
 }
