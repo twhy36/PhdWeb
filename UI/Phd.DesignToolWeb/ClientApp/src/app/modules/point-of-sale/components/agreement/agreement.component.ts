@@ -119,7 +119,7 @@ export class AgreementComponent extends UnsubscribeOnDestroy implements OnInit
 
 	get buildType()
 	{
-		return this.job && this.job.jobTypeName === 'Model' ? 'Model' : this.job && this.job.lot ? this.job.lot.lotBuildTypeDesc : '';
+		return this.job && this.job.lot && this.job.lot.lotBuildTypeDesc === 'Spec' ? this.job.jobTypeName === 'Model' ? 'Model' : this.job.lot.lotBuildTypeDesc : this.job && this.job.lot ? this.job.lot.lotBuildTypeDesc : '';
 	}
 
 	/**
