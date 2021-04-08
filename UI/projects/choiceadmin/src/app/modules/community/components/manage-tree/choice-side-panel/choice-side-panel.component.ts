@@ -22,7 +22,7 @@ import { AssociateLocationGroupComponent } from '../associate-location-groups/as
 import { SidePanelComponent } from '../../../../shared/components/side-panel/side-panel.component';
 import { ConfirmModalComponent } from '../../../../core/components/confirm-modal/confirm-modal.component';
 import { IFinancialMarket } from '../../../../shared/models/financial-market.model';
-import { Permission } from 'phd-common/models';
+import { Permission } from 'phd-common';
 import { cloneDeep } from 'lodash';
 
 @Component({
@@ -61,7 +61,7 @@ export class ChoiceSidePanelComponent implements OnInit
 	@Input() canEditTree = false;
 
 	@Output() hasChanges = new EventEmitter<boolean>();
-	@Output() sidePanelClose = new EventEmitter<boolean>();
+	@Output() sidePanelClose = new EventEmitter();
 	@Output() onChoiceDetailsChange = new EventEmitter<{ choice: DTChoice, isDecisionDefault: boolean, description: string, maxQuantity: number }>();
 
 	choiceDetailsForm: FormGroup;
@@ -679,7 +679,7 @@ export class ChoiceSidePanelComponent implements OnInit
 		});
 	}
 
-	async onCloseClick(status: boolean)
+	async onCloseClick()
 	{
 		if (this.optionSelectedItems.length > 0 || this.choiceSelectedItems.length > 0 || (this.assocAttributeGroup && this.assocAttributeGroup.isDirty) || (this.assocLocationGroup && this.assocLocationGroup.isDirty))
 		{
@@ -691,7 +691,7 @@ export class ChoiceSidePanelComponent implements OnInit
 		}
 
 		this.updateAttributeGroupsOrder();
-		this.sidePanelClose.emit(status);
+		this.sidePanelClose.emit();
 	}
 
 	private createChoiceDetailsForm()

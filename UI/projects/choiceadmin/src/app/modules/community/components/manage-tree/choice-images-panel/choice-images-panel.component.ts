@@ -6,10 +6,10 @@ import { MessageService } from 'primeng/api';
 
 import { bind } from '../../../../shared/classes/decorators.class';
 
-import { IChoiceImageAssoc } from '@shared/models/choice.model';
+import { IChoiceImageAssoc } from '../../../../shared/models/choice.model';
 
-import { Permission } from 'phd-common/models';
-import { IPictureParkAsset } from '@shared/models/image.model';
+import { Permission } from 'phd-common';
+import { IPictureParkAsset } from '../../../../shared/models/image.model';
 
 @Component({
     selector: 'choice-images-panel',

@@ -1,0 +1,26 @@
+{
+	"extends": "../../tsconfig.json",
+	"compilerOptions": {
+		"experimentalDecorators": true,
+		"outDir": "./out-tsc/app",
+		"baseUrl": "./",
+		"module": "es2015",
+		"types": [],
+		"paths": {
+			"phd-common": [ "../phd-common/src/internal" ]
+		}
+	},
+	"include": [
+		"../phd-common/**/*.ts",
+		"**/*.ts"
+	],
+	"exclude": [
+		"src/test.ts",
+		"**/*.spec.ts",
+		"../phd-common/src/test.ts",
+		"../phd-common/**/*.spec.ts"
+	],
+	"angularCompilerOptions": {
+		"enableIvy": true
+	}
+}

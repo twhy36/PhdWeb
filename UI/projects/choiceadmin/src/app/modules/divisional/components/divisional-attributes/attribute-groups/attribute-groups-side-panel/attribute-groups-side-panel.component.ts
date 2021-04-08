@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, Input, Output, EventEmitter } from '@angular/core';
-import { FormGroup, FormControl, Validators, AbstractControl, ValidatorFn, FormArray } from '@angular/forms';
+import { FormGroup, FormControl, AbstractControl, ValidatorFn, FormArray } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 
 import { Observable, EMPTY as empty, throwError as _throw } from 'rxjs';
@@ -86,6 +86,7 @@ export class AttributeGroupsSidePanelComponent implements OnInit
 		});
 
 		const tagsArray = this.attributeForm.get("tags") as FormArray;
+
 		this.attributeGroup.tags.forEach(t => tagsArray.push(new FormControl(t)));
 	}
 
@@ -94,13 +95,14 @@ export class AttributeGroupsSidePanelComponent implements OnInit
 		this.onSidePanelClose.emit(status);
 	}
 
-	toggleSidePanel(status: boolean)
+	toggleSidePanel()
 	{
 		if (!this.attributeForm.pristine)
 		{
 			this.sidePanel.setIsDirty();
 		}
-		this.sidePanel.toggleSidePanel(status);
+
+		this.sidePanel.toggleSidePanel();
 	}
 
 	save(): Observable<AttributeGroupMarket>
@@ -129,8 +131,11 @@ export class AttributeGroupsSidePanelComponent implements OnInit
 						tag: t
 					} as AttributeGroupMarketTag;
 				});
+
 				attr.tags = _.cloneDeep(this.attributeGroup.tags);
+
 				this.isSaving = false;
+
 				return attr;
 			}), catchError(error =>
 			{
@@ -141,6 +146,7 @@ export class AttributeGroupsSidePanelComponent implements OnInit
 	saveAndContinue()
 	{
 		this.isAdd = true;
+
 		this.save().subscribe(attr =>
 		{
 			this.onSaveComplete(attr);
@@ -152,11 +158,13 @@ export class AttributeGroupsSidePanelComponent implements OnInit
 	saveAndClose()
 	{
 		this.isAdd = false;
+
 		this.save().subscribe(attr =>
 		{
 			this.onSaveComplete(attr);
 			this.sidePanel.isDirty = false;
-			this.sidePanel.toggleSidePanel(false);
+
+			this.sidePanel.toggleSidePanel();
 		},
 			error => this.handleSaveError()
 		);
@@ -170,6 +178,7 @@ export class AttributeGroupsSidePanelComponent implements OnInit
 		this.attributeGroup = new AttributeGroupMarket();
 
 		let tags = <FormArray>this.attributeForm.controls['tags'];
+
 		for (let i = tags.length - 1; i >= 0; i--)
 		{
 			tags.removeAt(i);
@@ -179,18 +188,22 @@ export class AttributeGroupsSidePanelComponent implements OnInit
 	onAddSearchTag()
 	{
 		let tag = this.attributeForm.get('searchTag').value;
+
 		if (tag)
 		{
 			let existingTag = this.attributeGroup.tags.find(t => t === tag);
+
 			if (!existingTag)
 			{
 				const tagsArray = this.attributeForm.get("tags") as FormArray;
 				const tagControl = new FormControl(tag);
+
 				tagsArray.push(tagControl);
 
 				this.detectChangesInTags(tagsArray);
 
 				let searchTagControl = this.attributeForm.controls['searchTag'];
+
 				if (searchTagControl)
 				{
 					searchTagControl.reset();
@@ -202,6 +215,7 @@ export class AttributeGroupsSidePanelComponent implements OnInit
 	onRemoveTag(index: number)
 	{
 		const tagsArray = this.attributeForm.get("tags") as FormArray;
+
 		tagsArray.removeAt(index);
 
 		this.detectChangesInTags(tagsArray);
@@ -214,7 +228,6 @@ export class AttributeGroupsSidePanelComponent implements OnInit
 	 */
 	private detectChangesInTags(tagsArray: FormArray)
 	{
-
 		const tags = tagsArray.controls.map(c => c.value as string);
 
 		const diffA = _.difference(tags, this.attributeGroup.tags);
@@ -223,7 +236,8 @@ export class AttributeGroupsSidePanelComponent implements OnInit
 		if (diffA.length > 0 || diffB.length > 0)
 		{
 			tagsArray.markAsDirty();
-		} else
+		}
+		else
 		{
 			tagsArray.markAsPristine();
 		}
@@ -234,6 +248,7 @@ export class AttributeGroupsSidePanelComponent implements OnInit
 		return (control: AbstractControl): { [key: string]: boolean } =>
 		{
 			let existingTag = this.attributeGroup.tags.find(t => t === control.value);
+
 			return existingTag ? { duplicateTag: true } : null;
 		};
 	}
@@ -257,6 +272,7 @@ export class AttributeGroupsSidePanelComponent implements OnInit
 					}
 				}) :
 				null;
+
 			return existingName ? { duplicateName: true } : null;
 		};
 	}
@@ -264,7 +280,9 @@ export class AttributeGroupsSidePanelComponent implements OnInit
 	private handleSaveError()
 	{
 		this.isSaving = false;
+
 		this._msgService.add({ severity: 'error', summary: 'Attribute Group', detail: `failed to saved!` });
+
 		return empty;
 	}
 

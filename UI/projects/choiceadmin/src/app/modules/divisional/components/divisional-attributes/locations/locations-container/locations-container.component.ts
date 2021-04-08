@@ -12,7 +12,7 @@ import { Location } from '../../../../../shared/models/location.model';
 import { LocationGroupMarket } from '../../../../../shared/models/location-group-market.model';
 import { LocationService } from '../../../../../core/services/location.service';
 import { OrganizationService } from '../../../../../core/services/organization.service';
-import { Permission } from 'phd-common/models';
+import { Permission } from 'phd-common';
 
 @Component({
 	selector: 'locations-container',
@@ -29,8 +29,8 @@ export class LocationsContainerComponent extends UnsubscribeOnDestroy implements
 	@ViewChild(LocationsPanelComponent)
 	private locationsPanel: LocationsPanelComponent;
 
-	private selectedLocation: Location;
-	private activeLocationGroups: Array<LocationGroupMarket> = [];
+	selectedLocation: Location;
+	activeLocationGroups: Array<LocationGroupMarket> = [];
 
 	get existingLocations(): Array<Location>
 	{
@@ -56,10 +56,12 @@ export class LocationsContainerComponent extends UnsubscribeOnDestroy implements
 			filter(p => p.get('marketId') && p.get('marketId') != '0'),
 			map(p => +p.get('marketId')),
 			distinctUntilChanged(),
-			switchMap((marketId: number) => {
+			switchMap((marketId: number) =>
+			{
 				return this._locoService.getActiveLocationGroupsByMarketId(marketId);
 			})
-		).subscribe(data => {
+		).subscribe(data =>
+		{
 			this.activeLocationGroups = data;
 		});
 
@@ -89,7 +91,8 @@ export class LocationsContainerComponent extends UnsubscribeOnDestroy implements
 		this.sidePanelOpen = status;
 		this._divAttrComp.sidePanelOpen = status;
 
-		if (!status) {
+		if (!status)
+		{
 			this.selectedLocation = null;
 		}
 	}
@@ -101,5 +104,4 @@ export class LocationsContainerComponent extends UnsubscribeOnDestroy implements
 			this.locationsPanel.addLocation(location);
 		}
 	}
-
 }

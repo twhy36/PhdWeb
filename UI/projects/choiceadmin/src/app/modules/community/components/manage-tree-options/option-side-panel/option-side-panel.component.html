@@ -1,4 +1,4 @@
-<side-panel-component [headerTemplate]="header" [subheaderTemplate]="subheader" [bodyTemplate]="body" [footerTemplate]="footer" [sidePanelOpen]="sidePanelOpen" (onSidePanelClose)="onCloseClick($event)">
+<side-panel-component [headerTemplate]="header" [subheaderTemplate]="subheader" [bodyTemplate]="body" [footerTemplate]="footer" [sidePanelOpen]="sidePanelOpen" (onSidePanelClose)="onCloseClick()">
 	<ng-template #header>
 		<h5><strong>{{option.id}} >> {{option.optionHeaderName}}</strong></h5>
 	</ng-template>

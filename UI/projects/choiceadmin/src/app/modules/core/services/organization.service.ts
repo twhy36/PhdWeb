@@ -12,7 +12,7 @@ import { LoggingService } from './logging.service';
 import { SettingsService } from './settings.service';
 import { StorageService } from './storage.service';
 import { PhdEntityDto } from '../../shared/models/api-dtos.model';
-import { withSpinner } from 'phd-common/extensions/withSpinner.extension';
+import { withSpinner } from 'phd-common';
 import * as _ from 'lodash';
 
 import * as odataUtils from '../../shared/classes/odata-utils.class';
@@ -36,6 +36,7 @@ export class OrganizationService
 	set currentFinancialMarket(val: string)
 	{
 		this.currentFinancialMarket$.next(val);
+
 		this._storageService.setLocal('CA_CURRENT_FM', val);
 	}
 

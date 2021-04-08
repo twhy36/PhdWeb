@@ -1,7 +1,7 @@
-import { Injectable, Attribute } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { HttpHeaders, HttpClient } from '@angular/common/http';
 
-import { BehaviorSubject, Observable, throwError as _throw, of } from 'rxjs';
+import { BehaviorSubject, Observable, throwError as _throw } from 'rxjs';
 import { EMPTY } from 'rxjs';
 import { combineLatest, map, catchError, flatMap, switchMap } from 'rxjs/operators';
 
@@ -15,13 +15,13 @@ import { SettingsService } from '../../core/services/settings.service';
 import { PlanOptionService } from './plan-option.service';
 
 import { PhdApiDto, PhdEntityDto } from '../../shared/models/api-dtos.model';
-import { TreeOption, ITreeOption, Option } from '../../shared/models/option.model';
+import { TreeOption, ITreeOption } from '../../shared/models/option.model';
 import { IDivCatalogPointDto } from '../../shared/models/point.model';
 import { IDivCatalogChoiceDto, IChoiceImageAssoc } from '../../shared/models/choice.model';
 
-import { withSpinner } from 'phd-common/extensions/withSpinner.extension';
+import { withSpinner } from 'phd-common';
 import { RuleType } from '../../shared/models/rule.model';
-import { DivCatWizPlan, IDivCatWizChoice, DivCatWizChoice } from '../../divisional/services/div-catalog-wizard.service';
+import { DivCatWizPlan, DivCatWizChoice } from '../../divisional/services/div-catalog-wizard.service';
 import { IPlanOptionResult, IPlanOptionCommunityResult } from '../../shared/models/plan.model';
 import * as _ from 'lodash';
 import { DivAttributeWizPlan, DivAttributeWizOption, DivAttributeWizChoice } from '../../divisional/services/div-attribute-wizard.service';
@@ -77,6 +77,7 @@ export class TreeService
 			.subscribe(([tree, treeOptions]) =>
 			{
 				this.setCurrentTree(tree, treeOptions);
+
 				this.treeVersionIsLoading = false;
 			});
 	}
@@ -454,7 +455,7 @@ export class TreeService
 	{
 		const entity = `locationGroupCommunities`;
 		let expand = `locationGroupOptionCommunityAssocs($select=locationGroupCommunityId;$expand=optionCommunity($expand=option($select=id, financialOptionIntegrationKey); $select=id, optionId, financialCommunityId; $filter=financialCommunityId eq ${commId} and option/financialOptionIntegrationKey eq '${integrationKey}')),`;
-		expand += `locationGroupCommunityTags, locationGroupLocationCommunityAssocs($select=locationGroupCommunityId;$expand=locationCommunity($select = id, locationName, isActive))`;
+		expand += `locationGroupCommunityTags, locationGroupLocationCommunityAssocs($select=locationGroupCommunityId;$expand=locationCommunity($select=id, locationName, isActive))`;
 		const filter = `financialCommunityId eq ${commId} and locationGroupOptionCommunityAssocs/any(a: a/optionCommunity/option/financialOptionIntegrationKey eq '${integrationKey}')`;
 		const select = `id, financialCommunityId, locationGroupName, groupLabel, locationGroupDescription, isActive`;
 
@@ -1430,6 +1431,7 @@ export class TreeService
 		const endPoint = `${settings.apiUrl}${entity}`;
 
 		this.treeVersionIsLoading = false;
+
 		return this._http.delete<PhdApiDto.IDTreeRule>(endPoint);
 	}
 

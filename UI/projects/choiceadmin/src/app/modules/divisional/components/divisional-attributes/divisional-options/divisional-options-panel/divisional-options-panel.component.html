@@ -20,7 +20,7 @@
 												                                      [groups]="groups"
 																					  [isReadOnly]="isReadOnly"
 												                                      (onAssociate)="associateAttributeGroups($event)"
-												                                      (onDisassociate)="performChangeDetection($event)"
+												                                      (onDisassociate)="performChangeDetection()"
 												                                      (onAssociateToCommunities)="associateAttributeGroupsToCommunities($event)">
 												</expansion-attribute-groups-tab-panel>
 											</ng-template>
@@ -43,7 +43,7 @@
 												<expansion-associate-communities-tab-panel [option]="option"
 												                                           [communities]="communities"
 												                                           [isReadOnly]="isReadOnly"
-												                                           (onDataChange)="performChangeDetection($event)">
+												                                           (onDataChange)="performChangeDetection()">
 												</expansion-associate-communities-tab-panel>
 											</ng-template>
 										</phd-tabPanel>

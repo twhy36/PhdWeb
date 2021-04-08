@@ -14,7 +14,7 @@ import { AttributeGroupCommunity } from '../../shared/models/attribute-group-com
 import { Option, IOptionMarket } from '../../shared/models/option.model';
 import { IFinancialCommunity } from '../../shared/models/financial-community.model';
 import { GroupChoice } from '../../shared/models/group-choice.model';
-import { withSpinner } from 'phd-common/extensions/withSpinner.extension';
+import { withSpinner } from 'phd-common';
 
 import * as moment from 'moment';
 import { orderBy } from "lodash";
@@ -70,6 +70,7 @@ export class AttributeService
 		{
 			const today = moment.utc(new Date()).format('YYYY-MM-DDThh:mm:ssZ');
 			const compareOperator = status ? 'ge' : 'lt';
+
 			filter = `(${filter}) and endDate ${compareOperator} ${today}`;
 		}
 
@@ -174,6 +175,7 @@ export class AttributeService
 				{
 					return new AttributeGroupMarket(g, this.getAttributesForGroup(g));
 				});
+
 				return attributeGroups;
 			}),
 			catchError(this.handleError));

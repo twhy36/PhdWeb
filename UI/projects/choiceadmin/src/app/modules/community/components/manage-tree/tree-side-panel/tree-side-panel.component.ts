@@ -30,7 +30,7 @@ export class TreeSidePanelComponent implements OnInit
 	@Input() title: string;
 
 	@Output() hasChanges = new EventEmitter<boolean>();
-	@Output() sidePanelClose = new EventEmitter<boolean>();
+	@Output() sidePanelClose = new EventEmitter();
 	@Output() save = new EventEmitter<{ treeVersion: DTVersion, canUnpublishTree: boolean }>();
 
 	today = new Date();
@@ -143,14 +143,14 @@ export class TreeSidePanelComponent implements OnInit
 		this.save.emit({ treeVersion: this.treeVersion, canUnpublishTree: this.canUnpublishTree });
 	}
 
-	onCloseClick(status: boolean)
+	onCloseClick()
 	{
-		this.sidePanelClose.emit(status);
+		this.sidePanelClose.emit();
 	}
 
-	toggleSidePanel(status: boolean)
+	toggleSidePanel()
 	{
-		this.sidePanel.toggleSidePanel(status);
+		this.sidePanel.toggleSidePanel();
 	}
 
 	private confirmNavAway(): Promise<boolean>

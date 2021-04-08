@@ -4,7 +4,7 @@ import { finalize } from 'rxjs/operators';
 
 import { MessageService } from 'primeng/api';
 
-import { NgbTabChangeEvent, NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
+import { NgbTabChangeEvent, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { SidePanelComponent } from '../../../../../shared/components/side-panel/side-panel.component';
 import { DivisionalAttributesComponent } from '../../divisional-attributes/divisional-attributes.component';
@@ -21,8 +21,8 @@ import { DivisionalOptionService } from '../../../../../core/services/divisional
 })
 export class DivisionalOptionsSidePanelComponent implements OnInit
 {
-    @ViewChild(SidePanelComponent)
-    private sidePanel: SidePanelComponent;
+	@ViewChild(SidePanelComponent)
+	private sidePanel: SidePanelComponent;
 
 	@Output() onSidePanelClose = new EventEmitter<boolean>();
 	@Output() onOptionUpdate = new EventEmitter();
@@ -42,7 +42,7 @@ export class DivisionalOptionsSidePanelComponent implements OnInit
 
 	get sidePanelHeader(): string
 	{
-		return this.option ?  `${this.option.financialOptionIntegrationKey} >> ${this.option.optionSalesName}` : '';
+		return this.option ? `${this.option.financialOptionIntegrationKey} >> ${this.option.optionSalesName}` : '';
 	}
 
 	get sidePanelSubHeader(): string
@@ -52,15 +52,15 @@ export class DivisionalOptionsSidePanelComponent implements OnInit
 
 	get canSave(): boolean
 	{
-        return true;
-    }
+		return true;
+	}
 
 	constructor(private _divAttrComp: DivisionalAttributesComponent, private _divOptService: DivisionalOptionService, private _msgService: MessageService, private _modalService: NgbModal) { }
 
 	ngOnInit()
 	{
 		this.currentTab = this.currentTab || 'images';
-		
+
 		this.getImages();
 	}
 
@@ -115,12 +115,12 @@ export class DivisionalOptionsSidePanelComponent implements OnInit
 	{
 		this.onSidePanelClose.emit(status);
 		this._divAttrComp.sidePanelOpen = status;
-    }
+	}
 
-	toggleSidePanel(status: boolean)
+	toggleSidePanel()
 	{
-        this.sidePanel.toggleSidePanel(status);
-    }
+		this.sidePanel.toggleSidePanel();
+	}
 
 	onSaveImage(params: { imageUrls: string[], callback: Function })
 	{
@@ -172,7 +172,7 @@ export class DivisionalOptionsSidePanelComponent implements OnInit
 				});
 			});
 	}
-	
+
 	onDeleteImage(image: OptionMarketImage)
 	{
 		if (!this.isDeleting)

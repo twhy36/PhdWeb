@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angular/core';
 import { FormGroup, FormArray, FormControl, Validators, AbstractControl } from '@angular/forms';
 
-import { Observable ,  of } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { SidePanelComponent } from '../../../../shared/components/side-panel/side-panel.component';
@@ -44,6 +44,11 @@ export class ChoiceSidePanelComponent implements OnInit
 		return this.catalogItem.parent.choices.some(x => x.isDefault == true && x.id != this.catalogItem.id);
 	}
 
+	get labelArray(): FormArray
+	{
+		return <FormArray>this.catalogForm.get('labelArray');
+	}
+
 	get canSave(): boolean
 	{
 		let canSave = this.catalogForm.pristine || !this.catalogForm.valid || this.isSaving;
@@ -52,10 +57,8 @@ export class ChoiceSidePanelComponent implements OnInit
 		{
 			// make panel dirty if at least one label input has a value
 			if (this.isAdd)
-			{
-				const labelArray = <FormArray>this.catalogForm.get('labelArray');
-
-				this.sidePanel.isDirty = labelArray.controls.some(c => c.value && (<string>c.value).trim().length > 0);
+			{				
+				this.sidePanel.isDirty = this.labelArray.controls.some(c => c.value && (<string>c.value).trim().length > 0);
 			}
 			else
 			{
@@ -140,7 +143,7 @@ export class ChoiceSidePanelComponent implements OnInit
 		}
 	}
 
-	onAddChoice(tabIndex: number)
+	onAddChoice(tabIndex?: number)
 	{
 		const labelArray = <FormArray>this.catalogForm.get('labelArray');
 
@@ -233,8 +236,8 @@ export class ChoiceSidePanelComponent implements OnInit
 		this.onSidePanelClose.emit(status);
 	}
 
-	toggleSidePanel(status: boolean)
+	toggleSidePanel()
 	{
-		this.sidePanel.toggleSidePanel(status);
+		this.sidePanel.toggleSidePanel();
 	}
 }

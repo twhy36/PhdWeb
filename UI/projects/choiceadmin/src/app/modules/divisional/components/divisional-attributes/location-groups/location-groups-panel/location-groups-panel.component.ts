@@ -20,8 +20,7 @@ import { SearchBarComponent } from '../../../../../shared/components/search-bar/
 import { SettingsService } from '../../../../../core/services/settings.service';
 import { Settings } from '../../../../../shared/models/settings.model';
 import { OrganizationService } from '../../../../../core/services/organization.service';
-import { IdentityService } from 'phd-common/services';
-import { Permission } from 'phd-common/models';
+import { IdentityService, Permission } from 'phd-common';
 
 @Component({
 	selector: 'location-groups-panel',
@@ -95,6 +94,7 @@ export class LocationGroupsPanelComponent extends UnsubscribeOnDestroy implement
 			this.locationGroupsList = data;
 			this.currentPage = 1;
 			this.allDataLoaded = data.length < this.settings.infiniteScrollPageSize;
+
 			this.resetSearchBar();
 		});
 	}
@@ -189,6 +189,7 @@ export class LocationGroupsPanelComponent extends UnsubscribeOnDestroy implement
 			if (this.allDataLoaded)
 			{
 				this.filteredLocationGroupsList = [];
+
 				let splittedKeywords = this.keyword.split(' ');
 
 				splittedKeywords.forEach(k =>
@@ -301,6 +302,7 @@ export class LocationGroupsPanelComponent extends UnsubscribeOnDestroy implement
 				{
 					this.locationGroupsList = unionBy(this.locationGroupsList, data, 'id');
 					this.filteredLocationGroupsList = orderBy(this.locationGroupsList, [group => group.locationGroupName.toLowerCase()]);
+
 					this.currentPage++;
 				}
 

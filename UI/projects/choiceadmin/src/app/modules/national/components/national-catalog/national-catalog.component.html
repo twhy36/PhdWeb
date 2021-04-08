@@ -52,7 +52,7 @@
 					<tr>
 						<th>Label</th>
 						<th class="phd-icon-col">
-							<i class="fa fa-fw fa-plus-square" (click)="addCatalogItem();" ngbTooltip="Add Group" *requiresClaim="'NationalCatalog'; permission: Permission.Edit"></i>
+							<i class="fa fa-fw fa-plus-square" (click)="addCatalogItem($event);" ngbTooltip="Add Group" *requiresClaim="'NationalCatalog'; permission: Permission.Edit"></i>
 						</th>
 						<th class="phd-icon-col"></th>
 						<th class="phd-icon-col" *requiresClaim="'NationalCatalog'; permission: Permission.Edit">
@@ -76,7 +76,7 @@
 							</td>
 							<td class="phd-icon-col">
 								<ng-container *ngIf="!group.isFlooring">
-									<i class="fa fa-fw fa-trash-o" ngbTooltip="Delete Group" container="body" (click)="createMsgModal(group, deleteContent)" *requiresClaim="'NationalCatalog'; permission: Permission.Edit"></i>
+									<i class="fa fa-fw fa-trash-o" ngbTooltip="Delete Group" container="body" (click)="createMsgModal(group)" *requiresClaim="'NationalCatalog'; permission: Permission.Edit"></i>
 								</ng-container>
 							</td>
 							<td class="phd-icon-col">
@@ -107,7 +107,7 @@
 								</td>
 								<td class="phd-icon-col">
 									<ng-container *ngIf="!subGroup.isFlooring">
-										<i class="fa fa-fw fa-trash-o" ngbTooltip="Delete SubGroup" container="body" (click)="createMsgModal(subGroup, deleteContent)" *requiresClaim="'NationalCatalog'; permission: Permission.Edit"></i>
+										<i class="fa fa-fw fa-trash-o" ngbTooltip="Delete SubGroup" container="body" (click)="createMsgModal(subGroup)" *requiresClaim="'NationalCatalog'; permission: Permission.Edit"></i>
 									</ng-container>
 								</td>
 								<td class="phd-icon-col">
@@ -132,7 +132,7 @@
 									<td class="phd-icon-col"></td>
 									<td class="phd-icon-col">
 										<ng-container *ngIf="!subGroup.isFlooring">
-											<i class="fa fa-fw fa-trash-o" ngbTooltip="Delete Decision Point" container="body" (click)="createMsgModal(point, deleteContent)" *requiresClaim="'NationalCatalog'; permission: Permission.Edit"></i>
+											<i class="fa fa-fw fa-trash-o" ngbTooltip="Delete Decision Point" container="body" (click)="createMsgModal(point)" *requiresClaim="'NationalCatalog'; permission: Permission.Edit"></i>
 										</ng-container>
 									</td>
 									<td class="phd-icon-col"></td>

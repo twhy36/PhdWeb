@@ -8,7 +8,7 @@
 	<div>
 		<div class="form-group">
 			<label for="selectedChoicesTags">This option replaces the following options:</label>
-			<select class="form-control" id="market" [(ngModel)]="selectedOption" (change)="onChangeOption($event)">
+			<select class="form-control" id="market" [(ngModel)]="selectedOption" (change)="onChangeOption()">
 				<option [ngValue]="null">Select Option to Replace</option>
 				<option *ngFor="let option of ddlOptions" [ngValue]="option">{{option.id}}: {{ option.optionHeaderName }}</option>
 			</select>

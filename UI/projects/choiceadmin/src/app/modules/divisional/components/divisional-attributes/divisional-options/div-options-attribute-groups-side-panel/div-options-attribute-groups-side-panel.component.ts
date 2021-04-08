@@ -35,7 +35,7 @@ export class DivOptionsAttributeGroupsSidePanelComponent extends UnsubscribeOnDe
 	@Input() associatedGroups$: Observable<Array<AttributeGroupMarket>>;
 	@Input() option: Option;
 	@Input() callback: (grp: Array<AttributeGroupMarket>) => void;
-	
+
 	associatedGroups: Array<AttributeGroupMarket>;
 	isSaving: boolean = false;
 
@@ -92,14 +92,14 @@ export class DivOptionsAttributeGroupsSidePanelComponent extends UnsubscribeOnDe
 		this.onSidePanelClose.emit(status);
 	}
 
-	toggleSidePanel(status: boolean)
+	toggleSidePanel()
 	{
 		if (this.addGroupsPanel.selectedGroups.length)
 		{
 			this.sidePanel.setIsDirty();
 		}
 
-		this.sidePanel.toggleSidePanel(status);
+		this.sidePanel.toggleSidePanel();
 	}
 
 	filterAssociatedAttributeGroups()
@@ -116,12 +116,14 @@ export class DivOptionsAttributeGroupsSidePanelComponent extends UnsubscribeOnDe
 		const lastGroup = this.associatedGroups.length ? maxBy(this.associatedGroups, 'sortOrder') : null;
 		let sortOrder = lastGroup ? lastGroup.sortOrder + 1 : 0;
 
-		let groupOrders = this.addGroupsPanel.selectedGroups.map(g => {
+		let groupOrders = this.addGroupsPanel.selectedGroups.map(g =>
+		{
 			return {
 				attributeGroupId: g.id,
 				sortOrder: sortOrder++
 			};
 		});
+
 		this._attrService.updateAttributeGroupOptionMarketAssocs(this.option.id, groupOrders).subscribe(option =>
 		{
 			if (this.callback)
@@ -134,7 +136,8 @@ export class DivOptionsAttributeGroupsSidePanelComponent extends UnsubscribeOnDe
 
 			this.isSaving = false;
 			this.sidePanel.isDirty = false;
-			this.sidePanel.toggleSidePanel(false);
+
+			this.sidePanel.toggleSidePanel();
 		},
 		error =>
 		{
@@ -148,6 +151,7 @@ export class DivOptionsAttributeGroupsSidePanelComponent extends UnsubscribeOnDe
 		if (message)
 		{
 			this.errors = [];
+
 			this.errors.push({ severity: 'error', detail: message });
 		}
 	}

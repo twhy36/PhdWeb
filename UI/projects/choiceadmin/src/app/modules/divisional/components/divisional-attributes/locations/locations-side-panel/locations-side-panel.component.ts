@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, Input, Output, EventEmitter } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
-import { Observable, BehaviorSubject ,  of ,  EMPTY as empty ,  throwError as _throw } from 'rxjs';
+import { Observable, BehaviorSubject, of, EMPTY as empty, throwError as _throw } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 
 import { MessageService } from 'primeng/api';
@@ -70,7 +70,8 @@ export class LocationsSidePanelComponent implements OnInit
 	get saveDisabled(): boolean
 	{
 		let isGroupChangeValid = (this.selectedLocation ? this.selectedLocation.locationName : false) && this.isGroupSelectionChanged;
-		if (this.detailsTab) {
+		if (this.detailsTab)
+		{
 			isGroupChangeValid = this.detailsTab.locationForm.valid && this.isGroupSelectionChanged;
 		}
 
@@ -90,12 +91,15 @@ export class LocationsSidePanelComponent implements OnInit
 	{
 		this.isSaving$ = new BehaviorSubject<boolean>(this.isSaving);
 
-		if (!this.isAdd && this.selectedLocation) {
-			this.selectedLocation.locationGroups$.subscribe(groups => {
+		if (!this.isAdd && this.selectedLocation)
+		{
+			this.selectedLocation.locationGroups$.subscribe(groups =>
+			{
 				this.origSelectedGroups.push(...groups);
 				this.selectedGroups.push(...groups);
 
-				if (this.groupsTab) {
+				if (this.groupsTab)
+				{
 					this.groupsTab.onGroupSelectionChange();
 				}
 			});
@@ -107,21 +111,24 @@ export class LocationsSidePanelComponent implements OnInit
 		this.onSidePanelClose.emit(status);
 	}
 
-	toggleSidePanel(status: boolean)
+	toggleSidePanel()
 	{
 		if (!this.isDetailsFormPristine || this.isLocationChanged || this.isGroupSelectionChanged)
 		{
 			this.sidePanel.setIsDirty();
 		}
 
-		this.sidePanel.toggleSidePanel(status);
+		this.sidePanel.toggleSidePanel();
 	}
 
 	save(): Observable<Location>
 	{
 		this.updateLocationDetails();
-		if (!this.selectedLocation.locationName) {
+
+		if (!this.selectedLocation.locationName)
+		{
 			this._msgService.add({ severity: 'error', summary: 'Location', detail: `Location name is required` });
+
 			return empty;
 		}
 
@@ -130,7 +137,8 @@ export class LocationsSidePanelComponent implements OnInit
 
 		let location: Observable<Location> = null;
 
-		if (!this.isAdd) {
+		if (!this.isAdd)
+		{
 			const locationData = {
 				id: this.selectedLocation.id,
 				locationName: this.selectedLocation.locationName,
@@ -140,18 +148,24 @@ export class LocationsSidePanelComponent implements OnInit
 			} as Location;
 
 			location = this._locoService.patchLocation(locationData);
-		} else {
+		}
+		else
+		{
 			location = this._locoService.addLocation(this.selectedLocation);
 		}
-		
+
 		return location.pipe(
-			switchMap(loco => {
+			switchMap(loco =>
+			{
 				const addedGroupIds = differenceBy(this.selectedGroups, this.origSelectedGroups, 'id').map(g => g.id);
 				const removedGroupIds = differenceBy(this.origSelectedGroups, this.selectedGroups, 'id').map(g => g.id);
 
-				if (addedGroupIds.length || removedGroupIds.length) {
+				if (addedGroupIds.length || removedGroupIds.length)
+				{
 					return this._locoService.updateAssociationsByLocationId(loco.id, addedGroupIds, removedGroupIds);
-				} else {
+				}
+				else
+				{
 					return of(loco);
 				}
 			}),
@@ -175,7 +189,7 @@ export class LocationsSidePanelComponent implements OnInit
 			catchError(error =>
 			{
 				return _throw(error || 'Server error');
-			}));		
+			}));
 	}
 
 	saveAndContinue()
@@ -198,7 +212,8 @@ export class LocationsSidePanelComponent implements OnInit
 		{
 			this.onSaveComplete(loco);
 			this.sidePanel.isDirty = false;
-			this.sidePanel.toggleSidePanel(false);
+
+			this.sidePanel.toggleSidePanel();
 		},
 			error => this.handleSaveError()
 		);
@@ -228,9 +243,12 @@ export class LocationsSidePanelComponent implements OnInit
 		this._msgService.add({ severity: 'success', summary: 'Location', detail: `has been saved!` });
 	}
 
-	async beforeTabChange($event: NgbTabChangeEvent) {
+	async beforeTabChange($event: NgbTabChangeEvent)
+	{
 		this.updateLocationDetails();
-		if ($event.nextId === 'details') {
+
+		if ($event.nextId === 'details')
+		{
 			this.searchKeyword = this.groupsTab.addGroups.searchBar.keyword;
 			this.searchFilter = this.groupsTab.addGroups.searchBar.selectedSearchFilter;
 			this.searchSelectedAddGroup = this.groupsTab.addGroups.selectedGroups as LocationGroupMarket[];
@@ -238,25 +256,32 @@ export class LocationsSidePanelComponent implements OnInit
 		}
 	}
 
-	updateLocationDetails() {
-		if (this.detailsTab) {
+	updateLocationDetails()
+	{
+		if (this.detailsTab)
+		{
 			this.selectedLocation = this.detailsTab.getFormData();
 		}
 	}
 
-	onLocationChanged() {
+	onLocationChanged()
+	{
 		this.isDetailsFormPristine = this.detailsTab ? this.detailsTab.locationForm.pristine : true;
 		this.isLocationChanged = this.detailsTab ? (!this.detailsTab.locationForm.pristine && this.detailsTab.locationForm.valid) : false;
 	}
 
-	onGroupSelectionChanged() {
+	onGroupSelectionChanged()
+	{
 		const addedGroups = differenceBy(this.selectedGroups, this.origSelectedGroups, 'id');
 		const removedGroups = differenceBy(this.origSelectedGroups, this.selectedGroups, 'id');
+
 		this.isGroupSelectionChanged = (addedGroups != null && !!addedGroups.length) || (removedGroups != null && !!removedGroups.length);
 	}
 
-	resetTabs() {
-		if (this.detailsTab) {
+	resetTabs()
+	{
+		if (this.detailsTab)
+		{
 			this.detailsTab.reset();
 			this.searchKeyword = '';
 			this.searchFilter = '';
@@ -265,7 +290,8 @@ export class LocationsSidePanelComponent implements OnInit
 			this.selectedGroups = [];
 		}
 
-		if (this.groupsTab) {
+		if (this.groupsTab)
+		{
 			this.groupsTab.reset();
 			this.selectedLocation = null;
 			this.selectedGroups = [];

@@ -8,7 +8,7 @@
 				   [groupsInMarket]="groupsInMarket"
 				   [communityId]="selectedCommunity?.id"
 				   (onChoiceDetailsChange)="onChoiceDetailsChange($event)"
-				   (sidePanelClose)="onChoiceSidePanelClose($event)"
+				   (sidePanelClose)="onChoiceSidePanelClose()"
 				   (hasChanges)="onHasChanges($event)"
 				   [selectedMarket]="selectedMarket"
 				   [canEditTree]="canEdit">
@@ -21,7 +21,7 @@
 				  [isSaving]="pointDetailsSaving"
 				  [versionId]="selectedTreeVersion?.id"
 				  (onPointDetailsChange)="onPointDetailsChange($event)"
-				  (sidePanelClose)="onPointSidePanelClose($event)"
+				  (sidePanelClose)="onPointSidePanelClose()"
 				  (hasChanges)="onHasChanges($event)">
 </point-side-panel>
 <add-item-side-panel *ngIf="showAddItem"
@@ -30,7 +30,7 @@
 					 [sidePanelOpen]="showAddItem"
 					 [isLoading]="addItemIsLoading"
 					 [isSaving]="addItemIsSaving"
-					 (sidePanelClose)="onAddItemSidePanelClose($event)"
+					 (sidePanelClose)="onAddItemSidePanelClose()"
 					 (save)="onAddItemSave($event)"
 					 (hasChanges)="onHasChanges($event)">
 </add-item-side-panel>
@@ -41,14 +41,14 @@
 				 [isReadOnly]="isReadOnly || !canPublish"
 				 [isSaving]="treeDetailsSaving"
 				 [sidePanelOpen]="showTreeDetails"
-				 (sidePanelClose)="onTreeDetailsSidePanelClose($event)"
+				 (sidePanelClose)="onTreeDetailsSidePanelClose()"
 				 (save)="onTreeDetailsSave($event)"
 				 (hasChanges)="onHasChanges($event)">
 </tree-side-panel>
 <messages-side-panel *ngIf="showMessages"
 					 [tabsTemplate]="tabs"
 					 [sidePanelOpen]="showMessages"
-					 (sidePanelClose)="onMessagesSidePanelClose($event)">
+					 (sidePanelClose)="onMessagesSidePanelClose()">
 	<ng-template #tabs>
 		<ngb-tabset justify="fill" [activeId]="currentTab">
 			<ngb-tab title="Decision Points with no Choices" id="dpwithnochoices">
@@ -74,28 +74,28 @@
 				 alertClass="alert-danger"
 				 textClass="text-danger"
 				 messageType="tree"
-				 (messageClick)="onMessageClick($event)">
+				 (messageClick)="onMessageClick()">
 	</message-bar>
 
 	<page-header mainTitle="Manage Community Plan / Decision Tree" [mainTitleAddon]="titleAddon">
 		<ng-template>
 			<phd-action-buttons *ngIf="!lockedFromChanges && treeVersion | async">
-				<phd-action-buttons-item title="Delete Draft" *ngIf="!isReadOnly && canEdit" [buttonDisabled]="disableButtons || isDeletingTree" (onButtonClicked)="onDeleteDraftClicked($event)">
+				<phd-action-buttons-item title="Delete Draft" *ngIf="!isReadOnly && canEdit" [buttonDisabled]="disableButtons || isDeletingTree" (onButtonClicked)="onDeleteDraftClicked()">
 					<ng-template>
 						<i class="fa fa-trash fa-2x"></i>
 					</ng-template>
 				</phd-action-buttons-item>
-				<phd-action-buttons-item title="Details" *ngIf="isReadOnly || !canPublish" [buttonDisabled]="disableButtons || isDeletingTree" (onButtonClicked)="onDetailsClicked($event)">
+				<phd-action-buttons-item title="Details" *ngIf="isReadOnly || !canPublish" [buttonDisabled]="disableButtons || isDeletingTree" (onButtonClicked)="onDetailsClicked()">
 					<ng-template>
 						<i class="fa fa-file-text-o fa-2x"></i>
 					</ng-template>
 				</phd-action-buttons-item>
-				<phd-action-buttons-item title="Publish" *ngIf="!isReadOnly && canPublish" [buttonDisabled]="isTreeInvalid || disableButtons || isDeletingTree" (onButtonClicked)="onPublishClicked($event)">
+				<phd-action-buttons-item title="Publish" *ngIf="!isReadOnly && canPublish" [buttonDisabled]="isTreeInvalid || disableButtons || isDeletingTree" (onButtonClicked)="onPublishClicked()">
 					<ng-template>
 						<i class="fa fa-upload fa-2x" [class.disabled]="isTreeInvalid"></i>
 					</ng-template>
 				</phd-action-buttons-item>
-				<phd-action-buttons-item title="Preview in Design Tool" [buttonDisabled]="disableButtons || isDeletingTree" (onButtonClicked)="onPreviewTreeClicked($event)">
+				<phd-action-buttons-item title="Preview in Design Tool" [buttonDisabled]="disableButtons || isDeletingTree" (onButtonClicked)="onPreviewTreeClicked()">
 					<ng-template>
 						<i class="fa fa-search-plus fa-2x"></i>
 					</ng-template>

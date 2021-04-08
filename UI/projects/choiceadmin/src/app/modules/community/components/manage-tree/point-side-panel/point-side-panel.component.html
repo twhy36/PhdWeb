@@ -118,7 +118,7 @@
 				<i class="fa fa-spinner fa-spin fa-fw" *ngIf="isSaving"></i>
 			</button>
 
-			<button class="btn btn-secondary" (click)="onCloseClick()" *ngIf="canSave">Close</button>
+			<button class="btn btn-secondary" (click)="onCloseClick($event)" *ngIf="canSave">Close</button>
 			<button class="btn btn-secondary" (click)="onCancelClick()" *ngIf="!canSave">Cancel</button>
 		</div>
 	</ng-template>

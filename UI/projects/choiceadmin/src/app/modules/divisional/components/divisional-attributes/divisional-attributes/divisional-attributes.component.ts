@@ -1,28 +1,30 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { IFinancialMarket } from '../../../../shared/models/financial-market.model';
-import { OrganizationService } from '@core/services/organization.service';
+import { OrganizationService } from '../../../../core/services/organization.service';
 
 @Component({
-    selector: 'divisional-attributes',
-    templateUrl: './divisional-attributes.component.html',
-    styleUrls: ['./divisional-attributes.component.scss']
+	selector: 'divisional-attributes',
+	templateUrl: './divisional-attributes.component.html',
+	styleUrls: ['./divisional-attributes.component.scss']
 })
 export class DivisionalAttributesComponent implements OnInit
 {
-    markets: Array<IFinancialMarket>;
+	markets: Array<IFinancialMarket>;
 	selectedMarket: IFinancialMarket;
 	sidePanelOpen: boolean = false;
 	selectDisabled: boolean = false;
-	
-    constructor(private router: Router, private route: ActivatedRoute, private _orgService: OrganizationService) { }
 
-    ngOnInit() {
-		this._orgService.getMarkets().subscribe((data) => {
-            this.markets = data;
-            this.onInitMarket();
-        });
-    }
+	constructor(private router: Router, private route: ActivatedRoute, private _orgService: OrganizationService) { }
+
+	ngOnInit()
+	{
+		this._orgService.getMarkets().subscribe((data) =>
+		{
+			this.markets = data;
+			this.onInitMarket();
+		});
+	}
 
 	onInitMarket()
 	{
@@ -32,7 +34,7 @@ export class DivisionalAttributesComponent implements OnInit
 
 			if (marketId)
 			{
-                this.selectedMarket = this.markets.find(x => x.id === +marketId);
+				this.selectedMarket = this.markets.find(x => x.id === +marketId);
 			}
 			else
 			{
@@ -54,8 +56,8 @@ export class DivisionalAttributesComponent implements OnInit
 			{
 				this.selectDisabled = true;
 			}
-        }
-    }
+		}
+	}
 
 	onMarketSelected(selectedMarket: any)
 	{

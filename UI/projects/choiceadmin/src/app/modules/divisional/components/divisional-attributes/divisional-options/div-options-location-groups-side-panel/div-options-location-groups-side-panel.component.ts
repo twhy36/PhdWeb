@@ -95,14 +95,14 @@ export class DivOptionsLocationGroupsSidePanelComponent extends UnsubscribeOnDes
 		this.onSidePanelClose.emit(status);
 	}
 
-	toggleSidePanel(status: boolean)
+	toggleSidePanel()
 	{
 		if (this.addGroupsPanel.selectedGroups.length)
 		{
 			this.sidePanel.setIsDirty();
 		}
 
-		this.sidePanel.toggleSidePanel(status);
+		this.sidePanel.toggleSidePanel();
 	}
 
 	filterAssociatedLocationGroups()
@@ -129,7 +129,8 @@ export class DivOptionsLocationGroupsSidePanelComponent extends UnsubscribeOnDes
 
 			this.isSaving = false;
 			this.sidePanel.isDirty = false;
-			this.sidePanel.toggleSidePanel(false);
+
+			this.sidePanel.toggleSidePanel();
 		},
 		error =>
 		{
@@ -144,6 +145,7 @@ export class DivOptionsLocationGroupsSidePanelComponent extends UnsubscribeOnDes
 		if (message)
 		{
 			this.errors = [];
+
 			this.errors.push({ severity: 'error', detail: message });
 		}
 	}

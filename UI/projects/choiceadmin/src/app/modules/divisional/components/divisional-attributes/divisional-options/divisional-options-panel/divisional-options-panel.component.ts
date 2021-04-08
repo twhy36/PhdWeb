@@ -9,7 +9,7 @@ import { MessageService } from 'primeng/api';
 import { DivisionalOptionService } from '../../../../../core/services/divisional-option.service';
 import { SettingsService } from '../../../../../core/services/settings.service';
 import { OrganizationService } from '../../../../../core/services/organization.service';
-import { IdentityService } from 'phd-common/services';
+import { IdentityService, Permission } from 'phd-common';
 
 import { UnsubscribeOnDestroy } from '../../../../../shared/classes/unsubscribeOnDestroy';
 
@@ -20,7 +20,6 @@ import { ExpansionAssociateCommunitiesTabPanelComponent } from '../expansion-ass
 import { SearchBarComponent } from '../../../../../shared/components/search-bar/search-bar.component';
 import { ExpansionLocationGroupsTabPanelComponent } from '../expansion-location-groups-tab-panel/expansion-location-groups-tab-panel.component';
 import { ExpansionAttributeGroupsTabPanelComponent } from '../expansion-attribute-groups-tab-panel/expansion-attribute-groups-tab-panel.component';
-import { Permission } from 'phd-common/models';
 
 @Component({
 	selector: 'divisional-options-panel',

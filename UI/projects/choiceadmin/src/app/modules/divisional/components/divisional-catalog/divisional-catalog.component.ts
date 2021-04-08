@@ -21,7 +21,7 @@ import { DivDChoice, IDivCatalogChoiceDto } from '../../../shared/models/choice.
 import { DivDPoint, IDivCatalogPointDto } from '../../../shared/models/point.model';
 import { DivDSubGroup } from '../../../shared/models/subgroup.model';
 import { PhdEntityDto } from '../../../shared/models/api-dtos.model';
-import { Permission } from 'phd-common/models';
+import { Permission } from 'phd-common';
 import { PointSidePanelComponent } from './point-side-panel/point-side-panel.component';
 import { TreeToggleComponent } from '../../../shared/components/tree-toggle/tree-toggle.component';
 import { Router } from '@angular/router';
@@ -143,6 +143,7 @@ export class DivisionalCatalogComponent implements OnInit
 	{
 		// set local storage 
 		this._orgService.currentFinancialMarket = this.selectedMarket.number;
+
 		this.getDivisionalCatalog();
 	}
 
@@ -570,7 +571,7 @@ export class DivisionalCatalogComponent implements OnInit
 		return choice.isInUse ? 'Inactivate Choice' : 'Delete Choice';
 	}
 
-	async createMsgModal(item: DivDPoint | DivDChoice, deleteContent: any)
+	async createMsgModal(item: DivDPoint | DivDChoice)
 	{
 		let newMessage = new MessageModal();
 

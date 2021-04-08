@@ -15,7 +15,7 @@ import { DSubGroup, ICatalogSubGroupDto } from '../../../shared/models/subgroup.
 import { DPoint, ICatalogPointDto } from '../../../shared/models/point.model';
 import { CatalogItem } from '../../../shared/models/catalog-item.model';
 import { NationalCatalog } from '../../../shared/models/national-catalog.model';
-import { Permission } from 'phd-common/models';
+import { Permission } from 'phd-common';
 import { TreeToggleComponent } from '../../../shared/components/tree-toggle/tree-toggle.component';
 
 @Component({
@@ -340,7 +340,7 @@ export class NationalCatalogComponent implements OnInit
 
 	msgModal: MessageModal = null;
 
-	createMsgModal(item: DGroup | DSubGroup | DPoint, deleteContent: any)
+	createMsgModal(item: DGroup | DSubGroup | DPoint)
 	{
 		this.workingItem = new WorkingItem(item);
 		
@@ -465,7 +465,7 @@ export class NationalCatalogComponent implements OnInit
 		parent.splice(index, 1);
 	}
 
-	reactivateItem(event: any, itemType: string, parent: DGroup | DSubGroup)
+	reactivateItem(event: any, itemType: string, parent?: DGroup | DSubGroup)
 	{
 		let parentId = parent != null ? parent.id : null;
 		this.reactivateSidePanelOpen = false;

@@ -13,8 +13,7 @@ import { PhdApiDto, PhdEntityDto } from '../../../../shared/models/api-dtos.mode
 import { ITreeOption, OptionImage, IOptionRuleChoice, IOptionRuleChoiceGroup } from '../../../../shared/models/option.model';
 
 import { cloneDeep } from "lodash";
-import { IdentityService } from 'phd-common/services';
-import { Permission } from 'phd-common/models';
+import { IdentityService, Permission } from 'phd-common';
 import { getMaxSortOrderChoice } from '../../../../shared/classes/utils.class';
 
 @Component({
@@ -42,7 +41,7 @@ export class OptionSidePanelComponent implements OnInit, OnChanges
 	@Input() canEdit = false;
 
 	@Output() hasChanges = new EventEmitter<boolean>();
-	@Output() sidePanelClose = new EventEmitter<boolean>();
+	@Output() sidePanelClose = new EventEmitter();
 	@Output() isBaseHouseChange = new EventEmitter<{ option: ITreeOption, isBaseHouse: boolean }>();
 	@Output() updateTreeChoiceOptionRules = new EventEmitter<{ choices: Array<PhdApiDto.IOptionChoiceRuleChoice>, hasRules: boolean }>();
 
@@ -654,7 +653,7 @@ export class OptionSidePanelComponent implements OnInit, OnChanges
 		this.option.imageCount = imgCount;
 	}
 
-	async onCloseClick(status: boolean)
+	async onCloseClick()
 	{
 		if (this.optionRuleSelectedChoices.length > 0 || this.dragHasChanged)
 		{
@@ -665,7 +664,7 @@ export class OptionSidePanelComponent implements OnInit, OnChanges
 			}
 		}
 
-		this.sidePanelClose.emit(status);
+		this.sidePanelClose.emit();
 	}
 
 	private createForm()

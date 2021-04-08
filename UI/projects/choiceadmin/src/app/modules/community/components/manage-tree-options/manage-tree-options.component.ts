@@ -22,10 +22,9 @@ import { OrganizationService } from '../../../core/services/organization.service
 import { PlanService } from '../../../core/services/plan.service';
 import { TreeService } from '../../../core/services/tree.service';
 import { SettingsService } from '../../../core/services/settings.service';
-import { IdentityService } from 'phd-common/services';
+import { IdentityService, Permission } from 'phd-common';
 
 import { TreeOptionsContainerComponent } from './';
-import { Permission } from 'phd-common/models';
 
 @Component({
 	selector: 'manage-tree-options',
@@ -157,6 +156,7 @@ export class ManageTreeOptionsComponent extends ComponentCanNavAway implements O
 		{
 			msgs.push(this.unassignedOptionsMessage);
 		}
+
 		if (this.inactiveOptions.length > 0)
 		{
 			msgs.push(this.inactiveOptionsMessage);
@@ -288,7 +288,8 @@ export class ManageTreeOptionsComponent extends ComponentCanNavAway implements O
 			ref.location.href = `${dtUrl}${path}`;
 		}
 		else
-		{ // was already opened -- we refresh it
+		{
+			// was already opened -- we refresh it
 			ref.location.reload(true);
 		}
 

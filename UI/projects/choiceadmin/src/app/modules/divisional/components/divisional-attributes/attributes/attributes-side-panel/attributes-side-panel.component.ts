@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, Input, Output, EventEmitter } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Observable, BehaviorSubject ,  of ,  EMPTY as empty ,  throwError as _throw } from 'rxjs';
+import { Observable, BehaviorSubject, of, EMPTY as empty, throwError as _throw } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 
 import { SidePanelComponent } from '../../../../../shared/components/side-panel/side-panel.component';
@@ -112,14 +112,14 @@ export class AttributesSidePanelComponent implements OnInit
 		}
 	}
 
-	toggleSidePanel(status: boolean)
+	toggleSidePanel()
 	{
 		if (!this.isDetailsFormPristine || this.isAttributeChanged || this.isGroupSelectionChanged)
 		{
 			this.sidePanel.setIsDirty();
 		}
 
-		this.sidePanel.toggleSidePanel(status);
+		this.sidePanel.toggleSidePanel();
 	}
 
 	save(): Observable<Attribute>
@@ -184,7 +184,8 @@ export class AttributesSidePanelComponent implements OnInit
 		{
 			this.onSaveComplete(attr);
 			this.sidePanel.isDirty = false;
-			this.sidePanel.toggleSidePanel(false);
+
+			this.sidePanel.toggleSidePanel();
 		},
 			error => this.handleSaveError()
 		);
@@ -266,5 +267,4 @@ export class AttributesSidePanelComponent implements OnInit
 			this.selectedGroups = [];
 		}
 	}
-
 }

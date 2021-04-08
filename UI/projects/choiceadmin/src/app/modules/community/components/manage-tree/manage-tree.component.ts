@@ -34,14 +34,13 @@ import
 		DTAttributeGroupCollection
 	} from '../../../shared/models/tree.model';
 import { PhdApiDto, PhdEntityDto } from '../../../shared/models/api-dtos.model';
-import { Permission } from 'phd-common/models';
+import { Permission, IdentityService } from 'phd-common';
 import { IDPointPickType } from '../../../shared/models/point.model';
 
 import { OrganizationService } from '../../../core/services/organization.service';
 import { PlanService } from '../../../core/services/plan.service';
 import { TreeService } from '../../../core/services/tree.service';
 import { SettingsService } from '../../../core/services/settings.service';
-import { IdentityService } from 'phd-common/services';
 import { AttributeService } from '../../../core/services/attribute.service';
 import { LocationService } from '../../../core/services/location.service';
 import { ITreeOption } from '../../../shared/models/option.model';

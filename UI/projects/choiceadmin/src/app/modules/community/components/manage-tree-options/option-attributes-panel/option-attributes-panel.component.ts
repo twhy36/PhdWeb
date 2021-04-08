@@ -28,7 +28,7 @@ export class OptionAttributesPanelComponent implements OnInit, OnDestroy
 	@Input() optionRule: PhdApiDto.IOptionChoiceRule;
 	@Input() isReadOnly: boolean;
 	@Input() currentTree: DTree;
-	
+
 	@Output() saveAttributeReassignment = new EventEmitter<{ attributeReassignment: PhdApiDto.IAttributeReassignmentDto, callback: Function }>();
 	@Output() deleteAttributeReassignment = new EventEmitter<{ attributeReassignmentId: number, callback: Function }>();
 
@@ -184,10 +184,10 @@ export class OptionAttributesPanelComponent implements OnInit, OnDestroy
 			},
 			error =>
 			{
-				
+
 			});
 	}
-	
+
 	getAttributeReassignment()
 	{
 		this.selectedAttributeReassignment = null;
@@ -507,7 +507,7 @@ export class OptionAttributesPanelComponent implements OnInit, OnDestroy
 			message.summary = 'Error';
 			message.detail = 'Unable to save Attribute Reassignment.';
 		}
-		
+
 		this._msgService.add(message);
 
 		this.resetRule();

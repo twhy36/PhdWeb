@@ -7,7 +7,7 @@
 				   [sidePanelOpen]="selectedOption"
 				   [isSaving]="optionDetailsSaving"
 				   [currentTree]="currentTree"
-				   (sidePanelClose)="onOptionSidePanelClose($event)"
+				   (sidePanelClose)="onOptionSidePanelClose()"
 				   (isBaseHouseChange)="onIsBaseHouseChange($event)"
 				   (hasChanges)="onHasChanges($event)"
 				   (updateTreeChoiceOptionRules)="onUpdateTreeChoiceOptionRules($event)"
@@ -16,7 +16,7 @@
 <messages-side-panel *ngIf="showMessages"
 					 [tabsTemplate]="tabs"
 					 [sidePanelOpen]="showMessages"
-					 (sidePanelClose)="onMessagesSidePanelClose($event)">
+					 (sidePanelClose)="onMessagesSidePanelClose()">
 	<ng-template #tabs>
 		<ngb-tabset justify="fill" [activeId]="currentTab">
 			<ngb-tab [title]="'Inactive - ' + inactiveOptions.length.toString()" id="inactiveoptions">
@@ -60,7 +60,7 @@
 	<page-header mainTitle="Options" [mainTitleAddon]="titleAddon">
 		<ng-template>
 			<phd-action-buttons *ngIf="!lockedFromChanges && treeVersion | async">
-				<phd-action-buttons-item title="Preview in Design Tool" (onButtonClicked)="onPreviewTreeClicked($event)">
+				<phd-action-buttons-item title="Preview in Design Tool" (onButtonClicked)="onPreviewTreeClicked()">
 					<ng-template>
 						<i class="fa fa-search-plus fa-fw fa-2x"></i>
 					</ng-template>

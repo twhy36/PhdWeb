@@ -17,7 +17,7 @@ import { SearchBarComponent } from '../../../../../shared/components/search-bar/
 import { SettingsService } from '../../../../../core/services/settings.service';
 import { Settings } from '../../../../../shared/models/settings.model';
 import { OrganizationService } from '../../../../../core/services/organization.service';
-import { IdentityService } from 'phd-common/services';
+import { IdentityService } from 'phd-common';
 
 @Component({
 	selector: 'attributes-panel',

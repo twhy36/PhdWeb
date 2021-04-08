@@ -39,7 +39,7 @@ export class SidePanelComponent
 		this.isDirty = true;
 	}
 
-	toggleSidePanel(status: boolean)
+	toggleSidePanel()
 	{
 		if (this.isDirty)
 		{

@@ -14,7 +14,7 @@ import { Option, IOptionMarket } from '../../shared/models/option.model';
 import { IFinancialCommunity } from '../../shared/models/financial-community.model';
 import { LocationGroupCommunity } from '../../shared/models/location-group-community.model';
 import { GroupChoice } from '../../shared/models/group-choice.model';
-import { withSpinner } from 'phd-common/extensions/withSpinner.extension';
+import { withSpinner } from 'phd-common';
 
 const settings: Settings = new SettingsService().getSettings();
 

@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, Input, Output, EventEmitter } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { filter, map, distinctUntilChanged, switchMap, tap } from 'rxjs/operators';
+import { filter, map, distinctUntilChanged, switchMap } from 'rxjs/operators';
 
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ConfirmModalComponent } from '../../../../../core/components/confirm-modal/confirm-modal.component';
@@ -97,13 +97,14 @@ export class AssociateLocationsSidePanelComponent extends UnsubscribeOnDestroy i
 		this.onSidePanelClose.emit(status);
 	}
 
-	toggleSidePanel(status: boolean)
+	toggleSidePanel()
 	{
 		if (this.selectedLocations.length > 0)
 		{
 			this.sidePanel.setIsDirty();
 		}
-		this.sidePanel.toggleSidePanel(status);
+
+		this.sidePanel.toggleSidePanel();
 	}
 
 	filterAssociatedLocations()
@@ -125,14 +126,15 @@ export class AssociateLocationsSidePanelComponent extends UnsubscribeOnDestroy i
 			}
 			this.isSaving = false;
 			this.sidePanel.isDirty = false;
-			this.sidePanel.toggleSidePanel(false);
+
+			this.sidePanel.toggleSidePanel();
 		},
-			error =>
-			{
-				this.isSaving = false;
-				this.errors = [];
-				this.errors.push({ severity: 'error', detail: 'Failed to associate location(s).' });
-			});
+		error =>
+		{
+			this.isSaving = false;
+			this.errors = [];
+			this.errors.push({ severity: 'error', detail: 'Failed to associate location(s).' });
+		});
 	}
 
 	clearFilter()
@@ -191,10 +193,12 @@ export class AssociateLocationsSidePanelComponent extends UnsubscribeOnDestroy i
 	private filterLocations(filter: string, keyword: string)
 	{
 		let searchFilter = this.searchFilters.find(f => f.name === filter);
+
 		if (searchFilter)
 		{
 			this.filteredLocations = [];
 			let splittedKeywords = keyword.split(' ');
+
 			splittedKeywords.forEach(k =>
 			{
 				if (k)
@@ -203,7 +207,8 @@ export class AssociateLocationsSidePanelComponent extends UnsubscribeOnDestroy i
 					this.filteredLocations = unionBy(this.filteredLocations, filteredResults, 'id');
 				}
 			});
-		} else
+		}
+		else
 		{
 			this.clearFilter();
 		}
@@ -212,17 +217,21 @@ export class AssociateLocationsSidePanelComponent extends UnsubscribeOnDestroy i
 	private filterByKeyword(searchFilter: any, keyword: string): Array<Location>
 	{
 		let results = [];
+
 		if (searchFilter.name !== 'All')
 		{
 			results = this.locationsInMarket.filter(loco => this.searchBar.wildcardMatch(loco[searchFilter.field], keyword));
-		} else if (searchFilter.name === 'All')
+		}
+		else if (searchFilter.name === 'All')
 		{
 			results = this.locationsInMarket.filter(loco =>
 			{
 				let fields = this.searchFilters.map(f => f.field);
+
 				return fields.some(f => this.searchBar.wildcardMatch(loco[f], keyword));
 			});
 		}
+
 		return results;
 	}
 
@@ -239,12 +248,15 @@ export class AssociateLocationsSidePanelComponent extends UnsubscribeOnDestroy i
 	setLocationSelected(loco: Location, isSelected: boolean): void
 	{
 		let index = this.selectedLocations.findIndex(s => s.id === loco.id);
+
 		if (isSelected && index < 0)
 		{
 			this.selectedLocations.push(loco);
-		} else if (!isSelected && index >= 0)
+		}
+		else if (!isSelected && index >= 0)
 		{
 			this.selectedLocations.splice(index, 1);
+
 			this.selectedLocations = [...this.selectedLocations];
 		}
 	}
@@ -254,10 +266,10 @@ export class AssociateLocationsSidePanelComponent extends UnsubscribeOnDestroy i
 		if (isSelected)
 		{
 			this.selectedLocations = this.filteredLocations.slice();
-		} else
+		}
+		else
 		{
 			this.selectedLocations = [];
 		}
 	}
-
 }

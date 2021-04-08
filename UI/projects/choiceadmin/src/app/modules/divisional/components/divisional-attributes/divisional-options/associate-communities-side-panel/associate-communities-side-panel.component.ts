@@ -98,13 +98,14 @@ export class AssociateCommunitiesSidePanelComponent extends UnsubscribeOnDestroy
 		this.onSidePanelClose.emit(status);
 	}
 
-	toggleSidePanel(status: boolean)
+	toggleSidePanel()
 	{
 		if (this.callback)
 		{
 			this.callback();
 		}
-		this.sidePanel.toggleSidePanel(status);
+
+		this.sidePanel.toggleSidePanel();
 	}
 
 	saveAndClose()
@@ -130,7 +131,8 @@ export class AssociateCommunitiesSidePanelComponent extends UnsubscribeOnDestroy
 			this.errors = [{ severity: 'success', detail: `Communities associated.` }];
 			this.isSaving = false;
 			this.sidePanel.isDirty = false;
-			this.sidePanel.toggleSidePanel(false);
+
+			this.sidePanel.toggleSidePanel();
 		},
 			error =>
 			{
@@ -142,6 +144,7 @@ export class AssociateCommunitiesSidePanelComponent extends UnsubscribeOnDestroy
 	saveAttributeGroupsAssocs(associatedCommunityIds: number[], disassociatedCommunityIds: number[]): Observable<any>
 	{
 		const attrGroups = this.groups as AttributeGroupMarket[];
+
 		return this._attrService.updateAttributeGroupsCommunitiesAssocs(this.option.id,
 			associatedCommunityIds, disassociatedCommunityIds, attrGroups);
 	}
@@ -149,6 +152,7 @@ export class AssociateCommunitiesSidePanelComponent extends UnsubscribeOnDestroy
 	saveLocationGroupsAssocs(associatedCommunityIds: number[], disassociatedCommunityIds: number[]): Observable<any>
 	{
 		const locGroups = this.groups as LocationGroupMarket[];
+
 		return this._locService.updateLocationGroupsCommunitiesAssocs(this.option.id,
 			associatedCommunityIds, disassociatedCommunityIds, locGroups);
 	}
@@ -175,10 +179,12 @@ export class AssociateCommunitiesSidePanelComponent extends UnsubscribeOnDestroy
 	setCommunitySelected(community: IFinancialCommunity, isSelected: boolean): void
 	{
 		let index = this.selectedCommunities.findIndex(s => s.id === community.id);
+
 		if (isSelected && index < 0)
 		{
 			this.selectedCommunities.push(community);
-		} else if (!isSelected && index >= 0)
+		}
+		else if (!isSelected && index >= 0)
 		{
 			this.selectedCommunities.splice(index, 1);
 			this.selectedCommunities = [...this.selectedCommunities];
@@ -190,7 +196,8 @@ export class AssociateCommunitiesSidePanelComponent extends UnsubscribeOnDestroy
 		if (isSelected)
 		{
 			this.selectedCommunities = this.communities.slice();
-		} else
+		}
+		else
 		{
 			this.selectedCommunities = [];
 		}
@@ -204,6 +211,7 @@ export class AssociateCommunitiesSidePanelComponent extends UnsubscribeOnDestroy
 				? ': ' + community.locationGroupCommunities[0].locationGroupName
 				: '';
 		}
+
 		return '';
 	}
 }

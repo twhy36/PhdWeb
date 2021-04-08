@@ -1,12 +1,9 @@
 import { Component, Input, Output, EventEmitter, OnInit, ViewChild } from '@angular/core';
 
-import { of } from 'rxjs';
-
-import { AttributeGroupMarket } from '../../../../../shared/models/attribute-group-market.model';
 import { Option } from '../../../../../shared/models/option.model';
 import { IFinancialCommunity } from '../../../../../shared/models/financial-community.model';
 
-import { PhdTableComponent } from 'phd-common/components/table/phd-table.component';
+import { PhdTableComponent } from 'phd-common';
 
 @Component({
 	selector: 'expansion-associate-communities-tab-panel',

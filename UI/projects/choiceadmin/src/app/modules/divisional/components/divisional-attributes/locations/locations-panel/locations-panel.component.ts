@@ -20,8 +20,7 @@ import { Settings } from '../../../../../shared/models/settings.model';
 import { SettingsService } from '../../../../../core/services/settings.service';
 import { LocationService } from '../../../../../core/services/location.service';
 import { OrganizationService } from '../../../../../core/services/organization.service';
-import { IdentityService } from 'phd-common/services';
-import { Permission } from 'phd-common/models';
+import { IdentityService, Permission } from 'phd-common';
 
 @Component({
 	selector: 'locations-panel',
@@ -95,6 +94,7 @@ export class LocationsPanelComponent extends UnsubscribeOnDestroy implements OnI
 			this.locationsList = data;
 			this.currentPage = 1;
 			this.allDataLoaded = data.length < this.settings.infiniteScrollPageSize;
+
 			this.resetSearchBar();
 		});
 	}
@@ -109,10 +109,12 @@ export class LocationsPanelComponent extends UnsubscribeOnDestroy implements OnI
 		if (location)
 		{
 			const index = this.locationsList.findIndex(x => x.id === location.id);
+
 			if (index === -1)
 			{
 				this.locationsList.push(location);
-			} else
+			}
+			else
 			{
 				this.locationsList[index] = location;
 			}
@@ -315,7 +317,8 @@ export class LocationsPanelComponent extends UnsubscribeOnDestroy implements OnI
 				{
 					this.toggleLocation(location);
 				}
-			}, (reason) =>
+			},
+			(reason) =>
 			{
 
 			});

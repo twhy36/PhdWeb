@@ -3,7 +3,7 @@ import { Router, NavigationEnd, ActivatedRoute, ActivatedRouteSnapshot } from '@
 
 import { filter } from 'rxjs/operators';
 
-import { loadScript } from 'phd-common/utils';
+import { loadScript } from 'phd-common';
 import { LoggingService } from './modules/core/services/logging.service';
 import { environment } from '../environments/environment';
 import * as build from './build.json';
@@ -20,32 +20,38 @@ export class AppComponent
 
 	title = 'app';
 
-	get branch(): string {
+	get branch(): string
+	{
 		return build.branch.split('/').slice(2).join('/');
 	}
 
-    constructor(private router: Router, private loggingService: LoggingService, private route: ActivatedRoute) {
-        this.router.events.pipe(
-            filter(evt => evt instanceof NavigationEnd)
-        ).subscribe((evt: NavigationEnd) => {
-            const url = evt.url;
-            const componentName = this.getComponentName(this.route.snapshot);
+	constructor(private router: Router, private loggingService: LoggingService, private route: ActivatedRoute)
+	{
+		this.router.events.pipe(
+			filter(evt => evt instanceof NavigationEnd)
+		).subscribe((evt: NavigationEnd) =>
+		{
+			const url = evt.url;
+			const componentName = this.getComponentName(this.route.snapshot);
 
-            this.loggingService.logPageView(`Choice Admin - ${componentName}`, url);
+			this.loggingService.logPageView(`Choice Admin - ${componentName}`, url);
 
-			if (typeof (<any>window)._wfx_refresh === 'function') {
+			if (typeof (<any>window)._wfx_refresh === 'function')
+			{
 				(<any>window)._wfx_refresh();
 			}
-        });
+		});
 
 		loadScript(environment.whatFix.scriptUrl).subscribe();
-    }
+	}
 
-    private getComponentName(snapshot: ActivatedRouteSnapshot): string {
-        if (snapshot.children.find(c => c.outlet === 'primary')) {
-            return this.getComponentName(snapshot.children.find(c => c.outlet === 'primary'));
-        }
+	private getComponentName(snapshot: ActivatedRouteSnapshot): string
+	{
+		if (snapshot.children.find(c => c.outlet === 'primary'))
+		{
+			return this.getComponentName(snapshot.children.find(c => c.outlet === 'primary'));
+		}
 
-        return typeof snapshot.component === 'string' ? snapshot.component : snapshot.component.name;
-    }
+		return typeof snapshot.component === 'string' ? snapshot.component : snapshot.component.name;
+	}
 }

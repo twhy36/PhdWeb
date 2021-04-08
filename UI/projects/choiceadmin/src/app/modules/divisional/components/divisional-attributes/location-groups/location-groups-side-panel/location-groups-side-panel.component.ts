@@ -1,8 +1,8 @@
 import { Component, OnInit, ViewChild, Input, Output, EventEmitter } from '@angular/core';
-import { FormGroup, FormControl, Validators, AbstractControl, ValidatorFn, FormArray } from '@angular/forms';
+import { FormGroup, FormControl, AbstractControl, ValidatorFn, FormArray } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 
-import { Observable ,  of ,  EMPTY as empty ,  throwError as _throw } from 'rxjs';
+import { Observable, EMPTY as empty, throwError as _throw } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 
 import { SidePanelComponent } from '../../../../../shared/components/side-panel/side-panel.component';
@@ -32,7 +32,7 @@ export class LocationGroupsSidePanelComponent implements OnInit
 	@Input() locationGroup: LocationGroupMarket;
 
 	locationForm: FormGroup;
-	
+
 	isSaving: boolean = false;
 	isAdd: boolean = false;
 	isEdit: boolean = false;
@@ -95,14 +95,14 @@ export class LocationGroupsSidePanelComponent implements OnInit
 		this.locationGroup = new LocationGroupMarket();
 	}
 
-	toggleSidePanel(status: boolean)
+	toggleSidePanel()
 	{
 		if (!this.locationForm.pristine)
 		{
 			this.sidePanel.setIsDirty();
 		}
 
-		this.sidePanel.toggleSidePanel(status);
+		this.sidePanel.toggleSidePanel();
 	}
 
 	save(): Observable<LocationGroupMarket>
@@ -160,10 +160,11 @@ export class LocationGroupsSidePanelComponent implements OnInit
 			})
 		);
 	}
-	
+
 	saveAndContinue()
 	{
 		this.isAdd = true;
+
 		this.save().subscribe(loco =>
 		{
 			this.onSaveComplete(loco);
@@ -180,7 +181,8 @@ export class LocationGroupsSidePanelComponent implements OnInit
 		{
 			this.onSaveComplete(loco);
 			this.sidePanel.isDirty = false;
-			this.sidePanel.toggleSidePanel(false);
+
+			this.sidePanel.toggleSidePanel();
 		},
 			error => this.handleSaveError()
 		);

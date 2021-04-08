@@ -7,7 +7,7 @@ import { catchError, map } from 'rxjs/operators';
 import { createBatchPatch } from '../../shared/classes/odata-utils.class';
 import { newGuid } from '../../shared/classes/guid.class';
 
-import { IdentityService, } from 'phd-common/services';
+import { IdentityService, withSpinner } from 'phd-common';
 import { SettingsService } from './settings.service';
 import { LoggingService } from './logging.service';
 import { CatalogService } from '../../core/services/catalog.service';
@@ -18,7 +18,6 @@ import { DPoint, ICatalogPointDto } from '../../shared/models/point.model';
 import { CatalogItemType } from '../../shared/models/catalog-item.model';
 import { Settings } from '../../shared/models/settings.model';
 import { NationalCatalog, INationalCatalogDto, INationalCatalogGroupDto, INationalCatalogSubGroupDto, INationalCatalogPointDto } from '../../shared/models/national-catalog.model';
-import { withSpinner } from 'phd-common/extensions/withSpinner.extension';
 
 const settings: Settings = new SettingsService().getSettings();
 
@@ -366,7 +365,6 @@ export class NationalService
 
 		return obs;
 	}
-
 
 	/**
 	 * Used to reactivate Catalog Items; Group, SubGroup, Point.

@@ -10,7 +10,7 @@ import { LoggingService } from '../../core/services/logging.service';
 import { SettingsService } from '../../core/services/settings.service';
 import { StorageService } from '../../core/services/storage.service';
 
-import { withSpinner } from 'phd-common/extensions/withSpinner.extension';
+import { withSpinner } from 'phd-common';
 
 const settings: Settings = new SettingsService().getSettings();
 

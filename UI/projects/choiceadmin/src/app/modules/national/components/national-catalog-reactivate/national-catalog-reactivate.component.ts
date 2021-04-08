@@ -1,13 +1,10 @@
-import { AfterViewInit, Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angular/core';
 
 import { SidePanelComponent } from '../../../shared/components/side-panel/side-panel.component';
-
-import { Observable } from 'rxjs';
 
 import { DSubGroup } from '../../../shared/models/subgroup.model';
 import { DGroup } from '../../../shared/models/group.model';
 import { DPoint } from '../../../shared/models/point.model';
-import { CatalogItem, CatalogItemType } from '../../../shared/models/catalog-item.model';
 
 import { NationalService } from '../../../core/services/national.service';
 
@@ -72,9 +69,9 @@ export class NationalCatalogReactivateComponent implements OnInit
         this.onSidePanelClose.emit(status);
 	}
 
-	toggleSidePanel(status: boolean)
+	toggleSidePanel()
 	{
-		this.sidePanel.toggleSidePanel(status);
+		this.sidePanel.toggleSidePanel();
 	}
 
 	updateList(item: DGroup | DSubGroup | DPoint)

@@ -19,7 +19,7 @@ export class SettingsService
                 apiUrl: environment.apiUrl,
                 appInsightsKey: environment.appInsights.instrumentationKey,
                 authQueryParams: environment.authQueryParams,
-                clientId: environment.clientId,
+                clientId: environment.authConfig.clientId,
                 redirectUrl: '',
 				tenant: environment.tenant,
 				cacheLocation: 'localStorage',

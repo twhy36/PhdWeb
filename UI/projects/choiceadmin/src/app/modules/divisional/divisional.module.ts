@@ -12,7 +12,7 @@ import { MessagesModule } from 'primeng/messages';
 import { DropdownModule } from 'primeng/dropdown';
 
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { InfiniteScrollModule } from 'ngx-infinite-scroll';
+import * as ngxInfiniteScroll from 'ngx-infinite-scroll';
 
 import { PhdCommonModule } from 'phd-common';
 
@@ -198,7 +198,7 @@ const moduleRoutes: Routes = [
 		MessagesModule,
 		PhdCommonModule,
 		RouterModule.forChild(moduleRoutes),
-		InfiniteScrollModule,
+		ngxInfiniteScroll.InfiniteScrollModule,
 	    DropdownModule
     ],
     providers: [

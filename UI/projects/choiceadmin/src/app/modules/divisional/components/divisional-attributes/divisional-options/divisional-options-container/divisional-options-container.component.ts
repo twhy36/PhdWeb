@@ -14,13 +14,13 @@ import { Option } from '../../../../../shared/models/option.model';
 import { IFinancialCommunity } from '../../../../../shared/models/financial-community.model';
 
 @Component({
-    selector: 'divisional-options-container',
+	selector: 'divisional-options-container',
 	templateUrl: './divisional-options-container.component.html',
 	styleUrls: ['./divisional-options-container.component.scss']
 })
 export class DivisionalOptionsContainerComponent implements OnInit
 {
-    @ViewChild(DivisionalAttributeTemplateComponent)
+	@ViewChild(DivisionalAttributeTemplateComponent)
 	private divisionAttributeTemplate: DivisionalAttributeTemplateComponent;
 
 	@ViewChild(DivisionalOptionsSidePanelComponent)
@@ -51,7 +51,8 @@ export class DivisionalOptionsContainerComponent implements OnInit
 
 	constructor(private _uiUtils: UiUtilsService, private _divAttrComp: DivisionalAttributesComponent) { }
 
-	ngOnInit() {
+	ngOnInit()
+	{
 		this.associatedAttributeGroups$ = new ReplaySubject<Array<AttributeGroupMarket>>(1);
 		this.associatedLocationGroups$ = new ReplaySubject<Array<LocationGroupMarket>>(1);
 		this.communities$ = new ReplaySubject<Array<IFinancialCommunity>>(1);
@@ -64,9 +65,10 @@ export class DivisionalOptionsContainerComponent implements OnInit
 		this._uiUtils.clearHighlightParentRow();
 		this._uiUtils.scrollToId('divisionalOptionsPanel');
 		this._optionPanel.selectedOption = null;
+
 		this._optionPanel.performChangeDetection();
 	}
-	
+
 	onSidePanelOpen(params: { event: any, option: Option, currentTab?: string, isReadOnly?: boolean })
 	{
 		this._divAttrComp.sidePanelOpen = true;
@@ -83,6 +85,7 @@ export class DivisionalOptionsContainerComponent implements OnInit
 	{
 		this._divAttrComp.sidePanelOpen = status;
 		this.attrGroupSidePanelOpen = status;
+
 		this._optionPanel.performChangeDetection();
 	}
 
@@ -92,6 +95,7 @@ export class DivisionalOptionsContainerComponent implements OnInit
 		this.attrGroupSidePanelOpen = true;
 		this.option = event.option;
 		this.callback = event.callback;
+
 		this.associatedAttributeGroups$.next(event.groups);
 	}
 
@@ -99,6 +103,7 @@ export class DivisionalOptionsContainerComponent implements OnInit
 	{
 		this._divAttrComp.sidePanelOpen = status;
 		this.locGroupSidePanelOpen = status;
+
 		this._optionPanel.performChangeDetection();
 	}
 
@@ -108,10 +113,12 @@ export class DivisionalOptionsContainerComponent implements OnInit
 		this.locGroupSidePanelOpen = true;
 		this.option = event.option;
 		this.callback = event.callback;
+
 		this.associatedLocationGroups$.next(event.groups);
 	}
 
-	onAssociateAttributeGroupsToCommunities(event: { option: Option, groups: Array<AttributeGroupMarket>, callback: any }) {
+	onAssociateAttributeGroupsToCommunities(event: { option: Option, groups: Array<AttributeGroupMarket>, callback: any })
+	{
 		this._divAttrComp.sidePanelOpen = true;
 		this.associateCommunitySidePanelOpen = true;
 		this.option = event.option;
@@ -119,7 +126,8 @@ export class DivisionalOptionsContainerComponent implements OnInit
 		this.associateCommunityCallback = event.callback;
 	}
 
-	onAssociateLocationGroupsToCommunities(event: { option: Option, groups: Array<LocationGroupMarket>, callback: any }) {
+	onAssociateLocationGroupsToCommunities(event: { option: Option, groups: Array<LocationGroupMarket>, callback: any })
+	{
 		this._divAttrComp.sidePanelOpen = true;
 		this.associateCommunitySidePanelOpen = true;
 		this.option = event.option;
@@ -132,9 +140,11 @@ export class DivisionalOptionsContainerComponent implements OnInit
 		this._optionPanel.performChangeDetection();
 	}
 
-	onAssociateCommunitySidePanelClose(status: boolean) {
+	onAssociateCommunitySidePanelClose(status: boolean)
+	{
 		this._divAttrComp.sidePanelOpen = status;
 		this.associateCommunitySidePanelOpen = status;
+
 		this._optionPanel.performChangeDetection();
 	}
 }

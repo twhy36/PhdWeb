@@ -19,8 +19,7 @@ import { SearchBarComponent } from '../../../../../shared/components/search-bar/
 import { SettingsService } from '../../../../../core/services/settings.service';
 import { Settings } from '../../../../../shared/models/settings.model';
 import { OrganizationService } from '../../../../../core/services/organization.service';
-import { IdentityService } from 'phd-common/services';
-import { Permission } from 'phd-common/models';
+import { IdentityService, Permission } from 'phd-common';
 
 @Component({
 	selector: 'attribute-groups-panel',
@@ -81,6 +80,7 @@ export class AttributeGroupsPanelComponent extends UnsubscribeOnDestroy implemen
 			switchMap(marketId =>
 			{
 				this.currentMarketId = marketId;
+
 				return forkJoin(this._attrService.getAttributeGroupsByMarketId(marketId, null, this.settings.infiniteScrollPageSize, 0),
 					this._identityService.hasClaimWithPermission('Attributes', Permission.Edit),
 					this._identityService.hasMarket(marketId));
@@ -91,6 +91,7 @@ export class AttributeGroupsPanelComponent extends UnsubscribeOnDestroy implemen
 			this.attributeGroupList = data;
 			this.currentPage = 1;
 			this.allDataLoaded = data.length < this.settings.infiniteScrollPageSize;
+
 			this.resetSearchBar();
 		});
 	}

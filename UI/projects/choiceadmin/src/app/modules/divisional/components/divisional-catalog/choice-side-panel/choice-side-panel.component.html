@@ -24,7 +24,7 @@
 
 			<ng-container *ngIf="catalogItem.id == null">
 				<div formArrayName="labelArray">
-					<div class="form-group" *ngFor="let control of catalogForm.get('labelArray').controls; let i = index">
+					<div class="form-group" *ngFor="let control of labelArray.controls; let i = index">
 						<label>Label</label>
 						<input type="text" class="form-control" [formControlName]="i" (keydown.Tab)="onAddChoice(i)" />
 					</div>
@@ -43,7 +43,7 @@
 				<i class="fa fa-spinner fa-spin fa-fw" *ngIf="isSaving"></i>
 			</button>
 
-			<button class="btn btn-secondary" (click)="toggleSidePanel(false)">Cancel</button>
+			<button class="btn btn-secondary" (click)="toggleSidePanel()">Cancel</button>
 		</div>
 	</ng-template>
 </side-panel-component>

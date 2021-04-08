@@ -95,6 +95,7 @@ export class AssociateAttributesSidePanelComponent extends UnsubscribeOnDestroy 
 		).subscribe(data =>
 		{
 			this.allAttributesInMarket = data;
+
 			this.filterAssociatedAttributes();
 		});
 	}
@@ -105,16 +106,18 @@ export class AssociateAttributesSidePanelComponent extends UnsubscribeOnDestroy 
 		this.searchBar.reset();
 		this.errors = [];
 		this.sidePanel.isDirty = false;
+
 		this.onSidePanelClose.emit(status);
 	}
 
-	toggleSidePanel(status: boolean)
+	toggleSidePanel()
 	{
 		if (this.selectedAttributes.length > 0)
 		{
 			this.sidePanel.setIsDirty();
 		}
-		this.sidePanel.toggleSidePanel(status);
+
+		this.sidePanel.toggleSidePanel();
 	}
 
 	filterAssociatedAttributes()
@@ -128,22 +131,24 @@ export class AssociateAttributesSidePanelComponent extends UnsubscribeOnDestroy 
 		this.isSaving = true;
 		let newlySelectedAttributes = this.selectedAttributes.filter(s => this.attributes.findIndex(x => x.id === s.id) < 0);
 		let attributeIds = newlySelectedAttributes.map(att => att.id);
+
 		this._attrService.updateAttributeAssociations(this.groupId, attributeIds, false).subscribe(group =>
 		{
 			if (this.callback)
 			{
 				this.callback(this.attributes.concat(newlySelectedAttributes));
 			}
+
 			this.isSaving = false;
 			this.sidePanel.isDirty = false;
-			this.sidePanel.toggleSidePanel(false);
+			this.sidePanel.toggleSidePanel();
 		},
-			error =>
-			{
-				this.isSaving = false;
-				this.errors = [];
-				this.errors.push({ severity: 'error', detail: 'Failed to associate attribute(s).' });
-			});
+		error =>
+		{
+			this.isSaving = false;
+			this.errors = [];
+			this.errors.push({ severity: 'error', detail: 'Failed to associate attribute(s).' });
+		});
 	}
 
 	clearFilter()
@@ -171,7 +176,8 @@ export class AssociateAttributesSidePanelComponent extends UnsubscribeOnDestroy 
 				{
 					this.startSearch(event['searchFilter'], event['keyword']);
 				}
-			}, (reason) =>
+			},
+			(reason) =>
 			{
 
 			});
@@ -202,19 +208,23 @@ export class AssociateAttributesSidePanelComponent extends UnsubscribeOnDestroy 
 	private filterAttributes(filter: string, keyword: string)
 	{
 		let searchFilter = this.searchFilters.find(f => f.name === filter);
+
 		if (searchFilter)
 		{
 			this.filteredAttributes = [];
 			let splittedKeywords = keyword.split(' ');
+
 			splittedKeywords.forEach(k =>
 			{
 				if (k)
 				{
 					let filteredResults = this.filterByKeyword(searchFilter, k);
+
 					this.filteredAttributes = unionBy(this.filteredAttributes, filteredResults, 'id');
 				}
 			});
-		} else
+		}
+		else
 		{
 			this.clearFilter();
 		}
@@ -223,17 +233,21 @@ export class AssociateAttributesSidePanelComponent extends UnsubscribeOnDestroy 
 	private filterByKeyword(searchFilter: any, keyword: string): Array<Attribute>
 	{
 		let results = [];
+
 		if (searchFilter.name !== 'All')
 		{
 			results = this.attributesInMarket.filter(attr => this.searchBar.wildcardMatch(attr[searchFilter.field], keyword));
-		} else if (searchFilter.name === 'All')
+		}
+		else if (searchFilter.name === 'All')
 		{
 			results = this.attributesInMarket.filter(attr =>
 			{
 				let fields = this.searchFilters.map(f => f.field);
+
 				return fields.some(f => this.searchBar.wildcardMatch(attr[f], keyword));
 			});
 		}
+
 		return results;
 	}
 
@@ -250,10 +264,12 @@ export class AssociateAttributesSidePanelComponent extends UnsubscribeOnDestroy 
 	setAttributeSelected(attr: Attribute, isSelected: boolean): void
 	{
 		let index = this.selectedAttributes.findIndex(s => s.id === attr.id);
+
 		if (isSelected && index < 0)
 		{
 			this.selectedAttributes.push(attr);
-		} else if (!isSelected && index >= 0)
+		}
+		else if (!isSelected && index >= 0)
 		{
 			this.selectedAttributes.splice(index, 1);
 			this.selectedAttributes = [...this.selectedAttributes];
@@ -265,7 +281,8 @@ export class AssociateAttributesSidePanelComponent extends UnsubscribeOnDestroy 
 		if (isSelected)
 		{
 			this.selectedAttributes = this.filteredAttributes.slice();
-		} else
+		}
+		else
 		{
 			this.selectedAttributes = [];
 		}

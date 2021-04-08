@@ -1,11 +1,9 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 
 import { startWith } from 'rxjs/operators';
 
 import { DivisionalAttributeTemplateComponent } from '../../divisional-attribute-template/divisional-attribute-template.component';
-import { DivisionalAttributeActionsComponent } from '../../divisional-attribute-actions/divisional-attribute-actions.component';
 import { LocationGroupsPanelComponent } from '../location-groups-panel/location-groups-panel.component';
-import { LocationGroupsSidePanelComponent } from '../location-groups-side-panel/location-groups-side-panel.component';
 import { AssociateLocationsSidePanelComponent } from '../associate-locations-side-panel/associate-locations-side-panel.component';
 import { ActionButton } from '../../../../../shared/models/action-button.model';
 import { Location } from '../../../../../shared/models/location.model';
@@ -15,7 +13,7 @@ import { OrganizationService } from '../../../../../core/services/organization.s
 
 import { DivisionalAttributesComponent } from '../../divisional-attributes/divisional-attributes.component';
 import { UnsubscribeOnDestroy } from '../../../../../shared/classes/unsubscribeOnDestroy';
-import { Permission } from 'phd-common/models';
+import { Permission } from 'phd-common';
 
 @Component({
 	selector: 'location-groups-container',
@@ -30,7 +28,7 @@ export class LocationGroupsContainerComponent extends UnsubscribeOnDestroy
 	private divisionAttributeTemplate: DivisionalAttributeTemplateComponent;
 
 	@ViewChild(LocationGroupsPanelComponent)
-	private locationGroupsPanel: LocationGroupsPanelComponent;
+	locationGroupsPanel: LocationGroupsPanelComponent;
 
 	@ViewChild(AssociateLocationsSidePanelComponent)
 	private associatePanel: AssociateLocationsSidePanelComponent;

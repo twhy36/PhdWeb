@@ -26,12 +26,13 @@ export class AddItemSidePanelComponent
 	@Input() isLoading = true;
 
 	@Output() hasChanges = new EventEmitter<boolean>();
-	@Output() sidePanelClose = new EventEmitter<boolean>();
+	@Output() sidePanelClose = new EventEmitter();
 	@Output() save = new EventEmitter<{ parent: DTPoint | DTSubGroup, items: Array<IItemAdd> }>();
 
 	selectedItems: Array<IItemAdd> = [];
 
-	get showIndicatorText(): boolean {
+	get showIndicatorText(): boolean
+	{
 		if (this.itemParent instanceof DTPoint)
 		{
 			return true;
@@ -94,7 +95,7 @@ export class AddItemSidePanelComponent
 		this.save.emit({ parent: this.itemParent, items: this.selectedItems });
 	}
 
-	async onCloseClick(status: boolean)
+	async onCloseClick()
 	{
 		if (this.selectedItems.length > 0)
 		{
@@ -105,7 +106,7 @@ export class AddItemSidePanelComponent
 			}
 		}
 
-		this.sidePanelClose.emit(status);
+		this.sidePanelClose.emit();
 	}
 
 	private confirmNavAway(): Promise<boolean>

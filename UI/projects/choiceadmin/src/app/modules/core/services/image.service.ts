@@ -1,16 +1,17 @@
-import { Injectable, Injector } from '@angular/core';
-import { HttpHeaders, HttpClient, HttpResponse } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 
-import { Observable ,  throwError as _throw } from 'rxjs';
-import { combineLatest, map, catchError, flatMap, filter, toArray, switchMap } from 'rxjs/operators';
-import { AdalService } from 'adal-angular4';
+import { Observable, throwError as _throw } from 'rxjs';
+import { map, catchError, switchMap } from 'rxjs/operators';
 
 import { Settings } from '../../shared/models/settings.model';
 
 import { LoggingService } from '../../core/services/logging.service';
 import { SettingsService } from '../../core/services/settings.service';
 import { StorageService } from '../../core/services/storage.service';
-import { IPictureParkAsset } from '@shared/models/image.model';
+import { IPictureParkAsset } from '../../shared/models/image.model';
+
+import { IdentityService } from 'phd-common';
 
 const settings: Settings = new SettingsService().getSettings();
 
@@ -18,10 +19,10 @@ const settings: Settings = new SettingsService().getSettings();
 export class ImageService
 {
 	private _ds: string = encodeURIComponent('$');
-	private _adalService: AdalService;
-		
-	constructor(private _http: HttpClient, private _loggingService: LoggingService, private _storageService: StorageService, private _injector: Injector) {
-		this._adalService = this._injector.get("AdalService") as AdalService;
+
+	constructor(private _http: HttpClient, private _loggingService: LoggingService, private _storageService: StorageService, private _identityService: IdentityService)
+	{
+
 	}
 
 	getAssets(assets: IPictureParkAsset[]): Observable<IPictureParkAsset[]>
@@ -35,22 +36,24 @@ export class ImageService
 
 		return this._http.post<any>(endpoint, body).pipe(
 			map(response =>
+			{
+				const ppAssets = response.value.map(asset =>
 				{
-					const ppAssets = response.value.map(asset =>
-					{
-						return asset as IPictureParkAsset;
-					});
-				
-					return ppAssets;
-				}),
+					return asset as IPictureParkAsset;
+				});
+
+				return ppAssets;
+			}),
 			catchError(this.handleError));
 	}
 
 	//gets the picture parkToken
-	getPictureParkToken(): Observable<string> {
+	getPictureParkToken(): Observable<string>
+	{
 		return this.getUserEmail().pipe(
-			switchMap(email => {
-				const profile = this._adalService.userInfo.profile;
+			switchMap(email =>
+			{
+				const profile = { given_name: 'Travis', family_name: 'Green' }; //this._identityService.user.subscribe(x => x.)
 				const body = {
 					'firstName': profile.given_name,
 					'lastName': profile.family_name,
@@ -63,7 +66,8 @@ export class ImageService
 		);
 	}
 
-	getUserEmail(): Observable<string> {
+	getUserEmail(): Observable<string>
+	{
 		return this._http.get<any>(`${settings.apiUrl}GetLoggedInUserEmail`).pipe(
 			map(response => response.value)
 		);

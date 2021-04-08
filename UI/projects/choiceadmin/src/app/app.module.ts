@@ -9,14 +9,13 @@ import { CoreModule } from './modules/core/core.module';
 import { NationalModule } from './modules/national/national.module';
 import { DivisionalModule } from './modules/divisional/divisional.module';
 import { CommunityModule } from './modules/community/community.module';
-import { PhdCommonModule } from 'phd-common';
 
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { AppComponent } from './app.component';
 
-import { IdentityService } from 'phd-common/services';
-import { environment } from 'environments/environment';
+import { IdentityService, PhdCommonModule } from 'phd-common';
+import { environment } from '../environments/environment';
 
 const appInitializerFn = (identityService: IdentityService) =>
 {
@@ -46,13 +45,14 @@ export function getBaseHref(platformLocation: PlatformLocation): string
 		BrowserModule,
         FormsModule,
 		ReactiveFormsModule,
-		PhdCommonModule.forRoot({
-				authQueryParams: environment.authQueryParams,
-				clientId: environment.clientId,
-				tenant: environment.tenant
-			},
-			environment.apiUrl
-		),
+		//PhdCommonModule.forRoot({
+		//		authQueryParams: environment.authQueryParams,
+		//		clientId: environment.clientId,
+		//		tenant: environment.tenant
+		//	},
+		//	environment.apiUrl
+		//),
+		PhdCommonModule.forRoot(environment.authConfig, environment.apiUrl),
         CoreModule,
         NationalModule,
         DivisionalModule,

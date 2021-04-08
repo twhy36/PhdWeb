@@ -1,4 +1,4 @@
-<side-panel-component [headerTemplate]="header" [bodyTemplate]="body" [footerTemplate]="footer" [sidePanelOpen]="sidePanelOpen" (onSidePanelClose)="onCloseClick($event)">
+<side-panel-component [headerTemplate]="header" [bodyTemplate]="body" [footerTemplate]="footer" [sidePanelOpen]="sidePanelOpen" (onSidePanelClose)="onCloseClick()">
 	<ng-template #header>
 		<h5 class="phd-side-panel-header"><strong>{{ title }}</strong></h5>
 	</ng-template>
@@ -40,7 +40,7 @@
 		<div class="pull-right">
 			<button *ngIf="!isReadOnly || canUnpublishTree" class="btn btn-primary phd-btn-save" (click)="onSaveClick()" [disabled]="!canSave">Save</button>
 
-			<button class="btn btn-secondary" (click)="toggleSidePanel(false)">Close</button>
+			<button class="btn btn-secondary" (click)="toggleSidePanel()">Close</button>
 		</div>
 	</ng-template>
 </side-panel-component>

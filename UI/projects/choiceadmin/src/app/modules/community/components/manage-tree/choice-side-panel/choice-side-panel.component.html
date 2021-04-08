@@ -1,4 +1,4 @@
-<side-panel-component [headerTemplate]="header" [subheaderTemplate]="subheader" [bodyTemplate]="body" [footerTemplate]="footer" [sidePanelOpen]="sidePanelOpen" (onSidePanelClose)="onCloseClick($event)">
+<side-panel-component [headerTemplate]="header" [subheaderTemplate]="subheader" [bodyTemplate]="body" [footerTemplate]="footer" [sidePanelOpen]="sidePanelOpen" (onSidePanelClose)="onCloseClick()">
 	<ng-template #header>
 		<h5><strong>{{ choice.labelHeirarchy }}</strong></h5>
 	</ng-template>
@@ -76,7 +76,7 @@
 										 [isLoading]="isLoadingOptionRules"
 										 (saveRule)="onSaveOptionRule($event)"
 										 (deleteRule)="onDeleteOptionRule($event)"
-										 (cancelRule)="onCancelOptionRule($event)">
+										 (cancelRule)="onCancelOptionRule()">
 							</option-rule>
 						</div>
 					</ng-template>
@@ -93,7 +93,6 @@
 												 [imagesLoaded]="choiceImagesLoaded"
 												 [dragEnable]="dragEnable"
 												 (delete)="onDeleteImage($event)"
-												 (edit)="onEditImage($event)"
 												 (save)="onSaveImage($event)"
 												 (dragHasChanged)="onDragHasChanged()">
 							</choice-images-panel>

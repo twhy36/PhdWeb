@@ -1,8 +1,6 @@
-import { DTree } from './../../../shared/models/tree.model';
 import { TreeService } from '../../services/tree.service';
 import { Component, OnInit } from '@angular/core';
-import { Permission } from 'phd-common/models';
-import { UnsubscribeOnDestroy } from 'phd-common/utils/unsubscribe-on-destroy';
+import { Permission, UnsubscribeOnDestroy } from 'phd-common';
 
 @Component({
 	selector: 'navigation-bar',
@@ -21,7 +19,10 @@ export class NavigationBarComponent extends UnsubscribeOnDestroy implements OnIn
 		this.isCollapsed = !this.isCollapsed;
 	}
 
-	constructor(private _treeService: TreeService) { super(); }
+	constructor(private _treeService: TreeService)
+	{
+		super();
+	}
 
 	ngOnInit()
 	{

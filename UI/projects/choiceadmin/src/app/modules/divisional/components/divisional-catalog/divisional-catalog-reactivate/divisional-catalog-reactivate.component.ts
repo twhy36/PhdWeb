@@ -66,9 +66,9 @@ export class DivisionalCatalogReactivateComponent implements OnInit
         this.onSidePanelClose.emit(status);
 	}
 
-	toggleSidePanel(status: boolean)
+	toggleSidePanel()
 	{
-		this.sidePanel.toggleSidePanel(status);
+		this.sidePanel.toggleSidePanel();
 	}
 
     updateList(item: DivDPoint | DivDChoice)

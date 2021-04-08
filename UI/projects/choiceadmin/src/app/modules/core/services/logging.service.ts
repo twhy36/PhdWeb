@@ -3,32 +3,38 @@ import { LocationStrategy, PathLocationStrategy } from '@angular/common';
 
 import { AppInsights } from "applicationinsights-js";
 
-import { AdalService } from 'adal-angular4';
-
 import { SettingsService } from "./settings.service";
 
-import { Settings } from '../../shared/models/settings.model';
+import { IdentityService } from 'phd-common';
 
 @Injectable()
 export class LoggingService
 {
 	private config: Microsoft.ApplicationInsights.IConfig;
-	private adalService: AdalService;
 
-	constructor(private settingsService: SettingsService, private injector: Injector)
+	constructor(private settingsService: SettingsService, private injector: Injector, private identityService: IdentityService)
 	{
 		this.config = {
 			instrumentationKey: this.settingsService.getSettings().appInsightsKey
 		};
-		this.adalService = this.injector.get("AdalService") as AdalService;
 
 		AppInsights.downloadAndSetup(this.config);
+
+		this.identityService.user.subscribe(u =>
+		{
+			if (u)
+			{
+				AppInsights.setAuthenticatedUserContext(u.upn);
+			}
+			else
+			{
+				AppInsights.clearAuthenticatedUserContext();
+			}
+		});
 	}
 
 	logError(error: Error)
 	{
-		this.setUser();
-
 		const location = this.injector.get(LocationStrategy);
 		const message = error.message ? error.message : error.toString();
 		const url = location instanceof PathLocationStrategy ? location.path() : '';
@@ -38,24 +44,12 @@ export class LoggingService
 
 	logEvent(message: string)
 	{
-		this.setUser();
-
 		AppInsights.trackEvent(message);
 	}
 
 	logPageView(name?: string, url?: string, properties?: any, measurements?: any, duration?: number)
 	{
-		this.setUser();
-
 		AppInsights.trackPageView(name, url, properties, measurements, duration);
-	}
-
-	setUser() {
-		if (this.adalService.userInfo.authenticated) {
-			AppInsights.setAuthenticatedUserContext(this.adalService.userInfo.profile.upn);
-		} else {
-			AppInsights.clearAuthenticatedUserContext();
-		}
 	}
 }
 

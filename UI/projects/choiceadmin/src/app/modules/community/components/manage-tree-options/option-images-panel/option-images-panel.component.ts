@@ -9,7 +9,7 @@ import { bind } from '../../../../shared/classes/decorators.class';
 import { PhdEntityDto } from '../../../../shared/models/api-dtos.model';
 import { OptionImage } from '../../../../shared/models/option.model';
 import { IPictureParkAsset } from '../../../../shared/models/image.model';
-import { Permission } from 'phd-common/models';
+import { Permission } from 'phd-common';
 
 @Component({
 	selector: 'option-images-panel',

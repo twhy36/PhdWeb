@@ -1,7 +1,7 @@
 <div *ngIf="optionAttributeMessage.length > 0" class="alert alert-info">{{optionAttributeMessage}}</div>
 
 <div *ngIf="attributeGroups && attributeGroups.length" class="div-section">
-	<select class="form-control" [(ngModel)]="selectedGroup" (change)="onChangeAttributeGroup($event)">
+	<select class="form-control" [(ngModel)]="selectedGroup" (change)="onChangeAttributeGroup()">
 		<option *ngFor="let group of attributeGroups" [ngValue]="group">
 			{{group.groupName}}
 		</option>

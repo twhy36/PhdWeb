@@ -5,7 +5,7 @@ import { Subject } from 'rxjs';
 import { AttributeGroupMarket } from '../../../../../../shared/models/attribute-group-market.model';
 import { IFinancialCommunity } from '../../../../../../shared/models/financial-community.model';
 
-import { PhdColumnDirective } from 'phd-common/components/table/phd-column.directive';
+import { PhdColumnDirective } from 'phd-common';
 
 @Component({
 	selector: 'expansion-tab-panel',

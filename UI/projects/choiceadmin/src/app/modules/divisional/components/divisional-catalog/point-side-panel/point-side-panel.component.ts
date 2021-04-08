@@ -89,7 +89,7 @@ export class PointSidePanelComponent implements OnInit
 		}
 	}
 
-	toggleSidePanel(status: boolean)
+	toggleSidePanel()
 	{
 		const pointType = this.pointType;
 
@@ -101,7 +101,7 @@ export class PointSidePanelComponent implements OnInit
 			}
 		}
 		
-		this.sidePanel.toggleSidePanel(status);
+		this.sidePanel.toggleSidePanel();
 	}
 
 	save(addAnother: boolean = false)

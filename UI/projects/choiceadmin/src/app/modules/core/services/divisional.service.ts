@@ -6,7 +6,7 @@ import { map, catchError } from 'rxjs/operators';
 
 import * as odataUtils from '../../shared/classes/odata-utils.class';
 
-import { IdentityService } from 'phd-common/services';
+import { IdentityService, withSpinner} from 'phd-common';
 import { SettingsService } from './settings.service';
 import { CatalogService } from './catalog.service';
 
@@ -17,7 +17,6 @@ import { DivDChoice, IDivCatalogChoiceDto, DivChoiceCatalog } from '../../shared
 import { Settings } from '../../shared/models/settings.model';
 import { IDivisionalCatalogGroupDto, IDivisionalCatalogPointDto, IDivisionalCatalogDto, IDivisionalCatalogChoiceDto, DivisionalCatalog, IDivSortList } from '../../shared/models/divisional-catalog.model';
 import { PhdEntityDto } from '../../shared/models/api-dtos.model';
-import { withSpinner } from 'phd-common/extensions/withSpinner.extension';
 
 const settings: Settings = new SettingsService().getSettings();
 

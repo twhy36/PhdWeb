@@ -17,8 +17,7 @@ import { IFinancialMarket } from '../../../shared/models/financial-market.model'
 import { IFinancialCommunity } from '../../../shared/models/financial-community.model';
 import { IPlan } from '../../../shared/models/plan.model';
 import { ConfirmModalComponent } from '../../../core/components/confirm-modal/confirm-modal.component';
-import { IdentityService } from 'phd-common/services';
-import { Permission } from 'phd-common/models';
+import { IdentityService, Permission } from 'phd-common';
 import { of } from 'rxjs';
 
 @Component({

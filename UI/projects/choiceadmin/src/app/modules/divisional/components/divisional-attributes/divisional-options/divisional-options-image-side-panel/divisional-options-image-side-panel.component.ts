@@ -12,7 +12,7 @@ import { OptionMarketImage } from '../../../../../shared/models/option.model';
 import { IPictureParkAsset } from '../../../../../shared/models/image.model';
 import { OrganizationService } from '../../../../../core/services/organization.service';
 import { UnsubscribeOnDestroy } from '../../../../../shared/classes/unsubscribeOnDestroy';
-import { Permission } from 'phd-common/models';
+import { Permission } from 'phd-common';
 
 @Component({
 	selector: 'divisional-options-image-side-panel',
@@ -33,7 +33,7 @@ export class DivisionalOptionsImageSidePanelComponent extends UnsubscribeOnDestr
 	@Output() delete = new EventEmitter<OptionMarketImage>();
 	@Output() save = new EventEmitter<{ imageUrls: string[], callback: Function }>();
 	@Output() dragHasChanged = new EventEmitter();
-	
+
 	draggedItem: OptionMarketImage;
 	marketKey: string = "";
 
@@ -41,15 +41,19 @@ export class DivisionalOptionsImageSidePanelComponent extends UnsubscribeOnDestr
 		private _treeService: TreeService,
 		private _msgService: MessageService,
 		private _orgService: OrganizationService
-	) { super(); }
+	)
+	{
+		super();
+	}
 
-	ngOnInit(): void {
+	ngOnInit(): void
+	{
 		this._orgService.currentFinancialMarket$.pipe(
 			this.takeUntilDestroyed(),
 			startWith(this._orgService.currentFinancialMarket)
 		).subscribe(mkt => this.marketKey = mkt);
 	}
-	
+
 	deleteImage(image: OptionMarketImage)
 	{
 		this.delete.emit(image);

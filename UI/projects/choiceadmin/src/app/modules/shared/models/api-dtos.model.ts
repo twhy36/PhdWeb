@@ -676,10 +676,16 @@ export namespace PhdApiDto
 		financialCommunityId: number;
 		locationGroupName: string;
 		locationGroupDescription: string;
-		locationGroupLabel: string;
+		groupLabel: string;
 		isActive: boolean;
 		locationGroupCommunityTags: ILocationGroupCommunityTag[];
-		locationCommunities: ILocationCommunity[];
+		locationGroupLocationCommunityAssocs: ILocationGroupLocationCommunityAssocs[];
+	}
+
+	export interface ILocationGroupLocationCommunityAssocs
+	{
+		locationGroupCommunityId: number;
+		locationCommunity: ILocationCommunity;
 	}
 
 	export interface ILocationGroupCommunityTag
