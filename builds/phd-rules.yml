@@ -3,7 +3,7 @@
 # Add steps that analyze code, save build artifacts, deploy, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
 
-name: $(BuildDefinitionName)_1.0.$(Rev:r)
+name: $(BuildDefinitionName)_$(MajorVersion).$(MinorVersion).$(Rev:r)
 
 #variables:
 #  system_accesstoken: $(System.AccessToken)
@@ -16,21 +16,55 @@ resources:
     name: ThoWeb
 
 jobs:
-- job: Build
+- job: SetVersion
+  workspace:
+    clean: all
+  displayName: Set Package Version
   steps:
+  - checkout: none
+  - task: DownloadPackage@1
+    inputs:
+      packageType: 'npm'
+      feed: '6d26cbbb-94e5-4db9-ac14-039e14cd6ff9/484bd538-a8f3-4ad5-a52d-e1c1d14f5e1f'
+      view: 
+      definition: '3e5b7c2c-56a9-4057-b683-ed855e9a599c'
+      version: 'latest'
+      downloadPath: '$(System.ArtifactsDirectory)'
   - task: InlinePowershell@1
-    name: SetPackageVersion
+    name: PS
     inputs:
       Script: |
         Param(
-          [string]$buildNumber,
-          [string]$buildDefinitionName
+          [int]$major,
+          [int]$minor,
+          [string]$artifacts
         )
         
-        $packageVersion = $buildNumber.Replace($buildDefinitionName+"_", "")
-        Write-Host "##vso[task.setvariable variable=packageVersion;isOutput=true]"$packageVersion
-        Write-Host "##vso[task.setvariable variable=packageVersion]"$packageVersion
-      ScriptArguments: '-buildNumber $(Build.BuildNumber) -buildDefinitionName $(Build.DefinitionName)'
+        [int]$prevMajor, [int]$prevMinor, [int]$prevBuild = (Get-Content -Raw -Path ("{0}/package/package.json" -f $artifacts) | ConvertFrom-Json).version.Split('.')
+        
+        if ($major -lt $prevMajor){
+          throw "Cannot decrease package version"
+        }
+        
+        if (($major -eq $prevMajor) -and ($minor -lt $prevMinor)) {
+          throw "Cannot decrease package version"
+        }
+        
+        if (($major -eq $prevMajor) -and ($minor -eq $prevMinor)){
+          $packageVersion = "{0}.{1}.{2}" -f $major, $minor, ($prevBuild+1)
+          Write-Host "##vso[task.setvariable variable=packageVersion;isOutput=true]"$packageVersion
+        }else{
+          $packageVersion = "{0}.{1}.0" -f $major, $minor
+          Write-Host "##vso[task.setvariable variable=packageVersion;isOutput=true]"$packageVersion
+        }
+      ScriptArguments: '-artifacts $(System.ArtifactsDirectory) -major $(MajorVersion) -minor $(MinorVersion)'
+- job: Build
+  dependsOn: SetVersion
+  workspace:
+    clean: resources
+  variables:
+    packageVersion: $[ dependencies.SetVersion.outputs['PS.packageVersion'] ]
+  steps:
   - checkout: self
   - task: NodeTool@0
     inputs:
@@ -67,9 +101,11 @@ jobs:
 
 - job: THO
   displayName: Validate THO
-  dependsOn: Build
+  dependsOn:
+  - Build
+  - SetVersion
   variables:
-    packageVersion: $[ dependencies.Build.outputs['SetPackageVersion.packageVersion'] ]
+    packageVersion: $[ dependencies.SetVersion.outputs['PS.packageVersion'] ]
   steps:
   - checkout: ThoWeb
   - task: InlinePowershell@1
@@ -82,12 +118,12 @@ jobs:
         )
         
         Write-Host "##vso[task.setvariable variable=packagePath]"$workspace"/phd-common/phcorp-phd-common-"$packageVersion".tgz"
-      ScriptArguments: '-packageVersion $(packageVersion) -workspace $(Pipeline.Workspace)'
+      ScriptArguments: '-packageVersion $(packageVersion) -workspace $(System.ArtifactsDirectory)'
   - task: DownloadPipelineArtifact@2
     inputs:
       buildType: 'current'
       artifactName: 'phd-common'
-      targetPath: '$(Pipeline.Workspace)/phd-common'
+      targetPath: '$(System.ArtifactsDirectory)/phd-common'
     displayName: download artifact
   - task: NodeTool@0
     displayName: Install Node.js
@@ -97,7 +133,7 @@ jobs:
     displayName: Pack phd-common
     inputs:
       command: 'custom'
-      workingDir: '$(Pipeline.Workspace)/phd-common'
+      workingDir: '$(System.ArtifactsDirectory)/phd-common'
       customCommand: 'pack --ignore-scripts'
   - task: Npm@1
     displayName: Install dependencies
@@ -124,11 +160,11 @@ jobs:
       inputs:
         buildType: 'current'
         artifactName: 'phd-common'
-        targetPath: '$(Pipeline.Workspace)/phd-common'
+        targetPath: '$(System.ArtifactsDirectory)/phd-common'
     - task: Npm@1
       inputs:
         command: 'custom'
-        workingDir: '$(Pipeline.Workspace)/phd-common'
+        workingDir: '$(System.ArtifactsDirectory)/phd-common'
         customCommand: 'publish --ignore-scripts'
         customRegistry: 'useFeed'
         customFeed: '6d26cbbb-94e5-4db9-ac14-039e14cd6ff9/484bd538-a8f3-4ad5-a52d-e1c1d14f5e1f'
