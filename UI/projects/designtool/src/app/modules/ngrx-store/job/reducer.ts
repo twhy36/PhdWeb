@@ -1,11 +1,11 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store';
 
-import { Job, SpecInformation } from '../../shared/models/job.model';
-import { JobActions, JobActionTypes } from './actions';
-import { ChangeOrderGroup } from '../../shared/models/job-change-order.model';
 import * as _ from 'lodash';
+
+import { ESignStatusEnum, ChangeOrderGroup, Job, SpecInformation } from 'phd-common';
+
 import { CommonActionTypes } from '../actions';
-import { ESignStatusEnum } from '../../shared/models/esign-envelope.model';
+import { JobActions, JobActionTypes } from './actions';
 
 export interface State extends Job
 {

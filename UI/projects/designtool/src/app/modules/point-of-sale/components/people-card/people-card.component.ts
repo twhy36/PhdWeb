@@ -1,6 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { Buyer } from '../../../shared/models/buyer.model';
-import { Realtor } from '../../../shared/models/sales-agreement.model';
+import { Buyer, Realtor } from 'phd-common';
 
 type Person = "Buyer" | "Trust" | "Realtor";
 

@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 
-import { EmailAssoc, PhoneAssoc } from '../../../shared/models/contact.model';
+import { EmailAssoc, PhoneAssoc } from 'phd-common';
 import { formatPhone } from '../../../shared/classes/phoneUtils';
 
 @Component({

@@ -1,6 +1,6 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
-import { DecisionPoint } from '../../shared/models/tree.model.new';
+import { DecisionPoint } from 'phd-common';
 
 @Pipe({
     name: 'floorOptions',

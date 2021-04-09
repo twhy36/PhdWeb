@@ -3,13 +3,13 @@ import { Validators, FormGroup, FormControl } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import * as _ from "lodash";
 
+import { SalesAgreementProgram, SalesAgreement, ISalesProgram, SalesChangeOrderSalesProgram } from 'phd-common';
+
 import * as fromRoot from '../../../ngrx-store/reducers';
 import { SaveProgram, DeleteProgram } from '../../../ngrx-store/sales-agreement/actions';
 
 import { SalesProgram } from '../../../shared/models/sales-program.model';
-import { SalesAgreementProgram, SalesAgreement, ISalesProgram } from '../../../shared/models/sales-agreement.model';
 import { ComponentCanNavAway } from '../../../shared/classes/component-can-nav-away.class';
-import { SalesChangeOrderSalesProgram } from '../../../shared/models/sales-change-order.model';
 import { ModalService } from '../../../../modules/core/services/modal.service';
 
 @Component({

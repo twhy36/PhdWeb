@@ -1,8 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-
-import { PointStatus } from '../../../shared/models/point.model';
-
-import { flipOver2 } from '../../../shared/classes/animations.class';
+import { flipOver2, PointStatus } from 'phd-common';
 
 @Component({
 	selector: 'status-indicator',

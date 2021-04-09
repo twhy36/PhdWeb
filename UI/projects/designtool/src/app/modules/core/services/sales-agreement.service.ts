@@ -6,24 +6,19 @@ import { flatMap, map, catchError } from 'rxjs/operators';
 
 import * as _ from 'lodash';
 
-import * as odataUtils from '../../shared/classes/odata-utils.class';
-import { SalesAgreement, ISalesAgreement, SalesAgreementInfo, Realtor, ISalesAgreementInfo, IRealtor, SalesAgreementProgram, SalesAgreementDeposit, SalesAgreementContingency, ISalesAgreementCancelVoidInfo, SalesAgreementCancelVoidInfo, Consultant, ISalesAgreementSalesConsultantDto } from '../../shared/models/sales-agreement.model';
-import { Buyer, IBuyer } from '../../shared/models/buyer.model';
-import { defaultOnNotFound } from '../../shared/classes/default-on-not-found';
+import {
+	defaultOnNotFound, getNewGuid, createBatchPatchWithAuth, createBatchBody, createBatchHeaders, parseBatchResults,
+	removeProperty, withSpinner, Buyer, IBuyer, Contact, Job, IJob, Note, PlanOption, SalesAgreement, ISalesAgreement,
+	SalesAgreementInfo, Realtor, ISalesAgreementInfo, IRealtor, SalesAgreementProgram, SalesAgreementDeposit, SalesAgreementContingency,
+	ISalesAgreementCancelVoidInfo, SalesAgreementCancelVoidInfo, Consultant, ISalesAgreementSalesConsultantDto,
+	Scenario, SelectedChoice, Tree, Choice, IdentityService
+} from 'phd-common';
+
 import { environment } from '../../../../environments/environment';
-import { IdentityService } from 'phd-common/services';
-import { Scenario, SelectedChoice } from '../../shared/models/scenario.model';
-import { Tree, Choice } from '../../shared/models/tree.model.new';
-import { Note } from '../../shared/models/note.model';
-import { withSpinner } from 'phd-common/extensions/withSpinner.extension';
-import { Job, IJob } from './../../shared/models/job.model';
 
 //Imports to support Voiding of Sales Agreement
 import { Store } from '@ngrx/store';
 import * as fromRoot from '../../ngrx-store/reducers';
-import { PlanOption } from '../../shared/models/option.model';
-import { Contact } from '../../shared/models/contact.model';
-import { removeProperty } from '../../shared/classes/utils.class';
 
 @Injectable()
 export class SalesAgreementService
@@ -372,10 +367,10 @@ export class SalesAgreementService
 				const oldPrimaryBuyer: Buyer = { ...targetBuyer, isPrimaryBuyer: false, sortKey: sourceBuyer.sortKey };
 				const newPrimaryBuyer: Buyer = { ...sourceBuyer, isPrimaryBuyer: true, sortKey: 0 };
 
-				const batchRequests = [odataUtils.createBatchPatchWithAuth<Buyer>(token, [oldPrimaryBuyer, newPrimaryBuyer], 'id', `salesAgreements(${salesAgreementId})/buyers`, 'isPrimaryBuyer', 'sortKey')];
-				const batchGuid = odataUtils.getNewGuid();
-				const batchBody = odataUtils.createBatchBody(batchGuid, batchRequests);
-				const headers = new HttpHeaders(odataUtils.createBatchHeaders(token, batchGuid));
+				const batchRequests = [createBatchPatchWithAuth<Buyer>(token, [oldPrimaryBuyer, newPrimaryBuyer], 'id', `salesAgreements(${salesAgreementId})/buyers`, 'isPrimaryBuyer', 'sortKey')];
+				const batchGuid = getNewGuid();
+				const batchBody = createBatchBody(batchGuid, batchRequests);
+				const headers = new HttpHeaders(createBatchHeaders(batchGuid, token));
 
 				const endPoint = `${environment.apiUrl}${this._batch}`;
 
@@ -385,7 +380,7 @@ export class SalesAgreementService
 			{
 				// calling parseBatchResults will will throw an error if it finds a 400 or 500 error in the response
 				// note: currently patch on salesAgreements/buyers is only receiving a http status back from EDH
-				odataUtils.parseBatchResults(response);
+				parseBatchResults(response);
 
 				const oldPrimaryBuyer: Buyer = { ...targetBuyer, isPrimaryBuyer: false, sortKey: sourceBuyer.sortKey };
 				const newPrimaryBuyer: Buyer = { ...sourceBuyer, isPrimaryBuyer: true, sortKey: 0 };
@@ -406,10 +401,10 @@ export class SalesAgreementService
 		return this._identityService.token.pipe(
 			flatMap((token: string) =>
 			{
-				const batchRequests = [odataUtils.createBatchPatchWithAuth<Buyer>(token, buyers, 'id', `salesAgreements(${salesAgreementId})/buyers`, 'sortKey')];
-				const batchGuid = odataUtils.getNewGuid();
-				const batchBody = odataUtils.createBatchBody(batchGuid, batchRequests);
-				const headers = new HttpHeaders(odataUtils.createBatchHeaders(token, batchGuid));
+				const batchRequests = [createBatchPatchWithAuth<Buyer>(token, buyers, 'id', `salesAgreements(${salesAgreementId})/buyers`, 'sortKey')];
+				const batchGuid = getNewGuid();
+				const batchBody = createBatchBody(batchGuid, batchRequests);
+				const headers = new HttpHeaders(createBatchHeaders(batchGuid, token));
 
 				const endPoint = `${environment.apiUrl}${this._batch}`;
 
@@ -419,7 +414,7 @@ export class SalesAgreementService
 			{
 				// calling parseBatchResults will will throw an error if it finds a 400 or 500 error in the response
 				// note: currently patch on salesAgreements/buyers is only receiving a http status back from EDH
-				odataUtils.parseBatchResults(response);
+				parseBatchResults(response);
 
 				return buyers;
 			})

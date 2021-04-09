@@ -12,22 +12,18 @@ import * as ContractActions from '../../../ngrx-store/contract/actions';
 import * as SalesAgreementActions from '../../../ngrx-store/sales-agreement/actions';
 import * as ChangeOrderActions from '../../../ngrx-store/change-order/actions';
 
-import { UnsubscribeOnDestroy } from '../../../shared/classes/unsubscribe-on-destroy';
+import {
+	UnsubscribeOnDestroy, ConfirmModalComponent, ModalRef, ESignTypeEnum, PointStatus, SalesAgreement, Consultant,
+	PriceBreakdown
+} from 'phd-common';
 
 import { ActionBarCallType } from '../../../shared/classes/constants.class';
 
 import { ContractService } from '../../../core/services/contract.service';
 
-import { PriceBreakdown } from '../../../shared/models/scenario.model';
-import { SalesAgreement, Consultant } from '../../../shared/models/sales-agreement.model';
-import { ESignTypeEnum } from '../../../shared/models/esign-envelope.model';
-
 import { PDFViewerComponent } from '../../../shared/components/pdf-viewer/pdf-viewer.component';
 import { SignAgreementComponent } from '../sign-agreement/sign-agreement.component';
-import { ConfirmModalComponent } from '../../../core/components/confirm-modal/confirm-modal.component';
 import { ModalService } from '../../../core/services/modal.service';
-import { ModalRef } from '../../../shared/classes/modal.class';
-import { PointStatus } from '@shared/models/point.model';
 
 type ActionBarStatusType = 'INCOMPLETE' | 'COMPLETE' | 'DISABLED';
 

@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, SimpleChanges } from '@angular/core';
 
-import { ScenarioStatusType } from '../../models/scenario.model';
+import { ScenarioStatusType } from 'phd-common';
 
 @Component({
 	selector: 'scenario-status',

@@ -1,5 +1,5 @@
 import { createSelector, createFeatureSelector } from '@ngrx/store';
-import { Plan } from '../../shared/models/plan.model';
+import { Plan } from 'phd-common';
 import { PlanActions, PlanActionTypes } from './actions';
 import { CommonActionTypes } from '../actions';
 

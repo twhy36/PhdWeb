@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, ElementRef, Input, TemplateRef, Output, E
 import { SafeResourceUrl, DomSanitizer } from '@angular/platform-browser';
 
 import { environment } from '../../../../../environments/environment';
-import { ModalContent } from '../../../shared/classes/modal.class';
+import { ModalContent } from 'phd-common';
 
 import { interval } from 'rxjs';
 import { startWith, skipWhile, take, tap } from 'rxjs/operators';

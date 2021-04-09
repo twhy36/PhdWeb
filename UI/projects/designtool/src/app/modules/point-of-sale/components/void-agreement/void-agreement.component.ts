@@ -1,11 +1,10 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { Store } from '@ngrx/store';
 
+import { UnsubscribeOnDestroy, SalesAgreementVoidReason } from 'phd-common';
+
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as SalesAgreementActions from '../../../ngrx-store/sales-agreement/actions';
-
-import { UnsubscribeOnDestroy } from '../../../shared/classes/unsubscribe-on-destroy';
-import { SalesAgreementVoidReason } from '../../../shared/models/sales-agreement.model';
 
 @Component({
 	selector: 'void-agreement',

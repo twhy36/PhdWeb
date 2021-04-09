@@ -2,16 +2,13 @@ import { Component, Input, OnInit, Output, EventEmitter, ViewChildren, QueryList
 import { Store } from '@ngrx/store';
 import { ReplaySubject } from 'rxjs';
 
-import { UnsubscribeOnDestroy } from '../../classes/unsubscribe-on-destroy';
+import { UnsubscribeOnDestroy, AttributeGroup, DesignToolAttribute, LocationGroup, Choice, ChoiceImageAssoc, OptionImage } from 'phd-common';
 
-import { Choice, ChoiceImageAssoc } from '../../models/tree.model.new';
-import { AttributeGroup, DesignToolAttribute, LocationGroup } from '../../models/attribute.model';
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 
 import { AttributeLocationComponent } from '../attribute-location/attribute-location.component';
 
-import { OptionImage } from '../../../shared/models/tree.model.new';
 import { ModalOverrideSaveComponent } from '../../../core/components/modal-override-save/modal-override-save.component';
 import { MonotonyConflict } from '../../models/monotony-conflict.model';
 import { AttributeGroupComponent } from '../attribute-group/attribute-group.component';

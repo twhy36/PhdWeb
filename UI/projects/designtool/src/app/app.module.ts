@@ -17,8 +17,7 @@ import { CloudinaryConfiguration, CloudinaryModule } from '@cloudinary/angular-5
 export const cloudinary = { Cloudinary: CloudinaryCore };
 export const config: CloudinaryConfiguration = environment.cloudinary;
 
-import { PhdCommonModule } from 'phd-common';
-import { IdentityService } from 'phd-common/services';
+import { PhdCommonModule, IdentityService } from 'phd-common';
 
 import { CoreModule } from './modules/core/core.module';
 import { ChangeOrdersModule } from './modules/change-orders/change-orders.module';

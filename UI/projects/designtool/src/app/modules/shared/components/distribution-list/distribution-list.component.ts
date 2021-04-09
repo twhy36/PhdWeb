@@ -7,15 +7,11 @@ import { combineLatest, take, switchMap, finalize } from 'rxjs/operators';
 
 import { Store, select } from '@ngrx/store';
 
+import { UnsubscribeOnDestroy, flipOver, Contact } from 'phd-common';
 import * as fromRoot from '../../../ngrx-store/reducers';
-
-import { flipOver } from '../../classes/animations.class';
-
-import { UnsubscribeOnDestroy } from '../../classes/unsubscribe-on-destroy';
 
 import { ContractService } from '../../../core/services/contract.service';
 
-import { Contact } from '../../models/contact.model';
 import { ESignRecipient, ESignRecipientRoles, IESignRecipient } from '../../models/contract.model';
 
 @Component({

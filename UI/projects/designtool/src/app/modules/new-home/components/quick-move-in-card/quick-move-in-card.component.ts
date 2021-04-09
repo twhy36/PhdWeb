@@ -3,10 +3,9 @@ import { APP_BASE_HREF } from '@angular/common';
 
 import { Store } from '@ngrx/store';
 
-import { UnsubscribeOnDestroy } from 'phd-common/utils/unsubscribe-on-destroy';
+import { UnsubscribeOnDestroy, Job, Plan } from 'phd-common';
+
 import * as fromRoot from '../../../ngrx-store/reducers';
-import { Plan } from '../../../shared/models/plan.model';
-import { Job } from '../../../shared/models/job.model';
 
 @Component({
 	selector: 'quick-move-in-card',

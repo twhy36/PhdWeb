@@ -5,11 +5,7 @@ import { distinctUntilChanged, combineLatest, switchMap, map, take } from 'rxjs/
 import { Store, select } from '@ngrx/store';
 import * as _ from 'lodash';
 
-import { UnsubscribeOnDestroy } from '../../../shared/classes/unsubscribe-on-destroy';
-
-import { Buyer } from '../../../shared/models/buyer.model';
-import { SalesAgreement, Realtor, SalesAgreementInfo } from '../../../shared/models/sales-agreement.model';
-import { ChangeOrderBuyer } from '../../../shared/models/sales-change-order.model';
+import { UnsubscribeOnDestroy, Buyer, SalesAgreement, Realtor, SalesAgreementInfo, ChangeOrderBuyer } from 'phd-common';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromSalesAgreement from '../../../ngrx-store/sales-agreement/reducer';

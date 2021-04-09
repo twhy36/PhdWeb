@@ -1,7 +1,7 @@
 import { Subscription } from 'rxjs/Subscription';
 import { Component, OnInit, ViewChild, ElementRef, TemplateRef } from '@angular/core';
 
-import { ModalButton, ModalContent } from '../../../shared/classes/modal.class';
+import { ModalButton, ModalContent } from 'phd-common';
 
 @Component({
 	'selector': 'modal',

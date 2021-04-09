@@ -1,5 +1,4 @@
-import { TreeVersion } from './../shared/models/tree.model.new';
-import { ScenarioStatusType } from './../shared/models/scenario.model';
+import { ScenarioStatusType, TreeVersion } from 'phd-common';
 import {
 		State,
 		title,

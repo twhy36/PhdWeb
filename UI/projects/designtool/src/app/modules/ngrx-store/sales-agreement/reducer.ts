@@ -5,9 +5,7 @@ import { SalesAgreementActions, SalesAgreementActionTypes } from './actions';
 
 import { RehydrateMap } from "../sessionStorage";
 
-import { SalesAgreement, SalesAgreementProgram, SalesAgreementDeposit, SalesAgreementContingency, ISalesProgram } from '../../shared/models/sales-agreement.model';
-import { Buyer } from "../../shared/models/buyer.model";
-import { Note } from "../../shared/models/note.model";
+import { Buyer, Note, SalesAgreement, SalesAgreementProgram, SalesAgreementDeposit, SalesAgreementContingency, ISalesProgram } from "phd-common";
 import { CommonActionTypes } from "../actions";
 
 export interface State extends SalesAgreement

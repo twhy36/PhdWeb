@@ -1,9 +1,6 @@
 import { cloneDeep, flatMap, flatten, uniq } from 'lodash';
 
-import { getMaxSortOrderChoice, findChoice, findPoint, applyRules } from './rulesExecutor';
-import { PickType, Tree } from '../models/tree.model.new';
-import { PlanOption } from '../models/option.model';
-import { TreeVersionRules } from '../models/rule.model.new';
+import { PlanOption, TreeVersionRules, PickType, Tree, getMaxSortOrderChoice, findChoice, findPoint, applyRules } from 'phd-common';
 
 export function getChoicePriceRanges(state: { options: PlanOption[], rules: TreeVersionRules, tree: Tree }) {
 	if (!state.options || !state.rules || !state.tree) {

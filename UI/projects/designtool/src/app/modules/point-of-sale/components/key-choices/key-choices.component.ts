@@ -3,8 +3,7 @@ import { Store, select } from '@ngrx/store';
 
 import { Observable } from 'rxjs';
 
-import { Group } from '../../../shared/models/tree.model.new';
-import { PointStatus } from '../../../shared/models/point.model';
+import { PointStatus, Group } from 'phd-common';
 import * as fromRoot from '../../../ngrx-store/reducers';
 
 @Component({

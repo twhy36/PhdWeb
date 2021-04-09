@@ -3,7 +3,7 @@ import { Store } from '@ngrx/store';
 
 import { ScenarioService } from '../../../core/services/scenario.service';
 
-import { PriceBreakdown, PriceBreakdownType, DtoScenarioInfo } from '../../../shared/models/scenario.model';
+import { PriceBreakdown, PriceBreakdownType, DtoScenarioInfo } from 'phd-common';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';

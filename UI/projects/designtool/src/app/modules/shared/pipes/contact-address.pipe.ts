@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { AddressAssoc, Address } from '../models/contact.model';
+import { AddressAssoc, Address } from 'phd-common';
 
 @Pipe({
 	name: 'contactaddress'

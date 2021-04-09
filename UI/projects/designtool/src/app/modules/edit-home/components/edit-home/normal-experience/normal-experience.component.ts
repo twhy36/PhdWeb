@@ -1,22 +1,22 @@
-import { Component, OnInit, NgZone, Renderer2, OnDestroy, ChangeDetectorRef, Input, OnChanges, Output, EventEmitter, SimpleChanges } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, OnChanges, Output, EventEmitter, SimpleChanges } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Subject, Observable } from 'rxjs';
 import { map, withLatestFrom } from 'rxjs/operators';
 
 import { Store, select } from '@ngrx/store';
 import * as fromRoot from '../../../../ngrx-store/reducers';
-import * as fromLot from '../../../../ngrx-store/lot/reducer';
 import * as fromScenario from '../../../../ngrx-store/scenario/reducer';
-import { UnsubscribeOnDestroy } from '../../../../shared/classes/unsubscribe-on-destroy';
+
+import {
+	UnsubscribeOnDestroy, flipOver, Scenario, ScenarioStatusType, PriceBreakdown, TreeFilter, DecisionPoint,
+	PickType, SubGroup, Choice
+} from 'phd-common';
 
 import { ScenarioService } from '../../../../core/services/scenario.service';
 
 import { ActionBarCallType } from '../../../../shared/classes/constants.class';
-import { flipOver } from '../../../../shared/classes/animations.class';
 
-import { DecisionPoint, PickType, SubGroup, Choice } from '../../../../shared/models/tree.model.new';
 import { DecisionPointFilterType } from '../../../../shared/models/decisionPointFilter';
-import { Scenario, ScenarioStatusType, PriceBreakdown, TreeFilter } from '../../../../shared/models/scenario.model';
 
 @Component({
 	selector: 'normal-experience',

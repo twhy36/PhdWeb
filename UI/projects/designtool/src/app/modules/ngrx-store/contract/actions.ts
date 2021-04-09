@@ -1,9 +1,10 @@
 import { Action } from '@ngrx/store';
+import { ESignTypeEnum } from 'phd-common';
+
 import { ErrorAction } from '../error.action';
 
 import { Template } from '../../shared/models/template.model';
 import { FinancialCommunityESign } from '../../shared/models/contract.model';
-import { ESignTypeEnum, ESignEnvelope } from '../../shared/models/esign-envelope.model';
 
 export enum ContractActionTypes
 {

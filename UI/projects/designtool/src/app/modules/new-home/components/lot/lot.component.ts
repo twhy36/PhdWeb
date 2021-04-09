@@ -1,15 +1,13 @@
-import { ChangeOrderHanding } from './../../../shared/models/job-change-order.model';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store, select } from '@ngrx/store';
 import { Observable, ReplaySubject } from 'rxjs';
 import { combineLatest, map, filter, take, withLatestFrom } from 'rxjs/operators';
 
-import { Lot, ViewAdjacency, Handing, PhysicalLotType, PlanAssociation, MonotonyRuleLot, SalesPhase } from '../../../shared/models/lot.model';
-import { Plan } from '../../../shared/models/plan.model';
-
-import { UnsubscribeOnDestroy } from '../../../shared/classes/unsubscribe-on-destroy';
-import { flipOver } from '../../../shared/classes/animations.class';
+import {
+	UnsubscribeOnDestroy, flipOver, FinancialCommunity, ChangeOrderHanding, Job, Lot, ViewAdjacency, Handing,
+	PhysicalLotType, PlanAssociation, MonotonyRuleLot, SalesPhase, Plan, Scenario, Choice
+} from 'phd-common';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
@@ -21,14 +19,10 @@ import * as JobActions from '../../../ngrx-store/job/actions';
 import * as fromJobs from '../../../ngrx-store/job/reducer';
 
 import { ActionBarCallType } from '../../../shared/classes/constants.class';
-import { Choice } from '../../../shared/models/tree.model.new';
-import { FinancialCommunity } from '../../../shared/models/community.model';
 import { ModalOverrideSaveComponent } from '../../../core/components/modal-override-save/modal-override-save.component';
-import { Job } from '../../../shared/models/job.model';
 import { selectSelectedLot } from '../../../ngrx-store/lot/reducer';
 import { ModalService } from '../../../core/services/modal.service';
 import { NewHomeService } from '../../services/new-home.service';
-import { Scenario } from '../../../shared/models/scenario.model';
 
 @Component({
 	selector: 'lot',

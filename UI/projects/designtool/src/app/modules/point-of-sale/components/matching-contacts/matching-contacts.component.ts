@@ -1,9 +1,7 @@
 import { Component, Input, ViewChild } from '@angular/core';
 
-import { Contact, MatchingContact } from '../../../shared/models/contact.model';
-import { ModalContent } from '../../../shared/classes/modal.class';
+import { ModalContent, ModalRef, Contact, MatchingContact } from 'phd-common';
 import { ModalService } from '../../../core/services/modal.service';
-import { ModalRef } from '../../../shared/classes/modal.class';
 
 @Component({
 	selector: 'matching-contacts-component',

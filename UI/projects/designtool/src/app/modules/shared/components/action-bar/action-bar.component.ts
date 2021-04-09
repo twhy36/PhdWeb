@@ -11,26 +11,22 @@ import { Store, select } from '@ngrx/store';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
 
-import { UnsubscribeOnDestroy } from '../../classes/unsubscribe-on-destroy';
 import * as _ from 'lodash';
+
+import {
+	UnsubscribeOnDestroy, ConfirmModalComponent, ModalRef, ESignTypeEnum, ChangeTypeEnum, ChangeOrderGroup, Job,
+	SalesAgreement, DecisionPoint
+} from 'phd-common';
 
 import { SaveStatusType, ActionBarCallType } from '../../classes/constants.class';
 
-import { DecisionPoint } from '../../models/tree.model.new';
-
 import { NavigationService } from '../../../core/services/navigation.service';
-import { ConfirmModalComponent } from '../../../core/components/confirm-modal/confirm-modal.component';
 import * as CommonActions from '../../../ngrx-store/actions';
-import { SalesAgreement } from '../../../shared/models/sales-agreement.model';
 
 import * as ChangeOrderActions from '../../../ngrx-store/change-order/actions';
-import { ChangeTypeEnum, ChangeOrderGroup } from '../../../shared/models/job-change-order.model';
 import { ChangeOrderService } from './../../../core/services/change-order.service';
 import { ModalService } from '../../../core/services/modal.service';
 import { Permission } from 'phd-common/models';
-import { Job } from './../../models/job.model';
-import { ESignTypeEnum } from '../../../shared/models/esign-envelope.model';
-import { ModalRef } from '../../../shared/classes/modal.class';
 
 @Component({
 	selector: 'action-bar',

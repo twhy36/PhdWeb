@@ -1,7 +1,6 @@
 import { Component, OnInit, Input, EventEmitter, Output, ViewChildren, QueryList } from '@angular/core';
-import { Location, AttributeGroup, DesignToolAttribute, LocationGroup } from '../../models/attribute.model';
+import { Location, AttributeGroup, DesignToolAttribute, LocationGroup, Choice } from 'phd-common';
 import { AttributeGroupComponent } from '../attribute-group/attribute-group.component';
-import { Choice } from '../../models/tree.model.new';
 import { MonotonyConflict } from '../../models/monotony-conflict.model';
 
 @Component({

@@ -5,10 +5,7 @@ import { Observable ,  throwError as _throw } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 
 import { environment } from '../../../../environments/environment';
-
-import { SummaryData, SummaryReportType } from '../../shared/models/summary.model';
-
-import { withSpinner } from 'phd-common/extensions/withSpinner.extension';
+import { withSpinner, SummaryData, SummaryReportType } from 'phd-common';
 
 @Injectable()
 export class ReportsService

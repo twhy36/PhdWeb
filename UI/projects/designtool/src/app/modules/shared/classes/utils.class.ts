@@ -1,4 +1,4 @@
-import { Choice } from '../models/tree.model.new';
+import { Choice } from 'phd-common';
 
 import * as _ from 'lodash';
 

@@ -2,18 +2,16 @@ import { createSelector, createFeatureSelector } from '@ngrx/store';
 
 import * as _ from "lodash";
 
+import {
+	DesignToolAttribute, SalesCommunity, PlanOption, TreeVersionRules, Scenario, TreeFilter,
+	Tree, Choice, Group, SubGroup, DecisionPoint, selectChoice, applyRules, setGroupStatus,
+	setPointStatus, setSubgroupStatus
+} from 'phd-common';
 import { ScenarioActions, ScenarioActionTypes } from './actions';
 
-import { selectChoice, applyRules, setGroupStatus, setPointStatus, setSubgroupStatus, getMaxSortOrderChoice, findChoice, findPoint } from '../../shared/classes/rulesExecutor';
 import { checkSelectedAttributes } from '../../shared/classes/tree.utils';
 
-import { Tree, Choice, Group, SubGroup, DecisionPoint, PickType } from '../../shared/models/tree.model.new';
-import { TreeVersionRules } from '../../shared/models/rule.model.new';
-import { PlanOption } from '../../shared/models/option.model';
-import { Scenario, TreeFilter } from '../../shared/models/scenario.model';
-import { SalesCommunity } from '../../shared/models/community.model';
 import { DecisionPointFilterType } from '../../shared/models/decisionPointFilter';
-import { DesignToolAttribute } from '../../shared/models/attribute.model';
 
 import { RehydrateMap } from '../sessionStorage';
 import { CommonActionTypes } from '../actions';

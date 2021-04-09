@@ -8,6 +8,8 @@ import { of } from 'rxjs/observable/of';
 import { from } from 'rxjs/observable/from';
 import { forkJoin } from 'rxjs/observable/forkJoin';
 
+import { ESignEnvelope, ESignStatusEnum, ESignTypeEnum, ChangeInput, ChangeTypeEnum, ChangeOrderGroup, ChangeOrderHanding } from 'phd-common';
+
 import { ModalService } from '../../core/services/modal.service';
 import { ChangeOrderService } from '../../core/services/change-order.service';
 import
@@ -17,7 +19,6 @@ import
 	CancelLotTransferChangeOrder, CancelSalesChangeOrder, SetCurrentChangeOrder, CancelNonStandardChangeOrder, SavePendingJio, CreateCancellationChangeOrder, CreateLotTransferChangeOrder,
 	ResubmitChangeOrder, ChangeOrderOutForSignature, SetSalesChangeOrderTermsAndConditions
 } from './actions';
-import { ChangeInput, ChangeTypeEnum, ChangeOrderGroup, ChangeOrderHanding } from '../../shared/models/job-change-order.model';
 import { TreeLoadedFromJob, SelectChoices } from '../scenario/actions';
 import { ChangeOrdersCreatedForJob } from '../job/actions';
 import { SelectLot } from '../lot/actions';
@@ -38,7 +39,6 @@ import { ContractService } from '../../core/services/contract.service';
 import { mergeIntoTree, setTreePointsPastCutOff } from '../../shared/classes/tree.utils';
 import { SelectPlan } from '../plan/actions';
 import { tryCatch } from '../error.action';
-import { ESignEnvelope, ESignStatusEnum, ESignTypeEnum } from '../../shared/models/esign-envelope.model';
 import { priceBreakdown } from '../reducers';
 
 

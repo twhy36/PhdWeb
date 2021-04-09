@@ -6,6 +6,12 @@ import { Subject, Subscription, timer } from 'rxjs';
 import { flatMap, combineLatest, switchMap, withLatestFrom } from 'rxjs/operators';
 
 import * as _ from 'lodash';
+
+import {
+	UnsubscribeOnDestroy, flipOver, ModalRef, ScenarioStatusType, PriceBreakdown, TreeFilter, SubGroup,
+	DecisionPoint, Choice
+} from 'phd-common';
+
 import * as fromRoot from '../../../../ngrx-store/reducers';
 import * as fromScenario from '../../../../ngrx-store/scenario/reducer';
 import * as SalesAgreementActions from '../../../../ngrx-store/sales-agreement/actions';
@@ -13,15 +19,10 @@ import * as ScenarioActions from '../../../../ngrx-store/scenario/actions';
 import { ActionBarCallType } from '../../../../shared/classes/constants.class';
 import { DecisionPointFilterType } from '../../../../shared/models/decisionPointFilter';
 import { environment } from '../../../../../../environments/environment';
-import { flipOver } from '../../../../shared/classes/animations.class';
 import { JobService } from '../../../../core/services/job.service';
 import { loadScript, unloadScript } from 'phd-common/utils';
 import { ScenarioService } from '../../../../core/services/scenario.service';
-import { ScenarioStatusType, PriceBreakdown, TreeFilter } from '../../../../shared/models/scenario.model';
-import { SubGroup, DecisionPoint, Choice } from '../../../../shared/models/tree.model.new';
-import { UnsubscribeOnDestroy } from 'phd-common/utils/unsubscribe-on-destroy';
 import { ModalService } from '../../../../core/services/modal.service';
-import { ModalRef } from '../../../../shared/classes/modal.class';
 
 declare var AVFloorplan: any;
 

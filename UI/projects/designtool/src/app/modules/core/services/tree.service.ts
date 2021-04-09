@@ -7,19 +7,15 @@ import { _throw } from 'rxjs/observable/throw';
 import { EMPTY as empty } from 'rxjs';
 import { of } from 'rxjs/observable/of';
 
+import {
+	newGuid, createBatchGet, createBatchHeaders, createBatchBody, withSpinner, ChangeOrderChoice, ChangeOrderPlanOption,
+	JobChoice, JobPlanOption, TreeVersionRules, OptionRule, Tree, ChoiceImageAssoc, PlanOptionCommunityImageAssoc,
+	TreeBaseHouseOption, OptionImage, IdentityService
+} from 'phd-common';
+
 import { environment } from '../../../../environments/environment';
 
-import { Tree, ChoiceImageAssoc, PlanOptionCommunityImageAssoc, TreeBaseHouseOption } from '../../shared/models/tree.model.new';
-import { TreeVersionRules, OptionRule } from '../../shared/models/rule.model.new';
-
-import { OptionImage } from '../../shared/models/tree.model.new';
-import { withSpinner } from 'phd-common/extensions/withSpinner.extension';
-import { createBatchGet, createBatchHeaders, createBatchBody } from '../../shared/classes/odata-utils.class';
-import { newGuid } from '../../shared/classes/guid.class';
 import { isJobChoice } from '../../shared/classes/tree.utils';
-import { IdentityService } from 'phd-common/services';
-import { JobChoice, JobPlanOption } from '../../shared/models/job.model';
-import { ChangeOrderChoice, ChangeOrderPlanOption } from '../../shared/models/job-change-order.model';
 
 import * as _ from 'lodash';
 
@@ -239,7 +235,7 @@ export class TreeService
 			{
 				let guid = newGuid();
 				let requests = choices.map(choice => createBatchGet(`${environment.apiUrl}GetChoiceDetails(DPChoiceID=${choice})`));
-				let headers = createBatchHeaders(token, guid);
+				let headers = createBatchHeaders(guid, token);
 				let batch = createBatchBody(guid, requests);
 
 				return this.http.post(`${environment.apiUrl}$batch`, batch, { headers: headers });
@@ -303,7 +299,7 @@ export class TreeService
 
 					let requests = batchBundles.map(req => createBatchGet(req));
 
-					var headers = createBatchHeaders(token, guid);
+					var headers = createBatchHeaders(guid, token);
 					var batch = createBatchBody(guid, requests);
 
 					return this.http.post(`${environment.apiUrl}$batch`, batch, { headers: headers });
@@ -387,7 +383,7 @@ export class TreeService
 				let requests = batchBundles.map(req => createBatchGet(req));
 
 				let guid = newGuid();
-				let headers = createBatchHeaders(token, guid);
+				let headers = createBatchHeaders(guid, token);
 				let batch = createBatchBody(guid, requests);
 
 				return this.http.post(`${environment.apiUrl}$batch`, batch, { headers: headers });

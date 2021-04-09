@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { EmailAssoc } from '../models/contact.model';
+import { EmailAssoc } from 'phd-common';
 
 @Pipe({
 	name: 'contactprimaryemail'

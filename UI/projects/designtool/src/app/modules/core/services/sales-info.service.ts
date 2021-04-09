@@ -6,7 +6,7 @@ import { map, catchError } from 'rxjs/operators';
 
 import { environment } from '../../../../environments/environment';
 import { SalesProgram } from '../../shared/models/sales-program.model';
-import { IdentityService } from 'phd-common/services';
+import { IdentityService } from 'phd-common';
 
 @Injectable()
 export class SalesInfoService

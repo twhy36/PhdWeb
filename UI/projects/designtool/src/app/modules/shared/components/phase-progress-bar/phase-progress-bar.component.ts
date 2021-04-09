@@ -1,8 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 
-import { PointStatus } from '../../../shared/models/point.model';
-import { flipOver2 } from '../../../shared/classes/animations.class';
-import { BrowserService } from '../../../core/services/browser.service';
+import { flipOver2, PointStatus, BrowserService } from 'phd-common';
 import { Observable } from 'rxjs';
 
 @Component({

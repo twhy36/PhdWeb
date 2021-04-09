@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { Address } from '../models/contact.model';
+import { Address } from 'phd-common';
 
 @Pipe({
 	name: 'citystatezip'

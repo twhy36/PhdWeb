@@ -1,14 +1,13 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { PriceBreakdown, ScenarioStatusType } from '../../../shared/models/scenario.model';
+import { UnsubscribeOnDestroy, PriceBreakdown, ScenarioStatusType, SummaryReportType } from 'phd-common';
+
 import { DecisionPointFilterType } from '../../../shared/models/decisionPointFilter';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 import { Store, select } from '@ngrx/store';
 import * as fromRoot from '../../../ngrx-store/reducers';
-import { UnsubscribeOnDestroy } from 'phd-common/utils/unsubscribe-on-destroy';
 
-import { SummaryReportType } from '../../../shared/models/summary.model';
 import { withLatestFrom } from 'rxjs/operators';
 
 @Component({

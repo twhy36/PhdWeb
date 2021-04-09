@@ -4,10 +4,9 @@ import { Store, select } from '@ngrx/store';
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as ContractActions from '../../../ngrx-store/contract/actions';
 
-import { UnsubscribeOnDestroy } from '../../../shared/classes/unsubscribe-on-destroy';
+import { UnsubscribeOnDestroy, ESignTypeEnum } from 'phd-common';
 import { Template, TemplateTypeEnum } from '../../../shared/models/template.model';
 import { combineLatest } from 'rxjs/operators';
-import { ESignTypeEnum } from '@shared/models/esign-envelope.model';
 
 @Component({
 	selector: 'agreement-documents',

@@ -5,19 +5,15 @@ import { Observable } from 'rxjs/Observable';
 import { map, catchError, switchMap, withLatestFrom, take, combineLatest } from 'rxjs/operators';
 import { _throw } from 'rxjs/observable/throw';
 
+import {
+	defaultOnNotFound, withSpinner, Buyer, Contact, PhoneType, ESignTypeEnum, ChangeOrderChoice, ChangeOrderNonStandardOption,
+	ChangeOrderGroup, LotExt, Plan, SalesAgreementProgram, SDPoint, DecisionPoint
+} from 'phd-common';
+
 import { environment } from '../../../../environments/environment';
 
-import { withSpinner } from 'phd-common/extensions/withSpinner.extension';
-
-import { defaultOnNotFound } from '../../shared/classes/default-on-not-found';
-
 import { Template, ITemplateInfo } from '../../shared/models/template.model';
-import { SDPoint } from '../../shared/models/summary.model';
 import { IFinancialCommunityESign, FinancialCommunityESign, IESignRecipient, MergeFieldData, MergeFieldDto } from '../../shared/models/contract.model';
-import { ChangeOrderChoice, ChangeOrderNonStandardOption, ChangeOrderGroup } from '../../shared/models/job-change-order.model';
-import { Plan } from '../../shared/models/plan.model';
-import { DecisionPoint } from '../../shared/models/tree.model.new';
-import { LotExt } from '../../shared/models/lot.model';
 import { EnvelopeInfo } from '../../shared/models/envelope-info.model';
 import { of } from 'rxjs/observable/of';
 import { convertMapToMergeFieldDto, getCurrentHouseSelections, getChangeOrderGroupSelections } from '../../shared/classes/merge-field-utils.class';
@@ -25,14 +21,10 @@ import * as _ from 'lodash';
 import { formatPhoneNumber } from 'phd-common/utils';
 import { Store } from '@ngrx/store';
 import * as fromRoot from '../../../modules/ngrx-store/reducers';
-import { Buyer } from '../../shared/models/buyer.model';
 import { isNull } from "../../shared/classes/string-utils.class";
-import { Contact, PhoneType } from '../../shared/models/contact.model';
 import * as fromLot from '../../ngrx-store/lot/reducer';
 import * as fromChangeOrder from '../../ngrx-store/change-order/reducer';
-import { SalesAgreementProgram } from '../../shared/models/sales-agreement.model';
 import { TreeService } from '../../core/services/tree.service';
-import { ESignTypeEnum } from '../../shared/models/esign-envelope.model';
 
 @Injectable()
 export class ContractService

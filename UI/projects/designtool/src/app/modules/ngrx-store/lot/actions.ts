@@ -1,5 +1,5 @@
 import { Action } from '@ngrx/store';
-import { Lot, LotExt, MonotonyRule } from '../../shared/models/lot.model';
+import { Lot, LotExt, MonotonyRule } from 'phd-common';
 import { ErrorAction } from '../error.action';
 import { SalesAgreementLoaded, JobLoaded, ScenarioLoaded } from '../actions';
 

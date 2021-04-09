@@ -3,12 +3,10 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, from, EMPTY as empty, throwError as _throw, of } from 'rxjs';
 import { combineLatest, map, catchError, flatMap, toArray, switchMap } from 'rxjs/operators';
 import { environment } from '../../../../environments/environment';
+import { withSpinner, SalesCommunity, Plan } from 'phd-common';
 
 import { OptionService } from './option.service';
 import { TreeService } from './tree.service';
-import { Plan } from '../../shared/models/plan.model';
-import { SalesCommunity } from '../../shared/models/community.model';
-import { withSpinner } from 'phd-common/extensions/withSpinner.extension';
 
 @Injectable()
 export class PlanService

@@ -7,12 +7,12 @@ import { Store, select } from '@ngrx/store';
 import * as fromRoot from '../../ngrx-store/reducers';
 import * as ChangeOrderActions from '../../ngrx-store/change-order/actions';
 
-import { UnsubscribeOnDestroy } from '../../shared/classes/unsubscribe-on-destroy';
-import { JobNonStandardOption } from '../../shared/models/job.model';
-import { ChangeOrderGroup, ChangeOrderNonStandardOption } from '../../shared/models/job-change-order.model';
+import {
+	UnsubscribeOnDestroy, ModalRef, ChangeOrderGroup, ChangeOrderNonStandardOption, JobNonStandardOption,
+	PriceBreakdown
+} from 'phd-common';
+
 import { Observable } from 'rxjs';
-import { PriceBreakdown } from '../../shared/models/scenario.model';
-import { ModalRef } from '../../shared/classes/modal.class';
 
 type ActionBarStatusType = 'INCOMPLETE' | 'COMPLETE' | 'DISABLED';
 

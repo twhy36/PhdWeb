@@ -3,15 +3,15 @@ import { Validators, FormBuilder, FormGroup, FormArray } from '@angular/forms';
 
 import { Store, select } from '@ngrx/store';
 import * as fromRoot from '../../../ngrx-store/reducers';
-import * as fromSalesAgreement from '../../../ngrx-store/sales-agreement/reducer';
 import { cloneDeep, trim } from 'lodash'
 
+import {
+	ConfirmModalComponent, Buyer, EmailAssoc, PhoneAssoc, AddressAssoc, Address, Contact, Phone,
+	MatchingContact, Realtor
+} from 'phd-common';
+
 import { ContactService } from '../../../core/services/contact.service';
-import { ConfirmModalComponent } from '../../../core/components/confirm-modal/confirm-modal.component';
 import { MatchingContactsComponent } from '../matching-contacts/matching-contacts.component';
-import { Buyer } from '../../../shared/models/buyer.model';
-import { Realtor } from '../../../shared/models/sales-agreement.model';
-import { EmailAssoc, PhoneAssoc, AddressAssoc, Address, Contact, Phone, MatchingContact } from '../../../shared/models/contact.model';
 import { customEmailValidator, noWhiteSpaceValidator, phoneValidator } from '../../../shared/classes/validators';
 import { stripPhoneNumber } from '../../../shared/classes/phoneUtils';
 import { ComponentCanNavAway } from '../../../shared/classes/component-can-nav-away.class';

@@ -12,12 +12,9 @@ import * as CommonActions from '../../../ngrx-store/actions';
 
 import * as _ from "lodash";
 
-import { UnsubscribeOnDestroy } from '../../../shared/classes/unsubscribe-on-destroy';
+import { UnsubscribeOnDestroy, Job, ConstructionStageTypes, SalesAgreement, Choice } from 'phd-common';
+
 import { convertDateToUtcString } from "../../../shared/classes/date-utils.class";
-import { SalesAgreement } from '../../../shared/models/sales-agreement.model';
-import { Job } from '../../../shared/models/job.model';
-import { Choice } from '../../../shared/models/tree.model.new';
-import { ConstructionStageTypes } from '../../../shared/models/point.model';
 import { JobService } from '../../../core/services/job.service';
 
 @Component({

@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 
-import { ModalContent } from '../../../shared/classes/modal.class';
+import { ModalContent } from 'phd-common';
 
 @Component({
 	selector: 'override-save-component',

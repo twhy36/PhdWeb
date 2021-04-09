@@ -8,6 +8,8 @@ import { from } from 'rxjs/observable/from';
 import { forkJoin } from 'rxjs/observable/forkJoin';
 import { ToastrService } from 'ngx-toastr';
 
+import { ESignEnvelope, ESignStatusEnum, ESignTypeEnum, Job } from 'phd-common';
+
 import { JobActionTypes, CreateChangeOrderEnvelope, EnvelopeError, LoadSpecs, SpecsLoaded, LoadJobForJob, JobLoadedByJobId, LoadPulteInfo, PulteInfoLoaded, SavePulteInfo, PulteInfoSaved } from './actions';
 import { convertMapToMergeFieldDto } from '../../shared/classes/merge-field-utils.class';
 import { ContractService } from '../../core/services/contract.service';
@@ -19,8 +21,6 @@ import * as fromRoot from '../reducers';
 import * as _ from "lodash";
 import { JobService } from '../../core/services/job.service';
 import { LoadError, LoadSpec, ChangeOrderEnvelopeCreated } from '../actions';
-import { Job } from '../../shared/models/job.model';
-import { ESignEnvelope, ESignStatusEnum, ESignTypeEnum } from '../../shared/models/esign-envelope.model';
 import { MergeFieldData } from '../../shared/models/contract.model';
 
 @Injectable()

@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { PhoneAssoc } from '../models/contact.model';
+import { PhoneAssoc } from 'phd-common';
 import { formatPhone } from '../classes/phoneUtils';
 
 @Pipe({

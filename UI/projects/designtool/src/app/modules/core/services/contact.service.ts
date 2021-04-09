@@ -4,9 +4,9 @@ import { HttpClient } from '@angular/common/http';
 import { Observable ,  throwError as _throw } from 'rxjs';
 import { map } from 'rxjs/operators';
 
+import { defaultOnNotFound, Contact, MatchingContact } from 'phd-common';
+
 import { environment } from '../../../../environments/environment';
-import { Contact, MatchingContact } from '../../shared/models/contact.model';
-import { defaultOnNotFound } from '../../shared/classes/default-on-not-found';
 
 @Injectable()
 export class ContactService

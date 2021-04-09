@@ -1,6 +1,6 @@
 import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 
-import { Contact, MatchingContact } from '../../../shared/models/contact.model';
+import { Contact, MatchingContact } from 'phd-common';
 
 @Component({
 	selector: 'matching-contact-card',

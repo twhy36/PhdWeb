@@ -4,7 +4,7 @@ import { Store } from '@ngrx/store';
 import * as fromRoot from '../../../ngrx-store/reducers';
 
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
-import { TreeFilter } from '../../models/scenario.model';
+import { TreeFilter } from 'phd-common';
 
 @Component({
 	selector: 'tree-filter',

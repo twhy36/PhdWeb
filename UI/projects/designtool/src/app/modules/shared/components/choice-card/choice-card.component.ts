@@ -7,15 +7,13 @@ import { combineLatest, switchMap, map, withLatestFrom } from 'rxjs/operators';
 
 import { Store, select } from '@ngrx/store';
 
-import { UnsubscribeOnDestroy } from '../../classes/unsubscribe-on-destroy';
-import { flipOver3 } from '../../classes/animations.class';
+import {
+	UnsubscribeOnDestroy, flipOver3, ModalRef, LocationGroup, AttributeGroup, ChangeTypeEnum, ChangeOrderGroup,
+	LotExt, Plan, Choice, OptionImage, DecisionPoint, ChoiceImageAssoc
+} from 'phd-common';
 
-import { Choice, OptionImage, DecisionPoint, ChoiceImageAssoc } from '../../models/tree.model.new';
-import { LocationGroup, AttributeGroup } from '../../models/attribute.model';
-import { ChangeTypeEnum } from '../../models/job-change-order.model';
 import { MonotonyConflict } from '../../models/monotony-conflict.model';
 import { ModalOverrideSaveComponent } from '../../../core/components/modal-override-save/modal-override-save.component';
-import { ChangeOrderGroup } from '../../../shared/models/job-change-order.model';
 import { mergeAttributes, mergeLocations, mergeAttributeImages } from '../../../shared/classes/tree.utils';
 
 import { AttributeService } from '../../../core/services/attribute.service';
@@ -28,11 +26,8 @@ import * as fromRoot from '../../../ngrx-store/reducers';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 
 import * as _ from 'lodash';
-import { LotExt } from '../../models/lot.model';
 import { ModalService } from '../../../core/services/modal.service';
-import { ModalRef } from '../../../shared/classes/modal.class';
 import { selectedPlanData } from '../../../ngrx-store/plan/reducer';
-import { Plan } from '../../models/plan.model';
 import { TreeService } from '../../../core/services/tree.service';
 
 @Component({

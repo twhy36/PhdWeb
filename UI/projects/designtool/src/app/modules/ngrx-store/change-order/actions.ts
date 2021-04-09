@@ -1,10 +1,10 @@
 import { Action } from '@ngrx/store';
-import { ChangeOrderGroup, ChangeInput, ChangeOrderNonStandardOption, ChangeOrderHanding } from '../../shared/models/job-change-order.model';
+import {
+	ChangeOrderGroup, ChangeInput, ChangeOrderNonStandardOption, ChangeOrderHanding, Note, SalesAgreement,
+	SalesChangeOrderPriceAdjustment, SalesChangeOrderSalesProgram, ChangeOrderBuyer
+} from 'phd-common';
 import { ErrorAction } from '../error.action';
-import { SalesChangeOrderPriceAdjustment, SalesChangeOrderSalesProgram, ChangeOrderBuyer } from '../../shared/models/sales-change-order.model';
 import { SalesAgreementLoaded, JobLoaded, ESignEnvelopesLoaded, ChangeOrderEnvelopeCreated, ChangeOrdersUpdated } from '../actions';
-import { SalesAgreement } from '@shared/models/sales-agreement.model';
-import { Note } from '@shared/models/note.model';
 
 export enum ChangeOrderActionTypes
 {

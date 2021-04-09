@@ -1,4 +1,3 @@
-import { ChangeTypeEnum } from './../../../shared/models/job-change-order.model';
 import { ReplaySubject } from 'rxjs';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { Component, OnInit } from '@angular/core';
@@ -8,9 +7,8 @@ import { Store, select } from '@ngrx/store';
 import { map, distinctUntilChanged, combineLatest } from 'rxjs/operators';
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as JobActions from '../../../ngrx-store/job/actions';
-import { UnsubscribeOnDestroy } from 'phd-common/utils/unsubscribe-on-destroy';
-import { Job, SpecInformation } from './../../../shared/models/job.model';
-import { PriceBreakdown } from '../../../shared/models/scenario.model';
+
+import { UnsubscribeOnDestroy, ChangeTypeEnum, Job, SpecInformation, PriceBreakdown } from 'phd-common';
 
 @Component({
     selector: 'pulte-info',

@@ -1,12 +1,10 @@
 import { Component, OnInit, Input, NgZone, Renderer2, ChangeDetectorRef, OnDestroy, ElementRef, Output, EventEmitter, ViewChild } from '@angular/core';
 
+import { LotExt, Plan, PointStatus, PriceBreakdown } from 'phd-common';
+
 import { ScenarioService } from '../../../core/services/scenario.service';
 
-import { PointStatus } from '../../../shared/models/point.model';
 import { PointStatusFilter } from '../../../shared/models/decisionPointFilter';
-import { Plan } from '../../../shared/models/plan.model';
-import { LotExt } from '../../../shared/models/lot.model';
-import { PriceBreakdown } from '../../../shared/models/scenario.model';
 
 import { PricingBreakdownComponent } from '../pricing-breakdown/pricing-breakdown.component';
 

@@ -1,4 +1,4 @@
-import { SDGroup } from "./summary.model";
+import { SDGroup } from "phd-common";
 
 export interface IEnvelopeInfo
 {

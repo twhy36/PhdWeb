@@ -5,9 +5,7 @@ import * as fromRoot from '../../ngrx-store/reducers';
 
 import * as NavActions from '../../ngrx-store/nav/actions';
 
-import { PointStatus } from '../../shared/models/point.model';
-import { Job } from '../../shared/models/job.model';
-import { Scenario } from '../../shared/models/scenario.model';
+import { Job, PointStatus, Scenario } from 'phd-common';
 
 @Injectable()
 export class NewHomeService

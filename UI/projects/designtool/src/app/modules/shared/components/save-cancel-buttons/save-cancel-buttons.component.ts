@@ -2,8 +2,9 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Observable, Subscription } from 'rxjs';
 import { Store, select } from '@ngrx/store';
 import * as fromRoot from '../../../ngrx-store/reducers';
-import { UnsubscribeOnDestroy } from '../../../shared/classes/unsubscribe-on-destroy';
 import { FormGroup } from '@angular/forms';
+
+import { UnsubscribeOnDestroy } from 'phd-common';
 
 @Component( {
 	selector: 'save-cancel-buttons',

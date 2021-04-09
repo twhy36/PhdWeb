@@ -25,7 +25,6 @@ import { DecisionPointFilterComponent } from './components/decision-point-filter
 import { DecisionPointSummaryComponent } from './components/decision-point-summary/decision-point-summary.component';
 import { DistributionListComponent } from './components/distribution-list/distribution-list.component';
 import { DisabledErrorComponent } from './components/disabled-error/disabled-error.component';
-import { ErrorMessageComponent } from './components/error-message/error-message.component';
 import { ExperienceFilterComponent } from './components/experience-filter/experience-filter.component';
 import { PageHeaderComponent } from './components/page-header/page-header.component';
 import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
@@ -47,7 +46,6 @@ import { CityStateZipPipe } from './pipes/city-state-zip.pipe';
 import { ContactAddressPipe } from './pipes/contact-address.pipe';
 import { ContactPrimaryEmailPipe } from './pipes/contact-primary-email.pipe';
 import { ContactPrimaryPhonePipe } from './pipes/contact-primary-phone.pipe';
-import { EllipsisPipe } from './pipes/ellipsis.pipe';
 import { EnumToArrayPipe } from './pipes/enum-to-array.pipe';
 import { MapJoinPipe } from './pipes/map-join.pipe';
 import { PointIdToNamePipe } from './pipes/pointIdToName.pipe';
@@ -56,7 +54,7 @@ import { ContactFullNamePipe } from './pipes/contact-full-name.pipe';
 import { MinusSignToParens } from './pipes/minusSignToParens.pipe';
 import { PriceRangePipe } from './pipes/priceRange.pipe';
 
-import { DragSourceDirective, DragTargetDirective, PhoneNumberDirective } from './directives';
+import { PhoneNumberDirective } from './directives';
 import { InputFilterDirective } from './directives/input-filter.directive';
 
 @NgModule({
@@ -80,11 +78,7 @@ import { InputFilterDirective } from './directives/input-filter.directive';
 		ContactPrimaryPhonePipe,
 		DecisionPointSummaryComponent,
 		DisabledErrorComponent,
-		DragSourceDirective,
-		DragTargetDirective,
-		EllipsisPipe,
 		EnumToArrayPipe,
-		ErrorMessageComponent,
 		ExperienceFilterComponent,
 		MapJoinPipe,
 		PageHeaderComponent,
@@ -128,11 +122,7 @@ import { InputFilterDirective } from './directives/input-filter.directive';
 		ContactPrimaryPhonePipe,
 		DecisionPointSummaryComponent,
 		DisabledErrorComponent,
-		DragSourceDirective,
-		DragTargetDirective,
-		EllipsisPipe,
 		EnumToArrayPipe,
-		ErrorMessageComponent,
 		ExperienceFilterComponent,
 		MapJoinPipe,
 		PageHeaderComponent,

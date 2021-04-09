@@ -1,17 +1,13 @@
 import { Action } from '@ngrx/store';
+
+import {
+	SalesCommunity, ESignEnvelope, ChangeOrderGroup, ChangeOrderHanding, Job, JobChoice, LotExt,
+	OpportunityContactAssoc, PlanOption, TreeVersionRules, SalesAgreement, SalesAgreementInfo, Scenario,
+	Tree, OptionImage
+} from 'phd-common';
+
 import { ErrorAction } from './error.action';
-import { Scenario } from '../shared/models/scenario.model';
-import { TreeVersionRules } from '../shared/models/rule.model.new';
-import { Tree, OptionImage } from '../shared/models/tree.model.new';
-import { PlanOption } from '../shared/models/option.model';
-import { SalesCommunity } from '../shared/models/community.model';
-import { OpportunityContactAssoc } from '../shared/models/opportunity.model';
 import { Stopwatch } from './stopwatch';
-import { SalesAgreement, SalesAgreementInfo } from '../shared/models/sales-agreement.model';
-import { Job, JobChoice } from '../shared/models/job.model';
-import { ChangeOrderGroup, ChangeOrderHanding } from '../shared/models/job-change-order.model';
-import { ESignEnvelope } from '../shared/models/esign-envelope.model';
-import { LotExt } from '../shared/models/lot.model';
 
 export enum CommonActionTypes {
     LoadScenario = "Load Scenario",

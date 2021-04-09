@@ -1,13 +1,13 @@
 import { Component, OnInit, ViewEncapsulation, Input, OnChanges, SimpleChanges, EventEmitter, Output } from '@angular/core';
 import { FormGroup, Validators, FormBuilder } from '@angular/forms';
 import { NgbCalendar, NgbDateStruct, NgbDate } from '@ng-bootstrap/ng-bootstrap';
-import { Store, select } from '@ngrx/store';
-import { Observable } from 'rxjs';
+import { Store } from '@ngrx/store';
+
+import { SalesAgreement } from 'phd-common';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
 import { ComponentCanNavAway } from '../../../shared/classes/component-can-nav-away.class';
 import { UpdateSalesAgreement } from '../../../ngrx-store/sales-agreement/actions';
-import { SalesAgreement } from '@shared/models/sales-agreement.model';
 import { NgbDateNativeAdapter } from '../../../shared/classes/ngbDatePicker/ngbDateNativeAdapter.class';
 import { convertDateToUtcString } from "../../../shared/classes/date-utils.class";
 

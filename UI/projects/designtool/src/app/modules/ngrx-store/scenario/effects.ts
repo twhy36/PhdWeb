@@ -15,6 +15,8 @@ import { AppInsights } from 'applicationinsights-js';
 
 import * as _ from 'lodash';
 
+import { Plan, DtoScenarioInfo } from 'phd-common';
+
 import { CommonActionTypes, JobLoaded, SalesAgreementLoaded, ScenarioLoaded } from './../actions';
 import { OptionService } from '../../core/services/option.service';
 import { OrganizationService } from '../../core/services/organization.service';
@@ -32,8 +34,6 @@ import { SaveChangeOrderScenario, SavePendingJio } from '../change-order/actions
 import { SetWebPlanMapping, PlansLoaded, SelectPlan } from '../plan/actions';
 import * as fromRoot from '../reducers';
 import { tryCatch, MapFunction } from '../error.action';
-import { DtoScenarioInfo } from '../../shared/models/scenario.model';
-import { Plan } from '../../shared/models/plan.model';
 import { SalesCommunityLoaded } from '../org/actions';
 
 @Injectable()

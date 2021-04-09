@@ -1,5 +1,5 @@
 import { OrgActions, OrgActionTypes } from './actions';
-import { SalesCommunity } from '../../shared/models/community.model';
+import { SalesCommunity } from 'phd-common';
 import { CommonActionTypes } from '../actions';
 import { createFeatureSelector, createSelector } from '@ngrx/store';
 

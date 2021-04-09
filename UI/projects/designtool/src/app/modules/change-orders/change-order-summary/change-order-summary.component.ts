@@ -16,17 +16,15 @@ import * as fromUser from '../../ngrx-store/user/reducer';
 import * as fromSalesAgreement from '../../ngrx-store/sales-agreement/reducer';
 import * as fromJob from '../../ngrx-store/job/reducer';
 
-import { ChangeOrderGroup, ChangeTypeEnum, ChangeInput } from '../../shared/models/job-change-order.model';
+import { UnsubscribeOnDestroy, ModalRef, ESignStatusEnum, ESignTypeEnum, ChangeOrderGroup, ChangeTypeEnum, ChangeInput} from 'phd-common';
+
 import { ChangeOrderService } from '../../core/services/change-order.service';
-import { UnsubscribeOnDestroy } from '../../shared/classes/unsubscribe-on-destroy';
-import { ESignStatusEnum, ESignTypeEnum } from '../../shared/models/esign-envelope.model';
 import { PDFViewerComponent } from '../../shared/components/pdf-viewer/pdf-viewer.component';
 import { ContractService } from '../../core/services/contract.service';
 
 import * as _ from 'lodash';
 import { LotsLoaded, LotActionTypes } from '../../ngrx-store/lot/actions';
 import { ModalService } from '../../core/services/modal.service';
-import { ModalRef } from '../../shared/classes/modal.class';
 import { convertDateToUtcString } from "../../shared/classes/date-utils.class";
 
 @Component({

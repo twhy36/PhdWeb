@@ -8,11 +8,10 @@ import { Observable } from 'rxjs/Observable';
 import { combineLatest, map, switchMap, take, withLatestFrom } from 'rxjs/operators';
 import { never } from 'rxjs/observable/never';
 
+import { UnsubscribeOnDestroy, flipOver, Scenario, BrowserService } from 'phd-common';
+
 import { ScenarioService } from '../../../core/services/scenario.service';
 import { OpportunityService } from '../../../core/services/opportunity.service';
-import { UnsubscribeOnDestroy } from '../../../shared/classes/unsubscribe-on-destroy';
-import { Scenario } from '../../../shared/models/scenario.model';
-import { flipOver } from '../../../shared/classes/animations.class';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromOpportunity from '../../../ngrx-store/opportunity/reducer';
@@ -21,7 +20,6 @@ import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 import * as NavActions from '../../../ngrx-store/nav/actions';
 
-import { BrowserService } from '../../../core/services/browser.service';
 import { NewHomeService } from '../../services/new-home.service';
 
 @Component({

@@ -1,5 +1,5 @@
 import { HostListener } from "@angular/core";
-import { UnsubscribeOnDestroy } from "./unsubscribe-on-destroy";
+import { UnsubscribeOnDestroy } from 'phd-common';
 
 export abstract class ComponentCanNavAway extends UnsubscribeOnDestroy
 {

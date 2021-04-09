@@ -1,14 +1,10 @@
-import { SalesAgreement } from "../models/sales-agreement.model";
-import { Job } from "../models/job.model";
-import { PhoneType, Contact } from "../models/contact.model";
-import { DecisionPoint, Group } from "../models/tree.model.new";
+import {
+	Buyer, FinancialCommunity, PhoneType, Contact, ChangeOrderChoice, Job, SalesAgreement, PriceBreakdown,
+	SDGroup, SDSubGroup, SDPoint, SDChoice, DecisionPoint, Group
+} from "phd-common";
+
 import { isNullOrEmpty, isNull } from "./string-utils.class";
 import { monthRange, addMonths } from "./date-utils.class";
-import { PriceBreakdown } from "../models/scenario.model";
-import { FinancialCommunity } from "../models/community.model";
-import { SDGroup, SDSubGroup, SDPoint, SDChoice } from "../models/summary.model";
-import { Buyer } from "../models/buyer.model";
-import { ChangeOrderChoice } from "../models/job-change-order.model";
 import { MergeFieldDto } from "../models/contract.model";
 import * as _ from 'lodash';
 

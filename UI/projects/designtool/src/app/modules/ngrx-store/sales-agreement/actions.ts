@@ -1,7 +1,10 @@
 import { Action } from '@ngrx/store';
-import { SalesAgreement, Realtor, SalesAgreementProgram, SalesAgreementDeposit, SalesAgreementContingency, SalesAgreementCancelVoidInfo, Consultant, SalesAgreementInfo } from '../../shared/models/sales-agreement.model';
-import { Buyer } from '../../shared/models/buyer.model';
-import { Note } from '../../shared/models/note.model';
+
+import {
+	Buyer, Note, SalesAgreement, Realtor, SalesAgreementProgram, SalesAgreementDeposit, SalesAgreementContingency,
+	SalesAgreementCancelVoidInfo, Consultant, SalesAgreementInfo
+} from 'phd-common';
+
 import { ErrorAction } from '../error.action';
 import { SalesAgreementLoaded, LoadSalesAgreement, LoadError, SalesAgreementCancelled, ChangeOrdersUpdated } from '../actions';
 

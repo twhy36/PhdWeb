@@ -13,8 +13,7 @@ import
 
 import { Store, select } from '@ngrx/store';
 
-import { ChangeTypeEnum } from '../../../shared/models/job-change-order.model';
-import { UnsubscribeOnDestroy } from '../../../shared/classes/unsubscribe-on-destroy';
+import { UnsubscribeOnDestroy, FinancialCommunity, ChangeTypeEnum, Job } from 'phd-common';
 
 import { LoadSpecs } from '../../../ngrx-store/job/actions';
 import * as LotActions from '../../../ngrx-store/lot/actions';
@@ -30,10 +29,8 @@ import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 import * as fromOpportunity from '../../../ngrx-store/opportunity/reducer';
 
-import { FinancialCommunity } from '../../../shared/models/community.model';
 import { ReplaySubject } from 'rxjs/ReplaySubject';
 import { SubNavItems, SpecSubNavItems } from '../../subNavItems';
-import { Job } from '../../../shared/models/job.model';
 import { NewHomeService } from '../../services/new-home.service';
 
 @Component({

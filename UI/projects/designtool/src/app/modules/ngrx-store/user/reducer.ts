@@ -1,4 +1,4 @@
-import { IMarket } from "../../shared/models/market";
+import { IMarket } from "phd-common";
 import { UserActions, UserActionTypes } from "./actions";
 import { Permission } from "phd-common/models";
 import { createFeatureSelector, createSelector } from "@ngrx/store";

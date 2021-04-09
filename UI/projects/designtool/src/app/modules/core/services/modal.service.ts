@@ -2,11 +2,12 @@ import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs/Subject';
 import { from } from 'rxjs/observable/from';
 import { map } from 'rxjs/operators';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+
+import { ModalOptions, ModalRef, IModalOptions } from 'phd-common';
 
 import { ModalMessages } from '../../shared/classes/constants.class';
 import { ModalComponent } from './../components/modal/modal.component';
-import { ModalOptions, ModalRef, IModalOptions } from '../../shared/classes/modal.class';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Injectable()
 export class ModalService

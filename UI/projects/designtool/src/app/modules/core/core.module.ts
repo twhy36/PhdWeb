@@ -6,9 +6,9 @@ import { RouterModule } from '@angular/router';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrModule } from 'ngx-toastr';
 
+import { PhdCommonModule } from 'phd-common';
 import { SharedModule } from '../shared/shared.module';
 
-import { ConfirmModalComponent } from './components/confirm-modal/confirm-modal.component';
 import { NavMenuComponent } from './components/nav-menu/nav-menu.component';
 import { NavMenuItemComponent } from './components/nav-menu-item/nav-menu-item.component';
 import { NavigationComponent } from './components/navigation/navigation.component';
@@ -37,14 +37,12 @@ import { ChangeOrderService } from './services/change-order.service';
 import { ContractService } from './services/contract.service';
 import { ReportsService } from './services/reports.service';
 import { ModalOverrideSaveComponent } from './components/modal-override-save/modal-override-save.component';
-import { BrowserService } from './services/browser.service';
 import { ModalService } from './services/modal.service';
 import { ModalComponent } from './components/modal/modal.component';
 import { NotificationService } from './services/notification.service';
 
 @NgModule({
 	exports: [
-		ConfirmModalComponent,
 		NavMenuComponent,
 		NavMenuItemComponent,
 		NavigationComponent,
@@ -56,7 +54,6 @@ import { NotificationService } from './services/notification.service';
 		ModalComponent
 	],
 	declarations: [
-		ConfirmModalComponent,
 		NavMenuComponent,
 		NavMenuItemComponent,
 		NavigationComponent,
@@ -74,7 +71,8 @@ import { NotificationService } from './services/notification.service';
 		RouterModule,
 		NgbModule,
 		ToastrModule,
-		SharedModule
+		SharedModule,
+		PhdCommonModule
 	],
 	providers: [
 		SalesInfoService,
@@ -96,11 +94,10 @@ import { NotificationService } from './services/notification.service';
 		ChangeOrderService,
 		ContractService,
 		ReportsService,
-		BrowserService,
 		ModalService,
 		NotificationService,
 		{ provide: ErrorHandler, useClass: PhdErrorHandler }
 	],
-	entryComponents: [ConfirmModalComponent, ModalOverrideSaveComponent, ModalComponent]
+	entryComponents: [ModalOverrideSaveComponent, ModalComponent]
 })
 export class CoreModule { }

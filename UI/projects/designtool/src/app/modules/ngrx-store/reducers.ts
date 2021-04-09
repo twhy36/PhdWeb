@@ -2,6 +2,12 @@ import { ActionReducerMap, createSelector } from '@ngrx/store';
 
 import * as _ from 'lodash';
 
+import {
+	isChoiceComplete, isChoiceAttributesComplete, Buyer, ChangeOrderChoice, ChangeOrderChoiceAttribute,
+	ChangeOrderChoiceLocation, ChangeTypeEnum, JobChoice, JobChoiceAttribute, JobChoiceLocation, Lot, PointStatus,
+	isSalesChangeOrder, setPriceBreakdown, ScenarioStatusType, PriceBreakdown, PickType, TreeVersion, Choice
+} from 'phd-common';
+
 import * as fromScenario from './scenario/reducer';
 import * as fromLot from './lot/reducer';
 import * as fromPlan from './plan/reducer';
@@ -15,21 +21,10 @@ import * as fromJob from './job/reducer';
 import * as fromChangeOrder from './change-order/reducer';
 import * as fromContract from './contract/reducer';
 
-import { PickType, TreeVersion, Choice } from '../shared/models/tree.model.new';
-
 import { MonotonyConflict } from '../shared/models/monotony-conflict.model';
-import { ScenarioStatusType, PriceBreakdown } from '../shared/models/scenario.model';
 
-import { setPriceBreakdown } from '../shared/classes/rulesExecutor';
-import { isChoiceComplete, isChoiceAttributesComplete } from '../shared/classes/utils.class';
 import { DecisionPointFilterType } from '../shared/models/decisionPointFilter';
-import { PointStatus } from '../shared/models/point.model';
-import { JobChoice, JobChoiceAttribute, JobChoiceLocation } from '../shared/models/job.model';
-import { ChangeOrderChoice, ChangeOrderChoiceAttribute, ChangeOrderChoiceLocation, ChangeTypeEnum } from '../shared/models/job-change-order.model';
-import { Lot } from '../shared/models/lot.model';
 import { mapSystemMergeFields } from '../shared/classes/merge-field-utils.class';
-import { isSalesChangeOrder } from '../shared/models/sales-change-order.model';
-import { Buyer } from '../shared/models/buyer.model';
 
 export interface State
 {

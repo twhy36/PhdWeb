@@ -1,13 +1,13 @@
 import { createSelector, createFeatureSelector } from '@ngrx/store';
 import * as _ from "lodash";
 
-import { ChangeOrderGroup, ChangeInput, ChangeTypeEnum, ChangeOrder, ChangeOrderLot, SalesStatusEnum, ChangeOrderGroupSalesStatusHistory, SalesNotesChangeOrders } from '../../shared/models/job-change-order.model';
-import { isSalesChangeOrder } from '../../shared/models/sales-change-order.model';
-import { Buyer } from '../../shared/models/buyer.model';
+import {
+	Buyer, ESignStatusEnum, ChangeOrderGroup, ChangeInput, ChangeTypeEnum, ChangeOrder, ChangeOrderLot,
+	SalesStatusEnum, ChangeOrderGroupSalesStatusHistory, SalesNotesChangeOrders, Note, isSalesChangeOrder
+} from 'phd-common';
+
 import { ChangeOrderActions, ChangeOrderActionTypes } from './actions';
-import { Note } from '../../shared/models/note.model';
 import { CommonActionTypes } from '../actions';
-import { ESignStatusEnum } from '../../shared/models/esign-envelope.model';
 
 export interface State
 {

@@ -6,21 +6,22 @@ import { Store, select } from '@ngrx/store';
 import * as fromRoot from '../../../ngrx-store/reducers';
 
 import { map, switchMap, take, combineLatest, debounceTime } from 'rxjs/operators';
+
+import {
+	UnsubscribeOnDestroy, ChangeOrder, ChangeOrderGroup, Note, SalesAgreementProgram,
+	SalesAgreementDeposit, SalesAgreementContingency, SalesAgreement, ISalesProgram, SalesAgreementInfo,
+	SalesChangeOrderPriceAdjustment, SalesChangeOrderSalesProgram, isSalesChangeOrder
+} from 'phd-common';
+
 import { SalesInfoService } from '../../../core/services/sales-info.service';
 import { ConfirmNavigationComponent } from '../../../core/guards/confirm-navigation.guard';
-import { UnsubscribeOnDestroy } from '../../../shared/classes/unsubscribe-on-destroy';
-import { SalesAgreementProgram, SalesAgreementDeposit, SalesAgreementContingency, SalesAgreement, ISalesProgram, SalesAgreementInfo } from '../../../shared/models/sales-agreement.model';
 import { SalesProgram, SalesProgramTypeEnum } from '../../../shared/models/sales-program.model';
-import { Note } from '../../../shared/models/note.model';
-import { SalesChangeOrderPriceAdjustment, SalesChangeOrderSalesProgram } from '../../../shared/models/sales-change-order.model';
-import { ChangeOrder, ChangeOrderGroup } from '../../../shared/models/job-change-order.model';
 
 import * as SalesAgreementActions from '../../../ngrx-store/sales-agreement/actions';
 import * as ChangeOrderActions from '../../../ngrx-store/change-order/actions';
 import * as CommonActions from '../../../ngrx-store/actions';
 import { NEVER as never, of, Observable, Subject } from 'rxjs';
 
-import { isSalesChangeOrder } from '../../../shared/models/sales-change-order.model';
 import * as _ from 'lodash';
 import { selectSelectedLot } from '../../../ngrx-store/lot/reducer';
 

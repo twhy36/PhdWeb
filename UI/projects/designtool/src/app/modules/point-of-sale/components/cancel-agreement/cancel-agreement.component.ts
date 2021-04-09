@@ -7,12 +7,9 @@ import * as fromRoot from '../../../ngrx-store/reducers';
 
 import * as SalesAgreementActions from '../../../ngrx-store/sales-agreement/actions';
 
-import { UnsubscribeOnDestroy } from '../../../shared/classes/unsubscribe-on-destroy';
-import * as CommonActions from '../../../ngrx-store/actions';
+import { UnsubscribeOnDestroy, Note, TargetAudienceTypeEnum, SalesAgreementCancelReason, SalesAgreement } from 'phd-common';
 
-import { SalesAgreementCancelReason, SalesAgreement } from '../../../shared/models/sales-agreement.model';
 import { SalesAgreementService } from '../../../core/services/sales-agreement.service';
-import { Note, TargetAudienceTypeEnum } from '../../../shared/models/note.model';
 import { switchMap } from 'rxjs/operators';
 
 @Component({

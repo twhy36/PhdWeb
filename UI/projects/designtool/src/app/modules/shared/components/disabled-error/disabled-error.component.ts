@@ -4,11 +4,11 @@ import { Store, select } from '@ngrx/store';
 import { map, filter, combineLatest, distinctUntilChanged, withLatestFrom, debounceTime, take } from 'rxjs/operators';
 
 import * as _ from 'lodash';
+
+import { UnsubscribeOnDestroy, Choice, DecisionPoint } from 'phd-common';
+
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
-
-import { Choice, DecisionPoint } from '../../models/tree.model.new';
-import { UnsubscribeOnDestroy } from '../../../shared/classes/unsubscribe-on-destroy';
 
 @Component({
 	selector: 'disabled-error',

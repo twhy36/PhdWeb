@@ -9,7 +9,7 @@ import * as _ from 'lodash';
 import { environment } from '../../../../environments/environment';
 
 import { OrganizationService } from './organization.service';
-import { CrmOpportunity, OpportunityContactAssoc, IOpportunityContactAssoc } from '../../shared/models/opportunity.model';
+import { CrmOpportunity, OpportunityContactAssoc } from 'phd-common';
 
 import { bind } from '../../shared/classes/decorators.class';
 

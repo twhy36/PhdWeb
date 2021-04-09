@@ -9,7 +9,7 @@ import * as moment from "moment";
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 import { NgbDateNativeAdapter } from '../../../shared/classes/ngbDatePicker/ngbDateNativeAdapter.class';
-import { ModalContent } from '../../../shared/classes/modal.class';
+import { ModalContent } from 'phd-common';
 
 @Component({
 	selector: 'sign-agreement-component',

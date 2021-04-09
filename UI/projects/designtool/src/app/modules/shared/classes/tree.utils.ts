@@ -6,16 +6,15 @@ import { _throw } from 'rxjs/observable/throw';
 import * as _ from 'lodash';
 import * as moment from "moment";
 
-import { Tree, Choice, DecisionPoint, MappedAttributeGroup, MappedLocationGroup, OptionImage, SubGroup, Group } from '../models/tree.model.new';
-import { JobChoice, JobPlanOption, JobChoiceAttribute, JobChoiceLocation, Job } from '../models/job.model';
-import { PlanOption } from '../models/option.model';
-import { ChangeOrderGroup, ChangeOrderChoice, ChangeOrderPlanOption, ChangeOrderChoiceAttribute, ChangeOrderChoiceLocation } from '../models/job-change-order.model';
+import {
+	LocationGroup, Location, AttributeGroup, Attribute, DesignToolAttribute, AttributeCommunityImageAssoc,
+	ChangeOrderGroup, ChangeOrderChoice, ChangeOrderPlanOption, ChangeOrderChoiceAttribute, ChangeOrderChoiceLocation,
+	JobChoice, JobPlanOption, JobChoiceAttribute, JobChoiceLocation, Job, PlanOption, PointStatus, ConstructionStageTypes,
+	OptionRule, TreeVersionRules, Scenario, SelectedChoice, Tree, Choice, DecisionPoint, MappedAttributeGroup, MappedLocationGroup,
+	OptionImage, SubGroup, Group, applyRules, findChoice
+} from 'phd-common';
+
 import { TreeService } from '../../core/services/tree.service';
-import { PointStatus, ConstructionStageTypes } from '../../shared/models/point.model';
-import { LocationGroup, Location, AttributeGroup, Attribute, DesignToolAttribute, AttributeCommunityImageAssoc } from '../models/attribute.model';
-import { Scenario, SelectedChoice } from '../../shared/models/scenario.model';
-import { OptionRule, TreeVersionRules } from '../../shared/models/rule.model.new';
-import { applyRules, findChoice } from '../../shared/classes/rulesExecutor';
 
 export function isJobChoice(choice: JobChoice | ChangeOrderChoice): choice is JobChoice
 {

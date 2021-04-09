@@ -3,11 +3,8 @@ import { Store } from '@ngrx/store';
 
 import * as _ from 'lodash';
 
-import { PointStatus } from '../../../shared/models/point.model';
-import { flipOver2, slideOut } from '../../../shared/classes/animations.class';
-import { UnsubscribeOnDestroy } from '../../../shared/classes/unsubscribe-on-destroy';
+import { UnsubscribeOnDestroy, flipOver2, slideOut, PointStatus, DecisionPoint } from 'phd-common';
 
-import { DecisionPoint } from '../../models/tree.model.new';
 import * as fromRoot from '../../../ngrx-store/reducers';
 
 @Component({

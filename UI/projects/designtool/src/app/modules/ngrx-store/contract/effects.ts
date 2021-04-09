@@ -6,6 +6,9 @@ import { combineLatest, switchMap, withLatestFrom, exhaustMap, map, take } from 
 import { of } from 'rxjs/observable/of';
 import { never } from 'rxjs/observable/never';
 import { from } from 'rxjs/observable/from';
+
+import { Buyer, Contact, PhoneType, ESignEnvelope, ESignStatusEnum, ESignTypeEnum, ChangeOrderGroup, ChangeOrderChoice } from 'phd-common';
+
 import * as fromRoot from '../reducers';
 import
 {
@@ -16,18 +19,14 @@ import { ContractService } from '../../core/services/contract.service';
 import { ChangeOrderService } from '../../core/services/change-order.service';
 import { tryCatch } from '../error.action';
 import { getCurrentHouseSelections, convertMapToMergeFieldDto, getChangeOrderGroupSelections } from '../../shared/classes/merge-field-utils.class';
-import { ESignEnvelope, ESignStatusEnum, ESignTypeEnum } from '../../shared/models/esign-envelope.model';
 import { ChangeOrderEnvelopeCreated, ESignEnvelopesLoaded } from '../actions';
-import { Contact, PhoneType } from '../../shared/models/contact.model';
 import { isNull } from "../../shared/classes/string-utils.class";
-import { Buyer } from '../../shared/models/buyer.model';
 import * as fromLot from '../lot/reducer';
 import * as fromScenario from '../scenario/reducer';
 import * as fromChangeOrder from '../change-order/reducer';
 import * as _ from 'lodash';
 import { MergeFieldData } from '../../shared/models/contract.model';
 import { formatPhoneNumber } from 'phd-common/utils';
-import { ChangeOrderGroup, ChangeOrderChoice } from '../../shared/models/job-change-order.model';
 
 @Injectable()
 export class ContractEffects

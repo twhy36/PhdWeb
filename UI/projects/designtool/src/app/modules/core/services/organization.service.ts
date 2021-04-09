@@ -6,7 +6,7 @@ import { catchError, map } from 'rxjs/operators';
 
 import { environment } from '../../../../environments/environment';
 
-import { SalesCommunity } from '../../shared/models/community.model';
+import { SalesCommunity } from 'phd-common';
 
 @Injectable()
 export class OrganizationService

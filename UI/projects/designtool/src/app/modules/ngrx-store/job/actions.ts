@@ -1,9 +1,9 @@
 import { Action } from '@ngrx/store';
-import { Job } from '../../shared/models/job.model';
-import { ChangeOrderGroup } from '../../shared/models/job-change-order.model';
+
+import { ChangeOrderGroup, Job, SpecInformation } from 'phd-common';
+
 import { ErrorAction } from '../error.action';
 import { SalesAgreementLoaded, JobLoaded, SalesAgreementCancelled, ESignEnvelopesLoaded, ChangeOrdersUpdated, ChangeOrderEnvelopeCreated, ScenarioLoaded } from '../actions';
-import { SpecInformation } from './../../shared/models/job.model';
 
 export enum JobActionTypes
 {

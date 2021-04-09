@@ -1,8 +1,7 @@
 import { Component, Input, OnInit, ContentChild, TemplateRef } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { PointStatus } from '../../../shared/models/point.model';
-import { flipOver2 } from '../../../shared/classes/animations.class';
+import { flipOver2, PointStatus } from 'phd-common';
 
 @Component({
 	selector: 'phd-nav-menu-item',

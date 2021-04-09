@@ -4,21 +4,13 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, throwError as _throw, of } from 'rxjs';
 import { map, catchError, switchMap } from 'rxjs/operators';
 
+import {
+	newGuid, createBatchGet, createBatchHeaders, createBatchBody, withSpinner, Contact, ESignEnvelope,
+	ChangeOrderGroup, Job, IJob, SpecInformation, FloorPlanImage, IdentityService
+} from 'phd-common';
+
 import { environment } from '../../../../environments/environment';
 
-import { withSpinner } from 'phd-common/extensions/withSpinner.extension';
-import { ESignEnvelope } from '../../shared/models/esign-envelope.model';
-
-import { FloorPlanImage } from '../../shared/models/tree.model.new';
-import { Job, IJob } from '../../shared/models/job.model';
-import { ChangeOrderGroup } from '../../shared/models/job-change-order.model';
-import { Contact } from '../../shared/models/contact.model';
-
-import { newGuid } from '../../shared/classes/guid.class';
-import { createBatchGet, createBatchHeaders, createBatchBody } from '../../shared/classes/odata-utils.class';
-import { SpecInformation } from './../../shared/models/job.model';
-
-import { IdentityService } from 'phd-common/services';
 import { ChangeOrderService } from './change-order.service';
 
 import * as _ from 'lodash';
@@ -158,7 +150,7 @@ export class JobService
 				{
 					let guid = newGuid();
 					let requests = contactIds.map(id => createBatchGet(`${environment.apiUrl}contacts(${id})?$expand=addressAssocs($expand=address),emailAssocs($expand=email),phoneAssocs($expand=phone)&$select=${select}`));
-					let headers = createBatchHeaders(token, guid);
+					let headers = createBatchHeaders(guid, token);
 					let batch = createBatchBody(guid, requests);
 
 					return this._http.post(`${environment.apiUrl}$batch`, batch, { headers: headers });

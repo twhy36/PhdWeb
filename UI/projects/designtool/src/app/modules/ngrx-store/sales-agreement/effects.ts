@@ -31,16 +31,14 @@ import { OpportunityContactAssocUpdated } from '../opportunity/actions';
 import * as fromRoot from '../reducers';
 import * as fromSalesAgreement from './reducer';
 
-import { Buyer } from '../../shared/models/buyer.model';
-import { SalesAgreementInfo, SalesAgreementProgram, SalesAgreementContingency, SalesAgreement } from '../../shared/models/sales-agreement.model';
-import { Job } from '../../shared/models/job.model';
-import { SalesStatusEnum } from '../../shared/models/job-change-order.model';
-import { ESignEnvelope, ESignStatusEnum, ESignTypeEnum } from '../../shared/models/esign-envelope.model';
+import {
+	Buyer, ESignEnvelope, ESignStatusEnum, ESignTypeEnum, SalesStatusEnum, Job, SalesAgreementInfo, SalesAgreementProgram,
+	SalesAgreementContingency, SalesAgreement, SpinnerService
+} from 'phd-common';
 
 import { tryCatch } from '../error.action';
 import { SalesAgreementCancelled, LoadSpec } from '../actions';
 import { TemplatesLoaded, CreateEnvelope } from '../contract/actions';
-import { SpinnerService } from 'phd-common/services/spinner.service';
 
 @Injectable()
 export class SalesAgreementEffects

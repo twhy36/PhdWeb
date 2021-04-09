@@ -1,18 +1,14 @@
-import { ChangeOrderHanding } from './../../shared/models/job-change-order.model';
 import { Action } from '@ngrx/store';
 
-import { Tree, OptionImage } from '../../shared/models/tree.model.new';
-import { TreeVersionRules } from '../../shared/models/rule.model.new';
-import { Scenario, DtoScenarioInfo, TreeFilter } from '../../shared/models/scenario.model';
-import { PlanOption } from '../../shared/models/option.model';
-import { DesignToolAttribute } from '../../shared/models/attribute.model';
-import { SalesCommunity } from '../../shared/models/community.model';
+import {
+	DesignToolAttribute, SalesCommunity, ChangeOrderHanding, JobChoice, Job, LotExt, PlanOption,
+	TreeVersionRules, Scenario, DtoScenarioInfo, TreeFilter, Tree, OptionImage
+} from 'phd-common';
+
 import { DecisionPointFilterType } from '../../shared/models/decisionPointFilter';
-import { JobChoice, Job } from '../../shared/models/job.model';
 
 import { ErrorAction } from '../error.action';
 import { LoadScenario, ScenarioLoaded, SalesAgreementLoaded, JobLoaded } from '../actions';
-import { LotExt } from '../../shared/models/lot.model';
 
 export enum ScenarioActionTypes
 {

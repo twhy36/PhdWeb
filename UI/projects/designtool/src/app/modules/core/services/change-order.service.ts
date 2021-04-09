@@ -6,20 +6,14 @@ import { map, catchError, tap, flatMap } from 'rxjs/operators';
 
 import * as _ from 'lodash';
 
-import * as odataUtils from '../../shared/classes/odata-utils.class';
+import {
+	getNewGuid, createBatchPatch, createBatchBody, createBatchHeaders, withSpinner, DesignToolAttribute, Buyer, ESignEnvelope,
+	ChangeOrderGroup, ChangeOrderNonStandardOption, ChangeInput, ChangeOrderChoice, ChangeOrderPlanOption, ChangeOrderChoiceLocation,
+	ChangeOrderHanding, ChangeTypeEnum, Job, JobChoice, JobChoiceAttribute, JobChoiceLocation, JobPlanOption, PlanOption, Plan, SalesAgreement,
+	SalesChangeOrderTrust, Tree, DecisionPoint, Choice, IdentityService
+} from 'phd-common';
+
 import { environment } from '../../../../environments/environment';
-import { ChangeOrder, ChangeOrderGroup, ChangeOrderNonStandardOption, ChangeInput, ChangeOrderChoice, ChangeOrderPlanOption, ChangeOrderChoiceLocation, ChangeOrderHanding, ChangeTypeEnum } from '../../shared/models/job-change-order.model';
-import { Job, JobChoice, JobChoiceAttribute, JobChoiceLocation, JobPlanOption } from '../../shared/models/job.model';
-import { withSpinner } from 'phd-common/extensions/withSpinner.extension';
-import { Tree, DecisionPoint, Choice, TreeVersion } from '../../shared/models/tree.model.new';
-import { DesignToolAttribute } from '../../shared/models/attribute.model';
-import { PlanOption } from '../../shared/models/option.model';
-import { Plan } from '../../shared/models/plan.model';
-import { SalesChangeOrderTrust } from '../../shared/models/sales-change-order.model';
-import { ESignEnvelope } from '../../shared/models/esign-envelope.model';
-import { Buyer } from '../../shared/models/buyer.model';
-import { SalesAgreement } from '../../shared/models/sales-agreement.model';
-import { IdentityService } from 'phd-common/services';
 import { TreeService } from '../../core/services/tree.service';
 
 interface ChoiceExt { decisionPointLabel: string, subgroupLabel: string, groupLabel: string };
@@ -88,12 +82,12 @@ export class ChangeOrderService
 					}
 				});
 
-				approvedBatchRequests = odataUtils.createBatchPatch<any>(approvedChangeOrdersToBeUpdated, 'id', 'changeOrderGroups', 'salesStatusDescription', 'constructionStatusDescription');
-				batchRequests = odataUtils.createBatchPatch<any>(changeOrdersToBeUpdated, 'id', 'changeOrderGroups', 'salesStatusDescription', 'salesStatusReason');
+				approvedBatchRequests = createBatchPatch<any>(approvedChangeOrdersToBeUpdated, 'id', 'changeOrderGroups', 'salesStatusDescription', 'constructionStatusDescription');
+				batchRequests = createBatchPatch<any>(changeOrdersToBeUpdated, 'id', 'changeOrderGroups', 'salesStatusDescription', 'salesStatusReason');
 
-				const batchGuid = odataUtils.getNewGuid();
-				const batchBody = odataUtils.createBatchBody(batchGuid, [approvedBatchRequests, batchRequests]);
-				const headers = new HttpHeaders(odataUtils.createBatchHeaders(token, batchGuid));
+				const batchGuid = getNewGuid();
+				const batchBody = createBatchBody(batchGuid, [approvedBatchRequests, batchRequests]);
+				const headers = new HttpHeaders(createBatchHeaders(batchGuid, token));
 
 				const endPoint = `${environment.apiUrl}${this._batch}`;
 

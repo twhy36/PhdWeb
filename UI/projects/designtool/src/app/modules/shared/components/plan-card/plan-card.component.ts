@@ -1,7 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
-import { flipOver } from '../../../shared/classes/animations.class';
-import { Plan } from '../../../shared/models/plan.model';
-import { LotExt } from '../../../shared/models/lot.model';
+import { flipOver, LotExt, Plan } from 'phd-common';
 
 @Component({
 	selector: 'plan-card',

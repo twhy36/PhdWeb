@@ -5,23 +5,18 @@ import { Observable } from 'rxjs';
 
 import * as _ from "lodash";
 
-import { IdentityService } from 'phd-common/services';
+import {
+	UnsubscribeOnDestroy, ConfirmModalComponent, IdentityService, ChangeTypeEnum, Job, Lot, PointStatus,
+	Group, DecisionPoint, BrowserService
+} from 'phd-common';
 
 import * as fromLot from '../../../ngrx-store/lot/reducer';
 import * as fromPlan from '../../../ngrx-store/plan/reducer';
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as NavActions from '../../../ngrx-store/nav/actions';
 import * as fromJob from '../../../ngrx-store/job/reducer';
-import { Group, DecisionPoint } from '../../../shared/models/tree.model.new';
-import { Lot } from '../../../shared/models/lot.model';
 import { LotService } from '../../services/lot.service';
-import { PointStatus } from '../../../shared/models/point.model';
-import { UnsubscribeOnDestroy } from '../../../shared/classes/unsubscribe-on-destroy';
-import { BrowserService } from '../../services/browser.service';
-import { Job } from './../../../shared/models/job.model';
 
-import { ConfirmModalComponent } from '../confirm-modal/confirm-modal.component';
-import { ChangeTypeEnum } from '../../../shared/models/job-change-order.model';
 import { ModalService } from '../../../core/services/modal.service';
 
 @Component({

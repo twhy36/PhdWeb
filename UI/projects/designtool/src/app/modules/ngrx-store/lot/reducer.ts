@@ -1,5 +1,5 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store';
-import { Lot, LotExt } from '../../shared/models/lot.model';
+import { Lot, LotExt } from 'phd-common';
 import { LotActions, LotActionTypes } from './actions';
 import { CommonActionTypes } from '../actions';
 

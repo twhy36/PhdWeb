@@ -13,7 +13,7 @@ import * as fromLot from '../../ngrx-store/lot/reducer';
 import * as CommonActionTypes from '../../ngrx-store/actions';
 import * as LotActionTypes from '../../ngrx-store/lot/actions';
 import { Store } from '@ngrx/store';
-import { LotExt } from '../../shared/models/lot.model';
+import { LotExt } from 'phd-common';
 
 @Injectable()
 export class NotificationService {

@@ -1,6 +1,6 @@
 import { Action } from '@ngrx/store';
 
-import { OpportunityContactAssoc } from '../../shared/models/opportunity.model';
+import { OpportunityContactAssoc } from 'phd-common';
 import { ScenarioLoaded, SalesAgreementLoaded } from '../actions';
 
 export enum OpportunityActionTypes {

@@ -3,7 +3,7 @@ import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 
 import { AppModule } from './app/app.module';
 import { environment } from './environments/environment';
-import { IdentityService } from 'phd-common/services';
+import { IdentityService } from 'phd-common';
 
 if (environment.production) {
   enableProdMode();

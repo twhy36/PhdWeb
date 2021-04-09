@@ -6,7 +6,7 @@ import * as _ from "lodash";
 import * as fromRoot from '../../../ngrx-store/reducers';
 import { ComponentCanNavAway } from '../../../shared/classes/component-can-nav-away.class';
 
-import { SalesAgreementDeposit, SalesAgreement } from '../../../shared/models/sales-agreement.model';
+import { SalesAgreementDeposit, SalesAgreement } from 'phd-common';
 import { SaveDeposit, DeleteDeposit, DepositSaved } from '../../../ngrx-store/sales-agreement/actions';
 import { NgbDate } from '@ng-bootstrap/ng-bootstrap';
 import { NgbDateNativeAdapter } from '../../../shared/classes/ngbDatePicker/ngbDateNativeAdapter.class';

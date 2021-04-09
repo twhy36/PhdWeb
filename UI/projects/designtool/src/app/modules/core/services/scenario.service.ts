@@ -7,11 +7,10 @@ import { map, catchError } from 'rxjs/operators';
 import * as _ from 'lodash';
 
 import { environment } from '../../../../environments/environment';
-
-import { Scenario, DtoScenario, DtoScenarioChoice, DtoScenarioChoiceAttribute, DtoScenarioChoiceLocation, SelectedChoice, DtoScenarioInfo } from '../../shared/models/scenario.model';
-import { Tree, Choice, FloorPlanImage } from '../../shared/models/tree.model.new';
-import { JobChoice } from '../../shared/models/job.model';
-import { withSpinner } from 'phd-common/extensions/withSpinner.extension';
+import {
+	withSpinner, JobChoice, Scenario, DtoScenario, DtoScenarioChoice, DtoScenarioChoiceAttribute, DtoScenarioChoiceLocation,
+	SelectedChoice, DtoScenarioInfo, Tree, Choice, FloorPlanImage
+} from 'phd-common';
 
 @Injectable()
 export class ScenarioService

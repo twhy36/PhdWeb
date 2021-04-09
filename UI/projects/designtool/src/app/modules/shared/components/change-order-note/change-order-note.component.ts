@@ -1,7 +1,9 @@
 import { Component, Output, EventEmitter, Input, OnInit } from '@angular/core';
 import { FormGroup, FormControl } from '@angular/forms';
 import { Store, select } from '@ngrx/store';
-import { UnsubscribeOnDestroy } from '../../../shared/classes/unsubscribe-on-destroy';
+
+import { UnsubscribeOnDestroy } from 'phd-common';
+
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as ChangeOrderActions from '../../../ngrx-store/change-order/actions';
 

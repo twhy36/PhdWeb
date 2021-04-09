@@ -6,7 +6,7 @@ import { Store, select } from '@ngrx/store';
 import { map, distinctUntilChanged, filter, combineLatest, withLatestFrom } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 
-import { Group } from '../../../shared/models/tree.model.new';
+import { Group } from 'phd-common';
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 import * as fromChangeOrder from '../../../ngrx-store/change-order/reducer';

@@ -1,5 +1,5 @@
 import { Action } from '@ngrx/store';
-import { SalesCommunity } from '../../shared/models/community.model';
+import { SalesCommunity } from 'phd-common';
 import { ErrorAction } from '../error.action';
 import { SalesAgreementLoaded, JobLoaded, ScenarioLoaded } from '../actions';
 

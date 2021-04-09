@@ -1,5 +1,5 @@
 import { NavActions, NavActionTypes } from './actions';
-import { PointStatus } from '../../shared/models/point.model';
+import { PointStatus } from 'phd-common';
 
 export interface State
 {

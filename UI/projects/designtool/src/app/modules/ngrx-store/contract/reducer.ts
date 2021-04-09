@@ -1,8 +1,8 @@
 import { ContractActions, ContractActionTypes } from './actions';
 
+import { ESignTypeEnum } from 'phd-common';
 import { Template, TemplateTypeEnum } from '../../shared/models/template.model';
 import { FinancialCommunityESign } from '../../shared/models/contract.model';
-import { ESignTypeEnum } from '../../shared/models/esign-envelope.model';
 
 export interface State
 {

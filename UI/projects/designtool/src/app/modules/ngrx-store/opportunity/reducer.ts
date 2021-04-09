@@ -1,6 +1,6 @@
 import { createSelector, createFeatureSelector } from '@ngrx/store';
 
-import { OpportunityContactAssoc } from '../../shared/models/opportunity.model';
+import { OpportunityContactAssoc } from 'phd-common';
 import { OpportunityActions, OpportunityActionTypes } from './actions';
 import { CommonActionTypes } from '../actions';
 

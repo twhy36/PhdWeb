@@ -5,6 +5,11 @@ import { Effect, Actions, ofType } from '@ngrx/effects';
 import { Observable } from 'rxjs/Observable';
 import * as _ from 'lodash';
 
+import {
+	SalesCommunity, ChangeOrderChoice, ChangeOrderGroup, Job, IMarket, SalesAgreementInfo, DecisionPoint, Choice,
+	IdentityService, SpinnerService
+} from 'phd-common';
+
 import { CommonActionTypes, LoadScenario, LoadError, ScenarioLoaded, LoadSalesAgreement, SalesAgreementLoaded, LoadSpec, JobLoaded, ESignEnvelopesLoaded } from './actions';
 import { tryCatch } from './error.action';
 import { ScenarioService } from '../core/services/scenario.service';
@@ -17,8 +22,6 @@ import { from } from 'rxjs/observable/from';
 import { of } from 'rxjs/observable/of';
 import { setTreePointsPastCutOff, mergeIntoTree, updateWithNewTreeVersion, mapAttributes } from '../shared/classes/tree.utils';
 import { JobService } from '../core/services/job.service';
-import { IdentityService } from 'phd-common/services';
-import { DecisionPoint, Choice } from '../shared/models/tree.model.new';
 import { ModalService } from '../core/services/modal.service';
 import { PlanService } from '../core/services/plan.service';
 import { OpportunityService } from '../core/services/opportunity.service';
@@ -27,19 +30,13 @@ import { LoadLots, LotsLoaded, LotActionTypes } from './lot/actions';
 import { forkJoin } from 'rxjs/observable/forkJoin';
 import { SalesAgreementService } from '../core/services/sales-agreement.service';
 import { ChangeOrderService } from '../core/services/change-order.service';
-import { ChangeOrderChoice, ChangeOrderGroup } from '../shared/models/job-change-order.model';
-import { Job } from '../shared/models/job.model';
 import { SalesAgreementCreated, SalesAgreementActionTypes } from './sales-agreement/actions';
 import { ContractService } from '../core/services/contract.service';
 import { TemplatesLoaded } from './contract/actions';
 import { Claims, Permission } from 'phd-common/models';
-import { SalesCommunity } from '../shared/models/community.model';
-import { IMarket } from '../shared/models/market';
-import { SalesAgreementInfo } from '../shared/models/sales-agreement.model';
 import { SavePendingJio, CreateJobChangeOrders, CreatePlanChangeOrder } from './change-order/actions';
 import { EMPTY as empty } from 'rxjs';
 import { State, canDesign, showSpinner } from './reducers';
-import { SpinnerService } from 'phd-common/services/spinner.service';
 
 @Injectable()
 export class CommonEffects

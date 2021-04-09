@@ -8,6 +8,8 @@ import { ofType } from '@ngrx/effects';
 import { Observable, throwError as _throw, of } from 'rxjs';
 import { combineLatest, map, catchError, withLatestFrom, take, switchMap } from 'rxjs/operators';
 
+import { defaultOnNotFound, withSpinner, Lot, MonotonyRule, LotExt, DecisionPoint } from 'phd-common';
+
 import { environment } from '../../../../environments/environment';
 
 import * as fromRoot from '../../ngrx-store/reducers';
@@ -15,11 +17,7 @@ import * as fromSalesAgreement from '../../ngrx-store/sales-agreement/reducer';
 import * as fromChangeOrder from '../../ngrx-store/change-order/reducer';
 import * as LotActions from '../../ngrx-store/lot/actions';
 import * as SalesAgreementActions from '../../ngrx-store/sales-agreement/actions';
-import { Lot, MonotonyRule, LotExt } from '../../shared/models/lot.model';
-import { defaultOnNotFound } from '../../shared/classes/default-on-not-found';
-import { withSpinner } from 'phd-common/extensions/withSpinner.extension';
 import { MonotonyConflict } from '../../shared/models/monotony-conflict.model';
-import { DecisionPoint } from '../../shared/models/tree.model.new';
 
 @Injectable()
 export class LotService

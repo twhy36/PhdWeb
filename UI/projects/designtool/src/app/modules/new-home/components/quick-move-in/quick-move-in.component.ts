@@ -7,11 +7,10 @@ import { combineLatest, take } from 'rxjs/operators';
 
 import * as _ from 'lodash';
 
+import { UnsubscribeOnDestroy, Job, Plan, Scenario } from 'phd-common';
+
 import * as fromJobs from '../../../ngrx-store/job/reducer';
-import { UnsubscribeOnDestroy } from "phd-common/utils/unsubscribe-on-destroy";
 import * as fromRoot from '../../../ngrx-store/reducers';
-import { Plan } from "../../../shared/models/plan.model";
-import { Job } from "../../../shared/models/job.model";
 import * as CommonActions from '../../../ngrx-store/actions';
 import * as PlanActions from '../../../ngrx-store/plan/actions';
 import * as LotActions from '../../../ngrx-store/lot/actions';
@@ -21,7 +20,6 @@ import { ChangeOrderService } from './../../../core/services/change-order.servic
 import { CommonActionTypes } from '../../../ngrx-store/actions';
 import { Router } from "@angular/router";
 import { NewHomeService } from "../../services/new-home.service";
-import { Scenario } from "../../../shared/models/scenario.model";
 
 @Component({
 	selector: 'quick-move-in',

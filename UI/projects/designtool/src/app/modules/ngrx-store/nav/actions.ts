@@ -1,5 +1,5 @@
 import { Action } from '@ngrx/store';
-import { PointStatus } from '../../shared/models/point.model';
+import { PointStatus } from 'phd-common';
 
 export enum NavActionTypes {
     SetSubNavItems = 'Set Sub Nav Items',

@@ -2,11 +2,9 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, throwError as _throw } from 'rxjs';
 import { environment } from '../../../../environments/environment';
+import { withSpinner, PlanOption, OptionCommunityImage, OptionImage } from 'phd-common';
 
-import { PlanOption, OptionCommunityImage } from '../../shared/models/option.model';
 import { map, catchError } from 'rxjs/operators';
-import { withSpinner } from 'phd-common/extensions/withSpinner.extension';
-import { OptionImage } from '../../shared/models/tree.model.new';
 
 @Injectable()
 export class OptionService

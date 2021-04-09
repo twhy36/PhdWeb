@@ -3,10 +3,10 @@ import * as _ from 'lodash';
 import { ReplaySubject } from 'rxjs';
 import { Store } from '@ngrx/store';
 
-import { Attribute, AttributeGroup, DesignToolAttribute } from '../../models/attribute.model';
+import { UnsubscribeOnDestroy, Attribute, AttributeGroup, DesignToolAttribute } from 'phd-common';
+
 import { DragScrollComponent } from 'ngx-drag-scroll';
 import * as fromRoot from '../../../ngrx-store/reducers';
-import { UnsubscribeOnDestroy } from 'phd-common/utils/unsubscribe-on-destroy';
 
 @Component({
 	selector: 'attribute-list',

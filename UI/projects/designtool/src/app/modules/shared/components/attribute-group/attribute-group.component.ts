@@ -4,11 +4,10 @@ import { Store } from '@ngrx/store';
 
 import * as _ from 'lodash';
 
+import { UnsubscribeOnDestroy, ModalRef, Attribute, AttributeGroup, DesignToolAttribute } from 'phd-common';
+
 import { AttributeListComponent } from '../attribute-list/attribute-list.component';
 
-import { UnsubscribeOnDestroy } from '../../classes/unsubscribe-on-destroy';
-
-import { Attribute, AttributeGroup, DesignToolAttribute } from '../../models/attribute.model';
 import { ReplaySubject } from 'rxjs';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
@@ -18,7 +17,6 @@ import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 import { ModalOverrideSaveComponent } from '../../../core/components/modal-override-save/modal-override-save.component';
 import { MonotonyConflict } from '../../models/monotony-conflict.model';
 import { ModalService } from '../../../core/services/modal.service';
-import { ModalRef } from '../../../shared/classes/modal.class';
 
 @Component({
 	selector: 'attribute-group',

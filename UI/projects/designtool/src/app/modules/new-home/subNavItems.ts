@@ -1,4 +1,4 @@
-import { PointStatus } from '../shared/models/point.model';
+import { PointStatus } from 'phd-common';
 
 export const SubNavItems: Array<{ label: string, status: any, id: number }> = [
 	{ label: "Configuration Name", status: PointStatus.REQUIRED, id: 1 },

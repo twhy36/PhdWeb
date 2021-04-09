@@ -4,10 +4,11 @@ import { Validators, FormGroup, FormControl } from '@angular/forms';
 import { Store } from '@ngrx/store';
 
 import * as _ from "lodash";
+
+import { Note, SalesAgreement } from 'phd-common';
+
 import * as fromRoot from '../../../ngrx-store/reducers';
 import { ComponentCanNavAway } from '../../../shared/classes/component-can-nav-away.class';
-import { SalesAgreement } from '@shared/models/sales-agreement.model';
-import { Note } from '../../../shared/models/note.model';
 import { DeleteNote, SaveNote } from '../../../ngrx-store/sales-agreement/actions';
 import { ModalService } from '../../../../modules/core/services/modal.service';
 

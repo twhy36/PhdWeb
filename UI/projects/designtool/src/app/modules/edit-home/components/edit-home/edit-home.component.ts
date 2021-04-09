@@ -19,20 +19,17 @@ import * as NavActions from '../../../ngrx-store/nav/actions';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 import * as LotActions from '../../../ngrx-store/lot/actions';
 
+import {
+	UnsubscribeOnDestroy, ModalRef, ChangeTypeEnum, Job, TreeVersionRules, ScenarioStatusType, PriceBreakdown,
+	TreeFilter, Tree, SubGroup, Group, DecisionPoint, Choice, getDependentChoices
+} from 'phd-common';
+
 import { LotService } from '../../../core/services/lot.service';
 
-import { ChangeTypeEnum } from '../../../shared/models/job-change-order.model';
 import { ChoiceCardComponent } from '../../../shared/components/choice-card/choice-card.component';
 import { DecisionPointFilterType } from '../../../shared/models/decisionPointFilter';
-import { getDependentChoices } from '../../../shared/classes/rulesExecutor';
-import { Job } from '../../../shared/models/job.model';
 import { MonotonyConflict } from '../../../shared/models/monotony-conflict.model';
-import { ScenarioStatusType, PriceBreakdown, TreeFilter } from '../../../shared/models/scenario.model';
-import { Tree, SubGroup, Group, DecisionPoint, Choice } from '../../../shared/models/tree.model.new';
-import { TreeVersionRules } from '../../../shared/models/rule.model.new';
-import { UnsubscribeOnDestroy } from '../../../shared/classes/unsubscribe-on-destroy';
 import { ModalService } from '../../../core/services/modal.service';
-import { ModalRef } from '../../../shared/classes/modal.class';
 
 @Component({
 	selector: 'edit-home',

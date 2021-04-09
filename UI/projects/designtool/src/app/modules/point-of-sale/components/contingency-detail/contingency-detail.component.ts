@@ -4,9 +4,11 @@ import { NgbDateStruct, NgbDate } from '@ng-bootstrap/ng-bootstrap';
 import { Store } from '@ngrx/store';
 
 import * as _ from "lodash";
+
+import { SalesAgreement, SalesAgreementContingency } from 'phd-common';
+
 import * as fromRoot from '../../../ngrx-store/reducers';
 import { ComponentCanNavAway } from '../../../shared/classes/component-can-nav-away.class';
-import { SalesAgreement, SalesAgreementContingency } from '../../../shared/models/sales-agreement.model';
 import { SaveContingency, DeleteContingency } from '../../../ngrx-store/sales-agreement/actions';
 import { NgbDateNativeAdapter } from '../../../shared/classes/ngbDatePicker/ngbDateNativeAdapter.class';
 import { ModalService } from '../../../../modules/core/services/modal.service';

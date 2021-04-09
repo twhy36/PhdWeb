@@ -3,13 +3,11 @@ import { Router } from '@angular/router';
 
 import { NgbDropdownConfig } from '@ng-bootstrap/ng-bootstrap';
 
-import { PointStatus } from '../../../shared/models/point.model';
-import { DecisionPoint, Group, SubGroup, Choice, } from '../../../shared/models/tree.model.new';
-import { DesignToolAttribute } from '../../../shared/models/attribute.model';
-import { isChoiceAttributesComplete } from '../../classes/utils.class';
+import {
+	UnsubscribeOnDestroy, flipOver2, isChoiceAttributesComplete, DesignToolAttribute, PointStatus, DecisionPoint,
+	Group, SubGroup, Choice
+} from 'phd-common';
 
-import { UnsubscribeOnDestroy } from '../../../shared/classes/unsubscribe-on-destroy';
-import { flipOver2 } from '../../../shared/classes/animations.class';
 import { TreeService } from '../../../core/services/tree.service';
 
 @Component({

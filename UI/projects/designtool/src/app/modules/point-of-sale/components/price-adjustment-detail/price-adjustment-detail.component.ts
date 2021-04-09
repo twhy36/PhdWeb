@@ -1,9 +1,10 @@
 import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 
+import { SalesChangeOrderPriceAdjustment } from 'phd-common';
+
 import { ComponentCanNavAway } from '../../../shared/classes/component-can-nav-away.class';
 
-import { SalesChangeOrderPriceAdjustment } from '../../../shared/models/sales-change-order.model';
 import { ModalService } from '../../../../modules/core/services/modal.service';
 
 @Component({

@@ -1,5 +1,5 @@
-import { ChangeOrderHanding } from './../../shared/models/job-change-order.model';
 import { Action } from '@ngrx/store';
+import { ChangeOrderHanding } from 'phd-common';
 import { PointStatusFilter } from '../../shared/models/decisionPointFilter';
 
 export enum SummaryActionTypes {

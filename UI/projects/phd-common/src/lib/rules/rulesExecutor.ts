@@ -1,9 +1,10 @@
-import { Tree, DecisionPoint, Choice, MappedAttributeGroup, MappedLocationGroup } from '../models/tree.model';
+import { Tree, DecisionPoint, SubGroup, Group, Choice, PickType, MappedAttributeGroup, MappedLocationGroup } from '../models/tree.model';
 import { TreeVersionRules, ChoiceRules, PointRules, OptionRule } from '../models/rule.model';
 import { PlanOption } from '../models/option.model';
 import { PriceBreakdown } from '../models/scenario.model';
 import { JobChoice } from '../models/job.model';
 import { ChangeOrderChoice } from '../models/job-change-order.model';
+import { PointStatus } from '../models/point.model';
 
 import * as _ from 'lodash';
 
@@ -86,8 +87,6 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 	{
 		pt.enabled = true;
 		pt.disabledBy = [];
-
-		pt.completed = pt.choices.some(c => c.quantity > 0);
 	});
 
 	let find = id => choices.find(ch => ch.id === id);
@@ -531,10 +530,10 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 		}
 
 		//find choices that are locked in, with option mappings changed
-		if (choice.options && choice.lockedInOptions && choice.lockedInOptions.length && (choice.lockedInOptions.some(o => o && !choice.options.some(co => co.financialOptionIntegrationKey === o.optionId))
+		if (choice.options && choice.lockedInChoice && (choice.lockedInOptions && choice.lockedInOptions.length && choice.lockedInOptions.some(o => !choice.options.some(co => o && co.financialOptionIntegrationKey === o.optionId))
 			|| choice.options.some(co => !choice.lockedInOptions.some(o => o.optionId === co.financialOptionIntegrationKey))))
 		{
-			choice.options = choice.lockedInOptions.map(o => o && options.find(po => po.financialOptionIntegrationKey === o.optionId));
+			choice.options = choice.lockedInOptions.map(o => options.find(po => o && po.financialOptionIntegrationKey === o.optionId));
 			choice.mappingChanged = true;
 
 			//since the option mapping is changed, flag each dependency 
@@ -569,6 +568,10 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 
 		mapLocationAttributes(choice);
 	});
+
+	points.forEach(point => {
+		point.completed = point && point.choices && point.choices.some(ch => ch.quantity > 0);
+	});	
 }
 
 function getMaxQuantity(option: PlanOption, choice: Choice): number
@@ -659,6 +662,89 @@ export function getTotalPrice(priceBreakdown: PriceBreakdown): number
 	return total;
 }
 
+export function setPointStatus(point: DecisionPoint)
+{
+	if (!point.choices.some(c => c.enabled) || !point.enabled)
+	{
+		point.status = PointStatus.CONFLICTED;
+	}
+	else if (point.choices.some(c => c.quantity > 0 && !isChoiceAttributesComplete(c)))
+	{
+		point.status = PointStatus.PARTIALLY_COMPLETED;
+	}
+	else if (point.completed)
+	{
+		point.status = PointStatus.COMPLETED;
+	}
+	else if ([PickType.Pick1, PickType.Pick1ormore].indexOf(point.pointPickTypeId) !== -1 && !point.choices.some(c => c.quantity > 0))
+	{
+		point.status = PointStatus.REQUIRED;
+	}
+	else if (point.viewed)
+	{
+		point.status = PointStatus.VIEWED;
+	}
+	else
+	{
+		point.status = PointStatus.UNVIEWED;
+	}
+}
+
+export function setSubgroupStatus(subGroup: SubGroup)
+{
+	if (!subGroup.points || subGroup.points.every(p => !p.enabled))
+	{
+		subGroup.status = PointStatus.CONFLICTED;
+	}
+	else if (subGroup.points.some(p => p.status === PointStatus.REQUIRED))
+	{
+		subGroup.status = PointStatus.REQUIRED;
+	}
+	else if (subGroup.points.some(p => p.status === PointStatus.PARTIALLY_COMPLETED))
+	{
+		subGroup.status = PointStatus.PARTIALLY_COMPLETED;
+	}
+	else if (subGroup.points.every(p => p.status === (PointStatus.COMPLETED) || p.status === (PointStatus.CONFLICTED)))
+	{
+		subGroup.status = PointStatus.COMPLETED;
+	}
+	else if (subGroup.points.every(p => p.viewed || p.status === (PointStatus.CONFLICTED)))
+	{
+		subGroup.status = PointStatus.VIEWED;
+	}
+	else
+	{
+		subGroup.status = PointStatus.UNVIEWED;
+	}
+}
+
+export function setGroupStatus(group: Group)
+{
+	if (group.subGroups.some(sg => sg.status === PointStatus.REQUIRED))
+	{
+		group.status = PointStatus.REQUIRED;
+	}
+	else if (group.subGroups.some(sg => sg.status === PointStatus.UNVIEWED))
+	{
+		group.status = PointStatus.UNVIEWED;
+	}
+	else if (group.subGroups.some(sg => sg.status === PointStatus.VIEWED))
+	{
+		group.status = PointStatus.VIEWED;
+	}
+	else if (group.subGroups.some(sg => sg.status === PointStatus.PARTIALLY_COMPLETED))
+	{
+		group.status = PointStatus.PARTIALLY_COMPLETED;
+	}
+	else if (group.subGroups.some(sg => sg.status === PointStatus.COMPLETED))
+	{
+		group.status = PointStatus.COMPLETED;
+	}
+	else
+	{
+		group.status = PointStatus.CONFLICTED;
+	}
+}
 
 export function getDependentChoices(tree: Tree, rules: TreeVersionRules, choice: Choice): Array<Choice>
 {

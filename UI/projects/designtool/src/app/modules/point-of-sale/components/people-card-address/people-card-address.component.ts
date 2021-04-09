@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { Address, AddressAssoc } from '../../../shared/models/contact.model';
+import { Address, AddressAssoc } from 'phd-common';
 
 type Person = "Buyer" | "Trust" | "Realtor";
 

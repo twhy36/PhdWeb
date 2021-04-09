@@ -6,8 +6,7 @@ import { map, catchError, combineLatest } from 'rxjs/operators';
 
 import { environment } from '../../../../environments/environment';
 
-import { AttributeGroup, LocationGroup, Location, Attribute, AttributeCommunityImageAssoc } from '../../shared/models/attribute.model';
-import { Choice } from '../../shared/models/tree.model.new';
+import { AttributeGroup, LocationGroup, Location, Attribute, AttributeCommunityImageAssoc, Choice } from 'phd-common';
 
 import { orderBy } from "lodash";
 

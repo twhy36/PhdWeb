@@ -9,12 +9,9 @@ import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromOrg from '../../../ngrx-store/org/reducer';
 import * as SalesAgreementActions from '../../../ngrx-store/sales-agreement/actions';
 
-import { UnsubscribeOnDestroy } from '../../../shared/classes/unsubscribe-on-destroy';
+import { UnsubscribeOnDestroy, Contact, Consultant, SalesAgreement } from 'phd-common';
 
 import { ContactService } from '../../../core/services/contact.service';
-
-import { Contact } from '../../../shared/models/contact.model';
-import { Consultant, SalesAgreement } from '../../../shared/models/sales-agreement.model';
 
 import { AutoComplete } from 'primeng/autocomplete';
 
