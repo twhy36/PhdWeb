@@ -3,60 +3,133 @@
 # Add steps that analyze code, save build artifacts, deploy, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
 
-pool:
-  vmImage: 'ubuntu-latest'
-
 name: $(BuildDefinitionName)_1.0.$(Rev:r)
 
-steps:
-- task: VariableTransformTask@1
-  inputs:
-    value: '$(Build.BuildNumber)'
-    variableName: 'packageVersion'
-    IsSecret: false
-    transformAction: 'none'
-    searchReplace: true
-    searchReplaceMethod: 'match'
-    searchValue: '[0-9]+\.[0-9]+\.[0-9]+(\-(alpha)|(beta)[0-9])?'
-    slice: false
-  displayName: 'extract package version'
-- task: NodeTool@0
-  inputs:
-    versionSpec: '12.x'
-  displayName: 'Install Node.js'
-- task: Npm@1
-  inputs:
-    command: 'install'
-    workingDir: 'UI'
-    customRegistry: 'useFeed'
-    customFeed: '6d26cbbb-94e5-4db9-ac14-039e14cd6ff9/484bd538-a8f3-4ad5-a52d-e1c1d14f5e1f'
-  displayName: 'install dependencies'
-- task: AngularCLI@0
-  inputs:
-    command: 'build'
-    project: 'UI'
-    arguments: '--project=phd-common'
-    prod: false
-    DisableAnalytics: false
-  displayName: 'build phd-common'
-- ${{ if ne(variables['Build.Reason'], 'PullRequest') }}:
+#variables:
+#  system_accesstoken: $(System.AccessToken)
+
+pool: pgazadob1p
+resources:
+  repositories:
+  - repository: ThoWeb
+    type: git
+    name: ThoWeb
+
+jobs:
+- job: Build
+  steps:
+  - task: InlinePowershell@1
+    name: SetPackageVersion
+    inputs:
+      Script: |
+        Param(
+          [string]$buildNumber,
+          [string]$buildDefinitionName
+        )
+        
+        $packageVersion = $buildNumber.Replace($buildDefinitionName+"_", "")
+        Write-Host "##vso[task.setvariable variable=packageVersion;isOutput=true]"$packageVersion
+        Write-Host "##vso[task.setvariable variable=packageVersion]"$packageVersion
+      ScriptArguments: '-buildNumber $(Build.BuildNumber) -buildDefinitionName $(Build.DefinitionName)'
+  - checkout: self
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '12.x'
+    displayName: 'Install Node.js'
+  - task: Npm@1
+    inputs:
+      command: 'install'
+      workingDir: 'UI'
+      customRegistry: 'useFeed'
+      customFeed: '6d26cbbb-94e5-4db9-ac14-039e14cd6ff9/484bd538-a8f3-4ad5-a52d-e1c1d14f5e1f'
+    displayName: 'install dependencies'
+  - task: AngularCLI@0
+    inputs:
+      command: 'build'
+      project: 'UI'
+      arguments: '--project=phd-common'
+      prod: false
+      DisableAnalytics: false
+    displayName: 'build phd-common'
   - task: setjsonvalue@1
     inputs:
       filename: 'UI/dist/phd-common/package.json'
       numberOfLevels: '1'
       keyname1: 'version'
-      valueToSet: '$(packageVersion)'
-      displayName: 'set package version'
+      valueToSet: $(packageVersion)
+    displayName: 'set package version'
+  - task: PublishPipelineArtifact@1
+    inputs:
+      targetPath: '$(Build.SourcesDirectory)/UI/dist/phd-common'
+      artifact: 'phd-common'
+      publishLocation: 'pipeline'
+    displayName: publish artifact
+
+- job: THO
+  displayName: Validate THO
+  dependsOn: Build
+  variables:
+    packageVersion: $[ dependencies.Build.outputs['SetPackageVersion.packageVersion'] ]
+  steps:
+  - checkout: ThoWeb
+  - task: InlinePowershell@1
+    displayName: Get Package Path
+    inputs:
+      Script: |
+        Param(
+          [string]$packageVersion,
+          [string]$workspace
+        )
+        
+        Write-Host "##vso[task.setvariable variable=packagePath]"$workspace"/phd-common/phcorp-phd-common-"$packageVersion".tgz"
+      ScriptArguments: '-packageVersion $(packageVersion) -workspace $(Pipeline.Workspace)'
+  - task: DownloadPipelineArtifact@2
+    inputs:
+      buildType: 'current'
+      artifactName: 'phd-common'
+      targetPath: '$(Pipeline.Workspace)/phd-common'
+    displayName: download artifact
+  - task: NodeTool@0
+    displayName: Install Node.js
+    inputs:
+      versionSpec: '12.x'
   - task: Npm@1
+    displayName: Pack phd-common
     inputs:
       command: 'custom'
-      workingDir: 'UI/dist/phd-common'
-      customCommand: 'publish --ignore-scripts'
-      customRegistry: 'useFeed'
-      customFeed: '6d26cbbb-94e5-4db9-ac14-039e14cd6ff9/484bd538-a8f3-4ad5-a52d-e1c1d14f5e1f'
+      workingDir: '$(Pipeline.Workspace)/phd-common'
+      customCommand: 'pack --ignore-scripts'
+  - task: Npm@1
+    displayName: Install dependencies
+    inputs:
+      command: 'install'
+      workingDir: ''
+  - task: Npm@1
+    displayName: Install phd-common
+    inputs:
+      command: 'custom'
+      customCommand: 'install $(packagePath)'
+  - task: Npm@1
+    displayName: Build THO
+    inputs:
+      command: 'custom'
+      workingDir: ''
+      customCommand: 'run build -- --configuration=develop'
+- ${{ if ne(variables['Build.Reason'], 'PullRequest') }}:
+  - job: Publish
+    dependsOn: THO
+    steps:
+    - checkout: none
+    - task: DownloadPipelineArtifact@2
+      inputs:
+        buildType: 'current'
+        artifactName: 'phd-common'
+        targetPath: '$(Pipeline.Workspace)/phd-common'
+    - task: Npm@1
+      inputs:
+        command: 'custom'
+        workingDir: '$(Pipeline.Workspace)/phd-common'
+        customCommand: 'publish --ignore-scripts'
+        customRegistry: 'useFeed'
+        customFeed: '6d26cbbb-94e5-4db9-ac14-039e14cd6ff9/484bd538-a8f3-4ad5-a52d-e1c1d14f5e1f'
       displayName: 'npm publish'
-- task: PublishBuildArtifacts@1
-  inputs:
-    PathtoPublish: 'UI/dist/phd-common'
-    ArtifactName: 'drop'
-    publishLocation: 'Container'
