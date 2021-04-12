@@ -1,6 +1,5 @@
 import { Action } from '@ngrx/store';
-import { IMarket } from 'phd-common';
-import { Claims } from 'phd-common/models';
+import { IMarket, Claims } from 'phd-common';
 
 export enum UserActionTypes
 {

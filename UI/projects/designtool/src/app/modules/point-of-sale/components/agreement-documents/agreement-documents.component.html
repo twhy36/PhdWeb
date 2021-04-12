@@ -31,7 +31,7 @@
 			<div class="flex-column form-check my-1">
 				<div class="checkbox" *ngFor="let template of contractTemplates">
 					<label class="phd-clickable">
-						<input type="checkbox" value="template.templateId" [checked]="template.isSelected" (change)="changeSelected(template.templateId, $event)" [disabled]="!canEdit" />
+						<input type="checkbox" value="template.templateId" [checked]="template.isSelected" (change)="changeSelected(template.templateId)" [disabled]="!canEdit" />
 						{{template.displayName}}
 					</label>
 				</div>

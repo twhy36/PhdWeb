@@ -10,12 +10,12 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SharedModule } from '../shared/shared.module';
 import { PhdCommonModule } from 'phd-common';
 
-import { ChangeOrdersComponent } from 'app/modules/change-orders/change-orders/change-orders.component';
-import { ChangeOrderSummaryComponent } from 'app/modules/change-orders/change-order-summary/change-order-summary.component';
-import { ChangeOrderTableComponent } from 'app/modules/change-orders/change-order-table/change-order-table.component';
-import { NonStandardChangeComponent } from 'app/modules/change-orders/non-standard-change/non-standard-change.component';
-import { LotTransferComponent } from 'app/modules/change-orders/lot-transfer/lot-transfer.component';
-import { PlanChangeComponent } from 'app/modules/change-orders/plan-change/plan-change.component';
+import { ChangeOrdersComponent } from './change-orders/change-orders.component';
+import { ChangeOrderSummaryComponent } from './change-order-summary/change-order-summary.component';
+import { ChangeOrderTableComponent } from './change-order-table/change-order-table.component';
+import { NonStandardChangeComponent } from './non-standard-change/non-standard-change.component';
+import { LotTransferComponent } from './lot-transfer/lot-transfer.component';
+import { PlanChangeComponent } from './plan-change/plan-change.component';
 
 const moduleRoutes: Routes = [
 	{

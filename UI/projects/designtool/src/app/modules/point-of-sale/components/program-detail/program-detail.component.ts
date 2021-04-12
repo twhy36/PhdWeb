@@ -8,7 +8,7 @@ import { SalesAgreementProgram, SalesAgreement, ISalesProgram, SalesChangeOrderS
 import * as fromRoot from '../../../ngrx-store/reducers';
 import { SaveProgram, DeleteProgram } from '../../../ngrx-store/sales-agreement/actions';
 
-import { SalesProgram } from '../../../shared/models/sales-program.model';
+import { SalesProgram, SalesProgramTypeEnum } from '../../../shared/models/sales-program.model';
 import { ComponentCanNavAway } from '../../../shared/classes/component-can-nav-away.class';
 import { ModalService } from '../../../../modules/core/services/modal.service';
 
@@ -144,7 +144,8 @@ export class ProgramDetailComponent extends ComponentCanNavAway implements OnIni
 			let programAmount = this.program && this.program.amount ? this.program.amount : null;
 			let maxAmount = this.selectedSalesProgram ? this.selectedSalesProgram.maximumAmount - totalAmount : null;
 
-			if (this.default.salesProgramId === this.selectedSalesProgram?.id)
+			const selectedSalesProgramId = this.selectedSalesProgram ? this.selectedSalesProgram.id : 0;
+			if (this.default.salesProgramId === selectedSalesProgramId)
 			{
 				// add the amount back to the maxAmount so we can include what was already added.
 				maxAmount += programAmount;
@@ -300,6 +301,21 @@ export class ProgramDetailComponent extends ComponentCanNavAway implements OnIni
 	canNavAway(): boolean
 	{
 		return !this.hasChanges;
+	}
+
+	isDiscountFlatAmount()
+	{
+		return this.selectedSalesProgram && this.selectedSalesProgram.salesProgramType === SalesProgramTypeEnum.DiscountFlatAmount;
+	}
+
+	getSalesProgramType(): string
+	{
+		if (this.selectedSalesProgram && this.selectedSalesProgram.salesProgramType)
+		{
+			return SalesProgramTypeEnum[this.selectedSalesProgram.salesProgramType];
+		}
+
+		return '';
 	}
 
 	/*

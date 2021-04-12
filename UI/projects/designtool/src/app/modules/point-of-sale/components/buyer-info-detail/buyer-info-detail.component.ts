@@ -36,6 +36,7 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 
 	private primaryBuyer: Buyer;
 	disabledInputs: boolean = false;
+	isPrimaryBuyer: boolean = false;
 
 	constructor(
 		private contactService: ContactService,
@@ -93,12 +94,17 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 			});
 		}
 
-		if (this.isBuyer() && !(this.buyer as Buyer).isPrimaryBuyer)
+		if (this.isBuyer())
 		{
-			this.store.pipe(
-				this.takeUntilDestroyed(),
-				select(fromRoot.activePrimaryBuyer)
-			).subscribe(primaryBuyer => this.primaryBuyer = primaryBuyer);
+			this.isPrimaryBuyer = (this.buyer as Buyer).isPrimaryBuyer;
+
+			if (!this.isPrimaryBuyer)
+			{
+				this.store.pipe(
+					this.takeUntilDestroyed(),
+					select(fromRoot.activePrimaryBuyer)
+				).subscribe(primaryBuyer => this.primaryBuyer = primaryBuyer);
+			}
 		}
 
 		this.store.pipe(

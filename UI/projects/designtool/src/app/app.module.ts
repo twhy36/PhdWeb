@@ -56,14 +56,8 @@ export function getBaseHref(platformLocation: PlatformLocation): string
     ],
     imports: [
         FormsModule,
-		BrowserModule,
-		PhdCommonModule.forRoot(
-			{
-				authQueryParams: environment.authQueryParams,
-				clientId: environment.clientId,
-				tenant: environment.tenant
-			},
-			environment.apiUrl),
+        BrowserModule,
+        PhdCommonModule.forRoot(environment.authConfig,	environment.apiUrl),
         CommonModule,
 		CoreModule,
 		ChangeOrdersModule,

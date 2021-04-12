@@ -15,7 +15,7 @@ import * as _ from 'lodash';
 
 import {
 	UnsubscribeOnDestroy, ConfirmModalComponent, ModalRef, ESignTypeEnum, ChangeTypeEnum, ChangeOrderGroup, Job,
-	SalesAgreement, DecisionPoint
+	SalesAgreement, DecisionPoint, Permission
 } from 'phd-common';
 
 import { SaveStatusType, ActionBarCallType } from '../../classes/constants.class';
@@ -26,7 +26,6 @@ import * as CommonActions from '../../../ngrx-store/actions';
 import * as ChangeOrderActions from '../../../ngrx-store/change-order/actions';
 import { ChangeOrderService } from './../../../core/services/change-order.service';
 import { ModalService } from '../../../core/services/modal.service';
-import { Permission } from 'phd-common/models';
 
 @Component({
 	selector: 'action-bar',

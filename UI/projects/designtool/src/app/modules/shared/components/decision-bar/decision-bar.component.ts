@@ -24,6 +24,7 @@ export class DecisionBarComponent extends UnsubscribeOnDestroy implements OnInit
 	@Input() showStatusIndicator: boolean;
 
 	points: DecisionPoint[];
+	currentDecisionPoint: DecisionPoint;
 
 	constructor(private store: Store<fromRoot.State>) { super(); }
 

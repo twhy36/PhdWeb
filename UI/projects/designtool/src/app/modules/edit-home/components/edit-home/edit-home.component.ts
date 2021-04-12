@@ -661,7 +661,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		});
 	}
 
-	saveScenario()
+	saveScenario(event: any)
 	{
 		if (this.buildMode === 'buyer' && this.isChangingOrder)
 		{

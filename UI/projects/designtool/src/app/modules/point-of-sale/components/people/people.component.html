@@ -71,13 +71,13 @@
 					 [canSell]="canSell || canDesign"
 					 [isLockedIn]="isLockedIn"
 					 personType="Trust"
-					 (onSetAsNA)="setTrustNA()"
+					 (onSetAsNA)="setTrustNA($event)"
 					 (onEdit)="editTrust($event)"
 					 (onAddTrust)="addTrust()"></people-card>
 
 		<!-- only display Add Realtor box if realtor is null and N/A has not been selected-->
 		<add-card *ngIf="!isChangingOrder && !(realtor$ | async) && !(realtorNA$ | async) && canEditAgreement && canSell"
-				  [hasNA]="!(realtor$ | async) || (realtor$ | async).length === 0"
+				  [hasNA]="!(realtor$ | async)"
 				  [isNA]="realtorNA$ | async"
 				  [label]="'Real Estate Agent'"
 				  [labels]="'Real Estate Agents'"
@@ -95,7 +95,7 @@
 						 [canEditAgreement]="canEditAgreement && canSell"
 						 [canSell]="canSell"
 						 [isLockedIn]="isLockedIn"
-						 (onSetAsNA)="setRealtorNA()"
+						 (onSetAsNA)="setRealtorNA($event)"
 						 (onEdit)="editRealtor($event)"
 						 (onAddRealtor)="addRealtor()"></people-card>
 		</ng-container>

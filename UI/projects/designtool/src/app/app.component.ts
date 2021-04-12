@@ -3,7 +3,7 @@ import { Router, ActivatedRoute, ActivatedRouteSnapshot, NavigationEnd } from '@
 
 import { filter } from 'rxjs/operators';
 
-import { loadScript } from 'phd-common/utils';
+import { loadScript } from 'phd-common';
 import { LoggingService } from './modules/core/services/logging.service';
 import { environment } from '../environments/environment';
 import * as build from './build.json';

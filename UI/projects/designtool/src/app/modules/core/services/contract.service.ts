@@ -7,7 +7,7 @@ import { _throw } from 'rxjs/observable/throw';
 
 import {
 	defaultOnNotFound, withSpinner, Buyer, Contact, PhoneType, ESignTypeEnum, ChangeOrderChoice, ChangeOrderNonStandardOption,
-	ChangeOrderGroup, LotExt, Plan, SalesAgreementProgram, SDPoint, DecisionPoint
+	ChangeOrderGroup, LotExt, Plan, SalesAgreementProgram, SDPoint, DecisionPoint, formatPhoneNumber
 } from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
@@ -18,7 +18,6 @@ import { EnvelopeInfo } from '../../shared/models/envelope-info.model';
 import { of } from 'rxjs/observable/of';
 import { convertMapToMergeFieldDto, getCurrentHouseSelections, getChangeOrderGroupSelections } from '../../shared/classes/merge-field-utils.class';
 import * as _ from 'lodash';
-import { formatPhoneNumber } from 'phd-common/utils';
 import { Store } from '@ngrx/store';
 import * as fromRoot from '../../../modules/ngrx-store/reducers';
 import { isNull } from "../../shared/classes/string-utils.class";

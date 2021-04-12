@@ -20,7 +20,7 @@
 		</div>
 		<div class="phd-incentive-footer">
 			<div class="phd-currency phd-incentive-amount">
-				<ng-container *ngIf="selectedSalesProgram && selectedSalesProgram.salesProgramType === 'DiscountFlatAmount'; else buyersClosingCost">
+				<ng-container *ngIf="isDiscountFlatAmount(); else buyersClosingCost">
 					({{program && program.amount || 0 | currency:'USD':'symbol':'0.2-2'}})
 				</ng-container>
 				<ng-template #buyersClosingCost>
@@ -29,7 +29,7 @@
 			</div>
 			<div>
 				<div *ngIf="selectedSalesProgram && selectedSalesProgram.salesProgramType" class="phd-text-note">
-					{{selectedSalesProgram && selectedSalesProgram.salesProgramType | capitalCaseSpace}}
+					{{getSalesProgramType() | capitalCaseSpace}}
 				</div>
 				<div *ngIf="selectedSalesProgram && selectedSalesProgram.isPMCAffiliate" class="phd-text-note">
 					PMC Affiliated
@@ -54,7 +54,7 @@
 			<div class="phd-program-info phd-incentive-applied" *ngIf="selectedSalesProgram && selectedSalesProgram.salesProgramType">
 				<div class="label">APPLIED TO: </div>
 				<div class="phd-incentive-applied-to">
-					<div>{{selectedSalesProgram && selectedSalesProgram.salesProgramType | capitalCaseSpace}}</div>
+					<div>{{getSalesProgramType() | capitalCaseSpace}}</div>
 					<div class="phd-program-info" *ngIf="selectedSalesProgram && selectedSalesProgram.isPMCAffiliate">
 						<span>PMC Affiliated</span>
 					</div>

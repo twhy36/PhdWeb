@@ -1,10 +1,11 @@
 import { Tree, DecisionPoint, SubGroup, Group, Choice, PickType, MappedAttributeGroup, MappedLocationGroup } from '../models/tree.model';
 import { TreeVersionRules, ChoiceRules, PointRules, OptionRule } from '../models/rule.model';
 import { PlanOption } from '../models/option.model';
+import { PointStatus } from '../models/point.model';
 import { PriceBreakdown } from '../models/scenario.model';
 import { JobChoice } from '../models/job.model';
 import { ChangeOrderChoice } from '../models/job-change-order.model';
-import { PointStatus } from '../models/point.model';
+import { isChoiceAttributesComplete } from '../utils/utils.class';
 
 import * as _ from 'lodash';
 

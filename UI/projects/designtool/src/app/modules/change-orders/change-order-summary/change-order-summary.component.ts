@@ -990,7 +990,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 		this.onActionSelected(this.ACTION_TYPES.WITHDRAW);
 	}
 
-	resubmitChangeOrder(changeOrder: any)
+	resubmitChangeOrder(changeOrder?: any)
 	{
 		const sequence = changeOrder.changeOrderGroupSequence;
 		const sequenceSuffix = this.getNextSequenceSuffix(changeOrder.changeOrderGroupSequenceSuffix);

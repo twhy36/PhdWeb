@@ -10,7 +10,18 @@ export const environment: IEnvironment = {
 	apiUrl: 'https://phdapi.staging.pulte.com/odata/',
 	hubUrl: 'https://phdhub.staging.pulte.com/hub',
     tenant: "pulte.onmicrosoft.com",
-    clientId: "d6e4e999-c413-4d1d-b0fb-618759cb69e5",
+	clientId: "d6e4e999-c413-4d1d-b0fb-618759cb69e5",
+	authConfig: {
+		issuer: "https://login.microsoftonline.com/1a9277a3-ef66-41f6-96b5-c5390ee468a7/v2.0",
+		clientId: "7d88528c-ab8d-4757-8b17-e7bc1b84ca15",
+		responseType: 'code',
+		clearHashAfterLogin: true,
+		requestAccessToken: true,
+		scope: 'api://7d88528c-ab8d-4757-8b17-e7bc1b84ca15/user_impersonation profile openid',
+		showDebugInformation: true,
+		skipIssuerCheck: false,
+		strictDiscoveryDocumentValidation: false
+	},	
     authQueryParams: "domain_hint=pulte.com",
     appInsights: {
 		instrumentationKey: 'cf19cbb8-e39b-4e28-8199-3d06eaf051f0'

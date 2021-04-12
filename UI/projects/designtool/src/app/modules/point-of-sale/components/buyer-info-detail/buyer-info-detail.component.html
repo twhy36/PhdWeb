@@ -1,7 +1,7 @@
 <div class="detail-container d-flex flex-column justify-content-start m-auto position-relative">
 	<div class="header">
 		<span *ngIf="isBuyer()">
-			{{buyer.isPrimaryBuyer ? 'primary buyer' : 'co-buyer'}}:
+			{{isPrimaryBuyer ? 'primary buyer' : 'co-buyer'}}:
 		</span>
 		<span *ngIf="isRealtor()">
 			Real Estate Agent:
@@ -93,15 +93,15 @@
 				</div>
 			</div>
 			<div class="d-flex flex-wrap phd-array-group mt-2 mb-2" formArrayName="addresses">
-				<ng-container *ngFor="let address of buyerForm.controls.addresses.controls; let i=index">
+				<ng-container *ngFor="let address of buyerForm.controls.addresses['controls']; let i=index">
 					<!-- only show the first address -->
 					<div class="d-flex flex-column flex-fill p-2" *ngIf="i === 0">
 						<ng-container [formGroupName]="i">
 							<div style="max-width: 300px;">
 								<div class="float-left phd-form-label">
-									Address 1: {{buyer.isPrimaryBuyer ? '*' : ''}}
+									Address 1: {{isPrimaryBuyer ? '*' : ''}}
 								</div>
-								<div class="float-right" *ngIf="isBuyer() && !buyer.isPrimaryBuyer">
+								<div class="float-right" *ngIf="isBuyer() && !isPrimaryBuyer">
 									<a class="btn m-0 p-0" (click)="copyPrimaryBuyerAddress()">Copy Primary Buyer Address</a>
 								</div>
 							</div>
@@ -117,7 +117,7 @@
 							<div class="d-flex flex-fill">
 								<div class="d-flex flex-column flex-fill pr-1">
 									<div class="phd-form-label">
-										City: {{buyer.isPrimaryBuyer ? '*' : ''}}
+										City: {{isPrimaryBuyer ? '*' : ''}}
 									</div>
 									<div>
 										<input class="form-control form-group" type="text" maxlength="80" formControlName="city" [readonly]="disabledInputs">
@@ -125,7 +125,7 @@
 								</div>
 								<div class="d-flex flex-column flex-fill pr-1">
 									<div class="phd-form-label">
-										State / Province: {{buyer.isPrimaryBuyer ? '*' : ''}}
+										State / Province: {{isPrimaryBuyer ? '*' : ''}}
 									</div>
 									<div>
 										<input class="form-control form-group" type="text" maxlength="50" formControlName="stateProvince" [readonly]="disabledInputs">
@@ -133,7 +133,7 @@
 								</div>
 								<div class="d-flex flex-column flex-fill pr-1">
 									<div class="phd-form-label">
-										Zip Code: {{buyer.isPrimaryBuyer ? '*' : ''}}
+										Zip Code: {{isPrimaryBuyer ? '*' : ''}}
 									</div>
 									<div>
 										<input class="form-control form-group" type="text" maxlength="20" formControlName="postalCode" [readonly]="disabledInputs">
@@ -141,7 +141,7 @@
 								</div>
 								<div class="d-flex flex-column flex-fill">
 									<div class="phd-form-label">
-										Country: {{buyer.isPrimaryBuyer ? '*' : ''}}
+										Country: {{isPrimaryBuyer ? '*' : ''}}
 									</div>
 									<div>
 										<input class="form-control form-group" type="text" maxlength="80" formControlName="country" [readonly]="disabledInputs">
@@ -154,7 +154,7 @@
 			</div>
 			<div class="d-flex flex-column phd-array-group mb-2">
 				<div class="d-flex flex-wrap justify-content-between" formArrayName="emails">
-					<ng-container *ngFor="let email of buyerForm.controls.emails.controls; let n=index">
+					<ng-container *ngFor="let email of buyerForm.controls.emails['controls']; let n=index">
 						<!-- only show the first 2 email addresses -->
 						<div class="d-flex flex-column p-2" [class.flex-grow-1]="n === 0" *ngIf="n < 2">
 							<ng-container [formGroupName]="n">
@@ -176,7 +176,7 @@
 			</div>
 			<div class="d-flex flex-column phd-array-group mb-2">
 				<div class="d-flex flex-wrap justify-content-between" formArrayName="phones">
-					<ng-container *ngFor="let phone of buyerForm.controls.phones.controls; let x=index">
+					<ng-container *ngFor="let phone of buyerForm.controls.phones['controls']; let x=index">
 						<!-- only show the first 2 phone numbers -->
 						<div class="d-flex p-2" [class.flex-grow-1]="x === 0" *ngIf="x < 2">
 							<ng-container [formGroupName]="x">

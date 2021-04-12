@@ -48,8 +48,6 @@ export class NameScenarioComponent extends UnsubscribeOnDestroy implements OnIni
 
 	private noOppInRoute = false;
 
-	@ViewChild('content') content;
-
 	constructor(private router: Router,
 		public scenarioService: ScenarioService,
 		public oppService: OpportunityService,

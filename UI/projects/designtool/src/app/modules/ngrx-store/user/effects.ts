@@ -5,9 +5,8 @@ import { Actions, Effect, ofType, ROOT_EFFECTS_INIT } from "@ngrx/effects";
 import { switchMap, map, take } from "rxjs/operators";
 import { Observable ,  forkJoin } from "rxjs";
 
-import { IMarket, IdentityService } from "phd-common";
+import { IMarket, IdentityService, Claims } from "phd-common";
 import { SetPermissions } from "./actions";
-import { Claims } from "phd-common/models";
 
 @Injectable()
 export class UserEffects {

@@ -4,8 +4,8 @@ import { Component, OnInit, ViewChild, ElementRef, TemplateRef } from '@angular/
 import { ModalButton, ModalContent } from 'phd-common';
 
 @Component({
-	'selector': 'modal',
-	'templateUrl': './modal.component.html',
+	selector: 'modal',
+	templateUrl: './modal.component.html',
 	styleUrls: ['./modal.component.scss']
 })
 export class ModalComponent extends ModalContent implements OnInit
@@ -17,6 +17,7 @@ export class ModalComponent extends ModalContent implements OnInit
 	header: string;
 	autodismissTimer?: Subscription;
 	needsInput = false;
+	inputLabel?: string;
 
 	get hasTemplate(): boolean
 	{

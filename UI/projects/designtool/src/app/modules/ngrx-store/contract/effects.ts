@@ -7,7 +7,10 @@ import { of } from 'rxjs/observable/of';
 import { never } from 'rxjs/observable/never';
 import { from } from 'rxjs/observable/from';
 
-import { Buyer, Contact, PhoneType, ESignEnvelope, ESignStatusEnum, ESignTypeEnum, ChangeOrderGroup, ChangeOrderChoice } from 'phd-common';
+import {
+	Buyer, Contact, PhoneType, ESignEnvelope, ESignStatusEnum, ESignTypeEnum, ChangeOrderGroup,
+	ChangeOrderChoice, formatPhoneNumber
+} from 'phd-common';
 
 import * as fromRoot from '../reducers';
 import
@@ -26,7 +29,6 @@ import * as fromScenario from '../scenario/reducer';
 import * as fromChangeOrder from '../change-order/reducer';
 import * as _ from 'lodash';
 import { MergeFieldData } from '../../shared/models/contract.model';
-import { formatPhoneNumber } from 'phd-common/utils';
 
 @Injectable()
 export class ContractEffects

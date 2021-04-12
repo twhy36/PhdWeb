@@ -51,14 +51,14 @@
 				<button class="btn phd-experience-btn-choice" (click)="toggleSelection()" [disabled]="buttonDisabled" [class.phd-disable-hover]="buttonDisabled">{{getButtonLabel()}}</button>
 			</div>
 
-			<div *ngIf="showDisabledButton" class="phd-choice-disabled-msg phd-clickable" (click)="!optionDisabled && choice && showDisabledMessage(choice)">
+			<div *ngIf="showDisabledButton" class="phd-choice-disabled-msg phd-clickable" (click)="!optionDisabled && choice && showDisabledMessage()">
 				<i class="fas fa-info-circle fa-sm"></i> Disabled
 			</div>
 		</div>
 
 		<div *ngIf="optionDisabled">  Choice Is No Longer Available </div>
 		
-		<span class="phd-monotony-conflict-message" *ngIf="monotonyConflict.monotonyConflict || (!override$ | async)">
+		<span class="phd-monotony-conflict-message" *ngIf="monotonyConflict.monotonyConflict || !(override$ | async)">
 			Monotony Conflict
 		</span>
 
@@ -104,7 +104,6 @@
 						[canEditAgreement]="canEditAgreement"
 						[canConfigure]="canConfigure"
 	                    [isPastCutOff]="isPastCutOff"
-						[choicePriceRanges]="choicePriceRanges"
 						(callToAction)="onCallToAction($event)"
 						(saveAttributes)="onSaveAttributes()"
 						[selectedMax]="unsavedQty"

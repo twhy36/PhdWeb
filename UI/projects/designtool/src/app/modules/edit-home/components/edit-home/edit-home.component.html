@@ -130,7 +130,6 @@
 			 [canConfigure]="canConfigure$ | async"
 			 [canOverride]="canOverride$ | async"
 			 [currentDecisionPoint]="viewPoint"
-			 [choicePriceRanges]="(choicePriceRanges$ | async)"
 			 (onChoiceChange)="onChoiceChange($event)"
 			 (saveAttributes)="saveScenario($event)"
 			 (toggled)="toggleChoice($event)">

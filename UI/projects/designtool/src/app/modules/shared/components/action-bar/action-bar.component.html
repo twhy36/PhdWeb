@@ -9,11 +9,11 @@
 		</div>
 
 		<div *ngIf="(canCancelSpec$ | async) && canSell">
-			<a (click)="onCancelSpecOrModel()" class="phd-cancel" [class.disabled]="savingAgreement">Cancel Spec</a>
+			<a (click)="onCancelSpecOrModel(true)" class="phd-cancel" [class.disabled]="savingAgreement">Cancel Spec</a>
 		</div>
 
 		<div *ngIf="(canCancelModel$ | async) && canSell">
-			<a (click)="onCancelSpecOrModel()" class="phd-cancel" [class.disabled]="savingAgreement">Cancel Model</a>
+			<a (click)="onCancelSpecOrModel(false)" class="phd-cancel" [class.disabled]="savingAgreement">Cancel Model</a>
 		</div>
 
 		<div *ngIf="inAgreement">

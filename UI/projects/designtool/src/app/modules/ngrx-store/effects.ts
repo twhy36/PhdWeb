@@ -7,7 +7,7 @@ import * as _ from 'lodash';
 
 import {
 	SalesCommunity, ChangeOrderChoice, ChangeOrderGroup, Job, IMarket, SalesAgreementInfo, DecisionPoint, Choice,
-	IdentityService, SpinnerService
+	IdentityService, SpinnerService, Claims, Permission
 } from 'phd-common';
 
 import { CommonActionTypes, LoadScenario, LoadError, ScenarioLoaded, LoadSalesAgreement, SalesAgreementLoaded, LoadSpec, JobLoaded, ESignEnvelopesLoaded } from './actions';
@@ -33,7 +33,6 @@ import { ChangeOrderService } from '../core/services/change-order.service';
 import { SalesAgreementCreated, SalesAgreementActionTypes } from './sales-agreement/actions';
 import { ContractService } from '../core/services/contract.service';
 import { TemplatesLoaded } from './contract/actions';
-import { Claims, Permission } from 'phd-common/models';
 import { SavePendingJio, CreateJobChangeOrders, CreatePlanChangeOrder } from './change-order/actions';
 import { EMPTY as empty } from 'rxjs';
 import { State, canDesign, showSpinner } from './reducers';

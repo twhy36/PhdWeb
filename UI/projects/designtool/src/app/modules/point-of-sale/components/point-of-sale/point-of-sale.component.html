@@ -3,7 +3,7 @@
 <pos-progress-bar (onViewAgreementInfo)="onViewAgreementInfo($event)" [isAgreementInfoViewed]="isAgreementInfoViewed$ | async" [isPeopleComplete]="isPeopleComplete$ | async" [isSalesInfoComplete]="isSalesInfoComplete$ | async"></pos-progress-bar>
 
 <ng-container *ngIf="!isChangingOrder">
-	<pos-header (toggleCollapse)="onToggleCollapse($event)" (showSalesConsultants)="onShowSalesConsultants($event)"></pos-header>
+	<pos-header (toggleCollapse)="onToggleCollapse($event)" (showSalesConsultants)="onShowSalesConsultants()"></pos-header>
 </ng-container>
 
 <div class="point-of-sale-body ml-auto mr-auto">
@@ -28,7 +28,7 @@
 			<span class="text-info" *ngIf="showPricingLockText"><i class="fas fa-info-circle"></i> Selecting e-Sign or Print will lock in pricing</span>
 		</div>
 
-		<button type="button" class="btn btn-primary" (click)="eSign(content)" *ngIf="canSell$ | async">e-Sign</button>
+		<button type="button" class="btn btn-primary" (click)="eSign()" *ngIf="canSell$ | async">e-Sign</button>
 		<button type="button" class="btn btn-primary" (click)="print()" *ngIf="canSell$ | async">Print</button>
 		<button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
 	</ng-container>

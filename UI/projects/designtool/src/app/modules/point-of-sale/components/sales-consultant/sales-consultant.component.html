@@ -42,7 +42,7 @@
 								<input type="number" class="form-control phd-commission" formControlName="commission" min="0.00" max="1" step="0.01" [controlDisabled]="!canEdit" />
 							</td>
 
-							<td *ngIf="consultantForm.get('contacts').controls.length > 1 && canEdit">
+							<td *ngIf="consultantForm.get('contacts')['controls'].length > 1 && canEdit">
 								<button class="btn btn-primary" (click)="removeConsultant(i);" *ngIf="i > 0" title="Remove Sales Consultant"><i class="fa fa-trash"></i></button>
 							</td>
 						</tr>

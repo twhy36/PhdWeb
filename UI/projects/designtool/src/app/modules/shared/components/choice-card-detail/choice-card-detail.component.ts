@@ -385,7 +385,6 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 
 	/**
 	 * Updates the attribute selections when there are no locations associated with the choice
-	 * @param $event
 	 */
 	attributeGroupSelected()
 	{

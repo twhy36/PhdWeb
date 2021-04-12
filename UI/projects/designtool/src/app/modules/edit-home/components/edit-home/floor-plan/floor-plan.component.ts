@@ -9,7 +9,7 @@ import * as _ from 'lodash';
 
 import {
 	UnsubscribeOnDestroy, flipOver, ModalRef, ScenarioStatusType, PriceBreakdown, TreeFilter, SubGroup,
-	DecisionPoint, Choice
+	DecisionPoint, Choice, loadScript, unloadScript
 } from 'phd-common';
 
 import * as fromRoot from '../../../../ngrx-store/reducers';
@@ -20,7 +20,6 @@ import { ActionBarCallType } from '../../../../shared/classes/constants.class';
 import { DecisionPointFilterType } from '../../../../shared/models/decisionPointFilter';
 import { environment } from '../../../../../../environments/environment';
 import { JobService } from '../../../../core/services/job.service';
-import { loadScript, unloadScript } from 'phd-common/utils';
 import { ScenarioService } from '../../../../core/services/scenario.service';
 import { ModalService } from '../../../../core/services/modal.service';
 

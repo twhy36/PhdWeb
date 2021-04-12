@@ -43,7 +43,7 @@
 	<h6>New Note</h6>
 	<div class="w-100">
 		<label for="subCategory">Category *</label>
-		<select class="form-control" formControlName="subCategory" id="subCategory" name="subCategory" (change)="selectChange($event)">
+		<select class="form-control" formControlName="subCategory" id="subCategory" name="subCategory" (change)="selectChange()">
 			<optgroup label="Internal">
 				<option *ngFor="let item of internalCategoryOptions"  [disabled]="!canAddInternalNote"  [ngValue]="item.id">{{ item.value }}</option>
 			</optgroup>

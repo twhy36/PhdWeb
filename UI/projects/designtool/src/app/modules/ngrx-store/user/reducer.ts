@@ -1,6 +1,5 @@
-import { IMarket } from "phd-common";
+import { IMarket, Permission } from "phd-common";
 import { UserActions, UserActionTypes } from "./actions";
-import { Permission } from "phd-common/models";
 import { createFeatureSelector, createSelector } from "@ngrx/store";
 
 export interface State
