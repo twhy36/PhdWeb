@@ -1,5 +1,7 @@
 import { Component, Input, ViewChild } from '@angular/core';
 
+import * as _ from 'lodash';
+
 import { ModalContent, ModalRef, Contact, MatchingContact } from 'phd-common';
 import { ModalService } from '../../../core/services/modal.service';
 
@@ -27,12 +29,11 @@ export class MatchingContactsComponent extends ModalContent
 
 	selectContact(data: { contact: Contact | MatchingContact, isUpdated: boolean })
 	{
-		if (data.contact.hasOwnProperty("isExactMatch"))
+		let selectedContact = _.cloneDeep(data.contact as Contact);
+		if (selectedContact.hasOwnProperty("isExactMatch"))
 		{
-			delete (data.contact as MatchingContact).isExactMatch;
+			delete (selectedContact as MatchingContact).isExactMatch;
 		}
-
-		let selectedContact = data.contact as Contact;
 
 		if (data.isUpdated)
 		{

@@ -560,7 +560,7 @@ export class CommonEffects
 					let baseHouseOption = result.job.jobPlanOptions.find(o => o.jobOptionTypeName === 'BaseHouse');
 					let selectedPlanPrice: { planId: number, listPrice: number } = null;
 
-					if (['OutforSignature', 'Signed', 'Approved'].indexOf(result.salesAgreement.status) !== -1)
+					if (['OutforSignature', 'Signed', 'Approved', 'Closed'].indexOf(result.salesAgreement.status) !== -1)
 					{
 						if (baseHouseOption)
 						{
