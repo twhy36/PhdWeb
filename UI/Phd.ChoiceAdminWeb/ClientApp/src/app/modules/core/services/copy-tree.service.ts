@@ -1,16 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpHeaders, HttpClient } from '@angular/common/http';
 
-import { Observable , throwError as _throw } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { Observable ,  throwError as _throw } from 'rxjs';
+import { map, catchError, flatMap } from 'rxjs/operators';
 
 import { Settings } from '../../shared/models/settings.model';
 
 import { LoggingService } from '../../core/services/logging.service';
 import { SettingsService } from '../../core/services/settings.service';
 import { StorageService } from '../../core/services/storage.service';
-
-import { withSpinner } from 'phd-common/extensions/withSpinner.extension';
 
 const settings: Settings = new SettingsService().getSettings();
 
@@ -54,7 +52,7 @@ export class CopyTreeService
 
 		url += `dTreeVersions?${qryStr}`;
 
-		return withSpinner(this._http).get(url).pipe(
+		return this._http.get(url).pipe(
 			map(response =>
 				{
 					let version = response['value'] as ITreeVersion[];
@@ -70,7 +68,7 @@ export class CopyTreeService
 
 		url += `dTreeVersions(${treeVersionId})`;
 
-		return withSpinner(this._http).delete(url).pipe(
+		return this._http.delete(url).pipe(
 			map(response =>
 				{
 					return response;
@@ -88,7 +86,7 @@ export class CopyTreeService
 
 		let url = settings.apiUrl + `CopyTreeVersionTo`;
 
-		return withSpinner(this._http).post(url, body).pipe(
+		return this._http.post(url, body).pipe(
 			map(response =>
 				{
 					const treeVersion = response as ITreeVersionDto;
@@ -96,35 +94,7 @@ export class CopyTreeService
 					return treeVersion.id;
 				}),
 			catchError(this.handleError));
-	}
-
-	getPlanCopyValidation(originalTreeVersionId, newTreeVersionId): Observable<string>
-	{
-		const action = `GetPlanCopyValidation`;
-		const url = `${settings.apiUrl}${action}`;
-		const headers = new HttpHeaders({
-			'Content-Type': 'application/json',
-			'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-		});
-
-		const data = {
-			originalTreeVersionId: originalTreeVersionId,
-			newTreeVersionId: newTreeVersionId
-		};
-
-		return withSpinner(this._http).post(url, data, { headers: headers, responseType: 'blob' }).pipe(
-			map(response =>
-			{
-				return window.URL.createObjectURL(response);
-			}),
-			catchError(error =>
-			{
-				console.error(error);
-
-				return _throw(error);
-			})
-		);
-	}
+    }
 
     private handleError(error: Response)
     {

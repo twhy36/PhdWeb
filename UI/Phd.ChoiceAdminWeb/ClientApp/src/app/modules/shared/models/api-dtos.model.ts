@@ -175,7 +175,7 @@ export namespace PhdEntityDto
 		baseHouseOptions?: Array<IBaseHouseOptionDto>;
 		dGroups?: Array<IDGroupDto>;
 		dPChoices?: Array<IDPChoiceDto>;
-		dpChoice_DPChoiceRuleAssoc?: Array<IDPChoice_DPChoiceRuleAssocDto>;
+		dPChoice_DPChoiceRuleAssoc?: Array<IDPChoice_DPChoiceRuleAssocDto>;
 		dpChoice_OptionRuleAssoc?: Array<IDPChoice_OptionRuleAssocDto>;
 		dpChoiceRule_DPChoiceAssoc?: Array<IDPChoiceRule_DPChoiceAssocDto>;
 		dPoints?: Array<IDPointDto>;
@@ -297,7 +297,7 @@ export namespace PhdEntityDto
 		dpChoiceDescription: string;
 		houseConfigDetailChoices?: Array<IHouseConfigDetailChoiceDto>;
 		divChoiceCatalog?: IDivChoiceCatalogDto;
-		dpChoice_DPChoiceRuleAssoc?: Array<IDPChoice_DPChoiceRuleAssocDto>;
+		dPChoice_DPChoiceRuleAssoc?: Array<IDPChoice_DPChoiceRuleAssocDto>;
 		dpChoiceRule_DPChoiceAssoc?: Array<IDPChoiceRule_DPChoiceAssocDto>;
 		dPoint?: IDPointDto;
 		dTreeVersion?: IDTreeVersionDto;
@@ -335,7 +335,7 @@ export namespace PhdEntityDto
 		dpChoiceID?: number;
 		dTreeVersionID?: number;
 		dpChoice?: IDPChoiceDto;
-		dpChoice_DPChoiceRuleAssoc?: IDPChoice_DPChoiceRuleAssocDto;
+		dPChoice_DPChoiceRuleAssoc?: IDPChoice_DPChoiceRuleAssocDto;
 		dTreeVersion?: IDTreeVersionDto;
 	}
 
@@ -344,7 +344,7 @@ export namespace PhdEntityDto
 		dpChoiceRuleID?: number;
 		dpChoiceRuleLabel?: string;
 		dpChoiceRuleDescription?: string;
-		dpChoice_DPChoiceRuleAssoc?: Array<IDPChoice_DPChoiceRuleAssocDto>;
+		dPChoice_DPChoiceRuleAssoc?: Array<IDPChoice_DPChoiceRuleAssocDto>;
 	}
 
 	export interface IDPoint_DPointRuleAssocDto
@@ -585,7 +585,6 @@ export namespace PhdApiDto
 		label: string;
 		description: string;
 		imagePath: string;
-		hasImage: boolean;
 		choiceMaxQuantity?: number;
 	}
 
