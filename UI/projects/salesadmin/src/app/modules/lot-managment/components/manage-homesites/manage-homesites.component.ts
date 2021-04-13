@@ -508,7 +508,7 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 		};
 		const confirm = this._modalService.open(ConfirmModalComponent, ngbModalOptions);
 		confirm.componentInstance.title = 'Release Homesite';
-		confirm.componentInstance.body = 'Click the Continue button to release the lot for sale';
+		confirm.componentInstance.body = 'Click Continue to release this lot.';
 		confirm.componentInstance.defaultOption = 'Continue';
 		confirm.componentInstance.primaryButtonText = 'Release';
 
