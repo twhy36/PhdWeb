@@ -17,7 +17,7 @@ import { PlanOptionService } from './plan-option.service';
 import { PhdApiDto, PhdEntityDto } from '../../shared/models/api-dtos.model';
 import { TreeOption, ITreeOption } from '../../shared/models/option.model';
 import { IDivCatalogPointDto } from '../../shared/models/point.model';
-import { IDivCatalogChoiceDto, DivDChoice } from '../../shared/models/choice.model';
+import { IDivCatalogChoiceDto, IChoiceImageAssoc } from '../../shared/models/choice.model';
 
 import { withSpinner } from 'phd-common';
 import { RuleType } from '../../shared/models/rule.model';
@@ -29,7 +29,8 @@ import { DivAttributeWizPlan, DivAttributeWizOption, DivAttributeWizChoice } fro
 const settings: Settings = new SettingsService().getSettings();
 
 @Injectable()
-export class TreeService {
+export class TreeService
+{
 	private _ds: string = encodeURIComponent('$');
 	private _batch = "$batch";
 
@@ -43,7 +44,8 @@ export class TreeService {
 	constructor(
 		private _http: HttpClient,
 		private _loggingService: LoggingService,
-		private _optionService: PlanOptionService) {
+		private _optionService: PlanOptionService)
+	{
 		this.currentTreeVersionId$ = new BehaviorSubject<number>(null);
 		this._currentTreeOptions = new BehaviorSubject<Array<ITreeOption>>(null);
 		this._currentTree = new BehaviorSubject<DTree>(null);
@@ -52,40 +54,48 @@ export class TreeService {
 
 		this.currentTreeVersionId$
 			.pipe(
-				switchMap(treeVersionId => {
+				switchMap(treeVersionId =>
+				{
 					this.clearCurrentTree();
 
-					if (treeVersionId) {
+					if (treeVersionId)
+					{
 						this.treeVersionIsLoading = true;
 
 						return this.getTree(treeVersionId).pipe(
 							combineLatest(this.getTreeOptions(treeVersionId))
 						);
 					}
-					else {
+					else
+					{
 						this.treeVersionIsLoading = false;
 
 						return EMPTY;
 					}
 				})
 			)
-			.subscribe(([tree, treeOptions]) => {
+			.subscribe(([tree, treeOptions]) =>
+			{
 				this.setCurrentTree(tree, treeOptions);
 
 				this.treeVersionIsLoading = false;
 			});
 	}
 
-	getTreeByVersionId(treeVersionId: number): Observable<DTree> {
-		if (this.currentTreeVersionId$.value === treeVersionId) {
+	getTreeByVersionId(treeVersionId: number): Observable<DTree>
+	{
+		if (this.currentTreeVersionId$.value === treeVersionId && this._currentTree.value !== null)
+		{
 			return this.currentTree;
 		}
-		else {
+		else
+		{
 			this.clearCurrentTree();
 
 			return this.getTree(treeVersionId).pipe(
 				combineLatest(this.getTreeOptions(treeVersionId)),
-				map(([tree, treeOptions]) => {
+				map(([tree, treeOptions]) =>
+				{
 					this.setCurrentTree(tree, treeOptions);
 					this.treeVersionIsLoading = false;
 
@@ -95,22 +105,25 @@ export class TreeService {
 		}
 	}
 
-	clearCurrentTree() {
+	clearCurrentTree()
+	{
 		this._currentTree.next(null);
 		this._currentTreeOptions.next(null);
 	}
 
-
-	updateCurrentTree(tree: DTree) {
+	updateCurrentTree(tree: DTree)
+	{
 		this._currentTree.next(tree);
 	}
 
-	setCurrentTree(tree: DTree, treeOptions: Array<ITreeOption>) {
+	setCurrentTree(tree: DTree, treeOptions: Array<ITreeOption>)
+	{
 		this._currentTree.next(tree);
 		this._currentTreeOptions.next(treeOptions);
 	}
 
-	getTreeVersions(commId: number, planKey: string): Observable<Array<DTreeVersionDropDown>> {
+	getTreeVersions(commId: number, planKey: string): Observable<Array<DTreeVersionDropDown>>
+	{
 		let url = settings.apiUrl;
 
 		const expand = `dTree($select=dTreeID;$expand=plan($select=integrationKey),org($select=edhFinancialCommunityId)),baseHouseOptions($select=planOption;$expand=planOption($select=integrationKey))`;
@@ -123,31 +136,38 @@ export class TreeService {
 		url += `dTreeVersions?${qryStr}`;
 
 		return this._http.get<any>(url).pipe(
-			map(response => {
+			map(response =>
+			{
 
 				const versionsDto = response.value as Array<PhdEntityDto.IDTreeVersionDto>;
 				let versions = versionsDto.map<DTreeVersionDropDown>(v => new DTreeVersionDropDown(v));
 
-				versions = versions.sort((a, b) => {
-					if (!a.effectiveDate) {
+				versions = versions.sort((a, b) =>
+				{
+					if (!a.effectiveDate)
+					{
 						return -1;
 					}
 
-					if (!b.effectiveDate) {
+					if (!b.effectiveDate)
+					{
 						return 1;
 					}
 
 					const left = a.effectiveDate;
 					const right = b.effectiveDate;
 
-					if (left.isSame(right)) {
+					if (left.isSame(right))
+					{
 						return 0;
 					}
 
-					if (left.isBefore(right)) {
+					if (left.isBefore(right))
+					{
 						return 1;
 					}
-					else {
+					else
+					{
 						return -1;
 					}
 				});
@@ -156,36 +176,43 @@ export class TreeService {
 			}), catchError(this.handleError));
 	}
 
-	getTree(treeVersionId: number): Observable<DTree> {
+	getTree(treeVersionId: number): Observable<DTree>
+	{
 		const entity = `GetTreeDto(TreeVersionID=${treeVersionId})`;
 		const expand = `treeVersion($expand=groups($expand=subGroups($expand=points($expand=choices)))) `;
 
-		const qryStr = `${this._ds}expand=${encodeURIComponent(expand)}`;
+		const qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&useCache=false`;
 
 		const endPoint = `${settings.apiUrl}${entity}?${qryStr}`;
 
 		return withSpinner(this._http).get<PhdApiDto.IDTreeDto>(endPoint).pipe(
-			map<PhdApiDto.IDTreeDto, DTree>(response => {
+			map<PhdApiDto.IDTreeDto, DTree>(response =>
+			{
 				return this.createTreeFromDto(response);
 			}),
 			catchError(this.handleError));
 	}
 
-	getTreeOptions(treeVersionId: number): Observable<Array<ITreeOption>> {
+	getTreeOptions(treeVersionId: number): Observable<Array<ITreeOption>>
+	{
 		return this.getTreeKeys(treeVersionId).pipe(
-			flatMap(treeVersion => {
+			flatMap(treeVersion =>
+			{
 				const commId = treeVersion.dTree.org.edhFinancialCommunityId;
 				const planKey = treeVersion.dTree.plan.integrationKey;
 
 				// get plan options to set hasChoice or baseHouse
 				return this.getPlanOptions(treeVersionId).pipe(combineLatest(this._optionService.getPlanOptions(commId, planKey)))
 			}),
-			map(([phdPlanOptions, planOptions]) => {
+			map(([phdPlanOptions, planOptions]) =>
+			{
 				let treeOptions: ITreeOption[] = [];
 
-				if (planOptions != null) {
+				if (planOptions != null)
+				{
 					// sort first so messages can inherit sort
-					planOptions.sort((a, b) => {
+					planOptions.sort((a, b) =>
+					{
 						let col1a = a.category;
 						let col1b = b.category;
 
@@ -205,7 +232,8 @@ export class TreeService {
 						return 0;
 					});
 
-					planOptions.forEach(option => {
+					planOptions.forEach(option =>
+					{
 						// build id list
 						let idList = phdPlanOptions.map(x => x.optionKey);
 						// find index of option id
@@ -220,7 +248,8 @@ export class TreeService {
 							baseHouse: false
 						} as PhdApiDto.IDTPlanOption : phdPlanOptions[index];
 
-						if (option.isActive || planOption.hasRules) {
+						if (option.isActive || planOption.hasRules)
+						{
 							let tOption = new TreeOption(option, planOption);
 
 							treeOptions.push(tOption);
@@ -232,7 +261,8 @@ export class TreeService {
 			}));
 	}
 
-	getTreeKeys(treeVersionId: number): Observable<PhdEntityDto.IDTreeVersionDto> {
+	getTreeKeys(treeVersionId: number): Observable<PhdEntityDto.IDTreeVersionDto>
+	{
 		const entity = `dTreeVersions`;
 		const expand = `dTree($select=org;$expand=plan($select=integrationKey),org($select=integrationKey,edhFinancialCommunityId))`;
 		const select = `dTreeVersionID, dTree`;
@@ -247,7 +277,8 @@ export class TreeService {
 		);
 	}
 
-	getNewTree(commId: number, planKey: string, newType: string, oldTreeVersionId: number): Observable<DTree> {
+	getNewTree(commId: number, planKey: string, newType: string, oldTreeVersionId: number): Observable<DTree>
+	{
 		this.treeVersionIsLoading = true;
 
 		// calling unbound odata action
@@ -266,10 +297,12 @@ export class TreeService {
 		const endPoint = `${settings.apiUrl}${action}?${qryStr}`;
 
 		return this._http.post<PhdApiDto.IDTreeDto>(endPoint, body).pipe(
-			map(treeDto => {
+			map(treeDto =>
+			{
 				let dTree: DTree;
 
-				if (treeDto.treeVersion.groups != null) {
+				if (treeDto.treeVersion.groups != null)
+				{
 					dTree = this.createTreeFromDto(treeDto);
 				}
 
@@ -279,7 +312,8 @@ export class TreeService {
 			}));
 	}
 
-	getChoiceOptionRules(treeVersionId: number, choiceId: number): Observable<Array<PhdApiDto.IChoiceOptionRule>> {
+	getChoiceOptionRules(treeVersionId: number, choiceId: number): Observable<Array<PhdApiDto.IChoiceOptionRule>>
+	{
 		const entity = `dPChoiceOptionRuleAssocs`;
 		const expand = `optionRule($select=planOptionID;$expand=planOption($select=integrationKey))`;
 		const filter = `dTreeVersionID eq ${treeVersionId} and dpChoiceID eq ${choiceId}`;
@@ -290,10 +324,12 @@ export class TreeService {
 		const endPoint = `${settings.apiUrl}${entity}?${qryStr}`;
 
 		return this._http.get<any>(endPoint).pipe(
-			map(response => {
+			map(response =>
+			{
 				const optionRules = response.value as Array<PhdEntityDto.IDPChoice_OptionRuleAssocDto>;
 
-				return optionRules.map(r => {
+				return optionRules.map(r =>
+				{
 					return {
 						choiceOptionRuleId: r.dpChoiceOptionRuleAssocID,
 						integrationKey: r.optionRule.planOption.integrationKey,
@@ -304,7 +340,8 @@ export class TreeService {
 			}));
 	}
 
-	getPlanKeysForOption(optionIntegrationKey: string, marketId: number): Observable<Array<IPlanOptionCommunityResult>> {
+	getPlanKeysForOption(optionIntegrationKey: string, marketId: number): Observable<Array<IPlanOptionCommunityResult>>
+	{
 		const entity = 'planOptionCommunities';
 		const expand = `planCommunity($select=id,financialPlanIntegrationKey,planSalesName; $orderby=planSalesName; $filter=isActive eq true; $expand=financialCommunity($select=id;$filter=marketId eq ${marketId})),
 						optionCommunity($select=id,optionId,financialCommunityId;$filter=isActive eq true;
@@ -320,10 +357,12 @@ export class TreeService {
 
 		return withSpinner(this._http).get(endPoint).pipe(
 
-			map(response => {
+			map(response =>
+			{
 				const planOptionCommunity = response['value'];
 
-				return planOptionCommunity.map(poc => {
+				return planOptionCommunity.map(poc =>
+				{
 					return {
 						planID: poc.planId,
 						financialPlanIntegrationKey: poc.planCommunity.financialPlanIntegrationKey,
@@ -335,10 +374,11 @@ export class TreeService {
 		);
 	}
 
-	getTreeWithChoices(planOptionCommunity: IPlanOptionCommunityResult[], selectedChoices: DivAttributeWizChoice[]): Observable<Array<IPlanOptionResult>> {
+	getTreeWithChoices(planOptionCommunity: IPlanOptionCommunityResult[], selectedChoices: DivAttributeWizChoice[]): Observable<Array<IPlanOptionResult>>
+	{
 		const batchGuid = odataUtils.getNewGuid();
 
-		const optionGroups = _(planOptionCommunity).groupBy('financialCommunityId');
+		const optionGroups = _.groupBy(planOptionCommunity, 'financialCommunityId');
 		let requests = Object.keys(optionGroups).map(financialCommunityId =>
 		{
 			var financialPlanIntegrationKey = optionGroups[financialCommunityId].map(p => `'${p.financialPlanIntegrationKey}'`).join(',');
@@ -358,7 +398,8 @@ export class TreeService {
 		let batch = odataUtils.createBatchBody(batchGuid, requests);
 
 		return withSpinner(this._http).post(`${settings.apiUrl}$batch`, batch, { headers: headers }).pipe(
-			map((response: any) => {
+			map((response: any) =>
+			{
 				let bodies = response.responses.map(r => r.body);
 
 				return _.flatten(bodies.map(body =>
@@ -392,7 +433,8 @@ export class TreeService {
 		);
 	}
 
-	getPlansWithActiveTrees(marketId: number): Observable<PhdEntityDto.IPlanDto[]> {
+	getPlansWithActiveTrees(marketId: number): Observable<PhdEntityDto.IPlanDto[]>
+	{
 		const filter = `org/edhMarketId eq ${marketId} and dTrees/any(t: t/dTreeVersions/any())`;
 		const expand = `org($select=edhFinancialCommunityId)`
 		const select = `planID,integrationKey`;
@@ -402,13 +444,15 @@ export class TreeService {
 		let url = `${settings.apiUrl}plans?${qryStr}`;
 
 		return withSpinner(this._http).get(url).pipe(
-			map(response => {
+			map(response =>
+			{
 				return response['value'] as PhdEntityDto.IPlanDto[];
 			})
 		);
 	}
 
-	getOptionLocationGroupCommunity(commId: number, integrationKey: string): Observable<PhdApiDto.ILocationGroupCommunity[]> {
+	getOptionLocationGroupCommunity(commId: number, integrationKey: string): Observable<PhdApiDto.ILocationGroupCommunity[]>
+	{
 		const entity = `locationGroupCommunities`;
 		let expand = `locationGroupOptionCommunityAssocs($select=locationGroupCommunityId;$expand=optionCommunity($expand=option($select=id, financialOptionIntegrationKey); $select=id, optionId, financialCommunityId; $filter=financialCommunityId eq ${commId} and option/financialOptionIntegrationKey eq '${integrationKey}')),`;
 		expand += `locationGroupCommunityTags, locationGroupLocationCommunityAssocs($select=locationGroupCommunityId;$expand=locationCommunity($select=id, locationName, isActive))`;
@@ -420,7 +464,8 @@ export class TreeService {
 		const endPoint = `${settings.apiUrl}${entity}?${qryStr}`;
 
 		return this._http.get<any>(endPoint).pipe(
-			map(response => {
+			map(response =>
+			{
 				let loco = response['value'] as PhdApiDto.ILocationGroupCommunity[];
 
 				return loco;
@@ -428,7 +473,8 @@ export class TreeService {
 			catchError(this.handleError));
 	}
 
-	getOptionChoiceRules(treeVersionId: number, optionKey: string): Observable<PhdApiDto.IOptionChoiceRule> {
+	getOptionChoiceRules(treeVersionId: number, optionKey: string): Observable<PhdApiDto.IOptionChoiceRule>
+	{
 		const entity = `optionRules`;
 		const expand = `optionRuleReplaces($expand=planOption($select=integrationKey)),planOption($select=integrationKey),dpChoice_OptionRuleAssoc($expand=dpChoice($select=dPointID,divChoiceCatalog;$expand=divChoiceCatalog($select=choiceLabel),dPoint($select=divDPointCatalog;$expand=divDPointCatalog($select=dPointLabel))))`;
 		const filter = `dTreeVersionID eq ${treeVersionId} and planOption/integrationKey eq '${optionKey}'`;
@@ -438,10 +484,12 @@ export class TreeService {
 		const endPoint = `${settings.apiUrl}${entity}?${qryStr}`;
 
 		return this._http.get<any>(endPoint).pipe(
-			map(response => {
+			map(response =>
+			{
 				const rules = response.value as Array<PhdEntityDto.IOptionRuleDto>;
 
-				if (rules.length === 0) {
+				if (rules.length === 0)
+				{
 					return null;
 				}
 
@@ -450,7 +498,8 @@ export class TreeService {
 					planOptionId: rules[0].planOptionID,
 					treeVersionId: rules[0].dTreeVersionID,
 					integrationKey: rules[0].planOption.integrationKey,
-					choices: rules[0].dpChoice_OptionRuleAssoc.map(c => {
+					choices: rules[0].dpChoice_OptionRuleAssoc.map(c =>
+					{
 						return {
 							choiceId: c.dpChoiceID,
 							id: c.dpChoiceOptionRuleAssocID,
@@ -462,7 +511,8 @@ export class TreeService {
 							treeVersionId: c.dTreeVersionID
 						} as PhdApiDto.IOptionChoiceRuleChoice;
 					}),
-					replaceRules: rules[0].optionRuleReplaces.map(o => {
+					replaceRules: rules[0].optionRuleReplaces.map(o =>
+					{
 						return {
 							id: o.optionRuleReplaceID,
 							optionRuleId: o.optionRuleID,
@@ -475,9 +525,10 @@ export class TreeService {
 			}));
 	}
 
-	getPlanOptions(treeVersionId: number): Observable<Array<PhdApiDto.IDTPlanOption>> {
+	getPlanOptions(treeVersionId: number): Observable<Array<PhdApiDto.IDTPlanOption>>
+	{
 		const entity = `dTreeVersions`;
-		const expand = `dTree($expand=plan($expand=planOptions($expand=baseHouseOptions($top=1;$filter=dTreeVersionID eq ${treeVersionId};$select=baseHouseOptionId), optionImages($filter=hideImage eq false and dTreeVersionID eq ${treeVersionId};$select=optionImageId), optionRules($top=1;$filter=dTreeVersionID eq ${treeVersionId};$select=optionRuleID))))`;
+		const expand = `dTree($expand=plan($expand=planOptions($expand=baseHouseOptions($top=1;$filter=dTreeVersionID eq ${treeVersionId};$select=baseHouseOptionId), optionImages($filter=hideImage eq false and dTreeVersionID eq ${treeVersionId};$select=optionImageId), optionRules($top=1;$filter=dTreeVersionID eq ${treeVersionId};$select=optionRuleID), optionRuleReplaces($top=1;$filter=dTreeVersionID eq ${treeVersionId};$select=optionRuleReplaceID))))`;
 		const select = "dTree";
 		const filter = `dTreeVersionId eq ${treeVersionId}`;
 
@@ -487,8 +538,10 @@ export class TreeService {
 
 		return withSpinner(this._http).get<any>(endPoint).pipe(
 			map<any, any>(response => response.value[0]),
-			map((version: PhdEntityDto.IDTreeVersionDto) => {
-				return version.dTree.plan.planOptions.map(o => {
+			map((version: PhdEntityDto.IDTreeVersionDto) =>
+			{
+				return version.dTree.plan.planOptions.map(o =>
+				{
 					let imageCount = o.optionImages.length;
 
 					return {
@@ -496,7 +549,7 @@ export class TreeService {
 						planId: o.planID,
 						optionKey: o.integrationKey,
 						baseHouse: !!o.baseHouseOptions.length,
-						hasRules: !!o.optionRules.length,
+						hasRules: !!o.optionRules.length || !!o.optionRuleReplaces.length,
 						hasImages: imageCount > 0,
 						imageCount: imageCount
 					} as PhdApiDto.IDTPlanOption;
@@ -504,19 +557,92 @@ export class TreeService {
 			}));
 	}
 
-	patchPoint(pointId: number, pointDto: PhdEntityDto.IDPointDto): Observable<any> {
+	patchPoint(pointId: number, pointDto: PhdEntityDto.IDPointDto): Observable<any>
+	{
 		const endPoint = `${settings.apiUrl}dPoints(${pointId})`;
 
 		return this._http.patch(endPoint, pointDto);
 	}
 
-	patchChoice(choiceId: number, choiceDto: PhdEntityDto.IDPChoiceDto): Observable<any> {
+	patchChoice(choiceId: number, choiceDto: PhdEntityDto.IDPChoiceDto): Observable<any>
+	{
 		const endPoint = `${settings.apiUrl}dPChoices(${choiceId})`;
 
 		return this._http.patch(endPoint, choiceDto);
 	}
 
-	getDPointPointRules(pointId: number): Observable<Array<PhdApiDto.IDPointRule>> {
+	getChoiceImages(choice: number): Observable<Array<IChoiceImageAssoc>>
+	{
+		const entity = `dPChoiceImageAssocs`;
+		const filter = `dpChoiceId eq (${choice})`;
+		const orderby = `sortKey`;
+
+		const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}orderBy=${orderby}&${this._ds}select=dpChoiceImageAssocId, dpChoiceId, imageUrl, sortKey`;
+
+		const endPoint = `${settings.apiUrl}${entity}?${qryStr}`;
+
+		return this._http.get(endPoint).pipe(
+			map(response =>
+			{
+				let choiceImageAssoc = response['value'] as Array<IChoiceImageAssoc>;
+
+				return choiceImageAssoc;
+			})
+		);
+	}
+
+	saveChoiceImages(choiceImages: PhdEntityDto.IDPChoiceDto[], treeVersionId: number): Observable<IChoiceImageAssoc[]>
+	{
+		// calling unbound odata action 
+		const body = {
+			'choiceImages': choiceImages,
+			'treeVersionId': treeVersionId,
+		};
+
+		const action = `SaveChoiceImages`;
+		const endpoint = `${settings.apiUrl}${action}`;
+
+		return this._http.post<any>(endpoint, body, { headers: { 'Prefer': 'return=representation' } }).pipe(
+			map(response =>
+			{
+				return response.value as Array<IChoiceImageAssoc>;
+			}));
+	}
+
+	deleteChoiceImage(choiceImageId: number, choiceId: number): Observable<any>
+	{
+		// calling unbound odata action
+		const body =
+		{
+			'dpChoiceImageAssocId': choiceImageId,
+			'dpChoiceId': choiceId
+		};
+
+		const action = 'DeleteChoiceImage';
+		const endPoint = `${settings.apiUrl}${action}`;
+
+		return this._http.post<any>(endPoint, body);
+	}
+
+	saveChoiceImageSortOrder(images: Array<IChoiceImageAssoc>, treeVersionId: number): Observable<any>
+	{
+		let url = settings.apiUrl + `UpdateChoiceImages`;
+
+		let data = {
+			'treeVersionId': treeVersionId,
+			'choiceImages': images
+		};
+
+		return this._http.patch(url, data, { headers: { 'Prefer': 'return=representation' } }).pipe(
+			map(response =>
+			{
+				return response;
+			}),
+			catchError(this.handleError));
+	}
+
+	getDPointPointRules(pointId: number): Observable<Array<PhdApiDto.IDPointRule>>
+	{
 		const entity = `dPointDPointRuleAssocs`;
 		const expand = `dPointRuleAssoc_DPointAssoc($expand=dPoint($select=dPointID;$expand=divDPointCatalog($select=dPointCatalogID,dPointLabel)))`;
 		const filter = `dPointID eq ${pointId} and dPointRuleAssoc_DPointAssoc/any()`;
@@ -526,15 +652,18 @@ export class TreeService {
 		const endPoint = `${settings.apiUrl}${entity}?${qryStr}`;
 
 		return this._http.get<any>(endPoint).pipe(
-			map(response => {
+			map(response =>
+			{
 				const rulesDto = response.value as Array<PhdEntityDto.IDPoint_DPointRuleAssocDto>;
-				const rules = rulesDto.map(r => {
+				const rules = rulesDto.map(r =>
+				{
 					return {
 						id: r.dPointRuleDPointAssocID,
 						pointId: r.dPointID,
 						pointRuleId: r.dPointRuleID,
 						treeVersionId: r.dTreeVersionID,
-						ruleItems: r.dPointRuleAssoc_DPointAssoc.map(p => {
+						ruleItems: r.dPointRuleAssoc_DPointAssoc.map(p =>
+						{
 							return {
 								id: p.dPointRuleDPointAssocID,
 								itemId: p.dPointID,
@@ -549,7 +678,8 @@ export class TreeService {
 			}));
 	}
 
-	getDPointChoiceRules(pointId: number): Observable<Array<PhdApiDto.IDPointRule>> {
+	getDPointChoiceRules(pointId: number): Observable<Array<PhdApiDto.IDPointRule>>
+	{
 		const entity = `dPointDPointRuleAssocs`;
 		const expand = `dPointRuleAssoc_DPChoiceAssoc($expand=dpChoice($select=dpChoiceID;$expand=divChoiceCatalog($select=choiceLabel)))`;
 		const filter = `dPointID eq ${pointId} and dPointRuleAssoc_DPChoiceAssoc/any()`;
@@ -559,15 +689,18 @@ export class TreeService {
 		const endPoint = `${settings.apiUrl}${entity}?${qryStr}`;
 
 		return this._http.get<any>(endPoint).pipe(
-			map(response => {
+			map(response =>
+			{
 				const rulesDto = response.value as Array<PhdEntityDto.IDPoint_DPointRuleAssocDto>;
-				const rules = rulesDto.map(r => {
+				const rules = rulesDto.map(r =>
+				{
 					return {
 						id: r.dPointRuleDPointAssocID,
 						pointId: r.dPointID,
 						pointRuleId: r.dPointRuleID,
 						treeVersionId: r.dTreeVersionID,
-						ruleItems: r.dPointRuleAssoc_DPChoiceAssoc.map(p => {
+						ruleItems: r.dPointRuleAssoc_DPChoiceAssoc.map(p =>
+						{
 							return {
 								id: p.dPointRuleDPointAssocID,
 								itemId: p.dpChoiceID,
@@ -582,7 +715,8 @@ export class TreeService {
 			}));
 	}
 
-	getDPChoiceChoiceRules(choiceId: number): Observable<Array<PhdApiDto.IDPChoiceRule>> {
+	getDPChoiceChoiceRules(choiceId: number): Observable<Array<PhdApiDto.IDPChoiceRule>>
+	{
 		const entity = "dPChoiceDPChoiceRuleAssocs";
 		const expand = "dpChoiceRule_DPChoiceAssoc($expand=dpChoice($select=dpChoiceID;$expand=divChoiceCatalog($select=choiceLabel)))";
 		const filter = `dpChoiceID eq ${choiceId} and dpChoiceRule_DPChoiceAssoc/any()`;
@@ -592,15 +726,18 @@ export class TreeService {
 		const endPoint = `${settings.apiUrl}${entity}?${qryStr}`;
 
 		return this._http.get<any>(endPoint).pipe(
-			map(response => {
+			map(response =>
+			{
 				const rulesDto = response.value as Array<PhdEntityDto.IDPChoice_DPChoiceRuleAssocDto>;
-				const rules = rulesDto.map(r => {
+				const rules = rulesDto.map(r =>
+				{
 					return {
 						choiceId: r.dpChoiceID,
 						choiceRuleId: r.dpChoiceRuleID,
 						id: r.dpChoiceRuleAssocID,
 						treeVersionId: r.dTreeVersionID,
-						ruleItems: r.dpChoiceRule_DPChoiceAssoc.map(cc => {
+						ruleItems: r.dpChoiceRule_DPChoiceAssoc.map(cc =>
+						{
 							return {
 								id: cc.dpChoiceRuleAssocID,
 								treeVersionId: cc.dTreeVersionID,
@@ -614,33 +751,40 @@ export class TreeService {
 			}));
 	}
 
-	getPointChoiceDependent(treeVersionId: number, pointId: number, choiceId: number): Observable<PointChoiceDependent> {
+	getPointChoiceDependent(treeVersionId: number, pointId: number, choiceId: number): Observable<PointChoiceDependent>
+	{
 		const endPoint = settings.apiUrl + `GetPointChoiceDependent(treeVersionId=${treeVersionId},pointId=${pointId},choiceId=${choiceId})`;
 
 		return this._http.get(endPoint).pipe(
-			map(response => {
+			map(response =>
+			{
 				return response as PointChoiceDependent;
 			}),
 			catchError(this.handleError));
 	}
 
-	hasUnusedDivChoices(pointId: number): Observable<boolean> {
+	hasUnusedDivChoices(pointId: number): Observable<boolean>
+	{
 		return this.getDivChoicesNotUsedCount(pointId).pipe(
-			map(numberOfUnusedChoices => {
+			map(numberOfUnusedChoices =>
+			{
 				return numberOfUnusedChoices > 0;
 			})
 		);
 	}
 
-	hasUnusedDivPoints(marketId: number, subGroupId: number): Observable<boolean> {
+	hasUnusedDivPoints(marketId: number, subGroupId: number): Observable<boolean>
+	{
 		return this.getDivPointsNotUsedCount(marketId, subGroupId).pipe(
-			map(numberOfUnusedPoints => {
+			map(numberOfUnusedPoints =>
+			{
 				return numberOfUnusedPoints > 0;
 			})
 		);
 	}
 
-	getDivChoicesNotUsedCount(pointId: number): Observable<number> {
+	getDivChoicesNotUsedCount(pointId: number): Observable<number>
+	{
 		const entity = "divChoiceCatalogs";
 		const expand = `divDPointCatalog($select=divDpointCatalogID;$expand=dPoints($select=dPointID;$filter=dPointID eq ${pointId})),dpChoices($filter=dPointID eq ${pointId})`;
 		const filter = `isActive eq true and divDPointCatalog/dPoints/any(dp: dp/dPointID eq ${pointId}) and not dpChoices/any(c: c/dPointID eq ${pointId})`;
@@ -653,19 +797,23 @@ export class TreeService {
 		const endPoint = `${settings.apiUrl}${entity}?${qryStr}`;
 
 		return this._http.get<any>(endPoint).pipe(
-			map(response => {
+			map(response =>
+			{
 				return response["@odata.count"] as number;
 			}));
 	}
 
-	getDivPointsNotUsedCount(marketId: number, subGroupId: number): Observable<number> {
+	getDivPointsNotUsedCount(marketId: number, subGroupId: number): Observable<number>
+	{
 		return this.getUnusedDivPoints(marketId, subGroupId).pipe(
-			map(points => {
+			map(points =>
+			{
 				return points.length;
 			}));
 	}
 
-	getUnusedDivChoices(pointId: number): Observable<Array<IDivCatalogChoiceDto>> {
+	getUnusedDivChoices(pointId: number): Observable<Array<IDivCatalogChoiceDto>>
+	{
 		const entity = `divChoiceCatalogs`;
 		const expand = `divDPointCatalog($select=divDpointCatalogID;$expand=dPoints($select=dPointID;$filter=dPointID eq ${pointId})),dpChoices($filter=dPointID eq ${pointId})`;
 		const filter = `isActive eq true and divDPointCatalog/dPoints/any(dp: dp/dPointID eq ${pointId}) and not dpChoices/any(c: c/dPointID eq ${pointId})`;
@@ -677,9 +825,11 @@ export class TreeService {
 		const endPoint = `${settings.apiUrl}${entity}?${qryStr}`;
 
 		return this._http.get<any>(endPoint).pipe(
-			map(results => {
+			map(results =>
+			{
 				const divChoiceCatalogs = results.value as Array<PhdEntityDto.IDivChoiceCatalogDto>;
-				return divChoiceCatalogs.map(c => {
+				return divChoiceCatalogs.map(c =>
+				{
 					return {
 						choiceLabel: c.choiceLabel,
 						divChoiceCatalogID: c.divChoiceCatalogID,
@@ -693,7 +843,8 @@ export class TreeService {
 			}));
 	}
 
-	getUnusedDivPoints(marketId: number, subGroupId: number): Observable<Array<IDivCatalogPointDto>> {
+	getUnusedDivPoints(marketId: number, subGroupId: number): Observable<Array<IDivCatalogPointDto>>
+	{
 		const entity = `dSubGroups`;
 		const expand = `dPoints($select=divDPointCatalogID),dSubGroupCatalog($select=dSubGroupCatalogID;$expand=dPointCatalogs($select=dPointCatalogID;$expand=divDPointCatalogs($filter=isActive eq true and org/edhMarketId eq ${marketId} and divChoiceCatalogs/any();$expand=dPointCatalog);$filter=isActive eq true and divDPointCatalogs/any(p: p/org/edhMarketId eq ${marketId} and p/divChoiceCatalogs/any())))`;
 		const filter = `dSubGroupID eq ${subGroupId}`;
@@ -704,19 +855,23 @@ export class TreeService {
 		const endPoint = `${settings.apiUrl}${entity}?${qryStr}`;
 
 		return this._http.get<any>(endPoint).pipe(
-			map(result => {
+			map(result =>
+			{
 				let unusedDivDPointCatalogs: IDivCatalogPointDto[] = [];
 				let sg = result.value[0] as PhdEntityDto.IDSubGroupDto;
 				const usedDivDPointCatalogIDs = sg.dPoints.map(p => p.divDPointCatalogID);
-				const filteredCatalogPoints = sg.dSubGroupCatalog.dPointCatalogs.filter(p => {
+				const filteredCatalogPoints = sg.dSubGroupCatalog.dPointCatalogs.filter(p =>
+				{
 					// divDPointCatalogID not in usedDivDPointCatalogIDs
 					return p.divDPointCatalogs.some(divP => usedDivDPointCatalogIDs.indexOf(divP.divDpointCatalogID) === -1);
 				});
 
-				filteredCatalogPoints.forEach(point => {
+				filteredCatalogPoints.forEach(point =>
+				{
 					let filteredDivPoints = point.divDPointCatalogs.filter(x => usedDivDPointCatalogIDs.indexOf(x.divDpointCatalogID) === -1);
 
-					filteredDivPoints.forEach(divP => {
+					filteredDivPoints.forEach(divP =>
+					{
 						let dto = {
 							divDpointCatalogID: divP.divDpointCatalogID,
 							divDPointSortOrder: divP.divDPointSortOrder,
@@ -741,18 +896,21 @@ export class TreeService {
 			}));
 	}
 
-	getTreeEndDate(treeVersionId: number): Observable<string> {
+	getTreeEndDate(treeVersionId: number): Observable<string>
+	{
 		const select = `publishEndDate`;
 		const entity = `dTreeVersions(${treeVersionId})`;
 		const qryStr = `${this._ds}select=${encodeURIComponent(select)}`;
 		const endpoint = `${settings.apiUrl}${entity}?${qryStr}`;
 		return this._http.get<PhdEntityDto.IDTreeVersionDto>(endpoint).pipe(
-			map(v => {
+			map(v =>
+			{
 				return v.publishEndDate;
 			}));
 	}
 
-	getOptionImages(treeVersionId: number, optionKey: string): Observable<Array<PhdEntityDto.IOptionImageDto>> {
+	getOptionImages(treeVersionId: number, optionKey: string): Observable<Array<PhdEntityDto.IOptionImageDto>>
+	{
 		const entity = `optionImages`;
 		const filter = `dTreeVersionID eq ${treeVersionId} and planOption/integrationKey eq '${optionKey}'`;
 		const orderby = `sortKey`;
@@ -760,12 +918,14 @@ export class TreeService {
 		const endpoint = `${settings.apiUrl}${entity}?${qryStr}`;
 
 		return this._http.get<any>(endpoint).pipe(
-			map(response => {
+			map(response =>
+			{
 				return response.value as Array<PhdEntityDto.IOptionImageDto>;
 			}));
 	}
 
-	saveOptionImages(optionImages: PhdEntityDto.IOptionImageDto[], integrationKey: string): Observable<PhdEntityDto.IOptionImageDto[]> {
+	saveOptionImages(optionImages: PhdEntityDto.IOptionImageDto[], integrationKey: string): Observable<PhdEntityDto.IOptionImageDto[]>
+	{
 		// calling unbound odata action 
 		const body = {
 			'integrationKey': integrationKey,
@@ -776,12 +936,14 @@ export class TreeService {
 		const endpoint = `${settings.apiUrl}${action}`;
 
 		return this._http.post<any>(endpoint, body, { headers: { 'Prefer': 'return=representation' } }).pipe(
-			map(response => {
+			map(response =>
+			{
 				return response.value as Array<PhdEntityDto.IOptionImageDto>;
 			}));
 	}
 
-	saveOptionImageSortOrder(images: Array<PhdEntityDto.IOptionImageDto>): Observable<any> {
+	saveOptionImageSortOrder(images: Array<PhdEntityDto.IOptionImageDto>): Observable<any>
+	{
 		const batchRequestsImage = odataUtils.createBatchPatch<PhdEntityDto.IOptionImageDto>(images, "optionImageId", "optionImages", "sortKey");
 
 		const batchGuid = odataUtils.getNewGuid();
@@ -791,27 +953,31 @@ export class TreeService {
 		const endPoint = `${settings.apiUrl}${this._batch}`;
 
 		return this._http.post(endPoint, batchBody, { headers, responseType: 'text' }).pipe(
-			map(response => {
+			map(response =>
+			{
 				//todo: parse batch response for errors and throw any
 				return response;
 			}));
 	}
 
-	patchOptionImage(imageDto: PhdEntityDto.IOptionImageDto): Observable<PhdEntityDto.IOptionImageDto> {
+	patchOptionImage(imageDto: PhdEntityDto.IOptionImageDto): Observable<PhdEntityDto.IOptionImageDto>
+	{
 		const entity = `optionImages(${imageDto.optionImageId})`;
 		const endpoint = `${settings.apiUrl}${entity}`;
 
 		return this._http.patch<PhdEntityDto.IOptionImageDto>(endpoint, imageDto, { headers: { 'Prefer': 'return=representation' } });
 	}
 
-	deleteOptionImage(optionImageId: number): Observable<any> {
+	deleteOptionImage(optionImageId: number): Observable<any>
+	{
 		const entity = `optionImages(${optionImageId})`;
 		const endpoint = `${settings.apiUrl}${entity}`;
 
 		return this._http.delete(endpoint);
 	}
 
-	saveReplaceOption(treeVersionId: number, option: PhdApiDto.IOptionReplace): Observable<PhdApiDto.IOptionReplace> {
+	saveReplaceOption(treeVersionId: number, option: PhdApiDto.IOptionReplace): Observable<PhdApiDto.IOptionReplace>
+	{
 		// calling unbound odata action
 		const body = {
 			"treeVersionId": treeVersionId,
@@ -825,7 +991,8 @@ export class TreeService {
 		return this._http.post<PhdApiDto.IOptionReplace>(endPoint, body, { headers: { 'Prefer': 'return=representation' } });
 	}
 
-	deleteOptionRuleReplace(optionReplaceId: number): Observable<any> {
+	deleteOptionRuleReplace(optionReplaceId: number): Observable<any>
+	{
 		const entity = `optionRuleReplaces(${optionReplaceId})`;
 
 		const endPoint = `${settings.apiUrl}${entity}`;
@@ -833,7 +1000,8 @@ export class TreeService {
 		return this._http.delete<PhdApiDto.IDTreeRule>(endPoint);
 	}
 
-	saveTreeVersion(treeVersion: PhdApiDto.IDTreeVersionDto): Observable<PhdApiDto.IDTreeVersionDto> {
+	saveTreeVersion(treeVersion: PhdApiDto.IDTreeVersionDto): Observable<PhdApiDto.IDTreeVersionDto>
+	{
 		// Currently only supporting Name, Description, PublishStartDate, and PublishEndDate
 		const endpoint = `dTreeVersions(${treeVersion.id})`;
 		const body = {
@@ -846,7 +1014,8 @@ export class TreeService {
 		const endPoint = `${settings.apiUrl}${endpoint}`;
 
 		return this._http.patch<PhdEntityDto.IDTreeVersionDto>(endPoint, body, { headers: { 'Prefer': 'return=representation' } }).pipe(
-			map(dto => {
+			map(dto =>
+			{
 				return {
 					treeId: dto.dTreeID,
 					description: dto.dTreeVersionDescription,
@@ -859,15 +1028,19 @@ export class TreeService {
 			}));
 	}
 
-	saveTreeSort(treeVersionId: number, points: Array<PhdApiDto.IDTreePointDto>): Observable<any> {
-		const patchPoints = points.map(p => {
+	saveTreeSort(treeVersionId: number, points: Array<PhdApiDto.IDTreePointDto>): Observable<any>
+	{
+		const patchPoints = points.map(p =>
+		{
 			return {
 				dPointID: p.id,
 				dPointSortOrder: p.sortOrder
 			} as PhdEntityDto.IDPointDto;
 		});
-		const choiceArrays = points.map(p => {
-			return p.choices.map(c => {
+		const choiceArrays = points.map(p =>
+		{
+			return p.choices.map(c =>
+			{
 				return {
 					dpChoiceID: c.id,
 					dpChoiceSortOrder: c.sortOrder
@@ -888,13 +1061,15 @@ export class TreeService {
 		const endPoint = `${settings.apiUrl}${this._batch}`;
 
 		return this._http.post(endPoint, batchBody, { headers, responseType: 'text' }).pipe(
-			map(response => {
+			map(response =>
+			{
 				//todo: parse batch response for errors and throw any
 				return response;
 			}));
 	}
 
-	saveDPointPointRule(pointRule: PhdApiDto.IDPointRule): Observable<PhdApiDto.IDPointRule> {
+	saveDPointPointRule(pointRule: PhdApiDto.IDPointRule): Observable<PhdApiDto.IDPointRule>
+	{
 		// calling unbound odata action
 		const body = {
 			"treeVersionId": pointRule.treeVersionId,
@@ -903,7 +1078,8 @@ export class TreeService {
 				"pointRuleId": pointRule.pointRuleId,
 				"pointId": pointRule.pointId,
 				"treeVersionId": pointRule.treeVersionId,
-				"ruleItems": pointRule.ruleItems == null ? [] : pointRule.ruleItems.map(r => {
+				"ruleItems": pointRule.ruleItems == null ? [] : pointRule.ruleItems.map(r =>
+				{
 					return {
 						label: r.label,
 						id: r.id,
@@ -921,7 +1097,8 @@ export class TreeService {
 		return this._http.post<PhdApiDto.IDPointRule>(endPoint, body, { headers: { 'Prefer': 'return=representation' } });
 	}
 
-	saveDPointChoiceRule(choiceRule: PhdApiDto.IDPointRule, deleteAttributeReassignments: boolean = false): Observable<PhdApiDto.IDPointRule> {
+	saveDPointChoiceRule(choiceRule: PhdApiDto.IDPointRule, deleteAttributeReassignments: boolean = false): Observable<PhdApiDto.IDPointRule>
+	{
 		// calling unbound odata action
 		const body = {
 			'treeVersionId': choiceRule.treeVersionId,
@@ -931,7 +1108,8 @@ export class TreeService {
 				'pointRuleId': choiceRule.pointRuleId,
 				'pointId': choiceRule.pointId,
 				'treeVersionId': choiceRule.treeVersionId,
-				'ruleItems': choiceRule.ruleItems == null ? [] : choiceRule.ruleItems.map(r => {
+				'ruleItems': choiceRule.ruleItems == null ? [] : choiceRule.ruleItems.map(r =>
+				{
 					return {
 						label: r.label,
 						id: r.id,
@@ -949,7 +1127,8 @@ export class TreeService {
 		return this._http.post<PhdApiDto.IDPointRule>(endPoint, body, { headers: { 'Prefer': 'return=representation' } });
 	}
 
-	saveDPChoiceChoiceRule(choiceRule: PhdApiDto.IDPChoiceRule, deleteAttributeReassignments: boolean = false): Observable<PhdApiDto.IDPChoiceRule> {
+	saveDPChoiceChoiceRule(choiceRule: PhdApiDto.IDPChoiceRule, deleteAttributeReassignments: boolean = false): Observable<PhdApiDto.IDPChoiceRule>
+	{
 		// calling unbound odata action
 		const body = {
 			deleteAttributeReassignments: deleteAttributeReassignments,
@@ -958,7 +1137,8 @@ export class TreeService {
 				choiceRuleId: choiceRule.choiceRuleId,
 				choiceId: choiceRule.choiceId,
 				treeVersionId: choiceRule.treeVersionId,
-				ruleItems: choiceRule.ruleItems == null ? [] : choiceRule.ruleItems.map(r => {
+				ruleItems: choiceRule.ruleItems == null ? [] : choiceRule.ruleItems.map(r =>
+				{
 					return {
 						label: r.label,
 						id: r.id,
@@ -976,7 +1156,8 @@ export class TreeService {
 		return this._http.post<PhdApiDto.IDPChoiceRule>(endPoint, body, { headers: { 'Prefer': 'return=representation' } });
 	}
 
-	saveChoiceOptionRules(treeVersionId: number, choiceId: number, choiceOptionRules: Array<PhdApiDto.IChoiceOptionRule>): Observable<Array<PhdApiDto.IChoiceOptionRule>> {
+	saveChoiceOptionRules(treeVersionId: number, choiceId: number, choiceOptionRules: Array<PhdApiDto.IChoiceOptionRule>): Observable<Array<PhdApiDto.IChoiceOptionRule>>
+	{
 		// calling unbound odata action
 		const body = {
 			"treeVersionId": treeVersionId,
@@ -988,12 +1169,14 @@ export class TreeService {
 		const endPoint = `${settings.apiUrl}${action}`;
 
 		return this._http.post<any>(endPoint, body, { headers: { 'Prefer': 'return=representation' } }).pipe(
-			map(result => {
+			map(result =>
+			{
 				return result.value as Array<PhdApiDto.IChoiceOptionRule>;
 			}));
 	}
 
-	saveOptionChoiceRuleChoice(treeVersionId: number, choices: Array<PhdApiDto.IOptionChoiceRuleChoice>): Observable<Array<PhdApiDto.IOptionChoiceRuleChoice>> {
+	saveOptionChoiceRuleChoice(treeVersionId: number, choices: Array<PhdApiDto.IOptionChoiceRuleChoice>): Observable<Array<PhdApiDto.IOptionChoiceRuleChoice>>
+	{
 		// calling unbound odata action
 		const body = {
 			"treeVersionId": treeVersionId,
@@ -1004,12 +1187,14 @@ export class TreeService {
 		const endPoint = `${settings.apiUrl}${action}`;
 
 		return this._http.post<any>(endPoint, body, { headers: { 'Prefer': 'return=representation' } }).pipe(
-			map(result => {
+			map(result =>
+			{
 				return result.value as Array<PhdApiDto.IOptionChoiceRuleChoice>;
 			}));
 	}
 
-	saveBaseHouseOption(isBaseHouse: boolean, treeVersionId: number, optionKey: string): Observable<any> {
+	saveBaseHouseOption(isBaseHouse: boolean, treeVersionId: number, optionKey: string): Observable<any>
+	{
 		// calling unbound odata action
 		const body = {
 			"treeVersionId": treeVersionId,
@@ -1023,21 +1208,29 @@ export class TreeService {
 		return this._http.post<any>(endPoint, body);
 	}
 
-	saveItemsToTree(parentId: number, ids: number[], parent: DTPoint | DTSubGroup): Observable<boolean> {
-		if (parent instanceof DTPoint) {
-			return this.saveChoicesToTree(parentId, ids, parent).pipe(map(choices => {
-				if (choices) {
-					choices.forEach(choice => {
+	saveItemsToTree(parentId: number, ids: number[], parent: DTPoint | DTSubGroup): Observable<boolean>
+	{
+		if (parent instanceof DTPoint)
+		{
+			return this.saveChoicesToTree(parentId, ids, parent).pipe(map(choices =>
+			{
+				if (choices)
+				{
+					choices.forEach(choice =>
+					{
 						const ch = new DTChoice(choice);
 
-						if (parent) {
+						if (parent)
+						{
 							ch.parent = parent;
 						}
 
-						if (ch.isDecisionDefault) {
+						if (ch.isDecisionDefault)
+						{
 							let oldDefault = parent.choices.find(x => x.isDecisionDefault === true);
 
-							if (oldDefault) {
+							if (oldDefault)
+							{
 								oldDefault.isDecisionDefault = false;
 							}
 						}
@@ -1052,17 +1245,23 @@ export class TreeService {
 				return false;
 			}));
 		}
-		else {
-			return this.savePointsToTree(parentId, ids, parent).pipe(map(points => {
-				if (points) {
-					points.forEach(point => {
+		else
+		{
+			return this.savePointsToTree(parentId, ids, parent).pipe(map(points =>
+			{
+				if (points)
+				{
+					points.forEach(point =>
+					{
 						const dp = new DTPoint(point);
 
-						if (parent) {
+						if (parent)
+						{
 							dp.parent = parent;
 						}
 
-						point.choices.forEach(choice => {
+						point.choices.forEach(choice =>
+						{
 							const ch = new DTChoice(choice);
 							ch.parent = dp;
 							dp.choices.push(ch);
@@ -1081,8 +1280,10 @@ export class TreeService {
 	}
 
 	//saves points to tree
-	savePointsToTree(parentId: number, ids: number[], parent: DTSubGroup): Observable<Array<PhdApiDto.IDTreePointDto>> {
-		const batchPoints = ids.map(p => {
+	savePointsToTree(parentId: number, ids: number[], parent: DTSubGroup): Observable<Array<PhdApiDto.IDTreePointDto>>
+	{
+		const batchPoints = ids.map(p =>
+		{
 			return {
 				divDPointCatalogID: p,
 				dPointID: 0,
@@ -1102,22 +1303,27 @@ export class TreeService {
 		const headers = new HttpHeaders(odataUtils.createBatchHeaders(batchGuid));
 
 		return this._http.post(endPoint, batchBody, { headers, responseType: 'text' }).pipe(
-			switchMap(results => {
+			switchMap(results =>
+			{
 				const parsedResults = odataUtils.parseBatchResults<PhdEntityDto.IDPointDto>(results);
 				const expand = `dpChoices($expand=divChoiceCatalog($select=choiceLabel)),divDPointCatalog($expand=dPointPickType($select=dPointPickTypeLabel))`;
 
 				return this._http.get<any>(`${settings.apiUrl}dPoints?${this._ds}filter=dPointID in (${parsedResults.map(r => r.dPointID).join(',')})&${this._ds}expand=${expand}`);
 			}),
-			map(results => {
+			map(results =>
+			{
 
-				return results.value.map(x => {
+				return results.value.map(x =>
+				{
 					return {
-						choices: x.dpChoices.map(c => {
+						choices: x.dpChoices.map(c =>
+						{
 							return {
 								description: c.dpChoiceDescription,
 								divChoiceCatalogId: c.divChoiceCatalogID,
 								id: c.dpChoiceID,
 								imagePath: c.imagePath,
+								hasImage: c.hasImage,
 								isDecisionDefault: c.isDecisionDefault,
 								isSelectable: c.isSelectable,
 								label: c.divChoiceCatalog.choiceLabel,
@@ -1143,8 +1349,10 @@ export class TreeService {
 			}));
 	}
 
-	saveChoicesToTree(parentId: number, ids: number[], parent: DTPoint): Observable<Array<PhdApiDto.IDTreeChoiceDto>> {
-		const batchChoices = ids.map(c => {
+	saveChoicesToTree(parentId: number, ids: number[], parent: DTPoint): Observable<Array<PhdApiDto.IDTreeChoiceDto>>
+	{
+		const batchChoices = ids.map(c =>
+		{
 			return {
 				dpChoiceID: 0,
 				divChoiceCatalogID: c,
@@ -1164,19 +1372,23 @@ export class TreeService {
 		const headers = new HttpHeaders(odataUtils.createBatchHeaders(batchGuid));
 
 		return this._http.post(endPoint, batchBody, { headers, responseType: 'text' }).pipe(
-			switchMap(results => {
+			switchMap(results =>
+			{
 				const parsedResults = odataUtils.parseBatchResults<PhdEntityDto.IDPChoiceDto>(results);
 				const expand = `divChoiceCatalog($select=choiceLabel)`;
 
 				return this._http.get<any>(`${settings.apiUrl}dPChoices?${this._ds}filter=dpChoiceID in (${parsedResults.map(r => r.dpChoiceID).join(',')})&${this._ds}expand=${expand}`);
 			}),
-			map(results => {
-				return results.value.map(x => {
+			map(results =>
+			{
+				return results.value.map(x =>
+				{
 					return {
 						description: x.dpChoiceDescription,
 						divChoiceCatalogId: x.divChoiceCatalogID,
 						id: x.dpChoiceID,
 						imagePath: x.imagePath,
+						hasImage: x.hasImage,
 						isDecisionDefault: x.isDecisionDefault,
 						isSelectable: x.isSelectable,
 						label: x.divChoiceCatalog.choiceLabel,
@@ -1189,7 +1401,8 @@ export class TreeService {
 			}));
 	}
 
-	saveOptionChoiceRules(optionChoiceRule: PhdApiDto.IOptionChoiceRule, assocId: number): Observable<PhdApiDto.IOptionChoiceRule> {
+	saveOptionChoiceRules(optionChoiceRule: PhdApiDto.IOptionChoiceRule, assocId: number): Observable<PhdApiDto.IOptionChoiceRule>
+	{
 		// calling unbound odata action
 		const body = {
 			'treeVersionId': optionChoiceRule.treeVersionId,
@@ -1210,7 +1423,8 @@ export class TreeService {
 		return this._http.post<PhdApiDto.IOptionChoiceRule>(endPoint, body, { headers: { 'Prefer': 'return=representation' } });
 	}
 
-	deleteDraftTreeVersion(treeVersionId: number): Observable<any> {
+	deleteDraftTreeVersion(treeVersionId: number): Observable<any>
+	{
 		this.treeVersionIsLoading = true;
 		const entity = `dTreeVersions(${treeVersionId})`;
 
@@ -1220,7 +1434,8 @@ export class TreeService {
 		return withSpinner(this._http).delete<PhdApiDto.IDTreeRule>(endPoint);
 	}
 
-	deleteChoiceFromTree(treeVersionId: number, choiceId: number): Observable<PhdApiDto.IDTreeRule> {
+	deleteChoiceFromTree(treeVersionId: number, choiceId: number): Observable<PhdApiDto.IDTreeRule>
+	{
 		const entity = `dPChoices(${choiceId})`;
 		const expand = `points`;
 
@@ -1231,7 +1446,8 @@ export class TreeService {
 		return this._http.delete<PhdApiDto.IDTreeRule>(endPoint, { headers: { 'Prefer': 'return=representation' } });
 	}
 
-	deletePointFromTree(treeVersionId: number, pointId: number): Observable<PhdApiDto.IDTreeRule> {
+	deletePointFromTree(treeVersionId: number, pointId: number): Observable<PhdApiDto.IDTreeRule>
+	{
 		const entity = `dPoints(${pointId})`;
 		const expand = `points`;
 
@@ -1242,14 +1458,16 @@ export class TreeService {
 		return this._http.delete<PhdApiDto.IDTreeRule>(endPoint, { headers: { 'Prefer': 'return=representation' } });
 	}
 
-	deletePointRuleAssoc(pointRulePointAssocId: number): Observable<any> {
+	deletePointRuleAssoc(pointRulePointAssocId: number): Observable<any>
+	{
 		const entity = `dPointDPointRuleAssocs(${pointRulePointAssocId})`;
 		const endPoint = `${settings.apiUrl}${entity}`;
 
 		return this._http.delete<any>(endPoint);
 	}
 
-	deleteDPointDPointRuleAssocs(pointRulePointAssocId: number, deleteAttributeReassignments: boolean): Observable<any> {
+	deleteDPointDPointRuleAssocs(pointRulePointAssocId: number, deleteAttributeReassignments: boolean): Observable<any>
+	{
 		// calling unbound odata action
 		const body = {
 			'pointRulePointAssocId': pointRulePointAssocId,
@@ -1262,14 +1480,16 @@ export class TreeService {
 		return this._http.post<any>(endPoint, body);
 	}
 
-	deleteChoiceRuleAssoc(choiceRuleChoiceAssocId: number): Observable<any> {
+	deleteChoiceRuleAssoc(choiceRuleChoiceAssocId: number): Observable<any>
+	{
 		const entity = `dPChoiceDPChoiceRuleAssocs(${choiceRuleChoiceAssocId})`;
 		const endPoint = `${settings.apiUrl}${entity}`;
 
 		return this._http.delete<any>(endPoint);
 	}
 
-	deleteDPChoiceDPChoiceRuleAssocs(choiceRuleChoiceAssocId: number, deleteAttributeReassignments: boolean): Observable<any> {
+	deleteDPChoiceDPChoiceRuleAssocs(choiceRuleChoiceAssocId: number, deleteAttributeReassignments: boolean): Observable<any>
+	{
 		// calling unbound odata action
 		const body = {
 			'choiceRuleChoiceAssocId': choiceRuleChoiceAssocId,
@@ -1282,28 +1502,32 @@ export class TreeService {
 		return this._http.post<any>(endPoint, body);
 	}
 
-	deleteOptionChoiceRuleChoice(treeVersionId: number, choiceOptionRuleId: number): Observable<any> {
+	deleteOptionChoiceRuleChoice(treeVersionId: number, choiceOptionRuleId: number): Observable<any>
+	{
 		const entity = `dPChoiceOptionRuleAssocs(${choiceOptionRuleId})`;
 		const endPoint = `${settings.apiUrl}${entity}`;
 
 		return this._http.delete<any>(endPoint);
 	}
 
-	toggleInteractiveFloor(subGroupId: number, useInteractiveFloorplan: boolean) {
+	toggleInteractiveFloor(subGroupId: number, useInteractiveFloorplan: boolean)
+	{
 		const body = { "useInteractiveFloorplan": useInteractiveFloorplan };
 		const endPoint = `${settings.apiUrl}dSubGroups(${subGroupId})`;
 
 		return this._http.patch(endPoint, body)
 	}
 
-	deleteAttributeReassignment(attributeReassignmentId: number): Observable<any> {
+	deleteAttributeReassignment(attributeReassignmentId: number): Observable<any>
+	{
 		const entity = `attributeReassignments(${attributeReassignmentId})`;
 		const endPoint = `${settings.apiUrl}${entity}`;
 
 		return this._http.delete<any>(endPoint);
 	}
 
-	deleteAllAttributeReassignment(treeVersionId: number, dpChoiceOptionRuleAssocID: number): Observable<any> {
+	deleteAllAttributeReassignment(treeVersionId: number, dpChoiceOptionRuleAssocID: number): Observable<any>
+	{
 		// calling unbound odata action
 		const body = {
 			'dpChoiceOptionRuleAssocID': dpChoiceOptionRuleAssocID,
@@ -1315,12 +1539,14 @@ export class TreeService {
 		return this._http.post<any>(endPoint, body);
 	}
 
-	saveAttributeReassignment(attributeReassignment: PhdApiDto.IAttributeReassignmentDto): Observable<AttributeReassignment> {
+	saveAttributeReassignment(attributeReassignment: PhdApiDto.IAttributeReassignmentDto): Observable<AttributeReassignment>
+	{
 		const action = 'AddAttributeReassignment';
 		const endPoint = `${settings.apiUrl}${action}`;
 
 		return this._http.post<any>(endPoint, attributeReassignment, { headers: { 'Prefer': 'return=representation' } }).pipe(
-			map(response => {
+			map(response =>
+			{
 				let dto = response as PhdEntityDto.IAttributeReassignmentDto;
 				let attrReDto = {
 					attributeReassignmentId: dto.attributeReassignmentID,
@@ -1334,7 +1560,8 @@ export class TreeService {
 			}));
 	}
 
-	getAttributeReassignment(treeVersionId: number, optionRuleId: number, attributeGroupId: number): Observable<AttributeReassignment> {
+	getAttributeReassignment(treeVersionId: number, optionRuleId: number, attributeGroupId: number): Observable<AttributeReassignment>
+	{
 		const entity = `attributeReassignments`;
 		const expand = `toDPChoice($select=dpChoiceID;$expand=divChoiceCatalog($select=choiceLabel),dPoint($select=dPointID;$expand=divDPointCatalog($select=dPointLabel)))`;
 		const filter = `dTreeVersionID eq ${treeVersionId} and dpChoice_OptionRuleAssoc/optionRule/optionRuleID eq ${optionRuleId} and attributeGroupId eq ${attributeGroupId}`;
@@ -1342,7 +1569,8 @@ export class TreeService {
 		const endpoint = `${settings.apiUrl}${entity}?${qryStr}`;
 
 		return this._http.get<any>(endpoint).pipe(
-			map(response => {
+			map(response =>
+			{
 				let dto = response.value[0] as PhdEntityDto.IAttributeReassignmentDto;
 				let attrReDto = {
 					attributeReassignmentId: dto.attributeReassignmentID,
@@ -1358,7 +1586,8 @@ export class TreeService {
 			}));
 	}
 
-	hasAttributeReassignmentsByChoiceId(choiceId: number): Observable<boolean> {
+	hasAttributeReassignmentsByChoiceId(choiceId: number): Observable<boolean>
+	{
 		const entity = `attributeReassignments`;
 		const filter = `(toDPChoiceID eq ${choiceId} or dpChoice_OptionRuleAssoc/dpChoiceID eq ${choiceId}) `;
 		const select = `attributeReassignmentID`;
@@ -1366,16 +1595,19 @@ export class TreeService {
 		const endpoint = `${settings.apiUrl}${entity}?${qryStr}`;
 
 		return this._http.get<any>(endpoint).pipe(
-			map(response => {
+			map(response =>
+			{
 				let count = response['@odata.count'] as number;
 
 				return count > 0;
 			}));
 	}
 
-	hasAttributeReassignmentsByChoiceIds(choices: number[]): Observable<boolean> {
+	hasAttributeReassignmentsByChoiceIds(choices: number[]): Observable<boolean>
+	{
 		const batchGuid = odataUtils.getNewGuid();
-		let requests = choices.map(choiceId => {
+		let requests = choices.map(choiceId =>
+		{
 			const entity = `attributeReassignments`;
 			const filter = `(toDPChoiceID eq ${choiceId} or dpChoice_OptionRuleAssoc/dpChoiceID eq ${choiceId}) `;
 			const select = `attributeReassignmentID`;
@@ -1389,9 +1621,11 @@ export class TreeService {
 		let batch = odataUtils.createBatchBody(batchGuid, requests);
 
 		return this._http.post(`${settings.apiUrl}$batch`, batch, { headers: headers }).pipe(
-			map((response: any) => {
+			map((response: any) =>
+			{
 				let bodies: any[] = response.responses.map(r => r.body);
-				let hasReassignments = bodies.some(body => {
+				let hasReassignments = bodies.some(body =>
+				{
 					let count = body['@odata.count'] as number;
 
 					return count > 0;
@@ -1402,7 +1636,8 @@ export class TreeService {
 		);
 	}
 
-	hasAttributeReassignment(dpChoiceOptionRuleAssocID: number): Observable<boolean> {
+	hasAttributeReassignment(dpChoiceOptionRuleAssocID: number): Observable<boolean>
+	{
 		const entity = `attributeReassignments`;
 		const filter = `dpChoiceOptionRuleAssocID eq ${dpChoiceOptionRuleAssocID}`;
 		const select = `attributeReassignmentID`;
@@ -1410,24 +1645,29 @@ export class TreeService {
 		const endpoint = `${settings.apiUrl}${entity}?${qryStr}`;
 
 		return this._http.get<any>(endpoint).pipe(
-			map(response => {
+			map(response =>
+			{
 				let count = response['@odata.count'] as number;
 
 				return count > 0;
 			}));
 	}
 
-	hasAttributeReassignmentByChoice(id: number, choices: number[], ruleType: RuleType): Observable<number[]> {
+	hasAttributeReassignmentByChoice(id: number, choices: number[], ruleType: RuleType): Observable<number[]>
+	{
 		const batchGuid = odataUtils.getNewGuid();
-		let requests = choices.map(choiceId => {
+		let requests = choices.map(choiceId =>
+		{
 			const entity = `attributeReassignments`;
 			const expand = `dpChoice_OptionRuleAssoc($select=dpChoiceID)`;
 			let filter = `dpChoice_OptionRuleAssoc/dpChoiceID eq ${choiceId}`;
 
-			if (ruleType === 'choice') {
+			if (ruleType === 'choice')
+			{
 				filter += ` and toDPChoiceID eq ${id}`;
 			}
-			else {
+			else
+			{
 				filter += ` and toDPChoice/dPointID eq ${id}`;
 			}
 
@@ -1442,14 +1682,17 @@ export class TreeService {
 		let batch = odataUtils.createBatchBody(batchGuid, requests);
 
 		return this._http.post(`${settings.apiUrl}$batch`, batch, { headers: headers }).pipe(
-			map((response: any) => {
+			map((response: any) =>
+			{
 				let bodies = response.responses.map(r => r.body);
 				let choices: number[] = [];
 
-				bodies.forEach(body => {
+				bodies.forEach(body =>
+				{
 					let value = body.value.length > 0 ? body.value[0] : null;
 
-					if (value) {
+					if (value)
+					{
 						choices.push(value.dpChoice_OptionRuleAssoc.dpChoiceID);
 					}
 				});
@@ -1463,28 +1706,33 @@ export class TreeService {
 	 * *Returns any Point to Choice and Choice to Choice rules
 	 * @param choiceId
 	 */
-	getChoiceRulesByChoiceId(choiceId: number): Observable<PhdEntityDto.IDPChoiceDto> {
+	getChoiceRulesByChoiceId(choiceId: number): Observable<PhdEntityDto.IDPChoiceDto>
+	{
 		const entity = `dPChoices`;
-		const expand = `dPChoiceRule_DPChoiceAssoc($select=dpChoiceRuleAssocID;$expand=dPChoice_DPChoiceRuleAssoc($select=dpChoiceID)), dPointRuleAssoc_DPChoiceAssoc($select=dPointRuleDPointAssocID;$expand=dPoint_DPointRuleAssoc($select=dPointID))`;
+		const expand = `dPChoiceRule_DPChoiceAssoc($select=dpChoiceRuleAssocID;$expand=dpChoice_DPChoiceRuleAssoc($select=dpChoiceID)), dPointRuleAssoc_DPChoiceAssoc($select=dPointRuleDPointAssocID;$expand=dPoint_DPointRuleAssoc($select=dPointID))`;
 		const filter = `dpChoiceID eq ${choiceId}`;
 		const select = `dpChoiceID`;
 		const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}select=${encodeURIComponent(select)}`;
 		const endpoint = `${settings.apiUrl}${entity}?${qryStr}`;
 
 		return this._http.get<any>(endpoint).pipe(
-			map(response => {
+			map(response =>
+			{
 				let dto = response.value[0] as PhdEntityDto.IDPChoiceDto;
 
 				return dto;
 			}));
 	}
 
-	muDivisionMapping(selectedPlans: DivAttributeWizPlan[], selectedChoices: DivAttributeWizChoice[], option: DivAttributeWizOption, selectedMapping: string): Observable<DivAttributeWizPlan[]> {
+	muDivisionMapping(selectedPlans: DivAttributeWizPlan[], selectedChoices: DivAttributeWizChoice[], option: DivAttributeWizOption, selectedMapping: string): Observable<DivAttributeWizPlan[]>
+	{
 		const body = {
-			"plans": selectedPlans.map(plan => {
+			"plans": selectedPlans.map(plan =>
+			{
 				return { financialCommunityId: plan.financialCommunityId, financialPlanIntegrationKey: plan.financialPlanIntegrationKey };
 			}),
-			"choices": selectedChoices.map(c => {
+			"choices": selectedChoices.map(c =>
+			{
 				return { id: c.id };
 			}),
 			"option": { id: option.financialOptionIntegrationKey, selectedMapping: selectedMapping }
@@ -1494,11 +1742,14 @@ export class TreeService {
 		const endPoint = `${settings.apiUrl}${action}`;
 
 		return withSpinner(this._http).post<any>(endPoint, body, { headers: { 'Prefer': 'return=representation' } }).pipe(
-			map(result => {
-				result['value'].forEach(v => {
+			map(result =>
+			{
+				result['value'].forEach(v =>
+				{
 					let plan = selectedPlans.find(p => p.financialPlanIntegrationKey === v.financialPlanIntegrationKey && p.financialCommunityId === v.financialCommunityId);
 
-					if (plan) {
+					if (plan)
+					{
 						plan.draftType = v.draftType;
 					}
 				});
@@ -1507,12 +1758,15 @@ export class TreeService {
 			}));
 	}
 
-	muChoiceUpdate(selectedPlans: DivCatWizPlan[], selectedChoices: DivCatWizChoice[]): Observable<DivCatWizPlan[]> {
+	muChoiceUpdate(selectedPlans: DivCatWizPlan[], selectedChoices: DivCatWizChoice[]): Observable<DivCatWizPlan[]>
+	{
 		const body = {
-			"plans": selectedPlans.map(plan => {
+			"plans": selectedPlans.map(plan =>
+			{
 				return { financialCommunityId: plan.financialCommunityId, financialPlanIntegrationKey: plan.financialPlanIntegrationKey };
 			}),
-			"choices": selectedChoices.map(c => {
+			"choices": selectedChoices.map(c =>
+			{
 				return { id: c.id, action: c.action.toString() };
 			})
 		};
@@ -1521,11 +1775,14 @@ export class TreeService {
 		const endPoint = `${settings.apiUrl}${action}`;
 
 		return withSpinner(this._http).post<any>(endPoint, body, { headers: { 'Prefer': 'return=representation' } }).pipe(
-			map(result => {
-				result['value'].forEach(v => {
+			map(result =>
+			{
+				result['value'].forEach(v =>
+				{
 					let plan = selectedPlans.find(p => p.financialPlanIntegrationKey === v.financialPlanIntegrationKey);
 
-					if (plan) {
+					if (plan)
+					{
 						plan.draftType = v.draftType;
 					}
 				});
@@ -1534,7 +1791,8 @@ export class TreeService {
 			}));
 	}
 
-	muExportUpdateTreeResultsToExcel(selectedChoices: DivCatWizChoice[], selectedPlans: DivCatWizPlan[]): Observable<string> {
+	muExportUpdateTreeResultsToExcel(selectedChoices: DivCatWizChoice[], selectedPlans: DivCatWizPlan[]): Observable<string>
+	{
 		const action = `MUExportUpdateTreeResultsToExcel`;
 		const url = `${settings.apiUrl}${action}`;
 		const headers = new HttpHeaders({
@@ -1544,7 +1802,8 @@ export class TreeService {
 
 		const data = {
 			data: {
-				selectedChoices: selectedChoices.map(c => {
+				selectedChoices: selectedChoices.map(c =>
+				{
 					return { id: c.id, pointLabel: c.pointLabel, choiceLabel: c.choiceLabel, action: c.action.toString() };
 				}),
 				selectedPlans: selectedPlans
@@ -1552,10 +1811,12 @@ export class TreeService {
 		};
 
 		return withSpinner(this._http).post(url, data, { headers: headers, responseType: 'blob' }).pipe(
-			map(response => {
+			map(response =>
+			{
 				return window.URL.createObjectURL(response);
 			}),
-			catchError(error => {
+			catchError(error =>
+			{
 				console.error(error);
 
 				return _throw(error);
@@ -1563,7 +1824,8 @@ export class TreeService {
 		);
 	}
 
-	muExportDivMappingResultsToExcel(selectedOption: DivAttributeWizOption, selectedChoices: DivAttributeWizChoice[], selectedPlans: DivAttributeWizPlan[]): Observable<string> {
+	muExportDivMappingResultsToExcel(selectedOption: DivAttributeWizOption, selectedChoices: DivAttributeWizChoice[], selectedPlans: DivAttributeWizPlan[]): Observable<string>
+	{
 		const action = `MUExportDivMappingResultsToExcel`;
 		const url = `${settings.apiUrl}${action}`;
 		const headers = new HttpHeaders({
@@ -1574,7 +1836,8 @@ export class TreeService {
 		const data = {
 			data: {
 				selectedOption: { category: selectedOption.category, subCategory: selectedOption.subCategory, financialOptionIntegrationKey: selectedOption.financialOptionIntegrationKey, optionSalesName: selectedOption.optionSalesName },
-				selectedChoices: selectedChoices.map(c => {
+				selectedChoices: selectedChoices.map(c =>
+				{
 					return { id: c.id, choiceLabel: c.label };
 				}),
 				selectedPlans: selectedPlans
@@ -1582,10 +1845,12 @@ export class TreeService {
 		};
 
 		return withSpinner(this._http).post(url, data, { headers: headers, responseType: 'blob' }).pipe(
-			map(response => {
+			map(response =>
+			{
 				return window.URL.createObjectURL(response);
 			}),
-			catchError(error => {
+			catchError(error =>
+			{
 				console.error(error);
 
 				return _throw(error);
@@ -1593,13 +1858,18 @@ export class TreeService {
 		);
 	}
 
-	private createTreeFromDto(tree: PhdApiDto.IDTreeDto): DTree {
-		const groups = tree.treeVersion.groups.map(g => {
+	private createTreeFromDto(tree: PhdApiDto.IDTreeDto): DTree
+	{
+		const groups = tree.treeVersion.groups.map(g =>
+		{
 			let group = new DTGroup(g,
-				g.subGroups.map(s => {
+				g.subGroups.map(s =>
+				{
 					let subGroup = new DTSubGroup(s,
-						s.points.map(p => {
-							var dp = new DTPoint(p, p.choices.map(c => {
+						s.points.map(p =>
+						{
+							var dp = new DTPoint(p, p.choices.map(c =>
+							{
 								let choice = new DTChoice(c);
 
 								return choice;
@@ -1625,7 +1895,8 @@ export class TreeService {
 		return dTree;
 	}
 
-	private handleError(error: Response) {
+	private handleError(error: Response)
+	{
 		// In the future, we may send the server to some remote logging infrastructure.
 		console.error(error);
 

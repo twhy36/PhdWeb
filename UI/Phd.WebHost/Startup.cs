@@ -1,13 +1,10 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Rewrite;
-using Microsoft.AspNetCore.SpaServices;
+using Microsoft.AspNetCore.StaticFiles;
 
 namespace Phd.WebHost
 {
@@ -76,7 +73,13 @@ namespace Phd.WebHost
             app.UseRewriter(rewriteOptions);
 
             app.UseStaticFiles();
-            app.UseSpaStaticFiles();
+
+            var contentTypeProvider = new FileExtensionContentTypeProvider();
+            contentTypeProvider.Mappings.Add(".properties", "text/plain");
+            app.UseSpaStaticFiles(new StaticFileOptions
+            {
+                ContentTypeProvider = contentTypeProvider
+            });
 
             //write uri_state cookie
             app.Use(async (context, next) =>

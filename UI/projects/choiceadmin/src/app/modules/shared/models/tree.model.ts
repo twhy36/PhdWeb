@@ -107,6 +107,7 @@ export interface IDTChoice
 	label: string;
 	description: string;
 	imagePath: string;
+	hasImage: boolean;
 	maxQuantity?: number;
 	hasChoiceRules: boolean;
 	hasOptionRules: boolean;
@@ -495,11 +496,13 @@ export class DTChoice implements IDTChoice
 	label = "";
 	description = "";
 	imagePath = "";
+	hasImage = false;
 	hasChoiceRules = false;
 	hasOptionRules = false;
 	hasAttributes = false;
 	hasLocations = false;
 	maxQuantity = null;
+	imageCount?= 0;
 
 	open = true;
 	matched = true;
@@ -521,6 +524,7 @@ export class DTChoice implements IDTChoice
 		this.isDecisionDefault = dto.isDecisionDefault;
 		this.label = dto.label;
 		this.imagePath = dto.imagePath;
+		this.hasImage = dto.hasImage;
 		this.hasChoiceRules = dto.hasChoiceRules;
 		this.hasOptionRules = dto.hasOptionRules;
 		this.hasAttributes = dto.attributeGroups ? dto.attributeGroups.length > 0 : dto.hasAttributes;
