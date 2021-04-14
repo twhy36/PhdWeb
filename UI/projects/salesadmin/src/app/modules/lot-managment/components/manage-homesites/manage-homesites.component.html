@@ -19,25 +19,60 @@
 			</div>
 		</ng-template>
 	</page-header>
-		
+
 	<div class="phd-page-body">
+
 		<div class="my-3 phd-filter-body">
 			<label class="alert alert-info pull-right phd-homesites-counter">{{ lotCount + ' Homesites' }}</label>
 		</div>
 
-		<div class="phd-table-container mx-2">
-			<phd-table #dt [value]="lots" sortMode="single" sortField="lotBlock" showCaption="true" (onFilter)="onFilter($event)" [nonOverflow]="false">
+		<div class="my-3 d-flex flex-row-reverse">
+			<div class="col-md-4 phd-div-search-bar">
+				<search-bar [selectedSearchFilter]="selectedSearchFilter" (onClearFilter)="clearFilter()" (onKeywordSearch)="keywordSearch($event)"></search-bar>
+			</div>
+
+			<div class="col-md-1">
+				<i class="fa fa-filter phd-filter-icon"></i>
+				<p-multiSelect class="ui-multiselect-label-container ui-inputwrapper-filled flex-fill"
+							   defaultLabel="Handing"
+							   [options]="handingOptions"
+							   [showToggleAll]="true"
+							   [maxSelectedLabels]="2"
+							   displaySelectedLabel="true"
+							   filterMatchMode="any"
+							   [showHeader]="false"
+							   (onChange)="onHandingChange($event)">
+				</p-multiSelect>
+			</div>
+
+			<div class="col-md-0">
+				<i class="fa fa-filter phd-filter-icon"></i>
+				<p-multiSelect class="ui-multiselect-label-container ui-inputwrapper-filled flex-fill"
+							   defaultLabel="Status"
+							   [options]="lotStatus"
+							   [showToggleAll]="true"
+							   [maxSelectedLabels]="2"
+							   displaySelectedLabel="true"
+							   filterMode="multiple"
+							   [showHeader]="false"
+							   (onChange)="onStatusChange($event)">
+				</p-multiSelect>
+			</div>
+		</div>
+
+		<div class="phd-table-container mx-2" infiniteScroll [infiniteScrollThrottle]="settings.infiniteScrollThrottle" [infiniteScrollDisabled]="allDataLoaded" (scrolled)="onPanelScroll()" [scrollWindow]="false">
+			<phd-table #dt [value]="filteredLots" sortMode="single" sortField="lotBlock" showCaption="true" (onFilter)="onFilter($event)">
 				<phd-column header="">
 					<ng-template #body let-lot>
 						<div class="phd-icon-container">
-							<i class="fa fa-pencil fa-fw" [ngClass]="lot.hasRequiredInfo ? null : 'phd-lot-info-incomplete'"
-								(click)="editHomesite(lot);" phd-tooltip="Edit Homesite" *ngIf="canEdit"></i>
-							<i class="fa fa-share-square" (click)="releaseLot(lot)"
-								*ngIf="canEdit && lot.hasRequiredInfo && lot.lotStatusDescription == 'Unavailable'"></i>
+								<i class="fa fa-pencil fa-fw" [ngClass]="lot.hasRequiredInfo ? null : 'phd-lot-info-incomplete'"
+									(click)="editHomesite(lot);" phd-tooltip="Edit Homesite" *ngIf="canEdit"></i>
+								<i class="fa fa-share-square" (click)="releaseLot(lot)" (mouseenter)="showTooltip($event, 'Release Lot', dt)" (mouseleave)="hideTooltip(dt)"
+									*ngIf="canEdit && lot.hasRequiredInfo && lot.lotStatusDescription == 'Unavailable'"></i>
 						</div>
 					</ng-template>
 				</phd-column>
-				<phd-column header="Homesite" field="lotBlock" canFilter="true" filterMode="search" filterMatchMode="contains"></phd-column>
+				<phd-column header="Homesite" field="lotBlock"></phd-column>
 				<phd-column header="Address" field="address.streetAddress1">
 					<ng-template #body let-lot>
 						<div (mouseenter)="showTooltip($event, formatAddress(lot.address), dt)" (mouseleave)="hideTooltip(dt)">
@@ -60,7 +95,7 @@
 						<span (mouseenter)="showTooltip($event, lot.lotJobType, dt)" (mouseleave)="hideTooltip(dt)">{{ lot.lotJobType }}</span>
 					</ng-template>
 				</phd-column>
-				<phd-column header="Status" field="lotStatusDescription" canFilter="true" filterMode="multiple" filterLabel="Status" [filterOptions]="lotStatus" displaySelectedLabel="true" maxSelectedLabels="2"></phd-column>
+				<phd-column header="Status" field="lotStatusDescription"></phd-column>
 				<phd-column header="Availability" field="availabilityDate"></phd-column>
 				<phd-column header="Premium" field="premium">
 					<ng-template #body let-lot>
@@ -70,7 +105,7 @@
 					</ng-template>
 				</phd-column>
 				<phd-column header="Handing" field="handingDisplay"></phd-column>
-				<phd-column [hidden]="true" header="Handing" field="handingValues" canFilter="true" [filterOptions]="handingOptions" filterMatchMode="any" displaySelectedLabel="true" maxSelectedLabels="2"></phd-column>
+				<phd-column [hidden]="true" header="Handing" field="handingValues"></phd-column>
 				<phd-column header="Foundation" field="foundationType"></phd-column>
 				<phd-column header="Cost" field="cost">
 					<ng-template #body let-lot>

@@ -23,6 +23,8 @@ import { SalesProgramsComponent } from './components/sales-programs/sales-progra
 import { SalesProgramsSidePanelComponent } from './components/sales-programs-side-panel/sales-programs-side-panel.component';
 import { MonotonyOptionsComponent } from './components/monotony-options/monotony-options.component';
 import { CanDeactivateGuard, ClaimGuard } from 'phd-common';
+import { InfiniteScrollModule } from 'ngx-infinite-scroll';
+import { MultiSelectModule } from 'primeng/multiselect';
 
 const moduleRoutes: Routes = [
     {
@@ -65,7 +67,9 @@ const moduleRoutes: Routes = [
         PhdCommonModule,
         TableModule,
 		NgbModule,
-        RouterModule.forChild(moduleRoutes)
+		RouterModule.forChild(moduleRoutes),
+		InfiniteScrollModule,
+		MultiSelectModule
     ],
     providers: []
 })

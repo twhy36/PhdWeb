@@ -22,7 +22,9 @@ export class SettingsService
                 redirectUrl: '',
 				tenant: environment.tenant,
 				cacheLocation: 'localStorage',
-				expireOffsetSeconds: 900 // 15 minutes.  For testing set to 3480 = 58 min so should time out after 2 minutes
+				expireOffsetSeconds: 900, // 15 minutes.  For testing set to 3480 = 58 min so should time out after 2 minutes
+				infiniteScrollThrottle: 50,
+				infiniteScrollPageSize: 50
             }
 
 			this._cachedSettings = settings;
