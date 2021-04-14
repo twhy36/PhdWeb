@@ -72,6 +72,7 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 	canDesign$: Observable<boolean>;
 	canAddIncentive$: Observable<boolean>;
 	canLockSalesAgreement$: Observable<boolean>;
+	canCancelSalesAgreement$: Observable<boolean>;
 
 	constructor(
 		private store: Store<fromRoot.State>,
@@ -308,6 +309,7 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 		this.canDesign$ = this.store.pipe(select(fromRoot.canDesign));
 		this.canAddIncentive$ = this.store.pipe(select(fromRoot.canAddIncentive));
 		this.canLockSalesAgreement$ = this.store.pipe(select(fromRoot.canLockSalesAgreement));
+		this.canCancelSalesAgreement$ = this.store.pipe(select(fromRoot.canCancelSalesAgreement));
 	}
 
 	isComplete(list: any, isNa: boolean = false)

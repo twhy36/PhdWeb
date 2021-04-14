@@ -117,6 +117,11 @@ export class AgreementComponent extends UnsubscribeOnDestroy implements OnInit
 		return this.status == 'Void' || this.status == 'Cancel';
 	}
 
+	get buildType()
+	{
+		return this.job && this.job.jobTypeName === 'Model' ? 'Model' : this.job && this.job.lot ? this.job.lot.lotBuildTypeDesc : '';
+	}
+
 	/**
 	 * Toggles the popover displaying the SCAR dates.
 	 * @param popover

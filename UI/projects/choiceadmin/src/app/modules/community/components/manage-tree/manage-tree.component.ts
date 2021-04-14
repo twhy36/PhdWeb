@@ -668,18 +668,28 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 					this.lockedFromChanges = true;
 
 					this._treeService.deleteDraftTreeVersion(this.currentTree.version.id)
-						.pipe(finalize(() => this._msgService.add({ severity: 'success', summary: `Draft has been deleted!` })))
+						.pipe(finalize(() => { this.treeVersionsLoading = false }))
 						.subscribe(response =>
 						{
+							this._msgService.add({ severity: 'success', summary: `Draft has been deleted!` })
+
 							this.onChangePlan();
 
 							this._treeService.currentTreeVersionId$.next(null);
 
 							this.onChangeTreeVersion();
+						},
+						(error) =>
+						{
+							this._msgService.add({ severity: 'danger', summary: 'Error', detail: `Failed to delete draft.` });
 						});
 				}
 				catch (ex)
 				{
+					this.treeVersionsLoading = false;
+					this.isDeletingTree = false;
+					this.lockedFromChanges = false;
+
 					this._msgService.clear();
 					this._msgService.add({ severity: 'error', summary: 'Error', detail: `Failed to delete draft: ${ex}` });
 

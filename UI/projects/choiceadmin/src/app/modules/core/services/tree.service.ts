@@ -1431,8 +1431,7 @@ export class TreeService
 		const endPoint = `${settings.apiUrl}${entity}`;
 
 		this.treeVersionIsLoading = false;
-
-		return this._http.delete<PhdApiDto.IDTreeRule>(endPoint);
+		return withSpinner(this._http).delete<PhdApiDto.IDTreeRule>(endPoint);
 	}
 
 	deleteChoiceFromTree(treeVersionId: number, choiceId: number): Observable<PhdApiDto.IDTreeRule>
