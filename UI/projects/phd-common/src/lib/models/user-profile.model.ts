@@ -2,7 +2,9 @@ export interface UserProfile
 {
     businessPhones: Array<string>;
     city: string;
-    displayName: string;
+	displayName: string;
+	familyName: string;
+	givenName: string;
     mail: string;
     mobilePhone: string;
     postalCode: string;

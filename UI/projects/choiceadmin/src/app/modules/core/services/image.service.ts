@@ -11,7 +11,7 @@ import { SettingsService } from '../../core/services/settings.service';
 import { StorageService } from '../../core/services/storage.service';
 import { IPictureParkAsset } from '../../shared/models/image.model';
 
-import { IdentityService } from 'phd-common';
+import { IdentityService, UserProfile } from 'phd-common';
 
 const settings: Settings = new SettingsService().getSettings();
 
@@ -19,10 +19,14 @@ const settings: Settings = new SettingsService().getSettings();
 export class ImageService
 {
 	private _ds: string = encodeURIComponent('$');
+	private user: UserProfile;
 
 	constructor(private _http: HttpClient, private _loggingService: LoggingService, private _storageService: StorageService, private _identityService: IdentityService)
 	{
-
+		this._identityService.user.subscribe(u =>
+		{
+			this.user = u;
+		});
 	}
 
 	getAssets(assets: IPictureParkAsset[]): Observable<IPictureParkAsset[]>
@@ -53,7 +57,7 @@ export class ImageService
 		return this.getUserEmail().pipe(
 			switchMap(email =>
 			{
-				const profile = { given_name: 'Travis', family_name: 'Green' }; //this._identityService.user.subscribe(x => x.)
+				const profile = { given_name: this.user.givenName, family_name: this.user.familyName };
 				const body = {
 					'firstName': profile.given_name,
 					'lastName': profile.family_name,
