@@ -115,7 +115,7 @@ export class HomeSiteService
 			url += `&${encodeURIComponent("$")}skip=${skipRows}`;
 		}
 
-		return withSpinner(this._http).get(url).pipe(
+		return (skipRows ? this._http : withSpinner(this._http)).get(url).pipe(
 			combineLatest(this.getViewAdjacencies(), this.getPhysicalLotTypes()),
 			map(([response, viewAdjacencies, lotTypes]: [any, HomeSiteDtos.ILabel[], HomeSiteDtos.ILabel[]]) =>
 			{
