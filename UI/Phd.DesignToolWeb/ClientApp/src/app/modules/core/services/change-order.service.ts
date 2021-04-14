@@ -124,6 +124,10 @@ export class ChangeOrderService
 			? currentChangeOrder.jobChangeOrders.find(x => x.jobChangeOrderTypeDescription === 'PriceAdjustment')
 			: null;
 
+		const salesNotesChangeOrder = currentChangeOrder && currentChangeOrder.jobChangeOrders
+			? currentChangeOrder.jobChangeOrders.find(x => x.jobChangeOrderTypeDescription === 'SalesNotes')
+			: null;
+
 		let data: any = {
 			changeOrderGroupId: currentChangeOrder.id,
 			changeOrderType: 'Sales',
@@ -150,6 +154,17 @@ export class ChangeOrderService
 			data.salesChangeOrderSalesPrograms = priceAdjustmentChangeOrder.jobSalesChangeOrderSalesPrograms;
 		}
 
+		if (salesNotesChangeOrder && salesNotesChangeOrder.salesNotesChangeOrders && salesNotesChangeOrder.salesNotesChangeOrders.length)
+		{
+			data.salesNotesChangeOrders = salesNotesChangeOrder.salesNotesChangeOrders.map(snco => {
+				return {
+					id: snco.id,
+					changeOrderId: snco.changeOrderId,
+					noteId: snco.noteId,
+					action: snco.action
+				}
+			});
+		}
 		const buyers = this.getSalesChangeOrderBuyers(salesAgreement.buyers, changeInput.buyers);
 		if (buyers && buyers.length)
 		{
@@ -318,6 +333,7 @@ export class ChangeOrderService
 			: null;
 
 		const changeOrderTrusts = buyerChangeOrder ? buyerChangeOrder.jobSalesChangeOrderTrusts : null;
+
 		return {
 			addedTrust: changeOrderTrusts ? changeOrderTrusts.find(x => x.action === 'Add') : null,
 			deletedTrust: changeOrderTrusts ? changeOrderTrusts.find(x => x.action === 'Delete') : null
@@ -326,7 +342,6 @@ export class ChangeOrderService
 
 	createESignEnvelope(eSignEnvelope: ESignEnvelope): Observable<ESignEnvelope>
 	{
-
 		let url = environment.apiUrl + `eSignEnvelopes`;
 
 		return withSpinner(this._http).post(url, eSignEnvelope, { headers: { 'Prefer': 'return=representation' } }).pipe(
@@ -467,6 +482,13 @@ export class ChangeOrderService
 
 	private createJobChangeOrderChoices(origChoices: Array<JobChoice>, currentChoices: Array<Choice>, elevationDP: DecisionPoint, colorSchemeDP: DecisionPoint, tree: Tree, jobPlanOptions: Array<JobPlanOption>): Array<any>
 	{
+		const mappingsChanged = function (orig: JobChoice, curr: Choice) {
+			const addedOptions = curr.options.filter(o1 => !orig.jobChoiceJobPlanOptionAssocs.some(o2 => o1.id === jobPlanOptions.find(po => po.id === o2.jobPlanOptionId).planOptionId));
+			const removedOptions = orig.jobChoiceJobPlanOptionAssocs.map(jp => jobPlanOptions.find(o => o.id === jp.jobPlanOptionId))
+				.filter(po => !curr.options.some(o => o.id === po.planOptionId) && po.jobOptionTypeName !== 'BaseHouse');
+			return addedOptions.length || removedOptions.length;
+		};
+
 		let choicesDto = [];
 		const currentSelectedChoices = currentChoices.filter(x => x.quantity > 0);
 
@@ -475,7 +497,7 @@ export class ChangeOrderService
 			const origChoice = origChoices.find(orig => orig.dpChoiceId === cur.id || orig.divChoiceCatalogId === cur.divChoiceCatalogId);
 			const labels = this.getChoiceLabels(cur, tree);
 
-			if (origChoice)
+			if (origChoice && !mappingsChanged(origChoice, cur))
 			{
 				const changedChoices = this.mapChangedChoice({ ...cur, ...labels }, origChoice, elevationDP, colorSchemeDP, jobPlanOptions);
 
@@ -509,7 +531,7 @@ export class ChangeOrderService
 			const currentChoice = currentSelectedChoices.find(cur => cur.id === orig.dpChoiceId || cur.divChoiceCatalogId === orig.divChoiceCatalogId);
 			const labels = this.getChoiceLabels(orig, tree);
 
-			if (!currentChoice)
+			if (!currentChoice || (currentChoice && mappingsChanged(orig, currentChoice)))
 			{
 				// deleted choice
 				choicesDto.push({
@@ -1680,6 +1702,11 @@ export class ChangeOrderService
 			{
 				result.salesChangeOrderTrusts = salesData.salesChangeOrderTrusts;
 			}
+
+			if (salesData.salesNotesChangeOrders && salesData.salesNotesChangeOrders.length)
+			{
+				result.salesNotesChangeOrders = salesData.salesNotesChangeOrders;
+			}
 		}
 
 		return result;
@@ -1717,7 +1744,8 @@ export class ChangeOrderService
 			return (data.salesChangeOrderPriceAdjustments && data.salesChangeOrderPriceAdjustments.length)
 				|| (data.salesChangeOrderSalesPrograms && data.salesChangeOrderSalesPrograms.length)
 				|| (data.salesChangeOrderBuyers && data.salesChangeOrderBuyers.length)
-				|| (data.salesChangeOrderTrusts && data.salesChangeOrderTrusts.length);
+				|| (data.salesChangeOrderTrusts && data.salesChangeOrderTrusts.length)
+				|| (data.salesNotesChangeOrders && data.salesNotesChangeOrders.length);
 		}
 		else if (changeInput.type === ChangeTypeEnum.NON_STANDARD)
 		{

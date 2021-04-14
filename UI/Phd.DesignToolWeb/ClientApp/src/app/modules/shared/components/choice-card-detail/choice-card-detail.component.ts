@@ -4,7 +4,7 @@ import { ReplaySubject } from 'rxjs';
 
 import { UnsubscribeOnDestroy } from '../../classes/unsubscribe-on-destroy';
 
-import { Choice } from '../../models/tree.model.new';
+import { Choice, ChoiceImageAssoc } from '../../models/tree.model.new';
 import { AttributeGroup, DesignToolAttribute, LocationGroup } from '../../models/attribute.model';
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
@@ -52,7 +52,8 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	qtyAvailable: number;
 	selectedQuantity: number;
 
-	choiceImages: OptionImage[] = [];
+	@Input() choiceImages: ChoiceImageAssoc[];
+	optionImages: OptionImage[] = [];
 	override$ = new ReplaySubject<boolean>(1);
 	choiceDescriptions: string[] = [];
 
@@ -122,9 +123,6 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 
 	getImages()
 	{
-		// get image from choice if there is one, else default to pulte logo
-		let image = this.choice.imagePath.length > 0 ? this.choice.imagePath : 'assets/pultegroup_logo.jpg';
-
 		if (this.choice.options)
 		{
 			this.choice.options.forEach(option =>
@@ -134,16 +132,16 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 					// look for images on the tree option first
 					option.optionImages.forEach(x =>
 					{
-						this.choiceImages.push(x);
+						this.optionImages.push(x);
 					});
 				}
 			});
 		}
 
-		// default to choice image if no option imges found
-		if (!this.choiceImages.length)
+		// default to pultegroup image if no choice/option image is found
+		if (!this.choiceImages.length && !this.optionImages.length)
 		{
-			this.choiceImages.push({ imageURL: image });
+			this.optionImages.push({ imageURL: 'assets/pultegroup_logo.jpg' });
 		}
 	}
 

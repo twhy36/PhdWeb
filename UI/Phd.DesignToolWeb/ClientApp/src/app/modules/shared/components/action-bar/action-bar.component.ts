@@ -20,7 +20,6 @@ import { DecisionPoint } from '../../models/tree.model.new';
 
 import { NavigationService } from '../../../core/services/navigation.service';
 import { ConfirmModalComponent } from '../../../core/components/confirm-modal/confirm-modal.component';
-import * as SalesAgreementActions from '../../../ngrx-store/sales-agreement/actions';
 import * as CommonActions from '../../../ngrx-store/actions';
 import { SalesAgreement } from '../../../shared/models/sales-agreement.model';
 
@@ -31,7 +30,7 @@ import { ModalService } from '../../../core/services/modal.service';
 import { Permission } from 'phd-common/models';
 import { Job } from './../../models/job.model';
 import { ESignTypeEnum } from '../../../shared/models/esign-envelope.model';
-import { ModalRef, ModalOptions } from '../../../shared/classes/modal.class';
+import { ModalRef } from '../../../shared/classes/modal.class';
 
 @Component({
 	selector: 'action-bar',
@@ -92,6 +91,8 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 	canCancelSalesAgreement: boolean;
 	canLockSalesAgreement: boolean;
 	hasOpenChangeOrder: boolean = false;
+	canCancelModel$: Observable<boolean>;
+	lotStatus: string;
 
 	setSummaryText()
 	{
@@ -128,6 +129,14 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 	{
 		this.canEditAgreement$ = this.store.select(fromRoot.canEditAgreementOrSpec);
 		this.canCancelSpec$ = this.store.select(fromRoot.canCancelSpec);
+		this.canCancelModel$ = this.store.select(fromRoot.canCancelModel);
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(state => state.lot)
+		).subscribe(lot =>
+		{
+			this.lotStatus = lot.selectedLot ? lot.selectedLot.lotStatusDescription : ''
+		});
 		this.isTemplatesSelected$ = this.store.pipe(
 			select(state => state.contract),
 			map(contract =>
@@ -173,6 +182,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 			if (job.changeOrderGroups && job.changeOrderGroups.length > 0)
 			{
 				cog = job.changeOrderGroups.reduce((r, a) => r.createdUtcDate > a.createdUtcDate ? r : a);
+
 				this.hasOpenChangeOrder = job.changeOrderGroups.findIndex(x => x.salesStatusDescription !== 'Approved' && x.salesStatusDescription !== 'Withdrawn') > -1;
 			}
 
@@ -202,7 +212,9 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(fromRoot.canSell)
-		).subscribe(canSell => this.canSell = canSell);
+		).subscribe(canSell => {
+			this.canSell = canSell;
+		});
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
@@ -282,19 +294,19 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 		return !this.canTerminateAgreement && this.agreement && this.agreement.status !== 'Void';
 	}
 
+	get allDepositsReconciled(): boolean
+	{
+		return this.agreement?.deposits.every(x => x.paidDate !== null);
+	}
+
 	get showToggleSalesAgreementLock(): boolean
 	{
-		return !this.inChangeOrder && this.canLockSalesAgreement && this.agreement?.status === 'Approved';
+		return (!this.inChangeOrder || !this.canSell) && this.canLockSalesAgreement && this.agreement?.status === 'Approved';
 	}
 
 	get toggleAgreementLockLabel(): string
 	{
 		return this.agreement?.isLockedIn ? 'Unlock Sales Agreement' : 'Ready to Close';
-	}
-
-	get toggleAgreementLockTitle(): string
-	{
-		return this.hasOpenChangeOrder ? 'Pending change orders exist - Cannot Lock Sales Agreement' : '';
 	}
 
 	scrollHandler($event: any)
@@ -386,10 +398,11 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 		}
 	}
 
-	async onCancelSpec()
+	async onCancelSpecOrModel(isSpec: boolean)
 	{
-		const confirmMessage = 'You have opted to return this spec to dirt. Confirming to do so will result in the loss of the corresponding home configuration and the lot will return to dirt.<br/><br/> Do you wish to proceed with the cancellation?';
-		const confirmTitle = 'Cancel Spec';
+		const confirmMessage = isSpec ? 'You have opted to return this spec to dirt. Confirming to do so will result in the loss of the corresponding home configuration and the lot will return to dirt.<br/><br/> Do you wish to proceed with the cancellation?'
+									  : 'You have opted to return this model to dirt. Confirming to do so will result in the loss of the corresponding home configuration and the lot will return to dirt.<br/><br/>The lot status will remain ' + this.lotStatus + '. <br/><br/>Do you wish to proceed with the cancellation?'
+		const confirmTitle = isSpec ? 'Cancel Spec' : 'Cancel Model';
 		const confirmDefaultOption = 'Continue';
 		const primaryButton = { hide: false, text: 'Yes' };
 		const secondaryButton = { hide: false, text: 'No' };

@@ -5,7 +5,8 @@ import { ModalButton, ModalContent } from '../../../shared/classes/modal.class';
 
 @Component({
 	'selector': 'modal',
-	'templateUrl': './modal.component.html'
+	'templateUrl': './modal.component.html',
+	styleUrls: ['./modal.component.scss']
 })
 export class ModalComponent extends ModalContent implements OnInit
 {

@@ -7,11 +7,12 @@ import { _throw } from 'rxjs/observable/throw';
 import { EMPTY as empty } from 'rxjs';
 import { of } from 'rxjs/observable/of';
 
-import {
-	withSpinner, newGuid, createBatchGet, createBatchHeaders, createBatchBody,
-	IdentityService, JobChoice, ChangeOrderChoice, TreeVersionRules, OptionRule, Tree, OptionImage,
-	JobPlanOption, ChangeOrderPlanOption, PlanOptionCommunityImageAssoc
-} from 'phd-common';
+import
+	{
+		withSpinner, newGuid, createBatchGet, createBatchHeaders, createBatchBody,
+		IdentityService, JobChoice, ChangeOrderChoice, TreeVersionRules, OptionRule, Tree, OptionImage,
+		JobPlanOption, ChangeOrderPlanOption, PlanOptionCommunityImageAssoc
+	} from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
 import { isChangeOrderChoice } from '../../shared/classes/tree.utils';
@@ -30,7 +31,8 @@ export class TreeService
 	 * gets active tree versions for communities
 	 * @param communityIds
 	 */
-	public getTreeVersions(planKey: number, communityId: number): Observable<any> {
+	public getTreeVersions(planKey: number, communityId: number): Observable<any>
+	{
 		const communityFilter = ` and (dTree/plan/org/edhFinancialCommunityId eq ${communityId}) and (dTree/plan/integrationKey eq '${planKey}')`;
 
 		const entity = 'dTreeVersions';
@@ -42,8 +44,10 @@ export class TreeService
 		const endPoint = environment.apiUrl + `${entity}?${encodeURIComponent("$")}expand=${encodeURIComponent(expand)}&${encodeURIComponent("$")}filter=${encodeURIComponent(filter)}&${encodeURIComponent("$")}select=${encodeURIComponent(select)}&${encodeURIComponent("$")}orderby=${orderBy}`;
 
 		return this.http.get<any>(endPoint).pipe(
-			map(response => {
-				return response.value.map(data => {
+			map(response =>
+			{
+				return response.value.map(data =>
+				{
 					return {
 						// DEVNOTE: will change late bound to object if these mappings are repeated.
 						id: data['dTreeVersionID'],
@@ -59,7 +63,8 @@ export class TreeService
 					};
 				});
 			}),
-			catchError(error => {
+			catchError(error =>
+			{
 				console.error(error);
 
 				return _throw(error);
@@ -172,22 +177,32 @@ export class TreeService
 				const newChoices = [...choices];
 				const changedChoices = [];
 				const updatedChoices = [];
-				if (newChoices.length > 0) {
-					newChoices.forEach(c => {
+
+				if (newChoices.length > 0)
+				{
+					newChoices.forEach(c =>
+					{
 						const choiceId = isChangeOrderChoice(c) ? c.decisionPointChoiceID : c.dpChoiceId;
 						const respChoice = response.value.find(r => r.dpChoiceID === choiceId);
 
-						if (respChoice) {
+						if (respChoice)
+						{
 							changedChoices.push({ ...c, divChoiceCatalogId: respChoice.divChoiceCatalogID });
-						} else {
+						}
+						else
+						{
 							changedChoices.push({ ...c });
 						}
 					});
 
-					changedChoices.forEach(cc => {
-						if (isChangeOrderChoice(cc)) {
+					changedChoices.forEach(cc =>
+					{
+						if (isChangeOrderChoice(cc))
+						{
 							updatedChoices.push(new ChangeOrderChoice(cc));
-						} else {
+						}
+						else
+						{
 							updatedChoices.push(new JobChoice(cc));
 						}
 					});
@@ -257,7 +272,8 @@ export class TreeService
 				{
 					let bodies: any[] = response.responses.map(r => r.body);
 
-					return bodies.map(body => {
+					return bodies.map(body =>
+					{
 						// pick draft(publishStartDate is null) or latest publishStartDate(last element)
 						let value = body.value.length > 0 ? body.value[0] : null;
 

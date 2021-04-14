@@ -138,6 +138,7 @@ export class ChangeOrder
 	jobSalesChangeOrderTrusts: Array<SalesChangeOrderTrust> = [];
 	jobSalesChangeOrderPriceAdjustments: Array<SalesChangeOrderPriceAdjustment> = [];
 	jobSalesChangeOrderSalesPrograms: Array<SalesChangeOrderSalesProgram> = [];
+	salesNotesChangeOrders: Array<SalesNotesChangeOrders> = []
 
 	constructor(dto?: ChangeOrder)
 	{
@@ -193,6 +194,11 @@ export class ChangeOrder
 			if (dto.jobSalesChangeOrderSalesPrograms)
 			{
 				this.jobSalesChangeOrderSalesPrograms = dto.jobSalesChangeOrderSalesPrograms.map(o => new SalesChangeOrderSalesProgram(o));
+			}
+
+			if (dto.salesNotesChangeOrders && dto.salesNotesChangeOrders.length > 0)
+			{
+				this.salesNotesChangeOrders = dto.salesNotesChangeOrders.map(o => new SalesNotesChangeOrders(o));
 			}
 
 		}
@@ -452,6 +458,26 @@ export class ChangeOrderChoiceChangeOrderPlanOption
 		if (dto)
 		{
 			Object.assign(this, dto);
+		}
+	}
+}
+
+export class SalesNotesChangeOrders
+{
+	id: number;
+	changeOrderId: number;
+	noteId: number;
+	note: Note;
+	action: string;
+	constructor(dto?: SalesNotesChangeOrders)
+	{
+		if (dto)
+		{
+			Object.assign(this, dto);
+			if (dto.note)
+			{
+				this.note = new Note(dto.note);
+			}
 		}
 	}
 }

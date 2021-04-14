@@ -225,8 +225,21 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 
 			if (this.isRealtor())
 			{
-				(buyer as Realtor).brokerName = trim(this.buyerForm.get("brokerName").value);
+				const brokerName = trim(this.buyerForm.get("brokerName").value);
+				(buyer as Realtor).brokerName = brokerName;
 				contact = (buyer as Realtor).contact;
+
+				if (contact.realEstateAgents && contact.realEstateAgents.length)
+				{
+					contact.realEstateAgents[0].brokerOfficeName = brokerName;
+				}
+				else
+				{
+					contact.realEstateAgents = [{
+						id: 0,
+						brokerOfficeName: brokerName
+					}];					
+				}
 			}
 			else
 			{
@@ -384,7 +397,12 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 			// check for matching contacts
 			if (contact.id === 0)
 			{
-				this.contactService.getMatchingContacts(contact.firstName, contact.phoneAssocs[0].phone.phoneNumber, contact.emailAssocs[0].email.emailAddress, this.isRealtor())
+				const primaryPhone = contact.phoneAssocs && contact.phoneAssocs.length ? contact.phoneAssocs[0].phone.phoneNumber : '';
+				const secondaryPhone = contact.phoneAssocs && contact.phoneAssocs.length > 1 ? contact.phoneAssocs[1].phone.phoneNumber : '';
+				const primaryEmail = contact.emailAssocs && contact.emailAssocs.length ? contact.emailAssocs[0].email.emailAddress : '';
+				const secondaryEmail = contact.emailAssocs && contact.emailAssocs.length > 1 ? contact.emailAssocs[1].email.emailAddress : '';
+
+				this.contactService.getMatchingContacts(contact.firstName, primaryPhone, secondaryPhone, primaryEmail, secondaryEmail, this.isRealtor())
 					.subscribe(async matchingContacts =>
 					{
 						let modalCancelled = false;
@@ -403,6 +421,9 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 								if (this.isRealtor())
 								{
 									(buyer as Realtor).contact = selectedContact;
+									(buyer as Realtor).brokerName = selectedContact.realEstateAgents && selectedContact.realEstateAgents.length 
+											? selectedContact.realEstateAgents[0].brokerOfficeName
+											: '';
 								}
 								else
 								{

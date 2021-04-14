@@ -458,12 +458,20 @@ export class ContractEffects
 							edhChangeOrderGroupId: data.changeOrder.id
 						};
 
-						return this.changeOrderService.createESignEnvelope(eSignEnvelope).pipe(
-							map((eSignEnvelope) =>
-							{
-								return { eSignEnvelope, changeOrder: data.changeOrder };
-							})
-						);
+						// Make sure we have a edhChangeOrderGroupId before calling createEsignEnvelope. Specs will not have an Id when coming from portal as store.changeOrder.currentChangeOrder is not used.
+						if (eSignEnvelope.edhChangeOrderGroupId)
+						{
+							return this.changeOrderService.createESignEnvelope(eSignEnvelope).pipe(
+								map((eSignEnvelope) =>
+								{
+									return { eSignEnvelope, changeOrder: data.changeOrder };
+								})
+							);
+						}
+						else
+						{
+							return of({ eSignEnvelope, changeOrder: data.changeOrder });
+						}
 					}
 				}
 				else

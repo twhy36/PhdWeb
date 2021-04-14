@@ -1,0 +1,449 @@
+variables:
+- name: BuildConfiguration
+  ${{ if or(startsWith(variables['Build.SourceBranch'], 'refs/heads/release'), startsWith(variables['Build.SourceBranch'], 'refs/heads/hotfix')) }}:
+    value: Release
+  ${{ if not(or(startsWith(variables['Build.SourceBranch'], 'refs/heads/release'), startsWith(variables['Build.SourceBranch'], 'refs/heads/hotfix'))) }}:
+    value: Debug
+- name: DeployDev
+  ${{ if not(or(startsWith(variables['Build.SourceBranch'], 'refs/heads/release'), startsWith(variables['Build.SourceBranch'], 'refs/heads/hotfix'), eq(variables['Build.Reason'], 'PullRequest'))) }}:
+    value: true 
+  ${{ if or(startsWith(variables['Build.SourceBranch'], 'refs/heads/release'), startsWith(variables['Build.SourceBranch'], 'refs/heads/hotfix'), eq(variables['Build.Reason'], 'PullRequest')) }}:
+    value: false
+- name: DeployQa
+  ${{ if or(startsWith(variables['Build.SourceBranch'], 'refs/heads/release'), startsWith(variables['Build.SourceBranch'], 'refs/heads/hotfix'), startsWith(variables['Build.SourceBranch'], 'refs/heads/main'), startsWith(variables['Build.SourceBranch'], 'refs/heads/next')) }}:
+    value: true 
+  ${{ if not(or(startsWith(variables['Build.SourceBranch'], 'refs/heads/release'), startsWith(variables['Build.SourceBranch'], 'refs/heads/hotfix'), startsWith(variables['Build.SourceBranch'], 'refs/heads/main'), startsWith(variables['Build.SourceBranch'], 'refs/heads/next'))) }}:
+    value: false
+- name: DeployStgProd
+  ${{ if or(startsWith(variables['Build.SourceBranch'], 'refs/heads/release'), startsWith(variables['Build.SourceBranch'], 'refs/heads/hotfix')) }}:
+    value: true
+  ${{ if not(or(startsWith(variables['Build.SourceBranch'], 'refs/heads/release'), startsWith(variables['Build.SourceBranch'], 'refs/heads/hotfix'))) }}:
+    value: false
+
+name: '$(BuildDefinitionName)_$(MajorVersion).$(MinorVersion).$(Revision).$(BuildID)'
+
+stages:
+- stage: Build
+  pool: pgazadob1p
+  jobs:
+  - job: build
+    steps:
+    - task: UseDotNet@2
+      displayName: Use .NET Core SDK
+      inputs:
+        packageType: 'sdk'
+        version: '2.1.811'
+    - task: DotNetCoreCLI@2
+      displayName: Build Lot Release
+      inputs:
+        command: 'publish'
+        publishWebProjects: false
+        projects: '**/LotRelease/*.csproj'
+        arguments: '-c ${{ variables.BuildConfiguration }} -o $(build.sourcesDirectory)\Build\LotRelease -r win10-x64'
+        zipAfterPublish: false
+        modifyOutputPath: false
+    - task: CopyFiles@2
+      displayName: Copy Lot Release Output
+      inputs:
+        SourceFolder: '$(build.sourcesDirectory)\Build\LotRelease'
+        Contents: '**'
+        TargetFolder: '$(build.sourcesdirectory)\LotReleaseJob\App_Data\jobs\triggered\LotRelease'
+    - task: PublishBuildArtifacts@1
+      displayName: Publish Lot Release Output
+      inputs:
+        PathtoPublish: '$(build.sourcesdirectory)\LotReleaseJob'
+        ArtifactName: 'LotRelease'
+        publishLocation: 'Container'
+    - task: DotNetCoreCLI@2
+      displayName: Build Change Order Expiration
+      inputs:
+        command: 'publish'
+        publishWebProjects: false
+        projects: '**/ChangeOrderExpiration/*.csproj'
+        arguments: '-c ${{ variables.BuildConfiguration }} -o $(build.sourcesDirectory)\Build\ChangeOrderExpiration -r win10-x64'
+        zipAfterPublish: false
+        modifyOutputPath: false
+    - task: CopyFiles@2
+      displayName: Copy Change Order Expiration Output
+      inputs:
+        SourceFolder: '$(build.sourcesDirectory)\Build\ChangeOrderExpiration'
+        Contents: '**'
+        TargetFolder: '$(build.sourcesdirectory)\ChangeOrderExpirationJob\App_Data\jobs\triggered\ChangeOrderExpiration'
+    - task: PublishBuildArtifacts@1
+      displayName: Publish Change Order Expiration Output
+      inputs:
+        PathtoPublish: '$(build.sourcesdirectory)\ChangeOrderExpirationJob'
+        ArtifactName: 'ChangeOrderExpiration'
+        publishLocation: 'Container'
+    - task: DotNetCoreCLI@2
+      displayName: Build Attribute Cleanup
+      inputs:
+        command: 'publish'
+        publishWebProjects: false
+        projects: '**/AttributeCleanup/*.csproj'
+        arguments: '-c ${{ variables.BuildConfiguration }} -o $(build.sourcesDirectory)\Build\AttributeCleanup -r win10-x64'
+        zipAfterPublish: false
+        modifyOutputPath: false
+    - task: CopyFiles@2
+      displayName: Copy Attribute Cleanup Output
+      inputs:
+        SourceFolder: '$(build.sourcesDirectory)\Build\AttributeCleanup'
+        Contents: '**'
+        TargetFolder: '$(build.sourcesdirectory)\AttributeCleanupJob\App_Data\jobs\triggered\AttributeCleanup'
+    - task: PublishBuildArtifacts@1
+      displayName: Publish Attribute Cleanup Output
+      inputs:
+        PathtoPublish: '$(build.sourcesdirectory)\AttributeCleanupJob'
+        ArtifactName: 'AttributeCleanup'
+        publishLocation: 'Container'
+- ${{ if eq(variables['DeployDev'], true) }}:
+  - stage: Dev
+    pool: pgazador1p
+    displayName: Deploy Dev
+    dependsOn: Build
+    variables:
+    - group: 'PHD DEV'
+    jobs:
+    - deployment: Dev
+      workspace:
+        clean: all
+      environment: PhdDev
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+            - task: AzureRmWebAppDeployment@4
+              displayName: Deploy Lot Release
+              inputs:
+                ConnectionType: 'AzureRM'
+                azureSubscription: 'Development'
+                appType: 'webApp'
+                WebAppName: 'PhdDev'
+                packageForLinux: '$(Pipeline.Workspace)/LotRelease'
+                enableCustomDeployment: true
+                DeploymentType: 'webDeploy'
+                TakeAppOfflineFlag: false
+                ExcludeFilesFromAppDataFlag: false
+                AdditionalArguments: 
+                RenameFilesFlag: false
+            - task: AzureRmWebAppDeployment@4
+              displayName: Deploy Change Order Expiration
+              inputs:
+                ConnectionType: 'AzureRM'
+                azureSubscription: 'Development'
+                appType: 'webApp'
+                WebAppName: 'PhdDev'
+                packageForLinux: '$(Pipeline.Workspace)/ChangeOrderExpiration'
+                enableCustomDeployment: true
+                DeploymentType: 'webDeploy'
+                TakeAppOfflineFlag: false
+                ExcludeFilesFromAppDataFlag: false
+                AdditionalArguments: 
+                RenameFilesFlag: false
+            - task: AzureRmWebAppDeployment@4
+              displayName: Deploy Attribute Cleanup
+              inputs:
+                ConnectionType: 'AzureRM'
+                azureSubscription: 'Development'
+                appType: 'webApp'
+                WebAppName: 'PhdDev'
+                packageForLinux: '$(Pipeline.Workspace)/AttributeCleanup'
+                enableCustomDeployment: true
+                DeploymentType: 'webDeploy'
+                TakeAppOfflineFlag: false
+                ExcludeFilesFromAppDataFlag: false
+                AdditionalArguments: 
+                RenameFilesFlag: false
+- ${{ if eq(variables['DeployQa'], true) }}:
+  - stage: EmailTesters
+    dependsOn: Build
+    pool: pgazador1p
+    variables:
+    - group: 'PHD QA'
+    displayName: Email Testers
+    jobs:
+    - job: EmailTesters
+      steps:
+      - task: SendEmail@1
+        displayName: Email Testers
+        inputs:
+          To: '$(testers)'
+          From: 'azuredevops@donotreply.com'
+          Subject: 'New Release available for $(Build.DefinitionName)'
+          Body: |
+            Release is ready for $(Build.DefinitionName).
+            
+            Please view the following approval:
+            
+            https://dev.azure.com/pultevsts/HomeBuilder%20Apps/_build/results?buildId=$(Build.BuildId)&view=results
+          BodyAsHtml: false
+          AddAttachment: false
+          SmtpServer: 'smtp.pulte.com'
+          SmtpPort: '25'
+          UseSSL: false
+  - stage: Qa
+    pool: pgazador1p
+    displayName: Deploy Qa
+    dependsOn: EmailTesters
+    variables:
+    - group: 'PHD QA'
+    jobs:
+    - deployment: Qa
+      workspace:
+        clean: all
+      environment: PhdQa
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+            - task: Transformer@2
+              displayName: Config Transform - Lot Release
+              inputs:
+                sourcePath: '$(Pipeline.Workspace)/LotRelease/App_Data/jobs/triggered/LotRelease/appsettings.json'
+                fileType: 'Auto'
+                targetPathType: 'source'
+                transformationType: 'json'
+                transformations: |
+                  {
+                      "edhSettings/url": "$(edhSettings:url)",
+                      "edhSettings/apiKey": "$(edhSettings:key)",
+                      "phdSettings/url": "$(phdSettings:url)",
+                      "phdSettings/apiKey": "$(phdSettings:key)",
+                      "AzureDocumentStorage": "$(storageAccessKey)",
+                      "ApplicationInsights/InstrumentationKey": "$(appInsights:instrumentationKey)"
+                  }
+            - task: Transformer@2
+              displayName: Config Transform - Change Order Expiration
+              inputs:
+                sourcePath: '$(Pipeline.Workspace)/ChangeOrderExpiration/App_Data/jobs/triggered/ChangeOrderExpiration/appsettings.json'
+                fileType: 'Auto'
+                targetPathType: 'source'
+                transformationType: 'json'
+                transformations: |
+                  {
+                      "edhSettings/url": "$(edhSettings:url)",
+                      "edhSettings/apiKey": "$(edhSettings:key)",
+                      "phdSettings/url": "$(phdSettings:url)",
+                      "phdSettings/apiKey": "$(phdSettings:key)",
+                      "AzureDocumentStorage": "$(storageAccessKey)",
+                      "ApplicationInsights/InstrumentationKey": "$(appInsights:instrumentationKey)"
+                  }
+            - task: Transformer@2
+              displayName: Config Transform - Attribute Cleanup
+              inputs:
+                sourcePath: '$(Pipeline.Workspace)/AttributeCleanup/App_Data/jobs/triggered/AttributeCleanup/appsettings.json'
+                fileType: 'Auto'
+                targetPathType: 'source'
+                transformationType: 'json'
+                transformations: |
+                  {
+                      "edhSettings/url": "$(edhSettings:url)",
+                      "edhSettings/apiKey": "$(edhSettings:key)",
+                      "phdSettings/url": "$(phdSettings:url)",
+                      "phdSettings/apiKey": "$(phdSettings:key)",
+                      "AzureDocumentStorage": "$(storageAccessKey)",
+                      "ApplicationInsights/InstrumentationKey": "$(appInsights:instrumentationKey)"
+                  }
+            - task: AzureRmWebAppDeployment@4
+              displayName: Deploy Lot Release
+              inputs:
+                ConnectionType: 'AzureRM'
+                azureSubscription: 'Qa'
+                appType: 'webApp'
+                WebAppName: 'PhdQa'
+                packageForLinux: '$(Pipeline.Workspace)/LotRelease'
+                enableCustomDeployment: true
+                DeploymentType: 'webDeploy'
+                TakeAppOfflineFlag: false
+                ExcludeFilesFromAppDataFlag: false
+                AdditionalArguments: 
+                RenameFilesFlag: false
+            - task: AzureRmWebAppDeployment@4
+              displayName: Deploy Change Order Expiration
+              inputs:
+                ConnectionType: 'AzureRM'
+                azureSubscription: 'Qa'
+                appType: 'webApp'
+                WebAppName: 'PhdQa'
+                packageForLinux: '$(Pipeline.Workspace)/ChangeOrderExpiration'
+                enableCustomDeployment: true
+                DeploymentType: 'webDeploy'
+                TakeAppOfflineFlag: false
+                ExcludeFilesFromAppDataFlag: false
+                AdditionalArguments: 
+                RenameFilesFlag: false
+            - task: AzureRmWebAppDeployment@4
+              displayName: Deploy Attribute Cleanup
+              inputs:
+                ConnectionType: 'AzureRM'
+                azureSubscription: 'Qa'
+                appType: 'webApp'
+                WebAppName: 'PhdQa'
+                packageForLinux: '$(Pipeline.Workspace)/AttributeCleanup'
+                enableCustomDeployment: true
+                DeploymentType: 'webDeploy'
+                TakeAppOfflineFlag: false
+                ExcludeFilesFromAppDataFlag: false
+                AdditionalArguments: 
+                RenameFilesFlag: false
+- ${{ if eq(variables['DeployStgProd'], true) }}:
+  - stage: Staging
+    displayName: Deploy Staging
+    pool: pgazador1p
+    dependsOn: Qa
+    variables:
+    - group: 'PHD STG'
+    jobs:
+    - job: TransformStg
+      displayName: Config Transforms
+      workspace:
+          clean: all
+      steps:
+      - task: Transformer@2
+        displayName: Config Transform - Lot Release
+        inputs:
+          sourcePath: '$(Pipeline.Workspace)/LotRelease/App_Data/jobs/triggered/LotRelease/appsettings.json'
+          fileType: 'Auto'
+          targetPathType: 'source'
+          transformationType: 'json'
+          transformations: |
+            {
+            "edhSettings/url": "$(edhSettings:url)",
+            "edhSettings/apiKey": "$(edhSettings:key)",
+            "phdSettings/url": "$(phdSettings:url)",
+            "phdSettings/apiKey": "$(phdSettings:key)",
+            "AzureDocumentStorage": "$(storageAccessKey)",
+            "ApplicationInsights/InstrumentationKey": "$(appInsights:instrumentationKey)"
+            }
+      - task: Transformer@2
+        displayName: Config Transform - Change Order Expiration
+        inputs:
+          sourcePath: '$(Pipeline.Workspace)/ChangeOrderExpiration/App_Data/jobs/triggered/ChangeOrderExpiration/appsettings.json'
+          fileType: 'Auto'
+          targetPathType: 'source'
+          transformationType: 'json'
+          transformations: |
+            {
+              "edhSettings/url": "$(edhSettings:url)",
+              "edhSettings/apiKey": "$(edhSettings:key)",
+              "phdSettings/url": "$(phdSettings:url)",
+              "phdSettings/apiKey": "$(phdSettings:key)",
+              "AzureDocumentStorage": "$(storageAccessKey)",
+              "ApplicationInsights/InstrumentationKey": "$(appInsights:instrumentationKey)"
+            }
+      - task: Transformer@2
+        displayName: Config Transform - Attribute Cleanup
+        inputs:
+          sourcePath: '$(Pipeline.Workspace)/AttributeCleanup/App_Data/jobs/triggered/AttributeCleanup/appsettings.json'
+          fileType: 'Auto'
+          targetPathType: 'source'
+          transformationType: 'json'
+          transformations: |
+            {
+              "edhSettings/url": "$(edhSettings:url)",
+              "edhSettings/apiKey": "$(edhSettings:key)",
+              "phdSettings/url": "$(phdSettings:url)",
+              "phdSettings/apiKey": "$(phdSettings:key)",
+              "AzureDocumentStorage": "$(storageAccessKey)",
+              "ApplicationInsights/InstrumentationKey": "$(appInsights:instrumentationKey)"
+            }
+    - deployment: StgEast
+      displayName: Deploy East Staging
+      dependsOn: TransformStg
+      environment: PhdStg
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+            - task: AzureRmWebAppDeployment@4
+              displayName: Deploy Lot Release
+              inputs:
+                ConnectionType: 'AzureRM'
+                azureSubscription: 'Staging'
+                appType: 'webApp'
+                WebAppName: 'PhdEastStg'
+                packageForLinux: '$(Pipeline.Workspace)/LotRelease'
+                enableCustomDeployment: true
+                DeploymentType: 'webDeploy'
+                TakeAppOfflineFlag: false
+                ExcludeFilesFromAppDataFlag: false
+                AdditionalArguments: 
+                RenameFilesFlag: false
+            - task: AzureRmWebAppDeployment@4
+              displayName: Deploy Change Order Expiration
+              inputs:
+                ConnectionType: 'AzureRM'
+                azureSubscription: 'Staging'
+                appType: 'webApp'
+                WebAppName: 'PhdEastStg'
+                packageForLinux: '$(Pipeline.Workspace)/ChangeOrderExpiration'
+                enableCustomDeployment: true
+                DeploymentType: 'webDeploy'
+                TakeAppOfflineFlag: false
+                ExcludeFilesFromAppDataFlag: false
+                AdditionalArguments: 
+                RenameFilesFlag: false
+            - task: AzureRmWebAppDeployment@4
+              displayName: Deploy Attribute Cleanup
+              inputs:
+                ConnectionType: 'AzureRM'
+                azureSubscription: 'Staging'
+                appType: 'webApp'
+                WebAppName: 'PhdEastStg'
+                packageForLinux: '$(Pipeline.Workspace)/AttributeCleanup'
+                enableCustomDeployment: true
+                DeploymentType: 'webDeploy'
+                TakeAppOfflineFlag: false
+                ExcludeFilesFromAppDataFlag: false
+                AdditionalArguments: 
+                RenameFilesFlag: false
+    - deployment: StgWest
+      displayName: Deploy West Staging
+      dependsOn: TransformStg
+      environment: PhdStg
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+            - task: AzureRmWebAppDeployment@4
+              displayName: Deploy Lot Release
+              inputs:
+                ConnectionType: 'AzureRM'
+                azureSubscription: 'Staging'
+                appType: 'webApp'
+                WebAppName: 'PhdWestStg'
+                packageForLinux: '$(Pipeline.Workspace)/LotRelease'
+                enableCustomDeployment: true
+                DeploymentType: 'webDeploy'
+                TakeAppOfflineFlag: false
+                ExcludeFilesFromAppDataFlag: false
+                AdditionalArguments: 
+                RenameFilesFlag: false
+            - task: AzureRmWebAppDeployment@4
+              displayName: Deploy Change Order Expiration
+              inputs:
+                ConnectionType: 'AzureRM'
+                azureSubscription: 'Staging'
+                appType: 'webApp'
+                WebAppName: 'PhdWestStg'
+                packageForLinux: '$(Pipeline.Workspace)/ChangeOrderExpiration'
+                enableCustomDeployment: true
+                DeploymentType: 'webDeploy'
+                TakeAppOfflineFlag: false
+                ExcludeFilesFromAppDataFlag: false
+                AdditionalArguments: 
+                RenameFilesFlag: false
+            - task: AzureRmWebAppDeployment@4
+              displayName: Deploy Attribute Cleanup
+              inputs:
+                ConnectionType: 'AzureRM'
+                azureSubscription: 'Staging'
+                appType: 'webApp'
+                WebAppName: 'PhdWestStg'
+                packageForLinux: '$(Pipeline.Workspace)/AttributeCleanup'
+                enableCustomDeployment: true
+                DeploymentType: 'webDeploy'
+                TakeAppOfflineFlag: false
+                ExcludeFilesFromAppDataFlag: false
+                AdditionalArguments: 
+                RenameFilesFlag: false

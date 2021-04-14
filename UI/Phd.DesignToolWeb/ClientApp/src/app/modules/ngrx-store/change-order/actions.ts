@@ -4,6 +4,7 @@ import { ErrorAction } from '../error.action';
 import { SalesChangeOrderPriceAdjustment, SalesChangeOrderSalesProgram, ChangeOrderBuyer } from '../../shared/models/sales-change-order.model';
 import { SalesAgreementLoaded, JobLoaded, ESignEnvelopesLoaded, ChangeOrderEnvelopeCreated, ChangeOrdersUpdated } from '../actions';
 import { SalesAgreement } from '@shared/models/sales-agreement.model';
+import { Note } from '@shared/models/note.model';
 
 export enum ChangeOrderActionTypes
 {
@@ -50,7 +51,10 @@ export enum ChangeOrderActionTypes
 	ResubmitChangeOrder = 'Resubmit Change Order',
 	SetChangeOrderNonStandardOptions = 'Set Change Order Non Standard Options',
 	ChangeOrderOutForSignature = 'Change Order Out For Signature',
-	SetChangeOrderPlanId = 'Set Change Order Plan Id'
+	SetChangeOrderPlanId = 'Set Change Order Plan Id',
+	SetSalesChangeOrderTermsAndConditions = 'Set change order Terms and Conditions',
+	SalesChangeOrderTermsAndConditionsSaved = 'Sales Change Order Terms And Conditions Saved',
+	DeleteTermsAndConditions = 'Delete Terms and Conditons'
 }
 
 export class SetChangingOrder implements Action
@@ -360,6 +364,28 @@ export class SetChangeOrderPlanId implements Action {
 	constructor(public planId: number) { }
 }
 
+
+export class SetSalesChangeOrderTermsAndConditions implements Action
+{
+	readonly type = ChangeOrderActionTypes.SetSalesChangeOrderTermsAndConditions;
+
+	constructor(public termsAndConditionsNote: Note, public agreementNote: boolean = false) { }
+}
+
+export class SalesChangeOrderTermsAndConditionsSaved implements Action
+{
+	readonly type = ChangeOrderActionTypes.SalesChangeOrderTermsAndConditionsSaved;
+
+	constructor(public termsAndConditionsNote: Note) { }
+}
+
+export class DeleteTermsAndConditions implements Action
+{
+	readonly type = ChangeOrderActionTypes.DeleteTermsAndConditions;
+
+	constructor(public termsAndConditionsNote: Note) { }
+}
+
 export type ChangeOrderActions =
 	AddChangeOrderCoBuyer |
 	CancelJobChangeOrder |
@@ -409,4 +435,7 @@ export type ChangeOrderActions =
 	ResubmitChangeOrder |
 	SetChangeOrderNonStandardOptions |
 	ChangeOrderOutForSignature |
-	SetChangeOrderPlanId;
+	SetChangeOrderPlanId |
+	SetSalesChangeOrderTermsAndConditions |
+	SalesChangeOrderTermsAndConditionsSaved |
+	DeleteTermsAndConditions;

@@ -43,6 +43,134 @@
 				}
 			}
 		},
+		"choiceadmin": {
+			"root": "",
+			"sourceRoot": "projects/choiceadmin/src",
+			"projectType": "application",
+			"architect": {
+				"build": {
+					"builder": "@angular-devkit/build-angular:browser",
+					"options": {
+						"aot": true,
+						"baseHref": "/choiceadmin/",
+						"outputHashing": "all",
+						"outputPath": "dist/choiceadmin",
+						"index": "projects/choiceadmin/src/index.html",
+						"main": "projects/choiceadmin/src/main.ts",
+						"tsConfig": "projects/choiceadmin/tsconfig.app.json",
+						"progress": true,
+						"preserveSymlinks": true,
+						"polyfills": "projects/choiceadmin/src/polyfills.ts",
+						"verbose": true,
+						"assets": [
+							"projects/choiceadmin/src/assets",
+							"projects/choiceadmin/src/favicon.ico",
+							"projects/choiceadmin/src/picturepark-response.html"
+						],
+						"styles": [
+							"node_modules/bootstrap/dist/css/bootstrap.min.css",
+							"node_modules/font-awesome/css/font-awesome.min.css",
+							"node_modules/primeng/resources/themes/nova-light/theme.css",
+							"node_modules/primeng/resources/primeng.min.css",
+							"node_modules/primeicons/primeicons.css",
+							"projects/choiceadmin/src/scss/styles.scss"
+						],
+						"scripts": []
+					},
+					"configurations": {
+						"qa": {
+							"fileReplacements": [
+								{
+									"replace": "projects/choiceadmin/src/environments/environment.ts",
+									"with": "projects/choiceadmin/src/environments/environment.qa.ts"
+								}
+							]
+						},
+						"staging": {
+							"fileReplacements": [
+								{
+									"replace": "projects/choiceadmin/src/environments/environment.ts",
+									"with": "projects/choiceadmin/src/environments/environment.staging.ts"
+								}
+							]
+						},
+						"production": {
+							"optimization": true,
+							"sourceMap": false,
+							"extractCss": true,
+							"namedChunks": false,
+							"extractLicenses": true,
+							"vendorChunk": false,
+							"buildOptimizer": true,
+							"fileReplacements": [
+								{
+									"replace": "projects/choiceadmin/src/environments/environment.ts",
+									"with": "projects/choiceadmin/src/environments/environment.prod.ts"
+								}
+							]
+						}
+					}
+				},
+				"serve": {
+					"builder": "@angular-devkit/build-angular:dev-server",
+					"options": {
+						"baseHref": "/",
+						"browserTarget": "choiceadmin:build",
+						"port": 14765
+					},
+					"configurations": {
+						"qa": {
+							"browserTarget": "choiceadmin:build:qa"
+						},
+						"staging": {
+							"browserTarget": "choiceadmin:build:staging"
+						},
+						"production": {
+							"browserTarget": "choiceadmin:build:production"
+						}
+					}
+				},
+				"extract-i18n": {
+					"builder": "@angular-devkit/build-angular:extract-i18n",
+					"options": {
+						"browserTarget": "choiceadmin:build"
+					}
+				},
+				"test": {
+					"builder": "@angular-devkit/build-angular:karma",
+					"options": {
+						"main": "projects/choiceadmin/src/test.ts",
+						"karmaConfig": "projects/choiceadmin/karma.conf.js",
+						"polyfills": "projects/choiceadmin/src/polyfills.ts",
+						"tsConfig": "projects/choiceadmin/tsconfig.spec.json",
+						"scripts": [],
+						"styles": [
+							"node_modules/bootstrap/scss/bootstrap.scss",
+							"node_modules/font-awesome/css/font-awesome.min.css",
+							"node_modules/primeng/resources/themes/nova-light/theme.css",
+							"node_modules/primeng/resources/primeng.min.css",
+							"node_modules/primeicons/primeicons.css",
+							"projects/choiceadmin/src/scss/styles.scss"
+						],
+						"assets": [
+							"projects/choiceadmin/src/assets"
+						]
+					}
+				},
+				"lint": {
+					"builder": "@angular-devkit/build-angular:tslint",
+					"options": {
+						"tsConfig": [
+							"projects/choiceadmin/tsconfig.app.json",
+							"projects/choiceadmin/tsconfig.spec.json"
+						],
+						"exclude": [
+							"**/node_modules/**"
+						]
+					}
+				}
+			}
+		},
 		"salesadmin": {
 			"root": "",
 			"sourceRoot": "projects/salesadmin/src",
@@ -113,7 +241,7 @@
 					"options": {
 						"baseHref": "/",
 						"browserTarget": "salesadmin:build",
-						"port": 14765
+						"port": 14768
 					},
 					"configurations": {
 						"qa": {

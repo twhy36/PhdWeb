@@ -274,37 +274,43 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 
 	monotonyConflictMessage(lot: LotComponentLot): string 
 	{
+		let planId = this.selectedPlanId ?? 0;
+
 		if (this.colorSchemeChoice && !this.colorSchemeConflictOverride) 
 		{
-			lot.colorSchemeMonotonyConflict = lot.monotonyRules.some(x => x.colorSchemeDivChoiceCatalogId === this.colorSchemeChoice.divChoiceCatalogId);
+			lot.colorSchemeMonotonyConflict = lot.monotonyRules.some(x => x.colorSchemeDivChoiceCatalogId === this.colorSchemeChoice.divChoiceCatalogId && x.edhPlanId === planId);
 		}
 
 		if (this.elevationChoice && !this.elevationConflictOverride) 
 		{
-			lot.elevationMonotonyConflict = lot.monotonyRules.some(r => r.elevationDivChoiceCatalogId === this.elevationChoice.divChoiceCatalogId);
+			lot.elevationMonotonyConflict = lot.monotonyRules.some(r => r.elevationDivChoiceCatalogId === this.elevationChoice.divChoiceCatalogId && r.edhPlanId === planId);
 
 			if (!this.colorSchemeChoice && this.elevationChoice.selectedAttributes.length > 0) 
 			{
 				lot.monotonyRules.forEach(rule => 
 				{
-					let colorAttributeConflicts = [];
-
-					if (!this.colorSchemeMonotonyConflict) 
+					// must be on the same plan
+					if (rule.edhPlanId === planId)
 					{
-						this.elevationChoice.selectedAttributes.forEach(x => 
-						{
-							if (rule.colorSchemeAttributeCommunityIds.some(colorAttributeIds => colorAttributeIds === x.attributeId)) 
-							{
-								colorAttributeConflicts.push(true);
-							}
-							else 
-							{
-								colorAttributeConflicts.push(false);
-							}
-						});
-					}
+						let colorAttributeConflicts = [];
 
-					this.colorSchemeMonotonyConflict = !colorAttributeConflicts.some(x => x === false);
+						if (!this.colorSchemeMonotonyConflict) 
+						{
+							this.elevationChoice.selectedAttributes.forEach(x => 
+							{
+								if (rule.colorSchemeAttributeCommunityIds.some(colorAttributeIds => colorAttributeIds === x.attributeId)) 
+								{
+									colorAttributeConflicts.push(true);
+								}
+								else 
+								{
+									colorAttributeConflicts.push(false);
+								}
+							});
+						}
+
+						this.colorSchemeMonotonyConflict = !colorAttributeConflicts.some(x => x === false);
+					}
 				})
 			}
 		}

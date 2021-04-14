@@ -27,6 +27,7 @@ export interface IJob
 	projectedDates?: ProjectedDate;
 	jobSalesAgreementAssocs: JobSalesAgreementAssoc[];
 	jobTypeName: string;
+	createdBy: string;
 }
 
 export class Job
@@ -52,6 +53,7 @@ export class Job
 	projectedDates?: ProjectedDate;
 	jobSalesAgreementAssocs: JobSalesAgreementAssoc[] = [];
 	jobTypeName: string;
+	createdBy: string;
 
 	constructor(dto: IJob = null)
 	{
@@ -78,6 +80,7 @@ export class Job
 			this.projectedDates = dto.projectedDates ? new ProjectedDate(dto.projectedDates) : null;
 			this.jobSalesAgreementAssocs = dto.jobSalesAgreementAssocs ? dto.jobSalesAgreementAssocs : null;
 			this.jobTypeName = dto.jobTypeName;
+			this.createdBy = dto.createdBy
 		}
 	}
 }
