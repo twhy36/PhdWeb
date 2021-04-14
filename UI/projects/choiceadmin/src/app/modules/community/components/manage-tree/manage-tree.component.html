@@ -1,0 +1,201 @@
+<choice-side-panel *ngIf="selectedChoice"
+				   [currentTab]="currentTab"
+				   [choice]="selectedChoice"
+				   [isReadOnly]="isReadOnly"
+				   [sidePanelOpen]="selectedChoice"
+				   [isSaving]="choiceDetailsSaving"
+				   [versionId]="selectedTreeVersion?.id"
+				   [groupsInMarket]="groupsInMarket"
+				   [communityId]="selectedCommunity?.id"
+				   (onChoiceDetailsChange)="onChoiceDetailsChange($event)"
+				   (sidePanelClose)="onChoiceSidePanelClose()"
+				   (hasChanges)="onHasChanges($event)"
+				   [selectedMarket]="selectedMarket"
+				   [canEditTree]="canEdit">
+</choice-side-panel>
+<point-side-panel *ngIf="selectedPoint"
+				  [currentTab]="currentTab"
+				  [point]="selectedPoint"
+				  [isReadOnly]="isReadOnly || !canEdit"
+				  [sidePanelOpen]="selectedPoint"
+				  [isSaving]="pointDetailsSaving"
+				  [versionId]="selectedTreeVersion?.id"
+				  (onPointDetailsChange)="onPointDetailsChange($event)"
+				  (sidePanelClose)="onPointSidePanelClose()"
+				  (hasChanges)="onHasChanges($event)">
+</point-side-panel>
+<add-item-side-panel *ngIf="showAddItem"
+					 [itemParent]="itemParent"
+					 [unusedItems]="unusedItems"
+					 [sidePanelOpen]="showAddItem"
+					 [isLoading]="addItemIsLoading"
+					 [isSaving]="addItemIsSaving"
+					 (sidePanelClose)="onAddItemSidePanelClose()"
+					 (save)="onAddItemSave($event)"
+					 (hasChanges)="onHasChanges($event)">
+</add-item-side-panel>
+<tree-side-panel *ngIf="showTreeDetails"
+				 [title]="treeDetailsTitle"
+				 [treeVersion]="currentTree?.version"
+				 [canEdit]="canEdit"
+				 [isReadOnly]="isReadOnly || !canPublish"
+				 [isSaving]="treeDetailsSaving"
+				 [sidePanelOpen]="showTreeDetails"
+				 (sidePanelClose)="onTreeDetailsSidePanelClose()"
+				 (save)="onTreeDetailsSave($event)"
+				 (hasChanges)="onHasChanges($event)">
+</tree-side-panel>
+<messages-side-panel *ngIf="showMessages"
+					 [tabsTemplate]="tabs"
+					 [sidePanelOpen]="showMessages"
+					 (sidePanelClose)="onMessagesSidePanelClose()">
+	<ng-template #tabs>
+		<ngb-tabset justify="fill" [activeId]="currentTab">
+			<ngb-tab title="Decision Points with no Choices" id="dpwithnochoices">
+				<ng-template ngbTabContent>
+					<div class="container pt-3">
+						<div class="list-group">
+							<ng-container *ngFor="let point of pointsWithNoChoices">
+								<div class="list-group-item phd-msg-list-group-item" (click)="onPointMessageClick(point)">
+									<span>{{point.label}}</span>
+								</div>
+							</ng-container>
+						</div>
+					</div>
+				</ng-template>
+			</ngb-tab>
+		</ngb-tabset>
+	</ng-template>
+</messages-side-panel>
+
+<div class="page-container" [class.phd-side-panel-open]="selectedChoice || selectedPoint || showAddItem || showTreeDetails || showMessages">
+	<message-bar *ngIf="pointsWithNoChoicesMessage.length > 0"
+				 [messages]="[pointsWithNoChoicesMessage]"
+				 alertClass="alert-danger"
+				 textClass="text-danger"
+				 messageType="tree"
+				 (messageClick)="onMessageClick()">
+	</message-bar>
+
+	<page-header mainTitle="Manage Community Plan / Decision Tree" [mainTitleAddon]="titleAddon">
+		<ng-template>
+			<phd-action-buttons *ngIf="!lockedFromChanges && treeVersion | async">
+				<phd-action-buttons-item title="Delete Draft" *ngIf="!isReadOnly && canEdit" [buttonDisabled]="disableButtons || isDeletingTree" (onButtonClicked)="onDeleteDraftClicked()">
+					<ng-template>
+						<i class="fa fa-trash fa-2x"></i>
+					</ng-template>
+				</phd-action-buttons-item>
+				<phd-action-buttons-item title="Details" *ngIf="isReadOnly || !canPublish" [buttonDisabled]="disableButtons || isDeletingTree" (onButtonClicked)="onDetailsClicked()">
+					<ng-template>
+						<i class="fa fa-file-text-o fa-2x"></i>
+					</ng-template>
+				</phd-action-buttons-item>
+				<phd-action-buttons-item title="Publish" *ngIf="!isReadOnly && canPublish" [buttonDisabled]="isTreeInvalid || disableButtons || isDeletingTree" (onButtonClicked)="onPublishClicked()">
+					<ng-template>
+						<i class="fa fa-upload fa-2x" [class.disabled]="isTreeInvalid"></i>
+					</ng-template>
+				</phd-action-buttons-item>
+				<phd-action-buttons-item title="Preview in Design Tool" [buttonDisabled]="disableButtons || isDeletingTree" (onButtonClicked)="onPreviewTreeClicked()">
+					<ng-template>
+						<i class="fa fa-search-plus fa-2x"></i>
+					</ng-template>
+				</phd-action-buttons-item>
+				<phd-action-buttons-item title="Go To Options" [buttonDisabled]="disableButtons || isDeletingTree" [routerLink]="treeOptionRouteLink">
+					<ng-template>
+						<i class="fa fa-list-alt fa-2x"></i>
+					</ng-template>
+				</phd-action-buttons-item>
+			</phd-action-buttons>
+		</ng-template>
+	</page-header>
+
+	<div class="page-body">
+		<div class="d-flex flex-row justify-content-between">
+			<select class="form-control m-2 col" id="market" [(ngModel)]="selectedMarket" (change)="onChangeMarket()" [disabled]="disableButtons || isDeletingTree">
+				<option [ngValue]="null">{{ marketDefaultText }}</option>
+				<option *ngFor="let market of markets" [ngValue]="market">{{ market.name }}</option>
+			</select>
+
+			<select class="form-control m-2 col" id="community" [(ngModel)]="selectedCommunity" (change)="onChangeCommunity()" [disabled]="disableButtons || isDeletingTree">
+				<option [ngValue]="null">{{ communityDefaultText }}</option>
+				<option *ngFor="let community of communities" [ngValue]="community">{{ community.name }} - {{ community.number }}</option>
+			</select>
+
+			<select class="form-control m-2 col" id="plan" [(ngModel)]="selectedPlan" (change)="onChangePlan()"
+					[disabled]="disableButtons || isDeletingTree">
+				<option [ngValue]="null">{{ planDefaultText }}</option>
+				<optgroup label="Active Plans">
+					<option *ngFor="let plan of activePlans" [ngValue]="plan">{{ plan.planSalesName }}</option>
+				</optgroup>
+				<optgroup label="Inactive Plans">
+					<option *ngFor="let plan of inactivePlans" [ngValue]="plan">{{ plan.planSalesName }}</option>
+				</optgroup>
+			</select>
+
+			<div class="input-group m-2 col">
+				<button class="btn btn-primary input-group-prepend" id="btnNewTree" [disabled]="disableNewTree" (click)="onNewTree();" *ngIf="canEdit">New Tree</button>
+
+				<select class="form-control" id="tree" [(ngModel)]="selectedTreeVersion" (change)="onChangeTreeVersion()" [disabled]="noVersions || disableButtons || isDeletingTree">
+					<option [ngValue]="null">{{ treeVersionDefaultText }}</option>
+					<option *ngFor="let treeVersion of treeVersions" [ngValue]="treeVersion">{{ treeVersion.displayName }}</option>
+				</select>
+			</div>
+		</div>
+
+		<div class="d-flex flex-row justify-content-between" *ngIf="treeVersion | async">
+			<div class="m-2 col pl-0">
+				<tree-toggle [groups]="(treeVersion | async)?.version.groups" [disableButtons]="disableButtons || isDeletingTree"></tree-toggle>
+			</div>
+
+			<div class="m-2 col" *ngIf="!isReadOnly && canEdit && treeVersion | async">
+				<div class="btn-group" *ngIf="!dragEnable">
+					<button type="button" class="btn btn-primary" (click)="onEditSortClick()" [disabled]="disableButtons || isDeletingTree">Edit Sort</button>
+				</div>
+				<div class="btn-group" *ngIf="dragEnable">
+					<button type="button" class="btn btn-secondary" (click)="onCancelSortClick()">Cancel</button>
+					<button type="button" class="btn btn-primary" (click)="onSaveSortClick()">Save Sort</button>
+				</div>
+			</div>
+
+			<div class="input-group m-2 col">
+				<div ngbDropdown class="input-group-prepend">
+					<button class="btn btn-secondary" id="btnSearchBy" [disabled]="disableButtons || isDeletingTree" ngbDropdownToggle>{{currentSearchFilter}}</button>
+					<div ngbDropdownMenu aria-labelledby="btnSearchBy">
+						<button *ngFor="let searchFilter of searchFilters" class="dropdown-item" (click)="onSearchFilterClick(searchFilter)" [disabled]="disableButtons || isDeletingTree">{{searchFilter}}</button>
+					</div>
+				</div>
+
+				<input type="text" class="form-control phd-search-input" aria-label="Search" placeholder="Search" [(ngModel)]="searchString" (keyup.enter)="onSearchClick()" [disabled]="disableButtons || isDeletingTree">
+				<span class="phd-search-clear" (click)="onClearFilterClick()"><i class="fa fa-fw fa-close"></i></span>
+
+				<div class="input-group-append">
+					<button type="button" class="btn btn-secondary" (click)="onSearchClick()" [disabled]="disableButtons || isDeletingTree">
+						<i class="fa fa-fw fa-search"></i>
+					</button>
+				</div>
+			</div>
+		</div>
+
+		<tree-table [tree]="treeVersion"
+					[isReadOnly]="isReadOnly || !canEdit"
+					[lockedFromChanges]="lockedFromChanges"
+					[dragEnable]="dragEnable"
+					[openGroups]="openGroups"
+					[openSubGroups]="openSubGroups"
+					[openPoints]="openPoints"
+					(dragHasChanged)="onDragHasChanged()"
+					(pointSelected)="onPointSelected($event)"
+					(choiceSelected)="onChoiceSelected($event)"
+					(deletePoint)="onDeletePoint($event)"
+					(deleteChoice)="onDeleteChoice($event)"
+					(addItem)="onAddItem($event)"
+					(toggleInteractiveFloor)="toggleInteractiveFloorplan($event)">
+		</tree-table>
+	</div>
+
+	<p-toast id="growl-manage-tree"></p-toast>
+</div>
+
+<ng-template #newTree let-c="close" let-d="dismiss">
+	<new-tree [treeVersions]="treeVersions" (createNewTree)="onCreateNewTree($event)" (close)="closeModal()"></new-tree>
+</ng-template>

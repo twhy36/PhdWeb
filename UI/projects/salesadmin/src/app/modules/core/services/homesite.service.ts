@@ -24,17 +24,98 @@ export class HomeSiteService
 	* Gets the homesites for the specified financial community
 	* @param communityId {number} the community
 	*/
-	getCommunityHomeSites(communityId: number): Observable<Array<HomeSiteDtos.ILotDto>>
+	getCommunityHomeSites(communityId: number, topRows?: number, skipRows?: number, keywords?: string, statusFilter?: string[], handingFilter?: string[]): Observable<Array<HomeSiteDtos.ILotDto>>
 	{
 		let url = settings.apiUrl;
 
-		const expand = `jobs($select=id,jobTypeName),planAssociations($select=id,isActive;$expand=planCommunity($select=id, financialPlanIntegrationKey)), salesPhase($select=id, salesPhaseName), financialCommunity($select=id, number, marketId; $expand=market($select=id, number)), lotHandingAssocs, lotViewAdjacencyAssocs($expand=viewAdjacency), lotPhysicalLotTypeAssocs($expand=physicalLotType)`;
-		const filter = `financialCommunity/id eq ${communityId} and lotStatusDescription ne 'Deleted' and isMasterUnit eq false`;
+		const expand = `jobs($select=id,jobTypeName),planAssociations($select=id,isActive;$expand=planCommunity($select=id, financialPlanIntegrationKey)), salesPhase($select=id, salesPhaseName), financialCommunity($select=id, number, marketId; $expand=market($select=id, number)), lotHandingAssocs($expand=handing($select=id,name)), lotViewAdjacencyAssocs($expand=viewAdjacency), lotPhysicalLotTypeAssocs($expand=physicalLotType)`;
+		let filter = ``;
+
+		if (keywords)
+		{
+			let filters = [];
+			let filterName = 'lotBlock';
+
+			const keywordArray = keywords.toLowerCase().split(' ');
+
+			keywordArray.map(keyword => {
+				filters.push(`indexof(tolower(${filterName}), '${keyword}') gt -1`);
+			});
+
+			const keysfilter = filters.join(' or ');
+
+			filter += `(${keysfilter}) and `;
+		}
+
+		if (statusFilter && statusFilter.length)
+		{
+			let filters = [];
+			let filterName = 'lotStatusDescription';
+
+			statusFilter.map(status =>
+			{
+				if (status === 'Spec Unavailable')
+				{
+					filters.push(`${filterName} eq 'Unavailable' and lotBuildTypeDesc eq 'Spec' and jobs/any(j: j/jobTypeName ne 'Model')`);
+				}
+				else if (status === 'Spec')
+				{
+					filters.push(`lotBuildTypeDesc eq '${status}' and jobs/any(j: j/jobTypeName ne 'Model')`);
+				}
+				else if (status === 'Model')
+				{
+					filters.push(`(lotBuildTypeDesc eq '${status}' or lotBuildTypeDesc eq 'Spec') and jobs/any(j: j/jobTypeName eq '${status}')`);
+				}
+				else if (status === 'Pending Release')
+				{
+					filters.push(`${filterName} eq 'PendingRelease'`);
+				}
+				else if (status === 'Pending Sale')
+				{
+					filters.push(`${filterName} eq 'PendingSale'`);
+				}
+				else
+				{
+					filters.push(`${filterName} eq '${status}'`);
+				}
+			});
+
+			const keyStatusFilter = filters.join(' or ');
+
+			filter += `(${keyStatusFilter}) and `;
+		}
+
+		if (handingFilter && handingFilter.length)
+		{
+			let filters = [];
+
+			handingFilter.map(handing =>
+			{
+				filters.push(`lotHandingAssocs/any(h: h/handing/name eq '${handing}')`);
+			});
+
+			const keyHandingFilter = filters.join(' or ');
+
+			filter += `(${keyHandingFilter}) and `;
+		}
+
+		filter += `financialCommunity/id eq ${communityId} and lotStatusDescription ne 'Deleted' and isMasterUnit eq false`;
 
 		const qryStr = `${encodeURIComponent("$")}expand=${encodeURIComponent(expand)}&${encodeURIComponent("$")}filter=${encodeURIComponent(filter)}`;
 
 		url += `lots?${qryStr}`;
-		return withSpinner(this._http).get(url).pipe(
+
+		if (topRows)
+		{
+			url += `&${encodeURIComponent("$")}top=${topRows}`;
+		}
+
+		if (skipRows)
+		{
+			url += `&${encodeURIComponent("$")}skip=${skipRows}`;
+		}
+
+		return (skipRows ? this._http : withSpinner(this._http)).get(url).pipe(
 			combineLatest(this.getViewAdjacencies(), this.getPhysicalLotTypes()),
 			map(([response, viewAdjacencies, lotTypes]: [any, HomeSiteDtos.ILabel[], HomeSiteDtos.ILabel[]]) =>
 			{

@@ -1,0 +1,33 @@
+<div class="phd-add-new-rule-form">
+	<div class="phd-rule-form-headermodal-header">
+		<div class="modal-title clearfix">
+			<strong>Choice Image</strong>
+			<div class="pull-right" *ngIf="!isReadOnly">
+				<image-search (getImages)="onGetImages($event)" [isSaving]="isSaving"></image-search>
+			</div>
+		</div>
+	</div>
+
+	<div *ngIf="choiceImageList.length > 0" class="phd-image-container phd-flex-container text-center">
+		<image-card *ngFor="let image of choiceImageList" class="phd-drag-drop" showFooter="true"
+					[bodyTemplate]="cardbody" [footerTemplate]="cardfooter" [dragEnabled]="dragEnable"
+					[dragSource]="getDragItem(image)" targetsSelector=".phd-drag-drop" scrollElement=".phd-side-panel-body"
+					dragTarget (handledrop)="handleDrop($event, image)" (handledragenter)="handleDragEnter($event, image)" (handledragstart)="handleDragStart($event, image)">
+			<ng-template #cardbody>
+				<img class="phd-image-card-overview" [src]="image.imageUrl" />
+			</ng-template>
+			<ng-template #cardfooter>
+				<i class="fa pull-left" *ngIf="!isReadOnly" (click)="toggleChoiceImage(image)"></i>
+				<i class="fa fa-fw fa-trash pull-right" *ngIf="!isReadOnly" (click)="deleteImage(image)" title="Delete Image"></i>
+			</ng-template>
+		</image-card>
+	</div>
+
+	<div *ngIf="imagesLoaded && choiceImageList.length === 0" class="alert alert-info mt-2" role="alert">
+		No Images Found
+	</div>
+</div>
+
+<div *ngIf="!imagesLoaded" class="phd-choice-images-list container-fluid text-center">
+	<i class="fa fa-spinner fa-spin fa-3x"></i>
+</div>

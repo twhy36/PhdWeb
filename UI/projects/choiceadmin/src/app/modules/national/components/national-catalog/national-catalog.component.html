@@ -1,0 +1,150 @@
+<national-catalog-side-panel-component *ngIf="sidePanelOpen" [sidePanelOpen]="sidePanelOpen" (onSidePanelClose)="onSidePanelClose($event)" [catalogItem]="catalogItem" (onSaveCatalogItem)="onSaveCatalogItem($event)"></national-catalog-side-panel-component>
+
+<national-catalog-reactivate-component *ngIf="reactivateSidePanelOpen" [sidePanelOpen]="reactivateSidePanelOpen" (onSidePanelClose)="onReactivateSidePanelClose($event)" [itemType]="itemType" [inactiveItems]="inactiveItems" (onSaveReactivateItems)="onSaveReactivateItems($event)"></national-catalog-reactivate-component>
+
+<div class="phd-page-container" [class.phd-side-panel-open]="sidePanelOpen || reactivateSidePanelOpen">
+	<page-header mainTitle="National Catalog"></page-header>
+	
+	<div class="phd-page-body">
+		<div class="d-flex flex-row justify-content-between phd-filter-body">
+			<div class="col">
+				<tree-toggle [groups]="groups" [showPoints]="false"></tree-toggle>
+			</div>
+
+			<div class="col" *requiresClaim="'NationalCatalog'; permission: Permission.Edit">
+				<div class="btn-group" *ngIf="!dragEnable">
+					<button type="button" class="btn btn-primary" (click)="editSort();">Edit Sort</button>
+				</div>
+				<div class="btn-group" *ngIf="dragEnable">
+					<button type="button" class="btn btn-secondary" (click)="cancelSort()">Cancel</button>
+					<button type="button" class="btn btn-primary" (click)="saveSort()">Save Sort</button>
+				</div>
+			</div>
+
+			<div class="col">
+				<div class="input-group">
+					<div ngbDropdown class="btn-group input-group-prepend">
+						<button type="button" class="btn btn-secondary" ngbDropdownToggle>
+							<span>{{selectedSearchFilter}}</span>
+							<span class="caret"></span>
+						</button>
+
+						<div ngbDropdownMenu>
+							<button class="dropdown-item" *ngFor="let searchFilter of searchFilters" (click)="onSearchFilterChanged(searchFilter);">{{searchFilter}}</button>
+						</div>
+					</div>
+
+					<input type="text" [(ngModel)]="keyword" class="form-control phd-search-input" placeholder="Search" (keyup)="onKeywordUp();" (keyup.enter)="keywordSearch();">
+					<span class="phd-search-clear" (click)="clearFilter()"><i class="fa fa-fw fa-close"></i></span>
+
+					<div class="input-group-append" (click)="keywordSearch();">
+						<button type="button" class="btn btn-secondary">
+							<i class="fa fa-fw fa-search"></i>
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="d-flex flex-row mx-2 phd-table-container">
+			<table class="table table-striped table-sm phd-table-fixed">
+				<thead class="thead-light">
+					<tr>
+						<th>Label</th>
+						<th class="phd-icon-col">
+							<i class="fa fa-fw fa-plus-square" (click)="addCatalogItem($event);" ngbTooltip="Add Group" *requiresClaim="'NationalCatalog'; permission: Permission.Edit"></i>
+						</th>
+						<th class="phd-icon-col"></th>
+						<th class="phd-icon-col" *requiresClaim="'NationalCatalog'; permission: Permission.Edit">
+							<i class="fa fa-fw fa-undo text-danger" (click)="reactivateItem($event, 'Group');" *ngIf="nationalCatalog && nationalCatalog.hasInactiveGroups" ngbTooltip="Reactivate Groups"></i>
+						</th>
+						<th>Description</th>
+					</tr>
+				</thead>
+				<tbody tableBodyResize>
+					<ng-container *ngFor="let group of groups">
+						<tr *ngIf="group.matched" [dragSource]="group.id" scrollElement=".phd-table-fixed tbody" [dragEnabled]="dragEnable" targetsSelector=".phd-drag-drop" dragTarget (handledrop)="handleDrop($event, group)" (handledragenter)="handleDragEnter($event, group)" (handledragstart)="handleDragStart($event, group)" class="phd-drag-drop">
+							<td>
+								<i class="fa fa-fw" (click)="group.open = !group.open" [class.fa-chevron-up]="group.open" [class.fa-chevron-down]="!group.open"></i>
+								<a (click)="editCatalogItem($event, group);" *requiresClaim="'NationalCatalog'; permission: Permission.Edit">{{group.label}}</a>
+								<span *requiresClaim="'NationalCatalog'; permission: Permission.Edit; showIf: false">{{group.label}}</span>
+							</td>
+							<td class="phd-icon-col">
+								<ng-container *ngIf="!group.isFlooring">
+									<i class="fa fa-fw fa-plus-square" (click)="addCatalogItem($event, group);" ngbTooltip="Add SubGroup" container="body" *requiresClaim="'NationalCatalog'; permission: Permission.Edit"></i>
+								</ng-container>
+							</td>
+							<td class="phd-icon-col">
+								<ng-container *ngIf="!group.isFlooring">
+									<i class="fa fa-fw fa-trash-o" ngbTooltip="Delete Group" container="body" (click)="createMsgModal(group)" *requiresClaim="'NationalCatalog'; permission: Permission.Edit"></i>
+								</ng-container>
+							</td>
+							<td class="phd-icon-col">
+								<ng-container *ngIf="group.hasInactiveChildren">
+									<i class="fa fa-fw fa-undo text-danger" (click)="reactivateItem($event, 'SubGroup', group);" *requiresClaim="'NationalCatalog'; permission: Permission.Edit" ngbTooltip="Reactivate SubGroups" container="body"></i>
+								</ng-container>
+							</td>
+							<td></td>
+						</tr>
+
+						<ng-container *ngFor="let subGroup of group.subGroups">
+							<tr *ngIf="group.open && subGroup.matched" [dragSource]="subGroup.id" scrollElement=".phd-table-fixed tbody" [dragEnabled]="dragEnable" targetsSelector=".phd-drag-drop" dragTarget (handledrop)="handleDrop($event, subGroup)" (handledragenter)="handleDragEnter($event, subGroup)" (handledragstart)="handleDragStart($event, subGroup)" class="phd-drag-drop">
+								<td class="phd-child">
+									<i class="fa fa-fw" (click)="subGroup.open = !subGroup.open" [class.fa-chevron-up]="subGroup.open" [class.fa-chevron-down]="!subGroup.open"></i>
+
+									<ng-container *ngIf="subGroup.isFlooring; then sgFlooring else notSgFlooring"></ng-container>
+									<ng-template #sgFlooring><span>{{ subGroup.label }}</span></ng-template>
+									<ng-template #notSgFlooring>
+										<a (click)="editCatalogItem($event, subGroup);" *requiresClaim="'NationalCatalog'; permission: Permission.Edit">{{subGroup.label}}</a>
+
+										<span *requiresClaim="'NationalCatalog'; permission: Permission.Edit; showIf: false">{{subGroup.label}}</span>
+									</ng-template>
+								</td>
+								<td class="phd-icon-col">
+									<ng-container *ngIf="!subGroup.isFlooring">
+										<i class="fa fa-fw fa-plus-square" (click)="addCatalogItem($event, subGroup);" ngbTooltip="Add Decision Point" container="body" *requiresClaim="'NationalCatalog'; permission: Permission.Edit"></i>
+									</ng-container>
+								</td>
+								<td class="phd-icon-col">
+									<ng-container *ngIf="!subGroup.isFlooring">
+										<i class="fa fa-fw fa-trash-o" ngbTooltip="Delete SubGroup" container="body" (click)="createMsgModal(subGroup)" *requiresClaim="'NationalCatalog'; permission: Permission.Edit"></i>
+									</ng-container>
+								</td>
+								<td class="phd-icon-col">
+									<ng-container *ngIf="subGroup.hasInactiveChildren && !subGroup.isFlooring">
+										<i class="fa fa-fw fa-undo text-danger" (click)="reactivateItem($event, 'Point', subGroup);" *requiresClaim="'NationalCatalog'; permission: Permission.Edit" ngbTooltip="Reactivate Decision Points" container="body"></i>
+									</ng-container>
+								</td>
+								<td></td>
+							</tr>
+
+							<ng-container *ngFor="let point of subGroup.points">
+								<tr *ngIf="group.open && subGroup.open && point.matched">
+									<td class="phd-grand-child">
+										<ng-container *ngIf="subGroup.isFlooring; then ptFlooring else notPtFlooring"></ng-container>
+										<ng-template #ptFlooring><span>{{ point.label }}</span><i class="fa fa-fw fa-info-circle" ngbTooltip="Decision Points Created and Maintained in Division Catalogs" container="body"></i></ng-template>
+										<ng-template #notPtFlooring>
+											<a (click)="editCatalogItem($event, point);" *requiresClaim="'NationalCatalog'; permission: Permission.Edit">{{point.label}}</a>
+
+											<span *requiresClaim="'NationalCatalog'; permission: Permission.Edit; showIf: false">{{point.label}}</span>
+										</ng-template>
+									</td>
+									<td class="phd-icon-col"></td>
+									<td class="phd-icon-col">
+										<ng-container *ngIf="!subGroup.isFlooring">
+											<i class="fa fa-fw fa-trash-o" ngbTooltip="Delete Decision Point" container="body" (click)="createMsgModal(point)" *requiresClaim="'NationalCatalog'; permission: Permission.Edit"></i>
+										</ng-container>
+									</td>
+									<td class="phd-icon-col"></td>
+									<td>{{point.description}}</td>
+								</tr>
+							</ng-container>
+						</ng-container>
+					</ng-container>
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<p-toast></p-toast>
+</div>

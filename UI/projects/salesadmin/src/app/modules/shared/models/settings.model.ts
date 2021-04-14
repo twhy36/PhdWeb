@@ -7,4 +7,6 @@ export interface Settings
 	redirectUrl: string;
 	cacheLocation: string;
 	expireOffsetSeconds: number;
+	infiniteScrollThrottle: number;
+	infiniteScrollPageSize: number;
 }

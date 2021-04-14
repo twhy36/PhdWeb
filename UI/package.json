@@ -41,6 +41,7 @@
 				"lodash": "^4.17.15",
 				"moment": "2.24.0",
 				"ngx-drag-scroll": "^8.0.0-beta.2",
+				"ngx-infinite-scroll": "^9.0.0",
 				"ngx-toastr": "^12.0.0",
 				"primeicons": "^2.0.0",
 				"primeng": "^9.0.0",

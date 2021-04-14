@@ -46,7 +46,7 @@ export class SearchBarComponent
 	wildcardMatch(source: string, keyword: string): boolean {
 		if (!source || !keyword) {
 			return false;
-        }
+		}
 		keyword = keyword.replace(/[\-\[\]\/\{\}\(\)\+\.\\\^\$\|]/g, "\\$&");
 		keyword = keyword.replace(/\*/g, ".*");
 		keyword = keyword.replace(/\?/g, ".");
@@ -63,5 +63,21 @@ export class SearchBarComponent
 			return result;
 		}
 		return result;
+	}
+
+
+	handleSingleQuotes(keyword: string): string
+	{
+		if (!keyword)
+		{
+			return;
+		}
+
+		if (keyword.indexOf("'") > -1)
+		{
+			keyword = keyword.replace(/'/g, "''");
+		}
+
+		return keyword;
 	}
 }

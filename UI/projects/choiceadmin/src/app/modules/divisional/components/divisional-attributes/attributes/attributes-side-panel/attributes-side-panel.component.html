@@ -1,0 +1,63 @@
+<side-panel-component [headerTemplate]="header" [bodyTemplate]="body" [footerTemplate]="footer" [sidePanelOpen]="sidePanelOpen" (onSidePanelClose)="onCloseSidePanel($event)">
+	<ng-template #header>
+		<h4><strong>{{ sidePanelHeader }}</strong></h4>
+	</ng-template>
+
+	<ng-template #body>
+		<ngb-tabset justify="start" (tabChange)="beforeTabChange($event)">
+			<ngb-tab title="Details" id="details">
+				<ng-template ngbTabContent>
+					<div class="container pt-3">
+						<attribute-details-tab [selectedAttribute]="selectedAttribute"
+						                       [existingAttributes]="existingAttributes"
+						                       [isSaving$]="isSaving$"
+											   [isReadOnly]="isReadOnly"
+						                       (attributeChanged)="onAttributeChanged()">
+						</attribute-details-tab>
+					</div>
+				</ng-template>
+			</ngb-tab>
+			<ngb-tab title="Groups" id="groups" *ngIf="!isReadOnly">
+				<ng-template ngbTabContent>
+					<div class="container pt-3">
+						<attribute-groups-tab [selectedGroups]="selectedGroups"
+						                      [activeAttributeGroups]="activeAttributeGroups"
+						                      [searchKeyword]="searchKeyword"
+						                      [searchFilter]="searchFilter"
+						                      [searchSelectedAddGroup]="searchSelectedAddGroup"
+						                      [searchSelectedRemoveGroup]="searchSelectedRemoveGroup"
+						                      [isSaving]="isSaving"
+						                      (groupSelectionChanged)="onGroupSelectionChanged()">
+						</attribute-groups-tab>
+					</div>
+				</ng-template>
+			</ngb-tab>
+		</ngb-tabset>
+	</ng-template>
+	<ng-template #footer>
+		<div *ngIf="isAdd">
+			<div class="pull-right">
+				<button class="btn btn-primary phd-btn-save" (click)="saveAndContinue();" [disabled]="saveDisabled">
+					<ng-container *ngIf="!isSaving || (isSaving && !isAddingAnother)">
+						Add Another
+					</ng-container>
+					<i class="fa fa-spinner fa-spin fa-fw" *ngIf="isSaving && isAddingAnother"></i>
+				</button>
+			</div>
+			<div>
+				&nbsp;
+			</div>
+			<div>
+				&nbsp;
+			</div>
+		</div>
+		<div class="pull-right">
+			<button class="btn btn-primary phd-btn-save" (click)="saveAndClose()" [disabled]="saveDisabled">
+				Save & Close
+
+				<i class="fa fa-spinner fa-spin fa-fw" *ngIf="isSaving && !isAddingAnother"></i>
+			</button>
+			<button class="btn btn-secondary" (click)="toggleSidePanel()">Cancel</button>
+		</div>
+	</ng-template>
+</side-panel-component>
