@@ -31,6 +31,7 @@ export class ImageSearchComponent
 		if (event.data && event.data.assets)
 		{
 			let assets = event.data ? JSON.parse(event.data.assets) : null;
+
 			this.ppWin.close();
 
 			this.getAssetData(assets);

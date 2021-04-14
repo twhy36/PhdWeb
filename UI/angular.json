@@ -63,9 +63,12 @@
 						"polyfills": "projects/choiceadmin/src/polyfills.ts",
 						"verbose": true,
 						"assets": [
-							"projects/choiceadmin/src/assets"
+							"projects/choiceadmin/src/assets",
+							"projects/choiceadmin/src/favicon.ico",
+							"projects/choiceadmin/src/picturepark-response.html"
 						],
 						"styles": [
+							"node_modules/bootstrap/dist/css/bootstrap.min.css",
 							"node_modules/font-awesome/css/font-awesome.min.css",
 							"node_modules/primeng/resources/themes/nova-light/theme.css",
 							"node_modules/primeng/resources/primeng.min.css",

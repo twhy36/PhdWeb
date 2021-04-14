@@ -16,11 +16,20 @@ import { AppComponent } from './app.component';
 
 import { IdentityService, PhdCommonModule } from 'phd-common';
 import { environment } from '../environments/environment';
+import { tap } from 'rxjs/operators';
 
 const appInitializerFn = (identityService: IdentityService) =>
 {
 	// the APP_INITIALIZER provider waits for promises to be resolved
-	return () => identityService.init().toPromise();
+	return () => identityService.init().pipe(
+		tap(loggedIn =>
+		{
+			if (!loggedIn)
+			{
+				identityService.login();
+			}
+		})
+	).toPromise();
 };
 
 const appRoutes: Routes = [
@@ -45,13 +54,6 @@ export function getBaseHref(platformLocation: PlatformLocation): string
 		BrowserModule,
         FormsModule,
 		ReactiveFormsModule,
-		//PhdCommonModule.forRoot({
-		//		authQueryParams: environment.authQueryParams,
-		//		clientId: environment.clientId,
-		//		tenant: environment.tenant
-		//	},
-		//	environment.apiUrl
-		//),
 		PhdCommonModule.forRoot(environment.authConfig, environment.apiUrl),
         CoreModule,
         NationalModule,

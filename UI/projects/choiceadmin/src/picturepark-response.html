@@ -1,15 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8" />
-    <title></title>
+	<meta charset="utf-8" />
+	<title></title>
 </head>
 <body onload="getAssets();">
 	<script type="text/javascript">
-		function getAssets() {
+		function getAssets()
+		{
 			var pictureParkAssets = getParameterByName('assets');
 
-			if (pictureParkAssets != null) {
+			if (pictureParkAssets != null)
+			{
 				window.opener.postMessage({ assets: pictureParkAssets }, "*");
 			}
 		};

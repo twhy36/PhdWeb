@@ -10,7 +10,7 @@ export const environment: IEnvironment = {
 	tenant: 'pulte.onmicrosoft.com',
 	authConfig: {
 		issuer: "https://login.microsoftonline.com/1a9277a3-ef66-41f6-96b5-c5390ee468a7/v2.0",
-		clientId: '9d498056-e6cd-4e53-b89b-cf2f5e60adf7',
+		clientId: 'f9c9611d-6a23-4d2e-8dce-14da56bd8acc',
 		responseType: 'code',
 		clearHashAfterLogin: true,
 		requestAccessToken: true,
