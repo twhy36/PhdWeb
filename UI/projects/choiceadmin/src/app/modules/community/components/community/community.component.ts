@@ -7,10 +7,12 @@ import { TreeService } from '../../../core/services/tree.service';
 	templateUrl: './community.component.html',
 	styleUrls: ['./community.component.scss']
 })
-export class CommunityComponent implements OnDestroy {
+export class CommunityComponent implements OnDestroy
+{
 	constructor(private _treeService: TreeService) { }
 
-	ngOnDestroy() {
+	ngOnDestroy()
+	{
 		this._treeService.clearCurrentTree();
 	}
 }
