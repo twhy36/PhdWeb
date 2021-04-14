@@ -58,7 +58,7 @@
 
 		<div *ngIf="optionDisabled">  Choice Is No Longer Available </div>
 		
-		<span class="phd-monotony-conflict-message" *ngIf="monotonyConflict.monotonyConflict || !(override$ | async)">
+		<span class="phd-monotony-conflict-message" *ngIf="monotonyConflict.monotonyConflict && !(override$ | async)">
 			Monotony Conflict
 		</span>
 

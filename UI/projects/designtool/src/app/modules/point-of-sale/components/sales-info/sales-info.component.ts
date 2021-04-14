@@ -365,7 +365,7 @@ export class SalesInfoComponent extends UnsubscribeOnDestroy implements OnInit, 
 				this.takeUntilDestroyed(), 
 				select(state => state.salesAgreement.notes),
 				combineLatest(this.store.select(state => state.changeOrder.currentChangeOrder))).subscribe(([notes, changeOrder]) => {
-				let allNotes = [...notes];
+				let allNotes = notes ? [...notes] : [];
 				let salesChangeOrder = changeOrder && changeOrder.jobChangeOrders ? changeOrder.jobChangeOrders.find(x => x.jobChangeOrderTypeDescription === 'SalesNotes' || x.jobChangeOrderTypeDescription === 'SalesJIO') : null;
 				let addedSalesNotesChangeOrders = salesChangeOrder ? salesChangeOrder.salesNotesChangeOrders.filter(salesNotesChangeOrder => salesNotesChangeOrder.action === 'Add') : [];
 				let salesNotes = addedSalesNotesChangeOrders.map(salesNotesChangeOrder => {

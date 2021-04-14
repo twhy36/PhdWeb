@@ -1,7 +1,7 @@
 import { TemplateRef } from '@angular/core';
 
 import { NgbModalRef, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
-import { UnsubscribeOnDestroy } from 'phd-common';
+import { UnsubscribeOnDestroy } from './unsubscribe-on-destroy';
 
 export interface IModalOptions extends NgbModalOptions
 {

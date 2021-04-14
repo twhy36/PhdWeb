@@ -1,6 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
 import { NgModule, APP_INITIALIZER } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -13,6 +12,7 @@ import { ToastrModule } from 'ngx-toastr';
 
 import { Cloudinary as CloudinaryCore } from 'cloudinary-core';
 import { CloudinaryConfiguration, CloudinaryModule } from '@cloudinary/angular-5.x';
+import { tap } from 'rxjs/operators';
 
 export const cloudinary = { Cloudinary: CloudinaryCore };
 export const config: CloudinaryConfiguration = environment.cloudinary;
@@ -39,10 +39,15 @@ const appRoutes: Routes = [
     { path: '', pathMatch: 'full', redirectTo: 'new-home' }
 ];
 
-const appInitializerFn = (identityService: IdentityService) =>
-{
-    // the APP_INITIALIZER provider waits for promises to be resolved
-    return () => identityService.init().toPromise();
+const appInitializerFn = (identityService: IdentityService) => {
+	// the APP_INITIALIZER provider waits for promises to be resolved
+	return () => identityService.init().pipe(
+		tap(loggedIn => {
+			if (!loggedIn) {
+				identityService.login();
+			}
+		})
+	).toPromise();
 };
 
 export function getBaseHref(platformLocation: PlatformLocation): string
