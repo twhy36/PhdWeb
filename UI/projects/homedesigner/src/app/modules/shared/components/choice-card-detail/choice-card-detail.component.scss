@@ -138,6 +138,12 @@
 	padding-bottom: 10px;
 }
 
+.jacob-test {
+  p {
+    background-color: pink;
+  }
+}
+
 // Normal view
 @media screen and (min-width: $tablet-view-max + 1) {
   .phd-choice-card-detail {
