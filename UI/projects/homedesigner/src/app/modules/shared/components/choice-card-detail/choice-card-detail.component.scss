@@ -1,16 +1,13 @@
+@import "../../../../../scss/constants";
 @import "../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
 
 .phd-choice-card-detail {
 	display: flex;
-	flex-direction: row;
 	overflow: hidden;
 }
 
 .phd-image-section {
-    position: fixed;
     background: $gray-lighter;
-    width: calc(52vw);
-    height: calc(100vh - 197px);
     display: flex;
     flex-direction: column;
     padding: 0px 10px;
@@ -38,29 +35,29 @@
 		text-align: center;
 		opacity: 0.5;
 		cursor: not-allowed;
-    }  
-      
+    }
+
     .phd-image-loader {
 		position: relative;
 		top: 40%;
-    } 
-          
+    }
+
     .phd-icon-selected {
         color: $pantone_blue;
     }
 
 	.phd-image-thumbnail {
-        margin-right: 10px;	
+        margin-right: 10px;
         cl-image {
 			border: none;
 		}
     }
-    
+
     .phd-price {
         display: flex;
         flex-direction: row;
         justify-content: space-between;
-        margin-top: 10px;
+        margin-top: auto;
     }
 }
 
@@ -79,7 +76,7 @@
 
 .phd-card-detail-image-body {
     display: flex !important;
-    justify-content: center !important; 
+    justify-content: center !important;
 
     .carousel:focus {
         outline: none;
@@ -87,11 +84,9 @@
 }
 
 .phd-info-section {
-    width: calc(48vw);
     display: flex;
     flex-direction: column;
     padding: 5px;
-    margin-left: calc(52vw);
 
     .phd-choice-label {
         font-size: 22px;
@@ -107,17 +102,24 @@
         background-color: $pantone_blue;
         color: white;
         margin-top: 30px;
-        
+
         span {
             padding: 8px 0px 8px 10px;
             font-weight: bold;
         }
     }
+
+    .phd-attr-loc-group-container {
+      position: fixed;
+      margin-top: 55px;
+      height: calc(100vh - 290px);
+      overflow-y: auto;
+    }
 }
 
 ::ng-deep .carousel-item {
     display: flex !important;
-    justify-content: center !important; 
+    justify-content: center !important;
 }
 
 .phd-favorite-selector {
@@ -134,4 +136,48 @@
 .phd-attribute-group-container:not(:last-child) {
 	border-bottom: solid 1px #ccc;
 	padding-bottom: 10px;
+}
+
+// Normal view
+@media screen and (min-width: $tablet-view-max + 1) {
+  .phd-choice-card-detail {
+    flex-direction: row;
+  }
+  .phd-image-section {
+    width: calc(52vw);
+    height: calc(100vh - 197px);
+
+    .phd-image-content {
+      background-color: green;
+      div {
+        background-color: blue;
+        // width: calc(50vw);
+      }
+      // TODO do this for image?
+        // width: calc(50vw);
+    }
+  }
+  .phd-info-section {
+    width: calc(48vw);
+    // height: calc(100vh - 197px);
+    // overflow-y: auto;
+  }
+}
+
+// tablet view
+@media screen and (max-width: $tablet-view-max) {
+  .phd-choice-card-detail {
+    flex-direction: column;
+  }
+  .phd-image-section {
+    width: calc(100vw);
+
+    .phd-image-content {
+      // TODO do this for image?
+        // width: calc(100vw);
+    }
+  }
+  .phd-info-section {
+    width: calc(100vw);
+  }
 }
