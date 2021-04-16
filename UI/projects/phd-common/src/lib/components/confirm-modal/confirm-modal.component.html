@@ -1,6 +1,6 @@
 <div class="modal-header">
 	<span class="modal-title">{{title}}</span>
-	<button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
+	<button type="button" class="close" aria-label="Close" (click)="dismiss()">
 		<span aria-hidden="true">&times;</span>
 	</button>
 </div>
@@ -8,12 +8,12 @@
 	<div [innerHTML]="body"></div>
 </div>
 <div class="modal-footer">
-	<button type="button" class="btn btn-sm" (click)="activeModal.close('Continue')" [class.btn-secondary]="defaultOption != 'Continue'" [class.btn-primary]="defaultOption == 'Continue'">
-		<span class="fa fa-fw fa-check"></span>
-		<span class="">Continue</span>
+	<button *ngIf="!primaryButton || !primaryButton.hide" type="button" class="btn" (click)="close('Continue')" [class.btn-secondary]="defaultOption != 'Continue'" [class.btn-primary]="defaultOption == 'Continue'">
+		<span class="fas fa-fw fa-check"></span>
+		<span class="">{{primaryButton ? primaryButton.text : 'Continue'}}</span>
 	</button>
-	<button type="button" class="btn btn-sm ml-auto" (click)="activeModal.close('Close')" [class.btn-secondary]="defaultOption != 'Cancel'" [class.btn-primary]="defaultOption == 'Cancel'">
-		<span class="fa fa-fw fa-close"></span>
-		<span class="">Cancel</span>
+	<button *ngIf="!secondaryButton || !secondaryButton.hide" type="button" class="btn ml-auto" (click)="close('Close')" [class.btn-secondary]="defaultOption != 'Cancel'" [class.btn-primary]="defaultOption == 'Cancel'">
+		<span class="fas fa-fw fa-times-circle"></span>
+		<span class="">{{secondaryButton ? secondaryButton.text : 'Cancel'}}</span>
 	</button>
 </div>

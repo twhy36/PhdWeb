@@ -18,4 +18,5 @@ export interface FinancialCommunity
 	city: string;
 	state: string;
 	zip: string;
+	isPhasedPricingEnabled: boolean;
 }
