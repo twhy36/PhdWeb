@@ -1,5 +1,5 @@
-@import "../../../../../scss/constants";
 @import "../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
+@import "../../../../../../../phd-common/src/lib/scss/sizes.scss";
 
 .phd-choice-card-detail {
 	display: flex;
@@ -131,7 +131,7 @@
 }
 
 // Normal view
-@media screen and (min-width: $tablet-view-max + 1) {
+@media screen and (min-width: $tablet-max-width + 1) {
 	.phd-choice-card-detail {
 		flex-direction: row;
 		overflow: hidden;
@@ -178,7 +178,7 @@
 }
 
 // tablet view
-@media screen and (max-width: $tablet-view-max) {
+@media screen and (max-width: $tablet-max-width) {
 	.phd-choice-card-detail {
 		flex-direction: column;
 		overflow-y: auto;
