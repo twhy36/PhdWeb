@@ -30,7 +30,6 @@
 				"@ngrx/store": "^9.0.0",
 				"@ngrx/store-devtools": "^9.0.0",
 				"@nguniversal/module-map-ngfactory-loader": "9.0.0-next.9",
-				"adal-angular4": "^4.0.12",
 				"angular-oauth2-oidc": "^10.0.3",
 				"applicationinsights-js": "^1.0.21",
 				"aspnet-prerendering": "^3.0.1",
