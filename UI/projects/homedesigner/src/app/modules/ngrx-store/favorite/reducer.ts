@@ -32,8 +32,8 @@ export function reducer(state: State = initialState, action: FavoriteActions): S
 		case CommonActionTypes.SalesAgreementLoaded:
 			{
 				return { ...state, myFavorites: action.myFavorites, salesChoices: action.choices };
-			}	
-			
+			}
+
 		case FavoriteActionTypes.SetCurrentFavorites:
 			{
 				let includeContractedOptions = state.includeContractedOptions;
@@ -43,7 +43,7 @@ export function reducer(state: State = initialState, action: FavoriteActions): S
 				}
 				return { ...state, selectedFavoritesId: action.favoritesId, includeContractedOptions: includeContractedOptions };
 			}
-			
+
 		case FavoriteActionTypes.MyFavoriteCreated:
 			{
 				let myFavorites = _.cloneDeep(state.myFavorites);
@@ -59,7 +59,7 @@ export function reducer(state: State = initialState, action: FavoriteActions): S
 		case FavoriteActionTypes.MyFavoritesChoicesSaved:
 			{
 				let myFavorites = _.cloneDeep(state.myFavorites);
-				if (myFavorites && action.choices && action.choices.length) 
+				if (myFavorites && action.choices && action.choices.length)
 				{
 					let currentMyFavorite = myFavorites.find(x => x.id === state.selectedFavoritesId);
 					if (currentMyFavorite)
@@ -95,7 +95,7 @@ export function reducer(state: State = initialState, action: FavoriteActions): S
 
 		case FavoriteActionTypes.SaveError:
 			{
-				return { ...state, saveError: true };				
+				return { ...state, saveError: true };
 			}
 
 		case FavoriteActionTypes.MyFavoriteDeleted:
@@ -104,7 +104,7 @@ export function reducer(state: State = initialState, action: FavoriteActions): S
 				const myFavoriteIndex = myFavorites.findIndex(x => x.id === action.myFavoriteId);
 				if (myFavoriteIndex > -1)
 				{
-					myFavorites.splice(myFavoriteIndex);
+					myFavorites.splice(myFavoriteIndex, 1);
 				}
 
 				let newSelectedFavoritesId = state.selectedFavoritesId;

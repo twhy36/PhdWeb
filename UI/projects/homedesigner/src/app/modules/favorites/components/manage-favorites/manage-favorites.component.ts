@@ -29,7 +29,7 @@ export class ManageFavoritesComponent extends UnsubscribeOnDestroy implements On
 	salesAgreementId: number = 0;
 
 	constructor(
-		private store: Store<fromRoot.State>, 
+		private store: Store<fromRoot.State>,
 		private router: Router,
 		private toastr: ToastrService,
 		private modalService: NgbModal,
@@ -51,7 +51,7 @@ export class ManageFavoritesComponent extends UnsubscribeOnDestroy implements On
 			select(fromFavorite.favoriteState)
 		).subscribe(fav => {
 			this.favoriteList = fav.myFavorites;
-		});	
+		});
 
 		this.createForm();
 		this.store.dispatch(new CommonActions.ResetFavorites());
@@ -68,13 +68,13 @@ export class ManageFavoritesComponent extends UnsubscribeOnDestroy implements On
 		const favoriteName = this.favoriteForm.get('favoriteName').value.trim();
 
 		if (favoriteName && favoriteName.length > 0) {
-			if (this.favoriteList.findIndex(x => x.name.toLowerCase() === favoriteName.toLowerCase()) > -1) {
+			if (this.favoriteList?.findIndex(x => x.name.toLowerCase() === favoriteName.toLowerCase()) > -1) {
 				this.isDuplicateName = true;
 			} else {
 				this.favoriteService.saveMyFavorite(0, favoriteName, this.salesAgreementId)
 					.subscribe(favorite => {
 						if (favorite) {
-							this.favoriteForm.reset();	
+							this.favoriteForm.reset();
 							this.store.dispatch(new FavoriteActions.MyFavoriteCreated(favorite));
 							this.router.navigateByUrl(`/favorites/my-favorites/${favorite.id}`);
 						}
@@ -126,6 +126,6 @@ export class ManageFavoritesComponent extends UnsubscribeOnDestroy implements On
 			{
 
 			});
-	}	
+	}
 
 }
