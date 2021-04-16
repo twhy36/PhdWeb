@@ -93,6 +93,8 @@
 
 .phd-include-options {
 	background: $gray-lighter;
+	position: fixed;
+	z-index: 1;
 	padding-left: 10px;
 	min-height: 56px;
 	display: flex;
@@ -104,5 +106,9 @@
 	.phd-contracted-options {
 		margin-left: 8px;
 	}	
+}
+
+.phd-point-container {
+	padding-top: 43px;
 }
 
