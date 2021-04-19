@@ -73,6 +73,7 @@ export class SubGroup
 		Object.assign(this, rest);
 
 		this.points = points.map(p => new DecisionPoint(p)).filter(p => p.choices.length > 0);
+    this.completed = this.points.reduce((completed, point) => point.completed && completed, true);
 	}
 
 	id: number;
@@ -84,6 +85,7 @@ export class SubGroup
 	treeVersionId: number;
 	points: Array<DecisionPoint>;
 	status: PointStatus;
+  completed: boolean;
 }
 
 export class DecisionPoint

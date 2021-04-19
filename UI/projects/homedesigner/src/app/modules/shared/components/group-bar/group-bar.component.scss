@@ -50,6 +50,15 @@
 	}
 }
 
+::ng-deep .fa-check {
+  color: $pantone_blue;
+  padding-right: 5px;
+}
+
+::ng-deep .phd-sub-group-uncompleted {
+  padding-left: 19px;
+}
+
 ::ng-deep .phd-sub-menu {
 	color: #4D4D4D;
 

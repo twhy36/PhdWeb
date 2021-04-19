@@ -18,7 +18,8 @@
 							*ngFor="let subGroup of group.subGroups"
 							[class.phd-sub-menu-selected]="subGroup.id === selectedSubGroupId"
 							(click)="selectSubgroup(subGroup.id)">
-						{{subGroup.label}}
+            <span class="phd-sub-group-completed"><i class="fa fa-check" *ngIf="subGroup.completed"></i></span>
+						<span [class.phd-sub-group-uncompleted]="!subGroup.completed">{{subGroup.label}}</span>
 					</button>
 				</mat-menu>
 			</ng-container>
