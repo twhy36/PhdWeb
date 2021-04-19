@@ -58,6 +58,7 @@
 	width: 100%;
 
 	.phd-point-label {
+		text-transform: capitalize;
 		padding-left: 10px;
 		font-size: 16px;
 		font-weight: bold;
@@ -97,12 +98,12 @@
 	min-height: 56px;
 	display: flex;
 	align-items: center;
-	flex-grow: 1;	
+	flex-grow: 1;
 	font-size: 14px;
 	width: 100%;
 
 	.phd-contracted-options {
 		margin-left: 8px;
-	}	
+	}
 }
 
