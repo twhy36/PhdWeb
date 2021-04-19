@@ -51,11 +51,20 @@
 }
 
 ::ng-deep .fa-check {
-  color: $pantone_blue;
   padding-right: 5px;
 }
 
-::ng-deep .phd-sub-group-uncompleted {
+::ng-deep .phd-group-completed {
+  color: $midnight_blue;
+  -webkit-text-stroke: 1px $pantone_blue;
+}
+
+::ng-deep .phd-sub-group-completed {
+  color: $bright_grey;
+  -webkit-text-stroke: 1px white;
+}
+
+::ng-deep .phd-group-uncompleted {
   padding-left: 19px;
 }
 

@@ -53,6 +53,7 @@ export class Group
 		Object.assign(this, rest);
 
 		this.subGroups = subGroups.map(sg => new SubGroup(sg)).filter(sg => sg.points.length > 0);
+    this.completed = this.subGroups.reduce((completed, subGroup) => subGroup.completed && completed, true);
 	}
 
 	id: number;
@@ -62,6 +63,7 @@ export class Group
 	label: string;
 	subGroups: Array<SubGroup>;
 	status: PointStatus;
+  completed: boolean;
 }
 
 export class SubGroup

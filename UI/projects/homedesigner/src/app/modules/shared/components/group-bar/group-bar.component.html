@@ -11,15 +11,16 @@
 				<button mat-button [matMenuTriggerFor]="group_menu"
 						class="phd-group-menu-item"
 						[class.phd-group-menu-selected]="isGroupSelected(group.id)">
-					{{group.label}}
+          <i class="fa fa-check phd-group-completed" *ngIf="group.completed"></i>
+          <span [class.phd-group-uncompleted]="!group.completed">{{group.label}}</span>
 				</button>
 				<mat-menu #group_menu="matMenu" [class]="'phd-sub-menu'">
 					<button mat-menu-item
 							*ngFor="let subGroup of group.subGroups"
 							[class.phd-sub-menu-selected]="subGroup.id === selectedSubGroupId"
 							(click)="selectSubgroup(subGroup.id)">
-            <span class="phd-sub-group-completed"><i class="fa fa-check" *ngIf="subGroup.completed"></i></span>
-						<span [class.phd-sub-group-uncompleted]="!subGroup.completed">{{subGroup.label}}</span>
+            <i class="fa fa-check phd-sub-group-completed" *ngIf="subGroup.completed"></i>
+						<span [class.phd-group-uncompleted]="!subGroup.completed">{{subGroup.label}}</span>
 					</button>
 				</mat-menu>
 			</ng-container>
