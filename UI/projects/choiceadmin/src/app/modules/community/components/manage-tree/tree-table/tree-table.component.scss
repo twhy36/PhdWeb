@@ -1,0 +1,95 @@
+@import "../../../../../../scss/color-pallet.scss";
+@import "../../../../../../scss/sizes.scss";
+
+:host {
+    display: -webkit-flex;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.table-container {
+	display: -webkit-flex;
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	background-color: #fff;
+	overflow-y: auto;
+
+	a:not([href]) {
+		color: inherit;
+		text-decoration: none;
+	}
+}
+
+.row-group {
+}
+
+.row-subgroup {
+	td:first-child {
+		padding-left: 40px;
+		white-space: nowrap;
+	}
+}
+
+.row-point {
+	td:first-child {
+		padding-left: 80px;
+		white-space: nowrap;
+	}
+}
+
+.row-choice {
+	td:first-child {
+		padding-left: 120px;
+		white-space: nowrap;
+	}
+}
+
+.phd-icon-col {
+	width: 38px;
+}
+
+.phd-text-col {
+	width: 200px;
+}
+
+.phd-interactive-floor {
+	width: 190px;
+}
+
+.phd-fa-quick-quote-grid {
+	font-size: 9px;
+
+	i {
+		font-size: 2.5em;
+		bottom: 0px;
+		left: -2px;
+		position: absolute;
+		width: 100%;
+		text-align: center;
+	}
+
+	strong {
+		font-size: 10px;
+		bottom: 2px;
+	}
+}
+
+.phd-fa-quick-quote-grid:hover {
+	cursor: pointer;
+}
+
+.phd-loading {
+	position: center;
+	width: 100vw;
+	margin-top: 100px;
+}
+
+tr.phd-tr-error {
+	background-color: lighten($brand-danger, 20%) !important;
+}
+
+tr.selected.phd-tr-error {
+	background-color: lighten($brand-danger, 20%) !important;
+}

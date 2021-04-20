@@ -1,0 +1,1 @@
+<input [min]="min" [ngModel]="currentQty" (focus)="$event.target.select()" (ngModelChange)="enforceMinMax($event)" type="number" class="form-control" #quantity [disabled]="!canEdit">

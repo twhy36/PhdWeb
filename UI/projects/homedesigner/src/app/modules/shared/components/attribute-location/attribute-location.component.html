@@ -1,0 +1,36 @@
+<div class="phd-attribute-location">
+	<div class="phd-location">
+		<span class="phd-location-name" title="{{attributeLocation.name}}">{{attributeLocation.name}}</span>
+		<div class="phd-qty">
+			<span>QTY:</span>
+			<div class="phd-qty-input">
+				<quantity-input [min]="0" [max]="maxQuantity" 
+					[quantity]="locationQuantityTotal" 
+					[canEdit]="choice.choiceStatus === 'Available'"
+					(quantityChange)="quantityChangeHandler($event)"></quantity-input>
+			</div>
+		</div>
+	</div>
+	<div class="phd-attribute-group-container">
+		<ng-container *ngFor="let attributeGroup of attributeGroups">
+			<attribute-group [attributeGroup]="attributeGroup"
+							[isLocationAttribute]="true"
+							[highlightedAttributeId]="getHighlightedAttributeId(attributeGroup)"
+							(onAttributeClick)="attributeClick($event)"
+							(onToggleAttribute)="attributeGroupSelected($event)">
+			</attribute-group>						
+		</ng-container>
+	</div>
+
+</div>
+
+<ng-template #maxQuantityModal let-c="close" let-d="dismiss">
+	<div>
+		<div class="d-flex justify-content-end">
+			<i class="fa fa-times-circle phd-close" (click)="closeClicked()"></i>			
+		</div>
+		<div class="phd-max-quantity-message">
+			You won't need that many for your home. Max quantity is {{maxQuantity !== null ? maxQuantity : 0}}.			
+		</div>
+	</div>
+</ng-template>

@@ -1,0 +1,52 @@
+<side-panel-component [headerTemplate]="header" [subheaderTemplate]="subheader" [bodyTemplate]="body" [footerTemplate]="footer" [sidePanelOpen]="sidePanelOpen" (onSidePanelClose)="onCloseSidePanel($event)">
+	<ng-template #header>
+		<h5><strong>{{sidePanelHeader}}</strong></h5>
+	</ng-template>
+
+	<ng-template #subheader>
+		<h6 class="pt-3 mb-0 pl-2"><strong>{{sidePanelSubHeader}}</strong></h6>
+	</ng-template>
+
+	<ng-template #body>
+		<ngb-tabset justify="fill" [activeId]="currentTab" (tabChange)="beforeChange($event)">
+			<ngb-tab title="Images" id="images">
+				<ng-template ngbTabContent>
+					<div class="container pt-3">
+						<divisional-options-image-side-panel
+							[isReadOnly]="isReadOnly"
+							[isSaving]="isSaving"
+							[isDeleting]="isDeleting"
+							[optionsImageList]="optionsImageList"
+							[imagesLoaded]="optionImagesLoaded"
+							[dragEnable]="dragEnable"
+							(delete)="onDeleteImage($event)"
+							(save)="onSaveImage($event)"
+							(dragHasChanged)="onDragHasChanged()">
+						</divisional-options-image-side-panel>
+					</div>
+				</ng-template>
+			</ngb-tab>
+		</ngb-tabset>
+	</ng-template>
+
+	<ng-template #footer>
+		<div class="pull-left">
+			<ng-container *ngIf="optionsImageList.length > 0 && !isReadOnly && currentTab === 'images'">
+				<div class="btn-group">
+					<button type="button" class="btn btn-primary" *ngIf="!dragEnable" (click)="editImageSort()">Edit Sort</button>
+				</div>
+				<div class="btn-group">
+					<button type="button" class="btn btn-secondary" *ngIf="dragEnable" (click)="cancelImageSort()">Cancel</button>
+					<button type="button" class="btn btn-primary" *ngIf="dragEnable" (click)="saveImageSort()">Save Sort</button>
+				</div>
+			</ng-container>
+
+			<div *ngIf="isSaving" id="option-side-panel-saving" class="alert alert-info m-0 py-1 px-2 pull-right" role="alert">Saving...</div>
+			<div *ngIf="isDeleting" id="option-side-panel-saving" class="alert alert-info m-0 py-1 px-2 pull-right" role="alert">Deleting...</div>
+		</div>
+
+		<div class="pull-right">
+			<button class="btn btn-secondary" (click)="toggleSidePanel()">Cancel</button>
+		</div>
+	</ng-template>
+</side-panel-component>

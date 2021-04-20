@@ -1,0 +1,203 @@
+<point-side-panel
+	*ngIf="sidePanelOpenPoint"
+	[sidePanelOpen]="sidePanelOpenPoint"
+	(onSidePanelClose)="onSidePanelClose($event)"
+	[catalogItem]="catalogItem"
+	(onSaveCatalogItem)="onSaveCatalogItem($event)"
+	[isSaving]="isSaving">
+</point-side-panel>
+
+<choice-side-panel
+	*ngIf="sidePanelOpenChoice"
+	[sidePanelOpen]="sidePanelOpenChoice"
+	(onSidePanelClose)="onSidePanelClose($event)"
+	[catalogItem]="catalogItem"
+	(onSaveCatalogItem)="onSaveCatalogItem($event)"
+	[isSaving]="isSaving">
+</choice-side-panel>
+
+<divisional-catalog-reactivate-component
+	*ngIf="reactivateSidePanelOpen"
+	[sidePanelOpen]="reactivateSidePanelOpen"
+	(onSidePanelClose)="onReactivateSidePanelClose($event)"
+	[itemType]="itemType"
+	[inactiveItems]="inactiveItems"
+	(onSaveReactivateItems)="onSaveReactivateItems($event)">
+</divisional-catalog-reactivate-component>
+
+<div class="phd-page-container" [class.phd-side-panel-open]="sidePanelOpenPoint || sidePanelOpenChoice || reactivateSidePanelOpen">
+	<page-header mainTitle="Division Catalog">
+		<ng-template>
+			<div class="col">
+				<select id="market" class="form-control phd-market" [(ngModel)]="selectedMarket" (change)="onChangeMarket()" [disabled]="lockedFromChanges">
+					<option [ngValue]="undefined">{{ marketDefaultText }}</option>
+					<option *ngFor="let market of markets" [ngValue]="market">{{ market.name }}</option>
+				</select>
+			</div>
+		</ng-template>
+	</page-header>
+
+    <div class="phd-page-body">
+        <div class="d-flex flex-row justify-content-between phd-filter-body">
+            <div class="col">
+				<tree-toggle [groups]="groups"></tree-toggle>
+            </div>
+
+			<div class="col" *requiresClaim="'DivisionCatalog'; permission: Permission.Edit; market: selectedMarket?.number">
+				<div class="btn-group" *ngIf="!dragEnable">
+					<button type="button" class="btn btn-primary" (click)="editSort();">Edit Sort</button>
+				</div>
+				<div class="btn-group" *ngIf="dragEnable">
+					<button type="button" class="btn btn-secondary" (click)="cancelSort()">Cancel</button>
+					<button type="button" class="btn btn-primary" (click)="saveSort()">Save Sort</button>
+				</div>
+				<div class="btn-group ml-3">
+					<button type="button" class="btn btn-primary" (click)="updateTree();">Update Trees</button>
+				</div>
+			</div>
+
+            <div class="col">
+                <div class="input-group">
+                    <div ngbDropdown class="btn-group input-group-prepend">
+                        <button type="button" class="btn btn-secondary" ngbDropdownToggle>
+                            <span>{{selectedSearchFilter}}</span>
+                            <span class="caret"></span>
+                        </button>
+
+                        <div ngbDropdownMenu>
+                            <button class="dropdown-item" *ngFor="let searchFilter of searchFilters" (click)="selectedSearchFilter = searchFilter;">{{searchFilter}}</button>
+                        </div>
+                    </div>
+
+                    <input type="text" [(ngModel)]="keyword" class="form-control phd-search-input" placeholder="Search" (keyup.enter)="keywordSearch();">
+                    <span class="phd-search-clear" (click)="clearFilter()"><i class="fa fa-fw fa-close"></i></span>
+
+                    <div class="input-group-append" (click)="keywordSearch();">
+                        <button type="button" class="btn btn-secondary">
+                            <i class="fa fa-fw fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex flex-row mx-2 phd-table-container">
+            <table class="table table-striped table-sm phd-table-fixed">
+                <thead class="thead-light">
+					<tr>
+						<th>Label</th>
+						<th class="phd-icon-col"></th>
+						<th class="phd-icon-col"></th>
+						<th class="phd-icon-col"></th>
+						<th class="phd-icon-col"></th>
+						<th class="phd-icon-col"></th>
+						<th>Pick Type</th>
+						<th>Cut-Off</th>
+						<th>Description</th>
+					</tr>
+                </thead>
+                <tbody>
+                    <ng-container *ngFor="let group of groups">
+                        <tr *ngIf="group.matched" class="phd-group">
+                            <td>
+                                <i class="fa fa-fw" (click)="group.open = !group.open" [class.fa-chevron-up]="group.open" [class.fa-chevron-down]="!group.open"></i>
+                                <span>{{group.label}}</span>
+                            </td>
+							<td class="phd-icon-col"></td>
+							<td class="phd-icon-col"></td>
+							<td class="phd-icon-col"></td>
+							<td class="phd-icon-col"></td>
+							<td class="phd-icon-col"></td>
+							<td class="phd-text-col"></td>
+							<td class="phd-text-col"></td>
+							<td class="phd-description-col"></td>
+						</tr>
+
+                        <ng-container *ngFor="let subGroup of group.subGroups">
+                            <tr *ngIf="group.open && subGroup.matched" class="phd-subgroup">
+                                <td class="phd-child">
+                                    <i class="fa fa-fw" (click)="subGroup.open = !subGroup.open" [class.fa-chevron-up]="subGroup.open" [class.fa-chevron-down]="!subGroup.open"></i>
+                                    <span>{{subGroup.label}}</span>
+                                </td>
+								<td class="phd-icon-col">
+									<ng-container *ngIf="subGroup.isFlooring">
+										<i class="fa fa-fw fa-plus-square" (click)="addFlooringItem($event, subGroup);" ngbTooltip="Add Decision Point" container="body" *requiresClaim="'DivisionCatalog'; permission: Permission.Edit; market: selectedMarket?.number"></i>
+									</ng-container>
+								</td>
+                                <td class="phd-icon-col"></td>
+                                <td class="phd-icon-col">
+									<ng-container *requiresClaim="'DivisionCatalog'; permission: Permission.Edit; market: selectedMarket?.number">
+										<i class="fa fa-fw fa-undo text-danger" (click)="reactivateItem($event, 'Point', subGroup);" *ngIf="subGroup.hasInactiveChildren" ngbTooltip="Reactivate Decision Points" container="body"></i>
+									</ng-container>
+                                </td>
+								<td class="phd-icon-col"></td>
+								<td class="phd-icon-col"></td>
+								<td class="phd-text-col"></td>
+								<td class="phd-text-col"></td>
+								<td class="phd-description-col"></td>
+							</tr>
+
+                            <ng-container *ngFor="let point of subGroup.points">
+                                <tr *ngIf="group.open && subGroup.open && point.matched" [dragSource]="getDragItem(point)" scrollElement=".phd-table-fixed tbody" [dragEnabled]="dragEnable" targetsSelector=".phd-drag-drop" dragTarget (handledrop)="handleDrop($event, point)" (handledragenter)="handleDragEnter($event, point)" (handledragstart)="handleDragStart($event, point)" class="phd-drag-drop phd-point">
+                                    <td class="phd-grand-child">
+										<i class="fa fa-fw" (click)="point.open = !point.open" [class.fa-chevron-up]="point.open" [class.fa-chevron-down]="!point.open"></i>
+										<a (click)="editItem($event, point);" *requiresClaim="'DivisionCatalog'; permission: Permission.Edit; market: selectedMarket?.number">{{point.label}}</a>
+										<span *requiresClaim="'DivisionCatalog'; permission: Permission.Edit; market: selectedMarket?.number; showIf: false">{{point.label}}</span>
+									</td>
+									<td class="phd-icon-col">
+										<i class="fa fa-fw fa-plus-square" (click)="addItem($event, point);" ngbTooltip="Add Choice" container="body" *requiresClaim="'DivisionCatalog'; permission: Permission.Edit; market: selectedMarket?.number"></i>
+									</td>
+									<td class="phd-icon-col">
+										<i class="fa fa-fw fa-trash-o" ngbTooltip="Inactivate Decision Point" container="body" (click)="createMsgModal(point)" *requiresClaim="'DivisionCatalog'; permission: Permission.Edit; market: selectedMarket?.number"></i>
+									</td>
+									<td class="phd-icon-col">
+										<ng-container *requiresClaim="'DivisionCatalog'; permission: Permission.Edit; market: selectedMarket?.number">
+											<i class="fa fa-fw fa-undo text-danger" (click)="reactivateItem($event, 'Choice', point);" *ngIf="point.hasInactiveChildren" ngbTooltip="Reactivate Choices" container="body"></i>
+										</ng-container>
+									</td>
+									<td class="phd-icon-col">
+										<span class="fa-stack phd-fa-quick-quote" ngbTooltip="Quick Quote" container="body" *ngIf="point.isQuickQuote">
+											<i class="fa fa-comment-o"></i>
+											<strong class="fa-stack-1x">QQ</strong>
+										</span>
+									</td>
+									<td class="phd-icon-col">
+										<i class="fa fa-fw fa-gavel" ngbTooltip="Sales" container="body" *ngIf="point.isStructural"></i>
+									</td>
+									<td class="phd-text-col">
+										<span *ngIf="point.choices.length">{{ point.pickTypeLabel }}</span>
+									</td>
+									<td class="phd-text-col">{{ point.cutOff }}</td>
+									<td class="phd-description-col">{{point.description}}</td>
+								</tr>
+
+								<ng-container *ngFor="let choice of point.choices">
+									<tr *ngIf="point.open && subGroup.open && group.open && choice.matched" [dragSource]="getDragItem(choice)" scrollElement=".phd-table-fixed tbody" [dragEnabled]="dragEnable" targetsSelector=".phd-drag-drop" dragTarget (handledrop)="handleDrop($event, choice)" (handledragenter)="handleDragEnter($event, choice)" (handledragstart)="handleDragStart($event, choice)" class="phd-drag-drop phd-choice">
+										<td class="phd-great-grand-child">
+											<a (click)="editItem($event, choice);" *requiresClaim="'DivisionCatalog'; permission: Permission.Edit; market: selectedMarket?.number">{{choice.label}}</a>
+											<span *requiresClaim="'DivisionCatalog'; permission: Permission.Edit; market: selectedMarket?.number; showIf: false">{{choice.label}}</span>
+										</td>
+										<td class="phd-icon-col"></td>
+										<td class="phd-icon-col">
+											<i class="fa fa-fw fa-trash-o" ngbTooltip="{{ choiceTrashToolTip(choice) }}" container="body" (click)="createMsgModal(choice)" *requiresClaim="'DivisionCatalog'; permission: Permission.Edit; market: selectedMarket?.number"></i>
+										</td>
+										<td class="phd-icon-col"></td>
+										<td class="phd-icon-col">
+											<i class="fa fa-fw fa-check-square" ngbTooltip="Default" container="body" *ngIf="choice.isDefault"></i>
+										</td>
+										<td class="phd-icon-col"></td>
+										<td class="phd-text-col"></td>
+										<td class="phd-text-col"></td>
+										<td class="phd-description-col"></td>
+									</tr>
+								</ng-container>
+                            </ng-container>
+                        </ng-container>
+                    </ng-container>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <p-toast></p-toast>
+</div>

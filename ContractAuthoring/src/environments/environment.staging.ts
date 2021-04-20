@@ -6,9 +6,16 @@
 export const environment = {
     production: false,
     apiUrl: 'https://phdapi.staging.pulte.com/odata/',
-    config: {
-        tenant: 'pulte.onmicrosoft.com',
-        clientId: 'd6e4e999-c413-4d1d-b0fb-618759cb69e5'
+    authConfig: {
+        issuer: "https://login.microsoftonline.com/1a9277a3-ef66-41f6-96b5-c5390ee468a7/v2.0",
+        clientId: "7d88528c-ab8d-4757-8b17-e7bc1b84ca15",
+        responseType: 'code',
+        clearHashAfterLogin: false,
+        requestAccessToken: true,
+        scope: 'api://7d88528c-ab8d-4757-8b17-e7bc1b84ca15/user_impersonation profile openid',
+        showDebugInformation: true,
+        skipIssuerCheck: false,
+        strictDiscoveryDocumentValidation: false
     },
     appInsights: {
         instrumentationKey: '6fe29ada-16ba-4d15-b3a8-0364e90c4250'

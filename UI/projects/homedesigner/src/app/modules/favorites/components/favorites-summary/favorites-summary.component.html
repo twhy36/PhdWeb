@@ -1,0 +1,55 @@
+<div>
+	<group-bar [communityName]="communityName"
+			   [planName]="planName"
+			   [groups]="groups"
+			   (onSubgroupSelected)="onSubgroupSelected($event)">
+	</group-bar>
+</div>
+
+<div class="d-flex">
+	<div class="phd-favorites-summary">
+		<summary-header [summaryHeader]="summaryHeader"
+						[priceBreakdown]="priceBreakdown"
+						[includeContractedOptions]="includeContractedOptions"
+						(isStickyChanged)="onIsStickyChanged($event)"
+						(contractedOptionsToggled)="onContractedOptionsToggled()">
+		</summary-header>
+
+		<div class="tree-view" [class.phd-is-sticky]="isSticky">
+			<ng-container *ngFor="let group of groups">
+				<div class="group" *ngIf="group.subGroups.length > 0">
+					<div class="label">
+						<span>{{group.label}}</span>
+						<div class="phd-group-detail">
+							<span class="phd-group-subtotal-label">Subtotal : </span>
+							<span class="phd-group-subtotal-amount"> {{getGroupSubTotals(group) | currency}} </span>
+						</div>
+					</div>
+					<div class="sub-group d-flex flex-column justify-content-between" *ngFor="let subGroup of group.subGroups">
+						<div class="header d-flex justify-content-between align-items-center">
+							<span>{{subGroup.label}}</span>
+						</div>
+						<ng-container *ngFor="let dp of subGroup.points">
+							<decision-point-summary *ngIf="displayPoint(dp)"
+													[decisionPoint]="dp"
+													[subGroup]="subGroup"
+													[group]="group"
+													[salesChoices]="salesChoices"
+													[includeContractedOptions]="includeContractedOptions"
+													(onViewFavorites)="onViewFavorites($event)"
+													(onRemoveFavorites)="onRemoveFavorites($event)">
+							</decision-point-summary>
+						</ng-container>
+					</div>								
+				</div>
+			</ng-container>
+		</div>
+	</div>
+</div>
+
+<action-bar [primaryAction]="'Back'"
+			[favoritesPrice]="priceBreakdown.favoritesPrice"
+			[price]="priceBreakdown.totalPrice"
+			[showPrint]="true"
+			(callToAction)="onBack()">
+</action-bar>

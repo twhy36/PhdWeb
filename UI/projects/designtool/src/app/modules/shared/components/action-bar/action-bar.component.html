@@ -1,0 +1,150 @@
+<div id="phd-action-bar" class="d-flex" [class.justify-content-between]="!inPointOfSale" [class.justify-content-end]="inPointOfSale" [class.is-hidden]="isActionBarHidden">
+	<div id="agreement-action" *ngIf="((inAgreement || canVoidAgreement || canCancelAgreement ) && canChange) || ((canCancelSpec$ | async) || (canCancelModel$ | async))">
+		<div *ngIf="canVoidAgreement">
+			<a (click)="onVoid()" class="phd-void" [class.disabled]="savingAgreement">Void Agreement</a>
+		</div>
+
+		<div *ngIf="canCancelAgreement">
+			<a (click)="onCancel()" class="phd-cancel" [class.disabled]="savingAgreement">Cancel Agreement</a>
+		</div>
+
+		<div *ngIf="(canCancelSpec$ | async) && canSell">
+			<a (click)="onCancelSpecOrModel(true)" class="phd-cancel" [class.disabled]="savingAgreement">Cancel Spec</a>
+		</div>
+
+		<div *ngIf="(canCancelModel$ | async) && canSell">
+			<a (click)="onCancelSpecOrModel(false)" class="phd-cancel" [class.disabled]="savingAgreement">Cancel Model</a>
+		</div>
+
+		<div *ngIf="inAgreement">
+			<a (click)="onPreviewAgreement()" class="phd-preview" [class.disabled]="savingAgreement || !(isTemplatesSelected$ | async)" *ngIf="canPreviewAgreement">Preview Agreement</a>
+			<a (click)="onTerminationAgreement()" class="phd-termination" [class.disabled]="savingAgreement" *ngIf="canTerminateAgreement">View/Sign Termination Agreement</a>
+		</div>
+	</div>
+
+	<ng-template [ngIf]="leftCellTemplate">
+		<div id="left-cell">
+			<ng-container *ngTemplateOutlet="leftCellTemplate"></ng-container>
+		</div>
+	</ng-template>
+
+	<div class="phd-action-bar-center-cell flex-grow-1" *ngIf="centerCellTemplate">
+		<ng-container *ngTemplateOutlet="centerCellTemplate"></ng-container>
+	</div>
+
+	<div class="phd-action-bar-right-cell flex-grow-0">
+		<div class="d-flex flex-column" [ngClass]="(canEditAgreement$ | async) ? null : 'margin'">
+			<ng-template [ngIf]="rightCellTemplate">
+				<ng-container *ngTemplateOutlet="rightCellTemplate"></ng-container>
+			</ng-template>
+			<div *ngIf="canEditAgreement$ | async" class="d-flex flex-column flex-grow-1 align-items-center mr-4 links">
+				<div *ngIf="currentDecisionPoint">
+					<a [routerLink]="'/scenario-summary'" [fragment]="currentDecisionPoint.id" [class.font-weight-bold]="isFromSummary">{{summaryText}}</a>
+				</div>
+
+				<div *ngIf="inChangeOrder && canChange">
+					<a (click)="onCancelChange()">Cancel</a>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="phd-action-bar-price flex-grow-0" *ngIf="inChangeOrder">
+		<div class="d-flex flex-column ml-r mr-4">
+			<div class="phd-action-bar-change-price">Estimated Change Price</div>
+			<div>
+				<h3>{{ changePrice | currency:'USD':'symbol':'0.0-0' }}</h3>
+			</div>
+		</div>
+	</div>
+
+	<div class="phd-action-bar-price flex-grow-0">
+		<div class="d-flex flex-column ml-r mr-4">
+			<div>Estimated Price</div>
+			<div>
+				<h3>{{ price | currency:'USD':'symbol':'0.0-0' }}</h3>
+			</div>
+		</div>
+	</div>
+
+	<div *ngIf="canSignAgreement && canChange" class="phd-action-bar-action-btn flex-grow-0">
+		<button class="btn btn-lg d-flex justify-content-center align-items-center mx-4 complete"
+				type="button"
+				(click)="onSignAgreement()"
+				[disabled]="savingAgreement">
+			<div class="circle d-flex align-items-center justify-content-center">
+				<span>
+					<i class="fa fa-check"></i>
+				</span>
+			</div>
+			<span>Sign Agreement</span>
+		</button>
+	</div>
+
+	<div *ngIf="canApproveAgreement && canChange" class="phd-action-bar-action-btn flex-grow-0">
+		<button *requiresClaim="'SalesAgreements'; permission: Permission.Approve"
+				class="btn btn-lg d-flex justify-content-center align-items-center mx-4 complete"
+				type="button"
+				(click)="onApproveAgreement()"
+				[disabled]="savingAgreement">
+			<div class="circle d-flex align-items-center justify-content-center">
+				<span>
+					<i class="fa fa-check"></i>
+				</span>
+			</div>
+			<span>Approve Agreement</span>
+		</button>
+	</div>
+
+	<div *ngIf="showToggleSalesAgreementLock" class="phd-action-bar-action-btn flex-grow-0">
+		<span [ngbTooltip]="readyToCloseTemplate" tooltipClass="phd-lock-tooltip" [disableTooltip]="!hasOpenChangeOrder && allDepositsReconciled">
+			<button class="btn btn-lg d-flex justify-content-center align-items-center mx-4" 
+					type="button"
+					(click)="onToggleAgreementLock()"
+					[class.incomplete]="hasOpenChangeOrder || !allDepositsReconciled"
+					[class.complete]="!hasOpenChangeOrder && allDepositsReconciled"
+					[disabled]="savingAgreement || hasOpenChangeOrder || !allDepositsReconciled">
+				<div class="circle d-flex align-items-center justify-content-center">
+					<span *ngIf="!hasOpenChangeOrder && allDepositsReconciled">
+						<i class="fa fa-check"></i>
+					</span>
+					<span *ngIf="hasOpenChangeOrder || !allDepositsReconciled">
+						<i class="fas fa-exclamation"></i>
+					</span>
+				</div>
+				<span>{{ toggleAgreementLockLabel }}</span>
+			</button>
+		</span>
+		<ng-template #readyToCloseTemplate >
+			<div class="phd-lock-tooltip-text">
+				<div>Cannot Lock Sales Agreement</div>
+				<div *ngIf="hasOpenChangeOrder">- Change Orders Exist</div>
+				<div *ngIf="!allDepositsReconciled">- Unpaid Deposits Exist</div>
+			</div>
+		</ng-template>
+	</div>
+
+	<div *ngIf="(canEditAgreement$ | async) && canChange && !canSignAgreement && !canApproveAgreement || inSpec" class="phd-action-bar-action-btn flex-grow-0">
+		<button class="btn btn-lg d-flex justify-content-center align-items-center mx-4"
+				[class.incomplete]="getActionBarStatus()==='INCOMPLETE' && !isChangePartiallyComplete()"
+				[class.complete]="getActionBarStatus()==='COMPLETE' || getActionBarStatus()==='INCOMPLETE' && isChangePartiallyComplete()"
+				[class.phd-action-not-allowed]="actionNotAllowed()"
+				type="button"
+				(click)="inChangeOrder ? onChangeIt(changeNoteModal) : onPrimaryCallToActionClick()"
+				[disabled]="!inChangeOrder ? (agreement && agreement.status === 'Void') : (actionBarStatus!=='COMPLETE' || errorInSavingChangeOrder)">
+			<div class="circle d-flex align-items-center justify-content-center">
+				<span *ngIf="getActionBarStatus() === 'COMPLETE'">
+					<i class="fa fa-check"></i>
+				</span>
+				<span *ngIf="getActionBarStatus() !== 'COMPLETE'">
+					<i class="fas fa-exclamation"></i>
+				</span>
+			</div>
+			<span>{{primaryActionText}}</span>
+		</button>
+	</div>
+</div>
+
+<ng-template #changeNoteModal let-c="close" let-d="dismiss">
+	<change-order-note (saveNote)="saveChangeNote()" (cancelNote)="cancelChangeNote()"></change-order-note>
+</ng-template>

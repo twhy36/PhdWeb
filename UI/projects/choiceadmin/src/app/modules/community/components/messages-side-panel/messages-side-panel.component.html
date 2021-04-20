@@ -1,0 +1,15 @@
+<side-panel-component [headerTemplate]="header" [bodyTemplate]="body" [footerTemplate]="footer" [sidePanelOpen]="sidePanelOpen" (onSidePanelClose)="onCloseClick()">
+	<ng-template #header>
+		<h5 class="phd-side-panel-header"><strong>Messages</strong></h5>
+	</ng-template>
+
+	<ng-template #body>
+		<ng-container *ngTemplateOutlet="tabsTemplate"></ng-container>
+	</ng-template>
+
+	<ng-template #footer>
+		<div class="pull-right">
+			<button class="btn btn-secondary" (click)="onCloseClick()">Close</button>
+		</div>
+	</ng-template>
+</side-panel-component>

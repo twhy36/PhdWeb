@@ -1,0 +1,141 @@
+<div class="phd-floor-plan-experience">
+	<div>
+		<tree-filter [treeFilter]="treeFilter"></tree-filter>
+	</div>
+
+	<page-header mainTitle="Interactive Floorplan" [class.phd-hide]="errorMessage.length > 0"></page-header>
+
+	<div class="phd-error-msg-body" *ngIf="errorMessage.length > 0">
+		<error-message [@flipOver]>
+			<ng-template #body>{{ errorMessage }}</ng-template>
+		</error-message>
+	</div>
+
+	<div class="phd-floor-plan-body justify-content-center" [class.phd-hide]="errorMessage.length > 0">
+
+		<div id="phd-scroll-choices">
+			<aside id="choices" *ngIf="fpLoaded">
+				<ul>
+					<li *ngFor="let point of subGroup.points">
+						<header [class.disabled]="point?.isPastCutOff || !canEditAgreement">
+							<h4>{{ point.label }}</h4>
+							<div><em>{{ point.pointPickTypeLabel }}</em></div>
+						</header>
+
+						<!--If disabled-->
+						<ng-container *ngIf="point?.isPastCutOff;">
+							<div class="point-disabled">
+								<i class="fas fa-info-circle"></i> Disabled Due to Cut-Off
+							</div>
+						</ng-container>
+
+						<ng-container *ngIf="!point?.enabled && !point?.isPastCutOff;">
+							<div class="phd-disabled-link phd-link phd-clickable" (click)="showDisabledPointMessage(point);">
+								<i class="fas fa-info-circle"></i> Disabled
+							</div>
+						</ng-container>
+
+						<!--End if not disabled-->
+						<ul>
+							<ng-template ngFor [ngForOf]="point.choices" let-choice>
+								<li [ngClass]="point?.isPastCutOff || !point.enabled || !choice.enabled || !canEditAgreement ? 'disabled' : 'enabled'">
+									<input type="checkbox" (ngModelChange)="onOptionToggled(choice, $event)" [ngModel]="!!choice.quantity" [id]="'opt-'+choice.id" [disabled]="point?.isPastCutOff || !point.enabled || !choice.enabled || !canEditAgreement">
+
+									<div class="d-flex w-100 align-middle align-items-center">
+										<label [for]="'opt-'+choice.id">
+											<span class="phd-icon-checkbox">
+												<span [class.phd-on]="!!choice.quantity">&nbsp;</span>
+											</span>
+										</label>
+
+										<a (click)="$event.stopPropagation(); onChoiceModal.emit(choice);">
+											<span class="phd-btn-text">{{ choice.label }}</span><br>
+											<span *ngIf="hasAttributeOrLocationGroups(choice)" class="phd-circles">
+												<i class="fas fa-circle fa-xs phd-circle-one"></i><i class="fas fa-circle fa-xs phd-circle-two"></i><i class="fas fa-circle fa-xs phd-circle-three"></i>
+											</span>
+										</a>
+
+										<div [attr.for]="'opt-'+choice.id" class="flex-fill justify-content-end pr-2">
+											<div *ngIf="choice?.enabled" class="phd-choice-price phd-ifp-right">
+												{{ choice.price | currency : 'USD' : 'symbol' : '0.0-0'}}
+											</div>
+
+											<div *ngIf="choice && !choice.enabled" class="phd-choice-price phd-ifp-right">
+												{{ choice.id | priceRange | async }}
+											</div>
+
+											<div *ngIf="choice.disabledBy.length" class="phd-disabled-link phd-link phd-clickable phd-ifp-choice-disabled" (click)="showDisabledChoiceMessage(choice);">
+												<i class="fas fa-info-circle"></i> Disabled
+											</div>
+										</div>
+									</div>
+									<hr *ngIf="hasAttributeOrLocationGroups(choice)" class="phd-next-line">
+								</li>
+							</ng-template>
+						</ul>
+					</li>
+				</ul>
+			</aside>
+		</div>
+
+		<div id="floorplan-col">
+			<div id="select-floor" class="d-flex flex-row align-items-end mb-2" *ngIf="fpLoaded && !useDefaultFP">
+				<div class="d-flex flex-column flex-fill mr-3" *ngIf="fp?.floors && fp.floors.length > 1">
+					<label for="floor-select">Select a floor</label>
+					<select id="floor-select" class="form-control form-control-md flex-fill" [ngModel]="selectedFloor" (ngModelChange)="selectFloor($event)">
+						<option *ngFor="let floor of fp.floors" [ngValue]="floor">{{ floor.name }}</option>
+					</select>
+				</div>
+				<div *ngIf="fpLoaded && !useDefaultFP">
+					<div class="phd-switch-button btn btn-primary" (click)="swapHanding()" *ngIf="!flipping">
+						<i class="fas fa-exchange-alt"></i>
+					</div>
+					<div class="phd-switch-button phd-loading btn btn-primary" *ngIf="flipping">
+						<i class="fas fa-spinner"></i>
+					</div>
+				</div>
+			</div>
+			<div *ngIf="fpLoaded && !useDefaultFP && fp?.floors?.length === 1">
+				<span id="floor-label">{{ fp.floors[0].name }}</span>
+			</div>
+
+			<div id="av-floor-plan" class="mt-auto" [style.width]="useDefaultFP ? '100%' : ''" #av_floor_plan>
+				<div *ngIf="useDefaultFP">
+					<cl-image public-id="https://pultegroup.picturepark.com/Go/O1buxqPH/V/164279/1" type="fetch" style="width:100%; max-width:800px;"></cl-image>
+				</div>
+			</div>
+		</div>
+	</div>
+
+</div>
+
+<action-bar [actionBarStatus]='!complete ? "INCOMPLETE" : "COMPLETE"'
+			[primaryAction]='primaryAction'
+			[price]="priceBreakdown.totalPrice"
+            [changePrice]="priceBreakdown.changePrice"
+			(callToAction)="onCallToAction($event)"
+			[currentDecisionPoint]="subGroup.points[0]"
+			[inChangeOrder]="inChangeOrder"
+			[canChange]="canConfigure">
+	<ng-template #leftCellTemplate>
+		<div>
+			<experience-filter [selectedPointFilter]="selectedPointFilter" [enabledPointFilters]="enabledPointFilters" (pointTypeFilterChanged)="onPointTypeFilterChanged($event)"></experience-filter>
+		</div>
+		<div class="flex-grow-1">
+			<scenario-status [scenarioStatus]="scenarioStatus"></scenario-status>
+		</div>
+	</ng-template>
+</action-bar>
+
+<ng-template #disabledModal>
+
+	<header>
+		<h3>Warning!</h3>
+		<div class="phd-close" (click)="closeModal()">
+			<i class="fas fa-times-circle"></i>
+		</div>
+	</header>
+
+	<disabled-error [choice]="currentChoice" [point]="currentDecisionPoint" (onLink)="disabledModalAction($event)" [errorOverride]="!canEditAgreement ? 'Disbaled Due to Locked Agreement' : ''"></disabled-error>
+
+</ng-template>
