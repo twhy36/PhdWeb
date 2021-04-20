@@ -19,8 +19,8 @@ import { SearchBarComponent } from '../../../../../shared/components/search-bar/
 
 import { SettingsService } from '../../../../../core/services/settings.service';
 import { Settings } from '../../../../../shared/models/settings.model';
-import { OrganizationService } from '../../../../../core/services/organization.service';
 import { IdentityService, Permission } from 'phd-common';
+import { StorageService } from '../../../../../core/services/storage.service';
 
 @Component({
 	selector: 'location-groups-panel',
@@ -51,8 +51,12 @@ export class LocationGroupsPanelComponent extends UnsubscribeOnDestroy implement
 	isSearchingFromServer: boolean;
 	isSaving: boolean = false;
 	workingId: number = 0;
-	selectedStatus: string;
 	isReadOnly: boolean;
+
+	get selectedStatus(): string
+	{
+		return this._storageService.getSession<string>('CA_DIV_ATTR_STATUS') ?? 'Active';
+	}
 
 	get filterGroupNames(): Array<string>
 	{
@@ -65,7 +69,7 @@ export class LocationGroupsPanelComponent extends UnsubscribeOnDestroy implement
 		private _locoService: LocationService,
 		private _settingsService: SettingsService,
 		private _identityService: IdentityService,
-		private _orgService: OrganizationService)
+		private _storageService: StorageService)
 	{
 		super();
 	}
@@ -84,6 +88,7 @@ export class LocationGroupsPanelComponent extends UnsubscribeOnDestroy implement
 			switchMap(marketId =>
 			{
 				this.currentMarketId = marketId;
+
 				return forkJoin(this._locoService.getLocationGroupsByMarketId(marketId, null, this.settings.infiniteScrollPageSize, 0),
 					this._identityService.hasClaimWithPermission('Attributes', Permission.Edit),
 					this._identityService.hasMarket(marketId));
@@ -143,12 +148,14 @@ export class LocationGroupsPanelComponent extends UnsubscribeOnDestroy implement
 	{
 		this.selectedSearchFilter = "All";
 		this.keyword = '';
+
 		this.searchBar.clearFilter();
 	}
 
 	clearFilter()
 	{
 		this.keyword = null;
+
 		this.filterLocationGroups();
 	}
 
@@ -156,6 +163,7 @@ export class LocationGroupsPanelComponent extends UnsubscribeOnDestroy implement
 	{
 		this.selectedSearchFilter = event['searchFilter'];
 		this.keyword = event['keyword'];
+
 		this.filterLocationGroups();
 
 		if (!this.isSearchingFromServer)
@@ -169,6 +177,7 @@ export class LocationGroupsPanelComponent extends UnsubscribeOnDestroy implement
 		if (this.filteredLocationGroupsList.length === 0)
 		{
 			this._msgService.clear();
+
 			this._msgService.add({ severity: 'error', summary: 'Search Results', detail: `No results found. Please try another search.` });
 		}
 		else
@@ -203,8 +212,7 @@ export class LocationGroupsPanelComponent extends UnsubscribeOnDestroy implement
 							filteredResults = filteredResults.filter(lg => lg.isActive === isActiveStatus);
 						}
 
-						this.filteredLocationGroupsList =
-							unionBy(this.filteredLocationGroupsList, filteredResults, 'id');
+						this.filteredLocationGroupsList = unionBy(this.filteredLocationGroupsList, filteredResults, 'id');
 					}
 				});
 			}
@@ -276,6 +284,7 @@ export class LocationGroupsPanelComponent extends UnsubscribeOnDestroy implement
 			.pipe(finalize(() =>
 			{
 				this.isSearchingFromServer = false;
+
 				this.onSearchResultUpdated();
 			}))
 			.subscribe(data =>
@@ -378,7 +387,8 @@ export class LocationGroupsPanelComponent extends UnsubscribeOnDestroy implement
 
 	onStatusChanged(event: any)
 	{
-		this.selectedStatus = event;
+		this._storageService.setSession('CA_DIV_ATTR_STATUS', event ?? '');
+
 		this.filterLocationGroups();
 	}
 }

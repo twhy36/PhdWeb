@@ -20,6 +20,13 @@ export class StorageService
 		return this.get<T>(key);
 	}
 
+	public getSession<T>(key: string): T
+	{
+		this.setStorageType('sessionStorage');
+
+		return this.get<T>(key);
+	}
+
 	private get<T>(key: string): T
 	{
 		let retVal: T;
@@ -40,6 +47,13 @@ export class StorageService
 	public setLocal(key: string, value: any): boolean
 	{
 		this.setStorageType('localStorage');
+
+		return this.set(key, value);
+	}
+
+	public setSession(key: string, value: any): boolean
+	{
+		this.setStorageType('sessionStorage');
 
 		return this.set(key, value);
 	}

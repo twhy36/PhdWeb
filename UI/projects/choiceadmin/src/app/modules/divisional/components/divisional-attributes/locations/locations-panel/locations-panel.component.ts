@@ -19,8 +19,8 @@ import { Settings } from '../../../../../shared/models/settings.model';
 
 import { SettingsService } from '../../../../../core/services/settings.service';
 import { LocationService } from '../../../../../core/services/location.service';
-import { OrganizationService } from '../../../../../core/services/organization.service';
 import { IdentityService, Permission } from 'phd-common';
+import { StorageService } from '../../../../../core/services/storage.service';
 
 @Component({
 	selector: 'locations-panel',
@@ -50,8 +50,12 @@ export class LocationsPanelComponent extends UnsubscribeOnDestroy implements OnI
 	isSearchingFromServer: boolean;
 	isSaving: boolean = false;
 	workingId: number = 0;
-	selectedStatus: string;
 	isReadOnly: boolean;
+
+	get selectedStatus(): string
+	{
+		return this._storageService.getSession<string>('CA_DIV_ATTR_STATUS') ?? 'Active';
+	}
 
 	get filterNames(): Array<string>
 	{
@@ -64,7 +68,7 @@ export class LocationsPanelComponent extends UnsubscribeOnDestroy implements OnI
 		private _locoService: LocationService,
 		private _settingsService: SettingsService,
 		private _identityService: IdentityService,
-		private _orgService: OrganizationService)
+		private _storageService: StorageService)
 	{
 		super();
 	}
@@ -133,12 +137,14 @@ export class LocationsPanelComponent extends UnsubscribeOnDestroy implements OnI
 	{
 		this.selectedSearchFilter = "All";
 		this.keyword = '';
+
 		this.searchBar.clearFilter();
 	}
 
 	clearFilter()
 	{
 		this.keyword = null;
+
 		this.filterLocations();
 	}
 
@@ -146,6 +152,7 @@ export class LocationsPanelComponent extends UnsubscribeOnDestroy implements OnI
 	{
 		this.selectedSearchFilter = event['searchFilter'];
 		this.keyword = event['keyword'];
+
 		this.filterLocations();
 
 		if (!this.isSearchingFromServer)
@@ -159,6 +166,7 @@ export class LocationsPanelComponent extends UnsubscribeOnDestroy implements OnI
 		if (this.filteredLocationsList.length === 0)
 		{
 			this._msgService.clear();
+
 			this._msgService.add({ severity: 'error', summary: 'Search Results', detail: `No results found. Please try another search.` });
 		}
 		else
@@ -249,6 +257,7 @@ export class LocationsPanelComponent extends UnsubscribeOnDestroy implements OnI
 			.pipe(finalize(() =>
 			{
 				this.isSearchingFromServer = false;
+
 				this.onSearchResultUpdated();
 			}))
 			.subscribe(data =>
@@ -274,6 +283,7 @@ export class LocationsPanelComponent extends UnsubscribeOnDestroy implements OnI
 				{
 					this.locationsList = unionBy(this.locationsList, data, 'id');
 					this.filteredLocationsList = orderBy(this.locationsList, [location => location.locationName.toLowerCase()]);
+
 					this.currentPage++;
 				}
 
@@ -358,7 +368,8 @@ export class LocationsPanelComponent extends UnsubscribeOnDestroy implements OnI
 
 	onStatusChanged(event: any)
 	{
-		this.selectedStatus = event;
+		this._storageService.setSession('CA_DIV_ATTR_STATUS', event ?? '');
+
 		this.filterLocations();
 	}
 }
