@@ -1,4 +1,4 @@
-import { Component, Output, EventEmitter } from '@angular/core';
+import { Component, Output, EventEmitter, Input } from '@angular/core';
 
 import { SelectItem } from 'primeng/esm5/api/selectitem';
 
@@ -9,16 +9,17 @@ import { SelectItem } from 'primeng/esm5/api/selectitem';
 })
 export class StatusBarComponent
 {
-	@Output() statusChanged = new EventEmitter<string>();
+	@Input() selectedStatus: string;
 
-	selectedStatus: string;
+	@Output() statusChanged = new EventEmitter<string>();
 
 	statuses: SelectItem[] = [{ label: 'Active', value: 'Active' }, { label: 'Inactive', value: 'Inactive' }];
 	statusCssStyle = { 'width': '150px' };
-
+		
 	constructor() { }
 
-	onStatusChanged(event: any) {
+	onStatusChanged(event: any)
+	{
 		this.statusChanged.emit(event);
 	}
 }

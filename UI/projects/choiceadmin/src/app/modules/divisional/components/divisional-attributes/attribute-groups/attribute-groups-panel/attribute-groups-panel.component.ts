@@ -18,8 +18,8 @@ import { SearchBarComponent } from '../../../../../shared/components/search-bar/
 
 import { SettingsService } from '../../../../../core/services/settings.service';
 import { Settings } from '../../../../../shared/models/settings.model';
-import { OrganizationService } from '../../../../../core/services/organization.service';
 import { IdentityService, Permission } from 'phd-common';
+import { StorageService } from '../../../../../core/services/storage.service';
 
 @Component({
 	selector: 'attribute-groups-panel',
@@ -30,6 +30,7 @@ export class AttributeGroupsPanelComponent extends UnsubscribeOnDestroy implemen
 {
 	@ViewChild(SearchBarComponent)
 	private searchBar: SearchBarComponent;
+
 	@Output() onAssociateAttributes = new EventEmitter<AttributeGroupMarket>();
 	@Output() onEditAttributeGroup = new EventEmitter<AttributeGroupMarket>();
 
@@ -47,8 +48,12 @@ export class AttributeGroupsPanelComponent extends UnsubscribeOnDestroy implemen
 	currentPage: number = 0;
 	allDataLoaded: boolean;
 	isSearchingFromServer: boolean;
-	selectedStatus: string;
 	isReadOnly: boolean;
+
+	get selectedStatus(): string
+	{
+		return this._storageService.getSession<string>('CA_DIV_ATTR_STATUS') ?? 'Active';
+	}
 
 	get filterGroupNames(): Array<string>
 	{
@@ -61,7 +66,7 @@ export class AttributeGroupsPanelComponent extends UnsubscribeOnDestroy implemen
 		private _attrService: AttributeService,
 		private _settingsService: SettingsService,
 		private _identityService: IdentityService,
-		private _orgService: OrganizationService)
+		private _storageService: StorageService)
 	{
 		super();
 	}
@@ -142,6 +147,7 @@ export class AttributeGroupsPanelComponent extends UnsubscribeOnDestroy implemen
 		{
 			return;
 		}
+
 		this.onEditAttributeGroup.emit(attributeGroup);
 	}
 
@@ -358,7 +364,8 @@ export class AttributeGroupsPanelComponent extends UnsubscribeOnDestroy implemen
 
 	onStatusChanged(event: any)
 	{
-		this.selectedStatus = event;
+		this._storageService.setSession('CA_DIV_ATTR_STATUS', event ?? '');
+
 		this.filterAttributeGroups();
 	}
 }

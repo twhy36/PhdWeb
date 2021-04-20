@@ -3,7 +3,8 @@
 		<div class="col-md-4 phd-div-search-bar">
 			<search-bar [searchFilters]="filterNames" [selectedSearchFilter]="selectedSearchFilter" (onClearFilter)="clearFilter()" (onKeywordSearch)="keywordSearch($event)"></search-bar>
 		</div>
-		<status-bar (statusChanged)="onStatusChanged($event)"></status-bar>
+
+		<status-bar [selectedStatus]="selectedStatus" (statusChanged)="onStatusChanged($event)"></status-bar>
 	</div>
 
 	<div class="phd-div-attr-panel" infiniteScroll [infiniteScrollThrottle]="settings.infiniteScrollThrottle" [infiniteScrollDisabled]="keyword || selectedStatus || allDataLoaded" (scrolled)="onPanelScroll()" [scrollWindow]="false">

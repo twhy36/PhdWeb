@@ -16,8 +16,7 @@ import { SearchBarComponent } from '../../../../../shared/components/search-bar/
 
 import { SettingsService } from '../../../../../core/services/settings.service';
 import { Settings } from '../../../../../shared/models/settings.model';
-import { OrganizationService } from '../../../../../core/services/organization.service';
-import { IdentityService } from 'phd-common';
+import { StorageService } from '../../../../../core/services/storage.service';
 
 @Component({
 	selector: 'attributes-panel',
@@ -49,7 +48,11 @@ export class AttributesPanelComponent extends UnsubscribeOnDestroy implements On
 	currentPage: number = 0;
 	allDataLoaded: boolean;
 	isSearchingFromServer: boolean;
-	selectedStatus: string;
+
+	get selectedStatus(): string
+	{
+		return this._storageService.getSession<string>('CA_DIV_ATTR_STATUS') ?? 'Active';
+	}
 
 	get filterNames(): Array<string>
 	{
@@ -61,8 +64,7 @@ export class AttributesPanelComponent extends UnsubscribeOnDestroy implements On
 		private _modalService: NgbModal,
 		private _attrService: AttributeService,
 		private _settingsService: SettingsService,
-		private _identityService: IdentityService,
-		private _orgService: OrganizationService)
+		private _storageService: StorageService)
 	{
 		super();
 	}
@@ -341,7 +343,8 @@ export class AttributesPanelComponent extends UnsubscribeOnDestroy implements On
 
 	onStatusChanged(event: any)
 	{
-		this.selectedStatus = event;
+		this._storageService.setSession('CA_DIV_ATTR_STATUS', event ?? '');
+
 		this.filterAttributes();
 	}
 }
