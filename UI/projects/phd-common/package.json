@@ -1,0 +1,10 @@
+{
+	"name": "@phcorp/phd-common",
+	"version": "0.0.1",
+	"peerDependencies": {
+		"lodash": "^4.17.15"
+	},
+	"dependencies": {
+		"tslib": "^1.10.0"
+	}
+}

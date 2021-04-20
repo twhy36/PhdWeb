@@ -1,0 +1,94 @@
+parameters:
+- name: resources
+  type: object
+  default: []
+- name: buildConfiguration
+  type: string
+  default: dev
+
+jobs:
+- ${{ each resource in parameters.resources }}:
+  - deployment: ${{ resource.jobName }}
+    workspace:
+      clean: all
+    environment: ${{ resource.environment }}
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: AzureAppServiceManage@0
+            displayName: Stop App Service
+            inputs:
+              azureSubscription: '${{ resource.subscription }}'
+              Action: 'Stop Azure App Service'
+              WebAppName: '${{ resource.webAppName }}'
+              SpecifySlotOrASE: true
+              ResourceGroupName: '${{ resource.resourceGroup }}'
+              Slot: 'Staging'
+          - task: KuduSiteBackup@1
+            displayName: Backup Site
+            inputs:
+              ConnectedServiceName: '${{ resource.subscription }}'
+              WebAppName: '${{ resource.webAppName }}'
+              resourceGroup: '${{ resource.resourceGroup }}'
+              subscriptionName: '${{ resource.subscription }}'
+              adminUser: '$(adminUser)'
+              adminPassword: '$(adminPassword)'
+              tempdirectory: '$(agent.tempdirectory)\$(application).zip'
+          - task: AzureRmWebAppDeployment@4
+            displayName: Deploy Backup to Staging Slot
+            inputs:
+              ConnectionType: 'AzureRM'
+              azureSubscription: '${{ resource.subscription }}'
+              appType: 'webApp'
+              WebAppName: '${{ resource.webAppName }}'
+              deployToSlotOrASE: true
+              ResourceGroupName: '${{ resource.resourceGroup }}'
+              SlotName: 'Staging'
+              packageForLinux: '$(agent.tempdirectory)\$(application).zip'
+              enableCustomDeployment: true
+              DeploymentType: 'webDeploy'
+              TakeAppOfflineFlag: false
+              ExcludeFilesFromAppDataFlag: false
+              AdditionalArguments: '-retryAttempts:10 -retryInterval:10000'
+          - task: KuduFolderDelete@1
+            displayName: Clean folder
+            inputs:
+              ConnectedServiceName: '${{ resource.subscription }}'
+              subscriptionName: '${{ resource.subscription }}'
+              WebAppName: '${{ resource.webAppName }}'
+              resourceGroupName: '${{ resource.resourceGroup }}'
+              slotName: 'Staging'
+              adminUser: '$(adminUser)'
+              adminPassword: '$(adminPassword)'
+              startingDirectory: 'site\\wwwroot\\dist'
+              folder: '$(module)'
+          - task: AzureRmWebAppDeployment@4
+            displayName: Deploy build artifact
+            inputs:
+              ConnectionType: 'AzureRM'
+              azureSubscription: '${{ resource.subscription }}'
+              appType: 'webApp'
+              WebAppName: '${{ resource.webAppName }}'
+              deployToSlotOrASE: true
+              ResourceGroupName: '${{ resource.resourceGroup }}'
+              SlotName: 'Staging'
+              VirtualApplication: '/$(module)-VDA'
+              packageForLinux: '$(Pipeline.Workspace)/Site/${{ parameters.buildConfiguration }}'
+          - task: AzureAppServiceManage@0
+            displayName: Start App Service
+            inputs:
+              azureSubscription: '${{ resource.subscription }}'
+              Action: 'Start Azure App Service'
+              WebAppName: '${{ resource.webAppName }}'
+              SpecifySlotOrASE: true
+              ResourceGroupName: '${{ resource.resourceGroup }}'
+              Slot: 'Staging'
+          - task: AzureAppServiceManage@0
+            displayName: Swap Slots
+            inputs:
+              azureSubscription: '${{ resource.subscription }}'
+              Action: 'Swap Slots'
+              WebAppName: '${{ resource.webAppName }}'
+              ResourceGroupName: '${{ resource.resourceGroup }}'
+              SourceSlot: 'Staging'

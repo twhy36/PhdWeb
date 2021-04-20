@@ -1,0 +1,122 @@
+<div class="phd-choice-detail-card">
+	<div class="phd-card-detail-header">
+		<label (click)="closeClicked()"><i class="fas fa-times-circle"></i></label>
+	</div>
+
+	<div class="phd-card-detail-body">
+		<div class="flex-column phd-card-detail-image-body">
+			<div class="phd-image-carousel-container">
+				<div *ngIf="imageLoading" class="phd-image-loading">
+					<i class="fa fa-spinner fa-spin fa-3x phd-image-loader"></i>
+				</div>
+				<ngb-carousel *ngIf="optionImages.length > 0; else choiceTemplate" [interval]="0" (slide)="onSlide($event)">
+					<ng-template ngbSlide *ngFor="let optionImage of optionImages; let currentIndex = index;" [id]="currentIndex">
+						<cl-image public-id="{{optionImage.imageURL}}" (onLoad)="onLoadImage()" (onError)="onLoadImageError($event)" type="fetch" background="#ffffff" crop="lpad" height="367" width="550" *ngIf="activeIndex?.current == currentIndex"></cl-image>
+					</ng-template>
+				</ngb-carousel>
+
+				<ng-template #choiceTemplate>
+					<ngb-carousel *ngIf="choiceImages.length > 0" [interval]="0" (slide)="onSlide($event)">
+						<ng-template ngbSlide *ngFor="let choiceImage of choiceImages; let currentIndex = index;" [id]="currentIndex">
+							<cl-image public-id="{{choiceImage.imageUrl}}" (onLoad)="onLoadImage()" (onError)="onLoadImageError($event)" type="fetch" background="#ffffff" crop="lpad" height="367" width="550" *ngIf="activeIndex?.current == currentIndex"></cl-image>
+						</ng-template>
+					</ngb-carousel>
+				</ng-template>
+			</div>
+
+			<div class="phd-image-warning">Images are examples only. Products are subject to change.</div>
+		</div>
+
+		<div class="flex-column phd-card-detail-choice-body">
+			<div>
+				<h4 class="phd-title">
+					{{choice?.label}}
+				</h4>
+
+				<strong *ngIf="choice?.enabled && !optionDisabled">{{choice.price | currency:'USD':'symbol':'0.0-0'}}</strong>
+				<strong *ngIf="!choice?.enabled && !optionDisabled">{{ choice.id | priceRange | async }}</strong>
+			</div>
+
+			<div class="phd-choice-content">
+				<div *ngIf="choiceDescriptions.length && !optionDisabled" class="phd-choice-description">
+					<div *ngFor="let description of choiceDescriptions">{{ description }}</div>
+				</div>
+
+				<ng-container *ngIf="choice?.maxQuantity > 1 && !optionDisabled">
+					<div class="mt-auto align-self-left">
+						<span class="text-right">
+							Qty
+							<quantity-input [min]="quantityMin" [max]="choice?.maxQuantity" [quantity]="choice?.quantity" (quantityChange)="changeSelectedQuantity($event)" [canEditAgreement]="canEditAgreement && (!isPastCutOff || overrideReason) && canConfigure && choice.enabled"></quantity-input>
+							Max {{choice?.maxQuantity}}
+						</span>
+					</div>
+
+					<div class="mt-auto align-self-center">
+						<span class="text-center">Selected Qty: {{totalQuantitySelected}} of {{choice?.quantity}}</span>
+					</div>
+				</ng-container>
+
+				<div class="phd-attr-loc-group-container" *ngIf="!optionDisabled && (locationGroups?.length || (!locationGroups?.length && attributeGroups?.length))">
+					<div *ngIf="locationGroups?.length" class="d-flex flex-column w-100">
+						<ng-container *ngFor="let group of locationGroups">
+							<div *ngFor="let attributeLocation of group.locations" class="phd-attribute-location-body">
+								<attribute-location [choice]="choice"
+													[attributeLocation]="attributeLocation"
+													[attributeLocationGroup]="group"
+													[attributeGroups]="attributeGroups"
+													[canEditAgreement]="canEditAgreement && canConfigure"
+													[maxQuantity]="getLocationMaxQuantity(attributeLocation.id)"
+													[isPastCutOff]="isPastCutOff"
+													[canOverride]="canOverride"
+													[overrideReason]="overrideReason"
+													[monotonyConflict]="monotonyConflict"
+													(onAttributeLocationChanged)="attributeLocationChanged($event)">
+								</attribute-location>
+							</div>
+						</ng-container>
+					</div>
+
+					<div *ngIf="!optionDisabled && (!locationGroups?.length && attributeGroups?.length)" class="d-flex flex-column w-100">
+						<attribute-group [selectedAttributes]="choice?.selectedAttributes"
+										 [attributeGroups]="attributeGroups"
+										 [isActive]="true"
+										 [isPastCutOff]="isPastCutOff"
+										 [canEditAgreement]="canEditAgreement"
+										 [canOverride]="canOverride"
+										 [overrideReason]="overrideReason"
+										 [monotonyConflict]="monotonyConflict"
+										 (onAttributeGroupSelected)="attributeGroupSelected()">
+						</attribute-group>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="phd-card-detail-footer text-center">
+		<div *ngIf="displayButton()">
+			<button type="button" class="btn phd-experience-btn-choice mt-auto align-self-center" [class.selected]="choice?.quantity > 0" (click)="toggleSelection()" [disabled]="buttonDisabled" [class.phd-disable-hovering]="buttonDisabled">
+				{{getButtonLabel()}}
+			</button>
+		</div>
+
+		<div *ngIf="optionDisabled">  Choice Is No Longer Available </div>
+		<div class="phd-monotony-conflict-message" *ngIf="hasMonotonyConflict && !(override$ | async)">
+			Monotony Conflict
+		</div>
+
+		<div *ngIf="(isPastCutOff && !canOverride)" class="phd-past-cutt-off">
+			<i class="fas fa-info-circle fa-sm"></i> Disabled Due to Cut-Off
+		</div>
+		<div *ngIf="(isPastCutOff && canOverride && choice?.enabled)" class="phd-past-cutt-off">
+			<i class="fas fa-info-circle fa-sm"></i> Past Cut-Off
+		</div>
+		<div *ngIf="!canEditAgreement && !!disabledMessage" class="phd-choice-disabled-msg">
+			<i class="fas fa-info-circle fa-sm"></i> {{disabledMessage}}
+		</div>
+
+		<div *ngIf="((!isPastCutOff || canOverride) && !choice.enabled) || optionDisabled" class="phd-past-cutt-off phd-clickable" (click)="!optionDisabled && onShowDisabledMessage()">
+			<i class="fas fa-info-circle fa-sm"></i> Disabled
+		</div>
+	</div>
+</div>

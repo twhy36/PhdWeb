@@ -1,0 +1,28 @@
+<side-panel-component [headerTemplate]="header" [bodyTemplate]="body" [footerTemplate]="footer" [sidePanelOpen]="sidePanelOpen" (onSidePanelClose)="onCloseSidePanel($event)">
+	<ng-template #header>
+		<h4 class="phd-side-panel-header"><strong>{{ sidePanelHeader }}</strong></h4>
+	</ng-template>
+
+	<ng-template #body>
+		<div>
+			<div class="div-error" *ngIf="errors?.length > 0">
+				<p-messages [(value)]="errors"></p-messages>
+			</div>
+			<attribute-group-action-panel [tableId]="'associateGroupsToOption'"
+										  [searchEnabled]="true"
+										  [groups]="locGroupsInMarket$"
+										  [isDisabled]="isSaving"
+										  groupType="location"
+										  [allowMultipleSelect]="true"
+										  (displayErrorMessage)="displayErrorMessage($event)">
+			</attribute-group-action-panel>
+		</div>
+	</ng-template>
+
+	<ng-template #footer>
+		<div class="pull-right">
+			<button class="btn btn-primary phd-btn-save" (click)="saveAndClose()" [disabled]="saveDisabled">Associate</button>
+			<button class="btn btn-secondary" (click)="toggleSidePanel()">Cancel</button>
+		</div>
+	</ng-template>
+</side-panel-component>

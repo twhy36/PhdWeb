@@ -1,0 +1,46 @@
+<div class="phd-error-msg-body" *ngIf="errorMessage.length > 0">
+	<error-message [@flipOver]>
+		<ng-template #body>{{ errorMessage }}</ng-template>
+	</error-message>
+</div>
+
+<div class="phd-normal-experience" [class.phd-hide]="errorMessage.length > 0">
+	<div class="d-flex flex-row phd-point-panel">
+		<div *ngIf="!isPointPanelCollapsed" class="d-flex flex-column">
+			<div class="phd-selected-group">
+				<div class="phd-group-name">{{groupName}}: </div>
+				<div class="phd-subgroup-name">{{subGroup?.label}}</div>
+			</div>
+			<div class="phd-decisions"><span>DECISIONS:</span></div>
+			<div class="phd-point-bar">
+				<decision-bar [points]="points" [currentPointId]="currentPointId" (onSelectDecisionPoint)="selectDecisionPoint($event)"></decision-bar>
+			</div>
+		</div>
+		<div class="d-flex justify-content-center align-items-center phd-collapse-icon" [ngClass]="isPointPanelCollapsed ? 'phd-collapsed-icon-bg' : ''">
+			<i *ngIf="!isPointPanelCollapsed" class="fa fa-angle-double-left" (click)="togglePointPanel()"></i>
+			<i *ngIf="isPointPanelCollapsed" class="fa fa-angle-double-right" (click)="togglePointPanel()"></i>
+		</div>
+	</div>
+
+	<div class="d-flex flex-column phd-card-panel" [ngClass]="isPointPanelCollapsed ? 'phd-card-panel-collapsed' : ''">
+		<div class="phd-include-options">
+			<input type="checkbox" (change)="toggleContractedOptions($event)" [ngModel]="includeContractedOptions" class="phd-clickable" />
+			<span class="phd-contracted-options">Include Contracted Options</span>
+		</div>			
+		<div class="phd-point-container">
+			<ng-container *ngFor="let point of points">
+				<div class="phd-point-label" [attr.id]="point.id">{{point?.label}}</div>
+				<div class="phd-point-title">{{getSubTitle(point)}}</div>
+				<div class="d-flex flex-wrap phd-choice-cards">
+					<choice-card *ngFor="let choice of point.choices"
+								[currentChoice]="getChoiceExt(choice, point)"
+								(toggled)="choiceToggleHandler($event)"
+								(onViewChoiceDetail)="viewChoiceDetail($event)">
+					</choice-card>
+				</div>
+			</ng-container>
+		</div>
+	</div>		
+
+</div>
+

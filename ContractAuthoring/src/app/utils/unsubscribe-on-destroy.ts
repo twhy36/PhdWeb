@@ -1,8 +1,10 @@
-import { OnDestroy } from '@angular/core';
-import { Subject } from 'rxjs/Subject';
-import { MonoTypeOperatorFunction } from 'rxjs/interfaces';
+import { OnDestroy, Component } from '@angular/core';
+import { Subject, MonoTypeOperatorFunction } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
+@Component({
+    template: ''
+})
 export abstract class UnsubscribeOnDestroy implements OnDestroy {
     protected ngUnsubscribe$: Subject<any>;
     protected takeUntilDestroyed<T>(): MonoTypeOperatorFunction<T> {

@@ -1,0 +1,48 @@
+<side-panel-component [headerTemplate]="header" [bodyTemplate]="body" [footerTemplate]="footer" [sidePanelOpen]="sidePanelOpen" (onSidePanelClose)="onCloseSidePanel($event)">
+    <ng-template #header>
+        <h4 class="phd-side-panel-header"><strong>Select Communities</strong></h4>
+    </ng-template>
+
+	<ng-template #body>
+		<div *ngIf="!communities.length">No Communities Found.</div>
+
+		<div class="div-error" *ngIf="errors?.length">
+			<p-messages [(value)]="errors"></p-messages>
+		</div>
+
+		<div class="div-community-table" *ngIf="communities.length">
+			<phd-table [value]="communities" tableId="associateCommunitiesToOption" [displayTooltip]="false">
+				<phd-column columnId="select" width="50px">
+					<ng-template #header>
+						<p-checkbox [ngModel]="areAllCommunitiesSelected()" (ngModelChange)="toggleAllCommunities($event)" [binary]="true" [disabled]="!communities.length || isSaving"></p-checkbox>
+					</ng-template>
+					<ng-template let-community #body>
+						<p-checkbox [ngModel]="isCommunitySelected(community)" (ngModelChange)="setCommunitySelected(community, $event)" [binary]="true" [disabled]="isSaving"></p-checkbox>
+					</ng-template>
+				</phd-column>
+				<phd-column header="Name">
+					<ng-template #body let-community>
+						{{ community.name }} - {{ community.number }}
+					</ng-template>
+				</phd-column>
+				<phd-column [hidden]="isAssociatingAttributeGroups">
+					<ng-template #body let-community>
+						<span class="phd-location-group">{{ getLocationGroupName(community) }}</span>
+					</ng-template>
+				</phd-column>
+			</phd-table>
+		</div>
+
+	</ng-template>
+
+    <ng-template #footer>
+        <div class="pull-right">
+            <button class="btn btn-primary phd-btn-save" (click)="saveAndClose()" [disabled]="saveDisabled">
+				Save
+
+				<i class="fa fa-spinner fa-spin fa-fw" *ngIf="isSaving"></i>
+			</button>
+            <button class="btn btn-secondary" (click)="toggleSidePanel()">Cancel</button>
+        </div>
+    </ng-template>
+</side-panel-component>

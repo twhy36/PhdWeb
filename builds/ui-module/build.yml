@@ -1,0 +1,54 @@
+parameters:
+- name: configurations
+  type: object
+  default: 
+  - dev
+  displayName:
+
+steps:
+- task: NodeTool@0
+  displayName: 'Set Node Version'
+  inputs:
+    versionSpec: '13.x'
+- task: FileTransform@1
+  displayName: 'Set Build Info'
+  inputs:
+    folderPath: 'UI/projects/$(module)/src/app'
+    fileType: 'json'
+    targetFiles: 'build.json'
+- task: Npm@1
+  displayName: Install Dependencies
+  inputs:
+    command: 'custom'
+    workingDir: 'UI'
+    customCommand: ci --also=dev
+- task: Npm@1
+  displayName: Run Unit Tests
+  condition: and(succeeded(), eq(variables.runTests, 'true'))
+  inputs:
+    command: 'custom'
+    workingDir: 'UI'
+    customCommand: 'run test -- --project=$(module)'
+- task: PublishTestResults@2
+  displayName: Publish Test Results
+  condition: and(succeededOrFailed(), eq(variables.runTests, 'true'))
+  inputs:
+    testResultsFormat: 'VSTest'
+    testResultsFiles: 'test-results.trx'
+    searchFolder: '$(build.sourcesDirectory)\UI'
+- ${{ each configuration in parameters.configurations }}:
+  - task: Npm@1
+    displayName: Build ${{ configuration }}
+    inputs:
+      command: 'custom'
+      workingDir: 'UI'
+      ${{ if eq(configuration, 'dev') }}:
+        customCommand: run build -- --project=$(module)
+      ${{ if ne(configuration, 'dev') }}:
+        customCommand: run build -- --project=$(module) --configuration=${{ configuration }}
+  - task: PublishBuildArtifacts@1
+    displayName: Publish ${{ configuration }}
+    inputs:
+      PathtoPublish: '$(build.sourcesDirectory)/UI/dist/$(module)'
+      ArtifactName: 'Site\${{ configuration }}'
+      publishLocation: 'Container'

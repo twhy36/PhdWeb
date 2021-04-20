@@ -1,0 +1,240 @@
+@import "../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
+@import "../../../../../../../phd-common/src/lib/scss/sizes.scss";
+
+.phd-choice-card-detail {
+	display: flex;
+}
+
+.phd-image-section {
+	background: $gray-lighter;
+	display: flex;
+	flex-direction: column;
+	padding: 0px 10px;
+
+	.phd-choice-path {
+		span {
+			margin: 5px 0px 5px 10px;
+			font-size: 11px;
+			font-weight: bold;
+		}
+	}
+
+	.phd-image-caption {
+		font-size: 11px;
+		font-weight: bold;
+		padding: 5px 0px;
+	}
+
+	.phd-image-loading {
+		height: 367px;
+		width: 550px;
+		position: absolute;
+		background-color: lightgray;
+		z-index: 999 !important;
+		text-align: center;
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+
+	.phd-image-loader {
+		position: relative;
+		top: 40%;
+	}
+
+	.phd-icon-selected {
+		color: $pantone_blue;
+	}
+
+	.phd-image-thumbnail {
+		margin-right: 10px;
+		cl-image {
+			border: none;
+		}
+	}
+
+	.phd-price {
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		margin-top: auto;
+	}
+}
+
+::ng-deep .ui-carousel-dots-container {
+	display: none !important;
+}
+
+::ng-deep .phd-choice-image {
+	border: 2px solid #ccc;
+	cursor: pointer;
+
+	.phd-choice-image-selected {
+		border: solid 4px $pantone_blue;
+	}
+}
+
+.phd-card-detail-image-body {
+	display: flex !important;
+	justify-content: center !important;
+
+	.carousel:focus {
+		outline: none;
+	}
+}
+
+.phd-info-section {
+	display: flex;
+	flex-direction: column;
+	padding: 5px;
+
+	.phd-choice-label {
+		font-size: 22px;
+		font-weight: bold;
+		margin-left: 10px;
+	}
+
+	.phd-choice-desc {
+		margin-left: 10px;
+	}
+
+	.phd-available-selections {
+		background-color: $pantone_blue;
+		color: white;
+		margin-top: 30px;
+
+		span {
+			padding: 8px 0px 8px 10px;
+			font-weight: bold;
+		}
+	}
+}
+
+::ng-deep .carousel-item {
+	display: flex !important;
+	justify-content: center !important;
+}
+
+.phd-favorite-selector {
+	font-size: 24px;
+}
+
+.phd-attribute-group-container {
+	display: flex;
+	align-items: flex-start;
+	flex-direction: column;
+	padding-top: 10px;
+}
+
+.phd-attribute-group-container:not(:last-child) {
+	border-bottom: solid 1px #ccc;
+	padding-bottom: 10px;
+}
+
+// Normal view
+@media screen and (min-width: $tablet-max-width + 1) {
+	.phd-choice-card-detail {
+		flex-direction: row;
+		overflow: hidden;
+	}
+
+	.phd-image-section {
+		width: calc(52vw);
+		height: calc(100vh - 197px);
+
+		.phd-image-content {
+			::ng-deep img {
+				width: calc(50vw);
+			}
+		}
+
+		.phd-image-container {
+			display: flex;
+			flex-direction: column;
+		}
+
+		.phd-image-carousel {
+			display: flex;
+			flex-direction: row;
+
+			.phd-choice-image {
+				::ng-deep img {
+					width: 50px;
+					height: 50px;
+				}
+			}
+		}
+	}
+
+	.phd-info-section {
+		width: calc(48vw);
+
+		.phd-attr-loc-group-container {
+			margin-top: 55px;
+			position: fixed;
+			height: calc(100vh - 290px);
+			overflow-y: auto;
+		}
+	}
+}
+
+// tablet view
+@media screen and (max-width: $tablet-max-width) {
+	.phd-choice-card-detail {
+		flex-direction: column;
+		overflow-y: auto;
+	}
+
+	.phd-image-section {
+		width: calc(100vw);
+
+		.phd-image-content {
+			::ng-deep img {
+				width: calc(80vw);
+			}
+		}
+
+		.phd-image-container {
+			display: flex;
+			flex-direction: row;
+
+			.phd-image-carousel {
+				order: 1;
+			}
+
+			.phd-image-card {
+				order: 2;
+			}
+		}
+
+		.phd-image-carousel {
+			display: flex;
+			flex-direction: column;
+			order: 2;
+
+			.phd-choice-image {
+				::ng-deep img {
+					width: 75px;
+					height: 75px;
+					margin-bottom: 10px;
+				}
+			}
+		}
+
+    .phd-price {
+      .phd-favorite-selector {
+        font-size: 2em;
+      }
+
+      .phd-price-label {
+        font-size: 2em;
+      }
+    }
+	}
+	.phd-info-section {
+		width: calc(100vw);
+
+		.phd-attr-loc-group-container {
+			margin-bottom: 70px;
+		}
+	}
+}

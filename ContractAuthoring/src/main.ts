@@ -5,11 +5,9 @@ import { AppModule } from './app/app.module';
 import { environment } from './environments/environment';
 
 if (environment.production) {
-  enableProdMode();
+    enableProdMode();
 }
 
-Office.initialize = () => {    
-  if (OfficeHelpers.Authenticator.isAuthDialog()) return;
-
-  platformBrowserDynamic().bootstrapModule(AppModule);
+Office.initialize = () => {
+    platformBrowserDynamic().bootstrapModule(AppModule);
 };

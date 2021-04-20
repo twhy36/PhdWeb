@@ -1,0 +1,18 @@
+<div class="d-flex">
+	<div class="phd-attribute-group-toggle phd-clickable">
+		<i class="fa fa-angle-up" *ngIf="!isCollapsed" (click)="onToggleAttributeGroup()"></i>
+		<i class="fa fa-angle-down" *ngIf="isCollapsed" (click)="onToggleAttributeGroup()"></i>
+	</div>
+	<div>
+		<span class="phd-attribute-group-header" [class.phd-location-attribute-header]="isLocationAttribute" title="{{attributeGroup.label}}">{{attributeGroup.label}}</span>
+		<div class="phd-attribute-group-instruction" *ngIf="!isCollapsed">Please select all that interest you</div>
+		<div class="phd-selected-attributes" *ngIf="isCollapsed">{{getSelectedAttributes()}}</div>
+		<div class="phd-attribute-group-body" [class.phd-location-attribute-body]="isLocationAttribute" *ngIf="!isCollapsed">
+			<attribute-list [attributes]="attributeGroup?.attributes"
+							[highlightedAttributeId]="highlightedAttributeId"
+							(onAttributeClick)="attributeClick($event)"
+							(onToggleAttribute)="toggleAttribute($event)">
+			</attribute-list>
+		</div>	
+	</div>
+</div>

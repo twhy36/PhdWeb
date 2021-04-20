@@ -1,10 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
-import { ConnectableObservable, Subject, Observable } from 'rxjs';
+import { ConnectableObservable, Subject, Observable, of } from 'rxjs';
 import { catchError, tap, map, publishReplay, concat, take, filter, switchMap } from 'rxjs/operators';
-import { of } from 'rxjs/observable/of';
-import { _throw } from 'rxjs/observable/throw';
 
 import { SettingsService } from './settings.service';
 import { StorageService } from './storage.service';

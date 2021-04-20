@@ -1,0 +1,49 @@
+@import "../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
+
+.phd-attribute-list {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+}
+
+.phd-attribute-item {
+	display: flex;
+	flex-direction: column;
+	margin: 0px 10px 10px 0px;
+}
+
+.phd-attribute-name {
+	position:relative;
+	width: 80px;
+	min-height: 38px;
+	max-height: 38px;
+	font-size: 12px;
+	font-weight: 600px;
+	word-break: break-word;
+	overflow: hidden;
+}
+
+::ng-deep .phd-attribute-item-image {
+	border: solid 1px #ccc;
+	cursor: pointer;
+
+	.phd-attribute-item-image-selected {
+		border: solid 4px $pantone_blue;
+	}
+
+	.phd-image-is-inactive, &.disabled {
+		cursor: no-drop;
+		opacity: .65;
+	}
+}
+
+.phd-attribute-selector {
+	position: absolute;
+	margin: 58px 0px 0px 60px;
+	z-index: 9;
+	color: rgb(214, 214, 214);
+
+    .phd-icon-selected {
+        color: $pantone_blue;
+    }
+}

@@ -1,0 +1,34 @@
+<div>
+	<group-bar [communityName]="communityName"
+			   [planName]="planName"
+			   [groups]="groups"
+			   [selectedSubGroupId]="selectedSubgroupId"
+			   (onSubgroupSelected)="onSubgroupSelected($event)"
+			   (onSetTreeFilter)="hideDetails()">
+	</group-bar>
+</div>
+<div class="phd-my-favorites">
+	<ng-container *ngIf="!showDetails">
+		<normal-experience [groupName]="groupName"
+						[currentSubgroup]="selectedSubGroup"
+						[errorMessage]="errorMessage"
+						[myFavoritesChoices]="myFavoritesChoices"
+						[decisionPointId]="selectedPointId"
+						[includeContractedOptions]="includeContractedOptions"
+						[salesChoices]="salesChoices"
+						(onToggleChoice)="toggleChoice($event)"
+						(onToggleContractedOptions)="toggleContractedOptions()"
+						(onViewChoiceDetail)="viewChoiceDetail($event)"
+						(onSelectDecisionPoint)="selectDecisionPoint($event)">
+		</normal-experience>
+	</ng-container>
+	<ng-container *ngIf="showDetails">
+		<choice-card-detail	[choice]="selectedChoice"
+						[path]="getChoicePath()"
+						(onBack)="hideDetails()"
+						(onToggleChoice)="toggleChoice($event)">
+		</choice-card-detail>
+	</ng-container>
+</div>
+
+<action-bar [primaryAction]="showDetails ? 'Back' : 'Next'" [price]="priceBreakdown.totalPrice" (callToAction)="showDetails ? hideDetails() : onNextSubGroup()"></action-bar>

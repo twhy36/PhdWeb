@@ -1,0 +1,32 @@
+<side-panel-component [headerTemplate]="header" [bodyTemplate]="body" [footerTemplate]="footer" [sidePanelOpen]="sidePanelOpen" (onSidePanelClose)="onCloseSidePanel($event)">
+	<ng-template #header>
+		<h4 class="phd-side-panel-header"><strong>{{ sidePanelHeader }}</strong></h4>
+	</ng-template>
+
+	<ng-template #body>
+		<form [formGroup]="catalogForm">
+			<div class="form-group">
+				<label for="itemLabel" class="col-form-label">Label</label>
+				<input type="text" class="form-control" id="itemLabel" name="itemLabel" maxlength="50" formControlName="itemLabel" />
+				<span *ngIf="catalogForm.controls.itemLabel && catalogForm.controls.itemLabel.invalid && (catalogForm.controls.itemLabel.dirty || catalogForm.controls.itemLabel.touched) && catalogForm.controls.itemLabel.errors.alreadyExist">This Label already exists.</span>
+			</div>
+
+			<div class="form-group" *ngIf="showDescription">
+				<label for="description" class="col-form-label">Description</label>
+				<textarea class="form-control" id="description" rows="3" maxlength="250" formControlName="itemDescription"></textarea>
+			</div>
+		</form>
+	</ng-template>
+
+	<ng-template #footer>
+		<div class="pull-right">
+			<button class="btn btn-primary phd-btn-save" (click)="save();" [disabled]="canSave">
+				Save
+
+				<i class="fa fa-spinner fa-spin fa-fw" *ngIf="isSaving"></i>
+			</button>
+
+			<button class="btn btn-secondary" (click)="toggleSidePanel()">Cancel</button>
+		</div>
+	</ng-template>
+</side-panel-component>

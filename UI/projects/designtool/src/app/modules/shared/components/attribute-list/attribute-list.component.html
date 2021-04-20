@@ -1,0 +1,74 @@
+<div class="phd-attribute-item-container" [ngClass]="{'flex-column': !showCarousel}">
+	<div *ngIf="!showCarousel" class="phd-expanded-header">
+		<div class="phd-label" title="{{selectedAttributeGroup.label}}">{{selectedAttributeGroup.label}}</div>
+		<div class="phd-close">
+			<label (click)="closeClicked()"><i class="fas fa-times-circle"></i></label>
+		</div>
+	</div>
+
+	<div class="phd-preview-preview" *ngIf="previewImageSrc && !showCarousel">
+		<div class="phd-preview-header">
+			<div class="phd-label" title="{{previewImageLabel}}">{{previewImageLabel}}</div>
+			<div class="phd-close-preview">
+				<label (click)="closePreview()"><i class="fas fa-times-circle"></i></label>
+			</div>
+		</div>
+
+		<div class="phd-preview-fader" [class.on]="doFade">
+			<cl-image public-id="{{previewImageSrc}}" title="" type="fetch" background="#ffffff" crop="lpad" height="300" width="300" class="phd-attribute-item-image"></cl-image>
+		</div>
+	</div>
+
+	<div [ngClass]="{'phd-attribute-value-container': showCarousel, 'phd-expanded': !showCarousel }">
+		<ng-container *ngIf="showCarousel">
+			<p-carousel [value]="attributes" [numVisible]="4" [numScroll]="1" [responsiveOptions]="responsiveOptions">
+				<ng-template let-attribute pTemplate="item">
+					<ng-container *ngTemplateOutlet="attributeItem; context: {attribute: attribute}"></ng-container>
+				</ng-template>
+			</p-carousel>
+		</ng-container>
+
+		<div class="phd-attribute-list" *ngIf="!showCarousel">
+			<div *ngFor="let attribute of attributes" class="phd-attribute-list-container">
+				<ng-container *ngTemplateOutlet="attributeItem; context: {attribute: attribute}"></ng-container>
+			</div>
+		</div>
+	</div>
+</div>
+
+<ng-template let-attribute="attribute" #attributeItem>
+	<div class="row no-gutters phd-attribute-item">
+		<div class="col-12">
+			<div class="phd-attribute-item-image-body">
+				<div class="phd-thumbnail">
+					<cl-image public-id="{{getImageSrc(attribute)}}" title="{{getTitle(attribute)}}" type="fetch" gravity="auto" [class.disabled]="!isActive"
+							  crop="fill" height="80" width="80" (click)="attributeClick(attribute)" (onError)="onLoadImageError($event)" class="phd-attribute-item-image"
+							  [class.phd-attribute-disabled]="!canEditAttributes"
+							  [class.phd-attribute-item-image-selected]="selectedAttributeId === attribute.id"
+							  [class.phd-image-is-inactive]="(!isActive && attribute.monotonyConflict)">
+					</cl-image>
+
+					<span href="#" (click)="preview(attribute, $event)" *ngIf="hasImage">
+						<i class="fas fa-search-plus"></i>
+					</span>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-12">
+			<span class="phd-attribute-name"
+				  [class.phd-attribute-item-label-selected]="selectedAttributeId === attribute.id"
+				  [class.phd-is-inactive]="(!isActive && attribute.monotonyConflict && !canOverride)"
+				  [class.phd-attribute-disabled]="!canEditAgreement || (isPastCutOff && !canOverride) "
+				  title="{{getTitle(attribute)}}"
+				  (click)="attributeClick(attribute)">
+				{{attribute.name | ellipsis: 13}}
+			</span>
+		</div>
+
+		<div class="col-12" *ngIf="attribute.monotonyConflict && !(monotonyOverride | async)">
+			<span class="phd-monotony">Monotony Conflict</span>
+		</div>
+	</div>
+</ng-template>
+

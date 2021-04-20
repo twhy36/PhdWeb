@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { Observable } from 'rxjs';
+import { IdentityService } from './services/identity.service';
 
 @Component({
     selector: 'app-root',
@@ -6,7 +8,10 @@ import { Component } from '@angular/core';
     styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-    constructor() {
+    loggedIn$: Observable<boolean>;
 
+    constructor(private identityService: IdentityService)
+    {
+        this.loggedIn$ = this.identityService.loggedIn;
     }
 }
