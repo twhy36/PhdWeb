@@ -70,7 +70,6 @@
 				"karma-coverage-istanbul-reporter": "^2.1.1",
 				"karma-jasmine": "~3.1.1",
 				"karma-jasmine-html-reporter": "^1.5.2",
-				"karma-phantomjs-launcher": "^1.0.4",
 				"karma-trx-reporter": "^0.4.3",
 				"ng-packagr": "^11.0.3",
 				"protractor": "~6.0.0",

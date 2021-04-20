@@ -1,3 +1,5 @@
+/// <reference types="jasmine" />
+
 import { ScenarioStatusType, TreeVersion } from 'phd-common';
 import {
 		State,
@@ -3396,7 +3398,8 @@ describe('Common reducer', function ()
 			homesiteEstimate: 63000,
 			designEstimate: 45,
 			totalPrice: 126458,
-			changePrice: 81458
+			changePrice: 81458,
+			favoritesPrice: 0
 		});
 	});
 

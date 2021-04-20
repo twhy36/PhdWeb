@@ -9,7 +9,7 @@ module.exports = function (config) {
 		frameworks: ['jasmine', '@angular-devkit/build-angular'],
 		plugins: [
 			require('karma-jasmine'),
-			require('karma-phantomjs-launcher'),
+			require('karma-chrome-launcher'),
 			require('karma-jasmine-html-reporter'),
 			require('karma-coverage-istanbul-reporter'),
 			require('karma-trx-reporter'),
@@ -32,7 +32,7 @@ module.exports = function (config) {
 		colors: true,
 		logLevel: config.LOG_INFO,
 		autoWatch: true,
-		browsers: ['PhantomJS'],
+		browsers: ['ChromeHeadless'],
 		trxReporter: { outputFile: 'test-results.trx', shortTestName: true },
 		singleRun: true
 	});
