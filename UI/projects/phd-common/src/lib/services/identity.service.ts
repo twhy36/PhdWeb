@@ -89,10 +89,25 @@ export class IdentityService
 
 		this.osvc.configure(authConfig);
 		this.osvc.setupAutomaticSilentRefresh();
+		
+		if (this.apiUrl.indexOf('http://localhost:2845') === 0)
+		{
+			if (window.location.pathname !== '/?code=' && window.location.pathname !== '/')
+			{
+				sessionStorage.setItem('uri_state', window.location.href);
+			}
+		}
 
 		this.osvc.loadDiscoveryDocumentAndTryLogin().then(res =>
 		{
 			this.loggedInSubject$.next(this.osvc.hasValidAccessToken() && this.osvc.hasValidIdToken());
+
+			if (window.location.pathname === '/' && sessionStorage.getItem('uri_state'))
+			{
+				const uri = sessionStorage.getItem('uri_state');
+				sessionStorage.removeItem('uri_state');
+				window.location.href = uri;
+			}
 		});
 	}
 
