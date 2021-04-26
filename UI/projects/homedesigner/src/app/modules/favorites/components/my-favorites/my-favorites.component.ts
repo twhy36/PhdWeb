@@ -48,6 +48,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 	salesChoices: JobChoice[];
 	showDetails: boolean = false;
 	selectedChoice: ChoiceExt;
+	declinedPoints: Map<string, boolean> = new Map();
 
 	priceBreakdown: PriceBreakdown;
 
@@ -200,7 +201,19 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		).subscribe(fav => {
 			this.includeContractedOptions = fav && fav.includeContractedOptions;
 			this.salesChoices = fav && fav.salesChoices;
-		});		
+		});
+		this.groups.forEach(group => {
+			group.subGroups.forEach(sg => {
+				sg.points.forEach(p => {
+					if (p.pointPickTypeId % 2 === 0) {
+						console.log("Decision Point " + p.label + " has a " + p.pointPickTypeLabel);
+						this.declinedPoints.set(p.label, false);
+					}
+				})
+			})
+			console.log(group.subGroups)
+			console.log(this.declinedPoints);
+		});
 	}
 
 	setSelectedGroup(newGroup: Group, newSubGroup: SubGroup) {
@@ -236,9 +249,50 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			selectedChoices.push({ choiceId: c.id, quantity: 0, attributes: c.selectedAttributes });
 		});
 
+		selectedChoices.push({choiceId: 0, quantity: 1, attributes: []});
+
+		// let pointLabel = this.myFavoritesChoices[this.myFavoritesChoices.length].decisionPointLabel;
+		// console.log("IMADEITYO " + (this.myFavoritesChoices.length));
+		// if(this.declinedPoints.get(pointLabel) === true) {
+		// 	console.log("Resetting " + pointLabel);
+		// 	this.declinedPoints.set(pointLabel, false);
+		// }
+
 		this.store.dispatch(new ScenarioActions.SelectChoices(...selectedChoices));
 		this.store.dispatch(new FavoriteActions.SaveMyFavoritesChoices());
-	}	
+		
+		
+	}
+
+	deselectPointChoices(pointLabel: string) {
+		console.log("Deselecting choices...");
+		let selectedChoices = [];
+		//let selectedChoicesOld = [{ choiceId: choice.id, quantity: !choice.quantity ? 1 : 0, attributes: choice.selectedAttributes }];
+		this.myFavoritesChoices.forEach(choice => {
+			if (choice.decisionPointLabel === pointLabel) {
+				selectedChoices.push({ choiceId: choice.dpChoiceId, quantity: 0, attributes: [] });
+			}
+		});
+		this.store.dispatch(new ScenarioActions.SelectChoices(...selectedChoices));
+		this.store.dispatch(new FavoriteActions.SaveMyFavoritesChoices());
+		console.log("All choices for " + pointLabel + " should be deselected");
+	}
+	
+	//
+	// toggleDeclineChoice()
+	// {
+	// 	console.log("toggleDeclineChoice()");
+	// 	// let selectedChoices = [{ choiceId: 0, quantity: 1, attributes: choice.selectedAttributes }];
+	// 	// const impactedChoices = getDependentChoices(this.tree, this.treeVersionRules, choice);
+
+	// 	// impactedChoices.forEach(c =>
+	// 	// {
+	// 	// 	selectedChoices.push({ choiceId: c.id, quantity: 0, attributes: c.selectedAttributes });
+	// 	// });
+
+	// 	// this.store.dispatch(new ScenarioActions.SelectChoices(...selectedChoices));
+	// 	// this.store.dispatch(new FavoriteActions.SaveMyFavoritesChoices());
+	// }
 
 	toggleContractedOptions()
 	{
@@ -300,5 +354,17 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 	selectDecisionPoint(pointId: number)
 	{
 		this.selectedPointId = pointId;
+		console.log(this.selectedPointId);
+	}
+
+	declineDecisionPoint(pointLabel: string) {
+		this.declinedPoints.set(pointLabel, !this.declinedPoints.get(pointLabel));
+		console.log(this.declinedPoints);
+		if (this.declinedPoints.get(pointLabel) === true) {
+			this.deselectPointChoices(pointLabel);
+			console.log("My favorites declines - " + pointLabel);
+		} else {
+			console.log("My favorites undeclines - " + pointLabel);
+		}
 	}
 }

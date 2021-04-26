@@ -1,6 +1,6 @@
 import { Component, Input, Output, OnInit, OnChanges, SimpleChanges, EventEmitter } from '@angular/core';
 
-import { UnsubscribeOnDestroy, flipOver3, OptionImage } from 'phd-common';
+import { UnsubscribeOnDestroy, flipOver3, OptionImage, Choice } from 'phd-common';
 import { ChoiceExt } from '../../models/choice-ext.model';
 
 @Component({
@@ -14,11 +14,17 @@ import { ChoiceExt } from '../../models/choice-ext.model';
 export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit, OnChanges
 {
 	@Input() currentChoice: ChoiceExt;
+	@Input() isDeclineCard?: boolean = false;
+	@Input() decisionPointLabel?: string = '';
+	@Input() declinedPoints?:  Map<string, boolean>;
 	
 	@Output() toggled = new EventEmitter<ChoiceExt>();
+	@Output() toggleDeclineStatus = new EventEmitter<boolean>();
 	@Output() onViewChoiceDetail = new EventEmitter<ChoiceExt>();
+	@Output() onDeclineDecisionPoint = new EventEmitter<string>();
 
 	choice: ChoiceExt;
+	isDeclined: boolean = false;
 	choiceMsg: object[] = [];
 	optionImages: OptionImage[];
 	imageUrl: string = '';
@@ -30,6 +36,11 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 
 	ngOnInit()
 	{
+		if (this.isDeclineCard===true) {
+			console.log("I am the decline card for " + this.decisionPointLabel);
+			this.isDeclined = this.declinedPoints.get(this.decisionPointLabel);
+		}
+		// console.log("Is this a decline card? " + (this.isDeclineCard===true ? " Yes!" : " No!"));
 	}
 
 	ngOnChanges(changes: SimpleChanges)
@@ -78,6 +89,18 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 
 	toggleChoice() {
 		this.toggled.emit(this.choice);
+	}
+
+	toggleDecline() {
+		console.log(this.declinedPoints.get(this.decisionPointLabel));
+		if (this.declinedPoints.get(this.decisionPointLabel) === false) {
+			this.isDeclined = true;
+		} else {
+			this.isDeclined = false;
+		}
+		this.toggleDeclineStatus.emit(this.isDeclined);
+		this.onDeclineDecisionPoint.emit(this.decisionPointLabel);
+		console.log(this.decisionPointLabel + " has been declined");
 	}
 
 	viewChoiceDetail()

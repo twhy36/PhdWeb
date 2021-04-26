@@ -13,13 +13,15 @@
 						[currentSubgroup]="selectedSubGroup"
 						[errorMessage]="errorMessage"
 						[myFavoritesChoices]="myFavoritesChoices"
+						[declinedPoints]="declinedPoints"
 						[decisionPointId]="selectedPointId"
 						[includeContractedOptions]="includeContractedOptions"
 						[salesChoices]="salesChoices"
 						(onToggleChoice)="toggleChoice($event)"
 						(onToggleContractedOptions)="toggleContractedOptions()"
 						(onViewChoiceDetail)="viewChoiceDetail($event)"
-						(onSelectDecisionPoint)="selectDecisionPoint($event)">
+						(onSelectDecisionPoint)="selectDecisionPoint($event)"
+						(onDeclineDecisionPoint)="declineDecisionPoint($event)">
 		</normal-experience>
 	</ng-container>
 	<ng-container *ngIf="showDetails">

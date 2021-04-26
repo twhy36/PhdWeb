@@ -37,6 +37,14 @@
 								(toggled)="choiceToggleHandler($event)"
 								(onViewChoiceDetail)="viewChoiceDetail($event)">
 					</choice-card>
+					<choice-card *ngIf="point.pointPickTypeId % 2 === 0"
+								[isDeclineCard]="true"
+								[decisionPointLabel]="point.label"
+								[declinedPoints]="declinedPoints"
+								(toggleDeclineStatus)="declineToggleHandler($event)"
+								(onDeclineDecisionPoint)="declineDecisionPoint($event)"
+						>
+					</choice-card>
 				</div>
 			</ng-container>
 		</div>

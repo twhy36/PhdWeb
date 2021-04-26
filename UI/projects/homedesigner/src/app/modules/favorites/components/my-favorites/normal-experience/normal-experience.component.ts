@@ -19,6 +19,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	@Input() currentSubgroup: SubGroup;
 	@Input() errorMessage: string;
 	@Input() myFavoritesChoices: MyFavoritesChoice[];
+	@Input() declinedPoints: Map<string, boolean>;
 	@Input() decisionPointId: number;
 	@Input() includeContractedOptions: boolean = true;
 	@Input() salesChoices: JobChoice[];
@@ -27,6 +28,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	@Output() onToggleContractedOptions = new EventEmitter();
 	@Output() onViewChoiceDetail = new EventEmitter<ChoiceExt>();
 	@Output() onSelectDecisionPoint = new EventEmitter<number>();
+	@Output() onDeclineDecisionPoint = new EventEmitter<string>();
 
 	isPointPanelCollapsed: boolean = false;
 	points: DecisionPoint[];
@@ -82,19 +84,19 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 				case PickType.Pick1:
 					return isPreviouslyContracted
 							? 'Previously Contracted Option'
-							: 'Please select 1 of the choices below';
+							: 'Please select one of the choices below';//'Please select 1 of the choices below';
 				case PickType.Pick1ormore:
 					return isPreviouslyContracted
 							? 'Previously Contracted Options'
-							: 'Please select 1 or more of the Choices below';
+							: 'Please select at least one of the Choices below';//'Please select 1 or more of the Choices below';
 				case PickType.Pick0ormore:
 					return isPreviouslyContracted
 							? 'Previously Contracted Options'
-							: 'Please select 0 or more of the choices below';
+							: 'Please select at least one of the Choices below';//'Please select 0 or more of the choices below';
 				case PickType.Pick0or1:
 					return isPreviouslyContracted
 							? 'Previously Contracted Option'
-							: 'Please select 0 or 1 of the Choices below';
+							: 'Please select one of the choices below';//'Please select 0 or 1 of the Choices below';
 				default:
 					return '';
 			}
@@ -123,14 +125,25 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 		}
 	}
 
+	declineDecisionPoint(pointLabel: string) {
+		this.onDeclineDecisionPoint.emit(pointLabel);
+		console.log("Normal Experience denies - " + pointLabel);
+	}
+
 	choiceToggleHandler(choice: ChoiceExt) {
+		console.log(choice);
 		const point = this.points.find(p => p.choices.some(c => c.id === choice.id));
 		if (point && this.currentPointId != point.id) {
 			this.currentPointId = point.id;
 		}
-
 		this.choiceToggled = true;
+		let dpLabel = point.label;
+		this.declinedPoints.set(dpLabel, false);
 		this.onToggleChoice.emit(choice);
+	}
+
+	declineToggleHandler(isDecline: boolean) {
+		// this.points.
 	}
 
 	toggleContractedOptions(event: any) {
