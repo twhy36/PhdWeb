@@ -97,3 +97,36 @@ stages:
         deploy:
           steps:
           - script: echo 'Approved!'
+- stage: Production
+  dependsOn: StgApproval
+  pool: PGAZADOR1P
+  variables:
+  - group: 'PHD PROD'
+  jobs:
+  - template: deploy.yml
+    parameters:
+      resources:
+      - jobName: 'ProdEast'
+        environment: 'PhdProd'
+        webAppName: 'PhdEastProd'
+        resourceGroup: 'PHD-PROD-EAST'
+        subscription: 'Production'
+      - jobName: 'ProdWest'
+        environment: 'PhdProd'
+        webAppName: 'PhdWestProd'
+        resourceGroup: 'PHD-PROD-WEST'
+        subscription: 'Production'
+      buildConfiguration: 'production'
+- stage: ProdApproval
+  displayName: Production Post-Deployment Approval
+  dependsOn: Production
+  pool: PGAZADOR1P
+  jobs:
+  - deployment: ProdApproval
+    displayName: Post-Deployment Approval
+    environment: 'PhdPostApproval'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - script: echo 'Approved!'
