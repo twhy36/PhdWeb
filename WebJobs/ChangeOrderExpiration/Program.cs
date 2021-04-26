@@ -156,7 +156,7 @@ namespace ChangeOrderExpiration
         static async Task<bool> IsCOESigned(int changeOrderGroupId, ODataClient client)
         {
             var envelope = await client.For("eSignEnvelopes")
-                .Filter($"edhChangeOrderGroupId eq {changeOrderGroupId} and sentDate ne null")
+                .Filter($"edhChangeOrderGroupId eq {changeOrderGroupId} and sentDate ne null and eSignStatusId ne 5")
                 .FindEntryAsync();
             return envelope != null;
         }
