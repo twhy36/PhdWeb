@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, Output, EventEmitter, ViewChildren, QueryList, AfterViewInit, ViewChild } from '@angular/core';
+import { Component, Input, OnInit, Output, EventEmitter, ViewChildren, QueryList, AfterViewInit, ViewChild, OnChanges, SimpleChanges } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { ReplaySubject } from 'rxjs';
 
@@ -19,7 +19,7 @@ import { ModalService } from '../../../core/services/modal.service';
 	templateUrl: './choice-card-detail.component.html',
 	styleUrls: ['./choice-card-detail.component.scss']
 })
-export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements OnInit, AfterViewInit
+export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements OnInit, AfterViewInit, OnChanges
 {
 	@Input() choice: Choice;
 	@Input() locationGroups: LocationGroup[];
@@ -49,7 +49,8 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	qtyAvailable: number;
 	selectedQuantity: number;
 
-	@Input() choiceImages: ChoiceImageAssoc[];
+	@Input() currentChoiceImages: ChoiceImageAssoc[];
+	choiceImages: ChoiceImageAssoc[];
 	optionImages: OptionImage[] = [];
 	override$ = new ReplaySubject<boolean>(1);
 	choiceDescriptions: string[] = [];
@@ -91,6 +92,15 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		this.quantityMin = this.getQuantityMin();
 	}
 
+	ngOnChanges(changes: SimpleChanges)
+	{
+		if (changes['currentChoiceImages'])
+		{
+			this.choiceImages = changes['currentChoiceImages'].currentValue;
+			this.getImages();
+		}
+	}	
+
 	getQuantityMin(): number
 	{
 		let partialQuantitySelected = this.getSelectedQuantity(false);
@@ -120,6 +130,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 
 	getImages()
 	{
+		this.optionImages = [];
 		if (this.choice.options)
 		{
 			this.choice.options.forEach(option =>
