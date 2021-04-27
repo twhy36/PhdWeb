@@ -6,13 +6,14 @@ import { _throw } from 'rxjs/observable/throw';
 import * as _ from 'lodash';
 import * as moment from "moment";
 
-import {
-	LocationGroup, Location, AttributeGroup, Attribute, DesignToolAttribute, AttributeCommunityImageAssoc,
-	ChangeOrderGroup, ChangeOrderChoice, ChangeOrderPlanOption, ChangeOrderChoiceAttribute, ChangeOrderChoiceLocation,
-	JobChoice, JobPlanOption, JobChoiceAttribute, JobChoiceLocation, Job, PlanOption, PointStatus, ConstructionStageTypes,
-	OptionRule, TreeVersionRules, Scenario, SelectedChoice, Tree, Choice, DecisionPoint, MappedAttributeGroup, MappedLocationGroup,
-	OptionImage, SubGroup, Group, applyRules, findChoice
-} from 'phd-common';
+import
+	{
+		LocationGroup, Location, AttributeGroup, Attribute, DesignToolAttribute, AttributeCommunityImageAssoc,
+		ChangeOrderGroup, ChangeOrderChoice, ChangeOrderPlanOption, ChangeOrderChoiceAttribute, ChangeOrderChoiceLocation,
+		JobChoice, JobPlanOption, JobChoiceAttribute, JobChoiceLocation, Job, PlanOption, PointStatus, ConstructionStageTypes,
+		OptionRule, TreeVersionRules, Scenario, SelectedChoice, Tree, Choice, DecisionPoint, MappedAttributeGroup, MappedLocationGroup,
+		OptionImage, SubGroup, Group, applyRules, findChoice
+	} from 'phd-common';
 
 import { TreeService } from '../../core/services/tree.service';
 
@@ -127,7 +128,8 @@ function isOptionLocked(changeOrder: ChangeOrderGroup): (option: JobPlanOption |
 	return (option: JobPlanOption | ChangeOrderPlanOption) => isJobPlanOption(option) || (!!changeOrder && ['Pending', 'Withdrawn'].indexOf(changeOrder.salesStatusDescription) === -1);
 }
 
-function getDefaultOptionRule(optionNumber: string, choice: Choice): OptionRule {
+function getDefaultOptionRule(optionNumber: string, choice: Choice): OptionRule
+{
 	return <OptionRule>{
 		optionId: optionNumber, choices: [
 			{
@@ -200,14 +202,16 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 								//get a list of all the original mapped options for the choice
 								let opt = getOptions(choice, options).map(option =>
 								{
-									if (option) {
+									if (option)
+									{
 										let qty = option instanceof JobPlanOption ? option.optionQty : option.qty;
 										let attributeGroups = option instanceof JobPlanOption ? option.jobPlanOptionAttributes.map(att => att.attributeGroupCommunityId) : option.jobChangeOrderPlanOptionAttributes.map(att => att.attributeGroupCommunityId);
 										let locationGroups = option instanceof JobPlanOption ? option.jobPlanOptionLocations.map(loc => loc.locationGroupCommunityId) : option.jobChangeOrderPlanOptionLocations.map(loc => loc.locationGroupCommunityId);
 
 										let existingOption = data.options.find(o => o.financialOptionIntegrationKey === option.integrationKey);
 
-										if (existingOption) {
+										if (existingOption)
+										{
 											attributeGroups.push(...existingOption.attributeGroups.filter(ag => !attributeGroups.some(ag2 => ag2 === ag)));
 										}
 
@@ -247,7 +251,9 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 									maxQuantity = opt[0].maxOrderQuantity;
 								}
 
-								let newChoice = <Choice>{
+								let newChoice = new Choice();
+
+								newChoice = {...newChoice,
 									divChoiceCatalogId: ch.divChoiceCatalogID,
 									enabled: true,
 									id: ch.dpChoiceID,
@@ -298,6 +304,7 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 									else
 									{
 										let group = data.tree.treeVersion.groups.find(g => ch.dPoint.dSubGroup.dGroup.dGroupCatalogID === g.groupCatalogId);
+
 										if (group)
 										{
 											let newSubGroup = <SubGroup>{
