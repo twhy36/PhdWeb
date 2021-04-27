@@ -47,5 +47,14 @@ ul {
 			transition: all .5s;
 			font-weight: 500;
 		}
+
+		.icon {
+			width: 25px;
+
+			.fa-check {
+				color: $pantone_blue;
+				-webkit-text-stroke: 1px white;
+			}
+		}
 	}
 }

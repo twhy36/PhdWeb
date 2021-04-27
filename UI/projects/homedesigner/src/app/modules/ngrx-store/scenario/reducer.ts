@@ -5,7 +5,7 @@ import * as _ from "lodash";
 import {
 	applyRules, getMaxSortOrderChoice, findChoice, findPoint, selectChoice,
 	DesignToolAttribute, SalesCommunity, PlanOption, TreeVersionRules, Scenario, TreeFilter,
-	Tree, Choice, Group, SubGroup, DecisionPoint, PickType
+	Tree, Choice, Group, SubGroup, DecisionPoint, PickType, setPointStatus, setSubgroupStatus, setGroupStatus, PointStatus
 } from 'phd-common';
 
 import { checkSelectedAttributes } from '../../shared/classes/tree.utils';
@@ -150,6 +150,14 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 					.forEach(pt => pt.completed = pt.choices.some(c => c.quantity > 0));
 
 				applyRules(newState.tree, newState.rules, newState.options);
+
+				subGroups = _.flatMap(newState.tree.treeVersion.groups, g => g.subGroups);
+				points = _.flatMap(subGroups, sg => sg.points);
+				points.forEach(pt => setPointStatus(pt));
+				// For each point, if the user cannot select the DP in this tool, then the status should be complete
+				points.filter(pt => pt.isStructuralItem).forEach(pt => pt.status = PointStatus.COMPLETED);
+				subGroups.forEach(sg => setSubgroupStatus(sg));
+				newState.tree.treeVersion.groups.forEach(g => setGroupStatus(g));
 			}
 
 			return { ...state, ...newState };
@@ -220,10 +228,19 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 				}
 			}
 
+			points.forEach(point => {
+				point.completed = point && point.choices && point.choices.some(ch => ch.quantity > 0);
+			});
 			applyRules(newTree, rules, options);
 
 			// check selected attributes to make sure they're still valid after applying rules
 			checkSelectedAttributes(choices);
+
+			points.forEach(pt => setPointStatus(pt));
+			// For each point, if the user cannot select the DP in this tool, then the status should be complete
+			points.filter(pt => pt.isStructuralItem).forEach(pt => pt.status = PointStatus.COMPLETED);
+			subGroups.forEach(sg => setSubgroupStatus(sg));
+			newTree.treeVersion.groups.forEach(g => setGroupStatus(g));
 
 			return { ...state, tree: newTree, rules: rules, options: options, isUnsaved: true, pointHasChanges: true };
 
@@ -245,7 +262,7 @@ export const getGroupsById = createSelector(
 
 		let groupsById = {};
 
-		_.forEach(state.tree.treeVersion.groups, (g: Group) => 
+		_.forEach(state.tree.treeVersion.groups, (g: Group) =>
 		{
 			if (!groupsById[g.id])
 			{
@@ -274,7 +291,7 @@ export const getSubGroupsById = createSelector(
 
 		let subGroupsById = {};
 
-		_.forEach(groupsById, (g: Group) => _.forEach(g.subGroups, (sg: SubGroup) => 
+		_.forEach(groupsById, (g: Group) => _.forEach(g.subGroups, (sg: SubGroup) =>
 		{
 			if (!subGroupsById[sg.id])
 			{
