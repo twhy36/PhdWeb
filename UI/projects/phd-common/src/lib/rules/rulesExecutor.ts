@@ -537,7 +537,7 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 			choice.options = choice.lockedInOptions.map(o => options.find(po => o && po.financialOptionIntegrationKey === o.optionId));
 			choice.mappingChanged = true;
 
-			//since the option mapping is changed, flag each dependency 
+			//since the option mapping is changed, flag each dependency
 			choice.lockedInOptions.forEach(o =>
 			{
 				if (o) {
@@ -572,7 +572,7 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 
 	points.forEach(point => {
 		point.completed = point && point.choices && point.choices.some(ch => ch.quantity > 0);
-	});	
+	});
 }
 
 function getMaxQuantity(option: PlanOption, choice: Choice): number

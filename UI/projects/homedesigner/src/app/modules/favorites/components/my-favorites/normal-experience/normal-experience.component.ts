@@ -38,9 +38,9 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 
 	ngOnInit() { }
 
-	ngOnChanges(changes: SimpleChanges) 
+	ngOnChanges(changes: SimpleChanges)
 	{
-		if (changes['currentSubgroup']) 
+		if (changes['currentSubgroup'])
 		{
 			const newSubGroup = (changes['currentSubgroup'].currentValue) as SubGroup;
 			if (this.choiceToggled)
@@ -64,7 +64,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 			}
 		}
 
-		if (changes['decisionPointId']) 
+		if (changes['decisionPointId'])
 		{
 			this.selectDecisionPoint(changes['decisionPointId'].currentValue);
 		}
@@ -76,7 +76,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 		{
 			const contractedChoices = point.choices.filter(c => this.salesChoices.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1);
 			const isPreviouslyContracted = contractedChoices && contractedChoices.length;
-			
+
 			switch (point.pointPickTypeId)
 			{
 				case PickType.Pick1:
@@ -118,8 +118,8 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 					this.scrollPointIntoView(pointId, pointId === firstPointId);
 				}, 250);
 			}
-			this.currentPointId = pointId;	
-			this.onSelectDecisionPoint.emit(pointId);		
+			this.currentPointId = pointId;
+			this.onSelectDecisionPoint.emit(pointId);
 		}
 	}
 
@@ -137,7 +137,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 		this.onToggleContractedOptions.emit();
 	}
 
-	getChoiceExt(choice: Choice, point: DecisionPoint) : ChoiceExt 
+	getChoiceExt(choice: Choice, point: DecisionPoint) : ChoiceExt
 	{
 		let choiceStatus = 'Available';
 		if (this.salesChoices.findIndex(c => c.divChoiceCatalogId === choice.divChoiceCatalogId) > -1)
@@ -147,11 +147,11 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 		else
 		{
 			const contractedChoices = point.choices.filter(c => this.salesChoices.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1);
-			if (contractedChoices && contractedChoices.length && 
+			if (contractedChoices && contractedChoices.length &&
 				(point.pointPickTypeId === PickType.Pick1 || point.pointPickTypeId === PickType.Pick0or1))
 			{
 				choiceStatus = 'ViewOnly';
-			}			
+			}
 		}
 
 		const myFavoritesChoice = this.myFavoritesChoices ? this.myFavoritesChoices.find(x => x.divChoiceCatalogId === choice.divChoiceCatalogId) : null;
@@ -176,7 +176,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 				decision.style.top = '-150px';
 				decision.scrollIntoView({behavior: 'smooth', block: 'start'});
 				decision.style.top = top;
-				decision.style.position = pos;				
+				decision.style.position = pos;
 			}
 		}
 	}
