@@ -39,31 +39,25 @@ export class AttributeService
 
 		if (keywords)
 		{
-			let filters = [];
-			const keywordArray = keywords.toLowerCase().split(' ');
+			var keywordFilter = '';
 
-			keywordArray.map(keyword =>
+			if (!filterName)
 			{
-				if (!filterName)
-				{
-					filters.push(`indexof(tolower(name), '${keyword}') gt -1`);
-					filters.push(`indexof(tolower(sku), '${keyword}') gt -1`);
-					filters.push(`indexof(tolower(manufacturer), '${keyword}') gt -1`);
-					filters.push(`attributeMarketTags/any(a: (indexof(tolower(a/tag), '${keyword}') gt -1) )`);
-				}
-				else if (filterName === 'tagsString')
-				{
-					filters.push(`attributeMarketTags/any(a: (indexof(tolower(a/tag), '${keyword}') gt -1) )`);
-				}
-				else
-				{
-					filters.push(`indexof(tolower(${filterName}), '${keyword}') gt -1`);
-				}
-			});
+				keywordFilter += `indexof(tolower(name), '${keywords}') gt -1`;
+				keywordFilter += ` or indexof(tolower(sku), '${keywords}') gt -1`;
+				keywordFilter += ` or indexof(tolower(manufacturer), '${keywords}') gt -1`;
+				keywordFilter += ` or attributeMarketTags/any(a: (indexof(tolower(a/tag), '${keywords}') gt -1) )`;
+			}
+			else if (filterName === 'tagsString')
+			{
+				keywordFilter += `attributeMarketTags/any(a: (indexof(tolower(a/tag), '${keywords}') gt -1) )`;
+			}
+			else
+			{
+				keywordFilter += `indexof(tolower(${filterName}), '${keywords}') gt -1`;
+			}
 
-			const keysfilter = filters.join(' or ');
-
-			filter = `(${keysfilter}) and marketId eq ${marketId}`;
+			filter += ` and (${keywordFilter})`;
 		}
 
 		if (status !== null && status !== undefined)
@@ -113,34 +107,29 @@ export class AttributeService
 
 		if (keywords)
 		{
-			let filters = [];
-			const keywordArray = keywords.toLowerCase().split(' ');
+			var keywordFilter = '';
 
-			keywordArray.map(keyword =>
+			if (!filterName)
 			{
-				if (!filterName)
-				{
-					filters.push(`indexof(tolower(groupName), '${keyword}') gt -1`);
-					filters.push(`attributeGroupMarketTags/any(a: (indexof(tolower(a/tag), '${keyword}') gt -1) )`);
-				}
-				else if (filterName === 'tagsString')
-				{
-					filters.push(`attributeGroupMarketTags/any(a: (indexof(tolower(a/tag), '${keyword}') gt -1) )`);
-				}
-				else
-				{
-					filters.push(`indexof(tolower(${filterName}), '${keyword}') gt -1`);
-				}
-			});
+				keywordFilter += `indexof(tolower(groupName), '${keywords}') gt -1`;
+				keywordFilter += ` or attributeGroupMarketTags/any(a: (indexof(tolower(a/tag), '${keywords}') gt -1) )`;
+			}
+			else if (filterName === 'tagsString')
+			{
+				keywordFilter += `attributeGroupMarketTags/any(a: (indexof(tolower(a/tag), '${keywords}') gt -1) )`;
+			}
+			else
+			{
+				keywordFilter += `indexof(tolower(${filterName}), '${keywords}') gt -1`;
+			}
 
-			const keysfilter = filters.join(' or ');
-
-			filter = `(${keysfilter}) and marketId eq ${marketId}`;
+			filter += ` and (${keywordFilter})`;
 		}
 
 		if (status !== null && status !== undefined)
 		{
 			const statusString = status ? 'true' : 'false';
+
 			filter = `(${filter}) and isActive eq ${statusString}`;
 		}
 

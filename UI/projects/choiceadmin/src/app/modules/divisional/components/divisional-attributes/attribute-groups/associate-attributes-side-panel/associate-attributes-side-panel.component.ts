@@ -83,6 +83,7 @@ export class AssociateAttributesSidePanelComponent extends UnsubscribeOnDestroy 
 		this.attributeGroup$.subscribe(g =>
 		{
 			this.groupId = g.id;
+
 			this.filterAssociatedAttributes();
 		});
 
@@ -212,17 +213,10 @@ export class AssociateAttributesSidePanelComponent extends UnsubscribeOnDestroy 
 		if (searchFilter)
 		{
 			this.filteredAttributes = [];
-			let splittedKeywords = keyword.split(' ');
 
-			splittedKeywords.forEach(k =>
-			{
-				if (k)
-				{
-					let filteredResults = this.filterByKeyword(searchFilter, k);
+			let filteredResults = this.filterByKeyword(searchFilter, keyword);
 
-					this.filteredAttributes = unionBy(this.filteredAttributes, filteredResults, 'id');
-				}
-			});
+			this.filteredAttributes = unionBy(this.filteredAttributes, filteredResults, 'id');
 		}
 		else
 		{
@@ -272,6 +266,7 @@ export class AssociateAttributesSidePanelComponent extends UnsubscribeOnDestroy 
 		else if (!isSelected && index >= 0)
 		{
 			this.selectedAttributes.splice(index, 1);
+
 			this.selectedAttributes = [...this.selectedAttributes];
 		}
 	}

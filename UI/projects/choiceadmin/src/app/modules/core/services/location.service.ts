@@ -36,29 +36,23 @@ export class LocationService
 
 		if (keywords)
 		{
-			let filters = [];
-			const keywordArray = keywords.toLowerCase().split(' ');
+			var keywordFilter = '';
 
-			keywordArray.map(keyword =>
+			if (!filterName)
 			{
-				if (!filterName)
-				{
-					filters.push(`indexof(tolower(locationName), '${keyword}') gt -1`);
-					filters.push(`locationMarketTags/any(a: (indexof(tolower(a/tag), '${keyword}') gt -1) )`);
-				}
-				else if (filterName === 'tagsString')
-				{
-					filters.push(`locationMarketTags/any(a: (indexof(tolower(a/tag), '${keyword}') gt -1) )`);
-				}
-				else
-				{
-					filters.push(`indexof(tolower(${filterName}), '${keyword}') gt -1`);
-				}
-			});
+				keywordFilter += `indexof(tolower(locationName), '${keywords}') gt -1`;
+				keywordFilter += ` or locationMarketTags/any(a: (indexof(tolower(a/tag), '${keywords}') gt -1) )`;
+			}
+			else if (filterName === 'tagsString')
+			{
+				keywordFilter += `locationMarketTags/any(a: (indexof(tolower(a/tag), '${keywords}') gt -1) )`;
+			}
+			else
+			{
+				keywordFilter += `indexof(tolower(${filterName}), '${keywords}') gt -1`;
+			}
 
-			const keysfilter = filters.join(' or ');
-
-			filter = `(${keysfilter}) and marketId eq ${marketId}`;
+			filter += ` and (${keywordFilter})`;
 		}
 
 		if (status !== null && status !== undefined)
@@ -108,29 +102,23 @@ export class LocationService
 
 		if (keywords)
 		{
-			let filters = [];
-			const keywordArray = keywords.toLowerCase().split(' ');
-
-			keywordArray.map(keyword =>
+			var keywordFilter = '';
+						
+			if (!filterName)
 			{
-				if (!filterName)
-				{
-					filters.push(`indexof(tolower(locationGroupName), '${keyword}') gt -1`);
-					filters.push(`locationGroupMarketTags/any(a: (indexof(tolower(a/tag), '${keyword}') gt -1) )`);
-				}
-				else if (filterName === 'tagsString')
-				{
-					filters.push(`locationGroupMarketTags/any(a: (indexof(tolower(a/tag), '${keyword}') gt -1) )`);
-				}
-				else
-				{
-					filters.push(`indexof(tolower(${filterName}), '${keyword}') gt -1`);
-				}
-			});
+				keywordFilter += `indexof(tolower(locationGroupName), '${keywords}') gt -1`;
+				keywordFilter += ` or locationGroupMarketTags/any(a: (indexof(tolower(a/tag), '${keywords}') gt -1) )`;
+			}
+			else if (filterName === 'tagsString')
+			{
+				keywordFilter += `locationGroupMarketTags/any(a: (indexof(tolower(a/tag), '${keywords}') gt -1) )`;
+			}
+			else
+			{
+				keywordFilter += `indexof(tolower(${filterName}), '${keywords}') gt -1`;
+			}
 
-			const keysfilter = filters.join(' or ');
-
-			filter = `(${keysfilter}) and marketId eq ${marketId}`;
+			filter += ` and (${keywordFilter})`;
 		}
 
 		if (status !== null && status !== undefined)
