@@ -13,7 +13,7 @@ import * as SalesAgreementActions from '../../../ngrx-store/sales-agreement/acti
 import * as ChangeOrderActions from '../../../ngrx-store/change-order/actions';
 
 import {
-	UnsubscribeOnDestroy, ConfirmModalComponent, ModalRef, ESignTypeEnum, PointStatus, SalesAgreement, Consultant,
+	UnsubscribeOnDestroy, ModalRef, ESignTypeEnum, PointStatus, SalesAgreement, Consultant,
 	PriceBreakdown
 } from 'phd-common';
 
@@ -24,6 +24,7 @@ import { ContractService } from '../../../core/services/contract.service';
 import { PDFViewerComponent } from '../../../shared/components/pdf-viewer/pdf-viewer.component';
 import { SignAgreementComponent } from '../sign-agreement/sign-agreement.component';
 import { ModalService } from '../../../core/services/modal.service';
+import { ConfirmModalComponent } from '../../../core/components/confirm-modal/confirm-modal.component';
 
 type ActionBarStatusType = 'INCOMPLETE' | 'COMPLETE' | 'DISABLED';
 

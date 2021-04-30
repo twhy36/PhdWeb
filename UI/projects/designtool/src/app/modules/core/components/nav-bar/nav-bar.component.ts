@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
 import * as _ from "lodash";
 
 import {
-	UnsubscribeOnDestroy, ConfirmModalComponent, IdentityService, ChangeTypeEnum, Job, Lot, PointStatus,
+	UnsubscribeOnDestroy, IdentityService, ChangeTypeEnum, Job, Lot, PointStatus,
 	Group, DecisionPoint, BrowserService
 } from 'phd-common';
 
@@ -18,6 +18,7 @@ import * as fromJob from '../../../ngrx-store/job/reducer';
 import { LotService } from '../../services/lot.service';
 
 import { ModalService } from '../../../core/services/modal.service';
+import { ConfirmModalComponent } from '../../../core/components/confirm-modal/confirm-modal.component';
 
 @Component({
 	selector: 'nav-bar',
