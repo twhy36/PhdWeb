@@ -16,7 +16,9 @@ import * as fromRoot from '../reducers';
 import
 {
 	LoadError, TemplatesLoaded, ContractActionTypes, CreateEnvelope,
-	EnvelopeCreated, EnvelopeError, AddRemoveSelectedTemplate, FinancialCommunityESignLoaded, LoadFinancialCommunityESign, CreateTerminationEnvelope, TerminationEnvelopeCreated, TerminationEnvelopeError
+	EnvelopeCreated, EnvelopeError, AddRemoveSelectedTemplate, FinancialCommunityESignLoaded, 
+	LoadFinancialCommunityESign, CreateTerminationEnvelope, TerminationEnvelopeCreated, 
+	TerminationEnvelopeError, SetChangeOrderTemplates
 } from './actions';
 import { ContractService } from '../../core/services/contract.service';
 import { ChangeOrderService } from '../../core/services/change-order.service';
@@ -43,6 +45,10 @@ export class ContractEffects
 				if (store.salesAgreement.status === "Pending")
 				{
 					return of(new AddRemoveSelectedTemplate(0, false, ESignTypeEnum.SalesAgreement));
+				}
+				else if (store.changeOrder.isChangingOrder)
+				{
+					return of(new SetChangeOrderTemplates(true));
 				}
 
 				return new Observable<never>();
