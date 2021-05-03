@@ -1,7 +1,7 @@
 <div class="phd-div-attr-body">
 	<div class="d-flex flex-row-reverse">
 		<div class="col-md-4 phd-div-search-bar">
-			<search-bar [searchFilters]="filterGroupNames" [selectedSearchFilter]="selectedSearchFilter" (onClearFilter)="clearFilter()" (onKeywordSearch)="keywordSearch($event)"></search-bar>
+			<search-bar [searchFilters]="filterGroupNames" [selectedSearchFilter]="selectedSearchFilter" (onClearFilter)="clearFilter()" (onKeywordSearch)="keywordSearch($event)" storageName="CA_DIV_ATTR_LOC_GRP_FILTER" [keyword]="keyword"></search-bar>
 		</div>
 
 		<status-bar [selectedStatus]="selectedStatus" (statusChanged)="onStatusChanged($event)"></status-bar>

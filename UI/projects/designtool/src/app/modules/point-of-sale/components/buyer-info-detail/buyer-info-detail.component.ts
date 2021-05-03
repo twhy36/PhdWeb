@@ -6,7 +6,7 @@ import * as fromRoot from '../../../ngrx-store/reducers';
 import { cloneDeep, trim } from 'lodash'
 
 import {
-	ConfirmModalComponent, Buyer, EmailAssoc, PhoneAssoc, AddressAssoc, Address, Contact, Phone,
+	Buyer, EmailAssoc, PhoneAssoc, AddressAssoc, Address, Contact, Phone,
 	MatchingContact, Realtor
 } from 'phd-common';
 
@@ -16,6 +16,7 @@ import { customEmailValidator, noWhiteSpaceValidator, phoneValidator } from '../
 import { stripPhoneNumber } from '../../../shared/classes/phoneUtils';
 import { ComponentCanNavAway } from '../../../shared/classes/component-can-nav-away.class';
 import { ModalService } from '../../../core/services/modal.service';
+import { ConfirmModalComponent } from '../../../core/components/confirm-modal/confirm-modal.component';
 
 @Component({
 	selector: 'buyer-info-detail',

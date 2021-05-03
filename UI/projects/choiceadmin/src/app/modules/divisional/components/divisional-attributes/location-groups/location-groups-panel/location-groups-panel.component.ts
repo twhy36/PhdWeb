@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, Output, EventEmitter } from '@angular/cor
 import { ActivatedRoute } from '@angular/router';
 
 import { filter, map, distinctUntilChanged, switchMap, finalize } from 'rxjs/operators';
-import { of ,  forkJoin } from 'rxjs';
+import { of,  forkJoin } from 'rxjs';
 
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
@@ -100,8 +100,17 @@ export class LocationGroupsPanelComponent extends UnsubscribeOnDestroy implement
 			this.currentPage = 1;
 			this.allDataLoaded = data.length < this.settings.infiniteScrollPageSize;
 
-			this.resetSearchBar();
+			this.setSearchBarFilters();
+			this.filterLocationGroups();
 		});
+	}
+
+	setSearchBarFilters()
+	{
+		let searchBarFilter = this.searchBar.storedSearchBarFilter;
+
+		this.selectedSearchFilter = searchBarFilter?.searchFilter ?? 'All';
+		this.keyword = searchBarFilter?.keyword ?? null;
 	}
 
 	isLocationGroupSelected(locationGroup: LocationGroupMarket): boolean
@@ -134,7 +143,6 @@ export class LocationGroupsPanelComponent extends UnsubscribeOnDestroy implement
 				this.locationGroupsList[index] = locationGroup;
 			}
 
-			this.resetSearchBar();
 			this.filterLocationGroups();
 
 			if (this.filteredLocationGroupsList.length > 0)
@@ -144,17 +152,10 @@ export class LocationGroupsPanelComponent extends UnsubscribeOnDestroy implement
 		}
 	}
 
-	resetSearchBar()
-	{
-		this.selectedSearchFilter = "All";
-		this.keyword = '';
-
-		this.searchBar.clearFilter();
-	}
-
 	clearFilter()
 	{
 		this.keyword = null;
+		this.selectedSearchFilter = 'All'
 
 		this.filterLocationGroups();
 	}
@@ -198,23 +199,15 @@ export class LocationGroupsPanelComponent extends UnsubscribeOnDestroy implement
 			if (this.allDataLoaded)
 			{
 				this.filteredLocationGroupsList = [];
+								
+				let filteredResults = this.filterByKeyword(searchFilter, this.keyword);
 
-				let splittedKeywords = this.keyword.split(' ');
-
-				splittedKeywords.forEach(k =>
+				if (isActiveStatus !== null)
 				{
-					if (k)
-					{
-						let filteredResults = this.filterByKeyword(searchFilter, k);
+					filteredResults = filteredResults.filter(lg => lg.isActive === isActiveStatus);
+				}
 
-						if (isActiveStatus !== null)
-						{
-							filteredResults = filteredResults.filter(lg => lg.isActive === isActiveStatus);
-						}
-
-						this.filteredLocationGroupsList = unionBy(this.filteredLocationGroupsList, filteredResults, 'id');
-					}
-				});
+				this.filteredLocationGroupsList = unionBy(this.filteredLocationGroupsList, filteredResults, 'id');
 			}
 			else
 			{
@@ -375,6 +368,16 @@ export class LocationGroupsPanelComponent extends UnsubscribeOnDestroy implement
 				this.workingId = 0;
 			})).subscribe(results =>
 			{
+				// We have two lists, main list and filtered list. The passed in value is from the filtered list, so we need to update the main as well.
+				let locGroup = this.locationGroupsList.find(x => x.id === group.id);
+
+				if (locGroup && group.isActive !== locGroup.isActive)
+				{
+					locGroup.isActive = !locGroup.isActive;
+				}
+
+				this.filterLocationGroups();
+
 				this._msgService.add({ severity: 'success', summary: 'Location Group', detail: `Updated successfully!` });
 			},
 			(error) =>

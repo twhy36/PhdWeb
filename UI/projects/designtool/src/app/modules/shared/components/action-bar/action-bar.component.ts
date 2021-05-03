@@ -14,7 +14,7 @@ import * as fromRoot from '../../../ngrx-store/reducers';
 import * as _ from 'lodash';
 
 import {
-	UnsubscribeOnDestroy, ConfirmModalComponent, ModalRef, ESignTypeEnum, ChangeTypeEnum, ChangeOrderGroup, Job,
+	UnsubscribeOnDestroy, ModalRef, ESignTypeEnum, ChangeTypeEnum, ChangeOrderGroup, Job,
 	SalesAgreement, DecisionPoint, Permission
 } from 'phd-common';
 
@@ -26,6 +26,7 @@ import * as CommonActions from '../../../ngrx-store/actions';
 import * as ChangeOrderActions from '../../../ngrx-store/change-order/actions';
 import { ChangeOrderService } from './../../../core/services/change-order.service';
 import { ModalService } from '../../../core/services/modal.service';
+import { ConfirmModalComponent } from '../../../core/components/confirm-modal/confirm-modal.component';
 
 @Component({
 	selector: 'action-bar',

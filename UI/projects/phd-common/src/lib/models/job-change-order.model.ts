@@ -71,7 +71,7 @@ export class ChangeOrderGroup
 			{
 				this.jobChangeOrderGroupSalesStatusHistories = dto.jobChangeOrderGroupSalesStatusHistories.map(h => new ChangeOrderGroupSalesStatusHistory(h));
 
-				let signed = dto.jobChangeOrderGroupSalesStatusHistories.find(h => h.salesStatusId === 2);
+				let signed = dto.jobChangeOrderGroupSalesStatusHistories.find(h => h?.salesStatusId === 2);
 
 				if (signed)
 				{
