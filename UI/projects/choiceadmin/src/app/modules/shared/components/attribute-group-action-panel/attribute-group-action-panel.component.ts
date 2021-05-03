@@ -162,22 +162,15 @@ export class AttributeGroupActionPanelComponent implements OnInit, AfterContentI
 		this.displayErrorMessage.emit('');
 		this.searchResultGroups = [];
 		this.selectedGroups = [];
+
 		this.searchFilters.find(x => x.name == 'Group Name').field = this.groupNameField;
 
 		if (this.groupList)
 		{
 			let searchFilter = this.searchFilters.find(f => f.name === selectedFilter);
-			let splittedKeywords = keyword.split(' ');
+			let filteredResults = this.filterByKeyword(searchFilter, keyword);
 
-			splittedKeywords.forEach(k =>
-			{
-				if (k)
-				{
-					let filteredResults = this.filterByKeyword(searchFilter, k);
-
-					this.searchResultGroups = unionBy(this.searchResultGroups, filteredResults, 'id');
-				}
-			});
+			this.searchResultGroups = unionBy(this.searchResultGroups, filteredResults, 'id');
 		}
 
 		if (this.searchResultGroups.length > 0)
@@ -259,6 +252,7 @@ export class AttributeGroupActionPanelComponent implements OnInit, AfterContentI
 		else if (!isSelected && index >= 0)
 		{
 			this.selectedGroups.splice(index, 1);
+
 			this.selectedGroups = [...this.selectedGroups];
 		}
 	}

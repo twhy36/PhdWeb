@@ -1,7 +1,7 @@
 <div class="phd-div-attr-body">
 	<div class="d-flex flex-row-reverse">
 		<div class="col-md-4 phd-div-search-bar">
-			<search-bar [searchFilters]="filterNames" [selectedSearchFilter]="selectedSearchFilter" (onClearFilter)="clearFilter()" (onKeywordSearch)="keywordSearch($event)"></search-bar>
+			<search-bar [searchFilters]="filterNames" [selectedSearchFilter]="selectedSearchFilter" (onClearFilter)="clearFilter()" (onKeywordSearch)="keywordSearch($event)" storageName="CA_DIV_ATTR_ATTR_FILTER" [keyword]="keyword"></search-bar>
 		</div>
 
 		<status-bar [selectedStatus]="selectedStatus" (statusChanged)="onStatusChanged($event)"></status-bar>
@@ -34,10 +34,11 @@
 			</phd-column>
 			<phd-column columnId="inactivateAttribute" width="50px">
 				<ng-template #body let-attribute>
-					<i class="fa fa-sm" (click)="onToggleAttribute(attribute)"
+					<i class="fa fa-sm" *ngIf="!isSaving || workingId !== attribute.id" (click)="onToggleAttribute(attribute)"
 					   [ngClass]="{'fa-trash': attribute.active, 'fa-undo text-danger': !attribute.active, 'phd-clickable': !isReadOnly, 'phd-disabled': isReadOnly}"
 					   [title]="isReadOnly ? '' : (attribute.active ? 'Inactivate attribute' : 'Reactivate attribute')">
 					</i>
+					<i class="fa fa-spinner fa-spin fa-fw" [ngClass]="{'phd-disabled': isReadOnly}" *ngIf="isSaving && workingId === attribute.id"></i>
 				</ng-template>
 			</phd-column>
 			<phd-column columnId="expandAttribute" width="50px">

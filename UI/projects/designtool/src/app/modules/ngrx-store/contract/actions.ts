@@ -22,7 +22,8 @@ export enum ContractActionTypes
 	// Financial Community ESign
 	LoadFinancialCommunityESign = 'Load Financial Community ESign',
 	FinancialCommunityESignLoaded = 'Financial Community ESign Loaded',
-	SetESignType = 'Set ESign Type'
+	SetESignType = 'Set ESign Type',
+	SetChangeOrderTemplates = 'Set ChangeOrder Templates'
 }
 
 export class TemplatesLoaded implements Action
@@ -115,6 +116,12 @@ export class SetESignType implements Action {
 	constructor(public eSignType: ESignTypeEnum) { }
 }
 
+export class SetChangeOrderTemplates implements Action {
+	readonly type = ContractActionTypes.SetChangeOrderTemplates;
+
+	constructor(public inChangeOrder: boolean) { }
+}
+
 export type ContractActions =
 	TemplatesLoaded |
 	LoadError |
@@ -128,4 +135,5 @@ export type ContractActions =
 	TerminationEnvelopeError |
 	LoadFinancialCommunityESign |
 	FinancialCommunityESignLoaded |
-	SetESignType;
+	SetESignType |
+	SetChangeOrderTemplates;

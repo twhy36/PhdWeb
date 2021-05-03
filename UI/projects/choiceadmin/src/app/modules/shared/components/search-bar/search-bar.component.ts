@@ -1,4 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { StorageService } from '../../../core/services/storage.service';
 
 @Component({
 	selector: 'search-bar',
@@ -12,23 +13,46 @@ export class SearchBarComponent
 	@Input() isDisabled: boolean = false;
 	@Input() keyword: string;
 	@Input() searchButtonDisabled: boolean = false;
+	@Input() storageName: string;
 
 	@Output() onClearFilter = new EventEmitter();
 	@Output() onKeywordSearch = new EventEmitter();
 
 	isDirty: boolean = false;
 
-	constructor() { }
+	constructor(private _storageService: StorageService) { }
+
+	get searchBarFilter(): SearchBarFilter
+	{
+		return { searchFilter: this.selectedSearchFilter, keyword: this.keyword } as SearchBarFilter;
+	}
+
+	get storedSearchBarFilter(): SearchBarFilter
+	{
+		return this._storageService.getSession<SearchBarFilter>(this.storageName);
+	}
 
 	clearFilter()
 	{
 		this.keyword = '';
+		this.selectedSearchFilter = 'All';
+
+		if (this.storageName)
+		{
+			this._storageService.setSession(this.storageName, this.searchBarFilter);
+		}
+
 		this.onClearFilter.emit();
 	}
 
 	keywordSearch = () =>
 	{
-		this.onKeywordSearch.emit({ searchFilter: this.selectedSearchFilter, keyword: this.keyword });
+		if (this.storageName)
+		{
+			this._storageService.setSession(this.storageName, this.searchBarFilter)
+		}
+
+		this.onKeywordSearch.emit(this.searchBarFilter);
 	}
 
 	onSearchFilterChanged(searchFilter: string)
@@ -69,7 +93,7 @@ export class SearchBarComponent
 
 	wildcardMatch(source: string, keyword: string): boolean
 	{
-		if (!source || !keyword)
+		if (!source || (keyword === null || keyword === undefined))
 		{
 			return false;
 		}
@@ -97,4 +121,10 @@ export class SearchBarComponent
 
 		return result;
 	}
+}
+
+export class SearchBarFilter
+{
+	searchFilter: string;
+	keyword: string;
 }

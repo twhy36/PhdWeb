@@ -253,7 +253,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 			this.changeOrders = changeOrders.map(o =>
 			{
 				let actionTypes = [];
-				let signedStatusHistory = o.jobChangeOrderGroupSalesStatusHistories.find(t => t.salesStatusId === 2);
+				let signedStatusHistory = o.jobChangeOrderGroupSalesStatusHistories.find(t => t?.salesStatusId === 2);
 
 				if (o.salesStatusDescription === 'Pending')
 				{
