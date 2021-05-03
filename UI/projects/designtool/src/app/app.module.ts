@@ -12,7 +12,8 @@ import { ToastrModule } from 'ngx-toastr';
 
 import { Cloudinary as CloudinaryCore } from 'cloudinary-core';
 import { CloudinaryConfiguration, CloudinaryModule } from '@cloudinary/angular-5.x';
-import { tap } from 'rxjs/operators';
+import { switchMap } from 'rxjs/operators';
+import { never, of } from 'rxjs';
 
 export const cloudinary = { Cloudinary: CloudinaryCore };
 export const config: CloudinaryConfiguration = environment.cloudinary;
@@ -42,10 +43,12 @@ const appRoutes: Routes = [
 const appInitializerFn = (identityService: IdentityService) => {
 	// the APP_INITIALIZER provider waits for promises to be resolved
 	return () => identityService.init().pipe(
-		tap(loggedIn => {
+		switchMap(loggedIn => {
 			if (!loggedIn) {
-				identityService.login();
-			}
+                identityService.login();
+                return never();
+            }
+            return of(loggedIn);
 		})
 	).toPromise();
 };
