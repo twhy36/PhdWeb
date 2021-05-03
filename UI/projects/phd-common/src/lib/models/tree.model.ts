@@ -10,7 +10,9 @@ export class Tree
 	constructor(dto: Tree)
 	{
 		const { ['treeVersion']: tv, ...rest } = dto;
+
 		Object.assign(this, rest);
+
 		this.treeVersion = new TreeVersion(tv);
 	}
 
@@ -126,15 +128,18 @@ export class DecisionPoint
 
 export class Choice
 {
-	constructor(dto: Choice)
+	constructor(dto?: Choice)
 	{
-		Object.assign(this, dto);
+		if (dto)
+		{
+			Object.assign(this, dto);
+		}
 	}
 
 	mappedAttributeGroups: MappedAttributeGroup[] = []; // after rules have been applied
 	mappedLocationGroups: MappedLocationGroup[] = []; // after rules have been applied
-	attributeGroups: number[]; // before rules
-	locationGroups: number[]; // before rules
+	attributeGroups: number[] = []; // before rules
+	locationGroups: number[] = []; // before rules
 	choiceMaxQuantity: null;
 	description: string;
 	disabledBy: Array<ChoiceRules> = [];

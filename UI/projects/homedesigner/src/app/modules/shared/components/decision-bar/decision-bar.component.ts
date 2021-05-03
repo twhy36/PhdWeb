@@ -1,5 +1,4 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
-import { Observable } from 'rxjs';
 
 import { UnsubscribeOnDestroy, flipOver2, slideOut, DecisionPoint } from 'phd-common';
 

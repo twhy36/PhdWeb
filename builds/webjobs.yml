@@ -221,10 +221,10 @@ stages:
                 transformationType: 'json'
                 transformations: |
                   {
-                      "edhSettings/url": "$(edhSettings:url)",
-                      "edhSettings/apiKey": "$(edhSettings:key)",
-                      "phdSettings/url": "$(phdSettings:url)",
-                      "phdSettings/apiKey": "$(phdSettings:key)",
+                      "EDH/ApiUrl": "$(edhSettings:url)",
+                      "EDH/ApiKey": "$(edhSettings:key)",
+                      "PhdApi/ApiUrl": "$(phdSettings:url)",
+                      "PhdApi/ApiKey": "$(phdSettings:key)",
                       "AzureDocumentStorage": "$(storageAccessKey)",
                       "ApplicationInsights/InstrumentationKey": "$(appInsights:instrumentationKey)"
                   }
@@ -287,10 +287,23 @@ stages:
                 AdditionalArguments: 
                 RenameFilesFlag: false
 - ${{ if eq(variables['DeployStgProd'], true) }}:
+  - stage: QaApproval
+    displayName: QA Post-Deployment Approval
+    dependsOn: Qa
+    pool: PGAZADOR1P
+    jobs:
+    - deployment: QaApproval
+      displayName: Post-Deployment Approval
+      environment: 'PhdPostApproval'
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+            - script: echo 'Approved!'
   - stage: Staging
     displayName: Deploy Staging
     pool: pgazador1p
-    dependsOn: Qa
+    dependsOn: QaApproval
     variables:
     - group: 'PHD STG'
     jobs:
@@ -324,10 +337,10 @@ stages:
           transformationType: 'json'
           transformations: |
             {
-              "edhSettings/url": "$(edhSettings:url)",
-              "edhSettings/apiKey": "$(edhSettings:key)",
-              "phdSettings/url": "$(phdSettings:url)",
-              "phdSettings/apiKey": "$(phdSettings:key)",
+              "EDH/ApiUrl": "$(edhSettings:url)",
+              "EDH/ApiKey": "$(edhSettings:key)",
+              "PhdApi/ApiUrl": "$(phdSettings:url)",
+              "PhdApi/ApiKey": "$(phdSettings:key)",
               "AzureDocumentStorage": "$(storageAccessKey)",
               "ApplicationInsights/InstrumentationKey": "$(appInsights:instrumentationKey)"
             }
@@ -447,3 +460,189 @@ stages:
                 ExcludeFilesFromAppDataFlag: false
                 AdditionalArguments: 
                 RenameFilesFlag: false
+  - stage: StgApproval
+    displayName: Staging Post-Deployment Approval
+    dependsOn: Staging
+    pool: PGAZADOR1P
+    jobs:
+    - deployment: StgApproval
+      displayName: Post-Deployment Approval
+      environment: 'PhdPostApproval'
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+            - script: echo 'Approved!'
+  - stage: Production
+    displayName: Deploy Production
+    pool: pgazador1p
+    dependsOn: StgApproval
+    variables:
+    - group: 'PHD PROD'
+    jobs:
+    - job: TransformProd
+      displayName: Config Transforms
+      workspace:
+          clean: all
+      steps:
+      - task: Transformer@2
+        displayName: Config Transform - Lot Release
+        inputs:
+          sourcePath: '$(Pipeline.Workspace)/LotRelease/App_Data/jobs/triggered/LotRelease/appsettings.json'
+          fileType: 'Auto'
+          targetPathType: 'source'
+          transformationType: 'json'
+          transformations: |
+            {
+            "edhSettings/url": "$(edhSettings:url)",
+            "edhSettings/apiKey": "$(edhSettings:key)",
+            "phdSettings/url": "$(phdSettings:url)",
+            "phdSettings/apiKey": "$(phdSettings:key)",
+            "AzureDocumentStorage": "$(storageAccessKey)",
+            "ApplicationInsights/InstrumentationKey": "$(appInsights:instrumentationKey)"
+            }
+      - task: Transformer@2
+        displayName: Config Transform - Change Order Expiration
+        inputs:
+          sourcePath: '$(Pipeline.Workspace)/ChangeOrderExpiration/App_Data/jobs/triggered/ChangeOrderExpiration/appsettings.json'
+          fileType: 'Auto'
+          targetPathType: 'source'
+          transformationType: 'json'
+          transformations: |
+            {
+              "EDH/ApiUrl": "$(edhSettings:url)",
+              "EDH/ApiKey": "$(edhSettings:key)",
+              "PhdApi/ApiUrl": "$(phdSettings:url)",
+              "PhdApi/ApiKey": "$(phdSettings:key)",
+              "AzureDocumentStorage": "$(storageAccessKey)",
+              "ApplicationInsights/InstrumentationKey": "$(appInsights:instrumentationKey)"
+            }
+      - task: Transformer@2
+        displayName: Config Transform - Attribute Cleanup
+        inputs:
+          sourcePath: '$(Pipeline.Workspace)/AttributeCleanup/App_Data/jobs/triggered/AttributeCleanup/appsettings.json'
+          fileType: 'Auto'
+          targetPathType: 'source'
+          transformationType: 'json'
+          transformations: |
+            {
+              "edhSettings/url": "$(edhSettings:url)",
+              "edhSettings/apiKey": "$(edhSettings:key)",
+              "phdSettings/url": "$(phdSettings:url)",
+              "phdSettings/apiKey": "$(phdSettings:key)",
+              "AzureDocumentStorage": "$(storageAccessKey)",
+              "ApplicationInsights/InstrumentationKey": "$(appInsights:instrumentationKey)"
+            }
+    - deployment: ProdEast
+      displayName: Deploy East Production
+      dependsOn: TransformProd
+      environment: PhdProd
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+            - task: AzureRmWebAppDeployment@4
+              displayName: Deploy Lot Release
+              inputs:
+                ConnectionType: 'AzureRM'
+                azureSubscription: 'Production'
+                appType: 'webApp'
+                WebAppName: 'PhdEastProd'
+                packageForLinux: '$(Pipeline.Workspace)/LotRelease'
+                enableCustomDeployment: true
+                DeploymentType: 'webDeploy'
+                TakeAppOfflineFlag: false
+                ExcludeFilesFromAppDataFlag: false
+                AdditionalArguments: 
+                RenameFilesFlag: false
+            - task: AzureRmWebAppDeployment@4
+              displayName: Deploy Change Order Expiration
+              inputs:
+                ConnectionType: 'AzureRM'
+                azureSubscription: 'Production'
+                appType: 'webApp'
+                WebAppName: 'PhdEastProd'
+                packageForLinux: '$(Pipeline.Workspace)/ChangeOrderExpiration'
+                enableCustomDeployment: true
+                DeploymentType: 'webDeploy'
+                TakeAppOfflineFlag: false
+                ExcludeFilesFromAppDataFlag: false
+                AdditionalArguments: 
+                RenameFilesFlag: false
+            - task: AzureRmWebAppDeployment@4
+              displayName: Deploy Attribute Cleanup
+              inputs:
+                ConnectionType: 'AzureRM'
+                azureSubscription: 'Production'
+                appType: 'webApp'
+                WebAppName: 'PhdEastProd'
+                packageForLinux: '$(Pipeline.Workspace)/AttributeCleanup'
+                enableCustomDeployment: true
+                DeploymentType: 'webDeploy'
+                TakeAppOfflineFlag: false
+                ExcludeFilesFromAppDataFlag: false
+                AdditionalArguments: 
+                RenameFilesFlag: false
+    - deployment: ProdWest
+      displayName: Deploy West Production
+      dependsOn: ProdEast
+      environment: PhdProd
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+            - task: AzureRmWebAppDeployment@4
+              displayName: Deploy Lot Release
+              inputs:
+                ConnectionType: 'AzureRM'
+                azureSubscription: 'Production'
+                appType: 'webApp'
+                WebAppName: 'PhdWestProd'
+                packageForLinux: '$(Pipeline.Workspace)/LotRelease'
+                enableCustomDeployment: true
+                DeploymentType: 'webDeploy'
+                TakeAppOfflineFlag: false
+                ExcludeFilesFromAppDataFlag: false
+                AdditionalArguments: 
+                RenameFilesFlag: false
+            - task: AzureRmWebAppDeployment@4
+              displayName: Deploy Change Order Expiration
+              inputs:
+                ConnectionType: 'AzureRM'
+                azureSubscription: 'Production'
+                appType: 'webApp'
+                WebAppName: 'PhdWestProd'
+                packageForLinux: '$(Pipeline.Workspace)/ChangeOrderExpiration'
+                enableCustomDeployment: true
+                DeploymentType: 'webDeploy'
+                TakeAppOfflineFlag: false
+                ExcludeFilesFromAppDataFlag: false
+                AdditionalArguments: 
+                RenameFilesFlag: false
+            - task: AzureRmWebAppDeployment@4
+              displayName: Deploy Attribute Cleanup
+              inputs:
+                ConnectionType: 'AzureRM'
+                azureSubscription: 'Production'
+                appType: 'webApp'
+                WebAppName: 'PhdWestProd'
+                packageForLinux: '$(Pipeline.Workspace)/AttributeCleanup'
+                enableCustomDeployment: true
+                DeploymentType: 'webDeploy'
+                TakeAppOfflineFlag: false
+                ExcludeFilesFromAppDataFlag: false
+                AdditionalArguments: 
+                RenameFilesFlag: false
+  - stage: ProdApproval
+    displayName: Production Post-Deployment Approval
+    dependsOn: Production
+    pool: PGAZADOR1P
+    jobs:
+    - deployment: ProdApproval
+      displayName: Post-Deployment Approval
+      environment: 'PhdPostApproval'
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+            - script: echo 'Approved!'

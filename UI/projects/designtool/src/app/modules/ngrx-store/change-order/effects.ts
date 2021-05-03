@@ -23,6 +23,7 @@ import { TreeLoadedFromJob, SelectChoices } from '../scenario/actions';
 import { ChangeOrdersCreatedForJob } from '../job/actions';
 import { SelectLot } from '../lot/actions';
 import { OpportunityLoaded } from '../opportunity/actions';
+import { SetChangeOrderTemplates } from '../contract/actions';
 import { CommonActionTypes, SalesAgreementLoaded, JobLoaded } from '../actions';
 
 import * as CommonActions from '../actions';
@@ -75,7 +76,10 @@ export class ChangeOrderEffects
 						}
 					}
 				}
-				return of(new ChangeInputInitialized(newInput));
+				return from([
+					new ChangeInputInitialized(newInput),
+					new SetChangeOrderTemplates(store.changeOrder.isChangingOrder)
+				]);
 			})
 		), LoadError, "Error initializing change input!!")
 	);

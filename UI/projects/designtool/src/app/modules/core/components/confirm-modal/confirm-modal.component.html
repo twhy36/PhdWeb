@@ -1,0 +1,19 @@
+<div class="modal-header">
+	<span class="modal-title">{{title}}</span>
+	<button type="button" class="close" aria-label="Close" (click)="dismiss()">
+		<span aria-hidden="true">&times;</span>
+	</button>
+</div>
+<div class="modal-body">
+	<div [innerHTML]="body"></div>
+</div>
+<div class="modal-footer">
+	<button *ngIf="!primaryButton || !primaryButton.hide" type="button" class="btn" (click)="close('Continue')" [class.btn-secondary]="defaultOption != 'Continue'" [class.btn-primary]="defaultOption == 'Continue'">
+		<span class="fas fa-fw fa-check"></span>
+		<span class="">{{primaryButton ? primaryButton.text : 'Continue'}}</span>
+	</button>
+	<button *ngIf="!secondaryButton || !secondaryButton.hide" type="button" class="btn ml-auto" (click)="close('Close')" [class.btn-secondary]="defaultOption != 'Cancel'" [class.btn-primary]="defaultOption == 'Cancel'">
+		<span class="fas fa-fw fa-times-circle"></span>
+		<span class="">{{secondaryButton ? secondaryButton.text : 'Cancel'}}</span>
+	</button>
+</div>

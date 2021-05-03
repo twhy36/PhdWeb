@@ -219,6 +219,7 @@ export class DivisionalAttributeWizardComponent extends UnsubscribeOnDestroy imp
 	{
 		this.selectedSearchFilter = event['searchFilter'];
 		this.wizardService.keyword = event['keyword'];
+
 		this.filterOptions(this.selectedSearchFilter, this.keyword);
 
 		if (!this.isSearchingFromServer)
@@ -232,6 +233,7 @@ export class DivisionalAttributeWizardComponent extends UnsubscribeOnDestroy imp
 		if (this.filteredOptions.length === 0)
 		{
 			this._msgService.clear();
+
 			this._msgService.add({ severity: 'error', summary: 'Search Results', detail: `No results found. Please try another search.` });
 		}
 		else
@@ -263,6 +265,7 @@ export class DivisionalAttributeWizardComponent extends UnsubscribeOnDestroy imp
 		this.isSearchFilterOn = false;
 		this.wizardService.selectedOption = null;
 		this.wizardService.keyword = null;
+
 		this.performChangeDetection();
 	}
 
@@ -289,11 +292,6 @@ export class DivisionalAttributeWizardComponent extends UnsubscribeOnDestroy imp
 	performChangeDetection()
 	{
 		this.cd.detectChanges();
-	}
-
-	continue()
-	{
-
 	}
 
 	cancel()

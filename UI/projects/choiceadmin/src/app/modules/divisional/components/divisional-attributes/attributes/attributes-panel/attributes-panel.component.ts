@@ -27,6 +27,7 @@ export class AttributesPanelComponent extends UnsubscribeOnDestroy implements On
 {
 	@ViewChild(SearchBarComponent)
 	private searchBar: SearchBarComponent;
+
 	@Output() onEditAttribute = new EventEmitter<Attribute>();
 
 	@Input() isReadOnly: boolean;
@@ -48,6 +49,8 @@ export class AttributesPanelComponent extends UnsubscribeOnDestroy implements On
 	currentPage: number = 0;
 	allDataLoaded: boolean;
 	isSearchingFromServer: boolean;
+	isSaving: boolean = false;
+	workingId: number = 0;
 
 	get selectedStatus(): string
 	{
@@ -91,9 +94,18 @@ export class AttributesPanelComponent extends UnsubscribeOnDestroy implements On
 			this.attributeList = data;
 			this.currentPage = 1;
 			this.allDataLoaded = data.length < this.settings.infiniteScrollPageSize;
-
-			this.resetSearchBar();
+						
+			this.setSearchBarFilters();
+			this.filterAttributes();
 		});
+	}
+
+	setSearchBarFilters()
+	{
+		let searchBarFilter = this.searchBar.storedSearchBarFilter;
+
+		this.selectedSearchFilter = searchBarFilter?.searchFilter ?? 'All';
+		this.keyword = searchBarFilter?.keyword ?? null;
 	}
 
 	isAttributeSelected(attribute: Attribute): boolean
@@ -116,7 +128,6 @@ export class AttributesPanelComponent extends UnsubscribeOnDestroy implements On
 				this.attributeList[index] = attribute;
 			}
 
-			this.resetSearchBar();
 			this.filterAttributes();
 
 			if (this.filteredAttributeList.length > 0)
@@ -126,16 +137,11 @@ export class AttributesPanelComponent extends UnsubscribeOnDestroy implements On
 		}
 	}
 
-	resetSearchBar()
-	{
-		this.selectedSearchFilter = "All";
-		this.keyword = '';
-		this.searchBar.clearFilter();
-	}
-
 	clearFilter()
 	{
 		this.keyword = null;
+		this.selectedSearchFilter = 'All'
+
 		this.filterAttributes();
 	}
 
@@ -143,6 +149,7 @@ export class AttributesPanelComponent extends UnsubscribeOnDestroy implements On
 	{
 		this.selectedSearchFilter = event['searchFilter'];
 		this.keyword = event['keyword'];
+
 		this.filterAttributes();
 
 		if (!this.isSearchingFromServer)
@@ -156,6 +163,7 @@ export class AttributesPanelComponent extends UnsubscribeOnDestroy implements On
 		if (this.filteredAttributeList.length === 0)
 		{
 			this._msgService.clear();
+
 			this._msgService.add({ severity: 'error', summary: 'Search Results', detail: `No results found. Please try another search.` });
 		}
 		else
@@ -176,22 +184,15 @@ export class AttributesPanelComponent extends UnsubscribeOnDestroy implements On
 			if (this.allDataLoaded)
 			{
 				this.filteredAttributeList = [];
-				let splittedKeywords = this.keyword.split(' ');
+				
+				let filteredResults = this.filterByKeyword(searchFilter, this.keyword);
 
-				splittedKeywords.forEach(k =>
+				if (isActiveStatus !== null)
 				{
-					if (k)
-					{
-						let filteredResults = this.filterByKeyword(searchFilter, k);
+					filteredResults = filteredResults.filter(attr => attr.active === isActiveStatus);
+				}
 
-						if (isActiveStatus !== null)
-						{
-							filteredResults = filteredResults.filter(attr => attr.active === isActiveStatus);
-						}
-
-						this.filteredAttributeList = unionBy(this.filteredAttributeList, filteredResults, 'id');
-					}
-				});
+				this.filteredAttributeList = unionBy(this.filteredAttributeList, filteredResults, 'id');
 			}
 			else
 			{
@@ -246,6 +247,7 @@ export class AttributesPanelComponent extends UnsubscribeOnDestroy implements On
 			.pipe(finalize(() =>
 			{
 				this.isSearchingFromServer = false;
+
 				this.onSearchResultUpdated();
 			}))
 			.subscribe(data =>
@@ -272,6 +274,7 @@ export class AttributesPanelComponent extends UnsubscribeOnDestroy implements On
 				{
 					this.attributeList = unionBy(this.attributeList, data, 'id');
 					this.filteredAttributeList = orderBy(this.attributeList, [attr => attr.name.toLowerCase()]);
+
 					this.currentPage++;
 				}
 
@@ -328,17 +331,36 @@ export class AttributesPanelComponent extends UnsubscribeOnDestroy implements On
 
 	toggleAttribute(attribute: Attribute)
 	{
+		this.isSaving = true;
+		this.workingId = attribute.id;
+
 		attribute.active = !attribute.active;
 
-		this._attrService.updateAttribute(attribute).subscribe(results =>
-		{
-			this._msgService.add({ severity: 'success', summary: 'Attribute', detail: `Updated successfully!` });
-		},
-		error =>
-		{
-			attribute.active = !attribute.active;
-			this._msgService.add({ severity: 'error', summary: 'Attribute', detail: `An error has occured!` });
-		});
+		this._attrService.updateAttribute(attribute).pipe(
+			finalize(() =>
+			{
+				this.isSaving = false;
+				this.workingId = 0;
+			})).subscribe(results =>
+			{
+				// We have two lists, main list and filtered list. The passed in value is from the filtered list, so we need to update the main as well.
+				let attr = this.attributeList.find(x => x.id === attribute.id);
+
+				if (attr && attribute.active !== attr.active)
+				{
+					attr.active = !attr.active;
+				}
+
+				this.filterAttributes();
+
+				this._msgService.add({ severity: 'success', summary: 'Attribute', detail: `Updated successfully!` });
+			},
+			error =>
+			{
+				attribute.active = !attribute.active;
+
+				this._msgService.add({ severity: 'error', summary: 'Attribute', detail: `An error has occured!` });
+			});
 	}
 
 	onStatusChanged(event: any)

@@ -38,39 +38,33 @@ export class DivisionalOptionService
 
 		if (keywords)
 		{
-			let filters = [];
-			const keywordArray = keywords.toLowerCase().split(' ');
+			var keywordFilter = '';
 
-			keywordArray.map(keyword =>
+			if (!filterName)
 			{
-				if (!filterName)
-				{
-					filters.push(`indexof(tolower(optionSalesName), '${keyword}') gt -1`);
-					filters.push(`indexof(tolower(option/financialOptionIntegrationKey), '${keyword}') gt -1`);
-					filters.push(`indexof(tolower(optionSubCategory/optionCategory/name), '${keyword}') gt -1`);
-					filters.push(`indexof(tolower(optionSubCategory/name), '${keyword}') gt -1`);
-				}
-				else if (filterName === 'financialOptionIntegrationKey')
-				{
-					filters.push(`indexof(tolower(option/financialOptionIntegrationKey), '${keyword}') gt -1`);
-				}
-				else if (filterName === 'category')
-				{
-					filters.push(`indexof(tolower(optionSubCategory/optionCategory/name), '${keyword}') gt -1`);
-				}
-				else if (filterName === 'subCategory')
-				{
-					filters.push(`indexof(tolower(optionSubCategory/name), '${keyword}') gt -1`);
-				}
-				else
-				{
-					filters.push(`indexof(tolower(${filterName}), '${keyword}') gt -1`);
-				}
-			});
-
-			const keysfilter = filters.join(' or ');
-
-			filter = `(${keysfilter}) and ` + filter;
+				keywordFilter += `indexof(tolower(optionSalesName), '${keywords}') gt -1`;
+				keywordFilter += ` or indexof(tolower(option/financialOptionIntegrationKey), '${keywords}') gt -1`;
+				keywordFilter += ` or indexof(tolower(optionSubCategory/optionCategory/name), '${keywords}') gt -1`;
+				keywordFilter += ` or indexof(tolower(optionSubCategory/name), '${keywords}') gt -1`;
+			}
+			else if (filterName === 'financialOptionIntegrationKey')
+			{
+				keywordFilter += `indexof(tolower(option/financialOptionIntegrationKey), '${keywords}') gt -1`;
+			}
+			else if (filterName === 'category')
+			{
+				keywordFilter += `indexof(tolower(optionSubCategory/optionCategory/name), '${keywords}') gt -1`;
+			}
+			else if (filterName === 'subCategory')
+			{
+				keywordFilter += `indexof(tolower(optionSubCategory/name), '${keywords}') gt -1`;
+			}
+			else
+			{
+				keywordFilter += `indexof(tolower(${filterName}), '${keywords}') gt -1`;
+			}
+			
+			filter += ` and (${keywordFilter})`;
 		}
 
 		const qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}orderby=${encodeURIComponent(orderby)}`;

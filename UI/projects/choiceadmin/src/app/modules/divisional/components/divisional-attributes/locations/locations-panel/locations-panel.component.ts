@@ -99,8 +99,17 @@ export class LocationsPanelComponent extends UnsubscribeOnDestroy implements OnI
 			this.currentPage = 1;
 			this.allDataLoaded = data.length < this.settings.infiniteScrollPageSize;
 
-			this.resetSearchBar();
+			this.setSearchBarFilters();
+			this.filterLocations();
 		});
+	}
+
+	setSearchBarFilters()
+	{
+		let searchBarFilter = this.searchBar.storedSearchBarFilter;
+
+		this.selectedSearchFilter = searchBarFilter?.searchFilter ?? 'All';
+		this.keyword = searchBarFilter?.keyword ?? null;
 	}
 
 	isLocationSelected(location: Location): boolean
@@ -123,7 +132,6 @@ export class LocationsPanelComponent extends UnsubscribeOnDestroy implements OnI
 				this.locationsList[index] = location;
 			}
 
-			this.resetSearchBar();
 			this.filterLocations();
 
 			if (this.filteredLocationsList.length > 0)
@@ -133,17 +141,10 @@ export class LocationsPanelComponent extends UnsubscribeOnDestroy implements OnI
 		}
 	}
 
-	resetSearchBar()
-	{
-		this.selectedSearchFilter = "All";
-		this.keyword = '';
-
-		this.searchBar.clearFilter();
-	}
-
 	clearFilter()
 	{
 		this.keyword = null;
+		this.selectedSearchFilter = 'All'
 
 		this.filterLocations();
 	}
@@ -187,22 +188,15 @@ export class LocationsPanelComponent extends UnsubscribeOnDestroy implements OnI
 			if (this.allDataLoaded)
 			{
 				this.filteredLocationsList = [];
-				let splittedKeywords = this.keyword.split(' ');
+				
+				let filteredResults = this.filterByKeyword(searchFilter, this.keyword);
 
-				splittedKeywords.forEach(k =>
+				if (isActiveStatus !== null)
 				{
-					if (k)
-					{
-						let filteredResults = this.filterByKeyword(searchFilter, k);
+					filteredResults = filteredResults.filter(loc => loc.isActive === isActiveStatus);
+				}
 
-						if (isActiveStatus !== null)
-						{
-							filteredResults = filteredResults.filter(loc => loc.isActive === isActiveStatus);
-						}
-
-						this.filteredLocationsList = unionBy(this.filteredLocationsList, filteredResults, 'id');
-					}
-				});
+				this.filteredLocationsList = unionBy(this.filteredLocationsList, filteredResults, 'id');
 			}
 			else
 			{
@@ -358,6 +352,16 @@ export class LocationsPanelComponent extends UnsubscribeOnDestroy implements OnI
 				this.workingId = 0;
 			})).subscribe(results =>
 			{
+				// We have two lists, main list and filtered list. The passed in value is from the filtered list, so we need to update the main as well.
+				let loc = this.locationsList.find(x => x.id === location.id);
+
+				if (loc && location.isActive !== loc.isActive)
+				{
+					loc.isActive = !loc.isActive;
+				}
+
+				this.filterLocations();
+
 				this._msgService.add({ severity: 'success', summary: 'Location', detail: `Updated successfully!` });
 			},
 			(error) =>

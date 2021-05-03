@@ -84,6 +84,7 @@ export class AssociateLocationsSidePanelComponent extends UnsubscribeOnDestroy i
 		).subscribe(data =>
 		{
 			this.allLocationsInMarket = data;
+
 			this.filterAssociatedLocations();
 		});
 	}
@@ -118,12 +119,14 @@ export class AssociateLocationsSidePanelComponent extends UnsubscribeOnDestroy i
 		this.isSaving = true;
 		let newlySelectedLocations = this.selectedLocations.filter(s => this.locations.findIndex(x => x.id === s.id) < 0);
 		let locationIds = newlySelectedLocations.map(loc => loc.id);
+
 		this._locoService.updateLocationAssociations(this.group.id, locationIds, false).subscribe(group =>
 		{
 			if (this.callback)
 			{
 				this.callback(this.locations.concat(newlySelectedLocations));
 			}
+
 			this.isSaving = false;
 			this.sidePanel.isDirty = false;
 
@@ -133,6 +136,7 @@ export class AssociateLocationsSidePanelComponent extends UnsubscribeOnDestroy i
 		{
 			this.isSaving = false;
 			this.errors = [];
+
 			this.errors.push({ severity: 'error', detail: 'Failed to associate location(s).' });
 		});
 	}
@@ -178,6 +182,7 @@ export class AssociateLocationsSidePanelComponent extends UnsubscribeOnDestroy i
 		keyword = keyword || '';
 
 		this.selectedSearchFilter = searchFilter;
+
 		this.filterLocations(searchFilter, keyword);
 
 		this.errors = [];
@@ -197,16 +202,10 @@ export class AssociateLocationsSidePanelComponent extends UnsubscribeOnDestroy i
 		if (searchFilter)
 		{
 			this.filteredLocations = [];
-			let splittedKeywords = keyword.split(' ');
 
-			splittedKeywords.forEach(k =>
-			{
-				if (k)
-				{
-					let filteredResults = this.filterByKeyword(searchFilter, k);
-					this.filteredLocations = unionBy(this.filteredLocations, filteredResults, 'id');
-				}
-			});
+			let filteredResults = this.filterByKeyword(searchFilter, keyword);
+
+			this.filteredLocations = unionBy(this.filteredLocations, filteredResults, 'id');
 		}
 		else
 		{
