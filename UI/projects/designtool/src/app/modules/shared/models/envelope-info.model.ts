@@ -151,6 +151,7 @@ export class JobAgreementHeaderInfo
 	agreementApprovedDate: string;
 	agreementSignedDate: string;
 	communityName: string;
+	communityMarketingName: string;
 	phaseName: string;
 	garage: string;
 	planName: string;
