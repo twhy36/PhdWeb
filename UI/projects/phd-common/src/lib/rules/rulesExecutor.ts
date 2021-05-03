@@ -183,7 +183,13 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 
 		if (!enabled)
 		{
-			point.choices.forEach(ch => { ch.quantity = 0; ch.enabled = false; });
+			point.choices.forEach(ch => {
+				if (!ch.lockedInChoice) 
+				{
+					ch.quantity = 0; 
+					ch.enabled = false; 
+				}
+			});
 			point.completed = false;
 			point.disabledBy.push(pr);
 		}

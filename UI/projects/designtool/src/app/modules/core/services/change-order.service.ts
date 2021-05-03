@@ -911,13 +911,14 @@ export class ChangeOrderService
 	{
 		let selectedChoices = [];
 
+		const options = job.jobPlanOptions;
 		const origChoices = (changeOrder && changeOrder.id) ? this.getSelectedChoices(job, changeOrder) : job.jobChoices;
 		let currentChoices = _.cloneDeep(_.flatMap(currTree.treeVersion.groups,
 			g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices))));
 
 		currentChoices.forEach(currentChoice =>
 		{
-			const origChoice = origChoices.find(c => c.dpChoiceId === currentChoice.id || c.divChoiceCatalogId === currentChoice.divChoiceCatalogId);
+			const origChoice = origChoices.find(c => c.divChoiceCatalogId === currentChoice.divChoiceCatalogId);
 
 			if (origChoice)
 			{
@@ -977,6 +978,13 @@ export class ChangeOrderService
 						attributes: currentChoice.selectedAttributes
 					});
 				}
+
+				// const lockedInChoice = job.jobChoices.find(c => c.divChoiceCatalogId === currentChoice.divChoiceCatalogId);
+				// if (lockedInChoice)
+				// {
+				// 	currentChoice.lockedInChoice = lockedInChoice;
+				// 	currentChoice.lockedInOptions = lockedInChoice.jobChoiceJobPlanOptionAssocs.filter(o => o.choiceEnabledOption).map(o => mapping[options.find(opt => opt.id === o.jobPlanOptionId).integrationKey] || getDefaultOptionRule(options.find(opt => opt.id === o.jobPlanOptionId).integrationKey, currentChoice));
+				// }
 			}
 			else if (currentChoice.quantity > 0)
 			{
