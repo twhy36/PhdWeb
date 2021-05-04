@@ -206,7 +206,7 @@ export class ChangeOrderEffects
 			switchMap(([action, store]) =>
 			{
 				return forkJoin(
-					this.changeOrderService.getLokedInChoices(store.job, store.scenario.tree, store.changeOrder.currentChangeOrder),
+					this.changeOrderService.getLockedInChoices(store.job, store.scenario.tree, store.changeOrder.currentChangeOrder),
 					of(store)
 				);
 			}),

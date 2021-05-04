@@ -991,7 +991,7 @@ export class ChangeOrderService
 		return selectedChoices;
 	}
 
-	getLokedInChoices(job: Job, tree: Tree, changeOrder?: ChangeOrderGroup) : Observable<Choice[]>
+	getLockedInChoices(job: Job, tree: Tree, changeOrder?: ChangeOrderGroup) : Observable<Choice[]>
 	{
 		const treeChoices = _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)));
 
