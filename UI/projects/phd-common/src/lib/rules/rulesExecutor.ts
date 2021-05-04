@@ -130,8 +130,15 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 
 		if (!choice.enabled)
 		{
-			choice.quantity = 0;
-			choice.disabledBy.push(cr);
+			if (choice.lockedInChoice)
+			{
+				choice.enabled = true;
+			}
+			else
+			{
+				choice.quantity = 0;
+				choice.disabledBy.push(cr);				
+			}
 		}
 
 		cr.executed = true;

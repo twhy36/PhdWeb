@@ -15,6 +15,7 @@ import {
 
 import { environment } from '../../../../environments/environment';
 import { TreeService } from '../../core/services/tree.service';
+import { isJobChoice, isLocked, getDefaultOptionRule } from '../../shared/classes/tree.utils';
 
 interface ChoiceExt { decisionPointLabel: string, subgroupLabel: string, groupLabel: string };
 
@@ -911,7 +912,6 @@ export class ChangeOrderService
 	{
 		let selectedChoices = [];
 
-		const options = job.jobPlanOptions;
 		const origChoices = (changeOrder && changeOrder.id) ? this.getSelectedChoices(job, changeOrder) : job.jobChoices;
 		let currentChoices = _.cloneDeep(_.flatMap(currTree.treeVersion.groups,
 			g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices))));
@@ -978,13 +978,6 @@ export class ChangeOrderService
 						attributes: currentChoice.selectedAttributes
 					});
 				}
-
-				// const lockedInChoice = job.jobChoices.find(c => c.divChoiceCatalogId === currentChoice.divChoiceCatalogId);
-				// if (lockedInChoice)
-				// {
-				// 	currentChoice.lockedInChoice = lockedInChoice;
-				// 	currentChoice.lockedInOptions = lockedInChoice.jobChoiceJobPlanOptionAssocs.filter(o => o.choiceEnabledOption).map(o => mapping[options.find(opt => opt.id === o.jobPlanOptionId).integrationKey] || getDefaultOptionRule(options.find(opt => opt.id === o.jobPlanOptionId).integrationKey, currentChoice));
-				// }
 			}
 			else if (currentChoice.quantity > 0)
 			{
@@ -996,6 +989,65 @@ export class ChangeOrderService
 		});
 
 		return selectedChoices;
+	}
+
+	getLokedInChoices(job: Job, tree: Tree, changeOrder?: ChangeOrderGroup) : Observable<Choice[]>
+	{
+		const treeChoices = _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)));
+
+		const choices = [
+			...job.jobChoices.filter(jc => !changeOrder || !_.flatMap(changeOrder.jobChangeOrders.map(co => co.jobChangeOrderChoices)).some(coc => coc.action === 'Delete' && coc.dpChoiceId === jc.dpChoiceId)),
+			...(changeOrder ? _.flatMap(changeOrder.jobChangeOrders.map(co => co.jobChangeOrderChoices.filter(c => c.action === 'Add'))) : [])
+		];
+
+		const changeOrderPlanOptions = changeOrder ? this.getJobChangeOrderPlanOptions(changeOrder) : null;
+		const options = [...job.jobPlanOptions, ...((changeOrder && changeOrder.salesStatusDescription !== 'Pending') ? changeOrderPlanOptions : [])];
+
+		return this._treeService.getHistoricOptionMapping(_.flatten(choices.map(c => {
+			if (isJobChoice(c)) {
+				return c.jobChoiceJobPlanOptionAssocs
+					.filter(o => o.choiceEnabledOption)
+					.map(o => {
+						return { optionNumber: options.find(opt => opt.id === o.jobPlanOptionId).integrationKey, dpChoiceId: c.dpChoiceId };
+					});
+			}
+			else {
+				return c.jobChangeOrderChoiceChangeOrderPlanOptionAssocs
+					.filter(o => o.jobChoiceEnabledOption)
+					.map(o => {
+						return { optionNumber: options.find(opt => opt.id === o.jobChangeOrderPlanOptionId).integrationKey, dpChoiceId: c.decisionPointChoiceID };
+					});
+			}
+		}))).pipe(
+			map(mapping => {
+				let lockedInChoices : Choice[] = [];
+				choices.filter(isLocked(changeOrder)).forEach(choice => {
+					let treeChoice = treeChoices.find(ch => ch.divChoiceCatalogId === choice.divChoiceCatalogId);
+
+					if (treeChoice) {
+						let lockInChoice = _.cloneDeep(treeChoice);
+						lockInChoice.lockedInChoice = choice;
+
+						if (isJobChoice(choice)) {
+							lockInChoice.lockedInOptions = choice.jobChoiceJobPlanOptionAssocs.filter(o => o.choiceEnabledOption).map(o => mapping[options.find(opt => opt.id === o.jobPlanOptionId).integrationKey] || getDefaultOptionRule(options.find(opt => opt.id === o.jobPlanOptionId).integrationKey, lockInChoice));
+						}
+						else {
+							lockInChoice.lockedInOptions = choice.jobChangeOrderChoiceChangeOrderPlanOptionAssocs.filter(o => o.jobChoiceEnabledOption).map(o => mapping[options.find(opt => opt.id === o.jobChangeOrderPlanOptionId).integrationKey] || getDefaultOptionRule(options.find(opt => opt.id === o.jobChangeOrderPlanOptionId).integrationKey, lockInChoice));
+						}
+						
+						lockedInChoices.push(lockInChoice);
+					}
+				});
+
+				return lockedInChoices;
+			}),
+			catchError(error =>
+			{
+				console.log(error);
+
+				return _throw(error);
+			})
+		);
 	}
 
 	getSelectedChoices(job: Job, changeOrder?: ChangeOrderGroup): Array<JobChoice>
