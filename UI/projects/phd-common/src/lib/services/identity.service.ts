@@ -10,6 +10,11 @@ import { ClaimTypes, Claims, Permission } from '../models/claims.model';
 import { API_URL, AUTH_CONFIG, WINDOW_ORIGIN } from '../injection-tokens';
 import { UserProfile } from '../models/user-profile.model';
 
+function isObservable<T>(obj: Observable<T> | T): obj is Observable<T>
+{
+	return obj instanceof Observable;
+}
+
 @Injectable()
 export class IdentityService
 {
@@ -63,13 +68,28 @@ export class IdentityService
 		);
 	}
 
+	public get isLoggedIn(): Observable<boolean>
+	{
+		return this.loggedInSubject$;
+	}
+
 	constructor(@Inject(forwardRef(() => HttpClient)) private httpClient: HttpClient,
 		@Inject(forwardRef(() => OAuthService)) private osvc: OAuthService,
 		@Inject(forwardRef(() => API_URL)) private apiUrl: string,
-		@Inject(forwardRef(() => AUTH_CONFIG)) private authConfig: AuthConfig,
+		@Inject(forwardRef(() => AUTH_CONFIG)) private authConfig: AuthConfig | Observable<AuthConfig>,
 		@Inject(forwardRef(() => WINDOW_ORIGIN)) private origin: string)
 	{
-		this.configure(this.authConfig);
+		if (isObservable(this.authConfig))
+		{
+			this.authConfig.pipe(take(1)).subscribe(config =>
+			{
+				this.configure(config);
+			});
+		}
+		else
+		{
+			this.configure(this.authConfig);
+		}
 
 		this.getClaims$ = this.httpClient.get<Claims>(`${this.apiUrl}GetUserPermissions`).pipe(
 			tap(c => this.claims = c),
@@ -92,7 +112,7 @@ export class IdentityService
 		
 		if (this.apiUrl.indexOf('http://localhost:2845') === 0)
 		{
-			if (window.location.pathname !== '/?code=' && window.location.pathname !== '/')
+			if (window.location.search.indexOf('?code=') !== 0 && window.location.pathname !== '/')
 			{
 				sessionStorage.setItem('uri_state', window.location.href);
 			}
@@ -102,7 +122,7 @@ export class IdentityService
 		{
 			this.loggedInSubject$.next(this.osvc.hasValidAccessToken() && this.osvc.hasValidIdToken());
 
-			if (window.location.pathname === '/' && sessionStorage.getItem('uri_state'))
+			if (window.location.pathname === '/' && sessionStorage.getItem('uri_state') && this.osvc.hasValidIdToken())
 			{
 				const uri = sessionStorage.getItem('uri_state');
 				sessionStorage.removeItem('uri_state');
@@ -116,9 +136,9 @@ export class IdentityService
 		return this.loggedInSubject$.pipe(take(1));
 	}
 
-	public login(): void
+	public login(state?: any): void
 	{
-		this.osvc.initLoginFlow();
+		this.osvc.initLoginFlow(state ? JSON.stringify(state) : null);
 	}
 
 	public logout(): void

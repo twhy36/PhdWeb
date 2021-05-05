@@ -12,7 +12,7 @@ import { CoreModule } from './modules/core/core.module';
 import { LotManagementModule } from './modules/lot-managment/lot-management.module';
 import { PricingModule } from './modules/pricing/pricing.module';
 import { CommunityManagementModule } from './modules/community-management/community-management.module'
-import { PhdCommonModule, ConfirmModalComponent, IdentityService } from 'phd-common';
+import { PhdCommonModule, ConfirmModalComponent, IdentityService, AUTH_CONFIG } from 'phd-common';
 import { AppComponent } from './app.component';
 
 import { environment } from '../environments/environment';
@@ -45,7 +45,7 @@ const appInitializerFn = (identityService: IdentityService) => {
         BrowserModule,
         CommonModule,
 		NgbModule,
-		PhdCommonModule.forRoot(environment.authConfig, environment.apiUrl),
+		PhdCommonModule.forRoot(environment.apiUrl),
 		CoreModule,
 		ContractsModule,
         LotManagementModule,
@@ -54,7 +54,8 @@ const appInitializerFn = (identityService: IdentityService) => {
         RouterModule.forRoot(appRoutes)
     ],
     providers: [
-        { provide: APP_INITIALIZER, useFactory: appInitializerFn, deps: [IdentityService], multi: true }
+        { provide: APP_INITIALIZER, useFactory: appInitializerFn, deps: [IdentityService], multi: true },
+		{ provide: AUTH_CONFIG, useValue: environment.authConfig }
     ],
 	bootstrap: [AppComponent],
 	entryComponents: [ConfirmModalComponent]

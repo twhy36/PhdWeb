@@ -567,7 +567,8 @@
                         "tsConfig": "projects/homedesigner/tsconfig.app.json",
                         "verbose": true,
                         "assets": [
-                            "projects/homedesigner/src/assets"
+                            "projects/homedesigner/src/assets",
+                            "projects/homedesigner/src/favicon.ico"
                         ],
                         "styles": [
                             "node_modules/ngx-toastr/toastr.css",

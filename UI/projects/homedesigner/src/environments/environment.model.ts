@@ -5,7 +5,7 @@ export interface IEnvironment
 {
 	production: boolean;
 	apiUrl: string;
-	authConfig: AuthConfig;
+	authConfigs: { [key: string]: AuthConfig };
 	authQueryParams: string;
 	appInsights: any;
 	cloudinary: CloudinaryConfiguration;
