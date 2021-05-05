@@ -130,8 +130,15 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 
 		if (!choice.enabled)
 		{
-			choice.quantity = 0;
-			choice.disabledBy.push(cr);
+			if (choice.lockedInChoice)
+			{
+				choice.enabled = true;
+			}
+			else
+			{
+				choice.quantity = 0;
+				choice.disabledBy.push(cr);				
+			}
 		}
 
 		cr.executed = true;
@@ -183,7 +190,13 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 
 		if (!enabled)
 		{
-			point.choices.forEach(ch => { ch.quantity = 0; ch.enabled = false; });
+			point.choices.forEach(ch => {
+				if (!ch.lockedInChoice) 
+				{
+					ch.quantity = 0; 
+					ch.enabled = false; 
+				}
+			});
 			point.completed = false;
 			point.disabledBy.push(pr);
 		}

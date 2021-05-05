@@ -118,7 +118,7 @@ export function mapAttributes(choice: JobChoice | ChangeOrderChoice): Array<Desi
 	return result;
 }
 
-function isLocked(changeOrder: ChangeOrderGroup): (choice: JobChoice | ChangeOrderChoice) => boolean
+export function isLocked(changeOrder: ChangeOrderGroup): (choice: JobChoice | ChangeOrderChoice) => boolean
 {
 	return (choice: JobChoice | ChangeOrderChoice) => isJobChoice(choice) || (!!changeOrder && ['Pending', 'Withdrawn'].indexOf(changeOrder.salesStatusDescription) === -1);
 }
@@ -128,7 +128,7 @@ function isOptionLocked(changeOrder: ChangeOrderGroup): (option: JobPlanOption |
 	return (option: JobPlanOption | ChangeOrderPlanOption) => isJobPlanOption(option) || (!!changeOrder && ['Pending', 'Withdrawn'].indexOf(changeOrder.salesStatusDescription) === -1);
 }
 
-function getDefaultOptionRule(optionNumber: string, choice: Choice): OptionRule
+export function getDefaultOptionRule(optionNumber: string, choice: Choice): OptionRule
 {
 	return <OptionRule>{
 		optionId: optionNumber, choices: [

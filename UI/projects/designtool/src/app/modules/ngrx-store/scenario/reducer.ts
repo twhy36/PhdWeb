@@ -434,6 +434,22 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 			return { ...state, overrideReason: action.overrideReason };
 		case ScenarioActionTypes.SetChoicePriceRanges:
 			return { ...state, priceRanges: action.priceRanges };
+		case ScenarioActionTypes.SetLockedInChoices:
+		{
+			newTree = _.cloneDeep(state.tree);
+			let newChoices = _.flatMap(newTree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)));
+
+			for (let choice of action.choices)
+			{
+				let newChoice = newChoices.find(x => x.divChoiceCatalogId === choice.divChoiceCatalogId);
+				if (newChoice)
+				{
+					newChoice.lockedInChoice = choice.lockedInChoice;
+					newChoice.lockedInOptions = choice.lockedInOptions;
+				}
+			}
+			return { ...state, tree: newTree };
+		}
 		default:
 			return state;
 	}
