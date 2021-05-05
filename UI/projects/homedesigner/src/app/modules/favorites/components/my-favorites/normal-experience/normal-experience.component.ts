@@ -4,7 +4,7 @@ import * as _ from 'lodash';
 
 import { UnsubscribeOnDestroy, flipOver, DecisionPoint, PickType, SubGroup, Choice, JobChoice, DesignToolAttribute } from 'phd-common';
 
-import { MyFavoritesChoice } from '../../../../shared/models/my-favorite.model';
+import { MyFavoritesChoice, MyFavoritesPointDeclined } from '../../../../shared/models/my-favorite.model';
 import { ChoiceExt } from '../../../../shared/models/choice-ext.model';
 
 @Component({
@@ -28,7 +28,8 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	@Output() onToggleContractedOptions = new EventEmitter();
 	@Output() onViewChoiceDetail = new EventEmitter<ChoiceExt>();
 	@Output() onSelectDecisionPoint = new EventEmitter<number>();
-	@Output() onDeclineDecisionPoint = new EventEmitter<string>();
+	//@Output() onDeclineDecisionPoint = new EventEmitter<string>();
+	@Output() onDeclineDecisionPoint = new EventEmitter<MyFavoritesPointDeclined>();
 
 	isPointPanelCollapsed: boolean = false;
 	points: DecisionPoint[];
@@ -125,9 +126,15 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 		}
 	}
 
-	declineDecisionPoint(pointLabel: string) {
-		this.onDeclineDecisionPoint.emit(pointLabel);
-		console.log("Normal Experience denies - " + pointLabel);
+	// declineDecisionPoint(pointLabel: string) {
+	// 	this.onDeclineDecisionPoint.emit(pointLabel);
+	// 	console.log("Normal Experience denies - " + pointLabel);
+	// }
+
+	declineDecisionPoint(declinedPoint: MyFavoritesPointDeclined) {
+		console.log("This is a new object Abinay made");
+		this.onDeclineDecisionPoint.emit(declinedPoint);
+		console.log(declinedPoint);
 	}
 
 	choiceToggleHandler(choice: ChoiceExt) {

@@ -19,7 +19,7 @@ import { UnsubscribeOnDestroy, PriceBreakdown, Group, SubGroup, Tree, TreeVersio
 
 import { GroupBarComponent } from '../../../shared/components/group-bar/group-bar.component';
 import { NormalExperienceComponent } from './normal-experience/normal-experience.component';
-import { MyFavoritesChoice } from '../../../shared/models/my-favorite.model';
+import { MyFavoritesChoice, MyFavoritesPointDeclined } from '../../../shared/models/my-favorite.model';
 import { ChoiceExt } from '../../../shared/models/choice-ext.model';
 
 @Component({
@@ -49,6 +49,9 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 	showDetails: boolean = false;
 	selectedChoice: ChoiceExt;
 	declinedPoints: Map<string, boolean> = new Map();
+	declinedPointIds: Map<string, number> = new Map();
+	myFavoritesDeclinedPoints: MyFavoritesPointDeclined[];
+	myFavoriteId: number;
 
 	priceBreakdown: PriceBreakdown;
 
@@ -192,6 +195,8 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			select(fromFavorite.currentMyFavorite)
 		).subscribe(favorite => {
 			this.myFavoritesChoices = favorite && favorite.myFavoritesChoice;
+			this.myFavoritesDeclinedPoints = favorite && favorite.myFavoritesPointDeclined;
+			this.myFavoriteId = favorite && favorite.id;
 			this.updateSelectedChoice();	
 		});	
 
@@ -202,18 +207,29 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			this.includeContractedOptions = fav && fav.includeContractedOptions;
 			this.salesChoices = fav && fav.salesChoices;
 		});
+
+		// Set up store pipe to set up myFavoritesDeclinedPoints, but for now...
+		//this.myFavoritesDeclinedPoints = [];
+
 		this.groups.forEach(group => {
 			group.subGroups.forEach(sg => {
 				sg.points.forEach(p => {
 					if (p.pointPickTypeId % 2 === 0) {
 						console.log("Decision Point " + p.label + " has a " + p.pointPickTypeLabel);
 						this.declinedPoints.set(p.label, false);
+						this.declinedPointIds.set(p.label, p.id);
 					}
 				})
 			})
 			console.log(group.subGroups)
 			console.log(this.declinedPoints);
+			console.log(this.declinedPointIds);
 		});
+		console.log("Abinay declined points");
+		console.log(this.myFavoritesDeclinedPoints);
+		// this.myFavoritesDeclinedPoints.forEach(declinedPoint => {
+		// 	this.declinedPoints.set(declinedPoint.decisionPointLabel, true);
+		// })
 	}
 
 	setSelectedGroup(newGroup: Group, newSubGroup: SubGroup) {
@@ -250,24 +266,16 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		});
 
 		selectedChoices.push({choiceId: 0, quantity: 1, attributes: []});
-
-		// let pointLabel = this.myFavoritesChoices[this.myFavoritesChoices.length].decisionPointLabel;
-		// console.log("IMADEITYO " + (this.myFavoritesChoices.length));
-		// if(this.declinedPoints.get(pointLabel) === true) {
-		// 	console.log("Resetting " + pointLabel);
-		// 	this.declinedPoints.set(pointLabel, false);
-		// }
+		console.log("MyFavoriteId Is " + this.myFavoriteId);
 
 		this.store.dispatch(new ScenarioActions.SelectChoices(...selectedChoices));
 		this.store.dispatch(new FavoriteActions.SaveMyFavoritesChoices());
-		
-		
 	}
 
 	deselectPointChoices(pointLabel: string) {
 		console.log("Deselecting choices...");
 		let selectedChoices = [];
-		//let selectedChoicesOld = [{ choiceId: choice.id, quantity: !choice.quantity ? 1 : 0, attributes: choice.selectedAttributes }];
+		
 		this.myFavoritesChoices.forEach(choice => {
 			if (choice.decisionPointLabel === pointLabel) {
 				selectedChoices.push({ choiceId: choice.dpChoiceId, quantity: 0, attributes: [] });
@@ -277,22 +285,6 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		this.store.dispatch(new FavoriteActions.SaveMyFavoritesChoices());
 		console.log("All choices for " + pointLabel + " should be deselected");
 	}
-	
-	//
-	// toggleDeclineChoice()
-	// {
-	// 	console.log("toggleDeclineChoice()");
-	// 	// let selectedChoices = [{ choiceId: 0, quantity: 1, attributes: choice.selectedAttributes }];
-	// 	// const impactedChoices = getDependentChoices(this.tree, this.treeVersionRules, choice);
-
-	// 	// impactedChoices.forEach(c =>
-	// 	// {
-	// 	// 	selectedChoices.push({ choiceId: c.id, quantity: 0, attributes: c.selectedAttributes });
-	// 	// });
-
-	// 	// this.store.dispatch(new ScenarioActions.SelectChoices(...selectedChoices));
-	// 	// this.store.dispatch(new FavoriteActions.SaveMyFavoritesChoices());
-	// }
 
 	toggleContractedOptions()
 	{
@@ -337,6 +329,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 
 	updateSelectedChoice()
 	{
+		console.log("I am making a choice!");
 		if (this.selectedChoice)
 		{
 			const choices = _.flatMap(this.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices))) || [];
@@ -346,7 +339,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 				this.selectedChoice.quantity = updatedChoice.quantity;
 				this.selectedChoice.myFavoritesChoice = this.myFavoritesChoices 
 					? this.myFavoritesChoices.find(x => x.divChoiceCatalogId === this.selectedChoice.divChoiceCatalogId)
-					: null;	
+					: null;
 			}
 		}
 	}
@@ -357,14 +350,43 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		console.log(this.selectedPointId);
 	}
 
-	declineDecisionPoint(pointLabel: string) {
-		this.declinedPoints.set(pointLabel, !this.declinedPoints.get(pointLabel));
+	// addDeclineDecisionPoint(declinedPoint:) {
+
+	// }
+
+	// deleteDeclineDecisionPoint
+
+	declineDecisionPoint(declinedPoint: MyFavoritesPointDeclined) {
+		// Local DeclinedPoints
+		this.declinedPoints.set(declinedPoint.decisionPointLabel, !this.declinedPoints.get(declinedPoint.decisionPointLabel));
 		console.log(this.declinedPoints);
-		if (this.declinedPoints.get(pointLabel) === true) {
-			this.deselectPointChoices(pointLabel);
-			console.log("My favorites declines - " + pointLabel);
+		if (this.declinedPoints.get(declinedPoint.decisionPointLabel) === true) {
+			//this.favoriteService.addMyFavoritesPointDeclined(this.myFavoriteId, this.declinedPointIds.get(declinedPoint.decisionPointLabel));
+			let myFavoriteId = this.myFavoriteId;
+			let pointId = this.declinedPointIds.get(declinedPoint.decisionPointLabel);
+			this.store.dispatch(new FavoriteActions.AddMyFavoritesPointDeclined(myFavoriteId, pointId));
+			this.deselectPointChoices(declinedPoint.decisionPointLabel);
+			console.log("My favorites declines - " + declinedPoint.decisionPointLabel);
 		} else {
-			console.log("My favorites undeclines - " + pointLabel);
+			let declinedPointId = this.myFavoritesDeclinedPoints.find(decPoint => decPoint.dPointId === declinedPoint.dPointId).id
+			this.store.dispatch(new FavoriteActions.DeleteMyFavoritesPointDeclined(declinedPointId));
+			console.log("My favorites undeclines - " + declinedPoint.decisionPointLabel);
 		}
-	}
+		// Set up the declined points to save to the API
+		// Shouldn't be needed
+		// let declinedPoints = [];
+		// console.log(this.declinedPoints);
+		// this.declinedPoints.forEach((value: boolean, key: string) => {
+		// 	if (value === true) {
+		// 		declinedPoints.push({dPointId: this.declinedPointIds.get(key), decisionPointLabel: key});
+		// 	}			
+		// })
+		// Only pass in one pointID & myFavoriteID to the API to do add or delete function in favorites.service.ts
+		// Need easy way to determine adding/deleting
+		// console.log("Select declined points");
+		// console.log(declinedPoints);
+		// Dispatchh Scenario actionss and favorite actions to call the API
+		// this.store.dispatch(new ScenarioActions.SelectDeclinedPoints(...declinedPoints));
+		// this.store.dispatch(new FavoriteActions.SaveMyFavoritesDeclinedPoints())
+	}	
 }

@@ -2,6 +2,7 @@ import { Component, Input, Output, OnInit, OnChanges, SimpleChanges, EventEmitte
 
 import { UnsubscribeOnDestroy, flipOver3, OptionImage, Choice } from 'phd-common';
 import { ChoiceExt } from '../../models/choice-ext.model';
+import { MyFavoritesPointDeclined } from '../../models/my-favorite.model';
 
 @Component({
 	selector: 'choice-card',
@@ -15,13 +16,15 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 {
 	@Input() currentChoice: ChoiceExt;
 	@Input() isDeclineCard?: boolean = false;
+	@Input() decisionPointId?: number;
 	@Input() decisionPointLabel?: string = '';
 	@Input() declinedPoints?:  Map<string, boolean>;
 	
 	@Output() toggled = new EventEmitter<ChoiceExt>();
 	@Output() toggleDeclineStatus = new EventEmitter<boolean>();
 	@Output() onViewChoiceDetail = new EventEmitter<ChoiceExt>();
-	@Output() onDeclineDecisionPoint = new EventEmitter<string>();
+	//@Output() onDeclineDecisionPoint = new EventEmitter<string>();
+	@Output() onDeclineDecisionPoint = new EventEmitter<{ dPointId: number, decisionPointLabel: string }>();
 
 	choice: ChoiceExt;
 	isDeclined: boolean = false;
@@ -99,7 +102,8 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 			this.isDeclined = false;
 		}
 		this.toggleDeclineStatus.emit(this.isDeclined);
-		this.onDeclineDecisionPoint.emit(this.decisionPointLabel);
+		//this.onDeclineDecisionPoint.emit(this.decisionPointLabel);
+		this.onDeclineDecisionPoint.emit({ dPointId: this.decisionPointId, decisionPointLabel: this.decisionPointLabel })
 		console.log(this.decisionPointLabel + " has been declined");
 	}
 

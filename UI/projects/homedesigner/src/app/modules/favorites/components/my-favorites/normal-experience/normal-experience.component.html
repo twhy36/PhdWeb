@@ -40,6 +40,7 @@
 					<choice-card *ngIf="point.pointPickTypeId % 2 === 0"
 								[isDeclineCard]="true"
 								[decisionPointLabel]="point.label"
+								[decisionPointId]="point.id"
 								[declinedPoints]="declinedPoints"
 								(toggleDeclineStatus)="declineToggleHandler($event)"
 								(onDeclineDecisionPoint)="declineDecisionPoint($event)"

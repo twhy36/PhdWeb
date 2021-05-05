@@ -12,11 +12,13 @@ import { DesignToolAttribute } from 'phd-common';
 
 import 
 { 	FavoriteActionTypes, SetCurrentFavorites, MyFavoriteCreated, SaveMyFavoritesChoices, 
-	MyFavoritesChoicesSaved, SaveError, DeleteMyFavorite, MyFavoriteDeleted 
+	SaveMyFavoritesDeclinedPoints, MyFavoritesChoicesSaved, SaveError, DeleteMyFavorite, 
+	MyFavoriteDeleted, MyDeclinedFavoritesSaved, 
+	AddMyFavoritesPointDeclined, DeleteMyFavoritesPointDeclined, MyFavoritesPointDeclinedUpdated
 } from './actions';
 
 import { CommonActionTypes, ResetFavorites } from '../actions';
-import { SelectChoices } from '../scenario/actions';
+import { SelectChoices, SelectDeclinedPoints } from '../scenario/actions';
 import { tryCatch } from '../error.action';
 
 import { FavoriteService } from '../../core/services/favorite.service';
@@ -143,6 +145,40 @@ export class FavoriteEffects
   			}),
 			switchMap(results => of(new MyFavoritesChoicesSaved(results)))
 		), SaveError, "Error saving my favorite choices!")
+	);
+
+	@Effect()
+	saveMyFavoritesDeclinedPoints$: Observable<Action> = this.actions$.pipe(
+		ofType<SaveMyFavoritesDeclinedPoints>(FavoriteActionTypes.SaveMyFavoritesDeclinedPoints),
+		withLatestFrom(this.store, this.store.pipe(select(fromFavorite.currentMyFavorite))),
+		tryCatch(source => source.pipe(
+			switchMap(([action, store, fav]) => {
+                return this.favoriteService.saveMyFavoritesDeclinedPoints(fav);
+  			}),
+			switchMap(results => of(new MyDeclinedFavoritesSaved(results)))
+		), SaveError, "Error saving my favorite choices!")
+	);
+
+	@Effect()
+	addMyFavoritesPointDeclined$: Observable<Action> = this.actions$.pipe(
+		ofType<AddMyFavoritesPointDeclined>(FavoriteActionTypes.AddMyFavoritesPointDeclined),
+		tryCatch(source => source.pipe(
+			switchMap(action => {
+                return this.favoriteService.addMyFavoritesPointDeclined(action.myFavoriteId, action.pointId);
+  			}),
+			switchMap(results => of(new MyFavoritesPointDeclinedUpdated(results, false)))
+		), SaveError, "Error adding my favorites point declined!")
+	);
+	
+	@Effect()
+	deleteMyFavoritesPointDeclined$: Observable<Action> = this.actions$.pipe(
+		ofType<DeleteMyFavoritesPointDeclined>(FavoriteActionTypes.DeleteMyFavoritesPointDeclined),
+		tryCatch(source => source.pipe(
+			switchMap(action => {
+                return this.favoriteService.deleteMyFavoritesPointDeclined(action.myFavoritesPointDeclineId);
+  			}),
+			switchMap(results => of(new MyFavoritesPointDeclinedUpdated(results, true)))
+		), SaveError, "Error deleting my favorites point declined!")
 	);
 
 	@Effect()

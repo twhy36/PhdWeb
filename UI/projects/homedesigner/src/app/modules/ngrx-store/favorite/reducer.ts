@@ -3,7 +3,7 @@ import * as _ from "lodash";
 
 import { JobChoice } from 'phd-common';
 
-import { MyFavorite, MyFavoritesChoice } from '../../shared/models/my-favorite.model';
+import { MyFavorite, MyFavoritesChoice, MyFavoritesPointDeclined } from '../../shared/models/my-favorite.model';
 import { CommonActionTypes } from '../actions';
 import { FavoriteActions, FavoriteActionTypes } from './actions';
 
@@ -13,8 +13,8 @@ export interface State
 	myFavorites: MyFavorite[],
 	selectedFavoritesId: number,
 	saveError: boolean,
-	salesChoices: JobChoice[]
-	includeContractedOptions: boolean;
+	salesChoices: JobChoice[],
+	includeContractedOptions: boolean
 }
 
 export const initialState: State = {
@@ -55,7 +55,7 @@ export function reducer(state: State = initialState, action: FavoriteActions): S
 
 				return { ...state, saveError: false, myFavorites: myFavorites, selectedFavoritesId: action.myFavorite.id };
 			}
-
+			
 		case FavoriteActionTypes.MyFavoritesChoicesSaved:
 			{
 				let myFavorites = _.cloneDeep(state.myFavorites);
@@ -87,6 +87,68 @@ export function reducer(state: State = initialState, action: FavoriteActions): S
 								}
 							}
 						});
+					}
+				}
+
+				return { ...state, saveError: false, myFavorites: myFavorites };
+			}
+
+		case FavoriteActionTypes.MyDeclinedFavoritesSaved:
+			{
+				let myFavorites = _.cloneDeep(state.myFavorites);
+				console.log("From Reducer...");
+				console.log(action.declinedPoints);
+				if (myFavorites && action.declinedPoints && action.declinedPoints.length)
+				{
+					console.log("From Reducer...");
+					console.log(action.declinedPoints);
+					let currentMyFavorite = myFavorites.find(x => x.id === state.selectedFavoritesId);
+					if (currentMyFavorite)
+					{
+						if (!currentMyFavorite.myFavoritesPointDeclined)
+						{
+							currentMyFavorite.myFavoritesPointDeclined = new Array<MyFavoritesPointDeclined>();
+						}
+
+						action.declinedPoints.forEach(d => {
+							let decIndex = currentMyFavorite.myFavoritesPointDeclined.findIndex(x => x.dPointId === d.dPointId);
+							if (decIndex === -1 && d.id > 0)
+							{
+								currentMyFavorite.myFavoritesPointDeclined.push(d);
+							}
+							else if (decIndex > -1)
+							{
+								if (d.id === 0)
+								{
+									currentMyFavorite.myFavoritesPointDeclined.splice(decIndex, 1);
+								}
+								else
+								{
+									currentMyFavorite.myFavoritesPointDeclined[decIndex] = d;
+								}
+							}
+						});
+					}
+				}
+
+				return { ...state, saveError: false, myFavorites: myFavorites };
+			}
+		
+		case FavoriteActionTypes.MyFavoritesPointDeclinedUpdated:
+			{
+				let myFavorites = _.cloneDeep(state.myFavorites);
+
+				let myFavorite = myFavorites?.find(x => x.id === action.myFavoritesPointDeclined?.myFavoriteId);
+				if (myFavorite)
+				{
+					const pointDeclinedIndex = myFavorite?.myFavoritesPointDeclined?.findIndex(x => x.id === action.myFavoritesPointDeclined?.id);
+					if (action.isDelete && pointDeclinedIndex > -1)
+					{
+						myFavorite.myFavoritesPointDeclined.splice(pointDeclinedIndex, 1);
+					}
+					else if (!action.isDelete && pointDeclinedIndex < 0)
+					{
+						myFavorite.myFavoritesPointDeclined.push(action.myFavoritesPointDeclined);
 					}
 				}
 
