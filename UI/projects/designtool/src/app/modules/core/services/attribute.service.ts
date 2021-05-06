@@ -22,7 +22,7 @@ export class AttributeService
 		const filterAttributeGroupIds = choice.mappedAttributeGroups.map(ag => `id eq ${ag.id}`).join(' or ');
 
 		const entity = `attributeGroupCommunities`;
-		const expand = `attributeGroupOptionCommunityAssocs($expand=optionCommunity($expand=option($select=id,financialOptionIntegrationKey);$select=id)),attributeGroupAttributeCommunityAssocs($expand=attributeCommunity($select=id,name,attributeDescription,manufacturer,sku,imageUrl,startDate,endDate);$filter=attributeCommunity/endDate gt now())`;
+		const expand = `attributeGroupOptionCommunityAssocs($expand=optionCommunity($expand=option($select=id,financialOptionIntegrationKey);$select=id)),attributeGroupAttributeCommunityAssocs($expand=attributeCommunity($select=id,name,attributeDescription,manufacturer,sku,imageUrl,startDate,endDate);$filter=(attributeCommunity/endDate gt now()) and (attributeCommunity/startDate lt now()))`;
 		const filter = `(${filterAttributeGroupIds})`;
 		const select = `id,groupName,groupLabel,description,isActive`;
 		const qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
