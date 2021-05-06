@@ -667,7 +667,7 @@ export class CommonEffects
 						{
 							return of(new CreatePlanChangeOrder());
 						}
-						else if (jco.some(co => co.jobChangeOrderTypeDescription === 'Choice/Attribute' || co.jobChangeOrderTypeDescription === 'Elevation'))
+						else if (jco.some(co => co.jobChangeOrderTypeDescription === 'ChoiceAttribute' || co.jobChangeOrderTypeDescription === 'Elevation'))
 						{
 							return of(new CreateJobChangeOrders());
 						}
