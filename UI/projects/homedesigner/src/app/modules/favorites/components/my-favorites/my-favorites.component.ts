@@ -360,16 +360,17 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		// Local DeclinedPoints
 		this.declinedPoints.set(declinedPoint.decisionPointLabel, !this.declinedPoints.get(declinedPoint.decisionPointLabel));
 		console.log(this.declinedPoints);
+		let myFavoriteId = this.myFavoriteId;
 		if (this.declinedPoints.get(declinedPoint.decisionPointLabel) === true) {
 			//this.favoriteService.addMyFavoritesPointDeclined(this.myFavoriteId, this.declinedPointIds.get(declinedPoint.decisionPointLabel));
-			let myFavoriteId = this.myFavoriteId;
+			
 			let pointId = this.declinedPointIds.get(declinedPoint.decisionPointLabel);
 			this.store.dispatch(new FavoriteActions.AddMyFavoritesPointDeclined(myFavoriteId, pointId));
 			this.deselectPointChoices(declinedPoint.decisionPointLabel);
 			console.log("My favorites declines - " + declinedPoint.decisionPointLabel);
 		} else {
 			let declinedPointId = this.myFavoritesDeclinedPoints.find(decPoint => decPoint.dPointId === declinedPoint.dPointId).id
-			this.store.dispatch(new FavoriteActions.DeleteMyFavoritesPointDeclined(declinedPointId));
+			this.store.dispatch(new FavoriteActions.DeleteMyFavoritesPointDeclined(myFavoriteId, declinedPointId));
 			console.log("My favorites undeclines - " + declinedPoint.decisionPointLabel);
 		}
 		// Set up the declined points to save to the API

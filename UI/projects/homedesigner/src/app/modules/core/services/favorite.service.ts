@@ -109,11 +109,11 @@ export class FavoriteService
 		);
 	}
 
-	addMyFavoritesPointDeclined(myFavoriteID: number, pointId: number): Observable<MyFavoritesPointDeclined> {
+	addMyFavoritesPointDeclined(myFavoriteId: number, pointId: number): Observable<MyFavoritesPointDeclined> {
 		const endPoint = environment.apiUrl + `myFavoritesPointsDeclined`;
 		
 		const data = {
-			myFavoriteID: myFavoriteID,
+			myFavoriteId: myFavoriteId,
 			dPointId: pointId
 		};
 
@@ -129,16 +129,16 @@ export class FavoriteService
 		);
 	}
 
-	deleteMyFavoritesPointDeclined(myFavoritesPointDeclinedId: number): Observable<MyFavoritesPointDeclined> {
+	deleteMyFavoritesPointDeclined(myFavoriteId: number, myFavoritesPointDeclinedId: number): Observable<MyFavoritesPointDeclined> {
 		const endPoint = environment.apiUrl + `myFavoritesPointsDeclined(${myFavoritesPointDeclinedId})`;
-
 		return withSpinner(this._http).delete(endPoint).pipe(
-			tap(response => response['@odata.context']=undefined),
 			map((response: any) => {
-				return new MyFavoritesPointDeclined(response);
+				let result = new MyFavoritesPointDeclined();
+				result.id = myFavoritesPointDeclinedId;
+				result.myFavoriteId = myFavoriteId;
+				return result;
 			}),
 			catchError(error => {
-				console.log(error);
 				return _throw(error);
 			})
 		);

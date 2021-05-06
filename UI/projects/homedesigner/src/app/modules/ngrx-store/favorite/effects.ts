@@ -175,7 +175,7 @@ export class FavoriteEffects
 		ofType<DeleteMyFavoritesPointDeclined>(FavoriteActionTypes.DeleteMyFavoritesPointDeclined),
 		tryCatch(source => source.pipe(
 			switchMap(action => {
-                return this.favoriteService.deleteMyFavoritesPointDeclined(action.myFavoritesPointDeclineId);
+                return this.favoriteService.deleteMyFavoritesPointDeclined(action.myFavoriteId, action.myFavoritesPointDeclineId);
   			}),
 			switchMap(results => of(new MyFavoritesPointDeclinedUpdated(results, true)))
 		), SaveError, "Error deleting my favorites point declined!")

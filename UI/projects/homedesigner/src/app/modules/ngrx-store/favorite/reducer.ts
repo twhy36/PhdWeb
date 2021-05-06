@@ -144,6 +144,7 @@ export function reducer(state: State = initialState, action: FavoriteActions): S
 					const pointDeclinedIndex = myFavorite?.myFavoritesPointDeclined?.findIndex(x => x.id === action.myFavoritesPointDeclined?.id);
 					if (action.isDelete && pointDeclinedIndex > -1)
 					{
+						console.log("Tryna delete that fave declined");
 						myFavorite.myFavoritesPointDeclined.splice(pointDeclinedIndex, 1);
 					}
 					else if (!action.isDelete && pointDeclinedIndex < 0)

@@ -101,7 +101,7 @@ export class DeleteMyFavoritesPointDeclined implements Action
 	{
 		readonly type = FavoriteActionTypes.DeleteMyFavoritesPointDeclined;
 
-		constructor(public myFavoritesPointDeclineId: number) {	}
+		constructor(public myFavoriteId: number, public myFavoritesPointDeclineId: number) {	}
 	}
 
 export class MyFavoritesPointDeclinedUpdated implements Action
