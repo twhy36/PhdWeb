@@ -3,7 +3,7 @@ import { IEnvironment } from './environment.model';
 export const environment: IEnvironment = {
 	production: true,
 	apiUrl: 'https://phdapi.pulte.com/odata/',
-	authConfig: null,
+	authConfigs: null,
 	authQueryParams: "domain_hint=pulte.com",
 	appInsights: {
 		instrumentationKey: 'f6f360eb-b343-428f-ab2b-c53d417f272e'

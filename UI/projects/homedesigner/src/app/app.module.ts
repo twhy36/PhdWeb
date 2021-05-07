@@ -1,17 +1,16 @@
 import { BrowserModule, Title } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
-import { NgModule, APP_INITIALIZER } from '@angular/core';
+import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Routes, RouterModule } from '@angular/router';
+import { Routes, RouterModule, Router } from '@angular/router';
 import { APP_BASE_HREF, PlatformLocation } from "@angular/common";
 
 import { CloudinaryModule } from '@cloudinary/angular-5.x';
 import { Cloudinary } from 'cloudinary-core';
 import { ToastrModule } from 'ngx-toastr';
+import { Observable, of } from 'rxjs';
 
-import { tap } from 'rxjs/operators';
-
-import { PhdCommonModule, IdentityService} from 'phd-common';
+import { PhdCommonModule, IdentityService, AUTH_CONFIG } from 'phd-common';
 
 import { environment } from '../environments/environment';
 import { AppComponent } from './app.component';
@@ -20,6 +19,8 @@ import { StoreModule } from './modules/ngrx-store/store.module';
 import { SharedModule } from './modules/shared/shared.module';
 import { HomeModule } from './modules/home/home.module';
 import { FavoritesModule } from './modules/favorites/favorites.module';
+import { AuthService } from './modules/core/services/auth.service';
+import { AuthConfigSelector } from './modules/shared/classes/auth-config-selector.class';
 
 const appRoutes: Routes = [
     { path: 'home', component: HomeModule },
@@ -27,19 +28,23 @@ const appRoutes: Routes = [
     { path: '', pathMatch: 'full', redirectTo: 'home' }
 ];
 
-const appInitializerFn = (identityService: IdentityService) => {
-	// the APP_INITIALIZER provider waits for promises to be resolved
-	return () => identityService.init().pipe(
-		tap(loggedIn => {
-			if (!loggedIn) {
-				identityService.login();
-			}
-		})
-	).toPromise();
-};
-
 export function getBaseHref(platformLocation: PlatformLocation): string {
 	return platformLocation.getBaseHrefFromDOM();
+}
+
+const tryInitAuth = (authService: AuthService, identityService: IdentityService) => {
+	return () => {
+		const params = new URLSearchParams(window.location.search);
+		if (params.has('code') && params.has('state') && params.get('state').split(';').length > 1) {
+			const additionalState = JSON.parse(decodeURIComponent(params.get('state').split(';')[1]));
+			if (additionalState['provider']){
+				authService.setAuthConfig(environment.authConfigs[additionalState['provider']]);
+			}
+
+			return identityService.init().toPromise();
+		}
+		return Promise.resolve();
+	}
 }
 
 @NgModule({
@@ -49,7 +54,7 @@ export function getBaseHref(platformLocation: PlatformLocation): string {
     imports: [
         BrowserModule,
         CommonModule,
-		PhdCommonModule.forRoot(environment.authConfig,	environment.apiUrl),
+		PhdCommonModule.forRoot(environment.apiUrl),
 		FormsModule,
 		CoreModule,
         SharedModule,
@@ -61,8 +66,9 @@ export function getBaseHref(platformLocation: PlatformLocation): string {
 		ToastrModule.forRoot({ closeButton: true })
     ],
     providers: [
-		{ provide: APP_INITIALIZER, useFactory: appInitializerFn, deps: [IdentityService], multi: true },
-		{ provide: APP_BASE_HREF, useFactory: getBaseHref, deps: [PlatformLocation] }
+		{ provide: APP_INITIALIZER, useFactory: tryInitAuth, deps: [AuthService, IdentityService], multi: true },
+		{ provide: APP_BASE_HREF, useFactory: getBaseHref, deps: [PlatformLocation] },
+		{ provide: AUTH_CONFIG, useClass: AuthConfigSelector, deps: [AuthService] }
     ],
     bootstrap: [AppComponent]
 })

@@ -1,13 +1,18 @@
 import { AuthConfig } from 'angular-oauth2-oidc';
 import { CloudinaryConfiguration } from '@cloudinary/angular-5.x';
 
-export interface IEnvironment
-{
+export interface IEnvironment {
 	production: boolean;
 	apiUrl: string;
-	authConfigs: { [key: string]: AuthConfig };
+	hubUrl: string;
+	tenant: string;
+	clientId: string;
+	authConfig: AuthConfig;
 	authQueryParams: string;
 	appInsights: any;
 	cloudinary: CloudinaryConfiguration;
 	alphavision: { builderId: string };
+	pdfViewerBaseUrl: string;
+	whatFix: { scriptUrl: string };
+	EBillUrl: string;
 }

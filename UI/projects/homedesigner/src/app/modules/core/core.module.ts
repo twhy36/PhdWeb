@@ -15,6 +15,10 @@ import { PlanService } from './services/plan.service';
 import { SalesAgreementService } from './services/sales-agreement.service';
 import { TreeService } from './services/tree.service';
 import { AttributeService } from './services/attribute.service';
+import { AuthService } from './services/auth.service';
+import { LoggedInGuard } from './guards/logged-in.guard';
+import { InternalGuard } from './guards/internal.guard';
+import { ExternalGuard } from './guards/external.guard';
 
 @NgModule({
 	exports: [
@@ -38,7 +42,11 @@ import { AttributeService } from './services/attribute.service';
 		PlanService,
 		SalesAgreementService,
 		TreeService,
-		AttributeService
+		AttributeService,
+		AuthService,
+		LoggedInGuard,
+		InternalGuard,
+		ExternalGuard
 	]
 })
 export class CoreModule { }

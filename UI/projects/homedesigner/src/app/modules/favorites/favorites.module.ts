@@ -8,6 +8,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { SharedModule } from '../shared/shared.module';
 import { PhdCommonModule } from 'phd-common';
+import { ExternalGuard } from '../core/guards/external.guard';
 import { ManageFavoritesComponent } from './components/manage-favorites/manage-favorites.component';
 import { MyFavoritesComponent } from './components/my-favorites/my-favorites.component';
 import { NormalExperienceComponent } from './components/my-favorites/normal-experience/normal-experience.component';
@@ -15,10 +16,17 @@ import { FavoritesSummaryComponent } from './components/favorites-summary/favori
 import { SummaryHeaderComponent } from './components/favorites-summary/summary-header/summary-header.component';
 
 const moduleRoutes: Routes = [
-	{ path: 'favorites', component: ManageFavoritesComponent },
-	{ path: 'favorites/summary', component: FavoritesSummaryComponent },
-	{ path: 'favorites/my-favorites/:favoritesId/:subGroupCatalogId', component: MyFavoritesComponent },
-	{ path: 'favorites/my-favorites/:favoritesId', component: MyFavoritesComponent }
+	{ 
+		path: '',
+		canActivate: [ExternalGuard],
+		children: 
+		[
+			{ path: 'favorites', component: ManageFavoritesComponent },
+			{ path: 'favorites/summary', component: FavoritesSummaryComponent },
+			{ path: 'favorites/my-favorites/:favoritesId/:subGroupCatalogId', component: MyFavoritesComponent },
+			{ path: 'favorites/my-favorites/:favoritesId', component: MyFavoritesComponent }
+		]
+	}
 ];
 
 @NgModule({

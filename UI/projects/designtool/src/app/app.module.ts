@@ -18,7 +18,7 @@ import { never, of } from 'rxjs';
 export const cloudinary = { Cloudinary: CloudinaryCore };
 export const config: CloudinaryConfiguration = environment.cloudinary;
 
-import { PhdCommonModule, IdentityService } from 'phd-common';
+import { PhdCommonModule, IdentityService, AUTH_CONFIG } from 'phd-common';
 
 import { CoreModule } from './modules/core/core.module';
 import { ChangeOrdersModule } from './modules/change-orders/change-orders.module';
@@ -65,7 +65,7 @@ export function getBaseHref(platformLocation: PlatformLocation): string
     imports: [
         FormsModule,
         BrowserModule,
-        PhdCommonModule.forRoot(environment.authConfig,	environment.apiUrl),
+        PhdCommonModule.forRoot(environment.apiUrl),
         CommonModule,
 		CoreModule,
 		ChangeOrdersModule,
@@ -82,7 +82,8 @@ export function getBaseHref(platformLocation: PlatformLocation): string
     providers: [
         { provide: APP_INITIALIZER, useFactory: appInitializerFn, deps: [IdentityService], multi: true },
         { provide: APP_BASE_HREF, useFactory: getBaseHref, deps: [PlatformLocation] },
-        { provide: NgbDateParserFormatter, useClass: NgbDateCustomParserFormatter }
+        { provide: NgbDateParserFormatter, useClass: NgbDateCustomParserFormatter },
+		{ provide: AUTH_CONFIG, useValue: environment.authConfig }
     ],
     bootstrap: [AppComponent]
 })

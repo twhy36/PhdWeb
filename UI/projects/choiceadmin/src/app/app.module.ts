@@ -14,7 +14,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { AppComponent } from './app.component';
 
-import { IdentityService, PhdCommonModule } from 'phd-common';
+import { IdentityService, PhdCommonModule, AUTH_CONFIG } from 'phd-common';
 import { environment } from '../environments/environment';
 import { tap } from 'rxjs/operators';
 
@@ -54,7 +54,7 @@ export function getBaseHref(platformLocation: PlatformLocation): string
 		BrowserModule,
         FormsModule,
 		ReactiveFormsModule,
-		PhdCommonModule.forRoot(environment.authConfig, environment.apiUrl),
+		PhdCommonModule.forRoot(environment.apiUrl),
         CoreModule,
         NationalModule,
         DivisionalModule,
@@ -63,7 +63,8 @@ export function getBaseHref(platformLocation: PlatformLocation): string
 	],
 	providers: [
 		{ provide: APP_INITIALIZER, useFactory: appInitializerFn, deps: [IdentityService], multi: true },
-		{ provide: APP_BASE_HREF, useFactory: getBaseHref, deps: [PlatformLocation] }
+		{ provide: APP_BASE_HREF, useFactory: getBaseHref, deps: [PlatformLocation] },
+		{ provide: AUTH_CONFIG, useValue: environment.authConfig }
 	],
 	bootstrap: [AppComponent]
 })

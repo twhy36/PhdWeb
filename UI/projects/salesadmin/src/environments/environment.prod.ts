@@ -1,6 +1,7 @@
 export const environment = {
 	production: true,
 	apiUrl: 'https://phdapi.pulte.com/odata/',
+	hubUrl: 'https://phdhub.pulte.com/hub',
 	tenant: "pulte.onmicrosoft.com",
 	clientId: "d21266c1-108b-4141-8200-fffa205f205e",
 	authConfig: {

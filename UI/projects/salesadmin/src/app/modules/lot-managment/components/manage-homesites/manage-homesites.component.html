@@ -1,11 +1,11 @@
 <manage-homesites-side-panel-component *ngIf="sidePanelOpen" [saving]="saving" [sidePanelOpen]="sidePanelOpen" [monotonyRules]="monotonyRules"
-	[lots]="lots" 
-	[selectedHomesite]="selectedHomesite" 
-	[viewAdjacencies]="viewAdjacencies"
-	[physicalLotTypes]="physicalLotTypes"
-	(onSidePanelClose)="onSidePanelClose($event)" 
-	(onSaveHomesite)="saveHomesite($event)" 
-	(onSaveMonotonyRules)="saveMonotonyRules($event)">
+									   [lots]="lots"
+									   [selectedHomesite]="selectedHomesite"
+									   [viewAdjacencies]="viewAdjacencies"
+									   [physicalLotTypes]="physicalLotTypes"
+									   (onSidePanelClose)="onSidePanelClose($event)"
+									   (onSaveHomesite)="saveHomesite($event)"
+									   (onSaveMonotonyRules)="saveMonotonyRules($event)">
 </manage-homesites-side-panel-component>
 
 <div class="phd-page-container" [class.phd-side-panel-open]="sidePanelOpen">
@@ -20,55 +20,57 @@
 		</ng-template>
 	</page-header>
 
-	<div class="phd-page-body">
+	<div class="phd-homesite-body">
 
 		<div class="my-3 phd-filter-body">
 			<label class="alert alert-info pull-right phd-homesites-counter">{{ lotCount + ' Homesites' }}</label>
 		</div>
 
 		<div class="my-3 d-flex flex-row-reverse">
-			<div class="col-md-4 phd-div-search-bar">
-				<search-bar [selectedSearchFilter]="selectedSearchFilter" (onClearFilter)="clearFilter()" (onKeywordSearch)="keywordSearch($event)"></search-bar>
-			</div>
+			<div class="form-inline">
+				<div class="phd-flexbox">
+					<i class="fa fa-filter phd-filter-icon"></i>
+					<p-multiSelect class="ui-multiselect-label-container ui-inputwrapper-filled flex-fill"
+								   defaultLabel="Status"
+								   [options]="lotStatus"
+								   [showToggleAll]="true"
+								   [maxSelectedLabels]="2"
+								   displaySelectedLabel="true"
+								   filterMode="multiple"
+								   [showHeader]="false"
+								   (onChange)="onStatusChange($event)">
+					</p-multiSelect>
+				</div>
 
-			<div class="col-md-1">
-				<i class="fa fa-filter phd-filter-icon"></i>
-				<p-multiSelect class="ui-multiselect-label-container ui-inputwrapper-filled flex-fill"
-							   defaultLabel="Handing"
-							   [options]="handingOptions"
-							   [showToggleAll]="true"
-							   [maxSelectedLabels]="2"
-							   displaySelectedLabel="true"
-							   filterMatchMode="any"
-							   [showHeader]="false"
-							   (onChange)="onHandingChange($event)">
-				</p-multiSelect>
-			</div>
+				<div class="phd-flexbox">
+					<i class="fa fa-filter phd-filter-icon"></i>
+					<p-multiSelect class="ui-multiselect-label-container ui-inputwrapper-filled flex-fill"
+								   defaultLabel="Handing"
+								   [options]="handingOptions"
+								   [showToggleAll]="true"
+								   [maxSelectedLabels]="2"
+								   displaySelectedLabel="true"
+								   filterMatchMode="any"
+								   [showHeader]="false"
+								   (onChange)="onHandingChange($event)">
+					</p-multiSelect>
+				</div>
 
-			<div class="col-md-0">
-				<i class="fa fa-filter phd-filter-icon"></i>
-				<p-multiSelect class="ui-multiselect-label-container ui-inputwrapper-filled flex-fill"
-							   defaultLabel="Status"
-							   [options]="lotStatus"
-							   [showToggleAll]="true"
-							   [maxSelectedLabels]="2"
-							   displaySelectedLabel="true"
-							   filterMode="multiple"
-							   [showHeader]="false"
-							   (onChange)="onStatusChange($event)">
-				</p-multiSelect>
+				<div class="phd-flexbox">
+					<search-bar [selectedSearchFilter]="selectedSearchFilter" (onClearFilter)="clearFilter()" (onKeywordSearch)="keywordSearch($event)"></search-bar>
+				</div>
 			</div>
 		</div>
 
-		<div class="phd-table-container mx-2" infiniteScroll [infiniteScrollThrottle]="settings.infiniteScrollThrottle" [infiniteScrollDisabled]="allDataLoaded" (scrolled)="onPanelScroll()" [scrollWindow]="false">
+		<div class="phd-homesite-panel mx-2" infiniteScroll [infiniteScrollThrottle]="settings.infiniteScrollThrottle" [infiniteScrollDisabled]="allDataLoaded" (scrolled)="onPanelScroll()" [scrollWindow]="false">
 			<phd-table #dt [value]="filteredLots" sortMode="single" sortField="lotBlock" showCaption="true" (onFilter)="onFilter($event)">
 				<phd-column header="">
 					<ng-template #body let-lot>
 						<div class="phd-icon-container">
-								<i class="fa fa-pencil fa-fw" [ngClass]="lot.hasRequiredInfo ? null : 'phd-lot-info-incomplete'"
-									(click)="editHomesite(lot);" phd-tooltip="Edit Homesite" *ngIf="canEdit"></i>
-								<i class="fa fa-share-square" (click)="releaseLot(lot)" (mouseenter)="showTooltip($event, 'Release Lot', dt)" (mouseleave)="hideTooltip(dt)"
-									*ngIf="canEdit && lot.hasRequiredInfo && lot.lotStatusDescription == 'Unavailable'"></i>
+							<i class="fa fa-pencil fa-fw" [ngClass]="lot.hasRequiredInfo ? null : 'phd-lot-info-incomplete'"
+							   (click)="editHomesite(lot);" phd-tooltip="Edit Homesite" *ngIf="canEdit"></i>
+							<i class="fa fa-share-square" (click)="releaseLot(lot)" (mouseenter)="showTooltip($event, 'Release Lot', dt)" (mouseleave)="hideTooltip(dt)"
+							   *ngIf="canEdit && lot.hasRequiredInfo && lot.lotStatusDescription == 'Unavailable'"></i>
 						</div>
 					</ng-template>
 				</phd-column>
@@ -143,7 +145,6 @@
 			</phd-table>
 		</div>
 	</div>
-</div>
 
-<p-toast></p-toast>
-<!--Manage Homesites-->
+	<p-toast></p-toast>
+	<!--Manage Homesites-->
