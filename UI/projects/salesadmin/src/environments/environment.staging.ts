@@ -5,7 +5,8 @@
 
 export const environment = {
     production: false,
-    apiUrl: 'https://phdapi.staging.pulte.com/odata/',
+	apiUrl: 'https://phdapi.staging.pulte.com/odata/',
+	hubUrl: 'https://phdhub.staging.pulte.com/hub',
     tenant: "pulte.onmicrosoft.com",
 	clientId: "d6e4e999-c413-4d1d-b0fb-618759cb69e5",
 	authConfig: {

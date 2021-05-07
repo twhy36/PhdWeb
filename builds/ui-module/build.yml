@@ -22,13 +22,20 @@ steps:
     command: 'custom'
     workingDir: 'UI'
     customCommand: ci --also=dev
-- ${{ if eq(variables['runTests'], true) }}:
-  - task: Npm@1
-    displayName: Run Unit Tests
-    inputs:
-      command: 'custom'
-      workingDir: 'UI'
-      customCommand: 'run test -- --project=$(module)'
+- task: Npm@1
+  displayName: Run Unit Tests
+  condition: and(succeeded(), eq(variables.runTests, 'true'))
+  inputs:
+    command: 'custom'
+    workingDir: 'UI'
+    customCommand: 'run test -- --project=$(module)'
+- task: PublishTestResults@2
+  displayName: Publish Test Results
+  condition: and(succeededOrFailed(), eq(variables.runTests, 'true'))
+  inputs:
+    testResultsFormat: 'VSTest'
+    testResultsFiles: 'test-results.trx'
+    searchFolder: '$(build.sourcesDirectory)\UI'
 - ${{ each configuration in parameters.configurations }}:
   - task: Npm@1
     displayName: Build ${{ configuration }}
@@ -45,12 +52,3 @@ steps:
       PathtoPublish: '$(build.sourcesDirectory)/UI/dist/$(module)'
       ArtifactName: 'Site\${{ configuration }}'
       publishLocation: 'Container'
-
-- ${{ if eq(variables['runTests'], true) }}:
-  - task: PublishTestResults@2
-    displayName: Publish Test Results
-    condition: succeededOrFailed()
-    inputs:
-      testResultsFormat: 'VSTest'
-      testResultsFiles: 'test-results.trx'
-      searchFolder: '$(build.sourcesDirectory)\UI\projects\$(module)\ClientApp'

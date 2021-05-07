@@ -11,7 +11,7 @@ import { OverlayPanelModule } from 'primeng/overlaypanel';
 
 import { OAuthModule, OAuthModuleConfig, AuthConfig } from 'angular-oauth2-oidc';
 
-import { AUTH_CONFIG, API_URL, WINDOW_ORIGIN } from './injection-tokens';
+import { API_URL, WINDOW_ORIGIN } from './injection-tokens';
 import { PhdTableComponent } from './components/table/phd-table.component';
 import { ConfirmModalComponent } from './components/confirm-modal/confirm-modal.component';
 import { SidePanelComponent } from './components/side-panel/side-panel.component';
@@ -91,7 +91,7 @@ export function getOrigin() {
 	],
 })
 export class PhdCommonModule {
-    static forRoot(authConfig: AuthConfig, apiUrl?: string): ModuleWithProviders<PhdCommonModule> {
+    static forRoot(apiUrl?: string): ModuleWithProviders<PhdCommonModule> {
         return {
             ngModule: PhdCommonModule,
             providers: [
@@ -103,7 +103,6 @@ export class PhdCommonModule {
                     multi: true
                 },
 				{ provide: WINDOW_ORIGIN, useFactory: getOrigin },
-                { provide: AUTH_CONFIG, useValue: authConfig },
 				{ provide: API_URL, useValue: apiUrl },
                 {
                     provide: OAuthModuleConfig,

@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, Output, EventEmitter } from '@angular/cor
 import { ActivatedRoute } from '@angular/router';
 
 import { filter, map, distinctUntilChanged, switchMap, finalize } from 'rxjs/operators';
-import { of ,  forkJoin } from 'rxjs';
+import { of,  forkJoin } from 'rxjs';
 
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
@@ -19,8 +19,8 @@ import { SearchBarComponent } from '../../../../../shared/components/search-bar/
 
 import { SettingsService } from '../../../../../core/services/settings.service';
 import { Settings } from '../../../../../shared/models/settings.model';
-import { OrganizationService } from '../../../../../core/services/organization.service';
 import { IdentityService, Permission } from 'phd-common';
+import { StorageService } from '../../../../../core/services/storage.service';
 
 @Component({
 	selector: 'location-groups-panel',
@@ -51,8 +51,12 @@ export class LocationGroupsPanelComponent extends UnsubscribeOnDestroy implement
 	isSearchingFromServer: boolean;
 	isSaving: boolean = false;
 	workingId: number = 0;
-	selectedStatus: string;
 	isReadOnly: boolean;
+
+	get selectedStatus(): string
+	{
+		return this._storageService.getSession<string>('CA_DIV_ATTR_STATUS') ?? 'Active';
+	}
 
 	get filterGroupNames(): Array<string>
 	{
@@ -65,7 +69,7 @@ export class LocationGroupsPanelComponent extends UnsubscribeOnDestroy implement
 		private _locoService: LocationService,
 		private _settingsService: SettingsService,
 		private _identityService: IdentityService,
-		private _orgService: OrganizationService)
+		private _storageService: StorageService)
 	{
 		super();
 	}
@@ -84,6 +88,7 @@ export class LocationGroupsPanelComponent extends UnsubscribeOnDestroy implement
 			switchMap(marketId =>
 			{
 				this.currentMarketId = marketId;
+
 				return forkJoin(this._locoService.getLocationGroupsByMarketId(marketId, null, this.settings.infiniteScrollPageSize, 0),
 					this._identityService.hasClaimWithPermission('Attributes', Permission.Edit),
 					this._identityService.hasMarket(marketId));
@@ -95,8 +100,17 @@ export class LocationGroupsPanelComponent extends UnsubscribeOnDestroy implement
 			this.currentPage = 1;
 			this.allDataLoaded = data.length < this.settings.infiniteScrollPageSize;
 
-			this.resetSearchBar();
+			this.setSearchBarFilters();
+			this.filterLocationGroups();
 		});
+	}
+
+	setSearchBarFilters()
+	{
+		let searchBarFilter = this.searchBar.storedSearchBarFilter;
+
+		this.selectedSearchFilter = searchBarFilter?.searchFilter ?? 'All';
+		this.keyword = searchBarFilter?.keyword ?? null;
 	}
 
 	isLocationGroupSelected(locationGroup: LocationGroupMarket): boolean
@@ -129,7 +143,6 @@ export class LocationGroupsPanelComponent extends UnsubscribeOnDestroy implement
 				this.locationGroupsList[index] = locationGroup;
 			}
 
-			this.resetSearchBar();
 			this.filterLocationGroups();
 
 			if (this.filteredLocationGroupsList.length > 0)
@@ -139,16 +152,11 @@ export class LocationGroupsPanelComponent extends UnsubscribeOnDestroy implement
 		}
 	}
 
-	resetSearchBar()
-	{
-		this.selectedSearchFilter = "All";
-		this.keyword = '';
-		this.searchBar.clearFilter();
-	}
-
 	clearFilter()
 	{
 		this.keyword = null;
+		this.selectedSearchFilter = 'All'
+
 		this.filterLocationGroups();
 	}
 
@@ -156,6 +164,7 @@ export class LocationGroupsPanelComponent extends UnsubscribeOnDestroy implement
 	{
 		this.selectedSearchFilter = event['searchFilter'];
 		this.keyword = event['keyword'];
+
 		this.filterLocationGroups();
 
 		if (!this.isSearchingFromServer)
@@ -169,6 +178,7 @@ export class LocationGroupsPanelComponent extends UnsubscribeOnDestroy implement
 		if (this.filteredLocationGroupsList.length === 0)
 		{
 			this._msgService.clear();
+
 			this._msgService.add({ severity: 'error', summary: 'Search Results', detail: `No results found. Please try another search.` });
 		}
 		else
@@ -189,24 +199,15 @@ export class LocationGroupsPanelComponent extends UnsubscribeOnDestroy implement
 			if (this.allDataLoaded)
 			{
 				this.filteredLocationGroupsList = [];
+								
+				let filteredResults = this.filterByKeyword(searchFilter, this.keyword);
 
-				let splittedKeywords = this.keyword.split(' ');
-
-				splittedKeywords.forEach(k =>
+				if (isActiveStatus !== null)
 				{
-					if (k)
-					{
-						let filteredResults = this.filterByKeyword(searchFilter, k);
+					filteredResults = filteredResults.filter(lg => lg.isActive === isActiveStatus);
+				}
 
-						if (isActiveStatus !== null)
-						{
-							filteredResults = filteredResults.filter(lg => lg.isActive === isActiveStatus);
-						}
-
-						this.filteredLocationGroupsList =
-							unionBy(this.filteredLocationGroupsList, filteredResults, 'id');
-					}
-				});
+				this.filteredLocationGroupsList = unionBy(this.filteredLocationGroupsList, filteredResults, 'id');
 			}
 			else
 			{
@@ -276,6 +277,7 @@ export class LocationGroupsPanelComponent extends UnsubscribeOnDestroy implement
 			.pipe(finalize(() =>
 			{
 				this.isSearchingFromServer = false;
+
 				this.onSearchResultUpdated();
 			}))
 			.subscribe(data =>
@@ -366,6 +368,16 @@ export class LocationGroupsPanelComponent extends UnsubscribeOnDestroy implement
 				this.workingId = 0;
 			})).subscribe(results =>
 			{
+				// We have two lists, main list and filtered list. The passed in value is from the filtered list, so we need to update the main as well.
+				let locGroup = this.locationGroupsList.find(x => x.id === group.id);
+
+				if (locGroup && group.isActive !== locGroup.isActive)
+				{
+					locGroup.isActive = !locGroup.isActive;
+				}
+
+				this.filterLocationGroups();
+
 				this._msgService.add({ severity: 'success', summary: 'Location Group', detail: `Updated successfully!` });
 			},
 			(error) =>
@@ -378,7 +390,8 @@ export class LocationGroupsPanelComponent extends UnsubscribeOnDestroy implement
 
 	onStatusChanged(event: any)
 	{
-		this.selectedStatus = event;
+		this._storageService.setSession('CA_DIV_ATTR_STATUS', event ?? '');
+
 		this.filterLocationGroups();
 	}
 }

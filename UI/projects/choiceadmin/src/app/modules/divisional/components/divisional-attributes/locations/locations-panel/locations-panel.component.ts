@@ -19,8 +19,8 @@ import { Settings } from '../../../../../shared/models/settings.model';
 
 import { SettingsService } from '../../../../../core/services/settings.service';
 import { LocationService } from '../../../../../core/services/location.service';
-import { OrganizationService } from '../../../../../core/services/organization.service';
 import { IdentityService, Permission } from 'phd-common';
+import { StorageService } from '../../../../../core/services/storage.service';
 
 @Component({
 	selector: 'locations-panel',
@@ -50,8 +50,12 @@ export class LocationsPanelComponent extends UnsubscribeOnDestroy implements OnI
 	isSearchingFromServer: boolean;
 	isSaving: boolean = false;
 	workingId: number = 0;
-	selectedStatus: string;
 	isReadOnly: boolean;
+
+	get selectedStatus(): string
+	{
+		return this._storageService.getSession<string>('CA_DIV_ATTR_STATUS') ?? 'Active';
+	}
 
 	get filterNames(): Array<string>
 	{
@@ -64,7 +68,7 @@ export class LocationsPanelComponent extends UnsubscribeOnDestroy implements OnI
 		private _locoService: LocationService,
 		private _settingsService: SettingsService,
 		private _identityService: IdentityService,
-		private _orgService: OrganizationService)
+		private _storageService: StorageService)
 	{
 		super();
 	}
@@ -95,8 +99,17 @@ export class LocationsPanelComponent extends UnsubscribeOnDestroy implements OnI
 			this.currentPage = 1;
 			this.allDataLoaded = data.length < this.settings.infiniteScrollPageSize;
 
-			this.resetSearchBar();
+			this.setSearchBarFilters();
+			this.filterLocations();
 		});
+	}
+
+	setSearchBarFilters()
+	{
+		let searchBarFilter = this.searchBar.storedSearchBarFilter;
+
+		this.selectedSearchFilter = searchBarFilter?.searchFilter ?? 'All';
+		this.keyword = searchBarFilter?.keyword ?? null;
 	}
 
 	isLocationSelected(location: Location): boolean
@@ -119,7 +132,6 @@ export class LocationsPanelComponent extends UnsubscribeOnDestroy implements OnI
 				this.locationsList[index] = location;
 			}
 
-			this.resetSearchBar();
 			this.filterLocations();
 
 			if (this.filteredLocationsList.length > 0)
@@ -129,16 +141,11 @@ export class LocationsPanelComponent extends UnsubscribeOnDestroy implements OnI
 		}
 	}
 
-	resetSearchBar()
-	{
-		this.selectedSearchFilter = "All";
-		this.keyword = '';
-		this.searchBar.clearFilter();
-	}
-
 	clearFilter()
 	{
 		this.keyword = null;
+		this.selectedSearchFilter = 'All'
+
 		this.filterLocations();
 	}
 
@@ -146,6 +153,7 @@ export class LocationsPanelComponent extends UnsubscribeOnDestroy implements OnI
 	{
 		this.selectedSearchFilter = event['searchFilter'];
 		this.keyword = event['keyword'];
+
 		this.filterLocations();
 
 		if (!this.isSearchingFromServer)
@@ -159,6 +167,7 @@ export class LocationsPanelComponent extends UnsubscribeOnDestroy implements OnI
 		if (this.filteredLocationsList.length === 0)
 		{
 			this._msgService.clear();
+
 			this._msgService.add({ severity: 'error', summary: 'Search Results', detail: `No results found. Please try another search.` });
 		}
 		else
@@ -179,22 +188,15 @@ export class LocationsPanelComponent extends UnsubscribeOnDestroy implements OnI
 			if (this.allDataLoaded)
 			{
 				this.filteredLocationsList = [];
-				let splittedKeywords = this.keyword.split(' ');
+				
+				let filteredResults = this.filterByKeyword(searchFilter, this.keyword);
 
-				splittedKeywords.forEach(k =>
+				if (isActiveStatus !== null)
 				{
-					if (k)
-					{
-						let filteredResults = this.filterByKeyword(searchFilter, k);
+					filteredResults = filteredResults.filter(loc => loc.isActive === isActiveStatus);
+				}
 
-						if (isActiveStatus !== null)
-						{
-							filteredResults = filteredResults.filter(loc => loc.isActive === isActiveStatus);
-						}
-
-						this.filteredLocationsList = unionBy(this.filteredLocationsList, filteredResults, 'id');
-					}
-				});
+				this.filteredLocationsList = unionBy(this.filteredLocationsList, filteredResults, 'id');
 			}
 			else
 			{
@@ -249,6 +251,7 @@ export class LocationsPanelComponent extends UnsubscribeOnDestroy implements OnI
 			.pipe(finalize(() =>
 			{
 				this.isSearchingFromServer = false;
+
 				this.onSearchResultUpdated();
 			}))
 			.subscribe(data =>
@@ -274,6 +277,7 @@ export class LocationsPanelComponent extends UnsubscribeOnDestroy implements OnI
 				{
 					this.locationsList = unionBy(this.locationsList, data, 'id');
 					this.filteredLocationsList = orderBy(this.locationsList, [location => location.locationName.toLowerCase()]);
+
 					this.currentPage++;
 				}
 
@@ -348,6 +352,16 @@ export class LocationsPanelComponent extends UnsubscribeOnDestroy implements OnI
 				this.workingId = 0;
 			})).subscribe(results =>
 			{
+				// We have two lists, main list and filtered list. The passed in value is from the filtered list, so we need to update the main as well.
+				let loc = this.locationsList.find(x => x.id === location.id);
+
+				if (loc && location.isActive !== loc.isActive)
+				{
+					loc.isActive = !loc.isActive;
+				}
+
+				this.filterLocations();
+
 				this._msgService.add({ severity: 'success', summary: 'Location', detail: `Updated successfully!` });
 			},
 			(error) =>
@@ -358,7 +372,8 @@ export class LocationsPanelComponent extends UnsubscribeOnDestroy implements OnI
 
 	onStatusChanged(event: any)
 	{
-		this.selectedStatus = event;
+		this._storageService.setSession('CA_DIV_ATTR_STATUS', event ?? '');
+
 		this.filterLocations();
 	}
 }

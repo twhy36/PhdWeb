@@ -69,6 +69,7 @@ export class DivOptionsAttributeGroupsSidePanelComponent extends UnsubscribeOnDe
 		this.associatedGroups$.subscribe(grps =>
 		{
 			this.associatedGroups = grps;
+
 			this.filterAssociatedAttributeGroups();
 		});
 
@@ -81,6 +82,7 @@ export class DivOptionsAttributeGroupsSidePanelComponent extends UnsubscribeOnDe
 		).subscribe(data =>
 		{
 			this.allAttrGroupsInMarket = data;
+
 			this.filterAssociatedAttributeGroups();
 		});
 	}
@@ -88,7 +90,9 @@ export class DivOptionsAttributeGroupsSidePanelComponent extends UnsubscribeOnDe
 	onCloseSidePanel(status: boolean)
 	{
 		this.addGroupsPanel.reset();
+
 		this.sidePanel.isDirty = false;
+
 		this.onSidePanelClose.emit(status);
 	}
 
@@ -132,6 +136,7 @@ export class DivOptionsAttributeGroupsSidePanelComponent extends UnsubscribeOnDe
 			}
 
 			this.errors = [];
+
 			this.errors.push({ severity: 'success', detail: `Attribute group(s) associated.` });
 
 			this.isSaving = false;

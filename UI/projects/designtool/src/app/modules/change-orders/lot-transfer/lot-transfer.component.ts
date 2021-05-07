@@ -3,8 +3,7 @@ import { Store, select } from '@ngrx/store';
 import { combineLatest, withLatestFrom } from 'rxjs/operators';
 
 import {
-	UnsubscribeOnDestroy, ConfirmModalComponent, ChangeOrderHanding, Job, Lot, LotExt, Plan,
-	TreeVersion, DecisionPoint
+	UnsubscribeOnDestroy, ChangeOrderHanding, Job, Lot, LotExt, Plan, TreeVersion, DecisionPoint
 } from 'phd-common';
 
 import * as fromRoot from '../../ngrx-store/reducers';
@@ -12,6 +11,7 @@ import * as fromScenario from '../../ngrx-store/scenario/reducer';
 import * as ChangeOrderActions from '../../ngrx-store/change-order/actions';
 import * as LotActions from '../../ngrx-store/lot/actions';
 
+import { ConfirmModalComponent } from '../../core/components/confirm-modal/confirm-modal.component';
 import { ModalOverrideSaveComponent } from '../../core/components/modal-override-save/modal-override-save.component';
 import { LotService } from '../../core/services/lot.service';
 

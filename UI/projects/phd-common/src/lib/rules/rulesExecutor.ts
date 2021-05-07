@@ -130,8 +130,15 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 
 		if (!choice.enabled)
 		{
-			choice.quantity = 0;
-			choice.disabledBy.push(cr);
+			if (choice.lockedInChoice)
+			{
+				choice.enabled = true;
+			}
+			else
+			{
+				choice.quantity = 0;
+				choice.disabledBy.push(cr);				
+			}
 		}
 
 		cr.executed = true;
@@ -183,7 +190,13 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 
 		if (!enabled)
 		{
-			point.choices.forEach(ch => { ch.quantity = 0; ch.enabled = false; });
+			point.choices.forEach(ch => {
+				if (!ch.lockedInChoice) 
+				{
+					ch.quantity = 0; 
+					ch.enabled = false; 
+				}
+			});
 			point.completed = false;
 			point.disabledBy.push(pr);
 		}
@@ -537,7 +550,7 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 			choice.options = choice.lockedInOptions.map(o => options.find(po => o && po.financialOptionIntegrationKey === o.optionId));
 			choice.mappingChanged = true;
 
-			//since the option mapping is changed, flag each dependency 
+			//since the option mapping is changed, flag each dependency
 			choice.lockedInOptions.forEach(o =>
 			{
 				if (o) {
@@ -572,7 +585,7 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 
 	points.forEach(point => {
 		point.completed = point && point.choices && point.choices.some(ch => ch.quantity > 0);
-	});	
+	});
 }
 
 function getMaxQuantity(option: PlanOption, choice: Choice): number

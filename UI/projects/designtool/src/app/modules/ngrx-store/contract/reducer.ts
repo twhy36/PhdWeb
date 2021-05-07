@@ -1,8 +1,9 @@
-import { ContractActions, ContractActionTypes } from './actions';
+import * as _ from "lodash";
 
 import { ESignTypeEnum } from 'phd-common';
 import { Template, TemplateTypeEnum } from '../../shared/models/template.model';
 import { FinancialCommunityESign } from '../../shared/models/contract.model';
+import { ContractActions, ContractActionTypes } from './actions';
 
 export interface State
 {
@@ -61,6 +62,15 @@ export function reducer(state: State = initialState, action: ContractActions): S
 			return { ...state, financialCommunityESign: action.financialCommunityESign, hasError: false };
 		case ContractActionTypes.SetESignType:
 			return { ...state, selectedAgreementType: action.eSignType };
+		case ContractActionTypes.SetChangeOrderTemplates:
+			{
+				const agreementTemplates = state.templates?.filter(t => t.templateTypeId === TemplateTypeEnum['Sales Agreement'])?.map(t => t.templateId) ?? [];
+				const selectedTemplates = action.inChangeOrder
+						? state.selectedTemplates?.filter(t => agreementTemplates.findIndex(x => x === t) < 0)
+						: _.uniq([...state.selectedTemplates, ...agreementTemplates]);
+
+				return { ...state, selectedTemplates: selectedTemplates };
+			}
 		default:
 			return state;
 	}

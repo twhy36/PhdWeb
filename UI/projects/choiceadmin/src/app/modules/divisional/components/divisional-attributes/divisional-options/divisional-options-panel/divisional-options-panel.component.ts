@@ -8,7 +8,6 @@ import { MessageService } from 'primeng/api';
 
 import { DivisionalOptionService } from '../../../../../core/services/divisional-option.service';
 import { SettingsService } from '../../../../../core/services/settings.service';
-import { OrganizationService } from '../../../../../core/services/organization.service';
 import { IdentityService, Permission } from 'phd-common';
 
 import { UnsubscribeOnDestroy } from '../../../../../shared/classes/unsubscribeOnDestroy';
@@ -95,8 +94,7 @@ export class DivisionalOptionsPanelComponent extends UnsubscribeOnDestroy implem
 		private cd: ChangeDetectorRef,
 		private _settingsService: SettingsService,
 		private _msgService: MessageService,
-		private _identityService: IdentityService,
-		private _orgService: OrganizationService)
+		private _identityService: IdentityService)
 	{
 		super();
 	}
@@ -133,6 +131,7 @@ export class DivisionalOptionsPanelComponent extends UnsubscribeOnDestroy implem
 			this.allDataLoaded = data.length < this.settings.infiniteScrollPageSize;
 			this.resetSearchBar();
 			this.isLoading = false;
+
 			this.performChangeDetection();
 		});
 	}
@@ -185,7 +184,9 @@ export class DivisionalOptionsPanelComponent extends UnsubscribeOnDestroy implem
 				{
 					this.options = unionBy(this.options, data, 'id');
 					this.filteredOptions = orderBy(this.options, ['category', 'subCategory', 'optionSalesName']);
+
 					this.currentPage++;
+
 					this.performChangeDetection();
 				}
 
@@ -228,6 +229,7 @@ export class DivisionalOptionsPanelComponent extends UnsubscribeOnDestroy implem
 	{
 		this.selectedSearchFilter = "All";
 		this.keyword = '';
+
 		this.searchBar.clearFilter();
 	}
 
@@ -235,6 +237,7 @@ export class DivisionalOptionsPanelComponent extends UnsubscribeOnDestroy implem
 	{
 		this.filteredOptions = orderBy(this.options, ['category', 'subCategory', 'optionSalesName']);
 		this.isSearchFilterOn = false;
+
 		this.performChangeDetection();
 	}
 
@@ -242,6 +245,7 @@ export class DivisionalOptionsPanelComponent extends UnsubscribeOnDestroy implem
 	{
 		this.selectedSearchFilter = event['searchFilter'];
 		this.keyword = event['keyword'];
+
 		this.filterOptions(this.selectedSearchFilter, this.keyword);
 
 		if (!this.isSearchingFromServer)
@@ -255,6 +259,7 @@ export class DivisionalOptionsPanelComponent extends UnsubscribeOnDestroy implem
 		if (this.filteredOptions.length === 0)
 		{
 			this._msgService.clear();
+
 			this._msgService.add({ severity: 'error', summary: 'Search Results', detail: `No results found. Please try another search.` });
 		}
 		else
@@ -268,6 +273,7 @@ export class DivisionalOptionsPanelComponent extends UnsubscribeOnDestroy implem
 	private filterOptions(filter: string, keyword: string)
 	{
 		this.isSearchingFromServer = false;
+
 		let searchFilter = this.searchFilters.find(f => f.name === filter);
 
 		if (searchFilter && this.keyword)
@@ -275,16 +281,10 @@ export class DivisionalOptionsPanelComponent extends UnsubscribeOnDestroy implem
 			if (this.allDataLoaded)
 			{
 				this.filteredOptions = [];
-				let splittedKeywords = keyword.split(' ');
+				
+				let filteredResults = this.filterByKeyword(searchFilter, keyword);
 
-				splittedKeywords.forEach(k =>
-				{
-					if (k)
-					{
-						let filteredResults = this.filterByKeyword(searchFilter, k);
-						this.filteredOptions = unionBy(this.filteredOptions, filteredResults, 'id');
-					}
-				});
+				this.filteredOptions = unionBy(this.filteredOptions, filteredResults, 'id');
 			}
 			else
 			{
@@ -329,6 +329,7 @@ export class DivisionalOptionsPanelComponent extends UnsubscribeOnDestroy implem
 			this.filteredOptions = data;
 			this.isSearchFilterOn = true;
 			this.isSearchingFromServer = false;
+
 			this.onSearchResultUpdated();
 		});
 	}

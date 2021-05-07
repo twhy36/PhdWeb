@@ -18,8 +18,8 @@ import { SearchBarComponent } from '../../../../../shared/components/search-bar/
 
 import { SettingsService } from '../../../../../core/services/settings.service';
 import { Settings } from '../../../../../shared/models/settings.model';
-import { OrganizationService } from '../../../../../core/services/organization.service';
 import { IdentityService, Permission } from 'phd-common';
+import { StorageService } from '../../../../../core/services/storage.service';
 
 @Component({
 	selector: 'attribute-groups-panel',
@@ -30,6 +30,7 @@ export class AttributeGroupsPanelComponent extends UnsubscribeOnDestroy implemen
 {
 	@ViewChild(SearchBarComponent)
 	private searchBar: SearchBarComponent;
+
 	@Output() onAssociateAttributes = new EventEmitter<AttributeGroupMarket>();
 	@Output() onEditAttributeGroup = new EventEmitter<AttributeGroupMarket>();
 
@@ -47,8 +48,14 @@ export class AttributeGroupsPanelComponent extends UnsubscribeOnDestroy implemen
 	currentPage: number = 0;
 	allDataLoaded: boolean;
 	isSearchingFromServer: boolean;
-	selectedStatus: string;
+	isSaving: boolean = false;
+	workingId: number = 0;
 	isReadOnly: boolean;
+
+	get selectedStatus(): string
+	{
+		return this._storageService.getSession<string>('CA_DIV_ATTR_STATUS') ?? 'Active';
+	}
 
 	get filterGroupNames(): Array<string>
 	{
@@ -61,7 +68,7 @@ export class AttributeGroupsPanelComponent extends UnsubscribeOnDestroy implemen
 		private _attrService: AttributeService,
 		private _settingsService: SettingsService,
 		private _identityService: IdentityService,
-		private _orgService: OrganizationService)
+		private _storageService: StorageService)
 	{
 		super();
 	}
@@ -92,8 +99,17 @@ export class AttributeGroupsPanelComponent extends UnsubscribeOnDestroy implemen
 			this.currentPage = 1;
 			this.allDataLoaded = data.length < this.settings.infiniteScrollPageSize;
 
-			this.resetSearchBar();
+			this.setSearchBarFilters();
+			this.filterAttributeGroups();
 		});
+	}
+
+	setSearchBarFilters()
+	{
+		let searchBarFilter = this.searchBar.storedSearchBarFilter;
+
+		this.selectedSearchFilter = searchBarFilter?.searchFilter ?? 'All';
+		this.keyword = searchBarFilter?.keyword ?? null;
 	}
 
 	isAttributeGroupSelected(attributeGroup: AttributeGroupMarket): boolean
@@ -126,7 +142,6 @@ export class AttributeGroupsPanelComponent extends UnsubscribeOnDestroy implemen
 				this.attributeGroupList[index] = attributeGroup;
 			}
 
-			this.resetSearchBar();
 			this.filterAttributeGroups();
 
 			if (this.filteredAttributeGroupList.length > 0)
@@ -142,19 +157,15 @@ export class AttributeGroupsPanelComponent extends UnsubscribeOnDestroy implemen
 		{
 			return;
 		}
-		this.onEditAttributeGroup.emit(attributeGroup);
-	}
 
-	resetSearchBar()
-	{
-		this.selectedSearchFilter = "All";
-		this.keyword = '';
-		this.searchBar.clearFilter();
+		this.onEditAttributeGroup.emit(attributeGroup);
 	}
 
 	clearFilter()
 	{
 		this.keyword = null;
+		this.selectedSearchFilter = 'All'
+
 		this.filterAttributeGroups();
 	}
 
@@ -162,6 +173,7 @@ export class AttributeGroupsPanelComponent extends UnsubscribeOnDestroy implemen
 	{
 		this.selectedSearchFilter = event['searchFilter'];
 		this.keyword = event['keyword'];
+
 		this.filterAttributeGroups();
 
 		if (!this.isSearchingFromServer)
@@ -175,6 +187,7 @@ export class AttributeGroupsPanelComponent extends UnsubscribeOnDestroy implemen
 		if (this.filteredAttributeGroupList.length === 0)
 		{
 			this._msgService.clear();
+
 			this._msgService.add({ severity: 'error', summary: 'Search Results', detail: `No results found. Please try another search.` });
 		}
 		else
@@ -195,22 +208,15 @@ export class AttributeGroupsPanelComponent extends UnsubscribeOnDestroy implemen
 			if (this.allDataLoaded)
 			{
 				this.filteredAttributeGroupList = [];
-				let splittedKeywords = this.keyword.split(' ');
 
-				splittedKeywords.forEach(k =>
+				let filteredResults = this.filterByKeyword(searchFilter, this.keyword);
+
+				if (isActiveStatus !== null)
 				{
-					if (k)
-					{
-						let filteredResults = this.filterByKeyword(searchFilter, k);
+					filteredResults = filteredResults.filter(attr => attr.isActive === isActiveStatus);
+				}
 
-						if (isActiveStatus !== null)
-						{
-							filteredResults = filteredResults.filter(attr => attr.isActive === isActiveStatus);
-						}
-
-						this.filteredAttributeGroupList = unionBy(this.filteredAttributeGroupList, filteredResults, 'id');
-					}
-				});
+				this.filteredAttributeGroupList = unionBy(this.filteredAttributeGroupList, filteredResults, 'id');
 			}
 			else
 			{
@@ -270,12 +276,12 @@ export class AttributeGroupsPanelComponent extends UnsubscribeOnDestroy implemen
 			.pipe(finalize(() =>
 			{
 				this.isSearchingFromServer = false;
+
 				this.onSearchResultUpdated();
 			}))
 			.subscribe(data =>
 			{
 				this.filteredAttributeGroupList = data;
-
 			},
 			error =>
 			{
@@ -297,6 +303,7 @@ export class AttributeGroupsPanelComponent extends UnsubscribeOnDestroy implemen
 				{
 					this.attributeGroupList = unionBy(this.attributeGroupList, data, 'id');
 					this.filteredAttributeGroupList = orderBy(this.attributeGroupList, [group => group.groupName.toLowerCase()]);
+
 					this.currentPage++;
 				}
 
@@ -343,22 +350,42 @@ export class AttributeGroupsPanelComponent extends UnsubscribeOnDestroy implemen
 
 	toggleGroup(group: AttributeGroupMarket)
 	{
+		this.isSaving = true;
+		this.workingId = group.id;
+
 		group.isActive = !group.isActive;
 
-		this._attrService.updateAttributeGroup(group).subscribe(results =>
-		{
-			this._msgService.add({ severity: 'success', summary: 'Attribute Group', detail: `Updated successfully!` });
-		},
-		error =>
-		{
-			group.isActive = !group.isActive;
-			this._msgService.add({ severity: 'error', summary: 'Attribute Group', detail: `An error has occured!` });
-		});
+		this._attrService.updateAttributeGroup(group).pipe(
+			finalize(() =>
+			{
+				this.isSaving = false;
+				this.workingId = 0;
+			})).subscribe(results =>
+			{
+				// We have two lists, main list and filtered list. The passed in value is from the filtered list, so we need to update the main as well.
+				let attrGroup = this.attributeGroupList.find(x => x.id === group.id);
+
+				if (attrGroup && group.isActive !== attrGroup.isActive)
+				{
+					attrGroup.isActive = !attrGroup.isActive;
+				}
+
+				this.filterAttributeGroups();
+
+				this._msgService.add({ severity: 'success', summary: 'Attribute Group', detail: `Updated successfully!` });
+			},
+			error =>
+			{
+				group.isActive = !group.isActive;
+
+				this._msgService.add({ severity: 'error', summary: 'Attribute Group', detail: `An error has occured!` });
+			});
 	}
 
 	onStatusChanged(event: any)
 	{
-		this.selectedStatus = event;
+		this._storageService.setSession('CA_DIV_ATTR_STATUS', event ?? '');
+
 		this.filterAttributeGroups();
 	}
 }

@@ -8,16 +8,29 @@ export const environment: IEnvironment = {
 	production: false,
 	apiUrl: 'https://phdapi.dev.pulte.com/odata/',
 	//apiUrl: 'http://localhost:2845/odata/',
-	authConfig: {
-		issuer: "https://login.microsoftonline.com/1a9277a3-ef66-41f6-96b5-c5390ee468a7/v2.0",
-		clientId: "f9c9611d-6a23-4d2e-8dce-14da56bd8acc",
-		responseType: 'code',
-		clearHashAfterLogin: true,
-		requestAccessToken: true,
-		scope: 'api://f9c9611d-6a23-4d2e-8dce-14da56bd8acc/user_impersonation profile openid',
-		showDebugInformation: true,
-		skipIssuerCheck: false,
-		strictDiscoveryDocumentValidation: false
+	authConfigs: {
+		sitecoreSSO: 
+		{
+			issuer: 'https://pultesso.dev.pulte.com',
+			clientId: 'DesignPreview',
+			responseType: 'code',
+			clearHashAfterLogin: true,
+			requestAccessToken: true,
+			scope: 'openid offline_access pulte designpreview.access',
+			showDebugInformation: true
+		},
+		azureAD:
+		{
+			issuer: "https://login.microsoftonline.com/1a9277a3-ef66-41f6-96b5-c5390ee468a7/v2.0",
+			clientId: "f9c9611d-6a23-4d2e-8dce-14da56bd8acc",
+			responseType: 'code',
+			clearHashAfterLogin: true,
+			requestAccessToken: true,
+			scope: 'api://f9c9611d-6a23-4d2e-8dce-14da56bd8acc/user_impersonation profile openid',
+			showDebugInformation: true,
+			skipIssuerCheck: false,
+			strictDiscoveryDocumentValidation: false
+		}
 	},
 	authQueryParams: 'domain_hint=pulte.com',
 	appInsights: {

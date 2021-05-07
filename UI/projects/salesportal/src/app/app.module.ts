@@ -10,7 +10,7 @@ import { NgbModule, NgbButtonsModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { tap } from 'rxjs/operators';
 
-import { PhdCommonModule, IdentityService } from 'phd-common';
+import { PhdCommonModule, IdentityService, AUTH_CONFIG } from 'phd-common';
 import { CoreModule } from './modules/core/core.module';
 import { SharedModule } from './modules/shared/shared.module';
 import { SalesTallyModule } from './modules/salestally/salestally.module';
@@ -53,7 +53,7 @@ const setTitle = (titleService: Title) => {
 		SalesTallyModule,
 		NgbModule,
 		NgbButtonsModule,
-		PhdCommonModule.forRoot(environment.authConfig, environment.apiUrl),
+		PhdCommonModule.forRoot(environment.apiUrl),
 		ReactiveFormsModule,
 		RouterModule.forRoot([
 			{ path: 'salestally', component: SalesTallyModule },
@@ -63,7 +63,8 @@ const setTitle = (titleService: Title) => {
     ],
 	providers: [
         { provide: APP_INITIALIZER, useFactory: appInitializerFn, deps: [IdentityService], multi: true },
-        { provide: APP_INITIALIZER, useFactory: setTitle, deps: [Title], multi: true}
+        { provide: APP_INITIALIZER, useFactory: setTitle, deps: [Title], multi: true},
+		{ provide: AUTH_CONFIG, useValue: environment.authConfig }
     ]
 })
 export class AppModule { }

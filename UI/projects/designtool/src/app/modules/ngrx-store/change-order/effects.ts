@@ -19,10 +19,11 @@ import
 	CancelLotTransferChangeOrder, CancelSalesChangeOrder, SetCurrentChangeOrder, CancelNonStandardChangeOrder, SavePendingJio, CreateCancellationChangeOrder, CreateLotTransferChangeOrder,
 	ResubmitChangeOrder, ChangeOrderOutForSignature, SetSalesChangeOrderTermsAndConditions
 } from './actions';
-import { TreeLoadedFromJob, SelectChoices } from '../scenario/actions';
+import { TreeLoadedFromJob, SelectChoices, SetLockedInChoices } from '../scenario/actions';
 import { ChangeOrdersCreatedForJob } from '../job/actions';
 import { SelectLot } from '../lot/actions';
 import { OpportunityLoaded } from '../opportunity/actions';
+import { SetChangeOrderTemplates } from '../contract/actions';
 import { CommonActionTypes, SalesAgreementLoaded, JobLoaded } from '../actions';
 
 import * as CommonActions from '../actions';
@@ -75,7 +76,10 @@ export class ChangeOrderEffects
 						}
 					}
 				}
-				return of(new ChangeInputInitialized(newInput));
+				return from([
+					new ChangeInputInitialized(newInput),
+					new SetChangeOrderTemplates(store.changeOrder.isChangingOrder)
+				]);
 			})
 		), LoadError, "Error initializing change input!!")
 	);
@@ -201,15 +205,30 @@ export class ChangeOrderEffects
 		tryCatch(source => source.pipe(
 			switchMap(([action, store]) =>
 			{
+				return forkJoin(
+					this.changeOrderService.getLockedInChoices(store.job, store.scenario.tree, store.changeOrder.currentChangeOrder),
+					of(store)
+				);
+			}),
+			switchMap(([lockInChoices, store]) => {
 				const currentChangeOrder = this.changeOrderService.getCurrentChangeOrder(store.job.changeOrderGroups);
 				const changeOrderId = currentChangeOrder ? currentChangeOrder.id : 0;
 				const choices = this.changeOrderService.getOriginalChoicesAndAttributes(store.job, store.scenario.tree, (currentChangeOrder !== undefined) ? store.changeOrder.currentChangeOrder as ChangeOrderGroup : null);
 				const handing = this.changeOrderService.getSelectedHanding(store.job);
 
 				let actions: any[] = [
-					new SetCurrentChangeOrder(changeOrderId),
-					new SelectChoices(false, ...choices)
+					new SetCurrentChangeOrder(changeOrderId)
 				];
+
+				if (lockInChoices && lockInChoices.length)
+				{
+					actions.push(new SetLockedInChoices(lockInChoices));
+				}
+				
+				if (choices && choices.length)
+				{
+					actions.push(new SelectChoices(false, ...choices));
+				}
 
 				if (changeOrderId > 0)
 				{

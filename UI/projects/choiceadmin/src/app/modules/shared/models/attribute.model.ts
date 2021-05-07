@@ -48,6 +48,7 @@ export class Attribute
 	get active(): boolean
 	{
 		const today = new Date();
+
 		return !this.endDate || this.endDate.getTime() > today.getTime();
 	}
 
@@ -60,6 +61,7 @@ export class Attribute
 		else
 		{
 			this.endDate = new Date();
+
 			this.endDate.setDate(this.endDate.getDate() - 1);
 		}
 	}
@@ -92,10 +94,12 @@ export class Attribute
 			{
 				this.tags = (this.attributeMarketTags && this.attributeMarketTags.length) ? this.attributeMarketTags.map(t => t.tag) : new Array<string>();
 			}
+
 			if (att.startDate)
 			{
 				this.startDate = new Date(this.convertToUtcString(att.startDate));
 			}
+
 			if (att.endDate)
 			{
 				this.endDate = new Date(this.convertToUtcString(att.endDate));

@@ -110,12 +110,14 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 
 	get showDisabledButton(): boolean
 	{
-		return this.choice && !this.choice.enabled || this.currentDecisionPoint && !this.currentDecisionPoint.enabled || this.optionDisabled;
+		return (this.choice && !this.choice.enabled || this.currentDecisionPoint && !this.currentDecisionPoint.enabled || this.optionDisabled) && !this.choice.lockedInChoice;
 	}
 
 	get showConfirmButton(): boolean
 	{
-		return (this.choice && this.choice.enabled && this.currentDecisionPoint && this.currentDecisionPoint.enabled) && (!this.monotonyConflict.monotonyConflict || this.canOverride) && this.canConfigure && !this.optionDisabled;
+		return ((this.choice && this.choice.enabled && this.currentDecisionPoint && this.currentDecisionPoint.enabled && !this.optionDisabled) || this.choice.lockedInChoice) 
+		&& (!this.monotonyConflict.monotonyConflict || this.canOverride) 
+		&& this.canConfigure;
 	}
 
 	ngOnInit()

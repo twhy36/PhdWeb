@@ -9,6 +9,7 @@ import { ToastrModule } from 'ngx-toastr';
 import { PhdCommonModule } from 'phd-common';
 import { SharedModule } from '../shared/shared.module';
 
+import { ConfirmModalComponent } from './components/confirm-modal/confirm-modal.component';
 import { NavMenuComponent } from './components/nav-menu/nav-menu.component';
 import { NavMenuItemComponent } from './components/nav-menu-item/nav-menu-item.component';
 import { NavigationComponent } from './components/navigation/navigation.component';
@@ -43,6 +44,7 @@ import { NotificationService } from './services/notification.service';
 
 @NgModule({
 	exports: [
+		ConfirmModalComponent,
 		NavMenuComponent,
 		NavMenuItemComponent,
 		NavigationComponent,
@@ -54,6 +56,7 @@ import { NotificationService } from './services/notification.service';
 		ModalComponent
 	],
 	declarations: [
+		ConfirmModalComponent,
 		NavMenuComponent,
 		NavMenuItemComponent,
 		NavigationComponent,
@@ -98,6 +101,6 @@ import { NotificationService } from './services/notification.service';
 		NotificationService,
 		{ provide: ErrorHandler, useClass: PhdErrorHandler }
 	],
-	entryComponents: [ModalOverrideSaveComponent, ModalComponent]
+	entryComponents: [ConfirmModalComponent, ModalOverrideSaveComponent, ModalComponent]
 })
 export class CoreModule { }

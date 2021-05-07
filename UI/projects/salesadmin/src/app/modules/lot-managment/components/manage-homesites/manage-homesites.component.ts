@@ -320,19 +320,19 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 				{
 					if (status === 'Spec')
 					{
-						let filteredResults = this.lots.filter(lot => lot.lotBuildTypeDescription === status && lot.dto.job.jobTypeName !== 'Model');
+						let filteredResults = this.lots.filter(lot => lot.lotBuildTypeDescription === status && (lot.dto && lot.dto.job && lot.dto.job.jobTypeName !== 'Model'));
 
 						statusLots = union(statusLots, filteredResults);
 					}
-					if (status === 'Model')
+					else if (status === 'Model')
 					{
-						let filteredResults = this.lots.filter(lot => (lot.lotBuildTypeDescription === status || lot.lotBuildTypeDescription === 'Spec') && lot.dto.job.jobTypeName === 'Model');
+						let filteredResults = this.lots.filter(lot => (lot.lotBuildTypeDescription === status || lot.lotBuildTypeDescription === 'Spec') && (lot.dto && lot.dto.job && lot.dto.job.jobTypeName === 'Model'));
 
 						statusLots = union(statusLots, filteredResults);
 					}
 					else if (status === 'Spec Unavailable')
 					{
-						let filteredResults = this.lots.filter(lot => lot.lotBuildTypeDescription === 'Spec' && lot.dto.job.jobTypeName !== 'Model' && lot.lotStatusDescription === 'Unavailable');
+						let filteredResults = this.lots.filter(lot => lot.lotBuildTypeDescription === 'Spec' && lot.lotStatusDescription === 'Unavailable' && (lot.dto && lot.dto.job && lot.dto.job.jobTypeName !== 'Model'));
 
 						statusLots = union(statusLots, filteredResults);
 					}

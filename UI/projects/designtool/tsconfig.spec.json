@@ -1,5 +1,5 @@
 {
-	"extends": "../tsconfig.json",
+	"extends": "../../tsconfig.json",
 	"compilerOptions": {
 		"experimentalDecorators": true,
 		"outDir": "../out-tsc/spec",
@@ -8,11 +8,14 @@
 		"types": [
 			"jasmine",
 			"node"
-		]
+		],
+		"paths": {
+			"phd-common": [ "../phd-common/src/internal" ]
+		}
 	},
 	"files": [
-		"test.ts",
-		"polyfills.ts"
+		"src/test.ts",
+		"src/polyfills.ts"
 	],
 	"include": [
 		"**/*.spec.ts",

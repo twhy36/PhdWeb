@@ -2,7 +2,7 @@ import { Action } from '@ngrx/store';
 
 import {
 	DesignToolAttribute, SalesCommunity, ChangeOrderHanding, JobChoice, Job, LotExt, PlanOption,
-	TreeVersionRules, Scenario, DtoScenarioInfo, TreeFilter, Tree, OptionImage
+	TreeVersionRules, Scenario, DtoScenarioInfo, TreeFilter, Tree, OptionImage, Choice
 } from 'phd-common';
 
 import { DecisionPointFilterType } from '../../shared/models/decisionPointFilter';
@@ -39,7 +39,8 @@ export enum ScenarioActionTypes
 	SetTreeFilter = 'Set Tree filter',
 	TreeLoaded = 'Tree Loaded',
 	TreeLoadedFromJob = 'Tree Loaded From Job',
-	SetOverrideReason = 'Set Override Reason'
+	SetOverrideReason = 'Set Override Reason',
+	SetLockedInChoices = 'Set Locked In Choices'
 }
 
 export class LoadTree implements Action
@@ -242,6 +243,12 @@ export class SetChoicePriceRanges implements Action
 	constructor(public priceRanges: { choiceId: number, min: number, max: number }[]) { }
 }
 
+export class SetLockedInChoices implements Action {
+	readonly type = ScenarioActionTypes.SetLockedInChoices;
+
+	constructor(public choices: Choice[]) { }
+}
+
 export type ScenarioActions =
 	CreateScenario |
 	DeleteScenarioInfo |
@@ -274,4 +281,5 @@ export type ScenarioActions =
 	SetOverrideReason |
 	SalesAgreementLoaded |
 	JobLoaded |
-	SetChoicePriceRanges;
+	SetChoicePriceRanges |
+	SetLockedInChoices;

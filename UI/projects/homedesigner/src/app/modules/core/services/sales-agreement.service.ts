@@ -15,26 +15,42 @@ export class SalesAgreementService
 
 	constructor(private _http: HttpClient) { }
 
-	getSalesAgreement(salesAgreementId: number): Observable<SalesAgreement>
+	getSalesAgreement(salesAgreementId?: number): Observable<SalesAgreement>
 	{
-		const entity = `salesAgreements(${salesAgreementId})`;
-		const expandPrograms = `programs($select=id,salesAgreementId,salesProgramId,salesProgramDescription,amount;$expand=salesProgram($select=id, salesProgramType, name))`;
-		const expandJobAssocs = `jobSalesAgreementAssocs($select=jobId;$orderby=createdUtcDate desc;$top=1)`;
-		const expandPriceAdjustments = `salesAgreementPriceAdjustmentAssocs($select=id,salesAgreementId,priceAdjustmentType,amount)`;
-		const expand = `${expandPrograms},${expandJobAssocs},${expandPriceAdjustments}`;
+		if (!salesAgreementId) 
+		{
+			//use access token to get sales agreement
+			const url = `${environment.apiUrl}GetUserSalesAgreement?${this._ds}select=id,status`;
+			return this._http.get<any>(url).pipe(
+				map(dto => new SalesAgreement(dto.value[0])),
+				catchError(error =>
+				{
+					console.error(error);
 
-		const qryStr = `${this._ds}expand=${encodeURIComponent(expand)}`;
-		const url = `${environment.apiUrl}${entity}?${qryStr}`;
+					return _throw(error);
+				})
+			)
+		}
+		else 
+		{
+			const entity = `salesAgreements(${salesAgreementId})`;
+			const expandPrograms = `programs($select=id,salesAgreementId,salesProgramId,salesProgramDescription,amount;$expand=salesProgram($select=id, salesProgramType, name))`;
+			const expandJobAssocs = `jobSalesAgreementAssocs($select=jobId;$orderby=createdUtcDate desc;$top=1)`;
+			const expandPriceAdjustments = `salesAgreementPriceAdjustmentAssocs($select=id,salesAgreementId,priceAdjustmentType,amount)`;
+			const expand = `${expandPrograms},${expandJobAssocs},${expandPriceAdjustments}`;
 
-		return withSpinner(this._http).get(url).pipe(
-			map(dto => new SalesAgreement(dto)),
-			catchError(error =>
-			{
-				console.error(error);
+			const qryStr = `${this._ds}expand=${encodeURIComponent(expand)}`;
+			const url = `${environment.apiUrl}${entity}?${qryStr}`;
 
-				return _throw(error);
-			})
-		);
+			return withSpinner(this._http).get(url).pipe(
+				map(dto => new SalesAgreement(dto)),
+				catchError(error =>
+				{
+					console.error(error);
+
+					return _throw(error);
+				})
+			);
+		}
 	}
-
 }

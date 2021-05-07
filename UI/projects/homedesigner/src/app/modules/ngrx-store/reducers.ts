@@ -62,7 +62,7 @@ export const filteredTree = createSelector(
 						let points = sg.points.map(p => {
 							treeMatched.point = treeMatched.subGroup || filter(p.label);
 							const contractedChoices = p.choices.filter(c => favorite.salesChoices.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1);
-							const isComplete = contractedChoices && contractedChoices.length 
+							const isComplete = contractedChoices && contractedChoices.length
 								&& (p.pointPickTypeId === PickType.Pick1 || p.pointPickTypeId === PickType.Pick0or1);
 
 							let choices = p.choices.filter(c => {

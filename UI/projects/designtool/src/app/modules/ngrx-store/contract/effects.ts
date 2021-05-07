@@ -16,7 +16,9 @@ import * as fromRoot from '../reducers';
 import
 {
 	LoadError, TemplatesLoaded, ContractActionTypes, CreateEnvelope,
-	EnvelopeCreated, EnvelopeError, AddRemoveSelectedTemplate, FinancialCommunityESignLoaded, LoadFinancialCommunityESign, CreateTerminationEnvelope, TerminationEnvelopeCreated, TerminationEnvelopeError
+	EnvelopeCreated, EnvelopeError, AddRemoveSelectedTemplate, FinancialCommunityESignLoaded, 
+	LoadFinancialCommunityESign, CreateTerminationEnvelope, TerminationEnvelopeCreated, 
+	TerminationEnvelopeError, SetChangeOrderTemplates
 } from './actions';
 import { ContractService } from '../../core/services/contract.service';
 import { ChangeOrderService } from '../../core/services/change-order.service';
@@ -43,6 +45,10 @@ export class ContractEffects
 				if (store.salesAgreement.status === "Pending")
 				{
 					return of(new AddRemoveSelectedTemplate(0, false, ESignTypeEnum.SalesAgreement));
+				}
+				else if (store.changeOrder.isChangingOrder)
+				{
+					return of(new SetChangeOrderTemplates(true));
 				}
 
 				return new Observable<never>();
@@ -125,6 +131,7 @@ export class ContractEffects
 						agreementApprovedDate: !!store.salesAgreement.approvedDate ? (new Date(store.salesAgreement.approvedDate.toString().replace(/-/g, '\/').replace(/T.+/, ''))).toLocaleDateString('en-US', { month: "2-digit", day: "2-digit", year: "numeric" }) : null,
 						agreementSignedDate: !!store.salesAgreement.signedDate ? (new Date(store.salesAgreement.signedDate.toString().replace(/-/g, '\/').replace(/T.+/, ''))).toLocaleDateString('en-US', { month: "2-digit", day: "2-digit", year: "numeric" }) : null,
 						communityName: selectLot.selectedLot.financialCommunity.name,
+						communityMarketingName: store.org.salesCommunity.name,
 						phaseName: !!store.job.lot.salesPhase && !!store.job.lot.salesPhase.salesPhaseName ? store.job.lot.salesPhase.salesPhaseName : "",
 						garage: isNull(store.job.handing, ""),
 						planName: store.job.plan.planSalesName,
@@ -560,6 +567,7 @@ export class ContractEffects
 						agreementApprovedDate: !!store.salesAgreement.approvedDate ? (new Date(store.salesAgreement.approvedDate.toString().replace(/-/g, '\/').replace(/T.+/, ''))).toLocaleDateString('en-US', { month: "2-digit", day: "2-digit", year: "numeric" }) : null,
 						agreementSignedDate: !!store.salesAgreement.signedDate ? (new Date(store.salesAgreement.signedDate.toString().replace(/-/g, '\/').replace(/T.+/, ''))).toLocaleDateString('en-US', { month: "2-digit", day: "2-digit", year: "numeric" }) : null,
 						communityName: selectLot.selectedLot.financialCommunity.name,
+						communityMarketingName: store.org.salesCommunity.name,
 						phaseName: !!store.job.lot.salesPhase && !!store.job.lot.salesPhase.salesPhaseName ? store.job.lot.salesPhase.salesPhaseName : "",
 						garage: isNull(store.job.handing, ""),
 						planName: store.job.plan.planSalesName,
