@@ -70,7 +70,6 @@ export class FavoriteService
 
 	saveMyFavoritesChoices(tree: Tree, salesChoices: JobChoice[], favorites: MyFavorite): Observable<MyFavoritesChoice[]>
 	{
-		console.log("Hi, I'm saving my favorite choices!");
 		const favoriteChoices = (favorites ? favorites.myFavoritesChoice : []) || [];
 		const updatedChoices = this.getMyFavoritesChoices(tree, salesChoices, favoriteChoices);
 		const savedChoices = updatedChoices.map(c => _.omit(c, ['divChoiceCatalogId']));
@@ -89,7 +88,6 @@ export class FavoriteService
 				const responses = (results['value']) as any[];
 				const choices = [...updatedChoices, ...favoriteChoices];
 
-				console.log(choices);
 				return responses.map(res => {
 					let resChoice = res as MyFavoritesChoice;
 					if (resChoice)
@@ -141,50 +139,6 @@ export class FavoriteService
 			catchError(error => {
 				return _throw(error);
 			})
-		);
-	}
-	
-	saveMyFavoritesDeclinedPoints(favorites: MyFavorite): Observable<MyFavoritesPointDeclined[]>
-	{
-		console.log("Hi, I'm DECLINING ALL my favorite choices!");
-		const declinedPoints = (favorites ? favorites.myFavoritesPointDeclined : []) || [];
-		console.log("My declined points are...");
-		console.log(declinedPoints);
-		console.log(favorites.myFavoritesPointDeclined);
-		//const updatedChoices = this.getMyFavoritesChoices(tree, salesChoices, favoriteChoices);
-		//const savedChoices = updatedChoices.map(c => _.omit(c, ['divChoiceCatalogId']));
-
-		const data = {
-			myFavoriteId: favorites.id,
-			declinedPoints: declinedPoints
-		}
-		//return null;
-
-		const endPoint = environment.apiUrl + `SaveMyFavoritesPointsDeclined`;
-
-		return withSpinner(this._http).post(endPoint, data, { headers: { 'Prefer': 'return=representation' } }).pipe(
-			map(results =>
-			{
-				const responses = (results['value']) as any[];
-				//const choices = [...updatedChoices, ...favoriteChoices];
-
-				//console.log(choices);
-				return responses.map(res => {
-					let resDecPoint = res as MyFavoritesPointDeclined;
-					// if (resDecPoint)
-					// {
-					// 	const choice = choices.find(x => x.dpChoiceId === resChoice.dpChoiceId);
-					// 	resChoice.divChoiceCatalogId = (choice ? choice.divChoiceCatalogId : 0) || 0;
-					// }
-					return resDecPoint;
-				});
-			}),
-			catchError(error =>
-			{
-				console.log(error);
-
-				return _throw(error);
-			})			
 		);
 	}
 

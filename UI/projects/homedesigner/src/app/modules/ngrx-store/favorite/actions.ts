@@ -8,9 +8,7 @@ export enum FavoriteActionTypes
 	MyFavoriteCreated = 'My Favorite Created',
 	SetCurrentFavorites = 'Set Current Favorites',
 	SaveMyFavoritesChoices = 'Save My Favorites Choices',
-	SaveMyFavoritesDeclinedPoints = 'Save My Favorites Declined Points',
 	MyFavoritesChoicesSaved = 'My Favorites Choices Saved',
-	MyDeclinedFavoritesSaved = 'My Declined Favorites Saved',
 	SaveError = 'Save Error',
 	DeleteMyFavorite = 'Delete My Favorite',
 	MyFavoriteDeleted = 'My Favorite Deleted',
@@ -41,25 +39,11 @@ export class SaveMyFavoritesChoices implements Action
 	constructor() { }
 }
 
-export class SaveMyFavoritesDeclinedPoints implements Action
-{
-	readonly type = FavoriteActionTypes.SaveMyFavoritesDeclinedPoints;
-
-	constructor() { console.log("AJ DID A THING!"); }
-}
-
 export class MyFavoritesChoicesSaved implements Action
 {
 	readonly type = FavoriteActionTypes.MyFavoritesChoicesSaved;
 
 	constructor(public choices: MyFavoritesChoice[]) {	}
-}
-
-export class MyDeclinedFavoritesSaved implements Action
-{
-	readonly type = FavoriteActionTypes.MyDeclinedFavoritesSaved;
-
-	constructor(public declinedPoints: MyFavoritesPointDeclined[]) {	}
 }
 
 export class SaveError extends ErrorAction
@@ -117,7 +101,6 @@ export type FavoriteActions =
 	SetCurrentFavorites |
 	SaveMyFavoritesChoices |
 	MyFavoritesChoicesSaved |
-	MyDeclinedFavoritesSaved |
 	ResetFavorites |
 	SalesAgreementLoaded |
 	SaveError |

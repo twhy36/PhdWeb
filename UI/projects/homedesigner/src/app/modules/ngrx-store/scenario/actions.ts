@@ -6,7 +6,6 @@ import { SalesAgreementLoaded } from '../actions';
 export enum ScenarioActionTypes
 {
 	SelectChoices = 'Select Choices',
-	SelectDeclinedPoints = "Select Declined Points",
 	SetTreeFilter = 'Set Tree filter'
 }
 
@@ -21,19 +20,6 @@ export class SelectChoices implements Action
 	}
 }
 
-export class SelectDeclinedPoints implements Action
-{
-	readonly type = ScenarioActionTypes.SelectDeclinedPoints;
-	public declinedPoints: { dPointId: number, decisionPointLabel?: string }[];
-
-	constructor(...declinedPoints: { dPointId: number, decisionPointLabel?: string }[])
-	{
-		this.declinedPoints = declinedPoints;
-		console.log("Hello from actions");
-		console.log(this.declinedPoints);
-	}
-}
-
 export class SetTreeFilter implements Action
 {
 	readonly type = ScenarioActionTypes.SetTreeFilter;
@@ -44,5 +30,4 @@ export class SetTreeFilter implements Action
 export type ScenarioActions =
 	SelectChoices |
 	SetTreeFilter |
-	SelectDeclinedPoints |
 	SalesAgreementLoaded;

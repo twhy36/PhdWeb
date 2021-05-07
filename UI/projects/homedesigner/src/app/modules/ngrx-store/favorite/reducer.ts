@@ -92,47 +92,6 @@ export function reducer(state: State = initialState, action: FavoriteActions): S
 
 				return { ...state, saveError: false, myFavorites: myFavorites };
 			}
-
-		case FavoriteActionTypes.MyDeclinedFavoritesSaved:
-			{
-				let myFavorites = _.cloneDeep(state.myFavorites);
-				console.log("From Reducer...");
-				console.log(action.declinedPoints);
-				if (myFavorites && action.declinedPoints && action.declinedPoints.length)
-				{
-					console.log("From Reducer...");
-					console.log(action.declinedPoints);
-					let currentMyFavorite = myFavorites.find(x => x.id === state.selectedFavoritesId);
-					if (currentMyFavorite)
-					{
-						if (!currentMyFavorite.myFavoritesPointDeclined)
-						{
-							currentMyFavorite.myFavoritesPointDeclined = new Array<MyFavoritesPointDeclined>();
-						}
-
-						action.declinedPoints.forEach(d => {
-							let decIndex = currentMyFavorite.myFavoritesPointDeclined.findIndex(x => x.dPointId === d.dPointId);
-							if (decIndex === -1 && d.id > 0)
-							{
-								currentMyFavorite.myFavoritesPointDeclined.push(d);
-							}
-							else if (decIndex > -1)
-							{
-								if (d.id === 0)
-								{
-									currentMyFavorite.myFavoritesPointDeclined.splice(decIndex, 1);
-								}
-								else
-								{
-									currentMyFavorite.myFavoritesPointDeclined[decIndex] = d;
-								}
-							}
-						});
-					}
-				}
-
-				return { ...state, saveError: false, myFavorites: myFavorites };
-			}
 		
 		case FavoriteActionTypes.MyFavoritesPointDeclinedUpdated:
 			{
@@ -144,7 +103,6 @@ export function reducer(state: State = initialState, action: FavoriteActions): S
 					const pointDeclinedIndex = myFavorite?.myFavoritesPointDeclined?.findIndex(x => x.id === action.myFavoritesPointDeclined?.id);
 					if (action.isDelete && pointDeclinedIndex > -1)
 					{
-						console.log("Tryna delete that fave declined");
 						myFavorite.myFavoritesPointDeclined.splice(pointDeclinedIndex, 1);
 					}
 					else if (!action.isDelete && pointDeclinedIndex < 0)

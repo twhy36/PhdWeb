@@ -48,9 +48,8 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 	salesChoices: JobChoice[];
 	showDetails: boolean = false;
 	selectedChoice: ChoiceExt;
-	declinedPoints: Map<string, boolean> = new Map();
 	declinedPointIds: Map<string, number> = new Map();
-	myFavoritesDeclinedPoints: MyFavoritesPointDeclined[];
+	myFavoritesPointsDeclined: MyFavoritesPointDeclined[];
 	myFavoriteId: number;
 
 	priceBreakdown: PriceBreakdown;
@@ -195,7 +194,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			select(fromFavorite.currentMyFavorite)
 		).subscribe(favorite => {
 			this.myFavoritesChoices = favorite && favorite.myFavoritesChoice;
-			this.myFavoritesDeclinedPoints = favorite && favorite.myFavoritesPointDeclined;
+			this.myFavoritesPointsDeclined = favorite && favorite.myFavoritesPointDeclined;
 			this.myFavoriteId = favorite && favorite.id;
 			this.updateSelectedChoice();	
 		});	
@@ -208,28 +207,15 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			this.salesChoices = fav && fav.salesChoices;
 		});
 
-		// Set up store pipe to set up myFavoritesDeclinedPoints, but for now...
-		//this.myFavoritesDeclinedPoints = [];
-
 		this.groups.forEach(group => {
 			group.subGroups.forEach(sg => {
 				sg.points.forEach(p => {
 					if (p.pointPickTypeId % 2 === 0) {
-						console.log("Decision Point " + p.label + " has a " + p.pointPickTypeLabel);
-						this.declinedPoints.set(p.label, false);
 						this.declinedPointIds.set(p.label, p.id);
 					}
 				})
 			})
-			console.log(group.subGroups)
-			console.log(this.declinedPoints);
-			console.log(this.declinedPointIds);
 		});
-		console.log("Abinay declined points");
-		console.log(this.myFavoritesDeclinedPoints);
-		// this.myFavoritesDeclinedPoints.forEach(declinedPoint => {
-		// 	this.declinedPoints.set(declinedPoint.decisionPointLabel, true);
-		// })
 	}
 
 	setSelectedGroup(newGroup: Group, newSubGroup: SubGroup) {
@@ -266,14 +252,34 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		});
 
 		selectedChoices.push({choiceId: 0, quantity: 1, attributes: []});
-		console.log("MyFavoriteId Is " + this.myFavoriteId);
-
+		if (choice.quantity === 0) {
+			this.deselectDeclinedPoints(choice);
+		}
 		this.store.dispatch(new ScenarioActions.SelectChoices(...selectedChoices));
 		this.store.dispatch(new FavoriteActions.SaveMyFavoritesChoices());
+		
+	}
+
+	deselectDeclinedPoints(choice: ChoiceExt) {
+		// Check for favorites and deselect declined points in favorites
+		let choiceId = choice.id;
+		this.groups.forEach(g => {
+			g.subGroups.forEach(sg => {
+				sg.points.forEach(p => {
+					p.choices.forEach(c => {
+						if (c.id === choiceId) {
+							let fdp = this.myFavoritesPointsDeclined.find(fpd => fpd.dPointId === p.id);
+							if (fdp !== undefined) {
+								this.store.dispatch(new FavoriteActions.DeleteMyFavoritesPointDeclined(this.myFavoriteId, fdp.id));
+							}
+						}
+					})
+				})
+			})		
+		});
 	}
 
 	deselectPointChoices(pointLabel: string) {
-		console.log("Deselecting choices...");
 		let selectedChoices = [];
 		
 		this.myFavoritesChoices.forEach(choice => {
@@ -283,7 +289,6 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		});
 		this.store.dispatch(new ScenarioActions.SelectChoices(...selectedChoices));
 		this.store.dispatch(new FavoriteActions.SaveMyFavoritesChoices());
-		console.log("All choices for " + pointLabel + " should be deselected");
 	}
 
 	toggleContractedOptions()
@@ -329,7 +334,6 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 
 	updateSelectedChoice()
 	{
-		console.log("I am making a choice!");
 		if (this.selectedChoice)
 		{
 			const choices = _.flatMap(this.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices))) || [];
@@ -347,47 +351,16 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 	selectDecisionPoint(pointId: number)
 	{
 		this.selectedPointId = pointId;
-		console.log(this.selectedPointId);
 	}
 
-	// addDeclineDecisionPoint(declinedPoint:) {
-
-	// }
-
-	// deleteDeclineDecisionPoint
-
 	declineDecisionPoint(declinedPoint: MyFavoritesPointDeclined) {
-		// Local DeclinedPoints
-		this.declinedPoints.set(declinedPoint.decisionPointLabel, !this.declinedPoints.get(declinedPoint.decisionPointLabel));
-		console.log(this.declinedPoints);
+		let declPoint = this.myFavoritesPointsDeclined.find(p => p.dPointId === this.declinedPointIds.get(declinedPoint.decisionPointLabel));
 		let myFavoriteId = this.myFavoriteId;
-		if (this.declinedPoints.get(declinedPoint.decisionPointLabel) === true) {
-			//this.favoriteService.addMyFavoritesPointDeclined(this.myFavoriteId, this.declinedPointIds.get(declinedPoint.decisionPointLabel));
-			
-			let pointId = this.declinedPointIds.get(declinedPoint.decisionPointLabel);
-			this.store.dispatch(new FavoriteActions.AddMyFavoritesPointDeclined(myFavoriteId, pointId));
+		if (declPoint === undefined) { 
+			this.store.dispatch(new FavoriteActions.AddMyFavoritesPointDeclined(myFavoriteId, declinedPoint.dPointId));
 			this.deselectPointChoices(declinedPoint.decisionPointLabel);
-			console.log("My favorites declines - " + declinedPoint.decisionPointLabel);
 		} else {
-			let declinedPointId = this.myFavoritesDeclinedPoints.find(decPoint => decPoint.dPointId === declinedPoint.dPointId).id
-			this.store.dispatch(new FavoriteActions.DeleteMyFavoritesPointDeclined(myFavoriteId, declinedPointId));
-			console.log("My favorites undeclines - " + declinedPoint.decisionPointLabel);
+			this.store.dispatch(new FavoriteActions.DeleteMyFavoritesPointDeclined(myFavoriteId, declPoint.id));
 		}
-		// Set up the declined points to save to the API
-		// Shouldn't be needed
-		// let declinedPoints = [];
-		// console.log(this.declinedPoints);
-		// this.declinedPoints.forEach((value: boolean, key: string) => {
-		// 	if (value === true) {
-		// 		declinedPoints.push({dPointId: this.declinedPointIds.get(key), decisionPointLabel: key});
-		// 	}			
-		// })
-		// Only pass in one pointID & myFavoriteID to the API to do add or delete function in favorites.service.ts
-		// Need easy way to determine adding/deleting
-		// console.log("Select declined points");
-		// console.log(declinedPoints);
-		// Dispatchh Scenario actionss and favorite actions to call the API
-		// this.store.dispatch(new ScenarioActions.SelectDeclinedPoints(...declinedPoints));
-		// this.store.dispatch(new FavoriteActions.SaveMyFavoritesDeclinedPoints())
 	}	
 }

@@ -18,12 +18,10 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 	@Input() isDeclineCard?: boolean = false;
 	@Input() decisionPointId?: number;
 	@Input() decisionPointLabel?: string = '';
-	@Input() declinedPoints?:  Map<string, boolean>;
+	@Input() myFavoritesPointsDeclined?: MyFavoritesPointDeclined[]
 	
 	@Output() toggled = new EventEmitter<ChoiceExt>();
-	@Output() toggleDeclineStatus = new EventEmitter<boolean>();
 	@Output() onViewChoiceDetail = new EventEmitter<ChoiceExt>();
-	//@Output() onDeclineDecisionPoint = new EventEmitter<string>();
 	@Output() onDeclineDecisionPoint = new EventEmitter<{ dPointId: number, decisionPointLabel: string }>();
 
 	choice: ChoiceExt;
@@ -40,10 +38,13 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 	ngOnInit()
 	{
 		if (this.isDeclineCard===true) {
-			console.log("I am the decline card for " + this.decisionPointLabel);
-			this.isDeclined = this.declinedPoints.get(this.decisionPointLabel);
+			let exists = this.myFavoritesPointsDeclined.find(p => p.dPointId === this.decisionPointId);
+			if (exists?.dPointId > 0 && exists?.dPointId === this.decisionPointId) {
+				this.isDeclined = true;
+			} else {
+				this.isDeclined = false;
+			}
 		}
-		// console.log("Is this a decline card? " + (this.isDeclineCard===true ? " Yes!" : " No!"));
 	}
 
 	ngOnChanges(changes: SimpleChanges)
@@ -95,16 +96,8 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 	}
 
 	toggleDecline() {
-		console.log(this.declinedPoints.get(this.decisionPointLabel));
-		if (this.declinedPoints.get(this.decisionPointLabel) === false) {
-			this.isDeclined = true;
-		} else {
-			this.isDeclined = false;
-		}
-		this.toggleDeclineStatus.emit(this.isDeclined);
-		//this.onDeclineDecisionPoint.emit(this.decisionPointLabel);
-		this.onDeclineDecisionPoint.emit({ dPointId: this.decisionPointId, decisionPointLabel: this.decisionPointLabel })
-		console.log(this.decisionPointLabel + " has been declined");
+		this.isDeclined = !this.isDeclined;
+		this.onDeclineDecisionPoint.emit({ dPointId: this.decisionPointId, decisionPointLabel: this.decisionPointLabel });
 	}
 
 	viewChoiceDetail()

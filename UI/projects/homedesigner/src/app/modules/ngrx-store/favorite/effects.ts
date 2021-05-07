@@ -12,13 +12,12 @@ import { DesignToolAttribute } from 'phd-common';
 
 import 
 { 	FavoriteActionTypes, SetCurrentFavorites, MyFavoriteCreated, SaveMyFavoritesChoices, 
-	SaveMyFavoritesDeclinedPoints, MyFavoritesChoicesSaved, SaveError, DeleteMyFavorite, 
-	MyFavoriteDeleted, MyDeclinedFavoritesSaved, 
+	MyFavoritesChoicesSaved, SaveError, DeleteMyFavorite, MyFavoriteDeleted,
 	AddMyFavoritesPointDeclined, DeleteMyFavoritesPointDeclined, MyFavoritesPointDeclinedUpdated
 } from './actions';
 
 import { CommonActionTypes, ResetFavorites } from '../actions';
-import { SelectChoices, SelectDeclinedPoints } from '../scenario/actions';
+import { SelectChoices } from '../scenario/actions';
 import { tryCatch } from '../error.action';
 
 import { FavoriteService } from '../../core/services/favorite.service';
@@ -144,18 +143,6 @@ export class FavoriteEffects
                 return this.favoriteService.saveMyFavoritesChoices(store.scenario.tree, store.favorite.salesChoices, fav);
   			}),
 			switchMap(results => of(new MyFavoritesChoicesSaved(results)))
-		), SaveError, "Error saving my favorite choices!")
-	);
-
-	@Effect()
-	saveMyFavoritesDeclinedPoints$: Observable<Action> = this.actions$.pipe(
-		ofType<SaveMyFavoritesDeclinedPoints>(FavoriteActionTypes.SaveMyFavoritesDeclinedPoints),
-		withLatestFrom(this.store, this.store.pipe(select(fromFavorite.currentMyFavorite))),
-		tryCatch(source => source.pipe(
-			switchMap(([action, store, fav]) => {
-                return this.favoriteService.saveMyFavoritesDeclinedPoints(fav);
-  			}),
-			switchMap(results => of(new MyDeclinedFavoritesSaved(results)))
 		), SaveError, "Error saving my favorite choices!")
 	);
 

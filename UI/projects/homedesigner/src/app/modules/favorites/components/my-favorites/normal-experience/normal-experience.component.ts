@@ -19,7 +19,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	@Input() currentSubgroup: SubGroup;
 	@Input() errorMessage: string;
 	@Input() myFavoritesChoices: MyFavoritesChoice[];
-	@Input() declinedPoints: Map<string, boolean>;
+	@Input() myFavoritesPointsDeclined: MyFavoritesPointDeclined[];
 	@Input() decisionPointId: number;
 	@Input() includeContractedOptions: boolean = true;
 	@Input() salesChoices: JobChoice[];
@@ -28,7 +28,6 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	@Output() onToggleContractedOptions = new EventEmitter();
 	@Output() onViewChoiceDetail = new EventEmitter<ChoiceExt>();
 	@Output() onSelectDecisionPoint = new EventEmitter<number>();
-	//@Output() onDeclineDecisionPoint = new EventEmitter<string>();
 	@Output() onDeclineDecisionPoint = new EventEmitter<MyFavoritesPointDeclined>();
 
 	isPointPanelCollapsed: boolean = false;
@@ -126,31 +125,17 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 		}
 	}
 
-	// declineDecisionPoint(pointLabel: string) {
-	// 	this.onDeclineDecisionPoint.emit(pointLabel);
-	// 	console.log("Normal Experience denies - " + pointLabel);
-	// }
-
 	declineDecisionPoint(declinedPoint: MyFavoritesPointDeclined) {
-		console.log("This is a new object Abinay made");
 		this.onDeclineDecisionPoint.emit(declinedPoint);
-		console.log(declinedPoint);
 	}
 
 	choiceToggleHandler(choice: ChoiceExt) {
-		console.log(choice);
 		const point = this.points.find(p => p.choices.some(c => c.id === choice.id));
 		if (point && this.currentPointId != point.id) {
 			this.currentPointId = point.id;
 		}
 		this.choiceToggled = true;
-		let dpLabel = point.label;
-		this.declinedPoints.set(dpLabel, false);
 		this.onToggleChoice.emit(choice);
-	}
-
-	declineToggleHandler(isDecline: boolean) {
-		// this.points.
 	}
 
 	toggleContractedOptions(event: any) {
