@@ -13,7 +13,10 @@ export class InternalGuard implements CanActivate
 
 	canActivate()
 	{
-        this.authService.setAuthConfig(environment.authConfigs["azureAD"]);
+        if (!sessionStorage.getItem('authProvider')){
+			sessionStorage.setItem('authProvider', 'azureAD');
+        	this.authService.setAuthConfig(environment.authConfigs["azureAD"]);
+		}
 
         return this.identityService.isLoggedIn.pipe(
 			map(loggedIn => {

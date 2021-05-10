@@ -43,6 +43,11 @@ const tryInitAuth = (authService: AuthService, identityService: IdentityService)
 
 			return identityService.init().toPromise();
 		}
+
+		if (sessionStorage.getItem('authProvider'))
+		{
+			authService.setAuthConfig(environment.authConfigs[sessionStorage.getItem('authProvider')]);
+		}
 		return Promise.resolve();
 	}
 }
