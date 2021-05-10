@@ -12,6 +12,7 @@ import { checkSelectedAttributes } from '../../shared/classes/tree.utils';
 import { RehydrateMap } from '../sessionStorage';
 import { CommonActionTypes } from '../actions';
 import { ScenarioActions, ScenarioActionTypes } from './actions';
+import { MyFavoritesPointDeclined } from '../../shared/models/my-favorite.model';
 
 export interface State
 {
@@ -155,7 +156,18 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 				points = _.flatMap(subGroups, sg => sg.points);
 				points.forEach(pt => setPointStatus(pt));
 				// For each point, if the user cannot select the DP in this tool, then the status should be complete
+				
+				// EDITED LINE
+				let declinedPointIds:number[] = [];
+				action.myFavorites.forEach(fav => {
+					fav.myFavoritesPointDeclined.forEach(dp => {
+						declinedPointIds.push(dp.dPointId);
+					})
+				});
 				points.filter(pt => pt.isStructuralItem).forEach(pt => pt.status = PointStatus.COMPLETED);
+				points.filter(pt => declinedPointIds.find(id => id === pt.id)).forEach(pt => pt.status = PointStatus.COMPLETED);
+				// Filter for declined points, set to completed.
+				
 				subGroups.forEach(sg => setSubgroupStatus(sg));
 				newState.tree.treeVersion.groups.forEach(g => setGroupStatus(g));
 			}
@@ -238,7 +250,9 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 
 			points.forEach(pt => setPointStatus(pt));
 			// For each point, if the user cannot select the DP in this tool, then the status should be complete
+			
 			points.filter(pt => pt.isStructuralItem).forEach(pt => pt.status = PointStatus.COMPLETED);
+			// Search for declined points, set point status here.
 			subGroups.forEach(sg => setSubgroupStatus(sg));
 			newTree.treeVersion.groups.forEach(g => setGroupStatus(g));
 
