@@ -12,7 +12,6 @@ import { checkSelectedAttributes } from '../../shared/classes/tree.utils';
 import { RehydrateMap } from '../sessionStorage';
 import { CommonActionTypes } from '../actions';
 import { ScenarioActions, ScenarioActionTypes } from './actions';
-import { MyFavoritesPointDeclined } from '../../shared/models/my-favorite.model';
 
 export interface State
 {
@@ -66,7 +65,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 				treeLoading: false,
 				loadError: false
 			} as State;
-
+			
 			if (newState.tree)
 			{
 				action.choices.forEach(choice =>
@@ -156,16 +155,18 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 				points = _.flatMap(subGroups, sg => sg.points);
 				points.forEach(pt => setPointStatus(pt));
 				// For each point, if the user cannot select the DP in this tool, then the status should be complete
-				
-				// EDITED LINE
-				let declinedPointIds:number[] = [];
-				action.myFavorites.forEach(fav => {
-					fav.myFavoritesPointDeclined.forEach(dp => {
-						declinedPointIds.push(dp.dPointId);
-					})
-				});
 				points.filter(pt => pt.isStructuralItem).forEach(pt => pt.status = PointStatus.COMPLETED);
-				points.filter(pt => declinedPointIds.find(id => id === pt.id)).forEach(pt => pt.status = PointStatus.COMPLETED);
+
+				
+				
+				// Use this segment to start work on indicator-decline card functionality
+				// let declinedPointIds:number[] = [];
+				// action.myFavorites.forEach(fav => {
+				// 	fav.myFavoritesPointDeclined.forEach(dp => {
+				// 		declinedPointIds.push(dp.dPointId);
+				// 	})
+				// });
+				//points.filter(pt => declinedPointIds.find(id => id === pt.id)).forEach(pt => pt.status = PointStatus.COMPLETED);
 				// Filter for declined points, set to completed.
 				
 				subGroups.forEach(sg => setSubgroupStatus(sg));
@@ -178,6 +179,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 			return { ...state, treeFilter: action.treeFilter };
 
 		case ScenarioActionTypes.SelectChoices:
+			
 			newTree = _.cloneDeep(state.tree);
 			rules = _.cloneDeep(state.rules);
 			options = _.cloneDeep(state.options);
@@ -188,7 +190,6 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 			for (let choice of action.choices)
 			{
 				let c = choices.find(ch => ch.id === choice.choiceId);
-
 				if (c)
 				{
 					c.quantity = choice.quantity;
@@ -250,9 +251,9 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 
 			points.forEach(pt => setPointStatus(pt));
 			// For each point, if the user cannot select the DP in this tool, then the status should be complete
-			
 			points.filter(pt => pt.isStructuralItem).forEach(pt => pt.status = PointStatus.COMPLETED);
-			// Search for declined points, set point status here.
+			
+			// Need to have indicators update with points declined here.
 			subGroups.forEach(sg => setSubgroupStatus(sg));
 			newTree.treeVersion.groups.forEach(g => setGroupStatus(g));
 
