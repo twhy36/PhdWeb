@@ -53,13 +53,13 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 
 	getFavoritesLink() {
 		if (this.currentPath === 'favorites' || this.currentPath === 'summary') {
-			return null;
+			return this.currentRoute;
 		}
 
 		if (this.currentPath === 'my-favorites') {
-			return './favorites/summary';
+			return '/favorites/summary';
 		}
 
-		return './favorites';
+		return '/favorites';
 	}
 }
