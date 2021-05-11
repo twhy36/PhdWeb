@@ -1,8 +1,7 @@
 import { Component, Input, Output, OnInit, OnChanges, SimpleChanges, EventEmitter } from '@angular/core';
 
-import { UnsubscribeOnDestroy, flipOver3, OptionImage, Choice } from 'phd-common';
+import { UnsubscribeOnDestroy, flipOver3, OptionImage } from 'phd-common';
 import { ChoiceExt } from '../../models/choice-ext.model';
-import { MyFavoritesPointDeclined } from '../../models/my-favorite.model';
 
 @Component({
 	selector: 'choice-card',
@@ -15,17 +14,11 @@ import { MyFavoritesPointDeclined } from '../../models/my-favorite.model';
 export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit, OnChanges
 {
 	@Input() currentChoice: ChoiceExt;
-	@Input() isDeclineCard?: boolean = false;
-	@Input() decisionPointId?: number;
-	@Input() decisionPointLabel?: string = '';
-	@Input() myFavoritesPointsDeclined?: MyFavoritesPointDeclined[]
 	
 	@Output() toggled = new EventEmitter<ChoiceExt>();
 	@Output() onViewChoiceDetail = new EventEmitter<ChoiceExt>();
-	@Output() onDeclineDecisionPoint = new EventEmitter<{ dPointId: number, decisionPointLabel: string }>();
 
 	choice: ChoiceExt;
-	isDeclined: boolean = false;
 	choiceMsg: object[] = [];
 	optionImages: OptionImage[];
 	imageUrl: string = '';
@@ -35,17 +28,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 		super();
 	}
 
-	ngOnInit()
-	{
-		if (this.isDeclineCard===true) {
-			let exists = this.myFavoritesPointsDeclined.find(p => p.dPointId === this.decisionPointId);
-			if (exists?.dPointId > 0 && exists?.dPointId === this.decisionPointId) {
-				this.isDeclined = true;
-			} else {
-				this.isDeclined = false;
-			}
-		}
-	}
+	ngOnInit() { }
 
 	ngOnChanges(changes: SimpleChanges)
 	{
@@ -93,11 +76,6 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 
 	toggleChoice() {
 		this.toggled.emit(this.choice);
-	}
-
-	toggleDecline() {
-		this.isDeclined = !this.isDeclined;
-		this.onDeclineDecisionPoint.emit({ dPointId: this.decisionPointId, decisionPointLabel: this.decisionPointLabel });
 	}
 
 	viewChoiceDetail()

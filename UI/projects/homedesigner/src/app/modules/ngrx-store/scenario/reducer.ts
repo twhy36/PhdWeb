@@ -159,7 +159,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 
 				
 				
-				// Use this segment to start work on indicator-decline card functionality
+				// Possible groundwork for future story 320407 - Indicators and Decline Card Functionality
 				// let declinedPointIds:number[] = [];
 				// action.myFavorites.forEach(fav => {
 				// 	fav.myFavoritesPointDeclined.forEach(dp => {

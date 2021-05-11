@@ -11,9 +11,9 @@
 	<div class="phd-body">
 		<div class="phd-choice-details">
 			<h1 class="phd-2-line-limit">
-				{{choice ? choice.label : "No Thanks!"}}
+				{{choice.label}}
 			</h1>
-			<div *ngIf="choice" class="d-flex flex-row justify-content-between">
+			<div class="d-flex flex-row justify-content-between">
 				<div>
 					<strong>{{choice.price * (choice.quantity > 0 ? choice.quantity : 1) | currency:'USD':'symbol':'0.0-0'}}</strong>
 				</div>
@@ -24,17 +24,6 @@
 					<div class="phd-clickable" (click)="$event.stopPropagation()">
 						<span class="phd-icon-selected"><i *ngIf="choice.isFavorite" class="fa fa-heart" (click)="toggleChoice()"></i></span>
 						<i *ngIf="!choice.isFavorite" class="fa fa-heart-o" (click)="toggleChoice()"></i>
-					</div>
-				</ng-container>
-			</div>
-			<div *ngIf="!choice" class="d-flex flex-row justify-content-between">
-				<div>
-					<strong></strong>
-				</div>
-				<ng-container>
-					<div class="phd-non-clickable" (click)="$event.stopPropagation()">
-						<span class="phd-icon-selected"><i *ngIf="isDeclined" class="fa fa-heart" (click)="toggleDecline()"></i></span>
-						<i *ngIf="!isDeclined" class="fa fa-heart-o" (click)="toggleDecline()"></i>
 					</div>
 				</ng-container>
 			</div>

@@ -251,7 +251,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			selectedChoices.push({ choiceId: c.id, quantity: 0, attributes: c.selectedAttributes });
 		});
 
-		selectedChoices.push({choiceId: 0, quantity: 1, attributes: []});
+		//selectedChoices.push({choiceId: 0, quantity: 1, attributes: []});
 		if (choice.quantity === 0) {
 			this.deselectDeclinedPoints(choice);
 		}
@@ -269,7 +269,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 					p.choices.forEach(c => {
 						if (c.id === choiceId) {
 							let fdp = this.myFavoritesPointsDeclined.find(fpd => fpd.dPointId === p.id);
-							if (fdp !== undefined) {
+							if (fdp) {
 								this.store.dispatch(new FavoriteActions.DeleteMyFavoritesPointDeclined(this.myFavoriteId, fdp.id));
 							}
 						}
@@ -279,14 +279,21 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		});
 	}
 
-	deselectPointChoices(pointLabel: string) {
+	deselectPointChoices(declinedPoint: MyFavoritesPointDeclined) {
 		let selectedChoices = [];
-		
-		this.myFavoritesChoices.forEach(choice => {
-			if (choice.decisionPointLabel === pointLabel) {
-				selectedChoices.push({ choiceId: choice.dpChoiceId, quantity: 0, attributes: [] });
-			}
+
+		this.groups.forEach(g => {
+			g.subGroups.forEach(sg => {
+				sg.points.forEach(p => {
+					if (p.id === declinedPoint.dPointId) {
+						p.choices.forEach(c => {
+							selectedChoices.push({ choiceId: c.id, quantity: 0, attributes: [] });
+						})
+					}
+				})
+			})
 		});
+		
 		this.store.dispatch(new ScenarioActions.SelectChoices(...selectedChoices));
 		this.store.dispatch(new FavoriteActions.SaveMyFavoritesChoices());
 	}
@@ -354,13 +361,12 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 	}
 
 	declineDecisionPoint(declinedPoint: MyFavoritesPointDeclined) {
-		let declPoint = this.myFavoritesPointsDeclined.find(p => p.dPointId === this.declinedPointIds.get(declinedPoint.decisionPointLabel));
-		let myFavoriteId = this.myFavoriteId;
-		if (declPoint === undefined) { 
-			this.store.dispatch(new FavoriteActions.AddMyFavoritesPointDeclined(myFavoriteId, declinedPoint.dPointId));
-			this.deselectPointChoices(declinedPoint.decisionPointLabel);
+		let declPoint = this.myFavoritesPointsDeclined.find(p => p.dPointId === declinedPoint.dPointId);
+		if (!declPoint) { 
+			this.store.dispatch(new FavoriteActions.AddMyFavoritesPointDeclined(this.myFavoriteId, declinedPoint.dPointId));
+			this.deselectPointChoices(declinedPoint);
 		} else {
-			this.store.dispatch(new FavoriteActions.DeleteMyFavoritesPointDeclined(myFavoriteId, declPoint.id));
+			this.store.dispatch(new FavoriteActions.DeleteMyFavoritesPointDeclined(this.myFavoriteId, declPoint.id));
 		}
 	}	
 }

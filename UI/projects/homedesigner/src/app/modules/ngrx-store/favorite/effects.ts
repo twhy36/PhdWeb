@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Actions, Effect, ofType } from '@ngrx/effects';
 import { Action, Store, select } from '@ngrx/store';
 import { Observable } from 'rxjs/Observable';
-import { switchMap, withLatestFrom } from 'rxjs/operators';
+import { switchMap, withLatestFrom, map } from 'rxjs/operators';
 import { of } from 'rxjs/observable/of';
 import { from } from 'rxjs/observable/from';
 
@@ -24,6 +24,7 @@ import { FavoriteService } from '../../core/services/favorite.service';
 
 import * as fromRoot from '../reducers';
 import * as fromFavorite from './reducer';
+import { MyFavoritesPointDeclined } from '../../shared/models/my-favorite.model';
 
 @Injectable()
 export class FavoriteEffects
@@ -153,7 +154,7 @@ export class FavoriteEffects
 			switchMap(action => {
                 return this.favoriteService.addMyFavoritesPointDeclined(action.myFavoriteId, action.pointId);
   			}),
-			switchMap(results => of(new MyFavoritesPointDeclinedUpdated(results, false)))
+			map(results => new MyFavoritesPointDeclinedUpdated(results, false))
 		), SaveError, "Error adding my favorites point declined!")
 	);
 	
@@ -164,7 +165,7 @@ export class FavoriteEffects
 			switchMap(action => {
                 return this.favoriteService.deleteMyFavoritesPointDeclined(action.myFavoriteId, action.myFavoritesPointDeclineId);
   			}),
-			switchMap(results => of(new MyFavoritesPointDeclinedUpdated(results, true)))
+			map(results => new MyFavoritesPointDeclinedUpdated(results, true))
 		), SaveError, "Error deleting my favorites point declined!")
 	);
 

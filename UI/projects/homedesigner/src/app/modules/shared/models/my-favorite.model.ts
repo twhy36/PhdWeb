@@ -44,7 +44,6 @@ export class MyFavoritesPointDeclined
     id: number;
     myFavoriteId: number;
     dPointId: number;
-    decisionPointLabel?: string;
     
 	constructor(dto?: MyFavoritesPointDeclined)
 	{
