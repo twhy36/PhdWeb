@@ -529,18 +529,20 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 
 	onSaveSortClick()
 	{
-		this.dragEnable = false;
-		this.lockedFromChanges = false;
-
 		if (this.dragHasChanged)
 		{
-			this.dragHasChanged = false;
-
 			try
 			{
 				const sortList = this.getSortList();
 
-				this._treeService.saveTreeSort(this.currentTree.version.id, sortList).subscribe(response =>
+				this._treeService.saveTreeSort(this.currentTree.version.id, sortList).pipe(
+					finalize(() =>
+					{
+						this.dragEnable = false;
+						this.lockedFromChanges = false;
+						this.dragHasChanged = false;
+					})
+				).subscribe(response =>
 				{
 					this._msgService.add({ severity: 'success', summary: `Sort Saved!` });
 				});

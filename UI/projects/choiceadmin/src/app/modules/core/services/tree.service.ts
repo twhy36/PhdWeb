@@ -1060,7 +1060,7 @@ export class TreeService
 
 		const endPoint = `${settings.apiUrl}${this._batch}`;
 
-		return this._http.post(endPoint, batchBody, { headers, responseType: 'text' }).pipe(
+		return withSpinner(this._http).post(endPoint, batchBody, { headers, responseType: 'text' }).pipe(
 			map(response =>
 			{
 				//todo: parse batch response for errors and throw any
@@ -1431,6 +1431,7 @@ export class TreeService
 		const endPoint = `${settings.apiUrl}${entity}`;
 
 		this.treeVersionIsLoading = false;
+
 		return withSpinner(this._http).delete<PhdApiDto.IDTreeRule>(endPoint);
 	}
 
