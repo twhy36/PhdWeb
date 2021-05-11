@@ -4,7 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable ,  throwError as _throw } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 
-import { withSpinner, SalesAgreement } from 'phd-common';
+import { withSpinner, defaultOnNotFound, SalesAgreement, ISalesAgreementInfo, SalesAgreementInfo } from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
 
@@ -53,4 +53,15 @@ export class SalesAgreementService
 			);
 		}
 	}
+
+	getSalesAgreementInfo(salesAgreementId: number): Observable<SalesAgreementInfo>
+	{
+		const entity = `salesAgreementInfos(${salesAgreementId})`;
+		const endpoint = environment.apiUrl + entity;
+
+		return this._http.get<ISalesAgreementInfo>(endpoint).pipe(
+			map(dto => new SalesAgreementInfo(dto)),
+			defaultOnNotFound("getSalesAgreementInfo", new SalesAgreementInfo())
+		);
+	}	
 }
