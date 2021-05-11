@@ -473,7 +473,7 @@ export class LocationService
 	{
 		let url = settings.apiUrl;
 
-		const expand = `option($filter=isActive eq true; $select=id, financialOptionIntegrationKey, isActive), locationGroupOptionMarketAssocs($select=locationGroupMarketId;$expand=locationGroupMarket($select=id;$filter=id eq ${group.id}))`;
+		const expand = `option($select=id, financialOptionIntegrationKey), locationGroupOptionMarketAssocs($select=locationGroupMarketId;$expand=locationGroupMarket($select=id;$filter=id eq ${group.id}))`;
 		const filter = `locationGroupOptionMarketAssocs/any(a: a/locationGroupMarketId eq ${group.id})`;
 		const select = `id, optionId, marketId, optionSalesName, optionDescription, isActive`;
 		const orderby = `optionSalesName`;

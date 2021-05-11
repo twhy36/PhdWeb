@@ -31,7 +31,7 @@ export class DivisionalOptionService
 	{
 		let url = settings.apiUrl;
 
-		const expand = `option($filter=isActive eq true; $select=id, financialOptionIntegrationKey, isActive),optionMarketImages($select=id), optionSubCategory($select=id, name; $expand=optionCategory($select=id, name)), attributeGroupOptionMarketAssocs($select=attributeGroupMarketId; $top=1), locationGroupOptionMarketAssocs($select=locationGroupMarketId; $top=1)`;
+		const expand = `option($select=id, financialOptionIntegrationKey),optionMarketImages($select=id), optionSubCategory($select=id, name; $expand=optionCategory($select=id, name)), attributeGroupOptionMarketAssocs($select=attributeGroupMarketId; $top=1), locationGroupOptionMarketAssocs($select=locationGroupMarketId; $top=1)`;
 		const select = `id, optionId, marketId, optionSalesName, isActive`;
 		const orderby = `optionSubCategory/optionCategory/name, optionSubCategory/name, optionSalesName`;
 		let filter = `marketId eq ${marketId} and isActive eq true and option/financialOptionIntegrationKey ne '00001'`;
