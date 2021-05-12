@@ -20,7 +20,7 @@
 		</ng-template>
 	</page-header>
 
-	<div class="phd-homesite-body">
+	<div class="phd-page-body">
 
 		<div class="my-3 phd-filter-body">
 			<label class="alert alert-info pull-right phd-homesites-counter">{{ lotCount + ' Homesites' }}</label>
@@ -62,7 +62,7 @@
 			</div>
 		</div>
 
-		<div class="phd-homesite-panel mx-2" infiniteScroll [infiniteScrollThrottle]="settings.infiniteScrollThrottle" [infiniteScrollDisabled]="allDataLoaded" (scrolled)="onPanelScroll()" [scrollWindow]="false">
+		<div class="phd-table-container mx-2" infiniteScroll [infiniteScrollThrottle]="settings.infiniteScrollThrottle" [infiniteScrollDisabled]="allDataLoaded" (scrolled)="onPanelScroll()" [scrollWindow]="false">
 			<phd-table #dt [value]="filteredLots" sortMode="single" sortField="lotBlock" showCaption="true" (onFilter)="onFilter($event)">
 				<phd-column header="">
 					<ng-template #body let-lot>
