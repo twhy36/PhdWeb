@@ -381,7 +381,7 @@ export class OptionSidePanelComponent implements OnInit, OnChanges
 			// check for Attribute Reassignments
 			this._treeService.hasAttributeReassignment(maxChoice.id).subscribe(async hasAttributeReassignment =>
 			{
-				let canToggle = hasAttributeReassignment && await this.confirmAttributeReassignment(maxChoice.label)
+				let canToggle = !hasAttributeReassignment || await this.confirmAttributeReassignment(maxChoice.label)
 
 				if (canToggle)
 				{
