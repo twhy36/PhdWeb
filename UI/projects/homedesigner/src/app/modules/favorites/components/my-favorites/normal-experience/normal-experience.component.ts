@@ -96,7 +96,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 				case PickType.Pick0or1:
 					return isPreviouslyContracted
 							? 'Previously Contracted Option'
-							: 'Please select one of the choices below';//'Please select 0 or 1 of the Choices below';
+							: 'Please select one of the choices below';
 				default:
 					return '';
 			}
