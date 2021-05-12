@@ -48,7 +48,6 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 	salesChoices: JobChoice[];
 	showDetails: boolean = false;
 	selectedChoice: ChoiceExt;
-	declinedPointIds: Map<string, number> = new Map();
 	myFavoritesPointsDeclined: MyFavoritesPointDeclined[];
 	myFavoriteId: number;
 
@@ -206,16 +205,6 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			this.includeContractedOptions = fav && fav.includeContractedOptions;
 			this.salesChoices = fav && fav.salesChoices;
 		});
-
-		this.groups.forEach(group => {
-			group.subGroups.forEach(sg => {
-				sg.points.forEach(p => {
-					if (p.pointPickTypeId % 2 === 0) {
-						this.declinedPointIds.set(p.label, p.id);
-					}
-				})
-			})
-		});
 	}
 
 	setSelectedGroup(newGroup: Group, newSubGroup: SubGroup) {
@@ -251,7 +240,6 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			selectedChoices.push({ choiceId: c.id, quantity: 0, attributes: c.selectedAttributes });
 		});
 
-		//selectedChoices.push({choiceId: 0, quantity: 1, attributes: []});
 		if (choice.quantity === 0) {
 			this.deselectDeclinedPoints(choice);
 		}
@@ -280,21 +268,28 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 	}
 
 	deselectPointChoices(declinedPoint: MyFavoritesPointDeclined) {
-		let selectedChoices = [];
+		let deselectedChoices = [];
 
 		this.groups.forEach(g => {
 			g.subGroups.forEach(sg => {
 				sg.points.forEach(p => {
 					if (p.id === declinedPoint.dPointId) {
 						p.choices.forEach(c => {
-							selectedChoices.push({ choiceId: c.id, quantity: 0, attributes: [] });
+							deselectedChoices.push({ choiceId: c.id, quantity: 0, attributes: [] });
+
+							const impactedChoices = getDependentChoices(this.tree, this.treeVersionRules, c);
+
+                            impactedChoices.forEach(ch =>
+                            {
+                                deselectedChoices.push({ choiceId: ch.id, quantity: 0, attributes: ch.selectedAttributes });
+                            });
 						})
 					}
 				})
 			})
 		});
 		
-		this.store.dispatch(new ScenarioActions.SelectChoices(...selectedChoices));
+		this.store.dispatch(new ScenarioActions.SelectChoices(...deselectedChoices));
 		this.store.dispatch(new FavoriteActions.SaveMyFavoritesChoices());
 	}
 

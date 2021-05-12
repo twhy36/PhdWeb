@@ -24,7 +24,6 @@ import { FavoriteService } from '../../core/services/favorite.service';
 
 import * as fromRoot from '../reducers';
 import * as fromFavorite from './reducer';
-import { MyFavoritesPointDeclined } from '../../shared/models/my-favorite.model';
 
 @Injectable()
 export class FavoriteEffects

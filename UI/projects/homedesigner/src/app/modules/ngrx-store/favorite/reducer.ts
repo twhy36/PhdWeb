@@ -3,7 +3,7 @@ import * as _ from "lodash";
 
 import { JobChoice } from 'phd-common';
 
-import { MyFavorite, MyFavoritesChoice, MyFavoritesPointDeclined } from '../../shared/models/my-favorite.model';
+import { MyFavorite, MyFavoritesChoice } from '../../shared/models/my-favorite.model';
 import { CommonActionTypes } from '../actions';
 import { FavoriteActions, FavoriteActionTypes } from './actions';
 
