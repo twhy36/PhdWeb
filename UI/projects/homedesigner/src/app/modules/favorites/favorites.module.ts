@@ -14,12 +14,13 @@ import { MyFavoritesComponent } from './components/my-favorites/my-favorites.com
 import { NormalExperienceComponent } from './components/my-favorites/normal-experience/normal-experience.component';
 import { FavoritesSummaryComponent } from './components/favorites-summary/favorites-summary.component';
 import { SummaryHeaderComponent } from './components/favorites-summary/summary-header/summary-header.component';
+import { FloorPlanExperienceComponent } from './components/my-favorites/floor-plan-experience/floor-plan-experience.component';
 
 const moduleRoutes: Routes = [
-	{ 
+	{
 		path: '',
 		canActivate: [ExternalGuard],
-		children: 
+		children:
 		[
 			{ path: 'favorites', component: ManageFavoritesComponent },
 			{ path: 'favorites/summary', component: FavoritesSummaryComponent },
@@ -35,15 +36,17 @@ const moduleRoutes: Routes = [
 		MyFavoritesComponent,
 		NormalExperienceComponent,
 		FavoritesSummaryComponent,
-		SummaryHeaderComponent
+		SummaryHeaderComponent,
+		FloorPlanExperienceComponent
     ],
     declarations: [
 		ManageFavoritesComponent,
 		MyFavoritesComponent,
 		NormalExperienceComponent,
 		FavoritesSummaryComponent,
-		SummaryHeaderComponent
-    ],  
+		SummaryHeaderComponent,
+		FloorPlanExperienceComponent
+    ],
 	imports: [
 		CommonModule,
 		FormsModule,
