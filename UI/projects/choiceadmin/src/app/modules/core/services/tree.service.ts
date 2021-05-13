@@ -345,10 +345,10 @@ export class TreeService
 		const entity = 'planOptionCommunities';
 		const expand = `planCommunity($select=id,financialPlanIntegrationKey,planSalesName; $orderby=planSalesName; $filter=isActive eq true; $expand=financialCommunity($select=id;$filter=marketId eq ${marketId})),
 						optionCommunity($select=id,optionId,financialCommunityId;$filter=isActive eq true;
-						$expand=option($select=id,name,financialOptionIntegrationKey;$filter=financialOptionIntegrationKey eq '${optionIntegrationKey}' and isActive eq true;
+						$expand=option($select=id,name,financialOptionIntegrationKey;$filter=financialOptionIntegrationKey eq '${optionIntegrationKey}';
 						$expand=optionMarkets($filter=marketId eq ${marketId})))`;
 		const filter = `planCommunity/isActive eq true and optionCommunity/option/financialOptionIntegrationKey eq '${optionIntegrationKey}' and planCommunity/financialCommunity/marketId eq ${marketId} and
-						optionCommunity/isActive eq true and optionCommunity/option/isActive eq true and optionCommunity/option/optionMarkets/any(om : om/marketId eq ${marketId}) and isActive eq true`;
+						optionCommunity/isActive eq true and optionCommunity/option/optionMarkets/any(om : om/marketId eq ${marketId}) and isActive eq true`;
 		const select = `id, planId, planCommunity`;
 
 		const qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
@@ -1060,7 +1060,7 @@ export class TreeService
 
 		const endPoint = `${settings.apiUrl}${this._batch}`;
 
-		return this._http.post(endPoint, batchBody, { headers, responseType: 'text' }).pipe(
+		return withSpinner(this._http).post(endPoint, batchBody, { headers, responseType: 'text' }).pipe(
 			map(response =>
 			{
 				//todo: parse batch response for errors and throw any
@@ -1431,6 +1431,7 @@ export class TreeService
 		const endPoint = `${settings.apiUrl}${entity}`;
 
 		this.treeVersionIsLoading = false;
+
 		return withSpinner(this._http).delete<PhdApiDto.IDTreeRule>(endPoint);
 	}
 

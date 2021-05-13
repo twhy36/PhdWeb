@@ -13,6 +13,7 @@ import { LotManagementModule } from './modules/lot-managment/lot-management.modu
 import { PricingModule } from './modules/pricing/pricing.module';
 import { CommunityManagementModule } from './modules/community-management/community-management.module'
 import { PhdCommonModule, ConfirmModalComponent, IdentityService, AUTH_CONFIG } from 'phd-common';
+import { ReOrgModule } from './modules/re-org/re-org.module';
 import { AppComponent } from './app.component';
 
 import { environment } from '../environments/environment';
@@ -22,6 +23,7 @@ const appRoutes: Routes = [
     { path: 'lot-management', component: LotManagementModule },
     { path: 'pricing', component: PricingModule },
     { path: 'community-management', component: CommunityManagementModule },
+    { path: 'reOrg', component: ReOrgModule },
     { path: '', pathMatch: 'full', redirectTo: 'lot-management' }
 ];
 
@@ -50,7 +52,8 @@ const appInitializerFn = (identityService: IdentityService) => {
 		ContractsModule,
         LotManagementModule,
         PricingModule,
-        CommunityManagementModule,
+		CommunityManagementModule,
+		ReOrgModule,
         RouterModule.forRoot(appRoutes)
     ],
     providers: [

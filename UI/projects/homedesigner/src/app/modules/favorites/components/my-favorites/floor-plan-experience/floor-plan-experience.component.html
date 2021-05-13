@@ -1,0 +1,56 @@
+<div class="phd-error-msg-body" *ngIf="errorMessage.length > 0">
+	<error-message [@flipOver]>
+		<ng-template #body>{{ errorMessage }}</ng-template>
+	</error-message>
+</div>
+
+<div class="phd-floor-plan-experience" [class.phd-hide]="errorMessage.length > 0">
+	<div class="d-flex flex-row phd-point-panel">
+		<div *ngIf="!isPointPanelCollapsed" class="d-flex flex-column">
+			<div class="phd-selected-group">
+				<div class="phd-group-name">{{groupName}}: </div>
+				<div class="phd-subgroup-name">{{subGroup?.label}}</div>
+			</div>
+			<div class="phd-decisions"><span>DECISIONS:</span></div>
+			<div class="phd-detailed-point-bar">
+				<detailed-decision-bar
+					[points]="points"
+					[currentPointId]="currentPointId"
+					[salesChoices]="salesChoices"
+					[myFavoritesChoices]="myFavoritesChoices"
+					(onToggleChoice)="choiceToggleHandler($event)"
+					(onViewChoiceDetail)="viewChoiceDetail($event)">
+				</detailed-decision-bar>
+			</div>
+		</div>
+		<div class="d-flex justify-content-center align-items-center phd-collapse-icon" [ngClass]="isPointPanelCollapsed ? 'phd-collapsed-icon-bg' : ''">
+			<i *ngIf="!isPointPanelCollapsed" class="fa fa-angle-double-left" (click)="togglePointPanel()"></i>
+			<i *ngIf="isPointPanelCollapsed" class="fa fa-angle-double-right" (click)="togglePointPanel()"></i>
+		</div>
+	</div>
+
+	<div class="d-flex flex-column phd-card-panel" [ngClass]="isPointPanelCollapsed ? 'phd-card-panel-collapsed' : ''">
+		<div class="phd-include-options">
+			<input type="checkbox" (change)="toggleContractedOptions($event)" [ngModel]="includeContractedOptions" class="phd-clickable" />
+			<span class="phd-contracted-options">Include Contracted Options</span>
+			<div class="floor-select-container" *ngIf="floors && floors.length > 1">
+				<select id="floor-select" class="form-control" [ngModel]="selectedFloor" (ngModelChange)="selectFloor($event)">
+					<option *ngFor="let floor of floors" [ngValue]="floor">{{ floor.name }}</option>
+				</select>
+			</div>
+		</div>
+		<div class="phd-point-container">
+			<floor-plan
+				[height]="'73vh'"
+				[planId$]="marketingPlanId"
+				[selectedFloor]="selectedFloor"
+				[subGroup]="subGroup"
+				[isFlipped]="isFloorplanFlipped"
+				(onFloorPlanLoaded)="loadFloorPlan($event)"
+			>
+			</floor-plan>
+		</div>
+	</div>
+
+</div>
+

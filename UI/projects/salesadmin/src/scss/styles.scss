@@ -73,8 +73,10 @@ a:focus {
 	display: -ms-flexbox;
 	display: flex;
 	flex-direction: column;
-	flex: 1;
+	flex-grow : 1;
+	height: calc(100vh - #{$nav-menu-height} - #{$sales-page-header-height} - #{$sales-action-bar-height});
 	overflow-y: auto;
+	margin-top: 20px;
 }
 
 .phd-experience-btn-choice {

@@ -1,3 +1,4 @@
+import { ReOrgService } from '../services/re-org.service';
 import { Injectable } from '@angular/core';
 
 import { from, timer, of, Subscription } from 'rxjs';
@@ -13,7 +14,7 @@ export class NotificationService {
 	private connection: signalR.HubConnection;
 	private reOrgSub: Subscription;
 
-	constructor() { }
+	constructor(private _reOrgService: ReOrgService) { }
 
 	public init(): void
 	{
@@ -49,10 +50,11 @@ export class NotificationService {
 
 	public registerHandlers(): void
 	{
-		this.connection.on("ReOrgCompleted", () =>
+		this.connection.on("reOrgCompleted", () =>
 		{
 			console.log('Completed');
-			// Update UI
+			this._reOrgService.updateReOrgsFlag();
+			this.connection.stop();
 		});
 	}
 }

@@ -567,7 +567,7 @@ export class AttributeService
 	{
 		let url = settings.apiUrl;
 
-		const expand = `option($filter=isActive eq true; $select=id, financialOptionIntegrationKey, isActive), attributeGroupOptionMarketAssocs($select=attributeGroupMarketId;$expand=attributeGroupMarket($select=id;$filter=id eq ${group.id}))`;
+		const expand = `option($select=id, financialOptionIntegrationKey), attributeGroupOptionMarketAssocs($select=attributeGroupMarketId;$expand=attributeGroupMarket($select=id;$filter=id eq ${group.id}))`;
 		const filter = `attributeGroupOptionMarketAssocs/any(a: a/attributeGroupMarketId eq ${group.id})`;
 		const select = `id, optionId, marketId, optionSalesName, optionDescription, isActive`;
 		const orderby = `optionSalesName`;

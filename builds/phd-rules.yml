@@ -77,6 +77,20 @@ jobs:
       customRegistry: 'useFeed'
       customFeed: '6d26cbbb-94e5-4db9-ac14-039e14cd6ff9/484bd538-a8f3-4ad5-a52d-e1c1d14f5e1f'
     displayName: 'install dependencies'
+  - task: AngularCLI@1
+    displayName: Run Unit Tests
+    inputs:
+      command: 'test'
+      project: 'UI'
+      arguments: '--project=phd-common'
+      DisableAnalytics: false
+  - task: PublishTestResults@2
+    displayName: Publish Test Results
+    condition: succeededOrFailed()
+    inputs:
+      testResultsFormat: 'VSTest'
+      testResultsFiles: 'test-results.trx'
+      searchFolder: '$(build.sourcesDirectory)\UI'
   - task: AngularCLI@0
     inputs:
       command: 'build'

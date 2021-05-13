@@ -1,8 +1,8 @@
 @import "../../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
 
-$point-panel-width: 220px;
+$detailed-point-panel-width: 300px;
 
-.phd-normal-experience {
+.phd-floor-plan-experience {
 	display: flex;
 	flex-direction: row;
 	overflow: hidden;
@@ -10,7 +10,7 @@ $point-panel-width: 220px;
 
 .phd-point-panel {
 	position: fixed;
-	width: $point-panel-width;
+	width: $detailed-point-panel-width;
 	height: calc(100vh - 220px);
 
 	.phd-selected-group {
@@ -36,9 +36,9 @@ $point-panel-width: 220px;
 		font-size: 15px;
 	}
 
-	.phd-point-bar {
+	.phd-detailed-point-bar {
 		overflow-y: auto;
-		width: $point-panel-width;
+		width: $detailed-point-panel-width;
 		padding-left: 25px;
 	}
 
@@ -54,29 +54,10 @@ $point-panel-width: 220px;
 }
 
 .phd-card-panel {
-	margin: 0px 0px 10px calc(#{$point-panel-width} + 5px);
+	margin: 0px 0px 10px calc(#{$detailed-point-panel-width} + 5px);
 	padding-left: 10px;
 	overflow-y: auto;
-	width: calc(100% - 15px - #{$point-panel-width});
-
-	.phd-point-label {
-		text-transform: capitalize;
-		padding-left: 10px;
-		font-size: 16px;
-		font-weight: bold;
-		margin-top: 20px;
-	}
-
-	.phd-point-title {
-		padding-left: 10px;
-		font-size: 14px;
-	}
-
-	.phd-choice-cards {
-		overflow-y: auto;
-		width: 100%;
-		margin-bottom: 40px;
-	}
+	width: calc(100% - 15px - #{$detailed-point-panel-width});
 }
 
 .phd-card-panel-collapsed {
@@ -114,4 +95,9 @@ $point-panel-width: 220px;
 
 .phd-point-container {
 	padding-top: 43px;
+}
+
+.floor-select-container {
+	margin-left: auto;
+	margin-right: 10px;
 }

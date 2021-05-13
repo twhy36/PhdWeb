@@ -5,9 +5,10 @@ import { Effect, Actions, ofType } from '@ngrx/effects';
 import { switchMap, combineLatest, map, scan, withLatestFrom, tap } from 'rxjs/operators';
 import { Observable } from 'rxjs/Observable';
 import { from } from 'rxjs/observable/from';
+import { forkJoin } from 'rxjs/observable/forkJoin';
 import * as _ from 'lodash';
 
-import { SpinnerService, ChangeOrderChoice, ChangeOrderGroup } from 'phd-common';
+import { SpinnerService, ChangeOrderChoice, ChangeOrderGroup, SalesAgreementInfo } from 'phd-common';
 
 import { CommonActionTypes, LoadError, LoadSalesAgreement, SalesAgreementLoaded } from './actions';
 import { tryCatch } from './error.action';
@@ -36,14 +37,17 @@ export class CommonEffects
 		tryCatch(source => source.pipe(
 			switchMap(action =>
 			{
-				return this.salesAgreementService.getSalesAgreement(action.salesAgreementId).pipe(
-					switchMap(sag =>
+				return forkJoin(
+					this.salesAgreementService.getSalesAgreement(action.salesAgreementId),
+					this.salesAgreementService.getSalesAgreementInfo(action.salesAgreementId)
+				).pipe(
+					switchMap(([sag, sagInfo]) =>
 					{
 						return this.jobService.loadJob(sag.jobSalesAgreementAssocs[0].jobId).pipe(
 							combineLatest(this.favoriteService.loadMyFavorites(sag.id)),
 							map(([job, fav]) =>
 							{
-								return { job, salesAgreement: sag, myFavorites: fav };
+								return { job, salesAgreement: sag, salesAgreementInfo: sagInfo || new SalesAgreementInfo(), myFavorites: fav };
 							})
 						);
 					})
@@ -183,6 +187,7 @@ export class CommonEffects
 										selectedChoices: result.selectedChoices,
 										selectedPlanId: result.selectedPlanId,
 										salesAgreement: result.salesAgreement,
+										salesAgreementInfo: result.salesAgreementInfo,
 										myFavorites: result.myFavorites
 									};
 								}),
@@ -219,6 +224,7 @@ export class CommonEffects
 								selectedChoices: result.selectedChoices,
 								selectedPlanId: result.selectedPlanId,
 								salesAgreement: result.salesAgreement,
+								salesAgreementInfo: result.salesAgreementInfo,
 								myFavorites: result.myFavorites
 							}
 						})
@@ -245,7 +251,7 @@ export class CommonEffects
 				}
 
 				return <Observable<Action>>from([
-					new SalesAgreementLoaded(result.salesAgreement, result.job, result.sc, result.selectedChoices, result.selectedPlanId, result.selectedHanding, result.tree, result.rules, result.options, result.images, result.mappings, result.changeOrder, result.lot, result.myFavorites),
+					new SalesAgreementLoaded(result.salesAgreement, result.salesAgreementInfo, result.job, result.sc, result.selectedChoices, result.selectedPlanId, result.selectedHanding, result.tree, result.rules, result.options, result.images, result.mappings, result.changeOrder, result.lot, result.myFavorites),
 					new LoadLots(result.sc.id),
 					new LoadSelectedPlan(result.selectedPlanId, selectedPlanPrice)
 				]);
