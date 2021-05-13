@@ -8,6 +8,7 @@ import { LoggingService } from './modules/core/services/logging.service';
 import { loadScript, IdentityService, Claims } from 'phd-common';
 import { environment } from '../environments/environment';
 import * as build from './build.json';
+import { NotificationService } from './modules/core/services/notification.service';
 
 @Component({
   selector: 'app-root',
@@ -69,6 +70,7 @@ export class AppComponent
 		this.canAccessSalesAdmin$ = this.identityService.getClaims().pipe(
 			map((claims: Claims) => !!claims.SalesAdmin || !!claims.AutoApproval)
 		);
+
     }
 
     private getComponentName(snapshot: ActivatedRouteSnapshot): string {

@@ -60,4 +60,12 @@
 			Auto <br /> Approvals
 		</span>
 	</div>
+	
+	<div [routerLink]="['/reOrg']" [routerLinkActive]="['active']" class="button-bar-item" *requiresClaim="'ExecuteReOrg'">
+		<a class="hidden" [routerLink]="['/reOrg']"></a>
+		<span>
+			<i class="fa fa-arrows-alt fa-2x" phd-tooltip='ReOrg'></i><br />
+			Re-Org
+		</span>
+	</div>
 </div>
