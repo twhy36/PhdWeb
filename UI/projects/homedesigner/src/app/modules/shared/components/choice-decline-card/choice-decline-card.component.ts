@@ -27,7 +27,7 @@ export class ChoiceDeclineCardComponent extends UnsubscribeOnDestroy implements 
 
 	ngOnInit()
 	{
-        if (this.myFavoritesPointsDeclined.find(p => p.dPointId === this.decisionPointId)?.dPointId > 0) {
+        if (this.myFavoritesPointsDeclined?.find(p => p.dPointId === this.decisionPointId)?.dPointId > 0) {
             this.isDeclined = true;
         } else {
             this.isDeclined = false;

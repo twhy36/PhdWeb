@@ -205,6 +205,24 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			this.includeContractedOptions = fav && fav.includeContractedOptions;
 			this.salesChoices = fav && fav.salesChoices;
 		});
+
+		this.groups.forEach(g => {
+			g.subGroups.forEach(sg => {
+				sg.points.forEach(p => {
+					let pointStuff = [];
+					pointStuff.push(p.label)
+					pointStuff.push("Has Point To Choice Rules? " + p.hasPointToChoiceRules)
+					// console.log(p.label);
+					// console.log("Has Point To Choice Rules? " + p.hasPointToChoiceRules)
+					pointStuff.push("Has Point To Point Rules? " + p.hasPointToPointRules)
+					pointStuff.push("Is a sales choice? " + p.isStructuralItem)
+					pointStuff.push(p.choices);
+					if (p.isStructuralItem || (p.hasPointToChoiceRules || p.hasPointToPointRules)) {
+						console.log(pointStuff)
+					}
+				})
+			})
+		})
 	}
 
 	setSelectedGroup(newGroup: Group, newSubGroup: SubGroup) {
