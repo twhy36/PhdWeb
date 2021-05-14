@@ -68,7 +68,7 @@ export class SignFieldsComponent extends UnsubscribeOnDestroy implements OnInit,
 		let expirationWarnDays = this.existingSignField ? this.existingSignField.expirationWarnDays : null;
 		let reminderDays = this.existingSignField ? this.existingSignField.reminderDays : null;
 		let repeatReminderDays = this.existingSignField ? this.existingSignField.repeatReminderDays : null;
-		let defaultEmailForSignedCopies = this.existingSignField ? this.existingSignField.defaultEmailForSignedCopies : null;
+		let defaultEmailForSignedCopies = this.existingSignField ? this.existingSignField.defaultEmailForSignedCopies.split(';') : null;
 
 		this.signFieldForm = new FormGroup({
 			'authorizedAgentEmail': new FormControl({ value: authorizedAgentEmail, disabled: !this.canEdit }, Validators.email),
@@ -77,10 +77,19 @@ export class SignFieldsComponent extends UnsubscribeOnDestroy implements OnInit,
 			'expirationWarnDays': new FormControl({ value: expirationWarnDays, disabled: !this.canEdit }, [Validators.max(999), this.expireValidator()]),
 			'reminderDays': new FormControl({ value: reminderDays, disabled: !this.canEdit }, Validators.max(999)),
 			'repeatReminderDays': new FormControl({ value: repeatReminderDays, disabled: !this.canEdit }, Validators.max(999)),
-			'defaultEmailForSignedCopies': new FormArray([
-				new FormControl({ value: defaultEmailForSignedCopies, disabled: !this.canEdit }, [this.emailValidator()])
-			])
+			'defaultEmailForSignedCopies': new FormArray([])
 		});
+
+		const signedCopiesArray = this.signFieldForm.get("defaultEmailForSignedCopies") as FormArray;
+
+		if (defaultEmailForSignedCopies?.length)
+		{
+			defaultEmailForSignedCopies.forEach(sc => signedCopiesArray.push(new FormControl({ value: sc, disabled: !this.canEdit }, [this.emailValidator()])));
+		}
+		else
+		{
+			signedCopiesArray.push(new FormControl({ value: null, disabled: !this.canEdit }, [this.emailValidator()]));
+		}
 
 		this.signFieldForm.get('expirationDays').valueChanges.subscribe(val =>
 		{
