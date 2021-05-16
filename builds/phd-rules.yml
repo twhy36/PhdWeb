@@ -8,7 +8,7 @@ name: $(BuildDefinitionName)_$(MajorVersion).$(MinorVersion).$(Rev:r)
 #variables:
 #  system_accesstoken: $(System.AccessToken)
 
-pool: pgazadob1p
+pool: BUILD
 resources:
   repositories:
   - repository: ThoWeb
