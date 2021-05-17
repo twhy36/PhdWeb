@@ -7,7 +7,7 @@
 		Sales Admin
 	</div>
 
-    <div *ngIf="canAccessSalesAdmin && (showMarket$ | async)">
+    <div *ngIf="canAccessSalesAdmin && !hideMarket">
         <select class="form-control ml-3" [ngModel]="orgService.currentMarket$ | async" (ngModelChange)="onSelectedMarketChange($event)">
             <option [ngValue]="null" disabled="disabled">Division</option>
             <option *ngFor="let market of (orgService.salesMarkets | async)" [ngValue]="market">{{market.name}}</option>
