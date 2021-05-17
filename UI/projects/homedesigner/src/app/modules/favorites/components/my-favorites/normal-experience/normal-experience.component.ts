@@ -34,6 +34,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	isPointPanelCollapsed: boolean = false;
 	points: DecisionPoint[];
 	filteredChoiceIds: number[] = [];
+	filteredPointIds: number[] = [];
 	currentPointId: number;
 	subGroup: SubGroup;
 	choiceToggled: boolean = false;
@@ -43,11 +44,11 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	ngOnInit() { 
 		console.log(this.points);
 		this.groups.forEach(g => g.subGroups.forEach(sg => sg.points.forEach(p => {
+			this.filteredPointIds.push(p.id);
 			p.choices.forEach(c => {
 				this.filteredChoiceIds.push(c.id);
 			})
 		})))
-		
 	}
 
 	ngOnChanges(changes: SimpleChanges)
@@ -82,28 +83,51 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 		}
 	}
 
-	decisionBarFilteredPoints(points: DecisionPoint[]) {
+	rulesFilteredPoints(points: DecisionPoint[]) {
 		let decisionBarPoints = [];
 		points.forEach(p => {
-			if (p.choices.length === 1) {
-				let hidePoint = false;
-				p.choices.forEach(c => {
-					c.disabledBy.forEach(db => {
-						db.rules.forEach(r => {
-						if (r.ruleType === 1) {
-							r.choices.forEach(dc => {
-								//Not found in the filtered choices
-								if (this.filteredChoiceIds.indexOf(dc) < 0) {
-									hidePoint = true;
-								}	
-							})
-						}})
+			let hidePoint = false;
+			if (p.hasPointToPointRules && !hidePoint) {
+				p.disabledBy.forEach(db => {
+					db.rules.forEach(r => {
+						r.points.forEach(dp => {
+							if (this.filteredPointIds.indexOf(dp) < 0) {
+								hidePoint = true;
+							}
+						})
 					})
 				})
-				if (!hidePoint) {
-					decisionBarPoints.push(p);
-				}
-			} else {
+			} 
+			if (p.hasPointToChoiceRules && !hidePoint) {
+				p.disabledBy.forEach(db => {
+					db.rules.forEach(r => {
+						r.choices.forEach(dc => {
+							if (this.filteredChoiceIds.indexOf(dc) < 0) {
+								hidePoint = true;
+							}
+						})
+					})
+				})
+			}
+			// choice to choice if dp length is only 1
+			if (p.choices.length === 1 && !hidePoint) {
+				p.choices.forEach(c => {
+					if (c.disabledBy.length > 0) {
+						c.disabledBy.forEach(db => {
+							db.rules.forEach(r => {
+							if (r.ruleType === 1) {
+								r.choices.forEach(dc => {
+									//Not found in the filtered choices
+									if (this.filteredChoiceIds.indexOf(dc) < 0) {
+										hidePoint = true;
+									}	
+								})
+							}})
+						})
+					}
+				})
+			} 
+			if (!hidePoint) {
 				decisionBarPoints.push(p);
 			}
 		})
@@ -111,8 +135,6 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	}
 
 	checkChoiceToChoiceRuleStatus(choice: ChoiceExt) {
-		console.log(this.filteredChoiceIds);
-
 		let matchFound = true;
 		choice.disabledBy.forEach(db => {
 			db.rules.forEach(r => {
@@ -120,7 +142,6 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 					r.choices.forEach(dc => {
 						//Not found in the filtered choices
 						if (this.filteredChoiceIds.indexOf(dc) < 0) {
-							console.log("ABINAY MADE IT");
 							matchFound = false;
 						}	
 					})
