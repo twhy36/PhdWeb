@@ -2,7 +2,7 @@ import { Component, OnInit, Input, OnChanges, SimpleChanges, Output, EventEmitte
 
 import * as _ from 'lodash';
 
-import { UnsubscribeOnDestroy, flipOver, DecisionPoint, PickType, SubGroup, Choice, JobChoice, DesignToolAttribute } from 'phd-common';
+import { UnsubscribeOnDestroy, flipOver, DecisionPoint, PickType, Group, SubGroup, Choice, JobChoice, DesignToolAttribute } from 'phd-common';
 
 import { MyFavoritesChoice, MyFavoritesPointDeclined } from '../../../../shared/models/my-favorite.model';
 import { ChoiceExt } from '../../../../shared/models/choice-ext.model';
@@ -23,6 +23,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	@Input() decisionPointId: number;
 	@Input() includeContractedOptions: boolean = true;
 	@Input() salesChoices: JobChoice[];
+	@Input() groups: Group[];
 
 	@Output() onToggleChoice = new EventEmitter<ChoiceExt>();
 	@Output() onToggleContractedOptions = new EventEmitter();
@@ -32,13 +33,22 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 
 	isPointPanelCollapsed: boolean = false;
 	points: DecisionPoint[];
+	filteredChoiceIds: number[] = [];
 	currentPointId: number;
 	subGroup: SubGroup;
 	choiceToggled: boolean = false;
 
 	constructor() { super(); }
 
-	ngOnInit() { }
+	ngOnInit() { 
+		console.log(this.points);
+		this.groups.forEach(g => g.subGroups.forEach(sg => sg.points.forEach(p => {
+			p.choices.forEach(c => {
+				this.filteredChoiceIds.push(c.id);
+			})
+		})))
+		
+	}
 
 	ngOnChanges(changes: SimpleChanges)
 	{
@@ -70,6 +80,54 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 		{
 			this.selectDecisionPoint(changes['decisionPointId'].currentValue);
 		}
+	}
+
+	decisionBarFilteredPoints(points: DecisionPoint[]) {
+		let decisionBarPoints = [];
+		points.forEach(p => {
+			if (p.choices.length === 1) {
+				let hidePoint = false;
+				p.choices.forEach(c => {
+					c.disabledBy.forEach(db => {
+						db.rules.forEach(r => {
+						if (r.ruleType === 1) {
+							r.choices.forEach(dc => {
+								//Not found in the filtered choices
+								if (this.filteredChoiceIds.indexOf(dc) < 0) {
+									hidePoint = true;
+								}	
+							})
+						}})
+					})
+				})
+				if (!hidePoint) {
+					decisionBarPoints.push(p);
+				}
+			} else {
+				decisionBarPoints.push(p);
+			}
+		})
+		return decisionBarPoints;
+	}
+
+	checkChoiceToChoiceRuleStatus(choice: ChoiceExt) {
+		console.log(this.filteredChoiceIds);
+
+		let matchFound = true;
+		choice.disabledBy.forEach(db => {
+			db.rules.forEach(r => {
+				if (r.ruleType === 1) {
+					r.choices.forEach(dc => {
+						//Not found in the filtered choices
+						if (this.filteredChoiceIds.indexOf(dc) < 0) {
+							console.log("ABINAY MADE IT");
+							matchFound = false;
+						}	
+					})
+				}
+			})
+		})
+		return matchFound;
 	}
 
 	getSubTitle(point: DecisionPoint): string

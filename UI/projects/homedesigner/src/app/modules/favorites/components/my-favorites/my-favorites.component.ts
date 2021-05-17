@@ -50,6 +50,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 	selectedChoice: ChoiceExt;
 	myFavoritesPointsDeclined: MyFavoritesPointDeclined[];
 	myFavoriteId: number;
+	choiceExistance: Map<number, boolean> = new Map();
 
 	priceBreakdown: PriceBreakdown;
 
@@ -206,23 +207,62 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			this.salesChoices = fav && fav.salesChoices;
 		});
 
-		this.groups.forEach(g => {
-			g.subGroups.forEach(sg => {
-				sg.points.forEach(p => {
-					let pointStuff = [];
-					pointStuff.push(p.label)
-					pointStuff.push("Has Point To Choice Rules? " + p.hasPointToChoiceRules)
-					// console.log(p.label);
-					// console.log("Has Point To Choice Rules? " + p.hasPointToChoiceRules)
-					pointStuff.push("Has Point To Point Rules? " + p.hasPointToPointRules)
-					pointStuff.push("Is a sales choice? " + p.isStructuralItem)
-					pointStuff.push(p.choices);
-					if (p.isStructuralItem || (p.hasPointToChoiceRules || p.hasPointToPointRules)) {
-						console.log(pointStuff)
-					}
-				})
+		// this.groups.forEach(g => {
+		// 	console.log(g);
+		// 	g.subGroups.forEach(sg => {
+		// 		sg.points.forEach(p => {
+		// 			// console.log(p)
+		// 			let pointStuff = [];
+		// 			pointStuff.push(p.label)
+		// 			pointStuff.push(p)
+		// 			//console.log(pointStuff);
+		// 			p.choices.forEach(c => {
+		// 				if (c.disabledBy.length > 0) {
+		// 					// console.log(p);
+		// 					c.disabledBy?.forEach(db => {
+		// 						console.log(db)
+		// 						let choices = [];
+		// 						db.rules.forEach(r => {
+		// 							r.choices.forEach(c => {
+		// 								choices.push(c);
+		// 							})
+		// 						})
+		// 						// console.log(this.checkChoiceExists(choices));
+		// 					})
+		// 				}
+		// 			})
+		// 			// pointStuff.push("Has Point To Choice Rules? " + p.hasPointToChoiceRules)
+		// 			// // console.log(p.label);
+		// 			// // console.log("Has Point To Choice Rules? " + p.hasPointToChoiceRules)
+		// 			// pointStuff.push("Has Point To Point Rules? " + p.hasPointToPointRules)
+		// 			// pointStuff.push("Is a sales choice? " + p.isStructuralItem)
+		// 			// pointStuff.push(p.choices);
+		// 			// if (p.isStructuralItem || (p.hasPointToChoiceRules || p.hasPointToPointRules)) {
+		// 			// 	console.log(pointStuff)
+		// 			// }
+		// 		})
+		// 	})
+		// })
+	}
+
+	checkChoiceExists(choices: number[]) {
+		console.log(choices);
+		let choiceExistance = [];
+		choices.forEach(dbc => {
+			let found = false;
+			this.groups.forEach(g => g.subGroups.forEach(sg => sg.points.forEach(p => p.choices.forEach(c => {
+				if (c.id === dbc) {
+					console.log(c.id)
+					found = true;
+				}
+			}))))
+			choiceExistance.push({
+				choiceId: dbc,
+				exists: found
 			})
 		})
+		
+		return choiceExistance;
 	}
 
 	setSelectedGroup(newGroup: Group, newSubGroup: SubGroup) {

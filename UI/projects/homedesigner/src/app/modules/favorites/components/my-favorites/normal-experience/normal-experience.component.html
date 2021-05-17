@@ -13,7 +13,7 @@
 			</div>
 			<div class="phd-decisions"><span>DECISIONS:</span></div>
 			<div class="phd-point-bar">
-				<decision-bar [points]="points" [currentPointId]="currentPointId" (onSelectDecisionPoint)="selectDecisionPoint($event)"></decision-bar>
+				<decision-bar [points]="decisionBarFilteredPoints(points)" [currentPointId]="currentPointId" (onSelectDecisionPoint)="selectDecisionPoint($event)"></decision-bar>
 			</div>
 		</div>
 		<div class="d-flex justify-content-center align-items-center phd-collapse-icon" [ngClass]="isPointPanelCollapsed ? 'phd-collapsed-icon-bg' : ''">
@@ -29,20 +29,25 @@
 		</div>			
 		<div class="phd-point-container">
 			<ng-container *ngFor="let point of points">
-				<div class="phd-point-label" [attr.id]="point.id">{{point?.label}}</div>
-				<div class="phd-point-title">{{getSubTitle(point)}}</div>
-				<div class="d-flex flex-wrap phd-choice-cards">
-					<choice-card *ngFor="let choice of point.choices"
+				<div *ngIf="point.choices.length === 1 ? checkChoiceToChoiceRuleStatus(point.choices[0]) : true">
+					<div class="phd-point-label" [attr.id]="point.id">{{point?.label}}</div>
+					<div class="phd-point-title">{{getSubTitle(point)}}</div>
+					<div class="d-flex flex-wrap phd-choice-cards">
+						<div class="d-flex flex-wrap" *ngFor="let choice of point.choices">
+							<choice-card *ngIf="checkChoiceToChoiceRuleStatus(choice)"
 								[currentChoice]="getChoiceExt(choice, point)"
 								(toggled)="choiceToggleHandler($event)"
 								(onViewChoiceDetail)="viewChoiceDetail($event)">
-					</choice-card>
-					<choice-decline-card *ngIf="point.pointPickTypeId === 2 || point.pointPickTypeId === 4"
-								[decisionPointId]="point.id"
-								[myFavoritesPointsDeclined]="myFavoritesPointsDeclined"
-								(onDeclineDecisionPoint)="declineDecisionPoint($event)">
-					</choice-decline-card>
+							</choice-card>
+						</div>
+						<choice-decline-card *ngIf="point.pointPickTypeId === 2 || point.pointPickTypeId === 4"
+									[decisionPointId]="point.id"
+									[myFavoritesPointsDeclined]="myFavoritesPointsDeclined"
+									(onDeclineDecisionPoint)="declineDecisionPoint($event)">
+						</choice-decline-card>
+					</div>
 				</div>
+				
 			</ng-container>
 		</div>
 	</div>		
