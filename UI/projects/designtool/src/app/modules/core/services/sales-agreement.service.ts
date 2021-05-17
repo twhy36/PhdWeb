@@ -503,7 +503,7 @@ export class SalesAgreementService
 		const endpoint = environment.apiUrl + entity;
 		const method = newNote.id ? 'patch' : 'post';
 
-		return withSpinner(this._http)[method](endpoint, newNote, { headers: { 'Prefer': 'return=representation' } }).pipe(
+		return withSpinner(this._http)[method](endpoint, { ...newNote, noteType: note.noteType }, { headers: { 'Prefer': 'return=representation' } }).pipe(
 			map((dto: Note) => new Note(dto)),
 			catchError(error =>
 			{

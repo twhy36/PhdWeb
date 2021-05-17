@@ -24,7 +24,7 @@ name: '$(BuildDefinitionName)_$(MajorVersion).$(MinorVersion).$(Revision).$(Buil
 
 stages:
 - stage: Build
-  pool: pgazadob1p
+  pool: BUILD
   jobs:
   - job: build
     steps:
