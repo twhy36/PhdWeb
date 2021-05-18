@@ -1,9 +1,11 @@
 import { Component, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import * as _ from 'lodash';
 import { Observable, Subject } from 'rxjs';
-import { combineLatest, flatMap } from 'rxjs/operators';
+import { combineLatest, flatMap, map, switchMap } from 'rxjs/operators';
+import { Store, select } from '@ngrx/store';
 
-import { UnsubscribeOnDestroy, loadScript, unloadScript, SubGroup } from 'phd-common';
+import * as fromRoot from '../../../ngrx-store/reducers';
+import { UnsubscribeOnDestroy, loadScript, unloadScript, SubGroup, Group } from 'phd-common';
 import { environment } from '../../../../../environments/environment';
 
 declare var AVFloorplan: any;
@@ -34,9 +36,9 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 	subGroup$ = new Subject<SubGroup>();
 	initialized$ = new Subject<any>();
 	enabledOptions: number[] = [];
+	unfilteredGroups: Group[];
 
-	constructor()
-    {
+	constructor(private store: Store<fromRoot.State>) {
       super();
     }
 
@@ -62,26 +64,39 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 		});
 
 		// On subGroup Changes (ie when a choice is favorited) this can modify the ifp image based on the options
-		this.subGroup$.pipe(combineLatest(this.initialized$)).subscribe(([subGroup]) => {
+		this.subGroup$.pipe(combineLatest(this.initialized$),
+			switchMap(([subGroup]) =>
+				this.store.pipe(
+					select(state => state.scenario),
+					map(scenario => ({
+						subGroup,
+						unfilteredSubGroup: _.flatMap(scenario.tree.treeVersion.groups, g => g.subGroups).find(sg => sg.id === subGroup.id)
+					}))
+				)
+			)
+		).subscribe((data: { subGroup: SubGroup, unfilteredSubGroup: SubGroup }) => {
 			const previousEnabled = [...this.enabledOptions];
 			this.enabledOptions = [];
 
-			_.flatMap(subGroup.points, p => p.choices).forEach(c => {
-					if (c.quantity) {
-						this.enabledOptions.push(...c.options.map(o => +o.financialOptionIntegrationKey));
-					}
+			// We want to use the unfiltered tree so that all enabled options will appear on the ifp and not just the DPs and choices shown
+			if (data.unfilteredSubGroup) {
+				_.flatMap(data.unfilteredSubGroup.points, p => p.choices).forEach(c => {
+						if (c.quantity) {
+							this.enabledOptions.push(...c.options.map(o => +o.financialOptionIntegrationKey));
+						}
+					});
+
+				_.difference(previousEnabled, this.enabledOptions).forEach(opt => {
+					this.fp.disableOption(opt);
 				});
 
-			_.difference(previousEnabled, this.enabledOptions).forEach(opt => {
-				this.fp.disableOption(opt);
-			});
+				_.difference(this.enabledOptions, previousEnabled).forEach(opt => {
+					this.fp.enableOption(opt);
+				});
 
-			_.difference(this.enabledOptions, previousEnabled).forEach(opt => {
-				this.fp.enableOption(opt);
-			});
-
-			if (this.selectedFloor && this.selectedFloor.id) {
-				this.fp.setFloor(this.selectedFloor?.id); //AlphaVision automatically changes the floor if you select an option on a different floor
+				if (this.selectedFloor && this.selectedFloor.id) {
+					this.fp.setFloor(this.selectedFloor?.id); //AlphaVision automatically changes the floor if you select an option on a different floor
+				}
 			}
 		});
 
