@@ -28,9 +28,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 		super();
 	}
 
-	ngOnInit()
-	{
-	}
+	ngOnInit() { }
 
 	ngOnChanges(changes: SimpleChanges)
 	{

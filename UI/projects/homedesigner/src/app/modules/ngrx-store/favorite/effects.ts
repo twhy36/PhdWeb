@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Actions, Effect, ofType } from '@ngrx/effects';
 import { Action, Store, select } from '@ngrx/store';
 import { Observable } from 'rxjs/Observable';
-import { switchMap, withLatestFrom } from 'rxjs/operators';
+import { switchMap, withLatestFrom, map } from 'rxjs/operators';
 import { of } from 'rxjs/observable/of';
 import { from } from 'rxjs/observable/from';
 
@@ -12,7 +12,8 @@ import { DesignToolAttribute } from 'phd-common';
 
 import 
 { 	FavoriteActionTypes, SetCurrentFavorites, MyFavoriteCreated, SaveMyFavoritesChoices, 
-	MyFavoritesChoicesSaved, SaveError, DeleteMyFavorite, MyFavoriteDeleted 
+	MyFavoritesChoicesSaved, SaveError, DeleteMyFavorite, MyFavoriteDeleted,
+	AddMyFavoritesPointDeclined, DeleteMyFavoritesPointDeclined, MyFavoritesPointDeclinedUpdated
 } from './actions';
 
 import { CommonActionTypes, ResetFavorites } from '../actions';
@@ -143,6 +144,28 @@ export class FavoriteEffects
   			}),
 			switchMap(results => of(new MyFavoritesChoicesSaved(results)))
 		), SaveError, "Error saving my favorite choices!")
+	);
+
+	@Effect()
+	addMyFavoritesPointDeclined$: Observable<Action> = this.actions$.pipe(
+		ofType<AddMyFavoritesPointDeclined>(FavoriteActionTypes.AddMyFavoritesPointDeclined),
+		tryCatch(source => source.pipe(
+			switchMap(action => {
+                return this.favoriteService.addMyFavoritesPointDeclined(action.myFavoriteId, action.pointId);
+  			}),
+			map(results => new MyFavoritesPointDeclinedUpdated(results, false))
+		), SaveError, "Error adding my favorites point declined!")
+	);
+	
+	@Effect()
+	deleteMyFavoritesPointDeclined$: Observable<Action> = this.actions$.pipe(
+		ofType<DeleteMyFavoritesPointDeclined>(FavoriteActionTypes.DeleteMyFavoritesPointDeclined),
+		tryCatch(source => source.pipe(
+			switchMap(action => {
+                return this.favoriteService.deleteMyFavoritesPointDeclined(action.myFavoriteId, action.myFavoritesPointDeclineId);
+  			}),
+			map(results => new MyFavoritesPointDeclinedUpdated(results, true))
+		), SaveError, "Error deleting my favorites point declined!")
 	);
 
 	@Effect()

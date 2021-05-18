@@ -65,7 +65,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 				treeLoading: false,
 				loadError: false
 			} as State;
-
+			
 			if (newState.tree)
 			{
 				action.choices.forEach(choice =>
@@ -156,6 +156,19 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 				points.forEach(pt => setPointStatus(pt));
 				// For each point, if the user cannot select the DP in this tool, then the status should be complete
 				points.filter(pt => pt.isStructuralItem).forEach(pt => pt.status = PointStatus.COMPLETED);
+
+				
+				
+				// Possible groundwork for future story 320407 - Indicators and Decline Card Functionality
+				// let declinedPointIds:number[] = [];
+				// action.myFavorites.forEach(fav => {
+				// 	fav.myFavoritesPointDeclined.forEach(dp => {
+				// 		declinedPointIds.push(dp.dPointId);
+				// 	})
+				// });
+				//points.filter(pt => declinedPointIds.find(id => id === pt.id)).forEach(pt => pt.status = PointStatus.COMPLETED);
+				// Filter for declined points, set to completed.
+				
 				subGroups.forEach(sg => setSubgroupStatus(sg));
 				newState.tree.treeVersion.groups.forEach(g => setGroupStatus(g));
 			}
@@ -166,6 +179,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 			return { ...state, treeFilter: action.treeFilter };
 
 		case ScenarioActionTypes.SelectChoices:
+			
 			newTree = _.cloneDeep(state.tree);
 			rules = _.cloneDeep(state.rules);
 			options = _.cloneDeep(state.options);
@@ -176,7 +190,6 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 			for (let choice of action.choices)
 			{
 				let c = choices.find(ch => ch.id === choice.choiceId);
-
 				if (c)
 				{
 					c.quantity = choice.quantity;
@@ -239,6 +252,8 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 			points.forEach(pt => setPointStatus(pt));
 			// For each point, if the user cannot select the DP in this tool, then the status should be complete
 			points.filter(pt => pt.isStructuralItem).forEach(pt => pt.status = PointStatus.COMPLETED);
+			
+			// Need to have indicators update with points declined here.
 			subGroups.forEach(sg => setSubgroupStatus(sg));
 			newTree.treeVersion.groups.forEach(g => setGroupStatus(g));
 

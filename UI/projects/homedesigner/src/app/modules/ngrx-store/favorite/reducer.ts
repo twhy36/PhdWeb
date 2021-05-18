@@ -13,8 +13,8 @@ export interface State
 	myFavorites: MyFavorite[],
 	selectedFavoritesId: number,
 	saveError: boolean,
-	salesChoices: JobChoice[]
-	includeContractedOptions: boolean;
+	salesChoices: JobChoice[],
+	includeContractedOptions: boolean
 }
 
 export const initialState: State = {
@@ -55,7 +55,7 @@ export function reducer(state: State = initialState, action: FavoriteActions): S
 
 				return { ...state, saveError: false, myFavorites: myFavorites, selectedFavoritesId: action.myFavorite.id };
 			}
-
+			
 		case FavoriteActionTypes.MyFavoritesChoicesSaved:
 			{
 				let myFavorites = _.cloneDeep(state.myFavorites);
@@ -87,6 +87,27 @@ export function reducer(state: State = initialState, action: FavoriteActions): S
 								}
 							}
 						});
+					}
+				}
+
+				return { ...state, saveError: false, myFavorites: myFavorites };
+			}
+		
+		case FavoriteActionTypes.MyFavoritesPointDeclinedUpdated:
+			{
+				let myFavorites = _.cloneDeep(state.myFavorites);
+
+				let myFavorite = myFavorites?.find(x => x.id === action.myFavoritesPointDeclined?.myFavoriteId);
+				if (myFavorite)
+				{
+					const pointDeclinedIndex = myFavorite?.myFavoritesPointDeclined?.findIndex(x => x.id === action.myFavoritesPointDeclined?.id);
+					if (action.isDelete && pointDeclinedIndex > -1)
+					{
+						myFavorite.myFavoritesPointDeclined.splice(pointDeclinedIndex, 1);
+					}
+					else if (!action.isDelete && pointDeclinedIndex < 0)
+					{
+						myFavorite.myFavoritesPointDeclined.push(action.myFavoritesPointDeclined);
 					}
 				}
 

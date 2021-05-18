@@ -8,7 +8,7 @@ import * as _ from 'lodash';
 import { withSpinner, createBatch, getNewGuid, createBatchBody, createBatchHeaders, Tree, JobChoice, Choice } from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
-import { MyFavorite, MyFavoritesChoice, MyFavoritesChoiceAttribute, MyFavoritesChoiceLocation } from '../../shared/models/my-favorite.model';
+import { MyFavorite, MyFavoritesChoice, MyFavoritesChoiceAttribute, MyFavoritesChoiceLocation, MyFavoritesPointDeclined } from '../../shared/models/my-favorite.model';
 
 interface ChoiceExt { decisionPointLabel: string, subgroupLabel: string, groupLabel: string };
 
@@ -25,7 +25,7 @@ export class FavoriteService
 		const expandChoiceLocAttribute = `myFavoritesChoiceLocationAttributes($select=id,attributeGroupCommunityId,attributeCommunityId,attributeName,attributeGroupLabel)`;
 		const expandChoiceLocations = `myFavoritesChoiceLocations($expand=${expandChoiceLocAttribute};$select=id,locationGroupCommunityId,locationCommunityId,locationName,locationGroupLabel,quantity)`;
 		const expandChoiceAttributes = `myFavoritesChoiceAttributes($select=id,attributeGroupCommunityId,attributeCommunityId,attributeName,attributeGroupLabel)`;
-		const expand = `myFavoritesChoice($expand=${expandChoiceAttributes},${expandChoiceLocations};$select=id,choiceDescription,dpChoiceId,dpChoiceQuantity,decisionPointLabel,groupLabel,subGroupLabel,sortOrder)`;
+		const expand = `myFavoritesPointDeclined,myFavoritesChoice($expand=${expandChoiceAttributes},${expandChoiceLocations};$select=id,choiceDescription,dpChoiceId,dpChoiceQuantity,decisionPointLabel,groupLabel,subGroupLabel,sortOrder)`;
 		const filter = `salesAgreementId eq ${salesAgreementId}`;
 		const select = `id,name,salesAgreementId`;
 		const url = `${environment.apiUrl}myFavorites?${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
@@ -74,6 +74,7 @@ export class FavoriteService
 		const updatedChoices = this.getMyFavoritesChoices(tree, salesChoices, favoriteChoices);
 		const savedChoices = updatedChoices.map(c => _.omit(c, ['divChoiceCatalogId']));
 
+
 		const data = {
 			myFavoriteId: favorites.id,
 			choices: savedChoices
@@ -104,7 +105,42 @@ export class FavoriteService
 				return _throw(error);
 			})			
 		);
-	}	
+	}
+
+	addMyFavoritesPointDeclined(myFavoriteId: number, pointId: number): Observable<MyFavoritesPointDeclined> {
+		const endPoint = environment.apiUrl + `myFavoritesPointsDeclined`;
+		
+		const data = {
+			myFavoriteId: myFavoriteId,
+			dPointId: pointId
+		};
+
+		return withSpinner(this._http).post(endPoint, data, { headers: { 'Prefer': 'return=representation'} }).pipe(
+			tap(response => response['@odata.context']=undefined),
+			map((response: any) => {
+				return new MyFavoritesPointDeclined(response);
+			}),
+			catchError(error => {
+				console.log(error);
+				return _throw(error);
+			})
+		);
+	}
+
+	deleteMyFavoritesPointDeclined(myFavoriteId: number, myFavoritesPointDeclinedId: number): Observable<MyFavoritesPointDeclined> {
+		const endPoint = environment.apiUrl + `myFavoritesPointsDeclined(${myFavoritesPointDeclinedId})`;
+		return withSpinner(this._http).delete(endPoint).pipe(
+			map((response: any) => {
+				let result = new MyFavoritesPointDeclined();
+				result.id = myFavoritesPointDeclinedId;
+				result.myFavoriteId = myFavoriteId;
+				return result;
+			}),
+			catchError(error => {
+				return _throw(error);
+			})
+		);
+	}
 
 	getMyFavoritesChoices(tree: Tree, salesChoices: JobChoice[], favoriteChoices: MyFavoritesChoice[]) : any[]
 	{

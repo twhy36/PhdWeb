@@ -18,6 +18,7 @@ import { GroupBarComponent } from './components/group-bar/group-bar.component';
 import { DecisionBarComponent } from './components/decision-bar/decision-bar.component';
 import { ChoiceCardComponent } from './components/choice-card/choice-card.component';
 import { ChoiceCardDetailComponent } from './components/choice-card-detail/choice-card-detail.component';
+import { ChoiceDeclineCardComponent } from './components/choice-decline-card/choice-decline-card.component';
 import { DecisionPointSummaryComponent } from './components/decision-point-summary/decision-point-summary.component';
 import { AttributeGroupComponent } from './components/attribute-group/attribute-group.component';
 import { AttributeListComponent } from './components/attribute-list/attribute-list.component';
@@ -34,6 +35,7 @@ import { DecisionBarChoiceComponent } from './components/detailed-decision-bar/d
 		GroupBarComponent,
 		DecisionBarComponent,
 		ChoiceCardComponent,
+		ChoiceDeclineCardComponent,
 		ChoiceCardDetailComponent,
 		DecisionPointSummaryComponent,
 		AttributeGroupComponent,
@@ -49,6 +51,7 @@ import { DecisionBarChoiceComponent } from './components/detailed-decision-bar/d
 		GroupBarComponent,
 		DecisionBarComponent,
 		ChoiceCardComponent,
+		ChoiceDeclineCardComponent,
 		ChoiceCardDetailComponent,
 		DecisionPointSummaryComponent,
 		AttributeGroupComponent,
