@@ -46,6 +46,7 @@ export const filteredTree = createSelector(
 		let tree = _.cloneDeep(scenario.tree);
 		const treeFilter = scenario.treeFilter;
 		let filteredTree: TreeVersion;
+		let ruleFilteredTree: TreeVersion;
 
 		if (tree && tree.treeVersion) {
 			const filter = (label: string) => {
@@ -59,13 +60,13 @@ export const filteredTree = createSelector(
 					let subGroups = g.subGroups.map(sg => {
 						treeMatched.subGroup = filter(sg.label);
 
-						let points = sg.points.map(p => {
+						let preRulepoints = sg.points.map(p => {
 							treeMatched.point = treeMatched.subGroup || filter(p.label);
 							const contractedChoices = p.choices.filter(c => favorite.salesChoices.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1);
 							const isComplete = contractedChoices && contractedChoices.length
 								&& (p.pointPickTypeId === PickType.Pick1 || p.pointPickTypeId === PickType.Pick0or1);
 
-							let choices = p.choices.filter(c => {
+							let preRuleChoices = p.choices.filter(c => {
 								let isValid = treeMatched.point || filter(c.label);
 
 								let isIncluded = true;
@@ -80,11 +81,73 @@ export const filteredTree = createSelector(
 
 								return isValid && isIncluded;
 							});
-
+							let choices = preRuleChoices.filter(c => {
+								let includeChoice = true;
+								c.disabledBy.forEach(db => {
+									db.rules.forEach(r => {
+										if (r.ruleType === 1) {
+											r.choices.forEach(rc => {
+												if (preRuleChoices.findIndex(dc => dc.id === rc) < 0) {
+													includeChoice = false;
+												}
+											})
+										}
+									})
+								})
+								return includeChoice;
+							});
 							return { ...p, choices: choices };
-						}).filter(dp => {
-							return !!dp.choices.length;
 						});
+						let allChoiceIds:number[] = [];
+						let allPointIds:number[] = [];
+						preRulepoints.forEach(p => {
+							allPointIds.push(p.id);
+							p.choices.forEach(c => {
+								allChoiceIds.push(c.id);
+							})
+						});
+						let points = preRulepoints.filter(dp => {
+							if (dp.choices.length === 0) {
+								return false;
+							} else {
+								// return true;
+								let includePoint = true;
+								
+								if (dp.hasPointToChoiceRules) {
+									dp.disabledBy.forEach(db => {
+										db.rules.forEach(r => {
+											r.choices.forEach(dc => {
+												if (allChoiceIds.findIndex(id => dc === id) < 0) {
+													includePoint = false;
+												}
+											})
+										})
+									})
+								}
+								if (dp.hasPointToPointRules) {
+									dp.disabledBy.forEach(db => {
+										db.rules.forEach(r => {
+											r.points.forEach(decp => {
+												if (allPointIds.findIndex(id => decp === id) < 0) {
+													includePoint = false;
+												}
+											})
+										})
+									})
+								}
+								return includePoint;
+							}
+							//return !!dp.choices.length;
+						})
+						// .filter(dp => {
+						// 	let disabledFound = false;
+						// 	dp.disabledBy.forEach(db => {
+
+						// 	})
+						// 	points.forEach(p => {
+						// 		p.
+						// 	})
+						// });
 
 						return { ...sg, points: points };
 					}).filter(sg => {
