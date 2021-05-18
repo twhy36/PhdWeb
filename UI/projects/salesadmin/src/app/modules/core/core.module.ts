@@ -1,3 +1,4 @@
+import { NotificationService } from './services/notification.service';
 import { NgModule, ErrorHandler } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -22,6 +23,7 @@ import { SettingsService } from './services/settings.service';
 import { StorageService } from './services/storage.service';
 import { LoggingService, PhdErrorHandler } from './services/logging.service';
 import { PhdCommonModule } from 'phd-common';
+import { ReOrgService } from './services/re-org.service';
 
 @NgModule({
     exports: [
@@ -53,7 +55,9 @@ import { PhdCommonModule } from 'phd-common';
         ConfirmationService,
         PricingService,
         LoggingService,
+        NotificationService,
         CommunityService,
+        ReOrgService,
 		{ provide: ErrorHandler, useClass: PhdErrorHandler }
     ]
 })

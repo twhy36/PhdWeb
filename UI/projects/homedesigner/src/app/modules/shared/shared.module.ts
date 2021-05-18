@@ -24,6 +24,8 @@ import { AttributeGroupComponent } from './components/attribute-group/attribute-
 import { AttributeListComponent } from './components/attribute-list/attribute-list.component';
 import { AttributeLocationComponent } from './components/attribute-location/attribute-location.component';
 import { QuantityInputComponent } from './components/quantity-input/quantity-input.component';
+import { DetailedDecisionBarComponent } from './components/detailed-decision-bar/detailed-decision-bar.component';
+import { DecisionBarChoiceComponent } from './components/detailed-decision-bar/decision-bar-choice/decision-bar-choice.component';
 
 @NgModule({
 	exports: [
@@ -39,7 +41,8 @@ import { QuantityInputComponent } from './components/quantity-input/quantity-inp
 		AttributeGroupComponent,
 		AttributeListComponent,
 		AttributeLocationComponent,
-		QuantityInputComponent
+		QuantityInputComponent,
+		DetailedDecisionBarComponent
     ],
 	declarations: [
 		ActionBarComponent,
@@ -54,7 +57,9 @@ import { QuantityInputComponent } from './components/quantity-input/quantity-inp
 		AttributeGroupComponent,
 		AttributeListComponent,
 		AttributeLocationComponent,
-		QuantityInputComponent
+		QuantityInputComponent,
+		DetailedDecisionBarComponent,
+		DecisionBarChoiceComponent
     ],
 	imports: [
 		BrowserModule,

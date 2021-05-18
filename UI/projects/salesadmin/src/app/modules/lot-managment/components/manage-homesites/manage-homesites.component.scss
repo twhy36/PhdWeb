@@ -1,27 +1,6 @@
 @import "../../../../../scss/color-pallet.scss";
 @import "../../../../../scss/sizes.scss";
 
-::ng-deep .phd-homesite-body {
-	height: calc(100vh - #{$nav-menu-height} - #{$homesite-page-header-height} - #{$homesite-action-bar-height});
-	padding: 5px 0px 5px 0px;
-	margin: 0px 8px 20px 8px;
-	overflow-y: auto;
-	display: flex;
-	flex-direction: column;
-
-	.phd-homesite-search-bar {
-		margin-left: 22px;
-		padding: 0px;
-		float: right;
-	}
-
-	.phd-homesite-panel {
-		height: 1000px;
-		overflow-y: auto;
-		margin-top: 20px;
-	}
-}
-
 .phd-flexbox {
 	display: flex;
 	flex-direction: row;

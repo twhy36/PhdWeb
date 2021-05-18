@@ -82,7 +82,7 @@
 
 				<div class="col-sm-5">
 					<div class="input-group mb-3" *ngFor="let emailControl of signFieldForm.get('defaultEmailForSignedCopies')['controls']; let i = index">
-						<input type="email" [ngClass]="{'phd-alignment': (i > 0)}" class="form-control" id="defaultEmailForSignedCopies" [formControlName]="i" maxlength="250" />
+						<input type="email" [ngClass]="{'phd-alignment': (i > 0)}" class="form-control" id="defaultEmailForSignedCopies_{{i}}" [formControlName]="i" maxlength="250" />
 
 						<div class="input-group-append">
 							<button class="btn btn-outline-secondary" (click)="addInput()" *ngIf="canEdit && i === 0" title="Add Email"><i class="fa fa-plus"></i></button>

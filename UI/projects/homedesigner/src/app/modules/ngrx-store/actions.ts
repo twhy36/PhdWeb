@@ -2,7 +2,7 @@ import { Action } from '@ngrx/store';
 
 import {
 	SalesCommunity, Job, JobChoice, ChangeOrderGroup, ChangeOrderHanding, LotExt, PlanOption, 
-	TreeVersionRules, SalesAgreement, Tree, OptionImage
+	TreeVersionRules, SalesAgreement, Tree, OptionImage, SalesAgreementInfo
 } from 'phd-common';
 
 import { ErrorAction } from './error.action';
@@ -37,6 +37,7 @@ export class SalesAgreementLoaded implements Action
 
 	constructor(
 		public salesAgreement: SalesAgreement,
+		public info: SalesAgreementInfo,
 		public job: Job,
 		public salesCommunity: SalesCommunity,
 		public choices: JobChoice[],

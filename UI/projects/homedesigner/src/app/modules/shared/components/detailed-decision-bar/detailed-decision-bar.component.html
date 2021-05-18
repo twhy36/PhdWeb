@@ -1,0 +1,23 @@
+<ul class="list-unstyled">
+	<li *ngFor="let point of points" class="d-flex align-items-top justify-content-start" [@slideOut]>
+		<div class="decision-point">
+			<div class="label" title="{{point.label}}">
+				<div class="icon">
+					<i class="fa fa-check" *ngIf="point.isStructuralItem"></i>
+				</div>
+				<div>
+					{{point.label}}
+					<div class="sub-title">{{getSubTitle(point)}}</div>
+				</div>
+			</div>
+			<div *ngFor="let choice of point.choices">
+				<decision-bar-choice
+					[choice]="getChoiceExt(choice, point)"
+					[pointIsStructuralItem]="point.isStructuralItem"
+					(onToggleChoice)="toggleChoice($event)"
+					(onViewChoiceDetail)="viewChoiceDetail($event)">
+				</decision-bar-choice>
+			</div>
+		</div>
+	</li>
+</ul>

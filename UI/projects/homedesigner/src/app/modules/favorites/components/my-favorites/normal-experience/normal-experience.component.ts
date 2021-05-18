@@ -178,7 +178,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 				const pos = decision.style.position;
 				const top = decision.style.top;
 				decision.style.position = 'relative';
-				decision.style.top = '-150px';
+				decision.style.top = '-200px';
 				decision.scrollIntoView({behavior: 'smooth', block: 'start'});
 				decision.style.top = top;
 				decision.style.position = pos;

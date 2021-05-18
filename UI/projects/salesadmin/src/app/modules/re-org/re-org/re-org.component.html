@@ -1,0 +1,91 @@
+<div class="phd-page-container">
+	<page-header mainTitle="Re-Org Management"></page-header>
+	<div class="phd-page-body">
+		<div class="phd-re-org">
+			<div class="phd-market-select">
+				<span class=phd-select>Source Market</span>
+				<select class="form-control ml-3" [ngModel]="sourceMarket"
+					(ngModelChange)="onSourceMarketChange($event)">
+					<option [ngValue]="null">Division</option>
+					<option *ngFor="let market of markets" [ngValue]="market">{{market.name}}</option>
+				</select>
+			</div>
+
+			<div class="phd-market-select">
+				<span class=phd-select>Destination Market</span>
+				<select class="form-control ml-3" [ngModel]="destinationMarket"
+					(ngModelChange)="onDestinationMarketChange($event)">
+					<option [ngValue]="null">Division</option>
+					<option *ngFor="let market of markets" [ngValue]="market">{{market.name}}</option>
+				</select>
+			</div>
+			<div>
+				<button class="btn btn-primary phd-btn-save" [disabled]='reOrgDisabled' (click)="executeReOrg()">
+					Execute Re-Org
+				</button>
+			</div>
+		</div>
+		<div class="phd-results phd-table-container">
+			<div>Contract Results</div>
+			<phd-table #dt [value]="reOrgs" dataKey="reOrgId">
+				<ng-template #rowExpansion let-reOrg let-columns="columns">
+					<tr>
+						<td [attr.colspan]="columns.length">
+							<div class="phd-row-expansion">
+								<div> Contracts Moved in Entirely to Destination
+								<phd-table #dte [value]="reOrg.movedTemplates" [nonOverflow]="false">
+									<phd-column header="Document Name" field="documentName">
+									</phd-column>
+									<phd-column header="Address" field="displayName">
+									</phd-column>
+									<phd-column header="Status" field="status">
+									</phd-column>
+									<phd-column header="Effective Date" field="effectiveDate">
+									</phd-column>
+									<phd-column header="Expiration Date" field="expirationDate">
+									</phd-column>
+									<phd-column header="Version" field="version">
+									</phd-column>
+								</phd-table>
+							</div>
+							<div> Contracts Copied from Source to Destination
+								<phd-table #dte [value]="reOrg.copiedTemplates" [nonOverflow]="false">
+									<phd-column header="Document Name" field="documentName">
+									</phd-column>
+									<phd-column header="Address" field="displayName">
+									</phd-column>
+									<phd-column header="Status" field="status">
+									</phd-column>
+									<phd-column header="Effective Date" field="effectiveDate">
+									</phd-column>
+									<phd-column header="Expiration Date" field="expirationDate">
+									</phd-column>
+									<phd-column header="Version" field="version">
+									</phd-column>
+								</phd-table>
+							</div>
+							</div>
+						</td>
+					</tr>
+				</ng-template>
+				<phd-column header="">
+						<ng-template #body let-reOrg let-expanded="expanded">
+							<div class='phd-icon-container'>
+							<i class="fa fa-map-marker fa-fw" phd-tooltip="Show Contracts" [phdRowToggler]="reOrg"></i>
+							</div>
+						</ng-template>
+				</phd-column>
+				<phd-column header="Source" field="sourceMarketName">
+				</phd-column>
+				<phd-column header="Destination" field="targetMarketName">
+				</phd-column>
+				<phd-column header="Contracts Moved" field="contractsMoved">
+				</phd-column>
+				<phd-column header="Contracts Copied" field="contractsCopied">
+				</phd-column>
+				<phd-column header="Date" field="date">
+				</phd-column>
+			</phd-table>
+		</div>
+	</div>
+</div>

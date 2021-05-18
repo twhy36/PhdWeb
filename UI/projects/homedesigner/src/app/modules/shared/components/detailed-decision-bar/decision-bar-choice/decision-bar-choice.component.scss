@@ -1,0 +1,28 @@
+@import "../../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
+@import "../../../../../../../../phd-common/src/lib/scss/animations.scss";
+
+.choice-container {
+	display: flex;
+	flex-direction: row;
+	font-size: 12px;
+	margin-top: 5px;
+	width: 100%;
+
+	.choice-label {
+		max-width: 150px;
+		color: $pantone_blue;
+		text-decoration: underline;
+	}
+
+	.choice-price {
+		margin-left: auto;
+	}
+}
+
+.icon {
+	width: 25px;
+
+	.phd-icon-selected {
+		color: $pantone_blue;
+	}
+}

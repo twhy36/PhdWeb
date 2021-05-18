@@ -12,7 +12,6 @@
     background-color: lighten($gray-lighter,5%);
     color: $gray;
     width: $side-panel-width;
-    left: -(calc(#{$side-panel-width} + #{$button-bar-width}));
     z-index: 1000;
 
     .phd-side-panel-header {

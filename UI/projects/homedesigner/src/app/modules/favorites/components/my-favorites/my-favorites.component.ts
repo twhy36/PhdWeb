@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { BehaviorSubject } from 'rxjs';
 import { combineLatest, map, filter, distinctUntilChanged, withLatestFrom, debounceTime, take } from 'rxjs/operators';
 import { ReplaySubject } from 'rxjs/ReplaySubject';
 
@@ -12,9 +13,17 @@ import * as fromFavorite from '../../../ngrx-store/favorite/reducer';
 import * as NavActions from '../../../ngrx-store/nav/actions';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 import * as FavoriteActions from '../../../ngrx-store/favorite/actions';
+import * as fromSalesAgreement from '../../../ngrx-store/sales-agreement/reducer';
 
-import { UnsubscribeOnDestroy, PriceBreakdown, Group, SubGroup, Tree, TreeVersionRules, JobChoice, 
-	getDependentChoices 
+import {
+	UnsubscribeOnDestroy,
+	PriceBreakdown,
+	Group,
+	SubGroup,
+	Tree,
+	TreeVersionRules,
+	JobChoice,
+	getDependentChoices
 } from 'phd-common';
 
 import { GroupBarComponent } from '../../../shared/components/group-bar/group-bar.component';
@@ -50,8 +59,9 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 	selectedChoice: ChoiceExt;
 	myFavoritesPointsDeclined: MyFavoritesPointDeclined[];
 	myFavoriteId: number;
-
 	priceBreakdown: PriceBreakdown;
+	marketingPlanId$ = new BehaviorSubject<number>(0);
+	isFloorplanFlipped: boolean;
 
 	constructor(private store: Store<fromRoot.State>,
 		private route: ActivatedRoute,
@@ -186,7 +196,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		{
 			this.tree = scenario.tree;
 			this.treeVersionRules = scenario.rules;
-		});		
+		});
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
@@ -204,6 +214,31 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		).subscribe(fav => {
 			this.includeContractedOptions = fav && fav.includeContractedOptions;
 			this.salesChoices = fav && fav.salesChoices;
+		});
+
+		// marketing plan Id for interactive floorplan
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromPlan.planState),
+			withLatestFrom(this.store.pipe(select(state => state.scenario)))
+		).subscribe(([plan, scenario]) => {
+			if (plan && plan.marketingPlanId && plan.marketingPlanId.length) {
+				if (scenario.tree && scenario.tree.treeVersion) {
+					const subGroups = _.flatMap(scenario.tree.treeVersion.groups, g => g.subGroups) || [];
+					const fpSubGroup = subGroups.find(sg => sg.useInteractiveFloorplan);
+					if (fpSubGroup) {
+						this.marketingPlanId$.next(plan.marketingPlanId[0]);
+					}
+				}
+			}
+		});
+
+		// getting the floor plan flipped from the sales agreement
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromSalesAgreement.salesAgreementState)
+		).subscribe(sag => {
+			this.isFloorplanFlipped = sag.isFloorplanFlipped;
 		});
 	}
 
@@ -312,7 +347,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		this.cd.detectChanges();
 		setTimeout(() => {
 			const firstPointId = this.selectedSubGroup.points && this.selectedSubGroup.points.length ? this.selectedSubGroup.points[0].id : 0;
-			this.mainPanel.scrollPointIntoView(this.selectedPointId, this.selectedPointId === firstPointId);
+			this.mainPanel?.scrollPointIntoView(this.selectedPointId, this.selectedPointId === firstPointId);
 		}, 350);
 	}
 
@@ -343,13 +378,13 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			if (updatedChoice)
 			{
 				this.selectedChoice.quantity = updatedChoice.quantity;
-				this.selectedChoice.myFavoritesChoice = this.myFavoritesChoices 
+				this.selectedChoice.myFavoritesChoice = this.myFavoritesChoices
 					? this.myFavoritesChoices.find(x => x.divChoiceCatalogId === this.selectedChoice.divChoiceCatalogId)
 					: null;
 			}
 		}
 	}
-	
+
 	selectDecisionPoint(pointId: number)
 	{
 		this.selectedPointId = pointId;

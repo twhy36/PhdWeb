@@ -1,3 +1,5 @@
+
+import { IReOrg } from './../../shared/models/re-org.model';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
@@ -316,6 +318,32 @@ export class OrganizationService
 
 		return this._internalOrgs$;
 	}
+
+	getOrgs(reorgs: Array<IReOrg>): Observable<Array<IReOrg>>
+	{
+		let targetOrgs = reorgs.map(x => x.targetMarketId);
+		let sourceOrgs = reorgs.map(x => x.sourceMarketId);
+		let orgIds = [...new Set([...targetOrgs, ...sourceOrgs])];
+		let url = settings.apiUrl;
+		const filter = `OrgId in (${orgIds.join(',')})`;
+		const qryStr = `${encodeURIComponent("$")}filter=${encodeURIComponent(filter)}`;
+
+		url += `orgs?${qryStr}`;
+		return this._http.get(url).pipe(
+			map(response =>
+			{
+				let orgs = response['value'] as Array<Org>;
+				reorgs.map(reorg =>
+				{
+					reorg.sourceMarketId = orgs.find(org => org.orgID === reorg.sourceMarketId).edhMarketId;
+					reorg.targetMarketId = orgs.find(org => org.orgID === reorg.targetMarketId).edhMarketId;
+				})
+
+				return reorgs;
+			}));
+	}
+
+
 	private handleError(error: Response)
 	{
 		// In the future, we may send the server to some remote logging infrastructure //
