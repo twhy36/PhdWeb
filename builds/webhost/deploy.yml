@@ -36,7 +36,7 @@ jobs:
               ConnectedServiceName: '${{ resource.subscription }}'
               WebAppName: '${{ resource.webAppName }}'
               resourceGroup: '${{ resource.resourceGroup }}'
-              subscriptionName: 'Development'
+              subscriptionName: '${{ resource.subscription }}'
               adminUser: '$(adminUser)'
               adminPassword: '$(adminPassword)'
               tempdirectory: '$(agent.tempdirectory)\$(application).zip'
