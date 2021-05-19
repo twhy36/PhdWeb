@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { StoreModule as NgrxStoreModule } from '@ngrx/store';
+import { META_REDUCERS, StoreModule as NgrxStoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 
@@ -10,7 +10,7 @@ import { reducers } from './reducers';
 import { stopwatchReducer } from './stopwatch';
 import { sessionStateReducer } from './sessionStorage';
 import { stateReset } from './state-reset';
-import { exceptionHandler } from './exceptionHandler';
+import { exceptionHandlerFactory } from './exceptionHandler';
 
 import { LotEffects } from './lot/effects';
 import { PlanEffects } from './plan/effects';
@@ -25,10 +25,11 @@ import { ChangeOrderEffects } from './change-order/effects';
 import { ContractEffects } from './contract/effects';
 import { CommonEffects } from './effects';
 import { UserEffects } from './user/effects';
+import { LoggingService } from '../core/services/logging.service';
 
 @NgModule({
 	imports: [
-		NgrxStoreModule.forRoot(reducers, { metaReducers: [exceptionHandler, sessionStateReducer, stopwatchReducer, stateReset] }),
+		NgrxStoreModule.forRoot(reducers, { metaReducers: [sessionStateReducer, stopwatchReducer, stateReset] }),
 		environment.production ? [] : StoreDevtoolsModule.instrument({
 			name: 'PHD Store DevTools',
 			logOnly: false
@@ -49,6 +50,14 @@ import { UserEffects } from './user/effects';
 			CommonEffects,
 			UserEffects]
 		)
+	],
+	providers: [
+		{
+			provide: META_REDUCERS,
+			deps: [LoggingService],
+			useFactory: exceptionHandlerFactory,
+			multi: true
+		}
 	]
 })
 export class StoreModule { }
