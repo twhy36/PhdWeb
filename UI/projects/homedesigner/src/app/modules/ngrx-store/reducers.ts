@@ -60,6 +60,8 @@ export const filteredTree = createSelector(
 					let subGroups = g.subGroups.map(sg => {
 						treeMatched.subGroup = filter(sg.label);
 
+						let hiddenChoiceIds:number[] = [];
+						let hiddenPointIds:number[] = [];
 						let preRulepoints = sg.points.map(p => {
 							treeMatched.point = treeMatched.subGroup || filter(p.label);
 							const contractedChoices = p.choices.filter(c => favorite.salesChoices.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1);
@@ -81,19 +83,26 @@ export const filteredTree = createSelector(
 
 								return isValid && isIncluded;
 							});
+							
 							let choices = preRuleChoices.filter(c => {
 								let includeChoice = true;
 								c.disabledBy.forEach(db => {
 									db.rules.forEach(r => {
 										if (r.ruleType === 1) {
 											r.choices.forEach(rc => {
-												if (preRuleChoices.findIndex(dc => dc.id === rc) < 0) {
+												if (preRuleChoices.findIndex(dc => dc.id === rc) < 0 || hiddenChoiceIds.findIndex(dc => dc === rc) >= 0) {
 													includeChoice = false;
 												}
+												// } else {
+												// 	includeChoice = includeChoice(preRuleChoices.find(dc => dc.id === rc).
+												// }
 											})
 										}
 									})
 								})
+								if (!includeChoice) {
+									hiddenChoiceIds.push(c.id);
+								}
 								return includeChoice;
 							});
 							return { ...p, choices: choices };
@@ -116,8 +125,8 @@ export const filteredTree = createSelector(
 								if (dp.hasPointToChoiceRules) {
 									dp.disabledBy.forEach(db => {
 										db.rules.forEach(r => {
-											r.choices.forEach(dc => {
-												if (allChoiceIds.findIndex(id => dc === id) < 0) {
+											r.choices.forEach(rc => {
+												if (allChoiceIds.findIndex(id => rc === id) < 0  || hiddenChoiceIds.findIndex(id => rc === id) >= 0) {
 													includePoint = false;
 												}
 											})
@@ -128,27 +137,19 @@ export const filteredTree = createSelector(
 									dp.disabledBy.forEach(db => {
 										db.rules.forEach(r => {
 											r.points.forEach(decp => {
-												if (allPointIds.findIndex(id => decp === id) < 0) {
+												if (allPointIds.findIndex(id => decp === id) < 0 ||  hiddenPointIds.findIndex(hp => hp === decp) >= 0) {
 													includePoint = false;
 												}
 											})
 										})
 									})
 								}
+								if (!includePoint) {
+									hiddenPointIds.push(dp.id);
+								}
 								return includePoint;
 							}
-							//return !!dp.choices.length;
 						})
-						// .filter(dp => {
-						// 	let disabledFound = false;
-						// 	dp.disabledBy.forEach(db => {
-
-						// 	})
-						// 	points.forEach(p => {
-						// 		p.
-						// 	})
-						// });
-
 						return { ...sg, points: points };
 					}).filter(sg => {
 						return !!sg.points.length;
