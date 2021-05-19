@@ -201,7 +201,8 @@
                             "node_modules/primeng/resources/primeng.min.css",
                             "projects/designtool/src/scss/styles.scss"
                         ],
-                        "scripts": []
+                        "scripts": [],
+                        "webWorkerTsConfig": "projects/designtool/tsconfig.worker.json"
                     },
                     "configurations": {
                         "qa": {
