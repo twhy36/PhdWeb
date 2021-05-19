@@ -39,7 +39,6 @@
 				"font-awesome": "^4.7.0",
 				"lodash": "^4.17.15",
 				"moment": "2.24.0",
-				"ng2-mock-component": "^0.2.0",
 				"ngx-drag-scroll": "^8.0.0-beta.2",
 				"ngx-infinite-scroll": "^9.0.0",
 				"ngx-toastr": "^12.0.0",
@@ -48,7 +47,6 @@
 				"rxjs": "^6.5.4",
 				"rxjs-compat": "^6.5.4",
 				"smoothscroll-polyfill": "^0.4.4",
-				"ts-mockito": "^2.6.1",
 				"tslib": "^1.11.1",
 				"web-animations-js": "^2.3.2",
 				"zone.js": "^0.10.2"
@@ -74,7 +72,9 @@
 				"karma-jasmine-html-reporter": "^1.5.2",
 				"karma-trx-reporter": "^0.4.3",
 				"ng-packagr": "^11.0.3",
+				"ng2-mock-component": "^0.2.0",
 				"protractor": "~6.0.0",
+				"ts-mockito": "^2.6.1",
 				"ts-node": "~8.7.0",
 				"tslint": "^5.20.1",
 				"typescript": "~3.7.5"
