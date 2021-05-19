@@ -100,8 +100,9 @@ export class HomeSiteService
 		}
 
 		filter += `financialCommunity/id eq ${communityId} and lotStatusDescription ne 'Deleted' and isMasterUnit eq false`;
+		const orderBy = 'lotBlock';
 
-		const qryStr = `${encodeURIComponent("$")}expand=${encodeURIComponent(expand)}&${encodeURIComponent("$")}filter=${encodeURIComponent(filter)}`;
+		const qryStr = `${encodeURIComponent("$")}expand=${encodeURIComponent(expand)}&${encodeURIComponent("$")}filter=${encodeURIComponent(filter)}&${encodeURIComponent("$")}orderBy=${encodeURIComponent(orderBy)}`;
 
 		url += `lots?${qryStr}`;
 
