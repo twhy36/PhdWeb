@@ -1,6 +1,8 @@
-import { Component, Input, Output, OnInit, OnChanges, SimpleChanges, EventEmitter } from '@angular/core';
+import { Component, Input, Output, OnInit, OnChanges, SimpleChanges, EventEmitter, ViewChild } from '@angular/core';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import * as _ from 'lodash';
 
-import { UnsubscribeOnDestroy, flipOver3, OptionImage } from 'phd-common';
+import { UnsubscribeOnDestroy, flipOver3, OptionImage, DecisionPoint, Group } from 'phd-common';
 import { ChoiceExt } from '../../models/choice-ext.model';
 
 @Component({
@@ -14,17 +16,23 @@ import { ChoiceExt } from '../../models/choice-ext.model';
 export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit, OnChanges
 {
 	@Input() currentChoice: ChoiceExt;
-	
+	@Input() currentPoint: DecisionPoint;
+	@Input() groups: Group[];
+
 	@Output() toggled = new EventEmitter<ChoiceExt>();
 	@Output() onViewChoiceDetail = new EventEmitter<ChoiceExt>();
+	@Output() onSelectDecisionPoint = new EventEmitter<number>();
+
+	@ViewChild('blockedChoiceModal') blockedChoiceModal: any;
 
 	choice: ChoiceExt;
 	choiceMsg: object[] = [];
 	optionImages: OptionImage[];
 	imageUrl: string = '';
+	blockedChoiceModalRef: NgbModalRef;
+	disabledByList: {label: string, pointId: number, choiceId?: number}[];
 
-	constructor()
-	{
+	constructor(public modalService: NgbModal) {
 		super();
 	}
 
@@ -83,5 +91,53 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 	viewChoiceDetail()
 	{
 		this.onViewChoiceDetail.emit(this.choice);
-	}	
+	}
+
+	openBlockedChoiceModal() {
+		this.disabledByList = [];
+		const allPoints = _.flatMap(this.groups, g => _.flatMap(g.subGroups, sg => sg.points));
+		const allChoices = _.flatMap(allPoints, p => p.choices.map(c => ({...c, pointId: p.id})));
+		this.currentPoint.disabledBy.forEach(disabledPoint => {
+			disabledPoint.rules.forEach(rule => {
+				rule.points.forEach(disabledByPointId => {
+					this.disabledByList.push({
+						label: allPoints.find(point => point.id === disabledByPointId)?.label,
+						pointId: disabledByPointId
+					});
+				});
+				rule.choices.forEach(disabledByChoiceId => {
+					const disabledByChoice = allChoices.find(choice => choice.id === disabledByChoiceId);
+					this.disabledByList.push({
+						label: disabledByChoice?.label,
+						pointId: disabledByChoice?.pointId,
+						choiceId: disabledByChoiceId
+					});
+				});
+			});
+		});
+		this.choice.disabledBy.forEach(disabledChoice => {
+			disabledChoice.rules.forEach(rule => {
+				rule.choices.forEach(disabledByChoiceId => {
+					const disabledByChoice = allChoices.find(choice => choice.id === disabledByChoiceId);
+					this.disabledByList.push({
+						label: disabledByChoice?.label,
+						pointId: disabledByChoice?.pointId,
+						choiceId: disabledByChoiceId
+					});
+				});
+			});
+		});
+		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { windowClass: 'phd-blocked-choice-modal' });
+	}
+
+	closeClicked() {
+		this.blockedChoiceModalRef?.close();
+		delete this.disabledByList;
+	}
+
+	onBlockedItemClick(pointId: number) {
+		this.blockedChoiceModalRef?.close();
+		delete this.disabledByList;
+		this.onSelectDecisionPoint.emit(pointId);
+	}
 }

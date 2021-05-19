@@ -2,7 +2,7 @@ import { Component, OnInit, Input, OnChanges, SimpleChanges, Output, EventEmitte
 
 import * as _ from 'lodash';
 
-import { UnsubscribeOnDestroy, flipOver, DecisionPoint, PickType, SubGroup, Choice, JobChoice, DesignToolAttribute } from 'phd-common';
+import { UnsubscribeOnDestroy, flipOver, DecisionPoint, PickType, SubGroup, Choice, JobChoice, DesignToolAttribute, Group } from 'phd-common';
 
 import { MyFavoritesChoice } from '../../../../shared/models/my-favorite.model';
 import { ChoiceExt } from '../../../../shared/models/choice-ext.model';
@@ -22,6 +22,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	@Input() decisionPointId: number;
 	@Input() includeContractedOptions: boolean = true;
 	@Input() salesChoices: JobChoice[];
+	@Input() groups: Group[];
 
 	@Output() onToggleChoice = new EventEmitter<ChoiceExt>();
 	@Output() onToggleContractedOptions = new EventEmitter();
@@ -108,19 +109,16 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	}
 
 	selectDecisionPoint(pointId: number) {
-		if (pointId !== this.currentPointId)
+		if (pointId)
 		{
-			if (pointId)
+			setTimeout(() =>
 			{
-				setTimeout(() =>
-				{
-					const firstPointId = this.points && this.points.length ? this.points[0].id : 0;
-					this.scrollPointIntoView(pointId, pointId === firstPointId);
-				}, 250);
-			}
-			this.currentPointId = pointId;
-			this.onSelectDecisionPoint.emit(pointId);
+				const firstPointId = this.points && this.points.length ? this.points[0].id : 0;
+				this.scrollPointIntoView(pointId, pointId === firstPointId);
+			}, 250);
 		}
+		this.currentPointId = pointId;
+		this.onSelectDecisionPoint.emit(pointId);
 	}
 
 	choiceToggleHandler(choice: ChoiceExt) {
@@ -160,7 +158,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 
 	scrollPointIntoView(pointId: number, isFirstPoint: boolean)
 	{
-		const decision = document.getElementById(pointId.toString());
+		const decision = document.getElementById(pointId?.toString());
 		if (decision)
 		{
 			if (isFirstPoint)
