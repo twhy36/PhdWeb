@@ -28,6 +28,6 @@ module.exports = function (config) {
     autoWatch: true,
     browsers: ['ChromeHeadless'],
     trxReporter: { outputFile: 'test-results.trx', shortTestName: true },
-    singleRun: false
+    singleRun: true
   });
 };
