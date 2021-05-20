@@ -46,7 +46,6 @@ export const filteredTree = createSelector(
 		let tree = _.cloneDeep(scenario.tree);
 		const treeFilter = scenario.treeFilter;
 		let filteredTree: TreeVersion;
-		let ruleFilteredTree: TreeVersion;
 
 		if (tree && tree.treeVersion) {
 			const filter = (label: string) => {
@@ -62,13 +61,13 @@ export const filteredTree = createSelector(
 
 						let hiddenChoiceIds:number[] = [];
 						let hiddenPointIds:number[] = [];
-						let preRulepoints = sg.points.map(p => {
+						let points = sg.points.map(p => {
 							treeMatched.point = treeMatched.subGroup || filter(p.label);
 							const contractedChoices = p.choices.filter(c => favorite.salesChoices.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1);
 							const isComplete = contractedChoices && contractedChoices.length
 								&& (p.pointPickTypeId === PickType.Pick1 || p.pointPickTypeId === PickType.Pick0or1);
 
-							let preRuleChoices = p.choices.filter(c => {
+							let choices = p.choices.filter(c => {
 								let isValid = treeMatched.point || filter(c.label);
 
 								let isIncluded = true;
@@ -83,73 +82,82 @@ export const filteredTree = createSelector(
 
 								return isValid && isIncluded;
 							});
-							
-							let choices = preRuleChoices.filter(c => {
-								let includeChoice = true;
-								c.disabledBy.forEach(db => {
-									db.rules.forEach(r => {
-										if (r.ruleType === 1) {
-											r.choices.forEach(rc => {
-												if (preRuleChoices.findIndex(dc => dc.id === rc) < 0 || hiddenChoiceIds.findIndex(dc => dc === rc) >= 0) {
-													includeChoice = false;
-												}
-												// } else {
-												// 	includeChoice = includeChoice(preRuleChoices.find(dc => dc.id === rc).
-												// }
-											})
-										}
+							let choicesExamined = false;
+							while (!choicesExamined) {
+								choicesExamined = true;
+								choices = choices.filter(c => {
+									let includeChoice = true;
+									c.disabledBy.forEach(db => {
+										db.rules.forEach(r => {
+											if (r.ruleType === 1) {
+												r.choices.forEach(rc => {
+													if (choices.findIndex(dc => dc.id === rc) < 0 || hiddenChoiceIds.findIndex(dc => dc === rc) >= 0) {
+														includeChoice = false;
+														choicesExamined = false;
+													}
+												})
+											}
+										})
 									})
-								})
-								if (!includeChoice) {
-									hiddenChoiceIds.push(c.id);
-								}
-								return includeChoice;
-							});
+									if (!includeChoice) {
+										
+										hiddenChoiceIds.push(c.id);
+									}
+									return includeChoice;
+								});
+							}
 							return { ...p, choices: choices };
 						});
 						let allChoiceIds:number[] = [];
 						let allPointIds:number[] = [];
-						preRulepoints.forEach(p => {
+						
+						
+						points.forEach(p => {
 							allPointIds.push(p.id);
 							p.choices.forEach(c => {
 								allChoiceIds.push(c.id);
 							})
 						});
-						let points = preRulepoints.filter(dp => {
-							if (dp.choices.length === 0) {
-								return false;
-							} else {
-								// return true;
-								let includePoint = true;
-								
-								if (dp.hasPointToChoiceRules) {
-									dp.disabledBy.forEach(db => {
-										db.rules.forEach(r => {
-											r.choices.forEach(rc => {
-												if (allChoiceIds.findIndex(id => rc === id) < 0  || hiddenChoiceIds.findIndex(id => rc === id) >= 0) {
-													includePoint = false;
-												}
+						let pointsExamined = false;
+						while (!pointsExamined) {
+							pointsExamined = true;
+							points = points.filter(dp => {
+								if (dp.choices.length === 0) {
+									return false;
+								} else {
+									let includePoint = true;
+									
+									if (dp.hasPointToChoiceRules) {
+										dp.disabledBy.forEach(db => {
+											db.rules.forEach(r => {
+												r.choices.forEach(rc => {
+													if (allChoiceIds.findIndex(id => rc === id) < 0  || hiddenChoiceIds.findIndex(id => rc === id) >= 0) {
+														includePoint = false;
+														pointsExamined = false;
+													}
+												})
 											})
 										})
-									})
-								}
-								if (dp.hasPointToPointRules) {
-									dp.disabledBy.forEach(db => {
-										db.rules.forEach(r => {
-											r.points.forEach(decp => {
-												if (allPointIds.findIndex(id => decp === id) < 0 ||  hiddenPointIds.findIndex(hp => hp === decp) >= 0) {
-													includePoint = false;
-												}
+									}
+									if (dp.hasPointToPointRules) {
+										dp.disabledBy.forEach(db => {
+											db.rules.forEach(r => {
+												r.points.forEach(decp => {
+													if (allPointIds.findIndex(id => decp === id) < 0 ||  hiddenPointIds.findIndex(hp => hp === decp) >= 0) {
+														includePoint = false;
+														pointsExamined = false;
+													}
+												})
 											})
 										})
-									})
+									}
+									if (!includePoint) {
+										hiddenPointIds.push(dp.id);
+									}
+									return includePoint;
 								}
-								if (!includePoint) {
-									hiddenPointIds.push(dp.id);
-								}
-								return includePoint;
-							}
-						})
+							})
+						}
 						return { ...sg, points: points };
 					}).filter(sg => {
 						return !!sg.points.length;
