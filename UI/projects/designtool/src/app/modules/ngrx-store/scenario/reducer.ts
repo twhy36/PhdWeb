@@ -93,7 +93,8 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 
 			if (action.type === CommonActionTypes.JobLoaded && !state.scenario)
 			{
-				newState = { ...newState, buildMode: 'spec', scenario: { opportunityId: 'spec', scenarioName: 'spec', scenarioChoices: [], treeVersionId: 0, planId: 0, lotId: 0, handing: null, viewedDecisionPoints: [], scenarioInfo: null }, enabledPointFilters: [], selectedPointFilter: DecisionPointFilterType.FULL };
+				const jobType = action.job.jobTypeName === 'Model' ? 'model' : 'spec';
+				newState = { ...newState, buildMode: jobType, scenario: { opportunityId: jobType, scenarioName: jobType, scenarioChoices: [], treeVersionId: 0, planId: 0, lotId: 0, handing: null, viewedDecisionPoints: [], scenarioInfo: null }, enabledPointFilters: [], selectedPointFilter: DecisionPointFilterType.FULL };
 			}
 
 			if (action.type === CommonActionTypes.ScenarioLoaded)
