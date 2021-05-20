@@ -73,9 +73,16 @@ export const filteredTree = createSelector(
 								{
 									isIncluded = favorite.includeContractedOptions && c.quantity > 0;
 								}
-								else if (!favorite.includeContractedOptions)
+								else
 								{
-									isIncluded = c.quantity === 0 && !isComplete;
+									// If there are contracted design choices and the include contracted option flag is false,
+									// Pick1 or Pick0or1 - remove all choices
+									// Pick1ormore or Pick0ormore - remove the selected choice and leave other choices viewable
+									if (contractedChoices?.length && !favorite.includeContractedOptions)
+									{
+										const isContractedChoice = contractedChoices.includes(c);
+										isIncluded = !isContractedChoice && !isComplete;
+									}
 								}
 
 								return isValid && isIncluded;
