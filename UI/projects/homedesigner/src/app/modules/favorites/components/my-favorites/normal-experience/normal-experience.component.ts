@@ -186,11 +186,8 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 
 	viewChoiceDetail(choice: ChoiceExt)
 	{
-		setTimeout(() =>
-		{
-			const pointId = this.points && this.points.length ? this.points[0].id : 0;
-			this.scrollPointIntoView(pointId, true);
-			this.onViewChoiceDetail.emit(choice);
-		}, 50);
+		const pointId = this.points?.length ? this.points.find(p => p.choices.find(c => c.id === choice.id))?.id || this.points[0].id : 0;
+		this.selectDecisionPoint(pointId);
+		this.onViewChoiceDetail.emit(choice);
 	}
 }
