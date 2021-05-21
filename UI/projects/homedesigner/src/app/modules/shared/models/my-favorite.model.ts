@@ -4,6 +4,7 @@ export class MyFavorite
     name: string;
     salesAgreementId: number;
     myFavoritesChoice?: MyFavoritesChoice[];
+    myFavoritesPointDeclined?: MyFavoritesPointDeclined[];
 
     constructor(dto?: MyFavorite)
     {
@@ -30,6 +31,21 @@ export class MyFavoritesChoice
     myFavoritesChoiceLocations?: MyFavoritesChoiceLocation[];
 
 	constructor(dto?: MyFavoritesChoice)
+	{
+		if (dto)
+		{
+			Object.assign(this, dto);
+		}
+	}    
+}
+
+export class MyFavoritesPointDeclined
+{
+    id: number;
+    myFavoriteId: number;
+    dPointId: number;
+    
+	constructor(dto?: MyFavoritesPointDeclined)
 	{
 		if (dto)
 		{

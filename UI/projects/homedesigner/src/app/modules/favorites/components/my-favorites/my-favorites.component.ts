@@ -28,7 +28,7 @@ import {
 
 import { GroupBarComponent } from '../../../shared/components/group-bar/group-bar.component';
 import { NormalExperienceComponent } from './normal-experience/normal-experience.component';
-import { MyFavoritesChoice } from '../../../shared/models/my-favorite.model';
+import { MyFavoritesChoice, MyFavoritesPointDeclined } from '../../../shared/models/my-favorite.model';
 import { ChoiceExt } from '../../../shared/models/choice-ext.model';
 
 @Component({
@@ -57,6 +57,8 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 	salesChoices: JobChoice[];
 	showDetails: boolean = false;
 	selectedChoice: ChoiceExt;
+	myFavoritesPointsDeclined: MyFavoritesPointDeclined[];
+	myFavoriteId: number;
 	priceBreakdown: PriceBreakdown;
 	marketingPlanId$ = new BehaviorSubject<number>(0);
 	isFloorplanFlipped: boolean;
@@ -201,8 +203,10 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			select(fromFavorite.currentMyFavorite)
 		).subscribe(favorite => {
 			this.myFavoritesChoices = favorite && favorite.myFavoritesChoice;
-			this.updateSelectedChoice();
-		});
+			this.myFavoritesPointsDeclined = favorite && favorite.myFavoritesPointDeclined;
+			this.myFavoriteId = favorite && favorite.id;
+			this.updateSelectedChoice();	
+		});	
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
@@ -271,7 +275,56 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			selectedChoices.push({ choiceId: c.id, quantity: 0, attributes: c.selectedAttributes });
 		});
 
+		if (choice.quantity === 0) {
+			this.deselectDeclinedPoints(choice);
+		}
 		this.store.dispatch(new ScenarioActions.SelectChoices(...selectedChoices));
+		this.store.dispatch(new FavoriteActions.SaveMyFavoritesChoices());
+		
+	}
+
+	deselectDeclinedPoints(choice: ChoiceExt) {
+		// Check for favorites and deselect declined points in favorites
+		let choiceId = choice.id;
+		this.groups.forEach(g => {
+			g.subGroups.forEach(sg => {
+				sg.points.forEach(p => {
+					p.choices.forEach(c => {
+						if (c.id === choiceId) {
+							let fdp = this.myFavoritesPointsDeclined.find(fpd => fpd.dPointId === p.id);
+							if (fdp) {
+								this.store.dispatch(new FavoriteActions.DeleteMyFavoritesPointDeclined(this.myFavoriteId, fdp.id));
+							}
+						}
+					})
+				})
+			})		
+		});
+	}
+
+	deselectPointChoices(declinedPoint: MyFavoritesPointDeclined) {
+		let deselectedChoices = [];
+
+		this.groups.forEach(g => {
+			g.subGroups.forEach(sg => {
+				sg.points.forEach(p => {
+					if (p.id === declinedPoint.dPointId) {
+						p.choices.forEach(c => {
+							deselectedChoices.push({ choiceId: c.id, quantity: 0, attributes: [] });
+
+							const impactedChoices = getDependentChoices(this.tree, this.treeVersionRules, c);
+
+                            impactedChoices.forEach(ch =>
+                            {
+                                deselectedChoices.push({ choiceId: ch.id, quantity: 0, attributes: ch.selectedAttributes });
+                            });
+						})
+					}
+				})
+			})
+		});
+		
+		this.store.dispatch(new ScenarioActions.SelectChoices(...deselectedChoices));
 		this.store.dispatch(new FavoriteActions.SaveMyFavoritesChoices());
 	}
 
@@ -332,8 +385,24 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		}
 	}
 
-	selectDecisionPoint(pointId: number)
-	{
+	selectDecisionPoint(pointId: number) {
 		this.selectedPointId = pointId;
+
+		// if point is in a different subGroup, we need to select the subGroup as well
+		if (this.selectedSubGroup && !this.selectedSubGroup.points.find(p => p.id === pointId)) {
+			const allSubGroups = _.flatMap(this.groups, g => g.subGroups)
+			const newSubGroup = allSubGroups.find(sg => sg.points.find(p => p.id === pointId));
+			this.onSubgroupSelected(newSubGroup?.id);
+		}
 	}
+
+	declineDecisionPoint(declinedPoint: MyFavoritesPointDeclined) {
+		let declPoint = this.myFavoritesPointsDeclined.find(p => p.dPointId === declinedPoint.dPointId);
+		if (!declPoint) { 
+			this.store.dispatch(new FavoriteActions.AddMyFavoritesPointDeclined(this.myFavoriteId, declinedPoint.dPointId));
+			this.deselectPointChoices(declinedPoint);
+		} else {
+			this.store.dispatch(new FavoriteActions.DeleteMyFavoritesPointDeclined(this.myFavoriteId, declPoint.id));
+		}
+	}	
 }

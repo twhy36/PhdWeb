@@ -26,7 +26,7 @@
 		<div class="phd-include-options">
 			<input type="checkbox" (change)="toggleContractedOptions($event)" [ngModel]="includeContractedOptions" class="phd-clickable" />
 			<span class="phd-contracted-options">Include Contracted Options</span>
-		</div>			
+		</div>
 		<div class="phd-point-container">
 			<ng-container *ngFor="let point of points">
 				<div class="phd-point-label" [attr.id]="point.id">{{point?.label}}</div>
@@ -34,13 +34,21 @@
 				<div class="d-flex flex-wrap phd-choice-cards">
 					<choice-card *ngFor="let choice of point.choices"
 								[currentChoice]="getChoiceExt(choice, point)"
+								[currentPoint]="point"
+								[groups]="groups"
 								(toggled)="choiceToggleHandler($event)"
+								(onSelectDecisionPoint)="selectDecisionPoint($event)"
 								(onViewChoiceDetail)="viewChoiceDetail($event)">
 					</choice-card>
+					<choice-decline-card *ngIf="point.pointPickTypeId === 2 || point.pointPickTypeId === 4"
+								[decisionPointId]="point.id"
+								[myFavoritesPointsDeclined]="myFavoritesPointsDeclined"
+								(onDeclineDecisionPoint)="declineDecisionPoint($event)">
+					</choice-decline-card>
 				</div>
 			</ng-container>
 		</div>
-	</div>		
+	</div>
 
 </div>
 

@@ -2,9 +2,9 @@ import { Component, OnInit, Input, OnChanges, SimpleChanges, Output, EventEmitte
 
 import * as _ from 'lodash';
 
-import { UnsubscribeOnDestroy, flipOver, DecisionPoint, PickType, SubGroup, Choice, JobChoice, DesignToolAttribute } from 'phd-common';
+import { UnsubscribeOnDestroy, flipOver, DecisionPoint, PickType, SubGroup, Choice, JobChoice, DesignToolAttribute, Group } from 'phd-common';
 
-import { MyFavoritesChoice } from '../../../../shared/models/my-favorite.model';
+import { MyFavoritesChoice, MyFavoritesPointDeclined } from '../../../../shared/models/my-favorite.model';
 import { ChoiceExt } from '../../../../shared/models/choice-ext.model';
 
 @Component({
@@ -19,14 +19,17 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	@Input() currentSubgroup: SubGroup;
 	@Input() errorMessage: string;
 	@Input() myFavoritesChoices: MyFavoritesChoice[];
+	@Input() myFavoritesPointsDeclined: MyFavoritesPointDeclined[];
 	@Input() decisionPointId: number;
 	@Input() includeContractedOptions: boolean = true;
 	@Input() salesChoices: JobChoice[];
+	@Input() groups: Group[];
 
 	@Output() onToggleChoice = new EventEmitter<ChoiceExt>();
 	@Output() onToggleContractedOptions = new EventEmitter();
 	@Output() onViewChoiceDetail = new EventEmitter<ChoiceExt>();
 	@Output() onSelectDecisionPoint = new EventEmitter<number>();
+	@Output() onDeclineDecisionPoint = new EventEmitter<MyFavoritesPointDeclined>();
 
 	isPointPanelCollapsed: boolean = false;
 	points: DecisionPoint[];
@@ -82,19 +85,19 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 				case PickType.Pick1:
 					return isPreviouslyContracted
 							? 'Previously Contracted Option'
-							: 'Please select 1 of the choices below';
+							: 'Please select one of the choices below';
 				case PickType.Pick1ormore:
 					return isPreviouslyContracted
 							? 'Previously Contracted Options'
-							: 'Please select 1 or more of the Choices below';
+							: 'Please select at least one of the Choices below';
 				case PickType.Pick0ormore:
 					return isPreviouslyContracted
 							? 'Previously Contracted Options'
-							: 'Please select 0 or more of the choices below';
+							: 'Please select at least one of the Choices below';
 				case PickType.Pick0or1:
 					return isPreviouslyContracted
 							? 'Previously Contracted Option'
-							: 'Please select 0 or 1 of the Choices below';
+							: 'Please select one of the choices below';
 				default:
 					return '';
 			}
@@ -108,19 +111,20 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	}
 
 	selectDecisionPoint(pointId: number) {
-		if (pointId !== this.currentPointId)
+		if (pointId)
 		{
-			if (pointId)
+			setTimeout(() =>
 			{
-				setTimeout(() =>
-				{
-					const firstPointId = this.points && this.points.length ? this.points[0].id : 0;
-					this.scrollPointIntoView(pointId, pointId === firstPointId);
-				}, 250);
-			}
-			this.currentPointId = pointId;
-			this.onSelectDecisionPoint.emit(pointId);
+				const firstPointId = this.points && this.points.length ? this.points[0].id : 0;
+				this.scrollPointIntoView(pointId, pointId === firstPointId);
+			}, 250);
 		}
+		this.currentPointId = pointId;
+		this.onSelectDecisionPoint.emit(pointId);
+	}
+
+	declineDecisionPoint(declinedPoint: MyFavoritesPointDeclined) {
+		this.onDeclineDecisionPoint.emit(declinedPoint);
 	}
 
 	choiceToggleHandler(choice: ChoiceExt) {
@@ -128,7 +132,6 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 		if (point && this.currentPointId != point.id) {
 			this.currentPointId = point.id;
 		}
-
 		this.choiceToggled = true;
 		this.onToggleChoice.emit(choice);
 	}
@@ -160,7 +163,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 
 	scrollPointIntoView(pointId: number, isFirstPoint: boolean)
 	{
-		const decision = document.getElementById(pointId.toString());
+		const decision = document.getElementById(pointId?.toString());
 		if (decision)
 		{
 			if (isFirstPoint)
@@ -183,11 +186,8 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 
 	viewChoiceDetail(choice: ChoiceExt)
 	{
-		setTimeout(() =>
-		{
-			const pointId = this.points && this.points.length ? this.points[0].id : 0;
-			this.scrollPointIntoView(pointId, true);
-			this.onViewChoiceDetail.emit(choice);
-		}, 50);
+		const pointId = this.points?.length ? this.points.find(p => p.choices.find(c => c.id === choice.id))?.id || this.points[0].id : 0;
+		this.selectDecisionPoint(pointId);
+		this.onViewChoiceDetail.emit(choice);
 	}
 }

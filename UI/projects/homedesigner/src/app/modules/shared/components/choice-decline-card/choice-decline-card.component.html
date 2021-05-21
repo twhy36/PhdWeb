@@ -1,0 +1,27 @@
+<div class="phd-choice-decline-card" [@flipOver]>
+	<div class="phd-header">
+		<div class="phd-decline-choice-image">
+			<img class="phd-logo-image" src="assets/pultegroup_logo.jpg">
+		</div>
+	</div>
+
+	<div class="phd-body">
+		<div class="phd-choice-decline-details">
+			<h1 class="phd-2-line-limit">
+				{{"No Thanks!"}}
+			</h1>
+			<div class="d-flex flex-row justify-content-between">
+				<div>
+					<strong></strong>
+				</div>
+				<ng-container>
+					<div class="phd-non-clickable" (click)="$event.stopPropagation()">
+						<span class="phd-icon-selected"><i *ngIf="isDeclined" class="fa fa-heart" (click)="toggleDecline()"></i></span>
+						<i *ngIf="!isDeclined" class="fa fa-heart-o" (click)="toggleDecline()"></i>
+					</div>
+				</ng-container>
+			</div>
+		</div>
+	</div>
+</div>
+

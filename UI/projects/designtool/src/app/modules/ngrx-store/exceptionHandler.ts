@@ -1,13 +1,25 @@
-import { ActionReducer } from '@ngrx/store';
+import { ActionReducer, MetaReducer } from '@ngrx/store';
 
-export function exceptionHandler(reducer: ActionReducer<any>): ActionReducer<any>
+import * as fromRoot from './reducers';
+import { LoggingService } from '../core/services/logging.service';
+import { ErrorAction } from './error.action';
+
+export function exceptionHandlerFactory(loggingService: LoggingService): MetaReducer<fromRoot.State> 
 {
-	return function (state, action): any {
-		try {
+	return (reducer: ActionReducer<any>) => (state, action) =>
+	{
+		try 
+		{
+			if (action instanceof ErrorAction){
+				loggingService.logError(action.error);
+			}
 			return reducer(state, action);
-		} catch (err) {
+		} 
+		catch (err) 
+		{
 			console.error(err);
+			loggingService.logError(err);
 			return { ...state };
 		}
-	}; 
+	};
 }

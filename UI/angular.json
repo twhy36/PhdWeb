@@ -192,7 +192,8 @@
                         "verbose": true,
                         "assets": [
                             "projects/designtool/src/assets",
-                            "projects/designtool/src/docusign_response.html"
+                            "projects/designtool/src/docusign_response.html",
+                            "projects/designtool/src/favicon.ico"
                         ],
                         "styles": [
                             "node_modules/ngx-toastr/toastr.css",
@@ -201,7 +202,8 @@
                             "node_modules/primeng/resources/primeng.min.css",
                             "projects/designtool/src/scss/styles.scss"
                         ],
-                        "scripts": []
+                        "scripts": [],
+                        "webWorkerTsConfig": "projects/designtool/tsconfig.worker.json"
                     },
                     "configurations": {
                         "qa": {
@@ -317,7 +319,8 @@
                         "polyfills": "projects/salesadmin/src/polyfills.ts",
                         "verbose": true,
                         "assets": [
-                            "projects/salesadmin/src/assets"
+                            "projects/salesadmin/src/assets",
+                            "projects/salesadmin/src/favicon.ico"
                         ],
                         "styles": [
                             "node_modules/font-awesome/css/font-awesome.min.css",

@@ -87,7 +87,7 @@ namespace Phd.WebHost
                 context.Response.Cookies.Append("uri_state", context.Request.Path.Value,
                     new CookieOptions
                     {
-                        SameSite = SameSiteMode.Strict,
+                        SameSite = SameSiteMode.Lax,
                         MaxAge = TimeSpan.FromMinutes(5)
                     });
                 await next();
