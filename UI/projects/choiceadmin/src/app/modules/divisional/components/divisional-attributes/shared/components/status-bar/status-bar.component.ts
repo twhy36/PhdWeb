@@ -15,11 +15,16 @@ export class StatusBarComponent
 
 	statuses: SelectItem[] = [{ label: 'Active', value: 'Active' }, { label: 'Inactive', value: 'Inactive' }];
 	statusCssStyle = { 'width': '150px' };
+
+	showClear: boolean = true;
 		
 	constructor() { }
 
 	onStatusChanged(event: any)
 	{
+		// hide clear button when nothing is selected
+		this.showClear = !!event;
+
 		this.statusChanged.emit(event);
 	}
 }
