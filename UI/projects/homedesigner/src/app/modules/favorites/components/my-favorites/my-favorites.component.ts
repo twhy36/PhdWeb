@@ -339,7 +339,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		if (this.selectedSubGroup && !this.selectedSubGroup.points.find(p => p.id === pointId)) {
 			const allSubGroups = _.flatMap(this.groups, g => g.subGroups)
 			const newSubGroup = allSubGroups.find(sg => sg.points.find(p => p.id === pointId));
-			this.onSubgroupSelected(newSubGroup?.id);
+			this.store.dispatch(new NavActions.SetSelectedSubgroup(newSubGroup?.id, this.selectedPointId));
 		}
 	}
 }
