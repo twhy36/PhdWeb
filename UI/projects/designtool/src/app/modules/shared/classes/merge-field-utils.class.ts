@@ -280,7 +280,7 @@ export function mapSystemMergeFields(sag: SalesAgreement, job: Job, elevationDp:
 			monthRange(ecoeDate, addMonths(ecoeDate, 1))) : "");
 	map.set("Estimated COE - 3 Month Range", !!ecoeDate ? monthRange(addMonths(ecoeDate, -1), addMonths(ecoeDate, 1)) : "");
 	map.set("Estimated COE Month", !!ecoeDate ? ecoeDate.toLocaleDateString('en-us', { month: 'long' }) : "");
-	map.set("Estimated COE - 2 Month Range - Current Month And Next", !!ecoeDate ? monthRange(ecoeDate, addMonths(ecoeDate, 1)) : "");
+	map.set("Estimated COE - 2 Month Range - Current Month and Next", !!ecoeDate ? monthRange(ecoeDate, addMonths(ecoeDate, 1)) : "");
 	map.set("Estimated COE - 3 Month Range - Current Month + 2", !!ecoeDate ? monthRange(ecoeDate, addMonths(ecoeDate, 2)) : "");
 	map.set("Square Feet", job.plan.squareFeet.toString());
 	map.set("Plan TCG", isNull(job.plan.tcg, ""));
