@@ -205,8 +205,8 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			this.myFavoritesChoices = favorite && favorite.myFavoritesChoice;
 			this.myFavoritesPointsDeclined = favorite && favorite.myFavoritesPointDeclined;
 			this.myFavoriteId = favorite && favorite.id;
-			this.updateSelectedChoice();	
-		});	
+			this.updateSelectedChoice();
+		});
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
@@ -280,7 +280,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		}
 		this.store.dispatch(new ScenarioActions.SelectChoices(...selectedChoices));
 		this.store.dispatch(new FavoriteActions.SaveMyFavoritesChoices());
-		
+
 	}
 
 	deselectDeclinedPoints(choice: ChoiceExt) {
@@ -298,7 +298,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 						}
 					})
 				})
-			})		
+			})
 		});
 	}
 
@@ -323,7 +323,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 				})
 			})
 		});
-		
+
 		this.store.dispatch(new ScenarioActions.SelectChoices(...deselectedChoices));
 		this.store.dispatch(new FavoriteActions.SaveMyFavoritesChoices());
 	}
@@ -392,17 +392,17 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		if (this.selectedSubGroup && !this.selectedSubGroup.points.find(p => p.id === pointId)) {
 			const allSubGroups = _.flatMap(this.groups, g => g.subGroups)
 			const newSubGroup = allSubGroups.find(sg => sg.points.find(p => p.id === pointId));
-			this.onSubgroupSelected(newSubGroup?.id);
+			this.store.dispatch(new NavActions.SetSelectedSubgroup(newSubGroup?.id, this.selectedPointId));
 		}
 	}
 
 	declineDecisionPoint(declinedPoint: MyFavoritesPointDeclined) {
 		let declPoint = this.myFavoritesPointsDeclined.find(p => p.dPointId === declinedPoint.dPointId);
-		if (!declPoint) { 
+		if (!declPoint) {
 			this.store.dispatch(new FavoriteActions.AddMyFavoritesPointDeclined(this.myFavoriteId, declinedPoint.dPointId));
 			this.deselectPointChoices(declinedPoint);
 		} else {
 			this.store.dispatch(new FavoriteActions.DeleteMyFavoritesPointDeclined(this.myFavoriteId, declPoint.id));
 		}
-	}	
+	}
 }
