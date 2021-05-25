@@ -114,7 +114,7 @@ export class ManageFavoritesComponent extends UnsubscribeOnDestroy implements On
 
 		confirm.componentInstance.title = 'WARNING';
 		confirm.componentInstance.body = msgBody;
-		confirm.componentInstance.defaultOption = 'Cancel';
+		confirm.componentInstance.defaultOption = 'Continue';
 
 		confirm.result.then((result) =>
 		{
