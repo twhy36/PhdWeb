@@ -50,8 +50,8 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	choiceAttributeGroups: AttributeGroup[];
 	choiceLocationGroups: LocationGroup[];
 
-	constructor(private cd: ChangeDetectorRef, 
-		private attributeService: AttributeService, 
+	constructor(private cd: ChangeDetectorRef,
+		private attributeService: AttributeService,
 		private toastr: ToastrService,
 		private store: Store<fromRoot.State>)
     {
@@ -99,7 +99,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		error =>
 		{
 			this.toastr.error('Failed to load choice attributes!', 'Error');
-		});	
+		});
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
@@ -114,19 +114,19 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 				{
 					this.choice.quantity = updatedChoice.quantity;
 					this.choice.selectedAttributes = updatedChoice.selectedAttributes;
-					this.choice.myFavoritesChoice = favorite.myFavoritesChoice 
+					this.choice.myFavoritesChoice = favorite.myFavoritesChoice
 						? favorite.myFavoritesChoice.find(x => x.divChoiceCatalogId === this.choice.divChoiceCatalogId)
-						: null;	
+						: null;
 				}
 			}
-			this.updateChoiceAttributes();	
+			this.updateChoiceAttributes();
 		});
 
 		if (this.choice.enabled)
 		{
 			let desc = this.choice.description ? [this.choice.description] : [];
 			this.choiceDescriptions = this.choice.options && this.choice.options.length > 0 ? this.choice.options.filter(o => o.description != null).map(o => o.description) : desc;
-		}		
+		}
 	}
 
 	updateChoiceAttributes()
@@ -172,7 +172,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 				}
 				return attributeCopy;
 			});
-		}		
+		}
 	}
 
 	populateAttributeGroups(attributeGroups: AttributeGroup[])
@@ -241,7 +241,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 				}
 				else
 				{
-					this.locationGroups.push(lg);					
+					this.locationGroups.push(lg);
 				}
 			});
 		}
@@ -273,7 +273,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 			this.choiceImages.push({ imageURL: image });
 		}
 
-		this.selectedImageUrl = this.choiceImages[0].imageURL;	
+		this.selectedImageUrl = this.choiceImages[0].imageURL;
 		this.imageLoading = true;
 	}
 
@@ -287,7 +287,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		this.onBack.emit();
 	}
 
-	toggleChoice() 
+	toggleChoice()
 	{
 		this.onToggleChoice.emit(this.choice);
 	}
@@ -306,16 +306,16 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	getSelectedAttributes(data: {attribute: Attribute, attributeGroup: AttributeGroup, location: Location, locationGroup: LocationGroup, quantity: number}): DesignToolAttribute[]
 	{
 		let selectedAttributes: DesignToolAttribute[] = [...this.choice.selectedAttributes];
-	
-		const attributeIndex = this.choice.selectedAttributes.findIndex(x => 
-			x.attributeId === data.attribute.id && 
-			x.attributeGroupId === data.attributeGroup.id && 
-			(!data.location || x.locationId === data.location.id) &&  
+
+		const attributeIndex = this.choice.selectedAttributes.findIndex(x =>
+			x.attributeId === data.attribute.id &&
+			x.attributeGroupId === data.attributeGroup.id &&
+			(!data.location || x.locationId === data.location.id) &&
 			(!data.locationGroup || x.locationGroupId === data.locationGroup.id));
 
 		if (attributeIndex > -1)
 		{
-			selectedAttributes.splice(attributeIndex);
+			selectedAttributes.splice(attributeIndex, 1);
 		}
 		else
 		{
@@ -352,7 +352,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		this.imageLoading = true;
 		if (this.activeIndex)
 		{
-			this.selectedImageUrl = this.choiceImages[this.activeIndex.current].imageURL;		
+			this.selectedImageUrl = this.choiceImages[this.activeIndex.current].imageURL;
 		}
 	}
 
@@ -371,19 +371,19 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		this.imageLoading = false;
 
 		event.srcElement.src = 'assets/pultegroup_logo.jpg';
-	}	
+	}
 
 	imageClick(image: OptionImage)
 	{
 		this.highlightedAttribute = null;
-		this.attributeImageUrl = null;		
+		this.attributeImageUrl = null;
 		this.selectedImageUrl = image.imageURL;
 
 		const imageIndex = this.choiceImages.findIndex(x => x.imageURL === image.imageURL);
 		if (imageIndex > -1)
 		{
 			this.cd.detectChanges();
-			this.imageCarousel.select(imageIndex.toString());	
+			this.imageCarousel.select(imageIndex.toString());
 		}
 	}
 
@@ -399,7 +399,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 
 	locationAttributeClick(data: {attribute: Attribute, attributeGroupId: number, locationId: number, locationGroupId: number})
 	{
-		if (this.highlightedAttribute && 
+		if (this.highlightedAttribute &&
 			this.highlightedAttribute.attributeGroupId === data.attributeGroupId &&
 			this.highlightedAttribute.attributeId === data.attribute.id &&
 			this.highlightedAttribute.locationGroupId === data.locationGroupId &&
@@ -410,8 +410,8 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		}
 		else
 		{
-			this.highlightedAttribute = { 
-				attributeId: data.attribute.id, 
+			this.highlightedAttribute = {
+				attributeId: data.attribute.id,
 				attributeGroupId: data.attributeGroupId,
 				locationId: data.locationId,
 				locationGroupId: data.locationGroupId
@@ -434,8 +434,8 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 
 	getHighlightedLocationAttribute(location: Location, locationGroup: LocationGroup)
 	{
-		return this.highlightedAttribute 
-			&& this.highlightedAttribute.locationId === location.id 
+		return this.highlightedAttribute
+			&& this.highlightedAttribute.locationId === location.id
 			&& this.highlightedAttribute.locationGroupId === locationGroup.id
 				? { attributeId: this.highlightedAttribute.attributeId, attributeGroupId: this.highlightedAttribute.attributeGroupId }
 				: null;
@@ -512,10 +512,10 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 				});
 			}
 		}
-		
+
 		const totalQuantity = this.getTotalQuantiy();
 		this.choice.quantity = this.choice.quantity > 0 && totalQuantity === 0 ? 1 : totalQuantity;
 		this.store.dispatch(new ScenarioActions.SelectChoices({ choiceId: this.choice.id, quantity: this.choice.quantity, attributes: this.choice.selectedAttributes }));
 		this.store.dispatch(new FavoriteActions.SaveMyFavoritesChoices());
-	}	
+	}
 }
