@@ -1,10 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Actions, Effect, ofType } from '@ngrx/effects';
-import { Action, Store, select } from '@ngrx/store';
+import { Action, Store } from '@ngrx/store';
 import { Observable } from 'rxjs/Observable';
-import { combineLatest, switchMap, withLatestFrom, exhaustMap, map, take } from 'rxjs/operators';
+import { switchMap, withLatestFrom, exhaustMap, map, take } from 'rxjs/operators';
 import { of } from 'rxjs/observable/of';
-import { never } from 'rxjs/observable/never';
 import { from } from 'rxjs/observable/from';
 
 import {
@@ -23,14 +22,14 @@ import
 import { ContractService } from '../../core/services/contract.service';
 import { ChangeOrderService } from '../../core/services/change-order.service';
 import { tryCatch } from '../error.action';
-import { getCurrentHouseSelections, convertMapToMergeFieldDto, getChangeOrderGroupSelections } from '../../shared/classes/merge-field-utils.class';
+import { getCurrentHouseSelections, getChangeOrderGroupSelections } from '../../shared/classes/contract-utils';
 import { ChangeOrderEnvelopeCreated, ESignEnvelopesLoaded } from '../actions';
 import { isNull } from "../../shared/classes/string-utils.class";
 import * as fromLot from '../lot/reducer';
 import * as fromScenario from '../scenario/reducer';
 import * as fromChangeOrder from '../change-order/reducer';
 import * as _ from 'lodash';
-import { MergeFieldData } from '../../shared/models/contract.model';
+import { EnvelopeInfo } from '../../shared/models/envelope-info.model';
 
 @Injectable()
 export class ContractEffects
@@ -364,18 +363,14 @@ export class ContractEffects
 						envelopeInfo: envelopeInfo
 					}
 
-					const mergeFieldData = salesAgreementStatus != 'Pending' ? this.contractService.getLockedMergeFields(store.job.id) : of(new MergeFieldData());
-					const customMergeFields = salesAgreementStatus == 'Pending' ? this.contractService.getCustomMergeFields(marketId, financialCommunityId) : of<Map<string, string>>(null);
 					const lockedSnapshot = this.contractService.getSnapShot(store.job.id, activeChangeOrderGroup.id);
 
-					const systemMergeFields = salesAgreementStatus == 'Pending' ? this.store.pipe(select(fromRoot.systemMergeFields)) : of<Map<string, string>>(null);
 					const changeOrderData = new ChangeOrderGroup(store.changeOrder.currentChangeOrder);
 
-					return customMergeFields.pipe(
-						combineLatest(mergeFieldData, systemMergeFields, lockedSnapshot),
-						map(([customMergeFields, mergeFieldData, systemMergeFields, lockedSnapshot]) =>
+					return lockedSnapshot.pipe(
+						map(lockedSnapshot =>
 						{
-							return { customMergeFields, mergeFieldData, systemMergeFields, lockedSnapshot, jioSelections: jioSelections, templates: mappedTemplates, financialCommunityId: financialCommunityId, salesAgreement: salesAgreement, changeOrder: changeOrderData, envelopeInfo: envelopeInfo, isPreview: isPreview, jobId: store.job.id, changeOrderGroupId: activeChangeOrderGroup.id, envelopeId: activeChangeOrderGroup.envelopeId, currentSnapshot: currentSnapshot };
+							return { lockedSnapshot, jioSelections: jioSelections, templates: mappedTemplates, financialCommunityId: financialCommunityId, salesAgreement: salesAgreement, changeOrder: changeOrderData, envelopeInfo: envelopeInfo, isPreview: isPreview, jobId: store.job.id, changeOrderGroupId: activeChangeOrderGroup.id, envelopeId: activeChangeOrderGroup.envelopeId, currentSnapshot: currentSnapshot };
 						}),
 						take(1)
 					);
@@ -387,27 +382,9 @@ export class ContractEffects
 			}),
 			exhaustMap(data =>
 			{
-				//save the merge fields for later user if this envelope is intended for
-				//signing
-				if (data.isPreview || data.salesAgreement.status !== 'Pending')
-				{
-					return of(data);
-				}
-				else
-				{
-					return this.contractService.lockMergeFields(data.customMergeFields, data.systemMergeFields, data.jobId).pipe(
-						map(() => data)
-					);
-				}
-			}),
-			exhaustMap(data =>
-			{
-				const convertedCustomMergeFields = data.mergeFieldData && data.mergeFieldData.customMergeFields ? data.mergeFieldData.customMergeFields : data.customMergeFields ? convertMapToMergeFieldDto(data.customMergeFields) : [];
-				const convertedSystemMergeFields = data.mergeFieldData && data.mergeFieldData.systemMergeFields ? data.mergeFieldData.systemMergeFields : data.systemMergeFields ? convertMapToMergeFieldDto(data.systemMergeFields) : [];
-
 				if (data.isPreview)
 				{
-					return this.contractService.createEnvelope([...convertedCustomMergeFields, ...convertedSystemMergeFields], data.jioSelections, data.templates, data.financialCommunityId, data.salesAgreement.salesAgreementNumber, data.salesAgreement.status, data.envelopeInfo, data.jobId, data.changeOrderGroupId, data.currentSnapshot.constructionChangeOrderSelections, null, null, null, null, data.currentSnapshot.changeOrderInformation, data.isPreview).pipe(
+					return this.contractService.createEnvelope(data.jioSelections, data.templates, data.financialCommunityId, data.salesAgreement.salesAgreementNumber, data.salesAgreement.status, data.envelopeInfo, data.jobId, data.changeOrderGroupId, data.currentSnapshot.constructionChangeOrderSelections, null, null, null, null, data.currentSnapshot.changeOrderInformation, data.isPreview).pipe(
 						map(envelopeId =>
 						{
 							return { envelopeId, changeOrder: data.changeOrder, isPreview: data.isPreview };
@@ -429,7 +406,7 @@ export class ContractEffects
 					{
 						return this.contractService.saveSnapshot(data.currentSnapshot, data.jobId, data.changeOrderGroupId).pipe(
 							switchMap(() =>
-								this.contractService.createEnvelope([...convertedCustomMergeFields, ...convertedSystemMergeFields], data.jioSelections, data.templates, data.financialCommunityId, data.salesAgreement.salesAgreementNumber, data.salesAgreement.status, data.envelopeInfo, data.jobId, data.changeOrderGroupId, data.currentSnapshot.constructionChangeOrderSelections, null, null, null, null, data.currentSnapshot.changeOrderInformation, data.isPreview)),
+								this.contractService.createEnvelope(data.jioSelections, data.templates, data.financialCommunityId, data.salesAgreement.salesAgreementNumber, data.salesAgreement.status, data.envelopeInfo, data.jobId, data.changeOrderGroupId, data.currentSnapshot.constructionChangeOrderSelections, null, null, null, null, data.currentSnapshot.changeOrderInformation, data.isPreview)),
 							map(envelopeId =>
 							{
 								return { envelopeId, changeOrder: data.changeOrder, isPreview: data.isPreview };
@@ -511,7 +488,7 @@ export class ContractEffects
 		ofType<CreateTerminationEnvelope>(ContractActionTypes.CreateTerminationEnvelope),
 		withLatestFrom(this.store, this.store.select(fromRoot.priceBreakdown), this.store.select(fromRoot.isSpecSalePending), this.store.select(fromLot.selectLot), this.store.select(fromScenario.elevationDP)),
 		tryCatch(source => source.pipe(
-			switchMap(([action, store, priceBreakdown, isSpecSalePending, selectLot, elevationDP]) =>
+			map(([action, store, priceBreakdown, isSpecSalePending, selectLot, elevationDP]) =>
 			{
 				// get selected templates and sort by display order
 				const templates = store.contract.selectedTemplates.map(id =>
@@ -581,9 +558,9 @@ export class ContractEffects
 						salesDescription: jio ? jio.jobChangeOrderGroupDescription : ""
 					}
 
-					var envelopeInfo = {
+					var envelopeInfo: EnvelopeInfo = {
 						oldHanding: store.job.handing,
-						newHanding: store.changeOrder && store.changeOrder.changeInput && store.changeOrder.changeInput.handing ? store.changeOrder.changeInput.handing : null,
+						newHanding: store.changeOrder?.changeInput?.handing?.handing,
 						buildType: store.job.lot ? store.job.lot.lotBuildTypeDesc : "",
 						primaryBuyerName: isNull(store.changeOrder && store.changeOrder.changeInput ? store.changeOrder.changeInput.trustName : null, `${primaryBuyer.firstName ? primaryBuyer.firstName : ''}${primaryBuyer.middleName ? ' ' + primaryBuyer.middleName : ''} ${primaryBuyer.lastName ? ' ' + primaryBuyer.lastName : ''}${primaryBuyer.suffix ? ' ' + primaryBuyer.suffix : ''}`),
 						primaryBuyerTrustName: isNull(store.changeOrder && store.changeOrder.changeInput && store.changeOrder.changeInput.trustName && store.changeOrder.changeInput.trustName.length > 20 ? `${store.changeOrder.changeInput.trustName.substring(0, 20)}...` : store.changeOrder && store.changeOrder.changeInput ? store.changeOrder.changeInput.trustName : null, `${primaryBuyer.firstName ? primaryBuyer.firstName : ''}${primaryBuyer.middleName ? ' ' + primaryBuyer.middleName : ''} ${primaryBuyer.lastName ? ' ' + primaryBuyer.lastName : ''}${primaryBuyer.suffix ? ' ' + primaryBuyer.suffix : ''}`),
@@ -616,6 +593,7 @@ export class ContractEffects
 						selectionsPrice: selectionsPrice,
 						totalHousePrice: totalHousePrice,
 						nonStandardPrice: nonStandardPrice,
+						salesIncentivePrice: null,
 						buyerClosingCosts: buyerClosingCosts,
 						jobBuyerHeaderInfo: jobBuyerHeaderInfo,
 						jobAgreementHeaderInfo: jobAgreementHeaderInfo
@@ -626,30 +604,16 @@ export class ContractEffects
 						return { templateId: t.templateId, displayOrder: templates.indexOf(t) + 1, documentName: t.documentName, templateTypeId: t.templateTypeId };
 					});
 
-					return this.contractService.getCustomMergeFields(marketId, financialCommunityId).pipe(
-						withLatestFrom(
-							this.store.pipe(select(fromRoot.systemMergeFields)),
-							of(jioSelections),
-							of(mappedTemplates),
-							of(financialCommunityId),
-							of(store.salesAgreement),
-							of(envelopeInfo),
-							of(store.job.id),
-							of(changeOrderGroupId)
-						)
-					);
+					return { jioSelections, mappedTemplates, financialCommunityId, salesAgreement: store.salesAgreement, envelopeInfo, jobId: store.job.id, changeOrderGroupId };
 				}
 				else
 				{
 					throw 'No Documents Selected';
 				}
 			}),
-			exhaustMap(([customMergeFields, systemMergeFields, jioSelections, templates, financialCommunityId, salesAgreement, envelopeInfo, jobId, changeOrderGroupId]) =>
+			exhaustMap(data =>
 			{
-				const convertedCustomMergeFields = convertMapToMergeFieldDto(customMergeFields);
-				const convertedSystemMergeFields = convertMapToMergeFieldDto(systemMergeFields);
-
-				return this.contractService.createEnvelope([...convertedCustomMergeFields, ...convertedSystemMergeFields], jioSelections, templates, financialCommunityId, salesAgreement.salesAgreementNumber, salesAgreement.status, envelopeInfo, jobId, changeOrderGroupId);
+				return this.contractService.createEnvelope(data.jioSelections, data.mappedTemplates, data.financialCommunityId, data.salesAgreement.salesAgreementNumber, data.salesAgreement.status, data.envelopeInfo, data.jobId, data.changeOrderGroupId);
 			}),
 			switchMap(envelopeId =>
 			{

@@ -24,7 +24,6 @@ import * as fromContract from './contract/reducer';
 import { MonotonyConflict } from '../shared/models/monotony-conflict.model';
 
 import { DecisionPointFilterType } from '../shared/models/decisionPointFilter';
-import { mapSystemMergeFields } from '../shared/classes/merge-field-utils.class';
 
 export interface State
 {
@@ -795,30 +794,6 @@ export const agreementColorScheme = createSelector(
 		}
 
 		return colorScheme;
-	}
-)
-
-export const systemMergeFields = createSelector(
-	fromJob.jobState,
-	fromSalesAgreement.salesAgreementState,
-	fromScenario.elevationDP,
-	priceBreakdown,
-	fromOrg.selectOrg,
-	isSpecSalePending,
-	fromChangeOrder.changeOrderBuyers,
-	fromChangeOrder.changeInput,
-	(job, sag, elevationDp, price, selectedOrg, isSpecSale, changeOrderBuyers, changeInput) =>
-	{
-		let buyers = isSpecSale ? changeOrderBuyers : sag.buyers;
-
-		buyers = buyers.map(b => new Buyer(b));
-		const salesCommunity = selectedOrg.salesCommunity;
-		const financialCommunity = salesCommunity.financialCommunities.find(fc => fc.id == job.financialCommunityId);
-
-		const handing = changeInput && changeInput.handing ? changeInput.handing.handing : job.handing;
-		const map = mapSystemMergeFields(sag, job, elevationDp, price, financialCommunity, buyers, handing, salesCommunity.name);
-
-		return map;
 	}
 )
 

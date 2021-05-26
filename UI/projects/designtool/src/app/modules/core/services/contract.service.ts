@@ -13,10 +13,10 @@ import {
 import { environment } from '../../../../environments/environment';
 
 import { Template, ITemplateInfo } from '../../shared/models/template.model';
-import { IFinancialCommunityESign, FinancialCommunityESign, IESignRecipient, MergeFieldData, MergeFieldDto } from '../../shared/models/contract.model';
+import { IFinancialCommunityESign, FinancialCommunityESign, IESignRecipient } from '../../shared/models/contract.model';
 import { EnvelopeInfo } from '../../shared/models/envelope-info.model';
 import { of } from 'rxjs/observable/of';
-import { convertMapToMergeFieldDto, getCurrentHouseSelections, getChangeOrderGroupSelections } from '../../shared/classes/merge-field-utils.class';
+import { getCurrentHouseSelections, getChangeOrderGroupSelections } from '../../shared/classes/contract-utils';
 import * as _ from 'lodash';
 import { Store } from '@ngrx/store';
 import * as fromRoot from '../../../modules/ngrx-store/reducers';
@@ -57,14 +57,13 @@ export class ContractService
 		);
 	}
 
-	createEnvelope(mergeFields: MergeFieldDto[], jioSelections: any, templates: Array<ITemplateInfo>, financialCommunityId: number, salesAgreementNumber: string, salesAgreementStatus: string, envelopeInfo: EnvelopeInfo, jobId: number, changeOrderGroupId: number, constructionChangeOrderSelectionsDto?: any, salesChangeOrderSelections?: any, planChangeOrderSelectionsDto?: any, nonStandardChangeOrderSelectionsDto?: Array<ChangeOrderNonStandardOption>, lotTransferSeletionsDto?: { addedLot: LotExt, deletedLot: LotExt }, changeOrderInformation?: any, isPreview?: boolean): Observable<string>
+	createEnvelope(jioSelections: any, templates: Array<ITemplateInfo>, financialCommunityId: number, salesAgreementNumber: string, salesAgreementStatus: string, envelopeInfo: EnvelopeInfo, jobId: number, changeOrderGroupId: number, constructionChangeOrderSelectionsDto?: any, salesChangeOrderSelections?: any, planChangeOrderSelectionsDto?: any, nonStandardChangeOrderSelectionsDto?: Array<ChangeOrderNonStandardOption>, lotTransferSeletionsDto?: { addedLot: LotExt, deletedLot: LotExt }, changeOrderInformation?: any, isPreview?: boolean): Observable<string>
 	{
 		const action = `CreateEnvelope`;
 		const url = `${environment.apiUrl}${action}`;
 		const data = {
 			isPreview: isPreview ? isPreview : false,
 			templates: templates,
-			mergeFields: mergeFields,
 			jioSelections: jioSelections,
 			financialCommunityId: financialCommunityId,
 			jobId: jobId,
@@ -105,38 +104,6 @@ export class ContractService
 			map(response =>
 			{
 				return window.URL.createObjectURL(response);
-			}),
-			catchError(error =>
-			{
-				console.error(error);
-
-				return _throw(error);
-			})
-		);
-	}
-
-	getCustomMergeFields(marketId: number, financialCommunityId: number): Observable<Map<string, string>>
-	{
-		const entity = `mergeFields`;
-		const filter = `org/edhMarketId eq ${marketId} and isActive eq true`;
-		const expand = `customFieldFinancialCommunities($filter=org/edhFinancialCommunityId eq ${financialCommunityId} and isActive eq true;$select=fieldValue)`;
-		const select = `fieldName,fieldValue`;
-		const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}select=${encodeURIComponent(select)}`;
-		const url = `${environment.apiUrl}${entity}?${qryStr}`;
-
-		return this._http.get(url).pipe(
-			map(response =>
-			{
-				const dto = response['value'] as Array<any>;
-
-				let map = new Map<string, string>();
-
-				dto.forEach(d =>
-				{
-					map.set(d.fieldName, d.customFieldFinancialCommunities.length ? d.customFieldFinancialCommunities[0].fieldValue : d.fieldValue);
-				});
-
-				return map;
 			}),
 			catchError(error =>
 			{
@@ -324,47 +291,6 @@ export class ContractService
 		});
 
 		return lotTransferSelections;
-	}
-
-	lockMergeFields(customMergeFields: Map<string, string>, systemMergeFields: Map<string, string>, jobId: number): Observable<string>
-	{
-		const action = `LockMergeFields`;
-		const url = `${environment.apiUrl}${action}`;
-		const data = {
-			mergeFields: {
-				customMergeFields: [...convertMapToMergeFieldDto(customMergeFields)],
-				systemMergeFields: [...convertMapToMergeFieldDto(systemMergeFields)]
-			},
-			jobId: jobId,
-		};
-
-		return withSpinner(this._http).post<any>(url, data).pipe(
-			catchError(error =>
-			{
-				console.error(error);
-
-				return _throw(error);
-			})
-		);
-	}
-
-	getLockedMergeFields(jobId: number): Observable<MergeFieldData>
-	{
-		const entity = `GetLockedMergeFields(jobId=${jobId})`;
-		const url = `${environment.apiUrl}${entity}`;
-
-		return this._http.get(url).pipe(
-			map(response =>
-			{
-				return response as MergeFieldData;
-			}),
-			catchError(error =>
-			{
-				console.error(error);
-
-				return _throw(error);
-			})
-		);
 	}
 
 	deleteSnapshot(jobId: number, changeOrderGroupId: number): Observable<string>
@@ -985,19 +911,10 @@ export class ContractService
 
 					if (JSON.stringify(lockedSnapshot) !== JSON.stringify(clonedSnapshot))
 					{
-						return this.getLockedMergeFields(jobId).pipe(
-							switchMap(lockedMergeFields =>
+						return this.saveSnapshot(clonedSnapshot, jobId, changeOrderId).pipe(
+							switchMap(() =>
 							{
-								return this.saveSnapshot(clonedSnapshot, jobId, changeOrderId).pipe(
-									map(x =>
-									{
-										return { lockedMergeFields: lockedMergeFields };
-									})
-								);
-							}),
-							switchMap((data) =>
-							{
-								return this.createEnvelope([...data.lockedMergeFields.customMergeFields, ...data.lockedMergeFields.systemMergeFields], clonedSnapshot.jioSelections, clonedSnapshot.templates.filter(t => t.templateId === 0), clonedSnapshot.financialCommunityId, clonedSnapshot.salesAgreementNumber,
+								return this.createEnvelope(clonedSnapshot.jioSelections, clonedSnapshot.templates.filter(t => t.templateId === 0), clonedSnapshot.financialCommunityId, clonedSnapshot.salesAgreementNumber,
 									clonedSnapshot.salesAgreementStatus, clonedSnapshot.envelopeInfo, clonedSnapshot.jobId, clonedSnapshot.changeOrderGroupId, clonedSnapshot.constructionChangeOrderSelections,
 									clonedSnapshot.salesChangeOrderSelections, clonedSnapshot.planChangOrderSelections, clonedSnapshot.nonStandardChangeOrderSelections, clonedSnapshot.lotTransferSelections,
 									clonedSnapshot.changeOrderInformation).pipe(
