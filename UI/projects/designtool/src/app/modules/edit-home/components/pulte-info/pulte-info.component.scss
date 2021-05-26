@@ -1,4 +1,5 @@
 @import "../../../../../scss/color-pallet.scss";
+@import "../../../../../scss/sizes.scss";
 
 .phd-pulteinfo-flexbox {
   display: flex;
@@ -7,6 +8,7 @@
   flex-wrap: nowrap;
   align-items: flex-start;
   margin: 12px 12px 100px 50px;
+  padding-bottom: $action-bar;
 }
 
 .phd-info {
