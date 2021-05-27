@@ -667,36 +667,18 @@ export class SalesAgreementEffects
 					}
 				}
 
-				const marketId = store.org.salesCommunity.market.id;
-				const financialCommunityId = store.job.financialCommunityId;
-				const customMergeFields = this.contractService.getCustomMergeFields(marketId, financialCommunityId);
-				const systemMergeFields = this.store.pipe(select(fromRoot.systemMergeFields), take(1));
-
 				return this.salesAgreementService.setSalesAgreementOutForSignature(store.salesAgreement.id || null).pipe(
 					combineLatest(
-						!eSignEnvelope ? of<ESignEnvelope>(null) : eSignEnvelope,
-						customMergeFields,
-						systemMergeFields
-					), map(([salesAgreement, eSignEnvelope, customMergeFields, systemMergeFields]) =>
+						!eSignEnvelope ? of<ESignEnvelope>(null) : eSignEnvelope
+					), map(([salesAgreement, eSignEnvelope]) =>
 					{
-						return { salesAgreement, eSignEnvelope, customMergeFields, systemMergeFields, job: store.job };
+						return { salesAgreement, eSignEnvelope, job: store.job };
 					}));
 			}),
 			switchMap(data =>
 			{
-				// lock down merge fields by saving them to storage
-				return this.contractService.lockMergeFields(data.customMergeFields, data.systemMergeFields, data.job.id).pipe(
-					withLatestFrom(
-						of(data.job),
-						of(data.salesAgreement),
-						of(data.eSignEnvelope)
-					)
-				);
-			}),
-			switchMap(([ret, jobState, salesAgreement, eSignEnvelope]) =>
-			{
-				const job: Job = _.cloneDeep(jobState);
-				const statusUtcDate = salesAgreement.lastModifiedUtcDate;
+				const job: Job = _.cloneDeep(data.job);
+				const statusUtcDate = data.salesAgreement.lastModifiedUtcDate;
 
 				job.changeOrderGroups.map(co =>
 				{
@@ -711,15 +693,15 @@ export class SalesAgreementEffects
 							salesStatusUtcDate: statusUtcDate
 						});
 
-						if (!!eSignEnvelope)
+						if (!!data.eSignEnvelope)
 						{
 							if (!!co.eSignEnvelopes)
 							{
-								co.eSignEnvelopes = [...co.eSignEnvelopes.filter(e => e.eSignEnvelopeId !== eSignEnvelope.eSignEnvelopeId), eSignEnvelope];
+								co.eSignEnvelopes = [...co.eSignEnvelopes.filter(e => e.eSignEnvelopeId !== data.eSignEnvelope.eSignEnvelopeId), data.eSignEnvelope];
 							}
 							else
 							{
-								co.eSignEnvelopes = [eSignEnvelope];
+								co.eSignEnvelopes = [data.eSignEnvelope];
 							}
 						}
 					}
@@ -728,8 +710,8 @@ export class SalesAgreementEffects
 				return from([
 					new ChangeOrderActions.CurrentChangeOrderOutForSignature(statusUtcDate),
 					new JobActions.JobUpdated(job),
-					new SalesAgreementSaved(salesAgreement),
-					new CommonActions.ESignEnvelopesLoaded([eSignEnvelope])
+					new SalesAgreementSaved(data.salesAgreement),
+					new CommonActions.ESignEnvelopesLoaded([data.eSignEnvelope])
 				]);
 			})
 		), SaveError, "Error setting sales agreement out for signature!!")

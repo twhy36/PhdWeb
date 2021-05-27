@@ -240,11 +240,12 @@ export class PHDSearchComponent
 		}
 	}
 
-	searchSpec()
+	searchAvailableSpecs()
 	{
 		this.clear();
 		this.filterSpecs = true;
-		this.selectedBuildTypes = ["Spec"];
+		this.selectedBuildTypes = ['Spec'];
+		this.selectedHomesiteStatus = ['Available'];
 
 		setTimeout(t =>
 		{

@@ -49,18 +49,28 @@ export class Attribute
 	{
 		const today = new Date();
 
-		return !this.endDate || this.endDate.getTime() > today.getTime();
+		return (!this.endDate || this.endDate.getTime() > today.getTime())
+			&& (this.startDate?.getTime() <= today.getTime());
 	}
 
 	set active(isActive: boolean)
 	{
+		const today = new Date();
 		if (isActive)
 		{
-			this.endDate = this.defaultEndDate;
+			if (this.endDate?.getTime() <= today.getTime())
+			{
+				this.endDate = this.defaultEndDate;
+			}
+
+			if (this.startDate?.getTime() > today.getTime())
+			{
+				this.startDate = today;
+			}
 		}
 		else
 		{
-			this.endDate = new Date();
+			this.endDate = today;
 
 			this.endDate.setDate(this.endDate.getDate() - 1);
 		}

@@ -39,7 +39,7 @@ describe('MyFavoritesComponent', () => {
       declarations: [
 				MyFavoritesComponent,
 				MockComponent({ selector: 'group-bar', inputs: ['communityName', 'planName', 'groups', 'selectedSubGroupId'], outputs: ['onSubgroupSelected', 'onSetTreeFilter'] }),
-				MockComponent({ selector: 'normal-experience', inputs: ['groupName', 'currentSubgroup', 'errorMessage', 'myFavoritesChoices', 'decisionPointId', 'includeContractedOptions', 'salesChoices', 'groups'], outputs: ['onToggleChoice', 'onToggleContractedOptions', 'onViewChoiceDetail', 'onSelectDecisionPoint']}),
+				MockComponent({ selector: 'normal-experience', inputs: ['groupName', 'currentSubgroup', 'errorMessage', 'myFavoritesChoices', 'decisionPointId', 'includeContractedOptions', 'salesChoices', 'groups', 'myFavoritesPointsDeclined'], outputs: ['onToggleChoice', 'onToggleContractedOptions', 'onViewChoiceDetail', 'onSelectDecisionPoint', 'onDeclineDecisionPoint']}),
 				MockComponent({ selector: 'floor-plan-experience', inputs: ['groupName', 'currentSubgroup', 'errorMessage', 'myFavoritesChoices', 'decisionPointId', 'includeContractedOptions', 'salesChoices', 'marketingPlanId', 'isFloorplanFlipped'], outputs: ['onToggleChoice', 'onToggleContractedOptions', 'onViewChoiceDetail', 'onSelectDecisionPoint']}),
 				MockComponent({ selector: 'choice-card-detail', inputs: ['choice', 'path'], outputs: ['onBack', 'onToggleChoice']}),
 				MockComponent({ selector: 'action-bar', inputs: ['primaryAction', 'price'], outputs: ['callToAction'] })
@@ -74,7 +74,7 @@ describe('MyFavoritesComponent', () => {
 		});
 		describe('when the point id is a part of a different subGroup', () => {
 			it('should select the new subGroup', () => {
-				const onSubgroupSelectedSpy = spyOn(component, 'onSubgroupSelected');
+				const onStoreSpy = spyOn(mockStore, 'dispatch');
 				component.selectedPointId = 0;
 				const groups = [{
 					id: 1,
@@ -166,7 +166,7 @@ describe('MyFavoritesComponent', () => {
 
 				component.selectDecisionPoint(11);
 				expect(component.selectedPointId).toEqual(11);
-				expect(onSubgroupSelectedSpy).toHaveBeenCalledWith(5);
+				expect(onStoreSpy).toHaveBeenCalled();
 			});
 		});
 	});

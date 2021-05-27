@@ -68,16 +68,3 @@ export enum ESignRecipientRoles
 	realEstateAgent,
 	carbonCopyRecipient
 }
-
-export class MergeFieldDto
-{
-	fieldName: string;
-	fieldValue: string;
-}
-
-
-export class MergeFieldData
-{
-	customMergeFields: MergeFieldDto[];
-	systemMergeFields: MergeFieldDto[];
-}
