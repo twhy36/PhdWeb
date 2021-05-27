@@ -18,7 +18,7 @@ import { environment } from '../../../../environments/environment';
 import { isChangeOrderChoice } from '../../shared/classes/tree.utils';
 
 import * as _ from 'lodash';
-import { MyFavoritesChoice } from '../../shared/models/my-favorite.model';
+import { MyFavoritesChoice, MyFavoritesPointDeclined } from '../../shared/models/my-favorite.model';
 
 @Injectable()
 export class TreeService
@@ -158,6 +158,33 @@ export class TreeService
 				return of([]);
 			})
 		);
+	}
+
+	getPointCatalogIds(pointsDeclined: MyFavoritesPointDeclined[]) : Observable<MyFavoritesPointDeclined[]>
+	{
+		return this.identityService.token.pipe(
+			switchMap((token: string) =>
+			{
+				const pointIds: Array<number> = pointsDeclined.map(x => x.dPointId);
+				const filter = `dPointID in (${pointIds})`;
+				const select = 'dPointID,divDPointCatalogID';
+				const url = `${environment.apiUrl}dPoints?${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
+
+				return this.http.get<any>(url);				
+			}),
+			map((response: any) =>
+			{
+				let newPointsDeclined: MyFavoritesPointDeclined[] = [];
+				pointsDeclined.forEach(p => {
+					const respPoint = response.value.find(r => r.dPointID === p.dPointId);
+					if (respPoint)
+					{
+						newPointsDeclined.push({ ...p, divPointCatalogId: respPoint.divDPointCatalogID });
+					}
+				});
+				return newPointsDeclined;
+			})
+		)
 	}
 
 	getChoiceCatalogIds(choices: Array<JobChoice | ChangeOrderChoice | MyFavoritesChoice>): Observable<Array<JobChoice | ChangeOrderChoice>>

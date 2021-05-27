@@ -5,6 +5,7 @@ import { Effect, Actions, ofType } from '@ngrx/effects';
 import { switchMap, combineLatest, map, scan, withLatestFrom, tap } from 'rxjs/operators';
 import { Observable } from 'rxjs/Observable';
 import { from } from 'rxjs/observable/from';
+import { of } from 'rxjs/observable/of';
 import { forkJoin } from 'rxjs/observable/forkJoin';
 import * as _ from 'lodash';
 
@@ -27,6 +28,7 @@ import { FavoriteService } from '../core/services/favorite.service';
 
 import { State, showSpinner } from './reducers';
 import { setTreePointsPastCutOff, mergeIntoTree } from '../shared/classes/tree.utils';
+import { MyFavoritesPointDeclined } from '../shared/models/my-favorite.model';
 
 @Injectable()
 export class CommonEffects
@@ -64,13 +66,16 @@ export class CommonEffects
 				}
 
 				const favoriteChoices = _.flatMap(result.myFavorites, x => x.myFavoritesChoice);
+				const favoritePointsDeclined = _.flatMap(result.myFavorites, x => x.myFavoritesPointDeclined);
+				const getPointsDeclined: Observable<MyFavoritesPointDeclined[]> = favoritePointsDeclined.length > 0 ? this.treeService.getPointCatalogIds(favoritePointsDeclined) : of([]);
 
 				return this.orgService.getSalesCommunityByFinancialCommunityId(result.job.financialCommunityId, true).pipe(
 					combineLatest(
-						this.treeService.getChoiceCatalogIds([...result.job.jobChoices, ...changeOrderChoices, ...favoriteChoices])
+						this.treeService.getChoiceCatalogIds([...result.job.jobChoices, ...changeOrderChoices, ...favoriteChoices]),
+						getPointsDeclined
 					),
 					//assign divChoiceCatalogIDs to choices for job and current change order
-					map(([sc, choices]) =>
+					map(([sc, choices, pointsDeclined]) =>
 					{
 						const currentChangeOrderGroup = new ChangeOrderGroup(currentChangeOrder);
 
@@ -114,6 +119,15 @@ export class CommonEffects
 								if (ch1)
 								{
 									ch.divChoiceCatalogId = ch1.divChoiceCatalogId;
+								}
+							});
+
+							_.flatMap(newResult.myFavorites, fav => fav.myFavoritesPointDeclined).forEach(pt => {
+								let ptDeclined = pointsDeclined.find(p => p.dPointId === pt.dPointId);
+
+								if (ptDeclined)
+								{
+									pt.divPointCatalogId = ptDeclined.divPointCatalogId;
 								}
 							});							
 						}
