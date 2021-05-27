@@ -2,8 +2,8 @@ import { Component, Input, OnInit, OnChanges, SimpleChanges, Output, EventEmitte
 import { ActivatedRoute, Router, UrlSegment } from '@angular/router';
 import { APP_BASE_HREF } from '@angular/common';
 
-import { ReplaySubject, of, Observable } from 'rxjs';
-import { combineLatest, switchMap, map, withLatestFrom } from 'rxjs/operators';
+import { ReplaySubject, of, Observable, Subject } from 'rxjs';
+import { combineLatest, switchMap, map, withLatestFrom, distinctUntilChanged } from 'rxjs/operators';
 
 import { Store, select } from '@ngrx/store';
 
@@ -77,6 +77,8 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 	lots: LotExt;
 	plan: Plan;
 
+	private onChanges$: Subject<void> = new Subject<void>();
+
 	constructor(private modalService: ModalService,
 		private attributeService: AttributeService,
 		private route: ActivatedRoute,
@@ -139,10 +141,15 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 				}
 			});
 
-		const getAttributeGroups: Observable<AttributeGroup[]> = this.choice.mappedAttributeGroups.length > 0 ? this.attributeService.getAttributeGroups(this.choice) : of([]);
+		let attributeGroups: Observable<AttributeGroup[]> = this.onChanges$.pipe(
+			map(() => this.choice.mappedAttributeGroups),
+			distinctUntilChanged((prev, curr) => _.isEqual(prev, curr)),
+			switchMap(() => this.choice.mappedAttributeGroups.length > 0 ? this.attributeService.getAttributeGroups(this.choice) : of([]))
+		);
+
 		const getLocationGroups: Observable<LocationGroup[]> = this.choice.mappedLocationGroups.length > 0 ? this.attributeService.getLocationGroups(this.choice.mappedLocationGroups.map(x => x.id)) : of([]);
 
-		getAttributeGroups.pipe(
+		attributeGroups.pipe(
 			combineLatest(getLocationGroups),
 			switchMap(([attributeGroups, locationGroups]) =>
 			{
@@ -223,6 +230,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 							}
 						}
 					}
+
 					return attributeCopy;
 				});
 			}
@@ -269,6 +277,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 
 				this.lots = lots;
 				this.plan = plan;
+
 				this.setAttributeMonotonyConflict();
 			});
 
@@ -302,6 +311,9 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 			const changeOrder = state.currentChangeOrder as ChangeOrderGroup;
 			this.changeOrderOverrideReason = changeOrder ? changeOrder.overrideNote : null;
 		});
+
+		// trigger attributeGroups observable in the init.
+		this.onChanges$.next();
 	}
 
 	ngOnChanges(changes: SimpleChanges)
@@ -309,6 +321,13 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 		if (changes['currentChoice'])
 		{
 			this.choice = changes['currentChoice'].currentValue;
+		}
+		
+		// looking for changes to the choice to recheck for any attribute reassignment changes
+		if (changes['currentDecisionPoint'] || changes['currentChoice'])
+		{
+			// trigger attributeGroups observable in the init.
+			this.onChanges$.next();
 		}
 	}
 
@@ -370,16 +389,19 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 		}
 		else if (this.canEditAgreement)
 		{
-			this.choice.overrideNote = null;
-			this.override$.next((!!this.choice.overrideNote));
-			this.emitToggleEvent();
+			this.addOverrideReason(null);
 		}
 	}
 
 	addOverrideReason(overrideReason: string)
 	{
-		this.choice.overrideNote = overrideReason;
+		if (this.choice.overrideNote !== undefined)
+		{
+			this.choice.overrideNote = overrideReason;
+		}
+
 		this.override$.next((!!this.choice.overrideNote));
+
 		this.emitToggleEvent();
 	}
 

@@ -234,16 +234,19 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		}
 		else if (this.canEditAgreement)
 		{
-			this.choice.overrideNote = null;
-			this.override$.next((!!this.choice.overrideNote));
-			this.choiceDetailToggled();
+			this.addOverrideReason(null);
 		}
 	}
 
 	addOverrideReason(overrideReason: string)
 	{
-		this.choice.overrideNote = overrideReason;
+		if (this.choice.overrideNote !== undefined)
+		{
+			this.choice.overrideNote = overrideReason;
+		}
+
 		this.override$.next((!!this.choice.overrideNote));
+
 		this.choiceDetailToggled();
 	}
 
