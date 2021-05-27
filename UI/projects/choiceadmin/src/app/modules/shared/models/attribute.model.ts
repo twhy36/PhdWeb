@@ -58,7 +58,10 @@ export class Attribute
 		const today = new Date();
 		if (isActive)
 		{
-			this.endDate = this.defaultEndDate;
+			if (this.endDate?.getTime() <= today.getTime())
+			{
+				this.endDate = this.defaultEndDate;
+			}
 
 			if (this.startDate?.getTime() > today.getTime())
 			{
