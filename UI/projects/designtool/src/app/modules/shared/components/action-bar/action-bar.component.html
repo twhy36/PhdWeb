@@ -17,7 +17,7 @@
 		</div>
 
 		<div *ngIf="inAgreement">
-			<a (click)="onPreviewAgreement()" class="phd-preview" [class.disabled]="savingAgreement || !(isTemplatesSelected$ | async)" *ngIf="canPreviewAgreement">Preview Agreement</a>
+			<a (click)="onViewAddenda()" class="phd-preview" [class.disabled]="savingAgreement || !(isTemplatesSelected$ | async)" *ngIf="canViewAddenda">View Addenda</a>
 			<a (click)="onTerminationAgreement()" class="phd-termination" [class.disabled]="savingAgreement" *ngIf="canTerminateAgreement">View/Sign Termination Agreement</a>
 		</div>
 	</div>
