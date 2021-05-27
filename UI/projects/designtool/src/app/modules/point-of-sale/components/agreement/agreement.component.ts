@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Store, select } from '@ngrx/store';
 import { distinctUntilChanged, combineLatest, switchMap, withLatestFrom } from 'rxjs/operators';
-import { of ,  NEVER as never ,  Observable } from 'rxjs';
+import { of,  Observable } from 'rxjs';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromJob from '../../../ngrx-store/job/reducer';
@@ -117,6 +117,11 @@ export class AgreementComponent extends UnsubscribeOnDestroy implements OnInit
 	get buildType()
 	{
 		return this.job && this.job.jobTypeName === 'Model' ? 'Model' : this.job && this.job.lot ? this.job.lot.lotBuildTypeDesc : '';
+	}
+
+	get showScarDatePopover()
+	{
+		return this.job && (this.job.jobConstructionStageHistories.length > 0 || this.job.projectedDates);
 	}
 
 	/**
