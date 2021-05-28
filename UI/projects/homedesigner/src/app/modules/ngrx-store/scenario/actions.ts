@@ -6,7 +6,8 @@ import { SalesAgreementLoaded } from '../actions';
 export enum ScenarioActionTypes
 {
 	SelectChoices = 'Select Choices',
-	SetTreeFilter = 'Set Tree filter'
+	SetTreeFilter = 'Set Tree filter',
+	SetStatusForPointsDeclined = 'Set Status For Points Declined'
 }
 
 export class SelectChoices implements Action
@@ -27,7 +28,15 @@ export class SetTreeFilter implements Action
 	constructor(public treeFilter: TreeFilter) { }
 }
 
+export class SetStatusForPointsDeclined implements Action
+{
+	readonly type = ScenarioActionTypes.SetStatusForPointsDeclined;
+
+	constructor(public divPointCatalogIds: number[], public removed: boolean) { }
+}
+
 export type ScenarioActions =
 	SelectChoices |
 	SetTreeFilter |
-	SalesAgreementLoaded;
+	SalesAgreementLoaded | 
+	SetStatusForPointsDeclined;

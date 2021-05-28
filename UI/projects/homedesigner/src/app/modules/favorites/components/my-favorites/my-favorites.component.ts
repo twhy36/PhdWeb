@@ -23,7 +23,8 @@ import {
 	Tree,
 	TreeVersionRules,
 	JobChoice,
-	getDependentChoices
+	getDependentChoices,
+	DecisionPoint
 } from 'phd-common';
 
 import { GroupBarComponent } from '../../../shared/components/group-bar/group-bar.component';
@@ -285,43 +286,29 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 
 	deselectDeclinedPoints(choice: ChoiceExt) {
 		// Check for favorites and deselect declined points in favorites
-		let choiceId = choice.id;
-		this.groups.forEach(g => {
-			g.subGroups.forEach(sg => {
-				sg.points.forEach(p => {
-					p.choices.forEach(c => {
-						if (c.id === choiceId) {
-							let fdp = this.myFavoritesPointsDeclined.find(fpd => fpd.dPointId === p.id);
-							if (fdp) {
-								this.store.dispatch(new FavoriteActions.DeleteMyFavoritesPointDeclined(this.myFavoriteId, fdp.id));
-							}
-						}
-					})
-				})
-			})
-		});
+		const points = _.flatMap(this.groups, g => _.flatMap(g.subGroups, sg => sg.points)) || [];
+		const pointDeclined = points.find(p => p.choices.some(c => c.divChoiceCatalogId === choice.divChoiceCatalogId));
+		const fdp = this.myFavoritesPointsDeclined?.find(p => p.divPointCatalogId === pointDeclined.divPointCatalogId);
+		if (fdp) {
+			this.store.dispatch(new FavoriteActions.DeleteMyFavoritesPointDeclined(this.myFavoriteId, fdp.id));
+		}
 	}
 
-	deselectPointChoices(declinedPoint: MyFavoritesPointDeclined) {
+	deselectPointChoices(declinedPointCatalogId: number) {
 		let deselectedChoices = [];
 
-		this.groups.forEach(g => {
-			g.subGroups.forEach(sg => {
-				sg.points.forEach(p => {
-					if (p.id === declinedPoint.dPointId) {
-						p.choices.forEach(c => {
-							deselectedChoices.push({ choiceId: c.id, quantity: 0, attributes: [] });
+		const points = _.flatMap(this.groups, g => _.flatMap(g.subGroups, sg => sg.points)) || [];
+		const pointDeclined = points.find(p => p.divPointCatalogId === declinedPointCatalogId);
 
-							const impactedChoices = getDependentChoices(this.tree, this.treeVersionRules, c);
+		pointDeclined?.choices?.forEach(c => {
+			deselectedChoices.push({ choiceId: c.id, quantity: 0, attributes: [] });
 
-                            impactedChoices.forEach(ch =>
-                            {
-                                deselectedChoices.push({ choiceId: ch.id, quantity: 0, attributes: ch.selectedAttributes });
-                            });
-						})
-					}
-				})
-			})
+			const impactedChoices = getDependentChoices(this.tree, this.treeVersionRules, c);
+
+			impactedChoices.forEach(ch =>
+			{
+				deselectedChoices.push({ choiceId: ch.id, quantity: 0, attributes: ch.selectedAttributes });
+			});
 		});
 
 		this.store.dispatch(new ScenarioActions.SelectChoices(...deselectedChoices));
@@ -396,13 +383,16 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		}
 	}
 
-	declineDecisionPoint(declinedPoint: MyFavoritesPointDeclined) {
-		let declPoint = this.myFavoritesPointsDeclined.find(p => p.dPointId === declinedPoint.dPointId);
-		if (!declPoint) {
-			this.store.dispatch(new FavoriteActions.AddMyFavoritesPointDeclined(this.myFavoriteId, declinedPoint.dPointId));
-			this.deselectPointChoices(declinedPoint);
+	declineDecisionPoint(point: DecisionPoint) {
+		const declPoint = this.myFavoritesPointsDeclined?.find(p => p.divPointCatalogId === point.divPointCatalogId);
+		if (!declPoint) { 
+			this.store.dispatch(new FavoriteActions.AddMyFavoritesPointDeclined(this.myFavoriteId, point.id));
+			this.deselectPointChoices(point.divPointCatalogId);
 		} else {
 			this.store.dispatch(new FavoriteActions.DeleteMyFavoritesPointDeclined(this.myFavoriteId, declPoint.id));
 		}
-	}
+
+		const declPointIds = [point.divPointCatalogId];
+		this.store.dispatch(new ScenarioActions.SetStatusForPointsDeclined(declPointIds, !!declPoint));
+	}	
 }

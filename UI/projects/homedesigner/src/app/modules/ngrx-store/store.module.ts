@@ -15,6 +15,7 @@ import { exceptionHandler } from './exceptionHandler';
 import { FavoriteEffects } from './favorite/effects';
 import { LotEffects } from './lot/effects';
 import { PlanEffects } from './plan/effects';
+import { ScenarioEffects } from './scenario/effects';
 import { CommonEffects } from './effects';
 
 @NgModule({
@@ -29,6 +30,7 @@ import { CommonEffects } from './effects';
 			FavoriteEffects,
 			LotEffects,
 			PlanEffects,
+			ScenarioEffects,
 			CommonEffects
 		])
 	]

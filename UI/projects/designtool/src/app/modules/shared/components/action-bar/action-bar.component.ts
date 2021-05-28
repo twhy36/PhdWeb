@@ -285,7 +285,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 		return this.agreementType == ESignTypeEnum.TerminationAgreement;
 	}
 
-	get canPreviewAgreement(): boolean
+	get canViewAddenda(): boolean
 	{
 		return !this.canTerminateAgreement && this.agreement && this.agreement.status !== 'Void';
 	}
@@ -363,7 +363,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 		this.callToAction.emit({ actionBarCallType: ActionBarCallType.APPROVE_AGREEMENT });
 	}
 
-	onPreviewAgreement()
+	onViewAddenda()
 	{
 		this.callToAction.emit({ actionBarCallType: ActionBarCallType.PREVIEW_AGREEMENT });
 	}

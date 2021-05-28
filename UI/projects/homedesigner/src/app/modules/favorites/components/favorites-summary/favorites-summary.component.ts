@@ -146,7 +146,17 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 
 	onSubgroupSelected(id: number) {
 		this.store.dispatch(new NavActions.SetSelectedSubgroup(id));
-		this.router.navigateByUrl(`/favorites/my-favorites/${this.favoritesId}`);
+
+		const subGroups = _.flatMap(this.groups, g => _.flatMap(g.subGroups)) || [];
+		const selectedSubGroup = subGroups.find(sg => sg.id === id);
+		if (selectedSubGroup)
+		{
+			this.router.navigateByUrl(`/favorites/my-favorites/${this.favoritesId}/${selectedSubGroup.subGroupCatalogId}`);
+		}
+		else
+		{
+			this.router.navigateByUrl(`/favorites/my-favorites/${this.favoritesId}`);
+		}
 	}
 	
 	/**

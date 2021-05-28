@@ -122,6 +122,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 			{
 				current.choices.forEach((ch, i) =>
 				{
+					// assigns but stops OnChanges from triggering on choice-card...maybe
 					Object.assign(this.choices[i], ch);
 				});
 			}

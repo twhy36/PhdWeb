@@ -44,6 +44,7 @@ export class MyFavoritesPointDeclined
     id: number;
     myFavoriteId: number;
     dPointId: number;
+    divPointCatalogId: number;
     
 	constructor(dto?: MyFavoritesPointDeclined)
 	{

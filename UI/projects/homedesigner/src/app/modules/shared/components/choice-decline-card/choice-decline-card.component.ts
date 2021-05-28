@@ -1,6 +1,6 @@
 import { Component, Input, Output, OnInit, OnChanges, SimpleChanges, EventEmitter } from '@angular/core';
 
-import { UnsubscribeOnDestroy, flipOver3 } from 'phd-common';
+import { UnsubscribeOnDestroy, flipOver3, DecisionPoint } from 'phd-common';
 import { MyFavoritesPointDeclined } from '../../models/my-favorite.model';
 
 @Component({
@@ -13,10 +13,10 @@ import { MyFavoritesPointDeclined } from '../../models/my-favorite.model';
 })
 export class ChoiceDeclineCardComponent extends UnsubscribeOnDestroy implements OnInit, OnChanges
 {
-	@Input() decisionPointId?: number;
+	@Input() point: DecisionPoint;
 	@Input() myFavoritesPointsDeclined?: MyFavoritesPointDeclined[]
 	
-	@Output() onDeclineDecisionPoint = new EventEmitter<{ dPointId: number }>();
+	@Output() onDeclineDecisionPoint = new EventEmitter<DecisionPoint>();
 
 	isDeclined: boolean = false;
 
@@ -27,11 +27,7 @@ export class ChoiceDeclineCardComponent extends UnsubscribeOnDestroy implements 
 
 	ngOnInit()
 	{
-        if (this.myFavoritesPointsDeclined.find(p => p.dPointId === this.decisionPointId)?.dPointId > 0) {
-            this.isDeclined = true;
-        } else {
-            this.isDeclined = false;
-        }
+        this.isDeclined = !!this.myFavoritesPointsDeclined.find(p => p.divPointCatalogId === this.point.divPointCatalogId);
 	}
 
 	ngOnChanges(changes: SimpleChanges) { }
@@ -46,7 +42,6 @@ export class ChoiceDeclineCardComponent extends UnsubscribeOnDestroy implements 
 	}
 
 	toggleDecline() {
-		this.isDeclined = !this.isDeclined;
-		this.onDeclineDecisionPoint.emit({ dPointId: this.decisionPointId });
+		this.onDeclineDecisionPoint.emit(this.point);
 	}
 }

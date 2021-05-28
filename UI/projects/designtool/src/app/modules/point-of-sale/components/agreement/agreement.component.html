@@ -163,8 +163,8 @@
 				<strong>Construction Stage:</strong>
 			</div>
 			<div class="flex-column phd-flex-fill pl-1" *ngIf="job && !isSalesAgreementCancelledOrVoided">
-				<span *ngIf="job.jobConstructionStageHistories.length === 0">{{job?.constructionStageName}}</span>
-				<a class="phd-scar-popover" [ngbPopover]="scarDates" popoverTitle="SCAR Dates" triggers="manual" #p="ngbPopover" (click)="toggleSCARDates(p)" *ngIf="job.jobConstructionStageHistories.length">{{job?.constructionStageName}}</a>
+				<span *ngIf="!showScarDatePopover">{{job?.constructionStageName}}</span>
+				<a class="phd-scar-popover" [ngbPopover]="scarDates" popoverTitle="SCAR Dates" triggers="manual" #p="ngbPopover" (click)="toggleSCARDates(p)" *ngIf="showScarDatePopover">{{job?.constructionStageName}}</a>
 
 				<ng-template #scarDates>
 					<div *ngFor="let stage of scarDateValues" class="phd-scar-stage">

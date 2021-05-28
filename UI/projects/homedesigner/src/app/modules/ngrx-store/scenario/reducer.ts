@@ -156,18 +156,6 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 				points.forEach(pt => setPointStatus(pt));
 				// For each point, if the user cannot select the DP in this tool, then the status should be complete
 				points.filter(pt => pt.isStructuralItem).forEach(pt => pt.status = PointStatus.COMPLETED);
-
-				
-				
-				// Possible groundwork for future story 320407 - Indicators and Decline Card Functionality
-				// let declinedPointIds:number[] = [];
-				// action.myFavorites.forEach(fav => {
-				// 	fav.myFavoritesPointDeclined.forEach(dp => {
-				// 		declinedPointIds.push(dp.dPointId);
-				// 	})
-				// });
-				//points.filter(pt => declinedPointIds.find(id => id === pt.id)).forEach(pt => pt.status = PointStatus.COMPLETED);
-				// Filter for declined points, set to completed.
 				
 				subGroups.forEach(sg => setSubgroupStatus(sg));
 				newState.tree.treeVersion.groups.forEach(g => setGroupStatus(g));
@@ -253,11 +241,29 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 			// For each point, if the user cannot select the DP in this tool, then the status should be complete
 			points.filter(pt => pt.isStructuralItem).forEach(pt => pt.status = PointStatus.COMPLETED);
 			
-			// Need to have indicators update with points declined here.
 			subGroups.forEach(sg => setSubgroupStatus(sg));
 			newTree.treeVersion.groups.forEach(g => setGroupStatus(g));
 
 			return { ...state, tree: newTree, rules: rules, options: options, isUnsaved: true, pointHasChanges: true };
+
+		case ScenarioActionTypes.SetStatusForPointsDeclined:
+			newTree = _.cloneDeep(state.tree);
+			subGroups = _.flatMap(newTree.treeVersion.groups, g => g.subGroups);
+			points = _.flatMap(subGroups, sg => sg.points);
+
+			action.divPointCatalogIds?.forEach(id => {
+				let point = points.find(x => x.divPointCatalogId === id);
+				if (point)
+				{
+					point.completed = !action.removed;
+					point.status = action.removed ? PointStatus.UNVIEWED : PointStatus.COMPLETED;
+				}
+			});
+		
+			subGroups.forEach(sg => setSubgroupStatus(sg));
+			newTree.treeVersion.groups.forEach(g => setGroupStatus(g));
+
+			return { ...state, tree: newTree };
 
 		default:
 			return state;
