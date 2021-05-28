@@ -38,9 +38,10 @@
 								<span *ngIf="unSelectedItems.length === 0">No items found</span>
 
 								<select id="phd-select-lots" *ngIf="unSelectedItems.length !== 0" formControlName="pendingSelection" [class.phd-tags-1row]="selectedItems.length <= 4" [class.phd-tags-2row]="selectedItems.length > 4 && selectedItems.length <= 8" [class.phd-tags-3row]="selectedItems.length > 8 && selectedItems.length <= 12" [class.phd-tags-4row]="selectedItems.length > 12" multiple size="9">
-									<option *ngFor="let item of unSelectedItems" [ngValue]="item">{{ item.label }}</option>
+									<option *ngFor="let item of unSelectedItems" [ngValue]="item">{{ item.label }}<span *ngIf="item.isModel">*</span></option>
 								</select>
 							</div>
+							<div class="phd-bold">* Model</div>
 
 							<div class="text-center phd-buttons-row">
 								<button class="btn btn-sm btn-secondary mr-1" (click)="addSelectedItems();"><i class="fa fa-angle-down fa-fw"></i></button>

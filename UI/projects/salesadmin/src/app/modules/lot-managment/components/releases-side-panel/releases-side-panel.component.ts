@@ -212,8 +212,11 @@ class MultiSelectHomeSiteItem implements IMultiSelectItem
 {
 	selected: boolean = false;
 	selectable: boolean = false;
+	isModel: boolean;
 
-	constructor(private _homeSite: HomeSite) { }
+	constructor(private _homeSite: HomeSite) {
+		this.isModel = _homeSite.lotBuildTypeDescription === 'Model';
+	 }
 
 	get id(): number
 	{
