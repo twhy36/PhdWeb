@@ -144,13 +144,14 @@ export class AutoApprovalComponent extends UnsubscribeOnDestroy implements OnIni
 
 	selectAllToggle({ checked }: { checked: boolean })
 	{
+		//When Select All Toggle is used, get list of all changed Approvals, toggle options to the boolean, then save changedApprovals
 		const changedApprovals = this.approvals.filter(a => a.isAutoApproval !== checked && a.edhChangeOrderTypeId !== 0).map(a => { return { ...a, isAutoApproval: checked }; })
-
+		
 		this.saveRule(changedApprovals).subscribe(response =>
-		{
-			this._msgService.add({ severity: 'success', summary: 'Auto Approval', detail: 'Auto Approval saved successfully' });
-
-			this.approvals.map(a => a.edhChangeOrderTypeId === 0 ? a.isAutoApproval : a.isAutoApproval = checked);
+			{
+				this._msgService.add({ severity: 'success', summary: 'Auto Approval', detail: 'Auto Approval saved successfully' });
+				
+				this.approvals.map(a => a.edhChangeOrderTypeId === 0 ? a.isAutoApproval : a.isAutoApproval = checked);
 		},
 		() =>
 		{

@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 
 import { of } from 'rxjs';
 import { finalize, take } from 'rxjs/operators';
@@ -18,7 +18,7 @@ import { Option } from '../../../../../shared/models/option.model';
 	templateUrl: './expansion-attribute-groups-tab-panel.component.html',
 	styleUrls: ['./expansion-attribute-groups-tab-panel.component.scss']
 })
-export class ExpansionAttributeGroupsTabPanelComponent implements OnInit
+export class ExpansionAttributeGroupsTabPanelComponent implements OnChanges
 {
 	@Input() option: Option;
 	@Input() groups: Array<AttributeGroupMarket>;
@@ -42,8 +42,13 @@ export class ExpansionAttributeGroupsTabPanelComponent implements OnInit
 		private _attrService: AttributeService,
 		private _divOptService: DivisionalOptionService) { }
 
-	ngOnInit() {
-		this.originalGroups = cloneDeep(this.groups);
+	ngOnChanges(changes: SimpleChanges)
+	{
+		if (changes['groups'])
+		{
+			// Update the originalGroups on init and Add Group
+			this.originalGroups = cloneDeep(this.groups);
+		}
 	}
 
 	onAddGroup()
@@ -93,7 +98,9 @@ export class ExpansionAttributeGroupsTabPanelComponent implements OnInit
 	removeGroups()
 	{
 		this.isSaving = true;
-		let groupOrders = this.selectedGroups.map(g => {
+
+		let groupOrders = this.selectedGroups.map(g =>
+		{
 			return {
 				attributeGroupId: g.id,
 				sortOrder: g.sortOrder
@@ -125,7 +132,9 @@ export class ExpansionAttributeGroupsTabPanelComponent implements OnInit
 
 				this.originalGroups = cloneDeep(this.groups);
 				this.selectedGroups = [];
+
 				this.onDisassociate.emit();
+
 				this._msgService.add({ severity: 'success', summary: 'Attribute Groups', detail: `Attribute Group(s) removed successfully!` });
 			},
 			error =>
@@ -152,25 +161,20 @@ export class ExpansionAttributeGroupsTabPanelComponent implements OnInit
 		if (isSelected && index < 0)
 		{
 			this.selectedGroups.push(group);
+
 			this.selectedGroups = orderBy(this.selectedGroups, [attr => attr.groupName.toLowerCase()])
 		}
 		else if (!isSelected && index >= 0)
 		{
 			this.selectedGroups.splice(index, 1);
+
 			this.selectedGroups = [...this.selectedGroups];
 		}
 	}
 
 	toggleAllGroups(isSelected: boolean): void
 	{
-		if (isSelected)
-		{
-			this.selectedGroups = this.groups.slice();
-		}
-		else
-		{
-			this.selectedGroups = [];
-		}
+		this.selectedGroups = isSelected ? this.groups.slice() : [];
 	}
 
 	onAssociateCommunities()
@@ -183,36 +187,42 @@ export class ExpansionAttributeGroupsTabPanelComponent implements OnInit
 		this.onAssociateToCommunities.emit({ option: this.option, groups: this.selectedGroups, callback: cb });
 	}
 
-	onChangeOptionAttributeGroupOrder(event: any) {
-		if (event.dragIndex !== event.dropIndex) {
-			this.isSaving = true;
-			let index = 0;
+	onChangeOptionAttributeGroupOrder(event: any)
+	{
+		if (event.dragIndex !== event.dropIndex)
+		{
+			this.groups = cloneDeep(this.originalGroups);
 
-			this.groups = this.originalGroups.map(g => {
-				let newGroup = cloneDeep(g);
+			this.updateSort(this.groups, event.dragIndex, event.dropIndex);
 
-				if (index === event.dragIndex) {
-					newGroup.sortOrder = this.originalGroups[event.dropIndex].sortOrder;
-				}
-
-				if (event.dragIndex > event.dropIndex && index >= event.dropIndex && index < event.dragIndex) {
-					newGroup.sortOrder = g.sortOrder + 1;
-				}
-
-				if (event.dragIndex < event.dropIndex && index > event.dragIndex && index <= event.dropIndex) {
-					newGroup.sortOrder = g.sortOrder - 1;
-				}
-
-				++index;
-				return newGroup;
-			});
-
-			this.groups = orderBy(this.groups, 'sortOrder');
 			this.originalGroups = cloneDeep(this.groups);
 
-			this._divOptService.updateOptionAttributeGroupAssocs(this.option.id, this.groups).subscribe(result => {
-				this.isSaving = false;
+			this._divOptService.updateOptionAttributeGroupAssocs(this.option.id, this.groups).subscribe(result =>
+			{
+
 			});
 		}
+	}
+
+	private updateSort(itemList: any, oldIndex: number, newIndex: number)
+	{
+		let sortName = 'sortOrder';
+
+		// reorder items in array
+		itemList.splice(newIndex, 0, itemList.splice(oldIndex, 1)[0]);
+
+		let counter = 0;
+
+		itemList.forEach(item =>
+		{
+			// update sortOrder
+			item[sortName] = counter++;
+		});
+
+		// resort using new sortOrders
+		itemList.sort((left: any, right: any) =>
+		{
+			return left[sortName] === right[sortName] ? 0 : (left[sortName] < right[sortName] ? -1 : 1);
+		});
 	}
 }

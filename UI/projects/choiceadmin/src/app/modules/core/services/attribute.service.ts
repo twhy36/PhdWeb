@@ -11,7 +11,7 @@ import { Settings } from '../../shared/models/settings.model';
 import { Attribute } from '../../shared/models/attribute.model';
 import { AttributeGroupMarket } from '../../shared/models/attribute-group-market.model';
 import { AttributeGroupCommunity } from '../../shared/models/attribute-group-community.model';
-import { Option, IOptionMarket } from '../../shared/models/option.model';
+import { Option, IOptionMarket, OptionMarket } from '../../shared/models/option.model';
 import { IFinancialCommunity } from '../../shared/models/financial-community.model';
 import { GroupChoice } from '../../shared/models/group-choice.model';
 import { withSpinner } from 'phd-common';
@@ -456,7 +456,7 @@ export class AttributeService
 			catchError(this.handleError));
 	}
 
-	updateAttributeGroupOptionMarketAssocs(optionMarketId: number, groupOrders: Array<any>): Observable<Option>
+	updateAttributeGroupOptionMarketAssocs(optionMarketId: number, groupOrders: Array<any>): Observable<OptionMarket>
 	{
 		let url = settings.apiUrl + `UpdateAttributeGroupOptionMarketAssocs`;
 
@@ -468,9 +468,9 @@ export class AttributeService
 		return this._http.patch(url, { optionAttributeGroupAssocDto: data }, { headers: { 'Prefer': 'return=representation' } }).pipe(
 			map(response =>
 			{
-				let option = response as Option;
+				let optionMarket = response as OptionMarket;
 
-				return option;
+				return optionMarket;
 			}),
 			catchError(this.handleError));
 	}

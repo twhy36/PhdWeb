@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpHeaders, HttpClient } from '@angular/common/http';
 
-import { Observable ,  throwError as _throw } from 'rxjs';
+import { Observable, throwError as _throw } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 
 import * as odataUtils from '../../shared/classes/odata-utils.class';
@@ -63,7 +63,7 @@ export class DivisionalOptionService
 			{
 				keywordFilter += `indexof(tolower(${filterName}), '${keywords}') gt -1`;
 			}
-			
+
 			filter += ` and (${keywordFilter})`;
 		}
 
@@ -198,12 +198,15 @@ export class DivisionalOptionService
 
 				//Odata filtering within expand seems to have some issues
 				//remove if it resolves itself at some point
-				option.forEach(opt => {
-					opt.attributeGroupOptionMarketAssocs.forEach(agom => {
+				option.forEach(opt =>
+				{
+					opt.attributeGroupOptionMarketAssocs.forEach(agom =>
+					{
 						agom.attributeGroupMarket.attributeGroupCommunities = agom.attributeGroupMarket.attributeGroupCommunities.filter(comm => comm.financialCommunityId === financialCommunityId);
 						agom.attributeGroupMarket.sortOrder = agom.sortOrder;
 					});
-					opt.locationGroupOptionMarketAssocs.forEach(lgom => {
+					opt.locationGroupOptionMarketAssocs.forEach(lgom =>
+					{
 						lgom.locationGroupMarket.locationGroupCommunities = lgom.locationGroupMarket.locationGroupCommunities.filter(comm => comm.financialCommunityId === financialCommunityId);
 					});
 				});
@@ -257,7 +260,8 @@ export class DivisionalOptionService
 		let data = {
 			'optionMarketId': optionMarketId,
 			'financialCommunityId': financialCommunityId,
-			'groupOrderDtos': selectedAttributes.map(x => {
+			'groupOrderDtos': selectedAttributes.map(x =>
+			{
 				return {
 					attributeGroupId: x.id,
 					sortOrder: x.sortOrder
@@ -276,12 +280,14 @@ export class DivisionalOptionService
 			catchError(this.handleError));
 	}
 
-	updateOptionAttributeGroupAssocs(optionMarketId: number, groups: AttributeGroupMarket[]): Observable<any> {
+	updateOptionAttributeGroupAssocs(optionMarketId: number, groups: AttributeGroupMarket[]): Observable<any>
+	{
 		let url = settings.apiUrl + `UpdateOptionAttributeGroupAssocs`;
 
 		let data = {
 			'optionMarketId': optionMarketId,
-			'groupOrderDtos': groups.map(x => {
+			'groupOrderDtos': groups.map(x =>
+			{
 				return {
 					attributeGroupId: x.id,
 					sortOrder: x.sortOrder
@@ -289,8 +295,9 @@ export class DivisionalOptionService
 			})
 		};
 
-		return this._http.patch(url, { optionAttributeGroupAssocDto: data }).pipe(
-			map(response => {
+		return withSpinner(this._http).patch(url, { optionAttributeGroupAssocDto: data }).pipe(
+			map(response =>
+			{
 				return response;
 			}),
 			catchError(this.handleError));

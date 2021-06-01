@@ -60,7 +60,7 @@ export class CommunityService
 		const batchBody = odataUtils.createBatchBody(batchGuid, [batchRequests]);
 		const headers = new HttpHeaders(odataUtils.createBatchHeaders(batchGuid));
 
-		return this._http.post(endPoint, batchBody, { headers, responseType: 'text' }).pipe(
+		return withSpinner(this._http).post(endPoint, batchBody, { headers, responseType: 'text' }).pipe(
 			map(results =>
 			{
 				return odataUtils.parseBatchResults<ChangeOrderTypeAutoApproval>(results);

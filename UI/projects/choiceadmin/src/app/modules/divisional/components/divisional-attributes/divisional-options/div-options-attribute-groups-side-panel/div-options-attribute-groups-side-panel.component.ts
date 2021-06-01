@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, Input, Output, EventEmitter } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Observable, ReplaySubject } from 'rxjs';
-import { filter, map, distinctUntilChanged, switchMap } from 'rxjs/operators';
+import { filter, map, distinctUntilChanged, switchMap, finalize } from 'rxjs/operators';
 
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
@@ -128,27 +128,37 @@ export class DivOptionsAttributeGroupsSidePanelComponent extends UnsubscribeOnDe
 			};
 		});
 
-		this._attrService.updateAttributeGroupOptionMarketAssocs(this.option.id, groupOrders).subscribe(option =>
-		{
-			if (this.callback)
+		this._attrService.updateAttributeGroupOptionMarketAssocs(this.option.id, groupOrders).pipe(
+			finalize(() =>
 			{
-				this.callback(this.associatedGroups.concat(this.addGroupsPanel.selectedGroups as AttributeGroupMarket[]));
-			}
+				this.isSaving = false;
+			}))
+			.subscribe(optionMarket =>
+			{
+				if (this.callback)
+				{
+					let selectedGroups = this.addGroupsPanel.selectedGroups as AttributeGroupMarket[];
 
-			this.errors = [];
+					selectedGroups.map(g =>
+					{
+						g.sortOrder = optionMarket.attributeGroupOptionMarketAssocs.find(x => x.attributeGroupMarketId === g.id)?.sortOrder;
+					});
 
-			this.errors.push({ severity: 'success', detail: `Attribute group(s) associated.` });
+					this.callback(this.associatedGroups.concat(selectedGroups));
+				}
 
-			this.isSaving = false;
-			this.sidePanel.isDirty = false;
+				this.errors = [];
 
-			this.sidePanel.toggleSidePanel();
-		},
-		error =>
-		{
-			this.isSaving = false;
-			this.displayErrorMessage('Failed to associate attribute group(s).');
-		});
+				this.errors.push({ severity: 'success', detail: `Attribute group(s) associated.` });
+
+				this.sidePanel.isDirty = false;
+
+				this.sidePanel.toggleSidePanel();
+			},
+			error =>
+			{
+				this.displayErrorMessage('Failed to associate attribute group(s).');
+			});
 	}
 
 	displayErrorMessage(message: string)

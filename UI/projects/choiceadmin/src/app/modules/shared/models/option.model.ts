@@ -25,11 +25,25 @@ export class Option
 	hasAttributeLocationAssoc: boolean;
 }
 
+export class OptionMarket
+{
+	id: number;
+	optionId: number;
+	marketId: number;
+	isActive: boolean;
+	locationGroupOptionMarketAssocs: ILocationGroupOptionMarketAssoc[];
+	attributeGroupOptionMarketAssocs: IAttributeGroupOptionMarketAssoc[];
+	optionDescription: string;
+	optionSalesName: string;
+	optionSubCategoryId: number;
+}
+
 export interface IAttributeGroupOptionMarketAssoc
 {
 	optionMarketId: number;
 	attributeGroupMarketId: number;
 	attributeGroupMarket: AttributeGroupMarket;
+	sortOrder: number;
 }
 
 export interface ILocationGroupOptionMarketAssoc
