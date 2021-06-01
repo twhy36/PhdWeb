@@ -1,0 +1,57 @@
+<div class="modal-header">
+	<span class="modal-title">{{hasExactMatch ? 'Duplicate Contacts Found' : 'Potential Duplicate Contacts Found'}}</span>
+	<button type="button" class="close" aria-label="Close" (click)="dismiss('Modal Dismissed')">
+		<span aria-hidden="true">&times;</span>
+	</button>
+</div>
+
+<div class="modal-body">
+	<div class="d-flex">
+		<matching-contact-card [contact]="contact"
+							   [hasExactMatch]="hasExactMatch"
+							   [defaultPrimaryAddress]="defaultPrimaryAddress"
+							   [contactCardType]="'Current'"
+							   (onSelectContact)="selectContact($event)">
+		</matching-contact-card>
+
+		<div class="phd-matching-contact-container">
+			<ng-container *ngFor="let matchingContact of matchingContacts">
+				<matching-contact-card [contact]="matchingContact"
+									   [hasExactMatch]="hasExactMatch"
+									   [defaultPrimaryAddress]="defaultPrimaryAddress"
+									   [contactCardType]="matchingContact.isExactMatch ? 'Exact' : 'Potential'"
+									   (onSelectContact)="selectContact($event)">
+				</matching-contact-card>
+			</ng-container>
+		</div>
+
+	</div>
+</div>
+
+<div class="modal-footer phd-contact-button">
+	<button type="button" class="btn ml-auto" (click)="close()">Cancel</button>
+</div>
+
+<ng-template #confirmation let-c="close" let-d="dismiss">
+	<div class="phd-contact-confirmation">
+		<div class="modal-header">
+			<span class="modal-title">Are you sure you want to update this contact record and save as {{defaultPrimaryAddress ? 'Co-Buyer' : 'Real Estate Agent'}}?</span>
+		</div>
+		<div class="modal-body">
+			<div class="d-flex justify-content-around">
+				<matching-contact-card [contact]="previousContact"
+									   [defaultPrimaryAddress]="defaultPrimaryAddress"
+									   [contactCardType]="'Previous'">
+				</matching-contact-card>
+				<matching-contact-card [contact]="contact"
+									   [defaultPrimaryAddress]="defaultPrimaryAddress"
+									   [contactCardType]="'New'">
+				</matching-contact-card>
+			</div>
+		</div>
+		<div class="modal-footer mt-auto d-flex justify-content-around phd-contact-button">
+			<button type="button" class="btn" (click)="closeConfirmation(true)">Continue</button>
+			<button type="button" class="btn" (click)="closeConfirmation(false)">Cancel</button>
+		</div>
+	</div>
+</ng-template>

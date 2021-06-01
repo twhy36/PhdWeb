@@ -1,0 +1,103 @@
+@import "../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
+@import "../../../../../../../phd-common/src/lib/scss/sizes.scss";
+
+.phd-logo-image {
+	width: calc(56vw);
+	height: calc(65vh);
+}
+
+.phd-home-plan {
+	background-color: #e4e5e4;
+	width: calc(44vw);
+	max-height: calc(65vh);
+
+	span {
+		color: $bright_grey;
+	}
+}
+
+.phd-floor-plan-image {
+	padding-left: calc(13vw);
+	padding-right: calc(13vw);
+	padding-top: calc(2vh);
+	padding-bottom: calc(2vh);
+}
+
+.phd-sales-community {
+	text-transform: uppercase;
+	font-weight: bold;
+	margin-right: 10px;
+}
+
+.phd-start-reviewing {
+	font-size: 28px;
+	color: $navy_blue;
+	margin-top: 15px;
+	text-align: center;
+}
+
+.phd-click-instruction {
+	font-size: 18px;
+	text-align: center;
+}
+
+.phd-action-links {
+	margin-top: 30px;
+	margin-bottom: 10px;
+
+	a {
+		font-size: 20px;
+		color: $aegean_blue;
+	}
+
+	a:hover {
+		color: black;
+	}
+
+	.phd-options-link {
+		width: 40%;
+	}
+
+	.phd-floor-plan-link {
+		width: 20%;
+	}
+
+	.phd-favorites-link {
+		width: 40%;
+	}
+}
+
+.phd-design-list-button {
+	background-color: $medium_blue;
+	color: white;
+	padding: 6px 25px;
+}
+
+@media(max-width: $tablet-max-width) {
+	.phd-start-reviewing {
+		font-size: 20px;
+	}
+
+	.phd-click-instruction {
+		font-size: 12px;
+	}
+
+	.phd-action-links {
+		a {
+			font-size: 14px;
+			color: $aegean_blue;
+		}
+
+		.phd-options-link {
+			width: 33%;
+		}
+
+		.phd-floor-plan-link {
+			width: 34%;
+		}
+
+		.phd-favorites-link {
+			width: 33%;
+		}
+	}
+}

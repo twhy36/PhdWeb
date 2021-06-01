@@ -1,0 +1,25 @@
+<div class="phd-attribute-list">
+	<ng-container *ngFor="let attribute of attributes">
+		<div class="phd-attribute-item">
+			<cl-image public-id="{{getImageSrc(attribute)}}" title="{{attribute.name}}" type="fetch"
+				crop="fill" height="80" width="80" (click)="attributeClick(attribute)" (onError)="onLoadImageError($event)" 
+				class="phd-attribute-item-image"
+				[class.phd-attribute-item-image-selected]="highlightedAttributeId === attribute.id">
+			</cl-image>
+			<span class="phd-attribute-name" title="{{attribute.name}}" (click)="attributeClick(attribute)">
+				{{attribute.name}}
+			</span>
+			<div class="phd-attribute-selector">
+				<ng-container *ngIf="attribute.attributeStatus === 'Contracted'">
+					<i class="fa fa-check phd-icon-selected"></i>
+				</ng-container>
+				<ng-container *ngIf="attribute.attributeStatus === 'Available'">
+					<div class="phd-clickable">
+						<span class="phd-icon-selected"><i *ngIf="attribute.isFavorite" class="fa fa-heart" (click)="toggleAttribute(attribute)"></i></span>
+						<i *ngIf="!attribute.isFavorite" class="fa fa-heart-o" (click)="toggleAttribute(attribute)"></i>
+					</div>				
+				</ng-container>	
+			</div>		
+		</div>
+	</ng-container>
+</div>

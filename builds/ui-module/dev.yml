@@ -1,0 +1,23 @@
+stages:
+- stage: Build
+  pool: BUILD
+  jobs:
+  - job: Build
+    steps:
+    - template: build.yml
+- ${{ if ne(variables['Build.Reason'], 'PullRequest') }}:
+  - stage: Dev
+    dependsOn: Build
+    pool: PGAZADOR1P
+    variables:
+    - group: 'PHD DEV'
+    jobs:
+    - template: deploy.yml
+      parameters:
+        resources:
+        - jobName: 'Dev'
+          environment: 'PhdDev'
+          webAppName: 'PhdDev'
+          resourceGroup: 'PHD-Dev'
+          subscription: 'Development'
+        buildConfiguration: 'dev'

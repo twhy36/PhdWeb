@@ -1,0 +1,117 @@
+@import "../../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
+
+$point-panel-width: 220px;
+
+.phd-normal-experience {
+	display: flex;
+	flex-direction: row;
+	overflow: hidden;
+}
+
+.phd-point-panel {
+	position: fixed;
+	width: $point-panel-width;
+	height: calc(100vh - 220px);
+
+	.phd-selected-group {
+		padding: 5px 10px 5px 10px;
+		background: $gray-lighter;
+		min-height: 56px;
+		font-size: 15px;
+		display: flex;
+		flex-direction: column;
+
+		.phd-group-name {
+			font-weight: bold;
+			text-transform: uppercase;
+		}
+
+		.phd-subgroup-name {
+			padding-left: 15px;
+		}
+	}
+
+	.phd-decisions {
+		padding: 10px;
+		font-size: 15px;
+	}
+
+	.phd-point-bar {
+		overflow-y: auto;
+		width: $point-panel-width;
+		padding-left: 25px;
+	}
+
+	.phd-collapse-icon {
+		cursor: pointer;
+		width: 15px;
+		margin-left: 5px;
+	}
+
+	.phd-collapsed-icon-bg {
+		background: $gray-lighter;
+	}
+}
+
+.phd-card-panel {
+	margin: 0px 0px 10px calc(#{$point-panel-width} + 5px);
+	padding-left: 10px;
+	overflow-y: auto;
+	width: calc(100% - 15px - #{$point-panel-width});
+
+	.phd-point-label {
+		text-transform: capitalize;
+		padding-left: 10px;
+		font-size: 16px;
+		font-weight: bold;
+		margin-top: 20px;
+	}
+
+	.phd-point-title {
+		padding-left: 10px;
+		font-size: 14px;
+	}
+
+	.phd-choice-cards {
+		overflow-y: auto;
+		width: 100%;
+		margin-bottom: 40px;
+	}
+}
+
+.phd-card-panel-collapsed {
+	margin-left: 15px;
+	width: calc(100% - 25px);
+}
+
+.phd-error-msg-body {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: calc(100vh - 220px);
+}
+
+.phd-hide {
+	display: none !important;
+}
+
+.phd-include-options {
+	background: $gray-lighter;
+	position: fixed;
+	z-index: 1;
+	padding-left: 10px;
+	min-height: 56px;
+	display: flex;
+	align-items: center;
+	flex-grow: 1;
+	font-size: 14px;
+	width: inherit;
+
+	.phd-contracted-options {
+		margin-left: 8px;
+	}
+}
+
+.phd-point-container {
+	padding-top: 43px;
+}

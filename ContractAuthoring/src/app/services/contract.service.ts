@@ -1,9 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, Subject, ConnectableObservable } from 'rxjs';
+import { Observable, Subject, ConnectableObservable, of } from 'rxjs';
 import { map, catchError, publishReplay } from 'rxjs/operators';
-import { _throw } from 'rxjs/observable/throw';
-import { of } from 'rxjs/observable/of';
 import { environment } from '../../environments/environment';
 import { Template } from '../models/template.model';
 import { MergeField } from '../models/merge-field.model';

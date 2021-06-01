@@ -1,13 +1,10 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Rewrite;
-using Microsoft.AspNetCore.SpaServices;
+using Microsoft.AspNetCore.StaticFiles;
 
 namespace Phd.WebHost
 {
@@ -42,9 +39,11 @@ namespace Phd.WebHost
             //check uri_state cookie for potential login redirect
             app.Use(async (context, next) =>
             {
-                if ((context.Request.Path.Value == "" || context.Request.Path.Value == "/"))
+                if (context.Request.Cookies.ContainsKey("uri_state") && (context.Request.Path.Value == "" || context.Request.Path.Value == "/"))
                 {
-                    if (context.Request.Cookies.ContainsKey("uri_state"))
+                    context.Response.Cookies.Delete("uri_state");
+
+                    if (context.Request.Query.ContainsKey("code"))
                     {
                         var uri = context.Request.Cookies["uri_state"];
                         context.Response.Redirect(uri + context.Request.QueryString.Value);
@@ -74,19 +73,23 @@ namespace Phd.WebHost
             app.UseRewriter(rewriteOptions);
 
             app.UseStaticFiles();
-            app.UseSpaStaticFiles();
+
+            var contentTypeProvider = new FileExtensionContentTypeProvider();
+            contentTypeProvider.Mappings.Add(".properties", "text/plain");
+            app.UseSpaStaticFiles(new StaticFileOptions
+            {
+                ContentTypeProvider = contentTypeProvider
+            });
 
             //write uri_state cookie
             app.Use(async (context, next) =>
             {
-                if (!context.Request.Cookies.ContainsKey("uri_state"))
-                {
-                    context.Response.Cookies.Append("uri_state", context.Request.Path.Value, 
-                        new CookieOptions { 
-                            SameSite = SameSiteMode.Strict,
-                            MaxAge = TimeSpan.FromMinutes(5)
-                        });
-                }
+                context.Response.Cookies.Append("uri_state", context.Request.Path.Value,
+                    new CookieOptions
+                    {
+                        SameSite = SameSiteMode.Lax,
+                        MaxAge = TimeSpan.FromMinutes(5)
+                    });
                 await next();
             });
 
@@ -126,9 +129,9 @@ namespace Phd.WebHost
                 });
             });
 
-            app.Map("/homedesigner", app1 => 
+            app.Map("/homedesigner", app1 =>
             {
-                app1.UseSpa(spa => 
+                app1.UseSpa(spa =>
                 {
                     spa.Options.DefaultPage = "/homedesigner/index.html";
                     spa.Options.DefaultPageStaticFileOptions = NoCacheStaticFileOptions;

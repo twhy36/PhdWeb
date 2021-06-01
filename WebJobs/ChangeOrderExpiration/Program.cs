@@ -12,6 +12,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Azure.Storage.Blob;
 using Microsoft.Azure.Storage;
+using Simple.OData.Client;
+using System.Net;
 
 namespace ChangeOrderExpiration
 {
@@ -63,6 +65,21 @@ namespace ChangeOrderExpiration
             {
                 var commExpDays = new Dictionary<int, int>();
 
+                var edhClientSettings = new ODataClientSettings(new Uri(configuration["EDH:ApiUrl"]), new NetworkCredential(configuration["edhSettings:user"], configuration["edhSettings:password"]));
+                edhClientSettings.BeforeRequest = rq =>
+                {
+                    rq.Headers.Add("Authorization", $"Basic {configuration["EDH:ApiKey"]}");
+                };
+
+                var phdClientSettings = new ODataClientSettings(new Uri(configuration["PhdApi:ApiUrl"]), new NetworkCredential(configuration["phdSettings:user"], configuration["phdSettings:password"]));
+                phdClientSettings.BeforeRequest = rq =>
+                {
+                    rq.Headers.Add("Authorization", $"Basic {configuration["PhdApi:ApiKey"]}");
+                };
+
+                var _edhclient = new ODataClient(edhClientSettings);
+                var _phdclient = new ODataClient(phdClientSettings);
+
                 using (HttpClient client = new HttpClient())
                 {
 
@@ -78,6 +95,8 @@ namespace ChangeOrderExpiration
 
                             int expirationDays = 0;
 
+                            var batch = new ODataBatch(_edhclient);
+
                             foreach (var changeOrderGroup in changeOrderGroups)
                             {
                                 int changeOrderGroupId = Convert.ToInt32((string)changeOrderGroup["id"]);
@@ -90,6 +109,12 @@ namespace ChangeOrderExpiration
                                     {
                                         using (HttpContent signFieldContent = signFieldResponse.Content)
                                         {
+                                            //this shouldn't happen, but just in case...
+                                            if (signFieldContent.Headers.ContentLength == 0)
+                                            {
+                                                continue;
+                                            }
+
                                             string signFieldStringContent = await signFieldContent.ReadAsStringAsync();
                                             var signField = JObject.Parse(signFieldStringContent);
                                             expirationDays = Convert.ToInt32((string)signField["expirationDays"]);
@@ -101,18 +126,17 @@ namespace ChangeOrderExpiration
                                 {
                                     expirationDays = commExpDays[communityId];
                                 }
-                                if (changeOrderGroupSalesStatusDate.AddDays(expirationDays) <= DateTime.Now)
+
+                                if (!await IsCOESigned(changeOrderGroupId, _phdclient))
                                 {
-                                    dynamic changeOrderGroupObject = new JObject();
-                                    changeOrderGroupObject.id = changeOrderGroupId;
-                                    changeOrderGroupObject.salesStatusDescription = "Pending";
-
-                                    var str = JsonConvert.SerializeObject(changeOrderGroupObject);
-                                    var changeOrderGroupContent = new StringContent(str, Encoding.UTF8, "application/json");
-
-                                    await client.Patch(new System.Uri(configuration["PhdApi:ApiUrl"] + $"changeOrderGroups({changeOrderGroupId})"), changeOrderGroupContent);
+                                    if (changeOrderGroupSalesStatusDate.AddDays(expirationDays) <= DateTime.Now)
+                                    {
+                                        await PatchCOGroup(changeOrderGroupId, _edhclient, batch);
+                                    }
                                 }
                             }
+
+                            await batch.ExecuteAsync();
                         }
                     }
                 }
@@ -126,6 +150,49 @@ namespace ChangeOrderExpiration
             finally
             {
                 await blob.ReleaseLeaseAsync(new AccessCondition { LeaseId = leaseId });
+            }
+        }
+
+        static async Task<bool> IsCOESigned(int changeOrderGroupId, ODataClient client)
+        {
+            var envelope = await client.For("eSignEnvelopes")
+                .Filter($"edhChangeOrderGroupId eq {changeOrderGroupId} and sentDate ne null and eSignStatusId ne 5")
+                .FindEntryAsync();
+            return envelope != null;
+        }
+
+        static async Task PatchCOGroup(int changeOrderGroupId, ODataClient client, ODataBatch batch) 
+        {
+            var salesAgreement = await client.For<SalesAgreement>()
+                .Filter($"jobChangeOrderGroupSalesAgreementAssocs/any(cog: cog/jobChangeOrderGroupId eq {changeOrderGroupId})")
+                .FindEntryAsync();
+            if (salesAgreement.Status == "OutforSignature" || salesAgreement.Status == "Approved")
+            {
+                var cog = new JobChangeOrderGroups
+                {
+                    Id = changeOrderGroupId,
+                    SalesStatusDescription = "Pending",
+                    LastModifiedBy = "changeorderexpiration",
+                    LastModifiedUtcDate = DateTime.UtcNow
+                };
+
+                batch += c => c.For<JobChangeOrderGroups>()
+                    .Key(changeOrderGroupId)
+                    .Set(cog)
+                    .UpdateEntryAsync();
+
+                if (salesAgreement.Status == "OutforSignature")
+                {
+                    salesAgreement.Status = "Pending";
+                    salesAgreement.StatusUtcDate = DateTime.UtcNow;
+                    salesAgreement.LastModifiedBy = "changeorderexpiration";
+                    salesAgreement.LastModifiedUtcDate = DateTime.UtcNow;
+
+                    batch += s => s.For<SalesAgreement>()
+                        .Key(salesAgreement.Id)
+                        .Set(salesAgreement)
+                        .UpdateEntryAsync();
+                }
             }
         }
     }

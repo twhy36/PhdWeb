@@ -1,0 +1,145 @@
+<div id="sales-info" class="d-flex flex-wrap ml-5 mr-5" [class.phd-editing]="!!editing">
+
+	<!--Loading card-->
+	<add-card *ngIf="loading && !isChangingOrder"
+			  [label]="'Loading...'"
+			  [hasNA]="false"
+			  [action]="''"
+			  [hasPlus]="false"></add-card>
+
+	<!--Sales Agreement Information Card-->
+	<sales-info-misc class="phd-editable-box"
+					 [agreement]="agreement"
+					 [editing]="editing"
+					 (onEdit)="edit($event)"
+					 [jobsProjectedFinalDate]="jobsProjectedFinalDate$ | async"
+					 [canEdit]="canSell && !cancelOrVoid && !isLockedIn"
+					 [canUpdateECOE]="canUpdateECOE"
+					 *ngIf="agreement && !isChangingOrder"></sales-info-misc>
+
+	<!--Programs and Add Program Cards-->
+	<program-detail *ngFor="let program of programs; let i = index"
+					class="phd-editable-box"
+					[agreement]="agreement"
+					[editing]="editing"
+					[position]="i"
+					[program]="program"
+					[salesPrograms]="salesPrograms"
+					[isChangingOrder]="isChangingOrder"
+					[changeOrderPrograms]="salesChangeOrderSalesPrograms"
+					[canEdit]="canEditProgramIncentive(program) && !isLockedIn"
+					(onEdit)="edit($event)"
+					(onRemove)="remove('programs', $event)"
+					(onSavingProgram)="saveSalesChangeOrderSalesPrograms($event)"
+					(checkChanges)="changes($event)">
+	</program-detail>
+
+	<add-card *ngIf="!editing && canEditAgreement && (canSell || canDesign || canAddIncentive) && !cancelOrVoid && hasAvailableSalesPrograms"
+			  [hasNA]="!programs || programs.length === 0 && !isChangingOrder"
+			  [isNA]="isProgramNa"
+			  [label]="'Incentive'"
+			  [labels]="'Incentive'"
+			  [canAdd]="!isLockedIn"
+			  (onAdd)="add('programs')"
+			  (onNA)="setNA('programs')"></add-card>
+
+	<ng-template [ngIf]="(editing || priceAdjustments.length > 0) || (!editing && hasPriceAdjustments)">
+		<price-adjustment-detail class="phd-editable-box"
+								 [priceAdjustments]="priceAdjustments"
+								 [currentDiscount]="currentDiscount$ | async"
+								 [currentClosingCostIncentive]="currentClosingCostIncentive$ | async"
+								 [totalCurrentClosingCostAmount]="totalCurrentClosingCostAmount$ | async"
+								 [editing]="editing"
+								 [canEdit]="(canSell || canDesign || canAddIncentive) && canEditAgreement && priceAdjustments.length > 0"
+								 (onEdit)="edit($event)"
+								 (onRemove)="remove('priceAdjustments', $event)"
+								 (onSavingPriceAdjustments)="saveSalesChangeOrderPriceAdjustments($event)"
+								 (onDeletePriceAdjustment)="deleteSalesChangeOrderPriceAdjustment()">
+		</price-adjustment-detail>
+	</ng-template>
+
+	<ng-template [ngIf]="isChangingOrder">
+		<add-card *ngIf="!editing && (canSell || canDesign || canAddIncentive) && (!priceAdjustments || priceAdjustments.length === 0)"
+				  [hasNA]="false"
+				  [label]="'Price Adjustment'"
+				  [labels]="'Price Adjustments'"
+				  (onAdd)="add('priceAdjustments')"></add-card>
+	</ng-template>
+
+	<!--Deposits and Add Deposit Cards-->
+	<deposit-detail class="phd-editable-box"
+					[agreement]="agreement"
+					[deposit]="deposit"
+					[editing]="editing"
+					[position]="i"
+					[canEdit]="canSell && !cancelOrVoid && !isLockedIn"
+					(onRemove)="remove('deposits', $event)"
+					(onEdit)="edit($event)"
+					(checkChanges)="changes($event)"
+					*ngFor="let deposit of deposits; let i = index">
+	</deposit-detail>
+
+	<add-card *ngIf="!editing && canSell && !cancelOrVoid && !isLockedIn"
+			  [hasNA]="false"
+			  [label]="'Deposit'"
+			  [labels]="'Deposits'"
+			  (onAdd)="add('deposits')"></add-card>
+
+	<ng-template [ngIf]="!isChangingOrder">
+		<!--Contingencies and Add Contingency Cards-->
+		<contingency-detail class="phd-editable-box"
+							[agreement]="agreement"
+							[contingency]="contingency"
+							[editing]="editing"
+							[position]="i"
+							[canEdit]="canSell && !cancelOrVoid && !isLockedIn"
+							(onRemove)="remove('contingencies', $event)"
+							(onEdit)="edit($event)"
+							(checkChanges)="changes($event)"
+							*ngFor="let contingency of contingencies; let i = index">
+		</contingency-detail>
+
+		<add-card *ngIf="!editing && canSell && !cancelOrVoid"
+				  [hasNA]="!contingencies || contingencies.length === 0"
+				  [isNA]="isContingenciesNa"
+				  [label]="'Contingency'"
+				  [labels]="'Contingency'"
+				  [canAdd]="!isLockedIn"
+				  (onAdd)="add('contingencies')"
+				  (onNA)="setNA('contingency')"></add-card>
+
+		<add-card *ngIf="!editing && canSell && !cancelOrVoid && !inSalesChangeOrder"
+				  [hasNA]="!notes || notes.length === 0"
+				  [isNA]="isNoteNa"
+				  [label]="'Note'"
+				  [labels]="'Notes'"
+				  (onAdd)="add('notes')"
+				  (onNA)="setNA('notes')">
+		</add-card>
+	</ng-template>
+
+
+	<!--Notes and Add Note Cards-->
+	<sales-note class="phd-editable-box"
+				[agreement]="agreement"
+				[note]="note"
+				[editing]="editing"
+				[position]="i"
+				[inChangeOrder]="isChangingOrder"
+				[canEdit]="canSell && !cancelOrVoid"
+				(onRemove)="remove('notes', $event)"
+				(onEdit)="edit($event)"
+				(checkChanges)="changes($event)"
+				*ngFor="let note of notes; let i = index">
+	</sales-note>
+
+	<add-card *ngIf="!editing && canSell && !cancelOrVoid && canAddTnCs && agreement.status !== 'Pending'"
+			  [hasNA]="!notes || notes.length === 0"
+			  [isNA]="isNoteNa"
+			  [label]="'Terms & Conditions'"
+			  [labels]="'Terms & Conditions'"
+			  (onAdd)="add('notes')"
+			  (onNA)="setNA('notes')">
+	</add-card>
+
+</div>

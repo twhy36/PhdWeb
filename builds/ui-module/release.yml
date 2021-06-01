@@ -1,0 +1,132 @@
+stages:
+- stage: Build
+  pool: BUILD
+  jobs:
+  - job: Build
+    steps:
+    - template: build.yml
+      parameters:
+        configurations:
+        - qa
+        - staging
+        - production
+- stage: EmailTesters
+  dependsOn: Build
+  pool: pgazador1p
+  variables:
+  - group: 'PHD QA'
+  displayName: Email Testers
+  jobs:
+  - job: EmailTesters
+    steps:
+    - task: SendEmail@1
+      displayName: Email Testers
+      inputs:
+        To: '$(testers)'
+        From: 'azuredevops@donotreply.com'
+        Subject: 'New Release available for $(Build.DefinitionName)'
+        Body: |
+          Release is ready for $(Build.DefinitionName).
+          
+          Please view the following approval:
+        
+          https://dev.azure.com/pultevsts/HomeBuilder%20Apps/_build/results?buildId=$(Build.BuildId)&view=results
+        BodyAsHtml: false
+        AddAttachment: false
+        SmtpServer: 'smtp.pulte.com'
+        SmtpPort: '25'
+        UseSSL: false
+- stage: Qa
+  dependsOn: EmailTesters
+  pool: PGAZADOR1P
+  variables:
+  - group: 'PHD QA'
+  jobs:
+  - template: deploy.yml
+    parameters:
+      resources:
+      - jobName: 'Qa'
+        environment: 'PhdQa'
+        webAppName: 'PhdQa'
+        resourceGroup: 'PHD-Qa'
+        subscription: 'QA'
+      buildConfiguration: 'qa'
+- stage: QaApproval
+  displayName: QA Post-Deployment Approval
+  dependsOn: Qa
+  pool: PGAZADOR1P
+  jobs:
+  - deployment: QaApproval
+    displayName: Post-Deployment Approval
+    environment: 'PhdPostApproval'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - script: echo 'Approved!'
+- stage: Staging
+  dependsOn: QaApproval
+  pool: PGAZADOR1P
+  variables:
+  - group: 'PHD STG'
+  jobs:
+  - template: deploy.yml
+    parameters:
+      resources:
+      - jobName: 'StgEast'
+        environment: 'PhdStg'
+        webAppName: 'PhdEastStg'
+        resourceGroup: 'PHD-STG-EAST'
+        subscription: 'Staging'
+      - jobName: 'StgWest'
+        environment: 'PhdStg'
+        webAppName: 'PhdWestStg'
+        resourceGroup: 'PHD-STG-WEST'
+        subscription: 'Staging'
+      buildConfiguration: 'staging'
+- stage: StgApproval
+  displayName: Staging Post-Deployment Approval
+  dependsOn: Staging
+  pool: PGAZADOR1P
+  jobs:
+  - deployment: StgApproval
+    displayName: Post-Deployment Approval
+    environment: 'PhdPostApproval'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - script: echo 'Approved!'
+- stage: Production
+  dependsOn: StgApproval
+  pool: PGAZADOR1P
+  variables:
+  - group: 'PHD PROD'
+  jobs:
+  - template: deploy.yml
+    parameters:
+      resources:
+      - jobName: 'ProdEast'
+        environment: 'PhdProd'
+        webAppName: 'PhdEastProd'
+        resourceGroup: 'PHD-PROD-EAST'
+        subscription: 'Production'
+      - jobName: 'ProdWest'
+        environment: 'PhdProd'
+        webAppName: 'PhdWestProd'
+        resourceGroup: 'PHD-PROD-WEST'
+        subscription: 'Production'
+      buildConfiguration: 'production'
+- stage: ProdApproval
+  displayName: Production Post-Deployment Approval
+  dependsOn: Production
+  pool: PGAZADOR1P
+  jobs:
+  - deployment: ProdApproval
+    displayName: Post-Deployment Approval
+    environment: 'PhdPostApproval'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - script: echo 'Approved!'

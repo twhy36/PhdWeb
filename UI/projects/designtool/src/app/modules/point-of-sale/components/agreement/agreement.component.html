@@ -1,0 +1,196 @@
+<div class="phd-detail-container mx-auto d-flex mb-1 p-2 bg-white rounded phd-expanded">
+	<div class="flex-column phd-flex-fill">
+		<div class="d-flex flex-wrap py-2">
+			<div class="flex-column phd-flex-fill">
+				<strong>Lot:</strong>
+			</div>
+			<div class="flex-column phd-flex-fill pl-1">
+				{{job?.lot?.lotBlock}}
+			</div>
+		</div>
+		<div class="d-flex flex-wrap py-2">
+			<div class="flex-column phd-flex-fill">
+				<strong>Lot Status:</strong>
+			</div>
+			<div class="flex-column phd-flex-fill pl-1">
+				{{job?.lot?.lotStatusDescription | capitalCaseSpace}}
+			</div>
+		</div>
+		<div class="d-flex flex-wrap py-2">
+			<div class="flex-column phd-flex-fill">
+				<strong>Lot Type:</strong>
+			</div>
+			<div class="flex-column phd-flex-fill pl-1">
+				{{job?.lot?.physicalLotTypes | mapjoin:'description':', '}}
+			</div>
+		</div>
+		<div class="d-flex flex-wrap py-2">
+			<div class="flex-column phd-flex-fill">
+				<strong>Lot Address:</strong>
+			</div>
+			<div class="flex-column phd-flex-fill pl-1">
+				<div *ngIf="job?.lot?.streetAddress1">
+					{{job?.lot?.streetAddress1}}
+				</div>
+				<div *ngIf="job?.lot?.streetAddress2">
+					{{job?.lot?.streetAddress2}}
+				</div>
+				<div *ngIf="job?.lot?.city || job?.lot?.stateProvince || job?.lot?.postalCode">
+					{{job?.lot?.city}}, {{job?.lot?.stateProvince}} {{job?.lot?.postalCode}}
+				</div>
+			</div>
+		</div>
+		<div class="d-flex flex-wrap py-2">
+			<div class="flex-column phd-flex-fill">
+				<strong>Lot / Block:</strong>
+			</div>
+			<div class="flex-column phd-flex-fill pl-1">
+				{{job?.lot?.alternateLotBlock}}
+			</div>
+		</div>
+		<div class="d-flex flex-wrap py-2">
+			<div class="flex-column phd-flex-fill">
+				<strong>Phase:</strong>
+			</div>
+			<div class="flex-column phd-flex-fill pl-1">
+				{{job?.lot?.salesPhase?.salesPhaseName}}
+			</div>
+		</div>
+		<div class="d-flex flex-wrap py-2">
+			<div class="flex-column phd-flex-fill">
+				<strong>Building / Unit:</strong>
+			</div>
+			<div class="flex-column phd-flex-fill pl-1">
+				{{[job?.lot?.salesBldgNbr, job?.lot?.unitNumber].join(' / ')}}
+			</div>
+		</div>
+	</div>
+
+	<div class="flex-column phd-flex-fill">
+		<div class="d-flex flex-wrap py-2" *ngIf="status !== 'Void'">
+			<div class="flex-column phd-flex-fill">
+				<strong>Plan:</strong>
+			</div>
+			<div class="flex-column phd-flex-fill pl-1">
+				{{ !isSalesAgreementCancelledOrVoided ? job?.plan?.planSalesName : ''}}
+			</div>
+		</div>
+		<div class="d-flex flex-wrap py-2" *ngIf="status !== 'Void'">
+			<div class="flex-column phd-flex-fill">
+				<strong>Base House Square Feet:</strong>
+			</div>
+			<div class="flex-column phd-flex-fill pl-1">
+				{{ !isSalesAgreementCancelledOrVoided ? job?.plan?.squareFeet : '' }}
+			</div>
+		</div>
+		<div class="d-flex flex-wrap py-2" *ngIf="status !== 'Void'">
+			<div class="flex-column phd-flex-fill">
+				<strong>Elevation:</strong>
+			</div>
+			<div class="flex-column phd-flex-fill pl-1">
+				{{ !isSalesAgreementCancelledOrVoided ? elevationChoice?.label : ''}}
+			</div>
+		</div>
+		<div class="d-flex flex-wrap py-2" *ngIf="status !== 'Void'">
+			<div class="flex-column phd-flex-fill">
+				<strong>Color Scheme:</strong>
+			</div>
+			<div class="flex-column phd-flex-fill pl-1">
+				{{ !isSalesAgreementCancelledOrVoided ? colorScheme : ''}}
+			</div>
+		</div>
+		<div class="d-flex flex-wrap py-2" *ngIf="status !== 'Void'">
+			<div class="flex-column phd-flex-fill">
+				<strong>Build Type:</strong>
+			</div>
+			<div class="flex-column phd-flex-fill pl-1">
+				{{buildType}}
+			</div>
+		</div>
+		<div class="d-flex flex-wrap py-2">
+			<div class="flex-column phd-flex-fill">
+				<strong>Foundation Type:</strong>
+			</div>
+			<div class="flex-column phd-flex-fill pl-1">
+				{{job?.lot?.foundationType}}
+			</div>
+		</div>
+		<div class="d-flex flex-wrap py-2" *ngIf="status !== 'Void'">
+			<div class="flex-column phd-flex-fill">
+				<strong>Garage:</strong>
+			</div>
+			<div class="flex-column phd-flex-fill pl-1">
+				{{ !isSalesAgreementCancelledOrVoided ? job?.handing : ''}}
+			</div>
+		</div>
+	</div>
+
+	<div class="flex-column phd-flex-fill">
+		<div class="d-flex flex-wrap py-2">
+			<div class="flex-column phd-flex-fill">
+				<strong>Signed Date:</strong>
+			</div>
+			<div class="flex-column phd-flex-fill pl-1">
+				{{signedDate}}
+			</div>
+		</div>
+		<div class="d-flex flex-wrap py-2">
+			<div class="flex-column phd-flex-fill">
+				<strong>Approved Date:</strong>
+			</div>
+			<div class="flex-column phd-flex-fill pl-1">
+				{{approvedDate}}
+			</div>
+		</div>
+		<div class="d-flex flex-wrap py-2">
+			<div class="flex-column phd-flex-fill">
+				<strong>Estimated Close of Escrow:</strong>
+			</div>
+			<div class="flex-column phd-flex-fill pl-1">
+				{{ecoeDate}}
+			</div>
+		</div>
+		<div class="d-flex flex-wrap py-2" *ngIf="status !== 'Void'">
+			<div class="flex-column phd-flex-fill">
+				<strong>Projected Final Date:</strong>
+			</div>
+			<div class="flex-column phd-flex-fill pl-1">
+				{{projectedFinalDate}}
+			</div>
+		</div>
+		<div class="d-flex flex-wrap py-2" *ngIf="status !== 'Void'">
+			<div class="flex-column phd-flex-fill">
+				<strong>Construction Stage:</strong>
+			</div>
+			<div class="flex-column phd-flex-fill pl-1" *ngIf="job && !isSalesAgreementCancelledOrVoided">
+				<span *ngIf="!showScarDatePopover">{{job?.constructionStageName}}</span>
+				<a class="phd-scar-popover" [ngbPopover]="scarDates" popoverTitle="SCAR Dates" triggers="manual" #p="ngbPopover" (click)="toggleSCARDates(p)" *ngIf="showScarDatePopover">{{job?.constructionStageName}}</a>
+
+				<ng-template #scarDates>
+					<div *ngFor="let stage of scarDateValues" class="phd-scar-stage">
+						<div class="phd-stage-label">{{stage.label}}</div>
+						<div>{{ stage.displayDate }}</div>
+					</div>
+				</ng-template>
+			</div>
+		</div>
+		<div class="d-flex flex-wrap py-2">
+			<div class="flex-column phd-flex-fill">
+				<strong>Field Manager:</strong>
+			</div>
+			<div class="flex-column phd-flex-fill pl-1">
+				{{fieldManager}}
+			</div>
+		</div>
+		<div class="d-flex flex-wrap py-2">
+			<div class="flex-column phd-flex-fill">
+				<strong>Customer Care Manager:</strong>
+			</div>
+			<div class="flex-column phd-flex-fill pl-1">
+				{{customerCareManager}}
+			</div>
+		</div>
+	</div>
+</div>
+
+<agreement-documents [canEdit]="status !== 'Void' && (canSell$ | async)"></agreement-documents>

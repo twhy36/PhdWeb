@@ -1,0 +1,106 @@
+@import "../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
+@import "../../../../../../../phd-common/src/lib/scss/animations.scss";
+
+.phd-choice-card {
+	width: 300px;
+	height: 285px;
+	background-color: white;
+	margin: 5px;
+	margin-bottom: 10px;
+	border: 1px solid rgba(0,0,0,.125);
+	border-radius: .25rem;
+	cursor: pointer;
+
+	.phd-header {
+		flex: 0 1 auto;
+		position: relative;
+	}
+
+	.phd-body {
+		flex: 1 1 auto;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		width: 100%;
+	}
+
+	.phd-choice-image {
+		width: 100%;
+		flex-basis: 75%;
+		border-bottom: 1px solid lightgrey;
+		min-height: 200px;
+
+		::ng-deep img {
+			height: 200px;
+			width: 100%;
+			border-radius: .25rem .25rem 0 0;
+		}
+	}
+
+	.phd-logo-image {
+		width: 270px;
+		height: 190px;
+	}
+
+	.phd-choice-details {
+		margin: 10px 10px 0 10px;
+		max-height: 220px;
+
+		h1 {
+			font-size: 15px;
+			font-weight: 500;
+		}
+
+		strong {
+			font-size: 14px;
+			font-weight: 500;
+			text-transform: capitalize;
+			margin-bottom: 0;
+		}
+
+		.fa-heart {
+			background: white;
+		}
+
+		.fa-heart-o {
+			background: white;
+		}
+
+		.phd-icon-selected {
+			color: $pantone_blue;
+		}
+	}
+
+	.phd-2-line-limit {
+		min-height: 35px;
+		display: -webkit-box;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 2;
+		overflow: hidden;
+	}
+}
+
+::ng-deep .phd-blocked-choice-modal .modal-dialog {
+	max-width: 400px;
+	position: relative;
+	top: 40%;
+}
+
+.phd-close {
+	cursor: pointer;
+	padding: 5px 5px 0px 0px;
+}
+
+.phd-blocked-title {
+	padding: 2px 0px 10px 20px;
+	font-weight: 600;
+}
+
+.phd-blocked-list {
+	margin-left: 40px;
+}
+
+.phd-blocked-link {
+	color: $pantone_blue;
+  text-decoration: underline;
+}

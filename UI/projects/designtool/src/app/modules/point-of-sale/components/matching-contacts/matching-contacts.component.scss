@@ -1,0 +1,26 @@
+@import "../../../../../scss/color-pallet.scss";
+@import "../../../../../scss/sizes.scss";
+
+.phd-matching-contact-container {
+	display: flex;
+	flex-direction: column;
+	max-height: 370px;
+	overflow-y: auto;
+}
+
+.phd-contact-button {
+	button {
+		min-width: 100px;
+		min-height: 50px;		
+	}
+
+	button:hover {
+		background: #007bff;
+		color: white;
+	}	
+}
+
+.phd-contact-confirmation {
+	min-width: 760px;
+	min-height: 525px;
+}

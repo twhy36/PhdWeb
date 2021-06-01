@@ -1,0 +1,189 @@
+variables:
+- name: BuildConfiguration
+  ${{ if or(startsWith(variables['Build.SourceBranch'], 'refs/heads/release'), startsWith(variables['Build.SourceBranch'], 'refs/heads/hotfix')) }}:
+    value: Release
+  ${{ if not(or(startsWith(variables['Build.SourceBranch'], 'refs/heads/release'), startsWith(variables['Build.SourceBranch'], 'refs/heads/hotfix'))) }}:
+    value: Debug
+- name: DeployDev
+  ${{ if not(or(startsWith(variables['Build.SourceBranch'], 'refs/heads/release'), startsWith(variables['Build.SourceBranch'], 'refs/heads/hotfix'), eq(variables['Build.Reason'], 'PullRequest'))) }}:
+    value: true 
+  ${{ if or(startsWith(variables['Build.SourceBranch'], 'refs/heads/release'), startsWith(variables['Build.SourceBranch'], 'refs/heads/hotfix'), eq(variables['Build.Reason'], 'PullRequest')) }}:
+    value: false
+- name: DeployQa
+  ${{ if or(startsWith(variables['Build.SourceBranch'], 'refs/heads/release'), startsWith(variables['Build.SourceBranch'], 'refs/heads/hotfix'), startsWith(variables['Build.SourceBranch'], 'refs/heads/main'), startsWith(variables['Build.SourceBranch'], 'refs/heads/next')) }}:
+    value: true 
+  ${{ if not(or(startsWith(variables['Build.SourceBranch'], 'refs/heads/release'), startsWith(variables['Build.SourceBranch'], 'refs/heads/hotfix'), startsWith(variables['Build.SourceBranch'], 'refs/heads/main'), startsWith(variables['Build.SourceBranch'], 'refs/heads/next'))) }}:
+    value: false
+- name: DeployStgProd
+  ${{ if or(startsWith(variables['Build.SourceBranch'], 'refs/heads/release'), startsWith(variables['Build.SourceBranch'], 'refs/heads/hotfix')) }}:
+    value: true
+  ${{ if not(or(startsWith(variables['Build.SourceBranch'], 'refs/heads/release'), startsWith(variables['Build.SourceBranch'], 'refs/heads/hotfix'))) }}:
+    value: false
+
+name: '$(BuildDefinitionName)_$(MajorVersion).$(MinorVersion).$(Revision).$(BuildID)'
+
+stages:
+- stage: Build
+  pool: BUILD
+  jobs:
+  - job: build
+    steps:
+    - task: UseDotNet@2
+      displayName: Use .NET Core SDK
+      inputs:
+        packageType: 'sdk'
+        version: '2.1.811'
+        installationPath: '$(Agent.TempDirectory)\dotnet'
+    - task: DotNetCoreCLI@2
+      displayName: Build WebHost
+      inputs:
+        command: 'publish'
+        publishWebProjects: false
+        projects: 'UI/Phd.WebHost/*.csproj'
+        arguments: '-c ${{ variables.BuildConfiguration }} -o $(build.sourcesDirectory)\Build -r win10-x64'
+        zipAfterPublish: false
+        modifyOutputPath: false
+    - task: PublishBuildArtifacts@1
+      displayName: Publish build artifact
+      inputs:
+        PathtoPublish: '$(build.sourcesdirectory)\build'
+        ArtifactName: 'Site'
+        publishLocation: 'Container'
+- ${{ if eq(variables['DeployDev'], true) }}:
+  - stage: Dev
+    pool: pgazador1p
+    displayName: Deploy Dev
+    dependsOn: Build
+    variables:
+    - group: 'PHD DEV'
+    jobs:
+    - template: deploy.yml
+      parameters:
+        resources:
+        - jobName: 'Dev'
+          environment: 'PhdDev'
+          webAppName: 'PhdDev'
+          resourceGroup: 'PHD-Dev'
+          subscription: 'Development'
+- ${{ if eq(variables['DeployQa'], true) }}:
+  - stage: EmailTesters
+    dependsOn: Build
+    pool: pgazador1p
+    variables:
+    - group: 'PHD QA'
+    displayName: Email Testers
+    jobs:
+    - job: EmailTesters
+      steps:
+      - task: SendEmail@1
+        displayName: Email Testers
+        inputs:
+          To: '$(testers)'
+          From: 'azuredevops@donotreply.com'
+          Subject: 'New Release available for $(Build.DefinitionName)'
+          Body: |
+            Release is ready for $(Build.DefinitionName).
+            
+            Please view the following approval:
+            
+            https://dev.azure.com/pultevsts/HomeBuilder%20Apps/_build/results?buildId=$(Build.BuildId)&view=results
+          BodyAsHtml: false
+          AddAttachment: false
+          SmtpServer: 'smtp.pulte.com'
+          SmtpPort: '25'
+          UseSSL: false
+  - stage: Qa
+    pool: pgazador1p
+    displayName: Deploy Qa
+    dependsOn: EmailTesters
+    variables:
+    - group: 'PHD QA'
+    jobs:
+    - template: deploy.yml
+      parameters:
+        resources:
+        - jobName: 'Qa'
+          environment: 'PhdQa'
+          webAppName: 'PhdQa'
+          resourceGroup: 'PHD-Qa'
+          subscription: 'QA'
+- ${{ if eq(variables['DeployStgProd'], true) }}:
+  - stage: QaApproval
+    displayName: QA Post-Deployment Approval
+    dependsOn: Qa
+    pool: PGAZADOR1P
+    jobs:
+    - deployment: QaApproval
+      displayName: Post-Deployment Approval
+      environment: 'PhdPostApproval'
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+            - script: echo 'Approved!'
+  - stage: Staging
+    displayName: Deploy Staging
+    pool: pgazador1p
+    dependsOn: QaApproval
+    variables:
+    - group: 'PHD STG'
+    jobs:
+    - template: deploy.yml
+      parameters:
+        resources:
+        - jobName: 'StgEast'
+          environment: 'PhdStg'
+          webAppName: 'PhdEastStg'
+          resourceGroup: 'PHD-STG-EAST'
+          subscription: 'Staging'
+        - jobName: 'StgWest'
+          environment: 'PhdStg'
+          webAppName: 'PhdWestStg'
+          resourceGroup: 'PHD-STG-WEST'
+          subscription: 'Staging'
+  - stage: StgApproval
+    displayName: Staging Post-Deployment Approval
+    dependsOn: Staging
+    pool: PGAZADOR1P
+    jobs:
+    - deployment: StgApproval
+      displayName: Post-Deployment Approval
+      environment: 'PhdPostApproval'
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+            - script: echo 'Approved!'
+  - stage: Production
+    displayName: Deploy Production
+    pool: pgazador1p
+    dependsOn: StgApproval
+    variables:
+    - group: 'PHD PROD'
+    jobs:
+    - template: deploy.yml
+      parameters:
+        resources:
+        - jobName: 'ProdEast'
+          environment: 'PhdProd'
+          webAppName: 'PhdEastProd'
+          resourceGroup: 'PHD-PROD-EAST'
+          subscription: 'Production'
+        - jobName: 'ProdWest'
+          environment: 'PhdProd'
+          webAppName: 'PhdWestProd'
+          resourceGroup: 'PHD-PROD-WEST'
+          subscription: 'Production'
+  - stage: ProdApproval
+    displayName: Production Post-Deployment Approval
+    dependsOn: Production
+    pool: PGAZADOR1P
+    jobs:
+    - deployment: ProdApproval
+      displayName: Post-Deployment Approval
+      environment: 'PhdPostApproval'
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+            - script: echo 'Approved!'

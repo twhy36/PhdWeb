@@ -1,0 +1,35 @@
+<nav id="phd-nav-bar" class="navbar fixed-top navbar-expand-md">
+	<div class="d-flex container-fluid phd-mobile-header">
+		<div *ngIf="(isTablet$ | async)" class="phd-menu-bars">
+			<i *ngIf="isMenuCollapsed" class="fa fa-bars fa-2x" (click)="isMenuCollapsed = !isMenuCollapsed"></i>
+			<i *ngIf="!isMenuCollapsed" class="fa fa-arrow-left" (click)="isMenuCollapsed = !isMenuCollapsed"></i>
+		</div>
+		<div class="phd-nav-bar-header ">
+			<img class="phd-logo" src="assets/Pulte_Homes_White_Logo.PNG" alt="Pulte Homes">
+		</div>
+		<div class="d-flex flex-column phd-nav-bar-title">
+			<span class="phd-nav-bar-label">Home Designer</span>
+			<span class="phd-nav-bar-config">Welcome To Your Home</span>
+		</div>
+		<div *ngIf="!(isTablet$ | async)" class="col-6 d-flex justify-content-between align-items-center ml-auto">
+			<div><a [routerLink]="['/']">Floorplan</a></div>
+			<div><a [routerLink]="['/']">Contracted Options</a></div>
+			<div>
+				<a [routerLink]="[getFavoritesLink()]"
+				   [routerLinkActive]="['phd-active-link']">
+					{{currentPath === 'my-favorites' || currentPath === 'summary' ? 'My Favorites' : 'Manage Favorites' }}
+				</a>
+			</div>
+			<div><a [routerLink]="['/']">Instructions</a></div>
+		</div>
+	</div>
+</nav>
+
+<div *ngIf="(isTablet$ | async) && !isMenuCollapsed" class="phd-collapsable-menu">
+	<div><a [routerLink]="['/']">Floorplan</a></div>
+	<div><a [routerLink]="['/']">Contracted Options</a></div>
+	<div [class.phd-active-link]="currentRoute?.startsWith('/favorites')">
+		<a [routerLink]="[currentRoute?.startsWith('/favorites') ? currentRoute : '/favorites']">Manage Favorites</a>
+	</div>
+	<div><a [routerLink]="['/']">Instructions</a></div>
+</div>

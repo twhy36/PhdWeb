@@ -1,0 +1,17 @@
+@import "../../../../../scss/color-pallet.scss";
+@import "../../../../../scss/sizes.scss";
+
+.modal-header {
+	background: $twilight-blue;
+	border-top-left-radius: 0.2rem;
+	border-top-right-radius: 0.2rem;
+	color: #fff;
+
+	button {
+		color: #fff;
+	}
+}
+
+.modal-title {
+	font-size: 1.25em;
+}

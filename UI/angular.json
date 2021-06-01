@@ -1,0 +1,684 @@
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "newProjectRoot": "projects",
+    "projects": {
+        "phd-common": {
+            "projectType": "library",
+            "root": "projects/phd-common",
+            "sourceRoot": "projects/phd-common/src",
+            "prefix": "lib",
+            "architect": {
+                "build": {
+                    "builder": "@angular-devkit/build-ng-packagr:build",
+                    "options": {
+                        "tsConfig": "projects/phd-common/tsconfig.lib.json",
+                        "project": "projects/phd-common/ng-package.json"
+                    },
+                    "configurations": {
+                        "production": {
+                            "tsConfig": "projects/phd-common/tsconfig.lib.prod.json"
+                        }
+                    }
+                },
+                "test": {
+                    "builder": "@angular-devkit/build-angular:karma",
+                    "options": {
+                        "main": "projects/phd-common/src/test.ts",
+                        "tsConfig": "projects/phd-common/tsconfig.spec.json",
+                        "karmaConfig": "projects/phd-common/karma.conf.js"
+                    }
+                },
+                "lint": {
+                    "builder": "@angular-devkit/build-angular:tslint",
+                    "options": {
+                        "tsConfig": [
+                            "projects/phd-common/tsconfig.lib.json",
+                            "projects/phd-common/tsconfig.spec.json"
+                        ],
+                        "exclude": [
+                            "**/node_modules/**"
+                        ]
+                    }
+                }
+            }
+        },
+        "choiceadmin": {
+            "root": "",
+            "sourceRoot": "projects/choiceadmin/src",
+            "projectType": "application",
+            "architect": {
+                "build": {
+                    "builder": "@angular-devkit/build-angular:browser",
+                    "options": {
+                        "aot": true,
+                        "baseHref": "/choiceadmin/",
+                        "outputHashing": "all",
+                        "outputPath": "dist/choiceadmin",
+                        "index": "projects/choiceadmin/src/index.html",
+                        "main": "projects/choiceadmin/src/main.ts",
+                        "tsConfig": "projects/choiceadmin/tsconfig.app.json",
+                        "progress": true,
+                        "preserveSymlinks": true,
+                        "polyfills": "projects/choiceadmin/src/polyfills.ts",
+                        "verbose": true,
+                        "assets": [
+                            "projects/choiceadmin/src/assets",
+                            "projects/choiceadmin/src/favicon.ico",
+                            "projects/choiceadmin/src/picturepark-response.html"
+                        ],
+                        "styles": [
+                            "node_modules/bootstrap/dist/css/bootstrap.min.css",
+                            "node_modules/font-awesome/css/font-awesome.min.css",
+                            "node_modules/primeng/resources/themes/nova-light/theme.css",
+                            "node_modules/primeng/resources/primeng.min.css",
+                            "node_modules/primeicons/primeicons.css",
+                            "projects/choiceadmin/src/scss/styles.scss"
+                        ],
+                        "scripts": []
+                    },
+                    "configurations": {
+                        "qa": {
+                            "fileReplacements": [
+                                {
+                                    "replace": "projects/choiceadmin/src/environments/environment.ts",
+                                    "with": "projects/choiceadmin/src/environments/environment.qa.ts"
+                                }
+                            ]
+                        },
+                        "staging": {
+                            "fileReplacements": [
+                                {
+                                    "replace": "projects/choiceadmin/src/environments/environment.ts",
+                                    "with": "projects/choiceadmin/src/environments/environment.staging.ts"
+                                }
+                            ]
+                        },
+                        "production": {
+                            "optimization": true,
+                            "sourceMap": false,
+                            "extractCss": true,
+                            "namedChunks": false,
+                            "extractLicenses": true,
+                            "vendorChunk": false,
+                            "buildOptimizer": true,
+                            "fileReplacements": [
+                                {
+                                    "replace": "projects/choiceadmin/src/environments/environment.ts",
+                                    "with": "projects/choiceadmin/src/environments/environment.prod.ts"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "serve": {
+                    "builder": "@angular-devkit/build-angular:dev-server",
+                    "options": {
+                        "baseHref": "/",
+                        "browserTarget": "choiceadmin:build",
+                        "port": 14765
+                    },
+                    "configurations": {
+                        "qa": {
+                            "browserTarget": "choiceadmin:build:qa"
+                        },
+                        "staging": {
+                            "browserTarget": "choiceadmin:build:staging"
+                        },
+                        "production": {
+                            "browserTarget": "choiceadmin:build:production"
+                        }
+                    }
+                },
+                "extract-i18n": {
+                    "builder": "@angular-devkit/build-angular:extract-i18n",
+                    "options": {
+                        "browserTarget": "choiceadmin:build"
+                    }
+                },
+                "test": {
+                    "builder": "@angular-devkit/build-angular:karma",
+                    "options": {
+                        "main": "projects/choiceadmin/src/test.ts",
+                        "karmaConfig": "projects/choiceadmin/karma.conf.js",
+                        "polyfills": "projects/choiceadmin/src/polyfills.ts",
+                        "tsConfig": "projects/choiceadmin/tsconfig.spec.json",
+                        "scripts": [],
+                        "styles": [
+                            "node_modules/bootstrap/scss/bootstrap.scss",
+                            "node_modules/font-awesome/css/font-awesome.min.css",
+                            "node_modules/primeng/resources/themes/nova-light/theme.css",
+                            "node_modules/primeng/resources/primeng.min.css",
+                            "node_modules/primeicons/primeicons.css",
+                            "projects/choiceadmin/src/scss/styles.scss"
+                        ],
+                        "assets": [
+                            "projects/choiceadmin/src/assets"
+                        ]
+                    }
+                },
+                "lint": {
+                    "builder": "@angular-devkit/build-angular:tslint",
+                    "options": {
+                        "tsConfig": [
+                            "projects/choiceadmin/tsconfig.app.json",
+                            "projects/choiceadmin/tsconfig.spec.json"
+                        ],
+                        "exclude": [
+                            "**/node_modules/**"
+                        ]
+                    }
+                }
+            }
+        },
+        "designtool": {
+            "root": "",
+            "sourceRoot": "projects/designtool/src",
+            "projectType": "application",
+            "architect": {
+                "build": {
+                    "builder": "@angular-devkit/build-angular:browser",
+                    "options": {
+                        "aot": true,
+                        "baseHref": "/designtool/",
+                        "outputHashing": "all",
+                        "outputPath": "dist/designtool",
+                        "index": "projects/designtool/src/index.html",
+                        "main": "projects/designtool/src/main.ts",
+                        "tsConfig": "projects/designtool/tsconfig.app.json",
+                        "progress": true,
+                        "preserveSymlinks": true,
+                        "polyfills": "projects/designtool/src/polyfills.ts",
+                        "verbose": true,
+                        "assets": [
+                            "projects/designtool/src/assets",
+                            "projects/designtool/src/docusign_response.html",
+                            "projects/designtool/src/favicon.ico"
+                        ],
+                        "styles": [
+                            "node_modules/ngx-toastr/toastr.css",
+                            "node_modules/primeicons/primeicons.css",
+                            "node_modules/primeng/resources/themes/nova-light/theme.css",
+                            "node_modules/primeng/resources/primeng.min.css",
+                            "projects/designtool/src/scss/styles.scss"
+                        ],
+                        "scripts": [],
+                        "webWorkerTsConfig": "projects/designtool/tsconfig.worker.json"
+                    },
+                    "configurations": {
+                        "qa": {
+                            "fileReplacements": [
+                                {
+                                    "replace": "projects/designtool/src/environments/environment.ts",
+                                    "with": "projects/designtool/src/environments/environment.qa.ts"
+                                }
+                            ]
+                        },
+                        "staging": {
+                            "fileReplacements": [
+                                {
+                                    "replace": "projects/designtool/src/environments/environment.ts",
+                                    "with": "projects/designtool/src/environments/environment.staging.ts"
+                                }
+                            ]
+                        },
+                        "production": {
+                            "optimization": true,
+                            "sourceMap": false,
+                            "extractCss": true,
+                            "namedChunks": false,
+                            "extractLicenses": true,
+                            "vendorChunk": false,
+                            "buildOptimizer": true,
+                            "fileReplacements": [
+                                {
+                                    "replace": "projects/designtool/src/environments/environment.ts",
+                                    "with": "projects/designtool/src/environments/environment.prod.ts"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "serve": {
+                    "builder": "@angular-devkit/build-angular:dev-server",
+                    "options": {
+                        "baseHref": "/",
+                        "browserTarget": "designtool:build",
+                        "port": 14767
+                    },
+                    "configurations": {
+                        "qa": {
+                            "browserTarget": "designtool:build:qa"
+                        },
+                        "staging": {
+                            "browserTarget": "designtool:build:staging"
+                        },
+                        "production": {
+                            "browserTarget": "designtool:build:production"
+                        }
+                    }
+                },
+                "extract-i18n": {
+                    "builder": "@angular-devkit/build-angular:extract-i18n",
+                    "options": {
+                        "browserTarget": "designtool:build"
+                    }
+                },
+                "test": {
+                    "builder": "@angular-devkit/build-angular:karma",
+                    "options": {
+                        "main": "projects/designtool/src/test.ts",
+                        "karmaConfig": "projects/designtool/karma.conf.js",
+                        "polyfills": "projects/designtool/src/polyfills.ts",
+                        "tsConfig": "projects/designtool/tsconfig.spec.json",
+                        "preserveSymlinks": true,
+                        "scripts": [],
+                        "styles": [
+                            "node_modules/ngx-toastr/toastr.css",
+                            "node_modules/primeng/resources/themes/nova-light/theme.css",
+                            "node_modules/primeng/resources/primeng.min.css",
+                            "projects/designtool/src/scss/styles.scss"
+                        ],
+                        "assets": [
+                            "projects/designtool/src/assets"
+                        ]
+                    }
+                },
+                "lint": {
+                    "builder": "@angular-devkit/build-angular:tslint",
+                    "options": {
+                        "tsConfig": [
+                            "projects/designtool/tsconfig.app.json",
+                            "projects/designtool/tsconfig.spec.json",
+                            "projects/designtool/tsconfig.worker.json"
+                        ],
+                        "exclude": [
+                            "**/node_modules/**"
+                        ]
+                    }
+                }
+            }
+        },
+        "salesadmin": {
+            "root": "",
+            "sourceRoot": "projects/salesadmin/src",
+            "projectType": "application",
+            "architect": {
+                "build": {
+                    "builder": "@angular-devkit/build-angular:browser",
+                    "options": {
+                        "aot": true,
+                        "baseHref": "/salesadmin/",
+                        "outputHashing": "all",
+                        "outputPath": "dist/salesadmin",
+                        "index": "projects/salesadmin/src/index.html",
+                        "main": "projects/salesadmin/src/main.ts",
+                        "tsConfig": "projects/salesadmin/tsconfig.app.json",
+                        "progress": true,
+                        "preserveSymlinks": true,
+                        "polyfills": "projects/salesadmin/src/polyfills.ts",
+                        "verbose": true,
+                        "assets": [
+                            "projects/salesadmin/src/assets",
+                            "projects/salesadmin/src/favicon.ico"
+                        ],
+                        "styles": [
+                            "node_modules/font-awesome/css/font-awesome.min.css",
+                            "node_modules/primeng/resources/themes/nova-light/theme.css",
+                            "node_modules/primeng/resources/primeng.min.css",
+                            "node_modules/primeicons/primeicons.css",
+                            "projects/salesadmin/src/scss/styles.scss"
+                        ],
+                        "scripts": []
+                    },
+                    "configurations": {
+                        "qa": {
+                            "fileReplacements": [
+                                {
+                                    "replace": "projects/salesadmin/src/environments/environment.ts",
+                                    "with": "projects/salesadmin/src/environments/environment.qa.ts"
+                                }
+                            ]
+                        },
+                        "staging": {
+                            "fileReplacements": [
+                                {
+                                    "replace": "projects/salesadmin/src/environments/environment.ts",
+                                    "with": "projects/salesadmin/src/environments/environment.staging.ts"
+                                }
+                            ]
+                        },
+                        "production": {
+                            "optimization": true,
+                            "sourceMap": false,
+                            "extractCss": true,
+                            "namedChunks": false,
+                            "extractLicenses": true,
+                            "vendorChunk": false,
+                            "buildOptimizer": true,
+                            "fileReplacements": [
+                                {
+                                    "replace": "projects/salesadmin/src/environments/environment.ts",
+                                    "with": "projects/salesadmin/src/environments/environment.prod.ts"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "serve": {
+                    "builder": "@angular-devkit/build-angular:dev-server",
+                    "options": {
+                        "baseHref": "/",
+                        "browserTarget": "salesadmin:build",
+                        "port": 14768
+                    },
+                    "configurations": {
+                        "qa": {
+                            "browserTarget": "salesadmin:build:qa"
+                        },
+                        "staging": {
+                            "browserTarget": "salesadmin:build:staging"
+                        },
+                        "production": {
+                            "browserTarget": "salesadmin:build:production"
+                        }
+                    }
+                },
+                "extract-i18n": {
+                    "builder": "@angular-devkit/build-angular:extract-i18n",
+                    "options": {
+                        "browserTarget": "salesadmin:build"
+                    }
+                },
+                "test": {
+                    "builder": "@angular-devkit/build-angular:karma",
+                    "options": {
+                        "main": "projects/salesadmin/src/test.ts",
+                        "karmaConfig": "projects/salesadmin/karma.conf.js",
+                        "polyfills": "projects/salesadmin/src/polyfills.ts",
+                        "tsConfig": "projects/salesadmin/tsconfig.spec.json",
+                        "scripts": [],
+                        "styles": [
+                            "node_modules/bootstrap/scss/bootstrap.scss",
+                            "node_modules/font-awesome/css/font-awesome.min.css",
+                            "node_modules/primeng/resources/themes/nova-light/theme.css",
+                            "node_modules/primeng/resources/primeng.min.css",
+                            "node_modules/primeicons/primeicons.css",
+                            "projects/salesadmin/src/scss/styles.scss"
+                        ],
+                        "assets": [
+                            "projects/salesadmin/src/assets"
+                        ]
+                    }
+                },
+                "lint": {
+                    "builder": "@angular-devkit/build-angular:tslint",
+                    "options": {
+                        "tsConfig": [
+                            "projects/salesadmin/tsconfig.app.json",
+                            "projects/salesadmin/tsconfig.spec.json"
+                        ],
+                        "exclude": [
+                            "**/node_modules/**"
+                        ]
+                    }
+                }
+            }
+        },
+        "salesportal": {
+            "root": "",
+            "sourceRoot": "projects/salesportal/src",
+            "projectType": "application",
+            "architect": {
+                "build": {
+                    "builder": "@angular-devkit/build-angular:browser",
+                    "options": {
+                        "aot": true,
+                        "baseHref": "/salesportal/",
+                        "outputHashing": "all",
+                        "outputPath": "dist/salesportal",
+                        "index": "projects/salesportal/src/index.html",
+                        "main": "projects/salesportal/src/main.ts",
+                        "tsConfig": "projects/salesportal/tsconfig.app.json",
+                        "progress": true,
+                        "preserveSymlinks": true,
+                        "polyfills": "projects/salesportal/src/polyfills.ts",
+                        "verbose": true,
+                        "assets": [
+                            "projects/salesportal/src/assets"
+                        ],
+                        "styles": [
+                            "node_modules/font-awesome/css/font-awesome.min.css",
+                            "node_modules/primeng/resources/themes/nova-light/theme.css",
+                            "node_modules/primeng/resources/primeng.min.css",
+                            "node_modules/primeicons/primeicons.css",
+                            "projects/salesportal/src/scss/styles.scss"
+                        ],
+                        "scripts": []
+                    },
+                    "configurations": {
+                        "qa": {
+                            "fileReplacements": [
+                                {
+                                    "replace": "projects/salesportal/src/environments/environment.ts",
+                                    "with": "projects/salesportal/src/environments/environment.qa.ts"
+                                }
+                            ]
+                        },
+                        "staging": {
+                            "fileReplacements": [
+                                {
+                                    "replace": "projects/salesportal/src/environments/environment.ts",
+                                    "with": "projects/salesportal/src/environments/environment.staging.ts"
+                                }
+                            ]
+                        },
+                        "production": {
+                            "optimization": true,
+                            "sourceMap": false,
+                            "extractCss": true,
+                            "namedChunks": false,
+                            "extractLicenses": true,
+                            "vendorChunk": false,
+                            "buildOptimizer": true,
+                            "fileReplacements": [
+                                {
+                                    "replace": "projects/salesportal/src/environments/environment.ts",
+                                    "with": "projects/salesportal/src/environments/environment.prod.ts"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "serve": {
+                    "builder": "@angular-devkit/build-angular:dev-server",
+                    "options": {
+                        "baseHref": "/",
+                        "browserTarget": "salesportal:build",
+                        "port": 14766
+                    },
+                    "configurations": {
+                        "qa": {
+                            "browserTarget": "salesportal:build:qa"
+                        },
+                        "staging": {
+                            "browserTarget": "salesportal:build:staging"
+                        },
+                        "production": {
+                            "browserTarget": "salesportal:build:production"
+                        }
+                    }
+                },
+                "extract-i18n": {
+                    "builder": "@angular-devkit/build-angular:extract-i18n",
+                    "options": {
+                        "browserTarget": "salesportal:build"
+                    }
+                },
+                "test": {
+                    "builder": "@angular-devkit/build-angular:karma",
+                    "options": {
+                        "main": "projects/salesportal/src/test.ts",
+                        "karmaConfig": "projects/salesportal/karma.conf.js",
+                        "polyfills": "projects/salesportal/src/polyfills.ts",
+                        "tsConfig": "projects/salesportal/tsconfig.spec.json",
+                        "scripts": [],
+                        "styles": [
+                            "node_modules/bootstrap/scss/bootstrap.scss",
+                            "node_modules/font-awesome/css/font-awesome.min.css",
+                            "node_modules/primeng/resources/themes/nova-light/theme.css",
+                            "node_modules/primeng/resources/primeng.min.css",
+                            "node_modules/primeicons/primeicons.css",
+                            "projects/salesportal/src/scss/styles.scss"
+                        ],
+                        "assets": [
+                            "projects/salesportal/src/assets"
+                        ]
+                    }
+                },
+                "lint": {
+                    "builder": "@angular-devkit/build-angular:tslint",
+                    "options": {
+                        "tsConfig": [
+                            "projects/salesportal/tsconfig.app.json",
+                            "projects/salesportal/tsconfig.spec.json"
+                        ],
+                        "exclude": [
+                            "**/node_modules/**"
+                        ]
+                    }
+                }
+            }
+        },
+        "homedesigner": {
+            "root": "",
+            "sourceRoot": "projects/homedesigner/src",
+            "projectType": "application",
+            "architect": {
+                "build": {
+                    "builder": "@angular-devkit/build-angular:browser",
+                    "options": {
+                        "progress": true,
+                        "preserveSymlinks": true,
+                        "aot": true,
+                        "baseHref": "/homedesigner/",
+                        "outputHashing": "all",
+                        "outputPath": "dist/homedesigner",
+                        "index": "projects/homedesigner/src/index.html",
+                        "main": "projects/homedesigner/src/main.ts",
+                        "polyfills": "projects/homedesigner/src/polyfills.ts",
+                        "tsConfig": "projects/homedesigner/tsconfig.app.json",
+                        "verbose": true,
+                        "assets": [
+                            "projects/homedesigner/src/assets",
+                            "projects/homedesigner/src/favicon.ico"
+                        ],
+                        "styles": [
+                            "node_modules/ngx-toastr/toastr.css",
+                            "node_modules/bootstrap/dist/css/bootstrap.min.css",
+                            "node_modules/font-awesome/css/font-awesome.min.css",
+                            "node_modules/primeng/resources/themes/nova-light/theme.css",
+                            "node_modules/primeng/resources/primeng.min.css",
+                            "node_modules/primeicons/primeicons.css",
+                            "projects/homedesigner/src/scss/styles.scss"
+                        ],
+                        "scripts": []
+                    },
+                    "configurations": {
+                        "qa": {
+                            "fileReplacements": [
+                                {
+                                    "replace": "projects/homedesigner/src/environments/environment.ts",
+                                    "with": "projects/homedesigner/src/environments/environment.qa.ts"
+                                }
+                            ]
+                        },
+                        "staging": {
+                            "fileReplacements": [
+                                {
+                                    "replace": "projects/homedesigner/src/environments/environment.ts",
+                                    "with": "projects/homedesigner/src/environments/environment.staging.ts"
+                                }
+                            ]
+                        },
+                        "production": {
+                            "fileReplacements": [
+                                {
+                                    "replace": "projects/homedesigner/src/environments/environment.ts",
+                                    "with": "projects/homedesigner/src/environments/environment.prod.ts"
+                                }
+                            ],
+                            "optimization": true,
+                            "sourceMap": false,
+                            "extractCss": true,
+                            "namedChunks": false,
+                            "extractLicenses": true,
+                            "vendorChunk": false,
+                            "buildOptimizer": true
+                        }
+                    }
+                },
+                "serve": {
+                    "builder": "@angular-devkit/build-angular:dev-server",
+                    "options": {
+                        "baseHref": "/",
+                        "browserTarget": "homedesigner:build",
+                        "port": 14765
+                    },
+                    "configurations": {
+                        "qa": {
+                            "browserTarget": "homedesigner:build:qa"
+                        },
+                        "staging": {
+                            "browserTarget": "homedesigner:build:staging"
+                        },
+                        "production": {
+                            "browserTarget": "homedesigner:build:production"
+                        }
+                    }
+                },
+                "extract-i18n": {
+                    "builder": "@angular-devkit/build-angular:extract-i18n",
+                    "options": {
+                        "browserTarget": "homedesigner:build"
+                    }
+                },
+                "test": {
+                    "builder": "@angular-devkit/build-angular:karma",
+                    "options": {
+                        "main": "projects/homedesigner/src/test.ts",
+                        "polyfills": "projects/homedesigner/src/polyfills.ts",
+                        "tsConfig": "projects/homedesigner/tsconfig.spec.json",
+                        "karmaConfig": "projects/homedesigner/karma.conf.js",
+                        "styles": [
+                            "node_modules/ngx-toastr/toastr.css",
+                            "node_modules/bootstrap/scss/bootstrap.scss",
+                            "node_modules/font-awesome/css/font-awesome.min.css",
+                            "node_modules/primeng/resources/themes/nova-light/theme.css",
+                            "node_modules/primeng/resources/primeng.min.css",
+                            "node_modules/primeicons/primeicons.css",
+                            "projects/homedesigner/src/scss/styles.scss"
+                        ],
+                        "scripts": [],
+                        "assets": [
+                            "projects/homedesigner/src/assets"
+                        ]
+                    }
+                },
+                "lint": {
+                    "builder": "@angular-devkit/build-angular:tslint",
+                    "options": {
+                        "tsConfig": [
+                            "projects/homedesigner/tsconfig.app.json",
+                            "projects/homedesigner/tsconfig.spec.json"
+                        ],
+                        "exclude": [
+                            "**/node_modules/**"
+                        ]
+                    }
+                }
+            }
+        }
+    },
+  "defaultProject": "phd-common"
+}
