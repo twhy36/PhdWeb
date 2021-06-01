@@ -126,8 +126,9 @@ export const priceBreakdown = createSelector(
 	fromScenario.selectScenario,
 	fromSalesAgreement.salesAgreementState,
 	fromChangeOrder.currentChangeOrder,
+	fromFavorite.favoriteState,
 	selectedPlanPrice,
-	(scenario, salesAgreement, currentChangeOrder, planPrice) => {
+	(scenario, salesAgreement, currentChangeOrder, favorite, planPrice) => {
 		let breakdown = new PriceBreakdown();
 
 		if (salesAgreement && scenario) {
@@ -136,8 +137,11 @@ export const priceBreakdown = createSelector(
 
 			let base = scenario.options ? scenario.options.find(o => o.isBaseHouse) : null;
 			if (base && scenario.tree) {
-				breakdown.selections = _.flatMap(scenario.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, p => p.choices)))
-					.reduce((acc, ch) => acc + (ch.quantity * ch.price), 0);
+				const treeChoices = _.flatMap(scenario.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, p => p.choices)));
+                breakdown.selections = treeChoices.filter(c => !!favorite.salesChoices.find(x => x.divChoiceCatalogId === c.divChoiceCatalogId))
+					?.reduce((acc, ch) => acc + (ch.quantity * ch.price), 0);
+				breakdown.favoritesPrice = treeChoices.filter(c => c.quantity > 0 && !favorite.salesChoices.find(x => x.divChoiceCatalogId === c.divChoiceCatalogId))
+				?.reduce((acc, ch) => acc + (ch.quantity * ch.price), 0);
 			}
 
 			const programs = salesAgreement.programs;
@@ -195,7 +199,7 @@ export const priceBreakdown = createSelector(
 				}
 			}
 
-			let changePrice = currentChangeOrder && currentChangeOrder.amount || 0;
+			let changePrice = salesAgreement.status === 'Approved' && currentChangeOrder?.amount || 0;
 			const salesPrice = salesAgreement.salePrice || 0;
 			breakdown.totalPrice = salesPrice + changePrice + breakdown.favoritesPrice;
 		}

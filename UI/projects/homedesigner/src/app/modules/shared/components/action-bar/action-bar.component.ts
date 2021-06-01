@@ -33,40 +33,12 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit
 	previousTopPosition = 0;
 
 	constructor(
-		private ngZone: NgZone,
-		private renderer: Renderer2,
 		private cd: ChangeDetectorRef,
 		private router: Router,
 		private store: Store<fromRoot.State>
 	) { super(); }
 
-	ngOnInit()
-	{
-		this.ngZone.runOutsideAngular(() => {
-			/*prevents browser from firing scroll on page load*/
-			setTimeout(() => {
-				this.listener = this.renderer.listen(this.scrollListener, 'scroll', ($event) => { this.scrollHandler.bind(this)($event); });
-			}, 200);
-		});
-	}
-
-	ngOnDestroy() {
-		if (this.listener) {
-			this.listener();
-		}
-
-		super.ngOnDestroy();
-	}
-
-	scrollHandler($event: any) {
-		if (!this.scrolling) {
-			this.scrolling = true;
-
-			requestAnimationFrame(() => {
-				this.animateHeaderTransition(this.scrollListener.scrollY || this.scrollListener.scrollTop);
-			});
-		}
-	}
+	ngOnInit(){ }
 
 	animateHeaderTransition(pageY) {
 		this.currentTopPosition = pageY;
