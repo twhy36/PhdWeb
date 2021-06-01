@@ -71,9 +71,10 @@ export class ReOrgComponent extends UnsubscribeOnDestroy implements OnInit {
 	}
 
 	executeReOrg() {
-		this._notificationService.init();
-		this._notificationService.registerHandlers();
-		this._reOrgService.executeReOrg(this.sourceMarket.id, this.destinationMarket.id);
+		this._notificationService.init().subscribe(() => {
+			this._notificationService.registerHandlers();
+			this._reOrgService.executeReOrg(this.sourceMarket.id, this.destinationMarket.id);
+		});
 	}
 
 	loadReOrgs()
