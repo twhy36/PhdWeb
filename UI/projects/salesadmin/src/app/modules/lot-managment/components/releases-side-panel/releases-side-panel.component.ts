@@ -3,9 +3,10 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
 
 import { HomeSite } from '../../../shared/models/homesite.model';
 import { IHomeSiteReleaseDto, IHomeSiteReleaseSidePanelItem } from '../../../shared/models/homesite-releases.model';
-import { SidePanelComponent } from 'phd-common';
+import { ConfirmModalComponent, SidePanelComponent } from 'phd-common';
 
 import * as moment from "moment";
+import { NgbModal, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 @Component({
 	selector: 'releases-side-panel-component',
 	templateUrl: './releases-side-panel.component.html',
@@ -80,7 +81,7 @@ export class ReleasesSidePanelComponent implements OnInit
 		return this.releaseForm.pristine || !this.releaseForm.valid || this.saving;
 	}
 
-	constructor() { }
+	constructor(private _modalService: NgbModal) { }
 
 	ngOnInit()
 	{
@@ -179,10 +180,53 @@ export class ReleasesSidePanelComponent implements OnInit
 		this.setSelectedLotValue();
 	}
 
+	
+	checkReleaseModels()
+	{
+		if (this.selectedItems.find(s => s.isModel))
+		{
+			let models = this.selectedItems.filter(x => x.isModel).map(model => {
+				return model.label;
+			});
+			const ngbModalOptions: NgbModalOptions = {
+				centered: true,
+				backdrop: 'static',
+				keyboard: false
+			};
+			const confirm = this._modalService.open(ConfirmModalComponent, ngbModalOptions);
+			if (models.length === 1)
+			{
+				confirm.componentInstance.title = 'Create Release';
+				confirm.componentInstance.body = '<div class="phd-center-text">The following selected lot is a model: <br><br><span class="font-weight-bold">' 
+				+ models[0] + '</span><br><br>If you continue, ' 
+				+ 'this model will be released and made available for sale on the scheduled release date.</div>';
+				confirm.componentInstance.defaultOption = 'Continue';
+				confirm.componentInstance.primaryButtonText = 'Continue';
+			}
+			else
+			{
+				confirm.componentInstance.title = 'Create Release';
+				confirm.componentInstance.body = '<div class="phd-center-text">The following selected lots are models: <br><br>' 
+				+ models.join(',') + '<br><br>If you continue, ' 
+				+ 'these models will be released and made available for sale on the scheduled release date.</div>';
+				confirm.componentInstance.defaultOption = 'Continue';
+				confirm.componentInstance.primaryButtonText = 'Continue';
+			}
+
+			confirm.result.then((result) =>
+			{
+				this.saveRelease();
+			});
+		}
+		else
+		{
+			this.saveRelease();
+		}
+	}
+
 	saveRelease()
 	{
 		const form = this.releaseForm;
-
 		let releaseDate = moment(form.get('dateValue').value).format('Y-MM-DD') + 'T00:00:00';
 		let description = form.get('description').value;
 		const releaseRank = form.get('releaseRank').value || null;
@@ -205,6 +249,7 @@ export class ReleasesSidePanelComponent implements OnInit
 		}
 
 		this.onSaveRelease.emit(dto);
+		
 	}
 }
 

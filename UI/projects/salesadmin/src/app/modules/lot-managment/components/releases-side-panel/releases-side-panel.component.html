@@ -75,7 +75,7 @@
 
 	<ng-template #footer>
 		<div class="pull-right">
-			<button class="btn btn-primary phd-btn-save" (click)="saveRelease();" [disabled]="canSave">
+			<button class="btn btn-primary phd-btn-save" (click)="checkReleaseModels();" [disabled]="canSave">
 				Save
 
 				<ng-container *ngIf="saving">
