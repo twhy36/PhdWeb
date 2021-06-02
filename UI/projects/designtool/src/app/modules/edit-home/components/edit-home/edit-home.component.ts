@@ -4,7 +4,7 @@ import { Store, select } from '@ngrx/store';
 
 import * as _ from 'lodash';
 
-import { map, filter, combineLatest, distinctUntilChanged, withLatestFrom, debounceTime, take } from 'rxjs/operators';
+import { map, filter, combineLatest, distinctUntilChanged, withLatestFrom, debounceTime, take, switchMap } from 'rxjs/operators';
 import { of } from 'rxjs/observable/of';
 import { Observable } from 'rxjs/Observable';
 import { ReplaySubject } from 'rxjs/ReplaySubject';
@@ -21,7 +21,7 @@ import * as LotActions from '../../../ngrx-store/lot/actions';
 
 import {
 	UnsubscribeOnDestroy, ModalRef, ChangeTypeEnum, Job, TreeVersionRules, ScenarioStatusType, PriceBreakdown,
-	TreeFilter, Tree, SubGroup, Group, DecisionPoint, Choice, getDependentChoices
+	TreeFilter, Tree, SubGroup, Group, DecisionPoint, Choice, getDependentChoices, LotExt
 } from 'phd-common';
 
 import { LotService } from '../../../core/services/lot.service';
@@ -91,6 +91,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 	salesAgreementId: number;
 	impactedChoices: string = '';
 	lotStatus: string;
+	selectedLot: LotExt;
 
 	private params$ = new ReplaySubject<{ scenarioId: number, divDPointCatalogId: number, treeVersionId: number, choiceId?: number }>(1);
 	private selectedGroupId: number;
@@ -112,6 +113,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		).subscribe(lot => {
 			if(lot.selectedLot)
 			{
+				this.selectedLot = lot.selectedLot;
 				this.lotStatus = lot.selectedLot.lotStatusDescription;
 			}
 		})
@@ -496,6 +498,24 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 						{
 							this.lotService.buildScenario();
 						});
+					} 
+					else if (this.buildMode === 'model' && this.lotStatus === 'PendingRelease')
+					{
+						this.lotService.getLotReleaseDate(this.selectedLot.id).pipe(
+							switchMap((releaseDate) =>
+							{
+								const title = 'Create Model';
+								const body = 'The selected lot is scheduled to be released on ' + releaseDate + '. <br><br> If you continue, the lot will be removed from the release and the Lot Status will be set to UNAVAILABLE.';
+								const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
+								const secondaryButton = { text: 'Cancel', result: false, cssClass: 'btn-secondary' };
+								return this.showConfirmModal(body, title, primaryButton, secondaryButton);
+							})).subscribe(result =>
+							{
+								if (result)
+								{
+									this.lotService.buildScenario();
+								}
+							});
 					}
 					else
 					{
