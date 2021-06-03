@@ -20,8 +20,7 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 {
 	@ViewChild('av_floor_plan') img: any;
 
-	@Input() width: string = '100%';
-	@Input() height: string;
+	@Input() height: string = '100%';
 	@Input() planId$: Observable<number>;
 	@Input() selectedFloor: any;
 	@Input() subGroup: SubGroup;

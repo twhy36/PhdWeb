@@ -512,24 +512,18 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 		confirm.componentInstance.defaultOption = 'Continue';
 		confirm.componentInstance.primaryButtonText = 'Release';
 
-		const offset = -7; // AZ offset
-
 		confirm.result.then((result) =>
 		{
 			if (result === 'Continue')
 			{
 				this.saving = true;
-
-				const dto: IHomeSiteReleaseDto =
-				{
-					releaseDate: moment.utc().utcOffset(offset).toISOString(true),
+				const dto: IHomeSiteReleaseDto = {
+					releaseDate: new Date().toDateString(),
 					releaseDescription: 'Single release of ' + homesite.lotBlock,
 					releaseRank: null,
 					homeSitesAssociated: [homesite.commLbid]
 				};
-
 				dto.financialCommunityId = this.selectedCommunity.id;
-				
 				this._releaseService.saveRelease(dto).pipe(
 					finalize(() => { this.saving = false; })
 				)

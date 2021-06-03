@@ -385,7 +385,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 
 	declineDecisionPoint(point: DecisionPoint) {
 		const declPoint = this.myFavoritesPointsDeclined?.find(p => p.divPointCatalogId === point.divPointCatalogId);
-		if (!declPoint) { 
+		if (!declPoint) {
 			this.store.dispatch(new FavoriteActions.AddMyFavoritesPointDeclined(this.myFavoriteId, point.id));
 			this.deselectPointChoices(point.divPointCatalogId);
 		} else {
@@ -394,5 +394,5 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 
 		const declPointIds = [point.divPointCatalogId];
 		this.store.dispatch(new ScenarioActions.SetStatusForPointsDeclined(declPointIds, !!declPoint));
-	}	
+	}
 }
