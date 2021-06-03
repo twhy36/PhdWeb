@@ -15,12 +15,10 @@ namespace AttributeCleanup
     public class AttributeCommunityCleanup
     {
         private IConfigurationRoot _configuration { get; }
-        private EdhDeleteClient _edhClient { get; }
 
-        public AttributeCommunityCleanup(IConfigurationRoot configuration, EdhDeleteClient client)
+        public AttributeCommunityCleanup(IConfigurationRoot configuration)
         {
             _configuration = configuration;
-            _edhClient = client;
         }
 
         public async Task Run()
@@ -113,6 +111,7 @@ namespace AttributeCleanup
                 rq.Headers.Add("Authorization", $"Basic {_configuration["edhSettings:apiKey"]}");
             };
             ODataClient edhClient = new ODataClient(edhClientSettings);
+            var batch = new ODataBatch(edhClient);
 
             foreach (int communityToDelete in attributeCommunitiesToDelete)
             {
@@ -127,14 +126,18 @@ namespace AttributeCleanup
                 {
                     string tag = communityTag["tag"].ToString();
 
-                    string tagUrl = $"attributeCommunityTags(attributeCommunityId={communityToDelete}, tag='{HttpUtility.UrlEncode(tag)}')?{apiVer}";
-                    await _edhClient.DeleteRecord(tagUrl);
+                    batch += c => c.For("AttributeCommunityTags")
+                        .Key(communityToDelete, tag)
+                        .DeleteEntryAsync();
                 }
 
                 // Delete AttributeCommunity record
-                string communityUrl = $"attributeCommunities({communityToDelete})?{apiVer}";
-                await _edhClient.DeleteRecord(communityUrl);
+                batch += c => c.For("AttributeCommunities")
+                    .Key(communityToDelete)
+                    .DeleteEntryAsync();
             }
+
+            await batch.ExecuteAsync();
         }
     }
 }
