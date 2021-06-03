@@ -20,14 +20,13 @@ import { BrowserService, UnsubscribeOnDestroy, SalesAgreement } from 'phd-common
 })
 export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 {
-	fpImageWidth: string = '120%';
 	communityName: string = '';
 	planName: string = '';
 	planImageUrl: string = '';
 	marketingPlanId$ = new BehaviorSubject<number>(0);
 	salesAgreement: SalesAgreement;
 
-	constructor(private browser: BrowserService,
+	constructor(
 		private activatedRoute: ActivatedRoute,
 		private store: Store<fromRoot.State>)
     {
@@ -35,17 +34,6 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
     }
 
 	ngOnInit() {
-
-		this.browser.clientWidth().subscribe(width => {
-			if (width > 1024) {
-				this.fpImageWidth = '90%';
-			}
-
-			if (width > 1280) {
-				this.fpImageWidth = '80%';
-			}
-		});
-
 		this.activatedRoute.paramMap
 			.pipe(
 				combineLatest(this.store.pipe(select(state => state.salesAgreement))),
