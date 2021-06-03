@@ -179,7 +179,7 @@ export class DistributionListComponent extends UnsubscribeOnDestroy implements O
 
 	addControl(item: DistributionListItem)
 	{
-		const pattern = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[a-z]{1,61}$/;
+		const pattern = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{1,61}$/;
 
 		this.distributionForm.addControl(item.emailFormKey, new FormControl(item.email, [Validators.required, Validators.email, Validators.pattern(pattern), Validators.maxLength(250)]));
 		this.distributionForm.addControl(item.nameFormKey, new FormControl(item.name, [Validators.required]));

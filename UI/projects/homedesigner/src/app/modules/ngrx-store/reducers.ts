@@ -69,7 +69,7 @@ export const filteredTree = createSelector(
 								let isValid = treeMatched.point || filter(c.label);
 
 								let isIncluded = true;
-								if (p.isStructuralItem)
+								if (p.isStructuralItem || p.isPastCutOff)
 								{
 									isIncluded = favorite.includeContractedOptions && c.quantity > 0;
 								}

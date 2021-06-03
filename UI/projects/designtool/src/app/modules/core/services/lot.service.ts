@@ -18,6 +18,7 @@ import * as fromChangeOrder from '../../ngrx-store/change-order/reducer';
 import * as LotActions from '../../ngrx-store/lot/actions';
 import * as SalesAgreementActions from '../../ngrx-store/sales-agreement/actions';
 import { MonotonyConflict } from '../../shared/models/monotony-conflict.model';
+import { formatDate } from '@angular/common';
 
 @Injectable()
 export class LotService
@@ -107,6 +108,19 @@ export class LotService
 				return _throw(error);
 			})
 		);
+	}
+
+	getLotReleaseDate(lotId: number):Observable<string>
+	{
+		const filter = `Release_LotAssoc/any(c: c/EDHLotId eq ${lotId})`
+		const url = `${environment.apiUrl}releases?${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}`;
+
+		return this._http.get(url).pipe(
+			map(response =>
+			{
+				const releases = response['value'];
+				return formatDate(releases[0].releaseDate, 'MM/dd/yyyy', 'en-US');;
+			}));
 	}
 
 	hasMonotonyConflict(): Observable<MonotonyConflict>

@@ -15,7 +15,7 @@ export class ChoiceDeclineCardComponent extends UnsubscribeOnDestroy implements 
 {
 	@Input() point: DecisionPoint;
 	@Input() myFavoritesPointsDeclined?: MyFavoritesPointDeclined[]
-	
+
 	@Output() onDeclineDecisionPoint = new EventEmitter<DecisionPoint>();
 
 	isDeclined: boolean = false;
@@ -27,7 +27,7 @@ export class ChoiceDeclineCardComponent extends UnsubscribeOnDestroy implements 
 
 	ngOnInit()
 	{
-        this.isDeclined = !!this.myFavoritesPointsDeclined.find(p => p.divPointCatalogId === this.point.divPointCatalogId);
+        this.isDeclined = !!this.myFavoritesPointsDeclined?.find(p => p.divPointCatalogId === this.point.divPointCatalogId);
 	}
 
 	ngOnChanges(changes: SimpleChanges) { }

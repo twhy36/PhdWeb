@@ -29,9 +29,14 @@
 	}
 }
 
-.phd-bold {
+::ng-deep.phd-bold {
 	font-weight: bold;
 }
+
+::ng-deep .phd-center-text {
+	text-align: center;
+}
+
 .phd-item-multiselect-results {
 	padding: 10px;
 	border: solid 1px $gray-lighter;

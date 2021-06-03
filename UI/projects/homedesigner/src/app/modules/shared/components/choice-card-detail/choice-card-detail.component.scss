@@ -143,7 +143,8 @@
 
 		.phd-image-content {
 			::ng-deep img {
-				width: calc(50vw);
+				max-width: calc(50vw);
+				max-height: calc(60vh);
 			}
 		}
 

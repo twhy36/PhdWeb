@@ -32,7 +32,7 @@ export class HomeSiteRelease
 	{
 		this._dto = dto;
 		this.releaseId = dto.releaseId;
-		this.date = moment(dto.releaseDate).set({ hour: 0, minute: 0, second: 0});
+		this.date = moment(dto.releaseDate);
 		this.description = dto.releaseDescription;
 		this.releaseRank = dto.releaseRank;
 		this.associatedHomeSites = dto.homeSitesAssociated;

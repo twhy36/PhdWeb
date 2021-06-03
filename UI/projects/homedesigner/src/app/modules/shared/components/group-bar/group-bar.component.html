@@ -35,14 +35,16 @@
 				<ng-container *ngFor="let group of groups">
 					<button mat-menu-item [matMenuTriggerFor]="sub_menu"
 							[class.phd-sub-menu-selected]="isGroupSelected(group.id)">
-						{{group.label}}
+						<i class="fa fa-check phd-mobile-completed" *ngIf="completedStatuses.includes(group.status)"></i>
+						<span [ngClass]="!completedStatuses.includes(group.status) ? 'phd-group-uncompleted' : ''">{{group.label}}</span>
 					</button>
 					<mat-menu #sub_menu="matMenu" [class]="'phd-pop-menu'">
 						<button mat-menu-item
 								*ngFor="let subGroup of group.subGroups"
 								[class.phd-sub-menu-selected]="subGroup.id === selectedSubGroupId"
 								(click)="selectSubgroup(subGroup.id)">
-							{{subGroup.label}}
+							<i class="fa fa-check phd-mobile-completed" *ngIf="completedStatuses.includes(subGroup.status)"></i>
+							<span [ngClass]="!completedStatuses.includes(subGroup.status) ? 'phd-group-uncompleted' : ''">{{subGroup.label}}</span>
 						</button>
 					</mat-menu>
 				</ng-container>
