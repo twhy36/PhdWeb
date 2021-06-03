@@ -143,7 +143,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	getChoiceExt(choice: Choice, point: DecisionPoint) : ChoiceExt
 	{
 		let choiceStatus = 'Available';
-		if (this.salesChoices.findIndex(c => c.divChoiceCatalogId === choice.divChoiceCatalogId) > -1)
+		if (point.isPastCutOff || this.salesChoices.findIndex(c => c.divChoiceCatalogId === choice.divChoiceCatalogId) > -1)
 		{
 			choiceStatus = 'Contracted';
 		}

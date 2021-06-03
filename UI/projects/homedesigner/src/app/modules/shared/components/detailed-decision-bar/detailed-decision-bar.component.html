@@ -3,7 +3,7 @@
 		<div class="decision-point">
 			<div class="label" title="{{point.label}}">
 				<div class="icon">
-					<i class="fa fa-check" *ngIf="point.isStructuralItem"></i>
+					<i class="fa fa-check" *ngIf="point.isStructuralItem || point.isPastCutOff"></i>
 				</div>
 				<div>
 					{{point.label}}
@@ -13,7 +13,7 @@
 			<div *ngFor="let choice of point.choices">
 				<decision-bar-choice
 					[choice]="getChoiceExt(choice, point)"
-					[pointIsStructuralItem]="point.isStructuralItem"
+					[choiceCanBeFavorited]="!point.isStructuralItem && !point.isPastCutOff"
 					(onToggleChoice)="toggleChoice($event)"
 					(onViewChoiceDetail)="viewChoiceDetail($event)">
 				</decision-bar-choice>

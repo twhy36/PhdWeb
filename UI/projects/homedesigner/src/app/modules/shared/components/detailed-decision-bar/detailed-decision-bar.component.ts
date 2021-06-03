@@ -52,7 +52,7 @@ export class DetailedDecisionBarComponent extends UnsubscribeOnDestroy implement
 
 	getChoiceExt(choice: Choice, point: DecisionPoint) : ChoiceExt {
 		let choiceStatus = 'Available';
-		if (this.salesChoices.findIndex(c => c.divChoiceCatalogId === choice.divChoiceCatalogId) > -1) {
+		if (point.isPastCutOff || this.salesChoices.findIndex(c => c.divChoiceCatalogId === choice.divChoiceCatalogId) > -1) {
 			choiceStatus = 'Contracted';
 		}	else {
 			const contractedChoices = point.choices.filter(c => this.salesChoices.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1);

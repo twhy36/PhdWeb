@@ -8,7 +8,7 @@ import { ChoiceExt } from '../../../models/choice-ext.model';
 })
 export class DecisionBarChoiceComponent implements OnInit {
 	@Input() choice: ChoiceExt;
-	@Input() pointIsStructuralItem: boolean;
+	@Input() choiceCanBeFavorited: boolean;
 
 	@Output() onToggleChoice = new EventEmitter<ChoiceExt>();
 	@Output() onViewChoiceDetail = new EventEmitter<ChoiceExt>();
