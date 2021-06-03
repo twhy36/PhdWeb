@@ -64,6 +64,11 @@
 	-webkit-text-stroke: 1px white;
 }
 
+::ng-deep .phd-mobile-completed {
+	color: $pantone_blue;
+	-webkit-text-stroke: 1px white;
+}
+
 ::ng-deep .phd-group-uncompleted {
 	padding-left: 19px;
 }
