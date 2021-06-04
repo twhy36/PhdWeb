@@ -5,9 +5,10 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Simple.OData.Client;
-using Microsoft.Azure.Storage;
-using Microsoft.Azure.Storage.Blob;
 using System.Net.Http;
+using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Specialized;
+using Azure.Storage.Blobs.Models;
 
 namespace LotRelease
 {
@@ -27,32 +28,41 @@ namespace LotRelease
                 .AddJsonFile("appsettings.json");
 
             configuration = builder.Build();
-            
-            var blobAccount = CloudStorageAccount.Parse(configuration["AzureDocumentStorage"]);
-            var blobClient = blobAccount.CreateCloudBlobClient();
-            var container = blobClient.GetContainerReference("web-jobs");
-            var blob = container.GetBlockBlobReference("lotrelease.txt");
+
+            var blob = new BlobClient(configuration["AzureDocumentStorage"], "web-jobs", "lotrelease.txt");
+
             if (!await blob.ExistsAsync())
             {
-                await blob.UploadTextAsync(DateTime.MinValue.ToString());
+                using var ms = new MemoryStream();
+                using var writer = new StreamWriter(ms);
+                writer.WriteLine(DateTime.MinValue.ToString());
+                await writer.FlushAsync();
+                ms.Position = 0;
+                await blob.UploadAsync(ms);
             }
 
-            string leaseId = null;
+            var lease = new BlobLeaseClient(blob);
 
             try
             {
-                leaseId = await blob.AcquireLeaseAsync(new TimeSpan(0, 0, 60));
+                await lease.AcquireAsync(new TimeSpan(0, 0, 60));
             }
             catch
             {
                 return;
             }
 
-            var previousDateTime = DateTime.Parse(await blob.DownloadTextAsync());
-            if (previousDateTime > DateTime.Now.AddMinutes(-30))
+            using (var ms = new MemoryStream())
             {
-                await blob.ReleaseLeaseAsync(new AccessCondition { LeaseId = leaseId });
-                return;
+                using var rdr = new StreamReader(ms);
+                await blob.DownloadToAsync(ms);
+
+                if (DateTime.TryParse(await rdr.ReadToEndAsync(), out DateTime previousDateTime) && previousDateTime > DateTime.Now.AddMinutes(-30))
+                {
+                    await lease.ReleaseAsync();
+
+                    return;
+                }
             }
 
             var phdClientSettings = new ODataClientSettings(new Uri(configuration["phdSettings:url"]), new NetworkCredential(configuration["phdSettings:user"], configuration["phdSettings:password"]));
@@ -147,8 +157,12 @@ namespace LotRelease
                         await batch.ExecuteAsync();
                     }
                 }
-                
-                await blob.UploadTextAsync(DateTime.Now.ToString(), null, new AccessCondition { LeaseId = leaseId }, null, null);
+
+                using var ms = new MemoryStream();
+                using var writer = new StreamWriter(ms);
+                await writer.WriteAsync(DateTime.Now.ToString());
+                await writer.FlushAsync();
+                await blob.UploadAsync(ms, conditions: new BlobRequestConditions { LeaseId = lease.LeaseId });
             }
             catch (Exception ex)
             {
@@ -156,7 +170,7 @@ namespace LotRelease
             }
             finally
             {
-                await blob.ReleaseLeaseAsync(new AccessCondition { LeaseId = leaseId });
+                await lease.ReleaseAsync();
                 Console.Out.Flush();
                 Console.Error.Flush();
             }
