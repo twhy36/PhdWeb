@@ -134,6 +134,10 @@ namespace LotRelease
                                 {
                                     lot.LotBuildTypeDesc = LotBuildTypeEnum.Dirt;
                                 }
+                                else if (lot.LotBuildTypeDesc == LotBuildTypeEnum.Model)
+                                {
+                                    lot.LotBuildTypeDesc = LotBuildTypeEnum.Spec;
+                                }
                                 lot.LastModifiedBy = "LotRelease";
                                 lot.LastModifiedUtcDate = DateTime.UtcNow;
 
