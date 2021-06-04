@@ -10,7 +10,7 @@ import {
 	findChoice, DesignToolAttribute, JobChoice, JobPlanOption, JobChoiceAttribute, JobChoiceLocation, Job, 
 	ChangeOrderGroup, ChangeOrderChoice, ChangeOrderPlanOption, ChangeOrderChoiceAttribute, ChangeOrderChoiceLocation,
 	PlanOption, PointStatus, ConstructionStageTypes, Tree, Choice, DecisionPoint, MappedAttributeGroup, MappedLocationGroup,
-	Attribute, AttributeGroup, AttributeCommunityImageAssoc, Location, LocationGroup, OptionImage
+	Attribute, AttributeGroup, AttributeCommunityImageAssoc, Location, LocationGroup, OptionImage, ChoiceRules, PointRules
 } from 'phd-common';
 
 import { TreeService } from '../../core/services/tree.service';
@@ -596,4 +596,97 @@ export function mergeLocations(locations: Array<any>, missingLocations: Array<De
 			}
 		}
 	});
+}
+
+// Choice-To-Choice Structural Items
+export function hideChoicesByStructuralItems(choiceRules: ChoiceRules[], choices: Choice[], points: DecisionPoint[], hiddenChoiceIds: number[]) {
+	choiceRules.forEach(cr => {
+		cr.rules.forEach(r => {
+			r.choices.forEach(ch => {
+				const choice = r.ruleType === 1 ? choices.find(c => c.id === ch && c.quantity === 0) : choices.find(c => c.id === ch && c.quantity > 0);
+				if (choice) {
+					const dp = points.find(p => p.choices.findIndex(c => c.id === ch) >= 0);
+					if (dp.isStructuralItem && hiddenChoiceIds.indexOf(cr.choiceId) < 0) {
+						hiddenChoiceIds.push(cr.choiceId);
+					}
+				}
+			})
+		})
+	})
+	let hiddenChoicesFound = false;
+	while (!hiddenChoicesFound) {
+		hiddenChoicesFound = true;
+		choiceRules.forEach(cr => {
+			cr.rules.forEach(r => {
+				const choice = r.choices.find(ch => hiddenChoiceIds.indexOf(ch) > -1 && hiddenChoiceIds.indexOf(cr.choiceId) < 0);
+				if (choice) {
+					hiddenChoicesFound = false;
+						hiddenChoiceIds.push(cr.choiceId);
+				}
+			})
+		})
+	}
+}
+
+// Point-To-Choice && Point-To-Point Structural Items
+export function hidePointsByStructuralItems(pointRules: PointRules[], choices: Choice[], points: DecisionPoint[], hiddenChoiceIds: number[], hiddenPointIds: number[]) {
+	pointRules.forEach(pr => {
+		pr.rules.forEach(r => {
+			if (r.ruleType === 1) {
+				r.choices.forEach(ch => {
+					const choice = choices.find(c => c.id === ch && c.quantity === 0);
+					if (choice) {
+						const dp = points.find(p => p.choices.findIndex(c => c.id === ch) >= 0 && p.isStructuralItem);
+						if (dp && hiddenPointIds.indexOf(pr.pointId) < 0) {
+							hiddenPointIds.push(pr.pointId);
+						}
+					}
+				})
+				// Point-To-Point
+				r.points.forEach(po => {
+					const dp = points.find(p => p.id === po && p.isStructuralItem && !p.completed);
+					if (dp && hiddenPointIds.indexOf(pr.pointId) < 0) {
+						let quantity = 0;
+						dp.choices.forEach(choice => {
+							quantity+=choice.quantity;
+						})
+						if (quantity === 0) {
+							hiddenPointIds.push(pr.pointId);
+						}
+					}
+				})
+			}
+			if (r.ruleType === 2) {
+				// Point to Choice
+				r.choices.forEach(ch => {
+					const choice = choices.find(c => c.id === ch && c.quantity > 0);
+					if (choice && hiddenPointIds.indexOf(pr.pointId) < 0) {
+						const dp = points.find(p => (p.choices.findIndex(c => c.id === ch) >= 0) && p.isStructuralItem);
+						if (dp) {
+							hiddenPointIds.push(pr.pointId);
+						}
+					}
+				})
+			}
+		})
+	})
+	let hiddenPointsFound = false;
+	while (!hiddenPointsFound) {
+		hiddenPointsFound = true;
+		pointRules.forEach(pr => {
+			pr.rules.forEach(r => {
+				const choice = r.choices.find(ch => hiddenChoiceIds.indexOf(ch) > -1);
+				if (choice && hiddenPointIds.indexOf(pr.pointId) < 0) {
+					hiddenPointsFound = false;
+						hiddenPointIds.push(pr.pointId);
+				}
+
+				const point = r.points.find(p => hiddenPointIds.indexOf(p) > -1);
+				if (point && hiddenPointIds.indexOf(pr.pointId) < 0) {
+					hiddenPointsFound = false;
+					hiddenPointIds.push(pr.pointId);
+				}
+			})
+		})
+	}
 }

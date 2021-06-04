@@ -43,7 +43,7 @@ export const filteredTree = createSelector(
 	fromScenario.selectScenario,
 	fromFavorite.favoriteState,
 	(scenario, favorite) => {
-		let tree = _.cloneDeep(scenario.tree);
+		let tree = _.cloneDeep(scenario.tree); 
 		const treeFilter = scenario.treeFilter;
 		let filteredTree: TreeVersion;
 
@@ -85,14 +85,25 @@ export const filteredTree = createSelector(
 									}
 								}
 
+								if (scenario.hiddenChoiceIds.indexOf(c.id) > -1) {
+									isIncluded = false;
+								}
+
 								return isValid && isIncluded;
 							});
-
 							return { ...p, choices: choices };
-						}).filter(dp => {
-							return !!dp.choices.length;
 						});
-
+						points = points.filter(dp => {
+							let isIncluded = true;
+							if (dp.choices.length === 0) {
+								isIncluded = false;
+							} else {
+								if (scenario.hiddenPointIds.indexOf(dp.id) > -1) {
+									isIncluded = false;
+								}
+							}
+							return isIncluded;
+						})
 						return { ...sg, points: points };
 					}).filter(sg => {
 						return !!sg.points.length;
