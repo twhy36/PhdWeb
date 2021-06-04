@@ -206,8 +206,8 @@ export class ReleasesSidePanelComponent implements OnInit
 			else
 			{
 				confirm.componentInstance.title = 'Create Release';
-				confirm.componentInstance.body = '<div class="phd-center-text">The following selected lots are models: <br><br>' 
-				+ models.join(',') + '<br><br>If you continue, ' 
+				confirm.componentInstance.body = '<div class="phd-center-text">The following selected lots are models: <br><br> <span class="font-weight-bold">' 
+				+ models.join(',') + '</span> <br><br>If you continue, ' 
 				+ 'these models will be released and made available for sale on the scheduled release date.</div>';
 				confirm.componentInstance.defaultOption = 'Continue';
 				confirm.componentInstance.primaryButtonText = 'Continue';
@@ -215,7 +215,10 @@ export class ReleasesSidePanelComponent implements OnInit
 
 			confirm.result.then((result) =>
 			{
-				this.saveRelease();
+				if (result == 'Continue')
+				{
+					this.saveRelease();
+				}
 			});
 		}
 		else
