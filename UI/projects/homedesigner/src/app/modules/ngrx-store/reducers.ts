@@ -69,19 +69,26 @@ export const filteredTree = createSelector(
 								let isValid = treeMatched.point || filter(c.label);
 
 								let isIncluded = true;
-								if (p.isStructuralItem || p.isPastCutOff)
+								if (p.isStructuralItem)
 								{
 									isIncluded = favorite.includeContractedOptions && c.quantity > 0;
 								}
 								else
 								{
+									const isContractedChoice = contractedChoices?.includes(c);
+
 									// If there are contracted design choices and the include contracted option flag is false,
 									// Pick1 or Pick0or1 - remove all choices
 									// Pick1ormore or Pick0ormore - remove the selected choice and leave other choices viewable
 									if (contractedChoices?.length && !favorite.includeContractedOptions)
 									{
-										const isContractedChoice = contractedChoices.includes(c);
 										isIncluded = !isContractedChoice && !isComplete;
+									}
+
+									// Apply cutoff to non-contracted choice whether or not it is favorited
+									if (!isContractedChoice && p.isPastCutOff)
+									{
+										isIncluded = false;
 									}
 								}
 
