@@ -144,9 +144,10 @@ export const priceBreakdown = createSelector(
 	fromScenario.selectScenario,
 	fromSalesAgreement.salesAgreementState,
 	fromChangeOrder.currentChangeOrder,
+	fromJob.jobState,
 	fromFavorite.favoriteState,
 	selectedPlanPrice,
-	(scenario, salesAgreement, currentChangeOrder, favorite, planPrice) => {
+	(scenario, salesAgreement, currentChangeOrder, job, favorite, planPrice) => {
 		let breakdown = new PriceBreakdown();
 
 		if (salesAgreement && scenario) {
@@ -219,6 +220,27 @@ export const priceBreakdown = createSelector(
 
 			let changePrice = salesAgreement.status === 'Approved' && currentChangeOrder?.amount || 0;
 			const salesPrice = salesAgreement.salePrice || 0;
+			
+			let nonStandardOptions = 0;
+			job.jobNonStandardOptions?.forEach(nso => {
+				nonStandardOptions+=(nso.quantity*nso.unitPrice);
+			})
+			breakdown.nonStandardSelections = nonStandardOptions;
+			
+			const nsos = _.flatMap(currentChangeOrder?.jobChangeOrders, co => co.jobChangeOrderNonStandardOptions);
+
+				nsos.forEach(nso =>
+				{
+					if (nso.action === 'Add')
+					{
+						breakdown.nonStandardSelections += (nso.unitPrice * nso.qty);
+					}
+					else
+					{
+						breakdown.nonStandardSelections -= (nso.unitPrice * nso.qty);
+					}
+				});
+			
 			breakdown.totalPrice = salesPrice + changePrice + breakdown.favoritesPrice;
 		}
 
