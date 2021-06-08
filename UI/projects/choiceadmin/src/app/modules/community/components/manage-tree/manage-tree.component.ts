@@ -31,7 +31,8 @@ import
 		IDTChoice,
 		DTreeVersionDropDown,
 		IDTSubGroup,
-		DTAttributeGroupCollection
+		DTAttributeGroupCollection,
+        ITreeSortList
 	} from '../../../shared/models/tree.model';
 import { PhdApiDto, PhdEntityDto } from '../../../shared/models/api-dtos.model';
 import { Permission, IdentityService } from 'phd-common';
@@ -544,7 +545,12 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 					})
 				).subscribe(response =>
 				{
-					this._msgService.add({ severity: 'success', summary: `Sort Saved!` });
+					if (sortList)
+					{
+						this.resetSort();
+
+						this._msgService.add({ severity: 'success', summary: 'Sort', detail: `Sort Saved!` });
+					}
 				});
 			}
 			catch (error)
@@ -556,6 +562,33 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 		{
 			this._msgService.add({ severity: 'info', summary: `Sort was not saved. No changes were made.` });
 		}
+	}
+
+	resetSort()
+	{
+		this.currentTree.version.groups.forEach(group =>
+		{
+			group.subGroups.forEach(subGroup =>
+			{
+				subGroup.points.forEach(point =>
+				{
+					if (point.sortChanged)
+					{
+						// reset sort flag
+						point.sortChanged = false;
+					}
+
+					point.choices.forEach(choice =>
+					{
+						if (choice.sortChanged)
+						{
+							// reset sort flag
+							choice.sortChanged = false;
+						}
+					});
+				});
+			});
+		});
 	}
 
 	onChangeMarket()
@@ -1464,51 +1497,61 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 			});
 	}
 
-	private getSortList(): Array<PhdApiDto.IDTreePointDto>
+	private getSortList(): ITreeSortList
 	{
-		const sortList = [];
+		var sortList: ITreeSortList = { pointList: [], choiceList: [] } as ITreeSortList;
 
 		this.currentTree.version.groups.forEach(group =>
 		{
 			group.subGroups.forEach(subGroup =>
 			{
-				if (subGroup.points.length > 0)
+				subGroup.points.forEach(point =>
 				{
-					const items = this.mapDTreePointToDto(subGroup.points);
-
-					items.forEach(item =>
+					if (point.sortChanged)
 					{
-						sortList.push(item);
-					});
-				}
+						sortList.pointList.push(this.mapDTreePointToDto(point));
+					}
+
+					if (point.choices.length > 0)
+					{
+						let choiceSortChanged = point.choices.find(x => x.sortChanged == true);
+
+						if (choiceSortChanged)
+						{
+							let choiceItems = this.mapDTreeChoiceToDto(point.choices);
+
+							choiceItems.forEach(choiceItem =>
+							{
+								sortList.choiceList.push(choiceItem);
+							});
+						}
+					}
+				});
 			});
 		});
 
 		return sortList;
 	}
 
-	private mapDTreePointToDto(points: Array<IDTPoint>): Array<PhdApiDto.IDTreePointDto>
+	private mapDTreePointToDto(point: IDTPoint): PhdApiDto.IDTreePointDto
 	{
-		return points.map<PhdApiDto.IDTreePointDto>(point =>
-		{
-			return {
-				id: point.id,
-				treeVersionId: point.treeVersionId,
-				description: point.description,
-				divPointCatalogId: point.divPointCatalogId,
-				hasPointToPointRules: point.hasPointToPointRules,
-				hasPointToChoiceRules: point.hasPointToChoiceRules,
-				hasUnusedChoices: point.hasUnusedChoices,
-				isStructuralItem: point.isStructuralItem,
-				isQuickQuoteItem: point.isQuickQuoteItem,
-				label: point.label,
-				pointPickTypeId: point.pointPickTypeId,
-				pointPickTypeLabel: point.pointPickTypeLabel,
-				sortOrder: point.sortOrder,
-				subGroupId: point.subGroupId,
-				choices: this.mapDTreeChoiceToDto(point.choices)
-			};
-		});
+		return {
+			id: point.id,
+			treeVersionId: point.treeVersionId,
+			description: point.description,
+			divPointCatalogId: point.divPointCatalogId,
+			hasPointToPointRules: point.hasPointToPointRules,
+			hasPointToChoiceRules: point.hasPointToChoiceRules,
+			hasUnusedChoices: point.hasUnusedChoices,
+			isStructuralItem: point.isStructuralItem,
+			isQuickQuoteItem: point.isQuickQuoteItem,
+			label: point.label,
+			pointPickTypeId: point.pointPickTypeId,
+			pointPickTypeLabel: point.pointPickTypeLabel,
+			sortOrder: point.sortOrder,
+			subGroupId: point.subGroupId,
+			choices: this.mapDTreeChoiceToDto(point.choices)
+		} as PhdApiDto.IDTreePointDto;
 	}
 
 	private mapDTreeChoiceToDto(choices: Array<IDTChoice>): Array<PhdApiDto.IDTreeChoiceDto>
