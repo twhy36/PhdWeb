@@ -50,33 +50,38 @@
             "architect": {
                 "build": {
                     "builder": "@angular-devkit/build-angular:browser",
-                    "options": {
-                        "aot": true,
-                        "baseHref": "/choiceadmin/",
-                        "outputHashing": "all",
-                        "outputPath": "dist/choiceadmin",
-                        "index": "projects/choiceadmin/src/index.html",
-                        "main": "projects/choiceadmin/src/main.ts",
-                        "tsConfig": "projects/choiceadmin/tsconfig.app.json",
-                        "progress": true,
-                        "preserveSymlinks": true,
-                        "polyfills": "projects/choiceadmin/src/polyfills.ts",
-                        "verbose": true,
-                        "assets": [
-                            "projects/choiceadmin/src/assets",
-                            "projects/choiceadmin/src/favicon.ico",
-                            "projects/choiceadmin/src/picturepark-response.html"
-                        ],
-                        "styles": [
-                            "node_modules/bootstrap/dist/css/bootstrap.min.css",
-                            "node_modules/font-awesome/css/font-awesome.min.css",
-                            "node_modules/primeng/resources/themes/nova/theme.css",
-                            "node_modules/primeng/resources/primeng.min.css",
-                            "node_modules/primeicons/primeicons.css",
-                            "projects/choiceadmin/src/scss/styles.scss"
-                        ],
-                        "scripts": []
-                    },
+					"options": {
+						"allowedCommonJsDependencies": [
+							"applicationinsights-js",
+							"lodash",
+							"rxjs"
+						],
+						"aot": true,
+						"baseHref": "/choiceadmin/",
+						"outputHashing": "all",
+						"outputPath": "dist/choiceadmin",
+						"index": "projects/choiceadmin/src/index.html",
+						"main": "projects/choiceadmin/src/main.ts",
+						"tsConfig": "projects/choiceadmin/tsconfig.app.json",
+						"progress": true,
+						"preserveSymlinks": true,
+						"polyfills": "projects/choiceadmin/src/polyfills.ts",
+						"verbose": true,
+						"assets": [
+							"projects/choiceadmin/src/assets",
+							"projects/choiceadmin/src/favicon.ico",
+							"projects/choiceadmin/src/picturepark-response.html"
+						],
+						"styles": [
+							"node_modules/bootstrap/dist/css/bootstrap.min.css",
+							"node_modules/font-awesome/css/font-awesome.min.css",
+							"node_modules/primeng/resources/themes/nova/theme.css",
+							"node_modules/primeng/resources/primeng.min.css",
+							"node_modules/primeicons/primeicons.css",
+							"projects/choiceadmin/src/scss/styles.scss"
+						],
+						"scripts": []
+					},
                     "configurations": {
                         "qa": {
                             "fileReplacements": [
@@ -179,6 +184,12 @@
                 "build": {
                     "builder": "@angular-devkit/build-angular:browser",
 					"options": {
+						"allowedCommonJsDependencies": [
+							"applicationinsights-js",
+							"cloudinary-core",
+							"lodash",
+							"rxjs"
+						],
 						"aot": true,
 						"baseHref": "/designtool/",
 						"outputHashing": "all",
@@ -306,31 +317,36 @@
             "architect": {
                 "build": {
                     "builder": "@angular-devkit/build-angular:browser",
-                    "options": {
-                        "aot": true,
-                        "baseHref": "/salesadmin/",
-                        "outputHashing": "all",
-                        "outputPath": "dist/salesadmin",
-                        "index": "projects/salesadmin/src/index.html",
-                        "main": "projects/salesadmin/src/main.ts",
-                        "tsConfig": "projects/salesadmin/tsconfig.app.json",
-                        "progress": true,
-                        "preserveSymlinks": true,
-                        "polyfills": "projects/salesadmin/src/polyfills.ts",
-                        "verbose": true,
-                        "assets": [
-                            "projects/salesadmin/src/assets",
-                            "projects/salesadmin/src/favicon.ico"
-                        ],
-                        "styles": [
-                            "node_modules/font-awesome/css/font-awesome.min.css",
-                            "node_modules/primeng/resources/themes/nova/theme.css",
-                            "node_modules/primeng/resources/primeng.min.css",
-                            "node_modules/primeicons/primeicons.css",
-                            "projects/salesadmin/src/scss/styles.scss"
-                        ],
-                        "scripts": []
-                    },
+					"options": {
+						"allowedCommonJsDependencies": [
+							"applicationinsights-js",
+							"lodash",
+							"rxjs"
+						],
+						"aot": true,
+						"baseHref": "/salesadmin/",
+						"outputHashing": "all",
+						"outputPath": "dist/salesadmin",
+						"index": "projects/salesadmin/src/index.html",
+						"main": "projects/salesadmin/src/main.ts",
+						"tsConfig": "projects/salesadmin/tsconfig.app.json",
+						"progress": true,
+						"preserveSymlinks": true,
+						"polyfills": "projects/salesadmin/src/polyfills.ts",
+						"verbose": true,
+						"assets": [
+							"projects/salesadmin/src/assets",
+							"projects/salesadmin/src/favicon.ico"
+						],
+						"styles": [
+							"node_modules/font-awesome/css/font-awesome.min.css",
+							"node_modules/primeng/resources/themes/nova/theme.css",
+							"node_modules/primeng/resources/primeng.min.css",
+							"node_modules/primeicons/primeicons.css",
+							"projects/salesadmin/src/scss/styles.scss"
+						],
+						"scripts": []
+					},
                     "configurations": {
                         "qa": {
                             "fileReplacements": [
@@ -432,30 +448,35 @@
             "architect": {
                 "build": {
                     "builder": "@angular-devkit/build-angular:browser",
-                    "options": {
-                        "aot": true,
-                        "baseHref": "/salesportal/",
-                        "outputHashing": "all",
-                        "outputPath": "dist/salesportal",
-                        "index": "projects/salesportal/src/index.html",
-                        "main": "projects/salesportal/src/main.ts",
-                        "tsConfig": "projects/salesportal/tsconfig.app.json",
-                        "progress": true,
-                        "preserveSymlinks": true,
-                        "polyfills": "projects/salesportal/src/polyfills.ts",
-                        "verbose": true,
-                        "assets": [
-                            "projects/salesportal/src/assets"
-                        ],
-                        "styles": [
-                            "node_modules/font-awesome/css/font-awesome.min.css",
-                            "node_modules/primeng/resources/themes/nova/theme.css",
-                            "node_modules/primeng/resources/primeng.min.css",
-                            "node_modules/primeicons/primeicons.css",
-                            "projects/salesportal/src/scss/styles.scss"
-                        ],
-                        "scripts": []
-                    },
+					"options": {
+						"allowedCommonJsDependencies": [
+							"applicationinsights-js",
+							"lodash",
+							"rxjs"
+						],
+						"aot": true,
+						"baseHref": "/salesportal/",
+						"outputHashing": "all",
+						"outputPath": "dist/salesportal",
+						"index": "projects/salesportal/src/index.html",
+						"main": "projects/salesportal/src/main.ts",
+						"tsConfig": "projects/salesportal/tsconfig.app.json",
+						"progress": true,
+						"preserveSymlinks": true,
+						"polyfills": "projects/salesportal/src/polyfills.ts",
+						"verbose": true,
+						"assets": [
+							"projects/salesportal/src/assets"
+						],
+						"styles": [
+							"node_modules/font-awesome/css/font-awesome.min.css",
+							"node_modules/primeng/resources/themes/nova/theme.css",
+							"node_modules/primeng/resources/primeng.min.css",
+							"node_modules/primeicons/primeicons.css",
+							"projects/salesportal/src/scss/styles.scss"
+						],
+						"scripts": []
+					},
                     "configurations": {
                         "qa": {
                             "fileReplacements": [
@@ -557,33 +578,39 @@
             "architect": {
                 "build": {
                     "builder": "@angular-devkit/build-angular:browser",
-                    "options": {
-                        "progress": true,
-                        "preserveSymlinks": true,
-                        "aot": true,
-                        "baseHref": "/homedesigner/",
-                        "outputHashing": "all",
-                        "outputPath": "dist/homedesigner",
-                        "index": "projects/homedesigner/src/index.html",
-                        "main": "projects/homedesigner/src/main.ts",
-                        "polyfills": "projects/homedesigner/src/polyfills.ts",
-                        "tsConfig": "projects/homedesigner/tsconfig.app.json",
-                        "verbose": true,
-                        "assets": [
-                            "projects/homedesigner/src/assets",
-                            "projects/homedesigner/src/favicon.ico"
-                        ],
-                        "styles": [
-                            "node_modules/ngx-toastr/toastr.css",
-                            "node_modules/bootstrap/dist/css/bootstrap.min.css",
-                            "node_modules/font-awesome/css/font-awesome.min.css",
-                            "node_modules/primeng/resources/themes/nova/theme.css",
-                            "node_modules/primeng/resources/primeng.min.css",
-                            "node_modules/primeicons/primeicons.css",
-                            "projects/homedesigner/src/scss/styles.scss"
-                        ],
-                        "scripts": []
-                    },
+					"options": {
+						"allowedCommonJsDependencies": [
+							"applicationinsights-js",
+							"cloudinary-core",
+							"lodash",
+							"rxjs"
+						],
+						"progress": true,
+						"preserveSymlinks": true,
+						"aot": true,
+						"baseHref": "/homedesigner/",
+						"outputHashing": "all",
+						"outputPath": "dist/homedesigner",
+						"index": "projects/homedesigner/src/index.html",
+						"main": "projects/homedesigner/src/main.ts",
+						"polyfills": "projects/homedesigner/src/polyfills.ts",
+						"tsConfig": "projects/homedesigner/tsconfig.app.json",
+						"verbose": true,
+						"assets": [
+							"projects/homedesigner/src/assets",
+							"projects/homedesigner/src/favicon.ico"
+						],
+						"styles": [
+							"node_modules/ngx-toastr/toastr.css",
+							"node_modules/bootstrap/dist/css/bootstrap.min.css",
+							"node_modules/font-awesome/css/font-awesome.min.css",
+							"node_modules/primeng/resources/themes/nova/theme.css",
+							"node_modules/primeng/resources/primeng.min.css",
+							"node_modules/primeicons/primeicons.css",
+							"projects/homedesigner/src/scss/styles.scss"
+						],
+						"scripts": []
+					},
                     "configurations": {
                         "qa": {
                             "fileReplacements": [
