@@ -5,6 +5,25 @@
 	display: flex;
 }
 
+.phd-close {
+	cursor: pointer;
+	padding: 5px 5px 0px 0px;
+}
+
+.phd-blocked-title {
+	padding: 2px 0px 10px 20px;
+	font-weight: 600;
+}
+
+.phd-blocked-list {
+	margin-left: 40px;
+}
+
+.phd-blocked-link {
+	color: $pantone_blue;
+  text-decoration: underline;
+}
+
 .phd-image-section {
 	background: $gray-lighter;
 	display: flex;

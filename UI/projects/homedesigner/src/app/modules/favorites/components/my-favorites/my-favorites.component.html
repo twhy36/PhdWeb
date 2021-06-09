@@ -45,7 +45,9 @@
 	<ng-container *ngIf="showDetails">
 		<choice-card-detail	[choice]="selectedChoice"
 						[path]="getChoicePath()"
+						[groups]="groups"
 						(onBack)="hideDetails()"
+						(onSelectDecisionPoint)="selectDecisionPoint($event)"
 						(onToggleChoice)="toggleChoice($event)">
 		</choice-card-detail>
 	</ng-container>

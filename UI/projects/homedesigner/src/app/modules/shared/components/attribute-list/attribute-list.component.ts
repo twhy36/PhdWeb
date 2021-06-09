@@ -14,6 +14,8 @@ export class AttributeListComponent extends UnsubscribeOnDestroy implements OnIn
 {
 	@Input() attributes: AttributeExt[];
 	@Input() highlightedAttributeId: number;
+	@Input() isBlocked: boolean;
+	@Input() isLocationAttribute: boolean;
 
 	@Output() onAttributeClick = new EventEmitter<Attribute>();
 	@Output() onToggleAttribute = new EventEmitter<Attribute>();

@@ -16,6 +16,7 @@ export class QuantityInputComponent implements OnInit
 		this.cd.detectChanges();
 	}
 	@Input() canEdit: boolean;
+	@Input() isBlocked: boolean;
 	
 	@Output() quantityChange: EventEmitter<number>;
 	@ViewChild('quantity') element: ElementRef;
