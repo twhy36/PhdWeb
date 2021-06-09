@@ -27,8 +27,8 @@ export const environment: IEnvironment = {
 	whatFix: {
 		scriptUrl: '//whatfix.com/01caf5e0-cb2f-11e8-b979-04013d24cd02/embed/embed.nocache.js'
 	},
-	//apiUrl: 'https://phdapi.dev.pulte.com/odata/',
-    apiUrl: 'http://localhost:2845/odata/',
+	apiUrl: 'https://phdapi.dev.pulte.com/odata/',
+    //apiUrl: 'http://localhost:2845/odata/',
 	designToolUrl: 'https://phd.dev.pulte.com/designtool/'
 	//designToolUrl: 'http://localhost:14767/'
 };
