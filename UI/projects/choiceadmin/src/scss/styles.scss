@@ -168,7 +168,7 @@ a:focus {
 	color: #888888;
 	margin: auto;
 	text-align: center;
-	background-color: hsla(0,0,50,0.2);
+	background-color: hsla(0,0*1%,50*1%,0.2);
 
 	i {
 		margin-top: 40px;
@@ -186,7 +186,7 @@ a:focus {
 	color: #888888;
 	margin: auto;
 	text-align: center;
-	background-color: hsla(0,0,50,0.2);
+	background-color: hsla(0,0*1%,50*1%,0.2);
 
 	i {
 		margin-top: 40px;
@@ -252,7 +252,7 @@ tr.ui-state-highlight {
 }
 
 ::ng-deep .phd-inactive {
-	color: hsl(0,0,55) !important;
+	color: hsl(0,0*1%,55*1%) !important;
 	font-style: italic;
 }
 

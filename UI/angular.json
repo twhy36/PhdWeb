@@ -10,7 +10,7 @@
             "prefix": "lib",
             "architect": {
                 "build": {
-                    "builder": "@angular-devkit/build-ng-packagr:build",
+                    "builder": "@angular-devkit/build-angular:ng-packagr",
                     "options": {
                         "tsConfig": "projects/phd-common/tsconfig.lib.json",
                         "project": "projects/phd-common/ng-package.json"
@@ -100,20 +100,19 @@
                             ]
                         },
                         "production": {
-                            "optimization": true,
-                            "sourceMap": false,
-                            "extractCss": true,
-                            "namedChunks": false,
-                            "extractLicenses": true,
-                            "vendorChunk": false,
-                            "buildOptimizer": true,
-                            "fileReplacements": [
-                                {
-                                    "replace": "projects/choiceadmin/src/environments/environment.ts",
-                                    "with": "projects/choiceadmin/src/environments/environment.prod.ts"
-                                }
-                            ]
-                        }
+              "optimization": true,
+              "sourceMap": false,
+              "namedChunks": false,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true,
+              "fileReplacements": [
+                {
+                  "replace": "projects/choiceadmin/src/environments/environment.ts",
+                  "with": "projects/choiceadmin/src/environments/environment.prod.ts"
+                }
+              ]
+            }
                     }
                 },
                 "serve": {
@@ -234,20 +233,19 @@
                             ]
                         },
                         "production": {
-                            "optimization": true,
-                            "sourceMap": false,
-                            "extractCss": true,
-                            "namedChunks": false,
-                            "extractLicenses": true,
-                            "vendorChunk": false,
-                            "buildOptimizer": true,
-                            "fileReplacements": [
-                                {
-                                    "replace": "projects/designtool/src/environments/environment.ts",
-                                    "with": "projects/designtool/src/environments/environment.prod.ts"
-                                }
-                            ]
-                        }
+              "optimization": true,
+              "sourceMap": false,
+              "namedChunks": false,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true,
+              "fileReplacements": [
+                {
+                  "replace": "projects/designtool/src/environments/environment.ts",
+                  "with": "projects/designtool/src/environments/environment.prod.ts"
+                }
+              ]
+            }
                     }
                 },
                 "serve": {
@@ -365,20 +363,19 @@
                             ]
                         },
                         "production": {
-                            "optimization": true,
-                            "sourceMap": false,
-                            "extractCss": true,
-                            "namedChunks": false,
-                            "extractLicenses": true,
-                            "vendorChunk": false,
-                            "buildOptimizer": true,
-                            "fileReplacements": [
-                                {
-                                    "replace": "projects/salesadmin/src/environments/environment.ts",
-                                    "with": "projects/salesadmin/src/environments/environment.prod.ts"
-                                }
-                            ]
-                        }
+              "optimization": true,
+              "sourceMap": false,
+              "namedChunks": false,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true,
+              "fileReplacements": [
+                {
+                  "replace": "projects/salesadmin/src/environments/environment.ts",
+                  "with": "projects/salesadmin/src/environments/environment.prod.ts"
+                }
+              ]
+            }
                     }
                 },
                 "serve": {
@@ -495,20 +492,19 @@
                             ]
                         },
                         "production": {
-                            "optimization": true,
-                            "sourceMap": false,
-                            "extractCss": true,
-                            "namedChunks": false,
-                            "extractLicenses": true,
-                            "vendorChunk": false,
-                            "buildOptimizer": true,
-                            "fileReplacements": [
-                                {
-                                    "replace": "projects/salesportal/src/environments/environment.ts",
-                                    "with": "projects/salesportal/src/environments/environment.prod.ts"
-                                }
-                            ]
-                        }
+              "optimization": true,
+              "sourceMap": false,
+              "namedChunks": false,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true,
+              "fileReplacements": [
+                {
+                  "replace": "projects/salesportal/src/environments/environment.ts",
+                  "with": "projects/salesportal/src/environments/environment.prod.ts"
+                }
+              ]
+            }
                     }
                 },
                 "serve": {
@@ -629,20 +625,19 @@
                             ]
                         },
                         "production": {
-                            "fileReplacements": [
-                                {
-                                    "replace": "projects/homedesigner/src/environments/environment.ts",
-                                    "with": "projects/homedesigner/src/environments/environment.prod.ts"
-                                }
-                            ],
-                            "optimization": true,
-                            "sourceMap": false,
-                            "extractCss": true,
-                            "namedChunks": false,
-                            "extractLicenses": true,
-                            "vendorChunk": false,
-                            "buildOptimizer": true
-                        }
+              "fileReplacements": [
+                {
+                  "replace": "projects/homedesigner/src/environments/environment.ts",
+                  "with": "projects/homedesigner/src/environments/environment.prod.ts"
+                }
+              ],
+              "optimization": true,
+              "sourceMap": false,
+              "namedChunks": false,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true
+            }
                     }
                 },
                 "serve": {

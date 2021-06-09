@@ -1,10 +1,11 @@
 import { Component, ContentChildren, QueryList, Input, Output, EventEmitter, AfterContentInit, ViewChild, OnChanges, TemplateRef, ContentChild, forwardRef, SimpleChanges, AfterViewInit } from '@angular/core';
 import { PhdColumnDirective } from './phd-column.directive';
 import { DomHandler } from 'primeng/dom';
-import { ObjectUtils, FilterUtils } from 'primeng/utils';
+import { ObjectUtils } from 'primeng/utils';
 import { Table, TableService } from 'primeng/table';
 import { Dropdown } from 'primeng/dropdown';
 import { OverlayPanel } from 'primeng/overlaypanel';
+import { FilterService } from 'primeng/api';
 
 @Component({
 	selector: 'phd-table',
@@ -62,6 +63,8 @@ export class PhdTableComponent implements AfterContentInit, OnChanges
 	hideableColumns: PhdColumnDirective[] = [];
 	filterableColumns: PhdColumnDirective[] = [];
 
+	constructor(private filterService: FilterService) {}
+
 	get allColumns(): PhdColumnDirective[]
 	{
 		return this.columnRefs && this.columnRefs.length
@@ -99,7 +102,8 @@ export class PhdTableComponent implements AfterContentInit, OnChanges
 		{
 			for (let key of Object.keys(this.table.filters))
 			{
-				this.table.filter(this.table.filters[key].value, key, this.table.filters[key].matchMode);
+				//FIXME
+				//this.table.filter(this.table.filters[key].value, key, this.table.filters[key].matchMode);
 			}
 		}
 	}
@@ -186,21 +190,18 @@ export class PhdTableComponent implements AfterContentInit, OnChanges
 	}
 
 	ngAfterViewInit()
-	{		
-		FilterUtils['any'] = function (value: any[], filter: any[]): boolean
-		{
-			if (!value)
-			{
+	{
+		this.filterService.register('any', (value, filter): boolean => {
+			if (!value) {
 				return false;
 			}
 
-			if (!filter || !filter.length)
-			{
+			if (!filter || !filter.length) {
 				return true;
 			}
 
 			return filter.some(v => value.indexOf(v) !== -1);
-		}	
+		});
 	}
 
 	updateVisibleColumns(visibleColumns: PhdColumnDirective[]): void
@@ -234,7 +235,7 @@ export class PhdTableComponent implements AfterContentInit, OnChanges
 	onBlurDeselect(blurEvent: FocusEvent): void
 	{
 		//Force an ESC keypress so that the PrimeNg table leaves Edit Mode.
-		const key = { 'key': '27', 'keyCode': '27' }
+		const key = { 'key': '27', 'keyCode': '27' } as unknown;
 		const enterEvent = new KeyboardEvent('keydown', key);
 
 		blurEvent['path'].forEach((obj: Element) =>
