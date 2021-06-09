@@ -70,7 +70,7 @@
                         "styles": [
                             "node_modules/bootstrap/dist/css/bootstrap.min.css",
                             "node_modules/font-awesome/css/font-awesome.min.css",
-                            "node_modules/primeng/resources/themes/nova-light/theme.css",
+                            "node_modules/primeng/resources/themes/nova/theme.css",
                             "node_modules/primeng/resources/primeng.min.css",
                             "node_modules/primeicons/primeicons.css",
                             "projects/choiceadmin/src/scss/styles.scss"
@@ -147,7 +147,7 @@
                         "styles": [
                             "node_modules/bootstrap/scss/bootstrap.scss",
                             "node_modules/font-awesome/css/font-awesome.min.css",
-                            "node_modules/primeng/resources/themes/nova-light/theme.css",
+                            "node_modules/primeng/resources/themes/nova/theme.css",
                             "node_modules/primeng/resources/primeng.min.css",
                             "node_modules/primeicons/primeicons.css",
                             "projects/choiceadmin/src/scss/styles.scss"
@@ -178,33 +178,33 @@
             "architect": {
                 "build": {
                     "builder": "@angular-devkit/build-angular:browser",
-                    "options": {
-                        "aot": true,
-                        "baseHref": "/designtool/",
-                        "outputHashing": "all",
-                        "outputPath": "dist/designtool",
-                        "index": "projects/designtool/src/index.html",
-                        "main": "projects/designtool/src/main.ts",
-                        "tsConfig": "projects/designtool/tsconfig.app.json",
-                        "progress": true,
-                        "preserveSymlinks": true,
-                        "polyfills": "projects/designtool/src/polyfills.ts",
-                        "verbose": true,
-                        "assets": [
-                            "projects/designtool/src/assets",
-                            "projects/designtool/src/docusign_response.html",
-                            "projects/designtool/src/favicon.ico"
-                        ],
-                        "styles": [
-                            "node_modules/ngx-toastr/toastr.css",
-                            "node_modules/primeicons/primeicons.css",
-                            "node_modules/primeng/resources/themes/nova-light/theme.css",
-                            "node_modules/primeng/resources/primeng.min.css",
-                            "projects/designtool/src/scss/styles.scss"
-                        ],
-                        "scripts": [],
-                        "webWorkerTsConfig": "projects/designtool/tsconfig.worker.json"
-                    },
+					"options": {
+						"aot": true,
+						"baseHref": "/designtool/",
+						"outputHashing": "all",
+						"outputPath": "dist/designtool",
+						"index": "projects/designtool/src/index.html",
+						"main": "projects/designtool/src/main.ts",
+						"tsConfig": "projects/designtool/tsconfig.app.json",
+						"progress": true,
+						"preserveSymlinks": true,
+						"polyfills": "projects/designtool/src/polyfills.ts",
+						"verbose": true,
+						"assets": [
+							"projects/designtool/src/assets",
+							"projects/designtool/src/docusign_response.html",
+							"projects/designtool/src/favicon.ico"
+						],
+						"styles": [
+							"node_modules/ngx-toastr/toastr.css",
+							"node_modules/primeicons/primeicons.css",
+							"node_modules/primeng/resources/themes/nova/theme.css",
+							"node_modules/primeng/resources/primeng.min.css",
+							"projects/designtool/src/scss/styles.scss"
+						],
+						"scripts": [],
+						"webWorkerTsConfig": "projects/designtool/tsconfig.worker.json"
+					},
                     "configurations": {
                         "qa": {
                             "fileReplacements": [
@@ -275,7 +275,7 @@
                         "scripts": [],
                         "styles": [
                             "node_modules/ngx-toastr/toastr.css",
-                            "node_modules/primeng/resources/themes/nova-light/theme.css",
+                            "node_modules/primeng/resources/themes/nova/theme.css",
                             "node_modules/primeng/resources/primeng.min.css",
                             "projects/designtool/src/scss/styles.scss"
                         ],
@@ -324,7 +324,7 @@
                         ],
                         "styles": [
                             "node_modules/font-awesome/css/font-awesome.min.css",
-                            "node_modules/primeng/resources/themes/nova-light/theme.css",
+                            "node_modules/primeng/resources/themes/nova/theme.css",
                             "node_modules/primeng/resources/primeng.min.css",
                             "node_modules/primeicons/primeicons.css",
                             "projects/salesadmin/src/scss/styles.scss"
@@ -401,7 +401,7 @@
                         "styles": [
                             "node_modules/bootstrap/scss/bootstrap.scss",
                             "node_modules/font-awesome/css/font-awesome.min.css",
-                            "node_modules/primeng/resources/themes/nova-light/theme.css",
+                            "node_modules/primeng/resources/themes/nova/theme.css",
                             "node_modules/primeng/resources/primeng.min.css",
                             "node_modules/primeicons/primeicons.css",
                             "projects/salesadmin/src/scss/styles.scss"
@@ -449,7 +449,7 @@
                         ],
                         "styles": [
                             "node_modules/font-awesome/css/font-awesome.min.css",
-                            "node_modules/primeng/resources/themes/nova-light/theme.css",
+                            "node_modules/primeng/resources/themes/nova/theme.css",
                             "node_modules/primeng/resources/primeng.min.css",
                             "node_modules/primeicons/primeicons.css",
                             "projects/salesportal/src/scss/styles.scss"
@@ -526,7 +526,7 @@
                         "styles": [
                             "node_modules/bootstrap/scss/bootstrap.scss",
                             "node_modules/font-awesome/css/font-awesome.min.css",
-                            "node_modules/primeng/resources/themes/nova-light/theme.css",
+                            "node_modules/primeng/resources/themes/nova/theme.css",
                             "node_modules/primeng/resources/primeng.min.css",
                             "node_modules/primeicons/primeicons.css",
                             "projects/salesportal/src/scss/styles.scss"
@@ -577,7 +577,7 @@
                             "node_modules/ngx-toastr/toastr.css",
                             "node_modules/bootstrap/dist/css/bootstrap.min.css",
                             "node_modules/font-awesome/css/font-awesome.min.css",
-                            "node_modules/primeng/resources/themes/nova-light/theme.css",
+                            "node_modules/primeng/resources/themes/nova/theme.css",
                             "node_modules/primeng/resources/primeng.min.css",
                             "node_modules/primeicons/primeicons.css",
                             "projects/homedesigner/src/scss/styles.scss"
@@ -654,7 +654,7 @@
                             "node_modules/ngx-toastr/toastr.css",
                             "node_modules/bootstrap/scss/bootstrap.scss",
                             "node_modules/font-awesome/css/font-awesome.min.css",
-                            "node_modules/primeng/resources/themes/nova-light/theme.css",
+                            "node_modules/primeng/resources/themes/nova/theme.css",
                             "node_modules/primeng/resources/primeng.min.css",
                             "node_modules/primeicons/primeicons.css",
                             "projects/homedesigner/src/scss/styles.scss"

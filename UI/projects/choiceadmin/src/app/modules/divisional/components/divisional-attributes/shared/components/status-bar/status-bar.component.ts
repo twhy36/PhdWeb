@@ -1,6 +1,6 @@
 import { Component, Output, EventEmitter, Input } from '@angular/core';
 
-import { SelectItem } from 'primeng/esm5/api/selectitem';
+import { SelectItem } from 'primeng/api';
 
 @Component({
 	selector: 'status-bar',
