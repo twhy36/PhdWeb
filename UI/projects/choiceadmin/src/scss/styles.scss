@@ -245,7 +245,7 @@ a:focus {
 	width: 85%;
 }
 
-tr.p-highlight {
+tr.ui-state-highlight {
 	border: solid 2px $brand-success;
 	color: rgb(74, 74, 74) !important;
 	background-color: lighten($brand-success, 20%) !important;
