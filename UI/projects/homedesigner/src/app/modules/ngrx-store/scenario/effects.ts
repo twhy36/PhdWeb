@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Actions, Effect, ofType } from '@ngrx/effects';
+import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Action, Store, select } from '@ngrx/store';
 
 import { Observable } from 'rxjs/Observable';
@@ -13,23 +13,21 @@ import * as fromFavorite from '../favorite/reducer';
 @Injectable()
 export class ScenarioEffects
 {
-	@Effect()
-	selectChoices$: Observable<Action> = this.actions$.pipe(
-		ofType<SelectChoices>(ScenarioActionTypes.SelectChoices),
-		withLatestFrom(this.store.pipe(select(fromFavorite.currentMyFavorite))),
-		switchMap(([action, fav]) =>
-		{
-			if (fav?.myFavoritesPointDeclined?.length)
-			{
-				const pointIds = fav.myFavoritesPointDeclined.map(x => x.divPointCatalogId);
-				return of(new SetStatusForPointsDeclined(pointIds, false));
-			}
-			else
-			{
-				return new Observable<never>();
-			}
-		})
-	);
+	selectChoices$: Observable<Action> = createEffect(() => {
+		return this.actions$.pipe(
+			ofType<SelectChoices>(ScenarioActionTypes.SelectChoices),
+			withLatestFrom(this.store.pipe(select(fromFavorite.currentMyFavorite))),
+			switchMap(([action, fav]) => {
+				if (fav?.myFavoritesPointDeclined?.length) {
+					const pointIds = fav.myFavoritesPointDeclined.map(x => x.divPointCatalogId);
+					return of(new SetStatusForPointsDeclined(pointIds, false));
+				}
+				else {
+					return new Observable<never>();
+				}
+			})
+		);
+	});
 
 	constructor(
 		private actions$: Actions,
