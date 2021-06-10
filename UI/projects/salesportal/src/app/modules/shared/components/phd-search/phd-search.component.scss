@@ -25,7 +25,7 @@ p-multiselect {
 	min-width: 50%;
 	margin-bottom: .5em;
 
-	.ui-table .ui-sortable-column.ui-state-highlight:hover {
+	.ui-table .ui-sortable-column.p-highlight:hover {
 		background: #d3d5d8;
 		border-color: #d9d9d9;
 	}
@@ -91,7 +91,7 @@ p-multiselect {
 				margin: 0;
 				padding: 0;
 
-				&.ui-state-highlight {
+				&.p-highlight {
 					background: #186ba0;
 
 					.ui-chkbox-icon, label {
@@ -295,7 +295,7 @@ p-multiselect {
 				position: relative;
 				vertical-align: top;
 
-				&.ui-state-highlight {
+				&.p-highlight {
 					background-color: #186ba0;
 					color: #fff;
 				}
