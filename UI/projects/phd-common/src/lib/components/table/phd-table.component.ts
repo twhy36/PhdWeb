@@ -5,7 +5,7 @@ import { ObjectUtils } from 'primeng/utils';
 import { Table, TableService } from 'primeng/table';
 import { Dropdown } from 'primeng/dropdown';
 import { OverlayPanel } from 'primeng/overlaypanel';
-import { FilterService } from 'primeng/api';
+import { FilterMetadata, FilterService } from 'primeng/api';
 
 @Component({
 	selector: 'phd-table',
@@ -102,8 +102,7 @@ export class PhdTableComponent implements AfterContentInit, OnChanges
 		{
 			for (let key of Object.keys(this.table.filters))
 			{
-				//FIXME
-				//this.table.filter(this.table.filters[key].value, key, this.table.filters[key].matchMode);
+				this.table.filter((this.table.filters[key] as FilterMetadata).value, key, (this.table.filters[key] as FilterMetadata).matchMode);
 			}
 		}
 	}
