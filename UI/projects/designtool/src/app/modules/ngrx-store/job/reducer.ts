@@ -194,8 +194,12 @@ export function reducer(state: State = initialState, action: JobActions): State
 
 					if (changeOrder)
 					{
-						changeOrder.eSignEnvelopes = [...(changeOrder.eSignEnvelopes || []), env];
-						changeOrder.envelopeId = env.envelopeGuid;
+						const existingEnvelope = changeOrder.eSignEnvelopes?.find(x => x.eSignEnvelopeId === env.eSignEnvelopeId);
+						if (!existingEnvelope)
+						{
+							changeOrder.eSignEnvelopes = [...(changeOrder.eSignEnvelopes || []), env];
+							changeOrder.envelopeId = env.envelopeGuid;							
+						}
 					}
 				});
 			}

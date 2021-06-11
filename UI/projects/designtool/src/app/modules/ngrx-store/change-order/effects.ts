@@ -727,7 +727,7 @@ export class ChangeOrderEffects
 					const newEnvelope: ESignEnvelope = {
 						edhChangeOrderGroupId: changeOrder.id,
 						envelopeGuid: changeOrder.envelopeId,
-						eSignStatusId: ESignStatusEnum.Sent,
+						eSignStatusId: action.envelopeSent ? ESignStatusEnum.Sent : ESignStatusEnum.Created,
 						eSignTypeId: ESignTypeEnum.ChangeOrder
 					};
 

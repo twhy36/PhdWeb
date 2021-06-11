@@ -371,6 +371,23 @@ export class ChangeOrderService
 		);
 	}
 
+	deleteESignEnvelope(eSignEnvelopeId: number)
+	{
+		const url = `${environment.apiUrl}eSignEnvelopes(${eSignEnvelopeId})`;
+
+		return withSpinner(this._http).delete(url).pipe(
+			map(response =>
+			{
+				return response;
+			}),
+			catchError(error =>
+			{
+				console.error(error);
+				return _throw(error);
+			})
+		);
+	}	
+
 	getChangeOrderTypeAutoApproval(communityId: number): Observable<Array<{ isAutoApproval: boolean, edhChangeOrderTypeId: number }>>
 	{
 		const url = `${environment.apiUrl}changeOrderTypeAutoApprovals`;

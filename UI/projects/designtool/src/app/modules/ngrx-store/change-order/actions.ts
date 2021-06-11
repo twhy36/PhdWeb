@@ -26,6 +26,7 @@ export enum ChangeOrderActionTypes
 	CurrentChangeOrderSigned = 'Current Change Order Signed',
 	CurrentChangeOrderApproved = 'Current Change Order Approved',
 	CurrentChangeOrderLoaded = 'Change Order Loaded',
+	CurrentChangeOrderPending = 'Current Change Order Pending',
 	DeleteChangeOrderCoBuyer = 'Delete Change Order Co Buyer',
 	DeleteSalesChangeOrderPriceAdjustment = 'Delete Sales Change Order Price Adjustment',
 	LoadError = 'Load Error',
@@ -174,6 +175,13 @@ export class CurrentChangeOrderApproved implements Action
 	readonly type = ChangeOrderActionTypes.CurrentChangeOrderApproved;
 
 	constructor() { }
+}
+
+export class CurrentChangeOrderPending implements Action
+{
+	readonly type = ChangeOrderActionTypes.CurrentChangeOrderPending;
+
+	constructor(public statusUtcDate: Date, public eSignEnvelopeId: number) { }
 }
 
 export class CreateJobChangeOrders implements Action
@@ -355,7 +363,12 @@ export class ChangeOrderOutForSignature implements Action
 {
 	readonly type = ChangeOrderActionTypes.ChangeOrderOutForSignature;
 
-	constructor(public changeOrder: any, public isWetSign: boolean, public setChangeOrder: boolean = false) { }
+	constructor(
+		public changeOrder: any, 
+		public envelopeSent: boolean,		
+		public isWetSign: boolean,
+		public setChangeOrder: boolean = false
+	) { }
 }
 
 export class SetChangeOrderPlanId implements Action {
@@ -403,6 +416,7 @@ export type ChangeOrderActions =
 	CurrentChangeOrderSigned |
 	CurrentChangeOrderApproved |
 	CurrentChangeOrderLoaded |
+	CurrentChangeOrderPending |
 	DeleteChangeOrderCoBuyer |
 	DeleteSalesChangeOrderPriceAdjustment |
 	LoadError |

@@ -36,3 +36,9 @@ form {
 input.phd-name::placeholder {
 	color: $darkish-pink;
 }
+
+::ng-deep .phd-button-tooltip {
+	.tooltip-inner {
+		min-width: 250px;
+	}
+}

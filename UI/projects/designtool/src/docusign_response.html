@@ -10,7 +10,9 @@
 			if (window.opener) {
 				window.opener.postMessage({
 					closed: true,
-					sent: window.location.search.indexOf('event=Send') !== -1
+					sent: window.location.search.indexOf('event=Send') !== -1,
+					cancel: window.location.search.indexOf('event=Cancel') !== -1,
+					queryString: window.location.search
 				}, "*");
 			}
 		}
