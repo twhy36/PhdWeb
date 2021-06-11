@@ -4707,6 +4707,9 @@ describe('Common reducer', function ()
 				constructionStageName: 'Configured',
 				jobTypeName: 'Spec',
 				jobSalesAgreementAssocs: null
+			},
+			scenario: {
+				buildMode: 'spec'
 			}
 		};
 
@@ -4723,6 +4726,9 @@ describe('Common reducer', function ()
 					lotBuildTypeDesc: 'Spec'
 				},
 				jobSalesAgreementAssocs: null
+			},
+			scenario: {
+				buildMode: 'spec'
 			}
 		};
 
@@ -4739,6 +4745,9 @@ describe('Common reducer', function ()
 					lotBuildTypeDesc: 'Dirt'
 				},
 				jobSalesAgreementAssocs: null
+			},
+			scenario: {
+				buildMode: 'spec'
 			}
 		};
 
@@ -4755,6 +4764,27 @@ describe('Common reducer', function ()
 					lotBuildTypeDesc: 'Spec'
 				},
 				jobSalesAgreementAssocs: [{salesAgreement: 1}]
+			},
+			scenario:
+			{
+				buildMode: 'spec'
+			}
+		};
+
+		const result = canCancelSpec(state);
+		expect(result).toBe(false);
+	});
+
+	it('canCancelSpec is false if construction stage is Configured, build type is Spec and there are no salesAgreementAssocs, but buildMode is buyer', () =>
+	{
+		const state: State = <any>{
+			job: {
+				constructionStageName: 'Configured',
+				jobTypeName: 'Spec',
+				jobSalesAgreementAssocs: null
+			},
+			scenario: {
+				buildMode: 'buyer'
 			}
 		};
 

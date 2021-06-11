@@ -14,12 +14,13 @@ import { CommonActionTypes, LoadScenario, LoadError, ScenarioLoaded, LoadSalesAg
 import { tryCatch } from './error.action';
 import { ScenarioService } from '../core/services/scenario.service';
 import { TreeService } from '../core/services/tree.service';
-import { switchMap, combineLatest, map, concat, scan, filter, take, distinct, withLatestFrom, tap } from 'rxjs/operators';
+import { switchMap, map, concat, scan, filter, take, distinct, withLatestFrom, tap } from 'rxjs/operators';
 import { OptionService } from '../core/services/option.service';
 import { LotService } from '../core/services/lot.service';
 import { OrganizationService } from '../core/services/organization.service';
 import { from } from 'rxjs/observable/from';
 import { of } from 'rxjs/observable/of';
+import { combineLatest } from 'rxjs/observable/combineLatest';
 import { setTreePointsPastCutOff, mergeIntoTree, updateWithNewTreeVersion, mapAttributes } from '../shared/classes/tree.utils';
 import { JobService } from '../core/services/job.service';
 import { ModalService } from '../core/services/modal.service';
@@ -47,16 +48,18 @@ export class CommonEffects
 			switchMap(action => this.scenarioService.getScenario(action.scenarioId)),
 			switchMap(scenario =>
 			{
-				return this.treeService.getTree(scenario.treeVersionId).pipe(
-					combineLatest<any, any>(
-						this.treeService.getRules(scenario.treeVersionId),
-						this.optionService.getPlanOptions(scenario.planId),
-						this.treeService.getOptionImages(scenario.treeVersionId),
-						this.lotService.getLot(scenario.lotId),
+				return combineLatest([
+					this.treeService.getTree(scenario.treeVersionId),
+					this.treeService.getRules(scenario.treeVersionId),
+					this.optionService.getPlanOptions(scenario.planId),
+					this.treeService.getOptionImages(scenario.treeVersionId),
+					this.lotService.getLot(scenario.lotId),
+					combineLatest([
 						this.planService.getWebPlanMappingByPlanId(scenario.planId),
 						this.oppService.getOpportunityContactAssoc(scenario.opportunityId)
-					),
-					map(([tree, rules, options, optionImages, lot, webPlanMapping, opportunity]) =>
+					])
+				]).pipe(
+					map(([tree, rules, options, optionImages, lot, [webPlanMapping, opportunity]]) =>
 					{
 						// apply images to options
 						options.forEach(option =>
@@ -121,8 +124,11 @@ export class CommonEffects
 						{
 							if (job && job.length)
 							{
-								return this.orgService.getSalesCommunityByFinancialCommunityId(result.tree.financialCommunityId).pipe(
-									combineLatest(this.identityService.getClaims(), this.identityService.getAssignedMarkets()),
+								return combineLatest([
+									this.orgService.getSalesCommunityByFinancialCommunityId(result.tree.financialCommunityId),
+									this.identityService.getClaims(), 
+									this.identityService.getAssignedMarkets()
+								]).pipe(
 									switchMap(([sc, claims, markets]: [SalesCommunity, Claims, IMarket[]]) =>
 									{
 										return this.treeService.getChoiceCatalogIds(job[0].jobChoices).pipe(
@@ -138,7 +144,7 @@ export class CommonEffects
 									{
 										return of({ job, salesCommunity: sc, claims, markets, tree: result.tree, options: result.options }).pipe(
 											//do this before checking cutoffs
-											mergeIntoTree(job[0].jobChoices, job[0].jobPlanOptions, this.treeService),
+											mergeIntoTree(job[0].jobChoices, job[0].jobPlanOptions, this.treeService, null, false),
 											map(res =>
 											{
 												//add selections from the job into the tree
@@ -367,10 +373,10 @@ export class CommonEffects
 				}
 				else
 				{
-					return forkJoin(
+					return forkJoin([
 						this.salesAgreementService.getSalesAgreement(action.salesAgreementId),
 						this.salesAgreementService.getSalesAgreementInfo(action.salesAgreementId)
-					).pipe(
+					]).pipe(
 						switchMap(([sag, sagInfo]) =>
 						{
 							return this.jobService.loadJob(sag.jobSalesAgreementAssocs[0].jobId, sag.id).pipe(
@@ -395,11 +401,11 @@ export class CommonEffects
 
 				let selectedPlan$ = result.salesAgreement && ['Void', 'Cancel'].indexOf(result.salesAgreement.status) !== -1 ? this.jobService.getSalesAgreementPlan(result.salesAgreement.id, result.job.id) : of(result.job.planId);
 
-				return this.orgService.getSalesCommunityByFinancialCommunityId(result.job.financialCommunityId, true).pipe(
-					combineLatest(
-						this.treeService.getChoiceCatalogIds([...result.job.jobChoices, ...changeOrderChoices]),
-						selectedPlan$
-					),
+				return combineLatest([
+					this.orgService.getSalesCommunityByFinancialCommunityId(result.job.financialCommunityId, true),
+					this.treeService.getChoiceCatalogIds([...result.job.jobChoices, ...changeOrderChoices]),
+					selectedPlan$
+				]).pipe(
 					//assign divChoiceCatalogIDs to choices for job and current change order
 					map(([sc, choices, jobPlanId]) =>
 					{
@@ -482,14 +488,14 @@ export class CommonEffects
 					return this.changeOrderService.getTreeVersionIdByJobPlan(result.selectedPlanId).pipe(
 						switchMap(treeVersionId =>
 						{
-							return this.treeService.getTree(treeVersionId).pipe(
-								combineLatest<any, any>(
-									this.treeService.getRules(treeVersionId, true),
-									this.optionService.getPlanOptions(result.selectedPlanId, null, true),
-									this.treeService.getOptionImages(treeVersionId, [], null, true),
-									this.planService.getWebPlanMappingByPlanId(result.selectedPlanId),
-									this.lotService.getLot(result.selectedLotId)
-								),
+							return combineLatest([
+								this.treeService.getTree(treeVersionId),
+								this.treeService.getRules(treeVersionId, true),
+								this.optionService.getPlanOptions(result.selectedPlanId, null, true),
+								this.treeService.getOptionImages(treeVersionId, [], null, true),
+								this.planService.getWebPlanMappingByPlanId(result.selectedPlanId),
+								this.lotService.getLot(result.selectedLotId)
+							]).pipe(
 								map(([tree, rules, options, images, mappings, lot]) =>
 								{
 									return {
@@ -516,7 +522,8 @@ export class CommonEffects
 									],
 									[...result.job.jobPlanOptions, ...((result.changeOrderGroup && result.changeOrderGroup.salesStatusDescription !== 'Pending') ? result.changeOrderPlanOptions : [])],
 									this.treeService,
-									result.changeOrderGroup),
+									result.changeOrderGroup,
+									result.salesAgreement && ['OutforSignature', 'Signed', 'Approved', 'Closed'].indexOf(result.salesAgreement.status) !== -1),
 								map(data =>
 								{
 									setTreePointsPastCutOff(data.tree, data.job);

@@ -111,7 +111,7 @@
 	<hr *ngIf="!(isTablet$ | async) && !isSalesOnlyChangeOrder && (!isSalesAgreementCancelledOrVoided)">
 
 	<phd-nav-menu class="menu">
-		<phd-nav-menu-item *ngIf="job.id !== 0 && job.jobTypeName === 'Spec' && (!isSalesAgreementCancelledOrVoided && !specCancelled)" (click)="navigate(['/spec'])" [isActive]="currentRoute?.startsWith('/spec')"
+		<phd-nav-menu-item *ngIf="job.id !== 0 && buildMode === 'spec' && (!isSalesAgreementCancelledOrVoided && !specCancelled)" (click)="navigate(['/spec'])" [isActive]="currentRoute?.startsWith('/spec')"
 						   [ngClass]="(isTablet$ | async) && invertHamburgerMenuColor ? 'phd-menu-item-color' : null">
 			<ng-template>
 				<span class="phd-no-transform">Spec Info On Pulte.com </span>

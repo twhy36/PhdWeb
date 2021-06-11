@@ -6,7 +6,7 @@ import { map, catchError, switchMap } from 'rxjs/operators';
 
 import {
 	newGuid, createBatchGet, createBatchHeaders, createBatchBody, withSpinner, Contact, ESignEnvelope,
-	ChangeOrderGroup, Job, IJob, SpecInformation, FloorPlanImage, IdentityService
+	ChangeOrderGroup, Job, IJob, SpecInformation, FloorPlanImage, IdentityService, JobPlanOption
 } from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
@@ -184,7 +184,7 @@ export class JobService
 		const expandJobOptions = `jobPlanOptions($expand=jobPlanOptionAttributes,jobPlanOptionLocations($expand=jobPlanOptionLocationAttributes),planOptionCommunity($expand=optionCommunity($expand=option($select=financialOptionIntegrationKey))))`;
 
 		const expand = `${expandChangeOrderGroups},jobSalesInfos,lot($expand=lotPhysicalLotTypeAssocs($expand=physicalLotType),salesPhase,lotHandingAssocs($expand=handing($select=id,name))),planCommunity,${expandJobChoices},${expandJobOptions},jobNonStandardOptions, jobConstructionStageHistories($select=id, constructionStageId, constructionStageStartDate),projectedDates($select=jobId, projectedStartDate, projectedFrameDate, projectedSecondDate, projectedFinalDate)`;
-		const select = `id,financialCommunityId,constructionStageName,lotId,planId,handing,warrantyTypeDesc,startDate`;
+		const select = `id,financialCommunityId,constructionStageName,lotId,planId,handing,warrantyTypeDesc,startDate,projectedFinalDate,jobTypeName`;
 		
 		const filter = `lotId eq ${lotId}`;
 
@@ -347,6 +347,13 @@ export class JobService
 
 				return _throw(error);
 			})
+		);
+	}
+
+	updateSpecJobPricing(lotId: number): Observable<JobPlanOption[]>
+	{
+		return this._http.post<any>(`${environment.apiUrl}UpdateJobPricing`, { lotId: lotId }).pipe(
+			map(response => response.value)
 		);
 	}
 }
