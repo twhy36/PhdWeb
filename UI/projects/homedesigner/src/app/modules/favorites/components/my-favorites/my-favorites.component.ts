@@ -24,13 +24,15 @@ import {
 	TreeVersionRules,
 	JobChoice,
 	getDependentChoices,
-	DecisionPoint
+	DecisionPoint,
+	ChoiceImageAssoc
 } from 'phd-common';
 
 import { GroupBarComponent } from '../../../shared/components/group-bar/group-bar.component';
 import { NormalExperienceComponent } from './normal-experience/normal-experience.component';
 import { MyFavoritesChoice, MyFavoritesPointDeclined } from '../../../shared/models/my-favorite.model';
 import { ChoiceExt } from '../../../shared/models/choice-ext.model';
+import { TreeService } from '../../../core/services/tree.service';
 
 @Component({
 	selector: 'my-favorites',
@@ -63,11 +65,13 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 	priceBreakdown: PriceBreakdown;
 	marketingPlanId$ = new BehaviorSubject<number>(0);
 	isFloorplanFlipped: boolean;
+	currentChoiceImages: ChoiceImageAssoc[];
 
 	constructor(private store: Store<fromRoot.State>,
 		private route: ActivatedRoute,
 		private router: Router,
-		private cd: ChangeDetectorRef)
+		private cd: ChangeDetectorRef,
+		private treeService: TreeService)
     {
 		super();
 	}
@@ -243,10 +247,21 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		});
 	}
 
-	setSelectedGroup(newGroup: Group, newSubGroup: SubGroup) {
-		this.groupName = newGroup.label;
-		this.selectedSubGroup = newSubGroup;
-		this.selectedSubgroupId = newSubGroup.id;
+	setSelectedGroup(newGroup: Group, newSubGroup: SubGroup) 
+	{
+		if (this.selectedSubgroupId !== newSubGroup.id && !!newSubGroup.id)
+		{
+			const choiceIds = (_.flatMap(newSubGroup.points, pt => pt.choices) || []).map(c => c.id);
+
+			return this.treeService.getChoiceImageAssoc(choiceIds)
+				.subscribe(choiceImages =>
+				{
+					this.groupName = newGroup.label;
+					this.selectedSubGroup = newSubGroup;
+					this.selectedSubgroupId = newSubGroup.id;
+					this.currentChoiceImages = choiceImages;
+				});
+		}
 	}
 
 	onSubgroupSelected(id: number) {

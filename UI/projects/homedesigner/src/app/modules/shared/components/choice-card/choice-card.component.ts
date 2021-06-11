@@ -65,9 +65,9 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 		{
 			imagePath = this.optionImages[0].imageURL;
 		}
-		else if (this.choice && this.choice.imagePath)
+		else if ( this.choice?.hasImage && this.choice?.choiceImages?.length)
 		{
-			imagePath = this.choice.imagePath;
+			imagePath = this.choice.choiceImages[0].imageUrl;
 		}
 
 		return imagePath;

@@ -15,6 +15,7 @@ import * as fromChangeOrder from '../../../ngrx-store/change-order/reducer';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 import { MyFavoritesComponent } from './my-favorites.component';
 import { PointStatus } from 'phd-common';
+import { TreeService } from '../../../core/services/tree.service';
 
 describe('MyFavoritesComponent', () => {
   let component: MyFavoritesComponent;
@@ -33,6 +34,7 @@ describe('MyFavoritesComponent', () => {
 	const mockRouter = mock(Router);
 	when(mockActivatedRoute.paramMap).thenCall(() => new Observable());
 	const mockChangeDetectorRef = mock(ChangeDetectorRef);
+	const mockTreeService = mock(TreeService);
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
@@ -49,6 +51,7 @@ describe('MyFavoritesComponent', () => {
 				{ provide: ActivatedRoute, useFactory: () => instance(mockActivatedRoute) },
 				{ provide: Router, useFactory: () => instance(mockRouter) },
 				{ provide: ChangeDetectorRef, useFactory: () => instance(mockChangeDetectorRef) },
+				{ provide: TreeService, useFactory: () => instance(mockTreeService) },
 			]
     })
     .compileComponents();

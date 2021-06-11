@@ -259,28 +259,28 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 
 	getImages()
 	{
-		// get image from choice if there is one, else default to pulte logo
-		let image = this.choice.imagePath.length > 0 ? this.choice.imagePath : 'assets/pultegroup_logo.jpg';
-
-		if (this.choice.options)
+		// look for images on the tree option first
+		this.choice?.options?.forEach(option =>
 		{
-			this.choice.options.forEach(option =>
+			option?.optionImages?.forEach(x =>
 			{
-				if (option.optionImages)
-				{
-					// look for images on the tree option first
-					option.optionImages.forEach(x =>
-					{
-						this.choiceImages.push(x);
-					});
-				}
+				this.choiceImages.push(x);
+			});
+		});
+
+		// look for choice images if there is no option image
+		if (!this.choiceImages.length && this.choice?.hasImage)
+		{
+			this.choice?.choiceImages?.forEach(x => 
+			{
+				this.choiceImages.push({ imageURL: x.imageUrl });
 			});
 		}
 
-		// default to choice image if no option images found
+		// default image
 		if (!this.choiceImages.length)
 		{
-			this.choiceImages.push({ imageURL: image });
+			this.choiceImages.push({ imageURL: 'assets/pultegroup_logo.jpg' });
 		}
 
 		this.selectedImageUrl = this.choiceImages[0].imageURL;
