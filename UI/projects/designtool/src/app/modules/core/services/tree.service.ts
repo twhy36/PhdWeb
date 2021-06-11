@@ -116,7 +116,6 @@ export class TreeService
 		);
 	}
 
-
 	getRules(treeVersionId: number, skipSpinner?: boolean): Observable<TreeVersionRules>
 	{
 		const entity = 'GetTreeVersionRulesDto';
@@ -361,7 +360,7 @@ export class TreeService
 		{
 			let optFilter = (opt: { optionNumber: string; dpChoiceId: number }) => `(dpChoice_OptionRuleAssoc/any(or: or/dpChoiceId eq ${opt.dpChoiceId}) and planOption/integrationKey eq '${opt.optionNumber}')`;
 			let filter = `${options.map(opt => optFilter(opt)).join(' or ')}`;
-			let expand = `dpChoice_OptionRuleAssoc($select=dpChoiceId,mustHave;$expand=attributeReassignments($select=attributeReassignmentID, todpChoiceID, attributeGroupID),dpChoice($select=divChoiceCatalogId,dpChoiceSortOrder;$expand=dPoint($select=dPointSortOrder;$expand=dSubGroup($select=dSubGroupSortOrder;$expand=dGroup($select=dGroupSortOrder))))),planOption,optionRuleReplaces($expand=planOption($select=integrationKey))`;
+			let expand = `dpChoice_OptionRuleAssoc($select=dpChoiceId,mustHave;$expand=attributeReassignments($select=attributeReassignmentID, todpChoiceID, attributeGroupID;$expand=todpChoice($select=dpChoiceID,divChoiceCatalogID)),dpChoice($select=divChoiceCatalogId,dpChoiceSortOrder;$expand=dPoint($select=dPointSortOrder;$expand=dSubGroup($select=dSubGroupSortOrder;$expand=dGroup($select=dGroupSortOrder))))),planOption,optionRuleReplaces($expand=planOption($select=integrationKey))`;
 
 			return `${environment.apiUrl}optionRules?${encodeURIComponent('$')}expand=${expand}&${encodeURIComponent('$')}filter=${filter}`;
 		}
@@ -410,7 +409,8 @@ export class TreeService
 									return {
 										id: ar.attributeReassignmentID,
 										choiceId: ar.todpChoiceID,
-										attributeGroupId: ar.attributeGroupID
+										attributeGroupId: ar.attributeGroupID,
+										divChoiceCatalogId: ar.todpChoice.divChoiceCatalogID
 									};
 								})
 							};

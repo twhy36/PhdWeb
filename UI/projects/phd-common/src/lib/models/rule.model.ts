@@ -39,6 +39,7 @@ export class OptionRuleAttributeReassignment
 	id: number;
 	choiceId: number;
 	attributeGroupId: number;
+	divChoiceCatalogId: number;
 }
 
 export class PointRules
