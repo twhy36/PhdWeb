@@ -135,7 +135,8 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 	actionTypesForESignEdit = [
 		{ value: this.ACTION_TYPES.ACTION, id: 0 },
 		{ value: this.ACTION_TYPES.CANCEL_E_SIGN, id: 1 },
-		{ value: this.ACTION_TYPES.WITHDRAW, id: 2 }
+		{ value: this.ACTION_TYPES.SIGN, id: 2 },
+		{ value: this.ACTION_TYPES.WITHDRAW, id: 3 }
 	];	
 
 	actionTypesForSigned = [
