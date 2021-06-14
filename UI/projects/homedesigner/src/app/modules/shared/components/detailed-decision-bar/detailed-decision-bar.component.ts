@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 
-import { UnsubscribeOnDestroy, flipOver2, slideOut, DecisionPoint, JobChoice, PickType, Choice } from 'phd-common';
+import { UnsubscribeOnDestroy, flipOver2, slideOut, DecisionPoint, JobChoice, PickType, Choice, ChoiceImageAssoc } from 'phd-common';
 import { ChoiceExt } from '../../models/choice-ext.model';
 import { MyFavoritesChoice } from '../../models/my-favorite.model';
 
@@ -19,6 +19,7 @@ export class DetailedDecisionBarComponent extends UnsubscribeOnDestroy implement
 	@Input() currentPointId: number;
 	@Input() salesChoices: JobChoice[];
 	@Input() myFavoritesChoices: MyFavoritesChoice[];
+	@Input() choiceImages: ChoiceImageAssoc[];
 
 	@Output() onToggleChoice = new EventEmitter<ChoiceExt>();
 	@Output() onViewChoiceDetail = new EventEmitter<ChoiceExt>();
@@ -62,7 +63,9 @@ export class DetailedDecisionBarComponent extends UnsubscribeOnDestroy implement
 		}
 
 		const myFavoritesChoice = this.myFavoritesChoices ? this.myFavoritesChoices.find(x => x.divChoiceCatalogId === choice.divChoiceCatalogId) : null;
-		return new ChoiceExt(choice, choiceStatus, myFavoritesChoice, point.isStructuralItem);
+		const images = this.choiceImages?.filter(x => x.dpChoiceId === choice.id);		
+		
+		return new ChoiceExt(choice, choiceStatus, myFavoritesChoice, point.isStructuralItem, images);
 	}
 
 	toggleChoice (choice) {

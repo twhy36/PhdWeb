@@ -7,7 +7,7 @@ import { combineLatest, map, catchError, flatMap, switchMap } from 'rxjs/operato
 
 import * as odataUtils from '../../shared/classes/odata-utils.class';
 
-import { DTree, DTVersion, DTGroup, DTSubGroup, DTPoint, DTChoice, DTreeVersionDropDown, AttributeReassignment, PointChoiceDependent } from '../../shared/models/tree.model';
+import { DTree, DTVersion, DTGroup, DTSubGroup, DTPoint, DTChoice, DTreeVersionDropDown, AttributeReassignment, PointChoiceDependent, ITreeSortList } from '../../shared/models/tree.model';
 import { Settings } from '../../shared/models/settings.model';
 
 import { LoggingService } from '../../core/services/logging.service';
@@ -1028,34 +1028,37 @@ export class TreeService
 			}));
 	}
 
-	saveTreeSort(treeVersionId: number, points: Array<PhdApiDto.IDTreePointDto>): Observable<any>
+	saveTreeSort(treeVersionId: number, sortList: ITreeSortList): Observable<any>
 	{
-		const patchPoints = points.map(p =>
+		const patchPoints = sortList.pointList.map(p =>
 		{
 			return {
 				dPointID: p.id,
 				dPointSortOrder: p.sortOrder
 			} as PhdEntityDto.IDPointDto;
 		});
-		const choiceArrays = points.map(p =>
+
+		const choiceArrays = sortList.choiceList.map(c =>
 		{
-			return p.choices.map(c =>
-			{
-				return {
-					dpChoiceID: c.id,
-					dpChoiceSortOrder: c.sortOrder
-				} as PhdEntityDto.IDPChoiceDto;
-			});
+			return {
+				dpChoiceID: c.id,
+				dpChoiceSortOrder: c.sortOrder
+			} as PhdEntityDto.IDPChoiceDto;
 		});
+
+		const treeArray = [{
+			dTreeVersionID: treeVersionId
+		}] as Array<PhdEntityDto.IDTreeVersionDto>;
 
 		// flatten choiceArrays
 		const patchChoices = choiceArrays.reduce((a, b) => a.concat(b), []);
 
 		const batchPointRequests = odataUtils.createBatchPatch<PhdEntityDto.IDPointDto>(patchPoints, "dPointID", "dPoints", "dPointSortOrder");
 		const batchChoiceRequests = odataUtils.createBatchPatch<PhdEntityDto.IDPChoiceDto>(patchChoices, "dpChoiceID", "dPChoices", "dpChoiceSortOrder");
+		const batchTreeRequest = odataUtils.createBatchPatch<PhdEntityDto.IDTreeVersionDto>(treeArray, "dTreeVersionID", "dTreeVersions", "LastModifiedBy");
 
 		const batchGuid = odataUtils.getNewGuid();
-		const batchBody = odataUtils.createBatchBody(batchGuid, [batchPointRequests, batchChoiceRequests]);
+		const batchBody = odataUtils.createBatchBody(batchGuid, [batchPointRequests, batchChoiceRequests, batchTreeRequest]);
 		const headers = new HttpHeaders(odataUtils.createBatchHeaders(batchGuid));
 
 		const endPoint = `${settings.apiUrl}${this._batch}`;

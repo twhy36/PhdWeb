@@ -1,6 +1,6 @@
 import * as _ from 'lodash';
 
-import { Choice, DesignToolAttribute } from 'phd-common'
+import { Choice, DesignToolAttribute, ChoiceImageAssoc } from 'phd-common'
 import { MyFavoritesChoice } from './my-favorite.model';
 
 export class ChoiceExt extends Choice
@@ -8,13 +8,20 @@ export class ChoiceExt extends Choice
     choiceStatus: 'Available' | 'Contracted' | 'ViewOnly';
 	isPointStructural: boolean;
 	myFavoritesChoice: MyFavoritesChoice;
+	choiceImages: ChoiceImageAssoc[];
 
-	constructor(dto: Choice, status: string, myFavoritesChoice: MyFavoritesChoice, isPointStructural: boolean)
+	constructor(
+		dto: Choice, 
+		status: string, 
+		myFavoritesChoice: MyFavoritesChoice, 
+		isPointStructural: boolean,
+		choiceImages: ChoiceImageAssoc[])
 	{
         super(dto);
         this.choiceStatus = status as 'Available' | 'Contracted' | 'ViewOnly';
 		this.isPointStructural = isPointStructural;
 		this.myFavoritesChoice = myFavoritesChoice;
+		this.choiceImages = choiceImages;
 	}
 
 	get isFavorite(): boolean

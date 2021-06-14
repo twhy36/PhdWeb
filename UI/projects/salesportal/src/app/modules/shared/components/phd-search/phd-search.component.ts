@@ -175,6 +175,7 @@ export class PHDSearchComponent
 			{
 				results.map(result =>
 				{
+					
 					// Add filtering by first and last name
 					// filter the results for a sales agreement id that contains the sales agreement # string if needed
 					if (result.salesAgreements && result.salesAgreements.length > 0 && (this.salesAgreementNumber || this.selectedSalesAgreementStatus.length > 0))
@@ -182,7 +183,9 @@ export class PHDSearchComponent
 						let addLot = false;
 						result.salesAgreements.map(agreement =>
 						{
-							if (agreement.salesAgreementNumber.indexOf(this.salesAgreementNumber) >= 0 || (this.selectedSalesAgreementStatus.length > 0 && this.selectedSalesAgreementStatus.indexOf(agreement.status) !== -1))
+							//if the salesAgreement number is truthy and is found or in the list of selected sales agreement statuses, the selected agreement status exists
+							// flag the lot as able to be added to the filtered lots
+							if ( (this.salesAgreementNumber && agreement.salesAgreementNumber.indexOf(this.salesAgreementNumber) >= 0) || (this.selectedSalesAgreementStatus.length > 0 && this.selectedSalesAgreementStatus.indexOf(agreement.status) !== -1))
 							{
 								addLot = true;
 							}

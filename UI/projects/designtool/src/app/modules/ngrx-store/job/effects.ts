@@ -2,15 +2,16 @@ import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Action, Store } from '@ngrx/store';
 import { Observable } from 'rxjs/Observable';
-import { switchMap, withLatestFrom, exhaustMap, map } from 'rxjs/operators';
+import { switchMap, withLatestFrom, exhaustMap, map, take, scan, skipWhile } from 'rxjs/operators';
 import { of } from 'rxjs/observable/of';
 import { from } from 'rxjs/observable/from';
 import { forkJoin } from 'rxjs/observable/forkJoin';
+import { NEVER } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
 
 import { ESignEnvelope, ESignStatusEnum, ESignTypeEnum, Job } from 'phd-common';
 
-import { JobActionTypes, CreateChangeOrderEnvelope, EnvelopeError, LoadSpecs, SpecsLoaded, LoadJobForJob, JobLoadedByJobId, LoadPulteInfo, PulteInfoLoaded, SavePulteInfo, PulteInfoSaved } from './actions';
+import { JobActionTypes, CreateChangeOrderEnvelope, EnvelopeError, LoadSpecs, SpecsLoaded, LoadJobForJob, JobLoadedByJobId, LoadPulteInfo, PulteInfoLoaded, SavePulteInfo, PulteInfoSaved, JobPlanOptionsUpdated } from './actions';
 import { ContractService } from '../../core/services/contract.service';
 import { ChangeOrderService } from '../../core/services/change-order.service';
 
@@ -19,7 +20,8 @@ import { tryCatch } from '../error.action';
 import * as fromRoot from '../reducers';
 import * as _ from "lodash";
 import { JobService } from '../../core/services/job.service';
-import { LoadError, LoadSpec, ChangeOrderEnvelopeCreated } from '../actions';
+import { LoadError, LoadSpec, ChangeOrderEnvelopeCreated, SalesAgreementLoaded, ScenarioLoaded, CommonActionTypes } from '../actions';
+import { SetPermissions, UserActionTypes } from '../user/actions';
 
 @Injectable()
 export class JobEffects
@@ -150,4 +152,40 @@ export class JobEffects
 
 		return jio ? jio.constructionStatusDescription === 'Approved' : false;
 	}
+
+	@Effect()
+	updateSpecJobPricing$: Observable<Action> = this.actions$.pipe(
+		ofType<SalesAgreementLoaded | ScenarioLoaded | SetPermissions>(CommonActionTypes.SalesAgreementLoaded, CommonActionTypes.ScenarioLoaded, UserActionTypes.SetPermissions),
+		scan((prev, action) => (
+			{
+				sagScenarioLoaded: prev.sagScenarioLoaded || action instanceof SalesAgreementLoaded || action instanceof ScenarioLoaded, 
+				userPermissions: prev.userPermissions || action instanceof SetPermissions, 
+				action: action instanceof SalesAgreementLoaded || action instanceof ScenarioLoaded ? action : prev.action
+			}), {sagScenarioLoaded: false, userPermissions: false, action: <SalesAgreementLoaded | ScenarioLoaded>null}),
+		skipWhile(result => !result.sagScenarioLoaded || !result.userPermissions),
+		map(result => result.action),
+		switchMap(action => 
+			this.store.pipe(
+				take(1),
+				switchMap(state => {
+					if (!state.user.canSell) {
+						return NEVER;
+					}
+					if (state.job.jobTypeName !== 'Spec' && state.job.jobTypeName !== 'Model') {
+						return NEVER;
+					}
+					if (action instanceof SalesAgreementLoaded && action.salesAgreement.status !== 'Pending') {
+						return NEVER;
+					}
+					
+					if (state.job && state.scenario?.options && state.job.jobPlanOptions.some(jpo => state.scenario.options.find(o => o.id === jpo.planOptionId && o.listPrice !== jpo.listPrice))) {
+						return this.jobService.updateSpecJobPricing(state.job.lotId);
+					}
+					
+					return NEVER;
+				})
+			)
+		),
+		map(jobPlanOptions => new JobPlanOptionsUpdated(jobPlanOptions))
+	);
 }

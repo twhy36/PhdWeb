@@ -30,7 +30,7 @@
 		</div>
 	</div>
 
-	<div class="phd-status-table mt-3">
+	<div class="phd-status-table-past mt-3">
 		<div>
 			<h4>PAST CHANGE ORDERS</h4>
 		</div>
@@ -60,7 +60,12 @@
 </ng-template>
 
 <ng-template #content let-c="close" let-d="dismiss">
-	<distribution-list (close)="closeModal()" (onEnvelopeSent)="envelopeSent()" [currentEnvelopeID]="envelopeID"></distribution-list>
+	<distribution-list 
+		(close)="closeModal()" 
+		(onEnvelopeSent)="envelopeSent($event)"
+		(onEnvelopeCancel)="envelopeCancelled($event)" 
+		[currentEnvelopeID]="envelopeID">
+	</distribution-list>
 </ng-template>
 
 <ng-template #rejectedChangeOrderModal>

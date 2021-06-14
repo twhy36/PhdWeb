@@ -16,7 +16,7 @@ import * as fromUser from '../../ngrx-store/user/reducer';
 import * as fromSalesAgreement from '../../ngrx-store/sales-agreement/reducer';
 import * as fromJob from '../../ngrx-store/job/reducer';
 
-import { UnsubscribeOnDestroy, ModalRef, ESignStatusEnum, ESignTypeEnum, ChangeOrderGroup, ChangeTypeEnum, ChangeInput} from 'phd-common';
+import { UnsubscribeOnDestroy, ModalRef, ESignStatusEnum, ESignTypeEnum, ChangeOrderGroup, ChangeTypeEnum, ChangeInput, SalesStatusEnum, Job } from 'phd-common';
 
 import { ChangeOrderService } from '../../core/services/change-order.service';
 import { PDFViewerComponent } from '../../shared/components/pdf-viewer/pdf-viewer.component';
@@ -131,6 +131,12 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 		{ value: this.ACTION_TYPES.SIGN, id: 3 },
 		{ value: this.ACTION_TYPES.WITHDRAW, id: 4 }
 	];
+
+	actionTypesForESignEdit = [
+		{ value: this.ACTION_TYPES.ACTION, id: 0 },
+		{ value: this.ACTION_TYPES.CANCEL_E_SIGN, id: 1 },
+		{ value: this.ACTION_TYPES.WITHDRAW, id: 2 }
+	];	
 
 	actionTypesForSigned = [
 		{ value: this.ACTION_TYPES.ACTION, id: 0 },
@@ -270,13 +276,17 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 					{
 						actionTypes = this.actionTypesForOutForSignatureJIOs;
 					}
-					else if (o.eSignEnvelopes && o.eSignEnvelopes.find(env => env.eSignStatusId === 1 || env.eSignStatusId === 2))
-					{
-						actionTypes = this.actionTypesForESign;
-					}
 					else
 					{
-						actionTypes = this.actionTypesForPrintforSignature;
+						const eSignEnvelope = o.eSignEnvelopes?.find(env => env.eSignStatusId === 1 || env.eSignStatusId === 2);
+						if (eSignEnvelope)
+						{
+							actionTypes = eSignEnvelope.eSignStatusId === 1 ? this.actionTypesForESignEdit : this.actionTypesForESign;
+						}
+						else
+						{
+							actionTypes = this.actionTypesForPrintforSignature;
+						}						
 					}
 				}
 				else if (o.salesStatusDescription === 'Signed')
@@ -522,14 +532,14 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 							ofType<CommonActions.ChangeOrderEnvelopeCreated>(CommonActions.CommonActionTypes.ChangeOrderEnvelopeCreated),
 							take(1)).subscribe(() =>
 							{
-								this.setOutForSignature(changeOrder, true);
+								this.setOutForSignature(changeOrder, false, true);
 							});
 
 						this.store.dispatch(new JobActions.CreateChangeOrderEnvelope(currentSnapshot));
 					}
 					else
 					{
-						this.setOutForSignature(changeOrder, true);
+						this.setOutForSignature(changeOrder, false, true);
 					}
 				});
 
@@ -601,17 +611,18 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 				envelopeDto = { ...envelopeDto, eSignStatusId: 4 };
 
 				this.isSaving = true;
-				this._changeOrderService.updateESignEnvelope(envelopeDto).pipe(
-					combineLatest(this._changeOrderService.updateJobChangeOrder([changeOrder])),
-					finalize(() => this.isSaving = false)
-				).subscribe(([eSignEnvelope, changeOrders]) =>
+				this.store.pipe(
+					take(1),
+					select(state => state.job),
+					combineLatest(
+						this._changeOrderService.updateESignEnvelope(envelopeDto),
+						this._changeOrderService.updateJobChangeOrder([changeOrder]),
+						this._contractService.deleteEnvelope(envelopeDto.envelopeGuid)
+					),
+					finalize(() => this.isSaving = false)					
+				).subscribe(([job, , changeOrders]) =>
 				{
-					this.store.dispatch(new CommonActions.ChangeOrdersUpdated(changeOrders));
-
-					if (changeOrders[0].id === this.currentChangeOrderId)
-					{
-						this.store.dispatch(new ChangeOrderActions.SetChangingOrder(false, null, true));
-					}
+					this.updateChangeOrderPending(job, changeOrders, changeOrder, envelopeDto.eSignEnvelopeId);
 				});
 
 				break;
@@ -807,7 +818,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 		this.isModalOpen = false;
 	}
 
-	envelopeSent()
+	envelopeSent(sent: boolean)
 	{
 		let changeOrder;
 
@@ -820,13 +831,42 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 			changeOrder = this.activeChangeOrders.find(t => t.salesStatus === 'Pending');
 		}
 
-		this.setOutForSignature(changeOrder);
-		this.closeModal();
+		this.setOutForSignature(changeOrder, sent);
+
+		if (sent)
+		{
+			this.closeModal();			
+		}
 	}
 
-	private setOutForSignature(changeOrder: any, isWetSign: boolean = false)
+	envelopeCancelled(envelopeId: string)
 	{
-		this.store.dispatch(new ChangeOrderActions.ChangeOrderOutForSignature(changeOrder, isWetSign, changeOrder.id === this.currentChangeOrderId));
+		const cancelledChangeOrder = this.changeOrders.find(x => x.eSignEnvelopes?.some(e => e.envelopeGuid === envelopeId));
+
+		if (cancelledChangeOrder)
+		{
+			let changeOrder = { ...cancelledChangeOrder, salesStatusDescription: "Pending", jobChangeOrderGroupSalesStatusHistories: undefined }
+			const eSignEnvelopeId = cancelledChangeOrder.eSignEnvelopes?.find(e => e.envelopeGuid === envelopeId)?.eSignEnvelopeId;
+
+			this.isSaving = true;
+			this.store.pipe(
+				take(1),				
+				select(state => state.job),
+				combineLatest(
+					this._changeOrderService.deleteESignEnvelope(eSignEnvelopeId),
+					this._changeOrderService.updateJobChangeOrder([changeOrder])
+				),
+				finalize(() => this.isSaving = false)
+			).subscribe(([job, , changeOrders]) =>
+			{
+				this.updateChangeOrderPending(job, changeOrders, cancelledChangeOrder, eSignEnvelopeId);
+			});
+		}
+	}	
+
+	private setOutForSignature(changeOrder: any, sent: boolean, isWetSign: boolean = false)
+	{
+		this.store.dispatch(new ChangeOrderActions.ChangeOrderOutForSignature(changeOrder, sent, isWetSign, changeOrder.id === this.currentChangeOrderId));
 	}
 
 	createForm(changeOrder: any, actionSelected: string)
@@ -1125,5 +1165,45 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 				o.amount = salePrice;
 			});
 		}
+	}
+
+	updateChangeOrderPending(job: Job, changeOrders: ChangeOrderGroup[], cancelledChangeOrder: ChangeOrderGroup, eSignEnvelopeId: number)
+	{
+		let updatedJob = _.cloneDeep(job);
+		let updatedChangeOrders = _.cloneDeep(changeOrders);
+		
+		let updatedChangeOrder = updatedChangeOrders?.find(co => co.id === cancelledChangeOrder.id);
+		if (updatedChangeOrder)
+		{
+			let envelopes = _.cloneDeep(cancelledChangeOrder.eSignEnvelopes) as Array<any>;
+			const envelopeIndex = envelopes?.findIndex(e => e.eSignEnvelopeId === eSignEnvelopeId);
+			if (envelopeIndex > -1)
+			{
+				envelopes.splice(envelopeIndex, 1);
+			}					
+			updatedChangeOrder.eSignEnvelopes = envelopes;
+
+			let jobChangeOrderGroup = updatedJob.changeOrderGroups.find(co => co.id === cancelledChangeOrder.id);
+			if (jobChangeOrderGroup)
+			{
+				jobChangeOrderGroup.salesStatusDescription = updatedChangeOrder.salesStatusDescription;
+				jobChangeOrderGroup.salesStatusUTCDate = updatedChangeOrder.salesStatusUTCDate;
+				jobChangeOrderGroup.jobChangeOrderGroupSalesStatusHistories.push({
+					jobChangeOrderGroupId: jobChangeOrderGroup.id,
+					salesStatusId: SalesStatusEnum.Pending,
+					createdUtcDate: updatedChangeOrder.salesStatusUTCDate,
+					salesStatusUtcDate: updatedChangeOrder.salesStatusUTCDate
+				});
+				jobChangeOrderGroup.eSignEnvelopes = envelopes;
+			}
+		}
+
+		this.store.dispatch(new CommonActions.ChangeOrdersUpdated(updatedChangeOrders));
+		this.store.dispatch(new JobActions.JobUpdated(updatedJob));
+
+		if (updatedChangeOrders[0].id === this.currentChangeOrderId)
+		{
+			this.store.dispatch(new ChangeOrderActions.SetChangingOrder(false, null, true));
+		}		
 	}
 }

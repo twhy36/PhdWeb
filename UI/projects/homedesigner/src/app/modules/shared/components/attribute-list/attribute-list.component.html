@@ -1,4 +1,4 @@
-<div class="phd-attribute-list">
+<div class="phd-attribute-list" [style.padding-top]="isBlocked && isLocationAttribute ? '15px': '0px'">
 	<ng-container *ngFor="let attribute of attributes">
 		<div class="phd-attribute-item">
 			<cl-image public-id="{{getImageSrc(attribute)}}" title="{{attribute.name}}" type="fetch"
@@ -14,10 +14,10 @@
 					<i class="fa fa-check phd-icon-selected"></i>
 				</ng-container>
 				<ng-container *ngIf="attribute.attributeStatus === 'Available'">
-					<div class="phd-clickable">
+					<div class="phd-clickable" *ngIf="!isBlocked">
 						<span class="phd-icon-selected"><i *ngIf="attribute.isFavorite" class="fa fa-heart" (click)="toggleAttribute(attribute)"></i></span>
 						<i *ngIf="!attribute.isFavorite" class="fa fa-heart-o" (click)="toggleAttribute(attribute)"></i>
-					</div>				
+					</div>			
 				</ng-container>	
 			</div>		
 		</div>

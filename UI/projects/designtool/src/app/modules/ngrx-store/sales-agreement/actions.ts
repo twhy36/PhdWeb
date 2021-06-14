@@ -18,6 +18,7 @@ export enum SalesAgreementActionTypes
 	VoidSalesAgreement = 'Void Sales Agreement',
 	CancelSalesAgreement = 'Cancel Sales Agreement',
 	SalesAgreementOutForSignature = 'Sales Agreement Out For Signature',
+	SalesAgreementPending = 'Sales Agreement Pending',
 	SignSalesAgreement = 'Sign Sales Agreement',
 	ApproveSalesAgreement = 'Approve Sales Agreement',
 	// Realtor
@@ -165,7 +166,14 @@ export class SalesAgreementOutForSignature implements Action
 {
 	readonly type = SalesAgreementActionTypes.SalesAgreementOutForSignature;
 
-	constructor(public isWetSign: boolean) { }
+	constructor(public isWetSign: boolean, public isEdit: boolean) { }
+}
+
+export class SalesAgreementPending implements Action
+{
+	readonly type = SalesAgreementActionTypes.SalesAgreementPending;
+
+	constructor() { }
 }
 
 export class SignSalesAgreement implements Action
@@ -537,6 +545,7 @@ export type SalesAgreementActions =
 	SalesAgreementCreated |
 	SalesAgreementLoaded |
 	SalesAgreementOutForSignature |
+	SalesAgreementPending |
 	SalesAgreementSaved |
 	SaveContingency |
 	SaveDeposit |

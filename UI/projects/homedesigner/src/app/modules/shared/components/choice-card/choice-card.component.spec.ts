@@ -61,7 +61,8 @@ describe('ChoiceCardComponent', () => {
 			isPointStructural: false,
 			myFavoritesChoice: null,
 			isFavorite: false,
-			favoriteAttributes: []
+			favoriteAttributes: [],
+			choiceImages: []
 		};
     fixture.detectChanges();
   });

@@ -386,7 +386,7 @@ export class DivisionalService
 		const batchBody = odataUtils.createBatchBody(batchGuid, [batchPointRequests, batchChoiceRequests]);
 		const headers = new HttpHeaders(odataUtils.createBatchHeaders(batchGuid));
 
-		const obs = this._http.post(endPoint, batchBody, { headers, responseType: 'text' }).pipe(
+		const obs = withSpinner(this._http).post(endPoint, batchBody, { headers, responseType: 'text' }).pipe(
 			map(results =>
 			{
 				return odataUtils.parseBatchResults<IDivCatalogChoiceDto | IDivCatalogPointDto>(results);

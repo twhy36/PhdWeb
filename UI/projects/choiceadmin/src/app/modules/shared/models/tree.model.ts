@@ -90,6 +90,7 @@ export interface IDTPoint
 	hasUnusedChoices: boolean;
 	open: boolean;
 	matched: boolean;
+	sortChanged: boolean;
 
 	parent: DTSubGroup;
 	choices: Array<IDTChoice>;
@@ -116,6 +117,7 @@ export interface IDTChoice
 	parent: DTPoint;
 	open: boolean;
 	matched: boolean;
+	sortChanged: boolean;
 }
 
 export class DTree implements IDTree
@@ -416,6 +418,7 @@ export class DTPoint implements IDTPoint
 	hasUnusedChoices = false;
 	open = true;
 	matched = true;
+	sortChanged = false;
 	showConfirm = false;
 	hasChanges = false;
 	edhConstructionStageId;
@@ -506,6 +509,7 @@ export class DTChoice implements IDTChoice
 
 	open = true;
 	matched = true;
+	sortChanged = false;
 	showConfirm = false;
 	hasChanges = false;
 
@@ -607,3 +611,9 @@ export class PointChoiceDependent {
 	pointDependentIds: Array<number>;
 	choiceDependentIds: Array<number>;
 }
+
+export interface ITreeSortList {
+	pointList: Array<PhdApiDto.IDTreePointDto>;
+	choiceList: Array<PhdApiDto.IDTreeChoiceDto>;
+}
+
