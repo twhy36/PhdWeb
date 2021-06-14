@@ -8,7 +8,7 @@ import {
 	Tree, Choice, Group, SubGroup, DecisionPoint, PickType, setPointStatus, setSubgroupStatus, setGroupStatus, PointStatus
 } from 'phd-common';
 
-import { checkSelectedAttributes } from '../../shared/classes/tree.utils';
+import { checkSelectedAttributes, hideChoicesByStructuralItems, hidePointsByStructuralItems } from '../../shared/classes/tree.utils';
 import { RehydrateMap } from '../sessionStorage';
 import { CommonActionTypes } from '../actions';
 import { ScenarioActions, ScenarioActionTypes } from './actions';
@@ -33,13 +33,16 @@ export interface State
 	treeFilter: TreeFilter;
 	treeLoading: boolean;
 	overrideReason: string;
+	hiddenChoiceIds: number[];
+	hiddenPointIds: number[];
 }
 
 export const initialState: State = {
 	tree: null, rules: null, scenario: null, options: null, lotPremium: 0, salesCommunity: null,
 	savingScenario: false, saveError: false, isUnsaved: false, treeLoading: false, loadError: false, isGanked: false,
 	pointHasChanges: false, buildMode: 'buyer',
-	monotonyAdvisementShown: false, financialCommunityFilter: 0, treeFilter: null, overrideReason: null
+	monotonyAdvisementShown: false, financialCommunityFilter: 0, treeFilter: null, overrideReason: null,
+	hiddenChoiceIds: [], hiddenPointIds: []
 };
 
 RehydrateMap.onRehydrate<State>('scenario', state => { return { ...state, savingScenario: false, saveError: false, treeLoading: false, loadError: false }; });
@@ -63,7 +66,9 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 				lotPremium: action.lot && action.lot.premium ? action.lot.premium : state.lotPremium,
 				salesCommunity: action.salesCommunity,
 				treeLoading: false,
-				loadError: false
+				loadError: false,
+				hiddenChoiceIds: [], 
+				hiddenPointIds: []
 			} as State;
 			
 			if (newState.tree)
@@ -150,15 +155,21 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 					.forEach(pt => pt.completed = pt.choices.some(c => c.quantity > 0));
 
 				applyRules(newState.tree, newState.rules, newState.options);
-
 				subGroups = _.flatMap(newState.tree.treeVersion.groups, g => g.subGroups);
 				points = _.flatMap(subGroups, sg => sg.points);
+				choices = _.flatMap(points, p => p.choices);
 				points.forEach(pt => setPointStatus(pt));
 				// For each point, if the user cannot select the DP in this tool, then the status should be complete
 				points.filter(pt => pt.isStructuralItem).forEach(pt => pt.status = PointStatus.COMPLETED);
 				
 				subGroups.forEach(sg => setSubgroupStatus(sg));
 				newState.tree.treeVersion.groups.forEach(g => setGroupStatus(g));
+
+				// Choice-To-Choice
+				hideChoicesByStructuralItems(newState.rules.choiceRules, choices, points, newState.hiddenChoiceIds);
+				
+				// Point-To-Choice && Point-To-Point
+				hidePointsByStructuralItems(newState.rules.pointRules, choices, points, newState.hiddenChoiceIds, newState.hiddenPointIds);
 			}
 
 			return { ...state, ...newState };

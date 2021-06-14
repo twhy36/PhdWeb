@@ -263,7 +263,7 @@ export class CommonEffects
 						}
 					}
 				}
-
+				
 				return <Observable<Action>>from([
 					new SalesAgreementLoaded(result.salesAgreement, result.salesAgreementInfo, result.job, result.sc, result.selectedChoices, result.selectedPlanId, result.selectedHanding, result.tree, result.rules, result.options, result.images, result.mappings, result.changeOrder, result.lot, result.myFavorites),
 					new LoadLots(result.sc.id),

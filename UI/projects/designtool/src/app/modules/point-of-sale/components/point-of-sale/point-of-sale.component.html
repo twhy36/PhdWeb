@@ -24,18 +24,25 @@
 
 <ng-template #pdfViewerFooterTemplate>
 	<ng-container *ngIf="showPDFViewerFooter">
-		<div class="phd-hpa-footer-info">
-			<span class="text-info" *ngIf="showPricingLockText"><i class="fas fa-info-circle"></i> Selecting e-Sign or Print will lock in pricing</span>
+		<div class="d-flex justify-content-end phd-hpa-footer-info">
+			<button type="button" class="btn btn-primary" (click)="eSign()" *ngIf="canSell$ | async" [ngbTooltip]="tooltipTemplate" tooltipClass="phd-button-tooltip">e-Sign</button>
+			<button type="button" class="btn btn-primary" (click)="print()" *ngIf="canSell$ | async" [ngbTooltip]="tooltipTemplate" tooltipClass="phd-button-tooltip">Print</button>
+			<button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
 		</div>
-
-		<button type="button" class="btn btn-primary" (click)="eSign()" *ngIf="canSell$ | async">e-Sign</button>
-		<button type="button" class="btn btn-primary" (click)="print()" *ngIf="canSell$ | async">Print</button>
-		<button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
 	</ng-container>
 </ng-template>
 
+<ng-template #tooltipTemplate >
+	To lock in pricing, click Print for Wet Signatures or click e-Sign, then Click either <b>Send Now</b> or <b>Edit Before Sending</b> on the Distribution List Screen.
+</ng-template>
+
 <ng-template #content let-c="close" let-d="dismiss">
-	<distribution-list (close)="closeModal()" (onEnvelopeSent)="envelopeSent()" [currentEnvelopeID]="envelopeId"></distribution-list>
+	<distribution-list 
+		(close)="closeModal()" 
+		(onEnvelopeSent)="envelopeSent($event)" 
+		(onEnvelopeCancel)="envelopeCancelled($event)" 
+		[currentEnvelopeID]="envelopeId">
+	</distribution-list>
 </ng-template>
 
 <ng-template #cancelAgreement let-c="close" let-d="dismiss">

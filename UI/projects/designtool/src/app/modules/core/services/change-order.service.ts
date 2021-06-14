@@ -6,12 +6,13 @@ import { map, catchError, tap, flatMap } from 'rxjs/operators';
 
 import * as _ from 'lodash';
 
-import {
-	getNewGuid, createBatchPatch, createBatchBody, createBatchHeaders, withSpinner, DesignToolAttribute, Buyer, ESignEnvelope,
-	ChangeOrderGroup, ChangeOrderNonStandardOption, ChangeInput, ChangeOrderChoice, ChangeOrderPlanOption, ChangeOrderChoiceLocation,
-	ChangeOrderHanding, ChangeTypeEnum, Job, JobChoice, JobChoiceAttribute, JobChoiceLocation, JobPlanOption, PlanOption, Plan, SalesAgreement,
-	SalesChangeOrderTrust, Tree, DecisionPoint, Choice, IdentityService
-} from 'phd-common';
+import
+	{
+		getNewGuid, createBatchPatch, createBatchBody, createBatchHeaders, withSpinner, DesignToolAttribute, Buyer, ESignEnvelope,
+		ChangeOrderGroup, ChangeOrderNonStandardOption, ChangeInput, ChangeOrderChoice, ChangeOrderPlanOption, ChangeOrderChoiceLocation,
+		ChangeOrderHanding, ChangeTypeEnum, Job, JobChoice, JobChoiceAttribute, JobChoiceLocation, JobPlanOption, PlanOption, Plan, SalesAgreement,
+		SalesChangeOrderTrust, Tree, DecisionPoint, Choice, IdentityService
+	} from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
 import { TreeService } from '../../core/services/tree.service';
@@ -151,7 +152,8 @@ export class ChangeOrderService
 
 		if (salesNotesChangeOrder && salesNotesChangeOrder.salesNotesChangeOrders && salesNotesChangeOrder.salesNotesChangeOrders.length)
 		{
-			data.salesNotesChangeOrders = salesNotesChangeOrder.salesNotesChangeOrders.map(snco => {
+			data.salesNotesChangeOrders = salesNotesChangeOrder.salesNotesChangeOrders.map(snco =>
+			{
 				return {
 					id: snco.id,
 					changeOrderId: snco.changeOrderId,
@@ -371,6 +373,23 @@ export class ChangeOrderService
 		);
 	}
 
+	deleteESignEnvelope(eSignEnvelopeId: number)
+	{
+		const url = `${environment.apiUrl}eSignEnvelopes(${eSignEnvelopeId})`;
+
+		return withSpinner(this._http).delete(url).pipe(
+			map(response =>
+			{
+				return response;
+			}),
+			catchError(error =>
+			{
+				console.error(error);
+				return _throw(error);
+			})
+		);
+	}	
+
 	getChangeOrderTypeAutoApproval(communityId: number): Observable<Array<{ isAutoApproval: boolean, edhChangeOrderTypeId: number }>>
 	{
 		const url = `${environment.apiUrl}changeOrderTypeAutoApprovals`;
@@ -477,7 +496,8 @@ export class ChangeOrderService
 
 	private createJobChangeOrderChoices(origChoices: Array<JobChoice>, currentChoices: Array<Choice>, elevationDP: DecisionPoint, colorSchemeDP: DecisionPoint, tree: Tree, jobPlanOptions: Array<JobPlanOption>): Array<any>
 	{
-		const mappingsChanged = function (orig: JobChoice, curr: Choice) {
+		const mappingsChanged = function (orig: JobChoice, curr: Choice)
+		{
 			const addedOptions = curr.options.filter(o1 => !orig.jobChoiceJobPlanOptionAssocs.some(o2 => o1.id === jobPlanOptions.find(po => po.id === o2.jobPlanOptionId).planOptionId));
 			const removedOptions = orig.jobChoiceJobPlanOptionAssocs.map(jp => jobPlanOptions.find(o => o.id === jp.jobPlanOptionId))
 				.filter(po => !curr.options.some(o => o.id === po.planOptionId) && po.jobOptionTypeName !== 'BaseHouse');
@@ -498,7 +518,8 @@ export class ChangeOrderService
 
 				choicesDto.push(...changedChoices);
 
-			} else
+			}
+			else
 			{
 				// new choice
 				choicesDto.push({
@@ -568,7 +589,7 @@ export class ChangeOrderService
 				loc.action = 'Add';
 				loc.attributes.forEach(a => a.action = 'Add');
 
-				locations.push(...loc);
+				locations.push({ ...loc });
 			}
 			else
 			{
@@ -579,7 +600,7 @@ export class ChangeOrderService
 					loc.action = 'Change';
 					loc.attributes = attributes || [];
 
-					locations.push(...loc);
+					locations.push({ ...loc });
 				}
 			}
 		});
@@ -626,7 +647,8 @@ export class ChangeOrderService
 				isElevation: elevationDP ? curChoice.treePointId === elevationDP.id : false,
 				isColorScheme: colorSchemeDP ? curChoice.treePointId === colorSchemeDP.id : false
 			});
-		} else if (addedOptions.length || removedOptions.length)
+		}
+		else if (addedOptions.length || removedOptions.length)
 		{
 			choicesDto.push({
 				dpChoiceId: origChoice.dpChoiceId,
@@ -991,7 +1013,7 @@ export class ChangeOrderService
 		return selectedChoices;
 	}
 
-	getLockedInChoices(job: Job, tree: Tree, changeOrder?: ChangeOrderGroup) : Observable<Choice[]>
+	getLockedInChoices(job: Job, tree: Tree, changeOrder?: ChangeOrderGroup): Observable<Choice[]>
 	{
 		const treeChoices = _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)));
 
@@ -1003,38 +1025,48 @@ export class ChangeOrderService
 		const changeOrderPlanOptions = changeOrder ? this.getJobChangeOrderPlanOptions(changeOrder) : null;
 		const options = [...job.jobPlanOptions, ...((changeOrder && changeOrder.salesStatusDescription !== 'Pending') ? changeOrderPlanOptions : [])];
 
-		return this._treeService.getHistoricOptionMapping(_.flatten(choices.map(c => {
-			if (isJobChoice(c)) {
+		return this._treeService.getHistoricOptionMapping(_.flatten(choices.map(c =>
+		{
+			if (isJobChoice(c))
+			{
 				return c.jobChoiceJobPlanOptionAssocs
 					.filter(o => o.choiceEnabledOption)
-					.map(o => {
+					.map(o =>
+					{
 						return { optionNumber: options.find(opt => opt.id === o.jobPlanOptionId)?.integrationKey, dpChoiceId: c.dpChoiceId };
 					});
 			}
-			else {
+			else
+			{
 				return c.jobChangeOrderChoiceChangeOrderPlanOptionAssocs
 					.filter(o => o.jobChoiceEnabledOption)
-					.map(o => {
+					.map(o =>
+					{
 						return { optionNumber: options.find(opt => opt.id === o.jobChangeOrderPlanOptionId)?.integrationKey, dpChoiceId: c.decisionPointChoiceID };
 					});
 			}
 		}))).pipe(
-			map(mapping => {
-				let lockedInChoices : Choice[] = [];
-				choices.filter(isLocked(changeOrder)).forEach(choice => {
+			map(mapping =>
+			{
+				let lockedInChoices: Choice[] = [];
+				choices.filter(isLocked(changeOrder)).forEach(choice =>
+				{
 					let treeChoice = treeChoices.find(ch => ch.divChoiceCatalogId === choice.divChoiceCatalogId);
 
-					if (treeChoice) {
+					if (treeChoice)
+					{
 						let lockInChoice = _.cloneDeep(treeChoice);
 						lockInChoice.lockedInChoice = choice;
 
-						if (isJobChoice(choice)) {
+						if (isJobChoice(choice))
+						{
 							lockInChoice.lockedInOptions = choice.jobChoiceJobPlanOptionAssocs.filter(o => o.choiceEnabledOption).map(o => mapping[options.find(opt => opt.id === o.jobPlanOptionId).integrationKey] || getDefaultOptionRule(options.find(opt => opt.id === o.jobPlanOptionId).integrationKey, lockInChoice));
 						}
-						else {
+						else
+						{
 							lockInChoice.lockedInOptions = choice.jobChangeOrderChoiceChangeOrderPlanOptionAssocs.filter(o => o.jobChoiceEnabledOption).map(o => mapping[options.find(opt => opt.id === o.jobChangeOrderPlanOptionId).integrationKey] || getDefaultOptionRule(options.find(opt => opt.id === o.jobChangeOrderPlanOptionId).integrationKey, lockInChoice));
 						}
-						
+
 						lockedInChoices.push(lockInChoice);
 					}
 				});

@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 
 import { Observable } from 'rxjs';
 import { distinctUntilChanged, filter, switchMap, tap } from 'rxjs/operators';
+import { cloneDeep } from "lodash";
 
 import * as moment from 'moment';
 
@@ -371,102 +372,6 @@ export class ViewContractsComponent extends UnsubscribeOnDestroy implements OnIn
 		})
 	}
 
-	handleDragStart(event: any, item: ContractTemplate)
-	{
-		if (event)
-		{
-			this.draggedTemplate = item;
-		}
-	}
-
-	handleDragEnter(event: any, item: ContractTemplate)
-	{
-		if (event)
-		{
-			let dragId = this.draggedTemplate.templateId;
-
-			if (!this.canDrop(dragId, item))
-			{
-
-				event[0].nativeElement.classList.remove('over');
-			}
-			else
-			{
-				event[0].nativeElement.closest('tr').classList.add('drag-active');
-				event[0].nativeElement.closest('tr').classList.add('over');
-			}
-		}
-	}
-
-	handleDragLeave(event: any)
-	{
-		if (event)
-		{
-			event[0].nativeElement.closest('tr').classList.remove('drag-active');
-			event[0].nativeElement.closest('tr').classList.remove('over');
-		}
-	}
-
-	canDrop(dragId: number, item: ContractTemplate)
-	{
-		let parent = this.filteredContractTemplates;
-		let canDrop = parent.findIndex(x => x.templateId == dragId) != -1;
-
-		return canDrop;
-	}
-
-	handleDrop(event: any, item: ContractTemplate)
-	{
-		if (event)
-		{
-			let dragId = this.draggedTemplate.templateId;
-
-			if (item.templateId != dragId)
-			{
-
-				this.dragHasChanged = true;
-
-				let parent = this.filteredContractTemplates;
-
-				let oldIndex = parent.findIndex(x => x.templateId === dragId);
-				let newIndex = parent.findIndex(x => x.templateId === item.templateId);
-
-				this.reSort(parent, oldIndex, newIndex);
-				this.updateAddendumOrder(parent, oldIndex, newIndex);
-			}
-		}
-	}
-
-	reSort(itemList: Array<ContractTemplate>, oldIndex: number, newIndex: number, sortName?: string)
-	{
-		sortName = sortName != null ? sortName : 'sortOrder';
-
-		if (newIndex >= itemList.length)
-		{
-			var k = newIndex - itemList.length;
-
-			while ((k--) + 1)
-			{
-				itemList.push(undefined);
-			}
-		}
-
-		itemList.splice(newIndex, 0, itemList.splice(oldIndex, 1)[0]);
-
-		let counter = 1;
-
-		itemList.forEach(item =>
-		{
-			item[sortName] = counter++;
-		});
-
-		itemList.sort((left: any, right: any) =>
-		{
-			return left[sortName] === right[sortName] ? 0 : (left[sortName] < right[sortName] ? -1 : 1);
-		});
-
-	}
-
 	updateAddendumOrder(itemList: Array<ContractTemplate>, oldIndex: number, newIndex: number)
 	{
 		if (newIndex > oldIndex)
@@ -512,6 +417,7 @@ export class ViewContractsComponent extends UnsubscribeOnDestroy implements OnIn
 
 	saveSort()
 	{
+
 		if (this.templatesWithUpdatedAddendum.length !== 0)
 		{
 			this._contractService.updateAddendumOrder(this.templatesWithUpdatedAddendum)
@@ -534,5 +440,41 @@ export class ViewContractsComponent extends UnsubscribeOnDestroy implements OnIn
 	hideTooltip(tableComponent: PhdTableComponent): void
 	{
 		tableComponent.hideTooltip();
+	}
+
+	onRowReorder(event:any){
+		
+		if (event.dragIndex !== event.dropIndex)
+		{
+			
+			let parent = this.filteredContractTemplates;
+
+			this.updateSort(parent, event.dragIndex, event.dropIndex);
+			this.updateAddendumOrder(parent, event.dragIndex, event.dropIndex);
+
+			this.filteredContractTemplates = cloneDeep(parent);
+		}
+	}
+
+	private updateSort(itemList: any, oldIndex: number, newIndex: number)
+	{
+		let sortName = 'sortOrder';
+
+		// reorder items in array
+		itemList.splice(newIndex, 0, itemList.splice(oldIndex, 1)[0]);
+
+		let counter = 0;
+
+		itemList.forEach(item =>
+		{
+			// update sortOrder
+			item[sortName] = counter++;
+		});
+
+		// resort using new sortOrders
+		itemList.sort((left: any, right: any) =>
+		{
+			return left[sortName] === right[sortName] ? 0 : (left[sortName] < right[sortName] ? -1 : 1);
+		});
 	}
 }

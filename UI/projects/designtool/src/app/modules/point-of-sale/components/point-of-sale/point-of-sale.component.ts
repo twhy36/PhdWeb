@@ -58,6 +58,7 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 	salesAgreementConsultants$: Observable<Array<Consultant>>;
 	envelopeId: any;
 	isAgreementInfoViewed$: Observable<boolean>;
+	cogEnvelopeId: string;
 
 	pdfViewer: ModalRef;
 	@ViewChild('pdfViewerFooterTemplate') pdfViewerFooterTemplate: TemplateRef<any>;
@@ -165,6 +166,11 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 		).subscribe(changeOrder =>
 		{
 			this.isChangingOrder = changeOrder.isChangingOrder;
+
+			if (changeOrder.currentChangeOrder?.eSignEnvelopes?.length)
+			{
+				this.cogEnvelopeId = changeOrder.currentChangeOrder?.eSignEnvelopes[0].envelopeGuid;
+			}
 		});
 
 		// set envelopeID
@@ -377,10 +383,26 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 		this.modalReference.close();
 	}
 
-	envelopeSent()
+	envelopeSent(sent: boolean)
 	{
-		this.setOutForSignature();
-		this.closeModal();
+		this.setOutForSignature(false, !sent);
+		if (sent)
+		{
+			this.closeModal();			
+		}
+	}
+
+	envelopeCancelled(envelopeId: string)
+	{
+		if (this.selectedAgreementType !== ESignTypeEnum.TerminationAgreement 
+			&& this.salesAgreement.status === 'OutforSignature'
+			&& this.cogEnvelopeId === envelopeId)
+		{
+			// dispatch action to:
+			// - set Agreement Status to Pending
+			// - set JIO Sales Status to Pending
+			this.store.dispatch(new SalesAgreementActions.SalesAgreementPending());
+		}
 	}
 
 	eSign()
@@ -462,14 +484,14 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 		}
 	}
 
-	private setOutForSignature(isWetSign = false)
+	private setOutForSignature(isWetSign = false, isEdit = false)
 	{
 		if (this.selectedAgreementType !== ESignTypeEnum.TerminationAgreement && this.salesAgreement.status === 'Pending')
 		{
 			// dispatch action to:
 			// - set Agreement Status to Out for Signature
 			// - set JIO Sales Status to Out for Signature
-			this.store.dispatch(new SalesAgreementActions.SalesAgreementOutForSignature(isWetSign));
+			this.store.dispatch(new SalesAgreementActions.SalesAgreementOutForSignature(isWetSign, isEdit));
 		}
 	}
 

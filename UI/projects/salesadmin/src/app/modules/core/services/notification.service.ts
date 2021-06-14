@@ -12,7 +12,6 @@ import { environment } from '../../../../environments/environment';
 @Injectable()
 export class NotificationService {
 	private connection: signalR.HubConnection;
-	private reOrgSub: Subscription;
 
 	constructor(private _reOrgService: ReOrgService) { }
 
@@ -43,22 +42,19 @@ export class NotificationService {
 			connectObs.subscribe(initializeSubscriptions, 
 				err => subscriber.error(err),
 				() => subscriber.complete());
-
-			this.connection.onclose(err =>
-			{
-				this.reOrgSub.unsubscribe();
-
-				console.error(err);
-			});
 		})
 	}
 
 	public registerHandlers(): void
 	{
-		this.connection.on("reOrgCompleted", () =>
+		this.connection.on("reOrgCompleted", (isComplete: boolean) =>
 		{
-			console.log('Completed');
-			this._reOrgService.updateReOrgsFlag();
+			if (isComplete)
+			{
+				console.log('Completed w/o errors');
+				this._reOrgService.updateReOrgsFlag();
+			}
+
 			this.connection.stop();
 		});
 	}

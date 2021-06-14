@@ -18,6 +18,7 @@
 						[includeContractedOptions]="includeContractedOptions"
 						[salesChoices]="salesChoices"
 						[groups]="groups"
+						[choiceImages]="currentChoiceImages"
 						(onToggleChoice)="toggleChoice($event)"
 						(onToggleContractedOptions)="toggleContractedOptions()"
 						(onViewChoiceDetail)="viewChoiceDetail($event)"
@@ -36,6 +37,7 @@
 						[salesChoices]="salesChoices"
 						[marketingPlanId]="marketingPlanId$"
 						[isFloorplanFlipped]="isFloorplanFlipped"
+						[choiceImages]="currentChoiceImages"
 						(onToggleChoice)="toggleChoice($event)"
 						(onToggleContractedOptions)="toggleContractedOptions()"
 						(onViewChoiceDetail)="viewChoiceDetail($event)"
@@ -45,7 +47,9 @@
 	<ng-container *ngIf="showDetails">
 		<choice-card-detail	[choice]="selectedChoice"
 						[path]="getChoicePath()"
+						[groups]="groups"
 						(onBack)="hideDetails()"
+						(onSelectDecisionPoint)="selectDecisionPoint($event)"
 						(onToggleChoice)="toggleChoice($event)">
 		</choice-card-detail>
 	</ng-container>

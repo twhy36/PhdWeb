@@ -194,8 +194,12 @@ export function reducer(state: State = initialState, action: JobActions): State
 
 					if (changeOrder)
 					{
-						changeOrder.eSignEnvelopes = [...(changeOrder.eSignEnvelopes || []), env];
-						changeOrder.envelopeId = env.envelopeGuid;
+						const existingEnvelope = changeOrder.eSignEnvelopes?.find(x => x.eSignEnvelopeId === env.eSignEnvelopeId);
+						if (!existingEnvelope)
+						{
+							changeOrder.eSignEnvelopes = [...(changeOrder.eSignEnvelopes || []), env];
+							changeOrder.envelopeId = env.envelopeGuid;							
+						}
 					}
 				});
 			}
@@ -208,6 +212,16 @@ export function reducer(state: State = initialState, action: JobActions): State
 			return { ...state, savingspecInformation: false };
 		case CommonActionTypes.ScenarioLoaded:
 			return { ...state, ...action.job };
+		case JobActionTypes.JobPlanOptionsUpdated:
+			let jobPlanOptions = _.cloneDeep(state.jobPlanOptions);
+			jobPlanOptions.forEach(jpo => {
+				let savedOption = action.jobPlanOptions.find(j => j.id === jpo.id);
+				if (savedOption && savedOption.listPrice !== jpo.listPrice)
+				{
+					jpo.listPrice = savedOption.listPrice;
+				}
+			});
+			return { ...state, jobPlanOptions: jobPlanOptions };
 		default:
 			return state;
 	}

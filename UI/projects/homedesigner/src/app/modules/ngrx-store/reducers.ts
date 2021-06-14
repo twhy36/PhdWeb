@@ -43,7 +43,7 @@ export const filteredTree = createSelector(
 	fromScenario.selectScenario,
 	fromFavorite.favoriteState,
 	(scenario, favorite) => {
-		let tree = _.cloneDeep(scenario.tree);
+		let tree = _.cloneDeep(scenario.tree); 
 		const treeFilter = scenario.treeFilter;
 		let filteredTree: TreeVersion;
 
@@ -69,30 +69,48 @@ export const filteredTree = createSelector(
 								let isValid = treeMatched.point || filter(c.label);
 
 								let isIncluded = true;
-								if (p.isStructuralItem || p.isPastCutOff)
+								if (p.isStructuralItem)
 								{
 									isIncluded = favorite.includeContractedOptions && c.quantity > 0;
 								}
 								else
 								{
+									const isContractedChoice = contractedChoices?.includes(c);
+
 									// If there are contracted design choices and the include contracted option flag is false,
 									// Pick1 or Pick0or1 - remove all choices
 									// Pick1ormore or Pick0ormore - remove the selected choice and leave other choices viewable
 									if (contractedChoices?.length && !favorite.includeContractedOptions)
 									{
-										const isContractedChoice = contractedChoices.includes(c);
 										isIncluded = !isContractedChoice && !isComplete;
 									}
+
+									// Apply cutoff to non-contracted choice whether or not it is favorited
+									if (!isContractedChoice && p.isPastCutOff)
+									{
+										isIncluded = false;
+									}
+								}
+
+								if (scenario.hiddenChoiceIds.indexOf(c.id) > -1) {
+									isIncluded = false;
 								}
 
 								return isValid && isIncluded;
 							});
-
 							return { ...p, choices: choices };
-						}).filter(dp => {
-							return !!dp.choices.length;
 						});
-
+						points = points.filter(dp => {
+							let isIncluded = true;
+							if (dp.choices.length === 0) {
+								isIncluded = false;
+							} else {
+								if (scenario.hiddenPointIds.indexOf(dp.id) > -1) {
+									isIncluded = false;
+								}
+							}
+							return isIncluded;
+						})
 						return { ...sg, points: points };
 					}).filter(sg => {
 						return !!sg.points.length;
@@ -126,9 +144,10 @@ export const priceBreakdown = createSelector(
 	fromScenario.selectScenario,
 	fromSalesAgreement.salesAgreementState,
 	fromChangeOrder.currentChangeOrder,
+	fromJob.jobState,
 	fromFavorite.favoriteState,
 	selectedPlanPrice,
-	(scenario, salesAgreement, currentChangeOrder, favorite, planPrice) => {
+	(scenario, salesAgreement, currentChangeOrder, job, favorite, planPrice) => {
 		let breakdown = new PriceBreakdown();
 
 		if (salesAgreement && scenario) {
@@ -201,6 +220,27 @@ export const priceBreakdown = createSelector(
 
 			let changePrice = salesAgreement.status === 'Approved' && currentChangeOrder?.amount || 0;
 			const salesPrice = salesAgreement.salePrice || 0;
+			
+			let nonStandardOptions = 0;
+			job.jobNonStandardOptions?.forEach(nso => {
+				nonStandardOptions+=(nso.quantity*nso.unitPrice);
+			})
+			breakdown.nonStandardSelections = nonStandardOptions;
+			
+			const nsos = _.flatMap(currentChangeOrder?.jobChangeOrders, co => co.jobChangeOrderNonStandardOptions);
+
+				nsos.forEach(nso =>
+				{
+					if (nso.action === 'Add')
+					{
+						breakdown.nonStandardSelections += (nso.unitPrice * nso.qty);
+					}
+					else
+					{
+						breakdown.nonStandardSelections -= (nso.unitPrice * nso.qty);
+					}
+				});
+			
 			breakdown.totalPrice = salesPrice + changePrice + breakdown.favoritesPrice;
 		}
 

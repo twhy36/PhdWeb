@@ -1,7 +1,7 @@
 import { OrganizationService } from './organization.service';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { IdentityService, withSpinner } from 'phd-common';
+import { withSpinner } from 'phd-common';
 import { Subject } from 'rxjs/Subject';
 import { Observable } from 'rxjs';
 import { SettingsService } from './settings.service';

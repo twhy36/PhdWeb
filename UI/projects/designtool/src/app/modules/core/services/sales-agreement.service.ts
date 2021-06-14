@@ -676,12 +676,12 @@ export class SalesAgreementService
 		);
 	}
 
-	setSalesAgreementOutForSignature(salesAgreementId: number): Observable<SalesAgreement>
+	setSalesAgreementStatus(salesAgreementId: number, status: string): Observable<SalesAgreement>
 	{
-		const action = `setSalesAgreementOutForSignature`;
+		const action = `setSalesAgreementStatus`;
 		const endpoint = environment.apiUrl + action;
 
-		return withSpinner(this._http).patch(endpoint, { id: salesAgreementId }, { headers: { 'Prefer': 'return=representation' } }).pipe(
+		return withSpinner(this._http).patch(endpoint, { id: salesAgreementId, status: status }, { headers: { 'Prefer': 'return=representation' } }).pipe(
 			map((results: ISalesAgreement) => new SalesAgreement(results)),
 			catchError(error =>
 			{

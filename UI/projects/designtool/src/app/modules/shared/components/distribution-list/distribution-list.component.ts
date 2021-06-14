@@ -23,7 +23,8 @@ import { ESignRecipient, ESignRecipientRoles, IESignRecipient } from '../../mode
 export class DistributionListComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	@Output() close = new EventEmitter<void>();
-	@Output() onEnvelopeSent = new EventEmitter<void>();
+	@Output() onEnvelopeSent = new EventEmitter<boolean>();
+	@Output() onEnvelopeCancel = new EventEmitter<string>();
 	@Input() currentEnvelopeID: any;
 
 	distributionList: DistributionListItem[] = [];
@@ -211,6 +212,9 @@ export class DistributionListComponent extends UnsubscribeOnDestroy implements O
 		)
 			.subscribe(url =>
 			{
+				// This will set the agreement and/or change order to Out For Signature
+				this.onEnvelopeSent.emit(false);
+
 				if (typeof window !== 'undefined') {
 					this.docusignWindow = window.open(url, '_blank');
 				} else {
@@ -223,9 +227,15 @@ export class DistributionListComponent extends UnsubscribeOnDestroy implements O
 	@HostListener('window:message', ['$event'])
 	onDocusignResponse(event: any) {
 		if (event.data && event.data.sent) {
-			this.onEnvelopeSent.emit();
+			this.onEnvelopeSent.emit(true);
 			this.docusignWindow.close();
 		} else if (event.data && event.data.closed) {
+			if (event.data.cancel && event.data.queryString)
+			{
+				const urlParams = new URLSearchParams(event.data.queryString);
+				const envelopeId = urlParams.get('envelopeId');
+				this.onEnvelopeCancel.emit(envelopeId);
+			}
 			this.closeClicked();
 			this.docusignWindow.close();
 		}
@@ -245,7 +255,7 @@ export class DistributionListComponent extends UnsubscribeOnDestroy implements O
 		)
 			.subscribe(() =>
 			{
-				this.onEnvelopeSent.emit();
+				this.onEnvelopeSent.emit(true);
 			});
 	}
 

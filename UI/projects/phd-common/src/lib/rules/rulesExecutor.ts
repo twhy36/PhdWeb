@@ -408,7 +408,7 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 			{
 				let optionRule = c.lockedInOptions.find(o => o.choices.some(c => c.attributeReassignments.length > 0));
 
-				const choicesWithReassignments = optionRule.choices.filter(orChoice => orChoice.attributeReassignments && orChoice.attributeReassignments.length > 0 && orChoice.attributeReassignments.find(ar => ar.choiceId === choice.lockedInChoice.dpChoiceId));
+				const choicesWithReassignments = optionRule.choices.filter(orChoice => orChoice.attributeReassignments && orChoice.attributeReassignments.length > 0 && orChoice.attributeReassignments.find(ar => ar.choiceId === choice.lockedInChoice.dpChoiceId || ar.divChoiceCatalogId === choice.lockedInChoice.divChoiceCatalogId));
 
 				if (choicesWithReassignments.length > 0)
 				{
@@ -422,7 +422,7 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 						// apply reassignments when the parent has been selected
 						if (parentChoice.quantity > 0)
 						{
-							let reassignments = arChoice.attributeReassignments.filter(ar => ar.choiceId === choice.lockedInChoice.dpChoiceId).map(ar => ar);
+							let reassignments = arChoice.attributeReassignments.filter(ar => ar.choiceId === choice.lockedInChoice.dpChoiceId || ar.divChoiceCatalogId === choice.lockedInChoice.divChoiceCatalogId).map(ar => ar);
 							let newAttributeReassignments = reassignments.map(x => new MappedAttributeGroup({ id: x.attributeGroupId, attributeReassignmentFromChoiceId: parentChoice.id }));
 
 							attributeReassignments = [...attributeReassignments, ...newAttributeReassignments];
@@ -492,12 +492,12 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 					choicesWithReassignments.forEach(arChoice =>
 					{
 						const parentChoice = choices.find(c => c.id === arChoice.id);
-						let parentHasReassignment = parentChoice.lockedInOptions && parentChoice.lockedInOptions.length > 0 && parentChoice.lockedInOptions.some(o => o.choices && o.choices.some(c => c.attributeReassignments.length > 0 && c.attributeReassignments.findIndex(ar => ar.choiceId === choice.id) > -1));
+						let parentHasReassignment = parentChoice.lockedInOptions && parentChoice.lockedInOptions.length > 0 && parentChoice.lockedInOptions.some(o => o.choices && o.choices.some(c => c.attributeReassignments.length > 0 && c.attributeReassignments.findIndex(ar => ar.choiceId === choice.id || ar.divChoiceCatalogId === choice.divChoiceCatalogId) > -1));
 
 						// apply reassignments when the parent has been selected, and isn't locked in via choice, or is locked in from a option rule.
 						if (parentChoice.quantity > 0 && (!parentChoice.lockedInChoice && (parentChoice.lockedInOptions || parentChoice.lockedInOptions.length === 0) || parentHasReassignment))
 						{
-							let reassignments = arChoice.attributeReassignments.filter(ar => ar.choiceId === choice.id).map(ar => ar);
+							let reassignments = arChoice.attributeReassignments.filter(ar => ar.choiceId === choice.id || ar.divChoiceCatalogId === choice.divChoiceCatalogId).map(ar => ar);
 							let newAttributeReassignments = reassignments.map(x => new MappedAttributeGroup({ id: x.attributeGroupId, attributeReassignmentFromChoiceId: parentChoice.id }));
 
 							attributeReassignments = [...attributeReassignments, ...newAttributeReassignments];
