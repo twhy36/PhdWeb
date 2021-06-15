@@ -41,7 +41,7 @@
 				<span class="phd-breakdown-content">{{priceBreakdown?.nonStandardSelections | currency:'USD':'symbol':'0.0-0'}}</span>
 			</div>
 			<div class="phd-estimate">
-				<span class="phd-breakdown-label">Estimated Favorites Price:</span>
+				<span class="phd-breakdown-label">Estimated Favorites Total:</span>
 				<span class="phd-breakdown-content">{{priceBreakdown?.favoritesPrice | currency:'USD':'symbol':'0.0-0'}}</span>
 			</div>
 			<div class="phd-estimate">
@@ -58,7 +58,7 @@
 			<label>
 				<input type="checkbox" (change)="toggleContractedOptions($event)" [ngModel]="includeContractedOptions" class="phd-clickable" />
 				Include Contracted Options
-			</label>	
+			</label>
 		</div>
 	</div>
 </div>
