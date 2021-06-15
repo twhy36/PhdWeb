@@ -83,6 +83,16 @@
 						"scripts": []
 					},
                     "configurations": {
+                        "local": {
+                            "baseHref": "/",
+                            "outputHashing": "none",
+                            "fileReplacements": [
+                                {
+                                    "replace": "projects/choiceadmin/src/environments/environment.ts",
+                                    "with": "projects/choiceadmin/src/environments/environment.local.ts"
+                                }
+                            ]
+                        },
                         "qa": {
                             "fileReplacements": [
                                 {
@@ -100,26 +110,25 @@
                             ]
                         },
                         "production": {
-              "optimization": true,
-              "sourceMap": false,
-              "namedChunks": false,
-              "extractLicenses": true,
-              "vendorChunk": false,
-              "buildOptimizer": true,
-              "fileReplacements": [
-                {
-                  "replace": "projects/choiceadmin/src/environments/environment.ts",
-                  "with": "projects/choiceadmin/src/environments/environment.prod.ts"
-                }
-              ]
-            }
+                            "optimization": true,
+                            "sourceMap": false,
+                            "namedChunks": false,
+                            "extractLicenses": true,
+                            "vendorChunk": false,
+                            "buildOptimizer": true,
+                            "fileReplacements": [
+                                {
+                                "replace": "projects/choiceadmin/src/environments/environment.ts",
+                                "with": "projects/choiceadmin/src/environments/environment.prod.ts"
+                                }
+                            ]
+                        }
                     }
                 },
                 "serve": {
                     "builder": "@angular-devkit/build-angular:dev-server",
                     "options": {
-                        "baseHref": "/",
-                        "browserTarget": "choiceadmin:build",
+                        "browserTarget": "choiceadmin:build:local",
                         "port": 14765
                     },
                     "configurations": {
@@ -216,6 +225,16 @@
 						"webWorkerTsConfig": "projects/designtool/tsconfig.worker.json"
 					},
                     "configurations": {
+                        "local": {
+                            "baseHref": "/",
+                            "outputHashing": "none",
+                            "fileReplacements": [
+                                {
+                                    "replace": "projects/designtool/src/environments/environment.ts",
+                                    "with": "projects/designtool/src/environments/environment.local.ts"
+                                }
+                            ]
+                        },
                         "qa": {
                             "fileReplacements": [
                                 {
@@ -233,26 +252,25 @@
                             ]
                         },
                         "production": {
-              "optimization": true,
-              "sourceMap": false,
-              "namedChunks": false,
-              "extractLicenses": true,
-              "vendorChunk": false,
-              "buildOptimizer": true,
-              "fileReplacements": [
-                {
-                  "replace": "projects/designtool/src/environments/environment.ts",
-                  "with": "projects/designtool/src/environments/environment.prod.ts"
-                }
-              ]
-            }
+                            "optimization": true,
+                            "sourceMap": false,
+                            "namedChunks": false,
+                            "extractLicenses": true,
+                            "vendorChunk": false,
+                            "buildOptimizer": true,
+                            "fileReplacements": [
+                                {
+                                "replace": "projects/designtool/src/environments/environment.ts",
+                                "with": "projects/designtool/src/environments/environment.prod.ts"
+                                }
+                            ]
+                        }
                     }
                 },
                 "serve": {
                     "builder": "@angular-devkit/build-angular:dev-server",
                     "options": {
-                        "baseHref": "/",
-                        "browserTarget": "designtool:build",
+                        "browserTarget": "designtool:build:local",
                         "port": 14767
                     },
                     "configurations": {
@@ -346,6 +364,16 @@
 						"scripts": []
 					},
                     "configurations": {
+                        "local": {
+                            "baseHref": "/",
+                            "outputHashing": "none",
+                            "fileReplacements": [
+                                {
+                                    "replace": "projects/salesadmin/src/environments/environment.ts",
+                                    "with": "projects/salesadmin/src/environments/environment.local.ts"
+                                }
+                            ]
+                        },
                         "qa": {
                             "fileReplacements": [
                                 {
@@ -363,26 +391,25 @@
                             ]
                         },
                         "production": {
-              "optimization": true,
-              "sourceMap": false,
-              "namedChunks": false,
-              "extractLicenses": true,
-              "vendorChunk": false,
-              "buildOptimizer": true,
-              "fileReplacements": [
-                {
-                  "replace": "projects/salesadmin/src/environments/environment.ts",
-                  "with": "projects/salesadmin/src/environments/environment.prod.ts"
-                }
-              ]
-            }
+                            "optimization": true,
+                            "sourceMap": false,
+                            "namedChunks": false,
+                            "extractLicenses": true,
+                            "vendorChunk": false,
+                            "buildOptimizer": true,
+                            "fileReplacements": [
+                                {
+                                "replace": "projects/salesadmin/src/environments/environment.ts",
+                                "with": "projects/salesadmin/src/environments/environment.prod.ts"
+                                }
+                            ]
+                        }
                     }
                 },
                 "serve": {
                     "builder": "@angular-devkit/build-angular:dev-server",
                     "options": {
-                        "baseHref": "/",
-                        "browserTarget": "salesadmin:build",
+                        "browserTarget": "salesadmin:build:local",
                         "port": 14768
                     },
                     "configurations": {
@@ -475,6 +502,16 @@
 						"scripts": []
 					},
                     "configurations": {
+                        "local": {
+                            "baseHref": "/",
+                            "outputHashing": "none",
+                            "fileReplacements": [
+                                {
+                                    "replace": "projects/salesportal/src/environments/environment.ts",
+                                    "with": "projects/salesportal/src/environments/environment.local.ts"
+                                }
+                            ]
+                        },
                         "qa": {
                             "fileReplacements": [
                                 {
@@ -492,26 +529,25 @@
                             ]
                         },
                         "production": {
-              "optimization": true,
-              "sourceMap": false,
-              "namedChunks": false,
-              "extractLicenses": true,
-              "vendorChunk": false,
-              "buildOptimizer": true,
-              "fileReplacements": [
-                {
-                  "replace": "projects/salesportal/src/environments/environment.ts",
-                  "with": "projects/salesportal/src/environments/environment.prod.ts"
-                }
-              ]
-            }
+                            "optimization": true,
+                            "sourceMap": false,
+                            "namedChunks": false,
+                            "extractLicenses": true,
+                            "vendorChunk": false,
+                            "buildOptimizer": true,
+                            "fileReplacements": [
+                                {
+                                "replace": "projects/salesportal/src/environments/environment.ts",
+                                "with": "projects/salesportal/src/environments/environment.prod.ts"
+                                }
+                            ]
+                        }
                     }
                 },
                 "serve": {
                     "builder": "@angular-devkit/build-angular:dev-server",
                     "options": {
-                        "baseHref": "/",
-                        "browserTarget": "salesportal:build",
+                        "browserTarget": "salesportal:build:local",
                         "port": 14766
                     },
                     "configurations": {
@@ -608,6 +644,16 @@
 						"scripts": []
 					},
                     "configurations": {
+                        "local": {
+                            "baseHref": "/",
+                            "outputHashing": "none",
+                            "fileReplacements": [
+                                {
+                                    "replace": "projects/homedesigner/src/environments/environment.ts",
+                                    "with": "projects/homedesigner/src/environments/environment.local.ts"
+                                }
+                            ]
+                        },
                         "qa": {
                             "fileReplacements": [
                                 {
@@ -625,27 +671,26 @@
                             ]
                         },
                         "production": {
-              "fileReplacements": [
-                {
-                  "replace": "projects/homedesigner/src/environments/environment.ts",
-                  "with": "projects/homedesigner/src/environments/environment.prod.ts"
-                }
-              ],
-              "optimization": true,
-              "sourceMap": false,
-              "namedChunks": false,
-              "extractLicenses": true,
-              "vendorChunk": false,
-              "buildOptimizer": true
-            }
+                            "fileReplacements": [
+                                {
+                                "replace": "projects/homedesigner/src/environments/environment.ts",
+                                "with": "projects/homedesigner/src/environments/environment.prod.ts"
+                                }
+                            ],
+                            "optimization": true,
+                            "sourceMap": false,
+                            "namedChunks": false,
+                            "extractLicenses": true,
+                            "vendorChunk": false,
+                            "buildOptimizer": true
+                        }
                     }
                 },
                 "serve": {
                     "builder": "@angular-devkit/build-angular:dev-server",
                     "options": {
-                        "baseHref": "/",
-                        "browserTarget": "homedesigner:build",
-                        "port": 14765
+                        "browserTarget": "homedesigner:build:local",
+                        "port": 14769
                     },
                     "configurations": {
                         "qa": {
