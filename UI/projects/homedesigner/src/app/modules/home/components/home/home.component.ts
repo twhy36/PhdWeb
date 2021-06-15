@@ -25,6 +25,7 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 	planImageUrl: string = '';
 	marketingPlanId$ = new BehaviorSubject<number>(0);
 	salesAgreement: SalesAgreement;
+	floorPlanLoaded: boolean;
 
 	constructor(
 		private activatedRoute: ActivatedRoute,
@@ -96,5 +97,9 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 			this.communityName = communityName;
 		});
 
+	}
+
+	loadFloorplanImage(loaded: boolean) {
+		this.floorPlanLoaded = loaded;
 	}
 }

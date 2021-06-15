@@ -27,6 +27,7 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 	@Input() isFlipped: boolean;
 
 	@Output() onFloorPlanLoaded = new EventEmitter();
+	@Output() ifpLoaded = new EventEmitter();
 
 	fp: any;
 	private readonly avAPISrc = "//vpsstorage.blob.core.windows.net/api/floorplanAPIv2.3.js";
@@ -51,6 +52,7 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 		).subscribe(planId => {
 			if (planId > 0 && this.planId !== planId) {
 				this.planId = planId;
+				this.ifpLoaded.emit(true);
 				try {
 					this.fp = wd.fp = new AVFloorplan(environment.alphavision.builderId, "" + planId, document.querySelector("#av-floor-plan"), [], this.fpInitialized.bind(this));
 				}
