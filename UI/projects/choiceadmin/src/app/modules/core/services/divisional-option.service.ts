@@ -342,7 +342,7 @@ export class DivisionalOptionService
 		const filter = `option/financialOptionIntegrationKey eq '${optionMarket.option.financialOptionIntegrationKey}' and financialCommunity/marketId eq ${optionMarket.marketId} and (financialCommunity/salesStatusDescription eq 'New' or financialCommunity/salesStatusDescription eq 'Active')`;
 		const select = `id,optionId,financialCommunityId`;
 
-		const qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
+		const qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}orderby=financialCommunity/name`;
 		let url = `${settings.apiUrl}optionCommunities?${qryStr}`;
 
 		return this._http.get(url).pipe(
