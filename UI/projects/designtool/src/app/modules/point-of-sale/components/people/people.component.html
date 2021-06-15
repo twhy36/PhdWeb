@@ -76,7 +76,7 @@
 					 (onAddTrust)="addTrust()"></people-card>
 
 		<!-- only display Add Realtor box if realtor is null and N/A has not been selected-->
-		<add-card *ngIf="!isChangingOrder && !(realtor$ | async) && !(realtorNA$ | async) && canEditAgreement && canSell"
+		<add-card *ngIf="!(realtor$ | async) && !(realtorNA$ | async) && canEditAgreement && canSell"
 				  [hasNA]="!(realtor$ | async)"
 				  [isNA]="realtorNA$ | async"
 				  [label]="'Real Estate Agent'"
@@ -85,7 +85,7 @@
 				  (onAdd)="addRealtor()"
 				  (onNA)="setRealtorNA($event)"></add-card>
 
-		<ng-container *ngIf="!isChangingOrder">
+		<ng-container>
 			<!-- show realtor if it is not null and N/A has been selected -->
 			<people-card *ngIf="(realtor$ | async) || (realtorNA$ | async)"
 						 [salesAgreementStatus]="salesAgreement ? salesAgreement.status : null"
