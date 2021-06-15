@@ -90,7 +90,7 @@ export class JobEffects
 				return forkJoin(of(data.changeOrder), this.changeOrderService.createESignEnvelope(eSignEnvelope));
 			}),
 			switchMap(([changeOrder, eSignEnvelope]) => of(new ChangeOrderEnvelopeCreated(changeOrder, eSignEnvelope)))
-		), EnvelopeError, "Error creating envelope!")
+		), EnvelopeError, this.getErrorMessage)
 	);
 
 	@Effect()
@@ -144,6 +144,19 @@ export class JobEffects
 			})
 		), LoadError, 'Unable to save Spec Info')
 	);
+
+
+	private getErrorMessage(error: any): string
+	{
+		if (error.status === 400 && error.error?.templateName)
+		{
+			return 'Following templates have not been uploaded : ' + error.error.templateName.join(', ');
+		}
+		else
+		{
+			return 'Error creating envelope!';
+		}
+	}
 
 	private showOnQuickMovin = (job: Job) =>
 	{
