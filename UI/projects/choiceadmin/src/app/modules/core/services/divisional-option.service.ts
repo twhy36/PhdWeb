@@ -339,7 +339,7 @@ export class DivisionalOptionService
 		let expand = `option($select=id,financialOptionIntegrationKey),financialCommunity($select=id,number,name,marketId),`;
 		expand += `attributeGroupOptionCommunityAssocs($select=attributeGroupCommunityId;$expand=attributeGroupCommunity($select=id,attributeGroupMarketId)),`;
 		expand += `locationGroupOptionCommunityAssocs($select=locationGroupCommunityId;$expand=locationGroupCommunity($select=id,locationGroupMarketId,locationGroupName))`;
-		const filter = `option/financialOptionIntegrationKey eq '${optionMarket.option.financialOptionIntegrationKey}' and financialCommunity/marketId eq ${optionMarket.marketId}`;
+		const filter = `option/financialOptionIntegrationKey eq '${optionMarket.option.financialOptionIntegrationKey}' and financialCommunity/marketId eq ${optionMarket.marketId} and (financialCommunity/salesStatusDescription eq 'New' or financialCommunity/salesStatusDescription eq 'Active')`;
 		const select = `id,optionId,financialCommunityId`;
 
 		const qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
