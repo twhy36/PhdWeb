@@ -8,7 +8,11 @@ import { of } from 'rxjs/observable/of';
 import { from } from 'rxjs/observable/from';
 import { forkJoin } from 'rxjs/observable/forkJoin';
 
-import { ESignEnvelope, ESignStatusEnum, ESignTypeEnum, ChangeInput, ChangeTypeEnum, ChangeOrderGroup, ChangeOrderHanding } from 'phd-common';
+import 
+{ 
+	ESignEnvelope, ESignStatusEnum, ESignTypeEnum, ChangeInput, ChangeTypeEnum, ChangeOrderGroup, ChangeOrderHanding, 
+	Job, SalesStatusEnum
+} from 'phd-common';
 
 import { ModalService } from '../../core/services/modal.service';
 import { ChangeOrderService } from '../../core/services/change-order.service';
@@ -17,14 +21,17 @@ import
 	ChangeOrderActionTypes, LoadError, CurrentChangeOrderLoaded, SetChangingOrder, ChangeInputInitialized,
 	CreateJobChangeOrders, ChangeOrdersCreated, SaveError, CancelJobChangeOrder, CreateSalesChangeOrder, CreateNonStandardChangeOrder, CreatePlanChangeOrder, CancelPlanChangeOrder,
 	CancelLotTransferChangeOrder, CancelSalesChangeOrder, SetCurrentChangeOrder, CancelNonStandardChangeOrder, SavePendingJio, CreateCancellationChangeOrder, CreateLotTransferChangeOrder,
-	ResubmitChangeOrder, ChangeOrderOutForSignature, SetSalesChangeOrderTermsAndConditions
+	ResubmitChangeOrder, ChangeOrderOutForSignature, SetSalesChangeOrderTermsAndConditions, CurrentChangeOrderPending
 } from './actions';
 import { TreeLoadedFromJob, SelectChoices, SetLockedInChoices } from '../scenario/actions';
-import { ChangeOrdersCreatedForJob } from '../job/actions';
+import { ChangeOrdersCreatedForJob, JobUpdated } from '../job/actions';
 import { SelectLot } from '../lot/actions';
 import { OpportunityLoaded } from '../opportunity/actions';
 import { SetChangeOrderTemplates } from '../contract/actions';
-import { CommonActionTypes, SalesAgreementLoaded, JobLoaded } from '../actions';
+import { SelectPlan } from '../plan/actions';
+import { SalesAgreementSaved } from '../sales-agreement/actions';
+
+import { CommonActionTypes, SalesAgreementLoaded, JobLoaded, ESignEnvelopesLoaded } from '../actions';
 
 import * as CommonActions from '../actions';
 import * as ChangeOrderActions from '../change-order/actions';
@@ -38,7 +45,6 @@ import { PlanService } from '../../core/services/plan.service';
 import { ContractService } from '../../core/services/contract.service';
 
 import { mergeIntoTree, setTreePointsPastCutOff } from '../../shared/classes/tree.utils';
-import { SelectPlan } from '../plan/actions';
 import { tryCatch } from '../error.action';
 import { priceBreakdown } from '../reducers';
 
@@ -752,7 +758,7 @@ export class ChangeOrderEffects
 
 				actions.push(new CommonActions.ChangeOrdersUpdated(changeOrders));
 
-				if (action.isWetSign && action.setChangeOrder)
+				if (action.setChangeOrder)
 				{
 					actions.push(new ChangeOrderActions.SetChangingOrder(false, null, false));
 				}
@@ -781,6 +787,113 @@ export class ChangeOrderEffects
 				return from(actions)
 			})
 		), SaveError, "Error saving Terms and Conditions!!")
+	);
+
+	@Effect()
+	eSignEnvelopesLoaded$: Observable<Action> = this.actions$.pipe(
+		ofType<ESignEnvelopesLoaded>(CommonActionTypes.ESignEnvelopesLoaded),
+		withLatestFrom(this.store),
+		tryCatch(source => source.pipe(
+			switchMap(([action, store]) => {
+				if (action.checkExpiredEnvelopes)
+				{
+					const salesAgreementStatus = store.salesAgreement.status;
+					const changeOrderStatus = store.changeOrder.currentChangeOrder?.salesStatusDescription;
+					const draftESignEnvelope = store.changeOrder.currentChangeOrder?.eSignEnvelopes?.find(x => x.eSignStatusId === 1);
+					if (draftESignEnvelope && 
+						(salesAgreementStatus === 'OutforSignature' || salesAgreementStatus === 'Pending' ||
+						salesAgreementStatus === 'Approved' && changeOrderStatus === 'OutforSignature'))
+					{
+						let expiredDate = new Date(draftESignEnvelope.createdUtcDate);
+						expiredDate.setDate(expiredDate.getDate() + 3);
+						const today = new Date();
+
+						if (today > expiredDate || salesAgreementStatus === 'Pending')			
+						{
+							let envelopeDto = { ...draftESignEnvelope, eSignStatusId: 4 };
+
+							const updateSag = salesAgreementStatus === 'OutforSignature'
+								? this.salesAgreementService.setSalesAgreementStatus(store.salesAgreement.id, 'Pending')
+								: of(store.salesAgreement);
+
+							const updateCog = salesAgreementStatus === 'Approved' && changeOrderStatus === 'OutforSignature'
+								? this.changeOrderService.updateJobChangeOrder([store.changeOrder.currentChangeOrder])
+								: of([store.changeOrder.currentChangeOrder]);
+
+							return this.changeOrderService.updateESignEnvelope(envelopeDto).pipe(
+								combineLatest(
+									updateSag,
+									updateCog,
+									this.contractService.deleteEnvelope(draftESignEnvelope.envelopeGuid),
+									this.contractService.deleteSnapshot(store.changeOrder.currentChangeOrder.jobId, store.changeOrder.currentChangeOrder.id)
+								), 
+								map(([eSignEnvelope, salesAgreement, changeOrders]) =>
+								{
+									return { 
+										eSignEnvelope,
+										salesAgreement, 
+										changeOrders, 
+										job: store.job, 
+										salesAgreementStatus: salesAgreementStatus
+									};
+								}));
+						}		
+					}
+				}
+				return of(null);
+			}),
+			switchMap(data => {
+				let actions = [];
+				
+				if (data)
+				{
+					const job: Job = _.cloneDeep(data.job);
+					const statusUtcDate = data.salesAgreement.lastModifiedUtcDate;
+
+					job.changeOrderGroups.map(co =>
+					{
+						if (co.salesStatusDescription === "OutforSignature")
+						{
+							co.salesStatusDescription = "Pending";
+							co.salesStatusUTCDate = statusUtcDate;
+							co.jobChangeOrderGroupSalesStatusHistories.push({
+								jobChangeOrderGroupId: co.id,
+								salesStatusId: SalesStatusEnum.Pending,
+								createdUtcDate: statusUtcDate,
+								salesStatusUtcDate: statusUtcDate
+							});
+						}
+
+						if (co.salesStatusDescription === "OutforSignature" || co.salesStatusDescription === "Pending")
+						{
+							const envelopeIndex = co.eSignEnvelopes?.findIndex(x => x.eSignEnvelopeId === data.eSignEnvelope?.eSignEnvelopeId);
+							if (envelopeIndex > -1)
+							{
+								co.eSignEnvelopes.splice(envelopeIndex, 1);
+								if (co.envelopeId === data.eSignEnvelope?.envelopeGuid)
+								{
+									co.envelopeId = null;
+								}
+							}
+						}
+					});
+
+					actions.push(new CurrentChangeOrderPending(statusUtcDate, data.eSignEnvelope?.eSignEnvelopeId));
+					actions.push(new JobUpdated(job));
+					
+					if (data.salesAgreementStatus === 'OutforSignature')
+					{
+						actions.push(new SalesAgreementSaved(data.salesAgreement));
+					}
+					else if (data.salesAgreementStatus === 'Approved')
+					{
+						actions.push(new ChangeOrderActions.SetChangingOrder(true, null, false));
+					}
+				}
+
+				return from(actions);
+			})
+		), SaveError, "Error deleting expired envelope!!")
 	);
 
 	constructor(

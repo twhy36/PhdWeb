@@ -125,7 +125,7 @@ export class ESignEnvelopesLoaded implements Action
 {
 	readonly type = CommonActionTypes.ESignEnvelopesLoaded;
 
-	constructor(public jobChangeOrderEnvelopes: ESignEnvelope[]) { }
+	constructor(public jobChangeOrderEnvelopes: ESignEnvelope[], public checkExpiredEnvelopes: boolean = false) { }
 }
 
 export class ChangeOrderEnvelopeCreated implements Action {
