@@ -25,7 +25,8 @@ import {
 	JobChoice,
 	getDependentChoices,
 	DecisionPoint,
-	ChoiceImageAssoc
+	ChoiceImageAssoc,
+	SelectChoices
 } from 'phd-common';
 
 import { GroupBarComponent } from '../../../shared/components/group-bar/group-bar.component';
@@ -294,7 +295,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		if (choice.quantity === 0) {
 			this.deselectDeclinedPoints(choice);
 		}
-		this.store.dispatch(new ScenarioActions.SelectChoices(...selectedChoices));
+		this.store.dispatch(new SelectChoices(...selectedChoices));
 		this.store.dispatch(new FavoriteActions.SaveMyFavoritesChoices());
 
 	}
@@ -326,7 +327,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			});
 		});
 
-		this.store.dispatch(new ScenarioActions.SelectChoices(...deselectedChoices));
+		this.store.dispatch(new SelectChoices(...deselectedChoices));
 		this.store.dispatch(new FavoriteActions.SaveMyFavoritesChoices());
 	}
 

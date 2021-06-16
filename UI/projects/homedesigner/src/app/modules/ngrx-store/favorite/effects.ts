@@ -8,7 +8,7 @@ import { from } from 'rxjs/observable/from';
 
 import * as _ from 'lodash';
 
-import { DesignToolAttribute } from 'phd-common';
+import { DesignToolAttribute, SelectChoices } from 'phd-common';
 
 import 
 { 	FavoriteActionTypes, SetCurrentFavorites, MyFavoriteCreated, SaveMyFavoritesChoices, 
@@ -17,7 +17,7 @@ import
 } from './actions';
 
 import { CommonActionTypes, ResetFavorites } from '../actions';
-import { SelectChoices, SetStatusForPointsDeclined } from '../scenario/actions';
+import { SetStatusForPointsDeclined } from '../scenario/actions';
 import { tryCatch } from '../error.action';
 
 import { FavoriteService } from '../../core/services/favorite.service';

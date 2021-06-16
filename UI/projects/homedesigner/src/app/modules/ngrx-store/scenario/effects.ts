@@ -6,7 +6,9 @@ import { Observable } from 'rxjs/Observable';
 import { switchMap, withLatestFrom } from 'rxjs/operators';
 import { of } from 'rxjs/observable/of';
 
-import { ScenarioActionTypes, SelectChoices, SetStatusForPointsDeclined } from './actions';
+import { SelectChoices, CommonScenarioActionTypes } from 'phd-common';
+
+import { SetStatusForPointsDeclined } from './actions';
 import * as fromRoot from '../reducers';
 import * as fromFavorite from '../favorite/reducer';
 
@@ -15,7 +17,7 @@ export class ScenarioEffects
 {
 	selectChoices$: Observable<Action> = createEffect(() => {
 		return this.actions$.pipe(
-			ofType<SelectChoices>(ScenarioActionTypes.SelectChoices),
+			ofType<SelectChoices>(CommonScenarioActionTypes.SelectChoices),
 			withLatestFrom(this.store.pipe(select(fromFavorite.currentMyFavorite))),
 			switchMap(([action, fav]) => {
 				if (fav?.myFavoritesPointDeclined?.length) {

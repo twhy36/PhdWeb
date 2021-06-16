@@ -5,14 +5,13 @@ import { Location } from '@angular/common';
 import { take } from 'rxjs/operators';
 import * as _ from 'lodash';
 
-import { UnsubscribeOnDestroy, PriceBreakdown, Group, SDGroup, DecisionPoint, JobChoice, Tree, TreeVersionRules, getDependentChoices } from 'phd-common';
+import { SelectChoices, UnsubscribeOnDestroy, PriceBreakdown, Group, SDGroup, DecisionPoint, JobChoice, Tree, TreeVersionRules, getDependentChoices } from 'phd-common';
 
 import { Store, select } from '@ngrx/store';
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromPlan from '../../../ngrx-store/plan/reducer';
 import * as fromFavorite from '../../../ngrx-store/favorite/reducer';
 import * as NavActions from '../../../ngrx-store/nav/actions';
-import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 import * as FavoriteActions from '../../../ngrx-store/favorite/actions';
 import { selectSelectedLot } from '../../../ngrx-store/lot/reducer';
 
@@ -206,7 +205,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 			});
 		}
 
-		this.store.dispatch(new ScenarioActions.SelectChoices(...removedChoices));
+		this.store.dispatch(new SelectChoices(...removedChoices));
 		this.store.dispatch(new FavoriteActions.SaveMyFavoritesChoices());
 	}
 }

@@ -7,13 +7,12 @@ import { Store, select } from '@ngrx/store';
 
 import * as _ from 'lodash';
 
-import { UnsubscribeOnDestroy, OptionImage, AttributeGroup, Attribute, LocationGroup, Location, DesignToolAttribute, DecisionPoint, Group } from 'phd-common';
+import { SelectChoices, UnsubscribeOnDestroy, OptionImage, AttributeGroup, Attribute, LocationGroup, Location, DesignToolAttribute, DecisionPoint, Group } from 'phd-common';
 import { mergeAttributes, mergeLocations, mergeAttributeImages } from '../../../shared/classes/tree.utils';
 import { AttributeService } from '../../../core/services/attribute.service';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromFavorite from '../../../ngrx-store/favorite/reducer';
-import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 import * as FavoriteActions from '../../../ngrx-store/favorite/actions';
 
 import { ChoiceExt } from '../../models/choice-ext.model';
@@ -309,7 +308,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		{
 			this.choice.quantity = 1;
 		}
-		this.store.dispatch(new ScenarioActions.SelectChoices({ choiceId: this.choice.id, quantity: this.choice.quantity, attributes: this.choice.selectedAttributes }));
+		this.store.dispatch(new SelectChoices({ choiceId: this.choice.id, quantity: this.choice.quantity, attributes: this.choice.selectedAttributes }));
 		this.store.dispatch(new FavoriteActions.SaveMyFavoritesChoices());
 	}
 
@@ -525,7 +524,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 
 		const totalQuantity = this.getTotalQuantiy();
 		this.choice.quantity = this.choice.quantity > 0 && totalQuantity === 0 ? 1 : totalQuantity;
-		this.store.dispatch(new ScenarioActions.SelectChoices({ choiceId: this.choice.id, quantity: this.choice.quantity, attributes: this.choice.selectedAttributes }));
+		this.store.dispatch(new SelectChoices({ choiceId: this.choice.id, quantity: this.choice.quantity, attributes: this.choice.selectedAttributes }));
 		this.store.dispatch(new FavoriteActions.SaveMyFavoritesChoices());
 	}
 

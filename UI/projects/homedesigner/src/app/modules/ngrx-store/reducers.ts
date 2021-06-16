@@ -264,7 +264,7 @@ export const financialCommunityName = createSelector(
 )
 
 export const elevationImageUrl = createSelector(
-	fromScenario.selectScenario,
+	fromScenario.selectCommonScenario,
 	fromScenario.elevationDP,
 	fromPlan.selectedPlanData,
 	(scenario, dp, plan) => {

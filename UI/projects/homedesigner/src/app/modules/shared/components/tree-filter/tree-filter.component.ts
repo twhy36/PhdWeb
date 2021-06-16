@@ -1,11 +1,10 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { Store, select } from '@ngrx/store';
 
-import { UnsubscribeOnDestroy, TreeFilter } from 'phd-common';
+import { UnsubscribeOnDestroy, TreeFilter, SetTreeFilter } from 'phd-common';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
-import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 
 @Component({
 	selector: 'tree-filter',
@@ -42,7 +41,7 @@ export class TreeFilterComponent extends UnsubscribeOnDestroy implements OnInit
 		if (this.canSearch && (!this.treeFilter || this.treeFilter.keyword !== this.keyword))
 		{
 			const search = { filterType: this.filterType, keyword: this.keyword };
-			this.store.dispatch(new ScenarioActions.SetTreeFilter(search));
+			this.store.dispatch(new SetTreeFilter(search));
 			this.onSetTreeFilter.emit();
 		}
 	}
@@ -54,7 +53,7 @@ export class TreeFilterComponent extends UnsubscribeOnDestroy implements OnInit
 
 		if (!this.treeFilter || this.treeFilter.keyword !== this.keyword) {
 			const clearFilter = { filterType: this.filterType, keyword: this.keyword };
-			this.store.dispatch(new ScenarioActions.SetTreeFilter(clearFilter));
+			this.store.dispatch(new SetTreeFilter(clearFilter));
 			this.onSetTreeFilter.emit();
 		}
 	}

@@ -11,7 +11,8 @@ import
 	{
 		withSpinner, newGuid, createBatchGet, createBatchHeaders, createBatchBody,
 		IdentityService, JobChoice, ChangeOrderChoice, TreeVersionRules, OptionRule, Tree, OptionImage,
-		JobPlanOption, ChangeOrderPlanOption, PlanOptionCommunityImageAssoc, ChoiceImageAssoc
+		JobPlanOption, ChangeOrderPlanOption, PlanOptionCommunityImageAssoc, ChoiceImageAssoc,
+		ITreeService
 	} from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
@@ -21,7 +22,7 @@ import * as _ from 'lodash';
 import { MyFavoritesChoice, MyFavoritesPointDeclined } from '../../shared/models/my-favorite.model';
 
 @Injectable()
-export class TreeService
+export class TreeService implements ITreeService
 {
 	private _ds: string = encodeURIComponent('$');
 

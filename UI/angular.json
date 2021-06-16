@@ -690,7 +690,7 @@
                     "builder": "@angular-devkit/build-angular:dev-server",
                     "options": {
                         "browserTarget": "homedesigner:build:local",
-                        "port": 14769
+                        "port": 14765
                     },
                     "configurations": {
                         "qa": {
