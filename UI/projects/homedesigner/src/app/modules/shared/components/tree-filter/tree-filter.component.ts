@@ -1,7 +1,8 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { Store, select } from '@ngrx/store';
 
-import { UnsubscribeOnDestroy, TreeFilter, SetTreeFilter } from 'phd-common';
+import { UnsubscribeOnDestroy, TreeFilter } from 'phd-common';
+import { SetTreeFilter } from 'phd-store';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';

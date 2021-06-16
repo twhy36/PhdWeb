@@ -7,7 +7,8 @@ import { Store, select } from '@ngrx/store';
 
 import * as _ from 'lodash';
 
-import { SelectChoices, UnsubscribeOnDestroy, OptionImage, AttributeGroup, Attribute, LocationGroup, Location, DesignToolAttribute, DecisionPoint, Group } from 'phd-common';
+import { UnsubscribeOnDestroy, OptionImage, AttributeGroup, Attribute, LocationGroup, Location, DesignToolAttribute, DecisionPoint, Group } from 'phd-common';
+import { SelectChoices } from 'phd-store';
 import { mergeAttributes, mergeLocations, mergeAttributeImages } from '../../../shared/classes/tree.utils';
 import { AttributeService } from '../../../core/services/attribute.service';
 

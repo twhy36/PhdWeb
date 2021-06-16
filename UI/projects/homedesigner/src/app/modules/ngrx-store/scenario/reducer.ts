@@ -5,9 +5,9 @@ import * as _ from "lodash";
 import {
 	applyRules, getMaxSortOrderChoice, findChoice, findPoint,
 	PlanOption, TreeVersionRules,
-	Tree, Choice, Group, SubGroup, DecisionPoint, PickType, setSubgroupStatus, setGroupStatus, PointStatus, 
-	CommonActionTypes, CommonScenarioActionTypes, commonScenarioReducer, IScenarioState
+	Tree, Choice, Group, SubGroup, DecisionPoint, PickType, setSubgroupStatus, setGroupStatus, PointStatus
 } from 'phd-common';
+import { CommonActionTypes, CommonScenarioActionTypes, commonScenarioReducer, IScenarioState } from 'phd-store';
 
 import { hideChoicesByStructuralItems, hidePointsByStructuralItems } from '../../shared/classes/tree.utils';
 import { RehydrateMap } from '../sessionStorage';
@@ -85,4 +85,4 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 
 export const selectScenario = createFeatureSelector<State>("scenario");
 
-export { selectCommonScenario, elevationDP } from 'phd-common';
+export { selectCommonScenario, elevationDP } from 'phd-store';

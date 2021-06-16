@@ -25,9 +25,9 @@ import {
 	JobChoice,
 	getDependentChoices,
 	DecisionPoint,
-	ChoiceImageAssoc,
-	SelectChoices
+	ChoiceImageAssoc
 } from 'phd-common';
+import { SelectChoices } from 'phd-store';
 
 import { GroupBarComponent } from '../../../shared/components/group-bar/group-bar.component';
 import { NormalExperienceComponent } from './normal-experience/normal-experience.component';

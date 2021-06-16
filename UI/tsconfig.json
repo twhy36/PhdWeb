@@ -19,6 +19,9 @@
 		"paths": {
 			"phd-common": [
 				"./projects/phd-common/src/internal"
+			],
+			"phd-store": [
+				"./projects/store/src/internal"
 			]
 		}
 	},

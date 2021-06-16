@@ -8,7 +8,8 @@ import { from } from 'rxjs/observable/from';
 
 import * as _ from 'lodash';
 
-import { DesignToolAttribute, SelectChoices } from 'phd-common';
+import { DesignToolAttribute } from 'phd-common';
+import { SelectChoices } from 'phd-store';
 
 import 
 { 	FavoriteActionTypes, SetCurrentFavorites, MyFavoriteCreated, SaveMyFavoritesChoices, 

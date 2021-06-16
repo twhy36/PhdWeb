@@ -1,6 +1,6 @@
 import { Action } from '@ngrx/store';
 
-import { CommonScenarioActions } from 'phd-common';
+import { CommonScenarioActions } from 'phd-store';
 
 export enum ScenarioActionTypes {
 	SetStatusForPointsDeclined = 'Set Status For Points Declined'

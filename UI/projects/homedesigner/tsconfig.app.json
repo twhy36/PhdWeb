@@ -12,18 +12,22 @@
 		"strictPropertyInitialization": false,
 		"types": [],
 		"paths": {
-			"phd-common": [ "../phd-common/src/internal" ]
+			"phd-common": [ "../phd-common/src/internal" ],
+			"phd-store": [ "../store/src/internal" ]
 		}
 	},
 	"include": [
 		"../phd-common/**/*.ts",
+		"../store/**/*.ts",
 		"**/*.ts"
 	],
 	"exclude": [
 		"src/test.ts",
 		"**/*.spec.ts",
 		"../phd-common/src/test.ts",
-		"../phd-common/**/*.spec.ts"
+		"../phd-common/**/*.spec.ts",
+		"../store/src/test.ts",
+		"../store/**/*.spec.ts"
 	],
 	"angularCompilerOptions": {
 		"enableIvy": true

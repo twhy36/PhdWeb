@@ -11,9 +11,9 @@ import
 	{
 		withSpinner, newGuid, createBatchGet, createBatchHeaders, createBatchBody,
 		IdentityService, JobChoice, ChangeOrderChoice, TreeVersionRules, OptionRule, Tree, OptionImage,
-		JobPlanOption, ChangeOrderPlanOption, PlanOptionCommunityImageAssoc, ChoiceImageAssoc,
-		ITreeService
+		JobPlanOption, ChangeOrderPlanOption, PlanOptionCommunityImageAssoc, ChoiceImageAssoc
 	} from 'phd-common';
+import { ITreeService } from 'phd-store';
 
 import { environment } from '../../../../environments/environment';
 import { isChangeOrderChoice } from '../../shared/classes/tree.utils';

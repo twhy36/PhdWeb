@@ -56,8 +56,6 @@ export * from './lib/services/identity.service';
 export * from './lib/services/interceptors/spinner.interceptor';
 export * from './lib/services/spinner.service';
 
-export * from './lib/services/interfaces/tree.service';
-
 //utils
 export * from './lib/utils/animations.class';
 export * from './lib/utils/default-on-not-found';
@@ -65,7 +63,6 @@ export * from './lib/utils/guid.class';
 export * from './lib/utils/jsUtils.class';
 export * from './lib/utils/modal.class';
 export * from './lib/utils/odata-utils.class';
-export * from './lib/utils/tree.utils';
 export * from './lib/utils/unsubscribe-on-destroy';
 export * from './lib/utils/utils.class';
 
@@ -74,10 +71,5 @@ export * from './lib/rules/rulesExecutor';
 
 // pipes
 export * from './lib/pipes/ellipsis.pipe';
-
-// common store 
-export * from './lib/store/actions';
-export * from './lib/store/scenario/reducer';
-export * from './lib/store/scenario/actions';
 
 export * from './lib/phd-common.module';

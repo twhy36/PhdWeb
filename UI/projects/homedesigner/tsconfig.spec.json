@@ -10,7 +10,8 @@
       "node"
     ],
 		"paths": {
-			"phd-common": [ "../phd-common/src/internal" ]
+			"phd-common": [ "../phd-common/src/internal" ],
+      "phd-store": [ "../store/src/internal" ]
 		}
   },
   "files": [

@@ -6,7 +6,7 @@ import { Observable } from 'rxjs/Observable';
 import { switchMap, withLatestFrom } from 'rxjs/operators';
 import { of } from 'rxjs/observable/of';
 
-import { SelectChoices, CommonScenarioActionTypes } from 'phd-common';
+import { SelectChoices, CommonScenarioActionTypes } from 'phd-store';
 
 import { SetStatusForPointsDeclined } from './actions';
 import * as fromRoot from '../reducers';

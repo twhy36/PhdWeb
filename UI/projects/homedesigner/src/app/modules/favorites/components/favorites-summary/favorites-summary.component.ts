@@ -5,7 +5,8 @@ import { Location } from '@angular/common';
 import { take } from 'rxjs/operators';
 import * as _ from 'lodash';
 
-import { SelectChoices, UnsubscribeOnDestroy, PriceBreakdown, Group, SDGroup, DecisionPoint, JobChoice, Tree, TreeVersionRules, getDependentChoices } from 'phd-common';
+import { UnsubscribeOnDestroy, PriceBreakdown, Group, SDGroup, DecisionPoint, JobChoice, Tree, TreeVersionRules, getDependentChoices } from 'phd-common';
+import { SelectChoices } from 'phd-store';
 
 import { Store, select } from '@ngrx/store';
 import * as fromRoot from '../../../ngrx-store/reducers';
