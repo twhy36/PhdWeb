@@ -1,4 +1,4 @@
-import { CommonActionTypes } from '../actions';
+import { RootActionTypes } from '../actions';
 import { NavActions, NavActionTypes } from './actions';
 
 export interface State
@@ -13,7 +13,7 @@ export function reducer(state: State = initialState, action: NavActions): State
 {
 	switch (action.type)
 	{
-		case CommonActionTypes.ResetFavorites:
+		case RootActionTypes.ResetFavorites:
 			return { ...state, selectedSubGroup: null, selectedPoint: null };
 		case NavActionTypes.SetSelectedSubgroup:
 			return { ...state, selectedSubGroup: action.selectedSubGroup, selectedPoint: action.selectedPoint };

@@ -1,8 +1,8 @@
 import { createSelector, createFeatureSelector } from '@ngrx/store';
 import { Plan } from 'phd-common';
+import { CommonActionTypes } from 'phd-store';
 
 import { PlanActions, PlanActionTypes } from './actions';
-import { CommonActionTypes } from '../actions';
 
 export interface State
 {

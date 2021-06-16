@@ -1,7 +1,8 @@
 import { Action, createFeatureSelector } from '@ngrx/store';
 
 import { Job } from 'phd-common';
-import { CommonActionTypes, SalesAgreementLoaded } from '../actions';
+import { CommonActionTypes } from 'phd-store';
+import { SalesAgreementLoaded } from '../actions';
 
 export interface State extends Job
 {

@@ -2,9 +2,9 @@ import { createSelector, createFeatureSelector } from '@ngrx/store';
 import * as _ from "lodash";
 
 import { JobChoice } from 'phd-common';
+import { CommonActionTypes } from 'phd-store';
 
 import { MyFavorite, MyFavoritesChoice } from '../../shared/models/my-favorite.model';
-import { CommonActionTypes } from '../actions';
 import { FavoriteActions, FavoriteActionTypes } from './actions';
 
 

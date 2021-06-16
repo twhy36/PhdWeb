@@ -11,8 +11,8 @@ import * as _ from 'lodash';
 
 import { SpinnerService, ChangeOrderChoice, ChangeOrderGroup, SalesAgreementInfo } from 'phd-common';
 
-import { CommonActionTypes, LoadError, LoadSalesAgreement, SalesAgreementLoaded } from './actions';
-import { tryCatch } from './error.action';
+import { SalesAgreementLoaded } from './actions';
+import { CommonActionTypes, tryCatch, LoadSalesAgreement, LoadError } from 'phd-store';
 import { LoadSelectedPlan } from './plan/actions';
 import { LoadLots } from './lot/actions';
 

@@ -2,7 +2,8 @@ import { Action, createSelector, createFeatureSelector } from '@ngrx/store';
 import * as _ from "lodash";
 
 import { ChangeOrderGroup, isSalesChangeOrder } from 'phd-common';
-import { CommonActionTypes, SalesAgreementLoaded } from '../actions';
+import { CommonActionTypes } from 'phd-store';
+import { SalesAgreementLoaded } from '../actions';
 
 export interface State
 {

@@ -6,7 +6,7 @@ import { switchMap, map, combineLatest } from 'rxjs/operators';
 import { of } from 'rxjs/observable/of';
 
 import { PlanActionTypes, LoadSelectedPlan, SelectedPlanLoaded, LoadError } from './actions';
-import { tryCatch } from '../error.action';
+import { tryCatch } from 'phd-store';
 
 import { PlanService } from '../../core/services/plan.service';
 import { TreeService } from '../../core/services/tree.service';

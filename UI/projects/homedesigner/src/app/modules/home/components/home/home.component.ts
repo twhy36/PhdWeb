@@ -9,9 +9,9 @@ import * as _ from 'lodash';
 import { Store, select } from '@ngrx/store';
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromPlan from '../../../ngrx-store/plan/reducer';
-import * as CommonActions from '../../../ngrx-store/actions';
 
-import { BrowserService, UnsubscribeOnDestroy, SalesAgreement } from 'phd-common';
+import { UnsubscribeOnDestroy, SalesAgreement } from 'phd-common';
+import { LoadSalesAgreement } from 'phd-store';
 
 @Component({
 	selector: 'home',
@@ -46,7 +46,7 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 					// or the passed in sales agreement id is different than that of the id in the store...
 					const salesAgreementId = +params.get('salesAgreementId');
 					if (salesAgreementId > 0 && salesAgreementState.id !== salesAgreementId) {
-						this.store.dispatch(new CommonActions.LoadSalesAgreement(salesAgreementId));
+						this.store.dispatch(new LoadSalesAgreement(salesAgreementId));
 						return new Observable<never>();
 					}
 

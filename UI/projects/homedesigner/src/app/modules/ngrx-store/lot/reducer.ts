@@ -1,7 +1,7 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store';
 import { Lot, LotExt } from 'phd-common';
+import { CommonActionTypes } from 'phd-store';
 import { LotActions, LotActionTypes } from './actions';
-import { CommonActionTypes } from '../actions';
 
 import * as _ from 'lodash';
 

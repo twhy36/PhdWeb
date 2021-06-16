@@ -1,6 +1,6 @@
 import { ActionReducer } from '@ngrx/store';
 
-import { LoadSalesAgreement } from './actions';
+import { LoadSalesAgreement } from 'phd-store';
 
 import * as fromScenario from './scenario/reducer';
 import * as fromLot from './lot/reducer';

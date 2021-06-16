@@ -1,5 +1,5 @@
 import { Action } from '@ngrx/store';
-import { ErrorAction } from '../error.action';
+import { ErrorAction } from 'phd-store';
 import { MyFavorite, MyFavoritesChoice, MyFavoritesPointDeclined } from '../../shared/models/my-favorite.model';
 import { SalesAgreementLoaded, ResetFavorites } from '../actions';
 

@@ -1,40 +1,21 @@
 import { Action } from '@ngrx/store';
 
-import {
-	SalesCommunity, Job, JobChoice, ChangeOrderGroup, ChangeOrderHanding, LotExt, PlanOption, 
-	TreeVersionRules, SalesAgreement, Tree, OptionImage, SalesAgreementInfo
-} from 'phd-common';
+import { SalesAgreement, SalesAgreementInfo, Job, SalesCommunity, JobChoice, ChangeOrderHanding,
+	Tree, TreeVersionRules, PlanOption, OptionImage, ChangeOrderGroup, LotExt, MyFavorite } from 'phd-common';
+import { SalesAgreementLoaded as CommonSalesAgreementLoaded } from 'phd-store';
 
-import { ErrorAction } from './error.action';
-import { Stopwatch } from './stopwatch';
-import { MyFavorite } from '../shared/models/my-favorite.model';
-
-export enum CommonActionTypes {
-    LoadSalesAgreement = 'Load Sales Agreement',
-	SalesAgreementLoaded = 'Sales Agreement Loaded',
-	ResetFavorites = 'Reset Favorites',
-    LoadError = 'Load Error'
+export enum RootActionTypes {
+	ResetFavorites = 'Reset Favorites'
 };
 
-export class LoadError extends ErrorAction
+export class ResetFavorites implements Action
 {
-	readonly type = CommonActionTypes.LoadError;
+	readonly type = RootActionTypes.ResetFavorites;
 
-	constructor(public error: Error, public friendlyMessage?: string) { super(error, friendlyMessage); }
+	constructor() {	}
 }
 
-@Stopwatch([CommonActionTypes.SalesAgreementLoaded, CommonActionTypes.LoadError])
-export class LoadSalesAgreement implements Action
-{
-	readonly type = CommonActionTypes.LoadSalesAgreement;
-
-	constructor(public salesAgreementId: number, public clearState: boolean = true) { }
-}
-
-export class SalesAgreementLoaded implements Action
-{
-	readonly type = CommonActionTypes.SalesAgreementLoaded;
-
+export class SalesAgreementLoaded extends CommonSalesAgreementLoaded {
 	constructor(
 		public salesAgreement: SalesAgreement,
 		public info: SalesAgreementInfo,
@@ -50,14 +31,8 @@ export class SalesAgreementLoaded implements Action
 		public webPlanMappings: number[],
 		public changeOrder: ChangeOrderGroup,
 		public lot: LotExt,
-		public myFavorites: MyFavorite[]
-	)
-	{}
-}
-
-export class ResetFavorites implements Action
-{
-	readonly type = CommonActionTypes.ResetFavorites;
-
-	constructor() {	}
+		public myFavorites: MyFavorite[]) {
+			super(salesAgreement, info, job, salesCommunity, choices, selectedPlanId, handing,
+				tree, rules, options, optionImages, webPlanMappings, changeOrder, lot);
+		}
 }

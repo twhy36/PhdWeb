@@ -7,7 +7,7 @@ import { of } from 'rxjs/observable/of';
 
 import { LotService } from '../../core/services/lot.service';
 import { LotActionTypes, LoadLots, LotsLoaded, LoadError } from './actions';
-import { tryCatch } from '../error.action';
+import { tryCatch } from 'phd-store';
 
 import * as fromRoot from '../reducers';
 

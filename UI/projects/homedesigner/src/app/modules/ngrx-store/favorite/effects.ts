@@ -9,7 +9,7 @@ import { from } from 'rxjs/observable/from';
 import * as _ from 'lodash';
 
 import { DesignToolAttribute } from 'phd-common';
-import { SelectChoices } from 'phd-store';
+import { SelectChoices, tryCatch } from 'phd-store';
 
 import 
 { 	FavoriteActionTypes, SetCurrentFavorites, MyFavoriteCreated, SaveMyFavoritesChoices, 
@@ -17,9 +17,8 @@ import
 	AddMyFavoritesPointDeclined, DeleteMyFavoritesPointDeclined, MyFavoritesPointDeclinedUpdated
 } from './actions';
 
-import { CommonActionTypes, ResetFavorites } from '../actions';
+import { RootActionTypes, ResetFavorites } from '../actions';
 import { SetStatusForPointsDeclined } from '../scenario/actions';
-import { tryCatch } from '../error.action';
 
 import { FavoriteService } from '../../core/services/favorite.service';
 import { TreeService } from '../../core/services/tree.service';
@@ -114,7 +113,7 @@ export class FavoriteEffects
 
 	resetFavorites$: Observable<Action> = createEffect(() => {
 		return this.actions$.pipe(
-			ofType<ResetFavorites>(CommonActionTypes.ResetFavorites),
+			ofType<ResetFavorites>(RootActionTypes.ResetFavorites),
 			withLatestFrom(this.store.pipe(select(fromFavorite.currentMyFavorite))),
 			tryCatch(source => source.pipe(
 				switchMap(([action, fav]) => {

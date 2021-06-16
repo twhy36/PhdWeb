@@ -7,7 +7,7 @@ import { environment } from '../../../environments/environment';
 import { reducers } from './reducers';
 
 // meta-reducers
-import { stopwatchReducer } from './stopwatch';
+import { stopwatchReducer } from 'phd-store';
 import { sessionStateReducer } from './sessionStorage';
 import { stateReset } from './state-reset';
 import { exceptionHandler } from './exceptionHandler';

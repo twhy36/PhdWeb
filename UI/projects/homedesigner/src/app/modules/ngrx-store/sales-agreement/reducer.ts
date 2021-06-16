@@ -3,9 +3,10 @@ import { Action, createFeatureSelector } from '@ngrx/store';
 import * as _ from "lodash";
 
 import { SalesAgreement } from 'phd-common';
+import { CommonActionTypes } from 'phd-store';
 
 import { RehydrateMap } from "../sessionStorage";
-import { CommonActionTypes, SalesAgreementLoaded } from "../actions";
+import { SalesAgreementLoaded } from "../actions";
 
 export interface State extends SalesAgreement
 {

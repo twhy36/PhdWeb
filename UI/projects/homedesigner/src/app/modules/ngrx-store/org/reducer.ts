@@ -1,6 +1,7 @@
 import { Action, createFeatureSelector, createSelector } from '@ngrx/store';
 import { SalesCommunity } from 'phd-common';
-import { CommonActionTypes, SalesAgreementLoaded } from '../actions';
+import { CommonActionTypes } from 'phd-store';
+import { SalesAgreementLoaded } from '../actions';
 
 export interface State
 {

@@ -1,8 +1,8 @@
 import { Action } from '@ngrx/store';
 
 import { Plan } from 'phd-common';
+import { ErrorAction } from 'phd-store';
 
-import { ErrorAction } from '../error.action';
 import { SalesAgreementLoaded } from '../actions';
 
 export enum PlanActionTypes

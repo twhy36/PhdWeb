@@ -1,6 +1,6 @@
 import { Action } from '@ngrx/store';
 import { Lot } from 'phd-common';
-import { ErrorAction } from '../error.action';
+import { ErrorAction } from 'phd-store';
 import { SalesAgreementLoaded } from '../actions';
 
 export enum LotActionTypes

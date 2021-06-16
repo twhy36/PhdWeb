@@ -11,7 +11,6 @@ import { Stopwatch } from './stopwatch';
 export enum CommonActionTypes {
     LoadSalesAgreement = 'Load Sales Agreement',
 	SalesAgreementLoaded = 'Sales Agreement Loaded',
-	ResetFavorites = 'Reset Favorites',
     LoadError = 'Load Error'
 };
 
