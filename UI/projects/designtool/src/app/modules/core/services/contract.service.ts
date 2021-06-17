@@ -363,7 +363,7 @@ export class ContractService
 
 					let template = store.contract.templates.find(t => t.templateId === 0);
 
-					if (template)
+					if (template && !templates.includes(template))
 					{
 						templates.unshift(template);
 					}

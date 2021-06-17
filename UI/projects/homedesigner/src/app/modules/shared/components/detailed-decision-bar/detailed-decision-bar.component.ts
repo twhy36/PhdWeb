@@ -2,7 +2,7 @@ import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 
 import { UnsubscribeOnDestroy, flipOver2, slideOut, DecisionPoint, JobChoice, PickType, Choice, ChoiceImageAssoc } from 'phd-common';
 import { ChoiceExt } from '../../models/choice-ext.model';
-import { MyFavoritesChoice } from '../../models/my-favorite.model';
+import { MyFavoritesChoice, MyFavoritesPointDeclined } from '../../models/my-favorite.model';
 
 @Component({
 	selector: 'detailed-decision-bar',
@@ -20,9 +20,11 @@ export class DetailedDecisionBarComponent extends UnsubscribeOnDestroy implement
 	@Input() salesChoices: JobChoice[];
 	@Input() myFavoritesChoices: MyFavoritesChoice[];
 	@Input() choiceImages: ChoiceImageAssoc[];
+	@Input() myFavoritesPointsDeclined?: MyFavoritesPointDeclined[];
 
 	@Output() onToggleChoice = new EventEmitter<ChoiceExt>();
 	@Output() onViewChoiceDetail = new EventEmitter<ChoiceExt>();
+	@Output() onDeclineDecisionPoint = new EventEmitter<DecisionPoint>();
 
 	constructor() { super(); }
 
@@ -63,9 +65,16 @@ export class DetailedDecisionBarComponent extends UnsubscribeOnDestroy implement
 		}
 
 		const myFavoritesChoice = this.myFavoritesChoices ? this.myFavoritesChoices.find(x => x.divChoiceCatalogId === choice.divChoiceCatalogId) : null;
-		const images = this.choiceImages?.filter(x => x.dpChoiceId === choice.id);		
-		
+		const images = this.choiceImages?.filter(x => x.dpChoiceId === choice.id);
+
 		return new ChoiceExt(choice, choiceStatus, myFavoritesChoice, point.isStructuralItem, images);
+	}
+
+	showDeclineChoice(point: DecisionPoint): boolean {
+		return (point.pointPickTypeId === 2 || point.pointPickTypeId === 4)
+			&& !point.isStructuralItem
+			&& !point.isPastCutOff
+			&& point.choices.filter(c => this.salesChoices.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1)?.length > 0;
 	}
 
 	toggleChoice (choice) {
@@ -74,5 +83,9 @@ export class DetailedDecisionBarComponent extends UnsubscribeOnDestroy implement
 
 	viewChoiceDetail (choice) {
 		this.onViewChoiceDetail.emit(choice);
+	}
+
+	declineDecisionPoint(point: DecisionPoint) {
+		this.onDeclineDecisionPoint.emit(point);
 	}
 }

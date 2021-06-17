@@ -20,7 +20,7 @@ import { tryCatch } from '../error.action';
 import * as fromRoot from '../reducers';
 import * as _ from "lodash";
 import { JobService } from '../../core/services/job.service';
-import { LoadError, LoadSpec, ChangeOrderEnvelopeCreated, SalesAgreementLoaded, ScenarioLoaded, CommonActionTypes } from '../actions';
+import { LoadError, LoadSpec, ChangeOrderEnvelopeCreated, SalesAgreementLoaded, ScenarioLoaded, CommonActionTypes, JobLoaded } from '../actions';
 import { SetPermissions, UserActionTypes } from '../user/actions';
 
 @Injectable()
@@ -90,7 +90,7 @@ export class JobEffects
 				return forkJoin(of(data.changeOrder), this.changeOrderService.createESignEnvelope(eSignEnvelope));
 			}),
 			switchMap(([changeOrder, eSignEnvelope]) => of(new ChangeOrderEnvelopeCreated(changeOrder, eSignEnvelope)))
-		), EnvelopeError, "Error creating envelope!")
+		), EnvelopeError, this.getErrorMessage)
 	);
 
 	@Effect()
@@ -145,6 +145,19 @@ export class JobEffects
 		), LoadError, 'Unable to save Spec Info')
 	);
 
+
+	private getErrorMessage(error: any): string
+	{
+		if (error.status === 400 && error.error?.templateName)
+		{
+			return 'Following templates have not been uploaded : ' + error.error.templateName.join(', ');
+		}
+		else
+		{
+			return 'Error creating envelope!';
+		}
+	}
+
 	private showOnQuickMovin = (job: Job) =>
 	{
 		// assumes there will always be a JIO
@@ -159,12 +172,12 @@ export class JobEffects
 
 	@Effect()
 	updateSpecJobPricing$: Observable<Action> = this.actions$.pipe(
-		ofType<SalesAgreementLoaded | ScenarioLoaded | SetPermissions>(CommonActionTypes.SalesAgreementLoaded, CommonActionTypes.ScenarioLoaded, UserActionTypes.SetPermissions),
+		ofType<SalesAgreementLoaded | ScenarioLoaded | JobLoaded | SetPermissions>(CommonActionTypes.SalesAgreementLoaded, CommonActionTypes.ScenarioLoaded, CommonActionTypes.JobLoaded, UserActionTypes.SetPermissions),
 		scan((prev, action) => (
 			{
-				sagScenarioLoaded: prev.sagScenarioLoaded || action instanceof SalesAgreementLoaded || action instanceof ScenarioLoaded, 
+				sagScenarioLoaded: prev.sagScenarioLoaded || action instanceof SalesAgreementLoaded || action instanceof ScenarioLoaded || action instanceof JobLoaded, 
 				userPermissions: prev.userPermissions || action instanceof SetPermissions, 
-				action: action instanceof SalesAgreementLoaded || action instanceof ScenarioLoaded ? action : prev.action
+				action: action instanceof SalesAgreementLoaded || action instanceof ScenarioLoaded || action instanceof JobLoaded ? action : prev.action
 			}), {sagScenarioLoaded: false, userPermissions: false, action: <SalesAgreementLoaded | ScenarioLoaded>null}),
 		skipWhile(result => !result.sagScenarioLoaded || !result.userPermissions),
 		map(result => result.action),
