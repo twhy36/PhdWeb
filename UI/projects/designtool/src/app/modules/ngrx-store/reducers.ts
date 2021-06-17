@@ -321,7 +321,13 @@ export const canEditAgreementOrSpec = createSelector(
 		}
 		else
 		{
-			return isPreview || ((salesAgreement.id === 0 && !scenarioHasSalesAgreement) || salesAgreement.status === 'Pending') || (currentChangeOrder ? currentChangeOrder.salesStatusDescription === 'Pending' : false);
+			return isPreview 
+				|| (salesAgreement.id === 0 && !scenarioHasSalesAgreement) 
+				|| salesAgreement.status === 'Pending'
+				|| (currentChangeOrder 
+						? currentChangeOrder.salesStatusDescription === 'Pending' 
+						: false
+					);
 		}
 	}
 )
@@ -854,16 +860,18 @@ export const changeOrderChoicesPastCutoff = createSelector(
 
 export const canCancelSpec = createSelector(
 	fromJob.jobState,
-	(job) =>
+	fromScenario.buildMode,
+	(job, buildMode) =>
 	{
-		return job.constructionStageName === 'Configured' && job.jobTypeName === 'Spec' && !(job.jobSalesAgreementAssocs && job.jobSalesAgreementAssocs.length > 0);
+		return buildMode === 'spec' && job.constructionStageName === 'Configured' && job.jobTypeName === 'Spec' && !(job.jobSalesAgreementAssocs && job.jobSalesAgreementAssocs.length > 0);
 	});
 
 export const canCancelModel = createSelector(
 	fromJob.jobState,
-	(job) =>
+	fromScenario.buildMode,
+	(job, buildMode) =>
 	{
-		return job.constructionStageName === 'Configured' && job.jobTypeName === 'Model' && !(job.jobSalesAgreementAssocs && job.jobSalesAgreementAssocs.length > 0);
+		return buildMode === 'model' && job.constructionStageName === 'Configured' && job.jobTypeName === 'Model' && !(job.jobSalesAgreementAssocs && job.jobSalesAgreementAssocs.length > 0);
 	});
 
 export const showSpinner = createSelector(

@@ -2,7 +2,7 @@ import { Component, OnInit, Input, OnChanges, SimpleChanges, Output, EventEmitte
 
 import * as _ from 'lodash';
 
-import { UnsubscribeOnDestroy, flipOver, DecisionPoint, PickType, SubGroup, Choice, JobChoice, DesignToolAttribute, Group } from 'phd-common';
+import { UnsubscribeOnDestroy, flipOver, DecisionPoint, PickType, SubGroup, Choice, JobChoice, Group, ChoiceImageAssoc } from 'phd-common';
 
 import { MyFavoritesChoice, MyFavoritesPointDeclined } from '../../../../shared/models/my-favorite.model';
 import { ChoiceExt } from '../../../../shared/models/choice-ext.model';
@@ -24,6 +24,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	@Input() includeContractedOptions: boolean = true;
 	@Input() salesChoices: JobChoice[];
 	@Input() groups: Group[];
+	@Input() choiceImages: ChoiceImageAssoc[];
 
 	@Output() onToggleChoice = new EventEmitter<ChoiceExt>();
 	@Output() onToggleContractedOptions = new EventEmitter();
@@ -158,7 +159,16 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 		}
 
 		const myFavoritesChoice = this.myFavoritesChoices ? this.myFavoritesChoices.find(x => x.divChoiceCatalogId === choice.divChoiceCatalogId) : null;
-		return new ChoiceExt(choice, choiceStatus, myFavoritesChoice, point.isStructuralItem);
+		const images = this.choiceImages?.filter(x => x.dpChoiceId === choice.id);
+
+		return new ChoiceExt(choice, choiceStatus, myFavoritesChoice, point.isStructuralItem, images);
+	}
+
+	showDeclineCard(point: DecisionPoint): boolean {
+		return (point.pointPickTypeId === 2 || point.pointPickTypeId === 4)
+			&& !point.isStructuralItem
+			&& !point.isPastCutOff
+			&& point.choices.filter(c => this.salesChoices.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1)?.length > 0;
 	}
 
 	scrollPointIntoView(pointId: number, isFirstPoint: boolean)

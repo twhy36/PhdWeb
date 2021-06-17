@@ -14,4 +14,14 @@
 
 .phd-hpa-footer-info {
 	width: 100%;
+
+	button {
+		margin-left: 10px;
+	}
+}
+
+::ng-deep .phd-button-tooltip {
+	.tooltip-inner {
+		min-width: 300px;
+	}
 }

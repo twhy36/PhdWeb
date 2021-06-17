@@ -1,1 +1,6 @@
-<input [min]="min" [ngModel]="currentQty" (focus)="$event.target.select()" (ngModelChange)="enforceMinMax($event)" type="number" class="form-control" #quantity [disabled]="!canEdit">
+<div *ngIf="!isBlocked">
+    <input [min]="min" [ngModel]="currentQty" (focus)="$event.target.select()" (ngModelChange)="enforceMinMax($event)" type="number" class="form-control" #quantity [disabled]="!canEdit">
+</div>
+<div *ngIf="isBlocked">
+    <input [min]="min" [ngModel]="currentQty" (focus)="$event.target.select()" type="number" class="form-control" #quantity [disabled]="true" style="cursor: not-allowed">
+</div>

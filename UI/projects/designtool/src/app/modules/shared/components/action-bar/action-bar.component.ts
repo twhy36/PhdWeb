@@ -14,7 +14,7 @@ import * as fromRoot from '../../../ngrx-store/reducers';
 import * as _ from 'lodash';
 
 import {
-	UnsubscribeOnDestroy, ModalRef, ESignTypeEnum, ChangeTypeEnum, ChangeOrderGroup, Job,
+	UnsubscribeOnDestroy, ModalRef, ESignTypeEnum, ESignStatusEnum, ChangeTypeEnum, ChangeOrderGroup, Job,
 	SalesAgreement, DecisionPoint, Permission
 } from 'phd-common';
 
@@ -89,6 +89,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 	hasOpenChangeOrder: boolean = false;
 	canCancelModel$: Observable<boolean>;
 	lotStatus: string;
+	isEditingEnvelopeDraft: boolean;
 
 	setSummaryText()
 	{
@@ -185,6 +186,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 			if (cog)
 			{
 				this.salesStatusDescription = cog.salesStatusDescription;
+				this.isEditingEnvelopeDraft = cog.eSignEnvelopes?.some(x => x.eSignStatusId === ESignStatusEnum.Created);
 			}
 		});
 
@@ -237,7 +239,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 	get canSignAgreement(): boolean
 	{
-		return this.inPointOfSale && this.agreement.status === "OutforSignature" && !this.inChangeOrder;
+		return this.inPointOfSale && this.agreement.status === "OutforSignature" && !this.inChangeOrder && !this.isEditingEnvelopeDraft;
 	}
 
 	get canApproveAgreement(): boolean

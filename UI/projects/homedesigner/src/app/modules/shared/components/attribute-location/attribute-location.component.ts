@@ -20,6 +20,7 @@ export class AttributeLocationComponent implements OnInit, OnChanges
 	@Input() attributeLocationGroup: LocationGroup;	
 	@Input() currentAttributeGroups: AttributeGroupExt[];
 	@Input() maxQuantity: number;
+	@Input() isBlocked: boolean;
 	@Input() highlightedAttribute: {attributeId: number, attributeGroupId: number};
 	
 	@Output() onLocationAttributeClick = new EventEmitter<{attribute: Attribute, attributeGroupId: number, locationId: number, locationGroupId: number}>();

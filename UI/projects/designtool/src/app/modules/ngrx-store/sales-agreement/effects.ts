@@ -17,7 +17,7 @@ import * as CommonActions from '../actions';
 
 import
 {
-	SalesAgreementOutForSignature, SalesAgreementActionTypes, UpdateSalesAgreement, SalesAgreementSaved, SaveError,
+	SalesAgreementOutForSignature, SalesAgreementPending, SalesAgreementActionTypes, UpdateSalesAgreement, SalesAgreementSaved, SaveError,
 	CreateSalesAgreementForScenario, SalesAgreementCreated, LoadBuyers, BuyersLoaded, SetTrustName, SwapPrimaryBuyer, AddCoBuyer, CoBuyerAdded,
 	BuyersSwapped, DeleteCoBuyer, CoBuyerDeleted, UpdatePrimaryBuyer, UpdateCoBuyer, AddUpdateRealtor, RealtorSaved, ReSortCoBuyers, BuyerSaved, SalesAgreementLoadError,
 	CoBuyersReSorted, TrustNameSaved, LoadRealtor, RealtorLoaded, DeleteProgram, ProgramSaved, SaveProgram, ProgramDeleted, SaveDeposit, DeleteDeposit, DepositSaved,
@@ -632,18 +632,19 @@ export class SalesAgreementEffects
 					const co = (store.job as Job).changeOrderGroups.find(co => co.salesStatusDescription === "Pending");
 
 					let draftESignEnvelope = co.eSignEnvelopes && co.eSignEnvelopes.find(e => e.eSignStatusId === ESignStatusEnum.Created);
+					const eSignStatus = action.isEdit ? ESignStatusEnum.Created : ESignStatusEnum.Sent;
 
 					if (draftESignEnvelope)
 					{
 						// if there's an existing draft esign envelope then set it to sent
-						eSignEnvelope = this.changeOrderService.updateESignEnvelope({ ...draftESignEnvelope, eSignStatusId: ESignStatusEnum.Sent });
+						eSignEnvelope = this.changeOrderService.updateESignEnvelope({ ...draftESignEnvelope, eSignStatusId: eSignStatus });
 					}
 					else
 					{
 						const newEnvelope = {
 							edhChangeOrderGroupId: co.id,
 							envelopeGuid: store.contract.envelopeId,
-							eSignStatusId: ESignStatusEnum.Sent,
+							eSignStatusId: eSignStatus,
 							eSignTypeId: ESignTypeEnum.SalesAgreement
 						};
 
@@ -667,7 +668,7 @@ export class SalesAgreementEffects
 					}
 				}
 
-				return this.salesAgreementService.setSalesAgreementOutForSignature(store.salesAgreement.id || null).pipe(
+				return this.salesAgreementService.setSalesAgreementStatus(store.salesAgreement.id || null, 'OutforSignature').pipe(
 					combineLatest(
 						!eSignEnvelope ? of<ESignEnvelope>(null) : eSignEnvelope
 					), map(([salesAgreement, eSignEnvelope]) =>
@@ -715,6 +716,65 @@ export class SalesAgreementEffects
 				]);
 			})
 		), SaveError, "Error setting sales agreement out for signature!!")
+	);
+
+	/*
+	 * Sales Agreement Pending
+	 */
+	@Effect()
+	salesAgreementPending$: Observable<Action> = this.actions$.pipe(
+		ofType<SalesAgreementPending>(SalesAgreementActionTypes.SalesAgreementPending),
+		withLatestFrom(this.store),
+		tryCatch(source => source.pipe(
+			switchMap(([action, store]) =>
+			{
+				const co = (store.job as Job).changeOrderGroups.find(co => co.salesStatusDescription === "OutforSignature");
+				const draftESignEnvelope = co.eSignEnvelopes?.find(e => e.eSignStatusId === ESignStatusEnum.Created);
+				const deleteESignEnvelope = draftESignEnvelope ? this.changeOrderService.deleteESignEnvelope(draftESignEnvelope.eSignEnvelopeId) : of([]);
+				
+				return this.salesAgreementService.setSalesAgreementStatus(store.salesAgreement.id || null, 'Pending').pipe(
+					combineLatest(
+						deleteESignEnvelope,
+						this.contractService.deleteSnapshot(co.jobId, co.id)
+					), 
+					map(([salesAgreement, eSignEnvelope, snapShot]) =>
+					{
+						return { salesAgreement, job: store.job, eSignEnvelopeId: draftESignEnvelope?.eSignEnvelopeId };
+					}));
+			}),
+			switchMap(data =>
+			{
+				const job: Job = _.cloneDeep(data.job);
+				const statusUtcDate = data.salesAgreement.lastModifiedUtcDate;
+
+				job.changeOrderGroups.map(co =>
+				{
+					if (co.salesStatusDescription === "OutforSignature")
+					{
+						co.salesStatusDescription = "Pending";
+						co.salesStatusUTCDate = statusUtcDate;
+						co.jobChangeOrderGroupSalesStatusHistories.push({
+							jobChangeOrderGroupId: co.id,
+							salesStatusId: SalesStatusEnum.Pending,
+							createdUtcDate: statusUtcDate,
+							salesStatusUtcDate: statusUtcDate
+						});
+
+						const envelopeIndex = co.eSignEnvelopes?.findIndex(x => x.eSignEnvelopeId === data.eSignEnvelopeId);
+						if (envelopeIndex > -1)
+						{
+							co.eSignEnvelopes.splice(envelopeIndex, 1);
+						}
+					}
+				});
+
+				return from([
+					new ChangeOrderActions.CurrentChangeOrderPending(statusUtcDate, data.eSignEnvelopeId),
+					new JobActions.JobUpdated(job),
+					new SalesAgreementSaved(data.salesAgreement)
+				]);
+			})
+		), SaveError, "Error setting sales agreement pending!!")
 	);
 
 	/*

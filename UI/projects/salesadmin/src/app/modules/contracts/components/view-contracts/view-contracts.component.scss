@@ -32,6 +32,11 @@ a:hover {
 	margin-left: 15px;
 }
 
+
+#contract-table{
+	margin-bottom: 15px;
+}
+
 ::ng-deep #contract-table .phd-alternate-row.drag-active.over {
 	background-color: lighten($brand-success, 20%) !important;
 }

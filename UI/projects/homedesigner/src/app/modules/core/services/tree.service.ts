@@ -11,7 +11,7 @@ import
 	{
 		withSpinner, newGuid, createBatchGet, createBatchHeaders, createBatchBody,
 		IdentityService, JobChoice, ChangeOrderChoice, TreeVersionRules, OptionRule, Tree, OptionImage,
-		JobPlanOption, ChangeOrderPlanOption, PlanOptionCommunityImageAssoc
+		JobPlanOption, ChangeOrderPlanOption, PlanOptionCommunityImageAssoc, ChoiceImageAssoc
 	} from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
@@ -416,4 +416,25 @@ export class TreeService
 			})
 		);
 	}
+
+	getChoiceImageAssoc(choices: Array<number>): Observable<Array<ChoiceImageAssoc>>
+	{
+		let url = environment.apiUrl;
+		const filter = `dpChoiceId in (${choices.join(',')})`;
+		const select = 'dpChoiceId, imageUrl, sortKey';
+
+		const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${select}`;
+
+		url += `dPChoiceImageAssocs?${qryStr}`;
+
+		return withSpinner(this.http).get(url).pipe(
+			map(response =>
+			{
+				let choiceImageAssoc = response['value'] as Array<ChoiceImageAssoc>;
+
+				return choiceImageAssoc;
+			})
+		);
+	}
+
 }

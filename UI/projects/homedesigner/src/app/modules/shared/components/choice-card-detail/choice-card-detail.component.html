@@ -51,10 +51,15 @@
 			<ng-container *ngIf="choice.choiceStatus === 'Contracted'">
 				<i class="fa fa-check phd-icon-selected phd-favorite-selector"></i>
 			</ng-container>
-			<ng-container *ngIf="choice.choiceStatus === 'Available'">
+			<ng-container *ngIf="choice.choiceStatus === 'Available' && choice.enabled">
 				<div class="phd-clickable phd-favorite-selector">
 					<span class="phd-icon-selected"><i *ngIf="choice.isFavorite" class="fa fa-heart" (click)="toggleChoice()"></i></span>
 					<i *ngIf="!choice.isFavorite" class="fa fa-heart-o" (click)="toggleChoice()"></i>
+				</div>
+			</ng-container>
+			<ng-container *ngIf="choice.choiceStatus === 'Available' && !choice.enabled">
+				<div class="phd-clickable phd-favorite-selector">
+					<i class="fa fa-ban" (click)="openBlockedChoiceModal()"></i>
 				</div>
 			</ng-container>
 
@@ -79,6 +84,7 @@
 												[attributeLocationGroup]="group"
 												[currentAttributeGroups]="attributeGroups"
 												[maxQuantity]="getLocationMaxQuantity(attributeLocation.id)"
+												[isBlocked]="choice.choiceStatus === 'Available' && !choice.enabled"
 												[highlightedAttribute]="getHighlightedLocationAttribute(attributeLocation, group)"
 												(onLocationAttributeClick)="locationAttributeClick($event)"
 												(onToggleAttribute)="toggleAttribute($event)"
@@ -92,6 +98,7 @@
 					<div *ngFor="let attributeGroup of attributeGroups" class="phd-attribute-group-container">
 						<attribute-group [attributeGroup]="attributeGroup"
 										[highlightedAttributeId]="getHighlightedAttributeId(attributeGroup)"
+										[isBlocked]="choice.choiceStatus === 'Available' && !choice.enabled"
 										(onAttributeClick)="attributeClick($event)"
 										(onToggleAttribute)="toggleAttribute($event)">
 						</attribute-group>
@@ -101,3 +108,20 @@
 		</div>
 	</div>
 </div>
+
+<ng-template #blockedChoiceModal let-c="close" let-d="dismiss">
+	<div>
+		<div class="d-flex justify-content-end">
+			<i class="fa fa-times-circle phd-close" (click)="closeClicked()"></i>
+		</div>
+		<div class="phd-blocked-title">
+			Before this can be selected:
+		</div>
+		<ul class="phd-blocked-list">
+			<li *ngFor="let disabledByItem of disabledByList">
+				<div *ngIf="!disabledByItem.choiceId">Make a <span class="phd-clickable phd-blocked-link" (click)="onBlockedItemClick(disabledByItem.pointId)">{{disabledByItem.label}}</span> selection</div>
+				<div *ngIf="disabledByItem.choiceId">Select <span class="phd-clickable phd-blocked-link" (click)="onBlockedItemClick(disabledByItem.pointId)">{{disabledByItem.label}}</span></div>
+			</li>
+		</ul>
+	</div>
+</ng-template>

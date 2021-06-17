@@ -3,6 +3,7 @@
 
 .phd-table-changeOrders {
 	background-color: white;
+	border-collapse: unset;
 }
 
 .phd-change-order-table {
@@ -35,8 +36,6 @@
 		margin-left: -30px;
 		margin-top: -5px;
 	}
-
-	display: inline-block;
 }
 
 .phd-line {

@@ -29,11 +29,16 @@
 		}
 	}
 
+	.phd-menu-options {
+		justify-content: flex-end;
+	}
+
 	a {
 		font-size: 14px;
 		color: white;
 		cursor: pointer;
 		padding-right: 5px;
+		padding-left: 10px;
 	}
 
 	.phd-active-link {

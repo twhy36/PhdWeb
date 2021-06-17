@@ -18,8 +18,11 @@
 					[currentPointId]="currentPointId"
 					[salesChoices]="salesChoices"
 					[myFavoritesChoices]="myFavoritesChoices"
+					[myFavoritesPointsDeclined]="myFavoritesPointsDeclined"
+					[choiceImages]="choiceImages"
 					(onToggleChoice)="choiceToggleHandler($event)"
-					(onViewChoiceDetail)="viewChoiceDetail($event)">
+					(onViewChoiceDetail)="viewChoiceDetail($event)"
+					(onDeclineDecisionPoint)="declineDecisionPoint($event)">
 				</detailed-decision-bar>
 			</div>
 		</div>

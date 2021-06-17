@@ -1,6 +1,6 @@
 import { Action } from '@ngrx/store';
 
-import { ChangeOrderGroup, Job, SpecInformation } from 'phd-common';
+import { ChangeOrderGroup, Job, SpecInformation, JobPlanOption } from 'phd-common';
 
 import { ErrorAction } from '../error.action';
 import { SalesAgreementLoaded, JobLoaded, SalesAgreementCancelled, ESignEnvelopesLoaded, ChangeOrdersUpdated, ChangeOrderEnvelopeCreated, ScenarioLoaded } from '../actions';
@@ -20,7 +20,8 @@ export enum JobActionTypes
 	LoadPulteInfo = 'Load Pulte Info',
 	PulteInfoLoaded = 'PulteInfoLoaded',
 	SavePulteInfo = 'Save Pulte Info',
-	PulteInfoSaved = 'Pulte Info Saved'
+	PulteInfoSaved = 'Pulte Info Saved',
+	JobPlanOptionsUpdated = 'Job Plan Options Updated'
 }
 
 export class SpecsLoaded implements Action
@@ -121,6 +122,13 @@ export class PulteInfoSaved implements Action
 	constructor() { }
 }
 
+export class JobPlanOptionsUpdated implements Action 
+{
+	readonly type = JobActionTypes.JobPlanOptionsUpdated;
+
+	constructor(public jobPlanOptions: JobPlanOption[]) { }
+}
+
 export type JobActions =
 	ChangeOrdersUpdated |
 	JobUpdated |
@@ -142,4 +150,5 @@ export type JobActions =
 	SavePulteInfo |
 	PulteInfoSaved |
 	ESignEnvelopesLoaded |
-	ScenarioLoaded;
+	ScenarioLoaded |
+	JobPlanOptionsUpdated;

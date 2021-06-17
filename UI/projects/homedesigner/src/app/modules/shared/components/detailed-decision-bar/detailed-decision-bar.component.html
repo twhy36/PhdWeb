@@ -18,6 +18,11 @@
 					(onViewChoiceDetail)="viewChoiceDetail($event)">
 				</decision-bar-choice>
 			</div>
+			<decision-bar-decline-choice *ngIf="showDeclineChoice(point)"
+						[point]="point"
+						[myFavoritesPointsDeclined]="myFavoritesPointsDeclined"
+						(onDeclineDecisionPoint)="declineDecisionPoint($event)">
+			</decision-bar-decline-choice>
 		</div>
 	</li>
 </ul>

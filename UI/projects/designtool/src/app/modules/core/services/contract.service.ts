@@ -169,6 +169,22 @@ export class ContractService
 		);
 	}
 
+	deleteEnvelope(envelopeId: string): Observable<string>
+	{
+		const action = `DeleteEnvelope`;
+		const url = `${environment.apiUrl}${action}`;
+		const data = { envelopeId: envelopeId };
+
+		return withSpinner(this._http).post<any>(url, data).pipe(
+			catchError(error =>
+			{
+				console.error(error);
+
+				return _throw(error);
+			})
+		);
+	}	
+
 	getConstructionChangeOrderPdfData(jobChangeOrderChoicesDto: Array<ChangeOrderChoice>)
 	{
 		let jobChangeOrderChoices = jobChangeOrderChoicesDto.map(t =>
@@ -347,7 +363,7 @@ export class ContractService
 
 					let template = store.contract.templates.find(t => t.templateId === 0);
 
-					if (template)
+					if (template && !templates.includes(template))
 					{
 						templates.unshift(template);
 					}

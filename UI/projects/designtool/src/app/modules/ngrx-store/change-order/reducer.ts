@@ -81,8 +81,12 @@ export function reducer(state: State = initialState, action: ChangeOrderActions)
 				{
 					if (changeOrder.id === env.edhChangeOrderGroupId)
 					{
-						changeOrder.eSignEnvelopes = [...(changeOrder.eSignEnvelopes || []), env];
-						changeOrder.envelopeId = env.envelopeGuid;
+						const existingEnvelope = changeOrder.eSignEnvelopes?.find(x => x.eSignEnvelopeId === env.eSignEnvelopeId);
+						if (!existingEnvelope)
+						{
+							changeOrder.eSignEnvelopes = [...(changeOrder.eSignEnvelopes || []), env];
+							changeOrder.envelopeId = env.envelopeGuid;							
+						}
 					}
 				});
 			}
@@ -503,6 +507,32 @@ export function reducer(state: State = initialState, action: ChangeOrderActions)
 				return { ...state, currentChangeOrder: null };
 			}
 
+		case ChangeOrderActionTypes.CurrentChangeOrderPending:
+			{
+				let changeOrder = new ChangeOrderGroup(state.currentChangeOrder);
+
+				changeOrder.salesStatusDescription = 'Pending';
+
+				// add status history
+				changeOrder.jobChangeOrderGroupSalesStatusHistories.push(new ChangeOrderGroupSalesStatusHistory({
+					jobChangeOrderGroupId: changeOrder.id,
+					salesStatusId: SalesStatusEnum.Pending,
+					createdUtcDate: action.statusUtcDate,
+					salesStatusUtcDate: action.statusUtcDate
+				}));
+
+				if (action.eSignEnvelopeId)
+				{
+					const envelopeIndex = changeOrder.eSignEnvelopes?.findIndex(x => x.eSignEnvelopeId === action.eSignEnvelopeId);
+					if (envelopeIndex > -1)
+					{
+						changeOrder.eSignEnvelopes.splice(envelopeIndex, 1);
+					}
+				}
+
+				return { ...state, currentChangeOrder: changeOrder };
+			}			
+
 		case ChangeOrderActionTypes.CreateSalesChangeOrder:
 			return { ...state, savingChangeOrder: true, saveError: false };
 
@@ -771,6 +801,7 @@ export function reducer(state: State = initialState, action: ChangeOrderActions)
 
 							break;
 						case 'OutforSignature':
+						case 'Pending':
 							if (updatedChangeOrder.eSignEnvelopes)
 							{
 								changeOrder.eSignEnvelopes = updatedChangeOrder.eSignEnvelopes;

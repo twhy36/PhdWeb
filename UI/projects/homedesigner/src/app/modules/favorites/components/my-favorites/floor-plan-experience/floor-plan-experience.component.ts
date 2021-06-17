@@ -2,9 +2,9 @@ import { Component, OnInit, Input, OnChanges, SimpleChanges, Output, EventEmitte
 
 import * as _ from 'lodash';
 
-import { UnsubscribeOnDestroy, DecisionPoint, SubGroup, JobChoice, SalesAgreement } from 'phd-common';
+import { UnsubscribeOnDestroy, DecisionPoint, SubGroup, JobChoice, ChoiceImageAssoc } from 'phd-common';
 
-import { MyFavoritesChoice } from '../../../../shared/models/my-favorite.model';
+import { MyFavoritesChoice, MyFavoritesPointDeclined } from '../../../../shared/models/my-favorite.model';
 import { ChoiceExt } from '../../../../shared/models/choice-ext.model';
 
 @Component({
@@ -23,11 +23,14 @@ export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implement
 	@Input() salesChoices: JobChoice[];
 	@Input() marketingPlanId: number;
 	@Input() isFloorplanFlipped: boolean;
+	@Input() choiceImages: ChoiceImageAssoc[];
+	@Input() myFavoritesPointsDeclined?: MyFavoritesPointDeclined[];
 
 	@Output() onToggleChoice = new EventEmitter<ChoiceExt>();
 	@Output() onToggleContractedOptions = new EventEmitter();
 	@Output() onViewChoiceDetail = new EventEmitter<ChoiceExt>();
 	@Output() onSelectDecisionPoint = new EventEmitter<number>();
+	@Output() onDeclineDecisionPoint = new EventEmitter<DecisionPoint>();
 
 	isPointPanelCollapsed: boolean = false;
 	points: DecisionPoint[];
@@ -129,6 +132,10 @@ export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implement
 
 	selectFloor(floor: any) {
 		this.selectedFloor = floor;
+	}
+
+	declineDecisionPoint(point: DecisionPoint) {
+		this.onDeclineDecisionPoint.emit(point);
 	}
 }
 

@@ -15,6 +15,7 @@ import * as fromChangeOrder from '../../../ngrx-store/change-order/reducer';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 import { MyFavoritesComponent } from './my-favorites.component';
 import { PointStatus } from 'phd-common';
+import { TreeService } from '../../../core/services/tree.service';
 
 describe('MyFavoritesComponent', () => {
   let component: MyFavoritesComponent;
@@ -33,22 +34,24 @@ describe('MyFavoritesComponent', () => {
 	const mockRouter = mock(Router);
 	when(mockActivatedRoute.paramMap).thenCall(() => new Observable());
 	const mockChangeDetectorRef = mock(ChangeDetectorRef);
+	const mockTreeService = mock(TreeService);
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       declarations: [
 				MyFavoritesComponent,
 				MockComponent({ selector: 'group-bar', inputs: ['communityName', 'planName', 'groups', 'selectedSubGroupId'], outputs: ['onSubgroupSelected', 'onSetTreeFilter'] }),
-				MockComponent({ selector: 'normal-experience', inputs: ['groupName', 'currentSubgroup', 'errorMessage', 'myFavoritesChoices', 'decisionPointId', 'includeContractedOptions', 'salesChoices', 'groups', 'myFavoritesPointsDeclined'], outputs: ['onToggleChoice', 'onToggleContractedOptions', 'onViewChoiceDetail', 'onSelectDecisionPoint', 'onDeclineDecisionPoint']}),
+				MockComponent({ selector: 'normal-experience', inputs: ['groupName', 'currentSubgroup', 'errorMessage', 'myFavoritesChoices', 'decisionPointId', 'includeContractedOptions', 'salesChoices', 'groups', 'myFavoritesPointsDeclined', 'choiceImages'], outputs: ['onToggleChoice', 'onToggleContractedOptions', 'onViewChoiceDetail', 'onSelectDecisionPoint', 'onDeclineDecisionPoint']}),
 				MockComponent({ selector: 'floor-plan-experience', inputs: ['groupName', 'currentSubgroup', 'errorMessage', 'myFavoritesChoices', 'decisionPointId', 'includeContractedOptions', 'salesChoices', 'marketingPlanId', 'isFloorplanFlipped'], outputs: ['onToggleChoice', 'onToggleContractedOptions', 'onViewChoiceDetail', 'onSelectDecisionPoint']}),
 				MockComponent({ selector: 'choice-card-detail', inputs: ['choice', 'path'], outputs: ['onBack', 'onToggleChoice']}),
-				MockComponent({ selector: 'action-bar', inputs: ['primaryAction', 'price'], outputs: ['callToAction'] })
+				MockComponent({ selector: 'action-bar', inputs: ['primaryAction', 'price', 'favoritesPrice'], outputs: ['callToAction'] })
 			],
 			providers: [
         provideMockStore({ initialState }),
 				{ provide: ActivatedRoute, useFactory: () => instance(mockActivatedRoute) },
 				{ provide: Router, useFactory: () => instance(mockRouter) },
 				{ provide: ChangeDetectorRef, useFactory: () => instance(mockChangeDetectorRef) },
+				{ provide: TreeService, useFactory: () => instance(mockTreeService) },
 			]
     })
     .compileComponents();
