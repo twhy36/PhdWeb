@@ -56,7 +56,7 @@
 	.phd-menu-bars {
 		display: inline !important;
 
-		i {
+		::ng-deep .fa-icon {
 			color: white;
 			margin-right: 30px;
 		}

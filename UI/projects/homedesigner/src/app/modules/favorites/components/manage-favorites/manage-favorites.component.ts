@@ -5,6 +5,8 @@ import { Store, select } from '@ngrx/store';
 import { ToastrService } from 'ngx-toastr';
 import { NgbModal, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 
+import { faTrashAlt } from '@fortawesome/free-regular-svg-icons';
+
 import { UnsubscribeOnDestroy, ConfirmModalComponent } from 'phd-common';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
@@ -14,6 +16,7 @@ import * as FavoriteActions from '../../../ngrx-store/favorite/actions';
 import * as CommonActions from '../../../ngrx-store/actions';
 import { FavoriteService } from '../../../core/services/favorite.service';
 import { MyFavorite } from '../../../shared/models/my-favorite.model';
+import { IconDefinition } from '@fortawesome/fontawesome-common-types';
 
 @Component({
 	selector: 'manage-favorites',
@@ -27,6 +30,8 @@ export class ManageFavoritesComponent extends UnsubscribeOnDestroy implements On
 	favoriteList: MyFavorite[];
 	isDuplicateName: boolean = false;
 	salesAgreementId: number = 0;
+
+	trash = faTrashAlt;
 
 	constructor(
 		private store: Store<fromRoot.State>,

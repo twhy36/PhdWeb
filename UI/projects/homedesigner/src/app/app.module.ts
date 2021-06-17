@@ -9,6 +9,7 @@ import { CloudinaryModule } from '@cloudinary/angular-5.x';
 import { Cloudinary } from 'cloudinary-core';
 import { ToastrModule } from 'ngx-toastr';
 import { Observable, of } from 'rxjs';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 import { PhdCommonModule, IdentityService, AUTH_CONFIG } from 'phd-common';
 
@@ -63,6 +64,7 @@ const tryInitAuth = (authService: AuthService, identityService: IdentityService)
 		FormsModule,
 		CoreModule,
         SharedModule,
+		FontAwesomeModule,
 		HomeModule,
 		FavoritesModule,
 		RouterModule.forRoot(appRoutes),

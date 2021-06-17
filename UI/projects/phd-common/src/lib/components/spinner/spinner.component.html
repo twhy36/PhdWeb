@@ -1,7 +1,7 @@
 <div class="spinner container-fluid" [class.spinner-hidden]="!showSpinner">
     <div class="row h-100 w-100 justify-content-center mx-auto">
         <div class="spinner-content col-1 p-3">
-            <i class="fa fa-spinner fa-spin fa-5x fa-fw"></i>
+            <fa-icon [icon]="faSpinner" size="5x" [fixedWidth]="true" [spin]="true"></fa-icon>
             <span class="sr-only">Loading...</span>
         </div>
     </div>

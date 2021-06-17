@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 import { SpinnerService } from '../../services/spinner.service';
 import { UnsubscribeOnDestroy } from '../../utils/unsubscribe-on-destroy';
@@ -10,6 +11,7 @@ import { UnsubscribeOnDestroy } from '../../utils/unsubscribe-on-destroy';
 })
 export class SpinnerComponent extends UnsubscribeOnDestroy implements OnInit {
     showSpinner: boolean = false;
+    faSpinner = faSpinner;
 
     constructor(private spinnerService: SpinnerService) { super(); }
 

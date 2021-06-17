@@ -23,7 +23,7 @@
 				<ng-container *ngFor="let fav of favoriteList">
 					<div class="d-flex align-items-center phd-fav-button-div">
 						<button class="btn btn-primary phd-fav-button" (click)="onMyFavorites(fav)">{{fav?.name}}</button>
-						<i class="fa fa-fw fa-trash-o fa-2x phd-clickable" title="Delete List" (click)="deleteFavorite(fav)"></i>
+						<fa-icon [icon]="trash" size="2x" [classes]="['phd-clickable']" [fixedWidth]="true" title="Delete List" (click)="deleteFavorite(fav)"></fa-icon>
 					</div>
 				</ng-container>
 			</div>

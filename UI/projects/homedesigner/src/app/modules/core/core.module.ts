@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { SharedModule } from '../shared/shared.module';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 import { NavBarComponent } from './components/nav-bar/nav-bar.component';
 
@@ -32,7 +33,8 @@ import { ExternalGuard } from './guards/external.guard';
 		CommonModule,
 		HttpClientModule,
 		RouterModule,
-		SharedModule
+		SharedModule,
+		FontAwesomeModule
 	],
 	providers: [
 		ChangeOrderService,

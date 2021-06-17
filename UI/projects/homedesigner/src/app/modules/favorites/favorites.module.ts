@@ -5,6 +5,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CloudinaryModule } from '@cloudinary/angular-5.x';
 import { ToastrModule } from 'ngx-toastr';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 import { SharedModule } from '../shared/shared.module';
 import { PhdCommonModule } from 'phd-common';
@@ -53,6 +54,7 @@ const moduleRoutes: Routes = [
 		ReactiveFormsModule,
 		CloudinaryModule,
         SharedModule,
+		FontAwesomeModule,
 		PhdCommonModule,
 		RouterModule.forChild(moduleRoutes),
 		ToastrModule,

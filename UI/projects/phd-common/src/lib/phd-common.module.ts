@@ -8,6 +8,7 @@ import { TableModule } from 'primeng/table';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { DropdownModule } from 'primeng/dropdown';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 import { OAuthModule, OAuthModuleConfig, AuthConfig } from 'angular-oauth2-oidc';
 
@@ -54,6 +55,7 @@ export function getOrigin() {
 		DropdownModule,
 		OverlayPanelModule,
 		CommonModule,
+		FontAwesomeModule,
 		FormsModule,
 		BrowserAnimationsModule,
 		HttpClientModule,

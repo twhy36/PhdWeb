@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { Observable } from 'rxjs';
 
+import { faBars, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+
 import { BrowserService, UnsubscribeOnDestroy} from 'phd-common';
 
 @Component({
@@ -16,6 +18,9 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 	isTablet$: Observable<boolean>;
 	isMenuCollapsed: boolean = true;
 	currentPath: string;
+
+	faBars = faBars;
+	faArrowLeft = faArrowLeft;
 
 	constructor(private router: Router, private browser: BrowserService)
     {

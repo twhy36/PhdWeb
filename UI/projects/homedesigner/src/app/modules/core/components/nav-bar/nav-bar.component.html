@@ -1,8 +1,8 @@
 <nav id="phd-nav-bar" class="navbar fixed-top navbar-expand-md">
 	<div class="d-flex container-fluid phd-mobile-header">
 		<div *ngIf="(isTablet$ | async)" class="phd-menu-bars">
-			<i *ngIf="isMenuCollapsed" class="fa fa-bars fa-2x" (click)="isMenuCollapsed = !isMenuCollapsed"></i>
-			<i *ngIf="!isMenuCollapsed" class="fa fa-arrow-left" (click)="isMenuCollapsed = !isMenuCollapsed"></i>
+			<fa-icon *ngIf="isMenuCollapsed" [icon]="faBars" size="2x" (click)="isMenuCollapsed = !isMenuCollapsed" [classes]="['fa-icon']"></fa-icon>
+			<fa-icon *ngIf="!isMenuCollapsed" [icon]="faArrowLeft" (click)="isMenuCollapsed = !isMenuCollapsed" [classes]="['fa-icon']"></fa-icon>
 		</div>
 		<div class="phd-nav-bar-header ">
 			<img class="phd-logo" src="assets/Pulte_Homes_White_Logo.PNG" alt="Pulte Homes">
