@@ -153,39 +153,40 @@ export class JobEffects
 		return jio ? jio.constructionStatusDescription === 'Approved' : false;
 	}
 
-	@Effect()
-	updateSpecJobPricing$: Observable<Action> = this.actions$.pipe(
-		ofType<SalesAgreementLoaded | ScenarioLoaded | SetPermissions>(CommonActionTypes.SalesAgreementLoaded, CommonActionTypes.ScenarioLoaded, UserActionTypes.SetPermissions),
-		scan((prev, action) => (
-			{
-				sagScenarioLoaded: prev.sagScenarioLoaded || action instanceof SalesAgreementLoaded || action instanceof ScenarioLoaded, 
-				userPermissions: prev.userPermissions || action instanceof SetPermissions, 
-				action: action instanceof SalesAgreementLoaded || action instanceof ScenarioLoaded ? action : prev.action
-			}), {sagScenarioLoaded: false, userPermissions: false, action: <SalesAgreementLoaded | ScenarioLoaded>null}),
-		skipWhile(result => !result.sagScenarioLoaded || !result.userPermissions),
-		map(result => result.action),
-		switchMap(action => 
-			this.store.pipe(
-				take(1),
-				switchMap(state => {
-					if (!state.user.canSell) {
+	updateSpecJobPricing$: Observable<Action> = createEffect(() => {
+		return this.actions$.pipe(
+			ofType<SalesAgreementLoaded | ScenarioLoaded | SetPermissions>(CommonActionTypes.SalesAgreementLoaded, CommonActionTypes.ScenarioLoaded, UserActionTypes.SetPermissions),
+			scan((prev, action) => (
+				{
+					sagScenarioLoaded: prev.sagScenarioLoaded || action instanceof SalesAgreementLoaded || action instanceof ScenarioLoaded,
+					userPermissions: prev.userPermissions || action instanceof SetPermissions,
+					action: action instanceof SalesAgreementLoaded || action instanceof ScenarioLoaded ? action : prev.action
+				}), { sagScenarioLoaded: false, userPermissions: false, action: <SalesAgreementLoaded | ScenarioLoaded>null }),
+			skipWhile(result => !result.sagScenarioLoaded || !result.userPermissions),
+			map(result => result.action),
+			switchMap(action =>
+				this.store.pipe(
+					take(1),
+					switchMap(state => {
+						if (!state.user.canSell) {
+							return NEVER;
+						}
+						if (state.job.jobTypeName !== 'Spec' && state.job.jobTypeName !== 'Model') {
+							return NEVER;
+						}
+						if (action instanceof SalesAgreementLoaded && action.salesAgreement.status !== 'Pending') {
+							return NEVER;
+						}
+
+						if (state.job && state.scenario?.options && state.job.jobPlanOptions.some(jpo => state.scenario.options.find(o => o.id === jpo.planOptionId && o.listPrice !== jpo.listPrice))) {
+							return this.jobService.updateSpecJobPricing(state.job.lotId);
+						}
+
 						return NEVER;
-					}
-					if (state.job.jobTypeName !== 'Spec' && state.job.jobTypeName !== 'Model') {
-						return NEVER;
-					}
-					if (action instanceof SalesAgreementLoaded && action.salesAgreement.status !== 'Pending') {
-						return NEVER;
-					}
-					
-					if (state.job && state.scenario?.options && state.job.jobPlanOptions.some(jpo => state.scenario.options.find(o => o.id === jpo.planOptionId && o.listPrice !== jpo.listPrice))) {
-						return this.jobService.updateSpecJobPricing(state.job.lotId);
-					}
-					
-					return NEVER;
-				})
-			)
-		),
-		map(jobPlanOptions => new JobPlanOptionsUpdated(jobPlanOptions))
-	);
+					})
+				)
+			),
+			map(jobPlanOptions => new JobPlanOptionsUpdated(jobPlanOptions))
+		);
+	});
 }
