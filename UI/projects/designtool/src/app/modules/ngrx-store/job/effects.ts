@@ -20,7 +20,7 @@ import { tryCatch } from '../error.action';
 import * as fromRoot from '../reducers';
 import * as _ from "lodash";
 import { JobService } from '../../core/services/job.service';
-import { LoadError, LoadSpec, ChangeOrderEnvelopeCreated, SalesAgreementLoaded, ScenarioLoaded, CommonActionTypes } from '../actions';
+import { LoadError, LoadSpec, ChangeOrderEnvelopeCreated, SalesAgreementLoaded, ScenarioLoaded, CommonActionTypes, JobLoaded } from '../actions';
 import { SetPermissions, UserActionTypes } from '../user/actions';
 
 @Injectable()
@@ -50,8 +50,8 @@ export class JobEffects
 		);
 	});
 
-	createChangeOrderEnvelope$: Observable<Action> = createEffect(() => {
-		return this.actions$.pipe(
+	createChangeOrderEnvelope$: Observable<Action> = createEffect(() =>
+		this.actions$.pipe(
 			ofType<CreateChangeOrderEnvelope>(JobActionTypes.CreateChangeOrderEnvelope),
 			withLatestFrom(this.store),
 			tryCatch(source => source.pipe(
@@ -71,75 +71,94 @@ export class JobEffects
 					return this.contractService.saveSnapshot(data.changeOrder, data.jobId, data.changeOrderGroupId).pipe(
 						switchMap(() =>
 							this.contractService.createEnvelope(data.jioSelections, data.templates, data.financialCommunityId, data.salesAgreement.salesAgreementNumber, data.salesAgreement.status, data.envelopeInfo, data.jobId, data.changeOrderGroupId, data.constructionChangeOrderSelectionsDto, data.salesChangeOrderSelections, data.planChangeOrderSelectionsDto, data.nonStandardOptionSelectionsDto, data.lotTransferSeletionsDto, data.changeOrderInformation)),
-						map(envelopeId => {
+							map(envelopeId => {
 							return { envelopeId, changeOrder: data.changeOrder };
 						}
-						));
+					));
 				}),
-				switchMap(data => {
+				switchMap(data =>
+				{
 					let eSignEnvelope: ESignEnvelope = {
 						envelopeGuid: data.envelopeId,
 						eSignStatusId: ESignStatusEnum.Created,
 						eSignTypeId: ESignTypeEnum.ChangeOrder,
-						edhChangeOrderGroupId: data.changeOrder.changeOrderGroupId
+						edhChangeOrderGroupId: data.changeOrder.changeOrderGroupId					
 					};
 
 					return forkJoin(of(data.changeOrder), this.changeOrderService.createESignEnvelope(eSignEnvelope));
 				}),
 				switchMap(([changeOrder, eSignEnvelope]) => of(new ChangeOrderEnvelopeCreated(changeOrder, eSignEnvelope)))
-			), EnvelopeError, "Error creating envelope!")
-		);
-	});
+			), EnvelopeError, this.getErrorMessage)
+		)
+	);
 
-	loadJobForJob$: Observable<Action> = createEffect(() => {
-		return this.actions$.pipe(
+	loadJobForJob$: Observable<Action> = createEffect(() => 
+		this.actions$.pipe(
 			ofType<LoadJobForJob>(JobActionTypes.LoadJobForJob),
 			withLatestFrom(this.store),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store]) => {
+				switchMap(([action, store]) =>
+				{
 					const jobId = action.jobId;
 
 					return this.jobService.loadJob(jobId);
 				}),
-				switchMap((jobs, store) => {
+				switchMap((jobs, store) =>
+				{
 					return from([new JobLoadedByJobId(jobs),
 
 					new LoadSpec(jobs)]
 					);
 				})
 			), LoadError, 'Unable to load job for this lot')
-		);
-	});
+		)
+	);
 
-	loadPulteInfo$: Observable<Action> = createEffect(() => {
-		return this.actions$.pipe(
+	loadPulteInfo$: Observable<Action> = createEffect(() => 
+		this.actions$.pipe(
 			ofType<LoadPulteInfo>(JobActionTypes.LoadPulteInfo),
 			tryCatch(source => source.pipe(
-				switchMap(action => {
+				switchMap(action =>
+				{
 					const jobId = action.jobId;
 
 					return this.jobService.getPulteInfoByJobId(jobId);
 				}),
 				map(pulteInfo => new PulteInfoLoaded(pulteInfo))
 			), LoadError, 'Unable to load Pulte Info for this job')
-		);
-	});
+		)
+	);
 
-	savePulteInfo$: Observable<Action> = createEffect(() => {
-		return this.actions$.pipe(
+	savePulteInfo$: Observable<Action> = createEffect(() => 
+		this.actions$.pipe(
 			ofType<SavePulteInfo>(JobActionTypes.SavePulteInfo),
 			tryCatch(source => source.pipe(
-				switchMap(action => {
+				switchMap(action =>
+				{
 					return this.jobService.savePulteInfo(action.pulteInfo);
 				}),
-				map(() => {
+				map(() =>
+				{
 					this.toastr.success('Spec Info Saved');
 
 					return new PulteInfoSaved();
 				})
 			), LoadError, 'Unable to save Spec Info')
-		);
-	});
+		)
+	);
+
+
+	private getErrorMessage(error: any): string
+	{
+		if (error.status === 400 && error.error?.templateName)
+		{
+			return 'Following templates have not been uploaded : ' + error.error.templateName.join(', ');
+		}
+		else
+		{
+			return 'Error creating envelope!';
+		}
+	}
 
 	private showOnQuickMovin = (job: Job) =>
 	{
@@ -153,18 +172,18 @@ export class JobEffects
 		return jio ? jio.constructionStatusDescription === 'Approved' : false;
 	}
 
-	updateSpecJobPricing$: Observable<Action> = createEffect(() => {
-		return this.actions$.pipe(
-			ofType<SalesAgreementLoaded | ScenarioLoaded | SetPermissions>(CommonActionTypes.SalesAgreementLoaded, CommonActionTypes.ScenarioLoaded, UserActionTypes.SetPermissions),
+	updateSpecJobPricing$: Observable<Action> = createEffect(() => 
+		this.actions$.pipe(
+			ofType<SalesAgreementLoaded | ScenarioLoaded | JobLoaded | SetPermissions>(CommonActionTypes.SalesAgreementLoaded, CommonActionTypes.ScenarioLoaded, CommonActionTypes.JobLoaded, UserActionTypes.SetPermissions),
 			scan((prev, action) => (
 				{
-					sagScenarioLoaded: prev.sagScenarioLoaded || action instanceof SalesAgreementLoaded || action instanceof ScenarioLoaded,
-					userPermissions: prev.userPermissions || action instanceof SetPermissions,
-					action: action instanceof SalesAgreementLoaded || action instanceof ScenarioLoaded ? action : prev.action
-				}), { sagScenarioLoaded: false, userPermissions: false, action: <SalesAgreementLoaded | ScenarioLoaded>null }),
+					sagScenarioLoaded: prev.sagScenarioLoaded || action instanceof SalesAgreementLoaded || action instanceof ScenarioLoaded || action instanceof JobLoaded, 
+					userPermissions: prev.userPermissions || action instanceof SetPermissions, 
+					action: action instanceof SalesAgreementLoaded || action instanceof ScenarioLoaded || action instanceof JobLoaded ? action : prev.action
+				}), {sagScenarioLoaded: false, userPermissions: false, action: <SalesAgreementLoaded | ScenarioLoaded>null}),
 			skipWhile(result => !result.sagScenarioLoaded || !result.userPermissions),
 			map(result => result.action),
-			switchMap(action =>
+			switchMap(action => 
 				this.store.pipe(
 					take(1),
 					switchMap(state => {
@@ -177,16 +196,17 @@ export class JobEffects
 						if (action instanceof SalesAgreementLoaded && action.salesAgreement.status !== 'Pending') {
 							return NEVER;
 						}
-
+						
 						if (state.job && state.scenario?.options && state.job.jobPlanOptions.some(jpo => state.scenario.options.find(o => o.id === jpo.planOptionId && o.listPrice !== jpo.listPrice))) {
 							return this.jobService.updateSpecJobPricing(state.job.lotId);
 						}
-
+						
 						return NEVER;
 					})
+
 				)
 			),
 			map(jobPlanOptions => new JobPlanOptionsUpdated(jobPlanOptions))
-		);
-	});
+		)
+	);
 }

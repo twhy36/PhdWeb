@@ -55,8 +55,14 @@
 								       'fa-minus-circle text-danger': changeOrder.eSignStatus === 'draft'}"></i>
 					</a>
 					<ng-template #eSignStatusTooltip>
-						<span class="font-weight-bold">{{changeOrder.eSignStatus | titlecase}}:</span>
-						<span class="pl-1">{{changeOrder.eSignStatusDate | date:'L/dd/yyyy'}}</span>
+						<div>
+							<span class="font-weight-bold">{{changeOrder.eSignStatus | titlecase}}:</span>
+							<span class="pl-1">{{changeOrder.eSignStatusDate | date:'L/dd/yyyy'}}</span>
+						</div>
+						<div *ngIf="changeOrder.eSignStatus === 'draft' && changeOrder.salesStatus === 'Out For Signature'" class="d-flex flex-row">
+							<span class="font-weight-bold">Exp:</span>
+							<span class="pl-1">{{changeOrder.eSignExpirationDate | date:'L/dd/yyyy'}}</span>
+						</div>							
 					</ng-template>
 				</span>
 			</td>

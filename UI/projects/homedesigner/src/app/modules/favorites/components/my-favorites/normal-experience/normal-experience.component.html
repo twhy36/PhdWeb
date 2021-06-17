@@ -40,7 +40,7 @@
 								(onSelectDecisionPoint)="selectDecisionPoint($event)"
 								(onViewChoiceDetail)="viewChoiceDetail($event)">
 					</choice-card>
-					<choice-decline-card *ngIf="(point.pointPickTypeId === 2 || point.pointPickTypeId === 4) && !point.isPastCutOff"
+					<choice-decline-card *ngIf="showDeclineCard(point)"
 								[point]="point"
 								[myFavoritesPointsDeclined]="myFavoritesPointsDeclined"
 								(onDeclineDecisionPoint)="declineDecisionPoint($event)">

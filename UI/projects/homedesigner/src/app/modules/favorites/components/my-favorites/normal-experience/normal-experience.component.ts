@@ -160,8 +160,15 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 
 		const myFavoritesChoice = this.myFavoritesChoices ? this.myFavoritesChoices.find(x => x.divChoiceCatalogId === choice.divChoiceCatalogId) : null;
 		const images = this.choiceImages?.filter(x => x.dpChoiceId === choice.id);
-		
+
 		return new ChoiceExt(choice, choiceStatus, myFavoritesChoice, point.isStructuralItem, images);
+	}
+
+	showDeclineCard(point: DecisionPoint): boolean {
+		return (point.pointPickTypeId === 2 || point.pointPickTypeId === 4)
+			&& !point.isStructuralItem
+			&& !point.isPastCutOff
+			&& point.choices.filter(c => this.salesChoices.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1)?.length > 0;
 	}
 
 	scrollPointIntoView(pointId: number, isFirstPoint: boolean)

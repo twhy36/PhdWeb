@@ -247,9 +247,9 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		});
 	}
 
-	setSelectedGroup(newGroup: Group, newSubGroup: SubGroup) 
+	setSelectedGroup(newGroup: Group, newSubGroup: SubGroup)
 	{
-		if (this.selectedSubgroupId !== newSubGroup.id && !!newSubGroup.id)
+		if (!!newSubGroup.id)
 		{
 			const choiceIds = (_.flatMap(newSubGroup.points, pt => pt.choices) || []).map(c => c.id);
 

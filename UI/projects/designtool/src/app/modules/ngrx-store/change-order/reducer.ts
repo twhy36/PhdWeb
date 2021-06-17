@@ -511,21 +511,28 @@ export function reducer(state: State = initialState, action: ChangeOrderActions)
 			{
 				let changeOrder = new ChangeOrderGroup(state.currentChangeOrder);
 
-				changeOrder.salesStatusDescription = 'Pending';
+				if (changeOrder.salesStatusDescription === 'OutforSignature')
+				{
+					changeOrder.salesStatusDescription = 'Pending';
 
-				// add status history
-				changeOrder.jobChangeOrderGroupSalesStatusHistories.push(new ChangeOrderGroupSalesStatusHistory({
-					jobChangeOrderGroupId: changeOrder.id,
-					salesStatusId: SalesStatusEnum.Pending,
-					createdUtcDate: action.statusUtcDate,
-					salesStatusUtcDate: action.statusUtcDate
-				}));
+					// add status history
+					changeOrder.jobChangeOrderGroupSalesStatusHistories.push(new ChangeOrderGroupSalesStatusHistory({
+						jobChangeOrderGroupId: changeOrder.id,
+						salesStatusId: SalesStatusEnum.Pending,
+						createdUtcDate: action.statusUtcDate,
+						salesStatusUtcDate: action.statusUtcDate
+					}));					
+				}
 
 				if (action.eSignEnvelopeId)
 				{
 					const envelopeIndex = changeOrder.eSignEnvelopes?.findIndex(x => x.eSignEnvelopeId === action.eSignEnvelopeId);
 					if (envelopeIndex > -1)
 					{
+						if (changeOrder.envelopeId === changeOrder.eSignEnvelopes[envelopeIndex].envelopeGuid)
+						{
+							changeOrder.envelopeId = null;
+						}						
 						changeOrder.eSignEnvelopes.splice(envelopeIndex, 1);
 					}
 				}

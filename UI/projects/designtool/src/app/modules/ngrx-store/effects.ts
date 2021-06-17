@@ -501,7 +501,7 @@ export class CommonEffects
 							//fetch ESignEnvelopes after everything is loaded
 							concat(
 								this.jobService.getESignEnvelopes(result.job).pipe(
-									map(jobEnvelopes => new ESignEnvelopesLoaded(jobEnvelopes))
+									map(jobEnvelopes => new ESignEnvelopesLoaded(jobEnvelopes, true))
 								),
 
 								//fetch contract templates

@@ -1,0 +1,7 @@
+<div class="choice-container">
+	<div class="icon phd-clickable" (click)="$event.stopPropagation()">
+		<span class="phd-icon-selected"><i *ngIf="isDeclined" class="fa fa-heart" (click)="toggleDecline()"></i></span>
+		<i *ngIf="!isDeclined" class="fa fa-heart-o" (click)="toggleDecline()"></i>
+	</div>
+	<div class="choice-label">{{"No Thanks!"}}</div>
+</div>

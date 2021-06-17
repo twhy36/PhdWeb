@@ -14,7 +14,7 @@ import { MyFavoritesPointDeclined } from '../../models/my-favorite.model';
 export class ChoiceDeclineCardComponent extends UnsubscribeOnDestroy implements OnInit, OnChanges
 {
 	@Input() point: DecisionPoint;
-	@Input() myFavoritesPointsDeclined?: MyFavoritesPointDeclined[]
+	@Input() myFavoritesPointsDeclined?: MyFavoritesPointDeclined[];
 
 	@Output() onDeclineDecisionPoint = new EventEmitter<DecisionPoint>();
 
