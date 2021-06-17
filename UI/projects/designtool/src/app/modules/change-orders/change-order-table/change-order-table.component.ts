@@ -183,9 +183,8 @@ export class ChangeOrderTableComponent extends UnsubscribeOnDestroy implements O
 	{
 		return (changeOrder.eSignStatus === 'completed' && changeOrder.salesStatus !== 'Withdrawn')
 			|| (changeOrder.eSignStatus === 'sent' && changeOrder.salesStatus !== 'Withdrawn')
-			|| (changeOrder.eSignStatus === 'draft' && changeOrder.salesStatus !== 'Out For Signature'
-				&& changeOrder.salesStatus !== 'Signed' && changeOrder.salesStatus !== 'Withdrawn'
-				&& changeOrder.salesStatus !== 'Approved');
+			|| (changeOrder.eSignStatus === 'draft'	&& changeOrder.salesStatus !== 'Signed' 
+				&& changeOrder.salesStatus !== 'Withdrawn' && changeOrder.salesStatus !== 'Approved');
 	}
 
 	convertDate(date: Date)
