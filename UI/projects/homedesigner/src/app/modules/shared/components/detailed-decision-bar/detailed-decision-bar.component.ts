@@ -74,7 +74,7 @@ export class DetailedDecisionBarComponent extends UnsubscribeOnDestroy implement
 		return (point.pointPickTypeId === 2 || point.pointPickTypeId === 4)
 			&& !point.isStructuralItem
 			&& !point.isPastCutOff
-			&& point.choices.filter(c => this.salesChoices.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1)?.length > 0;
+			&& point.choices.filter(c => this.salesChoices.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1)?.length === 0;
 	}
 
 	toggleChoice (choice) {
