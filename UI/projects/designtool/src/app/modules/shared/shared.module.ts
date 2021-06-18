@@ -49,7 +49,6 @@ import { ContactPrimaryPhonePipe } from './pipes/contact-primary-phone.pipe';
 import { EnumToArrayPipe } from './pipes/enum-to-array.pipe';
 import { MapJoinPipe } from './pipes/map-join.pipe';
 import { PointIdToNamePipe } from './pipes/pointIdToName.pipe';
-import { SafeUrlPipe } from './pipes/safe-url.pipe';
 import { ContactFullNamePipe } from './pipes/contact-full-name.pipe';
 import { MinusSignToParens } from './pipes/minusSignToParens.pipe';
 import { PriceRangePipe } from './pipes/priceRange.pipe';
@@ -88,7 +87,6 @@ import { InputFilterDirective } from './directives/input-filter.directive';
 		PhoneNumberDirective,
 		PointIdToNamePipe,
 		PriceInputComponent,
-		SafeUrlPipe,
 		SaveCancelButtonsComponent,
 		ScenarioStatusComponent,
 		StatusIndicatorComponent,
@@ -132,7 +130,6 @@ import { InputFilterDirective } from './directives/input-filter.directive';
 		PhoneNumberDirective,
 		PointIdToNamePipe,
 		PriceInputComponent,
-		SafeUrlPipe,
 		SaveCancelButtonsComponent,
 		ScenarioStatusComponent,
 		StatusIndicatorComponent,

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Routes, RouterModule } from '@angular/router';
 import { CloudinaryModule } from '@cloudinary/angular-5.x';
 
+import { PhdCommonModule } from 'phd-common';
 import { ExternalGuard } from '../core/guards/external.guard';
 import { InternalGuard } from '../core/guards/internal.guard';
 import { SharedModule } from '../shared/shared.module';
@@ -33,7 +34,8 @@ const moduleRoutes: Routes = [
 	imports: [
 		CommonModule,
 		CloudinaryModule,
-        SharedModule,
+		SharedModule,
+		PhdCommonModule,
         RouterModule.forChild(moduleRoutes),
     ],
     providers: []

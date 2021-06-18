@@ -7,6 +7,8 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { CloudinaryModule } from '@cloudinary/angular-5.x';
 
+import { PhdCommonModule } from 'phd-common';
+
 import { ScenarioSummaryComponent } from './components/scenario-summary/scenario-summary.component';
 import { SummaryHeaderComponent } from './components/summary-header/summary-header.component';
 import { PricingBreakdownComponent } from './components/pricing-breakdown/pricing-breakdown.component';
@@ -37,6 +39,7 @@ const moduleRoutes: Routes = [
 		SharedModule,
 		FormsModule,
 		CloudinaryModule,
+		PhdCommonModule,
 		RouterModule.forChild(moduleRoutes),
 		NgbModule
 	],
