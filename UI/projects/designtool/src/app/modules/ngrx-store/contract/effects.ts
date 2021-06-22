@@ -593,7 +593,7 @@ export class ContractEffects
 						selectionsPrice: selectionsPrice,
 						totalHousePrice: totalHousePrice,
 						nonStandardPrice: nonStandardPrice,
-						salesIncentivePrice: null,
+						salesIncentivePrice: 0,
 						buyerClosingCosts: buyerClosingCosts,
 						jobBuyerHeaderInfo: jobBuyerHeaderInfo,
 						jobAgreementHeaderInfo: jobAgreementHeaderInfo
