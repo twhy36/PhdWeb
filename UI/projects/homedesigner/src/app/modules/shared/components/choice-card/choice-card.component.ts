@@ -100,7 +100,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { windowClass: 'phd-blocked-choice-modal' });
 	}
 
-	closeClicked() {
+	onCloseClicked() {
 		this.blockedChoiceModalRef?.close();
 	}
 

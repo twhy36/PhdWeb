@@ -272,7 +272,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		// look for choice images if there is no option image
 		if (!this.choiceImages.length && this.choice?.hasImage)
 		{
-			this.choice?.choiceImages?.forEach(x => 
+			this.choice?.choiceImages?.forEach(x =>
 			{
 				this.choiceImages.push({ imageURL: x.imageUrl });
 			});
@@ -534,11 +534,11 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		if (!this.disabledByList)
 		{
 			this.disabledByList = getDisabledByList(this.groups, this.currentPoint, this.choice);
-		}	
+		}
 		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { windowClass: 'phd-blocked-choice-modal' });
 	}
 
-	closeClicked() {
+	onCloseClicked() {
 		this.blockedChoiceModalRef?.close();
 	}
 

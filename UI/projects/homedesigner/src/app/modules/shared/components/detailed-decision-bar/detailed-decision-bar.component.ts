@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 
-import { UnsubscribeOnDestroy, flipOver2, slideOut, DecisionPoint, JobChoice, PickType, Choice, ChoiceImageAssoc } from 'phd-common';
+import { UnsubscribeOnDestroy, flipOver2, slideOut, DecisionPoint, JobChoice, PickType, Choice, ChoiceImageAssoc, Group } from 'phd-common';
 import { ChoiceExt } from '../../models/choice-ext.model';
 import { MyFavoritesChoice, MyFavoritesPointDeclined } from '../../models/my-favorite.model';
 
@@ -16,15 +16,16 @@ import { MyFavoritesChoice, MyFavoritesPointDeclined } from '../../models/my-fav
 export class DetailedDecisionBarComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	@Input() points: DecisionPoint[];
-	@Input() currentPointId: number;
 	@Input() salesChoices: JobChoice[];
 	@Input() myFavoritesChoices: MyFavoritesChoice[];
 	@Input() choiceImages: ChoiceImageAssoc[];
 	@Input() myFavoritesPointsDeclined?: MyFavoritesPointDeclined[];
+	@Input() groups: Group[];
 
 	@Output() onToggleChoice = new EventEmitter<ChoiceExt>();
 	@Output() onViewChoiceDetail = new EventEmitter<ChoiceExt>();
 	@Output() onDeclineDecisionPoint = new EventEmitter<DecisionPoint>();
+	@Output() onSelectDecisionPoint = new EventEmitter<number>();
 
 	constructor() { super(); }
 
@@ -87,5 +88,26 @@ export class DetailedDecisionBarComponent extends UnsubscribeOnDestroy implement
 
 	declineDecisionPoint(point: DecisionPoint) {
 		this.onDeclineDecisionPoint.emit(point);
+	}
+
+	selectDecisionPoint(pointId: number) {
+		if (pointId) {
+			setTimeout(() => {
+				const firstPointId = this.points && this.points.length ? this.points[0].id : 0;
+				this.scrollPointIntoView(pointId, pointId === firstPointId);
+			}, 500);
+		}
+		this.onSelectDecisionPoint.emit(pointId);
+	}
+
+	scrollPointIntoView(pointId: number, isFirstPoint: boolean) {
+		const decision = document.getElementById(pointId?.toString());
+		if (decision) {
+			if (isFirstPoint) {
+				decision.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+			} else {
+				decision.scrollIntoView({behavior: 'smooth', block: 'start'});
+			}
+		}
 	}
 }

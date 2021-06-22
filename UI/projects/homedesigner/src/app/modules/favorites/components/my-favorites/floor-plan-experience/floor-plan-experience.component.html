@@ -15,14 +15,15 @@
 			<div class="phd-detailed-point-bar">
 				<detailed-decision-bar
 					[points]="points"
-					[currentPointId]="currentPointId"
 					[salesChoices]="salesChoices"
 					[myFavoritesChoices]="myFavoritesChoices"
 					[myFavoritesPointsDeclined]="myFavoritesPointsDeclined"
 					[choiceImages]="choiceImages"
+					[groups]="groups"
 					(onToggleChoice)="choiceToggleHandler($event)"
 					(onViewChoiceDetail)="viewChoiceDetail($event)"
-					(onDeclineDecisionPoint)="declineDecisionPoint($event)">
+					(onDeclineDecisionPoint)="declineDecisionPoint($event)"
+					(onSelectDecisionPoint)="selectDecisionPoint($event)">
 				</detailed-decision-bar>
 			</div>
 		</div>
