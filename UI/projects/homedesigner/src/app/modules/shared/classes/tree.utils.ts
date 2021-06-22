@@ -10,7 +10,8 @@ import {
 	findChoice, DesignToolAttribute, JobChoice, JobPlanOption, JobChoiceAttribute, JobChoiceLocation, Job, 
 	ChangeOrderGroup, ChangeOrderChoice, ChangeOrderPlanOption, ChangeOrderChoiceAttribute, ChangeOrderChoiceLocation,
 	PlanOption, PointStatus, ConstructionStageTypes, Tree, Choice, DecisionPoint, MappedAttributeGroup, MappedLocationGroup,
-	Attribute, AttributeGroup, AttributeCommunityImageAssoc, Location, LocationGroup, OptionImage, ChoiceRules, PointRules
+	Attribute, AttributeGroup, AttributeCommunityImageAssoc, Location, LocationGroup, OptionImage, ChoiceRules, PointRules,
+	Group
 } from 'phd-common';
 
 import { TreeService } from '../../core/services/tree.service';
@@ -689,4 +690,43 @@ export function hidePointsByStructuralItems(pointRules: PointRules[], choices: C
 			})
 		})
 	}
+}
+
+export function getDisabledByList(groups: Group[], point: DecisionPoint, choice: Choice)
+{
+	let disabledByList = [];
+	const allPoints = _.flatMap(groups, g => _.flatMap(g.subGroups, sg => sg.points));
+	const allChoices = _.flatMap(allPoints, p => p.choices.map(c => ({...c, pointId: p.id})));
+	point.disabledBy.forEach(disabledPoint => {
+		disabledPoint.rules.forEach(rule => {
+			rule.points.forEach(disabledByPointId => {
+				disabledByList.push({
+					label: allPoints.find(point => point.id === disabledByPointId)?.label,
+					pointId: disabledByPointId
+				});
+			});
+			rule.choices.forEach(disabledByChoiceId => {
+				const disabledByChoice = allChoices.find(choice => choice.id === disabledByChoiceId);
+				disabledByList.push({
+					label: disabledByChoice?.label,
+					pointId: disabledByChoice?.pointId,
+					choiceId: disabledByChoiceId
+				});
+			});
+		});
+	});
+	choice.disabledBy.forEach(disabledChoice => {
+		disabledChoice.rules.forEach(rule => {
+			rule.choices.forEach(disabledByChoiceId => {
+				const disabledByChoice = allChoices.find(choice => choice.id === disabledByChoiceId);
+				disabledByList.push({
+					label: disabledByChoice?.label,
+					pointId: disabledByChoice?.pointId,
+					choiceId: disabledByChoiceId
+				});
+			});
+		});
+	});
+
+	return disabledByList;
 }
