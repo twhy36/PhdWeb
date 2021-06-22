@@ -72,14 +72,28 @@ export class AttributeGroupComponent extends UnsubscribeOnDestroy implements OnI
 	ngOnInit()
 	{
 		this.choiceOverride = this.monotonyConflict.choiceOverride;
+
 		this.monotonyOverride$.next(this.choiceOverride);
 	}
 
-	clearSelectedAttributes()
+	setDefaultSelectedAttribute(setActive: boolean = false)
+	{
+		if (this.attributeListComponents.some(x => x.attributes.length === 1))
+		{
+			this.attributeListComponents.forEach(al =>
+			{
+				// check for single attributes so they can be auto selected
+				al.defaultSingleAttribute(setActive);
+			});
+		}
+	}
+
+	clearSelectedAttributes(clearSingles: boolean = false)
 	{
 		this.attributeListComponents.forEach(alc =>
 		{
-			if (alc.attributes != null)
+			// clear attributes except those with only one item which must stay selected unless its contained in a location which then it can be cleared.
+			if (alc.attributes != null && (alc.attributes.length > 1 || clearSingles))
 			{
 				const selectedAttributeId = this.getSelectedAttributeId(alc.attributeGroupId);
 
@@ -123,15 +137,6 @@ export class AttributeGroupComponent extends UnsubscribeOnDestroy implements OnI
 
 			attributeId = attr ? attr.attributeId : null;
 		}
-		else if (this.attributeListComponents)
-		{
-			const alc = this.attributeListComponents.find(x => x.attributeGroupId == attributeGroupId);
-
-			if (alc && alc.selectedAttributeId != null)
-			{
-				attributeId = alc.selectedAttributeId;
-			}
-		}
 
 		return attributeId;
 	}
@@ -158,7 +163,14 @@ export class AttributeGroupComponent extends UnsubscribeOnDestroy implements OnI
 
 	expandAttributes(attributeGroup: AttributeGroup)
 	{
-		this.expandedSelectedAttributeId = this.getSelectedAttributeId(attributeGroup.id);
+		const alc = this.attributeListComponents.find(x => x.attributeGroupId == attributeGroup.id);
+
+		if (alc && alc.selectedAttributeId != null)
+		{
+			// sets the current value for the modal version
+			this.expandedSelectedAttributeId = alc.selectedAttributeId;
+		}
+
 		this.expandedAttributeGroup = attributeGroup;
 		this.expandedAttributeGroupId = attributeGroup.id;
 
@@ -188,9 +200,10 @@ export class AttributeGroupComponent extends UnsubscribeOnDestroy implements OnI
 			else
 			{
 				this.overrideNote = null;
+
 				this.monotonyOverride$.next(!!this.overrideNote);
 
-				// update the selectedAttributeId before calling attributeSelected, else nothing gets updated properly
+				// update the selectedAttributeId before calling attributeSelected, else nothing gets updated properly. This is for the modal/expanded version of the attribute group.
 				if ($event.updateParent)
 				{
 					const alc = this.attributeListComponents.find(x => x.attributeGroupId == attributeGroupId);
@@ -222,6 +235,7 @@ export class AttributeGroupComponent extends UnsubscribeOnDestroy implements OnI
 	addOverrideReason(attribute: Attribute, attributeGroupId: number, overrideReason: string)
 	{
 		this.overrideNote = overrideReason;
+
 		this.monotonyOverride$.next((!!this.overrideNote));
 
 		this.attributeSelected(attribute, attributeGroupId, true);
