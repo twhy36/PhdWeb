@@ -6,6 +6,7 @@ import { Table, TableService } from 'primeng/table';
 import { Dropdown } from 'primeng/dropdown';
 import { OverlayPanel } from 'primeng/overlaypanel';
 import { FilterMetadata, FilterService } from 'primeng/api';
+import { PrimeNGCorrectionService } from '../../services/primeng.service';
 
 @Component({
 	selector: 'phd-table',
@@ -63,7 +64,7 @@ export class PhdTableComponent implements AfterContentInit, OnChanges
 	hideableColumns: PhdColumnDirective[] = [];
 	filterableColumns: PhdColumnDirective[] = [];
 
-	constructor(private filterService: FilterService) {}
+	constructor(private filterService: FilterService, private primeNgCorrectionService: PrimeNGCorrectionService) {}
 
 	get allColumns(): PhdColumnDirective[]
 	{
