@@ -8,6 +8,20 @@
 	<ng-template #body>
 		<div class="container pt-3">
 			<form [formGroup]="viewContractsForm">
+				<div class="form-group phd-checkbox-group">
+					<div class="phd-checkbox-label">
+						<input type="checkbox" id="isPhd" name="isPhd" formControlName="isPhd" class="phd-checkbox-label" />
+						<label for="isPhd" class="form-check-label">PHD</label>
+					</div>
+					<div class="phd-checkbox-label">
+						<input type="checkbox" id="isTho" name="isPMCAffiliate" formControlName="isTho" class="phd-checkbox-label" />
+						<label for="isTho" class="form-check-label">THO</label>
+					</div>
+					<span class="text-danger"
+							*ngIf="viewContractsForm.errors?.requireCheckBoxesToBeChecked && ((viewContractsForm.controls.isPhd.dirty || viewContractsForm.controls.isPhd.touched) || (viewContractsForm.controls.isTho.dirty || viewContractsForm.controls.isTho.touched))">
+						Invalid: Must select either PHD or THO
+					</span>
+				</div>
 				<div class="form-group">
 					<label class="font-weight-bold" for="documentName">Document Name</label>
 					<input type="text" class="form-control phd-fieldRequired" id="documentName" maxlength="100" formControlName="documentName" required />
@@ -78,6 +92,20 @@
 						</div>
 					</div>
 				</ng-template>
+
+				<div class="form-group" *ngIf="viewContractsForm.get('templateTypeId').value === 2">
+					<label class="font-weight-bold" for="addendumTypeId">Addenda Type</label>
+					<select id="addendumTypeId" class="form-control phd-fieldRequired" formControlName="addendumTypeId" (change)="updateSelection()">
+						<option *ngFor="let type of addendaTypes" [ngValue]="type.id">{{ type.label}}</option>
+					</select>
+
+					<div class="col-sm-12">
+						<span class="text-danger"
+							  *ngIf="viewContractsForm.errors?.requireAddendumSelect && (viewContractsForm.controls.addendumTypeId.dirty || viewContractsForm.controls.addendumTypeId.touched)">
+							Invalid: An Addenda Type is required.
+						</span>
+					</div>
+				</div>
 
 				<div class="form-group calendar-group">
 					<label class="font-weight-bold" for="effective_date">Effective Date</label>

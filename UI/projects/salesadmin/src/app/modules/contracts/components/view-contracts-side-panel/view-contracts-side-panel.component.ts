@@ -49,6 +49,16 @@ export class ViewContractsSidePanelComponent implements OnInit
 		{ label: 'Cancel Form', value: 'CancelForm', id: 3 }
 	];
 
+	public addendaTypes: Array<ITemplateType> = [
+		{ label: 'FHA', value: 'FHA', id: 1 },
+		{ label: 'VA', value: 'VA', id: 2 },
+		{ label: 'QMI', value: 'QMI', id: 3 },
+		{ label: 'Real Estate Agent', value: 'RealEstateAgent', id: 4 },
+		{ label: 'Smart Home', value: 'SmartHome', id: 5 },
+		{ label: 'Red or Yellow State', value: 'Red or Yellow State', id: 6 },
+		{ label: 'Include in all contracts', value: 'IncludeInAllContracts', id: 7 },
+	]
+
 	get isDirty(): boolean
 	{
 		return this.viewContractsForm.dirty;
@@ -126,9 +136,12 @@ export class ViewContractsSidePanelComponent implements OnInit
 			}
 		}
 
+		let isPhd = this.selected ? this.selected.isPhd : false;
+		let isTho = this.selected ? this.selected.isTho : false;
 		let documentName = this.selected ? this.selected.documentName : null;
 		let displayName = this.selected ? this.selected.displayName : null;
 		let templateTypeId = this.selected ? this.selected.templateTypeId : null;
+		let addendumTypeId = this.selected ? this.selected.addendumTypeId : null;
 		let assignedCommunityIds = this.selected ? this.selected.assignedCommunityIds : null;
 		let parentTemplateId = this.selected ? this.selected.parentTemplateId : null;
 		let templateId = this.selected ? this.selected.templateId : null;
@@ -136,15 +149,18 @@ export class ViewContractsSidePanelComponent implements OnInit
 		const pattern = "^[^\\\\/:*?<>]*$";
 
 		this.viewContractsForm = new FormGroup({
+			'isPhd': new FormControl(isPhd),
+			'isTho': new FormControl(isTho),
 			'documentName': new FormControl({ value: documentName, disabled: (this.selected && this.selected.status === "In Use") }, [Validators.required, this.duplicateName(), this.whiteSpaceValidator(), Validators.pattern(pattern)]),
 			'displayName': new FormControl({ value: displayName, disabled: (this.selected && this.selected.status === "In Use") }, [Validators.required, this.whiteSpaceValidator()]),
 			'templateTypeId': new FormControl(templateTypeId),
+			'addendumTypeId': new FormControl(addendumTypeId),
 			'effectiveDate': new FormControl({ value: this.effectiveDate ? this.effectiveDate.toISOString() : null, disabled: (this.selected && this.selected.status === "In Use") }),
 			'expirationDate': new FormControl(this.expirationDate ? this.expirationDate.toISOString() : null),
 			'assignedCommunityIds': new FormControl(assignedCommunityIds),
 			'parentTemplateId': new FormControl(parentTemplateId),
 			'templateId': new FormControl(templateId)
-		});
+		}, [this.requireCheckBoxesToBeCheckedValidator(), this.addendumTypeValidator()]);
 	}
 
 	setMinimumExpirationDate(dateSet: Date = this.effectiveDate)
@@ -267,6 +283,30 @@ export class ViewContractsSidePanelComponent implements OnInit
 
 			return isValid ? null : { whiteSpaceValidator: true }
 		};
+	}
+	
+	requireCheckBoxesToBeCheckedValidator(): ValidatorFn
+	{
+		return (formGroup: FormGroup): { [key: string]: any } =>
+		{
+			if (formGroup.controls['isPhd'].value === false && formGroup.controls['isTho'].value === false)
+			{
+				return { requireCheckBoxesToBeChecked: true };
+			}
+			return null;
+		}
+	}
+
+	addendumTypeValidator(): ValidatorFn
+	{
+		return (formGroup: FormGroup): { [key: string]: any } =>
+		{
+			if (formGroup.controls['templateTypeId'].value === 2 && formGroup.controls['addendumTypeId'].value === null)
+			{
+				return { requireAddendumSelect: true };
+			}
+			return null;
+		}
 	}
 
 	addHighlightedItems()
