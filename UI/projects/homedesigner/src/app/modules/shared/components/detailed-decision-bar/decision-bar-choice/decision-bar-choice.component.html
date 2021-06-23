@@ -1,8 +1,21 @@
 <div class="choice-container">
 	<div class="icon phd-clickable" (click)="$event.stopPropagation()">
-		<span class="phd-icon-selected"><i *ngIf="choiceCanBeFavorited && choice?.isFavorite" class="fa fa-heart" (click)="toggleChoice()"></i></span>
-		<i *ngIf="choiceCanBeFavorited && !choice?.isFavorite" class="fa fa-heart-o" (click)="toggleChoice()"></i>
+		<ng-container *ngIf="choice.choiceStatus === 'Available' && choice.enabled">
+			<span class="phd-icon-selected"><i *ngIf="choice.isFavorite" class="fa fa-heart" (click)="toggleChoice()"></i></span>
+			<i *ngIf="!choice.isFavorite" class="fa fa-heart-o" (click)="toggleChoice()"></i>
+		</ng-container>
+		<ng-container *ngIf="choice.choiceStatus === 'Available' && !choice.enabled">
+			<i class="fa fa-ban" (click)="openBlockedChoiceModal()"></i>
+		</ng-container>
 	</div>
 	<div class="choice-label phd-clickable" (click)="viewChoiceDetail()">{{choice?.label}}</div>
 	<div class="choice-price">{{choice?.price | currency}}</div>
 </div>
+
+<ng-template #blockedChoiceModal let-c="close" let-d="dismiss">
+	<blocked-choice-modal
+		[disabledByList]="disabledByList"
+		(closeModal)="onCloseClicked()"
+		(blockedItemClick)="onBlockedItemClick($event)"
+	></blocked-choice-modal>
+</ng-template>

@@ -1,0 +1,14 @@
+<div>
+	<div class="d-flex justify-content-end">
+		<i class="fa fa-times-circle phd-close" (click)="closeClicked()"></i>
+	</div>
+	<div class="phd-blocked-title">
+		Before this can be selected:
+	</div>
+	<ul class="phd-blocked-list">
+		<li *ngFor="let disabledByItem of disabledByList">
+			<div *ngIf="!disabledByItem.choiceId">Make a <span class="phd-clickable phd-blocked-link" (click)="onBlockedItemClick(disabledByItem.pointId)">{{disabledByItem.label}}</span> selection</div>
+			<div *ngIf="disabledByItem.choiceId">Select <span class="phd-clickable phd-blocked-link" (click)="onBlockedItemClick(disabledByItem.pointId)">{{disabledByItem.label}}</span></div>
+		</li>
+	</ul>
+</div>

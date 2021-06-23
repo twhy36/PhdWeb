@@ -100,6 +100,7 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 		}
 
 		let deps = _.intersectionBy(rules.choiceRules, _.flatMap(cr.rules, r => r.choices).map(c => { return { choiceId: c }; }), 'choiceId');
+
 		deps.forEach(rule => executeChoiceRule(rule));
 
 		let choice = find(cr.choiceId);
@@ -137,6 +138,7 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 			else
 			{
 				choice.quantity = 0;
+
 				choice.disabledBy.push(cr);				
 			}
 		}
@@ -163,6 +165,7 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 		}
 
 		let deps = _.intersectionBy(rules.pointRules, _.flatMap(pr.rules, r => r.points).map(p => { return { pointId: p }; }), 'pointId');
+
 		deps.forEach(rule => executePointRule(rule));
 
 		let point = points.find(pt => pt.id === pr.pointId);
@@ -172,6 +175,7 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 		{
 			if (r.ruleType === 1)
 			{
+				// must have point rule
 				if (r.choices.filter(c => { let ch = findChoice(tree, c1 => c1.id === c); return !ch || !ch.quantity; }).length === 0
 					&& r.points.filter(p => { let pt = findPoint(tree, p1 => p1.id === p); return !pt || !pt.completed; }).length === 0)
 				{
@@ -180,6 +184,7 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 			}
 			else
 			{
+				// must not have point rule
 				if (r.choices.filter(c => { let ch = findChoice(tree, c1 => c1.id === c); return !ch || ch.quantity; }).length === 0
 					&& r.points.filter(p => { let pt = findPoint(tree, p1 => p1.id === p); return !pt || pt.completed; }).length === 0)
 				{
@@ -190,20 +195,29 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 
 		if (!enabled)
 		{
-			point.choices.forEach(ch => {
+			point.choices.forEach(ch =>
+			{
 				if (!ch.lockedInChoice) 
 				{
 					ch.quantity = 0; 
 					ch.enabled = false; 
 				}
 			});
+
 			point.completed = false;
+
 			point.disabledBy.push(pr);
 		}
 
 		point.enabled = enabled;
 		pr.executed = true;
 	}
+
+	points.forEach(point =>
+	{
+		// set point completion before executing point rules as some rules depend on other points being completed
+		point.completed = point && point.choices && point.choices.some(ch => ch.quantity > 0);
+	});
 
 	rules.pointRules.forEach(pr =>
 	{
@@ -581,10 +595,6 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 		}
 
 		mapLocationAttributes(choice);
-	});
-
-	points.forEach(point => {
-		point.completed = point && point.choices && point.choices.some(ch => ch.quantity > 0);
 	});
 }
 

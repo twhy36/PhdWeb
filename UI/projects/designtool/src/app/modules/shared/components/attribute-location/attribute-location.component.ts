@@ -12,7 +12,6 @@ import { MonotonyConflict } from '../../models/monotony-conflict.model';
 export class AttributeLocationComponent implements OnInit
 {
 	@Input() choice: Choice;
-	
 	@Input() attributeLocation: Location;
 	@Input() attributeLocationGroup: LocationGroup;
 	@Input() attributeGroups: AttributeGroup[];
@@ -84,7 +83,8 @@ export class AttributeLocationComponent implements OnInit
 
 		this.attributeGroupComponents.forEach(agc =>
 		{
-			agc.clearSelectedAttributes();
+			// clear selected attributes, true is to make sure single records are cleared as well 
+			agc.clearSelectedAttributes(true);
 		});
 	}
 
@@ -92,17 +92,26 @@ export class AttributeLocationComponent implements OnInit
 	{
 		const quantity = Number($event);
 
+		// set this first as it's needed for calcs down the road.
+		this.locationQuantityTotal = quantity;
+
 		if (quantity > 0)
 		{
 			this.isActive = true;
+
+			this.attributeGroupComponents.forEach(agc =>
+			{
+				agc.isActive = true;
+
+				// auto select any attribute groups with just one attribute. True will set the field active just in case it's not during the check
+				agc.setDefaultSelectedAttribute(true);
+			});
 		}
 		else
 		{
 			// clear out selected attributes
 			this.clearSelectedAttributes();
 		}
-
-		this.locationQuantityTotal = quantity;
 
 		this.onAttributeLocationChanged.emit({ overrideNote: null, isOverride: false });
 	}

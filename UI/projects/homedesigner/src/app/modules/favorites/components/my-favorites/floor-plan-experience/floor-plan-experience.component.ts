@@ -2,7 +2,7 @@ import { Component, OnInit, Input, OnChanges, SimpleChanges, Output, EventEmitte
 
 import * as _ from 'lodash';
 
-import { UnsubscribeOnDestroy, DecisionPoint, SubGroup, JobChoice, ChoiceImageAssoc } from 'phd-common';
+import { UnsubscribeOnDestroy, DecisionPoint, SubGroup, JobChoice, ChoiceImageAssoc, Group } from 'phd-common';
 
 import { MyFavoritesChoice, MyFavoritesPointDeclined } from '../../../../shared/models/my-favorite.model';
 import { ChoiceExt } from '../../../../shared/models/choice-ext.model';
@@ -23,6 +23,7 @@ export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implement
 	@Input() salesChoices: JobChoice[];
 	@Input() marketingPlanId: number;
 	@Input() isFloorplanFlipped: boolean;
+	@Input() groups: Group[];
 	@Input() choiceImages: ChoiceImageAssoc[];
 	@Input() myFavoritesPointsDeclined?: MyFavoritesPointDeclined[];
 
@@ -78,10 +79,8 @@ export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implement
 	}
 
 	selectDecisionPoint(pointId: number) {
-		if (pointId !== this.currentPointId) {
-			this.currentPointId = pointId;
-			this.onSelectDecisionPoint.emit(pointId);
-		}
+		this.currentPointId = pointId;
+		this.onSelectDecisionPoint.emit(pointId);
 	}
 
 	choiceToggleHandler(choice: ChoiceExt) {

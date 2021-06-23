@@ -32,6 +32,7 @@ import { IdentityService } from './services/identity.service';
 import { SpinnerService } from './services/spinner.service';
 import { BrowserService } from './services/browser.service';
 import { EllipsisPipe } from './pipes/ellipsis.pipe';
+import { SafeUrlPipe } from './pipes/safe-url.pipe';
 
 export function oAuthModuleConfigFactory(apiUrl: string) {
     return {
@@ -72,7 +73,8 @@ export function getOrigin() {
 		ControlDisabledDirective,
 		BuildVersionComponent,
 		ErrorMessageComponent,
-        EllipsisPipe
+		EllipsisPipe,
+		SafeUrlPipe
 	],
     exports: [
 		PhdTableComponent,
@@ -87,7 +89,8 @@ export function getOrigin() {
 		ControlDisabledDirective,
 		BuildVersionComponent,
         ErrorMessageComponent,
-        EllipsisPipe
+		EllipsisPipe,
+		SafeUrlPipe
 	],
 })
 export class PhdCommonModule {

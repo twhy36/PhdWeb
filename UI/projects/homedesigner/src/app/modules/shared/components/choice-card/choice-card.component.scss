@@ -79,28 +79,3 @@
 		overflow: hidden;
 	}
 }
-
-::ng-deep .phd-blocked-choice-modal .modal-dialog {
-	max-width: 400px;
-	position: relative;
-	top: 40%;
-}
-
-.phd-close {
-	cursor: pointer;
-	padding: 5px 5px 0px 0px;
-}
-
-.phd-blocked-title {
-	padding: 2px 0px 10px 20px;
-	font-weight: 600;
-}
-
-.phd-blocked-list {
-	margin-left: 40px;
-}
-
-.phd-blocked-link {
-	color: $pantone_blue;
-  text-decoration: underline;
-}

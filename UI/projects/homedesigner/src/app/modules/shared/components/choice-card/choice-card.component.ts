@@ -4,6 +4,7 @@ import * as _ from 'lodash';
 
 import { UnsubscribeOnDestroy, flipOver3, OptionImage, DecisionPoint, Group } from 'phd-common';
 import { ChoiceExt } from '../../models/choice-ext.model';
+import { getDisabledByList } from '../../../shared/classes/tree.utils';
 
 @Component({
 	selector: 'choice-card',
@@ -30,7 +31,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 	optionImages: OptionImage[];
 	imageUrl: string = '';
 	blockedChoiceModalRef: NgbModalRef;
-	disabledByList: {label: string, pointId: number, choiceId?: number}[];
+	disabledByList: {label: string, pointId: number, choiceId?: number}[] = null;
 
 	constructor(public modalService: NgbModal) {
 		super();
@@ -92,45 +93,15 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 	}
 
 	openBlockedChoiceModal() {
-		this.disabledByList = [];
-		const allPoints = _.flatMap(this.groups, g => _.flatMap(g.subGroups, sg => sg.points));
-		const allChoices = _.flatMap(allPoints, p => p.choices.map(c => ({...c, pointId: p.id})));
-		this.currentPoint.disabledBy.forEach(disabledPoint => {
-			disabledPoint.rules.forEach(rule => {
-				rule.points.forEach(disabledByPointId => {
-					this.disabledByList.push({
-						label: allPoints.find(point => point.id === disabledByPointId)?.label,
-						pointId: disabledByPointId
-					});
-				});
-				rule.choices.forEach(disabledByChoiceId => {
-					const disabledByChoice = allChoices.find(choice => choice.id === disabledByChoiceId);
-					this.disabledByList.push({
-						label: disabledByChoice?.label,
-						pointId: disabledByChoice?.pointId,
-						choiceId: disabledByChoiceId
-					});
-				});
-			});
-		});
-		this.choice.disabledBy.forEach(disabledChoice => {
-			disabledChoice.rules.forEach(rule => {
-				rule.choices.forEach(disabledByChoiceId => {
-					const disabledByChoice = allChoices.find(choice => choice.id === disabledByChoiceId);
-					this.disabledByList.push({
-						label: disabledByChoice?.label,
-						pointId: disabledByChoice?.pointId,
-						choiceId: disabledByChoiceId
-					});
-				});
-			});
-		});
+		if (!this.disabledByList)
+		{
+			this.disabledByList = getDisabledByList(this.groups, this.currentPoint, this.choice);
+		}
 		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { windowClass: 'phd-blocked-choice-modal' });
 	}
 
-	closeClicked() {
+	onCloseClicked() {
 		this.blockedChoiceModalRef?.close();
-		delete this.disabledByList;
 	}
 
 	onBlockedItemClick(pointId: number) {

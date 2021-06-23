@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { Observable, of, BehaviorSubject } from 'rxjs';
-import { distinctUntilChanged, combineLatest, switchMap, withLatestFrom } from 'rxjs/operators';
+import { distinctUntilChanged, combineLatest, switchMap, withLatestFrom, take } from 'rxjs/operators';
 
 import * as _ from 'lodash';
 
@@ -11,7 +11,8 @@ import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromPlan from '../../../ngrx-store/plan/reducer';
 import * as CommonActions from '../../../ngrx-store/actions';
 
-import { BrowserService, UnsubscribeOnDestroy, SalesAgreement } from 'phd-common';
+import { UnsubscribeOnDestroy, SalesAgreement, SDImage } from 'phd-common';
+import { JobService } from '../../../core/services/job.service';
 
 @Component({
 	selector: 'home',
@@ -23,12 +24,13 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 	communityName: string = '';
 	planName: string = '';
 	planImageUrl: string = '';
-	marketingPlanId$ = new BehaviorSubject<number>(0);
+	floorPlanImages: SDImage[] = [];
 	salesAgreement: SalesAgreement;
 
 	constructor(
 		private activatedRoute: ActivatedRoute,
-		private store: Store<fromRoot.State>)
+		private store: Store<fromRoot.State>,
+		private jobService: JobService)
     {
         super();
     }
@@ -67,20 +69,29 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 		});
 
 		this.store.pipe(
-			this.takeUntilDestroyed(),
-			select(fromPlan.planState),
-			withLatestFrom(this.store.pipe(select(state => state.scenario)))
-		).subscribe(([plan, scenario]) => {
-			if (plan && plan.marketingPlanId && plan.marketingPlanId.length) {
-				if (scenario.tree && scenario.tree.treeVersion) {
-					const subGroups = _.flatMap(scenario.tree.treeVersion.groups, g => g.subGroups) || [];
-					const fpSubGroup = subGroups.find(sg => sg.useInteractiveFloorplan);
-					if (fpSubGroup) {
-						this.marketingPlanId$.next(plan.marketingPlanId[0]);
-					}
+			select(state => state.job),
+			withLatestFrom(this.store.select(state => state.changeOrder)),
+			switchMap(([job, changeOrder]) =>
+			{
+				if (job.id && changeOrder)
+				{
+					return this.jobService.getFloorPlanImages(job.id, (changeOrder.currentChangeOrder !== null) ? true : false);
 				}
-			}
-		});
+				else
+				{
+					return new Observable<never>();
+				}
+			}),
+			take(1)
+		).subscribe(images =>
+		{
+			images && images.length && images.map(img =>
+			{
+				img.svg = `data:image/svg+xml;base64,${btoa(img.svg)}`;
+
+				this.floorPlanImages.push({ imageUrl: img.svg, hasDataUri: true, floorIndex: img.floorIndex, floorName: img.floorName } as SDImage);
+			});
+		});		
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
