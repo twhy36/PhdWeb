@@ -19,6 +19,7 @@ import * as FavoriteActions from '../../../ngrx-store/favorite/actions';
 import { ChoiceExt } from '../../models/choice-ext.model';
 import { AttributeLocationComponent } from '../attribute-location/attribute-location.component';
 import { AttributeGroupExt, AttributeExt } from '../../models/attribute-ext.model';
+import { getDisabledByList } from '../../../shared/classes/tree.utils';
 
 @Component({
 	selector: 'choice-card-detail',
@@ -55,7 +56,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	choiceAttributeGroups: AttributeGroup[];
 	choiceLocationGroups: LocationGroup[];
 	blockedChoiceModalRef: NgbModalRef;
-	disabledByList: {label: string, pointId: number, choiceId?: number}[];
+	disabledByList: {label: string, pointId: number, choiceId?: number}[] = null;
 
 	constructor(private cd: ChangeDetectorRef,
 		private attributeService: AttributeService,
@@ -271,7 +272,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		// look for choice images if there is no option image
 		if (!this.choiceImages.length && this.choice?.hasImage)
 		{
-			this.choice?.choiceImages?.forEach(x => 
+			this.choice?.choiceImages?.forEach(x =>
 			{
 				this.choiceImages.push({ imageURL: x.imageUrl });
 			});
@@ -530,45 +531,15 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	}
 
 	openBlockedChoiceModal() {
-		this.disabledByList = [];
-		const allPoints = _.flatMap(this.groups, g => _.flatMap(g.subGroups, sg => sg.points));
-		const allChoices = _.flatMap(allPoints, p => p.choices.map(c => ({...c, pointId: p.id})));
-		this.currentPoint.disabledBy.forEach(disabledPoint => {
-			disabledPoint.rules.forEach(rule => {
-				rule.points.forEach(disabledByPointId => {
-					this.disabledByList.push({
-						label: allPoints.find(point => point.id === disabledByPointId)?.label,
-						pointId: disabledByPointId
-					});
-				});
-				rule.choices.forEach(disabledByChoiceId => {
-					const disabledByChoice = allChoices.find(choice => choice.id === disabledByChoiceId);
-					this.disabledByList.push({
-						label: disabledByChoice?.label,
-						pointId: disabledByChoice?.pointId,
-						choiceId: disabledByChoiceId
-					});
-				});
-			});
-		});
-		this.choice.disabledBy.forEach(disabledChoice => {
-			disabledChoice.rules.forEach(rule => {
-				rule.choices.forEach(disabledByChoiceId => {
-					const disabledByChoice = allChoices.find(choice => choice.id === disabledByChoiceId);
-					this.disabledByList.push({
-						label: disabledByChoice?.label,
-						pointId: disabledByChoice?.pointId,
-						choiceId: disabledByChoiceId
-					});
-				});
-			});
-		});
+		if (!this.disabledByList)
+		{
+			this.disabledByList = getDisabledByList(this.groups, this.currentPoint, this.choice);
+		}
 		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { windowClass: 'phd-blocked-choice-modal' });
 	}
 
-	closeClicked() {
+	onCloseClicked() {
 		this.blockedChoiceModalRef?.close();
-		delete this.disabledByList;
 	}
 
 	onBlockedItemClick(pointId: number) {

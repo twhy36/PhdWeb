@@ -209,9 +209,6 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 
 			if (newState.tree)
 			{
-				_.flatMap(newState.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points))
-					.forEach(pt => pt.completed = pt.choices.some(c => c.quantity > 0));
-
 				applyRules(newState.tree, newState.rules, newState.options);
 
 				subGroups = _.flatMap(newState.tree.treeVersion.groups, g => g.subGroups);
@@ -245,6 +242,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 				{
 					const optionsDisabled = _.flatMap(newState.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, p => p.choices)))
 						.filter(choice => choice.options.some((option) => !option.isActive));
+
 					if (optionsDisabled)
 					{
 						newTree = newState.tree;
@@ -273,9 +271,6 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 								}
 							}
 
-							point = points.find(pt => pt.choices.some(ch => ch.id === choice.id));
-
-							point.completed = point && point.choices && point.choices.some(ch => ch.quantity > 0);
 							applyRules(newTree, rules, options);
 
 							// check selected attributes to make sure they're still valid after applying rules
@@ -359,10 +354,6 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 
 				choices.find(ch => ch.id === choice.choiceId).overrideNote = choice.overrideNote;
 				choices.forEach(ch => (ch.id !== choice.choiceId && ch.treePointId === pointId) ? ch.overrideNote = null : null);
-
-				point = points.find(pt => pt.choices.some(ch => ch.id === choice.choiceId));
-
-				point.completed = point && point.choices && point.choices.some(ch => ch.quantity > 0);
 			}
 
 			applyRules(newTree, rules, options);
