@@ -38,6 +38,7 @@ export class PhdTableComponent implements AfterContentInit, OnChanges
 	globalFilterInput: string = "";
 	rowGroupMetadata: any;
 	tooltipText: string;
+	tooltipTimeout: NodeJS.Timeout;
 
 	@ViewChild(Table, { static: false }) table: Table;
 	@ViewChild("tt") tooltipOverlay: OverlayPanel;
@@ -431,11 +432,16 @@ export class PhdTableComponent implements AfterContentInit, OnChanges
 	{
 		if (this.displayTooltip)
 		{
-			setTimeout(() =>
+			// Un-anchors any lingering tooltips from neighboring cells in case hideTooltip() isn't fired
+			this.tooltipOverlay.hide();
+
+			// Stops any other tooltip in the process of showing
+			clearTimeout(this.tooltipTimeout);
+
+			this.tooltipTimeout = setTimeout(() =>
 			{
 				this.tooltipText = tooltipText;
-				this.tooltipOverlay.appendTo = event.target.parentElement;
-				this.tooltipOverlay.show(event, event.target)
+				this.tooltipOverlay.show(event, event.target);
 			}, 300);
 		}
 	}
