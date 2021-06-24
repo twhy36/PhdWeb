@@ -448,6 +448,9 @@ export class PhdTableComponent implements AfterContentInit, OnChanges
 
 	hideTooltip(): void
 	{
+		// Stops any other tooltip in the process of showing
+		clearTimeout(this.tooltipTimeout);
+
 		this.tooltipOverlay.hide();
 	}
 
