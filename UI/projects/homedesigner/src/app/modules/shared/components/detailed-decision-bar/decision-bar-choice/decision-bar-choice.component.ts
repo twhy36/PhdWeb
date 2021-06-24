@@ -20,7 +20,7 @@ export class DecisionBarChoiceComponent implements OnInit {
 
 	@ViewChild('blockedChoiceModal') blockedChoiceModal: any;
 
-	disabledByList: {label: string, pointId: number, choiceId?: number}[] = null;
+	disabledByList: {label: string, pointId: number, choiceId?: number, ruleType: number}[] = null;
 	blockedChoiceModalRef: NgbModalRef;
 
   constructor(public modalService: NgbModal) {

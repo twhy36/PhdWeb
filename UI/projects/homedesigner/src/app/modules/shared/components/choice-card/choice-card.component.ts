@@ -31,7 +31,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 	optionImages: OptionImage[];
 	imageUrl: string = '';
 	blockedChoiceModalRef: NgbModalRef;
-	disabledByList: {label: string, pointId: number, choiceId?: number}[] = null;
+	disabledByList: {label: string, pointId: number, choiceId?: number, ruleType: number}[] = null;
 
 	constructor(public modalService: NgbModal) {
 		super();

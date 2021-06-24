@@ -702,7 +702,8 @@ export function getDisabledByList(groups: Group[], point: DecisionPoint, choice:
 			rule.points.forEach(disabledByPointId => {
 				disabledByList.push({
 					label: allPoints.find(point => point.id === disabledByPointId)?.label,
-					pointId: disabledByPointId
+					pointId: disabledByPointId,
+					ruleType: rule.ruleType
 				});
 			});
 			rule.choices.forEach(disabledByChoiceId => {
@@ -710,7 +711,8 @@ export function getDisabledByList(groups: Group[], point: DecisionPoint, choice:
 				disabledByList.push({
 					label: disabledByChoice?.label,
 					pointId: disabledByChoice?.pointId,
-					choiceId: disabledByChoiceId
+					choiceId: disabledByChoiceId,
+					ruleType: rule.ruleType
 				});
 			});
 		});
@@ -722,7 +724,8 @@ export function getDisabledByList(groups: Group[], point: DecisionPoint, choice:
 				disabledByList.push({
 					label: disabledByChoice?.label,
 					pointId: disabledByChoice?.pointId,
-					choiceId: disabledByChoiceId
+					choiceId: disabledByChoiceId,
+					ruleType: rule.ruleType
 				});
 			});
 		});
