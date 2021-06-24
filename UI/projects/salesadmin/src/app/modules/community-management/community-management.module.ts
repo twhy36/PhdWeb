@@ -21,9 +21,9 @@ import { ClaimGuard } from 'phd-common';
     imports: [
         RouterModule.forChild([
             {
-                path: 'community-management', canActivate: [ClaimGuard], data: { requiresClaim: 'SalesAdmin' }, children: [
-                    { path: 'auto-approval', component: AutoApprovalComponent },
-                    { path: 'community-settings', component: CommunitySettingsComponent },
+                path: 'community-management', canActivate: [ClaimGuard], data: { requiresClaim: 'AutoApproval' }, children: [
+                    { path: 'auto-approval', data: { requiresClaim: 'AutoApproval' }, component: AutoApprovalComponent },
+                    { path: 'community-settings', data: { requiresClaim: 'SalesAdmin' }, component: CommunitySettingsComponent },
                     { path: '', redirectTo: 'community-settings', pathMatch: 'full' }
                 ]
             }
