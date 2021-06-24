@@ -277,7 +277,22 @@ export class TreeService
 
 					let buildRequestUrl = (options: Array<JobPlanOption | ChangeOrderPlanOption>) =>
 					{
-						let optFilter = (opt: JobPlanOption | ChangeOrderPlanOption) => `planOptionCommunityId eq ${opt.planOptionId} and startDate le ${opt.outForSignatureDate} and (endDate eq null or endDate gt ${opt.outForSignatureDate})`;
+						let optFilter = (opt: JobPlanOption | ChangeOrderPlanOption) => 
+						{
+							let filter = `planOptionCommunityId eq ${opt.planOptionId}`;
+
+							if(opt.outForSignatureDate)
+							{
+								filter += ` and startDate le ${opt.outForSignatureDate} and (endDate eq null or endDate gt ${opt.outForSignatureDate})`;
+							}
+							else
+							{
+								filter += ` and endDate eq null`;
+							}
+
+							return filter;
+						}
+							
 						let filter = `${options.map(opt => optFilter(opt)).join(' or ')}`;
 						let select = `planOptionCommunityId, imageUrl, startDate, endDate, sortOrder`;
 						let orderBy = `sortOrder`;
@@ -309,7 +324,7 @@ export class TreeService
 
 					return _.flatten(bodies.map(body =>
 					{
-						return body.value.length > 0 ? body.value : null;
+						return body.value?.length > 0 ? body.value : null;
 					}).filter(res => res));
 				})
 			);
