@@ -2,8 +2,8 @@ import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
 
-import { Observable, of, from as fromPromise, Subscription, forkJoin } from 'rxjs';
-import { combineLatest, switchMap, distinctUntilChanged, map, finalize } from 'rxjs/operators';
+import { Observable, of, from as fromPromise, Subscription, forkJoin, throwError } from 'rxjs';
+import { combineLatest, switchMap, distinctUntilChanged, map, finalize, catchError } from 'rxjs/operators';
 
 import { MessageService } from 'primeng/api';
 
@@ -908,31 +908,27 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 
 			this._msgService.add({ severity: 'info', summary: 'Deleting Choice...' });
 
-			try
-			{
-				// delete choice
-				this._treeService.deleteChoiceFromTree(versionId, id)
-					.pipe(finalize(() => this._msgService.add({ severity: 'success', summary: 'Choice Deleted' })))
-					.subscribe(deletedRules =>
-					{
-						this.updateDPointRulesStatus(deletedRules.points);
-						this.updateOptionRulesStatus(deletedRules.integrationKeys);
+			// delete choice
+			this._treeService.deleteChoiceFromTree(versionId, id)
+				.pipe(catchError((err) => {
+					this._msgService.add({ severity: 'error', summary: 'Error', detail: `Unable to Delete Choice.` });
+					return throwError(err);
+				}))
+				.subscribe(deletedRules => {
+					this.updateDPointRulesStatus(deletedRules.points);
+					this.updateOptionRulesStatus(deletedRules.integrationKeys);
 
-						const point = choice.parent;
+					const point = choice.parent;
 
-						// remove choice from DTPoint choice list
-						const index = point.choices.indexOf(choice);
-						point.choices.splice(index, 1);
+					// remove choice from DTPoint choice list
+					const index = point.choices.indexOf(choice);
+					point.choices.splice(index, 1);
 
-						// update points hasUnusedChoices flag
-						this.checkUnusedChoices(point);
-					});
+					// update points hasUnusedChoices flag
+					this.checkUnusedChoices(point);
 
-			}
-			catch (e)
-			{
-				this._msgService.add({ severity: 'error', summary: 'Error', detail: `Unable to Delete Choice.` });
-			}
+					this._msgService.add({ severity: 'success', summary: 'Choice Deleted' });
+				});
 		}
 	}
 
@@ -965,30 +961,27 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 
 			this._msgService.add({ severity: 'info', summary: 'Deleting Decision Point...' });
 
-			try
-			{
-				// delete point
-				this._treeService.deletePointFromTree(versionId, id).pipe(
-					finalize(() => this._msgService.add({ severity: 'success', summary: 'Decision Point Deleted' }))
-				).subscribe(deletedRules =>
-				{
-					this.updateDPointRulesStatus(deletedRules.points);
-					this.updateOptionRulesStatus(deletedRules.integrationKeys);
+			// delete point
+			this._treeService.deletePointFromTree(versionId, id).pipe(
+				catchError((err) => {
+					this._msgService.add({ severity: 'error', summary: 'Error', detail: `Unable to Delete Decision Point.` });
+					return throwError(err);
+				})
+			).subscribe(deletedRules => {
+				this.updateDPointRulesStatus(deletedRules.points);
+				this.updateOptionRulesStatus(deletedRules.integrationKeys);
 
-					const subGroup = point.parent;
+				const subGroup = point.parent;
 
-					// remove point from DTSubGroup point list
-					const index = subGroup.points.indexOf(point);
-					subGroup.points.splice(index, 1);
+				// remove point from DTSubGroup point list
+				const index = subGroup.points.indexOf(point);
+				subGroup.points.splice(index, 1);
 
-					// update subGroups hasUnusedPoints flag
-					this.checkUnusedPoints(subGroup);
-				});
-			}
-			catch (e)
-			{
-				this._msgService.add({ severity: 'error', summary: 'Error', detail: `Unable to Delete Decision Point.` });
-			}
+				// update subGroups hasUnusedPoints flag
+				this.checkUnusedPoints(subGroup);
+
+				this._msgService.add({ severity: 'success', summary: 'Decision Point Deleted' });
+			});
 		}
 	}
 
