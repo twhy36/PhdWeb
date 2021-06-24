@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 
 @Component({
-  selector: 'lib-community-settings',
+  selector: 'community-settings',
   templateUrl: './community-settings.component.html',
   styleUrls: ['./community-settings.component.css']
 })
