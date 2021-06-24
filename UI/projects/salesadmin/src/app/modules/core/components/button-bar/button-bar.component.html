@@ -53,6 +53,13 @@
 			Monotony <br /> Rules
 		</span>
 	</div>
+	<div [routerLink]="['/community-management/community-settings']" [routerLinkActive]="['active']" class="button-bar-item" *requiresClaim="'SalesAdmin'">
+		<a class="hidden"></a>
+		<span>
+			<i class="fa fa-home fa-2x" phd-tooltip='Community Settings'></i><br />
+			Community <br /> Settings
+		</span>
+	</div>
 	<div [routerLink]="['/community-management/auto-approval']" [routerLinkActive]="['active']" class="button-bar-item" *requiresClaim="'AutoApproval'">
 		<a class="hidden" [routerLink]="['/community-management/auto-approval']"></a>
 		<span>
