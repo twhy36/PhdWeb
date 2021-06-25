@@ -435,18 +435,21 @@ export class PhdTableComponent implements AfterContentInit, OnChanges
 			// Avoid a rare issue with mouseleave not being properly triggered when jumping to an adjacent cell
 			this.hideTooltip();
 
-			this.tooltipTimeout = window.setTimeout(() =>
-			{
-				this.tooltipText = tooltipText;
-				this.tooltipOverlay.show(event, event.target);
-			}, 300);
+			if (typeof window !== 'undefined') {
+				this.tooltipTimeout = window.setTimeout(() => {
+					this.tooltipText = tooltipText;
+					this.tooltipOverlay.show(event, event.target);
+				}, 300);
+			}
 		}
 	}
 
 	hideTooltip(): void
 	{
-		// Stops any other tooltip in the process of showing
-		window.clearTimeout(this.tooltipTimeout);
+		if (typeof window !== 'undefined') {
+			// Stops any other tooltip in the process of showing
+			window.clearTimeout(this.tooltipTimeout);
+		}
 
 		this.tooltipOverlay.hide();
 	}
