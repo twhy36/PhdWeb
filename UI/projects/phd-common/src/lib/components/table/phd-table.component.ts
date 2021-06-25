@@ -432,11 +432,8 @@ export class PhdTableComponent implements AfterContentInit, OnChanges
 	{
 		if (this.displayTooltip)
 		{
-			// Un-anchors any lingering tooltips from neighboring cells in case hideTooltip() isn't fired
-			this.tooltipOverlay.hide();
-
-			// Stops any other tooltip in the process of showing
-			window.clearTimeout(this.tooltipTimeout);
+			// Avoid a rare issue with mouseleave not being properly triggered when jumping to an adjacent cell
+			this.hideTooltip();
 
 			this.tooltipTimeout = window.setTimeout(() =>
 			{
