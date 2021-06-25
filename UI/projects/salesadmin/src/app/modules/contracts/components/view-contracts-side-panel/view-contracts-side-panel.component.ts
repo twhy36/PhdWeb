@@ -36,6 +36,7 @@ export class ViewContractsSidePanelComponent implements OnInit
 	communitiesForSelectedTemplate: Array<FinancialCommunity> = [];
 	selectedCommunities: Array<FinancialCommunity> = [];
 	communitiesWithExistingTemplate: Array<number> = [];
+	selectedTab: 'Details' | 'Community' = 'Details';
 
 	oneDay: number = 86400000;
 	effectiveDate: Date;
@@ -373,5 +374,9 @@ export class ViewContractsSidePanelComponent implements OnInit
 
 			this.communitiesForSelectedTemplate.push(tag);
 		}
+	}
+
+	onTabClick(selectedTab: any) {
+		this.selectedTab = selectedTab;
 	}
 }
