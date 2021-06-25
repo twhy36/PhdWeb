@@ -10,6 +10,7 @@ import { SharedModule } from '../shared/shared.module';
 import { AutoApprovalComponent } from './auto-approvals/auto-approvals.component';
 import { CommunitySettingsComponent } from './community-settings/community-settings.component';
 import { ClaimGuard } from 'phd-common';
+import { LotManagementModule } from '../lot-managment/lot-management.module';
 
 @NgModule({
     declarations: [
@@ -34,7 +35,8 @@ import { ClaimGuard } from 'phd-common';
         ReactiveFormsModule,
 		ToastModule,
         PhdCommonModule,
-        CheckboxModule
+        CheckboxModule,
+        LotManagementModule
     ]
 })
 export class CommunityManagementModule { }

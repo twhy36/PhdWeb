@@ -23,7 +23,7 @@
 
 
       <div class="row">
-        <p *ngIf="selectedTab === commTabs.MonotonyRules">Monotony rules go here.</p>
+        <monotony-options *ngIf="selectedTab === commTabs.MonotonyRules"></monotony-options>
 
         <auto-approval *ngIf="selectedTab === commTabs.AutoApproval"></auto-approval>
 
