@@ -20,20 +20,20 @@ import { IFinancialCommunity } from '../../../shared/models/financial-community.
 import { IFinancialMarket } from '../../../shared/models/financial-market.model';
 import { IPlan } from '../../../shared/models/plan.model';
 import
-	{
-		DTree,
-		DTPoint,
-		DTChoice,
-		DTSubGroup,
-		IItemAdd,
-		DTVersion,
-		IDTPoint,
-		IDTChoice,
-		DTreeVersionDropDown,
-		IDTSubGroup,
-		DTAttributeGroupCollection,
-        ITreeSortList
-	} from '../../../shared/models/tree.model';
+{
+	DTree,
+	DTPoint,
+	DTChoice,
+	DTSubGroup,
+	IItemAdd,
+	DTVersion,
+	IDTPoint,
+	IDTChoice,
+	DTreeVersionDropDown,
+	IDTSubGroup,
+	DTAttributeGroupCollection,
+	ITreeSortList
+} from '../../../shared/models/tree.model';
 import { PhdApiDto, PhdEntityDto } from '../../../shared/models/api-dtos.model';
 import { Permission, IdentityService } from 'phd-common';
 import { IDPointPickType } from '../../../shared/models/point.model';
@@ -714,10 +714,10 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 
 							this.onChangeTreeVersion();
 						},
-						(error) =>
-						{
-							this._msgService.add({ severity: 'danger', summary: 'Error', detail: `Failed to delete draft.` });
-						});
+							(error) =>
+							{
+								this._msgService.add({ severity: 'danger', summary: 'Error', detail: `Failed to delete draft.` });
+							});
 				}
 				catch (ex)
 				{
@@ -910,11 +910,15 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 
 			// delete choice
 			this._treeService.deleteChoiceFromTree(versionId, id)
-				.pipe(catchError((err) => {
-					this._msgService.add({ severity: 'error', summary: 'Error', detail: `Unable to Delete Choice.` });
-					return throwError(err);
-				}))
-				.subscribe(deletedRules => {
+				.pipe(
+					catchError((err) =>
+					{
+						this._msgService.add({ severity: 'error', summary: 'Error', detail: `Unable to Delete Choice.` });
+
+						return throwError(err);
+					}))
+				.subscribe(deletedRules =>
+				{
 					this.updateDPointRulesStatus(deletedRules.points);
 					this.updateOptionRulesStatus(deletedRules.integrationKeys);
 
@@ -922,6 +926,7 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 
 					// remove choice from DTPoint choice list
 					const index = point.choices.indexOf(choice);
+
 					point.choices.splice(index, 1);
 
 					// update points hasUnusedChoices flag
@@ -962,26 +967,31 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 			this._msgService.add({ severity: 'info', summary: 'Deleting Decision Point...' });
 
 			// delete point
-			this._treeService.deletePointFromTree(versionId, id).pipe(
-				catchError((err) => {
-					this._msgService.add({ severity: 'error', summary: 'Error', detail: `Unable to Delete Decision Point.` });
-					return throwError(err);
-				})
-			).subscribe(deletedRules => {
-				this.updateDPointRulesStatus(deletedRules.points);
-				this.updateOptionRulesStatus(deletedRules.integrationKeys);
+			this._treeService.deletePointFromTree(versionId, id)
+				.pipe(
+					catchError((err) =>
+					{
+						this._msgService.add({ severity: 'error', summary: 'Error', detail: `Unable to Delete Decision Point.` });
 
-				const subGroup = point.parent;
+						return throwError(err);
+					}))
+				.subscribe(deletedRules =>
+				{
+					this.updateDPointRulesStatus(deletedRules.points);
+					this.updateOptionRulesStatus(deletedRules.integrationKeys);
 
-				// remove point from DTSubGroup point list
-				const index = subGroup.points.indexOf(point);
-				subGroup.points.splice(index, 1);
+					const subGroup = point.parent;
 
-				// update subGroups hasUnusedPoints flag
-				this.checkUnusedPoints(subGroup);
+					// remove point from DTSubGroup point list
+					const index = subGroup.points.indexOf(point);
 
-				this._msgService.add({ severity: 'success', summary: 'Decision Point Deleted' });
-			});
+					subGroup.points.splice(index, 1);
+
+					// update subGroups hasUnusedPoints flag
+					this.checkUnusedPoints(subGroup);
+
+					this._msgService.add({ severity: 'success', summary: 'Decision Point Deleted' });
+				});
 		}
 	}
 
