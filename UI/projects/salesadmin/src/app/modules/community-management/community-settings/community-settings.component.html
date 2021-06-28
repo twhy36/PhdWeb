@@ -5,16 +5,16 @@
       <div class="mx-1 row">
         <div>
           <ul class="nav nav-tabs">
-            <li class="nav-item phd-tab" [ngClass]="{'show phd-active': (selectedTab === commTabs.MonotonyRules)}">
+            <li class="nav-item phd-tab" [ngClass]="{'show phd-active': (selectedTab === commTabs.MonotonyRules)}" *requiresClaim="'SalesAdmin'">
               <a class="nav-link" (click)="onTabClick(commTabs.MonotonyRules)">Monotony Rules</a>
             </li>
-            <li class="nav-item phd-tab" [ngClass]="{'show phd-active': (selectedTab === commTabs.AutoApproval) }">
+            <li class="nav-item phd-tab" [ngClass]="{'show phd-active': (selectedTab === commTabs.AutoApproval) }" *requiresClaim="'AutoApproval'">
               <a class="nav-link" (click)="onTabClick(commTabs.AutoApproval)">Auto Approval</a>
             </li>
-            <li class="nav-item phd-tab" [ngClass]="{'show phd-active': (selectedTab === commTabs.PDF)}">
+            <li class="nav-item phd-tab" [ngClass]="{'show phd-active': (selectedTab === commTabs.PDF)}" *requiresClaim="'SalesAdmin'">
               <a class="nav-link" (click)="onTabClick(commTabs.PDF)">PDF Upload - Additional Info.</a>
             </li>
-            <li class="nav-item phd-tab" [ngClass]="{'show phd-active': (selectedTab === commTabs.CommunitySettings)}">
+            <li class="nav-item phd-tab" [ngClass]="{'show phd-active': (selectedTab === commTabs.CommunitySettings)}" *requiresClaim="'SalesAdmin'">
               <a class="nav-link" (click)="onTabClick(commTabs.CommunitySettings)">Community Settings</a>
             </li>
           </ul>

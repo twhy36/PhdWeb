@@ -1,4 +1,7 @@
 import { Component, OnInit } from '@angular/core';
+import { Claims, IdentityService } from 'phd-common';
+import { take } from 'rxjs/operators';
+import { UnsubscribeOnDestroy } from '../../shared/utils/unsubscribe-on-destroy';
 
 enum Tabs {
   MonotonyRules = 'Monotony Rules',
@@ -12,14 +15,25 @@ enum Tabs {
   templateUrl: './community-settings.component.html',
   styleUrls: ['./community-settings.component.css']
 })
-export class CommunitySettingsComponent implements OnInit {
+export class CommunitySettingsComponent extends UnsubscribeOnDestroy implements OnInit {
 
   public commTabs = Tabs;
   selectedTab = this.commTabs.MonotonyRules;
 
-  constructor() { }
+  constructor(
+    private identityService: IdentityService
+  ) {
+    super();
+  }
 
   ngOnInit(): void {
+    this.identityService.getClaims().pipe(
+      take(1)
+    ).subscribe(
+      (claims: Claims) => {
+        this.selectedTab = (!!claims.SalesAdmin) ? this.commTabs.MonotonyRules : this.commTabs.AutoApproval;
+      }
+    );
   }
 
   onTabClick(selectedTab: Tabs) {
