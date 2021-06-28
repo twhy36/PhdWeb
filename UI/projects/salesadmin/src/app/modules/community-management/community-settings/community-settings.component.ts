@@ -18,7 +18,11 @@ enum Tabs {
 export class CommunitySettingsComponent extends UnsubscribeOnDestroy implements OnInit {
 
   public commTabs = Tabs;
-  selectedTab = this.commTabs.MonotonyRules;
+  selectedTab: Tabs;
+
+  get mainTitle(): string {
+    return 'Community Settings > ' + this.selectedTab;
+  }
 
   constructor(
     private identityService: IdentityService
