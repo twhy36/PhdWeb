@@ -12,9 +12,9 @@ html, body, app-root {
 }
 
 body {
-    font-family: 'Roboto', sans-serif;
-    background: #f8f8f8;
-    color: #4a4a4a;
+	font-family: 'Roboto', sans-serif;
+	background: #f8f8f8;
+	color: #4a4a4a;
 }
 
 body, app-root, national-catalog, divisional-catalog, copy-tree, divisional-attributes, divisional-attribute-template, divisional-options-panel, divisional-options-container, divisional-catalog-wizard, divisional-attribute-wizard {
@@ -139,14 +139,14 @@ a:focus {
 }
 
 .phd-experience-btn-choice {
-  background-color: #073e59;
-  color: #fff;
-  text-align: center;
+	background-color: #073e59;
+	color: #fff;
+	text-align: center;
 }
 
 .phd-experience-btn-choice:hover {
-  background-color: #1a5e80;
-  color: #fff;
+	background-color: #1a5e80;
+	color: #fff;
 }
 
 .phd-search-input {
@@ -168,7 +168,7 @@ a:focus {
 	color: #888888;
 	margin: auto;
 	text-align: center;
-	background-color: hsla(0,0,50,0.2);
+	background-color: hsla(0,0*1%,50*1%,0.2);
 
 	i {
 		margin-top: 40px;
@@ -186,7 +186,7 @@ a:focus {
 	color: #888888;
 	margin: auto;
 	text-align: center;
-	background-color: hsla(0,0,50,0.2);
+	background-color: hsla(0,0*1%,50*1%,0.2);
 
 	i {
 		margin-top: 40px;
@@ -210,17 +210,15 @@ a:focus {
 }
 
 .validation-error {
-    color: red;
+	color: red;
 }
 
 .phd-clickable:hover {
 	cursor: pointer;
 }
 
-.phd-clickable-inline
-{
+.phd-clickable-inline {
 	@extend .phd-clickable;
-
 	display: inline;
 }
 
@@ -252,7 +250,7 @@ tr.ui-state-highlight {
 }
 
 ::ng-deep .phd-inactive {
-	color: hsl(0,0,55) !important;
+	color: hsl(0,0*1%,55*1%) !important;
 	font-style: italic;
 }
 
@@ -262,6 +260,20 @@ tr.ui-state-highlight {
 
 	span {
 		display: block;
+	}
+}
+
+/* Workaround for https://github.com/primefaces/primeng/issues/9288 */
+::ng-deep .p-tabview.p-component {
+	display: flex;
+
+	.p-tabview-nav {
+		flex-direction: column;
+		width: 15%;
+	}
+
+	.p-tabview-panels {
+		width: 100%; // to have content take up remainder of space
 	}
 }
 

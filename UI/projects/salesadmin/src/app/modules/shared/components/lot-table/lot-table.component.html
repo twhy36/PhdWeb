@@ -31,7 +31,7 @@
 
 	<phd-column header="Handing" field="lot.handing">
 		<ng-template #body let-lot>
-			<span (mouseenter)="showTooltip($event, lot.handing, dt)" (mouseleave)="hideTooltip(dt)">{{ lot.handing | handings }}</span>
+			<span (mouseenter)="showHandingTooltip($event, lot.handing, dt)" (mouseleave)="hideTooltip(dt)">{{ lot.handing | handings }}</span>
 		</ng-template>
 	</phd-column>
 

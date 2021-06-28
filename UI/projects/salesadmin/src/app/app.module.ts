@@ -60,7 +60,6 @@ const appInitializerFn = (identityService: IdentityService) => {
         { provide: APP_INITIALIZER, useFactory: appInitializerFn, deps: [IdentityService], multi: true },
 		{ provide: AUTH_CONFIG, useValue: environment.authConfig }
     ],
-	bootstrap: [AppComponent],
-	entryComponents: [ConfirmModalComponent]
+	bootstrap: [AppComponent]
 })
 export class AppModule { }
