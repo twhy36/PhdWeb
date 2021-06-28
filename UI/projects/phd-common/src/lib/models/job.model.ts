@@ -196,7 +196,12 @@ export class JobPlanOption
 		{
 			Object.assign(this, dto);
 
-			this.integrationKey = dto['planOptionCommunity']['optionCommunity']['option']['financialOptionIntegrationKey'];
+			if(	dto['planOptionCommunity'] 
+				&& dto['planOptionCommunity']['optionCommunity']
+				&& dto['planOptionCommunity']['optionCommunity']['option'])
+			{
+				this.integrationKey = dto['planOptionCommunity']['optionCommunity']['option']['financialOptionIntegrationKey'];
+			}
 		}
 	}
 }

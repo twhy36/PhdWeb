@@ -3,9 +3,11 @@ import { APP_BASE_HREF } from '@angular/common';
 
 import { Store } from '@ngrx/store';
 
-import { UnsubscribeOnDestroy, Job, Plan } from 'phd-common';
+import { UnsubscribeOnDestroy, Job, Plan, ChoiceImageAssoc } from 'phd-common';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
+import { TreeService } from '../../../core/services/tree.service';
+import { of } from "rxjs";
 
 @Component({
 	selector: 'quick-move-in-card',
@@ -27,7 +29,12 @@ export class QuickMoveInCardComponent extends UnsubscribeOnDestroy
 	choices: { choiceId: number, overrideNote: string, quantity: number }[];
 	hasPendingChangeOrder: boolean;
 
-	constructor(private store: Store<fromRoot.State>, @Inject(APP_BASE_HREF) private _baseHref: string)
+	private imagePath : string;
+
+	constructor(
+		private store: Store<fromRoot.State>, 
+		@Inject(APP_BASE_HREF) private _baseHref: string,
+		private _treeService: TreeService)
 	{
 		super();
 	}
@@ -37,6 +44,27 @@ export class QuickMoveInCardComponent extends UnsubscribeOnDestroy
 		this.plan = this.plans.find(
 			plan => plan.id === this.specJob.planId
 		);
+
+		let elevationPlanOptions = this.specJob.jobPlanOptions.filter( x => x.jobOptionTypeName === "Elevation");
+
+		let getImages = elevationPlanOptions?.length > 0 ? 
+		this._treeService.getPlanOptionCommunityImageAssoc(elevationPlanOptions) : of(null);
+
+		getImages.subscribe(jobPlanImages =>{
+			
+			if( jobPlanImages && jobPlanImages.length > 0)
+			{
+				this.imagePath = jobPlanImages[0].imageUrl;
+			}
+			else if(this.plan && this.plan.baseHouseElevationImageUrl)
+			{
+				this.imagePath = this.plan.baseHouseElevationImageUrl;
+			}
+			else
+			{
+				this.imagePath =`${this._baseHref}assets/pultegroup_logo.jpg`;
+			}
+		}) ;
 
 		this.lot = {
 			id: this.specJob.lot.id,
@@ -55,10 +83,7 @@ export class QuickMoveInCardComponent extends UnsubscribeOnDestroy
 
 	getImagePath(): string
 	{
-		// Images to be added in later story
-		const imagePath = this.plan && this.plan.baseHouseElevationImageUrl ? this.plan.baseHouseElevationImageUrl : `${this._baseHref}assets/pultegroup_logo.jpg`;
-
-		return imagePath;
+		return this.imagePath;
 	}
 
 	loadImageError(event: any)

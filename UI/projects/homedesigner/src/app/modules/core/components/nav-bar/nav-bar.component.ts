@@ -1,8 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
+import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 
 import { BrowserService, UnsubscribeOnDestroy} from 'phd-common';
+
+import * as fromRoot from '../../../ngrx-store/reducers';
+import * as CommonActions from '../../../ngrx-store/actions';
 
 @Component({
 	  selector: 'nav-bar',
@@ -17,7 +21,11 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 	isMenuCollapsed: boolean = true;
 	currentPath: string;
 
-	constructor(private router: Router, private browser: BrowserService)
+	constructor(
+		private router: Router, 
+		private browser: BrowserService, 
+		private store: Store<fromRoot.State>
+	)
     {
 		super();
     }
@@ -29,6 +37,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 				this.currentRoute = evt.url.toLowerCase();
 
 				this.currentPath = '';
+				this.isMenuCollapsed = true;
 				if (this.currentRoute && this.currentRoute.length) {
 					const paths = this.currentRoute.split('/');
 					const favIndex = paths.findIndex(x => x === 'favorites');
@@ -62,4 +71,9 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 
 		return '/favorites';
 	}
+
+	onHomePage() {
+		this.store.dispatch(new CommonActions.ResetFavorites());
+		this.router.navigateByUrl('/home');
+	}	
 }

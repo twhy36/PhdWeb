@@ -6,15 +6,15 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
   styleUrls: ['./blocked-choice-modal.component.scss']
 })
 export class BlockedChoiceModalComponent implements OnInit {
-	@Input() disabledByList: {label: string, pointId: number, choiceId?: number}[] = null;
+	@Input() disabledByList: {label: string, pointId: number, choiceId?: number, ruleType: number}[] = null;
 
 	@Output() closeModal = new EventEmitter();
 	@Output() blockedItemClick = new EventEmitter();
 
-  constructor() { }
+	constructor() { }
 
-  ngOnInit(): void {
-  }
+	ngOnInit(): void {
+	}
 
 	closeClicked() {
 		this.closeModal.emit();
@@ -24,5 +24,13 @@ export class BlockedChoiceModalComponent implements OnInit {
 		this.blockedItemClick.emit(pointId);
 	}
 
+	get disabledByMustHaveRules()
+	{
+		return this.disabledByList?.filter(r => r.ruleType === 1);
+	}
 
+	get disabledByMustNotHaveRules()
+	{
+		return this.disabledByList?.filter(r => r.ruleType === 2);
+	}	
 }

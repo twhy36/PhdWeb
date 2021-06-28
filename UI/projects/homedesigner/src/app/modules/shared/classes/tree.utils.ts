@@ -600,7 +600,7 @@ export function mergeLocations(locations: Array<any>, missingLocations: Array<De
 }
 
 // Choice-To-Choice Structural Items
-export function hideChoicesByStructuralItems(choiceRules: ChoiceRules[], choices: Choice[], points: DecisionPoint[], hiddenChoiceIds: number[]) {
+export function hideChoicesByStructuralItems(choiceRules: ChoiceRules[], choices: Choice[], points: DecisionPoint[], hiddenChoiceIds: number[], hiddenPointIds: number[]) {
 	choiceRules.forEach(cr => {
 		cr.rules.forEach(r => {
 			r.choices.forEach(ch => {
@@ -622,11 +622,23 @@ export function hideChoicesByStructuralItems(choiceRules: ChoiceRules[], choices
 				const choice = r.choices.find(ch => hiddenChoiceIds.indexOf(ch) > -1 && hiddenChoiceIds.indexOf(cr.choiceId) < 0);
 				if (choice) {
 					hiddenChoicesFound = false;
-						hiddenChoiceIds.push(cr.choiceId);
+					hiddenChoiceIds.push(cr.choiceId);
 				}
 			})
 		})
 	}
+	// Covers scenario that all choices within a DP are hidden, even if DP is not disabled
+	points.forEach(p => {
+		let hiddenChoiceQuantity = 0;
+		p.choices.forEach(c => {
+			if (hiddenChoiceIds.findIndex(hid => hid === c.id) > -1) {
+				hiddenChoiceQuantity++;
+			}
+		})
+		if (hiddenChoiceQuantity === p.choices.length) {
+			hiddenPointIds.push(p.id);
+		}
+	})
 }
 
 // Point-To-Choice && Point-To-Point Structural Items
@@ -697,12 +709,13 @@ export function getDisabledByList(groups: Group[], point: DecisionPoint, choice:
 	let disabledByList = [];
 	const allPoints = _.flatMap(groups, g => _.flatMap(g.subGroups, sg => sg.points));
 	const allChoices = _.flatMap(allPoints, p => p.choices.map(c => ({...c, pointId: p.id})));
-	point.disabledBy.forEach(disabledPoint => {
+	point?.disabledBy.forEach(disabledPoint => {
 		disabledPoint.rules.forEach(rule => {
 			rule.points.forEach(disabledByPointId => {
 				disabledByList.push({
 					label: allPoints.find(point => point.id === disabledByPointId)?.label,
-					pointId: disabledByPointId
+					pointId: disabledByPointId,
+					ruleType: rule.ruleType
 				});
 			});
 			rule.choices.forEach(disabledByChoiceId => {
@@ -710,19 +723,21 @@ export function getDisabledByList(groups: Group[], point: DecisionPoint, choice:
 				disabledByList.push({
 					label: disabledByChoice?.label,
 					pointId: disabledByChoice?.pointId,
-					choiceId: disabledByChoiceId
+					choiceId: disabledByChoiceId,
+					ruleType: rule.ruleType
 				});
 			});
 		});
 	});
-	choice.disabledBy.forEach(disabledChoice => {
+	choice?.disabledBy.forEach(disabledChoice => {
 		disabledChoice.rules.forEach(rule => {
 			rule.choices.forEach(disabledByChoiceId => {
 				const disabledByChoice = allChoices.find(choice => choice.id === disabledByChoiceId);
 				disabledByList.push({
 					label: disabledByChoice?.label,
 					pointId: disabledByChoice?.pointId,
-					choiceId: disabledByChoiceId
+					choiceId: disabledByChoiceId,
+					ruleType: rule.ruleType
 				});
 			});
 		});

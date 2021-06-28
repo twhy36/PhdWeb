@@ -166,7 +166,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 				newState.tree.treeVersion.groups.forEach(g => setGroupStatus(g));
 
 				// Choice-To-Choice
-				hideChoicesByStructuralItems(newState.rules.choiceRules, choices, points, newState.hiddenChoiceIds);
+				hideChoicesByStructuralItems(newState.rules.choiceRules, choices, points, newState.hiddenChoiceIds, newState.hiddenPointIds);
 				
 				// Point-To-Choice && Point-To-Point
 				hidePointsByStructuralItems(newState.rules.pointRules, choices, points, newState.hiddenChoiceIds, newState.hiddenPointIds);

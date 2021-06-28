@@ -56,7 +56,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	choiceAttributeGroups: AttributeGroup[];
 	choiceLocationGroups: LocationGroup[];
 	blockedChoiceModalRef: NgbModalRef;
-	disabledByList: {label: string, pointId: number, choiceId?: number}[] = null;
+	disabledByList: {label: string, pointId: number, choiceId?: number, ruleType: number}[] = null;
 
 	constructor(private cd: ChangeDetectorRef,
 		private attributeService: AttributeService,
