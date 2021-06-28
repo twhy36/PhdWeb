@@ -1221,6 +1221,15 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 		if (updatedChangeOrders[0].id === this.currentChangeOrderId)
 		{
 			this.store.dispatch(new ChangeOrderActions.SetChangingOrder(true, null, false));
-		}		
+		}
+		
+		// Reload sales agreement and update price on change order
+		this.store.dispatch(new CommonActions.LoadSalesAgreement(this.salesAgreementId));
+		this._actions$.pipe(
+			ofType<LotsLoaded>(LotActionTypes.LotsLoaded),
+			take(1)).subscribe(() =>
+			{
+				this.store.dispatch(new ChangeOrderActions.CreateJobChangeOrders());
+			});		
 	}
 }
