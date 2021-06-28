@@ -67,6 +67,16 @@ export class AttributeListComponent extends UnsubscribeOnDestroy implements OnIn
 		this.rightNavDisabled = reachesRightBound;
 	}
 
+	get canEditAttributes(): boolean
+	{
+		return this.canEditAgreement && (!this.isPastCutOff || this.canOverride);
+	}
+
+	get disableAttribute(): boolean
+	{
+		return !this.isActive || this.attributes.length === 1;
+	}
+
 	constructor(private store: Store<fromRoot.State>) { super() }
 
 	// Close image preview when clicking outside of it
@@ -121,6 +131,33 @@ export class AttributeListComponent extends UnsubscribeOnDestroy implements OnIn
 				this.selectedAttributeId = attr ? attr.attributeId : null;
 			}
 		}
+
+		if (this.isActive)
+		{
+			this.defaultSingleAttribute();
+		}
+	}
+
+	defaultSingleAttribute(setActive: boolean = false)
+	{
+		// checking that there is only one item
+		if (this.attributes.length === 1)
+		{
+			// this will be false if within a location, so set to true so attributeClick will work
+			if (setActive)
+			{
+				this.isActive = true;
+			}
+
+			if (this.selectedAttributeId == null)
+			{
+				// apply the only item
+				this.setAttribute(this.attributes[0]);
+			}
+
+			// set to stop users from deselecting the only value
+			this.isActive = false;
+		}
 	}
 
 	ngOnChanges(changes: SimpleChanges)
@@ -134,19 +171,17 @@ export class AttributeListComponent extends UnsubscribeOnDestroy implements OnIn
 
 	attributeClick(attribute: Attribute)
 	{
-		if (this.canEditAttributes)
+		if (this.canEditAttributes && !this.disableAttribute)
 		{
-			if (this.isActive && this.selectedAttributeId !== attribute.id)
-			{
-				this.selectedAttributeId = attribute.id;
-			}
-			else if (this.isActive && this.selectedAttributeId === attribute.id)
-			{
-				this.selectedAttributeId = null;
-			}
-
-			this.onAttributeClick.emit({ attribute: attribute, attributeGroupId: this.attributeGroupId, updateParent: this.updateParent });
+			this.setAttribute(attribute);
 		}
+	}
+
+	private setAttribute(attribute: Attribute)
+	{
+		this.selectedAttributeId = this.selectedAttributeId !== attribute.id ? attribute.id : null;
+
+		this.onAttributeClick.emit({ attribute: attribute, attributeGroupId: this.attributeGroupId, updateParent: this.updateParent });
 	}
 
 	preview(attribute: Attribute, $event: any)
@@ -206,10 +241,5 @@ export class AttributeListComponent extends UnsubscribeOnDestroy implements OnIn
 	closeClicked()
 	{
 		this.closeExpandedAttribute.emit(true)
-	}
-
-	get canEditAttributes() : boolean
-	{
-		return this.canEditAgreement && (!this.isPastCutOff || this.canOverride);
 	}
 }

@@ -5,11 +5,9 @@
 		<img class="phd-logo-image" src="assets/pultegroup_logo.jpg" *ngIf="!planImageUrl">
 
 		<div class="d-flex flex-column phd-home-plan">
-			<div class="phd-floor-plan-image">
-				<floor-plan
-					[height]="'55vh'"
-					[planId$]="marketingPlanId$">
-				</floor-plan>
+			<div>
+				<img class="phd-floor-plan-image" [src]="floorPlanImages[0].imageUrl | safeUrl" *ngIf="floorPlanImages.length">
+				<img class="phd-default-image" src="assets/pultegroup_logo.jpg" *ngIf="!floorPlanImages.length">
 			</div>
 			<div class="d-flex flex-row justify-content-center">
 				<span class="phd-sales-community">{{communityName}}</span>
@@ -18,17 +16,9 @@
 		</div>
 	</div>
 	<div class="phd-start-reviewing">
-		Let's start reviewing the rest of the options available for your home
-	</div>
-	<div class="phd-click-instruction">
-		Click <b>Create List of Favorites</b> or select from the choices below
-	</div>
-	<div class="d-flex flex-row justify-content-center phd-action-links">
-		<div class="phd-favorites-link">
-			<a href="/favorites">View Your Favorites</a>
-		</div>
+		Let's review the rest of the options available for your home
 	</div>
 	<div class="d-flex justify-content-center">
-		<button class="btn phd-design-list-button" [routerLink]="['/favorites']">Create List of Favorites</button>
+		<button class="btn phd-design-list-button" [routerLink]="['/favorites']">View Options</button>
 	</div>
 </div>

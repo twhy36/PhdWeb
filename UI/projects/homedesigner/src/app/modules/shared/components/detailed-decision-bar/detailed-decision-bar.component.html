@@ -5,7 +5,7 @@
 				<div class="icon">
 					<i class="fa fa-check" *ngIf="point.isStructuralItem || point.isPastCutOff"></i>
 				</div>
-				<div>
+				<div [attr.id]="point.id">
 					{{point.label}}
 					<div class="sub-title">{{getSubTitle(point)}}</div>
 				</div>
@@ -13,15 +13,18 @@
 			<div *ngFor="let choice of point.choices">
 				<decision-bar-choice
 					[choice]="getChoiceExt(choice, point)"
-					[choiceCanBeFavorited]="!point.isStructuralItem && !point.isPastCutOff"
+					[point]="point"
+					[groups]="groups"
 					(onToggleChoice)="toggleChoice($event)"
-					(onViewChoiceDetail)="viewChoiceDetail($event)">
+					(onViewChoiceDetail)="viewChoiceDetail($event)"
+					(onSelectDecisionPoint)="selectDecisionPoint($event)">
 				</decision-bar-choice>
 			</div>
 			<decision-bar-decline-choice *ngIf="showDeclineChoice(point)"
 						[point]="point"
 						[myFavoritesPointsDeclined]="myFavoritesPointsDeclined"
-						(onDeclineDecisionPoint)="declineDecisionPoint($event)">
+						(onDeclineDecisionPoint)="declineDecisionPoint($event)"
+						(onSelectDecisionPoint)="selectDecisionPoint($event)">
 			</decision-bar-decline-choice>
 		</div>
 	</li>

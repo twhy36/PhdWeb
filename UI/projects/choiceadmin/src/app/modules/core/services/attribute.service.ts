@@ -60,12 +60,21 @@ export class AttributeService
 			filter += ` and (${keywordFilter})`;
 		}
 
+		//get attributes based on status
+		//if true get attributes start =< date =< end 
+		//if false get attributes start > date or date > end 
 		if (status !== null && status !== undefined)
 		{
 			const today = moment.utc(new Date()).format('YYYY-MM-DDThh:mm:ssZ');
-			const compareOperator = status ? 'ge' : 'lt';
 
-			filter = `(${filter}) and endDate ${compareOperator} ${today}`;
+			if(status)
+			{
+				filter += ` and (startDate le ${today} and ${today} le endDate)`;
+			}
+			else
+			{
+				filter += ` and (startDate gt ${today} or ${today} gt endDate)`;
+			}
 		}
 
 		const qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}orderby=${encodeURIComponent(orderBy)}`;

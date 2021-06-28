@@ -17,10 +17,18 @@
 }
 
 .phd-floor-plan-image {
-	padding-left: calc(13vw);
-	padding-right: calc(13vw);
 	padding-top: calc(2vh);
 	padding-bottom: calc(2vh);
+	max-height: calc(55vh);		
+}
+
+.phd-default-image {
+	padding-left: calc(3vw);
+	padding-right: calc(3vw);
+	padding-top: calc(4vh);
+	padding-bottom: calc(4vh);
+	width: 100%;
+	height: calc(57vh);
 }
 
 .phd-sales-community {
@@ -30,50 +38,24 @@
 }
 
 .phd-start-reviewing {
-	font-size: 28px;
+	font-size: 30px;
 	color: $navy_blue;
-	margin-top: 15px;
-	text-align: center;
-}
-
-.phd-click-instruction {
-	font-size: 18px;
-	text-align: center;
-}
-
-.phd-action-links {
 	margin-top: 30px;
-	margin-bottom: 10px;
-
-	a {
-		font-size: 20px;
-		color: $aegean_blue;
-	}
-
-	a:hover {
-		color: black;
-	}
+	margin-bottom: 30px;
+	text-align: center;
 }
 
 .phd-design-list-button {
 	background-color: $medium_blue;
 	color: white;
 	padding: 6px 25px;
+	min-width: 350px;
+	min-height: 50px;
+	font-size: 22px;
 }
 
 @media(max-width: $tablet-max-width) {
 	.phd-start-reviewing {
 		font-size: 20px;
-	}
-
-	.phd-click-instruction {
-		font-size: 12px;
-	}
-
-	.phd-action-links {
-		a {
-			font-size: 14px;
-			color: $aegean_blue;
-		}
 	}
 }

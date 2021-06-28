@@ -41,8 +41,10 @@
 								(onViewChoiceDetail)="viewChoiceDetail($event)">
 					</choice-card>
 					<choice-decline-card *ngIf="showDeclineCard(point)"
-								[point]="point"
+								[currentPoint]="point"
+								[groups]="groups"
 								[myFavoritesPointsDeclined]="myFavoritesPointsDeclined"
+								(onSelectDecisionPoint)="selectDecisionPoint($event)"
 								(onDeclineDecisionPoint)="declineDecisionPoint($event)">
 					</choice-decline-card>
 				</div>

@@ -1,7 +1,11 @@
-import { Component, Input, Output, OnInit, OnChanges, SimpleChanges, EventEmitter } from '@angular/core';
+import { Component, Input, Output, OnInit, OnChanges, SimpleChanges, EventEmitter, ViewChild } from '@angular/core';
 
-import { UnsubscribeOnDestroy, flipOver3, DecisionPoint } from 'phd-common';
+import { UnsubscribeOnDestroy, flipOver3, DecisionPoint, Group } from 'phd-common';
 import { MyFavoritesPointDeclined } from '../../models/my-favorite.model';
+import { getDisabledByList } from '../../../shared/classes/tree.utils';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+
+import * as _ from 'lodash';
 
 @Component({
 	selector: 'choice-decline-card',
@@ -13,24 +17,35 @@ import { MyFavoritesPointDeclined } from '../../models/my-favorite.model';
 })
 export class ChoiceDeclineCardComponent extends UnsubscribeOnDestroy implements OnInit, OnChanges
 {
-	@Input() point: DecisionPoint;
-	@Input() myFavoritesPointsDeclined?: MyFavoritesPointDeclined[];
+	@Input() currentPoint: DecisionPoint;
+	@Input() myFavoritesPointsDeclined?: MyFavoritesPointDeclined[]
+	@Input() groups: Group[];
 
 	@Output() onDeclineDecisionPoint = new EventEmitter<DecisionPoint>();
+	@Output() onSelectDecisionPoint = new EventEmitter<number>();
 
+	@ViewChild('blockedChoiceModal') blockedChoiceModal: any;
+
+	point: DecisionPoint;
 	isDeclined: boolean = false;
+	blockedChoiceModalRef: NgbModalRef;
+	disabledByList: {label: string, pointId: number, choiceId?: number, ruleType: number}[] = null;
 
-	constructor()
-	{
+	constructor(public modalService: NgbModal) {
 		super();
 	}
 
 	ngOnInit()
 	{
-        this.isDeclined = !!this.myFavoritesPointsDeclined?.find(p => p.divPointCatalogId === this.point.divPointCatalogId);
 	}
 
-	ngOnChanges(changes: SimpleChanges) { }
+	ngOnChanges(changes: SimpleChanges) {
+		if (changes['currentPoint'])
+		{
+			this.point = changes['currentPoint'].currentValue;
+			this.isDeclined = !!this.myFavoritesPointsDeclined?.find(p => p.divPointCatalogId === this.point.divPointCatalogId) && this.point.enabled;
+		}
+	}
 
 	/**
 	 * Used to set a default image if Cloudinary can't load an image
@@ -43,5 +58,23 @@ export class ChoiceDeclineCardComponent extends UnsubscribeOnDestroy implements 
 
 	toggleDecline() {
 		this.onDeclineDecisionPoint.emit(this.point);
+	}
+
+	openBlockedChoiceModal() {
+		if (!this.disabledByList)
+		{
+			this.disabledByList = getDisabledByList(this.groups, this.currentPoint, null);
+		}
+		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { windowClass: 'phd-blocked-choice-modal' });
+	}
+
+	onCloseClicked() {
+		this.blockedChoiceModalRef?.close();
+	}
+
+	onBlockedItemClick(pointId: number) {
+		this.blockedChoiceModalRef?.close();
+		delete this.disabledByList;
+		this.onSelectDecisionPoint.emit(pointId);
 	}
 }

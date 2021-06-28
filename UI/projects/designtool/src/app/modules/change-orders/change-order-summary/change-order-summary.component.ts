@@ -135,7 +135,8 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 	actionTypesForESignEdit = [
 		{ value: this.ACTION_TYPES.ACTION, id: 0 },
 		{ value: this.ACTION_TYPES.CANCEL_E_SIGN, id: 1 },
-		{ value: this.ACTION_TYPES.WITHDRAW, id: 2 }
+		{ value: this.ACTION_TYPES.SIGN, id: 2 },
+		{ value: this.ACTION_TYPES.WITHDRAW, id: 3 }
 	];	
 
 	actionTypesForSigned = [
@@ -328,6 +329,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 					isActiveChangeOrder: false,
 					eSignStatus: this.getESignStatus(o),
 					eSignStatusDate: this.getESignStatusDate(o),
+					eSignExpirationDate: this.getESignExpirationDate(o),
 					changeOrderGroupSequence: o.changeOrderGroupSequence ? o.changeOrderGroupSequence : 0,
 					changeOrderGroupSequenceSuffix: o.changeOrderGroupSequenceSuffix,
 					index: o.changeOrderGroupSequence ? (o.changeOrderGroupSequence + o.changeOrderGroupSequenceSuffix) : 0
@@ -466,6 +468,21 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 
 			return new Date(createdEnvelope.createdUtcDate);
 		}
+	}
+
+	getESignExpirationDate(changeOrder: any): Date
+	{
+		const envelopeId = changeOrder.envelopeId;
+		const draft = changeOrder?.eSignEnvelopes?.find(e => e.envelopeGuid === envelopeId && e.eSignStatusId === ESignStatusEnum.Created);
+		if (draft)
+		{
+			// Set draft envelope to expire in 3 days
+			let expiredDate = new Date(draft.createdUtcDate);
+			expiredDate.setDate(expiredDate.getDate() + 3);
+			return expiredDate;
+		}
+
+		return null;
 	}
 
 	onActionSelected(event)
@@ -1203,7 +1220,16 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 
 		if (updatedChangeOrders[0].id === this.currentChangeOrderId)
 		{
-			this.store.dispatch(new ChangeOrderActions.SetChangingOrder(false, null, true));
-		}		
+			this.store.dispatch(new ChangeOrderActions.SetChangingOrder(true, null, false));
+		}
+		
+		// Reload sales agreement and update price on change order
+		this.store.dispatch(new CommonActions.LoadSalesAgreement(this.salesAgreementId));
+		this._actions$.pipe(
+			ofType<LotsLoaded>(LotActionTypes.LotsLoaded),
+			take(1)).subscribe(() =>
+			{
+				this.store.dispatch(new ChangeOrderActions.CreateJobChangeOrders());
+			});		
 	}
 }

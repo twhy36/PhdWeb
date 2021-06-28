@@ -7,10 +7,11 @@ import { combineLatest, switchMap, map, withLatestFrom, distinctUntilChanged } f
 
 import { Store, select } from '@ngrx/store';
 
-import {
-	UnsubscribeOnDestroy, flipOver3, ModalRef, LocationGroup, AttributeGroup, ChangeTypeEnum, ChangeOrderGroup,
-	LotExt, Plan, Choice, OptionImage, DecisionPoint, ChoiceImageAssoc
-} from 'phd-common';
+import
+	{
+		UnsubscribeOnDestroy, flipOver3, ModalRef, LocationGroup, AttributeGroup, DesignToolAttribute, ChangeTypeEnum, ChangeOrderGroup,
+		LotExt, Plan, Choice, OptionImage, DecisionPoint, ChoiceImageAssoc
+	} from 'phd-common';
 
 import { MonotonyConflict } from '../../models/monotony-conflict.model';
 import { ModalOverrideSaveComponent } from '../../../core/components/modal-override-save/modal-override-save.component';
@@ -117,9 +118,14 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 
 	get showConfirmButton(): boolean
 	{
-		return ((this.choice && this.choice.enabled && this.currentDecisionPoint && this.currentDecisionPoint.enabled && !this.optionDisabled) || this.choice.lockedInChoice) 
-		&& (!this.monotonyConflict.monotonyConflict || this.canOverride) 
-		&& this.canConfigure;
+		return ((this.choice && this.choice.enabled && this.currentDecisionPoint && this.currentDecisionPoint.enabled && !this.optionDisabled) || this.choice.lockedInChoice)
+			&& (!this.monotonyConflict.monotonyConflict || this.canOverride)
+			&& this.canConfigure;
+	}
+
+	get buttonDisabled()
+	{
+		return (this.isPastCutOff && !this.canOverride) || !this.canEditAgreement || !this.choice.enabled;
 	}
 
 	ngOnInit()
@@ -322,7 +328,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 		{
 			this.choice = changes['currentChoice'].currentValue;
 		}
-		
+
 		// looking for changes to the choice to recheck for any attribute reassignment changes
 		if (changes['currentDecisionPoint'] || changes['currentChoice'])
 		{
@@ -356,11 +362,6 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 		}
 
 		return btnLabel;
-	}
-
-	get buttonDisabled()
-	{
-		return (this.isPastCutOff && !this.canOverride) || !this.canEditAgreement || !this.choice.enabled;
 	}
 
 	getDisabledMessage(): string
@@ -417,7 +418,50 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 		// resets the value
 		this.unsavedQty = this.choice.quantity === 0 ? 1 : 0;
 
+		if (this.choice.quantity === 0)
+		{
+			this.autoSelectAttributes();
+		}
+
 		this.toggled.emit(evt);
+	}
+
+	/** Auto Select single attributes */
+	autoSelectAttributes()
+	{
+		const selectedAttributes: DesignToolAttribute[] = [];
+
+		if (!this.locationGroups.length && this.attributeGroups.length)
+		{
+			this.attributeGroups.forEach(ag =>
+			{
+				if (ag.attributes.length === 1)
+				{
+					let attribute = ag.attributes[0];
+
+					selectedAttributes.push({
+						attributeId: attribute.id,
+						attributeName: attribute.name,
+						attributeImageUrl: attribute.imageUrl,
+						attributeGroupId: ag.id,
+						attributeGroupName: ag.name,
+						attributeGroupLabel: ag.label,
+						locationGroupId: null,
+						locationGroupName: null,
+						locationGroupLabel: null,
+						locationId: null,
+						locationName: null,
+						locationQuantity: null,
+						scenarioChoiceLocationId: null,
+						scenarioChoiceLocationAttributeId: null,
+						sku: attribute.sku,
+						manufacturer: attribute.manufacturer
+					});
+				}
+			});
+		}
+
+		this.choice.selectedAttributes = selectedAttributes;
 	}
 
 	onCallToAction({ choice: choice, quantity: quantity }: { choice: Choice, quantity?: number })

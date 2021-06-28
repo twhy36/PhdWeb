@@ -27,6 +27,7 @@ import { QuantityInputComponent } from './components/quantity-input/quantity-inp
 import { DetailedDecisionBarComponent } from './components/detailed-decision-bar/detailed-decision-bar.component';
 import { DecisionBarChoiceComponent } from './components/detailed-decision-bar/decision-bar-choice/decision-bar-choice.component';
 import { DecisionBarDeclineChoiceComponent } from './components/detailed-decision-bar/decision-bar-decline-choice/decision-bar-decline-choice.component';
+import { BlockedChoiceModalComponent } from './components/blocked-choice-modal/blocked-choice-modal.component';
 
 @NgModule({
 	exports: [
@@ -61,7 +62,8 @@ import { DecisionBarDeclineChoiceComponent } from './components/detailed-decisio
 		QuantityInputComponent,
 		DetailedDecisionBarComponent,
 		DecisionBarChoiceComponent,
-		DecisionBarDeclineChoiceComponent
+		DecisionBarDeclineChoiceComponent,
+		BlockedChoiceModalComponent
     ],
 	imports: [
 		BrowserModule,

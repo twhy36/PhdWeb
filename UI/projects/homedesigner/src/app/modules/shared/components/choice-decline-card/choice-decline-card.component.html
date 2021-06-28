@@ -17,7 +17,12 @@
 				<ng-container>
 					<div class="phd-non-clickable" (click)="$event.stopPropagation()">
 						<span class="phd-icon-selected"><i *ngIf="isDeclined" class="fa fa-heart" (click)="toggleDecline()"></i></span>
-						<i *ngIf="!isDeclined" class="fa fa-heart-o" (click)="toggleDecline()"></i>
+						<i *ngIf="!isDeclined && currentPoint.enabled" class="fa fa-heart-o" (click)="toggleDecline()"></i>
+					</div>
+				</ng-container>
+				<ng-container *ngIf="!currentPoint.enabled">
+					<div class="phd-clickable phd-favorite-selector">
+						<i class="fa fa-ban" (click)="openBlockedChoiceModal()"></i>
 					</div>
 				</ng-container>
 			</div>
@@ -25,3 +30,10 @@
 	</div>
 </div>
 
+<ng-template #blockedChoiceModal let-c="close" let-d="dismiss">
+	<blocked-choice-modal
+		[disabledByList]="disabledByList"
+		(closeModal)="onCloseClicked()"
+		(blockedItemClick)="onBlockedItemClick($event)"
+	></blocked-choice-modal>
+</ng-template>

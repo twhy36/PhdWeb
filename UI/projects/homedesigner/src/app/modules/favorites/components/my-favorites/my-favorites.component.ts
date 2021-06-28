@@ -285,7 +285,6 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 	{
 		let selectedChoices = [{ choiceId: choice.id, quantity: !choice.quantity ? 1 : 0, attributes: choice.selectedAttributes }];
 		const impactedChoices = getDependentChoices(this.tree, this.treeVersionRules, choice);
-
 		impactedChoices.forEach(c =>
 		{
 			selectedChoices.push({ choiceId: c.id, quantity: 0, attributes: c.selectedAttributes });
