@@ -1,0 +1,18 @@
+portal-item,
+spec-item {
+  align-content: center;
+  align-self: center;
+  display: flex;
+
+  /*Change the value to accomodate the ideal number of items per row you want.*/
+  flex-basis: 25%;
+
+  flex-direction: column;
+  height: 50%;
+  justify-content: center;
+  max-height: 400px;
+  max-width: 600px;
+  min-height: 150px;
+  min-width: 130px;
+}
+
