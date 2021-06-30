@@ -67,10 +67,10 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 				salesCommunity: action.salesCommunity,
 				treeLoading: false,
 				loadError: false,
-				hiddenChoiceIds: [], 
+				hiddenChoiceIds: [],
 				hiddenPointIds: []
 			} as State;
-			
+
 			if (newState.tree)
 			{
 				action.choices.forEach(choice =>
@@ -161,13 +161,19 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 				points.forEach(pt => setPointStatus(pt));
 				// For each point, if the user cannot select the DP in this tool, then the status should be complete
 				points.filter(pt => pt.isStructuralItem).forEach(pt => pt.status = PointStatus.COMPLETED);
-				
+
+				// For each point with a pick 0, we need to change the status to required (if no thanks is selected, the status is later updated to Completed)
+				points.filter(pt =>
+					[PickType.Pick0or1, PickType.Pick0ormore].indexOf(pt.pointPickTypeId) > 0
+						&& [PointStatus.UNVIEWED, PointStatus.VIEWED].indexOf(pt.status) > 0
+				).forEach(pt => pt.status = PointStatus.REQUIRED);
+
 				subGroups.forEach(sg => setSubgroupStatus(sg));
 				newState.tree.treeVersion.groups.forEach(g => setGroupStatus(g));
 
 				// Choice-To-Choice
 				hideChoicesByStructuralItems(newState.rules.choiceRules, choices, points, newState.hiddenChoiceIds, newState.hiddenPointIds);
-				
+
 				// Point-To-Choice && Point-To-Point
 				hidePointsByStructuralItems(newState.rules.pointRules, choices, points, newState.hiddenChoiceIds, newState.hiddenPointIds);
 			}
@@ -178,7 +184,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 			return { ...state, treeFilter: action.treeFilter };
 
 		case ScenarioActionTypes.SelectChoices:
-			
+
 			newTree = _.cloneDeep(state.tree);
 			rules = _.cloneDeep(state.rules);
 			options = _.cloneDeep(state.options);
@@ -251,7 +257,13 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 			points.forEach(pt => setPointStatus(pt));
 			// For each point, if the user cannot select the DP in this tool, then the status should be complete
 			points.filter(pt => pt.isStructuralItem).forEach(pt => pt.status = PointStatus.COMPLETED);
-			
+
+			// For each point with a pick 0, we need to change the status to required (if no thanks is selected, the status is later updated to Completed)
+			points.filter(pt =>
+				[PickType.Pick0or1, PickType.Pick0ormore].indexOf(pt.pointPickTypeId) > -1
+					&& [PointStatus.UNVIEWED, PointStatus.VIEWED].indexOf(pt.status) > -1
+			).forEach(pt => pt.status = PointStatus.REQUIRED);
+
 			subGroups.forEach(sg => setSubgroupStatus(sg));
 			newTree.treeVersion.groups.forEach(g => setGroupStatus(g));
 
@@ -267,10 +279,10 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 				if (point)
 				{
 					point.completed = !action.removed;
-					point.status = action.removed ? PointStatus.UNVIEWED : PointStatus.COMPLETED;
+					point.status = action.removed ? PointStatus.REQUIRED : PointStatus.COMPLETED;
 				}
 			});
-		
+
 			subGroups.forEach(sg => setSubgroupStatus(sg));
 			newTree.treeVersion.groups.forEach(g => setGroupStatus(g));
 

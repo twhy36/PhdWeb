@@ -51,6 +51,7 @@
 		<choice-card-detail	[choice]="selectedChoice"
 						[path]="getChoicePath()"
 						[groups]="groups"
+						[myFavoritesPointsDeclined="myFavoritesPointsDeclined"
 						(onBack)="hideDetails()"
 						(onSelectDecisionPoint)="selectDecisionPoint($event)"
 						(onToggleChoice)="toggleChoice($event)">

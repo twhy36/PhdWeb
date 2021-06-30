@@ -55,7 +55,7 @@ export function reducer(state: State = initialState, action: FavoriteActions): S
 
 				return { ...state, saveError: false, myFavorites: myFavorites, selectedFavoritesId: action.myFavorite.id };
 			}
-			
+
 		case FavoriteActionTypes.MyFavoritesChoicesSaved:
 			{
 				let myFavorites = _.cloneDeep(state.myFavorites);
@@ -92,7 +92,7 @@ export function reducer(state: State = initialState, action: FavoriteActions): S
 
 				return { ...state, saveError: false, myFavorites: myFavorites };
 			}
-		
+
 		case FavoriteActionTypes.MyFavoritesPointDeclinedUpdated:
 			{
 				let myFavorites = _.cloneDeep(state.myFavorites);
