@@ -312,7 +312,7 @@ export class ProgramDetailComponent extends ComponentCanNavAway implements OnIni
 	{
 		if (this.selectedSalesProgram && this.selectedSalesProgram.salesProgramType)
 		{
-			return SalesProgramTypeEnum[this.selectedSalesProgram.salesProgramType];
+			return this.selectedSalesProgram.salesProgramType.toString();
 		}
 
 		return '';
