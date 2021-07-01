@@ -42,18 +42,19 @@
 										<option *ngFor="let physicalLotType of physicalLotTypes" [ngValue]="physicalLotType.value">{{ physicalLotType.label }}</option>
 									</select>
 								</div>
-
-								<div class="phd-multiselect">
+								<div>
 									<div class="phd-selectBox form-group">
-										<label for="handings">Handing</label>
-										<div id="phd-checkboxes" [ngClass]="{'phd-required': handingChecked}">
-											<div class="form-group">
-												<div class="form-check phd-form-check">
-													<label *ngFor="let handing of handings; let i = index" class="form-check-label" for="handing">
-														<input class="form-check-input" formControlName="handing-{{handing}}" type="checkbox" [attr.disabled]="lotInaccessible && isHandingSelected(handing) ? 'disabled' : null">
-														{{Handing[handing]}}
-													</label>
-												</div>
+										Handing
+										<div class="custom-control custom-control-inline custom-switch phd-custom-control-right float-right">
+											<input class="custom-control-input" id="naHandingInput" formControlName="handing-3" type="checkbox" (click)="removeHandings()">
+											<label class="custom-control-label" for="naHandingInput">N/A</label>
+										</div>
+										<div class="phd-checkboxes" [ngClass]="{'phd-required': handingChecked, 'phd-div-disabled': isNAHandingSelected}">
+											<div class="form-check">
+												<input id="handing-1" class="form-check-input" formControlName="handing-1" type="checkbox" [attr.disabled]="isNAHandingSelected ? 'disabled' : null">
+												<label for="handing-1">Left</label>
+												<input id="handing-2" class="form-check-input" formControlName="handing-2" type="checkbox" [attr.disabled]="isNAHandingSelected ? 'disabled' : null">
+												<label for="handing-2">Right</label>
 											</div>
 										</div>
 									</div>
