@@ -1,14 +1,16 @@
-.box {
-	padding: 4px;
-	margin-left: 20;
-	margin-right: 20;
-}
-
 .box-background {
-	padding: 4px;
-	margin: 50px auto;
 	background-color: #D5D5D5;
 	border-style: solid;
 	border-width: 1px;
 	border-color: black;
-  }
+	border-collapse: collapse;
+	margin-top:0;
+	margin-right:auto;
+	margin-bottom:0;
+	margin-left:auto;
+}
+
+.box{
+	text-align: center;
+	padding: 10px;
+}
