@@ -266,8 +266,7 @@ export const financialCommunityName = createSelector(
 export const elevationImageUrl = createSelector(
 	fromScenario.selectScenario,
 	fromScenario.elevationDP,
-	fromPlan.selectedPlanData,
-	(scenario, dp, plan) => {
+	(scenario, dp) => {
 		let imageUrl = '';
 		const elevationOption = scenario && scenario.options ? scenario.options.find(x => x.isBaseHouseElevation) : null;
 
@@ -291,9 +290,6 @@ export const elevationImageUrl = createSelector(
 			}
 		}
 
-		if (!imageUrl && plan) {
-			imageUrl = plan.baseHouseElevationImageUrl;
-		}
 		return imageUrl;
 	}
 )
