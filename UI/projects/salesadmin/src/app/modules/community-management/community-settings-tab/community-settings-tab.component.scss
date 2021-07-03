@@ -4,10 +4,17 @@
 	border-width: 1px;
 	border-color: black;
 	border-collapse: collapse;
-	margin-bottom: 50px;
+	margin-bottom:50px;
+	display: flex;
+	flex-direction: row;
 }
 
 .box{
+	text-align: center;
+	padding: 10px;
+}
+
+.line{
 	text-align: center;
 	padding: 10px;
 }
