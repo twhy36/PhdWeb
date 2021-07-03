@@ -40,13 +40,13 @@
 						<div class="form-group">
 							<label class="font-weight-bold">$</label>
 							&nbsp;
-							<input name="earnest-money" id="earnest-money" />
+							<input id="earnest-money" />
 						</div>
 					</div>
 				</div>
 			</div>
 			<div class="save-button">
-				<button class="btn btn-primary">Save</button>
+				<button class="btn btn-primary" (click)="save();" *ngIf="canEdit">Save</button>
 			</div>
 		</div>
 	</div>
