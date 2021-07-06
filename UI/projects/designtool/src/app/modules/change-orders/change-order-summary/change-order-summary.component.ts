@@ -1224,7 +1224,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 		}
 		
 		// Reload sales agreement and update price on change order
-		this.store.dispatch(new CommonActions.LoadSalesAgreement(this.salesAgreementId));
+		this.store.dispatch(new CommonActions.LoadSalesAgreement(this.salesAgreementId, false));
 		this._actions$.pipe(
 			ofType<LotsLoaded>(LotActionTypes.LotsLoaded),
 			take(1)).subscribe(() =>
