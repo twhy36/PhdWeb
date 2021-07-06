@@ -13,7 +13,7 @@
 		</div>
 		<div *ngIf="!(isTablet$ | async)" class="col-6 d-flex align-items-center ml-auto phd-menu-options">
 			<div>
-				<a [routerLink]="[getFavoritesLink()]"
+				<a [routerLink]="['/favorites/summary']"
 				   [routerLinkActive]="['phd-active-link']">
 					My Favorites
 				</a>
@@ -23,7 +23,7 @@
 </nav>
 
 <div *ngIf="(isTablet$ | async) && !isMenuCollapsed" class="phd-collapsable-menu">
-	<div [class.phd-active-link]="currentRoute?.startsWith('/favorites')">
-		<a [routerLink]="[currentRoute?.startsWith('/favorites') ? currentRoute : '/favorites']">My Favorites</a>
+	<div [class.phd-active-link]="currentRoute?.startsWith('/favorites/summary')">
+		<a [routerLink]="['/favorites/summary']">My Favorites</a>
 	</div>
 </div>

@@ -34,10 +34,11 @@ export class SalesAgreementService
 		else 
 		{
 			const entity = `salesAgreements(${salesAgreementId})`;
+			const expandBuyers = `buyers($expand=opportunityContactAssoc($expand=contact($select=id,lastName)))`;
 			const expandPrograms = `programs($select=id,salesAgreementId,salesProgramId,salesProgramDescription,amount;$expand=salesProgram($select=id, salesProgramType, name))`;
 			const expandJobAssocs = `jobSalesAgreementAssocs($select=jobId;$orderby=createdUtcDate desc;$top=1)`;
 			const expandPriceAdjustments = `salesAgreementPriceAdjustmentAssocs($select=id,salesAgreementId,priceAdjustmentType,amount)`;
-			const expand = `${expandPrograms},${expandJobAssocs},${expandPriceAdjustments}`;
+			const expand = `${expandBuyers},${expandPrograms},${expandJobAssocs},${expandPriceAdjustments}`;
 
 			const qryStr = `${this._ds}expand=${encodeURIComponent(expand)}`;
 			const url = `${environment.apiUrl}${entity}?${qryStr}`;

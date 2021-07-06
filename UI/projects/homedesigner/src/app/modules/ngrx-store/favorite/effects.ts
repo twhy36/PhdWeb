@@ -13,7 +13,8 @@ import { DesignToolAttribute } from 'phd-common';
 import 
 { 	FavoriteActionTypes, SetCurrentFavorites, MyFavoriteCreated, SaveMyFavoritesChoices, 
 	MyFavoritesChoicesSaved, SaveError, DeleteMyFavorite, MyFavoriteDeleted,
-	AddMyFavoritesPointDeclined, DeleteMyFavoritesPointDeclined, MyFavoritesPointDeclinedUpdated
+	AddMyFavoritesPointDeclined, DeleteMyFavoritesPointDeclined, MyFavoritesPointDeclinedUpdated,
+	LoadMyFavorite,	MyFavoriteLoaded
 } from './actions';
 
 import { CommonActionTypes, ResetFavorites } from '../actions';
@@ -25,6 +26,7 @@ import { TreeService } from '../../core/services/tree.service';
 
 import * as fromRoot from '../reducers';
 import * as fromFavorite from './reducer';
+import * as fromSalesAgreement from '../sales-agreement/reducer';
 
 @Injectable()
 export class FavoriteEffects
@@ -207,4 +209,51 @@ export class FavoriteEffects
 		), SaveError, "Error deleting my favorite!")
 	);
 
+	@Effect()
+	loadMyFavorite$: Observable<Action> = this.actions$.pipe(
+		ofType<LoadMyFavorite>(FavoriteActionTypes.LoadMyFavorite),
+		withLatestFrom(this.store.pipe(select(fromSalesAgreement.salesAgreementState)), 
+			this.store.pipe(select(fromFavorite.favoriteState)),
+			this.store.pipe(select(fromSalesAgreement.favoriteTitle))
+		),
+		tryCatch(source => source.pipe(
+			switchMap(([action, sag, fav, title]) => {
+				const salesAgreementId = sag?.id || 0;
+				const currentMyFavorite = fav?.myFavorites?.length > 0 ? fav.myFavorites[0] : null;
+				const selectedFavoritesId = fav?.selectedFavoritesId || 0;
+				const getMyFavorite = currentMyFavorite ? of(currentMyFavorite) : this.favoriteService.saveMyFavorite(0, title, salesAgreementId);
+				
+				return getMyFavorite.pipe(
+					map(favorite => {
+						return { favorite: favorite, currentMyFavorite: currentMyFavorite, selectedFavoritesId: selectedFavoritesId };
+					})
+				);
+  			}),
+			switchMap(result => {
+				let actions: any[] = [];
+				
+				if (result.favorite)
+				{
+					if (!result.currentMyFavorite)
+					{
+						actions.push(new MyFavoriteCreated(result.favorite));
+					}
+
+					if (result.selectedFavoritesId !== result.favorite.id)
+					{
+						actions.push(new SetCurrentFavorites(result.favorite.id));
+
+						if (result.favorite.myFavoritesPointDeclined?.length)
+						{
+							actions.push(new SetStatusForPointsDeclined(result.favorite.myFavoritesPointDeclined.map(dp => dp.divPointCatalogId), false));
+						}
+					}
+
+					actions.push(new MyFavoriteLoaded());
+				}
+				
+				return from(actions);
+			})
+		), SaveError, "Error loading my favorite!")
+	);
 }

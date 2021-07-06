@@ -11,6 +11,7 @@ import { Store, select } from '@ngrx/store';
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromPlan from '../../../ngrx-store/plan/reducer';
 import * as fromFavorite from '../../../ngrx-store/favorite/reducer';
+import * as fromSalesAgreement from '../../../ngrx-store/sales-agreement/reducer';
 import * as NavActions from '../../../ngrx-store/nav/actions';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 import * as FavoriteActions from '../../../ngrx-store/favorite/actions';
@@ -51,9 +52,15 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 			this.takeUntilDestroyed(),
 			select(fromFavorite.currentMyFavorite)
 		).subscribe(favorites => {
-			this.summaryHeader.favoritesListName = favorites && favorites.name;
 			this.favoritesId = favorites && favorites.id;
 		});
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromSalesAgreement.favoriteTitle)
+		).subscribe(title => {
+			this.summaryHeader.favoritesListName = title;
+		});			
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
@@ -114,7 +121,18 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		{
 			this.tree = scenario.tree;
 			this.treeVersionRules = scenario.rules;
-		});			
+		});	
+
+		this.store.pipe(
+			take(1),
+			select(state => state.favorite),
+		).subscribe(fav =>
+		{
+			if (!fav.selectedFavoritesId)
+			{
+				this.store.dispatch(new FavoriteActions.LoadMyFavorite());
+			}
+		});	
 	}
 
 	onBack()

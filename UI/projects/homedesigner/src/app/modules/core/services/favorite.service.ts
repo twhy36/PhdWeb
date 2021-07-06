@@ -28,7 +28,8 @@ export class FavoriteService
 		const expand = `myFavoritesPointDeclined,myFavoritesChoice($expand=${expandChoiceAttributes},${expandChoiceLocations};$select=id,choiceDescription,dpChoiceId,dpChoiceQuantity,decisionPointLabel,groupLabel,subGroupLabel,sortOrder)`;
 		const filter = `salesAgreementId eq ${salesAgreementId}`;
 		const select = `id,name,salesAgreementId`;
-		const url = `${environment.apiUrl}myFavorites?${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
+		const orderBy = `id`;
+		const url = `${environment.apiUrl}myFavorites?${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}orderby=${encodeURIComponent(orderBy)}`;
 
 		return this._http.get(url).pipe(
 			map(response =>

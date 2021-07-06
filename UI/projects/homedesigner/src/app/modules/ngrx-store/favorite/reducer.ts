@@ -12,6 +12,7 @@ export interface State
 {
 	myFavorites: MyFavorite[],
 	selectedFavoritesId: number,
+	isLoading: boolean,
 	saveError: boolean,
 	salesChoices: JobChoice[],
 	includeContractedOptions: boolean
@@ -20,6 +21,7 @@ export interface State
 export const initialState: State = {
 	myFavorites: null,
 	selectedFavoritesId: null,
+	isLoading: false,
 	saveError: false,
 	salesChoices: null,
 	includeContractedOptions: true
@@ -142,6 +144,16 @@ export function reducer(state: State = initialState, action: FavoriteActions): S
 				return { ...state, includeContractedOptions: !state.includeContractedOptions };
 			}
 
+		case FavoriteActionTypes.LoadMyFavorite:
+			{
+				return { ...state, isLoading: true }
+			}
+
+		case FavoriteActionTypes.MyFavoriteLoaded:
+			{
+				return { ...state, isLoading: false }
+			}
+	
 		default:
 			return state;
 	}

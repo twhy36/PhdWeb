@@ -15,7 +15,9 @@ export enum FavoriteActionTypes
 	ToggleContractedOptions = 'Toggle Include Contracted Options',
 	AddMyFavoritesPointDeclined = 'Add My Favorites Point Declined',
 	DeleteMyFavoritesPointDeclined = 'Delete My Favorites Point Declined',
-	MyFavoritesPointDeclinedUpdated = 'My Favorites Point Declined Saved'
+	MyFavoritesPointDeclinedUpdated = 'My Favorites Point Declined Saved',
+	LoadMyFavorite = 'Load My Favorite',
+	MyFavoriteLoaded = 'My Favorite Loaded'
 }
 
 export class MyFavoriteCreated implements Action
@@ -96,6 +98,20 @@ export class MyFavoritesPointDeclinedUpdated implements Action
 			public isDelete: boolean) {	}
 	}
 
+export class LoadMyFavorite implements Action
+{
+	readonly type = FavoriteActionTypes.LoadMyFavorite;
+
+	constructor() {	}
+}
+
+export class MyFavoriteLoaded implements Action
+{
+	readonly type = FavoriteActionTypes.MyFavoriteLoaded;
+
+	constructor() {	}
+}
+
 export type FavoriteActions = 
 	MyFavoriteCreated |
 	SetCurrentFavorites |
@@ -109,4 +125,6 @@ export type FavoriteActions =
 	ToggleContractedOptions |
 	AddMyFavoritesPointDeclined |
 	DeleteMyFavoritesPointDeclined |
-	MyFavoritesPointDeclinedUpdated;
+	MyFavoritesPointDeclinedUpdated |
+	LoadMyFavorite |
+	MyFavoriteLoaded;

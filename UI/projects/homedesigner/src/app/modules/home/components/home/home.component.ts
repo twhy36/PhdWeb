@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
-import { Observable, of, BehaviorSubject } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { distinctUntilChanged, combineLatest, switchMap, withLatestFrom, take } from 'rxjs/operators';
 
 import * as _ from 'lodash';
@@ -10,6 +10,7 @@ import { Store, select } from '@ngrx/store';
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromPlan from '../../../ngrx-store/plan/reducer';
 import * as CommonActions from '../../../ngrx-store/actions';
+import * as FavoriteActions from '../../../ngrx-store/favorite/actions';
 
 import { UnsubscribeOnDestroy, SalesAgreement, SDImage } from 'phd-common';
 import { JobService } from '../../../core/services/job.service';
@@ -26,10 +27,12 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 	planImageUrl: string = '';
 	floorPlanImages: SDImage[] = [];
 	salesAgreement: SalesAgreement;
+	isLoadingMyFavorite: boolean = false;
 
 	constructor(
 		private activatedRoute: ActivatedRoute,
 		private store: Store<fromRoot.State>,
+		private router: Router,
 		private jobService: JobService)
     {
         super();
@@ -107,5 +110,33 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 			this.communityName = communityName;
 		});
 
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromRoot.filteredTree),
+			withLatestFrom(this.store.select(state => state.favorite), this.store.select(state => state.nav)),
+		).subscribe(([tree, fav, nav]) => {
+			if (fav)
+			{
+				if (this.isLoadingMyFavorite && !fav.isLoading)
+				{
+					this.isLoadingMyFavorite = false;
+
+					let url = `/favorites/my-favorites/${fav.selectedFavoritesId}`;
+					const subGroups = _.flatMap(tree.groups, g => _.flatMap(g.subGroups)) || [];
+					const selectedSubGroup = subGroups.find(sg => sg.id === nav.selectedSubGroup);
+					if (selectedSubGroup)
+					{
+						url += `/${selectedSubGroup.subGroupCatalogId}`;
+					}
+					this.router.navigateByUrl(url);
+				}				
+			}
+		});		
+	}
+
+	viewOptions()
+	{
+		this.isLoadingMyFavorite = true;
+		this.store.dispatch(new FavoriteActions.LoadMyFavorite());
 	}
 }
