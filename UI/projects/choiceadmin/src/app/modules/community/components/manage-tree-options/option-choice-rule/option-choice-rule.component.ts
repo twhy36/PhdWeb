@@ -188,11 +188,11 @@ export class OptionChoiceRuleComponent implements OnInit, OnDestroy
 	{
 		if (success)
 		{
-			this._msgService.add({ severity: 'success', summary: 'Rule Saved', detail: `Rule has been saved.` });
+			this._msgService.add({ severity: 'success', summary: 'Mapping Saved', detail: `Mapping has been saved.` });
 		}
 		else
 		{
-			this._msgService.add({ severity: 'danger', summary: 'Error', detail: `Unable to save Rule.` });
+			this._msgService.add({ severity: 'danger', summary: 'Error', detail: `Unable to save Mapping.` });
 		}
 
 		this.resetRule();
@@ -208,11 +208,11 @@ export class OptionChoiceRuleComponent implements OnInit, OnDestroy
 	{
 		if (success)
 		{
-			this._msgService.add({ severity: 'success', summary: 'Rule Deleted', detail: `Rule has been deleted.` });
+			this._msgService.add({ severity: 'success', summary: 'Mapping Deleted', detail: `Mapping has been deleted.` });
 		}
 		else
 		{
-			this._msgService.add({ severity: 'danger', summary: 'Error', detail: `Unable to delete Rule.` });
+			this._msgService.add({ severity: 'danger', summary: 'Error', detail: `Unable to delete Mapping.` });
 		}
 
 		this.resetRule();
