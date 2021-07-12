@@ -8,14 +8,11 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { PhdCommonModule } from 'phd-common';
 import { SharedModule } from '../shared/shared.module';
 import { AutoApprovalComponent } from './auto-approvals/auto-approvals.component';
-import { CommunitySettingsComponent } from './community-settings/community-settings.component';
 import { ClaimGuard } from 'phd-common';
-import { LotManagementModule } from '../lot-managment/lot-management.module';
 
 @NgModule({
     declarations: [
-        AutoApprovalComponent,
-        CommunitySettingsComponent
+        AutoApprovalComponent
     ],
     exports: [
     ],
@@ -24,8 +21,7 @@ import { LotManagementModule } from '../lot-managment/lot-management.module';
             {
                 path: 'community-management', canActivate: [ClaimGuard], data: { requiresClaim: 'AutoApproval' }, children: [
                     { path: 'auto-approval', component: AutoApprovalComponent },
-                    { path: 'community-settings', component: CommunitySettingsComponent },
-                    { path: '', redirectTo: 'community-settings', pathMatch: 'full' }
+                    { path: '', redirectTo: 'auto-approval', pathMatch: 'full' }
                 ]
             }
         ]),
@@ -35,8 +31,7 @@ import { LotManagementModule } from '../lot-managment/lot-management.module';
         ReactiveFormsModule,
 		ToastModule,
         PhdCommonModule,
-        CheckboxModule,
-        LotManagementModule
+        CheckboxModule
     ]
 })
 export class CommunityManagementModule { }
