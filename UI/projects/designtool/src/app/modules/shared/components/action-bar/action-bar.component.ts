@@ -90,6 +90,8 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 	canCancelModel$: Observable<boolean>;
 	lotStatus: string;
 	isEditingEnvelopeDraft: boolean;
+	isOutForESign: boolean;
+	canApprove: boolean;
 
 	setSummaryText()
 	{
@@ -187,6 +189,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 			{
 				this.salesStatusDescription = cog.salesStatusDescription;
 				this.isEditingEnvelopeDraft = cog.eSignEnvelopes?.some(x => x.eSignStatusId === ESignStatusEnum.Created);
+				this.isOutForESign = cog.eSignEnvelopes?.some(x => x.eSignStatusId === ESignStatusEnum.Sent);
 			}
 		});
 
@@ -224,6 +227,11 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 			select(fromRoot.canLockSalesAgreement)
 		).subscribe(canLockSalesAgreement => this.canLockSalesAgreement = canLockSalesAgreement);
 
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromRoot.canApprove)
+		).subscribe(canApprove => this.canApprove = canApprove);
+
 		this.setSummaryText();
 	}
 
@@ -239,7 +247,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 	get canSignAgreement(): boolean
 	{
-		return this.inPointOfSale && this.agreement.status === "OutforSignature" && !this.inChangeOrder && !this.isEditingEnvelopeDraft;
+		return this.inPointOfSale && this.agreement.status === "OutforSignature" && !this.inChangeOrder && !this.isEditingEnvelopeDraft && (!this.isOutForESign || this.canApprove);
 	}
 
 	get canApproveAgreement(): boolean
