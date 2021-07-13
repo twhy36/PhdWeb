@@ -19,6 +19,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 	@Input() currentChoice: ChoiceExt;
 	@Input() currentPoint: DecisionPoint;
 	@Input() groups: Group[];
+	@Input() isReadonly: boolean;
 
 	@Output() toggled = new EventEmitter<ChoiceExt>();
 	@Output() onViewChoiceDetail = new EventEmitter<ChoiceExt>();
@@ -83,8 +84,12 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 		event.srcElement.src = 'assets/pultegroup_logo.jpg';
 	}
 
-	toggleChoice() {
-		this.toggled.emit(this.choice);
+	toggleChoice() 
+	{
+		if (!this.isReadonly)
+		{
+			this.toggled.emit(this.choice);			
+		}
 	}
 
 	viewChoiceDetail()

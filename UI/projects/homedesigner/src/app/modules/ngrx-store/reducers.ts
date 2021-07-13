@@ -43,8 +43,8 @@ export const filteredTree = createSelector(
 	fromScenario.selectScenario,
 	fromFavorite.favoriteState,
 	(scenario, favorite) => {
-		let tree = _.cloneDeep(scenario.tree); 
-		const treeFilter = scenario.treeFilter;
+		let tree = _.cloneDeep(scenario?.tree); 
+		const treeFilter = scenario?.treeFilter;
 		let filteredTree: TreeVersion;
 
 		if (tree && tree.treeVersion) {

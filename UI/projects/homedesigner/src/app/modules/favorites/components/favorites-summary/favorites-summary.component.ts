@@ -1,11 +1,17 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { Router } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { Location } from '@angular/common';
 
-import { take } from 'rxjs/operators';
+import { combineLatest as combineLatestOperator, take, distinctUntilChanged, switchMap } from 'rxjs/operators';
+import { combineLatest }from 'rxjs';
+import { Observable, of } from 'rxjs';
 import * as _ from 'lodash';
 
-import { UnsubscribeOnDestroy, PriceBreakdown, Group, SDGroup, DecisionPoint, JobChoice, Tree, TreeVersionRules, getDependentChoices } from 'phd-common';
+import 
+{ 
+	UnsubscribeOnDestroy, PriceBreakdown, Group, SDGroup, DecisionPoint, JobChoice, Tree, TreeVersionRules, 
+	SalesAgreement, getDependentChoices 
+} from 'phd-common';
 
 import { Store, select } from '@ngrx/store';
 import * as fromRoot from '../../../ngrx-store/reducers';
@@ -15,6 +21,8 @@ import * as fromSalesAgreement from '../../../ngrx-store/sales-agreement/reducer
 import * as NavActions from '../../../ngrx-store/nav/actions';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 import * as FavoriteActions from '../../../ngrx-store/favorite/actions';
+import * as CommonActions from '../../../ngrx-store/actions';
+
 import { selectSelectedLot } from '../../../ngrx-store/lot/reducer';
 
 import { SummaryHeader } from './summary-header/summary-header.component';
@@ -37,8 +45,10 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 	salesChoices: JobChoice[];
 	tree: Tree;
 	treeVersionRules: TreeVersionRules;
+	buildMode: string;
 
-	constructor(private store: Store<fromRoot.State>, 
+	constructor(private store: Store<fromRoot.State>,
+		private activatedRoute: ActivatedRoute, 
 		private router: Router,
 		private cd: ChangeDetectorRef,
 		private location: Location)
@@ -48,6 +58,48 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 
 	ngOnInit()
 	{
+		this.activatedRoute.paramMap
+			.pipe(
+				combineLatestOperator(this.store.pipe(select(state => state.salesAgreement))),
+				switchMap(([params, salesAgreementState]) =>
+				{
+					if (salesAgreementState.salesAgreementLoading || salesAgreementState.loadError)
+					{
+						return new Observable<never>();
+					}
+
+					// if sales agreement is not in the store and the id has been passed in to the url
+					// or the passed in sales agreement id is different than that of the id in the store...
+					const salesAgreementId = +params.get('salesAgreementId');
+
+					if (salesAgreementId > 0 && salesAgreementState.id !== salesAgreementId)
+					{
+						this.store.dispatch(new CommonActions.LoadSalesAgreement(salesAgreementId, true, true));
+
+						return new Observable<never>();
+					}
+
+					return of(_.pick(salesAgreementState, _.keys(new SalesAgreement())));
+				}),
+				switchMap(() => combineLatest([
+					this.store.pipe(select(state => state.scenario)),
+					this.store.pipe(select(state => state.favorite))
+				]).pipe(take(1))),
+				this.takeUntilDestroyed(),
+				distinctUntilChanged()
+			)
+			.subscribe(([scenario, fav]) =>
+			{
+				this.tree = scenario.tree;
+				this.treeVersionRules = scenario.rules;
+				this.buildMode = scenario.buildMode;
+
+				if (!fav.selectedFavoritesId)
+				{
+					this.store.dispatch(new FavoriteActions.LoadMyFavorite());
+				}
+			});
+
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(fromFavorite.currentMyFavorite)
@@ -112,26 +164,6 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		).subscribe(fav => {
 			this.salesChoices = fav && fav.salesChoices;
 			this.includeContractedOptions = fav && fav.includeContractedOptions;
-		});	
-		
-		this.store.pipe(
-			take(1),
-			select(state => state.scenario),
-		).subscribe(scenario =>
-		{
-			this.tree = scenario.tree;
-			this.treeVersionRules = scenario.rules;
-		});	
-
-		this.store.pipe(
-			take(1),
-			select(state => state.favorite),
-		).subscribe(fav =>
-		{
-			if (!fav.selectedFavoritesId)
-			{
-				this.store.dispatch(new FavoriteActions.LoadMyFavorite());
-			}
 		});	
 	}
 

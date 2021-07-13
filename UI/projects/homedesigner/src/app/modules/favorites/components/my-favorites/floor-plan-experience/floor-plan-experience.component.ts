@@ -26,6 +26,7 @@ export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implement
 	@Input() groups: Group[];
 	@Input() choiceImages: ChoiceImageAssoc[];
 	@Input() myFavoritesPointsDeclined?: MyFavoritesPointDeclined[];
+	@Input() isReadonly: boolean;
 
 	@Output() onToggleChoice = new EventEmitter<ChoiceExt>();
 	@Output() onToggleContractedOptions = new EventEmitter();

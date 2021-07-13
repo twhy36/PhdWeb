@@ -19,6 +19,7 @@
 						[salesChoices]="salesChoices"
 						[groups]="groups"
 						[choiceImages]="currentChoiceImages"
+						[isReadonly]="isReadonly"
 						(onToggleChoice)="toggleChoice($event)"
 						(onToggleContractedOptions)="toggleContractedOptions()"
 						(onViewChoiceDetail)="viewChoiceDetail($event)"
@@ -40,6 +41,7 @@
 						[isFloorplanFlipped]="isFloorplanFlipped"
 						[groups]="groups"
 						[choiceImages]="currentChoiceImages"
+						[isReadonly]="isReadonly"
 						(onToggleChoice)="toggleChoice($event)"
 						(onToggleContractedOptions)="toggleContractedOptions()"
 						(onViewChoiceDetail)="viewChoiceDetail($event)"
@@ -52,6 +54,7 @@
 						[path]="getChoicePath()"
 						[groups]="groups"
 						[myFavoritesPointsDeclined]="myFavoritesPointsDeclined"
+						[isReadonly]="isReadonly"
 						(onBack)="hideDetails()"
 						(onSelectDecisionPoint)="selectDecisionPoint($event)"
 						(onToggleChoice)="toggleChoice($event)">

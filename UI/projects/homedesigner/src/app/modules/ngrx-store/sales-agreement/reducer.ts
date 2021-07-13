@@ -34,6 +34,8 @@ export function reducer(state: State = initialState, action: Action): State
 {
 	switch (action.type)
 	{
+		case CommonActionTypes.LoadSalesAgreement:
+			return { ...state, salesAgreementLoading: true, loadError: false };		
 		case CommonActionTypes.SalesAgreementLoaded:
 			{
 				const saAction = action as SalesAgreementLoaded;

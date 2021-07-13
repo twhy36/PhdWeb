@@ -66,6 +66,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 	marketingPlanId$ = new BehaviorSubject<number>(0);
 	isFloorplanFlipped: boolean;
 	currentChoiceImages: ChoiceImageAssoc[];
+	isReadonly: boolean = false;
 
 	constructor(private store: Store<fromRoot.State>,
 		private route: ActivatedRoute,
@@ -201,6 +202,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		{
 			this.tree = scenario.tree;
 			this.treeVersionRules = scenario.rules;
+			this.isReadonly = scenario.buildMode === 'buyerPreview';
 		});
 
 		this.store.pipe(

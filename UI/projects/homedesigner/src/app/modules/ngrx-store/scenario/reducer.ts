@@ -15,7 +15,7 @@ import { ScenarioActions, ScenarioActionTypes } from './actions';
 
 export interface State
 {
-	buildMode: 'buyer' | 'spec' | 'model' | 'preview';
+	buildMode: 'buyer' | 'preview' | 'buyerPreview';
 	financialCommunityFilter: number;
 	isGanked: boolean;
 	isUnsaved: boolean;
@@ -287,6 +287,14 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 			newTree.treeVersion.groups.forEach(g => setGroupStatus(g));
 
 			return { ...state, tree: newTree };
+
+		case CommonActionTypes.LoadSalesAgreement:
+			let newBuildMode = state.buildMode;
+			if (action.isBuyerPreview)
+			{
+				newBuildMode = 'buyerPreview';
+			}
+			return { ...state, buildMode: newBuildMode }
 
 		default:
 			return state;

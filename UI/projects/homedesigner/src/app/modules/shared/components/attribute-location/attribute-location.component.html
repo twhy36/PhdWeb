@@ -7,8 +7,9 @@
 				<quantity-input [min]="0" [max]="maxQuantity" 
 					[quantity]="locationQuantityTotal" 
 					[canEdit]="choice.choiceStatus === 'Available'"
-					[isBlocked]="isBlocked"
-					(quantityChange)="quantityChangeHandler($event)"></quantity-input>
+					[isBlocked]="isBlocked || isReadonly"
+					(quantityChange)="quantityChangeHandler($event)">
+				</quantity-input>
 			</div>
 		</div>
 	</div>
@@ -18,6 +19,7 @@
 							[isLocationAttribute]="true"
 							[isBlocked]="isBlocked"
 							[highlightedAttributeId]="getHighlightedAttributeId(attributeGroup)"
+							[isReadonly]="isReadonly"
 							(onAttributeClick)="attributeClick($event)"
 							(onToggleAttribute)="attributeGroupSelected($event)">
 			</attribute-group>						

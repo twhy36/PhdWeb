@@ -21,7 +21,8 @@ export class DetailedDecisionBarComponent extends UnsubscribeOnDestroy implement
 	@Input() choiceImages: ChoiceImageAssoc[];
 	@Input() myFavoritesPointsDeclined?: MyFavoritesPointDeclined[];
 	@Input() groups: Group[];
-
+	@Input() isReadonly: boolean;
+	
 	@Output() onToggleChoice = new EventEmitter<ChoiceExt>();
 	@Output() onViewChoiceDetail = new EventEmitter<ChoiceExt>();
 	@Output() onDeclineDecisionPoint = new EventEmitter<DecisionPoint>();

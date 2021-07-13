@@ -25,6 +25,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	@Input() salesChoices: JobChoice[];
 	@Input() groups: Group[];
 	@Input() choiceImages: ChoiceImageAssoc[];
+	@Input() isReadonly: boolean;
 
 	@Output() onToggleChoice = new EventEmitter<ChoiceExt>();
 	@Output() onToggleContractedOptions = new EventEmitter();

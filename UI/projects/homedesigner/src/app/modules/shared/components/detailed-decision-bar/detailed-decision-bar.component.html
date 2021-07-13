@@ -16,6 +16,7 @@
 						[choice]="getChoiceExt(choice, point)"
 						[point]="point"
 						[groups]="groups"
+                        [isReadonly]="isReadonly"
 						(onToggleChoice)="toggleChoice($event)"
 						(onViewChoiceDetail)="viewChoiceDetail($event)"
 						(onSelectDecisionPoint)="selectDecisionPoint($event)">
@@ -24,6 +25,7 @@
 				<decision-bar-decline-choice *ngIf="showDeclineChoice(point)"
 							[point]="point"
 							[myFavoritesPointsDeclined]="myFavoritesPointsDeclined"
+                            [isReadonly]="isReadonly"
 							(onDeclineDecisionPoint)="declineDecisionPoint($event)"
 							(onSelectDecisionPoint)="selectDecisionPoint($event)">
 				</decision-bar-decline-choice>
