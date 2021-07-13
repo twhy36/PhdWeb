@@ -80,6 +80,7 @@ export interface IDTPoint
 	pointPickTypeLabel: string;
 	isQuickQuoteItem: boolean;
 	isStructuralItem: boolean;
+	isHiddenFromBuyerView: boolean;
 	cutOffDays: number;
 	edhConstructionStageId: number;
 	label: string;
@@ -410,6 +411,7 @@ export class DTPoint implements IDTPoint
 	pointPickTypeLabel = "";
 	isQuickQuoteItem = false;
 	isStructuralItem = false;
+	isHiddenFromBuyerView = false;
 	label = "";
 	description = "";
 	sortOrder = 0;
@@ -440,6 +442,7 @@ export class DTPoint implements IDTPoint
 		this.pointPickTypeLabel = dto.pointPickTypeLabel;
 		this.isQuickQuoteItem = dto.isQuickQuoteItem;
 		this.isStructuralItem = dto.isStructuralItem;
+		this.isHiddenFromBuyerView = dto.isHiddenFromBuyerView;
 		this.label = dto.label;
 		this.description = dto.description;
 		this.sortOrder = dto.sortOrder;

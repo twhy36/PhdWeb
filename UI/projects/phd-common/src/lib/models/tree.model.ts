@@ -109,6 +109,7 @@ export class DecisionPoint
 	sortOrder: number;
 	isQuickQuoteItem: boolean;
 	isStructuralItem: boolean;
+	isHiddenFromBuyerView?: boolean;
 	edhConstructionStageId?: number;
 	cutOffDays?: number;
 	label: string;

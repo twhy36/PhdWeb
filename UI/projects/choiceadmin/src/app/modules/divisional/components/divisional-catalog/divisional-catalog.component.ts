@@ -177,6 +177,7 @@ export class DivisionalCatalogComponent implements OnInit
 					orgID: org.orgID,
 					isQuickQuoteItem: false,
 					isStructuralItem: false,
+					isHiddenFromBuyerView: false,
 					isActive: true,
 					dPointTypeId: 3,
 					cutOffDays: null,
@@ -1055,7 +1056,8 @@ export class DivisionalCatalogComponent implements OnInit
 				dPointDescription: point.dto.dPointDescription,
 				isActive: point.dto.isActive,
 				isQuickQuoteItem: point.dto.isQuickQuoteItem,
-				isStructuralItem: point.dto.isStructuralItem
+				isStructuralItem: point.dto.isStructuralItem,
+				isHiddenFromBuyerView: point.dto.isHiddenFromBuyerView
 			} as IDivCatalogPointDto;
 		});
 	}

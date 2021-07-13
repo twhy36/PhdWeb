@@ -60,6 +60,7 @@ export namespace PhdEntityDto
 		divDPointSortOrder?: number;
 		isQuickQuoteItem?: boolean;
 		isStructuralItem?: boolean;
+		isHiddenFromBuyerView?: boolean;
 		org?: IOrgExpandedDto;
 		divChoiceCatalogs?: Array<IDivChoiceCatalogDto>;
 		dPointCatalog?: IDPointCatalogDto;
@@ -567,6 +568,7 @@ export namespace PhdApiDto
 		sortOrder: number;
 		isQuickQuoteItem: boolean;
 		isStructuralItem: boolean;
+		isHiddenFromBuyerView: boolean;
 		label: string;
 		description: string;
 		edhConstructionStageId?: number;

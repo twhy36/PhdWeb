@@ -78,9 +78,10 @@ export class TreeService
 		const expand = `treeVersion($expand=groups($expand=subGroups($expand=points($expand=choices)))) `;
 
 		const endPoint = environment.apiUrl + `${entity}?${encodeURIComponent('$')}expand=${encodeURIComponent(expand)}`;
-
+		
 		return (skipSpinner ? this.http : withSpinner(this.http)).get<Tree>(endPoint).pipe(
 			tap(response => response['@odata.context'] = undefined),
+			switchMap(response => this.getDivDPointCatalogs(response)),
 			map((response: Tree) => new Tree(response)),
 			catchError(error =>
 			{
@@ -90,6 +91,44 @@ export class TreeService
 			})
 		);
 	}
+
+	getDivDPointCatalogs(tree: Tree): Observable<Tree>
+    {
+        const entity = `divDPointCatalogs`;
+        let points = _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points));
+        
+		const pointCatalogIds = points.map(x => x.divPointCatalogId);
+        const filter = `divDpointCatalogID in (${pointCatalogIds})`;
+		
+        const select = `divDpointCatalogID,cutOffDays,isHiddenFromBuyerView`;
+
+        const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
+        const endPoint = `${environment.apiUrl}${entity}?${qryStr}`;
+
+        return this.http.get<Tree>(endPoint).pipe(
+            map(response => 
+            {
+                if (response)
+                {
+                    response['value'].map(x => {
+                        let point = points.find(p => p.divPointCatalogId === x.divDpointCatalogID);
+                        if (point)
+                        {
+                            point.cutOffDays = x.cutOffDays;
+							point.isHiddenFromBuyerView = x.isHiddenFromBuyerView;
+                        }
+                    });
+                }
+                return tree;
+            }),
+            catchError(error =>
+            {
+                console.error(error);
+ 
+                return empty;
+            })
+        );
+    }
 
 	getRules(treeVersionId: number, skipSpinner?: boolean): Observable<TreeVersionRules>
 	{
