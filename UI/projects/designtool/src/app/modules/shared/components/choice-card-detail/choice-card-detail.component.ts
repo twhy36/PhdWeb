@@ -240,7 +240,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 
 	addOverrideReason(overrideReason: string)
 	{
-		if (this.choice.overrideNote !== undefined)
+		if (this.choice.overrideNote)
 		{
 			this.choice.overrideNote = overrideReason;
 		}
