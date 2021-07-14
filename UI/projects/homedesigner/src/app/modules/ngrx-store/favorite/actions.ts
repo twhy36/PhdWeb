@@ -17,6 +17,7 @@ export enum FavoriteActionTypes
 	DeleteMyFavoritesPointDeclined = 'Delete My Favorites Point Declined',
 	MyFavoritesPointDeclinedUpdated = 'My Favorites Point Declined Saved',
 	LoadMyFavorite = 'Load My Favorite',
+	LoadDefaultFavorite = 'Load Default Favorite',
 	MyFavoriteLoaded = 'My Favorite Loaded'
 }
 
@@ -94,13 +95,20 @@ export class MyFavoritesPointDeclinedUpdated implements Action
 	{
 		readonly type = FavoriteActionTypes.MyFavoritesPointDeclinedUpdated;
 
-		constructor(public myFavoritesPointDeclined: MyFavoritesPointDeclined, 
+		constructor(public myFavoritesPointDeclined: MyFavoritesPointDeclined,
 			public isDelete: boolean) {	}
 	}
 
 export class LoadMyFavorite implements Action
 {
 	readonly type = FavoriteActionTypes.LoadMyFavorite;
+
+	constructor() {	}
+}
+
+export class LoadDefaultFavorite implements Action
+{
+	readonly type = FavoriteActionTypes.LoadDefaultFavorite;
 
 	constructor() {	}
 }
@@ -112,7 +120,7 @@ export class MyFavoriteLoaded implements Action
 	constructor() {	}
 }
 
-export type FavoriteActions = 
+export type FavoriteActions =
 	MyFavoriteCreated |
 	SetCurrentFavorites |
 	SaveMyFavoritesChoices |
@@ -127,4 +135,5 @@ export type FavoriteActions =
 	DeleteMyFavoritesPointDeclined |
 	MyFavoritesPointDeclinedUpdated |
 	LoadMyFavorite |
+	LoadDefaultFavorite |
 	MyFavoriteLoaded;

@@ -35,7 +35,7 @@ export class DetailedDecisionBarComponent extends UnsubscribeOnDestroy implement
 
 	getSubTitle(point: DecisionPoint): string {
 		if (point) {
-			const contractedChoices = point.choices.filter(c => this.salesChoices.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1);
+			const contractedChoices = point.choices.filter(c => this.salesChoices?.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1);
 			const isPreviouslyContracted = contractedChoices && contractedChoices.length;
 
 			switch (point.pointPickTypeId) {
@@ -57,10 +57,10 @@ export class DetailedDecisionBarComponent extends UnsubscribeOnDestroy implement
 
 	getChoiceExt(choice: Choice, point: DecisionPoint) : ChoiceExt {
 		let choiceStatus = 'Available';
-		if (point.isPastCutOff || this.salesChoices.findIndex(c => c.divChoiceCatalogId === choice.divChoiceCatalogId) > -1) {
+		if (point.isPastCutOff || this.salesChoices?.findIndex(c => c.divChoiceCatalogId === choice.divChoiceCatalogId) > -1) {
 			choiceStatus = 'Contracted';
 		}	else {
-			const contractedChoices = point.choices.filter(c => this.salesChoices.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1);
+			const contractedChoices = point.choices.filter(c => this.salesChoices?.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1);
 			if (contractedChoices && contractedChoices.length && (point.pointPickTypeId === PickType.Pick1 || point.pointPickTypeId === PickType.Pick0or1)) {
 				choiceStatus = 'ViewOnly';
 			}
@@ -76,7 +76,7 @@ export class DetailedDecisionBarComponent extends UnsubscribeOnDestroy implement
 		return (point.pointPickTypeId === 2 || point.pointPickTypeId === 4)
 			&& !point.isStructuralItem
 			&& !point.isPastCutOff
-			&& point.choices.filter(c => this.salesChoices.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1)?.length === 0;
+			&& point.choices.filter(c => this.salesChoices?.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1)?.length === 0;
 	}
 
 	toggleChoice (choice) {

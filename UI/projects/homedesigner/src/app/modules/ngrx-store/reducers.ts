@@ -43,7 +43,7 @@ export const filteredTree = createSelector(
 	fromScenario.selectScenario,
 	fromFavorite.favoriteState,
 	(scenario, favorite) => {
-		let tree = _.cloneDeep(scenario?.tree); 
+		let tree = _.cloneDeep(scenario?.tree);
 		const treeFilter = scenario?.treeFilter;
 		let filteredTree: TreeVersion;
 
@@ -61,7 +61,7 @@ export const filteredTree = createSelector(
 
 						let points = sg.points.map(p => {
 							treeMatched.point = treeMatched.subGroup || filter(p.label);
-							const contractedChoices = p.choices.filter(c => favorite.salesChoices.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1);
+							const contractedChoices = p.choices.filter(c => favorite?.salesChoices?.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1);
 							const isComplete = contractedChoices && contractedChoices.length
 								&& (p.pointPickTypeId === PickType.Pick1 || p.pointPickTypeId === PickType.Pick0or1);
 
@@ -157,9 +157,9 @@ export const priceBreakdown = createSelector(
 			let base = scenario.options ? scenario.options.find(o => o.isBaseHouse) : null;
 			if (base && scenario.tree) {
 				const treeChoices = _.flatMap(scenario.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, p => p.choices)));
-                breakdown.selections = treeChoices.filter(c => !!favorite.salesChoices.find(x => x.divChoiceCatalogId === c.divChoiceCatalogId))
+                breakdown.selections = treeChoices.filter(c => !!favorite?.salesChoices?.find(x => x.divChoiceCatalogId === c.divChoiceCatalogId))
 					?.reduce((acc, ch) => acc + (ch.quantity * ch.price), 0);
-				breakdown.favoritesPrice = treeChoices.filter(c => c.quantity > 0 && !favorite.salesChoices.find(x => x.divChoiceCatalogId === c.divChoiceCatalogId))
+				breakdown.favoritesPrice = treeChoices.filter(c => c.quantity > 0 && !favorite?.salesChoices?.find(x => x.divChoiceCatalogId === c.divChoiceCatalogId))
 				?.reduce((acc, ch) => acc + (ch.quantity * ch.price), 0);
 			}
 
@@ -220,13 +220,13 @@ export const priceBreakdown = createSelector(
 
 			let changePrice = salesAgreement.status === 'Approved' && currentChangeOrder?.amount || 0;
 			const salesPrice = salesAgreement.salePrice || 0;
-			
+
 			let nonStandardOptions = 0;
 			job.jobNonStandardOptions?.forEach(nso => {
 				nonStandardOptions+=(nso.quantity*nso.unitPrice);
 			})
 			breakdown.nonStandardSelections = nonStandardOptions;
-			
+
 			const nsos = _.flatMap(currentChangeOrder?.jobChangeOrders, co => co.jobChangeOrderNonStandardOptions);
 
 				nsos.forEach(nso =>
@@ -240,7 +240,7 @@ export const priceBreakdown = createSelector(
 						breakdown.nonStandardSelections -= (nso.unitPrice * nso.qty);
 					}
 				});
-			
+
 			breakdown.totalPrice = salesPrice + changePrice + breakdown.favoritesPrice;
 		}
 
@@ -251,10 +251,11 @@ export const priceBreakdown = createSelector(
 export const financialCommunityName = createSelector(
 	fromOrg.selectOrg,
 	fromJob.jobState,
-	(org, job) => {
+	fromScenario.selectScenario,
+	(org, job, scenario) => {
 		let communityName = '';
 		if (org && org.salesCommunity && org.salesCommunity.financialCommunities && org.salesCommunity.financialCommunities.length) {
-			const financialCommunity = org.salesCommunity.financialCommunities.find(x => x.id === job.financialCommunityId);
+			const financialCommunity = org.salesCommunity.financialCommunities.find(x => x.id === (job?.financialCommunityId || scenario?.tree?.financialCommunityId));
 			if (financialCommunity) {
 				communityName = financialCommunity.name;
 			}

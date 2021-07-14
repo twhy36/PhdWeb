@@ -62,4 +62,4 @@
 	</ng-container>
 </div>
 
-<action-bar [primaryAction]="showDetails ? 'Back' : 'Next'" [price]="priceBreakdown.totalPrice" [favoritesPrice]="priceBreakdown.favoritesPrice" (callToAction)="showDetails ? hideDetails() : onNextSubGroup()"></action-bar>
+<action-bar [primaryAction]="showDetails ? 'Back' : 'Next'" [price]="priceBreakdown?.totalPrice" [favoritesPrice]="priceBreakdown?.favoritesPrice" (callToAction)="showDetails ? hideDetails() : onNextSubGroup()"></action-bar>

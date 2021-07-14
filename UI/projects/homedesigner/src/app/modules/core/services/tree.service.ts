@@ -11,7 +11,7 @@ import
 	{
 		withSpinner, newGuid, createBatchGet, createBatchHeaders, createBatchBody,
 		IdentityService, JobChoice, ChangeOrderChoice, TreeVersionRules, OptionRule, Tree, OptionImage,
-		JobPlanOption, ChangeOrderPlanOption, PlanOptionCommunityImageAssoc, ChoiceImageAssoc
+		JobPlanOption, ChangeOrderPlanOption, PlanOptionCommunityImageAssoc, ChoiceImageAssoc, TreeBaseHouseOption
 	} from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
@@ -78,7 +78,7 @@ export class TreeService
 		const expand = `treeVersion($expand=groups($expand=subGroups($expand=points($expand=choices)))) `;
 
 		const endPoint = environment.apiUrl + `${entity}?${encodeURIComponent('$')}expand=${encodeURIComponent(expand)}`;
-		
+
 		return (skipSpinner ? this.http : withSpinner(this.http)).get<Tree>(endPoint).pipe(
 			tap(response => response['@odata.context'] = undefined),
 			switchMap(response => this.getDivDPointCatalogs(response)),
@@ -92,21 +92,44 @@ export class TreeService
 		);
 	}
 
+	getTreeBaseHouseOptions(treeVersionId: number): Observable<TreeBaseHouseOption[]>
+	{
+		const entity = `baseHouseOptions`;
+		const expand = `planOption($select=integrationKey)`;
+		const select = `planOption`;
+		const filter = `dTreeVersionID eq ${treeVersionId}`;
+
+		const endPoint = environment.apiUrl + `${entity}?${encodeURIComponent("$")}expand=${encodeURIComponent(expand)}&${encodeURIComponent("$")}filter=${encodeURIComponent(filter)}&${encodeURIComponent("$")}select=${encodeURIComponent(select)}`;
+
+		return this.http.get<any>(endPoint).pipe(
+			map(response =>
+			{
+				return response.value as TreeBaseHouseOption[];
+			}),
+			catchError(error =>
+			{
+				console.error(error);
+
+				return _throw(error);
+			})
+		);
+	}
+
 	getDivDPointCatalogs(tree: Tree): Observable<Tree>
     {
         const entity = `divDPointCatalogs`;
         let points = _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points));
-        
+
 		const pointCatalogIds = points.map(x => x.divPointCatalogId);
         const filter = `divDpointCatalogID in (${pointCatalogIds})`;
-		
+
         const select = `divDpointCatalogID,cutOffDays,isHiddenFromBuyerView`;
 
         const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
         const endPoint = `${environment.apiUrl}${entity}?${qryStr}`;
 
         return this.http.get<Tree>(endPoint).pipe(
-            map(response => 
+            map(response =>
             {
                 if (response)
                 {
@@ -124,7 +147,7 @@ export class TreeService
             catchError(error =>
             {
                 console.error(error);
- 
+
                 return empty;
             })
         );
@@ -209,7 +232,7 @@ export class TreeService
 				const select = 'dPointID,divDPointCatalogID';
 				const url = `${environment.apiUrl}dPoints?${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
 
-				return this.http.get<any>(url);				
+				return this.http.get<any>(url);
 			}),
 			map((response: any) =>
 			{

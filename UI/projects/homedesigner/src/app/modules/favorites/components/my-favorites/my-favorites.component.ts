@@ -66,6 +66,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 	marketingPlanId$ = new BehaviorSubject<number>(0);
 	isFloorplanFlipped: boolean;
 	currentChoiceImages: ChoiceImageAssoc[];
+	isPreview: boolean;
 	isReadonly: boolean = false;
 
 	constructor(private store: Store<fromRoot.State>,
@@ -119,6 +120,8 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			if (scenarioState.treeLoading) {
 				return;
 			}
+
+			this.isPreview = scenarioState.buildMode === 'preview';
 
 			if (filteredTree && params.subGroupCatalogId > 0) {
 				let groups = filteredTree.groups;
