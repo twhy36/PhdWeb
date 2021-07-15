@@ -1055,7 +1055,9 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 		switch (changeOrder.changeOrderTypeDescription)
 		{
 			case 'NonStandard':
-				this.store.dispatch(new ChangeOrderActions.ResubmitChangeOrder(new ChangeInput(ChangeTypeEnum.NON_STANDARD), sequence, sequenceSuffix));
+				var changeInput = new ChangeInput(ChangeTypeEnum.NON_STANDARD);
+				changeInput.isDirty = true; // Enables Save button on resubmitting a NSO
+				this.store.dispatch(new ChangeOrderActions.ResubmitChangeOrder(changeInput, sequence, sequenceSuffix));
 
 				this.router.navigateByUrl('/change-orders/non-standard');
 
