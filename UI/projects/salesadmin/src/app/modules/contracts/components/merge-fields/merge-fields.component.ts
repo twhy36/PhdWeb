@@ -7,7 +7,7 @@ import { of ,  Observable } from 'rxjs';
 import { NgbModal, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 
 import { MergeField, CommunityMergeField, isCommunityMergeField } from '../../../shared/models/mergeField.model';
-import { ESignField } from '../../../shared/models/ESignFields.model';
+import { ESignField } from '../../../shared/models/eSignFields.model';
 import { FinancialMarket } from '../../../shared/models/financialMarket.model';
 import { FinancialCommunity } from '../../../shared/models/financialCommunity.model';
 import { FinancialCommunityViewModel } from '../../../shared/models/plan-assignment.model';

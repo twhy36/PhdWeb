@@ -2,11 +2,14 @@ export class ContractTemplate
 {
 	templateId?: number;
 	parentTemplateId?: number;
+	isPhd: boolean;
+	isTho: boolean;
 	documentName: string;
 	displayName: string;
 	version?: number;
 	marketId: number;
 	templateTypeId: number;
+	addendumTypeId?: number;
 	displayOrder?: number;
 	effectiveDate?: string;
 	expirationDate?: string;
