@@ -247,7 +247,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 	get canSignAgreement(): boolean
 	{
-		return this.inPointOfSale && this.agreement.status === "OutforSignature" && !this.inChangeOrder && !this.isEditingEnvelopeDraft && (!this.isOutForESign || this.canApprove);
+		return this.inPointOfSale && this.agreement.status === "OutforSignature" && !this.inChangeOrder && ((!this.isEditingEnvelopeDraft && !this.isOutForESign) || this.canApprove);
 	}
 
 	get canApproveAgreement(): boolean

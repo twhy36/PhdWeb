@@ -57,7 +57,7 @@ export class SummaryHeaderComponent implements OnInit, OnDestroy
 		{
 			homesite = this.summaryHeader.lot.lotBlock;
 
-			if (!this.canEditHanding && this.summaryHeader.handing && this.summaryHeader.handing.length)
+			if (!this.canEditHanding && this.summaryHeader.handing && this.summaryHeader.handing != 'NA' && this.summaryHeader.handing.length)
 			{
 				homesite += `, ${this.summaryHeader.handing} Garage`;
 			}
