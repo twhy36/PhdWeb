@@ -26,12 +26,14 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 	@Output() onSelectDecisionPoint = new EventEmitter<number>();
 
 	@ViewChild('blockedChoiceModal') blockedChoiceModal: any;
+	@ViewChild('hiddenChoicePriceModal') hiddenChoicePriceModal: any;
 
 	choice: ChoiceExt;
 	choiceMsg: object[] = [];
 	optionImages: OptionImage[];
 	imageUrl: string = '';
 	blockedChoiceModalRef: NgbModalRef;
+	hiddenChoicePriceModalRef: NgbModalRef;
 	disabledByList: {label: string, pointId: number, choiceId?: number, ruleType: number}[] = null;
 
 	constructor(public modalService: NgbModal) {
@@ -105,8 +107,16 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { windowClass: 'phd-blocked-choice-modal' });
 	}
 
+	openHiddenChoicePriceModal() {
+		if (this.choice.priceHiddenFromBuyerView)
+		{
+			this.hiddenChoicePriceModalRef = this.modalService.open(this.hiddenChoicePriceModal, { windowClass: 'phd-hidden-choice-price-modal' });
+		}
+	}
+
 	onCloseClicked() {
 		this.blockedChoiceModalRef?.close();
+		this.hiddenChoicePriceModal?.close();
 	}
 
 	onBlockedItemClick(pointId: number) {

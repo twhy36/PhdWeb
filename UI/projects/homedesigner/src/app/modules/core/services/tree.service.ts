@@ -4,14 +4,14 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs/Observable';
 import { map, catchError, tap, switchMap } from 'rxjs/operators';
 import { _throw } from 'rxjs/observable/throw';
-import { EMPTY as empty } from 'rxjs';
+import { combineLatest, EMPTY as empty } from 'rxjs';
 import { of } from 'rxjs/observable/of';
 
 import
 	{
 		withSpinner, newGuid, createBatchGet, createBatchHeaders, createBatchBody,
 		IdentityService, JobChoice, ChangeOrderChoice, TreeVersionRules, OptionRule, Tree, OptionImage,
-		JobPlanOption, ChangeOrderPlanOption, PlanOptionCommunityImageAssoc, ChoiceImageAssoc, TreeBaseHouseOption
+		JobPlanOption, ChangeOrderPlanOption, PlanOptionCommunityImageAssoc, ChoiceImageAssoc, TreeBaseHouseOption, Choice
 	} from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
@@ -81,8 +81,24 @@ export class TreeService
 
 		return (skipSpinner ? this.http : withSpinner(this.http)).get<Tree>(endPoint).pipe(
 			tap(response => response['@odata.context'] = undefined),
-			switchMap(response => this.getDivDPointCatalogs(response)),
-			map((response: Tree) => new Tree(response)),
+			switchMap(response => combineLatest([
+				this.getDivDPointCatalogs(response),
+				this.getDivChoiceCatalogs(response)
+			])),
+			map((response: [Tree, Tree]) => {
+				const modPoints = _.flatMap(response[0].treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points));
+				let finalPoints = _.flatMap(response[1].treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points));
+
+				modPoints.map(x => {
+					let point = finalPoints.find(p => p.divPointCatalogId === x.divPointCatalogId);
+					if (point)
+					{
+						point.cutOffDays = x.cutOffDays;
+						point.isHiddenFromBuyerView = x.isHiddenFromBuyerView;
+					}
+				});
+				return new Tree(response[1]);
+			}),
 			catchError(error =>
 			{
 				console.error(error);
@@ -151,6 +167,62 @@ export class TreeService
                 return empty;
             })
         );
+    }
+
+	getDivChoiceCatalogs(tree: Tree): Observable<Tree>
+    {
+		let choices = _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)));
+		return this.identityService.token.pipe(
+			switchMap((token: string) =>
+			{
+				const batchSize = 75;
+				let batchBundles: string[] = [];
+	
+				// create a batch request with a max of 75 choices per request
+				let buildRequestUrl = (choices: Choice[]) =>
+				{
+					const entity = `divChoiceCatalogs`;
+					const select = `divChoiceCatalogID,isHiddenFromBuyerView,priceHiddenFromBuyerView`;
+		
+					const choiceCatalogIds = choices.map(x => x.divChoiceCatalogId);
+					const filter = `divChoiceCatalogID in (${choiceCatalogIds})`;
+					const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
+					const endPoint = `${environment.apiUrl}${entity}?${qryStr}`;
+		
+					return endPoint;
+				}
+	
+				for (var x = 0; x < choices.length; x = x + batchSize)
+				{
+					let choiceList = choices.slice(x, x + batchSize);
+		
+					batchBundles.push(buildRequestUrl(choiceList));
+				}
+	
+				let requests = batchBundles.map(req => createBatchGet(req));
+				let guid = newGuid();
+		
+				var headers = createBatchHeaders(guid, token);
+				var batch = createBatchBody(guid, requests);
+	
+				return this.http.post(`${environment.apiUrl}$batch`, batch, { headers: headers });
+			}),
+			map((response: any) => {
+				if (response) {
+					response['responses'].forEach(response => {
+						response['body']['value'].map(x => {
+							let choice = choices.find(p => p.divChoiceCatalogId === x.divChoiceCatalogID);
+							if (choice)
+							{
+								choice.isHiddenFromBuyerView = x.isHiddenFromBuyerView;
+								choice.priceHiddenFromBuyerView = x.priceHiddenFromBuyerView;
+							}
+						});
+					})
+				}
+				return tree;
+			})
+		)
     }
 
 	getRules(treeVersionId: number, skipSpinner?: boolean): Observable<TreeVersionRules>

@@ -222,7 +222,9 @@ export class DivisionalCatalogComponent implements OnInit
 			dPointCatalogID: parent.dto.dPointCatalogID,
 			isActive: true,
 			isDecisionDefault: false,
-			isInUse: false
+			isInUse: false,
+			isHiddenFromBuyerView: false,
+			priceHiddenFromBuyerView: false
 		});
 
 		this.catalogItem.parent = parent;
@@ -1068,7 +1070,9 @@ export class DivisionalCatalogComponent implements OnInit
 		{
 			return {
 				divChoiceSortOrder: choice.dto.divChoiceSortOrder,
-				divChoiceCatalogID: choice.dto.divChoiceCatalogID
+				divChoiceCatalogID: choice.dto.divChoiceCatalogID,
+				isHiddenFromBuyerView: choice.dto.isHiddenFromBuyerView,
+				priceHiddenFromBuyerView: choice.dto.priceHiddenFromBuyerView
 			} as IDivCatalogChoiceDto;
 		});
 	}

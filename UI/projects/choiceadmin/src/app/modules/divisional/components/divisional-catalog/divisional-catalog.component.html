@@ -192,7 +192,13 @@
 										<td class="phd-icon-col">
 											<i class="fa fa-fw fa-trash-o" ngbTooltip="{{ choiceTrashToolTip(choice) }}" container="body" (click)="createMsgModal(choice)" *requiresClaim="'DivisionCatalog'; permission: Permission.Edit; market: selectedMarket?.number"></i>
 										</td>
-										<td class="phd-icon-col"></td>
+										<td class="phd-icon-col">
+											<i class="fa fa-eye-slash" ngbTooltip="Hidden From Buyer View" container="body" *ngIf="choice.isHiddenFromBuyerView"></i>
+											<span class="fa-stack phd-fa-dollar-ban" ngbTooltip="Price Hidden From Buyer View" container="body" *ngIf="choice.priceHiddenFromBuyerView">
+												<i class="fa fa-ban"></i>
+												<i class="fa fa-dollar"></i>
+											</span>
+										</td>
 										<td class="phd-icon-col">
 											<i class="fa fa-fw fa-check-square" ngbTooltip="Default" container="body" *ngIf="choice.isDefault"></i>
 										</td>

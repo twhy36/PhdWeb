@@ -1,3 +1,45 @@
 .fa-exclamation-circle {
 	margin-left: 10px;
 }
+
+.fa-eye-slash {
+	font-size: 1.2em;
+	margin-left: 5px;
+}
+
+.phd-fa-dollar-ban, .phd-fa-dollar-ban-grid {
+	font-size: 9px;
+
+	.fa-ban {
+		font-size: 2.25em;
+		bottom: 1px;
+		margin-left: 3px;
+		position: absolute;
+		width: 100%;
+		text-align: center;
+	}
+
+	.fa-dollar {
+		font-size: 1.5em;
+		bottom: 4px;
+		left: 3px;
+		position: absolute;
+		width: 100%;
+		text-align: center;
+	}
+}
+
+.phd-fa-dollar-ban-grid:hover {
+	cursor: pointer;
+}
+
+.phd-design-preview-choices {
+	.phd-design-preview-label {
+		margin-top: 15px;
+		font-size: 15px;
+		font-weight: bold;
+	}
+	.form-options {
+		margin-top: -8px;
+	}
+}

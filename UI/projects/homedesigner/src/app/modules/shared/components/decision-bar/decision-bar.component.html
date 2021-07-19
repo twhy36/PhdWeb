@@ -1,6 +1,6 @@
 <ul class="list-unstyled">
 	<ng-container *ngFor="let point of points">
-		<li *ngIf="!point.isHiddenFromBuyerView"
+		<li *ngIf="displayDecisionPoint(point)"
 			[class.active]="currentPointId === point.id"
 			class="d-flex align-items-center justify-content-start"
 			(click)="onDecisionPointClick(point)"

@@ -589,6 +589,8 @@ export namespace PhdApiDto
 		imagePath: string;
 		hasImage: boolean;
 		choiceMaxQuantity?: number;
+		isHiddenFromBuyerView?: boolean;
+		priceHiddenFromBuyerView?: boolean;
 	}
 
 	export interface ITreeIds

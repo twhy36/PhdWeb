@@ -119,6 +119,8 @@ export interface IDTChoice
 	open: boolean;
 	matched: boolean;
 	sortChanged: boolean;
+	isHiddenFromBuyerView?: boolean;
+	priceHiddenFromBuyerView?: boolean;
 }
 
 export class DTree implements IDTree
@@ -509,6 +511,8 @@ export class DTChoice implements IDTChoice
 	hasLocations = false;
 	maxQuantity = null;
 	imageCount?= 0;
+	isHiddenFromBuyerView = false;
+	priceHiddenFromBuyerView = false;
 
 	open = true;
 	matched = true;
@@ -538,6 +542,8 @@ export class DTChoice implements IDTChoice
 		this.hasLocations = dto.locationGroups ? dto.locationGroups.length > 0 : dto.hasLocations;
 		this.maxQuantity = dto.choiceMaxQuantity;
 		this.description = dto.description;
+		this.isHiddenFromBuyerView = dto.isHiddenFromBuyerView;
+		this.priceHiddenFromBuyerView = dto.priceHiddenFromBuyerView;
 
 		this._dto = dto;
 	}
