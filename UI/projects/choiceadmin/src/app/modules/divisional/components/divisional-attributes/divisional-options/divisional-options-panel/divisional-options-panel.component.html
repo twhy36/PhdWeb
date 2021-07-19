@@ -7,8 +7,8 @@
 	</div>
 	<div class="d-flex flex-row mx-2">
 		<ng-container *ngIf="tableMessage.length <= 0">
-			<div class="option-panel" infiniteScroll [infiniteScrollThrottle]="settings.infiniteScrollThrottle" (scrolled)="onPanelScroll()" [scrollWindow]="false">
-				<phd-table id="divisionalOptionsPanel" [value]="filteredOptions" selectionMode="single" [(selection)]="selectedOption" dataKey="financialOptionIntegrationKey" tableId="divisionalOptions" [displayTooltip]="false">
+			<div class="option-panel" infiniteScroll [infiniteScrollThrottle]="settings.infiniteScrollThrottle" [infiniteScrollDisabled]="allDataLoaded" (scrolled)="onPanelScroll()" [scrollWindow]="false">
+				<phd-table id="divisionalOptionsPanel" [value]="filteredOptions" selectionMode="single" [(selection)]="selectedOption" dataKey="financialOptionIntegrationKey" tableId="divisionalOptions" [displayTooltip]="false" sortMode="single" [sortField]="sortField" [lazy]="true" (onLazyLoad)="lazyLoadData($event)">
 					<ng-template #rowExpansion let-option let-columns="columns">
 						<tr>
 							<td [attr.colspan]="columns.length">
@@ -60,11 +60,11 @@
 					<phd-column columnId="images" width="60px">
 						<ng-template let-option pTemplate #body>
 							<i class="fa fa-fw fa-image fa-sm phd-clickable-inline" *ngIf="option.hasImages" (click)="editOption($event, option, 'images');">
-								<span>{{option.imageCount}}</span>
+								<span class="phd-img-count">{{option.imageCount}}</span>
 							</i>
 						</ng-template>
 					</phd-column>
-					<phd-column header="Lawson Number">
+					<phd-column field="financialOptionIntegrationKey" header="Lawson Number">
 						<ng-template let-option pTemplate #body>
 							<span class="hyperlinkText" (click)="editOption($event, option);">{{ option.financialOptionIntegrationKey }}</span>
 						</ng-template>

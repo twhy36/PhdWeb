@@ -1,5 +1,6 @@
-<p-table [columns]="columns" [value]="value" [loading]="loading" loadingIcon="fa-spinner" [resizableColumns]="true" (onFilter)="onFilter($event)" (onColResize)="resizeColumn($event)" (onRowReorder)="onRowReorder($event)" (onRowSelect)="onRowSelect($event)" (onRowUnselect)="onRowUnselect($event)"
-		 [selection]="selection" (selectionChange)="selectionChange($event)" [dataKey]="dataKey" [sortMode]="sortMode" [sortField]="sortField || '__index'">
+<p-table [columns]="columns" [value]="value" [loading]="loading" loadingIcon="fa-spinner" [resizableColumns]="true"
+		 (onFilter)="onFilter($event)" (onColResize)="resizeColumn($event)" (onRowReorder)="onRowReorder($event)" (onRowSelect)="onRowSelect($event)" (onRowUnselect)="onRowUnselect($event)" (onLazyLoad)="onLazyLoad($event)"
+		 [selection]="selection" (selectionChange)="selectionChange($event)" [dataKey]="dataKey" [sortMode]="sortMode" [sortField]="sortField || '__index'" [lazy]="lazy" [lazyLoadOnInit]="false">
 
 	<!--TABLE CAPTION-->
 	<ng-template pTemplate="caption" *ngIf="hideableColumns?.length > 0 || filterableColumns?.length > 0 || showCaption">

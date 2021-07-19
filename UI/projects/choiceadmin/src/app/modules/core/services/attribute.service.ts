@@ -14,6 +14,7 @@ import { AttributeGroupCommunity } from '../../shared/models/attribute-group-com
 import { Option, IOptionMarket, OptionMarket } from '../../shared/models/option.model';
 import { IFinancialCommunity } from '../../shared/models/financial-community.model';
 import { GroupChoice } from '../../shared/models/group-choice.model';
+import { TableSort } from '../../../../../../phd-common/src/lib/components/table/phd-table.model';
 import { withSpinner } from 'phd-common';
 
 import * as moment from 'moment';
@@ -28,14 +29,35 @@ export class AttributeService
 
 	constructor(private _http: HttpClient, private _loggingService: LoggingService) { }
 
-	getAttributesByMarketId(marketId: number, status?: boolean, topRows?: number, skipRows?: number, filterName?: string, keywords?: string): Observable<Array<Attribute>>
+	getAttributesByMarketId(marketId: number, status?: boolean, topRows?: number, skipRows?: number, filterName?: string, keywords?: string, tableSort?: TableSort): Observable<Array<Attribute>>
 	{
 		let url = settings.apiUrl;
 
 		const expand = `attributeMarketTags($select=attributeMarketId,tag;)`;
 		const select = `id, marketId, name, attributeDescription, manufacturer, sku, imageUrl, startDate, endDate`;
-		const orderBy = `name`;
+		let orderby = `name`;
 		let filter = `marketId eq ${marketId}`;
+
+		if (tableSort?.sortField)
+		{
+			switch (tableSort.sortField)
+			{
+				case 'formattedStartDate':
+					orderby = 'startDate';
+
+					break;
+				case 'formattedEndDate':
+					orderby = 'endDate';
+
+					break;
+				default:
+					orderby = tableSort?.sortField ?? `name`;
+
+					break;
+			}
+
+			orderby += ` ${tableSort.sortOrderText}`;
+		}
 
 		if (keywords)
 		{
@@ -77,7 +99,7 @@ export class AttributeService
 			}
 		}
 
-		const qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}orderby=${encodeURIComponent(orderBy)}`;
+		const qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}orderby=${encodeURIComponent(orderby)}`;
 
 		url += `attributeMarkets?${qryStr}`;
 
@@ -105,14 +127,19 @@ export class AttributeService
 			catchError(this.handleError));
 	}
 
-	getAttributeGroupsByMarketId(marketId: number, status?: boolean, topRows?: number, skipRows?: number, filterName?: string, keywords?: string, filterEmpty?: boolean): Observable<Array<AttributeGroupMarket>>
+	getAttributeGroupsByMarketId(marketId: number, status?: boolean, topRows?: number, skipRows?: number, filterName?: string, keywords?: string, filterEmpty?: boolean, tableSort?: TableSort): Observable<Array<AttributeGroupMarket>>
 	{
 		let url = settings.apiUrl;
 
 		let expand = `attributeGroupMarketTags($select=attributeGroupMarketId,tag;)`;
 		const select = `id, marketId, groupName, description, groupLabel, isActive`;
-		const orderBy = `groupName`;
+		let orderby = tableSort?.sortField ?? `groupName`;
 		let filter = `marketId eq ${marketId}`;
+
+		if (tableSort?.sortField)
+		{
+			orderby += ` ${tableSort.sortOrderText}`;
+		}
 
 		if (keywords)
 		{
@@ -151,7 +178,7 @@ export class AttributeService
 			filter += ` and attributeGroupAttributeMarketAssocs/any(a: a/attributeMarket/endDate gt ${today})`;
 		}
 
-		const qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}orderby=${encodeURIComponent(orderBy)}`;
+		const qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}orderby=${encodeURIComponent(orderby)}`;
 
 		url += `attributeGroupMarkets?${qryStr}`;
 

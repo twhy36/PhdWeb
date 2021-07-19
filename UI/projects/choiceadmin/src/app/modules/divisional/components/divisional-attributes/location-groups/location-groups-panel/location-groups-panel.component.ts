@@ -19,8 +19,9 @@ import { SearchBarComponent } from '../../../../../shared/components/search-bar/
 
 import { SettingsService } from '../../../../../core/services/settings.service';
 import { Settings } from '../../../../../shared/models/settings.model';
-import { IdentityService, Permission } from 'phd-common';
+import { IdentityService, Permission, PhdTableComponent } from 'phd-common';
 import { StorageService } from '../../../../../core/services/storage.service';
+import { TableLazyLoadEvent, TableSort } from '../../../../../../../../../phd-common/src/lib/components/table/phd-table.model';
 
 @Component({
 	selector: 'location-groups-panel',
@@ -31,6 +32,9 @@ export class LocationGroupsPanelComponent extends UnsubscribeOnDestroy implement
 {
 	@ViewChild(SearchBarComponent)
 	private searchBar: SearchBarComponent;
+
+	@ViewChild(PhdTableComponent)
+	private tableComponent: PhdTableComponent;
 
 	@Output() onAssociateLocations = new EventEmitter<LocationGroupMarket>();
 	@Output() onSidePanelOpen = new EventEmitter<LocationGroupMarket>();
@@ -52,6 +56,11 @@ export class LocationGroupsPanelComponent extends UnsubscribeOnDestroy implement
 	isSaving: boolean = false;
 	workingId: number = 0;
 	isReadOnly: boolean;
+
+	get currentTableSort(): TableSort
+	{
+		return this.tableComponent.currentTableSort;
+	}
 
 	get selectedStatus(): string
 	{
@@ -155,7 +164,7 @@ export class LocationGroupsPanelComponent extends UnsubscribeOnDestroy implement
 	clearFilter()
 	{
 		this.keyword = null;
-		this.selectedSearchFilter = 'All'
+		this.selectedSearchFilter = 'All';
 
 		this.filterLocationGroups();
 	}
@@ -298,18 +307,46 @@ export class LocationGroupsPanelComponent extends UnsubscribeOnDestroy implement
 			const top = this.settings.infiniteScrollPageSize;
 			const skip = this.currentPage * this.settings.infiniteScrollPageSize;
 
-			this._locoService.getLocationGroupsByMarketId(this.currentMarketId, null, top, skip).subscribe(data =>
+			this._locoService.getLocationGroupsByMarketId(this.currentMarketId, null, top, skip, null, null, null, this.currentTableSort).subscribe(data =>
 			{
 				if (data.length)
 				{
+					// append new data to the existing list
 					this.locationGroupsList = unionBy(this.locationGroupsList, data, 'id');
-					this.filteredLocationGroupsList = orderBy(this.locationGroupsList, [group => group.locationGroupName.toLowerCase()]);
+					this.filteredLocationGroupsList = this.locationGroupsList;
+
+					// apply sort to the full list
+					this.tableComponent.sortLazy();
 
 					this.currentPage++;
 				}
 
 				this.allDataLoaded = !data.length || data.length < this.settings.infiniteScrollPageSize;
 			});
+		}
+	}
+
+	/**
+	 * The table is flagged as lazy which means any paging, sorting, and/or filtering done will call this method.
+	 * @param event
+	 */
+	lazyLoadData(event: TableLazyLoadEvent)
+	{
+		if (!this.allDataLoaded && !this.keyword && !this.selectedStatus)
+		{
+			// return data based on the sort options.  if currentTableSort is null then it will revert to the default sort.
+			this._locoService.getLocationGroupsByMarketId(this.currentMarketId, null, this.settings.infiniteScrollPageSize, 0, null, null, null, this.currentTableSort).subscribe(data =>
+			{
+				this.locationGroupsList = data;
+				this.filteredLocationGroupsList = this.locationGroupsList;
+				this.currentPage = 1;
+				this.allDataLoaded = !data.length || data.length < this.settings.infiniteScrollPageSize;
+			});
+		}
+		else if (this.allDataLoaded || this.keyword || this.selectedStatus)
+		{
+			// all the data is either loaded or we are filtering so all the data should be loaded at this time so we can just update the sort.				
+			this.tableComponent.sortLazy();
 		}
 	}
 
