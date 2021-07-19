@@ -840,6 +840,7 @@ export function reducer(state: State = initialState, action: ChangeOrderActions)
 				changeOrder.changeOrderGroupSequence = action.sequence;
 				changeOrder.changeOrderGroupSequenceSuffix = action.sequenceSuffix;
 				changeOrder.jobChangeOrders = state.currentChangeOrder.jobChangeOrders;
+				changeOrder.id = state.currentChangeOrder.id;
 
 				return { ...state, isChangingOrder: true, currentChangeOrder: changeOrder, changeInput: action.changeInput };
 			}

@@ -219,7 +219,7 @@ export class ChangeOrderEffects
 			switchMap(([lockInChoices, store]) => {
 				const currentChangeOrder = this.changeOrderService.getCurrentChangeOrder(store.job.changeOrderGroups);
 				const changeOrderId = currentChangeOrder ? currentChangeOrder.id : 0;
-				const choices = this.changeOrderService.getOriginalChoicesAndAttributes(store.job, store.scenario.tree, (currentChangeOrder !== undefined) ? store.changeOrder.currentChangeOrder as ChangeOrderGroup : null);
+				const choices = this.changeOrderService.getOriginalChoicesAndAttributes(store.job, store.scenario.tree, (currentChangeOrder !== undefined) ? store.changeOrder.currentChangeOrder : null);
 				const handing = this.changeOrderService.getSelectedHanding(store.job);
 
 				let actions: any[] = [
@@ -238,7 +238,7 @@ export class ChangeOrderEffects
 
 				if (changeOrderId > 0)
 				{
-					actions.push(new CurrentChangeOrderLoaded(currentChangeOrder, handing));
+					actions.push(new CurrentChangeOrderLoaded(store.changeOrder.currentChangeOrder, handing));
 				}
 				else
 				{
