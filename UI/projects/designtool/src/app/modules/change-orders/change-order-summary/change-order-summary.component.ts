@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { Store, select } from '@ngrx/store';
 import { Actions, ofType } from '@ngrx/effects';
 import { FormGroup, FormControl, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
-import { combineLatest, switchMap, withLatestFrom, take, finalize, takeUntil } from 'rxjs/operators';
+import { combineLatest, switchMap, withLatestFrom, take, finalize } from 'rxjs/operators';
 import { Observable } from 'rxjs/Observable';
 
 import * as fromRoot from '../../ngrx-store/reducers';
@@ -721,7 +721,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 		this.isSaving = true;
 
 		this.store.pipe(
-			this.takeUntilDestroyed(),
+			take(1),
 			select(state => state.job.financialCommunityId),
 			switchMap(financialCommunityId =>
 			{
@@ -797,7 +797,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 				}
 				else
 				{
-					this.store.dispatch(new JobActions.LoadJobForJob(this.jobId));
+					this.store.dispatch(new JobActions.LoadJobForJob(this.jobId, false));
 				}
 			}
 			else

@@ -25,7 +25,7 @@ export function stateReset(reducer: ActionReducer<any>): ActionReducer<any>
 {
 	return function (state, action)
 	{
-		if ((action instanceof LoadSalesAgreement && action.clearState) || action instanceof LoadScenario || action instanceof LoadJobForJob || action instanceof LoadOpportunity)
+		if ((action instanceof LoadSalesAgreement && action.clearState) || action instanceof LoadScenario || (action instanceof LoadJobForJob && action.clearState) || action instanceof LoadOpportunity)
 		{
 			state = {
 				salesAgreement: fromSalesAgreement.initialState,
