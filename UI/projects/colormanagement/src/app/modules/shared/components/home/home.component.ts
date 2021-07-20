@@ -11,6 +11,8 @@ import { Observable } from 'rxjs';
 
 export class HomeComponent implements OnInit
 {
+	user;
+
 	constructor(private _identityService: IdentityService) { }
 
 	ngOnInit()
@@ -18,5 +20,7 @@ export class HomeComponent implements OnInit
 		this._identityService.getRoles().subscribe(roles => {
 			console.log("Roles: " + roles);
 		});
+
+		this._identityService.user.subscribe(user=>this.user=user);
 	}
 }

@@ -23,13 +23,8 @@ body {
 }
 
 main {
-	align-content: flex-start;
-	align-items: center;
 	display: flex;
 	flex-grow: 1;
-	flex-wrap: wrap;
-	justify-content: center;
-	padding: 15px 0;
 }
 
 /* bootstrap override start */
