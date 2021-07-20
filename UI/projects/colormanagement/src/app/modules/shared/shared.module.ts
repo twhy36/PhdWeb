@@ -9,8 +9,13 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { PhdCommonModule } from 'phd-common';
 
 import { CapitalCaseSpacePipe } from './pipes/capitalCaseSpace.pipe';
-import { HomeComponent } from './components/home/home.component';
-import { UnauthorizedComponent } from "./components/unauthorized/unauthorized.component";
+import {
+	HomeComponent,
+	UnauthorizedComponent,
+	ColorItemsPageComponent,
+	ColorsPageComponent
+} from './components';
+
 
 const routes: Routes = [
 	{ path: '', component: HomeComponent },
@@ -20,6 +25,8 @@ const routes: Routes = [
 @NgModule({
 	declarations: [
 		HomeComponent,
+		ColorsPageComponent,
+		ColorItemsPageComponent,
 		UnauthorizedComponent,
 		CapitalCaseSpacePipe
 	],
