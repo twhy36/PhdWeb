@@ -24,7 +24,7 @@ export const initialState: State = {
 	isLoading: false,
 	saveError: false,
 	salesChoices: null,
-	includeContractedOptions: true
+	includeContractedOptions: false
 };
 
 export function reducer(state: State = initialState, action: FavoriteActions): State

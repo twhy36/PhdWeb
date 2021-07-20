@@ -21,11 +21,12 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	@Input() myFavoritesChoices: MyFavoritesChoice[];
 	@Input() myFavoritesPointsDeclined: MyFavoritesPointDeclined[];
 	@Input() decisionPointId: number;
-	@Input() includeContractedOptions: boolean = true;
+	@Input() includeContractedOptions: boolean = false;
 	@Input() salesChoices: JobChoice[];
 	@Input() groups: Group[];
 	@Input() choiceImages: ChoiceImageAssoc[];
 	@Input() isReadonly: boolean;
+	@Input() isPreview: boolean = false;
 
 	@Output() onToggleChoice = new EventEmitter<ChoiceExt>();
 	@Output() onToggleContractedOptions = new EventEmitter();

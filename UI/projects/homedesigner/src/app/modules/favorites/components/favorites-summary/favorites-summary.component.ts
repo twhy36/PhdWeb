@@ -40,12 +40,13 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 	priceBreakdown: PriceBreakdown;
 	summaryHeader: SummaryHeader = new SummaryHeader();
 	isSticky: boolean = false;
-	includeContractedOptions: boolean = true;
+	includeContractedOptions: boolean = false;
 	favoritesId: number;
 	salesChoices: JobChoice[];
 	tree: Tree;
 	treeVersionRules: TreeVersionRules;
 	buildMode: string;
+	isPreview: boolean = false;
 
 	constructor(private store: Store<fromRoot.State>,
 		private activatedRoute: ActivatedRoute, 
@@ -91,6 +92,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 			.subscribe(([scenario, fav]) =>
 			{
 				this.tree = scenario.tree;
+				this.isPreview = scenario.buildMode === 'preview';
 				this.treeVersionRules = scenario.rules;
 				this.buildMode = scenario.buildMode;
 

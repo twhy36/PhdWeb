@@ -12,7 +12,7 @@ export enum FavoriteActionTypes
 	SaveError = 'Save Error',
 	DeleteMyFavorite = 'Delete My Favorite',
 	MyFavoriteDeleted = 'My Favorite Deleted',
-	ToggleContractedOptions = 'Toggle Include Contracted Options',
+	ToggleContractedOptions = 'Toggle Display Contracted Options',
 	AddMyFavoritesPointDeclined = 'Add My Favorites Point Declined',
 	DeleteMyFavoritesPointDeclined = 'Delete My Favorites Point Declined',
 	MyFavoritesPointDeclinedUpdated = 'My Favorites Point Declined Saved',
