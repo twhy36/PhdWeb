@@ -16,7 +16,7 @@ import {
 	ColorsPageComponent
 } from './components';
 
-
+import { CoreModule } from '../core/core.module';
 const routes: Routes = [
 	{ path: '', component: HomeComponent },
 	{ path: 'unauthorized', component: UnauthorizedComponent }
@@ -39,7 +39,8 @@ const routes: Routes = [
 		NgbButtonsModule,
 		NgbModule,
 		RouterModule.forChild(routes),
-		PhdCommonModule
+		PhdCommonModule,
+		CoreModule		
 	],
 	exports: [
 		UnauthorizedComponent,
