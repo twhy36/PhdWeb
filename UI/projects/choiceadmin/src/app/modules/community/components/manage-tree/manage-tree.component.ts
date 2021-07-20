@@ -126,6 +126,8 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 
 	modalReference: ModalRef;
 
+	hideGenericPreviewAccess: boolean;
+
 	get openGroups(): boolean
 	{
 		return this.treeToggle ? this.treeToggle.openGroups : true;
@@ -191,6 +193,8 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 		});
 
 		this._treeOptionSub = this._treeService.currentTreeOptions.subscribe(options => { this.currentTreeOptions = options; });
+
+		this.hideGenericPreviewAccess = !this._settingsService.getSettings().production;
 	}
 
 	ngOnDestroy()
@@ -761,17 +765,37 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 	{
 		const path = `preview/${this.currentTree.version.id}`;
 
-		const ref = window.open('', "preview", '', true);
+		const ref = window.open('', "designToolPreview", '');
 
-		if (!ref.location.href.endsWith(path)) // just opened
+		const dtUrl = this._settingsService.getSettings().designToolUrl;
+
+		if (!ref.location.href.endsWith(`${dtUrl}/${path}`)) // just opened
 		{
-			const dtUrl = this._settingsService.getSettings().designToolUrl;
-
 			ref.location.href = `${dtUrl}${path}`;
 		}
 		else
 		{ // was already opened -- we refresh it
-			ref.location.reload(true);
+			ref.location.reload();
+		}
+
+		ref.focus();
+	}
+
+	onDesignPreviewTreeClicked()
+	{
+		const path = `preview/${this.currentTree.version.id}`;
+
+		const ref = window.open('', "genericDesignPreview", '');
+		
+		const dtUrl = this._settingsService.getSettings().designPreviewUrl;
+
+		if (!ref.location.href.endsWith(`${dtUrl}/${path}`)) // just opened
+		{
+			ref.location.href = `${dtUrl}${path}`;
+		}
+		else
+		{ // was already opened -- we refresh it
+			ref.location.reload();
 		}
 
 		ref.focus();
