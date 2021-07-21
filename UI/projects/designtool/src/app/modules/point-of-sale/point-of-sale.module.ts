@@ -112,10 +112,6 @@ const moduleRoutes: Routes = [
 		SignAgreementComponent,
 		SalesConsultantComponent,
 		VoidAgreementComponent
-	],
-	entryComponents: [
-		MatchingContactsComponent,
-		SignAgreementComponent
 	]
 })
 export class PointOfSaleModule { }

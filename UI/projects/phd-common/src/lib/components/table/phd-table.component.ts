@@ -1,9 +1,11 @@
 import { Component, ContentChildren, QueryList, Input, Output, EventEmitter, AfterContentInit, ViewChild, OnChanges, TemplateRef, ContentChild } from '@angular/core';
 import { PhdColumnDirective } from './phd-column.directive';
 import { DomHandler } from 'primeng/dom';
-import { ObjectUtils, FilterUtils } from 'primeng/utils';
+import { ObjectUtils } from 'primeng/utils';
 import { Table, TableService } from 'primeng/table';
 import { OverlayPanel } from 'primeng/overlaypanel';
+import { FilterMetadata, FilterService } from 'primeng/api';
+import { PrimeNGCorrectionService } from '../../services/primeng.service';
 import { TableSort } from './phd-table.model';
 
 @Component({
@@ -38,6 +40,7 @@ export class PhdTableComponent implements AfterContentInit, OnChanges
 	globalFilterInput: string = "";
 	rowGroupMetadata: any;
 	tooltipText: string;
+	tooltipTimeout: number;
 
 	@ViewChild(Table, { static: false }) table: Table;
 	@ViewChild("tt") tooltipOverlay: OverlayPanel;
@@ -68,6 +71,8 @@ export class PhdTableComponent implements AfterContentInit, OnChanges
 
 	defaultTableSort: TableSort;
 	currentTableSort: TableSort;
+
+	constructor(private filterService: FilterService, private primeNgCorrectionService: PrimeNGCorrectionService) {}
 
 	get allColumns(): PhdColumnDirective[]
 	{
@@ -106,7 +111,7 @@ export class PhdTableComponent implements AfterContentInit, OnChanges
 		{
 			for (let key of Object.keys(this.table.filters))
 			{
-				this.table.filter(this.table.filters[key].value, key, this.table.filters[key].matchMode);
+				this.table.filter((this.table.filters[key] as FilterMetadata).value, key, (this.table.filters[key] as FilterMetadata).matchMode);
 			}
 		}
 	}
@@ -198,21 +203,18 @@ export class PhdTableComponent implements AfterContentInit, OnChanges
 	}
 
 	ngAfterViewInit()
-	{		
-		FilterUtils['any'] = function (value: any[], filter: any[]): boolean
-		{
-			if (!value)
-			{
+	{
+		this.filterService.register('any', (value, filter): boolean => {
+			if (!value) {
 				return false;
 			}
 
-			if (!filter || !filter.length)
-			{
+			if (!filter || !filter.length) {
 				return true;
 			}
 
 			return filter.some(v => value.indexOf(v) !== -1);
-		}	
+		});
 	}
 
 	updateVisibleColumns(visibleColumns: PhdColumnDirective[]): void
@@ -246,7 +248,7 @@ export class PhdTableComponent implements AfterContentInit, OnChanges
 	onBlurDeselect(blurEvent: FocusEvent): void
 	{
 		//Force an ESC keypress so that the PrimeNg table leaves Edit Mode.
-		const key = { 'key': '27', 'keyCode': '27' }
+		const key = { 'key': '27', 'keyCode': '27' } as unknown;
 		const enterEvent = new KeyboardEvent('keydown', key);
 
 		blurEvent['path'].forEach((obj: Element) =>
@@ -467,17 +469,25 @@ export class PhdTableComponent implements AfterContentInit, OnChanges
 	{
 		if (this.displayTooltip)
 		{
-			setTimeout(() =>
-			{
-				this.tooltipText = tooltipText;
-				this.tooltipOverlay.appendTo = event.target.parentElement;
-				this.tooltipOverlay.show(event, event.target)
-			}, 300);
+			// Avoid a rare issue with mouseleave not being properly triggered when jumping to an adjacent cell
+			this.hideTooltip();
+
+			if (typeof window !== 'undefined') {
+				this.tooltipTimeout = window.setTimeout(() => {
+					this.tooltipText = tooltipText;
+					this.tooltipOverlay.show(event, event.target);
+				}, 300);
+			}
 		}
 	}
 
 	hideTooltip(): void
 	{
+		if (typeof window !== 'undefined') {
+			// Stops any other tooltip in the process of showing
+			window.clearTimeout(this.tooltipTimeout);
+		}
+
 		this.tooltipOverlay.hide();
 	}
 

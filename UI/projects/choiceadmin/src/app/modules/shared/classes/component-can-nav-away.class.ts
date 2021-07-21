@@ -1,5 +1,6 @@
-import { HostListener } from "@angular/core";
+import { HostListener, Directive } from "@angular/core";
 
+@Directive()
 export abstract class ComponentCanNavAway
 {
 	abstract canNavAway(): boolean;

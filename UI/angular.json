@@ -10,7 +10,7 @@
             "prefix": "lib",
             "architect": {
                 "build": {
-                    "builder": "@angular-devkit/build-ng-packagr:build",
+                    "builder": "@angular-devkit/build-angular:ng-packagr",
                     "options": {
                         "tsConfig": "projects/phd-common/tsconfig.lib.json",
                         "project": "projects/phd-common/ng-package.json"
@@ -50,34 +50,49 @@
             "architect": {
                 "build": {
                     "builder": "@angular-devkit/build-angular:browser",
-                    "options": {
-                        "aot": true,
-                        "baseHref": "/choiceadmin/",
-                        "outputHashing": "all",
-                        "outputPath": "dist/choiceadmin",
-                        "index": "projects/choiceadmin/src/index.html",
-                        "main": "projects/choiceadmin/src/main.ts",
-                        "tsConfig": "projects/choiceadmin/tsconfig.app.json",
-                        "progress": true,
-                        "preserveSymlinks": true,
-                        "polyfills": "projects/choiceadmin/src/polyfills.ts",
-                        "verbose": true,
-                        "assets": [
-                            "projects/choiceadmin/src/assets",
-                            "projects/choiceadmin/src/favicon.ico",
-                            "projects/choiceadmin/src/picturepark-response.html"
-                        ],
-                        "styles": [
-                            "node_modules/bootstrap/dist/css/bootstrap.min.css",
-                            "node_modules/font-awesome/css/font-awesome.min.css",
-                            "node_modules/primeng/resources/themes/nova-light/theme.css",
-                            "node_modules/primeng/resources/primeng.min.css",
-                            "node_modules/primeicons/primeicons.css",
-                            "projects/choiceadmin/src/scss/styles.scss"
-                        ],
-                        "scripts": []
-                    },
+					"options": {
+						"allowedCommonJsDependencies": [
+							"applicationinsights-js",
+							"lodash",
+							"rxjs"
+						],
+						"aot": true,
+						"baseHref": "/choiceadmin/",
+						"outputHashing": "all",
+						"outputPath": "dist/choiceadmin",
+						"index": "projects/choiceadmin/src/index.html",
+						"main": "projects/choiceadmin/src/main.ts",
+						"tsConfig": "projects/choiceadmin/tsconfig.app.json",
+						"progress": true,
+						"preserveSymlinks": true,
+						"polyfills": "projects/choiceadmin/src/polyfills.ts",
+						"verbose": true,
+						"assets": [
+							"projects/choiceadmin/src/assets",
+							"projects/choiceadmin/src/favicon.ico",
+							"projects/choiceadmin/src/picturepark-response.html"
+						],
+						"styles": [
+							"node_modules/bootstrap/dist/css/bootstrap.min.css",
+							"node_modules/font-awesome/css/font-awesome.min.css",
+							"node_modules/primeng/resources/themes/nova/theme.css",
+							"node_modules/primeng/resources/primeng.min.css",
+							"node_modules/primeicons/primeicons.css",
+							"projects/choiceadmin/src/scss/styles.scss"
+						],
+						"scripts": []
+					},
                     "configurations": {
+                        "local": {
+                            "baseHref": "/",
+                            "outputHashing": "none",
+                            "fileReplacements": [
+                                {
+                                    "replace": "projects/choiceadmin/src/environments/environment.ts",
+                                    "with": "projects/choiceadmin/src/environments/environment.local.ts"
+                                }
+                            ]
+                        },
                         "qa": {
                             "fileReplacements": [
                                 {
@@ -97,15 +112,14 @@
                         "production": {
                             "optimization": true,
                             "sourceMap": false,
-                            "extractCss": true,
                             "namedChunks": false,
                             "extractLicenses": true,
                             "vendorChunk": false,
                             "buildOptimizer": true,
                             "fileReplacements": [
                                 {
-                                    "replace": "projects/choiceadmin/src/environments/environment.ts",
-                                    "with": "projects/choiceadmin/src/environments/environment.prod.ts"
+                                "replace": "projects/choiceadmin/src/environments/environment.ts",
+                                "with": "projects/choiceadmin/src/environments/environment.prod.ts"
                                 }
                             ]
                         }
@@ -114,8 +128,7 @@
                 "serve": {
                     "builder": "@angular-devkit/build-angular:dev-server",
                     "options": {
-                        "baseHref": "/",
-                        "browserTarget": "choiceadmin:build",
+                        "browserTarget": "choiceadmin:build:local",
                         "port": 14765
                     },
                     "configurations": {
@@ -147,7 +160,7 @@
                         "styles": [
                             "node_modules/bootstrap/scss/bootstrap.scss",
                             "node_modules/font-awesome/css/font-awesome.min.css",
-                            "node_modules/primeng/resources/themes/nova-light/theme.css",
+                            "node_modules/primeng/resources/themes/nova/theme.css",
                             "node_modules/primeng/resources/primeng.min.css",
                             "node_modules/primeicons/primeicons.css",
                             "projects/choiceadmin/src/scss/styles.scss"
@@ -178,34 +191,50 @@
             "architect": {
                 "build": {
                     "builder": "@angular-devkit/build-angular:browser",
-                    "options": {
-                        "aot": true,
-                        "baseHref": "/designtool/",
-                        "outputHashing": "all",
-                        "outputPath": "dist/designtool",
-                        "index": "projects/designtool/src/index.html",
-                        "main": "projects/designtool/src/main.ts",
-                        "tsConfig": "projects/designtool/tsconfig.app.json",
-                        "progress": true,
-                        "preserveSymlinks": true,
-                        "polyfills": "projects/designtool/src/polyfills.ts",
-                        "verbose": true,
-                        "assets": [
-                            "projects/designtool/src/assets",
-                            "projects/designtool/src/docusign_response.html",
-                            "projects/designtool/src/favicon.ico"
-                        ],
-                        "styles": [
-                            "node_modules/ngx-toastr/toastr.css",
-                            "node_modules/primeicons/primeicons.css",
-                            "node_modules/primeng/resources/themes/nova-light/theme.css",
-                            "node_modules/primeng/resources/primeng.min.css",
-                            "projects/designtool/src/scss/styles.scss"
-                        ],
-                        "scripts": [],
-                        "webWorkerTsConfig": "projects/designtool/tsconfig.worker.json"
-                    },
+					"options": {
+						"allowedCommonJsDependencies": [
+							"applicationinsights-js",
+							"cloudinary-core",
+							"lodash",
+							"rxjs"
+						],
+						"aot": true,
+						"baseHref": "/designtool/",
+						"outputHashing": "all",
+						"outputPath": "dist/designtool",
+						"index": "projects/designtool/src/index.html",
+						"main": "projects/designtool/src/main.ts",
+						"tsConfig": "projects/designtool/tsconfig.app.json",
+						"progress": true,
+						"preserveSymlinks": true,
+						"polyfills": "projects/designtool/src/polyfills.ts",
+						"verbose": true,
+						"assets": [
+							"projects/designtool/src/assets",
+							"projects/designtool/src/docusign_response.html",
+							"projects/designtool/src/favicon.ico"
+						],
+						"styles": [
+							"node_modules/ngx-toastr/toastr.css",
+							"node_modules/primeicons/primeicons.css",
+							"node_modules/primeng/resources/themes/nova/theme.css",
+							"node_modules/primeng/resources/primeng.min.css",
+							"projects/designtool/src/scss/styles.scss"
+						],
+						"scripts": [],
+						"webWorkerTsConfig": "projects/designtool/tsconfig.worker.json"
+					},
                     "configurations": {
+                        "local": {
+                            "baseHref": "/",
+                            "outputHashing": "none",
+                            "fileReplacements": [
+                                {
+                                    "replace": "projects/designtool/src/environments/environment.ts",
+                                    "with": "projects/designtool/src/environments/environment.local.ts"
+                                }
+                            ]
+                        },
                         "qa": {
                             "fileReplacements": [
                                 {
@@ -225,15 +254,14 @@
                         "production": {
                             "optimization": true,
                             "sourceMap": false,
-                            "extractCss": true,
                             "namedChunks": false,
                             "extractLicenses": true,
                             "vendorChunk": false,
                             "buildOptimizer": true,
                             "fileReplacements": [
                                 {
-                                    "replace": "projects/designtool/src/environments/environment.ts",
-                                    "with": "projects/designtool/src/environments/environment.prod.ts"
+                                "replace": "projects/designtool/src/environments/environment.ts",
+                                "with": "projects/designtool/src/environments/environment.prod.ts"
                                 }
                             ]
                         }
@@ -242,8 +270,7 @@
                 "serve": {
                     "builder": "@angular-devkit/build-angular:dev-server",
                     "options": {
-                        "baseHref": "/",
-                        "browserTarget": "designtool:build",
+                        "browserTarget": "designtool:build:local",
                         "port": 14767
                     },
                     "configurations": {
@@ -275,7 +302,7 @@
                         "scripts": [],
                         "styles": [
                             "node_modules/ngx-toastr/toastr.css",
-                            "node_modules/primeng/resources/themes/nova-light/theme.css",
+                            "node_modules/primeng/resources/themes/nova/theme.css",
                             "node_modules/primeng/resources/primeng.min.css",
                             "projects/designtool/src/scss/styles.scss"
                         ],
@@ -306,32 +333,47 @@
             "architect": {
                 "build": {
                     "builder": "@angular-devkit/build-angular:browser",
-                    "options": {
-                        "aot": true,
-                        "baseHref": "/salesadmin/",
-                        "outputHashing": "all",
-                        "outputPath": "dist/salesadmin",
-                        "index": "projects/salesadmin/src/index.html",
-                        "main": "projects/salesadmin/src/main.ts",
-                        "tsConfig": "projects/salesadmin/tsconfig.app.json",
-                        "progress": true,
-                        "preserveSymlinks": true,
-                        "polyfills": "projects/salesadmin/src/polyfills.ts",
-                        "verbose": true,
-                        "assets": [
-                            "projects/salesadmin/src/assets",
-                            "projects/salesadmin/src/favicon.ico"
-                        ],
-                        "styles": [
-                            "node_modules/font-awesome/css/font-awesome.min.css",
-                            "node_modules/primeng/resources/themes/nova-light/theme.css",
-                            "node_modules/primeng/resources/primeng.min.css",
-                            "node_modules/primeicons/primeicons.css",
-                            "projects/salesadmin/src/scss/styles.scss"
-                        ],
-                        "scripts": []
-                    },
+					"options": {
+						"allowedCommonJsDependencies": [
+							"applicationinsights-js",
+							"lodash",
+							"rxjs"
+						],
+						"aot": true,
+						"baseHref": "/salesadmin/",
+						"outputHashing": "all",
+						"outputPath": "dist/salesadmin",
+						"index": "projects/salesadmin/src/index.html",
+						"main": "projects/salesadmin/src/main.ts",
+						"tsConfig": "projects/salesadmin/tsconfig.app.json",
+						"progress": true,
+						"preserveSymlinks": true,
+						"polyfills": "projects/salesadmin/src/polyfills.ts",
+						"verbose": true,
+						"assets": [
+							"projects/salesadmin/src/assets",
+							"projects/salesadmin/src/favicon.ico"
+						],
+						"styles": [
+							"node_modules/font-awesome/css/font-awesome.min.css",
+							"node_modules/primeng/resources/themes/nova/theme.css",
+							"node_modules/primeng/resources/primeng.min.css",
+							"node_modules/primeicons/primeicons.css",
+							"projects/salesadmin/src/scss/styles.scss"
+						],
+						"scripts": []
+					},
                     "configurations": {
+                        "local": {
+                            "baseHref": "/",
+                            "outputHashing": "none",
+                            "fileReplacements": [
+                                {
+                                    "replace": "projects/salesadmin/src/environments/environment.ts",
+                                    "with": "projects/salesadmin/src/environments/environment.local.ts"
+                                }
+                            ]
+                        },
                         "qa": {
                             "fileReplacements": [
                                 {
@@ -351,15 +393,14 @@
                         "production": {
                             "optimization": true,
                             "sourceMap": false,
-                            "extractCss": true,
                             "namedChunks": false,
                             "extractLicenses": true,
                             "vendorChunk": false,
                             "buildOptimizer": true,
                             "fileReplacements": [
                                 {
-                                    "replace": "projects/salesadmin/src/environments/environment.ts",
-                                    "with": "projects/salesadmin/src/environments/environment.prod.ts"
+                                "replace": "projects/salesadmin/src/environments/environment.ts",
+                                "with": "projects/salesadmin/src/environments/environment.prod.ts"
                                 }
                             ]
                         }
@@ -368,8 +409,7 @@
                 "serve": {
                     "builder": "@angular-devkit/build-angular:dev-server",
                     "options": {
-                        "baseHref": "/",
-                        "browserTarget": "salesadmin:build",
+                        "browserTarget": "salesadmin:build:local",
                         "port": 14768
                     },
                     "configurations": {
@@ -401,7 +441,7 @@
                         "styles": [
                             "node_modules/bootstrap/scss/bootstrap.scss",
                             "node_modules/font-awesome/css/font-awesome.min.css",
-                            "node_modules/primeng/resources/themes/nova-light/theme.css",
+                            "node_modules/primeng/resources/themes/nova/theme.css",
                             "node_modules/primeng/resources/primeng.min.css",
                             "node_modules/primeicons/primeicons.css",
                             "projects/salesadmin/src/scss/styles.scss"
@@ -432,31 +472,46 @@
             "architect": {
                 "build": {
                     "builder": "@angular-devkit/build-angular:browser",
-                    "options": {
-                        "aot": true,
-                        "baseHref": "/salesportal/",
-                        "outputHashing": "all",
-                        "outputPath": "dist/salesportal",
-                        "index": "projects/salesportal/src/index.html",
-                        "main": "projects/salesportal/src/main.ts",
-                        "tsConfig": "projects/salesportal/tsconfig.app.json",
-                        "progress": true,
-                        "preserveSymlinks": true,
-                        "polyfills": "projects/salesportal/src/polyfills.ts",
-                        "verbose": true,
-                        "assets": [
-                            "projects/salesportal/src/assets"
-                        ],
-                        "styles": [
-                            "node_modules/font-awesome/css/font-awesome.min.css",
-                            "node_modules/primeng/resources/themes/nova-light/theme.css",
-                            "node_modules/primeng/resources/primeng.min.css",
-                            "node_modules/primeicons/primeicons.css",
-                            "projects/salesportal/src/scss/styles.scss"
-                        ],
-                        "scripts": []
-                    },
+					"options": {
+						"allowedCommonJsDependencies": [
+							"applicationinsights-js",
+							"lodash",
+							"rxjs"
+						],
+						"aot": true,
+						"baseHref": "/salesportal/",
+						"outputHashing": "all",
+						"outputPath": "dist/salesportal",
+						"index": "projects/salesportal/src/index.html",
+						"main": "projects/salesportal/src/main.ts",
+						"tsConfig": "projects/salesportal/tsconfig.app.json",
+						"progress": true,
+						"preserveSymlinks": true,
+						"polyfills": "projects/salesportal/src/polyfills.ts",
+						"verbose": true,
+						"assets": [
+							"projects/salesportal/src/assets"
+						],
+						"styles": [
+							"node_modules/font-awesome/css/font-awesome.min.css",
+							"node_modules/primeng/resources/themes/nova/theme.css",
+							"node_modules/primeng/resources/primeng.min.css",
+							"node_modules/primeicons/primeicons.css",
+							"projects/salesportal/src/scss/styles.scss"
+						],
+						"scripts": []
+					},
                     "configurations": {
+                        "local": {
+                            "baseHref": "/",
+                            "outputHashing": "none",
+                            "fileReplacements": [
+                                {
+                                    "replace": "projects/salesportal/src/environments/environment.ts",
+                                    "with": "projects/salesportal/src/environments/environment.local.ts"
+                                }
+                            ]
+                        },
                         "qa": {
                             "fileReplacements": [
                                 {
@@ -476,15 +531,14 @@
                         "production": {
                             "optimization": true,
                             "sourceMap": false,
-                            "extractCss": true,
                             "namedChunks": false,
                             "extractLicenses": true,
                             "vendorChunk": false,
                             "buildOptimizer": true,
                             "fileReplacements": [
                                 {
-                                    "replace": "projects/salesportal/src/environments/environment.ts",
-                                    "with": "projects/salesportal/src/environments/environment.prod.ts"
+                                "replace": "projects/salesportal/src/environments/environment.ts",
+                                "with": "projects/salesportal/src/environments/environment.prod.ts"
                                 }
                             ]
                         }
@@ -493,8 +547,7 @@
                 "serve": {
                     "builder": "@angular-devkit/build-angular:dev-server",
                     "options": {
-                        "baseHref": "/",
-                        "browserTarget": "salesportal:build",
+                        "browserTarget": "salesportal:build:local",
                         "port": 14766
                     },
                     "configurations": {
@@ -526,7 +579,7 @@
                         "styles": [
                             "node_modules/bootstrap/scss/bootstrap.scss",
                             "node_modules/font-awesome/css/font-awesome.min.css",
-                            "node_modules/primeng/resources/themes/nova-light/theme.css",
+                            "node_modules/primeng/resources/themes/nova/theme.css",
                             "node_modules/primeng/resources/primeng.min.css",
                             "node_modules/primeicons/primeicons.css",
                             "projects/salesportal/src/scss/styles.scss"
@@ -557,34 +610,50 @@
             "architect": {
                 "build": {
                     "builder": "@angular-devkit/build-angular:browser",
-                    "options": {
-                        "progress": true,
-                        "preserveSymlinks": true,
-                        "aot": true,
-                        "baseHref": "/homedesigner/",
-                        "outputHashing": "all",
-                        "outputPath": "dist/homedesigner",
-                        "index": "projects/homedesigner/src/index.html",
-                        "main": "projects/homedesigner/src/main.ts",
-                        "polyfills": "projects/homedesigner/src/polyfills.ts",
-                        "tsConfig": "projects/homedesigner/tsconfig.app.json",
-                        "verbose": true,
-                        "assets": [
-                            "projects/homedesigner/src/assets",
-                            "projects/homedesigner/src/favicon.ico"
-                        ],
-                        "styles": [
-                            "node_modules/ngx-toastr/toastr.css",
-                            "node_modules/bootstrap/dist/css/bootstrap.min.css",
-                            "node_modules/font-awesome/css/font-awesome.min.css",
-                            "node_modules/primeng/resources/themes/nova-light/theme.css",
-                            "node_modules/primeng/resources/primeng.min.css",
-                            "node_modules/primeicons/primeicons.css",
-                            "projects/homedesigner/src/scss/styles.scss"
-                        ],
-                        "scripts": []
-                    },
+					"options": {
+						"allowedCommonJsDependencies": [
+							"applicationinsights-js",
+							"cloudinary-core",
+							"lodash",
+							"rxjs"
+						],
+						"progress": true,
+						"preserveSymlinks": true,
+						"aot": true,
+						"baseHref": "/homedesigner/",
+						"outputHashing": "all",
+						"outputPath": "dist/homedesigner",
+						"index": "projects/homedesigner/src/index.html",
+						"main": "projects/homedesigner/src/main.ts",
+						"polyfills": "projects/homedesigner/src/polyfills.ts",
+						"tsConfig": "projects/homedesigner/tsconfig.app.json",
+						"verbose": true,
+						"assets": [
+							"projects/homedesigner/src/assets",
+							"projects/homedesigner/src/favicon.ico"
+						],
+						"styles": [
+							"node_modules/ngx-toastr/toastr.css",
+							"node_modules/bootstrap/dist/css/bootstrap.min.css",
+							"node_modules/font-awesome/css/font-awesome.min.css",
+							"node_modules/primeng/resources/themes/nova/theme.css",
+							"node_modules/primeng/resources/primeng.min.css",
+							"node_modules/primeicons/primeicons.css",
+							"projects/homedesigner/src/scss/styles.scss"
+						],
+						"scripts": []
+					},
                     "configurations": {
+                        "local": {
+                            "baseHref": "/",
+                            "outputHashing": "none",
+                            "fileReplacements": [
+                                {
+                                    "replace": "projects/homedesigner/src/environments/environment.ts",
+                                    "with": "projects/homedesigner/src/environments/environment.local.ts"
+                                }
+                            ]
+                        },
                         "qa": {
                             "fileReplacements": [
                                 {
@@ -604,13 +673,12 @@
                         "production": {
                             "fileReplacements": [
                                 {
-                                    "replace": "projects/homedesigner/src/environments/environment.ts",
-                                    "with": "projects/homedesigner/src/environments/environment.prod.ts"
+                                "replace": "projects/homedesigner/src/environments/environment.ts",
+                                "with": "projects/homedesigner/src/environments/environment.prod.ts"
                                 }
                             ],
                             "optimization": true,
                             "sourceMap": false,
-                            "extractCss": true,
                             "namedChunks": false,
                             "extractLicenses": true,
                             "vendorChunk": false,
@@ -621,9 +689,8 @@
                 "serve": {
                     "builder": "@angular-devkit/build-angular:dev-server",
                     "options": {
-                        "baseHref": "/",
-                        "browserTarget": "homedesigner:build",
-                        "port": 14765
+                        "browserTarget": "homedesigner:build:local",
+                        "port": 14769
                     },
                     "configurations": {
                         "qa": {
@@ -654,7 +721,7 @@
                             "node_modules/ngx-toastr/toastr.css",
                             "node_modules/bootstrap/scss/bootstrap.scss",
                             "node_modules/font-awesome/css/font-awesome.min.css",
-                            "node_modules/primeng/resources/themes/nova-light/theme.css",
+                            "node_modules/primeng/resources/themes/nova/theme.css",
                             "node_modules/primeng/resources/primeng.min.css",
                             "node_modules/primeicons/primeicons.css",
                             "projects/homedesigner/src/scss/styles.scss"

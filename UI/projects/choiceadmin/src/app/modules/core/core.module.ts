@@ -76,7 +76,6 @@ import { PhdCommonModule } from 'phd-common';
 		CanDeactivateGuard,
 		ModalService,
 		{ provide: ErrorHandler, useClass: PhdErrorHandler }
-	],
-	entryComponents: [ConfirmModalComponent]
+	]
 })
 export class CoreModule { }

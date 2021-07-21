@@ -15,12 +15,10 @@ namespace AttributeCleanup
     public class LocationCommunityCleanup
     {
         private IConfigurationRoot _configuration { get; }
-        private EdhDeleteClient _edhClient { get; }
 
-        public LocationCommunityCleanup(IConfigurationRoot configuration, EdhDeleteClient client)
+        public LocationCommunityCleanup(IConfigurationRoot configuration)
         {
             _configuration = configuration;
-            _edhClient = client;
         }
 
         public async Task Run()
@@ -99,6 +97,7 @@ namespace AttributeCleanup
                 rq.Headers.Add("Authorization", $"Basic {_configuration["edhSettings:apiKey"]}");
             };
             ODataClient edhClient = new ODataClient(edhClientSettings);
+            var batch = new ODataBatch(edhClient);
 
             foreach (int locationCommunityId in communitiesToDelete)
             {
@@ -113,14 +112,18 @@ namespace AttributeCleanup
                 {
                     string tag = communityTag["tag"].ToString();
 
-                    string tagUrl = $"locationcommunitytags(locationcommunityid={locationCommunityId}, tag='{HttpUtility.UrlEncode(tag)}')?{apiVer}";
-                    await _edhClient.DeleteRecord(tagUrl);
+                    batch += c => c.For("LocationCommunityTags")
+                        .Key(locationCommunityId, tag)
+                        .DeleteEntryAsync();
                 }
 
                 // Delete LocationCommunity
-                string communityUrl = $"locationcommunities({locationCommunityId})?{apiVer}";
-                await _edhClient.DeleteRecord(communityUrl);
+                batch += c => c.For("LocationCommunities")
+                    .Key(locationCommunityId)
+                    .DeleteEntryAsync();
             }
+
+            await batch.ExecuteAsync();
         }
     }
 }

@@ -162,7 +162,8 @@ export class SalesProgramsComponent extends UnsubscribeOnDestroy implements OnIn
 				{
 					const newSalesProgram = new SalesProgram(newDto);
 
-					this.salesPrograms.push(newSalesProgram);
+					// add new record and use spread to trigger table change.
+					this.salesPrograms = [...this.salesPrograms, newSalesProgram];
 				}
 				else
 				{
@@ -195,12 +196,13 @@ export class SalesProgramsComponent extends UnsubscribeOnDestroy implements OnIn
 			const strB = b.name.toUpperCase();
 
 			return strA < strB ? -1 : strA > strB ? 1 : 0;
-		})
+		});
 	}
 
 	edit(dto: SalesProgram)
 	{
 		this.selected = dto;
+
 		this.onSidePanelClose(true);
 	}
 
@@ -254,6 +256,7 @@ export class SalesProgramsComponent extends UnsubscribeOnDestroy implements OnIn
 	create()
 	{
 		this.selected = null;
+
 		this.onSidePanelClose(true);
 	}
 

@@ -1,6 +1,4 @@
 ﻿using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -10,10 +8,12 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Azure.Storage.Blob;
-using Microsoft.Azure.Storage;
 using Simple.OData.Client;
 using System.Net;
+using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Specialized;
+using Newtonsoft.Json.Linq;
+using Azure.Storage.Blobs.Models;
 
 namespace ChangeOrderExpiration
 {
@@ -34,31 +34,40 @@ namespace ChangeOrderExpiration
 
             configuration = builder.Build();
 
-            var blobAccount = CloudStorageAccount.Parse(configuration["AzureDocumentStorage"]);
-            var blobClient = blobAccount.CreateCloudBlobClient();
-            var container = blobClient.GetContainerReference("web-jobs");
-            var blob = container.GetBlockBlobReference("changeorderexpiration.txt");
+            var blob = new BlobClient(configuration["AzureDocumentStorage"], "web-jobs", "changeorderexpiration.txt");
+
             if (!await blob.ExistsAsync())
             {
-                await blob.UploadTextAsync(DateTime.MinValue.ToString());
+                using var ms = new MemoryStream();
+                using var writer = new StreamWriter(ms);
+                writer.WriteLine(DateTime.MinValue.ToString());
+                await writer.FlushAsync();
+                ms.Position = 0;
+                await blob.UploadAsync(ms);
             }
 
-            string leaseId = null;
+            var lease = new BlobLeaseClient(blob);
 
             try
             {
-                leaseId = await blob.AcquireLeaseAsync(new TimeSpan(0, 0, 60));
+                await lease.AcquireAsync(new TimeSpan(0, 0, 60));
             }
             catch
             {
                 return;
             }
 
-            var previousDateTime = DateTime.Parse(await blob.DownloadTextAsync());
-            if (previousDateTime > DateTime.Now.AddMinutes(-30))
+            using (var ms = new MemoryStream())
             {
-                await blob.ReleaseLeaseAsync(new AccessCondition { LeaseId = leaseId });
-                return;
+                using var rdr = new StreamReader(ms);
+                await blob.DownloadToAsync(ms);
+
+                if (DateTime.TryParse(await rdr.ReadToEndAsync(), out DateTime previousDateTime) && previousDateTime > DateTime.Now.AddMinutes(-30))
+                {
+                    await lease.ReleaseAsync();
+
+                    return;
+                }
             }
 
             try
@@ -141,7 +150,11 @@ namespace ChangeOrderExpiration
                     }
                 }
 
-                await blob.UploadTextAsync(DateTime.Now.ToString(), null, new AccessCondition { LeaseId = leaseId }, null, null);
+                using var ms = new MemoryStream();
+                using var writer = new StreamWriter(ms);
+                await writer.WriteAsync(DateTime.Now.ToString());
+                await writer.FlushAsync();
+                await blob.UploadAsync(ms, conditions: new BlobRequestConditions { LeaseId = lease.LeaseId });
             }
             catch (Exception ex)
             {
@@ -149,7 +162,7 @@ namespace ChangeOrderExpiration
             }
             finally
             {
-                await blob.ReleaseLeaseAsync(new AccessCondition { LeaseId = leaseId });
+                await lease.ReleaseAsync();
             }
         }
 

@@ -253,8 +253,10 @@ export class DivisionalOptionsPanelComponent extends UnsubscribeOnDestroy implem
 		}
 		else if (event.index === 1)
 		{
-			// clear selected groups
-			this.expansionLocationGroupsTabPanelComponent.toggleAllGroups(false);
+			if (this.expansionLocationGroupsTabPanelComponent) {
+				// clear selected groups
+				this.expansionLocationGroupsTabPanelComponent.toggleAllGroups(false);
+			}
 		}
 		else if (event.index === 2)
 		{
