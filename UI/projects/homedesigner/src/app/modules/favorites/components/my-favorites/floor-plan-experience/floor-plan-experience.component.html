@@ -20,6 +20,7 @@
 					[myFavoritesPointsDeclined]="myFavoritesPointsDeclined"
 					[choiceImages]="choiceImages"
 					[groups]="groups"
+					[isReadonly]="isReadonly"
 					(onToggleChoice)="choiceToggleHandler($event)"
 					(onViewChoiceDetail)="viewChoiceDetail($event)"
 					(onDeclineDecisionPoint)="declineDecisionPoint($event)"
@@ -35,8 +36,8 @@
 
 	<div class="d-flex flex-column phd-card-panel" [ngClass]="isPointPanelCollapsed ? 'phd-card-panel-collapsed' : ''">
 		<div class="phd-include-options">
-			<input type="checkbox" (change)="toggleContractedOptions($event)" [ngModel]="includeContractedOptions" class="phd-clickable" />
-			<span class="phd-contracted-options">Include Contracted Options</span>
+			<input type="checkbox" (change)="toggleContractedOptions($event)" [ngModel]="includeContractedOptions" [ngClass]="{'phd-clickable' : !isPreview }" [disabled]="isPreview"/>
+			<span class="phd-contracted-options">Display Contracted Options</span>
 			<div class="floor-select-container" *ngIf="floors && floors.length > 1">
 				<select id="floor-select" class="form-control" [ngModel]="selectedFloor" (ngModelChange)="selectFloor($event)">
 					<option *ngFor="let floor of floors" [ngValue]="floor">{{ floor.name }}</option>

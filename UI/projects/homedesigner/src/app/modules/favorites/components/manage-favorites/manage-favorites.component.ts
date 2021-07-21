@@ -11,6 +11,7 @@ import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromSalesAgreement from '../../../ngrx-store/sales-agreement/reducer';
 import * as fromFavorite from '../../../ngrx-store/favorite/reducer';
 import * as FavoriteActions from '../../../ngrx-store/favorite/actions';
+import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 import * as CommonActions from '../../../ngrx-store/actions';
 import { FavoriteService } from '../../../core/services/favorite.service';
 import { MyFavorite } from '../../../shared/models/my-favorite.model';
@@ -97,6 +98,7 @@ export class ManageFavoritesComponent extends UnsubscribeOnDestroy implements On
 	onMyFavorites(fav: MyFavorite)
 	{
 		this.store.dispatch(new FavoriteActions.SetCurrentFavorites(fav.id));
+		this.store.dispatch(new ScenarioActions.SetStatusForPointsDeclined(fav.myFavoritesPointDeclined.map(dp => dp.divPointCatalogId), false));
 		this.router.navigateByUrl('/favorites/summary');
 	}
 

@@ -137,7 +137,7 @@ export class ViewContractsSidePanelComponent implements OnInit
 			}
 		}
 
-		let isPhd = this.selected ? this.selected.isPhd : false;
+		let isPhd = this.selected ? this.selected.isPhd : true;
 		let isTho = this.selected ? this.selected.isTho : false;
 		let documentName = this.selected ? this.selected.documentName : null;
 		let displayName = this.selected ? this.selected.displayName : null;

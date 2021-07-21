@@ -154,6 +154,7 @@ export class PHDSearchComponent
 			{
 				buildTypesCopy.push(null);
 			};
+
 			// if only searching Models pull back specs as well so we can get the PHD Models that have been released and have a lotbuildtypedesc of spec
 			if (this.selectedBuildTypes.find(type => type === 'Model') && !this.selectedBuildTypes.find(type => type === 'Spec'))
 			{
@@ -171,39 +172,47 @@ export class PHDSearchComponent
 		this._searchService.searchHomeSites(filters, financialCommunityString, salesCommunityString).subscribe(results =>
 		{
 			let filteredLots = this.salesAgreementNumber || this.selectedSalesAgreementStatus.length > 0 || this.lastName || this.firstName ? [] : null;
+
 			if (filteredLots && results && results.length > 0)
 			{
 				results.map(result =>
 				{
-					
 					// Add filtering by first and last name
 					// filter the results for a sales agreement id that contains the sales agreement # string if needed
 					if (result.salesAgreements && result.salesAgreements.length > 0 && (this.salesAgreementNumber || this.selectedSalesAgreementStatus.length > 0))
 					{
 						let addLot = false;
+
 						result.salesAgreements.map(agreement =>
 						{
 							//if the salesAgreement number is truthy and is found or in the list of selected sales agreement statuses, the selected agreement status exists
 							// flag the lot as able to be added to the filtered lots
-							if ( (this.salesAgreementNumber && agreement.salesAgreementNumber.indexOf(this.salesAgreementNumber) >= 0) || (this.selectedSalesAgreementStatus.length > 0 && this.selectedSalesAgreementStatus.indexOf(agreement.status) !== -1))
+							if ((this.salesAgreementNumber && agreement.salesAgreementNumber.indexOf(this.salesAgreementNumber) >= 0) || (this.selectedSalesAgreementStatus.length > 0 && this.selectedSalesAgreementStatus.indexOf(agreement.status) !== -1))
 							{
 								addLot = true;
 							}
 						});
-						if (addLot) {
+
+						if (addLot)
+						{
 							filteredLots.push(result);
 						}
 					}
 				});
 			}
 
-			if (filteredLots && (this.lastName || this.firstName)) {
-				if (this.salesAgreementNumber || this.selectedSalesAgreementStatus.length > 0) {
+			if (filteredLots && (this.lastName || this.firstName))
+			{
+				if (this.salesAgreementNumber || this.selectedSalesAgreementStatus.length > 0)
+				{
 					filteredLots = filteredLots.filter(lot => lot.buyers && lot.buyers.some(buyer => (this.firstName ? buyer.firstName.toLowerCase() === this.firstName.toLowerCase() : true) && (this.lastName ? buyer.lastName.toLowerCase() === this.lastName.toLowerCase() : true)));
-				} else {
+				}
+				else
+				{
 					filteredLots = results.filter(lot => lot.buyers && lot.buyers.some(buyer => (this.firstName ? buyer.firstName.toLowerCase().includes(this.firstName.toLowerCase()) : true) && (this.lastName ? buyer.lastName.toLowerCase().includes(this.lastName.toLowerCase()) : true)));
 				}
 			}
+
 			// if only searching for Models filter out specs that do not have a jobTypeName of Model.
 			if (this.selectedBuildTypes && this.selectedBuildTypes.includes('Model') && !this.selectedBuildTypes.includes('Spec'))
 			{
@@ -215,14 +224,15 @@ export class PHDSearchComponent
 				filteredLots = filteredLots ? filteredLots : results;
 				filteredLots = filteredLots.filter(lot => lot.jobTypeName === 'Spec' && lot.buildType === 'Spec')
 			}
+
 			this.searchResults = filteredLots ? filteredLots : results;
 		}, error =>
-			{
-				this.searchResults = [];
-				this.optionsShown = true;
-				this.filterSpecs = false;
-				this.searchError = (error && error.error && error.error.message) || 'Error retrieving search results';
-			});
+		{
+			this.searchResults = [];
+			this.optionsShown = true;
+			this.filterSpecs = false;
+			this.searchError = (error && error.error && error.error.message) || 'Error retrieving search results';
+		});
 	}
 
 	edit(field?: string)
@@ -259,7 +269,9 @@ export class PHDSearchComponent
 	searchPending()
 	{
 		this.clear();
+
 		this.selectedSalesAgreementStatus = ['Pending'];
+
 		setTimeout(t =>
 		{
 			this.search();
@@ -289,6 +301,7 @@ export class PHDSearchComponent
 	onMarketChange(market)
 	{
 		this.selectedMarket = market;
+
 		this.onLocationChange();
 	}
 
@@ -296,12 +309,14 @@ export class PHDSearchComponent
 	{
 		this.selectedCommunity = community;
 		this.selectedFinancialCommunity = null;
+
 		this.onLocationChange();
 	}
 
 	onFinancialCommunityChange(community)
 	{
 		this.selectedFinancialCommunity = community;
+
 		this.onLocationChange();
 	}
 
@@ -335,29 +350,31 @@ export class PHDSearchComponent
 		});
 
 		return filterItems;
-    }
+	}
 
-    getSalesAgreementLink(agreement: ISearchResultAgreement): string {
-        let agreementUrl = '';
+	getSalesAgreementLink(agreement: ISearchResultAgreement): string
+	{
+		let agreementUrl = '';
 
-        if (agreement.salesAgreementNumber.toUpperCase().startsWith('HB'))
-        {
-            const length = agreement.salesAgreementNumber.length;
-            const said = agreement.salesAgreementNumber.substring(length - 6);
+		if (agreement.salesAgreementNumber.toUpperCase().startsWith('HB'))
+		{
+			const length = agreement.salesAgreementNumber.length;
+			const said = agreement.salesAgreementNumber.substring(length - 6);
 
-            agreementUrl = `${environment.baseUrl['homeSelections']}SalesAgreement/SalesAgreement.aspx?Panel=Details&SAID=${said}`;
-        }
-        else
-        {
-            agreementUrl = `${environment.baseUrl[this.action.envBaseUrl]}point-of-sale/people/${agreement.id}`;
-        }
+			agreementUrl = `${environment.baseUrl['homeSelections']}SalesAgreement/SalesAgreement.aspx?Panel=Details&SAID=${said}`;
+		}
+		else
+		{
+			agreementUrl = `${environment.baseUrl[this.action.envBaseUrl]}point-of-sale/people/${agreement.id}`;
+		}
 
-        return agreementUrl;
+		return agreementUrl;
 	}
 
 	getChangeOrderLink(lot: SearchResult): string
 	{
 		let agreementUrl = '';
+
 		if (lot.activeChangeOrder.SalesAgreementId)
 		{
 			agreementUrl = `${environment.baseUrl[this.action.envBaseUrl]}change-orders/change-orders-summary/salesagreement/${lot.activeChangeOrder.SalesAgreementId}`;
@@ -409,6 +426,7 @@ export class PHDSearchComponent
 			this.search_button_label = this.SEARCH_STATUS.READY;
 			this.resultsShown = false;
 		}
+
 		this.cd.detectChanges();
 	}
 
@@ -436,16 +454,19 @@ export class PHDSearchComponent
 			!!this.salesAgreementNumber ||
 			this.selectedBuildTypes.length > 0 ||
 			this.selectedHomesiteStatus.length > 0 ||
-			this.selectedSalesAgreementStatus.length > 0 ;
+			this.selectedSalesAgreementStatus.length > 0;
 	}
 
-	onOptionPanelClosed() {
-		setTimeout(() => {
+	onOptionPanelClosed()
+	{
+		setTimeout(() =>
+		{
 			this.searchButton.nativeElement.focus();
 		});
 	}
 
-	getLotBuildType(lot: SearchResult): string {
+	getLotBuildType(lot: SearchResult): string
+	{
 		return this.isHslMigrated(lot.jobCreatedBy)
 			? `${lot.buildType} - HS`
 			: lot.buildTypeDisplayName;
@@ -460,5 +481,4 @@ export class PHDSearchComponent
 	{
 		tableComponent.hideTooltip();
 	}
-
 }

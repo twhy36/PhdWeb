@@ -99,19 +99,22 @@ export class CommonEffects
 
 							newResult.job.jobChoices = changedChoices;
 
-							if (newResult.myFavorites) {
+							if (newResult.myFavorites)
+							{
 								_.flatMap(newResult.myFavorites, fav => fav.myFavoritesChoice).forEach(ch => {
 									let ch1 = choices.find(c => c.dpChoiceId === ch.dpChoiceId);
-
-									if (ch1) {
+	
+									if (ch1)
+									{
 										ch.divChoiceCatalogId = ch1.divChoiceCatalogId;
 									}
 								});
-
+	
 								_.flatMap(newResult.myFavorites, fav => fav.myFavoritesPointDeclined).forEach(pt => {
 									let ptDeclined = pointsDeclined.find(p => p.dPointId === pt.dPointId);
-
-									if (ptDeclined) {
+	
+									if (ptDeclined)
+									{
 										pt.divPointCatalogId = ptDeclined.divPointCatalogId;
 									}
 								});

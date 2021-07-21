@@ -12,6 +12,7 @@ import { IOptionMarket, Option, IOptionMarketImageDto } from '../../shared/model
 import { Settings } from '../../shared/models/settings.model';
 import { AttributeGroupMarket } from '../../shared/models/attribute-group-market.model';
 import { LocationGroupMarket } from '../../shared/models/location-group-market.model';
+import { TableSort } from '../../../../../../phd-common/src/lib/components/table/phd-table.model';
 
 import { LoggingService } from '../../core/services/logging.service';
 import { SettingsService } from '../../core/services/settings.service';
@@ -27,14 +28,39 @@ export class DivisionalOptionService
 
 	constructor(private _http: HttpClient, private _loggingService: LoggingService) { }
 
-	getDivisionalOptions(marketId: number, top?: number, skip?: number, filterName?: string, keywords?: string): Observable<Array<Option>>
+	getDivisionalOptions(marketId: number, top?: number, skip?: number, filterName?: string, keywords?: string, tableSort?: TableSort): Observable<Array<Option>>
 	{
 		let url = settings.apiUrl;
 
 		const expand = `option($select=id, financialOptionIntegrationKey),optionMarketImages($select=id), optionSubCategory($select=id, name; $expand=optionCategory($select=id, name)), attributeGroupOptionMarketAssocs($select=attributeGroupMarketId; $top=1), locationGroupOptionMarketAssocs($select=locationGroupMarketId; $top=1)`;
 		const select = `id, optionId, marketId, optionSalesName, isActive`;
-		const orderby = `optionSubCategory/optionCategory/name, optionSubCategory/name, optionSalesName`;
+		let orderby = `optionSubCategory/optionCategory/name, optionSubCategory/name, optionSalesName`;
 		let filter = `marketId eq ${marketId} and isActive eq true and option/financialOptionIntegrationKey ne '00001'`;
+
+		if (tableSort?.sortField)
+		{
+			switch (tableSort.sortField)
+			{
+				case 'financialOptionIntegrationKey':
+					orderby = 'option/financialOptionIntegrationKey';
+
+					break;
+				case 'optionSalesName':
+					orderby = 'optionSalesName';
+
+					break;
+				case 'category':
+					orderby = 'optionSubCategory/optionCategory/name';
+
+					break;
+				case 'subCategory':
+					orderby = 'optionSubCategory/name';
+
+					break;
+			}
+
+			orderby += ` ${tableSort.sortOrderText}`;
+		}
 
 		if (keywords)
 		{

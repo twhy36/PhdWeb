@@ -10,7 +10,7 @@
 			<span class="phd-label">LOT:</span>
 			<span [class.font-weight-bold]="!this.summaryHeader.lot">
 				<span class="phd-content">{{ homesite }}</span>
-				<span *ngIf="canEditHanding && (summaryHeader.handing || summaryHeader.lot?.handings)" class="phd-change-order-handing">
+				<span *ngIf="canEditHanding && summaryHeader.handing != 'NA' && summaryHeader.handing && summaryHeader.lot?.handings" class="phd-change-order-handing">
 					
 					<div ngbDropdown class="d-inline-block" [autoClose]="true">
 						<button class="btn btn-outline-primary" id="handingMenu" ngbDropdownToggle [disabled]="disableHanding && !canOverride">{{handing}}</button>

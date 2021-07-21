@@ -352,11 +352,12 @@ export const isSpecSalePending = createSelector(
 
 export const activePrimaryBuyer = createSelector(
 	isSpecSalePending,
+	fromChangeOrder.changeOrderState,
 	fromSalesAgreement.primaryBuyer,
 	fromChangeOrder.changeOrderPrimaryBuyer,
-	(isSpecSalePending, saBuyer, coBuyer) =>
+	(isSpecSalePending, changeOrder, saBuyer, coBuyer) =>
 	{
-		return isSpecSalePending ? coBuyer : saBuyer;
+		return changeOrder?.isChangingOrder || isSpecSalePending ? coBuyer : saBuyer;
 	}
 )
 
@@ -378,11 +379,12 @@ export const isActivePrimaryBuyerComplete = createSelector(
 
 export const activeCoBuyers = createSelector(
 	isSpecSalePending,
+	fromChangeOrder.changeOrderState,
 	fromSalesAgreement.coBuyers,
 	fromChangeOrder.changeOrderCoBuyers,
-	(isSpecSalePending, saBuyers, coBuyers) =>
+	(isSpecSalePending, changeOrder, saBuyers, coBuyers) =>
 	{
-		return isSpecSalePending ? coBuyers : saBuyers;
+		return changeOrder?.isChangingOrder || isSpecSalePending ? coBuyers : saBuyers;
 	}
 )
 

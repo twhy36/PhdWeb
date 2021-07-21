@@ -18,8 +18,24 @@
     padding-top: 8px;
 }
 
+.phd-table-fixed{
+	margin-bottom: 100px;
+}
+
 .phd-icon-col {
     width: 38px;
+}
+
+.phd-icon-half-col {
+    width: 18px;
+}
+
+.phd-icon-small-col {
+    width: 12px;
+}
+
+.phd-icon-med-col {
+    width: 13px;
 }
 
 .phd-child {
@@ -60,5 +76,25 @@ i {
 	strong {
 		font-size: 10px;
 		bottom: 2px;
+	}
+}
+
+.phd-fa-dollar-ban, .phd-fa-dollar-ban-grid {
+	font-size: 9px;
+
+	.fa-ban {
+		font-size: 2.25em;
+		bottom: 1px;
+		position: absolute;
+		width: 100%;
+		text-align: center;
+	}
+
+	.fa-dollar {
+		font-size: 1.5em;
+		bottom: 4px;
+		position: absolute;
+		width: 100%;
+		text-align: center;
 	}
 }

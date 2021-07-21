@@ -49,7 +49,7 @@
 										id="handing"
 										[(ngModel)]="lot.selectedHanding"
 										[disabled]="!isAssociatedWithSelectedPlan(lot) || !canConfigure"
-										(change)="changeHanding(lot.id, lot.selectedHanding, !!monotonyConflictMessage(lot))">
+										(change)="changeHanding(lot)">
 									<option [ngValue]="null">Select Handing</option>
 									<option class="p-0" *ngFor="let handing of lot.handings" [ngValue]="handing.name">{{ handing.name }}</option>
 								</select>

@@ -28,5 +28,6 @@ export const environment: IEnvironment = {
 		scriptUrl: '//whatfix.com/01caf5e0-cb2f-11e8-b979-04013d24cd02/embed/embed.nocache.js'
 	},
     apiUrl: 'http://localhost:2845/odata/',
-	designToolUrl: 'http://localhost:14767/'
+	designToolUrl: 'http://localhost:14767/',
+	designPreviewUrl: 'http://localhost:14769/'
 };

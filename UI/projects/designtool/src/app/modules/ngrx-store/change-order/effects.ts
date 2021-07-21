@@ -126,25 +126,29 @@ export class ChangeOrderEffects
 					);
 				})
 			), SaveError, "Error creating construction change order!!"),
-			switchMap((action: any) => {
-				if (action instanceof SaveError) {
+			switchMap((action: any) =>
+			{
+				if (action instanceof SaveError)
+				{
 					return this.modalService.showErrorModal(`<div>Error in creating Construction Change Order. Please contact TSC to proceed</div>`).pipe(
 						switchMap(() => from([action, new SetChangingOrder(false, null, true)]))
 					);
 				}
-				else {
+				else
+				{
 					return of(action);
 				}
 			})
 		);
 	});
 
-	createSalesChangeOrder$: Observable<Action> = createEffect(() => {
-		return this.actions$.pipe(
+	createSalesChangeOrder$: Observable<Action> = createEffect(() =>
+		this.actions$.pipe(
 			ofType<CreateSalesChangeOrder>(ChangeOrderActionTypes.CreateSalesChangeOrder),
 			withLatestFrom(this.store, this.store.pipe(select(priceBreakdown))),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store, priceBreakdown]) => {
+				switchMap(([action, store, priceBreakdown]) =>
+				{
 					const changePrice = priceBreakdown.totalPrice - store.salesAgreement.salePrice;
 
 					const data = this.changeOrderService.getSalesChangeOrderData(
@@ -160,11 +164,13 @@ export class ChangeOrderEffects
 						of(store.salesAgreement)
 					);
 				}),
-				switchMap(([changeOrder, changeInput, salesAgreement]) => {
+				switchMap(([changeOrder, changeInput, salesAgreement]) =>
+				{
 					let newInput = _.cloneDeep(changeInput);
 					const trust = this.changeOrderService.mergeSalesChangeOrderTrusts(salesAgreement, changeOrder);
 
-					if (trust) {
+					if (trust)
+					{
 						newInput.trustName = trust.trustName;
 						newInput.isTrustNa = trust.isTrustNa;
 					}
@@ -177,25 +183,29 @@ export class ChangeOrderEffects
 					]);
 				})
 			), SaveError, "Error creating sales change order!!"),
-			switchMap((action: any) => {
-				if (action instanceof SaveError) {
+			switchMap((action: any) =>
+			{
+				if (action instanceof SaveError)
+				{
 					return this.modalService.showErrorModal(`<div>Error in creating Sales Change Order. Please contact TSC to proceed</div>`).pipe(
 						switchMap(() => from([action, new SetChangingOrder(false, null, true)]))
 					);
 				}
-				else {
+				else
+				{
 					return of(action);
 				}
 			})
-		);
-	});
+		)
+	);
 
-	cancelJobChangeOrder$: Observable<Action> = createEffect(() => {
-		return this.actions$.pipe(
+	cancelJobChangeOrder$: Observable<Action> = createEffect(() =>
+		this.actions$.pipe(
 			ofType<CancelJobChangeOrder>(ChangeOrderActionTypes.CancelJobChangeOrder),
 			withLatestFrom(this.store),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store]) => {
+				switchMap(([action, store]) =>
+				{
 					return forkJoin(
 						this.changeOrderService.getLockedInChoices(store.job, store.scenario.tree, store.changeOrder.currentChangeOrder),
 						of(store)
@@ -204,33 +214,37 @@ export class ChangeOrderEffects
 				switchMap(([lockInChoices, store]) => {
 					const currentChangeOrder = this.changeOrderService.getCurrentChangeOrder(store.job.changeOrderGroups);
 					const changeOrderId = currentChangeOrder ? currentChangeOrder.id : 0;
-					const choices = this.changeOrderService.getOriginalChoicesAndAttributes(store.job, store.scenario.tree, (currentChangeOrder !== undefined) ? store.changeOrder.currentChangeOrder as ChangeOrderGroup : null);
+					const choices = this.changeOrderService.getOriginalChoicesAndAttributes(store.job, store.scenario.tree, (currentChangeOrder !== undefined) ? store.changeOrder.currentChangeOrder : null);
 					const handing = this.changeOrderService.getSelectedHanding(store.job);
 
 					let actions: any[] = [
 						new SetCurrentChangeOrder(changeOrderId)
 					];
 
-					if (lockInChoices && lockInChoices.length) {
+					if (lockInChoices && lockInChoices.length)
+					{
 						actions.push(new SetLockedInChoices(lockInChoices));
 					}
-
-					if (choices && choices.length) {
+					
+					if (choices && choices.length)
+					{
 						actions.push(new SelectChoices(false, ...choices));
 					}
 
-					if (changeOrderId > 0) {
-						actions.push(new CurrentChangeOrderLoaded(currentChangeOrder, handing));
+					if (changeOrderId > 0)
+					{
+						actions.push(new CurrentChangeOrderLoaded(store.changeOrder.currentChangeOrder, handing));
 					}
-					else {
+					else
+					{
 						actions.push(new SetChangingOrder(false, null, true, handing));
 					}
 
 					return from(actions);
 				})
 			), SaveError, "Error cancelling change order!!")
-		);
-	});
+		)
+	);
 
 	createNonStandardChangeOrder: Observable<Action> = createEffect(() => {
 		return this.actions$.pipe(

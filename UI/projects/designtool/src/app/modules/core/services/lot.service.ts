@@ -47,6 +47,9 @@ export class LotService
 				`${includeSelectedLot}) and isMasterUnit eq false`;
 		}
 
+		// Don't include dummy lots 88888
+		filter += ` and lotBlock ne '88888'`;
+
 		const select = `id,lotBlock,premium,lotStatusDescription,foundationType,lotBuildTypeDesc,financialCommunityId,isMasterUnit`;
 		const url = `${environment.apiUrl}lots?${encodeURIComponent('$')}expand=${encodeURIComponent(expand)}&${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}&${encodeURIComponent('$')}select=${encodeURIComponent(select)}`;
 

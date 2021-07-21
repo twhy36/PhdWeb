@@ -7,6 +7,7 @@ export interface IEnvironment
 	authQueryParams: string;
 	pictureParkAssetUrl: string;
 	designToolUrl: string;
+	designPreviewUrl: string;
 	appInsights: {
 		instrumentationKey: string;
 	};

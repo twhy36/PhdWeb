@@ -81,4 +81,24 @@ export class OptionService
 			})
 		);
 	}
+
+	getPlanOptionsByPlanKey(communityId: number, planKey: string): Observable<PlanOption[]>
+	{
+		const entity = 'planOptionCommunities';
+		const expand = `optionCommunity($expand=optionCommunityImages($select=id,imageUrl,sortKey),attributeGroupOptionCommunityAssocs($select=attributeGroupCommunityId),locationGroupOptionCommunityAssocs($select=locationGroupCommunityId), option($select=financialOptionIntegrationKey,id); $select=optionSalesName,optionDescription,option,id)`;
+		const filter = `planCommunity/financialCommunityId eq ${communityId} and planCommunity/financialPlanIntegrationKey eq '${planKey}'`;
+		const select = `id, planId, optionCommunity, maxOrderQty, listPrice, isActive, isBaseHouse, isBaseHouseElevation`;
+
+		const endPoint = environment.apiUrl + `${entity}?${encodeURIComponent("$")}expand=${encodeURIComponent(expand)}&${encodeURIComponent("$")}filter=${encodeURIComponent(filter)}&${encodeURIComponent("$")}select=${encodeURIComponent(select)}`;
+
+		return this._http.get<any>(endPoint).pipe(
+			this.mapOptions(),
+			catchError(error =>
+			{
+				console.error(error);
+
+				return _throw(error);
+			})
+		);
+	}
 }

@@ -44,6 +44,9 @@ const moduleRoutes: Routes = [
 ];
 
 @NgModule({
+    exports: [
+        MonotonyOptionsComponent
+    ],
     declarations: [
         LotManagementComponent,
         ManageHomesitesComponent,

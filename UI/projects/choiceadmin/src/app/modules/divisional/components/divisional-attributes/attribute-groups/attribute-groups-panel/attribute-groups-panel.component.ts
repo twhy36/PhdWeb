@@ -20,6 +20,8 @@ import { SettingsService } from '../../../../../core/services/settings.service';
 import { Settings } from '../../../../../shared/models/settings.model';
 import { IdentityService, Permission } from 'phd-common';
 import { StorageService } from '../../../../../core/services/storage.service';
+import { PhdTableComponent } from 'phd-common';
+import { TableLazyLoadEvent, TableSort } from '../../../../../../../../../phd-common/src/lib/components/table/phd-table.model';
 
 @Component({
 	selector: 'attribute-groups-panel',
@@ -30,6 +32,9 @@ export class AttributeGroupsPanelComponent extends UnsubscribeOnDestroy implemen
 {
 	@ViewChild(SearchBarComponent)
 	private searchBar: SearchBarComponent;
+
+	@ViewChild(PhdTableComponent)
+	private tableComponent: PhdTableComponent;
 
 	@Output() onAssociateAttributes = new EventEmitter<AttributeGroupMarket>();
 	@Output() onEditAttributeGroup = new EventEmitter<AttributeGroupMarket>();
@@ -51,6 +56,11 @@ export class AttributeGroupsPanelComponent extends UnsubscribeOnDestroy implemen
 	isSaving: boolean = false;
 	workingId: number = 0;
 	isReadOnly: boolean;
+
+	get currentTableSort(): TableSort
+	{
+		return this.tableComponent.currentTableSort;
+	}
 
 	get selectedStatus(): string
 	{
@@ -297,18 +307,46 @@ export class AttributeGroupsPanelComponent extends UnsubscribeOnDestroy implemen
 			const top = this.settings.infiniteScrollPageSize;
 			const skip = this.currentPage * this.settings.infiniteScrollPageSize;
 
-			this._attrService.getAttributeGroupsByMarketId(this.currentMarketId, null, top, skip).subscribe(data =>
+			this._attrService.getAttributeGroupsByMarketId(this.currentMarketId, null, top, skip, null, null, null, this.currentTableSort).subscribe(data =>
 			{
 				if (data.length)
 				{
+					// append new data to the existing list
 					this.attributeGroupList = unionBy(this.attributeGroupList, data, 'id');
-					this.filteredAttributeGroupList = orderBy(this.attributeGroupList, [group => group.groupName.toLowerCase()]);
+					this.filteredAttributeGroupList = this.attributeGroupList;
+
+					// apply sort to the full list
+					this.tableComponent.sortLazy();
 
 					this.currentPage++;
 				}
 
 				this.allDataLoaded = !data.length || data.length < this.settings.infiniteScrollPageSize;
 			});
+		}
+	}
+
+	/**
+	 * The table is flagged as lazy which means any paging, sorting, and/or filtering done will call this method.
+	 * @param event
+	 */
+	lazyLoadData(event: TableLazyLoadEvent)
+	{
+		if (!this.allDataLoaded && !this.keyword && !this.selectedStatus)
+		{
+			// return data based on the sort options.  if currentTableSort is null then it will revert to the default sort.
+			this._attrService.getAttributeGroupsByMarketId(this.currentMarketId, null, this.settings.infiniteScrollPageSize, 0, null, null, null, this.currentTableSort).subscribe(data =>
+			{
+				this.attributeGroupList = data;
+				this.filteredAttributeGroupList = this.attributeGroupList;
+				this.currentPage = 1;
+				this.allDataLoaded = !data.length || data.length < this.settings.infiniteScrollPageSize;
+			});
+		}
+		else if (this.allDataLoaded || this.keyword || this.selectedStatus)
+		{
+			// all the data is either loaded or we are filtering so all the data should be loaded at this time so we can just update the sort.				
+			this.tableComponent.sortLazy();
 		}
 	}
 

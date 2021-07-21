@@ -33,6 +33,7 @@ describe('MyFavoritesComponent', () => {
 	const mockActivatedRoute = mock(ActivatedRoute);
 	const mockRouter = mock(Router);
 	when(mockActivatedRoute.paramMap).thenCall(() => new Observable());
+	when(mockActivatedRoute.data).thenCall(() => new Observable());
 	const mockChangeDetectorRef = mock(ChangeDetectorRef);
 	const mockTreeService = mock(TreeService);
 
@@ -43,7 +44,7 @@ describe('MyFavoritesComponent', () => {
 				MockComponent({ selector: 'group-bar', inputs: ['communityName', 'planName', 'groups', 'selectedSubGroupId'], outputs: ['onSubgroupSelected', 'onSetTreeFilter'] }),
 				MockComponent({ selector: 'normal-experience', inputs: ['groupName', 'currentSubgroup', 'errorMessage', 'myFavoritesChoices', 'decisionPointId', 'includeContractedOptions', 'salesChoices', 'groups', 'myFavoritesPointsDeclined', 'choiceImages'], outputs: ['onToggleChoice', 'onToggleContractedOptions', 'onViewChoiceDetail', 'onSelectDecisionPoint', 'onDeclineDecisionPoint']}),
 				MockComponent({ selector: 'floor-plan-experience', inputs: ['groupName', 'currentSubgroup', 'errorMessage', 'myFavoritesChoices', 'decisionPointId', 'includeContractedOptions', 'salesChoices', 'marketingPlanId', 'isFloorplanFlipped'], outputs: ['onToggleChoice', 'onToggleContractedOptions', 'onViewChoiceDetail', 'onSelectDecisionPoint']}),
-				MockComponent({ selector: 'choice-card-detail', inputs: ['choice', 'path'], outputs: ['onBack', 'onToggleChoice']}),
+				MockComponent({ selector: 'choice-card-detail', inputs: ['choice', 'path', 'myFavoritesPointsDeclined'], outputs: ['onBack', 'onToggleChoice']}),
 				MockComponent({ selector: 'action-bar', inputs: ['primaryAction', 'price', 'favoritesPrice'], outputs: ['callToAction'] })
 			],
 			providers: [

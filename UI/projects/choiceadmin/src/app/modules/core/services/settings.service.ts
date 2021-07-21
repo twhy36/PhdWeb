@@ -26,9 +26,11 @@ export class SettingsService
 				expireOffsetSeconds: 0, // 60 minutes.  For testing set to 3480 = 58 min so should time out after 2 minutes
 				extraQueryParameter: environment.authQueryParams,
 				designToolUrl: environment.designToolUrl,
+				designPreviewUrl: environment.designPreviewUrl,
 				pictureParkAssetUrl: environment.pictureParkAssetUrl,
 				infiniteScrollThrottle: 50,
-				infiniteScrollPageSize: 50
+				infiniteScrollPageSize: 50,
+				production: environment.production
             }
 
 			this._cachedSettings = settings;

@@ -1,12 +1,14 @@
 <ul class="list-unstyled">
-	<li *ngFor="let point of points"
-		[class.active]="currentPointId === point.id"
-		class="d-flex align-items-center justify-content-start"
-		(click)="onDecisionPointClick(point)"
-		[@slideOut]>
-		<div class="icon">
-			<i class="fa fa-check" *ngIf="point.completed"></i>
-		</div>
-		<div class="label" title="{{point.label}}">{{point.label | ellipsis: 40}}</div>
-	</li>
+	<ng-container *ngFor="let point of points">
+		<li *ngIf="displayDecisionPoint(point)"
+			[class.active]="currentPointId === point.id"
+			class="d-flex align-items-center justify-content-start"
+			(click)="onDecisionPointClick(point)"
+			[@slideOut]>
+			<div class="icon">
+				<i class="fa fa-check" *ngIf="point.completed"></i>
+			</div>
+			<div class="label" title="{{point.label}}">{{point.label | ellipsis: 40}}</div>
+		</li>
+	</ng-container>
 </ul>

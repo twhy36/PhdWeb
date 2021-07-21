@@ -573,26 +573,48 @@ export class SalesAgreementEffects
 	/*
 	 * Cancel Sales Agreement
 	 */
-	cancelSalesAgreement$: Observable<Action> = createEffect(() => {
-		return this.actions$.pipe(
+	cancelSalesAgreement$: Observable<Action> = createEffect(() =>
+		this.actions$.pipe(
 			ofType<CancelSalesAgreement>(SalesAgreementActionTypes.CancelSalesAgreement),
 			withLatestFrom(this.store),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store]) => {
+				switchMap(([action, store]) =>
+				{
 					return forkJoin(of(action), of(store), this.salesAgreementService.cancelSalesAgreement(store.salesAgreement.id, action.buildType, action.noteContent, action.reasonKey));
 				}),
-				switchMap(([action, store, salesAgreement]) => {
+				switchMap(([action, store, salesAgreement]) =>
+				{
 					const job: Job = _.cloneDeep(store.job);
 
+					// Find the active change orders
+					let activeChangeOrders = job.changeOrderGroups
+						.filter(t => ['Pending', 'OutforSignature', 'Signed', 'Rejected'].indexOf(t.salesStatusDescription) !== -1)
+						.concat(job.changeOrderGroups
+							.filter(t => t.salesStatusDescription === 'Approved' && t.constructionStatusDescription !== 'Approved')
+					);
+
+					// Update each active change order
+					activeChangeOrders.forEach(co => {
+						co.salesStatusDescription = 'Withdrawn';
+						co.salesStatusUTCDate = salesAgreement.lastModifiedUtcDate;
+					});
+
+					// Unlike voiding an agreement, which EDH handles,
+					// we need to manually withdraw the active change order ourselves
+					return forkJoin(of(action), of(salesAgreement), of(job), this.changeOrderService.updateJobChangeOrder(activeChangeOrders));
+				}),
+				switchMap(([action, salesAgreement, job, updatedChangeOrders]) => {
 					return from([
+						new CommonActions.ChangeOrdersUpdated(updatedChangeOrders),
 						new ChangeOrderActions.CreateCancellationChangeOrder(),
 						new ChangeOrderActions.CurrentChangeOrderCancelled(),
+						new JobActions.JobUpdated(job),
 						new SalesAgreementCancelled(salesAgreement, job, action.buildType)
 					]);
 				})
 			), SaveError, 'Error canceling sales agreement!!')
-		);
-	});
+		)
+	);
 
 	/*
 	 * Sales Agreement Out For Signature
