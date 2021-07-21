@@ -137,6 +137,15 @@ namespace Phd.WebHost
                     spa.Options.DefaultPageStaticFileOptions = NoCacheStaticFileOptions;
                 });
             });
+
+            app.Map("/colormanagement", app1 =>
+            {
+                app1.UseSpa(spa =>
+                {
+                    spa.Options.DefaultPage = "/colormanagement/index.html";
+                    spa.Options.DefaultPageStaticFileOptions = NoCacheStaticFileOptions;
+                });
+            });
         }
     }
 }
