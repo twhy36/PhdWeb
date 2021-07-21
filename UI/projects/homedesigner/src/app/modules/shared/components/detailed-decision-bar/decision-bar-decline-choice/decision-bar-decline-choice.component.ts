@@ -13,6 +13,7 @@ export class DecisionBarDeclineChoiceComponent implements OnInit {
 	@Input() point: DecisionPoint;
 	@Input() myFavoritesPointsDeclined?: MyFavoritesPointDeclined[];
 	@Input() groups: Group[];
+	@Input() isReadonly: boolean;
 
 	@Output() onDeclineDecisionPoint = new EventEmitter<DecisionPoint>();
 	@Output() onSelectDecisionPoint = new EventEmitter<number>();
@@ -37,8 +38,12 @@ export class DecisionBarDeclineChoiceComponent implements OnInit {
 		this.isDeclined = !!this.myFavoritesPointsDeclined?.find(p => p.divPointCatalogId === this.point.divPointCatalogId);
 	}
 
-	toggleDecline() {
-		this.onDeclineDecisionPoint.emit(this.point);
+	toggleDecline() 
+	{
+		if (!this.isReadonly)
+		{
+			this.onDeclineDecisionPoint.emit(this.point);
+		}
 	}
 
 	openBlockedChoiceModal() {

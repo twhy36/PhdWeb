@@ -85,14 +85,12 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 	{
 		return this.lotInaccessible || this.monotonyForm.pristine || !this.monotonyForm.valid || this.saving;
 	}
+	
 	get handings(): Array<HomeSiteDtos.Handing>
 	{
 		return [HomeSiteDtos.Handing.Left, HomeSiteDtos.Handing.Right, HomeSiteDtos.Handing.NA];
 	}
-	get handingsControl(): FormArray
-	{
-		return this.homesiteForm.get('handing') as FormArray;
-	}
+
 	get facings(): Array<string>
 	{
 		return ["", ...this.enumKeys(HomeSiteDtos.Facing)];
@@ -103,14 +101,9 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 		return this.enumKeys(HomeSiteDtos.FoundationType);
 	}
 
-	get homesiteFormValues()
+	get isNAHandingSelected(): boolean
 	{
-		return this.homesiteForm.value;
-	}
-
-	isHandingSelected(handing: HomeSiteDtos.Handing): boolean
-	{
-		return this.selectedHomesite.dto.lotHandings.some(h => h.handingId === handing);
+		return this.homesiteForm.controls['handing-3'].value;
 	}
 
 	get warrantyTypes(): Array<string>
@@ -125,7 +118,8 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 
 	get handingChecked()
 	{
-		return !(this.homesiteForm.controls['handing-1'].value || this.homesiteForm.controls['handing-2'].value || this.homesiteForm.controls['handing-3'].value);
+		//if N/A handing is not selected, and Left or Right handing is not selected
+		return !this.homesiteForm.controls['handing-3'].value && !(this.homesiteForm.controls['handing-1'].value || this.homesiteForm.controls['handing-2'].value);
 	}
 
 	whiteSpaceValidator(): ValidatorFn
@@ -196,9 +190,10 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 			'changeModelToSpec': new FormControl({ value: this.selectedHomesite.lotBuildTypeDescription, disable: this.selectedHomesite.lotBuildTypeDescription !== 'Model' })
 		});
 
+		//add controls for Left, Right, and NA Handing
 		this.handings.forEach(hand =>
 		{
-			this.homesiteForm.addControl('handing-' + hand, new FormControl(this.selectedHomesite.dto.lotHandings.some(h => h.handingId === hand)));
+			this.homesiteForm.addControl('handing-' + hand, new FormControl(this.selectedHomesite.dto.lotHandings.some(h => h.handingId === hand)));			
 		});
 
 		this.homesiteForm.setValidators(this.checkRequired(this.homesiteForm.controls['handing-1'], this.homesiteForm.controls['handing-2'], this.homesiteForm.controls['handing-3']));
@@ -370,6 +365,16 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 		});
 
 		this.colorSelectedLots = [];
+	}
+
+	removeHandings()
+	{
+		//if NA is turned on, remove all selected handings
+		if(this.homesiteForm.controls['handing-3'])
+		{
+			this.homesiteForm.controls['handing-' + 1].setValue(false);
+			this.homesiteForm.controls['handing-' + 2].setValue(false);
+		}
 	}
 
 	saveMonotonyRules()

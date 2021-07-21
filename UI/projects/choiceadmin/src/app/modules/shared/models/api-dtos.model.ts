@@ -60,6 +60,7 @@ export namespace PhdEntityDto
 		divDPointSortOrder?: number;
 		isQuickQuoteItem?: boolean;
 		isStructuralItem?: boolean;
+		isHiddenFromBuyerView?: boolean;
 		org?: IOrgExpandedDto;
 		divChoiceCatalogs?: Array<IDivChoiceCatalogDto>;
 		dPointCatalog?: IDPointCatalogDto;
@@ -567,6 +568,7 @@ export namespace PhdApiDto
 		sortOrder: number;
 		isQuickQuoteItem: boolean;
 		isStructuralItem: boolean;
+		isHiddenFromBuyerView: boolean;
 		label: string;
 		description: string;
 		edhConstructionStageId?: number;
@@ -587,6 +589,8 @@ export namespace PhdApiDto
 		imagePath: string;
 		hasImage: boolean;
 		choiceMaxQuantity?: number;
+		isHiddenFromBuyerView?: boolean;
+		priceHiddenFromBuyerView?: boolean;
 	}
 
 	export interface ITreeIds

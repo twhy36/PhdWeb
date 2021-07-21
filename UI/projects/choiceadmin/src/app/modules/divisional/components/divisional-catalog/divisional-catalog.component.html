@@ -91,7 +91,10 @@
 						<th class="phd-icon-col"></th>
 						<th class="phd-icon-col"></th>
 						<th class="phd-icon-col"></th>
+						<th class="phd-icon-col"></th>
+						<th class="phd-icon-half-col"></th>
 						<th>Pick Type</th>
+						<th class="phd-icon-small-col"></th>
 						<th>Cut-Off</th>
 						<th>Description</th>
 					</tr>
@@ -108,7 +111,9 @@
 							<td class="phd-icon-col"></td>
 							<td class="phd-icon-col"></td>
 							<td class="phd-icon-col"></td>
+							<th class="phd-icon-half-col"></th>
 							<td class="phd-text-col"></td>
+							<th class="phd-icon-small-col"></th>
 							<td class="phd-text-col"></td>
 							<td class="phd-description-col"></td>
 						</tr>
@@ -132,7 +137,9 @@
                                 </td>
 								<td class="phd-icon-col"></td>
 								<td class="phd-icon-col"></td>
+								<th class="phd-icon-half-col"></th>
 								<td class="phd-text-col"></td>
+								<th class="phd-icon-small-col"></th>
 								<td class="phd-text-col"></td>
 								<td class="phd-description-col"></td>
 							</tr>
@@ -147,6 +154,7 @@
 									<td class="phd-icon-col">
 										<i class="fa fa-fw fa-plus-square" (click)="addItem($event, point);" ngbTooltip="Add Choice" container="body" *requiresClaim="'DivisionCatalog'; permission: Permission.Edit; market: selectedMarket?.number"></i>
 									</td>
+									<td class="phd-icon-med-col"></td>
 									<td class="phd-icon-col">
 										<i class="fa fa-fw fa-trash-o" ngbTooltip="Inactivate Decision Point" container="body" (click)="createMsgModal(point)" *requiresClaim="'DivisionCatalog'; permission: Permission.Edit; market: selectedMarket?.number"></i>
 									</td>
@@ -163,6 +171,9 @@
 									</td>
 									<td class="phd-icon-col">
 										<i class="fa fa-fw fa-gavel" ngbTooltip="Sales" container="body" *ngIf="point.isStructural"></i>
+									</td>
+									<td class="phd-icon-col">
+										<i class="fa fa-eye-slash" ngbTooltip="Hidden From Buyer View" container="body" *ngIf="point.isHiddenFromBuyerView"></i>
 									</td>
 									<td class="phd-text-col">
 										<span *ngIf="point.choices.length">{{ point.pickTypeLabel }}</span>
@@ -181,7 +192,13 @@
 										<td class="phd-icon-col">
 											<i class="fa fa-fw fa-trash-o" ngbTooltip="{{ choiceTrashToolTip(choice) }}" container="body" (click)="createMsgModal(choice)" *requiresClaim="'DivisionCatalog'; permission: Permission.Edit; market: selectedMarket?.number"></i>
 										</td>
-										<td class="phd-icon-col"></td>
+										<td class="phd-icon-col">
+											<i class="fa fa-eye-slash" ngbTooltip="Hidden From Buyer View" container="body" *ngIf="choice.isHiddenFromBuyerView"></i>
+											<span class="fa-stack phd-fa-dollar-ban" ngbTooltip="Price Hidden From Buyer View" container="body" *ngIf="choice.priceHiddenFromBuyerView">
+												<i class="fa fa-ban"></i>
+												<i class="fa fa-dollar"></i>
+											</span>
+										</td>
 										<td class="phd-icon-col">
 											<i class="fa fa-fw fa-check-square" ngbTooltip="Default" container="body" *ngIf="choice.isDefault"></i>
 										</td>

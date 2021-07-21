@@ -20,6 +20,7 @@ import { ChoiceExt } from '../../models/choice-ext.model';
 import { AttributeLocationComponent } from '../attribute-location/attribute-location.component';
 import { AttributeGroupExt, AttributeExt } from '../../models/attribute-ext.model';
 import { getDisabledByList } from '../../../shared/classes/tree.utils';
+import { MyFavoritesPointDeclined } from '../../models/my-favorite.model';
 
 @Component({
 	selector: 'choice-card-detail',
@@ -34,6 +35,8 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	@Input() choice: ChoiceExt;
 	@Input() path: string;
 	@Input() groups: Group[];
+	@Input() myFavoritesPointsDeclined: MyFavoritesPointDeclined[];
+	@Input() isReadonly: boolean;
 
 	@Output() onBack = new EventEmitter();
 	@Output() onToggleChoice = new EventEmitter<ChoiceExt>();
@@ -300,7 +303,10 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 
 	toggleChoice()
 	{
-		this.onToggleChoice.emit(this.choice);
+		if (!this.isReadonly)
+		{
+			this.onToggleChoice.emit(this.choice);
+		}
 	}
 
 	toggleAttribute(data: {attribute: Attribute, attributeGroup: AttributeGroup, location: Location, locationGroup: LocationGroup, quantity: number})
@@ -311,6 +317,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 			this.choice.quantity = 1;
 		}
 		this.store.dispatch(new ScenarioActions.SelectChoices({ choiceId: this.choice.id, quantity: this.choice.quantity, attributes: this.choice.selectedAttributes }));
+		this.store.dispatch(new ScenarioActions.SetStatusForPointsDeclined(this.myFavoritesPointsDeclined.map(dp => dp.divPointCatalogId), false));
 		this.store.dispatch(new FavoriteActions.SaveMyFavoritesChoices());
 	}
 

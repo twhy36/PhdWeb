@@ -28,5 +28,6 @@ export const environment: IEnvironment = {
 		scriptUrl: '//whatfix.com/01caf5e0-cb2f-11e8-b979-04013d24cd02/embed/embed.nocache.js'
 	},
 	apiUrl: 'https://phdapi.staging.pulte.com/odata/',
-	designToolUrl: 'https://phd.staging.pulte.com/designtool/'
+	designToolUrl: 'https://phd.staging.pulte.com/designtool/',
+	designPreviewUrl: 'https://phd.staging.pulte.com/homedesigner/'
 };

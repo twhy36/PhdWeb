@@ -666,7 +666,10 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 		{
 			const newHanding = new ChangeOrderHanding();
 
-			newHanding.handing = handing;
+			if(handing !== "NA")
+			{
+				newHanding.handing = handing;
+			}
 
 			if (this.disableHanding)
 			{
@@ -693,7 +696,7 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 				this.store.dispatch(new SummaryActions.SetHanding(newHanding, this.summaryHeader.lot.id));
 			}
 
-			this.selectedHanding = newHanding.handing;
+			this.selectedHanding = handing;
 		}
 	}
 

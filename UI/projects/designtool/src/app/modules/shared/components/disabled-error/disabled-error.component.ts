@@ -1,7 +1,7 @@
 import { Component, Input, EventEmitter, OnInit, Output } from '@angular/core';
 import { Store, select } from '@ngrx/store';
 
-import { map, filter, combineLatest, distinctUntilChanged, withLatestFrom, debounceTime, take } from 'rxjs/operators';
+import { withLatestFrom } from 'rxjs/operators';
 
 import * as _ from 'lodash';
 
@@ -73,6 +73,21 @@ export class DisabledErrorComponent extends UnsubscribeOnDestroy implements OnIn
 		}
 
 		this.isMultiError = this.errors && this.errors.length && this.errors.length > 1;
+
+		this.filterErrorRules();
+	}
+
+	/**
+	 * Splits the rules for an error into groups of Must Have and Must Not Have, for easier template rendering.
+	 */
+	filterErrorRules() {
+		this.errors.forEach(e => {
+			e.disabledBy.forEach(d => {
+				d.mustHaves = d.rules.filter(r => r.ruleType === 1);
+				d.anyMultipleMustHaves = d.mustHaves.some(mh => (mh.choices && mh.choices.length > 1) || (mh.points && mh.points.length > 1));
+				d.mustNotHaves = d.rules.filter(r => r.ruleType === 2);
+			});
+		});
 	}
 
 	onPointNav(p: number)
