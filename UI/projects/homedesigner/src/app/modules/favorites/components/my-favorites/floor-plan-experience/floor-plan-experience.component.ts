@@ -19,15 +19,13 @@ export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implement
 	@Input() errorMessage: string;
 	@Input() myFavoritesChoices: MyFavoritesChoice[];
 	@Input() decisionPointId: number;
-	@Input() includeContractedOptions: boolean = false;
+	@Input() includeContractedOptions: boolean = true;
 	@Input() salesChoices: JobChoice[];
 	@Input() marketingPlanId: number;
 	@Input() isFloorplanFlipped: boolean;
 	@Input() groups: Group[];
 	@Input() choiceImages: ChoiceImageAssoc[];
 	@Input() myFavoritesPointsDeclined?: MyFavoritesPointDeclined[];
-	@Input() isReadonly: boolean;
-	@Input() isPreview: boolean = false;
 
 	@Output() onToggleChoice = new EventEmitter<ChoiceExt>();
 	@Output() onToggleContractedOptions = new EventEmitter();

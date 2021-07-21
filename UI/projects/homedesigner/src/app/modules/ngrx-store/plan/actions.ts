@@ -7,24 +7,9 @@ import { SalesAgreementLoaded } from '../actions';
 
 export enum PlanActionTypes
 {
-	SelectPlan = 'Select Plan',
-	PlansLoaded = 'Plans Loaded',
 	LoadSelectedPlan = 'Load Selected Plan',
 	SelectedPlanLoaded = 'Selected Plans Loaded',
-	LoadError = 'Plan Load Error',
-	SetWebPlanMapping = 'Set Web Plan Mapping',
-}
-
-export class SelectPlan implements Action {
-    readonly type = PlanActionTypes.SelectPlan;
-
-    constructor(public planId: number, public treeVersionId: number, public marketingPlanId?: number[]) { }
-}
-
-export class PlansLoaded implements Action {
-    readonly type = PlanActionTypes.PlansLoaded;
-
-    constructor(public plans: Array<Plan>) { }
+	LoadError = 'Plan Load Error'
 }
 
 export class LoadSelectedPlan implements Action {
@@ -45,17 +30,8 @@ export class LoadError extends ErrorAction {
 	constructor(public error: Error, public friendlyMessage?: string) { super(error, friendlyMessage); }
 }
 
-export class SetWebPlanMapping implements Action {
-	readonly type = PlanActionTypes.SetWebPlanMapping;
-
-	constructor(public marketingPlanId: number[]) { }
-}
-
 export type PlanActions =
-	SelectPlan |
-	PlansLoaded |
 	LoadSelectedPlan |
 	SelectedPlanLoaded |
 	LoadError |
-	SetWebPlanMapping |
 	SalesAgreementLoaded;

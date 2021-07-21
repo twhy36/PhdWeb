@@ -11,7 +11,6 @@
 		<summary-header [summaryHeader]="summaryHeader"
 						[priceBreakdown]="priceBreakdown"
 						[includeContractedOptions]="includeContractedOptions"
-						[isPreview]="isPreview"
 						(isStickyChanged)="onIsStickyChanged($event)"
 						(contractedOptionsToggled)="onContractedOptionsToggled()">
 		</summary-header>
@@ -37,7 +36,6 @@
 													[group]="group"
 													[salesChoices]="salesChoices"
 													[includeContractedOptions]="includeContractedOptions"
-													[buildMode]="buildMode"
 													(onViewFavorites)="onViewFavorites($event)"
 													(onRemoveFavorites)="onRemoveFavorites($event)">
 							</decision-point-summary>

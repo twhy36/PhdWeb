@@ -15,20 +15,12 @@ const moduleRoutes: Routes = [
 	{
 		path: 'home/:salesAgreementId',
 		canActivate: [InternalGuard],
-		component: HomeComponent,
-		data: { isPreview: false },
+		component: HomeComponent
 	},
 	{
 		path: 'home',
 		canActivate: [ExternalGuard],
-		component: HomeComponent,
-		data: { isPreview: false },
-	},
-	{
-		path: 'preview/:treeVersionId',
-		component: HomeComponent,
-		canActivate: [InternalGuard],
-		data: { isPreview: true },
+		component: HomeComponent
 	}
 ];
 
@@ -38,7 +30,7 @@ const moduleRoutes: Routes = [
     ],
     declarations: [
         HomeComponent
-    ],
+    ],  
 	imports: [
 		CommonModule,
 		CloudinaryModule,

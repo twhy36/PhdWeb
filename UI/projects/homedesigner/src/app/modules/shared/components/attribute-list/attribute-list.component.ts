@@ -16,7 +16,6 @@ export class AttributeListComponent extends UnsubscribeOnDestroy implements OnIn
 	@Input() highlightedAttributeId: number;
 	@Input() isBlocked: boolean;
 	@Input() isLocationAttribute: boolean;
-	@Input() isReadonly: boolean;
 
 	@Output() onAttributeClick = new EventEmitter<Attribute>();
 	@Output() onToggleAttribute = new EventEmitter<Attribute>();
@@ -49,9 +48,6 @@ export class AttributeListComponent extends UnsubscribeOnDestroy implements OnIn
 
 	toggleAttribute(attribute: Attribute) 
 	{
-		if (!this.isReadonly)
-		{
-			this.onToggleAttribute.emit(attribute);
-		}
+		this.onToggleAttribute.emit(attribute);
 	}
 }

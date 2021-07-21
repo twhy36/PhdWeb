@@ -885,7 +885,6 @@ export class TreeService
 							isActive: divP.isActive,
 							isQuickQuoteItem: divP.isQuickQuoteItem,
 							isStructuralItem: divP.isStructuralItem,
-							isHiddenFromBuyerView: divP.isHiddenFromBuyerView,
 							orgID: divP.orgID
 						} as IDivCatalogPointDto;
 

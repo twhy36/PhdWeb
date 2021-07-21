@@ -52,7 +52,7 @@
 				<i class="fa fa-check phd-icon-selected phd-favorite-selector"></i>
 			</ng-container>
 			<ng-container *ngIf="choice.choiceStatus === 'Available' && choice.enabled">
-				<div [class.phd-clickable]="!isReadonly" class="phd-favorite-selector">
+				<div class="phd-clickable phd-favorite-selector">
 					<span class="phd-icon-selected"><i *ngIf="choice.isFavorite" class="fa fa-heart" (click)="toggleChoice()"></i></span>
 					<i *ngIf="!choice.isFavorite" class="fa fa-heart-o" (click)="toggleChoice()"></i>
 				</div>
@@ -86,7 +86,6 @@
 												[maxQuantity]="getLocationMaxQuantity(attributeLocation.id)"
 												[isBlocked]="choice.choiceStatus === 'Available' && !choice.enabled"
 												[highlightedAttribute]="getHighlightedLocationAttribute(attributeLocation, group)"
-												[isReadonly]="isReadonly"
 												(onLocationAttributeClick)="locationAttributeClick($event)"
 												(onToggleAttribute)="toggleAttribute($event)"
 												(onQuantiyChange)="changeQuantiy($event)">
@@ -100,7 +99,6 @@
 						<attribute-group [attributeGroup]="attributeGroup"
 										[highlightedAttributeId]="getHighlightedAttributeId(attributeGroup)"
 										[isBlocked]="choice.choiceStatus === 'Available' && !choice.enabled"
-										[isReadonly]="isReadonly"
 										(onAttributeClick)="attributeClick($event)"
 										(onToggleAttribute)="toggleAttribute($event)">
 						</attribute-group>

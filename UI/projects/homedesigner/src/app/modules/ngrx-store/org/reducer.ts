@@ -1,7 +1,6 @@
 import { Action, createFeatureSelector, createSelector } from '@ngrx/store';
 import { SalesCommunity } from 'phd-common';
 import { CommonActionTypes, SalesAgreementLoaded } from '../actions';
-import { ScenarioActionTypes, TreeLoaded } from '../scenario/actions';
 
 export interface State
 {
@@ -20,11 +19,6 @@ export function reducer(state: State = initialState, action: Action): State
 			{
 				const saAction = action as SalesAgreementLoaded;
 				return { ...state, salesCommunity: saAction.salesCommunity };
-			}
-		case ScenarioActionTypes.TreeLoaded:
-			{
-				const treeAction = action as TreeLoaded;
-				return { ...state, salesCommunity: treeAction.salesCommunity };
 			}
 
 		default:

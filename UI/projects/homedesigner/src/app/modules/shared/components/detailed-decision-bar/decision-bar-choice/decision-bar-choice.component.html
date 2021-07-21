@@ -1,15 +1,11 @@
 <div class="choice-container">
-	<div class="icon" (click)="$event.stopPropagation()">
+	<div class="icon phd-clickable" (click)="$event.stopPropagation()">
 		<ng-container *ngIf="choice.choiceStatus === 'Available' && choice.enabled">
-			<div [class.phd-clickable]="!isReadonly">
-				<span class="phd-icon-selected"><i *ngIf="choice.isFavorite" class="fa fa-heart" (click)="toggleChoice()"></i></span>
-				<i *ngIf="!choice.isFavorite" class="fa fa-heart-o" (click)="toggleChoice()"></i>
-			</div>
+			<span class="phd-icon-selected"><i *ngIf="choice.isFavorite" class="fa fa-heart" (click)="toggleChoice()"></i></span>
+			<i *ngIf="!choice.isFavorite" class="fa fa-heart-o" (click)="toggleChoice()"></i>
 		</ng-container>
 		<ng-container *ngIf="choice.choiceStatus === 'Available' && !choice.enabled">
-			<div class="phd-clickable">
-				<i class="fa fa-ban" (click)="openBlockedChoiceModal()"></i>				
-			</div>
+			<i class="fa fa-ban" (click)="openBlockedChoiceModal()"></i>
 		</ng-container>
 	</div>
 	<div class="choice-label phd-clickable" (click)="viewChoiceDetail()">{{choice?.label}}</div>

@@ -28,11 +28,7 @@ export class LoadSalesAgreement implements Action
 {
 	readonly type = CommonActionTypes.LoadSalesAgreement;
 
-	constructor(
-		public salesAgreementId: number, 
-		public clearState: boolean = true, 
-		public isBuyerPreview: boolean = false
-	) { }
+	constructor(public salesAgreementId: number, public clearState: boolean = true) { }
 }
 
 export class SalesAgreementLoaded implements Action

@@ -42,26 +42,6 @@ export class DivDChoice extends LeafNode<IDivCatalogChoiceDto, DivDPoint>
 	{
 		this.dto.isInUse = val;
 	}
-
-	get isHiddenFromBuyerView(): boolean
-	{
-		return this.dto.isHiddenFromBuyerView;
-	}
-
-	set isHiddenFromBuyerView(val: boolean)
-	{
-		this.dto.isHiddenFromBuyerView = val;
-	}
-
-	get priceHiddenFromBuyerView(): boolean
-	{
-		return this.dto.priceHiddenFromBuyerView;
-	}
-
-	set priceHiddenFromBuyerView(val: boolean)
-	{
-		this.dto.priceHiddenFromBuyerView = val;
-	}
 }
 
 export class DivChoiceCatalog  
@@ -72,8 +52,6 @@ export class DivChoiceCatalog
     isActive?: boolean;
     divChoiceSortOrder?: number;
 	isDecisionDefault?: boolean;
-	isHiddenFromBuyerView?: boolean;
-	priceHiddenFromBuyerView?: boolean;
 
     constructor(dto?: IDivCatalogChoiceDto)
     {
@@ -87,8 +65,6 @@ export class DivChoiceCatalog
                 this.divDpointCatalogID = dto.divDpointCatalogID;
                 this.isActive = dto.isActive;
 				this.isDecisionDefault = dto.isDecisionDefault;
-				this.isHiddenFromBuyerView = dto.isHiddenFromBuyerView;
-				this.priceHiddenFromBuyerView = dto.priceHiddenFromBuyerView;
             }
             else
             {
@@ -96,8 +72,6 @@ export class DivChoiceCatalog
                 this.divChoiceCatalogID = dto.divChoiceCatalogID;
                 this.isDecisionDefault = dto.isDecisionDefault;
 				this.isActive = dto.isActive;
-				this.isHiddenFromBuyerView = dto.isHiddenFromBuyerView;
-				this.priceHiddenFromBuyerView = dto.priceHiddenFromBuyerView;
             }
         }
     }
@@ -113,8 +87,6 @@ export interface IDivCatalogChoiceDto
 	isActive: boolean;
 	isDecisionDefault: boolean;
 	isInUse: boolean;
-	isHiddenFromBuyerView: boolean;
-	priceHiddenFromBuyerView: boolean;
 }
 
 export interface IChoiceImageAssoc

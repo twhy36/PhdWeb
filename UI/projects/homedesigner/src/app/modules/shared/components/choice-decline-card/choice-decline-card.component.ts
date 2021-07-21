@@ -20,7 +20,6 @@ export class ChoiceDeclineCardComponent extends UnsubscribeOnDestroy implements 
 	@Input() currentPoint: DecisionPoint;
 	@Input() myFavoritesPointsDeclined?: MyFavoritesPointDeclined[]
 	@Input() groups: Group[];
-	@Input() isReadonly: boolean;
 
 	@Output() onDeclineDecisionPoint = new EventEmitter<DecisionPoint>();
 	@Output() onSelectDecisionPoint = new EventEmitter<number>();
@@ -57,12 +56,8 @@ export class ChoiceDeclineCardComponent extends UnsubscribeOnDestroy implements 
 		event.srcElement.src = 'assets/pultegroup_logo.jpg';
 	}
 
-	toggleDecline() 
-	{
-		if (!this.isReadonly)
-		{
-			this.onDeclineDecisionPoint.emit(this.point);
-		}
+	toggleDecline() {
+		this.onDeclineDecisionPoint.emit(this.point);
 	}
 
 	openBlockedChoiceModal() {

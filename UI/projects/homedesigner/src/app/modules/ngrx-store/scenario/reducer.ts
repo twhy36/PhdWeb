@@ -15,7 +15,7 @@ import { ScenarioActions, ScenarioActionTypes } from './actions';
 
 export interface State
 {
-	buildMode: 'buyer' | 'preview' | 'buyerPreview';
+	buildMode: 'buyer' | 'spec' | 'model' | 'preview';
 	financialCommunityFilter: number;
 	isGanked: boolean;
 	isUnsaved: boolean;
@@ -59,7 +59,6 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 	switch (action.type)
 	{
 		case CommonActionTypes.SalesAgreementLoaded:
-		case ScenarioActionTypes.TreeLoaded:
 			let newState = {
 				tree: _.cloneDeep(action.tree),
 				rules: _.cloneDeep(action.rules),
@@ -72,70 +71,68 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 				hiddenPointIds: []
 			} as State;
 
-			if (action.type === CommonActionTypes.SalesAgreementLoaded) {
-				if (newState.tree)
+			if (newState.tree)
+			{
+				action.choices.forEach(choice =>
 				{
-					action.choices.forEach(choice =>
+					let c = _.flatMap(newState.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)))
+						.find(ch => ch.divChoiceCatalogId === choice.divChoiceCatalogId);
+
+					if (c)
 					{
-						let c = _.flatMap(newState.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)))
-							.find(ch => ch.divChoiceCatalogId === choice.divChoiceCatalogId);
-
-						if (c)
+						// get locations
+						let selectedAttributes = choice.jobChoiceLocations ? _.flatten(choice.jobChoiceLocations.map(l =>
 						{
-							// get locations
-							let selectedAttributes = choice.jobChoiceLocations ? _.flatten(choice.jobChoiceLocations.map(l =>
+							return l.jobChoiceLocationAttributes && l.jobChoiceLocationAttributes.length ? l.jobChoiceLocationAttributes.map(a =>
 							{
-								return l.jobChoiceLocationAttributes && l.jobChoiceLocationAttributes.length ? l.jobChoiceLocationAttributes.map(a =>
-								{
-									return <DesignToolAttribute>{
-										attributeId: a.attributeCommunityId,
-										attributeGroupId: a.attributeGroupCommunityId,
-										scenarioChoiceLocationId: a.id,
-										scenarioChoiceLocationAttributeId: l.id,
-										locationGroupId: l.locationGroupCommunityId,
-										locationId: l.locationCommunityId,
-										locationQuantity: l.quantity,
-										attributeGroupLabel: a.attributeGroupLabel,
-										attributeName: a.attributeName,
-										locationGroupLabel: l.locationGroupLabel,
-										locationName: l.locationName,
-										sku: a.sku,
-										manufacturer: a.manufacturer
-									};
-								}) : [<DesignToolAttribute>{
-									locationGroupId: l.locationGroupCommunityId,
-									locationGroupLabel: l.locationGroupLabel,
-									locationId: l.locationCommunityId,
-									locationName: l.locationName,
-									locationQuantity: l.quantity
-								}];
-							})) : [];
-
-							// get attributes
-							c.selectedAttributes && choice.jobChoiceAttributes && choice.jobChoiceAttributes.forEach(a =>
-							{
-								selectedAttributes.push({
+								return <DesignToolAttribute>{
 									attributeId: a.attributeCommunityId,
 									attributeGroupId: a.attributeGroupCommunityId,
 									scenarioChoiceLocationId: a.id,
+									scenarioChoiceLocationAttributeId: l.id,
+									locationGroupId: l.locationGroupCommunityId,
+									locationId: l.locationCommunityId,
+									locationQuantity: l.quantity,
 									attributeGroupLabel: a.attributeGroupLabel,
 									attributeName: a.attributeName,
+									locationGroupLabel: l.locationGroupLabel,
+									locationName: l.locationName,
 									sku: a.sku,
 									manufacturer: a.manufacturer
-								} as DesignToolAttribute);
-							});
+								};
+							}) : [<DesignToolAttribute>{
+								locationGroupId: l.locationGroupCommunityId,
+								locationGroupLabel: l.locationGroupLabel,
+								locationId: l.locationCommunityId,
+								locationName: l.locationName,
+								locationQuantity: l.quantity
+							}];
+						})) : [];
 
-							c.quantity = choice.dpChoiceQuantity;
-							c.selectedAttributes = selectedAttributes;
-						}
-					});
-				}
+						// get attributes
+						c.selectedAttributes && choice.jobChoiceAttributes && choice.jobChoiceAttributes.forEach(a =>
+						{
+							selectedAttributes.push({
+								attributeId: a.attributeCommunityId,
+								attributeGroupId: a.attributeGroupCommunityId,
+								scenarioChoiceLocationId: a.id,
+								attributeGroupLabel: a.attributeGroupLabel,
+								attributeName: a.attributeName,
+								sku: a.sku,
+								manufacturer: a.manufacturer
+							} as DesignToolAttribute);
+						});
 
-				let scenario = _.cloneDeep(newState.scenario || state.scenario);
-				scenario = <any>{ scenarioId: 0, scenarioName: '--PREVIEW--', lotId: action.job.lotId, scenarioInfo: null };
-
-				newState = { ...newState, scenario: scenario };
+						c.quantity = choice.dpChoiceQuantity;
+						c.selectedAttributes = selectedAttributes;
+					}
+				});
 			}
+
+			let scenario = _.cloneDeep(newState.scenario || state.scenario);
+			scenario = <any>{ scenarioId: 0, scenarioName: '--PREVIEW--', lotId: action.job.lotId, scenarioInfo: null };
+
+			newState = { ...newState, scenario: scenario };
 
 			if (newState.options)
 			{
@@ -290,17 +287,6 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 			newTree.treeVersion.groups.forEach(g => setGroupStatus(g));
 
 			return { ...state, tree: newTree };
-
-		case ScenarioActionTypes.LoadPreview:
-			return { ...state, treeLoading: true, buildMode: 'preview', scenario: <any>{ scenarioId: 0, scenarioName: '--PREVIEW--', scenarioInfo: null } };
-
-		case CommonActionTypes.LoadSalesAgreement:
-			let newBuildMode = state.buildMode;
-			if (action.isBuyerPreview)
-			{
-				newBuildMode = 'buyerPreview';
-			}
-			return { ...state, buildMode: newBuildMode }
 
 		default:
 			return state;

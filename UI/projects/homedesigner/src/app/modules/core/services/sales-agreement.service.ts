@@ -17,7 +17,7 @@ export class SalesAgreementService
 
 	getSalesAgreement(salesAgreementId?: number): Observable<SalesAgreement>
 	{
-		if (!salesAgreementId)
+		if (!salesAgreementId) 
 		{
 			//use access token to get sales agreement
 			const url = `${environment.apiUrl}GetUserSalesAgreement?${this._ds}select=id,status`;
@@ -31,7 +31,7 @@ export class SalesAgreementService
 				})
 			)
 		}
-		else
+		else 
 		{
 			const entity = `salesAgreements(${salesAgreementId})`;
 			const expandBuyers = `buyers($expand=opportunityContactAssoc($expand=contact($select=id,lastName)))`;
@@ -64,5 +64,5 @@ export class SalesAgreementService
 			map(dto => new SalesAgreementInfo(dto)),
 			defaultOnNotFound("getSalesAgreementInfo", new SalesAgreementInfo())
 		);
-	}
+	}	
 }

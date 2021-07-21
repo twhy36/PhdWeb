@@ -13,7 +13,6 @@ export class DecisionBarChoiceComponent implements OnInit {
 	@Input() choice: ChoiceExt;
 	@Input() point: DecisionPoint;
 	@Input() groups: Group[];
-	@Input() isReadonly: boolean;
 
 	@Output() onToggleChoice = new EventEmitter<ChoiceExt>();
 	@Output() onViewChoiceDetail = new EventEmitter<ChoiceExt>();
@@ -31,12 +30,8 @@ export class DecisionBarChoiceComponent implements OnInit {
   ngOnInit(): void {
   }
 
-	toggleChoice() 
-	{
-		if (!this.isReadonly)
-		{
-			this.onToggleChoice.emit(this.choice);
-		}
+	toggleChoice() {
+		this.onToggleChoice.emit(this.choice);
 	}
 
 	viewChoiceDetail() {

@@ -14,8 +14,7 @@ export class AttributeGroupComponent extends UnsubscribeOnDestroy implements OnI
 	@Input() highlightedAttributeId: number;
 	@Input() isLocationAttribute: boolean;
 	@Input() isBlocked: boolean;
-	@Input() isReadonly: boolean;
-	
+
 	@Output() onAttributeClick = new EventEmitter<{attribute: Attribute, attributeGroup: AttributeGroup}>();
 	@Output() onToggleAttribute = new EventEmitter<{attribute: Attribute, attributeGroup: AttributeGroup, location: Location, locationGroup: LocationGroup, quantity: number}>();
 
