@@ -33,6 +33,7 @@ import { SpinnerService } from './services/spinner.service';
 import { BrowserService } from './services/browser.service';
 import { EllipsisPipe } from './pipes/ellipsis.pipe';
 import { SafeUrlPipe } from './pipes/safe-url.pipe';
+import { PrimeNGCorrectionService } from './services/primeng.service';
 
 export function oAuthModuleConfigFactory(apiUrl: string) {
     return {
@@ -114,7 +115,8 @@ export class PhdCommonModule {
                 },
                 IdentityService,
 				BrowserService,
-                ClaimGuard
+				ClaimGuard,
+				PrimeNGCorrectionService
             ]
         };
     }

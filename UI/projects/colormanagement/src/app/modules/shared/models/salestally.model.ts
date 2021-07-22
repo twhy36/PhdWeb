@@ -1,0 +1,63 @@
+export interface TopSalesConsultant
+{
+	ranking: number;
+	salesAssociate: string;
+	netSales: number;
+	totalSales: number;
+	salesConsultantId: number;
+}
+
+export interface TopMarket
+{
+	ranking: number;
+	market: string;
+	net: number;
+	sort: number;
+}
+
+export interface TopCommunity
+{
+	ranking: number;
+	market: string;
+	community: string;
+	brandDesc: string;
+	net: number;
+	sort: number;
+}
+
+export interface AreaSales
+{
+	area: string;
+	division: string;
+	areaSort: number;
+	divisionSort: number;
+	communityName: string;
+	communityId: number;
+	salesConsultant: string;
+	salesConsultantId: number;
+	pending: number;
+	currentSignups: number;
+	currentCancellations: number;
+	currentNet: number;
+	mtdSignups: number;
+	mtdCancellations: number;
+	mtdNet: number;
+	currentDayNetAdd: number;
+	previousDayNetAdd: number;
+}
+
+export interface ConsultantBuyer {
+	salesConsultantId: number;
+	commission: number;
+	lotBlock: string;
+	customerFirstName: string;
+	customerLastName: string;
+	pending: number;
+}
+
+export enum TimeFrame
+{
+	CurrentWeek = 1,
+	MonthToDate = 2,
+	YearToDate  = 3
+}

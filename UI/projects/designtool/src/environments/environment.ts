@@ -8,9 +8,7 @@ import { IEnvironment } from './environment.model';
 export const environment: IEnvironment = {
 	production: false,
 	apiUrl: 'https://phdapi.dev.pulte.com/odata/',
-	//apiUrl: 'http://localhost:2845/odata/',
 	hubUrl: 'https://phdhub.dev.pulte.com/hub',
-	//hubUrl: 'http://localhost:5000/hub',
 	tenant: 'pulte.onmicrosoft.com',
 	clientId: '9d498056-e6cd-4e53-b89b-cf2f5e60adf7',
 	authConfig: {

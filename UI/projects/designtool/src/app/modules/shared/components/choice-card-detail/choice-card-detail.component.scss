@@ -144,6 +144,11 @@
 	.phd-image-carousel-container {
 		border: .5px solid lightgrey;
 		padding: 10px;
+
+		.phd-image-wrapper {
+			min-height: 367px;
+			min-width: 550px;
+		}
 	}
 
 	.phd-card-detail-image-body {

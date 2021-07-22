@@ -75,9 +75,9 @@ export class TreeService
 	getTree(treeVersionId: number, skipSpinner?: boolean): Observable<Tree>
 	{
 		const entity = `GetTreeDto(TreeVersionID=${treeVersionId})`;
-		const expand = `treeVersion($expand=groups($expand=subGroups($expand=points($expand=choices)))) `;
+		const expand = `treeVersion($expand=groups($expand=subGroups($expand=points($expand=choices))))`;
 
-		const endPoint = environment.apiUrl + `${entity}?${encodeURIComponent('$')}expand=${encodeURIComponent(expand)}`;
+		const endPoint = environment.apiUrl + `${entity}?useCache=true&${encodeURIComponent('$')}expand=${encodeURIComponent(expand)}`;
 
 		return (skipSpinner ? this.http : withSpinner(this.http)).get<Tree>(endPoint).pipe(
 			tap(response => response['@odata.context'] = undefined),

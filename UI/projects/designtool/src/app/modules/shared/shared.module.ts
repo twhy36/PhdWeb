@@ -155,7 +155,6 @@ import { InputFilterDirective } from './directives/input-filter.directive';
 		NgbModule,
 		PhdCommonModule
     ],
-	providers: [],
-	entryComponents: [PDFViewerComponent]
+	providers: []
 })
 export class SharedModule { }

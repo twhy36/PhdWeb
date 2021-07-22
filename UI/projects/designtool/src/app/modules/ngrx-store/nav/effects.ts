@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Actions, Effect, ofType } from '@ngrx/effects';
+import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Action, Store } from '@ngrx/store';
 import { Observable ,  from } from 'rxjs';
 import { withLatestFrom, switchMap, tap } from 'rxjs/operators';
@@ -14,42 +14,39 @@ import { Router } from '@angular/router';
 @Injectable()
 export class NavEffects
 {
-	@Effect()
-	loadPlans$: Observable<Action> = this.actions$.pipe(
-		ofType<Action>(ScenarioActionTypes.SelectChoices, ScenarioActionTypes.SetPointViewed),
-		withLatestFrom(this.store),
-		switchMap(([action, state]) =>
-		{
-			let newActions = [];
-			let subgroups = _.flatMap(state.scenario.tree.treeVersion.groups, g => g.subGroups);
+	loadPlans$: Observable<Action> = createEffect(() => {
+		return this.actions$.pipe(
+			ofType<Action>(ScenarioActionTypes.SelectChoices, ScenarioActionTypes.SetPointViewed),
+			withLatestFrom(this.store),
+			switchMap(([action, state]) => {
+				let newActions = [];
+				let subgroups = _.flatMap(state.scenario.tree.treeVersion.groups, g => g.subGroups);
 
-			if (state.nav && state.nav.subNavItems)
-			{
-				state.nav.subNavItems.forEach(item =>
-				{
-					let sg = subgroups.find(sg => sg.id === item.id);
+				if (state.nav && state.nav.subNavItems) {
+					state.nav.subNavItems.forEach(item => {
+						let sg = subgroups.find(sg => sg.id === item.id);
 
-					if (sg && sg.status !== item.status)
-					{
-						newActions.push(new NavActions.SetSubNavItemStatus(sg.id, sg.status));
-					}
-				});
-			}
+						if (sg && sg.status !== item.status) {
+							newActions.push(new NavActions.SetSubNavItemStatus(sg.id, sg.status));
+						}
+					});
+				}
 
-			return from(newActions);
-		})
-	);
+				return from(newActions);
+			})
+		);
+	});
 
-	@Effect({ dispatch: false })
-	navigateToPlanOrLot$: Observable<Action> = this.actions$.pipe(
-		ofType<Action>(NavActionTypes.SetSelectedSubNavItem),
-		tap((action: SetSelectedSubNavItem) =>
-		{
-			if (this.router.url.indexOf("new-home") !== -1 && (action.selectedItem === 2 || action.selectedItem === 3 || action.selectedItem === 4))
-			{
-				this.router.navigate([`new-home/${action.selectedItem === 2 ? 'plan' : action.selectedItem === 3 ? 'lot' : 'quick-move-in'}`]);
-			}
-		})
+	navigateToPlanOrLot$: Observable<Action> = createEffect(
+		() => this.actions$.pipe(
+			ofType<Action>(NavActionTypes.SetSelectedSubNavItem),
+			tap((action: SetSelectedSubNavItem) => {
+				if (this.router.url.indexOf("new-home") !== -1 && (action.selectedItem === 2 || action.selectedItem === 3 || action.selectedItem === 4)) {
+					this.router.navigate([`new-home/${action.selectedItem === 2 ? 'plan' : action.selectedItem === 3 ? 'lot' : 'quick-move-in'}`]);
+				}
+			})
+		),
+		{ dispatch: false }
 	);
 
 	constructor(private actions$: Actions, private store: Store<fromRoot.State>, private router: Router) { }

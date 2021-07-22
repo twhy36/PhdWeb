@@ -2,8 +2,8 @@ import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
 
-import { Observable, of, from as fromPromise, Subscription, forkJoin } from 'rxjs';
-import { combineLatest, switchMap, distinctUntilChanged, map, finalize } from 'rxjs/operators';
+import { Observable, of, from as fromPromise, Subscription, forkJoin, throwError } from 'rxjs';
+import { combineLatest, switchMap, distinctUntilChanged, map, finalize, catchError } from 'rxjs/operators';
 
 import { MessageService } from 'primeng/api';
 
@@ -20,20 +20,20 @@ import { IFinancialCommunity } from '../../../shared/models/financial-community.
 import { IFinancialMarket } from '../../../shared/models/financial-market.model';
 import { IPlan } from '../../../shared/models/plan.model';
 import
-	{
-		DTree,
-		DTPoint,
-		DTChoice,
-		DTSubGroup,
-		IItemAdd,
-		DTVersion,
-		IDTPoint,
-		IDTChoice,
-		DTreeVersionDropDown,
-		IDTSubGroup,
-		DTAttributeGroupCollection,
-        ITreeSortList
-	} from '../../../shared/models/tree.model';
+{
+	DTree,
+	DTPoint,
+	DTChoice,
+	DTSubGroup,
+	IItemAdd,
+	DTVersion,
+	IDTPoint,
+	IDTChoice,
+	DTreeVersionDropDown,
+	IDTSubGroup,
+	DTAttributeGroupCollection,
+	ITreeSortList
+} from '../../../shared/models/tree.model';
 import { PhdApiDto, PhdEntityDto } from '../../../shared/models/api-dtos.model';
 import { Permission, IdentityService } from 'phd-common';
 import { IDPointPickType } from '../../../shared/models/point.model';
@@ -718,10 +718,10 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 
 							this.onChangeTreeVersion();
 						},
-						(error) =>
-						{
-							this._msgService.add({ severity: 'danger', summary: 'Error', detail: `Failed to delete draft.` });
-						});
+							(error) =>
+							{
+								this._msgService.add({ severity: 'danger', summary: 'Error', detail: `Failed to delete draft.` });
+							});
 				}
 				catch (ex)
 				{
@@ -932,31 +932,32 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 
 			this._msgService.add({ severity: 'info', summary: 'Deleting Choice...' });
 
-			try
-			{
-				// delete choice
-				this._treeService.deleteChoiceFromTree(versionId, id)
-					.pipe(finalize(() => this._msgService.add({ severity: 'success', summary: 'Choice Deleted' })))
-					.subscribe(deletedRules =>
+			// delete choice
+			this._treeService.deleteChoiceFromTree(versionId, id)
+				.pipe(
+					catchError((err) =>
 					{
-						this.updateDPointRulesStatus(deletedRules.points);
-						this.updateOptionRulesStatus(deletedRules.integrationKeys);
+						this._msgService.add({ severity: 'error', summary: 'Error', detail: `Unable to Delete Choice.` });
 
-						const point = choice.parent;
+						return throwError(err);
+					}))
+				.subscribe(deletedRules =>
+				{
+					this.updateDPointRulesStatus(deletedRules.points);
+					this.updateOptionRulesStatus(deletedRules.integrationKeys);
 
-						// remove choice from DTPoint choice list
-						const index = point.choices.indexOf(choice);
-						point.choices.splice(index, 1);
+					const point = choice.parent;
 
-						// update points hasUnusedChoices flag
-						this.checkUnusedChoices(point);
-					});
+					// remove choice from DTPoint choice list
+					const index = point.choices.indexOf(choice);
 
-			}
-			catch (e)
-			{
-				this._msgService.add({ severity: 'error', summary: 'Error', detail: `Unable to Delete Choice.` });
-			}
+					point.choices.splice(index, 1);
+
+					// update points hasUnusedChoices flag
+					this.checkUnusedChoices(point);
+
+					this._msgService.add({ severity: 'success', summary: 'Choice Deleted' });
+				});
 		}
 	}
 
@@ -989,12 +990,16 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 
 			this._msgService.add({ severity: 'info', summary: 'Deleting Decision Point...' });
 
-			try
-			{
-				// delete point
-				this._treeService.deletePointFromTree(versionId, id).pipe(
-					finalize(() => this._msgService.add({ severity: 'success', summary: 'Decision Point Deleted' }))
-				).subscribe(deletedRules =>
+			// delete point
+			this._treeService.deletePointFromTree(versionId, id)
+				.pipe(
+					catchError((err) =>
+					{
+						this._msgService.add({ severity: 'error', summary: 'Error', detail: `Unable to Delete Decision Point.` });
+
+						return throwError(err);
+					}))
+				.subscribe(deletedRules =>
 				{
 					this.updateDPointRulesStatus(deletedRules.points);
 					this.updateOptionRulesStatus(deletedRules.integrationKeys);
@@ -1003,16 +1008,14 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 
 					// remove point from DTSubGroup point list
 					const index = subGroup.points.indexOf(point);
+
 					subGroup.points.splice(index, 1);
 
 					// update subGroups hasUnusedPoints flag
 					this.checkUnusedPoints(subGroup);
+
+					this._msgService.add({ severity: 'success', summary: 'Decision Point Deleted' });
 				});
-			}
-			catch (e)
-			{
-				this._msgService.add({ severity: 'error', summary: 'Error', detail: `Unable to Delete Decision Point.` });
-			}
 		}
 	}
 
