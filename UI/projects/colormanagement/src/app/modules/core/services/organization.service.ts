@@ -92,7 +92,7 @@ export class OrganizationService
 		const qryStrOnMarkets = `${this._ds}expand=${encodeURIComponent(expandOnMarkets)}&${this._ds}filter=${encodeURIComponent(filterOnMarkets)}&${this._ds}select=${encodeURIComponent(selectOnMarkets)}&${this._ds}orderby=${encodeURIComponent(orderByOnMarkets)}`;
 
     endPoint += `markets?${qryStrOnMarkets}`;
-    
+
 		this._financialMarkets$ = this._http.get<any>(endPoint).pipe(
 			map(response =>
           {
@@ -106,7 +106,7 @@ export class OrganizationService
 	}
 
   getSalesCommunity(id: number, includeMarket: boolean = false): Observable<ISalesCommunity>
-  {    
+  {
 		const entity = `salesCommunities`;
 		const expand = `market($select = id, number, name)`;
 		const filter = `id eq ${id}`;
