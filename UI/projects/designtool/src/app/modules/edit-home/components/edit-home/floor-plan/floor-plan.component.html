@@ -39,7 +39,7 @@
 						<ul>
 							<ng-template ngFor [ngForOf]="point.choices" let-choice>
 								<li [ngClass]="point?.isPastCutOff || !point.enabled || !choice.enabled || !canEditAgreement ? 'disabled' : 'enabled'">
-									<input type="checkbox" (ngModelChange)="onOptionToggled(choice, $event)" [ngModel]="!!choice.quantity" [id]="'opt-'+choice.id" [disabled]="point?.isPastCutOff || !point.enabled || !choice.enabled || !canEditAgreement">
+									<input type="checkbox" (ngModelChange)="onOptionToggled(choice)" [ngModel]="!!choice.quantity" [id]="'opt-'+choice.id" [disabled]="point?.isPastCutOff || !point.enabled || !choice.enabled || !canEditAgreement">
 
 									<div class="d-flex w-100 align-middle align-items-center">
 										<label [for]="'opt-'+choice.id">
