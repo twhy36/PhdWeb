@@ -18,6 +18,11 @@ import { IdentityService, PhdCommonModule, AUTH_CONFIG } from 'phd-common';
 import { environment } from '../environments/environment';
 import { tap } from 'rxjs/operators';
 
+import { Cloudinary as CloudinaryCore } from 'cloudinary-core';
+import { CloudinaryConfiguration, CloudinaryModule } from '@cloudinary/angular-5.x';
+export const cloudinary = { Cloudinary: CloudinaryCore };
+export const config: CloudinaryConfiguration = environment.cloudinary;
+
 const appInitializerFn = (identityService: IdentityService) =>
 {
 	// the APP_INITIALIZER provider waits for promises to be resolved
@@ -59,7 +64,8 @@ export function getBaseHref(platformLocation: PlatformLocation): string
         NationalModule,
         DivisionalModule,
         CommunityModule,
-		RouterModule.forRoot(appRoutes)
+		RouterModule.forRoot(appRoutes),
+		CloudinaryModule.forRoot(cloudinary, config)
 	],
 	providers: [
 		{ provide: APP_INITIALIZER, useFactory: appInitializerFn, deps: [IdentityService], multi: true },

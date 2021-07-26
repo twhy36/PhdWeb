@@ -39,7 +39,6 @@ export class DivisionalOptionsPanelComponent extends UnsubscribeOnDestroy implem
 	isReadOnly: boolean;
 	sortField: TableSort = new TableSort({ multiSortMeta: [{ field: 'category', order: 1 }, { field: 'subCategory', order: 1 }, { field: 'optionSalesName', order: 1 }] })
 
-	@Output() onSidePanelOpen = new EventEmitter<{ event: any, option: Option, tab?: string, isReadOnly?: boolean }>();
 	@Output() onAssociateAttributeGroups = new EventEmitter<any>();
 	@Output() onAssociateLocationGroups = new EventEmitter<any>();
 	@Output() onAssociateAttributeGroupsToCommunities = new EventEmitter<any>();
@@ -144,11 +143,6 @@ export class DivisionalOptionsPanelComponent extends UnsubscribeOnDestroy implem
 
 			this.performChangeDetection();
 		});
-	}
-
-	editOption(event: any, option: Option, tab?: string)
-	{
-		this.onSidePanelOpen.emit({ event: event, option: option, tab: tab, isReadOnly: this.isReadOnly });
 	}
 
 	associateAttributeGroups(event: any)

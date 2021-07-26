@@ -1,7 +1,6 @@
 <divisional-attribute-template>
     <ng-template #panel>
-        <divisional-options-panel (onSidePanelOpen)="onSidePanelOpen($event)"
-								  (onAssociateAttributeGroups)="onAssociateAttributeGroups($event)"
+        <divisional-options-panel (onAssociateAttributeGroups)="onAssociateAttributeGroups($event)"
                                   (onAssociateLocationGroups)="onAssociateLocationGroups($event)"
                                   (onAssociateAttributeGroupsToCommunities)="onAssociateAttributeGroupsToCommunities($event)"
                                   (onAssociateLocationGroupsToCommunities)="onAssociateLocationGroupsToCommunities($event)">
@@ -9,14 +8,6 @@
     </ng-template>
 
     <ng-template #sidePanel>
-	    <divisional-options-side-panel *ngIf="sidePanelOpen"
-	                                   [sidePanelOpen]="sidePanelOpen"
-	                                   [option]="option"
-	                                   [currentTab]="currentTab"
-									   [isReadOnly]="isReadOnly"
-	                                   (onOptionUpdate)="onOptionUpdate()"
-	                                   (onSidePanelClose)="onSidePanelClose($event)">
-	    </divisional-options-side-panel>
         <div-options-attribute-groups-side-panel *ngIf="attrGroupSidePanelOpen"
 												 [sidePanelOpen]="attrGroupSidePanelOpen"
 												 [option]="option"

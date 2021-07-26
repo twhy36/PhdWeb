@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Routes, RouterModule } from '@angular/router';
 
+import { CloudinaryModule } from '@cloudinary/angular-5.x';
+
 import { ToastModule } from 'primeng/toast';
 import { SharedModule } from '../shared/shared.module';
 import { CalendarModule } from 'primeng/calendar';
@@ -29,8 +31,6 @@ import { PointTypeComponent } from './components/divisional-catalog/point-type/p
 
 import { DivisionalOptionsContainerComponent } from './components/divisional-attributes/divisional-options/divisional-options-container/divisional-options-container.component';
 import { DivisionalOptionsPanelComponent } from './components/divisional-attributes/divisional-options/divisional-options-panel/divisional-options-panel.component';
-import { DivisionalOptionsSidePanelComponent } from './components/divisional-attributes/divisional-options/divisional-options-side-panel/divisional-options-side-panel.component';
-import { DivisionalOptionsImageSidePanelComponent } from './components/divisional-attributes/divisional-options/divisional-options-image-side-panel/divisional-options-image-side-panel.component';
 import { DivOptionsAttributeGroupsSidePanelComponent } from './components/divisional-attributes/divisional-options/div-options-attribute-groups-side-panel/div-options-attribute-groups-side-panel.component';
 import { DivOptionsLocationGroupsSidePanelComponent } from './components/divisional-attributes/divisional-options/div-options-location-groups-side-panel/div-options-location-groups-side-panel.component';
 import { ExpansionAttributeGroupsTabPanelComponent } from './components/divisional-attributes/divisional-options/expansion-attribute-groups-tab-panel/expansion-attribute-groups-tab-panel.component';
@@ -79,6 +79,8 @@ import { DivisionalAttributeWizardStep1Component } from './components/divisional
 import { DivisionalAttributeWizardStep2Component } from './components/divisional-attributes/divisional-attribute-wizard/step-2/divisional-attribute-wizard-step2.component';
 import { DivisionalAttributeWizardStep3Component } from './components/divisional-attributes/divisional-attribute-wizard/step-3/divisional-attribute-wizard-step3.component';
 import { DivisionalAttributeWizardStep4Component } from './components/divisional-attributes/divisional-attribute-wizard/step-4/divisional-attribute-wizard-step4.component';
+import { ExpansionOptionImagesTabPanelComponent } from './components/divisional-attributes/divisional-options/expansion-option-images-tab-panel/expansion-option-images-tab-panel.component';
+import { ImageUrlToAssetIdPipe } from './components/divisional-attributes/shared/pipes/image-url-to-asset-id/image-url-to-asset-id.pipe';
 
 const moduleRoutes: Routes = [
     {
@@ -167,8 +169,6 @@ const moduleRoutes: Routes = [
 		PointTypeComponent,
 		DivisionalOptionsContainerComponent,
 		DivisionalOptionsPanelComponent,
-		DivisionalOptionsSidePanelComponent,
-		DivisionalOptionsImageSidePanelComponent,
 		DivOptionsAttributeGroupsSidePanelComponent,
 		DivOptionsLocationGroupsSidePanelComponent,
 		ExpansionAttributeGroupsTabPanelComponent,
@@ -183,7 +183,9 @@ const moduleRoutes: Routes = [
 		DivisionalAttributeWizardStep1Component,
 		DivisionalAttributeWizardStep2Component,
 		DivisionalAttributeWizardStep3Component,
-		DivisionalAttributeWizardStep4Component
+		DivisionalAttributeWizardStep4Component,
+		ExpansionOptionImagesTabPanelComponent,
+		ImageUrlToAssetIdPipe
     ],
     imports: [
         CommonModule,
@@ -199,9 +201,11 @@ const moduleRoutes: Routes = [
 		PhdCommonModule,
 		RouterModule.forChild(moduleRoutes),
 		ngxInfiniteScroll.InfiniteScrollModule,
-	    DropdownModule
+		DropdownModule,
+		CloudinaryModule
     ],
-    providers: [
+	providers: [
+		ImageUrlToAssetIdPipe
     ]
 })
 export class DivisionalModule 

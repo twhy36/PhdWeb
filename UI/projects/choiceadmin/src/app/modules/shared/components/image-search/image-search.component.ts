@@ -22,6 +22,8 @@ const settings: Settings = new SettingsService().getSettings();
 export class ImageSearchComponent
 {
 	@Input() isSaving: boolean;
+	@Input() buttonText: string = 'Search';
+	@Input() buttonClass: string = 'btn btn-secondary btn-sm';
 
 	@Output() getImages = new EventEmitter<IPictureParkAsset[]>();
 

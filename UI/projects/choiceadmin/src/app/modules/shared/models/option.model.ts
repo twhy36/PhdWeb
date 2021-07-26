@@ -22,6 +22,7 @@ export class Option
 	communities$: Observable<Array<IFinancialCommunity>>;
 	hasImages: boolean;
 	imageCount: number;
+	optionMarketImages$: Observable<Array<OptionMarketImage>>;
 	hasAttributeLocationAssoc: boolean;
 }
 

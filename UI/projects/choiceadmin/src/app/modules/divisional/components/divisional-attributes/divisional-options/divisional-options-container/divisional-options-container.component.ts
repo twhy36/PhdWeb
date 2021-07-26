@@ -3,7 +3,6 @@ import { ReplaySubject } from 'rxjs';
 
 import { DivisionalAttributeTemplateComponent } from '../../divisional-attribute-template/divisional-attribute-template.component';
 import { DivisionalOptionsPanelComponent } from '../divisional-options-panel/divisional-options-panel.component';
-import { DivisionalOptionsSidePanelComponent } from '../divisional-options-side-panel/divisional-options-side-panel.component';
 import { DivisionalAttributesComponent } from '../../divisional-attributes/divisional-attributes.component';
 
 import { UiUtilsService } from '../../../../../core/services/ui-utils.service';
@@ -22,9 +21,6 @@ export class DivisionalOptionsContainerComponent implements OnInit
 {
 	@ViewChild(DivisionalAttributeTemplateComponent)
 	private divisionAttributeTemplate: DivisionalAttributeTemplateComponent;
-
-	@ViewChild(DivisionalOptionsSidePanelComponent)
-	private _optionSidePanel: DivisionalOptionsSidePanelComponent;
 
 	@ViewChild(DivisionalOptionsPanelComponent)
 	private _optionPanel: DivisionalOptionsPanelComponent;
@@ -56,29 +52,6 @@ export class DivisionalOptionsContainerComponent implements OnInit
 		this.associatedAttributeGroups$ = new ReplaySubject<Array<AttributeGroupMarket>>(1);
 		this.associatedLocationGroups$ = new ReplaySubject<Array<LocationGroupMarket>>(1);
 		this.communities$ = new ReplaySubject<Array<IFinancialCommunity>>(1);
-	}
-
-	onSidePanelClose(status: boolean)
-	{
-		this._divAttrComp.sidePanelOpen = status;
-		this.sidePanelOpen = status;
-		this._uiUtils.clearHighlightParentRow();
-		this._uiUtils.scrollToId('divisionalOptionsPanel');
-		this._optionPanel.selectedOption = null;
-
-		this._optionPanel.performChangeDetection();
-	}
-
-	onSidePanelOpen(params: { event: any, option: Option, currentTab?: string, isReadOnly?: boolean })
-	{
-		this._divAttrComp.sidePanelOpen = true;
-		this.sidePanelOpen = true;
-		this.option = params.option;
-		this.currentTab = params.currentTab;
-		this.isReadOnly = params.isReadOnly;
-
-		this._uiUtils.highlightParentRow(params.event);
-		this._uiUtils.scrollToSelectedRow();
 	}
 
 	onAttrGroupSidePanelClose(status: boolean)

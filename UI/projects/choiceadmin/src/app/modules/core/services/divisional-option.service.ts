@@ -279,6 +279,17 @@ export class DivisionalOptionService
 		return this._http.delete(endpoint);
 	}
 
+	deleteDivisionalOptionImages(optionMarketImages: Array<IOptionMarketImageDto>): Observable<any> {
+		const url = `${settings.apiUrl}DeleteOptionMarketImages`;
+
+		return this._http.post(url, { optionMarketImageIds: optionMarketImages.map(x => x.id) }).pipe(
+			map(response => {
+				return response;
+			}),
+			catchError(this.handleError)
+		);
+	}
+
 	associateGroupsToCommunity(optionMarketId: number, financialCommunityId: number, selectedAttributes: AttributeGroupMarket[], selectedLocations: LocationGroupMarket[]): Observable<any>
 	{
 		let url = settings.apiUrl + `AssociateGroupsToCommunity`;
@@ -337,7 +348,7 @@ export class DivisionalOptionService
 	{
 		let options = optionMarkets.map(om =>
 		{
-			let imageCount = om['optionMarketImages'].length;
+			const imageCount = om['optionMarketImages'].length;
 
 			return {
 				id: om.id,
@@ -352,6 +363,7 @@ export class DivisionalOptionService
 				attributeGroups$: this.getAttributeGroupsForOption(om),
 				locationGroups$: this.getLocationGroupsForOption(om),
 				communities$: this.getCommunitiesForOption(om),
+				optionMarketImages$: this.getDivisionalOptionImages(om.id),
 				hasAttributeLocationAssoc: om['attributeGroupOptionMarketAssocs'].length > 0 || om['locationGroupOptionMarketAssocs'].length > 0
 			} as Option;
 		});

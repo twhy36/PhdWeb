@@ -19,6 +19,7 @@ export const environment: IEnvironment = {
 	appInsights: {
 		instrumentationKey: '3080202e-6c69-4829-ad05-f232fe7c4090'
 	},
+	cloudinary: { cloud_name: 'dv0jqjrc3', responsive_use_breakpoints: false },
 	whatFix: {
 		scriptUrl: '//whatfix.com/01caf5e0-cb2f-11e8-b979-04013d24cd02/embed/embed.nocache.js'
 	},
