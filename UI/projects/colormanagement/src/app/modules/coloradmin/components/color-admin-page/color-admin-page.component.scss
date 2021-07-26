@@ -8,20 +8,26 @@
 }
 header {
 	display: flex;
-	flex: 0 1 86px;
+	flex: 0 1 100px;
 	flex-direction: column;
-	min-height: 86px;
+	min-height: 100px;
 
-	h1 {
-	  align-items: center;
+	.top-bar{
 	  background: #228fe4 url('../../../../../assets/Pulte_Homes_White.png') no-repeat 15px center;
 	  background-size: 70px;
-	  color: #fff;
 	  display: flex;
-	  font-size: 11pt;
+	  justify-content: space-between;
 	  margin-bottom: 0;
 	  min-height: 50px;
 	  padding: 6px 20px 0 93px;
+
+	  h1 {
+		color: #fff;
+		display: flex;
+		font-size: 22pt;
+		align-items: center;
+	  }
+
 	}
 
 	aside {
@@ -40,6 +46,7 @@ header {
 		  align-items: flex-start;
 		  align-self: flex-start;
 		  display: flex;
+		  font-size: 15px;
 	  }
 
 	  .user {

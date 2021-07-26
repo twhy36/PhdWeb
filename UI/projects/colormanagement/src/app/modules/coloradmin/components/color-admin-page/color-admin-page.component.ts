@@ -4,12 +4,12 @@ import { Permission, Claims, ClaimTypes, IdentityService } from 'phd-common';
 import { Observable } from 'rxjs';
 
 @Component({
-	selector: 'main.app-home',
-	templateUrl: './home.component.html',
-	styleUrls: ['./home.component.scss']
+	selector: 'color-admin',
+	templateUrl: './color-admin-page.component.html',
+	styleUrls: ['./color-admin-page.component.scss']
 })
 
-export class HomeComponent implements OnInit
+export class ColorAdminPageComponent implements OnInit
 {
 	user;
 

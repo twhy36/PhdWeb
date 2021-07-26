@@ -13,6 +13,7 @@ import { tap } from 'rxjs/operators';
 import { PhdCommonModule, IdentityService, AUTH_CONFIG } from 'phd-common';
 import { CoreModule } from './modules/core/core.module';
 import { SharedModule } from './modules/shared/shared.module';
+import { ColorAdminModule } from './modules/coloradmin/coloradmin.module';
 
 import { AppComponent } from './app.component';
 
@@ -49,13 +50,14 @@ const setTitle = (titleService: Title) => {
 		MultiSelectModule,
 		CoreModule,
 		SharedModule,
+		ColorAdminModule,
 		NgbModule,
 		NgbButtonsModule,
 		PhdCommonModule.forRoot(environment.apiUrl),
 		ReactiveFormsModule,
 		RouterModule.forRoot([
 			{ path: 'unauthorized', component: SharedModule },
-			{ path: '', pathMatch: 'full', component: SharedModule }
+			{ path: '', pathMatch: 'full', component: ColorAdminModule }
 		])
     ],
 	providers: [
