@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Claims, IdentityService } from 'phd-common';
 import { take } from 'rxjs/operators';
-import { UnsubscribeOnDestroy } from '../../shared/utils/unsubscribe-on-destroy';
+import { UnsubscribeOnDestroy } from '../../../shared/utils/unsubscribe-on-destroy';
 
 enum Tabs {
   MonotonyRules = 'Monotony Rules',
