@@ -8,9 +8,9 @@
 }
 header {
 	display: flex;
-	flex: 0 1 86px;
+	flex: 0 1 100px;
 	flex-direction: column;
-	min-height: 86px;
+	min-height: 100px;
 
 	.top-bar{
 	  background: #228fe4 url('../../../../../assets/Pulte_Homes_White.png') no-repeat 15px center;
@@ -46,6 +46,7 @@ header {
 		  align-items: flex-start;
 		  align-self: flex-start;
 		  display: flex;
+		  font-size: 15px;
 	  }
 
 	  .user {

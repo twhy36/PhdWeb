@@ -5,17 +5,20 @@ import { OrganizationService } from './services/organization.service';
 import { StorageService } from './services/storage.service';
 import { AccessGuard } from './services/access.guard';
 import { MarketSelectorComponent } from './components/market-selector/market-selector.component';
+import { ColorsSearchHeaderComponent } from './components/search-header/colors-search-header.component';
 
 @NgModule({
 	declarations: [
-		MarketSelectorComponent
+		MarketSelectorComponent,
+		ColorsSearchHeaderComponent
 	],
 	imports: [
 		CommonModule,
 		FormsModule
 	],
 	exports: [
-		MarketSelectorComponent
+		MarketSelectorComponent,
+		ColorsSearchHeaderComponent
 	],
 	providers: [
 		OrganizationService,
