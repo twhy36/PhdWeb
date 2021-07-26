@@ -149,7 +149,19 @@ export class SearchService
 
 								if (sa.buyers.length > 0)
 								{
-									saLot.buyers = sa.buyers.map(buyer => buyer.opportunityContactAssoc.contact);
+									saLot.buyers = [];
+									
+									//get list of primary buyers
+									const primaryBuyerList = sa.buyers.filter(buyer => buyer.isPrimaryBuyer === true)
+																		.map(buyer => buyer.opportunityContactAssoc.contact);
+
+									//get list of cobuyers in order by sort key, lowest sort key values taking highest priority
+									const coBuyerList = sa.buyers.filter(buyer => buyer.isPrimaryBuyer === false)
+																.sort( (a,b) => { return a.sortKey < b.sortKey ? -1 : a.sortKey > b.sortKey ? 1 : 0; } )
+																.map(buyer => buyer.opportunityContactAssoc.contact);
+
+									//associate buyers to lot
+									saLot.buyers.push(...primaryBuyerList, ...coBuyerList);
 								}
 							});
 							return result;

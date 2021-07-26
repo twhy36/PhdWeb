@@ -279,24 +279,6 @@ export class NewHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		this.store.dispatch(new NavActions.SetSelectedSubNavItem(id));
 	}
 
-	setBuildModeToModel()
-	{
-		this.store.dispatch(new ScenarioActions.SetBuildMode('model'));
-		this.store.dispatch(new NavActions.SetSubNavItems(SpecSubNavItems));
-
-		// select lots tab
-		this.store.dispatch(new NavActions.SetSelectedSubNavItem(3));
-	}
-
-	setBuildModeToSpec()
-	{
-		this.store.dispatch(new ScenarioActions.SetBuildMode('spec'));
-		this.store.dispatch(new NavActions.SetSubNavItems(SpecSubNavItems));
-
-		// select lots tab
-		this.store.dispatch(new NavActions.SetSelectedSubNavItem(3));
-	}
-
 	private setNavActions(subNavItem: number)
 	{
 		this.store.dispatch(new NavActions.SetSelectedSubNavItem(subNavItem));

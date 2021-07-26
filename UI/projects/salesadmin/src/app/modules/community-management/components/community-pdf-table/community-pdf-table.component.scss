@@ -1,0 +1,61 @@
+@import "../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
+@import "../../../../../../../phd-common/src/lib/scss/sizes.scss";
+
+.phd-table-container {
+	height: 110%;
+	margin: 10px 0px;
+}
+
+.phd-icon-container {
+	display: flex;
+	justify-content: space-around;
+
+	i {
+		width: 50px;
+		text-align: center;
+	}
+}
+
+.phd-pdf-span {
+	display: block;
+}
+
+.fa {
+	cursor: pointer;
+}
+
+.phd-icon-container {
+	display: flex;
+	justify-content: space-around;
+
+	i {
+		width: 50px;
+		text-align: center;
+	}
+}
+
+i:hover {
+	cursor: pointer;
+}
+
+a:hover {
+	cursor: pointer;
+}
+
+.phd-drag-drop {
+	display: block;
+	width: 100%;
+}
+
+.phd-new-draft {
+	margin-left: 15px;
+}
+
+
+#contract-table{
+	margin-bottom: 15px;
+}
+
+::ng-deep #contract-table .phd-alternate-row.drag-active.over {
+	background-color: lighten($brand-success, 20%) !important;
+}

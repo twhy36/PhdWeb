@@ -9,6 +9,7 @@ import { SettingsService } from "./settings.service";
 import { ChangeOrderTypeAutoApproval } from '../../shared/models/changeOrderTypeAutoApproval.model';
 import { withSpinner } from 'phd-common';
 import { FinancialCommunity } from '../../shared/models/financialCommunity.model';
+import { CommunityPdf } from '../../shared/models/communityPdf.model';
 
 const settings: Settings = new SettingsService().getSettings();
 
@@ -80,5 +81,42 @@ export class CommunityService
 		url += `financialCommunities(${financialCommunityId})`;
 
 		return this._http.patch<FinancialCommunity>(url, dto);
+	}
+
+	deleteCommunityPdf(pdf: CommunityPdf): Observable<boolean>
+	{
+		let url = settings.apiUrl;
+		url += `communityPdf/${pdf.financialCommunityId}/${pdf.fileName}`;
+		return this._http.delete<any>(url);
+	}
+
+	getCommunityPdfsByFinancialCommunityId(financialCommunityId: number): Observable<Array<CommunityPdf>>
+	{
+		let url = settings.apiUrl;
+		url += `communityPdf/${financialCommunityId}`
+		return this._http.get<any>(url).pipe(
+			map(response => response as Array<CommunityPdf>)
+		);
+	}
+
+	saveCommunityPdf(formData: FormData): Observable<CommunityPdf>
+	{
+		let url = settings.apiUrl;
+		url += 'communityPdf';
+		return this._http.post<any>(url, formData).pipe(
+			map(response => response as CommunityPdf)
+		);
+	}
+
+	updateCommunityPdf(pdfList: Array<CommunityPdf>): Observable<Array<CommunityPdf>>
+	{
+		let url = settings.apiUrl;
+		url += 'communityPdf';
+		const body = {
+			pdfs: pdfList
+		}
+		return this._http.patch(url, body).pipe(
+			map(response => response as CommunityPdf[])
+		);
 	}
 }

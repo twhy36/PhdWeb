@@ -12,6 +12,7 @@ import {
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 import * as fromLot from '../../../ngrx-store/lot/reducer';
+import * as PlanActions from '../../../ngrx-store/plan/actions';
 import * as LotActions from '../../../ngrx-store/lot/actions';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 import * as NavActions from '../../../ngrx-store/nav/actions';
@@ -392,10 +393,15 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 		//if lot wasn't selected
 		if (!selected)
 		{
-			if (this.job && this.job.id !== 0)
+			// if spec was chosen
+			if (this.isSpecSelected)
 			{
 				// remove the spec
 				this.store.dispatch(new JobActions.DeselectSpec());
+
+				// remove the plan
+				this.store.dispatch(new PlanActions.DeselectPlan());
+				this.store.dispatch(new ScenarioActions.SetScenarioPlan(null, null));
 			}
 
 			const handing = new ChangeOrderHanding();
@@ -527,6 +533,11 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 		{
 			this.addOverrideReason(lot, selected, this.overrideReason);
 		}
+	}
+
+	get isSpecSelected(): boolean
+	{
+		return this.job && this.job.id !== 0;
 	}
 }
 

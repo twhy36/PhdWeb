@@ -212,6 +212,7 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 
 	toggleSelectedPlan(event: { plan: Plan, isSelected: boolean })
 	{
+		//if a spec home, remove the currently selected lot and spec
 		if (!this.inChangeOrder && this.job && this.job.id !== 0)
 		{
 			// remove the spec
@@ -222,6 +223,7 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 			this.store.dispatch(new ScenarioActions.SetScenarioLot(null, null, 0));
 		}
 
+		//if the plan was not selected, choose it
 		if (!event.isSelected)
 		{
 			this.store.dispatch(new PlanActions.SelectPlan(event.plan.id, event.plan.treeVersionId, event.plan.marketingPlanId));
