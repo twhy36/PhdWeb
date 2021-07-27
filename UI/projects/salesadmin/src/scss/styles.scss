@@ -249,6 +249,10 @@ $toggle-content-after: 'Must Have';
 		&.btn-auto-approval {
 			@include toggle-mixin($font-size: .55rem, $margin: .5rem, $content-after: 'Off', $content-before: 'On')
 		}
+
+		&.btn-is-hidden-tho {
+			@include toggle-mixin($font-size: .55rem, $margin: .5rem, $content-after: 'Available', $content-before: 'Hidden')
+		}
 	}
 }
 

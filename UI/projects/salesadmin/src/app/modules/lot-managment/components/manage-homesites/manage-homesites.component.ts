@@ -25,7 +25,7 @@ import * as moment from 'moment';
 import { MonotonyRule } from '../../../shared/models/monotonyRule.model';
 import { Settings } from '../../../shared/models/settings.model';
 import { SettingsService } from '../../../core/services/settings.service';
-import { intersection, orderBy, union, unionBy } from "lodash";
+import { clone, intersection, orderBy, union, unionBy } from "lodash";
 import { SearchBarComponent } from '../../../shared/components/search-bar/search-bar.component';
 
 @Component({
@@ -580,6 +580,37 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 	hideTooltip(tableComponent: PhdTableComponent): void
 	{
 		tableComponent.hideTooltip();
+	}
+
+	getAvailable(homesite: HomeSite)
+	{
+		return homesite.lotStatusDescription === 'Available';
+	}
+
+	toggleIsHiddenTho(lot: HomeSite)
+	{
+		// Wait to change the value of the original until the patch completes
+		let lotDto = clone(lot.dto);
+		lotDto.isHiddenInTho = !lotDto.isHiddenInTho;
+
+		this._homeSiteService.saveHomesite(lot.commLbid, lotDto, false)
+			.subscribe(dto =>
+			{
+				lot.dto = dto;
+				if (dto.isHiddenInTho === true)
+				{
+					this._msgService.add({ severity: 'success', summary: 'Homesite', detail: `${lot.lotBlock} Hidden in THO!` });
+				}
+				else
+				{
+					this._msgService.add({ severity: 'success', summary: 'Homesite', detail: `${lot.lotBlock} Available in THO!` });
+				}
+				
+			},
+			error =>
+			{
+				this._msgService.add({ severity: 'error', summary: 'Error', detail: error });
+			})
 	}
 }
 
