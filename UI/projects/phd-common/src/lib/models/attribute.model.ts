@@ -27,6 +27,8 @@ export interface AttributeCommunityImageAssoc
 	attributeCommunityImageAssocId: number;
 	attributeCommunityId: number;
 	imageUrl: string;
+	startDate: Date;
+	endDate?: Date;
 }
 
 export interface Attribute

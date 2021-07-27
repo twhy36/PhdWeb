@@ -17,6 +17,7 @@ import
 	} from 'phd-common';
 
 import { TreeService } from '../../core/services/tree.service';
+import { AttributeService } from '../../core/services/attribute.service';
 
 export function isJobChoice(choice: JobChoice | ChangeOrderChoice): choice is JobChoice
 {
@@ -164,7 +165,7 @@ function saveLockedInChoices(choices: Array<JobChoice | ChangeOrderChoice>, tree
 	});
 }
 
-export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], images?: OptionImage[] }>(choices: Array<JobChoice | ChangeOrderChoice>, options: Array<JobPlanOption | ChangeOrderPlanOption>, treeService: TreeService, changeOrder?: ChangeOrderGroup, lockPricing: boolean = true): (source: Observable<T>) => Observable<T>
+export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], images?: OptionImage[], selectedChoices: SelectedChoice[] | JobChoice[] }>(choices: Array<JobChoice | ChangeOrderChoice>, options: Array<JobPlanOption | ChangeOrderPlanOption>, treeService: TreeService, attributeService: AttributeService, changeOrder?: ChangeOrderGroup, lockPricing: boolean = true): (source: Observable<T>) => Observable<T>
 {
 	return (source: Observable<T>) => combineLatest([
 		source.pipe(
@@ -402,7 +403,10 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 			})
 		),
 		treeService.getPlanOptionCommunityImageAssoc(options.filter(o => o.outForSignatureDate !== undefined)),
-		
+		attributeService.getAttributeCommunityImageAssocs(_.flatten(choices.map(c =>
+		{
+			return isJobChoice(c) ? c.jobChoiceAttributes?.map(a => a.attributeCommunityId) : c.jobChangeOrderChoiceAttributes.map(a => a.attributeCommunityId);
+		}))),
 		//capture original option mappings for locked-in options/choices
 		treeService.getHistoricOptionMapping(_.flatten(choices.map(c =>
 			{
@@ -427,7 +431,7 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 			})))
 	]).pipe(
 		//update pricing information for locked-in options/choices
-		map(([res, optImageAssoc, mapping]) =>
+		map(([res, optImageAssoc, attrImageAssoc, mapping]) =>
 		{
 			//override option prices if prices are locked
 			if (options.length)
@@ -493,12 +497,26 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 				});
 			}
 
-			return { res, mapping };
+			return { res, attrImageAssoc, mapping };
 		}),
 		//store the original option mapping on the choice where it was selected
 		//rules engine can use this to 'override' current option mappings
 		map(data =>
 		{
+			// reattaching images to attributes
+			data.res.selectedChoices.forEach(c =>
+			{
+				// check to make sure the choice object is JobChoice else it's SelectedChoice
+				if ((<any>c).action === undefined)
+				{
+					c.jobChoiceAttributes?.map(a => a.imageUrl = data.attrImageAssoc.find(x => x.attributeCommunityId === a.attributeCommunityId && (c.outForSignatureDate ? (x.startDate <= c.outForSignatureDate && (x.endDate == null || x.endDate >= c.outForSignatureDate)) : x.endDate == null))?.imageUrl);
+				}
+				else
+				{
+					c.selectedAttributes?.map(a => a.attributeImageUrl = data.attrImageAssoc.find(x => x.attributeCommunityId === a.attributeCommunityId && (c.outForSignatureDate ? (x.startDate <= c.outForSignatureDate && (x.endDate == null || x.endDate >= c.outForSignatureDate)) : x.endDate == null))?.imageUrl);
+				}
+			});
+
 			choices.filter(isLocked(changeOrder)).forEach(c =>
 			{
 				let choice = findChoice(data.res.tree, ch => ch.divChoiceCatalogId === c.divChoiceCatalogId);

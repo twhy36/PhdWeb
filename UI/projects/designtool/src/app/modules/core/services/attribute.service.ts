@@ -254,5 +254,26 @@ export class AttributeService
 			})
 		);
 	}
+
+	getAttributeCommunityImageAssocs(attributeCommunityIds: number[]): Observable<AttributeCommunityImageAssoc[]>
+	{
+		// create distinct string
+		let ids = [...new Set(attributeCommunityIds)].join(',');
+		let url = environment.apiUrl;
+		const filter = `attributeCommunity/id in (${ ids })`;
+
+		const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=attributeCommunityId, imageUrl, startDate, endDate`;
+
+		url += `attributeCommunityImageAssocs?${qryStr}`;
+
+		return this._http.get(url).pipe(
+			map(response =>
+			{
+				let acImageAssoc = response['value'] as Array<AttributeCommunityImageAssoc>;
+
+				return acImageAssoc;
+			})
+		);
+	}
 }
 

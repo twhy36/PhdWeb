@@ -145,7 +145,8 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 										locationGroupLabel: l.locationGroupLabel,
 										locationName: l.locationName,
 										sku: a.sku,
-										manufacturer: a.manufacturer
+										manufacturer: a.manufacturer,
+										attributeImageUrl: a.imageUrl
 									};
 								}) : [<DesignToolAttribute>{
 									locationGroupId: l.locationGroupCommunityId,
@@ -166,7 +167,8 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 									attributeGroupLabel: a.attributeGroupLabel,
 									attributeName: a.attributeName,
 									sku: a.sku,
-									manufacturer: a.manufacturer
+									manufacturer: a.manufacturer,
+									attributeImageUrl: a.imageUrl
 								} as DesignToolAttribute);
 							});
 

@@ -4,10 +4,11 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, throwError as _throw, of } from 'rxjs';
 import { map, catchError, switchMap } from 'rxjs/operators';
 
-import {
-	newGuid, createBatchGet, createBatchHeaders, createBatchBody, withSpinner, Contact, ESignEnvelope,
-	ChangeOrderGroup, Job, IJob, SpecInformation, FloorPlanImage, IdentityService, JobPlanOption
-} from 'phd-common';
+import
+	{
+		newGuid, createBatchGet, createBatchHeaders, createBatchBody, withSpinner, Contact, ESignEnvelope,
+		ChangeOrderGroup, Job, IJob, SpecInformation, FloorPlanImage, IdentityService, JobPlanOption
+	} from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
 
@@ -185,7 +186,7 @@ export class JobService
 
 		const expand = `${expandChangeOrderGroups},jobSalesInfos,lot($expand=lotPhysicalLotTypeAssocs($expand=physicalLotType),salesPhase,lotHandingAssocs($expand=handing($select=id,name))),planCommunity,${expandJobChoices},${expandJobOptions},jobNonStandardOptions, jobConstructionStageHistories($select=id, constructionStageId, constructionStageStartDate),projectedDates($select=jobId, projectedStartDate, projectedFrameDate, projectedSecondDate, projectedFinalDate)`;
 		const select = `id,financialCommunityId,constructionStageName,lotId,planId,handing,warrantyTypeDesc,startDate,projectedFinalDate,jobTypeName`;
-		
+
 		const filter = `lotId eq ${lotId}`;
 
 		const url = `${environment.apiUrl}jobs?${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}&${encodeURIComponent('$')}expand=${encodeURIComponent(expand)}&${encodeURIComponent('$')}select=${encodeURIComponent(select)}`;
@@ -198,7 +199,8 @@ export class JobService
 		);
 	}
 
-	getSpecJobs(lotIDs: number[]): Observable<Job[]> {
+	getSpecJobs(lotIDs: number[]): Observable<Job[]>
+	{
 		const expand = `jobChangeOrderGroups,jobPlanOptions,jobSalesInfos,lot($expand=lotPhysicalLotTypeAssocs($expand=physicalLotType),salesPhase,lotHandingAssocs($expand=handing($select=id,name))),planCommunity,jobConstructionStageHistories($select=id, constructionStageId, constructionStageStartDate)`;
 		const select = `id,financialCommunityId,constructionStageName,lotId,planId,handing,warrantyTypeDesc,startDate,createdBy`;
 

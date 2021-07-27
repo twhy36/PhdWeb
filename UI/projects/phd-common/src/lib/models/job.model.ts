@@ -146,6 +146,7 @@ export class JobChoiceAttribute
 	attributeGroupLabel: string;
 	manufacturer: string;
 	sku: string;
+	imageUrl?: string;
 
 	constructor(dto?: JobChoiceAttribute)
 	{

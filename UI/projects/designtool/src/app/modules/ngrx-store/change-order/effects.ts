@@ -7,8 +7,8 @@ import { Observable } from 'rxjs/Observable';
 import { switchMap, withLatestFrom, map, combineLatest } from 'rxjs/operators';
 
 import 
-{ 
-	ESignEnvelope, ESignStatusEnum, ESignTypeEnum, ChangeInput, ChangeTypeEnum, ChangeOrderGroup, ChangeOrderHanding, 
+{
+	ESignEnvelope, ESignStatusEnum, ESignTypeEnum, ChangeInput, ChangeTypeEnum, ChangeOrderGroup, ChangeOrderHanding,
 	Job, SalesStatusEnum
 } from 'phd-common';
 
@@ -41,35 +41,40 @@ import { TreeService } from '../../core/services/tree.service';
 import { OptionService } from '../../core/services/option.service';
 import { PlanService } from '../../core/services/plan.service';
 import { ContractService } from '../../core/services/contract.service';
+import { AttributeService } from '../../core/services/attribute.service';
 
 import { mergeIntoTree, setTreePointsPastCutOff } from '../../shared/classes/tree.utils';
 import { tryCatch } from '../error.action';
 import { priceBreakdown } from '../reducers';
 
-
 @Injectable()
 export class ChangeOrderEffects
 {
-	initializeChangeInput$: Observable<Action> = createEffect(() => {
+	initializeChangeInput$: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<SetChangingOrder | ResubmitChangeOrder>(ChangeOrderActionTypes.SetChangingOrder, ChangeOrderActionTypes.ResubmitChangeOrder),
 			withLatestFrom(this.store),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store]) => {
+				switchMap(([action, store]) =>
+				{
 					let newInput = { ...store.changeOrder.changeInput } as ChangeInput;
 
 					const updateInput = action instanceof ResubmitChangeOrder || action.isChangingOrder;
 
-					if (updateInput && action.changeInput) {
+					if (updateInput && action.changeInput)
+					{
 						let changeOrderExists: boolean = !!(store.changeOrder.currentChangeOrder && store.changeOrder.currentChangeOrder.id);
 
-						if (!changeOrderExists) {
+						if (!changeOrderExists)
+						{
 							newInput = { ...action.changeInput } as ChangeInput;
 							newInput.trustName = store.salesAgreement.trustName;
 							newInput.isTrustNa = store.salesAgreement.isTrustNa;
 							newInput.buyers = _.cloneDeep(store.salesAgreement.buyers);
 
-							if (action.changeInput.type === ChangeTypeEnum.CONSTRUCTION) {
+							if (action.changeInput.type === ChangeTypeEnum.CONSTRUCTION)
+							{
 								const handing = new ChangeOrderHanding();
 								handing.handing = store.job.handing;
 								newInput.handing = handing;
@@ -85,12 +90,14 @@ export class ChangeOrderEffects
 		);
 	});
 
-	createJobChangeOrders$: Observable<Action> = createEffect(() => {
+	createJobChangeOrders$: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<CreateJobChangeOrders>(ChangeOrderActionTypes.CreateJobChangeOrders),
 			withLatestFrom(this.store, this.store.pipe(select(priceBreakdown))),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store, priceBreakdown]) => {
+				switchMap(([action, store, priceBreakdown]) =>
+				{
 					let changePrice = !!store.salesAgreement
 						? priceBreakdown.totalPrice - store.salesAgreement.salePrice
 						: 0;
@@ -111,7 +118,8 @@ export class ChangeOrderEffects
 						store.job.id);
 
 					return this.changeOrderService.createJobChangeOrder(data, changePrice).pipe(
-						switchMap(changeOrder => {
+						switchMap(changeOrder =>
+						{
 							let jobChangeOrderChoices = this.changeOrderService.getJobChangeOrderChoices([changeOrder]);
 							return this.treeService.getChoiceCatalogIds(jobChangeOrderChoices).pipe(
 								map(choices => { return changeOrder })
@@ -211,7 +219,8 @@ export class ChangeOrderEffects
 						of(store)
 					);
 				}),
-				switchMap(([lockInChoices, store]) => {
+				switchMap(([lockInChoices, store]) =>
+				{
 					const currentChangeOrder = this.changeOrderService.getCurrentChangeOrder(store.job.changeOrderGroups);
 					const changeOrderId = currentChangeOrder ? currentChangeOrder.id : 0;
 					const choices = this.changeOrderService.getOriginalChoicesAndAttributes(store.job, store.scenario.tree, (currentChangeOrder !== undefined) ? store.changeOrder.currentChangeOrder : null);
@@ -225,7 +234,7 @@ export class ChangeOrderEffects
 					{
 						actions.push(new SetLockedInChoices(lockInChoices));
 					}
-					
+
 					if (choices && choices.length)
 					{
 						actions.push(new SelectChoices(false, ...choices));
@@ -246,12 +255,14 @@ export class ChangeOrderEffects
 		)
 	);
 
-	createNonStandardChangeOrder: Observable<Action> = createEffect(() => {
+	createNonStandardChangeOrder: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<CreateNonStandardChangeOrder>(ChangeOrderActionTypes.CreateNonStandardChangeOrder),
 			withLatestFrom(this.store, this.store.pipe(select(priceBreakdown))),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store, priceBreakdown]) => {
+				switchMap(([action, store, priceBreakdown]) =>
+				{
 					let changePrice = !!store.salesAgreement
 						? priceBreakdown.totalPrice - store.salesAgreement.salePrice
 						: 0;
@@ -277,36 +288,44 @@ export class ChangeOrderEffects
 					])
 				)
 			), SaveError, "Error creating non-standard change order!!"),
-			switchMap((action: any) => {
-				if (action instanceof SaveError) {
+			switchMap((action: any) =>
+			{
+				if (action instanceof SaveError)
+				{
 					return this.modalService.showErrorModal(`<div>Error in creating NSO Change Order. Please contact TSC to proceed</div>`).pipe(
 						switchMap(() => from([action, new SetChangingOrder(false, null, true)]))
 					);
 				}
-				else {
+				else
+				{
 					return of(action);
 				}
 			})
 		);
 	});
 
-	cancelNonStandardChangeOrder$: Observable<Action> = createEffect(() => {
+	cancelNonStandardChangeOrder$: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<CancelNonStandardChangeOrder>(ChangeOrderActionTypes.CancelNonStandardChangeOrder),
 			withLatestFrom(this.store),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store]) => {
+				switchMap(([action, store]) =>
+				{
 					const currentChangeOrder = this.changeOrderService.getCurrentChangeOrder(store.job.changeOrderGroups);
 					const changeOrderId = currentChangeOrder ? currentChangeOrder.id : 0;
 
 					let actions = [];
 					actions.push(new SetChangingOrder(false, null, true));
 
-					if (changeOrderId > 0) {
+					if (changeOrderId > 0)
+					{
 						const handing = new ChangeOrderHanding();
 						handing.handing = store.job.handing;
 						actions.push(new CurrentChangeOrderLoaded(currentChangeOrder, handing));
-					} else {
+					}
+					else
+					{
 						actions.push(new SetCurrentChangeOrder(changeOrderId));
 					}
 
@@ -316,12 +335,14 @@ export class ChangeOrderEffects
 		);
 	});
 
-	createPlanChangeOrder: Observable<Action> = createEffect(() => {
+	createPlanChangeOrder: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<CreatePlanChangeOrder>(ChangeOrderActionTypes.CreatePlanChangeOrder),
 			withLatestFrom(this.store, this.store.pipe(select(priceBreakdown))),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store, priceBreakdown]) => {
+				switchMap(([action, store, priceBreakdown]) =>
+				{
 					let changePrice = !!store.salesAgreement
 						? priceBreakdown.totalPrice - store.salesAgreement.salePrice
 						: 0;
@@ -342,7 +363,8 @@ export class ChangeOrderEffects
 
 					return this.changeOrderService.createJobChangeOrder(data, changePrice);
 				}),
-				switchMap(changeOrder => {
+				switchMap(changeOrder =>
+				{
 					let jobChangeOrderChoices = this.changeOrderService.getJobChangeOrderChoices([changeOrder]);
 					return this.treeService.getChoiceCatalogIds(jobChangeOrderChoices).pipe(
 						map(choices => { return changeOrder })
@@ -356,25 +378,30 @@ export class ChangeOrderEffects
 					])
 				)
 			), SaveError, "Error creating plan change order!!"),
-			switchMap((action: any) => {
-				if (action instanceof SaveError) {
+			switchMap((action: any) =>
+			{
+				if (action instanceof SaveError)
+				{
 					return this.modalService.showErrorModal(`<div>Error in creating Plan Change Order. Please contact TSC to proceed</div>`).pipe(
 						switchMap(() => from([action, new SetChangingOrder(false, null, true)]))
 					);
 				}
-				else {
+				else
+				{
 					return of(action);
 				}
 			})
 		);
 	});
 
-	cancelPlanChangeOrder$: Observable<Action> = createEffect(() => {
+	cancelPlanChangeOrder$: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<CancelPlanChangeOrder>(ChangeOrderActionTypes.CancelPlanChangeOrder),
 			withLatestFrom(this.store),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store]) => {
+				switchMap(([action, store]) =>
+				{
 					const currentChangeOrder = this.changeOrderService.getCurrentChangeOrder(store.job.changeOrderGroups);
 					const changeOrderId = currentChangeOrder ? currentChangeOrder.id : 0;
 
@@ -387,12 +414,14 @@ export class ChangeOrderEffects
 		);
 	});
 
-	createLotTransferChangeOrder: Observable<Action> = createEffect(() => {
+	createLotTransferChangeOrder: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<CreateLotTransferChangeOrder>(ChangeOrderActionTypes.CreateLotTransferChangeOrder),
 			withLatestFrom(this.store, this.store.pipe(select(priceBreakdown))),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store, priceBreakdown]) => {
+				switchMap(([action, store, priceBreakdown]) =>
+				{
 					let changePrice = !!store.salesAgreement
 						? priceBreakdown.totalPrice - store.salesAgreement.salePrice
 						: 0;
@@ -421,25 +450,30 @@ export class ChangeOrderEffects
 					])
 				)
 			), SaveError, "Error creating lot transfer change order!!"),
-			switchMap((action: any) => {
-				if (action instanceof SaveError) {
+			switchMap((action: any) =>
+			{
+				if (action instanceof SaveError)
+				{
 					return this.modalService.showErrorModal(`<div>Error in creating Lot Transfer Change Order. Please contact TSC to proceed</div>`).pipe(
 						switchMap(() => from([action, new SetChangingOrder(false, null, true)]))
 					);
 				}
-				else {
+				else
+				{
 					return of(action);
 				}
 			})
 		);
 	});
 
-	cancelLotTransferChangeOrder$: Observable<Action> = createEffect(() => {
+	cancelLotTransferChangeOrder$: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<CancelLotTransferChangeOrder>(ChangeOrderActionTypes.CancelLotTransferChangeOrder),
 			withLatestFrom(this.store),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store]) => {
+				switchMap(([action, store]) =>
+				{
 					const originalLotId = this.changeOrderService.getOriginalLotId(store.job);
 					const handing = this.changeOrderService.getSelectedHanding(store.job);
 					const currentChangeOrder = this.changeOrderService.getCurrentChangeOrder(store.job.changeOrderGroups);
@@ -454,23 +488,28 @@ export class ChangeOrderEffects
 		);
 	});
 
-	cancelSalesChangeOrder$: Observable<Action> = createEffect(() => {
+	cancelSalesChangeOrder$: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<CancelSalesChangeOrder>(ChangeOrderActionTypes.CancelSalesChangeOrder),
 			withLatestFrom(this.store),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store]) => {
+				switchMap(([action, store]) =>
+				{
 					const currentChangeOrder = this.changeOrderService.getCurrentChangeOrder(store.job.changeOrderGroups);
 					const changeOrderId = currentChangeOrder ? currentChangeOrder.id : 0;
 
 					let actions = [];
 					actions.push(new SetChangingOrder(false, null, true));
 
-					if (changeOrderId > 0) {
+					if (changeOrderId > 0)
+					{
 						const handing = new ChangeOrderHanding();
 						handing.handing = store.job.handing;
 						actions.push(new CurrentChangeOrderLoaded(currentChangeOrder, handing));
-					} else {
+					}
+					else
+					{
 						actions.push(new SetCurrentChangeOrder(changeOrderId));
 					}
 
@@ -480,20 +519,24 @@ export class ChangeOrderEffects
 		);
 	});
 
-	currentChangeOrderLoaded$: Observable<Action> = createEffect(() => {
+	currentChangeOrderLoaded$: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<CurrentChangeOrderLoaded | SalesAgreementLoaded | JobLoaded>(ChangeOrderActionTypes.CurrentChangeOrderLoaded, CommonActionTypes.SalesAgreementLoaded, CommonActionTypes.JobLoaded),
 			withLatestFrom(this.store),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store]) => {
-					if (store.changeOrder && store.changeOrder.changeInput) {
+				switchMap(([action, store]) =>
+				{
+					if (store.changeOrder && store.changeOrder.changeInput)
+					{
 						let newInput = { ...store.changeOrder.changeInput } as ChangeInput;
 
 						newInput.buyers = this.changeOrderService.mergeSalesChangeOrderBuyers(store.salesAgreement.buyers, action.changeOrder);
 
 						const trust = this.changeOrderService.mergeSalesChangeOrderTrusts(store.salesAgreement, store.changeOrder.currentChangeOrder);
 
-						if (trust) {
+						if (trust)
+						{
 							newInput.trustName = trust.trustName;
 							newInput.isTrustNa = trust.isTrustNa;
 						}
@@ -503,13 +546,15 @@ export class ChangeOrderEffects
 						if (store.job.lot && store.job.lot.lotBuildTypeDesc === 'Spec'
 							&& ['Pending', 'OutforSignature', 'Signed'].indexOf(store.salesAgreement.status) !== -1
 							&& (!store.opportunity.opportunityContactAssoc || !store.opportunity.opportunityContactAssoc.opportunity)
-							&& newInput.buyers && newInput.buyers.length) {
+							&& newInput.buyers && newInput.buyers.length)
+						{
 							return from([
 								new OpportunityLoaded(newInput.buyers[0].opportunityContactAssoc),
 								new ChangeInputInitialized(newInput)
 							]);
 						}
-						else {
+						else
+						{
 							return of(new ChangeInputInitialized(newInput));
 						}
 					}
@@ -520,18 +565,22 @@ export class ChangeOrderEffects
 		);
 	});
 
-	setCurrentChangeOrder$: Observable<Action> = createEffect(() => {
+	setCurrentChangeOrder$: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<SetCurrentChangeOrder>(ChangeOrderActionTypes.SetCurrentChangeOrder),
 			withLatestFrom(this.store),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store]) => {
+				switchMap(([action, store]) =>
+				{
 					if (!store.changeOrder.currentChangeOrder && action.changeOrderId === 0
-						|| store.changeOrder.currentChangeOrder && store.changeOrder.currentChangeOrder.id === action.changeOrderId) {
+						|| store.changeOrder.currentChangeOrder && store.changeOrder.currentChangeOrder.id === action.changeOrderId)
+					{
 						return new Observable<never>();
 					}
 
-					if (action.changeOrderId === 0 && store.changeOrder.currentChangeOrder && store.changeOrder.currentChangeOrder.id) {
+					if (action.changeOrderId === 0 && store.changeOrder.currentChangeOrder && store.changeOrder.currentChangeOrder.id)
+					{
 						const handing = new ChangeOrderHanding();
 						handing.handing = store.job.handing;
 						return of(new CurrentChangeOrderLoaded(null, handing));
@@ -545,12 +594,14 @@ export class ChangeOrderEffects
 					const selectedHanding = this.changeOrderService.getSelectedHanding(store.job);
 					const selectedPlanId = this.changeOrderService.getSelectedPlan(store.job);
 
-					if (selectedPlanId === store.plan.selectedPlan) {
+					if (selectedPlanId === store.plan.selectedPlan)
+					{
 						let actions: any[] = [
 							new CurrentChangeOrderLoaded(currentChangeOrder, selectedHanding)
 						];
 
-						if (currentChangeOrder) {
+						if (currentChangeOrder)
+						{
 							const choices = this.changeOrderService.getOriginalChoicesAndAttributes(store.job, store.scenario.tree, currentChangeOrder);
 
 							actions.push(new SelectChoices(false, ...choices));
@@ -561,7 +612,8 @@ export class ChangeOrderEffects
 
 					const selectedPlan = store.plan.plans.find(x => x.id === selectedPlanId);
 
-					if (selectedPlan && store.scenario.tree && selectedPlan.treeVersionId === store.scenario.tree.treeVersion.id) {
+					if (selectedPlan && store.scenario.tree && selectedPlan.treeVersionId === store.scenario.tree.treeVersion.id)
+					{
 						return from([
 							new CurrentChangeOrderLoaded(currentChangeOrder, selectedHanding),
 							new SelectPlan(selectedPlanId, selectedPlan.treeVersionId, selectedPlan.marketingPlanId)
@@ -580,16 +632,19 @@ export class ChangeOrderEffects
 								this.treeService.getOptionImages(treeVersionId, [], null, true),
 								this.planService.getWebPlanMappingByPlanId(selectedPlanId)
 							),
-							map(([tree, rules, options, images, mappings]) => {
-								return { tree, rules, options, images, job: store.job, mappings };
+							map(([tree, rules, options, images, mappings]) =>
+							{
+								return { tree, rules, options, images, job: store.job, mappings, selectedChoices };
 							}),
 							//include anything that has been previously sold or locked down in the tree
 							mergeIntoTree(
 								[...store.job.jobChoices, ...(currentChangeOrder && currentChangeOrder.salesStatusDescription === 'Pending' ? [] : jobChangeOrderChoices)],
 								[...store.job.jobPlanOptions, ...(currentChangeOrder && currentChangeOrder.salesStatusDescription === 'Pending' ? [] : jobChangeOrderPlanOptions)],
 								this.treeService,
+								this.attributeService,
 								currentChangeOrder),
-							map(data => {
+							map(data =>
+							{
 								setTreePointsPastCutOff(data.tree, store.job);
 
 								return data;
@@ -606,19 +661,22 @@ export class ChangeOrderEffects
 		);
 	});
 
-	savePendingJio$: Observable<Action> = createEffect(() => {
+	savePendingJio$: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<SavePendingJio>(ChangeOrderActionTypes.SavePendingJio),
 			withLatestFrom(this.store, this.store.pipe(select(priceBreakdown))),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store, priceBreakdown]) => {
+				switchMap(([action, store, priceBreakdown]) =>
+				{
 					const isSpecSalePending = store.job.lot && store.job.lot.lotBuildTypeDesc === 'Spec' && store.salesAgreement.status === 'Pending';
 					const typeDescription = isSpecSalePending ? 'BuyerChangeOrder' : 'SalesJIO';
 					const jio = store.job.changeOrderGroups
 						? store.job.changeOrderGroups.find(x => x.jobChangeOrders && x.jobChangeOrders.some(co => co.jobChangeOrderTypeDescription === typeDescription))
 						: null;
 
-					if (jio) {
+					if (jio)
+					{
 						let jobHanding = new ChangeOrderHanding();
 						jobHanding.handing = store.job.handing;
 						let currentHanding = action.handing || (isSpecSalePending ? this.changeOrderService.getSelectedHanding(store.job) : jobHanding);
@@ -633,7 +691,8 @@ export class ChangeOrderEffects
 							!isSpecSalePending,
 							priceBreakdown.baseHouse);
 
-						if (isSpecSalePending) {
+						if (isSpecSalePending)
+						{
 							var data = this.changeOrderService.mergePosData(
 								inputData,
 								store.changeOrder.currentChangeOrder,
@@ -646,14 +705,16 @@ export class ChangeOrderEffects
 						}
 
 						return this.changeOrderService.createJobChangeOrder(isSpecSalePending ? data : inputData, priceBreakdown.totalPrice).pipe(
-							switchMap(changeOrder => {
+							switchMap(changeOrder =>
+							{
 								let actions: any[] = [
 									new ChangeOrdersCreatedForJob([changeOrder]),
 									new ChangeOrdersCreated([changeOrder])
 								];
 
 								const buyerChangeOrder = changeOrder ? changeOrder.jobChangeOrders.find(x => x.jobChangeOrderTypeDescription === 'BuyerChangeOrder') : null;
-								if (isSpecSalePending && buyerChangeOrder) {
+								if (isSpecSalePending && buyerChangeOrder)
+								{
 									let newInput = _.cloneDeep(store.changeOrder.changeInput);
 									newInput.buyers = this.changeOrderService.mergeSalesChangeOrderBuyers(store.salesAgreement.buyers, changeOrder);
 									actions.push(new ChangeInputInitialized(newInput));
@@ -663,7 +724,8 @@ export class ChangeOrderEffects
 							})
 						);
 					}
-					else {
+					else
+					{
 						return new Observable<never>();
 					}
 				})
@@ -671,12 +733,14 @@ export class ChangeOrderEffects
 		);
 	});
 
-	createCancellationChangeOrder$: Observable<Action> = createEffect(() => {
+	createCancellationChangeOrder$: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<CreateCancellationChangeOrder>(ChangeOrderActionTypes.CreateCancellationChangeOrder),
 			withLatestFrom(this.store),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store]) => {
+				switchMap(([action, store]) =>
+				{
 					const latestChangeOrderGroup = _.maxBy(store.job.changeOrderGroups, 'changeOrderGroupSequence');
 					const groupSequence = latestChangeOrderGroup ? (latestChangeOrderGroup.changeOrderGroupSequence + 1) : 0;
 
@@ -690,17 +754,20 @@ export class ChangeOrderEffects
 	/*
 	 * Change Order Out For Signature
 	 */
-	changeOrderOutForSignature$: Observable<Action> = createEffect(() => {
+	changeOrderOutForSignature$: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<ChangeOrderOutForSignature>(ChangeOrderActionTypes.ChangeOrderOutForSignature),
 			withLatestFrom(this.store),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store]) => {
+				switchMap(([action, store]) =>
+				{
 					let changeOrder = { ...action.changeOrder, salesStatusDescription: 'OutforSignature', jobChangeOrderGroupSalesStatusHistories: undefined };
 					let eSignEnvelope: Observable<ESignEnvelope>;
 
 					// create eSignEnvelope record to track docusign status
-					if (!action.isWetSign) {
+					if (!action.isWetSign)
+					{
 						const newEnvelope: ESignEnvelope = {
 							edhChangeOrderGroupId: changeOrder.id,
 							envelopeGuid: changeOrder.envelopeId,
@@ -718,8 +785,10 @@ export class ChangeOrderEffects
 						of(action)
 					);
 				}),
-				switchMap(([changeOrders, eSignEnvelope, action]) => {
-					if (eSignEnvelope != null) {
+				switchMap(([changeOrders, eSignEnvelope, action]) =>
+				{
+					if (eSignEnvelope != null)
+					{
 						changeOrders[0].eSignEnvelopes = [eSignEnvelope];
 					}
 
@@ -738,19 +807,25 @@ export class ChangeOrderEffects
 		);
 	});
 
-	setSalesChangeOrderTermsAndConditions$: Observable<Action> = createEffect(() => {
+	setSalesChangeOrderTermsAndConditions$: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<SetSalesChangeOrderTermsAndConditions>(ChangeOrderActionTypes.SetSalesChangeOrderTermsAndConditions),
 			withLatestFrom(this.store),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store]) => {
+				switchMap(([action, store]) =>
+				{
 					let note = _.cloneDeep(action.termsAndConditionsNote);
-					if (action.agreementNote) {
+
+					if (action.agreementNote)
+					{
 						note.id = 0;
 					}
+
 					return forkJoin(this.salesAgreementService.saveNote(note), of(store))
 				}),
-				switchMap(([result, store]) => {
+				switchMap(([result, store]) =>
+				{
 					let actions = [];
 					actions.push(new ChangeOrderActions.SalesChangeOrderTermsAndConditionsSaved(result))
 					return from(actions)
@@ -759,23 +834,27 @@ export class ChangeOrderEffects
 		);
 	});
 
-	eSignEnvelopesLoaded$: Observable<Action> = createEffect(() => 
+	eSignEnvelopesLoaded$: Observable<Action> = createEffect(() =>
 		this.actions$.pipe(
 			ofType<ESignEnvelopesLoaded>(CommonActionTypes.ESignEnvelopesLoaded),
 			withLatestFrom(this.store),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store]) => {
+				switchMap(([action, store]) =>
+				{
 					if (action.checkExpiredEnvelopes)
 					{
 						const salesAgreementStatus = store.salesAgreement.status;
 						const changeOrderStatus = store.changeOrder.currentChangeOrder?.salesStatusDescription;
 						const draftESignEnvelope = store.changeOrder.currentChangeOrder?.eSignEnvelopes?.find(x => x.eSignStatusId === 1);
-						if (draftESignEnvelope && 
+
+						if (draftESignEnvelope &&
 							(salesAgreementStatus === 'OutforSignature' || salesAgreementStatus === 'Pending' ||
-							salesAgreementStatus === 'Approved' && changeOrderStatus === 'OutforSignature'))
+								salesAgreementStatus === 'Approved' && changeOrderStatus === 'OutforSignature'))
 						{
 							let expiredDate = new Date(draftESignEnvelope.createdUtcDate);
+
 							expiredDate.setDate(expiredDate.getDate() + 3);
+
 							const today = new Date();
 
 							if (today > expiredDate || salesAgreementStatus === 'Pending')			
@@ -796,25 +875,26 @@ export class ChangeOrderEffects
 										updateCog,
 										this.contractService.deleteEnvelope(draftESignEnvelope.envelopeGuid),
 										this.contractService.deleteSnapshot(store.changeOrder.currentChangeOrder.jobId, store.changeOrder.currentChangeOrder.id)
-									), 
+									),
 									map(([eSignEnvelope, salesAgreement, changeOrders]) =>
 									{
-										return { 
+										return {
 											eSignEnvelope,
-											salesAgreement, 
-											changeOrders, 
-											job: store.job, 
+											salesAgreement,
+											changeOrders,
+											job: store.job,
 											salesAgreementStatus: salesAgreementStatus
 										};
 									}));
-							}		
+							}
 						}
 					}
 					return of(null);
 				}),
-				switchMap(data => {
+				switchMap(data =>
+				{
 					let actions = [];
-					
+
 					if (data)
 					{
 						const job: Job = _.cloneDeep(data.job);
@@ -850,7 +930,7 @@ export class ChangeOrderEffects
 
 						actions.push(new CurrentChangeOrderPending(statusUtcDate, data.eSignEnvelope?.eSignEnvelopeId));
 						actions.push(new JobUpdated(job));
-						
+
 						if (data.salesAgreementStatus === 'OutforSignature')
 						{
 							actions.push(new SalesAgreementSaved(data.salesAgreement));
@@ -872,6 +952,7 @@ export class ChangeOrderEffects
 		private store: Store<fromRoot.State>,
 		private changeOrderService: ChangeOrderService,
 		private treeService: TreeService,
+		private attributeService: AttributeService,
 		private optionService: OptionService,
 		private planService: PlanService,
 		private salesAgreementService: SalesAgreementService,

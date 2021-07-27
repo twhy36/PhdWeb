@@ -292,6 +292,7 @@ export class ChangeOrderChoiceAttribute
 	action: string;
 	manufacturer: string;
 	sku: string;
+	imageUrl?: string;
 
 	constructor(dto?: ChangeOrderChoiceAttribute)
 	{
