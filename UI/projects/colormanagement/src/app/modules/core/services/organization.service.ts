@@ -9,7 +9,7 @@ import { StorageService } from './storage.service';
 
 import { environment } from '../../../../environments/environment';
 import { of } from 'rxjs/observable/of';
-import { IMarket, ISalesCommunity, IPlan, ITreeVersion } from '../../shared/models/community.model';
+import { IMarket, ISalesCommunity, IPlan, ITreeVersion, IFinancialCommunity } from '../../shared/models/community.model';
 
 @Injectable()
 export class OrganizationService
@@ -20,26 +20,28 @@ export class OrganizationService
   // Used for storing communities per market by ID
   marketCommunities = {};
 
-  currentFinancialMarket$: Subject<string>;
+  currentFinancialMarket$: Subject<IMarket>;
+  currentFinancialCommunity$: Subject<IFinancialCommunity>;
 
-	get currentFinancialMarket(): string
+	get currentFinancialMarket(): IMarket
 	{
-		return this._storageService.getLocal<string>('CA_CURRENT_FM');
+		return this._storageService.getLocal<IMarket>('CA_CURRENT_FM');
 	}
 
-	set currentFinancialMarket(val: string)
+	set currentFinancialMarket(val: IMarket)
 	{
 		this.currentFinancialMarket$.next(val);
 		this._storageService.setLocal('CA_CURRENT_FM', val);
 	}
 
-	get currentFinancialCommunity(): string
+	get currentFinancialCommunity(): IFinancialCommunity
 	{
-		return this._storageService.getLocal<string>('CA_CURRENT_FC');
+		return this._storageService.getLocal<IFinancialCommunity>('CA_CURRENT_FC');
 	}
 
-	set currentFinancialCommunity(val: string)
+	set currentFinancialCommunity(val: IFinancialCommunity)
 	{
+		this.currentFinancialCommunity$.next(val);
 		this._storageService.setLocal('CA_CURRENT_FC', val);
 	}
 
@@ -75,11 +77,16 @@ export class OrganizationService
 
 	constructor(private _http: HttpClient, private _storageService: StorageService)
 	{
-		this.currentFinancialMarket$ = new Subject<string>();
+		this.currentFinancialMarket$ = new Subject<IMarket>();
+		this.currentFinancialCommunity$ = new Subject<IFinancialCommunity>();
 
     // Get market if saved locally
-		const currFinancialMarket = this._storageService.getLocal<string>('CA_CURRENT_FM');
+		const currFinancialMarket = this._storageService.getLocal<IMarket>('CA_CURRENT_FM');
 		this.currentFinancialMarket$.next(currFinancialMarket);
+
+	// Get community if saved locally
+		const currentFinancialCommunity = this._storageService.getLocal<IFinancialCommunity>('CA_CURRENT_FC');
+		this.currentFinancialCommunity$.next(currentFinancialCommunity);
 
     // Get markets
     let endPoint = environment.apiUrl;

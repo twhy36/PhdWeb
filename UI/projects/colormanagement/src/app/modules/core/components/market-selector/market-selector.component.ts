@@ -1,5 +1,5 @@
 import {Component} from '@angular/core';
-import { BehaviorSubject, Subject } from 'rxjs';
+import { Subject } from 'rxjs';
 import { IFinancialCommunity, IMarket } from '../../../shared/models/community.model';
 import {OrganizationService} from '../../services/organization.service';
 
@@ -10,23 +10,28 @@ import {OrganizationService} from '../../services/organization.service';
 })
 export class MarketSelectorComponent {
 
-	currentCommunity$ = new BehaviorSubject<IFinancialCommunity>(null);
 
-	get currentMarket(): Subject<IMarket>{
-		return this.orgService.currentFinancialMarket$ as unknown as Subject<IMarket>
+	get currentMarket$(): Subject<IMarket>{
+		return this.orgService.currentFinancialMarket$;
+	}
+
+	get currentCommunity$(): Subject<IFinancialCommunity>{
+		return this.orgService.currentFinancialCommunity$;
 	}
 
 	constructor(public orgService: OrganizationService) { }
 
-	onSelectedMarketChange($event: string){
+	onSelectedMarketChange($event: IMarket){
 		//TODO: Remove logs once component is complete in subsequent stories
 		console.log($event);
 		this.orgService.currentFinancialMarket = $event;
+		//reset community list when new market is selected
+		this.orgService.currentFinancialCommunity = null;
 	}
 
-	onChangeCommunity($event: string){
+	onChangeCommunity($event: IFinancialCommunity){
 		//TODO: Remove console logs once component is complete in subsequent stories
-		this.currentCommunity$.next($event as unknown as IFinancialCommunity);
+		this.orgService.currentFinancialCommunity = $event;
 		console.log($event);
 	}
 }

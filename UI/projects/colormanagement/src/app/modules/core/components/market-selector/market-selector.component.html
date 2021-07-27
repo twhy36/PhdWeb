@@ -1,10 +1,10 @@
 <div class='market-filters'>
-	<select class="form-control ml-3" [ngModel]="orgService.currentFinancialMarket$ | async" (ngModelChange)="onSelectedMarketChange($event)">
+	<select class="form-control ml-3" [ngModel]="currentMarket$ | async" (ngModelChange)="onSelectedMarketChange($event)">
 		<option [ngValue]="null" disabled="disabled">Division</option>
 		<option *ngFor="let market of (orgService.getFinancialMarkets() | async)" [ngValue]="market">{{market.name}}</option>
 	</select>
 	<select class="form-control ml-3" [ngModel]="currentCommunity$ | async" (ngModelChange)="onChangeCommunity($event)">
 		<option [ngValue]="null" disabled="disabled">Community</option>
-		<option *ngFor="let comm of (currentMarket | async)?.financialCommunities" [ngValue]="comm">{{ comm?.name }}</option>
+		<option *ngFor="let comm of (currentMarket$ | async)?.financialCommunities" [ngValue]="comm">{{ comm?.name }}</option>
 	</select>
 </div>
