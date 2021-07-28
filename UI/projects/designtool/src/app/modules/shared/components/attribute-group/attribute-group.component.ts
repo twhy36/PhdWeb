@@ -182,12 +182,15 @@ export class AttributeGroupComponent extends UnsubscribeOnDestroy implements OnI
 		this.modalReference.close();
 	}
 
+	//called from the attribute-list component onAttributeClick method
 	attributeClick($event: { attribute: Attribute, attributeGroupId: number, updateParent: boolean })
 	{
 		const attributeGroupId = $event.attributeGroupId;
 		const attribute = $event.attribute;
 		const selectedAttributeId = this.getSelectedAttributeId(attributeGroupId);
-
+		const alc = this.attributeListComponents.find(x => x.attributeGroupId == attributeGroupId); //reference to attribute group's attribute list component
+		
+		//if a user selected a different attribute and the attribute group is active
 		if (this.isActive && selectedAttributeId !== attribute.id)
 		{
 			if (attribute.monotonyConflict || this.isPastCutOff)
@@ -204,21 +207,23 @@ export class AttributeGroupComponent extends UnsubscribeOnDestroy implements OnI
 				this.monotonyOverride$.next(!!this.overrideNote);
 
 				// update the selectedAttributeId before calling attributeSelected, else nothing gets updated properly. This is for the modal/expanded version of the attribute group.
-				if ($event.updateParent)
+				if ($event.updateParent && alc)
 				{
-					const alc = this.attributeListComponents.find(x => x.attributeGroupId == attributeGroupId);
-
-					if (alc)
-					{
-						alc.selectedAttributeId = attribute.id;
-					}
+					alc.selectedAttributeId = attribute.id;
 				}
 
 				this.attributeSelected(attribute, attributeGroupId, false);
 			}
 		}
+		//if the user selects the same attribute in a group
 		else if (this.isActive && selectedAttributeId === attribute.id)
 		{
+			// update the selectedAttributeId before calling attributeSelected, else nothing gets updated properly. This is for the modal/expanded version of the attribute group.
+			if ($event.updateParent && alc)
+			{
+				alc.selectedAttributeId = null;
+			}
+
 			this.unselectAttribute(attribute, attributeGroupId);
 		}
 	}

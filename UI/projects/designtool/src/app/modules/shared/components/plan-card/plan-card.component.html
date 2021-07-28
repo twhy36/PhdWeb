@@ -1,5 +1,5 @@
 <div class="card phd-plan-card m-2"
-	 [class.active]="selectedPlan?.treeVersionId === plan.treeVersionId"
+	 [class.active]="selectedPlan?.treeVersionId === plan.treeVersionId && !isSpecSelected"
 	 [class.phd-no-lot-assocation]="!isAssociatedWithSelectedLot && !isSpecSelected">
 
 	<cl-image *ngIf="plan.baseHouseElevationImageUrl" public-id="{{plan.baseHouseElevationImageUrl}}" type="fetch" width="286" crop="fill" (onError)="loadImageError($event)" class="card-img-top"></cl-image>

@@ -129,6 +129,19 @@
 						</span>
 					</ng-template>
 				</phd-column>
+				<phd-column header="Application" field="application">
+					<ng-template #body let-template>
+						<span>
+							<ng-container *ngIf="template.application; let formattedValue">
+								<span (mouseenter)="showTooltip($event, formattedValue, dt)" (mouseleave)="hideTooltip(dt)" class="phd-template-span">{{ formattedValue }}</span>
+							</ng-container>
+
+							<ng-container *ngIf="template.childContractTemplate !== undefined && template.childContractTemplate.application; let formattedValue">
+								<span (mouseenter)="showTooltip($event, formattedValue, dt)" (mouseleave)="hideTooltip(dt)" class="phd-template-child-span">{{ formattedValue }}</span>
+							</ng-container>
+						</span>
+					</ng-template>
+				</phd-column>
 			</phd-table>
 		</div>
 	</div>

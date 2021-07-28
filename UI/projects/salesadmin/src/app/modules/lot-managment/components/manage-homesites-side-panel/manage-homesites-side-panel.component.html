@@ -9,7 +9,7 @@
 
 	<ng-template #body>
 		<div class="phd-side-panel-body">
-			<ul ngbNav #nav="ngbNav" [(activeId)]="currentTab" class="nav-tabs" (navChange)="onNavChange($event)">
+			<ul ngbNav #nav="ngbNav" [(activeId)]="currentTab" class="nav-tabs">
 				<li [ngbNavItem]="'details'">
 					<a ngbNavLink>Details</a>
 					<ng-template ngbNavContent>
@@ -21,6 +21,10 @@
 										<label class="form-check-label" for="lotStatusDescription">
 											<input class="form-check-input" name="lotStatusDescription" formControlName="lotStatusDescription" type="checkbox" id="lotStatusDescription">
 											Make Lot Unavailable
+										</label>
+										<label *ngIf="getAvailable(selectedHomesite)" class="form-check-label phd-right" for="isHiddenInTho">
+											<input class="form-check-input" name="isHiddenInTho" formControlName="isHiddenInTho" type="checkbox" id="isHiddenInTho">
+											Hide Lot in THO
 										</label>
 									</div>
 								</div>

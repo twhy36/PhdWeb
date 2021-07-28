@@ -28,7 +28,7 @@
 
         <auto-approval *ngIf="selectedTab === commTabs.AutoApproval"></auto-approval>
 
-        <p *ngIf="selectedTab === commTabs.PDF"><!-- PDF go here. --></p>
+        <community-pdf *ngIf="selectedTab === commTabs.PDF"></community-pdf>
 
         <p *ngIf="selectedTab === commTabs.CommunitySettings"><!-- Community Settings go here. --></p>
       </div>
