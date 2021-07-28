@@ -97,6 +97,7 @@ export class TreeService
 				map(([tree, treeOptions]) =>
 				{
 					this.setCurrentTree(tree, treeOptions);
+
 					this.treeVersionIsLoading = false;
 
 					return tree;
@@ -542,16 +543,13 @@ export class TreeService
 			{
 				return version.dTree.plan.planOptions.map(o =>
 				{
-					let imageCount = o.optionImages.length;
-
 					return {
 						planOptionId: o.planOptionID,
 						planId: o.planID,
 						optionKey: o.integrationKey,
 						baseHouse: !!o.baseHouseOptions.length,
 						hasRules: !!o.optionRules.length || !!o.optionRuleReplaces.length,
-						hasImages: imageCount > 0,
-						imageCount: imageCount
+						imageCount: o.optionImages.length
 					} as PhdApiDto.IDTPlanOption;
 				});
 			}));
@@ -1267,6 +1265,7 @@ export class TreeService
 						point.choices.forEach(choice =>
 						{
 							const ch = new DTChoice(choice);
+
 							ch.parent = dp;
 							dp.choices.push(ch);
 						});

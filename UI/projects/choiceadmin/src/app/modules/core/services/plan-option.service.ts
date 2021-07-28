@@ -1,13 +1,12 @@
 import { Injectable } from '@angular/core';
-import { HttpHeaders, HttpClient, HttpResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 
-import { Observable, BehaviorSubject,  throwError as _throw } from 'rxjs';
-import { flatMap, catchError, map } from 'rxjs/operators';
+import { Observable, throwError as _throw } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 
 import { SettingsService } from './settings.service';
 
 import { Settings } from '../../shared/models/settings.model';
-import { PhdEntityDto, EdhEntityDto, PhdApiDto } from '../../shared/models/api-dtos.model';
 import { IPlanOptionDto } from '../../shared/models/option.model';
 
 @Injectable()
@@ -26,7 +25,17 @@ export class PlanOptionService
 	getPlanOptions(commId: number, planKey: string): Observable<Array<IPlanOptionDto>>
 	{
 		let expand = `planCommunity($select=id,financialCommunityId,financialPlanIntegrationKey),`;
-		expand += `optionCommunity($select = id, optionSalesName, optionDescription, optionSubCategory, option; $expand=attributeGroupOptionCommunityAssocs($select=attributeGroupCommunityId; $expand=attributeGroupCommunity($select=id;$top=1)), locationGroupOptionCommunityAssocs($select=locationGroupCommunityId; $expand=locationGroupCommunity($select=id;$top=1)), option($select = id, financialOptionIntegrationKey, createdBy), optionSubCategory($select = id, name, optionCategory; $expand = optionCategory($select = id, name)))`;
+		expand += `optionCommunity(
+			$select = id, optionSalesName, optionDescription, optionSubCategory, option; $expand=attributeGroupOptionCommunityAssocs(
+				$select=attributeGroupCommunityId;$expand=attributeGroupCommunity($select=id;$top=1)
+			),
+			locationGroupOptionCommunityAssocs(
+				$select=locationGroupCommunityId; $expand=locationGroupCommunity($select=id;$top=1)
+			),
+			option($select = id, financialOptionIntegrationKey, createdBy),
+			optionSubCategory($select = id, name, optionCategory; $expand = optionCategory($select = id, name)),
+			optionCommunityImages($select=id;)
+		)`;
 
 		const filter = `planCommunity/financialCommunityId eq ${commId} and planCommunity/financialPlanIntegrationKey eq '${planKey}'`;
 		const select = `id, planId, optionCommunity, maxOrderQty, listPrice, isActive, planCommunity`;
@@ -51,7 +60,8 @@ export class PlanOptionService
 						category: data.optionCommunity.optionSubCategory.optionCategory.name,
 						subCategory: data.optionCommunity.optionSubCategory.name,
 						optionCommunityId: data.optionCommunity.id,
-						hasAttributeLocationAssoc: data.optionCommunity.attributeGroupOptionCommunityAssocs.length > 0 || data.optionCommunity.locationGroupOptionCommunityAssocs.length > 0
+						hasAttributeLocationAssoc: data.optionCommunity.attributeGroupOptionCommunityAssocs.length > 0 || data.optionCommunity.locationGroupOptionCommunityAssocs.length > 0,
+						imageCount: data.optionCommunity.optionCommunityImages.length
 					} as IPlanOptionDto;
 				});
 			}),

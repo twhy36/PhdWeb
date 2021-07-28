@@ -500,7 +500,6 @@ export namespace PhdApiDto
 		optionKey: string;
 		hasRules: boolean;
 		baseHouse: boolean;
-		hasImages: boolean;
 		imageCount: number;
 	}
 

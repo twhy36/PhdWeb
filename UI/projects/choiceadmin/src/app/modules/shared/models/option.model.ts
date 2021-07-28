@@ -149,8 +149,8 @@ export interface ITreeOption
 	isActive: boolean;
 	baseHouse: boolean;
 	hasRules: boolean;
-	hasImages: boolean;
-	imageCount: number;
+	divLevelImageCount: number;
+	treeLevelImageCount: number;
 	listPrice: number;
 	maxOrderQuantity: number;
 	categoryName: string;
@@ -159,7 +159,7 @@ export interface ITreeOption
 	optionDescription: string;
 	matched: boolean;
 	optionCommunityId: number;
-	hasAttributeLocationAssoc: boolean;	
+	hasAttributeLocationAssoc: boolean;
 }
 
 export class TreeOption implements ITreeOption
@@ -168,8 +168,8 @@ export class TreeOption implements ITreeOption
 	isActive = false;
 	baseHouse = false;
 	hasRules = false;
-	hasImages = false;
-	imageCount = 0;
+	divLevelImageCount = 0;
+	treeLevelImageCount = 0;
 	listPrice = 0;
 	maxOrderQuantity = 0;
 	categoryName = '';
@@ -189,8 +189,8 @@ export class TreeOption implements ITreeOption
 		this.isActive = option.isActive;
 		this.baseHouse = planOption.baseHouse;
 		this.hasRules = planOption.hasRules;
-		this.hasImages = planOption.hasImages;
-		this.imageCount = planOption.imageCount;
+		this.divLevelImageCount = option.imageCount;
+		this.treeLevelImageCount = planOption.imageCount;
 		this.listPrice = option.listPrice;
 		this.maxOrderQuantity = option.maxOrderQuantity;
 		this.categoryName = option.category;
@@ -199,6 +199,16 @@ export class TreeOption implements ITreeOption
 		this.optionDescription = option.description;
 		this.optionCommunityId = option.optionCommunityId;
 		this.hasAttributeLocationAssoc = option.hasAttributeLocationAssoc;
+	}
+
+	get hasImages(): boolean
+	{
+		return this.imageCount > 0;
+	}
+
+	get imageCount(): number
+	{
+		return this.treeLevelImageCount > 0 ? this.treeLevelImageCount : this.divLevelImageCount;
 	}
 }
 
@@ -214,6 +224,7 @@ export interface IPlanOptionDto
 	subCategory: string;
 	optionCommunityId: number;
 	hasAttributeLocationAssoc: boolean;
+	imageCount: number;
 }
 
 export class OptionImage

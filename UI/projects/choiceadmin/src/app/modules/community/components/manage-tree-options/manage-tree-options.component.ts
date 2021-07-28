@@ -122,11 +122,14 @@ export class ManageTreeOptionsComponent extends ComponentCanNavAway implements O
 		const sub2 = obs.subscribe(({ tree, options, community, plan }) =>
 		{
 			this.currentTree = tree;
+
 			this.checkCanEdit(tree ? tree.marketId : null);
+
 			this.currentTreeOptions = options ? options : [];
 			this.optionsTable.optionsList = this.currentTreeOptions;
 			this.marketCommunityPlanBreadcrumb = `${community.market.name} > ${community.name} - ${community.number} > ${plan.planSalesName}`;
 			this._orgService.currentFinancialCommunity = community.id.toString();
+
 			this.loading.next(false);
 		});
 
@@ -161,7 +164,7 @@ export class ManageTreeOptionsComponent extends ComponentCanNavAway implements O
 		{
 			msgs.push(this.inactiveOptionsMessage);
 
-			const inactiveOptionsWithImage = this.inactiveOptions.filter(io => io.hasImages);
+			const inactiveOptionsWithImage = this.inactiveOptions.filter(io => io.treeLevelImageCount > 0);
 
 			const imageCnt = inactiveOptionsWithImage.length;
 
@@ -250,14 +253,7 @@ export class ManageTreeOptionsComponent extends ComponentCanNavAway implements O
 
 	onMessageClick(message: string)
 	{
-		if (message.toLowerCase().includes('unassigned'))
-		{
-			this.currentTab = 'unassignedoptions';
-		}
-		else
-		{
-			this.currentTab = 'inactiveoptions';
-		}
+		this.currentTab = message.toLowerCase().includes('unassigned') ? 'unassignedoptions' : 'inactiveoptions';
 
 		this.showMessages = true;
 	}
@@ -272,6 +268,7 @@ export class ManageTreeOptionsComponent extends ComponentCanNavAway implements O
 	{
 		// scroll to point
 		this.optionsTable.scrollToOption(option);
+
 		this.showMessages = false;
 	}
 
@@ -360,28 +357,6 @@ export class ManageTreeOptionsComponent extends ComponentCanNavAway implements O
 		});
 
 		this._treeService.updateCurrentTree(this.currentTree);
-	}
-
-	private updateOptionRulesStatus(integrationKeys: Array<string>)
-	{
-		// just in case options have not finished loading
-		this._treeService.currentTreeOptions.subscribe(options =>
-		{
-			if (integrationKeys.length > 0)
-			{
-				integrationKeys.forEach(key =>
-				{
-					// find a match for the rule removed
-					const tOption = options.find(x => x.id === key);
-
-					if (tOption != null)
-					{
-						// setting has rules to false should remove the record from the options list.
-						tOption.hasRules = false;
-					}
-				});
-			}
-		});
 	}
 
 	private checkCanEdit(marketId: number)

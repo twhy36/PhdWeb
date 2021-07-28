@@ -100,6 +100,7 @@ export class OptionSidePanelComponent implements OnInit, OnChanges
 		}
 
 		this.optionRuleSelectedChoices = [];
+
 		this.resetImageSort();
 
 		this.currentTab = $event.activeId;
@@ -108,7 +109,9 @@ export class OptionSidePanelComponent implements OnInit, OnChanges
 	get sidePanelHasChanges(): boolean
 	{
 		const b = this.optionRuleSelectedChoices.length > 0;
+
 		this.hasChanges.emit(b);
+
 		return b;
 	}
 
@@ -189,7 +192,7 @@ export class OptionSidePanelComponent implements OnInit, OnChanges
 	{
 		let message = '';
 
-		if (!this.option.hasImages && (this.isReadOnly || !this.canEditImages))
+		if (this.option.treeLevelImageCount === 0 && (this.isReadOnly || !this.canEditImages))
 		{
 			message = 'There are no images added to selected option.';
 		}
@@ -283,6 +286,7 @@ export class OptionSidePanelComponent implements OnInit, OnChanges
 					this.optionRule.replaceRules = optionRule.replaceRules;
 
 					this.onUpdateTreeChoiceOptionRules(optionRule.choices, true);
+
 					this.option.hasRules = this.optionRule.choices.length > 0;
 
 					callback(true);
@@ -460,6 +464,7 @@ export class OptionSidePanelComponent implements OnInit, OnChanges
 
 					// update the flag and count for the image indicator
 					this.setImageInfo();
+
 					this.origOptionsImageList = cloneDeep(this.optionsImageList);
 				}
 			});
@@ -481,6 +486,7 @@ export class OptionSidePanelComponent implements OnInit, OnChanges
 	resetImageSort()
 	{
 		this.dragEnable = false;
+
 		if (this.dragHasChanged)
 		{
 			this.optionsImageList = this.origOptionsImageList;
@@ -648,9 +654,8 @@ export class OptionSidePanelComponent implements OnInit, OnChanges
 	{
 		const imgCount = this.optionsImageList.filter(x => x.hideImage === false).length;
 
-		// update the flag and count for the image indicator
-		this.option.hasImages = imgCount > 0;
-		this.option.imageCount = imgCount;
+		// update the count for the image indicator
+		this.option.treeLevelImageCount = imgCount;
 	}
 
 	async onCloseClick()

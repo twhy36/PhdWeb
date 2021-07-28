@@ -22,6 +22,7 @@
 				<tr>
 					<th scope="col" class="phd-icon-col"></th>
 					<th scope="col" class="phd-icon-col"></th>
+					<th scope="col" class="phd-icon-col"></th>
 					<th scope="col" class="phd-icon-col-med"></th>
 					<th scope="col" class="phd-small-col">Lawson Number</th>
 					<th scope="col" class="phd-icon-col text-right"></th>
@@ -41,8 +42,11 @@
 						<td class="phd-icon-col">
 							<i class="fa fa-fw fa-list-alt fa-sm phd-clickable" *ngIf="option.hasRules" (click)="onSelectOption(option, 'rules')"></i>
 						</td>
+						<td class="phd-icon-col">
+							<i class="fa fa-fw fa-unlink fa-sm phd-default-pointer" *ngIf="option.treeLevelImageCount > 0" title="Images are maintained at the tree level"></i>
+						</td>
 						<td class="phd-icon-col-med">
-							<i class="fa fa-fw fa-image fa-sm phd-clickable-inline" *ngIf="option.hasImages" (click)="onSelectOption(option, 'images')">
+							<i class="fa fa-fw fa-image fa-sm phd-clickable-inline" *ngIf="option.imageCount > 0" (click)="onSelectOption(option, 'images')">
 								<span class="phd-img-count">{{option.imageCount}}</span>
 							</i>
 						</td>
