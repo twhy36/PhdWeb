@@ -10,10 +10,10 @@ export const environment: IEnvironment = {
 	authQueryParams: "domain_hint=pulte.com",
 	baseUrl: {
 		buyerTracker: 'http://buyertracker.dev.pulte.com/',
-		choiceAdmin: 'https://phd.dev.pulte.com/choiceadmin/',
+		choiceAdmin: 'http://localhost:14765/',
 		crm: 'https://pultedev.crm.dynamics.com/main.aspx?appid=c865bf67-a0e6-e811-a962-000d3a32ce3b',
-		salesAdmin: 'https://phd.dev.pulte.com/salesadmin/',
-		designTool: 'https://phd.dev.pulte.com/designtool/',
+		salesAdmin: 'http://localhost:14768/ ',
+		designTool: 'http://localhost:14767/',
 		reports: 'http://powerbi.dev.pulte.com/Reports/browse/IDEA/Sales/PHD',
 		homeSelections: 'https://homebuilder.dev.pulte.com/HomeSelections/',
 		salesTally: 'https://salesportal.dev.pulte.com/salesportal/salestally'

@@ -98,6 +98,13 @@
 					</ng-template>
 				</phd-column>
 				<phd-column header="Status" field="lotStatusDescription"></phd-column>
+				<phd-column header="Hide in THO" width="158px">
+					<ng-template #body let-lot>
+						<button *ngIf="getAvailable(lot)" class="btn btn-sm btn-toggle btn-is-hidden-tho" [disabled]="!canEdit ? 'disabled' : null" [ngClass]="{'active': !lot.isHiddenInTho, 'btn-success': lot.isHiddenInTho, 'btn-secondary': !lot.isHiddenInTho }" (click)="toggleIsHiddenTho(lot)">
+								<div class="handle"></div>
+						</button>
+					</ng-template>
+				</phd-column>
 				<phd-column header="Availability" field="availabilityDate"></phd-column>
 				<phd-column header="Premium" field="premium">
 					<ng-template #body let-lot>

@@ -180,7 +180,7 @@ export class AttributeListComponent extends UnsubscribeOnDestroy implements OnIn
 	private setAttribute(attribute: Attribute)
 	{
 		this.selectedAttributeId = this.selectedAttributeId !== attribute.id ? attribute.id : null;
-
+		
 		this.onAttributeClick.emit({ attribute: attribute, attributeGroupId: this.attributeGroupId, updateParent: this.updateParent });
 	}
 

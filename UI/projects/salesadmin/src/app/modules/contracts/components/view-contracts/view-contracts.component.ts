@@ -87,6 +87,10 @@ export class ViewContractsComponent extends UnsubscribeOnDestroy implements OnIn
 		).subscribe(templates =>
 		{
 			this.allTemplates = templates;
+			this.allTemplates.forEach(template =>
+				{
+					template.application = this.getApplication(template);
+				})
 			this.getTemplatesToBedisplayed();
 			this.resetSearchBar();
 		});
@@ -284,6 +288,7 @@ export class ViewContractsComponent extends UnsubscribeOnDestroy implements OnIn
 			.subscribe(newDto =>
 			{
 				newDto.assignedCommunityIds = contractTemplateDto.assignedCommunityIds;
+				newDto.application = this.getApplication(newDto);
 
 				if (!this.selected)
 				{
@@ -478,5 +483,17 @@ export class ViewContractsComponent extends UnsubscribeOnDestroy implements OnIn
 		{
 			return left[sortName] === right[sortName] ? 0 : (left[sortName] < right[sortName] ? -1 : 1);
 		});
+	}
+
+	private getApplication(dto: ContractTemplate)
+	{
+		if (dto.isPhd && dto.isTho)
+			return 'PHD+THO';
+		else if (dto.isPhd)
+			return 'PHD';
+		else if (dto.isTho)
+			return 'THO';
+		else
+			return null;
 	}
 }

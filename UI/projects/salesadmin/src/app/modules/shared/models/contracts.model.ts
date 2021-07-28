@@ -17,6 +17,7 @@ export class ContractTemplate
 	templateFinancialCommunityAssocs?: any;
 	assignedCommunityIds?: Array<number> = [];
 	childContractTemplate?: ContractTemplate;
+	application?: 'PHD+THO' | 'PHD' | 'THO';
 
 	constructor(data)
 	{
