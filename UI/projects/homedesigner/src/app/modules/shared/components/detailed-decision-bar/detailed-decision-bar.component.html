@@ -4,7 +4,7 @@
 			<div class="decision-point">
 				<div class="label" title="{{point.label}}">
 					<div class="icon">
-						<i class="fa fa-check" *ngIf="point.isStructuralItem || point.isPastCutOff"></i>
+						<i class="fa fa-check" *ngIf="isPointComplete(point)"></i>
 					</div>
 					<div [attr.id]="point.id">
 						{{point.label}}

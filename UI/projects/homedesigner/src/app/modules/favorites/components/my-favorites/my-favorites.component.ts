@@ -405,7 +405,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 	declineDecisionPoint(point: DecisionPoint) {
 		const declPoint = this.myFavoritesPointsDeclined?.find(p => p.divPointCatalogId === point.divPointCatalogId);
 		if (!declPoint) {
-			this.store.dispatch(new FavoriteActions.AddMyFavoritesPointDeclined(this.myFavoriteId, point.id));
+			this.store.dispatch(new FavoriteActions.AddMyFavoritesPointDeclined(this.myFavoriteId, point.id, point.divPointCatalogId));
 			this.deselectPointChoices(point.divPointCatalogId);
 		} else {
 			this.store.dispatch(new FavoriteActions.DeleteMyFavoritesPointDeclined(this.myFavoriteId, declPoint.id));

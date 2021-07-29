@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 
-import { UnsubscribeOnDestroy, flipOver2, slideOut, DecisionPoint, JobChoice, PickType, Choice, ChoiceImageAssoc, Group } from 'phd-common';
+import { UnsubscribeOnDestroy, flipOver2, slideOut, DecisionPoint, JobChoice, PickType, Choice, ChoiceImageAssoc, Group, PointStatus } from 'phd-common';
 import { ChoiceExt } from '../../models/choice-ext.model';
 import { MyFavoritesChoice, MyFavoritesPointDeclined } from '../../models/my-favorite.model';
 
@@ -22,6 +22,7 @@ export class DetailedDecisionBarComponent extends UnsubscribeOnDestroy implement
 	@Input() myFavoritesPointsDeclined?: MyFavoritesPointDeclined[];
 	@Input() groups: Group[];
 	@Input() isReadonly: boolean;
+	@Input() isPreview: boolean;
 	
 	@Output() onToggleChoice = new EventEmitter<ChoiceExt>();
 	@Output() onViewChoiceDetail = new EventEmitter<ChoiceExt>();
@@ -110,5 +111,12 @@ export class DetailedDecisionBarComponent extends UnsubscribeOnDestroy implement
 				decision.scrollIntoView({behavior: 'smooth', block: 'start'});
 			}
 		}
+	}
+
+	isPointComplete(point: DecisionPoint) 
+	{
+		return this.isPreview
+			? point.status === PointStatus.COMPLETED || point.status === PointStatus.PARTIALLY_COMPLETED
+			: point.isStructuralItem || point.isPastCutOff;			
 	}
 }
