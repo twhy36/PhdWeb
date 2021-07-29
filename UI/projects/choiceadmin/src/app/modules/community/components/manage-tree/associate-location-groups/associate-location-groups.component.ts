@@ -122,8 +122,8 @@ export class AssociateLocationGroupComponent implements OnInit
 		error =>
 		{
 			this._msgService.add({
-				id: 'growl-locations-choice',
-				key: 'growl-locations-choice',
+				id: 'toast-locations-choice',
+				key: 'toast-locations-choice',
 				severity: 'danger',
 				summary: 'Error',
 				detail: `Unable to load associated location group(s).`
@@ -150,8 +150,8 @@ export class AssociateLocationGroupComponent implements OnInit
 		error =>
 		{
 			this._msgService.add({
-				id: 'growl-locations-choice',
-				key: 'growl-locations-choice',
+				id: 'toast-locations-choice',
+				key: 'toast-locations-choice',
 				severity: 'danger',
 				summary: 'Error',
 				detail: `Unable to load associated location group(s).`
@@ -184,8 +184,8 @@ export class AssociateLocationGroupComponent implements OnInit
 				this.addGroups.clearFilter();
 
 				this._msgService.add({
-					id: 'growl-locations-choice',
-					key: 'growl-locations-choice',
+					id: 'toast-locations-choice',
+					key: 'toast-locations-choice',
 					severity: 'success',
 					summary: 'Success',
 					detail: `Location group(s) associated.`
@@ -196,8 +196,8 @@ export class AssociateLocationGroupComponent implements OnInit
 			error =>
 			{
 				this._msgService.add({
-					id: 'growl-locations-choice',
-					key: 'growl-locations-choice',
+					id: 'toast-locations-choice',
+					key: 'toast-locations-choice',
 					severity: 'danger',
 					summary: 'Error',
 					detail: `Failed to associate location group(s).`
@@ -259,8 +259,8 @@ export class AssociateLocationGroupComponent implements OnInit
 						}
 
 						this._msgService.add({
-							id: 'growl-locations-choice',
-							key: 'growl-locations-choice',
+							id: 'toast-locations-choice',
+							key: 'toast-locations-choice',
 							severity: 'success',
 							summary: 'Success',
 							detail: `Location group(s) removed.`
@@ -271,8 +271,8 @@ export class AssociateLocationGroupComponent implements OnInit
 					error =>
 					{
 						this._msgService.add({
-							id: 'growl-locations-choice',
-							key: 'growl-locations-choice',
+							id: 'toast-locations-choice',
+							key: 'toast-locations-choice',
 							severity: 'danger',
 							summary: 'Error',
 							detail: `Failed to remove location group(s).`
@@ -308,8 +308,8 @@ export class AssociateLocationGroupComponent implements OnInit
 		if (message)
 		{
 			this._msgService.add({
-				id: 'growl-locations-choice',
-				key: 'growl-locations-choice',
+				id: 'toast-locations-choice',
+				key: 'toast-locations-choice',
 				severity: 'danger',
 				summary: 'Error',
 				detail: message

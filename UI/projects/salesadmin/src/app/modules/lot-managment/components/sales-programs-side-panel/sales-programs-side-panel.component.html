@@ -38,14 +38,14 @@
 				<div class="form-group calendar-group">
 					<label for="release_date">Effective Date</label>
 					<div class="input-group">
-						<p-calendar formControlName="startDate" (onSelect)="setMinimumEndDate($event)" dateFormat="mm/dd/yy" readonlyInput="true" [minDate]="yesterday" showIcon="true" required="true"></p-calendar>
+						<p-calendar formControlName="startDate" (onSelect)="setMinimumEndDate($event)" dateFormat="mm/dd/yy" readonlyInput="true" [minDate]="yesterday" showIcon="true" required="true" appendTo="body"></p-calendar>
 					</div>
 				</div>
 
 				<div class="form-group calendar-group">
 					<label for="release_date">Expiration Date</label>
 					<div class="input-group">
-						<p-calendar formControlName="endDate" dateFormat="mm/dd/yy" readonlyInput="true" [minDate]="minDate" showIcon="true" required="true"></p-calendar>
+						<p-calendar formControlName="endDate" dateFormat="mm/dd/yy" readonlyInput="true" [minDate]="minDate" showIcon="true" required="true" appendTo="body"></p-calendar>
 					</div>
 				</div>
 

@@ -27,7 +27,7 @@
 							<td class="phd-consultant-auto">
 								<p-autoComplete [suggestions]="consultantSearchResultsList" (completeMethod)="findContact($event, i)" formControlName="contact" field="fullName" minLength="3" inputStyleClass="form-control" forceSelection="true" [controlDisabled]="!canEdit">
 									<ng-template let-results pTemplate="item">
-										<div class="ui-helper-clearfix">
+										<div class="p-helper-clearfix">
 											<div>{{results.lastName}}, {{results.firstName}}</div>
 										</div>
 									</ng-template>

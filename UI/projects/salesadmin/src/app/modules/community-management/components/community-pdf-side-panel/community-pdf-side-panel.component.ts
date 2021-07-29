@@ -21,7 +21,7 @@ export class CommunityPdfSidePanelComponent implements OnInit
 	@Input() selected: CommunityPdf;
 	@Input() saving: boolean;
 	@Input() sidePanelOpen: boolean = false;
-	
+
 	communityPdfForm: FormGroup;
 
 	oneDay: number = 86400000;
@@ -83,12 +83,15 @@ export class CommunityPdfSidePanelComponent implements OnInit
 				sectionHeader: this.communityPdfForm.get('sectionHeader')?.value,
 				url: this.selected.url,
 			};
+
 			this.onUpdate.emit(updatedPdf as CommunityPdf);
+
 			this.saving = true;
 		}
 		else
 		{
 			this.onSave.emit(formData);
+
 			this.saving = true;
 		}
 	}
@@ -136,26 +139,35 @@ export class CommunityPdfSidePanelComponent implements OnInit
 		this.onSidePanelClose.emit(status);
 	}
 
-	requiredFileType( type: string ) {
-		return function (control: FormControl) {
+	requiredFileType(type: string)
+	{
+		return function (control: FormControl)
+		{
 			const file = control.value;
-			if ( file ) {
+
+			if (file)
+			{
 				const split = file.split('.');
+
 				if (split.length > 1)
 				{
 					const extension = split[split.length - 1].toLowerCase();
-					if ( type.toLowerCase() !== extension.toLowerCase() ) {
+
+					if (type.toLowerCase() !== extension.toLowerCase())
+					{
 						return {
 							requiredFileType: true
 						};
 					}
+
 					return null;
 				}
+
 				return {
 					requiredFileType: true
-				}
+				};
 			}
-	
+
 			return null;
 		};
 	}
@@ -167,6 +179,7 @@ export class CommunityPdfSidePanelComponent implements OnInit
 		if (this.communityPdfForm.value.expirationDate && (new Date(this.communityPdfForm.value.expirationDate).getTime() < this.minDate.getTime()))
 		{
 			this.expirationDate = this.minDate;
+
 			this.onSetDate(this.minDate, 'expiration');
 		}
 
@@ -207,11 +220,13 @@ export class CommunityPdfSidePanelComponent implements OnInit
 	onFileSelect(event: Event)
 	{
 		const file = (<HTMLInputElement>event.target).files[0];
+
 		if (file)
 		{
-			this.communityPdfForm.patchValue({pdf: file});
+			this.communityPdfForm.patchValue({ pdf: file });
 			this.communityPdfForm.get('pdf').updateValueAndValidity();
 		}
+
 		this.communityPdfForm.controls.pdf.markAsDirty();
 		this.communityPdfForm.controls.pdf.markAsTouched();
 	}

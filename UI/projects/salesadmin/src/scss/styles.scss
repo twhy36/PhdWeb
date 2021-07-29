@@ -61,6 +61,16 @@ a:focus {
 	color: inherit;
 	text-decoration: none;
 	transition: all 0.5s;
+	cursor: pointer;
+}
+
+.phd-tab a {
+	background-color: lightgray;
+
+	.phd-active {
+		background-color: white;
+		height: 50px;
+	}
 }
 
 .phd-page-container {
@@ -313,12 +323,6 @@ $toggle-content-after: 'Must Have';
 	}
 }
 
-.phd-table-container ::ng-deep .ui-table .ui-table-tbody > tr > td {
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
-}
-
 .phd-btn-save, .phd-btn-left {
 	margin-right: 15px;
 }
@@ -374,7 +378,7 @@ $toggle-content-after: 'Must Have';
 
 /* primeng table start */
 
-.ui-multiselect-panel .ui-multiselect-item {
+.p-multiselect-panel .p-multiselect-item {
 	margin: 1px 0 !important;
 	padding: .125em .25em !important;
 }
