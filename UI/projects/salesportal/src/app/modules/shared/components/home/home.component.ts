@@ -16,6 +16,7 @@ export class HomeComponent implements OnInit
 	canAccessSalesAdmin: boolean = false;
 	canAccessReports: boolean = false;
 
+	colorManagementAction = { envBaseUrl: 'colorManagement', path: '' };
 	salesAdminAction = { envBaseUrl: 'salesAdmin', path: '' };
 	d365Action = { envBaseUrl: 'crm', path: '' };
 	buyerTrackerAction = { envBaseUrl: 'buyerTracker', path: '' };
