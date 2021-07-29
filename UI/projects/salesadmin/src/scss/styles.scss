@@ -253,6 +253,10 @@ $toggle-content-after: 'Must Have';
 		&.btn-is-hidden-tho {
 			@include toggle-mixin($font-size: .55rem, $margin: .5rem, $content-after: 'Available', $content-before: 'Hidden')
 		}
+
+		&.btn-enabletho {
+			@include toggle-mixin($font-size: .55rem, $margin: .5rem, $content-after: 'Inactive', $content-before: 'Active')
+		}
 	}
 }
 
