@@ -10,6 +10,7 @@ import { Store, select } from '@ngrx/store';
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromPlan from '../../../ngrx-store/plan/reducer';
 import * as CommonActions from '../../../ngrx-store/actions';
+import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 import * as FavoriteActions from '../../../ngrx-store/favorite/actions';
 
 import { UnsubscribeOnDestroy, SalesAgreement, SDImage } from 'phd-common';
@@ -27,6 +28,7 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 	planImageUrl: string = '';
 	floorPlanImages: SDImage[] = [];
 	salesAgreement: SalesAgreement;
+	isPreview: boolean;
 	isLoadingMyFavorite: boolean = false;
 
 	constructor(
@@ -42,17 +44,30 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 		this.activatedRoute.paramMap
 			.pipe(
 				combineLatest(this.store.pipe(select(state => state.salesAgreement))),
-				switchMap(([params, salesAgreementState]) => {
+				withLatestFrom(this.activatedRoute.data,
+					this.store.pipe(select(state => state.scenario))
+				),
+				switchMap(([[params, salesAgreementState], routeData, scenarioState]) => {
 					if (salesAgreementState.salesAgreementLoading || salesAgreementState.loadError) {
 						return new Observable<never>();
 					}
 
-					// if sales agreement is not in the store and the id has been passed in to the url
-					// or the passed in sales agreement id is different than that of the id in the store...
-					const salesAgreementId = +params.get('salesAgreementId');
-					if (salesAgreementId > 0 && salesAgreementState.id !== salesAgreementId) {
-						this.store.dispatch(new CommonActions.LoadSalesAgreement(salesAgreementId));
-						return new Observable<never>();
+					this.isPreview = routeData["isPreview"];
+
+					if (this.isPreview) {
+						const treeVersionId = +params.get('treeVersionId');
+						if (!scenarioState.tree || scenarioState.tree.treeVersion.id !== treeVersionId) {
+							this.store.dispatch(new ScenarioActions.LoadPreview(treeVersionId));
+							return new Observable<never>();
+						}
+					} else {
+						// if sales agreement is not in the store and the id has been passed in to the url
+						// or the passed in sales agreement id is different than that of the id in the store...
+						const salesAgreementId = +params.get('salesAgreementId');
+						if (salesAgreementId > 0 && salesAgreementState.id !== salesAgreementId) {
+							this.store.dispatch(new CommonActions.LoadSalesAgreement(salesAgreementId));
+							return new Observable<never>();
+						}
 					}
 
 					return of(_.pick(salesAgreementState, _.keys(new SalesAgreement())));
@@ -94,7 +109,7 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 
 				this.floorPlanImages.push({ imageUrl: img.svg, hasDataUri: true, floorIndex: img.floorIndex, floorName: img.floorName } as SDImage);
 			});
-		});		
+		});
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
@@ -129,14 +144,18 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 						url += `/${selectedSubGroup.subGroupCatalogId}`;
 					}
 					this.router.navigateByUrl(url);
-				}				
+				}
 			}
-		});		
+		});
 	}
 
 	viewOptions()
 	{
 		this.isLoadingMyFavorite = true;
-		this.store.dispatch(new FavoriteActions.LoadMyFavorite());
+		if (this.isPreview) {
+			this.store.dispatch(new FavoriteActions.LoadDefaultFavorite());
+		} else {
+			this.store.dispatch(new FavoriteActions.LoadMyFavorite());
+		}
 	}
 }
