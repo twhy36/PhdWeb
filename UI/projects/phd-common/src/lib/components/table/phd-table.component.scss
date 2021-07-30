@@ -10,7 +10,7 @@
     text-align: center;
 }
 
-.phd-alternate-row:not(.ui-state-highlight) {
+.phd-alternate-row:not(.p-state-highlight) {
     background-color: rgba(0,0,0,.05) !important;
 }
 
@@ -49,28 +49,28 @@
     font-size: 25px;
 }
 
-:host ::ng-deep .ui-table .ui-table-thead > tr > th {
+:host ::ng-deep .p-datatable .p-datatable-thead > tr > th {
 	position: -webkit-sticky;
 	position: sticky;
 	top: 0px;
 	z-index: 1;
 }
 
-:host ::ng-deep .ui-table-resizable > .ui-table-wrapper {
+:host ::ng-deep .p-datatable-resizable > .p-datatable-wrapper {
 	overflow-x: initial !important;
 }
 
 @media screen and (max-width: 64em) {
-	:host ::ng-deep .ui-table .ui-table-thead > tr > th {
+	:host ::ng-deep .p-datatable .p-datatable-thead > tr > th {
 		top: 0px;
 	}
 }
 
-:host ::ng-deep .ui-table .ui-table-tbody .ui-overlaypanel {
+:host ::ng-deep .p-datatable .p-datatable-tbody .p-overlaypanel {
 	top: inherit !important;
-    left: inherit !important;
-} 
+	left: inherit !important;
+}
 
-:host ::ng-deep .ui-table-resizable .ui-table-tbody > tr > td {
-	overflow: initial !important;
+:host ::ng-deep .p-datatable-resizable .p-datatable-tbody > tr > td {
+	text-overflow: ellipsis;
 } 

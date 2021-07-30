@@ -25,7 +25,7 @@ export class SalesService
 	 */
 	saveSalesProgram(salesProgramDto: SalesProgram): Observable<SalesProgram>
 	{
-		salesProgramDto = <SalesProgram>_.omit(salesProgramDto, "salesAgreementSalesProgramAssocs");
+		salesProgramDto = <SalesProgram>_.omit(salesProgramDto, "salesAgreementSalesProgramAssocs", "isThoEnabled");
 
 		if (salesProgramDto.id)
 		{

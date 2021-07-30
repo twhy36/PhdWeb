@@ -73,7 +73,7 @@ export function reducer(state: State = initialState, action: FavoriteActions): S
 
 						action.choices.forEach(c => {
 							let choiceIndex = currentMyFavorite.myFavoritesChoice.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId);
-							if (choiceIndex === -1 && c.id > 0)
+							if (choiceIndex === -1 && c.id !== 0)
 							{
 								currentMyFavorite.myFavoritesChoice.push(c);
 							}
@@ -102,7 +102,7 @@ export function reducer(state: State = initialState, action: FavoriteActions): S
 				let myFavorite = myFavorites?.find(x => x.id === action.myFavoritesPointDeclined?.myFavoriteId);
 				if (myFavorite)
 				{
-					const pointDeclinedIndex = myFavorite?.myFavoritesPointDeclined?.findIndex(x => x.id === action.myFavoritesPointDeclined?.id);
+					const pointDeclinedIndex = myFavorite?.myFavoritesPointDeclined?.findIndex(x => x.divPointCatalogId === action.myFavoritesPointDeclined?.divPointCatalogId);
 					if (action.isDelete && pointDeclinedIndex > -1)
 					{
 						myFavorite.myFavoritesPointDeclined.splice(pointDeclinedIndex, 1);

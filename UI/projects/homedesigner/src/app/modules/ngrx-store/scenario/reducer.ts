@@ -162,9 +162,13 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 				points = _.flatMap(subGroups, sg => sg.points);
 				choices = _.flatMap(points, p => p.choices);
 				points.forEach(pt => setPointStatus(pt));
-				// For each point, if the user cannot select the DP in this tool, then the status should be complete
-				points.filter(pt => pt.isStructuralItem).forEach(pt => pt.status = PointStatus.COMPLETED);
 
+				if (action.type === CommonActionTypes.SalesAgreementLoaded)
+				{
+					// For each point, if the user cannot select the DP in this tool, then the status should be complete
+					points.filter(pt => pt.isStructuralItem).forEach(pt => pt.status = PointStatus.COMPLETED);
+				}
+				
 				// For each point with a pick 0, we need to change the status to required (if no thanks is selected, the status is later updated to Completed)
 				points.filter(pt =>
 					[PickType.Pick0or1, PickType.Pick0ormore].indexOf(pt.pointPickTypeId) > 0
@@ -258,8 +262,12 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 			checkSelectedAttributes(choices);
 
 			points.forEach(pt => setPointStatus(pt));
-			// For each point, if the user cannot select the DP in this tool, then the status should be complete
-			points.filter(pt => pt.isStructuralItem).forEach(pt => pt.status = PointStatus.COMPLETED);
+
+			if (state.buildMode !== 'preview')
+			{
+				// For each point, if the user cannot select the DP in this tool, then the status should be complete
+				points.filter(pt => pt.isStructuralItem).forEach(pt => pt.status = PointStatus.COMPLETED);
+			}
 
 			// For each point with a pick 0, we need to change the status to required (if no thanks is selected, the status is later updated to Completed)
 			points.filter(pt =>

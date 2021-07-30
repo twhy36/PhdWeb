@@ -48,6 +48,8 @@ export const filteredTree = createSelector(
 		let filteredTree: TreeVersion;
 
 		if (tree && tree.treeVersion) {
+			const isPreview = scenario.buildMode === 'preview';
+
 			const filter = (label: string) => {
 				return treeFilter ? label.toLowerCase().includes(treeFilter.keyword.toLowerCase()) : true;
 			};
@@ -96,7 +98,7 @@ export const filteredTree = createSelector(
 									isIncluded = false;
 								}
 
-								return isValid && isIncluded;
+								return isValid && (isIncluded || isPreview);
 							});
 							return { ...p, choices: choices };
 						});
@@ -104,10 +106,8 @@ export const filteredTree = createSelector(
 							let isIncluded = true;
 							if (dp.choices.length === 0) {
 								isIncluded = false;
-							} else {
-								if (scenario.hiddenPointIds.indexOf(dp.id) > -1) {
-									isIncluded = false;
-								}
+							} else if (!isPreview && scenario.hiddenPointIds.indexOf(dp.id) > -1) {
+								isIncluded = false;
 							}
 							return isIncluded;
 						})

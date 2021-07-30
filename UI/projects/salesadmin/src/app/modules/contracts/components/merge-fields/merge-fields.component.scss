@@ -12,16 +12,3 @@
 .phd-table {
 	padding: 5px;
 }
-
-.phd-tab:hover {
-	cursor: pointer;
-}
-
-.phd-tab a {
-	background-color: lightgray;
-
-	.phd-active {
-		background-color: white;
-		height: 50px;
-	}
-}
