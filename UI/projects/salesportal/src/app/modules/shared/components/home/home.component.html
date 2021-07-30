@@ -1,5 +1,3 @@
-<portal-item title="Color Management" icon="paint-brush" [action]="colorManagementAction"></portal-item>
-
 <portal-item title="Sales Admin" icon="calendar-check" [action]="salesAdminAction" *ngIf="canAccessSalesAdmin"></portal-item>
 
 <portal-item title="Dynamics 365" icon="users" [action]="d365Action"></portal-item>
@@ -35,3 +33,5 @@
 		<plan-preview [action]="previewAction" (onClose)="preview.close()"></plan-preview>
 	</ng-template>
 </portal-item>
+
+<portal-item title="Color Management" icon="paint-brush" [action]="colorManagementAction" *ngIf="!environment.production"></portal-item>
