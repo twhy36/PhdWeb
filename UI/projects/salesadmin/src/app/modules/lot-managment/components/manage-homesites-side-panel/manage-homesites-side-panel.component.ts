@@ -45,7 +45,7 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 	fromMonotony: string;
 
 	inaccessibleLotStatuses = ["Sold", "Closed"];
-	disallowedStatusesForPremiumUpdate = this.inaccessibleLotStatuses.concat("Pending Sale");
+	disallowedStatusesForPremiumUpdate = this.inaccessibleLotStatuses.concat("PendingSale");
 
 	isOpen: boolean = true;
 
