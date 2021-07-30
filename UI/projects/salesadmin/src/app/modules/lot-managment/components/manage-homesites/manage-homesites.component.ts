@@ -46,6 +46,7 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 	activeCommunities: Observable<Array<FinancialCommunityViewModel>>;
 	selectedHomesite: HomeSite;
 	selectedCommunity: FinancialCommunityViewModel = null;
+	selectedCommunityWebsiteKey: string | null = null;
 	lots: Array<HomeSite> = [];
 	filteredLots: Array<HomeSite> = [];
 	lotStatus: SelectItem[] = [{ label: 'Available', value: 'Available' }, { label: 'Sold', value: 'Sold' }, { label: 'Unavailable', value: 'Unavailable' }, { label: 'Closed', value: 'Closed' }, { label: 'Model', value: 'Model' }, { label: 'Pending Release', value: 'Pending Release' }, { label: 'Pending Sale', value: 'Pending Sale' }, { label: 'Spec', value: 'Spec' }, { label: 'Spec Unavailable', value: 'Spec Unavailable' }];
@@ -120,6 +121,8 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 			else if (!this.selectedCommunity || comm.id !== this.selectedCommunity.id)
 			{
 				this.selectedCommunity = comm;
+
+				this.getWebsiteIntegrationKey(this.selectedCommunity.salesCommunityId);
 				this.loadHomeSites();
 				this.setReleaseData();
 			}
@@ -136,6 +139,19 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 		this._homeSiteService.getPhysicalLotTypes().subscribe(data => {
 			this.physicalLotTypes = data;
 		});
+	}
+
+	getWebsiteIntegrationKey(salesCommunityId: number) 
+	{
+		if (salesCommunityId == null)
+		{
+			return;
+		}
+		this._orgService.getWebsiteCommunity(salesCommunityId).subscribe(data =>
+			{
+				this.selectedCommunityWebsiteKey = data?.webSiteIntegrationKey;
+			}
+		);
 	}
 
 	setReleaseData()
@@ -629,6 +645,7 @@ class FinancialCommunityViewModel
 	get id() { return this.dto.id; }
 	get name() { return this.dto.name; }
 	get key() { return this.dto.key; }
+	get salesCommunityId() { return this.dto.salesCommunityId; }
 	get isActive() { return (this.dto.salesStatusDescription === "Active" || this.dto.salesStatusDescription === "New"); }
 
 	static sorter(left: FinancialCommunityViewModel, right: FinancialCommunityViewModel): number

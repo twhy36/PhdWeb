@@ -218,4 +218,17 @@
 	</ng-template>
 </phd-side-panel-component>
 
+<div class="phd-monotony-map-container" *ngIf="currentTab === 'monotony'">
+	<div class="monotony-map">
+		<div *ngIf="communityWebsiteKey == null" >Unable to load the community map.</div>
+		<av-site-plan
+			*ngIf="communityWebsiteKey"
+			[webCommunityId]="communityWebsiteKey"
+			(lotSelectedCallback)="$event"
+			showLotNumbers="true"
+		>
+    </av-site-plan>
+	</div>
+</div>
+
 <p-toast></p-toast>
