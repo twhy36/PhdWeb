@@ -9,7 +9,7 @@ export const environment: IEnvironment = {
 	apiUrl: 'http://localhost:2845/odata/',
 	authQueryParams: "domain_hint=pulte.com",
 	baseUrl: {
-		colorManagement: 'http://colormanagement.dev.pulte.com/',
+		colorManagement: 'https://phd.dev.pulte.com/colormanagement/',
 		buyerTracker: 'http://buyertracker.dev.pulte.com/',
 		choiceAdmin: 'https://phd.dev.pulte.com/choiceadmin/',
 		crm: 'https://pultedev.crm.dynamics.com/main.aspx?appid=c865bf67-a0e6-e811-a962-000d3a32ce3b',
