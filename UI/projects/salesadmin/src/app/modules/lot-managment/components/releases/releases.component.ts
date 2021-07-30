@@ -6,7 +6,7 @@ import { tap, switchMap, map, finalize } from 'rxjs/operators';
 
 import { MessageService } from 'primeng/api';
 
-import { PhdTableComponent } from 'phd-common';
+import { ConfirmModalComponent, PhdTableComponent } from 'phd-common';
 
 import { OrganizationService } from '../../../core/services/organization.service';
 import { ReleasesService } from '../../../core/services/releases.service';
@@ -14,10 +14,10 @@ import { FinancialCommunity } from '../../../shared/models/financialCommunity.mo
 import { FinancialCommunityViewModel } from '../../../shared/models/plan-assignment.model';
 import { HomeSiteRelease, IHomeSiteReleaseDto, IHomeSiteReleaseSidePanelItem } from '../../../shared/models/homesite-releases.model';
 
-import { ConfirmationService } from 'primeng/api';
-
 import { UnsubscribeOnDestroy } from '../../../shared/utils/unsubscribe-on-destroy';
 import { ReleasesSidePanelComponent } from '../releases-side-panel/releases-side-panel.component';
+
+import { NgbModal, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
 	selector: 'releases',
@@ -55,11 +55,11 @@ export class ReleasesComponent extends UnsubscribeOnDestroy implements OnInit
 	loading: boolean = false;
 
 	constructor(
-		private _confirmationService: ConfirmationService,
 		private _route: ActivatedRoute,
 		private _orgService: OrganizationService,
 		private _releaseService: ReleasesService,
-		private _msgService: MessageService)
+		private _msgService: MessageService,
+		private _modalService: NgbModal)
 	{
 		super();
 	}
@@ -81,14 +81,7 @@ export class ReleasesComponent extends UnsubscribeOnDestroy implements OnInit
 			}),
 			switchMap(mkt =>
 			{
-				if (mkt)
-				{
-					return this._orgService.getFinancialCommunities(mkt.id);
-				}
-				else
-				{
-					return of([]);
-				}
+				return mkt ? this._orgService.getFinancialCommunities(mkt.id) : of([]);
 			}),
 			map(comms => comms.map(comm => new FinancialCommunityViewModel(comm)).filter(c => c.isActive))
 		);
@@ -105,6 +98,7 @@ export class ReleasesComponent extends UnsubscribeOnDestroy implements OnInit
 			else if (!this.selectedCommunity || comm.id !== this.selectedCommunity.id)
 			{
 				this.selectedCommunity = comm;
+
 				this.setData();
 			}
 		});
@@ -150,18 +144,21 @@ export class ReleasesComponent extends UnsubscribeOnDestroy implements OnInit
 		this._releaseService.saveRelease(dto).pipe(
 			finalize(() => { this.saving = false; })
 		)
-			.subscribe(newDto =>
-			{
-				//Updates any associated homesites
-				this._releaseService.updateHomeSiteAndReleases(newDto);
-				this._msgService.add({ severity: 'success', summary: 'Release', detail: `has been saved!` });
-				this.onSidePanelClose(false);
-			},
-			error =>
-			{
-					this._msgService.add({ severity: 'error', summary: 'Error', detail: 'Release failed to save.' });
-					console.log(error);
-				});
+		.subscribe(newDto =>
+		{
+			//Updates any associated homesites
+			this._releaseService.updateHomeSiteAndReleases(newDto);
+
+			this._msgService.add({ severity: 'success', summary: 'Release', detail: `has been saved!` });
+
+			this.onSidePanelClose(false);
+		},
+		error =>
+		{
+			this._msgService.add({ severity: 'error', summary: 'Error', detail: 'Release failed to save.' });
+
+			console.log(error);
+		});
 	}
 
 	editRelease(release?: HomeSiteRelease)
@@ -178,12 +175,29 @@ export class ReleasesComponent extends UnsubscribeOnDestroy implements OnInit
 
 	confirmDelete(release: HomeSiteRelease, index: number)
 	{
-		this._confirmationService.confirm({
-			message: 'Do you want to delete this record?',
-			accept: () =>
+		let ngbModalOptions: NgbModalOptions = {
+			centered: true,
+			backdrop: 'static',
+			keyboard: false
+		};
+
+		let msgBody = `Are you sure you want to delete this record?`;
+
+		let confirm = this._modalService.open(ConfirmModalComponent, ngbModalOptions);
+
+		confirm.componentInstance.title = 'Warning!';
+		confirm.componentInstance.body = msgBody;
+		confirm.componentInstance.defaultOption = 'Cancel';
+
+		confirm.result.then((result) =>
+		{
+			if (result == 'Continue')
 			{
 				this.deleteRelease(release, index);
 			}
+		}, (reason) =>
+		{
+
 		});
 	}
 
@@ -196,24 +210,26 @@ export class ReleasesComponent extends UnsubscribeOnDestroy implements OnInit
 
 		if (hasRelease != null)
 		{
-
 			this._releaseService.deleteRelease(dto.releaseId)
 				.pipe(finalize(() => { this.saving = false; this.workingReleaseIndex = null; }))
 				.subscribe(() =>
 				{
 					//updates any associated homesites.
 					this._releaseService.updateAssociatedHomesites(dto);
+
 					this._msgService.add({ severity: 'success', summary: 'Release', detail: `has been deleted!` });
 				},
-				error =>
-				{
+					error =>
+					{
 						this._msgService.add({ severity: 'error', summary: 'Error', detail: error });
+
 						console.log(error);
 					});
 		}
 		else
 		{
 			this.saving = false;
+
 			this._msgService.add({ severity: 'error', summary: 'Release', detail: `${dto.releaseId} not found!` });
 		}
 	}

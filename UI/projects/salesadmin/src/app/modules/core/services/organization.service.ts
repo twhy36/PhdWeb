@@ -11,9 +11,10 @@ import { StorageService } from './storage.service';
 
 import { FinancialMarket } from '../../shared/models/financialMarket.model';
 import { Settings } from '../../shared/models/settings.model';
-import { FinancialCommunity } from '../../shared/models/financialCommunity.model';
+import { FinancialCommunity, FinancialCommunityInfo } from '../../shared/models/financialCommunity.model';
 import { Org } from '../../shared/models/org.model';
 import { IdentityService, ClaimTypes, Permission } from 'phd-common';
+import * as _ from 'lodash';
 
 const settings: Settings = new SettingsService().getSettings();
 
@@ -292,6 +293,49 @@ export class OrganizationService
 				return community;
 			}),
 			catchError(this.handleError));
+	}
+
+	getFinancialCommunityInfo(id: number): Observable<FinancialCommunityInfo>
+	{
+		let url = settings.apiUrl;
+
+		const filter = `financialCommunityId eq ${id}`;
+		const qryStr = `${encodeURIComponent("$")}filter=${encodeURIComponent(filter)}`;
+
+		url += `financialCommunityInfos?${qryStr}`;
+
+		return this._http.get<any>(url).pipe(
+			map(response =>
+			{
+				return response.value.length > 0 ? new FinancialCommunityInfo(response.value[0]) : null;
+			}));
+	}
+
+	saveFinancialCommunityInfo(financialCommunityInfo: FinancialCommunityInfo, orgId: number): Observable<FinancialCommunityInfo>
+	{
+		let url = settings.apiUrl;
+
+		if (financialCommunityInfo.financialCommunityId > 0)
+		{
+			url += `financialCommunityInfos(${financialCommunityInfo.financialCommunityId})`;
+
+			return this._http.patch(url, financialCommunityInfo).pipe(
+				map((response: FinancialCommunityInfo) => {
+					return response;
+				}),
+				catchError(this.handleError));
+		}
+		else
+		{
+			financialCommunityInfo.financialCommunityId = orgId;
+			url += `financialCommunityInfos`;
+
+			return this._http.post(url, financialCommunityInfo).pipe(
+				map((response: FinancialCommunityInfo) => {
+					return response;
+				}),
+				catchError(this.handleError));
+		}
 	}
 
 	getInternalOrgs(marketId: number): Observable<Array<Org>>

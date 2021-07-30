@@ -44,7 +44,7 @@ export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implemen
 		this.setPointPrice();
 
 		const choices = this.decisionPoint.choices.filter(c => c.quantity > 0) || [];
-		const favoriteChoices = choices.filter(c => this.salesChoices.findIndex(sc => sc.divChoiceCatalogId === c.divChoiceCatalogId) === -1);
+		const favoriteChoices = choices.filter(c => !this.salesChoices || this.salesChoices.findIndex(sc => sc.divChoiceCatalogId === c.divChoiceCatalogId) === -1);
 		this.isReadonly = this.buildMode === 'buyerPreview' || !favoriteChoices || favoriteChoices.length < 1;
 	}
 
@@ -73,7 +73,7 @@ export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implemen
 	{
 		const choices = this.includeContractedOptions
 							? this.decisionPoint.choices
-							: this.decisionPoint.choices.filter(c => this.salesChoices.findIndex(sc => sc.divChoiceCatalogId === c.divChoiceCatalogId) === -1);
+							: this.decisionPoint.choices.filter(c => !this.salesChoices || this.salesChoices.findIndex(sc => sc.divChoiceCatalogId === c.divChoiceCatalogId) === -1);
 		this.choicesCustom = choices.map(c => new ChoiceCustom(c));
 	}
 

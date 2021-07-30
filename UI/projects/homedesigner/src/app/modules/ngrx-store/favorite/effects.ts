@@ -166,7 +166,9 @@ export class FavoriteEffects
 			withLatestFrom(this.store, this.store.pipe(select(fromFavorite.currentMyFavorite))),
 			tryCatch(source => source.pipe(
 				switchMap(([action, store, fav]) => {
-					return this.favoriteService.saveMyFavoritesChoices(store.scenario.tree, store.favorite.salesChoices, fav);
+					return store.scenario.buildMode === 'preview'
+						? this.favoriteService.saveMyFavoritesChoicesInPreview(store.scenario.tree, fav)
+						: this.favoriteService.saveMyFavoritesChoices(store.scenario.tree, store.favorite.salesChoices, fav);
 				}),
 				switchMap(results => of(new MyFavoritesChoicesSaved(results)))
 			), SaveError, "Error saving my favorite choices!")
@@ -176,12 +178,26 @@ export class FavoriteEffects
 	addMyFavoritesPointDeclined$: Observable<Action> = createEffect(() => 
 		this.actions$.pipe(
 			ofType<AddMyFavoritesPointDeclined>(FavoriteActionTypes.AddMyFavoritesPointDeclined),
+			withLatestFrom(this.store),
 			tryCatch(source => source.pipe(
-				switchMap(action => {
-					return this.favoriteService.addMyFavoritesPointDeclined(action.myFavoriteId, action.pointId);
-				}),
-				switchMap(pointDeclined => {
-					return this.treeService.getPointCatalogIds([pointDeclined]);
+				switchMap(([action, store]) => {
+					if (store.scenario.buildMode === 'preview')
+					{
+						return of([{
+							id: -action.pointId,
+							myFavoriteId: action.myFavoriteId,
+							dPointId: action.pointId,
+							divPointCatalogId: action.divPointCatalogId							
+						}]);
+					}
+					else
+					{
+						return this.favoriteService.addMyFavoritesPointDeclined(action.myFavoriteId, action.pointId).pipe(
+							switchMap(pointDeclined => {
+								return this.treeService.getPointCatalogIds([pointDeclined]);
+							})
+						);
+					}
 				}),
 				switchMap(results => {
 					return results?.length
@@ -195,9 +211,19 @@ export class FavoriteEffects
 	deleteMyFavoritesPointDeclined$: Observable<Action> = createEffect(() => 
 		this.actions$.pipe(
 			ofType<DeleteMyFavoritesPointDeclined>(FavoriteActionTypes.DeleteMyFavoritesPointDeclined),
+			withLatestFrom(this.store),
 			tryCatch(source => source.pipe(
-				switchMap(action => {
-					return this.favoriteService.deleteMyFavoritesPointDeclined(action.myFavoriteId, action.myFavoritesPointDeclineId);
+				switchMap(([action, store]) => {
+					if (store.scenario.buildMode === 'preview')
+					{
+						const myFavorite = store.favorite?.myFavorites?.find(fav => fav.id === action.myFavoriteId);
+						const pointDeclined = myFavorite?.myFavoritesPointDeclined?.find(pt => pt.id === action.myFavoritesPointDeclineId);
+						return of(pointDeclined);
+					}
+					else
+					{
+						return this.favoriteService.deleteMyFavoritesPointDeclined(action.myFavoriteId, action.myFavoritesPointDeclineId);
+					}
 				}),
 				map(results => new MyFavoritesPointDeclinedUpdated(results, true))
 			), SaveError, "Error deleting my favorites point declined!")

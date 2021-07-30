@@ -30,12 +30,10 @@
 			<div class="form-inline">
 				<div class="phd-flexbox">
 					<i class="fa fa-filter phd-filter-icon"></i>
-					<p-multiSelect class="ui-multiselect-label-container ui-inputwrapper-filled flex-fill"
+					<p-multiSelect class="flex-fill"
 								   defaultLabel="Status"
 								   [options]="lotStatus"
-								   [showToggleAll]="true"
 								   [maxSelectedLabels]="2"
-								   displaySelectedLabel="true"
 								   filterMatchMode="multiple"
 								   [showHeader]="false"
 								   (onChange)="onStatusChange($event)">
@@ -44,12 +42,10 @@
 
 				<div class="phd-flexbox">
 					<i class="fa fa-filter phd-filter-icon"></i>
-					<p-multiSelect class="ui-multiselect-label-container ui-inputwrapper-filled flex-fill"
+					<p-multiSelect class="flex-fill"
 								   defaultLabel="Handing"
 								   [options]="handingOptions"
-								   [showToggleAll]="true"
 								   [maxSelectedLabels]="2"
-								   displaySelectedLabel="true"
 								   filterMatchMode="any"
 								   [showHeader]="false"
 								   (onChange)="onHandingChange($event)">

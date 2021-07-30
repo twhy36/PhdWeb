@@ -96,7 +96,11 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 				this.treeVersionRules = scenario.rules;
 				this.buildMode = scenario.buildMode;
 
-				if (!fav.selectedFavoritesId)
+				if (this.isPreview)
+				{
+					this.store.dispatch(new FavoriteActions.LoadDefaultFavorite());
+				}
+				else if (!fav.selectedFavoritesId)
 				{
 					this.store.dispatch(new FavoriteActions.LoadMyFavorite());
 				}
@@ -189,7 +193,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 	displayPoint(dp: DecisionPoint)
 	{
 		const choices = dp && dp.choices ? dp.choices.filter(c => c.quantity > 0) : [];
-		const favoriteChoices = choices.filter(c => this.salesChoices.findIndex(sc => sc.divChoiceCatalogId === c.divChoiceCatalogId) === -1);
+		const favoriteChoices = choices.filter(c => !this.salesChoices || this.salesChoices.findIndex(sc => sc.divChoiceCatalogId === c.divChoiceCatalogId) === -1);
 
 		return this.includeContractedOptions
 					? choices && !!choices.length
@@ -242,7 +246,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 	{
 		let removedChoices = [];
 		const choices = point && point.choices ? point.choices.filter(c => c.quantity > 0) : [];
-		const favoriteChoices = choices.filter(c => this.salesChoices.findIndex(sc => sc.divChoiceCatalogId === c.divChoiceCatalogId) === -1);
+		const favoriteChoices = choices.filter(c => !this.salesChoices || this.salesChoices.findIndex(sc => sc.divChoiceCatalogId === c.divChoiceCatalogId) === -1);
 
 		if (favoriteChoices && favoriteChoices.length)
 		{

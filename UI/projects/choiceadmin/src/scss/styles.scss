@@ -226,7 +226,7 @@ a:focus {
 	opacity: 0.5;
 }
 
-.ui-tabview-left > .ui-tabview-nav {
+.p-tabview-left > .p-tabview-nav {
 	float: left;
 	width: 15%;
 	height: 300px;
@@ -234,16 +234,16 @@ a:focus {
 	padding-top: 1px;
 }
 
-.ui-tabview-title {
+.p-tabview-title {
 	word-break: break-all;
 }
 
-.ui-tabview-left > .ui-tabview-panels {
+.p-tabview-left > .p-tabview-panels {
 	float: right;
 	width: 85%;
 }
 
-tr.ui-state-highlight {
+tr.p-state-highlight {
 	border: solid 2px $brand-success;
 	color: rgb(74, 74, 74) !important;
 	background-color: lighten($brand-success, 20%) !important;
