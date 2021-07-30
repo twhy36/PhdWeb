@@ -6,6 +6,7 @@ import { StorageService } from './services/storage.service';
 import { AccessGuard } from './services/access.guard';
 import { MarketSelectorComponent } from './components/market-selector/market-selector.component';
 import { ColorsSearchHeaderComponent } from './components/search-header/colors-search-header.component';
+import { OptionService } from './services/option.service';
 
 @NgModule({
 	declarations: [
@@ -23,7 +24,8 @@ import { ColorsSearchHeaderComponent } from './components/search-header/colors-s
 	providers: [
 		OrganizationService,
 		StorageService,
-		AccessGuard
+		AccessGuard,
+		OptionService
 	]
 })
 
