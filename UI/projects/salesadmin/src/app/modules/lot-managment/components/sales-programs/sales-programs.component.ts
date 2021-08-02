@@ -78,10 +78,10 @@ export class SalesProgramsComponent extends UnsubscribeOnDestroy implements OnIn
 		{
 			this.activeCommunities = comms.map(comm => new FinancialCommunityViewModel(comm)).filter(c => c.isActive);
 
-			this.orgId = orgs.find(o => o.edhFinancialCommunityId === comm.id)?.orgID;
-
 			if (comm != null)
 			{
+				this.orgId = orgs?.find(o => o.edhFinancialCommunityId === comm.id)?.orgID;
+
 				if (!this.selectedCommunity || this.selectedCommunity.id != comm.id)
 				{
 					this.selectedCommunity = new FinancialCommunityViewModel(comm);
