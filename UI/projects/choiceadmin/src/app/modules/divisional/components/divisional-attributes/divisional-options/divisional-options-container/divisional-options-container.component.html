@@ -3,7 +3,8 @@
         <divisional-options-panel (onAssociateAttributeGroups)="onAssociateAttributeGroups($event)"
                                   (onAssociateLocationGroups)="onAssociateLocationGroups($event)"
                                   (onAssociateAttributeGroupsToCommunities)="onAssociateAttributeGroupsToCommunities($event)"
-                                  (onAssociateLocationGroupsToCommunities)="onAssociateLocationGroupsToCommunities($event)">
+                                  (onAssociateLocationGroupsToCommunities)="onAssociateLocationGroupsToCommunities($event)"
+								  (onAssociateOptionImagesToCommunities)="onAssociateOptionImagesToCommunities($event)">
 		</divisional-options-panel>
     </ng-template>
 
@@ -27,6 +28,7 @@
 											[option]="option"
 											[callback]="associateCommunityCallback"
 											[groups]="selectedGroups"
+											[images]="selectedImages"
 	                                        (onSidePanelClose)="onAssociateCommunitySidePanelClose($event)">
 	    </associate-communities-side-panel>
     </ng-template>

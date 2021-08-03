@@ -43,6 +43,7 @@ export class DivisionalOptionsPanelComponent extends UnsubscribeOnDestroy implem
 	@Output() onAssociateLocationGroups = new EventEmitter<any>();
 	@Output() onAssociateAttributeGroupsToCommunities = new EventEmitter<any>();
 	@Output() onAssociateLocationGroupsToCommunities = new EventEmitter<any>();
+	@Output() onAssociateOptionImagesToCommunities = new EventEmitter<any>();
 
 	@ViewChild(ExpansionAssociateCommunitiesTabPanelComponent)
 	private expansionAssociateCommunitiesTabPanelComponent: ExpansionAssociateCommunitiesTabPanelComponent;
@@ -163,6 +164,10 @@ export class DivisionalOptionsPanelComponent extends UnsubscribeOnDestroy implem
 	associateLocationGroupsToCommunities(event: any)
 	{
 		this.onAssociateLocationGroupsToCommunities.emit(event);
+	}
+
+	associateOptionImagesToCommunities(event: any) {
+		this.onAssociateOptionImagesToCommunities.emit(event);
 	}
 
 	performChangeDetection()

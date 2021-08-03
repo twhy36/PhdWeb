@@ -8,7 +8,7 @@ import * as odataUtils from '../../shared/classes/odata-utils.class';
 import { orderBy } from "lodash";
 
 import { IFinancialCommunity } from '../../shared/models/financial-community.model';
-import { IOptionMarket, Option, IOptionMarketImageDto } from '../../shared/models/option.model';
+import { IOptionMarket, Option, IOptionMarketImageDto, OptionMarketImage } from '../../shared/models/option.model';
 import { Settings } from '../../shared/models/settings.model';
 import { AttributeGroupMarket } from '../../shared/models/attribute-group-market.model';
 import { LocationGroupMarket } from '../../shared/models/location-group-market.model';
@@ -32,7 +32,7 @@ export class DivisionalOptionService
 	{
 		let url = settings.apiUrl;
 
-		const expand = `option($select=id, financialOptionIntegrationKey),optionMarketImages($select=id), optionSubCategory($select=id, name; $expand=optionCategory($select=id, name)), attributeGroupOptionMarketAssocs($select=attributeGroupMarketId; $top=1), locationGroupOptionMarketAssocs($select=locationGroupMarketId; $top=1)`;
+		const expand = `option($select=id, financialOptionIntegrationKey), optionMarketImages($select=id), optionSubCategory($select=id, name; $expand=optionCategory($select=id, name)), attributeGroupOptionMarketAssocs($select=attributeGroupMarketId; $top=1), locationGroupOptionMarketAssocs($select=locationGroupMarketId; $top=1)`;
 		const select = `id, optionId, marketId, optionSalesName, isActive`;
 		let orderby = `optionSubCategory/optionCategory/name, optionSubCategory/name, optionSalesName`;
 		let filter = `marketId eq ${marketId} and isActive eq true and option/financialOptionIntegrationKey ne '00001'`;
@@ -119,19 +119,24 @@ export class DivisionalOptionService
 			catchError(this.handleError));
 	}
 
-	getDivisionalOptionImages(optionMarketId: number): Observable<IOptionMarketImageDto[]>
+	getDivisionalOptionImages(optionMarketId: number): Observable<OptionMarketImage[]>
 	{
 		const entity = `optionMarketImages`;
+		const expand = `optionCommunityImages($select=id, optionCommunityId)`;
 		const filter = `optionMarketId eq ${optionMarketId}`;
 		const orderby = `sortKey`;
-		const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}orderby=${encodeURIComponent(orderby)}`;
+		const qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}orderby=${encodeURIComponent(orderby)}`;
 
 		const endpoint = `${settings.apiUrl}${entity}?${qryStr}`;
 
 		return this._http.get<any>(endpoint).pipe(
 			map(response =>
 			{
-				return response.value as IOptionMarketImageDto[];
+				const optionMarketImages = response.value.map(x => {
+					return new OptionMarketImage(x);
+				});
+
+				return orderBy(optionMarketImages, 'sortKey');
 			})
 		);
 	}
@@ -376,7 +381,8 @@ export class DivisionalOptionService
 	{
 		let expand = `option($select=id,financialOptionIntegrationKey),financialCommunity($select=id,number,name,marketId),`;
 		expand += `attributeGroupOptionCommunityAssocs($select=attributeGroupCommunityId;$expand=attributeGroupCommunity($select=id,attributeGroupMarketId)),`;
-		expand += `locationGroupOptionCommunityAssocs($select=locationGroupCommunityId;$expand=locationGroupCommunity($select=id,locationGroupMarketId,locationGroupName))`;
+		expand += `locationGroupOptionCommunityAssocs($select=locationGroupCommunityId;$expand=locationGroupCommunity($select=id,locationGroupMarketId,locationGroupName)),`;
+		expand += `planOptionCommunities($select=id;$expand=optionCommunity($select=id, financialCommunityId))`;
 		const filter = `option/financialOptionIntegrationKey eq '${optionMarket.option.financialOptionIntegrationKey}' and financialCommunity/marketId eq ${optionMarket.marketId} and (financialCommunity/salesStatusDescription eq 'New' or financialCommunity/salesStatusDescription eq 'Active')`;
 		const select = `id,optionId,financialCommunityId`;
 
@@ -390,8 +396,9 @@ export class DivisionalOptionService
 
 				let communities = optionCommunities.map(c =>
 				{
-					let attributeGroupCommunities = c.attributeGroupOptionCommunityAssocs ? c.attributeGroupOptionCommunityAssocs.map(a => a.attributeGroupCommunity) : null;
-					let locationGroupCommunities = c.locationGroupOptionCommunityAssocs ? c.locationGroupOptionCommunityAssocs.map(a => a.locationGroupCommunity) : null;
+					const attributeGroupCommunities = c.attributeGroupOptionCommunityAssocs ? c.attributeGroupOptionCommunityAssocs.map(a => a.attributeGroupCommunity) : null;
+					const locationGroupCommunities = c.locationGroupOptionCommunityAssocs ? c.locationGroupOptionCommunityAssocs.map(a => a.locationGroupCommunity) : null;
+					const optionCommunities = c.planOptionCommunities ? c.planOptionCommunities.map(a => a.optionCommunity) : null;
 
 					return {
 						id: c.financialCommunity.id,
@@ -399,13 +406,38 @@ export class DivisionalOptionService
 						name: c.financialCommunity.name,
 						optionAssociated: ((attributeGroupCommunities && attributeGroupCommunities.length > 0) || (locationGroupCommunities && locationGroupCommunities.length > 0)),
 						attributeGroupCommunities: attributeGroupCommunities,
-						locationGroupCommunities: locationGroupCommunities
+						locationGroupCommunities: locationGroupCommunities,
+						optionCommunities: optionCommunities
 					} as IFinancialCommunity;
 				});
 
 				return communities as Array<IFinancialCommunity>;
 			})
 		);
+	}
+
+	/**
+	 * Updates the communities associated to a collection of OptionMarketImages.
+	 * @param optionMarketId The ID of the Option Market in which the image(s) exist.
+	 * @param associatedCommunityIds The communities to be associated with the image(s).
+	 * @param disassociatedCommunityIds The communities to be disassociated with the image(s).
+	 * @param optionImages The image(s) for which the communities are to be updated.
+	 */
+	updateOptionMarketImagesCommunitiesAssocs(optionMarketId: number, associatedCommunityIds: number[], disassociatedCommunityIds: number[], optionImages: OptionMarketImage[]): Observable<any> {
+		const url = settings.apiUrl + `UpdateOptionMarketImagesCommunitiesAssocs`;
+
+		const data = {
+			'optionMarketId': optionMarketId,
+			'associatedCommunityIds': associatedCommunityIds,
+			'disassociatedCommunityIds': disassociatedCommunityIds,
+			'optionMarketImageIds': optionImages.map(x => x.id)
+		};
+
+		return this._http.patch(url, data).pipe(
+			map(response => {
+				return response;
+			}),
+			catchError(this.handleError));
 	}
 
 	private handleError(error: Response)

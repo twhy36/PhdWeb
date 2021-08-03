@@ -3,6 +3,7 @@ import { AttributeGroupCommunity } from './attribute-group-community.model';
 import { LocationGroupCommunity } from './location-group-community.model';
 import { IPlan } from './plan.model';
 import { BaseNode } from './base.model';
+import { IOptionCommunity } from './option.model';
 
 export interface IFinancialCommunity
 {
@@ -14,7 +15,8 @@ export interface IFinancialCommunity
 	optionAssociated: boolean;
 	attributeGroupCommunities: Array<AttributeGroupCommunity>;
 	locationGroupCommunities: Array<LocationGroupCommunity>;
-	planCommunities?: IPlan[]
+	planCommunities?: IPlan[];
+	optionCommunities?: IOptionCommunity[];
 }
 
 export class FinancialCommunity extends BaseNode<IFinancialCommunity>

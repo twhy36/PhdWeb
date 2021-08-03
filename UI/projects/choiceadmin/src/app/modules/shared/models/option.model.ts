@@ -3,6 +3,7 @@ import { Observable } from 'rxjs';
 import { AttributeGroupMarket } from './attribute-group-market.model';
 import { LocationGroupMarket } from './location-group-market.model';
 import { IFinancialCommunity } from './financial-community.model';
+import { OptionCommunityImage } from '../../../../../../phd-common/src/internal';
 
 export class Option
 {
@@ -254,6 +255,7 @@ export interface IOptionMarketImageDto
 	optionMarketId: number;
 	imageUrl: string;
 	sortKey: number;
+	optionCommunityImages?: Array<OptionCommunityImage>;
 }
 
 export class OptionMarketImage
@@ -262,6 +264,7 @@ export class OptionMarketImage
 	optionMarketId: number;
 	imageUrl: string;
 	sortKey: number;
+	optionCommunityImages?: Array<OptionCommunityImage>;
 
 	constructor(dto: IOptionMarketImageDto)
 	{
@@ -269,6 +272,7 @@ export class OptionMarketImage
 		this.optionMarketId = dto.optionMarketId;
 		this.imageUrl = dto.imageUrl;
 		this.sortKey = dto.sortKey;
+		this.optionCommunityImages = dto.optionCommunityImages;
 	}
 }
 
@@ -289,4 +293,9 @@ export interface IOptionRuleChoiceGroup
 	pointId: number;
 	pointLabel: string;
 	choices: Array<IOptionRuleChoice>;
+}
+
+export interface IOptionCommunity {
+	id: number;
+	financialCommunityId: number;
 }

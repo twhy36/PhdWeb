@@ -7,7 +7,7 @@ import { Permission } from 'phd-common';
 
 import { bind } from '../../../../../shared/classes/decorators.class';
 import { ImageUrlToAssetIdPipe } from '../../shared/pipes/image-url-to-asset-id/image-url-to-asset-id.pipe';
-import { IOptionMarketImageDto, Option, OptionMarketImage } from '../../../../../shared/models/option.model';
+import { Option, OptionMarketImage } from '../../../../../shared/models/option.model';
 import { IPictureParkAsset } from '../../../../../shared/models/image.model';
 import { UnsubscribeOnDestroy } from '../../../../../shared/classes/unsubscribeOnDestroy';
 
@@ -25,17 +25,18 @@ import { OrganizationService } from '../../../../../core/services/organization.s
 export class ExpansionOptionImagesTabPanelComponent extends UnsubscribeOnDestroy implements OnInit {
 
 	@Input() option: Option;
-	@Input() images: Array<IOptionMarketImageDto>;
+	@Input() images: Array<OptionMarketImage>;
 	@Input() isReadOnly: boolean;
 
 	@Output() save = new EventEmitter<{ option: Option, imgCount: number }>();
 	@Output() onDataChange = new EventEmitter();
+	@Output() onAssociateToCommunities = new EventEmitter<{ option: Option, images: Array<OptionMarketImage>, callback: () => void }>();
 
 	Permission = Permission;
 
-	selectedImages: Array<IOptionMarketImageDto> = [];
+	selectedImages: Array<OptionMarketImage> = [];
 	isSaving: boolean = false;
-	originalImages: Array<IOptionMarketImageDto>;
+	originalImages: Array<OptionMarketImage>;
 	marketKey: string = '';
 
 	get saveDisabled(): boolean {
@@ -46,7 +47,7 @@ export class ExpansionOptionImagesTabPanelComponent extends UnsubscribeOnDestroy
 	 * Whether a specific image is selected.
 	 * @param image The image to check.
 	 */
-	isImageSelected(image: IOptionMarketImageDto): boolean {
+	isImageSelected(image: OptionMarketImage): boolean {
 		return this.selectedImages.some(s => s.id === image.id);
 	}
 
@@ -55,7 +56,7 @@ export class ExpansionOptionImagesTabPanelComponent extends UnsubscribeOnDestroy
 	 * @param image The OptionMarketImage being clicked.
 	 * @param isSelected Whether the image is being selected.
 	 */
-	setImageSelected(image: IOptionMarketImageDto, isSelected: boolean): void {
+	setImageSelected(image: OptionMarketImage, isSelected: boolean): void {
 		const index = this.selectedImages.findIndex(s => s.id === image.id);
 
 		if (isSelected && index < 0) {
@@ -143,7 +144,7 @@ export class ExpansionOptionImagesTabPanelComponent extends UnsubscribeOnDestroy
 				optionMarketId: this.option.id,
 				imageUrl: imageUrl,
 				sortKey: sort
-			} as IOptionMarketImageDto;
+			} as OptionMarketImage;
 
 			optionImages.push(optionImage);
 
@@ -231,10 +232,23 @@ export class ExpansionOptionImagesTabPanelComponent extends UnsubscribeOnDestroy
 	}
 
 	/**
+	 * Toggles all images' selection status.
+	 * @param isSelected Whether to select the image.
+	 */
+	toggleAllImages(isSelected: boolean): void {
+		this.selectedImages = isSelected ? this.images.slice() : [];
+	}
+
+	/**
 	 * Handles the click event on the Associate Communties button.
 	 */
 	onAssociateCommunities(): void {
-		alert('US #325751'); // deleteme
+		// Deselect all images on callback
+		let cb = () => {
+			this.toggleAllImages(false);
+		};
+
+		this.onAssociateToCommunities.emit({ option: this.option, images: this.selectedImages, callback: cb });
 	}
 
 	/**

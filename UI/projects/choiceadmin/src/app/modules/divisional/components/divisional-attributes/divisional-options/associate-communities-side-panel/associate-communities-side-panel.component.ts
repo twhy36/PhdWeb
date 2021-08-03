@@ -8,10 +8,11 @@ import { UnsubscribeOnDestroy } from '../../../../../shared/classes/unsubscribeO
 import { AttributeService } from '../../../../../core/services/attribute.service';
 import { LocationService } from '../../../../../core/services/location.service';
 import { SidePanelComponent } from '../../../../../shared/components/side-panel/side-panel.component';
-import { Option } from '../../../../../shared/models/option.model';
+import { Option, OptionMarketImage } from '../../../../../shared/models/option.model';
 import { IFinancialCommunity } from '../../../../../shared/models/financial-community.model';
 import { AttributeGroupMarket } from '../../../../../shared/models/attribute-group-market.model';
 import { LocationGroupMarket } from '../../../../../shared/models/location-group-market.model';
+import { DivisionalOptionService } from '../../../../../core/services/divisional-option.service';
 
 @Component({
 	selector: 'associate-communities-side-panel',
@@ -29,6 +30,7 @@ export class AssociateCommunitiesSidePanelComponent extends UnsubscribeOnDestroy
 	@Input() option: Option;
 	@Input() callback: () => void;
 	@Input() groups: Array<AttributeGroupMarket | LocationGroupMarket>;
+	@Input() images: Array<OptionMarketImage>;
 
 	isSaving: boolean = false;
 	errors: Array<Message> = [];
@@ -36,11 +38,17 @@ export class AssociateCommunitiesSidePanelComponent extends UnsubscribeOnDestroy
 	communities: Array<IFinancialCommunity> = [];
 	selectedCommunities: Array<IFinancialCommunity> = [];
 	origSelectedCommunities: Array<IFinancialCommunity> = [];
-	isAssociatingAttributeGroups: boolean;
+
+	public AssociatingType = AssociatingType;
+	associatingType: AssociatingType;
 
 	get saveDisabled(): boolean
 	{
-		let saveDisabled = this.isSaving || isEqual(this.selectedCommunities, this.origSelectedCommunities);
+		// Need to sort the arrays in order to properly compare
+		const sortedSelectedCommunities = this.selectedCommunities.sort((a, b) => { return a.id - b.id; });
+		const sortedOrigCommunities = this.origSelectedCommunities.sort((a, b) => { return a.id - b.id; });
+
+		const saveDisabled = this.isSaving || isEqual(sortedSelectedCommunities, sortedOrigCommunities);
 
 		if (this.sidePanel)
 		{
@@ -50,7 +58,9 @@ export class AssociateCommunitiesSidePanelComponent extends UnsubscribeOnDestroy
 		return saveDisabled;
 	}
 
-	constructor(private _attrService: AttributeService, private _locService: LocationService) { super(); }
+	constructor(private _attrService: AttributeService,
+		private _divOptService: DivisionalOptionService,
+		private _locService: LocationService) { super(); }
 
 	ngOnInit()
 	{
@@ -58,9 +68,14 @@ export class AssociateCommunitiesSidePanelComponent extends UnsubscribeOnDestroy
 		{
 			this.communities = communities;
 
-			if (this.groups.length)
+			if (this.groups && this.groups.length)
 			{
-				this.isAssociatingAttributeGroups = this.groups[0] instanceof AttributeGroupMarket;
+				this.associatingType = this.groups[0] instanceof AttributeGroupMarket ? AssociatingType.AttributeGroups : AssociatingType.LocationGroups;
+				this.selectCommunities();
+			}
+
+			if (this.images && this.images.length) {
+				this.associatingType = this.images[0] instanceof OptionMarketImage ? AssociatingType.OptionImages : null/* TODO: ChoiceImages */;
 				this.selectCommunities();
 			}
 		});
@@ -68,23 +83,43 @@ export class AssociateCommunitiesSidePanelComponent extends UnsubscribeOnDestroy
 
 	selectCommunities()
 	{
-		// Select the communities if all groups are associated
+		// Select the communities if all groups or images are associated
 		this.communities.forEach(community =>
 		{
-			const nonAssociatedGroups = this.groups.filter(group =>
-			{
-				const groups = this.isAssociatingAttributeGroups
-					? community.attributeGroupCommunities.filter(attr => attr.attributeGroupMarketId === group.id)
-					: community.locationGroupCommunities.filter(loc => loc.locationGroupMarketId === group.id);
-				return !groups || !groups.length;
-			});
+			if (this.groups) {
+				const nonAssociatedGroups = this.groups.filter(group => {
+					const groups = this.associatingType == AssociatingType.AttributeGroups
+						? community.attributeGroupCommunities.filter(attr => attr.attributeGroupMarketId === group.id)
+						: community.locationGroupCommunities.filter(loc => loc.locationGroupMarketId === group.id);
+					return !groups || !groups.length;
+				});
 
-			if (!nonAssociatedGroups || !nonAssociatedGroups.length)
-			{
-				this.origSelectedCommunities.push(community);
-				this.setCommunitySelected(community, true);
+				if (!nonAssociatedGroups || !nonAssociatedGroups.length) {
+					this.setOriginallySelectedCommunity(community);
+				}
+			}
+
+			if (this.images) {
+				const nonAssociatedImages = this.images.filter(image => {
+					const optionCommunityIds = image.optionCommunityImages ? image.optionCommunityImages.map(oci => oci.optionCommunityId) : [];
+					const images = this.associatingType == AssociatingType.OptionImages
+						? community.optionCommunities.filter(oc => optionCommunityIds.includes(oc.id))
+						: community.optionCommunities.filter(oc => optionCommunityIds.includes(oc.id))/* TODO: ChoiceImages */;
+					return !images || !images.length;
+				});
+
+				if (!nonAssociatedImages || !nonAssociatedImages.length) {
+					this.setOriginallySelectedCommunity(community);
+				}
 			}
 		});
+	}
+
+	setOriginallySelectedCommunity(community: IFinancialCommunity) {
+		if (!this.origSelectedCommunities.includes(community)) {
+			this.origSelectedCommunities.push(community);
+			this.setCommunitySelected(community, true);
+		}
 	}
 
 	onCloseSidePanel(status: boolean)
@@ -118,9 +153,21 @@ export class AssociateCommunitiesSidePanelComponent extends UnsubscribeOnDestroy
 		const deSelectedCommunities = differenceBy(this.origSelectedCommunities, this.selectedCommunities, 'id');
 		const disassociatedCommunityIds = deSelectedCommunities.map(c => c.id);
 
-		const saveAssocs = this.isAssociatingAttributeGroups
-			? this.saveAttributeGroupsAssocs(associatedCommunityIds, disassociatedCommunityIds)
-			: this.saveLocationGroupsAssocs(associatedCommunityIds, disassociatedCommunityIds);
+		let saveAssocs: Observable<any>;
+
+		switch (this.associatingType) {
+			case AssociatingType.AttributeGroups:
+				saveAssocs = this.saveAttributeGroupsAssocs(associatedCommunityIds, disassociatedCommunityIds);
+				break;
+			case AssociatingType.LocationGroups:
+				saveAssocs = this.saveLocationGroupsAssocs(associatedCommunityIds, disassociatedCommunityIds);
+				break;
+			case AssociatingType.OptionImages:
+				saveAssocs = this.saveOptionImageAssocs(associatedCommunityIds, disassociatedCommunityIds);
+				break;
+			default:
+				break;
+		}
 
 		saveAssocs.subscribe(data =>
 		{
@@ -155,6 +202,13 @@ export class AssociateCommunitiesSidePanelComponent extends UnsubscribeOnDestroy
 
 		return this._locService.updateLocationGroupsCommunitiesAssocs(this.option.id,
 			associatedCommunityIds, disassociatedCommunityIds, locGroups);
+	}
+
+	saveOptionImageAssocs(associatedCommunityIds: number[], disassociatedCommunityIds: number[]): Observable<any> {
+		const optionImages = this.images as OptionMarketImage[];
+
+		return this._divOptService.updateOptionMarketImagesCommunitiesAssocs(this.option.id,
+			associatedCommunityIds, disassociatedCommunityIds, optionImages);
 	}
 
 	displayErrorMessage(message: string)
@@ -205,7 +259,7 @@ export class AssociateCommunitiesSidePanelComponent extends UnsubscribeOnDestroy
 
 	getLocationGroupName(community: IFinancialCommunity): string
 	{
-		if (!this.isAssociatingAttributeGroups)
+		if (this.associatingType === AssociatingType.LocationGroups)
 		{
 			return community.locationGroupCommunities && community.locationGroupCommunities.length
 				? ': ' + community.locationGroupCommunities[0].locationGroupName
@@ -214,4 +268,10 @@ export class AssociateCommunitiesSidePanelComponent extends UnsubscribeOnDestroy
 
 		return '';
 	}
+}
+
+export enum AssociatingType {
+	AttributeGroups,
+	LocationGroups,
+	OptionImages
 }

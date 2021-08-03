@@ -43,7 +43,8 @@
 												<expansion-option-images-tab-panel [option]="option"
 																				   [images]="images"
 																				   [isReadOnly]="isReadOnly"
-												                                   (onDataChange)="performChangeDetection()">
+												                                   (onDataChange)="performChangeDetection()"
+																				   (onAssociateToCommunities)="associateOptionImagesToCommunities($event)">
 												</expansion-option-images-tab-panel>
 											</ng-template>
 										</phd-tabPanel>
