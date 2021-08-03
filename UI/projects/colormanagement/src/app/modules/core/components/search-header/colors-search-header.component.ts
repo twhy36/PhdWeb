@@ -1,8 +1,7 @@
 import { Component } from '@angular/core';
 import {OptionService} from '../../services/option.service';
-import { IOptionCommunity } from '../../../shared/models/option.model';
+import { IOptionSubCategory } from '../../../shared/models/option.model';
 import { OrganizationService } from '../../../core/services/organization.service';
-import{IFinancialCommunity} from '../../../shared/models/community.model';
 
 @Component({
 	selector: 'colors-search-header',
@@ -13,19 +12,19 @@ export class ColorsSearchHeaderComponent
 {
 	colorname:string;
 	isCounterVisible:boolean;
-	optionCommunities:Array<IOptionCommunity>=[];
-	currentCommunity:IFinancialCommunity;
-
+	optionSubCategory:Array<IOptionSubCategory>=[];
+	currentCommunityId:number;
 	constructor(private _optionService: OptionService,private _orgService:OrganizationService) {
 
 	}
 	ngOnInit() {
-		this.currentCommunity = this._orgService.currentFinancialCommunity;
-		if(this.currentCommunity)
+		this._orgService.currentFinancialCommunity$.subscribe(x=>{this.currentCommunityId=x.id});
+
+		if(this.currentCommunityId)
 		{
-			this._optionService.getOptionsCategorySubcategoryByCommunity(this.currentCommunity.id).subscribe(data=>
+			this._optionService.getOptionsCategorySubcategory(this.currentCommunityId).subscribe(data=>
 				{
-					this.optionCommunities = data;
+					this.optionSubCategory = data; 					
 				});
 		}
     }

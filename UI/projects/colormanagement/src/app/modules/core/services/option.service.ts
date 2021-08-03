@@ -2,33 +2,35 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
 import { Observable, Subject, ConnectableObservable } from 'rxjs';
-import { map, catchError, publishReplay } from 'rxjs/operators';
+import { map, catchError, publishReplay, groupBy, mergeMap, toArray, distinct } from 'rxjs/operators';
 import { _throw } from 'rxjs/observable/throw';
-import { IOptionCommunity } from '../../shared/models/option.model';
+import { IOptionSubCategory, IOptionCategory } from '../../shared/models/option.model';
 import { environment } from '../../../../environments/environment';
+import { zip } from 'rxjs';
+import { of } from 'rxjs';
 @Injectable()
 export class OptionService
 {
     constructor(private _http: HttpClient) { }
 	private _ds: string = encodeURIComponent('$');
 	
-	getOptionsCategorySubcategoryByCommunity(financialCommunityId: number): Observable<IOptionCommunity[]>
+	getOptionsCategorySubcategory(financialCommunityId: number): Observable<IOptionSubCategory[]>
 	{
-		const entity = `optionCommunities`;
-		const expand = `optionSubCategory($select=id,name;$expand=optionCategory($select=id,name))`;
-		const filter = `FinancialCommunityId eq ${financialCommunityId}`;
-		const select = `FinancialCommunityId,isActive,optionSubCategoryId`;
+		const entity = `optionSubCategories`;
+		const expand = `optionCategory($select=id,name)`;
+		const filter = `optionCommunities/any(oc: oc/financialCommunityId eq ${financialCommunityId})`;
+		const select = `id,name`;
 
 		let qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
 		
 		const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
 
 		return this._http.get<any>(endpoint).pipe(
-		map(response =>
-			{
-				const communities = response.value as Array<IOptionCommunity>;
-				return communities;
-			}),
+			map(response =>
+				{
+					let subCategoryList = response.value as Array<IOptionSubCategory>;
+					return subCategoryList;
+				}), 
 		catchError(this.handleError));
 	}
 

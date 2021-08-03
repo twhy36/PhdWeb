@@ -14,7 +14,7 @@
             <select class="form-control">
                 <option [defaultSelected]></option>
                 <option>---- All Colors ----</option>
-                <option *ngFor="let comm of (optionCommunities)" [ngValue]="comm">{{comm.optionSubCategory.optionCategory.name}} : {{comm.optionSubCategory.name}}</option>
+                <option *ngFor="let subCategories of (optionSubCategory)" [ngValue]="subCategories">{{subCategories.optionCategory.name}} : {{subCategories.name}}</option>
             </select>
         </div>
         <div class="p-2">

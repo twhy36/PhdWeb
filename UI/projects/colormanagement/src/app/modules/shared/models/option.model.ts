@@ -1,7 +1,8 @@
 export interface IOptionCategory
 {
     name:string,
-    id:number
+    id:number,
+    optionSubCategory:Array<IOptionSubCategory>
 }
 export interface IOptionSubCategory
 {
