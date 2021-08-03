@@ -20,8 +20,9 @@ export class OptionService
 		const expand = `optionCategory($select=id,name)`;
 		const filter = `optionCommunities/any(oc: oc/financialCommunityId eq ${financialCommunityId})`;
 		const select = `id,name`;
+		const orderby = `optionCategoryId`;
 
-		let qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
+		let qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}orderby=${encodeURIComponent(orderby)}`;
 		
 		const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
 
