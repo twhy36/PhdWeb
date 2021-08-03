@@ -4,6 +4,7 @@ export interface IEnvironment {
     apiUrl: string;
     authQueryParams: string;
     baseUrl: {
+		colorManagement: string;
         buyerTracker: string;
         choiceAdmin: string;
         crm: string;
