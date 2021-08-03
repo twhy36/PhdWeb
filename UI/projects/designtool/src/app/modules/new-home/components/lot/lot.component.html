@@ -44,12 +44,12 @@
 							<td>{{lot.foundationType}}</td>
 							<td>
 								<select *ngIf="lot.handings.length > 1"
-										[class.phd-borderless-select]="isAssociatedWithSelectedPlan(lot)"
-										[class.phd-borderless-select-disabled]="!isAssociatedWithSelectedPlan(lot) || !canConfigure"
+										[class.phd-borderless-select]="isAssociatedWithSelectedPlan(lot) || isSpecSelected"
+										[class.phd-borderless-select-disabled]="!isAssociatedWithSelectedPlan(lot) || !canConfigure || !isSpecSelected"
 										id="handing"
 										[(ngModel)]="lot.selectedHanding"
-										[disabled]="!isAssociatedWithSelectedPlan(lot) || !canConfigure"
-										(change)="changeHanding(lot.id, lot.selectedHanding, !!monotonyConflictMessage(lot))">
+										[disabled]="(!isAssociatedWithSelectedPlan(lot) || !canConfigure) && !isSpecSelected"
+										(change)="changeHanding(lot)">
 									<option [ngValue]="null">Select Handing</option>
 									<option class="p-0" *ngFor="let handing of lot.handings" [ngValue]="handing.name">{{ handing.name }}</option>
 								</select>
@@ -60,18 +60,18 @@
 							</td>
 							<td><strong>{{lot.premium | currency:'USD':'symbol':'0.0-0'}}</strong></td>
 							<td>
-								<div *ngIf="!isAssociatedWithSelectedPlan(lot)" class="phd-incompatible-plan">
+								<div *ngIf="!isAssociatedWithSelectedPlan(lot) && !isSpecSelected" class="phd-incompatible-plan">
 									Unavailable with {{(selectedPlan$ | async)?.salesName}}
 								</div>
-								<div *ngIf="isAssociatedWithSelectedPlan(lot) && !!monotonyConflictMessage(lot) && !override">
+								<div *ngIf="isAssociatedWithSelectedPlan(lot) && !!monotonyConflictMessage(lot) && !override && !isSpecSelected">
 									{{monotonyConflictMessage(lot)}}
 								</div>
 							</td>
 							<td>
-								<button *ngIf="(isAssociatedWithSelectedPlan(lot) && (!monotonyConflictMessage(lot) || canOverride)) && canConfigure"
+								<button *ngIf="((isAssociatedWithSelectedPlan(lot) && (!monotonyConflictMessage(lot) || canOverride)) && canConfigure) || isSpecSelected"
 										class="btn phd-lot-button"
 										type="button"
-										[disabled]="(lot.handings.length > 1 && !lot.selectedHanding)"
+										[disabled]="(lot.handings.length > 1 && !lot.selectedHanding) && !isSpecSelected"
 										[ngClass]="{'phd-lot-button btn-primary': selectedLot?.id !== lot?.id, 'btn-outline-primary': selectedLot?.id === lot?.id}"
 										(click)="toggleSelection(lot, selectedLot?.id === lot.id)">
 									{{selectedLot?.id === lot.id ? 'Unselect' : 'CHOOSE'}}

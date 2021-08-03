@@ -51,13 +51,13 @@ export class SummaryHeaderComponent implements OnInit, OnDestroy
 
 	get homesite(): string
 	{
-		let homesite = 'No Lot Selected';
+		let homesite : string = 'No Lot Selected';
 
 		if (this.summaryHeader.lot)
 		{
 			homesite = this.summaryHeader.lot.lotBlock;
 
-			if (!this.canEditHanding && this.summaryHeader.handing && this.summaryHeader.handing.length)
+			if (!this.canEditHanding && this.summaryHeader.handing && this.summaryHeader.handing != 'NA')
 			{
 				homesite += `, ${this.summaryHeader.handing} Garage`;
 			}

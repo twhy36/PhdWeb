@@ -99,38 +99,18 @@ export class PeopleComponent extends UnsubscribeOnDestroy implements OnInit, Con
 			select(state => state.salesAgreement.salesAgreementNumber)
 		);
 
-		const selectPrimaryBuyer = createSelector(
-			fromChangeOrder.changeOrderState,
-			fromRoot.activePrimaryBuyer,
-			fromChangeOrder.changeOrderPrimaryBuyer,
-			fromRoot.isSpecSalePending,
-			(state, sag, co, isSpecSalePending) =>
-			{
-				this.primaryBuyer = state.isChangingOrder || isSpecSalePending ? co : sag;
-
-				return this.primaryBuyer;
-			}
-		);
-
 		this.primaryBuyer$ = this.store.pipe(
 			this.takeUntilDestroyed(),
-			select(selectPrimaryBuyer)
-		);
-
-		const selectCoBuyer = createSelector(
-			fromChangeOrder.changeOrderState,
-			fromRoot.activeCoBuyers,
-			fromChangeOrder.changeOrderCoBuyers,
-			fromRoot.isSpecSalePending,
-			(state, sag, co, isSpecSalePending) =>
-			{
-				return state.isChangingOrder || isSpecSalePending ? co : sag;
-			}
+			select(fromRoot.activePrimaryBuyer),
+			map(buyer => {
+				this.primaryBuyer = buyer;
+				return buyer;
+			})
 		);
 
 		this.coBuyers$ = this.store.pipe(
 			this.takeUntilDestroyed(),
-			select(selectCoBuyer),
+			select(fromRoot.activeCoBuyers),
 			map(coBuyers => coBuyers.sort((a, b) => { return a.sortKey < b.sortKey ? -1 : a.sortKey > b.sortKey ? 1 : 0; }))
 		);
 

@@ -5,7 +5,6 @@ import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 
-import { ConfirmationService } from 'primeng/api';
 import { MessageService } from 'primeng/api';
 
 import { ButtonBarComponent } from './components/button-bar/button-bar.component';
@@ -52,7 +51,6 @@ import { ReOrgService } from './services/re-org.service';
         SettingsService,
         StorageService,
         MessageService,
-        ConfirmationService,
         PricingService,
         LoggingService,
         NotificationService,

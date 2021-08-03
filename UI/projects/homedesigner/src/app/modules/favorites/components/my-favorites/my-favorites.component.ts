@@ -66,6 +66,8 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 	marketingPlanId$ = new BehaviorSubject<number>(0);
 	isFloorplanFlipped: boolean;
 	currentChoiceImages: ChoiceImageAssoc[];
+	isPreview: boolean;
+	isReadonly: boolean = false;
 
 	constructor(private store: Store<fromRoot.State>,
 		private route: ActivatedRoute,
@@ -118,6 +120,8 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			if (scenarioState.treeLoading) {
 				return;
 			}
+
+			this.isPreview = scenarioState.buildMode === 'preview';
 
 			if (filteredTree && params.subGroupCatalogId > 0) {
 				let groups = filteredTree.groups;
@@ -201,6 +205,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		{
 			this.tree = scenario.tree;
 			this.treeVersionRules = scenario.rules;
+			this.isReadonly = scenario.buildMode === 'buyerPreview';
 		});
 
 		this.store.pipe(
@@ -400,7 +405,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 	declineDecisionPoint(point: DecisionPoint) {
 		const declPoint = this.myFavoritesPointsDeclined?.find(p => p.divPointCatalogId === point.divPointCatalogId);
 		if (!declPoint) {
-			this.store.dispatch(new FavoriteActions.AddMyFavoritesPointDeclined(this.myFavoriteId, point.id));
+			this.store.dispatch(new FavoriteActions.AddMyFavoritesPointDeclined(this.myFavoriteId, point.id, point.divPointCatalogId));
 			this.deselectPointChoices(point.divPointCatalogId);
 		} else {
 			this.store.dispatch(new FavoriteActions.DeleteMyFavoritesPointDeclined(this.myFavoriteId, declPoint.id));

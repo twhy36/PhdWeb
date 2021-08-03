@@ -57,6 +57,7 @@ export class PointTypeComponent implements OnInit
 		let pointPickType: number = item.dto.dPointPickTypeID == 0 ? null : item.dto.dPointPickTypeID;
 		let isQuickQuote: boolean = item.isQuickQuote;
 		let isStructural: boolean = item.isStructural;
+		let isHiddenFromBuyerView: boolean = item.isHiddenFromBuyerView;
 		let stage: number = item.edhConstructionStageId;
 		let days: number = item.cutOffDays;
 
@@ -69,6 +70,7 @@ export class PointTypeComponent implements OnInit
 			'pointPickType': new FormControl(pointPickType, Validators.required),
 			'isQuickQuote': new FormControl(isQuickQuote),
 			'isStructural': new FormControl(isStructural),
+			'isHiddenFromBuyerView': new FormControl(isHiddenFromBuyerView),
 			'cutOffStage': new FormControl({ value: stage, disabled: this.selectedCutOffType !== 0 }),
 			'cutOffDays': new FormControl({ value: days, disabled: this.selectedCutOffType !== 1 }, [Validators.min(-9999), Validators.max(9999), this.numberValidator()]),
 			'cutOffType': new FormControl({ value: this.selectedCutOffType })
@@ -150,6 +152,7 @@ export class PointTypeComponent implements OnInit
 		let pointPickType = form.get('pointPickType').value;
 		let isQuickQuote = form.get('isQuickQuote').value;
 		let isStructural = form.get('isStructural').value;
+		let isHiddenFromBuyerView = form.get('isHiddenFromBuyerView').value;
 		let edhConstructionStageId = form.get('cutOffStage').value || null;
 		let cutOffDays = form.get('cutOffDays').value || null;
 
@@ -165,6 +168,7 @@ export class PointTypeComponent implements OnInit
 		item.dto.dPointPickTypeID = pickType.dPointPickTypeID
 		item.isQuickQuote = isQuickQuote;
 		item.isStructural = isStructural;
+		item.isHiddenFromBuyerView = isHiddenFromBuyerView;
 		item.edhConstructionStageId = edhConstructionStageId;
 		item.cutOffDays = cutOffDays;
 

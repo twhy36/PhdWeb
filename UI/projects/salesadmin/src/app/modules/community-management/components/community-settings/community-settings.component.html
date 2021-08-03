@@ -1,0 +1,39 @@
+<div class="phd-page-container">
+	<page-header [mainTitle]="mainTitle"></page-header>
+	<div class="phd-page-body">
+		<div class="container-fluid mx-auto">
+
+			<div class="mx-1 row">
+				<div>
+					<ul class="nav nav-tabs">
+						<li class="nav-item phd-tab" [ngClass]="{'show phd-active': (selectedTab === commTabs.MonotonyRules)}" *requiresClaim="'SalesAdmin'">
+							<a class="nav-link" (click)="onTabClick(commTabs.MonotonyRules)">Monotony Rules</a>
+						</li>
+						<li class="nav-item phd-tab" [ngClass]="{'show phd-active': (selectedTab === commTabs.AutoApproval) }" *requiresClaim="'AutoApproval'">
+							<a class="nav-link" (click)="onTabClick(commTabs.AutoApproval)">Auto Approval</a>
+						</li>
+						<li class="nav-item phd-tab" [ngClass]="{'show phd-active': (selectedTab === commTabs.PDF)}" *requiresClaim="'SalesAdmin'">
+							<a class="nav-link" (click)="onTabClick(commTabs.PDF)">PDF Upload - Additional Info.</a>
+						</li>
+						<li class="nav-item phd-tab" [ngClass]="{'show phd-active': (selectedTab === commTabs.CommunitySettings)}" *requiresClaim="'SalesAdmin'">
+							<a class="nav-link" (click)="onTabClick(commTabs.CommunitySettings)">Community Settings</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+
+
+			<div class="row">
+				<monotony-options *ngIf="selectedTab === commTabs.MonotonyRules"></monotony-options>
+
+				<auto-approval *ngIf="selectedTab === commTabs.AutoApproval"></auto-approval>
+
+				<community-pdf *ngIf="selectedTab === commTabs.PDF"></community-pdf>
+
+				<p *ngIf="selectedTab === commTabs.CommunitySettings"><!-- Community Settings go here. --></p>
+			</div>
+
+		</div>
+	</div>
+</div>
+

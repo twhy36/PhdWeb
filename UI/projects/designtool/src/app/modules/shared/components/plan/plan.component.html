@@ -11,7 +11,8 @@
 			           [plan]="plan"
 			           [selectedPlan]="selectedPlan$ | async"
 			           [selectedLot]="selectedLot$ | async"
-					   [isJobPlan]="inChangeOrder && jobPlanId === plan.id"
+					   [isJobPlan]="!inChangeOrder && jobPlanId === plan.id"
+					   [isSpecSelected]="!inChangeOrder && job && job.id !== 0"
 					   [canConfigure]="canConfigure"
 			           (onTogglePlan)="toggleSelectedPlan($event)"></plan-card>
 		</div>

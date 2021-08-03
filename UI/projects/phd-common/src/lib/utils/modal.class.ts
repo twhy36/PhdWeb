@@ -1,4 +1,4 @@
-import { TemplateRef } from '@angular/core';
+import { TemplateRef, Directive } from '@angular/core';
 
 import { NgbModalRef, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 import { UnsubscribeOnDestroy } from './unsubscribe-on-destroy';
@@ -56,6 +56,7 @@ export class ModalRef
 	}
 }
 
+@Directive()
 export abstract class ModalContent extends UnsubscribeOnDestroy
 {
 	private _modalRef: ModalRef;

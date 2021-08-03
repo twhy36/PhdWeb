@@ -12,6 +12,7 @@ import {
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 import * as fromLot from '../../../ngrx-store/lot/reducer';
+import * as PlanActions from '../../../ngrx-store/plan/actions';
 import * as LotActions from '../../../ngrx-store/lot/actions';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 import * as NavActions from '../../../ngrx-store/nav/actions';
@@ -268,7 +269,7 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 
 	monotonyConflictMessage(lot: LotComponentLot): string 
 	{
-		let planId = this.selectedPlanId ?? 0;
+		const planId = this.selectedPlanId ?? 0;
 
 		if (this.colorSchemeChoice && !this.colorSchemeConflictOverride) 
 		{
@@ -292,14 +293,9 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 						{
 							this.elevationChoice.selectedAttributes.forEach(x => 
 							{
-								if (rule.colorSchemeAttributeCommunityIds.some(colorAttributeIds => colorAttributeIds === x.attributeId)) 
-								{
-									colorAttributeConflicts.push(true);
-								}
-								else 
-								{
-									colorAttributeConflicts.push(false);
-								}
+								const doesColorSchemeAttributeExist = rule.colorSchemeAttributeCommunityIds.some(colorAttributeIds => colorAttributeIds === x.attributeId);
+
+								colorAttributeConflicts.push(doesColorSchemeAttributeExist);
 							});
 						}
 
@@ -394,12 +390,18 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 			}
 		}
 
+		//if lot wasn't selected
 		if (!selected)
 		{
-			if (this.job && this.job.id !== 0)
+			// if spec was chosen
+			if (this.isSpecSelected)
 			{
 				// remove the spec
 				this.store.dispatch(new JobActions.DeselectSpec());
+
+				// remove the plan
+				this.store.dispatch(new PlanActions.DeselectPlan());
+				this.store.dispatch(new ScenarioActions.SetScenarioPlan(null, null));
 			}
 
 			const handing = new ChangeOrderHanding();
@@ -408,8 +410,9 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 
 			if (!lot.selectedHanding)
 			{
-				// if lot only has one handing then select it
-				if (lot.handings.length === 1)
+				// if lot only has one handing and it isn't NA, set the selected handing to the name
+				// NA has a value of null, so it will not be set
+				if (lot.handings.length === 1 && lot.handings[0].name !== 'NA')
 				{
 					lot.selectedHanding = lot.handings[0].name;
 				}
@@ -445,30 +448,41 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 		this.newHomeService.setSubNavItemsStatus(this.scenario, this.buildMode, this.job);
 	}
 
-	changeHanding(lotId: number, handing: string, monotonyconflict: boolean)
+	//when handing is changed
+	changeHanding(lot: LotComponentLot)
 	{
-		if (this.selectedLot && lotId === this.selectedLot.id)
-		{
-			if (!!handing)
-			{
-				const newHanding = new ChangeOrderHanding();
+		let lotId : number = lot.id;
+		let handing : string = lot.selectedHanding;
 
-				newHanding.handing = handing;
-
-				// Set handing that was selected from drop down
-				this.store.dispatch(new LotActions.SelectHanding(lotId, handing));
-				this.store.dispatch(new ScenarioActions.SetScenarioLotHanding(newHanding));
-			}
-			else
-			{
-				// handing not selected so deselect the lot
-				this.toggleSelection(this.lots.find(l => l.id === lotId), true);
-			}
-		}
-		else 
+		this.monotonyConflictMessage(lot);
+		
+		//if the selected lot is falsy or the dropdown's lot id differs from the previously existing lot id
+		//select it
+		if (!this.selectedLot || lotId !== this.selectedLot.id)
 		{
 			this.toggleSelection(this.lots.find(l => l.id === lotId), false);
+			return;
 		}
+		
+		//if chosen handing was null for No Selection, deselect
+		if (handing === null)
+		{
+			// handing not selected so deselect the lot
+			this.toggleSelection(this.lots.find(l => l.id === lotId), true);
+			return;
+		}
+		
+		const newHanding = new ChangeOrderHanding();
+		
+		//If NA was chosen, pass null to save to the scenario
+		if(handing !== 'NA')
+		{	
+			newHanding.handing = handing;
+		}
+
+		// Set handing that was selected from drop down
+		this.store.dispatch(new LotActions.SelectHanding(lotId, handing));
+		this.store.dispatch(new ScenarioActions.SetScenarioLotHanding(newHanding));
 	}
 
 	onCallToAction($event: { actionBarCallType: ActionBarCallType })
@@ -520,6 +534,11 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 			this.addOverrideReason(lot, selected, this.overrideReason);
 		}
 	}
+
+	get isSpecSelected(): boolean
+	{
+		return this.job && this.job.id !== 0;
+	}
 }
 
 class LotComponentLot
@@ -558,8 +577,17 @@ class LotComponentLot
 	{
 		Object.assign(this, lot);
 
-		if (selectedLot && lot.id === selectedLot.id && selectedHanding)
+		//if the lot exists with a saved id
+		if (selectedLot && lot.id === selectedLot.id)
 		{
+
+			//if the selectedHanding was null, it's NA
+			if( selectedHanding == null)
+			{
+				this.selectedHanding = 'NA';
+				return;
+			}
+
 			this.selectedHanding = selectedHanding;
 		}
 	}

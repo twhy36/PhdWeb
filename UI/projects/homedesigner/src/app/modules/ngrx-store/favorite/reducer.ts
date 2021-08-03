@@ -12,6 +12,7 @@ export interface State
 {
 	myFavorites: MyFavorite[],
 	selectedFavoritesId: number,
+	isLoading: boolean,
 	saveError: boolean,
 	salesChoices: JobChoice[],
 	includeContractedOptions: boolean
@@ -20,9 +21,10 @@ export interface State
 export const initialState: State = {
 	myFavorites: null,
 	selectedFavoritesId: null,
+	isLoading: false,
 	saveError: false,
 	salesChoices: null,
-	includeContractedOptions: true
+	includeContractedOptions: false
 };
 
 export function reducer(state: State = initialState, action: FavoriteActions): State
@@ -71,7 +73,7 @@ export function reducer(state: State = initialState, action: FavoriteActions): S
 
 						action.choices.forEach(c => {
 							let choiceIndex = currentMyFavorite.myFavoritesChoice.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId);
-							if (choiceIndex === -1 && c.id > 0)
+							if (choiceIndex === -1 && c.id !== 0)
 							{
 								currentMyFavorite.myFavoritesChoice.push(c);
 							}
@@ -100,7 +102,7 @@ export function reducer(state: State = initialState, action: FavoriteActions): S
 				let myFavorite = myFavorites?.find(x => x.id === action.myFavoritesPointDeclined?.myFavoriteId);
 				if (myFavorite)
 				{
-					const pointDeclinedIndex = myFavorite?.myFavoritesPointDeclined?.findIndex(x => x.id === action.myFavoritesPointDeclined?.id);
+					const pointDeclinedIndex = myFavorite?.myFavoritesPointDeclined?.findIndex(x => x.divPointCatalogId === action.myFavoritesPointDeclined?.divPointCatalogId);
 					if (action.isDelete && pointDeclinedIndex > -1)
 					{
 						myFavorite.myFavoritesPointDeclined.splice(pointDeclinedIndex, 1);
@@ -140,6 +142,17 @@ export function reducer(state: State = initialState, action: FavoriteActions): S
 		case FavoriteActionTypes.ToggleContractedOptions:
 			{
 				return { ...state, includeContractedOptions: !state.includeContractedOptions };
+			}
+
+		case FavoriteActionTypes.LoadMyFavorite:
+		case FavoriteActionTypes.LoadDefaultFavorite:
+			{
+				return { ...state, isLoading: true }
+			}
+
+		case FavoriteActionTypes.MyFavoriteLoaded:
+			{
+				return { ...state, isLoading: false }
 			}
 
 		default:

@@ -15,12 +15,10 @@ namespace AttributeCleanup
     public class AttributeGroupCleanup
     {
         private IConfigurationRoot _configuration { get; }
-        private EdhDeleteClient _edhClient { get; }
 
-        public AttributeGroupCleanup(IConfigurationRoot configuration, EdhDeleteClient client)
+        public AttributeGroupCleanup(IConfigurationRoot configuration)
         {
             _configuration = configuration;
-            _edhClient = client;
         }
 
         public async Task Run()
@@ -118,6 +116,7 @@ namespace AttributeCleanup
                 rq.Headers.Add("Authorization", $"Basic {_configuration["edhSettings:apiKey"]}");
             };
             ODataClient edhClient = new ODataClient(edhClientSettings);
+            var batch = new ODataBatch(edhClient);
 
             foreach (int attributeToDelete in attributeGroupsToDelete)
             {
@@ -132,9 +131,9 @@ namespace AttributeCleanup
                 {
                     int attributeCommunityId = Convert.ToInt32(assoc["attributeCommunityId"]);
 
-                    string assocUrl = $"attributeGroupAttributeCommunityAssocs(attributeCommunityId={attributeCommunityId}, " +
-                        $"attributeGroupCommunityId={attributeToDelete})?{apiVer}";
-                    await _edhClient.DeleteRecord(assocUrl);
+                    batch += c => c.For("AttributeGroupAttributeCommunityAssocs")
+                        .Key(attributeCommunityId, attributeToDelete)
+                        .DeleteEntryAsync();
                 }
 
                 // Get all AttributeGroupCommunityTags records for attributeToDelete
@@ -147,14 +146,18 @@ namespace AttributeCleanup
                 {
                     string tag = attributeTags["tag"].ToString();
 
-                    string tagUrl = $"attributeGroupCommunityTags(attributeGroupCommunityId={attributeToDelete}, tag='{HttpUtility.UrlEncode(tag)}')?{apiVer}";
-                    await _edhClient.DeleteRecord(tagUrl);
+                    batch += c => c.For("AttributeGroupCommunityTags")
+                        .Key(attributeTags, tag)
+                        .DeleteEntryAsync();
                 }
 
                 // Delete AttributeGroupCommunity record
-                string attributeGroupUrl = $"attributeGroupCommunities({attributeToDelete})?{apiVer}";
-                await _edhClient.DeleteRecord(attributeGroupUrl);
+                batch += c => c.For("AttributeGroupCommunities")
+                    .Key(attributeToDelete)
+                    .DeleteEntryAsync();
             }
+
+            await batch.ExecuteAsync();
         }
     }
 }

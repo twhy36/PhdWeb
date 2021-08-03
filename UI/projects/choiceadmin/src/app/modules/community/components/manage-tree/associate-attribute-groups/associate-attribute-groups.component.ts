@@ -123,8 +123,8 @@ export class AssociateAttributeGroupComponent implements OnInit
 		error =>
 		{
 			this._msgService.add({
-				id: 'growl-attributes-choice',
-				key: 'growl-attributes-choice',
+				id: 'toast-attributes-choice',
+				key: 'toast-attributes-choice',
 				severity: 'danger',
 				summary: 'Error',
 				detail: `Unable to load associated attribute group(s).`
@@ -151,8 +151,8 @@ export class AssociateAttributeGroupComponent implements OnInit
 		error =>
 		{
 			this._msgService.add({
-				id: 'growl-attributes-choice',
-				key: 'growl-attributes-choice',
+				id: 'toast-attributes-choice',
+				key: 'toast-attributes-choice',
 				severity: 'danger',
 				summary: 'Error',
 				detail: `Unable to load associated attribute group(s).`
@@ -185,8 +185,8 @@ export class AssociateAttributeGroupComponent implements OnInit
 				this.addGroups.selectedGroups = [];
 
 				this._msgService.add({
-					id: 'growl-attributes-choice',
-					key: 'growl-attributes-choice',
+					id: 'toast-attributes-choice',
+					key: 'toast-attributes-choice',
 					severity: 'success',
 					summary: 'Success',
 					detail: `Attribute group(s) associated.`
@@ -197,8 +197,8 @@ export class AssociateAttributeGroupComponent implements OnInit
 			error =>
 			{
 				this._msgService.add({
-					id: 'growl-attributes-choice',
-					key: 'growl-attributes-choice',
+					id: 'toast-attributes-choice',
+					key: 'toast-attributes-choice',
 					severity: 'danger',
 					summary: 'Error',
 					detail: `Failed to associate attribute group(s).`
@@ -261,8 +261,8 @@ export class AssociateAttributeGroupComponent implements OnInit
 						}
 
 						this._msgService.add({
-							id: 'growl-attributes-choice',
-							key: 'growl-attributes-choice',
+							id: 'toast-attributes-choice',
+							key: 'toast-attributes-choice',
 							severity: 'success',
 							summary: 'Success',
 							detail: `Attribute group(s) removed.`
@@ -273,8 +273,8 @@ export class AssociateAttributeGroupComponent implements OnInit
 					error =>
 					{
 						this._msgService.add({
-							id: 'growl-attributes-choice',
-							key: 'growl-attributes-choice',
+							id: 'toast-attributes-choice',
+							key: 'toast-attributes-choice',
 							severity: 'danger',
 							summary: 'Error',
 							detail: `Failed to remove attribute group(s).`
@@ -310,8 +310,8 @@ export class AssociateAttributeGroupComponent implements OnInit
 		if (message)
 		{
 			this._msgService.add({
-				id: 'growl-attributes-choice',
-				key: 'growl-attributes-choice',
+				id: 'toast-attributes-choice',
+				key: 'toast-attributes-choice',
 				severity: 'danger',
 				summary: 'Error',
 				detail: message

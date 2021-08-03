@@ -1,13 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { switchMap, map, tap } from 'rxjs/operators';
-import { OrganizationService } from '../../core/services/organization.service';
+import { OrganizationService } from '../../../core/services/organization.service';
 import { Observable, of } from 'rxjs';
 
-import { FinancialCommunityViewModel } from '../../shared/models/plan-assignment.model';
-import { UnsubscribeOnDestroy } from '../../shared/utils/unsubscribe-on-destroy';
-import { FinancialCommunity } from '../../shared/models/financialCommunity.model';
-import { ChangeOrderTypeAutoApproval } from '../../shared/models/changeOrderTypeAutoApproval.model';
-import { CommunityService } from '../../core/services/community.service';
+import { FinancialCommunityViewModel } from '../../../shared/models/plan-assignment.model';
+import { UnsubscribeOnDestroy } from '../../../shared/utils/unsubscribe-on-destroy';
+import { FinancialCommunity } from '../../../shared/models/financialCommunity.model';
+import { ChangeOrderTypeAutoApproval } from '../../../shared/models/changeOrderTypeAutoApproval.model';
+import { CommunityService } from '../../../core/services/community.service';
 import { MessageService } from 'primeng/api';
 import { ActivatedRoute } from '@angular/router';
 

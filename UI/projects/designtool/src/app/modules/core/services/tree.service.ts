@@ -7,11 +7,12 @@ import { _throw } from 'rxjs/observable/throw';
 import { EMPTY as empty } from 'rxjs';
 import { of } from 'rxjs/observable/of';
 
-import {
-	newGuid, createBatchGet, createBatchHeaders, createBatchBody, withSpinner, ChangeOrderChoice, ChangeOrderPlanOption,
-	JobChoice, JobPlanOption, TreeVersionRules, OptionRule, Tree, ChoiceImageAssoc, PlanOptionCommunityImageAssoc,
-	TreeBaseHouseOption, OptionImage, IdentityService
-} from 'phd-common';
+import
+	{
+		newGuid, createBatchGet, createBatchHeaders, createBatchBody, withSpinner, ChangeOrderChoice, ChangeOrderPlanOption,
+		JobChoice, JobPlanOption, TreeVersionRules, OptionRule, Tree, ChoiceImageAssoc, PlanOptionCommunityImageAssoc,
+		TreeBaseHouseOption, OptionImage, IdentityService
+	} from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
 
@@ -77,9 +78,9 @@ export class TreeService
 	getTree(treeVersionId: number, skipSpinner?: boolean): Observable<Tree>
 	{
 		const entity = `GetTreeDto(TreeVersionID=${treeVersionId})`;
-		const expand = `treeVersion($expand=groups($expand=subGroups($expand=points($expand=choices)))) `;
+		const expand = `treeVersion($expand=groups($expand=subGroups($expand=points($expand=choices))))`;
 
-		const endPoint = environment.apiUrl + `${entity}?${encodeURIComponent('$')}expand=${encodeURIComponent(expand)}`;
+		const endPoint = environment.apiUrl + `${entity}?useCache=true&${encodeURIComponent('$')}expand=${encodeURIComponent(expand)}`;
 
 		return (skipSpinner ? this.http : withSpinner(this.http)).get<Tree>(endPoint).pipe(
 			tap(response => response['@odata.context'] = undefined),
@@ -191,37 +192,56 @@ export class TreeService
 			switchMap((token: string) =>
 			{
 				const choiceIds: Array<number> = choices.map(x => isJobChoice(x) ? x.dpChoiceId : x.decisionPointChoiceID);
-				const filter = `dpChoiceID in (${choiceIds})`;
-				const select = 'dpChoiceID,divChoiceCatalogID';
-				const url = `${environment.apiUrl}dPChoices?${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
 
-				return this.http.get<any>(url);
+				if (choiceIds.length > 0)
+				{
+					const filter = `dpChoiceID in (${choiceIds})`;
+					const select = 'dpChoiceID,divChoiceCatalogID';
+					const url = `${environment.apiUrl}dPChoices?${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
+
+					return this.http.get<any>(url);
+				}
+				else
+				{
+					return of(null);
+				}
 			}),
 			map((response: any) =>
 			{
 				const newChoices = [...choices];
 				const changedChoices = [];
 				const updatedChoices = [];
-				if (newChoices.length > 0) {
-					newChoices.forEach(c => {
+
+				if (newChoices.length > 0)
+				{
+					newChoices.forEach(c =>
+					{
 						const choiceId = isJobChoice(c) ? c.dpChoiceId : c.decisionPointChoiceID;
 						const respChoice = response.value.find(r => r.dpChoiceID === choiceId);
 
-						if (respChoice) {
+						if (respChoice)
+						{
 							changedChoices.push({ ...c, divChoiceCatalogId: respChoice.divChoiceCatalogID });
-						} else {
+						}
+						else
+						{
 							changedChoices.push({ ...c });
 						}
 					});
 
-					changedChoices.forEach(cc => {
-						if (isJobChoice(cc)) {
+					changedChoices.forEach(cc =>
+					{
+						if (isJobChoice(cc))
+						{
 							updatedChoices.push(new JobChoice(cc));
-						} else {
+						}
+						else
+						{
 							updatedChoices.push(new ChangeOrderChoice(cc));
 						}
 					});
 				}
+
 				return updatedChoices;
 			})
 		);
@@ -281,7 +301,7 @@ export class TreeService
 						{
 							let filter = `planOptionCommunityId eq ${opt.planOptionId}`;
 
-							if(opt.outForSignatureDate)
+							if (opt.outForSignatureDate)
 							{
 								filter += ` and startDate le ${opt.outForSignatureDate} and (endDate eq null or endDate gt ${opt.outForSignatureDate})`;
 							}
@@ -292,7 +312,7 @@ export class TreeService
 
 							return filter;
 						}
-							
+
 						let filter = `${options.map(opt => optFilter(opt)).join(' or ')}`;
 						let select = `planOptionCommunityId, imageUrl, startDate, endDate, sortOrder`;
 						let orderBy = `sortOrder`;
@@ -300,7 +320,7 @@ export class TreeService
 						return `${environment.apiUrl}planOptionCommunityImageAssocs?${encodeURIComponent('$')}select=${select}&${encodeURIComponent('$')}filter=${filter}&${encodeURIComponent('$')}orderby=${orderBy}&${this._ds}count=true`;
 					}
 
-					const batchSize = 100;
+					const batchSize = 75;
 					let batchBundles: string[] = [];
 
 					// create a batch request with a max of 100 options per request
@@ -329,6 +349,7 @@ export class TreeService
 				})
 			);
 		}
+
 		return of(null);
 	}
 

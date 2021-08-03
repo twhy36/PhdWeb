@@ -17,6 +17,7 @@ export class PlanCardComponent implements OnInit
 	@Input() selectedLot: LotExt;
 	@Input() isJobPlan: boolean;
 	@Input() canConfigure: boolean;
+	@Input() isSpecSelected: boolean;
 
 	@Output() onTogglePlan = new EventEmitter<{ plan: Plan, isSelected: boolean }>();
 
@@ -55,13 +56,20 @@ export class PlanCardComponent implements OnInit
 	{
 		let btnLabel;
 
-		if (this.selectedPlan && this.selectedPlan.treeVersionId === this.plan.treeVersionId)
+		//if a spec wasn't selected, but a plan was, allow them to unselect it
+		//if a spec was selected or it isn't a job plan, allow them to choose another plan
+		//otherwise, it's removed
+		if (this.selectedPlan && this.selectedPlan.treeVersionId === this.plan.treeVersionId && !this.isSpecSelected)
 		{
 			btnLabel = 'Unselect';
 		}
+		else if (!this.isJobPlan || this.isSpecSelected)
+		{
+			btnLabel = 'CHOOSE';
+		}
 		else
 		{
-			btnLabel = this.isJobPlan ? 'Removed' : 'CHOOSE';
+			btnLabel = 'Removed';
 		}
 
 		return btnLabel;

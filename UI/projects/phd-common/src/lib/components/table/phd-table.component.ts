@@ -1,10 +1,12 @@
-import { Component, ContentChildren, QueryList, Input, Output, EventEmitter, AfterContentInit, ViewChild, OnChanges, TemplateRef, ContentChild, forwardRef, SimpleChanges, AfterViewInit } from '@angular/core';
+import { Component, ContentChildren, QueryList, Input, Output, EventEmitter, AfterContentInit, ViewChild, OnChanges, TemplateRef, ContentChild } from '@angular/core';
 import { PhdColumnDirective } from './phd-column.directive';
 import { DomHandler } from 'primeng/dom';
-import { ObjectUtils, FilterUtils } from 'primeng/utils';
+import { ObjectUtils } from 'primeng/utils';
 import { Table, TableService } from 'primeng/table';
-import { Dropdown } from 'primeng/dropdown';
 import { OverlayPanel } from 'primeng/overlaypanel';
+import { FilterMetadata, FilterService } from 'primeng/api';
+import { PrimeNGCorrectionService } from '../../services/primeng.service';
+import { TableSort } from './phd-table.model';
 
 @Component({
 	selector: 'phd-table',
@@ -17,6 +19,7 @@ export class PhdTableComponent implements AfterContentInit, OnChanges
 	@ContentChildren(PhdColumnDirective, { descendants: true }) columnRefs: QueryList<PhdColumnDirective>;
 	@Input("columns") inputColumns: PhdColumnDirective[];
 	columns: PhdColumnDirective[];
+
 	@Input() tableId: string
 	@Input() canReorderRows: boolean = false;
 	@Input() showColumnHeaders: boolean = true;
@@ -31,11 +34,13 @@ export class PhdTableComponent implements AfterContentInit, OnChanges
 	@Input() rowClass?: (rowData: any) => object;
 	@Input() showGlobalFilter: boolean = false;
 	@Input() noRecordsMessage: string = 'No records found!';
+	@Input() lazy: boolean = false;
 
 	filterSelections: { [field: string]: any[] } = {};
 	globalFilterInput: string = "";
 	rowGroupMetadata: any;
 	tooltipText: string;
+	tooltipTimeout: number;
 
 	@ViewChild(Table, { static: false }) table: Table;
 	@ViewChild("tt") tooltipOverlay: OverlayPanel;
@@ -44,16 +49,18 @@ export class PhdTableComponent implements AfterContentInit, OnChanges
 	@Input() value: any[];
 	@Input() selectionMode: string;
 	@Input() selection: any;
+
 	@Output("selectionChange") selectionEmitter = new EventEmitter<any>();
 	@Output("onModelChange") onModelChangeEmitter = new EventEmitter<any>();
 	@Output("onRowReorder") onRowReorderEmitter = new EventEmitter<any>();
 	@Output("onRowSelect") onRowSelectEmitter = new EventEmitter<any>();
 	@Output("onRowUnselect") onRowUnselectEmitter = new EventEmitter<any>();
 	@Output("onFilter") onFilterEmitter = new EventEmitter<number>();
+	@Output('onLazyLoad') onLazyLoadEmitter = new EventEmitter<any>();
 
 	@Input() dataKey: string;
 	@Input() sortMode?: string;
-	@Input() sortField?: string;
+	@Input() sortField?: string | TableSort;
 	@Input() displayTooltip: boolean = true;
 	@Input() nonOverflow: boolean = true;
 	@Input() loading: boolean = false;
@@ -61,6 +68,11 @@ export class PhdTableComponent implements AfterContentInit, OnChanges
 	visibleColumns: PhdColumnDirective[] = [];
 	hideableColumns: PhdColumnDirective[] = [];
 	filterableColumns: PhdColumnDirective[] = [];
+
+	defaultTableSort: TableSort;
+	currentTableSort: TableSort;
+
+	constructor(private filterService: FilterService, private primeNgCorrectionService: PrimeNGCorrectionService) {}
 
 	get allColumns(): PhdColumnDirective[]
 	{
@@ -99,7 +111,7 @@ export class PhdTableComponent implements AfterContentInit, OnChanges
 		{
 			for (let key of Object.keys(this.table.filters))
 			{
-				this.table.filter(this.table.filters[key].value, key, this.table.filters[key].matchMode);
+				this.table.filter((this.table.filters[key] as FilterMetadata).value, key, (this.table.filters[key] as FilterMetadata).matchMode);
 			}
 		}
 	}
@@ -183,24 +195,26 @@ export class PhdTableComponent implements AfterContentInit, OnChanges
 		{
 			this.table.selectRange = this.selectRange;
 		}
+
+		if (this.sortField)
+		{
+			this.defaultTableSort = this.sortField instanceof TableSort ? this.sortField : new TableSort({ sortField: this.sortField as string, sortOrder: 1 });
+		}
 	}
 
 	ngAfterViewInit()
-	{		
-		FilterUtils['any'] = function (value: any[], filter: any[]): boolean
-		{
-			if (!value)
-			{
+	{
+		this.filterService.register('any', (value, filter): boolean => {
+			if (!value) {
 				return false;
 			}
 
-			if (!filter || !filter.length)
-			{
+			if (!filter || !filter.length) {
 				return true;
 			}
 
 			return filter.some(v => value.indexOf(v) !== -1);
-		}	
+		});
 	}
 
 	updateVisibleColumns(visibleColumns: PhdColumnDirective[]): void
@@ -234,7 +248,7 @@ export class PhdTableComponent implements AfterContentInit, OnChanges
 	onBlurDeselect(blurEvent: FocusEvent): void
 	{
 		//Force an ESC keypress so that the PrimeNg table leaves Edit Mode.
-		const key = { 'key': '27', 'keyCode': '27' }
+		const key = { 'key': '27', 'keyCode': '27' } as unknown;
 		const enterEvent = new KeyboardEvent('keydown', key);
 
 		blurEvent['path'].forEach((obj: Element) =>
@@ -269,6 +283,31 @@ export class PhdTableComponent implements AfterContentInit, OnChanges
 	selectionChange(selection: any): void
 	{
 		this.selectionEmitter.emit(selection);
+	}
+
+	onLazyLoad(event: any): void
+	{
+		let tableSort = new TableSort(event);
+		let isDefault = this.defaultTableSort && !this.defaultTableSort.multiSortMeta ? tableSort.sortField == this.defaultTableSort.sortField && tableSort.sortOrder === this.defaultTableSort.sortOrder : false;
+
+		if (!isDefault)
+		{
+			// update the current sort. Adding an artificial third option so it will reset to the original state.
+			this.currentTableSort = tableSort.sortField === this.currentTableSort?.sortField && this.currentTableSort?.sortOrder === -1 ? null : tableSort;
+
+			// if sort is null then reset table to it's original sort
+			if (!this.currentTableSort)
+			{
+				this.resetSortDefaultsLazy(this.defaultTableSort);
+			}
+		}
+		else
+		{
+			// keep the sort going if we're back to using the default order
+			this.currentTableSort = tableSort;
+		}
+
+		this.onLazyLoadEmitter.emit(event);
 	}
 
 	getFilterOptions(fieldName: string): any[]
@@ -430,22 +469,89 @@ export class PhdTableComponent implements AfterContentInit, OnChanges
 	{
 		if (this.displayTooltip)
 		{
-			setTimeout(() =>
-			{
-				this.tooltipText = tooltipText;
-				this.tooltipOverlay.appendTo = event.target.parentElement;
-				this.tooltipOverlay.show(event, event.target)
-			}, 300);
+			// Avoid a rare issue with mouseleave not being properly triggered when jumping to an adjacent cell
+			this.hideTooltip();
+
+			if (typeof window !== 'undefined') {
+				this.tooltipTimeout = window.setTimeout(() => {
+					this.tooltipText = tooltipText;
+					this.tooltipOverlay.show(event, event.target);
+				}, 300);
+			}
 		}
 	}
 
 	hideTooltip(): void
 	{
+		if (typeof window !== 'undefined') {
+			// Stops any other tooltip in the process of showing
+			window.clearTimeout(this.tooltipTimeout);
+		}
+
 		this.tooltipOverlay.hide();
 	}
 
 	getDefaultRowClass(rowIndex: number): string
 	{
 		return rowIndex % 2 == 0 ? null : 'phd-alternate-row';
+	}
+
+	sortLazy(tableSortOverride?: TableSort)
+	{
+		let tableSort = this.currentTableSort;
+		
+		if (tableSortOverride)
+		{
+			tableSort = tableSortOverride;
+		}
+		else
+		{
+			tableSort = new TableSort();
+
+			// get sort fields
+			tableSort.sortField = this.currentTableSort?.sortField != null ? this.currentTableSort.sortField : this.defaultTableSort.sortField;
+			tableSort.sortOrder = this.currentTableSort?.sortOrder != null ? this.currentTableSort.sortOrder : this.defaultTableSort.sortOrder;
+
+			if (tableSort.sortField == null)
+			{
+				// if sortField is null then there might be a multisort in use
+				tableSort.multiSortMeta = this.currentTableSort?.multiSortMeta != null ? this.currentTableSort.multiSortMeta : this.defaultTableSort.multiSortMeta;
+			}
+		}
+
+		// turn off lazyLoad so we can call sortSingle properly without lazyLoadData getting called
+		this.table.lazy = false;
+
+		if (tableSort.multiSortMeta)
+		{
+			this.table._multiSortMeta = tableSort.multiSortMeta;
+
+			this.table.sortMultiple();
+		}
+		else
+		{
+			this.table._sortField = tableSort.sortField;
+			this.table._sortOrder = tableSort.sortOrder;
+
+			this.table.sortSingle();
+		}
+		
+		// turn on lazyLoad
+		this.table.lazy = true;
+	}
+
+	resetSortDefaultsLazy(tableSort?: TableSort)
+	{
+		// turn off lazyLoad so we can call rest properly without lazyLoadData getting called
+		this.table.lazy = false;
+
+		this.table.reset();
+
+		this.table._sortField = tableSort ? tableSort.sortField : null;
+		this.table._sortOrder = tableSort ? tableSort.sortOrder : 1;
+		this.table._multiSortMeta = tableSort ? tableSort.multiSortMeta : null;
+
+		// turn on lazyLoad
+		this.table.lazy = true;
 	}
 }

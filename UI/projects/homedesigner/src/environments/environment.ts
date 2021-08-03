@@ -7,7 +7,6 @@ import { IEnvironment } from './environment.model';
 export const environment: IEnvironment = {
 	production: false,
 	apiUrl: 'https://phdapi.dev.pulte.com/odata/',
-	//apiUrl: 'http://localhost:2845/odata/',
 	authConfigs: {
 		sitecoreSSO: 
 		{

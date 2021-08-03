@@ -13,6 +13,7 @@ export class SalesProgram
 	lastModifiedUtcDate?: string;
 	isPMCAffiliate?: boolean;
 	salesAgreementSalesProgramAssocs: Array<SalesAgreementSalesProgramAssoc> = [];
+	isThoEnabled?: boolean;
 
 	constructor(data)
 	{

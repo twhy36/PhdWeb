@@ -21,7 +21,7 @@
 
 	<div [ngClass]="{'phd-attribute-value-container': showCarousel, 'phd-expanded': !showCarousel }">
 		<ng-container *ngIf="showCarousel">
-			<p-carousel [value]="attributes" [numVisible]="4" [numScroll]="1" [responsiveOptions]="responsiveOptions">
+			<p-carousel [value]="attributes" [numVisible]="4" [numScroll]="1" [responsiveOptions]="responsiveOptions" [showIndicators]="false">
 				<ng-template let-attribute pTemplate="item">
 					<ng-container *ngTemplateOutlet="attributeItem; context: {attribute: attribute}"></ng-container>
 				</ng-template>

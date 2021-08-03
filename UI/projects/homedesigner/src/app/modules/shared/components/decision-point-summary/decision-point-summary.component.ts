@@ -21,6 +21,7 @@ export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implemen
 	@Input() subGroup: SubGroup;
 	@Input() salesChoices: JobChoice[];
 	@Input() includeContractedOptions: boolean;
+	@Input() buildMode: string;
 
 	@Output() onViewFavorites = new EventEmitter<DecisionPoint>();
 	@Output() onRemoveFavorites = new EventEmitter<DecisionPoint>();
@@ -43,8 +44,8 @@ export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implemen
 		this.setPointPrice();
 
 		const choices = this.decisionPoint.choices.filter(c => c.quantity > 0) || [];
-		const favoriteChoices = choices.filter(c => this.salesChoices.findIndex(sc => sc.divChoiceCatalogId === c.divChoiceCatalogId) === -1);
-		this.isReadonly = !favoriteChoices || favoriteChoices.length < 1;
+		const favoriteChoices = choices.filter(c => !this.salesChoices || this.salesChoices.findIndex(sc => sc.divChoiceCatalogId === c.divChoiceCatalogId) === -1);
+		this.isReadonly = this.buildMode === 'buyerPreview' || !favoriteChoices || favoriteChoices.length < 1;
 	}
 
 	ngOnChanges(changes: SimpleChanges)
@@ -72,7 +73,7 @@ export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implemen
 	{
 		const choices = this.includeContractedOptions
 							? this.decisionPoint.choices
-							: this.decisionPoint.choices.filter(c => this.salesChoices.findIndex(sc => sc.divChoiceCatalogId === c.divChoiceCatalogId) === -1);
+							: this.decisionPoint.choices.filter(c => !this.salesChoices || this.salesChoices.findIndex(sc => sc.divChoiceCatalogId === c.divChoiceCatalogId) === -1);
 		this.choicesCustom = choices.map(c => new ChoiceCustom(c));
 	}
 

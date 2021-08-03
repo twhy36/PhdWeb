@@ -34,7 +34,7 @@ namespace Phd.WebHost
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             //check uri_state cookie for potential login redirect
             app.Use(async (context, next) =>
@@ -134,6 +134,15 @@ namespace Phd.WebHost
                 app1.UseSpa(spa =>
                 {
                     spa.Options.DefaultPage = "/homedesigner/index.html";
+                    spa.Options.DefaultPageStaticFileOptions = NoCacheStaticFileOptions;
+                });
+            });
+
+            app.Map("/colormanagement", app1 =>
+            {
+                app1.UseSpa(spa =>
+                {
+                    spa.Options.DefaultPage = "/colormanagement/index.html";
                     spa.Options.DefaultPageStaticFileOptions = NoCacheStaticFileOptions;
                 });
             });

@@ -32,7 +32,7 @@ stages:
       displayName: Use .NET Core SDK
       inputs:
         packageType: 'sdk'
-        version: '2.1.811'
+        version: '3.1.409'
         installationPath: '$(Agent.TempDirectory)\dotnet'
     - task: DotNetCoreCLI@2
       displayName: Build WebHost
@@ -40,7 +40,7 @@ stages:
         command: 'publish'
         publishWebProjects: false
         projects: 'UI/Phd.WebHost/*.csproj'
-        arguments: '-c ${{ variables.BuildConfiguration }} -o $(build.sourcesDirectory)\Build -r win10-x64'
+        arguments: '-c ${{ variables.BuildConfiguration }} -o $(build.sourcesDirectory)\Build -r win10-x64 --self-contained true'
         zipAfterPublish: false
         modifyOutputPath: false
     - task: PublishBuildArtifacts@1

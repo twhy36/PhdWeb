@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { Store, select } from '@ngrx/store';
 import { Actions, ofType } from '@ngrx/effects';
 import { FormGroup, FormControl, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
-import { combineLatest, switchMap, withLatestFrom, take, finalize, takeUntil } from 'rxjs/operators';
+import { combineLatest, switchMap, withLatestFrom, take, finalize } from 'rxjs/operators';
 import { Observable } from 'rxjs/Observable';
 
 import * as fromRoot from '../../ngrx-store/reducers';
@@ -721,7 +721,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 		this.isSaving = true;
 
 		this.store.pipe(
-			this.takeUntilDestroyed(),
+			take(1),
 			select(state => state.job.financialCommunityId),
 			switchMap(financialCommunityId =>
 			{
@@ -797,7 +797,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 				}
 				else
 				{
-					this.store.dispatch(new JobActions.LoadJobForJob(this.jobId));
+					this.store.dispatch(new JobActions.LoadJobForJob(this.jobId, false));
 				}
 			}
 			else
@@ -1055,7 +1055,9 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 		switch (changeOrder.changeOrderTypeDescription)
 		{
 			case 'NonStandard':
-				this.store.dispatch(new ChangeOrderActions.ResubmitChangeOrder(new ChangeInput(ChangeTypeEnum.NON_STANDARD), sequence, sequenceSuffix));
+				var changeInput = new ChangeInput(ChangeTypeEnum.NON_STANDARD);
+				changeInput.isDirty = true; // Enables Save button on resubmitting a NSO
+				this.store.dispatch(new ChangeOrderActions.ResubmitChangeOrder(changeInput, sequence, sequenceSuffix));
 
 				this.router.navigateByUrl('/change-orders/non-standard');
 
@@ -1224,7 +1226,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 		}
 		
 		// Reload sales agreement and update price on change order
-		this.store.dispatch(new CommonActions.LoadSalesAgreement(this.salesAgreementId));
+		this.store.dispatch(new CommonActions.LoadSalesAgreement(this.salesAgreementId, false));
 		this._actions$.pipe(
 			ofType<LotsLoaded>(LotActionTypes.LotsLoaded),
 			take(1)).subscribe(() =>

@@ -67,7 +67,7 @@
  	color: white;
  }
 
-::ng-deep .ui-treetable .ui-treetable-thead > tr {
+::ng-deep .p-treetable .p-treetable-thead > tr {
 	height: 58px;
 
 	&:first-child {
@@ -85,7 +85,7 @@
 	}
 }
 
-::ng-deep .ui-treetable .ui-treetable-tbody > tr {
+::ng-deep .p-treetable .p-treetable-tbody > tr {
 	height: 58px;
 
 	td {
@@ -109,11 +109,11 @@
 	}
 }
 
-::ng-deep .ui-treetable .ui-treetable-tbody > tr > td .ui-treetable-toggler {
+::ng-deep .p-treetable .p-treetable-tbody > tr > td .p-treetable-toggler {
 	vertical-align: text-top !important;
 }
 
-::ng-deep .ui-treetable .ui-treetable-toggler {
+::ng-deep .p-treetable .p-treetable-toggler {
 	margin-top: -.6em;
 }
 
@@ -141,7 +141,7 @@
 		text-align: left;
 	}
 
-	::ng-deep .ui-treetable .ui-treetable-thead > tr {
+	::ng-deep .p-treetable .p-treetable-thead > tr {
 		&:first-child {
 			th {
 				padding: 2px !important;
@@ -184,7 +184,7 @@
 		text-align: left;
 	}
 
-	::ng-deep .ui-treetable .ui-treetable-thead > tr {
+	::ng-deep .p-treetable .p-treetable-thead > tr {
 		&:first-child {
 			th {
 				height: 120px;
@@ -200,9 +200,8 @@
 		}
 	}
 
-	::ng-deep .ui-treetable .ui-treetable-tbody > tr > td {
+	::ng-deep .p-treetable .p-treetable-tbody > tr > td {
 		min-height: 58px !important;
 		max-height: 58px !important;
 	}
-
 }

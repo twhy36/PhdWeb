@@ -15,12 +15,10 @@ namespace AttributeCleanup
     public class LocationGroupCleanup
     {
         private IConfigurationRoot _configuration { get; }
-        private EdhDeleteClient _edhClient { get; }
 
-        public LocationGroupCleanup(IConfigurationRoot configuration, EdhDeleteClient client)
+        public LocationGroupCleanup(IConfigurationRoot configuration)
         {
             _configuration = configuration;
-            _edhClient = client;
         }
 
         public async Task Run()
@@ -110,6 +108,7 @@ namespace AttributeCleanup
                 rq.Headers.Add("Authorization", $"Basic {_configuration["edhSettings:apiKey"]}");
             };
             ODataClient edhClient = new ODataClient(edhClientSettings);
+            var batch = new ODataBatch(edhClient);
 
             foreach (int locationGroupId in locationGroupsToDelete)
             {
@@ -124,8 +123,9 @@ namespace AttributeCleanup
                 {
                     int locationCommunityId = Convert.ToInt32(assoc["locationCommunityId"]);
 
-                    string assocUrl = $"locationgrouplocationcommunityassocs(locationgroupcommunityid={locationGroupId}, locationcommunityid={locationCommunityId})?{apiVer}";
-                    await _edhClient.DeleteRecord(assocUrl);
+                    batch += c => c.For("LocationGroupLocationCommunityAssocs")
+                        .Key(locationGroupId, locationCommunityId)
+                        .DeleteEntryAsync();
                 }
 
                 // Get all LocationGroupCommunityTag associated to LocationGroupCommunityId
@@ -138,14 +138,18 @@ namespace AttributeCleanup
                 {
                     string tag = locationGroupTag["tag"].ToString();
 
-                    string tagUrl = $"locationgroupcommunitytags(locationgroupcommunityid={locationGroupId}, tag='{HttpUtility.UrlEncode(tag)}')?{apiVer}";
-                    await _edhClient.DeleteRecord(tagUrl);
+                    batch += c => c.For("LocationGroupCommunityTags")
+                        .Key(locationGroupId, tag)
+                        .DeleteEntryAsync();
                 }
 
                 // Delete LocationGroupCommunity
-                string locationUrl = $"locationgroupcommunities({locationGroupId})?{apiVer}";
-                await _edhClient.DeleteRecord(locationUrl);
+                batch += c => c.For("LocationGroupCommunities")
+                    .Key(locationGroupId)
+                    .DeleteEntryAsync();
             }
+
+            await batch.ExecuteAsync();
         }
     }
 }

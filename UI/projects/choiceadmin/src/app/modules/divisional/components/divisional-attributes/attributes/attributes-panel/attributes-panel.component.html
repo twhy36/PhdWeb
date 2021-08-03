@@ -8,7 +8,7 @@
 	</div>
 
 	<div class="phd-div-attr-panel" infiniteScroll [infiniteScrollThrottle]="settings.infiniteScrollThrottle" [infiniteScrollDisabled]="keyword || selectedStatus || allDataLoaded" (scrolled)="onPanelScroll()" [scrollWindow]="false">
-		<phd-table [value]="filteredAttributeList" dataKey="id" tableId="divisionalAttributes">
+		<phd-table [value]="filteredAttributeList" dataKey="id" tableId="divisionalAttributes" sortMode="single" sortField="name" [lazy]="true" (onLazyLoad)="lazyLoadData($event)">
 			<ng-template #rowExpansion let-attribute let-columns="columns">
 				<tr>
 					<td [attr.colspan]="columns.length">
@@ -52,10 +52,18 @@
 			<phd-column field="imageUrl" header="Image URL"></phd-column>
 			<phd-column field="manufacturer" header="Manufacturer"></phd-column>
 			<phd-column field="sku" header="SKU"></phd-column>
-			<phd-column field="formattedTags" header="Search Tags"></phd-column>
+			<phd-column field="formattedTags" header="Search Tags" [canSort]="false"></phd-column>
 			<phd-column field="attributeDescription" header="Description"></phd-column>
-			<phd-column field="formattedStartDate" header="Start Date"></phd-column>
-			<phd-column field="formattedEndDate" header="End Date"></phd-column>
+			<phd-column field="startDate" header="Start Date">
+				<ng-template #body let-attr>
+					{{ attr.formattedStartDate }}
+				</ng-template>
+			</phd-column>
+			<phd-column field="endDate" header="End Date">
+				<ng-template #body let-attr>
+					{{ attr.formattedEndDate }}
+				</ng-template>
+			</phd-column>
 		</phd-table>
 	</div>
 

@@ -19,30 +19,29 @@
 	margin: 0;
 }
 
+.p-component {
+	font-size: 14px;
+}
+
 p-multiselect {
-	flex: 1 1 auto !important;
-	max-width: 60%;
-	min-width: 50%;
-	margin-bottom: .5em;
 
-	.ui-table .ui-sortable-column.ui-state-highlight:hover {
-		background: #d3d5d8;
-		border-color: #d9d9d9;
-	}
+	.p-multiselect {
+		min-width: 15em;
+		max-width: 15em;
 
-	.ui-multiselect {
-		display: block;
-		width: 100%;
-		border-radius: 7px;
-
-		.ui-multiselect-header {
+		.p-multiselect-header {
 			padding: .25em;
 			background: linear-gradient(to bottom, #f6f7f9 0%, #ebedf0 100%);
 			border: 1px solid #d9d9d9;
 			border-radius: 3px;
+
+			.p-multiselect-close {
+				width: 1em;
+				height: 1em;
+			}
 		}
 
-		.ui-multiselect-panel {
+		.p-multiselect-panel {
 			padding: .2em;
 		}
 
@@ -53,7 +52,7 @@ p-multiselect {
 			width: 100%;
 		}
 
-		.ui-multiselect-label {
+		.p-multiselect-label {
 			display: block;
 			width: auto;
 			padding: .3em 1em;
@@ -66,48 +65,43 @@ p-multiselect {
 			padding: 0;
 		}
 
-		.ui-multiselect-trigger {
+		.p-multiselect-trigger {
 			border-radius: 7px;
 		}
 
-		.ui-chkbox-box {
+		.p-chkbox-box {
 			width: 1.125em;
 			height: 1.125em;
 			line-height: 1.125em;
 			border-radius: 2px;
 			text-align: center;
 
-			.ui-chkbox-icon {
+			.p-chkbox-icon {
 				font-size: 14px;
 			}
 		}
 
-		&-panel .ui-multiselect-items-wrapper .ui-multiselect-items {
-			.ui-multiselect-item {
-				align-content: center;
-				background: #eee;
-				display: flex !important;
-				flex-direction: row;
-				margin: 0;
+		&-panel .p-multiselect-items-wrapper .p-multiselect-items {
+			.p-multiselect-item {
 				padding: 0;
 
-				&.ui-state-highlight {
+				&.p-state-highlight {
 					background: #186ba0;
 
-					.ui-chkbox-icon, label {
+					.p-chkbox-icon, label {
 						background: #186ba0;
 						border-color: none;
 						padding: 6px 4px 6px 8px;
 					}
 
-					.ui-chkbox {
-						&-box.ui-state-active {
+					.p-chkbox {
+						&-box.p-state-active {
 							background: none;
 						}
 					}
 				}
 
-				.ui-chkbox-icon, label {
+				.p-chkbox-icon, label {
 					background: #eeeeee;
 					border-bottom: 1px solid #fff;
 					border-top: 1px solid #fff;
@@ -125,7 +119,7 @@ p-multiselect {
 					padding: 6px 8px;
 				}
 
-				.ui-chkbox {
+				.p-checkbox {
 					display: none;
 				}
 			}
@@ -140,17 +134,32 @@ p-multiselect {
 }
 
 .phd-search-container {
+	sales-community-selector .phd-select-menus {
+		background-color: #fff;
+	}
+
 	/*WHEN SEARCH INPUTS ARE VISIBLE*/
 	.phd-search-options {
 		flex-shrink: 1;
 		font-size: 14px !important;
 		transition: flex 400ms ease-out;
+		display: flex;
+		width: 100%;
+		justify-content: space-between;
+		padding: 1.5em .5em;
+		background-color: #fff;
 
 		section {
-			max-width: 33%;
-			min-width: 33%;
+			display: flex;
+			flex-direction: row;
+			width: 100%;
+			flex: 1;
 			padding: 0 1em;
 			white-space: nowrap;
+
+			> div {
+				flex: 1;
+			}
 
 			&:first-child {
 				padding-left: 0;
@@ -161,7 +170,7 @@ p-multiselect {
 				margin-bottom: 4px;
 				padding: 4px;
 				white-space: normal;
-				width: 35%;
+				width: 12em;
 			}
 
 			label {
@@ -175,6 +184,7 @@ p-multiselect {
 				margin-bottom: .5em;
 				padding: 3px;
 				width: 60%;
+				min-width: 15em;
 			}
 		}
 	}
@@ -190,6 +200,7 @@ p-multiselect {
 				display: flex;
 				margin-bottom: 1em;
 				min-width: unset;
+				flex: 0;
 			}
 
 			.phd-badge {
@@ -246,7 +257,7 @@ p-multiselect {
 	border-bottom-right-radius: 10px;
 }
 
-.ui-table .ui-sortable-column .ui-sortable-column-icon {
+.p-datatable .p-sortable-column .p-sortable-column-icon {
 	color: #fff;
 }
 
@@ -279,7 +290,7 @@ p-multiselect {
 		overflow-y: auto;
 	}
 
-	.ui-table {
+	::ng-deep .p-datatable {
 
 		td:nth-child(1),
 		th:nth-child(1) {
@@ -295,7 +306,7 @@ p-multiselect {
 				position: relative;
 				vertical-align: top;
 
-				&.ui-state-highlight {
+				&.p-state-highlight {
 					background-color: #186ba0;
 					color: #fff;
 				}

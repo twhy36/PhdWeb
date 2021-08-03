@@ -1,6 +1,7 @@
 <manage-homesites-side-panel-component *ngIf="sidePanelOpen" [saving]="saving" [sidePanelOpen]="sidePanelOpen" [monotonyRules]="monotonyRules"
 									   [lots]="lots"
 									   [selectedHomesite]="selectedHomesite"
+										 [communityWebsiteKey]="selectedCommunityWebsiteKey"
 									   [viewAdjacencies]="viewAdjacencies"
 									   [physicalLotTypes]="physicalLotTypes"
 									   (onSidePanelClose)="onSidePanelClose($event)"
@@ -30,13 +31,11 @@
 			<div class="form-inline">
 				<div class="phd-flexbox">
 					<i class="fa fa-filter phd-filter-icon"></i>
-					<p-multiSelect class="ui-multiselect-label-container ui-inputwrapper-filled flex-fill"
+					<p-multiSelect class="flex-fill"
 								   defaultLabel="Status"
 								   [options]="lotStatus"
-								   [showToggleAll]="true"
 								   [maxSelectedLabels]="2"
-								   displaySelectedLabel="true"
-								   filterMode="multiple"
+								   filterMatchMode="multiple"
 								   [showHeader]="false"
 								   (onChange)="onStatusChange($event)">
 					</p-multiSelect>
@@ -44,12 +43,10 @@
 
 				<div class="phd-flexbox">
 					<i class="fa fa-filter phd-filter-icon"></i>
-					<p-multiSelect class="ui-multiselect-label-container ui-inputwrapper-filled flex-fill"
+					<p-multiSelect class="flex-fill"
 								   defaultLabel="Handing"
 								   [options]="handingOptions"
-								   [showToggleAll]="true"
 								   [maxSelectedLabels]="2"
-								   displaySelectedLabel="true"
 								   filterMatchMode="any"
 								   [showHeader]="false"
 								   (onChange)="onHandingChange($event)">
@@ -98,6 +95,13 @@
 					</ng-template>
 				</phd-column>
 				<phd-column header="Status" field="lotStatusDescription"></phd-column>
+				<phd-column header="Hide in THO" width="158px">
+					<ng-template #body let-lot>
+						<button *ngIf="getAvailable(lot)" class="btn btn-sm btn-toggle btn-is-hidden-tho" [disabled]="!canEdit ? 'disabled' : null" [ngClass]="{'active': !lot.isHiddenInTho, 'btn-success': lot.isHiddenInTho, 'btn-secondary': !lot.isHiddenInTho }" (click)="toggleIsHiddenTho(lot)">
+								<div class="handle"></div>
+						</button>
+					</ng-template>
+				</phd-column>
 				<phd-column header="Availability" field="availabilityDate"></phd-column>
 				<phd-column header="Premium" field="premium">
 					<ng-template #body let-lot>

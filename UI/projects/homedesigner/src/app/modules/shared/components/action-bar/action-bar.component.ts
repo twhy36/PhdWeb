@@ -71,7 +71,6 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit
 	}
 
 	onHomePage() {
-		this.store.dispatch(new CommonActions.ResetFavorites());
 		this.router.navigateByUrl('/home');
 	}
 }
