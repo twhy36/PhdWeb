@@ -82,6 +82,18 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 		ch.disabledBy = [];
 		ch.changedDependentChoiceIds = [];
 		ch.mappingChanged = false;
+
+		if (ch.lockedInChoice && ch.lockedInOptions?.length)
+		{
+			//detect if choice change affects locked in options
+			if (ch.lockedInOptions.some(o => 
+				o.choices.some(c => (c.mustHave && !choices.find(c1 => c1.divChoiceCatalogId === c.id)?.quantity)
+					|| (!c.mustHave && choices.find(c1 => c1.divChoiceCatalogId === c.id)?.quantity))))
+			{
+				ch.lockedInChoice = null;
+				ch.lockedInOptions = [];
+			}
+		}
 	});
 
 	points.forEach(pt =>
