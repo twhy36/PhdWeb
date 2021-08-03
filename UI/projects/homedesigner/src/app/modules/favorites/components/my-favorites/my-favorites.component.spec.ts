@@ -33,6 +33,7 @@ describe('MyFavoritesComponent', () => {
 	const mockActivatedRoute = mock(ActivatedRoute);
 	const mockRouter = mock(Router);
 	when(mockActivatedRoute.paramMap).thenCall(() => new Observable());
+	when(mockActivatedRoute.data).thenCall(() => new Observable());
 	const mockChangeDetectorRef = mock(ChangeDetectorRef);
 	const mockTreeService = mock(TreeService);
 

@@ -10,7 +10,9 @@ export interface Settings
 	extraQueryParameter: string;
 	expireOffsetSeconds: number;
 	designToolUrl: string;
+	designPreviewUrl: string,
 	pictureParkAssetUrl: string;
 	infiniteScrollThrottle: number;
 	infiniteScrollPageSize: number;
+	production: boolean;
 }

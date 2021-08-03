@@ -5,10 +5,9 @@
 
 export const environment = {
 	production: false,
-	//apiUrl: 'https://phdapi.dev.pulte.com/odata/',
-	apiUrl: 'http://localhost:2845/odata/',
-	// hubUrl: 'https://phdhub.dev.pulte.com/hub',
-	hubUrl: 'http://localhost:5000/hub',
+	apiUrl: 'https://phdapi.dev.pulte.com/odata/',
+	hubUrl: 'https://phdhub.dev.pulte.com/hub',
+	alphaVisionBuilderGuid: '8D676CB9-C011-429D-8D71-87D34A87494B',
 	tenant: "pulte.onmicrosoft.com",
 	clientId: "9d498056-e6cd-4e53-b89b-cf2f5e60adf7",
 	authConfig: {

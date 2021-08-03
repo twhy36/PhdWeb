@@ -12,6 +12,7 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 	@Input() summaryHeader: SummaryHeader;
 	@Input() priceBreakdown: PriceBreakdown;
 	@Input() includeContractedOptions: boolean;
+	@Input() isPreview: boolean = false;
 
 	@Output() isStickyChanged = new EventEmitter<boolean>();
 	@Output() contractedOptionsToggled = new EventEmitter<boolean>();
@@ -51,6 +52,10 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 		}
 
 		return address;
+	}
+
+	get title() : string {
+		return this.isPreview ? 'Preview Favorites' : this.summaryHeader.favoritesListName;
 	}
 
 	scrollHandler()

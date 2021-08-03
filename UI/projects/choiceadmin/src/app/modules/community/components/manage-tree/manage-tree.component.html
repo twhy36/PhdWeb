@@ -105,6 +105,13 @@
 						<i class="fa fa-list-alt fa-2x"></i>
 					</ng-template>
 				</phd-action-buttons-item>
+				<ng-container *ngIf="!hideGenericPreviewAccess">
+					<phd-action-buttons-item title="Preview in Design Preview" [buttonDisabled]="disableButtons || isDeletingTree" (onButtonClicked)="onDesignPreviewTreeClicked()">
+						<ng-template>
+							<i class="fa fa-binoculars fa-2x"></i>
+						</ng-template>
+					</phd-action-buttons-item>
+				</ng-container>
 			</phd-action-buttons>
 		</ng-template>
 	</page-header>
@@ -193,7 +200,7 @@
 		</tree-table>
 	</div>
 
-	<p-toast id="growl-manage-tree"></p-toast>
+	<p-toast></p-toast>
 </div>
 
 <ng-template #newTree let-c="close" let-d="dismiss">

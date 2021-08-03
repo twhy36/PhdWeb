@@ -15,7 +15,7 @@ import { ScenarioActions, ScenarioActionTypes } from './actions';
 
 export interface State
 {
-	buildMode: 'buyer' | 'spec' | 'model' | 'preview';
+	buildMode: 'buyer' | 'preview' | 'buyerPreview';
 	financialCommunityFilter: number;
 	isGanked: boolean;
 	isUnsaved: boolean;
@@ -59,6 +59,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 	switch (action.type)
 	{
 		case CommonActionTypes.SalesAgreementLoaded:
+		case ScenarioActionTypes.TreeLoaded:
 			let newState = {
 				tree: _.cloneDeep(action.tree),
 				rules: _.cloneDeep(action.rules),
@@ -71,68 +72,70 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 				hiddenPointIds: []
 			} as State;
 
-			if (newState.tree)
-			{
-				action.choices.forEach(choice =>
+			if (action.type === CommonActionTypes.SalesAgreementLoaded) {
+				if (newState.tree)
 				{
-					let c = _.flatMap(newState.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)))
-						.find(ch => ch.divChoiceCatalogId === choice.divChoiceCatalogId);
-
-					if (c)
+					action.choices.forEach(choice =>
 					{
-						// get locations
-						let selectedAttributes = choice.jobChoiceLocations ? _.flatten(choice.jobChoiceLocations.map(l =>
+						let c = _.flatMap(newState.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)))
+							.find(ch => ch.divChoiceCatalogId === choice.divChoiceCatalogId);
+
+						if (c)
 						{
-							return l.jobChoiceLocationAttributes && l.jobChoiceLocationAttributes.length ? l.jobChoiceLocationAttributes.map(a =>
+							// get locations
+							let selectedAttributes = choice.jobChoiceLocations ? _.flatten(choice.jobChoiceLocations.map(l =>
 							{
-								return <DesignToolAttribute>{
+								return l.jobChoiceLocationAttributes && l.jobChoiceLocationAttributes.length ? l.jobChoiceLocationAttributes.map(a =>
+								{
+									return <DesignToolAttribute>{
+										attributeId: a.attributeCommunityId,
+										attributeGroupId: a.attributeGroupCommunityId,
+										scenarioChoiceLocationId: a.id,
+										scenarioChoiceLocationAttributeId: l.id,
+										locationGroupId: l.locationGroupCommunityId,
+										locationId: l.locationCommunityId,
+										locationQuantity: l.quantity,
+										attributeGroupLabel: a.attributeGroupLabel,
+										attributeName: a.attributeName,
+										locationGroupLabel: l.locationGroupLabel,
+										locationName: l.locationName,
+										sku: a.sku,
+										manufacturer: a.manufacturer
+									};
+								}) : [<DesignToolAttribute>{
+									locationGroupId: l.locationGroupCommunityId,
+									locationGroupLabel: l.locationGroupLabel,
+									locationId: l.locationCommunityId,
+									locationName: l.locationName,
+									locationQuantity: l.quantity
+								}];
+							})) : [];
+
+							// get attributes
+							c.selectedAttributes && choice.jobChoiceAttributes && choice.jobChoiceAttributes.forEach(a =>
+							{
+								selectedAttributes.push({
 									attributeId: a.attributeCommunityId,
 									attributeGroupId: a.attributeGroupCommunityId,
 									scenarioChoiceLocationId: a.id,
-									scenarioChoiceLocationAttributeId: l.id,
-									locationGroupId: l.locationGroupCommunityId,
-									locationId: l.locationCommunityId,
-									locationQuantity: l.quantity,
 									attributeGroupLabel: a.attributeGroupLabel,
 									attributeName: a.attributeName,
-									locationGroupLabel: l.locationGroupLabel,
-									locationName: l.locationName,
 									sku: a.sku,
 									manufacturer: a.manufacturer
-								};
-							}) : [<DesignToolAttribute>{
-								locationGroupId: l.locationGroupCommunityId,
-								locationGroupLabel: l.locationGroupLabel,
-								locationId: l.locationCommunityId,
-								locationName: l.locationName,
-								locationQuantity: l.quantity
-							}];
-						})) : [];
+								} as DesignToolAttribute);
+							});
 
-						// get attributes
-						c.selectedAttributes && choice.jobChoiceAttributes && choice.jobChoiceAttributes.forEach(a =>
-						{
-							selectedAttributes.push({
-								attributeId: a.attributeCommunityId,
-								attributeGroupId: a.attributeGroupCommunityId,
-								scenarioChoiceLocationId: a.id,
-								attributeGroupLabel: a.attributeGroupLabel,
-								attributeName: a.attributeName,
-								sku: a.sku,
-								manufacturer: a.manufacturer
-							} as DesignToolAttribute);
-						});
+							c.quantity = choice.dpChoiceQuantity;
+							c.selectedAttributes = selectedAttributes;
+						}
+					});
+				}
 
-						c.quantity = choice.dpChoiceQuantity;
-						c.selectedAttributes = selectedAttributes;
-					}
-				});
+				let scenario = _.cloneDeep(newState.scenario || state.scenario);
+				scenario = <any>{ scenarioId: 0, scenarioName: '--PREVIEW--', lotId: action.job.lotId, scenarioInfo: null };
+
+				newState = { ...newState, scenario: scenario };
 			}
-
-			let scenario = _.cloneDeep(newState.scenario || state.scenario);
-			scenario = <any>{ scenarioId: 0, scenarioName: '--PREVIEW--', lotId: action.job.lotId, scenarioInfo: null };
-
-			newState = { ...newState, scenario: scenario };
 
 			if (newState.options)
 			{
@@ -159,9 +162,13 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 				points = _.flatMap(subGroups, sg => sg.points);
 				choices = _.flatMap(points, p => p.choices);
 				points.forEach(pt => setPointStatus(pt));
-				// For each point, if the user cannot select the DP in this tool, then the status should be complete
-				points.filter(pt => pt.isStructuralItem).forEach(pt => pt.status = PointStatus.COMPLETED);
 
+				if (action.type === CommonActionTypes.SalesAgreementLoaded)
+				{
+					// For each point, if the user cannot select the DP in this tool, then the status should be complete
+					points.filter(pt => pt.isStructuralItem).forEach(pt => pt.status = PointStatus.COMPLETED);
+				}
+				
 				// For each point with a pick 0, we need to change the status to required (if no thanks is selected, the status is later updated to Completed)
 				points.filter(pt =>
 					[PickType.Pick0or1, PickType.Pick0ormore].indexOf(pt.pointPickTypeId) > 0
@@ -255,8 +262,12 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 			checkSelectedAttributes(choices);
 
 			points.forEach(pt => setPointStatus(pt));
-			// For each point, if the user cannot select the DP in this tool, then the status should be complete
-			points.filter(pt => pt.isStructuralItem).forEach(pt => pt.status = PointStatus.COMPLETED);
+
+			if (state.buildMode !== 'preview')
+			{
+				// For each point, if the user cannot select the DP in this tool, then the status should be complete
+				points.filter(pt => pt.isStructuralItem).forEach(pt => pt.status = PointStatus.COMPLETED);
+			}
 
 			// For each point with a pick 0, we need to change the status to required (if no thanks is selected, the status is later updated to Completed)
 			points.filter(pt =>
@@ -287,6 +298,17 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 			newTree.treeVersion.groups.forEach(g => setGroupStatus(g));
 
 			return { ...state, tree: newTree };
+
+		case ScenarioActionTypes.LoadPreview:
+			return { ...state, treeLoading: true, buildMode: 'preview', scenario: <any>{ scenarioId: 0, scenarioName: '--PREVIEW--', scenarioInfo: null } };
+
+		case CommonActionTypes.LoadSalesAgreement:
+			let newBuildMode = state.buildMode;
+			if (action.isBuyerPreview)
+			{
+				newBuildMode = 'buyerPreview';
+			}
+			return { ...state, buildMode: newBuildMode }
 
 		default:
 			return state;

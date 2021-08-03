@@ -175,7 +175,7 @@ export class SalesAgreementService
 					dpChoiceId: c.choice.id,
 					divChoiceCatalogId: c.divChoiceCatalogId,
 					dpChoiceQuantity: c.choice.quantity,
-					dpChoiceCalculatedPrice: c.choice.price,
+					dpChoiceCalculatedPrice: c.choice.price || 0,
 					choiceLabel: c.choice.label,
 					pointLabel: c.pointLabel,
 					subgroupLabel: c.subgroupLabel,

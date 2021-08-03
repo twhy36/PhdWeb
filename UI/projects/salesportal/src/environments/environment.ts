@@ -7,7 +7,6 @@ import { IEnvironment } from './environment.model';
 
 export const environment: IEnvironment = {
 	apiUrl: 'https://phdapi.dev.pulte.com/odata/',
-	//apiUrl: 'http://localhost:2845/odata/',
 	authQueryParams: "domain_hint=pulte.com",
 	baseUrl: {
 		buyerTracker: 'http://buyertracker.dev.pulte.com/',

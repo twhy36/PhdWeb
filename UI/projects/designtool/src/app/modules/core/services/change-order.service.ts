@@ -1559,7 +1559,7 @@ export class ChangeOrderService
 
 	getCurrentChangeOrder(changeOrderGroups: Array<ChangeOrderGroup>): ChangeOrderGroup
 	{
-		let pendingChangeOrderGroups = changeOrderGroups.filter(co => ['Withdrawn', 'Resolved'].indexOf(co.salesStatusDescription) === -1 && (co.salesStatusDescription !== 'Approved' || co.constructionStatusDescription === 'Pending'));
+		let pendingChangeOrderGroups = changeOrderGroups.filter(co => ['Withdrawn', 'Resolved'].indexOf(co.salesStatusDescription) === -1 && (co.constructionStatusDescription !== 'Approved'));
 
 		//this should change or go away afer we're only dealing with one type of change order
 		let jobChangeOrderGroup = pendingChangeOrderGroups.find(co =>
@@ -1835,7 +1835,7 @@ export class ChangeOrderService
 		}
 		else if (changeInput.type === ChangeTypeEnum.NON_STANDARD)
 		{
-			const options = currentChangeOrder.jobChangeOrders.find(t => t.jobChangeOrderTypeDescription === 'NonStandard').jobChangeOrderNonStandardOptions;
+			const options = currentChangeOrder.jobChangeOrders.find(t => t.jobChangeOrderTypeDescription === 'NonStandard')?.jobChangeOrderNonStandardOptions;
 			const inputData = this.getNonStandardChangeOrderData(
 				job.id,
 				salesAgreement.id,

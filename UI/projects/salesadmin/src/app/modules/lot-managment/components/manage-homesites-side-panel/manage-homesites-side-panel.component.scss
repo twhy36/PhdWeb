@@ -11,10 +11,6 @@
 	border-left: 5px solid $brand-danger;
 }
 
-.phd-checkboxes-block {
-	display: block !important;
-}
-
 .phd-selectBox {
 	position: relative;
 }
@@ -29,43 +25,21 @@
 	font-weight: bold;
 }
 
-.phd-overSelect {
-	position: absolute;
-	left: 0;
-	right: 0;
-	top: 0;
-	bottom: 0;
-}
-
-.phd-red-asterisk {
-	font-size: 12px;
-	color: red;
-}
-
-phd-form-check {
-	padding: 10px 0 0 5px;
-}
-
-#phd-checkboxes {
+.phd-checkboxes {
 	display: block;
 	border: 1px #dadada solid;
-	padding: 10px 0 0 5px;
+	padding: 5px 5px 0 5px;
 	background-color: #fff;
 }
 
-#phd-checkboxes label {
+.phd-div-disabled {
+	background-color: #d3d3d3;
+	pointer-events: none;
+}
+
+.phd-checkboxes label {
 	display: block;
 }
-
-#phd-checkboxes label:hover {
-	background-color: #1e90ff;
-}
-
-#phd-checkboxes-block {
-	display: block;
-}
-
-
 
 .phd-disabled-span {
 	background-color: grey;
@@ -101,4 +75,23 @@ phd-form-check {
 
 .phd-btn-copy {
 	width: 95px;
+}
+
+.phd-monotony-map-container {
+	display: flex;
+	flex-flow: column;
+	position: absolute;
+	top: $nav-menu-height;
+	bottom: 0;
+	transition: left .5s ease-in-out, width .5s ease-in-out;
+	box-shadow: 0 1px 4px 0 darken($gray-lighter,20%);
+	background-color: lighten($gray-lighter,5%);
+	color: $gray;
+	width: calc(100% - #{$button-bar-width});
+	z-index: 999;
+	padding-left: $side-panel-width;
+}
+
+.phd-right {
+	padding-left: 40px;
 }

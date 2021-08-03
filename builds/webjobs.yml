@@ -32,7 +32,7 @@ stages:
       displayName: Use .NET Core SDK
       inputs:
         packageType: 'sdk'
-        version: '2.1.811'
+        version: '3.1.409'
     - task: DotNetCoreCLI@2
       displayName: Build Lot Release
       inputs:

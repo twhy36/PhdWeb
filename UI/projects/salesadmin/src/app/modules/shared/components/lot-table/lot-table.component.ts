@@ -4,6 +4,7 @@ import { PhdTableComponent } from 'phd-common';
 
 import { HomeSiteDtos } from '../../../shared/models/homesite.model';
 import { HomeSiteViewModel } from "../../models/plan-assignment.model";
+import { HandingsPipe } from "../../pipes/handings.pipe";
 
 @Component({
 	selector: 'lot-table',
@@ -32,6 +33,12 @@ export class LotTableComponent implements OnInit
 		fa += ` ${address.city}, ${address.stateProvince} ${address.postalCode}`;
 
 		return fa;
+	}
+
+	showHandingTooltip(event: any, handing: Array<HomeSiteDtos.IHanding>, tableComponent: PhdTableComponent): void {
+		const handingTooltipText = (new HandingsPipe()).transform(handing);
+
+		tableComponent.showTooltip(event, handingTooltipText);
 	}
 
 	showTooltip(event: any, tooltipText: string, tableComponent: PhdTableComponent): void

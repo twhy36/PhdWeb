@@ -12,33 +12,52 @@
 			<!--Within each type of error is the disabledBy array which makes up a single line -->
 			<li *ngFor="let e of errors; let i = index">
 
-				<span *ngIf="e.errorType === ErrorTypeEnum.C2C">
-					<span *ngIf="!isMultiError">Disabled due to </span>
-					<span *ngIf="isMultiError">Choice disabled due to </span>
-				</span>
+				<span>Disabled due to </span>
 
 				<span *ngFor="let d of e.disabledBy; let di = index">
 					<span *ngIf="di > 0"> or </span>
-					<span *ngFor="let r of d.rules; let ri = index">
-						<span *ngIf="ri > 0"> or </span>
-						<span *ngFor="let p of r.points; let pi = index">
-							<span *ngIf="pi > 0"> and </span>
-							<span *ngIf="r.points.length > 1 && pi == 0">(</span>
-							<a class="phd-clickable phd-link phd-point" (click)="onPointNav(p)">{{p | pointIdToName | async }}</a>
-							<span *ngIf="r.points.length > 1 && r.points.length == pi + 1">)</span>
+
+					<!-- Split errors by whether they are Must Have or Must Not Have rules -->
+					<ng-container *ngIf="d.mustHaves.length > 0">
+						<span *ngFor="let mustHave of d.mustHaves; let mh = index">
+							<span *ngIf="mh > 0"> or </span>
+							<span *ngFor="let p of mustHave.points; let pi = index">
+								<span *ngIf="pi > 0"> and </span>
+								<a class="phd-clickable phd-link phd-point" (click)="onPointNav(p)">{{p | pointIdToName | async }}</a>
+							</span>
+							<span *ngFor="let c of mustHave.choices; let ci = index">
+								<span *ngIf="ci > 0"> and </span>
+								<a class="phd-clickable phd-link phd-choice" (click)="onChoiceNav(c)">{{c | choiceIdToName | async }}</a>
+							</span>
 						</span>
-						<span *ngFor="let c of r.choices; let ci = index">
-							<span *ngIf="ci > 0"> and </span>
-							<span *ngIf="r.choices.length > 1 && ci == 0">(</span>
-							<a class="phd-clickable phd-link phd-choice" (click)="onChoiceNav(c)">{{c | choiceIdToName | async }}</a>
-							<span *ngIf="r.choices.length > 1 && r.choices.length == ci + 1">)</span>
+
+						<span> selection requirement{{d.anyMultipleMustHaves ? 's' : ''}}</span>
+
+					</ng-container>
+
+					<!-- Rules with both Must Have and Must Not Have would be treated as either-or -->
+					<span *ngIf="d.mustHaves.length > 0 && d.mustNotHaves.length > 0"> or </span>
+
+					<!-- For Must Not Have rules, we flip the "and"/"or" verbiage -->
+					<ng-container *ngIf="d.mustNotHaves.length > 0">
+						<span *ngFor="let mustNotHave of d.mustNotHaves; let mnh = index">
+							<span *ngIf="mnh > 0"> and </span>
+							<span *ngFor="let p of mustNotHave.points; let pi = index">
+								<span *ngIf="pi > 0"> or </span>
+								<a class="phd-clickable phd-link phd-point" (click)="onPointNav(p)">{{p | pointIdToName | async }}</a>
+							</span>
+							<span *ngFor="let c of mustNotHave.choices; let ci = index">
+								<span *ngIf="ci > 0"> or </span>
+								<a class="phd-clickable phd-link phd-choice" (click)="onChoiceNav(c)">{{c | choiceIdToName | async }}</a>
+							</span>
 						</span>
-					</span>
+
+						<span> selection{{d.mustNotHaves.length > 1 ? 's' : ''}}</span>
+
+					</ng-container>
+
 				</span>
 
-				selection
-
-				<span *ngIf="e.errorType === ErrorTypeEnum.DP2C || e.errorType === ErrorTypeEnum.DP2DP"> required to enable this choice</span>
 			</li>
 		</ul>
 	</ng-template>

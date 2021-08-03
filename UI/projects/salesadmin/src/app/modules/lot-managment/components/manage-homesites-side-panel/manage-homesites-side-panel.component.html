@@ -9,7 +9,7 @@
 
 	<ng-template #body>
 		<div class="phd-side-panel-body">
-			<ul ngbNav #nav="ngbNav" [(activeId)]="currentTab" class="nav-tabs" (navChange)="onNavChange($event)">
+			<ul ngbNav #nav="ngbNav" [(activeId)]="currentTab" class="nav-tabs">
 				<li [ngbNavItem]="'details'">
 					<a ngbNavLink>Details</a>
 					<ng-template ngbNavContent>
@@ -21,6 +21,10 @@
 										<label class="form-check-label" for="lotStatusDescription">
 											<input class="form-check-input" name="lotStatusDescription" formControlName="lotStatusDescription" type="checkbox" id="lotStatusDescription">
 											Make Lot Unavailable
+										</label>
+										<label *ngIf="getAvailable(selectedHomesite)" class="form-check-label phd-right" for="isHiddenInTho">
+											<input class="form-check-input" name="isHiddenInTho" formControlName="isHiddenInTho" type="checkbox" id="isHiddenInTho">
+											Hide Lot in THO
 										</label>
 									</div>
 								</div>
@@ -42,18 +46,19 @@
 										<option *ngFor="let physicalLotType of physicalLotTypes" [ngValue]="physicalLotType.value">{{ physicalLotType.label }}</option>
 									</select>
 								</div>
-
-								<div class="phd-multiselect">
+								<div>
 									<div class="phd-selectBox form-group">
-										<label for="handings">Handing</label>
-										<div id="phd-checkboxes" [ngClass]="{'phd-required': handingChecked}">
-											<div class="form-group">
-												<div class="form-check phd-form-check">
-													<label *ngFor="let handing of handings; let i = index" class="form-check-label" for="handing">
-														<input class="form-check-input" formControlName="handing-{{handing}}" type="checkbox" [attr.disabled]="lotInaccessible && isHandingSelected(handing) ? 'disabled' : null">
-														{{Handing[handing]}}
-													</label>
-												</div>
+										Handing
+										<div class="custom-control custom-control-inline custom-switch phd-custom-control-right float-right">
+											<input class="custom-control-input" id="naHandingInput" formControlName="handing-3" type="checkbox" (click)="removeHandings()">
+											<label class="custom-control-label" for="naHandingInput">N/A</label>
+										</div>
+										<div class="phd-checkboxes" [ngClass]="{'phd-required': handingChecked, 'phd-div-disabled': isNAHandingSelected}">
+											<div class="form-check">
+												<input id="handing-1" class="form-check-input" formControlName="handing-1" type="checkbox" [attr.disabled]="isNAHandingSelected ? 'disabled' : null">
+												<label for="handing-1">Left</label>
+												<input id="handing-2" class="form-check-input" formControlName="handing-2" type="checkbox" [attr.disabled]="isNAHandingSelected ? 'disabled' : null">
+												<label for="handing-2">Right</label>
 											</div>
 										</div>
 									</div>
@@ -212,5 +217,18 @@
 		</div>
 	</ng-template>
 </phd-side-panel-component>
+
+<div class="phd-monotony-map-container" *ngIf="currentTab === 'monotony'">
+	<div class="monotony-map">
+		<div *ngIf="communityWebsiteKey == null" >Unable to load the community map.</div>
+		<av-site-plan
+			*ngIf="communityWebsiteKey"
+			[webCommunityId]="communityWebsiteKey"
+			(lotSelectedCallback)="$event"
+			showLotNumbers="true"
+		>
+    </av-site-plan>
+	</div>
+</div>
 
 <p-toast></p-toast>

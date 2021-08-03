@@ -535,7 +535,7 @@ export class ContractService
 
 					if (inChangeOrderOrSpecSale)
 					{
-						const deletedBuyers = sagBuyers.filter(x => coCoBuyers.findIndex(b => b.opportunityContactAssoc.id === x.opportunityContactAssoc.id) < 0);
+						const deletedBuyers = sagBuyers.filter(x => x.id !== buyer.id && coCoBuyers.findIndex(b => b.opportunityContactAssoc.id === x.opportunityContactAssoc.id) < 0);
 
 						coBuyerList = coCoBuyers.concat(deletedBuyers);
 					}

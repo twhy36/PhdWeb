@@ -87,6 +87,10 @@ export class ViewContractsComponent extends UnsubscribeOnDestroy implements OnIn
 		).subscribe(templates =>
 		{
 			this.allTemplates = templates;
+			this.allTemplates.forEach(template =>
+				{
+					template.application = this.getApplication(template);
+				})
 			this.getTemplatesToBedisplayed();
 			this.resetSearchBar();
 		});
@@ -208,9 +212,9 @@ export class ViewContractsComponent extends UnsubscribeOnDestroy implements OnIn
 					})
 			}
 		}, (reason) =>
-			{
+		{
 
-			});
+		});
 	}
 
 	editDraft(dto: ContractTemplate)
@@ -284,18 +288,21 @@ export class ViewContractsComponent extends UnsubscribeOnDestroy implements OnIn
 			.subscribe(newDto =>
 			{
 				newDto.assignedCommunityIds = contractTemplateDto.assignedCommunityIds;
+				newDto.application = this.getApplication(newDto);
 
 				if (!this.selected)
 				{
 					const newTemplate = new ContractTemplate(newDto);
 
-					this.filteredContractTemplates.push(newTemplate);
-					this.allTemplates.indexOf(newTemplate) === -1 ? this.allTemplates.push(newTemplate) : null;
+					this.filteredContractTemplates = [...this.filteredContractTemplates, newTemplate];
+
+					this.allTemplates.indexOf(newTemplate) === -1 ? this.allTemplates = [...this.allTemplates, newTemplate] : null;
 				}
 				else
 				{
-					this.filteredContractTemplates = this.filteredContractTemplates.filter(t => t.templateId !== newDto.templateId);
 					const updatedTemplate = new ContractTemplate(newDto);
+
+					this.filteredContractTemplates = this.filteredContractTemplates.filter(t => t.templateId !== newDto.templateId);
 
 					if (newDto.parentTemplateId !== null)
 					{
@@ -310,7 +317,7 @@ export class ViewContractsComponent extends UnsubscribeOnDestroy implements OnIn
 						}
 						else if (newDto.status === 'In Use' || !this.filteredContractTemplates.find(t => t.templateId === newDto.parentTemplateId))
 						{
-							this.filteredContractTemplates.push(updatedTemplate);
+							this.filteredContractTemplates = [...this.filteredContractTemplates, updatedTemplate];
 						}
 						else
 						{
@@ -326,10 +333,10 @@ export class ViewContractsComponent extends UnsubscribeOnDestroy implements OnIn
 							updatedTemplate.childContractTemplate = childTemplate;
 						}
 
-						this.filteredContractTemplates.push(updatedTemplate);
+						this.filteredContractTemplates = [...this.filteredContractTemplates, updatedTemplate];
 					}
 
-					this.allTemplates.push(updatedTemplate);
+					this.allTemplates = [...this.allTemplates, updatedTemplate];
 				}
 
 				this.sort();
@@ -351,6 +358,7 @@ export class ViewContractsComponent extends UnsubscribeOnDestroy implements OnIn
 				var el = document.createElement("a");
 
 				el.href = data;
+
 				el.dispatchEvent(new MouseEvent("click"));
 
 				this._msgService.add({ severity: 'success', summary: 'Document', detail: `has been downloaded` });
@@ -417,17 +425,17 @@ export class ViewContractsComponent extends UnsubscribeOnDestroy implements OnIn
 
 	saveSort()
 	{
-
 		if (this.templatesWithUpdatedAddendum.length !== 0)
 		{
 			this._contractService.updateAddendumOrder(this.templatesWithUpdatedAddendum)
 				.subscribe(data =>
-				{
-					this._msgService.add({ severity: 'success', summary: 'Sort', detail: `Sort saved!` });
+				{					
 					this.filteredContractTemplates = this.allTemplates;
 					this.isSorting = false;
 					this.canManageDocument = true;
 					this.templatesWithUpdatedAddendum = [];
+
+					this._msgService.add({ severity: 'success', summary: 'Sort', detail: `Sort saved!` });
 				});
 		}
 	}
@@ -442,11 +450,10 @@ export class ViewContractsComponent extends UnsubscribeOnDestroy implements OnIn
 		tableComponent.hideTooltip();
 	}
 
-	onRowReorder(event:any){
-		
+	onRowReorder(event: any)
+	{
 		if (event.dragIndex !== event.dropIndex)
 		{
-			
 			let parent = this.filteredContractTemplates;
 
 			this.updateSort(parent, event.dragIndex, event.dropIndex);
@@ -476,5 +483,17 @@ export class ViewContractsComponent extends UnsubscribeOnDestroy implements OnIn
 		{
 			return left[sortName] === right[sortName] ? 0 : (left[sortName] < right[sortName] ? -1 : 1);
 		});
+	}
+
+	private getApplication(dto: ContractTemplate)
+	{
+		if (dto.isPhd && dto.isTho)
+			return 'PHD+THO';
+		else if (dto.isPhd)
+			return 'PHD';
+		else if (dto.isTho)
+			return 'THO';
+		else
+			return null;
 	}
 }

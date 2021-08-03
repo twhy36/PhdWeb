@@ -1,0 +1,98 @@
+@import './bootstrap.min.css';
+@import url(https://fonts.googleapis.com/css?family=Roboto:400,100,100italic,300,300itaÃ¢â‚¬Å’Ã¢â‚¬â€¹lic,400italic,500,500italic,700,700italic,900italic,900);
+@import "color-pallet";
+
+html, body, app-root {
+	margin: 0;
+	padding: 0;
+	height: 100%;
+}
+
+body {
+	font-family: 'Roboto', sans-serif;
+	background: #f8f8f8;
+	color: #4a4a4a;
+}
+
+.app-root {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	min-height: 100%;
+	padding-left: 0;
+}
+
+main {
+	display: flex;
+	flex-grow: 1;
+}
+
+/* bootstrap override start */
+.btn-secondary, .btn-secondary.dropdown-toggle {
+	color: #000;
+	background-color: #D7DBDD;
+	border-color: #D7DBDD;
+}
+
+.btn-secondary:not(:disabled):not(.disabled).active,
+.btn-secondary:not(:disabled):not(.disabled):active,
+.show > .btn-secondary.dropdown-toggle {
+	color: #000;
+	background-color: #BDC3C7;
+	border-color: #A6ACAF;
+}
+
+.btn-secondary.focus, .btn-secondary:focus {
+	color: #000;
+	background-color: #CACFD2;
+	border-color: #BDC3C7;
+	box-shadow: 0 0 0 0.2rem rgba(185, 185, 185,.5);
+}
+
+.btn-secondary:not(:disabled):not(.disabled).active:focus,
+.btn-secondary:not(:disabled):not(.disabled):active:focus,
+.show > .btn-secondary.dropdown-toggle:focus {
+	box-shadow: 0 0 0 0.2rem rgba(185, 185, 185,.5);
+}
+
+.btn-secondary:hover {
+	color: #000;
+	background-color: #CACFD2;
+	border-color: #BDC3C7;
+}
+
+.modal-body {
+	padding: 0;
+}
+
+.modal-header {
+	background: $twilight-blue;
+	border-top-left-radius: 0.2rem;
+	border-top-right-radius: 0.2rem;
+	color: #fff;
+
+	.close {
+		color: #fff;
+	}
+}
+
+.modal-title {
+	font-size: 1.25em;
+}
+
+/* bootstrap override end */
+
+/* primeng table start */
+
+.p-multiselect-panel .p-multiselect-item {
+	margin: 1px 0 !important;
+	padding: .125em .25em !important;
+}
+
+/* primeng table end */
+
+.phd-btn-save {
+	margin-right: 15px;
+}
+
+

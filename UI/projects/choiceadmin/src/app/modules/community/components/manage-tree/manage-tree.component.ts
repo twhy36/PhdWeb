@@ -2,8 +2,8 @@ import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
 
-import { Observable, of, from as fromPromise, Subscription, forkJoin } from 'rxjs';
-import { combineLatest, switchMap, distinctUntilChanged, map, finalize } from 'rxjs/operators';
+import { Observable, of, from as fromPromise, Subscription, forkJoin, throwError } from 'rxjs';
+import { combineLatest, switchMap, distinctUntilChanged, map, finalize, catchError } from 'rxjs/operators';
 
 import { MessageService } from 'primeng/api';
 
@@ -20,20 +20,20 @@ import { IFinancialCommunity } from '../../../shared/models/financial-community.
 import { IFinancialMarket } from '../../../shared/models/financial-market.model';
 import { IPlan } from '../../../shared/models/plan.model';
 import
-	{
-		DTree,
-		DTPoint,
-		DTChoice,
-		DTSubGroup,
-		IItemAdd,
-		DTVersion,
-		IDTPoint,
-		IDTChoice,
-		DTreeVersionDropDown,
-		IDTSubGroup,
-		DTAttributeGroupCollection,
-        ITreeSortList
-	} from '../../../shared/models/tree.model';
+{
+	DTree,
+	DTPoint,
+	DTChoice,
+	DTSubGroup,
+	IItemAdd,
+	DTVersion,
+	IDTPoint,
+	IDTChoice,
+	DTreeVersionDropDown,
+	IDTSubGroup,
+	DTAttributeGroupCollection,
+	ITreeSortList
+} from '../../../shared/models/tree.model';
 import { PhdApiDto, PhdEntityDto } from '../../../shared/models/api-dtos.model';
 import { Permission, IdentityService } from 'phd-common';
 import { IDPointPickType } from '../../../shared/models/point.model';
@@ -126,6 +126,8 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 
 	modalReference: ModalRef;
 
+	hideGenericPreviewAccess: boolean;
+
 	get openGroups(): boolean
 	{
 		return this.treeToggle ? this.treeToggle.openGroups : true;
@@ -191,6 +193,8 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 		});
 
 		this._treeOptionSub = this._treeService.currentTreeOptions.subscribe(options => { this.currentTreeOptions = options; });
+
+		this.hideGenericPreviewAccess = this._settingsService.getSettings().production;
 	}
 
 	ngOnDestroy()
@@ -400,7 +404,7 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 	{
 		const v = this.treeVersions && this.treeVersions.some(o =>
 		{
-			return o.effectiveDate == null || moment.utc().isBefore(o.effectiveDate);
+			return o.effectiveDate == null || moment().isBefore(moment.utc(o.effectiveDate.format('YYYY-MM-DDTHH:mm:ss')));
 		});
 
 		return v;
@@ -408,7 +412,7 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 
 	get isDraft(): boolean
 	{
-		return this.selectedTreeVersion && (this.selectedTreeVersion.effectiveDate == null || moment.utc().isBefore(this.selectedTreeVersion.effectiveDate));
+		return this.selectedTreeVersion && (this.selectedTreeVersion.effectiveDate == null || moment().isBefore(moment.utc(this.selectedTreeVersion.effectiveDate.format('YYYY-MM-DDTHH:mm:ss'))));
 	}
 
 	get titleAddon(): string
@@ -714,10 +718,10 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 
 							this.onChangeTreeVersion();
 						},
-						(error) =>
-						{
-							this._msgService.add({ severity: 'danger', summary: 'Error', detail: `Failed to delete draft.` });
-						});
+							(error) =>
+							{
+								this._msgService.add({ severity: 'danger', summary: 'Error', detail: `Failed to delete draft.` });
+							});
 				}
 				catch (ex)
 				{
@@ -761,17 +765,37 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 	{
 		const path = `preview/${this.currentTree.version.id}`;
 
-		const ref = window.open('', "preview", '', true);
+		const ref = window.open('', "designToolPreview", '');
 
-		if (!ref.location.href.endsWith(path)) // just opened
+		const dtUrl = this._settingsService.getSettings().designToolUrl;
+
+		if (!ref.location.href.endsWith(`${dtUrl}/${path}`)) // just opened
 		{
-			const dtUrl = this._settingsService.getSettings().designToolUrl;
-
 			ref.location.href = `${dtUrl}${path}`;
 		}
 		else
 		{ // was already opened -- we refresh it
-			ref.location.reload(true);
+			ref.location.reload();
+		}
+
+		ref.focus();
+	}
+
+	onDesignPreviewTreeClicked()
+	{
+		const path = `preview/${this.currentTree.version.id}`;
+
+		const ref = window.open('', "genericDesignPreview", '');
+		
+		const dtUrl = this._settingsService.getSettings().designPreviewUrl;
+
+		if (!ref.location.href.endsWith(`${dtUrl}/${path}`)) // just opened
+		{
+			ref.location.href = `${dtUrl}${path}`;
+		}
+		else
+		{ // was already opened -- we refresh it
+			ref.location.reload();
 		}
 
 		ref.focus();
@@ -908,31 +932,32 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 
 			this._msgService.add({ severity: 'info', summary: 'Deleting Choice...' });
 
-			try
-			{
-				// delete choice
-				this._treeService.deleteChoiceFromTree(versionId, id)
-					.pipe(finalize(() => this._msgService.add({ severity: 'success', summary: 'Choice Deleted' })))
-					.subscribe(deletedRules =>
+			// delete choice
+			this._treeService.deleteChoiceFromTree(versionId, id)
+				.pipe(
+					catchError((err) =>
 					{
-						this.updateDPointRulesStatus(deletedRules.points);
-						this.updateOptionRulesStatus(deletedRules.integrationKeys);
+						this._msgService.add({ severity: 'error', summary: 'Error', detail: `Unable to Delete Choice.` });
 
-						const point = choice.parent;
+						return throwError(err);
+					}))
+				.subscribe(deletedRules =>
+				{
+					this.updateDPointRulesStatus(deletedRules.points);
+					this.updateOptionRulesStatus(deletedRules.integrationKeys);
 
-						// remove choice from DTPoint choice list
-						const index = point.choices.indexOf(choice);
-						point.choices.splice(index, 1);
+					const point = choice.parent;
 
-						// update points hasUnusedChoices flag
-						this.checkUnusedChoices(point);
-					});
+					// remove choice from DTPoint choice list
+					const index = point.choices.indexOf(choice);
 
-			}
-			catch (e)
-			{
-				this._msgService.add({ severity: 'error', summary: 'Error', detail: `Unable to Delete Choice.` });
-			}
+					point.choices.splice(index, 1);
+
+					// update points hasUnusedChoices flag
+					this.checkUnusedChoices(point);
+
+					this._msgService.add({ severity: 'success', summary: 'Choice Deleted' });
+				});
 		}
 	}
 
@@ -965,12 +990,16 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 
 			this._msgService.add({ severity: 'info', summary: 'Deleting Decision Point...' });
 
-			try
-			{
-				// delete point
-				this._treeService.deletePointFromTree(versionId, id).pipe(
-					finalize(() => this._msgService.add({ severity: 'success', summary: 'Decision Point Deleted' }))
-				).subscribe(deletedRules =>
+			// delete point
+			this._treeService.deletePointFromTree(versionId, id)
+				.pipe(
+					catchError((err) =>
+					{
+						this._msgService.add({ severity: 'error', summary: 'Error', detail: `Unable to Delete Decision Point.` });
+
+						return throwError(err);
+					}))
+				.subscribe(deletedRules =>
 				{
 					this.updateDPointRulesStatus(deletedRules.points);
 					this.updateOptionRulesStatus(deletedRules.integrationKeys);
@@ -979,16 +1008,14 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 
 					// remove point from DTSubGroup point list
 					const index = subGroup.points.indexOf(point);
+
 					subGroup.points.splice(index, 1);
 
 					// update subGroups hasUnusedPoints flag
 					this.checkUnusedPoints(subGroup);
+
+					this._msgService.add({ severity: 'success', summary: 'Decision Point Deleted' });
 				});
-			}
-			catch (e)
-			{
-				this._msgService.add({ severity: 'error', summary: 'Error', detail: `Unable to Delete Decision Point.` });
-			}
 		}
 	}
 
@@ -1012,6 +1039,8 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 							text: c.choiceLabel,
 							id: c.divChoiceCatalogID,
 							isDefault: c.isDecisionDefault,
+							isHiddenFromBuyerView: c.isHiddenFromBuyerView,
+							priceHiddenFromBuyerView: c.priceHiddenFromBuyerView,
 							isSelected: false
 						} as IItemAdd;
 					});

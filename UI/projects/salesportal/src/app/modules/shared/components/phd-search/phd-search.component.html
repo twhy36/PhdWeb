@@ -13,10 +13,10 @@
 								  (onFinancialCommunityChange)="onFinancialCommunityChange($event)"
 								  showFinancialCommunity="true"></sales-community-selector>
 
-		<div class="phd-search-options d-flex w-100 justify-content-between px-4 py-2 bg-white">
+		<div class="phd-search-options">
 
-			<section class="d-flex flex-row w-100 flex-wrap" *ngIf="!!optionsShown">
-				<div class="form-inline" (keyup.enter)="search()">
+			<section *ngIf="!!optionsShown">
+				<div (keyup.enter)="search()">
 					<div class="phd-flexbox">
 						<label>Lot #</label>
 						<input type="text" [(ngModel)]="homesiteNumber" #homesiteField />
@@ -43,60 +43,48 @@
 				</div>
 			</section>
 
-			<section *ngIf="!!optionsShown" class="d-flex flex-row w-100 flex-wrap">
-				<div class="form-inline">
-					<div class="phd-flexbox">
+			<section *ngIf="!!optionsShown">
+				<div>
+					<div class="phd-flexbox mb-3">
 						<label>Sales Agreement Status</label>
-						<p-multiSelect class="ui-multiselect-label-container ui-inputwrapper-filled flex-fill"
-									   defaultLabel="Select Agreement Status"
-									   [displaySelectedLabel]="true"
+						<p-multiSelect defaultLabel="Select Agreement Status"
 									   [filter]="false"
 									   id="phdSalesStatus"
 									   [maxSelectedLabels]="5"
 									   [(ngModel)]="selectedSalesAgreementStatus"
 									   [options]="salesAgreementStatusOptions"
-									   [showHeader]="true"
-									   [showToggleAll]="true"
 									   (onPanelHide)="onOptionPanelClosed()">
 						</p-multiSelect>
 					</div>
 
-					<div class="phd-flexbox">
+					<div class="phd-flexbox mb-3">
 						<label>Lot Status</label>
-						<p-multiSelect class="phd-select-homesite-status ui-multiselect-label-container ui-inputwrapper-filled flex-fill"
-									   defaultLabel="Select Lot Status"
-									   [displaySelectedLabel]="true"
+						<p-multiSelect defaultLabel="Select Lot Status"
 									   [filter]="false"
 									   id="phdHomesiteStatus"
 									   [maxSelectedLabels]="5"
 									   [(ngModel)]="selectedHomesiteStatus"
 									   [options]="homesiteStatusOptions"
-									   [showHeader]="true"
-									   [showToggleAll]="true"
 									   (onPanelHide)="onOptionPanelClosed()">
 						</p-multiSelect>
 					</div>
 
-					<div class="phd-flexbox">
+					<div class="phd-flexbox mb-3">
 						<label>Build Type</label>
-						<p-multiSelect class="phd-select-build-type ui-multiselect-label-container ui-inputwrapper-filled flex-fill"
-									   defaultLabel="Select Build Type"
-									   [displaySelectedLabel]="true"
+						<p-multiSelect defaultLabel="Select Build Type"
 									   [filter]="false"
 									   id="phdBuildType"
 									   [maxSelectedLabels]="5"
 									   [(ngModel)]="selectedBuildTypes"
 									   [options]="buildTypesOptions"
-									   [showHeader]="true"
-									   [showToggleAll]="true"
 									   (onPanelHide)="onOptionPanelClosed()">
 						</p-multiSelect>
 					</div>
 				</div>
 			</section>
 
-			<section class="d-flex flex-column flex-wrap phd-buttons-holder" *ngIf="!!optionsShown">
-				<div class="form-inline">
+			<section class="phd-buttons-holder" *ngIf="!!optionsShown">
+				<div>
 					<div class="w-100">
 						<div>
 							<button class="btn btn-primary align-self-start" (click)="searchPending()">All Pending Agreements</button>

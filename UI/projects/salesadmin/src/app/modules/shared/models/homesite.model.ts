@@ -32,6 +32,7 @@ export class HomeSite
 	get lotBuildTypeDescription() { return this.dto.lotBuildTypeDescription; }
 	get lotType() { return this.dto.lotType; }
 	get view() { return this.dto.view; }
+	get isHiddenInTho() { return this.dto.isHiddenInTho; }
 
 	private getStatus(status: string): HomeSiteStatus
 	{
@@ -116,7 +117,7 @@ export namespace HomeSiteDtos
 		edhWarrantyType: string;
 		altLotBlock: string;
 		isMasterUnit: boolean;
-
+		isHiddenInTho: boolean;
 		address: IAddress;
 		premium: number;
 		plans: Array<number>;

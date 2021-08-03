@@ -19,12 +19,12 @@
 ::ng-deep.phd-div-opt-tabview {
 	display: flex;
 	
-	::ng-deep.ui-tabview-nav {
+	::ng-deep.p-tabview-nav {
 		min-width: 200px;
 		flex: 0;
 	}
 
-	::ng-deep.ui-tabview-panels {
+	::ng-deep.p-tabview-panels {
 		flex: 1;
 	}
 }
@@ -49,4 +49,8 @@
 .div-search-bar {
 	margin: 5px 8px 22px 0px;
 	padding: 0px;
+}
+
+.phd-img-count {
+	margin-left: 0.2em;
 }

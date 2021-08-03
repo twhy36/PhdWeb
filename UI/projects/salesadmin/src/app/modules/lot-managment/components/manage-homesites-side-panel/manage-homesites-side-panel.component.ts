@@ -1,12 +1,10 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { FormGroup, FormControl, FormArray, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
+import { FormGroup, FormControl, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
 
 import { filter } from 'rxjs/operators';
 
-import { MessageService, Message } from 'primeng/api';
-
-import { NgbTabChangeEvent } from '@ng-bootstrap/ng-bootstrap';
+import { MessageService } from 'primeng/api';
 
 import { HomeSite, HomeSiteDtos } from '../../../shared/models/homesite.model';
 import { MonotonyRule } from '../../../shared/models/monotonyRule.model';
@@ -21,9 +19,6 @@ import { SidePanelComponent } from 'phd-common';
 })
 export class ManageHomesitesSidePanelComponent implements OnInit
 {
-	@ViewChild(SidePanelComponent)
-	private sidePanel: SidePanelComponent
-
 	@Output() onSidePanelClose = new EventEmitter<boolean>();
 	@Input() sidePanelOpen: boolean = false;
 	@Input() saving: boolean;
@@ -32,9 +27,13 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 	@Input() lots: Array<HomeSite> = [];
 	@Input() viewAdjacencies: Array<HomeSiteDtos.ILabel> = [];
 	@Input() physicalLotTypes: Array<HomeSiteDtos.ILabel> = [];
+	@Input() communityWebsiteKey: string;
 
 	@Output() onSaveHomesite = new EventEmitter<{ homesiteDto: HomeSiteDtos.ILotDto, lotBuildTypeUpdated: boolean}>();
 	@Output() onSaveMonotonyRules = new EventEmitter <{ lotId: number, monotonyRules: MonotonyRule[] }>();
+
+	@ViewChild(SidePanelComponent)
+	private sidePanel: SidePanelComponent
 
 	homesiteForm: FormGroup;
 	elevationAvailableLots: Array<string> = [];
@@ -47,7 +46,7 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 	fromMonotony: string;
 
 	inaccessibleLotStatuses = ["Sold", "Closed"];
-	disallowedStatusesForPremiumUpdate = this.inaccessibleLotStatuses.concat("Pending Sale");
+	disallowedStatusesForPremiumUpdate = this.inaccessibleLotStatuses.concat("PendingSale");
 
 	isOpen: boolean = true;
 
@@ -85,14 +84,12 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 	{
 		return this.lotInaccessible || this.monotonyForm.pristine || !this.monotonyForm.valid || this.saving;
 	}
+	
 	get handings(): Array<HomeSiteDtos.Handing>
 	{
 		return [HomeSiteDtos.Handing.Left, HomeSiteDtos.Handing.Right, HomeSiteDtos.Handing.NA];
 	}
-	get handingsControl(): FormArray
-	{
-		return this.homesiteForm.get('handing') as FormArray;
-	}
+
 	get facings(): Array<string>
 	{
 		return ["", ...this.enumKeys(HomeSiteDtos.Facing)];
@@ -103,14 +100,9 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 		return this.enumKeys(HomeSiteDtos.FoundationType);
 	}
 
-	get homesiteFormValues()
+	get isNAHandingSelected(): boolean
 	{
-		return this.homesiteForm.value;
-	}
-
-	isHandingSelected(handing: HomeSiteDtos.Handing): boolean
-	{
-		return this.selectedHomesite.dto.lotHandings.some(h => h.handingId === handing);
+		return this.homesiteForm.controls['handing-3'].value;
 	}
 
 	get warrantyTypes(): Array<string>
@@ -125,7 +117,8 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 
 	get handingChecked()
 	{
-		return !(this.homesiteForm.controls['handing-1'].value || this.homesiteForm.controls['handing-2'].value || this.homesiteForm.controls['handing-3'].value);
+		//if N/A handing is not selected, and Left or Right handing is not selected
+		return !this.homesiteForm.controls['handing-3'].value && !(this.homesiteForm.controls['handing-1'].value || this.homesiteForm.controls['handing-2'].value);
 	}
 
 	whiteSpaceValidator(): ValidatorFn
@@ -181,6 +174,7 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 		this.homesiteForm = new FormGroup({
 			'premium': new FormControl({ value: this.selectedHomesite.dto.premium, disabled: this.disallowedStatusesForPremiumUpdate.includes(this.selectedHomesite.dto.lotStatusDescription) }, [Validators.required, Validators.min(0)]),
 			'lotStatusDescription': new FormControl(this.selectedHomesite.dto.lotStatusDescription !== "Available"),
+			'isHiddenInTho': new FormControl(this.selectedHomesite.dto.isHiddenInTho),
 			'facing': new FormControl({ value: this.selectedHomesite.dto.facing, disabled: this.lotInaccessible }),
 			'foundationType': new FormControl(this.selectedHomesite.dto.foundationType, Validators.required),
 			'altLotBlock': new FormControl({ value: this.selectedHomesite.dto.altLotBlock, disabled: this.lotInaccessible }, this.whiteSpaceValidator()),
@@ -196,9 +190,10 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 			'changeModelToSpec': new FormControl({ value: this.selectedHomesite.lotBuildTypeDescription, disable: this.selectedHomesite.lotBuildTypeDescription !== 'Model' })
 		});
 
+		//add controls for Left, Right, and NA Handing
 		this.handings.forEach(hand =>
 		{
-			this.homesiteForm.addControl('handing-' + hand, new FormControl(this.selectedHomesite.dto.lotHandings.some(h => h.handingId === hand)));
+			this.homesiteForm.addControl('handing-' + hand, new FormControl(this.selectedHomesite.dto.lotHandings.some(h => h.handingId === hand)));			
 		});
 
 		this.homesiteForm.setValidators(this.checkRequired(this.homesiteForm.controls['handing-1'], this.homesiteForm.controls['handing-2'], this.homesiteForm.controls['handing-3']));
@@ -372,6 +367,16 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 		this.colorSelectedLots = [];
 	}
 
+	removeHandings()
+	{
+		//if NA is turned on, remove all selected handings
+		if(this.homesiteForm.controls['handing-3'])
+		{
+			this.homesiteForm.controls['handing-' + 1].setValue(false);
+			this.homesiteForm.controls['handing-' + 2].setValue(false);
+		}
+	}
+
 	saveMonotonyRules()
 	{
 		const monotonyRulesToSave: Array<MonotonyRule> = [];
@@ -442,11 +447,6 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 		this._msgService.add({ severity: 'success', summary: 'Copy was successful' });
 	}
 
-	async onNavChange($event: NgbTabChangeEvent)
-	{
-		this.currentTab = $event.nextId;
-	}
-
 	onCloseSidePanel(status: boolean)
 	{
 		this.onSidePanelClose.emit(status);
@@ -478,6 +478,7 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 		this.selectedHomesite.dto.lotHandings = this.handings.filter(h => this.homesiteForm.controls['handing-' + h].value).map(h => { return { lotId: 0, handingId: h }; });
 		this.selectedHomesite.dto.edhWarrantyType = HomeSiteDtos.EdhWarrantyType[this.homesiteForm.controls['warranty'].value].toString();
 		this.selectedHomesite.dto.altLotBlock = this.homesiteForm.controls['altLotBlock'].value;
+		this.selectedHomesite.dto.isHiddenInTho = this.homesiteForm.controls['isHiddenInTho'].value;
 
 		const lotBuildTypeUpdated = this.homesiteForm.controls['changeModelToSpec'].dirty;
 		this.selectedHomesite.dto.lotBuildTypeDescription = lotBuildTypeUpdated ? this.homesiteForm.controls['changeModelToSpec'].value : this.selectedHomesite.lotBuildTypeDescription;
@@ -496,5 +497,10 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 		return Object.keys(enumType).filter(
 			type => isNaN(<any>type)
 		)
+	}
+
+	getAvailable(homesite: HomeSite)
+	{
+		return homesite.lotStatusDescription === 'Available';
 	}
 }

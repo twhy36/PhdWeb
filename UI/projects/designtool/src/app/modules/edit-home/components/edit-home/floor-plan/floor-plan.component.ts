@@ -55,7 +55,7 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 	@Output() onBuildIt = new EventEmitter<void>();
 	@Output() onSaveScenario = new EventEmitter<void>();
-	@Output() onSelectChoice = new EventEmitter<{ choiceId: number, overrideNote: string, quantity: number }>();
+	@Output() onSelectChoice = new EventEmitter<{choice: Choice, saveNow: boolean, quantity?: number}>();
 	@Output() onChoiceModal = new EventEmitter<Choice>();
 	@Output() pointTypeFilterChanged = new EventEmitter<DecisionPointFilterType>();
 
@@ -306,7 +306,7 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 		super.ngOnDestroy();
 	}
 
-	onOptionToggled(choice: any, value: any)
+	onOptionToggled(choice: any)
 	{
 		if (choice.options.length)
 		{
@@ -321,7 +321,7 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 			}
 		}
 
-		this.onSelectChoice.emit({ choiceId: choice.id, overrideNote: choice.overrideNote, quantity: value ? 1 : 0 });
+		this.onSelectChoice.emit({ choice, saveNow: false, quantity: choice.quantity ? 0 : 1 });
 	}
 
 	onCallToAction(event: any)

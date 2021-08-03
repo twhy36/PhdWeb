@@ -109,6 +109,7 @@ export class DecisionPoint
 	sortOrder: number;
 	isQuickQuoteItem: boolean;
 	isStructuralItem: boolean;
+	isHiddenFromBuyerView?: boolean;
 	edhConstructionStageId?: number;
 	cutOffDays?: number;
 	label: string;
@@ -166,6 +167,8 @@ export class Choice
 	changedDependentChoiceIds: number[] = [];
 	lockedInChoice: JobChoice | ChangeOrderChoice = null;
 	mappingChanged: boolean = false;
+	isHiddenFromBuyerView?: boolean;
+	priceHiddenFromBuyerView?: boolean;
 }
 
 export class MappedGroup

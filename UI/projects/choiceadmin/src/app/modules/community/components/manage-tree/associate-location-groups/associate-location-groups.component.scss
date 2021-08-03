@@ -3,8 +3,8 @@
 	z-index: 999 !important;
 }
 
-#growl-locations-choice {
-	::ng-deep .ui-growl {
+#toast-locations-choice {
+	::ng-deep .p-toast {
 		position: absolute;
 		top: 5em;
 		left: 5em;

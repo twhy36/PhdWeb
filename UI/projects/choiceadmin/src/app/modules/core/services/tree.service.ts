@@ -885,6 +885,7 @@ export class TreeService
 							isActive: divP.isActive,
 							isQuickQuoteItem: divP.isQuickQuoteItem,
 							isStructuralItem: divP.isStructuralItem,
+							isHiddenFromBuyerView: divP.isHiddenFromBuyerView,
 							orgID: divP.orgID
 						} as IDivCatalogPointDto;
 
@@ -1440,26 +1441,42 @@ export class TreeService
 
 	deleteChoiceFromTree(treeVersionId: number, choiceId: number): Observable<PhdApiDto.IDTreeRule>
 	{
-		const entity = `dPChoices(${choiceId})`;
-		const expand = `points`;
+		const body =
+		{
+			'choiceId': choiceId
+		};
 
-		const qryStr = `${this._ds}expand=${encodeURIComponent(expand)}`;
+		const action = 'DeleteChoiceFromTree';
+		const endPoint = `${settings.apiUrl}${action}`;
 
-		const endPoint = `${settings.apiUrl}${entity}?${qryStr}`;
-
-		return this._http.delete<PhdApiDto.IDTreeRule>(endPoint, { headers: { 'Prefer': 'return=representation' } });
+		return this._http.post<PhdApiDto.IDTreeRule>(endPoint, body, { headers: { 'Prefer': 'return=representation' } }).pipe(
+			map(response =>
+			{
+				return {
+					integrationKeys: response.integrationKeys,
+					points: response.points
+				} as PhdApiDto.IDTreeRule;
+			}));
 	}
 
 	deletePointFromTree(treeVersionId: number, pointId: number): Observable<PhdApiDto.IDTreeRule>
 	{
-		const entity = `dPoints(${pointId})`;
-		const expand = `points`;
+		const body =
+		{
+			'pointId': pointId
+		};
 
-		const qryStr = `${this._ds}expand=${encodeURIComponent(expand)}`;
+		const action = 'DeletePointFromTree';
+		const endPoint = `${settings.apiUrl}${action}`;
 
-		const endPoint = `${settings.apiUrl}${entity}?${qryStr}`;
-
-		return this._http.delete<PhdApiDto.IDTreeRule>(endPoint, { headers: { 'Prefer': 'return=representation' } });
+		return this._http.post<PhdApiDto.IDTreeRule>(endPoint, body, { headers: { 'Prefer': 'return=representation' } }).pipe(
+			map(response =>
+			{
+				return {
+					integrationKeys: response.integrationKeys,
+					points: response.points
+				} as PhdApiDto.IDTreeRule;
+			}));
 	}
 
 	deletePointRuleAssoc(pointRulePointAssocId: number): Observable<any>

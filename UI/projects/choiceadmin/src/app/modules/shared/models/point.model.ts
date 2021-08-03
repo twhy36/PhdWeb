@@ -114,6 +114,16 @@ export class DivDPoint extends Point<IDivisionalCatalogPointDto, DivDSubGroup, D
 		this.dto.isStructuralItem = val;
     }
 
+	get isHiddenFromBuyerView(): boolean
+	{
+		return this.dto.isHiddenFromBuyerView;
+	}
+
+	set isHiddenFromBuyerView(val: boolean)
+	{
+		this.dto.isHiddenFromBuyerView = val;
+    }
+
     get hasInactiveChildren(): boolean
     {
         return this.dto.hasInactiveChoices;
@@ -180,6 +190,7 @@ export class DivDPointCatalog
     divDPointSortOrder?: number;
     isQuickQuoteItem?: boolean;
 	isStructuralItem?: boolean;
+	isHiddenFromBuyerView?: boolean;
 	edhConstructionStageId?: number;
 	cutOffDays?: number;
 	dPointLabel?: string;
@@ -197,6 +208,7 @@ export class DivDPointCatalog
             this.divDPointSortOrder = dto.divDPointSortOrder == null ? 0 : dto.divDPointSortOrder;
             this.isQuickQuoteItem = dto.isQuickQuoteItem == null ? false : dto.isQuickQuoteItem;
 			this.isStructuralItem = dto.isStructuralItem == null ? false : dto.isStructuralItem;
+			this.isHiddenFromBuyerView = dto.isHiddenFromBuyerView == null ? false : dto.isHiddenFromBuyerView;
 			this.edhConstructionStageId = dto.edhConstructionStageId;
 			this.cutOffDays = dto.cutOffDays;
 			this.dPointLabel = dto.dPointLabel;
@@ -225,6 +237,7 @@ export interface IDivCatalogPointDto extends ICatalogPointDto
 	orgID: number;
 	isQuickQuoteItem: boolean;
 	isStructuralItem: boolean;
+	isHiddenFromBuyerView: boolean;
 	edhConstructionStageId: number;
 	cutOffDays: number;
 }

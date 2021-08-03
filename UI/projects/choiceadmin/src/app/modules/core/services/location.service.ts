@@ -14,6 +14,7 @@ import { Option, IOptionMarket } from '../../shared/models/option.model';
 import { IFinancialCommunity } from '../../shared/models/financial-community.model';
 import { LocationGroupCommunity } from '../../shared/models/location-group-community.model';
 import { GroupChoice } from '../../shared/models/group-choice.model';
+import { TableSort } from '../../../../../../phd-common/src/lib/components/table/phd-table.model';
 import { withSpinner } from 'phd-common';
 
 const settings: Settings = new SettingsService().getSettings();
@@ -25,14 +26,19 @@ export class LocationService
 
 	constructor(private _http: HttpClient, private _loggingService: LoggingService) { }
 
-	getLocationsByMarketId(marketId: number, status?: boolean, topRows?: number, skipRows?: number, filterName?: string, keywords?: string): Observable<Array<Location>>
+	getLocationsByMarketId(marketId: number, status?: boolean, topRows?: number, skipRows?: number, filterName?: string, keywords?: string, tableSort?: TableSort): Observable<Array<Location>>
 	{
 		let url = settings.apiUrl;
 
 		const expand = `locationMarketTags($select=locationMarketId,tag;)`;
 		const select = `id, marketId, locationName, locationDescription, isActive`;
-		const orderBy = `locationName`;
+		let orderby = tableSort?.sortField ?? `locationName`;
 		let filter = `marketId eq ${marketId}`;
+
+		if (tableSort?.sortField)
+		{
+			orderby += ` ${tableSort.sortOrderText}`;
+		}
 
 		if (keywords)
 		{
@@ -62,7 +68,7 @@ export class LocationService
 			filter = `(${filter}) and isActive eq ${statusString}`;
 		}
 
-		const qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}orderby=${encodeURIComponent(orderBy)}`;
+		const qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}orderby=${encodeURIComponent(orderby)}`;
 
 		url += `locationMarkets?${qryStr}`;
 
@@ -91,14 +97,19 @@ export class LocationService
 			catchError(this.handleError));
 	}
 
-	getLocationGroupsByMarketId(marketId: number, status?: boolean, topRows?: number, skipRows?: number, filterName?: string, keywords?: string, filterEmpty?: boolean): Observable<Array<LocationGroupMarket>>
+	getLocationGroupsByMarketId(marketId: number, status?: boolean, topRows?: number, skipRows?: number, filterName?: string, keywords?: string, filterEmpty?: boolean, tableSort?: TableSort): Observable<Array<LocationGroupMarket>>
 	{
 		let url = settings.apiUrl;
 
 		let expand = `locationGroupMarketTags($select=locationGroupMarketId,tag;)`;
 		const select = `id, marketId, locationGroupName, locationGroupDescription, groupLabel, isActive`;
-		const orderBy = `locationGroupName`;
+		let orderby = tableSort?.sortField ?? `locationGroupName`;
 		let filter = `marketId eq ${marketId}`;
+
+		if (tableSort?.sortField)
+		{
+			orderby += ` ${tableSort.sortOrderText}`;
+		}
 
 		if (keywords)
 		{
@@ -135,7 +146,7 @@ export class LocationService
 			filter += ` and locationGroupLocationMarketAssocs/any(a: a/locationMarket/isActive eq true)`;
 		}
 
-		const qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}orderby=${encodeURIComponent(orderBy)}`;
+		const qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}orderby=${encodeURIComponent(orderby)}`;
 
 		url += `locationGroupMarkets?${qryStr}`;
 

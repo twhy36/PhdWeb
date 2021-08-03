@@ -1,5 +1,6 @@
-<p-table [columns]="columns" [value]="value" [loading]="loading" loadingIcon="fa-spinner" [resizableColumns]="true" (onFilter)="onFilter($event)" (onColResize)="resizeColumn($event)" (onRowReorder)="onRowReorder($event)" (onRowSelect)="onRowSelect($event)" (onRowUnselect)="onRowUnselect($event)"
-		 [selection]="selection" (selectionChange)="selectionChange($event)" [dataKey]="dataKey" [sortMode]="sortMode" [sortField]="sortField || '__index'">
+<p-table [columns]="columns" [value]="value" [loading]="loading" loadingIcon="fa-spinner" [resizableColumns]="true"
+		 (onFilter)="onFilter($event)" (onColResize)="resizeColumn($event)" (onRowReorder)="onRowReorder($event)" (onRowSelect)="onRowSelect($event)" (onRowUnselect)="onRowUnselect($event)" (onLazyLoad)="onLazyLoad($event)"
+		 [selection]="selection" (selectionChange)="selectionChange($event)" [dataKey]="dataKey" [sortMode]="sortMode" [sortField]="sortField || '__index'" [lazy]="lazy" [lazyLoadOnInit]="false">
 
 	<!--TABLE CAPTION-->
 	<ng-template pTemplate="caption" *ngIf="hideableColumns?.length > 0 || filterableColumns?.length > 0 || showCaption">
@@ -16,7 +17,7 @@
 				<div class="col-data-filter align-right phd-filter-container" *ngIf="col.filterMode !== 'search'" [class.align-filters]="filterableColumns?.length > 1">
 					<!--MULTI-SELECT FILTER-->
 					<i class="fa fa-filter phd-filter-icon"></i>
-					<p-multiSelect class="ui-multiselect-label-container" *ngIf="col.filterMode == 'multiple'" [styleClass]="col.showFilterHeader ? 'multiselect-width' : ''" [options]="col.filterOptions" [defaultLabel]="col.filterLabel || col.header" [showToggleAll]="true" [hidden]="!col.filterVisible"
+					<p-multiSelect class="p-multiselect-label-container" *ngIf="col.filterMode == 'multiple'" [styleClass]="col.showFilterHeader ? 'multiselect-width' : ''" [options]="col.filterOptions" [defaultLabel]="col.filterLabel || col.header" [showToggleAll]="true" [hidden]="!col.filterVisible"
 								   [(ngModel)]="filterSelections[col.field]" (ngModelChange)="filterTableMulti($event, col)"
 								   [displaySelectedLabel]="col.displaySelectedLabel" [maxSelectedLabels]="col.maxSelectedLabels" [showHeader]="col.showFilterHeader"></p-multiSelect>
 					<!--SINGLE-SELECT FILTER-->
@@ -36,7 +37,7 @@
 	<!--TABLE HEADER-->
 	<ng-template pTemplate="header" let-columns *ngIf="showColumnHeaders">
 		<!--ng-template is used in the table header-->
-		<tr *ngIf="tableHeaderTemplate" class="ui-datatable-header">
+		<tr *ngIf="tableHeaderTemplate" class="p-datatable-header">
 			<th [attr.colspan]="columns.length">
 				<ng-container *ngTemplateOutlet="tableHeaderTemplate"></ng-container>
 			</th>
@@ -60,8 +61,8 @@
     <ng-template pTemplate="body" let-rowData let-columns="columns" let-rowIndex="rowIndex" let-expanded="expanded">
         <!--Row Group Header Display-->
         <ng-template [ngIf]="rowGroupHeaderTemplate && rowGroupMetadata[rowData[groupByKey]].startIndex === rowIndex">
-            <tr class="ui-widget-header ui-rowgroup-header">
-                <td [attr.colspan]="columns.length" class="ui-resizable-column">
+            <tr class="p-widget-header p-rowgroup-header">
+                <td [attr.colspan]="columns.length" class="p-resizable-column">
                     <ng-container *ngTemplateOutlet="rowGroupHeaderTemplate; context: {$implicit: rowData, count: rowGroupMetadata[rowData[groupByKey]].count}"></ng-container>
                 </td>
             </tr>
@@ -118,7 +119,7 @@
 <!--ROW BODY TEMPLATE-->
 <ng-template #rowBody let-rowData let-columns="columns" let-reorderable="reorderableRow" let-expanded="expanded">
     <ng-template ngFor [ngForOf]="columns" let-col let-index="index">
-        <td [ngClass]="col.styleClass" [style.width]="col.width" [class.reorderable-row]="reorderable && index === 0" class="ui-resizable-column">
+        <td [ngClass]="col.styleClass" [style.width]="col.width" [class.reorderable-row]="reorderable && index === 0" class="p-resizable-column">
             <!--BODY TEMPLATE DEFINED-->
             <ng-template [ngIf]="col.bodyTemplate">
                 <ng-container *ngTemplateOutlet="col.bodyTemplate; context: {$implicit: rowData, expanded: expanded}"></ng-container>
@@ -160,6 +161,6 @@
     </ng-template>
 </ng-template>
 
-<p-overlayPanel #tt [style]="{'background-color': 'black'}">
+<p-overlayPanel #tt [style]="{'background-color': 'black'}" [appendTo]="'body'">
 		<div class="custom-tooltip">{{tooltipText}}</div>
 </p-overlayPanel>

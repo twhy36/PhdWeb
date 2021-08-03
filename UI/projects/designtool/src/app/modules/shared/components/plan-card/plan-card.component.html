@@ -1,6 +1,6 @@
 <div class="card phd-plan-card m-2"
-	 [class.active]="selectedPlan?.treeVersionId === plan.treeVersionId"
-	 [class.phd-no-lot-assocation]="!isAssociatedWithSelectedLot">
+	 [class.active]="selectedPlan?.treeVersionId === plan.treeVersionId && !isSpecSelected"
+	 [class.phd-no-lot-assocation]="!isAssociatedWithSelectedLot && !isSpecSelected">
 
 	<cl-image *ngIf="plan.baseHouseElevationImageUrl" public-id="{{plan.baseHouseElevationImageUrl}}" type="fetch" width="286" crop="fill" (onError)="loadImageError($event)" class="card-img-top"></cl-image>
 	<cl-image *ngIf="!plan.baseHouseElevationImageUrl" public-id="{{noImageAvailable}}" type="fetch" width="286" crop="fill" (onError)="loadImageError($event)" class="card-img-top"></cl-image>
@@ -15,17 +15,17 @@
 			</div>
 		</div>
 		<div class="d-flex mt-auto phd-plan-selection-container"
-			 [class.phd-incompatible-lot]="!isAssociatedWithSelectedLot">
+			 [class.phd-incompatible-lot]="!isAssociatedWithSelectedLot && !isSpecSelected">
 
-			<div *ngIf="isAssociatedWithSelectedLot && canConfigure" class="flex-column flex-fill">
+			<div *ngIf="(isAssociatedWithSelectedLot && canConfigure) || isSpecSelected" class="flex-column flex-fill">
 				<button class="btn w-100 phd-experience-btn-choice" type="button"
-						(click)="toggleSelectedPlan(plan, selectedPlan?.treeVersionId === plan.treeVersionId)"
-						[class.phd-experience-btn-selected]="selectedPlan?.treeVersionId === plan.treeVersionId || getDisabled()"
-						[disabled]="getDisabled()">
+						(click)="toggleSelectedPlan(plan, !isSpecSelected && selectedPlan?.treeVersionId === plan.treeVersionId)"
+						[class.phd-experience-btn-selected]="!isSpecSelected && selectedPlan?.treeVersionId === plan.treeVersionId || getDisabled()"
+						[disabled]="!isSpecSelected && getDisabled()">
 					{{getButtonLabel()}}
 				</button>
 			</div>
-			<div *ngIf="!isAssociatedWithSelectedLot" class="flex-column flex-fill text-center">
+			<div *ngIf="!isAssociatedWithSelectedLot && !isSpecSelected" class="flex-column flex-fill text-center">
 				Unavailable with Lot {{selectedLot?.lotBlock}}
 			</div>
 		</div>

@@ -84,7 +84,7 @@ export class LoadJobForJob implements Action
 {
 	readonly type = JobActionTypes.LoadJobForJob;
 
-	constructor(public jobId: number) { }
+	constructor(public jobId: number, public clearState: boolean = true) { }
 }
 
 export class JobLoadedByJobId implements Action

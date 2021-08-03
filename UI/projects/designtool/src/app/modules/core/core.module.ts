@@ -100,7 +100,6 @@ import { NotificationService } from './services/notification.service';
 		ModalService,
 		NotificationService,
 		{ provide: ErrorHandler, useClass: PhdErrorHandler }
-	],
-	entryComponents: [ConfirmModalComponent, ModalOverrideSaveComponent, ModalComponent]
+	]
 })
 export class CoreModule { }

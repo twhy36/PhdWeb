@@ -240,7 +240,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 
 	addOverrideReason(overrideReason: string)
 	{
-		if (this.choice.overrideNote !== undefined)
+		if (this.choice.overrideNote)
 		{
 			this.choice.overrideNote = overrideReason;
 		}
@@ -399,11 +399,12 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 
 	/**
 	 * Updates the attribute selections when there are no locations associated with the choice
+	 * Called from attribute-list component event onAttributeGroupSelected
 	 */
 	attributeGroupSelected()
 	{
 		this.choice.selectedAttributes = this.getSelectedAttributes();
-
+		
 		this.store.dispatch(new ScenarioActions.SelectChoices(true, { choiceId: this.choice.id, overrideNote: null, quantity: this.choice.quantity, attributes: this.choice.selectedAttributes }));
 
 		// only trigger a save if the choice is selected - Change orders only
@@ -421,6 +422,8 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 
 		this.attributeComponent.attributeListComponents.forEach(a =>
 		{
+			//if selectedAttributeId of the attribute list component is not null,
+			//add it as one of the list of selected attributes
 			if (a.selectedAttributeId != null)
 			{
 				let attributeGroup = attributeGroups.find(ag => ag.id == a.attributeGroupId);

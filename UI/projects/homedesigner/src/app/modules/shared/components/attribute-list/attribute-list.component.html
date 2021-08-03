@@ -14,7 +14,7 @@
 					<i class="fa fa-check phd-icon-selected"></i>
 				</ng-container>
 				<ng-container *ngIf="attribute.attributeStatus === 'Available'">
-					<div class="phd-clickable" *ngIf="!isBlocked">
+					<div [class.phd-clickable]="!isReadonly" *ngIf="!isBlocked">
 						<span class="phd-icon-selected"><i *ngIf="attribute.isFavorite" class="fa fa-heart" (click)="toggleAttribute(attribute)"></i></span>
 						<i *ngIf="!attribute.isFavorite" class="fa fa-heart-o" (click)="toggleAttribute(attribute)"></i>
 					</div>			

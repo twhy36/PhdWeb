@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 
-import { UnsubscribeOnDestroy, flipOver2, slideOut, DecisionPoint, JobChoice, PickType, Choice, ChoiceImageAssoc, Group } from 'phd-common';
+import { UnsubscribeOnDestroy, flipOver2, slideOut, DecisionPoint, JobChoice, PickType, Choice, ChoiceImageAssoc, Group, PointStatus } from 'phd-common';
 import { ChoiceExt } from '../../models/choice-ext.model';
 import { MyFavoritesChoice, MyFavoritesPointDeclined } from '../../models/my-favorite.model';
 
@@ -21,7 +21,9 @@ export class DetailedDecisionBarComponent extends UnsubscribeOnDestroy implement
 	@Input() choiceImages: ChoiceImageAssoc[];
 	@Input() myFavoritesPointsDeclined?: MyFavoritesPointDeclined[];
 	@Input() groups: Group[];
-
+	@Input() isReadonly: boolean;
+	@Input() isPreview: boolean;
+	
 	@Output() onToggleChoice = new EventEmitter<ChoiceExt>();
 	@Output() onViewChoiceDetail = new EventEmitter<ChoiceExt>();
 	@Output() onDeclineDecisionPoint = new EventEmitter<DecisionPoint>();
@@ -34,7 +36,7 @@ export class DetailedDecisionBarComponent extends UnsubscribeOnDestroy implement
 
 	getSubTitle(point: DecisionPoint): string {
 		if (point) {
-			const contractedChoices = point.choices.filter(c => this.salesChoices.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1);
+			const contractedChoices = point.choices.filter(c => this.salesChoices?.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1);
 			const isPreviouslyContracted = contractedChoices && contractedChoices.length;
 
 			switch (point.pointPickTypeId) {
@@ -56,10 +58,10 @@ export class DetailedDecisionBarComponent extends UnsubscribeOnDestroy implement
 
 	getChoiceExt(choice: Choice, point: DecisionPoint) : ChoiceExt {
 		let choiceStatus = 'Available';
-		if (point.isPastCutOff || this.salesChoices.findIndex(c => c.divChoiceCatalogId === choice.divChoiceCatalogId) > -1) {
+		if (point.isPastCutOff || this.salesChoices?.findIndex(c => c.divChoiceCatalogId === choice.divChoiceCatalogId) > -1) {
 			choiceStatus = 'Contracted';
 		}	else {
-			const contractedChoices = point.choices.filter(c => this.salesChoices.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1);
+			const contractedChoices = point.choices.filter(c => this.salesChoices?.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1);
 			if (contractedChoices && contractedChoices.length && (point.pointPickTypeId === PickType.Pick1 || point.pointPickTypeId === PickType.Pick0or1)) {
 				choiceStatus = 'ViewOnly';
 			}
@@ -75,7 +77,7 @@ export class DetailedDecisionBarComponent extends UnsubscribeOnDestroy implement
 		return (point.pointPickTypeId === 2 || point.pointPickTypeId === 4)
 			&& !point.isStructuralItem
 			&& !point.isPastCutOff
-			&& point.choices.filter(c => this.salesChoices.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1)?.length === 0;
+			&& point.choices.filter(c => this.salesChoices?.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1)?.length === 0;
 	}
 
 	toggleChoice (choice) {
@@ -109,5 +111,12 @@ export class DetailedDecisionBarComponent extends UnsubscribeOnDestroy implement
 				decision.scrollIntoView({behavior: 'smooth', block: 'start'});
 			}
 		}
+	}
+
+	isPointComplete(point: DecisionPoint) 
+	{
+		return this.isPreview
+			? point.status === PointStatus.COMPLETED || point.status === PointStatus.PARTIALLY_COMPLETED
+			: point.isStructuralItem || point.isPastCutOff;			
 	}
 }

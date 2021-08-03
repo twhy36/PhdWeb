@@ -1,4 +1,4 @@
-import { Action, createFeatureSelector } from '@ngrx/store';
+import { Action, createFeatureSelector, createSelector } from '@ngrx/store';
 
 import * as _ from "lodash";
 
@@ -34,6 +34,8 @@ export function reducer(state: State = initialState, action: Action): State
 {
 	switch (action.type)
 	{
+		case CommonActionTypes.LoadSalesAgreement:
+			return { ...state, salesAgreementLoading: true, loadError: false };		
 		case CommonActionTypes.SalesAgreementLoaded:
 			{
 				const saAction = action as SalesAgreementLoaded;
@@ -54,3 +56,25 @@ export function reducer(state: State = initialState, action: Action): State
 
 //selectors
 export const salesAgreementState = createFeatureSelector<State>("salesAgreement");
+
+export const primaryBuyer = createSelector(
+	salesAgreementState,
+	(state) => state && state.buyers ? state.buyers.find(b => b.isPrimaryBuyer) : null
+);
+
+export const favoriteTitle = createSelector(
+	salesAgreementState,
+	primaryBuyer,
+	(state, primaryBuyer) =>
+	{
+		if (state?.id) 
+		{
+			const contact = primaryBuyer?.opportunityContactAssoc?.contact;
+			return `${contact ? contact.lastName || '' : ''} Favorites`;
+		}
+		else 
+		{
+			return 'Favorites';
+		}
+	}
+);

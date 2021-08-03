@@ -8,7 +8,7 @@ import { MessageService } from 'primeng/api';
 
 import { DivisionalOptionService } from '../../../../../core/services/divisional-option.service';
 import { SettingsService } from '../../../../../core/services/settings.service';
-import { IdentityService, Permission } from 'phd-common';
+import { IdentityService, Permission, PhdTableComponent } from 'phd-common';
 
 import { UnsubscribeOnDestroy } from '../../../../../shared/classes/unsubscribeOnDestroy';
 
@@ -19,6 +19,7 @@ import { ExpansionAssociateCommunitiesTabPanelComponent } from '../expansion-ass
 import { SearchBarComponent } from '../../../../../shared/components/search-bar/search-bar.component';
 import { ExpansionLocationGroupsTabPanelComponent } from '../expansion-location-groups-tab-panel/expansion-location-groups-tab-panel.component';
 import { ExpansionAttributeGroupsTabPanelComponent } from '../expansion-attribute-groups-tab-panel/expansion-attribute-groups-tab-panel.component';
+import { TableLazyLoadEvent, TableSort } from '../../../../../../../../../phd-common/src/lib/components/table/phd-table.model';
 
 @Component({
 	selector: 'divisional-options-panel',
@@ -36,6 +37,7 @@ export class DivisionalOptionsPanelComponent extends UnsubscribeOnDestroy implem
 	currentMarketId: number;
 	currentPage: number = 0;
 	isReadOnly: boolean;
+	sortField: TableSort = new TableSort({ multiSortMeta: [{ field: 'category', order: 1 }, { field: 'subCategory', order: 1 }, { field: 'optionSalesName', order: 1 }] })
 
 	@Output() onSidePanelOpen = new EventEmitter<{ event: any, option: Option, tab?: string, isReadOnly?: boolean }>();
 	@Output() onAssociateAttributeGroups = new EventEmitter<any>();
@@ -55,6 +57,9 @@ export class DivisionalOptionsPanelComponent extends UnsubscribeOnDestroy implem
 	@ViewChild(SearchBarComponent)
 	private searchBar: SearchBarComponent;
 
+	@ViewChild(PhdTableComponent)
+	private tableComponent: PhdTableComponent;
+
 	searchFilters = [
 		{ name: 'All', field: '' },
 		{ name: 'Lawson Number', field: 'financialOptionIntegrationKey' },
@@ -67,6 +72,11 @@ export class DivisionalOptionsPanelComponent extends UnsubscribeOnDestroy implem
 	allDataLoaded: boolean;
 	isSearchFilterOn: boolean;
 	isSearchingFromServer: boolean;
+
+	get currentTableSort(): TableSort
+	{
+		return this.tableComponent.currentTableSort;
+	}
 
 	get filterNames(): Array<string>
 	{
@@ -173,17 +183,22 @@ export class DivisionalOptionsPanelComponent extends UnsubscribeOnDestroy implem
 
 	onPanelScroll()
 	{
+		// all data will be loaded if user is searching by text
 		if (!this.isSearchFilterOn)
 		{
 			const top = this.settings.infiniteScrollPageSize;
 			const skip = this.currentPage * this.settings.infiniteScrollPageSize;
 
-			this._divOptService.getDivisionalOptions(this.currentMarketId, top, skip).subscribe(data =>
+			this._divOptService.getDivisionalOptions(this.currentMarketId, top, skip, null, null, this.currentTableSort).subscribe(data =>
 			{
 				if (data.length)
 				{
+					// append new data to the existing list
 					this.options = unionBy(this.options, data, 'id');
-					this.filteredOptions = orderBy(this.options, ['category', 'subCategory', 'optionSalesName']);
+					this.filteredOptions = this.options;
+
+					// apply sort to the full list
+					this.tableComponent.sortLazy();
 
 					this.currentPage++;
 
@@ -192,6 +207,32 @@ export class DivisionalOptionsPanelComponent extends UnsubscribeOnDestroy implem
 
 				this.allDataLoaded = !data.length || data.length < this.settings.infiniteScrollPageSize;
 			});
+		}
+	}
+
+	/**
+	 * The table is flagged as lazy which means any paging, sorting, and/or filtering done will call this method.
+	 * @param event
+	 */
+	lazyLoadData(event: TableLazyLoadEvent)
+	{
+		if (!this.allDataLoaded && !this.isSearchFilterOn)
+		{
+			// return data based on the sort options.  if currentTableSort is null then it will revert to the default sort.
+			this._divOptService.getDivisionalOptions(this.currentMarketId, this.settings.infiniteScrollPageSize, 0, null, null, this.currentTableSort).subscribe(data =>
+			{
+				this.options = data;
+				this.filteredOptions = this.options;
+				this.currentPage = 1;
+				this.allDataLoaded = !data.length || data.length < this.settings.infiniteScrollPageSize;
+
+				this.performChangeDetection();
+			});
+		}
+		else if (this.allDataLoaded || this.isSearchFilterOn)
+		{
+			// all the data is either loaded or we are filtering so all the data should be loaded at this time so we can just update the sort.				
+			this.tableComponent.sortLazy();
 		}
 	}
 
@@ -212,8 +253,10 @@ export class DivisionalOptionsPanelComponent extends UnsubscribeOnDestroy implem
 		}
 		else if (event.index === 1)
 		{
-			// clear selected groups
-			this.expansionLocationGroupsTabPanelComponent.toggleAllGroups(false);
+			if (this.expansionLocationGroupsTabPanelComponent) {
+				// clear selected groups
+				this.expansionLocationGroupsTabPanelComponent.toggleAllGroups(false);
+			}
 		}
 		else if (event.index === 2)
 		{
@@ -227,7 +270,7 @@ export class DivisionalOptionsPanelComponent extends UnsubscribeOnDestroy implem
 
 	resetSearchBar()
 	{
-		this.selectedSearchFilter = "All";
+		this.selectedSearchFilter = 'All';
 		this.keyword = '';
 
 		this.searchBar.clearFilter();
@@ -236,7 +279,7 @@ export class DivisionalOptionsPanelComponent extends UnsubscribeOnDestroy implem
 	clearFilter()
 	{
 		this.filteredOptions = orderBy(this.options, ['category', 'subCategory', 'optionSalesName']);
-		this.isSearchFilterOn = false;
+		this.isSearchFilterOn = false;		
 
 		this.performChangeDetection();
 	}
@@ -318,12 +361,18 @@ export class DivisionalOptionsPanelComponent extends UnsubscribeOnDestroy implem
 		return results;
 	}
 
+	/**
+	 * Filter results based on user search criteria
+	 * @param searchFilter
+	 * @param keyword
+	 */
 	private filterOptionsFromServer(searchFilter: any, keyword: string)
-	{		
+	{
 		this.isSearchingFromServer = true;
 
 		keyword = this.searchBar.handleSingleQuotes(keyword);
 
+		// return all data for the term entered by the user
 		this._divOptService.getDivisionalOptions(this.currentMarketId, null, null, searchFilter.field, keyword).subscribe(data =>
 		{
 			this.filteredOptions = data;

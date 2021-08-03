@@ -1,10 +1,11 @@
 ﻿using System.IO;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Azure.Storage;
-using Microsoft.Azure.Storage.Blob;
 using System.Threading.Tasks;
 using System;
+using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Specialized;
+using Azure.Storage.Blobs.Models;
 
 namespace AttributeCleanup
 {
@@ -27,34 +28,40 @@ namespace AttributeCleanup
 
 			_configuration = builder.Build();
 
-			var blobAccount = CloudStorageAccount.Parse(_configuration["AzureDocumentStorage"]);
-			var blobClient = blobAccount.CreateCloudBlobClient();
-			var container = blobClient.GetContainerReference("web-jobs");
-			var blob = container.GetBlockBlobReference("attributecleanup.txt");
+			var blob = new BlobClient(_configuration["AzureDocumentStorage"], "web-jobs", "attributecleanup.txt");
 
 			if (!await blob.ExistsAsync())
 			{
-				await blob.UploadTextAsync(DateTime.MinValue.ToString());
+				using var ms = new MemoryStream();
+				using var writer = new StreamWriter(ms);
+				writer.WriteLine(DateTime.MinValue.ToString());
+				await writer.FlushAsync();
+				ms.Position = 0;
+				await blob.UploadAsync(ms);
 			}
 
-			string leaseId = null;
+			var lease = new BlobLeaseClient(blob);
 
 			try
 			{
-				leaseId = await blob.AcquireLeaseAsync(new TimeSpan(0, 0, 60));
+				await lease.AcquireAsync(new TimeSpan(0, 0, 60));
 			}
 			catch
 			{
 				return;
 			}
 
-			var previousDateTime = DateTime.Parse(await blob.DownloadTextAsync());
-
-			if (previousDateTime > DateTime.Now.AddMinutes(-30))
+			using (var ms = new MemoryStream())
 			{
-				await blob.ReleaseLeaseAsync(new AccessCondition { LeaseId = leaseId });
+				using var rdr = new StreamReader(ms);
+				await blob.DownloadToAsync(ms);
 
-				return;
+				if (DateTime.TryParse(await rdr.ReadToEndAsync(), out DateTime previousDateTime) && previousDateTime > DateTime.Now.AddMinutes(-30))
+				{
+					await lease.ReleaseAsync();
+
+					return;
+				}
 			}
 
 			try
@@ -62,28 +69,31 @@ namespace AttributeCleanup
 				var service = new ServiceCollection();
 
 				service.AddSingleton(_configuration);
-				service.AddHttpClient<EdhDeleteClient>();
 
 				_services = service.BuildServiceProvider();
 
 				// Clean up orphaned Locations and Attributes
-				LocationGroupCleanup groupCleanup = new LocationGroupCleanup(_configuration, _services.GetRequiredService<EdhDeleteClient>());
+				LocationGroupCleanup groupCleanup = new LocationGroupCleanup(_configuration);
 
-				groupCleanup.Run().Wait();
+				await groupCleanup.Run();
 
-				LocationCommunityCleanup locationCommunityCleanup = new LocationCommunityCleanup(_configuration, _services.GetRequiredService<EdhDeleteClient>());
+				LocationCommunityCleanup locationCommunityCleanup = new LocationCommunityCleanup(_configuration);
 
-				locationCommunityCleanup.Run().Wait();
+				await locationCommunityCleanup.Run();
 
-				AttributeGroupCleanup attributeGroupCleanup = new AttributeGroupCleanup(_configuration, _services.GetRequiredService<EdhDeleteClient>());
+				AttributeGroupCleanup attributeGroupCleanup = new AttributeGroupCleanup(_configuration);
 
-				attributeGroupCleanup.Run().Wait();
+				await attributeGroupCleanup.Run();
 
-				AttributeCommunityCleanup attributeCommunityCleanup = new AttributeCommunityCleanup(_configuration, _services.GetRequiredService<EdhDeleteClient>());
+				AttributeCommunityCleanup attributeCommunityCleanup = new AttributeCommunityCleanup(_configuration);
 
-				attributeCommunityCleanup.Run().Wait();
+				await attributeCommunityCleanup.Run();
 
-				await blob.UploadTextAsync(DateTime.Now.ToString(), null, new AccessCondition { LeaseId = leaseId }, null, null);
+				using var ms = new MemoryStream();
+				using var writer = new StreamWriter(ms);
+				await writer.WriteAsync(DateTime.Now.ToString());
+				await writer.FlushAsync();
+				await blob.UploadAsync(ms, conditions: new BlobRequestConditions { LeaseId = lease.LeaseId });
 			}
 			catch (Exception ex)
 			{
@@ -91,7 +101,7 @@ namespace AttributeCleanup
 			}
 			finally
 			{
-				await blob.ReleaseLeaseAsync(new AccessCondition { LeaseId = leaseId });
+				await lease.ReleaseAsync();
 			}
 		}
     }

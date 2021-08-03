@@ -15,7 +15,7 @@
 	box-shadow: none;
 }
 
-.ui-inputtext {
+.p-inputtext {
 	border-bottom-color: none;
 }
 
@@ -25,13 +25,13 @@ p-autocomplete.ng-invalid {
 	box-shadow: initial !important;
 }
 
-p-autocomplete.ng-dirty.ng-invalid ::ng-deep > .ui-autocomplete > .ui-inputtext {
+p-autocomplete.ng-dirty.ng-invalid ::ng-deep > .p-autocomplete > .p-inputtext {
 	border: solid 1px $darkish-pink;
 	border-left-width: 5px;
 	box-shadow: none;
 }
 
-::ng-deep .ui-autocomplete-loader {
+::ng-deep .p-autocomplete-loader {
 	display: none;
 }
 

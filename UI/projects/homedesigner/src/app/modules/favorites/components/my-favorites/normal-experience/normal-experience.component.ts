@@ -21,10 +21,12 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	@Input() myFavoritesChoices: MyFavoritesChoice[];
 	@Input() myFavoritesPointsDeclined: MyFavoritesPointDeclined[];
 	@Input() decisionPointId: number;
-	@Input() includeContractedOptions: boolean = true;
+	@Input() includeContractedOptions: boolean = false;
 	@Input() salesChoices: JobChoice[];
 	@Input() groups: Group[];
 	@Input() choiceImages: ChoiceImageAssoc[];
+	@Input() isReadonly: boolean;
+	@Input() isPreview: boolean = false;
 
 	@Output() onToggleChoice = new EventEmitter<ChoiceExt>();
 	@Output() onToggleContractedOptions = new EventEmitter();
@@ -70,7 +72,11 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 
 		if (changes['decisionPointId'])
 		{
-			this.selectDecisionPoint(changes['decisionPointId'].currentValue);
+			const pointId = changes['decisionPointId'].currentValue;
+			if (pointId && pointId !== this.currentPointId)
+			{
+				this.selectDecisionPoint(pointId, 1600);
+			}
 		}
 	}
 
@@ -78,7 +84,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	{
 		if (point)
 		{
-			const contractedChoices = point.choices.filter(c => this.salesChoices.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1);
+			const contractedChoices = point.choices.filter(c => this.salesChoices?.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1);
 			const isPreviouslyContracted = contractedChoices && contractedChoices.length;
 
 			switch (point.pointPickTypeId)
@@ -111,14 +117,14 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 		this.isPointPanelCollapsed = !this.isPointPanelCollapsed;
 	}
 
-	selectDecisionPoint(pointId: number) {
+	selectDecisionPoint(pointId: number, interval?: number) {
 		if (pointId)
 		{
 			setTimeout(() =>
 			{
 				const firstPointId = this.points && this.points.length ? this.points[0].id : 0;
 				this.scrollPointIntoView(pointId, pointId === firstPointId);
-			}, 500);
+			}, interval || 500);
 		}
 		this.currentPointId = pointId;
 		this.onSelectDecisionPoint.emit(pointId);
@@ -144,13 +150,13 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	getChoiceExt(choice: Choice, point: DecisionPoint) : ChoiceExt
 	{
 		let choiceStatus = 'Available';
-		if (point.isPastCutOff || this.salesChoices.findIndex(c => c.divChoiceCatalogId === choice.divChoiceCatalogId) > -1)
+		if (point.isPastCutOff || this.salesChoices?.findIndex(c => c.divChoiceCatalogId === choice.divChoiceCatalogId) > -1)
 		{
 			choiceStatus = 'Contracted';
 		}
 		else
 		{
-			const contractedChoices = point.choices.filter(c => this.salesChoices.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1);
+			const contractedChoices = point.choices.filter(c => this.salesChoices?.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1);
 			if (contractedChoices && contractedChoices.length &&
 				(point.pointPickTypeId === PickType.Pick1 || point.pointPickTypeId === PickType.Pick0or1))
 			{
@@ -168,7 +174,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 		return (point.pointPickTypeId === 2 || point.pointPickTypeId === 4)
 			&& !point.isStructuralItem
 			&& !point.isPastCutOff
-			&& point.choices.filter(c => this.salesChoices.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1)?.length === 0;
+			&& point.choices.filter(c => this.salesChoices?.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1)?.length === 0;
 	}
 
 	scrollPointIntoView(pointId: number, isFirstPoint: boolean)
@@ -199,5 +205,20 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 		const pointId = this.points?.length ? this.points.find(p => p.choices.find(c => c.id === choice.id))?.id || this.points[0].id : 0;
 		this.selectDecisionPoint(pointId);
 		this.onViewChoiceDetail.emit(choice);
+	}
+
+	displayDecisionPoint(point: DecisionPoint) {
+		if (point.isHiddenFromBuyerView) {
+			return false;
+		} else {
+			const choices = _.flatMap(point.choices);
+			let aChoiceExists = false;
+			choices.forEach(c => {
+				if (!c.isHiddenFromBuyerView) {
+					aChoiceExists = true;
+				}
+			})
+			return aChoiceExists;
+		}
 	}
 }

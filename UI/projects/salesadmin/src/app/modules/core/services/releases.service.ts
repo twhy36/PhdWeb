@@ -183,7 +183,7 @@ export class ReleasesService
     {
 		let url = settings.apiUrl;
 
-		const expand = `release_LotAssoc($select=releaseID, edhLotId), org($select=edhFinancialCommunityId)`;
+		const expand = `release_LotAssoc($select=releaseID, edhLotId), org($select=edhFinancialCommunityId,orgId)`;
 		const filter = `org/edhFinancialCommunityId eq ${financialCommunityId}`;
 		const select = `releaseID, releaseDescription, releaseDate, releaseRank`;
 
