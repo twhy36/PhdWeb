@@ -63,13 +63,10 @@ export class CommunityPdfSidePanelComponent implements OnInit
 
 	save()
 	{
-		const formData = new FormData();
-		for (const key of Object.keys(this.communityPdfForm.value))
-		{
-			formData.append(key, this.communityPdfForm.get(key).value);
-		}
 		if (this.selected != null)
 		{
+			const effectiveDateValue = this.communityPdfForm.get('effectiveDate')?.value;
+			const expirationDateValue = this.communityPdfForm.get('expirationDate')?.value;
 			const updatedPdf =
 			{
 				marketId: null,
@@ -77,11 +74,10 @@ export class CommunityPdfSidePanelComponent implements OnInit
 				sortOrder: this.selected.sortOrder,
 				linkText: this.communityPdfForm.get('linkText')?.value,
 				description: this.communityPdfForm.get('description')?.value,
-				effectiveDate: this.communityPdfForm.get('effectiveDate')?.value,
-				expirationDate: this.communityPdfForm.get('expirationDate')?.value, // May need to convert to date
+				effectiveDate: effectiveDateValue !== null ? new Date(effectiveDateValue).toISOString() : null,
+				expirationDate: expirationDateValue !== null ? new Date(expirationDateValue).toISOString() : null,
 				fileName: this.selected.fileName,
 				sectionHeader: this.communityPdfForm.get('sectionHeader')?.value,
-				url: this.selected.url,
 			};
 
 			this.onUpdate.emit(updatedPdf as CommunityPdf);
@@ -90,6 +86,18 @@ export class CommunityPdfSidePanelComponent implements OnInit
 		}
 		else
 		{
+			const formData = new FormData();
+			for (const key of Object.keys(this.communityPdfForm.value))
+			{
+				if (key === 'effectiveDate' || key == 'expirationDate')
+				{
+					formData.set(key, this.communityPdfForm.get(key).value !== null ? new Date(this.communityPdfForm.get(key).value).toISOString() : null)
+				}
+				else
+				{
+					formData.append(key, this.communityPdfForm.get(key).value);
+				}
+			}
 			this.onSave.emit(formData);
 
 			this.saving = true;
