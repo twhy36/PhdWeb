@@ -20,9 +20,8 @@ export class OptionService
 		const expand = `optionCategory($select=id,name)`;
 		const filter = `optionCommunities/any(oc: oc/financialCommunityId eq ${financialCommunityId})`;
 		const select = `id,name`;
-		const orderby = `optionCategoryId`;
 
-		let qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}orderby=${encodeURIComponent(orderby)}`;
+		let qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
 		
 		const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
 
@@ -30,7 +29,40 @@ export class OptionService
 			map(response =>
 				{
 					let subCategoryList = response.value as Array<IOptionSubCategory>;
-					return subCategoryList;
+					// sort by categoryname and then by subcategoryname
+					return subCategoryList.sort((a, b) =>
+					{
+						let aName = a.optionCategory.name.toLowerCase();
+						let bName = b.optionCategory.name.toLowerCase();
+
+						if (aName < bName)
+						{
+							return -1;
+						}
+
+						if (aName > bName)
+						{
+							return 1;
+						}
+						
+						if(aName = bName){
+							let aSubName = a.name.toLowerCase();
+							let bSubName = b.name.toLowerCase();
+		
+							if (aSubName < bSubName)
+							{
+								return -1;
+							}
+		
+							if (aSubName > bSubName)
+							{
+								return 1;
+							}
+		
+							return 0;
+						}
+						return 0;
+					});
 				}), 
 		catchError(this.handleError));
 	}
