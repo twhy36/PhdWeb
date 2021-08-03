@@ -13,7 +13,7 @@ enum Tabs {
 @Component({
   selector: 'community-settings',
   templateUrl: './community-settings.component.html',
-  styleUrls: ['./community-settings.component.css']
+  styleUrls: ['./community-settings.component.scss']
 })
 export class CommunitySettingsComponent extends UnsubscribeOnDestroy implements OnInit {
 
