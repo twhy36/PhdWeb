@@ -15,7 +15,7 @@ import { CommunityPdfComponent } from './components/community-pdf/community-pdf.
 import { CommunityPdfSidePanelComponent } from './components/community-pdf-side-panel/community-pdf-side-panel.component';
 import { CommunityPdfTableComponent } from './components/community-pdf-table/community-pdf-table.component';
 import { CommunitySettingsComponent } from './components/community-settings/community-settings.component';
-import { CommunitySettingsTabComponent } from './community-settings-tab/community-settings-tab.component';
+import { CommunitySettingsTabComponent } from './components/community-settings-tab/community-settings-tab.component';
 
 @NgModule({
 	declarations: [

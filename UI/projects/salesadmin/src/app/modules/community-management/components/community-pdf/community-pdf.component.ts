@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, Input, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { cloneDeep } from "lodash";
 import { MessageService } from "primeng/api";
@@ -62,17 +62,17 @@ export class CommunityPdfComponent extends UnsubscribeOnDestroy implements OnIni
 			tap(() => this.isLoading = true),
 			switchMap(mkt =>
 			{
-			if (mkt)
-			{
-				this.selectedMarket = mkt;
-				this.populateCommunityPdfs();
-				return this._orgService.getFinancialCommunities(mkt.id);
-			}
-			else
-			{
-				this.selectedMarket = null;
-				return of([]);
-			}
+				if (mkt)
+				{
+					this.selectedMarket = mkt;
+					this.populateCommunityPdfs();
+					return this._orgService.getFinancialCommunities(mkt.id);
+				}
+				else
+				{
+					this.selectedMarket = null;
+					return of([]);
+				}
 			}),
 			map(comms => comms.map(comm => new FinancialCommunityViewModel(comm)).filter(c => c.isActive))
 		);
@@ -83,16 +83,15 @@ export class CommunityPdfComponent extends UnsubscribeOnDestroy implements OnIni
 		{
 			if (comm != null)
 			{
-			if (!this.selectedCommunity || this.selectedCommunity.id != comm.id)
-			{
-				this.selectedCommunity = new FinancialCommunityViewModel(comm);
-				this.populateCommunityPdfs();
-			}
-
+				if (!this.selectedCommunity || this.selectedCommunity.id != comm.id)
+				{
+					this.selectedCommunity = new FinancialCommunityViewModel(comm);
+					this.populateCommunityPdfs();
+				}
 			}
 			else
 			{
-			this.selectedCommunity = null;
+				this.selectedCommunity = null;
 			}
 		});
 

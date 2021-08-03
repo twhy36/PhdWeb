@@ -1,6 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { Claims, IdentityService } from 'phd-common';
-import { take } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { map, switchMap, take, tap } from 'rxjs/operators';
+import { OrganizationService } from '../../../core/services/organization.service';
+import { FinancialCommunity } from '../../../shared/models/financialCommunity.model';
+import { FinancialMarket } from '../../../shared/models/financialMarket.model';
+import { FinancialCommunityViewModel } from '../../../shared/models/plan-assignment.model';
 import { UnsubscribeOnDestroy } from '../../../shared/utils/unsubscribe-on-destroy';
 
 enum Tabs
@@ -14,27 +19,64 @@ enum Tabs
 @Component({
 	selector: 'community-settings',
 	templateUrl: './community-settings.component.html',
-	styleUrls: ['./community-settings.component.css']
+	styleUrls: ['./community-settings.component.scss']
 })
 export class CommunitySettingsComponent extends UnsubscribeOnDestroy implements OnInit
 {
-	public commTabs = Tabs;
+	activeCommunities: Observable<Array<FinancialCommunityViewModel>>;
+	selectedCommunity: FinancialCommunityViewModel = null;
+	selectedMarket: FinancialMarket = null;
+	commTabs = Tabs;
 	selectedTab: Tabs;
+	isLoading: boolean = true;
 
 	get mainTitle(): string
 	{
 		return 'Community Settings > ' + this.selectedTab;
 	}
 
-	constructor(
-		private identityService: IdentityService
-	)
-	{
-		super();
-	}
+	constructor(private _orgService: OrganizationService,
+		private identityService: IdentityService){ super();}
 
 	ngOnInit(): void
 	{
+		this.isLoading = true;
+		this.activeCommunities = this._orgService.currentMarket$.pipe(
+			this.takeUntilDestroyed(),
+			tap(() => this.isLoading = true),
+			switchMap(mkt =>
+			{
+			if (mkt)
+			{
+				this.selectedMarket = mkt;
+				return this._orgService.getFinancialCommunities(mkt.id);
+			}
+			else
+			{
+				this.selectedMarket = null;
+				return of([]);
+			}
+			}),
+			map(comms => comms.map(comm => new FinancialCommunityViewModel(comm)).filter(c => c.isActive))
+		);
+
+		this._orgService.currentCommunity$.pipe(
+			this.takeUntilDestroyed(),
+		).subscribe(comm =>
+		{
+			if (comm != null)
+			{
+				if (!this.selectedCommunity || this.selectedCommunity.id != comm.id)
+				{
+					this.selectedCommunity = new FinancialCommunityViewModel(comm);
+				}
+			}
+			else
+			{
+				this.selectedCommunity = null;
+			}
+		});
+
 		this.identityService.getClaims().pipe(
 			take(1)
 		).subscribe(
@@ -48,5 +90,21 @@ export class CommunitySettingsComponent extends UnsubscribeOnDestroy implements 
 	onTabClick(selectedTab: Tabs)
 	{
 		this.selectedTab = selectedTab;
+	}
+
+	onChangeCommunity(comm: FinancialCommunity)
+	{
+		if (comm != null)
+		{
+			this.isLoading = true;
+
+			this._orgService.selectCommunity(comm);
+		}
+	}
+
+	showCommunitySelect()
+	{
+		console.log(this.selectedTab !== this.commTabs.MonotonyRules)
+		return this.selectedTab !== this.commTabs.MonotonyRules;
 	}
 }

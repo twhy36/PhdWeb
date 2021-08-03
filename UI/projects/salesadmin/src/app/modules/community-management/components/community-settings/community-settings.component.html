@@ -1,5 +1,14 @@
 <div class="phd-page-container">
-	<page-header [mainTitle]="mainTitle"></page-header>
+	<page-header [mainTitle]="mainTitle">
+		<ng-template>
+			<div *ngIf="showCommunitySelect()" class="col" >
+				<select class="form-control" [ngModel]="selectedCommunity ? selectedCommunity.dto : null" (ngModelChange)="onChangeCommunity($event)">
+					<option [ngValue]="null" disabled="disabled">Community</option>
+					<option *ngFor="let comm of (activeCommunities | async)" [ngValue]="comm.dto">{{ comm.name }}</option>
+				</select>
+			</div>
+		</ng-template>
+	</page-header>
 	<div class="phd-page-body">
 		<div class="container-fluid mx-auto">
 
@@ -30,7 +39,7 @@
 
 				<community-pdf *ngIf="selectedTab === commTabs.PDF"></community-pdf>
 
-				<p *ngIf="selectedTab === commTabs.CommunitySettings"><!-- Community Settings go here. --></p>
+				<community-settings-tab *ngIf="selectedTab === commTabs.CommunitySettings"></community-settings-tab>
 			</div>
 
 		</div>
