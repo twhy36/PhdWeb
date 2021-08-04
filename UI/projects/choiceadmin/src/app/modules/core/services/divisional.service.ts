@@ -15,8 +15,9 @@ import { DivDSubGroup } from '../../shared/models/subgroup.model';
 import { DivDPoint, IDivCatalogPointDto, IDPointPickType, DivDPointCatalog } from '../../shared/models/point.model';
 import { DivDChoice, IDivCatalogChoiceDto, DivChoiceCatalog } from '../../shared/models/choice.model';
 import { Settings } from '../../shared/models/settings.model';
-import { IDivisionalCatalogGroupDto, IDivisionalCatalogPointDto, IDivisionalCatalogDto, IDivisionalCatalogChoiceDto, DivisionalCatalog, IDivSortList } from '../../shared/models/divisional-catalog.model';
+import { IDivisionalCatalogGroupDto, IDivisionalCatalogPointDto, IDivisionalCatalogDto, IDivisionalCatalogChoiceDto, DivisionalCatalog, IDivSortList, DivisionalChoice } from '../../shared/models/divisional-catalog.model';
 import { PhdEntityDto } from '../../shared/models/api-dtos.model';
+import { TableSort } from '../../../../../../phd-common/src/lib/components/table/phd-table.model';
 
 const settings: Settings = new SettingsService().getSettings();
 
@@ -46,6 +47,107 @@ export class DivisionalService
 				divisionalCatalog.groups = groups;
 
 				return divisionalCatalog;
+			})
+		);
+	}
+
+	getDivisionalChoices(marketId: number, top?: number, skip?: number, filterName?: string, keywords?: string, tableSort?: TableSort): Observable<DivisionalChoice[]>
+	{
+		let url = settings.apiUrl;
+
+		const expand = `divDPointCatalog($select=divDpointCatalogID, dPointLabel;$expand=dPointCatalog($select=dPointCatalogId;$expand=dSubGroupCatalog($select=dSubGroupCatalogId, dSubGroupLabel;$expand=dGroupCatalog($select=dGroupCatalogId, dGroupLabel))))`;
+		const select = `divChoiceCatalogID, divDpointCatalogID, choiceLabel, isActive, divChoiceSortOrder`;
+		let filter = `divDPointCatalog/org/edhmarketid eq ${marketId} and isActive eq true`;
+		let orderby = `divDPointCatalog/dPointCatalog/dSubGroupCatalog/dGroupCatalog/dGroupLabel, divDPointCatalog/dPointCatalog/dSubGroupCatalog/dSubGroupLabel, divDPointCatalog/dPointLabel, choiceLabel`;
+
+		if (tableSort?.sortField)
+		{
+			switch (tableSort.sortField)
+			{
+				case 'choiceLabel':
+					orderby = 'choiceLabel';
+
+					break;
+				case 'pointLabel':
+					orderby = 'divDPointCatalog/dPointLabel';
+
+					break;
+				case 'subGroupLabel':
+					orderby = 'divDPointCatalog/dPointCatalog/dSubGroupCatalog/dSubGroupLabel';
+
+					break;
+				case 'groupLabel':
+					orderby = 'divDPointCatalog/dPointCatalog/dSubGroupCatalog/dGroupCatalog/dGroupLabel';
+
+					break;
+			}
+
+			orderby += ` ${tableSort.sortOrderText}`;
+		}
+
+		if (keywords)
+		{
+			var keywordFilter = '';
+
+			if (!filterName)
+			{
+				keywordFilter += `indexof(tolower(choiceLabel), '${keywords}') gt -1`;
+				keywordFilter += ` or indexof(tolower(divDPointCatalog/dPointLabel), '${keywords}') gt -1`;
+				keywordFilter += ` or indexof(tolower(divDPointCatalog/dPointCatalog/dSubGroupCatalog/dSubGroupLabel), '${keywords}') gt -1`;
+				keywordFilter += ` or indexof(tolower(divDPointCatalog/dPointCatalog/dSubGroupCatalog/dGroupCatalog/dGroupLabel), '${keywords}') gt -1`;
+			}
+			else if (filterName === 'pointLabel')
+			{
+				keywordFilter += `indexof(tolower(divDPointCatalog/dPointLabel), '${keywords}') gt -1`;
+			}
+			else if (filterName === 'subGroupLabel')
+			{
+				keywordFilter += `indexof(tolower(divDPointCatalog/dPointCatalog/dSubGroupCatalog/dSubGroupLabel), '${keywords}') gt -1`;
+			}
+			else if (filterName === 'groupLabel')
+			{
+				keywordFilter += `indexof(tolower(divDPointCatalog/dPointCatalog/dSubGroupCatalog/dGroupCatalog/dGroupLabel), '${keywords}') gt -1`;
+			}
+			else
+			{
+				keywordFilter += `indexof(tolower(${filterName}), '${keywords}') gt -1`;
+			}
+
+			filter += ` and (${keywordFilter})`;
+		}
+
+		const qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}orderby=${encodeURIComponent(orderby)}`;
+
+		url += `divChoiceCatalogs?${qryStr}`;
+
+		if (top)
+		{
+			url += `&${this._ds}top=${top}`;
+		}
+
+		if (skip)
+		{
+			url += `&${this._ds}skip=${skip}`;
+		}
+
+		return (skip ? this._http : withSpinner(this._http)).get(url).pipe(
+			map(response =>
+			{
+				let dtos = response['value'] as PhdEntityDto.IDivChoiceCatalogDto[];
+				let choices: DivisionalChoice[] = dtos.map(c =>
+				{
+					let choice = new DivisionalChoice();
+
+					choice.divChoiceCatalogID = c.divChoiceCatalogID;
+					choice.choiceLabel = c.choiceLabel;
+					choice.pointLabel = c.divDPointCatalog.dPointLabel;
+					choice.subGroupLabel = c.divDPointCatalog.dPointCatalog.dSubGroupCatalog.dSubGroupLabel;
+					choice.groupLabel = c.divDPointCatalog.dPointCatalog.dSubGroupCatalog.dGroupCatalog.dGroupLabel;
+
+					return choice;
+				});
+
+				return choices;
 			})
 		);
 	}

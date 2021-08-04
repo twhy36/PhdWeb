@@ -1,0 +1,69 @@
+<div class="phd-table-container">
+	<div class="d-flex flex-row-reverse">
+		<div class="col-md-4 div-search-bar">
+			<search-bar [searchFilters]="filterNames" [selectedSearchFilter]="selectedSearchFilter" (onClearFilter)="clearFilter()" (onKeywordSearch)="keywordSearch($event)"></search-bar>
+		</div>
+	</div>
+	<div class="d-flex flex-row mx-2">
+		<ng-container *ngIf="tableMessage.length <= 0">
+			<div class="phd-choice-panel" infiniteScroll [infiniteScrollThrottle]="settings.infiniteScrollThrottle" [infiniteScrollDisabled]="allDataLoaded" (scrolled)="onPanelScroll()" [scrollWindow]="false">
+				<phd-table id="divisionalChoicesPanel" [value]="filteredChoices" selectionMode="single" [(selection)]="selectedChoice" dataKey="choiceLabel" tableId="divisionalChoices" [displayTooltip]="false" sortMode="single" [sortField]="sortField" [lazy]="true" (onLazyLoad)="lazyLoadData($event)">
+					<ng-template #rowExpansion let-choice let-columns="columns">
+						<tr>
+							<td [attr.colspan]="columns.length">
+								<div class="div-row-expansion">
+									<phd-tabView orientation="left" styleClass="phd-div-choice-tabview" (onTabClick)="onTabChange($event)">
+										<phd-tabPanel header="Attribute Groups">
+											<ng-template>
+												<expansion-choice-attribute-groups-tab-panel></expansion-choice-attribute-groups-tab-panel>
+											</ng-template>
+										</phd-tabPanel>
+
+										<phd-tabPanel header="Location Groups">
+											<ng-template>
+												<expansion-choice-location-groups-tab-panel></expansion-choice-location-groups-tab-panel>
+											</ng-template>
+										</phd-tabPanel>
+
+										<phd-tabPanel header="Images">
+											<ng-template>
+												<expansion-choice-images-tab-panel></expansion-choice-images-tab-panel>
+											</ng-template>
+										</phd-tabPanel>
+
+										<phd-tabPanel header="Communities">
+											<ng-template>
+												<expansion-choice-communities-tab-panel></expansion-choice-communities-tab-panel>
+											</ng-template>
+										</phd-tabPanel>
+									</phd-tabView>
+								</div>
+							</td>
+						</tr>
+					</ng-template>
+					<phd-column columnId="details" width="50px">
+						<ng-template #body let-choice let-expanded="expanded">
+							<i class="fa fa-fw phd-clickable" [ngClass]="expanded ? 'fa-chevron-circle-down' : 'fa-chevron-circle-right'" [phdRowToggler]="choice" title="Click to associate attribute groups to choice"></i>
+						</ng-template>
+					</phd-column>
+					<phd-column columnId="images" width="60px">
+						<ng-template let-choice pTemplate #body>
+							<i class="fa fa-fw fa-image fa-sm" *ngIf="choice.hasImages">
+								<span class="phd-img-count">{{choice.imageCount}}</span>
+							</i>
+						</ng-template>
+					</phd-column>
+					<phd-column field="choiceLabel" header="Choice Name"></phd-column>
+					<phd-column width="50px">
+						<ng-template let-choice #body>
+							<i *ngIf="choice.hasAttributeLocationAssoc" class="fa fa-magic" title="Attributes"></i>
+						</ng-template>
+					</phd-column>
+					<phd-column field="pointLabel" header="Decision Point"></phd-column>
+					<phd-column field="subGroupLabel" header="SubGroup"></phd-column>
+					<phd-column field="groupLabel" header="Group"></phd-column>
+				</phd-table>
+			</div>
+		</ng-container>
+	</div>
+</div>

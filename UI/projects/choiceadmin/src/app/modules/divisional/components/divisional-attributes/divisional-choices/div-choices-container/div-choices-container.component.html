@@ -1,0 +1,16 @@
+<divisional-attribute-template>
+	<ng-template #panel>
+		<div-choices-panel (onAssociateAttributeGroups)="onAssociateAttributeGroups($event)"
+								  (onAssociateLocationGroups)="onAssociateLocationGroups($event)"
+								  (onAssociateAttributeGroupsToCommunities)="onAssociateAttributeGroupsToCommunities($event)"
+								  (onAssociateLocationGroupsToCommunities)="onAssociateLocationGroupsToCommunities($event)">
+		</div-choices-panel>
+	</ng-template>
+
+	<ng-template #sidePanel>
+		
+	</ng-template>
+
+</divisional-attribute-template>
+
+<p-toast></p-toast>

@@ -40,3 +40,15 @@ export interface IDivSortList
     pointList: Array<IDivCatalogPointDto>;
     choiceList: Array<IDivCatalogChoiceDto>;
 }
+
+export class DivisionalChoice
+{
+	divChoiceCatalogID?: number;
+	choiceLabel?: string;
+	isActive?: boolean;
+	pointLabel?: string;
+	subGroupLabel?: string;
+	groupLabel?: string;
+	hasImages: boolean = false;
+	hasAttributeLocationAssoc: boolean = false;
+}

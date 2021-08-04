@@ -29,6 +29,13 @@ import { ChoiceSidePanelComponent } from './components/divisional-catalog/choice
 import { PointSidePanelComponent } from './components/divisional-catalog/point-side-panel/point-side-panel.component';
 import { PointTypeComponent } from './components/divisional-catalog/point-type/point-type.component';
 
+import { DivChoicesContainerComponent } from './components/divisional-attributes/divisional-choices/div-choices-container/div-choices-container.component';
+import { DivChoicesPanelComponent } from './components/divisional-attributes/divisional-choices/div-choices-panel/div-choices-panel.component';
+import { ExpansionChoiceAttributeGroupsTabPanelComponent } from './components/divisional-attributes/divisional-choices/expansion-attribute-groups-tab-panel/expansion-attribute-groups-tab-panel.component';
+import { ExpansionChoiceCommunitiesTabPanelComponent } from './components/divisional-attributes/divisional-choices/expansion-communities-tab-panel/expansion-communities-tab-panel.component';
+import { ExpansionChoiceImagesTabPanelComponent } from './components/divisional-attributes/divisional-choices/expansion-images-tab-panel/expansion-images-tab-panel.component';
+import { ExpansionChoiceLocationGroupsTabPanelComponent } from './components/divisional-attributes/divisional-choices/expansion-location-groups-tab-panel/expansion-location-groups-tab-panel.component';
+
 import { DivisionalOptionsContainerComponent } from './components/divisional-attributes/divisional-options/divisional-options-container/divisional-options-container.component';
 import { DivisionalOptionsPanelComponent } from './components/divisional-attributes/divisional-options/divisional-options-panel/divisional-options-panel.component';
 import { DivOptionsAttributeGroupsSidePanelComponent } from './components/divisional-attributes/divisional-options/div-options-attribute-groups-side-panel/div-options-attribute-groups-side-panel.component';
@@ -112,6 +119,7 @@ const moduleRoutes: Routes = [
                     { path: 'locations', component: LocationsContainerComponent },
 					{ path: 'location-groups', component: LocationGroupsContainerComponent },
 					{ path: 'divisional-options', component: DivisionalOptionsContainerComponent },
+					{ path: 'divisional-choices', component: DivChoicesContainerComponent },
 					{
 						path: 'divisional-attribute-wizard', component: DivisionalAttributeWizardComponent,
 						children: [
@@ -169,6 +177,12 @@ const moduleRoutes: Routes = [
 		PointTypeComponent,
 		DivisionalOptionsContainerComponent,
 		DivisionalOptionsPanelComponent,
+		DivChoicesContainerComponent,
+		DivChoicesPanelComponent,
+		ExpansionChoiceAttributeGroupsTabPanelComponent,
+		ExpansionChoiceCommunitiesTabPanelComponent,
+		ExpansionChoiceImagesTabPanelComponent,
+		ExpansionChoiceLocationGroupsTabPanelComponent,
 		DivOptionsAttributeGroupsSidePanelComponent,
 		DivOptionsLocationGroupsSidePanelComponent,
 		ExpansionAttributeGroupsTabPanelComponent,
