@@ -91,7 +91,7 @@ export class OrganizationService
     // Get markets
     let endPoint = environment.apiUrl;
 
-		const expandOnMarkets = `financialCommunities($top=1;$select=salesStatusDescription,id;$filter=salesStatusDescription eq 'Active')`;
+		const expandOnMarkets = `financialCommunities($top=1;$select=salesStatusDescription,id,name;$filter=salesStatusDescription eq 'Active')`;
 		const filterOnMarkets = `financialCommunities/any() and companyType eq 'HB' and salesStatusDescription eq 'Active'`;
 		const selectOnMarkets = `id, number, name, companyType, salesStatusDescription`;
 		const orderByOnMarkets = `name`;

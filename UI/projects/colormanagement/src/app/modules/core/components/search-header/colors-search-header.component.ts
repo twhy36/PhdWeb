@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import {OptionService} from '../../services/option.service';
 import { IOptionSubCategory } from '../../../shared/models/option.model';
 import { OrganizationService } from '../../../core/services/organization.service';
-import { switchMap, startWith } from 'rxjs/operators';
+import { switchMap, startWith,filter,map } from 'rxjs/operators';
 import { UnsubscribeOnDestroy } from 'phd-common';
 
 @Component({
@@ -24,6 +24,7 @@ export class ColorsSearchHeaderComponent extends UnsubscribeOnDestroy implements
 		.pipe(
 			this.takeUntilDestroyed(),
 			startWith(this._orgService.currentFinancialCommunity),
+			filter(p =>p!=null && p['id'] && p['id'] != 0),
 			switchMap((comm) =>
 			{
 				return this._optionService.getOptionsCategorySubcategory(comm.id)
