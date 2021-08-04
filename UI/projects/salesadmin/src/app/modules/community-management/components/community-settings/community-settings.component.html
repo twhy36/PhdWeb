@@ -30,7 +30,8 @@
 
 				<community-pdf *ngIf="selectedTab === commTabs.PDF"></community-pdf>
 
-				<p *ngIf="selectedTab === commTabs.CommunitySettings"><!-- Community Settings go here. --></p>
+				<!-- <p *ngIf="selectedTab === commTabs.CommunitySettings">Community Settings go here.</p> -->
+				<community-settings-tab *ngIf="selectedTab === commTabs.CommunitySettings"></community-settings-tab>
 			</div>
 
 		</div>

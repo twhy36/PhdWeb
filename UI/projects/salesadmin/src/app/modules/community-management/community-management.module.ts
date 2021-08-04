@@ -15,7 +15,7 @@ import { CommunityPdfTableComponent } from './components/community-pdf-table/com
 import { CommunitySettingsComponent } from './components/community-settings/community-settings.component';
 import { ClaimGuard } from 'phd-common';
 import { LotManagementModule } from '../lot-managment/lot-management.module';
-import { CommunitySettingsTabComponent } from './community-settings-tab/community-settings-tab.component';
+import { CommunitySettingsTabComponent } from './components/community-settings-tab/community-settings-tab.component';
 
 @NgModule({
 	declarations: [
@@ -23,7 +23,8 @@ import { CommunitySettingsTabComponent } from './community-settings-tab/communit
 		CommunityPdfComponent,
 		CommunityPdfSidePanelComponent,
 		CommunityPdfTableComponent,
-		CommunitySettingsComponent
+		CommunitySettingsComponent,
+		CommunitySettingsTabComponent
 	],
 	exports: [],
 	imports: [
@@ -33,7 +34,7 @@ import { CommunitySettingsTabComponent } from './community-settings-tab/communit
 					{ path: 'auto-approval', component: AutoApprovalComponent },
 					{ path: 'community-pdf', component: CommunityPdfComponent },
 					{ path: 'community-settings', component: CommunitySettingsComponent },
-					{ path: 'community-settings-tab', component: CommunitySettingsTabComponent },
+					// { path: 'community-settings-tab', component: CommunitySettingsTabComponent },
 					{ path: '', redirectTo: 'community-settings', pathMatch: 'full' }
 				]
 			}

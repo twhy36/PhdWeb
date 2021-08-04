@@ -45,20 +45,18 @@
 					</div>
 				</div>
 			</div>
-			<div class="box-background">
+			<div class="box-background" *ngIf="!!url">
 				<div class="box">
-						<i class="fas fa-info-circle"></i>
-						<ng-template #body let-lot>
-						<span>1</span>
-					</ng-template>
-					<ng-template #body let-item>
-						<i class="fa fa-pencil fa-fw" phd-tooltip="Edit Homesite" *ngIf="canEdit"></i>
-					</ng-template>
-					<i class="fas fa-info-circle"></i>
 					<div class="line">
 						<div class="font-weight-bold">Enable THO Community Link for Sales Consultants Only</div>
-						<div class="point-disabled">
-							<i class="fas fa-info-circle"></i> Disabled Due to Cut-Off
+						<div class="col-md">
+							<button class="btn btn-sm btn-toggle btn-auto-approval" [ngClass]="{'active': !communityLinkEnabled, 'btn-success': communityLinkEnabled, 'btn-secondary': !communityLinkEnabled}"
+									(click)="toggleCommunityLink()">
+								<div class="handle"></div>
+							</button>
+						</div>
+						<div class="line">
+							<a class="btn-link" [href]="url" target="_blank" rel="noopener noreferrer">{{ url }}</a>
 						</div>
 					</div>
 				</div>
