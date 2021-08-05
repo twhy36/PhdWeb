@@ -5,7 +5,7 @@ import { MessageService } from 'primeng/api';
 
 import { AttributeGroupMarket, isAttributeGroup } from '../../../../../shared/models/attribute-group-market.model';
 import { LocationGroupMarket, isLocationGroup } from '../../../../../shared/models/location-group-market.model';
-import { Option } from '../../../../../shared/models/option.model';
+import { isOptionMarketImage, Option, OptionMarketImage } from '../../../../../shared/models/option.model';
 import { IFinancialCommunity } from '../../../../../shared/models/financial-community.model';
 
 import { DivisionalOptionService } from '../../../../../core/services/divisional-option.service';
@@ -17,89 +17,91 @@ import { isEqual, orderBy } from "lodash";
 	templateUrl: './expansion-associate-groups-tab-panel.component.html',
 	styleUrls: ['./expansion-associate-groups-tab-panel.component.scss']
 })
-export class ExpansionAssociateGroupsTabPanelComponent implements OnInit
-{
+export class ExpansionAssociateGroupsTabPanelComponent implements OnInit {
 	@Input() community: IFinancialCommunity;
 	@Input() option: Option;
 	@Input() isReadOnly: boolean;
 
 	@Output() onDataChange = new EventEmitter();
 
-	optionGroups: Option;
+	optionAssociations: Option;
 	canAssociate: boolean = false;
 	isSaving: boolean = false;
 
 	selectedAttributes: AttributeGroupMarket[] = [];
 	selectedLocations: LocationGroupMarket[] = [];
+	selectedOptionMarketImages: OptionMarketImage[] = [];
 
 	origSelectedAttributes: AttributeGroupMarket[] = [];
 	origSelectedLocations: LocationGroupMarket[] = [];
-	
+	origSelectedOptionMarketImages: OptionMarketImage[] = [];
+
 	constructor(private _divOptService: DivisionalOptionService, private _msgService: MessageService) { }
 
-	ngOnInit()
-	{
+	ngOnInit() {
 		this.getOptionGroups();
 	}
-	
-	isGroupSelected(group: AttributeGroupMarket | LocationGroupMarket): boolean
-	{
+
+	isItemSelected(item: AttributeGroupMarket | LocationGroupMarket | OptionMarketImage): boolean {
 		let isSelected = false;
 
 		// instanceof not working in this instance so using isAttributeGroup instead
-		if (isAttributeGroup(group))
-		{
-			isSelected = this.selectedAttributes.some(s => s.id === group.id);;
+		if (isAttributeGroup(item)) {
+			isSelected = this.selectedAttributes.some(s => s.id === item.id);;
 		}
-		else if (isLocationGroup(group))
-		{
-			isSelected = this.selectedLocations.some(s => s.id === group.id);;
+		else if (isLocationGroup(item)) {
+			isSelected = this.selectedLocations.some(s => s.id === item.id);;
+		}
+		else if (isOptionMarketImage(item)) {
+			isSelected = this.selectedOptionMarketImages.some(s => s.id === item.id);
 		}
 
 		return isSelected;
 	}
-	
-	setGroupSelected(group: AttributeGroupMarket | LocationGroupMarket, isSelected: boolean): void
+
+	setItemSelected(item: AttributeGroupMarket | LocationGroupMarket | OptionMarketImage, isSelected: boolean): void
 	{
-		let selectedGroups = [];
+		let selectedItems = [];
 
 		// instanceof not working in this instance so using isAttributeGroup instead
-		if (isAttributeGroup(group))
-		{
-			selectedGroups = this.selectedAttributes;
-			group = group as AttributeGroupMarket;
+		if (isAttributeGroup(item)) {
+			selectedItems = this.selectedAttributes;
+			item = item as AttributeGroupMarket;
 		}
-		else if (isLocationGroup(group))
-		{
+		else if (isLocationGroup(item)) {
 			this.selectedLocations = [];
-			selectedGroups = this.selectedLocations;
-			group = group as LocationGroupMarket;
+			selectedItems = this.selectedLocations;
+			item = item as LocationGroupMarket;
+		}
+		else if (isOptionMarketImage(item)) {
+			selectedItems = this.selectedOptionMarketImages;
+			item = item as OptionMarketImage;
 		}
 		 
-		let index = selectedGroups.findIndex(s => s.id === group.id);
+		let index = selectedItems.findIndex(s => s.id === item.id);
 
 		if (isSelected && index < 0)
 		{
-			selectedGroups.push(group);
+			selectedItems.push(item);
 		}
 		else if (!isSelected && index >= 0)
 		{
-			selectedGroups.splice(index, 1);
-			selectedGroups = [...selectedGroups];
+			selectedItems.splice(index, 1);
+			selectedItems = [...selectedItems];
 		}
 
-		this.canAssociate = !isEqual(this.selectedAttributes, this.origSelectedAttributes) || !isEqual(this.selectedLocations, this.origSelectedLocations);
+		this.canAssociate = !isEqual(this.selectedAttributes, this.origSelectedAttributes) || !isEqual(this.selectedLocations, this.origSelectedLocations) || !isEqual(this.selectedOptionMarketImages, this.origSelectedOptionMarketImages);
 	}
 
 	getOptionGroups()
 	{
-		this._divOptService.getGroupsForCommunity(this.option, this.community.id).subscribe(option =>
+		this._divOptService.getAssociationsForCommunity(this.option, this.community.id).subscribe(option =>
 		{
 			if (option)
 			{
-				this.optionGroups = option[0];
+				this.optionAssociations = option[0];
 
-				this.optionGroups.attributeGroups.forEach(group =>
+				this.optionAssociations.attributeGroups.forEach(group =>
 				{
 					if (group.attributeGroupCommunities.length)
 					{
@@ -113,9 +115,9 @@ export class ExpansionAssociateGroupsTabPanelComponent implements OnInit
 						});
 					}
 				});
-				this.optionGroups.attributeGroups = orderBy(this.optionGroups.attributeGroups, 'sortOrder');
+				this.optionAssociations.attributeGroups = orderBy(this.optionAssociations.attributeGroups, 'sortOrder');
 
-				this.optionGroups.locationGroups.forEach(group =>
+				this.optionAssociations.locationGroups.forEach(group =>
 				{
 					if (group.locationGroupCommunities.length)
 					{
@@ -125,6 +127,17 @@ export class ExpansionAssociateGroupsTabPanelComponent implements OnInit
 							{
 								this.selectedLocations.push(group);
 								this.origSelectedLocations.push(group);
+							}
+						});
+					}
+				});
+
+				this.optionAssociations.optionMarketImages.forEach(image => {
+					if (image.optionCommunityImages.length) {
+						image.optionCommunityImages.forEach(commImage => {
+							if (commImage.optionCommunityId) {
+								this.selectedOptionMarketImages.push(image);
+								this.origSelectedOptionMarketImages.push(image);
 							}
 						});
 					}
@@ -139,9 +152,9 @@ export class ExpansionAssociateGroupsTabPanelComponent implements OnInit
 	{
 		this.isSaving = true;
 
-		this._msgService.add({ severity: 'info', summary: 'Groups', detail: `Saving selected groups!` });
+		this._msgService.add({ severity: 'info', summary: 'Associations', detail: `Saving selected associations!` });
 
-		this._divOptService.associateGroupsToCommunity(this.option.id, this.community.id, this.selectedAttributes, this.selectedLocations)
+		this._divOptService.associateItemsToCommunity(this.option.id, this.community.id, this.selectedAttributes, this.selectedLocations, this.selectedOptionMarketImages)
 			.pipe(finalize(() =>
 			{
 				this.canAssociate = false;
@@ -151,11 +164,15 @@ export class ExpansionAssociateGroupsTabPanelComponent implements OnInit
 			}))
 			.subscribe(response =>
 			{
-				this._msgService.add({ severity: 'success', summary: 'Groups', detail: `Updated successfully!` });
+				this._msgService.add({ severity: 'success', summary: 'Associations', detail: `Updated successfully!` });
 			},
 			(error) =>
 			{
-				this._msgService.add({ severity: 'error', summary: 'Groups', detail: `An error has occured!` });
+				this._msgService.add({ severity: 'error', summary: 'Associations', detail: `An error has occured!` });
 			});
+	}
+
+	onLoadImageError(event: any) {
+		event.srcElement.src = 'assets/pultegroup_logo.jpg';
 	}
 }

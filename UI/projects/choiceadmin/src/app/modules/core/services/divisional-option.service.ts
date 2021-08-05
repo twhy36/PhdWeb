@@ -209,12 +209,13 @@ export class DivisionalOptionService
 			catchError(this.handleError));
 	}
 
-	getGroupsForCommunity(optionMarket: Option, financialCommunityId: number): Observable<Option>
+	getAssociationsForCommunity(optionMarket: Option, financialCommunityId: number): Observable<Option>
 	{
 		let url = settings.apiUrl;
 
 		let expand = `attributeGroupOptionMarketAssocs($select=attributeGroupMarketId,sortOrder;$expand=attributeGroupMarket($expand=attributeGroupCommunities($expand=attributeGroupOptionCommunityAssocs($select=attributeGroupCommunityId;$expand=optionCommunity($filter=optionId eq ${optionMarket.optionId}; $select=id, financialCommunityId;)); $filter=financialCommunityId eq ${financialCommunityId}; $select=id, financialCommunityId;$filter=attributeGroupOptionCommunityAssocs/any(a : a/optionCommunity/optionId eq ${optionMarket.optionId})); $select=id, groupName; $orderby=groupName)),`;
-		expand += `locationGroupOptionMarketAssocs($select=locationGroupMarketId;$expand=locationGroupMarket($expand=locationGroupCommunities($expand=locationGroupOptionCommunityAssocs($select=locationGroupCommunityId;$expand=optionCommunity($filter=optionId eq ${optionMarket.optionId}; $select=id, financialCommunityId;)); $filter=financialCommunityId eq ${financialCommunityId}; $select=id, financialCommunityId;$filter=locationGroupOptionCommunityAssocs/any(a : a/optionCommunity/optionId eq ${optionMarket.optionId})); $select=id, locationGroupName; $orderby=locationGroupName))`;
+		expand += `locationGroupOptionMarketAssocs($select=locationGroupMarketId;$expand=locationGroupMarket($expand=locationGroupCommunities($expand=locationGroupOptionCommunityAssocs($select=locationGroupCommunityId;$expand=optionCommunity($filter=optionId eq ${optionMarket.optionId}; $select=id, financialCommunityId;)); $filter=financialCommunityId eq ${financialCommunityId}; $select=id, financialCommunityId;$filter=locationGroupOptionCommunityAssocs/any(a : a/optionCommunity/optionId eq ${optionMarket.optionId})); $select=id, locationGroupName; $orderby=locationGroupName)),`;
+		expand += `optionMarketImages($select=id,optionMarketId,imageUrl,sortKey;$expand=optionCommunityImages($expand=optionCommunity($select=financialCommunityId)))`;
 		const filter = `id eq ${optionMarket.id}`;
 		const select = `id, optionId`;
 
@@ -240,19 +241,23 @@ export class DivisionalOptionService
 					{
 						lgom.locationGroupMarket.locationGroupCommunities = lgom.locationGroupMarket.locationGroupCommunities.filter(comm => comm.financialCommunityId === financialCommunityId);
 					});
+					opt.optionMarketImages.forEach(omi => {
+						omi.optionCommunityImages = omi.optionCommunityImages.filter(oci => oci.optionCommunity.financialCommunityId === financialCommunityId);
+					});
 				});
 
-				let optionGroups = option.map(opt =>
+				let optionAssociations = option.map(opt =>
 				{
 					// needs to be NEW Attr not as
 					return {
 						id: opt.id,
 						attributeGroups: opt.attributeGroupOptionMarketAssocs.map(a => new AttributeGroupMarket(a.attributeGroupMarket, null, a.attributeGroupMarket.sortOrder)),
-						locationGroups: opt.locationGroupOptionMarketAssocs.map(l => new LocationGroupMarket(l.locationGroupMarket))
+						locationGroups: opt.locationGroupOptionMarketAssocs.map(l => new LocationGroupMarket(l.locationGroupMarket)),
+						optionMarketImages: opt.optionMarketImages.map(omi => new OptionMarketImage(omi))
 					} as Option;
 				});
 
-				return optionGroups;
+				return optionAssociations;
 			}),
 			catchError(this.handleError));
 	}
@@ -295,9 +300,9 @@ export class DivisionalOptionService
 		);
 	}
 
-	associateGroupsToCommunity(optionMarketId: number, financialCommunityId: number, selectedAttributes: AttributeGroupMarket[], selectedLocations: LocationGroupMarket[]): Observable<any>
+	associateItemsToCommunity(optionMarketId: number, financialCommunityId: number, selectedAttributes: AttributeGroupMarket[], selectedLocations: LocationGroupMarket[], selectedOptionMarketImages: OptionMarketImage[]): Observable<any>
 	{
-		let url = settings.apiUrl + `AssociateGroupsToCommunity`;
+		let url = settings.apiUrl + `AssociateItemsToCommunity`;
 
 		let data = {
 			'optionMarketId': optionMarketId,
@@ -309,7 +314,8 @@ export class DivisionalOptionService
 					sortOrder: x.sortOrder
 				}
 			}),
-			'selectedLocations': selectedLocations.map(x => x.id)
+			'selectedLocations': selectedLocations.map(x => x.id),
+			'selectedOptionMarketImages': selectedOptionMarketImages.map(x => x.id)
 		};
 
 		return this._http.post(url, { optionAttributeGroupAssocDto: data }).pipe(

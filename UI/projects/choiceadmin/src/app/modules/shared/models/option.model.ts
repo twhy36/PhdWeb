@@ -24,6 +24,7 @@ export class Option
 	hasImages: boolean;
 	imageCount: number;
 	optionMarketImages$: Observable<Array<OptionMarketImage>>;
+	optionMarketImages: Array<OptionMarketImage>;
 	hasAttributeLocationAssoc: boolean;
 }
 
@@ -274,6 +275,10 @@ export class OptionMarketImage
 		this.sortKey = dto.sortKey;
 		this.optionCommunityImages = dto.optionCommunityImages;
 	}
+}
+
+export function isOptionMarketImage(obj: any): obj is OptionMarketImage {
+	return typeof obj.imageUrl !== 'undefined';
 }
 
 export interface IOptionRuleChoice

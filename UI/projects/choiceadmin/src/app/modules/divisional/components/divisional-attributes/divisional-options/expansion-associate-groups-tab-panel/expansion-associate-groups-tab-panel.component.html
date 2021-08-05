@@ -1,19 +1,38 @@
 <div class="row div-sub-tab-panel">
 	<div class="col phd-group-market-list">
 		Attribute Groups
-		<div *ngIf="optionGroups">
-			<div *ngFor="let group of optionGroups.attributeGroups">
-				<p-checkbox name="attributes" [label]="group.groupName" [ngModel]="isGroupSelected(group)" (ngModelChange)="setGroupSelected(group, $event)" [binary]="true" [disabled]="isReadOnly || isSaving" labelStyleClass="phd-checkbox-label"></p-checkbox>
+		<div *ngIf="optionAssociations">
+			<div *ngFor="let group of optionAssociations.attributeGroups">
+				<p-checkbox name="attributes" [label]="group.groupName" [ngModel]="isItemSelected(group)" (ngModelChange)="setItemSelected(group, $event)" [binary]="true" [disabled]="isReadOnly || isSaving" labelStyleClass="phd-checkbox-label"></p-checkbox>
 			</div>
 		</div>
 	</div>
 
 	<div class="col phd-group-market-list">
-		Location Group
-		<div *ngIf="optionGroups">
-			<div *ngFor="let group of optionGroups.locationGroups">
-				<p-checkbox name="locations" [label]="group.locationGroupName" [ngModel]="isGroupSelected(group)" (ngModelChange)="setGroupSelected(group, $event)" [binary]="true" [disabled]="isReadOnly || isSaving" labelStyleClass="phd-checkbox-label"></p-checkbox>
+		Location Groups
+		<div *ngIf="optionAssociations">
+			<div *ngFor="let group of optionAssociations.locationGroups">
+				<p-checkbox name="locations" [label]="group.locationGroupName" [ngModel]="isItemSelected(group)" (ngModelChange)="setItemSelected(group, $event)" [binary]="true" [disabled]="isReadOnly || isSaving" labelStyleClass="phd-checkbox-label"></p-checkbox>
 			</div>
+		</div>
+	</div>
+
+	<div class="col phd-image-market-list">
+		Images
+		<div *ngIf="optionAssociations" class="phd-image-market-list-container">
+			<image-card *ngFor="let image of optionAssociations.optionMarketImages" showFooter="true"
+						[bodyTemplate]="cardbody" [footerTemplate]="cardfooter">
+
+				<ng-template #cardbody>
+					<cl-image public-id="{{image.imageUrl}}" type="fetch" gravity="auto" crop="fill" width="155" height="100" (onError)="onLoadImageError($event)"></cl-image>
+				</ng-template>
+
+				<ng-template #cardfooter>
+					<div class="phd-image-card-footer-option-image">
+						<p-checkbox [ngModel]="isItemSelected(image)" (ngModelChange)="setItemSelected(image, $event)" [binary]="true" [disabled]="isReadOnly || isSaving"></p-checkbox>
+					</div>
+				</ng-template>
+			</image-card>
 		</div>
 	</div>
 </div>
