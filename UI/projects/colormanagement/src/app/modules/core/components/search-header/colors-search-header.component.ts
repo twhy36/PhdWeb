@@ -24,7 +24,7 @@ export class ColorsSearchHeaderComponent extends UnsubscribeOnDestroy implements
 		.pipe(
 			this.takeUntilDestroyed(),
 			startWith(this._orgService.currentFinancialCommunity),
-			filter(p =>p!=null && p['id'] && p['id'] != 0),
+			filter(p =>p?.id!=0),
 			switchMap((comm) =>
 			{
 				return this._optionService.getOptionsCategorySubcategory(comm.id)
