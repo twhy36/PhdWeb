@@ -5,8 +5,11 @@ import { UnsubscribeOnDestroy } from '../../../shared/utils/unsubscribe-on-destr
 import { ActivatedRoute } from '@angular/router';
 import { FinancialCommunityViewModel } from '../../../shared/models/plan-assignment.model';
 import { FinancialCommunityInfo } from '../../../shared/models/financialCommunity.model';
-import { of } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { combineLatest, of } from 'rxjs';
+import { switchMap, tap } from 'rxjs/operators';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { MessageService } from 'primeng/api';
+import { FinancialMarket } from '../../../shared/models/financialMarket.model';
 
 @Component({
 	selector: 'community-settings-tab',
@@ -15,64 +18,110 @@ import { map, switchMap } from 'rxjs/operators';
 })
 export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implements OnInit
 {
-	selectedCommunity: FinancialCommunityViewModel = null;
-	canEdit: boolean = false;
 	financialCommunityInfo: FinancialCommunityInfo;
-	ecoeMonths: number;
-	earnestMoney: number;
+	selectedCommunity: FinancialCommunityViewModel = null;
+	communitySettingsForm: FormGroup;
+	currentMarket: FinancialMarket;
+	orgId: number;
+	canEdit: boolean = false;
 	isSaving: boolean;
+
+	get saveDisabled(): boolean
+	{
+		return this.communitySettingsForm.pristine || !this.communitySettingsForm.valid || !this.orgId;
+	}
 
 	constructor(
 		public _orgService: OrganizationService,
+		private _msgService: MessageService,
 		private _route: ActivatedRoute) { super(); }
 
 	ngOnInit()
 	{
+		this.createForm();
+
 		this._orgService.canEdit(this._route.parent.snapshot.data['requiresClaim']).pipe(
 			this.takeUntilDestroyed(),
 		).subscribe(canEdit => this.canEdit = canEdit);
 
-		this._orgService.currentCommunity$.pipe(
+		this._orgService.currentMarket$.pipe(
 			this.takeUntilDestroyed(),
-			switchMap(comm =>
+			switchMap(mkt =>
+			{
+				if (mkt)
+				{
+					this.currentMarket = mkt;
+					return combineLatest([this._orgService.getInternalOrgs(mkt.id), this._orgService.currentCommunity$]);
+				}
+				return of([null, null]);
+			}),
+			switchMap(([orgs, comm]) =>
 			{
 				if (comm != null)
 				{
-					if (!this.selectedCommunity || this.selectedCommunity.id != comm.id)
+					this.orgId = orgs?.find(o => o.edhFinancialCommunityId === comm.id)?.orgID;
+
+					if (this.orgId && (!this.selectedCommunity || this.selectedCommunity.id != comm.id))
 					{
 						this.selectedCommunity = new FinancialCommunityViewModel(comm);
-						return this._orgService.getFinancialCommunityInfo(this.selectedCommunity.dto.id);
+						return this._orgService.getFinancialCommunityInfo(this.orgId);
 					}
 				}
-				else
-				{
-					this.selectedCommunity == null;
-					this.ecoeMonths = null;
-					this.earnestMoney = null;
-					return of(null)
-				}
+				return of(null);
 			}),
-			map(info => 
-			{
-				console.log(info);
-				this.financialCommunityInfo = info;
-				this.ecoeMonths = this.financialCommunityInfo.defaultECOEMonths;
-				this.earnestMoney = this.financialCommunityInfo.earnestMoneyAmount;
-			})
-		);
+		).subscribe(finCommInfo =>
+		{
+			this.financialCommunityInfo = finCommInfo;
+			this.createForm();
+		}, error =>
+		{
+			this.financialCommunityInfo = null;
+			this.orgId = null;
+			this.createForm();
+			this._msgService.add({ severity: 'error', summary: 'Error', detail: error });
+		});
+	}
 
+	createForm()
+	{
+		let ecoeMonths = this.financialCommunityInfo ? this.financialCommunityInfo.defaultECOEMonths : null;
+		let earnestMoney = this.financialCommunityInfo ? this.financialCommunityInfo.earnestMoneyAmount : null;
+
+		this.communitySettingsForm = new FormGroup({
+			'ecoeMonths': new FormControl(ecoeMonths, Validators.required),
+			'earnestMoney': new FormControl(earnestMoney,[Validators.min(0), Validators.max(99999), Validators.required])
+		}, [])
 	}
 
 	save()
 	{
-		this.financialCommunityInfo.defaultECOEMonths = this.ecoeMonths;
-		this.financialCommunityInfo.earnestMoneyAmount = this.earnestMoney;
 		this.isSaving = true;
+		let ecoeMonths = this.communitySettingsForm.get('ecoeMonths').value;
+		let earnestMoney = this.communitySettingsForm.get('earnestMoney').value;
+		if (this.financialCommunityInfo)
+		{
+			this.financialCommunityInfo.defaultECOEMonths = ecoeMonths ?? this.financialCommunityInfo.defaultECOEMonths;
+			this.financialCommunityInfo.earnestMoneyAmount = earnestMoney ?? this.financialCommunityInfo.earnestMoneyAmount;
+		}
+		else
+		{
+			this.financialCommunityInfo =
+			{
+				financialCommunityId: 0,
+				defaultECOEMonths: ecoeMonths,
+				earnestMoneyAmount: earnestMoney,
+			}
+		}
 
-		this._orgService.saveFinancialCommunityInfo(this.financialCommunityInfo, null)
+		this._orgService.saveFinancialCommunityInfo(this.financialCommunityInfo, this.orgId)
 			.subscribe(() =>
 			{
 				this.isSaving = false;
+				this._msgService.add({ severity: 'success', summary: 'Community Settings', detail: 'Save successful.' });
+			}, error =>
+			{
+				this.isSaving = false;
+				this._msgService.add({ severity: 'error', summary: 'Error', detail: `Save failed. ${error}` });
 			});
 	}
 }
