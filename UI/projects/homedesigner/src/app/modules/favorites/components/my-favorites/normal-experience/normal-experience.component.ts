@@ -72,7 +72,11 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 
 		if (changes['decisionPointId'])
 		{
-			this.selectDecisionPoint(changes['decisionPointId'].currentValue);
+			const pointId = changes['decisionPointId'].currentValue;
+			if (pointId && pointId !== this.currentPointId)
+			{
+				this.selectDecisionPoint(pointId, 1600);
+			}
 		}
 	}
 
@@ -113,14 +117,14 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 		this.isPointPanelCollapsed = !this.isPointPanelCollapsed;
 	}
 
-	selectDecisionPoint(pointId: number) {
+	selectDecisionPoint(pointId: number, interval?: number) {
 		if (pointId)
 		{
 			setTimeout(() =>
 			{
 				const firstPointId = this.points && this.points.length ? this.points[0].id : 0;
 				this.scrollPointIntoView(pointId, pointId === firstPointId);
-			}, 500);
+			}, interval || 500);
 		}
 		this.currentPointId = pointId;
 		this.onSelectDecisionPoint.emit(pointId);

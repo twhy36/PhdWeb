@@ -19,12 +19,12 @@
 ::ng-deep.phd-div-opt-tabview {
 	display: flex;
 	
-	::ng-deep.ui-tabview-nav {
+	::ng-deep.p-tabview-nav {
 		min-width: 200px;
 		flex: 0;
 	}
 
-	::ng-deep.ui-tabview-panels {
+	::ng-deep.p-tabview-panels {
 		flex: 1;
 	}
 }

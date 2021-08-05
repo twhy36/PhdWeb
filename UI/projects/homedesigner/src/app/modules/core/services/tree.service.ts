@@ -257,7 +257,7 @@ export class TreeService
 		}
 
 		const expand = `planOption($select=planOptionID, integrationKey)`;
-		const select = `planOptionID, imageURL, sortKey`;
+		const select = `planOptionID, imageURL, sortKey, dTreeVersionId`;
 		const orderby = `planOptionID, sortKey`;
 
 		const qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filters.join(' and '))}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}orderby=${encodeURIComponent(orderby)}`;
@@ -411,7 +411,7 @@ export class TreeService
 						return `${environment.apiUrl}planOptionCommunityImageAssocs?${encodeURIComponent('$')}select=${select}&${encodeURIComponent('$')}filter=${filter}&${encodeURIComponent('$')}orderby=${orderBy}&${this._ds}count=true`;
 					}
 
-					const batchSize = 100;
+					const batchSize = 75;
 					let batchBundles: string[] = [];
 
 					// create a batch request with a max of 100 options per request

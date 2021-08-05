@@ -21,7 +21,7 @@ export class CommunityPdfSidePanelComponent implements OnInit
 	@Input() selected: CommunityPdf;
 	@Input() saving: boolean;
 	@Input() sidePanelOpen: boolean = false;
-	
+
 	communityPdfForm: FormGroup;
 
 	oneDay: number = 86400000;
@@ -63,13 +63,10 @@ export class CommunityPdfSidePanelComponent implements OnInit
 
 	save()
 	{
-		const formData = new FormData();
-		for (const key of Object.keys(this.communityPdfForm.value))
-		{
-			formData.append(key, this.communityPdfForm.get(key).value);
-		}
 		if (this.selected != null)
 		{
+			const effectiveDateValue = this.communityPdfForm.get('effectiveDate')?.value;
+			const expirationDateValue = this.communityPdfForm.get('expirationDate')?.value;
 			const updatedPdf =
 			{
 				marketId: null,
@@ -77,18 +74,32 @@ export class CommunityPdfSidePanelComponent implements OnInit
 				sortOrder: this.selected.sortOrder,
 				linkText: this.communityPdfForm.get('linkText')?.value,
 				description: this.communityPdfForm.get('description')?.value,
-				effectiveDate: this.communityPdfForm.get('effectiveDate')?.value,
-				expirationDate: this.communityPdfForm.get('expirationDate')?.value, // May need to convert to date
+				effectiveDate: effectiveDateValue !== null ? new Date(effectiveDateValue).toISOString() : null,
+				expirationDate: expirationDateValue !== null ? new Date(expirationDateValue).toISOString() : null,
 				fileName: this.selected.fileName,
 				sectionHeader: this.communityPdfForm.get('sectionHeader')?.value,
-				url: this.selected.url,
 			};
+
 			this.onUpdate.emit(updatedPdf as CommunityPdf);
+
 			this.saving = true;
 		}
 		else
 		{
+			const formData = new FormData();
+			for (const key of Object.keys(this.communityPdfForm.value))
+			{
+				if (key === 'effectiveDate' || key == 'expirationDate')
+				{
+					formData.set(key, this.communityPdfForm.get(key).value !== null ? new Date(this.communityPdfForm.get(key).value).toISOString() : null)
+				}
+				else
+				{
+					formData.append(key, this.communityPdfForm.get(key).value);
+				}
+			}
 			this.onSave.emit(formData);
+
 			this.saving = true;
 		}
 	}
@@ -136,26 +147,35 @@ export class CommunityPdfSidePanelComponent implements OnInit
 		this.onSidePanelClose.emit(status);
 	}
 
-	requiredFileType( type: string ) {
-		return function (control: FormControl) {
+	requiredFileType(type: string)
+	{
+		return function (control: FormControl)
+		{
 			const file = control.value;
-			if ( file ) {
+
+			if (file)
+			{
 				const split = file.split('.');
+
 				if (split.length > 1)
 				{
 					const extension = split[split.length - 1].toLowerCase();
-					if ( type.toLowerCase() !== extension.toLowerCase() ) {
+
+					if (type.toLowerCase() !== extension.toLowerCase())
+					{
 						return {
 							requiredFileType: true
 						};
 					}
+
 					return null;
 				}
+
 				return {
 					requiredFileType: true
-				}
+				};
 			}
-	
+
 			return null;
 		};
 	}
@@ -167,6 +187,7 @@ export class CommunityPdfSidePanelComponent implements OnInit
 		if (this.communityPdfForm.value.expirationDate && (new Date(this.communityPdfForm.value.expirationDate).getTime() < this.minDate.getTime()))
 		{
 			this.expirationDate = this.minDate;
+
 			this.onSetDate(this.minDate, 'expiration');
 		}
 
@@ -207,11 +228,13 @@ export class CommunityPdfSidePanelComponent implements OnInit
 	onFileSelect(event: Event)
 	{
 		const file = (<HTMLInputElement>event.target).files[0];
+
 		if (file)
 		{
-			this.communityPdfForm.patchValue({pdf: file});
+			this.communityPdfForm.patchValue({ pdf: file });
 			this.communityPdfForm.get('pdf').updateValueAndValidity();
 		}
+
 		this.communityPdfForm.controls.pdf.markAsDirty();
 		this.communityPdfForm.controls.pdf.markAsTouched();
 	}

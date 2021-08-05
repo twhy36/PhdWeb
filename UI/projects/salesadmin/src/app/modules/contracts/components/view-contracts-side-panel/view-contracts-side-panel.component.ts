@@ -330,6 +330,7 @@ export class ViewContractsSidePanelComponent implements OnInit
 					isPhasedPricingEnabled: currentTag[0].isPhasedPricingEnabled,
 					key: currentTag[0].key,
 					marketId: currentTag[0].marketId,
+					salesCommunityId: currentTag[0].salesCommunityId,
 					name: currentTag[0].name,
 					salesStatusDescription: currentTag[0].salesStatusDescription,
 					isColorSchemeMonotonyRuleEnabled: currentTag[0].isColorSchemeMonotonyRuleEnabled,

@@ -54,6 +54,10 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 		return address;
 	}
 
+	get title() : string {
+		return this.isPreview ? 'Preview Favorites' : this.summaryHeader.favoritesListName;
+	}
+
 	scrollHandler()
 	{
 		if (!this.scrolling)

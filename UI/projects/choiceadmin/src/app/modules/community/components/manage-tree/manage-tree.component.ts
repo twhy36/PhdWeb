@@ -194,7 +194,7 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 
 		this._treeOptionSub = this._treeService.currentTreeOptions.subscribe(options => { this.currentTreeOptions = options; });
 
-		this.hideGenericPreviewAccess = !this._settingsService.getSettings().production;
+		this.hideGenericPreviewAccess = this._settingsService.getSettings().production;
 	}
 
 	ngOnDestroy()
@@ -404,7 +404,7 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 	{
 		const v = this.treeVersions && this.treeVersions.some(o =>
 		{
-			return o.effectiveDate == null || moment.utc().isBefore(o.effectiveDate);
+			return o.effectiveDate == null || moment().isBefore(moment.utc(o.effectiveDate.format('YYYY-MM-DDTHH:mm:ss')));
 		});
 
 		return v;
@@ -412,7 +412,7 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 
 	get isDraft(): boolean
 	{
-		return this.selectedTreeVersion && (this.selectedTreeVersion.effectiveDate == null || moment.utc().isBefore(this.selectedTreeVersion.effectiveDate));
+		return this.selectedTreeVersion && (this.selectedTreeVersion.effectiveDate == null || moment().isBefore(moment.utc(this.selectedTreeVersion.effectiveDate.format('YYYY-MM-DDTHH:mm:ss'))));
 	}
 
 	get titleAddon(): string

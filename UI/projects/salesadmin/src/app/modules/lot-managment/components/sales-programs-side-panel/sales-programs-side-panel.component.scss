@@ -30,7 +30,7 @@
 }
 
 .phd-fieldRequired,
-::ng-deep .ui-calendar input {
+::ng-deep .p-calendar input {
 	&.ng-invalid {
 		border-left: 5px solid #d9534f;
 	}

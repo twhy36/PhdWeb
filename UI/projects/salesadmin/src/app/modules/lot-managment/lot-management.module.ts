@@ -25,6 +25,7 @@ import { MonotonyOptionsComponent } from './components/monotony-options/monotony
 import { CanDeactivateGuard, ClaimGuard } from 'phd-common';
 import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 import { MultiSelectModule } from 'primeng/multiselect';
+import { AvSitePlanComponent } from './components/av-site-plan/av-site-plan.component';
 
 const moduleRoutes: Routes = [
     {
@@ -57,7 +58,8 @@ const moduleRoutes: Routes = [
         ReleasesSidePanelComponent,
         SalesProgramsComponent,
         SalesProgramsSidePanelComponent,
-        MonotonyOptionsComponent
+        MonotonyOptionsComponent,
+        AvSitePlanComponent
     ],
     imports: [
         CommonModule,

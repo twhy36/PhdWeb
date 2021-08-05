@@ -15,7 +15,6 @@ import { PortalItemComponent } from './components/portal-item/portal-item.compon
 import { SalesCommunitySelectorComponent } from "./components/sales-community-selector/sales-community-selector.component";
 import { SpecHomeComponent } from './components/spec-homes/spec-homes.component';
 import { PlanPreviewComponent } from './components/plan-preview/plan-preview.component';
-import { ReportingComponent } from './components/reporting/reporting.component';
 import { UnauthorizedComponent } from "./components/unauthorized/unauthorized.component";
 
 const routes: Routes = [
@@ -31,7 +30,6 @@ const routes: Routes = [
 		SpecHomeComponent,
 		UnauthorizedComponent,
 		PlanPreviewComponent,
-		ReportingComponent,
 		PHDSearchComponent,
 		CapitalCaseSpacePipe
 	],
@@ -52,7 +50,6 @@ const routes: Routes = [
 		SpecHomeComponent,
 		UnauthorizedComponent,
 		PlanPreviewComponent,
-		ReportingComponent,
 		PHDSearchComponent,
 		CapitalCaseSpacePipe
 	],

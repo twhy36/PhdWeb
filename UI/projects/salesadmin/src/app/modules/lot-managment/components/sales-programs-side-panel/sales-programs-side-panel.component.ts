@@ -2,9 +2,12 @@ import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angu
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 
 import { SalesProgramTypeEnum, SalesProgram } from '../../../shared/models/salesPrograms.model';
-import { SidePanelComponent } from 'phd-common';
+import { ConfirmModalComponent, SidePanelComponent } from 'phd-common';
 
 import * as moment from "moment";
+import { NgbModal, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
+import { OrganizationService } from '../../../core/services/organization.service';
+import { FinancialCommunityInfo } from '../../../shared/models/financialCommunity.model';
 
 @Component({
 	selector: 'sales-programs-side-panel-component',
@@ -23,6 +26,7 @@ export class SalesProgramsSidePanelComponent implements OnInit
 	@Input() customClasses: string = '';
 	@Input() disabled: boolean = false;
 	@Input() saving: boolean = false;
+	@Input() financialCommunityInfo: FinancialCommunityInfo;
 	@Input() selected: SalesProgram;
 
 	releaseForm: FormGroup;
@@ -47,7 +51,10 @@ export class SalesProgramsSidePanelComponent implements OnInit
 	// Should only allow a max of 15 digits in the discount field.
 	maxDiscount = 999999999999999;
 
-	constructor() { }
+	constructor(
+		private _modalService: NgbModal,
+		private _orgService: OrganizationService
+	) { }
 
 	ngOnInit()
 	{
@@ -111,6 +118,58 @@ export class SalesProgramsSidePanelComponent implements OnInit
 		// since setEndDateMinDate sets form controls.
 		this.setMinimumEndDate();
 		this.releaseForm.updateValueAndValidity();
+	}
+
+	onClick(event: any)
+	{
+		if (this.selected?.isThoEnabled && this.selected?.isPMCAffiliate)
+		{
+			event.preventDefault();
+
+			let ngbModalOptions: NgbModalOptions = {
+				centered: true,
+				backdrop: 'static',
+				keyboard: false
+			};
+
+			let msgBody = `Unchecking PMC Affiliate will disable THO Enabled flag. Do you want to continue?`;
+
+			let confirm = this._modalService.open(ConfirmModalComponent, ngbModalOptions);
+
+			confirm.componentInstance.title = 'Warning!';
+			confirm.componentInstance.body = msgBody;
+			confirm.componentInstance.defaultOption = 'Cancel';
+
+			confirm.result.then((result) =>
+			{
+				if (result == 'Continue')
+				{
+					if (this.selected.salesProgramType.toString() === "DiscountFlatAmount")
+					{
+						this.financialCommunityInfo.thoDiscountFlatAmountId = null;
+					}
+					else
+					{
+						this.financialCommunityInfo.thoBuyerClosingCostId = null;
+					}
+
+					this._orgService.saveFinancialCommunityInfo(this.financialCommunityInfo,null).subscribe(fcInfo =>
+					{
+						this.selected.isThoEnabled = !this.selected.isThoEnabled;
+						this.releaseForm.controls.isPMCAffiliate.setValue(!event.target.checked);
+						this.releaseForm.controls.isPMCAffiliate.markAsDirty();
+					});
+				}
+			}, (reason) =>
+			{
+				console.log("Error:", reason);
+			});
+		}
+		else
+		{
+			this.releaseForm.controls.isPMCAffiliate.setValue(event.target.checked);
+			this.releaseForm.controls.isPMCAffiliate.markAsDirty();
+		}
 	}
 
 	// Sets the min date the endDate calendar is allowed to be set to.

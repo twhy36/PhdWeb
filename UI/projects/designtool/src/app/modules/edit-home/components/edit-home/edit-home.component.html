@@ -32,7 +32,7 @@
 				[planId]="marketingPlanId.length === 1 ? marketingPlanId[0] : 0"
 				[subGroup]="selectedSubGroup"
 				(onChoiceModal)="showChoiceModal($event)"
-				(onSelectChoice)="selectChoice($event.choiceId, $event.overrideNote, $event.quantity)"
+				(onSelectChoice)="toggleChoice($event)"
 				[priceBreakdown]="(priceBreakdown$ | async)"
 				[selectedPointFilter]="(selectedPointFilter$ | async)"
 				[enabledPointFilters]="(enabledPointFilters$ | async)"
