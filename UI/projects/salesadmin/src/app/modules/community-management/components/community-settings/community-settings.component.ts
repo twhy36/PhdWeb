@@ -104,7 +104,6 @@ export class CommunitySettingsComponent extends UnsubscribeOnDestroy implements 
 
 	showCommunitySelect()
 	{
-		console.log(this.selectedTab !== this.commTabs.MonotonyRules)
 		return this.selectedTab !== this.commTabs.MonotonyRules;
 	}
 }

@@ -1,7 +1,7 @@
 <div class="phd-page-container">
 	<page-header [mainTitle]="mainTitle">
 		<ng-template>
-			<div *ngIf="showCommunitySelect()" class="col" >
+			<div *ngIf="this.selectedTab !== this.commTabs.MonotonyRules" class="col" >
 				<select class="form-control" [ngModel]="selectedCommunity ? selectedCommunity.dto : null" (ngModelChange)="onChangeCommunity($event)">
 					<option [ngValue]="null" disabled="disabled">Community</option>
 					<option *ngFor="let comm of (activeCommunities | async)" [ngValue]="comm.dto">{{ comm.name }}</option>
