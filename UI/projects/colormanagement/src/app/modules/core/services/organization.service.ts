@@ -23,25 +23,25 @@ export class OrganizationService
   currentFinancialMarket$: Subject<IMarket>;
   currentFinancialCommunity$: Subject<IFinancialCommunity>;
 
-	get currentFinancialMarket(): IMarket
+	get currentFinancialMarket(): string
 	{
-		return this._storageService.getLocal<IMarket>('CA_CURRENT_FM');
+		return this._storageService.getLocal<string>('CA_CURRENT_FM');
 	}
 
-	set currentFinancialMarket(val: IMarket)
+	set currentFinancialMarket(val: string)
 	{
-		this.currentFinancialMarket$.next(val);
+		this.currentFinancialMarket$.next(val as any as IMarket);
 		this._storageService.setLocal('CA_CURRENT_FM', val);
 	}
 
-	get currentFinancialCommunity(): IFinancialCommunity
+	get currentFinancialCommunity(): string
 	{
-		return this._storageService.getLocal<IFinancialCommunity>('CA_CURRENT_FC');
+		return this._storageService.getLocal<string>('CA_CURRENT_FC');
 	}
 
-	set currentFinancialCommunity(val: IFinancialCommunity)
+	set currentFinancialCommunity(val: string)
 	{
-		this.currentFinancialCommunity$.next(val);
+		this.currentFinancialCommunity$.next(val as any as IFinancialCommunity);
 		this._storageService.setLocal('CA_CURRENT_FC', val);
 	}
 
@@ -81,24 +81,24 @@ export class OrganizationService
 		this.currentFinancialCommunity$ = new Subject<IFinancialCommunity>();
 
     // Get market if saved locally
-		const currFinancialMarket = this._storageService.getLocal<IMarket>('CA_CURRENT_FM');
-		this.currentFinancialMarket$.next(currFinancialMarket);
+		const currFinancialMarket = this._storageService.getLocal<string>('CA_CURRENT_FM');
+		this.currentFinancialMarket$.next(currFinancialMarket as any as IMarket);
 
 	// Get community if saved locally
-		const currentFinancialCommunity = this._storageService.getLocal<IFinancialCommunity>('CA_CURRENT_FC');
-		this.currentFinancialCommunity$.next(currentFinancialCommunity);
+		const currentFinancialCommunity = this._storageService.getLocal<string>('CA_CURRENT_FC');
+		this.currentFinancialCommunity$.next(currentFinancialCommunity as any as IFinancialCommunity);
 
     // Get markets
     let endPoint = environment.apiUrl;
 
-		const expandOnMarkets = `financialCommunities($top=1;$select=salesStatusDescription,id;$filter=salesStatusDescription eq 'Active')`;
+		const expandOnMarkets = `financialCommunities($top=1;$select=salesStatusDescription,id,name;$filter=salesStatusDescription eq 'Active')`;
 		const filterOnMarkets = `financialCommunities/any() and companyType eq 'HB' and salesStatusDescription eq 'Active'`;
 		const selectOnMarkets = `id, number, name, companyType, salesStatusDescription`;
 		const orderByOnMarkets = `name`;
 
 		const qryStrOnMarkets = `${this._ds}expand=${encodeURIComponent(expandOnMarkets)}&${this._ds}filter=${encodeURIComponent(filterOnMarkets)}&${this._ds}select=${encodeURIComponent(selectOnMarkets)}&${this._ds}orderby=${encodeURIComponent(orderByOnMarkets)}`;
 
-    endPoint += `markets?${qryStrOnMarkets}`;
+    endPoint += `assignedMarkets?${qryStrOnMarkets}`;
 
 		this._financialMarkets$ = this._http.get<any>(endPoint).pipe(
 			map(response =>

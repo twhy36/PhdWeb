@@ -5,7 +5,7 @@
         </div>
         <div class="p-2">
             <input [(ngModel)]="colorname" (focus)="showCounter()" (focusout)="hideCounter()" class="form-control" id="name" maxlength="50" />
-            
+
         </div>
         <div class="p-2">
             <label class="col-form-label">Category/Subcategory</label>
@@ -14,7 +14,7 @@
             <select class="form-control">
                 <option [defaultSelected]></option>
                 <option>---- All Colors ----</option>
-                <option *ngFor="let subCategories of (optionSubCategory)" [ngValue]="subCategories">{{subCategories.optionCategory.name}} : {{subCategories.name}}</option>
+                <option *ngFor="let subCategories of (optionSubCategory$ | async)" [ngValue]="subCategories">{{subCategories.optionCategory.name}} : {{subCategories.name}}</option>
             </select>
         </div>
         <div class="p-2">
@@ -25,7 +25,7 @@
                 <option [defaultSelected]>All</option>
                 <option>Active</option>
                 <option>Inactive</option>
-            </select>  
+            </select>
         </div>
         <div class="p-2">
             <button class="btn btn-primary">Filter</button>
