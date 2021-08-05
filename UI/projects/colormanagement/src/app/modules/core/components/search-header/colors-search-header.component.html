@@ -1,0 +1,34 @@
+<div class="d-flex flex-row">
+    <div class="form-inline">
+        <div>
+            <label for="name" class="col-form-label">Color Name</label>
+        </div>
+        <div class="p-2">
+            <input [(ngModel)]="colorname" (focus)="showCounter()" (focusout)="hideCounter()" class="form-control" id="name" maxlength="50" />
+        </div>
+        <div class="p-2">
+            <label class="col-form-label">Category/Subcategory</label>
+        </div>
+        <div class="p-2">
+            <select class="form-control">
+                <option [defaultSelected]></option>
+                <option>---- All Colors ----</option>
+                <option *ngFor="let subCategories of (optionSubCategory$ | async)" [ngValue]="subCategories">{{subCategories.optionCategory.name}} : {{subCategories.name}}</option>
+            </select>
+        </div>
+        <div class="p-2">
+            <label class="row-form-label">Active</label>
+        </div>
+        <div class="p-2">
+            <select class="form-control">
+                <option [defaultSelected]>All</option>
+                <option>Active</option>
+                <option>Inactive</option>
+            </select>
+        </div>
+        <div class="p-2">
+            <button class="btn btn-primary">Filter</button>
+        </div>
+    </div>
+</div>
+<div *ngIf="isCounterVisible"><span class="count_message"><em>{{50 - colorname.length}} characters remaining</em></span> </div>
