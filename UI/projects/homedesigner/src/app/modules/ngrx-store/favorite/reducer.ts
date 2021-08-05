@@ -24,7 +24,7 @@ export const initialState: State = {
 	isLoading: false,
 	saveError: false,
 	salesChoices: null,
-	includeContractedOptions: true
+	includeContractedOptions: false
 };
 
 export function reducer(state: State = initialState, action: FavoriteActions): State
@@ -145,6 +145,7 @@ export function reducer(state: State = initialState, action: FavoriteActions): S
 			}
 
 		case FavoriteActionTypes.LoadMyFavorite:
+		case FavoriteActionTypes.LoadDefaultFavorite:
 			{
 				return { ...state, isLoading: true }
 			}
@@ -153,7 +154,7 @@ export function reducer(state: State = initialState, action: FavoriteActions): S
 			{
 				return { ...state, isLoading: false }
 			}
-	
+
 		default:
 			return state;
 	}

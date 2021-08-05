@@ -11,13 +11,14 @@ import { environment } from '../../../../environments/environment';
 
 import * as fromRoot from '../../ngrx-store/reducers';
 import * as fromSalesAgreement from '../../ngrx-store/sales-agreement/reducer';
+import * as fromScenario from '../../ngrx-store/scenario/reducer';
 import * as CommonActions from '../../ngrx-store/actions';
 
 @Injectable()
 export class ExternalGuard implements CanActivate
 {
 	constructor(
-		private identityService: IdentityService, 
+		private identityService: IdentityService,
 		private authService: AuthService,
 		private store: Store<fromRoot.State>,
 		private salesAgreementService: SalesAgreementService) { }
@@ -39,14 +40,15 @@ export class ExternalGuard implements CanActivate
 					return true;
 				})
 			),
-			this.store.pipe(select(fromSalesAgreement.salesAgreementState), take(1))
+			this.store.pipe(select(fromSalesAgreement.salesAgreementState), take(1)),
+			this.store.pipe(select(fromScenario.selectScenario), take(1))
 		]).pipe(
-			switchMap(([isLoggedIn, sag]) => {
+			switchMap(([isLoggedIn, sag, selectScenario]) => {
 				if (!isLoggedIn){
 					return NEVER;
 				}
 
-				if (!!sag.id) {
+				if (!!sag?.id || !!selectScenario?.tree?.id) {
 					return of(true);
 				} else {
 					return this.salesAgreementService.getSalesAgreement().pipe(

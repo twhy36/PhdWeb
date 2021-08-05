@@ -10,11 +10,11 @@ import * as _ from 'lodash';
 
 import { DesignToolAttribute } from 'phd-common';
 
-import 
-{ 	FavoriteActionTypes, SetCurrentFavorites, MyFavoriteCreated, SaveMyFavoritesChoices, 
+import
+{ 	FavoriteActionTypes, SetCurrentFavorites, MyFavoriteCreated, SaveMyFavoritesChoices,
 	MyFavoritesChoicesSaved, SaveError, DeleteMyFavorite, MyFavoriteDeleted,
 	AddMyFavoritesPointDeclined, DeleteMyFavoritesPointDeclined, MyFavoritesPointDeclinedUpdated,
-	LoadMyFavorite,	MyFavoriteLoaded
+	LoadMyFavorite,	MyFavoriteLoaded, LoadDefaultFavorite
 } from './actions';
 
 import { CommonActionTypes, ResetFavorites } from '../actions';
@@ -27,6 +27,7 @@ import { TreeService } from '../../core/services/tree.service';
 import * as fromRoot from '../reducers';
 import * as fromFavorite from './reducer';
 import * as fromSalesAgreement from '../sales-agreement/reducer';
+import { MyFavorite } from '../../shared/models/my-favorite.model';
 
 @Injectable()
 export class FavoriteEffects
@@ -77,7 +78,7 @@ export class FavoriteEffects
 									locationQuantity: l.quantity
 								}];
 							})) : [];
-			
+
 						// gets favorites attributes
 						c.myFavoritesChoiceAttributes && c.myFavoritesChoiceAttributes.forEach(a =>
 						{
@@ -99,14 +100,14 @@ export class FavoriteEffects
 						};
 					});
 
-					actions.push(new SelectChoices(...choices));	
+					actions.push(new SelectChoices(...choices));
 				}
 				else if (fav?.myFavoritesPointDeclined?.length)
 				{
 					const pointIds = fav.myFavoritesPointDeclined.map(x => x.divPointCatalogId);
 					actions.push(new SetStatusForPointsDeclined(pointIds, false));
 				}
-				
+
 				if (actions.length)
 				{
 					return from(actions);
@@ -137,8 +138,8 @@ export class FavoriteEffects
 								quantity: 0,
 								attributes: []
 							};
-						});	
-						actions.push(new SelectChoices(...choices));				
+						});
+						actions.push(new SelectChoices(...choices));
 					}
 
 					if (fav.myFavoritesPointDeclined?.length)
@@ -146,7 +147,7 @@ export class FavoriteEffects
 						const pointIds = fav.myFavoritesPointDeclined.map(x => x.divPointCatalogId);
 						actions.push(new SetStatusForPointsDeclined(pointIds, true));
 					}
-					
+
 					return from(actions);
 				}
 				else
@@ -186,7 +187,7 @@ export class FavoriteEffects
 			})
 		), SaveError, "Error adding my favorites point declined!")
 	);
-	
+
 	@Effect()
 	deleteMyFavoritesPointDeclined$: Observable<Action> = this.actions$.pipe(
 		ofType<DeleteMyFavoritesPointDeclined>(FavoriteActionTypes.DeleteMyFavoritesPointDeclined),
@@ -212,7 +213,7 @@ export class FavoriteEffects
 	@Effect()
 	loadMyFavorite$: Observable<Action> = this.actions$.pipe(
 		ofType<LoadMyFavorite>(FavoriteActionTypes.LoadMyFavorite),
-		withLatestFrom(this.store.pipe(select(fromSalesAgreement.salesAgreementState)), 
+		withLatestFrom(this.store.pipe(select(fromSalesAgreement.salesAgreementState)),
 			this.store.pipe(select(fromFavorite.favoriteState)),
 			this.store.pipe(select(fromSalesAgreement.favoriteTitle))
 		),
@@ -222,7 +223,7 @@ export class FavoriteEffects
 				const currentMyFavorite = fav?.myFavorites?.length > 0 ? fav.myFavorites[0] : null;
 				const selectedFavoritesId = fav?.selectedFavoritesId || 0;
 				const getMyFavorite = currentMyFavorite ? of(currentMyFavorite) : this.favoriteService.saveMyFavorite(0, title, salesAgreementId);
-				
+
 				return getMyFavorite.pipe(
 					map(favorite => {
 						return { favorite: favorite, currentMyFavorite: currentMyFavorite, selectedFavoritesId: selectedFavoritesId };
@@ -231,7 +232,7 @@ export class FavoriteEffects
   			}),
 			switchMap(result => {
 				let actions: any[] = [];
-				
+
 				if (result.favorite)
 				{
 					if (!result.currentMyFavorite)
@@ -251,7 +252,54 @@ export class FavoriteEffects
 
 					actions.push(new MyFavoriteLoaded());
 				}
-				
+
+				return from(actions);
+			})
+		), SaveError, "Error loading my favorite!")
+	);
+
+	@Effect()
+	LoadDefaultFavorite$: Observable<Action> = this.actions$.pipe(
+		ofType<LoadDefaultFavorite>(FavoriteActionTypes.LoadDefaultFavorite),
+		withLatestFrom(this.store.pipe(select(fromFavorite.favoriteState))),
+		tryCatch(source => source.pipe(
+			switchMap(([action, fav]) => {
+				const currentMyFavorite = fav?.myFavorites?.length > 0 ? fav.myFavorites[0] : null;
+				const selectedFavoritesId = fav?.selectedFavoritesId || 0;
+				const defaultFavorite: MyFavorite = {
+					id: -1,
+					name: 'Default Favorite',
+					salesAgreementId: -1,
+					myFavoritesChoice: [],
+					myFavoritesPointDeclined: []
+				};
+				const favorite = currentMyFavorite ? currentMyFavorite : defaultFavorite;
+
+				return of({ favorite: favorite, currentMyFavorite: currentMyFavorite, selectedFavoritesId: selectedFavoritesId });
+  		}),
+			switchMap(result => {
+				let actions: any[] = [];
+
+				if (result.favorite)
+				{
+					if (!result.currentMyFavorite)
+					{
+						actions.push(new MyFavoriteCreated(result.favorite));
+					}
+
+					if (result.selectedFavoritesId !== result.favorite.id)
+					{
+						actions.push(new SetCurrentFavorites(result.favorite.id));
+
+						if (result.favorite.myFavoritesPointDeclined?.length)
+						{
+							actions.push(new SetStatusForPointsDeclined(result.favorite.myFavoritesPointDeclined.map(dp => dp.divPointCatalogId), false));
+						}
+					}
+
+					actions.push(new MyFavoriteLoaded());
+				}
+
 				return from(actions);
 			})
 		), SaveError, "Error loading my favorite!")

@@ -1,17 +1,18 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, throwError as _throw } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { map, catchError, switchMap } from 'rxjs/operators';
 
-import { Plan } from 'phd-common';
+import { Plan, withSpinner } from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
+import { OptionService } from './option.service';
 
 
 @Injectable()
 export class PlanService
 {
-	constructor(private _http: HttpClient) { }
+	constructor(private _http: HttpClient, private optionService: OptionService) { }
 
 	getSelectedPlan(planId: number): Observable<Plan[]> {
 		const entity = 'planCommunities';
@@ -52,6 +53,58 @@ export class PlanService
 			{
 				console.error(error);
 
+				return _throw(error);
+			})
+		);
+	}
+
+	public getPlanByPlanKey(planKey: string, financialCommunityId: number, optionIds: string[]): Observable<Plan>
+	{
+		optionIds.push('00001'); // include base house key
+
+		const filter = `financialPlanIntegrationKey eq '${planKey}' and financialCommunityId eq ${financialCommunityId}`;
+		const url = `${environment.apiUrl}planCommunities?${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}`;
+
+		return this._http.get<any>(url).pipe(
+			switchMap(resp =>
+			{
+				let plan = this.mapPlan(resp.value[0]);
+
+				return this.optionService.getPlanOptions(plan.id, optionIds, true)
+					.pipe(
+						map(optionsResponse =>
+						{
+							if (optionsResponse && optionsResponse.length > 0)
+							{
+								plan.price = optionsResponse.reduce((sum, opt) => sum += (opt.listPrice || 0), 0);
+							}
+
+							return plan;
+						})
+					);
+			}),
+			catchError(error =>
+			{
+				console.error(error);
+
+				return _throw(error);
+			})
+		);
+	}
+
+	getWebPlanMapping(planKey: string, financialCommunityId: number): Observable<Array<number>>
+	{
+		const filter = `financialPlanIntegrationKey eq '${planKey}' and financialCommunityId eq ${financialCommunityId}`;
+		const expand = `webSitePlanCommunityAssocs($expand=webSitePlan($select=webSitePlanIntegrationKey))`;
+		const select = `id,webSitePlanCommunityAssocs`;
+
+		const url = `${environment.apiUrl}planCommunities?${encodeURIComponent('$')}expand=${encodeURIComponent(expand)}&${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}&${encodeURIComponent('$')}select=${encodeURIComponent(select)}`;
+
+		return withSpinner(this._http).get<any>(url).pipe(
+			map(resp => !!resp.value.length ? resp.value[0]['webSitePlanCommunityAssocs'].map(p => p.webSitePlan.webSitePlanIntegrationKey) : []),
+			catchError(error =>
+			{
+				console.error(error);
 				return _throw(error);
 			})
 		);

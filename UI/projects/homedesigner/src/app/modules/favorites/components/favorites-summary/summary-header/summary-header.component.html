@@ -56,8 +56,8 @@
 		<div *ngIf="!isSticky" class="phd-divider"></div>
 		<div *ngIf="!isSticky" class="phd-contracted-options">
 			<label>
-				<input type="checkbox" (change)="toggleContractedOptions($event)" [ngModel]="includeContractedOptions" class="phd-clickable" />
-				Include Contracted Options
+				<input type="checkbox" (change)="toggleContractedOptions($event)" [ngModel]="includeContractedOptions" [ngClass]="{'phd-clickable' : !isPreview }" [disabled]="isPreview"/>
+				Display Contracted Options
 			</label>
 		</div>
 	</div>

@@ -36,6 +36,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	@Input() path: string;
 	@Input() groups: Group[];
 	@Input() myFavoritesPointsDeclined: MyFavoritesPointDeclined[];
+	@Input() isReadonly: boolean;
 
 	@Output() onBack = new EventEmitter();
 	@Output() onToggleChoice = new EventEmitter<ChoiceExt>();
@@ -302,7 +303,10 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 
 	toggleChoice()
 	{
-		this.onToggleChoice.emit(this.choice);
+		if (!this.isReadonly)
+		{
+			this.onToggleChoice.emit(this.choice);
+		}
 	}
 
 	toggleAttribute(data: {attribute: Attribute, attributeGroup: AttributeGroup, location: Location, locationGroup: LocationGroup, quantity: number})

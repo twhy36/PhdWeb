@@ -19,6 +19,8 @@
 						[salesChoices]="salesChoices"
 						[groups]="groups"
 						[choiceImages]="currentChoiceImages"
+						[isReadonly]="isReadonly"
+						[isPreview]="isPreview"
 						(onToggleChoice)="toggleChoice($event)"
 						(onToggleContractedOptions)="toggleContractedOptions()"
 						(onViewChoiceDetail)="viewChoiceDetail($event)"
@@ -40,6 +42,8 @@
 						[isFloorplanFlipped]="isFloorplanFlipped"
 						[groups]="groups"
 						[choiceImages]="currentChoiceImages"
+						[isReadonly]="isReadonly"
+						[isPreview]="isPreview"
 						(onToggleChoice)="toggleChoice($event)"
 						(onToggleContractedOptions)="toggleContractedOptions()"
 						(onViewChoiceDetail)="viewChoiceDetail($event)"
@@ -52,6 +56,7 @@
 						[path]="getChoicePath()"
 						[groups]="groups"
 						[myFavoritesPointsDeclined]="myFavoritesPointsDeclined"
+						[isReadonly]="isReadonly"
 						(onBack)="hideDetails()"
 						(onSelectDecisionPoint)="selectDecisionPoint($event)"
 						(onToggleChoice)="toggleChoice($event)">
@@ -59,4 +64,4 @@
 	</ng-container>
 </div>
 
-<action-bar [primaryAction]="showDetails ? 'Back' : 'Next'" [price]="priceBreakdown.totalPrice" [favoritesPrice]="priceBreakdown.favoritesPrice" (callToAction)="showDetails ? hideDetails() : onNextSubGroup()"></action-bar>
+<action-bar [primaryAction]="showDetails ? 'Back' : 'Next'" [price]="priceBreakdown?.totalPrice" [favoritesPrice]="priceBreakdown?.favoritesPrice" (callToAction)="showDetails ? hideDetails() : onNextSubGroup()"></action-bar>

@@ -9,6 +9,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SharedModule } from '../shared/shared.module';
 import { PhdCommonModule } from 'phd-common';
 import { ExternalGuard } from '../core/guards/external.guard';
+import { InternalGuard } from '../core/guards/internal.guard';
 import { ManageFavoritesComponent } from './components/manage-favorites/manage-favorites.component';
 import { MyFavoritesComponent } from './components/my-favorites/my-favorites.component';
 import { NormalExperienceComponent } from './components/my-favorites/normal-experience/normal-experience.component';
@@ -19,13 +20,33 @@ import { FloorPlanExperienceComponent } from './components/my-favorites/floor-pl
 const moduleRoutes: Routes = [
 	{
 		path: '',
-		canActivate: [ExternalGuard],
 		children:
 		[
-			{ path: 'favorites', component: ManageFavoritesComponent },
-			{ path: 'favorites/summary', component: FavoritesSummaryComponent },
-			{ path: 'favorites/my-favorites/:favoritesId/:subGroupCatalogId', component: MyFavoritesComponent },
-			{ path: 'favorites/my-favorites/:favoritesId', component: MyFavoritesComponent }
+			{ 
+				path: 'favorites', 
+				component: ManageFavoritesComponent, 
+				canActivate: [ExternalGuard] 
+			},
+			{ 
+				path: 'favorites/preview/:salesAgreementId', 
+				component: FavoritesSummaryComponent,
+				canActivate: [InternalGuard] 
+			},
+			{ 
+				path: 'favorites/summary', 
+				component: FavoritesSummaryComponent, 
+				canActivate: [ExternalGuard]  
+			},
+			{ 
+				path: 'favorites/my-favorites/:favoritesId/:subGroupCatalogId', 
+				component: MyFavoritesComponent, 
+				canActivate: [ExternalGuard]  
+			},
+			{ 
+				path: 'favorites/my-favorites/:favoritesId', 
+				component: MyFavoritesComponent, 
+				canActivate: [ExternalGuard]  
+			}
 		]
 	}
 ];
