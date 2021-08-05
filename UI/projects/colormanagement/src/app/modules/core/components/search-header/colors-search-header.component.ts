@@ -2,9 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import {OptionService} from '../../services/option.service';
 import { IOptionSubCategory } from '../../../shared/models/option.model';
 import { OrganizationService } from '../../../core/services/organization.service';
-import { switchMap, startWith } from 'rxjs/operators';
+import { switchMap, filter } from 'rxjs/operators';
 import { UnsubscribeOnDestroy } from 'phd-common';
-import { IFinancialCommunity } from '../../../shared/models/community.model';
 import { Observable } from 'rxjs';
 
 @Component({
@@ -17,15 +16,13 @@ export class ColorsSearchHeaderComponent extends UnsubscribeOnDestroy implements
 	colorname:string;
 	isCounterVisible:boolean;
 	optionSubCategory$:Observable<IOptionSubCategory[]>;
-	currentCommunityId:number;
 	constructor(private _optionService: OptionService,private _orgService:OrganizationService) {
 		super();
 	}
 	ngOnInit() {
-		this.optionSubCategory$ = this._orgService.currentFinancialCommunity$
-		.pipe(
+		this.optionSubCategory$ = this._orgService.currentCommunity$.pipe(
 			this.takeUntilDestroyed(),
-			startWith(this._orgService.currentFinancialCommunity as any as IFinancialCommunity),
+			filter(comm => !!comm),
 			switchMap((comm) =>
 			{
 				return this._optionService.getOptionsCategorySubcategory(comm.id)

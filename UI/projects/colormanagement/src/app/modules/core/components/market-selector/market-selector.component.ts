@@ -1,5 +1,6 @@
 import {Component} from '@angular/core';
-import { Subject } from 'rxjs';
+import { Observable } from 'rxjs';
+import { filter, switchMap } from 'rxjs/operators';
 import { IFinancialCommunity, IMarket } from '../../../shared/models/community.model';
 import {OrganizationService} from '../../services/organization.service';
 
@@ -10,28 +11,30 @@ import {OrganizationService} from '../../services/organization.service';
 })
 export class MarketSelectorComponent {
 
+	currentCommunity$: Observable<IFinancialCommunity>;
+	currentMarket$: Observable<IMarket>;
+	markets$: Observable<Array<IMarket>>;
+	financialCommunities$: Observable<Array<IFinancialCommunity>>;
 
-	get currentMarket$(): Subject<IMarket>{
-		return this.orgService.currentFinancialMarket$;
+	constructor(private orgService: OrganizationService) {
+		this.markets$ = this.orgService.markets$;
+		this.currentMarket$ = this.orgService.currentMarket$;
+		this.currentCommunity$ = this.orgService.currentCommunity$;
+		this.financialCommunities$ = this.currentMarket$.pipe(
+			filter(m => !!m),
+			switchMap(m => this.orgService.getFinancialCommunities(m.id))
+		);
 	}
 
-	get currentCommunity$(): Subject<IFinancialCommunity>{
-		return this.orgService.currentFinancialCommunity$;
-	}
-
-	constructor(public orgService: OrganizationService) { }
-
-	onSelectedMarketChange($event: any){
+	onSelectedMarketChange($event: IMarket){
 		//TODO: Remove logs once component is complete in subsequent stories
 		console.log($event);
-		this.orgService.currentFinancialMarket = $event;
-		//reset community list when new market is selected
-		this.orgService.currentFinancialCommunity = null;
+		this.orgService.selectMarket($event);
 	}
 
-	onChangeCommunity($event: any){
+	onChangeCommunity($event: IFinancialCommunity){
 		//TODO: Remove console logs once component is complete in subsequent stories
-		this.orgService.currentFinancialCommunity = $event;
 		console.log($event);
+		this.orgService.selectCommunity($event);
 	}
 }
