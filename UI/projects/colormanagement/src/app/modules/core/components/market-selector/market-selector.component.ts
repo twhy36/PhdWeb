@@ -21,7 +21,7 @@ export class MarketSelectorComponent {
 
 	constructor(public orgService: OrganizationService) { }
 
-	onSelectedMarketChange($event: IMarket){
+	onSelectedMarketChange($event: any){
 		//TODO: Remove logs once component is complete in subsequent stories
 		console.log($event);
 		this.orgService.currentFinancialMarket = $event;
@@ -29,7 +29,7 @@ export class MarketSelectorComponent {
 		this.orgService.currentFinancialCommunity = null;
 	}
 
-	onChangeCommunity($event: IFinancialCommunity){
+	onChangeCommunity($event: any){
 		//TODO: Remove console logs once component is complete in subsequent stories
 		this.orgService.currentFinancialCommunity = $event;
 		console.log($event);
