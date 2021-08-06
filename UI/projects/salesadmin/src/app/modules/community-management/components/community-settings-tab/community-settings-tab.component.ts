@@ -57,13 +57,13 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 			}),
 			switchMap(([orgs, comm]) =>
 			{
-				if (comm != null)
+				if (comm != null && (!this.selectedCommunity || this.selectedCommunity.id != comm.id))
 				{
 					this.orgId = orgs?.find(o => o.edhFinancialCommunityId === comm.id)?.orgID;
+					this.selectedCommunity = new FinancialCommunityViewModel(comm);
 
-					if (this.orgId && (!this.selectedCommunity || this.selectedCommunity.id != comm.id))
+					if (this.orgId)
 					{
-						this.selectedCommunity = new FinancialCommunityViewModel(comm);
 						return this._orgService.getFinancialCommunityInfo(this.orgId);
 					}
 				}
@@ -88,8 +88,8 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 		let earnestMoney = this.financialCommunityInfo ? this.financialCommunityInfo.earnestMoneyAmount : null;
 
 		this.communitySettingsForm = new FormGroup({
-			'ecoeMonths': new FormControl(ecoeMonths, Validators.required),
-			'earnestMoney': new FormControl(earnestMoney,[Validators.min(0), Validators.max(99999), Validators.required])
+			'ecoeMonths': new FormControl(ecoeMonths, [Validators.required, Validators.min(1), Validators.max(15)]),
+			'earnestMoney': new FormControl(earnestMoney,[Validators.required, Validators.min(0), Validators.max(99999)])
 		}, [])
 	}
 
