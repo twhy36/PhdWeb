@@ -169,8 +169,11 @@ export class CommunityPdfComponent extends UnsubscribeOnDestroy implements OnIni
 
 	onSortComplete(isComplete: boolean)
 	{
-		this.isSortSaving = !isComplete;
-		this.editSort();
+		this.isSortSaving = false;
+		if (isComplete)
+		{
+			this.editSort();
+		}
 	}
 
 	onSidePanelClose(status: boolean)
@@ -224,7 +227,7 @@ export class CommunityPdfComponent extends UnsubscribeOnDestroy implements OnIni
 	{
 		pdf.marketId = this.selectedMarket.id;
 		pdf.financialCommunityId = this.selectedCommunity.dto.id;
-		this._communityService.updateCommunityPdf([pdf])
+		this._communityService.updateCommunityPdfs([pdf])
 			.subscribe(communityPdfs =>
 			{
 				communityPdfs.forEach(pdf => this.updatePdfLists(pdf));

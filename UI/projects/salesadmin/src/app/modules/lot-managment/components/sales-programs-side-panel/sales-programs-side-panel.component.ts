@@ -122,7 +122,7 @@ export class SalesProgramsSidePanelComponent implements OnInit
 
 	onClick(event: any)
 	{
-		if (this.selected.isThoEnabled && this.selected.isPMCAffiliate)
+		if (this.selected?.isThoEnabled && this.selected?.isPMCAffiliate)
 		{
 			event.preventDefault();
 

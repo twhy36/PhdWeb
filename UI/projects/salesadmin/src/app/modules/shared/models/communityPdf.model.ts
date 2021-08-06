@@ -5,11 +5,10 @@ export class CommunityPdf
 	sortOrder: number;
 	linkText: number;
 	description: string;
-	effectiveDate: Date;
-	expirationDate: Date;
+	effectiveDate: string;
+	expirationDate: string;
 	fileName: string;
 	sectionHeader: SectionHeader;
-	url: string;
 }
 
 export enum SectionHeader
