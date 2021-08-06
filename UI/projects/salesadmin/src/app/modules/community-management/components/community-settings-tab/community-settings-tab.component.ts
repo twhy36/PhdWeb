@@ -20,6 +20,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 	selectedFinancialCommunityId: FinancialCommunity = null;
 	url?: string = null;
 	communityLinkEnabled: boolean = false;
+	previewEnable: boolean = false;
 
 	constructor(
 		public _orgService: OrganizationService,
@@ -44,6 +45,10 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 
 	toggleCommunityLink() {
 		this.communityLinkEnabled = !this.communityLinkEnabled;
+	}
+
+	togglePreviewLink() {
+		this.previewEnable = !this.previewEnable;
 	}
 
 	save() {

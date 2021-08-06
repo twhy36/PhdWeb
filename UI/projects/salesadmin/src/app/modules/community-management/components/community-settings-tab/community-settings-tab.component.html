@@ -61,6 +61,19 @@
 					</div>
 				</div>
 			</div>
+			<div class="box-background" *ngIf="!!url">
+				<div class="box">
+					<div class="line">
+						<div class="font-weight-bold">Enable Design Preview for Community</div>
+						<div class="col-md">
+							<button class="btn btn-sm btn-toggle btn-auto-approval" [ngClass]="{'active': !previewEnable, 'btn-success': previewEnable, 'btn-secondary': !previewEnable}"
+									(click)="togglePreviewLink()">
+								<div class="handle"></div>
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
 			<div class="save-button">
 				<button class="btn btn-primary" (click)="save();" *ngIf="canEdit">Save</button>
 			</div>
