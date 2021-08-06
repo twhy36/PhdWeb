@@ -1,16 +1,7 @@
 <community-pdf-side-panel-component *ngIf="isSidePanelOpen" [selected]="selected" [sidePanelOpen]="isSidePanelOpen" [saving]="isSaving" (onSidePanelClose)="onSidePanelClose($event)" (onUpdate)="update($event)" (onSave)="save($event)"></community-pdf-side-panel-component>
 
 <div class="phd-page-container">
-	<page-header mainTitle="Community PDF Files">
-		<ng-template>
-			<div class="col">
-				<select class="form-control" [ngModel]="selectedCommunity ? selectedCommunity.dto : null" (ngModelChange)="onChangeCommunity($event)">
-					<option [ngValue]="null" disabled="disabled">Community</option>
-					<option *ngFor="let comm of (activeCommunities | async)" [ngValue]="comm.dto">{{ comm.name }}</option>
-				</select>
-			</div>
-		</ng-template>
-	</page-header>
+	<page-header mainTitle="Community PDF Files"></page-header>
 	<div class="phd-pdf-button-bar">
 		<ng-template [ngIf]="canEdit">
 			<div class="phd-edit">
