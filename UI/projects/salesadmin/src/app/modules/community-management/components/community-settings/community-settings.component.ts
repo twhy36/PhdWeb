@@ -23,12 +23,11 @@ enum Tabs
 })
 export class CommunitySettingsComponent extends UnsubscribeOnDestroy implements OnInit
 {
-	activeCommunities: Observable<Array<FinancialCommunityViewModel>>;
+	activeCommunities: Array<FinancialCommunityViewModel>;
 	selectedCommunity: FinancialCommunityViewModel = null;
 	selectedMarket: FinancialMarket = null;
 	commTabs = Tabs;
 	selectedTab: Tabs;
-	isLoading: boolean = true;
 
 	get mainTitle(): string
 	{
@@ -40,25 +39,25 @@ export class CommunitySettingsComponent extends UnsubscribeOnDestroy implements 
 
 	ngOnInit(): void
 	{
-		this.isLoading = true;
-		this.activeCommunities = this._orgService.currentMarket$.pipe(
+		this._orgService.currentMarket$.pipe(
 			this.takeUntilDestroyed(),
-			tap(() => this.isLoading = true),
 			switchMap(mkt =>
 			{
-			if (mkt)
-			{
-				this.selectedMarket = mkt;
-				return this._orgService.getFinancialCommunities(mkt.id);
-			}
-			else
-			{
-				this.selectedMarket = null;
-				return of([]);
-			}
-			}),
-			map(comms => comms.map(comm => new FinancialCommunityViewModel(comm)).filter(c => c.isActive))
-		);
+				if (mkt)
+				{
+					this.selectedMarket = mkt;
+					return this._orgService.getFinancialCommunities(mkt.id);
+				}
+				else
+				{
+					this.selectedMarket = null;
+					return of([]);
+				}
+			})
+		).subscribe(comms =>
+		{
+			this.activeCommunities = comms.map(comm => new FinancialCommunityViewModel(comm)).filter(c => c.isActive);
+		});
 
 		this._orgService.currentCommunity$.pipe(
 			this.takeUntilDestroyed(),
@@ -96,8 +95,6 @@ export class CommunitySettingsComponent extends UnsubscribeOnDestroy implements 
 	{
 		if (comm != null)
 		{
-			this.isLoading = true;
-
 			this._orgService.selectCommunity(comm);
 		}
 	}

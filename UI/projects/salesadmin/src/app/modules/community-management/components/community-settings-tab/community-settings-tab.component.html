@@ -9,9 +9,7 @@
 						</div>
 						<div class="line">
 							<label class="font-weight-bold">Purchase Date +</label>
-							&nbsp;
 							<input class="ecoe-input" id="ecoe-months" type="number" formControlName="ecoeMonths" min="1" max="15"/>
-							&nbsp;
 							<label class="font-weight-bold">Months</label>
 							<span class="text-danger"
 								*ngIf="communitySettingsForm.controls.ecoeMonths.invalid && communitySettingsForm.controls.ecoeMonths.dirty && communitySettingsForm.controls.ecoeMonths.errors.min">
@@ -32,8 +30,7 @@
 						<div class="input-line">
 							<div class="form-group">
 								<label class="font-weight-bold">$</label>
-								&nbsp;
-								<input id="earnest-money" formControlName="earnestMoney" maxlength="5"/>
+								<input class="earnest-money-input" id="earnest-money" formControlName="earnestMoney" maxlength="5"/>
 								<span class="text-danger"
 									*ngIf="communitySettingsForm.controls.earnestMoney.invalid && communitySettingsForm.controls.earnestMoney.dirty && communitySettingsForm.controls.earnestMoney.errors.min">
 									Invalid: Earnest Money must be at least $0
