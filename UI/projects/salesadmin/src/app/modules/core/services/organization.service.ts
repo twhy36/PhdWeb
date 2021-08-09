@@ -197,7 +197,7 @@ export class OrganizationService
 			let url = settings.apiUrl;
 
 			const filter = `marketId eq ${marketId}`;
-			const select = 'id, marketId, name, number, salesCommunityId, salesStatusDescription, isPhasedPricingEnabled, isElevationMonotonyRuleEnabled, isColorSchemeMonotonyRuleEnabled';
+			const select = 'id, marketId, name, number, salesCommunityId, salesStatusDescription, isPhasedPricingEnabled, isElevationMonotonyRuleEnabled, isColorSchemeMonotonyRuleEnabled, isColorSchemePlanRuleEnabled';
 			const expand = 'market($select=id,number)';
 			const orderBy = 'name';
 			const qryStr = `${encodeURIComponent('$')}expand=${encodeURIComponent(expand)}&${encodeURIComponent('$')}select=${encodeURIComponent(select)}&${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}&${encodeURIComponent('$')}orderby=${encodeURIComponent(orderBy)}`;
@@ -219,7 +219,8 @@ export class OrganizationService
 							isPhasedPricingEnabled: data.isPhasedPricingEnabled,
 							isElevationMonotonyRuleEnabled: data.isElevationMonotonyRuleEnabled,
 							isColorSchemeMonotonyRuleEnabled: data.isColorSchemeMonotonyRuleEnabled,
-							salesCommunityId: data.salesCommunityId
+							salesCommunityId: data.salesCommunityId,
+							isColorSchemePlanRuleEnabled: data.isColorSchemePlanRuleEnabled
 						} as FinancialCommunity;
 					});
 				}),

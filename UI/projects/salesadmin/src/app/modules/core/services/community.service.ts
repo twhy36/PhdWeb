@@ -80,7 +80,12 @@ export class CommunityService
 
 		url += `financialCommunities(${financialCommunityId})`;
 
-		return this._http.patch<FinancialCommunity>(url, dto);
+		return this._http.patch<FinancialCommunity>(url, dto).pipe(
+			map((response: FinancialCommunity) =>
+			{
+				return response;
+			})
+		);
 	}
 
 	deleteCommunityPdf(pdf: CommunityPdf): Observable<boolean>
