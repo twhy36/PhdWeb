@@ -1,0 +1,52 @@
+.box-background {
+	background-color: #D5D5D5;
+	border-style: solid;
+	border-width: 1px;
+	border-color: black;
+	border-collapse: collapse;
+	margin: auto;
+	margin-top: 10%;
+	width:350px;
+	height:100px;
+}
+
+.box{
+	text-align: center;
+	padding:15px;
+}
+
+.line{
+	text-align: center;
+	margin-bottom:10px;
+}
+
+.input-line{
+	text-align: center;
+	margin-bottom:20px;
+	margin-top:5px;
+}
+
+.earnest-money-input{
+	margin-left: 10px;
+}
+
+.ecoe-input{
+	width: 100px;
+	margin: 0 10px;
+}
+
+.save-button{
+	margin: auto;
+	margin-top: 10%;
+}
+
+.settings-container{
+	width: 750px;
+	height: 750px;
+}
+
+.center{
+	display: flex;
+  justify-content: center;
+  align-items: center;
+}
