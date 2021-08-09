@@ -1,15 +1,15 @@
 <div class ="phd-page-container">
 	<div class="pdh-page-body">
-		<div class="container-fluid mx-auto settings-container">
+		<div class="container-fluid mx-auto phd-settings-container">
 			<form [formGroup]="communitySettingsForm" >
-				<div class="box-background center">
-					<div class="box">
-						<div class="line">
+				<div class="phd-box-background phd-center">
+					<div class="phd-box">
+						<div class="phd-line">
 							<div class="font-weight-bold">THO ECOE date for Dirt Sale:</div>
 						</div>
-						<div class="line">
+						<div class="phd-line">
 							<label class="font-weight-bold">Purchase Date +</label>
-							<input class="ecoe-input" id="ecoe-months" type="number" formControlName="ecoeMonths" min="1" max="15"/>
+							<input class="phd-ecoe-input" id="ecoe-months" type="number" formControlName="ecoeMonths" min="1" max="15"/>
 							<label class="font-weight-bold">Months</label>
 							<span class="text-danger"
 								*ngIf="communitySettingsForm.controls.ecoeMonths.invalid && communitySettingsForm.controls.ecoeMonths.dirty && communitySettingsForm.controls.ecoeMonths.errors.min">
@@ -22,15 +22,15 @@
 						</div>
 					</div>
 				</div>
-				<div class="box-background center">
-					<div class="box">
-						<div class="line">
+				<div class="phd-box-background phd-center">
+					<div class="phd-box">
+						<div class="phd-line">
 							<div class="font-weight-bold">Set THO Earnest Money amount here:</div>
 						</div>
-						<div class="input-line">
+						<div class="phd-input-line">
 							<div class="form-group">
 								<label class="font-weight-bold">$</label>
-								<input class="earnest-money-input" id="earnest-money" formControlName="earnestMoney" maxlength="5"/>
+								<input class="phd-earnest-money-input" id="earnest-money" formControlName="earnestMoney" maxlength="5"/>
 								<span class="text-danger"
 									*ngIf="communitySettingsForm.controls.earnestMoney.invalid && communitySettingsForm.controls.earnestMoney.dirty && communitySettingsForm.controls.earnestMoney.errors.min">
 									Invalid: Earnest Money must be at least $0
@@ -44,7 +44,7 @@
 					</div>
 				</div>
 			</form>
-			<div class="save-button center" *ngIf="canEdit">
+			<div class="phd-save-button phd-center" *ngIf="canEdit">
 				<button class="btn btn-primary phd-btn-save" (click)="save();" [disabled]="saveDisabled">
 					Save
 					<ng-container *ngIf="isSaving"><i class="fa fa-spinner fa-spin fa-fw"></i></ng-container>

@@ -1,4 +1,4 @@
-.box-background {
+.phd-box-background {
 	background-color: #D5D5D5;
 	border-style: solid;
 	border-width: 1px;
@@ -10,42 +10,42 @@
 	height:100px;
 }
 
-.box{
+.phd-box{
 	text-align: center;
 	padding:15px;
 }
 
-.line{
+.phd-line{
 	text-align: center;
 	margin-bottom:10px;
 }
 
-.input-line{
+.phd-input-line{
 	text-align: center;
 	margin-bottom:20px;
 	margin-top:5px;
 }
 
-.earnest-money-input{
+.phd-earnest-money-input{
 	margin-left: 10px;
 }
 
-.ecoe-input{
+.phd-ecoe-input{
 	width: 100px;
 	margin: 0 10px;
 }
 
-.save-button{
+.phd-save-button{
 	margin: auto;
 	margin-top: 10%;
 }
 
-.settings-container{
+.phd-settings-container{
 	width: 750px;
 	height: 750px;
 }
 
-.center{
+.phd-center{
 	display: flex;
   justify-content: center;
   align-items: center;
