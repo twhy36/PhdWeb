@@ -51,7 +51,6 @@
 						<div class="col-md">
 							<button class="btn btn-sm btn-toggle btn-auto-approval" [ngClass]="{'active': !isCommunityLinkEnabled, 'btn-success': isCommunityLinkEnabled, 'btn-secondary': !isCommunityLinkEnabled}"
 									(click)="toggleCommunityLinkEnabled()">
-								<div class="handle"></div>
 							</button>
 						</div>
 						<div class="phd-line">
@@ -67,8 +66,6 @@
 						<div class="col-md">
 							<button class="btn btn-sm btn-toggle btn-auto-approval" [ngClass]="{'active': !isPreviewEnabled, 'btn-success': isPreviewEnabled, 'btn-secondary': !isPreviewEnabled}"
 									(click)="togglePreviewEnabled()">
-								<div class="handle"></div>
-								{{ log(isPreviewEnabled) }}
 							</button>
 						</div>
 					</div>

@@ -56,8 +56,6 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 		return this.financialCommunity?.isDesignPreviewEnabled;
 	}
 
-	log = console.log;
-
 	constructor(
 		public _orgService: OrganizationService,
 		private _msgService: MessageService,
@@ -73,6 +71,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 
 		this._orgService.currentCommunity$.pipe(
 			this.takeUntilDestroyed(),
+			filter(financialCommunity => !!financialCommunity?.salesCommunityId),
 			switchMap(financialCommunity => this._orgService.getWebsiteCommunity(financialCommunity?.salesCommunityId)),
 			map(websiteCommunity => websiteCommunity?.webSiteIntegrationKey),
 		).subscribe(webSiteIntegrationKey => {
@@ -91,6 +90,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 		this._orgService.currentCommunity$.pipe(
 			this.takeUntilDestroyed(),
 		).subscribe(financialCommunity => {
+			console.log('changed', financialCommunity);
 			this.financialCommunity = financialCommunity;
 		});
 
@@ -179,7 +179,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 			.subscribe(() =>
 			{
 				this.isSaving--;
-				this._msgService.add({ severity: 'success', summary: 'Community Settings', detail: 'Save successful.' });
+				this._msgService.add({ severity: 'success', summary: 'Community Settings', detail: 'Save ecoe and earnest money setting successful.' });
 			}, error =>
 			{
 				this.isSaving--;
@@ -191,7 +191,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 			.subscribe(() =>
 			{
 				this.isSaving--;
-				this._msgService.add({ severity: 'success', summary: 'Community Settings', detail: 'Save successful.' });
+				this._msgService.add({ severity: 'success', summary: 'Community Settings', detail: 'Save community link enabled successful.' });
 			}, error =>
 			{
 				this.isSaving--;
@@ -203,7 +203,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 			.subscribe(() =>
 			{
 				this.isSaving--;
-				this._msgService.add({ severity: 'success', summary: 'Community Settings', detail: 'Save successful.' });
+				this._msgService.add({ severity: 'success', summary: 'Community Settings', detail: 'Save preview enabled successful.' });
 			}, error =>
 			{
 				this.isSaving--;
