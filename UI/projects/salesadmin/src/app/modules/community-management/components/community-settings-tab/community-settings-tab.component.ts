@@ -30,7 +30,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 	currentMarket: FinancialMarket;
 	orgId: number;
 	canEdit: boolean = false;
-	isSaving: number = 0;
+	isSaving = false;
 	url?: string = null;
 	commmunityLinkEnabledDirty = false;
 	previewEnabledDirty = false;
@@ -134,6 +134,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 
 	toggleCommunityLinkEnabled()
 	{
+		console.log('clicky', this.commmunityLinkEnabledDirty);
 		this.commmunityLinkEnabledDirty = !this.commmunityLinkEnabledDirty;
 		this.salesCommunity.isOnlineSalesCommunityEnabled = !this.salesCommunity.isOnlineSalesCommunityEnabled;
 	}
@@ -157,7 +158,10 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 
 	save()
 	{
-		this.isSaving = 3;
+		this.isSaving = true;
+		this.commmunityLinkEnabledDirty = false;
+		this.previewEnabledDirty = false;
+
 		let ecoeMonths = this.communitySettingsForm.get('ecoeMonths').value;
 		let earnestMoney = this.communitySettingsForm.get('earnestMoney').value;
 		if (this.financialCommunityInfo)
@@ -175,38 +179,17 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 			}
 		}
 
-		this._orgService.saveFinancialCommunityInfo(this.financialCommunityInfo, this.orgId)
-			.subscribe(() =>
+		combineLatest([
+			this._orgService.saveFinancialCommunityInfo(this.financialCommunityInfo, this.orgId),
+			this._orgService.saveSalesCommunity(this.salesCommunity),
+			this._orgService.saveFinancialCommunity(this.financialCommunity)
+		]).subscribe(() =>
 			{
-				this.isSaving--;
-				this._msgService.add({ severity: 'success', summary: 'Community Settings', detail: 'Save ecoe and earnest money setting successful.' });
+				this.isSaving = false;
+				this._msgService.add({ severity: 'success', summary: 'Community Settings', detail: 'Save successful.' });
 			}, error =>
 			{
-				this.isSaving--;
-				this._msgService.add({ severity: 'error', summary: 'Error', detail: `Save failed. ${error}` });
-			});
-
-		this.commmunityLinkEnabledDirty = false;
-		this._orgService.saveSalesCommunity(this.salesCommunity)
-			.subscribe(() =>
-			{
-				this.isSaving--;
-				this._msgService.add({ severity: 'success', summary: 'Community Settings', detail: 'Save community link enabled successful.' });
-			}, error =>
-			{
-				this.isSaving--;
-				this._msgService.add({ severity: 'error', summary: 'Error', detail: `Save failed. ${error}` });
-			});
-
-		this.previewEnabledDirty = false;
-		this._orgService.saveFinancialCommunity(this.financialCommunity)
-			.subscribe(() =>
-			{
-				this.isSaving--;
-				this._msgService.add({ severity: 'success', summary: 'Community Settings', detail: 'Save preview enabled successful.' });
-			}, error =>
-			{
-				this.isSaving--;
+				this.isSaving = false;
 				this._msgService.add({ severity: 'error', summary: 'Error', detail: `Save failed. ${error}` });
 			});
 	}
