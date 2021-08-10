@@ -83,7 +83,7 @@
 					<label class="font-weight-bold" for="effective_date">Effective Date</label>
 					<div class="input-group">
 						<input type="hidden" name="effectiveDate" formControlName="effectiveDate" />
-						<p-calendar [ngModel]="effectiveDate" [ngModelOptions]="{standalone: true}" (onSelect)="setMinimumExpirationDate($event)" dateFormat="mm/dd/yy" readonlyInput="true" [minDate]="minEffectiveDate" showIcon="true"></p-calendar>
+						<p-calendar [ngModel]="effectiveDate" [ngModelOptions]="{standalone: true}" (onSelect)="setMinimumExpirationDate($event)" dateFormat="mm/dd/yy" readonlyInput="true" [minDate]="minEffectiveDate" showIcon="true" appendTo="body"></p-calendar>
 					</div>
 				</div>
 
@@ -91,7 +91,7 @@
 					<label class="font-weight-bold" for="expiration_date">Expiration Date</label>
 					<div class="input-group">
 						<input type="hidden" name="expirationDate" formControlName="expirationDate" />
-						<p-calendar [ngModel]="expirationDate" [ngModelOptions]="{standalone: true}" dateFormat="mm/dd/yy" readonlyInput="true" [minDate]="minDate" showIcon="true" (onSelect)="onSetDate($event, 'expiration')"></p-calendar>
+						<p-calendar [ngModel]="expirationDate" [ngModelOptions]="{standalone: true}" dateFormat="mm/dd/yy" readonlyInput="true" [minDate]="minDate" showIcon="true" (onSelect)="onSetDate($event, 'expiration')" appendTo="body"></p-calendar>
 					</div>
 				</div>
 
