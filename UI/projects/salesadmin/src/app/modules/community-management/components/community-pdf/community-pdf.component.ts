@@ -23,7 +23,6 @@ export class CommunityPdfComponent extends UnsubscribeOnDestroy implements OnIni
 	private _homeWarrantyPdfs: Array<CommunityPdf> = [];
 	private _communityAssociationPdfs: Array<CommunityPdf> = [];
 	private _additionalDocumentPdfs: Array<CommunityPdf> = [];
-	activeCommunities: Observable<Array<FinancialCommunityViewModel>>;
 	selectedCommunity: FinancialCommunityViewModel = null;
 	selectedMarket: FinancialMarket = null;
 	filteredCommunityPdfs: Observable<Array<CommunityPdf>>;
@@ -31,7 +30,6 @@ export class CommunityPdfComponent extends UnsubscribeOnDestroy implements OnIni
 	communityAssociationPdfs: Array<CommunityPdf> = [];
 	additionalDocumentPdfs: Array<CommunityPdf> = [];
 	isCanceling: boolean = false;
-	isLoading: boolean = true;
 	isSorting: boolean = false;
 	isSidePanelOpen: boolean = false;
 	isSaving: boolean = false;
@@ -53,29 +51,14 @@ export class CommunityPdfComponent extends UnsubscribeOnDestroy implements OnIni
 		private _route: ActivatedRoute,
 		private _communityService: CommunityService,
 		private _msgService: MessageService) { super(); }
-	
+
 	ngOnInit()
 	{
-		this.isLoading = true;
-		this.activeCommunities = this._orgService.currentMarket$.pipe(
-			this.takeUntilDestroyed(),
-			tap(() => this.isLoading = true),
-			switchMap(mkt =>
-			{
-				if (mkt)
-				{
-					this.selectedMarket = mkt;
-					this.populateCommunityPdfs();
-					return this._orgService.getFinancialCommunities(mkt.id);
-				}
-				else
-				{
-					this.selectedMarket = null;
-					return of([]);
-				}
-			}),
-			map(comms => comms.map(comm => new FinancialCommunityViewModel(comm)).filter(c => c.isActive))
-		);
+		this._orgService.currentMarket$.subscribe(mkt =>
+		{
+			this.selectedMarket = mkt;
+			this.populateCommunityPdfs();
+		});
 
 		this._orgService.currentCommunity$.pipe(
 			this.takeUntilDestroyed(),
@@ -102,7 +85,6 @@ export class CommunityPdfComponent extends UnsubscribeOnDestroy implements OnIni
 
 	populateCommunityPdfs()
 	{
-		this.isLoading = true;
 		if (this.selectedMarket !== null && this.selectedCommunity !== null)
 		{
 			this._communityService.getCommunityPdfsByFinancialCommunityId(this.selectedCommunity.dto.id)
@@ -117,12 +99,7 @@ export class CommunityPdfComponent extends UnsubscribeOnDestroy implements OnIni
 				this._homeWarrantyPdfs = cloneDeep(this.homeWarrantyPdfs);
 				this._communityAssociationPdfs = cloneDeep(this.communityAssociationPdfs);
 				this._additionalDocumentPdfs = cloneDeep(this.additionalDocumentPdfs);
-
-				this.isLoading = false;
 			});
-		} else
-		{
-			this.isLoading = false;
 		}
 	}
 
@@ -130,16 +107,6 @@ export class CommunityPdfComponent extends UnsubscribeOnDestroy implements OnIni
 	{
 		this.selected = null;
 		this.isSidePanelOpen = true;
-	}
-
-	onChangeCommunity(comm: FinancialCommunity)
-	{
-		if (comm != null)
-		{
-			this.isLoading = true;
-
-			this._orgService.selectCommunity(comm);
-		}
 	}
 
 	onEditClick(communityPdf: CommunityPdf)
@@ -169,8 +136,11 @@ export class CommunityPdfComponent extends UnsubscribeOnDestroy implements OnIni
 
 	onSortComplete(isComplete: boolean)
 	{
-		this.isSortSaving = !isComplete;
-		this.editSort();
+		this.isSortSaving = false;
+		if (isComplete)
+		{
+			this.editSort();
+		}
 	}
 
 	onSidePanelClose(status: boolean)
@@ -211,7 +181,7 @@ export class CommunityPdfComponent extends UnsubscribeOnDestroy implements OnIni
 		formData.set('sortOrder', this.getSortOrder(parseInt(formData.get('sectionHeader').valueOf().toString()) as SectionHeader, formData.get('fileName').valueOf().toString()));
 
 		this._communityService.saveCommunityPdf(formData)
-			.subscribe(communityPdf => 
+			.subscribe(communityPdf =>
 			{
 			this.updatePdfLists(communityPdf);
 			this.isSaving = false;
@@ -224,7 +194,7 @@ export class CommunityPdfComponent extends UnsubscribeOnDestroy implements OnIni
 	{
 		pdf.marketId = this.selectedMarket.id;
 		pdf.financialCommunityId = this.selectedCommunity.dto.id;
-		this._communityService.updateCommunityPdf([pdf])
+		this._communityService.updateCommunityPdfs([pdf])
 			.subscribe(communityPdfs =>
 			{
 				communityPdfs.forEach(pdf => this.updatePdfLists(pdf));

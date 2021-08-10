@@ -7,7 +7,7 @@ import * as _ from 'lodash';
 import * as moment from "moment";
 
 import {
-	findChoice, DesignToolAttribute, JobChoice, JobPlanOption, JobChoiceAttribute, JobChoiceLocation, Job, 
+	findChoice, DesignToolAttribute, JobChoice, JobPlanOption, JobChoiceAttribute, JobChoiceLocation, Job,
 	ChangeOrderGroup, ChangeOrderChoice, ChangeOrderPlanOption, ChangeOrderChoiceAttribute, ChangeOrderChoiceLocation,
 	PlanOption, PointStatus, ConstructionStageTypes, Tree, Choice, DecisionPoint, MappedAttributeGroup, MappedLocationGroup,
 	Attribute, AttributeGroup, AttributeCommunityImageAssoc, Location, LocationGroup, OptionImage, ChoiceRules, PointRules,
@@ -443,7 +443,7 @@ export function setTreePointsPastCutOff(tree: Tree, job: Job)
 		{
 			if (pointStageId != null && jobStageId != null)
 			{
-				// check if they have passed the stage cut off point 
+				// check if they have passed the stage cut off point
 				point.isPastCutOff = jobStageId >= pointStageId;
 			}
 			else if (pointCutOffDays != null && jobStartDate != null)
@@ -704,17 +704,18 @@ export function hidePointsByStructuralItems(pointRules: PointRules[], choices: C
 	}
 }
 
-export function getDisabledByList(groups: Group[], point: DecisionPoint, choice: Choice)
+export function getDisabledByList(tree: Tree, groups: Group[], point: DecisionPoint, choice: Choice)
 {
 	let disabledByList = [];
-	const allPoints = _.flatMap(groups, g => _.flatMap(g.subGroups, sg => sg.points));
+	const allPoints = _.flatMap(tree?.treeVersion?.groups, g => _.flatMap(g.subGroups, sg => sg.points));
 	const allChoices = _.flatMap(allPoints, p => p.choices.map(c => ({...c, pointId: p.id})));
+	const filteredPoints = _.flatMap(groups, g => _.flatMap(g.subGroups, sg => sg.points));
 	point?.disabledBy.forEach(disabledPoint => {
 		disabledPoint.rules.forEach(rule => {
 			rule.points.forEach(disabledByPointId => {
 				disabledByList.push({
 					label: allPoints.find(point => point.id === disabledByPointId)?.label,
-					pointId: disabledByPointId,
+					pointId: filteredPoints.find(point => point.id === disabledByPointId) ? disabledByPointId : null,
 					ruleType: rule.ruleType
 				});
 			});
@@ -722,7 +723,7 @@ export function getDisabledByList(groups: Group[], point: DecisionPoint, choice:
 				const disabledByChoice = allChoices.find(choice => choice.id === disabledByChoiceId);
 				disabledByList.push({
 					label: disabledByChoice?.label,
-					pointId: disabledByChoice?.pointId,
+					pointId: filteredPoints.find(point => point.id === disabledByChoice?.pointId) ? disabledByChoice?.pointId : null,
 					choiceId: disabledByChoiceId,
 					ruleType: rule.ruleType
 				});
@@ -735,7 +736,7 @@ export function getDisabledByList(groups: Group[], point: DecisionPoint, choice:
 				const disabledByChoice = allChoices.find(choice => choice.id === disabledByChoiceId);
 				disabledByList.push({
 					label: disabledByChoice?.label,
-					pointId: disabledByChoice?.pointId,
+					pointId: filteredPoints.find(point => point.id === disabledByChoice?.pointId) ? disabledByChoice?.pointId : null,
 					choiceId: disabledByChoiceId,
 					ruleType: rule.ruleType
 				});

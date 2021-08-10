@@ -335,6 +335,7 @@ export class ViewContractsSidePanelComponent implements OnInit
 					salesStatusDescription: currentTag[0].salesStatusDescription,
 					isColorSchemeMonotonyRuleEnabled: currentTag[0].isColorSchemeMonotonyRuleEnabled,
 					isElevationMonotonyRuleEnabled: currentTag[0].isElevationMonotonyRuleEnabled,
+					isColorSchemePlanRuleEnabled: currentTag[0].isColorSchemePlanRuleEnabled,
 					isDesignPreviewEnabled: currentTag[0].isDesignPreviewEnabled
 				});
 			}

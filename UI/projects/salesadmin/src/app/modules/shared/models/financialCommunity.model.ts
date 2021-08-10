@@ -12,6 +12,7 @@ export interface FinancialCommunity {
 	isColorSchemeMonotonyRuleEnabled: boolean;
 	isDesignPreviewEnabled: boolean;
 	salesCommunityId: number;
+	isColorSchemePlanRuleEnabled: boolean;
 }
 
 export class FinancialCommunityInfo {

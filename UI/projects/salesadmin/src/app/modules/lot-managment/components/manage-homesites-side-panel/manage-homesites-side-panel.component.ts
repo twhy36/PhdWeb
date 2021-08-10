@@ -28,6 +28,7 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 	@Input() viewAdjacencies: Array<HomeSiteDtos.ILabel> = [];
 	@Input() physicalLotTypes: Array<HomeSiteDtos.ILabel> = [];
 	@Input() communityWebsiteKey: string;
+	@Input() isColorSchemePlanRuleEnabled: boolean;
 
 	@Output() onSaveHomesite = new EventEmitter<{ homesiteDto: HomeSiteDtos.ILotDto, lotBuildTypeUpdated: boolean}>();
 	@Output() onSaveMonotonyRules = new EventEmitter <{ lotId: number, monotonyRules: MonotonyRule[] }>();

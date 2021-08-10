@@ -7,7 +7,7 @@ import { Store, select } from '@ngrx/store';
 
 import * as _ from 'lodash';
 
-import { UnsubscribeOnDestroy, OptionImage, AttributeGroup, Attribute, LocationGroup, Location, DesignToolAttribute, DecisionPoint, Group } from 'phd-common';
+import { UnsubscribeOnDestroy, OptionImage, AttributeGroup, Attribute, LocationGroup, Location, DesignToolAttribute, DecisionPoint, Group, Tree } from 'phd-common';
 import { mergeAttributes, mergeLocations, mergeAttributeImages } from '../../../shared/classes/tree.utils';
 import { AttributeService } from '../../../core/services/attribute.service';
 
@@ -35,6 +35,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	@Input() choice: ChoiceExt;
 	@Input() path: string;
 	@Input() groups: Group[];
+	@Input() tree: Tree;
 	@Input() myFavoritesPointsDeclined: MyFavoritesPointDeclined[];
 	@Input() isReadonly: boolean;
 
@@ -540,7 +541,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	openBlockedChoiceModal() {
 		if (!this.disabledByList)
 		{
-			this.disabledByList = getDisabledByList(this.groups, this.currentPoint, this.choice);
+			this.disabledByList = getDisabledByList(this.tree, this.groups, this.currentPoint, this.choice);
 		}
 		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { windowClass: 'phd-blocked-choice-modal' });
 	}

@@ -2,7 +2,7 @@ import { Component, OnInit, Input, OnChanges, SimpleChanges, Output, EventEmitte
 
 import * as _ from 'lodash';
 
-import { UnsubscribeOnDestroy, DecisionPoint, SubGroup, JobChoice, ChoiceImageAssoc, Group } from 'phd-common';
+import { UnsubscribeOnDestroy, DecisionPoint, SubGroup, JobChoice, ChoiceImageAssoc, Group, Tree } from 'phd-common';
 
 import { MyFavoritesChoice, MyFavoritesPointDeclined } from '../../../../shared/models/my-favorite.model';
 import { ChoiceExt } from '../../../../shared/models/choice-ext.model';
@@ -24,6 +24,7 @@ export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implement
 	@Input() marketingPlanId: number;
 	@Input() isFloorplanFlipped: boolean;
 	@Input() groups: Group[];
+	@Input() tree: Tree;
 	@Input() choiceImages: ChoiceImageAssoc[];
 	@Input() myFavoritesPointsDeclined?: MyFavoritesPointDeclined[];
 	@Input() isReadonly: boolean;

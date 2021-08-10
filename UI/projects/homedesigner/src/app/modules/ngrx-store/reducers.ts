@@ -159,8 +159,8 @@ export const priceBreakdown = createSelector(
 				const treeChoices = _.flatMap(scenario.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, p => p.choices)));
                 breakdown.selections = treeChoices.filter(c => !!favorite?.salesChoices?.find(x => x.divChoiceCatalogId === c.divChoiceCatalogId))
 					?.reduce((acc, ch) => acc + (ch.quantity * ch.price), 0);
-				breakdown.favoritesPrice = treeChoices.filter(c => c.quantity > 0 && !favorite?.salesChoices?.find(x => x.divChoiceCatalogId === c.divChoiceCatalogId))
-				?.reduce((acc, ch) => acc + (ch.quantity * ch.price), 0);
+				breakdown.favoritesPrice = treeChoices.filter(c => c.quantity > 0 && !c.priceHiddenFromBuyerView && !favorite?.salesChoices?.find(x => x.divChoiceCatalogId === c.divChoiceCatalogId))
+					?.reduce((acc, ch) => acc + (ch.quantity * ch.price), 0);
 			}
 
 			const programs = salesAgreement.programs;

@@ -68,6 +68,7 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 	selectedSearchFilter: string = 'Homesite';
 	viewAdjacencies: Array<HomeSiteDtos.ILabel> = [];
 	physicalLotTypes: Array<HomeSiteDtos.ILabel> = [];
+	isColorSchemePlanRuleEnabled: boolean;
 
 	constructor(
 		private _orgService: OrganizationService,
@@ -123,6 +124,7 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 				this.selectedCommunity = comm;
 
 				this.getWebsiteIntegrationKey(this.selectedCommunity.salesCommunityId);
+				this.isColorSchemePlanRuleEnabled = comm.dto.isColorSchemePlanRuleEnabled;
 				this.loadHomeSites();
 				this.setReleaseData();
 			}

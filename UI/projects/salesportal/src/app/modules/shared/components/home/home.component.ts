@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Permission, Claims, ClaimTypes, IdentityService } from 'phd-common';
-
+import { environment } from '../../../../../environments/environment';
 import { forkJoin } from 'rxjs/observable/forkJoin';
 import { Observable } from 'rxjs';
 
@@ -15,7 +15,9 @@ export class HomeComponent implements OnInit
 	Permission = Permission;
 	canAccessSalesAdmin: boolean = false;
 	canAccessReports: boolean = false;
+	environment = environment;
 
+	colorManagementAction = { envBaseUrl: 'colorManagement', path: '' };
 	salesAdminAction = { envBaseUrl: 'salesAdmin', path: '' };
 	d365Action = { envBaseUrl: 'crm', path: '' };
 	buyerTrackerAction = { envBaseUrl: 'buyerTracker', path: '' };
