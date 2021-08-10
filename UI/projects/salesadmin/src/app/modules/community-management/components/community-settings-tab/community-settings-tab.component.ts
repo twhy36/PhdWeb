@@ -13,6 +13,7 @@ import { combineLatest, of } from 'rxjs';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { FinancialMarket } from '../../../shared/models/financialMarket.model';
+import { SalesCommunity } from '../../../shared/models/salesCommunity.model';
 
 @Component({
 	selector: 'community-settings-tab',
@@ -21,21 +22,41 @@ import { FinancialMarket } from '../../../shared/models/financialMarket.model';
 })
 export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implements OnInit
 {
+	financialCommunity: FinancialCommunity = null;
 	financialCommunityInfo: FinancialCommunityInfo;
 	selectedCommunity: FinancialCommunityViewModel = null;
+	salesCommunity: SalesCommunity = null;
 	communitySettingsForm: FormGroup;
 	currentMarket: FinancialMarket;
 	orgId: number;
 	canEdit: boolean = false;
-	isSaving: boolean;
+	isSaving: number = 0;
 	url?: string = null;
-	communityLinkEnabled: boolean = false;
-	previewEnable: boolean = false;
+	commmunityLinkEnabledDirty = false;
+	previewEnabledDirty = false;
 
 	get saveDisabled(): boolean
 	{
-		return this.communitySettingsForm.pristine || !this.communitySettingsForm.valid || !this.orgId;
+		return !this.orgId
+			|| !this.communitySettingsForm.valid
+			|| (
+				this.communitySettingsForm.pristine
+				&& !this.commmunityLinkEnabledDirty
+				&& !this.previewEnabledDirty
+			);
 	}
+
+	get isCommunityLinkEnabled(): boolean
+	{
+		return this.salesCommunity?.isOnlineSalesCommunityEnabled;
+	}
+
+	get isPreviewEnabled(): boolean
+	{
+		return this.financialCommunity?.isDesignPreviewEnabled;
+	}
+
+	log = console.log;
 
 	constructor(
 		public _orgService: OrganizationService,
@@ -58,6 +79,19 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 			this.url = (environment.thoUrl && webSiteIntegrationKey)
 				? environment.thoUrl + webSiteIntegrationKey
 				: null;
+		});
+
+		this._orgService.currentCommunity$.pipe(
+			this.takeUntilDestroyed(),
+			switchMap(financialCommunity => this._orgService.getSalesCommunity(financialCommunity?.salesCommunityId)),
+		).subscribe(salesCommunity => {
+			this.salesCommunity = salesCommunity;
+		});
+
+		this._orgService.currentCommunity$.pipe(
+			this.takeUntilDestroyed(),
+		).subscribe(financialCommunity => {
+			this.financialCommunity = financialCommunity;
 		});
 
 		this._orgService.currentMarket$.pipe(
@@ -98,14 +132,16 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 		});
 	}
 
-	toggleCommunityLink()
+	toggleCommunityLinkEnabled()
 	{
-		this.communityLinkEnabled = !this.communityLinkEnabled;
+		this.commmunityLinkEnabledDirty = !this.commmunityLinkEnabledDirty;
+		this.salesCommunity.isOnlineSalesCommunityEnabled = !this.salesCommunity.isOnlineSalesCommunityEnabled;
 	}
 
-	togglePreviewLink()
+	togglePreviewEnabled()
 	{
-		this.previewEnable = !this.previewEnable;
+		this.previewEnabledDirty = !this.previewEnabledDirty;
+		this.financialCommunity.isDesignPreviewEnabled = !this.financialCommunity.isDesignPreviewEnabled;
 	}
 
 	createForm()
@@ -121,7 +157,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 
 	save()
 	{
-		this.isSaving = true;
+		this.isSaving = 3;
 		let ecoeMonths = this.communitySettingsForm.get('ecoeMonths').value;
 		let earnestMoney = this.communitySettingsForm.get('earnestMoney').value;
 		if (this.financialCommunityInfo)
@@ -142,11 +178,35 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 		this._orgService.saveFinancialCommunityInfo(this.financialCommunityInfo, this.orgId)
 			.subscribe(() =>
 			{
-				this.isSaving = false;
+				this.isSaving--;
 				this._msgService.add({ severity: 'success', summary: 'Community Settings', detail: 'Save successful.' });
 			}, error =>
 			{
-				this.isSaving = false;
+				this.isSaving--;
+				this._msgService.add({ severity: 'error', summary: 'Error', detail: `Save failed. ${error}` });
+			});
+
+		this.commmunityLinkEnabledDirty = false;
+		this._orgService.saveSalesCommunity(this.salesCommunity)
+			.subscribe(() =>
+			{
+				this.isSaving--;
+				this._msgService.add({ severity: 'success', summary: 'Community Settings', detail: 'Save successful.' });
+			}, error =>
+			{
+				this.isSaving--;
+				this._msgService.add({ severity: 'error', summary: 'Error', detail: `Save failed. ${error}` });
+			});
+
+		this.previewEnabledDirty = false;
+		this._orgService.saveFinancialCommunity(this.financialCommunity)
+			.subscribe(() =>
+			{
+				this.isSaving--;
+				this._msgService.add({ severity: 'success', summary: 'Community Settings', detail: 'Save successful.' });
+			}, error =>
+			{
+				this.isSaving--;
 				this._msgService.add({ severity: 'error', summary: 'Error', detail: `Save failed. ${error}` });
 			});
 	}

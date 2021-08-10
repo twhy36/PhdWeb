@@ -3,6 +3,7 @@ export interface SalesCommunity {
 	name: string;
 	number: string;
 	marketId: number;
+	isOnlineSalesCommunityEnabled: boolean;
 	salesCommunityWebSiteCommunityAssocs?: Array<{webSiteCommunity: WebSiteCommunity}>;
 }
 

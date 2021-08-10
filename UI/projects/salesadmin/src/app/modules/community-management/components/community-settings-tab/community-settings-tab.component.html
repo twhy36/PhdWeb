@@ -1,57 +1,56 @@
 <div class ="phd-page-container">
 	<div class="pdh-page-body">
-		<div class="container-fluid mx-auto">
-			<div class="box-background">
-				<div class="box">
-					<div class="line">
-						<div class="font-weight-bold">THO ECOE date for Dirt Sale:</div>
-					</div>
-					<div class="line">
-						<label class="font-weight-bold">Purchase Date +</label>
-						&nbsp;
-						<select id="ecoe-months">
-							<option value="1">1</option>
-							<option value="2">2</option>
-							<option value="3">3</option>
-							<option value="4">4</option>
-							<option value="5">5</option>
-							<option value="6">6</option>
-							<option value="7">7</option>
-							<option value="8">8</option>
-							<option value="9">9</option>
-							<option value="10">10</option>
-							<option value="11">11</option>
-							<option value="12">12</option>
-							<option value="13">13</option>
-							<option value="14">14</option>
-							<option value="15">15</option>
-						</select>
-						&nbsp;
-						<label class="font-weight-bold">Months</label>
-					</div>
-				</div>
-			</div>
-			<div class="box-background">
-				<div class="box">
-					<div class="line">
-						<div class="font-weight-bold">Set THO Earnest Money amount here:</div>
-					</div>
-					<div class="input-line">
-						<div class="form-group">
-							<label class="font-weight-bold">$</label>
-							&nbsp;
-							<input id="earnest-money" oninput="this.value = this.value.replace(/[^0-9.]/g,'').replace(/(\..*)\./g,'$1');" maxlength="5"/>
+		<div class="container-fluid mx-auto settings-container">
+			<form [formGroup]="communitySettingsForm" >
+				<div class="box-background center">
+					<div class="box">
+						<div class="line">
+							<div class="font-weight-bold">THO ECOE date for Dirt Sale:</div>
+						</div>
+						<div class="line">
+							<label class="font-weight-bold">Purchase Date +</label>
+							<input class="ecoe-input" id="ecoe-months" type="number" formControlName="ecoeMonths" min="1" max="15"/>
+							<label class="font-weight-bold">Months</label>
+							<span class="text-danger"
+								*ngIf="communitySettingsForm.controls.ecoeMonths.invalid && communitySettingsForm.controls.ecoeMonths.dirty && communitySettingsForm.controls.ecoeMonths.errors.min">
+								Invalid: ECOE Date must be at least 1 Month.
+							</span>
+							<span class="text-danger"
+								*ngIf="communitySettingsForm.controls.ecoeMonths.invalid && communitySettingsForm.controls.ecoeMonths.dirty && communitySettingsForm.controls.ecoeMonths.errors.max">
+								Invalid: ECOE Date must be 15 Months or less.
+							</span>
 						</div>
 					</div>
 				</div>
-			</div>
+				<div class="box-background center">
+					<div class="box">
+						<div class="line">
+							<div class="font-weight-bold">Set THO Earnest Money amount here:</div>
+						</div>
+						<div class="input-line">
+							<div class="form-group">
+								<label class="font-weight-bold">$</label>
+								<input class="earnest-money-input" id="earnest-money" formControlName="earnestMoney" maxlength="5"/>
+								<span class="text-danger"
+									*ngIf="communitySettingsForm.controls.earnestMoney.invalid && communitySettingsForm.controls.earnestMoney.dirty && communitySettingsForm.controls.earnestMoney.errors.min">
+									Invalid: Earnest Money must be at least $0
+								</span>
+								<span class="text-danger"
+									*ngIf="communitySettingsForm.controls.earnestMoney.invalid && communitySettingsForm.controls.earnestMoney.dirty && communitySettingsForm.controls.earnestMoney.errors.max">
+									Invalid: Earnest Money must be less than $100,000
+								</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</form>
 			<div class="box-background" *ngIf="!!url">
 				<div class="box">
 					<div class="line">
 						<div class="font-weight-bold">Enable THO Community Link for Sales Consultants Only</div>
 						<div class="col-md">
-							<button class="btn btn-sm btn-toggle btn-auto-approval" [ngClass]="{'active': !communityLinkEnabled, 'btn-success': communityLinkEnabled, 'btn-secondary': !communityLinkEnabled}"
-									(click)="toggleCommunityLink()">
+							<button class="btn btn-sm btn-toggle btn-auto-approval" [ngClass]="{'active': !isCommunityLinkEnabled, 'btn-success': isCommunityLinkEnabled, 'btn-secondary': !isCommunityLinkEnabled}"
+									(click)="toggleCommunityLinkEnabled()">
 								<div class="handle"></div>
 							</button>
 						</div>
@@ -61,23 +60,28 @@
 					</div>
 				</div>
 			</div>
-			<div class="box-background" *ngIf="!!url">
+			<div class="box-background">
 				<div class="box">
 					<div class="line">
 						<div class="font-weight-bold">Enable Design Preview for Community</div>
 						<div class="col-md">
-							<button class="btn btn-sm btn-toggle btn-auto-approval" [ngClass]="{'active': !previewEnable, 'btn-success': previewEnable, 'btn-secondary': !previewEnable}"
-									(click)="togglePreviewLink()">
+							<button class="btn btn-sm btn-toggle btn-auto-approval" [ngClass]="{'active': !isPreviewEnabled, 'btn-success': isPreviewEnabled, 'btn-secondary': !isPreviewEnabled}"
+									(click)="togglePreviewEnabled()">
 								<div class="handle"></div>
+								{{ log(isPreviewEnabled) }}
 							</button>
 						</div>
 					</div>
 				</div>
 			</div>
-			<div class="save-button">
-				<button class="btn btn-primary" (click)="save();" *ngIf="canEdit">Save</button>
+			<div class="save-button center" *ngIf="canEdit">
+				<button class="btn btn-primary phd-btn-save" (click)="save();" [disabled]="saveDisabled">
+					Save
+					<ng-container *ngIf="isSaving"><i class="fa fa-spinner fa-spin fa-fw"></i></ng-container>
+				</button>
 			</div>
 		</div>
 	</div>
+	<ng-template #noCommunityMessage>Please select a community.</ng-template>
 </div>
 

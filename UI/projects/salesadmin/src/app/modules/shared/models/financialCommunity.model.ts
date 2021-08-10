@@ -10,6 +10,7 @@ export interface FinancialCommunity {
 	market?: FinancialMarket;
 	isElevationMonotonyRuleEnabled: boolean;
 	isColorSchemeMonotonyRuleEnabled: boolean;
+	isDesignPreviewEnabled: boolean;
 	salesCommunityId: number;
 }
 
