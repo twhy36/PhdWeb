@@ -1,6 +1,6 @@
 import { Component, Input, Output, OnInit, OnChanges, SimpleChanges, EventEmitter, ViewChild } from '@angular/core';
 
-import { UnsubscribeOnDestroy, flipOver3, DecisionPoint, Group } from 'phd-common';
+import { UnsubscribeOnDestroy, flipOver3, DecisionPoint, Group, Tree } from 'phd-common';
 import { MyFavoritesPointDeclined } from '../../models/my-favorite.model';
 import { getDisabledByList } from '../../../shared/classes/tree.utils';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -20,6 +20,7 @@ export class ChoiceDeclineCardComponent extends UnsubscribeOnDestroy implements 
 	@Input() currentPoint: DecisionPoint;
 	@Input() myFavoritesPointsDeclined?: MyFavoritesPointDeclined[]
 	@Input() groups: Group[];
+	@Input() tree: Tree;
 	@Input() isReadonly: boolean;
 
 	@Output() onDeclineDecisionPoint = new EventEmitter<DecisionPoint>();
@@ -57,7 +58,7 @@ export class ChoiceDeclineCardComponent extends UnsubscribeOnDestroy implements 
 		event.srcElement.src = 'assets/pultegroup_logo.jpg';
 	}
 
-	toggleDecline() 
+	toggleDecline()
 	{
 		if (!this.isReadonly)
 		{
@@ -68,7 +69,7 @@ export class ChoiceDeclineCardComponent extends UnsubscribeOnDestroy implements 
 	openBlockedChoiceModal() {
 		if (!this.disabledByList)
 		{
-			this.disabledByList = getDisabledByList(this.groups, this.currentPoint, null);
+			this.disabledByList = getDisabledByList(this.tree, this.groups, this.currentPoint, null);
 		}
 		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { windowClass: 'phd-blocked-choice-modal' });
 	}

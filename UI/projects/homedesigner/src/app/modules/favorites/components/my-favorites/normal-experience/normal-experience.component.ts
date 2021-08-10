@@ -2,7 +2,7 @@ import { Component, OnInit, Input, OnChanges, SimpleChanges, Output, EventEmitte
 
 import * as _ from 'lodash';
 
-import { UnsubscribeOnDestroy, flipOver, DecisionPoint, PickType, SubGroup, Choice, JobChoice, Group, ChoiceImageAssoc } from 'phd-common';
+import { UnsubscribeOnDestroy, flipOver, DecisionPoint, PickType, SubGroup, Choice, JobChoice, Group, ChoiceImageAssoc, Tree } from 'phd-common';
 
 import { MyFavoritesChoice, MyFavoritesPointDeclined } from '../../../../shared/models/my-favorite.model';
 import { ChoiceExt } from '../../../../shared/models/choice-ext.model';
@@ -24,6 +24,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	@Input() includeContractedOptions: boolean = false;
 	@Input() salesChoices: JobChoice[];
 	@Input() groups: Group[];
+	@Input() tree: Tree;
 	@Input() choiceImages: ChoiceImageAssoc[];
 	@Input() isReadonly: boolean;
 	@Input() isPreview: boolean = false;

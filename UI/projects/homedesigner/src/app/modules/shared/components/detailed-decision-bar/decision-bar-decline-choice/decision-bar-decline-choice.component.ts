@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { DecisionPoint, Group } from 'phd-common';
+import { DecisionPoint, Group, Tree } from 'phd-common';
 import { getDisabledByList } from '../../../classes/tree.utils';
 import { MyFavoritesPointDeclined } from '../../../models/my-favorite.model';
 
@@ -13,6 +13,7 @@ export class DecisionBarDeclineChoiceComponent implements OnInit {
 	@Input() point: DecisionPoint;
 	@Input() myFavoritesPointsDeclined?: MyFavoritesPointDeclined[];
 	@Input() groups: Group[];
+	@Input() tree: Tree;
 	@Input() isReadonly: boolean;
 
 	@Output() onDeclineDecisionPoint = new EventEmitter<DecisionPoint>();
@@ -38,7 +39,7 @@ export class DecisionBarDeclineChoiceComponent implements OnInit {
 		this.isDeclined = !!this.myFavoritesPointsDeclined?.find(p => p.divPointCatalogId === this.point.divPointCatalogId);
 	}
 
-	toggleDecline() 
+	toggleDecline()
 	{
 		if (!this.isReadonly)
 		{
@@ -49,7 +50,7 @@ export class DecisionBarDeclineChoiceComponent implements OnInit {
 	openBlockedChoiceModal() {
 		if (!this.disabledByList)
 		{
-			this.disabledByList = getDisabledByList(this.groups, this.point, null);
+			this.disabledByList = getDisabledByList(this.tree, this.groups, this.point, null);
 		}
 		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { windowClass: 'phd-blocked-choice-modal' });
 	}
