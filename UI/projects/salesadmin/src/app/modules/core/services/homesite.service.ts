@@ -202,7 +202,6 @@ export class HomeSiteService
 				data.lotPhysicalLotTypeAssocs[0] &&
 				lotTypes.find(item => item.label === data.lotPhysicalLotTypeAssocs[0].physicalLotType.description) as HomeSiteDtos.ILabel || '',
 			isMasterUnit: data.isMasterUnit,
-			isHiddenInTho: data.isHiddenInTho,
 			job: data.jobs && data.jobs[0] ? data.jobs[0] : null
 		} as HomeSiteDtos.ILotDto;
 	}
@@ -257,8 +256,7 @@ export class HomeSiteService
 				id: homesiteDto.lotType.id,
 				description: homesiteDto.lotType.label
 			},
-			lotBuildTypeUpdated: lotBuildTypeUpdated,
-			isHiddenInTho: homesiteDto.isHiddenInTho
+			lotBuildTypeUpdated: lotBuildTypeUpdated
 		};
 
 		let url = settings.apiUrl;

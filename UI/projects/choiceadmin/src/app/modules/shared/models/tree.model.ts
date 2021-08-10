@@ -80,7 +80,6 @@ export interface IDTPoint
 	pointPickTypeLabel: string;
 	isQuickQuoteItem: boolean;
 	isStructuralItem: boolean;
-	isHiddenFromBuyerView: boolean;
 	cutOffDays: number;
 	edhConstructionStageId: number;
 	label: string;
@@ -119,8 +118,6 @@ export interface IDTChoice
 	open: boolean;
 	matched: boolean;
 	sortChanged: boolean;
-	isHiddenFromBuyerView?: boolean;
-	priceHiddenFromBuyerView?: boolean;
 }
 
 export class DTree implements IDTree
@@ -413,7 +410,6 @@ export class DTPoint implements IDTPoint
 	pointPickTypeLabel = "";
 	isQuickQuoteItem = false;
 	isStructuralItem = false;
-	isHiddenFromBuyerView = false;
 	label = "";
 	description = "";
 	sortOrder = 0;
@@ -444,7 +440,6 @@ export class DTPoint implements IDTPoint
 		this.pointPickTypeLabel = dto.pointPickTypeLabel;
 		this.isQuickQuoteItem = dto.isQuickQuoteItem;
 		this.isStructuralItem = dto.isStructuralItem;
-		this.isHiddenFromBuyerView = dto.isHiddenFromBuyerView;
 		this.label = dto.label;
 		this.description = dto.description;
 		this.sortOrder = dto.sortOrder;
@@ -511,8 +506,6 @@ export class DTChoice implements IDTChoice
 	hasLocations = false;
 	maxQuantity = null;
 	imageCount?= 0;
-	isHiddenFromBuyerView = false;
-	priceHiddenFromBuyerView = false;
 
 	open = true;
 	matched = true;
@@ -542,8 +535,6 @@ export class DTChoice implements IDTChoice
 		this.hasLocations = dto.locationGroups ? dto.locationGroups.length > 0 : dto.hasLocations;
 		this.maxQuantity = dto.choiceMaxQuantity;
 		this.description = dto.description;
-		this.isHiddenFromBuyerView = dto.isHiddenFromBuyerView;
-		this.priceHiddenFromBuyerView = dto.priceHiddenFromBuyerView;
 
 		this._dto = dto;
 	}

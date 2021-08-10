@@ -9,23 +9,14 @@
                     </ng-template>
                 </phd-column>
                 <phd-column header="">
-                    <ng-template #body let-community>
-                        <button type="button" class="btn btn-md btn-link" (click)="setCurrentCommunity(community)"
-                                [routerLink]="['/lot-management/manage-homesites']" [queryParams]="{activeTab:'monotony'}" queryParamsHandling="merge" [routerLinkActive]="['active']">
-                            Manage
-                        </button>
-                    </ng-template>
+					<ng-template #body let-community>
+						<button type="button" class="btn btn-md btn-link" (click)="setCurrentCommunity(community)"
+								[routerLink]="['/lot-management/manage-homesites']" [queryParams]="{activeTab:'monotony'}" queryParamsHandling="merge" [routerLinkActive]="['active']">Manage</button>
+					</ng-template>
                 </phd-column>
                 <phd-column header="Elevation/Plan">
                     <ng-template #body let-community>
                         <button class="btn btn-sm btn-toggle btn-monotonyrule" [disabled]="!canEdit ? 'disabled' : null" [ngClass]="{'active': !community.isElevationMonotonyRuleEnabled, 'btn-success': community.isElevationMonotonyRuleEnabled, 'btn-secondary': !community.isElevationMonotonyRuleEnabled }" (click)="toggleElevationRule(community)">
-                            <div class="handle"></div>
-                        </button>
-                    </ng-template>
-                </phd-column>
-                <phd-column header="Color Scheme/Plan">
-                    <ng-template #body let-community>
-                        <button class="btn btn-sm btn-toggle btn-monotonyrule" [disabled]="!canEdit ? 'disabled' : null" [ngClass]="{'active': !community.isColorSchemePlanRuleEnabled, 'btn-success': community.isColorSchemePlanRuleEnabled, 'btn-secondary': !community.isColorSchemePlanRuleEnabled }" (click)="togglePlanColorScheme(community)">
                             <div class="handle"></div>
                         </button>
                     </ng-template>

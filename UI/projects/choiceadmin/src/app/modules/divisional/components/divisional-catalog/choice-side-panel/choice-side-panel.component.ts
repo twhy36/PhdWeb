@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angular/core';
 import { FormGroup, FormArray, FormControl, Validators, AbstractControl } from '@angular/forms';
 
 import { Observable, of } from 'rxjs';
@@ -42,16 +42,6 @@ export class ChoiceSidePanelComponent implements OnInit
 	get disableIsDefault(): boolean
 	{
 		return this.catalogItem.parent.choices.some(x => x.isDefault == true && x.id != this.catalogItem.id);
-	}
-	
-	get disableHideChoice(): boolean
-	{
-		return this.catalogItem.parent.choices.some(x => x.priceHiddenFromBuyerView == true);
-	}
-
-	get disableHideChoicePrice(): boolean
-	{
-		return this.catalogItem.parent.choices.some(x => x.isHiddenFromBuyerView == true);
 	}
 
 	get labelArray(): FormArray
@@ -145,14 +135,10 @@ export class ChoiceSidePanelComponent implements OnInit
 		{
 			let label: string = item.label;
 			let isDefault: boolean = item.isDefault;
-			let isHiddenFromBuyerView: boolean = item.isHiddenFromBuyerView;
-			let priceHiddenFromBuyerView: boolean = item.priceHiddenFromBuyerView;
 
 			this.catalogForm = new FormGroup({
 				'label': new FormControl(label, Validators.required, this.labelValidator.bind(this)),
-				'isDefault': new FormControl({ value: isDefault, disabled: this.disableIsDefault }),
-				'isHiddenFromBuyerView': new FormControl(isHiddenFromBuyerView),
-				'priceHiddenFromBuyerView': new FormControl(priceHiddenFromBuyerView)
+				'isDefault': new FormControl({ value: isDefault, disabled: this.disableIsDefault })
 			});
 		}
 	}
@@ -223,9 +209,7 @@ export class ChoiceSidePanelComponent implements OnInit
 					dPointCatalogID: item.parent.dto.dPointCatalogID,
 					isActive: true,
 					isDecisionDefault: false,
-					isInUse: false,
-					isHiddenFromBuyerView: false,
-					priceHiddenFromBuyerView: false
+					isInUse: false
 				});
 
 				newChoice.parent = item.parent;
@@ -239,13 +223,9 @@ export class ChoiceSidePanelComponent implements OnInit
 		{
 			let label = form.get('label').value.trim();
 			let isDefault = form.get('isDefault').value;
-			let isHiddenFromBuyerView = form.get('isHiddenFromBuyerView').value;
-			let priceHiddenFromBuyerView = form.get('priceHiddenFromBuyerView').value;
 
 			item.dto.choiceLabel = label;
 			item.isDefault = isDefault;
-			item.isHiddenFromBuyerView = isHiddenFromBuyerView;
-			item.priceHiddenFromBuyerView = priceHiddenFromBuyerView;
 
 			this.onSaveCatalogItem.emit({ item: item });
 		}
@@ -259,13 +239,5 @@ export class ChoiceSidePanelComponent implements OnInit
 	toggleSidePanel()
 	{
 		this.sidePanel.toggleSidePanel();
-	}
-
-	checkHiddenStatus() {
-		if (!this.catalogForm.get('isHiddenFromBuyerView').value && this.catalogForm.get('priceHiddenFromBuyerView').value) {
-			this.catalogForm.get('priceHiddenFromBuyerView').setValue(false);
-		} else if (!this.catalogForm.get('priceHiddenFromBuyerView').value && this.catalogForm.get('isHiddenFromBuyerView').value) {
-			this.catalogForm.get('isHiddenFromBuyerView').setValue(false);
-		}
 	}
 }

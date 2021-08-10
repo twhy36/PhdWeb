@@ -1039,8 +1039,6 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 							text: c.choiceLabel,
 							id: c.divChoiceCatalogID,
 							isDefault: c.isDecisionDefault,
-							isHiddenFromBuyerView: c.isHiddenFromBuyerView,
-							priceHiddenFromBuyerView: c.priceHiddenFromBuyerView,
 							isSelected: false
 						} as IItemAdd;
 					});

@@ -1,11 +1,11 @@
 import { Component, OnInit, ViewChild, HostListener } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
-import { Observable } from 'rxjs';
-import { tap, switchMap, map, finalize, combineLatest } from 'rxjs/operators';
+import { Observable ,  of } from 'rxjs';
+import { tap, switchMap, map, finalize } from 'rxjs/operators';
 
 import { UnsubscribeOnDestroy } from '../../../shared/utils/unsubscribe-on-destroy';
-import { FinancialCommunity, FinancialCommunityInfo } from '../../../shared/models/financialCommunity.model';
+import { FinancialCommunity } from '../../../shared/models/financialCommunity.model';
 import { SalesProgram } from '../../../shared/models/salesPrograms.model';
 import { SalesService } from '../../../core/services/sales.service';
 import { MessageService } from 'primeng/api';
@@ -16,7 +16,6 @@ import { ConfirmModalComponent, PhdTableComponent } from 'phd-common';
 import { SalesProgramsSidePanelComponent } from '../sales-programs-side-panel/sales-programs-side-panel.component';
 
 import * as moment from 'moment';
-import { Org } from '../../../shared/models/org.model';
 
 @Component({
 	selector: 'sales-programs',
@@ -33,14 +32,11 @@ export class SalesProgramsComponent extends UnsubscribeOnDestroy implements OnIn
 
 	saving: boolean = false;
 	sidePanelOpen: boolean = false;
-	activeCommunities: Array<FinancialCommunityViewModel>;
+	activeCommunities: Observable<Array<FinancialCommunityViewModel>>;
 	selectedCommunity: FinancialCommunityViewModel = null;
 	canEdit: boolean = false;
 	salesPrograms: Array<SalesProgram>;
 	_loading: boolean = true;
-	financialCommunityInfo: FinancialCommunityInfo;
-	internalOrgs: Array<Org>;
-	orgId: number;
 
 	constructor(
 		private _salesService: SalesService,
@@ -58,7 +54,7 @@ export class SalesProgramsComponent extends UnsubscribeOnDestroy implements OnIn
 
 	ngOnInit()
 	{
-		this._orgService.currentMarket$.pipe(
+		this.activeCommunities = this._orgService.currentMarket$.pipe(
 			this.takeUntilDestroyed(),
 			tap(mkt =>
 			{
@@ -68,43 +64,31 @@ export class SalesProgramsComponent extends UnsubscribeOnDestroy implements OnIn
 			{
 				if (mkt)
 				{
-					return this._orgService.getFinancialCommunities(mkt.id).pipe(
-						combineLatest(this._orgService.getInternalOrgs(mkt.id),
-							this._orgService.currentCommunity$)
-					);
+					return this._orgService.getFinancialCommunities(mkt.id);
 				}
-			})
-		).subscribe(([comms, orgs, comm]) =>
-		{
-			this.activeCommunities = comms.map(comm => new FinancialCommunityViewModel(comm)).filter(c => c.isActive);
+				else
+				{
+					return of([]);
+				}
+			}),
+			map(comms => comms.map(comm => new FinancialCommunityViewModel(comm)).filter(c => c.isActive))
+		);
 
+		this._orgService.currentCommunity$.pipe(
+			this.takeUntilDestroyed()
+		).subscribe(comm =>
+		{
 			if (comm != null)
 			{
-				this.orgId = orgs?.find(o => o.edhFinancialCommunityId === comm.id)?.orgID;
-
 				if (!this.selectedCommunity || this.selectedCommunity.id != comm.id)
 				{
 					this.selectedCommunity = new FinancialCommunityViewModel(comm);
 
-					this._salesService.getSalesPrograms(comm.id)
-						.pipe(
-							combineLatest(this._orgService.getFinancialCommunityInfo(this.orgId))
-						)
-						.subscribe(([programs, fcInfo]) =>
-						{
-							this.salesPrograms = programs;
-							this.financialCommunityInfo = fcInfo;
-
-							if (this.financialCommunityInfo)
-							{
-								this.salesPrograms.map(sp =>
-								{
-									sp.isThoEnabled = this.financialCommunityInfo.thoBuyerClosingCostId === sp.id || this.financialCommunityInfo.thoDiscountFlatAmountId === sp.id;
-								});
-							}
-
-							this.loading = false;
-						});
+					this._salesService.getSalesPrograms(comm.id).subscribe((programs: Array<SalesProgram>) =>
+					{
+						this.salesPrograms = programs;
+						this.loading = false;
+					});
 				}
 			}
 			else
@@ -285,137 +269,4 @@ export class SalesProgramsComponent extends UnsubscribeOnDestroy implements OnIn
 	{
 		tableComponent.hideTooltip();
 	}
-
-	toggleThoEnabled(dto: SalesProgram)
-	{
-		if (!this.financialCommunityInfo)
-		{
-			this.financialCommunityInfo = {
-				financialCommunityId: 0,
-				defaultECOEMonths: null,
-				earnestMoneyAmount: null,
-				thoBuyerClosingCostId: null,
-				thoDiscountFlatAmountId: null
-			};
-		}
-
-		this.selected = dto;
-
-		let thoEnabledCc = this.salesPrograms.find(sp => sp.isThoEnabled && sp.salesProgramType.toString() === 'BuyersClosingCost');
-
-		let thoEnabledDfa = this.salesPrograms.find(sp => sp.isThoEnabled && sp.salesProgramType.toString() === 'DiscountFlatAmount');
-
-		// Discount Flat Amount
-		if (dto.salesProgramType.toString() === 'DiscountFlatAmount')
-		{
-			this.toggleDiscountFlatAmount(thoEnabledDfa, dto);
-		}
-		else
-		{
-			this.toggleClosingCostAmount(thoEnabledCc, dto);
-		}
-	}
-
-	private toggleClosingCostAmount(thoEnabledCc: SalesProgram, dto: SalesProgram)
-	{
-		if (!dto.isPMCAffiliate || (thoEnabledCc && dto.id !== thoEnabledCc.id))
-		{
-            let ngbModalOptions: NgbModalOptions = {
-                centered: true,
-                backdrop: 'static',
-                keyboard: false
-            };
-
-            let msgBody = `Selecting to enable this THO Sales Program will also enable PMC Affiliation and disable any other active THO Enabled BuyerClosingCost Sales Program`;
-
-            let confirm = this._modalService.open(ConfirmModalComponent, ngbModalOptions);
-
-            confirm.componentInstance.title = 'Warning!';
-            confirm.componentInstance.body = msgBody;
-            confirm.componentInstance.defaultOption = 'Cancel';
-
-			confirm.result.then((result) =>
-			{
-				if (result == 'Continue')
-				{
-                    this.financialCommunityInfo.thoBuyerClosingCostId = dto.isThoEnabled ? null : dto.id;
-					this._orgService.saveFinancialCommunityInfo(this.financialCommunityInfo, this.orgId).subscribe(fc =>
-					{
-                        // Toggle existing enabled closing cost
-						if (thoEnabledCc)
-						{
-                            thoEnabledCc.isThoEnabled = !thoEnabledCc.isThoEnabled;
-                        }
-
-                        // Toggle selected closing cost
-                        dto.isThoEnabled = !dto.isThoEnabled;
-
-                        // Update isPmcAffiliate if a closing cost is being tho enabled & isPMCAffiliate is false
-						if (dto.isThoEnabled && !dto.dto.isPMCAffiliate)
-						{
-                            dto.dto.isPMCAffiliate = true;
-                            this.save(dto.dto, false);
-                        }
-                    });
-                }
-			}, (reason) =>
-			{
-                console.log("Error:", reason);
-            });
-        }
-
-		else
-		{
-            this.financialCommunityInfo.thoBuyerClosingCostId = dto.isThoEnabled ? null : dto.id;
-			this._orgService.saveFinancialCommunityInfo(this.financialCommunityInfo, this.orgId).subscribe(fc =>
-			{
-                dto.isThoEnabled = !dto.isThoEnabled;
-            });
-        }
-    }
-
-	private toggleDiscountFlatAmount(thoEnabledDfa: SalesProgram, dto: SalesProgram)
-	{
-		if (thoEnabledDfa && dto.id !== thoEnabledDfa.id)
-		{
-            let ngbModalOptions: NgbModalOptions = {
-                centered: true,
-                backdrop: 'static',
-                keyboard: false
-            };
-
-            let msgBody = `Selecting to enable this THO Sales Program will disable any other active THO Enabled DiscountFlatAmount Sales Program`;
-
-            let confirm = this._modalService.open(ConfirmModalComponent, ngbModalOptions);
-
-            confirm.componentInstance.title = 'Warning!';
-            confirm.componentInstance.body = msgBody;
-            confirm.componentInstance.defaultOption = 'Cancel';
-
-			confirm.result.then((result) =>
-			{
-				if (result == 'Continue')
-				{
-                    this.financialCommunityInfo.thoDiscountFlatAmountId = dto.isThoEnabled ? null : dto.id;
-					this._orgService.saveFinancialCommunityInfo(this.financialCommunityInfo, this.orgId).subscribe(x =>
-					{
-                        thoEnabledDfa.isThoEnabled = !thoEnabledDfa.isThoEnabled;
-                        dto.isThoEnabled = !dto.isThoEnabled;
-                    });
-                }
-			}, (reason) =>
-			{
-                console.log("Error:", reason);
-            });
-        }
-
-		else
-		{
-            this.financialCommunityInfo.thoDiscountFlatAmountId = dto.isThoEnabled ? null : dto.id;
-			this._orgService.saveFinancialCommunityInfo(this.financialCommunityInfo, this.orgId).subscribe(fc =>
-			{
-                dto.isThoEnabled = !dto.isThoEnabled;
-            });
-        }
-    }
 }

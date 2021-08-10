@@ -9,7 +9,7 @@
 
 	<ng-template #body>
 		<div class="phd-side-panel-body">
-			<ul ngbNav #nav="ngbNav" [(activeId)]="currentTab" class="nav-tabs">
+			<ul ngbNav #nav="ngbNav" [(activeId)]="currentTab" class="nav-tabs" (navChange)="onNavChange($event)">
 				<li [ngbNavItem]="'details'">
 					<a ngbNavLink>Details</a>
 					<ng-template ngbNavContent>
@@ -21,10 +21,6 @@
 										<label class="form-check-label" for="lotStatusDescription">
 											<input class="form-check-input" name="lotStatusDescription" formControlName="lotStatusDescription" type="checkbox" id="lotStatusDescription">
 											Make Lot Unavailable
-										</label>
-										<label *ngIf="getAvailable(selectedHomesite)" class="form-check-label phd-right" for="isHiddenInTho">
-											<input class="form-check-input" name="isHiddenInTho" formControlName="isHiddenInTho" type="checkbox" id="isHiddenInTho">
-											Hide Lot in THO
 										</label>
 									</div>
 								</div>
@@ -146,7 +142,7 @@
 									</div>
 									<br>
 									<div class="phd-copy-button">
-										<button class="btn btn-primary phd-extra-small phd-btn-copy" (click)="copyAssignedLots('elevation')" [disabled]="disableMonotonyForm">{{ isColorSchemePlanRuleEnabled ? 'Copy from Color Scheme/Plan' : 'Copy from Color Scheme'}}</button>
+										<button class="btn btn-primary phd-extra-small phd-btn-copy" (click)="copyAssignedLots('elevation')" [disabled]="disableMonotonyForm">Copy from Color Scheme</button>
 									</div>
 								</div>
 								<div>
@@ -217,18 +213,5 @@
 		</div>
 	</ng-template>
 </phd-side-panel-component>
-
-<div class="phd-monotony-map-container" *ngIf="currentTab === 'monotony'">
-	<div class="monotony-map">
-		<div *ngIf="communityWebsiteKey == null" >Unable to load the community map.</div>
-		<av-site-plan
-			*ngIf="communityWebsiteKey"
-			[webCommunityId]="communityWebsiteKey"
-			(lotSelectedCallback)="$event"
-			showLotNumbers="true"
-		>
-    </av-site-plan>
-	</div>
-</div>
 
 <p-toast></p-toast>

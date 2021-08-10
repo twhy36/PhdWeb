@@ -38,7 +38,7 @@ body {
 	color: #4a4a4a;
 }
 
-body, app-root, manage-homesites, plan-assignment, view-contracts, monotony-options, releases, sales-programs, phase-pricing, merge-fields, auto-approval, community-settings {
+body, app-root, manage-homesites, plan-assignment, view-contracts, monotony-options, releases, sales-programs, phase-pricing, merge-fields, auto-approval {
 	display: -webkit-box;
 	display: -webkit-flex;
 	display: -ms-flexbox;
@@ -46,7 +46,7 @@ body, app-root, manage-homesites, plan-assignment, view-contracts, monotony-opti
 	flex-direction: column;
 }
 
-manage-homesites, plan-assignment, view-contracts, monotony-options, releases, sales-programs, phase-pricing, merge-fields, auto-approval, community-settings {
+manage-homesites, plan-assignment, view-contracts, monotony-options, releases, sales-programs, phase-pricing, merge-fields, auto-approval {
 	flex: 1;
 	height: 100%;
 }
@@ -258,14 +258,6 @@ $toggle-content-after: 'Must Have';
 
 		&.btn-auto-approval {
 			@include toggle-mixin($font-size: .55rem, $margin: .5rem, $content-after: 'Off', $content-before: 'On')
-		}
-
-		&.btn-is-hidden-tho {
-			@include toggle-mixin($font-size: .55rem, $margin: .5rem, $content-after: 'Available', $content-before: 'Hidden')
-		}
-
-		&.btn-enabletho {
-			@include toggle-mixin($font-size: .55rem, $margin: .5rem, $content-after: 'Inactive', $content-before: 'Active')
 		}
 	}
 }

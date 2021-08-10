@@ -11,12 +11,9 @@ import { StorageService } from './storage.service';
 
 import { FinancialMarket } from '../../shared/models/financialMarket.model';
 import { Settings } from '../../shared/models/settings.model';
-import { FinancialCommunity, FinancialCommunityInfo } from '../../shared/models/financialCommunity.model';
+import { FinancialCommunity } from '../../shared/models/financialCommunity.model';
 import { Org } from '../../shared/models/org.model';
 import { IdentityService, ClaimTypes, Permission } from 'phd-common';
-import { SalesCommunity, WebSiteCommunity } from '../../shared/models/salesCommunity.model';
-
-import * as _ from 'lodash';
 
 const settings: Settings = new SettingsService().getSettings();
 
@@ -197,7 +194,7 @@ export class OrganizationService
 			let url = settings.apiUrl;
 
 			const filter = `marketId eq ${marketId}`;
-			const select = 'id, marketId, name, number, salesCommunityId, salesStatusDescription, isPhasedPricingEnabled, isElevationMonotonyRuleEnabled, isColorSchemeMonotonyRuleEnabled, isColorSchemePlanRuleEnabled';
+			const select = 'id, marketId, name, number, salesStatusDescription, isPhasedPricingEnabled, isElevationMonotonyRuleEnabled, isColorSchemeMonotonyRuleEnabled';
 			const expand = 'market($select=id,number)';
 			const orderBy = 'name';
 			const qryStr = `${encodeURIComponent('$')}expand=${encodeURIComponent(expand)}&${encodeURIComponent('$')}select=${encodeURIComponent(select)}&${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}&${encodeURIComponent('$')}orderby=${encodeURIComponent(orderBy)}`;
@@ -218,9 +215,7 @@ export class OrganizationService
 							salesStatusDescription: data.salesStatusDescription,
 							isPhasedPricingEnabled: data.isPhasedPricingEnabled,
 							isElevationMonotonyRuleEnabled: data.isElevationMonotonyRuleEnabled,
-							isColorSchemeMonotonyRuleEnabled: data.isColorSchemeMonotonyRuleEnabled,
-							salesCommunityId: data.salesCommunityId,
-							isColorSchemePlanRuleEnabled: data.isColorSchemePlanRuleEnabled
+							isColorSchemeMonotonyRuleEnabled: data.isColorSchemeMonotonyRuleEnabled
 						} as FinancialCommunity;
 					});
 				}),
@@ -295,79 +290,6 @@ export class OrganizationService
 				const communities = response.value as Array<FinancialCommunity>;
 				const community = communities && communities.length > 0 ? communities[0] : null;
 				return community;
-			}),
-			catchError(this.handleError));
-	}
-
-	getFinancialCommunityInfo(id: number): Observable<FinancialCommunityInfo>
-	{
-		let url = settings.apiUrl;
-
-		const filter = `financialCommunityId eq ${id}`;
-		const qryStr = `${encodeURIComponent("$")}filter=${encodeURIComponent(filter)}`;
-
-		url += `financialCommunityInfos?${qryStr}`;
-
-		return this._http.get<any>(url).pipe(
-			map(response =>
-			{
-				return response.value.length > 0 ? new FinancialCommunityInfo(response.value[0]) : null;
-			}));
-	}
-
-	saveFinancialCommunityInfo(financialCommunityInfo: FinancialCommunityInfo, orgId: number): Observable<FinancialCommunityInfo>
-	{
-		let url = settings.apiUrl;
-
-		if (financialCommunityInfo.financialCommunityId > 0)
-		{
-			url += `financialCommunityInfos(${financialCommunityInfo.financialCommunityId})`;
-
-			return this._http.patch(url, financialCommunityInfo).pipe(
-				map((response: FinancialCommunityInfo) => {
-					return response;
-				}),
-				catchError(this.handleError));
-		}
-		else
-		{
-			financialCommunityInfo.financialCommunityId = orgId;
-			url += `financialCommunityInfos`;
-
-			return this._http.post(url, financialCommunityInfo).pipe(
-				map((response: FinancialCommunityInfo) => {
-					return response;
-				}),
-				catchError(this.handleError));
-		}
-	}
-
-	getWebsiteCommunity(salesCommunityId: number): Observable<WebSiteCommunity>
-	{
-		const entity = `salesCommunities`;
-		const expand = `salesCommunityWebSiteCommunityAssocs($select=webSiteCommunity;$expand=webSiteCommunity($select=id,name,websiteIntegrationKey))`;
-		const filter = `id eq ${salesCommunityId}`;
-
-		let qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}expand=${encodeURIComponent(expand)}`;
-
-		const endpoint = `${settings.apiUrl}${entity}?${qryStr}`;
-
-		return this._http.get<any>(endpoint).pipe(
-			map(response =>
-			{
-				const salesCommunities = response.value as Array<SalesCommunity>;
-
-				const websiteCommunities = _.flatMap(
-					salesCommunities,
-					salesCommunity => _.flatMap(
-						salesCommunity.salesCommunityWebSiteCommunityAssocs,
-						websiteCommunity => websiteCommunity.webSiteCommunity
-					)
-				);
-				const websiteIndex = (websiteCommunities?.length ?? 1) - 1;
-				const websiteCommunity = websiteCommunities && websiteCommunities.length > 0 ? websiteCommunities[websiteIndex] : null;
-				
-				return websiteCommunity;
 			}),
 			catchError(this.handleError));
 	}

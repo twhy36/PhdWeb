@@ -1,10 +1,12 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { FormGroup, FormControl, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
+import { FormGroup, FormControl, FormArray, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
 
 import { filter } from 'rxjs/operators';
 
-import { MessageService } from 'primeng/api';
+import { MessageService, Message } from 'primeng/api';
+
+import { NgbTabChangeEvent } from '@ng-bootstrap/ng-bootstrap';
 
 import { HomeSite, HomeSiteDtos } from '../../../shared/models/homesite.model';
 import { MonotonyRule } from '../../../shared/models/monotonyRule.model';
@@ -19,6 +21,9 @@ import { SidePanelComponent } from 'phd-common';
 })
 export class ManageHomesitesSidePanelComponent implements OnInit
 {
+	@ViewChild(SidePanelComponent)
+	private sidePanel: SidePanelComponent
+
 	@Output() onSidePanelClose = new EventEmitter<boolean>();
 	@Input() sidePanelOpen: boolean = false;
 	@Input() saving: boolean;
@@ -27,14 +32,9 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 	@Input() lots: Array<HomeSite> = [];
 	@Input() viewAdjacencies: Array<HomeSiteDtos.ILabel> = [];
 	@Input() physicalLotTypes: Array<HomeSiteDtos.ILabel> = [];
-	@Input() communityWebsiteKey: string;
-	@Input() isColorSchemePlanRuleEnabled: boolean;
 
 	@Output() onSaveHomesite = new EventEmitter<{ homesiteDto: HomeSiteDtos.ILotDto, lotBuildTypeUpdated: boolean}>();
 	@Output() onSaveMonotonyRules = new EventEmitter <{ lotId: number, monotonyRules: MonotonyRule[] }>();
-
-	@ViewChild(SidePanelComponent)
-	private sidePanel: SidePanelComponent
 
 	homesiteForm: FormGroup;
 	elevationAvailableLots: Array<string> = [];
@@ -175,7 +175,6 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 		this.homesiteForm = new FormGroup({
 			'premium': new FormControl({ value: this.selectedHomesite.dto.premium, disabled: this.disallowedStatusesForPremiumUpdate.includes(this.selectedHomesite.dto.lotStatusDescription) }, [Validators.required, Validators.min(0)]),
 			'lotStatusDescription': new FormControl(this.selectedHomesite.dto.lotStatusDescription !== "Available"),
-			'isHiddenInTho': new FormControl(this.selectedHomesite.dto.isHiddenInTho),
 			'facing': new FormControl({ value: this.selectedHomesite.dto.facing, disabled: this.lotInaccessible }),
 			'foundationType': new FormControl(this.selectedHomesite.dto.foundationType, Validators.required),
 			'altLotBlock': new FormControl({ value: this.selectedHomesite.dto.altLotBlock, disabled: this.lotInaccessible }, this.whiteSpaceValidator()),
@@ -448,6 +447,11 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 		this._msgService.add({ severity: 'success', summary: 'Copy was successful' });
 	}
 
+	async onNavChange($event: NgbTabChangeEvent)
+	{
+		this.currentTab = $event.nextId;
+	}
+
 	onCloseSidePanel(status: boolean)
 	{
 		this.onSidePanelClose.emit(status);
@@ -479,7 +483,6 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 		this.selectedHomesite.dto.lotHandings = this.handings.filter(h => this.homesiteForm.controls['handing-' + h].value).map(h => { return { lotId: 0, handingId: h }; });
 		this.selectedHomesite.dto.edhWarrantyType = HomeSiteDtos.EdhWarrantyType[this.homesiteForm.controls['warranty'].value].toString();
 		this.selectedHomesite.dto.altLotBlock = this.homesiteForm.controls['altLotBlock'].value;
-		this.selectedHomesite.dto.isHiddenInTho = this.homesiteForm.controls['isHiddenInTho'].value;
 
 		const lotBuildTypeUpdated = this.homesiteForm.controls['changeModelToSpec'].dirty;
 		this.selectedHomesite.dto.lotBuildTypeDescription = lotBuildTypeUpdated ? this.homesiteForm.controls['changeModelToSpec'].value : this.selectedHomesite.lotBuildTypeDescription;
@@ -498,10 +501,5 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 		return Object.keys(enumType).filter(
 			type => isNaN(<any>type)
 		)
-	}
-
-	getAvailable(homesite: HomeSite)
-	{
-		return homesite.lotStatusDescription === 'Available';
 	}
 }

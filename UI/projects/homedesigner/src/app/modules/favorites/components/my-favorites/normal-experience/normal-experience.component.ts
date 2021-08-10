@@ -206,19 +206,4 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 		this.selectDecisionPoint(pointId);
 		this.onViewChoiceDetail.emit(choice);
 	}
-
-	displayDecisionPoint(point: DecisionPoint) {
-		if (point.isHiddenFromBuyerView) {
-			return false;
-		} else {
-			const choices = _.flatMap(point.choices);
-			let aChoiceExists = false;
-			choices.forEach(c => {
-				if (!c.isHiddenFromBuyerView) {
-					aChoiceExists = true;
-				}
-			})
-			return aChoiceExists;
-		}
-	}
 }

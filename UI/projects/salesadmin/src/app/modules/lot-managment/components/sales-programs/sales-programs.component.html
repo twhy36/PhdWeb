@@ -1,4 +1,4 @@
-<sales-programs-side-panel-component *ngIf="sidePanelOpen" [saving]="saving" [sidePanelOpen]="sidePanelOpen" [selected]="selected" [financialCommunityInfo]="financialCommunityInfo" (onSidePanelClose)="onSidePanelClose($event)" (onSave)="save($event)"></sales-programs-side-panel-component>
+<sales-programs-side-panel-component *ngIf="sidePanelOpen" [saving]="saving" [sidePanelOpen]="sidePanelOpen" [selected]="selected" (onSidePanelClose)="onSidePanelClose($event)" (onSave)="save($event)"></sales-programs-side-panel-component>
 
 <div class="phd-page-container" [class.phd-side-panel-open]="sidePanelOpen">
 	<page-header mainTitle="Sales Programs">
@@ -6,7 +6,7 @@
 			<div class="col">
 				<select class="form-control" [ngModel]="selectedCommunity ? selectedCommunity.dto : null" (ngModelChange)="onChangeCommunity($event)">
 					<option [ngValue]="null" disabled="disabled">Community</option>
-						<option *ngFor="let comm of activeCommunities" [ngValue]="comm.dto">{{ comm.name }}</option>
+						<option *ngFor="let comm of (activeCommunities | async)" [ngValue]="comm.dto">{{ comm.name }}</option>
 				</select>
 			</div>
 		</ng-template>
@@ -56,13 +56,6 @@
 				</phd-column>
 				<phd-column header="Availability" field="availability"></phd-column>
 				<phd-column header="PMC Affiliated" field="pmcAffiliated"></phd-column>
-				<phd-column header="THO Enabled">
-					<ng-template #body let-item>
-						<button *ngIf="canEdit && item.availability == 'Yes'" class="btn btn-sm btn-toggle btn-enabletho" [ngClass]="{'active': !item.isThoEnabled, 'btn-success': item.isThoEnabled, 'btn-secondary': !item.isThoEnabled }" (click)="toggleThoEnabled(item)">
-							<div class="handle"></div>
-						</button>
-					</ng-template>
-				</phd-column>
 			</phd-table>
 		</div>
 	</div>

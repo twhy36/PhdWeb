@@ -93,7 +93,7 @@ export class LotService
 		}
 
 		const filter = `id eq ${lotId}`;
-		const expand = `lotHandingAssocs($expand=handing($select=id,name)),planAssociations($select=id,isActive,planId,lotId;$filter=isActive eq true),jobs($select=id,lotId,handing,planId),financialCommunity($select=id,name,number,city,state,zip,salesCommunityId,isPhasedPricingEnabled,isColorSchemePlanRuleEnabled),salesPhase($expand=salesPhasePlanPriceAssocs($select=planId,price);$select=id)`;
+		const expand = `lotHandingAssocs($expand=handing($select=id,name)),planAssociations($select=id,isActive,planId,lotId;$filter=isActive eq true),jobs($select=id,lotId,handing,planId),financialCommunity($select=id,name,number,city,state,zip,salesCommunityId,isPhasedPricingEnabled),salesPhase($expand=salesPhasePlanPriceAssocs($select=planId,price);$select=id)`;
 		const select = `id,lotBlock,premium,lotStatusDescription,streetAddress1,streetAddress2,city,stateProvince,postalCode,facing,foundationType,lotBuildTypeDesc,unitNumber,salesBldgNbr,alternateLotBlock,constructionPhaseNbr,closeOfEscrow`;
 		const url = `${environment.apiUrl}lots?${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}&${encodeURIComponent('$')}select=${encodeURIComponent(select)}&${encodeURIComponent('$')}expand=${encodeURIComponent(expand)}`;
 

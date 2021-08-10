@@ -25,7 +25,7 @@ import * as moment from 'moment';
 import { MonotonyRule } from '../../../shared/models/monotonyRule.model';
 import { Settings } from '../../../shared/models/settings.model';
 import { SettingsService } from '../../../core/services/settings.service';
-import { clone, intersection, orderBy, union, unionBy } from "lodash";
+import { intersection, orderBy, union, unionBy } from "lodash";
 import { SearchBarComponent } from '../../../shared/components/search-bar/search-bar.component';
 
 @Component({
@@ -46,7 +46,6 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 	activeCommunities: Observable<Array<FinancialCommunityViewModel>>;
 	selectedHomesite: HomeSite;
 	selectedCommunity: FinancialCommunityViewModel = null;
-	selectedCommunityWebsiteKey: string | null = null;
 	lots: Array<HomeSite> = [];
 	filteredLots: Array<HomeSite> = [];
 	lotStatus: SelectItem[] = [{ label: 'Available', value: 'Available' }, { label: 'Sold', value: 'Sold' }, { label: 'Unavailable', value: 'Unavailable' }, { label: 'Closed', value: 'Closed' }, { label: 'Model', value: 'Model' }, { label: 'Pending Release', value: 'Pending Release' }, { label: 'Pending Sale', value: 'Pending Sale' }, { label: 'Spec', value: 'Spec' }, { label: 'Spec Unavailable', value: 'Spec Unavailable' }];
@@ -68,7 +67,6 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 	selectedSearchFilter: string = 'Homesite';
 	viewAdjacencies: Array<HomeSiteDtos.ILabel> = [];
 	physicalLotTypes: Array<HomeSiteDtos.ILabel> = [];
-	isColorSchemePlanRuleEnabled: boolean;
 
 	constructor(
 		private _orgService: OrganizationService,
@@ -122,9 +120,6 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 			else if (!this.selectedCommunity || comm.id !== this.selectedCommunity.id)
 			{
 				this.selectedCommunity = comm;
-
-				this.getWebsiteIntegrationKey(this.selectedCommunity.salesCommunityId);
-				this.isColorSchemePlanRuleEnabled = comm.dto.isColorSchemePlanRuleEnabled;
 				this.loadHomeSites();
 				this.setReleaseData();
 			}
@@ -141,19 +136,6 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 		this._homeSiteService.getPhysicalLotTypes().subscribe(data => {
 			this.physicalLotTypes = data;
 		});
-	}
-
-	getWebsiteIntegrationKey(salesCommunityId: number) 
-	{
-		if (salesCommunityId == null)
-		{
-			return;
-		}
-		this._orgService.getWebsiteCommunity(salesCommunityId).subscribe(data =>
-			{
-				this.selectedCommunityWebsiteKey = data?.webSiteIntegrationKey;
-			}
-		);
 	}
 
 	setReleaseData()
@@ -599,37 +581,6 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 	{
 		tableComponent.hideTooltip();
 	}
-
-	getAvailable(homesite: HomeSite)
-	{
-		return homesite.lotStatusDescription === 'Available';
-	}
-
-	toggleIsHiddenTho(lot: HomeSite)
-	{
-		// Wait to change the value of the original until the patch completes
-		let lotDto = clone(lot.dto);
-		lotDto.isHiddenInTho = !lotDto.isHiddenInTho;
-
-		this._homeSiteService.saveHomesite(lot.commLbid, lotDto, false)
-			.subscribe(dto =>
-			{
-				lot.dto = dto;
-				if (dto.isHiddenInTho === true)
-				{
-					this._msgService.add({ severity: 'success', summary: 'Homesite', detail: `${lot.lotBlock} Hidden in THO!` });
-				}
-				else
-				{
-					this._msgService.add({ severity: 'success', summary: 'Homesite', detail: `${lot.lotBlock} Available in THO!` });
-				}
-				
-			},
-			error =>
-			{
-				this._msgService.add({ severity: 'error', summary: 'Error', detail: error });
-			})
-	}
 }
 
 class FinancialCommunityViewModel
@@ -647,7 +598,6 @@ class FinancialCommunityViewModel
 	get id() { return this.dto.id; }
 	get name() { return this.dto.name; }
 	get key() { return this.dto.key; }
-	get salesCommunityId() { return this.dto.salesCommunityId; }
 	get isActive() { return (this.dto.salesStatusDescription === "Active" || this.dto.salesStatusDescription === "New"); }
 
 	static sorter(left: FinancialCommunityViewModel, right: FinancialCommunityViewModel): number

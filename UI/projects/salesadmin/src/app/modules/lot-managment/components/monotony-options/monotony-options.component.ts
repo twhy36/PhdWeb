@@ -65,26 +65,11 @@ export class MonotonyOptionsComponent extends UnsubscribeOnDestroy implements On
 		});
 	}
 
-	togglePlanColorScheme(community: FinancialCommunity)
-	{
-		this._communityService.patchFinancialCommunity(community.id, { isColorSchemePlanRuleEnabled: !community.isColorSchemePlanRuleEnabled, isColorSchemeMonotonyRuleEnabled: community.isColorSchemeMonotonyRuleEnabled ? false : community.isColorSchemeMonotonyRuleEnabled }).subscribe((res) =>
-		{
-			community.isColorSchemePlanRuleEnabled = res.isColorSchemePlanRuleEnabled;
-			community.isColorSchemeMonotonyRuleEnabled = res.isColorSchemeMonotonyRuleEnabled;
-
-		},
-		response =>
-		{
-			console.log('There was an error', response);
-		});
-	}
-
 	toggleColorScheme(community: FinancialCommunity)
 	{
-		this._communityService.patchFinancialCommunity(community.id, { isColorSchemeMonotonyRuleEnabled: !community.isColorSchemeMonotonyRuleEnabled, isColorSchemePlanRuleEnabled: community.isColorSchemePlanRuleEnabled ? false : community.isColorSchemePlanRuleEnabled }).subscribe((res) =>
+		this._communityService.patchFinancialCommunity(community.id, { isColorSchemeMonotonyRuleEnabled: !community.isColorSchemeMonotonyRuleEnabled }).subscribe((res) =>
 		{
-			community.isColorSchemeMonotonyRuleEnabled = res.isColorSchemeMonotonyRuleEnabled;
-			community.isColorSchemePlanRuleEnabled = res.isColorSchemePlanRuleEnabled;
+			community.isColorSchemeMonotonyRuleEnabled = !community.isColorSchemeMonotonyRuleEnabled;
 		},
 		response =>
 		{

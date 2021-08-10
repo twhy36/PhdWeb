@@ -245,7 +245,7 @@ export class DivisionalService
 
 		const expand = `dPointPickType($select=dPointPickTypeID, dPointPickTypeLabel), dPointCatalog($select=dPointCatalogID, isActive)`;
 		const filter = `dPointCatalog/dSubGroupCatalogID eq ${parentId} and dPointCatalog/isActive eq true and isActive eq false and orgID eq ${orgId}`;
-		const select = `divDpointCatalogID, orgID, dPointPickTypeID, divDPointSortOrder, isActive, isQuickQuoteItem, isStructuralItem, isHiddenFromBuyerView, dPointLabel, dPointDescription`;
+		const select = `divDpointCatalogID, orgID, dPointPickTypeID, divDPointSortOrder, isActive, isQuickQuoteItem, isStructuralItem, dPointLabel, dPointDescription`;
 		const orderby = `divDPointSortOrder`;
 
 		const qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}orderby=${encodeURIComponent(orderby)}`;
@@ -271,7 +271,6 @@ export class DivisionalService
 						isActive: x.isActive,
 						isQuickQuoteItem: x.isQuickQuoteItem,
 						isStructuralItem: x.isStructuralItem,
-						isHiddenFromBuyerView: x.isHiddenFromBuyerView,
 						orgID: x.orgID
 					} as IDivisionalCatalogPointDto;
 
