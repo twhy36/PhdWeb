@@ -27,6 +27,8 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 	@Input() lots: Array<HomeSite> = [];
 	@Input() viewAdjacencies: Array<HomeSiteDtos.ILabel> = [];
 	@Input() physicalLotTypes: Array<HomeSiteDtos.ILabel> = [];
+	@Input() communityWebsiteKey: string;
+	@Input() isColorSchemePlanRuleEnabled: boolean;
 
 	@Output() onSaveHomesite = new EventEmitter<{ homesiteDto: HomeSiteDtos.ILotDto, lotBuildTypeUpdated: boolean}>();
 	@Output() onSaveMonotonyRules = new EventEmitter <{ lotId: number, monotonyRules: MonotonyRule[] }>();
@@ -45,7 +47,7 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 	fromMonotony: string;
 
 	inaccessibleLotStatuses = ["Sold", "Closed"];
-	disallowedStatusesForPremiumUpdate = this.inaccessibleLotStatuses.concat("Pending Sale");
+	disallowedStatusesForPremiumUpdate = this.inaccessibleLotStatuses.concat("PendingSale");
 
 	isOpen: boolean = true;
 

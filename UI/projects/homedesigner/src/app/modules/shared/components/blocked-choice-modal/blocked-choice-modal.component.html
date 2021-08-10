@@ -8,8 +8,17 @@
 		</div>
 		<ul class="phd-blocked-list">
 			<li *ngFor="let disabledByItem of disabledByMustHaveRules">
-				<div *ngIf="!disabledByItem.choiceId">Make a <span class="phd-clickable phd-blocked-link" (click)="onBlockedItemClick(disabledByItem.pointId)">{{disabledByItem.label}}</span> selection</div>
-				<div *ngIf="disabledByItem.choiceId">Select <span class="phd-clickable phd-blocked-link" (click)="onBlockedItemClick(disabledByItem.pointId)">{{disabledByItem.label}}</span></div>
+				<div *ngIf="!disabledByItem.choiceId">
+          Make a
+          <span *ngIf="disabledByItem.pointId" class="phd-clickable phd-blocked-link" (click)="onBlockedItemClick(disabledByItem.pointId)">{{disabledByItem.label}}</span>
+          <span *ngIf="!disabledByItem.pointId">{{disabledByItem.label}}</span>
+          selection
+        </div>
+				<div *ngIf="disabledByItem.choiceId">
+          Select
+          <span *ngIf="disabledByItem.pointId" class="phd-clickable phd-blocked-link" (click)="onBlockedItemClick(disabledByItem.pointId)">{{disabledByItem.label}}</span>
+          <span *ngIf="!disabledByItem.pointId">{{disabledByItem.label}}</span>
+        </div>
 			</li>
 		</ul>
 	</ng-container>
@@ -19,7 +28,11 @@
 		</div>
 		<ul class="phd-blocked-list">
 			<li *ngFor="let disabledByItem of disabledByMustNotHaveRules">
-				<div><span class="phd-clickable phd-blocked-link" (click)="onBlockedItemClick(disabledByItem.pointId)">{{disabledByItem.label}}</span> selection</div>
+				<div>
+          <span *ngIf="disabledByItem.pointId" class="phd-clickable phd-blocked-link" (click)="onBlockedItemClick(disabledByItem.pointId)">{{disabledByItem.label}}</span>
+          <span *ngIf="!disabledByItem.pointId">{{disabledByItem.label}}</span>
+          selection
+        </div>
 			</li>
 		</ul>
 	</ng-container>

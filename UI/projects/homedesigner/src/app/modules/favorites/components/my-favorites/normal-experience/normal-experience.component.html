@@ -38,7 +38,8 @@
 									[currentChoice]="getChoiceExt(choice, point)"
 									[currentPoint]="point"
 									[groups]="groups"
-                                    [isReadonly]="isReadonly"
+									[tree]="tree"
+									[isReadonly]="isReadonly"
 									(toggled)="choiceToggleHandler($event)"
 									(onSelectDecisionPoint)="selectDecisionPoint($event)"
 									(onViewChoiceDetail)="viewChoiceDetail($event)">
@@ -47,7 +48,8 @@
 						<choice-decline-card *ngIf="showDeclineCard(point)"
 									[currentPoint]="point"
 									[groups]="groups"
-                                    [isReadonly]="isReadonly"
+									[tree]="tree"
+									[isReadonly]="isReadonly"
 									[myFavoritesPointsDeclined]="myFavoritesPointsDeclined"
 									(onSelectDecisionPoint)="selectDecisionPoint($event)"
 									(onDeclineDecisionPoint)="declineDecisionPoint($event)">

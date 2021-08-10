@@ -146,7 +146,7 @@
 									</div>
 									<br>
 									<div class="phd-copy-button">
-										<button class="btn btn-primary phd-extra-small phd-btn-copy" (click)="copyAssignedLots('elevation')" [disabled]="disableMonotonyForm">Copy from Color Scheme</button>
+										<button class="btn btn-primary phd-extra-small phd-btn-copy" (click)="copyAssignedLots('elevation')" [disabled]="disableMonotonyForm">{{ isColorSchemePlanRuleEnabled ? 'Copy from Color Scheme/Plan' : 'Copy from Color Scheme'}}</button>
 									</div>
 								</div>
 								<div>
@@ -217,5 +217,18 @@
 		</div>
 	</ng-template>
 </phd-side-panel-component>
+
+<div class="phd-monotony-map-container" *ngIf="currentTab === 'monotony'">
+	<div class="monotony-map">
+		<div *ngIf="communityWebsiteKey == null" >Unable to load the community map.</div>
+		<av-site-plan
+			*ngIf="communityWebsiteKey"
+			[webCommunityId]="communityWebsiteKey"
+			(lotSelectedCallback)="$event"
+			showLotNumbers="true"
+		>
+    </av-site-plan>
+	</div>
+</div>
 
 <p-toast></p-toast>

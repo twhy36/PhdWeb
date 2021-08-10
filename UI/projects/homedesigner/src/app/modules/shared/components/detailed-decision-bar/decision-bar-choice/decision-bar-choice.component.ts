@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { DecisionPoint, Group } from 'phd-common';
+import { DecisionPoint, Group, Tree } from 'phd-common';
 import { getDisabledByList } from '../../../classes/tree.utils';
 import { ChoiceExt } from '../../../models/choice-ext.model';
 
@@ -13,6 +13,7 @@ export class DecisionBarChoiceComponent implements OnInit {
 	@Input() choice: ChoiceExt;
 	@Input() point: DecisionPoint;
 	@Input() groups: Group[];
+	@Input() tree: Tree;
 	@Input() isReadonly: boolean;
 
 	@Output() onToggleChoice = new EventEmitter<ChoiceExt>();
@@ -31,7 +32,7 @@ export class DecisionBarChoiceComponent implements OnInit {
   ngOnInit(): void {
   }
 
-	toggleChoice() 
+	toggleChoice()
 	{
 		if (!this.isReadonly)
 		{
@@ -45,7 +46,7 @@ export class DecisionBarChoiceComponent implements OnInit {
 
 	openBlockedChoiceModal() {
 		if (!this.disabledByList) {
-			this.disabledByList = getDisabledByList(this.groups, this.point, this.choice);
+			this.disabledByList = getDisabledByList(this.tree, this.groups, this.point, this.choice);
 		}
 		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { windowClass: 'phd-blocked-choice-modal' });
 	}

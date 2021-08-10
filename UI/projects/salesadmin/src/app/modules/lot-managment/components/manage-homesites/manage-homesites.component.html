@@ -1,8 +1,10 @@
 <manage-homesites-side-panel-component *ngIf="sidePanelOpen" [saving]="saving" [sidePanelOpen]="sidePanelOpen" [monotonyRules]="monotonyRules"
 									   [lots]="lots"
 									   [selectedHomesite]="selectedHomesite"
+										 [communityWebsiteKey]="selectedCommunityWebsiteKey"
 									   [viewAdjacencies]="viewAdjacencies"
 									   [physicalLotTypes]="physicalLotTypes"
+									   [isColorSchemePlanRuleEnabled]="isColorSchemePlanRuleEnabled"
 									   (onSidePanelClose)="onSidePanelClose($event)"
 									   (onSaveHomesite)="saveHomesite($event)"
 									   (onSaveMonotonyRules)="saveMonotonyRules($event)">

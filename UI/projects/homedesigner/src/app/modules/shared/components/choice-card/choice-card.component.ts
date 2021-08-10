@@ -2,7 +2,7 @@ import { Component, Input, Output, OnInit, OnChanges, SimpleChanges, EventEmitte
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import * as _ from 'lodash';
 
-import { UnsubscribeOnDestroy, flipOver3, OptionImage, DecisionPoint, Group } from 'phd-common';
+import { UnsubscribeOnDestroy, flipOver3, OptionImage, DecisionPoint, Group, Tree } from 'phd-common';
 import { ChoiceExt } from '../../models/choice-ext.model';
 import { getDisabledByList } from '../../../shared/classes/tree.utils';
 
@@ -19,6 +19,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 	@Input() currentChoice: ChoiceExt;
 	@Input() currentPoint: DecisionPoint;
 	@Input() groups: Group[];
+	@Input() tree: Tree;
 	@Input() isReadonly: boolean;
 
 	@Output() toggled = new EventEmitter<ChoiceExt>();
@@ -86,11 +87,11 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 		event.srcElement.src = 'assets/pultegroup_logo.jpg';
 	}
 
-	toggleChoice() 
+	toggleChoice()
 	{
 		if (!this.isReadonly)
 		{
-			this.toggled.emit(this.choice);			
+			this.toggled.emit(this.choice);
 		}
 	}
 
@@ -102,7 +103,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 	openBlockedChoiceModal() {
 		if (!this.disabledByList)
 		{
-			this.disabledByList = getDisabledByList(this.groups, this.currentPoint, this.choice);
+			this.disabledByList = getDisabledByList(this.tree, this.groups, this.currentPoint, this.choice);
 		}
 		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { windowClass: 'phd-blocked-choice-modal' });
 	}
@@ -116,7 +117,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 
 	onCloseClicked() {
 		this.blockedChoiceModalRef?.close();
-		this.hiddenChoicePriceModal?.close();
+		this.hiddenChoicePriceModalRef?.close();
 	}
 
 	onBlockedItemClick(pointId: number) {

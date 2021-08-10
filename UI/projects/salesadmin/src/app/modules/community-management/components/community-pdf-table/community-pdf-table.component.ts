@@ -36,12 +36,17 @@ export class CommunityPdfTableComponent extends UnsubscribeOnDestroy implements 
 		// When save is clicked and there are pdfs to be updated
 		if (this.isSaving && this.updatedCommunityPdfs.length > 0)
 		{
-			this._communityService.updateCommunityPdf(this.updatedCommunityPdfs)
+			this._communityService.updateCommunityPdfs(this.updatedCommunityPdfs)
 				.subscribe(() => 
 				{
 					this.saveComplete.emit(true);
 					this.updatedCommunityPdfs = [];
 					this._msgService.add({ severity: 'success', summary: 'Sort Order', detail: `has been updated!` });
+				}, error => 
+				{
+					this.saveComplete.emit(false);
+					this.updatedCommunityPdfs = [];
+					this._msgService.add({ severity: 'error', summary: 'Sort Order', detail: `has NOT been updated!` })
 				});
 		}
 		// Cancel clicked wipe the updatedCommunity list
@@ -82,16 +87,25 @@ export class CommunityPdfTableComponent extends UnsubscribeOnDestroy implements 
 						this.deleteComplete.emit(dto);
 
 						this._msgService.add({ severity: 'success', summary: 'Community Pdf', detail: `has been deleted!` });
+					}, error =>
+					{
+						this._msgService.add({ severity: 'error', summary: 'Community Pdf', detail: `could not be deleted!` })
 					});
 			}
 		});
 	}
 
-	previewFile(url: string)
+	previewFile(dto: CommunityPdf)
 	{
-		window.open(url, '_blank');
-
-		this._msgService.add({ severity: 'success', summary: 'Community Pdf', detail: `has been found` });
+		this._communityService.getCommunityPdfUrl(dto.financialCommunityId, dto.fileName)
+			.subscribe(url => 
+			{
+				window.open(url, '_blank');
+				this._msgService.add({ severity: 'success', summary: 'Community Pdf', detail: `has been found` });
+			}, error =>
+			{
+				this._msgService.add({ severity: 'error', summary: 'Community Pdf', detail: `could not be found` });
+			})
 	}
 
 	showTooltip(event: any, tooltipText: string, tableComponent: PhdTableComponent): void
@@ -119,6 +133,8 @@ export class CommunityPdfTableComponent extends UnsubscribeOnDestroy implements 
 	private trackUpdatedPdfs(pdf: CommunityPdf)
 	{
 		this.updatedCommunityPdfs = this.updatedCommunityPdfs.filter(t => t.fileName !== pdf.fileName);
+		pdf.effectiveDate = pdf.effectiveDate != null ? new Date(pdf.effectiveDate).toISOString() : null;
+		pdf.expirationDate = pdf.expirationDate != null ? new Date(pdf.expirationDate).toISOString() : null;
 		this.updatedCommunityPdfs.push(pdf);
 	}
 

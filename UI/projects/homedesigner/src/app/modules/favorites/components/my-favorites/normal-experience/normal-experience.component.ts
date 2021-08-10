@@ -2,7 +2,7 @@ import { Component, OnInit, Input, OnChanges, SimpleChanges, Output, EventEmitte
 
 import * as _ from 'lodash';
 
-import { UnsubscribeOnDestroy, flipOver, DecisionPoint, PickType, SubGroup, Choice, JobChoice, Group, ChoiceImageAssoc } from 'phd-common';
+import { UnsubscribeOnDestroy, flipOver, DecisionPoint, PickType, SubGroup, Choice, JobChoice, Group, ChoiceImageAssoc, Tree } from 'phd-common';
 
 import { MyFavoritesChoice, MyFavoritesPointDeclined } from '../../../../shared/models/my-favorite.model';
 import { ChoiceExt } from '../../../../shared/models/choice-ext.model';
@@ -24,6 +24,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	@Input() includeContractedOptions: boolean = false;
 	@Input() salesChoices: JobChoice[];
 	@Input() groups: Group[];
+	@Input() tree: Tree;
 	@Input() choiceImages: ChoiceImageAssoc[];
 	@Input() isReadonly: boolean;
 	@Input() isPreview: boolean = false;
@@ -72,7 +73,11 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 
 		if (changes['decisionPointId'])
 		{
-			this.selectDecisionPoint(changes['decisionPointId'].currentValue);
+			const pointId = changes['decisionPointId'].currentValue;
+			if (pointId && pointId !== this.currentPointId)
+			{
+				this.selectDecisionPoint(pointId, 1600);
+			}
 		}
 	}
 
@@ -113,14 +118,14 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 		this.isPointPanelCollapsed = !this.isPointPanelCollapsed;
 	}
 
-	selectDecisionPoint(pointId: number) {
+	selectDecisionPoint(pointId: number, interval?: number) {
 		if (pointId)
 		{
 			setTimeout(() =>
 			{
 				const firstPointId = this.points && this.points.length ? this.points[0].id : 0;
 				this.scrollPointIntoView(pointId, pointId === firstPointId);
-			}, 500);
+			}, interval || 500);
 		}
 		this.currentPointId = pointId;
 		this.onSelectDecisionPoint.emit(pointId);

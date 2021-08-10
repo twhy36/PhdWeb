@@ -12,15 +12,7 @@
 
 <portal-item title="Pulte Home Designer - Choice Admin" icon="wrench" [action]="choiceAdminAction" *requiresClaim="'NationalCatalog'; permission: Permission.Read"></portal-item>
 
-<!-- If user doesn't have PHD Reports access, take them straight to Sales Tally Report -->
-<portal-item title="Reporting" [action]="salesTallyAction" icon="chart-pie" *ngIf="!canAccessReports"></portal-item>
-
-<!-- If user has acccess to PHD Reports, show modal where they can select where they want to go -->
-<portal-item title="Reporting" icon="chart-pie" *ngIf="canAccessReports" #reporting>
-	<ng-template>
-		<reporting [action]="reportsAction" (onClose)="reporting.close()"></reporting>
-	</ng-template>
-</portal-item>
+<portal-item title="Reporting" icon="chart-pie" *ngIf="canAccessReports" [action]="reportsAction" #reporting></portal-item>
 
 <portal-item title="Search" icon="search" *requiresClaim="'SalesAgreements'; permission: Permission.Read" modalSize="lg" #search>
 	<ng-template>
@@ -28,8 +20,10 @@
 	</ng-template>
 </portal-item>
 
-<portal-item title="Plan Preview" icon="binoculars" *requiresClaim="'SalesAgreements'; permission: Permission.Read" #preview>
+<portal-item title="Preview" icon="binoculars" *requiresClaim="'SalesAgreements'; permission: Permission.Read" #preview>
 	<ng-template>
 		<plan-preview [action]="previewAction" (onClose)="preview.close()"></plan-preview>
 	</ng-template>
 </portal-item>
+
+<portal-item title="Color Management" icon="paint-brush" [action]="colorManagementAction" *ngIf="!environment.production"></portal-item>

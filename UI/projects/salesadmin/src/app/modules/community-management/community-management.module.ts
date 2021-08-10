@@ -7,14 +7,15 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { CalendarModule } from 'primeng/calendar';
 
 import { PhdCommonModule } from 'phd-common';
+import { ClaimGuard } from 'phd-common';
 import { SharedModule } from '../shared/shared.module';
+import { LotManagementModule } from '../lot-managment/lot-management.module';
 import { AutoApprovalComponent } from './components/auto-approvals/auto-approvals.component';
 import { CommunityPdfComponent } from './components/community-pdf/community-pdf.component';
 import { CommunityPdfSidePanelComponent } from './components/community-pdf-side-panel/community-pdf-side-panel.component';
 import { CommunityPdfTableComponent } from './components/community-pdf-table/community-pdf-table.component';
 import { CommunitySettingsComponent } from './components/community-settings/community-settings.component';
-import { ClaimGuard } from 'phd-common';
-import { LotManagementModule } from '../lot-managment/lot-management.module';
+import { CommunitySettingsTabComponent } from './components/community-settings-tab/community-settings-tab.component';
 
 @NgModule({
 	declarations: [
@@ -22,7 +23,8 @@ import { LotManagementModule } from '../lot-managment/lot-management.module';
 		CommunityPdfComponent,
 		CommunityPdfSidePanelComponent,
 		CommunityPdfTableComponent,
-		CommunitySettingsComponent
+		CommunitySettingsComponent,
+		CommunitySettingsTabComponent
 	],
 	exports: [],
 	imports: [

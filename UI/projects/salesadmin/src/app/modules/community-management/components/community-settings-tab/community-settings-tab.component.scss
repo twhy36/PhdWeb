@@ -1,0 +1,52 @@
+.phd-box-background {
+	background-color: #D5D5D5;
+	border-style: solid;
+	border-width: 1px;
+	border-color: black;
+	border-collapse: collapse;
+	margin: auto;
+	margin-top: 10%;
+	width:350px;
+	height:100px;
+}
+
+.phd-box{
+	text-align: center;
+	padding:15px;
+}
+
+.phd-line{
+	text-align: center;
+	margin-bottom:10px;
+}
+
+.phd-input-line{
+	text-align: center;
+	margin-bottom:20px;
+	margin-top:5px;
+}
+
+.phd-earnest-money-input{
+	margin-left: 10px;
+}
+
+.phd-ecoe-input{
+	width: 100px;
+	margin: 0 10px;
+}
+
+.phd-save-button{
+	margin: auto;
+	margin-top: 10%;
+}
+
+.phd-settings-container{
+	width: 750px;
+	height: 750px;
+}
+
+.phd-center{
+	display: flex;
+  justify-content: center;
+  align-items: center;
+}
