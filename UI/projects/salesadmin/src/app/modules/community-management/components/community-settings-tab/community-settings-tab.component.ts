@@ -90,7 +90,6 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 		this._orgService.currentCommunity$.pipe(
 			this.takeUntilDestroyed(),
 		).subscribe(financialCommunity => {
-			console.log('changed', financialCommunity);
 			this.financialCommunity = financialCommunity;
 		});
 
@@ -134,7 +133,6 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 
 	toggleCommunityLinkEnabled()
 	{
-		console.log('clicky', this.commmunityLinkEnabledDirty);
 		this.commmunityLinkEnabledDirty = !this.commmunityLinkEnabledDirty;
 		this.salesCommunity.isOnlineSalesCommunityEnabled = !this.salesCommunity.isOnlineSalesCommunityEnabled;
 	}
