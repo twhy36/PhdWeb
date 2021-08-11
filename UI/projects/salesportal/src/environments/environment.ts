@@ -15,7 +15,7 @@ export const environment: IEnvironment = {
 		crm: 'https://pultedev.crm.dynamics.com/main.aspx?appid=c865bf67-a0e6-e811-a962-000d3a32ce3b',
 		salesAdmin: 'https://phd.dev.pulte.com/salesadmin/',
 		designTool: 'https://phd.dev.pulte.com/designtool/',
-		designPreview: 'https://phd.dev.pulte.com/homedesigner/',
+		designPreview: 'https://phd.dev.pulte.com/designpreview/',
 		thoPreview: 'https://tho.dev.centex.com/',
 		reports: 'http://powerbi.dev.pulte.com/Reports/browse/IDEA/Sales/PHD',
 		homeSelections: 'https://homebuilder.dev.pulte.com/HomeSelections/',

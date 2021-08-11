@@ -10,7 +10,7 @@ export const environment: IEnvironment = {
 	apiUrl: 'https://phdapi.staging.pulte.com/odata/',
 	hubUrl: 'https://phdhub.staging.pulte.com/hub',
 	baseUrl: {
-		designPreview: 'https://phd.staging.pulte.com/homedesigner/',
+		designPreview: 'https://phd.staging.pulte.com/designpreview/',
 	},
     tenant: "pulte.onmicrosoft.com",
 	clientId: "d6e4e999-c413-4d1d-b0fb-618759cb69e5",

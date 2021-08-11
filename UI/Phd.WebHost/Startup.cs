@@ -129,11 +129,11 @@ namespace Phd.WebHost
                 });
             });
 
-            app.Map("/homedesigner", app1 =>
+            app.Map("/designpreview", app1 =>
             {
                 app1.UseSpa(spa =>
                 {
-                    spa.Options.DefaultPage = "/homedesigner/index.html";
+                    spa.Options.DefaultPage = "/designpreview/index.html";
                     spa.Options.DefaultPageStaticFileOptions = NoCacheStaticFileOptions;
                 });
             });
