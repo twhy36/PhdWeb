@@ -8,7 +8,7 @@ import { FinancialCommunityViewModel } from '../../../shared/models/plan-assignm
 import { FinancialCommunity } from '../../../shared/models/financialCommunity.model';
 import { filter, map, switchMap } from 'rxjs/operators';
 import { FinancialCommunityInfo } from '../../../shared/models/financialCommunity.model';
-import { combineLatest, Observable, of } from 'rxjs';
+import { combineLatest, of } from 'rxjs';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { FinancialMarket } from '../../../shared/models/financialMarket.model';
