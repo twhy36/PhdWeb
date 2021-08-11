@@ -10,20 +10,20 @@
             <label class="col-form-label">Category/Subcategory</label>
         </div>
         <div class="p-2">
-            <select class="form-control">
+            <select class="form-control" [ngModel]="selectedSubCategory ? selectedSubCategory:null">
                 <option [defaultSelected]></option>
                 <option>---- All Colors ----</option>
-                <option *ngFor="let subCategories of (optionSubCategory$ | async)" [ngValue]="subCategories">{{subCategories.optionCategory.name}} : {{subCategories.name}}</option>
+                <option *ngFor="let subCategories of (optionSubCategory)" [ngValue]="subCategories">{{subCategories.optionCategory.name}} : {{subCategories.name}}</option>
             </select>
         </div>
         <div class="p-2">
             <label class="row-form-label">Active</label>
         </div>
         <div class="p-2">
-            <select class="form-control">
-                <option [defaultSelected]>All</option>
-                <option>Active</option>
-                <option>Inactive</option>
+            <select class="form-control" [ngModel]="isActive">
+                <option [defaultSelected] value="null">All</option>
+                <option [ngValue]="true">Active</option>
+                <option [ngValue]="false">Inactive</option>
             </select>
         </div>
         <div class="p-2">
@@ -31,13 +31,15 @@
         </div>
     </div>
 </div>
-<div *ngIf="isCounterVisible"><span class="count_message"><em>{{50 - colorname.length}} characters remaining</em></span> </div>
+<div *ngIf="isCounterVisible"><span class="count_message"><em>{{50 - colorname?.length}} characters remaining</em></span> </div>
 <div class="phd-table-container mx-2" infiniteScroll [infiniteScrollThrottle]="infiniteScrollThrottle" [infiniteScrollDisabled]="allDataLoaded" (scrolled)="onPanelScroll()" [scrollWindow]="false">
     <phd-table #dt [value]="colorsDto$|async" showCaption="true">
         <phd-column header="Color Name" field="name"></phd-column>
         <phd-column header="Sku" field="sku"></phd-column>
         <phd-column header="Category Name" field="optionCategoryName"></phd-column>
         <phd-column header="SubCategory Name" field="optionSubCategoryName"></phd-column>
-        <phd-column header="Active" field="isActive"></phd-column>
+        <phd-column header="Active" field="isActive">
+            
+        </phd-column>
     </phd-table>
 </div>

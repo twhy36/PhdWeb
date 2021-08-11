@@ -17,9 +17,9 @@ export class ColorService
     getColors(communityId?: number,colorName?: string,subcategoryId?: number,topRows?: number, skipRows?: number,isActive? :boolean):Observable<IColor[]>
 	{
         const entity = `colors`;
-		const filter = `EdhFinancialCommunityId eq ${communityId}`;
+		let filter = `(EdhFinancialCommunityId eq ${communityId})`;
 		const select = `colorId,name,sku,isActive,edhOptionSubcategoryId`;
-
+		
 		let qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
         if (topRows)
 		{
@@ -31,6 +31,7 @@ export class ColorService
 			qryStr += `&${this._ds}skip=${skipRows}`;
 		}
 
+		
 		const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
         return (skipRows ? this._http : withSpinner(this._http)).get<any>(endpoint).pipe(
 			map(response =>
