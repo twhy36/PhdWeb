@@ -6,14 +6,14 @@ import { ActivatedRoute } from '@angular/router';
 import { environment } from '../../../../../environments/environment';
 import { FinancialCommunityViewModel } from '../../../shared/models/plan-assignment.model';
 import { FinancialCommunity } from '../../../shared/models/financialCommunity.model';
-import { filter, map, switchMap, tap } from 'rxjs/operators';
-import { identity } from 'lodash';
+import { filter, map, switchMap } from 'rxjs/operators';
 import { FinancialCommunityInfo } from '../../../shared/models/financialCommunity.model';
-import { combineLatest, of } from 'rxjs';
+import { combineLatest, Observable, of } from 'rxjs';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { FinancialMarket } from '../../../shared/models/financialMarket.model';
 import { SalesCommunity } from '../../../shared/models/salesCommunity.model';
+import { Claims, IdentityService } from 'phd-common';
 
 @Component({
 	selector: 'community-settings-tab',
@@ -29,11 +29,12 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 	communitySettingsForm: FormGroup;
 	currentMarket: FinancialMarket;
 	orgId: number;
-	canEdit: boolean = false;
+	canEdit = false;
 	isSaving = false;
 	url?: string = null;
 	commmunityLinkEnabledDirty = false;
 	previewEnabledDirty = false;
+	canToggleCommunitySettings = false;
 
 	get saveDisabled(): boolean
 	{
@@ -59,6 +60,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 	constructor(
 		public _orgService: OrganizationService,
 		private _msgService: MessageService,
+		private _identityService: IdentityService,
 		private _route: ActivatedRoute) { super(); }
 
 	ngOnInit()
@@ -68,6 +70,10 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 		this._orgService.canEdit(this._route.parent.snapshot.data['requiresClaim']).pipe(
 			this.takeUntilDestroyed(),
 		).subscribe(canEdit => this.canEdit = canEdit);
+
+		this._identityService.getClaims().pipe(
+			map((claims: Claims) => !!claims.SalesAdmin)
+		).subscribe(canEdit => this.canToggleCommunitySettings = canEdit);
 
 		this._orgService.currentCommunity$.pipe(
 			this.takeUntilDestroyed(),
@@ -82,6 +88,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 
 		this._orgService.currentCommunity$.pipe(
 			this.takeUntilDestroyed(),
+			filter(financialCommunity => !!financialCommunity?.salesCommunityId),
 			switchMap(financialCommunity => this._orgService.getSalesCommunity(financialCommunity?.salesCommunityId)),
 		).subscribe(salesCommunity => {
 			this.salesCommunity = salesCommunity;
@@ -89,6 +96,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 
 		this._orgService.currentCommunity$.pipe(
 			this.takeUntilDestroyed(),
+			filter(financialCommunity => !!financialCommunity),
 		).subscribe(financialCommunity => {
 			this.financialCommunity = financialCommunity;
 		});
@@ -157,8 +165,6 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 	save()
 	{
 		this.isSaving = true;
-		this.commmunityLinkEnabledDirty = false;
-		this.previewEnabledDirty = false;
 
 		let ecoeMonths = this.communitySettingsForm.get('ecoeMonths').value;
 		let earnestMoney = this.communitySettingsForm.get('earnestMoney').value;
@@ -184,6 +190,9 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 		]).subscribe(() =>
 			{
 				this.isSaving = false;
+				this.communitySettingsForm.markAsPristine();
+				this.commmunityLinkEnabledDirty = false;
+				this.previewEnabledDirty = false;
 				this._msgService.add({ severity: 'success', summary: 'Community Settings', detail: 'Save successful.' });
 			}, error =>
 			{
