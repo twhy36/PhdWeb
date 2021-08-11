@@ -13,6 +13,7 @@ import { UnauthorizedComponent} from './components/unauthorized/unauthorized.com
 import { CoreModule } from '../core/core.module';
 import { SidePanelComponent } from './components/side-panel/side-panel.component';
 import { ConfirmModalComponent } from './components/confirm-modal/confirm-modal.component';
+import { AddColorSidePanelComponent } from './components/add-color-side-panel/add-color-side-panel.component';
 
 
 const routes: Routes = [
@@ -24,7 +25,8 @@ const routes: Routes = [
 		UnauthorizedComponent,
 		CapitalCaseSpacePipe,
   SidePanelComponent,
-  ConfirmModalComponent
+  ConfirmModalComponent,
+  AddColorSidePanelComponent
 	],
 	imports: [
 		BrowserAnimationsModule,
