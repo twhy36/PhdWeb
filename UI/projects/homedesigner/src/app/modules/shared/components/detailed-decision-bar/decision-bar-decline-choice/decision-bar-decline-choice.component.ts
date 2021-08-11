@@ -1,8 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { DecisionPoint, Group, Tree } from 'phd-common';
+import { DecisionPoint, Group, Tree, MyFavoritesPointDeclined } from 'phd-common';
 import { getDisabledByList } from '../../../classes/tree.utils';
-import { MyFavoritesPointDeclined } from '../../../models/my-favorite.model';
 
 @Component({
   selector: 'decision-bar-decline-choice',

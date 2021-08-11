@@ -42,7 +42,7 @@ export class OrganizationService
 		const entity = `salesCommunities(${id})`;
 		const expand = `financialCommunities($select=id, name, isDesignPreviewEnabled),market($select=id,number)`
 	
-		const select = `id, number, name, isDesignPreviewEnabled`;
+		const select = `id, number, name`;
 
 		let qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}select=${encodeURIComponent(select)}`;
 		const url = `${environment.apiUrl}${entity}?${qryStr}`;

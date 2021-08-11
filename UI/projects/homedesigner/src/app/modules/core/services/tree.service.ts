@@ -8,17 +8,17 @@ import { combineLatest, EMPTY as empty } from 'rxjs';
 import { of } from 'rxjs/observable/of';
 
 import
-	{
-		withSpinner, newGuid, createBatchGet, createBatchHeaders, createBatchBody,
-		IdentityService, JobChoice, ChangeOrderChoice, TreeVersionRules, OptionRule, Tree, OptionImage,
-		JobPlanOption, ChangeOrderPlanOption, PlanOptionCommunityImageAssoc, ChoiceImageAssoc, TreeBaseHouseOption, Choice
-	} from 'phd-common';
+{
+	withSpinner, newGuid, createBatchGet, createBatchHeaders, createBatchBody,
+	IdentityService, JobChoice, ChangeOrderChoice, TreeVersionRules, OptionRule, Tree, OptionImage,
+	JobPlanOption, ChangeOrderPlanOption, PlanOptionCommunityImageAssoc, ChoiceImageAssoc, TreeBaseHouseOption, Choice,
+	MyFavoritesChoice, MyFavoritesPointDeclined
+} from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
 import { isChangeOrderChoice } from '../../shared/classes/tree.utils';
 
 import * as _ from 'lodash';
-import { MyFavoritesChoice, MyFavoritesPointDeclined } from '../../shared/models/my-favorite.model';
 
 @Injectable()
 export class TreeService

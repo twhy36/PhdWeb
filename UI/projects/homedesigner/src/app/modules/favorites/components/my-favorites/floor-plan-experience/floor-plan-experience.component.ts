@@ -2,9 +2,12 @@ import { Component, OnInit, Input, OnChanges, SimpleChanges, Output, EventEmitte
 
 import * as _ from 'lodash';
 
-import { UnsubscribeOnDestroy, DecisionPoint, SubGroup, JobChoice, ChoiceImageAssoc, Group, Tree } from 'phd-common';
+import 
+{ 
+	UnsubscribeOnDestroy, DecisionPoint, SubGroup, JobChoice, ChoiceImageAssoc, Group,
+	Tree, MyFavoritesChoice, MyFavoritesPointDeclined
+} from 'phd-common';
 
-import { MyFavoritesChoice, MyFavoritesPointDeclined } from '../../../../shared/models/my-favorite.model';
 import { ChoiceExt } from '../../../../shared/models/choice-ext.model';
 
 @Component({

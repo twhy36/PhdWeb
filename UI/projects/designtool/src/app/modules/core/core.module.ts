@@ -41,6 +41,7 @@ import { ModalOverrideSaveComponent } from './components/modal-override-save/mod
 import { ModalService } from './services/modal.service';
 import { ModalComponent } from './components/modal/modal.component';
 import { NotificationService } from './services/notification.service';
+import { FavoriteService } from './services/favorite.service';
 
 @NgModule({
 	exports: [
@@ -99,6 +100,7 @@ import { NotificationService } from './services/notification.service';
 		ReportsService,
 		ModalService,
 		NotificationService,
+		FavoriteService,
 		{ provide: ErrorHandler, useClass: PhdErrorHandler }
 	]
 })

@@ -8,7 +8,7 @@ import { from } from 'rxjs/observable/from';
 
 import * as _ from 'lodash';
 
-import { DesignToolAttribute } from 'phd-common';
+import { DesignToolAttribute, MyFavorite } from 'phd-common';
 
 import
 { 	FavoriteActionTypes, SetCurrentFavorites, MyFavoriteCreated, SaveMyFavoritesChoices,
@@ -27,7 +27,6 @@ import { TreeService } from '../../core/services/tree.service';
 import * as fromRoot from '../reducers';
 import * as fromFavorite from './reducer';
 import * as fromSalesAgreement from '../sales-agreement/reducer';
-import { MyFavorite } from '../../shared/models/my-favorite.model';
 
 @Injectable()
 export class FavoriteEffects

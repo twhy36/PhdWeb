@@ -73,7 +73,7 @@ describe('JobEffects', () => {
             const store = of(state) as Store<State>;
             const actions = new Actions(
                 from([
-                    new SalesAgreementLoaded(<SalesAgreement>{status: 'OutforSignature'}, null, null, null, null, null, null, null, null, null, null, null, null, null),
+                    new SalesAgreementLoaded(<SalesAgreement>{status: 'OutforSignature'}, null, null, null, null, null, null, null, null, null, null, null, null, null, null),
                     new SetPermissions(null, [], 1)
                 ])
             );
@@ -151,7 +151,7 @@ describe('JobEffects', () => {
             const store = of(state) as Store<State>;
             const actions = new Actions(
                 from([
-                    new SalesAgreementLoaded(<SalesAgreement>{status: 'Pending'}, null, null, null, null, null, null, null, null, null, null, null, null, null),
+                    new SalesAgreementLoaded(<SalesAgreement>{status: 'Pending'}, null, null, null, null, null, null, null, null, null, null, null, null, null, null),
                     new SetPermissions(null, [], 1)
                 ])
             );

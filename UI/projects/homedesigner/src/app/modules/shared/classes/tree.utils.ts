@@ -11,11 +11,10 @@ import {
 	ChangeOrderGroup, ChangeOrderChoice, ChangeOrderPlanOption, ChangeOrderChoiceAttribute, ChangeOrderChoiceLocation,
 	PlanOption, PointStatus, ConstructionStageTypes, Tree, Choice, DecisionPoint, MappedAttributeGroup, MappedLocationGroup,
 	Attribute, AttributeGroup, AttributeCommunityImageAssoc, Location, LocationGroup, OptionImage, ChoiceRules, PointRules,
-	Group
+	Group, MyFavoritesChoice
 } from 'phd-common';
 
 import { TreeService } from '../../core/services/tree.service';
-import { MyFavoritesChoice } from '../models/my-favorite.model';
 
 export function isJobChoice(choice: JobChoice | ChangeOrderChoice): choice is JobChoice
 {

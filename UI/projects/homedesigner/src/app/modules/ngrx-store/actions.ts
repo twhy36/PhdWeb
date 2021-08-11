@@ -2,12 +2,11 @@ import { Action } from '@ngrx/store';
 
 import {
 	SalesCommunity, Job, JobChoice, ChangeOrderGroup, ChangeOrderHanding, LotExt, PlanOption, 
-	TreeVersionRules, SalesAgreement, Tree, OptionImage, SalesAgreementInfo
+	TreeVersionRules, SalesAgreement, Tree, OptionImage, SalesAgreementInfo, MyFavorite
 } from 'phd-common';
 
 import { ErrorAction } from './error.action';
 import { Stopwatch } from './stopwatch';
-import { MyFavorite } from '../shared/models/my-favorite.model';
 
 export enum CommonActionTypes {
     LoadSalesAgreement = 'Load Sales Agreement',
