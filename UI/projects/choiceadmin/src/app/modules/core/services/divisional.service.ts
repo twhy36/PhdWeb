@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpHeaders, HttpClient } from '@angular/common/http';
 
-import { Observable ,  forkJoin ,  throwError as _throw } from 'rxjs';
+import { Observable ,  forkJoin ,  throwError as _throw, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 
 import * as odataUtils from '../../shared/classes/odata-utils.class';
@@ -15,7 +15,7 @@ import { DivDSubGroup } from '../../shared/models/subgroup.model';
 import { DivDPoint, IDivCatalogPointDto, IDPointPickType, DivDPointCatalog } from '../../shared/models/point.model';
 import { DivDChoice, IDivCatalogChoiceDto, DivChoiceCatalog } from '../../shared/models/choice.model';
 import { Settings } from '../../shared/models/settings.model';
-import { IDivisionalCatalogGroupDto, IDivisionalCatalogPointDto, IDivisionalCatalogDto, IDivisionalCatalogChoiceDto, DivisionalCatalog, IDivSortList, DivisionalChoice } from '../../shared/models/divisional-catalog.model';
+import { IDivisionalCatalogGroupDto, IDivisionalCatalogPointDto, IDivisionalCatalogDto, IDivisionalCatalogChoiceDto, DivisionalCatalog, IDivSortList, DivisionalChoice, IDivChoiceCatalogMarketImageDto, DivChoiceCatalogMarketImage } from '../../shared/models/divisional-catalog.model';
 import { PhdEntityDto } from '../../shared/models/api-dtos.model';
 import { TableSort } from '../../../../../../phd-common/src/lib/components/table/phd-table.model';
 
@@ -55,9 +55,9 @@ export class DivisionalService
 	{
 		let url = settings.apiUrl;
 
-		const expand = `divDPointCatalog($select=divDpointCatalogID, dPointLabel;$expand=dPointCatalog($select=dPointCatalogId;$expand=dSubGroupCatalog($select=dSubGroupCatalogId, dSubGroupLabel;$expand=dGroupCatalog($select=dGroupCatalogId, dGroupLabel))))`;
+		const expand = `divChoiceCatalog_MarketImages($top=0;$count=true;), divDPointCatalog($select=divDpointCatalogID, dPointLabel;$expand=dPointCatalog($select=dPointCatalogId;$expand=dSubGroupCatalog($select=dSubGroupCatalogId, dSubGroupLabel;$expand=dGroupCatalog($select=dGroupCatalogId, dGroupLabel))))`;
 		const select = `divChoiceCatalogID, divDpointCatalogID, choiceLabel, isActive, divChoiceSortOrder`;
-		let filter = `divDPointCatalog/org/edhmarketid eq ${marketId} and isActive eq true`;
+		let filter = `divDPointCatalog/org/edhmarketid eq ${marketId} and isActive eq true and divDPointCatalog/dPointCatalog/dSubGroupCatalog/dGroupCatalog/isActive eq true and divDPointCatalog/dPointCatalog/dSubGroupCatalog/isActive eq true and divDPointCatalog/isActive eq true`;
 		let orderby = `divDPointCatalog/dPointCatalog/dSubGroupCatalog/dGroupCatalog/dGroupLabel, divDPointCatalog/dPointCatalog/dSubGroupCatalog/dSubGroupLabel, divDPointCatalog/dPointLabel, choiceLabel`;
 
 		if (tableSort?.sortField)
@@ -138,17 +138,75 @@ export class DivisionalService
 				{
 					let choice = new DivisionalChoice();
 
-					choice.divChoiceCatalogID = c.divChoiceCatalogID;
+					choice.divChoiceCatalogId = c.divChoiceCatalogID;
 					choice.choiceLabel = c.choiceLabel;
 					choice.pointLabel = c.divDPointCatalog.dPointLabel;
 					choice.subGroupLabel = c.divDPointCatalog.dPointCatalog.dSubGroupCatalog.dSubGroupLabel;
 					choice.groupLabel = c.divDPointCatalog.dPointCatalog.dSubGroupCatalog.dGroupCatalog.dGroupLabel;
+					choice.divChoiceCatalogMarketImages$ = this.getDivChoiceCatalogMarketImages(c.divChoiceCatalogID);
+					choice.imageCount = c['divChoiceCatalog_MarketImages@odata.count'] as number;
+					choice.divChoiceCatalogMarketAttributes$ = of([]);
+					choice.divChoiceCatalogMarketLocations$ = of([]);
+					choice.divChoiceCatalogCommunities$ = of([]);
 
 					return choice;
 				});
 
 				return choices;
 			})
+		);
+	}
+
+	getDivChoiceCatalogMarketImages(divChoiceCatalogId: number): Observable<DivChoiceCatalogMarketImage[]>
+	{
+		let url = settings.apiUrl;
+
+		const filter = `divChoiceCatalogID eq ${divChoiceCatalogId}`;
+		const select = `DivChoiceCatalogMarketImageID, divChoiceCatalogID, marketID, imageURL, sortKey`;
+		const orderby = `sortKey`;
+
+		const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}orderby=${encodeURIComponent(orderby)}`;
+
+		url += `divChoiceCatalogMarketImages?${qryStr}`;
+
+		return this._http.get(url).pipe(
+			map(response =>
+			{
+				let dtos = response['value'] as IDivChoiceCatalogMarketImageDto[];
+
+				return dtos.map(dto => new DivChoiceCatalogMarketImage(dto));
+			}),
+			catchError(this.handleError));
+	}
+
+	saveDivChoiceCatalogMarketImages(images: IDivChoiceCatalogMarketImageDto[]): Observable<IDivChoiceCatalogMarketImageDto[]>
+	{
+		// calling unbound odata action 
+		const body = {
+			'marketImages': images
+		};
+
+		const action = `SaveDivChoiceCatalogMarketImages`;
+		const endpoint = `${settings.apiUrl}${action}`;
+
+		return this._http.post<any>(endpoint, body, { headers: { 'Prefer': 'return=representation' } }).pipe(
+			map(response =>
+			{
+				return response.value as Array<IDivChoiceCatalogMarketImageDto>;
+			})
+		);
+	}
+
+	deleteDivChoiceCatalogMarketImages(images: Array<IDivChoiceCatalogMarketImageDto>): Observable<any>
+	{
+		const url = `${settings.apiUrl}DeleteDivChoiceCatalogMarketImages`;
+
+		return this._http.post(url, { imageIds: images.map(x => x.divChoiceCatalogMarketImageID) }).pipe(
+			map(response =>
+			{
+				return response;
+			}),
+			catchError(this.handleError)
 		);
 	}
 

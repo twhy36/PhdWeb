@@ -13,25 +13,31 @@
 							<td [attr.colspan]="columns.length">
 								<div class="div-row-expansion">
 									<phd-tabView orientation="left" styleClass="phd-div-choice-tabview" (onTabClick)="onTabChange($event)">
-										<phd-tabPanel header="Attribute Groups">
+										<phd-tabPanel header="Attribute Groups" [data]="choice.divChoiceCatalogMarketAttributes$">
 											<ng-template>
 												<expansion-choice-attribute-groups-tab-panel></expansion-choice-attribute-groups-tab-panel>
 											</ng-template>
 										</phd-tabPanel>
 
-										<phd-tabPanel header="Location Groups">
+										<phd-tabPanel header="Location Groups" [data]="choice.divChoiceCatalogMarketLocations$">
 											<ng-template>
 												<expansion-choice-location-groups-tab-panel></expansion-choice-location-groups-tab-panel>
 											</ng-template>
 										</phd-tabPanel>
 
-										<phd-tabPanel header="Images">
-											<ng-template>
-												<expansion-choice-images-tab-panel></expansion-choice-images-tab-panel>
+										<phd-tabPanel header="Images" [data]="choice.divChoiceCatalogMarketImages$">
+											<ng-template let-images>
+												<expansion-choice-images-tab-panel [choice]="choice"
+																				   [images]="images"
+																				   [currentMarketId]="currentMarketId"
+																				   [isReadOnly]="isReadOnly"
+																				   (onDataChange)="performChangeDetection()"
+																				   (onAssociateToCommunities)="associateImagesToCommunities($event)">
+												</expansion-choice-images-tab-panel>
 											</ng-template>
 										</phd-tabPanel>
 
-										<phd-tabPanel header="Communities">
+										<phd-tabPanel header="Communities" [data]="choice.divChoiceCatalogCommunities$">
 											<ng-template>
 												<expansion-choice-communities-tab-panel></expansion-choice-communities-tab-panel>
 											</ng-template>
@@ -48,7 +54,7 @@
 					</phd-column>
 					<phd-column columnId="images" width="60px">
 						<ng-template let-choice pTemplate #body>
-							<i class="fa fa-fw fa-image fa-sm" *ngIf="choice.hasImages">
+							<i class="fa fa-fw fa-image fa-sm" *ngIf="choice.imageCount > 0">
 								<span class="phd-img-count">{{choice.imageCount}}</span>
 							</i>
 						</ng-template>

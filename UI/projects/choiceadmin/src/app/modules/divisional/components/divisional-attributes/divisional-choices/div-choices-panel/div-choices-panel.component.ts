@@ -20,6 +20,7 @@ import { ExpansionChoiceCommunitiesTabPanelComponent } from '../expansion-commun
 import { ExpansionChoiceLocationGroupsTabPanelComponent } from '../expansion-location-groups-tab-panel/expansion-location-groups-tab-panel.component';
 import { ExpansionChoiceAttributeGroupsTabPanelComponent } from '../expansion-attribute-groups-tab-panel/expansion-attribute-groups-tab-panel.component';
 import { DivisionalChoice } from '../../../../../shared/models/divisional-catalog.model';
+import { ExpansionChoiceImagesTabPanelComponent } from '../expansion-images-tab-panel/expansion-images-tab-panel.component';
 
 @Component({
 	selector: 'div-choices-panel',
@@ -43,12 +44,16 @@ export class DivChoicesPanelComponent extends UnsubscribeOnDestroy implements On
 	@Output() onAssociateLocationGroups = new EventEmitter<any>();
 	@Output() onAssociateAttributeGroupsToCommunities = new EventEmitter<any>();
 	@Output() onAssociateLocationGroupsToCommunities = new EventEmitter<any>();
+	@Output() onAssociateImagesToCommunities = new EventEmitter<any>();
 
 	@ViewChild(ExpansionChoiceCommunitiesTabPanelComponent)
 	private expansionChoiceCommunitiesTabPanelComponent: ExpansionChoiceCommunitiesTabPanelComponent;
 
 	@ViewChild(ExpansionChoiceLocationGroupsTabPanelComponent)
 	private expansionChoiceLocationGroupsTabPanelComponent: ExpansionChoiceLocationGroupsTabPanelComponent;
+
+	@ViewChild(ExpansionChoiceImagesTabPanelComponent)
+	private expansionChoiceImagesTabPanelComponent: ExpansionChoiceImagesTabPanelComponent;
 
 	@ViewChild(ExpansionChoiceAttributeGroupsTabPanelComponent)
 	private expansionChoiceAttributeGroupsTabPanelComponent: ExpansionChoiceAttributeGroupsTabPanelComponent;
@@ -165,6 +170,11 @@ export class DivChoicesPanelComponent extends UnsubscribeOnDestroy implements On
 		this.onAssociateLocationGroupsToCommunities.emit(event);
 	}
 
+	associateImagesToCommunities(event: any)
+	{
+		this.onAssociateImagesToCommunities.emit(event);
+	}
+
 	performChangeDetection()
 	{
 		this.cd.detectChanges();
@@ -188,7 +198,7 @@ export class DivChoicesPanelComponent extends UnsubscribeOnDestroy implements On
 				if (data.length)
 				{
 					// append new data to the existing list
-					this.choices = unionBy(this.choices, data, 'divChoiceCatalogID');
+					this.choices = unionBy(this.choices, data, 'divChoiceCatalogId');
 					this.filteredChoices = this.choices;
 
 					// apply sort to the full list
@@ -254,6 +264,14 @@ export class DivChoicesPanelComponent extends UnsubscribeOnDestroy implements On
 			}
 		}
 		else if (event.index === 2)
+		{
+			if (this.expansionChoiceImagesTabPanelComponent)
+			{
+				// clear selected images
+				this.expansionChoiceImagesTabPanelComponent.toggleAllImages(false);
+			}
+		}
+		else if (event.index === 3)
 		{
 			if (this.expansionChoiceCommunitiesTabPanelComponent)
 			{
@@ -322,7 +340,7 @@ export class DivChoicesPanelComponent extends UnsubscribeOnDestroy implements On
 
 				let filteredResults = this.filterByKeyword(searchFilter, keyword);
 
-				this.filteredChoices = unionBy(this.filteredChoices, filteredResults, 'divChoiceCatalogID');
+				this.filteredChoices = unionBy(this.filteredChoices, filteredResults, 'divChoiceCatalogId');
 			}
 			else
 			{

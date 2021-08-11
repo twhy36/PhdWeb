@@ -281,14 +281,6 @@ export class DivisionalOptionService
 		);
 	}
 
-	deleteDivisionalOptionImage(id: number): Observable<any>
-	{
-		const entity = `optionMarketImages(${id})`;
-		const endpoint = `${settings.apiUrl}${entity}`;
-
-		return this._http.delete(endpoint);
-	}
-
 	deleteDivisionalOptionImages(optionMarketImages: Array<IOptionMarketImageDto>): Observable<any> {
 		const url = `${settings.apiUrl}DeleteOptionMarketImages`;
 

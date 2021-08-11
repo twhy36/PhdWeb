@@ -20,6 +20,7 @@ import { SearchBarComponent } from '../../../../../shared/components/search-bar/
 import { ExpansionLocationGroupsTabPanelComponent } from '../expansion-location-groups-tab-panel/expansion-location-groups-tab-panel.component';
 import { ExpansionAttributeGroupsTabPanelComponent } from '../expansion-attribute-groups-tab-panel/expansion-attribute-groups-tab-panel.component';
 import { TableLazyLoadEvent, TableSort } from '../../../../../../../../../phd-common/src/lib/components/table/phd-table.model';
+import { ExpansionOptionImagesTabPanelComponent } from '../expansion-option-images-tab-panel/expansion-option-images-tab-panel.component';
 
 @Component({
 	selector: 'divisional-options-panel',
@@ -50,6 +51,9 @@ export class DivisionalOptionsPanelComponent extends UnsubscribeOnDestroy implem
 
 	@ViewChild(ExpansionLocationGroupsTabPanelComponent)
 	private expansionLocationGroupsTabPanelComponent: ExpansionLocationGroupsTabPanelComponent;
+
+	@ViewChild(ExpansionOptionImagesTabPanelComponent)
+	private expansionOptionImagesTabPanelComponent: ExpansionOptionImagesTabPanelComponent;
 
 	@ViewChild(ExpansionAttributeGroupsTabPanelComponent)
 	private expansionAttributeGroupsTabPanelComponent: ExpansionAttributeGroupsTabPanelComponent;
@@ -166,7 +170,8 @@ export class DivisionalOptionsPanelComponent extends UnsubscribeOnDestroy implem
 		this.onAssociateLocationGroupsToCommunities.emit(event);
 	}
 
-	associateOptionImagesToCommunities(event: any) {
+	associateOptionImagesToCommunities(event: any)
+	{
 		this.onAssociateOptionImagesToCommunities.emit(event);
 	}
 
@@ -252,12 +257,20 @@ export class DivisionalOptionsPanelComponent extends UnsubscribeOnDestroy implem
 		}
 		else if (event.index === 1)
 		{
-			if (this.expansionLocationGroupsTabPanelComponent) {
+			if (this.expansionLocationGroupsTabPanelComponent)
+			{
 				// clear selected groups
 				this.expansionLocationGroupsTabPanelComponent.toggleAllGroups(false);
 			}
 		}
 		else if (event.index === 2)
+		{
+			if (this.expansionOptionImagesTabPanelComponent)
+			{
+				this.expansionOptionImagesTabPanelComponent.toggleAllImages(false);
+			}
+		}
+		else if (event.index === 3)
 		{
 			if (this.expansionAssociateCommunitiesTabPanelComponent)
 			{
@@ -278,7 +291,7 @@ export class DivisionalOptionsPanelComponent extends UnsubscribeOnDestroy implem
 	clearFilter()
 	{
 		this.filteredOptions = orderBy(this.options, ['category', 'subCategory', 'optionSalesName']);
-		this.isSearchFilterOn = false;		
+		this.isSearchFilterOn = false;
 
 		this.performChangeDetection();
 	}
@@ -323,7 +336,7 @@ export class DivisionalOptionsPanelComponent extends UnsubscribeOnDestroy implem
 			if (this.allDataLoaded)
 			{
 				this.filteredOptions = [];
-				
+
 				let filteredResults = this.filterByKeyword(searchFilter, keyword);
 
 				this.filteredOptions = unionBy(this.filteredOptions, filteredResults, 'id');
