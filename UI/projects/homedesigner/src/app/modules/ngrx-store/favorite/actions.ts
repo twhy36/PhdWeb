@@ -1,6 +1,6 @@
 import { Action } from '@ngrx/store';
 import { ErrorAction } from '../error.action';
-import { MyFavorite, MyFavoritesChoice, MyFavoritesPointDeclined } from '../../shared/models/my-favorite.model';
+import { MyFavorite, MyFavoritesChoice, MyFavoritesPointDeclined } from 'phd-common';
 import { SalesAgreementLoaded, ResetFavorites } from '../actions';
 
 export enum FavoriteActionTypes

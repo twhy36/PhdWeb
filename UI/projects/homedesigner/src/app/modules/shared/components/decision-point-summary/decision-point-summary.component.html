@@ -51,7 +51,12 @@
 					</div>
 					<div class="phd-divider"></div>
 					<div class="actions d-flex justify-content-between align-items-start">
-						<span *ngIf="selections?.length > 0">{{choice.price * choice.quantity | currency:'USD':'symbol':'0.0-0'}}</span>
+						<ng-container *ngIf="!choice.priceHiddenFromBuyerView">
+							<span *ngIf="selections?.length > 0">{{choice.price * choice.quantity | currency:'USD':'symbol':'0.0-0'}}</span>
+						</ng-container>
+						<ng-container *ngIf="choice.priceHiddenFromBuyerView">
+							<span>Pricing Varies</span>
+						</ng-container>
 					</div>
 				</div>
 			</ng-container>

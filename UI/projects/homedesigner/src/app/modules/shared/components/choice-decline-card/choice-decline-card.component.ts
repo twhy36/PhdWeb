@@ -1,7 +1,6 @@
 import { Component, Input, Output, OnInit, OnChanges, SimpleChanges, EventEmitter, ViewChild } from '@angular/core';
 
-import { UnsubscribeOnDestroy, flipOver3, DecisionPoint, Group, Tree } from 'phd-common';
-import { MyFavoritesPointDeclined } from '../../models/my-favorite.model';
+import { UnsubscribeOnDestroy, flipOver3, DecisionPoint, Group, Tree, MyFavoritesPointDeclined } from 'phd-common';
 import { getDisabledByList } from '../../../shared/classes/tree.utils';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 

@@ -5,10 +5,13 @@ import { Observable, throwError as _throw, of } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import * as _ from 'lodash';
 
-import { withSpinner, createBatch, getNewGuid, createBatchBody, createBatchHeaders, Tree, JobChoice, Choice } from 'phd-common';
+import 
+{ 
+	withSpinner, createBatch, getNewGuid, createBatchBody, createBatchHeaders, Tree, JobChoice, Choice,
+	MyFavorite, MyFavoritesChoice, MyFavoritesChoiceAttribute, MyFavoritesChoiceLocation, MyFavoritesPointDeclined
+} from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
-import { MyFavorite, MyFavoritesChoice, MyFavoritesChoiceAttribute, MyFavoritesChoiceLocation, MyFavoritesPointDeclined } from '../../shared/models/my-favorite.model';
 
 interface ChoiceExt { decisionPointLabel: string, subgroupLabel: string, groupLabel: string };
 

@@ -13,7 +13,7 @@ import
 		ChangeOrderGroup, ChangeOrderChoice, ChangeOrderPlanOption, ChangeOrderChoiceAttribute, ChangeOrderChoiceLocation,
 		JobChoice, JobPlanOption, JobChoiceAttribute, JobChoiceLocation, Job, PlanOption, PointStatus, ConstructionStageTypes,
 		OptionRule, TreeVersionRules, Scenario, SelectedChoice, Tree, Choice, DecisionPoint, MappedAttributeGroup, MappedLocationGroup,
-		OptionImage, SubGroup, Group, applyRules, findChoice
+		OptionImage, SubGroup, Group, applyRules, findChoice, MyFavoritesChoice
 	} from 'phd-common';
 
 import { TreeService } from '../../core/services/tree.service';
@@ -26,6 +26,11 @@ export function isJobChoice(choice: JobChoice | ChangeOrderChoice): choice is Jo
 export function isJobPlanOption(option: JobPlanOption | ChangeOrderPlanOption): option is JobPlanOption
 {
 	return (<any>option).action === undefined;
+}
+
+export function isChangeOrderChoice(choice: JobChoice | ChangeOrderChoice | MyFavoritesChoice): choice is ChangeOrderChoice
+{
+	return (<any>choice).action !== undefined;
 }
 
 function getOptions(choice: JobChoice | ChangeOrderChoice, options: (JobPlanOption | ChangeOrderPlanOption)[]): (JobPlanOption | ChangeOrderPlanOption)[]

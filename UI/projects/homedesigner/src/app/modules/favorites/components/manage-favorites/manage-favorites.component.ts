@@ -5,7 +5,7 @@ import { Store, select } from '@ngrx/store';
 import { ToastrService } from 'ngx-toastr';
 import { NgbModal, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 
-import { UnsubscribeOnDestroy, ConfirmModalComponent } from 'phd-common';
+import { UnsubscribeOnDestroy, ConfirmModalComponent, MyFavorite } from 'phd-common';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromSalesAgreement from '../../../ngrx-store/sales-agreement/reducer';
@@ -14,7 +14,6 @@ import * as FavoriteActions from '../../../ngrx-store/favorite/actions';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 import * as CommonActions from '../../../ngrx-store/actions';
 import { FavoriteService } from '../../../core/services/favorite.service';
-import { MyFavorite } from '../../../shared/models/my-favorite.model';
 
 @Component({
 	selector: 'manage-favorites',

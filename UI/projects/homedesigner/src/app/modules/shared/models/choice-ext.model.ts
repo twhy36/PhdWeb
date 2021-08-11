@@ -1,7 +1,6 @@
 import * as _ from 'lodash';
 
-import { Choice, DesignToolAttribute, ChoiceImageAssoc } from 'phd-common'
-import { MyFavoritesChoice } from './my-favorite.model';
+import { Choice, DesignToolAttribute, ChoiceImageAssoc, MyFavoritesChoice } from 'phd-common'
 
 export class ChoiceExt extends Choice
 {

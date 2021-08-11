@@ -9,7 +9,7 @@ import { of } from 'rxjs/observable/of';
 import { forkJoin } from 'rxjs/observable/forkJoin';
 import * as _ from 'lodash';
 
-import { SpinnerService, ChangeOrderChoice, ChangeOrderGroup, SalesAgreementInfo } from 'phd-common';
+import { SpinnerService, ChangeOrderChoice, ChangeOrderGroup, SalesAgreementInfo, MyFavoritesPointDeclined } from 'phd-common';
 
 import { CommonActionTypes, LoadError, LoadSalesAgreement, SalesAgreementLoaded } from './actions';
 import { tryCatch } from './error.action';
@@ -28,7 +28,6 @@ import { FavoriteService } from '../core/services/favorite.service';
 
 import { State, showSpinner } from './reducers';
 import { setTreePointsPastCutOff, mergeIntoTree } from '../shared/classes/tree.utils';
-import { MyFavoritesPointDeclined } from '../shared/models/my-favorite.model';
 
 @Injectable()
 export class CommonEffects

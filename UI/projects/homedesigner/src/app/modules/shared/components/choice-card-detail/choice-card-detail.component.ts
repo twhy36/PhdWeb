@@ -7,7 +7,11 @@ import { Store, select } from '@ngrx/store';
 
 import * as _ from 'lodash';
 
-import { UnsubscribeOnDestroy, OptionImage, AttributeGroup, Attribute, LocationGroup, Location, DesignToolAttribute, DecisionPoint, Group, Tree } from 'phd-common';
+import 
+{ 
+	UnsubscribeOnDestroy, OptionImage, AttributeGroup, Attribute, LocationGroup, Location, DesignToolAttribute, 
+	DecisionPoint, Group, Tree, MyFavoritesPointDeclined
+} from 'phd-common';
 import { mergeAttributes, mergeLocations, mergeAttributeImages } from '../../../shared/classes/tree.utils';
 import { AttributeService } from '../../../core/services/attribute.service';
 
@@ -20,7 +24,6 @@ import { ChoiceExt } from '../../models/choice-ext.model';
 import { AttributeLocationComponent } from '../attribute-location/attribute-location.component';
 import { AttributeGroupExt, AttributeExt } from '../../models/attribute-ext.model';
 import { getDisabledByList } from '../../../shared/classes/tree.utils';
-import { MyFavoritesPointDeclined } from '../../models/my-favorite.model';
 
 @Component({
 	selector: 'choice-card-detail',

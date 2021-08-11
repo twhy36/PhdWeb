@@ -19,7 +19,7 @@ export class SalesCommunitySelectorComponent implements OnInit
   @Input() optionalFinancialCommunity = true;
   @Output() onMarketChange: EventEmitter<number> = new EventEmitter(true);
   @Output() onSalesCommunityChange: EventEmitter<number> = new EventEmitter(true);
-  @Output() onFinancialCommunityChange: EventEmitter<number> = new EventEmitter(true);
+  @Output() onFinancialCommunityChange: EventEmitter<IFinancialCommunity> = new EventEmitter(true);
 
   specHomesForm: FormGroup;
   marketsControl = new FormControl(null, Validators.required);
@@ -41,8 +41,8 @@ export class SalesCommunitySelectorComponent implements OnInit
 
   FINANCIAL_COMMUNITY_STATUS = {
     WAITING: 'Loading Financial Communities...',
-	READY_OPT: 'Financial Communities (optional)',
-	READY: 'Financial Communities',
+	  READY_OPT: 'Financial Communities (optional)',
+	  READY: 'Financial Communities',
     EMPTY: '0 Financial Communities'
   }
 
@@ -159,7 +159,7 @@ export class SalesCommunitySelectorComponent implements OnInit
       // set local storage
       this._orgService.currentFinancialCommunity = this.selectedFinancialCommunity.number;
       // send new community on up
-      this.onFinancialCommunityChange.emit(this.selectedFinancialCommunity.id);
+      this.onFinancialCommunityChange.emit(this.selectedFinancialCommunity);
     }
   }
 
@@ -219,7 +219,7 @@ export class SalesCommunitySelectorComponent implements OnInit
         // set local storage
         if (this.selectedFinancialCommunity) {
           this._orgService.currentFinancialCommunity = this.selectedFinancialCommunity.number;
-          this.onFinancialCommunityChange.emit(this.selectedFinancialCommunity.id);
+          this.onFinancialCommunityChange.emit(this.selectedFinancialCommunity);
         }
       }
     }

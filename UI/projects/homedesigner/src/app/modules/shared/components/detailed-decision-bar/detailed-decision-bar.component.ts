@@ -1,8 +1,11 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 
-import { UnsubscribeOnDestroy, flipOver2, slideOut, DecisionPoint, JobChoice, PickType, Choice, ChoiceImageAssoc, Group, PointStatus, Tree } from 'phd-common';
+import 
+{ 
+	UnsubscribeOnDestroy, flipOver2, slideOut, DecisionPoint, JobChoice, PickType, Choice, ChoiceImageAssoc, Group,
+	PointStatus, Tree, MyFavoritesChoice, MyFavoritesPointDeclined
+} from 'phd-common';
 import { ChoiceExt } from '../../models/choice-ext.model';
-import { MyFavoritesChoice, MyFavoritesPointDeclined } from '../../models/my-favorite.model';
 
 @Component({
 	selector: 'detailed-decision-bar',

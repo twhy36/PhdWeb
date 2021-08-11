@@ -1,4 +1,4 @@
 <site-menu></site-menu>
 <nav-bar (onSiteMenuToggled)="siteButtonClicked()" [scenarioName]="(scenarioName$ | async)" [groups]="(groups$ | async)"
 	[selectedGroup]="(selectedGroup$ | async)" [scenarioId]="scenarioId$ | async" [isPreview]="isPreview$ | async"
-	[opportunityName]="opportunityName$" [buildMode]='buildMode$ | async'></nav-bar>
+	[isDesignPreviewEnabled]="isDesignPreviewEnabled$ | async" [opportunityName]="opportunityName$" [buildMode]='buildMode$ | async'></nav-bar>

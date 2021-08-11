@@ -25,12 +25,12 @@ import {
 	JobChoice,
 	getDependentChoices,
 	DecisionPoint,
-	ChoiceImageAssoc
+	ChoiceImageAssoc,
+	MyFavoritesChoice, MyFavoritesPointDeclined
 } from 'phd-common';
 
 import { GroupBarComponent } from '../../../shared/components/group-bar/group-bar.component';
 import { NormalExperienceComponent } from './normal-experience/normal-experience.component';
-import { MyFavoritesChoice, MyFavoritesPointDeclined } from '../../../shared/models/my-favorite.model';
 import { ChoiceExt } from '../../../shared/models/choice-ext.model';
 import { TreeService } from '../../../core/services/tree.service';
 

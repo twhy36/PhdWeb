@@ -28,6 +28,7 @@ export * from './lib/models/job-change-order.model';
 export * from './lib/models/job.model';
 export * from './lib/models/lot.model';
 export * from './lib/models/market';
+export * from './lib/models/my-favorite.model';
 export * from './lib/models/note.model';
 export * from './lib/models/opportunity.model';
 export * from './lib/models/option.model';

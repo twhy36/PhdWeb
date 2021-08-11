@@ -3,7 +3,8 @@ export interface IFinancialCommunity
   id: number,
   name?: string,
   number?: string,
-  salesStatusDescription?: string
+  salesStatusDescription?: string,
+  isDesignPreviewEnabled?: boolean
 }
 
 export interface IMarket
@@ -24,6 +25,19 @@ export interface ISalesCommunity
   name: string,
   number: string,
   salesStatusDescription: string
+}
+
+export interface ISalesCommunityWebSiteCommunityAssoc {
+  salesCommunityId: number,
+  webSiteCommunity: IWebSiteCommunity,
+  webSiteCommunityId: number
+}
+
+export interface IWebSiteCommunity {
+  id: number,
+  name: string,
+  orgStatusDescription: string,
+  webSiteIntegrationKey: number
 }
 
 export interface IPlan

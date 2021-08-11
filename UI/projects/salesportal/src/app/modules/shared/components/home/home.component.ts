@@ -15,6 +15,7 @@ export class HomeComponent implements OnInit
 	Permission = Permission;
 	canAccessSalesAdmin: boolean = false;
 	canAccessReports: boolean = false;
+	roles: string[];
 	environment = environment;
 
 	colorManagementAction = { envBaseUrl: 'colorManagement', path: '' };
@@ -33,6 +34,7 @@ export class HomeComponent implements OnInit
 	ngOnInit()
 	{
 		this._identityService.getRoles().subscribe(roles => {
+			this.roles = roles;
 			console.log("Roles: " + roles);
 		});
 

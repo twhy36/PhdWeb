@@ -10,6 +10,8 @@ export interface IEnvironment {
         crm: string;
         salesAdmin: string;
 		designTool: string;
+        designPreview: string;
+        thoPreview: string;
         reports: string;
 		homeSelections: string;
 		salesTally: string;
