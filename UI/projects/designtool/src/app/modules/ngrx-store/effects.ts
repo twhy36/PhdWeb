@@ -120,7 +120,7 @@ export class CommonEffects
 											return this.treeService.getChoiceCatalogIds(job[0].jobChoices).pipe(
 												map(res => {
 													job[0].jobChoices = res;
-
+													
 													return [sc, job, claims, markets];
 												})
 											);

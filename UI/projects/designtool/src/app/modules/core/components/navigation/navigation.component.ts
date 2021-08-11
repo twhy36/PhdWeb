@@ -10,7 +10,6 @@ import { Group } from 'phd-common';
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 import * as fromChangeOrder from '../../../ngrx-store/change-order/reducer';
-
 @Component({
 	selector: 'navigation',
 	templateUrl: 'navigation.component.html',
@@ -28,6 +27,7 @@ export class NavigationComponent implements OnInit
 	groups$: Observable<Observable<Group>[]>;
 	selectedGroup$: Observable<number>;
 	isPreview$: Observable<boolean>;
+	isDesignPreviewEnabled$: Observable<boolean>;
 	opportunityName$: Observable<string>;
 	salesAgreementId$: Observable<number>;
 	buildMode$: Observable<string>;
@@ -73,6 +73,9 @@ export class NavigationComponent implements OnInit
 		this.isPreview$ = this.store.pipe(
 			select(fromScenario.isPreview)
 		);
+
+		this.isDesignPreviewEnabled$ = this.store.pipe(
+			select(fromRoot.isDesignPreviewEnabled));
 
 		this.buildMode$ = this.store.pipe(
 			select(fromScenario.buildMode));

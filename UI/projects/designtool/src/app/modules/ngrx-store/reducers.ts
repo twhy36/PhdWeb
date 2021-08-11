@@ -893,6 +893,14 @@ export const showSpinner = createSelector(
 	}
 );
 
+export const isDesignPreviewEnabled = createSelector(
+	fromJob.jobState,
+	fromOrg.selectOrg,
+	(job, org) => {
+		const financialCommunity = org?.salesCommunity?.financialCommunities.find(f => f.id === job?.financialCommunityId);
+		return financialCommunity ? financialCommunity.isDesignPreviewEnabled : false;
+	}
+);
 
 function mapLocations(choice: Choice, jobElevationChoice: JobChoice, changeOrderElevationChoice: ChangeOrderChoice): Array<string>
 {

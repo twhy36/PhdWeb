@@ -26,7 +26,6 @@ export class OrganizationService
 	{
 		const filter = `number eq ${salesCommunityGuid}`;
 		const url = `${environment.apiUrl}salesCommunities?${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}&${encodeURIComponent('$')}select=id,number`;
-
 		return this._http.get<any>(url).pipe(
 			map(response => response.value[0].id),
 			catchError(error =>
@@ -41,11 +40,11 @@ export class OrganizationService
 	getSalesCommunity(id: number): Observable<SalesCommunity>
 	{
 		const entity = `salesCommunities(${id})`;
-		const expand = `financialCommunities($select=id, name),market($select=id,number)`
-		const select = `id, number, name`;
+		const expand = `financialCommunities($select=id, name, isDesignPreviewEnabled),market($select=id,number)`
+	
+		const select = `id, number, name, isDesignPreviewEnabled`;
 
 		let qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}select=${encodeURIComponent(select)}`;
-
 		const url = `${environment.apiUrl}${entity}?${qryStr}`;
 
 		return this._http.get<SalesCommunity>(url).pipe(
@@ -61,10 +60,9 @@ export class OrganizationService
 	{
 		const entity = `salesCommunities`;
 		const expandFilter = `; $filter=id eq ${id}`;
-		const expand = `financialCommunities($select=id,name,number,city,state,zip${includeFinancialCommunities ? '' : expandFilter}),market($select=id,number)`;
+		const expand = `financialCommunities($select=id,name,number,city,state,zip,isDesignPreviewEnabled${includeFinancialCommunities ? '' : expandFilter}),market($select=id,number)`;
 		const filter = `financialCommunities/any(fc: fc/id eq ${id})`;
 		const select = `id, number, name`;
-
 		let qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
 
 		const url = `${environment.apiUrl}${entity}?${qryStr}`;
