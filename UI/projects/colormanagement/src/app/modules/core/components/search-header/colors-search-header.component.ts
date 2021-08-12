@@ -80,9 +80,10 @@ export class ColorsSearchHeaderComponent
 			.pipe(
 				map((colors) => {
 					let colorsList = colors.map((color) => {
-						let categorySubcategory = this.optionSubCategoryList.find(
-							(x) => x.id === color.edhOptionSubcategoryId
-						);
+						let categorySubcategory =
+							this.optionSubCategoryList.find(
+								(subcategory) => subcategory.id === color.edhOptionSubcategoryId
+							);
 						let colorsDto: IColorDto = {
 							colorId: color.colorId,
 							name: color.name,
@@ -97,11 +98,11 @@ export class ColorsSearchHeaderComponent
 					return colorsList;
 				})
 			)
-			.subscribe((x) => {
+			.subscribe((colorDtos) => {
 				this.currentPage++;
 				this.allDataLoaded =
-					x.length < this.settings.infiniteScrollPageSize;
-				this.colorsDtoList = [...this.colorsDtoList, ...x];
+					colorDtos.length < this.settings.infiniteScrollPageSize;
+				this.colorsDtoList = [...this.colorsDtoList, ...colorDtos];
 			});
 	}
 	filterColors() {
