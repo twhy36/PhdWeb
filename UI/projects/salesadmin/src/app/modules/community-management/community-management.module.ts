@@ -34,7 +34,6 @@ import { CommunitySettingsTabComponent } from './components/community-settings-t
 					{ path: 'auto-approval', component: AutoApprovalComponent },
 					{ path: 'community-pdf', component: CommunityPdfComponent },
 					{ path: 'community-settings', component: CommunitySettingsComponent },
-					// { path: 'community-settings-tab', component: CommunitySettingsTabComponent },
 					{ path: '', redirectTo: 'community-settings', pathMatch: 'full' }
 				]
 			}
