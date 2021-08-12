@@ -10,11 +10,20 @@ import { ColorsSearchHeaderComponent } from './components/search-header/colors-s
 import { OptionService } from './services/option.service';
 import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 import { PhdCommonModule } from 'phd-common';
+import { AddColorSidePanelComponent } from '../shared/components/add-color-side-panel/add-color-side-panel.component';
+import { SidePanelComponent } from '../shared/components/side-panel/side-panel.component';
+import { ConfirmModalComponent } from '../shared/components/confirm-modal/confirm-modal.component';
+
 
 @NgModule({
 	declarations: [
 		MarketSelectorComponent,
-		ColorsSearchHeaderComponent
+		ColorsSearchHeaderComponent,
+		SidePanelComponent,
+		ConfirmModalComponent,
+		SidePanelComponent,
+		ConfirmModalComponent,
+		AddColorSidePanelComponent
 	],
 	imports: [
 		CommonModule,
@@ -24,7 +33,10 @@ import { PhdCommonModule } from 'phd-common';
 	],
 	exports: [
 		MarketSelectorComponent,
-		ColorsSearchHeaderComponent
+		ColorsSearchHeaderComponent,
+		SidePanelComponent,
+		ConfirmModalComponent,
+		AddColorSidePanelComponent
 	],
 	providers: [
 		OrganizationService,
