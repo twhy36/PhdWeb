@@ -10,6 +10,7 @@ import { ColorsSearchHeaderComponent } from './components/search-header/colors-s
 import { OptionService } from './services/option.service';
 import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 import { PhdCommonModule } from 'phd-common';
+import { SettingsService } from './services/settings.service';
 
 @NgModule({
 	declarations: [
@@ -31,7 +32,8 @@ import { PhdCommonModule } from 'phd-common';
 		StorageService,
 		AccessGuard,
 		OptionService,
-		ColorService
+		ColorService,
+		SettingsService
 	]
 })
 
