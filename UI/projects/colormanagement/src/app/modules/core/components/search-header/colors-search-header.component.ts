@@ -20,7 +20,7 @@ export class ColorsSearchHeaderComponent
 {
 	colorname: string = null;
 	isCounterVisible: boolean;
-	optionSubCategory: Array<IOptionSubCategory>;
+	optionSubCategoryList: Array<IOptionSubCategory>;
 	optionSubCategory$: Observable<Array<IOptionSubCategory>>;
 	selectedSubCategory: IOptionSubCategory;
 	colorsDtoList: Array<IColorDto> = [];
@@ -53,8 +53,8 @@ export class ColorsSearchHeaderComponent
 				);
 			})
 		);
-		this.optionSubCategory$.subscribe((x) => {
-			this.optionSubCategory = x;
+		this.optionSubCategory$.subscribe((subcategoryList) => {
+			this.optionSubCategoryList = subcategoryList;
 			this.resetfilter();
 			this.loadColors();
 		});
@@ -80,7 +80,7 @@ export class ColorsSearchHeaderComponent
 			.pipe(
 				map((colors) => {
 					let colorsList = colors.map((color) => {
-						let categorySubcategory = this.optionSubCategory.find(
+						let categorySubcategory = this.optionSubCategoryList.find(
 							(x) => x.id === color.edhOptionSubcategoryId
 						);
 						let colorsDto: IColorDto = {

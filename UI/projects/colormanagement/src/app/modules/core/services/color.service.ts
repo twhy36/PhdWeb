@@ -5,7 +5,6 @@ import { withSpinner } from 'phd-common';
 import { catchError, map } from 'rxjs/operators';
 import { Observable, throwError as _throw } from 'rxjs';
 import { IColor } from '../../shared/models/color.model';
-import { orderBy } from 'lodash';
 
 @Injectable()
 export class ColorService {
