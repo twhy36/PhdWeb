@@ -3,13 +3,17 @@ import { OrganizationService } from '../../../core/services/organization.service
 
 import { UnsubscribeOnDestroy } from '../../../shared/utils/unsubscribe-on-destroy';
 import { ActivatedRoute } from '@angular/router';
+import { environment } from '../../../../../environments/environment';
 import { FinancialCommunityViewModel } from '../../../shared/models/plan-assignment.model';
+import { FinancialCommunity } from '../../../shared/models/financialCommunity.model';
+import { filter, map, switchMap } from 'rxjs/operators';
 import { FinancialCommunityInfo } from '../../../shared/models/financialCommunity.model';
 import { combineLatest, of } from 'rxjs';
-import { switchMap, tap } from 'rxjs/operators';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { FinancialMarket } from '../../../shared/models/financialMarket.model';
+import { SalesCommunity } from '../../../shared/models/salesCommunity.model';
+import { Claims, IdentityService } from 'phd-common';
 
 @Component({
 	selector: 'community-settings-tab',
@@ -18,22 +22,45 @@ import { FinancialMarket } from '../../../shared/models/financialMarket.model';
 })
 export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implements OnInit
 {
+	financialCommunity: FinancialCommunity = null;
 	financialCommunityInfo: FinancialCommunityInfo;
 	selectedCommunity: FinancialCommunityViewModel = null;
+	salesCommunity: SalesCommunity = null;
 	communitySettingsForm: FormGroup;
 	currentMarket: FinancialMarket;
 	orgId: number;
-	canEdit: boolean = false;
-	isSaving: boolean;
+	canEdit = false;
+	isSaving = false;
+	url?: string = null;
+	commmunityLinkEnabledDirty = false;
+	previewEnabledDirty = false;
+	canToggleCommunitySettings = false;
 
 	get saveDisabled(): boolean
 	{
-		return this.communitySettingsForm.pristine || !this.communitySettingsForm.valid || !this.orgId;
+		return !this.orgId
+			|| !this.communitySettingsForm.valid
+			|| (
+				this.communitySettingsForm.pristine
+				&& !this.commmunityLinkEnabledDirty
+				&& !this.previewEnabledDirty
+			);
+	}
+
+	get isCommunityLinkEnabled(): boolean
+	{
+		return this.salesCommunity?.isOnlineSalesCommunityEnabled;
+	}
+
+	get isPreviewEnabled(): boolean
+	{
+		return this.financialCommunity?.isDesignPreviewEnabled;
 	}
 
 	constructor(
 		public _orgService: OrganizationService,
 		private _msgService: MessageService,
+		private _identityService: IdentityService,
 		private _route: ActivatedRoute) { super(); }
 
 	ngOnInit()
@@ -43,6 +70,36 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 		this._orgService.canEdit(this._route.parent.snapshot.data['requiresClaim']).pipe(
 			this.takeUntilDestroyed(),
 		).subscribe(canEdit => this.canEdit = canEdit);
+
+		this._identityService.getClaims().pipe(
+			map((claims: Claims) => !!claims.SalesAdmin)
+		).subscribe(canEdit => this.canToggleCommunitySettings = canEdit);
+
+		this._orgService.currentCommunity$.pipe(
+			this.takeUntilDestroyed(),
+			filter(financialCommunity => !!financialCommunity?.salesCommunityId),
+			switchMap(financialCommunity => this._orgService.getWebsiteCommunity(financialCommunity?.salesCommunityId)),
+			map(websiteCommunity => websiteCommunity?.webSiteIntegrationKey),
+		).subscribe(webSiteIntegrationKey => {
+			this.url = (environment.thoUrl && webSiteIntegrationKey)
+				? environment.thoUrl + webSiteIntegrationKey
+				: null;
+		});
+
+		this._orgService.currentCommunity$.pipe(
+			this.takeUntilDestroyed(),
+			filter(financialCommunity => !!financialCommunity?.salesCommunityId),
+			switchMap(financialCommunity => this._orgService.getSalesCommunity(financialCommunity?.salesCommunityId)),
+		).subscribe(salesCommunity => {
+			this.salesCommunity = salesCommunity;
+		});
+
+		this._orgService.currentCommunity$.pipe(
+			this.takeUntilDestroyed(),
+			filter(financialCommunity => !!financialCommunity),
+		).subscribe(financialCommunity => {
+			this.financialCommunity = financialCommunity;
+		});
 
 		this._orgService.currentMarket$.pipe(
 			this.takeUntilDestroyed(),
@@ -82,6 +139,18 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 		});
 	}
 
+	toggleCommunityLinkEnabled()
+	{
+		this.commmunityLinkEnabledDirty = !this.commmunityLinkEnabledDirty;
+		this.salesCommunity.isOnlineSalesCommunityEnabled = !this.salesCommunity.isOnlineSalesCommunityEnabled;
+	}
+
+	togglePreviewEnabled()
+	{
+		this.previewEnabledDirty = !this.previewEnabledDirty;
+		this.financialCommunity.isDesignPreviewEnabled = !this.financialCommunity.isDesignPreviewEnabled;
+	}
+
 	createForm()
 	{
 		let ecoeMonths = this.financialCommunityInfo ? this.financialCommunityInfo.defaultECOEMonths : null;
@@ -96,6 +165,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 	save()
 	{
 		this.isSaving = true;
+
 		let ecoeMonths = this.communitySettingsForm.get('ecoeMonths').value;
 		let earnestMoney = this.communitySettingsForm.get('earnestMoney').value;
 		if (this.financialCommunityInfo)
@@ -113,10 +183,16 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 			}
 		}
 
-		this._orgService.saveFinancialCommunityInfo(this.financialCommunityInfo, this.orgId)
-			.subscribe(() =>
+		combineLatest([
+			this._orgService.saveFinancialCommunityInfo(this.financialCommunityInfo, this.orgId),
+			this._orgService.saveSalesCommunity(this.salesCommunity),
+			this._orgService.saveFinancialCommunity(this.financialCommunity)
+		]).subscribe(() =>
 			{
 				this.isSaving = false;
+				this.communitySettingsForm.markAsPristine();
+				this.commmunityLinkEnabledDirty = false;
+				this.previewEnabledDirty = false;
 				this._msgService.add({ severity: 'success', summary: 'Community Settings', detail: 'Save successful.' });
 			}, error =>
 			{
