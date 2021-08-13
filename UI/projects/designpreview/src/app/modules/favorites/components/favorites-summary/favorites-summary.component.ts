@@ -1,6 +1,7 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from "@angular/router";
 import { Location } from '@angular/common';
+import { ToastrService } from 'ngx-toastr';
 
 import { combineLatest as combineLatestOperator, take, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { combineLatest }from 'rxjs';
@@ -9,23 +10,29 @@ import * as _ from 'lodash';
 
 import 
 { 
-	UnsubscribeOnDestroy, PriceBreakdown, Group, SDGroup, DecisionPoint, JobChoice, Tree, TreeVersionRules, 
-	SalesAgreement, getDependentChoices 
+	UnsubscribeOnDestroy, PriceBreakdown, SDGroup, SDSubGroup, SDPoint, SDChoice, SDAttributeReassignment, Group, 
+	DecisionPoint, JobChoice, Tree, TreeVersionRules, SalesAgreement, getDependentChoices, ModalService, PDFViewerComponent, 
+	SummaryData, BuyerInfo, PriceBreakdownType
 } from 'phd-common';
+
+import { environment } from '../../../../../environments/environment';
 
 import { Store, select } from '@ngrx/store';
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromPlan from '../../../ngrx-store/plan/reducer';
 import * as fromFavorite from '../../../ngrx-store/favorite/reducer';
 import * as fromSalesAgreement from '../../../ngrx-store/sales-agreement/reducer';
+import * as fromScenario from '../../../ngrx-store/scenario/reducer';
+import { selectSelectedLot } from '../../../ngrx-store/lot/reducer';
+
 import * as NavActions from '../../../ngrx-store/nav/actions';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 import * as FavoriteActions from '../../../ngrx-store/favorite/actions';
 import * as CommonActions from '../../../ngrx-store/actions';
 
-import { selectSelectedLot } from '../../../ngrx-store/lot/reducer';
+import { ReportsService } from '../../../core/services/reports.service';
 
-import { SummaryHeader } from './summary-header/summary-header.component';
+import { SummaryHeader, SummaryHeaderComponent } from './summary-header/summary-header.component';
 
 @Component({
 	selector: 'favorites-summary',
@@ -34,6 +41,8 @@ import { SummaryHeader } from './summary-header/summary-header.component';
 })
 export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 {
+	@ViewChild(SummaryHeaderComponent) summaryHeaderComponent: SummaryHeaderComponent;
+
 	communityName: string = '';
 	planName: string = '';
 	groups: Group[];
@@ -52,7 +61,10 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		private activatedRoute: ActivatedRoute, 
 		private router: Router,
 		private cd: ChangeDetectorRef,
-		private location: Location)
+		private modalService: ModalService,
+		private reportsService: ReportsService,
+		private location: Location,
+		private toastr: ToastrService)
 	{
 		super();
 	}
@@ -84,17 +96,17 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 				}),
 				switchMap(() => combineLatest([
 					this.store.pipe(select(state => state.scenario)),
-					this.store.pipe(select(state => state.favorite))
+					this.store.pipe(select(state => state.favorite)),
+					this.store.pipe(select(fromSalesAgreement.favoriteTitle))
 				]).pipe(take(1))),
 				this.takeUntilDestroyed(),
 				distinctUntilChanged()
 			)
-			.subscribe(([scenario, fav]) =>
+			.subscribe(([scenario, fav, title]) =>
 			{
-				this.tree = scenario.tree;
 				this.isPreview = scenario.buildMode === 'preview';
-				this.treeVersionRules = scenario.rules;
 				this.buildMode = scenario.buildMode;
+				this.summaryHeader.favoritesListName = this.isPreview ? 'Preview Favorites' : title;
 
 				if (this.isPreview)
 				{
@@ -112,13 +124,6 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		).subscribe(favorites => {
 			this.favoritesId = favorites && favorites.id;
 		});
-
-		this.store.pipe(
-			this.takeUntilDestroyed(),
-			select(fromSalesAgreement.favoriteTitle)
-		).subscribe(title => {
-			this.summaryHeader.favoritesListName = title;
-		});			
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
@@ -170,6 +175,14 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		).subscribe(fav => {
 			this.salesChoices = fav && fav.salesChoices;
 			this.includeContractedOptions = fav && fav.includeContractedOptions;
+		});	
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromScenario.selectScenario)
+		).subscribe(scenario => {
+			this.tree = scenario.tree;
+			this.treeVersionRules = scenario.rules;
 		});	
 	}
 
@@ -251,18 +264,134 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		if (favoriteChoices && favoriteChoices.length)
 		{
 			favoriteChoices.forEach(choice => {
-				removedChoices.push({ choiceId: choice.id, quantity: 0, attributes: choice.selectedAttributes });
+				removedChoices.push({ choiceId: choice.id, divChoiceCatalogId: choice.divChoiceCatalogId, quantity: 0, attributes: choice.selectedAttributes });
 
 				const impactedChoices = getDependentChoices(this.tree, this.treeVersionRules, choice);
 
 				impactedChoices.forEach(c =>
 				{
-					removedChoices.push({ choiceId: c.id, quantity: 0, attributes: c.selectedAttributes });
+					removedChoices.push({ choiceId: c.id, divChoiceCatalogId: c.divChoiceCatalogId, quantity: 0, attributes: c.selectedAttributes });
 				});				
 			});
 		}
 
 		this.store.dispatch(new ScenarioActions.SelectChoices(...removedChoices));
 		this.store.dispatch(new FavoriteActions.SaveMyFavoritesChoices());
+	}
+
+	onPrint()
+	{
+		const summaryData = this.compileSummaryData();
+		this.reportsService.getFavoritesSummary(summaryData).subscribe(pdfData =>
+		{
+			let pdfViewer = this.modalService.open(PDFViewerComponent, { backdrop: 'static', windowClass: 'phd-pdf-modal', size: 'lg' });
+
+			pdfViewer.componentInstance.pdfModalTitle = this.summaryHeader.favoritesListName;
+			pdfViewer.componentInstance.pdfData = pdfData;
+			pdfViewer.componentInstance.pdfBaseUrl = `${environment.pdfViewerBaseUrl}`;
+		},
+		error =>
+		{
+			this.toastr.error(`There was an issue generating the favorites summary report.`, 'Error - Print');
+		});
+	}
+
+	compileSummaryData(): SummaryData
+	{
+		let summaryData = {} as SummaryData;
+		let buyerInfo = {} as BuyerInfo;
+		let summaryHeader = this.summaryHeaderComponent;
+
+		summaryData.title = summaryHeader.title;
+		summaryData.images = [{ imageUrl: this.summaryHeader.elevationImageUrl }];
+		summaryData.hasHomesite = false;
+		summaryData.allowEstimates = false;
+		summaryData.priceBreakdown = this.priceBreakdown;
+		summaryData.priceBreakdownTypes = this.compilePriceBreakdownTypes();
+		summaryData.includeImages = false;
+
+		buyerInfo.communityName = this.summaryHeader.communityName;
+		buyerInfo.homesite = `LOT ${this.summaryHeader.lot?.lotBlock}`;
+		buyerInfo.planName = this.summaryHeader.planName;
+		buyerInfo.address = summaryHeader.address;
+
+		summaryData.buyerInfo = buyerInfo;
+
+		summaryData.groups = this.tree?.treeVersion?.groups?.map(g =>
+		{
+			let group = new SDGroup(g);
+
+			group.subGroups = g.subGroups.map(sg =>
+			{
+				let subGroup = new SDSubGroup(sg);
+
+				subGroup.points = sg.points.map(p =>
+				{
+					let point = new SDPoint(p);
+
+					point.choices = p.choices.filter(ch => {
+						const isContracted = this.salesChoices.find(x => x.divChoiceCatalogId === ch.divChoiceCatalogId);
+						return ch.quantity > 0 && (!isContracted || this.includeContractedOptions);
+					}).map(c => new SDChoice(c));
+
+					return point;
+				}).filter(dp => !!dp.choices.length);
+
+				return subGroup;
+			}).filter(sg => !!sg.points.length);
+
+			return group;
+		}).filter(g => !!g.subGroups.length);
+
+		let subGroups = _.flatMap(summaryData.groups, g => g.subGroups);
+		let points = _.flatMap(subGroups, sg => sg.points);
+		let choices = _.flatMap(points, p => p.choices);
+
+		// filter down to just choices with reassignments
+		let choicesWithReassignments = choices.filter(c => c.selectedAttributes && c.selectedAttributes.length > 0 && c.selectedAttributes.some(sa => sa.attributeReassignmentFromChoiceId != null));
+
+		choicesWithReassignments.forEach(choice =>
+		{
+			// return only those selected attributes that are reassignments
+			let selectedAttributes = choice.selectedAttributes.filter(sa => sa.attributeReassignmentFromChoiceId != null);
+
+			selectedAttributes.forEach(sa =>
+			{
+				// find the parent the attribute originally came from
+				let parentChoice = choices.find(c => c.id === sa.attributeReassignmentFromChoiceId);
+
+				// Add where the reassignment landed
+				parentChoice.attributeReassignments.push({ id: choice.id, label: choice.label } as SDAttributeReassignment);
+			});
+		});
+
+		return summaryData;
+	}
+
+	compilePriceBreakdownTypes(): string[]
+	{
+		let types = [];
+
+		if (!this.isPreview)
+		{
+			types.push(PriceBreakdownType.SELECTIONS.toString());
+		}
+
+		if (this.priceBreakdown?.salesProgram)
+		{
+			types.push(PriceBreakdownType.DISCOUNT.toString());
+		}
+
+		if (this.priceBreakdown?.nonStandardSelections)
+		{
+			types.push(PriceBreakdownType.NONSTANDARD.toString());
+		}
+
+		if (this.priceBreakdown?.closingIncentive)
+		{
+			types.push(PriceBreakdownType.CLOSING.toString());
+		}
+
+		return types;
 	}
 }

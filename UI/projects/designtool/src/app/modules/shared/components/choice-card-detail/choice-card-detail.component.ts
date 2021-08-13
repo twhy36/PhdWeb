@@ -2,7 +2,11 @@ import { Component, Input, OnInit, Output, EventEmitter, ViewChildren, QueryList
 import { Store } from '@ngrx/store';
 import { ReplaySubject } from 'rxjs';
 
-import { UnsubscribeOnDestroy, AttributeGroup, DesignToolAttribute, LocationGroup, Choice, ChoiceImageAssoc, OptionImage } from 'phd-common';
+import 
+{ 
+	UnsubscribeOnDestroy, AttributeGroup, DesignToolAttribute, LocationGroup, Choice, ChoiceImageAssoc, 
+	OptionImage, ModalService 
+} from 'phd-common';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
@@ -12,7 +16,6 @@ import { AttributeLocationComponent } from '../attribute-location/attribute-loca
 import { ModalOverrideSaveComponent } from '../../../core/components/modal-override-save/modal-override-save.component';
 import { MonotonyConflict } from '../../models/monotony-conflict.model';
 import { AttributeGroupComponent } from '../attribute-group/attribute-group.component';
-import { ModalService } from '../../../core/services/modal.service';
 
 @Component({
 	selector: 'choice-card-detail',

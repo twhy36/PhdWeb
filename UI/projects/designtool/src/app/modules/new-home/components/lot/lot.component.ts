@@ -6,7 +6,7 @@ import { combineLatest, map, filter, take, withLatestFrom } from 'rxjs/operators
 
 import {
 	UnsubscribeOnDestroy, flipOver, FinancialCommunity, ChangeOrderHanding, Job, Lot, ViewAdjacency, Handing,
-	PhysicalLotType, PlanAssociation, MonotonyRuleLot, SalesPhase, Plan, Scenario, Choice
+	PhysicalLotType, PlanAssociation, MonotonyRuleLot, SalesPhase, Plan, Scenario, Choice, ModalService
 } from 'phd-common';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
@@ -22,7 +22,6 @@ import * as fromJobs from '../../../ngrx-store/job/reducer';
 import { ActionBarCallType } from '../../../shared/classes/constants.class';
 import { ModalOverrideSaveComponent } from '../../../core/components/modal-override-save/modal-override-save.component';
 import { selectSelectedLot } from '../../../ngrx-store/lot/reducer';
-import { ModalService } from '../../../core/services/modal.service';
 import { NewHomeService } from '../../services/new-home.service';
 
 @Component({

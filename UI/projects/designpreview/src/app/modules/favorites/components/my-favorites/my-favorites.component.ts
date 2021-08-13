@@ -288,11 +288,11 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 
 	toggleChoice(choice: ChoiceExt)
 	{
-		let selectedChoices = [{ choiceId: choice.id, quantity: !choice.quantity ? 1 : 0, attributes: choice.selectedAttributes }];
+		let selectedChoices = [{ choiceId: choice.id, divChoiceCatalogId: choice.divChoiceCatalogId, quantity: !choice.quantity ? 1 : 0, attributes: choice.selectedAttributes }];
 		const impactedChoices = getDependentChoices(this.tree, this.treeVersionRules, choice);
 		impactedChoices.forEach(c =>
 		{
-			selectedChoices.push({ choiceId: c.id, quantity: 0, attributes: c.selectedAttributes });
+			selectedChoices.push({ choiceId: c.id, divChoiceCatalogId: c.divChoiceCatalogId, quantity: 0, attributes: c.selectedAttributes });
 		});
 
 		if (choice.quantity === 0) {
@@ -320,13 +320,13 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		const pointDeclined = points.find(p => p.divPointCatalogId === declinedPointCatalogId);
 
 		pointDeclined?.choices?.forEach(c => {
-			deselectedChoices.push({ choiceId: c.id, quantity: 0, attributes: [] });
+			deselectedChoices.push({ choiceId: c.id, divChoiceCatalogId: c.divChoiceCatalogId, quantity: 0, attributes: [] });
 
 			const impactedChoices = getDependentChoices(this.tree, this.treeVersionRules, c);
 
 			impactedChoices.forEach(ch =>
 			{
-				deselectedChoices.push({ choiceId: ch.id, quantity: 0, attributes: ch.selectedAttributes });
+				deselectedChoices.push({ choiceId: ch.id, divChoiceCatalogId: ch.divChoiceCatalogId, quantity: 0, attributes: ch.selectedAttributes });
 			});
 		});
 

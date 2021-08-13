@@ -320,7 +320,13 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		{
 			this.choice.quantity = 1;
 		}
-		this.store.dispatch(new ScenarioActions.SelectChoices({ choiceId: this.choice.id, quantity: this.choice.quantity, attributes: this.choice.selectedAttributes }));
+		this.store.dispatch(
+			new ScenarioActions.SelectChoices({ 
+				choiceId: this.choice.id, 
+				divChoiceCatalogId: this.choice.divChoiceCatalogId, 
+				quantity: this.choice.quantity, 
+				attributes: this.choice.selectedAttributes 
+			}));
 		this.store.dispatch(new ScenarioActions.SetStatusForPointsDeclined(this.myFavoritesPointsDeclined.map(dp => dp.divPointCatalogId), false));
 		this.store.dispatch(new FavoriteActions.SaveMyFavoritesChoices());
 	}
@@ -537,7 +543,13 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 
 		const totalQuantity = this.getTotalQuantiy();
 		this.choice.quantity = this.choice.quantity > 0 && totalQuantity === 0 ? 1 : totalQuantity;
-		this.store.dispatch(new ScenarioActions.SelectChoices({ choiceId: this.choice.id, quantity: this.choice.quantity, attributes: this.choice.selectedAttributes }));
+		this.store.dispatch(
+			new ScenarioActions.SelectChoices({ 
+				choiceId: this.choice.id,
+				divChoiceCatalogId: this.choice.divChoiceCatalogId, 
+				quantity: this.choice.quantity, 
+				attributes: this.choice.selectedAttributes 
+			}));
 		this.store.dispatch(new FavoriteActions.SaveMyFavoritesChoices());
 	}
 

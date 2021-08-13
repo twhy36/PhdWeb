@@ -5,7 +5,7 @@
 			<span class="align-self-center">Home Page</span>
 		</div>
 
-		<div *ngIf="showPrint" class="d-flex phd-clickable">
+		<div *ngIf="showPrint" class="d-flex phd-clickable" (click)="onPrint()">
 			<i class="fa fa-print fa-2x"></i>
 			<span class="align-self-center">Print</span>
 		</div>

@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, from as fromPromise } from 'rxjs';
-import { ModalRef } from 'phd-common';
-import { ModalService } from './modal.service';
+import { ModalRef, ModalService } from 'phd-common';
 
 @Injectable()
 export class AlertService

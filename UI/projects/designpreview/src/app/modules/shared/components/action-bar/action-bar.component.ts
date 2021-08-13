@@ -23,6 +23,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit
 	@Input() showPrint = false;
 
 	@Output() callToAction = new EventEmitter<{ actionBarCallType: ActionBarCallType }>();
+	@Output() onPrintAction = new EventEmitter();
 
 	autoHideTimer: any;
 	isActionBarHidden = false;
@@ -72,5 +73,10 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit
 
 	onHomePage() {
 		this.router.navigateByUrl('/home');
+	}
+
+	onPrint() 
+	{
+		this.onPrintAction?.emit();
 	}
 }

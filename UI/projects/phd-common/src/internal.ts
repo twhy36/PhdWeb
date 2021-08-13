@@ -2,6 +2,8 @@
 export * from './lib/components/build-version/build-version.component';
 export * from './lib/components/confirm-modal/confirm-modal.component';
 export * from './lib/components/error-message/error-message.component';
+export * from './lib/components/modal/modal.component';
+export * from './lib/components/pdf-viewer/pdf-viewer.component';
 export * from './lib/components/side-panel/side-panel.component';
 export * from './lib/components/spinner/spinner.component';
 export * from './lib/components/table/phd-column.directive';
@@ -55,9 +57,11 @@ export * from './lib/services/browser.service';
 export * from './lib/services/identity.service';
 export * from './lib/services/interceptors/spinner.interceptor';
 export * from './lib/services/spinner.service';
+export * from './lib/services/modal.service';
 
 //utils
 export * from './lib/utils/animations.class';
+export * from './lib/utils/constants.class';
 export * from './lib/utils/default-on-not-found';
 export * from './lib/utils/guid.class';
 export * from './lib/utils/jsUtils.class';

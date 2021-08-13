@@ -9,7 +9,7 @@ import * as _ from 'lodash';
 
 import {
 	UnsubscribeOnDestroy, flipOver, ModalRef, ScenarioStatusType, PriceBreakdown, TreeFilter, SubGroup,
-	DecisionPoint, Choice, loadScript, unloadScript
+	DecisionPoint, Choice, loadScript, unloadScript, ModalService
 } from 'phd-common';
 
 import * as fromRoot from '../../../../ngrx-store/reducers';
@@ -21,7 +21,6 @@ import { DecisionPointFilterType } from '../../../../shared/models/decisionPoint
 import { environment } from '../../../../../../environments/environment';
 import { JobService } from '../../../../core/services/job.service';
 import { ScenarioService } from '../../../../core/services/scenario.service';
-import { ModalService } from '../../../../core/services/modal.service';
 
 declare var AVFloorplan: any;
 

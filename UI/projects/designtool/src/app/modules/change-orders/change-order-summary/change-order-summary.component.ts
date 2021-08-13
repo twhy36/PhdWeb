@@ -6,6 +6,8 @@ import { FormGroup, FormControl, Validators, AbstractControl, ValidatorFn } from
 import { combineLatest, switchMap, withLatestFrom, take, finalize } from 'rxjs/operators';
 import { Observable } from 'rxjs/Observable';
 
+import { environment } from '../../../../environments/environment';
+
 import * as fromRoot from '../../ngrx-store/reducers';
 import * as JobActions from '../../ngrx-store/job/actions';
 import * as ChangeOrderActions from '../../ngrx-store/change-order/actions';
@@ -16,15 +18,17 @@ import * as fromUser from '../../ngrx-store/user/reducer';
 import * as fromSalesAgreement from '../../ngrx-store/sales-agreement/reducer';
 import * as fromJob from '../../ngrx-store/job/reducer';
 
-import { UnsubscribeOnDestroy, ModalRef, ESignStatusEnum, ESignTypeEnum, ChangeOrderGroup, ChangeTypeEnum, ChangeInput, SalesStatusEnum, Job } from 'phd-common';
+import 
+{ 
+	UnsubscribeOnDestroy, ModalRef, ESignStatusEnum, ESignTypeEnum, ChangeOrderGroup, ChangeTypeEnum, 
+	ChangeInput, SalesStatusEnum, Job, PDFViewerComponent, ModalService
+} from 'phd-common';
 
 import { ChangeOrderService } from '../../core/services/change-order.service';
-import { PDFViewerComponent } from '../../shared/components/pdf-viewer/pdf-viewer.component';
 import { ContractService } from '../../core/services/contract.service';
 
 import * as _ from 'lodash';
 import { LotsLoaded, LotActionTypes } from '../../ngrx-store/lot/actions';
-import { ModalService } from '../../core/services/modal.service';
 import { convertDateToUtcString } from "../../shared/classes/date-utils.class";
 
 @Component({
@@ -1039,6 +1043,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 
 				pdfViewer.componentInstance.pdfModalTitle = 'Change Order PDF';
 				pdfViewer.componentInstance.pdfData = pdfObjectUrl;
+				pdfViewer.componentInstance.pdfBaseUrl = `${environment.pdfViewerBaseUrl}`;
 			});
 	}
 

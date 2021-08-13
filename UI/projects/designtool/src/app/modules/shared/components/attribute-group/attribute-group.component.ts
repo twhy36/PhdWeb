@@ -4,7 +4,7 @@ import { Store } from '@ngrx/store';
 
 import * as _ from 'lodash';
 
-import { UnsubscribeOnDestroy, ModalRef, Attribute, AttributeGroup, DesignToolAttribute } from 'phd-common';
+import { UnsubscribeOnDestroy, ModalRef, ModalService, Attribute, AttributeGroup, DesignToolAttribute } from 'phd-common';
 
 import { AttributeListComponent } from '../attribute-list/attribute-list.component';
 
@@ -16,7 +16,6 @@ import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 
 import { ModalOverrideSaveComponent } from '../../../core/components/modal-override-save/modal-override-save.component';
 import { MonotonyConflict } from '../../models/monotony-conflict.model';
-import { ModalService } from '../../../core/services/modal.service';
 
 @Component({
 	selector: 'attribute-group',

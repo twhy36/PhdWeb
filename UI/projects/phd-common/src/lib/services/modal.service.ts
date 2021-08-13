@@ -4,10 +4,9 @@ import { from } from 'rxjs/observable/from';
 import { map } from 'rxjs/operators';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
-import { ModalOptions, ModalRef, IModalOptions } from 'phd-common';
-
-import { ModalMessages } from '../../shared/classes/constants.class';
-import { ModalComponent } from './../components/modal/modal.component';
+import { ModalOptions, ModalRef, IModalOptions } from '../utils/modal.class';
+import { ModalMessages } from '../utils/constants.class';
+import { ModalComponent } from '../components/modal/modal.component';
 
 @Injectable()
 export class ModalService

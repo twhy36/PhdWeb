@@ -10,4 +10,5 @@ export interface IEnvironment
 	appInsights: any;
 	cloudinary: CloudinaryConfiguration;
 	alphavision: { builderId: string };
+	pdfViewerBaseUrl: string;
 }

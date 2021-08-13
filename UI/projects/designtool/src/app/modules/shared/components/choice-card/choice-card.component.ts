@@ -10,7 +10,7 @@ import { Store, select } from '@ngrx/store';
 import
 	{
 		UnsubscribeOnDestroy, flipOver3, ModalRef, LocationGroup, AttributeGroup, DesignToolAttribute, ChangeTypeEnum, ChangeOrderGroup,
-		LotExt, Plan, Choice, OptionImage, DecisionPoint, ChoiceImageAssoc
+		LotExt, Plan, Choice, OptionImage, DecisionPoint, ChoiceImageAssoc, ModalService
 	} from 'phd-common';
 
 import { MonotonyConflict } from '../../models/monotony-conflict.model';
@@ -28,7 +28,6 @@ import * as fromRoot from '../../../ngrx-store/reducers';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 
 import * as _ from 'lodash';
-import { ModalService } from '../../../core/services/modal.service';
 import { selectedPlanData } from '../../../ngrx-store/plan/reducer';
 import { TreeService } from '../../../core/services/tree.service';
 

@@ -201,7 +201,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 
 			for (let choice of action.choices)
 			{
-				let c = choices.find(ch => ch.id === choice.choiceId);
+				let c = choices.find(ch => ch.id === choice.choiceId || ch.divChoiceCatalogId === choice.divChoiceCatalogId);
 				if (c)
 				{
 					c.quantity = choice.quantity;

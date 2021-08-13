@@ -7,7 +7,7 @@ import * as _ from "lodash";
 
 import {
 	UnsubscribeOnDestroy, IdentityService, ChangeTypeEnum, Job, Lot, PointStatus,
-	Group, DecisionPoint, BrowserService
+	Group, DecisionPoint, BrowserService, ModalService
 } from 'phd-common';
 
 import * as fromLot from '../../../ngrx-store/lot/reducer';
@@ -17,7 +17,6 @@ import * as NavActions from '../../../ngrx-store/nav/actions';
 import * as fromJob from '../../../ngrx-store/job/reducer';
 import { LotService } from '../../services/lot.service';
 
-import { ModalService } from '../../../core/services/modal.service';
 import { ConfirmModalComponent } from '../../../core/components/confirm-modal/confirm-modal.component';
 import { environment } from '../../../../../environments/environment';
 

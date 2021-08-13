@@ -282,7 +282,9 @@ export enum PriceBreakdownType
 	DESIGN,
 	DISCOUNT,
 	CLOSING,
-	CLOSINGCOSTADJUSTMENT
+	CLOSINGCOSTADJUSTMENT,
+	SELECTIONS,
+	NONSTANDARD
 }
 
 export enum ScenarioStatusType

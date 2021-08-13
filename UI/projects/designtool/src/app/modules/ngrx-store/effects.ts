@@ -7,7 +7,7 @@ import * as _ from 'lodash';
 
 import {
 	SalesCommunity, ChangeOrderChoice, ChangeOrderGroup, Job, IMarket, SalesAgreementInfo, DecisionPoint, Choice,
-	IdentityService, SpinnerService, Claims, Permission, MyFavorite
+	IdentityService, SpinnerService, Claims, Permission, MyFavorite, ModalService
 } from 'phd-common';
 
 import { CommonActionTypes, LoadScenario, LoadError, ScenarioLoaded, LoadSalesAgreement, SalesAgreementLoaded, LoadSpec, JobLoaded, ESignEnvelopesLoaded } from './actions';
@@ -23,7 +23,6 @@ import { of } from 'rxjs/observable/of';
 import { combineLatest } from 'rxjs/observable/combineLatest';
 import { setTreePointsPastCutOff, mergeIntoTree, updateWithNewTreeVersion, mapAttributes } from '../shared/classes/tree.utils';
 import { JobService } from '../core/services/job.service';
-import { ModalService } from '../core/services/modal.service';
 import { PlanService } from '../core/services/plan.service';
 import { OpportunityService } from '../core/services/opportunity.service';
 import { LoadPlans, PlansLoaded, PlanActionTypes } from './plan/actions';

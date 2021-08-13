@@ -3,7 +3,8 @@ import { Store, select } from '@ngrx/store';
 import { combineLatest, withLatestFrom } from 'rxjs/operators';
 
 import {
-	UnsubscribeOnDestroy, ChangeOrderHanding, Job, Lot, LotExt, Plan, TreeVersion, DecisionPoint
+	UnsubscribeOnDestroy, ChangeOrderHanding, Job, Lot, LotExt, Plan, TreeVersion, DecisionPoint,
+	ModalService
 } from 'phd-common';
 
 import * as fromRoot from '../../ngrx-store/reducers';
@@ -16,7 +17,6 @@ import { ModalOverrideSaveComponent } from '../../core/components/modal-override
 import { LotService } from '../../core/services/lot.service';
 
 import * as _ from 'lodash';
-import { ModalService } from '../../core/services/modal.service';
 
 @Component({
 	selector: 'lot-transfer',

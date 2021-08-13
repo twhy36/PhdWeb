@@ -1,11 +1,10 @@
 import { Component, OnInit, ViewChild, ElementRef, Input, TemplateRef, Output, EventEmitter } from '@angular/core';
 import { SafeResourceUrl, DomSanitizer } from '@angular/platform-browser';
 
-import { environment } from '../../../../../environments/environment';
-import { ModalContent } from 'phd-common';
-
 import { interval } from 'rxjs';
-import { startWith, skipWhile, take, tap } from 'rxjs/operators';
+import { startWith, skipWhile, take } from 'rxjs/operators';
+
+import { ModalContent } from '../../utils/modal.class';
 
 @Component({
 	selector: 'pdf-viewer',
@@ -17,11 +16,10 @@ export class PDFViewerComponent extends ModalContent implements OnInit
 	@Input() pdfModalTitle: string = '';
 	@Input() pdfQueryString: string;
 	@Input() pdfData: any;
+	@Input() pdfBaseUrl: string;
 
 	@Output() onAfterPrint = new EventEmitter();
 	@Output() onAfterClose = new EventEmitter();
-
-	pdfBaseUrl: string = `${environment.pdfViewerBaseUrl}`;
 
 	@ViewChild('iframe', { static: true }) pdfIframe: ElementRef; // available for onInit else without static, it will break.
 	@ViewChild('footerTemplate', { static: true }) footerTemplate: TemplateRef<any>;

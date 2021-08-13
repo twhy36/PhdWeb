@@ -94,6 +94,7 @@ export class FavoriteEffects
 
 							return {
 								choiceId: c.dpChoiceId,
+								divChoiceCatalogId: c.divChoiceCatalogId,
 								quantity: c.dpChoiceQuantity,
 								attributes: attributes
 							};
@@ -135,6 +136,7 @@ export class FavoriteEffects
 							let choices = fav.myFavoritesChoice.map(c => {
 								return {
 									choiceId: c.dpChoiceId,
+									divChoiceCatalogId: c.divChoiceCatalogId,
 									quantity: 0,
 									attributes: []
 								};
