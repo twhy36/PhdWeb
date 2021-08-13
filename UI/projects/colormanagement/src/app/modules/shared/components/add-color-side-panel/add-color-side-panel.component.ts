@@ -150,13 +150,4 @@ export class AddColorSidePanelComponent implements OnInit {
 	{
 		this.sidePanel.toggleSidePanel();
 	}
-
-	checkHiddenStatus() {
-		if (!this.catalogForm.get('isHiddenFromBuyerView').value && this.catalogForm.get('priceHiddenFromBuyerView').value) {
-			this.catalogForm.get('priceHiddenFromBuyerView').setValue(false);
-		} else if (!this.catalogForm.get('priceHiddenFromBuyerView').value && this.catalogForm.get('isHiddenFromBuyerView').value) {
-			this.catalogForm.get('isHiddenFromBuyerView').setValue(false);
-		}
-	}
-
 }
