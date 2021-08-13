@@ -21,17 +21,8 @@ export class AddColorSidePanelComponent implements OnInit {
 
 	@Output() onSidePanelClose = new EventEmitter<boolean>();
 
-	isOpen: boolean = true;
-	isAdd: boolean;
-	catalogForm: FormGroup;
-	maxLabels: number = 10;
 	sidePanelHeader: string = '';
 	sidePanelSubheader: string = '';
-
-	get showPlus(): boolean
-	{
-		return (<FormArray>this.catalogForm.get('labelArray')).length < this.maxLabels;
-	}
 
 	get disableIsDefault(): boolean
 	{
@@ -48,60 +39,19 @@ export class AddColorSidePanelComponent implements OnInit {
 		return true;
 	}
 
-	get labelArray(): FormArray
-	{
-		return <FormArray>this.catalogForm.get('labelArray');
-	}
-
 	get canSave(): boolean
 	{
-		let canSave = this.catalogForm.pristine || !this.catalogForm.valid || this.isSaving;
-
-		if (this.sidePanel)
-		{
-			// make panel dirty if at least one label input has a value
-			if (this.isAdd)
-			{
-				this.sidePanel.isDirty = this.labelArray.controls.some(c => c.value && (<string>c.value).trim().length > 0);
-			}
-			else
-			{
-				this.sidePanel.isDirty = !canSave;
-			}
-		}
-
-		return canSave;
+		return true;
 	}
 
 	constructor() { }
 
 	ngOnInit()
 	{
-		this.isAdd = true;
 		this.sidePanelHeader = 'Add Color';
 		this.sidePanelSubheader = this.getSidePanelSubheader();
 
 		this.createForm();
-
-		if (this.isAdd)
-		{
-			// re-validate array of label inputs whenever one changes
-			this.catalogForm.get('labelArray').valueChanges.subscribe((labels: Array<string>) =>
-			{
-				if (labels.some(l => l && l.trim().length > 0))
-				{
-					// remove required validation if at least one label input has a value
-					(<FormArray>this.catalogForm.get('labelArray')).controls.forEach(c => c.clearValidators());
-				}
-				else
-				{
-					// add required validation when no label inputs have a value
-					(<FormArray>this.catalogForm.get('labelArray')).controls.forEach(c => c.setValidators(Validators.required));
-				}
-
-				(<FormArray>this.catalogForm.get('labelArray')).controls.forEach(c => c.updateValueAndValidity({ onlySelf: true }));
-			});
-		}
 	}
 
 	getSidePanelSubheader(): string
@@ -116,14 +66,7 @@ export class AddColorSidePanelComponent implements OnInit {
 
 	onAddChoice(tabIndex?: number)
 	{
-		const labelArray = <FormArray>this.catalogForm.get('labelArray');
 
-		if (this.showPlus && (tabIndex === undefined || (tabIndex === labelArray.length - 1)))
-		{
-			const control = new FormControl(null, Validators.required, this.labelValidator.bind(this));
-
-			labelArray.push(control);
-		}
 	}
 
 	/**
@@ -141,13 +84,9 @@ export class AddColorSidePanelComponent implements OnInit {
 
 	}
 
-	onCloseSidePanel(status: boolean)
+	onCloseSidePanel()
 	{
-		this.onSidePanelClose.emit(status);
-	}
-
-	toggleSidePanel()
-	{
-		this.sidePanel.toggleSidePanel();
+		this.sidePanelOpen = false;
+		this.onSidePanelClose.emit(this.sidePanelOpen);
 	}
 }

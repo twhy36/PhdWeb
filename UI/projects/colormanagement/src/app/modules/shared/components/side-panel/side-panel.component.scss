@@ -1,7 +1,7 @@
 @import "../../../../../scss/color-pallet.scss";
 @import "../../../../../scss/sizes.scss";
 
-.colormgmt-side-panel {
+.phd-side-panel {
 	display:flex;
 	flex-flow: column;
 	position: absolute;
@@ -15,7 +15,7 @@
 	left: -$side-panel-width;
 	z-index: 100;
 
-	.colormgmt-side-panel-header {
+	.phd-side-panel-header {
 		display: table;
 		table-layout: fixed;
 		flex: 0 0 auto;
@@ -31,7 +31,7 @@
 		}
 	}
 
-	.colormgmt-side-panel-subheader {
+	.phd-side-panel-subheader {
 		::ng-deep .phd-side-panel-subheader-text {
 			font-weight: bold;
 			border-bottom: 1px solid black;
@@ -40,13 +40,13 @@
 		}
 	}
 
-	.colormgmt-side-panel-body {
+	.phd-side-panel-body {
 		margin: 10px;
 		flex: 1;
 		overflow:auto;
 	}
 
-	.colormgmt-side-panel-footer {
+	.phd-side-panel-footer {
 		min-height: 60px;
 		bottom: 0;
 		left: 0;
@@ -56,7 +56,7 @@
 	}
 }
 
-.colormgmt-side-panel-open {
+.phd-side-panel-open {
 	margin-left: $side-panel-width;
 }
 

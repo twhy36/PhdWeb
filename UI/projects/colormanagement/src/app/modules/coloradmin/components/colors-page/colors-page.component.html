@@ -1,1 +1,2 @@
-<colors-search-header></colors-search-header>
+<add-color-side-panel *ngIf="sidePanelOpen" [sidePanelOpen]="sidePanelOpen" (onSidePanelClose)="toggleSidePanel(false)" ></add-color-side-panel>
+<colors-search-header (sidePanelWasToggled)="toggleSidePanel($event)" ></colors-search-header>

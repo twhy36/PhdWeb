@@ -1,4 +1,4 @@
-import { Component, OnInit, TemplateRef } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { OptionService } from '../../services/option.service';
 import { IOptionSubCategory } from '../../../shared/models/option.model';
 import { OrganizationService } from '../../../core/services/organization.service';
@@ -9,7 +9,7 @@ import { IColorDto } from '../../../shared/models/color.model';
 import { ColorService } from '../../services/color.service';
 import { SettingsService } from '../../services/settings.service';
 import { Settings } from '../../../shared/models/settings.model';
-import { ContentChild } from '@angular/core';
+
 @Component({
 	selector: 'colors-search-header',
 	templateUrl: './colors-search-header.component.html',
@@ -20,7 +20,7 @@ export class ColorsSearchHeaderComponent
 	implements OnInit
 {
 
-	sidePanelOpen: boolean = false;
+	@Output() sidePanelWasToggled = new EventEmitter<boolean>();
 	colorname: string = null;
 	isCounterVisible: boolean;
 	optionSubCategory: Array<IOptionSubCategory>;
@@ -124,8 +124,9 @@ export class ColorsSearchHeaderComponent
 		this.colorsDtoList = [];
 	}
 
-	showAddColorsDialog(): boolean {
-		this.sidePanelOpen = true;
+	openSidePanel(): boolean {
+		console.log(`Add color link was clicked in search header`);
+		this.sidePanelWasToggled.emit(true);
 		return false;
 	}
 }

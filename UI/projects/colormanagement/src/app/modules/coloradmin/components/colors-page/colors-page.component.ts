@@ -7,5 +7,10 @@ import {Component} from '@angular/core'
 })
 export class ColorsPageComponent
 {
+	sidePanelOpen: boolean = false;
 
+	toggleSidePanel(isOpen: boolean) {
+		console.log(`Event was received in ColorsPage - ${isOpen}`);
+		this.sidePanelOpen = isOpen;
+	}
 }

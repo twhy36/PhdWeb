@@ -32,20 +32,20 @@
     </div>
 </div>
 <div *ngIf="isCounterVisible"><span class="count_message"><em>{{50 - colorname?.length}} characters remaining</em></span> </div>
-<div>
-    <span class="mx-2">
-        <a href="" (click)="showAddColorsDialog()">Add Color</a>
-    </span>
-    |
-    <span class="mx-2">
-        <a href="">Copy Color List</a>
-    </span>
-</div>
-
 
 <div class="phd-table-container mx-2" infiniteScroll [infiniteScrollThrottle]="settings.infiniteScrollThrottle" [infiniteScrollDisabled]="allDataLoaded" (scrolled)="onPanelScroll()" [scrollWindow]="false">
-
-	<phd-table #dt [value]="colorsDtoList" showCaption="true">
+	<phd-table #dt [value]="colorsDtoList" showCaption="true" >
+		<ng-template #tableHeader>
+			<div class="float-right">
+				<span class="mx-2">
+					<a href="" (click)="openSidePanel()">Add Color</a>
+				</span>
+				|
+				<span class="mx-2">
+					<a href="">Copy Color List</a>
+				</span>
+			</div>
+		</ng-template>
         <phd-column header="Color Name" field="name"></phd-column>
         <phd-column header="Sku" field="sku"></phd-column>
         <phd-column header="Category Name" field="optionCategoryName"></phd-column>

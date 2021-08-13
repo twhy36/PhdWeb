@@ -1,33 +1,20 @@
-<div
-	class="colormgmt-side-panel"
-	[class.phd-side-panel-open]="sidePanelOpen"
-	[ngClass]="customClasses"
->
-	<div class="colormgmt-side-panel-header" *ngIf="headerTemplate">
-		<button
-			type="button"
-			class="close pull-right"
-			aria-label="Close"
-			(click)="toggleSidePanel()"
-		>
-			<span aria-hidden="true">&times;</span>
-		</button>
+<div class="phd-side-panel" [class.phd-side-panel-open]="sidePanelOpen" [ngClass]="customClasses">
+
+	<div class="phd-side-panel-header" *ngIf="headerTemplate">
+		<button type="button" class="close pull-right" aria-label="Close" (click)="toggleSidePanel();"><span aria-hidden="true">&times;</span></button>
 
 		<ng-container *ngTemplateOutlet="headerTemplate"></ng-container>
 	</div>
 
-	<div class="colormgmt-side-panel-subheader" *ngIf="subheaderTemplate">
+	<div class="phd-side-panel-subheader" *ngIf="subheaderTemplate">
 		<ng-container *ngTemplateOutlet="subheaderTemplate"></ng-container>
 	</div>
 
-	<div class="colormgmt-side-panel-body" *ngIf="bodyTemplate">
+	<div class="phd-side-panel-body" *ngIf="bodyTemplate">
 		<ng-container *ngTemplateOutlet="bodyTemplate"></ng-container>
 	</div>
 
-	<div
-		class="panel-footer colormgmt-side-panel-footer"
-		*ngIf="footerTemplate"
-	>
+	<div class="panel-footer phd-side-panel-footer" *ngIf="footerTemplate">
 		<ng-container *ngTemplateOutlet="footerTemplate"></ng-container>
 	</div>
 </div>

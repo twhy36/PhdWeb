@@ -4,7 +4,7 @@
 	[bodyTemplate]="body"
 	[footerTemplate]="footer"
 	[sidePanelOpen]="sidePanelOpen"
-	(onSidePanelClose)="onCloseSidePanel($event)"
+	(onSidePanelClose)="onCloseSidePanel()"
 >
 	<ng-template #header>
 		<h4 class="colormgmt-side-panel-header">
@@ -19,7 +19,9 @@
 	</ng-template>
 
 	<ng-template #body>
-		<h1>This is the add color dialog</h1>
+		<div class="container pt-3">
+			<h1>This is the add color dialog</h1>
+		</div>
 	</ng-template>
 
 	<ng-template #footer>
@@ -34,7 +36,7 @@
 				<i class="fa fa-spinner fa-spin fa-fw" *ngIf="isSaving"></i>
 			</button>
 
-			<button class="btn btn-secondary" (click)="toggleSidePanel()">
+			<button class="btn btn-secondary" (click)="onCloseSidePanel()">
 				Cancel
 			</button>
 		</div>
