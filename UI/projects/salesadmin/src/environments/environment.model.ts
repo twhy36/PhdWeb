@@ -5,6 +5,7 @@ export interface IEnvironment {
 	production: boolean;
 	apiUrl: string;
 	hubUrl: string;
+	thoUrl: string;
 	alphaVisionBuilderGuid: string;
 	tenant: string;
 	clientId: string;
