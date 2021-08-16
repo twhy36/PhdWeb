@@ -196,6 +196,20 @@ export class OrganizationService
 		);
 	}
 
+	getOrgsForCommunities(marketId: number, financialCommunityIds: number[]): Observable<Array<PhdEntityDto.IOrgCommunityDto>> {
+		const url = `${settings.apiUrl}getOrgsForFinancialCommunities`;
+
+		const body = {
+			marketId: marketId,
+			financialCommunityIds: financialCommunityIds
+		};
+
+		return withSpinner(this._http).post(url, body).pipe(
+			map(response => {
+				return response['value'] as Array<PhdEntityDto.IOrgCommunityDto>;
+			}));
+	}
+
 	/**
 	 * Returns a list of financialCommunities and plans from the given plan list.
 	 * Used on Div Wizard and Option Wizard

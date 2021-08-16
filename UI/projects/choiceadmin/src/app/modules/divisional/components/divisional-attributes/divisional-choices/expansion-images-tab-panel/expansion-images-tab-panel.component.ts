@@ -15,7 +15,7 @@ import { ConfirmModalComponent } from '../../../../../core/components/confirm-mo
 import { ModalService } from '../../../../../core/services/modal.service';
 import { OrganizationService } from '../../../../../core/services/organization.service';
 
-import { DivisionalChoice, DivChoiceCatalogMarketImage, IDivChoiceCatalogMarketImageDto } from '../../../../../shared/models/divisional-catalog.model';
+import { DivisionalChoice, DivChoiceCatalogMarketImage, IDivChoiceCatalogMarketImageDto, DivChoiceCatalogCommunityImage } from '../../../../../shared/models/divisional-catalog.model';
 import { DivisionalService } from '../../../../../core/services/divisional.service';
 import { of } from 'rxjs';
 import { DivisionalAttributesComponent } from '../../divisional-attributes/divisional-attributes.component';
@@ -35,7 +35,7 @@ export class ExpansionChoiceImagesTabPanelComponent extends UnsubscribeOnDestroy
 
 	@Output() save = new EventEmitter<{ choice: DivisionalChoice, imgCount: number }>();
 	@Output() onDataChange = new EventEmitter();
-	@Output() onAssociateToCommunities = new EventEmitter<{ choice: DivisionalChoice, images: DivChoiceCatalogMarketImage[], callback: () => void }>();
+	@Output() onAssociateToCommunities = new EventEmitter<{ choice: DivisionalChoice, marketImages: DivChoiceCatalogMarketImage[], communityImages: DivChoiceCatalogCommunityImage[], marketId: number, callback: () => void }>();
 
 	Permission = Permission;
 
@@ -299,13 +299,18 @@ export class ExpansionChoiceImagesTabPanelComponent extends UnsubscribeOnDestroy
 	 */
 	onAssociateCommunities(): void
 	{
-		// Deselect all images on callback
-		let cb = () =>
-		{
-			this.toggleAllImages(false);
-		};
+		// Get community images linked to the market images
+		this._divService.getDivChoiceCatalogCommunityImages(this.selectedImages.map(i => i.divChoiceCatalogMarketImageID)).subscribe(communityImages => {
+			// Deselect all images on callback
+			let cb = () => {
+				this.toggleAllImages(false);
+			};
 
-		this.onAssociateToCommunities.emit({ choice: this.choice, images: this.selectedImages, callback: cb });
+			this.onAssociateToCommunities.emit({ choice: this.choice, marketImages: this.selectedImages, communityImages: communityImages, marketId: this.selectedMarket.id, callback: cb });
+		}, error => {
+			this._msgService.clear();
+			this._msgService.add({ severity: 'error', summary: 'Choice Images', detail: `An error has occured!` });
+		});
 	}
 
 	/**

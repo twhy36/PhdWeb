@@ -11,6 +11,7 @@ import { AttributeGroupMarket } from '../../../../../shared/models/attribute-gro
 import { LocationGroupMarket } from '../../../../../shared/models/location-group-market.model';
 import { Option } from '../../../../../shared/models/option.model';
 import { IFinancialCommunity } from '../../../../../shared/models/financial-community.model';
+import { DivChoiceCatalogCommunityImage, DivChoiceCatalogMarketImage, DivisionalChoice } from '../../../../../shared/models/divisional-catalog.model';
 
 @Component({
 	selector: 'div-choices-container',
@@ -24,6 +25,7 @@ export class DivChoicesContainerComponent implements OnInit
 
 	sidePanelOpen: boolean = false;
 	option: Option = null;
+	choice: DivisionalChoice = null;
 	currentTab: string = '';
 	isReadOnly: boolean = false;
 
@@ -41,6 +43,9 @@ export class DivChoicesContainerComponent implements OnInit
 
 	associateCommunitySidePanelOpen: boolean = false;
 	selectedGroups: Array<AttributeGroupMarket | LocationGroupMarket>;
+	selectedImages: Array<DivChoiceCatalogMarketImage>;
+	communityImages: Array<DivChoiceCatalogCommunityImage>
+	selectedMarketId: number;
 
 	constructor(private _uiUtils: UiUtilsService, private _divAttrComp: DivisionalAttributesComponent) { }
 
@@ -102,6 +107,16 @@ export class DivChoicesContainerComponent implements OnInit
 		this.associateCommunitySidePanelOpen = true;
 		this.option = event.option;
 		this.selectedGroups = event.groups;
+		this.associateCommunityCallback = event.callback;
+	}
+
+	onAssociateImagesToCommunities(event: { choice: DivisionalChoice, marketImages: Array<DivChoiceCatalogMarketImage>, communityImages: Array<DivChoiceCatalogCommunityImage>, marketId: number, callback: any }) {
+		this._divAttrComp.sidePanelOpen = true;
+		this.associateCommunitySidePanelOpen = true;
+		this.choice = event.choice;
+		this.selectedImages = event.marketImages;
+		this.communityImages = event.communityImages;
+		this.selectedMarketId = event.marketId;
 		this.associateCommunityCallback = event.callback;
 	}
 

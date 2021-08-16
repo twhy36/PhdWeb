@@ -36,6 +36,11 @@ export namespace PhdEntityDto
 		plans?: Array<IPlanDto>;
 	}
 
+	export interface IOrgCommunityDto {
+		orgId?: number;
+		financialCommunityId?: number;
+	}
+
 	export interface IOrgLevelDto
 	{
 		orgLevelID?: number;

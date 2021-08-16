@@ -387,7 +387,7 @@ export class DivisionalOptionService
 		const qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}orderby=financialCommunity/name`;
 		let url = `${settings.apiUrl}optionCommunities?${qryStr}`;
 
-		return this._http.get(url).pipe(
+		return withSpinner(this._http).get(url).pipe(
 			map(response =>
 			{
 				let optionCommunities = response['value'];

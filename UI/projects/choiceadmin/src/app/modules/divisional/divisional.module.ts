@@ -44,7 +44,7 @@ import { ExpansionAttributeGroupsTabPanelComponent } from './components/division
 import { ExpansionLocationGroupsTabPanelComponent } from './components/divisional-attributes/divisional-options/expansion-location-groups-tab-panel/expansion-location-groups-tab-panel.component';
 import { ExpansionAssociateCommunitiesTabPanelComponent } from './components/divisional-attributes/divisional-options/expansion-associate-communities-tab-panel/expansion-associate-communities-tab-panel.component';
 import { ExpansionAssociateGroupsTabPanelComponent } from './components/divisional-attributes/divisional-options/expansion-associate-groups-tab-panel/expansion-associate-groups-tab-panel.component';
-import { AssociateCommunitiesSidePanelComponent } from './components/divisional-attributes/divisional-options/associate-communities-side-panel/associate-communities-side-panel.component';
+import { AssociateCommunitiesSidePanelComponent } from './components/divisional-attributes/shared/components/associate-communities-side-panel/associate-communities-side-panel.component';
 
 import { AttributesContainerComponent } from './components/divisional-attributes/attributes/attributes-container/attributes-container.component';
 import { AttributesPanelComponent } from './components/divisional-attributes/attributes/attributes-panel/attributes-panel.component';

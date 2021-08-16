@@ -15,7 +15,7 @@ import { DivDSubGroup } from '../../shared/models/subgroup.model';
 import { DivDPoint, IDivCatalogPointDto, IDPointPickType, DivDPointCatalog } from '../../shared/models/point.model';
 import { DivDChoice, IDivCatalogChoiceDto, DivChoiceCatalog } from '../../shared/models/choice.model';
 import { Settings } from '../../shared/models/settings.model';
-import { IDivisionalCatalogGroupDto, IDivisionalCatalogPointDto, IDivisionalCatalogDto, IDivisionalCatalogChoiceDto, DivisionalCatalog, IDivSortList, DivisionalChoice, IDivChoiceCatalogMarketImageDto, DivChoiceCatalogMarketImage } from '../../shared/models/divisional-catalog.model';
+import { IDivisionalCatalogGroupDto, IDivisionalCatalogPointDto, IDivisionalCatalogDto, IDivisionalCatalogChoiceDto, DivisionalCatalog, IDivSortList, DivisionalChoice, IDivChoiceCatalogMarketImageDto, DivChoiceCatalogMarketImage, IDivChoiceCatalogCommunityImageDto, DivChoiceCatalogCommunityImage } from '../../shared/models/divisional-catalog.model';
 import { PhdEntityDto } from '../../shared/models/api-dtos.model';
 import { TableSort } from '../../../../../../phd-common/src/lib/components/table/phd-table.model';
 
@@ -157,6 +157,25 @@ export class DivisionalService
 		);
 	}
 
+	getDivChoiceCatalogCommunityImages(divChoiceCatalogMarketImageIds: number[]) {
+		let url = settings.apiUrl;
+
+		const filter = `DivChoiceCatalogMarketImageID in (${divChoiceCatalogMarketImageIds.join(',')})`;
+		const select = `DivChoiceCatalogCommunityImageID, DivChoiceCatalogMarketImageID, communityID`;
+
+		const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
+
+		url += `divChoiceCatalogCommunityImages?${qryStr}`;
+
+		return this._http.get(url).pipe(
+			map(response => {
+				let dtos = response['value'] as IDivChoiceCatalogCommunityImageDto[];
+
+				return dtos.map(dto => new DivChoiceCatalogCommunityImage(dto));
+			}),
+			catchError(this.handleError));
+	}
+
 	getDivChoiceCatalogMarketImages(divChoiceCatalogId: number): Observable<DivChoiceCatalogMarketImage[]>
 	{
 		let url = settings.apiUrl;
@@ -208,6 +227,30 @@ export class DivisionalService
 			}),
 			catchError(this.handleError)
 		);
+	}
+
+	/**
+	 * Updates the communities associated to a collection of DivChoiceCatalog_MarketImages.
+	 * @param divChoiceCatalogId The ID of the DivChoiceCatalog in which the image(s) exist.
+	 * @param associatedOrgIds The communities (via their OrgID) to be associated with the image(s).
+	 * @param disassociatedOrgIds The communities (via their OrgID) to be disassociated with the image(s).
+	 * @param marketImages The image(s) for which the communities are to be updated.
+	 */
+	updateDivChoiceCatalogMarketImagesCommunitiesImages(divChoiceCatalogId: number, associatedOrgIds: number[], disassociatedOrgIds: number[], marketImages: DivChoiceCatalogMarketImage[]): Observable<any> {
+		const url = settings.apiUrl + `UpdateDivChoiceCatalogCommunitiesImages`;
+
+		const data = {
+			'divChoiceCatalogId': divChoiceCatalogId,
+			'associatedOrgIds': associatedOrgIds,
+			'disassociatedOrgIds': disassociatedOrgIds,
+			'choiceMarketImageIds': marketImages.map(x => x.divChoiceCatalogMarketImageID)
+		};
+
+		return this._http.patch(url, data).pipe(
+			map(response => {
+				return response;
+			}),
+			catchError(this.handleError));
 	}
 
 	checkDivPointHasInactiveChildren(divPointIds: number[]): Observable<Array<IDivisionalCatalogPointDto>>

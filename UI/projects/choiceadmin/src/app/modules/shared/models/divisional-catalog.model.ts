@@ -3,6 +3,7 @@ import { IDivCatalogChoiceDto } from "./choice.model";
 import { ICatalogSubGroupDto } from "./subgroup.model";
 import { ICatalogGroupDto, DivDGroup } from "./group.model";
 import { Observable } from 'rxjs';
+import { IFinancialCommunity } from "./financial-community.model";
 
 export class DivisionalCatalog
 {
@@ -22,7 +23,7 @@ export class DivisionalChoice
 	divChoiceCatalogMarketImages$: Observable<DivChoiceCatalogMarketImage[]>;
 	divChoiceCatalogMarketAttributes$: Observable<any[]>;
 	divChoiceCatalogMarketLocations$: Observable<any[]>;
-	divChoiceCatalogCommunities$: Observable<any[]>;
+	divChoiceCatalogCommunities$: Observable<Array<IFinancialCommunity>>;
 }
 
 export class DivChoiceCatalogMarketImage
@@ -40,6 +41,20 @@ export class DivChoiceCatalogMarketImage
 		this.divChoiceCatalogID = dto.divChoiceCatalogID;
 		this.imageURL = dto.imageURL;
 		this.sortKey = dto.sortKey;
+	}
+}
+
+export class DivChoiceCatalogCommunityImage {
+	divChoiceCatalogCommunityImageID?: number;
+	divChoiceCatalogMarketImageID?: number;
+	communityID?: number;
+	divChoiceCatalogID?: number;
+
+	constructor(dto: IDivChoiceCatalogCommunityImageDto) {
+		this.divChoiceCatalogCommunityImageID = dto.divChoiceCatalogCommunityImageID;
+		this.divChoiceCatalogMarketImageID = dto.divChoiceCatalogMarketImageID;
+		this.communityID = dto.communityID;
+		this.divChoiceCatalogID = dto.divChoiceCatalogID;
 	}
 }
 
