@@ -48,9 +48,7 @@ export class ColorsSearchHeaderComponent
 			filter((comm) => !!comm),
 			switchMap((comm) => {
 				this.currentCommunityId = comm.id;
-				return this._optionService.getOptionsCategorySubcategory(
-					this.currentCommunityId
-				);
+				return this._optionService.getOptionsCategorySubcategory(this.currentCommunityId);
 			})
 		);
 		this.optionSubCategory$.subscribe((subcategoryList) => {
@@ -59,17 +57,22 @@ export class ColorsSearchHeaderComponent
 			this.loadColors();
 		});
 	}
-	showCounter() {
+
+	showCounter() 
+	{
 		this.isCounterVisible = true;
 	}
-	hideCounter() {
+
+	hideCounter()
+	{
 		this.isCounterVisible = false;
 	}
-	loadColors() {
+
+	loadColors()
+	{
 		this.allDataLoaded = false;
 
-		this._colorService
-			.getColors(
+		this._colorService.getColors(
 				this.currentCommunityId,
 				this.colorname,
 				this.selectedSubCategory?.id,
@@ -81,17 +84,12 @@ export class ColorsSearchHeaderComponent
 				map((colors) => {
 					let colorsList = colors.map((color) => {
 						let categorySubcategory =
-							this.optionSubCategoryList.find(
-								(subcategory) =>
-									subcategory.id ===
-									color.edhOptionSubcategoryId
-							);
+							this.optionSubCategoryList.find((subcategory) =>subcategory.id === color.edhOptionSubcategoryId);
 						let colorsDto: IColorDto = {
 							colorId: color.colorId,
 							name: color.name,
 							sku: color.sku,
-							optionCategoryName:
-								categorySubcategory?.optionCategory?.name,
+							optionCategoryName:	categorySubcategory?.optionCategory?.name,
 							optionSubCategoryName: categorySubcategory?.name,
 							isActive: color.isActive,
 						};
@@ -102,24 +100,27 @@ export class ColorsSearchHeaderComponent
 			)
 			.subscribe((colorDtos) => {
 				this.currentPage++;
-				this.allDataLoaded =
-					colorDtos.length < this.settings.infiniteScrollPageSize;
+				this.allDataLoaded =colorDtos.length < this.settings.infiniteScrollPageSize;
 				this.colorsDtoList = [...this.colorsDtoList, ...colorDtos];
 			});
 	}
-	filterColors() {
+
+	filterColors() 
+	{
 		this.colorsDtoList = [];
 		this.currentPage = 0;
 		this.loadColors();
 	}
-	
-	onPanelScroll() {
+
+	onPanelScroll()
+	{
 		this.isLoading = true;
 		this.skip = this.currentPage * this.settings.infiniteScrollPageSize;
 		this.loadColors();
 	}
 
-	resetfilter() {
+	resetfilter() 
+	{
 		this.colorname = '';
 		this.selectedSubCategory = null;
 		this.isActiveColor = null;
