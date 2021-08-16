@@ -82,7 +82,9 @@ export class ColorsSearchHeaderComponent
 					let colorsList = colors.map((color) => {
 						let categorySubcategory =
 							this.optionSubCategoryList.find(
-								(subcategory) => subcategory.id === color.edhOptionSubcategoryId
+								(subcategory) =>
+									subcategory.id ===
+									color.edhOptionSubcategoryId
 							);
 						let colorsDto: IColorDto = {
 							colorId: color.colorId,
@@ -110,15 +112,18 @@ export class ColorsSearchHeaderComponent
 		this.currentPage = 0;
 		this.loadColors();
 	}
+	
 	onPanelScroll() {
 		this.isLoading = true;
 		this.skip = this.currentPage * this.settings.infiniteScrollPageSize;
 		this.loadColors();
 	}
+
 	resetfilter() {
 		this.colorname = '';
 		this.selectedSubCategory = null;
 		this.isActiveColor = null;
 		this.colorsDtoList = [];
 	}
+
 }
