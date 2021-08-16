@@ -38,9 +38,8 @@ import { ChangeOrderService } from './services/change-order.service';
 import { ContractService } from './services/contract.service';
 import { ReportsService } from './services/reports.service';
 import { ModalOverrideSaveComponent } from './components/modal-override-save/modal-override-save.component';
-import { ModalService } from './services/modal.service';
-import { ModalComponent } from './components/modal/modal.component';
 import { NotificationService } from './services/notification.service';
+import { FavoriteService } from './services/favorite.service';
 
 @NgModule({
 	exports: [
@@ -52,8 +51,7 @@ import { NotificationService } from './services/notification.service';
 		SiteMenuComponent,
 		ModalConfirmActionComponent,
 		ErrorAlertComponent,
-		ModalOverrideSaveComponent,
-		ModalComponent
+		ModalOverrideSaveComponent
 	],
 	declarations: [
 		ConfirmModalComponent,
@@ -64,8 +62,7 @@ import { NotificationService } from './services/notification.service';
 		SiteMenuComponent,
 		ModalConfirmActionComponent,
 		ErrorAlertComponent,
-		ModalOverrideSaveComponent,
-		ModalComponent
+		ModalOverrideSaveComponent
 	],
 	imports: [
 		CommonModule,
@@ -97,8 +94,8 @@ import { NotificationService } from './services/notification.service';
 		ChangeOrderService,
 		ContractService,
 		ReportsService,
-		ModalService,
 		NotificationService,
+		FavoriteService,
 		{ provide: ErrorHandler, useClass: PhdErrorHandler }
 	]
 })

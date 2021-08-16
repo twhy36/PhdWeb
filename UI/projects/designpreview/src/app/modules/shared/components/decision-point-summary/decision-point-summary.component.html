@@ -1,0 +1,69 @@
+<div class="phd-point">
+	<div class="phd-point-details d-flex justify-content-start align-items-start">
+		<div class="phd-point-indicator"></div>
+		<div class="phd-point-label">{{decisionPoint.label}}</div>
+
+		<div class="phd-choice">
+			<ng-container *ngFor="let choice of choicesCustom">
+				<div class="phd-choice-detail" *ngIf="choice.quantity > 0">
+					<div class="phd-choice-expand">
+						<div (click)="toggleCollapsed(choice)" *ngIf="choice.hasMappedAttributes">
+							<span *ngIf="!choice.showAttributes"><i class="fa fa-fw phd-clickable fa-chevron-circle-right"></i></span>
+							<span *ngIf="choice.showAttributes"><i class="fa fa-fw phd-clickable fa-chevron-circle-down"></i></span>
+						</div>
+					</div>
+
+					<div class="phd-choice-header">
+						<span>{{ choice.label }}</span>
+					</div>
+
+					<div class="phd-choice-body">
+						<div class="phd-choice-quantity" *ngIf="choice.quantity > 0">
+							<span class="phd-label">Quantity:</span>
+							<span class="phd-content">({{ choice.quantity }})</span>
+						</div>
+						<div class="my-3 phd-choice-attributes" *ngIf="choice.showAttributes">
+							<ng-container *ngIf="choice.selectedAttributes.length; else attributeMsg">
+								<div class="phd-choice-attributes-body" *ngFor="let attr of choice.selectedAttributes">
+									<div class="phd-location" *ngIf="attr.locationGroupId != null || attr.locationId != null">
+										<span class="phd-label">{{ attr.locationGroupLabel}}:</span>
+										<span class="phd-content">{{ attr.locationName }}</span>
+									</div>
+									<div class="phd-location" *ngIf="attr.locationGroupId != null || attr.locationId != null">
+										<span class="phd-label">Quantity:</span>
+										<span class="phd-content">{{ attr.locationQuantity }}</span>
+									</div>
+									<div class="phd-attribute" *ngIf="attr.attributeGroupId != null || attr.attributeId != null">
+										<span class="phd-label">{{ attr.attributeGroupLabel}}:</span>
+										<div class="phd-content">
+											<span class="phd-content">{{ attr.attributeName }}</span>
+										</div>
+									</div>
+								</div>
+								<ng-container *ngIf="isChoiceComplete(choice); else attributeMsg"></ng-container>
+
+							</ng-container>
+
+							<ng-template #attributeMsg>
+								Additional Selections Required
+							</ng-template>
+						</div>
+					</div>
+					<div class="phd-divider"></div>
+					<div class="actions d-flex justify-content-between align-items-start">
+						<ng-container *ngIf="!choice.priceHiddenFromBuyerView">
+							<span *ngIf="selections?.length > 0">{{choice.price * choice.quantity | currency:'USD':'symbol':'0.0-0'}}</span>
+						</ng-container>
+						<ng-container *ngIf="choice.priceHiddenFromBuyerView">
+							<span>Pricing Varies</span>
+						</ng-container>
+					</div>
+				</div>
+			</ng-container>
+		</div>
+	</div>
+	<div class="actions d-flex justify-content-between align-items-start actionLinks">
+		<a (click)="onViewOrEdit()">{{actionLabel}}</a>
+		<i *ngIf="!isReadonly" class="fa fa-times phd-clickable" (click)="onRemove()"></i>
+	</div>
+</div>

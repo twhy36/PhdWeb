@@ -9,6 +9,9 @@ export const environment: IEnvironment = {
 	production: false,
 	apiUrl: 'http://localhost:2845/odata/',
 	hubUrl: 'http://localhost:5000/hub',
+	baseUrl: {
+		designPreview: 'http://localhost:14769/',
+	},
 	tenant: 'pulte.onmicrosoft.com',
 	clientId: '9d498056-e6cd-4e53-b89b-cf2f5e60adf7',
 	authConfig: {

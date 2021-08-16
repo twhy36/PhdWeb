@@ -19,5 +19,6 @@ export interface FinancialCommunity
 	state: string;
 	zip: string;
 	isPhasedPricingEnabled: boolean;
+	isDesignPreviewEnabled: boolean;
 	isColorSchemePlanRuleEnabled: boolean;
 }

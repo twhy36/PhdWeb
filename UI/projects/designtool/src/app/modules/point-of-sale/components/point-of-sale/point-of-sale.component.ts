@@ -14,16 +14,15 @@ import * as ChangeOrderActions from '../../../ngrx-store/change-order/actions';
 
 import {
 	UnsubscribeOnDestroy, ModalRef, ESignTypeEnum, PointStatus, SalesAgreement, Consultant,
-	PriceBreakdown
+	PriceBreakdown, PDFViewerComponent, ModalService
 } from 'phd-common';
 
+import { environment } from '../../../../../environments/environment';
 import { ActionBarCallType } from '../../../shared/classes/constants.class';
 
 import { ContractService } from '../../../core/services/contract.service';
 
-import { PDFViewerComponent } from '../../../shared/components/pdf-viewer/pdf-viewer.component';
 import { SignAgreementComponent } from '../sign-agreement/sign-agreement.component';
-import { ModalService } from '../../../core/services/modal.service';
 import { ConfirmModalComponent } from '../../../core/components/confirm-modal/confirm-modal.component';
 
 type ActionBarStatusType = 'INCOMPLETE' | 'COMPLETE' | 'DISABLED';
@@ -431,6 +430,7 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 
 		this.pdfViewer.componentInstance.pdfModalTitle = 'Home Purchase Agreement';
 		this.pdfViewer.componentInstance.pdfData = pdfObjectUrl;
+		this.pdfViewer.componentInstance.pdfBaseUrl = `${environment.pdfViewerBaseUrl}`;
 		this.pdfViewer.componentInstance.footerTemplate = this.pdfViewerFooterTemplate;
 
 		this.pdfViewer.componentInstance.onAfterClose.subscribe(() =>
