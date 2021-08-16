@@ -25,18 +25,8 @@ export class ColorService {
 		let filter = `(EdhFinancialCommunityId eq ${communityId})`;
 		const select = `colorId,name,sku,isActive,edhOptionSubcategoryId`;
 		const orderBy = `name`;
-		let index = colorName.indexOf('*');
-		if (index>=0) {
-		    colorName = colorName.replace('*', '');
-			if (index > 0) {
-				//If * is at the end/middle of the string, get everything that has that string.
-				filter += `and contains(name,'${colorName}')`;
-			} else {
-				//If * at the start of the string ex: *Andover Maple, get everything that starts with Andover Maple.
-				filter += `and startswith(name,'${colorName}')`;
-			}
-		} else if (colorName) {
-			filter += `and name eq '${colorName}'`;
+		if (colorName) {
+			filter += `and contains(name,'${colorName}')`;
 		}
 
 		if (isActive != null) {
