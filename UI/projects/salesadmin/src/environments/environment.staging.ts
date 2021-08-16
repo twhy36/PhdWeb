@@ -23,7 +23,7 @@ export const environment = {
 		strictDiscoveryDocumentValidation: false
 	},
     appInsights: {
-        instrumentationKey: '6fe29ada-16ba-4d15-b3a8-0364e90c4250'
+        instrumentationKey: 'cf19cbb8-e39b-4e28-8199-3d06eaf051f0'
 	},
 	whatFix: {
 		scriptUrl: '//whatfix.com/01caf5e0-cb2f-11e8-b979-04013d24cd02/embed/embed.nocache.js'
