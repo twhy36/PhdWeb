@@ -7,7 +7,7 @@ import { cloneDeep, trim } from 'lodash'
 
 import {
 	Buyer, EmailAssoc, PhoneAssoc, AddressAssoc, Address, Contact, Phone,
-	MatchingContact, Realtor
+	MatchingContact, Realtor, ModalService
 } from 'phd-common';
 
 import { ContactService } from '../../../core/services/contact.service';
@@ -15,7 +15,6 @@ import { MatchingContactsComponent } from '../matching-contacts/matching-contact
 import { customEmailValidator, noWhiteSpaceValidator, phoneValidator } from '../../../shared/classes/validators';
 import { stripPhoneNumber } from '../../../shared/classes/phoneUtils';
 import { ComponentCanNavAway } from '../../../shared/classes/component-can-nav-away.class';
-import { ModalService } from '../../../core/services/modal.service';
 import { ConfirmModalComponent } from '../../../core/components/confirm-modal/confirm-modal.component';
 
 @Component({

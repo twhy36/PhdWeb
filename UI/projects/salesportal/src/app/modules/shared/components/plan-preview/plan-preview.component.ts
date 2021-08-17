@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewEncapsulation } from '@angular/core';
 
-import { IPlan, ITreeVersion } from '../../models/community.model';
+import { IFinancialCommunity, IPlan, ITreeVersion, IWebSiteCommunity } from '../../models/community.model';
 import { LinkAction } from '../../models/action.model';
 import { OrganizationService } from '../../../core/services/organization.service';
 import { environment } from '../../../../../environments/environment';
@@ -15,18 +15,33 @@ import { environment } from '../../../../../environments/environment';
 export class PlanPreviewComponent implements OnInit
 {
 	@Input() action: LinkAction;
+	@Input() roles: string[];
 	@Output() onClose = new EventEmitter<void>();
 
 	selectedMarket: number = null;
 	selectedSalesCommunity: number = null;
 	selectedFinancialCommunity: number = null;
 	selectedPlan: number = 0;
+	selectedType: number = 0;
 	selectedTreeVersion: number = 0;
 
+	types: Array<{
+		typeId: number;
+		typeName: string;}> = [];
+	typeStatus: string;
 	plans: Array<IPlan>;
 	planStatus: string;
 	treeVersions: Array<ITreeVersion>;
 	treeStatus: string;
+	webSiteCommunity: IWebSiteCommunity;
+	production: boolean = environment.production;
+	designPreviewEnabled: boolean;
+
+	TYPE_STATUS = {
+		WAITING: 'Loading Types...',
+		READY: 'Select A Type',
+		EMPTY: 'No Types Available'
+	}
 
 	PLAN_STATUS = {
 		WAITING: 'Loading Plans...',
@@ -47,6 +62,7 @@ export class PlanPreviewComponent implements OnInit
 		if (!this.plans)
 		{
 			this.planStatus = this.PLAN_STATUS.EMPTY;
+			this.typeStatus = this.TYPE_STATUS.EMPTY;
 			this.treeStatus = this.TREE_STATUS.EMPTY;
 		}
 	}
@@ -56,9 +72,36 @@ export class PlanPreviewComponent implements OnInit
 		return (!this.plans) ? true : false;
 	}
 
+	get noTypes()
+	{
+		return (!this.types) ? true : false;
+	}
+
 	get noPreviews()
 	{
 		return (!this.treeVersions) ? true : false;
+	}
+
+	get disableLaunchPreview() {
+		let disabled = false;
+		// No previews should display unless market and sales community are present
+		if (!this.selectedMarket || !this.selectedSalesCommunity) {
+			disabled = true;
+		} else {
+			// For THO Preview, financial community doesn't matter.
+			if (this.selectedType === 2) {
+				disabled = false;
+			} else if (!this.selectedFinancialCommunity) {
+				disabled = true;
+			} else if (this.selectedType === 0) {
+				disabled = true;
+			} else {
+				if (!this.selectedPlan || !this.selectedTreeVersion) {
+					disabled = true;
+				}
+			}
+		}
+		return disabled;
 	}
 	
 	onMarketChange(market)
@@ -67,6 +110,7 @@ export class PlanPreviewComponent implements OnInit
 		{
 			this.organizationService.currentPlan = 0;
 			this.plans = null;
+			this.types = null;
 			this.treeVersions = null;
 		}
 		this.selectedMarket = market;
@@ -75,16 +119,29 @@ export class PlanPreviewComponent implements OnInit
 	onSalesCommunityChange(sales)
 	{
 		this.selectedSalesCommunity = sales;
+		this.selectedType = 0;
+		this.webSiteCommunity = null;
+		this.types = [];
+		if (this.selectedSalesCommunity) {
+			this.organizationService.getWebSiteCommunity(this.selectedSalesCommunity).subscribe(wc => {
+				this.webSiteCommunity = wc;
+				if (this.webSiteCommunity && !this.types.find(t => t.typeId === 2)) {
+					this.types.push({
+						typeId: 2,
+						typeName: "THO Preview"
+					});
+				}
+			});
+		}
 	}
 
-	onFinancialCommunityChange(financialId)
+	onFinancialCommunityChange(financialCommunity: IFinancialCommunity)
 	{
 		// If financial community is not null, get plans
-		this.selectedFinancialCommunity = financialId;
-		if (this.selectedFinancialCommunity)
-		{
-			this.setPlan();
-		}
+		this.selectedFinancialCommunity = financialCommunity?.id;
+		this.designPreviewEnabled = financialCommunity?.isDesignPreviewEnabled;
+		
+		this.setType();
 	}
 
 	onChangePlan()
@@ -104,9 +161,16 @@ export class PlanPreviewComponent implements OnInit
 
 	launchPreview()
 	{
-		const url = `${environment.baseUrl.designTool}${this.action.path}/${this.selectedTreeVersion}`;
+		let url = "";
+		if (this.selectedType === 1) { // Open in design Tool
+			url = `${environment.baseUrl.designTool}${this.action.path}/${this.selectedTreeVersion}`;
+		} else if (this.selectedType === 2) { // Open in THO Preview
+			const webSiteIntegrationKey = this.webSiteCommunity.webSiteIntegrationKey;
+			url = `${environment.baseUrl.thoPreview}${webSiteIntegrationKey}?preview=true`;
+		} else if (this.selectedType === 3) { // Open in Design Preview
+			url = `${environment.baseUrl.designPreview}preview/${this.selectedTreeVersion}`;
+		}
 		window.open(url, '_blank');
-		
 	}
 
 	setFinancialCommunity()
@@ -124,10 +188,57 @@ export class PlanPreviewComponent implements OnInit
 		this.getPlans();
 	}
 
+	setType()
+	{
+		// Get types for selected plan
+		this.selectedType = 0;
+		this.types = [];
+		this.getTypes();
+	}
+
 	setTreeVersion()
 	{
 		this.selectedTreeVersion = 0;
 		this.getTreeVersions();
+	}
+
+	getTypes()
+	{
+		this.typeStatus = this.TYPE_STATUS.EMPTY;
+		// Get plans for the financial community selected
+		if (this.selectedSalesCommunity) {
+			if (this.webSiteCommunity) {
+				this.types.push({
+					typeId: 2,
+					typeName: "THO Preview"
+				});
+			}
+			if (this.selectedFinancialCommunity) {
+				this.types.push({
+					typeId: 1,
+					typeName: "Design Tool"
+				});
+				if (!this.production) { // Hidden in prod for now, but can be removed when ready
+					let showDesignPreview = false;
+					
+					// Toggle between two lines below and sub in your role for testing
+					// if (this.designPreviewEnabled || this.roles.find(role => role === ''<YOUR_ROLE_HERE>'')) { 
+					if (this.designPreviewEnabled || this.roles.find(role => role === 'SalesManager')) { 
+						showDesignPreview = true;
+					} 
+					if (showDesignPreview) {
+						this.types.push({
+							typeId: 3,
+							typeName: "Design Preview"
+						});
+					}
+				}
+				this.setPlan();
+			}
+		}
+		if (this.types.length > 0) {
+			this.typeStatus = this.TYPE_STATUS.READY;
+		}
 	}
 
 	getPlans()

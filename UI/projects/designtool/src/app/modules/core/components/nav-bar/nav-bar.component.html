@@ -146,7 +146,10 @@
 			</ng-template>
 		</phd-nav-menu-item>
 
-		<phd-nav-menu-item label="History/Notifications" [isActive]="false"
-						   [ngClass]="(isTablet$ | async) && invertHamburgerMenuColor ? 'phd-menu-item-color' : null"></phd-nav-menu-item>
+		<ng-container *ngIf="isDesignPreviewEnabled && !production">
+			<phd-nav-menu-item label="Design Preview" (click)="launchPreview()" [isActive]="false"
+								[ngClass]="(isTablet$ | async) && invertHamburgerMenuColor ? 'phd-menu-item-color' : null">
+			</phd-nav-menu-item>
+		</ng-container>
 	</phd-nav-menu>
 </ng-template>

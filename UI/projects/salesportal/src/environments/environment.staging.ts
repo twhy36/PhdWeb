@@ -9,17 +9,20 @@ export const environment: IEnvironment = {
     apiUrl: 'https://phdapi.staging.pulte.com/odata/',
     authQueryParams: "domain_hint=pulte.com",
     baseUrl: {
+		colorManagement: 'https://phd.staging.pulte.com/colormanagement/',
         buyerTracker: 'http://buyertracker.staging.pulte.com/',
         choiceAdmin: 'https://phd.staging.pulte.com/choiceadmin/',
         crm: 'https://pultestaging.crm.dynamics.com/main.aspx?appid=baecb5e8-6cd0-4f19-b41e-219074220427',
         salesAdmin: 'https://phd.staging.pulte.com/salesadmin/',
 		designTool: 'https://phd.staging.pulte.com/designtool/',
+		designPreview: 'https://phd.staging.pulte.com/designpreview/',
+		thoPreview: 'https://tho.staging.centex.com/',
 		reports: 'http://powerbi.staging.pulte.com/Reports/browse/IDEA/Sales/PHD',
 		homeSelections: 'https://homebuilder.staging.pulte.com/HomeSelections/',
 		salesTally: 'https://salesportal.staging.pulte.com/salesportal/salestally'
     },
     appInsights: {
-        instrumentationKey: '08875504-9c0f-45a6-8cc5-8a819e51aff0'
+        instrumentationKey: 'cf19cbb8-e39b-4e28-8199-3d06eaf051f0'
     },
 	production: false,
 	authConfig: {

@@ -14,6 +14,8 @@ import { Settings } from '../../shared/models/settings.model';
 import { FinancialCommunity, FinancialCommunityInfo } from '../../shared/models/financialCommunity.model';
 import { Org } from '../../shared/models/org.model';
 import { IdentityService, ClaimTypes, Permission } from 'phd-common';
+import { SalesCommunity, WebSiteCommunity } from '../../shared/models/salesCommunity.model';
+
 import * as _ from 'lodash';
 
 const settings: Settings = new SettingsService().getSettings();
@@ -195,7 +197,7 @@ export class OrganizationService
 			let url = settings.apiUrl;
 
 			const filter = `marketId eq ${marketId}`;
-			const select = 'id, marketId, name, number, salesStatusDescription, isPhasedPricingEnabled, isElevationMonotonyRuleEnabled, isColorSchemeMonotonyRuleEnabled';
+			const select = 'id, marketId, name, number, salesCommunityId, salesStatusDescription, isPhasedPricingEnabled, isElevationMonotonyRuleEnabled, isColorSchemeMonotonyRuleEnabled, isColorSchemePlanRuleEnabled, isDesignPreviewEnabled';
 			const expand = 'market($select=id,number)';
 			const orderBy = 'name';
 			const qryStr = `${encodeURIComponent('$')}expand=${encodeURIComponent(expand)}&${encodeURIComponent('$')}select=${encodeURIComponent(select)}&${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}&${encodeURIComponent('$')}orderby=${encodeURIComponent(orderBy)}`;
@@ -216,7 +218,10 @@ export class OrganizationService
 							salesStatusDescription: data.salesStatusDescription,
 							isPhasedPricingEnabled: data.isPhasedPricingEnabled,
 							isElevationMonotonyRuleEnabled: data.isElevationMonotonyRuleEnabled,
-							isColorSchemeMonotonyRuleEnabled: data.isColorSchemeMonotonyRuleEnabled
+							isColorSchemeMonotonyRuleEnabled: data.isColorSchemeMonotonyRuleEnabled,
+							isColorSchemePlanRuleEnabled: data.isColorSchemePlanRuleEnabled,
+							isDesignPreviewEnabled: data.isDesignPreviewEnabled,
+							salesCommunityId: data.salesCommunityId
 						} as FinancialCommunity;
 					});
 				}),
@@ -295,6 +300,36 @@ export class OrganizationService
 			catchError(this.handleError));
 	}
 
+	saveFinancialCommunity(financialCommunity: FinancialCommunity): Observable<FinancialCommunity>
+	{
+		const entity = `financialCommunities`;
+		const parameter = financialCommunity.id;
+
+		const endpoint = `${settings.apiUrl}${entity}(${parameter})`;
+
+		if (financialCommunity.id > 0)
+		{
+			const payload =
+			{
+				id: financialCommunity.id,
+				marketId: financialCommunity.marketId,
+				name: financialCommunity.name,
+				number: financialCommunity.key,
+				salesStatusDescription: financialCommunity.salesStatusDescription,
+				isPhasedPricingEnabled: financialCommunity.isPhasedPricingEnabled,
+				isElevationMonotonyRuleEnabled: financialCommunity.isElevationMonotonyRuleEnabled,
+				isColorSchemeMonotonyRuleEnabled: financialCommunity.isColorSchemeMonotonyRuleEnabled,
+				isDesignPreviewEnabled: financialCommunity.isDesignPreviewEnabled,
+				salesCommunityId: financialCommunity.salesCommunityId
+			};
+			return this._http.patch(endpoint, payload).pipe(
+				map((response: Object) => {
+					return response as FinancialCommunity;
+				}),
+				catchError(this.handleError));
+		}
+	}
+
 	getFinancialCommunityInfo(id: number): Observable<FinancialCommunityInfo>
 	{
 		let url = settings.apiUrl;
@@ -320,8 +355,8 @@ export class OrganizationService
 			url += `financialCommunityInfos(${financialCommunityInfo.financialCommunityId})`;
 
 			return this._http.patch(url, financialCommunityInfo).pipe(
-				map((response: FinancialCommunityInfo) => {
-					return response;
+				map((response: Object) => {
+					return response as FinancialCommunityInfo;
 				}),
 				catchError(this.handleError));
 		}
@@ -331,11 +366,76 @@ export class OrganizationService
 			url += `financialCommunityInfos`;
 
 			return this._http.post(url, financialCommunityInfo).pipe(
-				map((response: FinancialCommunityInfo) => {
-					return response;
+				map((response: Object) => {
+					return response as FinancialCommunityInfo;
 				}),
 				catchError(this.handleError));
 		}
+	}
+
+	getSalesCommunity(salesCommunityId: number): Observable<SalesCommunity>
+	{
+		const entity = `salesCommunities`;
+		const filter = `id eq ${salesCommunityId}`;
+
+		let qryStr = `${this._ds}filter=${encodeURIComponent(filter)}`;
+
+		const endpoint = `${settings.apiUrl}${entity}?${qryStr}`;
+
+		return this._http.get<any>(endpoint).pipe(
+			map(response =>
+			{
+				const salesCommunities = response.value as Array<SalesCommunity>;
+				return salesCommunities.length > 0 ? salesCommunities[0] : null;
+			}),
+			catchError(this.handleError));
+	}
+
+	saveSalesCommunity(salesCommunity: SalesCommunity): Observable<SalesCommunity>
+	{
+		const entity = `salesCommunities`;
+		const parameter = salesCommunity.id;
+
+		const endpoint = `${settings.apiUrl}${entity}(${parameter})`;
+
+		if (salesCommunity.id > 0)
+		{
+			return this._http.patch(endpoint, salesCommunity).pipe(
+				map((response: Object) => {
+					return response as SalesCommunity;
+				}),
+				catchError(this.handleError));
+		}
+	}
+
+	getWebsiteCommunity(salesCommunityId: number): Observable<WebSiteCommunity>
+	{
+		const entity = `salesCommunities`;
+		const expand = `salesCommunityWebSiteCommunityAssocs($select=webSiteCommunity;$expand=webSiteCommunity($select=id,name,websiteIntegrationKey))`;
+		const filter = `id eq ${salesCommunityId}`;
+
+		let qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}expand=${encodeURIComponent(expand)}`;
+
+		const endpoint = `${settings.apiUrl}${entity}?${qryStr}`;
+
+		return this._http.get<any>(endpoint).pipe(
+			map(response =>
+			{
+				const salesCommunities = response.value as Array<SalesCommunity>;
+
+				const websiteCommunities = _.flatMap(
+					salesCommunities,
+					salesCommunity => _.flatMap(
+						salesCommunity.salesCommunityWebSiteCommunityAssocs,
+						websiteCommunity => websiteCommunity.webSiteCommunity
+					)
+				);
+				const websiteIndex = (websiteCommunities?.length ?? 1) - 1;
+				const websiteCommunity = websiteCommunities && websiteCommunities.length > 0 ? websiteCommunities[websiteIndex] : null;
+
+				return websiteCommunity;
+			}),
+			catchError(this.handleError));
 	}
 
 	getInternalOrgs(marketId: number): Observable<Array<Org>>

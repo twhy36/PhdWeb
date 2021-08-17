@@ -1,15 +1,18 @@
 import { FinancialMarket } from './financialMarket.model';
 
 export interface FinancialCommunity {
-    id: number;
-    key: string;
-    marketId: number;
+	id: number;
+	key: string;
+	marketId: number;
 	name: string;
-    salesStatusDescription: "Active" | "New" | "Closed" | "Inactive";
+	salesStatusDescription: "Active" | "New" | "Closed" | "Inactive";
 	isPhasedPricingEnabled: boolean;
 	market?: FinancialMarket;
 	isElevationMonotonyRuleEnabled: boolean;
 	isColorSchemeMonotonyRuleEnabled: boolean;
+	isDesignPreviewEnabled: boolean;
+	salesCommunityId: number;
+	isColorSchemePlanRuleEnabled: boolean;
 }
 
 export class FinancialCommunityInfo {

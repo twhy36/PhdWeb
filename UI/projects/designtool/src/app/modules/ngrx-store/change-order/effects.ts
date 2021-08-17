@@ -9,10 +9,9 @@ import { switchMap, withLatestFrom, map, combineLatest } from 'rxjs/operators';
 import 
 { 
 	ESignEnvelope, ESignStatusEnum, ESignTypeEnum, ChangeInput, ChangeTypeEnum, ChangeOrderGroup, ChangeOrderHanding, 
-	Job, SalesStatusEnum
+	Job, SalesStatusEnum, ModalService
 } from 'phd-common';
 
-import { ModalService } from '../../core/services/modal.service';
 import { ChangeOrderService } from '../../core/services/change-order.service';
 import
 {

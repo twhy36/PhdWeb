@@ -1,3 +1,4 @@
+@import "../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
 @import "../../../../../scss/color-pallet.scss";
 @import "../../../../../scss/animations.scss";
 
@@ -68,8 +69,14 @@
 		width: 100%;
 
 		.phd-footer-btn-container {
+			width: 100%;
 			cursor: default;
-			padding: 5px 15px;
+			padding: 5px 15px 5px 89px;
+
+			.phd-favorite-icon {
+				color: $pantone_blue;
+				margin-left: auto;
+			}
 		}
 	}
 

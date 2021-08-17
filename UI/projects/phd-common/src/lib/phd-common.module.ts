@@ -18,6 +18,8 @@ import { SidePanelComponent } from './components/side-panel/side-panel.component
 import { SpinnerComponent } from './components/spinner/spinner.component';
 import { BuildVersionComponent } from './components/build-version/build-version.component';
 import { ErrorMessageComponent } from './components/error-message/error-message.component';
+import { ModalComponent } from './components/modal/modal.component';
+import { PDFViewerComponent } from './components/pdf-viewer/pdf-viewer.component';
 import { PhdColumnDirective } from './components/table/phd-column.directive';
 import { RowTogglerDirective } from './components/table/phd-rowtoggler.directive';
 import { DragSourceDirective } from './directives/drag-source.directive';
@@ -31,6 +33,7 @@ import { ClaimGuard } from './guards/claim.guard';
 import { IdentityService } from './services/identity.service';
 import { SpinnerService } from './services/spinner.service';
 import { BrowserService } from './services/browser.service';
+import { ModalService } from './services/modal.service';
 import { EllipsisPipe } from './pipes/ellipsis.pipe';
 import { SafeUrlPipe } from './pipes/safe-url.pipe';
 import { PrimeNGCorrectionService } from './services/primeng.service';
@@ -74,6 +77,8 @@ export function getOrigin() {
 		ControlDisabledDirective,
 		BuildVersionComponent,
 		ErrorMessageComponent,
+		ModalComponent,
+		PDFViewerComponent,
 		EllipsisPipe,
 		SafeUrlPipe
 	],
@@ -89,7 +94,9 @@ export function getOrigin() {
 		RequiresClaimDirective,
 		ControlDisabledDirective,
 		BuildVersionComponent,
-        ErrorMessageComponent,
+		ErrorMessageComponent,
+		PDFViewerComponent,
+		ModalComponent,
 		EllipsisPipe,
 		SafeUrlPipe
 	],
@@ -116,7 +123,8 @@ export class PhdCommonModule {
                 IdentityService,
 				BrowserService,
 				ClaimGuard,
-				PrimeNGCorrectionService
+				PrimeNGCorrectionService,
+				ModalService
             ]
         };
     }

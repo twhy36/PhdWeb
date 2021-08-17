@@ -135,6 +135,10 @@ export function reducer(state: State = initialState, action: SalesAgreementActio
 		case SalesAgreementActionTypes.BuyersSwapped:
 			const buyersAfterSwap = state.buyers.map<Buyer>(b =>
 			{
+				if (b.sortKey === 0) {
+					return action.newPrimaryBuyer;
+				}
+
 				if (b.sortKey === action.oldPrimaryBuyer.sortKey)
 				{
 					return action.oldPrimaryBuyer;
@@ -143,7 +147,7 @@ export function reducer(state: State = initialState, action: SalesAgreementActio
 				return b;
 			});
 
-			return { ...state, buyers: [action.newPrimaryBuyer, ...buyersAfterSwap.slice(1)], savingSalesAgreement: false };
+			return { ...state, buyers: buyersAfterSwap, savingSalesAgreement: false };
 		case SalesAgreementActionTypes.DeleteCoBuyer:
 			return { ...state, savingSalesAgreement: true };
 		case SalesAgreementActionTypes.CoBuyerDeleted:

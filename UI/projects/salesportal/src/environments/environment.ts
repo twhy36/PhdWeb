@@ -9,11 +9,14 @@ export const environment: IEnvironment = {
 	apiUrl: 'https://phdapi.dev.pulte.com/odata/',
 	authQueryParams: "domain_hint=pulte.com",
 	baseUrl: {
+		colorManagement: 'https://phd.dev.pulte.com/colormanagement/',
 		buyerTracker: 'http://buyertracker.dev.pulte.com/',
 		choiceAdmin: 'https://phd.dev.pulte.com/choiceadmin/',
 		crm: 'https://pultedev.crm.dynamics.com/main.aspx?appid=c865bf67-a0e6-e811-a962-000d3a32ce3b',
 		salesAdmin: 'https://phd.dev.pulte.com/salesadmin/',
 		designTool: 'https://phd.dev.pulte.com/designtool/',
+		designPreview: 'https://phd.dev.pulte.com/designpreview/',
+		thoPreview: 'https://tho.dev.centex.com/',
 		reports: 'http://powerbi.dev.pulte.com/Reports/browse/IDEA/Sales/PHD',
 		homeSelections: 'https://homebuilder.dev.pulte.com/HomeSelections/',
 		salesTally: 'https://salesportal.dev.pulte.com/salesportal/salestally'
@@ -21,7 +24,7 @@ export const environment: IEnvironment = {
 	appInsights: {
 		instrumentationKey: '08875504-9c0f-45a6-8cc5-8a819e51aff0'
 	},
-	
+
 	production: false,
 	authConfig: {
 		issuer: "https://login.microsoftonline.com/1a9277a3-ef66-41f6-96b5-c5390ee468a7/v2.0",

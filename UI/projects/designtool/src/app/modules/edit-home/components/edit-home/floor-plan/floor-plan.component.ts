@@ -9,7 +9,7 @@ import * as _ from 'lodash';
 
 import {
 	UnsubscribeOnDestroy, flipOver, ModalRef, ScenarioStatusType, PriceBreakdown, TreeFilter, SubGroup,
-	DecisionPoint, Choice, loadScript, unloadScript
+	DecisionPoint, Choice, loadScript, unloadScript, ModalService
 } from 'phd-common';
 
 import * as fromRoot from '../../../../ngrx-store/reducers';
@@ -21,7 +21,6 @@ import { DecisionPointFilterType } from '../../../../shared/models/decisionPoint
 import { environment } from '../../../../../../environments/environment';
 import { JobService } from '../../../../core/services/job.service';
 import { ScenarioService } from '../../../../core/services/scenario.service';
-import { ModalService } from '../../../../core/services/modal.service';
 
 declare var AVFloorplan: any;
 
@@ -55,7 +54,7 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 	@Output() onBuildIt = new EventEmitter<void>();
 	@Output() onSaveScenario = new EventEmitter<void>();
-	@Output() onSelectChoice = new EventEmitter<{ choiceId: number, overrideNote: string, quantity: number }>();
+	@Output() onSelectChoice = new EventEmitter<{choice: Choice, saveNow: boolean, quantity?: number}>();
 	@Output() onChoiceModal = new EventEmitter<Choice>();
 	@Output() pointTypeFilterChanged = new EventEmitter<DecisionPointFilterType>();
 
@@ -306,7 +305,7 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 		super.ngOnDestroy();
 	}
 
-	onOptionToggled(choice: any, value: any)
+	onOptionToggled(choice: any)
 	{
 		if (choice.options.length)
 		{
@@ -321,7 +320,7 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 			}
 		}
 
-		this.onSelectChoice.emit({ choiceId: choice.id, overrideNote: choice.overrideNote, quantity: value ? 1 : 0 });
+		this.onSelectChoice.emit({ choice, saveNow: false, quantity: choice.quantity ? 0 : 1 });
 	}
 
 	onCallToAction(event: any)

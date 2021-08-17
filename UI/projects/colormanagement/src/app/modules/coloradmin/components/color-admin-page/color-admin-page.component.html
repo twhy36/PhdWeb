@@ -1,0 +1,33 @@
+<header>
+	<div class="phd-navigation-bar">
+		<div class="phd-navigation-bar-header">
+			<img class="logo" src="assets/Pulte_Homes_White.png" alt="Pulte Homes">
+		</div>
+
+		<div class="phd-navigation-bar-title">
+			Pulte Home Designer - Color Admin Tool
+		</div>
+
+		<market-selector></market-selector>
+	</div>
+	<aside>
+		<div class="color-nav">
+			<ul ngbNav #nav="ngbNav" class="nav-tabs">
+				<li ngbNavItem>
+					<a ngbNavLink>Colors</a>
+					<ng-template ngbNavContent>
+						<colors-page class="content"></colors-page>
+					</ng-template>
+				</li>
+				<li ngbNavItem>
+					<a ngbNavLink>Color Items</a>
+					<ng-template ngbNavContent>
+						<color-items-page class="content"></color-items-page>
+					</ng-template>
+				</li>
+			</ul>
+		</div>
+		<div class="user" *ngIf="user"><i class="fas fa-user"></i>{{user.displayName}}</div>
+	</aside>
+</header>
+<div [ngbNavOutlet]="nav"></div>

@@ -1,0 +1,39 @@
+<div>
+	<div class="d-flex justify-content-end">
+		<i class="fa fa-times-circle phd-close" (click)="closeClicked()"></i>
+	</div>
+	<ng-container *ngIf="disabledByMustHaveRules?.length > 0">
+		<div class="phd-blocked-title">
+			Before this can be selected:
+		</div>
+		<ul class="phd-blocked-list">
+			<li *ngFor="let disabledByItem of disabledByMustHaveRules">
+				<div *ngIf="!disabledByItem.choiceId">
+          Make a
+          <span *ngIf="disabledByItem.pointId" class="phd-clickable phd-blocked-link" (click)="onBlockedItemClick(disabledByItem.pointId)">{{disabledByItem.label}}</span>
+          <span *ngIf="!disabledByItem.pointId">{{disabledByItem.label}}</span>
+          selection
+        </div>
+				<div *ngIf="disabledByItem.choiceId">
+          Select
+          <span *ngIf="disabledByItem.pointId" class="phd-clickable phd-blocked-link" (click)="onBlockedItemClick(disabledByItem.pointId)">{{disabledByItem.label}}</span>
+          <span *ngIf="!disabledByItem.pointId">{{disabledByItem.label}}</span>
+        </div>
+			</li>
+		</ul>
+	</ng-container>
+	<ng-container *ngIf="disabledByMustNotHaveRules?.length > 0">
+		<div class="phd-blocked-title">
+			Disabled due to:
+		</div>
+		<ul class="phd-blocked-list">
+			<li *ngFor="let disabledByItem of disabledByMustNotHaveRules">
+				<div>
+          <span *ngIf="disabledByItem.pointId" class="phd-clickable phd-blocked-link" (click)="onBlockedItemClick(disabledByItem.pointId)">{{disabledByItem.label}}</span>
+          <span *ngIf="!disabledByItem.pointId">{{disabledByItem.label}}</span>
+          selection
+        </div>
+			</li>
+		</ul>
+	</ng-container>
+</div>

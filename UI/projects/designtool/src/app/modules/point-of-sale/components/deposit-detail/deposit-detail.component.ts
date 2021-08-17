@@ -6,13 +6,12 @@ import * as _ from "lodash";
 import * as fromRoot from '../../../ngrx-store/reducers';
 import { ComponentCanNavAway } from '../../../shared/classes/component-can-nav-away.class';
 
-import { SalesAgreementDeposit, SalesAgreement } from 'phd-common';
+import { SalesAgreementDeposit, SalesAgreement, ModalService } from 'phd-common';
 import { SaveDeposit, DeleteDeposit, DepositSaved } from '../../../ngrx-store/sales-agreement/actions';
 import { NgbDate } from '@ng-bootstrap/ng-bootstrap';
 import { NgbDateNativeAdapter } from '../../../shared/classes/ngbDatePicker/ngbDateNativeAdapter.class';
 import { NgbInputDatepicker } from '@ng-bootstrap/ng-bootstrap';
 import { SalesAgreementService } from '../../../core/services/sales-agreement.service';
-import { ModalService } from '../../../../modules/core/services/modal.service';
 import { convertDateToUtcString } from "../../../shared/classes/date-utils.class";
 
 @Component({

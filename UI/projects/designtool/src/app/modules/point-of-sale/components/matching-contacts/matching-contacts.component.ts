@@ -2,8 +2,7 @@ import { Component, Input, ViewChild } from '@angular/core';
 
 import * as _ from 'lodash';
 
-import { ModalContent, ModalRef, Contact, MatchingContact } from 'phd-common';
-import { ModalService } from '../../../core/services/modal.service';
+import { ModalContent, ModalRef, Contact, MatchingContact, ModalService } from 'phd-common';
 
 @Component({
 	selector: 'matching-contacts-component',

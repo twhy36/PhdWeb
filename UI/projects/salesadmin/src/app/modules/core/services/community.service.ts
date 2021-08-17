@@ -9,7 +9,7 @@ import { SettingsService } from "./settings.service";
 import { ChangeOrderTypeAutoApproval } from '../../shared/models/changeOrderTypeAutoApproval.model';
 import { withSpinner } from 'phd-common';
 import { FinancialCommunity } from '../../shared/models/financialCommunity.model';
-import { CommunityPdf } from '../../shared/models/communityPdf.model';
+import { CommunityPdf, SectionHeader } from '../../shared/models/communityPdf.model';
 
 const settings: Settings = new SettingsService().getSettings();
 
@@ -80,43 +80,121 @@ export class CommunityService
 
 		url += `financialCommunities(${financialCommunityId})`;
 
-		return this._http.patch<FinancialCommunity>(url, dto);
+		return this._http.patch<FinancialCommunity>(url, dto).pipe(
+			map((response: FinancialCommunity) =>
+			{
+				return response;
+			})
+		);
 	}
 
 	deleteCommunityPdf(pdf: CommunityPdf): Observable<boolean>
 	{
 		let url = settings.apiUrl;
-		url += `communityPdf/${pdf.financialCommunityId}/${pdf.fileName}`;
-		return this._http.delete<any>(url);
+		url += 'DeleteCommunityPdf';
+		let body = {
+			financialCommunityId: pdf.financialCommunityId,
+			fileName: pdf.fileName,
+		}
+		return this._http.patch<any>(url, body).pipe(
+			map(response => response.value as boolean)
+		);
 	}
 
 	getCommunityPdfsByFinancialCommunityId(financialCommunityId: number): Observable<Array<CommunityPdf>>
 	{
 		let url = settings.apiUrl;
-		url += `communityPdf/${financialCommunityId}`
+		url += `GetCommunityPdfs(financialCommunityId=${financialCommunityId})`
 		return this._http.get<any>(url).pipe(
-			map(response => response as Array<CommunityPdf>)
+			map(response => 
+			{
+				let returnVal = response.value.map(data =>
+				{
+					return {
+						marketId: data.marketId,
+						financialCommunityId: data.financialCommunityId,
+						sortOrder: data.sortOrder,
+						linkText: data.linkText,
+						description: data.description,
+						effectiveDate: data.effectiveDate,
+						expirationDate: data.expirationDate,
+						fileName: data.fileName,
+						sectionHeader: SectionHeader[data.sectionHeader as string]
+					} as CommunityPdf
+				});
+				return returnVal as Array<CommunityPdf>;
+			})
+		);
+	}
+
+	getCommunityPdfUrl(financialCommunityId: number, fileName: string): Observable<string>
+	{
+		let url = settings.apiUrl;
+		url += `GetCommunityPdfSasUrl(financialCommunityId=${financialCommunityId},fileName='${fileName}')`
+		return this._http.get<any>(url).pipe(
+			map(response => response.value as string)
 		);
 	}
 
 	saveCommunityPdf(formData: FormData): Observable<CommunityPdf>
 	{
 		let url = settings.apiUrl;
-		url += 'communityPdf';
+		url += 'AddCommunityPdf';
 		return this._http.post<any>(url, formData).pipe(
-			map(response => response as CommunityPdf)
+			map(response => 
+			{
+				return {
+					marketId: response.marketId,
+					financialCommunityId: response.financialCommunityId,
+					sortOrder: response.sortOrder,
+					linkText: response.linkText,
+					description: response.description,
+					effectiveDate: response.effectiveDate,
+					expirationDate: response.expirationDate,
+					fileName: response.fileName,
+					sectionHeader: SectionHeader[response.sectionHeader as string]
+				}
+			}	
+			)
 		);
 	}
 
-	updateCommunityPdf(pdfList: Array<CommunityPdf>): Observable<Array<CommunityPdf>>
+	updateCommunityPdfs(pdfList: Array<CommunityPdf>): Observable<Array<CommunityPdf>>
 	{
+		// Put SectionHeader in format that OData likes
+		const pdfs = Array<any>();
+		pdfList.forEach(pdf => 
+		{
+			const newPdf: any = pdf as CommunityPdf;
+			newPdf.sectionHeader = pdf.sectionHeader.toString();
+			delete newPdf.__index;
+			pdfs.push(newPdf);
+		});
+
 		let url = settings.apiUrl;
-		url += 'communityPdf';
+		url += 'UpdateCommunityPdfs';
 		const body = {
-			pdfs: pdfList
+			communityPdfs: pdfs
 		}
-		return this._http.patch(url, body).pipe(
-			map(response => response as CommunityPdf[])
+		return this._http.patch<any>(url, body).pipe(
+			map(response => 
+			{
+				let returnVal = response.value.map(data =>
+				{
+					return {
+						marketId: data.marketId,
+						financialCommunityId: data.financialCommunityId,
+						sortOrder: data.sortOrder,
+						linkText: data.linkText,
+						description: data.description,
+						effectiveDate: data.effectiveDate,
+						expirationDate: data.expirationDate,
+						fileName: data.fileName,
+						sectionHeader: SectionHeader[data.sectionHeader as string]
+					} as CommunityPdf
+				});
+				return returnVal as Array<CommunityPdf>
+			})
 		);
 	}
 }

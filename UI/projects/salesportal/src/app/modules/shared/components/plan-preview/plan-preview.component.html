@@ -1,5 +1,5 @@
 <div class="modal-header">
-	<span class="modal-title">Pulte Home Designer<br />Plan Preview</span>
+	<span class="modal-title">Preview</span>
 
 	<button type="button" class="close" aria-label="Close" (click)="close()">
 		<span aria-hidden="true">&times;</span>
@@ -9,7 +9,7 @@
 <div class="modal-body">
 
 	<sales-community-selector (onMarketChange)="onMarketChange($event)"
-							  (onSalesCommunityChanage)="onSalesCommunityChange($event)"
+							  (onSalesCommunityChange)="onSalesCommunityChange($event)"
 							  (onFinancialCommunityChange)="onFinancialCommunityChange($event)"
 							  [showLabels]="true"
 							  [showFinancialCommunity]="true"
@@ -17,8 +17,17 @@
 
 	<div class="phd-plan-select d-flex w-100 justify-content-between">
 		<div class="form-group">
+			<label for="type">Type</label>
+			<select class="form-control" id="type" [(ngModel)]="selectedType" [disabled]="noTypes" #typeSelect>
+				<option [ngValue]="0">{{ typeStatus }}</option>
+				<option *ngFor="let type of types" [ngValue]="type.typeId">{{ type.typeName }}</option>
+			</select>
+		</div>
+	</div>
+	<div class="phd-plan-select d-flex w-100 justify-content-between">
+		<div class="form-group">
 			<label for="plan">Choose a Plan</label>
-			<select class="form-control" id="plan" [(ngModel)]="selectedPlan" (change)="onChangePlan()" [disabled]="noPlans" #planSelect>
+			<select class="form-control" id="plan" [(ngModel)]="selectedPlan" (change)="onChangePlan()" [disabled]="noPlans || selectedType === 2 || selectedType === 0" #planSelect>
 				<option [ngValue]="0">{{ planStatus }}</option>
 				<option *ngFor="let plan of plans" [ngValue]="plan.id">{{ plan.planName }}</option>
 			</select>
@@ -27,7 +36,7 @@
 	<div class="phd-plan-select d-flex w-100 justify-content-between">
 		<div class="form-group">
 			<label for="version">Version</label>
-			<select class="form-control" id="version" [(ngModel)]="selectedTreeVersion" (change)="onChangeVersion()" [disabled]="noPreviews" #versionSelect>
+			<select class="form-control" id="version" [(ngModel)]="selectedTreeVersion" (change)="onChangeVersion()" [disabled]="noPreviews || selectedType === 2 || selectedType === 0" #versionSelect>
 				<option [ngValue]="0">{{ treeStatus }}</option>
 				<option *ngFor="let treeVersion of treeVersions" [ngValue]="treeVersion.dTreeVersionId">{{ treeVersion.displayName }}</option>
 			</select>
@@ -36,7 +45,7 @@
 </div>
 
 <div class="modal-footer">
-	<button class="btn btn-primary phd-btn-save" [disabled]="noPreviews || selectedTreeVersion === 0" (click)="launchPreview();">View</button>
+	<button class="btn btn-primary phd-btn-save" [disabled]="disableLaunchPreview" (click)="launchPreview();">View</button>
 
 	<button class="btn btn-secondary" (click)="close();">Cancel</button>
 </div>

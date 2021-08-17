@@ -11,12 +11,12 @@ import
 	{
 		newGuid, createBatchGet, createBatchHeaders, createBatchBody, withSpinner, ChangeOrderChoice, ChangeOrderPlanOption,
 		JobChoice, JobPlanOption, TreeVersionRules, OptionRule, Tree, ChoiceImageAssoc, PlanOptionCommunityImageAssoc,
-		TreeBaseHouseOption, OptionImage, IdentityService
+		TreeBaseHouseOption, OptionImage, IdentityService, MyFavoritesChoice
 	} from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
 
-import { isJobChoice } from '../../shared/classes/tree.utils';
+import { isChangeOrderChoice } from '../../shared/classes/tree.utils';
 
 import * as _ from 'lodash';
 
@@ -149,7 +149,7 @@ export class TreeService
 		}
 
 		const expand = `planOption($select=planOptionID, integrationKey)`;
-		const select = `planOptionID, imageURL, sortKey`;
+		const select = `planOptionID, imageURL, sortKey, dTreeVersionId`;
 		const orderby = `planOptionID, sortKey`;
 
 		const qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filters.join(' and '))}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}orderby=${encodeURIComponent(orderby)}`;
@@ -186,12 +186,12 @@ export class TreeService
 		);
 	}
 
-	getChoiceCatalogIds(choices: Array<JobChoice | ChangeOrderChoice>): Observable<Array<JobChoice | ChangeOrderChoice>>
+	getChoiceCatalogIds(choices: Array<JobChoice | ChangeOrderChoice | MyFavoritesChoice>): Observable<Array<JobChoice | ChangeOrderChoice>>
 	{
 		return this.identityService.token.pipe(
 			switchMap((token: string) =>
 			{
-				const choiceIds: Array<number> = choices.map(x => isJobChoice(x) ? x.dpChoiceId : x.decisionPointChoiceID);
+				const choiceIds: Array<number> = choices.map(x => isChangeOrderChoice(x) ? x.decisionPointChoiceID : x.dpChoiceId);
 
 				if (choiceIds.length > 0)
 				{
@@ -216,7 +216,7 @@ export class TreeService
 				{
 					newChoices.forEach(c =>
 					{
-						const choiceId = isJobChoice(c) ? c.dpChoiceId : c.decisionPointChoiceID;
+						const choiceId = isChangeOrderChoice(c) ? c.decisionPointChoiceID : c.dpChoiceId;
 						const respChoice = response.value.find(r => r.dpChoiceID === choiceId);
 
 						if (respChoice)
@@ -231,13 +231,13 @@ export class TreeService
 
 					changedChoices.forEach(cc =>
 					{
-						if (isJobChoice(cc))
+						if (isChangeOrderChoice(cc))
 						{
-							updatedChoices.push(new JobChoice(cc));
+							updatedChoices.push(new ChangeOrderChoice(cc));
 						}
 						else
 						{
-							updatedChoices.push(new ChangeOrderChoice(cc));
+							updatedChoices.push(new JobChoice(cc));
 						}
 					});
 				}
@@ -320,7 +320,7 @@ export class TreeService
 						return `${environment.apiUrl}planOptionCommunityImageAssocs?${encodeURIComponent('$')}select=${select}&${encodeURIComponent('$')}filter=${filter}&${encodeURIComponent('$')}orderby=${orderBy}&${this._ds}count=true`;
 					}
 
-					const batchSize = 100;
+					const batchSize = 75;
 					let batchBundles: string[] = [];
 
 					// create a batch request with a max of 100 options per request

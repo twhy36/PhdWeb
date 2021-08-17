@@ -21,7 +21,8 @@ import * as LotActions from '../../../ngrx-store/lot/actions';
 
 import {
 	UnsubscribeOnDestroy, ModalRef, ChangeTypeEnum, Job, TreeVersionRules, ScenarioStatusType, PriceBreakdown,
-	TreeFilter, Tree, SubGroup, Group, DecisionPoint, Choice, getDependentChoices, LotExt
+	TreeFilter, Tree, SubGroup, Group, DecisionPoint, Choice, getDependentChoices, LotExt, getChoiceToDeselect,
+	ModalService
 } from 'phd-common';
 
 import { LotService } from '../../../core/services/lot.service';
@@ -29,7 +30,6 @@ import { LotService } from '../../../core/services/lot.service';
 import { ChoiceCardComponent } from '../../../shared/components/choice-card/choice-card.component';
 import { DecisionPointFilterType } from '../../../shared/models/decisionPointFilter';
 import { MonotonyConflict } from '../../../shared/models/monotony-conflict.model';
-import { ModalService } from '../../../core/services/modal.service';
 
 @Component({
 	selector: 'edit-home',
@@ -625,15 +625,15 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		this.subGroups = newGroup.subGroups;
 	}
 
-	selectChoice(choiceId: number, overrideNote: string, quantity: number)
-	{
-		this.store.dispatch(new ScenarioActions.SelectChoices(true, { choiceId: choiceId, overrideNote: overrideNote, quantity: quantity }));
-	}
-
 	toggleChoice({ choice: choice, saveNow: saveNow, quantity: quantity }: { choice: Choice, saveNow: boolean, quantity?: number })
 	{
+		const choiceToDeselect = getChoiceToDeselect(this.tree, choice);
+
 		let selectedChoices = [{ choiceId: choice.id, overrideNote: choice.overrideNote, quantity: !choice.quantity ? quantity || 1 : 0, attributes: choice.selectedAttributes }];
-		const impactedChoices = getDependentChoices(this.tree, this.treeVersionRules, choice);
+		const impactedChoices = [
+			...getDependentChoices(this.tree, this.treeVersionRules, choiceToDeselect),
+			...getDependentChoices(this.tree, this.treeVersionRules, !choice.quantity ? choice : null)
+		];
 
 		impactedChoices.forEach(c =>
 		{
@@ -642,11 +642,11 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 
 		let obs: Observable<boolean>;
 
-		if ((choice.changedDependentChoiceIds && choice.changedDependentChoiceIds.length > 0) || choice.mappingChanged)
+		if (choiceToDeselect && ((choiceToDeselect.changedDependentChoiceIds && choiceToDeselect.changedDependentChoiceIds.length > 0) || choiceToDeselect.mappingChanged))
 		{
 			obs = this.showOptionMappingChangedModal(impactedChoices);
 		}
-		else if (choice.quantity && this.isChangingOrder && impactedChoices && impactedChoices.length)
+		else if (this.isChangingOrder && impactedChoices && impactedChoices.length)
 		{
 			obs = this.showChoiceImpactModal(impactedChoices);
 		}
@@ -711,7 +711,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 	{
 		this.impactedChoices = choices.map(c => c.label).sort().join(', ');
 		const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
-		const secondaryButton = { text: 'Cancel', result: true, cssClass: 'btn-secondary' };
+		const secondaryButton = { text: 'Cancel', result: false, cssClass: 'btn-secondary' };
 		return this.showConfirmModal(this.impactedChoicesModal, 'Impact', primaryButton, secondaryButton);
 	}
 
@@ -719,7 +719,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 	{
 		this.impactedChoices = choices.map(c => c.label).sort().join(', ');
 		const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
-		const secondaryButton = { text: 'Cancel', result: true, cssClass: 'btn-secondary' };
+		const secondaryButton = { text: 'Cancel', result: false, cssClass: 'btn-secondary' };
 		return this.showConfirmModal(this.optionMappingChangedModal, 'Warning', primaryButton, secondaryButton);
 	}
 
