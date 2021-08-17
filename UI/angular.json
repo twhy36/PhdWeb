@@ -199,6 +199,12 @@
 							"rxjs"
 						],
 						"aot": true,
+                        "optimization": true,
+                        "sourceMap": false,
+                        "namedChunks": false,
+                        "extractLicenses": true,
+                        "vendorChunk": false,
+                        "buildOptimizer": true,
 						"baseHref": "/designtool/",
 						"outputHashing": "all",
 						"outputPath": "dist/designtool",
