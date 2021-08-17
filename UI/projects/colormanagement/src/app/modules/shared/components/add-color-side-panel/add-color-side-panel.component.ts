@@ -1,18 +1,32 @@
-import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
-import { FormGroup, FormArray, FormControl, Validators, AbstractControl } from '@angular/forms';
+import {
+	Component,
+	OnInit,
+	Input,
+	Output,
+	EventEmitter,
+	ViewChild,
+	ElementRef,
+} from '@angular/core';
+import {
+	FormGroup,
+	FormArray,
+	FormControl,
+	Validators,
+	AbstractControl,
+} from '@angular/forms';
 
 import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { SidePanelComponent } from '../../../shared/components/side-panel/side-panel.component';
+import { IColorDto } from '../../models/color.model';
 
 @Component({
-  selector: 'add-color-side-panel',
-  templateUrl: './add-color-side-panel.component.html',
-  styleUrls: ['./add-color-side-panel.component.scss']
+	selector: 'add-color-side-panel',
+	templateUrl: './add-color-side-panel.component.html',
+	styleUrls: ['./add-color-side-panel.component.scss'],
 })
 export class AddColorSidePanelComponent implements OnInit {
-
 	@ViewChild(SidePanelComponent)
 	private sidePanel: SidePanelComponent;
 
@@ -20,72 +34,64 @@ export class AddColorSidePanelComponent implements OnInit {
 	@Input() isSaving: boolean;
 
 	@Output() onSidePanelClose = new EventEmitter<boolean>();
-
-	sidePanelHeader: string = '';
+	colors: IColorDto[] = [];
+	sidePanelHeader: string = 'Add Color';
 	sidePanelSubheader: string = '';
 
-	get disableIsDefault(): boolean
-	{
+	get disableIsDefault(): boolean {
 		return true;
 	}
 
-	get disableHideChoice(): boolean
-	{
+	get disableHideChoice(): boolean {
 		return true;
 	}
 
-	get disableHideChoicePrice(): boolean
-	{
+	get disableHideChoicePrice(): boolean {
 		return true;
 	}
 
-	get canSave(): boolean
-	{
+	get canSave(): boolean {
 		return true;
 	}
 
-	constructor() { }
+	constructor() {}
 
-	ngOnInit()
-	{
-		this.sidePanelHeader = 'Add Color';
-		this.sidePanelSubheader = this.getSidePanelSubheader();
-
+	ngOnInit() {
 		this.createForm();
+
+		for(let i=0; i < 50; i++) {
+			this.colors[i] = {
+				name: '',
+				colorId: 0,
+				sku: '',
+				optionSubCategoryName: '',
+				optionCategoryName: '',
+				isActive: false
+			};
+		}
 	}
 
-	getSidePanelSubheader(): string
-	{
-		return 'Subheader title goes here';
+	getSidePanelSubheader(): string {
+		return 'Subheader title goes right here';
 	}
 
-	createForm()
-	{
+	createForm() {}
 
-	}
-
-	onAddChoice(tabIndex?: number)
-	{
-
-	}
+	onAddChoice(tabIndex?: number) {}
 
 	/**
 	 * Validate label checking for duplicates
 	 * @param control
 	 */
-	labelValidator(control: AbstractControl): Promise<{ [key: string]: any; }> | Observable<{ [key: string]: any; }>
-	{
-
+	labelValidator(
+		control: AbstractControl
+	): Promise<{ [key: string]: any }> | Observable<{ [key: string]: any }> {
 		return of(null);
 	}
 
-	save()
-	{
+	save() {}
 
-	}
-
-	onCloseSidePanel()
-	{
+	onCloseSidePanel() {
 		this.sidePanelOpen = false;
 		this.onSidePanelClose.emit(this.sidePanelOpen);
 	}
