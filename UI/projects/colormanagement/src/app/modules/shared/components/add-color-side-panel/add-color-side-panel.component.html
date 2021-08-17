@@ -35,8 +35,8 @@
 				<select class="form-select" id="subCategory"></select>
 			</div>
 		</div>
-		<div class="table-container mx-2" >
-			<table class="table borderless">
+		<div class="mx-2" >
+			<table class="table">
 				<thead>
 					<tr>
 						<th>Color<i class="fa fa-asterisk"></i></th>
@@ -47,13 +47,13 @@
 				<tbody>
 					<tr *ngFor="let color of colors">
 						<td>
-							<input type="text" [(value)]="color.name" class="textbox" required maxlength="50"/>
+							<input type="text" [(ngModel)]="color.name" class="textbox" required maxlength="50"/>
 						</td>
 						<td>
-							<input type="text" class="textbox" [(value)]="color.sku" maxlength="50" />
+							<input type="text" class="textbox" [(ngModel)]="color.sku" maxlength="50" />
 						</td>
 						<td>
-							<input type="checkbox" class="ml-3 mt-2" [(value)]="color.active" />
+							<input type="checkbox" class="ml-3 mt-2" [(ngModel)]="color.active" />
 						</td>
 					</tr>
 				</tbody>
