@@ -199,12 +199,6 @@
 							"rxjs"
 						],
 						"aot": true,
-                        "optimization": true,
-                        "sourceMap": false,
-                        "namedChunks": false,
-                        "extractLicenses": true,
-                        "vendorChunk": false,
-                        "buildOptimizer": true,
 						"baseHref": "/designtool/",
 						"outputHashing": "all",
 						"outputPath": "dist/designtool",
@@ -511,6 +505,12 @@
                         "local": {
                             "baseHref": "/",
                             "outputHashing": "none",
+                            "optimization": true,
+                            "sourceMap": false,
+                            "namedChunks": false,
+                            "extractLicenses": true,
+                            "vendorChunk": false,
+                            "buildOptimizer": true,
                             "fileReplacements": [
                                 {
                                     "replace": "projects/salesportal/src/environments/environment.ts",
