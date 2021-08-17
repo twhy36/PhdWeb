@@ -10,6 +10,7 @@ import { environment } from '../../../../environments/environment';
 
 import * as fromRoot from '../../ngrx-store/reducers';
 import * as JobActions from '../../ngrx-store/job/actions';
+import * as SalesAgreementActions from '../../ngrx-store/sales-agreement/actions';
 import * as ChangeOrderActions from '../../ngrx-store/change-order/actions';
 import * as CommonActions from '../../ngrx-store/actions';
 import * as ContractActions from '../../ngrx-store/contract/actions';
@@ -67,6 +68,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 	isSaving: boolean = false;
 	loaded = false;
 	isLockedIn: boolean = false;
+	isDesignComplete: boolean = false;
 
 	JOB_CHANGEORDER_TYPES = [
 		{ value: 'SalesJIO', id: 0 },
@@ -248,6 +250,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 			this.approvedDate = salesAgreement.approvedDate;
 			this.signedDate = salesAgreement.signedDate;
 			this.isLockedIn = salesAgreement.isLockedIn;
+			this.isDesignComplete = salesAgreement.isDesignComplete;
 
 			let index = job.changeOrderGroups.findIndex(t => (t.jobChangeOrders.find(c => c.jobChangeOrderTypeDescription === "SpecJIO" || c.jobChangeOrderTypeDescription === "SalesJIO")) !== undefined);
 			let changeOrders = [];
@@ -1238,5 +1241,9 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 			{
 				this.store.dispatch(new ChangeOrderActions.CreateJobChangeOrders());
 			});		
+	}
+
+	toggleDesignComplete() {
+		this.store.dispatch(new SalesAgreementActions.SetIsDesignComplete(!this.isDesignComplete));
 	}
 }

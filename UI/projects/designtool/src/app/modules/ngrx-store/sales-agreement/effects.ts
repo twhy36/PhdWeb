@@ -22,8 +22,8 @@ import
 	BuyersSwapped, DeleteCoBuyer, CoBuyerDeleted, UpdatePrimaryBuyer, UpdateCoBuyer, AddUpdateRealtor, RealtorSaved, ReSortCoBuyers, BuyerSaved, SalesAgreementLoadError,
 	CoBuyersReSorted, TrustNameSaved, LoadRealtor, RealtorLoaded, DeleteProgram, ProgramSaved, SaveProgram, ProgramDeleted, SaveDeposit, DeleteDeposit, DepositSaved,
 	DepositDeleted, DeleteContingency, ContingencyDeleted, SaveContingency, ContingencySaved, SaveNote, NoteDeleted, NoteSaved, DeleteNote, VoidSalesAgreement,
-	SignSalesAgreement, ApproveSalesAgreement, CreateJIOForSpec, JIOForSpecCreated, SetIsFloorplanFlippedAgreement, IsFloorplanFlippedAgreement,
-	CancelSalesAgreement, LoadConsultants, ConsultantsLoaded, SaveSalesConsultants, SalesConsultantsSaved, SaveSalesAgreementInfoNA, SalesAgreementInfoNASaved
+	SignSalesAgreement, ApproveSalesAgreement, CreateJIOForSpec, JIOForSpecCreated, SetIsFloorplanFlippedAgreement, SetIsDesignComplete, IsFloorplanFlippedAgreement,
+	CancelSalesAgreement, LoadConsultants, ConsultantsLoaded, SaveSalesConsultants, SalesConsultantsSaved, SaveSalesAgreementInfoNA, SalesAgreementInfoNASaved, IsDesignCompleteSaved
 } from './actions';
 import { DeleteScenarioInfo, LotConflict } from '../scenario/actions';
 import { OpportunityContactAssocUpdated } from '../opportunity/actions';
@@ -196,6 +196,24 @@ export class SalesAgreementEffects
 				}),
 				switchMap(info => of(new IsFloorplanFlippedAgreement(info.isFloorplanFlipped)))
 			), SaveError, "Error saving floorplan flipped!!")
+		);
+	});
+
+	setIsDesignComplete$: Observable<Action> = createEffect(() => {
+		return this.actions$.pipe(
+			ofType<SetIsDesignComplete>(SalesAgreementActionTypes.SetIsDesignComplete),
+			withLatestFrom(this.store),
+			tryCatch(source => source.pipe(
+				switchMap(([action, store]) => {
+					const info: SalesAgreementInfo = { edhSalesAgreementId: store.salesAgreement.id, isDesignComplete: action.isDesignComplete };
+					if (!!store.salesAgreement.id) {
+						return this.salesAgreementService.saveSalesAgreementInfo(info);
+					}
+
+					return of(info);
+				}),
+				switchMap(info => of(new IsDesignCompleteSaved(info.isDesignComplete)))
+			), SaveError, "Error saving is design complete flag!!")
 		);
 	});
 
