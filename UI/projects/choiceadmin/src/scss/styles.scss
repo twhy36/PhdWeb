@@ -561,3 +561,7 @@ $toggle-content-after: 'Must Have';
 .phd-bullet::before, .phd-list-bullet > li::before {
 	@extend %phd-bullet-shared
 }
+
+.phd-default-pointer {
+	cursor: default !important;
+}

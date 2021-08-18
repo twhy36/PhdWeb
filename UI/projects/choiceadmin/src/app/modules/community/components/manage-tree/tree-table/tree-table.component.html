@@ -10,6 +10,7 @@
 				<th scope="col" class="phd-icon-col"></th>
 				<th scope="col" class="phd-icon-col"></th>
 				<th scope="col" class="phd-icon-col"></th>
+				<th scope="col" class="phd-icon-col"></th>
 				<th scope="col" class="phd-text-col">Pick Type</th>
 				<th scope="col" class="phd-text-col">Cut-Off</th>
 				<th scope="col">Description</th>
@@ -28,7 +29,8 @@
 					<td class="phd-icon-col"></td>
 					<td class="phd-icon-col"></td>
 					<td class="phd-icon-col"></td>
-					<td class="phd-text-col"></td>
+					<td class="phd-icon-col"></td>
+					<td class="phd-icon-col"></td>
 					<td class="phd-text-col"></td>
 					<td class="phd-text-col"></td>
 					<td></td>
@@ -55,6 +57,7 @@
 						</td>
 
 						<ng-template #icons>
+							<td class="phd-icon-col"></td>
 							<td class="phd-icon-col"></td>
 							<td class="phd-icon-col"></td>
 							<td class="phd-icon-col"></td>
@@ -98,6 +101,7 @@
 								<i class="fa fa-gavel" aria-hidden="true" *ngIf="point.isStructuralItem" title="Sales"></i>
 							</td>
 							<td class="phd-icon-col"></td>
+							<td class="phd-icon-col"></td>
 							<td class="phd-text-col">{{point.pointPickTypeLabel}}</td>
 							<td class="phd-text-col">{{ point.cutOff }}</td>
 							<td>{{point.description}}</td>
@@ -129,7 +133,10 @@
 									<i class="fa fa-fw fa-check-square" *ngIf="choice.isDecisionDefault" title="Default"></i>
 								</td>
 								<td class="phd-icon-col">
-									<i class="fa fa-fw fa-image" *ngIf="!lockedFromChanges && choice.hasImage" (click)="onShowChoiceDetailsClick(choice, 'images')" title="Images"></i>
+									<i class="fa fa-fw fa-unlink phd-default-pointer" *ngIf="choice.hasImage" title="Images are maintained at the tree level"></i>
+								</td>
+								<td class="phd-icon-col">
+									<i class="fa fa-fw fa-image" *ngIf="!lockedFromChanges && (choice.hasDivCatalogChoiceImages || choice.hasImage)" (click)="onShowChoiceDetailsClick(choice, 'images')" title="Images"></i>
 								</td>
 								<td class="phd-text-col"></td>
 								<td class="phd-text-col"></td>

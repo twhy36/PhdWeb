@@ -23,7 +23,7 @@ export namespace PhdEntityDto
 	}
 
 	export interface IOrgExpandedDto extends IOrgDto
-	{		
+	{
 		orgLevelID?: number;
 		orgName?: string;
 		orgStatusID?: number;
@@ -490,6 +490,7 @@ export namespace PhdApiDto
 
 	export interface IDTreeChoiceDto extends ITreeChoiceDto
 	{
+		hasDivCatalogChoiceImages: boolean;
 		hasChoiceRules: boolean;
 		hasOptionRules: boolean;
 		hasAttributes: boolean;

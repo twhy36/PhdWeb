@@ -4,7 +4,6 @@ import { LocationGroupMarket } from "./location-group-market.model";
 import { AttributeGroupMarket } from "./attribute-group-market.model";
 import { ConstructionStageTypes } from "./point.model";
 
-const oneDayInMs = 24 * 60 * 60 * 1000;
 const fifteenSeconds = 15 * 1000;
 
 export interface IItemAdd
@@ -110,6 +109,7 @@ export interface IDTChoice
 	description: string;
 	imagePath: string;
 	hasImage: boolean;
+	hasDivCatalogChoiceImages: boolean;
 	maxQuantity?: number;
 	hasChoiceRules: boolean;
 	hasOptionRules: boolean;
@@ -130,9 +130,9 @@ export class DTree implements IDTree
 	id = 0;
 	orgId = 0;
 	planId = 0;
-	planKey = "";
+	planKey = '';
 	commId = 0;
-	commKey = "";
+	commKey = '';
 	marketId = 0;
 
 	private _dto: PhdApiDto.IDTreeDto;
@@ -153,14 +153,14 @@ export class DTree implements IDTree
 	{
 		if (dto == null)
 		{
-			throw new Error("dto must be specified");
+			throw new Error('dto must be specified');
 		}
 
 		this.dto = dto;
 
 		if (version == null)
 		{
-			throw new Error("version must be specified");
+			throw new Error('version must be specified');
 		}
 
 		this.version = version;
@@ -170,7 +170,7 @@ export class DTree implements IDTree
 	{
 		if (this.version != null)
 		{
-			if ("dispose" in this.version)
+			if ('dispose' in this.version)
 			{
 				(this.version as any).dispose();
 			}
@@ -187,8 +187,8 @@ export class DTVersion implements IDTVersion
 	}
 
 	id = 0;
-	description = "";
-	name = "";
+	description = '';
+	name = '';
 	treeId = 0;
 	publishStartDate: moment.Moment = null;
 	publishEndDate: moment.Moment = null;
@@ -366,7 +366,7 @@ export class DTSubGroup implements IDTSubGroup
 	treeVersionId = 0;
 	groupId = 0;
 	subGroupCatalogId = 0;
-	label = "";
+	label = '';
 	isActive = true;
 	sortOrder = 0;
 	hasUnusedPoints = false;
@@ -410,12 +410,12 @@ export class DTPoint implements IDTPoint
 	subGroupId = 0;
 	divPointCatalogId = 0;
 	pointPickTypeId = 0;
-	pointPickTypeLabel = "";
+	pointPickTypeLabel = '';
 	isQuickQuoteItem = false;
 	isStructuralItem = false;
 	isHiddenFromBuyerView = false;
-	label = "";
-	description = "";
+	label = '';
+	description = '';
 	sortOrder = 0;
 	hasPointToPointRules = false;
 	hasPointToChoiceRules = false;
@@ -501,10 +501,11 @@ export class DTChoice implements IDTChoice
 	sortOrder = 0;
 	isSelectable = false;
 	isDecisionDefault = false;
-	label = "";
-	description = "";
-	imagePath = "";
+	label = '';
+	description = '';
+	imagePath = '';
 	hasImage = false;
+	hasDivCatalogChoiceImages = false;
 	hasChoiceRules = false;
 	hasOptionRules = false;
 	hasAttributes = false;
@@ -536,6 +537,7 @@ export class DTChoice implements IDTChoice
 		this.label = dto.label;
 		this.imagePath = dto.imagePath;
 		this.hasImage = dto.hasImage;
+		this.hasDivCatalogChoiceImages = dto.hasDivCatalogChoiceImages;
 		this.hasChoiceRules = dto.hasChoiceRules;
 		this.hasOptionRules = dto.hasOptionRules;
 		this.hasAttributes = dto.attributeGroups ? dto.attributeGroups.length > 0 : dto.hasAttributes;
@@ -616,13 +618,14 @@ export class AttributeReassignment
 	}
 }
 
-export class PointChoiceDependent {
+export class PointChoiceDependent
+{
 	pointDependentIds: Array<number>;
 	choiceDependentIds: Array<number>;
 }
 
-export interface ITreeSortList {
+export interface ITreeSortList
+{
 	pointList: Array<PhdApiDto.IDTreePointDto>;
 	choiceList: Array<PhdApiDto.IDTreeChoiceDto>;
 }
-
