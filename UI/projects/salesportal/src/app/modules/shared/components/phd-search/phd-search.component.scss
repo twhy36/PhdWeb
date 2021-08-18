@@ -257,10 +257,6 @@ p-multiselect {
 	border-bottom-right-radius: 10px;
 }
 
-.p-datatable .p-sortable-column .p-sortable-column-icon {
-	color: #fff;
-}
-
 .phd-search-results {
 	&-holder {
 		border-radius: 2px;
@@ -288,60 +284,6 @@ p-multiselect {
 	phd-table {
 		display: block;
 		overflow-y: auto;
-	}
-
-	::ng-deep .p-datatable {
-
-		td:nth-child(1),
-		th:nth-child(1) {
-			padding-left: 1rem;
-		}
-
-		thead {
-			th {
-				background: #999;
-				color: #fff;
-				padding-bottom: .25rem;
-				padding-top: .25rem;
-				position: relative;
-				vertical-align: top;
-
-				&.p-state-highlight {
-					background-color: #186ba0;
-					color: #fff;
-				}
-
-				> div {
-					display: block;
-					padding-right: 10px;
-					position: relative;
-
-					p-sorticon {
-						position: absolute;
-						right: 0;
-						top: 0;
-					}
-				}
-			}
-		}
-
-		tbody {
-			tr:nth-child(odd) {
-				background: #fff;
-			}
-
-			tr:nth-child(even) {
-				background: #eee;
-
-				td {
-					border: 1px solid #f3f3f3;
-				}
-			}
-
-			td .phd-non-overflow {
-				white-space: normal;
-			}
-		}
 	}
 }
 
