@@ -21,6 +21,7 @@ export class DivisionalChoice
 	imageCount: number = 0;
 	hasAttributeLocationAssoc: boolean = false;
 	divChoiceCatalogMarketImages$: Observable<DivChoiceCatalogMarketImage[]>;
+	divChoiceCatalogMarketImages: DivChoiceCatalogMarketImage[];
 	divChoiceCatalogMarketAttributes$: Observable<any[]>;
 	divChoiceCatalogMarketLocations$: Observable<any[]>;
 	divChoiceCatalogCommunities$: Observable<Array<IFinancialCommunity>>;
@@ -42,6 +43,10 @@ export class DivChoiceCatalogMarketImage
 		this.imageURL = dto.imageURL;
 		this.sortKey = dto.sortKey;
 	}
+}
+
+export function isDivChoiceCatalogMarketImage(obj: any): obj is DivChoiceCatalogMarketImage {
+	return typeof obj.imageURL !== 'undefined';
 }
 
 export class DivChoiceCatalogCommunityImage {

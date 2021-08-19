@@ -18,6 +18,7 @@ export interface IFinancialCommunity
 	planCommunities?: IPlan[];
 	optionCommunities?: IOptionCommunity[];
 	orgId?: number;
+	marketId?: number;
 }
 
 export class FinancialCommunity extends BaseNode<IFinancialCommunity>

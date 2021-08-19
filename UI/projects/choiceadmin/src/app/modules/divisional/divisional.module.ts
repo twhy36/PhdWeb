@@ -88,6 +88,7 @@ import { DivisionalAttributeWizardStep3Component } from './components/divisional
 import { DivisionalAttributeWizardStep4Component } from './components/divisional-attributes/divisional-attribute-wizard/step-4/divisional-attribute-wizard-step4.component';
 import { ExpansionOptionImagesTabPanelComponent } from './components/divisional-attributes/divisional-options/expansion-option-images-tab-panel/expansion-option-images-tab-panel.component';
 import { ImageUrlToAssetIdPipe } from './components/divisional-attributes/shared/pipes/image-url-to-asset-id/image-url-to-asset-id.pipe';
+import { ExpansionCommunitiesTabDropdownPanelComponent } from './components/divisional-attributes/divisional-choices/expansion-communities-tab-dropdown-panel/expansion-communities-tab-dropdown-panel.component';
 
 const moduleRoutes: Routes = [
     {
@@ -199,7 +200,8 @@ const moduleRoutes: Routes = [
 		DivisionalAttributeWizardStep3Component,
 		DivisionalAttributeWizardStep4Component,
 		ExpansionOptionImagesTabPanelComponent,
-		ImageUrlToAssetIdPipe
+		ImageUrlToAssetIdPipe,
+		ExpansionCommunitiesTabDropdownPanelComponent
     ],
     imports: [
         CommonModule,

@@ -18,6 +18,7 @@ import { Settings } from '../../shared/models/settings.model';
 import { IDivisionalCatalogGroupDto, IDivisionalCatalogPointDto, IDivisionalCatalogDto, IDivisionalCatalogChoiceDto, DivisionalCatalog, IDivSortList, DivisionalChoice, IDivChoiceCatalogMarketImageDto, DivChoiceCatalogMarketImage, IDivChoiceCatalogCommunityImageDto, DivChoiceCatalogCommunityImage } from '../../shared/models/divisional-catalog.model';
 import { PhdEntityDto } from '../../shared/models/api-dtos.model';
 import { TableSort } from '../../../../../../phd-common/src/lib/components/table/phd-table.model';
+import { OrganizationService } from './organization.service';
 
 const settings: Settings = new SettingsService().getSettings();
 
@@ -30,7 +31,8 @@ export class DivisionalService
 	constructor(
 		private _http: HttpClient,
 		private _identityService: IdentityService,
-		private _catService: CatalogService) { }
+		private _catService: CatalogService,
+		private _orgService: OrganizationService) { }
 
 	getDivisionalCatalog(marketId: number): Observable<DivisionalCatalog>
 	{
@@ -147,7 +149,7 @@ export class DivisionalService
 					choice.imageCount = c['divChoiceCatalog_MarketImages@odata.count'] as number;
 					choice.divChoiceCatalogMarketAttributes$ = of([]);
 					choice.divChoiceCatalogMarketLocations$ = of([]);
-					choice.divChoiceCatalogCommunities$ = of([]);
+					choice.divChoiceCatalogCommunities$ = this._orgService.getCommunities(marketId);
 
 					return choice;
 				});
@@ -161,6 +163,25 @@ export class DivisionalService
 		let url = settings.apiUrl;
 
 		const filter = `DivChoiceCatalogMarketImageID in (${divChoiceCatalogMarketImageIds.join(',')})`;
+		const select = `DivChoiceCatalogCommunityImageID, DivChoiceCatalogMarketImageID, communityID`;
+
+		const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
+
+		url += `divChoiceCatalogCommunityImages?${qryStr}`;
+
+		return this._http.get(url).pipe(
+			map(response => {
+				let dtos = response['value'] as IDivChoiceCatalogCommunityImageDto[];
+
+				return dtos.map(dto => new DivChoiceCatalogCommunityImage(dto));
+			}),
+			catchError(this.handleError));
+	}
+
+	getDivChoiceCatalogCommunityImagesByOrgId(orgId: number) {
+		let url = settings.apiUrl;
+
+		const filter = `communityID eq ${orgId}`;
 		const select = `DivChoiceCatalogCommunityImageID, DivChoiceCatalogMarketImageID, communityID`;
 
 		const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
@@ -249,6 +270,25 @@ export class DivisionalService
 		return this._http.patch(url, data).pipe(
 			map(response => {
 				return response;
+			}),
+			catchError(this.handleError));
+	}
+
+	associateChoiceItemsToCommunity(divChoiceCatalogId: number, marketId: number, orgId: number, selectedMarketImages: DivChoiceCatalogMarketImage[]): Observable<any> {
+		let url = settings.apiUrl + `AssociateChoiceItemsToCommunity`;
+
+		let data = {
+			'divChoiceCatalogId': divChoiceCatalogId,
+			'marketId': marketId,
+			'orgId': orgId,
+			'selectedMarketImages': selectedMarketImages.map(x => x.divChoiceCatalogMarketImageID)
+		};
+
+		return this._http.post(url, { choiceItemsAssocDto: data }).pipe(
+			map(response => {
+				let choice = response as DivisionalChoice;
+
+				return choice;
 			}),
 			catchError(this.handleError));
 	}

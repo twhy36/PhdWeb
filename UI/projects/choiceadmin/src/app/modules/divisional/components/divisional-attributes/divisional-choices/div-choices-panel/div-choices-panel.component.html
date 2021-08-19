@@ -38,8 +38,12 @@
 										</phd-tabPanel>
 
 										<phd-tabPanel header="Communities" [data]="choice.divChoiceCatalogCommunities$">
-											<ng-template>
-												<expansion-choice-communities-tab-panel></expansion-choice-communities-tab-panel>
+											<ng-template let-communities>
+												<expansion-choice-communities-tab-panel [choice]="choice"
+																						[communities]="communities"
+																						[isReadOnly]="isReadOnly"
+																						(onDataChange)="performChangeDetection()">
+												</expansion-choice-communities-tab-panel>
 											</ng-template>
 										</phd-tabPanel>
 									</phd-tabView>
