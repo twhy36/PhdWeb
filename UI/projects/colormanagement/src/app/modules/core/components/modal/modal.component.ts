@@ -45,4 +45,3 @@ export class ModalComponent extends ModalContent implements OnInit
 		}
 	}
 }
-
