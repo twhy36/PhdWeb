@@ -129,7 +129,7 @@ export class Attribute
 
 	isDefaultEndDate(): boolean
 	{
-		return !this.endDate || this.convertToUtcString(this.endDate) === this.convertToUtcString(this.defaultEndDate);
+		return !this.endDate || this.convertToUtcString(this.endDate) >= this.convertToUtcString(this.defaultEndDate);
 	}
 
 	convertToUtcString(date: Date): string
