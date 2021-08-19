@@ -5,4 +5,37 @@
     margin-left: 94px;
     font-size:0.8em ;
     color:#6c757d!important
-  }
+}
+
+
+.modal-content {
+	width: auto;
+}
+
+.dialogAsterisk {
+	color: red;
+	font-size: 7px;
+	vertical-align: text-top;
+}
+
+.dialogSelects {
+	width: 300px;
+}
+
+.dialogTable {
+	width: 100%;
+	border: none;
+}
+
+.dialogTable td, .dialogTable th {
+	padding: .25rem;
+	border: none;
+}
+
+.dialogTextbox {
+	width: 460px
+}
+
+.dialogWindow {
+	width: auto !important;
+}

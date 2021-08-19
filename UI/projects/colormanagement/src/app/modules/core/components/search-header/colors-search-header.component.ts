@@ -11,6 +11,7 @@ import { SettingsService } from '../../services/settings.service';
 import { Settings } from '../../../shared/models/settings.model';
 
 import { ModalService } from '../../services/modal.service';
+import { FormGroup } from '@angular/forms';
 
 @Component({
 	selector: 'colors-search-header',
@@ -40,6 +41,8 @@ export class ColorsSearchHeaderComponent
 	skip: number;
 	settings: Settings;
 	modalReference: ModalRef;
+	newColors: IColorDto[] = [];
+	addColorDialogForm: FormGroup;
 
 	constructor(
 		private _optionService: OptionService,
@@ -133,6 +136,17 @@ export class ColorsSearchHeaderComponent
 	}
 
 	showAddColorsDialog(): boolean {
+		for(let i=0; i < 50; i++) {
+			this.newColors[i] = {
+				name: '',
+				colorId: 0,
+				sku: '',
+				optionSubCategoryName: '',
+				optionCategoryName: '',
+				isActive: true
+			};
+		}
+
 		this.modalReference = this._modalService.open(this.addColorModal);
 		this.isModalOpen = true;
 		this.modalReference.result.catch(err => console.log(err));

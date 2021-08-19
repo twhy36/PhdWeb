@@ -29,7 +29,6 @@
 }
 
 .modal-body {
-
   .phd-override-reason {
     display: flex;
     align-items: center;
@@ -40,4 +39,15 @@
       align-self: flex-start;
     }
   }
+}
+
+.phd-modal-window {
+	.modal-dialog {
+		max-width: 1200px;
+		justify-content: center !important;
+
+		.modal-content {
+			width: auto;
+		}
+	}
 }
