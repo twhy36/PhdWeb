@@ -21,7 +21,8 @@ import * as LotActions from '../../../ngrx-store/lot/actions';
 
 import {
 	UnsubscribeOnDestroy, ModalRef, ChangeTypeEnum, Job, TreeVersionRules, ScenarioStatusType, PriceBreakdown,
-	TreeFilter, Tree, SubGroup, Group, DecisionPoint, Choice, getDependentChoices, LotExt, getChoiceToDeselect
+	TreeFilter, Tree, SubGroup, Group, DecisionPoint, Choice, getDependentChoices, LotExt, getChoiceToDeselect,
+	ModalService
 } from 'phd-common';
 
 import { LotService } from '../../../core/services/lot.service';
@@ -29,7 +30,6 @@ import { LotService } from '../../../core/services/lot.service';
 import { ChoiceCardComponent } from '../../../shared/components/choice-card/choice-card.component';
 import { DecisionPointFilterType } from '../../../shared/models/decisionPointFilter';
 import { MonotonyConflict } from '../../../shared/models/monotony-conflict.model';
-import { ModalService } from '../../../core/services/modal.service';
 
 @Component({
 	selector: 'edit-home',

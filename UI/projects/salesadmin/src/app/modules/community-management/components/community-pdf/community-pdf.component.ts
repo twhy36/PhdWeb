@@ -51,7 +51,7 @@ export class CommunityPdfComponent extends UnsubscribeOnDestroy implements OnIni
 		private _route: ActivatedRoute,
 		private _communityService: CommunityService,
 		private _msgService: MessageService) { super(); }
-	
+
 	ngOnInit()
 	{
 		this._orgService.currentMarket$.subscribe(mkt =>
@@ -181,7 +181,7 @@ export class CommunityPdfComponent extends UnsubscribeOnDestroy implements OnIni
 		formData.set('sortOrder', this.getSortOrder(parseInt(formData.get('sectionHeader').valueOf().toString()) as SectionHeader, formData.get('fileName').valueOf().toString()));
 
 		this._communityService.saveCommunityPdf(formData)
-			.subscribe(communityPdf => 
+			.subscribe(communityPdf =>
 			{
 			this.updatePdfLists(communityPdf);
 			this.isSaving = false;

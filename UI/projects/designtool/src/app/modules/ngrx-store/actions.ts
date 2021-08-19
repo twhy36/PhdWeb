@@ -3,7 +3,7 @@ import { Action } from '@ngrx/store';
 import {
 	SalesCommunity, ESignEnvelope, ChangeOrderGroup, ChangeOrderHanding, Job, JobChoice, LotExt,
 	OpportunityContactAssoc, PlanOption, TreeVersionRules, SalesAgreement, SalesAgreementInfo, Scenario,
-	Tree, OptionImage
+	Tree, OptionImage, MyFavorite
 } from 'phd-common';
 
 import { ErrorAction } from './error.action';
@@ -85,7 +85,8 @@ export class SalesAgreementLoaded implements Action
 		public optionImages: OptionImage[],
 		public webPlanMappings: number[],
 		public changeOrder: ChangeOrderGroup,
-		public lot: LotExt
+		public lot: LotExt,
+		public myFavorites: MyFavorite[]
 	)
 	{
 		this.opportunity = this.salesAgreement.buyers && this.salesAgreement.buyers.length ? this.salesAgreement.buyers.find(t => t.isPrimaryBuyer).opportunityContactAssoc : null;

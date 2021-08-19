@@ -26,7 +26,8 @@ export interface State extends SalesAgreement
 	salesAgreementLoading: boolean,
 	saveError: boolean,
 	savingSalesAgreement: boolean,
-	savingSpecHome: boolean
+	savingSpecHome: boolean,
+	isDesignComplete: boolean
 }
 
 RehydrateMap.onRehydrate<State>("salesAgreement", state =>
@@ -62,7 +63,8 @@ export const initialState: State = {
 	salesAgreementLoading: false,
 	saveError: false,
 	savingSalesAgreement: false,
-	savingSpecHome: false
+	savingSpecHome: false,
+	isDesignComplete: false
 };
 
 export function reducer(state: State = initialState, action: SalesAgreementActions): State
@@ -87,7 +89,8 @@ export function reducer(state: State = initialState, action: SalesAgreementActio
 				isProgramNa: action.info ? action.info.isProgramNa : null,
 				isContingenciesNa: action.info ? action.info.isContingenciesNa : null,
 				isNoteNa: action.info ? action.info.isNoteNa : null,
-				isCoBuyerNa: action.info ? action.info.isCoBuyerNa : null
+				isCoBuyerNa: action.info ? action.info.isCoBuyerNa : null,
+				isDesignComplete: action.info ? action.info.isDesignComplete : null,
 			};
 		case CommonActionTypes.LoadError:
 			return { ...state, salesAgreementLoading: false, loadError: true };
@@ -122,6 +125,10 @@ export function reducer(state: State = initialState, action: SalesAgreementActio
 			return { ...state, savingSalesAgreement: true };
 		case SalesAgreementActionTypes.IsFloorplanFlippedAgreement:
 			return { ...state, isFloorplanFlipped: action.flipped, savingSalesAgreement: false };
+		case SalesAgreementActionTypes.SetIsDesignComplete:
+			return { ...state, savingSalesAgreement: true };
+		case SalesAgreementActionTypes.IsDesignCompleteSaved:
+			return { ...state, isDesignComplete: action.isDesignComplete, savingSalesAgreement: false };
 		case SalesAgreementActionTypes.AddUpdateRealtor:
 			return { ...state, savingSalesAgreement: true };
 		case SalesAgreementActionTypes.RealtorSaved:
@@ -135,6 +142,10 @@ export function reducer(state: State = initialState, action: SalesAgreementActio
 		case SalesAgreementActionTypes.BuyersSwapped:
 			const buyersAfterSwap = state.buyers.map<Buyer>(b =>
 			{
+				if (b.sortKey === 0) {
+					return action.newPrimaryBuyer;
+				}
+
 				if (b.sortKey === action.oldPrimaryBuyer.sortKey)
 				{
 					return action.oldPrimaryBuyer;
@@ -143,7 +154,7 @@ export function reducer(state: State = initialState, action: SalesAgreementActio
 				return b;
 			});
 
-			return { ...state, buyers: [action.newPrimaryBuyer, ...buyersAfterSwap.slice(1)], savingSalesAgreement: false };
+			return { ...state, buyers: buyersAfterSwap, savingSalesAgreement: false };
 		case SalesAgreementActionTypes.DeleteCoBuyer:
 			return { ...state, savingSalesAgreement: true };
 		case SalesAgreementActionTypes.CoBuyerDeleted:

@@ -1,6 +1,7 @@
-@import './bootstrap.min.css';
+@import '~bootstrap/dist/css/bootstrap.min.css';
 @import url(https://fonts.googleapis.com/css?family=Roboto:400,100,100italic,300,300itaÃ¢â‚¬Å’Ã¢â‚¬â€¹lic,400italic,500,500italic,700,700italic,900italic,900);
 @import "color-pallet";
+@import "sizes";
 
 html, body, app-root {
 	margin: 0;
@@ -95,4 +96,14 @@ main {
 	margin-right: 15px;
 }
 
-
+.phd-table-container {
+	display: -webkit-box;
+	display: -webkit-flex;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: column;
+	flex-grow : 1;
+	height: calc(100vh - #{$nav-menu-height} - #{$search-filter-height});
+	overflow-y: auto;
+	margin-top: 20px;
+}

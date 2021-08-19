@@ -6,6 +6,9 @@ export interface IEnvironment
 	production: boolean;
 	apiUrl: string;
 	hubUrl: string;
+	baseUrl: {
+		designPreview: string,
+	},
 	tenant: string;
 	clientId: string;
 	authConfig: AuthConfig;

@@ -10,7 +10,7 @@ import { Store, select } from '@ngrx/store';
 import
 	{
 		UnsubscribeOnDestroy, flipOver3, ModalRef, LocationGroup, AttributeGroup, DesignToolAttribute, ChangeTypeEnum, ChangeOrderGroup,
-		LotExt, Plan, Choice, OptionImage, DecisionPoint, ChoiceImageAssoc
+		LotExt, Plan, Choice, OptionImage, DecisionPoint, ChoiceImageAssoc, ModalService
 	} from 'phd-common';
 
 import { MonotonyConflict } from '../../models/monotony-conflict.model';
@@ -21,15 +21,17 @@ import { AttributeService } from '../../../core/services/attribute.service';
 
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 import * as fromChangeOrder from '../../../ngrx-store/change-order/reducer';
+import * as fromFavorite from '../../../ngrx-store/favorite/reducer';
 import { selectSelectedLot } from '../../../ngrx-store/lot/reducer';
 import * as fromRoot from '../../../ngrx-store/reducers';
 
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 
 import * as _ from 'lodash';
-import { ModalService } from '../../../core/services/modal.service';
 import { selectedPlanData } from '../../../ngrx-store/plan/reducer';
 import { TreeService } from '../../../core/services/tree.service';
+
+import { environment } from '../../../../../environments/environment';
 
 @Component({
 	selector: 'choice-card',
@@ -77,6 +79,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 	unsavedQty: number = 0;
 	lots: LotExt;
 	plan: Plan;
+	isFavorite: boolean;
 
 	private onChanges$: Subject<void> = new Subject<void>();
 
@@ -316,6 +319,20 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 
 			const changeOrder = state.currentChangeOrder as ChangeOrderGroup;
 			this.changeOrderOverrideReason = changeOrder ? changeOrder.overrideNote : null;
+		});
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromFavorite.myFavoriteChoices),
+			withLatestFrom(
+				this.store.pipe(select(fromRoot.isDesignPreviewEnabled))
+			)
+		).subscribe(([choices, isDesignPreviewEnabled]) =>
+		{
+			// Will need to remove environment.production check once design preview goes live, 
+			this.isFavorite = !environment.production
+					&& isDesignPreviewEnabled 
+					&& !!choices?.find(c => c.divChoiceCatalogId === this.choice.divChoiceCatalogId);
 		});
 
 		// trigger attributeGroups observable in the init.

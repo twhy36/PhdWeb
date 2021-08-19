@@ -12,8 +12,11 @@ import * as _ from 'lodash';
 import {
 	UnsubscribeOnDestroy, blink, ChangeOrderHanding, ChangeTypeEnum, ChangeOrderChoice, PlanOption,
 	PointStatus, SelectedChoice, PriceBreakdown, ScenarioStatusType, SummaryData, BuyerInfo, SummaryReportType,
-	SDGroup, SDSubGroup, SDPoint, SDChoice, SDImage, SDAttributeReassignment, Group, Choice, DecisionPoint
+	SDGroup, SDSubGroup, SDPoint, SDChoice, SDImage, SDAttributeReassignment, Group, Choice, DecisionPoint,
+	PDFViewerComponent, ModalService
 } from 'phd-common';
+
+import { environment } from '../../../../../environments/environment';
 
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 import * as fromRoot from '../../../ngrx-store/reducers';
@@ -21,7 +24,6 @@ import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 import * as SummaryActions from '../../../ngrx-store/summary/actions';
 import * as ChangeOrderActions from '../../../ngrx-store/change-order/actions';
 import * as fromLot from '../../../ngrx-store/lot/reducer';
-import { ModalService } from './../../../core/services/modal.service';
 
 import { LotService } from '../../../core/services/lot.service';
 import { ReportsService } from '../../../core/services/reports.service';
@@ -36,7 +38,6 @@ import * as JobActions from '../../../ngrx-store/job/actions';
 
 import { DecisionPointSummaryComponent } from '../../../shared/components/decision-point-summary/decision-point-summary.component';
 import { SummaryHeader, SummaryHeaderComponent } from '../summary-header/summary-header.component';
-import { PDFViewerComponent } from '../../../shared/components/pdf-viewer/pdf-viewer.component';
 
 import { selectSelectedLot } from '../../../ngrx-store/lot/reducer';
 
@@ -537,6 +538,7 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 
 			pdfViewer.componentInstance.pdfModalTitle = `Configuration Preview - ${reportType}`;
 			pdfViewer.componentInstance.pdfData = pdfData;
+			pdfViewer.componentInstance.pdfBaseUrl = `${environment.pdfViewerBaseUrl}`;
 		},
 		error =>
 		{

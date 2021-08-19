@@ -603,9 +603,9 @@
                 }
             }
         },
-        "homedesigner": {
+        "designpreview": {
             "root": "",
-            "sourceRoot": "projects/homedesigner/src",
+            "sourceRoot": "projects/designpreview/src",
             "projectType": "application",
             "architect": {
                 "build": {
@@ -620,17 +620,17 @@
 						"progress": true,
 						"preserveSymlinks": true,
 						"aot": true,
-						"baseHref": "/homedesigner/",
+						"baseHref": "/designpreview/",
 						"outputHashing": "all",
-						"outputPath": "dist/homedesigner",
-						"index": "projects/homedesigner/src/index.html",
-						"main": "projects/homedesigner/src/main.ts",
-						"polyfills": "projects/homedesigner/src/polyfills.ts",
-						"tsConfig": "projects/homedesigner/tsconfig.app.json",
+						"outputPath": "dist/designpreview",
+						"index": "projects/designpreview/src/index.html",
+						"main": "projects/designpreview/src/main.ts",
+						"polyfills": "projects/designpreview/src/polyfills.ts",
+						"tsConfig": "projects/designpreview/tsconfig.app.json",
 						"verbose": true,
 						"assets": [
-							"projects/homedesigner/src/assets",
-							"projects/homedesigner/src/favicon.ico"
+							"projects/designpreview/src/assets",
+							"projects/designpreview/src/favicon.ico"
 						],
 						"styles": [
 							"node_modules/ngx-toastr/toastr.css",
@@ -639,7 +639,7 @@
 							"node_modules/primeng/resources/themes/nova/theme.css",
 							"node_modules/primeng/resources/primeng.min.css",
 							"node_modules/primeicons/primeicons.css",
-							"projects/homedesigner/src/scss/styles.scss"
+							"projects/designpreview/src/scss/styles.scss"
 						],
 						"scripts": []
 					},
@@ -649,32 +649,32 @@
                             "outputHashing": "none",
                             "fileReplacements": [
                                 {
-                                    "replace": "projects/homedesigner/src/environments/environment.ts",
-                                    "with": "projects/homedesigner/src/environments/environment.local.ts"
+                                    "replace": "projects/designpreview/src/environments/environment.ts",
+                                    "with": "projects/designpreview/src/environments/environment.local.ts"
                                 }
                             ]
                         },
                         "qa": {
                             "fileReplacements": [
                                 {
-                                    "replace": "projects/homedesigner/src/environments/environment.ts",
-                                    "with": "projects/homedesigner/src/environments/environment.qa.ts"
+                                    "replace": "projects/designpreview/src/environments/environment.ts",
+                                    "with": "projects/designpreview/src/environments/environment.qa.ts"
                                 }
                             ]
                         },
                         "staging": {
                             "fileReplacements": [
                                 {
-                                    "replace": "projects/homedesigner/src/environments/environment.ts",
-                                    "with": "projects/homedesigner/src/environments/environment.staging.ts"
+                                    "replace": "projects/designpreview/src/environments/environment.ts",
+                                    "with": "projects/designpreview/src/environments/environment.staging.ts"
                                 }
                             ]
                         },
                         "production": {
                             "fileReplacements": [
                                 {
-                                "replace": "projects/homedesigner/src/environments/environment.ts",
-                                "with": "projects/homedesigner/src/environments/environment.prod.ts"
+                                "replace": "projects/designpreview/src/environments/environment.ts",
+                                "with": "projects/designpreview/src/environments/environment.prod.ts"
                                 }
                             ],
                             "optimization": true,
@@ -689,34 +689,34 @@
                 "serve": {
                     "builder": "@angular-devkit/build-angular:dev-server",
                     "options": {
-                        "browserTarget": "homedesigner:build:local",
+                        "browserTarget": "designpreview:build:local",
                         "port": 14769
                     },
                     "configurations": {
                         "qa": {
-                            "browserTarget": "homedesigner:build:qa"
+                            "browserTarget": "designpreview:build:qa"
                         },
                         "staging": {
-                            "browserTarget": "homedesigner:build:staging"
+                            "browserTarget": "designpreview:build:staging"
                         },
                         "production": {
-                            "browserTarget": "homedesigner:build:production"
+                            "browserTarget": "designpreview:build:production"
                         }
                     }
                 },
                 "extract-i18n": {
                     "builder": "@angular-devkit/build-angular:extract-i18n",
                     "options": {
-                        "browserTarget": "homedesigner:build"
+                        "browserTarget": "designpreview:build"
                     }
                 },
                 "test": {
                     "builder": "@angular-devkit/build-angular:karma",
                     "options": {
-                        "main": "projects/homedesigner/src/test.ts",
-                        "polyfills": "projects/homedesigner/src/polyfills.ts",
-                        "tsConfig": "projects/homedesigner/tsconfig.spec.json",
-                        "karmaConfig": "projects/homedesigner/karma.conf.js",
+                        "main": "projects/designpreview/src/test.ts",
+                        "polyfills": "projects/designpreview/src/polyfills.ts",
+                        "tsConfig": "projects/designpreview/tsconfig.spec.json",
+                        "karmaConfig": "projects/designpreview/karma.conf.js",
                         "styles": [
                             "node_modules/ngx-toastr/toastr.css",
                             "node_modules/bootstrap/scss/bootstrap.scss",
@@ -724,11 +724,11 @@
                             "node_modules/primeng/resources/themes/nova/theme.css",
                             "node_modules/primeng/resources/primeng.min.css",
                             "node_modules/primeicons/primeicons.css",
-                            "projects/homedesigner/src/scss/styles.scss"
+                            "projects/designpreview/src/scss/styles.scss"
                         ],
                         "scripts": [],
                         "assets": [
-                            "projects/homedesigner/src/assets"
+                            "projects/designpreview/src/assets"
                         ]
                     }
                 },
@@ -736,8 +736,8 @@
                     "builder": "@angular-devkit/build-angular:tslint",
                     "options": {
                         "tsConfig": [
-                            "projects/homedesigner/tsconfig.app.json",
-                            "projects/homedesigner/tsconfig.spec.json"
+                            "projects/designpreview/tsconfig.app.json",
+                            "projects/designpreview/tsconfig.spec.json"
                         ],
                         "exclude": [
                             "**/node_modules/**"

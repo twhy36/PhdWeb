@@ -2,6 +2,7 @@ export const environment = {
 	production: true,
 	apiUrl: 'https://phdapi.pulte.com/odata/',
 	hubUrl: 'https://phdhub.pulte.com/hub',
+	thoUrl: 'https://tho.centex.com/',
 	alphaVisionBuilderGuid: '8D676CB9-C011-429D-8D71-87D34A87494B',
 	tenant: "pulte.onmicrosoft.com",
 	clientId: "d21266c1-108b-4141-8200-fffa205f205e",
@@ -17,7 +18,7 @@ export const environment = {
 		strictDiscoveryDocumentValidation: false
 	},
 	appInsights: {
-		instrumentationKey: '3080202e-6c69-4829-ad05-f232fe7c4090'
+		instrumentationKey: 'f6f360eb-b343-428f-ab2b-c53d417f272e'
 	},
 	whatFix: {
 		scriptUrl: '//cdn.whatfix.com/prod/01caf5e0-cb2f-11e8-b979-04013d24cd02/embed/embed.nocache.js'

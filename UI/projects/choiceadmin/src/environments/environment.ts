@@ -30,5 +30,5 @@ export const environment: IEnvironment = {
 	},
 	apiUrl: 'https://phdapi.dev.pulte.com/odata/',
 	designToolUrl: 'https://phd.dev.pulte.com/designtool/',
-	designPreviewUrl: 'https://phd.dev.pulte.com/homedesigner/'
+	designPreviewUrl: 'https://phd.dev.pulte.com/designpreview/'
 };

@@ -4,40 +4,42 @@
 	border-width: 1px;
 	border-color: black;
 	border-collapse: collapse;
-	margin: auto;
-	margin-top: 10%;
-	width:350px;
-	height:100px;
+	margin: 1rem auto;
+	width: 350px;
 }
 
-.phd-box{
+.phd-box {
 	text-align: center;
 	padding:15px;
 }
 
-.phd-line{
+.phd-line {
 	text-align: center;
-	margin-bottom:10px;
+	margin-bottom: 10px;
 }
 
-.phd-input-line{
+.phd-input-line {
 	text-align: center;
-	margin-bottom:20px;
-	margin-top:5px;
+	margin-bottom: 20px;
+	margin-top: 5px;
 }
 
-.phd-earnest-money-input{
+.phd-earnest-money-input {
 	margin-left: 10px;
 }
 
-.phd-ecoe-input{
+.phd-ecoe-input {
 	width: 100px;
 	margin: 0 10px;
 }
 
-.phd-save-button{
+.phd-save-button {
 	margin: auto;
-	margin-top: 10%;
+	margin-top: 1rem;
+}
+
+.btn-toggle.btn-sm.btn-auto-approval{
+	margin: 10px 0.5rem;
 }
 
 .phd-settings-container{
@@ -45,8 +47,12 @@
 	height: 750px;
 }
 
-.phd-center{
+.phd-center {
 	display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.phd-no-community {
+	margin: 1rem;
 }

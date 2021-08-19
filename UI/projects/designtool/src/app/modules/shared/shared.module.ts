@@ -28,7 +28,6 @@ import { DisabledErrorComponent } from './components/disabled-error/disabled-err
 import { ExperienceFilterComponent } from './components/experience-filter/experience-filter.component';
 import { PageHeaderComponent } from './components/page-header/page-header.component';
 import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
-import { PDFViewerComponent } from './components/pdf-viewer/pdf-viewer.component';
 import { PhaseProgressBarComponent } from './components/phase-progress-bar/phase-progress-bar.component';
 import { PriceInputComponent } from './components/price-input/price-input.component';
 import { QuantityInputComponent } from './components/quantity-input/quantity-input.component';
@@ -82,7 +81,6 @@ import { InputFilterDirective } from './directives/input-filter.directive';
 		MapJoinPipe,
 		PageHeaderComponent,
 		PageNotFoundComponent,
-		PDFViewerComponent,
 		PhaseProgressBarComponent,
 		PhoneNumberDirective,
 		PointIdToNamePipe,
@@ -125,7 +123,6 @@ import { InputFilterDirective } from './directives/input-filter.directive';
 		MapJoinPipe,
 		PageHeaderComponent,
 		PageNotFoundComponent,
-		PDFViewerComponent,
 		PhaseProgressBarComponent,
 		PhoneNumberDirective,
 		PointIdToNamePipe,
