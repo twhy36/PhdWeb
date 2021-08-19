@@ -73,6 +73,9 @@ export enum SalesAgreementActionTypes
 	// Floorplan Flippin
 	SetIsFloorplanFlippedAgreement = 'Set Agreement Floorplan Flipped',
 	IsFloorplanFlippedAgreement = 'Agreement Floorplan Flipped Saved',
+	// Design Complete Flag
+	SetIsDesignComplete = 'Set Is Design Complete',
+	IsDesignCompleteSaved = 'Is Design Complete Flag Saved',
 	// Sales Consultant
 	LoadConsultants = 'Load Consultants',
 	ConsultantsLoaded = 'Consultants Loaded',
@@ -477,6 +480,20 @@ export class SetIsFloorplanFlippedAgreement implements Action
 	constructor(public isFlipped: boolean) { }
 }
 
+export class IsDesignCompleteSaved implements Action
+{
+	readonly type = SalesAgreementActionTypes.IsDesignCompleteSaved;
+
+	constructor(public isDesignComplete: boolean) { }
+}
+
+export class SetIsDesignComplete implements Action
+{
+	readonly type = SalesAgreementActionTypes.SetIsDesignComplete;
+
+	constructor(public isDesignComplete: boolean) { }
+}
+
 export class LoadConsultants implements Action
 {
 	readonly type = SalesAgreementActionTypes.LoadConsultants;
@@ -529,6 +546,7 @@ export type SalesAgreementActions =
 	DepositDeleted |
 	DepositSaved |
 	IsFloorplanFlippedAgreement |
+	IsDesignCompleteSaved |
 	JIOForSpecCreated |
 	LoadBuyers |
 	LoadRealtor |
@@ -553,6 +571,7 @@ export type SalesAgreementActions =
 	SaveNote |
 	SaveProgram |
 	SetIsFloorplanFlippedAgreement |
+	SetIsDesignComplete |
 	SetTrustName |
 	SignSalesAgreement |
 	SwapPrimaryBuyer |

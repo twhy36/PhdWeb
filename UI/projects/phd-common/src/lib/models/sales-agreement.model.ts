@@ -126,6 +126,7 @@ export interface ISalesAgreementInfo
 	isFloorplanFlipped?: boolean;
 	isNoteNa?: boolean;
 	isCoBuyerNa?: boolean;
+	isDesignComplete?: boolean;
 }
 
 export class SalesAgreementInfo
@@ -138,6 +139,7 @@ export class SalesAgreementInfo
 	isFloorplanFlipped?: boolean = null;
 	isNoteNa?: boolean = null;
 	isCoBuyerNa?: boolean = null;
+	isDesignComplete?: boolean = null;
 
 	constructor(dto: ISalesAgreementInfo = null)
 	{
@@ -151,6 +153,7 @@ export class SalesAgreementInfo
 			this.isFloorplanFlipped = dto.isFloorplanFlipped;
 			this.isNoteNa = dto.isNoteNa;
 			this.isCoBuyerNa = dto.isCoBuyerNa;
+			this.isDesignComplete = dto.isDesignComplete;
 		}
 	}
 }
