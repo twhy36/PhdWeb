@@ -72,13 +72,7 @@ export class ColorService {
 		}
 		if (edhPlanOptionIds)
 		{
-			let planOptionIdFilter='';
-			edhPlanOptionIds.forEach(id =>
-				{
-					planOptionIdFilter += planOptionIdFilter.length > 0 ? ' or ' : '';
-					planOptionIdFilter += `edhPlanOptionId eq ${id}`;
-				});
-			filter +=`and (${planOptionIdFilter})`;
+			filter += `and (edhPlanOptionId in (${edhPlanOptionIds.join(',')}))`;			
 		}
 
 		let qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
