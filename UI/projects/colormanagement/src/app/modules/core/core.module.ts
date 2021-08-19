@@ -15,6 +15,8 @@ import { SidePanelComponent } from '../shared/components/side-panel/side-panel.c
 import { ConfirmModalComponent } from '../shared/components/confirm-modal/confirm-modal.component';
 
 import { SettingsService } from './services/settings.service';
+import { ModalComponent } from './components/modal/modal.component';
+import { ModalService } from './services/modal.service';
 
 @NgModule({
 	declarations: [
@@ -24,7 +26,8 @@ import { SettingsService } from './services/settings.service';
 		ConfirmModalComponent,
 		SidePanelComponent,
 		ConfirmModalComponent,
-		AddColorSidePanelComponent
+		AddColorSidePanelComponent,
+		ModalComponent
 	],
 	imports: [
 		CommonModule,
@@ -45,7 +48,8 @@ import { SettingsService } from './services/settings.service';
 		AccessGuard,
 		OptionService,
 		ColorService,
-		SettingsService
+		SettingsService,
+		ModalService
 	]
 })
 

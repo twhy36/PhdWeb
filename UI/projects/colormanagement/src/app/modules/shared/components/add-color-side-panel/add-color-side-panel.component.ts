@@ -66,7 +66,7 @@ export class AddColorSidePanelComponent implements OnInit {
 				sku: '',
 				optionSubCategoryName: '',
 				optionCategoryName: '',
-				isActive: false
+				isActive: true
 			};
 		}
 	}

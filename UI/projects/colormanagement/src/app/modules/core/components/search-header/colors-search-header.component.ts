@@ -1,14 +1,16 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, ViewChild } from '@angular/core';
 import { OptionService } from '../../services/option.service';
 import { IOptionSubCategory } from '../../../shared/models/option.model';
 import { OrganizationService } from '../../../core/services/organization.service';
 import { switchMap, filter, map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
-import { UnsubscribeOnDestroy } from 'phd-common';
+import { ModalRef, UnsubscribeOnDestroy } from 'phd-common';
 import { IColorDto } from '../../../shared/models/color.model';
 import { ColorService } from '../../services/color.service';
 import { SettingsService } from '../../services/settings.service';
 import { Settings } from '../../../shared/models/settings.model';
+
+import { ModalService } from '../../services/modal.service';
 
 @Component({
 	selector: 'colors-search-header',
@@ -21,8 +23,10 @@ export class ColorsSearchHeaderComponent
 {
 
 	@Output() sidePanelWasToggled = new EventEmitter<boolean>();
+	@ViewChild('addColorModal') addColorModal: any;
 	colorname: string = null;
 	isCounterVisible: boolean;
+	saveColorsDisabled: boolean
 	optionSubCategory: Array<IOptionSubCategory>;
 	optionSubCategory$: Observable<Array<IOptionSubCategory>>;
 	selectedSubCategory: IOptionSubCategory;
@@ -31,14 +35,18 @@ export class ColorsSearchHeaderComponent
 	allDataLoaded: boolean;
 	isActiveColor: boolean;
 	isLoading: boolean = true;
+	isModalOpen: boolean;
 	currentPage: number = 0;
 	skip: number;
 	settings: Settings;
+	modalReference: ModalRef;
+
 	constructor(
 		private _optionService: OptionService,
 		private _orgService: OrganizationService,
 		private _colorService: ColorService,
-		private _settingsService: SettingsService
+		private _settingsService: SettingsService,
+		private _modalService: ModalService
 	) {
 		super();
 	}
@@ -124,9 +132,19 @@ export class ColorsSearchHeaderComponent
 		this.colorsDtoList = [];
 	}
 
-	openSidePanel(): boolean {
-		console.log(`Add color link was clicked in search header`);
-		this.sidePanelWasToggled.emit(true);
+	showAddColorsDialog(): boolean {
+		this.modalReference = this._modalService.open(this.addColorModal);
+		this.isModalOpen = true;
+		this.modalReference.result.catch(err => console.log(err));
 		return false;
+	}
+
+	saveColors() {
+
+	}
+
+	cancelAddColorDialog() {
+		this.modalReference.dismiss();
+		this.isModalOpen = false;
 	}
 }

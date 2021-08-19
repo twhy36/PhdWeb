@@ -38,7 +38,7 @@
 		<ng-template #tableHeader>
 			<div class="float-right">
 				<span class="mx-2">
-					<a href="" (click)="openSidePanel()">Add Color</a>
+					<a href="" (click)="showAddColorsDialog()">Add Color</a>
 				</span>
 			</div>
 		</ng-template>
@@ -49,4 +49,18 @@
         <phd-column header="Active" field="isActive">
         </phd-column>
     </phd-table>
+
+	<ng-template #addColorModal>
+		<div class="modal-body">
+			<h1>Dialog Body goes here</h1>
+		</div>
+		<div class="modal-footer">
+			<button type="button" class="btn btn-primary" (click)="saveColors()" [disabled]="saveColorsDisabled">
+				Save
+			</button>
+			<button type="button" class="btn btn-secondary" (click)="cancelAddColorDialog()">
+				Cancel
+			</button>
+		</div>
+	</ng-template>
 </div>
