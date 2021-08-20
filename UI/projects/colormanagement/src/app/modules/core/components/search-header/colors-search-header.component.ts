@@ -4,7 +4,7 @@ import { IOptionSubCategory } from '../../../shared/models/option.model';
 import { OrganizationService } from '../../../core/services/organization.service';
 import { switchMap, filter, map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
-import { ModalRef, UnsubscribeOnDestroy } from 'phd-common';
+import { ConfirmModalComponent, ModalRef, UnsubscribeOnDestroy } from 'phd-common';
 import { IColorDto } from '../../../shared/models/color.model';
 import { ColorService } from '../../services/color.service';
 import { SettingsService } from '../../services/settings.service';
@@ -153,12 +153,41 @@ export class ColorsSearchHeaderComponent
 		return false;
 	}
 
-	saveColors() {
+	saveColors()
+	{
 
 	}
 
-	cancelAddColorDialog() {
-		this.modalReference.dismiss();
-		this.isModalOpen = false;
+	async cancelAddColorDialog()
+	{
+		const noNewColorsWereAdded = ! this.newColors.some((item) => item.name.trim().length > 0);
+
+		if (noNewColorsWereAdded)
+		{
+			this.modalReference.dismiss();
+			this.isModalOpen = false;
+			return;
+		}
+
+		const msg = 'Do you want to cancel without saving? If so, the data entered will be lost.';
+		const closeWithoutSavingData = await this.showConfirmModal(msg, 'Warning', 'Cancel');
+
+		if (closeWithoutSavingData)
+		{
+			this.modalReference.dismiss();
+			this.isModalOpen = false;
+		}
+	}
+
+	private async showConfirmModal(body: string, title: string, defaultButton: string): Promise<boolean>
+	{
+		const confirm = this._modalService.open(ConfirmModalComponent, { centered: true });
+
+		confirm.componentInstance.title = title;
+		confirm.componentInstance.body = body;
+		confirm.componentInstance.defaultOption = defaultButton;
+
+		const response = await confirm.result;
+		return response == 'Continue';
 	}
 }
