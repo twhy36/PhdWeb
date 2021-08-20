@@ -207,19 +207,23 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 
 		let locationMaxQty = choiceMaxQty;
 
+		const location = this.locationComponents.find(lc => lc.attributeLocation.id === locationId);
+		
 		// if the choice max qty has been reached then set the max qty for the location to the location qty
 		if (totalQtyAllLocations === choiceMaxQty)
 		{
-			locationMaxQty = this.locationComponents.find(lc => lc.attributeLocation.id === locationId).locationQuantityTotal;
+			locationMaxQty = location?.locationQuantityTotal ?? 0;
 		}
 		else
 		{
 			// if the choice max qty has not been reached then set the max qty for the location to
 			// the choice max qty minus the total choice qty plus the location qty
-			const locationQty = this.locationComponents.find(lc => lc.attributeLocation.id === locationId).locationQuantityTotal;
+			const locationQty = location?.locationQuantityTotal ?? 0;
 
 			locationMaxQty = choiceMaxQty - totalQtyAllLocations + locationQty;
 		}
+
+		this.totalQuantitySelected = this.getSelectedQuantity();
 
 		return locationMaxQty;
 	}
@@ -532,6 +536,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	changeSelectedQuantity(newQuantity: number)
 	{
 		this.selectedMax = newQuantity;
+		this.choice.quantity = newQuantity;
 
 		if (this.choice.quantity > 0)
 		{
