@@ -6,6 +6,7 @@ import { LinkAction } from '../../models/action.model';
 import { SearchResult, IFilterItem, IFilterItems, ISearchResultAgreement } from '../../models/search.model';
 import { SearchService } from '../../../core/services/search.service';
 import { PhdTableComponent } from 'phd-common';
+import { IFinancialCommunity } from '../../models/community.model';
 
 @Component({
 	encapsulation: ViewEncapsulation.None,
@@ -313,9 +314,9 @@ export class PHDSearchComponent
 		this.onLocationChange();
 	}
 
-	onFinancialCommunityChange(community)
+	onFinancialCommunityChange(community: IFinancialCommunity)
 	{
-		this.selectedFinancialCommunity = community;
+		this.selectedFinancialCommunity = community?.id;
 
 		this.onLocationChange();
 	}
