@@ -8,6 +8,7 @@ import { APP_BASE_HREF, PlatformLocation } from "@angular/common";
 import { CloudinaryModule } from '@cloudinary/angular-5.x';
 import { Cloudinary } from 'cloudinary-core';
 import { ToastrModule } from 'ngx-toastr';
+import { NgIdleModule } from '@ng-idle/core'
 import { Observable, of } from 'rxjs';
 
 import { PhdCommonModule, IdentityService, AUTH_CONFIG } from 'phd-common';
@@ -68,7 +69,8 @@ const tryInitAuth = (authService: AuthService, identityService: IdentityService)
 		RouterModule.forRoot(appRoutes),
 		StoreModule,
 		CloudinaryModule.forRoot({ Cloudinary }, environment.cloudinary),
-		ToastrModule.forRoot({ closeButton: true })
+		ToastrModule.forRoot({ closeButton: true }),
+		NgIdleModule.forRoot()
     ],
     providers: [
 		{ provide: APP_INITIALIZER, useFactory: tryInitAuth, deps: [AuthService, IdentityService], multi: true },
