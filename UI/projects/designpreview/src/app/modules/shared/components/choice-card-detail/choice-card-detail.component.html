@@ -4,46 +4,46 @@
 			<i class="fa fa-arrow-left phd-clickable" (click)="onClickBack()"></i>
 			<span>{{path}}</span>
 		</div>
-    <div class="phd-image-container">
-      <div class="phd-image-card">
-        <div class="phd-card-detail-image-body">
-          <div *ngIf="imageLoading" class="phd-image-loading">
-            <i class="fa fa-spinner fa-spin fa-3x phd-image-loader"></i>
-          </div>
-          <div *ngIf="highlightedAttribute">
-            <cl-image public-id="{{attributeImageUrl}}" (onLoad)="onLoadImage()" (onError)="onLoadImageError($event)" type="fetch" background="#ffffff" crop="lpad" class="phd-image-content"></cl-image>
-          </div>
-          <div *ngIf="!highlightedAttribute">
-            <ngb-carousel #imageCarousel [interval]="0" (slide)="onSlide($event)">
-              <ng-template ngbSlide *ngFor="let image of choiceImages; let currentIndex = index;" id="{{currentIndex}}">
-                <cl-image public-id="{{image.imageURL}}" (onLoad)="onLoadImage()" (onError)="onLoadImageError($event)" type="fetch" background="#ffffff" crop="lpad" class="phd-image-content" *ngIf="activeIndex?.current == currentIndex"></cl-image>
-              </ng-template>
-            </ngb-carousel>
-          </div>
-        </div>
-        <span class="phd-image-caption">Images are examples only. Products are subject to change.</span>
-      </div>
-      <div class="phd-image-carousel">
-        <ng-container *ngIf="choiceImages.length <= 10">
-          <span *ngFor="let image of choiceImages" class="phd-image-thumbnail phd-clickable">
-            <cl-image public-id="{{image.imageURL}}" type="fetch" background="#ffffff" crop="lpad"
-              class="phd-choice-image" [class.phd-choice-image-selected]="!highlightedAttribute && selectedImageUrl === image.imageURL"
-              (onError)="onLoadImageError($event)" (click)="imageClick(image)">
-            </cl-image>
-          </span>
-        </ng-container>
-        <ng-container *ngIf="choiceImages.length > 10">
-          <p-carousel [value]="choiceImages" [numVisible]="10" [numScroll]="1">
-            <ng-template let-image pTemplate="item">
-              <cl-image public-id="{{image.imageURL}}" type="fetch" background="#ffffff" crop="lpad"
-                class="phd-choice-image" [class.phd-choice-image-selected]="!highlightedAttribute && selectedImageUrl === image.imageURL"
-                (onError)="onLoadImageError($event)" (click)="imageClick(image)">
-              </cl-image>
-            </ng-template>
-          </p-carousel>
-        </ng-container>
-      </div>
-    </div>
+		<div class="phd-image-container">
+			<div class="phd-image-card">
+				<div class="phd-card-detail-image-body">
+				<div *ngIf="imageLoading" class="phd-image-loading">
+					<i class="fa fa-spinner fa-spin fa-3x phd-image-loader"></i>
+				</div>
+				<div *ngIf="highlightedAttribute">
+					<cl-image public-id="{{attributeImageUrl}}" (onLoad)="onLoadImage()" (onError)="onLoadImageError($event)" type="fetch" background="#ffffff" crop="lpad" class="phd-image-content"></cl-image>
+				</div>
+				<div *ngIf="!highlightedAttribute">
+					<ngb-carousel #imageCarousel [interval]="0" (slide)="onSlide($event)">
+					<ng-template ngbSlide *ngFor="let image of choiceImages; let currentIndex = index;" id="{{currentIndex}}">
+						<cl-image public-id="{{image.imageURL}}" (onLoad)="onLoadImage()" (onError)="onLoadImageError($event)" type="fetch" background="#ffffff" crop="lpad" class="phd-image-content" *ngIf="activeIndex?.current == currentIndex"></cl-image>
+					</ng-template>
+					</ngb-carousel>
+				</div>
+				</div>
+				<span class="phd-image-caption">Images are examples only. Products are subject to change.</span>
+			</div>
+			<div class="phd-image-carousel">
+				<ng-container *ngIf="choiceImages.length <= 10">
+				<span *ngFor="let image of choiceImages" class="phd-image-thumbnail phd-clickable">
+					<cl-image public-id="{{image.imageURL}}" type="fetch" background="#ffffff" crop="lpad"
+					class="phd-choice-image" [class.phd-choice-image-selected]="!highlightedAttribute && selectedImageUrl === image.imageURL"
+					(onError)="onLoadImageError($event)" (click)="imageClick(image)">
+					</cl-image>
+				</span>
+				</ng-container>
+				<ng-container *ngIf="choiceImages.length > 10">
+				<p-carousel [value]="choiceImages" [numVisible]="10" [numScroll]="1">
+					<ng-template let-image pTemplate="item">
+					<cl-image public-id="{{image.imageURL}}" type="fetch" background="#ffffff" crop="lpad"
+						class="phd-choice-image" [class.phd-choice-image-selected]="!highlightedAttribute && selectedImageUrl === image.imageURL"
+						(onError)="onLoadImageError($event)" (click)="imageClick(image)">
+					</cl-image>
+					</ng-template>
+				</p-carousel>
+				</ng-container>
+			</div>
+		</div>
 		<div class="phd-price">
 			<div>
 				<strong class="phd-price-label">{{choice.price * (choice.quantity > 0 ? choice.quantity : 1) | currency:'USD':'symbol':'0.0-0'}}</strong>
@@ -72,7 +72,7 @@
 		</div>
 		<div class="d-flex flex-column flex-grow-1" *ngIf="hasAttributes">
 			<div class="phd-available-selections">
-				<span>AVAILABLE SELECTIONS:</span>
+				<span>{{isDesignComplete ? 'SELECTIONS:' : 'AVAILABLE SELECTIONS:'}}</span>
 			</div>
 
 			<div class="phd-attr-loc-group-container" *ngIf="!optionDisabled && (locationGroups?.length || (!locationGroups?.length && attributeGroups?.length))">
@@ -87,6 +87,7 @@
 												[isBlocked]="choice.choiceStatus === 'Available' && !choice.enabled"
 												[highlightedAttribute]="getHighlightedLocationAttribute(attributeLocation, group)"
 												[isReadonly]="isReadonly"
+												[isDesignComplete]="isDesignComplete"
 												(onLocationAttributeClick)="locationAttributeClick($event)"
 												(onToggleAttribute)="toggleAttribute($event)"
 												(onQuantiyChange)="changeQuantiy($event)">
@@ -101,6 +102,7 @@
 										[highlightedAttributeId]="getHighlightedAttributeId(attributeGroup)"
 										[isBlocked]="choice.choiceStatus === 'Available' && !choice.enabled"
 										[isReadonly]="isReadonly"
+										[isDesignComplete]="isDesignComplete"
 										(onAttributeClick)="attributeClick($event)"
 										(onToggleAttribute)="toggleAttribute($event)">
 						</attribute-group>

@@ -133,7 +133,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 
 				let scenario = _.cloneDeep(newState.scenario || state.scenario);
 				scenario = <any>{ scenarioId: 0, scenarioName: '--PREVIEW--', lotId: action.job.lotId, scenarioInfo: null };
-
+				
 				newState = { ...newState, scenario: scenario };
 			}
 
@@ -161,21 +161,35 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 				subGroups = _.flatMap(newState.tree.treeVersion.groups, g => g.subGroups);
 				points = _.flatMap(subGroups, sg => sg.points);
 				choices = _.flatMap(points, p => p.choices);
-				points.forEach(pt => setPointStatus(pt));
 
-				if (action.type === CommonActionTypes.SalesAgreementLoaded)
+				if (action.type === CommonActionTypes.SalesAgreementLoaded && action.info?.isDesignComplete)
 				{
-					// For each point, if the user cannot select the DP in this tool, then the status should be complete
-					points.filter(pt => pt.isStructuralItem).forEach(pt => pt.status = PointStatus.COMPLETED);
+					// When it is design complete, all points and subgroups should be in complete status
+					points.forEach(pt => {
+						pt.status = PointStatus.COMPLETED; 
+						pt.completed = true;
+					});
+					subGroups.forEach(sg => sg.status = PointStatus.COMPLETED);
 				}
-				
-				// For each point with a pick 0, we need to change the status to required (if no thanks is selected, the status is later updated to Completed)
-				points.filter(pt =>
-					[PickType.Pick0or1, PickType.Pick0ormore].indexOf(pt.pointPickTypeId) > 0
-						&& [PointStatus.UNVIEWED, PointStatus.VIEWED].indexOf(pt.status) > 0
-				).forEach(pt => pt.status = PointStatus.REQUIRED);
+				else
+				{
+					points.forEach(pt => setPointStatus(pt));
 
-				subGroups.forEach(sg => setSubgroupStatus(sg));
+					if (action.type === CommonActionTypes.SalesAgreementLoaded)
+					{
+						// For each point, if the user cannot select the DP in this tool, then the status should be complete
+						points.filter(pt => pt.isStructuralItem).forEach(pt => pt.status = PointStatus.COMPLETED);
+					}
+					
+					// For each point with a pick 0, we need to change the status to required (if no thanks is selected, the status is later updated to Completed)
+					points.filter(pt =>
+						[PickType.Pick0or1, PickType.Pick0ormore].indexOf(pt.pointPickTypeId) > 0
+							&& [PointStatus.UNVIEWED, PointStatus.VIEWED].indexOf(pt.status) > 0
+					).forEach(pt => pt.status = PointStatus.REQUIRED);
+
+					subGroups.forEach(sg => setSubgroupStatus(sg));					
+				}				
+
 				newState.tree.treeVersion.groups.forEach(g => setGroupStatus(g));
 
 				// Choice-To-Choice
@@ -261,21 +275,34 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 			// check selected attributes to make sure they're still valid after applying rules
 			checkSelectedAttributes(choices);
 
-			points.forEach(pt => setPointStatus(pt));
-
-			if (state.buildMode !== 'preview')
+			if (action.isDesignComplete)
 			{
-				// For each point, if the user cannot select the DP in this tool, then the status should be complete
-				points.filter(pt => pt.isStructuralItem).forEach(pt => pt.status = PointStatus.COMPLETED);
+				// When it is design complete, all points and subgroups should be in complete status
+				points.forEach(pt => {
+					pt.status = PointStatus.COMPLETED; 
+					pt.completed = true;
+				});				
+				subGroups.forEach(sg => sg.status = PointStatus.COMPLETED);
 			}
+			else
+			{
+				points.forEach(pt => setPointStatus(pt));
 
-			// For each point with a pick 0, we need to change the status to required (if no thanks is selected, the status is later updated to Completed)
-			points.filter(pt =>
-				[PickType.Pick0or1, PickType.Pick0ormore].indexOf(pt.pointPickTypeId) > -1
-					&& [PointStatus.UNVIEWED, PointStatus.VIEWED].indexOf(pt.status) > -1
-			).forEach(pt => pt.status = PointStatus.REQUIRED);
+				if (state.buildMode !== 'preview')
+				{
+					// For each point, if the user cannot select the DP in this tool, then the status should be complete
+					points.filter(pt => pt.isStructuralItem).forEach(pt => pt.status = PointStatus.COMPLETED);
+				}
 
-			subGroups.forEach(sg => setSubgroupStatus(sg));
+				// For each point with a pick 0, we need to change the status to required (if no thanks is selected, the status is later updated to Completed)
+				points.filter(pt =>
+					[PickType.Pick0or1, PickType.Pick0ormore].indexOf(pt.pointPickTypeId) > -1
+						&& [PointStatus.UNVIEWED, PointStatus.VIEWED].indexOf(pt.status) > -1
+				).forEach(pt => pt.status = PointStatus.REQUIRED);
+
+				subGroups.forEach(sg => setSubgroupStatus(sg));				
+			}			
+
 			newTree.treeVersion.groups.forEach(g => setGroupStatus(g));
 
 			return { ...state, tree: newTree, rules: rules, options: options, isUnsaved: true, pointHasChanges: true };

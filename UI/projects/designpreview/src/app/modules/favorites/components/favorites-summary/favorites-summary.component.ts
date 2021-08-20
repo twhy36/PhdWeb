@@ -56,6 +56,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 	treeVersionRules: TreeVersionRules;
 	buildMode: string;
 	isPreview: boolean = false;
+	isDesignComplete: boolean = false;
 
 	constructor(private store: Store<fromRoot.State>,
 		private activatedRoute: ActivatedRoute, 
@@ -97,14 +98,16 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 				switchMap(() => combineLatest([
 					this.store.pipe(select(state => state.scenario)),
 					this.store.pipe(select(state => state.favorite)),
+					this.store.pipe(select(state => state.salesAgreement)),
 					this.store.pipe(select(fromSalesAgreement.favoriteTitle))
 				]).pipe(take(1))),
 				this.takeUntilDestroyed(),
 				distinctUntilChanged()
 			)
-			.subscribe(([scenario, fav, title]) =>
+			.subscribe(([scenario, fav, sag, title]) =>
 			{
 				this.isPreview = scenario.buildMode === 'preview';
+				this.isDesignComplete = sag?.isDesignComplete || false;
 				this.buildMode = scenario.buildMode;
 				this.summaryHeader.favoritesListName = this.isPreview ? 'Preview Favorites' : title;
 
@@ -275,7 +278,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 			});
 		}
 
-		this.store.dispatch(new ScenarioActions.SelectChoices(...removedChoices));
+		this.store.dispatch(new ScenarioActions.SelectChoices(this.isDesignComplete, ...removedChoices));
 		this.store.dispatch(new FavoriteActions.SaveMyFavoritesChoices());
 	}
 
