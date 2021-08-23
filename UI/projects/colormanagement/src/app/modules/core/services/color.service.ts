@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { withSpinner } from 'phd-common';
-import { catchError, map, groupBy, mergeMap, toArray } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 import { Observable,throwError} from 'rxjs';
 import { IColor } from '../../shared/models/color.model';
 import { IColorItem, IColorItemDto } from '../../shared/models/colorItem.model';
