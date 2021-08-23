@@ -21,6 +21,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit
 	@Input() price: number = 0;
 	@Input() favoritesPrice: number = 0;
 	@Input() showPrint = false;
+	@Input() isDesignComplete: boolean = false;
 
 	@Output() callToAction = new EventEmitter<{ actionBarCallType: ActionBarCallType }>();
 	@Output() onPrintAction = new EventEmitter();

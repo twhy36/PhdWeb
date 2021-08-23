@@ -1,6 +1,7 @@
 import { Component, Input, Output, ViewEncapsulation, EventEmitter } from '@angular/core';
 import { LinkAction } from '../../models/action.model';
 import { environment } from '../../../../../environments/environment';
+import { IFinancialCommunity } from '../../models/community.model';
 
 @Component({
 	selector: 'spec-homes',
@@ -39,9 +40,9 @@ export class SpecHomeComponent
 		this.selectedMarket = market;
 	}
 
-	onFinancialCommunityChange(community)
+	onFinancialCommunityChange(community: IFinancialCommunity)
 	{
-		this.selectedFinancialCommunity = community;
+		this.selectedFinancialCommunity = community.id;
 	}
 
 	onSalesCommunityChange(salesCommunity)

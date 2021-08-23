@@ -31,6 +31,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	@Input() choiceImages: ChoiceImageAssoc[];
 	@Input() isReadonly: boolean;
 	@Input() isPreview: boolean = false;
+	@Input() isDesignComplete: boolean = false;
 
 	@Output() onToggleChoice = new EventEmitter<ChoiceExt>();
 	@Output() onToggleContractedOptions = new EventEmitter();
@@ -224,5 +225,10 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 			})
 			return aChoiceExists;
 		}
+	}
+
+	get isContractedOptionsDisabled() : boolean
+	{
+		return this.isPreview || this.isDesignComplete;
 	}
 }

@@ -34,6 +34,11 @@
 		@extend .phd-status-table;
 		flex: 1;
 	}
+
+	.phd-contracted-options {
+		margin-bottom: 30px;
+		font-size: larger;
+	}
 }
 
 .phd-changeOrder-types {

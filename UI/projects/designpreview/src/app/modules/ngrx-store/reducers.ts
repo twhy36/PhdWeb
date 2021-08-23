@@ -42,13 +42,15 @@ export const reducers: ActionReducerMap<State> = {
 export const filteredTree = createSelector(
 	fromScenario.selectScenario,
 	fromFavorite.favoriteState,
-	(scenario, favorite) => {
+	fromSalesAgreement.salesAgreementState,
+	(scenario, favorite, sag) => {
 		let tree = _.cloneDeep(scenario?.tree);
 		const treeFilter = scenario?.treeFilter;
 		let filteredTree: TreeVersion;
 
 		if (tree && tree.treeVersion) {
 			const isPreview = scenario.buildMode === 'preview';
+			const isDesignComplete = sag?.isDesignComplete || false;
 
 			const filter = (label: string) => {
 				return treeFilter ? label.toLowerCase().includes(treeFilter.keyword.toLowerCase()) : true;
@@ -69,16 +71,16 @@ export const filteredTree = createSelector(
 
 							let choices = p.choices.filter(c => {
 								let isValid = treeMatched.point || filter(c.label);
-
+									
 								let isIncluded = true;
+								const isContractedChoice = contractedChoices?.includes(c);
+
 								if (p.isStructuralItem)
 								{
 									isIncluded = favorite.includeContractedOptions && c.quantity > 0;
 								}
 								else
 								{
-									const isContractedChoice = contractedChoices?.includes(c);
-
 									// If there are contracted design choices and the include contracted option flag is false,
 									// Pick1 or Pick0or1 - remove all choices
 									// Pick1ormore or Pick0ormore - remove the selected choice and leave other choices viewable
@@ -96,6 +98,12 @@ export const filteredTree = createSelector(
 
 								if (scenario.hiddenChoiceIds.indexOf(c.id) > -1) {
 									isIncluded = false;
+								}
+
+								// Only display contracted choices when the design complete flag is turned on
+								if (isDesignComplete)
+								{
+									isIncluded = isContractedChoice;
 								}
 
 								return isValid && (isIncluded || isPreview);

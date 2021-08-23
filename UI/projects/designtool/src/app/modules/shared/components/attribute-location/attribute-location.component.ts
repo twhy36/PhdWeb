@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, EventEmitter, Output, ViewChildren, QueryList } from '@angular/core';
-import { Location, AttributeGroup, DesignToolAttribute, LocationGroup, Choice } from 'phd-common';
+import { Location, AttributeGroup, DesignToolAttribute, LocationGroup, Choice, MyFavoritesChoiceLocation, MyFavoritesChoiceAttribute } from 'phd-common';
 import { AttributeGroupComponent } from '../attribute-group/attribute-group.component';
 import { MonotonyConflict } from '../../models/monotony-conflict.model';
 
@@ -22,6 +22,7 @@ export class AttributeLocationComponent implements OnInit
 	@Input() canOverride: boolean;
 	@Input() overrideReason: string;
 	@Input() monotonyConflict: MonotonyConflict;
+	@Input() favoriteChoiceLocations: MyFavoritesChoiceLocation[];
 
 	@Output() onAttributeLocationChanged: EventEmitter<{ overrideNote: string, isOverride: boolean }> = new EventEmitter();
 
@@ -30,6 +31,8 @@ export class AttributeLocationComponent implements OnInit
 	isActive = false;
 	locationQuantityTotal = 0;
 	isCollapsed = true;
+
+	favoriteChoiceLocationAttributes: MyFavoritesChoiceAttribute[];
 
 	selectedAttributes: Array<{
 		attributeGroupId: number,
@@ -52,6 +55,7 @@ export class AttributeLocationComponent implements OnInit
 
 	ngOnInit()
 	{
+		this.favoriteChoiceLocationAttributes = this.favoriteChoiceLocations?.find(fcl => fcl.locationCommunityId === this.attributeLocation.id)?.myFavoritesChoiceLocationAttributes;
 		if (this.selectedLocationAttributes.length)
 		{
 			this.selectedAttributes = this.selectedLocationAttributes.filter(a => a.attributeGroupId).map(a =>

@@ -41,6 +41,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	@Input() tree: Tree;
 	@Input() myFavoritesPointsDeclined: MyFavoritesPointDeclined[];
 	@Input() isReadonly: boolean;
+	@Input() isDesignComplete: boolean;
 
 	@Output() onBack = new EventEmitter();
 	@Output() onToggleChoice = new EventEmitter<ChoiceExt>();
@@ -215,6 +216,13 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 								attritbuteStatus = this.choice.isPointStructural ? null : 'ViewOnly';
 							}
 						}
+
+						// Only display contracted attribute when it is design complete
+						if (this.isDesignComplete && attritbuteStatus !== 'Contracted')
+						{
+							attritbuteStatus = null;
+						}
+
 						if (attritbuteStatus)
 						{
 							const isFavorite = this.choice.favoriteAttributes
@@ -238,9 +246,9 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		if (locationGroups)
 		{
 			locationGroups.forEach(lg => {
-				if (this.choice.choiceStatus === 'Contracted' && this.choice.isPointStructural)
+				if (this.choice.choiceStatus === 'Contracted' && (this.choice.isPointStructural || this.isDesignComplete))
 				{
-					// Only display selected locations and attributes for a structural contracted choice
+					// Display selected locations and attributes for a contracted choice when it is structural or design complete
 					let selectedLocations : Location[] = [];
 					lg.locations.forEach(loc => {
 						const selectedAttributes = this.choice.selectedAttributes.filter(x => x.locationGroupId === lg.id && x.locationId === loc.id);
@@ -257,7 +265,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 						this.locationGroups.push(locationGroup);
 					}
 				}
-				else
+				else if (!this.isDesignComplete)
 				{
 					this.locationGroups.push(lg);
 				}
@@ -321,7 +329,8 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 			this.choice.quantity = 1;
 		}
 		this.store.dispatch(
-			new ScenarioActions.SelectChoices({ 
+			new ScenarioActions.SelectChoices(this.isDesignComplete,
+			{ 
 				choiceId: this.choice.id, 
 				divChoiceCatalogId: this.choice.divChoiceCatalogId, 
 				quantity: this.choice.quantity, 
@@ -544,7 +553,8 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		const totalQuantity = this.getTotalQuantiy();
 		this.choice.quantity = this.choice.quantity > 0 && totalQuantity === 0 ? 1 : totalQuantity;
 		this.store.dispatch(
-			new ScenarioActions.SelectChoices({ 
+			new ScenarioActions.SelectChoices(this.isDesignComplete,
+			{ 
 				choiceId: this.choice.id,
 				divChoiceCatalogId: this.choice.divChoiceCatalogId, 
 				quantity: this.choice.quantity, 

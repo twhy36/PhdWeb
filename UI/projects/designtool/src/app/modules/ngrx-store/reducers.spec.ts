@@ -121,7 +121,7 @@ describe('Common reducer', function ()
 				buildMode: 'model'
 			},
 			user: {
-				canSell: true,
+				canDesign: true,
 				assignedMarkets: [{ id: 1, number: '114' }]
 			},
 			org: {
@@ -146,7 +146,7 @@ describe('Common reducer', function ()
 				buildMode: 'spec'
 			},
 			user: {
-				canSell: true,
+				canDesign: true,
 				assignedMarkets: [{ id: 1, number: '114' }]
 			},
 			org: {

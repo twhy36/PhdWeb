@@ -22,6 +22,7 @@ export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implemen
 	@Input() salesChoices: JobChoice[];
 	@Input() includeContractedOptions: boolean;
 	@Input() buildMode: string;
+	@Input() isDesignComplete: boolean = false;
 
 	@Output() onViewFavorites = new EventEmitter<DecisionPoint>();
 	@Output() onRemoveFavorites = new EventEmitter<DecisionPoint>();
@@ -85,7 +86,7 @@ export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implemen
 
 	isChoiceComplete(choice: ChoiceCustom): boolean
 	{
-		return isChoiceAttributesComplete(choice);
+		return isChoiceAttributesComplete(choice) || this.isDesignComplete;
 	}
 
 	toggleAttributes(toggleAttribute: boolean)

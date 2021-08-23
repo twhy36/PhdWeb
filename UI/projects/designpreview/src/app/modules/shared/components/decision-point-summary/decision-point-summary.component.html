@@ -23,7 +23,7 @@
 							<span class="phd-content">({{ choice.quantity }})</span>
 						</div>
 						<div class="my-3 phd-choice-attributes" *ngIf="choice.showAttributes">
-							<ng-container *ngIf="choice.selectedAttributes.length; else attributeMsg">
+							<ng-container *ngIf="choice.selectedAttributes.length || isDesignComplete; else attributeMsg">
 								<div class="phd-choice-attributes-body" *ngFor="let attr of choice.selectedAttributes">
 									<div class="phd-location" *ngIf="attr.locationGroupId != null || attr.locationId != null">
 										<span class="phd-label">{{ attr.locationGroupLabel}}:</span>

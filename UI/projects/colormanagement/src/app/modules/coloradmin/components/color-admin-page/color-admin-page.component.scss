@@ -1,3 +1,6 @@
+@import "../../../../../scss/color-pallet.scss";
+@import "../../../../../scss/sizes.scss";
+
 :host{
 	display: flex;
 	flex-direction: column;
@@ -11,23 +14,35 @@ header {
 	flex: 0 1 100px;
 	flex-direction: column;
 	min-height: 100px;
+	padding: 0 15px;
 
-	.top-bar{
-	  background: #228fe4 url('../../../../../assets/Pulte_Homes_White.png') no-repeat 15px center;
-	  background-size: 70px;
-	  display: flex;
-	  justify-content: space-between;
-	  margin-bottom: 0;
-	  min-height: 50px;
-	  padding: 6px 20px 0 93px;
-
-	  h1 {
-		color: #fff;
+	.phd-navigation-bar {
+		background: $twilight-blue;
+		color: white;
+		height: 50px;
 		display: flex;
-		font-size: 22pt;
+		flex-direction: row;
 		align-items: center;
-	  }
 
+		.phd-navigation-bar-header {
+			background: $marine;
+			display: inline-block;
+			height: 50px;
+			margin-left: -1rem;
+			margin-right: 15px;
+
+			.logo {
+				max-width: 100%;
+				max-height: 100%;
+				margin: 0 15px;
+			}
+		}
+
+		.phd-navigation-bar-title {
+			font-size: 22px;
+			font-weight: 300;
+			margin-right: auto;
+		}
 	}
 
 	aside {

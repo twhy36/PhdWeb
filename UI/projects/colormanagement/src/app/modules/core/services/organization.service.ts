@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
-import { Observable, Subject, ConnectableObservable, EMPTY, ReplaySubject } from 'rxjs';
+import { Observable, Subject, ConnectableObservable, EMPTY, ReplaySubject, BehaviorSubject } from 'rxjs';
 import { map, catchError, publishReplay, take, switchMap, concat, filter, tap } from 'rxjs/operators';
 import { _throw } from 'rxjs/observable/throw';
 
@@ -40,7 +40,8 @@ export class OrganizationService
 		);
 	}
 
-	private readonly _currentComm = new Subject<IFinancialCommunity>();
+	// BehaviorSubject to allow each subscriber to get last community
+	private readonly _currentComm = new BehaviorSubject<IFinancialCommunity>(null);
 	currentCommunity$: Observable<IFinancialCommunity>;
 
 	private get currentMarketId(): number
@@ -177,7 +178,7 @@ export class OrganizationService
 		);
 	}
 
-	
+
 	getFinancialCommunities(marketId: number): Observable<Array<IFinancialCommunity>>
 	{
 		if (!this._lastMktId || this._lastMktId !== marketId)

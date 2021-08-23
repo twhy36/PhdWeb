@@ -24,7 +24,12 @@
 
 	<div class="d-flex flex-column phd-card-panel" [ngClass]="isPointPanelCollapsed ? 'phd-card-panel-collapsed' : ''">
 		<div class="phd-include-options">
-			<input type="checkbox" (change)="toggleContractedOptions($event)" [ngModel]="includeContractedOptions" [ngClass]="{'phd-clickable' : !isPreview }" [disabled]="isPreview"/>
+			<input type="checkbox" 
+				(change)="toggleContractedOptions($event)" 
+				[ngModel]="includeContractedOptions" 
+				[ngClass]="{'phd-clickable' : !isContractedOptionsDisabled }" 
+				[disabled]="isContractedOptionsDisabled"
+			/>
 			<span class="phd-contracted-options">Display Contracted Options</span>
 		</div>
 		<div class="phd-point-container">

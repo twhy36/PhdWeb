@@ -46,11 +46,11 @@
 			Contract <br /> Setup
 		</span>
 	</div>
-	<div [routerLink]="['/community-management/community-settings']" [routerLinkActive]="['active']" class="button-bar-item" *requiresClaim="'AutoApproval'">
+	<div [routerLink]="[communityManagementRouterLink]" [routerLinkActive]="['active']" class="button-bar-item" *requiresClaim="'AutoApproval'">
 		<a class="hidden"></a>
 		<span>
 			<i class="fa fa-home fa-2x" phd-tooltip='Community Settings'></i><br />
-			Community <br /> Settings
+			Community <br /> Management
 		</span>
 	</div>
 	<div [routerLink]="['/reOrg']" [routerLinkActive]="['active']" class="button-bar-item" *requiresClaim="'ExecuteReOrg'">

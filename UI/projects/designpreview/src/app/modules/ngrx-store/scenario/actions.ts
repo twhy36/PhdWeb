@@ -23,10 +23,12 @@ export class SelectChoices implements Action
 {
 	readonly type = ScenarioActionTypes.SelectChoices;
 	public choices: { choiceId: number, divChoiceCatalogId: number, quantity: number, attributes?: DesignToolAttribute[] }[];
+	public isDesignComplete: boolean;
 
-	constructor(...choices: { choiceId: number, divChoiceCatalogId: number, quantity: number, attributes?: DesignToolAttribute[] }[])
+	constructor(isDesignComplete: boolean, ...choices: { choiceId: number, divChoiceCatalogId: number, quantity: number, attributes?: DesignToolAttribute[] }[])
 	{
 		this.choices = choices;
+		this.isDesignComplete = isDesignComplete;
 	}
 }
 

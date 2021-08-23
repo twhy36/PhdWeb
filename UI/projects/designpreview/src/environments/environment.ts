@@ -16,7 +16,8 @@ export const environment: IEnvironment = {
 			clearHashAfterLogin: true,
 			requestAccessToken: true,
 			scope: 'openid offline_access pulte designpreview.access',
-			showDebugInformation: true
+			showDebugInformation: true,
+			logoutUrl: 'https://cdr3.dev.pulte.com/My-Pulte-Account/Login'
 		},
 		azureAD:
 		{
