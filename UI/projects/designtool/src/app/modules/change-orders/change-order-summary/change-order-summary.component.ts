@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { Store, select } from '@ngrx/store';
 import { Actions, ofType } from '@ngrx/effects';
 import { FormGroup, FormControl, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
-import { combineLatest, switchMap, withLatestFrom, take, finalize } from 'rxjs/operators';
+import { combineLatest, switchMap, take, finalize } from 'rxjs/operators';
 import { Observable } from 'rxjs/Observable';
 
 import { environment } from '../../../../environments/environment';
@@ -69,6 +69,8 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 	loaded = false;
 	isLockedIn: boolean = false;
 	isDesignComplete: boolean = false;
+	isDesignPreviewEnabled: boolean;
+	production: boolean;
 
 	JOB_CHANGEORDER_TYPES = [
 		{ value: 'SalesJIO', id: 0 },
@@ -236,7 +238,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(state => state.job),
-			withLatestFrom(
+			combineLatest(
 				this.store.pipe(select(fromScenario.buildMode)),
 				this.store.pipe(select(fromSalesAgreement.salesAgreementState))
 			)
@@ -424,6 +426,12 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 			ofType<JobActions.EnvelopeError>(JobActions.JobActionTypes.EnvelopeError),
 			this.takeUntilDestroyed()
 		).subscribe(() => this.isSaving = false);
+
+		this.store.pipe(
+			select(fromRoot.isDesignPreviewEnabled)
+		).subscribe(enabled => this.isDesignPreviewEnabled = enabled);
+
+		this.production = environment.production;
 	}
 
 	getESignStatus(changeOrder: any): string
