@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { withSpinner } from 'phd-common';
 import { catchError, map, groupBy, mergeMap, toArray } from 'rxjs/operators';
-import { Observable,throwError as _throw } from 'rxjs';
+import { Observable,throwError} from 'rxjs';
 import { IColor } from '../../shared/models/color.model';
 import { IColorItem, IColorItemDto } from '../../shared/models/colorItem.model';
 import * as _ from 'lodash';
@@ -122,6 +122,6 @@ export class ColorService {
 	{
 		// In the future, we may send the server to some remote logging infrastructure
 		console.error(error);
-		return _throw(error || 'Server error');
+		return throwError(error || 'Server error');
 	}
 }
