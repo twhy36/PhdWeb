@@ -33,7 +33,7 @@ export class ColorService {
 			filter += `and (isActive eq ${isActive})`;
 		}
 
-		if (subcategoryId) {
+		if (subcategoryId >= 0) {
 			filter += `and (EdhOptionSubcategoryId eq ${subcategoryId})`;
 		}
 
