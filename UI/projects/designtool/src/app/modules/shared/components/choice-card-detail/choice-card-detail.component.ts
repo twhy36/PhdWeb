@@ -1,14 +1,15 @@
 import { Component, Input, OnInit, Output, EventEmitter, ViewChildren, QueryList, AfterViewInit, ViewChild, OnChanges, SimpleChanges } from '@angular/core';
-import { Store } from '@ngrx/store';
+import { select, Store } from '@ngrx/store';
 import { ReplaySubject } from 'rxjs';
 
 import 
 { 
 	UnsubscribeOnDestroy, AttributeGroup, DesignToolAttribute, LocationGroup, Choice, ChoiceImageAssoc, 
-	OptionImage, ModalService 
+	OptionImage, ModalService, MyFavoritesChoiceAttribute, MyFavoritesChoiceLocation 
 } from 'phd-common';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
+import * as fromFavorite from '../../../ngrx-store/favorite/reducer';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 
 import { AttributeLocationComponent } from '../attribute-location/attribute-location.component';
@@ -36,6 +37,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	@Input() canOverride: boolean;
 	@Input() overrideReason: string;
 	@Input() optionDisabled: boolean;
+	@Input() isFavorite: boolean;
 
 	@Output() callToAction = new EventEmitter<{ choice: Choice, quantity?: number }>();
 	@Output() saveAttributes = new EventEmitter<void>();
@@ -61,6 +63,9 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	totalQuantitySelected: number = 0;
 	quantityMin: number = 1;
 
+	favoriteChoiceAttributes?: MyFavoritesChoiceAttribute[];
+	favoriteChoiceLocations?: MyFavoritesChoiceLocation[];
+
 	constructor(private store: Store<fromRoot.State>,
 		private modalService: ModalService)
 	{
@@ -70,6 +75,17 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	ngOnInit()
 	{
 		this.hasMonotonyConflict = this.monotonyConflict.monotonyConflict;
+
+		if (this.isFavorite) {
+			this.store.pipe(
+				this.takeUntilDestroyed(),
+				select(fromFavorite.myFavoriteChoices)
+			).subscribe(favChoices =>
+			{
+				this.favoriteChoiceAttributes = favChoices?.find(fc => fc.divChoiceCatalogId === this.choice.divChoiceCatalogId)?.myFavoritesChoiceAttributes;
+				this.favoriteChoiceLocations = favChoices?.find(fc => fc.divChoiceCatalogId === this.choice.divChoiceCatalogId)?.myFavoritesChoiceLocations;
+			});
+		}
 
 		const choice = this.choice;
 		const quantity = choice.quantity;

@@ -1,4 +1,5 @@
 @import "../../../../../scss/color-pallet.scss";
+@import "../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
 
 .phd-attribute-item-container {
 	display: flex;
@@ -92,14 +93,18 @@
 		opacity: 0.5;
 	}
 
-	.phd-attribute-name {
-		width: 75px;
-		white-space: normal;
-		max-height: 51px;
-		overflow: hidden;
-		text-overflow: ellipsis;
+	.phd-attribute-label {
+		width: 100%;
 		text-align: center;
-		white-space: nowrap;
+
+		.phd-attribute-name {
+			white-space: normal;
+			max-height: 51px;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			text-align: center;
+			white-space: nowrap;
+		}
 	}
 
 	.phd-monotony {
@@ -237,7 +242,15 @@
 		border-radius: 3px;
 		margin: 0.3em;
 		text-align: center;
-		padding: 1em 0 1.25em 0;
+		padding: 1em 0 1em 0;
+
+		.phd-favorite-icon {
+			color: $pantone_blue;
+			font-size: 15px;
+			cursor: default;
+			margin: -5px 5px -19px auto;
+			text-align: right;
+		}
 	}
 
 	.phd-attribute-item-image-body {

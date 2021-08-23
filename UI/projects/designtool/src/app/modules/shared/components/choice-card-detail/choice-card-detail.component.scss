@@ -1,4 +1,5 @@
 @import "../../../../../scss/color-pallet.scss";
+@import "../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
 
 ::ng-deep .carousel{
 	.carousel-control-next{
@@ -184,6 +185,19 @@
 	}
 
 	.phd-card-detail-footer {
-		margin-top: 1em;
+		margin-top: 1em;		
+	}
+
+	.phd-experience-btn-choice {
+		margin-left: auto;
+	}
+	
+	.phd-favorite-icon {
+		color: $pantone_blue;
+		font-size: 25px;
+		margin-left: auto;
+		margin-top: 5px;
+		margin-right: 5px;
+		text-align: right;
 	}
 }
