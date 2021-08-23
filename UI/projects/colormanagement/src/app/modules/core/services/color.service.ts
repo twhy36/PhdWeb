@@ -6,6 +6,7 @@ import { catchError, map, groupBy, mergeMap, toArray } from 'rxjs/operators';
 import { Observable,throwError as _throw } from 'rxjs';
 import { IColor } from '../../shared/models/color.model';
 import { IColorItem, IColorItemDto } from '../../shared/models/colorItem.model';
+import * as _ from 'lodash';
 
 @Injectable()
 export class ColorService {
@@ -88,41 +89,36 @@ export class ColorService {
 		}
 		const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
 
-		let colorItems= this._http.get<any>(endpoint).pipe(
+		return this._http.get<any>(endpoint).pipe(
 			map((response) =>	
 			{
-				return response.value as Array<IColorItem>;
+				let colorItems = response.value as Array<IColorItem>;
+				let colorItemDtoList: Array<IColorItemDto> = [];
+
+				// Transform IColorItem to IColorItemDto
+				let groupedColorItems = _.groupBy(colorItems,c=>c.colorItemId);
+				
+				for(const key in groupedColorItems)
+				{
+					if(groupedColorItems.hasOwnProperty(key))
+					{
+						let item = groupedColorItems[key];
+						let colorItemDto:IColorItemDto =
+						{
+							colorItemId:item[0].colorItemId,
+							name:item[0].name,
+							isActive:item[0].isActive,
+							edhPlanOptionId:item[0].edhPlanOptionId,
+							colors:item.map(x=>x.colorItemColorAssoc.color)
+						}
+						colorItemDtoList.push(colorItemDto);
+					}
+				}
+				return colorItemDtoList;
 			}),
 			catchError(this.handleError)
 		);
-		// Transform IColorItem to IColorItemDto
-		return colorItems.pipe(
-			mergeMap(res=>res),
-			groupBy(
-				x=>x.colorItemId,
-		    	y=>y
-			),
-			mergeMap((group) =>
-			{ 
-				return group.pipe(
-					toArray(),
-					map((items:IColorItem[])=>
-					{
-						let colorItemDto:IColorItemDto =
-						{
-							colorItemId:group.key,
-							colors:items.map(x=>x.colorItemColorAssoc.color),
-							name:items[0].name,
-							isActive:items[0].isActive,
-							edhPlanOptionId:items[0].edhPlanOptionId
-						}
-						return colorItemDto;
-					})
-				)
-			}),toArray()
-		);
 	}
-
 	private handleError(error: Response)
 	{
 		// In the future, we may send the server to some remote logging infrastructure
