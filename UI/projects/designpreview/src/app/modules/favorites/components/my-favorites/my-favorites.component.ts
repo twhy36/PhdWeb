@@ -260,14 +260,15 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 	{
 		if (!!newSubGroup.id)
 		{
+			this.groupName = newGroup.label;
+			this.selectedSubGroup = newSubGroup;
+			this.selectedSubgroupId = newSubGroup.id;
+
 			const choiceIds = (_.flatMap(newSubGroup.points, pt => pt.choices) || []).map(c => c.id);
 
 			return this.treeService.getChoiceImageAssoc(choiceIds)
 				.subscribe(choiceImages =>
 				{
-					this.groupName = newGroup.label;
-					this.selectedSubGroup = newSubGroup;
-					this.selectedSubgroupId = newSubGroup.id;
 					this.currentChoiceImages = choiceImages;
 				});
 		}
@@ -422,5 +423,11 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 
 		const declPointIds = [point.divPointCatalogId];
 		this.store.dispatch(new ScenarioActions.SetStatusForPointsDeclined(declPointIds, !!declPoint));
+	}
+
+	treeFilterChanged() 
+	{
+		this.showDetails = false;
+		this.selectedChoice = null;
 	}
 }
