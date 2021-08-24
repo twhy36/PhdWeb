@@ -5,9 +5,7 @@ import { Store, select } from '@ngrx/store';
 import * as _ from 'lodash';
 
 import { map, filter, combineLatest, distinctUntilChanged, withLatestFrom, debounceTime, take, switchMap } from 'rxjs/operators';
-import { of } from 'rxjs/observable/of';
-import { Observable } from 'rxjs/Observable';
-import { ReplaySubject } from 'rxjs/ReplaySubject';
+import { Observable, ReplaySubject, of } from 'rxjs';
 
 import * as fromLot from '../../../ngrx-store/lot/reducer';
 import * as fromJob from '../../../ngrx-store/job/reducer';

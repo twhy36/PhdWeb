@@ -1,10 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Action, Store, select } from '@ngrx/store';
-import { Observable } from 'rxjs/Observable';
+import { Observable, of, from } from 'rxjs';
 import { switchMap, withLatestFrom, map } from 'rxjs/operators';
-import { of } from 'rxjs/observable/of';
-import { from } from 'rxjs/observable/from';
 
 import * as _ from 'lodash';
 

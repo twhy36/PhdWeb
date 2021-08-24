@@ -1,8 +1,5 @@
-import { Observable } from 'rxjs/Observable';
+import { Observable, combineLatest, of, throwError } from 'rxjs';
 import { switchMap, catchError, map, tap } from 'rxjs/operators';
-import { of } from 'rxjs/observable/of';
-import { _throw } from 'rxjs/observable/throw';
-import { combineLatest } from 'rxjs/observable/combineLatest';
 
 import * as _ from 'lodash';
 import * as moment from "moment";
@@ -523,7 +520,7 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 
 			return data.res;
 		}),
-		catchError(err => { console.error(err); return _throw(err); })
+		catchError(err => { console.error(err); return throwError(err); })
 	);
 }
 

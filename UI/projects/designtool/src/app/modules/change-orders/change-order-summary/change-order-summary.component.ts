@@ -3,8 +3,9 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { Store, select } from '@ngrx/store';
 import { Actions, ofType } from '@ngrx/effects';
 import { FormGroup, FormControl, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
+
 import { combineLatest, switchMap, take, finalize } from 'rxjs/operators';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
 

@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { Permission, Claims, ClaimTypes, IdentityService } from 'phd-common';
+import { Permission, Claims, IdentityService } from 'phd-common';
 import { environment } from '../../../../../environments/environment';
-import { forkJoin } from 'rxjs/observable/forkJoin';
-import { Observable } from 'rxjs';
+import { Observable, forkJoin } from 'rxjs';
 
 @Component({
 	selector: 'main.app-home',

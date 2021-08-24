@@ -1,9 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
-import { Observable } from 'rxjs/Observable';
+import { Observable, throwError, of } from 'rxjs';
 import { map, catchError, switchMap, withLatestFrom, take, combineLatest } from 'rxjs/operators';
-import { _throw } from 'rxjs/observable/throw';
 
 import {
 	defaultOnNotFound, withSpinner, Buyer, Contact, PhoneType, ESignTypeEnum, ChangeOrderChoice, ChangeOrderNonStandardOption,
@@ -15,7 +14,6 @@ import { environment } from '../../../../environments/environment';
 import { Template, ITemplateInfo } from '../../shared/models/template.model';
 import { IFinancialCommunityESign, FinancialCommunityESign, IESignRecipient } from '../../shared/models/contract.model';
 import { EnvelopeInfo } from '../../shared/models/envelope-info.model';
-import { of } from 'rxjs/observable/of';
 import { getCurrentHouseSelections, getChangeOrderGroupSelections } from '../../shared/classes/contract-utils';
 import * as _ from 'lodash';
 import { Store } from '@ngrx/store';
@@ -52,7 +50,7 @@ export class ContractService
 			{
 				console.error(error);
 
-				return _throw(error);
+				return throwError(error);
 			})
 		);
 	}
@@ -84,7 +82,7 @@ export class ContractService
 			catchError(error =>
 			{
 				return this.deleteSnapshot(jobId, changeOrderGroupId).pipe(
-					switchMap(() => _throw(error))
+					switchMap(() => throwError(error))
 				);
 			})
 		);
@@ -109,7 +107,7 @@ export class ContractService
 			{
 				console.error(error);
 
-				return _throw(error);
+				return throwError(error);
 			})
 		);
 	}
@@ -164,7 +162,7 @@ export class ContractService
 			{
 				console.error(error);
 
-				return _throw(error);
+				return throwError(error);
 			})
 		);
 	}
@@ -180,7 +178,7 @@ export class ContractService
 			{
 				console.error(error);
 
-				return _throw(error);
+				return throwError(error);
 			})
 		);
 	}	
@@ -323,7 +321,7 @@ export class ContractService
 			{
 				console.error(error);
 
-				return _throw(error);
+				return throwError(error);
 			})
 		);
 	}
@@ -339,7 +337,7 @@ export class ContractService
 			{
 				console.error(error);
 
-				return _throw(error);
+				return throwError(error);
 			})
 		);
 	}
@@ -857,7 +855,7 @@ export class ContractService
 
 				console.error(error);
 
-				return _throw(error);
+				return throwError(error);
 			})
 		);
 	}
@@ -880,7 +878,7 @@ export class ContractService
 			{
 				console.error(error);
 
-				return _throw(error);
+				return throwError(error);
 			})
 		);
 	}
