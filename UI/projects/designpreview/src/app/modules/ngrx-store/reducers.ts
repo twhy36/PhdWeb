@@ -164,10 +164,13 @@ export const priceBreakdown = createSelector(
 
 			let base = scenario.options ? scenario.options.find(o => o.isBaseHouse) : null;
 			if (base && scenario.tree) {
+				const treePoints = _.flatMap(scenario.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points));
 				const treeChoices = _.flatMap(scenario.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, p => p.choices)));
                 breakdown.selections = treeChoices.filter(c => !!favorite?.salesChoices?.find(x => x.divChoiceCatalogId === c.divChoiceCatalogId))
 					?.reduce((acc, ch) => acc + (ch.quantity * ch.price), 0);
-				breakdown.favoritesPrice = treeChoices.filter(c => c.quantity > 0 && !c.priceHiddenFromBuyerView && !favorite?.salesChoices?.find(x => x.divChoiceCatalogId === c.divChoiceCatalogId))
+				breakdown.favoritesPrice = treeChoices.filter(c => c.quantity > 0 && !c.priceHiddenFromBuyerView && !c.isHiddenFromBuyerView
+					&& !treePoints.find(p => p.choices.find(ch => ch.divChoiceCatalogId === c.divChoiceCatalogId)).isHiddenFromBuyerView
+					&& !favorite?.salesChoices?.find(x => x.divChoiceCatalogId === c.divChoiceCatalogId))
 					?.reduce((acc, ch) => acc + (ch.quantity * ch.price), 0);
 			}
 

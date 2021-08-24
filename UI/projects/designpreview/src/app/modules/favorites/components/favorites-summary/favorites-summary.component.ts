@@ -208,7 +208,10 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 	
 	displayPoint(dp: DecisionPoint)
 	{
-		const choices = dp && dp.choices ? dp.choices.filter(c => c.quantity > 0) : [];
+		if (dp.isHiddenFromBuyerView) {
+			return false;
+		}
+		const choices = dp && dp.choices ? dp.choices.filter(c => c.quantity > 0 && !c.isHiddenFromBuyerView) : [];
 		const favoriteChoices = choices.filter(c => !this.salesChoices || this.salesChoices.findIndex(sc => sc.divChoiceCatalogId === c.divChoiceCatalogId) === -1);
 
 		return this.includeContractedOptions
