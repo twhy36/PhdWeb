@@ -1,6 +1,6 @@
 import { Component, OnInit, Output, EventEmitter, ViewChild } from '@angular/core';
 import { OptionService } from '../../services/option.service';
-import { IOptionSubCategory } from '../../../shared/models/option.model';
+import {IOptionCategory, IOptionSubCategory} from '../../../shared/models/option.model';
 import { OrganizationService } from '../../../core/services/organization.service';
 import { switchMap, filter, map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
@@ -25,6 +25,10 @@ export class ColorsSearchHeaderComponent
 
 	@Output() sidePanelWasToggled = new EventEmitter<boolean>();
 	@ViewChild('addColorModal') addColorModal: any;
+	dialogCategories: IOptionCategory[] = [];
+	dialogSubCategories: IOptionSubCategory[];
+	selectedDialogCategory: IOptionCategory;
+	selectedDialogSubCategory: IOptionSubCategory;
 	colorname: string = null;
 	isCounterVisible: boolean;
 	saveColorsDisabled: boolean
@@ -135,7 +139,18 @@ export class ColorsSearchHeaderComponent
 		this.colorsDtoList = [];
 	}
 
-	showAddColorsDialog(): boolean {
+	showAddColorsDialog(): boolean
+	{
+		this.initializeEmptyListOfNewColors();
+		this.initializeDialogCategories();
+		this.modalReference = this._modalService.open(this.addColorModal);
+		this.isModalOpen = true;
+		this.modalReference.result.catch(err => console.log(err));
+		return false;
+	}
+
+	initializeEmptyListOfNewColors()
+	{
 		for(let i=0; i < 50; i++) {
 			this.newColors[i] = {
 				name: '',
@@ -146,11 +161,27 @@ export class ColorsSearchHeaderComponent
 				isActive: true
 			};
 		}
+	}
 
-		this.modalReference = this._modalService.open(this.addColorModal);
-		this.isModalOpen = true;
-		this.modalReference.result.catch(err => console.log(err));
-		return false;
+	initializeDialogCategories()
+	{
+		this.dialogCategories = [];
+		this.optionSubCategory.forEach((subcategory) => {
+			let notInListAlready = this.dialogCategories.some(x => x.id === subcategory.optionCategory?.id) == false;
+			console.log(subcategory.optionCategory)
+			if (notInListAlready && subcategory.optionCategory)
+			{
+				let category = subcategory.optionCategory;
+
+				if (category.optionSubCategory === undefined)
+				{
+					category.optionSubCategory = [];
+				}
+
+				category.optionSubCategory.push(subcategory);
+				this.dialogCategories.push(category);
+			}
+		});
 	}
 
 	saveColors()
@@ -189,5 +220,10 @@ export class ColorsSearchHeaderComponent
 
 		const response = await confirm.result;
 		return response == 'Continue';
+	}
+
+	onCategorySelected(category: IOptionCategory) {
+		this.dialogSubCategories = category.optionSubCategory;
+		this.selectedDialogSubCategory = this.dialogSubCategories[0];
 	}
 }
