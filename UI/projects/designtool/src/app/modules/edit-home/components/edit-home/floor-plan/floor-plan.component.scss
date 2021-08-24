@@ -1,5 +1,6 @@
 @import "../../../../../../scss/sizes.scss";
 @import "../../../../../../scss/color-pallet.scss";
+@import "../../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
 
 :host {
 	position: absolute;
@@ -12,6 +13,16 @@
 	display: flex;
 	flex-direction: column;
 	height: 100%;
+}
+
+.phd-favorite-icon {
+	color: $pantone_blue;
+	margin-left: auto;
+	cursor: default;
+}
+
+.phd-non-favorite-price {
+	margin-right: 16px;
 }
 
 ::ng-deep .phd-tree-filter {
