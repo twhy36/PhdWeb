@@ -12,6 +12,7 @@ import { Settings } from '../../../shared/models/settings.model';
 
 import { ModalService } from '../../services/modal.service';
 import { FormGroup } from '@angular/forms';
+import {MatDialog, MatDialogRef} from '@angular/material/dialog';
 
 @Component({
 	selector: 'colors-search-header',
@@ -25,6 +26,7 @@ export class ColorsSearchHeaderComponent
 
 	@Output() sidePanelWasToggled = new EventEmitter<boolean>();
 	@ViewChild('addColorModal') addColorModal: any;
+	addColorDialogRef: MatDialogRef<unknown, any>
 	dialogCategories: IOptionCategory[] = [];
 	dialogSubCategories: IOptionSubCategory[];
 	selectedDialogCategory: IOptionCategory;
@@ -53,7 +55,9 @@ export class ColorsSearchHeaderComponent
 		private _orgService: OrganizationService,
 		private _colorService: ColorService,
 		private _settingsService: SettingsService,
-		private _modalService: ModalService
+		private _modalService: ModalService,
+		public dialog: MatDialog
+
 	) {
 		super();
 	}
@@ -139,14 +143,15 @@ export class ColorsSearchHeaderComponent
 		this.colorsDtoList = [];
 	}
 
-	showAddColorsDialog(): boolean
+	openDialog()
 	{
 		this.initializeEmptyListOfNewColors();
 		this.initializeDialogCategories();
-		this.modalReference = this._modalService.open(this.addColorModal);
-		this.isModalOpen = true;
-		this.modalReference.result.catch(err => console.log(err));
-		return false;
+		this.addColorDialogRef = this.dialog.open(this.addColorModal);
+
+		this.addColorDialogRef.afterClosed().subscribe(result => {
+			console.log(`Dialog result: ${result}`);
+		});
 	}
 
 	initializeEmptyListOfNewColors()
@@ -195,7 +200,7 @@ export class ColorsSearchHeaderComponent
 
 		if (noNewColorsWereAdded)
 		{
-			this.modalReference.dismiss();
+			this.addColorDialogRef.close();
 			this.isModalOpen = false;
 			return;
 		}
@@ -205,7 +210,7 @@ export class ColorsSearchHeaderComponent
 
 		if (closeWithoutSavingData)
 		{
-			this.modalReference.dismiss();
+			this.addColorDialogRef.close();
 			this.isModalOpen = false;
 		}
 	}
@@ -222,7 +227,8 @@ export class ColorsSearchHeaderComponent
 		return response == 'Continue';
 	}
 
-	onCategorySelected(category: IOptionCategory) {
+	onCategorySelected(category: IOptionCategory)
+	{
 		this.dialogSubCategories = category.optionSubCategory;
 		this.selectedDialogSubCategory = this.dialogSubCategories[0];
 	}

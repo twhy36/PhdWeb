@@ -20,14 +20,14 @@ const routes: Routes = [
 		ColorItemsPageComponent,
 		ColorsPageComponent
 	],
-	imports: [
-		NgbModule,
-		CommonModule,
-		FormsModule,
-		CoreModule,
-		SharedModule,
-		RouterModule.forChild(routes)
-	],
+    imports: [
+        NgbModule,
+        CommonModule,
+        FormsModule,
+        CoreModule,
+        SharedModule,
+        RouterModule.forChild(routes),
+    ],
 	exports: [
 	],
 	providers: [

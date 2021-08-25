@@ -10,14 +10,14 @@ import { ColorsSearchHeaderComponent } from './components/search-header/colors-s
 import { OptionService } from './services/option.service';
 import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 import { PhdCommonModule } from 'phd-common';
-import { AddColorSidePanelComponent } from '../shared/components/add-color-side-panel/add-color-side-panel.component';
 import { SidePanelComponent } from '../shared/components/side-panel/side-panel.component';
 import { ConfirmModalComponent } from '../shared/components/confirm-modal/confirm-modal.component';
 
 import { SettingsService } from './services/settings.service';
 import { ModalComponent } from './components/modal/modal.component';
 import { ModalService } from './services/modal.service';
-
+import { MatDialogModule  } from '@angular/material/dialog';
+import {MatButtonModule} from '@angular/material/button';
 @NgModule({
 	declarations: [
 		MarketSelectorComponent,
@@ -26,21 +26,22 @@ import { ModalService } from './services/modal.service';
 		ConfirmModalComponent,
 		SidePanelComponent,
 		ConfirmModalComponent,
-		AddColorSidePanelComponent,
-		ModalComponent
+		ModalComponent,
+
 	],
-	imports: [
-		CommonModule,
-		FormsModule,
-		InfiniteScrollModule,
-		PhdCommonModule
-	],
+    imports: [
+        CommonModule,
+        FormsModule,
+        InfiniteScrollModule,
+        PhdCommonModule,
+        MatDialogModule,
+        MatButtonModule,
+    ],
 	exports: [
 		MarketSelectorComponent,
 		ColorsSearchHeaderComponent,
 		SidePanelComponent,
 		ConfirmModalComponent,
-		AddColorSidePanelComponent
 	],
 	providers: [
 		OrganizationService,
@@ -49,7 +50,7 @@ import { ModalService } from './services/modal.service';
 		OptionService,
 		ColorService,
 		SettingsService,
-		ModalService
+		ModalService,
 	]
 })
 

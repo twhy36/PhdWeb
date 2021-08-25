@@ -1,62 +1,94 @@
 <div class="d-flex flex-row">
-    <div class="form-inline">
-        <div>
-            <label for="name" class="col-form-label">Color Name</label>
-        </div>
-        <div class="p-2">
-            <input [(ngModel)]="colorname" (focus)="showCounter()" (focusout)="hideCounter()" class="form-control" id="name" maxlength="50" />
-        </div>
-        <div class="p-2">
-            <label class="col-form-label">Category/Subcategory</label>
-        </div>
-        <div class="p-2">
-            <select class="form-control" [(ngModel)]="selectedSubCategory">
-                <option [defaultSelected] [ngValue]=null></option>
-                <option [ngValue]=null>---- All Colors ----</option>
-                <option *ngFor="let subCategories of (optionSubCategory$|async)" [ngValue]="subCategories">{{subCategories.optionCategory.name}} : {{subCategories.name}}</option>
-            </select>
-        </div>
-        <div class="p-2">
-            <label class="row-form-label">Active</label>
-        </div>
-        <div class="p-2">
-            <select class="form-control" [(ngModel)]="isActiveColor">
-                <option [defaultSelected] [ngValue]=null>All</option>
-                <option [ngValue]="true">Active</option>
-                <option [ngValue]="false">Inactive</option>
-            </select>
-        </div>
-        <div class="p-2">
-            <button class="btn btn-primary" (click)="filterColors()">Filter</button>
-        </div>
-    </div>
+	<div class="form-inline">
+		<div>
+			<label for="name" class="col-form-label">Color Name</label>
+		</div>
+		<div class="p-2">
+			<input
+				[(ngModel)]="colorname"
+				(focus)="showCounter()"
+				(focusout)="hideCounter()"
+				class="form-control"
+				id="name"
+				maxlength="50"
+			/>
+		</div>
+		<div class="p-2">
+			<label class="col-form-label">Category/Subcategory</label>
+		</div>
+		<div class="p-2">
+			<select class="form-control" [(ngModel)]="selectedSubCategory">
+				<option [defaultSelected] [ngValue]="null"></option>
+				<option [ngValue]="null">---- All Colors ----</option>
+				<option
+					*ngFor="let subCategories of optionSubCategory$ | async"
+					[ngValue]="subCategories"
+				>
+					{{ subCategories.optionCategory.name }} :
+					{{ subCategories.name }}
+				</option>
+			</select>
+		</div>
+		<div class="p-2">
+			<label class="row-form-label">Active</label>
+		</div>
+		<div class="p-2">
+			<select class="form-control" [(ngModel)]="isActiveColor">
+				<option [defaultSelected] [ngValue]="null">All</option>
+				<option [ngValue]="true">Active</option>
+				<option [ngValue]="false">Inactive</option>
+			</select>
+		</div>
+		<div class="p-2">
+			<button class="btn btn-primary" (click)="filterColors()">
+				Filter
+			</button>
+		</div>
+	</div>
 </div>
-<div *ngIf="isCounterVisible"><span class="count_message"><em>{{50 - colorname?.length}} characters remaining</em></span> </div>
+<div *ngIf="isCounterVisible">
+	<span class="count_message"
+		><em>{{ 50 - colorname?.length }} characters remaining</em></span
+	>
+</div>
 
-<div class="phd-table-container mx-2" infiniteScroll [infiniteScrollThrottle]="settings.infiniteScrollThrottle" [infiniteScrollDisabled]="allDataLoaded" (scrolled)="onPanelScroll()" [scrollWindow]="false">
-	<phd-table #dt [value]="colorsDtoList" showCaption="true" >
+<div
+	class="phd-table-container mx-2"
+	infiniteScroll
+	[infiniteScrollThrottle]="settings.infiniteScrollThrottle"
+	[infiniteScrollDisabled]="allDataLoaded"
+	(scrolled)="onPanelScroll()"
+	[scrollWindow]="false"
+>
+	<phd-table #dt [value]="colorsDtoList" showCaption="true">
 		<ng-template #tableHeader>
 			<div class="float-right">
 				<span class="mx-2">
-					<a href="" (click)="showAddColorsDialog()">Add Color</a>
+					<button class="btn" style="color: blue" href="" (click)="openDialog()">Add Color</button>
 				</span>
 			</div>
 		</ng-template>
-        <phd-column header="Color Name" field="name"></phd-column>
-        <phd-column header="Sku" field="sku"></phd-column>
-        <phd-column header="Category Name" field="optionCategoryName"></phd-column>
-        <phd-column header="SubCategory Name" field="optionSubCategoryName"></phd-column>
-        <phd-column header="Active" field="isActive">
-        </phd-column>
-    </phd-table>
+		<phd-column header="Color Name" field="name"></phd-column>
+		<phd-column header="Sku" field="sku"></phd-column>
+		<phd-column
+			header="Category Name"
+			field="optionCategoryName"
+		></phd-column>
+		<phd-column
+			header="SubCategory Name"
+			field="optionSubCategoryName"
+		></phd-column>
+		<phd-column header="Active" field="isActive"> </phd-column>
+	</phd-table>
 
 	<ng-template #addColorModal>
-		<div class="modal-body">
+		<h3>Add Color</h3>
+		<mat-dialog-content>
 			<div class="pt-3 form-row">
 				<div class="form-group col-md-6">
 					<div class="form-row">
 						<label for="category" class="col-form-label">Category</label>
-						<i class="fa fa-asterisk dialogAsterisk"></i>
+						<i class="fa fa-asterisk dialogAsterisk mt-2"></i>
 					</div>
 					<select
 						class="form-select dialogSelects"
@@ -66,14 +98,14 @@
 						<option
 							*ngFor="let category of dialogCategories"
 							[ngValue]="category">
-							{{category.name}}
+							{{ category.name }}
 						</option>
 					</select>
 				</div>
 				<div class="form-group col-md-6">
 					<div class="form-row">
 						<label for="subCategory" class="col-form-label">SubCategory</label>
-						<i class="fa fa-asterisk dialogAsterisk"></i>
+						<i class="fa fa-asterisk dialogAsterisk mt-2"></i>
 					</div>
 					<select
 						class="form-select dialogSelects"
@@ -82,16 +114,18 @@
 						<option
 							*ngFor="let subcategory of dialogSubCategories"
 							[ngValue]="subcategory">
-							{{subcategory.name}}
+							{{ subcategory.name }}
 						</option>
 					</select>
 				</div>
 			</div>
-			<div class="mx-2" >
+			<div class="mx-2">
 				<table class="table dialogTable">
 					<thead>
 						<tr>
-							<th>Color<i class="fa fa-asterisk dialogAsterisk"></i></th>
+							<th>
+								Color<i class="fa fa-asterisk dialogAsterisk"></i>
+							</th>
 							<th>Sku</th>
 							<th>Active</th>
 						</tr>
@@ -99,27 +133,50 @@
 					<tbody>
 						<tr *ngFor="let color of newColors">
 							<td>
-								<input type="text" [(ngModel)]="color.name" class="dialogTextbox" required maxlength="50"/>
+								<input
+									type="text"
+									[(ngModel)]="color.name"
+									class="dialogTextbox"
+									required
+									maxlength="50"
+								/>
 							</td>
 							<td>
-								<input type="text" class="dialogTextbox" [(ngModel)]="color.sku" maxlength="50" />
+								<input
+									type="text"
+									class="dialogTextbox"
+									[(ngModel)]="color.sku"
+									maxlength="50"
+								/>
 							</td>
 							<td>
-								<input type="checkbox" class="ml-3 mt-2" [(ngModel)]="color.isActive" />
+								<input
+									type="checkbox"
+									class="ml-3 mt-2"
+									[(ngModel)]="color.isActive"
+								/>
 							</td>
 						</tr>
 					</tbody>
 				</table>
 			</div>
-		</div>
-
-		<div class="modal-footer">
-			<button type="button" class="btn btn-primary" (click)="saveColors()" [disabled]="saveColorsDisabled">
+		</mat-dialog-content>
+		<mat-dialog-actions>
+			<button
+				mat-button
+				class="btn btn-primary"
+				(click)="saveColors()"
+				[disabled]="saveColorsDisabled"
+			>
 				Save
 			</button>
-			<button type="button" class="btn btn-secondary" (click)="cancelAddColorDialog()">
+			<button
+				mat-button
+				class="btn btn-secondary"
+				(click)="cancelAddColorDialog()"
+			>
 				Cancel
 			</button>
-		</div>
+		</mat-dialog-actions>
 	</ng-template>
 </div>
