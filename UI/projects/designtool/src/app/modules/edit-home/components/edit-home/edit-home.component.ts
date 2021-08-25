@@ -20,7 +20,7 @@ import * as LotActions from '../../../ngrx-store/lot/actions';
 import {
 	UnsubscribeOnDestroy, ModalRef, ChangeTypeEnum, Job, TreeVersionRules, ScenarioStatusType, PriceBreakdown,
 	TreeFilter, Tree, SubGroup, Group, DecisionPoint, Choice, getDependentChoices, LotExt, getChoiceToDeselect,
-	ModalService
+	PlanOption, ModalService
 } from 'phd-common';
 
 import { LotService } from '../../../core/services/lot.service';
@@ -63,7 +63,6 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 	errorMessage: string = '';
 	isChangingOrder$: Observable<boolean>;
 	isChangingOrder: boolean;
-	job: Job;
 	lotcheckModalDisplayed: boolean;
 	marketingPlanId: number[];
 	modal: ModalRef;
@@ -84,6 +83,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 	tree: Tree;
 	treeFilter$: Observable<TreeFilter>;
 	treeVersionRules: TreeVersionRules;
+	options: PlanOption[];
 	viewChoice: Choice;
 	viewPoint: DecisionPoint;
 	salesAgreementId: number;
@@ -403,7 +403,8 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 			select(fromScenario.selectScenario)
 		).subscribe(scenario => {
 			this.tree = scenario.tree;
-			this.treeVersionRules = scenario.rules;
+			this.treeVersionRules = _.cloneDeep(scenario.rules);
+			this.options = _.cloneDeep(scenario.options);
 		});
 
 		this.canConfigure$ = this.store.pipe(select(fromRoot.canConfigure));
@@ -624,10 +625,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		const choiceToDeselect = getChoiceToDeselect(this.tree, choice);
 
 		let selectedChoices = [{ choiceId: choice.id, overrideNote: choice.overrideNote, quantity: !choice.quantity ? quantity || 1 : 0, attributes: choice.selectedAttributes }];
-		const impactedChoices = [
-			...getDependentChoices(this.tree, this.treeVersionRules, choiceToDeselect),
-			...getDependentChoices(this.tree, this.treeVersionRules, !choice.quantity ? choice : null)
-		];
+		const impactedChoices = getDependentChoices(this.tree, this.treeVersionRules, this.options, choice);
 
 		impactedChoices.forEach(c =>
 		{

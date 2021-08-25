@@ -22,6 +22,7 @@ import {
 	SubGroup,
 	Tree,
 	TreeVersionRules,
+	PlanOption,
 	JobChoice,
 	getDependentChoices,
 	DecisionPoint,
@@ -57,6 +58,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 	errorMessage: string = '';
 	tree: Tree;
 	treeVersionRules: TreeVersionRules;
+	options: PlanOption[];
 	myFavoritesChoices: MyFavoritesChoice[];
 	includeContractedOptions: boolean;
 	salesChoices: JobChoice[];
@@ -203,12 +205,12 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		).subscribe(pb => this.priceBreakdown = pb);
 
 		this.store.pipe(
-			take(1),
 			select(state => state.scenario),
 		).subscribe(scenario =>
 		{
 			this.tree = scenario.tree;
-			this.treeVersionRules = scenario.rules;
+			this.treeVersionRules = _.cloneDeep(scenario.rules);
+			this.options = _.cloneDeep(scenario.options);
 			this.isReadonly = scenario.buildMode === 'buyerPreview';
 		});
 
@@ -296,10 +298,8 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		const choiceToDeselect = getChoiceToDeselect(this.tree, choice);
 		
 		let selectedChoices = [{ choiceId: choice.id, divChoiceCatalogId: choice.divChoiceCatalogId, quantity: !choice.quantity ? 1 : 0, attributes: choice.selectedAttributes }];
-		const impactedChoices = [
-			...getDependentChoices(this.tree, this.treeVersionRules, choiceToDeselect),
-			...getDependentChoices(this.tree, this.treeVersionRules, !choice.quantity ? choice : null)
-		];
+		const impactedChoices = getDependentChoices(this.tree, this.treeVersionRules, this.options, choice);
+
 		impactedChoices.forEach(c =>
 		{
 			selectedChoices.push({ choiceId: c.id, divChoiceCatalogId: c.divChoiceCatalogId, quantity: 0, attributes: c.selectedAttributes });
@@ -332,7 +332,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		pointDeclined?.choices?.forEach(c => {
 			deselectedChoices.push({ choiceId: c.id, divChoiceCatalogId: c.divChoiceCatalogId, quantity: 0, attributes: [] });
 
-			const impactedChoices = getDependentChoices(this.tree, this.treeVersionRules, c);
+			const impactedChoices = getDependentChoices(this.tree, this.treeVersionRules, this.options, c);
 
 			impactedChoices.forEach(ch =>
 			{
