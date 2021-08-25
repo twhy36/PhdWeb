@@ -7,6 +7,14 @@
     color:#6c757d!important
 }
 
+.add-color-button {
+	color: blue;
+}
+
+.add-color-button:focus {
+	box-shadow: none;
+}
+
 .dialogAsterisk {
 	color: red;
 	font-size: 7px;
