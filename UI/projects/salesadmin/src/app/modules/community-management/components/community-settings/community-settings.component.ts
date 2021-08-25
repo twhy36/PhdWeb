@@ -159,7 +159,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 
 		this.communitySettingsForm = new FormGroup({
 			'ecoeMonths': new FormControl(ecoeMonths, [Validators.required, Validators.min(1), Validators.max(15)]),
-			'earnestMoney': new FormControl(earnestMoney,[Validators.required, Validators.min(0), Validators.max(99999)])
+			'earnestMoney': new FormControl(earnestMoney, [Validators.required, Validators.min(0), Validators.max(99999), Validators.pattern("^[0-9]*$")])
 		}, [])
 	}
 

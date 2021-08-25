@@ -30,7 +30,7 @@
 						<div class="phd-input-line">
 							<div class="form-group">
 								<label class="font-weight-bold">$</label>
-								<input class="phd-earnest-money-input" id="earnest-money" formControlName="earnestMoney" maxlength="5"/>
+								<input type="number" [inputFilter]="'^[0-9]*$'" class="phd-earnest-money-input" id="earnest-money"  formControlName="earnestMoney" maxlength="5"/>
 								<span class="text-danger"
 									*ngIf="communitySettingsForm.controls.earnestMoney.invalid && communitySettingsForm.controls.earnestMoney.dirty && communitySettingsForm.controls.earnestMoney.errors.min">
 									Invalid: Earnest Money must be at least $0
@@ -38,6 +38,10 @@
 								<span class="text-danger"
 									*ngIf="communitySettingsForm.controls.earnestMoney.invalid && communitySettingsForm.controls.earnestMoney.dirty && communitySettingsForm.controls.earnestMoney.errors.max">
 									Invalid: Earnest Money must be less than $100,000
+								</span>
+								<span class="text-danger"
+									*ngIf="communitySettingsForm.controls.earnestMoney.invalid && communitySettingsForm.controls.earnestMoney.dirty && communitySettingsForm.controls.earnestMoney.errors.pattern">
+									Invalid: Earnest Money must use valid digits
 								</span>
 							</div>
 						</div>

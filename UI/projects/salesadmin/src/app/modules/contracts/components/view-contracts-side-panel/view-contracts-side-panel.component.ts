@@ -67,7 +67,7 @@ export class ViewContractsSidePanelComponent implements OnInit
 
 	get saveDisabled(): boolean
 	{
-		let saveDisabled = (!this.selected) ? (this.viewContractsForm.pristine || !this.viewContractsForm.valid) : (!this.viewContractsForm.valid);
+		let saveDisabled = (!this.selected) ? (this.viewContractsForm.pristine || !this.viewContractsForm.valid) : (!this.viewContractsForm.valid || !this.viewContractsForm.dirty);
 
 		return saveDisabled;
 	}
@@ -193,6 +193,7 @@ export class ViewContractsSidePanelComponent implements OnInit
 		{
 			this.viewContractsForm.controls.effectiveDate.setValue(event.toISOString());
 		}
+		this.viewContractsForm.markAsDirty();
 	}
 
 	saveNewOrgs(financialCommunityDto: Array<FinancialCommunity>)
@@ -379,7 +380,8 @@ export class ViewContractsSidePanelComponent implements OnInit
 		}
 	}
 
-	onTabClick(selectedTab: any) {
+	onTabClick(selectedTab: any)
+	{
 		this.selectedTab = selectedTab;
 	}
 }
