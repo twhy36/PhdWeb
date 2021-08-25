@@ -400,14 +400,10 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		);
 
 		this.store.pipe(
-			take(1),
-			select(fromScenario.selectScenario),
-			withLatestFrom(this.store.pipe(select(fromJob.jobState))),
-		).subscribe(([scenario, job]) =>
-		{
+			select(fromScenario.selectScenario)
+		).subscribe(scenario => {
 			this.tree = scenario.tree;
 			this.treeVersionRules = scenario.rules;
-			this.job = job;
 		});
 
 		this.canConfigure$ = this.store.pipe(select(fromRoot.canConfigure));
