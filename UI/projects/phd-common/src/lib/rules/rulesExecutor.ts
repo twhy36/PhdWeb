@@ -569,6 +569,21 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 			choice.price = choice.lockedInChoice.dpChoiceCalculatedPrice;
 		}
 
+		// #332687
+		// Check every selected choice for replace rules to prevent re-introducing replaced options
+		if (choice.lockedInOptions && choice.lockedInOptions.length) {
+			for (let i = choice.lockedInOptions.length - 1; i >= 0; i--) {
+				const filteredOptRules = rules.optionRules.filter(optRule => optRule.replaceOptions && optRule.replaceOptions.length
+					&& optRule.replaceOptions.includes(choice.lockedInOptions[i].optionId)
+					&& optRule.choices.every(c => (c.mustHave && choices.find(ch => ch.id === c.id && ch.quantity) || (!c.mustHave && choices.find(ch => ch.id === c.id && !ch.quantity)))));
+
+				// If the entire option rule is satisfied (Must Have's are all selected, Must Not Have's are all deselected), then remove the lockedInOption
+				if (filteredOptRules && filteredOptRules.length) {
+					choice.lockedInOptions.splice(i, 1);
+				}
+			}
+		}
+
 		//find choices that are locked in, with option mappings changed
 		if (choice.options && choice.lockedInChoice && (choice.lockedInOptions && choice.lockedInOptions.length && choice.lockedInOptions.some(o => !choice.options.some(co => o && co.financialOptionIntegrationKey === o.optionId))
 			|| choice.options.some(co => !choice.lockedInOptions.some(o => o.optionId === co.financialOptionIntegrationKey))))
