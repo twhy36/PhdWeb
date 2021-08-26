@@ -3,6 +3,21 @@
 @import "color-pallet";
 @import "sizes";
 
+@media (min-width: 1076px)
+{
+    .modal-dialog {
+        max-width: 1000px;
+    }
+}
+
+@media (min-width: 1276px)
+{
+    .modal-dialog {
+        max-width: 1200px;
+    }
+}
+
+
 html, body, app-root {
 	margin: 0;
 	padding: 0;

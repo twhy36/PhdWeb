@@ -8,12 +8,13 @@ import { IOptionSubCategory, IOptionCategory } from '../../shared/models/option.
 import { environment } from '../../../../environments/environment';
 import { zip } from 'rxjs';
 import { of } from 'rxjs';
+import {IColorDto} from '../../shared/models/color.model';
 @Injectable()
 export class OptionService
 {
     constructor(private _http: HttpClient) { }
 	private _ds: string = encodeURIComponent('$');
-	
+
 	getOptionsCategorySubcategory(financialCommunityId: number): Observable<IOptionSubCategory[]>
 	{
 		const entity = `optionSubCategories`;
@@ -22,7 +23,7 @@ export class OptionService
 		const select = `id,name`;
 
 		let qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
-		
+
 		const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
 
 		return this._http.get<any>(endpoint).pipe(
@@ -44,26 +45,26 @@ export class OptionService
 						{
 							return 1;
 						}
-						
+
 						if(aName = bName){
 							let aSubName = a.name.toLowerCase();
 							let bSubName = b.name.toLowerCase();
-		
+
 							if (aSubName < bSubName)
 							{
 								return -1;
 							}
-		
+
 							if (aSubName > bSubName)
 							{
 								return 1;
 							}
-		
+
 							return 0;
 						}
 						return 0;
 					});
-				}), 
+				}),
 		catchError(this.handleError));
 	}
 
@@ -73,5 +74,11 @@ export class OptionService
 		console.error('Error message: ', error);
 
 		return _throw(error || 'Server error');
+	}
+
+	saveNewColors(colors: IColorDto[])
+	{
+		const endpoint = `${environment.apiUrl}/Color/PostColor`;
+		this._http.post(endpoint, colors);
 	}
 }

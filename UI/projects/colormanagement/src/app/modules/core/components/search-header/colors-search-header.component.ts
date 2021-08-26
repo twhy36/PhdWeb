@@ -1,17 +1,17 @@
-import { Component, OnInit, Output, EventEmitter, ViewChild } from '@angular/core';
-import { OptionService } from '../../services/option.service';
+import {Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
+import {OptionService} from '../../services/option.service';
 import {IOptionCategory, IOptionSubCategory} from '../../../shared/models/option.model';
-import { OrganizationService } from '../../../core/services/organization.service';
-import { switchMap, filter, map } from 'rxjs/operators';
-import { Observable } from 'rxjs';
-import { ConfirmModalComponent, ModalRef, UnsubscribeOnDestroy } from 'phd-common';
-import { IColorDto } from '../../../shared/models/color.model';
-import { ColorService } from '../../services/color.service';
-import { SettingsService } from '../../services/settings.service';
-import { Settings } from '../../../shared/models/settings.model';
+import {OrganizationService} from '../../../core/services/organization.service';
+import {filter, map, switchMap} from 'rxjs/operators';
+import {Observable} from 'rxjs';
+import {ConfirmModalComponent, ModalRef, UnsubscribeOnDestroy} from 'phd-common';
+import {IColorDto} from '../../../shared/models/color.model';
+import {ColorService} from '../../services/color.service';
+import {SettingsService} from '../../services/settings.service';
+import {Settings} from '../../../shared/models/settings.model';
 
-import { ModalService } from '../../services/modal.service';
-import { FormGroup } from '@angular/forms';
+import {ModalService} from '../../services/modal.service';
+import {FormGroup} from '@angular/forms';
 import {MatDialog, MatDialogRef} from '@angular/material/dialog';
 
 @Component({
@@ -143,6 +143,16 @@ export class ColorsSearchHeaderComponent
 		this.colorsDtoList = [];
 	}
 
+	showAddColorsDialog()
+	{
+		this.initializeEmptyListOfNewColors();
+		this.initializeDialogCategories();
+
+		this.modalReference = this._modalService.open(this.addColorModal);
+		this.isModalOpen = true;
+		this.modalReference.result.catch(err => console.log(err));
+	}
+
 	openDialog()
 	{
 		this.initializeEmptyListOfNewColors();
@@ -150,11 +160,11 @@ export class ColorsSearchHeaderComponent
 		this.addColorDialogRef = this.dialog.open(this.addColorModal);
 
 		this.addColorDialogRef.afterClosed().subscribe(result => {
-			console.log(`Dialog result: ${result}`);
+			//need to refresh results grid here
 		});
 	}
 
-	initializeEmptyListOfNewColors()
+	private initializeEmptyListOfNewColors()
 	{
 		for(let i=0; i < 50; i++) {
 			this.newColors[i] = {
@@ -168,12 +178,12 @@ export class ColorsSearchHeaderComponent
 		}
 	}
 
-	initializeDialogCategories()
+	private initializeDialogCategories()
 	{
 		this.dialogCategories = [];
 		this.optionSubCategory.forEach((subcategory) => {
 			let notInListAlready = this.dialogCategories.some(x => x.id === subcategory.optionCategory?.id) == false;
-			console.log(subcategory.optionCategory)
+
 			if (notInListAlready && subcategory.optionCategory)
 			{
 				let category = subcategory.optionCategory;
@@ -191,16 +201,42 @@ export class ColorsSearchHeaderComponent
 
 	saveColors()
 	{
+		const requiredFieldsAreMissing = this.validateRequiredFields() === false;
 
+		if (requiredFieldsAreMissing)
+		{
+			return;
+		}
+
+		let entriesToSave = this.newColors.filter(x => x.name.length > 0);
+
+		if (entriesToSave.length > 0)
+		{
+			this._optionService.saveNewColors(entriesToSave);
+		}
+	}
+
+	validateRequiredFields(): boolean
+	{
+		const categoryWasSelected = this.selectedDialogCategory !== null || undefined;
+		const subcategoryWasSelected = this.selectedDialogSubCategory !== null || undefined;
+		const hasAtLeastOneNameEntry = this.newColors.some(x => x.name.trim().length > 0);
+		const allSkuEntriesIncludeName = this.newColors.filter(x => x.sku.trim().length > 0).every(x => x.name.trim().length > 0);
+		const hasNoSkuEntries = this.newColors.every(x => x.sku.trim().length === 0);
+
+		return categoryWasSelected
+			&& subcategoryWasSelected
+			&& hasAtLeastOneNameEntry
+			&& (allSkuEntriesIncludeName || hasNoSkuEntries);
 	}
 
 	async cancelAddColorDialog()
 	{
-		const noNewColorsWereAdded = ! this.newColors.some((item) => item.name.trim().length > 0);
+		const noNewColorsWereAdded = this.newColors.every((item) => item.name.trim().length === 0);
 
 		if (noNewColorsWereAdded)
 		{
-			this.addColorDialogRef.close();
+			this.modalReference.dismiss();
 			this.isModalOpen = false;
 			return;
 		}
@@ -210,7 +246,7 @@ export class ColorsSearchHeaderComponent
 
 		if (closeWithoutSavingData)
 		{
-			this.addColorDialogRef.close();
+			this.modalReference.dismiss();
 			this.isModalOpen = false;
 		}
 	}

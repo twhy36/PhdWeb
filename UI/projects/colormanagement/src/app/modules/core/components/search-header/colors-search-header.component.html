@@ -64,7 +64,7 @@
 		<ng-template #tableHeader>
 			<div class="float-right">
 				<span class="mx-2">
-					<button class="add-color-button btn" (click)="openDialog()">Add Color</button>
+					<button class="add-color-button btn" (click)="showAddColorsDialog()">Add Color</button>
 				</span>
 			</div>
 		</ng-template>
@@ -80,10 +80,11 @@
 		></phd-column>
 		<phd-column header="Active" field="isActive"> </phd-column>
 	</phd-table>
-
 	<ng-template #addColorModal>
-		<h3>Add Color</h3>
-		<mat-dialog-content>
+		<div class="modal-header">
+			<h2>Add Color</h2>
+		</div>
+		<div class="modal-body ml-3">
 			<div class="pt-3 form-row">
 				<div class="form-group col-md-6">
 					<div class="form-row">
@@ -98,7 +99,7 @@
 						<option
 							*ngFor="let category of dialogCategories"
 							[ngValue]="category">
-							{{ category.name }}
+							{{category.name}}
 						</option>
 					</select>
 				</div>
@@ -114,18 +115,16 @@
 						<option
 							*ngFor="let subcategory of dialogSubCategories"
 							[ngValue]="subcategory">
-							{{ subcategory.name }}
+							{{subcategory.name}}
 						</option>
 					</select>
 				</div>
 			</div>
-			<div class="mx-2">
+			<div class="mx-2" >
 				<table class="table dialogTable">
 					<thead>
 						<tr>
-							<th>
-								Color<i class="fa fa-asterisk dialogAsterisk"></i>
-							</th>
+							<th>Color<i class="fa fa-asterisk dialogAsterisk ml-1"></i></th>
 							<th>Sku</th>
 							<th>Active</th>
 						</tr>
@@ -133,50 +132,27 @@
 					<tbody>
 						<tr *ngFor="let color of newColors">
 							<td>
-								<input
-									type="text"
-									[(ngModel)]="color.name"
-									class="dialogTextbox"
-									required
-									maxlength="50"
-								/>
+								<input type="text" [(ngModel)]="color.name" class="dialogTextbox" required maxlength="50"/>
 							</td>
 							<td>
-								<input
-									type="text"
-									class="dialogTextbox"
-									[(ngModel)]="color.sku"
-									maxlength="50"
-								/>
+								<input type="text" class="dialogTextbox" [(ngModel)]="color.sku" maxlength="50" />
 							</td>
 							<td>
-								<input
-									type="checkbox"
-									class="ml-3 mt-2"
-									[(ngModel)]="color.isActive"
-								/>
+								<input type="checkbox" class="ml-3 mt-2" [(ngModel)]="color.isActive" />
 							</td>
 						</tr>
 					</tbody>
 				</table>
 			</div>
-		</mat-dialog-content>
-		<mat-dialog-actions>
-			<button
-				mat-button
-				class="btn btn-primary"
-				(click)="saveColors()"
-				[disabled]="saveColorsDisabled"
-			>
+		</div>
+
+		<div class="modal-footer">
+			<button type="button" class="btn btn-primary" (click)="saveColors()" [disabled]="saveColorsDisabled">
 				Save
 			</button>
-			<button
-				mat-button
-				class="btn btn-secondary"
-				(click)="cancelAddColorDialog()"
-			>
+			<button type="button" class="btn btn-secondary" (click)="cancelAddColorDialog()">
 				Cancel
 			</button>
-		</mat-dialog-actions>
+		</div>
 	</ng-template>
 </div>

@@ -39,11 +39,8 @@ vertical-align: text-top;
 	width: 460px
 }
 
-.mat-dialog-actions {
-	justify-content: flex-end;
-}
-
-.mat-dialog-content {
-	width: 1100px;
-	height: 700px;
+.modal-body {
+	height: 650px;
+	overflow-y: auto;
+	overflow-x: hidden;
 }
