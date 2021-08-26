@@ -843,3 +843,32 @@ export function getDependentChoices(tree: Tree, rules: TreeVersionRules, options
 	return _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, p => p.choices)))
 		.filter(ch => !!ch.lockedInChoice && !findChoice(newTree, ch1 => ch1.id === ch.id).enabled);
 }
+
+export function checkReplacedOption(deselectedChoice: Choice, rules: TreeVersionRules, choices: Choice[], options: PlanOption[], tree: Tree) {
+	// #332687
+	// If deselecting a choice that had replaced a previous choice,
+	// we need to retrieve that previous choice and restore its options
+	if (deselectedChoice.options && deselectedChoice.options.length) {
+		const optionRules = rules.optionRules.filter(opt => deselectedChoice.options.map(o => o.financialOptionIntegrationKey).includes(opt.optionId) && opt.replaceOptions && opt.replaceOptions.length);
+		optionRules.forEach(optRule => {
+			optRule.replaceOptions.forEach(replaceOptionId => {
+				const replaceOptionRule = rules.optionRules.find(r => r.optionId === replaceOptionId);
+				const maxSortOrderChoice = getMaxSortOrderChoice(tree, replaceOptionRule.choices.filter(ch => ch.mustHave).map(ch => ch.id));
+				const prevChoice = choices.find(ch => ch.id === maxSortOrderChoice);
+
+				if (prevChoice) {
+					// If list price is changed between change orders, we need to restore the original choice price
+					const option = options.find(o => o.financialOptionIntegrationKey === replaceOptionId);
+					const sum = prevChoice.price - prevChoice.options.reduce((sum, current) => sum + current.listPrice, 0);
+					option.listPrice = sum;
+
+					if (prevChoice.lockedInOptions) {
+						prevChoice.lockedInOptions.push(replaceOptionRule);
+					} else {
+						prevChoice.lockedInOptions = [replaceOptionRule];
+					}
+				}
+			});
+		});
+	}
+}

@@ -5,7 +5,7 @@ import * as _ from "lodash";
 import {
 	DesignToolAttribute, SalesCommunity, PlanOption, TreeVersionRules, Scenario, TreeFilter,
 	Tree, Choice, Group, SubGroup, DecisionPoint, selectChoice, applyRules, setGroupStatus,
-	setPointStatus, setSubgroupStatus, getMaxSortOrderChoice
+	setPointStatus, setSubgroupStatus, getMaxSortOrderChoice, checkReplacedOption, getChoiceToDeselect
 } from 'phd-common';
 import { ScenarioActions, ScenarioActionTypes } from './actions';
 
@@ -343,32 +343,18 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 						c.lockedInOptions = [];
 						c.lockedInChoice = null;
 
-						// #332687
-						// If deselecting a choice that had replaced a previous choice,
-						// we need to retrieve that previous choice and restore its options
-						if (c.options && c.options.length) {
-							const optionRules = rules.optionRules.filter(opt => c.options.map(o => o.financialOptionIntegrationKey).includes(opt.optionId) && opt.replaceOptions && opt.replaceOptions.length);
-							optionRules.forEach(optRule => {
-								optRule.replaceOptions.forEach(replaceOptionId => {
-									const replaceOptionRule = rules.optionRules.find(r => r.optionId === replaceOptionId);
-									const maxSortOrderChoice = getMaxSortOrderChoice(newTree, replaceOptionRule.choices.filter(ch => ch.mustHave).map(ch => ch.id));
-									const prevChoice = choices.find(ch => ch.id === maxSortOrderChoice);
+						checkReplacedOption(c, rules, choices, options, newTree);
+					}
+					else
+					{
+						let deselectedChoice = getChoiceToDeselect(newTree, c);
 
-									if (prevChoice) {
-										// If list price is changed between change orders, we need to restore the original choice price
-										const option = options.find(o => o.financialOptionIntegrationKey === replaceOptionId);
-										const sum = prevChoice.price - prevChoice.options.reduce((sum, current) => sum + current.listPrice, 0);
-										option.listPrice = sum;
-
-										if (prevChoice.lockedInOptions) {
-											prevChoice.lockedInOptions.push(replaceOptionRule);
-										} else {
-											prevChoice.lockedInOptions = [replaceOptionRule];
-										}
-
-									}
-								});
-							});
+						if (deselectedChoice)
+						{
+							deselectedChoice.lockedInOptions = [];
+							deselectedChoice.lockedInChoice = null;
+	
+							checkReplacedOption(deselectedChoice, rules, choices, options, newTree);
 						}
 					}
 				}
