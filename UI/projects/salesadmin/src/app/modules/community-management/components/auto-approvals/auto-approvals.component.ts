@@ -1,11 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { switchMap, map, tap } from 'rxjs/operators';
 import { OrganizationService } from '../../../core/services/organization.service';
-import { Observable, of } from 'rxjs';
 
 import { FinancialCommunityViewModel } from '../../../shared/models/plan-assignment.model';
 import { UnsubscribeOnDestroy } from '../../../shared/utils/unsubscribe-on-destroy';
-import { FinancialCommunity } from '../../../shared/models/financialCommunity.model';
 import { ChangeOrderTypeAutoApproval } from '../../../shared/models/changeOrderTypeAutoApproval.model';
 import { CommunityService } from '../../../core/services/community.service';
 import { MessageService } from 'primeng/api';
@@ -18,8 +15,6 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class AutoApprovalComponent extends UnsubscribeOnDestroy implements OnInit
 {
-
-	activeCommunities: Observable<Array<FinancialCommunityViewModel>>;
 	market: number;
 	selectedCommunity: FinancialCommunityViewModel = null;
 	approvals: Array<ChangeOrderTypeAutoApproval>;
@@ -43,22 +38,6 @@ export class AutoApprovalComponent extends UnsubscribeOnDestroy implements OnIni
 	ngOnInit()
 	{
 		this.isLoading = true;
-		this.activeCommunities = this._orgService.currentMarket$.pipe(
-			this.takeUntilDestroyed(),
-			tap(() => this.isLoading = true),
-			switchMap(mkt =>
-			{
-				if (mkt)
-				{
-					return this._orgService.getFinancialCommunities(mkt.id);
-				}
-				else
-				{
-					return of([]);
-				}
-			}),
-			map(comms => comms.map(comm => new FinancialCommunityViewModel(comm)).filter(c => c.isActive))
-		);
 
 		this._orgService.currentCommunity$.pipe(
 			this.takeUntilDestroyed(),
@@ -164,16 +143,6 @@ export class AutoApprovalComponent extends UnsubscribeOnDestroy implements OnIni
 	saveRule(rule: Array<ChangeOrderTypeAutoApproval>)
 	{
 		return this._communityService.patchChangeOrderTypeAutoApprovals(rule);
-	}
-
-	onChangeCommunity(comm: FinancialCommunity)
-	{
-		if (comm != null)
-		{
-			this.isLoading = true;
-
-			this._orgService.selectCommunity(comm);
-		}
 	}
 }
 

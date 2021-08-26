@@ -18,7 +18,7 @@
 				</ul>
 			</div>
 			<form [formGroup]="viewContractsForm">
-				<div *ngIf="(selectedTab === 'Details'); else community">
+				<div [ngClass]="{'phd-hidden': (selectedTab !== 'Details') }">
 					<div class="form-group phd-checkbox-group">
 						<div class="phd-checkbox-label">
 							<input type="checkbox" id="isPhd" name="isPhd" formControlName="isPhd" class="phd-checkbox-label" />
@@ -134,7 +134,7 @@
 						</div>
 					</div>
 				</div>
-				<ng-template #community>
+				<div [ngClass]="{'phd-hidden': (selectedTab !== 'Community') }">
 					<div class="form-group phd-select-communities">
 						<label class="font-weight-bold" for="selectedItemsTags">Unassigned Communities</label>
 						<div class="phd-item-multiselect-results">
@@ -165,7 +165,7 @@
 							</div>
 						</div>
 					</div>
-				</ng-template>
+				</div>
 			</form>
 		</div>
 	</ng-template>

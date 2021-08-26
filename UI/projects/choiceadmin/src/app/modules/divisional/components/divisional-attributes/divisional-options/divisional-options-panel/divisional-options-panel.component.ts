@@ -1,6 +1,6 @@
 import { Component, OnInit, Output, EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { forkJoin } from 'rxjs/observable/forkJoin';
+import { forkJoin } from 'rxjs';
 
 import { filter, map, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { unionBy, orderBy } from "lodash";

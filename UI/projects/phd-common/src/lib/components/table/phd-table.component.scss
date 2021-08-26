@@ -73,4 +73,11 @@
 
 :host ::ng-deep .p-datatable-resizable .p-datatable-tbody > tr > td {
 	text-overflow: ellipsis;
-} 
+}
+
+:host ::ng-deep .p-datatable-resizable {
+	.p-datatable-tbody > tr > td, .p-datatable-tfoot > tr > td, .p-datatable-thead > tr > th {
+		// "temp" fix to let header and content to wrap on all tables.
+		white-space: normal !important;
+	}
+}

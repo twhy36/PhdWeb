@@ -1,11 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
-import { Observable } from 'rxjs/Observable';
 import { map, catchError, tap, switchMap } from 'rxjs/operators';
-import { _throw } from 'rxjs/observable/throw';
-import { EMPTY as empty } from 'rxjs';
-import { of } from 'rxjs/observable/of';
+import { EMPTY as empty, Observable, of, throwError } from 'rxjs';
 
 import
 	{
@@ -70,7 +67,7 @@ export class TreeService
 			{
 				console.error(error);
 
-				return _throw(error);
+				return throwError(error);
 			})
 		);
 	}
@@ -112,7 +109,7 @@ export class TreeService
 			{
 				console.error(error);
 
-				return _throw(error);
+				return throwError(error);
 			})
 		);
 	}

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 import { map, filter, combineLatest, take } from 'rxjs/operators';
 import { Store, select } from '@ngrx/store';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';

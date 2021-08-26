@@ -128,6 +128,8 @@ export class IdentityService
 				sessionStorage.removeItem('uri_state');
 				window.location.href = uri;
 			}
+
+			this.osvc.logoutUrl = authConfig.logoutUrl;
 		});
 	}
 

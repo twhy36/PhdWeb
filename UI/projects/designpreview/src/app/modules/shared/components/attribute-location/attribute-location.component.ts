@@ -23,6 +23,7 @@ export class AttributeLocationComponent implements OnInit, OnChanges
 	@Input() isBlocked: boolean;
 	@Input() highlightedAttribute: {attributeId: number, attributeGroupId: number};
 	@Input() isReadonly: boolean;
+	@Input() isDesignComplete: boolean;
 		
 	@Output() onLocationAttributeClick = new EventEmitter<{attribute: Attribute, attributeGroupId: number, locationId: number, locationGroupId: number}>();
 	@Output() onToggleAttribute = new EventEmitter<{attribute: Attribute, attributeGroup: AttributeGroup, location: Location, locationGroup: LocationGroup, quantity: number}>();

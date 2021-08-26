@@ -12,7 +12,7 @@ import
 { 
 	UnsubscribeOnDestroy, PriceBreakdown, SDGroup, SDSubGroup, SDPoint, SDChoice, SDAttributeReassignment, Group, 
 	DecisionPoint, JobChoice, Tree, TreeVersionRules, SalesAgreement, getDependentChoices, ModalService, PDFViewerComponent, 
-	SummaryData, BuyerInfo, PriceBreakdownType
+	SummaryData, BuyerInfo, PriceBreakdownType, PlanOption
 } from 'phd-common';
 
 import { environment } from '../../../../../environments/environment';
@@ -54,8 +54,10 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 	salesChoices: JobChoice[];
 	tree: Tree;
 	treeVersionRules: TreeVersionRules;
+	options: PlanOption[];
 	buildMode: string;
 	isPreview: boolean = false;
+	isDesignComplete: boolean = false;
 
 	constructor(private store: Store<fromRoot.State>,
 		private activatedRoute: ActivatedRoute, 
@@ -97,14 +99,16 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 				switchMap(() => combineLatest([
 					this.store.pipe(select(state => state.scenario)),
 					this.store.pipe(select(state => state.favorite)),
+					this.store.pipe(select(state => state.salesAgreement)),
 					this.store.pipe(select(fromSalesAgreement.favoriteTitle))
 				]).pipe(take(1))),
 				this.takeUntilDestroyed(),
 				distinctUntilChanged()
 			)
-			.subscribe(([scenario, fav, title]) =>
+			.subscribe(([scenario, fav, sag, title]) =>
 			{
 				this.isPreview = scenario.buildMode === 'preview';
+				this.isDesignComplete = sag?.isDesignComplete || false;
 				this.buildMode = scenario.buildMode;
 				this.summaryHeader.favoritesListName = this.isPreview ? 'Preview Favorites' : title;
 
@@ -182,7 +186,8 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 			select(fromScenario.selectScenario)
 		).subscribe(scenario => {
 			this.tree = scenario.tree;
-			this.treeVersionRules = scenario.rules;
+			this.treeVersionRules = _.cloneDeep(scenario.rules);
+			this.options = _.cloneDeep(scenario.options);
 		});	
 	}
 
@@ -205,7 +210,10 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 	
 	displayPoint(dp: DecisionPoint)
 	{
-		const choices = dp && dp.choices ? dp.choices.filter(c => c.quantity > 0) : [];
+		if (dp.isHiddenFromBuyerView) {
+			return false;
+		}
+		const choices = dp && dp.choices ? dp.choices.filter(c => c.quantity > 0 && !c.isHiddenFromBuyerView) : [];
 		const favoriteChoices = choices.filter(c => !this.salesChoices || this.salesChoices.findIndex(sc => sc.divChoiceCatalogId === c.divChoiceCatalogId) === -1);
 
 		return this.includeContractedOptions
@@ -266,7 +274,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 			favoriteChoices.forEach(choice => {
 				removedChoices.push({ choiceId: choice.id, divChoiceCatalogId: choice.divChoiceCatalogId, quantity: 0, attributes: choice.selectedAttributes });
 
-				const impactedChoices = getDependentChoices(this.tree, this.treeVersionRules, choice);
+				const impactedChoices = getDependentChoices(this.tree, this.treeVersionRules, this.options, choice);
 
 				impactedChoices.forEach(c =>
 				{
@@ -275,7 +283,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 			});
 		}
 
-		this.store.dispatch(new ScenarioActions.SelectChoices(...removedChoices));
+		this.store.dispatch(new ScenarioActions.SelectChoices(this.isDesignComplete, ...removedChoices));
 		this.store.dispatch(new FavoriteActions.SaveMyFavoritesChoices());
 	}
 

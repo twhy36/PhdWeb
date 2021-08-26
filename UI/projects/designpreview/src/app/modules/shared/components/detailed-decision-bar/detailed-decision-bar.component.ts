@@ -27,6 +27,7 @@ export class DetailedDecisionBarComponent extends UnsubscribeOnDestroy implement
 	@Input() tree: Tree;
 	@Input() isReadonly: boolean;
 	@Input() isPreview: boolean;
+	@Input() isDesignComplete: boolean = false;
 
 	@Output() onToggleChoice = new EventEmitter<ChoiceExt>();
 	@Output() onViewChoiceDetail = new EventEmitter<ChoiceExt>();
@@ -119,7 +120,7 @@ export class DetailedDecisionBarComponent extends UnsubscribeOnDestroy implement
 
 	isPointComplete(point: DecisionPoint)
 	{
-		return this.isPreview
+		return this.isPreview || this.isDesignComplete
 			? point.status === PointStatus.COMPLETED || point.status === PointStatus.PARTIALLY_COMPLETED
 			: point.isStructuralItem || point.isPastCutOff;
 	}

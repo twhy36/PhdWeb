@@ -10,6 +10,7 @@ import { CommonActionTypes, SalesAgreementLoaded } from "../actions";
 export interface State extends SalesAgreement
 {
 	isFloorplanFlipped: boolean,
+	isDesignComplete: boolean,
 	loadError: boolean,
 	salesAgreementLoading: boolean
 }
@@ -26,8 +27,9 @@ RehydrateMap.onRehydrate<State>("salesAgreement", state =>
 export const initialState: State = {
 	...new SalesAgreement(),
 	isFloorplanFlipped: false,
+	isDesignComplete: false,
 	loadError: false,
-	salesAgreementLoading: false,
+	salesAgreementLoading: false
 };
 
 export function reducer(state: State = initialState, action: Action): State
@@ -43,6 +45,7 @@ export function reducer(state: State = initialState, action: Action): State
 					...state,
 					...saAction.salesAgreement,
 					isFloorplanFlipped: saAction.info ? saAction.info.isFloorplanFlipped : false,
+					isDesignComplete: saAction.info ? saAction.info.isDesignComplete : false,
 					salesAgreementLoading: false,
 					loadError: false
 				};

@@ -3,7 +3,7 @@ import * as _ from 'lodash';
 import { ReplaySubject } from 'rxjs';
 import { Store } from '@ngrx/store';
 
-import { UnsubscribeOnDestroy, Attribute, AttributeGroup, DesignToolAttribute } from 'phd-common';
+import { UnsubscribeOnDestroy, Attribute, AttributeGroup, DesignToolAttribute, MyFavoritesChoiceAttribute, MyFavoritesChoiceLocation } from 'phd-common';
 
 import { DragScrollComponent } from 'ngx-drag-scroll';
 import * as fromRoot from '../../../ngrx-store/reducers';
@@ -28,6 +28,7 @@ export class AttributeListComponent extends UnsubscribeOnDestroy implements OnIn
 	@Input() monotonyOverride: ReplaySubject<boolean>;
 	@Input() isCollapsed: boolean;
 	@Input() updateParent: boolean = false;
+	@Input() favoriteChoiceAttributes?: MyFavoritesChoiceAttribute[];
 
 	@Output() closeExpandedAttribute: EventEmitter<boolean> = new EventEmitter();
 	@Output() onPreview: EventEmitter<Attribute> = new EventEmitter();
@@ -225,6 +226,10 @@ export class AttributeListComponent extends UnsubscribeOnDestroy implements OnIn
 		this.hasImage = attribute.imageUrl ? true : false;
 
 		return attribute.imageUrl || 'assets/attribute-image-not-available.png';
+	}
+
+	isFavoriteAttribute(attribute: Attribute): boolean {
+		return this.favoriteChoiceAttributes?.findIndex(fca => fca.attributeCommunityId === attribute.id) > -1;
 	}
 
 	/**

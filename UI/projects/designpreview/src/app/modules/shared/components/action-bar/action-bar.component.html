@@ -12,12 +12,12 @@
 	</div>
 
 	<div *ngIf="primaryAction" class="d-flex flex-column align-items-end">
-		<div>
+		<div *ngIf="!isDesignComplete">
 			<span class="phd-price-label">Estimated Favorites Total : </span>
 			<span class="phd-price">{{ favoritesPrice | currency:'USD':'symbol':'0.0-0' }}</span>
 		</div>
 		<div>
-			<span class="phd-price-label">Estimated Total Price : </span>
+			<span class="phd-price-label">{{isDesignComplete ? 'Total Purchase Price' : 'Estimated Total Price :' }}</span>
 			<span class="phd-price">{{ price | currency:'USD':'symbol':'0.0-0' }}</span>
 		</div>
 

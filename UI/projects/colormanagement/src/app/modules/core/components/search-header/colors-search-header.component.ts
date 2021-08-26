@@ -109,6 +109,7 @@ export class ColorsSearchHeaderComponent
 	{
 		this.colorsDtoList = [];
 		this.currentPage = 0;
+		this.skip=0;
 		this.loadColors();
 	}
 
@@ -125,6 +126,7 @@ export class ColorsSearchHeaderComponent
 		this.selectedSubCategory = null;
 		this.isActiveColor = null;
 		this.colorsDtoList = [];
+		this.skip=0;
 	}
 
 }

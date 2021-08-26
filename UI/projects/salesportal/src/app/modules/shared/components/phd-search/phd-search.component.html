@@ -148,7 +148,7 @@
 		<div class="px-4 justify-content-center phd-search-results bg-white" *ngIf="searchResults">
 			<div class="d-flex phd-search-results-holder">
 
-				<phd-table #dt [value]="searchResults" tableId="searchResults" sortMode="single" [noRecordsMessage]="filterSpecs ? NO_RECORDS_MESSAGES.SPECS : NO_RECORDS_MESSAGES.SEARCH" [nonOverflow]="true">
+				<phd-table #dt [value]="searchResults" tableId="searchResults" sortMode="single" [noRecordsMessage]="filterSpecs ? NO_RECORDS_MESSAGES.SPECS : NO_RECORDS_MESSAGES.SEARCH" [nonOverflow]="false">
 					<!--Homesite #-->
 					<phd-column field="homesiteNumber" header="Lot #"></phd-column>
 					<!--Address (street 1, 2, unit #, city, state, country, postal code)-->
@@ -172,15 +172,12 @@
 					<!--build type-->
 					<phd-column field="buildType" header="Build Type">
 						<ng-template #body let-lot>
-							<div *ngIf="!isHslMigrated(lot.jobCreatedBy) && (lot.lotStatusDescription.trim() === 'Available' || lot.lotStatusDescription.trim() === 'Unavailable') && (lot.buildType.trim() ==='Spec' || lot.buildType.trim() ==='Model'); else elseBody">
-								<div *ngIf="(lot.lotStatusDescription.trim() === 'Available' || lot.lotStatusDescription.trim() === 'Unavailable') && (lot.buildTypeDisplayName ==='Spec')">
-									<a href="{{environment.baseUrl.designTool}}spec/{{lot.jobId}}" target="_blank">{{lot.buildTypeDisplayName}}</a>
-								</div>
-								<div *ngIf="(lot.lotStatusDescription.trim() === 'Available' || lot.lotStatusDescription.trim() === 'Unavailable') && (lot.buildTypeDisplayName ==='Model')">
-									<a href="{{environment.baseUrl.designTool}}scenario-summary/{{lot.jobId}}" target="_blank">{{lot.buildTypeDisplayName}}</a>
-								</div>
-							</div>
-							<ng-template #elseBody>{{getLotBuildType(lot)}}</ng-template>
+							<ng-container *ngIf="!isHslMigrated(lot.jobCreatedBy) && (lot.lotStatusDescription.trim() === 'Available' || lot.lotStatusDescription.trim() === 'Unavailable') && (lot.buildType.trim() ==='Spec' || lot.buildType.trim() ==='Model'); else elseBody">
+								<a href="{{getBuildTypeUrl(lot)}}" target="_blank" [attr.title]="lot.buildTypeDisplayName">{{lot.buildTypeDisplayName}}</a>
+							</ng-container>
+							<ng-template #elseBody>
+								<span [attr.title]="getLotBuildType(lot)">{{getLotBuildType(lot)}}</span>
+							</ng-template>
 						</ng-template>
 					</phd-column>
 					<!--Premium (cost)-->
@@ -227,9 +224,8 @@
 					<phd-column header="Active Change Order">
 						<ng-template #body let-lot>
 							<!--If sold in Home Selections-->
-							<span *ngIf="lot.activeChangeOrderText" (mouseenter)="showTooltip($event, lot.activeChangeOrderText, dt)"
-								(mouseleave)="hideTooltip(dt)" class="phd-active-change-order">
-								<a href="{{getChangeOrderLink(lot)}}" target="_blank">{{lot.activeChangeOrderText}}</a>
+							<span *ngIf="lot.activeChangeOrderText" class="phd-active-change-order">
+								<a href="{{getChangeOrderLink(lot)}}" target="_blank" [attr.title]="lot.activeChangeOrderText">{{lot.activeChangeOrderText}}</a>
 							</span>
 						</ng-template>
 					</phd-column>
@@ -239,5 +235,4 @@
 			<h5 class="pt-3 m-0 text-danger text-center" *ngIf="searchError">{{searchError}}</h5>
 		</div>
 	</div>
-
 </div>

@@ -1,12 +1,11 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Store, select } from '@ngrx/store';
 import { Actions, ofType } from '@ngrx/effects';
 
-import { Observable } from 'rxjs/Observable';
+import { Observable, never } from 'rxjs';
 import { combineLatest, map, switchMap, take, withLatestFrom } from 'rxjs/operators';
-import { never } from 'rxjs/observable/never';
 
 import { UnsubscribeOnDestroy, flipOver, Scenario, BrowserService } from 'phd-common';
 

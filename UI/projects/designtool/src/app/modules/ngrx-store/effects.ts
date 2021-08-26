@@ -2,7 +2,8 @@ import { Injectable } from '@angular/core';
 
 import { Action, Store, select } from '@ngrx/store';
 import { Actions, ofType, createEffect } from '@ngrx/effects';
-import { Observable } from 'rxjs/Observable';
+import { Observable, EMPTY as empty, from, of, forkJoin, combineLatest } from 'rxjs';
+import { switchMap, map, concat, scan, filter, distinct, withLatestFrom, tap } from 'rxjs/operators';
 import * as _ from 'lodash';
 
 import {
@@ -14,42 +15,33 @@ import { CommonActionTypes, LoadScenario, LoadError, ScenarioLoaded, LoadSalesAg
 import { tryCatch } from './error.action';
 import { ScenarioService } from '../core/services/scenario.service';
 import { TreeService } from '../core/services/tree.service';
-import { AttributeService } from '../core/services/attribute.service';
-import { switchMap, map, concat, scan, filter, distinct, withLatestFrom, tap } from 'rxjs/operators';
 import { OptionService } from '../core/services/option.service';
 import { LotService } from '../core/services/lot.service';
 import { OrganizationService } from '../core/services/organization.service';
-import { from } from 'rxjs/observable/from';
-import { of } from 'rxjs/observable/of';
-import { combineLatest } from 'rxjs/observable/combineLatest';
 import { setTreePointsPastCutOff, mergeIntoTree, updateWithNewTreeVersion, mapAttributes } from '../shared/classes/tree.utils';
 import { JobService } from '../core/services/job.service';
 import { PlanService } from '../core/services/plan.service';
 import { OpportunityService } from '../core/services/opportunity.service';
 import { LoadPlans, PlansLoaded, PlanActionTypes } from './plan/actions';
 import { LoadLots, LotsLoaded, LotActionTypes } from './lot/actions';
-import { forkJoin } from 'rxjs/observable/forkJoin';
 import { SalesAgreementService } from '../core/services/sales-agreement.service';
 import { ChangeOrderService } from '../core/services/change-order.service';
 import { SalesAgreementCreated, SalesAgreementActionTypes } from './sales-agreement/actions';
 import { ContractService } from '../core/services/contract.service';
 import { TemplatesLoaded } from './contract/actions';
 import { SavePendingJio, CreateJobChangeOrders, CreatePlanChangeOrder } from './change-order/actions';
-import { EMPTY as empty } from 'rxjs';
 import { State, canDesign, showSpinner } from './reducers';
 import { FavoriteService } from '../core/services/favorite.service';
 
 @Injectable()
 export class CommonEffects
 {
-	loadScenario$: Observable<Action> = createEffect(() =>
-	{
+	loadScenario$: Observable<Action> = createEffect(() => {
 		return this.actions$.pipe(
 			ofType<LoadScenario>(CommonActionTypes.LoadScenario),
 			tryCatch(source => source.pipe(
 				switchMap(action => this.scenarioService.getScenario(action.scenarioId)),
-				switchMap(scenario =>
-				{
+				switchMap(scenario => {
 					return combineLatest([
 						this.treeService.getTree(scenario.treeVersionId),
 						this.treeService.getRules(scenario.treeVersionId),
@@ -61,15 +53,12 @@ export class CommonEffects
 							this.oppService.getOpportunityContactAssoc(scenario.opportunityId)
 						])
 					]).pipe(
-						map(([tree, rules, options, optionImages, lot, [webPlanMapping, opportunity]]) =>
-						{
+						map(([tree, rules, options, optionImages, lot, [webPlanMapping, opportunity]]) => {
 							// apply images to options
-							options.forEach(option =>
-							{
+							options.forEach(option => {
 								let filteredImages = optionImages.filter(x => x.integrationKey === option.financialOptionIntegrationKey);
 
-								if (filteredImages.length)
-								{
+								if (filteredImages.length) {
 									// make sure they're sorted properly
 									option.optionImages = filteredImages.sort((a, b) => a.sortKey < b.sortKey ? -1 : 1);
 								}
@@ -78,15 +67,13 @@ export class CommonEffects
 							return { tree, rules, options, optionImages, lot, webPlanMapping, opportunity };
 						}),
 						updateWithNewTreeVersion(scenario, this.treeService),
-						map(data =>
-						{
+						map(data => {
 							// If there's a lot in the scenario and...
 							// The lot's status is not Available and...
 							// There is no sales agreement
 							let lotNoLongerAvailable = false;
 
-							if (scenario.lotId && data.lot && data.lot.lotStatusDescription !== 'Available')
-							{
+							if (scenario.lotId && data.lot && data.lot.lotStatusDescription !== 'Available') {
 								// Then deselect the lot and gank it!
 								scenario.lotId = null;
 								lotNoLongerAvailable = true;
@@ -94,8 +81,7 @@ export class CommonEffects
 
 							let isSpecScenario = false;
 
-							if (data.lot)
-							{
+							if (data.lot) {
 								isSpecScenario = data.lot.lotBuildTypeDesc === 'Spec';
 							}
 
@@ -105,58 +91,46 @@ export class CommonEffects
 						})
 					);
 				}),
-				switchMap(result =>
-				{
-					result.scenario.scenarioChoices.forEach(choice =>
-					{
+				switchMap(result => {
+					result.scenario.scenarioChoices.forEach(choice => {
 						const c: Choice = _.flatMap(result.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)))
 							.find(ch => ch.id === choice.choiceId);
 
-						if (c)
-						{
+						if (c) {
 							c.quantity = choice.choiceQuantity;
 							c.selectedAttributes = choice.selectedAttributes;
 						}
 					});
 
-					if (result.isSpecScenario)
-					{
+					if (result.isSpecScenario) {
 						return this.jobService.getJobByLotId(result.scenario.lotId).pipe(
-							switchMap(job =>
-							{
-								if (job && job.length)
-								{
+							switchMap(job => {
+								if (job && job.length) {
 									return combineLatest([
 										this.orgService.getSalesCommunityByFinancialCommunityId(result.tree.financialCommunityId),
-										this.identityService.getClaims(),
+										this.identityService.getClaims(), 
 										this.identityService.getAssignedMarkets()
 									]).pipe(
-										switchMap(([sc, claims, markets]: [SalesCommunity, Claims, IMarket[]]) =>
-										{
+										switchMap(([sc, claims, markets]: [SalesCommunity, Claims, IMarket[]]) => {
 											return this.treeService.getChoiceCatalogIds(job[0].jobChoices).pipe(
-												map(res =>
-												{
+												map(res => {
 													job[0].jobChoices = res;
 													
 													return [sc, job, claims, markets];
 												})
 											);
 										}),
-										switchMap(([sc, job, claims, markets]: [SalesCommunity, Job[], Claims, IMarket[]]) =>
-										{
-											return of({ job, salesCommunity: sc, claims, markets, tree: result.tree, options: result.options, selectedChoices: result.selectedChoices }).pipe(
+										switchMap(([sc, job, claims, markets]: [SalesCommunity, Job[], Claims, IMarket[]]) => {
+											return of({ job, salesCommunity: sc, claims, markets, tree: result.tree, options: result.options }).pipe(
 												//do this before checking cutoffs
-												mergeIntoTree(job[0].jobChoices, job[0].jobPlanOptions, this.treeService, this.attributeService, null, false),
-												map(res =>
-												{
+												mergeIntoTree(job[0].jobChoices, job[0].jobPlanOptions, this.treeService, null, false),
+												map(res => {
 													//add selections from the job into the tree
-													res.job[0].jobChoices.filter(ch => !result.scenario.scenarioChoices.some(sc => sc.choiceId === ch.dpChoiceId)).forEach(choice =>
-													{
+													res.job[0].jobChoices.filter(ch => !result.scenario.scenarioChoices.some(sc => sc.choiceId === ch.dpChoiceId)).forEach(choice => {
 														const c = _.flatMap(result.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)))
 															.find(ch => ch.divChoiceCatalogId === choice.divChoiceCatalogId);
 
-														if (c)
-														{
+														if (c) {
 															c.quantity = choice.dpChoiceQuantity;
 															c.selectedAttributes = mapAttributes(choice);
 														}
@@ -166,8 +140,7 @@ export class CommonEffects
 												})
 											);
 										}),
-										map(res =>
-										{
+										map(res => {
 											setTreePointsPastCutOff(result.tree, res.job[0]);
 
 											const pointsPastCutoff = _.flatMap(result.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points))
@@ -177,41 +150,30 @@ export class CommonEffects
 											let needsOverride = false;
 											let canOverride = res.claims.SalesAgreements && !!(res.claims.SalesAgreements & Permission.Override) && res.markets.some(m => m.number === res.salesCommunity.market.number);
 
-											if (pointsPastCutoff.length > 0)
-											{
+											if (pointsPastCutoff.length > 0) {
 												// check if point is part of scenario or specJIO
-												res.job[0].changeOrderGroups.forEach(changeOrderGroup =>
-												{
-													changeOrderGroup.jobChangeOrders[0].jobChangeOrderChoices.forEach(jobChoice =>
-													{
-														if (jobChoice.action === 'Add')
-														{
+												res.job[0].changeOrderGroups.forEach(changeOrderGroup => {
+													changeOrderGroup.jobChangeOrders[0].jobChangeOrderChoices.forEach(jobChoice => {
+														if (jobChoice.action === 'Add') {
 															jobChoices.push({ choiceId: jobChoice.dpChoiceId, overrideNote: null, quantity: jobChoice.dpChoiceQuantity });
 														}
-														else if (jobChoice.action === 'Delete')
-														{
+														else if (jobChoice.action === 'Delete') {
 															jobChoices = jobChoices.filter(choice => choice.choiceId !== jobChoice.dpChoiceId);
 														}
 													});
 												});
 
-												pointsPastCutoff.forEach((point: DecisionPoint) =>
-												{
-													point.choices.forEach(choice =>
-													{
+												pointsPastCutoff.forEach((point: DecisionPoint) => {
+													point.choices.forEach(choice => {
 														const coJobChoice = jobChoices.find(jcChoice => jcChoice.choiceId === choice.id);
 
-														if (coJobChoice)
-														{
-															if (coJobChoice.quantity !== choice.quantity)
-															{
+														if (coJobChoice) {
+															if (coJobChoice.quantity !== choice.quantity) {
 																needsOverride = true;
 															}
 														}
-														else
-														{
-															if (choice.quantity > 0)
-															{
+														else {
+															if (choice.quantity > 0) {
 																needsOverride = true;
 															}
 														}
@@ -223,48 +185,36 @@ export class CommonEffects
 										})
 									);
 								}
-								else
-								{
+								else {
 									return of({ ...result, salesCommunity: null, pointsPastCutoff: null, canOverride: false, jobChoices: null, needsOverride: false, job: null });
 								}
 							})
 						);
 					}
-					else
-					{
+					else {
 						return of({ ...result, salesCommunity: null, pointsPastCutoff: null, canOverride: false, jobChoices: null, needsOverride: false, job: null });
 					}
 				}),
-				switchMap(result =>
-				{
+				switchMap(result => {
 					let overrideNote: string;
 					let overrode = false;
 
-					if (result.needsOverride && result.canOverride)
-					{
-						return this.modalService.showOverrideModal(`<div>Some of your scenario choices are Past Cutoff date/stage and will need to have an Cutoff Override.</div>`).pipe(map((modalResult) =>
-						{
-							if (modalResult !== 'cancel')
-							{
+					if (result.needsOverride && result.canOverride) {
+						return this.modalService.showOverrideModal(`<div>Some of your scenario choices are Past Cutoff date/stage and will need to have an Cutoff Override.</div>`).pipe(map((modalResult) => {
+							if (modalResult !== 'cancel') {
 								overrode = true;
 								overrideNote = modalResult;
-								result.pointsPastCutoff.forEach((point: DecisionPoint) =>
-								{
-									point.choices.forEach(choice =>
-									{
+								result.pointsPastCutoff.forEach((point: DecisionPoint) => {
+									point.choices.forEach(choice => {
 										const coJobChoice = result.jobChoices.find(jcChoice => jcChoice.choiceId === choice.id);
 
-										if (coJobChoice)
-										{
-											if (coJobChoice.quantity !== choice.quantity)
-											{
+										if (coJobChoice) {
+											if (coJobChoice.quantity !== choice.quantity) {
 												choice.overrideNote = overrideNote;
 											}
 										}
-										else
-										{
-											if (choice.quantity > 0)
-											{
+										else {
+											if (choice.quantity > 0) {
 												choice.overrideNote = overrideNote;
 											}
 										}
@@ -273,40 +223,29 @@ export class CommonEffects
 
 								return { ...result, overrideNote: overrideNote, overrode: overrode };
 							}
-							else
-							{
+							else {
 								return { ...result, overrideNote: null, overrode: false };
 							}
 						}));
 					}
-					else
-					{
+					else {
 						return of({ ...result, overrideNote: null, overrode: false });
 					}
 				}),
-				switchMap(result =>
-				{
-					if (result.needsOverride && !result.overrode)
-					{
-						return this.modalService.showConfirmModal('Some of your scenario choices are Past Cutoff date/stage and will need to have an Cutoff Override.').pipe(map(() =>
-						{
-							result.pointsPastCutoff.forEach((point: DecisionPoint) =>
-							{
-								point.choices.forEach(choice =>
-								{
+				switchMap(result => {
+					if (result.needsOverride && !result.overrode) {
+						return this.modalService.showConfirmModal('Some of your scenario choices are Past Cutoff date/stage and will need to have an Cutoff Override.').pipe(map(() => {
+							result.pointsPastCutoff.forEach((point: DecisionPoint) => {
+								point.choices.forEach(choice => {
 									const coJobChoice = result.jobChoices.find(jcChoice => jcChoice.choiceId === choice.id);
 
-									if (coJobChoice)
-									{
-										if (coJobChoice.quantity !== choice.quantity)
-										{
+									if (coJobChoice) {
+										if (coJobChoice.quantity !== choice.quantity) {
 											choice.quantity = coJobChoice.quantity;
 										}
 									}
-									else
-									{
-										if (choice.quantity > 0)
-										{
+									else {
+										if (choice.quantity > 0) {
 											choice.quantity = 0;
 										}
 									}
@@ -316,33 +255,26 @@ export class CommonEffects
 							return { ...result };
 						}));
 					}
-					else
-					{
+					else {
 						return of({ ...result });
 					}
 				}),
-				switchMap(result =>
-				{
-					if (!result.isSpecScenario)
-					{
-						return this.orgService.getSalesCommunityByFinancialCommunityId(result.tree.financialCommunityId).pipe(map(sc =>
-						{
+				switchMap(result => {
+					if (!result.isSpecScenario) {
+						return this.orgService.getSalesCommunityByFinancialCommunityId(result.tree.financialCommunityId).pipe(map(sc => {
 							return { ...result, salesCommunity: sc, overrideNote: null };
 						}));
 					}
-					else
-					{
+					else {
 						return of({ ...result });
 					}
 				}),
-				switchMap(result =>
-				{
+				switchMap(result => {
 					let actions: any[] = [
 						new ScenarioLoaded(result.scenario, result.tree, result.rules, result.options, result.optionImages, result.lot, result.salesCommunity, result.lotNoLongerAvailable, result.opportunity, result.webPlanMapping, result.overrideNote, result.job),
 					];
 
-					if (result.opportunity && result.opportunity.opportunity && result.opportunity.opportunity.salesCommunityId)
-					{
+					if (result.opportunity && result.opportunity.opportunity && result.opportunity.opportunity.salesCommunityId) {
 						actions.push(new LoadPlans(result.opportunity.opportunity.salesCommunityId));
 						actions.push(new LoadLots(result.opportunity.opportunity.salesCommunityId));
 					}
@@ -353,39 +285,31 @@ export class CommonEffects
 		);
 	});
 
-	loadSalesAgreementOrSpec$: Observable<Action> = createEffect(() =>
-	{
+	loadSalesAgreementOrSpec$: Observable<Action> = createEffect(() => {
 		return this.actions$.pipe(
 			ofType<LoadSalesAgreement | LoadSpec | SalesAgreementCreated>(CommonActionTypes.LoadSalesAgreement, CommonActionTypes.LoadSpec, SalesAgreementActionTypes.SalesAgreementCreated),
 			tryCatch(source => source.pipe(
-				switchMap(action =>
-				{
-					if (action instanceof LoadSpec)
-					{
+				switchMap(action => {
+					if (action instanceof LoadSpec) {
 						return this.jobService.loadJob(action.job.id).pipe(
 							map(job => ({ job, salesAgreement: null, salesAgreementInfo: null }))
 						);
 					}
-					else if (action instanceof SalesAgreementCreated)
-					{
+					else if (action instanceof SalesAgreementCreated) {
 						return this.jobService.loadJob(action.salesAgreement.jobSalesAgreementAssocs[0].jobId, action.salesAgreement.id).pipe(
-							map(job =>
-							{
+							map(job => {
 								return { job, salesAgreement: action.salesAgreement, salesAgreementInfo: null };
 							})
 						);
 					}
-					else
-					{
+					else {
 						return forkJoin([
 							this.salesAgreementService.getSalesAgreement(action.salesAgreementId),
 							this.salesAgreementService.getSalesAgreementInfo(action.salesAgreementId)
 						]).pipe(
-							switchMap(([sag, sagInfo]) =>
-							{
+							switchMap(([sag, sagInfo]) => {
 								return this.jobService.loadJob(sag.jobSalesAgreementAssocs[0].jobId, sag.id).pipe(
-									map(job =>
-									{
+									map(job => {
 										return { job, salesAgreement: sag, salesAgreementInfo: sagInfo || new SalesAgreementInfo() };
 									})
 								);
@@ -393,13 +317,11 @@ export class CommonEffects
 						);
 					}
 				}),
-				switchMap(result =>
-				{
+				switchMap(result => {
 					const currentChangeOrder = this.changeOrderService.getCurrentChangeOrder(result.job.changeOrderGroups);
 					let changeOrderChoices: ChangeOrderChoice[] = [];
 
-					if (currentChangeOrder)
-					{
+					if (currentChangeOrder) {
 						changeOrderChoices = this.changeOrderService.getJobChangeOrderChoices([currentChangeOrder])
 					}
 
@@ -411,18 +333,14 @@ export class CommonEffects
 						selectedPlan$
 					]).pipe(
 						//assign divChoiceCatalogIDs to choices for job and current change order
-						map(([sc, choices, jobPlanId]) =>
-						{
+						map(([sc, choices, jobPlanId]) => {
 							const currentChangeOrderGroup = new ChangeOrderGroup(currentChangeOrder);
 
-							if (currentChangeOrderGroup)
-							{
-								_.flatMap(currentChangeOrderGroup.jobChangeOrders, co => co.jobChangeOrderChoices).forEach(ch =>
-								{
+							if (currentChangeOrderGroup) {
+								_.flatMap(currentChangeOrderGroup.jobChangeOrders, co => co.jobChangeOrderChoices).forEach(ch => {
 									let ch1 = choices.find(c => c.dpChoiceId === ch.dpChoiceId);
 
-									if (ch1)
-									{
+									if (ch1) {
 										ch.divChoiceCatalogId = ch1.divChoiceCatalogId;
 									}
 								});
@@ -431,16 +349,13 @@ export class CommonEffects
 							const newResult = { ...result, job: { ...result.job, jobChoices: [...result.job.jobChoices] } };
 							const changedChoices = [];
 
-							newResult.job.jobChoices.forEach(ch =>
-							{
+							newResult.job.jobChoices.forEach(ch => {
 								const ch1 = choices.find(c => c.dpChoiceId === ch.dpChoiceId);
 
-								if (ch1)
-								{
+								if (ch1) {
 									changedChoices.push({ ...ch, divChoiceCatalogId: ch1.divChoiceCatalogId });
 								}
-								else
-								{
+								else {
 									changedChoices.push({ ...ch });
 								}
 							});
@@ -451,10 +366,8 @@ export class CommonEffects
 						})
 					);
 				}),
-				map(result =>
-				{
-					if (result.currentChangeOrderGroup)
-					{
+				map(result => {
+					if (result.currentChangeOrderGroup) {
 						//change order stuff
 						const selectedChoices = this.changeOrderService.getSelectedChoices(result.job, result.currentChangeOrderGroup);
 						const selectedHanding = this.changeOrderService.getSelectedHanding(result.job);
@@ -472,8 +385,7 @@ export class CommonEffects
 							changeOrderPlanOptions
 						};
 					}
-					else
-					{
+					else {
 						return {
 							...result,
 							changeOrderGroup: null,
@@ -552,11 +464,9 @@ export class CommonEffects
 										],
 										[...result.job.jobPlanOptions, ...((result.changeOrderGroup && result.changeOrderGroup.salesStatusDescription !== 'Pending') ? result.changeOrderPlanOptions : [])],
 										this.treeService,
-										this.attributeService,
 										result.changeOrderGroup,
 										result.salesAgreement && ['OutforSignature', 'Signed', 'Approved', 'Closed'].indexOf(result.salesAgreement.status) !== -1),
-									map(data =>
-									{
+									map(data => {
 										setTreePointsPastCutOff(data.tree, data.job);
 
 										return data;
@@ -565,11 +475,9 @@ export class CommonEffects
 							})
 						);
 					}
-					else
-					{
+					else {
 						return this.lotService.getLot(result.selectedLotId).pipe(
-							map(data =>
-							{
+							map(data => {
 								return {
 									tree: null,
 									rules: null,
@@ -591,27 +499,21 @@ export class CommonEffects
 						)
 					}
 				}),
-				switchMap(result =>
-				{
-					if (result.salesAgreement && result.salesAgreementInfo)
-					{
+				switchMap(result => {
+					if (result.salesAgreement && result.salesAgreementInfo) {
 						//make sure base price is locked in.
 						let baseHouseOption = result.job.jobPlanOptions.find(o => o.jobOptionTypeName === 'BaseHouse');
 						let selectedPlanPrice: { planId: number, listPrice: number } = null;
 
-						if (['OutforSignature', 'Signed', 'Approved', 'Closed'].indexOf(result.salesAgreement.status) !== -1)
-						{
-							if (baseHouseOption)
-							{
+						if (['OutforSignature', 'Signed', 'Approved', 'Closed'].indexOf(result.salesAgreement.status) !== -1) {
+							if (baseHouseOption) {
 								selectedPlanPrice = { planId: result.selectedPlanId, listPrice: baseHouseOption ? baseHouseOption.listPrice : 0 };
 							}
 
-							if (result.changeOrder && result.changeOrder.salesStatusDescription !== 'Pending')
-							{
+							if (result.changeOrder && result.changeOrder.salesStatusDescription !== 'Pending') {
 								let co = result.changeOrder.jobChangeOrders.find(co => co.jobChangeOrderPlanOptions && co.jobChangeOrderPlanOptions.some(po => po.integrationKey === '00001' && po.action === 'Add'));
 
-								if (co)
-								{
+								if (co) {
 									selectedPlanPrice = { planId: result.selectedPlanId, listPrice: co.jobChangeOrderPlanOptions.find(po => po.action === 'Add' && po.integrationKey === '00001').listPrice };
 								}
 							}
@@ -636,8 +538,7 @@ export class CommonEffects
 							)
 						);
 					}
-					else
-					{
+					else {
 						return <Observable<Action>>from([new JobLoaded(result.job, result.salesAgreement, result.sc, result.selectedChoices, result.selectedPlanId, result.selectedHanding, result.tree, result.rules, result.options, result.images, result.mappings, result.changeOrder, result.lot),
 						...(!result.salesAgreement ? [new LoadLots(result.sc.id)] : []),
 						...(!result.salesAgreement ? [new LoadPlans(result.sc.id)] : []),
@@ -654,67 +555,52 @@ export class CommonEffects
 	 * This is to make sure we have the most current data when the SA loads.
 	 * Same for CreateJobChangeOrders
 	**/
-	updatePricingOnInit$: Observable<Action> = createEffect(() =>
-	{
+	updatePricingOnInit$: Observable<Action> = createEffect(() => {
 		return this.actions$.pipe(
 			ofType<SalesAgreementLoaded | PlansLoaded | LotsLoaded | LoadSalesAgreement>(CommonActionTypes.SalesAgreementLoaded, PlanActionTypes.PlansLoaded, LotActionTypes.LotsLoaded),
-			scan<Action, any>((curr, action) =>
-			{
-				if (action instanceof LoadSalesAgreement)
-				{
+			scan<Action, any>((curr, action) => {
+				if (action instanceof LoadSalesAgreement) {
 					return { ...curr, sagLoaded: false, plansLoaded: false, lotsLoaded: false, salesAgreement: null, currentChangeOrder: null };
 				}
 
-				if (action instanceof SalesAgreementLoaded)
-				{
+				if (action instanceof SalesAgreementLoaded) {
 					return { ...curr, sagLoaded: true, salesAgreement: action.salesAgreement, currentChangeOrder: action.changeOrder };
 				}
-				else if (action instanceof PlansLoaded)
-				{
+				else if (action instanceof PlansLoaded) {
 					return { ...curr, plansLoaded: true };
 				}
-				else if (action instanceof LotsLoaded)
-				{
+				else if (action instanceof LotsLoaded) {
 					return { ...curr, lotsLoaded: true };
 				}
-				else
-				{
+				else {
 					return curr; //should never get here
 				}
 			}, { lotsLoaded: false, plansLoaded: false, sagLoaded: false, salesAgreement: null, currentChangeOrder: null }),
 			filter(res => res.lotsLoaded && res.plansLoaded && res.sagLoaded),
 			distinct(res => res.salesAgreement.id),
-			switchMap(res =>
-			{
+			switchMap(res => {
 				return this.store.pipe(
 					select(canDesign),
-					switchMap(canDesign =>
-					{
+					switchMap(canDesign => {
 						//don't do anything if user doesn't have permissions
-						if (!canDesign)
-						{
+						if (!canDesign) {
 							return empty;
 						}
 
-						if (res.salesAgreement.status === 'Pending')
-						{
+						if (res.salesAgreement.status === 'Pending') {
 							return of(new SavePendingJio());
 						}
-						else if (res.salesAgreement.status === 'Approved' && res.currentChangeOrder && res.currentChangeOrder.salesStatusDescription === 'Pending')
-						{
+						else if (res.salesAgreement.status === 'Approved' && res.currentChangeOrder && res.currentChangeOrder.salesStatusDescription === 'Pending') {
 							const jco = res.currentChangeOrder.jobChangeOrders;
 
-							if (jco.some(co => co.jobChangeOrderTypeDescription === 'Plan'))
-							{
+							if (jco.some(co => co.jobChangeOrderTypeDescription === 'Plan')) {
 								return of(new CreatePlanChangeOrder());
 							}
-							else if (jco.some(co => co.jobChangeOrderTypeDescription === 'ChoiceAttribute' || co.jobChangeOrderTypeDescription === 'Elevation'))
-							{
+							else if (jco.some(co => co.jobChangeOrderTypeDescription === 'ChoiceAttribute' || co.jobChangeOrderTypeDescription === 'Elevation')) {
 								return of(new CreateJobChangeOrders());
 							}
 						}
-						else
-						{
+						else {
 							return empty;
 						}
 					})
@@ -726,15 +612,12 @@ export class CommonEffects
 	showLoadingSpinner$: Observable<any> = createEffect(
 		() => this.actions$.pipe(
 			withLatestFrom(this.store.pipe(select(showSpinner))),
-			map(([action, showSpinner]) =>
-			{
+			map(([action, showSpinner]) => {
 				return showSpinner;
 			}),
 			scan((prev, current) => ({ prev: prev.current, current: current }), { prev: false, current: false }),
-			tap((showSpinnerScan: { prev: boolean; current: boolean }) =>
-			{
-				if (showSpinnerScan.prev !== showSpinnerScan.current)
-				{
+			tap((showSpinnerScan: { prev: boolean; current: boolean }) => {
+				if (showSpinnerScan.prev !== showSpinnerScan.current) {
 					this.spinnerService.showSpinner(showSpinnerScan.current);
 				}
 			})

@@ -12,7 +12,7 @@
         <div class="p-2">
             <select class="form-control" [(ngModel)]="selectedSubCategory">
                 <option [defaultSelected] [ngValue]=null></option>
-                <option [ngValue]=null>---- All Colors ----</option>
+				<option [ngValue]=null>---- All Colors ----</option>
                 <option *ngFor="let subCategories of (optionSubCategory$|async)" [ngValue]="subCategories">{{subCategories.optionCategory.name}} : {{subCategories.name}}</option>
             </select>
         </div>
@@ -21,7 +21,7 @@
         </div>
         <div class="p-2">
             <select class="form-control" [(ngModel)]="isActiveColor">
-                <option [defaultSelected] [ngValue]=null>All</option> 
+                <option [defaultSelected] [ngValue]=null>All</option>
                 <option [ngValue]="true">Active</option>
                 <option [ngValue]="false">Inactive</option>
             </select>
@@ -38,7 +38,7 @@
         <phd-column header="Sku" field="sku"></phd-column>
         <phd-column header="Category Name" field="optionCategoryName"></phd-column>
         <phd-column header="SubCategory Name" field="optionSubCategoryName"></phd-column>
-        <phd-column header="Active" field="isActive">            
+        <phd-column header="Active" field="isActive">
         </phd-column>
     </phd-table>
 </div>

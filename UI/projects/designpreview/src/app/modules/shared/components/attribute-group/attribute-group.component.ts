@@ -15,6 +15,7 @@ export class AttributeGroupComponent extends UnsubscribeOnDestroy implements OnI
 	@Input() isLocationAttribute: boolean;
 	@Input() isBlocked: boolean;
 	@Input() isReadonly: boolean;
+	@Input() isDesignComplete: boolean;
 	
 	@Output() onAttributeClick = new EventEmitter<{attribute: Attribute, attributeGroup: AttributeGroup}>();
 	@Output() onToggleAttribute = new EventEmitter<{attribute: Attribute, attributeGroup: AttributeGroup, location: Location, locationGroup: LocationGroup, quantity: number}>();
@@ -25,7 +26,7 @@ export class AttributeGroupComponent extends UnsubscribeOnDestroy implements OnI
 
 	ngOnInit()
 	{
-		this.isCollapsed = this.isLocationAttribute;
+		this.isCollapsed = this.isDesignComplete ? false : this.isLocationAttribute;
 	}
 
 	onToggleAttributeGroup()

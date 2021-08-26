@@ -25,6 +25,7 @@ import { ChangeOrderEffects } from './change-order/effects';
 import { ContractEffects } from './contract/effects';
 import { CommonEffects } from './effects';
 import { UserEffects } from './user/effects';
+import { FavoriteEffects } from './favorite/effects';
 import { LoggingService } from '../core/services/logging.service';
 
 @NgModule({
@@ -48,7 +49,8 @@ import { LoggingService } from '../core/services/logging.service';
 			ChangeOrderEffects,
 			ContractEffects,
 			CommonEffects,
-			UserEffects]
+			UserEffects,
+			FavoriteEffects]
 		)
 	],
 	providers: [

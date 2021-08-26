@@ -1,10 +1,10 @@
+import { Observable, forkJoin, from, of } from 'rxjs';
+import { switchMap, withLatestFrom, map, combineLatest } from 'rxjs/operators';
+
 import { SalesAgreementService } from './../../core/services/sales-agreement.service';
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Action, Store, select } from '@ngrx/store';
-import { forkJoin, from, of } from 'rxjs';
-import { Observable } from 'rxjs/Observable';
-import { switchMap, withLatestFrom, map, combineLatest } from 'rxjs/operators';
 
 import 
 { 

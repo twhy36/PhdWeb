@@ -1,14 +1,12 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Action, Store, select } from '@ngrx/store';
-import { Observable } from 'rxjs/Observable';
+import { Observable, of, from } from 'rxjs';
 import { switchMap, withLatestFrom, map } from 'rxjs/operators';
-import { of } from 'rxjs/observable/of';
-import { from } from 'rxjs/observable/from';
 
 import * as _ from 'lodash';
 
-import { DesignToolAttribute, MyFavorite } from 'phd-common';
+import { DesignToolAttribute, MyFavorite, PickType } from 'phd-common';
 
 import
 { 	FavoriteActionTypes, SetCurrentFavorites, MyFavoriteCreated, SaveMyFavoritesChoices,
@@ -41,14 +39,36 @@ export class FavoriteEffects
 	setCurrentFavorites$: Observable<Action> = createEffect(() =>
 		this.actions$.pipe(
 			ofType<SetCurrentFavorites | MyFavoriteCreated>(FavoriteActionTypes.SetCurrentFavorites, FavoriteActionTypes.MyFavoriteCreated),
-			withLatestFrom(this.store.pipe(select(fromFavorite.currentMyFavorite))),
+			withLatestFrom(this.store, this.store.pipe(select(fromFavorite.currentMyFavorite))),
 			tryCatch(source => source.pipe(
-				switchMap(([action, fav]) => {
+				switchMap(([action, store, fav]) => {
+					const isDesignComplete = store.salesAgreement?.isDesignComplete || false;
 					let actions: any[] = [];
 
 					if (fav?.myFavoritesChoice?.length)
 					{
-						let choices = fav.myFavoritesChoice.map(c => {
+						const points = _.flatMap(store.scenario.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points));
+						const favoriteChoices = fav.myFavoritesChoice.filter(c => {
+							const point = points.find(pt => pt.choices.some(ch => ch.divChoiceCatalogId === c.divChoiceCatalogId));
+
+							// Ignore the favorited choice if 
+							//   - the choice is contracted or 
+							//   - the point has pick type (Pick0or1 or Pick1) and there is a contracted choice in the point
+							let choiceSelected = true;
+							if (!!store.favorite?.salesChoices?.find(x => x.divChoiceCatalogId === c.divChoiceCatalogId)) 
+							{
+								choiceSelected = false;
+							}
+							else if ((point?.pointPickTypeId === PickType.Pick0or1 || point?.pointPickTypeId === PickType.Pick1)
+								&& !!store.favorite?.salesChoices?.find(x => point.choices.some(ch => ch.divChoiceCatalogId === x.divChoiceCatalogId)))
+							{
+								choiceSelected = false;
+							}
+
+							return choiceSelected;
+						});
+
+						let choices = favoriteChoices.map(c => {
 							// get favorites locations
 							let attributes = c.myFavoritesChoiceLocations ? _.flatten(c.myFavoritesChoiceLocations.map(l =>
 								{
@@ -100,7 +120,7 @@ export class FavoriteEffects
 							};
 						});
 
-						actions.push(new SelectChoices(...choices));
+						actions.push(new SelectChoices(isDesignComplete, ...choices));
 					}
 					else if (fav?.myFavoritesPointDeclined?.length)
 					{
@@ -124,9 +144,10 @@ export class FavoriteEffects
 	resetFavorites$: Observable<Action> = createEffect(() => 
 		this.actions$.pipe(
 			ofType<ResetFavorites>(CommonActionTypes.ResetFavorites),
-			withLatestFrom(this.store.pipe(select(fromFavorite.currentMyFavorite))),
+			withLatestFrom(this.store.pipe(select(fromFavorite.currentMyFavorite)),
+				this.store.pipe(select(state => state.salesAgreement))),
 			tryCatch(source => source.pipe(
-				switchMap(([action, fav]) => {
+				switchMap(([action, fav, sag]) => {
 					if (fav)
 					{
 						let actions: any[] = [ new SetCurrentFavorites(null) ];
@@ -141,7 +162,9 @@ export class FavoriteEffects
 									attributes: []
 								};
 							});
-							actions.push(new SelectChoices(...choices));
+
+							const isDesignComplete = sag?.isDesignComplete || false;
+							actions.push(new SelectChoices(isDesignComplete, ...choices));
 						}
 
 						if (fav.myFavoritesPointDeclined?.length)
