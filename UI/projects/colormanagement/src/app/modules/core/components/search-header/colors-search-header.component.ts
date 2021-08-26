@@ -42,7 +42,6 @@ export class ColorsSearchHeaderComponent
 	allDataLoaded: boolean;
 	isActiveColor: boolean;
 	isLoading: boolean = true;
-	isModalOpen: boolean;
 	currentPage: number = 0;
 	skip: number;
 	settings: Settings;
@@ -149,7 +148,6 @@ export class ColorsSearchHeaderComponent
 		this.initializeDialogCategories();
 
 		this.modalReference = this._modalService.open(this.addColorModal);
-		this.isModalOpen = true;
 		this.modalReference.result.catch(err => console.log(err));
 	}
 
@@ -237,7 +235,6 @@ export class ColorsSearchHeaderComponent
 		if (noNewColorsWereAdded)
 		{
 			this.modalReference.dismiss();
-			this.isModalOpen = false;
 			return;
 		}
 
@@ -247,7 +244,6 @@ export class ColorsSearchHeaderComponent
 		if (closeWithoutSavingData)
 		{
 			this.modalReference.dismiss();
-			this.isModalOpen = false;
 		}
 	}
 
