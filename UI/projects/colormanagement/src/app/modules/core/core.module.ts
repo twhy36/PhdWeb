@@ -16,8 +16,7 @@ import { ConfirmModalComponent } from '../shared/components/confirm-modal/confir
 import { SettingsService } from './services/settings.service';
 import { ModalComponent } from './components/modal/modal.component';
 import { ModalService } from './services/modal.service';
-import { MatDialogModule  } from '@angular/material/dialog';
-import {MatButtonModule} from '@angular/material/button';
+
 @NgModule({
 	declarations: [
 		MarketSelectorComponent,
@@ -34,8 +33,6 @@ import {MatButtonModule} from '@angular/material/button';
         FormsModule,
         InfiniteScrollModule,
         PhdCommonModule,
-        MatDialogModule,
-        MatButtonModule,
     ],
 	exports: [
 		MarketSelectorComponent,
