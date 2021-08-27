@@ -5,6 +5,7 @@ import { RouterModule } from '@angular/router';
 import { SharedModule } from '../shared/shared.module';
 
 import { NavBarComponent } from './components/nav-bar/nav-bar.component';
+import { IdleLogoutComponent } from './components/idle-logout/idle-logout.component';
 
 import { ChangeOrderService } from './services/change-order.service';
 import { FavoriteService } from './services/favorite.service';
@@ -24,10 +25,12 @@ import { ExternalGuard } from './guards/external.guard';
 
 @NgModule({
 	exports: [
-		NavBarComponent
+		NavBarComponent,
+		IdleLogoutComponent
 	],
 	declarations: [
-		NavBarComponent
+		NavBarComponent,
+		IdleLogoutComponent
 	],
 	imports: [
 		CommonModule,

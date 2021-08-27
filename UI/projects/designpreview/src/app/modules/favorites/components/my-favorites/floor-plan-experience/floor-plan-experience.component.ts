@@ -32,6 +32,7 @@ export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implement
 	@Input() myFavoritesPointsDeclined?: MyFavoritesPointDeclined[];
 	@Input() isReadonly: boolean;
 	@Input() isPreview: boolean = false;
+	@Input() isDesignComplete: boolean = false;
 
 	@Output() onToggleChoice = new EventEmitter<ChoiceExt>();
 	@Output() onToggleContractedOptions = new EventEmitter();
@@ -141,6 +142,11 @@ export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implement
 
 	declineDecisionPoint(point: DecisionPoint) {
 		this.onDeclineDecisionPoint.emit(point);
+	}
+
+	get isContractedOptionsDisabled() : boolean
+	{
+		return this.isPreview || this.isDesignComplete;
 	}
 }
 

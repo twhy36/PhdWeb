@@ -1,9 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Action } from '@ngrx/store';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { switchMap, map, combineLatest } from 'rxjs/operators';
-import { of } from 'rxjs/observable/of';
 
 import { PlanActionTypes, LoadSelectedPlan, SelectedPlanLoaded, LoadError } from './actions';
 import { tryCatch } from '../error.action';

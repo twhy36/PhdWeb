@@ -4,7 +4,7 @@ import { Store } from '@ngrx/store';
 
 import * as _ from 'lodash';
 
-import { UnsubscribeOnDestroy, ModalRef, ModalService, Attribute, AttributeGroup, DesignToolAttribute } from 'phd-common';
+import { UnsubscribeOnDestroy, ModalRef, ModalService, Attribute, AttributeGroup, DesignToolAttribute, MyFavoritesChoiceAttribute, MyFavoritesChoiceLocation } from 'phd-common';
 
 import { AttributeListComponent } from '../attribute-list/attribute-list.component';
 
@@ -33,6 +33,7 @@ export class AttributeGroupComponent extends UnsubscribeOnDestroy implements OnI
 	@Input() overrideReason: string;
 	@Input() monotonyConflict: MonotonyConflict;
 	@Input() isCollapsed: boolean;
+	@Input() favoriteChoiceAttributes?: MyFavoritesChoiceAttribute[];
 
 	@Output() onAttributeGroupSelected: EventEmitter<{ attributeGroupId: number, attributeGroupName: string, attributeId: number, attributeName: string, sku: string, manufacturer: string, selected: boolean, overrideNote: string, isOverride: boolean }> = new EventEmitter();
 

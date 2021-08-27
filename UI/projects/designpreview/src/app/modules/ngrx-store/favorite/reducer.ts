@@ -32,7 +32,12 @@ export function reducer(state: State = initialState, action: FavoriteActions): S
 	{
 		case CommonActionTypes.SalesAgreementLoaded:
 			{
-				return { ...state, myFavorites: action.myFavorites, salesChoices: action.choices };
+				let includeContractedOptions = state.includeContractedOptions;
+				if (action.info?.isDesignComplete)
+				{
+					includeContractedOptions = true;
+				}
+				return { ...state, myFavorites: action.myFavorites, salesChoices: action.choices, includeContractedOptions: includeContractedOptions };
 			}
 
 		case FavoriteActionTypes.SetCurrentFavorites:
@@ -101,7 +106,7 @@ export function reducer(state: State = initialState, action: FavoriteActions): S
 				let myFavorite = myFavorites?.find(x => x.id === action.myFavoritesPointDeclined?.myFavoriteId);
 				if (myFavorite)
 				{
-					const pointDeclinedIndex = myFavorite?.myFavoritesPointDeclined?.findIndex(x => x.divPointCatalogId === action.myFavoritesPointDeclined?.divPointCatalogId);
+					const pointDeclinedIndex = myFavorite?.myFavoritesPointDeclined?.findIndex(x => x.divPointCatalogId === action.myFavoritesPointDeclined?.divPointCatalogId || x.id === action.myFavoritesPointDeclined?.id);
 					if (action.isDelete && pointDeclinedIndex > -1)
 					{
 						myFavorite.myFavoritesPointDeclined.splice(pointDeclinedIndex, 1);

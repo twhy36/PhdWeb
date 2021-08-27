@@ -12,6 +12,7 @@
 						[priceBreakdown]="priceBreakdown"
 						[includeContractedOptions]="includeContractedOptions"
 						[isPreview]="isPreview"
+						[isDesignComplete]="isDesignComplete"
 						(isStickyChanged)="onIsStickyChanged($event)"
 						(contractedOptionsToggled)="onContractedOptionsToggled()">
 		</summary-header>
@@ -38,6 +39,7 @@
 													[salesChoices]="salesChoices"
 													[includeContractedOptions]="includeContractedOptions"
 													[buildMode]="buildMode"
+													[isDesignComplete]="isDesignComplete"
 													(onViewFavorites)="onViewFavorites($event)"
 													(onRemoveFavorites)="onRemoveFavorites($event)">
 							</decision-point-summary>
@@ -53,6 +55,7 @@
 			[favoritesPrice]="priceBreakdown.favoritesPrice"
 			[price]="priceBreakdown.totalPrice"
 			[showPrint]="true"
+			[isDesignComplete]="isDesignComplete"
 			(callToAction)="onBack()"
 			(onPrintAction)="onPrint()">
 </action-bar>

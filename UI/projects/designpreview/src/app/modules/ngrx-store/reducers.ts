@@ -42,13 +42,15 @@ export const reducers: ActionReducerMap<State> = {
 export const filteredTree = createSelector(
 	fromScenario.selectScenario,
 	fromFavorite.favoriteState,
-	(scenario, favorite) => {
+	fromSalesAgreement.salesAgreementState,
+	(scenario, favorite, sag) => {
 		let tree = _.cloneDeep(scenario?.tree);
 		const treeFilter = scenario?.treeFilter;
 		let filteredTree: TreeVersion;
 
 		if (tree && tree.treeVersion) {
 			const isPreview = scenario.buildMode === 'preview';
+			const isDesignComplete = sag?.isDesignComplete || false;
 
 			const filter = (label: string) => {
 				return treeFilter ? label.toLowerCase().includes(treeFilter.keyword.toLowerCase()) : true;
@@ -69,16 +71,16 @@ export const filteredTree = createSelector(
 
 							let choices = p.choices.filter(c => {
 								let isValid = treeMatched.point || filter(c.label);
-
+									
 								let isIncluded = true;
+								const isContractedChoice = contractedChoices?.includes(c);
+
 								if (p.isStructuralItem)
 								{
 									isIncluded = favorite.includeContractedOptions && c.quantity > 0;
 								}
 								else
 								{
-									const isContractedChoice = contractedChoices?.includes(c);
-
 									// If there are contracted design choices and the include contracted option flag is false,
 									// Pick1 or Pick0or1 - remove all choices
 									// Pick1ormore or Pick0ormore - remove the selected choice and leave other choices viewable
@@ -96,6 +98,12 @@ export const filteredTree = createSelector(
 
 								if (scenario.hiddenChoiceIds.indexOf(c.id) > -1) {
 									isIncluded = false;
+								}
+
+								// Only display contracted choices when the design complete flag is turned on
+								if (isDesignComplete)
+								{
+									isIncluded = isContractedChoice;
 								}
 
 								return isValid && (isIncluded || isPreview);
@@ -156,10 +164,13 @@ export const priceBreakdown = createSelector(
 
 			let base = scenario.options ? scenario.options.find(o => o.isBaseHouse) : null;
 			if (base && scenario.tree) {
+				const treePoints = _.flatMap(scenario.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points));
 				const treeChoices = _.flatMap(scenario.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, p => p.choices)));
                 breakdown.selections = treeChoices.filter(c => !!favorite?.salesChoices?.find(x => x.divChoiceCatalogId === c.divChoiceCatalogId))
 					?.reduce((acc, ch) => acc + (ch.quantity * ch.price), 0);
-				breakdown.favoritesPrice = treeChoices.filter(c => c.quantity > 0 && !c.priceHiddenFromBuyerView && !favorite?.salesChoices?.find(x => x.divChoiceCatalogId === c.divChoiceCatalogId))
+				breakdown.favoritesPrice = treeChoices.filter(c => c.quantity > 0 && !c.priceHiddenFromBuyerView && !c.isHiddenFromBuyerView
+					&& !treePoints.find(p => p.choices.find(ch => ch.divChoiceCatalogId === c.divChoiceCatalogId)).isHiddenFromBuyerView
+					&& !favorite?.salesChoices?.find(x => x.divChoiceCatalogId === c.divChoiceCatalogId))
 					?.reduce((acc, ch) => acc + (ch.quantity * ch.price), 0);
 			}
 
@@ -272,7 +283,7 @@ export const elevationImageUrl = createSelector(
 		const elevationOption = scenario && scenario.options ? scenario.options.find(x => x.isBaseHouseElevation) : null;
 
 		if (dp) {
-			const selectedChoice = dp.choices.find(x => x.quantity > 0);
+			const selectedChoice = dp.choices.find(x => x.quantity > 0 || x.isDecisionDefault);
 			let option: PlanOption = null;
 
 			if (selectedChoice && selectedChoice.options && selectedChoice.options.length) {

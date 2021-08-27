@@ -1,8 +1,6 @@
 import { Action } from "@ngrx/store";
-import { Observable, ObservableInput } from "rxjs/Observable";
-import { OperatorFunction } from "rxjs/interfaces";
+import { Observable, of, OperatorFunction } from "rxjs";
 import { switchMap, concatMap, mergeMap, catchError } from "rxjs/operators";
-import { of } from 'rxjs/observable/of';
 import { environment } from "../../../environments/environment";
 
 export class ErrorAction implements Action

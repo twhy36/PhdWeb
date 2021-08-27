@@ -29,7 +29,7 @@
 				<span class="phd-breakdown-content">{{priceBreakdown?.homesite | currency:'USD':'symbol':'0.0-0'}}</span>
 			</div>
 			<div *ngIf="!isPreview" class="d-flex">
-				<span class="phd-breakdown-label">Contracted Options:</span>
+				<span class="phd-breakdown-label">{{isDesignComplete ? 'Options Total:' : 'Contracted Options:'}}</span>
 				<span class="phd-breakdown-content">{{priceBreakdown?.selections | currency:'USD':'symbol':'0.0-0'}}</span>
 			</div>
 			<div *ngIf="priceBreakdown.salesProgram" class="d-flex">
@@ -40,12 +40,12 @@
 				<span class="phd-breakdown-label">Non-Standard Options:</span>
 				<span class="phd-breakdown-content">{{priceBreakdown?.nonStandardSelections | currency:'USD':'symbol':'0.0-0'}}</span>
 			</div>
-			<div class="phd-estimate">
+			<div *ngIf="!isDesignComplete" class="phd-estimate">
 				<span class="phd-breakdown-label">Estimated Favorites Total:</span>
 				<span class="phd-breakdown-content">{{priceBreakdown?.favoritesPrice | currency:'USD':'symbol':'0.0-0'}}</span>
 			</div>
 			<div class="phd-estimate">
-				<span class="phd-breakdown-label">Estimated Total Price:</span>
+				<span class="phd-breakdown-label">{{isDesignComplete ? 'Total Purchase Price:' : 'Estimated Total Price:'}}</span>
 				<span class="phd-breakdown-content">{{priceBreakdown?.totalPrice | currency:'USD':'symbol':'0.0-0'}}</span>
 			</div>
 			<div *ngIf="priceBreakdown.closingIncentive" class="d-flex">
@@ -56,7 +56,12 @@
 		<div *ngIf="!isSticky" class="phd-divider"></div>
 		<div *ngIf="!isSticky" class="phd-contracted-options">
 			<label>
-				<input type="checkbox" (change)="toggleContractedOptions($event)" [ngModel]="includeContractedOptions" [ngClass]="{'phd-clickable' : !isPreview }" [disabled]="isPreview"/>
+				<input type="checkbox" 
+					(change)="toggleContractedOptions($event)" 
+					[ngModel]="includeContractedOptions" 
+					[ngClass]="{'phd-clickable' : !isContractedOptionsDisabled }" 
+					[disabled]="isContractedOptionsDisabled"
+				/>
 				Display Contracted Options
 			</label>
 		</div>
