@@ -8,7 +8,8 @@ import { IOptionSubCategory, IOptionCategory } from '../../shared/models/option.
 import { environment } from '../../../../environments/environment';
 import { zip } from 'rxjs';
 import { of } from 'rxjs';
-import {IColorDto} from '../../shared/models/color.model';
+import {IColor} from '../../shared/models/color.model';
+import { tap } from 'lodash';
 @Injectable()
 export class OptionService
 {
@@ -76,9 +77,20 @@ export class OptionService
 		return _throw(error || 'Server error');
 	}
 
-	saveNewColors(colors: IColorDto[])
+	saveNewColors(colors: IColor[])
 	{
-		const endpoint = `${environment.apiUrl}/Color/PostColor`;
-		this._http.post(endpoint, colors);
+		console.log('saveNewColors is executing...');
+		console.log(colors);
+		const endpoint = `${environment.apiUrl}colors`;
+
+		console.log(endpoint);
+		this._http.post(endpoint, colors).pipe(
+			map(response => {
+				console.log('POST - Colors Response')
+				console.log(response);
+			}),
+			catchError(this.handleError)
+
+		);
 	}
 }

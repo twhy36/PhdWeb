@@ -1,4 +1,4 @@
-import {Component, ViewChild} from '@angular/core';
+import {Component} from '@angular/core';
 
 @Component({
 	selector: 'colors-page',
@@ -7,6 +7,5 @@ import {Component, ViewChild} from '@angular/core';
 })
 export class ColorsPageComponent
 {
-	sidePanelOpen: boolean = false;
-	@ViewChild('addColorModal') addColorModal: any;
+
 }

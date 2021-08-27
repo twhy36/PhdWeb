@@ -5,7 +5,7 @@ import {OrganizationService} from '../../../core/services/organization.service';
 import {filter, map, switchMap} from 'rxjs/operators';
 import {Observable} from 'rxjs';
 import {ConfirmModalComponent, ModalRef, UnsubscribeOnDestroy} from 'phd-common';
-import {IColorDto} from '../../../shared/models/color.model';
+import {IColorDto, IColor} from '../../../shared/models/color.model';
 import {ColorService} from '../../services/color.service';
 import {SettingsService} from '../../services/settings.service';
 import {Settings} from '../../../shared/models/settings.model';
@@ -23,7 +23,7 @@ export class ColorsSearchHeaderComponent
 	implements OnInit
 {
 
-	@Output() sidePanelWasToggled = new EventEmitter<boolean>();
+	@Output() newColorsWereSaved = new EventEmitter();
 	@ViewChild('addColorModal') addColorModal: any;
 	dialogCategories: IOptionCategory[] = [];
 	dialogSubCategories: IOptionSubCategory[];
@@ -44,7 +44,7 @@ export class ColorsSearchHeaderComponent
 	skip: number;
 	settings: Settings;
 	modalReference: ModalRef;
-	newColors: IColorDto[] = [];
+	newColors: IColor[] = [];
 	addColorDialogForm: FormGroup;
 
 	constructor(
@@ -143,7 +143,6 @@ export class ColorsSearchHeaderComponent
 	{
 		this.initializeEmptyListOfNewColors();
 		this.initializeDialogCategories();
-
 		this.modalReference = this._modalService.open(this.addColorModal);
 		this.modalReference.result.catch(err => console.log(err));
 	}
@@ -155,8 +154,8 @@ export class ColorsSearchHeaderComponent
 				name: '',
 				colorId: 0,
 				sku: '',
-				optionSubCategoryName: '',
-				optionCategoryName: '',
+				edhOptionSubcategoryId: 0,
+				edhFinancialCommunityId: this.currentCommunityId,
 				isActive: true
 			};
 		}
@@ -165,20 +164,28 @@ export class ColorsSearchHeaderComponent
 	private initializeDialogCategories()
 	{
 		this.dialogCategories = [];
+		this.dialogSubCategories = [];
+		let category: IOptionCategory;
+
 		this.optionSubCategory.forEach((subcategory) => {
-			let notInListAlready = this.dialogCategories.some(x => x.id === subcategory.optionCategory?.id) == false;
+			let notInListAlready = this.dialogCategories.some(x => x.id === subcategory.optionCategory.id) === false;
 
 			if (notInListAlready && subcategory.optionCategory)
 			{
-				let category = subcategory.optionCategory;
+				category = {
+					name: subcategory.optionCategory.name,
+					id: subcategory.optionCategory.id,
+					optionSubCategory: []
+				};
 
-				if (category.optionSubCategory === undefined)
-				{
-					category.optionSubCategory = [];
-				}
-
-				category.optionSubCategory.push(subcategory);
 				this.dialogCategories.push(category);
+			}
+
+			const subcategoryNotInList = category.optionSubCategory.some(x => x.id === subcategory.id) === false;
+
+			if (subcategoryNotInList)
+			{
+				category.optionSubCategory.push(subcategory);
 			}
 		});
 	}
@@ -189,15 +196,15 @@ export class ColorsSearchHeaderComponent
 
 		if (requiredFieldsAreMissing)
 		{
+			console.log('save failed validation');
 			return;
 		}
 
 		let entriesToSave = this.newColors.filter(x => x.name.length > 0);
-
-		if (entriesToSave.length > 0)
-		{
-			this._optionService.saveNewColors(entriesToSave);
-		}
+		entriesToSave.forEach(newColor => newColor.edhOptionSubcategoryId = this.selectedDialogSubCategory.id);
+		this._optionService.saveNewColors(entriesToSave);
+		this.loadColors();
+		this.modalReference.dismiss();
 	}
 
 	validateRequiredFields(): boolean
@@ -248,6 +255,8 @@ export class ColorsSearchHeaderComponent
 	onCategorySelected(category: IOptionCategory)
 	{
 		this.dialogSubCategories = category.optionSubCategory;
-		this.selectedDialogSubCategory = this.dialogSubCategories[0];
+		this.selectedDialogSubCategory = this.dialogSubCategories.length === 1
+		 ? this.dialogSubCategories[0]
+		 : null;
 	}
 }
