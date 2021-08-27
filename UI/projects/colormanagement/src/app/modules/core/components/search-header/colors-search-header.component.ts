@@ -91,7 +91,9 @@ export class ColorsSearchHeaderComponent
 							sku: color.sku,
 							optionCategoryName:	categorySubcategory?.optionCategory?.name,
 							optionSubCategoryName: categorySubcategory?.name,
+							optionSubCategoryId: categorySubcategory?.id,
 							isActive: color.isActive,
+							hasSalesConfig:null
 						};
 						return colorsDto;
 					}) as Array<IColorDto>;
@@ -99,10 +101,20 @@ export class ColorsSearchHeaderComponent
 				})
 			)
 			.subscribe((colorDtos) => {
+				this.getSalesConfig(colorDtos);
 				this.currentPage++;
 				this.allDataLoaded =colorDtos.length < this.settings.infiniteScrollPageSize;
 				this.colorsDtoList = [...this.colorsDtoList, ...colorDtos];
-			});
+	});
+	}
+
+	getSalesConfig(colorDtos:IColorDto[]){
+		colorDtos.forEach((color)=>
+		{
+			this._colorService.getsalesConfiguration(color.optionSubCategoryId??null,color.name).subscribe((x)=>{
+					color.hasSalesConfig = x[0]>-1 ? true:false;
+			})
+		})
 	}
 
 	filterColors() 

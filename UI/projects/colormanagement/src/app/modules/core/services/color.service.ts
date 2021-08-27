@@ -118,6 +118,23 @@ export class ColorService {
 			catchError(this.handleError)
 		);
 	}
+
+	getsalesConfiguration(optionSubCategoryId?: number, colorname?: string):Observable<number>
+	{
+		const entity = `jobs`;
+		const filter = `jobPlanOptions/any(po: po/planOptionCommunity/optionCommunity/optionSubCategoryId eq ${optionSubCategoryId} and po/jobPlanOptionAttributes/any(a: a/attributeGroupCommunityId eq 1 and a/attributeName eq '${colorname}')) or jobChangeOrderGroups/any(cog: cog/jobChangeOrders/any(co: co/jobChangeOrderPlanOptions/any(po: po/planOptionCommunity/optionCommunity/optionSubCategoryId eq ${optionSubCategoryId} and po/jobChangeOrderPlanOptionAttributes/any(a: a/attributeGroupCommunityId eq 1 and a/attributeName eq '${colorname}'))))`;
+		const select = `id`;
+		
+		let qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}top=1`;
+
+		const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
+		return this._http.get<any>(endpoint).pipe(
+			map((response:any)=>
+			{
+				return response.value;
+			})
+		);
+	}
 	private handleError(error: Response)
 	{
 		// In the future, we may send the server to some remote logging infrastructure

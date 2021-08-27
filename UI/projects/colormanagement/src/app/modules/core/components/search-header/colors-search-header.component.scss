@@ -1,8 +1,22 @@
 @import "../../../../../scss/styles.scss";
 @import "../../../../../scss/color-pallet.scss";
+@import "../../../../../scss/sizes.scss";
 .count_message {
     margin-top: 10px;
     margin-left: 94px;
     font-size:0.8em ;
     color:#6c757d!important
   }
+  .phd-icon-container {
+    display: flex;
+    justify-content: space-around;
+  
+    i {
+      width: 50px;
+      text-align: center;
+    }
+  }
+  .fa {
+    cursor: pointer;
+  }
+  

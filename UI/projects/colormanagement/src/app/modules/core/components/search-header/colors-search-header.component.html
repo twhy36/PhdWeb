@@ -38,7 +38,13 @@
         <phd-column header="Sku" field="sku"></phd-column>
         <phd-column header="Category Name" field="optionCategoryName"></phd-column>
         <phd-column header="SubCategory Name" field="optionSubCategoryName"></phd-column>
-        <phd-column header="Active" field="isActive">
-        </phd-column>
+        <phd-column header="Active" field="isActive"></phd-column>
+        <phd-column header="" >
+            <ng-template #body let-colordto>
+                <div class="phd-icon-container">
+                    <i class="fa fa-pencil-alt fa-fw" title="Edit Color" *ngIf="colordto.hasSalesConfig===false && colordto.isActive"></i>
+                </div>
+            </ng-template>
+        </phd-column>        
     </phd-table>
 </div>
