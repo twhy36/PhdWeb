@@ -202,7 +202,9 @@ export class ColorsSearchHeaderComponent
 
 		let entriesToSave = this.newColors.filter(x => x.name.length > 0);
 		entriesToSave.forEach(newColor => newColor.edhOptionSubcategoryId = this.selectedDialogSubCategory.id);
-		this._optionService.saveNewColors(entriesToSave);
+		this._optionService.saveNewColors(entriesToSave).subscribe((x) => {
+			console.log(x.length > 0 ? "Save was successful" : 'Save failed')
+		});
 		this.loadColors();
 		this.modalReference.dismiss();
 	}
