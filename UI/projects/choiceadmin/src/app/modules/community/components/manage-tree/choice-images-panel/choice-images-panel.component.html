@@ -14,7 +14,7 @@
 					[dragSource]="getDragItem(image)" targetsSelector=".phd-drag-drop" scrollElement=".phd-side-panel-body"
 					dragTarget (handledrop)="handleDrop($event, image)" (handledragenter)="handleDragEnter($event, image)" (handledragstart)="handleDragStart($event, image)">
 			<ng-template #cardbody>
-				<img class="phd-image-card-overview" [src]="image.imageUrl" />
+				<img class="phd-image-card-overview" [src]="image.imageURL" />
 			</ng-template>
 			<ng-template #cardfooter>
 				<i class="fa pull-left" *ngIf="!isReadOnly" (click)="toggleChoiceImage(image)"></i>

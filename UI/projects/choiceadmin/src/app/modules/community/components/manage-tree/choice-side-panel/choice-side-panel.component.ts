@@ -14,7 +14,6 @@ import { TreeService } from '../../../../core/services/tree.service';
 import { PhdApiDto, PhdEntityDto } from '../../../../shared/models/api-dtos.model';
 import { ITreeOption } from '../../../../shared/models/option.model';
 import { DTChoice, DTAttributeGroupCollection } from '../../../../shared/models/tree.model';
-import { IChoiceImageAssoc } from '../../../../shared/models/choice.model';
 import { IRule, IRuleItem, RuleType } from '../../../../shared/models/rule.model';
 
 import { AssociateAttributeGroupComponent } from '../associate-attribute-groups/associate-attribute-groups.component';
@@ -77,8 +76,8 @@ export class ChoiceSidePanelComponent implements OnInit
 	choiceRulesMessage = '';
 	originalSelectedItems: IRuleItem[] = [];
 	dependentChoiceIds: Array<number> = [];
-	choiceImageList: Array<IChoiceImageAssoc> = [];
-	origChoiceImageList: Array<IChoiceImageAssoc> = [];
+	choiceImageList: PhdEntityDto.IDPChoiceImageDto[] = [];
+	origChoiceImageList: PhdEntityDto.IDPChoiceImageDto[] = [];
 	choiceImagesLoaded = false;
 	dragEnable = false;
 	dragHasChanged = false;
@@ -172,7 +171,7 @@ export class ChoiceSidePanelComponent implements OnInit
 				{
 					choiceImages.forEach(image =>
 					{
-						const choiceImage = image as IChoiceImageAssoc;
+						const choiceImage = image as PhdEntityDto.IDPChoiceImageDto;
 
 						this.choiceImageList.push(choiceImage);
 					});
@@ -197,11 +196,9 @@ export class ChoiceSidePanelComponent implements OnInit
 			const imagesArr = this.choiceImageList.map(g =>
 			{
 				return {
-					dpChoiceId: g.dpChoiceId,
-					dpChoiceImageAssocId: g.dpChoiceImageAssocId,
-					imageUrl: g.imageUrl,
+					dpChoiceImageId: g.dpChoiceImageId,
 					sortKey: g.sortKey
-				} as IChoiceImageAssoc
+				} as PhdEntityDto.IDPChoiceImageDto
 			});
 
 			this._treeService.saveChoiceImageSortOrder(imagesArr, this.versionId)
@@ -214,7 +211,7 @@ export class ChoiceSidePanelComponent implements OnInit
 				},
 				(error) =>
 				{
-						this._msgService.add({ severity: 'error', summary: 'Error Saving Sort.' });
+					this._msgService.add({ severity: 'error', summary: 'Error Saving Sort.' });
 				});
 		}
 		else
@@ -627,19 +624,20 @@ export class ChoiceSidePanelComponent implements OnInit
 
 			imgUrls.forEach(imageUrl =>
 			{
-				const choiceImage =
-					{
+				const choiceImage: PhdEntityDto.IDPChoiceImageDto =
+				{
 					dpChoiceID: this.choice.id,
-					imagePath: imageUrl,
-					dpChoiceSortOrder: sort,
-				} as PhdEntityDto.IDPChoiceDto;
+					dTreeVersionID: this.choice.treeVersionId,
+					imageURL: imageUrl,
+					sortKey: sort,
+				};
 
 				choiceImages.push(choiceImage);
 
 				sort++;
 			});
 
-			this._treeService.saveChoiceImages(choiceImages, this.versionId)
+			this._treeService.saveChoiceImages(choiceImages)
 				.pipe(finalize(() =>
 				{
 					this.isSaving = false;
@@ -648,7 +646,7 @@ export class ChoiceSidePanelComponent implements OnInit
 				{
 					newImages.map(newImage =>
 					{
-						this.choiceImageList.push(newImage as IChoiceImageAssoc);
+						this.choiceImageList.push(newImage as PhdEntityDto.IDPChoiceImageDto);
 					});
 
 					this.setImageInfo();
@@ -660,13 +658,13 @@ export class ChoiceSidePanelComponent implements OnInit
 		}
 	}
 
-	onDeleteImage(choice: IChoiceImageAssoc)
+	onDeleteImage(choiceImage: PhdEntityDto.IDPChoiceImageDto)
 	{
-		this._treeService.deleteChoiceImage(choice.dpChoiceImageAssocId, choice.dpChoiceId).subscribe(response =>
+		this._treeService.deleteChoiceImage(choiceImage.dpChoiceImageId).subscribe(response =>
 		{
 			this._msgService.add({ severity: 'success', summary: 'Image Deleted!' });
 
-			const index = this.choiceImageList.indexOf(choice);
+			const index = this.choiceImageList.indexOf(choiceImage);
 
 			this.choiceImageList.splice(index, 1);
 
@@ -866,8 +864,10 @@ export class ChoiceSidePanelComponent implements OnInit
 		});
 	}
 
-	private updateAttributeGroupsOrder() {
-		if (this.assocAttributeGroup && this.assocAttributeGroup.hasAssociatedGroupOrderChanged) {
+	private updateAttributeGroupsOrder()
+	{
+		if (this.assocAttributeGroup && this.assocAttributeGroup.hasAssociatedGroupOrderChanged)
+		{
 			this.assocAttributeGroup.updateChoiceGroupAssocs();
 		}
 	}

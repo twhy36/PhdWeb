@@ -309,6 +309,16 @@ export namespace PhdEntityDto
 		dTreeVersion?: IDTreeVersionDto;
 		dpChoice_OptionRuleAssoc?: Array<IDPChoice_OptionRuleAssocDto>;
 		dPointRuleAssoc_DPChoiceAssoc?: Array<IDPointRuleAssoc_DPChoiceAssocDto>;
+		dPChoiceImages?: IDPChoiceImageDto[];
+	}
+
+	export interface IDPChoiceImageDto
+	{
+		dpChoiceImageId?: number;
+		dpChoiceID?: number;
+		dTreeVersionID?: number;
+		imageURL?: string;
+		sortKey?: number;
 	}
 
 	export interface IDPChoice_DPChoiceRuleAssocDto

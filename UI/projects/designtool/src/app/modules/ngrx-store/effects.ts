@@ -642,6 +642,7 @@ export class CommonEffects
 		private changeOrderService: ChangeOrderService,
 		private contractService: ContractService,
 		private spinnerService: SpinnerService,
+		private attributeService: AttributeService,
 		private favoriteService: FavoriteService
 	) { }
 }

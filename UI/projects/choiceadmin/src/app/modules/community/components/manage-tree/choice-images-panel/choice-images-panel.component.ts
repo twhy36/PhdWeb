@@ -1,20 +1,17 @@
 import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 
-import { TreeService } from '../../../../core/services/tree.service';
-
 import { MessageService } from 'primeng/api';
 
 import { bind } from '../../../../shared/classes/decorators.class';
 
-import { IChoiceImageAssoc } from '../../../../shared/models/choice.model';
-
 import { Permission } from 'phd-common';
 import { IPictureParkAsset } from '../../../../shared/models/image.model';
+import { PhdEntityDto } from '../../../../shared/models/api-dtos.model';
 
 @Component({
-    selector: 'choice-images-panel',
-    templateUrl: './choice-images-panel.component.html',
-    styleUrls: ['./choice-images-panel.component.scss']
+	selector: 'choice-images-panel',
+	templateUrl: './choice-images-panel.component.html',
+	styleUrls: ['./choice-images-panel.component.scss']
 })
 /** choice-images-panel component*/
 export class ChoiceImagesPanelComponent implements OnInit
@@ -22,31 +19,30 @@ export class ChoiceImagesPanelComponent implements OnInit
 	Permission = Permission;
 
 	@Input() isSaving: boolean;
-	@Input() choiceImageList: Array<IChoiceImageAssoc>;
+	@Input() choiceImageList: PhdEntityDto.IDPChoiceImageDto[];
 	@Input() imagesLoaded: boolean;
 	@Input() dragEnable: boolean;
 	@Input() isReadOnly: boolean;
 
-	@Output() delete = new EventEmitter<IChoiceImageAssoc>();
-	@Output() edit = new EventEmitter<IChoiceImageAssoc>();
+	@Output() delete = new EventEmitter<PhdEntityDto.IDPChoiceImageDto>();
+	@Output() edit = new EventEmitter<PhdEntityDto.IDPChoiceImageDto>();
 	@Output() save = new EventEmitter<{ imageUrls: string[], callback: Function }>();
 	@Output() dragHasChanged = new EventEmitter();
 
-	draggedItem: IChoiceImageAssoc;
+	draggedItem: PhdEntityDto.IDPChoiceImageDto;
 
 	constructor(
-		private _treeService: TreeService,
 		private _msgService: MessageService
 	) { }
 
 	ngOnInit(): void { }
 
-	toggleChoiceImage(image: IChoiceImageAssoc)
+	toggleChoiceImage(image: PhdEntityDto.IDPChoiceImageDto)
 	{
 		this.edit.emit(image);
 	}
 
-	deleteImage(image: IChoiceImageAssoc)
+	deleteImage(image: PhdEntityDto.IDPChoiceImageDto)
 	{
 		this.delete.emit(image);
 	}
@@ -60,12 +56,12 @@ export class ChoiceImagesPanelComponent implements OnInit
 			assets.forEach(asset =>
 			{
 				// looking to see if the assetId in the url is the same as any of the images already saved. Example: picturepark.com/176000/15 - 176000
-				let matchingAssetIdImgs = this.choiceImageList.filter(x => x.imageUrl.indexOf(asset.assetId.toString()) != -1);
+				let matchingAssetIdImgs = this.choiceImageList.filter(x => x.imageURL.indexOf(asset.assetId.toString()) != -1);
 
 				if (matchingAssetIdImgs.length > 0)
 				{
 					// looking for the derivativeDefinitionId in the Url, should be the last number of the url.  Example: picturepark.com/176000/15 - 15. 
-					if (matchingAssetIdImgs.findIndex(x => x.imageUrl.substr(x.imageUrl.lastIndexOf('/') + 1) == asset.derivativeDefinitionId.toString()) === -1)
+					if (matchingAssetIdImgs.findIndex(x => x.imageURL.substr(x.imageURL.lastIndexOf('/') + 1) == asset.derivativeDefinitionId.toString()) === -1)
 					{
 						// if no match was found we can add the url.
 						imageUrls.push(asset.url);
@@ -92,14 +88,14 @@ export class ChoiceImagesPanelComponent implements OnInit
 		}
 	}
 
-	handleDrop(event: any, item: IChoiceImageAssoc)
+	handleDrop(event: any, item: PhdEntityDto.IDPChoiceImageDto)
 	{
 		if (event)
 		{
 			this.dragHasChanged.emit();
 
-			const oldIndex = this.choiceImageList.findIndex(i => i.imageUrl === this.draggedItem.imageUrl);
-			const newIndex = this.choiceImageList.findIndex(i => i.imageUrl === item.imageUrl);
+			const oldIndex = this.choiceImageList.findIndex(i => i.imageURL === this.draggedItem.imageURL);
+			const newIndex = this.choiceImageList.findIndex(i => i.imageURL === item.imageURL);
 
 			this.reSort(oldIndex, newIndex);
 		}
@@ -111,7 +107,8 @@ export class ChoiceImagesPanelComponent implements OnInit
 		{
 			let k = newIndex - this.choiceImageList.length;
 
-			while ((k--) + 1) {
+			while ((k--) + 1)
+			{
 				this.choiceImageList.push(undefined);
 			}
 		}
@@ -128,13 +125,13 @@ export class ChoiceImagesPanelComponent implements OnInit
 		});
 
 		// resort using new sortOrders
-		this.choiceImageList.sort((left: IChoiceImageAssoc, right: IChoiceImageAssoc) =>
+		this.choiceImageList.sort((left: PhdEntityDto.IDPChoiceImageDto, right: PhdEntityDto.IDPChoiceImageDto) =>
 		{
 			return left.sortKey === right.sortKey ? 0 : (left.sortKey < right.sortKey ? -1 : 1);
 		});
 	}
 
-	handleDragStart(event: any, item: IChoiceImageAssoc)
+	handleDragStart(event: any, item: PhdEntityDto.IDPChoiceImageDto)
 	{
 		if (event)
 		{
@@ -142,7 +139,7 @@ export class ChoiceImagesPanelComponent implements OnInit
 		}
 	}
 
-	handleDragEnter(event: any, item: IChoiceImageAssoc)
+	handleDragEnter(event: any, item: PhdEntityDto.IDPChoiceImageDto)
 	{
 		if (event)
 		{
@@ -153,9 +150,9 @@ export class ChoiceImagesPanelComponent implements OnInit
 		}
 	}
 
-	getDragItem(item: IChoiceImageAssoc)
+	getDragItem(item: PhdEntityDto.IDPChoiceImageDto)
 	{
-		return item.dpChoiceImageAssocId;
+		return item.dpChoiceImageId;
 	}
 
 	private canDrop(): boolean

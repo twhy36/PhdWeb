@@ -116,17 +116,3 @@ export interface IDivCatalogChoiceDto
 	isHiddenFromBuyerView: boolean;
 	priceHiddenFromBuyerView: boolean;
 }
-
-export interface IChoiceImageAssoc
-{
-	dpChoiceImageAssocId: number;
-	dpChoiceId: number;
-	imageUrl: string;
-	sortKey: number;
-	startDate?: Date;
-	endDate?: Date;
-	createdBy?: string;
-	createdUtcDate?: Date;
-	lastModifiedBy?: string;
-	lastModifiedUtcDate?: Date;
-}

@@ -17,7 +17,7 @@ import { PlanOptionService } from './plan-option.service';
 import { PhdApiDto, PhdEntityDto } from '../../shared/models/api-dtos.model';
 import { TreeOption, ITreeOption } from '../../shared/models/option.model';
 import { IDivCatalogPointDto } from '../../shared/models/point.model';
-import { IDivCatalogChoiceDto, IChoiceImageAssoc } from '../../shared/models/choice.model';
+import { IDivCatalogChoiceDto } from '../../shared/models/choice.model';
 
 import { withSpinner } from 'phd-common';
 import { RuleType } from '../../shared/models/rule.model';
@@ -530,7 +530,7 @@ export class TreeService
 	{
 		const entity = `dTreeVersions`;
 		const expand = `dTree($expand=plan($expand=planOptions($expand=baseHouseOptions($top=1;$filter=dTreeVersionID eq ${treeVersionId};$select=baseHouseOptionId), optionImages($filter=hideImage eq false and dTreeVersionID eq ${treeVersionId};$select=optionImageId,dTreeVersionId), optionRules($top=1;$filter=dTreeVersionID eq ${treeVersionId};$select=optionRuleID), optionRuleReplaces($top=1;$filter=dTreeVersionID eq ${treeVersionId};$select=optionRuleReplaceID))))`;
-		const select = "dTree";
+		const select = 'dTree';
 		const filter = `dTreeVersionId eq ${treeVersionId}`;
 
 		const qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}filter=${encodeURIComponent(filter)}`;
@@ -569,32 +569,32 @@ export class TreeService
 		return this._http.patch(endPoint, choiceDto);
 	}
 
-	getChoiceImages(choice: number): Observable<Array<IChoiceImageAssoc>>
+	getChoiceImages(choice: number): Observable<PhdEntityDto.IDPChoiceImageDto[]>
 	{
-		const entity = `dPChoiceImageAssocs`;
+		const entity = `dPChoiceImages`;
 		const filter = `dpChoiceId eq (${choice})`;
+		const select = `dpChoiceImageId, dpChoiceId, dTreeVersionId, imageUrl, sortKey`;
 		const orderby = `sortKey`;
 
-		const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}orderBy=${orderby}&${this._ds}select=dpChoiceImageAssocId, dpChoiceId, imageUrl, sortKey`;
+		const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}orderby=${encodeURIComponent(orderby)}`;
 
 		const endPoint = `${settings.apiUrl}${entity}?${qryStr}`;
 
 		return this._http.get(endPoint).pipe(
 			map(response =>
 			{
-				let choiceImageAssoc = response['value'] as Array<IChoiceImageAssoc>;
+				let choiceImageAssoc = response['value'] as PhdEntityDto.IDPChoiceImageDto[];
 
 				return choiceImageAssoc;
 			})
 		);
 	}
 
-	saveChoiceImages(choiceImages: PhdEntityDto.IDPChoiceDto[], treeVersionId: number): Observable<IChoiceImageAssoc[]>
+	saveChoiceImages(choiceImages: PhdEntityDto.IDPChoiceImageDto[]): Observable<PhdEntityDto.IDPChoiceImageDto[]>
 	{
 		// calling unbound odata action 
 		const body = {
-			'choiceImages': choiceImages,
-			'treeVersionId': treeVersionId,
+			'choiceImages': choiceImages
 		};
 
 		const action = `SaveChoiceImages`;
@@ -603,40 +603,35 @@ export class TreeService
 		return this._http.post<any>(endpoint, body, { headers: { 'Prefer': 'return=representation' } }).pipe(
 			map(response =>
 			{
-				return response.value as Array<IChoiceImageAssoc>;
+				return response.value as Array<PhdEntityDto.IDPChoiceImageDto>;
 			}));
 	}
 
-	deleteChoiceImage(choiceImageId: number, choiceId: number): Observable<any>
+	deleteChoiceImage(choiceImageId: number): Observable<any>
 	{
-		// calling unbound odata action
-		const body =
-		{
-			'dpChoiceImageAssocId': choiceImageId,
-			'dpChoiceId': choiceId
-		};
+		const entity = `dpChoiceImages(${choiceImageId})`;
+		const endpoint = `${settings.apiUrl}${entity}`;
 
-		const action = 'DeleteChoiceImage';
-		const endPoint = `${settings.apiUrl}${action}`;
-
-		return this._http.post<any>(endPoint, body);
+		return this._http.delete(endpoint);
 	}
 
-	saveChoiceImageSortOrder(images: Array<IChoiceImageAssoc>, treeVersionId: number): Observable<any>
+	saveChoiceImageSortOrder(images: PhdEntityDto.IDPChoiceImageDto[], treeVersionId: number): Observable<any>
 	{
-		let url = settings.apiUrl + `UpdateChoiceImages`;
+		const batchRequestsImage = odataUtils.createBatchPatchWithAuth<PhdEntityDto.IDPChoiceImageDto>(images, 'dpChoiceImageId', 'dpChoiceImages', 'sortKey');
 
-		let data = {
-			'treeVersionId': treeVersionId,
-			'choiceImages': images
-		};
+		const batchGuid = odataUtils.getNewGuid();
+		const batchBody = odataUtils.createBatchBody(batchGuid, [batchRequestsImage]);
+		const headers = new HttpHeaders(odataUtils.createBatchHeaders(batchGuid));
 
-		return this._http.patch(url, data, { headers: { 'Prefer': 'return=representation' } }).pipe(
+		const endPoint = `${settings.apiUrl}${this._batch}`;
+
+		return this._http.post(endPoint, batchBody, { headers, responseType: 'text' }).pipe(
 			map(response =>
 			{
+				//todo: parse batch response for errors and throw any
 				return response;
-			}),
-			catchError(this.handleError));
+			})
+		);
 	}
 
 	getDPointPointRules(pointId: number): Observable<Array<PhdApiDto.IDPointRule>>
