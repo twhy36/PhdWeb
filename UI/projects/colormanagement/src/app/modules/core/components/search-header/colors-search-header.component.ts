@@ -1,9 +1,9 @@
-import {Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
+import {Component, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
 import {OptionService} from '../../services/option.service';
 import {IOptionCategory, IOptionSubCategory} from '../../../shared/models/option.model';
 import {OrganizationService} from '../../../core/services/organization.service';
 import {filter, map, switchMap} from 'rxjs/operators';
-import {Observable} from 'rxjs';
+import {BehaviorSubject, Observable} from 'rxjs';
 import {ConfirmModalComponent, ModalRef, UnsubscribeOnDestroy} from 'phd-common';
 import {IColorDto, IColor} from '../../../shared/models/color.model';
 import {ColorService} from '../../services/color.service';
@@ -25,6 +25,7 @@ export class ColorsSearchHeaderComponent
 
 	@Output() newColorsWereSaved = new EventEmitter();
 	@ViewChild('addColorModal') addColorModal: any;
+
 	dialogCategories: IOptionCategory[] = [];
 	dialogSubCategories: IOptionSubCategory[];
 	selectedDialogCategory: IOptionCategory;
@@ -77,6 +78,7 @@ export class ColorsSearchHeaderComponent
 			this.loadColors();
 		});
 	}
+
 	showCounter() {
 		this.isCounterVisible = true;
 	}
@@ -120,6 +122,9 @@ export class ColorsSearchHeaderComponent
 				this.allDataLoaded =
 					x.length < this.settings.infiniteScrollPageSize;
 				this.colorsDtoList = [...this.colorsDtoList, ...x];
+				console.log("Colors found in loadColors.colorsDtoList...")
+				console.log(this.colorsDtoList.filter(x => x.name.startsWith('AATestColor11')));
+
 			});
 	}
 	filterColors() {
@@ -130,7 +135,6 @@ export class ColorsSearchHeaderComponent
 	onPanelScroll() {
 		this.isLoading = true;
 		this.skip = this.currentPage * this.settings.infiniteScrollPageSize;
-		this.loadColors();
 	}
 	resetfilter() {
 		this.colorname = '';
@@ -202,11 +206,17 @@ export class ColorsSearchHeaderComponent
 
 		let entriesToSave = this.newColors.filter(x => x.name.length > 0);
 		entriesToSave.forEach(newColor => newColor.edhOptionSubcategoryId = this.selectedDialogSubCategory.id);
-		this._optionService.saveNewColors(entriesToSave).subscribe((x) => {
-			console.log(x.length > 0 ? "Save was successful" : 'Save failed')
+		this._optionService.saveNewColors(entriesToSave).subscribe((savedColors) => {
+			const saveWasSuccessful = savedColors.length > 0;
+			console.log(saveWasSuccessful ? "Save was successful" : 'Save failed');
+			console.log(savedColors);
+
+			if (saveWasSuccessful)
+			{
+				this.modalReference.dismiss();
+				this.loadColors();
+			}
 		});
-		this.loadColors();
-		this.modalReference.dismiss();
 	}
 
 	validateRequiredFields(): boolean

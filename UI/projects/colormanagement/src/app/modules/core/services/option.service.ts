@@ -92,7 +92,7 @@ export class OptionService {
 			'newColors': colors
 		};
 
-		const action = `saveColors`;
+		const action = `saveNewColors`;
 		const endpoint = `${environment.apiUrl}${action}`;
 
 		return this._http.post<any>(endpoint, body, { headers: { 'Prefer': 'return=representation' } }).pipe(
