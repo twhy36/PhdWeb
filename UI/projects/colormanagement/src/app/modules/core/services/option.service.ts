@@ -88,17 +88,17 @@ export class OptionService {
 	}
 
 	saveNewColors(colors: IColor[]): Observable<IColor[]> {
-		const endpoint = `${environment.apiUrl}colors`;
 		const body = {
-			colors: colors,
+			'newColors': colors
 		};
 
-		console.log(body);
-		return this._http.post<any>(endpoint, body).pipe(
-			map((response) => {
-				console.log('POST - Colors Response');
-				console.log(response);
-				return [];
+		const action = `saveColors`;
+		const endpoint = `${environment.apiUrl}${action}`;
+
+		return this._http.post<any>(endpoint, body, { headers: { 'Prefer': 'return=representation' } }).pipe(
+			map(response =>
+			{
+				return response.value as Array<IColor>;
 			}),
 			catchError(this.handleError)
 		);
