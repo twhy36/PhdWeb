@@ -46,5 +46,12 @@
                 </div>
             </ng-template>
         </phd-column>        
+        <phd-column header="" >
+            <ng-template #body let-colordto>
+                <div class="phd-icon-container">
+                    <i class="fa fa-fw fa-trash-alt" title="Edit Color" *ngIf="colordto.hasSalesConfig===false"></i>
+                </div>
+            </ng-template>
+        </phd-column>        
     </phd-table>
 </div>
