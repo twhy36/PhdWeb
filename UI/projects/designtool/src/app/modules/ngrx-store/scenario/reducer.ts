@@ -5,7 +5,7 @@ import * as _ from "lodash";
 import {
 	DesignToolAttribute, SalesCommunity, PlanOption, TreeVersionRules, Scenario, TreeFilter,
 	Tree, Choice, Group, SubGroup, DecisionPoint, selectChoice, applyRules, setGroupStatus,
-	setPointStatus, setSubgroupStatus, getMaxSortOrderChoice, checkReplacedOption, getChoiceToDeselect
+	setPointStatus, setSubgroupStatus, checkReplacedOption, getChoiceToDeselect
 } from 'phd-common';
 import { ScenarioActions, ScenarioActionTypes } from './actions';
 
