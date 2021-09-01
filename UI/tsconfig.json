@@ -30,7 +30,6 @@
 		"projects/**/*.ts"
 	],
 	"exclude": [
-		"Phd.ChoiceAdminWeb/**",
 		"Phd.WebHost/**"
 	]
 }

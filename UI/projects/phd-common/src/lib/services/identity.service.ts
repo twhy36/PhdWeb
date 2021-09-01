@@ -109,7 +109,7 @@ export class IdentityService
 
 		this.osvc.configure(authConfig);
 		this.osvc.setupAutomaticSilentRefresh();
-		
+
 		if (this.apiUrl.indexOf('http://localhost:2845') === 0)
 		{
 			if (window.location.search.indexOf('?code=') !== 0 && window.location.pathname !== '/')
@@ -128,6 +128,8 @@ export class IdentityService
 				sessionStorage.removeItem('uri_state');
 				window.location.href = uri;
 			}
+
+			this.osvc.logoutUrl = authConfig.logoutUrl;
 		});
 	}
 

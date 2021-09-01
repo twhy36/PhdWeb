@@ -18,7 +18,7 @@
 		</div>
 		<div class="p-2">
 			<select class="form-control" [(ngModel)]="selectedSubCategory">
-				<option [defaultSelected] [ngValue]="null"></option>
+				<option [defaultSelected] [ngValue]=null></option>
 				<option [ngValue]="null">---- All Colors ----</option>
 				<option
 					*ngFor="let subCategories of optionSubCategory$ | async"

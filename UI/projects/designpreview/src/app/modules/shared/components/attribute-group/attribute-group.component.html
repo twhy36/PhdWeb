@@ -1,0 +1,35 @@
+<div class="d-flex">
+	<ng-container *ngIf="!isDesignComplete">
+		<div class="phd-attribute-group-toggle phd-clickable">
+			<i class="fa fa-angle-up" *ngIf="!isCollapsed" (click)="onToggleAttributeGroup()"></i>
+			<i class="fa fa-angle-down" *ngIf="isCollapsed" (click)="onToggleAttributeGroup()"></i>
+		</div>
+	</ng-container>
+	<div [class.phd-attribute-group-complete]="isDesignComplete">
+		<ng-container *ngIf="!isDesignComplete">
+			<span class="phd-attribute-group-header" [class.phd-location-attribute-header]="isLocationAttribute" title="{{attributeGroup.label}}">{{attributeGroup.label}}</span>
+			<div class="phd-attribute-group-instruction" *ngIf="!isCollapsed && !isBlocked">
+				Please select all that interest you
+			</div>
+			<div class="phd-selected-attributes" *ngIf="isCollapsed">{{getSelectedAttributes()}}</div>
+		</ng-container>
+
+		<ng-container *ngIf="isDesignComplete">
+			<div class="phd-attribute-group-header" [class.phd-location-attribute-header-complete]="isLocationAttribute" title="{{attributeGroup.label}}">{{attributeGroup.label}}</div>
+		</ng-container>
+
+		<div *ngIf="!isCollapsed"
+			[class.phd-attribute-group-body]="!isLocationAttribute" 
+			[class.phd-location-attribute-body]="isLocationAttribute && !isDesignComplete"
+			[class.phd-location-attribute-body-complete]="isLocationAttribute && isDesignComplete">
+			<attribute-list [attributes]="attributeGroup?.attributes"
+							[highlightedAttributeId]="highlightedAttributeId"
+							[isBlocked]="isBlocked"
+							[isLocationAttribute]="isLocationAttribute"
+							[isReadonly]="isReadonly"
+							(onAttributeClick)="attributeClick($event)"
+							(onToggleAttribute)="toggleAttribute($event)">
+			</attribute-list>
+		</div>	
+	</div>
+</div>

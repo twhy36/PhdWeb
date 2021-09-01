@@ -132,11 +132,11 @@ export class CommunityPdfSidePanelComponent implements OnInit
 
 		this.communityPdfForm = new FormGroup({
 			'sortOrder': new FormControl(sortOrder),
-			'linkText': new FormControl({ value: linkText, disabled: (this.selected) }, Validators.required),
-			'fileName': new FormControl({ value: fileName, disabled: (this.selected) }, [Validators.required, this.requiredFileType('pdf')]),
+			'linkText': new FormControl( linkText, Validators.required),
+			'fileName': new FormControl({ value: fileName, disabled: (this.selected) }, Validators.required),
 			'sectionHeader': new FormControl(sectionHeader, Validators.required),
-			'effectiveDate': new FormControl(this.effectiveDate ? this.effectiveDate.toISOString() : null, Validators.required),
-			'expirationDate': new FormControl(this.expirationDate ? this.expirationDate.toISOString() : null, Validators.required),
+			'effectiveDate': new FormControl(this.effectiveDate ? this.effectiveDate.toISOString() : null),
+			'expirationDate': new FormControl(this.expirationDate ? this.expirationDate.toISOString() : null),
 			'description': new FormControl(description),
 			'pdf': new FormControl({ value: this.pdf, disabled: (this.selected) }, [Validators.required, this.requiredFileType('pdf')])
 		}, []);

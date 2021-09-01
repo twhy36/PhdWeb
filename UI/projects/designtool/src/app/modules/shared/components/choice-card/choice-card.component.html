@@ -1,6 +1,6 @@
 <div class="phd-choice-card" [class.active]="choice?.quantity" [class.selected]="choice?.quantity" [class.phd-monotony-conflict]="(monotonyConflict.monotonyConflict && !canOverride)" [@flipOver] (click)="onChoiceDetail(choice, content)">
 	<div class="phd-header" [class.phd-choice-disabled]="monotonyConflict.monotonyConflict">
-		<div *ngIf="imageLoading" class="phd-image-loading">
+		<div *ngIf="!imageLoaded" class="phd-image-loading">
 			<i class="fa fa-spinner fa-spin fa-3x phd-image-loader"></i>
 		</div>
 
@@ -47,8 +47,9 @@
 
 	<div class="phd-footer">
 		<div class="phd-footer-btn-container" (click)="$event.stopPropagation()" *ngIf="showDisabledButton || showConfirmButton">
-			<div *ngIf="showConfirmButton" [class.phd-choice-disabled]="buttonDisabled">
+			<div *ngIf="showConfirmButton" [class.phd-choice-disabled]="buttonDisabled" class="d-flex align-items-center">
 				<button class="btn phd-experience-btn-choice" (click)="toggleSelection()" [disabled]="buttonDisabled" [class.phd-disable-hover]="buttonDisabled">{{getButtonLabel()}}</button>
+				<span *ngIf="isFavorite" class="phd-favorite-icon"><i class="fa fa-heart"></i></span>
 			</div>
 
 			<div *ngIf="showDisabledButton" class="phd-choice-disabled-msg phd-clickable" (click)="!optionDisabled && choice && showDisabledMessage()">
@@ -97,6 +98,7 @@
 
 <ng-template #content let-c="close" let-d="dismiss">
 	<choice-card-detail [choice]="choice"
+						[isFavorite]="isFavorite"
 						[currentChoiceImages]="choiceImages"
 						[attributeGroups]="attributeGroups"
 						[locationGroups]="locationGroups"

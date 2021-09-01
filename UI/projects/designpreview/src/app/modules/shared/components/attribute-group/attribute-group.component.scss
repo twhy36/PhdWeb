@@ -1,0 +1,57 @@
+@import "../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
+
+.phd-attribute-group-toggle {
+	color: $pantone_blue;
+	font-size: 16px;
+	margin-right: 8px;
+
+	i::before {
+		font-weight: 1000 !important;			
+	}
+}
+
+.phd-attribute-group-header {
+	flex: 1;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	text-transform: uppercase;
+	font-size: 16px;
+	font-weight: bold;
+}
+
+.phd-attribute-group-instruction {
+	font-size: 14px;
+	font-style: italic;
+}
+
+.phd-selected-attributes {
+	font-size: 14px;	
+}
+
+.phd-attribute-group-body {
+	width: 100%;
+	margin-top: 5px;
+}
+
+.phd-location-attribute-body {
+	margin: 15px 0px 0px -220px;
+	width: calc(48vw - 20px);	
+}
+
+.phd-location-attribute-header {
+	font-size: 14px;
+}
+
+.phd-location-attribute-header-complete {
+	font-size: 14px;
+	margin: 55px 0px 0px -205px;	
+}
+
+.phd-location-attribute-body-complete {
+	margin: 5px 0px 0px -205px;
+	width: calc(48vw - 20px);	
+}
+
+.phd-attribute-group-complete {
+	margin-left: 8px;
+}

@@ -1,15 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
-import { Observable, Subject, ConnectableObservable } from 'rxjs';
+import { Observable, Subject, ConnectableObservable, of, throwError } from 'rxjs';
 import { map, catchError, publishReplay } from 'rxjs/operators';
-import { _throw } from 'rxjs/observable/throw';
 
 import { StorageService } from './storage.service';
 
 import { environment } from '../../../../environments/environment';
-import { of } from 'rxjs/observable/of';
-import { IMarket, ISalesCommunity, IPlan, ITreeVersion } from '../../shared/models/community.model';
+import { IMarket, ISalesCommunity, IPlan, ITreeVersion, ISalesCommunityWebSiteCommunityAssoc, IWebSiteCommunity } from '../../shared/models/community.model';
 
 @Injectable()
 export class OrganizationService
@@ -122,11 +120,33 @@ export class OrganizationService
 		return this._http.get<any>(endpoint).pipe(
 			map(response =>
 			{
-        const communities = response.value as Array<ISalesCommunity>;
-        const community = communities && communities.length > 0 ? communities[0] : null;
+        		const communities = response.value as Array<ISalesCommunity>;
+        		const community = communities && communities.length > 0 ? communities[0] : null;
 				return community;
 			}),
 			catchError(this.handleError));
+	}
+
+	getWebSiteCommunity(salesCommunityId: number): Observable<IWebSiteCommunity>
+  	{    
+		const entity = `salesCommunities(${salesCommunityId})`;
+		const expand = `salesCommunityWebSiteCommunityAssocs($expand=websiteCommunity($filter=orgStatusDescription eq 'Active' and webSiteIntegrationKey ne ''))`;
+		let qryStr = `${this._ds}expand=${encodeURIComponent(expand)}`;
+
+    	const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
+
+		return this._http.get<any>(endpoint).pipe(
+			map(response => {
+				const r = response.salesCommunityWebSiteCommunityAssocs as Array<ISalesCommunityWebSiteCommunityAssoc>;
+				let websiteCommunities = r.map(x => x.webSiteCommunity).filter(x => {
+					if (x.webSiteIntegrationKey) {
+						return true;
+					}
+				});
+				return websiteCommunities[0];
+			}),
+			catchError(this.handleError)
+		);
 	}
 
   getFinancialMarkets(): Observable<Array<IMarket>>
@@ -143,7 +163,7 @@ export class OrganizationService
     }
 
     const filter = `marketId eq ${marketId} and (salesStatusDescription eq 'Active' or salesStatusDescription eq 'New')`;
-    const expand = `financialCommunities($select=id, name, number;$filter=salesStatusDescription eq 'Active' or salesStatusDescription eq 'New')`
+    const expand = `financialCommunities($select=id, name, number, isDesignPreviewEnabled;$filter=salesStatusDescription eq 'Active' or salesStatusDescription eq 'New')`
 	const orderBy = `name`;
 
     const qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}orderby=${encodeURIComponent(orderBy)}`;
@@ -243,7 +263,7 @@ export class OrganizationService
 	{
 		// In the future, we may send the server to some remote logging infrastructure.
 		console.error('Error message: ', error);
-
-		return _throw(error || 'Server error');
+		
+		return throwError(error || 'Server error');
 	}
 }

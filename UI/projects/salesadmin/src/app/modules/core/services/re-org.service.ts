@@ -2,11 +2,10 @@ import { OrganizationService } from './organization.service';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { withSpinner } from 'phd-common';
-import { Subject } from 'rxjs/Subject';
-import { Observable } from 'rxjs';
+import { Observable, of, Subject } from 'rxjs';
 import { SettingsService } from './settings.service';
 import { Settings } from '../../shared/models/settings.model';
-import { ReOrg } from '../../shared/models/re-org.model';
+import { IReOrg, ReOrg } from '../../shared/models/re-org.model';
 import { map, switchMap } from 'rxjs/operators';
 
 const settings: Settings = new SettingsService().getSettings();
@@ -32,14 +31,14 @@ export class ReOrgService
 
 		return withSpinner(this._http).get(url).pipe(
 			switchMap(response => {
-				return this._orgService.getOrgs(response['value'])
+				return response['value'].length > 0 ? this._orgService.getOrgs(response['value']) : of<IReOrg[]>([]);
 			}),
 			map(reorg =>
 			{
 				let reOrgs = reorg.map(reorg =>
 				{
 					return new ReOrg(reorg);
-				})
+				});
 				return reOrgs;
 			}
 

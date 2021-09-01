@@ -1,8 +1,5 @@
-import { Observable } from 'rxjs/Observable';
+import { Observable, combineLatest, of, throwError } from 'rxjs';
 import { switchMap, catchError, map, tap } from 'rxjs/operators';
-import { of } from 'rxjs/observable/of';
-import { _throw } from 'rxjs/observable/throw';
-import { combineLatest } from 'rxjs/observable/combineLatest';
 
 import * as _ from 'lodash';
 import * as moment from "moment";
@@ -13,7 +10,7 @@ import
 		ChangeOrderGroup, ChangeOrderChoice, ChangeOrderPlanOption, ChangeOrderChoiceAttribute, ChangeOrderChoiceLocation,
 		JobChoice, JobPlanOption, JobChoiceAttribute, JobChoiceLocation, Job, PlanOption, PointStatus, ConstructionStageTypes,
 		OptionRule, TreeVersionRules, Scenario, SelectedChoice, Tree, Choice, DecisionPoint, MappedAttributeGroup, MappedLocationGroup,
-		OptionImage, SubGroup, Group, applyRules, findChoice
+		OptionImage, SubGroup, Group, applyRules, findChoice, MyFavoritesChoice
 	} from 'phd-common';
 
 import { TreeService } from '../../core/services/tree.service';
@@ -26,6 +23,11 @@ export function isJobChoice(choice: JobChoice | ChangeOrderChoice): choice is Jo
 export function isJobPlanOption(option: JobPlanOption | ChangeOrderPlanOption): option is JobPlanOption
 {
 	return (<any>option).action === undefined;
+}
+
+export function isChangeOrderChoice(choice: JobChoice | ChangeOrderChoice | MyFavoritesChoice): choice is ChangeOrderChoice
+{
+	return (<any>choice).action !== undefined;
 }
 
 function getOptions(choice: JobChoice | ChangeOrderChoice, options: (JobPlanOption | ChangeOrderPlanOption)[]): (JobPlanOption | ChangeOrderPlanOption)[]
@@ -518,7 +520,7 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 
 			return data.res;
 		}),
-		catchError(err => { console.error(err); return _throw(err); })
+		catchError(err => { console.error(err); return throwError(err); })
 	);
 }
 

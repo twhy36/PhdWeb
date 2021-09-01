@@ -1,10 +1,8 @@
 import { Component, OnInit, ViewChild, HostListener } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
-import { Observable } from 'rxjs';
+import { Observable, of, forkJoin } from 'rxjs';
 import { tap, switchMap, map, finalize } from 'rxjs/operators';
-import { of } from 'rxjs/observable/of';
-import { forkJoin } from 'rxjs/observable/forkJoin';
 
 import { MessageService, SelectItem } from 'primeng/api';
 

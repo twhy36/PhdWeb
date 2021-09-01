@@ -3,28 +3,35 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { Store, select } from '@ngrx/store';
 import { Actions, ofType } from '@ngrx/effects';
 import { FormGroup, FormControl, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
-import { combineLatest, switchMap, withLatestFrom, take, finalize } from 'rxjs/operators';
-import { Observable } from 'rxjs/Observable';
+
+import { combineLatest, switchMap, take, finalize } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+
+import { environment } from '../../../../environments/environment';
 
 import * as fromRoot from '../../ngrx-store/reducers';
 import * as JobActions from '../../ngrx-store/job/actions';
+import * as SalesAgreementActions from '../../ngrx-store/sales-agreement/actions';
 import * as ChangeOrderActions from '../../ngrx-store/change-order/actions';
 import * as CommonActions from '../../ngrx-store/actions';
 import * as ContractActions from '../../ngrx-store/contract/actions';
+import * as FavoriteActions from '../../ngrx-store/favorite/actions';
 import * as fromScenario from '../../ngrx-store/scenario/reducer';
 import * as fromUser from '../../ngrx-store/user/reducer';
 import * as fromSalesAgreement from '../../ngrx-store/sales-agreement/reducer';
 import * as fromJob from '../../ngrx-store/job/reducer';
 
-import { UnsubscribeOnDestroy, ModalRef, ESignStatusEnum, ESignTypeEnum, ChangeOrderGroup, ChangeTypeEnum, ChangeInput, SalesStatusEnum, Job } from 'phd-common';
+import 
+{ 
+	UnsubscribeOnDestroy, ModalRef, ESignStatusEnum, ESignTypeEnum, ChangeOrderGroup, ChangeTypeEnum, 
+	ChangeInput, SalesStatusEnum, Job, PDFViewerComponent, ModalService
+} from 'phd-common';
 
 import { ChangeOrderService } from '../../core/services/change-order.service';
-import { PDFViewerComponent } from '../../shared/components/pdf-viewer/pdf-viewer.component';
 import { ContractService } from '../../core/services/contract.service';
 
 import * as _ from 'lodash';
 import { LotsLoaded, LotActionTypes } from '../../ngrx-store/lot/actions';
-import { ModalService } from '../../core/services/modal.service';
 import { convertDateToUtcString } from "../../shared/classes/date-utils.class";
 
 @Component({
@@ -63,6 +70,9 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 	isSaving: boolean = false;
 	loaded = false;
 	isLockedIn: boolean = false;
+	isDesignComplete: boolean = false;
+	isDesignPreviewEnabled: boolean;
+	production: boolean;
 
 	JOB_CHANGEORDER_TYPES = [
 		{ value: 'SalesJIO', id: 0 },
@@ -230,7 +240,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(state => state.job),
-			withLatestFrom(
+			combineLatest(
 				this.store.pipe(select(fromScenario.buildMode)),
 				this.store.pipe(select(fromSalesAgreement.salesAgreementState))
 			)
@@ -244,6 +254,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 			this.approvedDate = salesAgreement.approvedDate;
 			this.signedDate = salesAgreement.signedDate;
 			this.isLockedIn = salesAgreement.isLockedIn;
+			this.isDesignComplete = salesAgreement.isDesignComplete;
 
 			let index = job.changeOrderGroups.findIndex(t => (t.jobChangeOrders.find(c => c.jobChangeOrderTypeDescription === "SpecJIO" || c.jobChangeOrderTypeDescription === "SalesJIO")) !== undefined);
 			let changeOrders = [];
@@ -417,6 +428,12 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 			ofType<JobActions.EnvelopeError>(JobActions.JobActionTypes.EnvelopeError),
 			this.takeUntilDestroyed()
 		).subscribe(() => this.isSaving = false);
+
+		this.store.pipe(
+			select(fromRoot.isDesignPreviewEnabled)
+		).subscribe(enabled => this.isDesignPreviewEnabled = enabled);
+
+		this.production = environment.production;
 	}
 
 	getESignStatus(changeOrder: any): string
@@ -1039,6 +1056,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 
 				pdfViewer.componentInstance.pdfModalTitle = 'Change Order PDF';
 				pdfViewer.componentInstance.pdfData = pdfObjectUrl;
+				pdfViewer.componentInstance.pdfBaseUrl = `${environment.pdfViewerBaseUrl}`;
 			});
 	}
 
@@ -1233,5 +1251,14 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 			{
 				this.store.dispatch(new ChangeOrderActions.CreateJobChangeOrders());
 			});		
+	}
+
+	toggleDesignComplete() {
+		this.store.dispatch(new SalesAgreementActions.SetIsDesignComplete(!this.isDesignComplete));
+
+		if (!this.isDesignComplete)
+		{
+			this.store.dispatch(new FavoriteActions.DeleteMyFavorites());
+		}
 	}
 }

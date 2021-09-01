@@ -1,26 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
-import { Observable, Subject, ConnectableObservable } from 'rxjs';
-import {
-	map,
-	catchError,
-	publishReplay,
-	groupBy,
-	mergeMap,
-	toArray,
-	distinct,
-} from 'rxjs/operators';
-import { _throw } from 'rxjs/observable/throw';
-import {
-	IOptionSubCategory,
-	IOptionCategory,
-} from '../../shared/models/option.model';
+import { Observable, throwError} from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
+import { IOptionSubCategory } from '../../shared/models/option.model';
 import { environment } from '../../../../environments/environment';
-import { zip } from 'rxjs';
-import { of } from 'rxjs';
 import { IColor } from '../../shared/models/color.model';
-import { tap } from 'lodash';
+
 @Injectable()
 export class OptionService {
 	constructor(private _http: HttpClient) {}
@@ -84,7 +70,7 @@ export class OptionService {
 		// In the future, we may send the server to some remote logging infrastructure.
 		console.error('Error message: ', error);
 
-		return _throw(error || 'Server error');
+		return throwError(error || 'Server error');
 	}
 
 	saveNewColors(colors: IColor[]): Observable<IColor[]> {

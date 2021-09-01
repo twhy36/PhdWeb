@@ -7,6 +7,7 @@ export const environment = {
     production: false,
 	apiUrl: 'https://phdapi.staging.pulte.com/odata/',
 	hubUrl: 'https://phdhub.staging.pulte.com/hub',
+	thoUrl: 'https://tho.staging.centex.com/',
 	alphaVisionBuilderGuid: '8D676CB9-C011-429D-8D71-87D34A87494B',
     tenant: "pulte.onmicrosoft.com",
 	clientId: "d6e4e999-c413-4d1d-b0fb-618759cb69e5",
@@ -22,9 +23,19 @@ export const environment = {
 		strictDiscoveryDocumentValidation: false
 	},
     appInsights: {
-        instrumentationKey: '6fe29ada-16ba-4d15-b3a8-0364e90c4250'
+        instrumentationKey: 'cf19cbb8-e39b-4e28-8199-3d06eaf051f0'
 	},
 	whatFix: {
 		scriptUrl: '//whatfix.com/01caf5e0-cb2f-11e8-b979-04013d24cd02/embed/embed.nocache.js'
-	}
+	},
+	designPreviewMarketWhitelist: [
+		123, // Michigan Market
+		103, // Houston Market
+		459, // Arizona Market
+		464, // New Mexico Market
+		472, // Las Vegas Market
+		447, // Pacific Northwest
+		121, // Northern California
+		150 // Southern California
+	]
 };

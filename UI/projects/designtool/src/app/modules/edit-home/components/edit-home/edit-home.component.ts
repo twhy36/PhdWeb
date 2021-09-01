@@ -5,9 +5,7 @@ import { Store, select } from '@ngrx/store';
 import * as _ from 'lodash';
 
 import { map, filter, combineLatest, distinctUntilChanged, withLatestFrom, debounceTime, take, switchMap } from 'rxjs/operators';
-import { of } from 'rxjs/observable/of';
-import { Observable } from 'rxjs/Observable';
-import { ReplaySubject } from 'rxjs/ReplaySubject';
+import { Observable, ReplaySubject, of } from 'rxjs';
 
 import * as fromLot from '../../../ngrx-store/lot/reducer';
 import * as fromJob from '../../../ngrx-store/job/reducer';
@@ -21,7 +19,8 @@ import * as LotActions from '../../../ngrx-store/lot/actions';
 
 import {
 	UnsubscribeOnDestroy, ModalRef, ChangeTypeEnum, Job, TreeVersionRules, ScenarioStatusType, PriceBreakdown,
-	TreeFilter, Tree, SubGroup, Group, DecisionPoint, Choice, getDependentChoices, LotExt, getChoiceToDeselect
+	TreeFilter, Tree, SubGroup, Group, DecisionPoint, Choice, getDependentChoices, LotExt, getChoiceToDeselect,
+	PlanOption, ModalService
 } from 'phd-common';
 
 import { LotService } from '../../../core/services/lot.service';
@@ -29,7 +28,6 @@ import { LotService } from '../../../core/services/lot.service';
 import { ChoiceCardComponent } from '../../../shared/components/choice-card/choice-card.component';
 import { DecisionPointFilterType } from '../../../shared/models/decisionPointFilter';
 import { MonotonyConflict } from '../../../shared/models/monotony-conflict.model';
-import { ModalService } from '../../../core/services/modal.service';
 
 @Component({
 	selector: 'edit-home',
@@ -65,7 +63,6 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 	errorMessage: string = '';
 	isChangingOrder$: Observable<boolean>;
 	isChangingOrder: boolean;
-	job: Job;
 	lotcheckModalDisplayed: boolean;
 	marketingPlanId: number[];
 	modal: ModalRef;
@@ -86,6 +83,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 	tree: Tree;
 	treeFilter$: Observable<TreeFilter>;
 	treeVersionRules: TreeVersionRules;
+	options: PlanOption[];
 	viewChoice: Choice;
 	viewPoint: DecisionPoint;
 	salesAgreementId: number;
@@ -402,14 +400,11 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		);
 
 		this.store.pipe(
-			take(1),
-			select(fromScenario.selectScenario),
-			withLatestFrom(this.store.pipe(select(fromJob.jobState))),
-		).subscribe(([scenario, job]) =>
-		{
+			select(fromScenario.selectScenario)
+		).subscribe(scenario => {
 			this.tree = scenario.tree;
-			this.treeVersionRules = scenario.rules;
-			this.job = job;
+			this.treeVersionRules = _.cloneDeep(scenario.rules);
+			this.options = _.cloneDeep(scenario.options);
 		});
 
 		this.canConfigure$ = this.store.pipe(select(fromRoot.canConfigure));
@@ -630,10 +625,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		const choiceToDeselect = getChoiceToDeselect(this.tree, choice);
 
 		let selectedChoices = [{ choiceId: choice.id, overrideNote: choice.overrideNote, quantity: !choice.quantity ? quantity || 1 : 0, attributes: choice.selectedAttributes }];
-		const impactedChoices = [
-			...getDependentChoices(this.tree, this.treeVersionRules, choiceToDeselect),
-			...getDependentChoices(this.tree, this.treeVersionRules, !choice.quantity ? choice : null)
-		];
+		const impactedChoices = getDependentChoices(this.tree, this.treeVersionRules, this.options, choice);
 
 		impactedChoices.forEach(c =>
 		{

@@ -7,7 +7,7 @@ import * as _ from "lodash";
 
 import {
 	UnsubscribeOnDestroy, IdentityService, ChangeTypeEnum, Job, Lot, PointStatus,
-	Group, DecisionPoint, BrowserService
+	Group, DecisionPoint, BrowserService, ModalService
 } from 'phd-common';
 
 import * as fromLot from '../../../ngrx-store/lot/reducer';
@@ -17,8 +17,8 @@ import * as NavActions from '../../../ngrx-store/nav/actions';
 import * as fromJob from '../../../ngrx-store/job/reducer';
 import { LotService } from '../../services/lot.service';
 
-import { ModalService } from '../../../core/services/modal.service';
 import { ConfirmModalComponent } from '../../../core/components/confirm-modal/confirm-modal.component';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
 	selector: 'nav-bar',
@@ -35,6 +35,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 	@Input() selectedGroup: number;
 	@Input() scenarioId: number;
 	@Input() isPreview: boolean;
+	@Input() isDesignPreviewEnabled: boolean;
 	@Input() opportunityName: Observable<string>;
 	@Input() buildMode: string;
 
@@ -59,6 +60,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 	specCancelled = false;
 	isLockedIn: boolean = false;
 	newHomeStatus: PointStatus;
+	production: boolean;
 
 	constructor(private lotService: LotService,
 		private identityService: IdentityService,
@@ -184,6 +186,10 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 
 		this.showStatusIndicator$ = this.store.select(fromRoot.canEditAgreementOrSpec);
 		this.isTablet$ = this.browser.isTablet();
+
+		// Will need to remove this check once design preview goes live, 
+		// Both here and in nav-bar.component.html
+		this.production = environment.production;
 	}
 
 	navigate(path: any[], group?: Group)
@@ -394,5 +400,12 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 		}
 
 		return true;
+	}
+
+	launchPreview()
+	{
+		const buyerSpecific = 'favorites/preview/'
+		const url = `${environment.baseUrl.designPreview}${buyerSpecific}${this.salesAgreementId}`;
+		window.open(url, '_blank');
 	}
 }

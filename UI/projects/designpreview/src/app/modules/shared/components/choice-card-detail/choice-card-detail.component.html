@@ -1,0 +1,127 @@
+<div class="phd-choice-card-detail">
+	<div class="phd-image-section">
+		<div class="phd-choice-path">
+			<i class="fa fa-arrow-left phd-clickable" (click)="onClickBack()"></i>
+			<span>{{path}}</span>
+		</div>
+		<div class="phd-image-container">
+			<div class="phd-image-card">
+				<div class="phd-card-detail-image-body">
+				<div *ngIf="imageLoading" class="phd-image-loading">
+					<i class="fa fa-spinner fa-spin fa-3x phd-image-loader"></i>
+				</div>
+				<div *ngIf="highlightedAttribute">
+					<cl-image public-id="{{attributeImageUrl}}" (onLoad)="onLoadImage()" (onError)="onLoadImageError($event)" type="fetch" background="#ffffff" crop="lpad" class="phd-image-content"></cl-image>
+				</div>
+				<div *ngIf="!highlightedAttribute">
+					<ngb-carousel #imageCarousel [interval]="0" (slide)="onSlide($event)">
+					<ng-template ngbSlide *ngFor="let image of choiceImages; let currentIndex = index;" id="{{currentIndex}}">
+						<cl-image public-id="{{image.imageURL}}" (onLoad)="onLoadImage()" (onError)="onLoadImageError($event)" type="fetch" background="#ffffff" crop="lpad" class="phd-image-content" *ngIf="activeIndex?.current == currentIndex"></cl-image>
+					</ng-template>
+					</ngb-carousel>
+				</div>
+				</div>
+				<span class="phd-image-caption">Images are examples only. Products are subject to change.</span>
+			</div>
+			<div class="phd-image-carousel">
+				<ng-container *ngIf="choiceImages.length <= 10">
+				<span *ngFor="let image of choiceImages" class="phd-image-thumbnail phd-clickable">
+					<cl-image public-id="{{image.imageURL}}" type="fetch" background="#ffffff" crop="lpad"
+					class="phd-choice-image" [class.phd-choice-image-selected]="!highlightedAttribute && selectedImageUrl === image.imageURL"
+					(onError)="onLoadImageError($event)" (click)="imageClick(image)">
+					</cl-image>
+				</span>
+				</ng-container>
+				<ng-container *ngIf="choiceImages.length > 10">
+				<p-carousel [value]="choiceImages" [numVisible]="10" [numScroll]="1">
+					<ng-template let-image pTemplate="item">
+					<cl-image public-id="{{image.imageURL}}" type="fetch" background="#ffffff" crop="lpad"
+						class="phd-choice-image" [class.phd-choice-image-selected]="!highlightedAttribute && selectedImageUrl === image.imageURL"
+						(onError)="onLoadImageError($event)" (click)="imageClick(image)">
+					</cl-image>
+					</ng-template>
+				</p-carousel>
+				</ng-container>
+			</div>
+		</div>
+		<div class="phd-price">
+			<ng-container *ngIf="choice.priceHiddenFromBuyerView">
+				<span container="body">
+					<strong>Pricing Varies</strong>
+				</span>
+			</ng-container>
+			<ng-container *ngIf="!choice.priceHiddenFromBuyerView">
+				<strong class="phd-price-label">{{choice.price * (choice.quantity > 0 ? choice.quantity : 1) | currency:'USD':'symbol':'0.0-0'}}</strong>
+			</ng-container>
+			<ng-container *ngIf="choice.choiceStatus === 'Contracted'">
+				<i class="fa fa-check phd-icon-selected phd-favorite-selector"></i>
+			</ng-container>
+			<ng-container *ngIf="choice.choiceStatus === 'Available' && choice.enabled">
+				<div [class.phd-clickable]="!isReadonly" class="phd-favorite-selector">
+					<span class="phd-icon-selected"><i *ngIf="choice.isFavorite" class="fa fa-heart" (click)="toggleChoice()"></i></span>
+					<i *ngIf="!choice.isFavorite" class="fa fa-heart-o" (click)="toggleChoice()"></i>
+				</div>
+			</ng-container>
+			<ng-container *ngIf="choice.choiceStatus === 'Available' && !choice.enabled">
+				<div class="phd-clickable phd-favorite-selector">
+					<i class="fa fa-ban" (click)="openBlockedChoiceModal()"></i>
+				</div>
+			</ng-container>
+
+		</div>
+	</div>
+	<div class="phd-info-section">
+		<div class="phd-choice-label">{{choice?.label}}</div>
+		<div *ngIf="choiceDescriptions.length && !optionDisabled" class="phd-choice-desc">
+			<div *ngFor="let description of choiceDescriptions">{{ description }}</div>
+		</div>
+		<div class="d-flex flex-column flex-grow-1" *ngIf="hasAttributes">
+			<div class="phd-available-selections">
+				<span>{{isDesignComplete ? 'SELECTIONS:' : 'AVAILABLE SELECTIONS:'}}</span>
+			</div>
+
+			<div class="phd-attr-loc-group-container" *ngIf="!optionDisabled && (locationGroups?.length || (!locationGroups?.length && attributeGroups?.length))">
+				<div *ngIf="locationGroups?.length" class="d-flex flex-column w-100">
+					<ng-container *ngFor="let group of locationGroups">
+						<div *ngFor="let attributeLocation of group.locations" class="phd-attribute-location-body">
+							<attribute-location [currentChoice]="choice"
+												[attributeLocation]="attributeLocation"
+												[attributeLocationGroup]="group"
+												[currentAttributeGroups]="attributeGroups"
+												[maxQuantity]="getLocationMaxQuantity(attributeLocation.id)"
+												[isBlocked]="choice.choiceStatus === 'Available' && !choice.enabled"
+												[highlightedAttribute]="getHighlightedLocationAttribute(attributeLocation, group)"
+												[isReadonly]="isReadonly"
+												[isDesignComplete]="isDesignComplete"
+												(onLocationAttributeClick)="locationAttributeClick($event)"
+												(onToggleAttribute)="toggleAttribute($event)"
+												(onQuantiyChange)="changeQuantiy($event)">
+							</attribute-location>
+						</div>
+					</ng-container>
+				</div>
+
+				<div *ngIf="!optionDisabled && (!locationGroups?.length && attributeGroups?.length)" class="d-flex flex-column w-100">
+					<div *ngFor="let attributeGroup of attributeGroups" class="phd-attribute-group-container">
+						<attribute-group [attributeGroup]="attributeGroup"
+										[highlightedAttributeId]="getHighlightedAttributeId(attributeGroup)"
+										[isBlocked]="choice.choiceStatus === 'Available' && !choice.enabled"
+										[isReadonly]="isReadonly"
+										[isDesignComplete]="isDesignComplete"
+										(onAttributeClick)="attributeClick($event)"
+										(onToggleAttribute)="toggleAttribute($event)">
+						</attribute-group>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<ng-template #blockedChoiceModal let-c="close" let-d="dismiss">
+	<blocked-choice-modal
+		[disabledByList]="disabledByList"
+		(closeModal)="onCloseClicked()"
+		(blockedItemClick)="onBlockedItemClick($event)"
+	></blocked-choice-modal>
+</ng-template>

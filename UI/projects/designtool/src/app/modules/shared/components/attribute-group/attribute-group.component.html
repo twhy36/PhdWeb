@@ -22,6 +22,7 @@
 						[canOverride]="canOverride"
 						[monotonyOverride]="monotonyOverride$"
 						[isCollapsed]="isCollapsed"
+						[favoriteChoiceAttributes]="favoriteChoiceAttributes"
 						(onPreview)="previewAttribute($event)"
 						(onAttributeClick)="attributeClick($event)">
 		</attribute-list>
@@ -53,6 +54,7 @@
 					[canOverride]="canOverride"
 					[monotonyOverride]="monotonyOverride$"
 					[updateParent]="true"
+					[favoriteChoiceAttributes]="favoriteChoiceAttributes"
 					(onPreview)="previewAttribute($event)"
 					(closeExpandedAttribute)="closeExpanded()"
 					(onAttributeClick)="attributeClick($event)">

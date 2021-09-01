@@ -1,22 +1,19 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
-import { Observable } from 'rxjs/Observable';
 import { map, catchError, tap, switchMap } from 'rxjs/operators';
-import { _throw } from 'rxjs/observable/throw';
-import { EMPTY as empty } from 'rxjs';
-import { of } from 'rxjs/observable/of';
+import { EMPTY as empty, Observable, of, throwError } from 'rxjs';
 
 import
 	{
 		newGuid, createBatchGet, createBatchHeaders, createBatchBody, withSpinner, ChangeOrderChoice, ChangeOrderPlanOption,
 		JobChoice, JobPlanOption, TreeVersionRules, OptionRule, Tree, ChoiceImageAssoc, PlanOptionCommunityImageAssoc,
-		TreeBaseHouseOption, OptionImage, IdentityService
+		TreeBaseHouseOption, OptionImage, IdentityService, MyFavoritesChoice
 	} from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
 
-import { isJobChoice } from '../../shared/classes/tree.utils';
+import { isChangeOrderChoice } from '../../shared/classes/tree.utils';
 
 import * as _ from 'lodash';
 
@@ -70,7 +67,7 @@ export class TreeService
 			{
 				console.error(error);
 
-				return _throw(error);
+				return throwError(error);
 			})
 		);
 	}
@@ -112,7 +109,7 @@ export class TreeService
 			{
 				console.error(error);
 
-				return _throw(error);
+				return throwError(error);
 			})
 		);
 	}
@@ -186,12 +183,12 @@ export class TreeService
 		);
 	}
 
-	getChoiceCatalogIds(choices: Array<JobChoice | ChangeOrderChoice>): Observable<Array<JobChoice | ChangeOrderChoice>>
+	getChoiceCatalogIds(choices: Array<JobChoice | ChangeOrderChoice | MyFavoritesChoice>): Observable<Array<JobChoice | ChangeOrderChoice>>
 	{
 		return this.identityService.token.pipe(
 			switchMap((token: string) =>
 			{
-				const choiceIds: Array<number> = choices.map(x => isJobChoice(x) ? x.dpChoiceId : x.decisionPointChoiceID);
+				const choiceIds: Array<number> = choices.map(x => isChangeOrderChoice(x) ? x.decisionPointChoiceID : x.dpChoiceId);
 
 				if (choiceIds.length > 0)
 				{
@@ -216,7 +213,7 @@ export class TreeService
 				{
 					newChoices.forEach(c =>
 					{
-						const choiceId = isJobChoice(c) ? c.dpChoiceId : c.decisionPointChoiceID;
+						const choiceId = isChangeOrderChoice(c) ? c.decisionPointChoiceID : c.dpChoiceId;
 						const respChoice = response.value.find(r => r.dpChoiceID === choiceId);
 
 						if (respChoice)
@@ -231,13 +228,13 @@ export class TreeService
 
 					changedChoices.forEach(cc =>
 					{
-						if (isJobChoice(cc))
+						if (isChangeOrderChoice(cc))
 						{
-							updatedChoices.push(new JobChoice(cc));
+							updatedChoices.push(new ChangeOrderChoice(cc));
 						}
 						else
 						{
-							updatedChoices.push(new ChangeOrderChoice(cc));
+							updatedChoices.push(new JobChoice(cc));
 						}
 					});
 				}

@@ -23,7 +23,7 @@ export class ColorsSearchHeaderComponent
 {
 	colorname: string = null;
 	isCounterVisible: boolean;
-	optionSubCategory: Array<IOptionSubCategory>;
+	optionSubCategoryList: Array<IOptionSubCategory>;
 	optionSubCategory$: Observable<Array<IOptionSubCategory>>;
 	selectedSubCategory: IOptionSubCategory;
 	colorsDtoList: Array<IColorDto> = [];
@@ -49,7 +49,6 @@ export class ColorsSearchHeaderComponent
 		private _colorService: ColorService,
 		private _settingsService: SettingsService,
 		private _modalService: ModalService,
-
 	) {
 		super();
 	}
@@ -68,7 +67,7 @@ export class ColorsSearchHeaderComponent
 			})
 		);
 		this.optionSubCategory$.subscribe((x) => {
-			this.optionSubCategory = x;
+			this.optionSubCategoryList = x;
 			this.resetfilter();
 			this.loadColors();
 		});
@@ -95,7 +94,7 @@ export class ColorsSearchHeaderComponent
 			.pipe(
 				map((colors) => {
 					let colorsList = colors.map((color) => {
-						let categorySubcategory = this.optionSubCategory.find(
+						let categorySubcategory = this.optionSubCategoryList.find(
 							(x) => x.id === color.edhOptionSubcategoryId
 						);
 						let colorsDto: IColorDto = {
@@ -166,7 +165,7 @@ export class ColorsSearchHeaderComponent
 		this.dialogSubCategories = [];
 		let category: IOptionCategory;
 
-		this.optionSubCategory.forEach((subcategory) => {
+		this.optionSubCategoryList.forEach((subcategory) => {
 			let notInListAlready = this.dialogCategories.some(x => x.id === subcategory.optionCategory.id) === false;
 
 			if (notInListAlready && subcategory.optionCategory)

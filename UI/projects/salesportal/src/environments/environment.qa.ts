@@ -15,12 +15,14 @@ export const environment: IEnvironment = {
         crm: 'https://pulteqa.crm.dynamics.com/main.aspx?appid=fd4b6997-db24-46d9-ae08-413c5059fcbe',
         salesAdmin: 'https://phd.qa.pulte.com/salesadmin/',
 		designTool: 'https://phd.qa.pulte.com/designtool/',
+		designPreview: 'https://phd.qa.pulte.com/designpreview/',
+		thoPreview: 'https://tho.qa.centex.com/',
 		reports: 'http://powerbi.qa.pulte.com/Reports/browse/IDEA/Sales/PHD',
 		homeSelections: 'https://homebuilder.qa.pulte.com/HomeSelections/',
 		salesTally: 'https://salesportal.qa.pulte.com/salesportal/salestally'
     },
     appInsights: {
-        instrumentationKey: '08875504-9c0f-45a6-8cc5-8a819e51aff0'
+        instrumentationKey: '59530951-22f6-449f-ac70-8dffc824b34d'
     },
 	production: false,
 	authConfig: {

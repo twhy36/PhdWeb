@@ -5,7 +5,7 @@ import { environment } from '../../../../../environments/environment';
 import { LinkAction } from '../../models/action.model';
 import { SearchResult, IFilterItem, IFilterItems, ISearchResultAgreement } from '../../models/search.model';
 import { SearchService } from '../../../core/services/search.service';
-import { PhdTableComponent } from 'phd-common';
+import { IFinancialCommunity } from '../../models/community.model';
 
 @Component({
 	encapsulation: ViewEncapsulation.None,
@@ -313,9 +313,9 @@ export class PHDSearchComponent
 		this.onLocationChange();
 	}
 
-	onFinancialCommunityChange(community)
+	onFinancialCommunityChange(community: IFinancialCommunity)
 	{
-		this.selectedFinancialCommunity = community;
+		this.selectedFinancialCommunity = community?.id;
 
 		this.onLocationChange();
 	}
@@ -472,13 +472,13 @@ export class PHDSearchComponent
 			: lot.buildTypeDisplayName;
 	}
 
-	showTooltip(event: any, tooltipText: string, tableComponent: PhdTableComponent): void
+	getBuildTypeUrl(lot: SearchResult)
 	{
-		tableComponent.showTooltip(event, tooltipText);
-	}
+		let url = `${environment.baseUrl.designTool}`;
 
-	hideTooltip(tableComponent: PhdTableComponent): void
-	{
-		tableComponent.hideTooltip();
+		url += lot.buildTypeDisplayName === 'Spec' ? `spec` : `scenario-summary`;
+		url += `/${lot.jobId}`;
+
+		return url;
 	}
 }

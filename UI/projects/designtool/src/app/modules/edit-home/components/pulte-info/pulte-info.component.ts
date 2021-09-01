@@ -1,10 +1,10 @@
-import { ReplaySubject } from 'rxjs';
+import { ReplaySubject, Observable } from 'rxjs';
+import { map, distinctUntilChanged, combineLatest } from 'rxjs/operators';
+
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Observable } from 'rxjs/Observable';
 import { Store, select } from '@ngrx/store';
-import { map, distinctUntilChanged, combineLatest } from 'rxjs/operators';
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as JobActions from '../../../ngrx-store/job/actions';
 

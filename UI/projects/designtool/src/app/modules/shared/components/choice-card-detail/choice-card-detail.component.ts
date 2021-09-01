@@ -1,10 +1,15 @@
 import { Component, Input, OnInit, Output, EventEmitter, ViewChildren, QueryList, AfterViewInit, ViewChild, OnChanges, SimpleChanges } from '@angular/core';
-import { Store } from '@ngrx/store';
+import { select, Store } from '@ngrx/store';
 import { ReplaySubject } from 'rxjs';
 
-import { UnsubscribeOnDestroy, AttributeGroup, DesignToolAttribute, LocationGroup, Choice, ChoiceImageAssoc, OptionImage } from 'phd-common';
+import 
+{ 
+	UnsubscribeOnDestroy, AttributeGroup, DesignToolAttribute, LocationGroup, Choice, ChoiceImageAssoc, 
+	OptionImage, ModalService, MyFavoritesChoiceAttribute, MyFavoritesChoiceLocation 
+} from 'phd-common';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
+import * as fromFavorite from '../../../ngrx-store/favorite/reducer';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 
 import { AttributeLocationComponent } from '../attribute-location/attribute-location.component';
@@ -12,7 +17,6 @@ import { AttributeLocationComponent } from '../attribute-location/attribute-loca
 import { ModalOverrideSaveComponent } from '../../../core/components/modal-override-save/modal-override-save.component';
 import { MonotonyConflict } from '../../models/monotony-conflict.model';
 import { AttributeGroupComponent } from '../attribute-group/attribute-group.component';
-import { ModalService } from '../../../core/services/modal.service';
 
 @Component({
 	selector: 'choice-card-detail',
@@ -33,6 +37,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	@Input() canOverride: boolean;
 	@Input() overrideReason: string;
 	@Input() optionDisabled: boolean;
+	@Input() isFavorite: boolean;
 
 	@Output() callToAction = new EventEmitter<{ choice: Choice, quantity?: number }>();
 	@Output() saveAttributes = new EventEmitter<void>();
@@ -58,6 +63,9 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	totalQuantitySelected: number = 0;
 	quantityMin: number = 1;
 
+	favoriteChoiceAttributes?: MyFavoritesChoiceAttribute[];
+	favoriteChoiceLocations?: MyFavoritesChoiceLocation[];
+
 	constructor(private store: Store<fromRoot.State>,
 		private modalService: ModalService)
 	{
@@ -67,6 +75,17 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	ngOnInit()
 	{
 		this.hasMonotonyConflict = this.monotonyConflict.monotonyConflict;
+
+		if (this.isFavorite) {
+			this.store.pipe(
+				this.takeUntilDestroyed(),
+				select(fromFavorite.myFavoriteChoices)
+			).subscribe(favChoices =>
+			{
+				this.favoriteChoiceAttributes = favChoices?.find(fc => fc.divChoiceCatalogId === this.choice.divChoiceCatalogId)?.myFavoritesChoiceAttributes;
+				this.favoriteChoiceLocations = favChoices?.find(fc => fc.divChoiceCatalogId === this.choice.divChoiceCatalogId)?.myFavoritesChoiceLocations;
+			});
+		}
 
 		const choice = this.choice;
 		const quantity = choice.quantity;
@@ -204,19 +223,23 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 
 		let locationMaxQty = choiceMaxQty;
 
+		const location = this.locationComponents.find(lc => lc.attributeLocation.id === locationId);
+		
 		// if the choice max qty has been reached then set the max qty for the location to the location qty
 		if (totalQtyAllLocations === choiceMaxQty)
 		{
-			locationMaxQty = this.locationComponents.find(lc => lc.attributeLocation.id === locationId).locationQuantityTotal;
+			locationMaxQty = location?.locationQuantityTotal ?? 0;
 		}
 		else
 		{
 			// if the choice max qty has not been reached then set the max qty for the location to
 			// the choice max qty minus the total choice qty plus the location qty
-			const locationQty = this.locationComponents.find(lc => lc.attributeLocation.id === locationId).locationQuantityTotal;
+			const locationQty = location?.locationQuantityTotal ?? 0;
 
 			locationMaxQty = choiceMaxQty - totalQtyAllLocations + locationQty;
 		}
+
+		this.totalQuantitySelected = this.getSelectedQuantity();
 
 		return locationMaxQty;
 	}
@@ -529,6 +552,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	changeSelectedQuantity(newQuantity: number)
 	{
 		this.selectedMax = newQuantity;
+		this.choice.quantity = newQuantity;
 
 		if (this.choice.quantity > 0)
 		{

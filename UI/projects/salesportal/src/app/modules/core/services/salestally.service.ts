@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of, throwError} from "rxjs";
-import { map, catchError, mergeMap } from "rxjs/operators";
-import { _throw } from 'rxjs/observable/throw';
+import { Observable, throwError} from "rxjs";
+import { map, catchError } from "rxjs/operators";
 
 import { environment } from '../../../../environments/environment';
 import { TopCommunity, TopSalesConsultant, TopMarket, TimeFrame, AreaSales, ConsultantBuyer } from '../../shared/models/salestally.model';
@@ -69,6 +68,6 @@ export class SalesTallyService
 		// In the future, we may send the server to some remote logging infrastructure.
 		console.error('Error message: ', error);
 
-		return _throw(error || 'Server error');
+		return throwError(error || 'Server error');
 	}
 }

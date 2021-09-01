@@ -20,6 +20,7 @@ import * as fromSalesAgreement from './sales-agreement/reducer';
 import * as fromJob from './job/reducer';
 import * as fromChangeOrder from './change-order/reducer';
 import * as fromContract from './contract/reducer';
+import * as fromFavorite from './favorite/reducer';
 
 import { MonotonyConflict } from '../shared/models/monotony-conflict.model';
 
@@ -39,6 +40,7 @@ export interface State
 	changeOrder: fromChangeOrder.State;
 	contract: fromContract.State;
 	user: fromUser.State;
+	favorite: fromFavorite.State;
 }
 
 export const reducers: ActionReducerMap<State> = {
@@ -53,7 +55,8 @@ export const reducers: ActionReducerMap<State> = {
 	job: fromJob.reducer,
 	changeOrder: fromChangeOrder.reducer,
 	contract: fromContract.reducer,
-	user: fromUser.reducer
+	user: fromUser.reducer,
+	favorite: fromFavorite.reducer
 }
 
 export const title = createSelector(
@@ -102,7 +105,7 @@ export const canConfigure = createSelector(
 	fromSalesAgreement.salesAgreementState,
 	fromChangeOrder.currentChangeOrder,
 	(scenario, market, user, sag, co) => scenario.buildMode === 'preview'
-		|| ((scenario.buildMode === 'model' || scenario.buildMode === 'spec') && !!market && user.canSell && user.assignedMarkets && user.assignedMarkets.some(m => m.number === market.number))
+		|| ((scenario.buildMode === 'model' || scenario.buildMode === 'spec') && !!market && user.canDesign && user.assignedMarkets && user.assignedMarkets.some(m => m.number === market.number))
 		// if there is a sales agreement, user can make changes if (a) user is at least Sales Consultant or (b) user is Design Consultant and created the current change order
 		// if the change order hasn't been saved yet, the contact field on the change order will be null
 		|| ((sag && sag.id ? (user.canSell || (user.canDesign && !!co && (!co.createdByContactId || co.createdByContactId === user.contactId))) : user.canConfigure) && !!market && user.assignedMarkets && user.assignedMarkets.some(m => m.number === market.number))
@@ -893,6 +896,14 @@ export const showSpinner = createSelector(
 	}
 );
 
+export const isDesignPreviewEnabled = createSelector(
+	fromJob.jobState,
+	fromOrg.selectOrg,
+	(job, org) => {
+		const financialCommunity = org?.salesCommunity?.financialCommunities.find(f => f.id === job?.financialCommunityId);
+		return financialCommunity ? financialCommunity.isDesignPreviewEnabled : false;
+	}
+);
 
 function mapLocations(choice: Choice, jobElevationChoice: JobChoice, changeOrderElevationChoice: ChangeOrderChoice): Array<string>
 {

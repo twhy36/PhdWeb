@@ -2,41 +2,36 @@ import { Injectable } from '@angular/core';
 
 import { Action, Store, select } from '@ngrx/store';
 import { Actions, ofType, createEffect } from '@ngrx/effects';
-import { Observable } from 'rxjs/Observable';
+import { Observable, EMPTY as empty, from, of, forkJoin, combineLatest } from 'rxjs';
+import { switchMap, map, concat, scan, filter, distinct, withLatestFrom, tap } from 'rxjs/operators';
 import * as _ from 'lodash';
 
 import {
 	SalesCommunity, ChangeOrderChoice, ChangeOrderGroup, Job, IMarket, SalesAgreementInfo, DecisionPoint, Choice,
-	IdentityService, SpinnerService, Claims, Permission
+	IdentityService, SpinnerService, Claims, Permission, MyFavorite, ModalService
 } from 'phd-common';
 
 import { CommonActionTypes, LoadScenario, LoadError, ScenarioLoaded, LoadSalesAgreement, SalesAgreementLoaded, LoadSpec, JobLoaded, ESignEnvelopesLoaded } from './actions';
 import { tryCatch } from './error.action';
 import { ScenarioService } from '../core/services/scenario.service';
 import { TreeService } from '../core/services/tree.service';
-import { switchMap, map, concat, scan, filter, distinct, withLatestFrom, tap } from 'rxjs/operators';
 import { OptionService } from '../core/services/option.service';
 import { LotService } from '../core/services/lot.service';
 import { OrganizationService } from '../core/services/organization.service';
-import { from } from 'rxjs/observable/from';
-import { of } from 'rxjs/observable/of';
-import { combineLatest } from 'rxjs/observable/combineLatest';
 import { setTreePointsPastCutOff, mergeIntoTree, updateWithNewTreeVersion, mapAttributes } from '../shared/classes/tree.utils';
 import { JobService } from '../core/services/job.service';
-import { ModalService } from '../core/services/modal.service';
 import { PlanService } from '../core/services/plan.service';
 import { OpportunityService } from '../core/services/opportunity.service';
 import { LoadPlans, PlansLoaded, PlanActionTypes } from './plan/actions';
 import { LoadLots, LotsLoaded, LotActionTypes } from './lot/actions';
-import { forkJoin } from 'rxjs/observable/forkJoin';
 import { SalesAgreementService } from '../core/services/sales-agreement.service';
 import { ChangeOrderService } from '../core/services/change-order.service';
 import { SalesAgreementCreated, SalesAgreementActionTypes } from './sales-agreement/actions';
 import { ContractService } from '../core/services/contract.service';
 import { TemplatesLoaded } from './contract/actions';
 import { SavePendingJio, CreateJobChangeOrders, CreatePlanChangeOrder } from './change-order/actions';
-import { EMPTY as empty } from 'rxjs';
 import { State, canDesign, showSpinner } from './reducers';
+import { FavoriteService } from '../core/services/favorite.service';
 
 @Injectable()
 export class CommonEffects
@@ -120,7 +115,7 @@ export class CommonEffects
 											return this.treeService.getChoiceCatalogIds(job[0].jobChoices).pipe(
 												map(res => {
 													job[0].jobChoices = res;
-
+													
 													return [sc, job, claims, markets];
 												})
 											);
@@ -404,17 +399,46 @@ export class CommonEffects
 				}),
 				switchMap(result => {
 					if (result.selectedPlanId) {
-						return this.changeOrderService.getTreeVersionIdByJobPlan(result.selectedPlanId).pipe(
-							switchMap(treeVersionId => {
+						const financialCommunity = result.sc?.financialCommunities?.find(f => f.id === result.job?.financialCommunityId);
+						const isDesignPreviewEnabled = financialCommunity ? financialCommunity.isDesignPreviewEnabled : false;
+
+						const getMyFavorites: Observable<MyFavorite[]> = 
+							isDesignPreviewEnabled && result.salesAgreement && result.salesAgreement.id > 0 
+							? this.favoriteService.loadMyFavorites(result.salesAgreement.id) 
+							: of([]);
+
+						return combineLatest([
+							this.changeOrderService.getTreeVersionIdByJobPlan(result.selectedPlanId),
+							getMyFavorites
+						]).pipe(
+							switchMap(([treeVersionId, favorites]) => {
+								const favoriteChoices = !!favorites ? _.flatMap(favorites, x => x.myFavoritesChoice) : [];
+								const getFavoritesChoiceCatalogIds = !!favoriteChoices?.length ? this.treeService.getChoiceCatalogIds([...favoriteChoices]) : of([]);
+
 								return combineLatest([
 									this.treeService.getTree(treeVersionId),
 									this.treeService.getRules(treeVersionId, true),
 									this.optionService.getPlanOptions(result.selectedPlanId, null, true),
 									this.treeService.getOptionImages(treeVersionId, [], null, true),
 									this.planService.getWebPlanMappingByPlanId(result.selectedPlanId),
-									this.lotService.getLot(result.selectedLotId)
+									combineLatest([
+										this.lotService.getLot(result.selectedLotId),
+										getFavoritesChoiceCatalogIds
+									])
 								]).pipe(
-									map(([tree, rules, options, images, mappings, lot]) => {
+									map(([tree, rules, options, images, mappings, [lot, choices]]) => {
+										if (choices?.length)
+										{
+											_.flatMap(favorites, fav => fav.myFavoritesChoice).forEach(ch => {
+												let ch1 = choices.find(c => c.dpChoiceId === ch.dpChoiceId);
+				
+												if (ch1)
+												{
+													ch.divChoiceCatalogId = ch1.divChoiceCatalogId;
+												}
+											});
+										}												
+
 										return {
 											tree,
 											rules,
@@ -429,7 +453,8 @@ export class CommonEffects
 											selectedChoices: result.selectedChoices,
 											selectedPlanId: result.selectedPlanId,
 											salesAgreement: result.salesAgreement,
-											salesAgreementInfo: result.salesAgreementInfo
+											salesAgreementInfo: result.salesAgreementInfo,
+											myFavorites: favorites
 										};
 									}),
 									mergeIntoTree(
@@ -467,7 +492,8 @@ export class CommonEffects
 									selectedChoices: result.selectedChoices,
 									selectedPlanId: result.selectedPlanId,
 									salesAgreement: result.salesAgreement,
-									salesAgreementInfo: result.salesAgreementInfo
+									salesAgreementInfo: result.salesAgreementInfo,
+									myFavorites: null
 								}
 							})
 						)
@@ -494,7 +520,7 @@ export class CommonEffects
 						}
 
 						return <Observable<Action>>from([
-							new SalesAgreementLoaded(result.salesAgreement, result.salesAgreementInfo, result.job, result.sc, result.selectedChoices, result.selectedPlanId, result.selectedHanding, result.tree, result.rules, result.options, result.images, result.mappings, result.changeOrder, result.lot),
+							new SalesAgreementLoaded(result.salesAgreement, result.salesAgreementInfo, result.job, result.sc, result.selectedChoices, result.selectedPlanId, result.selectedHanding, result.tree, result.rules, result.options, result.images, result.mappings, result.changeOrder, result.lot, result.myFavorites),
 							new LoadLots(result.sc.id),
 							new LoadPlans(result.sc.id, selectedPlanPrice)
 						]).pipe(
@@ -615,5 +641,7 @@ export class CommonEffects
 		private salesAgreementService: SalesAgreementService,
 		private changeOrderService: ChangeOrderService,
 		private contractService: ContractService,
-		private spinnerService: SpinnerService) { }
+		private spinnerService: SpinnerService,
+		private favoriteService: FavoriteService
+	) { }
 }

@@ -67,7 +67,7 @@ export class ViewContractsSidePanelComponent implements OnInit
 
 	get saveDisabled(): boolean
 	{
-		let saveDisabled = (!this.selected) ? (this.viewContractsForm.pristine || !this.viewContractsForm.valid) : (!this.viewContractsForm.valid);
+		let saveDisabled = (!this.selected) ? (this.viewContractsForm.pristine || !this.viewContractsForm.valid) : (!this.viewContractsForm.valid || !this.viewContractsForm.dirty);
 
 		return saveDisabled;
 	}
@@ -193,6 +193,7 @@ export class ViewContractsSidePanelComponent implements OnInit
 		{
 			this.viewContractsForm.controls.effectiveDate.setValue(event.toISOString());
 		}
+		this.viewContractsForm.markAsDirty();
 	}
 
 	saveNewOrgs(financialCommunityDto: Array<FinancialCommunity>)
@@ -285,7 +286,7 @@ export class ViewContractsSidePanelComponent implements OnInit
 			return isValid ? null : { whiteSpaceValidator: true }
 		};
 	}
-	
+
 	requireCheckBoxesToBeCheckedValidator(): ValidatorFn
 	{
 		return (formGroup: FormGroup): { [key: string]: any } =>
@@ -335,7 +336,8 @@ export class ViewContractsSidePanelComponent implements OnInit
 					salesStatusDescription: currentTag[0].salesStatusDescription,
 					isColorSchemeMonotonyRuleEnabled: currentTag[0].isColorSchemeMonotonyRuleEnabled,
 					isElevationMonotonyRuleEnabled: currentTag[0].isElevationMonotonyRuleEnabled,
-					isColorSchemePlanRuleEnabled: currentTag[0].isColorSchemePlanRuleEnabled
+					isColorSchemePlanRuleEnabled: currentTag[0].isColorSchemePlanRuleEnabled,
+					isDesignPreviewEnabled: currentTag[0].isDesignPreviewEnabled
 				});
 			}
 		}
@@ -378,7 +380,8 @@ export class ViewContractsSidePanelComponent implements OnInit
 		}
 	}
 
-	onTabClick(selectedTab: any) {
+	onTabClick(selectedTab: any)
+	{
 		this.selectedTab = selectedTab;
 	}
 }

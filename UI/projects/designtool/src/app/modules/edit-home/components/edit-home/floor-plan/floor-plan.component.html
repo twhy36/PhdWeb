@@ -55,7 +55,7 @@
 											</span>
 										</a>
 
-										<div [attr.for]="'opt-'+choice.id" class="flex-fill justify-content-end pr-2">
+										<div [attr.for]="'opt-'+choice.id" class="flex-fill justify-content-end pr-2" [ngClass]="{'phd-non-favorite-price': !isFavorite(choice)}">
 											<div *ngIf="choice?.enabled" class="phd-choice-price phd-ifp-right">
 												{{ choice.price | currency : 'USD' : 'symbol' : '0.0-0'}}
 											</div>
@@ -68,6 +68,7 @@
 												<i class="fas fa-info-circle"></i> Disabled
 											</div>
 										</div>
+										<span *ngIf="isFavorite(choice)" class="phd-favorite-icon"><i class="fa fa-heart"></i></span>
 									</div>
 									<hr *ngIf="hasAttributeOrLocationGroups(choice)" class="phd-next-line">
 								</li>

@@ -7,6 +7,7 @@ export const environment = {
 	production: false,
 	apiUrl: 'http://localhost:2845/odata/',
 	hubUrl: 'http://localhost:5000/hub',
+	thoUrl: 'http://localhost:4001/',
 	alphaVisionBuilderGuid: '8D676CB9-C011-429D-8D71-87D34A87494B',
 	tenant: "pulte.onmicrosoft.com",
 	clientId: "9d498056-e6cd-4e53-b89b-cf2f5e60adf7",
@@ -26,5 +27,9 @@ export const environment = {
 	},
 	whatFix: {
 		scriptUrl: '//whatfix.com/01caf5e0-cb2f-11e8-b979-04013d24cd02/embed/embed.nocache.js'
-	}
+	},
+	designPreviewMarketWhitelist: [
+		// Input any FinancialMarket id here for testing purposes. For example...
+		// 113 // Charlotte Market
+	]
 };

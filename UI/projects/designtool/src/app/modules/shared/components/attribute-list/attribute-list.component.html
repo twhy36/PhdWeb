@@ -55,7 +55,7 @@
 			</div>
 		</div>
 
-		<div class="col-12">
+		<div class="col-12 mt-auto align-self-center phd-attribute-label">
 			<span class="phd-attribute-name"
 				  [class.phd-attribute-item-label-selected]="selectedAttributeId === attribute.id"
 				  [class.phd-is-inactive]="(!isActive && attribute.monotonyConflict && !canOverride)"
@@ -64,6 +64,9 @@
 				  (click)="attributeClick(attribute)">
 				{{attribute.name | ellipsis: 13}}
 			</span>
+		</div>
+		<div class="col-12 d-flex flex-row">
+			<span *ngIf="isFavoriteAttribute(attribute)" class="phd-favorite-icon"><i class="fa fa-heart"></i></span>
 		</div>
 
 		<div class="col-12" *ngIf="attribute.monotonyConflict && !(monotonyOverride | async)">
