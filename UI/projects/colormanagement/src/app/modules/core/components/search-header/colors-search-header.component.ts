@@ -15,7 +15,7 @@ import {ModalService} from '../../services/modal.service';
 @Component({
 	selector: 'colors-search-header',
 	templateUrl: './colors-search-header.component.html',
-	styleUrls: ['./colors-search-header.component.scss'],
+	styleUrls: ['./colors-search-header.component.scss']
 })
 export class ColorsSearchHeaderComponent
 	extends UnsubscribeOnDestroy
@@ -48,7 +48,7 @@ export class ColorsSearchHeaderComponent
 		private _orgService: OrganizationService,
 		private _colorService: ColorService,
 		private _settingsService: SettingsService,
-		private _modalService: ModalService,
+		private _modalService: ModalService
 	) {
 		super();
 	}
@@ -66,8 +66,8 @@ export class ColorsSearchHeaderComponent
 				);
 			})
 		);
-		this.optionSubCategory$.subscribe((x) => {
-			this.optionSubCategoryList = x;
+		this.optionSubCategory$.subscribe((subcategoryList) => {
+			this.optionSubCategoryList = subcategoryList;
 			this.resetfilter();
 			this.loadColors();
 		});
@@ -76,9 +76,11 @@ export class ColorsSearchHeaderComponent
 	showCounter() {
 		this.isCounterVisible = true;
 	}
+
 	hideCounter() {
 		this.isCounterVisible = false;
 	}
+
 	loadColors() {
 		this.allDataLoaded = false;
 
@@ -94,9 +96,8 @@ export class ColorsSearchHeaderComponent
 			.pipe(
 				map((colors) => {
 					let colorsList = colors.map((color) => {
-						let categorySubcategory = this.optionSubCategoryList.find(
-							(x) => x.id === color.edhOptionSubcategoryId
-						);
+						let categorySubcategory =
+							this.optionSubCategoryList.find((subcategory) =>subcategory.id === color.edhOptionSubcategoryId);
 						let colorsDto: IColorDto = {
 							colorId: color.colorId,
 							name: color.name,
@@ -111,25 +112,26 @@ export class ColorsSearchHeaderComponent
 					return colorsList;
 				})
 			)
-			.subscribe((x) => {
+			.subscribe((colorDtos) => {
 				this.currentPage++;
 				this.allDataLoaded =
-					x.length < this.settings.infiniteScrollPageSize;
-				this.colorsDtoList = [...this.colorsDtoList, ...x];
-				console.log("Colors found in loadColors.colorsDtoList...")
-				console.log(this.colorsDtoList.filter(x => x.name.startsWith('AATestColor010')));
+					colorDtos.length < this.settings.infiniteScrollPageSize;
+				this.colorsDtoList = [...this.colorsDtoList, ...colorDtos];
 
 			});
 	}
+
 	filterColors() {
 		this.colorsDtoList = [];
 		this.currentPage = 0;
 		this.loadColors();
 	}
+
 	onPanelScroll() {
 		this.isLoading = true;
 		this.skip = this.currentPage * this.settings.infiniteScrollPageSize;
 	}
+
 	resetfilter() {
 		this.colorname = '';
 		this.selectedSubCategory = null;
