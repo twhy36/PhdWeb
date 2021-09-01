@@ -3,7 +3,7 @@ import {OptionService} from '../../services/option.service';
 import {IOptionCategory, IOptionSubCategory} from '../../../shared/models/option.model';
 import {OrganizationService} from '../../../core/services/organization.service';
 import {filter, map, switchMap} from 'rxjs/operators';
-import {BehaviorSubject, Observable} from 'rxjs';
+import {Observable} from 'rxjs';
 import {ConfirmModalComponent, ModalRef, UnsubscribeOnDestroy} from 'phd-common';
 import {IColorDto, IColor} from '../../../shared/models/color.model';
 import {ColorService} from '../../services/color.service';
@@ -11,28 +11,18 @@ import {SettingsService} from '../../services/settings.service';
 import {Settings} from '../../../shared/models/settings.model';
 
 import {ModalService} from '../../services/modal.service';
-import {FormGroup} from '@angular/forms';
 
 @Component({
 	selector: 'colors-search-header',
 	templateUrl: './colors-search-header.component.html',
-	styleUrls: ['./colors-search-header.component.scss']
+	styleUrls: ['./colors-search-header.component.scss'],
 })
 export class ColorsSearchHeaderComponent
 	extends UnsubscribeOnDestroy
 	implements OnInit
 {
-
-	@Output() newColorsWereSaved = new EventEmitter();
-	@ViewChild('addColorModal') addColorModal: any;
-
-	dialogCategories: IOptionCategory[] = [];
-	dialogSubCategories: IOptionSubCategory[];
-	selectedDialogCategory: IOptionCategory;
-	selectedDialogSubCategory: IOptionSubCategory;
 	colorname: string = null;
 	isCounterVisible: boolean;
-	saveColorsDisabled: boolean
 	optionSubCategory: Array<IOptionSubCategory>;
 	optionSubCategory$: Observable<Array<IOptionSubCategory>>;
 	selectedSubCategory: IOptionSubCategory;
@@ -46,7 +36,12 @@ export class ColorsSearchHeaderComponent
 	settings: Settings;
 	modalReference: ModalRef;
 	newColors: IColor[] = [];
-	addColorDialogForm: FormGroup;
+	@ViewChild('addColorModal') addColorModal: any;
+
+	dialogCategories: IOptionCategory[] = [];
+	dialogSubCategories: IOptionSubCategory[];
+	selectedDialogCategory: IOptionCategory;
+	selectedDialogSubCategory: IOptionSubCategory;
 
 	constructor(
 		private _optionService: OptionService,
@@ -123,7 +118,7 @@ export class ColorsSearchHeaderComponent
 					x.length < this.settings.infiniteScrollPageSize;
 				this.colorsDtoList = [...this.colorsDtoList, ...x];
 				console.log("Colors found in loadColors.colorsDtoList...")
-				console.log(this.colorsDtoList.filter(x => x.name.startsWith('AATestColor11')));
+				console.log(this.colorsDtoList.filter(x => x.name.startsWith('AATestColor010')));
 
 			});
 	}
@@ -200,7 +195,6 @@ export class ColorsSearchHeaderComponent
 
 		if (requiredFieldsAreMissing)
 		{
-			console.log('save failed validation');
 			return;
 		}
 
@@ -208,12 +202,11 @@ export class ColorsSearchHeaderComponent
 		entriesToSave.forEach(newColor => newColor.edhOptionSubcategoryId = this.selectedDialogSubCategory.id);
 		this._optionService.saveNewColors(entriesToSave).subscribe((savedColors) => {
 			const saveWasSuccessful = savedColors.length > 0;
-			console.log(saveWasSuccessful ? "Save was successful" : 'Save failed');
-			console.log(savedColors);
 
 			if (saveWasSuccessful)
 			{
 				this.modalReference.dismiss();
+				this.resetfilter();
 				this.loadColors();
 			}
 		});
