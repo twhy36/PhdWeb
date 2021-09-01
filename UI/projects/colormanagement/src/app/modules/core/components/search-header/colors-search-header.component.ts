@@ -31,6 +31,8 @@ export class ColorsSearchHeaderComponent
 	currentPage: number = 0;
 	skip: number;
 	settings: Settings;
+	deleteColorList: Array<IColorDto>=[];
+
 	constructor(
 		private _optionService: OptionService,
 		private _orgService: OrganizationService,
@@ -93,7 +95,7 @@ export class ColorsSearchHeaderComponent
 							optionSubCategoryName: categorySubcategory?.name,
 							optionSubCategoryId: categorySubcategory?.id,
 							isActive: color.isActive,
-							hasSalesConfig:null
+							hasSalesConfig:null							
 						};
 						return colorsDto;
 					}) as Array<IColorDto>;
@@ -141,4 +143,26 @@ export class ColorsSearchHeaderComponent
 		this.skip=0;
 	}
 
+	isDeleteSelected(color:IColorDto):boolean
+	{		
+		return this.deleteColorList.some(col => col.colorId	===	color.colorId);
+	}
+
+	setDeleteSelected(color: IColorDto, isSelected: boolean): void
+	{
+		
+		let index = this.deleteColorList.findIndex(s => s.colorId === color.colorId);
+
+		if (isSelected && index < 0)
+		{
+			this.deleteColorList.push(color);
+		}
+		else if (!isSelected && index >= 0)
+		{
+			this.deleteColorList.splice(index, 1);
+
+			this.deleteColorList = [...this.deleteColorList];
+		}
+		console.log(this.deleteColorList.length);
+	}
 }

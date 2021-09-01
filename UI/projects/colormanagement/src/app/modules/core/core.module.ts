@@ -11,6 +11,7 @@ import { OptionService } from './services/option.service';
 import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 import { PhdCommonModule } from 'phd-common';
 import { SettingsService } from './services/settings.service';
+import { CheckboxModule } from 'primeng/checkbox';
 
 @NgModule({
 	declarations: [
@@ -21,7 +22,8 @@ import { SettingsService } from './services/settings.service';
 		CommonModule,
 		FormsModule,
 		InfiniteScrollModule,
-		PhdCommonModule
+		PhdCommonModule,
+		CheckboxModule
 	],
 	exports: [
 		MarketSelectorComponent,

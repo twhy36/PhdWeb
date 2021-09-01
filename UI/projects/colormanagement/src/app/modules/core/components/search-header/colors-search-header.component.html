@@ -34,6 +34,15 @@
 <div *ngIf="isCounterVisible"><span class="count_message"><em>{{50 - colorname?.length}} characters remaining</em></span> </div>
 <div class="phd-table-container mx-2" infiniteScroll [infiniteScrollThrottle]="settings.infiniteScrollThrottle" [infiniteScrollDisabled]="allDataLoaded" (scrolled)="onPanelScroll()" [scrollWindow]="false">
     <phd-table #dt [value]="colorsDtoList" showCaption="true">
+        <ng-template #tableHeader>
+			<div class="float-right">
+				<span class="mx-2">
+					<button  [disabled] = "deleteColorList.length===0" class="delete-color-button btn">
+						Delete Selected
+					</button>
+				</span>
+			</div>
+		</ng-template>
         <phd-column header="Color Name" field="name"></phd-column>
         <phd-column header="Sku" field="sku"></phd-column>
         <phd-column header="Category Name" field="optionCategoryName"></phd-column>
@@ -48,8 +57,8 @@
         </phd-column>        
         <phd-column header="" >
             <ng-template #body let-colordto>
-                <div class="phd-icon-container">
-                    <i class="fa fa-fw fa-trash-o" title="Edit Color" *ngIf="colordto.hasSalesConfig===false"></i>
+                <div class="phd-checkbox">
+                    <p-checkbox (ngModelChange)="setDeleteSelected(colordto, $event)" [ngModel]="isDeleteSelected(colordto)" [binary]=true></p-checkbox>
                 </div>
             </ng-template>
         </phd-column>        
