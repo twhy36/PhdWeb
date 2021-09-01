@@ -347,7 +347,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 					}
 					else
 					{
-						let deselectedChoice = getChoiceToDeselect(newTree, c);
+						let deselectedChoice = getChoiceToDeselect(newTree, { ...c, quantity: 0 });
 
 						if (deselectedChoice)
 						{
