@@ -49,8 +49,7 @@
 				<table class="table dialogTable">
 					<thead style="display: block;">
 						<tr>
-							<th>Color</th>
-							<i class="fa fa-asterisk dialogAsterisk ml-1"></i>
+							<th style="margin-right: 150px;">Color<i class="fa fa-asterisk dialogAsterisk ml-1"></i></th>
 							<th>Sku</th>
 							<th>Active</th>
 						</tr>
@@ -68,11 +67,11 @@
 														formControlName="name"
 														class="dialogTextbox"
 													/>
-													<span style="display: block;"
+													<small style="display: block;"
 														class="text-danger"
-														*ngIf="colorControls.controls['sku'].touched && colorControls.controls['sku'].dirty && !colorControls.controls['name'].valid">
+														*ngIf="colorControls.controls['sku'].dirty && colorControls.controls['sku'].value.length && colorControls.controls['name'].invalid">
 														This is a required field
-													</span>
+													</small>
 												</div>
 											</td>
 											<td>
