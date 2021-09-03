@@ -1,108 +1,119 @@
-<div class="modal-header">
-	<h2>Add Color</h2>
-</div>
-<div class="modal-body ml-3">
-	<div class="pt-3 form-row">
-		<div class="form-group col-md-6">
-			<div class="form-row">
-				<label for="category" class="col-form-label"
-					>Category</label
-				>
-				<i class="fa fa-asterisk dialogAsterisk mt-2"></i>
-			</div>
-			<select
-				class="form-select dialogSelects"
-				id="category"
-				[(ngModel)]="selectedDialogCategory"
-				(ngModelChange)="onCategorySelected($event)"
-			>
-				<option
-					*ngFor="let category of dialogCategories"
-					[ngValue]="category"
-				>
-					{{ category.name }}
-				</option>
-			</select>
-		</div>
-		<div class="form-group col-md-6">
-			<div class="form-row">
-				<label for="subCategory" class="col-form-label"
-					>SubCategory</label
-				>
-				<i class="fa fa-asterisk dialogAsterisk mt-2"></i>
-			</div>
-			<select
-				class="form-select dialogSelects"
-				id="subCategory"
-				[(ngModel)]="selectedDialogSubCategory"
-			>
-				<option
-					*ngFor="let subcategory of dialogSubCategories"
-					[ngValue]="subcategory"
-				>
-					{{ subcategory.name }}
-				</option>
-			</select>
-		</div>
+<div class="modal-content">
+	<div class="modal-header">
+		<h2>Add Color</h2>
 	</div>
-	<div class="mx-2">
-		<table class="table dialogTable">
-			<thead>
-				<tr>
-					<th>
-						Color<i
-							class="fa fa-asterisk dialogAsterisk ml-1"
-						></i>
-					</th>
-					<th>Sku</th>
-					<th>Active</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr *ngFor="let color of newColors">
-					<td>
-						<input
-							type="text"
-							[(ngModel)]="color.name"
-							class="dialogTextbox"
-							required
-							maxlength="50"
-						/>
-					</td>
-					<td>
-						<input
-							type="text"
-							class="dialogTextbox"
-							[(ngModel)]="color.sku"
-							maxlength="50"
-						/>
-					</td>
-					<td>
-						<input
-							type="checkbox"
-							class="ml-3 mt-2"
-							[(ngModel)]="color.isActive"
-						/>
-					</td>
-				</tr>
-			</tbody>
-		</table>
+	<div class="modal-body ml-3">
+		<form [formGroup]="addColorForm">
+			<div class="pt-3 form-row">
+				<div class="form-group col-md-6">
+					<div class="form-row">
+						<label for="category" class="col-form-label"
+							>Category<i class="fa fa-asterisk dialogAsterisk"></i></label
+						>
+					</div>
+					<select
+						class="form-select dialogSelects"
+						id="category"
+						formControlName="category"
+					>
+						<option
+							*ngFor="let category of dialogCategories"
+							[ngValue]="category"
+						>
+							{{ category.name }}
+						</option>
+					</select>
+				</div>
+				<div class="form-group col-md-6">
+					<div class="form-row">
+						<label for="subCategory" class="col-form-label"
+							>SubCategory</label
+						>
+						<i class="fa fa-asterisk dialogAsterisk mt-2"></i>
+					</div>
+					<select
+						class="form-select dialogSelects"
+						id="subCategory"
+						formControlName="subcategory"
+					>
+						<option
+							*ngFor="let subcategory of dialogSubCategories"
+							[ngValue]="subcategory"
+						>
+							{{ subcategory.name }}
+						</option>
+					</select>
+				</div>
+			</div>
+			<div class="mx-2">
+				<table class="table dialogTable">
+					<thead style="display: block;">
+						<tr>
+							<th>Color</th>
+							<i class="fa fa-asterisk dialogAsterisk ml-1"></i>
+							<th>Sku</th>
+							<th>Active</th>
+						</tr>
+					</thead>
+					<tbody>
+						<div [formGroup]="addColorForm">
+							<ng-container formArrayName="colors">
+								<ng-container *ngFor="let colorControls of colors.controls">
+									<div style="display: block;" [formGroup]="colorControls">
+										<tr>
+											<td>
+												<div>
+													<input
+														type="text"
+														formControlName="name"
+														class="dialogTextbox"
+													/>
+													<span style="display: block;"
+														class="text-danger"
+														*ngIf="colorControls.controls['sku'].touched && colorControls.controls['sku'].dirty && !colorControls.controls['name'].valid">
+														This is a required field
+													</span>
+												</div>
+											</td>
+											<td>
+												<input
+													type="text"
+													class="dialogTextbox"
+													formControlName="sku"
+												/>
+											</td>
+											<td>
+												<input
+													type="checkbox"
+													class="ml-3 mt-2"
+													formControlName="isActive"
+												/>
+											</td>
+										</tr>
+									</div>
+								</ng-container>
+							</ng-container>
+						</div>
+					</tbody>
+				</table>
+			</div>
+		</form>
+	</div>
+
+	<div class="modal-footer">
+		<button class="btn btn-primary"
+			type="button"
+			(click)="this.saveColors()"
+		>
+			Save
+		</button>
+		<button
+			type="button"
+			class="btn btn-secondary"
+			(click)="cancelAddColorDialog()"
+		>
+			Cancel
+		</button>
 	</div>
 </div>
 
-<div class="modal-footer">
-	<button
-		type="button"
-		class="btn btn-primary"
-		(click)="saveColors()"
-	>
-		Save
-	</button>
-	<button
-		type="button"
-		class="btn btn-secondary"
-		(click)="cancelAddColorDialog()"
-	>
-		Cancel
-	</button>
-</div>

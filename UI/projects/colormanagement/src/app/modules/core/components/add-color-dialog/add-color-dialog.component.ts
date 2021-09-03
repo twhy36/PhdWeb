@@ -1,4 +1,5 @@
 import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
+import { FormGroup, FormBuilder, Validators, AbstractControl, FormArray } from '@angular/forms';
 import { ConfirmModalComponent, ModalRef, ModalService } from 'phd-common';
 import { IColor } from '../../../shared/models/color.model';
 import { IOptionCategory, IOptionSubCategory } from '../../../shared/models/option.model';
@@ -16,33 +17,51 @@ export class AddColorDialogComponent implements OnInit {
 	@Output() closeDialogWasRequested = new EventEmitter();
 	dialogCategories: IOptionCategory[] = [];
 	dialogSubCategories: IOptionSubCategory[];
-	selectedDialogCategory: IOptionCategory;
-	selectedDialogSubCategory: IOptionSubCategory;
 	newColors: IColor[] = [];
 	modalReference: ModalRef;
 
+	currentCategory: AbstractControl;
+	currentSubCategory: AbstractControl;
+	addColorForm: FormGroup;
+
+	get colors() {
+		return this.addColorForm.controls['colors'] as FormArray;
+	}
+
   constructor(
 	private _optionService: OptionService,
-	private _modalService: ModalService
+	private _modalService: ModalService,
+	private _fb: FormBuilder,
   ) { }
 
-  ngOnInit(): void {
-	this.initializeEmptyListOfNewColors();
+  ngOnInit(): void
+  {
+	this.addColorForm = this._fb.group({
+		category: [this.currentCategory, [Validators.required]],
+		subcategory: [this.currentSubCategory, [Validators.required]],
+		colors: this._fb.array([])
+	});
+
 	this.initializeDialogCategories();
+	this.initColorsFormArray();
+
+	this.currentCategory = this.addColorForm.get('category');
+	this.currentSubCategory = this.addColorForm.get('subcategory');
+
+	this.currentCategory.valueChanges.subscribe((value: IOptionCategory) => {
+		this.dialogSubCategories = value.optionSubCategory;
+	});
   }
 
-  private initializeEmptyListOfNewColors()
+  private initColorsFormArray()
   {
 	for(let i=0; i < 50; i++) {
-		this.newColors[i] = {
-			name: '',
-			colorId: 0,
-			sku: '',
-			edhOptionSubcategoryId: 0,
-			edhFinancialCommunityId: this.communityId,
-			isActive: true
-		};
-	}
+		this.colors.push(this._fb.group({
+			name: ['', [Validators.required, Validators.maxLength(50)]],
+			sku: ['', [Validators.maxLength(50), Validators.minLength(0)]],
+			isActive: [true]
+		}));
+	};
   }
 
   private initializeDialogCategories()
@@ -76,44 +95,40 @@ export class AddColorDialogComponent implements OnInit {
 
   saveColors()
   {
-	const requiredFieldsAreMissing = this.validateRequiredFields() === false;
+	let validEntries = this.colors.controls.filter(x => x.touched && x.dirty && x.valid);
+	const formIsValid = validEntries.length && this.currentCategory.valid && this.currentSubCategory.valid;
 
-	if (requiredFieldsAreMissing)
+	if (formIsValid == false)
 	{
 		return;
 	}
 
-	let entriesToSave = this.newColors.filter(x => x.name.length > 0);
-	entriesToSave.forEach(newColor => newColor.edhOptionSubcategoryId = this.selectedDialogSubCategory.id);
-	this._optionService.saveNewColors(entriesToSave).subscribe((savedColors) => {
+	const colorsToSave: IColor[] = [];
+
+	validEntries.forEach(control => {
+		colorsToSave.push({
+			name:control.value.name,
+			colorId: 0,
+			sku:control.value.sku,
+			edhOptionSubcategoryId: this.currentSubCategory.value.id,
+			edhFinancialCommunityId:this.communityId,
+			isActive: control.value.isActive
+		});
+	});
+
+	this._optionService.saveNewColors(colorsToSave).subscribe((savedColors) => {
 		const saveWasSuccessful = savedColors.length > 0;
 
 		if (saveWasSuccessful)
 		{
-		this.newColorsWereSaved.emit();
+			this.newColorsWereSaved.emit();
 		}
 	});
   }
 
-  validateRequiredFields(): boolean
-  {
-	const categoryWasSelected = this.selectedDialogCategory !== null || undefined;
-	const subcategoryWasSelected = this.selectedDialogSubCategory !== null || undefined;
-	const hasAtLeastOneNameEntry = this.newColors.some(x => x.name.trim().length > 0);
-	const allSkuEntriesIncludeName = this.newColors.filter(x => x.sku.trim().length > 0).every(x => x.name.trim().length > 0);
-	const hasNoSkuEntries = this.newColors.every(x => x.sku.trim().length === 0);
-
-	return categoryWasSelected
-		&& subcategoryWasSelected
-		&& hasAtLeastOneNameEntry
-		&& (allSkuEntriesIncludeName || hasNoSkuEntries);
-  }
-
   async cancelAddColorDialog()
   {
-	const noNewColorsWereAdded = this.newColors.every((item) => item.name.trim().length === 0);
-
-	if (noNewColorsWereAdded)
+	if (this.addColorForm.dirty === false)
 	{
 		this.closeDialogWasRequested.emit();
 		return;
@@ -130,7 +145,7 @@ export class AddColorDialogComponent implements OnInit {
 
   private async showConfirmModal(body: string, title: string, defaultButton: string): Promise<boolean>
   {
-	const confirm = this._modalService.open(ConfirmModalComponent, { centered: true });
+	const confirm = this._modalService.open(ConfirmModalComponent, { centered: true, size: 'sm' });
 
 	confirm.componentInstance.title = title;
 	confirm.componentInstance.body = body;
@@ -138,13 +153,5 @@ export class AddColorDialogComponent implements OnInit {
 
 	const response = await confirm.result;
 	return response === 'Continue';
-  }
-
-  onCategorySelected(category: IOptionCategory)
-  {
-	this.dialogSubCategories = category.optionSubCategory;
-	this.selectedDialogSubCategory = this.dialogSubCategories.length === 1
-		? this.dialogSubCategories[0]
-		: null;
   }
 }

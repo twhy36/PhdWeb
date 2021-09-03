@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { OrganizationService } from './services/organization.service';
 import { StorageService } from './services/storage.service';
 import { ColorService } from './services/color.service';
@@ -10,10 +10,9 @@ import { ColorsSearchHeaderComponent } from './components/search-header/colors-s
 import { OptionService } from './services/option.service';
 import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 import { PhdCommonModule } from 'phd-common';
-
 import { SettingsService } from './services/settings.service';
-import { ModalComponent } from './components/modal/modal.component';
 import { AddColorDialogComponent } from './components/add-color-dialog/add-color-dialog.component';
+import { ModalComponent } from './components/modal/modal.component';
 
 @NgModule({
 	declarations: [
@@ -27,6 +26,7 @@ import { AddColorDialogComponent } from './components/add-color-dialog/add-color
         FormsModule,
         InfiniteScrollModule,
         PhdCommonModule,
+		ReactiveFormsModule,
     ],
 	exports: [
 		MarketSelectorComponent,
