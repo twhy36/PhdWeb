@@ -12,13 +12,11 @@ import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 import { PhdCommonModule } from 'phd-common';
 import { SettingsService } from './services/settings.service';
 import { AddColorDialogComponent } from './components/add-color-dialog/add-color-dialog.component';
-import { ModalComponent } from './components/modal/modal.component';
 
 @NgModule({
 	declarations: [
 		MarketSelectorComponent,
 		ColorsSearchHeaderComponent,
-		ModalComponent,
   		AddColorDialogComponent,
 	],
     imports: [
