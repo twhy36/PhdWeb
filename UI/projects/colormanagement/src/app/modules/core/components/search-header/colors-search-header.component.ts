@@ -31,6 +31,8 @@ export class ColorsSearchHeaderComponent
 	currentPage: number = 0;
 	skip: number;
 	settings: Settings;
+	deleteColorList: Array<IColorDto>=[];
+
 	constructor(
 		private _optionService: OptionService,
 		private _orgService: OrganizationService,
@@ -91,18 +93,24 @@ export class ColorsSearchHeaderComponent
 							sku: color.sku,
 							optionCategoryName:	categorySubcategory?.optionCategory?.name,
 							optionSubCategoryName: categorySubcategory?.name,
+							optionSubCategoryId: categorySubcategory?.id??null,
 							isActive: color.isActive,
+							hasSalesConfig:null							
 						};
 						return colorsDto;
 					}) as Array<IColorDto>;
 					return colorsList;
+				}),
+				switchMap((colorDtos)=>
+				{
+					return this._colorService.getSalesConfiguration(colorDtos);
 				})
 			)
-			.subscribe((colorDtos) => {
+			.subscribe((colorDtos) => {				
 				this.currentPage++;
 				this.allDataLoaded =colorDtos.length < this.settings.infiniteScrollPageSize;
 				this.colorsDtoList = [...this.colorsDtoList, ...colorDtos];
-			});
+	});
 	}
 
 	filterColors() 
@@ -129,4 +137,26 @@ export class ColorsSearchHeaderComponent
 		this.skip=0;
 	}
 
+	isDeleteSelected(color:IColorDto):boolean
+	{		
+		return this.deleteColorList.some(col => col.colorId	===	color.colorId);
+	}
+
+	setDeleteSelected(color: IColorDto, isSelected: boolean): void
+	{
+		
+		let index = this.deleteColorList.findIndex(s => s.colorId === color.colorId);
+
+		if (isSelected && index < 0)
+		{
+			this.deleteColorList.push(color);
+		}
+		else if (!isSelected && index >= 0)
+		{
+			this.deleteColorList.splice(index, 1);
+
+			this.deleteColorList = [...this.deleteColorList];
+		}
+		console.log(this.deleteColorList.length);
+	}
 }

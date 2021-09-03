@@ -1,16 +1,16 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
-import { withSpinner } from 'phd-common';
-import { catchError, map } from 'rxjs/operators';
+import { catchError, map, switchMap } from 'rxjs/operators';
 import { Observable,throwError} from 'rxjs';
-import { IColor } from '../../shared/models/color.model';
+import { IColor, IColorDto } from '../../shared/models/color.model';
 import { IColorItem, IColorItemDto } from '../../shared/models/colorItem.model';
 import * as _ from 'lodash';
+import { newGuid, createBatchGet, createBatchHeaders, createBatchBody, withSpinner, IdentityService } from 'phd-common';
 
 @Injectable()
 export class ColorService {
-	constructor(private _http: HttpClient) {}
+	constructor(private _http: HttpClient, private identityService: IdentityService) {}
 	private _ds: string = encodeURIComponent('$');
 	/**
 	 * Gets the colors for the specified financial community
@@ -117,6 +117,37 @@ export class ColorService {
 			}),
 			catchError(this.handleError)
 		);
+	}
+
+	getSalesConfiguration(colorList: Array<IColorDto>):Observable<IColorDto[]>
+	{
+		return this.identityService.token.pipe(
+			switchMap((token: string) =>
+			{
+				let guid = newGuid();
+				let requests = colorList.map(color => 
+					{
+					const entity = `jobs`;
+					const filter = `jobPlanOptions/any(po: po/planOptionCommunity/optionCommunity/optionSubCategoryId eq ${color.optionSubCategoryId} and po/jobPlanOptionAttributes/any(a: a/attributeGroupCommunityId eq 1 and a/attributeName eq '${color.name}')) or jobChangeOrderGroups/any(cog: cog/jobChangeOrders/any(co: co/jobChangeOrderPlanOptions/any(po: po/planOptionCommunity/optionCommunity/optionSubCategoryId eq ${color.optionSubCategoryId} and po/jobChangeOrderPlanOptionAttributes/any(a: a/attributeGroupCommunityId eq 1 and a/attributeName eq '${color.name}'))))`;
+					const select = `id`;
+					let qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}top=1`;
+					const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
+					return createBatchGet(endpoint);
+					});
+				let headers = createBatchHeaders(guid, token);
+				let batch = createBatchBody(guid, requests);
+
+				return this._http.post(`${environment.apiUrl}$batch`, batch, { headers: headers });
+			}),
+			map((response: any)=>
+			{				
+				let bodies = response.responses.map(res=>res.body);
+				colorList.forEach((color,i)=>
+				{
+					color.hasSalesConfig = bodies[i]?.value?.length > 0 ? true : false;
+				})				
+				return colorList;
+			}))
 	}
 	private handleError(error: Response)
 	{
