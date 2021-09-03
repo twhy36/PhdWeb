@@ -129,8 +129,7 @@ export class DetailedDecisionBarComponent extends UnsubscribeOnDestroy implement
 		if (point.isHiddenFromBuyerView) {
 			return false;
 		}
-		const choices = point && point.choices ? point.choices.filter(c => c.quantity > 0 && !c.isHiddenFromBuyerView) : [];
-		
+		const choices = point && point.choices ? point.choices.filter(c => !c.isHiddenFromBuyerView) : [];
 		return choices && !!choices.length;
 	}
 }
