@@ -9,11 +9,10 @@ vertical-align: text-top;
 }
 
 .phd-dialogTable {
-	width: 100%;
 	border: none;
 }
 
-.phd-dialogTable td, .dialogTable th {
+.phd-dialogTable td, .phd-dialogTable th {
 	padding: .25rem;
 	border: none;
 }
