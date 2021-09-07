@@ -17,7 +17,7 @@
 						formControlName="category"
 					>
 						<option
-							*ngFor="let category of dialogCategories"
+							*ngFor="let category of categories"
 							[ngValue]="category"
 						>
 							{{ category.name }}
@@ -37,7 +37,7 @@
 						formControlName="subcategory"
 					>
 						<option
-							*ngFor="let subcategory of dialogSubCategories"
+							*ngFor="let subcategory of currentCategory?.optionSubCategories"
 							[ngValue]="subcategory"
 						>
 							{{ subcategory.name }}

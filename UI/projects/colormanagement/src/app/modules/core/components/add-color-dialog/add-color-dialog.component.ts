@@ -1,5 +1,4 @@
-import { group } from '@angular/animations';
-import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, Input, OnInit, Output, EventEmitter, SimpleChanges, OnChanges } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, AbstractControl, FormArray } from '@angular/forms';
 import * as _ from 'lodash';
 import { ConfirmModalComponent, ModalRef, ModalService } from 'phd-common';
@@ -12,18 +11,17 @@ import { OptionService } from '../../services/option.service';
   templateUrl: './add-color-dialog.component.html',
   styleUrls: ['./add-color-dialog.component.scss']
 })
-export class AddColorDialogComponent implements OnInit {
+export class AddColorDialogComponent implements OnInit, OnChanges {
 	@Input() communityId: number;
 	@Input() subcategories: IOptionSubCategory[];
 	@Output() newColorsWereSaved = new EventEmitter();
 	@Output() closeDialogWasRequested = new EventEmitter();
-	dialogCategories: IOptionCategory[] = [];
-	dialogSubCategories: IOptionSubCategory[];
 	newColors: IColor[] = [];
 	modalReference: ModalRef;
 
-	currentCategory: AbstractControl;
-	currentSubCategory: AbstractControl;
+	categories: IOptionCategory[];
+	currentCategory: IOptionCategory;
+	currentSubCategory: IOptionSubCategory;
 	addColorForm: FormGroup;
 
 	get colors() {
@@ -44,14 +42,20 @@ export class AddColorDialogComponent implements OnInit {
 			colors: this._fb.array([])
 		});
 
-		this.currentCategory = this.addColorForm.get('category');
-		this.currentSubCategory = this.addColorForm.get('subcategory');
-		this.initializeDialogCategories();
 		this.initColorsFormArray();
 
-		this.currentCategory.valueChanges.subscribe((value: IOptionCategory) => {
-			this.dialogSubCategories = value.optionSubCategory;
-		});
+		this.addColorForm.get("category").valueChanges.subscribe(cat => this.currentCategory = cat);
+	}
+
+	ngOnChanges(changes: SimpleChanges) {
+		console.log(changes);
+		if (changes["subcategories"]){
+			let groups = _.groupBy(this.subcategories, sc => sc.optionCategory.id);
+			this.categories = Object.keys(groups).map(g => ({
+			  ...groups[g][0].optionCategory, 
+			  optionSubCategories: groups[g].map(sc => ({ ...sc, optionCategory: undefined }))
+			}));
+		}
 	}
 
 	private initColorsFormArray()
@@ -65,39 +69,10 @@ export class AddColorDialogComponent implements OnInit {
 		};
 	}
 
-	private initializeDialogCategories()
-	{
-		this.dialogCategories = [];
-		this.dialogSubCategories = [];
-		let category: IOptionCategory;
-
-		this.subcategories.forEach((subcategory) => {
-			let notInListAlready = this.dialogCategories.some(x => x.id === subcategory.optionCategory.id) === false;
-
-			if (notInListAlready && subcategory.optionCategory)
-			{
-				category = {
-					id: subcategory.optionCategory.id,
-					name: subcategory.optionCategory.name,
-					optionSubCategory: []
-				};
-
-				this.dialogCategories.push(category);
-			}
-
-			const subcategoryNotInList = category.optionSubCategory.some(x => x.id === subcategory.id) === false;
-
-			if (subcategoryNotInList)
-			{
-				category.optionSubCategory.push(subcategory);
-			}
-		});
-	}
-
 	saveColors()
 	{
 		let validEntries = this.colors.controls.filter(x => x.touched && x.dirty && x.valid);
-		const formIsValid = validEntries.length && this.currentCategory.valid && this.currentSubCategory.valid;
+		const formIsValid = validEntries.length && this.addColorForm.get("category").valid && this.addColorForm.get("subcategory").valid;
 
 		if (formIsValid == false)
 		{
@@ -111,7 +86,7 @@ export class AddColorDialogComponent implements OnInit {
 				name:control.value.name,
 				colorId: 0,
 				sku:control.value.sku,
-				edhOptionSubcategoryId: this.currentSubCategory.value.id,
+				edhOptionSubcategoryId: this.currentSubCategory.id,
 				edhFinancialCommunityId:this.communityId,
 				isActive: control.value.isActive
 			});
