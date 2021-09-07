@@ -2,7 +2,7 @@
 	<div class="modal-header">
 		<h2>Add Color</h2>
 	</div>
-	<div class="modal-body ml-3">
+	<div class="modal-body ml-3 phd-dialogBody">
 		<form [formGroup]="addColorForm">
 			<div class="pt-3 form-row">
 				<div class="form-group col-md-6">
@@ -46,28 +46,26 @@
 				</div>
 			</div>
 			<div class="mx-2">
-				<table class="table phd-dialogTable">
-					<thead style="display: block;">
-						<tr>
-							<th style="margin-right: 150px;">Color<i class="fa fa-asterisk phd-dialogAsterisk"></i></th>
-							<th>Sku</th>
-							<th>Active</th>
-						</tr>
-					</thead>
+				<table class="phd-dialogTable">
+					<div>
+						<span class="phd-colorHeader ml-1">Color<i class="fa fa-asterisk phd-dialogAsterisk"></i></span>
+						<span class="phd-skuHeader">Sku</span>
+						<span>Active</span>
+					</div>
 					<tbody>
 						<div [formGroup]="addColorForm">
-							<ng-container formArrayName="colors">
-								<ng-container *ngFor="let colorControls of colors.controls">
-									<div style="display: block;" [formGroup]="colorControls">
+							<div formArrayName="colors">
+								<div *ngFor="let colorControls of colors.controls">
+									<div [formGroup]="colorControls">
 										<tr>
 											<td>
 												<div>
 													<input
 														type="text"
 														formControlName="name"
-														class="phd-dialogTextbox"
+														class="phd-dialogTextBox"
 													/>
-													<small style="display: block;"
+													<small
 														class="text-danger"
 														*ngIf="colorControls.controls['sku'].dirty && colorControls.controls['sku'].value.length && colorControls.controls['name'].invalid">
 														This is a required field
@@ -77,7 +75,7 @@
 											<td>
 												<input
 													type="text"
-													class="phd-dialogTextbox"
+													class="phd-dialogTextBox"
 													formControlName="sku"
 												/>
 											</td>
@@ -90,8 +88,8 @@
 											</td>
 										</tr>
 									</div>
-								</ng-container>
-							</ng-container>
+								</div>
+							</div>
 						</div>
 					</tbody>
 				</table>

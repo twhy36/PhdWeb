@@ -73,7 +73,7 @@ export class OptionService {
 		return throwError(error || 'Server error');
 	}
 
-	saveNewColors(colors: IColor[]): Observable<IColor[]> {
+	saveNewColors(colors: IColor[]): Observable<boolean> {
 		const body = {
 			'newColors': colors
 		};
@@ -84,7 +84,7 @@ export class OptionService {
 		return this._http.post<any>(endpoint, body, { headers: { 'Prefer': 'return=representation' } }).pipe(
 			map(response =>
 			{
-				return response.value as Array<IColor>;
+				return response.value;
 			}),
 			catchError(this.handleError)
 		);
