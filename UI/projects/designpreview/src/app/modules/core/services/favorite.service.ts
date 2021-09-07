@@ -8,7 +8,7 @@ import * as _ from 'lodash';
 import 
 { 
 	withSpinner, createBatch, getNewGuid, createBatchBody, createBatchHeaders, Tree, JobChoice, Choice,
-	MyFavorite, MyFavoritesChoice, MyFavoritesChoiceAttribute, MyFavoritesChoiceLocation, MyFavoritesPointDeclined
+	MyFavorite, MyFavoritesChoice, MyFavoritesChoiceAttribute, MyFavoritesChoiceLocation, MyFavoritesPointDeclined, DesignToolAttribute
 } from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
@@ -730,6 +730,89 @@ export class FavoriteService
 		});	
 		
 		return locAttributes;
-	}	
+	}
+	
+	public deleteMyFavoritesChoices(choices: MyFavoritesChoice[]) : Observable<MyFavoritesChoice[]>
+	{
+		const endPoint = `${environment.apiUrl}${this._batch}`;
+
+		let locAttributes = _.flatMap(choices, c => _.flatMap(c.myFavoritesChoiceLocations, loc => loc.myFavoritesChoiceLocationAttributes));
+		locAttributes = locAttributes ? locAttributes.filter(c => !!c) : [];
+		const batchLocationAttributes = createBatch<MyFavoritesChoiceAttribute>(locAttributes, 'id', 'myFavoritesChoiceLocationAttributes', null, true);
+		
+		let choiceLocations = _.flatMap(choices, c => c.myFavoritesChoiceLocations);
+		choiceLocations = choiceLocations ? choiceLocations.filter(c => !!c) : [];
+		const batchChoiceLocations = createBatch<MyFavoritesChoiceLocation>(choiceLocations, 'id', 'myFavoritesChoiceLocations', null, true);
+
+		let choiceAttributes = _.flatMap(choices, c => c.myFavoritesChoiceAttributes);
+		choiceAttributes = choiceAttributes ? choiceAttributes.filter(c => !!c) : [];
+		const batchChoiceAttributes = createBatch<MyFavoritesChoiceAttribute>(choiceAttributes, 'id', 'myFavoritesChoiceAttributes', null, true);
+
+		const favoritesChoices = choices?.filter(c => !!c) || [];
+		const batchFavoritesChoices = createBatch<MyFavoritesChoice>(favoritesChoices, 'id', 'myFavoritesChoices', null, true);
+
+		const batchGuid = getNewGuid();
+		const batchBody = createBatchBody(batchGuid, [batchLocationAttributes, batchChoiceLocations, batchChoiceAttributes, batchFavoritesChoices]);
+		const headers = new HttpHeaders(createBatchHeaders(batchGuid));
+
+		return withSpinner(this._http).post(endPoint, batchBody, { headers }).pipe(
+			map(results =>
+			{
+				return choices;
+			}),
+			catchError(error =>
+			{
+				console.log(error);
+
+				return _throw(error);
+			})			
+		);		
+	}
+	
+	public deleteMyFavoritesAttributes(attributes: DesignToolAttribute[], locations: DesignToolAttribute[], myFavoritesChoice: MyFavoritesChoice)
+	{
+		const endPoint = `${environment.apiUrl}${this._batch}`;
+
+		const missingLocAttributes = [ ...attributes, ...locations ];
+		let locAttributes = _.flatMap(myFavoritesChoice?.myFavoritesChoiceLocations, loc => loc.myFavoritesChoiceLocationAttributes);
+		locAttributes = locAttributes?.filter(locAtt => 
+			!!missingLocAttributes.find(att => locAtt.attributeGroupCommunityId === att.attributeGroupId
+								&& locAtt.attributeCommunityId === att.attributeId	
+								&& !!att.locationId)
+			) || [];
+		const batchLocationAttributes = createBatch<MyFavoritesChoiceAttribute>(locAttributes, 'id', 'myFavoritesChoiceLocationAttributes', null, true);
+		
+		const locationIds = locations.map(loc => loc.locationId);
+		const locationGroupIds = locations.map(loc => loc.locationGroupId);
+		let choiceLocations = myFavoritesChoice.myFavoritesChoiceLocations?.filter(loc => 
+			!!locationIds.find(locId => loc.locationCommunityId === locId)
+			&& !!locationGroupIds.find(locGrpId => loc.locationGroupCommunityId === locGrpId)
+		) || [];
+		const batchChoiceLocations = createBatch<MyFavoritesChoiceLocation>(choiceLocations, 'id', 'myFavoritesChoiceLocations', null, true);
+
+		let choiceAttributes = myFavoritesChoice.myFavoritesChoiceAttributes?.filter(choiceAtt =>
+			!!attributes.find(att => choiceAtt.attributeGroupCommunityId === att.attributeGroupId
+								&& choiceAtt.attributeCommunityId === att.attributeId
+								&& !att.locationId
+			)) || [];
+		const batchChoiceAttributes = createBatch<MyFavoritesChoiceAttribute>(choiceAttributes, 'id', 'myFavoritesChoiceAttributes', null, true);
+
+		const batchGuid = getNewGuid();
+		const batchBody = createBatchBody(batchGuid, [batchLocationAttributes, batchChoiceLocations, batchChoiceAttributes]);
+		const headers = new HttpHeaders(createBatchHeaders(batchGuid));
+
+		return withSpinner(this._http).post(endPoint, batchBody, { headers }).pipe(
+			map(results =>
+			{
+				return myFavoritesChoice;
+			}),
+			catchError(error =>
+			{
+				console.log(error);
+
+				return _throw(error);
+			})			
+		);
+	}
 
 }
