@@ -46,22 +46,10 @@
 		</div>
 	</div>
 </div>
-<div *ngIf="isCounterVisible">
-	<span class="count_message"
-		><em>{{ 50 - colorname?.length }} characters remaining</em></span
-	>
-</div>
-
-<div
-	class="phd-table-container mx-2"
-	infiniteScroll
-	[infiniteScrollThrottle]="settings.infiniteScrollThrottle"
-	[infiniteScrollDisabled]="allDataLoaded"
-	(scrolled)="onPanelScroll()"
-	[scrollWindow]="false"
->
-	<phd-table #dt [value]="colorsDtoList" showCaption="true">
-		<ng-template #tableHeader>
+<div *ngIf="isCounterVisible"><span class="count_message"><em>{{50 - colorname?.length}} characters remaining</em></span> </div>
+<div class="phd-table-container mx-2" infiniteScroll [infiniteScrollThrottle]="settings.infiniteScrollThrottle" [infiniteScrollDisabled]="allDataLoaded" (scrolled)="onPanelScroll()" [scrollWindow]="false">
+    <phd-table #dt [value]="colorsDtoList" showCaption="true">
+        <ng-template #tableHeader>
 			<div class="float-right">
 				<span class="mx-2">
 					<button
@@ -70,27 +58,38 @@
 					>
 						Add Color
 					</button>
+					<button  [disabled] = "deleteColorList.length===0" class="delete-color-button btn">
+						Delete Selected
+					</button>
 				</span>
 			</div>
 		</ng-template>
-		<phd-column header="Color Name" field="name"></phd-column>
-		<phd-column header="Sku" field="sku"></phd-column>
-		<phd-column
-			header="Category Name"
-			field="optionCategoryName"
-		></phd-column>
-		<phd-column
-			header="SubCategory Name"
-			field="optionSubCategoryName"
-		></phd-column>
-		<phd-column header="Active" field="isActive"> </phd-column>
-	</phd-table>
+        <phd-column header="Color Name" field="name"></phd-column>
+        <phd-column header="Sku" field="sku"></phd-column>
+        <phd-column header="Category Name" field="optionCategoryName"></phd-column>
+        <phd-column header="SubCategory Name" field="optionSubCategoryName"></phd-column>
+        <phd-column header="Active" field="isActive"></phd-column>
+        <phd-column header="" >
+            <ng-template #body let-colordto>
+                <div class="phd-icon-container">
+                    <i class="fa fa-pencil fa-fw" title="Edit Color" *ngIf="colordto.hasSalesConfig===false && colordto.isActive"></i>
+                </div>
+            </ng-template>
+        </phd-column>
+        <phd-column header="" >
+            <ng-template #body let-colordto>
+                <div class="phd-checkbox">
+                    <p-checkbox (ngModelChange)="setDeleteSelected(colordto, $event)" [ngModel]="isDeleteSelected(colordto)" [binary]=true></p-checkbox>
+                </div>
+            </ng-template>
+        </phd-column>
+    </phd-table>
 	<ng-template #addColorModal>
 		<add-color-dialog
-			[communityId]="this.currentCommunityId"
-			[subcategories]="this.optionSubCategoryList"
-			(newColorsWereSaved)="onNewColorsWereSaved()"
-			(closeDialogWasRequested)="onCloseDialogWasRequested()">
+		  [communityId]="this.currentCommunityId"
+		  [subcategories]="this.optionSubCategoryList"
+		  (newColorsWereSaved)="onNewColorsWereSaved()"
+		  (closeDialogWasRequested)="onCloseDialogWasRequested()">
 		</add-color-dialog>
-	</ng-template>
+	  </ng-template>
 </div>

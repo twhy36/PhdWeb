@@ -164,7 +164,14 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
-			map(state => state.changeOrder.isChangingOrder && !this._changeOrderService.changeOrderHasChanges(state.scenario.tree, state.job, state.changeOrder.currentChangeOrder, state.changeOrder.changeInput, state.salesAgreement))
+			map(state => state.changeOrder.isChangingOrder 
+					&& !this._changeOrderService.changeOrderHasChanges(
+						state.scenario.tree, 
+						state.job, 
+						state.changeOrder.currentChangeOrder, 
+						state.changeOrder.changeInput, 
+						state.salesAgreement,
+						state.scenario.rules.optionRules))
 		).subscribe(changeOrderIsEmpty => this.isChangeEmpty = changeOrderIsEmpty);
 
 		this.store.pipe(

@@ -1,5 +1,6 @@
 @import "../../../../../scss/styles.scss";
 @import "../../../../../scss/color-pallet.scss";
+@import "../../../../../scss/sizes.scss";
 .count_message {
     margin-top: 10px;
     margin-left: 94px;
@@ -13,4 +14,27 @@
 
 .add-color-button:focus {
 	box-shadow: none;
+}
+
+.phd-icon-container {
+	display: flex;
+	justify-content: space-around;
+}
+
+i {
+	width: 50px;
+	text-align: center;
+}
+
+.fa {
+	cursor: pointer;
+}
+
+.delete-color-button {
+	color:#007bff;
+}
+
+.phd-checkbox
+{
+	text-align: center;
 }

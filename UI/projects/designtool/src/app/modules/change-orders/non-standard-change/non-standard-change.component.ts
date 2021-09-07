@@ -3,6 +3,8 @@ import { FormGroup, FormControl } from '@angular/forms';
 import { Router } from '@angular/router';
 import { combineLatest, take } from 'rxjs/operators';
 
+import * as _ from 'lodash';
+
 import { Store, select } from '@ngrx/store';
 import * as fromRoot from '../../ngrx-store/reducers';
 import * as ChangeOrderActions from '../../ngrx-store/change-order/actions';
@@ -53,9 +55,10 @@ export class NonStandardChangeComponent extends UnsubscribeOnDestroy implements 
 			take(1)
 		).subscribe(([job, changeOrder]) =>
 		{
-			this.jobNonStandardOptions = job.jobNonStandardOptions && job.jobNonStandardOptions.length
-				? job.jobNonStandardOptions.sort((a, b) => a.financialOptionNumber < b.financialOptionNumber ? -1 : a.financialOptionNumber > b.financialOptionNumber ? 1 : 0)
-				: [];
+			// job.jobNonStandardOptions is readonly so must clone before applying a sort.
+			let jobNonStandardOptions = job.jobNonStandardOptions && job.jobNonStandardOptions.length ? _.cloneDeep(job.jobNonStandardOptions) : [];
+
+			this.jobNonStandardOptions = jobNonStandardOptions.sort((a, b) => a.financialOptionNumber < b.financialOptionNumber ? -1 : a.financialOptionNumber > b.financialOptionNumber ? 1 : 0);
 
 			const changeOrderGroup = !this.rejectedChangeOrder ? changeOrder as ChangeOrderGroup : this.rejectedChangeOrder;
 
@@ -233,7 +236,6 @@ export class NonStandardChangeComponent extends UnsubscribeOnDestroy implements 
 				}
 			})
 	}
-
 
 	getNextFinancialOptionNumber(): string
 	{

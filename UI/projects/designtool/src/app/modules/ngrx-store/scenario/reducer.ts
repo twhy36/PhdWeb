@@ -302,6 +302,26 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 
 				if (c)
 				{
+					if (c.quantity !== 0)
+					{
+						c.lockedInOptions = [];
+						c.lockedInChoice = null;
+
+						checkReplacedOption(c, rules, choices, options, newTree);
+					}
+					else
+					{
+						let deselectedChoice = getChoiceToDeselect(newTree, c);
+
+						if (deselectedChoice)
+						{
+							deselectedChoice.lockedInOptions = [];
+							deselectedChoice.lockedInChoice = null;
+	
+							checkReplacedOption(deselectedChoice, rules, choices, options, newTree);
+						}
+					}
+
 					c.quantity = choice.quantity;
 
 					if (choice.attributes)
@@ -335,26 +355,6 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 						else
 						{
 							c.selectedAttributes = [];
-						}
-					}
-
-					if (c.quantity === 0)
-					{
-						c.lockedInOptions = [];
-						c.lockedInChoice = null;
-
-						checkReplacedOption(c, rules, choices, options, newTree);
-					}
-					else
-					{
-						let deselectedChoice = getChoiceToDeselect(newTree, { ...c, quantity: 0 });
-
-						if (deselectedChoice)
-						{
-							deselectedChoice.lockedInOptions = [];
-							deselectedChoice.lockedInChoice = null;
-	
-							checkReplacedOption(deselectedChoice, rules, choices, options, newTree);
 						}
 					}
 				}

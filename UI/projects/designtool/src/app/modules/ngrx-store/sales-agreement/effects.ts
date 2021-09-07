@@ -60,7 +60,13 @@ export class SalesAgreementEffects
 				salePrice = priceBreakdown.salesProgram > 0 ? salePrice + priceBreakdown.salesProgram : salePrice;
 				salePrice = priceBreakdown.priceAdjustments > 0 ? salePrice + priceBreakdown.priceAdjustments : salePrice;
 
-				return this.salesAgreementService.createSalesAgreementForScenario(store.scenario.scenario, store.scenario.tree, store.scenario.options.find(o => o.isBaseHouse), salePrice).pipe(
+				return this.salesAgreementService.createSalesAgreementForScenario(
+						store.scenario.scenario, 
+						store.scenario.tree, 
+						store.scenario.options.find(o => o.isBaseHouse), 
+						salePrice,
+						store.scenario.rules.optionRules
+					).pipe(
 					combineLatest(//fetch contract templates
 						this.contractService.getTemplates(store.org.salesCommunity.market.id, store.scenario.tree.financialCommunityId).pipe(
 							map(templates => [...templates, { displayName: "JIO", displayOrder: 2, documentName: "JIO", templateId: 0, templateTypeId: 4, marketId: 0, version: 0 }]),
@@ -897,7 +903,15 @@ export class SalesAgreementEffects
 			ofType<CreateJIOForSpec>(SalesAgreementActionTypes.CreateJIOForSpec),
 			withLatestFrom(this.store),
 			exhaustMap(([action, store]) =>
-				this.salesAgreementService.createJIOForSpec(store.scenario.tree, store.scenario.scenario, store.scenario.tree.financialCommunityId, store.scenario.buildMode, store.scenario.options.find(o => o.isBaseHouse), false).pipe(
+				this.salesAgreementService.createJIOForSpec(
+					store.scenario.tree, 
+					store.scenario.scenario, 
+					store.scenario.tree.financialCommunityId, 
+					store.scenario.buildMode, 
+					store.scenario.options.find(o => o.isBaseHouse), 
+					store.scenario.rules.optionRules,
+					false)
+				.pipe(
 					tap(sag => this.router.navigateByUrl('/change-orders')),
 					switchMap(job => {
 						let jobLoaded$ = this.actions$.pipe(

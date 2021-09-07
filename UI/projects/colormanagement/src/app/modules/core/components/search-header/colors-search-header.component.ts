@@ -35,6 +35,7 @@ export class ColorsSearchHeaderComponent
 	modalReference: ModalRef;
 	newColors: IColor[] = [];
 	@ViewChild('addColorModal') addColorModal: any;
+	deleteColorList: Array<IColorDto>=[];
 
 	constructor(
 		private _optionService: OptionService,
@@ -98,11 +99,17 @@ export class ColorsSearchHeaderComponent
 							optionCategoryName:
 								categorySubcategory?.optionCategory?.name,
 							optionSubCategoryName: categorySubcategory?.name,
+							optionSubCategoryId: categorySubcategory?.id??null,
 							isActive: color.isActive,
+							hasSalesConfig:null
 						};
 						return colorsDto;
 					}) as Array<IColorDto>;
 					return colorsList;
+				}),
+				switchMap((colorDtos)=>
+				{
+					return this._colorService.getSalesConfiguration(colorDtos);
 				})
 			)
 			.subscribe((colorDtos) => {
@@ -110,7 +117,6 @@ export class ColorsSearchHeaderComponent
 				this.allDataLoaded =
 					colorDtos.length < this.settings.infiniteScrollPageSize;
 				this.colorsDtoList = [...this.colorsDtoList, ...colorDtos];
-
 			});
 	}
 
@@ -130,6 +136,29 @@ export class ColorsSearchHeaderComponent
 		this.selectedSubCategory = null;
 		this.isActiveColor = null;
 		this.colorsDtoList = [];
+	}
+
+	isDeleteSelected(color:IColorDto):boolean
+	{
+		return this.deleteColorList.some(col => col.colorId	===	color.colorId);
+	}
+
+	setDeleteSelected(color: IColorDto, isSelected: boolean): void
+	{
+
+		let index = this.deleteColorList.findIndex(s => s.colorId === color.colorId);
+
+		if (isSelected && index < 0)
+		{
+			this.deleteColorList.push(color);
+		}
+		else if (!isSelected && index >= 0)
+		{
+			this.deleteColorList.splice(index, 1);
+
+			this.deleteColorList = [...this.deleteColorList];
+		}
+		console.log(this.deleteColorList.length);
 	}
 
 	showAddColorsDialog()
