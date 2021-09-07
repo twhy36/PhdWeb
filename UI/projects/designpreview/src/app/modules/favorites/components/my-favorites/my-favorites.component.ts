@@ -295,8 +295,6 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 
 	toggleChoice(choice: ChoiceExt)
 	{
-		const choiceToDeselect = getChoiceToDeselect(this.tree, choice);
-		
 		let selectedChoices = [{ choiceId: choice.id, divChoiceCatalogId: choice.divChoiceCatalogId, quantity: !choice.quantity ? 1 : 0, attributes: choice.selectedAttributes }];
 		const impactedChoices = getDependentChoices(this.tree, this.treeVersionRules, this.options, choice);
 

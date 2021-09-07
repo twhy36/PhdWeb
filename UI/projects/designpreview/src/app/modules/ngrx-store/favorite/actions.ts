@@ -1,7 +1,7 @@
 import { Action } from '@ngrx/store';
 import { ErrorAction } from '../error.action';
-import { MyFavorite, MyFavoritesChoice, MyFavoritesPointDeclined } from 'phd-common';
-import { SalesAgreementLoaded, ResetFavorites } from '../actions';
+import { MyFavorite, MyFavoritesChoice, MyFavoritesPointDeclined, DesignToolAttribute } from 'phd-common';
+import { SalesAgreementLoaded, ResetFavorites, MyFavoritesChoiceAttributesDeleted } from '../actions';
 
 export enum FavoriteActionTypes
 {
@@ -18,7 +18,9 @@ export enum FavoriteActionTypes
 	MyFavoritesPointDeclinedUpdated = 'My Favorites Point Declined Saved',
 	LoadMyFavorite = 'Load My Favorite',
 	LoadDefaultFavorite = 'Load Default Favorite',
-	MyFavoriteLoaded = 'My Favorite Loaded'
+	MyFavoriteLoaded = 'My Favorite Loaded',
+	MyFavoritesChoicesDeleted = 'My Favorites Choices Deleted',
+	DeleteMyFavoritesChoiceAttributes = 'Delete MyFavorites Choice Attributes'
 }
 
 export class MyFavoriteCreated implements Action
@@ -120,6 +122,20 @@ export class MyFavoriteLoaded implements Action
 	constructor() {	}
 }
 
+export class MyFavoritesChoicesDeleted implements Action
+{
+	readonly type = FavoriteActionTypes.MyFavoritesChoicesDeleted;
+
+	constructor(public choices: MyFavoritesChoice[]) {	}
+}
+
+export class DeleteMyFavoritesChoiceAttributes implements Action
+{
+	readonly type = FavoriteActionTypes.DeleteMyFavoritesChoiceAttributes;
+
+	constructor(public attributes: DesignToolAttribute[], public locations: DesignToolAttribute[], public myFavoritesChoice: MyFavoritesChoice) {	}
+}
+
 export type FavoriteActions =
 	MyFavoriteCreated |
 	SetCurrentFavorites |
@@ -136,4 +152,7 @@ export type FavoriteActions =
 	MyFavoritesPointDeclinedUpdated |
 	LoadMyFavorite |
 	LoadDefaultFavorite |
-	MyFavoriteLoaded;
+	MyFavoriteLoaded |
+	MyFavoritesChoicesDeleted |
+	DeleteMyFavoritesChoiceAttributes |
+	MyFavoritesChoiceAttributesDeleted;

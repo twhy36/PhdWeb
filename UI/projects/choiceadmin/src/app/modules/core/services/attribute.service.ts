@@ -210,7 +210,7 @@ export class AttributeService
 	{
 		let url = settings.apiUrl;
 
-		const expand = `attributeGroupAttributeMarketAssocs($select=attributeMarketId; $expand=attributeMarket($expand=attributeMarketTags($select=attributeMarketId,tag); $select=id,name,attributeDescription,manufacturer,sku,endDate); $orderby=attributeMarket/name)`;
+		const expand = `attributeGroupAttributeMarketAssocs($select=attributeMarketId; $expand=attributeMarket($expand=attributeMarketTags($select=attributeMarketId,tag); $select=id,name,attributeDescription,manufacturer,sku,startDate,endDate); $orderby=attributeMarket/name)`;
 		const filter = `id eq ${group.id}`;
 
 		const qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=id`;

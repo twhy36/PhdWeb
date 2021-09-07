@@ -337,6 +337,33 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 			}
 			return { ...state, buildMode: newBuildMode }
 
+		case CommonActionTypes.MyFavoritesChoiceAttributesDeleted:	
+		{
+			newTree = _.cloneDeep(state.tree);
+			choices = _.flatMap(newTree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)));
+			let choice = choices?.find(c => c.divChoiceCatalogId === action.myFavoritesChoice?.divChoiceCatalogId);
+
+			if (choice)
+			{
+				const deletedAttributes = [...action.attributes, ...action.locations];
+				deletedAttributes?.forEach(att => {
+					let attributeIndex = choice.selectedAttributes?.findIndex(selAtt => 
+						att.locationGroupId === selAtt.locationGroupId
+						&& att.locationId === selAtt.locationId
+						&& att.attributeGroupId === selAtt.attributeGroupId
+						&& att.attributeId === selAtt.attributeId
+					);
+
+					if (attributeIndex > -1)
+					{
+						choice.selectedAttributes.splice(attributeIndex, 1);
+					}
+				});				
+			}
+
+			return { ...state, tree: newTree };
+		}
+
 		default:
 			return state;
 	}

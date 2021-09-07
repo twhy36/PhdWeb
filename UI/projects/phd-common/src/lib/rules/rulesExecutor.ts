@@ -859,7 +859,7 @@ export function checkReplacedOption(deselectedChoice: Choice, rules: TreeVersion
 				if (prevChoice) {
 					// If list price is changed between change orders, we need to restore the original choice price
 					const option = options.find(o => o.financialOptionIntegrationKey === replaceOptionId);
-					const sum = prevChoice.price - prevChoice.options.reduce((sum, current) => sum + current.listPrice, 0);
+					const sum = prevChoice.price - prevChoice.options.filter(opt => opt.financialOptionIntegrationKey !== replaceOptionId).reduce((sum, current) => sum + current.listPrice, 0);
 					option.listPrice = sum;
 
 					if (prevChoice.lockedInOptions) {

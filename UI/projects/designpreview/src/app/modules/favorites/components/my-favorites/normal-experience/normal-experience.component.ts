@@ -68,11 +68,9 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 				});
 				this.choiceToggled = false;
 			}
-			else
-			{
-				this.subGroup = changes['currentSubgroup'].currentValue;
-				this.points = this.subGroup ? this.subGroup.points : null;
-			}
+
+			this.subGroup = changes['currentSubgroup'].currentValue;
+			this.points = this.subGroup ? this.subGroup.points : null;
 		}
 
 		if (changes['decisionPointId'])
