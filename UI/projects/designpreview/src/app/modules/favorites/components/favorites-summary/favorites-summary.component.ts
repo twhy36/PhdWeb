@@ -338,7 +338,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 					let point = new SDPoint(p);
 
 					point.choices = p.choices.filter(ch => {
-						const isContracted = this.salesChoices.find(x => x.divChoiceCatalogId === ch.divChoiceCatalogId);
+						const isContracted = !!this.salesChoices?.find(x => x.divChoiceCatalogId === ch.divChoiceCatalogId);
 						return ch.quantity > 0 && (!isContracted || this.includeContractedOptions);
 					}).map(c => new SDChoice(c));
 
