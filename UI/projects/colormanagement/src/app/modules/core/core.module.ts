@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { OrganizationService } from './services/organization.service';
 import { StorageService } from './services/storage.service';
 import { ColorService } from './services/color.service';
@@ -11,32 +11,31 @@ import { OptionService } from './services/option.service';
 import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 import { PhdCommonModule } from 'phd-common';
 import { SettingsService } from './services/settings.service';
+import { AddColorDialogComponent } from './components/add-color-dialog/add-color-dialog.component';
 import { CheckboxModule } from 'primeng/checkbox';
 
 @NgModule({
 	declarations: [
 		MarketSelectorComponent,
-		ColorsSearchHeaderComponent
+		ColorsSearchHeaderComponent,
+		AddColorDialogComponent,
 	],
 	imports: [
 		CommonModule,
 		FormsModule,
 		InfiniteScrollModule,
 		PhdCommonModule,
-		CheckboxModule
+		CheckboxModule,
+		ReactiveFormsModule,
 	],
-	exports: [
-		MarketSelectorComponent,
-		ColorsSearchHeaderComponent
-	],
+	exports: [MarketSelectorComponent, ColorsSearchHeaderComponent],
 	providers: [
 		OrganizationService,
 		StorageService,
 		AccessGuard,
 		OptionService,
 		ColorService,
-		SettingsService
-	]
+		SettingsService,
+	],
 })
-
-export class CoreModule { }
+export class CoreModule {}
