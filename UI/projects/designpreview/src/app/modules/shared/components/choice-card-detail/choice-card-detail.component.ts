@@ -309,6 +309,11 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 
 	getImages()
 	{
+		if (this.isChoiceImageLoaded)
+		{
+			return;
+		}
+
 		// look for images on the tree option first
 		this.choice?.options?.forEach(option =>
 		{
@@ -335,10 +340,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 
 		this.selectedImageUrl = this.choiceImages[0].imageURL;
 
-		if (!this.isChoiceImageLoaded)
-		{
-			this.imageLoading = true;
-		}
+		this.imageLoading = true;
 	}
 
 	get optionDisabled(): boolean
