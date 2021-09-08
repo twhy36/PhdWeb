@@ -30,7 +30,14 @@ export class FavoriteEffects
 			withLatestFrom(this.store),
 			tryCatch(source => source.pipe(
 				switchMap(([action, store]) => {
-					return this.favoriteService.deleteMyFavorites(store.favorite.myFavorites);
+					if (store.favorite?.myFavorites?.length)
+					{
+						return this.favoriteService.deleteMyFavorites(store.favorite.myFavorites);
+					}
+					else
+					{
+						return new Observable<never>();
+					}
 				}),
 				switchMap(result => of(new MyFavoritesDeleted()))
 			), SaveError, "Error deleting my favorites!")
