@@ -852,15 +852,24 @@ export function checkReplacedOption(deselectedChoice: Choice, rules: TreeVersion
 		const optionRules = rules.optionRules.filter(opt => deselectedChoice.options.map(o => o.financialOptionIntegrationKey).includes(opt.optionId) && opt.replaceOptions && opt.replaceOptions.length);
 		optionRules.forEach(optRule => {
 			optRule.replaceOptions.forEach(replaceOptionId => {
-				const replaceOptionRule = rules.optionRules.find(r => r.optionId === replaceOptionId);
+				let replaceOptionRule = rules.optionRules.find(r => r.optionId === replaceOptionId);
 				const maxSortOrderChoice = getMaxSortOrderChoice(tree, replaceOptionRule.choices.filter(ch => ch.mustHave).map(ch => ch.id));
 				const prevChoice = choices.find(ch => ch.id === maxSortOrderChoice);
 
-				if (prevChoice) {
+				if (prevChoice && prevChoice.lockedInChoice) {
 					// If list price is changed between change orders, we need to restore the original choice price
 					const option = options.find(o => o.financialOptionIntegrationKey === replaceOptionId);
 					const sum = prevChoice.price - prevChoice.options.filter(opt => opt.financialOptionIntegrationKey !== replaceOptionId).reduce((sum, current) => sum + current.listPrice, 0);
 					option.listPrice = sum;
+
+					// lockedInOptions uses divChoiceCatalogID instead of dpChoiceId.
+					// fetch divChoiceCatalogID from the tree
+					replaceOptionRule = {
+						...replaceOptionRule,
+						choices: replaceOptionRule.choices.map(c => (
+							{...c, id: findChoice(tree, tc => tc.id === c.id)?.divChoiceCatalogId || c.id}
+						))
+					};
 
 					if (prevChoice.lockedInOptions) {
 						prevChoice.lockedInOptions.push(replaceOptionRule);
