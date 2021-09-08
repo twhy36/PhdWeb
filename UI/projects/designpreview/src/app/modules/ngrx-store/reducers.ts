@@ -71,7 +71,7 @@ export const filteredTree = createSelector(
 
 							let choices = p.choices.filter(c => {
 								let isValid = treeMatched.point || filter(c.label);
-									
+
 								let isIncluded = true;
 								const isContractedChoice = contractedChoices?.includes(c);
 
@@ -230,7 +230,11 @@ export const priceBreakdown = createSelector(
 			}
 
 			let changePrice = salesAgreement.status === 'Approved' && currentChangeOrder?.amount || 0;
-			const salesPrice = salesAgreement.salePrice || 0;
+			let salesPrice = salesAgreement.salePrice || 0;
+
+			if (salesPrice === 0 && scenario.buildMode === 'preview') {
+				salesPrice = breakdown.baseHouse;
+			}
 
 			let nonStandardOptions = 0;
 			job.jobNonStandardOptions?.forEach(nso => {
