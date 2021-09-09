@@ -578,8 +578,21 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 					&& optRule.choices.every(c => (c.mustHave && choices.find(ch => ch.id === c.id && ch.quantity) || (!c.mustHave && choices.find(ch => ch.id === c.id && !ch.quantity)))));
 
 				// If the entire option rule is satisfied (Must Have's are all selected, Must Not Have's are all deselected), then remove the lockedInOption
-				if (filteredOptRules && filteredOptRules.length) {
-					choice.lockedInOptions.splice(i, 1);
+				if (filteredOptRules && filteredOptRules.length) 
+				{
+					const removedMapping = choice.lockedInOptions.splice(i, 1);
+					const removedOption = options.find(o => o.financialOptionIntegrationKey === removedMapping[0].optionId);
+
+					//remove attribute groups from choice if they belong to the replaced option
+					//Note: This might not work if the attribute group has been removed from the option in
+					//choice admin. Can't think of a way to do this that doesn't threaten attribute reassignment
+					if (choice.lockedInChoice && choice.lockedInChoice.hasOwnProperty('jobChoiceAttributes'))
+					{
+						let lockedInChoice = choice.lockedInChoice as JobChoice;
+						lockedInChoice.jobChoiceAttributes = lockedInChoice.jobChoiceAttributes.filter(jca =>
+							removedOption.attributeGroups.indexOf(jca.attributeGroupCommunityId) === -1
+							|| choice.options.some(o => o.attributeGroups.indexOf(jca.attributeGroupCommunityId) !== -1));
+					}
 				}
 			}
 		}
