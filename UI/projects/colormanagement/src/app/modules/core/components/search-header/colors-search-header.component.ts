@@ -158,7 +158,6 @@ export class ColorsSearchHeaderComponent
 
 			this.deleteColorList = [...this.deleteColorList];
 		}
-		console.log(this.deleteColorList.length);
 	}
 
 	showAddColorsDialog()
@@ -173,24 +172,6 @@ export class ColorsSearchHeaderComponent
 		this.resetfilter();
 		this.loadColors();
 	}
-
-	isDeleteSelected(color:IColorDto):boolean
-	{		
-		return this.deleteColorList.some(col => col.colorId	===	color.colorId);
-	}
-
-	setDeleteSelected(color: IColorDto, isSelected: boolean): void
-	{
-		
-		let index = this.deleteColorList.findIndex(s => s.colorId === color.colorId);
-
-		if (isSelected && index < 0)
-		{
-			this.deleteColorList.push(color);
-		}
-		else if (!isSelected && index >= 0)
-		{
-			this.deleteColorList.splice(index, 1);
 
 	onCloseDialogWasRequested()
 	{
