@@ -129,6 +129,7 @@ export class ColorsSearchHeaderComponent
 	onPanelScroll() {
 		this.isLoading = true;
 		this.skip = this.currentPage * this.settings.infiniteScrollPageSize;
+		this.loadColors();
 	}
 
 	resetfilter() {
