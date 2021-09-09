@@ -112,12 +112,12 @@ export class ColorsSearchHeaderComponent
 					return this._colorService.getSalesConfiguration(colorDtos);
 				})
 			)
-			.subscribe((colorDtos) => {
+			.subscribe((colorDtos) => {				
 				this.currentPage++;
 				this.allDataLoaded =
 					colorDtos.length < this.settings.infiniteScrollPageSize;
 				this.colorsDtoList = [...this.colorsDtoList, ...colorDtos];
-			});
+	});
 	}
 
 	filterColors() {
@@ -129,6 +129,7 @@ export class ColorsSearchHeaderComponent
 	onPanelScroll() {
 		this.isLoading = true;
 		this.skip = this.currentPage * this.settings.infiniteScrollPageSize;
+		this.loadColors();
 	}
 
 	resetfilter() {
@@ -158,7 +159,6 @@ export class ColorsSearchHeaderComponent
 
 			this.deleteColorList = [...this.deleteColorList];
 		}
-		console.log(this.deleteColorList.length);
 	}
 
 	showAddColorsDialog()

@@ -6,27 +6,11 @@
     margin-left: 94px;
     font-size:0.8em ;
     color:#6c757d!important
-}
+  }
+  .fa {
+    cursor: pointer;
+  }
 
 .phd-add-color-button:focus {
-	box-shadow: none;
-}
-
-.phd-icon-container {
-	display: flex;
-	justify-content: space-around;
-}
-
-i {
-	width: 50px;
-	text-align: center;
-}
-
-.fa {
-	cursor: pointer;
-}
-
-.phd-checkbox
-{
-	text-align: center;
+    box-shadow: none;
 }

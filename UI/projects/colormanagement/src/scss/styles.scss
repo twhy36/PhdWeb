@@ -118,7 +118,7 @@ main {
 	display: flex;
 	flex-direction: column;
 	flex-grow : 1;
-	height: calc(100vh - #{$nav-menu-height} - #{$search-filter-height});
+	height: calc(98vh - #{$nav-menu-height} - #{$search-filter-height});
 	overflow-y: auto;
 	margin-top: 20px;
 }
