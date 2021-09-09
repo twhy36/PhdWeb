@@ -21,9 +21,11 @@ export class DecisionBarChoiceComponent implements OnInit {
 	@Output() onSelectDecisionPoint = new EventEmitter<number>();
 
 	@ViewChild('blockedChoiceModal') blockedChoiceModal: any;
+	@ViewChild('hiddenChoicePriceModal') hiddenChoicePriceModal: any;
 
 	disabledByList: {label: string, pointId: number, choiceId?: number, ruleType: number}[] = null;
 	blockedChoiceModalRef: NgbModalRef;
+	hiddenChoicePriceModalRef: NgbModalRef;
 
   constructor(public modalService: NgbModal) {
 
@@ -53,6 +55,7 @@ export class DecisionBarChoiceComponent implements OnInit {
 
 	onCloseClicked() {
 		this.blockedChoiceModalRef?.close();
+		this.hiddenChoicePriceModalRef?.close();
 	}
 
 	onBlockedItemClick(pointId: number) {
@@ -61,4 +64,10 @@ export class DecisionBarChoiceComponent implements OnInit {
 		this.onSelectDecisionPoint.emit(pointId);
 	}
 
+	openHiddenChoicePriceModal() {
+		if (this.choice.priceHiddenFromBuyerView)
+		{
+			this.hiddenChoicePriceModalRef = this.modalService.open(this.hiddenChoicePriceModal, { windowClass: 'phd-hidden-choice-price-modal' });
+		}
+	}
 }
