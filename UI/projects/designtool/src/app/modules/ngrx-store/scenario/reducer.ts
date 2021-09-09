@@ -5,7 +5,7 @@ import * as _ from "lodash";
 import {
 	DesignToolAttribute, SalesCommunity, PlanOption, TreeVersionRules, Scenario, TreeFilter,
 	Tree, Choice, Group, SubGroup, DecisionPoint, selectChoice, applyRules, setGroupStatus,
-	setPointStatus, setSubgroupStatus, checkReplacedOption, getChoiceToDeselect
+	setPointStatus, setSubgroupStatus
 } from 'phd-common';
 import { ScenarioActions, ScenarioActionTypes } from './actions';
 
@@ -302,26 +302,6 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 
 				if (c)
 				{
-					if (c.quantity !== 0)
-					{
-						c.lockedInOptions = [];
-						c.lockedInChoice = null;
-
-						checkReplacedOption(c, rules, choices, options, newTree);
-					}
-					else
-					{
-						let deselectedChoice = getChoiceToDeselect(newTree, c);
-
-						if (deselectedChoice)
-						{
-							deselectedChoice.lockedInOptions = [];
-							deselectedChoice.lockedInChoice = null;
-	
-							checkReplacedOption(deselectedChoice, rules, choices, options, newTree);
-						}
-					}
-
 					c.quantity = choice.quantity;
 
 					if (choice.attributes)
@@ -357,9 +337,15 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 							c.selectedAttributes = [];
 						}
 					}
+
+					if (c.quantity === 0)
+					{
+						c.lockedInOptions = [];
+						c.lockedInChoice = null;
+					}
 				}
 
-				const pointId = choices.find(ch => ch.id === choice.choiceId).treePointId;
+				let pointId = choices.find(ch => ch.id === choice.choiceId).treePointId;
 
 				if (choice.quantity > 0)
 				{
