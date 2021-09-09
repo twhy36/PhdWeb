@@ -12,10 +12,11 @@ import
 { 	FavoriteActionTypes, SetCurrentFavorites, MyFavoriteCreated, SaveMyFavoritesChoices,
 	MyFavoritesChoicesSaved, SaveError, DeleteMyFavorite, MyFavoriteDeleted,
 	AddMyFavoritesPointDeclined, DeleteMyFavoritesPointDeclined, MyFavoritesPointDeclinedUpdated,
-	LoadMyFavorite,	MyFavoriteLoaded, LoadDefaultFavorite
+	LoadMyFavorite,	MyFavoriteLoaded, LoadDefaultFavorite, MyFavoritesChoicesDeleted,
+	DeleteMyFavoritesChoiceAttributes
 } from './actions';
 
-import { CommonActionTypes, ResetFavorites } from '../actions';
+import { CommonActionTypes, ResetFavorites, SalesAgreementLoaded, MyFavoritesChoiceAttributesDeleted } from '../actions';
 import { SelectChoices, SetStatusForPointsDeclined } from '../scenario/actions';
 import { tryCatch } from '../error.action';
 
@@ -315,7 +316,7 @@ export class FavoriteEffects
 		)
 	);
 
-	LoadDefaultFavorite$: Observable<Action> = createEffect(() => 
+	loadDefaultFavorite$: Observable<Action> = createEffect(() => 
 		this.actions$.pipe(
 			ofType<LoadDefaultFavorite>(FavoriteActionTypes.LoadDefaultFavorite),
 			withLatestFrom(this.store.pipe(select(fromFavorite.favoriteState))),
@@ -362,4 +363,38 @@ export class FavoriteEffects
 			), SaveError, "Error loading my favorite!")
 		)
 	);
+
+	updateMyFavoritesChoicesOnInit$: Observable<Action> = createEffect(() => 
+		this.actions$.pipe(
+			ofType<SalesAgreementLoaded>(CommonActionTypes.SalesAgreementLoaded),
+			tryCatch(source => source.pipe(
+				switchMap(action => {
+					const choices = _.flatMap(action.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)));
+					const favChoices = action.myFavorites ? _.flatMap(action.myFavorites, fav => fav.myFavoritesChoice) : [];
+					const removedFavChoices = favChoices.filter(favChoice => !choices.find(c => c.divChoiceCatalogId === favChoice.divChoiceCatalogId));
+
+					return !!removedFavChoices?.length
+						? this.favoriteService.deleteMyFavoritesChoices(removedFavChoices)
+						: of([]);
+				}),
+				switchMap(results => of(new MyFavoritesChoicesDeleted(results)))
+			), SaveError, "Error updating my favorite choices on init!")
+		)
+	);	
+
+	deleteMyFavoritesChoiceAttributes$: Observable<Action> = createEffect(() => 
+		this.actions$.pipe(
+			ofType<DeleteMyFavoritesChoiceAttributes>(FavoriteActionTypes.DeleteMyFavoritesChoiceAttributes),
+			tryCatch(source => source.pipe(
+				switchMap(action => {
+					return this.favoriteService.deleteMyFavoritesAttributes(action.attributes, action.locations, action.myFavoritesChoice).pipe(
+						map(result => {
+							return { attributes: action.attributes, locations: action.locations, myFavoritesChoice: action.myFavoritesChoice };
+						})
+					);
+				}),
+				switchMap(results => of(new MyFavoritesChoiceAttributesDeleted(results.attributes, results.locations, results.myFavoritesChoice)))
+			), SaveError, "Error deleting favorites choice attributes!")
+		)
+	);		
 }

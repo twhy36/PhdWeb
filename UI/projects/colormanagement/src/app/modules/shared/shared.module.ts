@@ -12,7 +12,6 @@ import { CapitalCaseSpacePipe } from './pipes/capitalCaseSpace.pipe';
 import { UnauthorizedComponent} from './components/unauthorized/unauthorized.component';
 import { CoreModule } from '../core/core.module';
 
-
 const routes: Routes = [
 	{ path: 'unauthorized', component: UnauthorizedComponent }
 ];
@@ -20,7 +19,7 @@ const routes: Routes = [
 @NgModule({
 	declarations: [
 		UnauthorizedComponent,
-		CapitalCaseSpacePipe
+		CapitalCaseSpacePipe,
 	],
 	imports: [
 		BrowserAnimationsModule,
@@ -36,7 +35,7 @@ const routes: Routes = [
 	],
 	exports: [
 		UnauthorizedComponent,
-		CapitalCaseSpacePipe
+		CapitalCaseSpacePipe,
 	],
 	providers: [
 	]

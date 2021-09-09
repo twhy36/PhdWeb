@@ -4,7 +4,7 @@ import { Store } from '@ngrx/store';
 import { UnsubscribeOnDestroy } from 'phd-common';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
-import * as CommonActions from '../../../ngrx-store/actions';
+import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 
 import { ActionBarCallType } from '../../classes/constants.class';
 
@@ -73,6 +73,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit
 	}
 
 	onHomePage() {
+		this.store.dispatch(new ScenarioActions.SetTreeFilter(null));
 		this.router.navigateByUrl('/home');
 	}
 

@@ -26,13 +26,13 @@ export class RehydrateMap {
 export function sessionStateReducer(reducer: ActionReducer<any>): ActionReducer<any> {
     return function (state, action): any {
 		if (action.type === INIT) {
-			let rehydratedState = JSON.parse(sessionStorage.getItem('phd_home_designer_state'));
+			let rehydratedState = JSON.parse(sessionStorage.getItem('phd_design_preview_state'));
 			state = Object.assign({}, state, RehydrateMap.rehydrate(rehydratedState));
 			return state;
         }
 
         let nextState = reducer(state, action);
-		sessionStorage.setItem('phd_home_designer_state', JSON.stringify(nextState));
+		sessionStorage.setItem('phd_design_preview_state', JSON.stringify(nextState));
         return nextState;
     };
 }

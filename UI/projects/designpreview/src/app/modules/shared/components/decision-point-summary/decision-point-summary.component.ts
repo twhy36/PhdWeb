@@ -60,7 +60,7 @@ export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implemen
 
 	setPointPrice()
 	{
-		this.decisionPoint.price = this.decisionPoint.choices.reduce((acc, ch) => acc + (ch.quantity * ch.price), 0);
+		this.decisionPoint.price = this.decisionPoint.choices.reduce((acc, ch) => acc + (!ch.priceHiddenFromBuyerView ? ch.quantity * ch.price : 0), 0);
 	}
 
 	setDisplayName()

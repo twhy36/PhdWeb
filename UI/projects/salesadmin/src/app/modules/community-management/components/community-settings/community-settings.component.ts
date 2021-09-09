@@ -35,6 +35,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 	commmunityLinkEnabledDirty = false;
 	previewEnabledDirty = false;
 	canToggleCommunitySettings = false;
+	canAccessDesignPreview = false;
 
 	get saveDisabled(): boolean
 	{
@@ -109,6 +110,11 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 				if (mkt)
 				{
 					this.currentMarket = mkt;
+					if (environment.designPreviewMarketWhitelist.length === 0) {
+						this.canAccessDesignPreview = true;
+					} else {
+						this.canAccessDesignPreview = !!environment.designPreviewMarketWhitelist?.find(id => id === this.currentMarket.id);
+					}
 					return combineLatest([this._orgService.getInternalOrgs(mkt.id), this._orgService.currentCommunity$]);
 				}
 				return of([null, null]);
@@ -159,7 +165,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 
 		this.communitySettingsForm = new FormGroup({
 			'ecoeMonths': new FormControl(ecoeMonths, [Validators.required, Validators.min(1), Validators.max(15)]),
-			'earnestMoney': new FormControl(earnestMoney,[Validators.required, Validators.min(0), Validators.max(99999)])
+			'earnestMoney': new FormControl(earnestMoney, [Validators.required, Validators.min(0), Validators.max(99999), Validators.pattern("^[0-9]*$")])
 		}, [])
 	}
 

@@ -11,7 +11,7 @@ import {
 	removeProperty, withSpinner, Buyer, IBuyer, Contact, Job, IJob, Note, PlanOption, SalesAgreement, ISalesAgreement,
 	SalesAgreementInfo, Realtor, ISalesAgreementInfo, IRealtor, SalesAgreementProgram, SalesAgreementDeposit, SalesAgreementContingency,
 	ISalesAgreementCancelVoidInfo, SalesAgreementCancelVoidInfo, Consultant, ISalesAgreementSalesConsultantDto,
-	Scenario, SelectedChoice, Tree, Choice, IdentityService
+	Scenario, SelectedChoice, Tree, Choice, IdentityService, OptionRule, DecisionPoint
 } from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
@@ -19,6 +19,8 @@ import { environment } from '../../../../environments/environment';
 //Imports to support Voiding of Sales Agreement
 import { Store } from '@ngrx/store';
 import * as fromRoot from '../../ngrx-store/reducers';
+
+import { getJobOptionType } from '../../shared/classes/tree.utils';
 
 @Injectable()
 export class SalesAgreementService
@@ -149,7 +151,7 @@ export class SalesAgreementService
 		);
 	}
 
-	createSalesAgreementForScenario(scenario: Scenario, tree: Tree, baseHouseOption: PlanOption, salePrice: number): Observable<SalesAgreement>
+	createSalesAgreementForScenario(scenario: Scenario, tree: Tree, baseHouseOption: PlanOption, salePrice: number, optionRules: OptionRule[]): Observable<SalesAgreement>
 	{
 		const action = `CreateSalesAgreementForScenario`;
 		const url = `${environment.apiUrl}${action}`;
@@ -181,7 +183,7 @@ export class SalesAgreementService
 					subgroupLabel: c.subgroupLabel,
 					groupLabel: c.groupLabel,
 					overrideNote: c.choice.overrideNote,
-					options: this.mapOptions(c.choice),
+					options: this.mapOptions(c.choice, elevationDP, tree, optionRules),
 					attributes: this.mapAttributes(c.choice),
 					locations: this.mapLocations(c.choice),
 					isElevation: elevationDP ? c.choice.treePointId === elevationDP.id : false,
@@ -754,7 +756,7 @@ export class SalesAgreementService
 		);
 	}
 
-	private mapOptions(choice: Choice): Array<any>
+	private mapOptions(choice: Choice, elevationDP: DecisionPoint, tree: Tree, optionRules: OptionRule[]): Array<any>
 	{
 		let optionsDto: Array<any> = [];
 
@@ -768,6 +770,7 @@ export class SalesAgreementService
 					quantity: choice.quantity,
 					optionSalesName: o.name,
 					optionDescription: o.description,
+					jobOptionTypeName: getJobOptionType(o, elevationDP, tree, optionRules),
 					attributes: choice.selectedAttributes.filter(att => !att.locationGroupId && o.attributeGroups.some(g => g === att.attributeGroupId))
 						.map(att => {
 							return {
@@ -874,7 +877,7 @@ export class SalesAgreementService
 		return attributesDto;
 	}
 
-	createJIOForSpec(tree: Tree, scenario: Scenario, communityId: number, buildMode: string, baseHouseOption: PlanOption, skipSpinner: boolean = true): Observable<Job>
+	createJIOForSpec(tree: Tree, scenario: Scenario, communityId: number, buildMode: string, baseHouseOption: PlanOption, optionRules: OptionRule[], skipSpinner: boolean = true): Observable<Job>
 	{
 		const action = `CreateJIOForSpec`;
 		const url = `${environment.apiUrl}${action}`;
@@ -912,7 +915,7 @@ export class SalesAgreementService
 					pointLabel: c.pointLabel,
 					subgroupLabel: c.subgroupLabel,
 					groupLabel: c.groupLabel,
-					options: this.mapOptions(c.choice),
+					options: this.mapOptions(c.choice, elevationDP, tree, optionRules),
 					attributes: this.mapAttributes(c.choice),
 					locations: this.mapLocations(c.choice),
 					isElevation: elevationDP ? c.choice.treePointId === elevationDP.id : false,

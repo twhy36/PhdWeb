@@ -13,6 +13,7 @@ import { LotTableComponent } from './components/lot-table/lot-table.component';
 
 import { HandingsPipe } from './pipes/handings.pipe';
 import { CapitalCaseSpacePipe } from './pipes/capitalCaseSpace.pipe';
+import { InputFilterDirective } from './directives/input-filter.directive';
 
 @NgModule({
 	exports: [
@@ -20,14 +21,16 @@ import { CapitalCaseSpacePipe } from './pipes/capitalCaseSpace.pipe';
 		HandingsPipe,
 		PageHeaderComponent,
 		SearchBarComponent,
-		LotTableComponent
+		LotTableComponent,
+		InputFilterDirective
 	],
 	declarations: [
 		CapitalCaseSpacePipe,
 		HandingsPipe,
 		PageHeaderComponent,
 		SearchBarComponent,
-		LotTableComponent
+		LotTableComponent,
+		InputFilterDirective
 	],
 	imports: [
 		CommonModule,

@@ -11,12 +11,12 @@ import
 		getNewGuid, createBatchPatch, createBatchBody, createBatchHeaders, withSpinner, DesignToolAttribute, Buyer, ESignEnvelope,
 		ChangeOrderGroup, ChangeOrderNonStandardOption, ChangeInput, ChangeOrderChoice, ChangeOrderPlanOption, ChangeOrderChoiceLocation,
 		ChangeOrderHanding, ChangeTypeEnum, Job, JobChoice, JobChoiceAttribute, JobChoiceLocation, JobPlanOption, PlanOption, Plan, SalesAgreement,
-		SalesChangeOrderTrust, Tree, DecisionPoint, Choice, IdentityService
+		SalesChangeOrderTrust, Tree, DecisionPoint, Choice, IdentityService, OptionRule
 	} from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
 import { TreeService } from '../../core/services/tree.service';
-import { isJobChoice, isLocked, getDefaultOptionRule } from '../../shared/classes/tree.utils';
+import { isJobChoice, isLocked, getDefaultOptionRule, getJobOptionType } from '../../shared/classes/tree.utils';
 
 interface ChoiceExt { decisionPointLabel: string, subgroupLabel: string, groupLabel: string };
 
@@ -464,7 +464,7 @@ export class ChangeOrderService
 		);
 	}
 
-	getJobChangeOrderInputData(tree: Tree, changeOrder: ChangeOrderGroup, job: Job, handing: ChangeOrderHanding, salesAgreementId: number, baseHouseOption: PlanOption | JobPlanOption, isJio: boolean = false, planPrice: number = 0): any
+	getJobChangeOrderInputData(tree: Tree, changeOrder: ChangeOrderGroup, job: Job, handing: ChangeOrderHanding, salesAgreementId: number, baseHouseOption: PlanOption | JobPlanOption, optionRules: OptionRule[], isJio: boolean = false, planPrice: number = 0): any
 	{
 		const origChoices = isJio ? [] : job.jobChoices;
 		const currentChoices = _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices))) || [];
@@ -480,7 +480,7 @@ export class ChangeOrderService
 			description: changeOrder.jobChangeOrderGroupDescription,
 			note: changeOrder.note ? changeOrder.note.noteContent : null,
 			overrideNote: changeOrder.overrideNote,
-			choices: this.createJobChangeOrderChoices(origChoices, currentChoices, elevationDP, colorSchemeDP, tree, job.jobPlanOptions),
+			choices: this.createJobChangeOrderChoices(origChoices, currentChoices, elevationDP, colorSchemeDP, tree, job.jobPlanOptions, optionRules),
 			handings: this.createJobChangeOrderHandings(handing, origHanding),
 			changeOrderGroupSequence: changeOrder.changeOrderGroupSequence,
 			changeOrderGroupSequenceSuffix: changeOrder.changeOrderGroupSequenceSuffix,
@@ -494,7 +494,7 @@ export class ChangeOrderService
 		};
 	}
 
-	private createJobChangeOrderChoices(origChoices: Array<JobChoice>, currentChoices: Array<Choice>, elevationDP: DecisionPoint, colorSchemeDP: DecisionPoint, tree: Tree, jobPlanOptions: Array<JobPlanOption>): Array<any>
+	private createJobChangeOrderChoices(origChoices: Array<JobChoice>, currentChoices: Array<Choice>, elevationDP: DecisionPoint, colorSchemeDP: DecisionPoint, tree: Tree, jobPlanOptions: Array<JobPlanOption>, optionRules: OptionRule[]): Array<any>
 	{
 		const mappingsChanged = function (orig: JobChoice, curr: Choice)
 		{
@@ -514,7 +514,7 @@ export class ChangeOrderService
 
 			if (origChoice && !mappingsChanged(origChoice, cur))
 			{
-				const changedChoices = this.mapChangedChoice({ ...cur, ...labels }, origChoice, elevationDP, colorSchemeDP, jobPlanOptions);
+				const changedChoices = this.mapChangedChoice({ ...cur, ...labels }, origChoice, elevationDP, colorSchemeDP, jobPlanOptions, tree, optionRules);
 
 				choicesDto.push(...changedChoices);
 
@@ -532,7 +532,7 @@ export class ChangeOrderService
 					subgroupLabel: labels.subgroupLabel,
 					groupLabel: labels.groupLabel,
 					overrideNote: cur.overrideNote,
-					options: this.mapOptions(cur.options, cur.quantity, 'Add'),
+					options: this.mapOptions(cur.options, cur.quantity, 'Add', elevationDP, tree, optionRules),
 					attributes: this.mapAttributes(cur, 'Add'),
 					locations: this.mapLocations(cur, 'Add'),
 					action: 'Add',
@@ -559,7 +559,15 @@ export class ChangeOrderService
 					decisionPointLabel: labels.decisionPointLabel,
 					subgroupLabel: labels.subgroupLabel,
 					groupLabel: labels.groupLabel,
-					options: orig.jobChoiceJobPlanOptionAssocs ? this.mapOptions(orig.jobChoiceJobPlanOptionAssocs.filter(o => o.choiceEnabledOption).map(jp => jobPlanOptions.find(o => o.id === jp.jobPlanOptionId)), orig.dpChoiceQuantity, 'Delete') : [],
+					options: orig.jobChoiceJobPlanOptionAssocs 
+						? this.mapOptions(
+							orig.jobChoiceJobPlanOptionAssocs.filter(o => o.choiceEnabledOption).map(jp => jobPlanOptions.find(o => o.id === jp.jobPlanOptionId)), 
+							orig.dpChoiceQuantity, 
+							'Delete',
+							elevationDP,
+							tree,
+							optionRules) 
+						: [],
 					attributes: this.mapJobChoiceAttributes(orig.jobChoiceAttributes, 'Delete'),
 					locations: this.mapJobChoiceLocations(orig.jobChoiceLocations, 'Delete'),
 					action: 'Delete',
@@ -572,7 +580,14 @@ export class ChangeOrderService
 		return choicesDto;
 	}
 
-	private mapChangedChoice(curChoice: Choice & ChoiceExt, origChoice: JobChoice, elevationDP: DecisionPoint, colorSchemeDP: DecisionPoint, jobPlanOptions: Array<JobPlanOption>): Array<any>
+	private mapChangedChoice(
+		curChoice: Choice & ChoiceExt, 
+		origChoice: JobChoice, 
+		elevationDP: DecisionPoint, 
+		colorSchemeDP: DecisionPoint, 
+		jobPlanOptions: Array<JobPlanOption>,
+		tree: Tree,
+		optionRules: OptionRule[]): Array<any>
 	{
 		let choicesDto = [];
 
@@ -637,9 +652,9 @@ export class ChangeOrderService
 				groupLabel: curChoice.groupLabel,
 				overrideNote: curChoice.overrideNote,
 				options: [
-					...this.mapOptions(otherOptions, curChoice.quantity, 'Change'),
-					...this.mapOptions(removedOptions, origChoice.dpChoiceQuantity, 'Delete'),
-					...this.mapOptions(addedOptions, curChoice.quantity, 'Add')
+					...this.mapOptions(otherOptions, curChoice.quantity, 'Change', elevationDP, tree, optionRules),
+					...this.mapOptions(removedOptions, origChoice.dpChoiceQuantity, 'Delete', elevationDP, tree, optionRules),
+					...this.mapOptions(addedOptions, curChoice.quantity, 'Add', elevationDP, tree, optionRules)
 				],
 				attributes: attributes,
 				locations: locations,
@@ -661,8 +676,8 @@ export class ChangeOrderService
 				groupLabel: curChoice.groupLabel,
 				overrideNote: curChoice.overrideNote,
 				options: [
-					...this.mapOptions(removedOptions, origChoice.dpChoiceQuantity, 'Delete'),
-					...this.mapOptions(addedOptions, curChoice.quantity, 'Add')
+					...this.mapOptions(removedOptions, origChoice.dpChoiceQuantity, 'Delete', elevationDP, tree, optionRules),
+					...this.mapOptions(addedOptions, curChoice.quantity, 'Add', elevationDP, tree, optionRules)
 				],
 				attributes: [],
 				locations: [],
@@ -704,9 +719,9 @@ export class ChangeOrderService
 		return result;
 	}
 
-	private isElevationOrColorSchemeDP(currentChoices: Array<Choice>, origChoiceId: JobChoice, pointId: number): boolean
+	private isElevationOrColorSchemeDP(currentChoices: Array<Choice>, origChoice: JobChoice, pointId: number): boolean
 	{
-		const choice = currentChoices.find(c => c.id === origChoiceId.dpChoiceId || c.divChoiceCatalogId === origChoiceId.divChoiceCatalogId);
+		const choice = currentChoices.find(c => c.id === origChoice.dpChoiceId || c.divChoiceCatalogId === origChoice.divChoiceCatalogId);
 
 		return choice ? choice.treePointId === pointId : false;
 	}
@@ -737,7 +752,14 @@ export class ChangeOrderService
 		return handings;
 	}
 
-	private mapOptions(options: Array<JobPlanOption | PlanOption>, quantity: number, action: string): Array<any>
+	private mapOptions(
+		options: Array<JobPlanOption | PlanOption>, 
+		quantity: number, 
+		action: string, 
+		elevationDP: DecisionPoint, 
+		tree: Tree, 
+		optionRules: OptionRule[]
+	): Array<any>
 	{
 		let optionsDto: Array<any> = [];
 
@@ -751,7 +773,7 @@ export class ChangeOrderService
 					quantity: this.isJobPlanOption(o) ? o.optionQty : quantity,
 					optionSalesName: this.isJobPlanOption(o) ? o.optionSalesName : o.name,
 					optionDescription: this.isJobPlanOption(o) ? o.optionDescription : o.description,
-					jobOptionTypeName: this.isJobPlanOption(o) ? o.jobOptionTypeName : null,
+					jobOptionTypeName: this.isJobPlanOption(o) ? o.jobOptionTypeName : getJobOptionType(o, elevationDP, tree, optionRules),
 					attributeGroupIds: this.isJobPlanOption(o) ? o.jobPlanOptionAttributes.map(att => att.attributeGroupCommunityId).filter((value, index, self) => self.indexOf(value) === index) : o.attributeGroups,
 					locationGroupIds: this.isJobPlanOption(o) ? o.jobPlanOptionLocations.map(loc => loc.locationGroupCommunityId).filter((value, index, self) => self.indexOf(value) === index) : o.locationGroups,
 					action: action
@@ -1381,7 +1403,7 @@ export class ChangeOrderService
 		};
 	}
 
-	getPlanChangeOrderData(tree: Tree, changeOrder: ChangeOrderGroup, job: Job, selectedPlanId: number, salesAgreementId: number, planPrice: number): any
+	getPlanChangeOrderData(tree: Tree, changeOrder: ChangeOrderGroup, job: Job, selectedPlanId: number, salesAgreementId: number, planPrice: number, optionRules: OptionRule[]): any
 	{
 		const decisionPoints = (_.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points)) || []).filter(x => x.dPointTypeId === 1 || x.dPointTypeId === 2);
 		const currentChoices = _.flatMap(decisionPoints, pt => pt.choices) || [];
@@ -1438,14 +1460,14 @@ export class ChangeOrderService
 			changeOrderGroupSequence: changeOrder.changeOrderGroupSequence,
 			changeOrderGroupSequenceSuffix: changeOrder.changeOrderGroupSequenceSuffix,
 			plans: plans,
-			choices: this.createPlanChangeOrderChoices(origChoices, currentChoices, job.jobPlanOptions, elevationDP, colorSchemeDP, tree),
+			choices: this.createPlanChangeOrderChoices(origChoices, currentChoices, job.jobPlanOptions, elevationDP, colorSchemeDP, tree, optionRules),
 			baseHouseOption: {
 				price: planPrice,
 			}
 		};
 	}
 
-	private createPlanChangeOrderChoices(origChoices: Array<JobChoice>, currentChoices: Array<Choice>, jobOptions: Array<JobPlanOption>, elevationDP: DecisionPoint, colorSchemeDP: DecisionPoint, tree: Tree): Array<any>
+	private createPlanChangeOrderChoices(origChoices: Array<JobChoice>, currentChoices: Array<Choice>, jobOptions: Array<JobPlanOption>, elevationDP: DecisionPoint, colorSchemeDP: DecisionPoint, tree: Tree, optionRules: OptionRule[]): Array<any>
 	{
 		let choicesDto = [];
 		const currentSelectedChoices = currentChoices.filter(x => x.quantity > 0);
@@ -1465,7 +1487,7 @@ export class ChangeOrderService
 				subgroupLabel: labels.subgroupLabel,
 				groupLabel: labels.groupLabel,
 				overrideNote: cur.overrideNote,
-				options: this.mapOptions(cur.options, cur.quantity, 'Add'),
+				options: this.mapOptions(cur.options, cur.quantity, 'Add', elevationDP, tree, optionRules),
 				attributes: this.mapAttributes(cur, 'Add'),
 				locations: this.mapLocations(cur, 'Add'),
 				action: 'Add',
@@ -1488,7 +1510,7 @@ export class ChangeOrderService
 				decisionPointLabel: labels ? labels.decisionPointLabel : '',
 				subgroupLabel: labels ? labels.subgroupLabel : '',
 				groupLabel: labels ? labels.groupLabel : '',
-				options: this.mapOptions(jobChoiceOptions, orig.dpChoiceQuantity, 'Delete'),
+				options: this.mapOptions(jobChoiceOptions, orig.dpChoiceQuantity, 'Delete', elevationDP, tree, optionRules),
 				attributes: this.mapJobChoiceAttributes(orig.jobChoiceAttributes, 'Delete'),
 				locations: this.mapJobChoiceLocations(orig.jobChoiceLocations, 'Delete'),
 				action: 'Delete'
@@ -1822,7 +1844,7 @@ export class ChangeOrderService
 		return null;
 	}
 
-	changeOrderHasChanges(tree: Tree, job: Job, currentChangeOrder: ChangeOrderGroup, changeInput: ChangeInput, salesAgreement: SalesAgreement): boolean
+	changeOrderHasChanges(tree: Tree, job: Job, currentChangeOrder: ChangeOrderGroup, changeInput: ChangeInput, salesAgreement: SalesAgreement, optionRules: OptionRule[]): boolean
 	{
 		if (changeInput.type === ChangeTypeEnum.SALES)
 		{
@@ -1863,7 +1885,8 @@ export class ChangeOrderService
 				job,
 				changeInput.handing,
 				salesAgreement.id,
-				baseHouseOption);
+				baseHouseOption,
+				optionRules);
 			const data = this.mergePosData(
 				inputData,
 				currentChangeOrder,

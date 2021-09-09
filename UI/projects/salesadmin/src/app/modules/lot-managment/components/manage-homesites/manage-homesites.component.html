@@ -126,22 +126,11 @@
 						<span (mouseenter)="showTooltip($event, lot.phase, dt)" (mouseleave)="hideTooltip(dt)">{{ lot.phase }}</span>
 					</ng-template>
 				</phd-column>
-				<phd-column header="Facing">
-					<ng-template #body let-lot>
-						<span (mouseenter)="showTooltip($event, lot.facing, dt)" (mouseleave)="hideTooltip(dt)">{{ lot.facing }}</span>
-					</ng-template>
-				</phd-column>
 				<phd-column header="View Adjacency" field="view.label">
 					<ng-template #body let-lot>
 						<span (mouseenter)="showTooltip($event, lot.view && lot.view.label, dt)" (mouseleave)="hideTooltip(dt)">{{ lot.view && lot.view.label }}</span>
 					</ng-template>
 				</phd-column>
-				<phd-column header="Physical Description" field="lotType.label">
-					<ng-template #body let-lot>
-						<span (mouseenter)="showTooltip($event, lot.lotType && lot.lotType.label, dt)" (mouseleave)="hideTooltip(dt)">{{ lot.lotType && lot.lotType.label }}</span>
-					</ng-template>
-				</phd-column>
-
 				<phd-column header="Warranty" field="lotType.label">
 					<ng-template #body let-lot>
 						<span (mouseenter)="showTooltip($event, lot.phdLotWarranty, dt)" (mouseleave)="hideTooltip(dt)">{{ lot.phdLotWarranty }}</span>

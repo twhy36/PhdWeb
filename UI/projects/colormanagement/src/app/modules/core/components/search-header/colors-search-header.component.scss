@@ -1,7 +1,7 @@
 @import "../../../../../scss/styles.scss";
 @import "../../../../../scss/color-pallet.scss";
 @import "../../../../../scss/sizes.scss";
-.count_message {
+.phd-count_message {
     margin-top: 10px;
     margin-left: 94px;
     font-size:0.8em ;
@@ -10,4 +10,7 @@
   .fa {
     cursor: pointer;
   }
-   
+
+.phd-add-color-button:focus {
+    box-shadow: none;
+}

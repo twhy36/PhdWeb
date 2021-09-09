@@ -21,7 +21,7 @@
 		<div *ngIf="!isSticky" class="phd-divider"></div>
 		<div *ngIf="!isSticky" class="phd-price-breakdown">
 			<div class="d-flex">
-				<span class="phd-breakdown-label">Base House:</span>
+				<span class="phd-breakdown-label">Base Price:</span>
 				<span class="phd-breakdown-content">{{priceBreakdown?.baseHouse | currency:'USD':'symbol':'0.0-0'}}</span>
 			</div>
 			<div class="d-flex">
@@ -45,7 +45,7 @@
 				<span class="phd-breakdown-content">{{priceBreakdown?.favoritesPrice | currency:'USD':'symbol':'0.0-0'}}</span>
 			</div>
 			<div class="phd-estimate">
-				<span class="phd-breakdown-label">{{isDesignComplete ? 'Total Purchase Price:' : 'Estimated Total Price:'}}</span>
+				<span class="phd-breakdown-label">{{isDesignComplete ? 'Total Purchase Price:' : 'Estimated Total Purchase Price:'}}</span>
 				<span class="phd-breakdown-content">{{priceBreakdown?.totalPrice | currency:'USD':'symbol':'0.0-0'}}</span>
 			</div>
 			<div *ngIf="priceBreakdown.closingIncentive" class="d-flex">

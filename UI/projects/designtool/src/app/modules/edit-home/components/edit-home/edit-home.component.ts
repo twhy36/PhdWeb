@@ -20,7 +20,7 @@ import * as LotActions from '../../../ngrx-store/lot/actions';
 import {
 	UnsubscribeOnDestroy, ModalRef, ChangeTypeEnum, Job, TreeVersionRules, ScenarioStatusType, PriceBreakdown,
 	TreeFilter, Tree, SubGroup, Group, DecisionPoint, Choice, getDependentChoices, LotExt, getChoiceToDeselect,
-	ModalService
+	PlanOption, ModalService
 } from 'phd-common';
 
 import { LotService } from '../../../core/services/lot.service';
@@ -63,7 +63,6 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 	errorMessage: string = '';
 	isChangingOrder$: Observable<boolean>;
 	isChangingOrder: boolean;
-	job: Job;
 	lotcheckModalDisplayed: boolean;
 	marketingPlanId: number[];
 	modal: ModalRef;
@@ -84,6 +83,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 	tree: Tree;
 	treeFilter$: Observable<TreeFilter>;
 	treeVersionRules: TreeVersionRules;
+	options: PlanOption[];
 	viewChoice: Choice;
 	viewPoint: DecisionPoint;
 	salesAgreementId: number;
@@ -400,14 +400,11 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		);
 
 		this.store.pipe(
-			take(1),
-			select(fromScenario.selectScenario),
-			withLatestFrom(this.store.pipe(select(fromJob.jobState))),
-		).subscribe(([scenario, job]) =>
-		{
+			select(fromScenario.selectScenario)
+		).subscribe(scenario => {
 			this.tree = scenario.tree;
-			this.treeVersionRules = scenario.rules;
-			this.job = job;
+			this.treeVersionRules = _.cloneDeep(scenario.rules);
+			this.options = _.cloneDeep(scenario.options);
 		});
 
 		this.canConfigure$ = this.store.pipe(select(fromRoot.canConfigure));
@@ -504,8 +501,10 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 							{
 								const title = 'Create Model';
 								const body = 'The selected lot is scheduled to be released on ' + releaseDate + '. <br><br> If you continue, the lot will be removed from the release and the Lot Status will be set to UNAVAILABLE.';
+
 								const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
 								const secondaryButton = { text: 'Cancel', result: false, cssClass: 'btn-secondary' };
+
 								return this.showConfirmModal(body, title, primaryButton, secondaryButton);
 							})).subscribe(result =>
 							{
@@ -530,7 +529,8 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 					const body = 'You are about to generate an Agreement for your configuration. Do you wish to continue?';
 					
 					const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
-					const secondaryButton = { text: 'Cancel', result: true, cssClass: 'btn-secondary' };
+					const secondaryButton = { text: 'Cancel', result: false, cssClass: 'btn-secondary' };
+					
 					this.showConfirmModal(body, title, primaryButton, secondaryButton).subscribe(result =>
 					{
 						if (result)
@@ -628,10 +628,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		const choiceToDeselect = getChoiceToDeselect(this.tree, choice);
 
 		let selectedChoices = [{ choiceId: choice.id, overrideNote: choice.overrideNote, quantity: !choice.quantity ? quantity || 1 : 0, attributes: choice.selectedAttributes }];
-		const impactedChoices = [
-			...getDependentChoices(this.tree, this.treeVersionRules, choiceToDeselect),
-			...getDependentChoices(this.tree, this.treeVersionRules, !choice.quantity ? choice : null)
-		];
+		const impactedChoices = getDependentChoices(this.tree, this.treeVersionRules, this.options, choice);
 
 		impactedChoices.forEach(c =>
 		{
