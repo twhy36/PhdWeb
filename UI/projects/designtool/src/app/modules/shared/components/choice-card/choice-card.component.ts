@@ -176,7 +176,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 				).pipe(combineLatest(missingLocations && missingLocations.length
 					? this.attributeService.getLocationCommunities(missingLocations.map(x => x.locationId))
 					: of([]),
-					this.attributeService.getAttributeCommunityImageAssoc(attributeIds, this.choice.lockedInChoice ? this.choice.lockedInChoice.outForSignatureDate : null))
+					this.attributeService.getAttributeCommunityImageAssoc(attributeIds, this.choice.lockedInChoice ? this.choice.lockedInChoice.choice.outForSignatureDate : null))
 				).pipe(
 					map(([attributes, locations, attributeCommunityImageAssocs]) =>
 					{
@@ -258,7 +258,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 				this.store.pipe(select(fromScenario.choiceOverrides)),
 				this.store.pipe(select(selectSelectedLot)),
 				this.store.pipe(select(selectedPlanData)),
-				this.treeService.getChoiceImageAssoc([this.choice.lockedInChoice ? this.choice.lockedInChoice.dpChoiceId : this.choice.id])
+				this.treeService.getChoiceImageAssoc([this.choice.lockedInChoice ? this.choice.lockedInChoice.choice.dpChoiceId : this.choice.id])
 			))
 			.subscribe(([monotonyChoices, choiceOverride, lots, plan, choiceImages]) =>
 			{

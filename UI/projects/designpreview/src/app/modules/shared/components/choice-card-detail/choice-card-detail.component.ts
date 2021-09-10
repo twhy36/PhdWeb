@@ -106,7 +106,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 
 				return (getMissingAttributes).pipe(combineLatest(
 					getMissingLocations,
-					this.attributeService.getAttributeCommunityImageAssoc(attributeIds, this.choice.lockedInChoice ? this.choice.lockedInChoice.outForSignatureDate : null)
+					this.attributeService.getAttributeCommunityImageAssoc(attributeIds, this.choice.lockedInChoice ? this.choice.lockedInChoice.choice.outForSignatureDate : null)
 				)).pipe(
 					map(([attributes, locations, attributeCommunityImageAssocs]) =>
 					{
