@@ -39,7 +39,7 @@ export class CommonEffects
 						this.salesAgreementService.getSalesAgreementInfo(action.salesAgreementId)
 					).pipe(
 						switchMap(([sag, sagInfo]) => {
-							return this.jobService.loadJob(sag.jobSalesAgreementAssocs[0].jobId).pipe(
+							return this.jobService.loadJob(sag.jobSalesAgreementAssocs[0].jobId, sag.id).pipe(
 								combineLatest(this.favoriteService.loadMyFavorites(sag.id)),
 								map(([job, fav]) => {
 									return { job, salesAgreement: sag, salesAgreementInfo: sagInfo || new SalesAgreementInfo(), myFavorites: fav };
