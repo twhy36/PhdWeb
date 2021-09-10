@@ -48,7 +48,7 @@
 					</div>
 				</div>
 			</form>
-			<div class="phd-box-background" *ngIf="!!url">
+			<div class="phd-box-background" *ngIf="!environment.production && !!url">
 				<div class="phd-box">
 					<div class="phd-line">
 						<div class="font-weight-bold">Enable THO Community Link for Sales Consultants Only</div>
