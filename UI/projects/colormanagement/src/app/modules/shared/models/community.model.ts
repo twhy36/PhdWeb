@@ -41,3 +41,15 @@ export interface ITreeVersion
 	publishStartDate: Date;
 	publishEndDate: Date;
 }
+
+export interface IPlanCommunity
+{
+	id: number;
+	planSalesName: string;
+}
+
+export interface IOptionCommunity
+{
+	id: number;
+	optionSalesName: string;
+}
