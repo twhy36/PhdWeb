@@ -12,7 +12,7 @@ import
 { 
 	UnsubscribeOnDestroy, PriceBreakdown, SDGroup, SDSubGroup, SDPoint, SDChoice, SDAttributeReassignment, Group, 
 	DecisionPoint, JobChoice, Tree, TreeVersionRules, SalesAgreement, getDependentChoices, ModalService, PDFViewerComponent, 
-	SummaryData, BuyerInfo, PriceBreakdownType
+	SummaryData, BuyerInfo, PriceBreakdownType, PlanOption
 } from 'phd-common';
 
 import { environment } from '../../../../../environments/environment';
@@ -54,6 +54,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 	salesChoices: JobChoice[];
 	tree: Tree;
 	treeVersionRules: TreeVersionRules;
+	options: PlanOption[];
 	buildMode: string;
 	isPreview: boolean = false;
 	isDesignComplete: boolean = false;
@@ -185,7 +186,8 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 			select(fromScenario.selectScenario)
 		).subscribe(scenario => {
 			this.tree = scenario.tree;
-			this.treeVersionRules = scenario.rules;
+			this.treeVersionRules = _.cloneDeep(scenario.rules);
+			this.options = _.cloneDeep(scenario.options);
 		});	
 	}
 
@@ -208,7 +210,10 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 	
 	displayPoint(dp: DecisionPoint)
 	{
-		const choices = dp && dp.choices ? dp.choices.filter(c => c.quantity > 0) : [];
+		if (dp.isHiddenFromBuyerView) {
+			return false;
+		}
+		const choices = dp && dp.choices ? dp.choices.filter(c => c.quantity > 0 && !c.isHiddenFromBuyerView) : [];
 		const favoriteChoices = choices.filter(c => !this.salesChoices || this.salesChoices.findIndex(sc => sc.divChoiceCatalogId === c.divChoiceCatalogId) === -1);
 
 		return this.includeContractedOptions
@@ -269,7 +274,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 			favoriteChoices.forEach(choice => {
 				removedChoices.push({ choiceId: choice.id, divChoiceCatalogId: choice.divChoiceCatalogId, quantity: 0, attributes: choice.selectedAttributes });
 
-				const impactedChoices = getDependentChoices(this.tree, this.treeVersionRules, choice);
+				const impactedChoices = getDependentChoices(this.tree, this.treeVersionRules, this.options, choice);
 
 				impactedChoices.forEach(c =>
 				{
@@ -333,7 +338,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 					let point = new SDPoint(p);
 
 					point.choices = p.choices.filter(ch => {
-						const isContracted = this.salesChoices.find(x => x.divChoiceCatalogId === ch.divChoiceCatalogId);
+						const isContracted = !!this.salesChoices?.find(x => x.divChoiceCatalogId === ch.divChoiceCatalogId);
 						return ch.quantity > 0 && (!isContracted || this.includeContractedOptions);
 					}).map(c => new SDChoice(c));
 

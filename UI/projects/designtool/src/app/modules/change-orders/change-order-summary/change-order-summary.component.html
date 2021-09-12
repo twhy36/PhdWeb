@@ -66,10 +66,10 @@
 </ng-template>
 
 <ng-template #content let-c="close" let-d="dismiss">
-	<distribution-list 
-		(close)="closeModal()" 
+	<distribution-list
+		(close)="closeModal()"
 		(onEnvelopeSent)="envelopeSent($event)"
-		(onEnvelopeCancel)="envelopeCancelled($event)" 
+		(onEnvelopeCancel)="envelopeCancelled($event)"
 		[currentEnvelopeID]="envelopeID">
 	</distribution-list>
 </ng-template>

@@ -2,7 +2,8 @@ import { Injectable } from '@angular/core';
 
 import { Action, Store, select } from '@ngrx/store';
 import { Actions, ofType, createEffect } from '@ngrx/effects';
-import { Observable } from 'rxjs/Observable';
+import { Observable, EMPTY as empty, from, of, forkJoin, combineLatest } from 'rxjs';
+import { switchMap, map, concat, scan, filter, distinct, withLatestFrom, tap } from 'rxjs/operators';
 import * as _ from 'lodash';
 
 import {
@@ -14,27 +15,21 @@ import { CommonActionTypes, LoadScenario, LoadError, ScenarioLoaded, LoadSalesAg
 import { tryCatch } from './error.action';
 import { ScenarioService } from '../core/services/scenario.service';
 import { TreeService } from '../core/services/tree.service';
-import { switchMap, map, concat, scan, filter, distinct, withLatestFrom, tap } from 'rxjs/operators';
 import { OptionService } from '../core/services/option.service';
 import { LotService } from '../core/services/lot.service';
 import { OrganizationService } from '../core/services/organization.service';
-import { from } from 'rxjs/observable/from';
-import { of } from 'rxjs/observable/of';
-import { combineLatest } from 'rxjs/observable/combineLatest';
 import { setTreePointsPastCutOff, mergeIntoTree, updateWithNewTreeVersion, mapAttributes } from '../shared/classes/tree.utils';
 import { JobService } from '../core/services/job.service';
 import { PlanService } from '../core/services/plan.service';
 import { OpportunityService } from '../core/services/opportunity.service';
 import { LoadPlans, PlansLoaded, PlanActionTypes } from './plan/actions';
 import { LoadLots, LotsLoaded, LotActionTypes } from './lot/actions';
-import { forkJoin } from 'rxjs/observable/forkJoin';
 import { SalesAgreementService } from '../core/services/sales-agreement.service';
 import { ChangeOrderService } from '../core/services/change-order.service';
 import { SalesAgreementCreated, SalesAgreementActionTypes } from './sales-agreement/actions';
 import { ContractService } from '../core/services/contract.service';
 import { TemplatesLoaded } from './contract/actions';
 import { SavePendingJio, CreateJobChangeOrders, CreatePlanChangeOrder } from './change-order/actions';
-import { EMPTY as empty } from 'rxjs';
 import { State, canDesign, showSpinner } from './reducers';
 import { FavoriteService } from '../core/services/favorite.service';
 

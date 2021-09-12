@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router, NavigationEnd } from '@angular/router';
-import { Observable } from 'rxjs/Observable';
+import { Observable, ReplaySubject } from 'rxjs';
 import
 {
 	take,
@@ -29,7 +29,6 @@ import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 import * as fromOpportunity from '../../../ngrx-store/opportunity/reducer';
 
-import { ReplaySubject } from 'rxjs/ReplaySubject';
 import { SubNavItems, SpecSubNavItems } from '../../subNavItems';
 import { NewHomeService } from '../../services/new-home.service';
 

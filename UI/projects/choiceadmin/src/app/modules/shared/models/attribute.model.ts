@@ -32,12 +32,12 @@ export class Attribute
 
 	get formattedTags(): string
 	{
-		return this.joinTags("; ");
+		return this.joinTags('; ');
 	}
 
 	get tagsString(): string
 	{
-		return this.joinTags(" ");
+		return this.joinTags(' ');
 	}
 
 	get defaultEndDate(): Date
@@ -56,6 +56,7 @@ export class Attribute
 	set active(isActive: boolean)
 	{
 		const today = new Date();
+
 		if (isActive)
 		{
 			if (this.endDate?.getTime() <= today.getTime())
@@ -129,7 +130,9 @@ export class Attribute
 
 	isDefaultEndDate(): boolean
 	{
-		return !this.endDate || this.convertToUtcString(this.endDate) >= this.convertToUtcString(this.defaultEndDate);
+		const defaultEndDate = new Date(9998, 1, 1);
+
+		return !this.endDate || this.convertToUtcString(this.endDate) >= this.convertToUtcString(defaultEndDate);
 	}
 
 	convertToUtcString(date: Date): string

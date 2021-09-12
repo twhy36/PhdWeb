@@ -9,11 +9,12 @@ import * as _ from 'lodash';
 
 import {
 	UnsubscribeOnDestroy, flipOver, ModalRef, ScenarioStatusType, PriceBreakdown, TreeFilter, SubGroup,
-	DecisionPoint, Choice, loadScript, unloadScript, ModalService
+	DecisionPoint, Choice, loadScript, unloadScript, ModalService, MyFavoritesChoice
 } from 'phd-common';
 
 import * as fromRoot from '../../../../ngrx-store/reducers';
 import * as fromScenario from '../../../../ngrx-store/scenario/reducer';
+import * as fromFavorite from '../../../../ngrx-store/favorite/reducer';
 import * as SalesAgreementActions from '../../../../ngrx-store/sales-agreement/actions';
 import * as ScenarioActions from '../../../../ngrx-store/scenario/actions';
 import { ActionBarCallType } from '../../../../shared/classes/constants.class';
@@ -78,6 +79,7 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 	useDefaultFP = false;
 	jobId: number;
 	buildMode: string;
+	favoriteChoices: MyFavoritesChoice[];
 
 	constructor(private router: Router,
 		private store: Store<fromRoot.State>,
@@ -231,6 +233,20 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 		{
 			this.subGroup$.next(this.subGroup);
 		}
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromFavorite.myFavoriteChoices),
+			withLatestFrom(
+				this.store.pipe(select(fromRoot.isDesignPreviewEnabled))
+			)
+		).subscribe(([choices, isDesignPreviewEnabled]) =>
+		{
+			// Will need to remove environment.production check once design preview goes live, 
+			if (!environment.production && isDesignPreviewEnabled) {
+				this.favoriteChoices = choices;
+			}
+		});
 	}
 
 	setStaticImage(index: number)
@@ -303,6 +319,10 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 		}
 
 		super.ngOnDestroy();
+	}
+
+	isFavorite(choice: Choice) {
+		return !!this.favoriteChoices?.find(c => c.divChoiceCatalogId === choice.divChoiceCatalogId);
 	}
 
 	onOptionToggled(choice: any)

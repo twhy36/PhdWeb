@@ -569,6 +569,21 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 			choice.price = choice.lockedInChoice.dpChoiceCalculatedPrice;
 		}
 
+		// #332687
+		// Check every selected choice for replace rules to prevent re-introducing replaced options
+		if (choice.lockedInOptions && choice.lockedInOptions.length) {
+			for (let i = choice.lockedInOptions.length - 1; i >= 0; i--) {
+				const filteredOptRules = rules.optionRules.filter(optRule => optRule.replaceOptions && optRule.replaceOptions.length
+					&& optRule.replaceOptions.includes(choice.lockedInOptions[i].optionId)
+					&& optRule.choices.every(c => (c.mustHave && choices.find(ch => ch.id === c.id && ch.quantity) || (!c.mustHave && choices.find(ch => ch.id === c.id && !ch.quantity)))));
+
+				// If the entire option rule is satisfied (Must Have's are all selected, Must Not Have's are all deselected), then remove the lockedInOption
+				if (filteredOptRules && filteredOptRules.length) {
+					choice.lockedInOptions.splice(i, 1);
+				}
+			}
+		}
+
 		//find choices that are locked in, with option mappings changed
 		if (choice.options && choice.lockedInChoice && (choice.lockedInOptions && choice.lockedInOptions.length && choice.lockedInOptions.some(o => !choice.options.some(co => o && co.financialOptionIntegrationKey === o.optionId))
 			|| choice.options.some(co => !choice.lockedInOptions.some(o => o.optionId === co.financialOptionIntegrationKey))))
@@ -797,127 +812,72 @@ export function getChoiceToDeselect(tree: Tree, toggledChoice: Choice): Choice
 		: null;
 }
 
-export function getDependentChoices(tree: Tree, rules: TreeVersionRules, choice: Choice): Array<Choice>
+export function getDependentChoices(tree: Tree, rules: TreeVersionRules, options: PlanOption[], choice: Choice): Array<Choice>
 {
-	if (!choice)
-	{
-		return [];
-	}
+	let newTree = _.cloneDeep(tree);
 
-	const treePoints = _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points));
-	const treeChoices = _.flatMap(treePoints, p => p.choices);
-
-	//if choice is being deselected, we want to check dependent choices for option mapping
-	//changes, and find "must have" rules that will require other choices to be deselected
+	//deselecting choice
 	if (choice.quantity)
 	{
-		//add dependencies from sold/locked options
-		let dependencyChoiceIds = choice.changedDependentChoiceIds && choice.changedDependentChoiceIds.length
-			? _.flatMap(choice.changedDependentChoiceIds.map(choiceId =>
-			{
-				let ch = treeChoices.find(c => c.divChoiceCatalogId === choiceId);
-
-				if (ch)
-				{
-					return _.flatMap(ch.lockedInOptions.map(or =>
-					{
-						//if the deselected choice is on the option rule's path, remove that choice plus any subsequent choices.
-						//otherwise, just remove the dependent choice plus any subsequent mapped choices.
-						//this may need to recursively look at the impact of that choice being removed.
-						let choiceIndex = or.choices.findIndex(c => c.id === choice.divChoiceCatalogId);
-						return or.choices.slice(choiceIndex !== -1 ? choiceIndex + 1 : or.choices.findIndex(c => c.id === choiceId)).filter(c => c.mustHave).map(c => c.id);
-					}));
-				}
-				else
-				{
-					return []; //shouldn't happen
-				}
-			}))
-			: [];
-
-		return _.uniqBy(
-			[
-				...(choice ? runRulesForDependentChoices(treePoints, treeChoices, rules, [choice]) : []),
-				...dependencyChoiceIds.map(ch => treeChoices.find(c => c.divChoiceCatalogId === ch))
-			],
-			ch => ch.divChoiceCatalogId);
-	} 
-	else
-	{
-		//if choice is being selected, we want to find new "must not have" rule violations
-		const mustNotHaveDependencies = [
-			...rules.choiceRules.filter(cr => cr.rules.some(r => r.ruleType === 2 && r.choices.some(ch => ch === choice.id))
-				&& treeChoices.some(ch => ch.id === cr.choiceId && !!ch.quantity))
-				.map(cr => treeChoices.find(ch => ch.id === cr.choiceId)),
-			..._.flatMap(rules.pointRules.filter(pr => pr.rules.some(r => r.ruleType === 2 && r.choices.some(ch => ch === choice.id))
-				&& treeChoices.some(ch => ch.treePointId === pr.pointId && !!ch.quantity)),
-				pr => treeChoices.filter(c => c.treePointId === pr.pointId && !!c.quantity))
-		];
-
-		return _.uniqBy(
-			[
-				...mustNotHaveDependencies,
-				...runRulesForDependentChoices(treePoints, treeChoices, rules, mustNotHaveDependencies)
-			],
-			ch => ch.divChoiceCatalogId
-		);
+		findChoice(newTree, ch => ch.id === choice.id).quantity = 0;
 	}
+	else 
+	{
+		selectChoice(newTree, choice.id); //this checks pick type and clears other choices if necessary
+		findChoice(newTree, ch => ch.id === choice.id).quantity = 1;
+	}
+
+	//clear locked in data on the cloned tree so we can see which choices "should"
+	//be disabled
+	_.flatMap(newTree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, p => p.choices)))
+		.forEach(ch => {
+			ch.lockedInChoice = null;
+			ch.lockedInOptions = [];
+		});
+
+	//apply rules to cloned tree
+	applyRules(newTree, rules, options);
+
+	//return any choices that are locked in (i.e. previously sold), but are disabled
+	//on the new tree
+	return _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, p => p.choices)))
+		.filter(ch => !!ch.lockedInChoice && !findChoice(newTree, ch1 => ch1.id === ch.id).enabled);
 }
 
-function runRulesForDependentChoices(treePoints: Array<DecisionPoint>, treeChoices: Array<Choice>, rules: TreeVersionRules, choices: Array<Choice>): Array<Choice>
-{
-	let ruleChoiceIds = [];
-	let rulePointIds = [];
+export function checkReplacedOption(deselectedChoice: Choice, rules: TreeVersionRules, choices: Choice[], options: PlanOption[], tree: Tree) {
+	// #332687
+	// If deselecting a choice that had replaced a previous choice,
+	// we need to retrieve that previous choice and restore its options
+	if (deselectedChoice.options && deselectedChoice.options.length) {
+		const optionRules = rules.optionRules.filter(opt => deselectedChoice.options.map(o => o.financialOptionIntegrationKey).includes(opt.optionId) && opt.replaceOptions && opt.replaceOptions.length);
+		optionRules.forEach(optRule => {
+			optRule.replaceOptions.forEach(replaceOptionId => {
+				let replaceOptionRule = rules.optionRules.find(r => r.optionId === replaceOptionId);
+				const maxSortOrderChoice = getMaxSortOrderChoice(tree, replaceOptionRule.choices.filter(ch => ch.mustHave).map(ch => ch.id));
+				const prevChoice = choices.find(ch => ch.id === maxSortOrderChoice);
 
-	choices.forEach(choice =>
-	{
-		if (rules.choiceRules)
-		{
-			rules.choiceRules.forEach(cr =>
-			{
-				const choiceRuleChoice = cr.rules ? cr.rules.find(r => r.ruleType === 1 && r.choices.some(c => c === choice.id)) : null;
+				if (prevChoice && prevChoice.lockedInChoice) {
+					// If list price is changed between change orders, we need to restore the original choice price
+					const option = options.find(o => o.financialOptionIntegrationKey === replaceOptionId);
+					const sum = prevChoice.price - prevChoice.options.filter(opt => opt.financialOptionIntegrationKey !== replaceOptionId).reduce((sum, current) => sum + current.listPrice, 0);
+					option.listPrice = sum;
 
-				if (choiceRuleChoice && !ruleChoiceIds.find(x => x === cr.choiceId))
-				{
-					ruleChoiceIds.push(cr.choiceId);
+					// lockedInOptions uses divChoiceCatalogID instead of dpChoiceId.
+					// fetch divChoiceCatalogID from the tree
+					replaceOptionRule = {
+						...replaceOptionRule,
+						choices: replaceOptionRule.choices.map(c => (
+							{...c, id: findChoice(tree, tc => tc.id === c.id)?.divChoiceCatalogId || c.id}
+						))
+					};
+
+					if (prevChoice.lockedInOptions) {
+						prevChoice.lockedInOptions.push(replaceOptionRule);
+					} else {
+						prevChoice.lockedInOptions = [replaceOptionRule];
+					}
 				}
 			});
-		}
-
-		if (rules.pointRules)
-		{
-			rules.pointRules.forEach(pr =>
-			{
-				const pointRuleChoice = pr.rules ? pr.rules.find(r => r.ruleType === 1 && r.choices.some(c => c === choice.id)) : null;
-				const pointRulePoint = pr.rules ? pr.rules.find(r => r.ruleType === 1 && r.points.some(p => p === choice.treePointId)) : null;
-
-				if ((pointRuleChoice || pointRulePoint) && !rulePointIds.find(x => x === pr.pointId))
-				{
-					rulePointIds.push(pr.pointId);
-				}
-			});
-		}
-	});
-
-	let dependentChoices = treeChoices.filter(x => x.quantity > 0 && ruleChoiceIds.some(c => c === x.id)) || [];
-	const dependentPoints = treePoints.filter(x => rulePointIds.some(p => p === x.id)) || [];
-
-	dependentPoints.forEach(pt =>
-	{
-		const selectedChoice = pt.choices.find(x => x.quantity > 0);
-		if (selectedChoice && !dependentChoices.find(x => x.id === selectedChoice.id))
-		{
-			dependentChoices.push(selectedChoice);
-		}
-	});
-
-	if (dependentChoices.length)
-	{
-		const childDepChoices = runRulesForDependentChoices(treePoints, treeChoices, rules, dependentChoices);
-		const newChildDepChoices = childDepChoices.filter(x => !dependentChoices.find(c => c.id === x.id));
-
-		dependentChoices = [...dependentChoices, ...newChildDepChoices];
+		});
 	}
-
-	return dependentChoices;
 }

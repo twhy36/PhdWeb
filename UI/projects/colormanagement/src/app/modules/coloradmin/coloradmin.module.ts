@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { NgbModule, NgbButtonsModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import {CoreModule} from '../core/core.module';
 import {SharedModule} from '../shared/shared.module';
 
@@ -20,14 +20,14 @@ const routes: Routes = [
 		ColorItemsPageComponent,
 		ColorsPageComponent
 	],
-	imports: [
-		NgbModule,
-		CommonModule,
-		FormsModule,
-		CoreModule,
-		SharedModule,
-		RouterModule.forChild(routes)
-	],
+    imports: [
+        NgbModule,
+        CommonModule,
+        FormsModule,
+        CoreModule,
+        SharedModule,
+        RouterModule.forChild(routes)
+    ],
 	exports: [
 	],
 	providers: [

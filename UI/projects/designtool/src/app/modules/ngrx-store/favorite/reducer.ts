@@ -1,8 +1,10 @@
-import { createSelector, createFeatureSelector, Action } from '@ngrx/store';
+import { createSelector, createFeatureSelector } from '@ngrx/store';
+import * as _ from "lodash";
 
 import { MyFavorite } from 'phd-common';
 
 import { CommonActionTypes, SalesAgreementLoaded } from '../actions';
+import { FavoriteActions, FavoriteActionTypes } from './actions';
 
 export interface State
 {
@@ -13,7 +15,7 @@ export const initialState: State = {
 	myFavorites: null
 };
 
-export function reducer(state: State = initialState, action: Action): State
+export function reducer(state: State = initialState, action: FavoriteActions): State
 {
 	switch (action.type)
 	{
@@ -23,6 +25,11 @@ export function reducer(state: State = initialState, action: Action): State
 				return { ...state, myFavorites: saAction.myFavorites };
 			}
 
+		case FavoriteActionTypes.MyFavoritesDeleted:
+			{
+				return { ...state, myFavorites: null };
+			}
+						
 		default:
 			return state;
 	}

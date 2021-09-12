@@ -93,7 +93,13 @@
                                 }
                             ]
                         },
-                        "qa": {
+                        "qa": {                        
+                            "optimization": true,
+                            "sourceMap": true,
+                            "namedChunks": false,
+                            "extractLicenses": true,
+                            "vendorChunk": false,
+                            "buildOptimizer": true,
                             "fileReplacements": [
                                 {
                                     "replace": "projects/choiceadmin/src/environments/environment.ts",
@@ -101,7 +107,13 @@
                                 }
                             ]
                         },
-                        "staging": {
+                        "staging": {          
+                            "optimization": true,
+                            "sourceMap": true,
+                            "namedChunks": false,
+                            "extractLicenses": true,
+                            "vendorChunk": false,
+                            "buildOptimizer": true,
                             "fileReplacements": [
                                 {
                                     "replace": "projects/choiceadmin/src/environments/environment.ts",
@@ -236,6 +248,12 @@
                             ]
                         },
                         "qa": {
+                            "optimization": true,
+                            "sourceMap": true,
+                            "namedChunks": false,
+                            "extractLicenses": true,
+                            "vendorChunk": false,
+                            "buildOptimizer": true,
                             "fileReplacements": [
                                 {
                                     "replace": "projects/designtool/src/environments/environment.ts",
@@ -244,6 +262,12 @@
                             ]
                         },
                         "staging": {
+                            "optimization": true,
+                            "sourceMap": true,
+                            "namedChunks": false,
+                            "extractLicenses": true,
+                            "vendorChunk": false,
+                            "buildOptimizer": true,
                             "fileReplacements": [
                                 {
                                     "replace": "projects/designtool/src/environments/environment.ts",
@@ -375,6 +399,12 @@
                             ]
                         },
                         "qa": {
+                            "optimization": true,
+                            "sourceMap": true,
+                            "namedChunks": false,
+                            "extractLicenses": true,
+                            "vendorChunk": false,
+                            "buildOptimizer": true,
                             "fileReplacements": [
                                 {
                                     "replace": "projects/salesadmin/src/environments/environment.ts",
@@ -383,6 +413,12 @@
                             ]
                         },
                         "staging": {
+                            "optimization": true,
+                            "sourceMap": true,
+                            "namedChunks": false,
+                            "extractLicenses": true,
+                            "vendorChunk": false,
+                            "buildOptimizer": true,
                             "fileReplacements": [
                                 {
                                     "replace": "projects/salesadmin/src/environments/environment.ts",
@@ -513,6 +549,12 @@
                             ]
                         },
                         "qa": {
+                            "optimization": true,
+                            "sourceMap": true,
+                            "namedChunks": false,
+                            "extractLicenses": true,
+                            "vendorChunk": false,
+                            "buildOptimizer": true,
                             "fileReplacements": [
                                 {
                                     "replace": "projects/salesportal/src/environments/environment.ts",
@@ -521,6 +563,12 @@
                             ]
                         },
                         "staging": {
+                            "optimization": true,
+                            "sourceMap": true,
+                            "namedChunks": false,
+                            "extractLicenses": true,
+                            "vendorChunk": false,
+                            "buildOptimizer": true,
                             "fileReplacements": [
                                 {
                                     "replace": "projects/salesportal/src/environments/environment.ts",
@@ -655,6 +703,12 @@
                             ]
                         },
                         "qa": {
+                            "optimization": true,
+                            "sourceMap": true,
+                            "namedChunks": false,
+                            "extractLicenses": true,
+                            "vendorChunk": false,
+                            "buildOptimizer": true,
                             "fileReplacements": [
                                 {
                                     "replace": "projects/designpreview/src/environments/environment.ts",
@@ -663,6 +717,12 @@
                             ]
                         },
                         "staging": {
+                            "optimization": true,
+                            "sourceMap": true,
+                            "namedChunks": false,
+                            "extractLicenses": true,
+                            "vendorChunk": false,
+                            "buildOptimizer": true,
                             "fileReplacements": [
                                 {
                                     "replace": "projects/designpreview/src/environments/environment.ts",
@@ -779,7 +839,7 @@
                             "node_modules/primeng/resources/primeng.min.css",
                             "node_modules/primeicons/primeicons.css",
                             "projects/colormanagement/src/scss/styles.scss"
-                        ],
+						],
                         "scripts": []
                     },
                     "configurations": {
@@ -794,6 +854,12 @@
                             ]
                         },
                         "qa": {
+                            "optimization": true,
+                            "sourceMap": true,
+                            "namedChunks": false,
+                            "extractLicenses": true,
+                            "vendorChunk": false,
+                            "buildOptimizer": true,
                             "fileReplacements": [
                                 {
                                     "replace": "projects/colormanagement/src/environments/environment.ts",
@@ -802,6 +868,12 @@
                             ]
                         },
                         "staging": {
+                            "optimization": true,
+                            "sourceMap": true,
+                            "namedChunks": false,
+                            "extractLicenses": true,
+                            "vendorChunk": false,
+                            "buildOptimizer": true,
                             "fileReplacements": [
                                 {
                                     "replace": "projects/colormanagement/src/environments/environment.ts",

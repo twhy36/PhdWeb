@@ -1,10 +1,10 @@
+import { Observable, forkJoin, from, of } from 'rxjs';
+import { switchMap, withLatestFrom, map, combineLatest } from 'rxjs/operators';
+
 import { SalesAgreementService } from './../../core/services/sales-agreement.service';
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Action, Store, select } from '@ngrx/store';
-import { forkJoin, from, of } from 'rxjs';
-import { Observable } from 'rxjs/Observable';
-import { switchMap, withLatestFrom, map, combineLatest } from 'rxjs/operators';
 
 import 
 { 
@@ -101,7 +101,8 @@ export class ChangeOrderEffects
 						store.job,
 						store.changeOrder.changeInput.handing,
 						store.salesAgreement.id,
-						baseHouseOption);
+						baseHouseOption,
+						store.scenario.rules.optionRules);
 					const data = this.changeOrderService.mergePosData(
 						inputData,
 						store.changeOrder.currentChangeOrder,
@@ -331,7 +332,8 @@ export class ChangeOrderEffects
 						store.job,
 						store.plan.selectedPlan,
 						store.salesAgreement.id,
-						priceBreakdown.baseHouse);
+						priceBreakdown.baseHouse,
+						store.scenario.rules.optionRules);
 					const data = this.changeOrderService.mergePosData(
 						inputData,
 						store.changeOrder.currentChangeOrder,
@@ -629,6 +631,7 @@ export class ChangeOrderEffects
 							currentHanding,
 							store.salesAgreement.id,
 							baseHouseOption,
+							store.scenario.rules.optionRules,
 							!isSpecSalePending,
 							priceBreakdown.baseHouse);
 

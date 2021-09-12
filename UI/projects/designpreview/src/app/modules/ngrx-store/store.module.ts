@@ -22,7 +22,7 @@ import { CommonEffects } from './effects';
 	imports: [
 		NgrxStoreModule.forRoot(reducers, { metaReducers: [exceptionHandler, sessionStateReducer, stopwatchReducer, stateReset] }),
 		environment.production ? [] : StoreDevtoolsModule.instrument({
-			name: 'PHD Home Designer Store DevTools',
+			name: 'PHD Design Preview Store DevTools',
 			logOnly: false
 		}),
 

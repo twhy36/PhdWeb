@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
 import { combineLatest, map, filter, distinctUntilChanged, withLatestFrom, debounceTime, take } from 'rxjs/operators';
-import { ReplaySubject } from 'rxjs/ReplaySubject';
+import { ReplaySubject } from 'rxjs';
 
 import * as _ from 'lodash';
 
@@ -22,6 +22,7 @@ import {
 	SubGroup,
 	Tree,
 	TreeVersionRules,
+	PlanOption,
 	JobChoice,
 	getDependentChoices,
 	DecisionPoint,
@@ -57,6 +58,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 	errorMessage: string = '';
 	tree: Tree;
 	treeVersionRules: TreeVersionRules;
+	options: PlanOption[];
 	myFavoritesChoices: MyFavoritesChoice[];
 	includeContractedOptions: boolean;
 	salesChoices: JobChoice[];
@@ -203,12 +205,12 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		).subscribe(pb => this.priceBreakdown = pb);
 
 		this.store.pipe(
-			take(1),
 			select(state => state.scenario),
 		).subscribe(scenario =>
 		{
 			this.tree = scenario.tree;
-			this.treeVersionRules = scenario.rules;
+			this.treeVersionRules = _.cloneDeep(scenario.rules);
+			this.options = _.cloneDeep(scenario.options);
 			this.isReadonly = scenario.buildMode === 'buyerPreview';
 		});
 
@@ -260,14 +262,15 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 	{
 		if (!!newSubGroup.id)
 		{
+			this.groupName = newGroup.label;
+			this.selectedSubGroup = newSubGroup;
+			this.selectedSubgroupId = newSubGroup.id;
+
 			const choiceIds = (_.flatMap(newSubGroup.points, pt => pt.choices) || []).map(c => c.id);
 
 			return this.treeService.getChoiceImageAssoc(choiceIds)
 				.subscribe(choiceImages =>
 				{
-					this.groupName = newGroup.label;
-					this.selectedSubGroup = newSubGroup;
-					this.selectedSubgroupId = newSubGroup.id;
 					this.currentChoiceImages = choiceImages;
 				});
 		}
@@ -292,13 +295,9 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 
 	toggleChoice(choice: ChoiceExt)
 	{
-		const choiceToDeselect = getChoiceToDeselect(this.tree, choice);
-		
 		let selectedChoices = [{ choiceId: choice.id, divChoiceCatalogId: choice.divChoiceCatalogId, quantity: !choice.quantity ? 1 : 0, attributes: choice.selectedAttributes }];
-		const impactedChoices = [
-			...getDependentChoices(this.tree, this.treeVersionRules, choiceToDeselect),
-			...getDependentChoices(this.tree, this.treeVersionRules, !choice.quantity ? choice : null)
-		];
+		const impactedChoices = getDependentChoices(this.tree, this.treeVersionRules, this.options, choice);
+
 		impactedChoices.forEach(c =>
 		{
 			selectedChoices.push({ choiceId: c.id, divChoiceCatalogId: c.divChoiceCatalogId, quantity: 0, attributes: c.selectedAttributes });
@@ -331,7 +330,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		pointDeclined?.choices?.forEach(c => {
 			deselectedChoices.push({ choiceId: c.id, divChoiceCatalogId: c.divChoiceCatalogId, quantity: 0, attributes: [] });
 
-			const impactedChoices = getDependentChoices(this.tree, this.treeVersionRules, c);
+			const impactedChoices = getDependentChoices(this.tree, this.treeVersionRules, this.options, c);
 
 			impactedChoices.forEach(ch =>
 			{
@@ -422,5 +421,11 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 
 		const declPointIds = [point.divPointCatalogId];
 		this.store.dispatch(new ScenarioActions.SetStatusForPointsDeclined(declPointIds, !!declPoint));
+	}
+
+	treeFilterChanged() 
+	{
+		this.showDetails = false;
+		this.selectedChoice = null;
 	}
 }

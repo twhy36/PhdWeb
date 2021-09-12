@@ -1,6 +1,6 @@
 <div class="phd-choice-card" [class.active]="choice?.quantity" [class.selected]="choice?.quantity" [class.phd-monotony-conflict]="(monotonyConflict.monotonyConflict && !canOverride)" [@flipOver] (click)="onChoiceDetail(choice, content)">
 	<div class="phd-header" [class.phd-choice-disabled]="monotonyConflict.monotonyConflict">
-		<div *ngIf="imageLoading" class="phd-image-loading">
+		<div *ngIf="!imageLoaded" class="phd-image-loading">
 			<i class="fa fa-spinner fa-spin fa-3x phd-image-loader"></i>
 		</div>
 

@@ -1,14 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
-import { Observable, Subject, ConnectableObservable } from 'rxjs';
+import { Observable, Subject, ConnectableObservable, of, throwError } from 'rxjs';
 import { map, catchError, publishReplay } from 'rxjs/operators';
-import { _throw } from 'rxjs/observable/throw';
 
 import { StorageService } from './storage.service';
 
 import { environment } from '../../../../environments/environment';
-import { of } from 'rxjs/observable/of';
 import { IMarket, ISalesCommunity, IPlan, ITreeVersion, ISalesCommunityWebSiteCommunityAssoc, IWebSiteCommunity } from '../../shared/models/community.model';
 
 @Injectable()
@@ -265,7 +263,7 @@ export class OrganizationService
 	{
 		// In the future, we may send the server to some remote logging infrastructure.
 		console.error('Error message: ', error);
-
-		return _throw(error || 'Server error');
+		
+		return throwError(error || 'Server error');
 	}
 }

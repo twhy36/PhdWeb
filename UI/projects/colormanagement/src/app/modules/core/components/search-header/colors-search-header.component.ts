@@ -1,14 +1,15 @@
-import { Component, OnInit } from '@angular/core';
-import { OptionService } from '../../services/option.service';
-import { IOptionSubCategory } from '../../../shared/models/option.model';
-import { OrganizationService } from '../../../core/services/organization.service';
-import { switchMap, filter, map } from 'rxjs/operators';
-import { Observable } from 'rxjs';
-import { UnsubscribeOnDestroy } from 'phd-common';
-import { IColorDto } from '../../../shared/models/color.model';
-import { ColorService } from '../../services/color.service';
-import { SettingsService } from '../../services/settings.service';
-import { Settings } from '../../../shared/models/settings.model';
+import {Component, OnInit, ViewChild } from '@angular/core';
+import {OptionService} from '../../services/option.service';
+import {IOptionSubCategory} from '../../../shared/models/option.model';
+import {OrganizationService} from '../../../core/services/organization.service';
+import {filter, map, switchMap} from 'rxjs/operators';
+import {Observable} from 'rxjs';
+import {ModalRef, UnsubscribeOnDestroy, ModalService} from 'phd-common';
+import {IColorDto, IColor} from '../../../shared/models/color.model';
+import {ColorService} from '../../services/color.service';
+import {SettingsService} from '../../services/settings.service';
+import {Settings} from '../../../shared/models/settings.model';
+
 @Component({
 	selector: 'colors-search-header',
 	templateUrl: './colors-search-header.component.html',
@@ -31,11 +32,17 @@ export class ColorsSearchHeaderComponent
 	currentPage: number = 0;
 	skip: number;
 	settings: Settings;
+	modalReference: ModalRef;
+	newColors: IColor[] = [];
+	@ViewChild('addColorModal') addColorModal: any;
+	deleteColorList: Array<IColorDto>=[];
+
 	constructor(
 		private _optionService: OptionService,
 		private _orgService: OrganizationService,
 		private _colorService: ColorService,
-		private _settingsService: SettingsService
+		private _settingsService: SettingsService,
+		private _modalService: ModalService
 	) {
 		super();
 	}
@@ -48,7 +55,9 @@ export class ColorsSearchHeaderComponent
 			filter((comm) => !!comm),
 			switchMap((comm) => {
 				this.currentCommunityId = comm.id;
-				return this._optionService.getOptionsCategorySubcategory(this.currentCommunityId);
+				return this._optionService.getOptionsCategorySubcategory(
+					this.currentCommunityId
+				);
 			})
 		);
 		this.optionSubCategory$.subscribe((subcategoryList) => {
@@ -58,21 +67,19 @@ export class ColorsSearchHeaderComponent
 		});
 	}
 
-	showCounter() 
-	{
+	showCounter() {
 		this.isCounterVisible = true;
 	}
 
-	hideCounter()
-	{
+	hideCounter() {
 		this.isCounterVisible = false;
 	}
 
-	loadColors()
-	{
+	loadColors() {
 		this.allDataLoaded = false;
 
-		this._colorService.getColors(
+		this._colorService
+			.getColors(
 				this.currentCommunityId,
 				this.colorname,
 				this.selectedSubCategory?.id,
@@ -89,44 +96,86 @@ export class ColorsSearchHeaderComponent
 							colorId: color.colorId,
 							name: color.name,
 							sku: color.sku,
-							optionCategoryName:	categorySubcategory?.optionCategory?.name,
+							optionCategoryName:
+								categorySubcategory?.optionCategory?.name,
 							optionSubCategoryName: categorySubcategory?.name,
+							optionSubCategoryId: categorySubcategory?.id??null,
 							isActive: color.isActive,
+							hasSalesConfig:null
 						};
 						return colorsDto;
 					}) as Array<IColorDto>;
 					return colorsList;
+				}),
+				switchMap((colorDtos)=>
+				{
+					return this._colorService.getSalesConfiguration(colorDtos);
 				})
 			)
-			.subscribe((colorDtos) => {
+			.subscribe((colorDtos) => {				
 				this.currentPage++;
-				this.allDataLoaded =colorDtos.length < this.settings.infiniteScrollPageSize;
+				this.allDataLoaded =
+					colorDtos.length < this.settings.infiniteScrollPageSize;
 				this.colorsDtoList = [...this.colorsDtoList, ...colorDtos];
-			});
+	});
 	}
 
-	filterColors() 
-	{
+	filterColors() {
 		this.colorsDtoList = [];
 		this.currentPage = 0;
-		this.skip=0;
 		this.loadColors();
 	}
 
-	onPanelScroll()
-	{
+	onPanelScroll() {
 		this.isLoading = true;
 		this.skip = this.currentPage * this.settings.infiniteScrollPageSize;
 		this.loadColors();
 	}
 
-	resetfilter() 
-	{
+	resetfilter() {
 		this.colorname = '';
 		this.selectedSubCategory = null;
 		this.isActiveColor = null;
 		this.colorsDtoList = [];
-		this.skip=0;
 	}
 
+	isDeleteSelected(color:IColorDto):boolean
+	{
+		return this.deleteColorList.some(col => col.colorId	===	color.colorId);
+	}
+
+	setDeleteSelected(color: IColorDto, isSelected: boolean): void
+	{
+
+		let index = this.deleteColorList.findIndex(s => s.colorId === color.colorId);
+
+		if (isSelected && index < 0)
+		{
+			this.deleteColorList.push(color);
+		}
+		else if (!isSelected && index >= 0)
+		{
+			this.deleteColorList.splice(index, 1);
+
+			this.deleteColorList = [...this.deleteColorList];
+		}
+	}
+
+	showAddColorsDialog()
+	{
+		this.modalReference = this._modalService.open(this.addColorModal);
+		this.modalReference.result.catch(err => console.log(err));
+	}
+
+	onNewColorsWereSaved()
+	{
+		this.modalReference.dismiss();
+		this.resetfilter();
+		this.loadColors();
+	}
+
+	onCloseDialogWasRequested()
+	{
+		this.modalReference.dismiss();
+	}
 }

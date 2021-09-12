@@ -1,9 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpHeaders, HttpClient } from '@angular/common/http';
 
-import { Observable } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-import { _throw } from 'rxjs/observable/throw';
 
 import * as odataUtils from '../../shared/utils/odata.util';
 
@@ -408,6 +407,6 @@ export class ContractService
 
 	private handleError(error: Response)
 	{
-		return _throw(error || 'Server error');
+		return throwError(error || 'Server error');
 	}
 }

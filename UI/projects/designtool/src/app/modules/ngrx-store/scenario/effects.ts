@@ -3,13 +3,8 @@ import { Router } from '@angular/router';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Action, Store } from '@ngrx/store';
 
-import { Observable } from 'rxjs/Observable';
-import { switchMap, withLatestFrom, share, combineLatest, flatMap, map, take, delay } from 'rxjs/operators';
-import { from } from 'rxjs/observable/from';
-import { of } from 'rxjs/observable/of';
-import { timer } from 'rxjs/observable/timer';
-import { never } from 'rxjs/observable/never';
-import { filter } from 'rxjs/operators';
+import { Observable, from, of, timer, never } from 'rxjs';
+import { switchMap, withLatestFrom, share, combineLatest, flatMap, map, take, delay, filter } from 'rxjs/operators';
 
 import { AppInsights } from 'applicationinsights-js';
 

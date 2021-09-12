@@ -14,7 +14,7 @@ import { IdleLogoutComponent } from './modules/core/components/idle-logout/idle-
     styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-	title = 'Home Designer';
+	title = 'Design Preview';
 
 	build = (build as any).default;
 	environment = environment;

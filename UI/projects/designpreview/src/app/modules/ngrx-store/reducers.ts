@@ -71,7 +71,7 @@ export const filteredTree = createSelector(
 
 							let choices = p.choices.filter(c => {
 								let isValid = treeMatched.point || filter(c.label);
-									
+
 								let isIncluded = true;
 								const isContractedChoice = contractedChoices?.includes(c);
 
@@ -164,10 +164,13 @@ export const priceBreakdown = createSelector(
 
 			let base = scenario.options ? scenario.options.find(o => o.isBaseHouse) : null;
 			if (base && scenario.tree) {
+				const treePoints = _.flatMap(scenario.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points));
 				const treeChoices = _.flatMap(scenario.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, p => p.choices)));
                 breakdown.selections = treeChoices.filter(c => !!favorite?.salesChoices?.find(x => x.divChoiceCatalogId === c.divChoiceCatalogId))
 					?.reduce((acc, ch) => acc + (ch.quantity * ch.price), 0);
-				breakdown.favoritesPrice = treeChoices.filter(c => c.quantity > 0 && !c.priceHiddenFromBuyerView && !favorite?.salesChoices?.find(x => x.divChoiceCatalogId === c.divChoiceCatalogId))
+				breakdown.favoritesPrice = treeChoices.filter(c => c.quantity > 0 && !c.priceHiddenFromBuyerView && !c.isHiddenFromBuyerView
+					&& !treePoints.find(p => p.choices.find(ch => ch.divChoiceCatalogId === c.divChoiceCatalogId)).isHiddenFromBuyerView
+					&& !favorite?.salesChoices?.find(x => x.divChoiceCatalogId === c.divChoiceCatalogId))
 					?.reduce((acc, ch) => acc + (ch.quantity * ch.price), 0);
 			}
 
@@ -227,7 +230,11 @@ export const priceBreakdown = createSelector(
 			}
 
 			let changePrice = salesAgreement.status === 'Approved' && currentChangeOrder?.amount || 0;
-			const salesPrice = salesAgreement.salePrice || 0;
+			let salesPrice = salesAgreement.salePrice || 0;
+
+			if (salesPrice === 0 && scenario.buildMode === 'preview') {
+				salesPrice = breakdown.baseHouse;
+			}
 
 			let nonStandardOptions = 0;
 			job.jobNonStandardOptions?.forEach(nso => {
@@ -280,7 +287,7 @@ export const elevationImageUrl = createSelector(
 		const elevationOption = scenario && scenario.options ? scenario.options.find(x => x.isBaseHouseElevation) : null;
 
 		if (dp) {
-			const selectedChoice = dp.choices.find(x => x.quantity > 0);
+			const selectedChoice = dp.choices.find(x => x.quantity > 0 || x.isDecisionDefault);
 			let option: PlanOption = null;
 
 			if (selectedChoice && selectedChoice.options && selectedChoice.options.length) {

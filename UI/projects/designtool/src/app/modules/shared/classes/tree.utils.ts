@@ -1,8 +1,5 @@
-import { Observable } from 'rxjs/Observable';
+import { Observable, combineLatest, of, throwError } from 'rxjs';
 import { switchMap, catchError, map, tap } from 'rxjs/operators';
-import { of } from 'rxjs/observable/of';
-import { _throw } from 'rxjs/observable/throw';
-import { combineLatest } from 'rxjs/observable/combineLatest';
 
 import * as _ from 'lodash';
 import * as moment from "moment";
@@ -13,7 +10,7 @@ import
 		ChangeOrderGroup, ChangeOrderChoice, ChangeOrderPlanOption, ChangeOrderChoiceAttribute, ChangeOrderChoiceLocation,
 		JobChoice, JobPlanOption, JobChoiceAttribute, JobChoiceLocation, Job, PlanOption, PointStatus, ConstructionStageTypes,
 		OptionRule, TreeVersionRules, Scenario, SelectedChoice, Tree, Choice, DecisionPoint, MappedAttributeGroup, MappedLocationGroup,
-		OptionImage, SubGroup, Group, applyRules, findChoice, MyFavoritesChoice
+		OptionImage, SubGroup, Group, applyRules, findChoice, MyFavoritesChoice, getMaxSortOrderChoice
 	} from 'phd-common';
 
 import { TreeService } from '../../core/services/tree.service';
@@ -523,7 +520,7 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 
 			return data.res;
 		}),
-		catchError(err => { console.error(err); return _throw(err); })
+		catchError(err => { console.error(err); return throwError(err); })
 	);
 }
 
@@ -869,4 +866,29 @@ export function updateWithNewTreeVersion<T extends { tree: Tree, rules: TreeVers
 			);
 		}
 	};
+}
+
+export function getJobOptionType(option: PlanOption, elevationDP: DecisionPoint, tree: Tree, optionRules: OptionRule[])
+{
+	let optionType = '';
+
+	const optionRule = optionRules.find(opt => option. financialOptionIntegrationKey === opt.optionId);
+
+	// Check if this option replaces an elevation choice 
+	// If it does then set option type to Elevation
+	if (optionRule?.replaceOptions?.length)
+	{
+		const replaceOption = optionRule.replaceOptions.find(replaceOptionId => {
+			const replaceOptionRule = optionRules.find(r => r.optionId === replaceOptionId);
+			const replacedChoiceId = getMaxSortOrderChoice(tree, replaceOptionRule.choices.filter(ch => ch.mustHave).map(ch => ch.id));
+			return !!elevationDP.choices.find(ch => ch.id === replacedChoiceId);
+		});	
+		
+		if (replaceOption)
+		{
+			optionType = 'Elevation';
+		}
+	}
+	
+	return optionType;
 }

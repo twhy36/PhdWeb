@@ -4,7 +4,7 @@ export const environment: IEnvironment = {
 	production: false,
 	apiUrl: 'https://phdapi.qa.pulte.com/odata/',
 	authConfigs: {
-		sitecoreSSO: 
+		sitecoreSSO:
 		{
 			issuer: 'https://pultesso.qa.pulte.com',
 			clientId: 'DesignPreview',
@@ -12,7 +12,7 @@ export const environment: IEnvironment = {
 			clearHashAfterLogin: true,
 			scope: 'openid offline_access pulte designpreview.access',
 			showDebugInformation: true,
-			logoutUrl: 'https://cdr3.qa.pulte.com/My-Pulte-Account/Login'
+			logoutUrl: 'https://cdr.qa.pulte.com/My-Pulte-Account/Login'
 		},
 		azureAD: {
 			issuer: "https://login.microsoftonline.com/1a9277a3-ef66-41f6-96b5-c5390ee468a7/v2.0",

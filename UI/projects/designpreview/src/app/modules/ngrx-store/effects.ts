@@ -3,10 +3,7 @@ import { Injectable } from '@angular/core';
 import { Action, Store, select } from '@ngrx/store';
 import { Actions, ofType, createEffect } from '@ngrx/effects';
 import { switchMap, combineLatest, map, scan, withLatestFrom, tap } from 'rxjs/operators';
-import { Observable } from 'rxjs/Observable';
-import { from } from 'rxjs/observable/from';
-import { of } from 'rxjs/observable/of';
-import { forkJoin } from 'rxjs/observable/forkJoin';
+import { Observable, of, forkJoin, from } from 'rxjs';;
 import * as _ from 'lodash';
 
 import { SpinnerService, ChangeOrderChoice, ChangeOrderGroup, SalesAgreementInfo, MyFavoritesPointDeclined } from 'phd-common';
@@ -42,7 +39,7 @@ export class CommonEffects
 						this.salesAgreementService.getSalesAgreementInfo(action.salesAgreementId)
 					).pipe(
 						switchMap(([sag, sagInfo]) => {
-							return this.jobService.loadJob(sag.jobSalesAgreementAssocs[0].jobId).pipe(
+							return this.jobService.loadJob(sag.jobSalesAgreementAssocs[0].jobId, sag.id).pipe(
 								combineLatest(this.favoriteService.loadMyFavorites(sag.id)),
 								map(([job, fav]) => {
 									return { job, salesAgreement: sag, salesAgreementInfo: sagInfo || new SalesAgreementInfo(), myFavorites: fav };
