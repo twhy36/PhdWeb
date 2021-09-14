@@ -59,6 +59,7 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 	buildMode: 'buyer' | 'spec' | 'model' | 'preview' = 'buyer';
 	job: Job;
 	scenario: Scenario;
+	financialCommunities: Array<FinancialCommunity>;
 
 	constructor(private router: Router,
 		private store: Store<fromRoot.State>,
@@ -179,11 +180,13 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 				this.store.pipe(
 					select(selectSelectedLot)
 				),
+				this.store.pipe(select(state=> state.org.salesCommunity.financialCommunities)),
 				this.store.pipe(select(state => state.lot.selectedHanding)),
 				this.selectedFilterBy$
 			)
-		).subscribe(([lots, selectedLot, selectedHanding, selectedFilter]) =>
+		).subscribe(([lots, selectedLot, financialCommunities, selectedHanding, selectedFilter]) =>
 		{
+			this.financialCommunities = financialCommunities;
 			this.lots = lots.map(l => new LotComponentLot(l, selectedLot, selectedHanding));
 			this.filteredLots = this.lots;
 
@@ -269,10 +272,12 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 	monotonyConflictMessage(lot: LotComponentLot): string 
 	{
 		const planId = this.selectedPlanId ?? 0;
+		const isColorSchemePlanRuleEnabled = this.financialCommunities.find(fc => fc.id == lot.financialCommunityId).isColorSchemePlanRuleEnabled;
 
 		if (this.colorSchemeChoice && !this.colorSchemeConflictOverride) 
 		{
-			lot.colorSchemeMonotonyConflict = lot.monotonyRules.some(x => x.colorSchemeDivChoiceCatalogId === this.colorSchemeChoice.divChoiceCatalogId && x.edhPlanId === planId);
+			lot.colorSchemeMonotonyConflict = isColorSchemePlanRuleEnabled ? lot.monotonyRules.some(x => x.colorSchemeDivChoiceCatalogId === this.colorSchemeChoice.divChoiceCatalogId && x.edhPlanId === planId) :
+				lot.monotonyRules.some(x => x.colorSchemeDivChoiceCatalogId === this.colorSchemeChoice.divChoiceCatalogId);
 		}
 
 		if (this.elevationChoice && !this.elevationConflictOverride) 
