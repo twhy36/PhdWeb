@@ -36,6 +36,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 	previewEnabledDirty = false;
 	canToggleCommunitySettings = false;
 	canAccessDesignPreview = false;
+	environment = environment;
 
 	get saveDisabled(): boolean
 	{
