@@ -38,9 +38,14 @@ export class PlanCardComponent implements OnInit
 		return this.plan.lotAssociations.some(l => l === this.selectedLot.id);
 	}
 
-	toggleSelectedPlan(plan: Plan, selected: boolean)
+	toggleSelectedPlan(plan: Plan)
 	{
-		this.onTogglePlan.emit({ plan: plan, isSelected: selected });
+		this.onTogglePlan.emit({ plan: plan, isSelected: this.isPlanSelected(plan) });
+	}
+
+	isPlanSelected(plan: Plan)
+	{
+		return !this.isSpecSelected && this.selectedPlan?.id === plan.id;
 	}
 
 	/**
@@ -91,5 +96,15 @@ export class PlanCardComponent implements OnInit
 		}
 
 		return this.plan.price;
+	}
+
+	isPlanActive(): boolean
+	{
+		// It is in PhdLite when the plan does not have tree. 
+		// In this case it will determine if the plan is active by checking if the plan has been selected
+		return (this.plan.treeVersionId	
+			? this.selectedPlan?.treeVersionId === this.plan.treeVersionId 
+			: this.selectedPlan?.id === this.plan.id)
+			&& !this.isSpecSelected;
 	}
 }
