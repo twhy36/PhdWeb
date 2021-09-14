@@ -159,6 +159,81 @@ export function reducer(state: State = initialState, action: FavoriteActions): S
 				return { ...state, isLoading: false }
 			}
 
+		case FavoriteActionTypes.MyFavoritesChoicesDeleted:
+			{
+				let myFavorites = _.cloneDeep(state.myFavorites);
+				if (myFavorites?.length && action.choices?.length)
+				{
+					let currentMyFavorite = myFavorites[0];
+					action.choices.forEach(c => {
+						const choiceIndex = currentMyFavorite.myFavoritesChoice.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId);
+						if (choiceIndex > -1)
+						{
+							currentMyFavorite.myFavoritesChoice.splice(choiceIndex, 1);
+						}
+					});
+				}
+
+				return { ...state, saveError: false, myFavorites: myFavorites };
+			}
+
+		case CommonActionTypes.MyFavoritesChoiceAttributesDeleted:
+			{
+				let myFavorites = _.cloneDeep(state.myFavorites);
+				if (myFavorites?.length)
+				{
+					let currentMyFavorite = myFavorites[0];
+					let myFavoritesChoice = currentMyFavorite.myFavoritesChoice.find(c => c.divChoiceCatalogId === action.myFavoritesChoice.divChoiceCatalogId);
+					
+					const deletedAttributes = [...action.attributes, ...action.locations];
+					deletedAttributes?.forEach(att => {
+						if (att.locationId)
+						{
+							let myFavoritesChoiceLoc = myFavoritesChoice?.myFavoritesChoiceLocations?.find(x => 
+								x.locationGroupCommunityId === att.locationGroupId
+								&& x.locationCommunityId === att.locationId);
+								
+							if (myFavoritesChoiceLoc?.myFavoritesChoiceLocationAttributes?.length)
+							{
+								const locAttributeIndex = myFavoritesChoiceLoc.myFavoritesChoiceLocationAttributes.findIndex(x => 
+									x.attributeGroupCommunityId === att.attributeGroupId
+									&& x.attributeCommunityId === att.attributeId);
+
+								if (locAttributeIndex > -1)
+								{
+									myFavoritesChoiceLoc.myFavoritesChoiceLocationAttributes.splice(locAttributeIndex, 1);
+								}
+							}
+						}
+						else
+						{
+							const attributeIndex = myFavoritesChoice?.myFavoritesChoiceAttributes?.findIndex(x => 
+								x.attributeGroupCommunityId === att.attributeGroupId
+								&& x.attributeCommunityId === att.attributeId);
+
+							if (attributeIndex > -1)
+							{
+								myFavoritesChoice.myFavoritesChoiceAttributes.splice(attributeIndex, 1);
+							}
+						}
+					});
+
+					const locationIds = action.locations?.map(loc => loc.locationId);
+					const locationGroupIds = action.locations?.map(loc => loc.locationGroupId);
+					locationIds?.forEach(locId => {
+						const locationIndex =  myFavoritesChoice?.myFavoritesChoiceLocations?.findIndex(x => 
+							x.locationCommunityId === locId	&& !!locationGroupIds.find(locGrpId => x.locationGroupCommunityId === locGrpId));
+
+						if (locationIndex > -1)
+						{
+							myFavoritesChoice.myFavoritesChoiceLocations.splice(locationIndex, 1);
+						}
+					});
+				}
+
+				return { ...state, saveError: false, myFavorites: myFavorites };
+			}
+
 		default:
 			return state;
 	}

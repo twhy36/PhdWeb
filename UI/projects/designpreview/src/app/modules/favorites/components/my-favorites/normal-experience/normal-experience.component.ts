@@ -68,19 +68,19 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 				});
 				this.choiceToggled = false;
 			}
-			else
-			{
-				this.subGroup = changes['currentSubgroup'].currentValue;
-				this.points = this.subGroup ? this.subGroup.points : null;
-			}
+
+			this.subGroup = changes['currentSubgroup'].currentValue;
+			this.points = this.subGroup ? this.subGroup.points : null;
 		}
 
-		if (changes['decisionPointId'])
+		if (changes['decisionPointId'] || changes['myFavoritesChoices'] || changes['myFavoritesPointsDeclined'])
 		{
-			const pointId = changes['decisionPointId'].currentValue;
-			if (pointId && pointId !== this.currentPointId)
+			const pointId = changes['decisionPointId']?.currentValue;
+			if (pointId && pointId !== this.currentPointId 
+				|| this.isInputChanged(changes['myFavoritesChoices']) 
+				|| this.isInputChanged(changes['myFavoritesPointsDeclined']))
 			{
-				this.selectDecisionPoint(pointId, 1600);
+				this.selectDecisionPoint((pointId || this.currentPointId), 1600);
 			}
 		}
 	}
@@ -136,6 +136,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	}
 
 	declineDecisionPoint(point: DecisionPoint) {
+		this.currentPointId = point.id;
 		this.onDeclineDecisionPoint.emit(point);
 	}
 
@@ -230,5 +231,21 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	get isContractedOptionsDisabled() : boolean
 	{
 		return this.isPreview || this.isDesignComplete;
+	}
+
+	isInputChanged(input: any) : boolean
+	{
+		let isValueChanged = false;
+
+		if (input)
+		{
+			const currentDiff = _.differenceBy(input.currentValue, input.previousValue, 'id');
+			const prevDiff = _.differenceBy(input.previousValue, input.currentValue, 'id');
+			isValueChanged = input.currentValue?.length !== input.previousValue?.length
+				|| !!currentDiff?.length 
+				|| !!prevDiff?.length;			
+		}
+
+		return isValueChanged;
 	}
 }

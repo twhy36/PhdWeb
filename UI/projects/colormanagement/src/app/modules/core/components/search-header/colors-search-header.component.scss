@@ -1,8 +1,16 @@
 @import "../../../../../scss/styles.scss";
 @import "../../../../../scss/color-pallet.scss";
-.count_message {
+@import "../../../../../scss/sizes.scss";
+.phd-count_message {
     margin-top: 10px;
     margin-left: 94px;
     font-size:0.8em ;
     color:#6c757d!important
   }
+  .fa {
+    cursor: pointer;
+  }
+
+.phd-add-color-button:focus {
+    box-shadow: none;
+}

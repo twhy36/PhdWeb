@@ -33,15 +33,20 @@ export class PlanService
 							{
 								const activePlans = treeVersions.find(p => p.planKey === plan.integrationKey && p.communityId === plan.communityId);
 
-								if (activePlans != null)
+								const isPhdLite = !treeVersions || !treeVersions.length;
+								if (activePlans != null || isPhdLite)
 								{
-									includedPlanOptions = activePlans.includedOptions;
-									plan.treeVersionId = activePlans.id;
+									includedPlanOptions = activePlans?.includedOptions || [];
+									plan.treeVersionId = activePlans?.id || null;
 									includedPlanOptions.push(baseHouseKey);
+
+									const getOptionImages = plan.treeVersionId 
+										? this.treeService.getOptionImages(plan.treeVersionId, includedPlanOptions, null, true)
+										: of([]);
 
 									return this.optionService.getPlanOptions(plan.id, includedPlanOptions, true)
 										.pipe(
-											combineLatest(this.treeService.getOptionImages(plan.treeVersionId, includedPlanOptions, null, true)),
+											combineLatest(getOptionImages),
 											map(([optionsResponse, optionImages]) =>
 											{
 												if (optionsResponse && optionsResponse.length > 0)

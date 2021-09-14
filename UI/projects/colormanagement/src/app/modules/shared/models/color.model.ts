@@ -12,7 +12,9 @@ export interface IColorDto{
     name:string,
     colorId:number,
     sku:string,
+    optionSubCategoryId,
     optionSubCategoryName:string,
     optionCategoryName:string,
-    isActive:boolean
+    isActive:boolean,
+    hasSalesConfig:boolean
 }

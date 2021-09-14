@@ -246,10 +246,12 @@ export class TreeService
 							planId: 0,
 							optionKey: null,
 							hasRules: false,
+							isReplaceRuleTarget: false,
 							baseHouse: false
 						} as PhdApiDto.IDTPlanOption : phdPlanOptions[index];
 
-						if (option.isActive || planOption.hasRules)
+						// filter options to show only active, those that have rules, or are target of replace rules.
+						if (option.isActive || planOption.hasRules || planOption.isReplaceRuleTarget)
 						{
 							let tOption = new TreeOption(option, planOption);
 
@@ -548,7 +550,8 @@ export class TreeService
 						planId: o.planID,
 						optionKey: o.integrationKey,
 						baseHouse: !!o.baseHouseOptions.length,
-						hasRules: !!o.optionRules.length || !!o.optionRuleReplaces.length,
+						hasRules: !!o.optionRules.length,
+						isReplaceRuleTarget: !!o.optionRuleReplaces.length,
 						imageCount: o.optionImages.length
 					} as PhdApiDto.IDTPlanOption;
 				});

@@ -67,7 +67,6 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 	choiceImages: ChoiceImageAssoc[] = [];
 	choiceMsg: object[] = [];
 	hasAttributes: boolean;
-	imageLoading: boolean = false;
 	inChangeOrder: boolean = false;
 	isPastCutOff: boolean;
 	locationGroups: LocationGroup[];
@@ -80,6 +79,8 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 	lots: LotExt;
 	plan: Plan;
 	isFavorite: boolean;
+	loadingChoiceImage = true;
+	loadingAttributeImage = true;
 
 	private onChanges$: Subject<void> = new Subject<void>();
 
@@ -131,11 +132,13 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 		return (this.isPastCutOff && !this.canOverride) || !this.canEditAgreement || !this.choice.enabled;
 	}
 
+	get imageLoaded()
+	{
+		return !(this.loadingAttributeImage || this.loadingChoiceImage);
+	}
 	ngOnInit()
 	{
 		this.isPastCutOff = this.currentDecisionPoint && this.currentDecisionPoint.isPastCutOff;
-		this.imageLoading = true;
-
 		this.route.paramMap.pipe(
 			this.takeUntilDestroyed(),
 			map(params =>
@@ -180,20 +183,18 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 						mergeAttributes(attributes, missingAttributes, attributeGroups);
 						mergeLocations(locations, missingLocations, locationGroups);
 						mergeAttributeImages(attributeGroups, attributeCommunityImageAssocs);
-
 						return { attributeGroups, locationGroups };
 					}));
 			})
 		).subscribe(data =>
 		{
+			this.loadingAttributeImage = false;
 			this.hasAttributes = (data.attributeGroups.length > 0 || data.locationGroups.length > 0);
 			this.attributeGroups = _.orderBy(data.attributeGroups, 'sortOrder');
 			this.attributeGroups.forEach(group => group.choiceId = this.choice.id);
 			this.locationGroups = data.locationGroups;
-			this.imageLoading = false;
 
 			const options = this.choice.options;
-
 			if (options.length)
 			{
 				let option = options.find(x => x.optionImages && x.optionImages.length > 0);
@@ -239,14 +240,13 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 							}
 						}
 					}
-
 					return attributeCopy;
 				});
 			}
 		},
 		error =>
 		{
-			this.imageLoading = false;
+			this.loadingAttributeImage = false;
 		});
 
 		this.override$.next((!!this.choice.overrideNote));
@@ -263,7 +263,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 			.subscribe(([monotonyChoices, choiceOverride, lots, plan, choiceImages]) =>
 			{
 				this.choiceImages = choiceImages;
-
+				this.loadingChoiceImage = false;
 				let conflictMessage: MonotonyConflict = new MonotonyConflict();
 
 				if (choiceOverride)
@@ -506,7 +506,6 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 		{
 			imagePath = this.choiceImages[0].imageUrl;
 		}
-
 		return imagePath;
 	}
 

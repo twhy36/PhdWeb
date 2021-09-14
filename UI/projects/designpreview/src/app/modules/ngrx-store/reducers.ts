@@ -71,7 +71,7 @@ export const filteredTree = createSelector(
 
 							let choices = p.choices.filter(c => {
 								let isValid = treeMatched.point || filter(c.label);
-									
+
 								let isIncluded = true;
 								const isContractedChoice = contractedChoices?.includes(c);
 
@@ -84,9 +84,16 @@ export const filteredTree = createSelector(
 									// If there are contracted design choices and the include contracted option flag is false,
 									// Pick1 or Pick0or1 - remove all choices
 									// Pick1ormore or Pick0ormore - remove the selected choice and leave other choices viewable
-									if (contractedChoices?.length && !favorite.includeContractedOptions)
-									{
-										isIncluded = !isContractedChoice && !isComplete;
+									if (!favorite.includeContractedOptions) {
+										if (contractedChoices?.length)
+										{
+											isIncluded = !isContractedChoice && !isComplete;
+										}
+									} else {
+									// If the choice is not a sales choice, but the DP has a sales choice, and the DP is a Pick1 or Pick0or1
+										if (!isContractedChoice && isComplete) {
+											isIncluded = false;
+										}
 									}
 
 									// Apply cutoff to non-contracted choice whether or not it is favorited
@@ -230,7 +237,11 @@ export const priceBreakdown = createSelector(
 			}
 
 			let changePrice = salesAgreement.status === 'Approved' && currentChangeOrder?.amount || 0;
-			const salesPrice = salesAgreement.salePrice || 0;
+			let salesPrice = salesAgreement.salePrice || 0;
+
+			if (salesPrice === 0 && scenario.buildMode === 'preview') {
+				salesPrice = breakdown.baseHouse;
+			}
 
 			let nonStandardOptions = 0;
 			job.jobNonStandardOptions?.forEach(nso => {

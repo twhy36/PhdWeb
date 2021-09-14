@@ -13,7 +13,14 @@
 		</ng-container>
 	</div>
 	<div class="choice-label phd-clickable" (click)="viewChoiceDetail()">{{choice?.label}}</div>
-	<div class="choice-price">{{choice?.price | currency}}</div>
+	<ng-container *ngIf='!choice.priceHiddenFromBuyerView'>
+		<div class="choice-price">{{choice?.price | currency}}</div>
+	</ng-container>
+	<ng-container *ngIf='choice.priceHiddenFromBuyerView' (click)="$event.stopPropagation()">
+		<div class="phd-hidden-price">Pricing Varies
+			<i class="fa fa-info-circle" (click)="openHiddenChoicePriceModal()"></i>
+		</div>
+	</ng-container>
 </div>
 
 <ng-template #blockedChoiceModal let-c="close" let-d="dismiss">
@@ -22,4 +29,10 @@
 		(closeModal)="onCloseClicked()"
 		(blockedItemClick)="onBlockedItemClick($event)"
 	></blocked-choice-modal>
+</ng-template>
+
+<ng-template #hiddenChoicePriceModal let-c="close" let-d="dismiss">
+	<hidden-choice-price-modal
+		(closeModal)="onCloseClicked()">
+	</hidden-choice-price-modal>
 </ng-template>

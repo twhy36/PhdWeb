@@ -1,6 +1,6 @@
 <ul class="list-unstyled">
 	<ng-container *ngFor="let point of points">
-		<li *ngIf="!point.isHiddenFromBuyerView" class="d-flex align-items-top justify-content-start" [@slideOut]>
+		<li *ngIf="displayPoint(point)" class="d-flex align-items-top justify-content-start" [@slideOut]>
 			<div class="decision-point">
 				<div class="label" title="{{point.label}}">
 					<div class="icon">
@@ -11,8 +11,8 @@
 						<div class="sub-title">{{getSubTitle(point)}}</div>
 					</div>
 				</div>
-				<div *ngFor="let choice of point.choices">
-					<decision-bar-choice
+				<ng-container *ngFor="let choice of point.choices">
+					<decision-bar-choice *ngIf="!choice.isHiddenFromBuyerView"
 						[choice]="getChoiceExt(choice, point)"
 						[point]="point"
 						[groups]="groups"
@@ -22,12 +22,12 @@
 						(onViewChoiceDetail)="viewChoiceDetail($event)"
 						(onSelectDecisionPoint)="selectDecisionPoint($event)">
 					</decision-bar-choice>
-				</div>
+				</ng-container>
 				<decision-bar-decline-choice *ngIf="showDeclineChoice(point)"
 							[point]="point"
 							[myFavoritesPointsDeclined]="myFavoritesPointsDeclined"
 							[tree]="tree"
-              [isReadonly]="isReadonly"
+              				[isReadonly]="isReadonly"
 							(onDeclineDecisionPoint)="declineDecisionPoint($event)"
 							(onSelectDecisionPoint)="selectDecisionPoint($event)">
 				</decision-bar-decline-choice>

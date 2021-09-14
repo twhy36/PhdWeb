@@ -26,6 +26,7 @@ import { ContractEffects } from './contract/effects';
 import { CommonEffects } from './effects';
 import { UserEffects } from './user/effects';
 import { FavoriteEffects } from './favorite/effects';
+import { LiteEffects } from './lite/effects';
 import { LoggingService } from '../core/services/logging.service';
 
 @NgModule({
@@ -50,7 +51,9 @@ import { LoggingService } from '../core/services/logging.service';
 			ContractEffects,
 			CommonEffects,
 			UserEffects,
-			FavoriteEffects]
+			FavoriteEffects,
+			LiteEffects
+		]
 		)
 	],
 	providers: [

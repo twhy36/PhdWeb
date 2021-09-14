@@ -22,5 +22,13 @@ export const environment = {
 	},
 	whatFix: {
 		scriptUrl: '//cdn.whatfix.com/prod/01caf5e0-cb2f-11e8-b979-04013d24cd02/embed/embed.nocache.js'
-	}
+	},
+	designPreviewMarketWhitelist: [
+		460, // Arizona
+		465, // New Mexico
+		473, // Las Vegas
+		448, // Pacific Northwest
+		122, // Northern California
+		151  // Southern California
+	]
 };

@@ -1,44 +1,91 @@
 <div class="d-flex flex-row">
-    <div class="form-inline">
-        <div>
-            <label for="name" class="col-form-label">Color Name</label>
-        </div>
-        <div class="p-2">
-            <input [(ngModel)]="colorname" (focus)="showCounter()" (focusout)="hideCounter()" class="form-control" id="name" maxlength="50" />
-        </div>
-        <div class="p-2">
-            <label class="col-form-label">Category/Subcategory</label>
-        </div>
-        <div class="p-2">
-            <select class="form-control" [(ngModel)]="selectedSubCategory">
-                <option [defaultSelected] [ngValue]=null></option>
-				<option [ngValue]=null>---- All Colors ----</option>
-                <option *ngFor="let subCategories of (optionSubCategory$|async)" [ngValue]="subCategories">{{subCategories.optionCategory.name}} : {{subCategories.name}}</option>
-            </select>
-        </div>
-        <div class="p-2">
-            <label class="row-form-label">Active</label>
-        </div>
-        <div class="p-2">
-            <select class="form-control" [(ngModel)]="isActiveColor">
-                <option [defaultSelected] [ngValue]=null>All</option>
-                <option [ngValue]="true">Active</option>
-                <option [ngValue]="false">Inactive</option>
-            </select>
-        </div>
-        <div class="p-2">
-            <button class="btn btn-primary" (click)="filterColors()">Filter</button>
-        </div>
-    </div>
+	<div class="form-inline">
+		<div>
+			<label for="name" class="col-form-label">Color Name</label>
+		</div>
+		<div class="p-2">
+			<input
+				[(ngModel)]="colorname"
+				(focus)="showCounter()"
+				(focusout)="hideCounter()"
+				class="form-control"
+				id="name"
+				maxlength="50"
+			/>
+		</div>
+		<div class="p-2">
+			<label class="col-form-label">Category/Subcategory</label>
+		</div>
+		<div class="p-2">
+			<select class="form-control" [(ngModel)]="selectedSubCategory">
+				<option [defaultSelected] [ngValue]=null></option>
+				<option [ngValue]="null">---- All Colors ----</option>
+				<option
+					*ngFor="let subCategories of optionSubCategory$ | async"
+					[ngValue]="subCategories"
+				>
+					{{ subCategories.optionCategory.name }} :
+					{{ subCategories.name }}
+				</option>
+			</select>
+		</div>
+		<div class="p-2">
+			<label class="row-form-label">Active</label>
+		</div>
+		<div class="p-2">
+			<select class="form-control" [(ngModel)]="isActiveColor">
+				<option [defaultSelected] [ngValue]="null">All</option>
+				<option [ngValue]="true">Active</option>
+				<option [ngValue]="false">Inactive</option>
+			</select>
+		</div>
+		<div class="p-2">
+			<button class="btn btn-primary" (click)="filterColors()">
+				Filter
+			</button>
+		</div>
+	</div>
 </div>
-<div *ngIf="isCounterVisible"><span class="count_message"><em>{{50 - colorname?.length}} characters remaining</em></span> </div>
-<div class="phd-table-container mx-2" infiniteScroll [infiniteScrollThrottle]="settings.infiniteScrollThrottle" [infiniteScrollDisabled]="allDataLoaded" (scrolled)="onPanelScroll()" [scrollWindow]="false">
-    <phd-table #dt [value]="colorsDtoList" showCaption="true">
-        <phd-column header="Color Name" field="name"></phd-column>
-        <phd-column header="Sku" field="sku"></phd-column>
-        <phd-column header="Category Name" field="optionCategoryName"></phd-column>
-        <phd-column header="SubCategory Name" field="optionSubCategoryName"></phd-column>
-        <phd-column header="Active" field="isActive">
-        </phd-column>
-    </phd-table>
+<div *ngIf="isCounterVisible"><span class="phd-count_message"><em>{{50 - colorname?.length}} characters remaining</em></span> </div>
+<div>
+    <div class="d-flex flex-row-reverse mx-2">
+        <button  [disabled] = "deleteColorList.length===0" class="btn btn-primary">
+            Delete Selected
+        </button>	
+		<button	class="mx-2 phd-add-color-button btn btn-primary" (click)="showAddColorsDialog()">
+			Add Color
+		</button>
+	</div>
+    <div class="mx-2 phd-table-container" infiniteScroll [infiniteScrollThrottle]="settings.infiniteScrollThrottle" [infiniteScrollDisabled]="allDataLoaded" (scrolled)="onPanelScroll()" [scrollWindow]="false">
+        <phd-table #dt [value]="colorsDtoList">
+            <phd-column  header="Color Name" field="name" ></phd-column>
+            <phd-column  header="Sku" field="sku"></phd-column>
+            <phd-column  header="Category Name" field="optionCategoryName"></phd-column>
+            <phd-column  header="SubCategory Name" field="optionSubCategoryName"></phd-column>
+            <phd-column  header="Active" field="isActive" width="100px">
+                <ng-template #body let-colordto>
+                    <span>{{ colordto.isActive }}</span>
+                </ng-template>
+            </phd-column>
+            <phd-column header="" columnClass="phd-icon">
+                <ng-template #body let-colordto>
+                        <i class="fa fa-pencil fa-fw" title="Edit Color" *ngIf="colordto.hasSalesConfig===false && colordto.isActive"></i>
+                </ng-template>
+            </phd-column>        
+            <phd-column header="" columnClass="phd-icon">
+                <ng-template #body let-colordto>
+                        <p-checkbox (ngModelChange)="setDeleteSelected(colordto, $event)" [ngModel]="isDeleteSelected(colordto)" [binary]=true></p-checkbox>
+                </ng-template>
+            </phd-column>        
+        </phd-table>
+    </div>
+	<ng-template #addColorModal>
+		<add-color-dialog
+		  [communityId]="this.currentCommunityId"
+		  [subcategories]="this.optionSubCategoryList"
+		  (newColorsWereSaved)="onNewColorsWereSaved()"
+		  (closeDialogWasRequested)="onCloseDialogWasRequested()">
+		</add-color-dialog>
+	  </ng-template>
+
 </div>

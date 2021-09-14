@@ -501,8 +501,10 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 							{
 								const title = 'Create Model';
 								const body = 'The selected lot is scheduled to be released on ' + releaseDate + '. <br><br> If you continue, the lot will be removed from the release and the Lot Status will be set to UNAVAILABLE.';
+
 								const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
 								const secondaryButton = { text: 'Cancel', result: false, cssClass: 'btn-secondary' };
+
 								return this.showConfirmModal(body, title, primaryButton, secondaryButton);
 							})).subscribe(result =>
 							{
@@ -527,7 +529,8 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 					const body = 'You are about to generate an Agreement for your configuration. Do you wish to continue?';
 					
 					const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
-					const secondaryButton = { text: 'Cancel', result: true, cssClass: 'btn-secondary' };
+					const secondaryButton = { text: 'Cancel', result: false, cssClass: 'btn-secondary' };
+					
 					this.showConfirmModal(body, title, primaryButton, secondaryButton).subscribe(result =>
 					{
 						if (result)

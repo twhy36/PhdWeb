@@ -122,6 +122,14 @@ export class DetailedDecisionBarComponent extends UnsubscribeOnDestroy implement
 	{
 		return this.isPreview || this.isDesignComplete
 			? point.status === PointStatus.COMPLETED || point.status === PointStatus.PARTIALLY_COMPLETED
-			: point.isStructuralItem || point.isPastCutOff;
+			: point.isStructuralItem || point.isPastCutOff || point.status === PointStatus.COMPLETED;
+	}
+
+	displayPoint(point: DecisionPoint) {
+		if (point.isHiddenFromBuyerView) {
+			return false;
+		}
+		const choices = point && point.choices ? point.choices.filter(c => !c.isHiddenFromBuyerView) : [];
+		return choices && !!choices.length;
 	}
 }

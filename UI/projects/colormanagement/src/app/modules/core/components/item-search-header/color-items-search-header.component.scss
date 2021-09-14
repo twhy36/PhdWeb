@@ -1,0 +1,6 @@
+@import "../../../../../scss/styles.scss";
+@import "../../../../../scss/color-pallet.scss";
+
+:host ::ng-deep .p-multiselect, .phd-options-select {
+    min-width: 15rem;
+}

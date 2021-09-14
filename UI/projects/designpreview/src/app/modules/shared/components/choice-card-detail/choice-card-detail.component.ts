@@ -10,7 +10,7 @@ import * as _ from 'lodash';
 import 
 { 
 	UnsubscribeOnDestroy, OptionImage, AttributeGroup, Attribute, LocationGroup, Location, DesignToolAttribute, 
-	DecisionPoint, Group, Tree, MyFavoritesPointDeclined
+	DecisionPoint, Group, Tree, MyFavoritesPointDeclined, MyFavorite
 } from 'phd-common';
 import { mergeAttributes, mergeLocations, mergeAttributeImages } from '../../../shared/classes/tree.utils';
 import { AttributeService } from '../../../core/services/attribute.service';
@@ -65,6 +65,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	choiceLocationGroups: LocationGroup[];
 	blockedChoiceModalRef: NgbModalRef;
 	disabledByList: {label: string, pointId: number, choiceId?: number, ruleType: number}[] = null;
+	isChoiceImageLoaded: boolean = false;
 
 	constructor(private cd: ChangeDetectorRef,
 		private attributeService: AttributeService,
@@ -80,27 +81,38 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		const getLocationGroups: Observable<LocationGroup[]> = this.choice.mappedLocationGroups.length > 0 ? this.attributeService.getLocationGroups(this.choice.mappedLocationGroups.map(x => x.id)) : of([]);
 
 		getAttributeGroups.pipe(
-			combineLatest(getLocationGroups),
-			switchMap(([attributeGroups, locationGroups]) =>
+			combineLatest(getLocationGroups, this.store.pipe(select(fromFavorite.currentMyFavorite))),
+			switchMap(([attributeGroups, locationGroups, favorite]) =>
 			{
 				const attributeIds = _.flatMap(attributeGroups, gp => _.flatMap(gp.attributes, att => att.id));
 				const missingAttributes = this.choice.selectedAttributes.filter(x => x.attributeId && !attributeIds.some(att => att === x.attributeId));
 				const locationIds = _.flatMap(locationGroups, gp => _.flatMap(gp.locations, loc => loc.id));
 				const missingLocations = this.choice.selectedAttributes.filter(x => x.locationId && !locationIds.some(loc => loc === x.locationId));
 
-				return (missingAttributes && missingAttributes.length
+				// Get missing attributes / locations when the choice is contracted
+				const getMissingAttributes = this.choice.choiceStatus === 'Contracted' && missingAttributes?.length
 					? this.attributeService.getAttributeCommunities(missingAttributes.map(x => x.attributeId))
-					: of([])
-				).pipe(combineLatest(missingLocations && missingLocations.length
+					: of([]);
+				const getMissingLocations = this.choice.choiceStatus === 'Contracted' && missingLocations?.length
 					? this.attributeService.getLocationCommunities(missingLocations.map(x => x.locationId))
-					: of([]),
-					this.attributeService.getAttributeCommunityImageAssoc(attributeIds, this.choice.lockedInChoice ? this.choice.lockedInChoice.outForSignatureDate : null))
-				).pipe(
+					: of([]);
+
+				// If the choice is not contracted, delete favorited attributes / locations if they  
+				// are not found in the attribute groups / location groups
+				if (this.choice.choiceStatus !== 'Contracted' && (missingAttributes?.length || missingLocations?.length))
+				{
+					this.deleteMyFavoritesChoiceAttributes(missingAttributes, missingLocations, favorite);
+				}
+
+				return (getMissingAttributes).pipe(combineLatest(
+					getMissingLocations,
+					this.attributeService.getAttributeCommunityImageAssoc(attributeIds, this.choice.lockedInChoice ? this.choice.lockedInChoice.outForSignatureDate : null)
+				)).pipe(
 					map(([attributes, locations, attributeCommunityImageAssocs]) =>
 					{
 						mergeAttributes(attributes, missingAttributes, attributeGroups);
 						mergeLocations(locations, missingLocations, locationGroups);
-						mergeAttributeImages(attributeGroups, attributeCommunityImageAssocs);
+						mergeAttributeImages(attributeGroups, attributeCommunityImageAssocs);							
 
 						return { attributeGroups, locationGroups };
 					}));
@@ -146,6 +158,28 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		}
 		const dps = _.flatMap(this.groups, g => _.flatMap(g.subGroups, sg => sg.points));
 		this.currentPoint = dps.find(pt => pt.choices.find(ch => ch.id === this.choice.id));
+	}
+
+	deleteMyFavoritesChoiceAttributes(missingAttributes: DesignToolAttribute[], missingLocations: DesignToolAttribute[], favorite: MyFavorite)
+	{
+		const myFavoritesChoice = favorite?.myFavoritesChoice?.find(c => c.divChoiceCatalogId === this.choice.divChoiceCatalogId);
+		const choiceAttributes = myFavoritesChoice?.myFavoritesChoiceAttributes?.filter(x => 
+			!!missingAttributes.find(att => att.attributeGroupId === x.attributeGroupCommunityId
+					&& att.attributeId === x.attributeCommunityId && !att.locationId));
+		
+		let choiceLocAttributes = _.flatMap(myFavoritesChoice?.myFavoritesChoiceLocations, loc => loc.myFavoritesChoiceLocationAttributes);
+		choiceLocAttributes = choiceLocAttributes?.filter(x => 
+			!!missingAttributes.find(att => att.attributeGroupId === x.attributeGroupCommunityId
+				&& att.attributeId === x.attributeCommunityId && !!att.locationId));
+
+		const choiceLocations = myFavoritesChoice?.myFavoritesChoiceLocations?.filter(x => 
+			!!missingLocations.find(loc => loc.locationGroupId === x.locationGroupCommunityId
+				&& loc.locationId === x.locationCommunityId));
+
+		if (choiceAttributes?.length || choiceLocAttributes?.length || choiceLocations?.length)
+		{
+			this.store.dispatch(new FavoriteActions.DeleteMyFavoritesChoiceAttributes(missingAttributes, missingLocations, myFavoritesChoice));				
+		}
 	}
 
 	updateChoiceAttributes()
@@ -300,7 +334,11 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		}
 
 		this.selectedImageUrl = this.choiceImages[0].imageURL;
-		this.imageLoading = true;
+
+		if (!this.isChoiceImageLoaded)
+		{
+			this.imageLoading = true;
+		}
 	}
 
 	get optionDisabled(): boolean
@@ -397,6 +435,11 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	onLoadImage()
 	{
 		this.imageLoading = false;
+
+		if (!this.isChoiceImageLoaded)
+		{
+			this.isChoiceImageLoaded = true;
+		}
 	}
 
 	/**

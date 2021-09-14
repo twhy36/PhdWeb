@@ -1,0 +1,54 @@
+<div class="d-flex flex-row">
+	<div class="form-inline">
+		<div>
+			<label class="col-form-label">Plans</label>
+		</div>
+		<div class="p-2">
+			<p-multiSelect
+				[options]="planCommunityList$ | async"
+				[(ngModel)]="selectedPlans"
+				optionValue="id"
+				optionLabel="planSalesName"
+				[showToggleAll]="false"
+			>
+			</p-multiSelect>
+		</div>
+		<div class="p-2">
+			<button class="btn btn-primary" (click)="onShowOptions()">
+				Show Options
+			</button>
+		</div>
+		<div class="p-2">
+			<label class="col-form-label">Option</label>
+		</div>
+		<div class="p-2">
+			<select
+				class="form-control ml-3 phd-options-select"
+				[(ngModel)]="currentOption"
+				(ngModelChange)="onChangeOption()"
+			>
+				<option [ngValue]="null">All</option>
+				<option
+					*ngFor="let option of planOptionList"
+					[ngValue]="option"
+				>
+					{{ option?.optionSalesName }}
+				</option>
+			</select>
+		</div>
+		<div class="p-2">
+			<label class="row-form-label">Active</label>
+		</div>
+		<div class="p-2">
+			<select
+				class="form-control ml-3"
+				[(ngModel)]="isActiveColor"
+				(click)="onActiveColorChange()"
+			>
+				<option [defaultSelected] [ngValue]="null">All</option>
+				<option [ngValue]="true">Active</option>
+				<option [ngValue]="false">Inactive</option>
+			</select>
+		</div>
+	</div>
+</div>

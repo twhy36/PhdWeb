@@ -1,10 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Action, Store } from '@ngrx/store';
-import { Observable } from 'rxjs/Observable';
+import { Observable, of } from 'rxjs';
 import { switchMap, withLatestFrom } from 'rxjs/operators';
-import { of } from 'rxjs/observable/of';
-
 
 import
 { 	
@@ -32,7 +30,14 @@ export class FavoriteEffects
 			withLatestFrom(this.store),
 			tryCatch(source => source.pipe(
 				switchMap(([action, store]) => {
-					return this.favoriteService.deleteMyFavorites(store.favorite.myFavorites);
+					if (store.favorite?.myFavorites?.length)
+					{
+						return this.favoriteService.deleteMyFavorites(store.favorite.myFavorites);
+					}
+					else
+					{
+						return new Observable<never>();
+					}
 				}),
 				switchMap(result => of(new MyFavoritesDeleted()))
 			), SaveError, "Error deleting my favorites!")

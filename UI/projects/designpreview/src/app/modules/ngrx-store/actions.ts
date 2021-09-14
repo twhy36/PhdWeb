@@ -2,7 +2,8 @@ import { Action } from '@ngrx/store';
 
 import {
 	SalesCommunity, Job, JobChoice, ChangeOrderGroup, ChangeOrderHanding, LotExt, PlanOption, 
-	TreeVersionRules, SalesAgreement, Tree, OptionImage, SalesAgreementInfo, MyFavorite
+	TreeVersionRules, SalesAgreement, Tree, OptionImage, SalesAgreementInfo, MyFavorite, DesignToolAttribute,
+	MyFavoritesChoice
 } from 'phd-common';
 
 import { ErrorAction } from './error.action';
@@ -12,6 +13,7 @@ export enum CommonActionTypes {
     LoadSalesAgreement = 'Load Sales Agreement',
 	SalesAgreementLoaded = 'Sales Agreement Loaded',
 	ResetFavorites = 'Reset Favorites',
+	MyFavoritesChoiceAttributesDeleted = 'My Favorites Choices Attributes Deleted',
     LoadError = 'Load Error'
 };
 
@@ -63,4 +65,11 @@ export class ResetFavorites implements Action
 	readonly type = CommonActionTypes.ResetFavorites;
 
 	constructor() {	}
+}
+
+export class MyFavoritesChoiceAttributesDeleted implements Action
+{
+	readonly type = CommonActionTypes.MyFavoritesChoiceAttributesDeleted;
+
+	constructor(public attributes: DesignToolAttribute[], public locations: DesignToolAttribute[], public myFavoritesChoice: MyFavoritesChoice) {	}
 }

@@ -21,6 +21,7 @@ import * as fromJob from './job/reducer';
 import * as fromChangeOrder from './change-order/reducer';
 import * as fromContract from './contract/reducer';
 import * as fromFavorite from './favorite/reducer';
+import * as fromLite from './lite/reducer';
 
 import { MonotonyConflict } from '../shared/models/monotony-conflict.model';
 
@@ -41,6 +42,7 @@ export interface State
 	contract: fromContract.State;
 	user: fromUser.State;
 	favorite: fromFavorite.State;
+	lite: fromLite.State;
 }
 
 export const reducers: ActionReducerMap<State> = {
@@ -56,7 +58,8 @@ export const reducers: ActionReducerMap<State> = {
 	changeOrder: fromChangeOrder.reducer,
 	contract: fromContract.reducer,
 	user: fromUser.reducer,
-	favorite: fromFavorite.reducer
+	favorite: fromFavorite.reducer,
+	lite: fromLite.reducer
 }
 
 export const title = createSelector(
@@ -900,7 +903,7 @@ export const isDesignPreviewEnabled = createSelector(
 	fromJob.jobState,
 	fromOrg.selectOrg,
 	(job, org) => {
-		const financialCommunity = org?.salesCommunity?.financialCommunities.find(f => f.id === job?.financialCommunityId);
+		const financialCommunity = org?.salesCommunity?.financialCommunities?.find(f => f.id === job?.financialCommunityId);
 		return financialCommunity ? financialCommunity.isDesignPreviewEnabled : false;
 	}
 );
