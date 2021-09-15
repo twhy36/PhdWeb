@@ -7,6 +7,7 @@ import { IColor, IColorDto } from '../../shared/models/color.model';
 import { IColorItem, IColorItemDto } from '../../shared/models/colorItem.model';
 import * as _ from 'lodash';
 import { newGuid, createBatchGet, createBatchHeaders, createBatchBody, withSpinner, IdentityService } from 'phd-common';
+import { IPlanOptionCommunityDto } from '../../shared/models/community.model';
 
 @Injectable()
 export class ColorService {
@@ -59,12 +60,13 @@ export class ColorService {
 			);
 	}
 
-	getColorItems(communityId?: number,	edhPlanOptionIds?: Array<number>, isActive?: boolean, topRows?: number, skipRows?: number): any
+	getColorItems(communityId?: number,	edhPlanOptionIds?: Array<number>, isActive?: boolean, topRows?: number, skipRows?: number): Observable<IColorItemDto[]>
 	{
 		const entity = `colorItems`;
-		const expand =  `colorItemColorAssoc($expand=color($select=colorId,name,edhFinancialCommunityId))`
-		let filter = `colorItemColorAssoc/color/edhFinancialCommunityId eq ${communityId}`;
+		const expand =  `colorItemColorAssoc($expand=color($select=colorId,name,edhFinancialCommunityId,isActive))`
+		//let filter = `colorItemColorAssoc/color/edhFinancialCommunityId eq ${communityId}`;
 		const select = `colorItemId,name,edhPlanOptionId,isActive,colorItemColorAssoc`;
+		let filter = `true`;
 
 		if (isActive != null)
 		{
@@ -72,7 +74,7 @@ export class ColorService {
 		}
 		if (edhPlanOptionIds)
 		{
-			filter += `and (edhPlanOptionId in (${edhPlanOptionIds.join(',')}))`;
+			filter += ` and (edhPlanOptionId in (${edhPlanOptionIds.join(',')}))`;
 		}
 
 		let qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
