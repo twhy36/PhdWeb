@@ -1,17 +1,19 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { catchError, map, switchMap } from 'rxjs/operators';
-import { Observable,throwError} from 'rxjs';
-import { IColor, IColorDto } from '../../shared/models/color.model';
+import {Observable, throwError} from 'rxjs';
+import {IColorIdBatch, IColor, IColorDto} from '../../shared/models/color.model';
 import { IColorItem, IColorItemDto } from '../../shared/models/colorItem.model';
 import * as _ from 'lodash';
-import { newGuid, createBatchGet, createBatchHeaders, createBatchBody, withSpinner, IdentityService } from 'phd-common';
+import { newGuid, createBatch, createBatchGet, createBatchHeaders, createBatchBody, getNewGuid,  withSpinner, IdentityService } from 'phd-common';
 
 @Injectable()
 export class ColorService {
 	constructor(private _http: HttpClient, private identityService: IdentityService) {}
 	private _ds: string = encodeURIComponent('$');
+	private _batch = '$batch';
+
 	/**
 	 * Gets the colors for the specified financial community
 	 */
@@ -126,7 +128,7 @@ export class ColorService {
 			switchMap((token: string) =>
 			{
 				let guid = newGuid();
-				let requests = colorList.map(color => 
+				let requests = colorList.map(color =>
 					{
 					const entity = `jobs`;
 					const filter = `jobPlanOptions/any(po: po/planOptionCommunity/optionCommunity/optionSubCategoryId eq ${color.optionSubCategoryId} and po/jobPlanOptionAttributes/any(a: a/attributeGroupCommunityId eq 1 and a/attributeName eq '${color.name}')) or jobChangeOrderGroups/any(cog: cog/jobChangeOrders/any(co: co/jobChangeOrderPlanOptions/any(po: po/planOptionCommunity/optionCommunity/optionSubCategoryId eq ${color.optionSubCategoryId} and po/jobChangeOrderPlanOptionAttributes/any(a: a/attributeGroupCommunityId eq 1 and a/attributeName eq '${color.name}'))))`;
@@ -141,19 +143,43 @@ export class ColorService {
 				return this._http.post(`${environment.apiUrl}$batch`, batch, { headers: headers });
 			}),
 			map((response: any)=>
-			{				
+			{
 				let bodies = response.responses.map(res=>res.body);
 				colorList.forEach((color,i)=>
 				{
 					color.hasSalesConfig = bodies[i]?.value?.length > 0 ? true : false;
-				})				
+				})
 				return colorList;
 			}))
 	}
+
 	private handleError(error: Response)
 	{
 		// In the future, we may send the server to some remote logging infrastructure
 		console.error(error);
 		return throwError(error || 'Server error');
+	}
+
+	deleteColors(colorIds: number[]): Observable<boolean> {
+		const colorsToBeDeleted = colorIds.map(colorId =>
+		{
+			return {
+				colorId
+			} as IColorIdBatch;
+		});
+
+		const endpoint = `${environment.apiUrl}${this._batch}`;
+		const batchRequests = createBatch<IColorIdBatch>(colorsToBeDeleted, 'colorId', `deleteColor`, null, true);
+		const batchGuid = getNewGuid();
+		const batchBody = createBatchBody(batchGuid, [batchRequests]);
+		const headers = new HttpHeaders(createBatchHeaders(batchGuid));
+
+		return this._http.post(endpoint, batchBody, { headers, responseType: 'text' }).pipe(
+			map(results =>
+			{
+				return results.length > 0;
+			}),
+			catchError(this.handleError)
+		);
 	}
 }

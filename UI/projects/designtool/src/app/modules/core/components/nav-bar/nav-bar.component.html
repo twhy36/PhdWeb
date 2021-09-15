@@ -94,7 +94,7 @@
 			</ng-template>
 		</phd-nav-menu-item>
 
-		<ng-container *ngIf="!(isSalesAgreementCancelledOrVoided && specCancelled)">
+		<ng-container *ngIf="!(isSalesAgreementCancelledOrVoided && specCancelled) && !(isPhdLite$ | async)">
 			<ng-container *ngFor="let group$ of groups">
 				<ng-container *ngIf="(group$ | async) as group">
 					<phd-nav-menu-item *ngIf="group.subGroups.length > 0 && displayGroupMenuItem(group)" label="{{ group.label | lowercase }}"
@@ -105,6 +105,19 @@
 					</phd-nav-menu-item>
 				</ng-container>
 			</ng-container>
+		</ng-container>
+
+		<ng-container *ngIf="selectedPlanId && (isPhdLite$ | async)">
+			<phd-nav-menu-item 
+				label="Options"
+				[showStatusIndicator]="false"
+				[ngClass]="(isTablet$ | async) && invertHamburgerMenuColor ? 'phd-menu-item-color' : null">
+			</phd-nav-menu-item>
+			<phd-nav-menu-item 
+				label="Colors"
+				[showStatusIndicator]="false"
+				[ngClass]="(isTablet$ | async) && invertHamburgerMenuColor ? 'phd-menu-item-color' : null">
+			</phd-nav-menu-item>
 		</ng-container>
 	</phd-nav-menu>
 

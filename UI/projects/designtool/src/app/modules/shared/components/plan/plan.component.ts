@@ -144,6 +144,11 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 			{
 				this.selectedPlan = state.plan.selectedTree && state.plan.plans ? state.plan.plans.find(p => p.treeVersionId === state.plan.selectedTree) : null;
 
+				if (!this.selectedPlan && state.plan.selectedPlan && state.lite?.isPhdLite)
+				{
+					this.selectedPlan = state.plan.plans.find(p => p.id === state.plan.selectedPlan);
+				}
+
 				return this.selectedPlan;
 			})
 		);

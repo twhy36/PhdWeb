@@ -165,7 +165,10 @@ export class Choice
 	treeVersionId: number;
 	lockedInOptions: OptionRule[] = [];
 	changedDependentChoiceIds: number[] = [];
-	lockedInChoice: JobChoice | ChangeOrderChoice = null;
+	lockedInChoice: { 
+		choice: (JobChoice | ChangeOrderChoice),
+		optionAttributeGroups: Array<{ optionId: string, attributeGroups: number[], locationGroups: number[] }> 
+	} = null;
 	mappingChanged: boolean = false;
 	isHiddenFromBuyerView?: boolean;
 	priceHiddenFromBuyerView?: boolean;

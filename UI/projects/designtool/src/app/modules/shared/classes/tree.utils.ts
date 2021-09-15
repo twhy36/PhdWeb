@@ -145,7 +145,7 @@ export function getDefaultOptionRule(optionNumber: string, choice: Choice): Opti
 	};
 }
 
-function saveLockedInChoices(choices: Array<JobChoice | ChangeOrderChoice>, treeChoices: Choice[], changeOrder?: ChangeOrderGroup)
+function saveLockedInChoices(choices: Array<JobChoice | ChangeOrderChoice>, treeChoices: Choice[], options: Array<JobPlanOption | ChangeOrderPlanOption>, changeOrder?: ChangeOrderGroup)
 {
 	choices.filter(isLocked(changeOrder)).forEach(choice =>
 	{
@@ -153,7 +153,7 @@ function saveLockedInChoices(choices: Array<JobChoice | ChangeOrderChoice>, tree
 
 		if (treeChoice)
 		{
-			treeChoice.lockedInChoice = choice;
+			treeChoice.lockedInChoice = getLockedInChoice(choice, options);
 			treeChoice.mappedAttributeGroups = (isJobChoice(choice)
 				? _.uniq(choice.jobChoiceAttributes.map(jca => jca.attributeGroupCommunityId))
 				: _.uniq(choice.jobChangeOrderChoiceAttributes.map(coca => coca.attributeGroupCommunityId))
@@ -387,6 +387,7 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 							//save original locked in choice information on the tree
 							saveLockedInChoices(choices,
 								_.flatMap(data.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices))),
+								options,
 								changeOrder);
 
 							return data;
@@ -394,7 +395,7 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 					}
 					else
 					{
-						saveLockedInChoices(choices, currentChoices, changeOrder);
+						saveLockedInChoices(choices, currentChoices, options, changeOrder);
 
 						return of(data);
 					}
@@ -891,4 +892,47 @@ export function getJobOptionType(option: PlanOption, elevationDP: DecisionPoint,
 	}
 	
 	return optionType;
+}
+
+export function getLockedInChoice(choice: JobChoice | ChangeOrderChoice, options: Array<JobPlanOption | ChangeOrderPlanOption>)
+	: { 
+		choice: (JobChoice | ChangeOrderChoice),
+		optionAttributeGroups: Array<{ optionId: string, attributeGroups: number[], locationGroups: number[] }> 
+	}
+{
+	return { choice, 
+		optionAttributeGroups: isJobChoice(choice)
+			? choice.jobChoiceJobPlanOptionAssocs.filter(a => a.choiceEnabledOption)
+				.map(a => {
+					const opt = options.find(o => (o as JobPlanOption).id === a.jobPlanOptionId);
+					if (opt)
+					{
+						return { 
+							optionId: opt.integrationKey, 
+							attributeGroups: (opt as JobPlanOption).jobPlanOptionAttributes?.map(att => att.attributeGroupCommunityId),
+							locationGroups: (opt as JobPlanOption).jobPlanOptionLocations?.map(loc => loc.locationGroupCommunityId)
+						};
+					}
+					else
+					{
+						return null;
+					}
+				})
+			: choice.jobChangeOrderChoiceChangeOrderPlanOptionAssocs.filter(a => a.jobChoiceEnabledOption)
+				.map(a => {
+					const opt = options.find(o => (o as ChangeOrderPlanOption).id === a.jobChangeOrderPlanOptionId);
+					if (opt)
+					{
+						return { 
+							optionId: opt.integrationKey, 
+							attributeGroups: (opt as ChangeOrderPlanOption).jobChangeOrderPlanOptionAttributes?.map(att => att.attributeGroupCommunityId),
+							locationGroups: (opt as ChangeOrderPlanOption).jobChangeOrderPlanOptionLocations?.map(loc => loc.locationGroupCommunityId)
+						};	
+					}
+					else
+					{
+						return null;
+					}
+				})
+			};
 }

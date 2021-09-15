@@ -61,6 +61,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 	isLockedIn: boolean = false;
 	newHomeStatus: PointStatus;
 	production: boolean;
+	isPhdLite$: Observable<boolean>;
 
 	constructor(private lotService: LotService,
 		private identityService: IdentityService,
@@ -186,6 +187,14 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 
 		this.showStatusIndicator$ = this.store.select(fromRoot.canEditAgreementOrSpec);
 		this.isTablet$ = this.browser.isTablet();
+
+		this.isPhdLite$ = this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(state =>
+			{
+				return state.lite?.isPhdLite;
+			})
+		);		
 
 		// Will need to remove this check once design preview goes live, 
 		// Both here and in nav-bar.component.html

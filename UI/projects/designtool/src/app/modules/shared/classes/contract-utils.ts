@@ -51,11 +51,27 @@ export function getChangeOrderGroupSelections(groups: Array<Group>, jobChangeOrd
 
 				point.choices = dp.choices.map<SDChoice>(ch =>
 				{
-					let c = jobChangeOrderChoices.find(c => c.divChoiceCatalogId === ch.divChoiceCatalogId);
-					if (!!c)
+					let c = jobChangeOrderChoices.filter(c => c.divChoiceCatalogId === ch.divChoiceCatalogId);
+					if (c.length)
 					{
+						const added = c.find(ch => ch.action === 'Add');
+						const deleted = c.find(ch => ch.action === 'Delete');
+						if (added && deleted
+							&& added.choiceLabel === deleted.choiceLabel
+							&& added.decisionPointChoiceCalculatedPrice === deleted.decisionPointChoiceCalculatedPrice
+							&& added.quantity === deleted.quantity
+							&& (!added.jobChangeOrderChoiceAttributes || added.jobChangeOrderChoiceAttributes.every(att => deleted.jobChangeOrderChoiceAttributes?.some(att2 => att.attributeCommunityId === att2.attributeCommunityId && att.attributeGroupCommunityId === att2.attributeGroupCommunityId)))
+							&& (!added.jobChangeOrderChoiceLocations || added.jobChangeOrderChoiceLocations?.every(loc => deleted.jobChangeOrderChoiceLocations?.some(loc2 => 
+								loc.locationCommunityId === loc2.locationCommunityId && loc.quantity === loc2.quantity
+								&& (!loc.jobChangeOrderChoiceLocationAttributes || loc.jobChangeOrderChoiceLocationAttributes?.every(att => loc2.jobChangeOrderChoiceLocationAttributes?.some(att2 => att.attributeCommunityId === att2.attributeCommunityId && att.attributeGroupCommunityId === att2.attributeGroupCommunityId)))
+								)))
+						)
+						{
+							return null;
+						}
+
 						let choice = new SDChoice(ch);
-						choice.quantity = c.quantity;
+						choice.quantity = c[0].quantity;
 						if (dp.dPointTypeId === 1)
 						{
 							choice.isElevationChoice = true;

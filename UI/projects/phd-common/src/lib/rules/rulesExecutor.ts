@@ -371,9 +371,9 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 				currentLocationGroupIds = [...currentLocationGroupIds, ...choice.locationGroups.map(x => new MappedLocationGroup({ id: x }))];
 			}
 
-			if (choice.lockedInChoice.hasOwnProperty('jobChoiceAttributes'))
+			if (choice.lockedInChoice?.choice?.hasOwnProperty('jobChoiceAttributes'))
 			{
-				lockedInChoice = choice.lockedInChoice as JobChoice;
+				lockedInChoice = choice.lockedInChoice.choice as JobChoice;
 
 				currentAttributeGroupIds = [...currentAttributeGroupIds,
 					...lockedInChoice.jobChoiceAttributes
@@ -386,9 +386,9 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 						.map(x => new MappedLocationGroup({ id: x.locationGroupCommunityId }))
 				];
 			}
-			else if (choice.lockedInChoice.hasOwnProperty('jobChangeOrderChoiceAttributes'))
+			else if (choice.lockedInChoice?.choice?.hasOwnProperty('jobChangeOrderChoiceAttributes'))
 			{
-				lockedInChoice = choice.lockedInChoice as ChangeOrderChoice;
+				lockedInChoice = choice.lockedInChoice.choice as ChangeOrderChoice;
 
 				currentAttributeGroupIds = [...currentAttributeGroupIds,
 					...lockedInChoice.jobChangeOrderChoiceAttributes
@@ -434,7 +434,7 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 			{
 				let optionRule = c.lockedInOptions.find(o => o.choices.some(c => c.attributeReassignments.length > 0));
 
-				const choicesWithReassignments = optionRule.choices.filter(orChoice => orChoice.attributeReassignments && orChoice.attributeReassignments.length > 0 && orChoice.attributeReassignments.find(ar => ar.choiceId === choice.lockedInChoice.dpChoiceId || ar.divChoiceCatalogId === choice.lockedInChoice.divChoiceCatalogId));
+				const choicesWithReassignments = optionRule.choices.filter(orChoice => orChoice.attributeReassignments && orChoice.attributeReassignments.length > 0 && orChoice.attributeReassignments.find(ar => ar.choiceId === choice.lockedInChoice.choice.dpChoiceId || ar.divChoiceCatalogId === choice.lockedInChoice.choice.divChoiceCatalogId));
 
 				if (choicesWithReassignments.length > 0)
 				{
@@ -448,7 +448,7 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 						// apply reassignments when the parent has been selected
 						if (parentChoice.quantity > 0)
 						{
-							let reassignments = arChoice.attributeReassignments.filter(ar => ar.choiceId === choice.lockedInChoice.dpChoiceId || ar.divChoiceCatalogId === choice.lockedInChoice.divChoiceCatalogId).map(ar => ar);
+							let reassignments = arChoice.attributeReassignments.filter(ar => ar.choiceId === choice.lockedInChoice.choice.dpChoiceId || ar.divChoiceCatalogId === choice.lockedInChoice.choice.divChoiceCatalogId).map(ar => ar);
 							let newAttributeReassignments = reassignments.map(x => new MappedAttributeGroup({ id: x.attributeGroupId, attributeReassignmentFromChoiceId: parentChoice.id }));
 
 							attributeReassignments = [...attributeReassignments, ...newAttributeReassignments];
@@ -566,7 +566,7 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 		//lock in prices
 		if (choice.lockedInChoice)
 		{
-			choice.price = choice.lockedInChoice.dpChoiceCalculatedPrice;
+			choice.price = choice.lockedInChoice.choice.dpChoiceCalculatedPrice;
 		}
 
 		// #332687
@@ -578,8 +578,23 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 					&& optRule.choices.every(c => (c.mustHave && choices.find(ch => ch.id === c.id && ch.quantity) || (!c.mustHave && choices.find(ch => ch.id === c.id && !ch.quantity)))));
 
 				// If the entire option rule is satisfied (Must Have's are all selected, Must Not Have's are all deselected), then remove the lockedInOption
-				if (filteredOptRules && filteredOptRules.length) {
-					choice.lockedInOptions.splice(i, 1);
+				if (filteredOptRules && filteredOptRules.length) 
+				{
+					const removedMapping = choice.lockedInOptions.splice(i, 1);
+
+					//remove attribute groups from choice if they belong to the replaced option
+					if (choice.lockedInChoice && choice.lockedInChoice.choice.hasOwnProperty('jobChoiceAttributes'))
+					{
+						let lockedInChoice = choice.lockedInChoice.choice as JobChoice;
+						let j = choice.lockedInChoice.optionAttributeGroups.findIndex(oa => oa.optionId === removedMapping[0].optionId);
+						let removedOption = choice.lockedInChoice.optionAttributeGroups.splice(j, 1);
+						lockedInChoice.jobChoiceAttributes = lockedInChoice.jobChoiceAttributes.filter(jca =>
+							removedOption[0].attributeGroups.indexOf(jca.attributeGroupCommunityId) === -1
+							|| choice.lockedInChoice.optionAttributeGroups.some(o => o.attributeGroups.indexOf(jca.attributeGroupCommunityId) !== -1));
+						lockedInChoice.jobChoiceLocations = lockedInChoice.jobChoiceLocations.filter(jcl => 
+							removedOption[0].locationGroups.indexOf(jcl.locationGroupCommunityId) === -1
+							|| choice.lockedInChoice.optionAttributeGroups.some(o => o.locationGroups.indexOf(jcl.locationGroupCommunityId) !== -1));
+					}
 				}
 			}
 		}
