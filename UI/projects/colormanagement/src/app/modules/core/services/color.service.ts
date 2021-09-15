@@ -7,7 +7,6 @@ import { IColor, IColorDto } from '../../shared/models/color.model';
 import { IColorItem, IColorItemDto } from '../../shared/models/colorItem.model';
 import * as _ from 'lodash';
 import { newGuid, createBatchGet, createBatchHeaders, createBatchBody, withSpinner, IdentityService } from 'phd-common';
-import { IPlanOptionCommunityDto } from '../../shared/models/community.model';
 
 @Injectable()
 export class ColorService {
@@ -70,7 +69,7 @@ export class ColorService {
 
 		if (isActive != null)
 		{
-			filter += `and (isActive eq ${isActive})`;
+			filter += ` and (isActive eq ${isActive})`;
 		}
 		if (edhPlanOptionIds)
 		{
