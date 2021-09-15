@@ -3,8 +3,8 @@ import {OptionService} from '../../services/option.service';
 import {IOptionSubCategory} from '../../../shared/models/option.model';
 import {OrganizationService} from '../../../core/services/organization.service';
 import {filter, map, switchMap} from 'rxjs/operators';
-import {Observable} from 'rxjs';
-import {ModalRef, UnsubscribeOnDestroy, ModalService} from 'phd-common';
+import {from, Observable, of} from 'rxjs';
+import {ModalRef, UnsubscribeOnDestroy, ModalService, ConfirmModalComponent} from 'phd-common';
 import {IColorDto, IColor} from '../../../shared/models/color.model';
 import {ColorService} from '../../services/color.service';
 import {SettingsService} from '../../services/settings.service';
@@ -62,7 +62,7 @@ export class ColorsSearchHeaderComponent
 		);
 		this.optionSubCategory$.subscribe((subcategoryList) => {
 			this.optionSubCategoryList = subcategoryList;
-			this.resetfilter();
+			this.resetFilter();
 			this.loadColors();
 		});
 	}
@@ -112,7 +112,7 @@ export class ColorsSearchHeaderComponent
 					return this._colorService.getSalesConfiguration(colorDtos);
 				})
 			)
-			.subscribe((colorDtos) => {				
+			.subscribe((colorDtos) => {
 				this.currentPage++;
 				this.allDataLoaded =
 					colorDtos.length < this.settings.infiniteScrollPageSize;
@@ -132,7 +132,7 @@ export class ColorsSearchHeaderComponent
 		this.loadColors();
 	}
 
-	resetfilter() {
+	resetFilter() {
 		this.colorname = '';
 		this.selectedSubCategory = null;
 		this.isActiveColor = null;
@@ -169,13 +169,47 @@ export class ColorsSearchHeaderComponent
 
 	onNewColorsWereSaved()
 	{
-		this.modalReference.dismiss();
-		this.resetfilter();
-		this.loadColors();
+		if (this.modalReference)
+		{
+			this.modalReference.dismiss();
+		}
+
+		this.filterColors();
 	}
 
 	onCloseDialogWasRequested()
 	{
 		this.modalReference.dismiss();
+	}
+
+	deleteSelectedColors() {
+		const message = 'Are you sure you want to delete selected colors?';
+		this.showConfirmModal(message, 'Warning', 'Cancel').pipe(
+			switchMap(cancelDeletion => {
+				if (cancelDeletion) {
+					return of(false);
+				}
+
+				const colorsToDelete = this.deleteColorList.map(color => color.colorId);
+				return this._colorService.deleteColors(colorsToDelete);
+			})
+		).subscribe(successful => {
+			if (successful) {
+				this.skip = 0;
+				this.deleteColorList = [];
+				this.onNewColorsWereSaved();
+			}
+		});
+	}
+
+	private showConfirmModal(body: string, title: string, defaultButton: string): Observable<boolean>
+	{
+		const confirm = this._modalService.open(ConfirmModalComponent, { centered: true, size: 'sm' });
+
+		confirm.componentInstance.title = title;
+		confirm.componentInstance.body = body;
+		confirm.componentInstance.defaultOption = defaultButton;
+
+		return from(confirm.result.then((result) => result !== 'Continue'));
 	}
 }
