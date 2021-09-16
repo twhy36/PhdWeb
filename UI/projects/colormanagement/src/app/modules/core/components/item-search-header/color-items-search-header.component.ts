@@ -115,22 +115,28 @@ export class ColorItemsSearchHeaderComponent
 						return planOptionsList;
 					}),
 					switchMap((planOptionDtos) => 
-					{
-						return this._colorService
-							.getColorItems
-								(this.currentFinancialCommunityId,
-								planOptionDtos.map(planoption=>planoption.planOptionId), 
-								this.isActiveColor
-								)
-								.pipe(
-									map((colorItemDtos) => {
-										planOptionDtos.forEach(element => {
-											element.colorItem = colorItemDtos?.find(coloritem => coloritem.edhPlanOptionId === element.planOptionId);
-										});
-										return planOptionDtos;
-									})
-								) 
-					})
+					{	
+						if(planOptionDtos?.length>0){
+							return this._colorService
+								.getPlanOptionAssocColorItems
+									(this.currentFinancialCommunityId,
+									planOptionDtos.map(planoption=>planoption.planOptionId), 
+									this.isActiveColor
+									)
+									.pipe(
+										map((colorItemDtos) => {
+											planOptionDtos.forEach(element => {
+												element.colorItem = colorItemDtos?.find(coloritem => coloritem.edhPlanOptionId === element.planOptionId);
+											});
+											return planOptionDtos;
+										})
+									) 
+					}
+					else{
+						return planOptionDtos;
+					}
+
+				})
 			)
 			.subscribe((planOptionDtos) => {				
 				this.currentPage++;
