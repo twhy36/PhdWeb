@@ -131,11 +131,7 @@ export class ColorItemsSearchHeaderComponent
 											return planOptionDtos;
 										})
 									) 
-					}
-					else{
-						return planOptionDtos;
-					}
-
+					}					
 				})
 			)
 			.subscribe((planOptionDtos) => {				
