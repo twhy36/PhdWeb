@@ -77,10 +77,6 @@ main {
 	border-color: #BDC3C7;
 }
 
-.modal-body {
-	padding: 0;
-}
-
 .modal-header {
 	background: $twilight-blue;
 	border-top-left-radius: 0.2rem;
@@ -121,6 +117,16 @@ main {
 	height: calc(98vh - #{$nav-menu-height} - #{$search-filter-height});
 	overflow-y: auto;
 	margin-top: 20px;
+}
+
+.phd-modal-window {
+	.modal-dialog {
+		justify-content: center !important;
+
+		.modal-content {
+			width: auto;
+		}
+	}
 }
 .phd-disabled {
 	opacity: 0.5;

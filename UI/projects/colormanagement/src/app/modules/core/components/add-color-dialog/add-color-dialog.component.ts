@@ -119,7 +119,7 @@ export class AddColorDialogComponent implements OnInit, OnChanges {
 
 	private async showConfirmModal(body: string, title: string, defaultButton: string): Promise<boolean>
 	{
-		const confirm = this._modalService.open(ConfirmModalComponent, { centered: true, size: 'sm' });
+		const confirm = this._modalService.open(ConfirmModalComponent, { centered: true, windowClass: "phd-modal-window" });
 
 		confirm.componentInstance.title = title;
 		confirm.componentInstance.body = body;

@@ -37,5 +37,6 @@ export const environment = {
 		448, // Pacific Northwest
 		122, // Northern California
 		151  // Southern California
-	]
+	],
+	salesAdminFinancialCommunityWhitelist: []
 };
