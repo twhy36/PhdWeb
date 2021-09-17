@@ -21,7 +21,7 @@
 				<div [ngClass]="{'phd-hidden': (selectedTab !== 'Details') }">
 					<div class="form-group phd-checkbox-group" [ngClass]="{'phd-hidden': hideExperienceCheckboxes }">
 						<div class="phd-checkbox-label">
-							<input type="checkbox" id="isPhd" name="isPhd" formControlName="isPhd" class="phd-checkbox-label" placeholder="Search" (change)="updateSelectionFromFormGroup()"/>
+							<input type="checkbox" id="isPhd" name="isPhd" formControlName="isPhd" class="phd-checkbox-label" (change)="updateSelectionFromFormGroup()"/>
 							<label for="isPhd" class="form-check-label">PHD</label>
 						</div>
 						<div class="phd-checkbox-label">
