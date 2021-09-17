@@ -429,7 +429,7 @@ export class ViewContractsComponent extends UnsubscribeOnDestroy implements OnIn
 		{
 			this._contractService.updateAddendumOrder(this.templatesWithUpdatedAddendum)
 				.subscribe(data =>
-				{					
+				{
 					this.filteredContractTemplates = this.allTemplates;
 					this.isSorting = false;
 					this.canManageDocument = true;

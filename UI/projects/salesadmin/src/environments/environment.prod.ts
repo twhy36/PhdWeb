@@ -35,4 +35,8 @@ export const environment = {
 		18323, // 540 West
 		14603 // Kingfield
 	],
+	salesAdminMarketWhitelist: [
+		104, // Houston
+		110 // Raleigh
+	]
 };
