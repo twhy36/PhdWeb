@@ -18,4 +18,5 @@ export interface IEnvironment {
 	whatFix: { scriptUrl: string };
 	EBillUrl: string;
 	designPreviewMarketWhitelist: number[];
+	salesAdminFinancialCommunityWhitelist: number[];
 }

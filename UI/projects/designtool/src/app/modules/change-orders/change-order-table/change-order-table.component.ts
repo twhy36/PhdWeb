@@ -13,6 +13,7 @@ export class ChangeOrderTableComponent extends UnsubscribeOnDestroy implements O
 	@Input() canApprove: boolean;
 	@Input() canSell: boolean;
 	@Input() canDesign: boolean;
+	@Input() canApproveChangeOrder: boolean;
 	@Input() contactId: number;
 	@Input() isSaving: boolean;
 
@@ -59,7 +60,7 @@ export class ChangeOrderTableComponent extends UnsubscribeOnDestroy implements O
 		return (changeOrder.salesStatus !== 'Approved' || changeOrder.constructionStatus === 'Rejected')
 			&& canEditRejectedChangeOrder
 			&& changeOrder.isActiveChangeOrder
-			&& (this.canSell || (this.canDesign && this.contactId === changeOrder.createdByContactId));
+			&& (this.canSell || this.canApproveChangeOrder || (this.canDesign && this.contactId === changeOrder.createdByContactId));
 	}
 
 	getChangeOrderType(changeOrder: any)
