@@ -157,8 +157,8 @@ export class ViewContractsSidePanelComponent implements OnInit
 		const pattern = "^[^\\\\/:*?<>]*$";
 
 		this.viewContractsForm = new FormGroup({
-			'isPhd': new FormControl({ value: isPhd, disabled: (this.selected && templateTypeId !== 2) }),
-			'isTho': new FormControl({ value: isTho, disabled: (this.selected && templateTypeId !== 2) }),
+			'isPhd': new FormControl({ value: isPhd, disabled: (this.selected && templateTypeId !== 2 && this.selected.status === "In Use") }),
+			'isTho': new FormControl({ value: isTho, disabled: (this.selected && templateTypeId !== 2 && this.selected.status === "In Use") }),
 			'documentName': new FormControl({ value: documentName, disabled: (this.selected && this.selected.status === "In Use") }, [Validators.required, this.duplicateName(), this.whiteSpaceValidator(), Validators.pattern(pattern)]),
 			'displayName': new FormControl({ value: displayName, disabled: (this.selected && this.selected.status === "In Use") }, [Validators.required, this.whiteSpaceValidator()]),
 			'templateTypeId': new FormControl(templateTypeId),
@@ -241,7 +241,7 @@ export class ViewContractsSidePanelComponent implements OnInit
 	{
 		// This logic should be removed when isTho is scaled to all markets
 		// Update only if templateType selected and new contract
-		if (this.viewContractsForm.get('templateTypeId').value && !this.selected)
+		if (this.viewContractsForm.get('templateTypeId').value && this.selected?.status !== "In Use")
 		{
 			this.updateSelection();
 		}
