@@ -33,7 +33,7 @@
 					 personType="Buyer"
 					 [salesAgreementStatus]="salesAgreement ? salesAgreement.status : null"
 					 [isChangingOrder]="isChangingOrder"
-					 [canEditAgreement]="canEditAgreement && (canSell || canDesign)"
+					 [canEditAgreement]="canEditAgreement && (canSell )"
 					 [canSell]="canSell || canDesign"
 					 [isLockedIn]="isLockedIn"
 					 [originalSignersCount]="originalSignersCount"

@@ -56,6 +56,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 	canApprove$: Observable<boolean>;
 	canSell$: Observable<boolean>;
 	canDesign$: Observable<boolean>;
+	canApproveChangeOrder$: Observable<boolean>;
 	canAddIncentive$: Observable<boolean>;
 	contactId$: Observable<number>;
 	modalReference: ModalRef;
@@ -422,6 +423,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 			select(fromRoot.canEditCancelOrVoidAgreement)
 		).subscribe(cancelOrVoid => this.cancelOrVoid = cancelOrVoid);
 		this.canDesign$ = this.store.pipe(select(fromRoot.canDesign));
+		this.canApproveChangeOrder$ = this.store.pipe(select(fromRoot.canApproveChangeOrder));
 		this.canAddIncentive$ = this.store.pipe(select(fromRoot.canAddIncentive));
 
 		this._actions$.pipe(
