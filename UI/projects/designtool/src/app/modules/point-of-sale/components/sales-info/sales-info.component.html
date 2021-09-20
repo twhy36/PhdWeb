@@ -79,11 +79,11 @@
 					*ngFor="let deposit of deposits; let i = index">
 	</deposit-detail>
 
-	<add-card *ngIf="!editing && canSell && !cancelOrVoid && !isLockedIn"
-			  [hasNA]="false"
-			  [label]="'Deposit'"
-			  [labels]="'Deposits'"
-			  (onAdd)="add('deposits')"></add-card>
+	<add-card *ngIf="!editing && (canSell || ( canDesign && canAddIncentive)) && !cancelOrVoid && !isLockedIn"
+			[hasNA]="false"
+			[label]="'Deposit'"
+			[labels]="'Deposits'"
+			(onAdd)="add('deposits')"></add-card>
 
 	<ng-template [ngIf]="!isChangingOrder">
 		<!--Contingencies and Add Contingency Cards-->
