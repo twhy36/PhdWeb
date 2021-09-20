@@ -3,7 +3,7 @@ import { UnsubscribeOnDestroy } from 'phd-common';
 import { IPlanCommunity, IOptionCommunity, IPlanOptionCommunityDto } from '../../../shared/models/community.model';
 import { OrganizationService } from '../../services/organization.service';
 import { PlanOptionService } from '../../services/plan-option.service';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { filter, map, switchMap } from 'rxjs/operators';
 import { ColorService } from '../../../core/services/color.service';
 import { IColorItemDto } from '../../../shared/models/colorItem.model';
@@ -131,8 +131,11 @@ export class ColorItemsSearchHeaderComponent
 											return planOptionDtos;
 										})
 									) 
-					}					
-				})
+						}	
+						else{
+							return of([]);
+						}				
+					})
 			)
 			.subscribe((planOptionDtos) => {				
 				this.currentPage++;
