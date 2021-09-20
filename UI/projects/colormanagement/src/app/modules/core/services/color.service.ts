@@ -61,22 +61,17 @@ export class ColorService {
 			);
 	}
 
-	getColorItems(communityId?: number,	edhPlanOptionIds?: Array<number>, isActive?: boolean, topRows?: number, skipRows?: number): any
+	getPlanOptionAssocColorItems(communityId: number,	edhPlanOptionIds: Array<number>, isActive?: boolean, topRows?: number, skipRows?: number): Observable<IColorItemDto[]>
 	{
 		const entity = `colorItems`;
-		const expand =  `colorItemColorAssoc($expand=color($select=colorId,name,edhFinancialCommunityId))`
-		let filter = `colorItemColorAssoc/color/edhFinancialCommunityId eq ${communityId}`;
+		const expand =  `colorItemColorAssoc($expand=color($select=colorId,name,edhFinancialCommunityId,isActive))`
+		let filter = `colorItemColorAssoc/color/edhFinancialCommunityId eq ${communityId} and (edhPlanOptionId in (${edhPlanOptionIds.join(',')}))`;
 		const select = `colorItemId,name,edhPlanOptionId,isActive,colorItemColorAssoc`;
-
+		
 		if (isActive != null)
 		{
-			filter += `and (isActive eq ${isActive})`;
+			filter += ` and (isActive eq ${isActive})`;
 		}
-		if (edhPlanOptionIds)
-		{
-			filter += `and (edhPlanOptionId in (${edhPlanOptionIds.join(',')}))`;
-		}
-
 		let qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
 
 		if (topRows)
