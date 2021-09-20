@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { Action } from '@ngrx/store';
-import { Observable  } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Action, Store } from '@ngrx/store';
+import { Observable } from 'rxjs';
+import { map, withLatestFrom } from 'rxjs/operators';
 
 import { PlanActionTypes, PlansLoaded } from '../plan/actions';
 import { SetIsPhdLite } from './actions';
+import * as fromRoot from '../reducers';
 
 @Injectable()
 export class LiteEffects
@@ -13,13 +14,19 @@ export class LiteEffects
 	setIsPhdLite$: Observable<Action> = createEffect(() => {
 		return this.actions$.pipe(
 			ofType<PlansLoaded>(PlanActionTypes.PlansLoaded),
-			map(action => {
-				const isPhdLite = action.plans.some(plan => !plan.treeVersionId);
+			withLatestFrom(this.store),
+			map(([action, store]) => {
+				const isPreview = store.scenario?.buildMode === 'preview';
 
-				return new SetIsPhdLite(isPhdLite);
+				if (!isPreview)
+				{
+					const isPhdLite = action.plans.some(plan => !plan.treeVersionId);
+
+					return new SetIsPhdLite(isPhdLite);
+				}
 			})
 		);
 	});
 
-	constructor(private actions$: Actions) { }
+	constructor(private actions$: Actions, private store: Store<fromRoot.State>) { }
 }
