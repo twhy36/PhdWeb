@@ -70,7 +70,7 @@
 		</phd-column>
 		<phd-column  header="Active" field="isActive" width="100px">
 			<ng-template #body let-planOptionDto>
-				<span>{{ planOptionDto.isActive }}</span>
+				<span>{{ planOptionDto.colorItem?.isActive }}</span>
 			</ng-template>
 		</phd-column>		       		
 	</phd-table>
