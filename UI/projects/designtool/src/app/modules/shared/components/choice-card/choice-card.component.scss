@@ -71,11 +71,15 @@
 		.phd-footer-btn-container {
 			width: 100%;
 			cursor: default;
-			padding: 5px 15px 5px 89px;
+			padding: 5px 15px 5px 15px;
+
+			.phd-footer-btns {
+				justify-content: space-around;
+			}
 
 			.phd-favorite-icon {
 				color: $pantone_blue;
-				margin-left: auto;
+				width: 18px;
 			}
 		}
 	}

@@ -47,7 +47,8 @@
 
 	<div class="phd-footer">
 		<div class="phd-footer-btn-container" (click)="$event.stopPropagation()" *ngIf="showDisabledButton || showConfirmButton">
-			<div *ngIf="showConfirmButton" [class.phd-choice-disabled]="buttonDisabled" class="d-flex align-items-center">
+			<div *ngIf="showConfirmButton" [class.phd-choice-disabled]="buttonDisabled" class="d-flex align-items-center phd-footer-btns">
+				<span *ngIf="isFavorite" class="phd-favorite-icon"></span>
 				<button class="btn phd-experience-btn-choice" (click)="toggleSelection()" [disabled]="buttonDisabled" [class.phd-disable-hover]="buttonDisabled">{{getButtonLabel()}}</button>
 				<span *ngIf="isFavorite" class="phd-favorite-icon"><i class="fa fa-heart"></i></span>
 			</div>
@@ -58,7 +59,7 @@
 		</div>
 
 		<div *ngIf="optionDisabled">  Choice Is No Longer Available </div>
-		
+
 		<span class="phd-monotony-conflict-message" *ngIf="monotonyConflict.monotonyConflict && !(override$ | async)">
 			Monotony Conflict
 		</span>
