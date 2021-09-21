@@ -9,13 +9,13 @@
     </ng-template>
 
     <ng-template #sidePanel>
-        <div-options-attribute-groups-side-panel *ngIf="attrGroupSidePanelOpen"
+        <add-attribute-groups-side-panel *ngIf="attrGroupSidePanelOpen"
 												 [sidePanelOpen]="attrGroupSidePanelOpen"
 												 [option]="option"
 												 [callback]="callback"
                                                  [associatedGroups$]="associatedAttributeGroups$"
                                                  (onSidePanelClose)="onAttrGroupSidePanelClose($event)">
-        </div-options-attribute-groups-side-panel>
+        </add-attribute-groups-side-panel>
 		<div-options-location-groups-side-panel *ngIf="locGroupSidePanelOpen"
 												 [sidePanelOpen]="locGroupSidePanelOpen"
 												 [option]="option"

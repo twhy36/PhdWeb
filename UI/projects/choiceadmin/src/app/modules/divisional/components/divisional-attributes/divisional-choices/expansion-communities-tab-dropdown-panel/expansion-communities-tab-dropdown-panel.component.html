@@ -1,11 +1,11 @@
 <div class="row div-sub-tab-panel">
 	<div class="col phd-group-market-list">
 		Attribute Groups
-		<!--<div *ngIf="optionAssociations">
-			<div *ngFor="let group of optionAssociations.attributeGroups">
+		<div *ngIf="choiceAssociations">
+			<div *ngFor="let group of choiceAssociations.divChoiceCatalogMarketAttributes">
 				<p-checkbox name="attributes" [label]="group.groupName" [ngModel]="isItemSelected(group)" (ngModelChange)="setItemSelected(group, $event)" [binary]="true" [disabled]="isReadOnly || isSaving" labelStyleClass="phd-checkbox-label"></p-checkbox>
 			</div>
-		</div>-->
+		</div>
 	</div>
 
 	<div class="col phd-group-market-list">

@@ -4,6 +4,7 @@ import { ICatalogSubGroupDto } from "./subgroup.model";
 import { ICatalogGroupDto, DivDGroup } from "./group.model";
 import { Observable } from 'rxjs';
 import { IFinancialCommunity } from "./financial-community.model";
+import { AttributeGroupMarket } from './attribute-group-market.model';
 
 export class DivisionalCatalog
 {
@@ -22,7 +23,8 @@ export class DivisionalChoice
 	hasAttributeLocationAssoc: boolean = false;
 	divChoiceCatalogMarketImages$: Observable<DivChoiceCatalogMarketImage[]>;
 	divChoiceCatalogMarketImages: DivChoiceCatalogMarketImage[];
-	divChoiceCatalogMarketAttributes$: Observable<any[]>;
+	divChoiceCatalogMarketAttributes$: Observable<DivChoiceCatalogAttributeGroupMarket[]>;
+	divChoiceCatalogMarketAttributes: DivChoiceCatalogAttributeGroupMarket[];
 	divChoiceCatalogMarketLocations$: Observable<any[]>;
 	divChoiceCatalogCommunities$: Observable<Array<IFinancialCommunity>>;
 }
@@ -60,6 +62,39 @@ export class DivChoiceCatalogCommunityImage {
 		this.divChoiceCatalogMarketImageID = dto.divChoiceCatalogMarketImageID;
 		this.communityID = dto.communityID;
 		this.divChoiceCatalogID = dto.divChoiceCatalogID;
+	}
+}
+
+export class DivChoiceCatalogAttributeGroupMarket extends AttributeGroupMarket
+{
+	divChoiceCatalogId: number;
+	attributeGroupMarketId: number;
+
+	constructor(dto: IDivChoiceCatalogAttributeGroupMarketDto)
+	{
+		super();
+
+		this.divChoiceCatalogId = dto.divChoiceCatalogId;
+		this.attributeGroupMarketId = dto.attributeGroupMarketId;
+	}
+}
+
+export function isDivChoiceCatalogAttributeGroupMarket(obj: any): obj is DivChoiceCatalogAttributeGroupMarket
+{
+	return typeof obj.attributeGroupMarketId !== 'undefined';
+}
+
+export class DivChoiceCatalogAttributeGroupCommunity
+{
+	divChoiceCatalogId: number;
+	attributeGroupCommunityId: number;
+	attributeGroupMarketId: number;
+
+	constructor(dto: IDivChoiceCatalogAttributeGroupCommunityDto)
+	{
+		this.divChoiceCatalogId = dto.divChoiceCatalogId;
+		this.attributeGroupCommunityId = dto.attributeGroupCommunityId;
+		this.attributeGroupMarketId = dto.attributeGroupMarketId;
 	}
 }
 
@@ -113,4 +148,17 @@ export interface IDivChoiceCatalogCommunityImageDto
 	divChoiceCatalogID?: number;
 	imageURL?: string;
 	sortKey?: number;	
+}
+
+export interface IDivChoiceCatalogAttributeGroupMarketDto
+{
+	divChoiceCatalogId: number;
+	attributeGroupMarketId: number;
+}
+
+export interface IDivChoiceCatalogAttributeGroupCommunityDto
+{
+	divChoiceCatalogId: number;
+	attributeGroupCommunityId: number;
+	attributeGroupMarketId: number;
 }

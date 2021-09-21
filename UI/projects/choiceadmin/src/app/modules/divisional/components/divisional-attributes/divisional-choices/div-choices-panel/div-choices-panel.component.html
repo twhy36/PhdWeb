@@ -14,8 +14,14 @@
 								<div class="div-row-expansion">
 									<phd-tabView orientation="left" styleClass="phd-div-choice-tabview" (onTabClick)="onTabChange($event)">
 										<phd-tabPanel header="Attribute Groups" [data]="choice.divChoiceCatalogMarketAttributes$">
-											<ng-template>
-												<expansion-choice-attribute-groups-tab-panel></expansion-choice-attribute-groups-tab-panel>
+											<ng-template let-groups>
+												<expansion-choice-attribute-groups-tab-panel [choice]="choice"
+																							 [groups]="groups"
+																							 [isReadOnly]="isReadOnly"
+																							 (onAssociate)="associateAttributeGroups($event)"
+																							 (onDisassociate)="performChangeDetection()"
+																							 (onAssociateToCommunities)="associateAttributeGroupsToCommunities($event)">>
+												</expansion-choice-attribute-groups-tab-panel>
 											</ng-template>
 										</phd-tabPanel>
 

@@ -9,6 +9,13 @@
 	</ng-template>
 
 	<ng-template #sidePanel>
+		<add-attribute-groups-side-panel *ngIf="attrGroupSidePanelOpen"
+										 [sidePanelOpen]="attrGroupSidePanelOpen"
+										 [choice]="choice"
+										 [callback]="callback"
+										 [associatedGroups$]="associatedAttributeGroups$"
+										 (onSidePanelClose)="onAttrGroupSidePanelClose($event)">
+		</add-attribute-groups-side-panel>
 		<associate-communities-side-panel *ngIf="associateCommunitySidePanelOpen"
 										  [sidePanelOpen]="associateCommunitySidePanelOpen"
 										  [choice]="choice"
@@ -16,6 +23,7 @@
 										  [groups]="selectedGroups"
 										  [images]="selectedImages"
 										  [communityImages]="communityImages"
+										  [communityGroups]="communityGroups"
 										  [marketId]="selectedMarketId"
 										  (onSidePanelClose)="onAssociateCommunitySidePanelClose($event)">
 		</associate-communities-side-panel>

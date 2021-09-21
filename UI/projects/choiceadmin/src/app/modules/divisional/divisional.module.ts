@@ -38,7 +38,7 @@ import { ExpansionChoiceLocationGroupsTabPanelComponent } from './components/div
 
 import { DivisionalOptionsContainerComponent } from './components/divisional-attributes/divisional-options/divisional-options-container/divisional-options-container.component';
 import { DivisionalOptionsPanelComponent } from './components/divisional-attributes/divisional-options/divisional-options-panel/divisional-options-panel.component';
-import { DivOptionsAttributeGroupsSidePanelComponent } from './components/divisional-attributes/divisional-options/div-options-attribute-groups-side-panel/div-options-attribute-groups-side-panel.component';
+import { AddAttributeGroupsSidePanelComponent } from './components/divisional-attributes/shared/components/add-attribute-groups-side-panel/add-attribute-groups-side-panel.component';
 import { DivOptionsLocationGroupsSidePanelComponent } from './components/divisional-attributes/divisional-options/div-options-location-groups-side-panel/div-options-location-groups-side-panel.component';
 import { ExpansionAttributeGroupsTabPanelComponent } from './components/divisional-attributes/divisional-options/expansion-attribute-groups-tab-panel/expansion-attribute-groups-tab-panel.component';
 import { ExpansionLocationGroupsTabPanelComponent } from './components/divisional-attributes/divisional-options/expansion-location-groups-tab-panel/expansion-location-groups-tab-panel.component';
@@ -156,7 +156,7 @@ const moduleRoutes: Routes = [
 	    AttributeGroupsTabComponent,
         AttributeGroupsContainerComponent,
         AttributeGroupsPanelComponent,
-		AttributeGroupsSidePanelComponent,
+		AddAttributeGroupsSidePanelComponent,
 		AssociateAttributesSidePanelComponent,
 		ExpansionAttributesTabPanelComponent,
         LocationsContainerComponent,
@@ -184,7 +184,7 @@ const moduleRoutes: Routes = [
 		ExpansionChoiceCommunitiesTabPanelComponent,
 		ExpansionChoiceImagesTabPanelComponent,
 		ExpansionChoiceLocationGroupsTabPanelComponent,
-		DivOptionsAttributeGroupsSidePanelComponent,
+		AttributeGroupsSidePanelComponent,
 		DivOptionsLocationGroupsSidePanelComponent,
 		ExpansionAttributeGroupsTabPanelComponent,
 		ExpansionLocationGroupsTabPanelComponent,

@@ -8,19 +8,20 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Message } from 'primeng/api';
 import { maxBy } from "lodash";
 
-import { UnsubscribeOnDestroy } from '../../../../../shared/classes/unsubscribeOnDestroy';
-import { AttributeService } from '../../../../../core/services/attribute.service';
-import { SidePanelComponent } from '../../../../../shared/components/side-panel/side-panel.component';
-import { AttributeGroupMarket } from '../../../../../shared/models/attribute-group-market.model';
-import { Option } from '../../../../../shared/models/option.model';
-import { AttributeGroupActionPanelComponent } from '../../../../../shared/components/attribute-group-action-panel/attribute-group-action-panel.component';
+import { UnsubscribeOnDestroy } from '../../../../../../shared/classes/unsubscribeOnDestroy';
+import { SidePanelComponent } from '../../../../../../shared/components/side-panel/side-panel.component';
+import { AttributeGroupActionPanelComponent } from '../../../../../../shared/components/attribute-group-action-panel/attribute-group-action-panel.component';
+import { AttributeGroupMarket } from '../../../../../../shared/models/attribute-group-market.model';
+import { Option } from '../../../../../../shared/models/option.model';
+import { AttributeService } from '../../../../../../core/services/attribute.service';
+import { DivisionalChoice } from '../../../../../../shared/models/divisional-catalog.model';
 
 @Component({
-	selector: 'div-options-attribute-groups-side-panel',
-	templateUrl: './div-options-attribute-groups-side-panel.component.html',
-	styleUrls: ['./div-options-attribute-groups-side-panel.component.scss']
+	selector: 'add-attribute-groups-side-panel',
+	templateUrl: './add-attribute-groups-side-panel.component.html',
+	styleUrls: ['./add-attribute-groups-side-panel.component.scss']
 })
-export class DivOptionsAttributeGroupsSidePanelComponent extends UnsubscribeOnDestroy implements OnInit
+export class AddAttributeGroupsSidePanelComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	@ViewChild(SidePanelComponent)
 	private sidePanel: SidePanelComponent;
@@ -33,6 +34,7 @@ export class DivOptionsAttributeGroupsSidePanelComponent extends UnsubscribeOnDe
 
 	@Output() onSaveAssociation = new EventEmitter();
 	@Input() associatedGroups$: Observable<Array<AttributeGroupMarket>>;
+	@Input() choice: DivisionalChoice;
 	@Input() option: Option;
 	@Input() callback: (grp: Array<AttributeGroupMarket>) => void;
 
@@ -108,7 +110,7 @@ export class DivOptionsAttributeGroupsSidePanelComponent extends UnsubscribeOnDe
 
 	filterAssociatedAttributeGroups()
 	{
-		let groups = this.option ? this.allAttrGroupsInMarket.filter(grp => !this.associatedGroups.some(x => x.id === grp.id)) : this.allAttrGroupsInMarket;
+		let groups = this.option || this.choice ? this.allAttrGroupsInMarket.filter(grp => !this.associatedGroups.some(x => x.id === grp.id)) : this.allAttrGroupsInMarket;
 
 		this.attrGroupsInMarket$.next(groups);
 	}
@@ -128,37 +130,71 @@ export class DivOptionsAttributeGroupsSidePanelComponent extends UnsubscribeOnDe
 			};
 		});
 
-		this._attrService.updateAttributeGroupOptionMarketAssocs(this.option.id, groupOrders).pipe(
-			finalize(() =>
-			{
-				this.isSaving = false;
-			}))
-			.subscribe(optionMarket =>
-			{
-				if (this.callback)
+		if (this.option)
+		{
+			this._attrService.updateAttributeGroupOptionMarketAssocs(this.option.id, groupOrders).pipe(
+				finalize(() =>
 				{
-					let selectedGroups = this.addGroupsPanel.selectedGroups as AttributeGroupMarket[];
-
-					selectedGroups.map(g =>
+					this.isSaving = false;
+				}))
+				.subscribe(optionMarket =>
+				{
+					if (this.callback)
 					{
-						g.sortOrder = optionMarket.attributeGroupOptionMarketAssocs.find(x => x.attributeGroupMarketId === g.id)?.sortOrder;
+						let selectedGroups = this.addGroupsPanel.selectedGroups as AttributeGroupMarket[];
+
+						selectedGroups.map(g =>
+						{
+							g.sortOrder = optionMarket.attributeGroupOptionMarketAssocs.find(x => x.attributeGroupMarketId === g.id)?.sortOrder;
+						});
+
+						this.callback(this.associatedGroups.concat(selectedGroups));
+					}
+
+					this.errors = [];
+
+					this.errors.push({ severity: 'success', detail: `Attribute group(s) associated.` });
+
+					this.sidePanel.isDirty = false;
+
+					this.sidePanel.toggleSidePanel();
+				},
+					error =>
+					{
+						this.displayErrorMessage('Failed to associate attribute group(s).');
+					});
+		}
+
+		if (this.choice)
+		{
+			this._attrService.updateAttributeGroupChoiceMarketAssocs(this.choice.divChoiceCatalogId, groupOrders, false).pipe(
+				finalize(() =>
+				{
+					this.isSaving = false;
+				}))
+				.subscribe(() =>
+				{
+					if (this.callback)
+					{
+						let selectedGroups = this.addGroupsPanel.selectedGroups as AttributeGroupMarket[];
+
+						this.callback(this.associatedGroups.concat(selectedGroups));
+					}
+
+					this.errors = [];
+
+					this.errors.push({ severity: 'success', detail: `Attribute group(s) associated.` });
+
+					this.sidePanel.isDirty = false;
+
+					this.sidePanel.toggleSidePanel();
+				},
+					error =>
+					{
+						this.displayErrorMessage('Failed to associate attribute group(s).');
 					});
 
-					this.callback(this.associatedGroups.concat(selectedGroups));
-				}
-
-				this.errors = [];
-
-				this.errors.push({ severity: 'success', detail: `Attribute group(s) associated.` });
-
-				this.sidePanel.isDirty = false;
-
-				this.sidePanel.toggleSidePanel();
-			},
-			error =>
-			{
-				this.displayErrorMessage('Failed to associate attribute group(s).');
-			});
+		}
 	}
 
 	displayErrorMessage(message: string)

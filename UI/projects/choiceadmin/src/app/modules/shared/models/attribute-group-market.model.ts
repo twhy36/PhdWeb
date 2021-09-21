@@ -62,6 +62,18 @@ export class AttributeGroupMarket
 			{
 				this.attributeMarkets = new Array<Attribute>();
 			}
+
+			if (att.attributeGroupMarketTags)
+			{
+				this.attributeGroupMarketTags = att.attributeGroupMarketTags.map(x =>
+				{
+					return { attributeGroupMarketId: x.attributeGroupMarketId, tag: x.tag } as AttributeGroupMarketTag;
+				});
+			}
+			else
+			{
+				this.attributeGroupMarketTags = new Array<AttributeGroupMarketTag>();
+			}
 		}
 		else
 		{

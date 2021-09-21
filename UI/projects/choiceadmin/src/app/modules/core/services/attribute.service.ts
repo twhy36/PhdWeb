@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
-import { Observable ,  throwError as _throw } from 'rxjs';
+import { Observable ,  of,  throwError as _throw } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
 import { SettingsService } from '../../core/services/settings.service';
@@ -286,6 +286,37 @@ export class AttributeService
 			catchError(this.handleError));
 	}
 
+	/**
+	 * Gets a list of attribute group market data for a set of AttributeGroupMarketIds
+	 * @param attributeGroupMarketIds The IDs for which to retrieve the data.
+	 */
+	getAttributeGroupMarketForIds(attributeGroupMarketIds: number[]): Observable<Array<AttributeGroupMarket>>
+	{
+		let url = settings.apiUrl;
+
+		const expand = `attributeGroupMarketTags($select=attributeGroupMarketId,tag;)`;
+		const filter = `id in (${attributeGroupMarketIds.join(',')}) and isActive eq true`;
+		const select = `id, groupName, groupLabel, description`;
+
+		const qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
+
+		url += `attributeGroupMarkets?${qryStr}`;
+
+		return this._http.get(url).pipe(
+			map(response =>
+			{
+				let attr = response['value'] as Array<AttributeGroupMarket>;
+
+				let attributeGroups = attr.map(g =>
+				{
+					return new AttributeGroupMarket(g);
+				});
+
+				return attributeGroups;
+			}),
+			catchError(this.handleError));
+	}
+
 	addAttribute(attribute: Attribute): Observable<Attribute>
 	{
 		let url = settings.apiUrl;
@@ -507,6 +538,26 @@ export class AttributeService
 				let optionMarket = response as OptionMarket;
 
 				return optionMarket;
+			}),
+			catchError(this.handleError));
+	}
+
+	updateAttributeGroupChoiceMarketAssocs(divChoiceCatalogId: number, groupOrders: Array<any>, isRemoved: boolean): Observable<any>
+	{
+		let url = settings.apiUrl + `UpdateAttributeGroupChoiceMarketAssocs`;
+
+		let data = {
+			divChoiceCatalogId: divChoiceCatalogId,
+			groupOrderDtos: groupOrders,
+			isRemoved: isRemoved
+		};
+
+		return this._http.patch(url, { divisionalChoiceAttributeGroupAssocDto: data }, { headers: { 'Prefer': 'return=representation' } }).pipe(
+			map(response =>
+			{
+				let ret = response as any;
+
+				return ret;
 			}),
 			catchError(this.handleError));
 	}
