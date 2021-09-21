@@ -120,9 +120,14 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 		return (this.choice && !this.choice.enabled || this.currentDecisionPoint && !this.currentDecisionPoint.enabled || this.optionDisabled) && !this.choice.lockedInChoice;
 	}
 
+	get showRequiredButton(): boolean
+	{
+		return (this.choice && this.choice.isRequired);
+	}
+
 	get showConfirmButton(): boolean
 	{
-		return ((this.choice && this.choice.enabled && this.currentDecisionPoint && this.currentDecisionPoint.enabled && !this.optionDisabled) || this.choice.lockedInChoice)
+		return ((this.choice && this.choice.enabled && this.currentDecisionPoint && this.currentDecisionPoint.enabled && !this.optionDisabled && !this.choice.isRequired && !this.choice.disabledByHomesite) || this.choice.lockedInChoice)
 			&& (!this.monotonyConflict.monotonyConflict || this.canOverride)
 			&& this.canConfigure;
 	}

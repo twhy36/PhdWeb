@@ -187,7 +187,7 @@ export const monotonyConflict = createSelector(
 		if (selectedLot !== null)
 		{
 			let isColorSchemePlanRuleEnabled = selectedLot.financialCommunity?.isColorSchemePlanRuleEnabled;
-			let planId = selectedPlan !== null ? selectedPlan.id : 0;
+			let planId = !!selectedPlan ? selectedPlan.id : 0;
 			let monotonyrules = selectedLot && selectedLot.monotonyRules ? selectedLot.monotonyRules : [];
 			let elevationOverride = elevation && elevation.choices ? elevation.choices.some(choice => !!choice.overrideNote) : false;
 			let colorSchemeOverride = colorScheme && colorScheme.choices ? colorScheme.choices.some(choice => !!choice.overrideNote) : false;
