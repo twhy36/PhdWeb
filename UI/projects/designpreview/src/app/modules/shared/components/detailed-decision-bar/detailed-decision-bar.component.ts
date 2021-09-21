@@ -122,7 +122,7 @@ export class DetailedDecisionBarComponent extends UnsubscribeOnDestroy implement
 	{
 		return this.isPreview || this.isDesignComplete
 			? point.status === PointStatus.COMPLETED || point.status === PointStatus.PARTIALLY_COMPLETED
-			: point.isStructuralItem || point.isPastCutOff;
+			: point.isStructuralItem || point.isPastCutOff || point.status === PointStatus.COMPLETED;
 	}
 
 	displayPoint(point: DecisionPoint) {

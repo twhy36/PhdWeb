@@ -1,0 +1,118 @@
+<div class="modal-content">
+	<div class="modal-header">
+		<h2>Add Color</h2>
+	</div>
+	<div class="modal-body ml-3 phd-dialogBody">
+		<form [formGroup]="addColorForm">
+			<div class="pt-3 form-row">
+				<div class="form-group col-md-6">
+					<div class="form-row">
+						<label for="category" class="col-form-label"
+							>Category<i class="fa fa-asterisk phd-dialogAsterisk"></i></label
+						>
+					</div>
+					<select
+						class="form-select phd-dialogSelects"
+						id="category"
+						formControlName="category"
+					>
+						<option
+							*ngFor="let category of categories"
+							[ngValue]="category"
+						>
+							{{ category.name }}
+						</option>
+					</select>
+				</div>
+				<div class="form-group col-md-6">
+					<div class="form-row">
+						<label for="subCategory" class="col-form-label">
+							SubCategory<i class="fa fa-asterisk phd-dialogAsterisk"></i>
+						</label
+						>
+					</div>
+					<select
+						class="form-select phd-dialogSelects"
+						id="subCategory"
+						formControlName="subcategory"
+					>
+						<option
+							*ngFor="let subcategory of currentCategory?.optionSubCategories"
+							[ngValue]="subcategory"
+						>
+							{{ subcategory.name }}
+						</option>
+					</select>
+				</div>
+			</div>
+			<div class="mx-2">
+				<table class="phd-dialogTable">
+					<div>
+						<span class="phd-colorHeader ml-1">Color<i class="fa fa-asterisk phd-dialogAsterisk"></i></span>
+						<span class="phd-skuHeader">Sku</span>
+						<span>Active</span>
+					</div>
+					<tbody>
+						<div [formGroup]="addColorForm">
+							<div formArrayName="colors">
+								<div *ngFor="let colorControls of colors.controls">
+									<div [formGroup]="colorControls">
+										<tr>
+											<td>
+												<div>
+													<input
+														type="text"
+														formControlName="name"
+														class="phd-dialogTextBox"
+														maxlength="50"
+													/>
+													<small
+														class="text-danger"
+														*ngIf="colorControls.controls['sku'].dirty && colorControls.controls['sku'].value.length && colorControls.controls['name'].invalid">
+														This is a required field
+													</small>
+												</div>
+											</td>
+											<td>
+												<input
+													type="text"
+													class="phd-dialogTextBox"
+													formControlName="sku"
+													maxlength="50"
+												/>
+											</td>
+											<td>
+												<input
+													type="checkbox"
+													class="ml-3 mt-2"
+													formControlName="isActive"
+												/>
+											</td>
+										</tr>
+									</div>
+								</div>
+							</div>
+						</div>
+					</tbody>
+				</table>
+			</div>
+		</form>
+	</div>
+
+	<div class="modal-footer">
+		<button class="btn btn-primary"
+			type="button"
+			(click)="this.saveColors()"
+		>
+			Save
+		</button>
+		<button
+			type="button"
+			class="btn btn-secondary"
+			(click)="cancelAddColorDialog()"
+		>
+			Cancel
+		</button>
+	</div>
+</div>
+

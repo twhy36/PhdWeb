@@ -1,3 +1,4 @@
+import { IColorItemDto } from './colorItem.model';
 export interface IFinancialCommunity
 {
   id: number,
@@ -40,4 +41,33 @@ export interface ITreeVersion
 	displayName: string;
 	publishStartDate: Date;
 	publishEndDate: Date;
+}
+
+export interface IPlanCommunity
+{
+	id: number;
+	planSalesName: string;
+}
+
+export interface IOptionCommunity
+{
+	id: number;
+	optionSalesName: string;
+}
+
+export interface IPlanOptionCommunity
+{
+  id: number;
+  planCommunity: IPlanCommunity;
+  optionCommunity: IOptionCommunity;
+}
+
+export interface IPlanOptionCommunityDto
+{
+  planOptionId: number;
+  planId: number;
+  planSalesName:string;
+  optionCommunityId: number;
+  optionSalesName:string;
+  colorItem:IColorItemDto;  
 }

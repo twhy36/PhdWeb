@@ -16,7 +16,7 @@ import
 
 import { environment } from '../../../../environments/environment';
 import { TreeService } from '../../core/services/tree.service';
-import { isJobChoice, isLocked, getDefaultOptionRule, getJobOptionType } from '../../shared/classes/tree.utils';
+import { isJobChoice, isLocked, getDefaultOptionRule, getJobOptionType, getLockedInChoice } from '../../shared/classes/tree.utils';
 
 interface ChoiceExt { decisionPointLabel: string, subgroupLabel: string, groupLabel: string };
 
@@ -1078,7 +1078,7 @@ export class ChangeOrderService
 					if (treeChoice)
 					{
 						let lockInChoice = _.cloneDeep(treeChoice);
-						lockInChoice.lockedInChoice = choice;
+						lockInChoice.lockedInChoice = getLockedInChoice(choice, options);
 
 						if (isJobChoice(choice))
 						{

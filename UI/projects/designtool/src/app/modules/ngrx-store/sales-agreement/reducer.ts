@@ -222,6 +222,7 @@ export function reducer(state: State = initialState, action: SalesAgreementActio
 			{
 				// if it exist, overwrite its values with the action data
 				Object.keys(savedProgram).map(prop => savedProgram[prop] = action.program[prop]);
+				savedProgram.salesProgram = { ...savedProgram.salesProgram, name: action.programName } as ISalesProgram;
 			}
 			else
 			{

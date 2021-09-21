@@ -18,3 +18,7 @@ export interface IColorDto{
     isActive:boolean,
     hasSalesConfig:boolean
 }
+
+export interface IColorIdBatch {
+	colorId: number
+}

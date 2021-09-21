@@ -362,28 +362,6 @@ export class ManageTreeOptionsComponent extends ComponentCanNavAway implements O
 		this._treeService.updateCurrentTree(this.currentTree);
 	}
 
-	private updateOptionRulesStatus(integrationKeys: Array<string>)
-	{
-		// just in case options have not finished loading
-		this._treeService.currentTreeOptions.subscribe(options =>
-		{
-			if (integrationKeys.length > 0)
-			{
-				integrationKeys.forEach(key =>
-				{
-					// find a match for the rule removed
-					const tOption = options.find(x => x.id === key);
-
-					if (tOption != null)
-					{
-						// setting has rules to false should remove the record from the options list.
-						tOption.hasRules = false;
-					}
-				});
-			}
-		});
-	}
-
 	private checkCanEdit(marketId: number)
 	{
 		if (!marketId)

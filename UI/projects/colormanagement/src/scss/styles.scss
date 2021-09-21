@@ -3,6 +3,21 @@
 @import "color-pallet";
 @import "sizes";
 
+@media (min-width: 1076px)
+{
+    .modal-dialog {
+        max-width: 1000px;
+    }
+}
+
+@media (min-width: 1276px)
+{
+    .modal-dialog {
+        max-width: 1200px;
+    }
+}
+
+
 html, body, app-root {
 	margin: 0;
 	padding: 0;
@@ -62,10 +77,6 @@ main {
 	border-color: #BDC3C7;
 }
 
-.modal-body {
-	padding: 0;
-}
-
 .modal-header {
 	background: $twilight-blue;
 	border-top-left-radius: 0.2rem;
@@ -103,7 +114,20 @@ main {
 	display: flex;
 	flex-direction: column;
 	flex-grow : 1;
-	height: calc(100vh - #{$nav-menu-height} - #{$search-filter-height});
+	height: calc(98vh - #{$nav-menu-height} - #{$search-filter-height});
 	overflow-y: auto;
 	margin-top: 20px;
+}
+
+.phd-modal-window {
+	.modal-dialog {
+		justify-content: center !important;
+
+		.modal-content {
+			width: auto;
+		}
+	}
+}
+.phd-disabled {
+	opacity: 0.5;
 }

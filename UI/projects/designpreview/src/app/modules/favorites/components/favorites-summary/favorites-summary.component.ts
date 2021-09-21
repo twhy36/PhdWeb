@@ -8,10 +8,10 @@ import { combineLatest }from 'rxjs';
 import { Observable, of } from 'rxjs';
 import * as _ from 'lodash';
 
-import 
-{ 
-	UnsubscribeOnDestroy, PriceBreakdown, SDGroup, SDSubGroup, SDPoint, SDChoice, SDAttributeReassignment, Group, 
-	DecisionPoint, JobChoice, Tree, TreeVersionRules, SalesAgreement, getDependentChoices, ModalService, PDFViewerComponent, 
+import
+{
+	UnsubscribeOnDestroy, PriceBreakdown, SDGroup, SDSubGroup, SDPoint, SDChoice, SDAttributeReassignment, Group,
+	DecisionPoint, JobChoice, Tree, TreeVersionRules, SalesAgreement, getDependentChoices, ModalService, PDFViewerComponent,
 	SummaryData, BuyerInfo, PriceBreakdownType, PlanOption
 } from 'phd-common';
 
@@ -60,7 +60,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 	isDesignComplete: boolean = false;
 
 	constructor(private store: Store<fromRoot.State>,
-		private activatedRoute: ActivatedRoute, 
+		private activatedRoute: ActivatedRoute,
 		private router: Router,
 		private cd: ChangeDetectorRef,
 		private modalService: ModalService,
@@ -179,7 +179,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		).subscribe(fav => {
 			this.salesChoices = fav && fav.salesChoices;
 			this.includeContractedOptions = fav && fav.includeContractedOptions;
-		});	
+		});
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
@@ -188,7 +188,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 			this.tree = scenario.tree;
 			this.treeVersionRules = _.cloneDeep(scenario.rules);
 			this.options = _.cloneDeep(scenario.options);
-		});	
+		});
 	}
 
 	onBack()
@@ -207,7 +207,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 
 		return groupSubtotal;
 	}
-	
+
 	displayPoint(dp: DecisionPoint)
 	{
 		if (dp.isHiddenFromBuyerView) {
@@ -235,7 +235,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 			this.router.navigateByUrl(`/favorites/my-favorites/${this.favoritesId}`);
 		}
 	}
-	
+
 	/**
 	 * Used to add additional padding to the header when scrolling so the first group header doesn't get hidden
 	 * @param isSticky
@@ -245,7 +245,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		this.isSticky = isSticky;
 
 		this.cd.detectChanges();
-	}	
+	}
 
 	onContractedOptionsToggled()
 	{
@@ -255,11 +255,11 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 	onViewFavorites(point: DecisionPoint)
 	{
 		const subGroup = _.flatMap(this.groups, g => g.subGroups).find(sg => sg.id === point.subGroupId);
-	
+
 		if (subGroup)
 		{
 			this.store.dispatch(new NavActions.SetSelectedSubgroup(point.subGroupId, point.id));
-			this.router.navigateByUrl(`/favorites/my-favorites/${this.favoritesId}/${subGroup.subGroupCatalogId}`);		
+			this.router.navigateByUrl(`/favorites/my-favorites/${this.favoritesId}/${subGroup.subGroupCatalogId}`);
 		}
 	}
 
@@ -279,7 +279,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 				impactedChoices.forEach(c =>
 				{
 					removedChoices.push({ choiceId: c.id, divChoiceCatalogId: c.divChoiceCatalogId, quantity: 0, attributes: c.selectedAttributes });
-				});				
+				});
 			});
 		}
 
@@ -319,7 +319,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		summaryData.includeImages = false;
 
 		buyerInfo.communityName = this.summaryHeader.communityName;
-		buyerInfo.homesite = `LOT ${this.summaryHeader.lot?.lotBlock}`;
+		buyerInfo.homesite = `LOT ${this.summaryHeader.lot?.lotBlock || ''}`;
 		buyerInfo.planName = this.summaryHeader.planName;
 		buyerInfo.address = summaryHeader.address;
 
@@ -338,7 +338,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 					let point = new SDPoint(p);
 
 					point.choices = p.choices.filter(ch => {
-						const isContracted = this.salesChoices.find(x => x.divChoiceCatalogId === ch.divChoiceCatalogId);
+						const isContracted = !!this.salesChoices?.find(x => x.divChoiceCatalogId === ch.divChoiceCatalogId);
 						return ch.quantity > 0 && (!isContracted || this.includeContractedOptions);
 					}).map(c => new SDChoice(c));
 

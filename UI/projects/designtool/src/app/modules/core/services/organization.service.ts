@@ -40,7 +40,7 @@ export class OrganizationService
 	getSalesCommunity(id: number): Observable<SalesCommunity>
 	{
 		const entity = `salesCommunities(${id})`;
-		const expand = `financialCommunities($select=id, name, isDesignPreviewEnabled),market($select=id,number)`
+		const expand = `financialCommunities($select=id, name, isDesignPreviewEnabled,isColorSchemePlanRuleEnabled),market($select=id,number)`
 	
 		const select = `id, number, name`;
 
