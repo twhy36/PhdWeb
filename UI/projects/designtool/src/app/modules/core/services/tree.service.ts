@@ -8,7 +8,7 @@ import
 	{
 		newGuid, createBatchGet, createBatchHeaders, createBatchBody, withSpinner, ChangeOrderChoice, ChangeOrderPlanOption,
 		JobChoice, JobPlanOption, TreeVersionRules, OptionRule, Tree, ChoiceImageAssoc, PlanOptionCommunityImageAssoc,
-		TreeBaseHouseOption, OptionImage, IdentityService, MyFavoritesChoice
+		TreeBaseHouseOption, OptionImage, IdentityService, MyFavoritesChoice, getDateWithUtcOffset
 	} from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
@@ -35,9 +35,11 @@ export class TreeService
 			? ` and (${communityFilterArray.join(" or ")})`
 			: '';
 
+		const utcNow = getDateWithUtcOffset();
+
 		const entity = 'dTreeVersions';
 		const expand = `dTree($select=dTreeID;$expand=plan($select=integrationKey),org($select = edhFinancialCommunityId)),baseHouseOptions($select=planOption;$expand=planOption($select=integrationKey))`;
-		const filter = `publishStartDate le now() and (publishEndDate eq null or publishEndDate gt now())${communityFilter}`;
+		const filter = `publishStartDate le ${utcNow} and (publishEndDate eq null or publishEndDate gt ${utcNow})${communityFilter}`;
 		const select = `dTreeVersionID,dTreeID,dTreeVersionName,dTreeVersionDescription,publishStartDate,publishEndDate,lastModifiedDate`;
 		const orderBy = `publishStartDate`;
 
