@@ -9,6 +9,8 @@ import {IColorDto, IColor} from '../../../shared/models/color.model';
 import {ColorService} from '../../services/color.service';
 import {SettingsService} from '../../services/settings.service';
 import {Settings} from '../../../shared/models/settings.model';
+import {MessageService} from 'primeng/api';
+import {IToastInfo} from '../../../../../../../phd-common/src/lib/models/toast-info.model';
 
 @Component({
 	selector: 'colors-search-header',
@@ -35,14 +37,18 @@ export class ColorsSearchHeaderComponent
 	modalReference: ModalRef;
 	newColors: IColor[] = [];
 	@ViewChild('addColorModal') addColorModal: any;
+	@ViewChild('editColorSidePanel') editColorSidePanel: any;
 	deleteColorList: Array<IColorDto>=[];
+	editSidePanelIsOpen: boolean;
+	colorToEdit: IColorDto;
 
 	constructor(
 		private _optionService: OptionService,
 		private _orgService: OrganizationService,
 		private _colorService: ColorService,
 		private _settingsService: SettingsService,
-		private _modalService: ModalService
+		private _modalService: ModalService,
+		private _msgService: MessageService
 	) {
 		super();
 	}
@@ -182,6 +188,15 @@ export class ColorsSearchHeaderComponent
 		this.modalReference.dismiss();
 	}
 
+	showEditColorSidePanel(color: IColorDto) {
+		this.colorToEdit = color;
+		this.editSidePanelIsOpen = true;
+	}
+
+	onEditSidePanelWasClosed() {
+		this.editSidePanelIsOpen = false;
+	}
+
 	deleteSelectedColors() {
 		const message = 'Are you sure you want to delete selected colors?';
 		this.showConfirmModal(message, 'Warning', 'Cancel').pipe(
@@ -204,12 +219,24 @@ export class ColorsSearchHeaderComponent
 
 	private showConfirmModal(body: string, title: string, defaultButton: string): Observable<boolean>
 	{
-		const confirm = this._modalService.open(ConfirmModalComponent, { centered: true, size: 'sm' });
+		const confirm = this._modalService.open(ConfirmModalComponent, { centered: true, windowClass: "phd-modal-window" });
 
 		confirm.componentInstance.title = title;
 		confirm.componentInstance.body = body;
 		confirm.componentInstance.defaultOption = defaultButton;
 
 		return from(confirm.result.then((result) => result !== 'Continue'));
+	}
+
+	onColorsWasEdited(toastInfo: IToastInfo) {
+		if (toastInfo.severity === 'success')
+		{
+			this.editSidePanelIsOpen = false;
+			this._msgService.add({ severity: toastInfo.severity, summary: toastInfo.summary, detail: toastInfo.detail });
+			this.filterColors();
+			return;
+		}
+
+		this._msgService.add({ severity: toastInfo.severity, summary: toastInfo.summary, detail: toastInfo.detail });
 	}
 }

@@ -1,0 +1,71 @@
+<phd-side-panel-component
+	[headerTemplate]="header"
+	[subheaderTemplate]="subheader"
+	[bodyTemplate]="body"
+	[footerTemplate]="footer"
+	[sidePanelOpen]="sidePanelIsOpen"
+	(onSidePanelClose)="onCloseSidePanel()"
+>
+	<ng-template #header>
+		<h4>
+			<strong>{{ sidePanelHeader }}</strong>
+		</h4>
+	</ng-template>
+
+	<ng-template #subheader>
+		<div>
+			{{ sidePanelSubheader }}
+		</div>
+	</ng-template>
+
+	<ng-template #body>
+		<div class="container pt-3">
+			<form [formGroup]="editColorForm">
+				<div class="form-group">
+					<div>
+						<label for="category" class="col-form-label">Category</label>
+						<input formControlName="category" type="text" id="category" class="form-control phd-dialogTextBox" disabled/>
+					</div>
+					<div class="mt-3">
+						<label for="subcategory" class="col-form-label">SubCategory</label>
+						<input formControlName="subcategory" type="text" id="subcategory" class="form-control phd-dialogTextBox" disabled/>
+					</div>
+					<div class="mt-3">
+						<label for="color" class="col-form-label">Color</label>
+						<i class="fa fa-asterisk phd-dialog-asterisk"></i>
+						<div>
+							<input formControlName="name" type="text" id="color" class="form-control phd-dialog-text-box" maxlength="50" required/>
+							<small
+								class="text-danger"
+								*ngIf="editColorForm.invalid">
+								This is a required field
+							</small>
+						</div>
+					</div>
+					<div class="mt-3">
+						<label for="sku" class="col-form-label">Sku</label>
+						<input formControlName="sku" type="text" id="sku" class="form-control phd-dialog-text-box" maxlength="50" />
+					</div>
+				</div>
+			</form>
+		</div>
+	</ng-template>
+
+	<ng-template #footer>
+		<div class="pull-right">
+			<button
+				class="btn btn-primary phd-btn-save"
+				[disabled]="editColorForm.invalid"
+				(click)="saveEdit()"
+			>
+				Save
+
+				<i class="fa fa-spinner fa-spin fa-fw" *ngIf="isSaving"></i>
+			</button>
+
+			<button class="btn btn-secondary" (click)="onCloseSidePanel()">
+				Cancel
+			</button>
+		</div>
+	</ng-template>
+</phd-side-panel-component>
