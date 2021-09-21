@@ -172,8 +172,6 @@ export class Choice
 	mappingChanged: boolean = false;
 	isHiddenFromBuyerView?: boolean;
 	priceHiddenFromBuyerView?: boolean;
-	isRequired?: boolean = false;
-	disabledByHomesite?: boolean = false;
 }
 
 export class MappedGroup
