@@ -276,7 +276,6 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 		this.resetFilteredData(); // Any filter change should re run the query and remove current filters
 
 		this.statusFilter = event.value;
-		console.log(this.statusFilter);
 
 		this.filterHomesites();
 
@@ -291,7 +290,6 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 		this.resetFilteredData(); // Any filter change should re run the query and remove current filters
 
 		this.handingFilter = event.value;
-		console.log(this.handingFilter);
 
 		this.filterHomesites();
 
@@ -498,7 +496,7 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 				this.selectedHomesite.dto = dto;
 				const pipe = new HandingsPipe();
 
-				Object.assign(this.lots.find(l => l.dto.id === dto.id),
+				Object.assign(this.filteredLots.find(l => l.dto.id === dto.id),
 					{
 						handingDisplay: pipe.transform(dto.lotHandings),
 						handingValues: (dto.lotHandings || []).map(h => h.handingId)
@@ -511,7 +509,6 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 				error =>
 				{
 					this._msgService.add({ severity: 'error', summary: 'Error', detail: error });
-					console.log(error);
 				});
 	}
 
@@ -553,12 +550,10 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 						error =>
 						{
 							this._msgService.add({ severity: 'error', summary: 'Error', detail: 'Release failed to save.' });
-							console.log(error);
 						});
 			}
 		}, (reason) =>
 		{
-			console.log('Error:', reason);
 		});
 
 	}
