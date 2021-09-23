@@ -173,13 +173,20 @@ export class ColorsSearchHeaderComponent
 		this.modalReference.result.catch(err => console.log(err));
 	}
 
-	onNewColorsWereSaved()
+	onNewColorsWereSaved(message: string = '')
 	{
 		if (this.modalReference)
 		{
 			this.modalReference.dismiss();
 		}
 
+		const toast = {
+			severity: 'success',
+			summary: 'Color',
+			detail: message.length > 0 ? message : 'Save was successful! Refreshing grid...'
+		} as IToastInfo;
+
+		this._msgService.add(toast);
 		this.filterColors();
 	}
 
@@ -212,7 +219,7 @@ export class ColorsSearchHeaderComponent
 			if (successful) {
 				this.skip = 0;
 				this.deleteColorList = [];
-				this.onNewColorsWereSaved();
+				this.onNewColorsWereSaved('Delete was successful! Refreshing grid...');
 			}
 		});
 	}
@@ -232,11 +239,11 @@ export class ColorsSearchHeaderComponent
 		if (toastInfo.severity === 'success')
 		{
 			this.editSidePanelIsOpen = false;
-			this._msgService.add({ severity: toastInfo.severity, summary: toastInfo.summary, detail: toastInfo.detail });
+			this._msgService.add(toastInfo);
 			this.filterColors();
 			return;
 		}
 
-		this._msgService.add({ severity: toastInfo.severity, summary: toastInfo.summary, detail: toastInfo.detail });
+		this._msgService.add(toastInfo);
 	}
 }

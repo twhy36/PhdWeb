@@ -23,6 +23,11 @@
 							{{ category.name }}
 						</option>
 					</select>
+					<small
+						class="text-danger"
+						*ngIf="categoryIsMissing">
+						This is a required field
+					</small>
 				</div>
 				<div class="form-group col-md-6">
 					<div class="form-row">
@@ -43,6 +48,11 @@
 							{{ subcategory.name }}
 						</option>
 					</select>
+					<small
+						class="text-danger"
+						*ngIf="subCategoryIsMissing">
+						This is a required field
+					</small>
 				</div>
 			</div>
 			<div class="mx-2">
@@ -51,6 +61,11 @@
 						<span class="phd-colorHeader ml-1">Color<i class="fa fa-asterisk phd-dialogAsterisk"></i></span>
 						<span class="phd-skuHeader">Sku</span>
 						<span>Active</span>
+						<small
+							class="text-danger"
+							*ngIf="colorIsMissing">
+							This is a required field
+						</small>
 					</div>
 					<tbody>
 						<div [formGroup]="addColorForm">
@@ -65,6 +80,7 @@
 														formControlName="name"
 														class="phd-dialogTextBox"
 														maxlength="50"
+														(input)="onColorChanged($event)"
 													/>
 													<small
 														class="text-danger"
