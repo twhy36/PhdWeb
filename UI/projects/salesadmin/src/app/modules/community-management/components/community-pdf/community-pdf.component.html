@@ -1,4 +1,4 @@
-<community-pdf-side-panel-component *ngIf="isSidePanelOpen" [selected]="selected" [sidePanelOpen]="isSidePanelOpen" [saving]="isSaving" (onSidePanelClose)="onSidePanelClose($event)" (onUpdate)="update($event)" (onSave)="save($event)"></community-pdf-side-panel-component>
+<community-pdf-side-panel-component *ngIf="isSidePanelOpen" [communityPdfs]="allCommunityPdfs" [selected]="selected" [sidePanelOpen]="isSidePanelOpen" [saving]="isSaving" (onSidePanelClose)="onSidePanelClose($event)" (onUpdate)="update($event)" (onSave)="save($event)"></community-pdf-side-panel-component>
 
 <div class="phd-page-container">
 	<page-header mainTitle="Community PDF Files"></page-header>

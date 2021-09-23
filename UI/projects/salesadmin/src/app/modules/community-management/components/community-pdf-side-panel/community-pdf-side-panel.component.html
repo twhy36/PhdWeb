@@ -30,8 +30,8 @@
 							Invalid: A File Name is required.
 						</span>
 						<span class="text-danger"
-								*ngIf="communityPdfForm.controls.fileName.invalid && communityPdfForm.controls.fileName.dirty && communityPdfForm.controls.fileName.touched && communityPdfForm.controls.fileName.errors.requiredFileType">
-							Invalid: File Name must end with '.pdf' file extension.
+								*ngIf="communityPdfForm.controls.fileName.invalid && communityPdfForm.controls.fileName.dirty && communityPdfForm.controls.fileName.errors.duplicateName">
+							Invalid: This File Name already exists.
 						</span>
 					</div>
 				</div>
