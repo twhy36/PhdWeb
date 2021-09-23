@@ -34,6 +34,7 @@ export class CommunityPdfComponent extends UnsubscribeOnDestroy implements OnIni
 	isSortSaving: boolean = false;
 	canManageDocument: boolean = true;
 	canEdit: boolean = false;
+	saveDisabled: boolean = true;
 
 	get selected(): CommunityPdf
 	{
@@ -132,6 +133,11 @@ export class CommunityPdfComponent extends UnsubscribeOnDestroy implements OnIni
 		}
 	}
 
+	enableSave(saveEnabled: boolean)
+	{
+		this.saveDisabled = !saveEnabled;
+	}
+
 	onSortComplete(isComplete: boolean)
 	{
 		this.isSortSaving = false;
@@ -161,6 +167,7 @@ export class CommunityPdfComponent extends UnsubscribeOnDestroy implements OnIni
 		this.canManageDocument = !this.canManageDocument;
 		this.isSorting = !this.isSorting;
 		this.isCanceling = false;
+		this.saveDisabled = true;
 	}
 
 	saveSort()

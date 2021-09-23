@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from "@angular/core";
+import { Component,  EventEmitter, Input, OnInit, Output, ViewChild } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { SidePanelComponent } from "phd-common";
 import { CommunityPdf, ISectionHeader } from "../../../shared/models/communityPdf.model";
@@ -155,7 +155,7 @@ export class CommunityPdfSidePanelComponent implements OnInit
 
 			if (file)
 			{
-				const split = file.split('.');
+				const split = file.name.split('.');
 
 				if (split.length > 1)
 				{
