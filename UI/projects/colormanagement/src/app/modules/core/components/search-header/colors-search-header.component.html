@@ -74,7 +74,7 @@
             </phd-column>
             <phd-column header="" columnClass="phd-icon">
                 <ng-template #body let-colordto>
-                        <p-checkbox (ngModelChange)="setDeleteSelected(colordto, $event)" [ngModel]="isDeleteSelected(colordto)" [binary]=true></p-checkbox>
+                        <p-checkbox *ngIf="colordto.hasSalesConfig===false" (ngModelChange)="setDeleteSelected(colordto, $event)" [ngModel]="isDeleteSelected(colordto)" [binary]=true></p-checkbox>
                 </ng-template>
             </phd-column>
         </phd-table>
