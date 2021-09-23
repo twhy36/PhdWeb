@@ -78,9 +78,12 @@ export class ContractService
 		 * 	1			1			and (isPhd eq true or isTho eq true)
 		 */
 		let isPhdThoCondition = '';
-		if (isPhd && isTho) {
-			isPhdThoCondition = " and (isPhd eq true or isTho eq true)";
-		} else if (isPhd || isTho) {
+		if (isPhd && isTho)
+		{
+			isPhdThoCondition = ' and (isPhd eq true or isTho eq true)';
+		}
+		else if (isPhd || isTho)
+		{
 			isPhdThoCondition = ` and ${ isPhd ? 'isPhd' : 'isTho' } eq true`;
 		}
 

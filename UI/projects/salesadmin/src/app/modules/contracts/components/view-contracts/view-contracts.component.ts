@@ -280,12 +280,8 @@ export class ViewContractsComponent extends UnsubscribeOnDestroy implements OnIn
 			{
 				contractTemplateDto.documentName = this.selected.documentName;
 				contractTemplateDto.displayName = this.selected.displayName;
-				contractTemplateDto.isPhd = contractTemplateDto.isPhd !== undefined
-					? contractTemplateDto.isPhd
-					: this.selected.isPhd;
-				contractTemplateDto.isTho = contractTemplateDto.isTho !== undefined
-					? contractTemplateDto.isTho
-					: this.selected.isTho;
+				contractTemplateDto.isPhd = contractTemplateDto.isPhd ?? this.selected.isPhd;
+				contractTemplateDto.isTho = contractTemplateDto.isTho ?? this.selected.isTho;
 				contractTemplateDto.effectiveDate = new Date(this.selected.effectiveDate).toJSON();
 			}
 		}

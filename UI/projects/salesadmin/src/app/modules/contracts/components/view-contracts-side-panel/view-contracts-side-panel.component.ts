@@ -259,7 +259,7 @@ export class ViewContractsSidePanelComponent implements OnInit
 				.subscribe(data =>
 				{
 					this.communitiesWithExistingTemplate = data;
-					this.communitiesForSelectedTemplate = this.allCommunities;
+					this.communitiesForSelectedTemplate = this.allCommunities.slice(0); // Create new array with allCommunities
 
 					for (let comm of this.communitiesWithExistingTemplate)
 					{
@@ -269,7 +269,7 @@ export class ViewContractsSidePanelComponent implements OnInit
 		}
 		else
 		{
-			this.communitiesForSelectedTemplate = this.allCommunities;
+			this.communitiesForSelectedTemplate = this.allCommunities.slice(0); // Create new array with allCommunities
 		}
 
 		this.selectedCommunities = [];
