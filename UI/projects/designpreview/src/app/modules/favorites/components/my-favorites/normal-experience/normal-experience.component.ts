@@ -32,6 +32,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	@Input() isReadonly: boolean;
 	@Input() isPreview: boolean = false;
 	@Input() isDesignComplete: boolean = false;
+	@Input() noVisibleGroups: boolean = false;
 
 	@Output() onToggleChoice = new EventEmitter<ChoiceExt>();
 	@Output() onToggleContractedOptions = new EventEmitter();

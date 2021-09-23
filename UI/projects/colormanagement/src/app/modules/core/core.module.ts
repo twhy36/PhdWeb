@@ -11,18 +11,22 @@ import { ColorsSearchHeaderComponent } from './components/search-header/colors-s
 import {ColorItemsSearchHeaderComponent} from './components/item-search-header/color-items-search-header.component'
 import { OptionService } from './services/option.service';
 import { InfiniteScrollModule } from 'ngx-infinite-scroll';
-import { PhdCommonModule } from 'phd-common';
+import { PhdCommonModule, SidePanelComponent } from 'phd-common';
 import { SettingsService } from './services/settings.service';
 import { AddColorDialogComponent } from './components/add-color-dialog/add-color-dialog.component';
 import { CheckboxModule } from 'primeng/checkbox';
 import { PlanOptionService } from './services/plan-option.service';
+import { EditColorSidePanelComponent } from './components/edit-color-side-panel/edit-color-side-panel.component';
+import {ToastModule} from 'primeng/toast';
+import {MessageService} from 'primeng/api';
 
 @NgModule({
 	declarations: [
 		MarketSelectorComponent,
 		ColorsSearchHeaderComponent,
 		ColorItemsSearchHeaderComponent,
-		AddColorDialogComponent
+		AddColorDialogComponent,
+  		EditColorSidePanelComponent,
 	],
 	imports: [
 		CommonModule,
@@ -32,12 +36,14 @@ import { PlanOptionService } from './services/plan-option.service';
 		PhdCommonModule,
 		CheckboxModule,
 		ReactiveFormsModule,
-		PhdCommonModule
+		PhdCommonModule,
+		ToastModule,
 	],
 	exports: [
 		MarketSelectorComponent,
 		ColorsSearchHeaderComponent,
-		ColorItemsSearchHeaderComponent
+		ColorItemsSearchHeaderComponent,
+		SidePanelComponent
 	],
 	providers: [
 		OrganizationService,
@@ -46,7 +52,8 @@ import { PlanOptionService } from './services/plan-option.service';
 		OptionService,
 		ColorService,
 		SettingsService,
-		PlanOptionService
+		PlanOptionService,
+		MessageService
 	]
 })
 export class CoreModule {}

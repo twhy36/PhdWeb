@@ -19,13 +19,13 @@
 			</div>
 			<form [formGroup]="viewContractsForm">
 				<div [ngClass]="{'phd-hidden': (selectedTab !== 'Details') }">
-					<div class="form-group phd-checkbox-group">
+					<div class="form-group phd-checkbox-group" [ngClass]="{'phd-hidden': hideExperienceCheckboxes }">
 						<div class="phd-checkbox-label">
-							<input type="checkbox" id="isPhd" name="isPhd" formControlName="isPhd" class="phd-checkbox-label" />
+							<input type="checkbox" id="isPhd" name="isPhd" formControlName="isPhd" class="phd-checkbox-label" (change)="updateSelectionFromFormGroup()"/>
 							<label for="isPhd" class="form-check-label">PHD</label>
 						</div>
 						<div class="phd-checkbox-label">
-							<input type="checkbox" id="isTho" name="isPMCAffiliate" formControlName="isTho" class="phd-checkbox-label" />
+							<input type="checkbox" id="isTho" name="isPMCAffiliate" formControlName="isTho" class="phd-checkbox-label" (change)="updateSelectionFromFormGroup()"/>
 							<label for="isTho" class="form-check-label">THO</label>
 						</div>
 						<span class="text-danger"
@@ -36,7 +36,6 @@
 					<div class="form-group">
 						<label class="font-weight-bold" for="documentName">Document Name</label>
 						<input type="text" class="form-control phd-fieldRequired" id="documentName" maxlength="100" formControlName="documentName" required />
-	
 						<div class="col-sm-12">
 							<span class="text-danger"
 									*ngIf="viewContractsForm.controls.documentName.invalid && (viewContractsForm.controls.documentName.dirty || viewContractsForm.controls.documentName.touched) && viewContractsForm.controls.documentName.errors.required">
@@ -56,11 +55,11 @@
 							</span>
 						</div>
 					</div>
-	
+
 					<div class="form-group">
 						<label class="font-weight-bold" for="displayName">Display Name</label>
 						<input type="text" class="form-control phd-fieldRequired" id="displayName" maxlength="100" formControlName="displayName" required />
-	
+
 						<div class="col-sm-12">
 							<span class="text-danger"
 									*ngIf="viewContractsForm.controls.displayName.invalid && (viewContractsForm.controls.displayName.dirty || viewContractsForm.controls.displayName.touched) && viewContractsForm.controls.displayName.errors.required">
@@ -72,7 +71,7 @@
 							</span>
 						</div>
 					</div>
-	
+
 					<div class="phd-version-control-container" *ngIf="selected && (selected.status === 'In Use'  || selected.status === 'Draft'); else otherStatus">
 						<div>
 							<h6>Document Type</h6>
@@ -87,14 +86,14 @@
 							<span>{{selected.status}}</span>
 						</div>
 					</div>
-	
+
 					<ng-template #otherStatus>
 						<div class="form-group">
 							<label class="font-weight-bold" for="release_rank">Document Type</label>
 							<select id="release_rank" class="form-control phd-fieldRequired" formControlName="templateTypeId" (change)="updateSelection()" required>
 								<option *ngFor="let type of templateTypes" [ngValue]="type.id">{{ type.label}}</option>
 							</select>
-	
+
 							<div class="col-sm-12">
 								<span class="text-danger"
 										*ngIf="viewContractsForm.controls.templateTypeId.invalid && (viewContractsForm.controls.templateTypeId.dirty || viewContractsForm.controls.templateTypeId.touched) && viewContractsForm.controls.templateTypeId.errors.required">
@@ -103,13 +102,13 @@
 							</div>
 						</div>
 					</ng-template>
-	
+
 					<div class="form-group" *ngIf="viewContractsForm.get('templateTypeId').value === 2">
 						<label class="font-weight-bold" for="addendumTypeId">Addenda Type</label>
-						<select id="addendumTypeId" class="form-control phd-fieldRequired" formControlName="addendumTypeId" (change)="updateSelection()">
+						<select id="addendumTypeId" class="form-control phd-fieldRequired" formControlName="addendumTypeId">
 							<option *ngFor="let type of addendaTypes" [ngValue]="type.id">{{ type.label}}</option>
 						</select>
-	
+
 						<div class="col-sm-12">
 							<span class="text-danger"
 									*ngIf="viewContractsForm.errors?.requireAddendumSelect && (viewContractsForm.controls.addendumTypeId.dirty || viewContractsForm.controls.addendumTypeId.touched)">
@@ -117,7 +116,7 @@
 							</span>
 						</div>
 					</div>
-	
+
 					<div class="form-group calendar-group">
 						<label class="font-weight-bold" for="effective_date">Effective Date</label>
 						<div class="input-group">
@@ -125,7 +124,7 @@
 							<p-calendar [ngModel]="effectiveDate" [ngModelOptions]="{standalone: true}" (onSelect)="setMinimumExpirationDate($event)" dateFormat="mm/dd/yy" readonlyInput="true" [minDate]="minEffectiveDate" showIcon="true" appendTo="body"></p-calendar>
 						</div>
 					</div>
-	
+
 					<div class="form-group calendar-group">
 						<label class="font-weight-bold" for="expiration_date">Expiration Date</label>
 						<div class="input-group">
@@ -143,13 +142,13 @@
 							</select>
 						</div>
 					</div>
-	
+
 					<div class="form-group text-center phd-buttons-row">
 						<button class="btn btn-sm btn-secondary mr-1" (click)="addHighlightedItems()"><i class="fa fa-angle-down fa-fw"></i></button>
 						<button class="btn btn-sm btn-secondary mr-1" (click)="addAllItems()"><i class="fa fa-angle-double-down fa-fw"></i></button>
 						<button class="btn btn-sm btn-secondary" (click)="removeAllItems()"><i class="fa fa-angle-double-up fa-fw"></i></button>
 					</div>
-	
+
 					<div class="form-group">
 						<label class="font-weight-bold" for="selectedItemsTags">Assigned Communities</label>
 						<div id="selectedItemsTags" *ngIf="selectedCommunities.length > 0" class="phd-tags-input" [class.phd-tags-4row]="selectedCommunities.length > 16">
@@ -157,7 +156,7 @@
 								<span>{{ tag.name }}</span>
 								<a class="phd-tags-input-remove-link" (click)="removeItem(tag)"></a>
 							</div>
-	
+
 						</div>
 						<div id="noSelectedItemsTags" class="phd-tags-input" *ngIf="selectedCommunities.length === 0">
 							<div class="phd-tag">

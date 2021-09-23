@@ -46,7 +46,7 @@
 	</div>
 
 	<div class="phd-footer">
-		<div class="phd-footer-btn-container" (click)="$event.stopPropagation()" *ngIf="showDisabledButton || showConfirmButton">
+		<div class="phd-footer-btn-container" (click)="$event.stopPropagation()" *ngIf="showDisabledButton || showConfirmButton || showRequiredButton">
 			<div *ngIf="showConfirmButton" [class.phd-choice-disabled]="buttonDisabled" class="d-flex align-items-center phd-footer-btns">
 				<span *ngIf="isFavorite" class="phd-favorite-icon"></span>
 				<button class="btn phd-experience-btn-choice" (click)="toggleSelection()" [disabled]="buttonDisabled" [class.phd-disable-hover]="buttonDisabled">{{getButtonLabel()}}</button>
@@ -55,6 +55,10 @@
 
 			<div *ngIf="showDisabledButton" class="phd-choice-disabled-msg phd-clickable" (click)="!optionDisabled && choice && showDisabledMessage()">
 				<i class="fas fa-info-circle fa-sm"></i> Disabled
+			</div>
+
+			<div *ngIf="showRequiredButton" class="phd-choice-disabled-msg phd-clickable" (click)="!optionDisabled && choice && showDisabledMessage()">
+				<i class="fas fa-info-circle fa-sm"></i> Required
 			</div>
 		</div>
 

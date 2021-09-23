@@ -2,7 +2,6 @@ import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { cloneDeep } from "lodash";
 import { MessageService } from "primeng/api";
-import { Observable } from "rxjs";
 import { CommunityService } from "../../../core/services/community.service";
 import { OrganizationService } from "../../../core/services/organization.service";
 import { CommunityPdf, SectionHeader } from "../../../shared/models/communityPdf.model";
@@ -23,7 +22,7 @@ export class CommunityPdfComponent extends UnsubscribeOnDestroy implements OnIni
 	private _additionalDocumentPdfs: Array<CommunityPdf> = [];
 	selectedCommunity: FinancialCommunityViewModel = null;
 	selectedMarket: FinancialMarket = null;
-	filteredCommunityPdfs: Observable<Array<CommunityPdf>>;
+	allCommunityPdfs: Array<CommunityPdf> = [];
 	homeWarrantyPdfs: Array<CommunityPdf> = [];
 	communityAssociationPdfs: Array<CommunityPdf> = [];
 	additionalDocumentPdfs: Array<CommunityPdf> = [];
@@ -34,6 +33,7 @@ export class CommunityPdfComponent extends UnsubscribeOnDestroy implements OnIni
 	isSortSaving: boolean = false;
 	canManageDocument: boolean = true;
 	canEdit: boolean = false;
+	saveDisabled: boolean = true;
 
 	get selected(): CommunityPdf
 	{
@@ -55,6 +55,7 @@ export class CommunityPdfComponent extends UnsubscribeOnDestroy implements OnIni
 		this._orgService.currentMarket$.subscribe(mkt =>
 		{
 			this.selectedMarket = mkt;
+			this.selectedCommunity = null;
 			this.populateCommunityPdfs();
 		});
 
@@ -83,11 +84,21 @@ export class CommunityPdfComponent extends UnsubscribeOnDestroy implements OnIni
 
 	populateCommunityPdfs()
 	{
+		// Resetting all of the pdf lists before we pull new ones
+		this.allCommunityPdfs = [];
+		this.homeWarrantyPdfs = [];
+		this.communityAssociationPdfs = [];
+		this.additionalDocumentPdfs = [];
+		this._homeWarrantyPdfs = [];
+		this._communityAssociationPdfs = [];
+		this._additionalDocumentPdfs = [];
+
 		if (this.selectedMarket !== null && this.selectedCommunity !== null)
 		{
 			this._communityService.getCommunityPdfsByFinancialCommunityId(this.selectedCommunity.dto.id)
 			.subscribe(pdfs =>
 			{
+				this.allCommunityPdfs = pdfs;
 				// Populate each of the tree tables
 				this.homeWarrantyPdfs = pdfs.filter(x => x.sectionHeader === SectionHeader.HomeWarranty);
 				this.communityAssociationPdfs = pdfs.filter(x => x.sectionHeader === SectionHeader.CommunityAssociation);
@@ -132,6 +143,11 @@ export class CommunityPdfComponent extends UnsubscribeOnDestroy implements OnIni
 		}
 	}
 
+	enableSave(saveEnabled: boolean)
+	{
+		this.saveDisabled = !saveEnabled;
+	}
+
 	onSortComplete(isComplete: boolean)
 	{
 		this.isSortSaving = false;
@@ -161,6 +177,7 @@ export class CommunityPdfComponent extends UnsubscribeOnDestroy implements OnIni
 		this.canManageDocument = !this.canManageDocument;
 		this.isSorting = !this.isSorting;
 		this.isCanceling = false;
+		this.saveDisabled = true;
 	}
 
 	saveSort()

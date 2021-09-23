@@ -1,4 +1,4 @@
-<community-pdf-side-panel-component *ngIf="isSidePanelOpen" [selected]="selected" [sidePanelOpen]="isSidePanelOpen" [saving]="isSaving" (onSidePanelClose)="onSidePanelClose($event)" (onUpdate)="update($event)" (onSave)="save($event)"></community-pdf-side-panel-component>
+<community-pdf-side-panel-component *ngIf="isSidePanelOpen" [communityPdfs]="allCommunityPdfs" [selected]="selected" [sidePanelOpen]="isSidePanelOpen" [saving]="isSaving" (onSidePanelClose)="onSidePanelClose($event)" (onUpdate)="update($event)" (onSave)="save($event)"></community-pdf-side-panel-component>
 
 <div class="phd-page-container">
 	<page-header mainTitle="Community PDF Files"></page-header>
@@ -8,7 +8,7 @@
 				<button *ngIf="!isSorting; else save_sorting" type="button" class="btn btn-secondary float-right" (click)="editSort()">Edit Sort</button>
 				<ng-template #save_sorting>
 					<button type="button" class="btn btn-secondary float-right" (click)="cancelSort()">Cancel</button>
-					<button type="button" class="btn btn-primary float-right" (click)="saveSort()">
+					<button type="button" class="btn btn-primary float-right" (click)="saveSort()" [disabled]="saveDisabled">
 						Save
 						<ng-container *ngIf="isSortSaving"><i class="fa fa-spinner fa-spin fa-fw"></i></ng-container>
 					</button>
@@ -21,11 +21,11 @@
 	</div>
 	<div class="phd-page-body phd-table-view">
 		<h2>Home Warranty</h2>
-		<community-pdf-table [filteredCommunityPdfs]="homeWarrantyPdfs" [isCanceling]="isCanceling" [isSorting]="isSorting" [isSaving]="isSortSaving" [canEdit]="canEdit" (editClicked)="onEditClick($event)" (deleteComplete)="onDeleteComplete($event)" (saveComplete)="onSortComplete($event)"></community-pdf-table>
+		<community-pdf-table [filteredCommunityPdfs]="homeWarrantyPdfs" [isCanceling]="isCanceling" [isSorting]="isSorting" [isSaving]="isSortSaving" [canEdit]="canEdit" (editClicked)="onEditClick($event)" (deleteComplete)="onDeleteComplete($event)" (saveComplete)="onSortComplete($event)" (sortInitiated)="enableSave($event)"></community-pdf-table>
 		<h2>Community Association</h2>
-		<community-pdf-table [filteredCommunityPdfs]="communityAssociationPdfs" [isCanceling]="isCanceling" [isSorting]="isSorting" [isSaving]="isSortSaving" [canEdit]="canEdit" (editClicked)="onEditClick($event)" (deleteComplete)="onDeleteComplete($event)" (saveComplete)="onSortComplete($event)"></community-pdf-table>
+		<community-pdf-table [filteredCommunityPdfs]="communityAssociationPdfs" [isCanceling]="isCanceling" [isSorting]="isSorting" [isSaving]="isSortSaving" [canEdit]="canEdit" (editClicked)="onEditClick($event)" (deleteComplete)="onDeleteComplete($event)" (saveComplete)="onSortComplete($event)" (sortInitiated)="enableSave($event)"></community-pdf-table>
 		<h2>Additional Documents</h2>
-		<community-pdf-table [filteredCommunityPdfs]="additionalDocumentPdfs" [isCanceling]="isCanceling" [isSorting]="isSorting" [isSaving]="isSortSaving" [canEdit]="canEdit" (editClicked)="onEditClick($event)" (deleteComplete)="onDeleteComplete($event)" (saveComplete)="onSortComplete($event)"></community-pdf-table>
+		<community-pdf-table [filteredCommunityPdfs]="additionalDocumentPdfs" [isCanceling]="isCanceling" [isSorting]="isSorting" [isSaving]="isSortSaving" [canEdit]="canEdit" (editClicked)="onEditClick($event)" (deleteComplete)="onDeleteComplete($event)" (saveComplete)="onSortComplete($event)" (sortInitiated)="enableSave($event)"></community-pdf-table>
 	</div>
 </div>
 

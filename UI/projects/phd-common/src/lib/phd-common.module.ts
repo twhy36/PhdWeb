@@ -36,6 +36,7 @@ import { BrowserService } from './services/browser.service';
 import { ModalService } from './services/modal.service';
 import { EllipsisPipe } from './pipes/ellipsis.pipe';
 import { SafeUrlPipe } from './pipes/safe-url.pipe';
+import { MinusSignToParens } from './pipes/minusSignToParens.pipe'; 
 import { PrimeNGCorrectionService } from './services/primeng.service';
 
 export function oAuthModuleConfigFactory(apiUrl: string) {
@@ -80,7 +81,8 @@ export function getOrigin() {
 		ModalComponent,
 		PDFViewerComponent,
 		EllipsisPipe,
-		SafeUrlPipe
+		SafeUrlPipe,
+		MinusSignToParens
 	],
     exports: [
 		PhdTableComponent,
@@ -98,7 +100,8 @@ export function getOrigin() {
 		PDFViewerComponent,
 		ModalComponent,
 		EllipsisPipe,
-		SafeUrlPipe
+		SafeUrlPipe,
+		MinusSignToParens
 	],
 })
 export class PhdCommonModule {

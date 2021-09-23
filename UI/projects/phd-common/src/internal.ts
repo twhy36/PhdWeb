@@ -62,6 +62,7 @@ export * from './lib/services/modal.service';
 //utils
 export * from './lib/utils/animations.class';
 export * from './lib/utils/constants.class';
+export * from './lib/utils/date-utils.class';
 export * from './lib/utils/default-on-not-found';
 export * from './lib/utils/guid.class';
 export * from './lib/utils/jsUtils.class';

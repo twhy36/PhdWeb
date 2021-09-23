@@ -68,7 +68,7 @@ export function selectChoice(tree: Tree, selectedChoice: number)
 	}
 }
 
-export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOption[])
+export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOption[], lotId: number = 0)
 {
 	let points = _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points)).filter(x => x.treeVersionId === tree.treeVersion.id);
 	let choices = _.flatMap(points, p => p.choices).filter(x => x.treeVersionId === tree.treeVersion.id);
@@ -82,6 +82,33 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 		ch.disabledBy = [];
 		ch.changedDependentChoiceIds = [];
 		ch.mappingChanged = false;
+
+		// Deselect choice requirements when a user deselects/selects a new lot while creating a HC
+		// Don't want previous lot choice requirements to show up when a lot is toggled
+		ch.disabledByHomesite = false;
+		ch.isRequired = false;
+
+		//Check for LotChoiceRules and mark them as enabled/disabled
+		let choiceRules = rules.lotChoiceRules?.find(lcr => lcr.divChoiceCatalogId === ch.divChoiceCatalogId);
+
+		let lcRule = choiceRules?.rules.find(cr => cr.edhLotId === lotId);
+
+		if (lcRule)
+		{
+			// if required, set choice as required due to homesite
+			if (lcRule.mustHave)
+			{
+				ch.quantity = 1;
+				ch.isRequired = true;
+			}
+			else
+			{
+				ch.quantity = 0;
+				ch.enabled = false;
+				ch.isSelectable = false;
+				ch.disabledByHomesite = true;
+			}
+		}
 
 		if (ch.lockedInChoice && ch.lockedInOptions?.length)
 		{
@@ -151,7 +178,7 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 			{
 				choice.quantity = 0;
 
-				choice.disabledBy.push(cr);				
+				choice.disabledBy.push(cr);		
 			}
 		}
 

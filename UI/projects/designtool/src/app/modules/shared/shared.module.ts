@@ -49,7 +49,6 @@ import { EnumToArrayPipe } from './pipes/enum-to-array.pipe';
 import { MapJoinPipe } from './pipes/map-join.pipe';
 import { PointIdToNamePipe } from './pipes/pointIdToName.pipe';
 import { ContactFullNamePipe } from './pipes/contact-full-name.pipe';
-import { MinusSignToParens } from './pipes/minusSignToParens.pipe';
 import { PriceRangePipe } from './pipes/priceRange.pipe';
 
 import { PhoneNumberDirective } from './directives';
@@ -94,7 +93,6 @@ import { InputFilterDirective } from './directives/input-filter.directive';
 		InputFilterDirective,
 		DistributionListComponent,
 		ContactFullNamePipe,
-		MinusSignToParens,
 		PriceRangePipe
     ],
     declarations: [
@@ -136,7 +134,6 @@ import { InputFilterDirective } from './directives/input-filter.directive';
 		InputFilterDirective,
 		DistributionListComponent,
 		ContactFullNamePipe,
-		MinusSignToParens,
 		PriceRangePipe
     ],
     imports: [

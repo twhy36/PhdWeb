@@ -1,3 +1,11 @@
+<edit-color-side-panel
+	*ngIf="editSidePanelIsOpen"
+	[selectedColor]="colorToEdit"
+	[communityId]="currentCommunityId"
+	[allColors]="colorsDtoList"
+	(sidePanelWasClosed)="onEditSidePanelWasClosed()"
+	(colorWasEdited)="onColorsWasEdited($event)"
+></edit-color-side-panel>
 <div class="d-flex flex-row">
 	<div class="form-inline">
 		<div>
@@ -69,7 +77,13 @@
             </phd-column>
             <phd-column header="" columnClass="phd-icon">
                 <ng-template #body let-colordto>
-                        <i class="fa fa-pencil fa-fw" title="Edit Color" *ngIf="colordto.hasSalesConfig===false && colordto.isActive"></i>
+                        <i
+							class="fa fa-pencil fa-fw"
+							title="Edit Color"
+							*ngIf="colordto.hasSalesConfig===false && colordto.isActive"
+							(click)="showEditColorSidePanel(colordto)"
+						>
+						</i>
                 </ng-template>
             </phd-column>
             <phd-column header="" columnClass="phd-icon">
@@ -88,4 +102,5 @@
 		</add-color-dialog>
 	  </ng-template>
 
+	<p-toast></p-toast>
 </div>

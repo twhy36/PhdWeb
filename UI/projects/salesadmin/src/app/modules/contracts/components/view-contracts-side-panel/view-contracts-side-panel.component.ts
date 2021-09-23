@@ -11,6 +11,7 @@ import { ContractService } from '../../../core/services/contract.service';
 import { SidePanelComponent } from 'phd-common';
 
 import * as moment from "moment";
+import { environment } from '../../../../../environments/environment';
 
 @Component({
 	selector: 'view-contracts-side-panel-component',
@@ -37,6 +38,7 @@ export class ViewContractsSidePanelComponent implements OnInit
 	selectedCommunities: Array<FinancialCommunity> = [];
 	communitiesWithExistingTemplate: Array<number> = [];
 	selectedTab: 'Details' | 'Community' = 'Details';
+	environment = environment;
 
 	oneDay: number = 86400000;
 	effectiveDate: Date;
@@ -75,6 +77,11 @@ export class ViewContractsSidePanelComponent implements OnInit
 	get documentType(): ITemplateType
 	{
 		return this.templateTypes.find(t => t.id === this.selected.templateTypeId);
+	}
+
+	get hideExperienceCheckboxes(): boolean
+	{
+		return environment.production && !environment.salesAdminMarketWhitelist.includes(this.currentMktId);
 	}
 
 	constructor(
@@ -150,8 +157,8 @@ export class ViewContractsSidePanelComponent implements OnInit
 		const pattern = "^[^\\\\/:*?<>]*$";
 
 		this.viewContractsForm = new FormGroup({
-			'isPhd': new FormControl(isPhd),
-			'isTho': new FormControl(isTho),
+			'isPhd': new FormControl({ value: isPhd, disabled: (this.selected && templateTypeId !== 2 && this.selected.status === "In Use") }),
+			'isTho': new FormControl({ value: isTho, disabled: (this.selected && templateTypeId !== 2 && this.selected.status === "In Use") }),
 			'documentName': new FormControl({ value: documentName, disabled: (this.selected && this.selected.status === "In Use") }, [Validators.required, this.duplicateName(), this.whiteSpaceValidator(), Validators.pattern(pattern)]),
 			'displayName': new FormControl({ value: displayName, disabled: (this.selected && this.selected.status === "In Use") }, [Validators.required, this.whiteSpaceValidator()]),
 			'templateTypeId': new FormControl(templateTypeId),
@@ -230,17 +237,29 @@ export class ViewContractsSidePanelComponent implements OnInit
 		this.sidePanel.toggleSidePanel();
 	}
 
+	updateSelectionFromFormGroup()
+	{
+		// This logic should be removed when isTho is scaled to all markets
+		// Update only if templateType selected and new contract
+		if (this.viewContractsForm.get('templateTypeId').value && this.selected?.status !== "In Use")
+		{
+			this.updateSelection();
+		}
+	}
+
 	updateSelection()
 	{
 		this.selectedTemplateTypeId = this.viewContractsForm.get('templateTypeId').value;
+		const isPhd = this.viewContractsForm.get('isPhd').value;
+		const isTho = this.viewContractsForm.get('isTho').value;
 
 		if (this.selectedTemplateTypeId !== 2)
 		{
-			this._contractService.getCommunitiesWithExistingTemplate(this.currentMktId, this.selectedTemplateTypeId)
+			this._contractService.getCommunitiesWithExistingTemplate(this.currentMktId, this.selectedTemplateTypeId, isPhd, isTho)
 				.subscribe(data =>
 				{
 					this.communitiesWithExistingTemplate = data;
-					this.communitiesForSelectedTemplate = this.allCommunities;
+					this.communitiesForSelectedTemplate = this.allCommunities.slice(0); // Create new array with allCommunities
 
 					for (let comm of this.communitiesWithExistingTemplate)
 					{
@@ -250,7 +269,7 @@ export class ViewContractsSidePanelComponent implements OnInit
 		}
 		else
 		{
-			this.communitiesForSelectedTemplate = this.allCommunities;
+			this.communitiesForSelectedTemplate = this.allCommunities.slice(0); // Create new array with allCommunities
 		}
 
 		this.selectedCommunities = [];

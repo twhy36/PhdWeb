@@ -23,6 +23,9 @@ export class AddColorDialogComponent implements OnInit, OnChanges {
 	currentCategory: IOptionCategory;
 	currentSubCategory: IOptionSubCategory;
 	addColorForm: FormGroup;
+	colorIsMissing: boolean;
+	categoryIsMissing: boolean;
+	subCategoryIsMissing: boolean;
 
 	get colors() {
 		return this.addColorForm.controls['colors'] as FormArray;
@@ -44,8 +47,14 @@ export class AddColorDialogComponent implements OnInit, OnChanges {
 
 		this.initColorsFormArray();
 
-		this.addColorForm.get("category").valueChanges.subscribe(cat => this.currentCategory = cat);
-		this.addColorForm.get("subcategory").valueChanges.subscribe(subcat => this.currentSubCategory = subcat);
+		this.addColorForm.get("category").valueChanges.subscribe(cat => {
+			this.currentCategory = cat;
+			this.categoryIsMissing = false;
+		});
+		this.addColorForm.get("subcategory").valueChanges.subscribe(subcat => {
+			this.currentSubCategory = subcat;
+			this.subCategoryIsMissing = false;
+		});
 	}
 
 	ngOnChanges(changes: SimpleChanges) {
@@ -66,20 +75,18 @@ export class AddColorDialogComponent implements OnInit, OnChanges {
 				sku: ['', [Validators.maxLength(50), Validators.minLength(0)]],
 				isActive: [true]
 			}));
-		};
+		}
 	}
 
 	saveColors()
 	{
-		let validEntries = this.colors.controls.filter(x => x.touched && x.dirty && x.valid);
-		const formIsValid = validEntries.length && this.addColorForm.get("category").valid && this.addColorForm.get("subcategory").valid;
-
-		if (formIsValid === false)
+		if (! this.isFormValid())
 		{
 			return;
 		}
 
 		const colorsToSave: IColor[] = [];
+		let validEntries = this.colors.controls.filter(x => x.touched && x.dirty && x.valid);
 
 		validEntries.forEach(control => {
 			colorsToSave.push({
@@ -98,6 +105,25 @@ export class AddColorDialogComponent implements OnInit, OnChanges {
 				this.newColorsWereSaved.emit();
 			}
 		});
+	}
+
+	isFormValid(): boolean
+	{
+		const categoryWasSelected = this.currentCategory !== undefined;
+		const subcategoryWasSelected = this.currentSubCategory !== undefined;
+		const atLeastOneNewColorExists = this.colors.controls.some(x => x.get('name').valid);
+		const hasNoOrphanedSkuEntries = this.colors.controls
+			.filter(x => x.get('sku').value.toString().trim().length > 0)
+			.every(x => x.get('name').valid);
+
+		this.categoryIsMissing = ! categoryWasSelected;
+		this.subCategoryIsMissing = ! subcategoryWasSelected;
+		this.colorIsMissing = ! atLeastOneNewColorExists;
+
+		return categoryWasSelected
+			&& subcategoryWasSelected
+			&& atLeastOneNewColorExists
+			&& hasNoOrphanedSkuEntries;
 	}
 
 	async cancelAddColorDialog()
@@ -127,5 +153,9 @@ export class AddColorDialogComponent implements OnInit, OnChanges {
 
 		const response = await confirm.result;
 		return response === 'Continue';
+	}
+
+	onColorChanged(event: any) {
+		this.colorIsMissing = event.target.value.length === 0;
 	}
 }
