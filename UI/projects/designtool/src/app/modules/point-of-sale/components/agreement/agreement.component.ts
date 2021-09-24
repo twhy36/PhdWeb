@@ -12,9 +12,11 @@ import * as CommonActions from '../../../ngrx-store/actions';
 
 import * as _ from "lodash";
 
-import { UnsubscribeOnDestroy, Job, ConstructionStageTypes, SalesAgreement, Choice } from 'phd-common';
+import 
+{ 
+	UnsubscribeOnDestroy, Job, ConstructionStageTypes, SalesAgreement, Choice, convertDateToUtcString 
+} from 'phd-common';
 
-import { convertDateToUtcString } from "../../../shared/classes/date-utils.class";
 import { JobService } from '../../../core/services/job.service';
 
 @Component({

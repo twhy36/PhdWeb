@@ -38,5 +38,6 @@ export const environment = {
 		121, // Northern California
 		150 // Southern California
 	],
-	salesAdminFinancialCommunityWhitelist: []
+	salesAdminFinancialCommunityWhitelist: [],
+	salesAdminMarketWhitelist: []
 };

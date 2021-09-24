@@ -27,7 +27,8 @@
 				[(ngModel)]="currentOption"
 				(ngModelChange)="onChangeOption()"
 			>
-				<option [ngValue]="null">All</option>
+				<option [ngValue]="null" [defaultSelected]></option>
+				<option [ngValue]="-1">All</option>
 				<option
 					*ngFor="let option of planOptionList"
 					[ngValue]="option"
@@ -51,4 +52,27 @@
 			</select>
 		</div>
 	</div>
+</div>
+<div class="mx-2 phd-table-container" infiniteScroll [infiniteScrollThrottle]="settings.infiniteScrollThrottle" [infiniteScrollDisabled]="allDataLoaded" (scrolled)="onPanelScroll()" [scrollWindow]="false">
+	<phd-table #dt [value]="planOptionDtosList">
+		<phd-column  header="Plan" field="planSalesName" ></phd-column>
+		<phd-column  header="Option" field="optionSalesName"></phd-column>
+		<phd-column  header="ColorItem" field="colorItem">
+			<ng-template #body let-planOptionDto>
+				<span>{{ planOptionDto.colorItem?.name }}</span>
+			</ng-template>
+		</phd-column>
+		<phd-column  header="Colors" field="colorItem.colors">
+			<ng-template #body let-planOptionDto>
+				<div *ngFor="let color of planOptionDto.colorItem?.colors">
+					<span [ngClass]="color?.isActive ? 'phd-disabled':''">{{color?.name}}</span>
+				</div>
+			</ng-template>
+		</phd-column>
+		<phd-column  header="Active" field="isActive" width="100px">
+			<ng-template #body let-planOptionDto>
+				<span>{{ planOptionDto.colorItem?.isActive }}</span>
+			</ng-template>
+		</phd-column>
+	</phd-table>
 </div>

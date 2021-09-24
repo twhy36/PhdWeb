@@ -69,14 +69,34 @@ export class ContractService
 		);
 	}
 
-	getCommunitiesWithExistingTemplate(marketId: number, templateTypeId: number): Observable<Array<number>>
+	getCommunitiesWithExistingTemplate(marketId: number, templateTypeId: number, isPhd?: boolean, isTho?: boolean): Observable<Array<number>>
 	{
+		/* isPhd	isTho	Condition
+		 *	0			0
+		 * 	0			1			and isTho eq true
+		 * 	1			0			and isPhd eq true
+		 * 	1			1			and (isPhd eq true or isTho eq true)
+		 */
+		let isPhdThoCondition = '';
+		if (isPhd && isTho)
+		{
+			isPhdThoCondition = ' and (isPhd eq true or isTho eq true)';
+		}
+		else if (isPhd || isTho)
+		{
+			isPhdThoCondition = ` and ${ isPhd ? 'isPhd' : 'isTho' } eq true`;
+		}
+
 		let url = this.settings.apiUrl;
-		const filter = `org/edhMarketId eq ${marketId} and templateTypeId eq ${templateTypeId} and status ne 'Inactive'`;
+		const filter = `org/edhMarketId eq ${marketId} and templateTypeId eq ${templateTypeId} and status ne 'Inactive'${isPhdThoCondition}`;
 		const expand = 'org,templateFinancialCommunityAssocs($expand=org($select=edhFinancialCommunityId)),org($select=edhMarketId)';
 		const qryStr = `${encodeURIComponent("$")}filter=${encodeURIComponent(filter)}&${encodeURIComponent("$")}expand=${encodeURIComponent(expand)}`;
 
 		url += `contractTemplates?${qryStr}`;
+
+
+		// get all SalesAgreements active for market
+		// for those, get communityIds associated
 
 		return this._http.get<any>(url).pipe(
 			map(response =>

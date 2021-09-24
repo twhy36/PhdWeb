@@ -9,6 +9,13 @@
 
 		<!--The errors array adds choice errors and point errors together-->
 		<ul [class.phd-multi-error]="isMultiError">
+			<li *ngIf="choice?.isRequired">
+				<span>Required due to Homesite selection</span>
+			</li>
+
+			<li *ngIf="choice?.disabledByHomesite">
+				<span>Disabled due to Homesite selection</span>
+			</li>
 			<!--Within each type of error is the disabledBy array which makes up a single line -->
 			<li *ngFor="let e of errors; let i = index">
 
@@ -17,8 +24,16 @@
 				<span *ngFor="let d of e.disabledBy; let di = index">
 					<span *ngIf="di > 0"> or </span>
 
+					<!-- Disabled due to lot choice conflict-->
+					<span *ngIf="d.disabledByHomesite">
+						Homesite selection
+					</span>
+
+					<!-- Rules with both Must Have and Must Not Have would be treated as either-or -->
+					<span *ngIf="d.disabledByHomesite && d.mustHaves?.length > 0"> and </span>
+
 					<!-- Split errors by whether they are Must Have or Must Not Have rules -->
-					<ng-container *ngIf="d.mustHaves.length > 0">
+					<ng-container *ngIf="d.mustHaves?.length > 0">
 						<span *ngFor="let mustHave of d.mustHaves; let mh = index">
 							<span *ngIf="mh > 0"> or </span>
 							<span *ngFor="let p of mustHave.points; let pi = index">
@@ -36,10 +51,10 @@
 					</ng-container>
 
 					<!-- Rules with both Must Have and Must Not Have would be treated as either-or -->
-					<span *ngIf="d.mustHaves.length > 0 && d.mustNotHaves.length > 0"> or </span>
+					<span *ngIf="d.mustHaves?.length > 0 && d.mustNotHaves?.length > 0"> or </span>
 
 					<!-- For Must Not Have rules, we flip the "and"/"or" verbiage -->
-					<ng-container *ngIf="d.mustNotHaves.length > 0">
+					<ng-container *ngIf="d.mustNotHaves?.length > 0">
 						<span *ngFor="let mustNotHave of d.mustNotHaves; let mnh = index">
 							<span *ngIf="mnh > 0"> and </span>
 							<span *ngFor="let p of mustNotHave.points; let pi = index">

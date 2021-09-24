@@ -8,12 +8,16 @@
 	<div class="d-flex flex-row phd-point-panel">
 		<div *ngIf="!isPointPanelCollapsed" class="d-flex flex-column">
 			<div class="phd-selected-group">
-				<div class="phd-group-name">{{groupName}}: </div>
-				<div class="phd-subgroup-name">{{subGroup?.label}}</div>
+				<ng-container *ngIf="!noVisibleGroups">
+					<div class="phd-group-name">{{groupName}}: </div>
+					<div class="phd-subgroup-name">{{subGroup?.label}}</div>
+				</ng-container>
 			</div>
 			<div class="phd-decisions"><span>DECISIONS:</span></div>
 			<div class="phd-point-bar">
-				<decision-bar [points]="points" [currentPointId]="currentPointId" (onSelectDecisionPoint)="selectDecisionPoint($event)"></decision-bar>
+				<ng-container *ngIf="!noVisibleGroups">
+					<decision-bar [points]="points" [currentPointId]="currentPointId" (onSelectDecisionPoint)="selectDecisionPoint($event)"></decision-bar>
+				</ng-container>
 			</div>
 		</div>
 		<div class="d-flex justify-content-center align-items-center phd-collapse-icon" [ngClass]="isPointPanelCollapsed ? 'phd-collapsed-icon-bg' : ''">
@@ -32,37 +36,39 @@
 			/>
 			<span class="phd-contracted-options">Display Contracted Options</span>
 		</div>
-		<div class="phd-point-container">
-			<ng-container *ngFor="let point of points">
-				<ng-container *ngIf="displayDecisionPoint(point)">
-					<div class="phd-point-label" [attr.id]="point.id">{{point?.label}}</div>
-					<div class="phd-point-title">{{getSubTitle(point)}}</div>
-					<div class="d-flex flex-wrap phd-choice-cards">
-						<ng-container *ngFor="let choice of point.choices">
-							<choice-card *ngIf="!choice.isHiddenFromBuyerView"
-									[currentChoice]="getChoiceExt(choice, point)"
-									[currentPoint]="point"
-									[groups]="groups"
-									[tree]="tree"
-									[isReadonly]="isReadonly"
-									(toggled)="choiceToggleHandler($event)"
-									(onSelectDecisionPoint)="selectDecisionPoint($event)"
-									(onViewChoiceDetail)="viewChoiceDetail($event)">
-							</choice-card>
-						</ng-container>
-						<choice-decline-card *ngIf="showDeclineCard(point)"
-									[currentPoint]="point"
-									[groups]="groups"
-									[tree]="tree"
-									[isReadonly]="isReadonly"
-									[myFavoritesPointsDeclined]="myFavoritesPointsDeclined"
-									(onSelectDecisionPoint)="selectDecisionPoint($event)"
-									(onDeclineDecisionPoint)="declineDecisionPoint($event)">
-						</choice-decline-card>
-					</div>
+		<ng-container *ngIf="!noVisibleGroups">
+			<div class="phd-point-container">
+				<ng-container *ngFor="let point of points">
+					<ng-container *ngIf="displayDecisionPoint(point)">
+						<div class="phd-point-label" [attr.id]="point.id">{{point?.label}}</div>
+						<div class="phd-point-title">{{getSubTitle(point)}}</div>
+						<div class="d-flex flex-wrap phd-choice-cards">
+							<ng-container *ngFor="let choice of point.choices">
+								<choice-card *ngIf="!choice.isHiddenFromBuyerView"
+										[currentChoice]="getChoiceExt(choice, point)"
+										[currentPoint]="point"
+										[groups]="groups"
+										[tree]="tree"
+										[isReadonly]="isReadonly"
+										(toggled)="choiceToggleHandler($event)"
+										(onSelectDecisionPoint)="selectDecisionPoint($event)"
+										(onViewChoiceDetail)="viewChoiceDetail($event)">
+								</choice-card>
+							</ng-container>
+							<choice-decline-card *ngIf="showDeclineCard(point)"
+										[currentPoint]="point"
+										[groups]="groups"
+										[tree]="tree"
+										[isReadonly]="isReadonly"
+										[myFavoritesPointsDeclined]="myFavoritesPointsDeclined"
+										(onSelectDecisionPoint)="selectDecisionPoint($event)"
+										(onDeclineDecisionPoint)="declineDecisionPoint($event)">
+							</choice-decline-card>
+						</div>
+					</ng-container>
 				</ng-container>
-			</ng-container>
-		</div>
+			</div>
+		</ng-container>
 	</div>
 
 </div>

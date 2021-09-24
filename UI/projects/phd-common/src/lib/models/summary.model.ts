@@ -111,7 +111,8 @@ export class SDChoice
 	minPrice?: number;
 	maxPrice?: number;
 	description?: string;
-	attributeReassignments: SDAttributeReassignment[] = []
+	attributeReassignments: SDAttributeReassignment[] = [];
+	priceHiddenFromBuyerView?: boolean = false;
 
 	constructor(c: Choice, priceRange?: { choiceId: number, min: number, max: number })
 	{
@@ -162,6 +163,7 @@ export class SDChoice
 		this.description = c.description;
 		this.minPrice = priceRange ? priceRange.min : null;
 		this.maxPrice = priceRange ? priceRange.max : null;
+		this.priceHiddenFromBuyerView = c.priceHiddenFromBuyerView;
 	}
 }
 

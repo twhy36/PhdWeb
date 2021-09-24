@@ -211,7 +211,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 
 			if (newState.tree)
 			{
-				applyRules(newState.tree, newState.rules, newState.options);
+				applyRules(newState.tree, newState.rules, newState.options, newState.scenario?.lotId || state.scenario.lotId);
 
 				subGroups = _.flatMap(newState.tree.treeVersion.groups, g => g.subGroups);
 				points = _.flatMap(subGroups, sg => sg.points);
@@ -273,7 +273,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 								}
 							}
 
-							applyRules(newTree, rules, options);
+							applyRules(newTree, rules, options, scenario.lotId);
 
 							// check selected attributes to make sure they're still valid after applying rules
 							checkSelectedAttributes(choices);
@@ -372,7 +372,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 				choices.forEach(ch => (ch.id !== choice.choiceId && ch.treePointId === pointId) ? ch.overrideNote = null : null);
 			}
 
-			applyRules(newTree, rules, options);
+			applyRules(newTree, rules, options, state.scenario.lotId);
 
 			// check selected attributes to make sure they're still valid after applying rules
 			checkSelectedAttributes(choices);
@@ -396,7 +396,16 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 		case ScenarioActionTypes.SaveScenario:
 			return { ...state, savingScenario: true };
 		case ScenarioActionTypes.ScenarioSaved:
-			return { ...state, scenario: action.scenario, savingScenario: false, saveError: false, isUnsaved: false };
+			newTree = _.cloneDeep(state.tree);
+			rules = _.cloneDeep(state.rules);
+			options = _.cloneDeep(state.options);
+
+			if (newTree)
+			{
+				applyRules(newTree, rules, options, state.scenario && state.scenario?.lotId);
+			}
+
+			return { ...state, scenario: action.scenario, tree: newTree, rules: rules, options: options, savingScenario: false, saveError: false, isUnsaved: false };
 		case ScenarioActionTypes.SaveError:
 			return { ...state, savingScenario: false, saveError: true };
 		case ScenarioActionTypes.SetIsFloorplanFlippedScenario:

@@ -105,7 +105,7 @@ export class CommunityService
 	{
 		let url = settings.apiUrl;
 		url += `GetCommunityPdfs(financialCommunityId=${financialCommunityId})`
-		return this._http.get<any>(url).pipe(
+		return withSpinner(this._http).get<any>(url).pipe(
 			map(response => 
 			{
 				let returnVal = response.value.map(data =>

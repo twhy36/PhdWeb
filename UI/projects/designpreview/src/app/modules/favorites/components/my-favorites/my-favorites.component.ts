@@ -73,6 +73,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 	isPreview: boolean;
 	isDesignComplete: boolean;
 	isReadonly: boolean = false;
+	noVisibleGroups: boolean = false;
 
 	constructor(private store: Store<fromRoot.State>,
 		private route: ActivatedRoute,
@@ -104,6 +105,11 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		).subscribe(tree => {
 			if (tree) {
 				this.groups = tree.groups;
+				if (!this.groups.length) {
+					this.noVisibleGroups = true;
+				} else {
+					this.noVisibleGroups = false;
+				}
 			}
 		});
 

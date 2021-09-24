@@ -30,8 +30,8 @@
 							Invalid: A File Name is required.
 						</span>
 						<span class="text-danger"
-								*ngIf="communityPdfForm.controls.fileName.invalid && communityPdfForm.controls.fileName.dirty && communityPdfForm.controls.fileName.touched && communityPdfForm.controls.fileName.errors.requiredFileType">
-							Invalid: File Name must end with '.pdf' file extension.
+								*ngIf="communityPdfForm.controls.fileName.invalid && communityPdfForm.controls.fileName.dirty && communityPdfForm.controls.fileName.errors.duplicateName">
+							Invalid: This File Name already exists.
 						</span>
 					</div>
 				</div>
@@ -88,21 +88,17 @@
 						</span>
 					</div>
 				</div>
-				<div class="form-group">
-					<label class="font-weight-bold" for="pdf">Upload Pdf</label>
-					<input type="file" id="pdf" formControlName="pdf" accept=".pdf" (change)="onFileSelect($event)" required/>
-					<div class="col-sm-12">
-						<span class="text-danger"
-								*ngIf="communityPdfForm.controls.pdf.invalid && (communityPdfForm.controls.pdf.dirty || communityPdfForm.controls.pdf.touched) && communityPdfForm.controls.pdf.errors.required">
-							Invalid: A File Upload is required.
-						</span>
-						<span class="text-danger"
-								*ngIf="communityPdfForm.controls.pdf.invalid && communityPdfForm.controls.pdf.dirty && communityPdfForm.controls.pdf.errors.requiredFileType">
-							Invalid: File must be of type 'pdf'.
-						</span>
-					</div>
-				</div>
 			</form>
+			<div class="form-group">
+				<label class="font-weight-bold" for="pdf">Upload Pdf</label>
+				<input ngModel #pdf type="file" id="pdf" accept=".pdf" (change)="onFileSelect($event)" required/>
+				<div class="col-sm-12">
+					<span class="text-danger"
+							*ngIf="communityPdfForm.controls.pdf.invalid && communityPdfForm.controls.pdf.dirty && communityPdfForm.controls.pdf.errors.requiredFileType">
+						Invalid: File must be of type 'pdf'.
+					</span>
+				</div>
+			</div>
 		</div>
 	</ng-template>
 
