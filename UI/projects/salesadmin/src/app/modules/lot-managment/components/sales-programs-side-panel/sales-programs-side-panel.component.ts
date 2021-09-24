@@ -122,7 +122,7 @@ export class SalesProgramsSidePanelComponent implements OnInit
 
 	onClick(event: any)
 	{
-		if (this.selected?.isThoEnabled && this.selected?.isPMCAffiliate)
+		if (this.selected?.isThoEnabled && this.selected?.isPMCAffiliate && this.selected?.salesProgramType.toString() === 'BuyersClosingCost')
 		{
 			event.preventDefault();
 
@@ -144,14 +144,7 @@ export class SalesProgramsSidePanelComponent implements OnInit
 			{
 				if (result == 'Continue')
 				{
-					if (this.selected.salesProgramType.toString() === "DiscountFlatAmount")
-					{
-						this.financialCommunityInfo.thoDiscountFlatAmountId = null;
-					}
-					else
-					{
-						this.financialCommunityInfo.thoBuyerClosingCostId = null;
-					}
+					this.financialCommunityInfo.thoBuyerClosingCostId = null;
 
 					this._orgService.saveFinancialCommunityInfo(this.financialCommunityInfo,null).subscribe(fcInfo =>
 					{
