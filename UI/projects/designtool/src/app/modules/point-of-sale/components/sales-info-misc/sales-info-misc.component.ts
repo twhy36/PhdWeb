@@ -3,13 +3,12 @@ import { FormGroup, Validators, FormBuilder } from '@angular/forms';
 import { NgbCalendar, NgbDateStruct, NgbDate } from '@ng-bootstrap/ng-bootstrap';
 import { Store } from '@ngrx/store';
 
-import { SalesAgreement } from 'phd-common';
+import { SalesAgreement, convertDateToUtcString } from 'phd-common';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
 import { ComponentCanNavAway } from '../../../shared/classes/component-can-nav-away.class';
 import { UpdateSalesAgreement } from '../../../ngrx-store/sales-agreement/actions';
 import { NgbDateNativeAdapter } from '../../../shared/classes/ngbDatePicker/ngbDateNativeAdapter.class';
-import { convertDateToUtcString } from "../../../shared/classes/date-utils.class";
 
 @Component({
 	selector: 'sales-info-misc',

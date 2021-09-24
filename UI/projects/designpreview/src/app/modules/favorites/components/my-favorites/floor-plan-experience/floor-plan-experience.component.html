@@ -8,27 +8,31 @@
 	<div class="d-flex flex-row phd-point-panel">
 		<div *ngIf="!isPointPanelCollapsed" class="d-flex flex-column">
 			<div class="phd-selected-group">
-				<div class="phd-group-name">{{groupName}}: </div>
-				<div class="phd-subgroup-name">{{subGroup?.label}}</div>
+				<ng-container *ngIf="!noVisibleGroups">
+					<div class="phd-group-name">{{groupName}}: </div>
+					<div class="phd-subgroup-name">{{subGroup?.label}}</div>
+				</ng-container>
 			</div>
 			<div class="phd-decisions"><span>DECISIONS:</span></div>
 			<div class="phd-detailed-point-bar">
-				<detailed-decision-bar
-					[points]="points"
-					[salesChoices]="salesChoices"
-					[myFavoritesChoices]="myFavoritesChoices"
-					[myFavoritesPointsDeclined]="myFavoritesPointsDeclined"
-					[choiceImages]="choiceImages"
-					[groups]="groups"
-					[tree]="tree"
-					[isReadonly]="isReadonly"
-					[isPreview]="isPreview"
-					[isDesignComplete]="isDesignComplete"
-					(onToggleChoice)="choiceToggleHandler($event)"
-					(onViewChoiceDetail)="viewChoiceDetail($event)"
-					(onDeclineDecisionPoint)="declineDecisionPoint($event)"
-					(onSelectDecisionPoint)="selectDecisionPoint($event)">
-				</detailed-decision-bar>
+				<ng-container *ngIf="!noVisibleGroups">
+					<detailed-decision-bar
+						[points]="points"
+						[salesChoices]="salesChoices"
+						[myFavoritesChoices]="myFavoritesChoices"
+						[myFavoritesPointsDeclined]="myFavoritesPointsDeclined"
+						[choiceImages]="choiceImages"
+						[groups]="groups"
+						[tree]="tree"
+						[isReadonly]="isReadonly"
+						[isPreview]="isPreview"
+						[isDesignComplete]="isDesignComplete"
+						(onToggleChoice)="choiceToggleHandler($event)"
+						(onViewChoiceDetail)="viewChoiceDetail($event)"
+						(onDeclineDecisionPoint)="declineDecisionPoint($event)"
+						(onSelectDecisionPoint)="selectDecisionPoint($event)">
+					</detailed-decision-bar>
+				</ng-container>
 			</div>
 		</div>
 		<div class="d-flex justify-content-center align-items-center phd-collapse-icon" [ngClass]="isPointPanelCollapsed ? 'phd-collapsed-icon-bg' : ''">
@@ -53,15 +57,17 @@
 			</div>
 		</div>
 		<div class="phd-point-container">
-			<floor-plan
-				[height]="'73vh'"
-				[planId$]="marketingPlanId"
-				[selectedFloor]="selectedFloor"
-				[subGroup]="subGroup"
-				[isFlipped]="isFloorplanFlipped"
-				(onFloorPlanLoaded)="loadFloorPlan($event)"
-			>
-			</floor-plan>
+			<ng-container *ngIf="!noVisibleGroups">
+				<floor-plan
+					[height]="'73vh'"
+					[planId$]="marketingPlanId"
+					[selectedFloor]="selectedFloor"
+					[subGroup]="subGroup"
+					[isFlipped]="isFloorplanFlipped"
+					(onFloorPlanLoaded)="loadFloorPlan($event)"
+				>
+				</floor-plan>
+			</ng-container>
 		</div>
 	</div>
 

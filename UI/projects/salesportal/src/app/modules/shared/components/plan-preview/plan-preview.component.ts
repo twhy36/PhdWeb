@@ -27,7 +27,8 @@ export class PlanPreviewComponent implements OnInit
 
 	types: Array<{
 		typeId: number;
-		typeName: string;}> = [];
+		typeName: string;
+	}> = [];
 	typeStatus: string;
 	plans: Array<IPlan>;
 	planStatus: string;
@@ -82,28 +83,37 @@ export class PlanPreviewComponent implements OnInit
 		return (!this.treeVersions) ? true : false;
 	}
 
-	get disableLaunchPreview() {
+	get disableLaunchPreview()
+	{
 		let disabled = false;
+
 		// No previews should display unless market and sales community are present
-		if (!this.selectedMarket || !this.selectedSalesCommunity) {
+		if (!this.selectedMarket || !this.selectedSalesCommunity)
+		{
 			disabled = true;
-		} else {
+		} else
+		{
 			// For THO Preview, financial community doesn't matter.
-			if (this.selectedType === 2) {
+			if (this.selectedType === 2)
+			{
 				disabled = false;
-			} else if (!this.selectedFinancialCommunity) {
+			} else if (!this.selectedFinancialCommunity)
+			{
 				disabled = true;
-			} else if (this.selectedType === 0) {
+			} else if (this.selectedType === 0)
+			{
 				disabled = true;
-			} else {
-				if (!this.selectedPlan || !this.selectedTreeVersion) {
+			} else
+			{
+				if (!this.selectedPlan || !this.selectedTreeVersion)
+				{
 					disabled = true;
 				}
 			}
 		}
 		return disabled;
 	}
-	
+
 	onMarketChange(market)
 	{
 		if (this.selectedMarket && (this.selectedMarket != market))
@@ -122,14 +132,21 @@ export class PlanPreviewComponent implements OnInit
 		this.selectedType = 0;
 		this.webSiteCommunity = null;
 		this.types = [];
-		if (this.selectedSalesCommunity) {
-			this.organizationService.getWebSiteCommunity(this.selectedSalesCommunity).subscribe(wc => {
+		this.typeStatus = this.TYPE_STATUS.EMPTY;
+
+		if (this.selectedSalesCommunity)
+		{
+			this.organizationService.getWebSiteCommunity(this.selectedSalesCommunity).subscribe(wc =>
+			{
 				this.webSiteCommunity = wc;
-				if (this.webSiteCommunity && !this.types.find(t => t.typeId === 2)) {
+
+				if (this.webSiteCommunity && !this.types.find(t => t.typeId === 2))
+				{
 					this.types.push({
 						typeId: 2,
-						typeName: "THO Preview"
+						typeName: 'THO Preview'
 					});
+					this.typeStatus = this.TYPE_STATUS.READY;
 				}
 			});
 		}
@@ -140,7 +157,7 @@ export class PlanPreviewComponent implements OnInit
 		// If financial community is not null, get plans
 		this.selectedFinancialCommunity = financialCommunity?.id;
 		this.designPreviewEnabled = financialCommunity?.isDesignPreviewEnabled;
-		
+
 		this.setType();
 	}
 
@@ -161,13 +178,17 @@ export class PlanPreviewComponent implements OnInit
 
 	launchPreview()
 	{
-		let url = "";
-		if (this.selectedType === 1) { // Open in design Tool
+		let url = '';
+
+		if (this.selectedType === 1)
+		{ // Open in design Tool
 			url = `${environment.baseUrl.designTool}${this.action.path}/${this.selectedTreeVersion}`;
-		} else if (this.selectedType === 2) { // Open in THO Preview
+		} else if (this.selectedType === 2)
+		{ // Open in THO Preview
 			const webSiteIntegrationKey = this.webSiteCommunity.webSiteIntegrationKey;
 			url = `${environment.baseUrl.thoPreview}${webSiteIntegrationKey}?preview=true`;
-		} else if (this.selectedType === 3) { // Open in Design Preview
+		} else if (this.selectedType === 3)
+		{ // Open in Design Preview
 			url = `${environment.baseUrl.designPreview}preview/${this.selectedTreeVersion}`;
 		}
 		window.open(url, '_blank');
@@ -205,38 +226,50 @@ export class PlanPreviewComponent implements OnInit
 	getTypes()
 	{
 		this.typeStatus = this.TYPE_STATUS.EMPTY;
+
 		// Get plans for the financial community selected
-		if (this.selectedSalesCommunity) {
-			if (this.webSiteCommunity) {
+		if (this.selectedSalesCommunity)
+		{
+			if (this.webSiteCommunity)
+			{
 				this.types.push({
 					typeId: 2,
-					typeName: "THO Preview"
+					typeName: 'THO Preview'
 				});
 			}
-			if (this.selectedFinancialCommunity) {
+
+			if (this.selectedFinancialCommunity)
+			{
 				this.types.push({
 					typeId: 1,
-					typeName: "Design Tool"
+					typeName: 'Design Tool'
 				});
-				if (!this.production) { // Hidden in prod for now, but can be removed when ready
+
+				if (!this.production)
+				{ // Hidden in prod for now, but can be removed when ready
 					let showDesignPreview = false;
-					
+
 					// Toggle between two lines below and sub in your role for testing
-					// if (this.designPreviewEnabled || this.roles.find(role => role === ''<YOUR_ROLE_HERE>'')) { 
-					if (this.designPreviewEnabled || this.roles.find(role => role === 'SalesManager')) { 
+					// if (this.designPreviewEnabled || this.roles.find(role => role === ''<YOUR_ROLE_HERE>'')) {
+					if (this.designPreviewEnabled || this.roles.find(role => role === 'SalesManager'))
+					{
 						showDesignPreview = true;
-					} 
-					if (showDesignPreview) {
+					}
+
+					if (showDesignPreview)
+					{
 						this.types.push({
 							typeId: 3,
-							typeName: "Design Preview"
+							typeName: 'Design Preview'
 						});
 					}
 				}
 				this.setPlan();
 			}
 		}
-		if (this.types.length > 0) {
+
+		if (this.types.length > 0)
+		{
 			this.typeStatus = this.TYPE_STATUS.READY;
 		}
 	}
@@ -247,7 +280,8 @@ export class PlanPreviewComponent implements OnInit
 
 		// Get plans for the financial community selected
 		this.organizationService.getPlans(this.selectedFinancialCommunity)
-			.subscribe(plans => {
+			.subscribe(plans =>
+			{
 				if (plans.length > 0)
 				{
 					this.plans = plans;
@@ -273,21 +307,26 @@ export class PlanPreviewComponent implements OnInit
 		if (currentPlan)
 		{
 			this.organizationService.getTreeVersions(this.selectedFinancialCommunity, currentPlan.financialPlanIntegrationKey)
-				.subscribe((treeVersions: Array<ITreeVersion>) => {
-					if (treeVersions.length > 0) {
+				.subscribe((treeVersions: Array<ITreeVersion>) =>
+				{
+					if (treeVersions.length > 0)
+					{
 						// Tree versions found
 						this.treeVersions = [];
 						let currentDate = new Date();
 
-						for (var item in treeVersions) {
+						for (var item in treeVersions)
+						{
 							let tree = treeVersions[item];
 
 							// Check if tree is last published or draft, set name accordingly
-							if ((tree.publishStartDate) && (new Date(tree.publishStartDate) < currentDate)) {
+							if ((tree.publishStartDate) && (new Date(tree.publishStartDate) < currentDate))
+							{
 								tree.displayName = 'Last Published';
 								this.treeVersions.push(tree);
 							}
-							else if ((!tree.publishStartDate) || (new Date(tree.publishStartDate) > currentDate)) {
+							else if ((!tree.publishStartDate) || (new Date(tree.publishStartDate) > currentDate))
+							{
 								tree.displayName = 'Draft';
 								this.treeVersions.push(tree);
 							}
@@ -295,7 +334,8 @@ export class PlanPreviewComponent implements OnInit
 
 						this.treeStatus = this.TREE_STATUS.READY;
 					}
-					else {
+					else
+					{
 						// No tree versions found
 						this.treeStatus = this.TREE_STATUS.EMPTY;
 						this.treeVersions = null;
@@ -304,7 +344,8 @@ export class PlanPreviewComponent implements OnInit
 		}
 	}
 
-	close() {
+	close()
+	{
 		this.onClose.emit();
 	}
 }

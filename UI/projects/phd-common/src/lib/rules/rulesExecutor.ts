@@ -61,14 +61,15 @@ export function selectChoice(tree: Tree, selectedChoice: number)
 
 	if (point && point.pointPickTypeId <= 2)
 	{
-		point.choices.filter(c => c.id !== selectedChoice).forEach(c => {
+		point.choices.filter(c => c.id !== selectedChoice).forEach(c =>
+		{
 			c.quantity = 0;
 			c.selectedAttributes = [];
 		});
 	}
 }
 
-export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOption[])
+export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOption[], lotId: number = 0)
 {
 	let points = _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points)).filter(x => x.treeVersionId === tree.treeVersion.id);
 	let choices = _.flatMap(points, p => p.choices).filter(x => x.treeVersionId === tree.treeVersion.id);
@@ -83,10 +84,37 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 		ch.changedDependentChoiceIds = [];
 		ch.mappingChanged = false;
 
+		// Deselect choice requirements when a user deselects/selects a new lot while creating a HC
+		// Don't want previous lot choice requirements to show up when a lot is toggled
+		ch.disabledByHomesite = false;
+		ch.isRequired = false;
+
+		//Check for LotChoiceRules and mark them as enabled/disabled
+		let choiceRules = rules.lotChoiceRules?.find(lcr => lcr.divChoiceCatalogId === ch.divChoiceCatalogId);
+
+		let lcRule = choiceRules?.rules.find(cr => cr.edhLotId === lotId);
+
+		if (lcRule)
+		{
+			// if required, set choice as required due to homesite
+			if (lcRule.mustHave)
+			{
+				ch.quantity = 1;
+				ch.isRequired = true;
+			}
+			else
+			{
+				ch.quantity = 0;
+				ch.enabled = false;
+				ch.isSelectable = false;
+				ch.disabledByHomesite = true;
+			}
+		}
+
 		if (ch.lockedInChoice && ch.lockedInOptions?.length)
 		{
 			//detect if choice change affects locked in options
-			if (ch.lockedInOptions.some(o => 
+			if (ch.lockedInOptions.some(o =>
 				o.choices.some(c => (c.mustHave && !choices.find(c1 => c1.divChoiceCatalogId === c.id)?.quantity)
 					|| (!c.mustHave && choices.find(c1 => c1.divChoiceCatalogId === c.id)?.quantity))))
 			{
@@ -151,7 +179,7 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 			{
 				choice.quantity = 0;
 
-				choice.disabledBy.push(cr);				
+				choice.disabledBy.push(cr);
 			}
 		}
 
@@ -211,8 +239,8 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 			{
 				if (!ch.lockedInChoice) 
 				{
-					ch.quantity = 0; 
-					ch.enabled = false; 
+					ch.quantity = 0;
+					ch.enabled = false;
 				}
 			});
 
@@ -276,63 +304,56 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 
 		option.calculatedPrice = option.listPrice; //copy list price to calculated price so list price can be preserved
 
-		if (option.maxOrderQuantity > 1)
+		const maxSortOrderChoice = getMaxSortOrderChoice(tree, optionRule.choices.filter(c => c.mustHave).map(c => c.id));
+		const choice = find(maxSortOrderChoice);
+
+		if (choice)
 		{
-			const choice = choices.find(c => c.id === optionRule.choices[0].id); //TODO: check if quantity options can be mapped to multiple choices
+			// set maxQuantity
+			choice.maxQuantity = getMaxQuantity(option, choice);
 
-			if (!choice)
+			if (optionRule.choices.every(c => c.id === choice.id || (c.mustHave && find(c.id).quantity >= 1) || (!c.mustHave && find(c.id).quantity === 0)))
 			{
-				return;
-			}
-			else
-			{
-				//quantity options shouldn't be able to have replace rules (check this assumption)
-				choice.maxQuantity = getMaxQuantity(option, choice);
-				choice.price = option.listPrice;
-				choice.options = [...choice.options, option];
-			}
-		}
-		else
-		{
-			let calculatedPrice = option.calculatedPrice;
-
-			// Handle replace price here. We need to remove the list price of the options that are being removed
-			// because the cost of this option is really a delta
-			if (optionRule.replaceOptions.length > 0)
-			{
-				const replaceOptions = optionRule.replaceOptions
-					.map(o => options.find(opt => opt.financialOptionIntegrationKey === o))
-					.filter(o => !!o);
-
-				calculatedPrice = replaceOptions.reduce((pv, cv) => pv - cv.calculatedPrice, calculatedPrice);
-			}
-
-			const maxSortOrderChoice = getMaxSortOrderChoice(tree, optionRule.choices.filter(c => c.mustHave).map(c => c.id));
-			const choice = find(maxSortOrderChoice);
-
-			if (choice)
-			{
-				choice.maxQuantity = getMaxQuantity(option, choice);
-			}
-
-			// Apply the option price to the max sort order choice, if the rule is satisfied
-			if (choice && optionRule.choices.every(c => c.id === choice.id || (c.mustHave && find(c.id).quantity >= 1) || (!c.mustHave && find(c.id).quantity === 0)))
-			{
-				choice.price += calculatedPrice;
-				choice.options = [...choice.options, option];
-
-				//handle replace
-				if (choice.quantity >= 1 && optionRule.replaceOptions.length > 0)
+				// handle quantity options
+				if (option.maxOrderQuantity > 1)
 				{
-					optionRule.replaceOptions.forEach(opt =>
-					{
-						let c = choices.find(ch => ch.options.some(o => o.financialOptionIntegrationKey === opt));
+					//quantity options shouldn't be able to have replace rules (check this assumption)
 
-						if (c)
+					choice.price = option.listPrice;
+					choice.options = [...choice.options, option];
+				}
+				else
+				{
+					let calculatedPrice = option.calculatedPrice;
+
+					// Handle replace price here. We need to remove the list price of the options that are being removed
+					// because the cost of this option is really a delta
+					if (optionRule.replaceOptions.length > 0)
+					{
+						const replaceOptions = optionRule.replaceOptions
+							.map(o => options.find(opt => opt.financialOptionIntegrationKey === o))
+							.filter(o => !!o);
+
+						calculatedPrice = replaceOptions.reduce((pv, cv) => pv - cv.calculatedPrice, calculatedPrice);
+					}
+
+					// Apply the option price to the max sort order choice, if the rule is satisfied
+					choice.price += calculatedPrice;
+					choice.options = [...choice.options, option];
+
+					//handle replace
+					if (choice.quantity >= 1 && optionRule.replaceOptions.length > 0)
+					{
+						optionRule.replaceOptions.forEach(opt =>
 						{
-							c.options = c.options.filter(o => o.financialOptionIntegrationKey !== opt);
-						}
-					});
+							let c = choices.find(ch => ch.options.some(o => o.financialOptionIntegrationKey === opt));
+
+							if (c)
+							{
+								c.options = c.options.filter(o => o.financialOptionIntegrationKey !== opt);
+							}
+						});
+					}
 				}
 			}
 		}
@@ -376,14 +397,14 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 				lockedInChoice = choice.lockedInChoice.choice as JobChoice;
 
 				currentAttributeGroupIds = [...currentAttributeGroupIds,
-					...lockedInChoice.jobChoiceAttributes
-						.filter(jca => !currentAttributeGroupIds.some(cag => cag.id === jca.attributeGroupCommunityId))
-						.map(x => new MappedAttributeGroup({ id: x.attributeGroupCommunityId }))
+				...lockedInChoice.jobChoiceAttributes
+					.filter(jca => !currentAttributeGroupIds.some(cag => cag.id === jca.attributeGroupCommunityId))
+					.map(x => new MappedAttributeGroup({ id: x.attributeGroupCommunityId }))
 				];
 				currentLocationGroupIds = [...currentLocationGroupIds,
-					...lockedInChoice.jobChoiceLocations
-						.filter(jcl => !currentLocationGroupIds.some(clg => clg.id === jcl.locationGroupCommunityId))
-						.map(x => new MappedLocationGroup({ id: x.locationGroupCommunityId }))
+				...lockedInChoice.jobChoiceLocations
+					.filter(jcl => !currentLocationGroupIds.some(clg => clg.id === jcl.locationGroupCommunityId))
+					.map(x => new MappedLocationGroup({ id: x.locationGroupCommunityId }))
 				];
 			}
 			else if (choice.lockedInChoice?.choice?.hasOwnProperty('jobChangeOrderChoiceAttributes'))
@@ -391,14 +412,14 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 				lockedInChoice = choice.lockedInChoice.choice as ChangeOrderChoice;
 
 				currentAttributeGroupIds = [...currentAttributeGroupIds,
-					...lockedInChoice.jobChangeOrderChoiceAttributes
-						.filter(coca => !currentAttributeGroupIds.some(cag => cag.id === coca.attributeGroupCommunityId))
-						.map(x => new MappedAttributeGroup({ id: x.attributeGroupCommunityId }))
+				...lockedInChoice.jobChangeOrderChoiceAttributes
+					.filter(coca => !currentAttributeGroupIds.some(cag => cag.id === coca.attributeGroupCommunityId))
+					.map(x => new MappedAttributeGroup({ id: x.attributeGroupCommunityId }))
 				];
 				currentLocationGroupIds = [...currentLocationGroupIds,
-					...lockedInChoice.jobChangeOrderChoiceLocations
-						.filter(cocl => !currentLocationGroupIds.some(clg => clg.id === cocl.locationGroupCommunityId))
-						.map(x => new MappedLocationGroup({ id: x.locationGroupCommunityId }))
+				...lockedInChoice.jobChangeOrderChoiceLocations
+					.filter(cocl => !currentLocationGroupIds.some(clg => clg.id === cocl.locationGroupCommunityId))
+					.map(x => new MappedLocationGroup({ id: x.locationGroupCommunityId }))
 				];
 			}
 
@@ -571,8 +592,10 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 
 		// #332687
 		// Check every selected choice for replace rules to prevent re-introducing replaced options
-		if (choice.lockedInOptions && choice.lockedInOptions.length) {
-			for (let i = choice.lockedInOptions.length - 1; i >= 0; i--) {
+		if (choice.lockedInOptions && choice.lockedInOptions.length)
+		{
+			for (let i = choice.lockedInOptions.length - 1; i >= 0; i--)
+			{
 				const filteredOptRules = rules.optionRules.filter(optRule => optRule.replaceOptions && optRule.replaceOptions.length
 					&& optRule.replaceOptions.includes(choice.lockedInOptions[i].optionId)
 					&& optRule.choices.every(c => (c.mustHave && choices.find(ch => ch.id === c.id && ch.quantity) || (!c.mustHave && choices.find(ch => ch.id === c.id && !ch.quantity)))));
@@ -591,7 +614,7 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 						lockedInChoice.jobChoiceAttributes = lockedInChoice.jobChoiceAttributes.filter(jca =>
 							removedOption[0].attributeGroups.indexOf(jca.attributeGroupCommunityId) === -1
 							|| choice.lockedInChoice.optionAttributeGroups.some(o => o.attributeGroups.indexOf(jca.attributeGroupCommunityId) !== -1));
-						lockedInChoice.jobChoiceLocations = lockedInChoice.jobChoiceLocations.filter(jcl => 
+						lockedInChoice.jobChoiceLocations = lockedInChoice.jobChoiceLocations.filter(jcl =>
 							removedOption[0].locationGroups.indexOf(jcl.locationGroupCommunityId) === -1
 							|| choice.lockedInChoice.optionAttributeGroups.some(o => o.locationGroups.indexOf(jcl.locationGroupCommunityId) !== -1));
 					}
@@ -609,7 +632,8 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 			//since the option mapping is changed, flag each dependency
 			choice.lockedInOptions.forEach(o =>
 			{
-				if (o) {
+				if (o)
+				{
 					o.choices.forEach(c =>
 					{
 						let pt = points.find(p => p.choices.some(ch => ch.divChoiceCatalogId === c.id));
@@ -845,7 +869,8 @@ export function getDependentChoices(tree: Tree, rules: TreeVersionRules, options
 	//clear locked in data on the cloned tree so we can see which choices "should"
 	//be disabled
 	_.flatMap(newTree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, p => p.choices)))
-		.forEach(ch => {
+		.forEach(ch =>
+		{
 			ch.lockedInChoice = null;
 			ch.lockedInOptions = [];
 		});
@@ -859,22 +884,29 @@ export function getDependentChoices(tree: Tree, rules: TreeVersionRules, options
 		.filter(ch => !!ch.lockedInChoice && !findChoice(newTree, ch1 => ch1.id === ch.id).enabled);
 }
 
-export function checkReplacedOption(deselectedChoice: Choice, rules: TreeVersionRules, choices: Choice[], options: PlanOption[], tree: Tree) {
+export function checkReplacedOption(deselectedChoice: Choice, rules: TreeVersionRules, choices: Choice[], options: PlanOption[], tree: Tree)
+{
 	// #332687
 	// If deselecting a choice that had replaced a previous choice,
 	// we need to retrieve that previous choice and restore its options
-	if (deselectedChoice.options && deselectedChoice.options.length) {
+	if (deselectedChoice.options && deselectedChoice.options.length)
+	{
 		const optionRules = rules.optionRules.filter(opt => deselectedChoice.options.map(o => o.financialOptionIntegrationKey).includes(opt.optionId) && opt.replaceOptions && opt.replaceOptions.length);
-		optionRules.forEach(optRule => {
-			optRule.replaceOptions.forEach(replaceOptionId => {
+
+		optionRules.forEach(optRule =>
+		{
+			optRule.replaceOptions.forEach(replaceOptionId =>
+			{
 				let replaceOptionRule = rules.optionRules.find(r => r.optionId === replaceOptionId);
 				const maxSortOrderChoice = getMaxSortOrderChoice(tree, replaceOptionRule.choices.filter(ch => ch.mustHave).map(ch => ch.id));
 				const prevChoice = choices.find(ch => ch.id === maxSortOrderChoice);
 
-				if (prevChoice && prevChoice.lockedInChoice) {
+				if (prevChoice && prevChoice.lockedInChoice)
+				{
 					// If list price is changed between change orders, we need to restore the original choice price
 					const option = options.find(o => o.financialOptionIntegrationKey === replaceOptionId);
 					const sum = prevChoice.price - prevChoice.options.filter(opt => opt.financialOptionIntegrationKey !== replaceOptionId).reduce((sum, current) => sum + current.listPrice, 0);
+
 					option.listPrice = sum;
 
 					// lockedInOptions uses divChoiceCatalogID instead of dpChoiceId.
@@ -882,13 +914,16 @@ export function checkReplacedOption(deselectedChoice: Choice, rules: TreeVersion
 					replaceOptionRule = {
 						...replaceOptionRule,
 						choices: replaceOptionRule.choices.map(c => (
-							{...c, id: findChoice(tree, tc => tc.id === c.id)?.divChoiceCatalogId || c.id}
+							{ ...c, id: findChoice(tree, tc => tc.id === c.id)?.divChoiceCatalogId || c.id }
 						))
 					};
 
-					if (prevChoice.lockedInOptions) {
+					if (prevChoice.lockedInOptions)
+					{
 						prevChoice.lockedInOptions.push(replaceOptionRule);
-					} else {
+					}
+					else
+					{
 						prevChoice.lockedInOptions = [replaceOptionRule];
 					}
 				}

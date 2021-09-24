@@ -23,8 +23,6 @@ export class InputFilterDirective {
 			return;
 		}
 
-		console.log(this.inputFilter);
-
 		let current: string = this.formElement.nativeElement.value;
 		const position = this.formElement.nativeElement.selectionStart;
 		const next: string = [current.slice(0, position), e.key == 'Decimal' ? '.' : e.key, current.slice(position)].join('');

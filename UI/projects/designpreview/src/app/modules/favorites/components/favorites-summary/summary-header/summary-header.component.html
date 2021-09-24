@@ -36,6 +36,10 @@
 				<span class="phd-breakdown-label">Sales Incentive:</span>
 				<span class="phd-breakdown-content">({{priceBreakdown?.salesProgram | currency:'USD':'symbol':'0.0-0'}})</span>
 			</div>
+			<div *ngIf="priceBreakdown.priceAdjustments" class="d-flex">
+				<span class="phd-breakdown-label">Price Adjustments:</span>
+				<span class="phd-breakdown-content">{{priceBreakdown?.priceAdjustments | currency:'USD':'symbol':'0.0-0' | minusSignToParens}}</span>
+			</div>
 			<div *ngIf="priceBreakdown.nonStandardSelections" class="d-flex">
 				<span class="phd-breakdown-label">Non-Standard Options:</span>
 				<span class="phd-breakdown-content">{{priceBreakdown?.nonStandardSelections | currency:'USD':'symbol':'0.0-0'}}</span>

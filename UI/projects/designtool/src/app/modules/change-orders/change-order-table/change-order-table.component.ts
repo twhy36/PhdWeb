@@ -1,6 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter, ElementRef, ViewChild, Renderer2 } from '@angular/core';
-import { UnsubscribeOnDestroy } from 'phd-common';
-import { convertDateToUtcString } from '../../shared/classes/date-utils.class';
+import { UnsubscribeOnDestroy, convertDateToUtcString } from 'phd-common';
 
 @Component({
 	selector: 'change-order-table',

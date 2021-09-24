@@ -19,4 +19,5 @@ export interface IEnvironment {
 	EBillUrl: string;
 	designPreviewMarketWhitelist: number[];
 	salesAdminFinancialCommunityWhitelist: number[];
+	salesAdminMarketWhitelist: number[];
 }

@@ -6,8 +6,7 @@ import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromLot from '../../../ngrx-store/lot/reducer';
 import { environment } from '../../../../../environments/environment';
 
-import { UnsubscribeOnDestroy } from 'phd-common';
-import { convertDateToUtcString } from "../../../shared/classes/date-utils.class";
+import { UnsubscribeOnDestroy, convertDateToUtcString } from 'phd-common';
 import { map } from 'rxjs/operators';
 import { Router } from '@angular/router';
 

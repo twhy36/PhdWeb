@@ -191,9 +191,16 @@ export const priceBreakdown = createSelector(
 				}
 			});
 
-			if (salesAgreement.priceAdjustments && salesAgreement.priceAdjustments.length) {
-				salesAgreement.priceAdjustments.forEach(adj => {
-					if (adj.priceAdjustmentType === 'ClosingCost') {
+			if (salesAgreement.priceAdjustments && salesAgreement.priceAdjustments.length)
+			{
+				salesAgreement.priceAdjustments.forEach(adj =>
+				{
+					if (adj.priceAdjustmentType === 'Discount')
+					{
+						breakdown.priceAdjustments += adj.amount;
+					}
+					else if (adj.priceAdjustmentType === 'ClosingCost')
+					{
 						breakdown.closingCostAdjustment += adj.amount;
 					}
 				});

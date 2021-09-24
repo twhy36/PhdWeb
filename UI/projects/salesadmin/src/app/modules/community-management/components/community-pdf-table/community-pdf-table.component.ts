@@ -18,6 +18,7 @@ export class CommunityPdfTableComponent extends UnsubscribeOnDestroy implements 
 	@Output() editClicked = new EventEmitter<CommunityPdf>();
 	@Output() deleteComplete = new EventEmitter<CommunityPdf>();
 	@Output() saveComplete = new EventEmitter<boolean>();
+	@Output() sortInitiated = new EventEmitter<boolean>();
 	@Input() filteredCommunityPdfs: Array<CommunityPdf>;
 	@Input() isCanceling: boolean;
 	@Input() isSorting: boolean;
@@ -52,6 +53,7 @@ export class CommunityPdfTableComponent extends UnsubscribeOnDestroy implements 
 		// Cancel clicked wipe the updatedCommunity list
 		if (this.isCanceling)
 		{
+			this.sortInitiated.emit(false);
 			this.updatedCommunityPdfs = [];
 		}
 	}
@@ -122,6 +124,7 @@ export class CommunityPdfTableComponent extends UnsubscribeOnDestroy implements 
 	{
 		if (event.dragIndex !== event.dropIndex)
 		{
+			this.sortInitiated.emit(true);
 			let parent = this.filteredCommunityPdfs;
 
 			this.updateSort(parent, event.dragIndex, event.dropIndex);

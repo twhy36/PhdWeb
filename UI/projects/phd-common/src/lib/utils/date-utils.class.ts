@@ -22,3 +22,18 @@ export function convertDateToUtcString(date: Date): string
 {
 	return moment.utc(date).format('L');
 }
+
+// Return date format string with UTC offset '2021-09-20T20:05:56-04:00'
+export function getDateWithUtcOffset(date?: Date): string
+{
+	const utcOffset = moment().utcOffset();
+	const offsetHours = Math.floor(Math.abs(utcOffset) / 60);
+	const offseMinutes = Math.abs(utcOffset) % 60;
+	const offsetSign = utcOffset >= 0 ? '+' : '-';
+
+	const hours = (offsetHours <= 9 ? '0' : '') + offsetHours;          
+	const minutes = (offseMinutes <= 9 ? '0' : '') + offseMinutes;
+
+	const today = moment.utc(date ?? new Date()).format('YYYY-MM-DDTHH:mm:ss');
+	return `${today}${offsetSign}${hours}:${minutes}`;
+}

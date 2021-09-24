@@ -24,7 +24,7 @@ import * as fromJob from '../../ngrx-store/job/reducer';
 import 
 { 
 	UnsubscribeOnDestroy, ModalRef, ESignStatusEnum, ESignTypeEnum, ChangeOrderGroup, ChangeTypeEnum, 
-	ChangeInput, SalesStatusEnum, Job, PDFViewerComponent, ModalService
+	ChangeInput, SalesStatusEnum, Job, PDFViewerComponent, ModalService, convertDateToUtcString
 } from 'phd-common';
 
 import { ChangeOrderService } from '../../core/services/change-order.service';
@@ -32,7 +32,6 @@ import { ContractService } from '../../core/services/contract.service';
 
 import * as _ from 'lodash';
 import { LotsLoaded, LotActionTypes } from '../../ngrx-store/lot/actions';
-import { convertDateToUtcString } from "../../shared/classes/date-utils.class";
 
 @Component({
 	selector: 'change-order-summary',

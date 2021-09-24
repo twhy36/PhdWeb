@@ -29,6 +29,19 @@ export class ModalService
 		return result;
 	}
 
+	showOkOnlyModal(message: string, title: string = '')
+	{
+		const options = new ModalOptions<boolean>();
+
+		options.content = message;
+		options.type = 'normal';
+		options.header = title.length ? title : 'Warning';
+		options.buttons = [{ 'text': 'Ok', 'cssClass': ['btn-primary'], 'result': true }];
+		const result = this.startModal(options, true);
+
+		return result;
+	}
+
 	/**
 	 * Opens a default modal window. Will set default options if none are provided.
 	 * @param content
@@ -140,11 +153,17 @@ export class ModalService
 		return this.showModal(options);
 	}
 
-	private startModal<TResult>(options: ModalOptions<TResult>)
+	private startModal<TResult>(options: ModalOptions<TResult>, useCompactStyle: boolean = false)
 	{
 		this.modalObs.next(options);
+		const defaultOptions = {...this.defaultModalOptions};
 
-		const confirm = this.modalService.open(ModalComponent, this.defaultModalOptions);
+		if (useCompactStyle)
+		{
+			defaultOptions.windowClass = 'phd-modal-window';
+		}
+
+		const confirm = this.modalService.open(ModalComponent, defaultOptions);
 
 		confirm.componentInstance.modalRef = confirm;
 		confirm.componentInstance.content = options.content;
@@ -158,4 +177,5 @@ export class ModalService
 			map(res => res as TResult)
 		);
 	}
+
 }
