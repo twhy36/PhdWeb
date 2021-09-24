@@ -80,7 +80,7 @@
                         <i
 							class="fa fa-pencil fa-fw"
 							title="Edit Color"
-							*ngIf="colordto.hasSalesConfig===false && colordto.isActive"
+							*ngIf="!colordto.hasSalesConfig && colordto.isActive"
 							(click)="showEditColorSidePanel(colordto)"
 						>
 						</i>
@@ -88,7 +88,7 @@
             </phd-column>
             <phd-column header="" columnClass="phd-icon">
                 <ng-template #body let-colordto>
-                        <p-checkbox (ngModelChange)="setDeleteSelected(colordto, $event)" [ngModel]="isDeleteSelected(colordto)" [binary]=true></p-checkbox>
+                        <p-checkbox *ngIf="!colordto.hasSalesConfig" (ngModelChange)="setDeleteSelected(colordto, $event)" [ngModel]="isDeleteSelected(colordto)" [binary]=true></p-checkbox>
                 </ng-template>
             </phd-column>
         </phd-table>
