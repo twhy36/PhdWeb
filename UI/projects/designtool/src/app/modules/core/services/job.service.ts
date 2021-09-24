@@ -73,7 +73,7 @@ export class JobService
 				const dtos = (response as Array<ChangeOrderGroup>).map(o => new ChangeOrderGroup(o));
 
 				// Fetch OFS date for job choices/plan options - JIO OFS date
-				let outForSignatureDate = dtos[dtos.length - 1].jobChangeOrderGroupSalesStatusHistories.find(t => t.salesStatusId === 6);
+				let outForSignatureDate = dtos[dtos.length - 1]?.jobChangeOrderGroupSalesStatusHistories.find(t => t.salesStatusId === 6);
 
 				if (outForSignatureDate)
 				{
@@ -92,7 +92,7 @@ export class JobService
 
 				_.sortBy(dtos, 'createdUtcDate').forEach(cog =>
 				{
-					let coOutForSignatureDate = cog.jobChangeOrderGroupSalesStatusHistories.find(t => t.salesStatusId === 6);
+					let coOutForSignatureDate = cog?.jobChangeOrderGroupSalesStatusHistories.find(t => t.salesStatusId === 6);
 
 					if (coOutForSignatureDate)
 					{
