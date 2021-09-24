@@ -1,14 +1,16 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { isEqual } from 'lodash';
 import { MessageService } from 'primeng/api';
-import { forkJoin } from 'rxjs';
-import { finalize } from 'rxjs/operators';
+import { of } from 'rxjs';
+import { combineLatest, finalize, map, switchMap } from 'rxjs/operators';
 import { AttributeService } from '../../../../../core/services/attribute.service';
 import { DivisionalService } from '../../../../../core/services/divisional.service';
+import { LocationService } from '../../../../../core/services/location.service';
 import { OrganizationService } from '../../../../../core/services/organization.service';
-import { isAttributeGroup } from '../../../../../shared/models/attribute-group-market.model';
-import { DivChoiceCatalogAttributeGroupCommunity, DivChoiceCatalogAttributeGroupMarket, DivChoiceCatalogMarketImage, DivisionalChoice, isDivChoiceCatalogAttributeGroupMarket, isDivChoiceCatalogMarketImage } from '../../../../../shared/models/divisional-catalog.model';
+import { AttributeGroupMarket, isAttributeGroup } from '../../../../../shared/models/attribute-group-market.model';
+import { DivChoiceCatalogAttributeGroupMarket, DivChoiceCatalogLocationGroupMarket, DivChoiceCatalogMarketImage, DivisionalChoice, isDivChoiceCatalogAttributeGroupMarket, isDivChoiceCatalogLocationGroupMarket, isDivChoiceCatalogMarketImage } from '../../../../../shared/models/divisional-catalog.model';
 import { IFinancialCommunity } from '../../../../../shared/models/financial-community.model';
+import { LocationGroupMarket } from '../../../../../shared/models/location-group-market.model';
 
 @Component({
 	selector: 'expansion-communities-tab-dropdown-panel',
@@ -29,16 +31,20 @@ export class ExpansionCommunitiesTabDropdownPanelComponent implements OnInit
 
 	selectedImages: DivChoiceCatalogMarketImage[] = [];
 	selectedAttributeGroups: DivChoiceCatalogAttributeGroupMarket[] = [];
+	selectedLocationGroups: DivChoiceCatalogLocationGroupMarket[] = [];
 
 	origSelectedImages: DivChoiceCatalogMarketImage[] = [];
 	origSelectedAttributeGroups: DivChoiceCatalogAttributeGroupMarket[] = [];
+	origSelectedLocationGroups: DivChoiceCatalogLocationGroupMarket[] = [];
 
 	constructor(private _attrService: AttributeService,
+		private cd: ChangeDetectorRef,
 		private _divService: DivisionalService,
+		private _locService: LocationService,
 		private _msgService: MessageService,
 		private _orgService: OrganizationService) { }
 
-	ngOnInit(): void
+	ngOnInit()
 	{
 		// Update the community with its org ID
 		this._orgService.getOrgsForCommunities(this.community.marketId, [this.community.id])
@@ -50,16 +56,19 @@ export class ExpansionCommunitiesTabDropdownPanelComponent implements OnInit
 			{
 				this.community.orgId = orgs.find(o => o.financialCommunityId === this.community.id)?.orgId;
 			});
-
 	}
 
-	isItemSelected(item: DivChoiceCatalogAttributeGroupMarket | DivChoiceCatalogMarketImage): boolean
+	isItemSelected(item: DivChoiceCatalogAttributeGroupMarket | DivChoiceCatalogLocationGroupMarket | DivChoiceCatalogMarketImage): boolean
 	{
 		let isSelected = false;
 
 		if (isDivChoiceCatalogAttributeGroupMarket(item))
 		{
 			isSelected = this.selectedAttributeGroups.some(s => s.attributeGroupMarketId == s.attributeGroupMarketId);
+		}
+		else if (isDivChoiceCatalogLocationGroupMarket(item))
+		{
+			isSelected = this.selectedLocationGroups.some(s => s.locationGroupMarketId == s.locationGroupMarketId);
 		}
 		else if (isDivChoiceCatalogMarketImage(item))
 		{
@@ -69,7 +78,7 @@ export class ExpansionCommunitiesTabDropdownPanelComponent implements OnInit
 		return isSelected;
 	}
 
-	setItemSelected(item: DivChoiceCatalogAttributeGroupMarket | DivChoiceCatalogMarketImage, isSelected: boolean): void
+	setItemSelected(item: DivChoiceCatalogAttributeGroupMarket | DivChoiceCatalogLocationGroupMarket | DivChoiceCatalogMarketImage, isSelected: boolean): void
 	{
 		let selectedItems = [];
 		let index = 0;
@@ -78,6 +87,11 @@ export class ExpansionCommunitiesTabDropdownPanelComponent implements OnInit
 		{
 			selectedItems = this.selectedAttributeGroups;
 			index = selectedItems.findIndex(s => s.attributeGroupMarketId === (item as DivChoiceCatalogAttributeGroupMarket).attributeGroupMarketId);
+		}
+		else if (isDivChoiceCatalogLocationGroupMarket(item))
+		{
+			selectedItems = this.selectedLocationGroups;
+			index = selectedItems.findIndex(s => s.locationGroupMarketId === (item as DivChoiceCatalogLocationGroupMarket).locationGroupMarketId);
 		}
 		else if (isDivChoiceCatalogMarketImage(item))
 		{
@@ -104,37 +118,43 @@ export class ExpansionCommunitiesTabDropdownPanelComponent implements OnInit
 		{
 			this.choiceAssociations = new DivisionalChoice();
 
-			forkJoin(this._divService.getDivChoiceCatalogMarketImages(this.choice.divChoiceCatalogId),
-				this._divService.getDivChoiceCatalogCommunityImagesByOrgId(this.community.orgId),
-				this._divService.getDivChoiceCatalogMarketAttributeGroups(this.choice.divChoiceCatalogId),
-				this._divService.getDivChoiceCatalogCommunityAttributeGroupsByOrgId(this.community.orgId))
-				.subscribe(([marketImages, communityImages, marketAttrGroups, communityAttrGroups]) =>
-				{
-					// Assign values from EDH for missing properties to each group
-					if (marketAttrGroups && marketAttrGroups.length)
-					{
-						this._attrService.getAttributeGroupMarketForIds(marketAttrGroups.map(g => g.attributeGroupMarketId))
-							.pipe(finalize(() =>
-							{
-								// Force the table to update with the added labels, etc.
-								//this.cd.detectChanges();
-								this.choiceAssociations.divChoiceCatalogMarketAttributes = marketAttrGroups;
+			// Market observables
+			const getMarketAttributeGroups$ = this._divService.getDivChoiceCatalogMarketAttributeGroups(this.choice.divChoiceCatalogId);
+			const getMarketLocationGroups$ = this._divService.getDivChoiceCatalogMarketLocationGroups(this.choice.divChoiceCatalogId);
+			const getMarketImages$ = this._divService.getDivChoiceCatalogMarketImages(this.choice.divChoiceCatalogId);
 
-								marketAttrGroups.forEach(m =>
-								{
-									if (communityAttrGroups.findIndex(c => c.attributeGroupMarketId === m.attributeGroupMarketId) > -1)
-									{
-										this.selectedAttributeGroups.push(m);
-										this.origSelectedAttributeGroups.push(m);
-									}
-								});
-							}))
-							.subscribe(attributeGroupMarkets =>
+			// Community observables
+			const getCommunityAttributeGroups$ = this._divService.getDivChoiceCatalogCommunityAttributeGroupsByOrgId(this.community.orgId);
+			const getCommunityLocationGroups$ = this._divService.getDivChoiceCatalogCommunityLocationGroupsByOrgId(this.community.orgId);
+			const getCommunityImages$ = this._divService.getDivChoiceCatalogCommunityImagesByOrgId(this.community.orgId);
+
+			getMarketAttributeGroups$.pipe(
+				combineLatest(getMarketLocationGroups$, getMarketImages$),
+				switchMap(([divMarketAttrGroups, divMarketLocGroups, divMarketImages]) =>
+				{
+					// Get the group market IDs for the attribute and location groups associated with this choice
+					const attributeIds = divMarketAttrGroups.map(g => g.attributeGroupMarketId);
+					const locationIds = divMarketLocGroups.map(g => g.locationGroupMarketId);
+
+					return (attributeIds && attributeIds.length
+						// Query EDH to get the metadata for these groups
+						? this._attrService.getAttributeGroupMarketForIds(attributeIds)
+						: of([] as AttributeGroupMarket[])
+					).pipe(
+						// Get the community data, and get the EDH metadata for location groups
+						combineLatest(getCommunityAttributeGroups$, getCommunityLocationGroups$, getCommunityImages$,
+						(locationIds && locationIds.length
+							? this._locService.getLocationGroupMarketForIds(locationIds)
+							: of([] as LocationGroupMarket[]))
+					)).pipe(
+						map(([fullMarketAttrGroups, communityAttrGroups, communityLocGroups, communityImages, fullMarketLocGroups]) =>
+						{
+							// Merge the EDH metadata with the groups
+							divMarketAttrGroups.map(g =>
 							{
-								// Convert the groups to an AttributeGroupMarket type
-								marketAttrGroups = marketAttrGroups.map(g =>
+								divMarketAttrGroups.map(g =>
 								{
-									const agm = attributeGroupMarkets.find(agm => agm.id === g.attributeGroupMarketId);
+									const agm = fullMarketAttrGroups.find(agm => agm.id === g.attributeGroupMarketId);
 
 									if (agm)
 									{
@@ -148,19 +168,70 @@ export class ExpansionCommunitiesTabDropdownPanelComponent implements OnInit
 									return g;
 								});
 							});
-					}
 
-					this.choiceAssociations.divChoiceCatalogMarketImages = marketImages;
+							divMarketLocGroups.map(g =>
+							{
+								divMarketLocGroups = divMarketLocGroups.map(g =>
+								{
+									const lgm = fullMarketLocGroups.find(lgm => lgm.id === g.locationGroupMarketId);
 
-					marketImages.forEach(mImg =>
+									if (lgm)
+									{
+										g.id = g.locationGroupMarketId;
+										g.locationGroupName = lgm.locationGroupName;
+										g.groupLabel = lgm.groupLabel;
+										g.locationGroupDescription = lgm.locationGroupDescription;
+										g.locationGroupMarketTags = lgm.locationGroupMarketTags;
+									}
+
+									return g;
+								});
+							});
+
+							// Return the normalized market data and the community data for further processing
+							return { divMarketAttrGroups, divMarketLocGroups, divMarketImages, communityAttrGroups, communityLocGroups, communityImages };
+						})
+					);
+				})
+			).subscribe(data =>
+			{
+				// Assign the bindings to render the values
+				this.choiceAssociations.divChoiceCatalogMarketImages = data.divMarketImages;
+				this.choiceAssociations.divChoiceCatalogMarketAttributes = data.divMarketAttrGroups;
+				this.choiceAssociations.divChoiceCatalogMarketLocations = data.divMarketLocGroups;
+
+				// Set selections for each type
+				data.divMarketImages.forEach(mImg =>
+				{
+					if (data.communityImages.findIndex(ci => ci.divChoiceCatalogMarketImageID === mImg.divChoiceCatalogMarketImageID) > -1)
 					{
-						if (communityImages.findIndex(ci => ci.divChoiceCatalogMarketImageID === mImg.divChoiceCatalogMarketImageID) > -1)
-						{
-							this.selectedImages.push(mImg);
-							this.origSelectedImages.push(mImg);
-						}
-					});
+						this.selectedImages.push(mImg);
+						this.origSelectedImages.push(mImg);
+					}
 				});
+
+				data.divMarketAttrGroups.forEach(m =>
+				{
+					if (data.communityAttrGroups.findIndex(c => c.attributeGroupMarketId === m.attributeGroupMarketId) > -1)
+					{
+						this.selectedAttributeGroups.push(m);
+						this.origSelectedAttributeGroups.push(m);
+					}
+				});
+
+				data.divMarketLocGroups.forEach(m =>
+				{
+					if (data.communityLocGroups.findIndex(c => c.locationGroupMarketId === m.locationGroupMarketId) > -1)
+					{
+						this.selectedLocationGroups.push(m);
+						this.origSelectedLocationGroups.push(m);
+					}
+				});
+
+				// Force the tab to refresh the values sooner
+				// Not sure why there seems to be a delay in rendering the values, but this helps it show up faster
+				this.cd.detectChanges();
+			});
 		}
 	}
 
@@ -170,7 +241,7 @@ export class ExpansionCommunitiesTabDropdownPanelComponent implements OnInit
 
 		this._msgService.add({ severity: 'info', summary: 'Associations', detail: `Saving selected associations!` });
 
-		this._divService.associateChoiceItemsToCommunity(this.choice.divChoiceCatalogId, this.community.marketId, this.community.orgId, this.selectedAttributeGroups, this.selectedImages)
+		this._divService.associateChoiceItemsToCommunity(this.choice.divChoiceCatalogId, this.community.marketId, this.community.orgId, this.selectedAttributeGroups, this.selectedLocationGroups, this.selectedImages)
 			.pipe(finalize(() =>
 			{
 				this.canAssociate = false;

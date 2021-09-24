@@ -39,7 +39,6 @@ import { ExpansionChoiceLocationGroupsTabPanelComponent } from './components/div
 import { DivisionalOptionsContainerComponent } from './components/divisional-attributes/divisional-options/divisional-options-container/divisional-options-container.component';
 import { DivisionalOptionsPanelComponent } from './components/divisional-attributes/divisional-options/divisional-options-panel/divisional-options-panel.component';
 import { AddAttributeGroupsSidePanelComponent } from './components/divisional-attributes/shared/components/add-attribute-groups-side-panel/add-attribute-groups-side-panel.component';
-import { DivOptionsLocationGroupsSidePanelComponent } from './components/divisional-attributes/divisional-options/div-options-location-groups-side-panel/div-options-location-groups-side-panel.component';
 import { ExpansionAttributeGroupsTabPanelComponent } from './components/divisional-attributes/divisional-options/expansion-attribute-groups-tab-panel/expansion-attribute-groups-tab-panel.component';
 import { ExpansionLocationGroupsTabPanelComponent } from './components/divisional-attributes/divisional-options/expansion-location-groups-tab-panel/expansion-location-groups-tab-panel.component';
 import { ExpansionAssociateCommunitiesTabPanelComponent } from './components/divisional-attributes/divisional-options/expansion-associate-communities-tab-panel/expansion-associate-communities-tab-panel.component';
@@ -89,6 +88,7 @@ import { DivisionalAttributeWizardStep4Component } from './components/divisional
 import { ExpansionOptionImagesTabPanelComponent } from './components/divisional-attributes/divisional-options/expansion-option-images-tab-panel/expansion-option-images-tab-panel.component';
 import { ImageUrlToAssetIdPipe } from './components/divisional-attributes/shared/pipes/image-url-to-asset-id/image-url-to-asset-id.pipe';
 import { ExpansionCommunitiesTabDropdownPanelComponent } from './components/divisional-attributes/divisional-choices/expansion-communities-tab-dropdown-panel/expansion-communities-tab-dropdown-panel.component';
+import { AddLocationGroupsSidePanelComponent } from './components/divisional-attributes/shared/components/add-location-groups-side-panel/add-location-groups-side-panel.component';
 
 const moduleRoutes: Routes = [
     {
@@ -185,7 +185,7 @@ const moduleRoutes: Routes = [
 		ExpansionChoiceImagesTabPanelComponent,
 		ExpansionChoiceLocationGroupsTabPanelComponent,
 		AttributeGroupsSidePanelComponent,
-		DivOptionsLocationGroupsSidePanelComponent,
+		AddLocationGroupsSidePanelComponent,
 		ExpansionAttributeGroupsTabPanelComponent,
 		ExpansionLocationGroupsTabPanelComponent,
 		ExpansionAssociateCommunitiesTabPanelComponent,

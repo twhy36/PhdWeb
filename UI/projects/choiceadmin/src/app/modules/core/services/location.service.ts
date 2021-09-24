@@ -253,6 +253,37 @@ export class LocationService
 			catchError(this.handleError));
 	}
 
+	/**
+	 * Gets a list of location group market data for a set of LocationGroupMarketIds
+	 * @param locationGroupMarketIds The IDs for which to retrieve the data.
+	 */
+	getLocationGroupMarketForIds(locationGroupMarketIds: number[]): Observable<Array<LocationGroupMarket>>
+	{
+		let url = settings.apiUrl;
+
+		const expand = `locationGroupMarketTags($select=locationGroupMarketId,tag;)`;
+		const filter = `id in (${locationGroupMarketIds.join(',')}) and isActive eq true`;
+		const select = `id, locationGroupName, groupLabel, locationGroupDescription`;
+
+		const qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
+
+		url += `locationGroupMarkets?${qryStr}`;
+
+		return this._http.get(url).pipe(
+			map(response =>
+			{
+				let loc = response['value'] as Array<LocationGroupMarket>;
+
+				let locationGroups = loc.map(g =>
+				{
+					return new LocationGroupMarket(g);
+				});
+
+				return locationGroups;
+			}),
+			catchError(this.handleError));
+	}
+
 	addLocation(location: Location): Observable<Location>
 	{
 		let url = settings.apiUrl;
@@ -428,6 +459,26 @@ export class LocationService
 				let option = response as Option;
 
 				return option;
+			}),
+			catchError(this.handleError));
+	}
+
+	updateLocationGroupChoiceMarketAssocs(divChoiceCatalogId: number, groupIds: Array<any>, isRemoved: boolean): Observable<any>
+	{
+		let url = settings.apiUrl + `UpdateLocationGroupChoiceMarketAssocs`;
+
+		let data = {
+			divChoiceCatalogId: divChoiceCatalogId,
+			groupIds: groupIds,
+			isRemoved: isRemoved
+		};
+
+		return this._http.patch(url, { divisionalChoiceLocationGroupAssocDto: data }, { headers: { 'Prefer': 'return=representation' } }).pipe(
+			map(response =>
+			{
+				let ret = response as any;
+
+				return ret;
 			}),
 			catchError(this.handleError));
 	}

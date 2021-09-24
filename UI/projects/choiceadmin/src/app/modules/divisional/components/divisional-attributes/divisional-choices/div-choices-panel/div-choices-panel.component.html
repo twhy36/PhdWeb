@@ -26,8 +26,14 @@
 										</phd-tabPanel>
 
 										<phd-tabPanel header="Location Groups" [data]="choice.divChoiceCatalogMarketLocations$">
-											<ng-template>
-												<expansion-choice-location-groups-tab-panel></expansion-choice-location-groups-tab-panel>
+											<ng-template let-groups>
+												<expansion-choice-location-groups-tab-panel [choice]="choice"
+																							[groups]="groups"
+																							[isReadOnly]="isReadOnly"
+																							(onAssociate)="associateLocationGroups($event)"
+																							(onDisassociate)="performChangeDetection()"
+																							(onAssociateToCommunities)="associateLocationGroupsToCommunities($event)">
+												</expansion-choice-location-groups-tab-panel>
 											</ng-template>
 										</phd-tabPanel>
 

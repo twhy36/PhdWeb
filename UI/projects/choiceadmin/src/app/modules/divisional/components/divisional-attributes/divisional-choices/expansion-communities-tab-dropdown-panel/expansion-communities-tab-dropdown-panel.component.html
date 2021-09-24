@@ -10,11 +10,11 @@
 
 	<div class="col phd-group-market-list">
 		Location Groups
-		<!--<div *ngIf="optionAssociations">
-			<div *ngFor="let group of optionAssociations.locationGroups">
+		<div *ngIf="choiceAssociations">
+			<div *ngFor="let group of choiceAssociations.divChoiceCatalogMarketLocations">
 				<p-checkbox name="locations" [label]="group.locationGroupName" [ngModel]="isItemSelected(group)" (ngModelChange)="setItemSelected(group, $event)" [binary]="true" [disabled]="isReadOnly || isSaving" labelStyleClass="phd-checkbox-label"></p-checkbox>
 			</div>
-		</div>-->
+		</div>
 	</div>
 
 	<div class="col phd-image-market-list">

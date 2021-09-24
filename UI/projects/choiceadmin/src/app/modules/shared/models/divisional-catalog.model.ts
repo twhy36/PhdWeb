@@ -5,6 +5,7 @@ import { ICatalogGroupDto, DivDGroup } from "./group.model";
 import { Observable } from 'rxjs';
 import { IFinancialCommunity } from "./financial-community.model";
 import { AttributeGroupMarket } from './attribute-group-market.model';
+import { LocationGroupMarket } from './location-group-market.model';
 
 export class DivisionalCatalog
 {
@@ -25,7 +26,8 @@ export class DivisionalChoice
 	divChoiceCatalogMarketImages: DivChoiceCatalogMarketImage[];
 	divChoiceCatalogMarketAttributes$: Observable<DivChoiceCatalogAttributeGroupMarket[]>;
 	divChoiceCatalogMarketAttributes: DivChoiceCatalogAttributeGroupMarket[];
-	divChoiceCatalogMarketLocations$: Observable<any[]>;
+	divChoiceCatalogMarketLocations$: Observable<DivChoiceCatalogLocationGroupMarket[]>;
+	divChoiceCatalogMarketLocations: DivChoiceCatalogLocationGroupMarket[];
 	divChoiceCatalogCommunities$: Observable<Array<IFinancialCommunity>>;
 }
 
@@ -98,6 +100,39 @@ export class DivChoiceCatalogAttributeGroupCommunity
 	}
 }
 
+export class DivChoiceCatalogLocationGroupMarket extends LocationGroupMarket
+{
+	divChoiceCatalogId: number;
+	locationGroupMarketId: number;
+
+	constructor(dto: IDivChoiceCatalogLocationGroupMarketDto)
+	{
+		super();
+
+		this.divChoiceCatalogId = dto.divChoiceCatalogId;
+		this.locationGroupMarketId = dto.locationGroupMarketId;
+	}
+}
+
+export function isDivChoiceCatalogLocationGroupMarket(obj: any): obj is DivChoiceCatalogLocationGroupMarket
+{
+	return typeof obj.locationGroupMarketId !== 'undefined';
+}
+
+export class DivChoiceCatalogLocationGroupCommunity
+{
+	divChoiceCatalogId: number;
+	locationGroupCommunityId: number;
+	locationGroupMarketId: number;
+
+	constructor(dto: IDivChoiceCatalogLocationGroupCommunityDto)
+	{
+		this.divChoiceCatalogId = dto.divChoiceCatalogId;
+		this.locationGroupCommunityId = dto.locationGroupCommunityId;
+		this.locationGroupMarketId = dto.locationGroupMarketId;
+	}
+}
+
 export interface IDivisionalCatalogDto
 {
     groups: Array<IDivisionalCatalogGroupDto>;
@@ -161,4 +196,17 @@ export interface IDivChoiceCatalogAttributeGroupCommunityDto
 	divChoiceCatalogId: number;
 	attributeGroupCommunityId: number;
 	attributeGroupMarketId: number;
+}
+
+export interface IDivChoiceCatalogLocationGroupMarketDto
+{
+	divChoiceCatalogId: number;
+	locationGroupMarketId: number;
+}
+
+export interface IDivChoiceCatalogLocationGroupCommunityDto
+{
+	divChoiceCatalogId: number;
+	locationGroupCommunityId: number;
+	locationGroupMarketId: number;
 }

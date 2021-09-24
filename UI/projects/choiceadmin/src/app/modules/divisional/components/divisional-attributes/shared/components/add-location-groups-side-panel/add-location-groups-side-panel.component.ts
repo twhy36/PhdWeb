@@ -1,28 +1,29 @@
 import { Component, OnInit, ViewChild, Input, Output, EventEmitter } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Observable, ReplaySubject } from 'rxjs';
-import { filter, map, distinctUntilChanged, switchMap } from 'rxjs/operators';
+import { filter, map, distinctUntilChanged, switchMap, finalize } from 'rxjs/operators';
 
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { Message } from 'primeng/api';
 
-import { LocationService } from '../../../../../core/services/location.service';
+import { LocationService } from '../../../../../../core/services/location.service';
 
-import { UnsubscribeOnDestroy } from '../../../../../shared/classes/unsubscribeOnDestroy';
+import { UnsubscribeOnDestroy } from '../../../../../../shared/classes/unsubscribeOnDestroy';
 
-import { SidePanelComponent } from '../../../../../shared/components/side-panel/side-panel.component';
-import { AttributeGroupActionPanelComponent } from '../../../../../shared/components/attribute-group-action-panel/attribute-group-action-panel.component';
+import { SidePanelComponent } from '../../../../../../shared/components/side-panel/side-panel.component';
+import { AttributeGroupActionPanelComponent } from '../../../../../../shared/components/attribute-group-action-panel/attribute-group-action-panel.component';
 
-import { LocationGroupMarket } from '../../../../../shared/models/location-group-market.model';
-import { Option } from '../../../../../shared/models/option.model';
+import { LocationGroupMarket } from '../../../../../../shared/models/location-group-market.model';
+import { Option } from '../../../../../../shared/models/option.model';
+import { DivisionalChoice } from '../../../../../../shared/models/divisional-catalog.model';
 
 @Component({
-	selector: 'div-options-location-groups-side-panel',
-	templateUrl: './div-options-location-groups-side-panel.component.html',
-	styleUrls: ['./div-options-location-groups-side-panel.component.scss']
+	selector: 'add-location-groups-side-panel',
+	templateUrl: './add-location-groups-side-panel.component.html',
+	styleUrls: ['./add-location-groups-side-panel.component.scss']
 })
-export class DivOptionsLocationGroupsSidePanelComponent extends UnsubscribeOnDestroy implements OnInit
+export class AddLocationGroupsSidePanelComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	@ViewChild(SidePanelComponent)
 	private sidePanel: SidePanelComponent;
@@ -35,6 +36,7 @@ export class DivOptionsLocationGroupsSidePanelComponent extends UnsubscribeOnDes
 
 	@Output() onSaveAssociation = new EventEmitter();
 	@Input() associatedGroups$: Observable<Array<LocationGroupMarket>>;
+	@Input() choice: DivisionalChoice;
 	@Input() option: Option;
 	@Input() callback: (grp: Array<LocationGroupMarket>) => void;
 
@@ -117,27 +119,60 @@ export class DivOptionsLocationGroupsSidePanelComponent extends UnsubscribeOnDes
 		this.isSaving = true;
 		let groupIds = this.addGroupsPanel.selectedGroups.map(g => g.id);
 
-		this._locService.updateLocationGroupOptionMarketAssocs(this.option.id, groupIds, false).subscribe(option =>
+		if (this.option)
 		{
-			if (this.callback)
-			{
-				this.callback(this.associatedGroups.concat(this.addGroupsPanel.selectedGroups as LocationGroupMarket[]));
-			}
+			this._locService.updateLocationGroupOptionMarketAssocs(this.option.id, groupIds, false).pipe(
+				finalize(() =>
+				{
+					this.isSaving = false;
+				}))
+				.subscribe(option =>
+				{
+					if (this.callback)
+					{
+						this.callback(this.associatedGroups.concat(this.addGroupsPanel.selectedGroups as LocationGroupMarket[]));
+					}
 
-			this.errors = [];
-			this.errors.push({ severity: 'success', detail: `Location group(s) associated.` });
+					this.errors = [];
+					this.errors.push({ severity: 'success', detail: `Location group(s) associated.` });
 
-			this.isSaving = false;
-			this.sidePanel.isDirty = false;
+					this.sidePanel.isDirty = false;
 
-			this.sidePanel.toggleSidePanel();
-		},
-		error =>
+					this.sidePanel.toggleSidePanel();
+				},
+					error =>
+					{
+						this.displayErrorMessage('Failed to associate location group(s).');
+					});
+		}
+
+		if (this.choice)
 		{
-			this.isSaving = false;
+			this._locService.updateLocationGroupChoiceMarketAssocs(this.choice.divChoiceCatalogId, groupIds, false).pipe(
+				finalize(() =>
+				{
+					this.isSaving = false;
+				}))
+				.subscribe(option =>
+				{
+					if (this.callback)
+					{
+						this.callback(this.associatedGroups.concat(this.addGroupsPanel.selectedGroups as LocationGroupMarket[]));
+					}
 
-			this.displayErrorMessage('Failed to associate location group(s).');
-		});
+					this.errors = [];
+
+					this.errors.push({ severity: 'success', detail: `Location group(s) associated.` });
+
+					this.sidePanel.isDirty = false;
+
+					this.sidePanel.toggleSidePanel();
+				},
+					error =>
+					{
+						this.displayErrorMessage('Failed to associate location group(s).');
+					});
+		}
 	}
 
 	displayErrorMessage(message: string)

@@ -16,13 +16,13 @@
                                                  [associatedGroups$]="associatedAttributeGroups$"
                                                  (onSidePanelClose)="onAttrGroupSidePanelClose($event)">
         </add-attribute-groups-side-panel>
-		<div-options-location-groups-side-panel *ngIf="locGroupSidePanelOpen"
+		<add-location-groups-side-panel *ngIf="locGroupSidePanelOpen"
 												 [sidePanelOpen]="locGroupSidePanelOpen"
 												 [option]="option"
 												 [callback]="callback"
 												 [associatedGroups$]="associatedLocationGroups$"
 												 (onSidePanelClose)="onLocGroupSidePanelClose($event)">
-		</div-options-location-groups-side-panel>
+		</add-location-groups-side-panel>
 	    <associate-communities-side-panel *ngIf="associateCommunitySidePanelOpen"
 	                                        [sidePanelOpen]="associateCommunitySidePanelOpen"
 											[option]="option"

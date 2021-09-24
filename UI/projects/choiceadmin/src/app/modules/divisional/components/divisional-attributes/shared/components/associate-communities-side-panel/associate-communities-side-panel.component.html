@@ -25,7 +25,7 @@
 						{{ community.name }} - {{ community.number }}
 					</ng-template>
 				</phd-column>
-				<phd-column [hidden]="associatingType !== AssociatingType.OptionLocationGroups">
+				<phd-column [hidden]="associatingType !== AssociatingType.OptionLocationGroups && associatingType !== AssociatingType.ChoiceLocationGroups">
 					<ng-template #body let-community>
 						<span class="phd-location-group">{{ getLocationGroupName(community) }}</span>
 					</ng-template>

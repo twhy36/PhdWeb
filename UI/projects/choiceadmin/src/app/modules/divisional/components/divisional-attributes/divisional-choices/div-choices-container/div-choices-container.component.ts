@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ReplaySubject } from 'rxjs';
 
+import { DivisionalAttributeTemplateComponent } from '../../divisional-attribute-template/divisional-attribute-template.component';
 import { DivChoicesPanelComponent } from '../div-choices-panel/div-choices-panel.component';
 import { DivisionalAttributesComponent } from '../../divisional-attributes/divisional-attributes.component';
 
@@ -8,8 +9,9 @@ import { UiUtilsService } from '../../../../../core/services/ui-utils.service';
 
 import { AttributeGroupMarket } from '../../../../../shared/models/attribute-group-market.model';
 import { LocationGroupMarket } from '../../../../../shared/models/location-group-market.model';
+import { Option } from '../../../../../shared/models/option.model';
 import { IFinancialCommunity } from '../../../../../shared/models/financial-community.model';
-import { DivChoiceCatalogAttributeGroupCommunity, DivChoiceCatalogCommunityImage, DivChoiceCatalogMarketImage, DivisionalChoice } from '../../../../../shared/models/divisional-catalog.model';
+import { DivChoiceCatalogAttributeGroupCommunity, DivChoiceCatalogCommunityImage, DivChoiceCatalogLocationGroupCommunity, DivChoiceCatalogMarketImage, DivisionalChoice } from '../../../../../shared/models/divisional-catalog.model';
 
 @Component({
 	selector: 'div-choices-container',
@@ -42,7 +44,7 @@ export class DivChoicesContainerComponent implements OnInit
 	selectedGroups: Array<AttributeGroupMarket | LocationGroupMarket>;
 	selectedImages: Array<DivChoiceCatalogMarketImage>;
 	communityImages: Array<DivChoiceCatalogCommunityImage>
-	communityGroups: Array<DivChoiceCatalogAttributeGroupCommunity>;
+	communityGroups: Array<DivChoiceCatalogAttributeGroupCommunity | DivChoiceCatalogLocationGroupCommunity>;
 	selectedMarketId: number;
 
 	constructor(private _uiUtils: UiUtilsService, private _divAttrComp: DivisionalAttributesComponent) { }
@@ -101,12 +103,13 @@ export class DivChoicesContainerComponent implements OnInit
 		this.associateCommunityCallback = event.callback;
 	}
 
-	onAssociateLocationGroupsToCommunities(event: { choice: DivisionalChoice, groups: Array<LocationGroupMarket>, marketId: number, callback: any })
+	onAssociateLocationGroupsToCommunities(event: { choice: DivisionalChoice, groups: Array<LocationGroupMarket>, communityGroups: Array<DivChoiceCatalogLocationGroupCommunity>, marketId: number, callback: any })
 	{
 		this._divAttrComp.sidePanelOpen = true;
 		this.associateCommunitySidePanelOpen = true;
 		this.choice = event.choice;
 		this.selectedGroups = event.groups;
+		this.communityGroups = event.communityGroups;
 		this.selectedMarketId = event.marketId;
 		this.associateCommunityCallback = event.callback;
 	}
