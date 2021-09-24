@@ -26,9 +26,11 @@
 
 .phd-earnest-money-input {
 	margin-left: 10px;
+	width: auto;
 }
 
 .phd-ecoe-input {
+	display: inline-flex;
 	width: 100px;
 	margin: 0 10px;
 }
@@ -55,4 +57,8 @@
 
 .phd-no-community {
 	margin: 1rem;
+}
+
+.phd-error {
+	border-left: 5px solid #d9534f;
 }
