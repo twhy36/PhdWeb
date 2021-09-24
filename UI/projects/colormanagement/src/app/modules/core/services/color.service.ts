@@ -60,7 +60,7 @@ export class ColorService {
 
 		const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
 
-		return (skipRows ? this._http : withSpinner(this._http))
+		return withSpinner(this._http)
 			.get<any>(endpoint)
 			.pipe(
 				map((response) => {
@@ -94,7 +94,7 @@ export class ColorService {
 		}
 		const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
 
-		return this._http.get<any>(endpoint).pipe(
+		return withSpinner(this._http).get<any>(endpoint).pipe(
 			map((response) =>
 			{
 				let colorItems = response.value as Array<IColorItem>;
@@ -143,7 +143,7 @@ export class ColorService {
 				let headers = createBatchHeaders(guid, token);
 				let batch = createBatchBody(guid, requests);
 
-				return this._http.post(`${environment.apiUrl}$batch`, batch, { headers: headers });
+				return withSpinner(this._http).post(`${environment.apiUrl}$batch`, batch, { headers: headers });
 			}),
 			map((response: any)=>
 			{

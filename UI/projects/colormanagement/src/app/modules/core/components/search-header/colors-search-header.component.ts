@@ -83,7 +83,7 @@ export class ColorsSearchHeaderComponent
 
 	loadColors() {
 		this.allDataLoaded = false;
-
+		this.isLoading = true;
 		this._colorService
 			.getColors(
 				this.currentCommunityId,
@@ -123,6 +123,7 @@ export class ColorsSearchHeaderComponent
 				this.allDataLoaded =
 					colorDtos.length < this.settings.infiniteScrollPageSize;
 				this.colorsDtoList = [...this.colorsDtoList, ...colorDtos];
+				this.isLoading = false;
 	});
 	}
 
@@ -132,8 +133,7 @@ export class ColorsSearchHeaderComponent
 		this.loadColors();
 	}
 
-	onPanelScroll() {
-		this.isLoading = true;
+	onPanelScroll() {		
 		this.skip = this.currentPage * this.settings.infiniteScrollPageSize;
 		this.loadColors();
 	}
