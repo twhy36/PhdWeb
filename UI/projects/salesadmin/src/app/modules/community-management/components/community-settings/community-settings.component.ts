@@ -37,11 +37,13 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 	canToggleCommunitySettings = false;
 	canAccessDesignPreview = false;
 	environment = environment;
+	ecoeRequired = false;
+	earnestMoneyRequired = false;
 
 	get saveDisabled(): boolean
 	{
 		return !this.orgId
-			|| !this.communitySettingsForm.valid
+			|| (!this.communitySettingsForm.valid && !this.previewEnabledDirty)
 			|| (
 				this.communitySettingsForm.pristine
 				&& !this.commmunityLinkEnabledDirty
@@ -149,8 +151,30 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 
 	toggleCommunityLinkEnabled()
 	{
-		this.commmunityLinkEnabledDirty = !this.commmunityLinkEnabledDirty;
-		this.salesCommunity.isOnlineSalesCommunityEnabled = !this.salesCommunity.isOnlineSalesCommunityEnabled;
+		if (this.communitySettingsForm.get('ecoeMonths').value && this.communitySettingsForm.get('earnestMoney').value)
+		{
+			this.ecoeRequired = false;
+			this.earnestMoneyRequired = false;
+			this.commmunityLinkEnabledDirty = !this.commmunityLinkEnabledDirty;
+			this.salesCommunity.isOnlineSalesCommunityEnabled = !this.salesCommunity.isOnlineSalesCommunityEnabled;
+		}
+		else if (this.communitySettingsForm.get('earnestMoney').value)
+		{
+			this.ecoeRequired = true;
+			this.communitySettingsForm.get('ecoeMonths').markAsDirty();
+		}
+		else if (this.communitySettingsForm.get('ecoeMonths').value)
+		{
+			this.earnestMoneyRequired = true;
+			this.communitySettingsForm.get('earnestMoney').markAsDirty();
+		}
+		else
+		{
+			this.ecoeRequired = true;
+			this.earnestMoneyRequired = true;
+			this.communitySettingsForm.get('ecoeMonths').markAsDirty();
+			this.communitySettingsForm.get('earnestMoney').markAsDirty();
+		}
 	}
 
 	togglePreviewEnabled()
@@ -173,40 +197,61 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 	save()
 	{
 		this.isSaving = true;
-
-		let ecoeMonths = this.communitySettingsForm.get('ecoeMonths').value;
-		let earnestMoney = this.communitySettingsForm.get('earnestMoney').value;
-		if (this.financialCommunityInfo)
+		if (this.communitySettingsForm.pristine || this.communitySettingsForm.invalid)
 		{
-			this.financialCommunityInfo.defaultECOEMonths = ecoeMonths ?? this.financialCommunityInfo.defaultECOEMonths;
-			this.financialCommunityInfo.earnestMoneyAmount = earnestMoney ?? this.financialCommunityInfo.earnestMoneyAmount;
-		}
-		else
-		{
-			this.financialCommunityInfo =
-			{
-				financialCommunityId: 0,
-				defaultECOEMonths: ecoeMonths,
-				earnestMoneyAmount: earnestMoney,
-			}
-		}
-
-		combineLatest([
-			this._orgService.saveFinancialCommunityInfo(this.financialCommunityInfo, this.orgId),
-			this._orgService.saveSalesCommunity(this.salesCommunity),
-			this._orgService.saveFinancialCommunity(this.financialCommunity)
-		]).subscribe(() =>
+			this._orgService.saveFinancialCommunity(this.financialCommunity).subscribe(() =>
 			{
 				this.isSaving = false;
 				this.communitySettingsForm.markAsPristine();
-				this.commmunityLinkEnabledDirty = false;
 				this.previewEnabledDirty = false;
+				this.commmunityLinkEnabledDirty = false;
+				this.ecoeRequired = false;
+				this.earnestMoneyRequired = false;
 				this._msgService.add({ severity: 'success', summary: 'Community Settings', detail: 'Save successful.' });
 			}, error =>
 			{
 				this.isSaving = false;
 				this._msgService.add({ severity: 'error', summary: 'Error', detail: `Save failed. ${error}` });
-			});
+			})
+		}
+		else
+		{
+			let ecoeMonths = this.communitySettingsForm.get('ecoeMonths').value;
+			let earnestMoney = this.communitySettingsForm.get('earnestMoney').value;
+			if (this.financialCommunityInfo)
+			{
+				this.financialCommunityInfo.defaultECOEMonths = ecoeMonths ?? this.financialCommunityInfo.defaultECOEMonths;
+				this.financialCommunityInfo.earnestMoneyAmount = earnestMoney ?? this.financialCommunityInfo.earnestMoneyAmount;
+			}
+			else
+			{
+				this.financialCommunityInfo =
+				{
+					financialCommunityId: 0,
+					defaultECOEMonths: ecoeMonths,
+					earnestMoneyAmount: earnestMoney,
+				}
+			}
+
+			combineLatest([
+				this._orgService.saveFinancialCommunityInfo(this.financialCommunityInfo, this.orgId),
+				this._orgService.saveSalesCommunity(this.salesCommunity),
+				this._orgService.saveFinancialCommunity(this.financialCommunity)
+			]).subscribe(() =>
+				{
+					this.isSaving = false;
+					this.communitySettingsForm.markAsPristine();
+					this.commmunityLinkEnabledDirty = false;
+					this.previewEnabledDirty = false;
+					this.ecoeRequired = false;
+					this.earnestMoneyRequired = false;
+					this._msgService.add({ severity: 'success', summary: 'Community Settings', detail: 'Save successful.' });
+				}, error =>
+				{
+					this.isSaving = false;
+					this._msgService.add({ severity: 'error', summary: 'Error', detail: `Save failed. ${error}` });
+				});
+		}
 	}
 }
 

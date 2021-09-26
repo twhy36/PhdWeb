@@ -9,8 +9,12 @@
 						</div>
 						<div class="phd-line">
 							<label class="font-weight-bold">Purchase Date +</label>
-							<input class="phd-ecoe-input" id="ecoe-months" type="number" formControlName="ecoeMonths" min="1" max="15"/>
+							<input class="form-control phd-ecoe-input" [ngClass]="{'phd-error': ecoeRequired}" id="ecoe-months" type="number" formControlName="ecoeMonths" min="1" max="15"/>
 							<label class="font-weight-bold">Months</label>
+							<span class="text-danger"
+								*ngIf="communitySettingsForm.controls.ecoeMonths.invalid && communitySettingsForm.controls.ecoeMonths.dirty && communitySettingsForm.controls.ecoeMonths.errors.required">
+								Invalid: ECOE months required
+							</span>
 							<span class="text-danger"
 								*ngIf="communitySettingsForm.controls.ecoeMonths.invalid && communitySettingsForm.controls.ecoeMonths.dirty && communitySettingsForm.controls.ecoeMonths.errors.min">
 								Invalid: ECOE Date must be at least 1 Month.
@@ -30,7 +34,11 @@
 						<div class="phd-input-line">
 							<div class="form-group">
 								<label class="font-weight-bold">$</label>
-								<input type="number" [inputFilter]="'^[0-9]*$'" class="phd-earnest-money-input" id="earnest-money"  formControlName="earnestMoney" maxlength="5"/>
+								<input type="number" [inputFilter]="'^[0-9]*$'" class="form-control phd-earnest-money-input" [ngClass]="{'phd-error': earnestMoneyRequired}" id="earnest-money"  formControlName="earnestMoney" maxlength="5" [required]="earnestMoneyRequired"/>
+								<span class="text-danger"
+									*ngIf="communitySettingsForm.controls.earnestMoney.invalid && communitySettingsForm.controls.earnestMoney.dirty && communitySettingsForm.controls.earnestMoney.errors.required">
+									Invalid: Earnest Money required
+								</span>
 								<span class="text-danger"
 									*ngIf="communitySettingsForm.controls.earnestMoney.invalid && communitySettingsForm.controls.earnestMoney.dirty && communitySettingsForm.controls.earnestMoney.errors.min">
 									Invalid: Earnest Money must be at least $0
