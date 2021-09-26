@@ -75,6 +75,7 @@ export class ColorItemsSearchHeaderComponent
 	onShowOptions() {
 		
 		this.reset();
+		this.selectedplanids = null;
 		// if >= 0 means user selected all plans
 		// if -1 means user selected individual plans
 		if (this.selectedPlans?.findIndex(x => x == 0) == -1) {
