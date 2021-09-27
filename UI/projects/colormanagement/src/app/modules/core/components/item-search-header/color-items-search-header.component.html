@@ -27,7 +27,8 @@
 				[(ngModel)]="currentOption"
 				(ngModelChange)="onChangeOption()"
 			>
-				<option [ngValue]="null">All</option>
+				<option [ngValue]="null" [defaultSelected]></option>
+				<option [ngValue]="-1">All</option>
 				<option
 					*ngFor="let option of planOptionList"
 					[ngValue]="option"
@@ -66,12 +67,12 @@
 				<div *ngFor="let color of planOptionDto.colorItem?.colors">
 					<span [ngClass]="color?.isActive ? 'phd-disabled':''">{{color?.name}}</span>
 				</div>
-			</ng-template>	
+			</ng-template>
 		</phd-column>
 		<phd-column  header="Active" field="isActive" width="100px">
 			<ng-template #body let-planOptionDto>
-				<span>{{ planOptionDto.isActive }}</span>
+				<span>{{ planOptionDto.colorItem?.isActive }}</span>
 			</ng-template>
-		</phd-column>		       		
+		</phd-column>
 	</phd-table>
 </div>

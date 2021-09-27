@@ -33,6 +33,7 @@ export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implement
 	@Input() isReadonly: boolean;
 	@Input() isPreview: boolean = false;
 	@Input() isDesignComplete: boolean = false;
+	@Input() noVisibleGroups: boolean = false;
 
 	@Output() onToggleChoice = new EventEmitter<ChoiceExt>();
 	@Output() onToggleContractedOptions = new EventEmitter();

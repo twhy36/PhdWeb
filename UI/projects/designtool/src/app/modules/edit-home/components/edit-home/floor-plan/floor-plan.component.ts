@@ -9,7 +9,7 @@ import * as _ from 'lodash';
 
 import {
 	UnsubscribeOnDestroy, flipOver, ModalRef, ScenarioStatusType, PriceBreakdown, TreeFilter, SubGroup,
-	DecisionPoint, Choice, loadScript, unloadScript, ModalService, MyFavoritesChoice
+	DecisionPoint, Choice, loadScript, unloadScript, ModalService, MyFavoritesChoice, DesignToolAttribute
 } from 'phd-common';
 
 import * as fromRoot from '../../../../ngrx-store/reducers';
@@ -22,6 +22,7 @@ import { DecisionPointFilterType } from '../../../../shared/models/decisionPoint
 import { environment } from '../../../../../../environments/environment';
 import { JobService } from '../../../../core/services/job.service';
 import { ScenarioService } from '../../../../core/services/scenario.service';
+import { AttributeService } from '../../../../core/services/attribute.service';
 
 declare var AVFloorplan: any;
 
@@ -86,7 +87,8 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 		private scenarioService: ScenarioService,
 		private modalService: ModalService,
 		private renderer: Renderer2,
-		private jobService: JobService) { super() }
+		private jobService: JobService,
+		private attributeService: AttributeService) { super() }
 
 	ngOnInit(): void
 	{
@@ -340,7 +342,51 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 			}
 		}
 
-		this.onSelectChoice.emit({ choice, saveNow: false, quantity: choice.quantity ? 0 : 1 });
+		//IFPs do not load attributes for an attribute group,
+		//need to fetch them to determine if any are auto selected if the user doesn't
+		//open the modal
+		if (choice.mappedAttributeGroups.length === 1)
+		{
+
+			this.attributeService.getAttributeGroups(choice).subscribe(attributeGroups =>
+			{
+				//if there is only 1 attribute group that has 1 attribute, auto select that attribute to the choice
+				if(attributeGroups.length === 1 && attributeGroups[0].attributes.length === 1)
+				{
+					const attributeGroup = attributeGroups[0];
+					const attribute = attributeGroup.attributes[0];
+
+					const selectedAttribute : DesignToolAttribute = {
+						attributeId: attribute.id,
+						attributeName: attribute.name,
+						attributeImageUrl: attribute.imageUrl,
+						attributeGroupId: attributeGroup.id,
+						attributeGroupName: attributeGroup.name,
+						attributeGroupLabel: attributeGroup.label,
+						locationGroupId: null,
+						locationGroupName: null,
+						locationGroupLabel: null,
+						locationId: null,
+						locationName: null,
+						locationQuantity: null,
+						scenarioChoiceLocationId: null,
+						scenarioChoiceLocationAttributeId: null,
+						sku: attribute.sku,
+						manufacturer: attribute.manufacturer
+					}
+					
+					choice.selectedAttributes.push(selectedAttribute);
+				}
+
+				this.onSelectChoice.emit({ choice, saveNow: false, quantity: choice.quantity ? 0 : 1 });
+			});
+		}
+		else
+		{
+
+			this.onSelectChoice.emit({ choice, saveNow: false, quantity: choice.quantity ? 0 : 1 });
+		}
+		
 	}
 
 	onCallToAction(event: any)

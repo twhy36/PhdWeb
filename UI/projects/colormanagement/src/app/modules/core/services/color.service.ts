@@ -6,7 +6,16 @@ import {Observable, throwError} from 'rxjs';
 import {IColorIdBatch, IColor, IColorDto} from '../../shared/models/color.model';
 import { IColorItem, IColorItemDto } from '../../shared/models/colorItem.model';
 import * as _ from 'lodash';
-import { newGuid, createBatch, createBatchGet, createBatchHeaders, createBatchBody, getNewGuid,  withSpinner, IdentityService } from 'phd-common';
+import {
+	newGuid,
+	createBatch,
+	createBatchGet,
+	createBatchHeaders,
+	createBatchBody,
+	getNewGuid,
+	withSpinner,
+	IdentityService,
+} from 'phd-common';
 
 @Injectable()
 export class ColorService {
@@ -51,7 +60,7 @@ export class ColorService {
 
 		const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
 
-		return (skipRows ? this._http : withSpinner(this._http))
+		return withSpinner(this._http)
 			.get<any>(endpoint)
 			.pipe(
 				map((response) => {
@@ -67,7 +76,7 @@ export class ColorService {
 		const expand =  `colorItemColorAssoc($expand=color($select=colorId,name,edhFinancialCommunityId,isActive))`
 		let filter = `colorItemColorAssoc/color/edhFinancialCommunityId eq ${communityId} and (edhPlanOptionId in (${edhPlanOptionIds.join(',')}))`;
 		const select = `colorItemId,name,edhPlanOptionId,isActive,colorItemColorAssoc`;
-		
+
 		if (isActive != null)
 		{
 			filter += ` and (isActive eq ${isActive})`;
@@ -85,7 +94,7 @@ export class ColorService {
 		}
 		const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
 
-		return this._http.get<any>(endpoint).pipe(
+		return withSpinner(this._http).get<any>(endpoint).pipe(
 			map((response) =>
 			{
 				let colorItems = response.value as Array<IColorItem>;
@@ -134,7 +143,7 @@ export class ColorService {
 				let headers = createBatchHeaders(guid, token);
 				let batch = createBatchBody(guid, requests);
 
-				return this._http.post(`${environment.apiUrl}$batch`, batch, { headers: headers });
+				return withSpinner(this._http).post(`${environment.apiUrl}$batch`, batch, { headers: headers });
 			}),
 			map((response: any)=>
 			{
@@ -172,6 +181,25 @@ export class ColorService {
 			map(results =>
 			{
 				return results.length > 0;
+			}),
+			catchError(this.handleError)
+		);
+	}
+
+	updateColor(colorToUpdate: IColorDto, communityId: number): Observable<boolean> {
+		const url = `${environment.apiUrl}colors(${colorToUpdate.colorId})`;
+		const body = {
+			colorId: colorToUpdate.colorId,
+			name: colorToUpdate.name,
+			sku: colorToUpdate.sku,
+			edhOptionSubcategoryId: colorToUpdate.optionSubCategoryId,
+			edhFinancialCommunityId: communityId,
+			isActive: colorToUpdate.isActive
+		} as IColor;
+
+		return this._http.patch(url, body, { headers: { 'Prefer': 'return=representation' } }).pipe(
+			map(resp => {
+				return resp !== null;
 			}),
 			catchError(this.handleError)
 		);

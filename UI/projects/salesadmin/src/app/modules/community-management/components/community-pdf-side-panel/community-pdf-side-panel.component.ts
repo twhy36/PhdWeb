@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from "@angular/core";
-import { FormControl, FormGroup, Validators } from "@angular/forms";
+import { AbstractControl, FormControl, FormGroup, ValidatorFn, Validators } from "@angular/forms";
 import { SidePanelComponent } from "phd-common";
 import { CommunityPdf, ISectionHeader } from "../../../shared/models/communityPdf.model";
 
@@ -18,6 +18,7 @@ export class CommunityPdfSidePanelComponent implements OnInit
 	@Output() onSidePanelClose = new EventEmitter<boolean>();
 	@Output() onSave = new EventEmitter<object>();
 	@Output() onUpdate = new EventEmitter<object>();
+	@Input() communityPdfs: Array<CommunityPdf>;
 	@Input() selected: CommunityPdf;
 	@Input() saving: boolean;
 	@Input() sidePanelOpen: boolean = false;
@@ -133,7 +134,7 @@ export class CommunityPdfSidePanelComponent implements OnInit
 		this.communityPdfForm = new FormGroup({
 			'sortOrder': new FormControl(sortOrder),
 			'linkText': new FormControl( linkText, Validators.required),
-			'fileName': new FormControl({ value: fileName, disabled: (this.selected) }, Validators.required),
+			'fileName': new FormControl({ value: fileName, disabled: (this.selected) }, { validators: [Validators.required, this.duplicateName()]}),
 			'sectionHeader': new FormControl(sectionHeader, Validators.required),
 			'effectiveDate': new FormControl(this.effectiveDate ? this.effectiveDate.toISOString() : null),
 			'expirationDate': new FormControl(this.expirationDate ? this.expirationDate.toISOString() : null),
@@ -155,7 +156,7 @@ export class CommunityPdfSidePanelComponent implements OnInit
 
 			if (file)
 			{
-				const split = file.split('.');
+				const split = file.name.split('.');
 
 				if (split.length > 1)
 				{
@@ -177,6 +178,15 @@ export class CommunityPdfSidePanelComponent implements OnInit
 			}
 
 			return null;
+		};
+	}
+
+	duplicateName(): ValidatorFn
+	{
+		return (control: AbstractControl): { [key: string]: boolean } =>
+		{
+			const existingName = this.communityPdfs.some(pdf => pdf.fileName.replace(/\.[^/.]+$/, "") === control.value as string);
+			return existingName && !this.selected ? { duplicateName: true } : null;
 		};
 	}
 
