@@ -133,7 +133,7 @@ export class ColorsSearchHeaderComponent
 		this.loadColors();
 	}
 
-	onPanelScroll() {		
+	onPanelScroll() {
 		this.skip = this.currentPage * this.settings.infiniteScrollPageSize;
 		this.loadColors();
 	}
@@ -206,7 +206,7 @@ export class ColorsSearchHeaderComponent
 
 	deleteSelectedColors() {
 		const message = 'Are you sure you want to delete selected colors?';
-		this.showConfirmModal(message, 'Warning', 'Cancel').pipe(
+		this.showConfirmModal(message, 'Warning', 'Continue').pipe(
 			switchMap(cancelDeletion => {
 				if (cancelDeletion) {
 					return of(false);

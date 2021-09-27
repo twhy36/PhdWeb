@@ -1,8 +1,8 @@
 import { Component, Input, OnInit, Output, EventEmitter, SimpleChanges, OnChanges } from '@angular/core';
-import { FormGroup, FormBuilder, Validators, FormArray } from '@angular/forms';
+import {FormGroup, FormBuilder, Validators, FormArray, AbstractControl} from '@angular/forms';
 import * as _ from 'lodash';
 import { ConfirmModalComponent, ModalRef, ModalService } from 'phd-common';
-import { IColor } from '../../../shared/models/color.model';
+import {IColor, IColorDto} from '../../../shared/models/color.model';
 import { IOptionCategory, IOptionSubCategory } from '../../../shared/models/option.model';
 import { OptionService } from '../../services/option.service';
 
@@ -14,9 +14,9 @@ import { OptionService } from '../../services/option.service';
 export class AddColorDialogComponent implements OnInit, OnChanges {
 	@Input() communityId: number;
 	@Input() subcategories: IOptionSubCategory[];
+	@Input() allColors: Array<IColorDto> = [];
 	@Output() newColorsWereSaved = new EventEmitter();
 	@Output() closeDialogWasRequested = new EventEmitter();
-	newColors: IColor[] = [];
 	modalReference: ModalRef;
 
 	categories: IOptionCategory[];
@@ -63,7 +63,25 @@ export class AddColorDialogComponent implements OnInit, OnChanges {
 			this.categories = Object.keys(groups).map(g => ({
 			  ...groups[g][0].optionCategory,
 			  optionSubCategories: groups[g].map(sc => ({ ...sc, optionCategory: undefined }))
-			}));
+			})).sort((category1,category2) => {
+				let categoryA = parseName(category1.name);
+				let categoryB = parseName(category2.name);
+				return categoryA > categoryB ? 1 : -1;
+			});
+		}
+
+		function parseName(name: string): string
+		{
+			const pattern = new RegExp('[0-9]+\\.');
+			const nameHasLeadingNumbers = pattern.test(name);
+
+			if (nameHasLeadingNumbers)
+			{
+				const startIndex = name.indexOf('. ') + 2;
+				return name.substring(startIndex).trim();
+			}
+
+			return name.trim();
 		}
 	}
 
@@ -85,9 +103,15 @@ export class AddColorDialogComponent implements OnInit, OnChanges {
 			return;
 		}
 
-		const colorsToSave: IColor[] = [];
 		let validEntries = this.colors.controls.filter(x => x.touched && x.dirty && x.valid);
 
+		if (this.isDuplicate(validEntries))
+		{
+			this._modalService.showOkOnlyModal(`A color with this name and subcategory already exists.`, 'Duplicate Color');
+			return;
+		}
+
+		const colorsToSave: IColor[] = [];
 		validEntries.forEach(control => {
 			colorsToSave.push({
 				name:control.value.name,
@@ -126,6 +150,12 @@ export class AddColorDialogComponent implements OnInit, OnChanges {
 			&& hasNoOrphanedSkuEntries;
 	}
 
+	private isDuplicate(colors: AbstractControl[]): boolean
+	{
+		return colors.some(color => this.allColors.some(existingColor => existingColor.name === color.get('name').value.toString()
+			&& existingColor.optionSubCategoryId === this.currentSubCategory.id));
+	}
+
 	async cancelAddColorDialog()
 	{
 		if (this.addColorForm.dirty === false)
@@ -135,7 +165,7 @@ export class AddColorDialogComponent implements OnInit, OnChanges {
 		}
 
 		const msg = 'Do you want to cancel without saving? If so, the data entered will be lost.';
-		const closeWithoutSavingData = await this.showConfirmModal(msg, 'Warning', 'Cancel');
+		const closeWithoutSavingData = await this.showConfirmModal(msg, 'Warning', 'Continue');
 
 		if (closeWithoutSavingData)
 		{
