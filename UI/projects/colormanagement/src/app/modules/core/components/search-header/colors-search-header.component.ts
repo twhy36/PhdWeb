@@ -145,6 +145,11 @@ export class ColorsSearchHeaderComponent
 		this.colorsDtoList = [];
 	}
 
+	getRowClass(rowData: any): string
+	{
+		return rowData['isActive'] ? null : 'phd-inactive-color';
+	}
+
 	isDeleteSelected(color:IColorDto):boolean
 	{
 		return this.deleteColorList.some(col => col.colorId	===	color.colorId);

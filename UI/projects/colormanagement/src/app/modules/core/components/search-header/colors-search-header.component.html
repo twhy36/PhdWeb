@@ -65,14 +65,27 @@
 		</button>
 	</div>
     <div class="mx-2 phd-table-container" infiniteScroll [infiniteScrollThrottle]="settings.infiniteScrollThrottle" [infiniteScrollDisabled]="allDataLoaded" (scrolled)="onPanelScroll()" [scrollWindow]="false">
-        <phd-table #dt [value]="colorsDtoList">
-            <phd-column  header="Color Name" field="name" ></phd-column>
+        <phd-table #dt [value]="colorsDtoList" [rowClass]="getRowClass">
+            <phd-column  header="Color Name" field="name"></phd-column>
             <phd-column  header="Sku" field="sku"></phd-column>
             <phd-column  header="Category Name" field="optionCategoryName"></phd-column>
             <phd-column  header="SubCategory Name" field="optionSubCategoryName"></phd-column>
-            <phd-column  header="Active" field="isActive" width="100px">
+            <phd-column  field="isActive" columnClass="phd-icon">
                 <ng-template #body let-colordto>
-                    <span>{{ colordto.isActive }}</span>
+					<i
+					class="fa fa-fw fa-undo text-danger"
+					title="Reactivate Color"
+					*ngIf="!colordto.isActive"
+					(click)="showEditColorSidePanel(colordto)"
+					>
+					</i>
+					<i
+					class="fa fa-fw fa-trash"
+					title="Inactivate Color"
+					*ngIf="colordto.isActive"
+					(click)="showEditColorSidePanel(colordto)"
+					>
+					</i>
                 </ng-template>
             </phd-column>
             <phd-column header="" columnClass="phd-icon">

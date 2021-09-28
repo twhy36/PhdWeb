@@ -65,7 +65,7 @@
 		<phd-column  header="Colors" field="colorItem.colors">
 			<ng-template #body let-planOptionDto>
 				<div *ngFor="let color of planOptionDto.colorItem?.colors">
-					<span [ngClass]="color?.isActive ? 'phd-disabled':''">{{color?.name}}</span>
+					<span [ngClass]="color?.isActive ? '':'phd-disabled'">{{color?.name}}</span>
 				</div>
 			</ng-template>
 		</phd-column>
