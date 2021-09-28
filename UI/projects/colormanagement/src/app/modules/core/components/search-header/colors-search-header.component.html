@@ -86,9 +86,8 @@
 						</i>
 						<i
 							class="fa fa-spinner fa-spin fa-fw"
-							title="Edit Color"
+							title="Loading Edit Color"
 							*ngIf="colordto.hasSalesConfig === null"
-							(click)="showEditColorSidePanel(colordto)"
 						>
 						</i>
                 </ng-template>
@@ -98,9 +97,8 @@
                         <p-checkbox *ngIf="colordto.hasSalesConfig === false" (ngModelChange)="setDeleteSelected(colordto, $event)" [ngModel]="isDeleteSelected(colordto)" [binary]=true></p-checkbox>
 						<i
 							class="fa fa-spinner fa-spin fa-fw"
-							title="Edit Color"
+							title="Loading Delete Color"
 							*ngIf="colordto.hasSalesConfig === null"
-							(click)="showEditColorSidePanel(colordto)"
 						>
 						</i>
                 </ng-template>
