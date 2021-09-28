@@ -38,5 +38,5 @@
 </div>
 
 <div class="d-flex justify-content-end div-button-panel">
-	<button class="btn btn-primary action-button" (click)="associateItems()" [disabled]="isReadOnly || isSaving">Save<i class="fa fa-spinner fa-spin fa-fw" *ngIf="isSaving"></i></button>
+	<button class="btn btn-primary action-button" (click)="associateItems()" [disabled]="saveDisabled">Save<i class="fa fa-spinner fa-spin fa-fw" *ngIf="isSaving"></i></button>
 </div>

@@ -37,6 +37,16 @@ export class ExpansionCommunitiesTabDropdownPanelComponent implements OnInit
 	origSelectedAttributeGroups: DivChoiceCatalogAttributeGroupMarket[] = [];
 	origSelectedLocationGroups: DivChoiceCatalogLocationGroupMarket[] = [];
 
+	get saveDisabled(): boolean
+	{
+		return this.isSaving || this.isReadOnly || (this.selectedImages.length == this.origSelectedImages.length
+			&& this.selectedImages.every((item, idx) => item === this.origSelectedImages[idx])
+			&& this.selectedAttributeGroups.length == this.origSelectedAttributeGroups.length
+			&& this.selectedAttributeGroups.every((item, idx) => item === this.origSelectedAttributeGroups[idx])
+			&& this.selectedLocationGroups.length == this.origSelectedLocationGroups.length
+			&& this.selectedLocationGroups.every((item, idx) => item === this.origSelectedLocationGroups[idx]));
+	}
+
 	constructor(private _attrService: AttributeService,
 		private cd: ChangeDetectorRef,
 		private _divService: DivisionalService,
@@ -58,17 +68,21 @@ export class ExpansionCommunitiesTabDropdownPanelComponent implements OnInit
 			});
 	}
 
+	/**
+	 * Whether an attribute group, location group, or image is selected.
+	 * @param item The item to check if it is selected.
+	 */
 	isItemSelected(item: DivChoiceCatalogAttributeGroupMarket | DivChoiceCatalogLocationGroupMarket | DivChoiceCatalogMarketImage): boolean
 	{
 		let isSelected = false;
 
 		if (isDivChoiceCatalogAttributeGroupMarket(item))
 		{
-			isSelected = this.selectedAttributeGroups.some(s => s.attributeGroupMarketId == s.attributeGroupMarketId);
+			isSelected = this.selectedAttributeGroups.some(s => s.attributeGroupMarketId === item.attributeGroupMarketId);
 		}
 		else if (isDivChoiceCatalogLocationGroupMarket(item))
 		{
-			isSelected = this.selectedLocationGroups.some(s => s.locationGroupMarketId == s.locationGroupMarketId);
+			isSelected = this.selectedLocationGroups.some(s => s.locationGroupMarketId === item.locationGroupMarketId);
 		}
 		else if (isDivChoiceCatalogMarketImage(item))
 		{
@@ -78,6 +92,11 @@ export class ExpansionCommunitiesTabDropdownPanelComponent implements OnInit
 		return isSelected;
 	}
 
+	/**
+	 * Toggles the selection state of an attribute group, location group, or image.
+	 * @param item The item to toggle.
+	 * @param isSelected The selection state.
+	 */
 	setItemSelected(item: DivChoiceCatalogAttributeGroupMarket | DivChoiceCatalogLocationGroupMarket | DivChoiceCatalogMarketImage, isSelected: boolean): void
 	{
 		let selectedItems = [];
@@ -112,6 +131,9 @@ export class ExpansionCommunitiesTabDropdownPanelComponent implements OnInit
 		this.canAssociate = !isEqual(this.selectedImages, this.origSelectedImages);
 	}
 
+	/**
+	 * Gets the list of all of the market attribute groups, location groups, and images for this choice, and the ones already associated to this community.
+	 */
 	getAssociations()
 	{
 		if (this.community.orgId)
@@ -143,34 +165,30 @@ export class ExpansionCommunitiesTabDropdownPanelComponent implements OnInit
 					).pipe(
 						// Get the community data, and get the EDH metadata for location groups
 						combineLatest(getCommunityAttributeGroups$, getCommunityLocationGroups$, getCommunityImages$,
-						(locationIds && locationIds.length
-							? this._locService.getLocationGroupMarketForIds(locationIds)
-							: of([] as LocationGroupMarket[]))
-					)).pipe(
-						map(([fullMarketAttrGroups, communityAttrGroups, communityLocGroups, communityImages, fullMarketLocGroups]) =>
-						{
-							// Merge the EDH metadata with the groups
-							divMarketAttrGroups.map(g =>
+							(locationIds && locationIds.length
+								? this._locService.getLocationGroupMarketForIds(locationIds)
+								: of([] as LocationGroupMarket[]))
+						)).pipe(
+							map(([fullMarketAttrGroups, communityAttrGroups, communityLocGroups, communityImages, fullMarketLocGroups]) =>
 							{
-								divMarketAttrGroups.map(g =>
-								{
-									const agm = fullMarketAttrGroups.find(agm => agm.id === g.attributeGroupMarketId);
-
-									if (agm)
+								// Merge the EDH metadata with the groups
+								divMarketAttrGroups =
+									divMarketAttrGroups.map(g =>
 									{
-										g.id = g.attributeGroupMarketId;
-										g.groupName = agm.groupName;
-										g.groupLabel = agm.groupLabel;
-										g.description = agm.description;
-										g.attributeGroupMarketTags = agm.attributeGroupMarketTags;
-									}
+										const agm = fullMarketAttrGroups.find(agm => agm.id === g.attributeGroupMarketId);
 
-									return g;
-								});
-							});
+										if (agm)
+										{
+											g.id = g.attributeGroupMarketId;
+											g.groupName = agm.groupName;
+											g.groupLabel = agm.groupLabel;
+											g.description = agm.description;
+											g.attributeGroupMarketTags = agm.attributeGroupMarketTags;
+										}
 
-							divMarketLocGroups.map(g =>
-							{
+										return g;
+									});
+
 								divMarketLocGroups = divMarketLocGroups.map(g =>
 								{
 									const lgm = fullMarketLocGroups.find(lgm => lgm.id === g.locationGroupMarketId);
@@ -186,12 +204,11 @@ export class ExpansionCommunitiesTabDropdownPanelComponent implements OnInit
 
 									return g;
 								});
-							});
 
-							// Return the normalized market data and the community data for further processing
-							return { divMarketAttrGroups, divMarketLocGroups, divMarketImages, communityAttrGroups, communityLocGroups, communityImages };
-						})
-					);
+								// Return the normalized market data and the community data for further processing
+								return { divMarketAttrGroups, divMarketLocGroups, divMarketImages, communityAttrGroups, communityLocGroups, communityImages };
+							})
+						);
 				})
 			).subscribe(data =>
 			{
@@ -235,6 +252,9 @@ export class ExpansionCommunitiesTabDropdownPanelComponent implements OnInit
 		}
 	}
 
+	/**
+	 * Handles the click event on the Save button to update the associations between this community and the attribute groups, location groups, and images.
+	 */
 	associateItems()
 	{
 		this.isSaving = true;
