@@ -107,7 +107,7 @@ export class CommonEffects
 							switchMap(job => {
 								if (job && job.length) {
 									return combineLatest([
-										this.orgService.getSalesCommunityByFinancialCommunityId(result.tree.financialCommunityId),
+										this.orgService.getSalesCommunityByFinancialCommunityId(result.tree.financialCommunityId, true),
 										this.identityService.getClaims(), 
 										this.identityService.getAssignedMarkets()
 									]).pipe(
@@ -260,8 +260,8 @@ export class CommonEffects
 					}
 				}),
 				switchMap(result => {
-					if (!result.isSpecScenario) {
-						return this.orgService.getSalesCommunityByFinancialCommunityId(result.tree.financialCommunityId).pipe(map(sc => {
+					if (!result.salesCommunity) {
+						return this.orgService.getSalesCommunityByFinancialCommunityId(result.tree.financialCommunityId, true).pipe(map(sc => {
 							return { ...result, salesCommunity: sc, overrideNote: null };
 						}));
 					}
