@@ -83,7 +83,7 @@ export class ColorsSearchHeaderComponent
 
 	loadColors() {
 		this.allDataLoaded = false;
-
+		this.isLoading = true;
 		this._colorService
 			.getColors(
 				this.currentCommunityId,
@@ -123,6 +123,7 @@ export class ColorsSearchHeaderComponent
 				this.allDataLoaded =
 					colorDtos.length < this.settings.infiniteScrollPageSize;
 				this.colorsDtoList = [...this.colorsDtoList, ...colorDtos];
+				this.isLoading = false;
 	});
 	}
 
@@ -133,7 +134,6 @@ export class ColorsSearchHeaderComponent
 	}
 
 	onPanelScroll() {
-		this.isLoading = true;
 		this.skip = this.currentPage * this.settings.infiniteScrollPageSize;
 		this.loadColors();
 	}
@@ -206,7 +206,7 @@ export class ColorsSearchHeaderComponent
 
 	deleteSelectedColors() {
 		const message = 'Are you sure you want to delete selected colors?';
-		this.showConfirmModal(message, 'Warning', 'Cancel').pipe(
+		this.showConfirmModal(message, 'Warning', 'Continue').pipe(
 			switchMap(cancelDeletion => {
 				if (cancelDeletion) {
 					return of(false);

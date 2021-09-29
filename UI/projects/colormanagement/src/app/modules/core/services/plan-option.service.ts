@@ -5,6 +5,7 @@ import { map, catchError, publishReplay, groupBy, mergeMap, toArray, distinct } 
 import { _throw } from 'rxjs/observable/throw';
 import { environment } from '../../../../environments/environment';
 import { IPlanCommunity, IOptionCommunity, IPlanOptionCommunity } from '../../shared/models/community.model';
+import { withSpinner } from 'phd-common';
 
 @Injectable()
 export class PlanOptionService {
@@ -19,7 +20,7 @@ export class PlanOptionService {
 
 		const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
 
-		return this._http.get<any>(endpoint).pipe(
+		return withSpinner(this._http).get<any>(endpoint).pipe(
 			map(response => {
 
 				let planCommunityList = response.value as Array<IPlanCommunity>;
@@ -56,7 +57,7 @@ export class PlanOptionService {
 
 		const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
 
-		return this._http.get<any>(endpoint).pipe(
+		return withSpinner(this._http).get<any>(endpoint).pipe(
 			map(response => {
 				const optionCommunities = response.value.map(x => x) as Array<IOptionCommunity>;
 				return optionCommunities;	
@@ -117,7 +118,7 @@ export class PlanOptionService {
 		
 		const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
 
-		return this._http.get<any>(endpoint).pipe(
+		return withSpinner(this._http).get<any>(endpoint).pipe(
 			map(response => {
 				const planOptionCommunities = response.value as Array<IPlanOptionCommunity>
 				return planOptionCommunities;	

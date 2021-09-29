@@ -48,7 +48,9 @@ export class EditColorSidePanelComponent implements OnInit {
 		const originalName = this.editColorForm.get('name').value.toString().trim();
 		const colorName = originalName.toLowerCase().trim();
 		const nameExistsAlready =
-			this.allColors.some(color => color.colorId !== this.selectedColor.colorId && color.name.toLowerCase().trim() === colorName);
+			this.allColors.some(color => color.colorId !== this.selectedColor.colorId
+									  && color.name.toLowerCase().trim() === colorName
+									  && color.optionSubCategoryId === this.selectedColor.optionSubCategoryId);
 
 		if (nameExistsAlready)
 		{
@@ -106,7 +108,7 @@ export class EditColorSidePanelComponent implements OnInit {
 		}
 
 		const msg = 'Do you want to cancel without saving? If so, the data entered will be lost.';
-		const closeWithoutSavingData = await this.showConfirmModal(msg, 'Warning', 'Cancel');
+		const closeWithoutSavingData = await this.showConfirmModal(msg, 'Warning', 'Continue');
 
 		if (closeWithoutSavingData)
 		{

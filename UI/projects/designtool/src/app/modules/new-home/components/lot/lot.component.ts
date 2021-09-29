@@ -362,23 +362,23 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 	toggleSelection(lot: LotComponentLot, selected: boolean)
 	{
 		// All required lot choice rules on the current lot
-		const requiredSelections = this.lotChoiceRules.map((lcr) =>
+		const requiredSelections = this.lotChoiceRules?.map((lcr) =>
 		{
 			return { ...lcr, rules: lcr.rules.filter((rule) => rule.edhLotId === lot.id && rule.mustHave) }
 		}).filter(r => r.rules.length);
 
 		// Fetch previous lot choice rules
-		let prevLotChoiceRules = this.lotChoiceRules.map((lcr) => {
+		let prevLotChoiceRules = this.lotChoiceRules?.map((lcr) => {
 			return { ...lcr, rules: lcr.rules.filter((rule) => rule.edhLotId === this.scenario.lotId) }
 		}).filter(r => r.rules.length);
 
 		// Previous lot choice selections does not include lot choice required/disabled choices, hence the check to filter previous lot choice rules
-		let previousLotSelections = this.scenario.scenarioChoices.filter(sc => !prevLotChoiceRules.find(plc => plc.divChoiceCatalogId === sc.choice.choiceCatalogId));
+		let previousLotSelections = this.scenario.scenarioChoices?.filter(sc => !prevLotChoiceRules?.find(plc => plc.divChoiceCatalogId === sc.choice.choiceCatalogId));
 
 		// Disabled selections on the new lot for choices that were selected on the previous lot
-		const disabledSelections = this.lotChoiceRules.map(lcr =>
+		const disabledSelections = this.lotChoiceRules?.map(lcr =>
 		{
-			return { ...lcr, rules: lcr.rules.filter(rule => rule.edhLotId === lot.id && !rule.mustHave && previousLotSelections.find(pls => pls.choice.choiceCatalogId === lcr.divChoiceCatalogId)) }
+			return { ...lcr, rules: lcr.rules.filter(rule => rule.edhLotId === lot.id && !rule.mustHave && previousLotSelections?.find(pls => pls.choice.choiceCatalogId === lcr.divChoiceCatalogId)) }
 		}).filter(r => r.rules.length);
 
 		if ((requiredSelections?.length || disabledSelections?.length) && !selected)
