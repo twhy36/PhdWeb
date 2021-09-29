@@ -112,10 +112,6 @@ export class ColorsSearchHeaderComponent
 						return colorsDto;
 					}) as Array<IColorDto>;
 					return colorsList;
-				}),
-				switchMap((colorDtos)=>
-				{
-					return this._colorService.getSalesConfiguration(colorDtos);
 				})
 			)
 			.subscribe((colorDtos) => {
@@ -124,12 +120,23 @@ export class ColorsSearchHeaderComponent
 					colorDtos.length < this.settings.infiniteScrollPageSize;
 				this.colorsDtoList = [...this.colorsDtoList, ...colorDtos];
 				this.isLoading = false;
+				this.getSalesConfig(colorDtos);
 	});
+	}
+
+	getSalesConfig(colorDtos: IColorDto[])
+	{
+		this._colorService.getSalesConfiguration(colorDtos).subscribe((config)=> {
+			config.map((color) => {
+				this.colorsDtoList.find(c =>c.colorId === color.colorId).hasSalesConfig = color.hasSalesConfig;
+			})
+		})
 	}
 
 	filterColors() {
 		this.colorsDtoList = [];
 		this.currentPage = 0;
+		this.skip = 0;
 		this.loadColors();
 	}
 
@@ -143,6 +150,8 @@ export class ColorsSearchHeaderComponent
 		this.selectedSubCategory = null;
 		this.isActiveColor = null;
 		this.colorsDtoList = [];
+		this.currentPage = 0;
+		this.skip = 0;
 	}
 
 	isDeleteSelected(color:IColorDto):boolean

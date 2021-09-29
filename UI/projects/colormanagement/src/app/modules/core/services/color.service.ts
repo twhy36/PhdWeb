@@ -143,7 +143,7 @@ export class ColorService {
 				let headers = createBatchHeaders(guid, token);
 				let batch = createBatchBody(guid, requests);
 
-				return withSpinner(this._http).post(`${environment.apiUrl}$batch`, batch, { headers: headers });
+				return this._http.post(`${environment.apiUrl}$batch`, batch, { headers: headers });
 			}),
 			map((response: any)=>
 			{
