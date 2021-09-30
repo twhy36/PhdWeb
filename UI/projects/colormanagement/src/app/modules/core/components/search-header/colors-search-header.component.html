@@ -93,15 +93,27 @@
                         <i
 							class="fa fa-pencil fa-fw"
 							title="Edit Color"
-							*ngIf="!colordto.hasSalesConfig && colordto.isActive"
+							*ngIf="colordto.hasSalesConfig === false && colordto.isActive"
 							(click)="showEditColorSidePanel(colordto)"
+						>
+						</i>
+						<i
+							class="fa fa-spinner fa-spin fa-fw"
+							title="Loading Edit Color"
+							*ngIf="colordto.hasSalesConfig === null"
 						>
 						</i>
                 </ng-template>
             </phd-column>
             <phd-column header="" columnClass="phd-icon">
                 <ng-template #body let-colordto>
-                        <p-checkbox *ngIf="!colordto.hasSalesConfig" (ngModelChange)="setDeleteSelected(colordto, $event)" [ngModel]="isDeleteSelected(colordto)" [binary]=true></p-checkbox>
+                        <p-checkbox *ngIf="colordto.hasSalesConfig === false" (ngModelChange)="setDeleteSelected(colordto, $event)" [ngModel]="isDeleteSelected(colordto)" [binary]=true></p-checkbox>
+						<i
+							class="fa fa-spinner fa-spin fa-fw"
+							title="Loading Delete Color"
+							*ngIf="colordto.hasSalesConfig === null"
+						>
+						</i>
                 </ng-template>
             </phd-column>
         </phd-table>

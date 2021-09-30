@@ -70,6 +70,7 @@ export class ColorItemsSearchHeaderComponent
 		this.planOptionDtosList = [];
 		this.currentOption = null;
 		this.planOptionList = [];
+		this.currentPage = 0;
 	}
 
 	onShowOptions() {
@@ -158,17 +159,15 @@ export class ColorItemsSearchHeaderComponent
 	{
 		this.planOptionDtosList=[];
 		this.skip = 0;
+		this.currentPage = 0;
 		this.loadColorItemsGrid();
-		//TODO: This needs to be wired in when ready for grid
-		console.log(`IsActiveColor: ${this.isActiveColor}`);
 	}
 
 	onChangeOption()
 	{
-		//TODO: This needs to be wired in when ready for grid
-		console.log(`CurrentOption: Id = ${this.currentOption?.id??null}  Name = ${this.currentOption?.optionSalesName??'All Options'}`);
 		this.planOptionDtosList=[];
 		this.skip = 0;
+		this.currentPage = 0;
 		this.loadColorItemsGrid();
 	}
 }

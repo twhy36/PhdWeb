@@ -187,7 +187,15 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 							&& [PointStatus.UNVIEWED, PointStatus.VIEWED].indexOf(pt.status) > 0
 					).forEach(pt => pt.status = PointStatus.REQUIRED);
 
-					subGroups.forEach(sg => setSubgroupStatus(sg));					
+					subGroups.forEach(sg => {
+						sg.points = sg.points.filter(pt => {
+							if (!pt.completed && pt.isPastCutOff) {
+								return false;
+							}
+							return !pt.isHiddenFromBuyerView
+						});
+						setSubgroupStatus(sg)
+					});					
 				}				
 
 				newState.tree.treeVersion.groups.forEach(g => setGroupStatus(g));
@@ -300,7 +308,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 						&& [PointStatus.UNVIEWED, PointStatus.VIEWED].indexOf(pt.status) > -1
 				).forEach(pt => pt.status = PointStatus.REQUIRED);
 
-				subGroups.forEach(sg => setSubgroupStatus(sg));				
+				subGroups.forEach(sg => setSubgroupStatus(sg));
 			}			
 
 			newTree.treeVersion.groups.forEach(g => setGroupStatus(g));
@@ -321,7 +329,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 				}
 			});
 
-			subGroups.forEach(sg => setSubgroupStatus(sg));
+			subGroups.forEach(sg => setSubgroupStatus(sg));	
 			newTree.treeVersion.groups.forEach(g => setGroupStatus(g));
 
 			return { ...state, tree: newTree };

@@ -64,7 +64,7 @@ export class PlanCardComponent implements OnInit
 		//if a spec wasn't selected, but a plan was, allow them to unselect it
 		//if a spec was selected or it isn't a job plan, allow them to choose another plan
 		//otherwise, it's removed
-		if (this.selectedPlan && this.selectedPlan.treeVersionId === this.plan.treeVersionId && !this.isSpecSelected)
+		if (this.selectedPlan && this.isPlanActive())
 		{
 			btnLabel = 'Unselect';
 		}
