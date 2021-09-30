@@ -179,7 +179,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 					this.errorMessage = 'Seems there are no results that match your search criteria.';
 				}
 			}
-			else if (filteredTree) {
+			else if (filteredTree && !this.noVisibleGroups) {
 				this.router.navigate([filteredTree.groups[0].subGroups[0].subGroupCatalogId], { relativeTo: this.route });
 			}
 		});
