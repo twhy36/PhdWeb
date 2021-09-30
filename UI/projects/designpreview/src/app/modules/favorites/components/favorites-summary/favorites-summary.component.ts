@@ -333,13 +333,15 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 			{
 				let subGroup = new SDSubGroup(sg);
 
-				subGroup.points = sg.points.map(p =>
+				subGroup.points = sg.points.filter(p => {
+					return !p.isHiddenFromBuyerView;
+				}).map(p =>
 				{
 					let point = new SDPoint(p);
 
 					point.choices = p.choices.filter(ch => {
 						const isContracted = !!this.salesChoices?.find(x => x.divChoiceCatalogId === ch.divChoiceCatalogId);
-						return ch.quantity > 0 && (!isContracted || this.includeContractedOptions);
+						return ch.quantity > 0 && (!isContracted || this.includeContractedOptions) && !ch.isHiddenFromBuyerView;
 					}).map(c => new SDChoice(c));
 
 					return point;
