@@ -23,6 +23,7 @@ import * as FavoriteActions from '../../../ngrx-store/favorite/actions';
 import { ChoiceExt } from '../../models/choice-ext.model';
 import { AttributeLocationComponent } from '../attribute-location/attribute-location.component';
 import { AttributeGroupExt, AttributeExt } from '../../models/attribute-ext.model';
+import { BlockedByItemList } from '../../models/blocked-by.model';
 import { getDisabledByList } from '../../../shared/classes/tree.utils';
 
 @Component({
@@ -64,7 +65,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	choiceAttributeGroups: AttributeGroup[];
 	choiceLocationGroups: LocationGroup[];
 	blockedChoiceModalRef: NgbModalRef;
-	disabledByList: {label: string, pointId: number, choiceId?: number, ruleType: number}[] = null;
+	disabledByList: BlockedByItemList = null;
 	isChoiceImageLoaded: boolean = false;
 
 	constructor(private cd: ChangeDetectorRef,

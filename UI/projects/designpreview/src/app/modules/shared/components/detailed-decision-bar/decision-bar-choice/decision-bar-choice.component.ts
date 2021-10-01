@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { DecisionPoint, Group, Tree } from 'phd-common';
+import { BlockedByItemList } from '../../../models/blocked-by.model';
 import { getDisabledByList } from '../../../classes/tree.utils';
 import { ChoiceExt } from '../../../models/choice-ext.model';
 
@@ -23,7 +24,7 @@ export class DecisionBarChoiceComponent implements OnInit {
 	@ViewChild('blockedChoiceModal') blockedChoiceModal: any;
 	@ViewChild('hiddenChoicePriceModal') hiddenChoicePriceModal: any;
 
-	disabledByList: {label: string, pointId: number, choiceId?: number, ruleType: number}[] = null;
+	disabledByList: BlockedByItemList = null;
 	blockedChoiceModalRef: NgbModalRef;
 	hiddenChoicePriceModalRef: NgbModalRef;
 

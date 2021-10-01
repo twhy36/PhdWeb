@@ -1,0 +1,21 @@
+<ng-container *ngIf="disabledByItem.ruleType === 1 && !isChoiceItem">
+	Make a
+	<span *ngIf="disabledByItem.pointId" class="phd-clickable phd-blocked-link" (click)="onBlockedItemClick(disabledByItem.pointId)">{{disabledByItem.label}}</span>
+	<span *ngIf="!disabledByItem.pointId">{{disabledByItem.label}}</span>
+	selection
+	<span>{{conjunction}}</span>
+</ng-container>
+
+<ng-container *ngIf="disabledByItem.ruleType === 1 && isChoiceItem">
+	Select
+	<span *ngIf="disabledByItem.pointId" class="phd-clickable phd-blocked-link" (click)="onBlockedItemClick(disabledByItem.pointId)">{{disabledByItem.label}}</span>
+	<span *ngIf="!disabledByItem.pointId">{{disabledByItem.label}}</span>
+	<span class="phd-left-spacing">{{conjunction}}</span>
+</ng-container>
+
+<ng-container *ngIf="disabledByItem.ruleType === 2">
+	<span *ngIf="disabledByItem.pointId" class="phd-clickable phd-blocked-link" (click)="onBlockedItemClick(disabledByItem.pointId)">{{disabledByItem.label}}</span>
+	<span *ngIf="!disabledByItem.pointId">{{disabledByItem.label}}</span>
+	selection
+	<span>{{conjunction}}</span>
+</ng-container>

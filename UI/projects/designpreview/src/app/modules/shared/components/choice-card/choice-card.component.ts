@@ -4,6 +4,7 @@ import * as _ from 'lodash';
 
 import { UnsubscribeOnDestroy, flipOver3, OptionImage, DecisionPoint, Group, Tree } from 'phd-common';
 import { ChoiceExt } from '../../models/choice-ext.model';
+import { BlockedByItemList } from '../../models/blocked-by.model';
 import { getDisabledByList } from '../../../shared/classes/tree.utils';
 
 @Component({
@@ -35,7 +36,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 	imageUrl: string = '';
 	blockedChoiceModalRef: NgbModalRef;
 	hiddenChoicePriceModalRef: NgbModalRef;
-	disabledByList: {label: string, pointId: number, choiceId?: number, ruleType: number}[] = null;
+	disabledByList: BlockedByItemList = null;
 
 	constructor(public modalService: NgbModal) {
 		super();
