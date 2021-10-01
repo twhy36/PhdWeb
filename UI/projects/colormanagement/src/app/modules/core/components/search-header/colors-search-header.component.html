@@ -76,14 +76,14 @@
 					class="fa fa-fw fa-undo text-danger"
 					title="Reactivate Color"
 					*ngIf="!colordto.isActive"
-					(click)="showEditColorSidePanel(colordto)"
+					(click)="activateColor(colordto)"
 					>
 					</i>
 					<i
 					class="fa fa-fw fa-trash"
 					title="Inactivate Color"
 					*ngIf="colordto.isActive"
-					(click)="showEditColorSidePanel(colordto)"
+					(click)="inactivateColor(colordto)"
 					>
 					</i>
                 </ng-template>
