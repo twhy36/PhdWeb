@@ -73,8 +73,8 @@ export class ColorService {
 	getPlanOptionAssocColorItems(communityId: number,	edhPlanOptionIds: Array<number>, isActive?: boolean, topRows?: number, skipRows?: number): Observable<IColorItemDto[]>
 	{
 		const entity = `colorItems`;
-		const expand =  `colorItemColorAssoc($expand=color($select=colorId,name,edhFinancialCommunityId,isActive))`
-		let filter = `colorItemColorAssoc/color/edhFinancialCommunityId eq ${communityId} and (edhPlanOptionId in (${edhPlanOptionIds.join(',')}))`;
+		const expand =  `colorItemColorAssoc($expand=color($select=colorId,name,edhFinancialCommunityId,isActive;$filter=edhFinancialCommunityId eq ${communityId}))`
+		let filter = `(edhPlanOptionId in (${edhPlanOptionIds.join(',')}))`;
 		const select = `colorItemId,name,edhPlanOptionId,isActive,colorItemColorAssoc`;
 
 		if (isActive != null)
@@ -114,7 +114,7 @@ export class ColorService {
 							name:item[0].name,
 							isActive:item[0].isActive,
 							edhPlanOptionId:item[0].edhPlanOptionId,
-							colors:item.map(x=>x.colorItemColorAssoc.color)
+							colors:item.map(x=>x.colorItemColorAssoc?.color)
 						}
 						colorItemDtoList.push(colorItemDto);
 					}
