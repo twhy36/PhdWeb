@@ -154,6 +154,11 @@ export class ColorsSearchHeaderComponent
 		this.skip = 0;
 	}
 
+	getRowClass(rowData: any): string
+	{
+		return rowData['isActive'] ? null : 'phd-inactive-color';
+	}
+
 	isDeleteSelected(color:IColorDto):boolean
 	{
 		return this.deleteColorList.some(col => col.colorId	===	color.colorId);
@@ -254,5 +259,91 @@ export class ColorsSearchHeaderComponent
 		}
 
 		this._msgService.add(toastInfo);
+	}
+
+	activateColor(colorDto:IColorDto)
+	{		
+		const colorToSave = {
+			colorId: colorDto.colorId,
+			isActive: true
+		} as IColorDto;
+
+		let toast:IToastInfo;
+		
+		this._colorService.updateColor(colorToSave, this.currentCommunityId).subscribe((color) => {
+			if (color) {
+				toast = {
+					severity: 'success',
+					summary: 'Activate Color',
+					detail: 'Color activation was successful!'
+				}
+				this._msgService.add(toast);
+				this.colorsDtoList.find(c =>c.colorId === color.colorId).isActive = color.isActive;
+			}
+			else{				
+				toast = {
+					severity: 'error',
+					summary: 'Activate Color',
+					detail: 'Color activation failed. Please try again.'
+				} as IToastInfo;
+				this._msgService.add(toast);
+			}
+		},error => {
+			toast = {
+				severity: 'error',
+				summary: 'Activate Color',
+				detail: 'Color activation failed due to an unexpected error.'
+			} as IToastInfo;
+			this._msgService.add(toast);
+		}
+		);
+	}
+
+	inactivateColor(colorDto:IColorDto)
+	{	
+		const message = 'Are you sure you want to inactivate this color?';
+		let cancelled = false;
+		let toast:IToastInfo;
+		this.showConfirmModal(message, 'Warning', 'Continue').pipe(
+			switchMap(cancel => {
+				if (cancel) {
+					cancelled = true;
+					return;
+				}
+				const colorToSave = {
+					colorId: colorDto.colorId,
+					isActive: false
+				} as IColorDto;
+				return this._colorService.updateColor(colorToSave, this.currentCommunityId)
+				})).subscribe((color:IColor) => {
+					if (color) {
+						toast = {
+							severity: 'success',
+							summary: 'Inactivate Color',
+							detail: 'Color inactivation was successful!'
+						}
+						this._msgService.add(toast);
+						this.colorsDtoList.find(c =>c.colorId === color.colorId).isActive = color.isActive;
+					}
+					else{				
+						toast = {
+							severity: 'error',
+							summary: 'Inactivate Color',
+							detail: 'Color inactivation failed. Please try again.'
+						} as IToastInfo;
+						this._msgService.add(toast);
+					}
+				},error => {
+					if(!cancelled)
+					{
+						toast = {
+							severity: 'error',
+							summary: 'Inactivate Color',
+							detail: 'Color inactivation failed due to an unexpected error.'
+						} as IToastInfo;
+						this._msgService.add(toast);
+					}
+				}
+				);									
 	}
 }
