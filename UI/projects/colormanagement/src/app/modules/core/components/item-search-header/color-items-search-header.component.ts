@@ -143,7 +143,19 @@ export class ColorItemsSearchHeaderComponent
 				.subscribe((planOptionDtos) => {				
 					this.currentPage++;
 					this.allDataLoaded = planOptionDtos.length < this.settings.infiniteScrollPageSize;
-					this.planOptionDtosList = [...this.planOptionDtosList, ...planOptionDtos];
+					planOptionDtos = planOptionDtos.filter(x=>!!x.colorItem);
+					if(planOptionDtos.length>0)
+					{
+						this.planOptionDtosList = [...this.planOptionDtosList, ...planOptionDtos];
+						let expectedListLength = this.currentPage * this.settings.infiniteScrollPageSize;
+						if(this.planOptionDtosList.length<expectedListLength && !this.allDataLoaded)
+						{
+							this.onPanelScroll();
+						}
+					}
+					else if(!this.allDataLoaded){
+						this.onPanelScroll();
+					}
 				});
 		}
 	}
