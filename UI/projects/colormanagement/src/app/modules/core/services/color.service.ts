@@ -143,7 +143,7 @@ export class ColorService {
 				let headers = createBatchHeaders(guid, token);
 				let batch = createBatchBody(guid, requests);
 
-				return withSpinner(this._http).post(`${environment.apiUrl}$batch`, batch, { headers: headers });
+				return this._http.post(`${environment.apiUrl}$batch`, batch, { headers: headers });
 			}),
 			map((response: any)=>
 			{
@@ -186,7 +186,7 @@ export class ColorService {
 		);
 	}
 
-	updateColor(colorToUpdate: IColorDto, communityId: number): Observable<boolean> {
+	updateColor(colorToUpdate: IColorDto, communityId: number): Observable<IColor> {
 		const url = `${environment.apiUrl}colors(${colorToUpdate.colorId})`;
 		const body = {
 			colorId: colorToUpdate.colorId,
@@ -197,9 +197,9 @@ export class ColorService {
 			isActive: colorToUpdate.isActive
 		} as IColor;
 
-		return this._http.patch(url, body, { headers: { 'Prefer': 'return=representation' } }).pipe(
+		return withSpinner(this._http).patch(url, body, { headers: { 'Prefer': 'return=representation' } }).pipe(
 			map(resp => {
-				return resp !== null;
+				return resp as IColor;
 			}),
 			catchError(this.handleError)
 		);

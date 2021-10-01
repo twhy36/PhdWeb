@@ -113,7 +113,7 @@ export const filteredTree = createSelector(
 									isIncluded = isContractedChoice;
 								}
 
-								return isValid && (isIncluded || isPreview);
+								return isValid && (isIncluded || isPreview) && !c.isHiddenFromBuyerView;
 							});
 							return { ...p, choices: choices };
 						});
@@ -124,7 +124,7 @@ export const filteredTree = createSelector(
 							} else if (!isPreview && scenario.hiddenPointIds.indexOf(dp.id) > -1) {
 								isIncluded = false;
 							}
-							return isIncluded;
+							return isIncluded && !dp.isHiddenFromBuyerView;
 						})
 						return { ...sg, points: points };
 					}).filter(sg => {
@@ -132,7 +132,9 @@ export const filteredTree = createSelector(
 					});
 
 					return { ...g, subGroups: subGroups };
-				}).filter(g => !!g.subGroups.length)
+				}).filter(g => {
+					return !!g.subGroups.length;
+				})
 			} as TreeVersion;
 		}
 

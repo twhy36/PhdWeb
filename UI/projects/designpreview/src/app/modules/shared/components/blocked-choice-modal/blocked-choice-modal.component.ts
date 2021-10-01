@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { BlockedByItemList } from '../../models/blocked-by.model';
 
 @Component({
   selector: 'blocked-choice-modal',
@@ -6,7 +7,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
   styleUrls: ['./blocked-choice-modal.component.scss']
 })
 export class BlockedChoiceModalComponent implements OnInit {
-	@Input() disabledByList: {label: string, pointId?: number, choiceId?: number, ruleType: number}[] = null;
+	@Input() disabledByList: BlockedByItemList;
 
 	@Output() closeModal = new EventEmitter();
 	@Output() blockedItemClick = new EventEmitter();
@@ -26,11 +27,28 @@ export class BlockedChoiceModalComponent implements OnInit {
 
 	get disabledByMustHaveRules()
 	{
-		return this.disabledByList?.filter(r => r.ruleType === 1);
+		return {
+			andPoints: this.disabledByList?.andPoints.filter(r => r.ruleType === 1),
+			andChoices: this.disabledByList?.andChoices.filter(r => r.ruleType === 1),
+			orPoints: this.disabledByList?.orPoints.filter(r => r.ruleType === 1),
+			orChoices: this.disabledByList?.orChoices.filter(r => r.ruleType === 1)		
+		};
 	}
 
 	get disabledByMustNotHaveRules()
 	{
-		return this.disabledByList?.filter(r => r.ruleType === 2);
+		return {
+			andPoints: this.disabledByList?.andPoints.filter(r => r.ruleType === 2),
+			andChoices: this.disabledByList?.andChoices.filter(r => r.ruleType === 2),
+			orPoints: this.disabledByList?.orPoints.filter(r => r.ruleType === 2),
+			orChoices: this.disabledByList?.orChoices.filter(r => r.ruleType === 2)		
+		};
 	}
+
+	disabledByRulesExist(mustHave: boolean)
+	{
+		const disabledRules = mustHave ? this.disabledByMustHaveRules : this.disabledByMustNotHaveRules;
+		return disabledRules?.andPoints?.length || disabledRules?.andChoices?.length
+			|| disabledRules?.orPoints?.length || disabledRules?.orChoices?.length
+	}	
 }
