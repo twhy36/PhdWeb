@@ -853,7 +853,7 @@ export function getDisabledByList(tree: Tree, groups: Group[], point: DecisionPo
 						label: allPoints.find(point => point.id === disabledByPointId)?.label,
 						pointId: filteredPoints.find(point => point.id === disabledByPointId) ? disabledByPointId : null,
 						ruleType: rule.ruleType
-					})
+					});
 				});				
 			}
 			else if (rule.points?.length === 1)
@@ -863,7 +863,7 @@ export function getDisabledByList(tree: Tree, groups: Group[], point: DecisionPo
 					label: allPoints.find(point => point.id === disabledByPointId)?.label,
 					pointId: filteredPoints.find(point => point.id === disabledByPointId) ? disabledByPointId : null,
 					ruleType: rule.ruleType
-				})
+				});
 			}
 
 			if (rule.choices?.length > 1)
