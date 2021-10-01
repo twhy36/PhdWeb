@@ -18,21 +18,19 @@ export class TreeFilterComponent extends UnsubscribeOnDestroy implements OnInit
 
 	keyword: string = '';
 	filterType: string = 'All';
-	treeFilter: TreeFilter;
+	treeFilter: TreeFilter = { filterType: 'All', keyword: '' };
 
 	constructor(private store: Store<fromRoot.State>) { super(); }
 
 	ngOnInit()
 	{
-		this.treeFilter = this.treeFilter || { filterType: 'All', keyword: '' };
-		this.filterType = this.treeFilter.filterType;
-		this.keyword = this.treeFilter.keyword;
-
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(fromScenario.selectScenario),
 		).subscribe(scenario => {
-			this.treeFilter = scenario.treeFilter;
+			this.treeFilter = scenario.treeFilter || { filterType: 'All', keyword: '' };
+			this.filterType = this.treeFilter.filterType;
+			this.keyword = this.treeFilter.keyword;
 		});
 
 	}
