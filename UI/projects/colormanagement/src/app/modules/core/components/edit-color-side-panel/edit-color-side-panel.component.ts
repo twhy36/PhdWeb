@@ -1,16 +1,16 @@
-import {Component, OnInit, Output, EventEmitter, Input} from '@angular/core';
+import {Component, OnInit, OnDestroy, Output, EventEmitter, Input} from '@angular/core';
 import {ConfirmModalComponent, ModalService} from 'phd-common';
 import { FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {ColorService} from '../../services/color.service';
 import {IColorDto} from '../../../shared/models/color.model';
-import {IToastInfo} from '../../../../../../../phd-common/src/lib/models/toast-info.model';
+import {ColorAdminService} from '../../services/color-admin.service';
 
 @Component({
 	selector: 'edit-color-side-panel',
 	templateUrl: './edit-color-side-panel.component.html',
 	styleUrls: ['./edit-color-side-panel.component.scss']
 })
-export class EditColorSidePanelComponent implements OnInit {
+export class EditColorSidePanelComponent implements OnInit, OnDestroy {
 	isSaving: boolean;
 	sidePanelHeader: string = 'Edit Color';
 	sidePanelSubheader: string = '';
@@ -21,22 +21,29 @@ export class EditColorSidePanelComponent implements OnInit {
 	@Input() communityId: number;
 	@Input() allColors: Array<IColorDto> = [];
 	@Output() sidePanelWasClosed = new EventEmitter();
-	@Output() colorWasEdited = new EventEmitter<IToastInfo>();
+	@Output() colorWasEdited = new EventEmitter<boolean>();
 
 	constructor(
 		private _colorService: ColorService,
 		private _modalService: ModalService,
-		private _fb: FormBuilder
+		private _fb: FormBuilder,
+		private _colorAdminService: ColorAdminService
 	) { }
 
 	ngOnInit(): void {
 		this.sidePanelIsOpen = true;
+		this._colorAdminService.emitEditingColor(true);
+
 		this.editColorForm = this._fb.group({
 			category: [this.selectedColor.optionCategoryName, [Validators.required]],
 			subcategory: [this.selectedColor.optionSubCategoryName, [Validators.required]],
 			name: [this.selectedColor.name, [Validators.required, Validators.maxLength(50)]],
 			sku: [this.selectedColor.sku, [Validators.maxLength(50), Validators.minLength(0)]],
 		});
+	}
+
+	ngOnDestroy(): void {
+		this._colorAdminService.emitEditingColor(false);
 	}
 
 	saveEdit() {
@@ -66,36 +73,18 @@ export class EditColorSidePanelComponent implements OnInit {
 			isActive: this.selectedColor.isActive
 		} as IColorDto;
 
-		this._colorService.updateColor(colorToSave, this.communityId).subscribe((successful) => {
-			let toast: IToastInfo;
+		this._colorService.updateColor(colorToSave, this.communityId).subscribe((updatedColor) => {
+			const successful = updatedColor !== undefined && updatedColor !== null;
 
 			if (successful) {
 				this.sidePanelIsOpen = false;
-				toast = {
-					severity: 'success',
-					summary: 'Color',
-					detail: 'Save was successful! Refreshing grid...'
-				} as IToastInfo;
-			}
-			else
-			{
-				toast = {
-					severity: 'error',
-					summary: 'Color',
-					detail: 'Save failed. Please try again.'
-				} as IToastInfo;
+				this._colorAdminService.emitEditingColor(false);
 			}
 
-			this.colorWasEdited.emit(toast);
+			this.colorWasEdited.emit(successful);
 		},
 		error => {
-			const toast = {
-				severity: 'error',
-				summary: 'Color',
-				detail: 'Save failed due to an unexpected error.'
-			} as IToastInfo;
-
-			this.colorWasEdited.emit(toast);
+			this.colorWasEdited.emit(false);
 		});
 	}
 
@@ -104,6 +93,7 @@ export class EditColorSidePanelComponent implements OnInit {
 		{
 			this.sidePanelIsOpen = false;
 			this.sidePanelWasClosed.emit();
+			this._colorAdminService.emitEditingColor(false);
 			return;
 		}
 
@@ -114,6 +104,7 @@ export class EditColorSidePanelComponent implements OnInit {
 		{
 			this.sidePanelIsOpen = false;
 			this.sidePanelWasClosed.emit();
+			this._colorAdminService.emitEditingColor(false);
 		}
 	}
 

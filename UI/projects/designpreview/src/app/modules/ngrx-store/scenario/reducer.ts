@@ -178,7 +178,8 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 					if (action.type === CommonActionTypes.SalesAgreementLoaded)
 					{
 						// For each point, if the user cannot select the DP in this tool, then the status should be complete
-						points.filter(pt => pt.isStructuralItem).forEach(pt => pt.status = PointStatus.COMPLETED);
+						points.filter(pt => pt.isStructuralItem || pt.isPastCutOff || pt.isHiddenFromBuyerView)
+							.forEach(pt => pt.status = PointStatus.COMPLETED);
 					}
 					
 					// For each point with a pick 0, we need to change the status to required (if no thanks is selected, the status is later updated to Completed)
@@ -187,15 +188,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 							&& [PointStatus.UNVIEWED, PointStatus.VIEWED].indexOf(pt.status) > 0
 					).forEach(pt => pt.status = PointStatus.REQUIRED);
 
-					subGroups.forEach(sg => {
-						sg.points = sg.points.filter(pt => {
-							if (!pt.completed && pt.isPastCutOff) {
-								return false;
-							}
-							return !pt.isHiddenFromBuyerView
-						});
-						setSubgroupStatus(sg)
-					});					
+					 subGroups.forEach(sg => setSubgroupStatus(sg));					
 				}				
 
 				newState.tree.treeVersion.groups.forEach(g => setGroupStatus(g));
@@ -299,7 +292,8 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 				if (state.buildMode !== 'preview')
 				{
 					// For each point, if the user cannot select the DP in this tool, then the status should be complete
-					points.filter(pt => pt.isStructuralItem).forEach(pt => pt.status = PointStatus.COMPLETED);
+					points.filter(pt => pt.isStructuralItem || pt.isPastCutOff || pt.isHiddenFromBuyerView)
+						.forEach(pt => pt.status = PointStatus.COMPLETED);
 				}
 
 				// For each point with a pick 0, we need to change the status to required (if no thanks is selected, the status is later updated to Completed)

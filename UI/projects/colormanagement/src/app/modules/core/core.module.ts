@@ -19,6 +19,7 @@ import { PlanOptionService } from './services/plan-option.service';
 import { EditColorSidePanelComponent } from './components/edit-color-side-panel/edit-color-side-panel.component';
 import {ToastModule} from 'primeng/toast';
 import {MessageService} from 'primeng/api';
+import {ColorAdminService} from './services/color-admin.service';
 
 @NgModule({
 	declarations: [
@@ -53,7 +54,8 @@ import {MessageService} from 'primeng/api';
 		ColorService,
 		SettingsService,
 		PlanOptionService,
-		MessageService
+		MessageService,
+		ColorAdminService
 	]
 })
 export class CoreModule {}
