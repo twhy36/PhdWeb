@@ -123,10 +123,10 @@
 		  [communityId]="this.currentCommunityId"
 		  [subcategories]="this.optionSubCategoryList"
 		  [allColors]="colorsDtoList"
-		  (newColorsWereSaved)="onNewColorsWereSaved()"
+		  (newColorsWereSaved)="onNewColorsWereSaved($event, CrudMode.Add)"
 		  (closeDialogWasRequested)="onCloseDialogWasRequested()">
 		</add-color-dialog>
 	  </ng-template>
 
-	<p-toast></p-toast>
+	<p-toast baseZIndex="1100"></p-toast>
 </div>
