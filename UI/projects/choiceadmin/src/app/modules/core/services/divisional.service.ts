@@ -206,7 +206,7 @@ export class DivisionalService
 		let url = settings.apiUrl;
 
 		const filter = `divChoiceCatalogID eq ${divChoiceCatalogId}`;
-		const select = `DivChoiceCatalogMarketImageID, divChoiceCatalogID, marketID, imageURL, sortKey`;
+		const select = `DivChoiceCatalogMarketImageId, divChoiceCatalogId, marketID, imageURL, sortKey`;
 		const orderby = `sortKey`;
 
 		const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}orderby=${encodeURIComponent(orderby)}`;
@@ -245,7 +245,7 @@ export class DivisionalService
 	{
 		const url = `${settings.apiUrl}DeleteDivChoiceCatalogMarketImages`;
 
-		return this._http.post(url, { imageIds: images.map(x => x.divChoiceCatalogMarketImageID) }).pipe(
+		return this._http.post(url, { imageIds: images.map(x => x.divChoiceCatalogMarketImageId) }).pipe(
 			map(response =>
 			{
 				return response;
@@ -269,7 +269,7 @@ export class DivisionalService
 			'divChoiceCatalogId': divChoiceCatalogId,
 			'associatedOrgIds': associatedOrgIds,
 			'disassociatedOrgIds': disassociatedOrgIds,
-			'choiceMarketImageIds': marketImages.map(x => x.divChoiceCatalogMarketImageID)
+			'choiceMarketImageIds': marketImages.map(x => x.divChoiceCatalogMarketImageId)
 		};
 
 		return this._http.patch(url, data).pipe(
@@ -468,7 +468,7 @@ export class DivisionalService
 			'orgId': orgId,
 			'selectedAttributes': selectedAttributes.map(x => x.id),
 			'selectedLocations': selectedLocations.map(x => x.id),
-			'selectedMarketImages': selectedMarketImages.map(x => x.divChoiceCatalogMarketImageID)
+			'selectedMarketImages': selectedMarketImages.map(x => x.divChoiceCatalogMarketImageId)
 		};
 
 		return this._http.post(url, { choiceItemsAssocDto: data }).pipe(

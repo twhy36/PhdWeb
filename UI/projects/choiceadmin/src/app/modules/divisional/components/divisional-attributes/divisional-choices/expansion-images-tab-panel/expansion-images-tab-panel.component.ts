@@ -78,7 +78,7 @@ export class ExpansionChoiceImagesTabPanelComponent extends UnsubscribeOnDestroy
 	 */
 	isImageSelected(image: DivChoiceCatalogMarketImage): boolean
 	{
-		return this.selectedImages.some(s => s.divChoiceCatalogMarketImageID === image.divChoiceCatalogMarketImageID);
+		return this.selectedImages.some(s => s.divChoiceCatalogMarketImageId === image.divChoiceCatalogMarketImageId);
 	}
 
 	/**
@@ -88,7 +88,7 @@ export class ExpansionChoiceImagesTabPanelComponent extends UnsubscribeOnDestroy
 	 */
 	setImageSelected(image: DivChoiceCatalogMarketImage, isSelected: boolean): void
 	{
-		const index = this.selectedImages.findIndex(s => s.divChoiceCatalogMarketImageID === image.divChoiceCatalogMarketImageID);
+		const index = this.selectedImages.findIndex(s => s.divChoiceCatalogMarketImageId === image.divChoiceCatalogMarketImageId);
 
 		if (isSelected && index < 0)
 		{
@@ -180,7 +180,7 @@ export class ExpansionChoiceImagesTabPanelComponent extends UnsubscribeOnDestroy
 				imageUrls.forEach(imageUrl =>
 				{
 					const newImage = {
-						divChoiceCatalogID: this.choice.divChoiceCatalogId,
+						divChoiceCatalogId: this.choice.divChoiceCatalogId,
 						marketID: orgDto.orgID,
 						imageURL: imageUrl,
 						sortKey: sort
@@ -300,7 +300,7 @@ export class ExpansionChoiceImagesTabPanelComponent extends UnsubscribeOnDestroy
 	onAssociateCommunities(): void
 	{
 		// Get community images linked to the market images
-		this._divService.getDivChoiceCatalogCommunityImages(this.selectedImages.map(i => i.divChoiceCatalogMarketImageID)).subscribe(communityImages => {
+		this._divService.getDivChoiceCatalogCommunityImages(this.selectedImages.map(i => i.divChoiceCatalogMarketImageId)).subscribe(communityImages => {
 			// Deselect all images on callback
 			let cb = () => {
 				this.toggleAllImages(false);

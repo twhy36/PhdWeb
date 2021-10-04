@@ -33,17 +33,17 @@ export class DivisionalChoice
 
 export class DivChoiceCatalogMarketImage
 {
-	divChoiceCatalogMarketImageID?: number;
+	divChoiceCatalogMarketImageId?: number;
 	marketID?: number;
-	divChoiceCatalogID?: number;
+	divChoiceCatalogId?: number;
 	imageURL?: string;
 	sortKey?: number;
 
 	constructor(dto: IDivChoiceCatalogMarketImageDto)
 	{
-		this.divChoiceCatalogMarketImageID = dto.divChoiceCatalogMarketImageID;
+		this.divChoiceCatalogMarketImageId = dto.divChoiceCatalogMarketImageId;
 		this.marketID = dto.marketID;
-		this.divChoiceCatalogID = dto.divChoiceCatalogID;
+		this.divChoiceCatalogId = dto.divChoiceCatalogId;
 		this.imageURL = dto.imageURL;
 		this.sortKey = dto.sortKey;
 	}
@@ -54,16 +54,16 @@ export function isDivChoiceCatalogMarketImage(obj: any): obj is DivChoiceCatalog
 }
 
 export class DivChoiceCatalogCommunityImage {
-	divChoiceCatalogCommunityImageID?: number;
-	divChoiceCatalogMarketImageID?: number;
-	communityID?: number;
-	divChoiceCatalogID?: number;
+	divChoiceCatalogCommunityImageId?: number;
+	divChoiceCatalogMarketImageId?: number;
+	financialCommunityId?: number;
+	divChoiceCatalogId?: number;
 
 	constructor(dto: IDivChoiceCatalogCommunityImageDto) {
-		this.divChoiceCatalogCommunityImageID = dto.divChoiceCatalogCommunityImageID;
-		this.divChoiceCatalogMarketImageID = dto.divChoiceCatalogMarketImageID;
-		this.communityID = dto.communityID;
-		this.divChoiceCatalogID = dto.divChoiceCatalogID;
+		this.divChoiceCatalogCommunityImageId = dto.divChoiceCatalogCommunityImageId;
+		this.divChoiceCatalogMarketImageId = dto.divChoiceCatalogMarketImageId;
+		this.financialCommunityId = dto.financialCommunityId;
+		this.divChoiceCatalogId = dto.divChoiceCatalogId;
 	}
 }
 
@@ -168,19 +168,19 @@ export interface IDivSortList
 
 export interface IDivChoiceCatalogMarketImageDto
 {
-	divChoiceCatalogMarketImageID?: number;
+	divChoiceCatalogMarketImageId?: number;
 	marketID?: number;
-	divChoiceCatalogID?: number;
+	divChoiceCatalogId?: number;
 	imageURL?: string;
 	sortKey?: number;
 }
 
 export interface IDivChoiceCatalogCommunityImageDto
 {
-	divChoiceCatalogCommunityImageID: number;
-	divChoiceCatalogMarketImageID?: number;
-	communityID: number;
-	divChoiceCatalogID?: number;
+	divChoiceCatalogCommunityImageId: number;
+	divChoiceCatalogMarketImageId?: number;
+	financialCommunityId: number;
+	divChoiceCatalogId?: number;
 	imageURL?: string;
 	sortKey?: number;	
 }

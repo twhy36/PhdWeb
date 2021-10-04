@@ -86,7 +86,7 @@ export class ExpansionCommunitiesTabDropdownPanelComponent implements OnInit
 		}
 		else if (isDivChoiceCatalogMarketImage(item))
 		{
-			isSelected = this.selectedImages.some(s => s.divChoiceCatalogMarketImageID === item.divChoiceCatalogMarketImageID);
+			isSelected = this.selectedImages.some(s => s.divChoiceCatalogMarketImageId === item.divChoiceCatalogMarketImageId);
 		}
 
 		return isSelected;
@@ -115,7 +115,7 @@ export class ExpansionCommunitiesTabDropdownPanelComponent implements OnInit
 		else if (isDivChoiceCatalogMarketImage(item))
 		{
 			selectedItems = this.selectedImages;
-			index = selectedItems.findIndex(s => s.divChoiceCatalogMarketImageID === (item as DivChoiceCatalogMarketImage).divChoiceCatalogMarketImageID);
+			index = selectedItems.findIndex(s => s.divChoiceCatalogMarketImageID === (item as DivChoiceCatalogMarketImage).divChoiceCatalogMarketImageId);
 		}
 
 		if (isSelected && index < 0)
@@ -220,7 +220,7 @@ export class ExpansionCommunitiesTabDropdownPanelComponent implements OnInit
 				// Set selections for each type
 				data.divMarketImages.forEach(mImg =>
 				{
-					if (data.communityImages.findIndex(ci => ci.divChoiceCatalogMarketImageID === mImg.divChoiceCatalogMarketImageID) > -1)
+					if (data.communityImages.findIndex(ci => ci.divChoiceCatalogMarketImageId === mImg.divChoiceCatalogMarketImageId) > -1)
 					{
 						this.selectedImages.push(mImg);
 						this.origSelectedImages.push(mImg);

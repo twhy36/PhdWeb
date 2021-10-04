@@ -119,7 +119,7 @@ export class AssociateCommunitiesSidePanelComponent extends UnsubscribeOnDestroy
 					this.selectCommunities();
 				}
 
-				if (this.communityImages && this.communityImages.length)
+				if (this.images && this.images.length)
 				{
 					this.associatingType = AssociatingType.ChoiceImages;
 					this.selectCommunities();
@@ -203,7 +203,7 @@ export class AssociateCommunitiesSidePanelComponent extends UnsubscribeOnDestroy
 				this.images.forEach(image =>
 				{
 					// Don't include this community if at least one market image is not associated
-					if (this.communityImages.findIndex(ci => ci.divChoiceCatalogMarketImageID === (image as DivChoiceCatalogMarketImage).divChoiceCatalogMarketImageID && ci.communityID === community.orgId) == -1)
+					if (this.communityImages.findIndex(ci => ci.divChoiceCatalogMarketImageId === (image as DivChoiceCatalogMarketImage).divChoiceCatalogMarketImageId && ci.financialCommunityId === community.orgId) == -1)
 					{
 						selectedChoiceCommunities.pop();
 					}
