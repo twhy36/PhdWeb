@@ -32,6 +32,7 @@ export class ColorItemsSearchHeaderComponent
 	isLoading: boolean = true;
 	skip: number;
 	selectedplanids = null;
+	pageNumber:number =1;
 
 	constructor(
 		private _orgService: OrganizationService,
@@ -71,6 +72,7 @@ export class ColorItemsSearchHeaderComponent
 		this.currentOption = null;
 		this.planOptionList = [];
 		this.currentPage = 0;
+		this.pageNumber =1;
 	}
 
 	onShowOptions() {
@@ -140,18 +142,22 @@ export class ColorItemsSearchHeaderComponent
 							}				
 						})
 				)
-				.subscribe((planOptionDtos) => {				
-					this.currentPage++;
+				.subscribe((planOptionDtos) => {	
+					this.currentPage++;														
 					this.allDataLoaded = planOptionDtos.length < this.settings.infiniteScrollPageSize;
 					planOptionDtos = planOptionDtos.filter(x=>!!x.colorItem);
 					if(planOptionDtos.length>0)
-					{
+					{	
 						this.planOptionDtosList = [...this.planOptionDtosList, ...planOptionDtos];
-						let expectedListLength = this.currentPage * this.settings.infiniteScrollPageSize;
+						let expectedListLength = this.pageNumber * this.settings.infiniteScrollPageSize;
 						if(this.planOptionDtosList.length<expectedListLength && !this.allDataLoaded)
 						{
 							this.onPanelScroll();
-						}
+						}	
+						else if(this.planOptionDtosList.length>=expectedListLength && !this.allDataLoaded)
+						{
+							this.pageNumber++;
+						}				
 					}
 					else if(!this.allDataLoaded){
 						this.onPanelScroll();
@@ -172,6 +178,7 @@ export class ColorItemsSearchHeaderComponent
 		this.planOptionDtosList=[];
 		this.skip = 0;
 		this.currentPage = 0;
+		this.pageNumber =1;
 		this.loadColorItemsGrid();
 	}
 
@@ -180,6 +187,7 @@ export class ColorItemsSearchHeaderComponent
 		this.planOptionDtosList=[];
 		this.skip = 0;
 		this.currentPage = 0;
+		this.pageNumber =1;
 		this.loadColorItemsGrid();
 	}
 }
