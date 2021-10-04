@@ -38,6 +38,7 @@ export class AttributeGroupActionPanelComponent implements OnInit, AfterContentI
 	@Input() searchKeyword: string;
 	@Input() selectedSearchFilter: string = 'All';
 	@Input() selectedGroups: Array<AttributeGroupMarket | LocationGroupMarket> = [];
+	@Input() divGroups: Array<AttributeGroupMarket | LocationGroupMarket> = [];
 	@Input() canReorderRows: boolean = false;
 
 	groupList: Array<AttributeGroupMarket | LocationGroupMarket> = [];
@@ -57,6 +58,11 @@ export class AttributeGroupActionPanelComponent implements OnInit, AfterContentI
 	get groupNameField(): string
 	{
 		return this.groupType === 'location' ? 'locationGroupName' : 'groupName';
+	}
+
+	get hasNonDivisionalResults(): boolean
+	{
+		return this.searchResultGroups.filter(g => !g.isDivisional).length > 0;
 	}
 
 	constructor(private _modalService: NgbModal, private cd: ChangeDetectorRef) { }
@@ -167,6 +173,15 @@ export class AttributeGroupActionPanelComponent implements OnInit, AfterContentI
 
 		if (this.groupList)
 		{
+			if (this.divGroups && this.divGroups.length)
+			{
+				// #327666 remove any divisional level groups from the results that may appear twice
+				this.groupList = this.groupList.filter(group => !this.divGroups.some(g => g.id === group.id));
+
+				// Add the divisional groups to the result set, this also includes the isDivisional flag for hiding the checkbox
+				this.groupList = this.groupList.concat(this.divGroups);
+			}
+
 			let searchFilter = this.searchFilters.find(f => f.name === selectedFilter);
 			let filteredResults = this.filterByKeyword(searchFilter, keyword);
 
@@ -185,6 +200,10 @@ export class AttributeGroupActionPanelComponent implements OnInit, AfterContentI
 
 	private orderSearchResultGroups()
 	{
+		// #327666 remove any divisional results from sorting
+		const divResults = this.searchResultGroups.filter(g => g.isDivisional); // Can't use `divGroups` because we want the filtered search list as opposed to the main list
+		this.searchResultGroups = this.searchResultGroups.filter(g => !g.isDivisional);
+
 		if (this.groupType === 'sorted-attribute')
 		{
 			this.searchResultGroups.sort((a: AttributeGroupMarket, b: AttributeGroupMarket) =>
@@ -203,6 +222,9 @@ export class AttributeGroupActionPanelComponent implements OnInit, AfterContentI
 				return name ? name.toLocaleLowerCase() : '';
 			}]);
 		}
+
+		// #327666 append the divisional results at the end
+		this.searchResultGroups = this.searchResultGroups.concat(divResults);
 	}
 
 	private filterByKeyword(searchFilter: any, keyword: string): Array<AttributeGroupMarket | LocationGroupMarket>
@@ -232,7 +254,7 @@ export class AttributeGroupActionPanelComponent implements OnInit, AfterContentI
 
 	areAllGroupsSelected(): boolean
 	{
-		return this.searchResultGroups.length > 0 && this.selectedGroups.length === this.searchResultGroups.length;
+		return this.searchResultGroups.filter(g => !g.isDivisional).length > 0 && this.selectedGroups.length === this.searchResultGroups.filter(g => !g.isDivisional).length;
 	}
 
 	setGroupSelected(group: AttributeGroupMarket | LocationGroupMarket, isSelected: boolean): void
@@ -243,17 +265,21 @@ export class AttributeGroupActionPanelComponent implements OnInit, AfterContentI
 			this.selectedGroups = [];
 		}
 
-		let index = this.selectedGroups.findIndex(s => s.id === group.id);
-
-		if (isSelected && index < 0)
+		// #327666 divisional selections are not allowed
+		if (!group.isDivisional)
 		{
-			this.selectedGroups.push(group);
-		}
-		else if (!isSelected && index >= 0)
-		{
-			this.selectedGroups.splice(index, 1);
+			let index = this.selectedGroups.findIndex(s => s.id === group.id);
 
-			this.selectedGroups = [...this.selectedGroups];
+			if (isSelected && index < 0)
+			{
+				this.selectedGroups.push(group);
+			}
+			else if (!isSelected && index >= 0)
+			{
+				this.selectedGroups.splice(index, 1);
+
+				this.selectedGroups = [...this.selectedGroups];
+			}
 		}
 	}
 
@@ -261,7 +287,7 @@ export class AttributeGroupActionPanelComponent implements OnInit, AfterContentI
 	{
 		if (isSelected)
 		{
-			this.selectedGroups = this.searchResultGroups.slice();
+			this.selectedGroups = this.searchResultGroups.filter(g => !g.isDivisional).slice();
 		}
 		else
 		{

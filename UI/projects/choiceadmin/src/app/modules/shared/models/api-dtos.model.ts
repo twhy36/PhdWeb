@@ -504,7 +504,9 @@ export namespace PhdApiDto
 		hasChoiceRules: boolean;
 		hasOptionRules: boolean;
 		hasAttributes: boolean;
+		hasDivCatalogChoiceAttributes: boolean;
 		hasLocations: boolean;
+		hasDivCatalogChoiceLocations: boolean;
 		attributeGroups?: number[];
 		locationGroups?: number[];
 	}

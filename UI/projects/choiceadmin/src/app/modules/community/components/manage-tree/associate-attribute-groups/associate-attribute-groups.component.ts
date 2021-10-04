@@ -30,6 +30,7 @@ export class AssociateAttributeGroupComponent implements OnInit
 
 	@Input() choice: DTChoice;
 	@Input() groupsInMarket: Array<AttributeGroupMarket> = [];
+	@Input() divGroupsInMarket: Array<AttributeGroupMarket> = [];
 	@Input() isReadOnly: boolean = true;
 	@Input() communityId = 0;
 	@Input() optionRules: Array<PhdApiDto.IChoiceOptionRule> = [];

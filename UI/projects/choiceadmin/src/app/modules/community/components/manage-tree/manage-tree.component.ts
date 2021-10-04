@@ -48,6 +48,7 @@ import { ITreeOption } from '../../../shared/models/option.model';
 import { TreeToggleComponent } from '../../../shared/components/tree-toggle/tree-toggle.component';
 import { ModalService } from '../../../core/services/modal.service';
 import { ModalRef } from '../../../shared/classes/modal.class';
+import { DivisionalService } from '../../../core/services/divisional.service';
 
 @Component({
 	selector: 'manage-tree',
@@ -155,7 +156,8 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 		private _router: Router,
 		private _location: Location,
 		private _attributeService: AttributeService,
-		private _locationService: LocationService
+		private _locationService: LocationService,
+		private _divService: DivisionalService
 	) { super(); }
 
 	ngOnInit()
@@ -352,6 +354,54 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 		{
 			this.groupsInMarket.attributeGroups = attr;
 			this.groupsInMarket.locationGroups = loc;
+		});
+	}
+
+	/**
+	 * Gets the list of attribute and location groups associated with this choice/community combination.
+	 */
+	getDivisionalGroups()
+	{
+		// Because the divisional groups are associated via the Org ID, we need to get that for this selected community
+		const getOrgsForCommunity$ = this._orgService.getOrgsForCommunities(this.selectedMarket.id, [this.selectedCommunity.id]);
+
+		getOrgsForCommunity$.pipe(
+			switchMap(orgs =>
+			{
+				// We should only get one result
+				const orgId = orgs[0].orgId;
+
+				// Retrieve the groups based on the Org ID
+				return forkJoin(this._divService.getDivChoiceCatalogCommunityAttributeGroupsByOrgId(orgId), this._divService.getDivChoiceCatalogCommunityLocationGroupsByOrgId(orgId))
+					.pipe(
+						map(([divAttrGroups, divLocGroups]) =>
+						{
+							// We now have every group that is associated with the community, but need to filter out anything not associated with this choice
+							divAttrGroups = divAttrGroups.filter(ag => ag.divChoiceCatalogId === this.selectedChoice.divChoiceCatalogId);
+							divLocGroups = divLocGroups.filter(lg => lg.divChoiceCatalogId === this.selectedChoice.divChoiceCatalogId);
+
+							return { divAttrGroups, divLocGroups };
+						})
+					);
+			})
+		).subscribe(data =>
+		{
+			// Get the metadata from the existing groups lists, and mark these as divisional-level
+			this.groupsInMarket.divCatalogChoiceAttributeGroups = this.groupsInMarket.attributeGroups
+				.filter(treeGroup => data.divAttrGroups.some(g => g.attributeGroupMarketId === treeGroup.id))
+				.map(g =>
+				{
+					g.isDivisional = true;
+					return g;
+				});
+
+			this.groupsInMarket.divCatalogChoiceLocationGroups = this.groupsInMarket.locationGroups
+				.filter(treeGroup => data.divLocGroups.some(g => g.locationGroupMarketId === treeGroup.id))
+				.map(g =>
+				{
+					g.isDivisional = true;
+					return g;
+				});
 		});
 	}
 
@@ -707,10 +757,10 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 					this.lockedFromChanges = true;
 
 					this._treeService.deleteDraftTreeVersion(this.currentTree.version.id)
-						.pipe(finalize(() => { this.treeVersionsLoading = false }))
+						.pipe(finalize(() => { this.treeVersionsLoading = false; }))
 						.subscribe(response =>
 						{
-							this._msgService.add({ severity: 'success', summary: `Draft has been deleted!` })
+							this._msgService.add({ severity: 'success', summary: `Draft has been deleted!` });
 
 							this.onChangePlan();
 
@@ -752,7 +802,7 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 		{
 			const inactiveOptionText = '<ul>' + inactiveOptions.map(option => '<li>' + option.id + '</li>').join('') + '</ul>';
 
-			this.showConfirmModal('<span class="font-weight-bold text-primary">Warning:</span> The following inactive options are mapped to choices. Please adjust your mapping/rules, remove any images, and then publish. </br> ' + inactiveOptionText, 'Inactive Options', '', { hide: true, text: '' }, { hide: true, text: '' })
+			this.showConfirmModal('<span class="font-weight-bold text-primary">Warning:</span> The following inactive options are mapped to choices. Please adjust your mapping/rules, remove any images, and then publish. </br> ' + inactiveOptionText, 'Inactive Options', '', { hide: true, text: '' }, { hide: true, text: '' });
 		}
 		else
 		{
@@ -786,7 +836,7 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 		const path = `preview/${this.currentTree.version.id}`;
 
 		const ref = window.open('', "genericDesignPreview", '');
-		
+
 		const dtUrl = this._settingsService.getSettings().designPreviewUrl;
 
 		if (!ref.location.href.endsWith(`${dtUrl}/${path}`)) // just opened
@@ -811,7 +861,7 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 		this.modalReference = this._modalService.open(this.newTree, { size: 'md', windowClass: 'phd-new-tree', keyboard: false });
 	}
 
-	onCreateNewTree(params: { treeVersionId: number })
+	onCreateNewTree(params: { treeVersionId: number; })
 	{
 		this._msgService.add({ severity: 'info', summary: 'Loading...' });
 		this.treeVersionsLoading = true;
@@ -891,13 +941,15 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 		this.resetAllMatchValues(true);
 	}
 
-	onChoiceSelected(params: { item: DTChoice, tab: string })
+	onChoiceSelected(params: { item: DTChoice, tab: string; })
 	{
 		this.currentTab = params.tab;
 		this.selectedChoice = params.item;
+
+		this.getDivisionalGroups();
 	}
 
-	onPointSelected(params: { item: DTPoint, tab: string })
+	onPointSelected(params: { item: DTPoint, tab: string; })
 	{
 		this.currentTab = params.tab;
 		this.selectedPoint = params.item;
@@ -1069,7 +1121,7 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 		}
 	}
 
-	onAddItemSave(params: { parent: DTPoint | DTSubGroup, items: Array<IItemAdd> })
+	onAddItemSave(params: { parent: DTPoint | DTSubGroup, items: Array<IItemAdd>; })
 	{
 		this.addItemIsSaving = true;
 
@@ -1101,7 +1153,7 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 			});
 	}
 
-	onTreeDetailsSave(params: { treeVersion: DTVersion, canUnpublishTree: boolean })
+	onTreeDetailsSave(params: { treeVersion: DTVersion, canUnpublishTree: boolean; })
 	{
 		try
 		{
@@ -1193,7 +1245,7 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 		this.sidePanelHasChanges = false;
 	}
 
-	onPointDetailsChange(params: { point: DTPoint, pickType: IDPointPickType })
+	onPointDetailsChange(params: { point: DTPoint, pickType: IDPointPickType; })
 	{
 		this.pointDetailsSaving = true;
 
@@ -1220,7 +1272,7 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 				});
 	}
 
-	onChoiceDetailsChange(params: { choice: DTChoice, isDecisionDefault: boolean, description: string, maxQuantity?: number })
+	onChoiceDetailsChange(params: { choice: DTChoice, isDecisionDefault: boolean, description: string, maxQuantity?: number; })
 	{
 		this.choiceDetailsSaving = true;
 
@@ -1595,7 +1647,9 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 				hasChoiceRules: choice.hasChoiceRules,
 				hasOptionRules: choice.hasOptionRules,
 				hasAttributes: choice.hasAttributes,
+				hasDivCatalogChoiceAttributes: choice.hasDivCatalogChoiceAttributes,
 				hasLocations: choice.hasLocations,
+				hasDivCatalogChoiceLocations: choice.hasDivCatalogChoiceLocations,
 				imagePath: choice.imagePath,
 				hasImage: choice.hasImage,
 				hasDivCatalogChoiceImages: choice.hasDivCatalogChoiceImages,
@@ -1609,7 +1663,7 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 		});
 	}
 
-	private async showConfirmModal(body: string, title: string, defaultButton: string, primaryButton?: { hide: boolean, text: string }, secondaryButton?: { hide: boolean, text: string }): Promise<boolean>
+	private async showConfirmModal(body: string, title: string, defaultButton: string, primaryButton?: { hide: boolean, text: string; }, secondaryButton?: { hide: boolean, text: string; }): Promise<boolean>
 	{
 		const confirm = this._modalService.open(ConfirmModalComponent, { centered: true });
 

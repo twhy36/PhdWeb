@@ -17,6 +17,7 @@ export class LocationGroupMarket
 	locationGroupCommunities: Array<LocationGroupCommunity>;
 	locationMarkets: Array<Location>;
 	locationMarkets$: Observable<Array<Location>>;
+	isDivisional: boolean;
 
 	locationGroupLocationMarketAssocs: ILocationGroupLocationMarketAssoc[];
 

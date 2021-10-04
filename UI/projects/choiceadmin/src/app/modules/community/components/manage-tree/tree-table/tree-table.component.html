@@ -127,7 +127,7 @@
 									<i class="fa fa-fw fa-list-alt" *ngIf="!lockedFromChanges && choice.hasOptionRules" (click)="onShowChoiceDetailsClick(choice, 'options')" title="Option Mapping"></i>
 								</td>
 								<td class="phd-icon-col">
-									<i class="fa fa-fw fa-magic" *ngIf="!lockedFromChanges && (choice.hasAttributes || choice.hasLocations)" (click)="onShowChoiceDetailsClick(choice, 'attributes')" title="Attributes"></i>
+									<i class="fa fa-fw fa-magic" *ngIf="!lockedFromChanges && (choice.hasAttributes || choice.hasDivCatalogChoiceAttributes || choice.hasLocations || choice.hasDivCatalogChoiceLocations)" (click)="onShowChoiceDetailsClick(choice, 'attributes')" title="Attributes"></i>
 								</td>
 								<td class="phd-icon-col">
 									<i class="fa fa-fw fa-check-square" *ngIf="choice.isDecisionDefault" title="Default"></i>

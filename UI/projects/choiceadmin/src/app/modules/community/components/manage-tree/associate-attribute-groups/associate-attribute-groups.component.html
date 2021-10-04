@@ -11,6 +11,7 @@
 								  [searchResultStyle]="{'max-height':'200px'}"
 								  [isDisabled]="isLoading | async"
 								  [groups]="availableGroups"
+								  [divGroups]="divGroupsInMarket"
 								  [customClass]="'card mb-2'"
 								  [customBodyClass]="'card-body'"
 								  (displayErrorMessage)="displayErrorMessage($event)">
@@ -30,6 +31,7 @@
 								  [searchResultStyle]="{'max-height':'200px'}"
 								  [isDisabled]="isReadOnly || (isLoading | async)"
 								  [groups]="associatedGroups"
+								  [divGroups]="divGroupsInMarket"
 								  [customClass]="'card mb-2'"
 	                              [customBodyClass]="'card-body'"
 								  groupType="sorted-attribute"

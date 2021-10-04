@@ -31,6 +31,7 @@ export class AssociateLocationGroupComponent implements OnInit
 
 	@Input() choice: DTChoice;
 	@Input() groupsInMarket: Array<LocationGroupMarket> = [];
+	@Input() divGroupsInMarket: Array<LocationGroupMarket> = [];
 	@Input() isReadOnly: boolean = true;
 	@Input() communityId = 0;
 	@Input() optionRules: Array<PhdApiDto.IChoiceOptionRule> = [];

@@ -16,13 +16,13 @@
 			</div>
 
 			<div *ngIf="searchResultGroups.length > 0" class="phd-item-multiselect-results" [ngStyle]="searchResultStyle">
-				<phd-table [value]="searchResultGroups" [displayTooltip]="false" tableId="tableId"  [canReorderRows]="canReorderRows" (onRowReorder)="onRowReorder($event)">
+				<phd-table [value]="searchResultGroups" [displayTooltip]="false" tableId="tableId" [canReorderRows]="canReorderRows" (onRowReorder)="onRowReorder($event)">
 					<phd-column columnId="select" width="50px">
 						<ng-template #header>
-							<p-checkbox [ngModel]="areAllGroupsSelected()" (ngModelChange)="toggleAllGroups($event)" [binary]="true" *ngIf="allowMultipleSelect" [disabled]="isDisabled || !searchResultGroups.length"></p-checkbox>
+							<p-checkbox [ngModel]="areAllGroupsSelected()" (ngModelChange)="toggleAllGroups($event)" [binary]="true" *ngIf="allowMultipleSelect" [disabled]="isDisabled || !hasNonDivisionalResults"></p-checkbox>
 						</ng-template>
 						<ng-template let-group #body>
-							<p-checkbox [ngModel]="isGroupSelected(group)" (ngModelChange)="setGroupSelected(group, $event)" [binary]="true" [disabled]="isDisabled"></p-checkbox>
+							<p-checkbox *ngIf="!group.isDivisional" [ngModel]="isGroupSelected(group)" (ngModelChange)="setGroupSelected(group, $event)" [binary]="true" [disabled]="isDisabled"></p-checkbox>
 						</ng-template>
 					</phd-column>
 					<phd-column [field]="groupNameField" header="Group Name" isDragHandler="canReorderRows"></phd-column>

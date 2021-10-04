@@ -105,6 +105,7 @@
 						<div class="container pt-3">
 							<associate-attribute-groups [choice]="choice"
 														[groupsInMarket]="groupsInMarket.attributeGroups"
+														[divGroupsInMarket]="groupsInMarket.divCatalogChoiceAttributeGroups"
 														[isReadOnly]="isReadOnly || !canEditTree"
 														[communityId]="communityId">
 							</associate-attribute-groups>
@@ -117,6 +118,7 @@
 						<div class="container pt-3">
 							<associate-location-groups [choice]="choice"
 													   [groupsInMarket]="groupsInMarket.locationGroups"
+													   [divGroupsInMarket]="groupsInMarket.divCatalogChoiceLocationGroups"
 													   [isReadOnly]="isReadOnly || !canEditTree"
 													   [communityId]="communityId">
 							</associate-location-groups>

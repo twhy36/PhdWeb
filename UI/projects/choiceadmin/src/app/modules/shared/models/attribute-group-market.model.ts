@@ -18,6 +18,7 @@ export class AttributeGroupMarket
 	attributeGroupCommunities: Array<AttributeGroupCommunity>;
 	attributeMarkets: Array<Attribute>;
 	attributeMarkets$: Observable<Array<Attribute>>;
+	isDivisional: boolean;
 
 	attributeGroupAttributeMarketAssocs: IAttributeGroupAttributeMarketAssoc[];
 

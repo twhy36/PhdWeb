@@ -114,7 +114,9 @@ export interface IDTChoice
 	hasChoiceRules: boolean;
 	hasOptionRules: boolean;
 	hasAttributes: boolean;
+	hasDivCatalogChoiceAttributes: boolean;
 	hasLocations: boolean;
+	hasDivCatalogChoiceLocations: boolean;
 	parent: DTPoint;
 	open: boolean;
 	matched: boolean;
@@ -509,7 +511,9 @@ export class DTChoice implements IDTChoice
 	hasChoiceRules = false;
 	hasOptionRules = false;
 	hasAttributes = false;
+	hasDivCatalogChoiceAttributes = false;
 	hasLocations = false;
+	hasDivCatalogChoiceLocations = false;
 	maxQuantity = null;
 	imageCount?= 0;
 	isHiddenFromBuyerView = false;
@@ -541,7 +545,9 @@ export class DTChoice implements IDTChoice
 		this.hasChoiceRules = dto.hasChoiceRules;
 		this.hasOptionRules = dto.hasOptionRules;
 		this.hasAttributes = dto.attributeGroups ? dto.attributeGroups.length > 0 : dto.hasAttributes;
+		this.hasDivCatalogChoiceAttributes = dto.hasDivCatalogChoiceAttributes;
 		this.hasLocations = dto.locationGroups ? dto.locationGroups.length > 0 : dto.hasLocations;
+		this.hasDivCatalogChoiceLocations = dto.hasDivCatalogChoiceLocations;
 		this.maxQuantity = dto.choiceMaxQuantity;
 		this.description = dto.description;
 		this.isHiddenFromBuyerView = dto.isHiddenFromBuyerView;
@@ -573,7 +579,9 @@ export class DTChoice implements IDTChoice
 export class DTAttributeGroupCollection
 {
 	attributeGroups: Array<AttributeGroupMarket>;
+	divCatalogChoiceAttributeGroups: Array<AttributeGroupMarket>;
 	locationGroups: Array<LocationGroupMarket>;
+	divCatalogChoiceLocationGroups: Array<LocationGroupMarket>;
 }
 
 export class AttributeReassignment
