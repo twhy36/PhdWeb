@@ -25,8 +25,8 @@ export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implemen
 	@Input() isDesignComplete: boolean = false;
 
 	@Output() onViewFavorites = new EventEmitter<DecisionPoint>();
-	@Output() onRemoveFavorites = new EventEmitter<DecisionPoint>();
-	
+	@Output() onRemoveFavorites = new EventEmitter<Choice>();
+
 	selections: Choice[] = [];
 	choicesCustom: ChoiceCustom[] = [];
 	isReadonly: boolean = false;
@@ -56,7 +56,7 @@ export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implemen
 			this.includeContractedOptions = changes['includeContractedOptions'].currentValue;
 			this.setPointChoices();
 		}
-	}	
+	}
 
 	setPointPrice()
 	{
@@ -107,9 +107,9 @@ export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implemen
 		this.onViewFavorites.emit(this.decisionPoint);
 	}
 
-	onRemove()
+	onRemove(choice: Choice)
 	{
-		this.onRemoveFavorites.emit(this.decisionPoint);
+		this.onRemoveFavorites.emit(choice);
 	}
 }
 
