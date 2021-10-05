@@ -1,0 +1,139 @@
+<phd-side-panel-component [headerTemplate]="header" [bodyTemplate]="body" [footerTemplate]="footer" [sidePanelOpen]="sidePanelOpen" (onSidePanelClose)="onCloseSidePanel($event)" [isDirty]="isDirty">
+
+	<ng-template #header>
+		<h4 class="phd-side-panel-header"><strong>Lot Relationship</strong></h4>
+	</ng-template>
+
+	<ng-template #body>
+		<div class="container pt-3">
+			<form [formGroup]="lotRelationshipsForm" (keydown.enter)="$event.preventDefault()">
+				<div class="form-group phd-select-communities">
+					<label class="font-weight-bold" for="phd-select-lots">Step 1 </label>
+					<label class="phd-lot-choice-assoc-sub-header" for="phd-select-lots">Select one or more Lots</label>
+					<div class="phd-item-multiselect-results">
+						<select class="phd-lot-relationship-select" id="phd-select-lots" multiple size="9" formControlName="assignedLotIds">
+							<option *ngFor="let lot of lotsForSelectedCommunity" [ngValue]="lot.dto.id">{{ lot.dto.lotBlock }}</option>
+						</select>
+					</div>
+				</div>
+
+				<div class="form-group text-center phd-buttons-row">
+					<button class="btn btn-sm btn-secondary mr-1" (click)="addHighlightedItems('assignedLotIds')"><i class="fa fa-angle-down fa-fw"></i></button>
+					<button class="btn btn-sm btn-secondary mr-1" (click)="addAllItems('assignedLotIds')"><i class="fa fa-angle-double-down fa-fw"></i></button>
+					<button class="btn btn-sm btn-secondary" (click)="removeAllItems('assignedLotIds')"><i class="fa fa-angle-double-up fa-fw"></i></button>
+				</div>
+
+				<div class="form-group">
+					<label for="selectedHomesites">Selected Homesite(s):</label>
+					<div id="selectedHomesite" *ngIf="selectedLots.length > 0" class="phd-tags-input" [class.phd-tags-4row]="selectedLots.length > 16">
+						<div class="phd-tag" *ngFor="let lot of selectedLots">
+							<span>{{ lot.dto.lotBlock }}</span>
+							<a class="phd-tags-input-remove-link" (click)="removeItem(lot)"></a>
+						</div>
+					</div>
+					<div id="noSelectedHomesites" class="phd-tags-input" *ngIf="selectedLots.length === 0">
+						<div class="phd-tag">
+							<span>No Homesites Selected</span>
+						</div>
+					</div>
+				</div>
+
+				<div class="form-group">
+					<label class="font-weight-bold" for="phd-select-plans">Step 2 </label>
+					<label class="phd-lot-choice-assoc-sub-header" for="phd-select-plans">Choose one or more impacted plans:</label>
+					<div class="phd-item-multiselect-results">
+						<select class="phd-lot-relationship-select" id="phd-select-plans" multiple size="9" formControlName="assignedPlanIds">
+							<option *ngFor="let plan of plansForSelectedCommunity" [ngValue]="plan.id">{{ plan.displayName }}</option>
+						</select>
+					</div>
+				</div>
+
+				<div class="form-group text-center phd-buttons-row">
+					<button class="btn btn-sm btn-secondary mr-1" (click)="addHighlightedItems('assignedPlanIds')"><i class="fa fa-angle-down fa-fw"></i></button>
+					<button class="btn btn-sm btn-secondary mr-1" (click)="addAllItems('assignedPlanIds')"><i class="fa fa-angle-double-down fa-fw"></i></button>
+					<button class="btn btn-sm btn-secondary" (click)="removeAllItems('assignedPlanIds')"><i class="fa fa-angle-double-up fa-fw"></i></button>
+				</div>
+
+				<div class="form-group">
+					<label for="plansSelected">Assigned Plans</label>
+					<div id="plansSelected" *ngIf="selectedPlans.length > 0" class="phd-tags-input" [class.phd-tags-4row]="selectedPlans.length > 16">
+						<div class="phd-tag" *ngFor="let plan of selectedPlans">
+							<span>{{ plan.displayName }}</span>
+							<a class="phd-tags-input-remove-link" (click)="removeItem(plan)"></a>
+						</div>
+					</div>
+					<div id="noPlansSelected" class="phd-tags-input" *ngIf="selectedPlans.length === 0">
+						<div class="phd-tag">
+							<span>No Plans Selected</span>
+						</div>
+					</div>
+				</div>
+
+				<div class="form-group">
+					<label class="font-weight-bold">Step 3 </label>
+					<label class="phd-lot-choice-assoc-sub-header">Choose Choice and rule to apply:</label>
+					<div class="card-header">
+						<strong>Add Choice</strong>
+					</div>
+					<search-bar selectedSearchFilter="Choice" (onClearFilter)="clearFilter()" (onKeywordSearch)="keywordSearch($event)"></search-bar>
+					<div *ngIf="showSearchResults && searchResults.length > 0" class="phd-item-multiselect-results">
+						<div>
+							<a class="close" (click)="clearFilter()">&times;</a>
+						</div>
+						<div *ngFor="let result of searchResults">
+							<span class="phd-choice-rule" (click)="choiceClicked(result)">{{result.choiceLabel}}</span>
+						</div>
+					</div>
+					<div *ngIf="showSearchResults && searchResults.length === 0">
+						<div class="text-danger text-center">
+							No results found. Please try another search.
+						</div>
+					</div>
+				</div>
+
+				<div class="form-group">
+					<phd-table #dt [value]="selectedChoiceCatalogs" [nonOverflow]="false">
+						<phd-column header="Choice">
+							<ng-template #body let-choice>
+								<ng-container *ngIf="choice; let formattedValue" class="phd-item-multiselect-results">
+									<span>{{formattedValue.choiceLabel}}</span>
+								</ng-container>
+							</ng-template>
+						</phd-column>
+						<phd-column header="Type">
+							<ng-template #body let-choice>
+								<button
+									class="btn btn-sm btn-toggle btn-is-must-have phd-toggle-smaller-text"
+									[ngClass]="{'active': !choice.mustHave, 'btn-success': choice.mustHave, 'btn-secondary': !choice.mustHave }"
+									(click)="toggleMustHave(choice)"
+								>
+									<div class="handle"></div>
+								</button>
+							</ng-template>
+						</phd-column>
+						<phd-column width="50px">
+							<ng-template #body let-choice>
+								<i class="fa fa-trash fa-fw" (click)="removeChoice(choice)"></i>
+							</ng-template>
+						</phd-column>
+					</phd-table>
+				</div>
+			</form>
+		</div>
+	</ng-template>
+
+	<ng-template #footer>
+		<div class="pull-right">
+			<button class="btn btn-primary phd-btn-save" (click)="save()" [disabled]="saveDisabled">
+				Save
+
+				<ng-container *ngIf="saving"><i class="fa fa-spinner fa-spin fa-fw"></i></ng-container>
+			</button>
+
+			<button class="btn btn-secondary" (click)="onCancel()">Cancel</button>
+		</div>
+	</ng-template>
+
+</phd-side-panel-component>
+
+<p-toast></p-toast>

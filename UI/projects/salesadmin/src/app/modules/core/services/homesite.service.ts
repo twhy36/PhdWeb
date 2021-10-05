@@ -10,6 +10,7 @@ import { withSpinner } from 'phd-common';
 
 import { SettingsService } from './settings.service';
 import { MonotonyRule } from '../../shared/models/monotonyRule.model';
+import { LotChoiceRuleAssoc } from '../../shared/models/lotChoiceRule.model';
 
 const settings: Settings = new SettingsService().getSettings();
 
@@ -270,6 +271,59 @@ export class HomeSiteService
 			{
 				return homesiteDto;
 			}), catchError(this.handleError));
+	}
+
+	deleteLotChoiceRuleAssoc(lotChoiceRuleAssocId: number): Observable<boolean>
+	{
+		let url = settings.apiUrl;
+		url += `lotChoiceRuleAssocs(${lotChoiceRuleAssocId})`;
+
+		return this._http.delete(url).pipe(
+			map((response) => true),
+			catchError(this.handleError)
+		);
+	}
+
+	getLotChoiceRuleAssocs(marketId: number): Observable<Array<LotChoiceRuleAssoc>>
+	{
+		let url = settings.apiUrl;
+		const filter = `DivChoiceCatalog/DivDPointCatalog/Org/EdhMarketId eq ${marketId}`;
+		const qryStr = `${encodeURIComponent("$")}filter=${encodeURIComponent(filter)}`;
+		url += `lotChoiceRuleAssocs?${qryStr}`;
+
+		return withSpinner(this._http).get(url).pipe(
+			map((response: any) =>
+			{
+				return response.value as Array<LotChoiceRuleAssoc>;
+			}), catchError(this.handleError));
+	}
+
+	saveLotChoiceRuleAssoc(assoc: LotChoiceRuleAssoc): Observable<LotChoiceRuleAssoc>
+	{
+		let url = settings.apiUrl;
+
+		if (assoc.lotChoiceRuleAssocId)
+		{
+			url += `lotChoiceRuleAssocs(${assoc.lotChoiceRuleAssocId})`;
+
+			return this._http.patch(url, assoc).pipe(
+				map((response: LotChoiceRuleAssoc) =>
+				{
+					return response;
+				}),
+				catchError(this.handleError));
+		}
+		else
+		{
+			url += 'lotChoiceRuleAssocs';
+
+			return this._http.post(url, assoc).pipe(
+				map((response: LotChoiceRuleAssoc) =>
+				{
+					return response;
+				}),
+				catchError(this.handleError));
+		}
 	}
 
 	getMonotonyRules(lotId: number): Observable<Array<MonotonyRule>>

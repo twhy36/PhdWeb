@@ -25,3 +25,9 @@ export class PlanDto implements IPlanDto {
 	squareFeet: number = 0;
 }
 
+export class Plan
+{
+    planID: number;
+    communityID: number;
+    integrationKey: string;
+}
