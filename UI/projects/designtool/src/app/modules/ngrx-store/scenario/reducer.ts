@@ -209,7 +209,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 
 			if (newState.tree)
 			{
-				applyRules(newState.tree, newState.rules, newState.options, newState.scenario?.lotId || state.scenario.lotId);
+				applyRules(newState.tree, newState.rules, newState.options, newState.scenario?.lotId || state.scenario?.lotId);
 
 				subGroups = _.flatMap(newState.tree.treeVersion.groups, g => g.subGroups);
 				points = _.flatMap(subGroups, sg => sg.points);
@@ -271,7 +271,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 								}
 							}
 
-							applyRules(newTree, rules, options, scenario.lotId);
+							applyRules(newTree, rules, options, newState.scenario?.lotId);
 
 							// check selected attributes to make sure they're still valid after applying rules
 							checkSelectedAttributes(choices);

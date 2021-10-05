@@ -44,7 +44,7 @@
 			<select
 				class="form-control ml-3"
 				[(ngModel)]="isActiveColor"
-				(click)="onActiveColorChange()"
+				(change)="onActiveColorChange()"
 			>
 				<option [defaultSelected] [ngValue]="null">All</option>
 				<option [ngValue]="true">Active</option>
@@ -65,7 +65,7 @@
 		<phd-column  header="Colors" field="colorItem.colors">
 			<ng-template #body let-planOptionDto>
 				<div *ngFor="let color of planOptionDto.colorItem?.colors">
-					<span [ngClass]="color?.isActive ? 'phd-disabled':''">{{color?.name}}</span>
+					<span [ngClass]="{'phd-disabled':color?.isActive === false }">{{color?.name}}</span>
 				</div>
 			</ng-template>
 		</phd-column>

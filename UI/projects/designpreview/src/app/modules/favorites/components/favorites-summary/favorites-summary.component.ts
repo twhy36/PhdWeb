@@ -12,7 +12,7 @@ import
 {
 	UnsubscribeOnDestroy, PriceBreakdown, SDGroup, SDSubGroup, SDPoint, SDChoice, SDAttributeReassignment, Group,
 	DecisionPoint, JobChoice, Tree, TreeVersionRules, SalesAgreement, getDependentChoices, ModalService, PDFViewerComponent,
-	SummaryData, BuyerInfo, PriceBreakdownType, PlanOption
+	SummaryData, BuyerInfo, PriceBreakdownType, PlanOption, Choice
 } from 'phd-common';
 
 import { environment } from '../../../../../environments/environment';
@@ -263,23 +263,19 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		}
 	}
 
-	onRemoveFavorites(point: DecisionPoint)
+	onRemoveFavorites(choice: Choice)
 	{
 		let removedChoices = [];
-		const choices = point && point.choices ? point.choices.filter(c => c.quantity > 0) : [];
-		const favoriteChoices = choices.filter(c => !this.salesChoices || this.salesChoices.findIndex(sc => sc.divChoiceCatalogId === c.divChoiceCatalogId) === -1);
 
-		if (favoriteChoices && favoriteChoices.length)
+		if (!this.salesChoices || this.salesChoices.findIndex(sc => sc.divChoiceCatalogId === choice.divChoiceCatalogId) === -1)
 		{
-			favoriteChoices.forEach(choice => {
-				removedChoices.push({ choiceId: choice.id, divChoiceCatalogId: choice.divChoiceCatalogId, quantity: 0, attributes: choice.selectedAttributes });
+			removedChoices.push({ choiceId: choice.id, divChoiceCatalogId: choice.divChoiceCatalogId, quantity: 0, attributes: choice.selectedAttributes });
 
-				const impactedChoices = getDependentChoices(this.tree, this.treeVersionRules, this.options, choice);
+			const impactedChoices = getDependentChoices(this.tree, this.treeVersionRules, this.options, choice);
 
-				impactedChoices.forEach(c =>
-				{
-					removedChoices.push({ choiceId: c.id, divChoiceCatalogId: c.divChoiceCatalogId, quantity: 0, attributes: c.selectedAttributes });
-				});
+			impactedChoices.forEach(c =>
+			{
+				removedChoices.push({ choiceId: c.id, divChoiceCatalogId: c.divChoiceCatalogId, quantity: 0, attributes: c.selectedAttributes });
 			});
 		}
 
@@ -333,13 +329,15 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 			{
 				let subGroup = new SDSubGroup(sg);
 
-				subGroup.points = sg.points.map(p =>
+				subGroup.points = sg.points.filter(p => {
+					return !p.isHiddenFromBuyerView;
+				}).map(p =>
 				{
 					let point = new SDPoint(p);
 
 					point.choices = p.choices.filter(ch => {
 						const isContracted = !!this.salesChoices?.find(x => x.divChoiceCatalogId === ch.divChoiceCatalogId);
-						return ch.quantity > 0 && (!isContracted || this.includeContractedOptions);
+						return ch.quantity > 0 && (!isContracted || this.includeContractedOptions) && !ch.isHiddenFromBuyerView;
 					}).map(c => new SDChoice(c));
 
 					return point;

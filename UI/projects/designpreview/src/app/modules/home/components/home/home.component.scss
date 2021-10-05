@@ -54,8 +54,27 @@
 	font-size: 22px;
 }
 
+.phd-community-label {
+	flex-direction: row;
+}
+
 @media(max-width: $tablet-max-width) {
 	.phd-start-reviewing {
 		font-size: 20px;
+	}
+}
+
+@media(max-width: 950px) {
+	.phd-community-label {
+		flex-direction: column;
+		margin-left: auto;
+		margin-right: auto;
+	}
+	.phd-plan-name {
+		margin-left: auto;
+		margin-right: auto;
+	}
+	.phd-floor-plan-image {
+		max-height: calc(50vh)
 	}
 }

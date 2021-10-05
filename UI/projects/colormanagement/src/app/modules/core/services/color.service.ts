@@ -73,8 +73,8 @@ export class ColorService {
 	getPlanOptionAssocColorItems(communityId: number,	edhPlanOptionIds: Array<number>, isActive?: boolean, topRows?: number, skipRows?: number): Observable<IColorItemDto[]>
 	{
 		const entity = `colorItems`;
-		const expand =  `colorItemColorAssoc($expand=color($select=colorId,name,edhFinancialCommunityId,isActive))`
-		let filter = `colorItemColorAssoc/color/edhFinancialCommunityId eq ${communityId} and (edhPlanOptionId in (${edhPlanOptionIds.join(',')}))`;
+		const expand =  `colorItemColorAssoc($expand=color($select=colorId,name,edhFinancialCommunityId,isActive;$filter=edhFinancialCommunityId eq ${communityId}))`
+		let filter = `(edhPlanOptionId in (${edhPlanOptionIds.join(',')}))`;
 		const select = `colorItemId,name,edhPlanOptionId,isActive,colorItemColorAssoc`;
 
 		if (isActive != null)
@@ -114,7 +114,7 @@ export class ColorService {
 							name:item[0].name,
 							isActive:item[0].isActive,
 							edhPlanOptionId:item[0].edhPlanOptionId,
-							colors:item.map(x=>x.colorItemColorAssoc.color)
+							colors:item.map(x=>x.colorItemColorAssoc?.color)
 						}
 						colorItemDtoList.push(colorItemDto);
 					}
@@ -143,7 +143,7 @@ export class ColorService {
 				let headers = createBatchHeaders(guid, token);
 				let batch = createBatchBody(guid, requests);
 
-				return withSpinner(this._http).post(`${environment.apiUrl}$batch`, batch, { headers: headers });
+				return this._http.post(`${environment.apiUrl}$batch`, batch, { headers: headers });
 			}),
 			map((response: any)=>
 			{
@@ -186,7 +186,7 @@ export class ColorService {
 		);
 	}
 
-	updateColor(colorToUpdate: IColorDto, communityId: number): Observable<boolean> {
+	updateColor(colorToUpdate: IColorDto, communityId: number): Observable<IColor> {
 		const url = `${environment.apiUrl}colors(${colorToUpdate.colorId})`;
 		const body = {
 			colorId: colorToUpdate.colorId,
@@ -197,9 +197,9 @@ export class ColorService {
 			isActive: colorToUpdate.isActive
 		} as IColor;
 
-		return this._http.patch(url, body, { headers: { 'Prefer': 'return=representation' } }).pipe(
+		return withSpinner(this._http).patch(url, body, { headers: { 'Prefer': 'return=representation' } }).pipe(
 			map(resp => {
-				return resp !== null;
+				return resp as IColor;
 			}),
 			catchError(this.handleError)
 		);

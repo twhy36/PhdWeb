@@ -32,6 +32,7 @@ export class ColorItemsSearchHeaderComponent
 	isLoading: boolean = true;
 	skip: number;
 	selectedplanids = null;
+	pageNumber:number =1;
 
 	constructor(
 		private _orgService: OrganizationService,
@@ -70,12 +71,14 @@ export class ColorItemsSearchHeaderComponent
 		this.planOptionDtosList = [];
 		this.currentOption = null;
 		this.planOptionList = [];
+		this.currentPage = 0;
+		this.pageNumber =1;
 	}
 
 	onShowOptions() {
-
-		this.selectedplanids = null;
 		
+		this.reset();
+		this.selectedplanids = null;
 		// if >= 0 means user selected all plans
 		// if -1 means user selected individual plans
 		if (this.selectedPlans?.findIndex(x => x == 0) == -1) {
@@ -91,57 +94,76 @@ export class ColorItemsSearchHeaderComponent
 
 	loadColorItemsGrid()
 	{
-   		this._planService.getPlanOptionsGrid(this.currentFinancialCommunityId,
-			this.currentOption?.id,
-			this.selectedplanids,
-			this.settings.infiniteScrollPageSize,
-			this.skip,
-			)
-			.pipe(
-				map((planOptions) =>
-					{
-						let planOptionsList = planOptions.map((planoption) => 
+		// Skip if currentOption is blank
+		if(this.currentOption){
+			this._planService.getPlanOptionsGrid(this.currentFinancialCommunityId,
+				this.currentOption?.id,
+				this.selectedplanids,
+				this.settings.infiniteScrollPageSize,
+				this.skip,
+				)
+				.pipe(
+					map((planOptions) =>
 						{
-							let planOptionDto : IPlanOptionCommunityDto = {
-								planId : planoption.planCommunity.id,
-								planSalesName : planoption.planCommunity.planSalesName,
-								optionCommunityId : planoption.optionCommunity.id,
-								optionSalesName : planoption.optionCommunity.optionSalesName,
-								planOptionId : planoption.id,
-								colorItem : null
-							}
-							return planOptionDto;
-						}) as Array<IPlanOptionCommunityDto>;
-						return planOptionsList;
-					}),
-					switchMap((planOptionDtos) => 
+							let planOptionsList = planOptions.map((planoption) => 
+							{
+								let planOptionDto : IPlanOptionCommunityDto = {
+									planId : planoption.planCommunity.id,
+									planSalesName : planoption.planCommunity.planSalesName,
+									optionCommunityId : planoption.optionCommunity.id,
+									optionSalesName : planoption.optionCommunity.optionSalesName,
+									planOptionId : planoption.id,
+									colorItem : null
+								}
+								return planOptionDto;
+							}) as Array<IPlanOptionCommunityDto>;
+							return planOptionsList;
+						}),
+						switchMap((planOptionDtos) => 
+						{	
+							if(planOptionDtos?.length>0){
+								return this._colorService
+									.getPlanOptionAssocColorItems
+										(this.currentFinancialCommunityId,
+										planOptionDtos.map(planoption=>planoption.planOptionId), 
+										this.isActiveColor
+										)
+										.pipe(
+											map((colorItemDtos) => {
+												planOptionDtos.forEach(element => {
+													element.colorItem = colorItemDtos?.find(coloritem => coloritem.edhPlanOptionId === element.planOptionId);
+												});
+												return planOptionDtos;
+											})
+										) 
+							}	
+							else{
+								return of([]);
+							}				
+						})
+				)
+				.subscribe((planOptionDtos) => {	
+					this.currentPage++;														
+					this.allDataLoaded = planOptionDtos.length < this.settings.infiniteScrollPageSize;
+					planOptionDtos = planOptionDtos.filter(x=>!!x.colorItem);
+					if(planOptionDtos.length>0)
 					{	
-						if(planOptionDtos?.length>0){
-							return this._colorService
-								.getPlanOptionAssocColorItems
-									(this.currentFinancialCommunityId,
-									planOptionDtos.map(planoption=>planoption.planOptionId), 
-									this.isActiveColor
-									)
-									.pipe(
-										map((colorItemDtos) => {
-											planOptionDtos.forEach(element => {
-												element.colorItem = colorItemDtos?.find(coloritem => coloritem.edhPlanOptionId === element.planOptionId);
-											});
-											return planOptionDtos;
-										})
-									) 
+						this.planOptionDtosList = [...this.planOptionDtosList, ...planOptionDtos];
+						let expectedListLength = this.pageNumber * this.settings.infiniteScrollPageSize;
+						if(this.planOptionDtosList.length<expectedListLength && !this.allDataLoaded)
+						{
+							this.onPanelScroll();
 						}	
-						else{
-							return of([]);
+						else if(this.planOptionDtosList.length>=expectedListLength && !this.allDataLoaded)
+						{
+							this.pageNumber++;
 						}				
-					})
-			)
-			.subscribe((planOptionDtos) => {				
-				this.currentPage++;
-				this.allDataLoaded = planOptionDtos.length < this.settings.infiniteScrollPageSize;
-				this.planOptionDtosList = [...this.planOptionDtosList, ...planOptionDtos];
-			});
+					}
+					else if(!this.allDataLoaded){
+						this.onPanelScroll();
+					}
+				});
+		}
 	}
 
 	onPanelScroll()
@@ -155,17 +177,17 @@ export class ColorItemsSearchHeaderComponent
 	{
 		this.planOptionDtosList=[];
 		this.skip = 0;
+		this.currentPage = 0;
+		this.pageNumber =1;
 		this.loadColorItemsGrid();
-		//TODO: This needs to be wired in when ready for grid
-		console.log(`IsActiveColor: ${this.isActiveColor}`);
 	}
 
 	onChangeOption()
 	{
-		//TODO: This needs to be wired in when ready for grid
-		console.log(`CurrentOption: Id = ${this.currentOption?.id??null}  Name = ${this.currentOption?.optionSalesName??'All Options'}`);
 		this.planOptionDtosList=[];
 		this.skip = 0;
+		this.currentPage = 0;
+		this.pageNumber =1;
 		this.loadColorItemsGrid();
 	}
 }

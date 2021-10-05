@@ -29,5 +29,6 @@ export const environment: IEnvironment = {
 	},
 	apiUrl: 'https://phdapi.staging.pulte.com/odata/',
 	designToolUrl: 'https://phd.staging.pulte.com/designtool/',
-	designPreviewUrl: 'https://phd.staging.pulte.com/designpreview/'
+	designPreviewUrl: 'https://phd.staging.pulte.com/designpreview/',
+	colorManagementUrl: 'https://phd.staging.pulte.com/colormanagement/'
 };

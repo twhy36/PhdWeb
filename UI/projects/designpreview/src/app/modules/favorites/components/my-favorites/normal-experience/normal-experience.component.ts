@@ -131,9 +131,11 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 				const firstPointId = this.points && this.points.length ? this.points[0].id : 0;
 				this.scrollPointIntoView(pointId, pointId === firstPointId);
 			}, interval || 500);
+			
+			this.onSelectDecisionPoint.emit(pointId);
 		}
+
 		this.currentPointId = pointId;
-		this.onSelectDecisionPoint.emit(pointId);
 	}
 
 	declineDecisionPoint(point: DecisionPoint) {

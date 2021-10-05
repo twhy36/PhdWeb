@@ -9,9 +9,9 @@
 				<img class="phd-floor-plan-image" [src]="floorPlanImages[0].imageUrl | safeUrl" *ngIf="floorPlanImages.length">
 				<img class="phd-default-image" src="assets/pultegroup_logo.jpg" *ngIf="!floorPlanImages.length">
 			</div>
-			<div class="d-flex flex-row justify-content-center">
+			<div class="d-flex justify-content-center phd-community-label">
 				<span class="phd-sales-community">{{communityName}}</span>
-				<span>{{planName}}</span>
+				<span class="phd-plan-name">{{planName}}</span>
 			</div>
 		</div>
 	</div>

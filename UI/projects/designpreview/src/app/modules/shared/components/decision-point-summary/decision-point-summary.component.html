@@ -57,13 +57,13 @@
 						<ng-container *ngIf="choice.priceHiddenFromBuyerView">
 							<span>Pricing Varies</span>
 						</ng-container>
+						<div class="actions actionLinks">
+							<a (click)="onViewOrEdit()" class="phd-choice-action-label">{{actionLabel}}</a>
+							<i *ngIf="!isReadonly" class="fa fa-times phd-clickable" (click)="onRemove(choice)"></i>
+						</div>
 					</div>
 				</div>
 			</ng-container>
 		</div>
-	</div>
-	<div class="actions d-flex justify-content-between align-items-start actionLinks">
-		<a (click)="onViewOrEdit()">{{actionLabel}}</a>
-		<i *ngIf="!isReadonly" class="fa fa-times phd-clickable" (click)="onRemove()"></i>
 	</div>
 </div>
