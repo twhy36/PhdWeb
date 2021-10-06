@@ -3,7 +3,6 @@ export class TreeVersionRules
 	choiceRules: Array<ChoiceRules>;
 	optionRules: Array<OptionRule>;
 	pointRules: Array<PointRules>;
-	lotChoiceRules: Array<LotChoiceRules>;
 }
 
 export class ChoiceRules
@@ -56,19 +55,4 @@ export class PointRule
 	ruleType: number;
 	choices: Array<number>;
 	points: Array<number>;
-}
-
-export class LotChoiceRules
-{
-	divChoiceCatalogId: number;
-	rules: Array<LotChoiceRule>;
-	executed: boolean = false;
-}
-
-export class LotChoiceRule
-{
-	ruleId: number;
-	edhLotId: number;
-	planId?: number;
-	mustHave: boolean;
 }
