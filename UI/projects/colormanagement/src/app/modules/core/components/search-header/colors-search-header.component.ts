@@ -131,7 +131,7 @@ export class ColorsSearchHeaderComponent
 
 	getSalesConfig(colorDtos: IColorDto[])
 	{
-		this._colorService.getSalesConfiguration(colorDtos).subscribe((config)=> {
+		this._colorService.getSalesConfiguration(colorDtos,this.currentCommunityId).subscribe((config)=> {
 			config.map((color) => {
 				this.colorsDtoList.find(c =>c.colorId === color.colorId).hasSalesConfig = color.hasSalesConfig;
 			})
