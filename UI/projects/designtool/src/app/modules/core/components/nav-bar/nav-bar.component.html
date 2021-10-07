@@ -108,24 +108,24 @@
 		</ng-container>
 
 		<ng-container *ngIf="selectedPlanId && (isPhdLite$ | async)">
-			<phd-nav-menu-item 
+			<phd-nav-menu-item
 				label="Elevation"
 				[showStatusIndicator]="false"
 				[ngClass]="(isTablet$ | async) && invertHamburgerMenuColor ? 'phd-menu-item-color' : null">
 			</phd-nav-menu-item>
-			<phd-nav-menu-item 
+			<phd-nav-menu-item
 				label="Color Scheme"
 				[showStatusIndicator]="false"
 				[isActive]="false"
 				[disabled]="true"
 				[ngClass]="(isTablet$ | async) && invertHamburgerMenuColor ? 'phd-menu-item-color' : null">
 			</phd-nav-menu-item>
-			<phd-nav-menu-item 
+			<phd-nav-menu-item
 				label="Options"
 				[showStatusIndicator]="false"
 				[ngClass]="(isTablet$ | async) && invertHamburgerMenuColor ? 'phd-menu-item-color' : null">
 			</phd-nav-menu-item>
-			<phd-nav-menu-item 
+			<phd-nav-menu-item
 				label="Colors"
 				[showStatusIndicator]="false"
 				[ngClass]="(isTablet$ | async) && invertHamburgerMenuColor ? 'phd-menu-item-color' : null">
@@ -151,12 +151,12 @@
 		</phd-nav-menu-item>
 
 		<!-- Show Summary in PhdLite -->
-		<phd-nav-menu-item *ngIf="selectedPlanId && (isPhdLite$ | async) && (!isSalesAgreementCancelledOrVoided && !specCancelled)" 
+		<phd-nav-menu-item *ngIf="selectedPlanId && (isPhdLite$ | async) && (!isSalesAgreementCancelledOrVoided && !specCancelled)"
 			[ngClass]="(isTablet$ | async) && invertHamburgerMenuColor ? 'phd-menu-item-color' : null">
 			<ng-template>
 				<span>Summary </span>
 			</ng-template>
-		</phd-nav-menu-item>		
+		</phd-nav-menu-item>
 
 		<phd-nav-menu-item (click)="changeOrderType !== 3 ? (!isPreview && buildItStatus === PointStatus.COMPLETED) && buildIt() : buildIt()"
 						   *ngIf="salesAgreementStatus && salesAgreementStatus.length > 0"
@@ -179,7 +179,7 @@
 			</ng-template>
 		</phd-nav-menu-item>
 
-		<ng-container *ngIf="isDesignPreviewEnabled && !production">
+		<ng-container *ngIf="isDesignPreviewEnabled">
 			<phd-nav-menu-item label="Design Preview" (click)="launchPreview()" [isActive]="false"
 								[ngClass]="(isTablet$ | async) && invertHamburgerMenuColor ? 'phd-menu-item-color' : null">
 			</phd-nav-menu-item>
