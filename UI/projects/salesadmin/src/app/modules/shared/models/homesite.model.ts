@@ -92,6 +92,12 @@ export namespace HomeSiteDtos
 		releaseId?: number;
 	}
 
+	export interface IHomeSiteEventDto
+	{
+		homesiteDto: ILotDto;
+		lotBuildTypeUpdated: boolean;
+	}
+
 	export interface ILabel
 	{
 		id?: number;
