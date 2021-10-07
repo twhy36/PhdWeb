@@ -244,8 +244,7 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 			)
 		).subscribe(([choices, isDesignPreviewEnabled]) =>
 		{
-			// Will need to remove environment.production check once design preview goes live, 
-			if (!environment.production && isDesignPreviewEnabled) {
+			if (isDesignPreviewEnabled) {
 				this.favoriteChoices = choices;
 			}
 		});
@@ -374,7 +373,7 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 						sku: attribute.sku,
 						manufacturer: attribute.manufacturer
 					}
-					
+
 					choice.selectedAttributes.push(selectedAttribute);
 				}
 
@@ -386,7 +385,7 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 			this.onSelectChoice.emit({ choice, saveNow: false, quantity: choice.quantity ? 0 : 1 });
 		}
-		
+
 	}
 
 	onCallToAction(event: any)
@@ -484,7 +483,7 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 		this.showDisabledMessage();
 	}
 
-	showDisabledChoiceMessage(c: Choice) 
+	showDisabledChoiceMessage(c: Choice)
 	{
 		this.currentChoice = c;
 		this.currentDecisionPoint = null;

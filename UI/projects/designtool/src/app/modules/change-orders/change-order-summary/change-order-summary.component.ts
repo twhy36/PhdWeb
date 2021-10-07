@@ -21,9 +21,9 @@ import * as fromUser from '../../ngrx-store/user/reducer';
 import * as fromSalesAgreement from '../../ngrx-store/sales-agreement/reducer';
 import * as fromJob from '../../ngrx-store/job/reducer';
 
-import 
-{ 
-	UnsubscribeOnDestroy, ModalRef, ESignStatusEnum, ESignTypeEnum, ChangeOrderGroup, ChangeTypeEnum, 
+import
+{
+	UnsubscribeOnDestroy, ModalRef, ESignStatusEnum, ESignTypeEnum, ChangeOrderGroup, ChangeTypeEnum,
 	ChangeInput, SalesStatusEnum, Job, PDFViewerComponent, ModalService, convertDateToUtcString
 } from 'phd-common';
 
@@ -72,7 +72,6 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 	isLockedIn: boolean = false;
 	isDesignComplete: boolean = false;
 	isDesignPreviewEnabled: boolean;
-	production: boolean;
 
 	JOB_CHANGEORDER_TYPES = [
 		{ value: 'SalesJIO', id: 0 },
@@ -147,7 +146,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 		{ value: this.ACTION_TYPES.CANCEL_E_SIGN, id: 1 },
 		{ value: this.ACTION_TYPES.SIGN, id: 2 },
 		{ value: this.ACTION_TYPES.WITHDRAW, id: 3 }
-	];	
+	];
 
 	actionTypesForSigned = [
 		{ value: this.ACTION_TYPES.ACTION, id: 0 },
@@ -298,7 +297,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 						else
 						{
 							actionTypes = this.actionTypesForPrintforSignature;
-						}						
+						}
 					}
 				}
 				else if (o.salesStatusDescription === 'Signed')
@@ -433,8 +432,6 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 		this.store.pipe(
 			select(fromRoot.isDesignPreviewEnabled)
 		).subscribe(enabled => this.isDesignPreviewEnabled = enabled);
-
-		this.production = environment.production;
 	}
 
 	getESignStatus(changeOrder: any): string
@@ -654,7 +651,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 						this._changeOrderService.updateJobChangeOrder([changeOrder]),
 						this._contractService.deleteEnvelope(envelopeDto.envelopeGuid)
 					),
-					finalize(() => this.isSaving = false)					
+					finalize(() => this.isSaving = false)
 				).subscribe(([job, , changeOrders]) =>
 				{
 					this.updateChangeOrderPending(job, changeOrders, changeOrder, envelopeDto.eSignEnvelopeId);
@@ -870,7 +867,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 
 		if (sent)
 		{
-			this.closeModal();			
+			this.closeModal();
 		}
 	}
 
@@ -885,7 +882,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 
 			this.isSaving = true;
 			this.store.pipe(
-				take(1),				
+				take(1),
 				select(state => state.job),
 				combineLatest(
 					this._changeOrderService.deleteESignEnvelope(eSignEnvelopeId),
@@ -897,7 +894,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 				this.updateChangeOrderPending(job, changeOrders, cancelledChangeOrder, eSignEnvelopeId);
 			});
 		}
-	}	
+	}
 
 	private setOutForSignature(changeOrder: any, sent: boolean, isWetSign: boolean = false)
 	{
@@ -1209,7 +1206,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 	{
 		let updatedJob = _.cloneDeep(job);
 		let updatedChangeOrders = _.cloneDeep(changeOrders);
-		
+
 		let updatedChangeOrder = updatedChangeOrders?.find(co => co.id === cancelledChangeOrder.id);
 		if (updatedChangeOrder)
 		{
@@ -1218,7 +1215,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 			if (envelopeIndex > -1)
 			{
 				envelopes.splice(envelopeIndex, 1);
-			}					
+			}
 			updatedChangeOrder.eSignEnvelopes = envelopes;
 
 			let jobChangeOrderGroup = updatedJob.changeOrderGroups.find(co => co.id === cancelledChangeOrder.id);
@@ -1243,7 +1240,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 		{
 			this.store.dispatch(new ChangeOrderActions.SetChangingOrder(true, null, false));
 		}
-		
+
 		// Reload sales agreement and update price on change order
 		this.store.dispatch(new CommonActions.LoadSalesAgreement(this.salesAgreementId, false));
 		this._actions$.pipe(
@@ -1251,7 +1248,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 			take(1)).subscribe(() =>
 			{
 				this.store.dispatch(new ChangeOrderActions.CreateJobChangeOrders());
-			});		
+			});
 	}
 
 	toggleDesignComplete() {
