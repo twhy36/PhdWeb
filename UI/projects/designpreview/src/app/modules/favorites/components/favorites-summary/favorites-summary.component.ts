@@ -21,7 +21,6 @@ import { Store, select } from '@ngrx/store';
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromPlan from '../../../ngrx-store/plan/reducer';
 import * as fromFavorite from '../../../ngrx-store/favorite/reducer';
-import * as fromSalesAgreement from '../../../ngrx-store/sales-agreement/reducer';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 import { selectSelectedLot } from '../../../ngrx-store/lot/reducer';
 
@@ -100,7 +99,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 					this.store.pipe(select(state => state.scenario)),
 					this.store.pipe(select(state => state.favorite)),
 					this.store.pipe(select(state => state.salesAgreement)),
-					this.store.pipe(select(fromSalesAgreement.favoriteTitle))
+					this.store.pipe(select(fromRoot.favoriteTitle))
 				]).pipe(take(1))),
 				this.takeUntilDestroyed(),
 				distinctUntilChanged()

@@ -1,0 +1,54 @@
+<lot-relationships-side-panel *ngIf="sidePanelOpen" [sidePanelOpen]="sidePanelOpen" [selected]="selected" [selectedCommunity]="selectedCommunity" [divChoiceCatalogs]="divChoiceCatalogs" [edhToPhdPlanMap]="edhToPhdPlanMap" [saving]="isSaving" (onSave)="onSave($event)" (onSidePanelClose)="onSidePanelClose($event)"></lot-relationships-side-panel>
+
+<div>
+  <div class="phd-button-bar">
+    <button type="button" class="btn btn-primary" (click)="addLotRelationship()">Add New Lot Relationship</button>
+  </div>
+  <div class="phd-table-container mx-2">
+    <phd-table #dt [value]="lotRelationships" [nonOverflow]="false">
+      <phd-column header="" columnClass="phd-icon" width="75px">
+        <ng-template #body let-relationship>
+          <div class="phd-icon-container">
+            <i class="fa fa-trash fa-fw" (click)="deleteRelationship(relationship)" *ngIf="canEdit" phd-tooltip="Delete Lot Relationship"></i>
+          </div>
+        </ng-template>
+      </phd-column>
+
+      <phd-column header="Lot Block" field="relationship.edhLotId">
+        <ng-template #body let-relationship>
+          <span (mouseenter)="showTooltip($event, relationship.edhLotId, dt)" (mouseleave)="hideTooltip(dt)">{{ getLotName(relationship.edhLotId) }}</span>
+        </ng-template>
+      </phd-column>
+
+      <phd-column header="Plan" field="relationship.planId">
+        <ng-template #body let-relationship>
+          <ng-container *ngIf="relationship.planId; else any">
+            <span (mouseenter)="showTooltip($event, relationship.planId, dt)" (mouseleave)="hideTooltip(dt)">{{ getPlanName(relationship.planId) }}</span>
+          </ng-container>
+          <ng-template #any>
+            All
+          </ng-template>
+        </ng-template>
+      </phd-column>
+
+      <phd-column header="Choice" field="relationship.divChoiceCatalogId">
+        <ng-template #body let-relationship>
+          <span (mouseenter)="showTooltip($event, relationship.divChoiceCatalogId, dt)" (mouseleave)="hideTooltip(dt)">{{ getChoiceName(relationship.divChoiceCatalogId) }}</span>
+        </ng-template>
+      </phd-column>
+
+      <phd-column header="Rule" field="relationship.mustHave">
+        <ng-template #body let-relationship>
+          <button
+            class="btn btn-sm btn-toggle btn-is-must-have phd-toggle-smaller-text"
+            [ngClass]="{'active': !relationship.mustHave, 'btn-success': relationship.mustHave, 'btn-secondary': !relationship.mustHave }"
+            (click)="toggleMustHave(relationship)"
+            [disabled]="!canEdit"
+          >
+            <div class="handle"></div>
+          </button>
+        </ng-template>
+      </phd-column>
+    </phd-table>
+  </div>
+</div>

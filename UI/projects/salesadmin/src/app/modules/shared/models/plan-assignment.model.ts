@@ -57,6 +57,7 @@ export class PlanViewModel
 {
 	// interface properties
 	id: number;
+	integrationKey: string;
 	name: string;
 	salesName: string;
 
@@ -75,6 +76,7 @@ export class PlanViewModel
 		if (dto)
 		{
 			this.id = dto.id;
+			this.integrationKey = dto.integrationKey;
 			this.name = dto.salesName;
 			this.salesName = dto.salesName;
 			this.seriesName = ""; // todo: get series from edh when it becomes available

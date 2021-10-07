@@ -26,20 +26,25 @@ import { CanDeactivateGuard, ClaimGuard } from 'phd-common';
 import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { AvSitePlanComponent } from './components/av-site-plan/av-site-plan.component';
+import { LotRelationshipsComponent } from './components/lot-relationships/lot-relationships.component';
+import { LotRelationshipsSidePanelComponent } from './components/lot-relationships-side-panel/lot-relationships-side-panel.component';
+import { PlanManagementComponent } from './components/plan-management/plan-management.component';
 
 const moduleRoutes: Routes = [
     {
         path: 'lot-management',
         component: LotManagementComponent,
-        canActivate: [ClaimGuard],
-        data: { requiresClaim: 'SalesAdmin' },
         children: [
             { path: '', pathMatch: 'full', redirectTo: 'manage-homesites' },
-			{ path: 'manage-homesites', component: ManageHomesitesComponent, canDeactivate: [CanDeactivateGuard]},
-			{ path: 'plan-assignment', component: PlanAssignmentComponent, canDeactivate: [CanDeactivateGuard]},
-			{ path: 'releases', component: ReleasesComponent, canDeactivate: [CanDeactivateGuard]},
-			{ path: 'sales-programs', component: SalesProgramsComponent, canDeactivate: [CanDeactivateGuard] },
-			{ path: 'monotony-options', component: MonotonyOptionsComponent }
+			{ path: 'manage-homesites', component: ManageHomesitesComponent, canDeactivate: [CanDeactivateGuard], canActivate: [ClaimGuard], data: { requiresClaim: 'SalesAdmin'} },
+			{ path: 'plan-management', component: PlanManagementComponent, children: [
+                { path: 'lot-relationships', component: LotRelationshipsComponent, canActivate: [ClaimGuard], data: { requiresClaim: 'LotRelationships'} },
+                { path: 'plan-assignment', component: PlanAssignmentComponent, canActivate: [ClaimGuard], data: { requiresClaim: 'SalesAdmin'} },
+                { path: '', pathMatch: 'full', redirectTo: 'plan-assignment' },
+            ]},
+			{ path: 'releases', component: ReleasesComponent, canDeactivate: [CanDeactivateGuard], canActivate: [ClaimGuard], data: { requiresClaim: 'SalesAdmin'} },
+			{ path: 'sales-programs', component: SalesProgramsComponent, canDeactivate: [CanDeactivateGuard], canActivate: [ClaimGuard], data: { requiresClaim: 'SalesAdmin'} },
+			{ path: 'monotony-options', component: MonotonyOptionsComponent, canActivate: [ClaimGuard], data: { requiresClaim: 'SalesAdmin'} }
         ]
     }
 ];
@@ -50,10 +55,13 @@ const moduleRoutes: Routes = [
     ],
     declarations: [
         LotManagementComponent,
+        LotRelationshipsComponent,
+        LotRelationshipsSidePanelComponent,
         ManageHomesitesComponent,
         ManageHomesitesSidePanelComponent,
         PlanAssignmentComponent,
         PlanAssignmentSidePanelComponent,
+        PlanManagementComponent,
         ReleasesComponent,
         ReleasesSidePanelComponent,
         SalesProgramsComponent,
