@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, HostListener } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
-import { Observable } from 'rxjs';
+import { Observable, ReplaySubject, Subject } from 'rxjs';
 import { distinctUntilChanged, filter, switchMap, tap } from 'rxjs/operators';
 import { cloneDeep } from "lodash";
 
@@ -16,6 +16,8 @@ import { UnsubscribeOnDestroy } from '../../../shared/utils/unsubscribe-on-destr
 import { SearchBarComponent } from '../../../shared/components/search-bar/search-bar.component';
 import { ViewContractsSidePanelComponent } from '../view-contracts-side-panel/view-contracts-side-panel.component';
 import { ConfirmModalComponent, PhdTableComponent } from 'phd-common';
+import { FinancialMarket } from '../../../shared/models/financialMarket.model';
+import { combineLatest } from 'rxjs';
 
 @Component({
 	selector: 'view-contracts',
@@ -28,6 +30,8 @@ export class ViewContractsComponent extends UnsubscribeOnDestroy implements OnIn
 	private sidePanel: ViewContractsSidePanelComponent;
 
 	private _selected: ContractTemplate;
+	marketSubject: Subject<FinancialMarket>;
+	currentMarket: FinancialMarket;
 	sidePanelOpen: boolean = false;
 	currentMktId: number;
 	draggedTemplate: ContractTemplate;
@@ -72,10 +76,17 @@ export class ViewContractsComponent extends UnsubscribeOnDestroy implements OnIn
 
 	ngOnInit(): void
 	{
+		this.marketSubject = new ReplaySubject<FinancialMarket>();
 		this._orgService.currentMarket$.pipe(
 			this.takeUntilDestroyed(),
 			distinctUntilChanged(),
 			filter(mkt => mkt != null),
+		).subscribe(mkt => {
+			this.currentMarket = mkt;
+			this.marketSubject.next(mkt);
+		});
+
+		this.marketSubject.pipe(
 			tap(mkt =>
 			{
 				this.currentMktId = mkt.id;
@@ -289,6 +300,7 @@ export class ViewContractsComponent extends UnsubscribeOnDestroy implements OnIn
 		this._contractService.saveDocument(contractTemplateDto)
 			.subscribe(newDto =>
 			{
+				this.marketSubject.next(this.currentMarket);
 				newDto.assignedCommunityIds = contractTemplateDto.assignedCommunityIds;
 				newDto.application = this.getApplication(newDto);
 
