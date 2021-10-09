@@ -148,6 +148,7 @@ export class ColorItemsSearchHeaderComponent
 					planOptionDtos = planOptionDtos.filter(x=>!!x.colorItem);
 					if(planOptionDtos.length>0)
 					{	
+						this.getSalesagreementOrConfig(planOptionDtos.map(x=>x.colorItem));
 						this.planOptionDtosList = [...this.planOptionDtosList, ...planOptionDtos];
 						let expectedListLength = this.pageNumber * this.settings.infiniteScrollPageSize;
 						if(this.planOptionDtosList.length<expectedListLength && !this.allDataLoaded)
@@ -165,7 +166,10 @@ export class ColorItemsSearchHeaderComponent
 				});
 		}
 	}
+	getSalesagreementOrConfig(coloritem:IColorItemDto[])
+	{
 
+	}
 	onPanelScroll()
 	{
 		this.isLoading = true;

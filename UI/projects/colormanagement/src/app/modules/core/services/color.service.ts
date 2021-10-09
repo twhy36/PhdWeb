@@ -114,7 +114,9 @@ export class ColorService {
 							name:item[0].name,
 							isActive:item[0].isActive,
 							edhPlanOptionId:item[0].edhPlanOptionId,
-							colors:item.map(x=>x.colorItemColorAssoc?.color)
+							colors:item.map(x=>x.colorItemColorAssoc?.color),
+							hasConfig:null,
+							hasSalesagreement:null
 						}
 						colorItemDtoList.push(colorItemDto);
 					}

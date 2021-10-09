@@ -14,6 +14,8 @@ export interface IColorItemDto
     isActive:boolean,
     edhPlanOptionId:number,
     colors:Array<IColor>
+    hasSalesagreement:boolean,
+    hasConfig:boolean
 }
 export interface IColorItemColorAssoc
 {
