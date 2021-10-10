@@ -1,14 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { UnsubscribeOnDestroy } from 'phd-common';
-import { IPlanCommunity, IOptionCommunity, IPlanOptionCommunityDto } from '../../../shared/models/community.model';
+import { IPlanCommunity, IOptionCommunity, IPlanOptionCommunityDto, IPlanOptionCommunity, IPlanOptionCommunityGridDto } from '../../../shared/models/community.model';
 import { OrganizationService } from '../../services/organization.service';
 import { PlanOptionService } from '../../services/plan-option.service';
 import { Observable, of } from 'rxjs';
-import { filter, map, switchMap } from 'rxjs/operators';
+import { filter, map, switchMap, flatMap } from 'rxjs/operators';
 import { ColorService } from '../../../core/services/color.service';
 import { IColorItemDto } from '../../../shared/models/colorItem.model';
 import {SettingsService} from '../../services/settings.service';
 import {Settings} from '../../../shared/models/settings.model';
+import * as _ from 'lodash';
 
 @Component({
 	selector: 'color-items-search-header',
@@ -19,10 +20,13 @@ export class ColorItemsSearchHeaderComponent
 	extends UnsubscribeOnDestroy
 	implements OnInit {
 	planCommunityList$: Observable<Array<IPlanCommunity>>;
+	planCommunityList: Array<IPlanCommunity>;
 	currentFinancialCommunityId: number;
 	selectedPlans: Array<number> = [];
 	planOptionList: Array<IOptionCommunity>;
-	planOptionDtosList: Array<IPlanOptionCommunityDto> = [];
+	currentplanOptionList: Array<IOptionCommunity>=[];
+	planOptionDtosList: Array<IPlanOptionCommunityGridDto> = [];
+    planOptionDtoList : Array<IPlanOptionCommunityDto> = [];
 	currentOption: IOptionCommunity = null;
 	isActiveColor: boolean = null;
 	colorItemDtolist:IColorItemDto[];
@@ -62,7 +66,12 @@ export class ColorItemsSearchHeaderComponent
 					})
 				)
 			})
-		);
+		);	
+		
+		this.planCommunityList$.subscribe((plans)=>
+		{
+			this.planCommunityList = plans;
+		})
 	}
 
 	reset()
@@ -88,89 +97,120 @@ export class ColorItemsSearchHeaderComponent
 		this._planService
 			.getPlanOptions(this.currentFinancialCommunityId, this.selectedplanids)
 			.subscribe((options)=>{
-				this.planOptionList = options
+				this.planOptionList = options;				
 			});			
 	}
-
+	
 	loadColorItemsGrid()
 	{
-		// Skip if currentOption is blank
-		if(this.currentOption){
-			this._planService.getPlanOptionsGrid(this.currentFinancialCommunityId,
-				this.currentOption?.id,
-				this.selectedplanids,
-				this.settings.infiniteScrollPageSize,
-				this.skip,
-				)
-				.pipe(
-					map((planOptions) =>
-						{
-							let planOptionsList = planOptions.map((planoption) => 
-							{
-								let planOptionDto : IPlanOptionCommunityDto = {
-									planId : planoption.planCommunity.id,
-									planSalesName : planoption.planCommunity.planSalesName,
-									optionCommunityId : planoption.optionCommunity.id,
-									optionSalesName : planoption.optionCommunity.optionSalesName,
-									planOptionId : planoption.id,
-									colorItem : null
-								}
-								return planOptionDto;
-							}) as Array<IPlanOptionCommunityDto>;
-							return planOptionsList;
-						}),
-						switchMap((planOptionDtos) => 
-						{	
-							if(planOptionDtos?.length>0){
-								return this._colorService
-									.getPlanOptionAssocColorItems
-										(this.currentFinancialCommunityId,
-										planOptionDtos.map(planoption=>planoption.planOptionId), 
-										this.isActiveColor
-										)
-										.pipe(
-											map((colorItemDtos) => {
-												planOptionDtos.forEach(element => {
-													element.colorItem = colorItemDtos?.find(coloritem => coloritem.edhPlanOptionId === element.planOptionId);
-												});
-												return planOptionDtos;
-											})
-										) 
-							}	
-							else{
-								return of([]);
-							}				
-						})
-				)
-				.subscribe((planOptionDtos) => {	
-					this.currentPage++;														
-					this.allDataLoaded = planOptionDtos.length < this.settings.infiniteScrollPageSize;
-					planOptionDtos = planOptionDtos.filter(x=>!!x.colorItem);
-					if(planOptionDtos.length>0)
-					{	
-						this.planOptionDtosList = [...this.planOptionDtosList, ...planOptionDtos];
-						let expectedListLength = this.pageNumber * this.settings.infiniteScrollPageSize;
-						if(this.planOptionDtosList.length<expectedListLength && !this.allDataLoaded)
-						{
-							this.onPanelScroll();
-						}	
-						else if(this.planOptionDtosList.length>=expectedListLength && !this.allDataLoaded)
-						{
-							this.pageNumber++;
-						}				
+		if(this.currentOption)
+		{
+			if(!this.currentOption?.id)
+			{
+				let list =	this.currentplanOptionList[0].planOptionCommunities.map((planoption:IPlanOptionCommunity)=>
+					{
+						let planOptionDto : IPlanOptionCommunityDto = {
+							planCommunity:{
+								id:planoption.planId,
+								planSalesName:this.planCommunityList.find((plan)=>plan.id==planoption.planId)?.planSalesName
+							},
+							optionCommunityId : this.currentplanOptionList[0].id,
+							optionSalesName : this.currentplanOptionList[0].optionSalesName,
+							planOptionId : planoption.id,
+							colorItem : null
+						}
+						return planOptionDto;
+					}) as Array<IPlanOptionCommunityDto>;
+					this.currentplanOptionList.splice(0,1);
+					//Get coloritems for each optionCommunity.
+					this.getColorItemsForOption(list);
+			}
+			else
+			{
+				this.currentplanOptionList = [];
+				this.currentplanOptionList.push(this.currentOption);
+				let list =	this.currentOption?.planOptionCommunities.map((planoption:IPlanOptionCommunity)=>
+				{					
+					let planOptionDto : IPlanOptionCommunityDto = {
+						planCommunity:{
+							id:planoption.planId,
+							planSalesName:this.planCommunityList.find((plan)=>plan.id==planoption.planId)?.planSalesName
+						},
+						optionCommunityId : this.currentOption.id,
+						optionSalesName : this.currentOption.optionSalesName,
+						planOptionId : planoption.id,
+						colorItem : null
 					}
-					else if(!this.allDataLoaded){
-						this.onPanelScroll();
-					}
-				});
+					return planOptionDto;
+				}) as Array<IPlanOptionCommunityDto>;
+				//Get coloritems for each optionCommunity.
+				this.getColorItemsForOption(list);
+				this.currentplanOptionList.splice(0,1);
+			
+			}
 		}
+	}
+
+	getColorItemsForOption(planoptionDto:IPlanOptionCommunityDto[])
+	{
+		this._colorService.getPlanOptionAssocColorItems
+											(this.currentFinancialCommunityId,
+											planoptionDto.map(planoption=>planoption.planOptionId), 
+											this.isActiveColor
+											)
+											.pipe(
+												map((colorItemDtos) => {
+													planoptionDto.forEach(element => {
+														element.colorItem = colorItemDtos?.find(coloritem => coloritem.edhPlanOptionId === element.planOptionId);
+													});
+													return planoptionDto;
+												})
+											).subscribe((planOptionDtos) => {	
+												this.currentPage++;														
+												this.allDataLoaded = planOptionDtos.length < this.settings.infiniteScrollPageSize && this.currentplanOptionList.length === 0;
+												planOptionDtos = planOptionDtos.filter(x=>!!x.colorItem);
+												if(planOptionDtos.length>0)
+												{	
+													let groupByColorItemName = _.groupBy(planOptionDtos,c=>c.colorItem.name);
+													let planOptiongridList = [];
+													for(const key in groupByColorItemName)
+													{
+														if(groupByColorItemName.hasOwnProperty(key))
+														{
+															let item = groupByColorItemName[key];
+															let planOptiongrid:IPlanOptionCommunityGridDto =
+															{
+																planCommunity:item.map(x=>x.planCommunity),
+																optionCommunityId: item[0].optionCommunityId,
+																optionSalesName:item[0].optionSalesName,
+																colorItem:item.map(x=>x.colorItem)  																
+															}
+															planOptiongridList.push(planOptiongrid);
+														}
+													}
+													this.planOptionDtosList = [...this.planOptionDtosList, ...planOptiongridList];
+													let expectedListLength = this.pageNumber * this.settings.infiniteScrollPageSize;
+													if(this.planOptionDtosList.length<expectedListLength && !this.allDataLoaded)
+													{
+														this.onPanelScroll();
+													}	
+													else if(this.planOptionDtosList.length>=expectedListLength && !this.allDataLoaded)
+													{
+														this.pageNumber++;
+													}				
+												}
+												else if(!this.allDataLoaded){
+													this.onPanelScroll();
+												}
+											}); 	
+
 	}
 
 	onPanelScroll()
 	{
 		this.isLoading = true;
-		this.skip = this.currentPage * this.settings.infiniteScrollPageSize;
-		this.loadColorItemsGrid();
+		this.skip = this.currentPage * this.settings.infiniteScrollPageSize;		
+		this.loadColorItemsGrid();		
 	}
 
 	onActiveColorChange() 
@@ -188,6 +228,15 @@ export class ColorItemsSearchHeaderComponent
 		this.skip = 0;
 		this.currentPage = 0;
 		this.pageNumber =1;
+		this.currentplanOptionList = [];
+		if(!this.currentOption?.id)
+		{
+			this.currentplanOptionList = this.planOptionList;
+		}
+		else
+		{
+			this.currentplanOptionList.push(this.currentOption);
+		}
 		this.loadColorItemsGrid();
 	}
 }

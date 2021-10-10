@@ -53,9 +53,17 @@ export interface IOptionCommunity
 {
 	id: number;
 	optionSalesName: string;
+  planOptionCommunities:IPlanOptionCommunity[]
 }
 
 export interface IPlanOptionCommunity
+{
+  id: number;
+  planId: number;
+  isBasehouse: boolean;
+}
+
+export interface IPlanOptionCommunity1
 {
   id: number;
   planCommunity: IPlanCommunity;
@@ -65,9 +73,18 @@ export interface IPlanOptionCommunity
 export interface IPlanOptionCommunityDto
 {
   planOptionId: number;
-  planId: number;
-  planSalesName:string;
+  // planId: number;
+	// planSalesName: string;
+  planCommunity:IPlanCommunity;
   optionCommunityId: number;
   optionSalesName:string;
   colorItem:IColorItemDto;  
+}
+
+export interface IPlanOptionCommunityGridDto
+{
+  planCommunity:IPlanCommunity[];
+  optionCommunityId: number;
+  optionSalesName:string;
+  colorItem:IColorItemDto[];  
 }

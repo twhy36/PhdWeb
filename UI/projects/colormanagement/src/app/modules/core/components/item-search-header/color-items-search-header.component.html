@@ -55,23 +55,30 @@
 </div>
 <div class="mx-2 phd-table-container" infiniteScroll [infiniteScrollThrottle]="settings.infiniteScrollThrottle" [infiniteScrollDisabled]="allDataLoaded" (scrolled)="onPanelScroll()" [scrollWindow]="false">
 	<phd-table #dt [value]="planOptionDtosList">
-		<phd-column  header="Plan" field="planSalesName" ></phd-column>
+		<phd-column  header="Plan" field="planSalesName" >
+			<ng-template #body let-planOptionDto>
+				<span *ngFor="let plans of planOptionDto.planCommunity;let indexOfelement=index;">
+					<span *ngIf="indexOfelement>0">,</span>
+					<span>{{plans?.planSalesName}}</span>
+				</span>
+			</ng-template>
+		</phd-column>
 		<phd-column  header="Option" field="optionSalesName"></phd-column>
 		<phd-column  header="ColorItem" field="colorItem">
 			<ng-template #body let-planOptionDto>
-				<span>{{ planOptionDto.colorItem?.name }}</span>
+				<span>{{ planOptionDto.colorItem[0]?.name }}</span>
 			</ng-template>
 		</phd-column>
 		<phd-column  header="Colors" field="colorItem.colors">
 			<ng-template #body let-planOptionDto>
-				<div *ngFor="let color of planOptionDto.colorItem?.colors">
+				<div *ngFor="let color of planOptionDto.colorItem[0]?.colors">
 					<span [ngClass]="{'phd-disabled':color?.isActive === false }">{{color?.name}}</span>
 				</div>
 			</ng-template>
 		</phd-column>
 		<phd-column  header="Active" field="isActive" width="100px">
 			<ng-template #body let-planOptionDto>
-				<span>{{ planOptionDto.colorItem?.isActive }}</span>
+				<span>{{ planOptionDto.colorItem[0]?.isActive }}</span>
 			</ng-template>
 		</phd-column>
 	</phd-table>
