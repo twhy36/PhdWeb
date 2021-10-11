@@ -168,11 +168,9 @@ export class ColorItemsSearchHeaderComponent
 					}
 
 					if (this.allDataLoaded) {
-						this.getAddColorItemButtonState();
+						this.processAddColorItemButtonState();
 					}
 				});
-
-
 		}
 	}
 
@@ -199,44 +197,49 @@ export class ColorItemsSearchHeaderComponent
 	}
 
 
-	private getAddColorItemButtonState() {
-		// Add Color Item button is DISABLED unless a specific Option is chosen in criteria (which initiates search per prior story)
-		// Add Color Item button is DISABLED if the Option "All" was used in search criteria.
-		// if 0 results in the grid after search is done, button is enabled (provided 'All' was not the option chosen)
-		// if the option is an elevation option and any plans for the elevation option don't have an active color item,
-		//	- then the button is enabled, otherwise it is disabled (because all plans for elevation option already have an active color item)
+	private processAddColorItemButtonState() {
+		// 1. DONE. Add Color Item button is DISABLED unless a specific Option is chosen in criteria (which initiates search per prior story)
+		// 2. DONE. Add Color Item button is DISABLED if the Option "All" was used in search criteria.
+		// 3. if 0 results in the grid after search is done, button is enabled (provided 'All' was not the option chosen)
+		// 4. if the option is an elevation option and any plans for the elevation option don't have an active color item,
+		//		then the button is enabled, otherwise it is disabled (because all plans for elevation option already have an active color item)
 		//		because:  only 1 active color item is allowed for an elevation/plan/option
-
 
 		// Default is disabled
 		this.disableAddColorItemButton = true;
 
 		if (this.currentOption.id > 0) {
-			// One option was selected
+			// Specific option was selected
 
 			if (this.planOptionDtosList.length == 0) {
-				// 0 results in the grid, enable the button
+				// 0 results in the grid, enable the button even if option is elevation or not
 				this.disableAddColorItemButton = false;
 			}
 			else if (this.isElevationOption(this.currentOption.optionSubCategoryId)) {
 				// Option is an elevation
-				// TODO: check if any plans do not have an active color
-				// If true enable button
-				// if false disable button
-				// TODO: If all the plans for the elevation option have an active color item then disable the button
-				//	TODO: If an elevation (true) and any of the plans for that elevation option do not have any active color then enable the button
+
+				if (this.anyPlansForElevationOptionHaveNoActiveColorItemAssigned()) {
+					// At least 1 plan does not have an active color item assigned
+					this.disableAddColorItemButton = false;
+
+					// TODO: check if at least 1 plan does not have an active color
+				}
 			}
 
-			this.disableAddColorItemButton = false;
+			//this.disableAddColorItemButton = false;
 		}
-		// else {
-		// 	// All Options was selected
-		// 	this.disableAddColorItemButton = true;
-		// }
 	}
 
 	private isElevationOption(optionSubCategoryId: number) {
 		var elevationOptionSubCategoryIds: Array<number> = [361, 362];
 		return elevationOptionSubCategoryIds.includes(optionSubCategoryId);
+	}
+
+	private anyPlansForElevationOptionHaveNoActiveColorItemAssigned() {
+		const anyHaveNoActiveColorItemAssigned = false;
+
+		//TODO: put logic here
+
+		return anyHaveNoActiveColorItemAssigned;
 	}
 }
