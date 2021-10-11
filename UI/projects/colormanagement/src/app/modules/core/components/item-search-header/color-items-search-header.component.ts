@@ -158,9 +158,6 @@ export class ColorItemsSearchHeaderComponent
 						}
 						else if (this.planOptionDtosList.length >= expectedListLength && !this.allDataLoaded) {
 							this.pageNumber++;
-							//TODO: this does not get here if no results
-							//this.getAddColorItemButtonState();
-
 						}
 					}
 					else if (!this.allDataLoaded) {
@@ -214,8 +211,7 @@ export class ColorItemsSearchHeaderComponent
 			if (this.planOptionDtosList.length == 0) {
 				// 0 results in the grid, enable the button even if option is elevation or not
 				this.disableAddColorItemButton = false;
-			}
-			else if (this.isElevationOption(this.currentOption.optionSubCategoryId)) {
+			} else if (this.isElevationOption(this.currentOption.optionSubCategoryId)) {
 				// Option is an elevation
 
 				if (this.anyPlansForElevationOptionHaveNoActiveColorItemAssigned()) {
@@ -224,9 +220,9 @@ export class ColorItemsSearchHeaderComponent
 
 					// TODO: check if at least 1 plan does not have an active color
 				}
+			} else {
+				this.disableAddColorItemButton = false;
 			}
-
-			//this.disableAddColorItemButton = false;
 		}
 	}
 
