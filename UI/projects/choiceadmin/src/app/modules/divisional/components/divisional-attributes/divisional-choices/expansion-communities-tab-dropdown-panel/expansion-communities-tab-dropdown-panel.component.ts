@@ -115,7 +115,7 @@ export class ExpansionCommunitiesTabDropdownPanelComponent implements OnInit
 		else if (isDivChoiceCatalogMarketImage(item))
 		{
 			selectedItems = this.selectedImages;
-			index = selectedItems.findIndex(s => s.divChoiceCatalogMarketImageID === (item as DivChoiceCatalogMarketImage).divChoiceCatalogMarketImageId);
+			index = selectedItems.findIndex(s => s.divChoiceCatalogMarketImageId === (item as DivChoiceCatalogMarketImage).divChoiceCatalogMarketImageId);
 		}
 
 		if (isSelected && index < 0)

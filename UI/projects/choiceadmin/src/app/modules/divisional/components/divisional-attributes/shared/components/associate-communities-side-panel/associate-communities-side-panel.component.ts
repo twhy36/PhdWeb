@@ -29,8 +29,8 @@ export class AssociateCommunitiesSidePanelComponent extends UnsubscribeOnDestroy
 	private sidePanel: SidePanelComponent;
 
 	@Output() onSidePanelClose = new EventEmitter<boolean>();
-	@Input() sidePanelOpen: boolean = false;
 
+	@Input() sidePanelOpen: boolean = false;
 	@Input() choice: DivisionalChoice;
 	@Input() option: Option;
 	@Input() callback: () => void;
@@ -83,12 +83,14 @@ export class AssociateCommunitiesSidePanelComponent extends UnsubscribeOnDestroy
 				if (this.groups && this.groups.length)
 				{
 					this.associatingType = this.groups[0] instanceof AttributeGroupMarket ? AssociatingType.OptionAttributeGroups : AssociatingType.OptionLocationGroups;
+
 					this.selectCommunities();
 				}
 
 				if (this.images && this.images.length)
 				{
 					this.associatingType = AssociatingType.OptionImages;
+
 					this.selectCommunities();
 				}
 			});
@@ -97,6 +99,7 @@ export class AssociateCommunitiesSidePanelComponent extends UnsubscribeOnDestroy
 		if (this.choice)
 		{
 			const communities$ = this._orgService.getCommunities(this.marketId);
+
 			communities$.pipe(
 				mergeMap(communities => this._orgService.getOrgsForCommunities(this.marketId, communities.map(c => c.id)).pipe(
 					map(orgs =>
@@ -116,12 +119,14 @@ export class AssociateCommunitiesSidePanelComponent extends UnsubscribeOnDestroy
 				if (this.groups && this.groups.length)
 				{
 					this.associatingType = this.groups[0] instanceof DivChoiceCatalogAttributeGroupMarket ? AssociatingType.ChoiceAttributeGroups : AssociatingType.ChoiceLocationGroups;
+
 					this.selectCommunities();
 				}
 
 				if (this.images && this.images.length)
 				{
 					this.associatingType = AssociatingType.ChoiceImages;
+
 					this.selectCommunities();
 				}
 			});
@@ -132,6 +137,7 @@ export class AssociateCommunitiesSidePanelComponent extends UnsubscribeOnDestroy
 	{
 		// Select the communities if all groups or images are associated
 		let selectedChoiceCommunities = [];
+
 		this.communities.forEach(community =>
 		{
 			if (this.groups && this.option)
@@ -141,6 +147,7 @@ export class AssociateCommunitiesSidePanelComponent extends UnsubscribeOnDestroy
 					const groups = this.associatingType == AssociatingType.OptionAttributeGroups
 						? community.attributeGroupCommunities.filter(attr => attr.attributeGroupMarketId === group.id)
 						: community.locationGroupCommunities.filter(loc => loc.locationGroupMarketId === group.id);
+
 					return !groups || !groups.length;
 				});
 
@@ -187,6 +194,7 @@ export class AssociateCommunitiesSidePanelComponent extends UnsubscribeOnDestroy
 						? (image as OptionMarketImage).optionCommunityImages.map(oci => oci.optionCommunityId)
 						: [];
 					const images = community.optionCommunities.filter(oc => optionCommunityIds.includes(oc.id));
+
 					return !images || !images.length;
 				});
 
@@ -222,6 +230,7 @@ export class AssociateCommunitiesSidePanelComponent extends UnsubscribeOnDestroy
 		if (!this.origSelectedCommunities.includes(community))
 		{
 			this.origSelectedCommunities.push(community);
+
 			this.setCommunitySelected(community, true);
 		}
 	}
@@ -234,6 +243,7 @@ export class AssociateCommunitiesSidePanelComponent extends UnsubscribeOnDestroy
 		}
 
 		this.sidePanel.isDirty = false;
+
 		this.onSidePanelClose.emit(status);
 	}
 
@@ -293,17 +303,19 @@ export class AssociateCommunitiesSidePanelComponent extends UnsubscribeOnDestroy
 			{
 				this.callback();
 			}
+
 			this.errors = [{ severity: 'success', detail: `Communities associated.` }];
 			this.isSaving = false;
 			this.sidePanel.isDirty = false;
 
 			this.sidePanel.toggleSidePanel();
 		},
-			error =>
-			{
-				this.isSaving = false;
-				this.displayErrorMessage('Failed to associate communities.');
-			});
+		error =>
+		{
+			this.isSaving = false;
+
+			this.displayErrorMessage('Failed to associate communities.');
+		});
 	}
 
 	saveOptionAttributeGroupsAssocs(associatedCommunityIds: number[], disassociatedCommunityIds: number[]): Observable<any>
@@ -359,6 +371,7 @@ export class AssociateCommunitiesSidePanelComponent extends UnsubscribeOnDestroy
 		if (message)
 		{
 			this.errors = [];
+
 			this.errors.push({ severity: 'error', detail: message });
 		}
 	}
@@ -384,6 +397,7 @@ export class AssociateCommunitiesSidePanelComponent extends UnsubscribeOnDestroy
 		else if (!isSelected && index >= 0)
 		{
 			this.selectedCommunities.splice(index, 1);
+
 			this.selectedCommunities = [...this.selectedCommunities];
 		}
 	}

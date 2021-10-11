@@ -2,10 +2,11 @@ import { Component, OnInit, Input, ChangeDetectionStrategy, ChangeDetectorRef } 
 import { Router } from '@angular/router';
 
 import { NgbDropdownConfig } from '@ng-bootstrap/ng-bootstrap';
+import * as _ from 'lodash';
 
 import {
 	UnsubscribeOnDestroy, flipOver2, isChoiceAttributesComplete, DesignToolAttribute, PointStatus, DecisionPoint,
-	Group, SubGroup, Choice
+	Group, SubGroup, Choice, ChoiceImageAssoc
 } from 'phd-common';
 
 import { TreeService } from '../../../core/services/tree.service';
@@ -27,6 +28,7 @@ export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implemen
 	@Input() scenarioId: number;
 	@Input() filtered: boolean;
 	@Input() showImages: boolean;
+	@Input() choiceImages: ChoiceImageAssoc[];
 	@Input() canEditAgreement: boolean;
 
 	public PointStatus = PointStatus;
@@ -67,7 +69,15 @@ export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implemen
 
 	setPointChoices()
 	{
-		this.choicesCustom = this.decisionPoint.choices.map(c => new ChoiceCustom(c));
+		this.choicesCustom = this.decisionPoint.choices.map(choice =>
+		{
+			const choiceImages = this.choiceImages.filter(c => c.dpChoiceId === choice.id);
+			let newChoice = _.cloneDeep(choice);
+
+			newChoice.choiceImages = choiceImages.length ? choiceImages.sort((a, b) => a.sortKey < b.sortKey ? -1 : 1) : [];
+
+			return new ChoiceCustom(newChoice);
+		});
 	}
 
 	toggleCollapsed(choice: ChoiceCustom): void
@@ -138,10 +148,12 @@ class ChoiceCustom extends Choice
 
 	private getImage(): string
 	{
-		let imagePath = this.imagePath;
+		// Get the ChoiceImageAssoc url. Only need one is needed.
+		let imagePath = this.choiceImages.length ? this.choiceImages[0].imageUrl : '';
 
 		const options = this.options;
 
+		// Option images has priority over images on a choice, so use if available. 
 		if (options.length)
 		{
 			let option = options.find(x => x.optionImages && x.optionImages.length > 0);

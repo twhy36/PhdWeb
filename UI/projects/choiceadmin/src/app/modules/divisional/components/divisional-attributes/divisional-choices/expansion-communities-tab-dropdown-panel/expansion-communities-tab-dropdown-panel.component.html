@@ -20,8 +20,7 @@
 	<div class="col phd-image-market-list">
 		Images
 		<div *ngIf="choiceAssociations" class="phd-image-market-list-container">
-			<image-card *ngFor="let image of choiceAssociations.divChoiceCatalogMarketImages" showFooter="true"
-						[bodyTemplate]="cardbody" [footerTemplate]="cardfooter">
+			<image-card *ngFor="let image of choiceAssociations.divChoiceCatalogMarketImages" showFooter="true"	[bodyTemplate]="cardbody" [footerTemplate]="cardfooter">
 
 				<ng-template #cardbody>
 					<cl-image public-id="{{image.imageURL}}" type="fetch" gravity="auto" crop="fill" width="155" height="100" (onError)="onLoadImageError($event)"></cl-image>

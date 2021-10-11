@@ -174,6 +174,7 @@ export class Choice
 	priceHiddenFromBuyerView?: boolean;
 	isRequired?: boolean = false;
 	disabledByHomesite?: boolean = false;
+	choiceImages?: ChoiceImageAssoc[] = [];
 }
 
 export class MappedGroup

@@ -8,10 +8,10 @@ import { combineLatest, switchMap, map, withLatestFrom, distinctUntilChanged } f
 import { Store, select } from '@ngrx/store';
 
 import
-	{
-		UnsubscribeOnDestroy, flipOver3, ModalRef, LocationGroup, AttributeGroup, DesignToolAttribute, ChangeTypeEnum, ChangeOrderGroup,
-		LotExt, Plan, Choice, OptionImage, DecisionPoint, ChoiceImageAssoc, ModalService
-	} from 'phd-common';
+{
+	UnsubscribeOnDestroy, flipOver3, ModalRef, LocationGroup, AttributeGroup, DesignToolAttribute, ChangeTypeEnum, ChangeOrderGroup,
+	LotExt, Plan, Choice, OptionImage, DecisionPoint, ChoiceImageAssoc, ModalService
+} from 'phd-common';
 
 import { MonotonyConflict } from '../../models/monotony-conflict.model';
 import { ModalOverrideSaveComponent } from '../../../core/components/modal-override-save/modal-override-save.component';
@@ -188,6 +188,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 						mergeAttributes(attributes, missingAttributes, attributeGroups);
 						mergeLocations(locations, missingLocations, locationGroups);
 						mergeAttributeImages(attributeGroups, attributeCommunityImageAssocs);
+
 						return { attributeGroups, locationGroups };
 					}));
 			})
@@ -200,6 +201,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 			this.locationGroups = data.locationGroups;
 
 			const options = this.choice.options;
+
 			if (options.length)
 			{
 				let option = options.find(x => x.optionImages && x.optionImages.length > 0);
@@ -263,12 +265,13 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 				this.store.pipe(select(fromScenario.choiceOverrides)),
 				this.store.pipe(select(selectSelectedLot)),
 				this.store.pipe(select(selectedPlanData)),
-				this.treeService.getChoiceImageAssoc([this.choice.lockedInChoice ? this.choice.lockedInChoice.choice.dpChoiceId : this.choice.id])
+				this.treeService.getChoiceImages([this.choice.lockedInChoice ? this.choice.lockedInChoice.choice.dpChoiceId : this.choice.id], this.buildMode === 'preview')
 			))
 			.subscribe(([monotonyChoices, choiceOverride, lots, plan, choiceImages]) =>
 			{
-				this.choiceImages = choiceImages;
+				this.choiceImages = choiceImages.length ? choiceImages.sort((a, b) => a.sortKey < b.sortKey ? -1 : 1) : [];;
 				this.loadingChoiceImage = false;
+
 				let conflictMessage: MonotonyConflict = new MonotonyConflict();
 
 				if (choiceOverride)
@@ -336,8 +339,8 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 		{
 			// Will need to remove environment.production check once design preview goes live, 
 			this.isFavorite = !environment.production
-					&& isDesignPreviewEnabled 
-					&& !!choices?.find(c => c.divChoiceCatalogId === this.choice.divChoiceCatalogId);
+				&& isDesignPreviewEnabled
+				&& !!choices?.find(c => c.divChoiceCatalogId === this.choice.divChoiceCatalogId);
 		});
 
 		// trigger attributeGroups observable in the init.
@@ -507,10 +510,11 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 		{
 			imagePath = this.optionImages[0].imageURL;
 		}
-		else if (this.choice && this.choice.hasImage && this.choiceImages.length)
+		else if (this.choiceImages.length)
 		{
 			imagePath = this.choiceImages[0].imageUrl;
 		}
+
 		return imagePath;
 	}
 

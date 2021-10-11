@@ -35,9 +35,10 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 	imageUrl: string = '';
 	blockedChoiceModalRef: NgbModalRef;
 	hiddenChoicePriceModalRef: NgbModalRef;
-	disabledByList: {label: string, pointId: number, choiceId?: number, ruleType: number}[] = null;
+	disabledByList: { label: string, pointId: number, choiceId?: number, ruleType: number }[] = null;
 
-	constructor(public modalService: NgbModal) {
+	constructor(public modalService: NgbModal)
+	{
 		super();
 	}
 
@@ -50,10 +51,13 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 			this.choice = changes['currentChoice'].currentValue;
 
 			const options = this.choice ? this.choice.options : null;
-			if (options && options.length) {
+
+			if (options && options.length)
+			{
 				let option = options.find(x => x.optionImages && x.optionImages.length > 0);
 
-				if (option) {
+				if (option)
+				{
 					this.optionImages = option.optionImages;
 				}
 			}
@@ -70,7 +74,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 		{
 			imagePath = this.optionImages[0].imageURL;
 		}
-		else if ( this.choice?.hasImage && this.choice?.choiceImages?.length)
+		else if (this.choice?.choiceImages?.length)
 		{
 			imagePath = this.choice.choiceImages[0].imageUrl;
 		}
@@ -100,29 +104,36 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 		this.onViewChoiceDetail.emit(this.choice);
 	}
 
-	openBlockedChoiceModal() {
+	openBlockedChoiceModal()
+	{
 		if (!this.disabledByList)
 		{
 			this.disabledByList = getDisabledByList(this.tree, this.groups, this.currentPoint, this.choice);
 		}
+
 		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { windowClass: 'phd-blocked-choice-modal' });
 	}
 
-	openHiddenChoicePriceModal() {
+	openHiddenChoicePriceModal()
+	{
 		if (this.choice.priceHiddenFromBuyerView)
 		{
 			this.hiddenChoicePriceModalRef = this.modalService.open(this.hiddenChoicePriceModal, { windowClass: 'phd-hidden-choice-price-modal' });
 		}
 	}
 
-	onCloseClicked() {
+	onCloseClicked()
+	{
 		this.blockedChoiceModalRef?.close();
 		this.hiddenChoicePriceModalRef?.close();
 	}
 
-	onBlockedItemClick(pointId: number) {
+	onBlockedItemClick(pointId: number)
+	{
 		this.blockedChoiceModalRef?.close();
+
 		delete this.disabledByList;
+
 		this.onSelectDecisionPoint.emit(pointId);
 	}
 }

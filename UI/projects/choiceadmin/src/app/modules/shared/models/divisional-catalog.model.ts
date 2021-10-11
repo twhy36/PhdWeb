@@ -9,7 +9,7 @@ import { LocationGroupMarket } from './location-group-market.model';
 
 export class DivisionalCatalog
 {
-    groups: Array<DivDGroup>;
+	groups: Array<DivDGroup>;
 }
 
 export class DivisionalChoice
@@ -34,7 +34,7 @@ export class DivisionalChoice
 export class DivChoiceCatalogMarketImage
 {
 	divChoiceCatalogMarketImageId?: number;
-	marketID?: number;
+	marketId?: number;
 	divChoiceCatalogId?: number;
 	imageURL?: string;
 	sortKey?: number;
@@ -42,24 +42,27 @@ export class DivChoiceCatalogMarketImage
 	constructor(dto: IDivChoiceCatalogMarketImageDto)
 	{
 		this.divChoiceCatalogMarketImageId = dto.divChoiceCatalogMarketImageId;
-		this.marketID = dto.marketID;
+		this.marketId = dto.marketId;
 		this.divChoiceCatalogId = dto.divChoiceCatalogId;
 		this.imageURL = dto.imageURL;
 		this.sortKey = dto.sortKey;
 	}
 }
 
-export function isDivChoiceCatalogMarketImage(obj: any): obj is DivChoiceCatalogMarketImage {
+export function isDivChoiceCatalogMarketImage(obj: any): obj is DivChoiceCatalogMarketImage
+{
 	return typeof obj.imageURL !== 'undefined';
 }
 
-export class DivChoiceCatalogCommunityImage {
+export class DivChoiceCatalogCommunityImage
+{
 	divChoiceCatalogCommunityImageId?: number;
 	divChoiceCatalogMarketImageId?: number;
 	financialCommunityId?: number;
 	divChoiceCatalogId?: number;
 
-	constructor(dto: IDivChoiceCatalogCommunityImageDto) {
+	constructor(dto: IDivChoiceCatalogCommunityImageDto)
+	{
 		this.divChoiceCatalogCommunityImageId = dto.divChoiceCatalogCommunityImageId;
 		this.divChoiceCatalogMarketImageId = dto.divChoiceCatalogMarketImageId;
 		this.financialCommunityId = dto.financialCommunityId;
@@ -135,24 +138,24 @@ export class DivChoiceCatalogLocationGroupCommunity
 
 export interface IDivisionalCatalogDto
 {
-    groups: Array<IDivisionalCatalogGroupDto>;
+	groups: Array<IDivisionalCatalogGroupDto>;
 }
 
 export interface IDivisionalCatalogGroupDto extends ICatalogGroupDto
 {
-    subGroups: Array<IDivisionalCatalogSubGroupDto>;
+	subGroups: Array<IDivisionalCatalogSubGroupDto>;
 }
 
 export interface IDivisionalCatalogSubGroupDto extends ICatalogSubGroupDto
 {
-    hasInactivePoints: boolean;
-    points: Array<IDivisionalCatalogPointDto>;
+	hasInactivePoints: boolean;
+	points: Array<IDivisionalCatalogPointDto>;
 }
 
 export interface IDivisionalCatalogPointDto extends IDivCatalogPointDto
 {
-    hasInactiveChoices: boolean;
-    choices: Array<IDivisionalCatalogChoiceDto>
+	hasInactiveChoices: boolean;
+	choices: Array<IDivisionalCatalogChoiceDto>
 }
 
 export interface IDivisionalCatalogChoiceDto extends IDivCatalogChoiceDto
@@ -162,14 +165,14 @@ export interface IDivisionalCatalogChoiceDto extends IDivCatalogChoiceDto
 
 export interface IDivSortList
 {
-    pointList: Array<IDivCatalogPointDto>;
-    choiceList: Array<IDivCatalogChoiceDto>;
+	pointList: Array<IDivCatalogPointDto>;
+	choiceList: Array<IDivCatalogChoiceDto>;
 }
 
 export interface IDivChoiceCatalogMarketImageDto
 {
 	divChoiceCatalogMarketImageId?: number;
-	marketID?: number;
+	marketId?: number;
 	divChoiceCatalogId?: number;
 	imageURL?: string;
 	sortKey?: number;
@@ -182,7 +185,7 @@ export interface IDivChoiceCatalogCommunityImageDto
 	financialCommunityId: number;
 	divChoiceCatalogId?: number;
 	imageURL?: string;
-	sortKey?: number;	
+	sortKey?: number;
 }
 
 export interface IDivChoiceCatalogAttributeGroupMarketDto

@@ -285,6 +285,20 @@ export class TreeService
 		);
 	}
 
+	getChoiceImages(choiceIds: number[], isPreview: boolean): Observable<ChoiceImageAssoc[]>
+	{
+		const endPoint = environment.apiUrl + `GetChoiceImages`;
+
+		const body = {
+			choiceIds: choiceIds,
+			isPreview: isPreview
+		};
+
+		return this.http.post(endPoint, body).pipe(
+			map(response => response['value'] as ChoiceImageAssoc[])
+		);
+	}
+
 	getPlanOptionCommunityImageAssoc(options: Array<JobPlanOption | ChangeOrderPlanOption>): Observable<Array<PlanOptionCommunityImageAssoc>>
 	{
 		if (options.length)

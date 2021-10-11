@@ -13,7 +13,7 @@ import {
 	UnsubscribeOnDestroy, blink, ChangeOrderHanding, ChangeTypeEnum, ChangeOrderChoice, PlanOption,
 	PointStatus, SelectedChoice, PriceBreakdown, ScenarioStatusType, SummaryData, BuyerInfo, SummaryReportType,
 	SDGroup, SDSubGroup, SDPoint, SDChoice, SDImage, SDAttributeReassignment, Group, Choice, DecisionPoint,
-	PDFViewerComponent, ModalService
+	PDFViewerComponent, ModalService, ChoiceImageAssoc, SDChoiceImage
 } from 'phd-common';
 
 import { environment } from '../../../../../environments/environment';
@@ -40,6 +40,7 @@ import { DecisionPointSummaryComponent } from '../../../shared/components/decisi
 import { SummaryHeader, SummaryHeaderComponent } from '../summary-header/summary-header.component';
 
 import { selectSelectedLot } from '../../../ngrx-store/lot/reducer';
+import { TreeService } from '../../../core/services/tree.service';
 
 @Component({
 	selector: 'app-scenario-summary',
@@ -61,6 +62,7 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 	pointStatusFilter$: Observable<PointStatusFilter>;
 	selectedChoices: SelectedChoice[];
 	PointStatus = PointStatus;
+	choiceImages: ChoiceImageAssoc[] = [];
 
 	public fragment: string;
 	savingAll$: Observable<boolean>;
@@ -98,6 +100,7 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 	selectedHanding: string;
 	canOverride$: Observable<boolean>;
 	overrideReason: string;
+	choiceImagesLoaded: boolean = false;
 
 	constructor(private route: ActivatedRoute,
 		private lotService: LotService,
@@ -109,12 +112,18 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 		private scenarioService: ScenarioService,
 		private jobService: JobService,
 		private changeOrderService: ChangeOrderService,
-		private router: Router
+		private router: Router,
+		private treeService: TreeService
 	) { super(); }
 
 	isDirty(status: { pointId: number, isDirty: boolean, updatedChoices: { choiceId: number, quantity: number }[] }[]): boolean
 	{
 		return status.some(p => p.isDirty);
+	}
+
+	get hasChoiceImagesLoaded(): boolean
+	{
+		return this.choiceImagesLoaded;
 	}
 
 	ngOnInit()
@@ -128,6 +137,7 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(state => state.scenario.overrideReason)).subscribe(overrideReason => this.overrideReason = overrideReason);
+
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(fromRoot.filteredTree)
@@ -135,8 +145,41 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
-			select(state => state.scenario)
-		).subscribe(scenario => this.fullGroups = scenario.tree ? scenario.tree.treeVersion.groups : null);
+			select(state => state.scenario),
+			combineLatest(this.store.pipe(select(fromScenario.isPreview))),
+			switchMap(([scenario, isPreview]) =>
+			{
+				let choiceImages$ = of(null);
+
+				// set fullGroups, which has everything, nothing filtered out unlike groups.
+				this.fullGroups = scenario.tree ? scenario.tree.treeVersion.groups : null;
+
+				if (this.fullGroups !== null)
+				{
+					const subGroups = _.flatMap(this.fullGroups, g => g.subGroups);
+					const points = _.flatMap(subGroups, sg => sg.points);
+					const choices = _.flatMap(points, p => p.choices);
+					const selectedChoiceIds = choices.filter(c => c.quantity > 0).map(c => c.id);
+
+					if (selectedChoiceIds.length)
+					{
+						// get images for only selected choices
+						choiceImages$ = this.treeService.getChoiceImages(selectedChoiceIds, isPreview);
+					}
+				}
+
+				return choiceImages$;
+			})
+		).subscribe((choiceImages: ChoiceImageAssoc[]) =>
+		{
+			this.choiceImages = choiceImages;
+
+			this.choiceImagesLoaded = true;
+		},
+		error =>
+		{
+			this.choiceImagesLoaded = true;
+		});
 
 		this.pointStatusFilter$ = this.store.pipe(
 			select(state => state.summary.pointStatusFilter)
@@ -621,6 +664,10 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 							point.choices = p.choices.filter(choiceFilter).map(c =>
 							{
 								let choice = new SDChoice(c, choicePriceRanges.find(ch => ch.choiceId === c.id));
+								let choiceImages = this.choiceImages.filter(x => x.dpChoiceId === choice.id);
+
+								// add images to choice
+								choice.choiceImages = choiceImages.length ? choiceImages.map(x => new SDChoiceImage(x)).sort((a, b) => a.sortKey < b.sortKey ? -1 : 1) : [];
 
 								return choice;
 							});

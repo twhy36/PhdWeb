@@ -45,7 +45,7 @@
 							<span>{{subGroup.label}}</span>
 						</div>
 						<ng-container *ngFor="let dp of subGroup.points">
-							<decision-point-summary *ngIf="dp | isFiltered:(pointStatusFilter$ | async)"
+							<decision-point-summary *ngIf="(dp | isFiltered:(pointStatusFilter$ | async)) && choiceImagesLoaded"
 													[decisionPoint]="dp"
 													[subGroup]="subGroup"
 													[group]="group"
@@ -54,6 +54,7 @@
 													[scenarioId]="(scenarioId$ | async)"
 													[filtered]="dp | isFiltered:(pointStatusFilter$ | async)"
 							                        [showImages]="showImages"
+													[choiceImages]="choiceImages"
 							                        [canEditAgreement]="(canEditAgreement$ | async) && (canConfigure$ | async) && canEditSummary">
 							</decision-point-summary>
 						</ng-container>

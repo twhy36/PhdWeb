@@ -2,7 +2,7 @@ import { PriceBreakdown } from "./scenario.model";
 
 import { DesignToolAttribute } from "./attribute.model";
 import { PlanOption } from "./option.model";
-import { Choice, DecisionPoint, SubGroup, Group } from "./tree.model";
+import { Choice, DecisionPoint, SubGroup, Group, ChoiceImageAssoc } from "./tree.model";
 
 export interface SummaryData
 {
@@ -113,6 +113,7 @@ export class SDChoice
 	description?: string;
 	attributeReassignments: SDAttributeReassignment[] = [];
 	priceHiddenFromBuyerView?: boolean = false;
+	choiceImages?: SDChoiceImage[] = [];
 
 	constructor(c: Choice, priceRange?: { choiceId: number, min: number, max: number })
 	{
@@ -164,6 +165,7 @@ export class SDChoice
 		this.minPrice = priceRange ? priceRange.min : null;
 		this.maxPrice = priceRange ? priceRange.max : null;
 		this.priceHiddenFromBuyerView = c.priceHiddenFromBuyerView;
+		this.choiceImages = c.choiceImages.map(c => new SDChoiceImage(c));
 	}
 }
 
@@ -179,4 +181,21 @@ export class SDImage
 	hasDataUri?: boolean = false;
 	floorIndex?: number;
 	floorName?: string;
+}
+
+export class SDChoiceImage
+{
+	dpChoiceId: number;
+	imageUrl: string;
+	sortKey: number;
+
+	constructor(choiceImage?: ChoiceImageAssoc)
+	{
+		if (choiceImage)
+		{
+			this.dpChoiceId = choiceImage.dpChoiceId;
+			this.imageUrl = choiceImage.imageUrl;
+			this.sortKey = choiceImage.sortKey;
+		}
+	}
 }

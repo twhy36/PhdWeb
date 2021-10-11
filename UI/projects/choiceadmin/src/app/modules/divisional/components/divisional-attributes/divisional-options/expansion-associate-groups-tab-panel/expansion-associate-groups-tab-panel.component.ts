@@ -10,14 +10,15 @@ import { IFinancialCommunity } from '../../../../../shared/models/financial-comm
 
 import { DivisionalOptionService } from '../../../../../core/services/divisional-option.service';
 
-import { isEqual, orderBy } from "lodash";
+import { isEqual, orderBy } from 'lodash';
 
 @Component({
 	selector: 'expansion-associate-groups-tab-panel',
 	templateUrl: './expansion-associate-groups-tab-panel.component.html',
 	styleUrls: ['./expansion-associate-groups-tab-panel.component.scss']
 })
-export class ExpansionAssociateGroupsTabPanelComponent implements OnInit {
+export class ExpansionAssociateGroupsTabPanelComponent implements OnInit
+{
 	@Input() community: IFinancialCommunity;
 	@Input() option: Option;
 	@Input() isReadOnly: boolean;
@@ -38,21 +39,26 @@ export class ExpansionAssociateGroupsTabPanelComponent implements OnInit {
 
 	constructor(private _divOptService: DivisionalOptionService, private _msgService: MessageService) { }
 
-	ngOnInit() {
+	ngOnInit()
+	{
 		this.getOptionGroups();
 	}
 
-	isItemSelected(item: AttributeGroupMarket | LocationGroupMarket | OptionMarketImage): boolean {
+	isItemSelected(item: AttributeGroupMarket | LocationGroupMarket | OptionMarketImage): boolean
+	{
 		let isSelected = false;
 
 		// instanceof not working in this instance so using isAttributeGroup instead
-		if (isAttributeGroup(item)) {
+		if (isAttributeGroup(item))
+		{
 			isSelected = this.selectedAttributes.some(s => s.id === item.id);;
 		}
-		else if (isLocationGroup(item)) {
+		else if (isLocationGroup(item))
+		{
 			isSelected = this.selectedLocations.some(s => s.id === item.id);;
 		}
-		else if (isOptionMarketImage(item)) {
+		else if (isOptionMarketImage(item))
+		{
 			isSelected = this.selectedOptionMarketImages.some(s => s.id === item.id);
 		}
 
@@ -64,20 +70,23 @@ export class ExpansionAssociateGroupsTabPanelComponent implements OnInit {
 		let selectedItems = [];
 
 		// instanceof not working in this instance so using isAttributeGroup instead
-		if (isAttributeGroup(item)) {
+		if (isAttributeGroup(item))
+		{
 			selectedItems = this.selectedAttributes;
 			item = item as AttributeGroupMarket;
 		}
-		else if (isLocationGroup(item)) {
+		else if (isLocationGroup(item))
+		{
 			this.selectedLocations = [];
 			selectedItems = this.selectedLocations;
 			item = item as LocationGroupMarket;
 		}
-		else if (isOptionMarketImage(item)) {
+		else if (isOptionMarketImage(item))
+		{
 			selectedItems = this.selectedOptionMarketImages;
 			item = item as OptionMarketImage;
 		}
-		 
+
 		let index = selectedItems.findIndex(s => s.id === item.id);
 
 		if (isSelected && index < 0)
@@ -87,6 +96,7 @@ export class ExpansionAssociateGroupsTabPanelComponent implements OnInit {
 		else if (!isSelected && index >= 0)
 		{
 			selectedItems.splice(index, 1);
+
 			selectedItems = [...selectedItems];
 		}
 
@@ -115,6 +125,7 @@ export class ExpansionAssociateGroupsTabPanelComponent implements OnInit {
 						});
 					}
 				});
+
 				this.optionAssociations.attributeGroups = orderBy(this.optionAssociations.attributeGroups, 'sortOrder');
 
 				this.optionAssociations.locationGroups.forEach(group =>
@@ -132,17 +143,21 @@ export class ExpansionAssociateGroupsTabPanelComponent implements OnInit {
 					}
 				});
 
-				this.optionAssociations.optionMarketImages.forEach(image => {
-					if (image.optionCommunityImages.length) {
-						image.optionCommunityImages.forEach(commImage => {
-							if (commImage.optionCommunityId) {
+				this.optionAssociations.optionMarketImages.forEach(image =>
+				{
+					if (image.optionCommunityImages.length)
+					{
+						image.optionCommunityImages.forEach(commImage =>
+						{
+							if (commImage.optionCommunityId)
+							{
 								this.selectedOptionMarketImages.push(image);
 								this.origSelectedOptionMarketImages.push(image);
 							}
 						});
 					}
 				});
-		
+
 				this.onDataChange.emit();
 			}
 		});
@@ -172,7 +187,8 @@ export class ExpansionAssociateGroupsTabPanelComponent implements OnInit {
 			});
 	}
 
-	onLoadImageError(event: any) {
+	onLoadImageError(event: any)
+	{
 		event.srcElement.src = 'assets/pultegroup_logo.jpg';
 	}
 }

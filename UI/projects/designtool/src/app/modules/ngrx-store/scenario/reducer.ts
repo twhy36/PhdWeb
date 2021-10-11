@@ -211,7 +211,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 
 			if (newState.tree)
 			{
-				applyRules(newState.tree, newState.rules, newState.options, newState.scenario?.lotId || state.scenario.lotId);
+				applyRules(newState.tree, newState.rules, newState.options, newState.scenario?.lotId || state.scenario?.lotId);
 
 				subGroups = _.flatMap(newState.tree.treeVersion.groups, g => g.subGroups);
 				points = _.flatMap(subGroups, sg => sg.points);

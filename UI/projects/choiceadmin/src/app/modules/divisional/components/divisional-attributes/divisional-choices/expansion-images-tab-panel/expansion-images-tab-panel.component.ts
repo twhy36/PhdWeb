@@ -181,7 +181,7 @@ export class ExpansionChoiceImagesTabPanelComponent extends UnsubscribeOnDestroy
 				{
 					const newImage = {
 						divChoiceCatalogId: this.choice.divChoiceCatalogId,
-						marketID: orgDto.orgID,
+						marketId: orgDto.orgID,
 						imageURL: imageUrl,
 						sortKey: sort
 					} as IDivChoiceCatalogMarketImageDto;
