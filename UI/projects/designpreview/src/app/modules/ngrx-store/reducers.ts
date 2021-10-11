@@ -338,10 +338,10 @@ export const favoriteTitle = createSelector(
 	fromSalesAgreement.salesAgreementState,
 	fromSalesAgreement.primaryBuyer,
 	fromChangeOrder.changeOrderPrimaryBuyer,
-	(state, saBuyer, coBuyer) => {
+	(state, sagBuyer, changeOrderBuyer) => {
 		if (state?.id) 
 		{
-			const buyer = state.status === 'Approved' ? saBuyer : coBuyer || saBuyer;
+			const buyer = changeOrderBuyer ? changeOrderBuyer : sagBuyer;
 			const contact = buyer?.opportunityContactAssoc?.contact;
 			const lastName = contact && !!contact.lastName ? contact.lastName : '';
 
