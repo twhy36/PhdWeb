@@ -43,7 +43,13 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 	get saveDisabled(): boolean
 	{
 		return !this.orgId
+			// Disables save if form is invalid and user is not trying to turn on preview
 			|| (!this.communitySettingsForm.valid && !this.previewEnabledDirty)
+			// Disables save if user trys to remove existing value for ecoeMonths
+			|| (this.communitySettingsForm.get('ecoeMonths').invalid && this.communitySettingsForm.get('ecoeMonths').dirty && this.financialCommunityInfo.defaultECOEMonths != null)
+			// Disables save is user trys to remove existing value for earnest money
+			|| (this.communitySettingsForm.get('earnestMoney').invalid && this.communitySettingsForm.get('earnestMoney').dirty && this.financialCommunityInfo.earnestMoneyAmount != null)
+			// Disables save if form and toggles are pristine
 			|| (
 				this.communitySettingsForm.pristine
 				&& !this.commmunityLinkEnabledDirty
