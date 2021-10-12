@@ -17,7 +17,6 @@ import { SearchBarComponent } from '../../../shared/components/search-bar/search
 import { ViewContractsSidePanelComponent } from '../view-contracts-side-panel/view-contracts-side-panel.component';
 import { ConfirmModalComponent, PhdTableComponent } from 'phd-common';
 import { FinancialMarket } from '../../../shared/models/financialMarket.model';
-import { combineLatest } from 'rxjs';
 
 @Component({
 	selector: 'view-contracts',
@@ -86,17 +85,18 @@ export class ViewContractsComponent extends UnsubscribeOnDestroy implements OnIn
 				this.isSorting = false;
 				this.canManageDocument = true;
 			}),
-		).subscribe(mkt => this.updateTemplates(mkt));
+		).subscribe(() => this.updateTemplates());
 
 		this._orgService.canEdit(this._route.parent.snapshot.data['requiresClaim']).pipe(
 			this.takeUntilDestroyed(),
 		).subscribe(canEdit => this.canEdit = canEdit);
 	}
 
-	updateTemplates(mkt: FinancialMarket): void
+	updateTemplates(): void
 	{
-		this._contractService.getDraftOrInUseContractTemplates(mkt.id).subscribe(templates =>
+		this._contractService.getDraftOrInUseContractTemplates(this.currentMktId).subscribe(templates =>
 			{
+				this.allTemplates = templates;
 				this.allTemplates.forEach(template =>
 					{
 						template.application = this.getApplication(template);
@@ -295,7 +295,7 @@ export class ViewContractsComponent extends UnsubscribeOnDestroy implements OnIn
 		this._contractService.saveDocument(contractTemplateDto)
 			.subscribe(newDto =>
 			{
-				this.updateTemplates(this.currentMarket);
+				this.updateTemplates();
 				newDto.assignedCommunityIds = contractTemplateDto.assignedCommunityIds;
 				newDto.application = this.getApplication(newDto);
 
