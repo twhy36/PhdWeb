@@ -30,7 +30,6 @@ export class ViewContractsComponent extends UnsubscribeOnDestroy implements OnIn
 	private sidePanel: ViewContractsSidePanelComponent;
 
 	private _selected: ContractTemplate;
-	marketSubject: Subject<FinancialMarket>;
 	currentMarket: FinancialMarket;
 	sidePanelOpen: boolean = false;
 	currentMktId: number;
@@ -76,17 +75,10 @@ export class ViewContractsComponent extends UnsubscribeOnDestroy implements OnIn
 
 	ngOnInit(): void
 	{
-		this.marketSubject = new ReplaySubject<FinancialMarket>();
 		this._orgService.currentMarket$.pipe(
 			this.takeUntilDestroyed(),
 			distinctUntilChanged(),
 			filter(mkt => mkt != null),
-		).subscribe(mkt => {
-			this.currentMarket = mkt;
-			this.marketSubject.next(mkt);
-		});
-
-		this.marketSubject.pipe(
 			tap(mkt =>
 			{
 				this.currentMktId = mkt.id;
@@ -94,21 +86,24 @@ export class ViewContractsComponent extends UnsubscribeOnDestroy implements OnIn
 				this.isSorting = false;
 				this.canManageDocument = true;
 			}),
-			switchMap(mkt => this._contractService.getDraftOrInUseContractTemplates(mkt.id))
-		).subscribe(templates =>
-		{
-			this.allTemplates = templates;
-			this.allTemplates.forEach(template =>
-				{
-					template.application = this.getApplication(template);
-				})
-			this.getTemplatesToBedisplayed();
-			this.resetSearchBar();
-		});
+		).subscribe(mkt => this.updateTemplates(mkt));
 
 		this._orgService.canEdit(this._route.parent.snapshot.data['requiresClaim']).pipe(
 			this.takeUntilDestroyed(),
 		).subscribe(canEdit => this.canEdit = canEdit);
+	}
+
+	updateTemplates(mkt: FinancialMarket): void
+	{
+		this._contractService.getDraftOrInUseContractTemplates(mkt.id).subscribe(templates =>
+			{
+				this.allTemplates.forEach(template =>
+					{
+						template.application = this.getApplication(template);
+					})
+				this.getTemplatesToBedisplayed();
+				this.resetSearchBar();
+		});
 	}
 
 	getTemplatesToBedisplayed()
@@ -300,7 +295,7 @@ export class ViewContractsComponent extends UnsubscribeOnDestroy implements OnIn
 		this._contractService.saveDocument(contractTemplateDto)
 			.subscribe(newDto =>
 			{
-				this.marketSubject.next(this.currentMarket);
+				this.updateTemplates(this.currentMarket);
 				newDto.assignedCommunityIds = contractTemplateDto.assignedCommunityIds;
 				newDto.application = this.getApplication(newDto);
 
