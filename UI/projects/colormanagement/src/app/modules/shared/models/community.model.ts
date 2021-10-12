@@ -60,7 +60,7 @@ export interface IPlanOptionCommunity
 {
   id: number;
   planId: number;
-  isBasehouse: boolean;
+  isBaseHouse: boolean;
 }
 
 export interface IPlanOptionCommunity1
@@ -73,8 +73,7 @@ export interface IPlanOptionCommunity1
 export interface IPlanOptionCommunityDto
 {
   planOptionId: number;
-  // planId: number;
-	// planSalesName: string;
+  isBaseHouse: boolean;
   planCommunity:IPlanCommunity;
   optionCommunityId: number;
   optionSalesName:string;
