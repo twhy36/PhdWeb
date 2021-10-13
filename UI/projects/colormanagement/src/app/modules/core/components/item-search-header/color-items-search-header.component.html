@@ -76,11 +76,10 @@
 		</phd-column>
 		<phd-column header="" columnClass="phd-icon">
 			<ng-template #body let-planOptionDto>
-				<i
-							class="fa fa-pencil fa-fw"
-							title="Edit Color Item"
-							*ngIf="planOptionDto.colorItem?.isActive"
-						>
+				<i	
+				class="fa fa-pencil fa-fw"	
+				title="Edit Color Item"	
+				*ngIf="planOptionDto.colorItem?.isActive">
 				</i>
 			</ng-template>
 		</phd-column>
@@ -89,14 +88,11 @@
 				<i
 				class="fa fa-fw fa-trash"
 				title="Delete Color Item"
-				*ngIf = "planOptionDto.colorItem?.hasConfig===false && planOptionDto.colorItem?.hasSalesagreement === false"
-				>
-				</i>
+				*ngIf = "planOptionDto.colorItem?.hasConfig===false && planOptionDto.colorItem?.hasSalesagreement === false"></i>				>
 				<i
 				class="fa fa-spinner fa-spin fa-fw"
 				title="Loading Delete Color"
-				*ngIf="planOptionDto.colorItem?.hasConfig===null && planOptionDto.colorItem?.hasSalesagreement === null"
-			>
+				*ngIf="planOptionDto.colorItem?.hasConfig===null && planOptionDto.colorItem?.hasSalesagreement === null">
 			</i>
 			</ng-template>
 		</phd-column>

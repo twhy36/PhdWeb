@@ -170,16 +170,18 @@ export class ColorItemsSearchHeaderComponent
 	{
 		this._colorService.getSalesAgreementForColorItem(coloritem,this.currentFinancialCommunityId).subscribe((result)=>
 		{
-			result.map((coloritem) => {
-					this.planOptionDtosList.find(c =>c.colorItem?.colorItemId === coloritem.colorItemId).colorItem.hasSalesagreement = coloritem.hasSalesagreement;
-				})
+			result.map((coloritem) => 
+			{
+				this.planOptionDtosList.find(c =>c.colorItem?.colorItemId === coloritem.colorItemId).colorItem.hasSalesAgreement = coloritem.hasSalesAgreement;
+			});
 		})
 
 		this._colorService.getconfigForColorItem(coloritem,this.currentFinancialCommunityId).subscribe((result)=>
 		{
-			result.map((coloritem) => {
-					this.planOptionDtosList.find(c =>c.colorItem?.colorItemId === coloritem.colorItemId).colorItem.hasConfig = coloritem.hasConfig;
-				})
+			result.map((coloritem) => 
+			{
+				this.planOptionDtosList.find(c =>c.colorItem?.colorItemId === coloritem.colorItemId).colorItem.hasConfig = coloritem.hasConfig;
+			});
 		})
 	}
 	onPanelScroll()
