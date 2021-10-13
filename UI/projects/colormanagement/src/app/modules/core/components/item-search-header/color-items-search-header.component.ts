@@ -129,7 +129,7 @@ export class ColorItemsSearchHeaderComponent
 					return planOptionDto;
 				}) as Array<IPlanOptionCommunityDto>;
 				//Get coloritems for each optionCommunity.
-				this.getColorItemsForOption(list,true);
+				this.getColorItemsForOption(list, true);
 			}
 			else {
 				let list = this.currentOption?.planOptionCommunities.map((planoption: IPlanOptionCommunity) => {
@@ -147,12 +147,12 @@ export class ColorItemsSearchHeaderComponent
 					return planOptionDto;
 				}) as Array<IPlanOptionCommunityDto>;
 				//Get coloritems for selected optionCommunity.
-				this.getColorItemsForOption(list,false);
+				this.getColorItemsForOption(list, false);
 			}
 		}
 	}
 
-	getColorItemsForOption(planoptionDto: IPlanOptionCommunityDto[],isAllOption:boolean) {
+	getColorItemsForOption(planoptionDto: IPlanOptionCommunityDto[], isAllOption:boolean) {
 		this._colorService.getPlanOptionAssocColorItems
 			(this.currentFinancialCommunityId,
 				planoptionDto.map(planoption => planoption.planOptionId),
@@ -167,7 +167,7 @@ export class ColorItemsSearchHeaderComponent
 				})
 			).subscribe((planOptionDtos) => {
 				this.currentPage++;
-				this.allDataLoaded = isAllOption ? planOptionDtos.length < this.settings.infiniteScrollPageSize && (isAllOption && this.optionListIndex === this.		planOptionList.length): planOptionDtos.length < this.settings.infiniteScrollPageSize;
+				this.allDataLoaded = isAllOption ? planOptionDtos.length < this.settings.infiniteScrollPageSize && (isAllOption && this.optionListIndex === this.planOptionList.length): planOptionDtos.length < this.settings.infiniteScrollPageSize;
 				if (planOptionDtos.filter(x => x.colorItem)?.length > 0) {
 					this.planOptionHasNoColorItem = false;
 				}
