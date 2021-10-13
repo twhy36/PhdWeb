@@ -114,7 +114,7 @@ export class ColorItemsSearchHeaderComponent
 			//Case when all Options, get coloritems for each option.
 			if (!this.currentOption?.id) {
 				this.optionListIndex++;
-				let list = this.planOptionList[this.optionListIndex].planOptionCommunities.map((planoption: IPlanOptionCommunity) => {
+				const list = this.planOptionList[this.optionListIndex].planOptionCommunities.map((planoption: IPlanOptionCommunity) => {
 					let planOptionDto: IPlanOptionCommunityDto = {
 						planCommunity: {
 							id: planoption.planId,
@@ -128,12 +128,12 @@ export class ColorItemsSearchHeaderComponent
 					}
 					return planOptionDto;
 				}) as Array<IPlanOptionCommunityDto>;
-				let isElevation = this.isElevationOption(this.planOptionList[this.optionListIndex].optionSubCategoryId);
+				const isElevation = this.isElevationOption(this.planOptionList[this.optionListIndex].optionSubCategoryId);
 				//Get coloritems for each optionCommunity.
 				this.getColorItemsForOption(list, true, isElevation);
 			}
 			else {
-				let list = this.currentOption?.planOptionCommunities.map((planoption: IPlanOptionCommunity) => {
+				const list = this.currentOption?.planOptionCommunities.map((planoption: IPlanOptionCommunity) => {
 					let planOptionDto: IPlanOptionCommunityDto = {
 						planCommunity: {
 							id: planoption.planId,
@@ -148,7 +148,7 @@ export class ColorItemsSearchHeaderComponent
 					return planOptionDto;
 				}) as Array<IPlanOptionCommunityDto>;
 				//Get coloritems for selected optionCommunity.
-				let isElevation = this.isElevationOption(this.currentOption?.optionSubCategoryId);
+				const isElevation = this.isElevationOption(this.currentOption?.optionSubCategoryId);
 				this.getColorItemsForOption(list, false, isElevation);
 			}
 		}
@@ -184,11 +184,11 @@ export class ColorItemsSearchHeaderComponent
 				planOptionDtos = planOptionDtos.filter(x => !!x.colorItem);
 				if (planOptionDtos.length > 0) 
 				{
-					let planOptionGridList = [];
+					const planOptionGridList = [];
 					if(!isElevation)
 					{
 						//Group by ColorItem Name for Non basehouse and elevation options
-						let groupByColorItemName = _.groupBy(planOptionDtos.filter(x => x.isBaseHouse === false), c => c.colorItem.name);
+						const groupByColorItemName = _.groupBy(planOptionDtos.filter(x => x.isBaseHouse === false), c => c.colorItem.name);
 						for (const key in groupByColorItemName) {
 							if (groupByColorItemName.hasOwnProperty(key)) {
 								let item = groupByColorItemName[key];
@@ -203,7 +203,7 @@ export class ColorItemsSearchHeaderComponent
 							}
 						}
 						// Do not group by ColorItem Name for BaseHouse Option
-						let planOptionBaseHouse = planOptionDtos.filter(x => x.isBaseHouse);
+						const planOptionBaseHouse = planOptionDtos.filter(x => x.isBaseHouse);
 						planOptionBaseHouse.map((item) => {
 							let planOptiongrid: IPlanOptionCommunityGridDto =
 							{
@@ -231,7 +231,7 @@ export class ColorItemsSearchHeaderComponent
 						
 					}
 					this.planOptionDtosList = [...this.planOptionDtosList, ...planOptionGridList];
-					let expectedListLength = this.pageNumber * this.settings.infiniteScrollPageSize;
+					const expectedListLength = this.pageNumber * this.settings.infiniteScrollPageSize;
 					if (this.planOptionDtosList.length < expectedListLength && !this.allDataLoaded && isAllOption) {
 						this.onPanelScroll();
 					}
