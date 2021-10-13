@@ -7,7 +7,7 @@ import { filter } from 'rxjs/operators';
 import { MessageService } from 'primeng/api';
 
 import { HomeSite, HomeSiteDtos } from '../../../shared/models/homesite.model';
-import { MonotonyRule } from '../../../shared/models/monotonyRule.model';
+import { MonotonyRule, MonotonyRuleDtos } from '../../../shared/models/monotonyRule.model';
 
 import { HomeSiteService } from '../../../core/services/homesite.service';
 import { SidePanelComponent } from 'phd-common';
@@ -30,8 +30,7 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 	@Input() communityWebsiteKey: string;
 	@Input() isColorSchemePlanRuleEnabled: boolean;
 
-	@Output() onSaveHomesite = new EventEmitter<{ homesiteDto: HomeSiteDtos.ILotDto, lotBuildTypeUpdated: boolean}>();
-	@Output() onSaveMonotonyRules = new EventEmitter <{ lotId: number, monotonyRules: MonotonyRule[] }>();
+	@Output() onSaveHomesiteAndMonotonyRules = new EventEmitter<{ homesite: HomeSiteDtos.IHomeSiteEventDto, rule: MonotonyRuleDtos.IMonotonyRuleEventDto }>();
 
 	@ViewChild(SidePanelComponent)
 	private sidePanel: SidePanelComponent
@@ -76,14 +75,14 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 		return this.inaccessibleLotStatuses.includes(this.selectedHomesite.dto.lotStatusDescription);
 	}
 
-	get canSave(): boolean
+	get canSaveHomesite(): boolean
 	{
-		return this.homesiteForm.pristine || !this.homesiteForm.valid || this.saving;
+		return !this.homesiteForm.pristine && this.homesiteForm.valid && !this.saving;
 	}
 
 	get canSaveMonotony(): boolean
 	{
-		return this.lotInaccessible || this.monotonyForm.pristine || !this.monotonyForm.valid || this.saving;
+		return !this.lotInaccessible && !this.monotonyForm.pristine && this.monotonyForm.valid && !this.saving;
 	}
 	
 	get handings(): Array<HomeSiteDtos.Handing>
@@ -378,7 +377,7 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 		}
 	}
 
-	saveMonotonyRules()
+	saveMonotonyRules(): MonotonyRuleDtos.IMonotonyRuleEventDto
 	{
 		const monotonyRulesToSave: Array<MonotonyRule> = [];
 		const lotId = this.selectedHomesite.dto.id;
@@ -401,7 +400,7 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 			})
 		});
 
-		this.onSaveMonotonyRules.emit({ lotId: lotId, monotonyRules: monotonyRulesToSave });
+		return { lotId: lotId, monotonyRules: monotonyRulesToSave } as MonotonyRuleDtos.IMonotonyRuleEventDto;
 	}
 
 	copyAssignedLots(elevationColor: string)
@@ -468,7 +467,28 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 		return !this.canEditAvailability || !makeUnavailable ? origStatus : 'Unavailable';
 	}
 
-	saveHomesite()
+	/**
+	 * Handles the click event on the Save button.
+	 */ 
+	onSave()
+	{
+		let homesiteDto: HomeSiteDtos.IHomeSiteEventDto;
+		let monotonyRulesDto: MonotonyRuleDtos.IMonotonyRuleEventDto;
+
+		if (this.canSaveHomesite)
+		{
+			homesiteDto = this.saveHomesite();
+		}
+
+		if (this.canSaveMonotony)
+		{
+			monotonyRulesDto = this.saveMonotonyRules();
+		}
+
+		this.onSaveHomesiteAndMonotonyRules.emit({ homesite: homesiteDto, rule: monotonyRulesDto });
+	}
+
+	saveHomesite(): HomeSiteDtos.IHomeSiteEventDto
 	{
 		this.selectedHomesite.dto.premium = this.homesiteForm.controls['premium'].value;
 		this.selectedHomesite.dto.lotStatusDescription = this.getNewLotStatus(this.selectedHomesite.dto.lotStatusDescription, this.homesiteForm.controls['lotStatusDescription'].value);
@@ -484,7 +504,7 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 		const lotBuildTypeUpdated = this.homesiteForm.controls['changeModelToSpec'].dirty;
 		this.selectedHomesite.dto.lotBuildTypeDescription = lotBuildTypeUpdated ? this.homesiteForm.controls['changeModelToSpec'].value : this.selectedHomesite.lotBuildTypeDescription;
 
-		this.onSaveHomesite.emit({ homesiteDto: this.selectedHomesite.dto, lotBuildTypeUpdated: lotBuildTypeUpdated});
+		return { homesiteDto: this.selectedHomesite.dto, lotBuildTypeUpdated: lotBuildTypeUpdated} as HomeSiteDtos.IHomeSiteEventDto;
 	}
 
 	controlHasErrors(control: AbstractControl)

@@ -840,7 +840,7 @@ export function getDisabledByList(tree: Tree, groups: Group[], point: DecisionPo
 		orPoints: [],
 		orChoices: []
 	});
-	
+
 	const allPoints = _.flatMap(tree?.treeVersion?.groups, g => _.flatMap(g.subGroups, sg => sg.points));
 	const allChoices = _.flatMap(allPoints, p => p.choices.map(c => ({...c, pointId: p.id})));
 	const filteredPoints = _.flatMap(groups, g => _.flatMap(g.subGroups, sg => sg.points));
@@ -849,12 +849,16 @@ export function getDisabledByList(tree: Tree, groups: Group[], point: DecisionPo
 			if (rule.points?.length > 1)
 			{
 				rule.points.forEach(disabledByPointId => {
-					disabledByList.andPoints.push({
-						label: allPoints.find(point => point.id === disabledByPointId)?.label,
-						pointId: filteredPoints.find(point => point.id === disabledByPointId) ? disabledByPointId : null,
-						ruleType: rule.ruleType
-					});
-				});				
+					const disabledByPoint = allPoints.find(point => point.id === disabledByPointId);
+					if (disabledByPoint?.status !== PointStatus.COMPLETED)
+					{
+						disabledByList.andPoints.push({
+							label: disabledByPoint?.label,
+							pointId: filteredPoints.find(point => point.id === disabledByPointId) ? disabledByPointId : null,
+							ruleType: rule.ruleType
+						});
+					}
+				});
 			}
 			else if (rule.points?.length === 1)
 			{
@@ -870,13 +874,16 @@ export function getDisabledByList(tree: Tree, groups: Group[], point: DecisionPo
 			{
 				rule.choices.forEach(disabledByChoiceId => {
 					const disabledByChoice = allChoices.find(choice => choice.id === disabledByChoiceId);
-					disabledByList.andChoices.push({
-						label: disabledByChoice?.label,
-						pointId: filteredPoints.find(point => point.id === disabledByChoice?.pointId) ? disabledByChoice?.pointId : null,
-						choiceId: disabledByChoiceId,
-						ruleType: rule.ruleType
-					});
-				});				
+					if (disabledByChoice.quantity === 0)
+					{
+						disabledByList.andChoices.push({
+							label: disabledByChoice?.label,
+							pointId: filteredPoints.find(point => point.id === disabledByChoice?.pointId) ? disabledByChoice?.pointId : null,
+							choiceId: disabledByChoiceId,
+							ruleType: rule.ruleType
+						});
+					}
+				});
 			}
 			else if (rule.choices?.length === 1)
 			{
@@ -902,7 +909,7 @@ export function getDisabledByList(tree: Tree, groups: Group[], point: DecisionPo
 						choiceId: disabledByChoiceId,
 						ruleType: rule.ruleType
 					});
-				});				
+				});
 			}
 			else if (rule.choices?.length === 1)
 			{
@@ -921,20 +928,20 @@ export function getDisabledByList(tree: Tree, groups: Group[], point: DecisionPo
 }
 
 export function getLockedInChoice(choice: JobChoice | ChangeOrderChoice, options: Array<JobPlanOption | ChangeOrderPlanOption>)
-	: { 
+	: {
 		choice: (JobChoice | ChangeOrderChoice),
-		optionAttributeGroups: Array<{ optionId: string, attributeGroups: number[], locationGroups: number[] }> 
+		optionAttributeGroups: Array<{ optionId: string, attributeGroups: number[], locationGroups: number[] }>
 	}
 {
-	return { choice, 
+	return { choice,
 		optionAttributeGroups: isJobChoice(choice)
 			? choice.jobChoiceJobPlanOptionAssocs.filter(a => a.choiceEnabledOption)
 				.map(a => {
 					const opt = options.find(o => (o as JobPlanOption).id === a.jobPlanOptionId);
 					if (opt)
 					{
-						return { 
-							optionId: opt.integrationKey, 
+						return {
+							optionId: opt.integrationKey,
 							attributeGroups: (opt as JobPlanOption).jobPlanOptionAttributes?.map(att => att.attributeGroupCommunityId),
 							locationGroups: (opt as JobPlanOption).jobPlanOptionLocations?.map(loc => loc.locationGroupCommunityId)
 						};
@@ -949,11 +956,11 @@ export function getLockedInChoice(choice: JobChoice | ChangeOrderChoice, options
 					const opt = options.find(o => (o as ChangeOrderPlanOption).id === a.jobChangeOrderPlanOptionId);
 					if (opt)
 					{
-						return { 
-							optionId: opt.integrationKey, 
+						return {
+							optionId: opt.integrationKey,
 							attributeGroups: (opt as ChangeOrderPlanOption).jobChangeOrderPlanOptionAttributes?.map(att => att.attributeGroupCommunityId),
 							locationGroups: (opt as ChangeOrderPlanOption).jobChangeOrderPlanOptionLocations?.map(loc => loc.locationGroupCommunityId)
-						};	
+						};
 					}
 					else
 					{

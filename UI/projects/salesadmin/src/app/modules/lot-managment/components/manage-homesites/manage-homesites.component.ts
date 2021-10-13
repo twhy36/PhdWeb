@@ -20,7 +20,7 @@ import { UnsubscribeOnDestroy } from '../../../shared/utils/unsubscribe-on-destr
 import { ManageHomesitesSidePanelComponent } from '../manage-homesites-side-panel/manage-homesites-side-panel.component';
 
 import * as moment from 'moment';
-import { MonotonyRule } from '../../../shared/models/monotonyRule.model';
+import { MonotonyRule, MonotonyRuleDtos } from '../../../shared/models/monotonyRule.model';
 import { Settings } from '../../../shared/models/settings.model';
 import { SettingsService } from '../../../core/services/settings.service';
 import { clone, intersection, orderBy, union, unionBy } from "lodash";
@@ -75,12 +75,12 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 		private _modalService: NgbModal,
 		private _msgService: MessageService,
 		private _route: ActivatedRoute,
-		private _settingsService: SettingsService) { super() }
+		private _settingsService: SettingsService) { super(); }
 
 	@HostListener('window:beforeunload')
 	canDeactivate(): Observable<boolean> | boolean
 	{
-		return this.sidePanelOpen ? !(this.sidePanel.homesiteForm.dirty || this.sidePanel.monotonyForm.dirty) : true
+		return this.sidePanelOpen ? !(this.sidePanel.homesiteForm.dirty || this.sidePanel.monotonyForm.dirty) : true;
 	}
 
 	ngOnInit()
@@ -132,11 +132,13 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 			this.takeUntilDestroyed()
 		).subscribe(canEdit => this.canEdit = canEdit);
 
-		this._homeSiteService.getViewAdjacencies().subscribe(data => {
+		this._homeSiteService.getViewAdjacencies().subscribe(data =>
+		{
 			this.viewAdjacencies = data;
 		});
 
-		this._homeSiteService.getPhysicalLotTypes().subscribe(data => {
+		this._homeSiteService.getPhysicalLotTypes().subscribe(data =>
+		{
 			this.physicalLotTypes = data;
 		});
 	}
@@ -148,9 +150,9 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 			return;
 		}
 		this._orgService.getWebsiteCommunity(salesCommunityId).subscribe(data =>
-			{
-				this.selectedCommunityWebsiteKey = data?.webSiteIntegrationKey;
-			}
+		{
+			this.selectedCommunityWebsiteKey = data?.webSiteIntegrationKey;
+		}
 		);
 	}
 
@@ -249,7 +251,7 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 			this.lotCount = this.filteredLots.length;
 			this.isLoading = false;
 
-		})
+		});
 	}
 
 	resetFilteredData()
@@ -423,7 +425,8 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 
 				const pipe = new HandingsPipe();
 
-				result.forEach(n => {
+				result.forEach(n =>
+				{
 					(<any>n).handingDisplay = pipe.transform(n.handing);
 					(<any>n).handingValues = (n.handing || []).map(h => h.handingId);
 				});
@@ -441,7 +444,7 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 			}
 
 			this.isLoading = false;
-		})
+		});
 	}
 
 	clearFilter()
@@ -481,35 +484,6 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 			this.selectedHomesite = lot;
 			this.sidePanelOpen = true;
 		});
-	}
-
-	saveHomesite(homesite: { homesiteDto: HomeSiteDtos.ILotDto, lotBuildTypeUpdated: boolean })
-	{
-		this.saving = true;
-
-		let commLbId = this.selectedHomesite.commLbid;
-
-		this._homeSiteService.saveHomesite(commLbId, homesite.homesiteDto, homesite.lotBuildTypeUpdated)
-			.pipe(finalize(() => { this.saving = false; }))
-			.subscribe((dto) =>
-			{
-				this.selectedHomesite.dto = dto;
-				const pipe = new HandingsPipe();
-
-				Object.assign(this.filteredLots.find(l => l.dto.id === dto.id),
-					{
-						handingDisplay: pipe.transform(dto.lotHandings),
-						handingValues: (dto.lotHandings || []).map(h => h.handingId)
-					});
-
-				this._msgService.add({ severity: 'success', summary: 'Homesite', detail: `${this.selectedHomesite.lotBlock} Saved!` });
-
-				this.sidePanelOpen = false;
-			},
-				error =>
-				{
-					this._msgService.add({ severity: 'error', summary: 'Error', detail: error });
-				});
 	}
 
 	releaseLot(homesite: HomeSite)
@@ -558,13 +532,45 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 
 	}
 
-	saveMonotonyRules(rule: {lotId: number, monotonyRules: Array<MonotonyRule>})
+	/**
+	 * Saves Homesite Details and Monotony Rules via an emitted event from the side panel.
+	 * @param event The event containing the updated Homesite Details and Monotony Rules.
+	 */
+	saveHomesiteAndMonotonyRules(event: { homesite: HomeSiteDtos.IHomeSiteEventDto, rule: MonotonyRuleDtos.IMonotonyRuleEventDto; }): void
 	{
 		this.saving = true;
 
-		this._homeSiteService.saveMonotonyRules(rule.monotonyRules, rule.lotId).pipe(finalize(() => { this.saving = false; })).subscribe(response =>
+		const commLbId = this.selectedHomesite.commLbid;
+
+		const saveHomesite$ = event.homesite ? this._homeSiteService.saveHomesite(commLbId, event.homesite.homesiteDto, event.homesite.lotBuildTypeUpdated) : of({} as HomeSiteDtos.ILotDto);
+		const saveMonotonyRules$ = event.rule ? this._homeSiteService.saveMonotonyRules(event.rule.monotonyRules, event.rule.lotId) : of({} as Response);
+
+		forkJoin(saveHomesite$, saveMonotonyRules$).pipe(
+			finalize(() =>
+			{
+				this.saving = false;
+			})
+		).subscribe(([lotDto, monotonyResp]) =>
 		{
-			this._msgService.add({ severity: 'success', summary: 'Monotony Rules', detail: 'Monotony Rules Saved successfully' });
+			if (event.homesite)
+			{
+				this.selectedHomesite.dto = lotDto;
+				const pipe = new HandingsPipe();
+
+				Object.assign(this.filteredLots.find(l => l.dto.id === lotDto.id),
+					{
+						handingDisplay: pipe.transform(lotDto.lotHandings),
+						handingValues: (lotDto.lotHandings || []).map(h => h.handingId)
+					});
+
+				this._msgService.add({ severity: 'success', summary: 'Homesite', detail: `${this.selectedHomesite.lotBlock} Saved!` });
+			}
+
+			if (event.rule)
+			{
+				this._msgService.add({ severity: 'success', summary: 'Monotony Rules', detail: 'Monotony Rules Saved successfully' });
+			}
+
 			this.sidePanelOpen = false;
 		},
 			error =>
@@ -616,12 +622,12 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 				{
 					this._msgService.add({ severity: 'success', summary: 'Homesite', detail: `${lot.lotBlock} Available in THO!` });
 				}
-				
+
 			},
-			error =>
-			{
-				this._msgService.add({ severity: 'error', summary: 'Error', detail: error });
-			})
+				error =>
+				{
+					this._msgService.add({ severity: 'error', summary: 'Error', detail: error });
+				});
 	}
 }
 
