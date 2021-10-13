@@ -40,10 +40,12 @@ export class PlanOptionService {
 		const entity = `optionCommunities`;
 		const select = `id, optionSalesName`;
 		const orderBy = `optionSalesName asc`;
+		const expand = `planOptionCommunities($select=Id,isBaseHouse,planid)`
 
 		let qryStr = `${this._ds}select=${encodeURIComponent(select)}`;
 		qryStr += `&${this._ds}orderby=${encodeURIComponent(orderBy)}`;
-
+		qryStr += `&${this._ds}expand=${encodeURIComponent(expand)}`;
+		
 		let filter = `financialCommunityId eq ${financialCommunityId} and isActive eq true`;
 
 		if (planIds?.length > 0) {
