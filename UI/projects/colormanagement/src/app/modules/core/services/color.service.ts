@@ -158,6 +158,67 @@ export class ColorService {
 			}))
 	}
 
+	getSalesAgreementForColorItem(colorItemList: Array<IColorItemDto>, communityId:number):Observable<IColorItemDto[]>
+	{
+		return this.identityService.token.pipe(
+			switchMap((token: string) =>
+			{
+				let guid = newGuid();
+				let requests = colorItemList.map(coloritem =>
+					{
+					const entity = `jobs`;
+					const filter = `(FinancialCommunityId eq ${communityId}) and ((jobPlanOptions/any(po: po/planOptionId eq ${coloritem.edhPlanOptionId})) or (jobChangeOrderGroups/any(cog: cog/jobChangeOrders/any(co: co/jobChangeOrderPlanOptions/any(po:po/planOptionId eq ${coloritem.edhPlanOptionId})))))`;
+					const select = `id`;
+					let qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}top=1`;
+					const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
+					return createBatchGet(endpoint);
+					});
+				let headers = createBatchHeaders(guid, token);
+				let batch = createBatchBody(guid, requests);
+
+				return this._http.post(`${environment.apiUrl}$batch`, batch, { headers: headers });
+			}),
+			map((response: any)=>
+			{
+				let bodies = response.responses.map(res=>res.body);
+				colorItemList.forEach((coloritem,i)=>
+				{
+					coloritem.hasSalesagreement = bodies[i]?.value?.length > 0 ? true : false;
+				})
+				return colorItemList;
+			}))
+	}
+
+	getconfigForColorItem(colorItemList: Array<IColorItemDto>, communityId:number):Observable<IColorItemDto[]>
+	{
+		return this.identityService.token.pipe(
+			switchMap((token: string) =>
+			{
+				let guid = newGuid();
+				let requests = colorItemList.map(coloritem =>
+					{
+					const entity = `scenarioOptions`;
+					const filter = `(EdhPlanOptionId eq ${coloritem.edhPlanOptionId})`;
+					const select = `id`;
+					let qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}top=1`;
+					const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
+					return createBatchGet(endpoint);
+					});
+				let headers = createBatchHeaders(guid, token);
+				let batch = createBatchBody(guid, requests);
+
+				return this._http.post(`${environment.apiUrl}$batch`, batch, { headers: headers });
+			}),
+			map((response: any)=>
+			{
+				let bodies = response.responses.map(res=>res.body);
+				colorItemList.forEach((coloritem,i)=>
+				{
+					coloritem.hasConfig = bodies[i]?.value?.length > 0 ? true : false;
+				})
+				return colorItemList;
+			}))
+	}
 	private handleError(error: Response)
 	{
 		// In the future, we may send the server to some remote logging infrastructure

@@ -168,7 +168,19 @@ export class ColorItemsSearchHeaderComponent
 	}
 	getSalesagreementOrConfig(coloritem:IColorItemDto[])
 	{
+		this._colorService.getSalesAgreementForColorItem(coloritem,this.currentFinancialCommunityId).subscribe((result)=>
+		{
+			result.map((coloritem) => {
+					this.planOptionDtosList.find(c =>c.colorItem?.colorItemId === coloritem.colorItemId).colorItem.hasSalesagreement = coloritem.hasSalesagreement;
+				})
+		})
 
+		this._colorService.getconfigForColorItem(coloritem,this.currentFinancialCommunityId).subscribe((result)=>
+		{
+			result.map((coloritem) => {
+					this.planOptionDtosList.find(c =>c.colorItem?.colorItemId === coloritem.colorItemId).colorItem.hasConfig = coloritem.hasConfig;
+				})
+		})
 	}
 	onPanelScroll()
 	{
