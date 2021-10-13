@@ -88,12 +88,13 @@
 				<i
 				class="fa fa-fw fa-trash"
 				title="Delete Color Item"
-				*ngIf = "planOptionDto.colorItem?.hasConfig===false && planOptionDto.colorItem?.hasSalesagreement === false"></i>				>
+				*ngIf = "planOptionDto.colorItem?.hasConfig===false && planOptionDto.colorItem?.hasSalesagreement === false">
+				</i>
 				<i
 				class="fa fa-spinner fa-spin fa-fw"
 				title="Loading Delete Color"
 				*ngIf="planOptionDto.colorItem?.hasConfig===null && planOptionDto.colorItem?.hasSalesagreement === null">
-			</i>
+				</i>
 			</ng-template>
 		</phd-column>
 	</phd-table>
