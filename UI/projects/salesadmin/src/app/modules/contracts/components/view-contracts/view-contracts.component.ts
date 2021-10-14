@@ -1,8 +1,8 @@
 import { Component, OnInit, ViewChild, HostListener } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
-import { Observable, ReplaySubject, Subject } from 'rxjs';
-import { distinctUntilChanged, filter, switchMap, tap } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { distinctUntilChanged, filter, tap } from 'rxjs/operators';
 import { cloneDeep } from "lodash";
 
 import * as moment from 'moment';
