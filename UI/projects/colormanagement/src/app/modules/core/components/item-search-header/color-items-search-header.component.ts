@@ -114,7 +114,7 @@ export class ColorItemsSearchHeaderComponent
 			//Case when all Options, get coloritems for each option.
 			if (!this.currentOption?.id) {
 				this.optionListIndex++;
-				let list = this.planOptionList[this.optionListIndex].planOptionCommunities.map((planoption: IPlanOptionCommunity) => {
+				const list = this.planOptionList[this.optionListIndex].planOptionCommunities.map((planoption: IPlanOptionCommunity) => {
 					let planOptionDto: IPlanOptionCommunityDto = {
 						planCommunity: {
 							id: planoption.planId,
@@ -128,11 +128,12 @@ export class ColorItemsSearchHeaderComponent
 					}
 					return planOptionDto;
 				}) as Array<IPlanOptionCommunityDto>;
+				const isElevation = this.isElevationOption(this.planOptionList[this.optionListIndex].optionSubCategoryId);
 				//Get coloritems for each optionCommunity.
-				this.getColorItemsForOption(list, true);
+				this.getColorItemsForOption(list, true, isElevation);
 			}
 			else {
-				let list = this.currentOption?.planOptionCommunities.map((planoption: IPlanOptionCommunity) => {
+				const list = this.currentOption?.planOptionCommunities.map((planoption: IPlanOptionCommunity) => {
 					let planOptionDto: IPlanOptionCommunityDto = {
 						planCommunity: {
 							id: planoption.planId,
@@ -147,12 +148,14 @@ export class ColorItemsSearchHeaderComponent
 					return planOptionDto;
 				}) as Array<IPlanOptionCommunityDto>;
 				//Get coloritems for selected optionCommunity.
-				this.getColorItemsForOption(list, false);
+				const isElevation = this.isElevationOption(this.currentOption?.optionSubCategoryId);
+				this.getColorItemsForOption(list, false, isElevation);
 			}
 		}
 	}
 
-	getColorItemsForOption(planoptionDto: IPlanOptionCommunityDto[], isAllOption:boolean) {
+	getColorItemsForOption(planoptionDto: IPlanOptionCommunityDto[], isAllOption:boolean, isElevation:boolean)
+	{
 		this._colorService.getPlanOptionAssocColorItems
 			(this.currentFinancialCommunityId,
 				planoptionDto.map(planoption => planoption.planOptionId),
@@ -167,43 +170,68 @@ export class ColorItemsSearchHeaderComponent
 				})
 			).subscribe((planOptionDtos) => {
 				this.currentPage++;
-				this.allDataLoaded = isAllOption ? planOptionDtos.length < this.settings.infiniteScrollPageSize && (isAllOption && this.optionListIndex === this.planOptionList.length): planOptionDtos.length < this.settings.infiniteScrollPageSize;
-				if (planOptionDtos.filter(x => x.colorItem)?.length > 0) {
-					this.planOptionHasNoColorItem = false;
-				}
-				else {
-					this.planOptionHasNoColorItem = true;
+				this.allDataLoaded = isAllOption ? planOptionDtos.length < this.settings.infiniteScrollPageSize && (isAllOption && this.optionListIndex === this.planOptionList.length): planOptionDtos.length < this.settings.infiniteScrollPageSize;								
+				//Verify if atleast one ColorItem missed for Elevation option, disable Add Button
+				if(isElevation)
+				{
+					if (planOptionDtos.filter(x => !!x.colorItem).length === planOptionDtos.length) {
+						this.planOptionHasNoColorItem = false;
+					}
+					else {
+						this.planOptionHasNoColorItem = true;
+					}
 				}
 				planOptionDtos = planOptionDtos.filter(x => !!x.colorItem);
-				if (planOptionDtos.length > 0) {
-					let groupByColorItemName = _.groupBy(planOptionDtos.filter(x => x.isBaseHouse === false), c => c.colorItem.name);
-					let planOptionGridList = [];
-					for (const key in groupByColorItemName) {
-						if (groupByColorItemName.hasOwnProperty(key)) {
-							let item = groupByColorItemName[key];
+				if (planOptionDtos.length > 0) 
+				{
+					const planOptionGridList = [];
+					if(!isElevation)
+					{
+						//Group by ColorItem Name for Non basehouse and elevation options
+						const groupByColorItemName = _.groupBy(planOptionDtos.filter(x => x.isBaseHouse === false), c => c.colorItem.name);
+						for (const key in groupByColorItemName) {
+							if (groupByColorItemName.hasOwnProperty(key)) {
+								let item = groupByColorItemName[key];
+								let planOptiongrid: IPlanOptionCommunityGridDto =
+								{
+									planCommunity: item.map(x => x.planCommunity),
+									optionCommunityId: item[0].optionCommunityId,
+									optionSalesName: item[0].optionSalesName,
+									colorItem: item.map(x => x.colorItem)
+								}
+								planOptionGridList.push(planOptiongrid);
+							}
+						}
+						// Do not group by ColorItem Name for BaseHouse Option
+						const planOptionBaseHouse = planOptionDtos.filter(x => x.isBaseHouse);
+						planOptionBaseHouse.map((item) => {
 							let planOptiongrid: IPlanOptionCommunityGridDto =
 							{
-								planCommunity: item.map(x => x.planCommunity),
-								optionCommunityId: item[0].optionCommunityId,
-								optionSalesName: item[0].optionSalesName,
-								colorItem: item.map(x => x.colorItem)
+								planCommunity: [item.planCommunity],
+								optionCommunityId: item.optionCommunityId,
+								optionSalesName: item.optionSalesName,
+								colorItem: [item.colorItem]
 							}
 							planOptionGridList.push(planOptiongrid);
-						}
+						});
 					}
-					let planOptionBaseHouse = planOptionDtos.filter(x => x.isBaseHouse);
-					planOptionBaseHouse.map((item) => {
-						let planOptiongrid: IPlanOptionCommunityGridDto =
-						{
-							planCommunity: [item.planCommunity],
-							optionCommunityId: item.optionCommunityId,
-							optionSalesName: item.optionSalesName,
-							colorItem: [item.colorItem]
-						}
-						planOptionGridList.push(planOptiongrid);
-					});
+					else
+					{
+						// Do not group by ColorItem Name for Elevation Option
+						planOptionDtos.map((item) => {
+							let planOptiongrid: IPlanOptionCommunityGridDto =
+							{
+								planCommunity: [item.planCommunity],
+								optionCommunityId: item.optionCommunityId,
+								optionSalesName: item.optionSalesName,
+								colorItem: [item.colorItem]
+							}
+							planOptionGridList.push(planOptiongrid);
+						});
+						
+					}
 					this.planOptionDtosList = [...this.planOptionDtosList, ...planOptionGridList];
-					let expectedListLength = this.pageNumber * this.settings.infiniteScrollPageSize;
+					const expectedListLength = this.pageNumber * this.settings.infiniteScrollPageSize;
 					if (this.planOptionDtosList.length < expectedListLength && !this.allDataLoaded && isAllOption) {
 						this.onPanelScroll();
 					}

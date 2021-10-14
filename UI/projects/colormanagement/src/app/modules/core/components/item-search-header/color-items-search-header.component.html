@@ -75,13 +75,8 @@
 		<phd-table #dt [value]="planOptionDtosList">
 			<phd-column header="Plan" field="planSalesName">
 				<ng-template #body let-planOptionDto>
-					<span
-						*ngFor="
-							let plans of planOptionDto.planCommunity;
-							let indexOfelement = index
-						"
-					>
-						<span *ngIf="indexOfelement > 0">,</span>
+					<span *ngFor="let plans of planOptionDto.planCommunity;let indexOfelement = index">
+						<span *ngIf="indexOfelement > 0">, </span>
 						<span>{{ plans?.planSalesName }}</span>
 					</span>
 				</ng-template>
