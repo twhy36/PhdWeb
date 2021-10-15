@@ -246,11 +246,13 @@ export class ColorItemsSearchHeaderComponent
 					}
 					else if (this.planOptionDtosList.length >= expectedListLength && !this.allDataLoaded && isAllOption) {
 						this.pageNumber++;
-						this.getSalesagreementOrConfig(this.planOptionDtosList);	
+						this.getSalesagreementOrConfig(this.planOptionDtosList);
+						this.processAddColorItemButtonState();		
 					}
 					else
 					{
 						this.getSalesagreementOrConfig(this.planOptionDtosList);	
+						this.processAddColorItemButtonState();	
 					}
 				}
 				else if (!this.allDataLoaded && isAllOption) {
@@ -301,6 +303,10 @@ export class ColorItemsSearchHeaderComponent
 		this.pageNumber = 1;
 		this.optionListIndex = -1;
 		this.loadColorItemsGrid();
+		//Disable when blank option is selected
+		if(!this.currentOption){
+			this.processAddColorItemButtonState();
+		}
 	}
 
 	private processAddColorItemButtonState() {
@@ -330,7 +336,7 @@ export class ColorItemsSearchHeaderComponent
 			} else {
 				this.disableAddColorItemButton = false;
 			}
-		}
+		}		
 	}
 
 	private isElevationOption(optionSubCategoryId: number) {
