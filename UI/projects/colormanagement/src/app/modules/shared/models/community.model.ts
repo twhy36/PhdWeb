@@ -77,7 +77,7 @@ export interface IPlanOptionCommunityGridDto {
 	optionCommunityId: number;
 	optionSalesName: string;
 	colorItem: IColorItemDto[];
-	hasSalesAgreement:boolean;
-    hasConfig:boolean;
+	hasSalesAgreement: boolean;
+    hasConfig: boolean;
 
 }
