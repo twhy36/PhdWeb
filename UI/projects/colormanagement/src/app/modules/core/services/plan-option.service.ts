@@ -40,7 +40,7 @@ export class PlanOptionService {
 		const entity = `optionCommunities`;
 		const select = `id, optionSalesName, optionSubCategoryId`;
 		const orderBy = `optionSalesName asc`;
-		let expand;
+		let expand: string;
 
 		let qryStr = `${this._ds}select=${encodeURIComponent(select)}`;
 		qryStr += `&${this._ds}orderby=${encodeURIComponent(orderBy)}`;
