@@ -227,10 +227,13 @@ export class ColorItemsSearchHeaderComponent
 						planOptionDtos.map((item) => {
 							let planOptiongrid: IPlanOptionCommunityGridDto =
 							{
+								planOptionId: item.planOptionId,
 								planCommunity: [item.planCommunity],
 								optionCommunityId: item.optionCommunityId,
 								optionSalesName: item.optionSalesName,
-								colorItem: [item.colorItem]
+								colorItem: [item.colorItem],
+								hasSalesAgreement: null,
+								hasConfig: null
 							}
 							planOptionGridList.push(planOptiongrid);
 						});
