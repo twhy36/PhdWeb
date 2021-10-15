@@ -6,10 +6,10 @@ import { PlanOptionService } from '../../services/plan-option.service';
 import { Observable, of } from 'rxjs';
 import { filter, map, switchMap, flatMap } from 'rxjs/operators';
 import { ColorService } from '../../../core/services/color.service';
-import { IColorItemDto } from '../../../shared/models/colorItem.model';
 import { SettingsService } from '../../services/settings.service';
 import { Settings } from '../../../shared/models/settings.model';
 import * as _ from 'lodash';
+import { IColorItemDto } from '../../../shared/models/colorItem.model';
 
 @Component({
 	selector: 'color-items-search-header',
@@ -194,10 +194,13 @@ export class ColorItemsSearchHeaderComponent
 								let item = groupByColorItemName[key];
 								let planOptiongrid: IPlanOptionCommunityGridDto =
 								{
-									planCommunity: item.map(x => x.planCommunity),
+									planOptionId: item[0].planOptionId,
+									planCommunity: item.map(x => x.planCommunity).sort((a, b) => a.planSalesName.localeCompare(b.planSalesName)),
 									optionCommunityId: item[0].optionCommunityId,
 									optionSalesName: item[0].optionSalesName,
-									colorItem: item.map(x => x.colorItem)
+									colorItem: item.map(x => x.colorItem),
+									hasSalesAgreement: null,
+									hasConfig: null
 								}
 								planOptionGridList.push(planOptiongrid);
 							}
@@ -207,10 +210,13 @@ export class ColorItemsSearchHeaderComponent
 						planOptionBaseHouse.map((item) => {
 							let planOptiongrid: IPlanOptionCommunityGridDto =
 							{
+								planOptionId: item.planOptionId,
 								planCommunity: [item.planCommunity],
 								optionCommunityId: item.optionCommunityId,
 								optionSalesName: item.optionSalesName,
-								colorItem: [item.colorItem]
+								colorItem: [item.colorItem],
+								hasSalesAgreement: null,
+								hasConfig: null
 							}
 							planOptionGridList.push(planOptiongrid);
 						});
@@ -221,10 +227,13 @@ export class ColorItemsSearchHeaderComponent
 						planOptionDtos.map((item) => {
 							let planOptiongrid: IPlanOptionCommunityGridDto =
 							{
+								planOptionId: item.planOptionId,
 								planCommunity: [item.planCommunity],
 								optionCommunityId: item.optionCommunityId,
 								optionSalesName: item.optionSalesName,
-								colorItem: [item.colorItem]
+								colorItem: [item.colorItem],
+								hasSalesAgreement: null,
+								hasConfig: null
 							}
 							planOptionGridList.push(planOptiongrid);
 						});
@@ -237,6 +246,11 @@ export class ColorItemsSearchHeaderComponent
 					}
 					else if (this.planOptionDtosList.length >= expectedListLength && !this.allDataLoaded && isAllOption) {
 						this.pageNumber++;
+						this.getSalesagreementOrConfig(this.planOptionDtosList);	
+					}
+					else
+					{
+						this.getSalesagreementOrConfig(this.planOptionDtosList);	
 					}
 				}
 				else if (!this.allDataLoaded && isAllOption) {
@@ -244,13 +258,28 @@ export class ColorItemsSearchHeaderComponent
 				}
 
 				if (this.allDataLoaded) {
-					this.processAddColorItemButtonState();
+					this.processAddColorItemButtonState();					
 				}
 			});
 
 	}
-
-	onPanelScroll() {
+	getSalesagreementOrConfig(gridlist:IPlanOptionCommunityGridDto[])
+	{
+		this._colorService.getSalesAgreementForGrid(gridlist,this.currentFinancialCommunityId).subscribe((result)=>
+		{
+			result.map((item:IPlanOptionCommunityGridDto) => {
+				this.planOptionDtosList.find(c =>c.planOptionId === item.planOptionId).hasSalesAgreement = item.hasSalesAgreement;
+			});
+		});
+		this._colorService.getconfigForGrid(gridlist,this.currentFinancialCommunityId).subscribe((result)=>
+		{
+			result.map((item:IPlanOptionCommunityGridDto) => {
+				this.planOptionDtosList.find(c =>c.planOptionId === item.planOptionId).hasConfig = item.hasConfig;
+			});
+		});			
+	}
+	onPanelScroll()
+	{
 		this.isLoading = true;
 		this.skip = this.currentPage * this.settings.infiniteScrollPageSize;
 		this.loadColorItemsGrid();
