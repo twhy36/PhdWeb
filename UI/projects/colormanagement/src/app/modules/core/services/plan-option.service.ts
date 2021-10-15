@@ -40,22 +40,24 @@ export class PlanOptionService {
 		const entity = `optionCommunities`;
 		const select = `id, optionSalesName, optionSubCategoryId`;
 		const orderBy = `optionSalesName asc`;
-		const expand = `planOptionCommunities($select=Id,isBaseHouse,planid)`
+		let expand: string;
 
 		let qryStr = `${this._ds}select=${encodeURIComponent(select)}`;
 		qryStr += `&${this._ds}orderby=${encodeURIComponent(orderBy)}`;
-		qryStr += `&${this._ds}expand=${encodeURIComponent(expand)}`;
 
 		let filter = `financialCommunityId eq ${financialCommunityId} and isActive eq true`;
 
 		if (planIds?.length > 0) {
 			filter += ` and planOptionCommunities/any(x: x/planId in (${planIds.join()}))`;
+			expand =`planOptionCommunities($select=Id,isBaseHouse,planId;$filter=planId in (${planIds.join()}))`
 		}
 		else {
 			filter += ` and planOptionCommunities/any()`;
+			expand = `planOptionCommunities($select=Id,isBaseHouse,planid)`;
 		}
 
 		qryStr += `&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}`;
+		qryStr += `&${this._ds}expand=${encodeURIComponent(expand)}`;
 
 		const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
 
