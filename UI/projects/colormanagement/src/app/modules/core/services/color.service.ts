@@ -151,13 +151,13 @@ export class ColorService {
 				let guid = newGuid();
 				let requests = colorList.map(color =>
 				{					
-				const entity = `jobs`;
-				const filter = `(FinancialCommunityId eq ${communityId}) and (jobPlanOptions/any(po: po/planOptionCommunity/optionCommunity/optionSubCategoryId eq ${color.optionSubCategoryId} and po/jobPlanOptionAttributes/any(a: a/attributeGroupCommunityId eq 1 and a/attributeName eq '${color.name}')) or jobChangeOrderGroups/any(cog: cog/jobChangeOrders/any(co: co/jobChangeOrderPlanOptions/any(po: po/planOptionCommunity/optionCommunity/optionSubCategoryId eq ${color.optionSubCategoryId} and po/jobChangeOrderPlanOptionAttributes/any(a: a/attributeGroupCommunityId eq 1 and a/attributeName eq '${color.name}')))))`;
-				const select = `id`;
-				let qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}top=1`;
-				const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
-				return createBatchGet(endpoint);
-				});
+					const entity = `jobs`;
+					const filter = `(FinancialCommunityId eq ${communityId}) and (jobPlanOptions/any(po: po/planOptionCommunity/optionCommunity/optionSubCategoryId eq ${color.optionSubCategoryId} and po/jobPlanOptionAttributes/any(a: a/attributeGroupCommunityId eq 1 and a/attributeName eq '${color.name}')) or jobChangeOrderGroups/any(cog: cog/jobChangeOrders/any(co: co/jobChangeOrderPlanOptions/any(po: po/planOptionCommunity/optionCommunity/optionSubCategoryId eq ${color.optionSubCategoryId} and po/jobChangeOrderPlanOptionAttributes/any(a: a/attributeGroupCommunityId eq 1 and a/attributeName eq '${color.name}')))))`;
+					const select = `id`;
+					let qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}top=1`;
+					const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
+					return createBatchGet(endpoint);
+					});
 				let headers = createBatchHeaders(guid, token);
 				let batch = createBatchBody(guid, requests);
 
@@ -182,12 +182,12 @@ export class ColorService {
 				let guid = newGuid();
 				let requests = itemList.map(item =>
 				{
-				const entity = `jobs`;
-				const filter = `(FinancialCommunityId eq ${communityId}) and ((jobPlanOptions/any(po: po/planOptionId in (${item.colorItem.map(c=>c.edhPlanOptionId).join(',')}))) or (jobChangeOrderGroups/any(cog: cog/jobChangeOrders/any(co: co/jobChangeOrderPlanOptions/any(po:po/planOptionId in (${item.colorItem.map(c=>c.edhPlanOptionId).join(',')}))))))`;
-				const select = `id`;
-				let qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}top=1`;
-				const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
-				return createBatchGet(endpoint);
+					const entity = `jobs`;
+					const filter = `(FinancialCommunityId eq ${communityId}) and ((jobPlanOptions/any(po: po/planOptionId in (${item.colorItem.map(c=>c.edhPlanOptionId).join(',')}))) or (jobChangeOrderGroups/any(cog: cog/jobChangeOrders/any(co: co/jobChangeOrderPlanOptions/any(po:po/planOptionId in (${item.colorItem.map(c=>c.edhPlanOptionId).join(',')}))))))`;
+					const select = `id`;
+					let qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}top=1`;
+					const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
+					return createBatchGet(endpoint);
 				});
 
 				let headers = createBatchHeaders(guid, token);
@@ -214,12 +214,12 @@ export class ColorService {
 				let guid = newGuid();
 				let requests = itemList.map(item =>
 				{
-				const entity = `scenarioOptions`;
-				const filter = `(EdhPlanOptionId in (${item.colorItem.map(c=>c.edhPlanOptionId).join(',')}))`;
-				const select = `id`;
-				let qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}top=1`;
-				const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
-				return createBatchGet(endpoint);
+					const entity = `scenarioOptions`;
+					const filter = `(EdhPlanOptionId in (${item.colorItem.map(c=>c.edhPlanOptionId).join(',')}))`;
+					const select = `id`;
+					let qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}top=1`;
+					const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
+					return createBatchGet(endpoint);
 				});
 				let headers = createBatchHeaders(guid, token);
 				let batch = createBatchBody(guid, requests);
