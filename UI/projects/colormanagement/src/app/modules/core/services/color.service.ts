@@ -16,6 +16,7 @@ import {
 	withSpinner,
 	IdentityService,
 } from 'phd-common';
+import { IPlanOptionCommunityGridDto } from '../../shared/models/community.model';
 
 @Injectable()
 export class ColorService {
@@ -130,7 +131,7 @@ export class ColorService {
 									name:item[0].name,
 									isActive:item[0].isActive,
 									edhPlanOptionId:item[0].edhPlanOptionId,
-									colors:item.map(x=>x.colorItemColorAssoc?.color)
+									colors:item.map(x=>x.colorItemColorAssoc?.color),									
 								}
 								colorItemDtoList.push(colorItemDto);
 							}
@@ -149,7 +150,7 @@ export class ColorService {
 			{
 				let guid = newGuid();
 				let requests = colorList.map(color =>
-				{
+				{					
 				const entity = `jobs`;
 				const filter = `(FinancialCommunityId eq ${communityId}) and (jobPlanOptions/any(po: po/planOptionCommunity/optionCommunity/optionSubCategoryId eq ${color.optionSubCategoryId} and po/jobPlanOptionAttributes/any(a: a/attributeGroupCommunityId eq 1 and a/attributeName eq '${color.name}')) or jobChangeOrderGroups/any(cog: cog/jobChangeOrders/any(co: co/jobChangeOrderPlanOptions/any(po: po/planOptionCommunity/optionCommunity/optionSubCategoryId eq ${color.optionSubCategoryId} and po/jobChangeOrderPlanOptionAttributes/any(a: a/attributeGroupCommunityId eq 1 and a/attributeName eq '${color.name}')))))`;
 				const select = `id`;
@@ -173,16 +174,16 @@ export class ColorService {
 			}))
 	}
 
-	getSalesAgreementForColorItem(colorItemList: Array<IColorItemDto>, communityId:number):Observable<IColorItemDto[]>
+	getSalesAgreementForGrid(itemList: Array<IPlanOptionCommunityGridDto>, communityId:number):Observable<IPlanOptionCommunityGridDto[]>
 	{
 		return this.identityService.token.pipe(
 			switchMap((token: string) =>
 			{
 				let guid = newGuid();
-				let requests = colorItemList.map(coloritem =>
+				let requests = itemList.map(item =>
 				{
 				const entity = `jobs`;
-				const filter = `(FinancialCommunityId eq ${communityId}) and ((jobPlanOptions/any(po: po/planOptionId eq ${coloritem.edhPlanOptionId})) or (jobChangeOrderGroups/any(cog: cog/jobChangeOrders/any(co: co/jobChangeOrderPlanOptions/any(po:po/planOptionId eq ${coloritem.edhPlanOptionId})))))`;
+				const filter = `(FinancialCommunityId eq ${communityId}) and ((jobPlanOptions/any(po: po/planOptionId in (${item.colorItem.map(c=>c.edhPlanOptionId).join(',')}))) or (jobChangeOrderGroups/any(cog: cog/jobChangeOrders/any(co: co/jobChangeOrderPlanOptions/any(po:po/planOptionId in (${item.colorItem.map(c=>c.edhPlanOptionId).join(',')}))))))`;
 				const select = `id`;
 				let qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}top=1`;
 				const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
@@ -197,24 +198,24 @@ export class ColorService {
 			map((response: any)=>
 			{
 				let bodies = response.responses.map(res=>res.body);
-				colorItemList.forEach((coloritem,i)=>
+				itemList.forEach((item,i)=>
 				{
-					coloritem.hasSalesAgreement = bodies[i]?.value?.length > 0 ? true : false;
+					item.hasSalesAgreement = bodies[i]?.value?.length > 0 ? true : false;
 				})
-				return colorItemList;
+				return itemList;
 			}))
 	}
 
-	getconfigForColorItem(colorItemList: Array<IColorItemDto>, communityId:number):Observable<IColorItemDto[]>
+	getconfigForGrid(itemList: Array<IPlanOptionCommunityGridDto>, communityId:number):Observable<IPlanOptionCommunityGridDto[]>
 	{
 		return this.identityService.token.pipe(
 			switchMap((token: string) =>
 			{
 				let guid = newGuid();
-				let requests = colorItemList.map(coloritem =>
+				let requests = itemList.map(item =>
 				{
 				const entity = `scenarioOptions`;
-				const filter = `(EdhPlanOptionId eq ${coloritem.edhPlanOptionId})`;
+				const filter = `(EdhPlanOptionId in (${item.colorItem.map(c=>c.edhPlanOptionId).join(',')}))`;
 				const select = `id`;
 				let qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}top=1`;
 				const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
@@ -228,11 +229,11 @@ export class ColorService {
 			map((response: any)=>
 			{
 				let bodies = response.responses.map(res=>res.body);
-				colorItemList.forEach((coloritem,i)=>
+				itemList.forEach((item,i)=>
 				{
-					coloritem.hasConfig = bodies[i]?.value?.length > 0 ? true : false;
+					item.hasConfig = bodies[i]?.value?.length > 0 ? true : false;
 				})
-				return colorItemList;
+				return itemList;
 			}))
 	}
 	private handleError(error: Response)

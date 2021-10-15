@@ -6,10 +6,10 @@ import { PlanOptionService } from '../../services/plan-option.service';
 import { Observable, of } from 'rxjs';
 import { filter, map, switchMap, flatMap } from 'rxjs/operators';
 import { ColorService } from '../../../core/services/color.service';
-import { IColorItemDto } from '../../../shared/models/colorItem.model';
 import { SettingsService } from '../../services/settings.service';
 import { Settings } from '../../../shared/models/settings.model';
 import * as _ from 'lodash';
+import { IColorItemDto } from '../../../shared/models/colorItem.model';
 
 @Component({
 	selector: 'color-items-search-header',
@@ -174,7 +174,7 @@ export class ColorItemsSearchHeaderComponent
 				else {
 					this.planOptionHasNoColorItem = true;
 				}
-				planOptionDtos = planOptionDtos.filter(x => !!x.colorItem);
+				planOptionDtos = planOptionDtos.filter(x => !!x.colorItem);	
 				if (planOptionDtos.length > 0) {
 					let groupByColorItemName = _.groupBy(planOptionDtos.filter(x => x.isBaseHouse === false), c => c.colorItem.name);
 					let planOptionGridList = [];
@@ -183,10 +183,13 @@ export class ColorItemsSearchHeaderComponent
 							let item = groupByColorItemName[key];
 							let planOptiongrid: IPlanOptionCommunityGridDto =
 							{
-								planCommunity: item.map(x => x.planCommunity),
+								planOptionId: item[0].planOptionId,
+								planCommunity: item.map(x => x.planCommunity).sort((a,b)=>a.planSalesName.localeCompare(b.planSalesName)),
 								optionCommunityId: item[0].optionCommunityId,
 								optionSalesName: item[0].optionSalesName,
-								colorItem: item.map(x => x.colorItem)
+								colorItem: item.map(x => x.colorItem),
+								hasSalesAgreement:null,
+								hasConfig:null
 							}
 							planOptionGridList.push(planOptiongrid);
 						}
@@ -195,20 +198,28 @@ export class ColorItemsSearchHeaderComponent
 					planOptionBaseHouse.map((item) => {
 						let planOptiongrid: IPlanOptionCommunityGridDto =
 						{
+							planOptionId: item.planOptionId,
 							planCommunity: [item.planCommunity],
 							optionCommunityId: item.optionCommunityId,
 							optionSalesName: item.optionSalesName,
-							colorItem: [item.colorItem]
+							colorItem: [item.colorItem],
+							hasSalesAgreement:null,
+							hasConfig:null
 						}
 						planOptionGridList.push(planOptiongrid);
 					});
-					this.planOptionDtosList = [...this.planOptionDtosList, ...planOptionGridList];
+					this.planOptionDtosList = [...this.planOptionDtosList, ...planOptionGridList];					
 					let expectedListLength = this.pageNumber * this.settings.infiniteScrollPageSize;
 					if (this.planOptionDtosList.length < expectedListLength && !this.allDataLoaded && !this.currentOption?.id) {
 						this.onPanelScroll();
 					}
 					else if (this.planOptionDtosList.length >= expectedListLength && !this.allDataLoaded && !this.currentOption?.id) {
 						this.pageNumber++;
+						this.getSalesagreementOrConfig(this.planOptionDtosList);	
+					}
+					else
+					{
+						this.getSalesagreementOrConfig(this.planOptionDtosList);	
 					}
 				}
 				else if (!this.allDataLoaded && !this.currentOption?.id) {
@@ -216,28 +227,25 @@ export class ColorItemsSearchHeaderComponent
 				}
 
 				if (this.allDataLoaded) {
-					this.processAddColorItemButtonState();
+					this.processAddColorItemButtonState();					
 				}
 			});
 
 	}
-	getSalesagreementOrConfig(coloritem:IColorItemDto[])
+	getSalesagreementOrConfig(gridlist:IPlanOptionCommunityGridDto[])
 	{
-		this._colorService.getSalesAgreementForColorItem(coloritem,this.currentFinancialCommunityId).subscribe((result)=>
+		this._colorService.getSalesAgreementForGrid(gridlist,this.currentFinancialCommunityId).subscribe((result)=>
 		{
-			result.map((coloritem) => 
-			{
-				this.planOptionDtosList.find(c =>c.colorItem?.colorItemId === coloritem.colorItemId).colorItem.hasSalesAgreement = coloritem.hasSalesAgreement;
+			result.map((item:IPlanOptionCommunityGridDto) => {
+				this.planOptionDtosList.find(c =>c.planOptionId === item.planOptionId).hasSalesAgreement = item.hasSalesAgreement;
 			});
-		})
-
-		this._colorService.getconfigForColorItem(coloritem,this.currentFinancialCommunityId).subscribe((result)=>
+		});
+		this._colorService.getconfigForGrid(gridlist,this.currentFinancialCommunityId).subscribe((result)=>
 		{
-			result.map((coloritem) => 
-			{
-				this.planOptionDtosList.find(c =>c.colorItem?.colorItemId === coloritem.colorItemId).colorItem.hasConfig = coloritem.hasConfig;
+			result.map((item:IPlanOptionCommunityGridDto) => {
+				this.planOptionDtosList.find(c =>c.planOptionId === item.planOptionId).hasConfig = item.hasConfig;
 			});
-		})
+		});			
 	}
 	onPanelScroll()
 	{
