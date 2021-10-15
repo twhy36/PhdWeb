@@ -117,21 +117,20 @@
 				</ng-template>
 			</phd-column>
 			<phd-column header="" columnClass="phd-icon">
-			<ng-template #body let-planOptionDto>
-				<i
-				class="fa fa-fw fa-trash"
-				title="Delete Color Item"
-				*ngIf = "planOptionDto.hasConfig==false && planOptionDto.hasSalesAgreement == false">
-				</i>
-				<i
-				class="fa fa-spinner fa-spin fa-fw"
-				title="Loading Delete Color"
-				*ngIf="planOptionDto.hasConfig == null || planOptionDto.hasSalesAgreement == null">
-				</i>
-			</ng-template>
-		</phd-column>
+				<ng-template #body let-planOptionDto>
+					<i
+					class="fa fa-fw fa-trash"
+					title="Delete Color Item"
+					*ngIf = "planOptionDto.hasConfig==false && planOptionDto.hasSalesAgreement == false">
+					</i>
+					<i
+					class="fa fa-spinner fa-spin fa-fw"
+					title="Loading Delete Color"
+					*ngIf="planOptionDto.hasConfig == null || planOptionDto.hasSalesAgreement == null">
+					</i>
+				</ng-template>
+			</phd-column>
 		</phd-table>
-
 	</div>
 	<ng-template #addColorItemModal>
 		<!-- <add-color-item-dialog></add-color-item-dialog> -->
