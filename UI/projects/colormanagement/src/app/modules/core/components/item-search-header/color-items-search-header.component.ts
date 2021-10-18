@@ -172,10 +172,10 @@ export class ColorItemsSearchHeaderComponent
 			).subscribe((planOptionDtos) => {
 				this.currentPage++;
 				this.allDataLoaded = isAllOption ? planOptionDtos.length < this.settings.infiniteScrollPageSize && (isAllOption && this.optionListIndex === this.planOptionList.length): planOptionDtos.length < this.settings.infiniteScrollPageSize;								
-				//Verify if atleast one ColorItem missed for Elevation option, disable Add Button
+				//Verify if atleast one Active ColorItem missed for Elevation option, disable Add Button
 				if(isElevation)
 				{
-					if (planOptionDtos.filter(x => !!x.colorItem).length === planOptionDtos.length) {
+					if (planOptionDtos.filter(x => !!x.colorItem).length === planOptionDtos.length && planOptionDtos.filter(x=>!x.colorItem.isActive).length===0) {
 						this.planOptionHasNoColorItem = false;
 					}
 					else {
