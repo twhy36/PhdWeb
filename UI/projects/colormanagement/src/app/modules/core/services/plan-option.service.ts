@@ -38,8 +38,9 @@ export class PlanOptionService {
 
 	getPlanOptions(financialCommunityId: number, planIds?: number[]) {
 		const entity = `optionCommunities`;
-		const select = `id, optionSalesName`;
+		const select = `id, optionSalesName, optionSubCategoryId`;
 		const orderBy = `optionSalesName asc`;
+		let expand: string;
 
 		let qryStr = `${this._ds}select=${encodeURIComponent(select)}`;
 		qryStr += `&${this._ds}orderby=${encodeURIComponent(orderBy)}`;
@@ -48,56 +49,53 @@ export class PlanOptionService {
 
 		if (planIds?.length > 0) {
 			filter += ` and planOptionCommunities/any(x: x/planId in (${planIds.join()}))`;
+			expand =`planOptionCommunities($select=Id,isBaseHouse,planId;$filter=planId in (${planIds.join()}))`
 		}
 		else {
 			filter += ` and planOptionCommunities/any()`;
+			expand = `planOptionCommunities($select=Id,isBaseHouse,planid)`;
 		}
 
 		qryStr += `&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}`;
+		qryStr += `&${this._ds}expand=${encodeURIComponent(expand)}`;
 
 		const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
 
 		return withSpinner(this._http).get<any>(endpoint).pipe(
 			map(response => {
 				const optionCommunities = response.value.map(x => x) as Array<IOptionCommunity>;
-				return optionCommunities;	
+				return optionCommunities;
 			}),
 			catchError(this.handleError)
 		)
 	}
 
-	getPlanOptionsGrid(financialCommunityId: number, optionCommunityId?: number, planIds?: number[], topRows?: number, skipRows?: number): Observable<IPlanOptionCommunity[]>
-	{
+	getPlanOptionsGrid(financialCommunityId: number, optionCommunityId?: number, planIds?: number[], topRows?: number, skipRows?: number): Observable<IPlanOptionCommunity[]> {
 		const entity = `planOptionCommunities`;
 		const select = `Id`;
-		const expand =  `planCommunity($select=Id,planSalesName),optionCommunity($select=Id,optionSalesName)`;
+		const expand = `planCommunity($select=Id,planSalesName),optionCommunity($select=Id,optionSalesName)`;
 		const orderBy = `planCommunity/planSalesName,optionCommunity/optionSalesName asc`;
 
 		let qryStr = `${this._ds}select=${encodeURIComponent(select)}&${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}orderby=${encodeURIComponent(orderBy)}`;
 		let filter = ``;
 		let filtersList = [];
-				
-		if (planIds?.length > 0) 
-		{
-			let planFilter=[];
-			planIds.map(id =>
-				{
-					planFilter.push(` planId eq ${id}`);
-				});
+
+		if (planIds?.length > 0) {
+			let planFilter = [];
+			planIds.map(id => {
+				planFilter.push(` planId eq ${id}`);
+			});
 			filtersList.push(`(${planFilter.join(' or ')})`);
 		}
-		else
-		{
+		else {
 			//Get all plans when null
 			filtersList.push(`(planCommunity/financialCommunityId eq ${financialCommunityId} and planCommunity/productType ne 'MultiUnit Shell')`)
 		}
 
-		if (optionCommunityId)
-		{			
+		if (optionCommunityId) {
 			filtersList.push(`optionCommunityId eq ${optionCommunityId}`);
 		}
-		else
-		{
+		else {
 			//Get all options when null
 			filtersList.push(`(optionCommunity/financialCommunityId eq ${financialCommunityId} and optionCommunity/isActive eq true)`)
 		}
@@ -105,23 +103,21 @@ export class PlanOptionService {
 		filter = filtersList.join(' and ');
 
 		qryStr += `&${this._ds}filter=${encodeURIComponent(filter)}`;
-		
-		if (topRows)
-		{
+
+		if (topRows) {
 			qryStr += `&${this._ds}top=${topRows}`;
 		}
 
-		if (skipRows)
-		{
+		if (skipRows) {
 			qryStr += `&${this._ds}skip=${skipRows}`;
 		}
-		
+
 		const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
 
 		return withSpinner(this._http).get<any>(endpoint).pipe(
 			map(response => {
 				const planOptionCommunities = response.value as Array<IPlanOptionCommunity>
-				return planOptionCommunities;	
+				return planOptionCommunities;
 			}),
 			catchError(this.handleError)
 		)

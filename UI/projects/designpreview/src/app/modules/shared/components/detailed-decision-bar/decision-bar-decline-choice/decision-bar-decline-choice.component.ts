@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { DecisionPoint, Group, Tree, MyFavoritesPointDeclined } from 'phd-common';
+import { BlockedByItemList } from '../../../models/blocked-by.model';
 import { getDisabledByList } from '../../../classes/tree.utils';
 
 @Component({
@@ -22,7 +23,7 @@ export class DecisionBarDeclineChoiceComponent implements OnInit {
 
 	isDeclined: boolean = false;
 	blockedChoiceModalRef: NgbModalRef;
-	disabledByList: {label: string, pointId: number, choiceId?: number, ruleType: number}[] = null;
+	disabledByList: BlockedByItemList = null;
 
 	constructor(public modalService: NgbModal) { }
 

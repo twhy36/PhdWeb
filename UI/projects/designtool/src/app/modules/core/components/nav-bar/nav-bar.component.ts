@@ -60,7 +60,6 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 	specCancelled = false;
 	isLockedIn: boolean = false;
 	newHomeStatus: PointStatus;
-	production: boolean;
 	isPhdLite$: Observable<boolean>;
 
 	constructor(private lotService: LotService,
@@ -194,11 +193,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 			{
 				return state.lite?.isPhdLite;
 			})
-		);		
-
-		// Will need to remove this check once design preview goes live, 
-		// Both here and in nav-bar.component.html
-		this.production = environment.production;
+		);
 	}
 
 	navigate(path: any[], group?: Group)

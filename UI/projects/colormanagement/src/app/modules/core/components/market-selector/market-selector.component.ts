@@ -1,5 +1,5 @@
-import {Component} from '@angular/core';
-import { Observable } from 'rxjs';
+import {Component, Input} from '@angular/core';
+import {Observable} from 'rxjs';
 import { filter, switchMap } from 'rxjs/operators';
 import { IFinancialCommunity, IMarket } from '../../../shared/models/community.model';
 import {OrganizationService} from '../../services/organization.service';
@@ -10,11 +10,12 @@ import {OrganizationService} from '../../services/organization.service';
 	styleUrls: ['./market-selector.component.scss']
 })
 export class MarketSelectorComponent {
-
 	currentCommunity$: Observable<IFinancialCommunity>;
 	currentMarket$: Observable<IMarket>;
 	markets$: Observable<Array<IMarket>>;
 	financialCommunities$: Observable<Array<IFinancialCommunity>>;
+	disableMarketSelector: boolean;
+	@Input() enabled: boolean;
 
 	constructor(private orgService: OrganizationService) {
 		this.markets$ = this.orgService.markets$;

@@ -31,7 +31,7 @@ export class MonotonyOptionsComponent extends UnsubscribeOnDestroy implements On
 	{
 		this.getMonotonyRules();
 
-		this._orgService.canEdit(this._route.parent.snapshot.data['requiresClaim']).pipe(
+		this._orgService.canEdit(this._route.snapshot.data['requiresClaim']).pipe(
 			this.takeUntilDestroyed()
 		).subscribe(canEdit => this.canEdit = canEdit);
 	}

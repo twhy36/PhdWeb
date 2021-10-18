@@ -1,7 +1,6 @@
 import { AuthConfig } from 'angular-oauth2-oidc';
 
-export interface IEnvironment
-{
+export interface IEnvironment {
 	apiUrl: string;
 	tenant: string;
 	authQueryParams: string;
@@ -14,4 +13,5 @@ export interface IEnvironment
 	authConfig: AuthConfig;
 	production: boolean;
 	whatFix: { scriptUrl: string };
+	colorManagementUrl: string;
 };

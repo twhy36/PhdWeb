@@ -9,7 +9,7 @@ import { Action, Store, select } from '@ngrx/store';
 import 
 { 
 	ESignEnvelope, ESignStatusEnum, ESignTypeEnum, ChangeInput, ChangeTypeEnum, ChangeOrderGroup, ChangeOrderHanding, 
-	Job, SalesStatusEnum, ModalService
+	Job, SalesStatusEnum, ModalService, mergeSalesChangeOrderBuyers
 } from 'phd-common';
 
 import { ChangeOrderService } from '../../core/services/change-order.service';
@@ -490,7 +490,7 @@ export class ChangeOrderEffects
 					if (store.changeOrder && store.changeOrder.changeInput) {
 						let newInput = { ...store.changeOrder.changeInput } as ChangeInput;
 
-						newInput.buyers = this.changeOrderService.mergeSalesChangeOrderBuyers(store.salesAgreement.buyers, action.changeOrder);
+						newInput.buyers = mergeSalesChangeOrderBuyers(store.salesAgreement.buyers, action.changeOrder);
 
 						const trust = this.changeOrderService.mergeSalesChangeOrderTrusts(store.salesAgreement, store.changeOrder.currentChangeOrder);
 
@@ -657,7 +657,7 @@ export class ChangeOrderEffects
 								const buyerChangeOrder = changeOrder ? changeOrder.jobChangeOrders.find(x => x.jobChangeOrderTypeDescription === 'BuyerChangeOrder') : null;
 								if (isSpecSalePending && buyerChangeOrder) {
 									let newInput = _.cloneDeep(store.changeOrder.changeInput);
-									newInput.buyers = this.changeOrderService.mergeSalesChangeOrderBuyers(store.salesAgreement.buyers, changeOrder);
+									newInput.buyers = mergeSalesChangeOrderBuyers(store.salesAgreement.buyers, changeOrder);
 									actions.push(new ChangeInputInitialized(newInput));
 								}
 

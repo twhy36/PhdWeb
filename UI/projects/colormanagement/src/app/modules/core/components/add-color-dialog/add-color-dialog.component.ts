@@ -15,7 +15,7 @@ export class AddColorDialogComponent implements OnInit, OnChanges {
 	@Input() communityId: number;
 	@Input() subcategories: IOptionSubCategory[];
 	@Input() allColors: Array<IColorDto> = [];
-	@Output() newColorsWereSaved = new EventEmitter();
+	@Output() newColorsWereSaved = new EventEmitter<boolean>();
 	@Output() closeDialogWasRequested = new EventEmitter();
 	modalReference: ModalRef;
 
@@ -64,24 +64,8 @@ export class AddColorDialogComponent implements OnInit, OnChanges {
 			  ...groups[g][0].optionCategory,
 			  optionSubCategories: groups[g].map(sc => ({ ...sc, optionCategory: undefined }))
 			})).sort((category1,category2) => {
-				let categoryA = parseName(category1.name);
-				let categoryB = parseName(category2.name);
-				return categoryA > categoryB ? 1 : -1;
+				return category1.name > category2.name ? 1 : -1;
 			});
-		}
-
-		function parseName(name: string): string
-		{
-			const pattern = new RegExp('[0-9]+\\.');
-			const nameHasLeadingNumbers = pattern.test(name);
-
-			if (nameHasLeadingNumbers)
-			{
-				const startIndex = name.indexOf('. ') + 2;
-				return name.substring(startIndex).trim();
-			}
-
-			return name.trim();
 		}
 	}
 
@@ -124,10 +108,7 @@ export class AddColorDialogComponent implements OnInit, OnChanges {
 		});
 
 		this._optionService.saveNewColors(colorsToSave).subscribe((savedColors) => {
-			if (savedColors.length)
-			{
-				this.newColorsWereSaved.emit();
-			}
+			this.newColorsWereSaved.emit(savedColors.length > 0);
 		});
 	}
 

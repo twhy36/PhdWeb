@@ -333,3 +333,23 @@ export const showSpinner = createSelector(
 		return (sa ? sa.salesAgreementLoading : false) || (job ? job.jobLoading : false);
 	}
 );
+
+export const favoriteTitle = createSelector(
+	fromSalesAgreement.salesAgreementState,
+	fromSalesAgreement.primaryBuyer,
+	fromChangeOrder.changeOrderPrimaryBuyer,
+	(state, sagBuyer, changeOrderBuyer) => {
+		if (state?.id) 
+		{
+			const buyer = changeOrderBuyer ? changeOrderBuyer : sagBuyer;
+			const contact = buyer?.opportunityContactAssoc?.contact;
+			const lastName = contact && !!contact.lastName ? contact.lastName : '';
+
+			return `${!!lastName ? lastName || '' : ''} Favorites`;
+		}
+		else 
+		{
+			return 'Favorites';
+		}
+	}
+);

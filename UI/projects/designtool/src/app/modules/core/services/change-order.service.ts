@@ -1596,64 +1596,6 @@ export class ChangeOrderService
 		return jobChangeOrderGroup;
 	}
 
-	mergeSalesChangeOrderBuyers(salesAgreementBuyers: Array<Buyer>, currentChangeOrder: ChangeOrderGroup): Array<Buyer>
-	{
-		let buyers = _.cloneDeep(salesAgreementBuyers);
-		const buyerChangeOrder = currentChangeOrder && currentChangeOrder.jobChangeOrders
-			? currentChangeOrder.jobChangeOrders.find(x => x.jobChangeOrderTypeDescription === 'BuyerChangeOrder')
-			: null;
-
-		if (buyerChangeOrder && buyerChangeOrder.jobSalesChangeOrderBuyers)
-		{
-			const deletedBuyers = buyerChangeOrder.jobSalesChangeOrderBuyers.filter(x => x.action === 'Delete');
-
-			deletedBuyers.forEach(b =>
-			{
-				const deletedBuyer = buyers.findIndex(x => x.opportunityContactAssoc.id === b.opportunityContactAssoc.id);
-
-				if (deletedBuyer > -1)
-				{
-					buyers.splice(deletedBuyer, 1);
-				}
-			});
-
-			const addedBuyers = buyerChangeOrder.jobSalesChangeOrderBuyers.filter(x => x.action === 'Add');
-
-			addedBuyers.forEach(b =>
-			{
-				let buyer = _.cloneDeep(b);
-
-				if (buyer.opportunityContactAssoc && buyer.opportunityContactAssoc.contact)
-				{
-					buyer.opportunityContactAssoc.contact.firstName = b.firstName;
-					buyer.opportunityContactAssoc.contact.middleName = b.middleName;
-					buyer.opportunityContactAssoc.contact.lastName = b.lastName;
-					buyer.opportunityContactAssoc.contact.suffix = b.suffix;
-				}
-				buyers.push(buyer);
-			});
-
-			const updatedBuyers = buyerChangeOrder.jobSalesChangeOrderBuyers.filter(x => x.action === 'Change');
-			updatedBuyers.forEach(updatedBuyer =>
-			{
-				let buyer = buyers.find(x => x.opportunityContactAssoc.id === updatedBuyer.opportunityContactAssoc.id);
-
-				if (buyer && buyer.opportunityContactAssoc && buyer.opportunityContactAssoc.contact)
-				{
-					if (buyer.opportunityContactAssoc.contact)
-					{
-						buyer.opportunityContactAssoc.contact.firstName = updatedBuyer.firstName;
-						buyer.opportunityContactAssoc.contact.middleName = updatedBuyer.middleName;
-						buyer.opportunityContactAssoc.contact.lastName = updatedBuyer.lastName;
-						buyer.opportunityContactAssoc.contact.suffix = updatedBuyer.suffix;
-					}
-				}
-			});
-		}
-
-		return buyers;
-	}
-
 	mergeSalesChangeOrderTrusts(salesAgreement: SalesAgreement, currentChangeOrder: ChangeOrderGroup)
 	{
 		let trustName = salesAgreement.trustName;

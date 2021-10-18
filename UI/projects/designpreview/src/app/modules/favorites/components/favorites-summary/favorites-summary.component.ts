@@ -12,7 +12,7 @@ import
 {
 	UnsubscribeOnDestroy, PriceBreakdown, SDGroup, SDSubGroup, SDPoint, SDChoice, SDAttributeReassignment, Group,
 	DecisionPoint, JobChoice, Tree, TreeVersionRules, SalesAgreement, getDependentChoices, ModalService, PDFViewerComponent,
-	SummaryData, BuyerInfo, PriceBreakdownType, PlanOption
+	SummaryData, BuyerInfo, PriceBreakdownType, PlanOption, Choice
 } from 'phd-common';
 
 import { environment } from '../../../../../environments/environment';
@@ -21,7 +21,6 @@ import { Store, select } from '@ngrx/store';
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromPlan from '../../../ngrx-store/plan/reducer';
 import * as fromFavorite from '../../../ngrx-store/favorite/reducer';
-import * as fromSalesAgreement from '../../../ngrx-store/sales-agreement/reducer';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 import { selectSelectedLot } from '../../../ngrx-store/lot/reducer';
 
@@ -100,7 +99,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 					this.store.pipe(select(state => state.scenario)),
 					this.store.pipe(select(state => state.favorite)),
 					this.store.pipe(select(state => state.salesAgreement)),
-					this.store.pipe(select(fromSalesAgreement.favoriteTitle))
+					this.store.pipe(select(fromRoot.favoriteTitle))
 				]).pipe(take(1))),
 				this.takeUntilDestroyed(),
 				distinctUntilChanged()
@@ -263,23 +262,19 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		}
 	}
 
-	onRemoveFavorites(point: DecisionPoint)
+	onRemoveFavorites(choice: Choice)
 	{
 		let removedChoices = [];
-		const choices = point && point.choices ? point.choices.filter(c => c.quantity > 0) : [];
-		const favoriteChoices = choices.filter(c => !this.salesChoices || this.salesChoices.findIndex(sc => sc.divChoiceCatalogId === c.divChoiceCatalogId) === -1);
 
-		if (favoriteChoices && favoriteChoices.length)
+		if (!this.salesChoices || this.salesChoices.findIndex(sc => sc.divChoiceCatalogId === choice.divChoiceCatalogId) === -1)
 		{
-			favoriteChoices.forEach(choice => {
-				removedChoices.push({ choiceId: choice.id, divChoiceCatalogId: choice.divChoiceCatalogId, quantity: 0, attributes: choice.selectedAttributes });
+			removedChoices.push({ choiceId: choice.id, divChoiceCatalogId: choice.divChoiceCatalogId, quantity: 0, attributes: choice.selectedAttributes });
 
-				const impactedChoices = getDependentChoices(this.tree, this.treeVersionRules, this.options, choice);
+			const impactedChoices = getDependentChoices(this.tree, this.treeVersionRules, this.options, choice);
 
-				impactedChoices.forEach(c =>
-				{
-					removedChoices.push({ choiceId: c.id, divChoiceCatalogId: c.divChoiceCatalogId, quantity: 0, attributes: c.selectedAttributes });
-				});
+			impactedChoices.forEach(c =>
+			{
+				removedChoices.push({ choiceId: c.id, divChoiceCatalogId: c.divChoiceCatalogId, quantity: 0, attributes: c.selectedAttributes });
 			});
 		}
 

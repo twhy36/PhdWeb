@@ -271,7 +271,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 								}
 							}
 
-							applyRules(newTree, rules, options, scenario.lotId);
+							applyRules(newTree, rules, options, newState.scenario?.lotId);
 
 							// check selected attributes to make sure they're still valid after applying rules
 							checkSelectedAttributes(choices);

@@ -197,15 +197,7 @@
 	</ng-template>
 	<ng-template #footer>
 		<div class="pull-right">
-			<button class="btn btn-primary phd-btn-save" (click)="saveHomesite();" [disabled]="canSave" *ngIf="currentTab == 'details'">
-				Save
-
-				<ng-container *ngIf="saving">
-					<i class="fa fa-spinner fa-spin fa-fw"></i>
-				</ng-container>
-			</button>
-
-			<button class="btn btn-primary phd-btn-save" (click)="saveMonotonyRules()" [disabled]="canSaveMonotony" *ngIf="currentTab == 'monotony'">
+			<button class="btn btn-primary phd-btn-save" (click)="onSave()" [disabled]="!canSaveHomesite && !canSaveMonotony">
 				Save
 
 				<ng-container *ngIf="saving">

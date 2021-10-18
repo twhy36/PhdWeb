@@ -3,3 +3,12 @@ export class MonotonyRule {
     lotId: number;
     relatedLotId: number;
 }
+
+export namespace MonotonyRuleDtos
+{
+	export interface IMonotonyRuleEventDto
+	{
+		lotId: number;
+		monotonyRules: Array<MonotonyRule>;
+	}
+}

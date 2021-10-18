@@ -1,7 +1,6 @@
-import { Component, OnInit } from '@angular/core';
-import { Permission, Claims, ClaimTypes, IdentityService } from 'phd-common';
-
-import { Observable } from 'rxjs';
+import {Component, OnInit} from '@angular/core';
+import { IdentityService } from 'phd-common';
+import {ColorAdminService} from '../../../core/services/color-admin.service';
 
 @Component({
 	selector: 'color-admin',
@@ -12,8 +11,19 @@ import { Observable } from 'rxjs';
 export class ColorAdminPageComponent implements OnInit
 {
 	user;
+	editingColor = false;
 
-	constructor(private _identityService: IdentityService) { }
+	constructor(private _identityService: IdentityService,
+				private _colorAdminService: ColorAdminService)
+	{
+		this._colorAdminService.editingColor$.subscribe(isEditing => {
+			//'changed after checked' error was occurring; detectChanges doesn't fix;
+			//using setTimeout is one of the recommended fixes - https://angular.io/errors/NG0100
+			setTimeout(() => {
+				this.editingColor = isEditing;
+			}, 0);
+		});
+	}
 
 	ngOnInit()
 	{
