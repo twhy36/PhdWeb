@@ -61,6 +61,7 @@ export class ColorItemsSearchHeaderComponent
 				this.reset();
 				this.selectedPlans = [];
 				this.currentFinancialCommunityId = comm.id;
+				this.disableAddColorItemButton = true;	
 				return this._planService.getPlanCommunities(this.currentFinancialCommunityId).pipe(
 					map((plans) => {
 						return [
