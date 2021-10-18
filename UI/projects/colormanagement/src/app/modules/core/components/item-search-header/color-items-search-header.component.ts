@@ -61,6 +61,7 @@ export class ColorItemsSearchHeaderComponent
 				this.reset();
 				this.selectedPlans = [];
 				this.currentFinancialCommunityId = comm.id;
+				this.disableAddColorItemButton = true;	
 				return this._planService.getPlanCommunities(this.currentFinancialCommunityId).pipe(
 					map((plans) => {
 						return [
@@ -174,7 +175,7 @@ export class ColorItemsSearchHeaderComponent
 				//Verify if atleast one ColorItem missed for Elevation option, disable Add Button
 				if(isElevation)
 				{
-					if (planOptionDtos.filter(x => !!x.colorItem).length === planOptionDtos.length) {
+					if (planOptionDtos.filter(x => !!x.colorItem).length === planOptionDtos.length && planOptionDtos.filter(x=>!x.colorItem.isActive).length===0) {
 						this.planOptionHasNoColorItem = false;
 					}
 					else {
@@ -249,11 +250,13 @@ export class ColorItemsSearchHeaderComponent
 					}
 					else if (this.planOptionDtosList.length >= expectedListLength && !this.allDataLoaded && isAllOption) {
 						this.pageNumber++;
-						this.getSalesagreementOrConfig(this.planOptionDtosList.filter(x=>!x.loadingDeleteIcon));	
+						this.getSalesagreementOrConfig(this.planOptionDtosList.filter(x => !x.loadingDeleteIcon));
+						this.processAddColorItemButtonState();		
 					}
 					else
 					{
-						this.getSalesagreementOrConfig(this.planOptionDtosList.filter(x=>!x.loadingDeleteIcon));	
+						this.getSalesagreementOrConfig(this.planOptionDtosList.filter(x => !x.loadingDeleteIcon));	
+						this.processAddColorItemButtonState();	
 					}
 				}
 				else if (!this.allDataLoaded && isAllOption && this.optionListIndex < (this.planOptionList.length-1)) {
@@ -315,6 +318,10 @@ export class ColorItemsSearchHeaderComponent
 		this.pageNumber = 1;
 		this.optionListIndex = -1;
 		this.loadColorItemsGrid();
+		//Disable when blank option is selected
+		if(!this.currentOption){
+			this.processAddColorItemButtonState();
+		}
 	}
 
 	private processAddColorItemButtonState() {
@@ -344,7 +351,7 @@ export class ColorItemsSearchHeaderComponent
 			} else {
 				this.disableAddColorItemButton = false;
 			}
-		}
+		}		
 	}
 
 	private isElevationOption(optionSubCategoryId: number) {
