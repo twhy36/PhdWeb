@@ -103,7 +103,23 @@
 			</phd-column>			
 			<phd-column header="Active" field="isActive" width="100px">
 				<ng-template #body let-planOptionDto>
-					<span>{{ planOptionDto.colorItem[0]?.isActive }}</span>
+					<!--<ng-template #body let-colordto>
+						<i
+						class="fa fa-fw fa-undo text-danger"
+						title="Reactivate Color"
+						*ngIf="!planOptionDto.colorItem[0]?.isActive"
+						(click)="activateColor(colordto)"
+						>
+						</i>
+						<i
+						class="fa fa-fw fa-redo"
+						title="Inactivate Color"
+						*ngIf="planOptionDto.colorItem[0]?.isActive"
+						(click)="inactivateColor(colordto)"
+						>
+						</i>
+					</ng-template>-->
+					<!-- <span>{{ planOptionDto.colorItem[0]?.isActive }}</span> -->
 				</ng-template>
 			</phd-column>
 
