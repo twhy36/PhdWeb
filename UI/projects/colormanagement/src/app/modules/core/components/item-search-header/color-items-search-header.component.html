@@ -142,7 +142,7 @@
 					<i
 					class="fa fa-spinner fa-spin fa-fw"
 					title="Loading Delete Color"
-					*ngIf="planOptionDto.hasConfig == null || planOptionDto.hasSalesAgreement == null">
+					*ngIf="planOptionDto.loadingDeleteIcon && (planOptionDto.hasConfig == null || planOptionDto.hasSalesAgreement == null)">
 					</i>
 				</ng-template>
 			</phd-column>

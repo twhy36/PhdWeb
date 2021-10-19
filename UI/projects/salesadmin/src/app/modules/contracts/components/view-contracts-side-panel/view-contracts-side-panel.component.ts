@@ -380,6 +380,7 @@ export class ViewContractsSidePanelComponent implements OnInit
 		});
 
 		this.selectedCommunities = [];
+		this.viewContractsForm.markAsDirty();
 	}
 
 	removeItem(tag: FinancialCommunity)
@@ -393,6 +394,7 @@ export class ViewContractsSidePanelComponent implements OnInit
 			if (index !== -1)
 			{
 				items.splice(index, 1);
+				this.viewContractsForm.markAsDirty();
 			}
 
 			this.communitiesForSelectedTemplate.push(tag);
