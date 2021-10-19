@@ -1,14 +1,14 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import {MultiSelectModule} from 'primeng/multiselect';
+import { MultiSelectModule } from 'primeng/multiselect';
 import { OrganizationService } from './services/organization.service';
 import { StorageService } from './services/storage.service';
 import { ColorService } from './services/color.service';
 import { AccessGuard } from './services/access.guard';
 import { MarketSelectorComponent } from './components/market-selector/market-selector.component';
 import { ColorsSearchHeaderComponent } from './components/search-header/colors-search-header.component';
-import {ColorItemsSearchHeaderComponent} from './components/item-search-header/color-items-search-header.component'
+import { ColorItemsSearchHeaderComponent } from './components/item-search-header/color-items-search-header.component'
 import { OptionService } from './services/option.service';
 import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 import { PhdCommonModule, SidePanelComponent } from 'phd-common';
@@ -17,9 +17,11 @@ import { AddColorDialogComponent } from './components/add-color-dialog/add-color
 import { CheckboxModule } from 'primeng/checkbox';
 import { PlanOptionService } from './services/plan-option.service';
 import { EditColorSidePanelComponent } from './components/edit-color-side-panel/edit-color-side-panel.component';
-import {ToastModule} from 'primeng/toast';
-import {MessageService} from 'primeng/api';
-import {ColorAdminService} from './services/color-admin.service';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
+import { ColorAdminService } from './services/color-admin.service';
+import { AddColorItemDialogComponent } from './components/add-color-item-dialog/add-color-item-dialog.component';
+import { PickListModule } from 'primeng/picklist';
 
 @NgModule({
 	declarations: [
@@ -28,6 +30,7 @@ import {ColorAdminService} from './services/color-admin.service';
 		ColorItemsSearchHeaderComponent,
 		AddColorDialogComponent,
   		EditColorSidePanelComponent,
+    	AddColorItemDialogComponent,
 	],
 	imports: [
 		CommonModule,
@@ -39,6 +42,7 @@ import {ColorAdminService} from './services/color-admin.service';
 		ReactiveFormsModule,
 		PhdCommonModule,
 		ToastModule,
+		PickListModule
 	],
 	exports: [
 		MarketSelectorComponent,

@@ -133,6 +133,14 @@
 		</phd-table>
 	</div>
 	<ng-template #addColorItemModal>
-		<!-- <add-color-item-dialog></add-color-item-dialog> -->
+		<add-color-item-dialog
+			[communityId]="currentFinancialCommunityId"
+			[selectedOption]="currentOption"
+			[plansUsedInSearch]="selectedPlans"
+			(dialogWasCanceled)="onAddColorItemDialogWasCanceled()"
+			[allPlans]="planCommunityList"
+			[optionsWithColorItemInfo]="optionsPerPlan"
+		>
+		</add-color-item-dialog>
 	</ng-template>
 </div>
