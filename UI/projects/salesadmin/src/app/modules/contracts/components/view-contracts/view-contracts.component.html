@@ -21,14 +21,17 @@
 
 				<div class="btn-group" *ngIf="isSorting">
 					<button type="button" class="btn btn-secondary" (click)="cancelSort()">Cancel</button>
-					<button type="button" class="btn btn-primary" (click)="saveSort()">Save Sort</button>
+					<button type="button" class="btn btn-primary" (click)="saveSort()">
+						Save Sort
+						<ng-container *ngIf="isSaving"><i class="fa fa-spinner fa-spin fa-fw"></i></ng-container>
+					</button>
 				</div>
 			</div>
 		</div>
 
 		<div class="phd-table-container mx-2" id="contract-table">	
 			<phd-table #dt [value]="filteredContractTemplates" sortMode="single" [sortField]="isSorting ? 'displayOrder' : 'documentName'" [nonOverflow]="false" canReorderRows="isSorting" (onRowReorder)="onRowReorder($event)">
-				<phd-column header="Addenda Order" field="displayOrder" width="150px">
+				<phd-column header="Addenda Order" field="displayOrder" width="150px" [canSort]="!isSorting">
 					<ng-template #header *ngIf="!isSorting"></ng-template>
 					<ng-template #body let-template *ngIf="!isSorting">
 						<div class="phd-icon-container">
@@ -49,7 +52,7 @@
 					</ng-template>
 				</phd-column>
 				
-				<phd-column header="Document Name" field="documentName">
+				<phd-column header="Document Name" field="documentName" [canSort]="!isSorting">
 					<ng-template #body let-template>
 						<span>
 							<ng-container *ngIf="template.documentName; let formattedValue">
@@ -62,7 +65,7 @@
 						</span>
 					</ng-template>
 				</phd-column>
-				<phd-column header="Display Name" field="displayName">
+				<phd-column header="Display Name" field="displayName" [canSort]="!isSorting">
 					<ng-template #body let-template>
 						<span>
 							<ng-container *ngIf="template.displayName; let formattedValue">
@@ -75,7 +78,7 @@
 						</span>
 					</ng-template>
 				</phd-column>
-				<phd-column header="Status" field="status">
+				<phd-column header="Status" field="status" [canSort]="!isSorting">
 					<ng-template #body let-template>
 						<span>
 							<ng-container *ngIf="template.status; let formattedValue">
@@ -88,7 +91,7 @@
 						</span>
 					</ng-template>
 				</phd-column>
-				<phd-column header="Effective Date" field="effectiveDate">
+				<phd-column header="Effective Date" field="effectiveDate" [canSort]="!isSorting">
 					<ng-template #body let-template>
 						<div>
 							<ng-container *ngIf="template.effectiveDate && template.effectiveDate | date:'L/dd/yyyy'; let formattedValue">
@@ -102,7 +105,7 @@
 						</div>
 					</ng-template>
 				</phd-column>
-				<phd-column header="Expiration Date" field="expirationDate">
+				<phd-column header="Expiration Date" field="expirationDate" [canSort]="!isSorting">
 					<ng-template #body let-template>
 						<span>
 							<ng-container *ngIf="template.expirationDate | date:'L/dd/yyyy'; let formattedValue">
@@ -116,7 +119,7 @@
 						</span>
 					</ng-template>
 				</phd-column>
-				<phd-column header="Version" field="version">
+				<phd-column header="Version" field="version" [canSort]="!isSorting">
 					<ng-template #body let-template>
 						<span>
 							<ng-container *ngIf="template.version; let formattedValue">
@@ -129,7 +132,7 @@
 						</span>
 					</ng-template>
 				</phd-column>
-				<phd-column header="Application" field="application">
+				<phd-column header="Application" field="application" [canSort]="!isSorting">
 					<ng-template #body let-template>
 						<span>
 							<ng-container *ngIf="template.application; let formattedValue">
