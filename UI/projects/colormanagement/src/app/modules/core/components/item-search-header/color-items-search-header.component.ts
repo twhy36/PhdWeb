@@ -171,8 +171,8 @@ export class ColorItemsSearchHeaderComponent
 				})
 			).subscribe((planOptionDtos) => {
 				this.currentPage++;
-				this.allDataLoaded = isAllOption ? planOptionDtos.length < this.settings.infiniteScrollPageSize && (isAllOption && this.optionListIndex === this.planOptionList.length): planOptionDtos.length < this.settings.infiniteScrollPageSize;								
-				//Verify if atleast one Active ColorItem missed for Elevation option, disable Add Button
+				this.allDataLoaded = isAllOption ? planOptionDtos.length < this.settings.infiniteScrollPageSize && (isAllOption && this.optionListIndex === (this.planOptionList.length - 1)): planOptionDtos.length < this.settings.infiniteScrollPageSize;								
+				//Verify if atleast one ColorItem missed for Elevation option, disable Add Button
 				if(isElevation)
 				{
 					if (planOptionDtos.filter(x => !!x.colorItem).length === planOptionDtos.length && planOptionDtos.filter(x=>!x.colorItem.isActive).length===0) {
@@ -201,7 +201,8 @@ export class ColorItemsSearchHeaderComponent
 									optionSalesName: item[0].optionSalesName,
 									colorItem: item.map(x => x.colorItem),
 									hasSalesAgreement: null,
-									hasConfig: null
+									hasConfig: null,
+									loadingDeleteIcon: false	
 								}
 								planOptionGridList.push(planOptiongrid);
 							}
@@ -217,7 +218,8 @@ export class ColorItemsSearchHeaderComponent
 								optionSalesName: item.optionSalesName,
 								colorItem: [item.colorItem],
 								hasSalesAgreement: null,
-								hasConfig: null
+								hasConfig: null,
+								loadingDeleteIcon: false	
 							}
 							planOptionGridList.push(planOptiongrid);
 						});
@@ -234,7 +236,8 @@ export class ColorItemsSearchHeaderComponent
 								optionSalesName: item.optionSalesName,
 								colorItem: [item.colorItem],
 								hasSalesAgreement: null,
-								hasConfig: null
+								hasConfig: null,
+								loadingDeleteIcon: false							
 							}
 							planOptionGridList.push(planOptiongrid);
 						});
@@ -242,25 +245,28 @@ export class ColorItemsSearchHeaderComponent
 					}
 					this.planOptionDtosList = [...this.planOptionDtosList, ...planOptionGridList];
 					const expectedListLength = this.pageNumber * this.settings.infiniteScrollPageSize;
-					if (this.planOptionDtosList.length < expectedListLength && !this.allDataLoaded && isAllOption) {
+					if (this.planOptionDtosList.length < expectedListLength && !this.allDataLoaded && isAllOption && this.optionListIndex < (this.planOptionList.length-1)) {
 						this.onPanelScroll();
 					}
 					else if (this.planOptionDtosList.length >= expectedListLength && !this.allDataLoaded && isAllOption) {
 						this.pageNumber++;
-						this.getSalesagreementOrConfig(this.planOptionDtosList);
-						this.processAddColorItemButtonState();		
+						this.getSalesagreementOrConfig(this.planOptionDtosList.filter(x => !x.loadingDeleteIcon));
 					}
 					else
 					{
-						this.getSalesagreementOrConfig(this.planOptionDtosList);	
+						this.getSalesagreementOrConfig(this.planOptionDtosList.filter(x => !x.loadingDeleteIcon));	
 						this.processAddColorItemButtonState();	
 					}
 				}
-				else if (!this.allDataLoaded && isAllOption) {
-					this.onPanelScroll();
+				else if (!this.allDataLoaded && isAllOption && this.optionListIndex < (this.planOptionList.length-1)) {
+					this.onPanelScroll();										
+				}
+				else if(this.optionListIndex === (this.planOptionList.length-1) && isAllOption)
+				{
+					this.getSalesagreementOrConfig(this.planOptionDtosList.filter(x=>!x.loadingDeleteIcon));
 				}
 
-				if (this.allDataLoaded) {
+				if (this.allDataLoaded && !isAllOption) {
 					this.processAddColorItemButtonState();					
 				}
 			});
@@ -268,16 +274,23 @@ export class ColorItemsSearchHeaderComponent
 	}
 	getSalesagreementOrConfig(gridlist:IPlanOptionCommunityGridDto[])
 	{
+		gridlist.map(x=>x.loadingDeleteIcon=true);
 		this._colorService.getSalesAgreementForGrid(gridlist,this.currentFinancialCommunityId).subscribe((result)=>
 		{
 			result.map((item:IPlanOptionCommunityGridDto) => {
-				this.planOptionDtosList.find(c =>c.planOptionId === item.planOptionId).hasSalesAgreement = item.hasSalesAgreement;
+				const planoption = this.planOptionDtosList.find(c =>c.planOptionId === item.planOptionId);
+				if(planoption){
+					planoption.hasSalesAgreement = item.hasSalesAgreement;
+				}
 			});
 		});
 		this._colorService.getconfigForGrid(gridlist,this.currentFinancialCommunityId).subscribe((result)=>
 		{
 			result.map((item:IPlanOptionCommunityGridDto) => {
-				this.planOptionDtosList.find(c =>c.planOptionId === item.planOptionId).hasConfig = item.hasConfig;
+				const planoption = this.planOptionDtosList.find(c =>c.planOptionId === item.planOptionId);
+				if(planoption){
+					planoption.hasConfig = item.hasConfig;
+				}
 			});
 		});			
 	}
@@ -304,10 +317,8 @@ export class ColorItemsSearchHeaderComponent
 		this.pageNumber = 1;
 		this.optionListIndex = -1;
 		this.loadColorItemsGrid();
-		//Disable when blank option is selected
-		if(!this.currentOption){
-			this.processAddColorItemButtonState();
-		}
+		// Default button to be disabled on option change
+		this.disableAddColorItemButton = true;
 	}
 
 	private processAddColorItemButtonState() {

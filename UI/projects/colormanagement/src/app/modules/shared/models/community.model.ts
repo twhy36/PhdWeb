@@ -79,5 +79,5 @@ export interface IPlanOptionCommunityGridDto {
 	colorItem: IColorItemDto[];
 	hasSalesAgreement: boolean;
     hasConfig: boolean;
-
+	loadingDeleteIcon: boolean;
 }
