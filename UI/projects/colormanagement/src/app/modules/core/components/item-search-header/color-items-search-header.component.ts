@@ -251,7 +251,6 @@ export class ColorItemsSearchHeaderComponent
 					else if (this.planOptionDtosList.length >= expectedListLength && !this.allDataLoaded && isAllOption) {
 						this.pageNumber++;
 						this.getSalesagreementOrConfig(this.planOptionDtosList.filter(x => !x.loadingDeleteIcon));
-						this.processAddColorItemButtonState();		
 					}
 					else
 					{
@@ -267,7 +266,7 @@ export class ColorItemsSearchHeaderComponent
 					this.getSalesagreementOrConfig(this.planOptionDtosList.filter(x=>!x.loadingDeleteIcon));
 				}
 
-				if (this.allDataLoaded) {
+				if (this.allDataLoaded && !isAllOption) {
 					this.processAddColorItemButtonState();					
 				}
 			});
@@ -318,10 +317,8 @@ export class ColorItemsSearchHeaderComponent
 		this.pageNumber = 1;
 		this.optionListIndex = -1;
 		this.loadColorItemsGrid();
-		//Disable when blank option is selected
-		if(!this.currentOption){
-			this.processAddColorItemButtonState();
-		}
+		// Default button to be disabled on option change
+		this.disableAddColorItemButton = true;
 	}
 
 	private processAddColorItemButtonState() {
