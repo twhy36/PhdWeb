@@ -62,14 +62,14 @@ export class AddColorItemDialogComponent implements OnInit {
 			//find all plans related to the selectedOption and default them to the selected control
 			this.selectedPlans = this.allPlans
 				.filter(plan => this.selectedOption.planOptionCommunities.some(optionPlan => optionPlan.planId === plan.id))
-				.sort((planA, planB) => planA.planSalesName > planB.planSalesName ? 1 : -1)
+				.sort((planA, planB) => planA.planSalesName.toLowerCase() > planB.planSalesName.toLowerCase() ? 1 : -1)
 		}
 		else
 		{
 			//find individual plans that were used to search by on the color items page and default them to the selected control
 			this.selectedPlans = this.allPlans
 				.filter(plan => this.plansUsedInSearch.filter(searchId => searchId === plan.id))
-				.sort((planA, planB) => planA.planSalesName > planB.planSalesName ? 1 : -1);
+				.sort((planA, planB) => planA.planSalesName.toLowerCase() > planB.planSalesName.toLowerCase() ? 1 : -1);
 
 			const remainingPlans = this.selectedOption.planOptionCommunities.filter(plan => this.selectedPlans.every(sp => sp.id !== plan.planId));
 			this.availablePlans = this.allPlans.filter(plan => remainingPlans.some(rp => plan.id === rp.planId ))
@@ -111,18 +111,34 @@ export class AddColorItemDialogComponent implements OnInit {
 	}
 
 	onMoveColorToSource() {
-		this.availableColors.sort((colorA, colorB) => colorA.name > colorB.name ? 1 : -1);
+		this.availableColors.sort((colorA, colorB) => colorA.name.toLowerCase() > colorB.name.toLowerCase() ? 1 : -1);
 	}
 
-	onMovePlanToSource() {
-		this.availablePlans.sort((planA, planB) => planA.planSalesName > planB.planSalesName ? 1 : -1);
-	}
-
-	onMovePlanToTarget() {
-		this.selectedPlans.sort((planA, planB) => planA.planSalesName > planB.planSalesName ? 1 : -1);
+	onMoveAllColorsToSource() {
+		this.availableColors.sort((colorA, colorB) => colorA.name.toLowerCase() > colorB.name.toLowerCase() ? 1 : -1);
 	}
 
 	onMoveColorToTarget() {
-		this.selectedColors.sort((colorA, colorB) => colorA.name > colorB.name ? 1 : -1);
+		this.selectedColors.sort((colorA, colorB) => colorA.name.toLowerCase() > colorB.name.toLowerCase() ? 1 : -1);
+	}
+
+	onMoveAllColorsToTarget() {
+		this.selectedColors.sort((colorA, colorB) => colorA.name.toLowerCase() > colorB.name.toLowerCase() ? 1 : -1);
+	}
+
+	onMovePlanToSource() {
+		this.availablePlans.sort((planA, planB) => planA.planSalesName.toLowerCase() > planB.planSalesName.toLowerCase() ? 1 : -1);
+	}
+
+	onMoveAllPlansToSource() {
+		this.availablePlans.sort((planA, planB) => planA.planSalesName.toLowerCase() > planB.planSalesName.toLowerCase() ? 1 : -1);
+	}
+
+	onMovePlanToTarget() {
+		this.selectedPlans.sort((planA, planB) => planA.planSalesName.toLowerCase() > planB.planSalesName.toLowerCase() ? 1 : -1);
+	}
+
+	onMoveAllPlansToTarget() {
+		this.selectedPlans.sort((planA, planB) => planA.planSalesName.toLowerCase() > planB.planSalesName.toLowerCase() ? 1 : -1);
 	}
 }
