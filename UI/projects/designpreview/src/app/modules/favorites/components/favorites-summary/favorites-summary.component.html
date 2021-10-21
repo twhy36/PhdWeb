@@ -22,9 +22,9 @@
 				<div class="group" *ngIf="group.subGroups.length > 0">
 					<div class="label">
 						<span>{{group.label}}</span>
-						<div class="phd-group-detail">
+						<div class="phd-group-detail"> 
 							<span class="phd-group-subtotal-label">Subtotal : </span>
-							<span class="phd-group-subtotal-amount"> {{getGroupSubTotals(group) | currency}} </span>
+							<span class="phd-group-subtotal-amount"> {{group.price | currency}} </span>
 						</div>
 					</div>
 					<div class="sub-group d-flex flex-column justify-content-between" *ngFor="let subGroup of group.subGroups">
