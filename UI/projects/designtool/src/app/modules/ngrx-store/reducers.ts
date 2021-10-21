@@ -553,7 +553,8 @@ export const priceBreakdown = createSelector(
 	fromChangeOrder.currentChangeOrder,
 	fromJob.jobState,
 	selectedPlanPrice,
-	(scenario, salesAgreement, currentChangeOrder, job, planPrice) =>
+	fromLite.liteState,
+	(scenario, salesAgreement, currentChangeOrder, job, planPrice, lite) =>
 	{
 		let breakdown = new PriceBreakdown();
 
@@ -694,6 +695,14 @@ export const priceBreakdown = createSelector(
 					breakdown.closingIncentive = scenarioInfo.closingIncentive;
 					breakdown.salesProgram = scenarioInfo.discount;
 				}
+			}
+
+			if (lite?.isPhdLite)
+			{
+				breakdown.baseHouse = planPrice;
+
+				const selectedOptions = lite.options?.filter(option => option.scenarioOption?.planOptionQuantity > 0);
+				breakdown.selections = selectedOptions?.reduce((acc, option) => acc + (option.scenarioOption?.planOptionQuantity * option.listPrice), 0);
 			}
 
 			breakdown = setPriceBreakdown(breakdown, scenario.tree, scenario.options, scenario.lotPremium, salesAgreement.salePrice, planPrice);

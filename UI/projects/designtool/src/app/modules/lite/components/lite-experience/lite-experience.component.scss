@@ -1,0 +1,18 @@
+@import "../../../../../scss/sizes.scss";
+
+:host {
+	position: absolute;
+	left: $phase-bar;
+	width: calc(100% - #{$phase-bar});
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	height: 100%;
+}
+
+.phd-lite-experience {
+	display: flex;
+	margin-bottom: 80px;
+	margin-left: 20px;
+	overflow: hidden;
+}

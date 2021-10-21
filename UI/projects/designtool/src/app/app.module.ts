@@ -27,6 +27,8 @@ import { EditHomeModule } from './modules/edit-home/edit-home.module';
 import { NewHomeModule } from './modules/new-home/new-home.module';
 import { ScenarioSummaryModule } from './modules/scenario-summary/scenario-summary.module';
 import { PointOfSaleModule } from './modules/point-of-sale/point-of-sale.module';
+import { LiteModule } from './modules/lite/lite.module';
+
 import { NgbDateCustomParserFormatter } from './modules/shared/classes/ngbDatePicker/ngbDateCustomParserFormatter';
 
 import { AppComponent } from './app.component';
@@ -36,7 +38,8 @@ const appRoutes: Routes = [
     { path: 'edit-home', component: EditHomeModule },
     { path: 'scenario-summary', component: ScenarioSummaryModule },
 	{ path: 'point-of-sale', component: PointOfSaleModule },
-	{ path: 'change-orders', component: ChangeOrdersModule },
+    { path: 'change-orders', component: ChangeOrdersModule },
+    { path: 'lite', component: LiteModule },
     { path: '', pathMatch: 'full', redirectTo: 'new-home' }
 ];
 
@@ -70,6 +73,7 @@ export function getBaseHref(platformLocation: PlatformLocation): string
 		CoreModule,
 		ChangeOrdersModule,
         EditHomeModule,
+        LiteModule,
         NewHomeModule,
         ScenarioSummaryModule,
         PointOfSaleModule,

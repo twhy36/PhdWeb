@@ -18,6 +18,7 @@ import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 import * as NavActions from '../../../ngrx-store/nav/actions';
 import * as JobActions from '../../../ngrx-store/job/actions';
 import * as fromJobs from '../../../ngrx-store/job/reducer';
+import * as fromPlan from '../../../ngrx-store/plan/reducer';
 
 import { ActionBarCallType } from '../../../shared/classes/constants.class';
 import { ModalOverrideSaveComponent } from '../../../core/components/modal-override-save/modal-override-save.component';
@@ -63,6 +64,7 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 	lotChoiceRules: LotChoiceRules[] = null;
 	currentChoices: Choice[] = null;
 	financialCommunities: Array<FinancialCommunity>;
+	isPhdLite: boolean = false;
 
 	constructor(private router: Router,
 		private store: Store<fromRoot.State>,
@@ -108,7 +110,7 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 
 		this.selectedPlan$ = this.store.pipe(
 			this.takeUntilDestroyed(),
-			select(state => state.plan.selectedTree ? state.plan.plans.find(p => p.treeVersionId === state.plan.selectedTree) : null)
+			select(fromPlan.selectedPlanData)
 		);
 
 		this.store.pipe(
@@ -276,6 +278,11 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 			this.takeUntilDestroyed(),
 			select(state => state.scenario)
 		).subscribe(scenario => this.scenario = scenario.scenario);
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(state => state.lite)
+		).subscribe(lite => this.isPhdLite = lite?.isPhdLite);
 	}
 
 	isAssociatedWithSelectedPlan(lot: Lot): boolean
@@ -572,7 +579,14 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 		switch ($event.actionBarCallType)
 		{
 			case (ActionBarCallType.PRIMARY_CALL_TO_ACTION):
-				this.navToEditHome();
+				if (this.isPhdLite)
+				{
+					this.router.navigateByUrl('/lite/elevation');
+				}
+				else
+				{
+					this.navToEditHome();
+				}
 
 				break;
 		}
