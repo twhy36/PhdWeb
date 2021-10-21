@@ -117,4 +117,12 @@ export class AddColorItemDialogComponent implements OnInit {
 	onMovePlanToSource() {
 		this.availablePlans.sort((planA, planB) => planA.planSalesName > planB.planSalesName ? 1 : -1);
 	}
+
+	onMovePlanToTarget() {
+		this.selectedPlans.sort((planA, planB) => planA.planSalesName > planB.planSalesName ? 1 : -1);
+	}
+
+	onMoveColorToTarget() {
+		this.selectedColors.sort((colorA, colorB) => colorA.name > colorB.name ? 1 : -1);
+	}
 }
