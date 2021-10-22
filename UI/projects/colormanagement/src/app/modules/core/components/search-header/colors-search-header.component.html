@@ -73,14 +73,14 @@
             <phd-column  field="isActive" columnClass="phd-icon">
                 <ng-template #body let-colordto>
 					<i
-					class="fa fa-fw fa-undo text-danger"
+					class="fa fa-fw fa-repeat text-success"
 					title="Reactivate Color"
 					*ngIf="!colordto.isActive"
 					(click)="activateColor(colordto)"
 					>
 					</i>
 					<i
-					class="fa fa-fw fa-trash"
+					class="fa fa-fw fa-undo text-danger"
 					title="Inactivate Color"
 					*ngIf="colordto.isActive"
 					(click)="inactivateColor(colordto)"
