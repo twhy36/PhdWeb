@@ -1,7 +1,8 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
 
-import { flatMap } from 'rxjs/operators';
+import { MessageService } from 'primeng/api';
+import { mergeMap } from 'rxjs/operators';
 import { of } from 'rxjs';
 
 import { ContractTemplate, ITemplateType } from '../../../shared/models/contracts.model';
@@ -86,7 +87,8 @@ export class ViewContractsSidePanelComponent implements OnInit
 
 	constructor(
 		private _orgService: OrganizationService,
-		private _contractService: ContractService
+		private _contractService: ContractService,
+		private _msgService: MessageService
 	) { }
 
 	ngOnInit()
@@ -186,8 +188,12 @@ export class ViewContractsSidePanelComponent implements OnInit
 
 	save()
 	{
-		this.viewContractsForm.controls['assignedCommunityIds'].setValue(this.selectedCommunities.map(t => t.id));
-		this.saveNewOrgs(this.selectedCommunities);
+		// Prevents users from rapidly double clicking save and creating a contract twice
+		if (!this.saving)
+		{
+			this.viewContractsForm.controls['assignedCommunityIds'].setValue(this.selectedCommunities.map(t => t.id));
+			this.saveNewOrgs(this.selectedCommunities);
+		}
 	}
 
 	onSetDate(event: Date, dateType: 'expiration' | 'effective')
@@ -205,8 +211,9 @@ export class ViewContractsSidePanelComponent implements OnInit
 
 	saveNewOrgs(financialCommunityDto: Array<FinancialCommunity>)
 	{
+		this.saving = true;
 		this._orgService.getInternalOrgs(this.currentMktId).pipe(
-			flatMap(orgs =>
+			mergeMap(orgs =>
 			{
 				for (let financialCommunity of financialCommunityDto)
 				{
@@ -223,7 +230,11 @@ export class ViewContractsSidePanelComponent implements OnInit
 		).subscribe(data =>
 		{
 			this.onSave.emit(this.viewContractsForm.value as ContractTemplate);
-			this.saving = true;
+		},
+		error =>
+		{
+			this._msgService.add({ severity: 'error', summary: 'Error', detail: error.message });
+			this.saving = false;
 		});
 	}
 
