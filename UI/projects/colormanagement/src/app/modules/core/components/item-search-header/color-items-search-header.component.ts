@@ -378,7 +378,7 @@ export class ColorItemsSearchHeaderComponent
 
 	activateColorItem(coloritemDto: IColorItemDto[], planOptionDto : IPlanOptionCommunityGridDto)
 	{	
-		let isElevation;
+		let isElevation;		
 		const option = this.planOptionList.find(x=>x.id === planOptionDto.optionCommunityId);
 		if(option)
 			isElevation = this.isElevationOption(option.optionSubCategoryId);
@@ -390,20 +390,18 @@ export class ColorItemsSearchHeaderComponent
 			if(planOptions.filter(x=>x.colorItem[0].isActive)?.length>0)
 			{
 				this.elevationHasActiveColorItem = true;
+				const message = 'There is already an active color item for this elevation option';	
+				this.showConfirmModal(message, 'Info', '').pipe(
+				map(cancel => {
+						return;
+				})).subscribe((x)=>{
+
+				});
 			}
 			else
 			{
 				this.elevationHasActiveColorItem = false;
-			}
-			const message = 'There is already an active color item for this elevation option';	
-			this.showConfirmModal(message, 'Info', '').pipe(
-			map(cancel => {
-				if (cancel) {
-					return;
-				}
-			})).subscribe((x)=>{
-
-			});
+			}			
 		}
 		else
 		{
