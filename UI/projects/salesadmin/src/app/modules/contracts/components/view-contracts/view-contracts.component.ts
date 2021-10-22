@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, HostListener } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { Observable } from 'rxjs';
-import { distinctUntilChanged, filter, switchMap, tap } from 'rxjs/operators';
+import { distinctUntilChanged, filter, tap } from 'rxjs/operators';
 import { cloneDeep } from "lodash";
 
 import * as moment from 'moment';
@@ -16,6 +16,7 @@ import { UnsubscribeOnDestroy } from '../../../shared/utils/unsubscribe-on-destr
 import { SearchBarComponent } from '../../../shared/components/search-bar/search-bar.component';
 import { ViewContractsSidePanelComponent } from '../view-contracts-side-panel/view-contracts-side-panel.component';
 import { ConfirmModalComponent, PhdTableComponent } from 'phd-common';
+import { FinancialMarket } from '../../../shared/models/financialMarket.model';
 
 @Component({
 	selector: 'view-contracts',
@@ -86,21 +87,25 @@ export class ViewContractsComponent extends UnsubscribeOnDestroy implements OnIn
 				this.isSorting = false;
 				this.canManageDocument = true;
 			}),
-			switchMap(mkt => this._contractService.getDraftOrInUseContractTemplates(mkt.id))
-		).subscribe(templates =>
-		{
-			this.allTemplates = templates;
-			this.allTemplates.forEach(template =>
-				{
-					template.application = this.getApplication(template);
-				})
-			this.getTemplatesToBedisplayed();
-			this.resetSearchBar();
-		});
+		).subscribe(() => this.updateTemplates());
 
 		this._orgService.canEdit(this._route.parent.snapshot.data['requiresClaim']).pipe(
 			this.takeUntilDestroyed(),
 		).subscribe(canEdit => this.canEdit = canEdit);
+	}
+
+	updateTemplates(): void
+	{
+		this._contractService.getDraftOrInUseContractTemplates(this.currentMktId).subscribe(templates =>
+			{
+				this.allTemplates = templates;
+				this.allTemplates.forEach(template =>
+					{
+						template.application = this.getApplication(template);
+					})
+				this.getTemplatesToBedisplayed();
+				this.resetSearchBar();
+		});
 	}
 
 	getTemplatesToBedisplayed()
@@ -299,6 +304,7 @@ export class ViewContractsComponent extends UnsubscribeOnDestroy implements OnIn
 		this._contractService.saveDocument(contractTemplateDto)
 			.subscribe(newDto =>
 			{
+				this.updateTemplates();
 				newDto.assignedCommunityIds = contractTemplateDto.assignedCommunityIds;
 				newDto.application = this.getApplication(newDto);
 
