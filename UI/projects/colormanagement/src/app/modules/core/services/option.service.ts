@@ -45,7 +45,7 @@ export class OptionService {
 						return 1;
 					}
 
-					if ((aName = bName)) {
+					if ((aName === bName)) {
 						let aSubName = a.name.toLowerCase();
 						let bSubName = b.name.toLowerCase();
 

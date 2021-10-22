@@ -17,6 +17,7 @@ import { ActionBarCallType } from '../../../shared/classes/constants.class';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 import * as fromJob from '../../../ngrx-store/job/reducer';
 import * as fromSalesAgreement from '../../../ngrx-store/sales-agreement/reducer';
+import * as fromPlan from '../../../ngrx-store/plan/reducer';
 import * as JobActions from '../../../ngrx-store/job/actions';
 import * as LotActions from '../../../ngrx-store/lot/actions';
 import { selectSelectedLot } from '../../../ngrx-store/lot/reducer';
@@ -54,6 +55,7 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 	selectionPrice: number = 0;
 	selectedPlanPrice$: Observable<number>;
 	job: Job;
+	isPhdLite: boolean = false;
 
 	constructor(public planService: PlanService,
 		private router: Router,
@@ -141,16 +143,16 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 		this.selectedPlan$ = this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(state =>
-			{
-				this.selectedPlan = state.plan.selectedTree && state.plan.plans ? state.plan.plans.find(p => p.treeVersionId === state.plan.selectedTree) : null;
-
-				if (!this.selectedPlan && state.plan.selectedPlan && state.lite?.isPhdLite)
 				{
-					this.selectedPlan = state.plan.plans.find(p => p.id === state.plan.selectedPlan);
-				}
-
-				return this.selectedPlan;
-			})
+					this.selectedPlan = state.plan.selectedTree && state.plan.plans ? state.plan.plans.find(p => p.treeVersionId === state.plan.selectedTree) : null;
+	
+					if (!this.selectedPlan && state.plan.selectedPlan && state.lite?.isPhdLite)
+					{
+						this.selectedPlan = state.plan.plans.find(p => p.id === state.plan.selectedPlan);
+					}
+	
+					return this.selectedPlan;
+				})
 		);
 
 		this.selectedLot$ = this.store.pipe(
@@ -208,6 +210,11 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 			this.takeUntilDestroyed(),
 			select(fromRoot.selectedPlanPrice)
 		);
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(state => state.lite)
+		).subscribe(lite => this.isPhdLite = lite?.isPhdLite);
 	}
 
 	sortPlans(sortBy: planSortByType)
@@ -274,6 +281,10 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 						}
 						this.router.navigateByUrl('/scenario-summary');
 					}
+				}
+				else if (this.isPhdLite)
+				{
+					this.router.navigateByUrl('/lite/elevation');
 				}
 				else
 				{

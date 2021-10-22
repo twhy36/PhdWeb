@@ -118,6 +118,7 @@ export const filteredTree = createSelector(
 							return { ...p, choices: choices };
 						});
 						points = points.filter(dp => {
+							dp.price = dp.choices.reduce((acc, ch) => acc + (!ch.priceHiddenFromBuyerView ? ch.quantity * ch.price : 0), 0);
 							let isIncluded = true;
 							if (dp.choices.length === 0) {
 								isIncluded = false;

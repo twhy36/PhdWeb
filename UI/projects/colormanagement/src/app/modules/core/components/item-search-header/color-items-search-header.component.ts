@@ -28,9 +28,9 @@ export class ColorItemsSearchHeaderComponent
 	planOptionList: Array<IOptionCommunity>;
 	optionListIndex: number;
 	planOptionDtosList: Array<IPlanOptionCommunityGridDto> = [];
+	optionsPerPlan: Array<IPlanOptionCommunityDto> = [];
 	currentOption: IOptionCommunity = null;
 	isActiveColor: boolean = null;
-	colorItemDtolist: IColorItemDto[];
 	settings: Settings;
 	allDataLoaded: boolean;
 	currentPage: number = 0;
@@ -65,7 +65,7 @@ export class ColorItemsSearchHeaderComponent
 				this.reset();
 				this.selectedPlans = [];
 				this.currentFinancialCommunityId = comm.id;
-				this.disableAddColorItemButton = true;	
+				this.disableAddColorItemButton = true;
 				return this._planService.getPlanCommunities(this.currentFinancialCommunityId).pipe(
 					map((plans) => {
 						return [
@@ -175,7 +175,7 @@ export class ColorItemsSearchHeaderComponent
 				})
 			).subscribe((planOptionDtos) => {
 				this.currentPage++;
-				this.allDataLoaded = isAllOption ? planOptionDtos.length < this.settings.infiniteScrollPageSize && (isAllOption && this.optionListIndex === (this.planOptionList.length - 1)): planOptionDtos.length < this.settings.infiniteScrollPageSize;								
+				this.allDataLoaded = isAllOption ? planOptionDtos.length < this.settings.infiniteScrollPageSize && (isAllOption && this.optionListIndex === (this.planOptionList.length - 1)): planOptionDtos.length < this.settings.infiniteScrollPageSize;
 				//Verify if atleast one ColorItem missed for Elevation option, disable Add Button
 				if(isElevation)
 				{
@@ -186,8 +186,11 @@ export class ColorItemsSearchHeaderComponent
 						this.planOptionHasNoColorItem = true;
 					}					
 				}
+
 				planOptionDtos = planOptionDtos.filter(x => !!x.colorItem);
-				if (planOptionDtos.length > 0) 
+				this.optionsPerPlan = planOptionDtos;
+
+				if (planOptionDtos.length > 0)
 				{
 					const planOptionGridList = [];
 					if(!isElevation)
@@ -206,7 +209,7 @@ export class ColorItemsSearchHeaderComponent
 									colorItem: item.map(x => x.colorItem),
 									hasSalesAgreement: null,
 									hasConfig: null,
-									loadingDeleteIcon: false	
+									loadingDeleteIcon: false
 								}
 								planOptionGridList.push(planOptiongrid);
 							}
@@ -223,7 +226,7 @@ export class ColorItemsSearchHeaderComponent
 								colorItem: [item.colorItem],
 								hasSalesAgreement: null,
 								hasConfig: null,
-								loadingDeleteIcon: false	
+								loadingDeleteIcon: false
 							}
 							planOptionGridList.push(planOptiongrid);
 						});
@@ -241,11 +244,11 @@ export class ColorItemsSearchHeaderComponent
 								colorItem: [item.colorItem],
 								hasSalesAgreement: null,
 								hasConfig: null,
-								loadingDeleteIcon: false							
+								loadingDeleteIcon: false
 							}
 							planOptionGridList.push(planOptiongrid);
 						});
-						
+
 					}
 					this.planOptionDtosList = [...this.planOptionDtosList, ...planOptionGridList];
 					const expectedListLength = this.pageNumber * this.settings.infiniteScrollPageSize;
@@ -258,12 +261,12 @@ export class ColorItemsSearchHeaderComponent
 					}
 					else
 					{
-						this.getSalesagreementOrConfig(this.planOptionDtosList.filter(x => !x.loadingDeleteIcon));	
-						this.processAddColorItemButtonState();	
+						this.getSalesagreementOrConfig(this.planOptionDtosList.filter(x => !x.loadingDeleteIcon));
+						this.processAddColorItemButtonState();
 					}
 				}
 				else if (!this.allDataLoaded && isAllOption && this.optionListIndex < (this.planOptionList.length-1)) {
-					this.onPanelScroll();										
+					this.onPanelScroll();
 				}
 				else if(this.optionListIndex === (this.planOptionList.length-1) && isAllOption)
 				{
@@ -271,7 +274,7 @@ export class ColorItemsSearchHeaderComponent
 				}
 
 				if (this.allDataLoaded && !isAllOption) {
-					this.processAddColorItemButtonState();					
+					this.processAddColorItemButtonState();
 				}
 			});
 
@@ -296,7 +299,7 @@ export class ColorItemsSearchHeaderComponent
 					planoption.hasConfig = item.hasConfig;
 				}
 			});
-		});			
+		});
 	}
 	onPanelScroll()
 	{
@@ -352,11 +355,11 @@ export class ColorItemsSearchHeaderComponent
 			} else {
 				this.disableAddColorItemButton = false;
 			}
-		}		
+		}
 	}
 
 	private isElevationOption(optionSubCategoryId: number) {
-		var elevationOptionSubCategoryIds: Array<number> = [361, 362];
+		var elevationOptionSubCategoryIds: Array<number> = [Elevations.DetachedElevation, Elevations.AttachedElevation];
 		return elevationOptionSubCategoryIds.includes(optionSubCategoryId);
 	}
 
@@ -512,4 +515,8 @@ export class ColorItemsSearchHeaderComponent
 				);									 
 	}
 
+
+	onAddColorItemDialogWasCanceled() {
+		this.modalReference.dismiss();
+	}
 }

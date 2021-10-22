@@ -108,26 +108,24 @@
 		</ng-container>
 
 		<ng-container *ngIf="selectedPlanId && (isPhdLite$ | async)">
-			<phd-nav-menu-item
-				label="Elevation"
-				[showStatusIndicator]="false"
-				[ngClass]="(isTablet$ | async) && invertHamburgerMenuColor ? 'phd-menu-item-color' : null">
+			<phd-nav-menu-item 
+				label="Exterior"
+				[status]="(isElevationSelected$ | async) ? PointStatus.PARTIALLY_COMPLETED : PointStatus.REQUIRED"
+				[showStatusIndicator]="showStatusIndicator$ | async"
+				[isActive]="currentRoute?.startsWith('/lite/elevation')"
+				[ngClass]="(isTablet$ | async) && invertHamburgerMenuColor ? 'phd-menu-item-color' : null"
+				(click)="onExteriorPath()">
 			</phd-nav-menu-item>
-			<phd-nav-menu-item
-				label="Color Scheme"
+			<phd-nav-menu-item 
+				label="Options"
 				[showStatusIndicator]="false"
-				[isActive]="false"
 				[disabled]="true"
 				[ngClass]="(isTablet$ | async) && invertHamburgerMenuColor ? 'phd-menu-item-color' : null">
 			</phd-nav-menu-item>
-			<phd-nav-menu-item
-				label="Options"
-				[showStatusIndicator]="false"
-				[ngClass]="(isTablet$ | async) && invertHamburgerMenuColor ? 'phd-menu-item-color' : null">
-			</phd-nav-menu-item>
-			<phd-nav-menu-item
+			<phd-nav-menu-item 
 				label="Colors"
 				[showStatusIndicator]="false"
+				[disabled]="true"
 				[ngClass]="(isTablet$ | async) && invertHamburgerMenuColor ? 'phd-menu-item-color' : null">
 			</phd-nav-menu-item>
 		</ng-container>
