@@ -42,7 +42,6 @@ export class ColorItemsSearchHeaderComponent
 	modalReference: ModalRef;
 	disableAddColorItemButton: boolean = true;
 	@ViewChild('addColorItemModal') addColorItemModal: any;
-	elevationHasActiveColorItem: boolean;
 
 	constructor(
 		private _orgService: OrganizationService,
@@ -392,19 +391,9 @@ export class ColorItemsSearchHeaderComponent
 			//Verify if there is already an active color item for the elevation option
 			if(planOptions.filter(x=>x.colorItem[0].isActive)?.length>0)
 			{
-				this.elevationHasActiveColorItem = true;
 				const message = 'There is already an active color item for this elevation option';	
-				this.showConfirmModal(message, 'Info', '').pipe(
-				map(cancel => {
-						return;
-				})).subscribe((x)=>{
-
-				});
-			}
-			else
-			{
-				this.elevationHasActiveColorItem = false;
-			}			
+				this._modalService.showOkOnlyModal(message, 'Warning');				
+			}						
 		}
 		else
 		{
