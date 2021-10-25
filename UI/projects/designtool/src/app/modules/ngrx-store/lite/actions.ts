@@ -18,25 +18,25 @@ export class SetIsPhdLite implements Action {
 export class LiteOptionsLoaded implements Action {
     readonly type = LiteActionTypes.LiteOptionsLoaded;
 
-    constructor(public options: LitePlanOption[]) { }
+    constructor(public options: LitePlanOption[], public scenarioOptions: ScenarioOption[]) { }
 }
 
 export class SelectOptions implements Action {
     readonly type = LiteActionTypes.SelectOptions;
 
-    constructor(public options: ScenarioOption[]) { }
+    constructor(public scenarioOptions: ScenarioOption[]) { }
 }
 
 export class SaveScenarioOptions implements Action {
     readonly type = LiteActionTypes.SaveScenarioOptions;
 
-    constructor(public options: ScenarioOption[]) { }
+    constructor(public scenarioOptions: ScenarioOption[]) { }
 }
 
 export class ScenarioOptionsSaved implements Action {
     readonly type = LiteActionTypes.ScenarioOptionsSaved;
 
-    constructor(public options: ScenarioOption[]) { }
+    constructor(public scenarioOptions: ScenarioOption[]) { }
 }
 
 export type LiteActions =

@@ -1,8 +1,9 @@
 <page-header mainTitle="Elevation" subTitle="Please select 1 of the choices below"></page-header>
 
 <div class="p-2 d-flex flex-wrap phd-elevation-cards">
-	<exterior-card *ngFor="let elevation of (elevationOptions$ | async)" 
+	<exterior-card *ngFor="let elevation of elevationOptions" 
 		[option]="elevation"
+		[scenarioOptions]="scenarioOptions"
 		(toggled)="onToggleElevation($event)">
 	</exterior-card>
 </div>

@@ -48,23 +48,22 @@ export class LiteEffects
 						this.liteService.getScenarioOptions(action.scenario.scenarioId)
 					]).pipe(
 						map(([options, scenarioOptions]) => {
-							scenarioOptions.forEach(scenarioOption => {
-								let option = options.find(opt => opt.id === scenarioOption.edhPlanOptionId);
-								if (option)
-								{
-									option.scenarioOption = scenarioOption;
-								}
-							})
-							return options;
+							return { options, scenarioOptions };
 						})
 					);
 				}
 				else
 				{
-					return of(store.lite.isPhdLite ? planOptions : []);
+					return null;
 				}
 			}),
-			map(options => new LiteOptionsLoaded(options))
+			switchMap(data => {
+				if (data)
+				{
+					return of(new LiteOptionsLoaded(data.options, data.scenarioOptions));				
+				}
+				return never();
+			})
 		);
 	});	
 
@@ -77,7 +76,7 @@ export class LiteEffects
 				const opportunityId = store.scenario.scenario?.opportunityId;
 
 				return scenarioId && opportunityId
-					? this.liteService.saveScenarioOptions(scenarioId, opportunityId, action.options)
+					? this.liteService.saveScenarioOptions(scenarioId, opportunityId, action.scenarioOptions)
 					: of([]);
 			}),
 			map(options => new ScenarioOptionsSaved(options))

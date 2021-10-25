@@ -21,7 +21,6 @@ export class LitePlanOption implements PlanOption
 
     // Lite
     optionSubCategoryId: number;
-    scenarioOption: ScenarioOption;
 }
 
 export interface ScenarioOption
@@ -38,7 +37,13 @@ export enum Elevation
 	Attached = 362
 }
 
+export enum LiteSubMenu
+{
+    Elevation = 5,
+    ColorScheme = 6
+}
+
 export const ExteriorSubNavItems: Array<{ label: string, status: any, id: number }> = [
-	{ label: "Elevation", status: PointStatus.REQUIRED, id: 1 },
-	{ label: "Color Scheme", status: PointStatus.REQUIRED, id: 2 }
+	{ label: "Elevation", status: PointStatus.REQUIRED, id: LiteSubMenu.Elevation },
+	{ label: "Color Scheme", status: PointStatus.REQUIRED, id: LiteSubMenu.ColorScheme }
 ];

@@ -1,17 +1,18 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store';
 import * as _ from "lodash";
 
-import { LitePlanOption, Elevation } from '../../shared/models/lite.model';
+import { LitePlanOption, Elevation, ScenarioOption } from '../../shared/models/lite.model';
 import { LiteActions, LiteActionTypes } from './actions';
 
 export interface State
 {
 	isPhdLite: boolean,
 	isSaving: boolean,
-	options: LitePlanOption[]
+	options: LitePlanOption[],
+	scenarioOptions: ScenarioOption[];
 }
 
-export const initialState: State = { isPhdLite: false, isSaving: false, options: [] };
+export const initialState: State = { isPhdLite: false, isSaving: false, options: [], scenarioOptions: [] };
 
 export function reducer(state: State = initialState, action: LiteActions): State
 {
@@ -21,24 +22,39 @@ export function reducer(state: State = initialState, action: LiteActions): State
 			return { ...state, isPhdLite: action.isPhdLite };
 
 		case LiteActionTypes.LiteOptionsLoaded:
-			return { ...state, options: action.options };
+			return { ...state, options: action.options, scenarioOptions: action.scenarioOptions };
 
 		case LiteActionTypes.SelectOptions:
 		{
-			let newOptions = _.cloneDeep(state.options);
+			let newOptions = _.cloneDeep(state.scenarioOptions);
 
-			newOptions.forEach(option => {
-				option.scenarioOption = action.options.find(opt => option.id === opt.edhPlanOptionId);
+			action.scenarioOptions?.forEach(opt => {
+				const optionIndex = newOptions.findIndex(newOpt => newOpt.edhPlanOptionId === opt.edhPlanOptionId);
+				if (optionIndex > -1)
+				{
+					if (opt.planOptionQuantity === 0)
+					{
+						newOptions.splice(optionIndex, 1);
+					}
+					else
+					{
+						newOptions[optionIndex].planOptionQuantity = opt.planOptionQuantity;
+					}
+				}
+				else
+				{
+					newOptions.push(opt);
+				}
 			});
 
-			return { ...state, options: newOptions };			
+			return { ...state, scenarioOptions: newOptions };			
 		}
 
 		case LiteActionTypes.SaveScenarioOptions:
 			return { ...state, isSaving: true };
 
 		case LiteActionTypes.ScenarioOptionsSaved:
-			return { ...state, isSaving: false };
+			return { ...state, isSaving: false, scenarioOptions: action.scenarioOptions };
 			
 		default:
 			return state;
@@ -49,10 +65,15 @@ export const liteState = createFeatureSelector<State>('lite');
 
 export const elevationOptions = createSelector(
 	liteState,
-	(state) => state.options.filter(option => option.optionSubCategoryId === Elevation.Detached || option.optionSubCategoryId === Elevation.Attached)
-);
+	(state) => {
+		const elevations = state.options.filter(option => option.optionSubCategoryId === Elevation.Detached || option.optionSubCategoryId === Elevation.Attached);
+		return _.sortBy(elevations, 'name');
+	});
 
 export const isElevationSelected = createSelector(
+	liteState,
 	elevationOptions,
-	(elevations) => !!elevations.find(elev => elev.scenarioOption?.planOptionQuantity > 0)
+	(state, elevations) => {
+		return !!elevations.find(elev => state.scenarioOptions?.find(opt => opt.edhPlanOptionId === elev.id && opt.planOptionQuantity > 0));
+	}
 );

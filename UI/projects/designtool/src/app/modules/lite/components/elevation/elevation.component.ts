@@ -1,7 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-
 import { Store, select } from '@ngrx/store';
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromLite from '../../../ngrx-store/lite/reducer';
@@ -11,7 +8,7 @@ import * as LiteActions from '../../../ngrx-store/lite/actions';
 import * as NavActions from '../../../ngrx-store/nav/actions';
 
 import { UnsubscribeOnDestroy, PointStatus } from 'phd-common';
-import { LitePlanOption } from '../../../shared/models/lite.model';
+import { LitePlanOption, ScenarioOption, LiteSubMenu } from '../../../shared/models/lite.model';
 
 @Component({
 	selector: 'elevation',
@@ -20,22 +17,29 @@ import { LitePlanOption } from '../../../shared/models/lite.model';
 })
 export class ElevationComponent extends UnsubscribeOnDestroy implements OnInit
 {
-	elevationOptions$: Observable<LitePlanOption[]>;
 	elevationOptions: LitePlanOption[];
+	scenarioOptions: ScenarioOption[];
 	scenarioId: number;
 
 	constructor(private store: Store<fromRoot.State>) { super(); }
 
 	ngOnInit()
 	{
-		this.elevationOptions$ = this.store.pipe(
+		this.store.pipe(
 			this.takeUntilDestroyed(),
-			select(fromLite.elevationOptions),
-			map(elevations => {
-				this.elevationOptions = elevations;
-				return this.elevationOptions;
-			})
-		);
+			select(fromLite.elevationOptions)
+		).subscribe(elevations =>
+		{
+			this.elevationOptions = elevations;
+		});		
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(state => state.lite.scenarioOptions)
+		).subscribe(scenarioOptions =>
+		{
+			this.scenarioOptions = scenarioOptions;
+		});	
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
@@ -43,7 +47,7 @@ export class ElevationComponent extends UnsubscribeOnDestroy implements OnInit
 		).subscribe(isElevationSelected =>
 		{
 			const status = isElevationSelected ? PointStatus.COMPLETED : PointStatus.REQUIRED;
-			this.store.dispatch(new NavActions.SetSubNavItemStatus(1, status));
+			this.store.dispatch(new NavActions.SetSubNavItemStatus(LiteSubMenu.Elevation, status));
 		});
 
 		this.store.pipe(
@@ -62,26 +66,29 @@ export class ElevationComponent extends UnsubscribeOnDestroy implements OnInit
 		if (elevationToggled)
 		{
 			let selectedOptions = [];
-			if (!!elevationToggled.scenarioOption?.planOptionQuantity)
+
+			const scenarioOption = this.scenarioOptions.find(opt => opt.edhPlanOptionId === elevation.id && opt.planOptionQuantity > 0);
+			if (scenarioOption)
 			{
 				// De-select an elevation
 				selectedOptions.push({
-					scenarioOptionId: elevation.scenarioOption.scenarioOptionId,
-					scenarioId: elevation.scenarioOption.scenarioId,
-					edhPlanOptionId: elevation.scenarioOption.edhPlanOptionId,
+					scenarioOptionId: scenarioOption.scenarioOptionId,
+					scenarioId: scenarioOption.scenarioId,
+					edhPlanOptionId: scenarioOption.edhPlanOptionId,
 					planOptionQuantity: 0
 				});
 			}
 			else
 			{
 				// Deselect current selected elevation
-				const currentElevation = this.elevationOptions.find(option => option.scenarioOption?.planOptionQuantity > 0);
+				const currentElevation = this.elevationOptions.find(option => this.scenarioOptions.find(opt => opt.edhPlanOptionId === option.id && opt.planOptionQuantity > 0));
 				if (currentElevation)
 				{
+					const currentScenarioOption = this.scenarioOptions.find(opt => opt.edhPlanOptionId === currentElevation.id);				
 					selectedOptions.push({
-						scenarioOptionId: currentElevation.scenarioOption.scenarioOptionId,
-						scenarioId: currentElevation.scenarioOption.scenarioId,
-						edhPlanOptionId: currentElevation.scenarioOption.edhPlanOptionId,
+						scenarioOptionId: currentScenarioOption.scenarioOptionId,
+						scenarioId: currentScenarioOption.scenarioId,
+						edhPlanOptionId: currentScenarioOption.edhPlanOptionId,
 						planOptionQuantity: 0
 					});
 				}

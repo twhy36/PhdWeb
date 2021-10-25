@@ -701,8 +701,15 @@ export const priceBreakdown = createSelector(
 			{
 				breakdown.baseHouse = planPrice;
 
-				const selectedOptions = lite.options?.filter(option => option.scenarioOption?.planOptionQuantity > 0);
-				breakdown.selections = selectedOptions?.reduce((acc, option) => acc + (option.scenarioOption?.planOptionQuantity * option.listPrice), 0);
+				let selections = 0;
+				lite.scenarioOptions?.forEach(scenarioOption => {
+					const planOption = lite.options?.find(option => option.id === scenarioOption.edhPlanOptionId);
+					if (planOption)
+					{
+						selections += planOption.listPrice * scenarioOption.planOptionQuantity;
+					}
+				});
+				breakdown.selections = selections;
 			}
 
 			breakdown = setPriceBreakdown(breakdown, scenario.tree, scenario.options, scenario.lotPremium, salesAgreement.salePrice, planPrice);

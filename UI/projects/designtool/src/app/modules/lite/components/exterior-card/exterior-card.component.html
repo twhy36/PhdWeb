@@ -1,4 +1,4 @@
-<div class="phd-exterior-card" [class.active]="option?.scenarioOption?.planOptionQuantity" [class.selected]="option?.scenarioOption?.planOptionQuantity" [@flipOver]>
+<div class="phd-exterior-card" [class.active]="isOptionSelected" [class.selected]="isOptionSelected" [@flipOver]>
 	<div class="phd-header">
         <span class="phd-2-line-limit">
             {{option.name}}
