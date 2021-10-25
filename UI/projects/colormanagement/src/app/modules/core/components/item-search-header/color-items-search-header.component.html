@@ -72,7 +72,7 @@
 		(scrolled)="onPanelScroll()"
 		[scrollWindow]="false"
 	>
-		<phd-table #dt [value]="planOptionDtosList">
+		<phd-table #dt [value]="planOptionDtosList" [rowClass]="getRowClass">
 			<phd-column header="Plan" field="planSalesName">
 				<ng-template #body let-planOptionDto>
 					<span *ngFor="let plans of planOptionDto.planCommunity;let indexOfelement = index">
@@ -80,7 +80,7 @@
 						<span>{{ plans?.planSalesName }}</span>
 					</span>
 				</ng-template>
-			</phd-column>
+			</phd-column>			
 			<phd-column header="Option" field="optionSalesName"></phd-column>
 			<phd-column header="ColorItem" field="colorItem">
 				<ng-template #body let-planOptionDto>
@@ -101,9 +101,22 @@
 					</div>
 				</ng-template>
 			</phd-column>			
-			<phd-column header="Active" field="isActive" width="100px">
+			<phd-column field="isActive" columnClass="phd-icon">
 				<ng-template #body let-planOptionDto>
-					<span>{{ planOptionDto.colorItem[0]?.isActive }}</span>
+						<i
+						class="fa fa-fw fa-repeat text-success"
+						title="Reactivate Color Item"
+						*ngIf="!planOptionDto.colorItem[0]?.isActive"
+						(click)="activateColorItem(planOptionDto.colorItem, planOptionDto)"
+						>
+						</i>
+						<i
+						class="fa fa-fw fa-undo text-danger"
+						title="Inactivate Color Item"
+						*ngIf="planOptionDto.colorItem[0]?.isActive"
+						(click)="inactivateColorItem(planOptionDto.colorItem, planOptionDto.planOptionId)"
+						>
+						</i>
 				</ng-template>
 			</phd-column>
 
