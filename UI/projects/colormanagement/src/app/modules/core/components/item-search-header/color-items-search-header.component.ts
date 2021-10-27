@@ -41,7 +41,9 @@ export class ColorItemsSearchHeaderComponent
 	planOptionHasNoColorItem: boolean;
 	modalReference: ModalRef;
 	disableAddColorItemButton: boolean = true;
+	currentColorItems: IColorItemDto[];
 	@ViewChild('addColorItemModal') addColorItemModal: any;
+	@ViewChild('editColorItemModal') editColorItemModal: any;
 
 	constructor(
 		private _orgService: OrganizationService,
@@ -111,6 +113,16 @@ export class ColorItemsSearchHeaderComponent
 	showAddColorItemDialog() {
 		this.modalReference = this._modalService.open(this.addColorItemModal);
 		this.modalReference.result.catch(err => console.log(err));
+	}
+
+	showEditColorItemDialog(coloritems : IColorItemDto[]) {
+		this.currentColorItems = coloritems;
+		this.modalReference = this._modalService.open(this.editColorItemModal);
+		this.modalReference.result.catch(err => console.log(err));
+	}
+	onEditColorItemDialogWasCanceled()
+	{
+		this.modalReference.dismiss();
 	}
 
 	loadColorItemsGrid() {

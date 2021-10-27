@@ -22,6 +22,7 @@ import { MessageService } from 'primeng/api';
 import { ColorAdminService } from './services/color-admin.service';
 import { AddColorItemDialogComponent } from './components/add-color-item-dialog/add-color-item-dialog.component';
 import { PickListModule } from 'primeng/picklist';
+import { EditColorItemDialogComponent } from './components/edit-color-item-dialog/edit-color-item-dialog.component';
 
 @NgModule({
 	declarations: [
@@ -31,6 +32,7 @@ import { PickListModule } from 'primeng/picklist';
 		AddColorDialogComponent,
   		EditColorSidePanelComponent,
     	AddColorItemDialogComponent,
+		EditColorItemDialogComponent
 	],
 	imports: [
 		CommonModule,
