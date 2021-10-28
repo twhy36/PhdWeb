@@ -4,8 +4,11 @@ import { NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 
 import { environment } from '../environments/environment';
 import * as build from './build.json';
+import * as pulte from '../brands/pulte.json';
+import * as delwebb from '../brands/delwebb.json';
+import * as centex from '../brands/centex.json';
 
-import { ModalService, ModalRef, IdentityService } from 'phd-common';
+import { ModalService, ModalRef, IdentityService, applyBrand } from 'phd-common';
 import { IdleLogoutComponent } from './modules/core/components/idle-logout/idle-logout.component';
 
 @Component({
@@ -35,6 +38,12 @@ export class AppComponent {
 		{
 			this.watchIdle();			
 		}
+
+		let brandMap = {};
+		brandMap[environment.brandMap.pulte] = (pulte as any).default;
+		brandMap[environment.brandMap.delwebb] = (delwebb as any).default;
+		brandMap[environment.brandMap.centex] = (centex as any).default;
+		applyBrand(brandMap);
 	}
 
 	watchIdle()

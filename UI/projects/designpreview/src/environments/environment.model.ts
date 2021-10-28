@@ -11,4 +11,5 @@ export interface IEnvironment
 	cloudinary: CloudinaryConfiguration;
 	alphavision: { builderId: string };
 	pdfViewerBaseUrl: string;
+	brandMap: { pulte: string, centex: string, delwebb: string };
 }
