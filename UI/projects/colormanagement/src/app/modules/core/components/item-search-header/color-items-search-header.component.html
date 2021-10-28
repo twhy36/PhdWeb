@@ -107,14 +107,14 @@
 						class="fa fa-fw fa-repeat text-success"
 						title="Reactivate Color Item"
 						*ngIf="!planOptionDto.colorItem[0]?.isActive"
-						(click)="activateColorItem(planOptionDto.colorItem, planOptionDto)"
+						(click)="activateInactivateColorItem(planOptionDto.colorItem, planOptionDto,true)"
 						>
 						</i>
 						<i
 						class="fa fa-fw fa-undo text-danger"
 						title="Inactivate Color Item"
 						*ngIf="planOptionDto.colorItem[0]?.isActive"
-						(click)="inactivateColorItem(planOptionDto.colorItem, planOptionDto.planOptionId)"
+						(click)="activateInactivateColorItem(planOptionDto.colorItem, planOptionDto,false)"
 						>
 						</i>
 				</ng-template>

@@ -72,7 +72,7 @@ export class ColorService {
 			);
 	}
 
-	getPlanOptionAssocColorItems(communityId: number,	edhPlanOptionIds: Array<number>, isActive?: boolean, topRows?: number, skipRows?: number): Observable<IColorItemDto[]>
+	getPlanOptionAssocColorItems(communityId: number,	edhPlanOptionIds: Array<number>, isActive?: boolean, name?: string, topRows?: number, skipRows?: number): Observable<IColorItemDto[]>
 	{		
 			return this.identityService.token.pipe(
 				switchMap((token: string) =>
@@ -89,6 +89,10 @@ export class ColorService {
 							if (isActive != null)
 							{
 								filter += ` and (isActive eq ${isActive})`;
+							}
+							if (name)
+							{
+								filter += ` and (name eq '${name}')`;
 							}
 							let qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
 					
