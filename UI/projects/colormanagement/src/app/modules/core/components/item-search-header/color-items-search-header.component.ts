@@ -400,12 +400,7 @@ export class ColorItemsSearchHeaderComponent
 				res.map(planoption => planoption.id),
 				null,
 				coloritemname
-			)
-			.pipe(
-				map((colorItemDtos) => {
-					return colorItemDtos;
-				})
-			)
+			);
 		})
 		);
 	}
