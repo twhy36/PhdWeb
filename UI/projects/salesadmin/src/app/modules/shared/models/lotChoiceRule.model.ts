@@ -5,3 +5,11 @@ export interface LotChoiceRuleAssoc {
 	divChoiceCatalogId: number;
 	mustHave: boolean;
 }
+
+export interface LotChoiceRuleAssocView {
+	associatedLotChoiceRules: LotChoiceRuleAssoc[];
+	edhLotId: number;
+	planIdDisplay: string; // String representation for display in table
+	divChoiceCatalogId: number;
+	mustHave: boolean;
+}

@@ -10,7 +10,7 @@ import { OrganizationService } from "../../../core/services/organization.service
 import { PlanService } from "../../../core/services/plan.service";
 import { DivChoiceCatalog } from "../../../shared/models/choice.model";
 import { FinancialMarket } from "../../../shared/models/financialMarket.model";
-import { LotChoiceRuleAssoc } from "../../../shared/models/lotChoiceRule.model";
+import { LotChoiceRuleAssoc, LotChoiceRuleAssocView } from "../../../shared/models/lotChoiceRule.model";
 import { FinancialCommunityViewModel, HomeSiteViewModel, PlanViewModel } from "../../../shared/models/plan-assignment.model";
 import { UnsubscribeOnDestroy } from "../../../shared/utils/unsubscribe-on-destroy";
 
@@ -21,15 +21,15 @@ import { UnsubscribeOnDestroy } from "../../../shared/utils/unsubscribe-on-destr
 })
 export class LotRelationshipsComponent extends UnsubscribeOnDestroy implements OnInit
 {
-	
 	canEdit: boolean = false;
 	currentMarket: FinancialMarket;
 	divChoiceCatalogs: Array<DivChoiceCatalog>;
 	edhToPhdPlanMap: Map<number, number> = new Map<number, number>();
 	isSaving: boolean = false;
 	lotRelationships: LotChoiceRuleAssoc[];
+	lotRelationshipsToDisplay: LotChoiceRuleAssocView[] = new Array<LotChoiceRuleAssocView>();
 	orgId: number;
-	selected: LotChoiceRuleAssoc;
+	selected: LotChoiceRuleAssocView;
 	selectedCommunity: FinancialCommunityViewModel;
 	sidePanelOpen: boolean = false;
 
@@ -43,9 +43,9 @@ export class LotRelationshipsComponent extends UnsubscribeOnDestroy implements O
 		return this.selectedCommunity.lots.find(l => l.dto.id === edhLotId)?.dto.lotBlock;
 	}
 
-	getPlanName(planId: number): string
+	getMustHave(mustHave: boolean): string
 	{
-		return this.selectedCommunity.plans.find(p => p.id === this.getEdhPlanId(planId))?.displayName;
+		return mustHave ? 'Must Have' : 'Must Not Have';
 	}
 
 	constructor(
@@ -104,7 +104,8 @@ export class LotRelationshipsComponent extends UnsubscribeOnDestroy implements O
 			this.selectedCommunity.plans.forEach(cp =>
 			{
 				this.edhToPhdPlanMap.set(cp.id, plans.find(p => p.integrationKey === cp.integrationKey)?.planID ?? null);
-			})
+			});
+			this.processLotRelationshipsToBeDisplayed();
 		});
 
 		this._orgService.canEdit(this._route.snapshot.data['requiresClaim']).pipe(
@@ -118,59 +119,96 @@ export class LotRelationshipsComponent extends UnsubscribeOnDestroy implements O
 		this.sidePanelOpen = true;
 	}
 
-	deleteRelationship(relationship: LotChoiceRuleAssoc)
+	editLotRelationship(relationship: LotChoiceRuleAssocView)
 	{
-		this._homeSiteService.deleteLotChoiceRuleAssoc(relationship.lotChoiceRuleAssocId).subscribe((deleted) =>
+		this.selected = relationship;
+		this.sidePanelOpen = true;
+	}
+
+	deleteLotRelationship(relationship: LotChoiceRuleAssocView)
+	{
+		this._homeSiteService.deleteLotChoiceRuleAssoc(relationship.associatedLotChoiceRules).subscribe(deleted =>
 		{
 			if (deleted)
 			{
-				this.lotRelationships = this.lotRelationships.filter(r => r.lotChoiceRuleAssocId !== relationship.lotChoiceRuleAssocId);
+				const deletedIds = relationship.associatedLotChoiceRules.map(a => a.lotChoiceRuleAssocId);
+				this.lotRelationships = this.lotRelationships.filter(r => !deletedIds.includes(r.lotChoiceRuleAssocId));
+				this.processLotRelationshipsToBeDisplayed();
+				this._msgService.add({ severity: 'success', summary: 'Lot Rule Association' , detail: 'Delete successful.' });
 			}
 		})
 	}
 
-	onSave(associations: Array<LotChoiceRuleAssoc>)
+	onSave(rules: LotChoiceRuleAssoc[])
 	{
-		let startSize = this.lotRelationships.length;
-		associations.forEach(assoc =>
+		let deleteProcessed = true; // true by default because delete isn't always necessary
+		let savedCount = 0;
+		// Check if there are any rules that need to be deleted
+		if (this.selected)
 		{
-			this._homeSiteService.saveLotChoiceRuleAssoc(assoc).subscribe(association =>
+			const rulesToBeDeleted: LotChoiceRuleAssoc[] = [];
+			const lcrAssocIdList = rules.map(l => l.lotChoiceRuleAssocId);
+			this.selected.associatedLotChoiceRules.forEach(lcr =>
 			{
-				this.lotRelationships.push(association);
-				if (associations.length === (this.lotRelationships.length - startSize))
+				// Delete if the selected rule is no longer in the save list
+				if (!lcrAssocIdList.includes(lcr.lotChoiceRuleAssocId))
 				{
-					
+					rulesToBeDeleted.push(lcr);
+				}
+			});
+			if (rulesToBeDeleted.length > 0)
+			{
+				deleteProcessed = false; // rules exist to be deleted
+				this._homeSiteService.deleteLotChoiceRuleAssoc(rulesToBeDeleted).subscribe(deleted =>
+				{
+					deleteProcessed = deleted;
+					if (deleteProcessed)
+					{
+						const deletedIds = rulesToBeDeleted.map(r => r.lotChoiceRuleAssocId);
+						this.lotRelationships = this.lotRelationships.filter(r => !deletedIds.includes(r.lotChoiceRuleAssocId));
+						if (savedCount === rules.length)
+						{
+							this.processLotRelationshipsToBeDisplayed();
+							this._msgService.add({ severity: 'success', summary: 'Lot Rule Association' , detail: 'Save successful.' });
+							this.isSaving = false;
+							this.selected = null;
+							this.sidePanelOpen = false;
+						}
+					}
+				});
+			}
+		}
+
+		// Save each rule
+		rules.forEach(rule =>
+		{
+			this._homeSiteService.saveLotChoiceRuleAssoc(rule).subscribe(association =>
+			{
+				// If rule already existed remove, and replace with updated rule
+				if (this.lotRelationships.map(lcr => lcr.lotChoiceRuleAssocId).includes(association.lotChoiceRuleAssocId))
+				{
+					this.lotRelationships = this.lotRelationships.filter(lr => lr.lotChoiceRuleAssocId !== association.lotChoiceRuleAssocId);
+				}
+				this.lotRelationships.push(association);
+				savedCount++;
+				
+				// All lot choice rules have been saved and deleted
+				if (savedCount === rules.length && deleteProcessed)
+				{
+					this.processLotRelationshipsToBeDisplayed();
 					this._msgService.add({ severity: 'success', summary: 'Lot Rule Association' , detail: 'Save successful.' });
 					this.isSaving = false;
+					this.selected = null;
 					this.sidePanelOpen = false;
 				}
 			}, (error =>
 			{
-				
 				this._msgService.add({ severity: 'error', summary: 'Lot Rule Association' , detail: 'Server error. Save unsuccessful.' });
 				this.isSaving = false;
+				this.selected = null;
 				this.sidePanelOpen = false;
 			}));
 		});
-	}
-
-	toggleMustHave(relationship: LotChoiceRuleAssoc)
-	{
-		const assoc = {
-			lotChoiceRuleAssocId: relationship.lotChoiceRuleAssocId,
-			edhLotId: relationship.edhLotId,
-			planId: relationship.planId,
-			divChoiceCatalogId: relationship.divChoiceCatalogId,
-			mustHave: !relationship.mustHave
-		} as LotChoiceRuleAssoc;
-		this._homeSiteService.saveLotChoiceRuleAssoc(assoc).subscribe(association =>
-			{
-				relationship.mustHave = association.mustHave;
-				this._msgService.add({ severity: 'success', summary: 'Lot Rule Association' , detail: 'Update successful.' })
-			}), (() =>
-			{
-				this._msgService.add({ severity: 'error', summary: 'Lot Rule Association' , detail: 'Server error. Update unsuccessful.' });
-			});
 	}
 
 	onSidePanelClose(status: boolean)
@@ -188,6 +226,53 @@ export class LotRelationshipsComponent extends UnsubscribeOnDestroy implements O
 		tableComponent.hideTooltip();
 	}
 
+	private processLotRelationshipsToBeDisplayed()
+	{
+		this.lotRelationshipsToDisplay = [];
+		// Sort so table remains in same order
+		this.lotRelationships.sort((a, b) => (a.edhLotId + a.divChoiceCatalogId) - (b.edhLotId + b.divChoiceCatalogId));
+		this.lotRelationships.forEach(assoc =>
+		{
+			const existingAssoc = this.lotRelationshipsToDisplay.find(lr => lr.edhLotId === assoc.edhLotId && lr.divChoiceCatalogId === assoc.divChoiceCatalogId);
+			// If view already exists add LotChoiceRule to it
+			if (existingAssoc)
+			{
+				existingAssoc.associatedLotChoiceRules.push(assoc);
+			}
+			// Create View if one does not exist
+			else
+			{
+				this.lotRelationshipsToDisplay.push(
+					{
+						associatedLotChoiceRules: [assoc],
+						associatedPlanIds: [assoc.planId],
+						lotChoiceRuleAssocIds: [assoc.lotChoiceRuleAssocId],
+						edhLotId: assoc.edhLotId,
+						planIdDisplay: '',
+						divChoiceCatalogId: assoc.divChoiceCatalogId,
+						mustHave: assoc.mustHave,
+					} as LotChoiceRuleAssocView
+				);
+			}
+		});
+
+		// Set a planId grouping string to be displayed in table
+		this.lotRelationshipsToDisplay.forEach(assoc =>
+		{
+			assoc.associatedLotChoiceRules.forEach(rule =>
+			{
+				if (assoc.planIdDisplay.length === 0)
+				{
+					assoc.planIdDisplay += this.getPlanName(rule.planId);
+				}
+				else
+				{
+					assoc.planIdDisplay += `, ${this.getPlanName(rule.planId)}`;
+				}
+			});
+		});
+	}
+
 	private getEdhPlanId(planId: number)
 	{
 		for (let [key, value] of this.edhToPhdPlanMap.entries())
@@ -198,5 +283,10 @@ export class LotRelationshipsComponent extends UnsubscribeOnDestroy implements O
 			}
 		}
 		return null;
+	}
+
+	private getPlanName(planId: number): string
+	{
+		return this.selectedCommunity.plans.find(p => p.id === this.getEdhPlanId(planId))?.displayName;
 	}
 }
