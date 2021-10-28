@@ -214,7 +214,8 @@ export class ColorItemsSearchHeaderComponent
 									colorItem: item.map(x => x.colorItem),
 									hasSalesAgreement: null,
 									hasConfig: null,
-									loadingDeleteIcon: false
+									loadingDeleteIcon: false,
+									isBaseHouse: item[0].isBaseHouse
 								}
 								planOptionGridList.push(planOptiongrid);
 							}
@@ -232,7 +233,8 @@ export class ColorItemsSearchHeaderComponent
 								colorItem: [item.colorItem],
 								hasSalesAgreement: null,
 								hasConfig: null,
-								loadingDeleteIcon: false
+								loadingDeleteIcon: false,
+								isBaseHouse: item.isBaseHouse
 							}
 							planOptionGridList.push(planOptiongrid);
 						});
@@ -251,7 +253,8 @@ export class ColorItemsSearchHeaderComponent
 								colorItem: [item.colorItem],
 								hasSalesAgreement: null,
 								hasConfig: null,
-								loadingDeleteIcon: false
+								loadingDeleteIcon: false,
+								isBaseHouse: item.isBaseHouse
 							}
 							planOptionGridList.push(planOptiongrid);
 						});
@@ -409,14 +412,19 @@ export class ColorItemsSearchHeaderComponent
 
 	activateInactivateColorItem(coloritemDto: IColorItemDto[], planOptionDto: IPlanOptionCommunityGridDto, activate: boolean)
 	{
-		if(!this.selectedAllPlans)
+		let isElevation;		
+		const option = this.planOptionList.find(x=>x.id === planOptionDto.optionCommunityId);
+		if(option)
+			isElevation = this.isElevationOption(option.optionSubCategoryId);
+
+		if(!this.selectedAllPlans && !isElevation && !planOptionDto.isBaseHouse)
 		{
 			this.checkColorItemName(coloritemDto[0].name, planOptionDto.optionCommunityId).subscribe((coloritems) =>
 			{
 				coloritemDto = coloritems;
 				if(activate)
 				{
-					this.activateColorItem(coloritemDto, planOptionDto);
+					this.activateColorItem(coloritemDto, planOptionDto, isElevation);
 				}
 				else
 				{
@@ -428,7 +436,7 @@ export class ColorItemsSearchHeaderComponent
 		{	
 			if(activate)
 			{
-				this.activateColorItem(coloritemDto, planOptionDto);
+				this.activateColorItem(coloritemDto, planOptionDto, isElevation);
 			}
 			else
 			{
@@ -437,13 +445,8 @@ export class ColorItemsSearchHeaderComponent
 		}
 	}
 
-	activateColorItem(coloritemDto: IColorItemDto[], planOptionDto : IPlanOptionCommunityGridDto)
+	activateColorItem(coloritemDto: IColorItemDto[], planOptionDto : IPlanOptionCommunityGridDto,isElevation: boolean)
 	{
-		let isElevation;		
-		const option = this.planOptionList.find(x=>x.id === planOptionDto.optionCommunityId);
-		if(option)
-			isElevation = this.isElevationOption(option.optionSubCategoryId);
-		
 		if(isElevation)
 		{
 			const planOptions = this.planOptionDtosList.filter(row => row.optionCommunityId === planOptionDto.optionCommunityId);
