@@ -3,8 +3,8 @@ import { UnsubscribeOnDestroy, ModalRef, ModalService,ConfirmModalComponent,Elev
 import { IPlanCommunity, IOptionCommunity, IPlanOptionCommunityDto, IPlanOptionCommunity, IPlanOptionCommunityGridDto } from '../../../shared/models/community.model';
 import { OrganizationService } from '../../services/organization.service';
 import { PlanOptionService } from '../../services/plan-option.service';
-import { from, Observable, of } from 'rxjs';
-import { filter, map, switchMap, flatMap } from 'rxjs/operators';
+import { from, Observable } from 'rxjs';
+import { filter, map, switchMap } from 'rxjs/operators';
 import { ColorService } from '../../../core/services/color.service';
 import { SettingsService } from '../../services/settings.service';
 import { Settings } from '../../../shared/models/settings.model';
@@ -12,7 +12,7 @@ import * as _ from 'lodash';
 import { IColorItemDto } from '../../../shared/models/colorItem.model';
 import { IToastInfo } from  '../../../../../../../phd-common/src/lib/models/toast-info.model';
 import { MessageService } from 'primeng/api';
-
+import {CrudMode} from '../../../shared/classes/constants.class';
 @Component({
 	selector: 'color-items-search-header',
 	templateUrl: './color-items-search-header.component.html',
@@ -28,7 +28,7 @@ export class ColorItemsSearchHeaderComponent
 	planOptionList: Array<IOptionCommunity>;
 	optionListIndex: number;
 	planOptionDtosList: Array<IPlanOptionCommunityGridDto> = [];
-	optionsPerPlan: Array<IPlanOptionCommunityDto> = [];
+	optionsWithColorItems: Array<IPlanOptionCommunityDto> = [];
 	currentOption: IOptionCommunity = null;
 	isActiveColor: boolean = null;
 	settings: Settings;
@@ -183,11 +183,11 @@ export class ColorItemsSearchHeaderComponent
 					}
 					else {
 						this.planOptionHasNoColorItem = true;
-					}					
+					}
 				}
 
 				planOptionDtos = planOptionDtos.filter(x => !!x.colorItem);
-				this.optionsPerPlan = planOptionDtos;
+				this.optionsWithColorItems = planOptionDtos;
 
 				if (planOptionDtos.length > 0)
 				{
@@ -366,7 +366,7 @@ export class ColorItemsSearchHeaderComponent
 	{
 		return rowData.colorItem[0]?.isActive? null : 'phd-inactive-color';
 	}
-	
+
 	private showConfirmModal(body: string, title: string, defaultButton: string): Observable<boolean>
 	{
 		const confirm = this._modalService.open(ConfirmModalComponent, { centered: true, windowClass: "phd-modal-window" });
@@ -379,21 +379,21 @@ export class ColorItemsSearchHeaderComponent
 	}
 
 	activateColorItem(coloritemDto: IColorItemDto[], planOptionDto : IPlanOptionCommunityGridDto)
-	{	
-		let isElevation;		
+	{
+		let isElevation;
 		const option = this.planOptionList.find(x=>x.id === planOptionDto.optionCommunityId);
 		if(option)
 			isElevation = this.isElevationOption(option.optionSubCategoryId);
-		
+
 		if(isElevation)
 		{
 			const planOptions = this.planOptionDtosList.filter(row => row.optionCommunityId === planOptionDto.optionCommunityId);
 			//Verify if there is already an active color item for the elevation option
 			if(planOptions.filter(x=>x.colorItem[0].isActive)?.length>0)
 			{
-				const message = 'There is already an active color item for this elevation option';	
-				this._modalService.showOkOnlyModal(message, 'Warning');				
-			}						
+				const message = 'There is already an active color item for this elevation option';
+				this._modalService.showOkOnlyModal(message, 'Warning');
+			}
 		}
 		else
 		{
@@ -403,14 +403,14 @@ export class ColorItemsSearchHeaderComponent
 			{
 				const colorItemToSave = {
 					colorItemId: ci.colorItemId,
-					isActive: true,						
+					isActive: true,
 					} as IColorItemDto;
 
 				colorItemsToUpdate.push(colorItemToSave);
 			})
 
-			let toast:IToastInfo; 
-			
+			let toast:IToastInfo;
+
 			this._colorService.updateColorItem(colorItemsToUpdate, planOptionDto.planOptionId).subscribe((colorItems) => {
 				if (colorItems) {
 					toast = {
@@ -420,12 +420,12 @@ export class ColorItemsSearchHeaderComponent
 					}
 					this._msgService.add(toast);
 					const updatedResult = this.planOptionDtosList.find(row => row.planOptionId === planOptionDto.planOptionId).colorItem;
-					updatedResult.forEach((coloritem) => 
+					updatedResult.forEach((coloritem) =>
 					{
 						coloritem.isActive =colorItems.find(c =>c.colorItemId === coloritem.colorItemId).isActive;
 					})
 				}
-				else{				
+				else{
 					toast = {
 						severity: 'error',
 						summary: 'Activate Color Item',
@@ -442,11 +442,11 @@ export class ColorItemsSearchHeaderComponent
 				this._msgService.add(toast);
 			}
 			);
-		} 
+		}
 	}
 
 	inactivateColorItem(coloritemDto: IColorItemDto[], id: number)
-	{	
+	{
 		const message = 'Are you sure you want to inactivate this colorItem?';
 		let cancelled = false;
 		let toast:IToastInfo;
@@ -462,7 +462,7 @@ export class ColorItemsSearchHeaderComponent
 				{
 					const colorItemToSave = {
 						colorItemId: ci.colorItemId,
-						isActive: false,						
+						isActive: false,
 						} as IColorItemDto;
 
 					colorItemsToUpdate.push(colorItemToSave);
@@ -477,19 +477,19 @@ export class ColorItemsSearchHeaderComponent
 						}
 						this._msgService.add(toast);
 						const updatedResult = this.planOptionDtosList.find(row => row.planOptionId === id).colorItem;
-						updatedResult.forEach((coloritem) => 
+						updatedResult.forEach((coloritem) =>
 						{
 							coloritem.isActive =colorItems.find(c =>c.colorItemId === coloritem.colorItemId).isActive;
 						})
 					}
-					else{				
+					else{
 						toast = {
 							severity: 'error',
 							summary: 'Inactivate Color Item',
 							detail: 'Color Item inactivation failed. Please try again.'
 						} as IToastInfo;
 						this._msgService.add(toast);
-					}					
+					}
 				},error => {
 					if(!cancelled)
 					{
@@ -501,11 +501,37 @@ export class ColorItemsSearchHeaderComponent
 						this._msgService.add(toast);
 					}
 				}
-				);									 
+				);
 	}
 
 
 	onAddColorItemDialogWasCanceled() {
 		this.modalReference.dismiss();
+	}
+
+	private showToast(successful: boolean, mode: CrudMode)
+	{
+		const messagePrefix = mode === CrudMode.Delete ? 'Delete' : 'Save';
+
+		const toast = {
+			severity: successful ? 'success' : 'error',
+			summary: successful ? 'Success' : 'Error',
+			detail: successful ? `${messagePrefix} was successful! Refreshing grid...` : `${messagePrefix} failed. Please try again.`,
+			sticky: successful === false
+		} as IToastInfo;
+
+		this._msgService.add(toast);
+	}
+
+	colorItemSaveWasAttempted(successful: boolean) {
+		if (successful)
+		{
+			this.modalReference.dismiss();
+			this.showToast(successful, CrudMode.Add);
+			this.loadColorItemsGrid();
+			return;
+		}
+
+		this.showToast(successful, CrudMode.Add);
 	}
 }

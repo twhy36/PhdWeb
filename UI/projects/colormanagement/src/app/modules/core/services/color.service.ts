@@ -4,7 +4,7 @@ import { environment } from '../../../../environments/environment';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import {Observable, throwError} from 'rxjs';
 import {IColorIdBatch, IColor, IColorDto} from '../../shared/models/color.model';
-import { IColorItem, IColorItemDto } from '../../shared/models/colorItem.model';
+import {IColorItem, IColorItemColorAssoc, IColorItemDto} from '../../shared/models/colorItem.model';
 import * as _ from 'lodash';
 import {
 	newGuid,
@@ -73,7 +73,7 @@ export class ColorService {
 	}
 
 	getPlanOptionAssocColorItems(communityId: number,	edhPlanOptionIds: Array<number>, isActive?: boolean, topRows?: number, skipRows?: number): Observable<IColorItemDto[]>
-	{		
+	{
 			return this.identityService.token.pipe(
 				switchMap((token: string) =>
 				{
@@ -85,18 +85,18 @@ export class ColorService {
 							const expand =  `colorItemColorAssoc($expand=color($select=colorId,name,edhFinancialCommunityId,isActive;$filter=edhFinancialCommunityId eq ${communityId}))`
 							let filter = `(edhPlanOptionId in (${_.take(edhPlanOptionIds,50).join(',')}))`;
 							const select = `colorItemId,name,edhPlanOptionId,isActive,colorItemColorAssoc`;
-					
+
 							if (isActive != null)
 							{
 								filter += ` and (isActive eq ${isActive})`;
 							}
 							let qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
-					
+
 							if (topRows)
 							{
 								qryStr += `&${this._ds}top=${topRows}`;
 							}
-					
+
 							if (skipRows)
 							{
 								qryStr += `&${this._ds}skip=${skipRows}`;
@@ -108,7 +108,7 @@ export class ColorService {
 					}
 					let headers = createBatchHeaders(guid, token);
 					let batch = createBatchBody(guid, requests);
-	
+
 					return withSpinner(this._http).post(`${environment.apiUrl}$batch`, batch, { headers: headers });
 				}),
 				map((response: any)=>
@@ -132,7 +132,7 @@ export class ColorService {
 									name:item[0].name,
 									isActive:item[0].isActive,
 									edhPlanOptionId:item[0].edhPlanOptionId,
-									colors:item.map(x=>x.colorItemColorAssoc?.color),									
+									colors:item.map(x=>x.colorItemColorAssoc?.color),
 								}
 								colorItemDtoList.push(colorItemDto);
 							}
@@ -151,7 +151,7 @@ export class ColorService {
 			{
 				let guid = newGuid();
 				let requests = colorList.map(color =>
-				{					
+				{
 					const entity = `jobs`;
 					const filter = `(FinancialCommunityId eq ${communityId}) and (jobPlanOptions/any(po: po/planOptionCommunity/optionCommunity/optionSubCategoryId eq ${color.optionSubCategoryId} and po/jobPlanOptionAttributes/any(a: a/attributeGroupCommunityId eq 1 and a/attributeName eq '${color.name}')) or jobChangeOrderGroups/any(cog: cog/jobChangeOrders/any(co: co/jobChangeOrderPlanOptions/any(po: po/planOptionCommunity/optionCommunity/optionSubCategoryId eq ${color.optionSubCategoryId} and po/jobChangeOrderPlanOptionAttributes/any(a: a/attributeGroupCommunityId eq 1 and a/attributeName eq '${color.name}')))))`;
 					const select = `id`;
@@ -286,15 +286,15 @@ export class ColorService {
 		);
 	}
 
-	updateColorItem(colorItemToUpdate: IColorItemDto[],rowId:number): Observable<IColorItemDto[]> 
-	{		
+	updateColorItem(colorItemToUpdate: IColorItemDto[],rowId:number): Observable<IColorItemDto[]>
+	{
 		return this.identityService.token.pipe(
 			switchMap((token: string) =>
 			{
-				let guid = newGuid();			
+				let guid = newGuid();
 				let requests = createBatchPatch<IColorItemDto>(colorItemToUpdate, 'colorItemId', 'colorItems', 'isActive');
 				let headers = new HttpHeaders(createBatchHeaders(guid, token));
-				
+
 				let batchBody = createBatchBody(guid, [requests]);
 				const endPoint = `${environment.apiUrl}${this._batch}`;
 				return this._http.post(endPoint, batchBody,{ headers: headers });
@@ -302,8 +302,61 @@ export class ColorService {
 			map((response: any)=>
 			{
 				let bodies = response.responses.map(res=>res.body);
-				return bodies;				
+				return bodies;
 			}))
-		
+
+	}
+
+	saveColorItem(dtoColorItems: IColorItemDto[]): Observable<IColorItem[]>
+	{
+		const colorItems: IColorItem[] = [];
+
+		dtoColorItems.forEach(dtoItem => {
+			if (dtoItem.colors.length === 0)
+			{
+				const item: IColorItem = {
+					colorItemId: dtoItem.colorItemId,
+					name: dtoItem.name,
+					edhPlanOptionId: dtoItem.edhPlanOptionId,
+					isActive: dtoItem.isActive,
+					colorItemColorAssoc: null
+				};
+				colorItems.push(item);
+			}
+			else
+			{
+				dtoItem.colors.forEach(color => {
+					const colorInfo: IColorItemColorAssoc = {
+						colorId: color.colorId,
+						color: color,
+						colorItemId: dtoItem.colorItemId
+					};
+
+					const item: IColorItem = {
+						colorItemId: dtoItem.colorItemId,
+						name: dtoItem.name,
+						edhPlanOptionId: dtoItem.edhPlanOptionId,
+						isActive: dtoItem.isActive,
+						colorItemColorAssoc: colorInfo
+					};
+					colorItems.push(item);
+				});
+			}
+		});
+
+		const body = {
+			'newColorItems': colorItems
+		};
+
+		const action = `addColorItems`;
+		const endpoint = `${environment.apiUrl}${action}`;
+
+		return this._http.post<any>(endpoint, body, { headers: { 'Prefer': 'return=representation' } }).pipe(
+			map(response =>
+			{
+				return response.value;
+			}),
+			catchError(this.handleError)
+		);
 	}
 }
