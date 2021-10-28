@@ -80,7 +80,7 @@
 						<span>{{ plans?.planSalesName }}</span>
 					</span>
 				</ng-template>
-			</phd-column>			
+			</phd-column>
 			<phd-column header="Option" field="optionSalesName"></phd-column>
 			<phd-column header="ColorItem" field="colorItem">
 				<ng-template #body let-planOptionDto>
@@ -100,7 +100,7 @@
 						>
 					</div>
 				</ng-template>
-			</phd-column>			
+			</phd-column>
 			<phd-column field="isActive" columnClass="phd-icon">
 				<ng-template #body let-planOptionDto>
 						<i
@@ -122,9 +122,9 @@
 
 			<phd-column header="" columnClass="phd-icon">
 				<ng-template #body let-planOptionDto>
-					<i	
-					class="fa fa-pencil fa-fw"	
-					title="Edit Color Item"	
+					<i
+					class="fa fa-pencil fa-fw"
+					title="Edit Color Item"
 					*ngIf="planOptionDto.colorItem[0]?.isActive">
 					</i>
 				</ng-template>
@@ -152,9 +152,11 @@
 			[plansUsedInSearch]="selectedPlans"
 			(dialogWasCanceled)="onAddColorItemDialogWasCanceled()"
 			[allPlans]="planCommunityList"
-			[optionsWithColorItemInfo]="optionsPerPlan"
+			[optionsWithColorItemInfo]="optionsWithColorItems"
+			(colorItemSaveAttempted)="colorItemSaveWasAttempted($event)"
 		>
 		</add-color-item-dialog>
 	</ng-template>
+
 	<p-toast baseZIndex="1100"></p-toast>
 </div>

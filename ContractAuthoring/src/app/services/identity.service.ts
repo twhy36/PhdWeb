@@ -1,7 +1,8 @@
 import { forwardRef, Inject, Injectable, InjectionToken } from '@angular/core';
 import { Observable, ReplaySubject } from 'rxjs';
-import { take } from 'rxjs/operators';
+import { take, filter } from 'rxjs/operators';
 import { AuthConfig, OAuthService } from 'angular-oauth2-oidc';
+import { ApplicationInsights } from '@microsoft/applicationinsights-web';
 
 export const AUTH_CONFIG = new InjectionToken<AuthConfig>('authConfig');
 export const WINDOW_ORIGIN = new InjectionToken<string>('origin');
@@ -21,8 +22,18 @@ export class IdentityService {
 
     constructor(@Inject(forwardRef(() => OAuthService)) private osvc: OAuthService,
         @Inject(forwardRef(() => AUTH_CONFIG)) private authConfig: AuthConfig,
-        @Inject(forwardRef(() => WINDOW_ORIGIN)) private origin: string) {
+        @Inject(forwardRef(() => WINDOW_ORIGIN)) private origin: string,
+        @Inject(forwardRef(() => ApplicationInsights)) private appInsights: ApplicationInsights) {
         this.configure(this.authConfig);
+
+        this.loggedInSubject$.pipe(
+            filter(loggedIn => loggedIn),
+            take(1)
+        ).subscribe(() => 
+        {
+            this.appInsights.setAuthenticatedUserContext(this.osvc.getIdentityClaims()['preferred_username']);
+            this.appInsights.trackTrace({message: `ContractAuthoring - user authenticated`});
+        });
     }
 
     private configure(authConfig: AuthConfig) {

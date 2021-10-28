@@ -7,12 +7,12 @@ import { map, catchError, tap, flatMap } from 'rxjs/operators';
 import * as _ from 'lodash';
 
 import
-	{
-		getNewGuid, createBatchPatch, createBatchBody, createBatchHeaders, withSpinner, DesignToolAttribute, Buyer, ESignEnvelope,
-		ChangeOrderGroup, ChangeOrderNonStandardOption, ChangeInput, ChangeOrderChoice, ChangeOrderPlanOption, ChangeOrderChoiceLocation,
-		ChangeOrderHanding, ChangeTypeEnum, Job, JobChoice, JobChoiceAttribute, JobChoiceLocation, JobPlanOption, PlanOption, Plan, SalesAgreement,
-		SalesChangeOrderTrust, Tree, DecisionPoint, Choice, IdentityService, OptionRule
-	} from 'phd-common';
+{
+	getNewGuid, createBatchPatch, createBatchBody, createBatchHeaders, withSpinner, DesignToolAttribute, Buyer, ESignEnvelope,
+	ChangeOrderGroup, ChangeOrderNonStandardOption, ChangeInput, ChangeOrderChoice, ChangeOrderPlanOption, ChangeOrderChoiceLocation,
+	ChangeOrderHanding, ChangeTypeEnum, Job, JobChoice, JobChoiceAttribute, JobChoiceLocation, JobPlanOption, PlanOption, Plan, SalesAgreement,
+	SalesChangeOrderTrust, Tree, DecisionPoint, Choice, IdentityService, OptionRule
+} from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
 import { TreeService } from '../../core/services/tree.service';
@@ -23,7 +23,6 @@ interface ChoiceExt { decisionPointLabel: string, subgroupLabel: string, groupLa
 @Injectable()
 export class ChangeOrderService
 {
-	private _ds: string = encodeURIComponent("$");
 	private _batch = "$batch";
 
 	constructor(private _http: HttpClient,
@@ -112,10 +111,6 @@ export class ChangeOrderService
 
 	getSalesChangeOrderData(currentChangeOrder: ChangeOrderGroup, salesAgreement: SalesAgreement, changeInput: ChangeInput, jobId: number, isSpecSales: boolean): any
 	{
-		const buyerChangeOrder = currentChangeOrder && currentChangeOrder.jobChangeOrders
-			? currentChangeOrder.jobChangeOrders.find(x => x.jobChangeOrderTypeDescription === 'BuyerChangeOrder')
-			: null;
-
 		const priceAdjustmentChangeOrder = currentChangeOrder && currentChangeOrder.jobChangeOrders
 			? currentChangeOrder.jobChangeOrders.find(x => x.jobChangeOrderTypeDescription === 'PriceAdjustment')
 			: null;
@@ -162,13 +157,16 @@ export class ChangeOrderService
 				}
 			});
 		}
+
 		const buyers = this.getSalesChangeOrderBuyers(salesAgreement.buyers, changeInput.buyers);
+
 		if (buyers && buyers.length)
 		{
 			data.salesChangeOrderBuyers = buyers;
 		}
 
 		const trusts = this.getSalesChangeOrderTrusts(changeInput, salesAgreement, currentChangeOrder);
+
 		if (trusts && trusts.length)
 		{
 			data.salesChangeOrderTrusts = trusts;
@@ -193,11 +191,13 @@ export class ChangeOrderService
 					{
 						buyers.push(this.mapChangeOrderBuyer(existingBuyer, 'Delete'));
 						buyers.push(this.mapChangeOrderBuyer(curBuyer, 'Add'));
-					} else if (this.buyerNameChanged(existingBuyer, curBuyer))
+					}
+					else if (this.buyerNameChanged(existingBuyer, curBuyer))
 					{
 						buyers.push(this.mapChangeOrderBuyer(curBuyer, 'Change'));
 					}
-				} else
+				}
+				else
 				{
 					buyers.push(this.mapChangeOrderBuyer(curBuyer, 'Add'));
 				}
@@ -301,6 +301,7 @@ export class ChangeOrderService
 		if (changeInput.trustName !== salesAgreement.trustName)
 		{
 			const existingTrusts = this.getExistingChangeOrderTrusts(currentChangeOrder);
+
 			if (salesAgreement.trustName)
 			{
 				trusts.push({
@@ -388,7 +389,7 @@ export class ChangeOrderService
 				return _throw(error);
 			})
 		);
-	}	
+	}
 
 	getChangeOrderTypeAutoApproval(communityId: number): Observable<Array<{ isAutoApproval: boolean, edhChangeOrderTypeId: number }>>
 	{
@@ -402,6 +403,7 @@ export class ChangeOrderService
 			map((response: any) =>
 			{
 				const responseVal = response.value as Array<{ isAutoApproval: boolean, edhChangeOrderTypeId: number }>;
+
 				return responseVal;
 			}),
 			catchError(error =>
@@ -440,6 +442,7 @@ export class ChangeOrderService
 			map((response: ChangeOrderGroup) =>
 			{
 				const cog = new ChangeOrderGroup(response as ChangeOrderGroup);
+
 				//copy choice catalog IDs that were originally on the choices to the new objects, since those aren't in EDH
 				cog.jobChangeOrders.forEach(co =>
 				{
@@ -453,6 +456,7 @@ export class ChangeOrderService
 						}
 					});
 				});
+
 				return cog;
 			}),
 			catchError(error =>
@@ -501,9 +505,15 @@ export class ChangeOrderService
 			const addedOptions = curr.options.filter(o1 => !orig.jobChoiceJobPlanOptionAssocs.some(o2 => o1.id === jobPlanOptions.find(po => po.id === o2.jobPlanOptionId).planOptionId));
 			const removedOptions = orig.jobChoiceJobPlanOptionAssocs.map(jp => jobPlanOptions.find(o => o.id === jp.jobPlanOptionId))
 				.filter(po => !curr.options.some(o => o.id === po.planOptionId) && po.jobOptionTypeName !== 'BaseHouse');
+
 			return addedOptions.length || removedOptions.length;
 		};
 
+		let options = [];
+		let hasElevationOption = false;
+		let isDPElevation = false;
+		let isElevation = false;
+		let isColorScheme = false;
 		let choicesDto = [];
 		const currentSelectedChoices = currentChoices.filter(x => x.quantity > 0);
 
@@ -521,6 +531,14 @@ export class ChangeOrderService
 			}
 			else
 			{
+				isColorScheme = colorSchemeDP ? cur.treePointId === colorSchemeDP.id : false;
+				isDPElevation = elevationDP ? cur.treePointId === elevationDP.id : false;
+				options = this.mapOptions(cur.options, cur.quantity, 'Add', elevationDP, isDPElevation, isColorScheme, tree, optionRules);
+
+				// look for any options marked as Elevation so the choice can be flagged and grouped with elevation CO.
+				hasElevationOption = options.length && options.findIndex(x => x.jobOptionTypeName === 'Elevation') > -1;
+				isElevation = hasElevationOption || isDPElevation;
+
 				// new choice
 				choicesDto.push({
 					dpChoiceId: cur.id,
@@ -532,12 +550,12 @@ export class ChangeOrderService
 					subgroupLabel: labels.subgroupLabel,
 					groupLabel: labels.groupLabel,
 					overrideNote: cur.overrideNote,
-					options: this.mapOptions(cur.options, cur.quantity, 'Add', elevationDP, tree, optionRules),
+					options: options,
 					attributes: this.mapAttributes(cur, 'Add'),
 					locations: this.mapLocations(cur, 'Add'),
 					action: 'Add',
-					isElevation: elevationDP ? cur.treePointId === elevationDP.id : false,
-					isColorScheme: colorSchemeDP ? cur.treePointId === colorSchemeDP.id : false
+					isElevation: isElevation,
+					isColorScheme: isColorScheme
 				});
 			}
 		});
@@ -549,6 +567,16 @@ export class ChangeOrderService
 
 			if (!currentChoice || (currentChoice && mappingsChanged(orig, currentChoice)))
 			{
+				let planOptions = orig.jobChoiceJobPlanOptionAssocs.filter(o => o.choiceEnabledOption).map(jp => jobPlanOptions.find(o => o.id === jp.jobPlanOptionId));
+
+				isColorScheme = colorSchemeDP ? this.isElevationOrColorSchemeDP(currentChoices, orig, colorSchemeDP.id) : false;
+				isDPElevation = elevationDP ? this.isElevationOrColorSchemeDP(currentChoices, orig, elevationDP.id) : false;
+				options = orig.jobChoiceJobPlanOptionAssocs ? this.mapOptions(planOptions, orig.dpChoiceQuantity, 'Delete', elevationDP, isDPElevation, isColorScheme, tree, optionRules) : [];
+
+				// look for any options marked as Elevation so the choice can be flagged and grouped with elevation CO.
+				hasElevationOption = options.length && options.findIndex(x => x.jobOptionTypeName === 'Elevation') > -1;
+				isElevation = hasElevationOption || isDPElevation;
+
 				// deleted choice
 				choicesDto.push({
 					dpChoiceId: orig.dpChoiceId,
@@ -559,20 +587,12 @@ export class ChangeOrderService
 					decisionPointLabel: labels.decisionPointLabel,
 					subgroupLabel: labels.subgroupLabel,
 					groupLabel: labels.groupLabel,
-					options: orig.jobChoiceJobPlanOptionAssocs 
-						? this.mapOptions(
-							orig.jobChoiceJobPlanOptionAssocs.filter(o => o.choiceEnabledOption).map(jp => jobPlanOptions.find(o => o.id === jp.jobPlanOptionId)), 
-							orig.dpChoiceQuantity, 
-							'Delete',
-							elevationDP,
-							tree,
-							optionRules) 
-						: [],
+					options: options,
 					attributes: this.mapJobChoiceAttributes(orig.jobChoiceAttributes, 'Delete'),
 					locations: this.mapJobChoiceLocations(orig.jobChoiceLocations, 'Delete'),
 					action: 'Delete',
-					isElevation: elevationDP ? this.isElevationOrColorSchemeDP(currentChoices, orig, elevationDP.id) : false,
-					isColorScheme: colorSchemeDP ? this.isElevationOrColorSchemeDP(currentChoices, orig, colorSchemeDP.id) : false
+					isElevation: isElevation,
+					isColorScheme: isColorScheme
 				});
 			}
 		});
@@ -581,10 +601,10 @@ export class ChangeOrderService
 	}
 
 	private mapChangedChoice(
-		curChoice: Choice & ChoiceExt, 
-		origChoice: JobChoice, 
-		elevationDP: DecisionPoint, 
-		colorSchemeDP: DecisionPoint, 
+		curChoice: Choice & ChoiceExt,
+		origChoice: JobChoice,
+		elevationDP: DecisionPoint,
+		colorSchemeDP: DecisionPoint,
 		jobPlanOptions: Array<JobPlanOption>,
 		tree: Tree,
 		optionRules: OptionRule[]): Array<any>
@@ -641,6 +661,18 @@ export class ChangeOrderService
 
 		if (attributes.length || locations.length || curChoice.price !== origChoice.dpChoiceCalculatedPrice || curChoice.quantity !== origChoice.dpChoiceQuantity)
 		{
+			const isColorScheme = colorSchemeDP ? curChoice.treePointId === colorSchemeDP.id : false;
+			const isDPElevation = elevationDP ? curChoice.treePointId === elevationDP.id : false;
+			const options = [
+				...this.mapOptions(otherOptions, curChoice.quantity, 'Change', elevationDP, isDPElevation, isColorScheme, tree, optionRules),
+				...this.mapOptions(removedOptions, origChoice.dpChoiceQuantity, 'Delete', elevationDP, isDPElevation, isColorScheme, tree, optionRules),
+				...this.mapOptions(addedOptions, curChoice.quantity, 'Add', elevationDP, isDPElevation, isColorScheme, tree, optionRules)
+			];
+
+			// look for any options marked as Elevation so the choice can be flagged and grouped with elevation CO.
+			const hasElevationOption = options.length && options.findIndex(x => x.jobOptionTypeName === 'Elevation') > -1;
+			const isElevation = hasElevationOption || isDPElevation;
+
 			choicesDto.push({
 				dpChoiceId: origChoice.dpChoiceId,
 				divChoiceCatalogId: curChoice.divChoiceCatalogId,
@@ -651,20 +683,27 @@ export class ChangeOrderService
 				subgroupLabel: curChoice.subgroupLabel,
 				groupLabel: curChoice.groupLabel,
 				overrideNote: curChoice.overrideNote,
-				options: [
-					...this.mapOptions(otherOptions, curChoice.quantity, 'Change', elevationDP, tree, optionRules),
-					...this.mapOptions(removedOptions, origChoice.dpChoiceQuantity, 'Delete', elevationDP, tree, optionRules),
-					...this.mapOptions(addedOptions, curChoice.quantity, 'Add', elevationDP, tree, optionRules)
-				],
+				options: options,
 				attributes: attributes,
 				locations: locations,
 				action: 'Change',
-				isElevation: elevationDP ? curChoice.treePointId === elevationDP.id : false,
-				isColorScheme: colorSchemeDP ? curChoice.treePointId === colorSchemeDP.id : false
+				isElevation: isElevation,
+				isColorScheme: isColorScheme
 			});
 		}
 		else if (addedOptions.length || removedOptions.length)
 		{
+			const isColorScheme = colorSchemeDP ? curChoice.treePointId === colorSchemeDP.id : false;
+			const isDPElevation = elevationDP ? curChoice.treePointId === elevationDP.id : false;
+			const options = [
+				...this.mapOptions(removedOptions, origChoice.dpChoiceQuantity, 'Delete', elevationDP, isDPElevation, isColorScheme, tree, optionRules),
+				...this.mapOptions(addedOptions, curChoice.quantity, 'Add', elevationDP, isDPElevation, isColorScheme, tree, optionRules)
+			];
+
+			// look for any options marked as Elevation so the choice can be flagged and grouped with elevation CO.
+			const hasElevationOption = options.length && options.findIndex(x => x.jobOptionTypeName === 'Elevation') > -1;
+			const isElevation = hasElevationOption || isDPElevation;
+
 			choicesDto.push({
 				dpChoiceId: origChoice.dpChoiceId,
 				divChoiceCatalogId: curChoice.divChoiceCatalogId,
@@ -675,15 +714,12 @@ export class ChangeOrderService
 				subgroupLabel: curChoice.subgroupLabel,
 				groupLabel: curChoice.groupLabel,
 				overrideNote: curChoice.overrideNote,
-				options: [
-					...this.mapOptions(removedOptions, origChoice.dpChoiceQuantity, 'Delete', elevationDP, tree, optionRules),
-					...this.mapOptions(addedOptions, curChoice.quantity, 'Add', elevationDP, tree, optionRules)
-				],
+				options: options,
 				attributes: [],
 				locations: [],
 				action: 'Change',
-				isElevation: elevationDP ? curChoice.treePointId === elevationDP.id : false,
-				isColorScheme: colorSchemeDP ? curChoice.treePointId === colorSchemeDP.id : false
+				isElevation: isElevation,
+				isColorScheme: isColorScheme
 			});
 		}
 
@@ -740,6 +776,7 @@ export class ChangeOrderService
 					overrideNote: currentHanding.overrideNote
 				});
 			}
+
 			if (jobHanding)
 			{
 				handings.push({
@@ -753,11 +790,13 @@ export class ChangeOrderService
 	}
 
 	private mapOptions(
-		options: Array<JobPlanOption | PlanOption>, 
-		quantity: number, 
-		action: string, 
-		elevationDP: DecisionPoint, 
-		tree: Tree, 
+		options: Array<JobPlanOption | PlanOption>,
+		quantity: number,
+		action: string,
+		elevationDP: DecisionPoint,
+		isDPElevation: boolean,
+		isColorScheme: boolean,
+		tree: Tree,
 		optionRules: OptionRule[]
 	): Array<any>
 	{
@@ -773,7 +812,7 @@ export class ChangeOrderService
 					quantity: this.isJobPlanOption(o) ? o.optionQty : quantity,
 					optionSalesName: this.isJobPlanOption(o) ? o.optionSalesName : o.name,
 					optionDescription: this.isJobPlanOption(o) ? o.optionDescription : o.description,
-					jobOptionTypeName: this.isJobPlanOption(o) ? o.jobOptionTypeName : getJobOptionType(o, elevationDP, tree, optionRules),
+					jobOptionTypeName: this.isJobPlanOption(o) ? o.jobOptionTypeName : getJobOptionType(o, elevationDP, isDPElevation, isColorScheme, tree, optionRules),
 					attributeGroupIds: this.isJobPlanOption(o) ? o.jobPlanOptionAttributes.map(att => att.attributeGroupCommunityId).filter((value, index, self) => self.indexOf(value) === index) : o.attributeGroups,
 					locationGroupIds: this.isJobPlanOption(o) ? o.jobPlanOptionLocations.map(loc => loc.locationGroupCommunityId).filter((value, index, self) => self.indexOf(value) === index) : o.locationGroups,
 					action: action
@@ -1078,6 +1117,7 @@ export class ChangeOrderService
 					if (treeChoice)
 					{
 						let lockInChoice = _.cloneDeep(treeChoice);
+
 						lockInChoice.lockedInChoice = getLockedInChoice(choice, options);
 
 						if (isJobChoice(choice))
@@ -1196,6 +1236,7 @@ export class ChangeOrderService
 		});
 
 		const addedAttributes = changeOrderChoice.jobChangeOrderChoiceAttributes.filter(x => x.action === 'Add');
+
 		addedAttributes.forEach(attr =>
 		{
 			jobChoice.jobChoiceAttributes.push(
@@ -1303,7 +1344,9 @@ export class ChangeOrderService
 	getSelectedHanding(job: Job): ChangeOrderHanding
 	{
 		let handing = new ChangeOrderHanding();
+
 		handing.handing = job.handing;
+
 		const changeOrderGroup = job.changeOrderGroups.find(x =>
 			x.salesStatusDescription !== 'Approved'
 			&& x.salesStatusDescription !== 'Withdrawn'
@@ -1429,8 +1472,11 @@ export class ChangeOrderService
 					if (changeOrderPlans && changeOrderPlans.length)
 					{
 						const addedPlan = changeOrderPlans.find(x => x.action === 'Add');
+
 						addId = addedPlan ? addedPlan.id : 0;
+
 						const deletedPlan = changeOrderPlans.find(x => x.action === 'Delete');
+
 						deleteId = deletedPlan ? deletedPlan.id : 0;
 					}
 				}
@@ -1471,10 +1517,23 @@ export class ChangeOrderService
 	{
 		let choicesDto = [];
 		const currentSelectedChoices = currentChoices.filter(x => x.quantity > 0);
+		let isColorScheme = false;
+		let options = [];
+		let hasElevationOption = false;
+		let isElevation = false;
+		let isDPElevation = false;
 
 		currentSelectedChoices.forEach(cur =>
 		{
 			const labels = this.getChoiceLabels(cur, tree);
+
+			isColorScheme = colorSchemeDP ? cur.treePointId === colorSchemeDP.id : false;
+			isDPElevation = elevationDP ? cur.treePointId === elevationDP.id : false;
+			options = this.mapOptions(cur.options, cur.quantity, 'Add', elevationDP, isDPElevation, isColorScheme, tree, optionRules);
+
+			// look for any options marked as Elevation so the choice can be flagged and grouped with elevation CO.
+			hasElevationOption = options.length && options.findIndex(x => x.jobOptionTypeName === 'Elevation') > -1;
+			isElevation = hasElevationOption || isDPElevation;
 
 			// new choice
 			choicesDto.push({
@@ -1487,12 +1546,12 @@ export class ChangeOrderService
 				subgroupLabel: labels.subgroupLabel,
 				groupLabel: labels.groupLabel,
 				overrideNote: cur.overrideNote,
-				options: this.mapOptions(cur.options, cur.quantity, 'Add', elevationDP, tree, optionRules),
+				options: options,
 				attributes: this.mapAttributes(cur, 'Add'),
 				locations: this.mapLocations(cur, 'Add'),
 				action: 'Add',
-				isElevation: elevationDP ? cur.treePointId === elevationDP.id : false,
-				isColorScheme: colorSchemeDP ? cur.treePointId === colorSchemeDP.id : false
+				isElevation: isElevation,
+				isColorScheme: isColorScheme
 			});
 		});
 
@@ -1510,7 +1569,7 @@ export class ChangeOrderService
 				decisionPointLabel: labels ? labels.decisionPointLabel : '',
 				subgroupLabel: labels ? labels.subgroupLabel : '',
 				groupLabel: labels ? labels.groupLabel : '',
-				options: this.mapOptions(jobChoiceOptions, orig.dpChoiceQuantity, 'Delete', elevationDP, tree, optionRules),
+				options: this.mapOptions(jobChoiceOptions, orig.dpChoiceQuantity, 'Delete', elevationDP, false, false, tree, optionRules),
 				attributes: this.mapJobChoiceAttributes(orig.jobChoiceAttributes, 'Delete'),
 				locations: this.mapJobChoiceLocations(orig.jobChoiceLocations, 'Delete'),
 				action: 'Delete'
@@ -1791,6 +1850,7 @@ export class ChangeOrderService
 		if (changeInput.type === ChangeTypeEnum.SALES)
 		{
 			const data = this.getSalesChangeOrderData(currentChangeOrder, salesAgreement, changeInput, job.id, false);
+
 			return (data.salesChangeOrderPriceAdjustments && data.salesChangeOrderPriceAdjustments.length)
 				|| (data.salesChangeOrderSalesPrograms && data.salesChangeOrderSalesPrograms.length)
 				|| (data.salesChangeOrderBuyers && data.salesChangeOrderBuyers.length)
@@ -1835,6 +1895,7 @@ export class ChangeOrderService
 				salesAgreement,
 				changeInput,
 				job.id);
+
 			return (data.choices && data.choices.length)
 				|| (data.handings && data.handings.length)
 				|| (data.salesChangeOrderPriceAdjustments && data.salesChangeOrderPriceAdjustments.length)

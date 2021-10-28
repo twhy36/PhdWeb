@@ -11,16 +11,17 @@
 		</div>
 	</div>
 
-	<div *ngIf="primaryAction" class="d-flex flex-column align-items-end">
-		<div *ngIf="!isDesignComplete">
-			<span class="phd-price-label">Estimated Favorites Total : </span>
-			<span class="phd-price">{{ favoritesPrice | currency:'USD':'symbol':'0.0-0' }}</span>
-		</div>
-		<div>
+	<div *ngIf="primaryAction" class="d-flex flex-row align-items-end">
+		<div class="d-flex flex-column align-items-end align-content-center">
+			<span *ngIf="!isDesignComplete" class="phd-price-label">Estimated Favorites Total : </span>
 			<span class="phd-price-label">{{isDesignComplete ? 'Total Purchase Price' : 'Estimated Total Purchase Price :' }}</span>
+		</div>
+	</div>
+	<div *ngIf="primaryAction" class="d-flex flex-row align-items-end">
+		<div class="d-flex flex-column">
+			<span *ngIf="!isDesignComplete" class="phd-price">{{ favoritesPrice | currency:'USD':'symbol':'0.0-0' }}</span>
 			<span class="phd-price">{{ price | currency:'USD':'symbol':'0.0-0' }}</span>
 		</div>
-
 	</div>
 
 	<div *ngIf="primaryAction">

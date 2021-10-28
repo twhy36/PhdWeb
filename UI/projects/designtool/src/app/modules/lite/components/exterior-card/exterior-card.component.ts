@@ -27,7 +27,7 @@ export class ExteriorCardComponent extends UnsubscribeOnDestroy
 
 	getButtonLabel(): string
 	{
-		return this.isOptionSelected ? 'Unselect' : 'Choose';
+		return this.isOptionSelected ? 'Unselect' : 'CHOOSE';
 	}
 
 	toggleSelection()

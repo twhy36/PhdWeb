@@ -8,6 +8,7 @@ import {
 	IPlanCommunity,
 	IPlanOptionCommunityDto
 } from '../../../shared/models/community.model';
+import {IColorItemDto} from '../../../shared/models/colorItem.model';
 
 @Component({
   selector: 'add-color-item-dialog',
@@ -15,8 +16,11 @@ import {
   styleUrls: ['./add-color-item-dialog.component.scss']
 })
 export class AddColorItemDialogComponent implements OnInit {
+	get requiredFieldMessage() { return 'This is a required field';	}
 	addColorItemForm: FormGroup;
-	nameIsMissing: boolean;
+	isDuplicateName = false;
+	nameErrorMessage = '';
+	noPlansSelected = false;
 	availableColors: IColor[] = [];
 	selectedColors: IColor[] = [];
 	selectedPlans: Array<IPlanCommunity> = [];
@@ -27,6 +31,7 @@ export class AddColorItemDialogComponent implements OnInit {
 	@Input() plansUsedInSearch: Array<number> = [];
 	@Input() optionsWithColorItemInfo: Array<IPlanOptionCommunityDto> = [];
 	@Output() dialogWasCanceled = new EventEmitter();
+	@Output() colorItemSaveAttempted = new EventEmitter<boolean>();
 
 	constructor(
 	  private _modalService: ModalService,
@@ -107,7 +112,69 @@ export class AddColorItemDialogComponent implements OnInit {
 	}
 
 	saveButtonWasClicked() {
+		if (this.validateForm() === false)
+		{
+			return;
+		}
 
+		const colorItems: Array<IColorItemDto> = [];
+
+		this.selectedPlans.forEach(plan => {
+			const planOptionId = this.selectedOption.planOptionCommunities.find(x => x.planId === plan.id).id;
+
+			const item = {
+				colorItemId: 0,
+				name: this.addColorItemForm.get('name').value.toString(),
+				isActive: true,
+				edhPlanOptionId: planOptionId,
+				colors: this.selectedColors
+			} as IColorItemDto;
+
+			colorItems.push(item);
+		})
+
+		this._colorService.saveColorItem(colorItems).subscribe(savedColorItems => {
+			this.colorItemSaveAttempted.emit(savedColorItems.length > 0);
+		},
+		error => {
+			this.colorItemSaveAttempted.emit(false);
+		});
+	}
+
+	validateForm(): boolean
+	{
+		this.isDuplicateName = false;
+		this.noPlansSelected = false;
+		const colorItemName = this.addColorItemForm.get('name').value.toString().toLowerCase();
+
+		if (colorItemName.length === 0)
+		{
+			this.nameErrorMessage = this.requiredFieldMessage;
+			return false;
+		}
+
+		if (this.selectedPlans.length === 0)
+		{
+			this.noPlansSelected = true;
+			return false;
+		}
+
+		this.isDuplicateName = this.optionsWithColorItemInfo.some(option => option.colorItem.name.toLowerCase() === colorItemName)
+
+		if (this.isDuplicateName)
+		{
+			this.nameErrorMessage = 'A color item with the same name already exists for this option.';
+			return false;
+		}
+
+		return true;
+	}
+
+	onNameChanged(event: any) {
+		const nameMissing = event.target.value.length === 0;
+		this.nameErrorMessage = nameMissing ? this.requiredFieldMessage : '';
+		//possible that duplicate message may have been set to true so reset to false just in case
+		this.isDuplicateName = false;
 	}
 
 	onMoveColorToSource() {
