@@ -869,25 +869,40 @@ export function updateWithNewTreeVersion<T extends { tree: Tree, rules: TreeVers
 	};
 }
 
-export function getJobOptionType(option: PlanOption, elevationDP: DecisionPoint, tree: Tree, optionRules: OptionRule[])
+export function getJobOptionType(option: PlanOption, elevationDP: DecisionPoint, isDPElevation: boolean, isColorScheme: boolean, tree: Tree, optionRules: OptionRule[])
 {
-	let optionType = '';
+	let optionType = 'Standard';
 
-	const optionRule = optionRules.find(opt => option. financialOptionIntegrationKey === opt.optionId);
-
-	// Check if this option replaces an elevation choice 
-	// If it does then set option type to Elevation
-	if (optionRule?.replaceOptions?.length)
+	if (isColorScheme)
 	{
-		const replaceOption = optionRule.replaceOptions.find(replaceOptionId => {
-			const replaceOptionRule = optionRules.find(r => r.optionId === replaceOptionId);
-			const replacedChoiceId = getMaxSortOrderChoice(tree, replaceOptionRule.choices.filter(ch => ch.mustHave).map(ch => ch.id));
-			return !!elevationDP.choices.find(ch => ch.id === replacedChoiceId);
-		});	
-		
-		if (replaceOption)
+		// DP is ColorScheme
+		optionType = 'ColorScheme';
+	}
+	else if (isDPElevation)
+	{
+		// DP is Elevation
+		optionType = 'Elevation';
+	}
+	else
+	{
+		const optionRule = optionRules.find(opt => option.financialOptionIntegrationKey === opt.optionId);
+
+		// Check if this option replaces an elevation choice 
+		// If it does then set option type to Elevation
+		if (optionRule?.replaceOptions?.length)
 		{
-			optionType = 'Elevation';
+			const replaceOption = optionRule.replaceOptions.find(replaceOptionId =>
+			{
+				const replaceOptionRule = optionRules.find(r => r.optionId === replaceOptionId);
+				const replacedChoiceId = getMaxSortOrderChoice(tree, replaceOptionRule.choices.filter(ch => ch.mustHave).map(ch => ch.id));
+
+				return !!elevationDP.choices.find(ch => ch.id === replacedChoiceId);
+			});
+
+			if (replaceOption)
+			{
+				optionType = 'Elevation';
+			}
 		}
 	}
 	
