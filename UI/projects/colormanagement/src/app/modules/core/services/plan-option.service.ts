@@ -122,10 +122,28 @@ export class PlanOptionService {
 			catchError(this.handleError)
 		)
 	}
+
+	getPlanOptionsByOption(optionCommunityId: number): Observable<IPlanOptionCommunity[]>
+	{
+		const entity = `planOptionCommunities`;
+		const select = `Id`;
+		const filter = `optionCommunityId eq ${optionCommunityId} `
+		let qryStr = `${this._ds}select=${encodeURIComponent(select)}&${this._ds}filter=${encodeURIComponent(filter)}`;
+		const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
+		return withSpinner(this._http).get<any>(endpoint).pipe(
+			map(response => {
+				const planOptionCommunities = response.value as Array<IPlanOptionCommunity>
+				return planOptionCommunities;
+			}),
+			catchError(this.handleError)
+		)
+	}
+
 	private handleError(error: Response) {
 		// In the future, we may send the server to some remote logging infrastructure.
 		console.error('Error message: ', error);
 
 		return _throw(error || 'Server error');
 	}
+
 }

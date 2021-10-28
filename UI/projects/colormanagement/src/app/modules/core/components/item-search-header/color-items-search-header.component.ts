@@ -37,6 +37,7 @@ export class ColorItemsSearchHeaderComponent
 	isLoading: boolean = true;
 	skip: number;
 	selectedplanids = null;
+	selectedAllPlans: boolean = false;
 	pageNumber: number = 1;
 	planOptionHasNoColorItem: boolean;
 	modalReference: ModalRef;
@@ -99,6 +100,10 @@ export class ColorItemsSearchHeaderComponent
 		// if -1 means user selected individual plans
 		if (this.selectedPlans?.findIndex(x => x == 0) == -1) {
 			this.selectedplanids = this.selectedPlans;
+			this.selectedAllPlans = false;
+		}
+		if (this.selectedPlans?.findIndex(x => x == 0) >= 0) {
+			this.selectedAllPlans = true;
 		}
 
 		this._planService
@@ -201,6 +206,7 @@ export class ColorItemsSearchHeaderComponent
 								let item = groupByColorItemName[key];
 								let planOptiongrid: IPlanOptionCommunityGridDto =
 								{
+									//Use planOptionId as a rowId 
 									planOptionId: item[0].planOptionId,
 									planCommunity: item.map(x => x.planCommunity).sort((a, b) => a.planSalesName.localeCompare(b.planSalesName)),
 									optionCommunityId: item[0].optionCommunityId,
@@ -208,7 +214,8 @@ export class ColorItemsSearchHeaderComponent
 									colorItem: item.map(x => x.colorItem),
 									hasSalesAgreement: null,
 									hasConfig: null,
-									loadingDeleteIcon: false
+									loadingDeleteIcon: false,
+									isBaseHouse: item[0].isBaseHouse
 								}
 								planOptionGridList.push(planOptiongrid);
 							}
@@ -218,6 +225,7 @@ export class ColorItemsSearchHeaderComponent
 						planOptionBaseHouse.map((item) => {
 							let planOptiongrid: IPlanOptionCommunityGridDto =
 							{
+								//Use planOptionId as a rowId 
 								planOptionId: item.planOptionId,
 								planCommunity: [item.planCommunity],
 								optionCommunityId: item.optionCommunityId,
@@ -225,7 +233,8 @@ export class ColorItemsSearchHeaderComponent
 								colorItem: [item.colorItem],
 								hasSalesAgreement: null,
 								hasConfig: null,
-								loadingDeleteIcon: false
+								loadingDeleteIcon: false,
+								isBaseHouse: item.isBaseHouse
 							}
 							planOptionGridList.push(planOptiongrid);
 						});
@@ -236,6 +245,7 @@ export class ColorItemsSearchHeaderComponent
 						planOptionDtos.map((item) => {
 							let planOptiongrid: IPlanOptionCommunityGridDto =
 							{
+								//Use planOptionId as a rowId 
 								planOptionId: item.planOptionId,
 								planCommunity: [item.planCommunity],
 								optionCommunityId: item.optionCommunityId,
@@ -243,7 +253,8 @@ export class ColorItemsSearchHeaderComponent
 								colorItem: [item.colorItem],
 								hasSalesAgreement: null,
 								hasConfig: null,
-								loadingDeleteIcon: false
+								loadingDeleteIcon: false,
+								isBaseHouse: item.isBaseHouse
 							}
 							planOptionGridList.push(planOptiongrid);
 						});
@@ -378,13 +389,59 @@ export class ColorItemsSearchHeaderComponent
 		return from(confirm.result.then((result) => result !== 'Continue'));
 	}
 
-	activateColorItem(coloritemDto: IColorItemDto[], planOptionDto : IPlanOptionCommunityGridDto)
+	checkColorItemName(coloritemname: string, optionCommnunityId: number): Observable<IColorItemDto[]>
 	{
-		let isElevation;
+		return this._planService.getPlanOptionsByOption(optionCommnunityId).pipe(
+		filter((res) => !!res),
+		switchMap((res)=>
+		{
+			return this._colorService.getPlanOptionAssocColorItems
+			(this.currentFinancialCommunityId,
+				res.map(planoption => planoption.id),
+				null,
+				coloritemname
+			);
+		})
+		);
+	}
+
+	activateInactivateColorItem(coloritemDto: IColorItemDto[], planOptionDto: IPlanOptionCommunityGridDto, activate: boolean)
+	{
+		let isElevation;		
 		const option = this.planOptionList.find(x=>x.id === planOptionDto.optionCommunityId);
 		if(option)
 			isElevation = this.isElevationOption(option.optionSubCategoryId);
 
+		if(!this.selectedAllPlans && !isElevation && !planOptionDto.isBaseHouse)
+		{
+			this.checkColorItemName(coloritemDto[0].name, planOptionDto.optionCommunityId).subscribe((coloritems) =>
+			{
+				coloritemDto = coloritems;
+				if(activate)
+				{
+					this.activateColorItem(coloritemDto, planOptionDto, isElevation);
+				}
+				else
+				{
+					this.inactivateColorItem(coloritemDto, planOptionDto);
+				}
+			});
+		}
+		else
+		{	
+			if(activate)
+			{
+				this.activateColorItem(coloritemDto, planOptionDto, isElevation);
+			}
+			else
+			{
+				this.inactivateColorItem(coloritemDto, planOptionDto);
+			}
+		}
+	}
+
+	activateColorItem(coloritemDto: IColorItemDto[], planOptionDto : IPlanOptionCommunityGridDto,isElevation: boolean)
+	{
 		if(isElevation)
 		{
 			const planOptions = this.planOptionDtosList.filter(row => row.optionCommunityId === planOptionDto.optionCommunityId);
@@ -398,7 +455,6 @@ export class ColorItemsSearchHeaderComponent
 		else
 		{
 			const colorItemsToUpdate: IColorItemDto[] =[];
-
 			coloritemDto.forEach((ci)=>
 			{
 				const colorItemToSave = {
@@ -442,12 +498,13 @@ export class ColorItemsSearchHeaderComponent
 				this._msgService.add(toast);
 			}
 			);
+						
 		}
 	}
-
-	inactivateColorItem(coloritemDto: IColorItemDto[], id: number)
-	{
-		const message = 'Are you sure you want to inactivate this colorItem?';
+	
+	inactivateColorItem(coloritemDto: IColorItemDto[], planOptionDto : IPlanOptionCommunityGridDto)
+	{			
+		const message = 'Are you sure you want to inactivate this color item?';
 		let cancelled = false;
 		let toast:IToastInfo;
 
@@ -467,7 +524,7 @@ export class ColorItemsSearchHeaderComponent
 
 					colorItemsToUpdate.push(colorItemToSave);
 				})
-				return this._colorService.updateColorItem(colorItemsToUpdate, id)
+				return this._colorService.updateColorItem(colorItemsToUpdate, planOptionDto.planOptionId)
 				})).subscribe((colorItems:IColorItemDto[]) => {
 					if (colorItems) {
 						toast = {
@@ -476,8 +533,8 @@ export class ColorItemsSearchHeaderComponent
 							detail: 'Color Item inactivation was successful!'
 						}
 						this._msgService.add(toast);
-						const updatedResult = this.planOptionDtosList.find(row => row.planOptionId === id).colorItem;
-						updatedResult.forEach((coloritem) =>
+						const updatedResult = this.planOptionDtosList.find(row => row.planOptionId === planOptionDto.planOptionId).colorItem;
+						updatedResult.forEach((coloritem) => 
 						{
 							coloritem.isActive =colorItems.find(c =>c.colorItemId === coloritem.colorItemId).isActive;
 						})
