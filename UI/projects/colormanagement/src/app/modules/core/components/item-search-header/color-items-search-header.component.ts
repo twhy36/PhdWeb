@@ -172,6 +172,7 @@ export class ColorItemsSearchHeaderComponent
 			)
 			.pipe(
 				map((colorItemDtos) => {
+					// Bug: ColorItems with same EDHPlanOptionId dont show.
 					// Add to this list when there are multiple coloritem for same planoption.
 					let planOptionColorItemList: Array<IPlanOptionCommunityDto> =[];
 					planoptionDto.forEach(element => {
