@@ -80,4 +80,5 @@ export interface IPlanOptionCommunityGridDto {
 	hasSalesAgreement: boolean;
     hasConfig: boolean;
 	loadingDeleteIcon: boolean;
+	isBaseHouse: boolean;
 }

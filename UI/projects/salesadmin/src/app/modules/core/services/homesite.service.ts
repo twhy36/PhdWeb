@@ -1,8 +1,10 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 import { Observable ,  throwError as _throw } from 'rxjs';
 import { combineLatest, catchError, map } from 'rxjs/operators';
+
+import * as odataUtils from '../../shared/utils/odata.util';
 
 import { Settings } from '../../shared/models/settings.model';
 import { HomeSiteDtos } from '../../shared/models/homesite.model';
@@ -273,22 +275,29 @@ export class HomeSiteService
 			}), catchError(this.handleError));
 	}
 
-	deleteLotChoiceRuleAssoc(lotChoiceRuleAssocId: number): Observable<boolean>
+	deleteLotChoiceRuleAssoc(dtos: LotChoiceRuleAssoc[]): Observable<boolean>
 	{
-		let url = settings.apiUrl;
-		url += `lotChoiceRuleAssocs(${lotChoiceRuleAssocId})`;
+		const lotChoiceRulesToBeDeleted = dtos.map(t => ({ lotChoiceRuleAssocId: t.lotChoiceRuleAssocId } as LotChoiceRuleAssoc));
 
-		return this._http.delete(url).pipe(
-			map((response) => true),
-			catchError(this.handleError)
-		);
+		const endPoint = `${settings.apiUrl}$batch`;
+		const batchRequests = odataUtils.createBatchDelete<LotChoiceRuleAssoc>(lotChoiceRulesToBeDeleted, 'lotChoiceRuleAssocId', 'lotChoiceRuleAssocs');
+		const batchGuid = odataUtils.getNewGuid();
+		const batchBody = odataUtils.createBatchBody(batchGuid, [batchRequests]);
+		const headers = new HttpHeaders(odataUtils.createBatchHeaders(batchGuid));
+
+		return this._http.post(endPoint, batchBody, { headers, responseType: 'text' }).pipe(
+			map(results =>
+			{
+				return true;
+			}), catchError(this.handleError));
 	}
 
 	getLotChoiceRuleAssocs(marketId: number): Observable<Array<LotChoiceRuleAssoc>>
 	{
 		let url = settings.apiUrl;
 		const filter = `DivChoiceCatalog/DivDPointCatalog/Org/EdhMarketId eq ${marketId}`;
-		const qryStr = `${encodeURIComponent("$")}filter=${encodeURIComponent(filter)}`;
+		const select = `lotChoiceRuleAssocId, edhLotId, planId, divChoiceCatalogId, mustHave`;
+		const qryStr = `${encodeURIComponent("$")}filter=${encodeURIComponent(filter)}&${encodeURIComponent("$")}select=${encodeURIComponent(select)}`;
 		url += `lotChoiceRuleAssocs?${qryStr}`;
 
 		return withSpinner(this._http).get(url).pipe(
@@ -309,7 +318,13 @@ export class HomeSiteService
 			return this._http.patch(url, assoc).pipe(
 				map((response: LotChoiceRuleAssoc) =>
 				{
-					return response;
+					return {
+						lotChoiceRuleAssocId: response.lotChoiceRuleAssocId,
+						edhLotId: response.edhLotId,
+						planId: response.planId,
+						divChoiceCatalogId: response.divChoiceCatalogId,
+						mustHave: response.mustHave
+					} as LotChoiceRuleAssoc;
 				}),
 				catchError(this.handleError));
 		}
@@ -320,7 +335,13 @@ export class HomeSiteService
 			return this._http.post(url, assoc).pipe(
 				map((response: LotChoiceRuleAssoc) =>
 				{
-					return response;
+					return {
+						lotChoiceRuleAssocId: response.lotChoiceRuleAssocId,
+						edhLotId: response.edhLotId,
+						planId: response.planId,
+						divChoiceCatalogId: response.divChoiceCatalogId,
+						mustHave: response.mustHave
+					} as LotChoiceRuleAssoc;
 				}),
 				catchError(this.handleError));
 		}

@@ -13,6 +13,6 @@ export const environment = {
         strictDiscoveryDocumentValidation: false
     },
     appInsights: {
-        instrumentationKey: '3080202e-6c69-4829-ad05-f232fe7c4090'
+        instrumentationKey: 'f6f360eb-b343-428f-ab2b-c53d417f272e'
     },
 };

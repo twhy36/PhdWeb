@@ -80,7 +80,7 @@
 						<span>{{ plans?.planSalesName }}</span>
 					</span>
 				</ng-template>
-			</phd-column>			
+			</phd-column>
 			<phd-column header="Option" field="optionSalesName"></phd-column>
 			<phd-column header="ColorItem" field="colorItem">
 				<ng-template #body let-planOptionDto>
@@ -100,21 +100,21 @@
 						>
 					</div>
 				</ng-template>
-			</phd-column>			
+			</phd-column>
 			<phd-column field="isActive" columnClass="phd-icon">
 				<ng-template #body let-planOptionDto>
 						<i
 						class="fa fa-fw fa-repeat text-success"
 						title="Reactivate Color Item"
 						*ngIf="!planOptionDto.colorItem[0]?.isActive"
-						(click)="activateColorItem(planOptionDto.colorItem, planOptionDto)"
+						(click)="activateInactivateColorItem(planOptionDto.colorItem, planOptionDto,true)"
 						>
 						</i>
 						<i
 						class="fa fa-fw fa-undo text-danger"
 						title="Inactivate Color Item"
 						*ngIf="planOptionDto.colorItem[0]?.isActive"
-						(click)="inactivateColorItem(planOptionDto.colorItem, planOptionDto.planOptionId)"
+						(click)="activateInactivateColorItem(planOptionDto.colorItem, planOptionDto,false)"
 						>
 						</i>
 				</ng-template>
@@ -153,7 +153,8 @@
 			[plansUsedInSearch]="selectedPlans"
 			(dialogWasCanceled)="onAddColorItemDialogWasCanceled()"
 			[allPlans]="planCommunityList"
-			[optionsWithColorItemInfo]="optionsPerPlan"
+			[optionsWithColorItemInfo]="optionsWithColorItems"
+			(colorItemSaveAttempted)="colorItemSaveWasAttempted($event)"
 		>
 		</add-color-item-dialog>
 	</ng-template>
@@ -166,4 +167,6 @@
 		>
 		</edit-color-item-dialog>
 	</ng-template>
+
+	<p-toast baseZIndex="1100"></p-toast>
 </div>
