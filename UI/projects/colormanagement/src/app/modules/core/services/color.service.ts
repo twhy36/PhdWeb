@@ -144,8 +144,6 @@ export class ColorService {
 						}
 					})
 
-				console.log('service results');
-				console.log(colorItemDtoList);
 				return colorItemDtoList;
 			}),
 				catchError(this.handleError)
