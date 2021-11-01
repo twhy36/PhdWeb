@@ -446,17 +446,27 @@ export class ColorItemsSearchHeaderComponent
 	{
 		if(isElevation)
 		{
-			const planOptions = this.planOptionDtosList.filter(row => row.optionCommunityId === planOptionDto.optionCommunityId);
+			const planOptions = this.planOptionDtosList.filter(row => row.optionCommunityId === planOptionDto.optionCommunityId && row.planCommunity[0].id === planOptionDto.planCommunity[0].id);
 			//Verify if there is already an active color item for the elevation option
 			if(planOptions.filter(x=>x.colorItem[0].isActive)?.length>0)
 			{
 				const message = 'There is already an active color item for this elevation option';
 				this._modalService.showOkOnlyModal(message, 'Warning');
 			}
+			else
+			{
+				this.activateUpdateColorItem(coloritemDto, planOptionDto);
+			}
 		}
 		else
 		{
-			const colorItemsToUpdate: IColorItemDto[] =[];
+			this.activateUpdateColorItem(coloritemDto, planOptionDto);
+
+		}
+	}
+	activateUpdateColorItem(coloritemDto: IColorItemDto[], planOptionDto : IPlanOptionCommunityGridDto)
+	{
+		const colorItemsToUpdate: IColorItemDto[] =[];
 			coloritemDto.forEach((ci)=>
 			{
 				const colorItemToSave = {
@@ -500,10 +510,7 @@ export class ColorItemsSearchHeaderComponent
 				this._msgService.add(toast);
 			}
 			);
-
-		}
 	}
-
 	inactivateColorItem(coloritemDto: IColorItemDto[], planOptionDto : IPlanOptionCommunityGridDto)
 	{
 		const message = 'Are you sure you want to inactivate this color item?';
