@@ -172,10 +172,11 @@ export class ColorItemsSearchHeaderComponent
 			)
 			.pipe(
 				map((colorItemDtos) => {
-					planoptionDto.forEach(element => {
-						element.colorItem = colorItemDtos?.find(coloritem => coloritem.edhPlanOptionId === element.planOptionId);
-					});
-					return planoptionDto;
+					// Bug: ColorItems with same EDHPlanOptionId dont show.
+					// Add to this list when there are multiple coloritem for same planoption.					
+					return	planoptionDto.map(opt => colorItemDtos?.filter(colorItem => colorItem.edhPlanOptionId === opt.planOptionId)
+						.map(colorItem => ({ ...opt, colorItem })))
+						.reduce((a,b) => [...a, ...b], [])
 				})
 			).subscribe((planOptionDtos) => {
 				this.currentPage++;
