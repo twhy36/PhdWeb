@@ -7,13 +7,23 @@ export interface IColorItem
     isActive: boolean,
     colorItemColorAssoc: IColorItemColorAssoc
 }
+
+export interface IColorItemAssoc
+{
+	colorItemId: number,
+	name: string,
+	edhPlanOptionId: number,
+	isActive: boolean,
+	colorItemColorAssoc: IColorItemColorAssoc[]
+}
+
 export interface IColorItemDto
 {
     colorItemId: number,
     name: string,
     isActive: boolean,
     edhPlanOptionId: number,
-    colors: Array<IColor>   
+    colors: Array<IColor>
 }
 export interface IColorItemColorAssoc
 {
