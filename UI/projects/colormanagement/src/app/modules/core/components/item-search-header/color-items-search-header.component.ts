@@ -173,32 +173,10 @@ export class ColorItemsSearchHeaderComponent
 			.pipe(
 				map((colorItemDtos) => {
 					// Bug: ColorItems with same EDHPlanOptionId dont show.
-					// Add to this list when there are multiple coloritem for same planoption.
-					let planOptionColorItemList: Array<IPlanOptionCommunityDto> =[];
-					planoptionDto.forEach(element => {
-						let samePlanOptionColorItems = colorItemDtos?.filter(coloritem => coloritem.edhPlanOptionId === element.planOptionId);
-						if(samePlanOptionColorItems.length===1)
-						{
-							element.colorItem = samePlanOptionColorItems[0];
-						}
-						else
-						{
-							samePlanOptionColorItems.forEach(item => {
-							let newPlanOptionDto: IPlanOptionCommunityDto = {
-								planCommunity: element.planCommunity,
-								optionCommunityId: element.optionCommunityId,
-								optionSalesName: element.optionSalesName,
-								planOptionId: element.planOptionId,
-								colorItem: item,
-								isBaseHouse: element.isBaseHouse
-							}
-							planOptionColorItemList.push(newPlanOptionDto);
-						});
-						}
-
-					});
-					planoptionDto = [...planoptionDto,...planOptionColorItemList];
-					return planoptionDto;
+					// Add to this list when there are multiple coloritem for same planoption.					
+					return	planoptionDto.map(opt => colorItemDtos?.filter(colorItem => colorItem.edhPlanOptionId === opt.planOptionId)
+						.map(colorItem => ({ ...opt, colorItem })))
+						.reduce((a,b) => [...a, ...b], [])
 				})
 			).subscribe((planOptionDtos) => {
 				this.currentPage++;
