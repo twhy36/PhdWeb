@@ -5,7 +5,7 @@ export interface IColorItem
     name: string,
     edhPlanOptionId: number,
     isActive: boolean,
-    colorItemColorAssoc: IColorItemColorAssoc
+    colorItemColorAssoc: IColorItemColorAssoc[]
 }
 
 export interface IColorItemAssoc

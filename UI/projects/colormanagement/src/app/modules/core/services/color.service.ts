@@ -119,8 +119,6 @@ export class ColorService {
 				{
 					let bodies = response.responses.map(res=>res.body);
 					let colorItemDtoList: Array<IColorItemDto> = [];
-					console.log('bodies');
-					console.log(bodies);
 
 					bodies.forEach((result)=>
 					{
@@ -133,16 +131,13 @@ export class ColorService {
 							if(groupedColorItems.hasOwnProperty(key))
 							{
 								let item = groupedColorItems[key];
-								console.log('service -> item');
-								console.log(item);
-
 								let colorItemDto:IColorItemDto =
 								{
 									colorItemId:item[0].colorItemId,
 									name:item[0].name,
 									isActive:item[0].isActive,
 									edhPlanOptionId:item[0].edhPlanOptionId,
-									colors:item.map(x=>x.colorItemColorAssoc?.color),
+									colors:item.map(x => x.colorItemColorAssoc).map(colorassoc => colorassoc.map(c=>c.color)).reduce((a,b)=>[...a,...b],[])
 								}
 								colorItemDtoList.push(colorItemDto);
 							}
