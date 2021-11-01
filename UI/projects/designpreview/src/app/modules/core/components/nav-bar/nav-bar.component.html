@@ -1,29 +1,38 @@
 <nav id="phd-nav-bar" class="navbar fixed-top navbar-expand-md">
 	<div class="d-flex container-fluid phd-mobile-header">
-		<div *ngIf="(isTablet$ | async)" class="phd-menu-bars">
-			<i *ngIf="isMenuCollapsed" class="fa fa-bars fa-2x" (click)="isMenuCollapsed = !isMenuCollapsed"></i>
-			<i *ngIf="!isMenuCollapsed" class="fa fa-arrow-left" (click)="isMenuCollapsed = !isMenuCollapsed"></i>
+		<div class="d-flex flex-row align-items-flex-start">
+			<div class="phd-nav-bar-header phd-clickable">
+				<img class="phd-logo" src="assets/Pulte_Homes_White_Logo.PNG" alt="Pulte Homes" (click)="onHomePage()">
+			</div>
+			<div class="d-flex flex-column phd-nav-bar-title">
+				<span class="phd-nav-bar-label">Design Preview</span>
+				<span class="phd-nav-bar-config">Welcome To Your Home</span>
+			</div>
 		</div>
-		<div class="phd-nav-bar-header phd-clickable">
-			<img class="phd-logo" src="assets/Pulte_Homes_White_Logo.PNG" alt="Pulte Homes" (click)="onHomePage()">
-		</div>
-		<div class="d-flex flex-column phd-nav-bar-title">
-			<span class="phd-nav-bar-label">Design Preview</span>
-			<span class="phd-nav-bar-config">Welcome To Your Home</span>
-		</div>
-		<div *ngIf="!(isTablet$ | async)" class="col-6 d-flex align-items-center ml-auto phd-menu-options">
+		<div *ngIf="!(isTablet$ | async)" class="col-6 d-flex ml-auto phd-menu-options">
 			<div>
 				<a [routerLink]="['/favorites/summary']"
-				   [routerLinkActive]="['phd-active-link']">
+				   [routerLinkActive]="['phd-active-link-full']">
 					My Favorites
 				</a>
 			</div>
 		</div>
+		<!-- Need to remove (isTablet$ | async) from hamburger div once at least 2 link pages are active -->
+		<div *ngIf="(isTablet$ | async)" class="phd-menu-bars">
+			<i *ngIf="isMenuCollapsed" class="fa fa-bars fa-2x" (click)="isMenuCollapsed = !isMenuCollapsed"></i>
+			<i *ngIf="!isMenuCollapsed" class="fa fa-times fa-2x" (click)="isMenuCollapsed = !isMenuCollapsed"></i>
+		</div>
 	</div>
 </nav>
 
-<div *ngIf="(isTablet$ | async) && !isMenuCollapsed" class="phd-collapsable-menu">
-	<div [class.phd-active-link]="currentRoute?.startsWith('/favorites/summary')">
-		<a [routerLink]="['/favorites/summary']">My Favorites</a>
+<!-- Need to remove (isTablet$ | async) from dropdown div once at least 2 link pages are active -->
+<div *ngIf="!isMenuCollapsed && (isTablet$ | async)" class="phd-collapsable-menu">
+	<div [class.phd-active-link-collapsed]="currentRoute?.startsWith('/favorites/summary')">
+		<a *ngIf="(isTablet$ | async)" [routerLink]="['/favorites/summary']">My Favorites</a>
+		<!-- Send these links to their proper pages, uncomment as needed -->
+		<!-- <a [routerLink]="['/home']">Floorplan</a> -->
+		<!-- <a [routerLink]="['/home']">Contracted Options</a> -->
+		<!-- <a [routerLink]="['/home']">Instructions</a> -->
+		<!-- Send these links to their proper pages -->
 	</div>
 </div>

@@ -15,10 +15,14 @@ import * as fromPlan from '../../../ngrx-store/plan/reducer';
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as NavActions from '../../../ngrx-store/nav/actions';
 import * as fromJob from '../../../ngrx-store/job/reducer';
+
 import { LotService } from '../../services/lot.service';
 
 import { ConfirmModalComponent } from '../../../core/components/confirm-modal/confirm-modal.component';
 import { environment } from '../../../../../environments/environment';
+
+import * as fromLite from '../../../ngrx-store/lite/reducer';
+import { ExteriorSubNavItems, LiteSubMenu } from '../../../shared/models/lite.model';
 
 @Component({
 	selector: 'nav-bar',
@@ -60,8 +64,8 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 	specCancelled = false;
 	isLockedIn: boolean = false;
 	newHomeStatus: PointStatus;
-	production: boolean;
 	isPhdLite$: Observable<boolean>;
+	isElevationSelected$: Observable<boolean>;
 
 	constructor(private lotService: LotService,
 		private identityService: IdentityService,
@@ -194,11 +198,9 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 			{
 				return state.lite?.isPhdLite;
 			})
-		);		
-
-		// Will need to remove this check once design preview goes live, 
-		// Both here and in nav-bar.component.html
-		this.production = environment.production;
+		);	
+		
+		this.isElevationSelected$ = this.store.select(fromLite.isElevationSelected);
 	}
 
 	navigate(path: any[], group?: Group)
@@ -416,5 +418,12 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 		const buyerSpecific = 'favorites/preview/'
 		const url = `${environment.baseUrl.designPreview}${buyerSpecific}${this.salesAgreementId}`;
 		window.open(url, '_blank');
+	}
+
+	onExteriorPath()
+	{
+		this.store.dispatch(new NavActions.SetSubNavItems(ExteriorSubNavItems));		
+		this.store.dispatch(new NavActions.SetSelectedSubNavItem(LiteSubMenu.Elevation));
+		this.router.navigate(['/lite/elevation']);		
 	}
 }

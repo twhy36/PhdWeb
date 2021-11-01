@@ -18,6 +18,7 @@ import { AccordionItemComponent } from './components/home/merge-field-accordion/
 import { tap } from 'rxjs/operators';
 import { environment } from '../environments/environment';
 import { OAuthModuleConfig, OAuthModule } from 'angular-oauth2-oidc';
+import { ApplicationInsights } from '@microsoft/applicationinsights-web';
 
 const appInitializerFn = (identityService: IdentityService) => {
     // the APP_INITIALIZER provider waits for promises to be resolved
@@ -44,6 +45,19 @@ export function getOrigin() {
     return window.origin;
 }
 
+const appInsights = new ApplicationInsights(
+{ 
+    config: 
+    {
+        instrumentationKey: environment.appInsights.instrumentationKey
+    } 
+});
+appInsights.loadAppInsights();
+appInsights.trackTrace({
+    message: "Starting contract authoring tool"
+});
+appInsights.flush();
+
 @NgModule({
     declarations: [
         AppComponent,
@@ -62,6 +76,7 @@ export function getOrigin() {
     ],
     providers: [
         { provide: WINDOW_ORIGIN, useFactory: getOrigin },
+        { provide: ApplicationInsights, useValue: appInsights },
         { provide: AUTH_CONFIG, useValue: environment.authConfig },
         { provide: API_URL, useValue: environment.apiUrl },
         {

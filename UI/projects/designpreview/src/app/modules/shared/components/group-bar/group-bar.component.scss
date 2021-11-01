@@ -28,8 +28,10 @@
 	.phd-group-menu {
 		display: flex;
 		justify-content: center;
+		align-self: flex-start;
 		align-content: center;
 		flex-grow: 1;
+		margin-top: 2px;
 
 		.phd-group-menu-item {
 			color: $pale_white;
@@ -85,6 +87,15 @@
 	font-weight: bold;
 }
 
+@media(max-width: 650px) {
+	.phd-community-name {
+		font-size: 11px !important;
+	}
+
+	.phd-plan-name {
+		font-size: 9px !important;
+	}
+}
 
 @media(max-width: $tablet-max-width) {
 	.phd-group-menu {
@@ -92,6 +103,7 @@
 		margin-left: 30px;
 
 		.phd-menu-bars {
+			align-self: flex-start;
 			outline: none;
 
 			i {

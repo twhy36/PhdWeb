@@ -118,6 +118,7 @@ export const filteredTree = createSelector(
 							return { ...p, choices: choices };
 						});
 						points = points.filter(dp => {
+							dp.price = dp.choices.reduce((acc, ch) => acc + (!ch.priceHiddenFromBuyerView ? ch.quantity * ch.price : 0), 0);
 							let isIncluded = true;
 							if (dp.choices.length === 0) {
 								isIncluded = false;
@@ -338,10 +339,10 @@ export const favoriteTitle = createSelector(
 	fromSalesAgreement.salesAgreementState,
 	fromSalesAgreement.primaryBuyer,
 	fromChangeOrder.changeOrderPrimaryBuyer,
-	(state, saBuyer, coBuyer) => {
+	(state, sagBuyer, changeOrderBuyer) => {
 		if (state?.id) 
 		{
-			const buyer = state.status === 'Approved' ? saBuyer : coBuyer || saBuyer;
+			const buyer = changeOrderBuyer ? changeOrderBuyer : sagBuyer;
 			const contact = buyer?.opportunityContactAssoc?.contact;
 			const lastName = contact && !!contact.lastName ? contact.lastName : '';
 

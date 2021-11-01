@@ -40,48 +40,47 @@
 		padding-left: 10px;
 	}
 
-	.phd-active-link {
+	.phd-active-link-full {
 		font-weight: bold;
 		font-size: 16px;
 		cursor: default;
 	}
-}
-
-@media(max-width: $tablet-max-width) {
-	.phd-mobile-header {
-		justify-content: flex-start;
-	}
 
 	.phd-menu-bars {
 		display: inline !important;
+		color: white;
 
-		i {
-			color: white;
-			margin-right: 30px;
+		.fa-bars {
+			margin-right: 0px;
+		}
+		.fa-times {
+			margin-right: 2px;
 		}
 	}
 
-	.phd-collapsable-menu {
-		background: $dark_blue;
-		width: 300px;
-		position: fixed;
-		top: 70px;
-		z-index: 100;
-		overflow-x: hidden;
-		transition: 0.5s;
-		padding-bottom: 15px;
-
-		a {
-			font-size: 20px;
-			color: white;
-			display: block;
-			text-decoration: none;
-			padding: 15px 8px 15px 32px;
-		}
-	}
-
-	.phd-active-link {
+	.phd-active-link-collapsed {
 		background: $twilight-blue;
+	}
+}
+
+.phd-collapsable-menu {
+	background: $dark_blue;
+	width: 300px;
+	position: fixed;
+	top: 70px;
+	right: -20px;
+	z-index: 100;
+	overflow-x: hidden;
+	transition: 0.5s;
+	padding-bottom: 15px;
+
+	a {
+		font-size: 20px;
+		color: white;
+		display: block;
+		text-transform: uppercase;
+		text-decoration: none;
+		padding: 15px 8px 15px 32px;
 	}
 }
 

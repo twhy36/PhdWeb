@@ -10,6 +10,7 @@ import { MergeField } from '../../models/merge-field.model';
 import { FileState } from '../../models/file-state';
 import { UnsubscribeOnDestroy } from '../../utils/unsubscribe-on-destroy';
 import { bind } from '../../utils/decorators';
+import { ApplicationInsights } from '@microsoft/applicationinsights-web';
 
 declare var OfficeHelpers: any;
 
@@ -26,7 +27,7 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit {
     selectedTemplateId: number;
     customMergeFields$: Observable<Array<MergeField>>;
 
-    constructor(public orgService: OrgService, private identityService: IdentityService, private contractService: ContractService) {
+    constructor(public orgService: OrgService, private identityService: IdentityService, private contractService: ContractService, private appInsights: ApplicationInsights) {
         super();
     }
 
@@ -34,71 +35,81 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit {
         let me = this;
 
         Word.run(async function (context) {
-            // load custom document properties to see if the template id is there
-            let customDocProps = context.document.properties.customProperties;
-            context.load(customDocProps);
+            try
+            {
+                // load custom document properties to see if the template id is there
+                let customDocProps = context.document.properties.customProperties;
+                context.load(customDocProps);
 
-            await context.sync();
+                await context.sync();
 
-            const propTemplateId = customDocProps.items.find(i => i.key === "templateId");
+                const propTemplateId = customDocProps.items.find(i => i.key === "templateId");
 
-            me.selectedTemplateId = propTemplateId ? propTemplateId.value : 0;
-            me.orgService.salesMarkets.pipe(
-                finalize(() => {
-                    me.isLoading = false;
-                })
-            ).subscribe(markets => {
-                me.markets = markets;
-            });
-
-            let templateAndMergeFields: Observable<Template[]>;
-
-            // if template id was found in the document custom properties
-            // then get the market associated with the template and select the market
-            // then create observable for loading the market's custom merge fields and templates
-            if (propTemplateId) {
-                templateAndMergeFields = me.contractService.getContractTemplateMarketId(propTemplateId.value).pipe(
-                    tap(marketId => {
-                        me.orgService.selectMarket(marketId);
-                        me.templatesLoading = true;
-                    }),
-                    switchMap(marketId => {
-                        return me.orgService.currentMarket$.pipe(
-                            me.takeUntilDestroyed(),
-                            distinctUntilChanged(),
-                            filter(mkt => mkt != null),
-                            tap(mkt => {
-                                me.templatesLoading = true;
-                                me.customMergeFields$ = me.contractService.getCustomMergeFields(mkt.id).pipe(
-                                    map(mf => mf.sort((a, b) => a.fieldName.toLocaleLowerCase() < b.fieldName.toLocaleLowerCase() ? -1 : (a.fieldName.toLocaleLowerCase() > b.fieldName.toLocaleLowerCase() ? 1 : 0)))
-                                );
-                            }),
-                            switchMap(mkt => me.contractService.getContractTemplates(mkt.id))
-                        );
+                me.selectedTemplateId = propTemplateId ? propTemplateId.value : 0;
+                me.orgService.salesMarkets.pipe(
+                    finalize(() => {
+                        me.isLoading = false;
                     })
-                );
-            }
-            // if template id was NOT found in the document custom properties
-            // then create observable for loading the market's custom merge fields and templates
-            else {
-                templateAndMergeFields = me.orgService.currentMarket$.pipe(
-                    me.takeUntilDestroyed(),
-                    distinctUntilChanged(),
-                    filter(mkt => mkt != null),
-                    tap(mkt => {
-                        me.templatesLoading = true;
-                        me.customMergeFields$ = me.contractService.getCustomMergeFields(mkt.id).pipe(
-                            map(mf => mf.sort((a, b) => a.fieldName.toLocaleLowerCase() < b.fieldName.toLocaleLowerCase() ? -1 : (a.fieldName.toLocaleLowerCase() > b.fieldName.toLocaleLowerCase() ? 1 : 0)))
-                        );
-                    }),
-                    switchMap(mkt => me.contractService.getContractTemplates(mkt.id))                    
-                );
-            }
+                ).subscribe(markets => {
+                    me.markets = markets;
+                });
 
-            templateAndMergeFields.subscribe(templates => {
-                me.templates = templates.sort((a, b) => a.documentName.toLocaleLowerCase() < b.documentName.toLocaleLowerCase() ? -1 : (a.documentName.toLocaleLowerCase() > b.documentName.toLocaleLowerCase() ? 1 : 0));
-                me.templatesLoading = false;
-            });
+                let templateAndMergeFields: Observable<Template[]>;
+
+                // if template id was found in the document custom properties
+                // then get the market associated with the template and select the market
+                // then create observable for loading the market's custom merge fields and templates
+                if (propTemplateId) {
+                    me.appInsights.trackTrace({message: `ContractAuthoring - loading template ${propTemplateId.value}`});
+                    templateAndMergeFields = me.contractService.getContractTemplateMarketId(propTemplateId.value).pipe(
+                        tap(marketId => {
+                            me.orgService.selectMarket(marketId);
+                            me.templatesLoading = true;
+                        }),
+                        switchMap(marketId => {
+                            return me.orgService.currentMarket$.pipe(
+                                me.takeUntilDestroyed(),
+                                distinctUntilChanged(),
+                                filter(mkt => mkt != null),
+                                tap(mkt => {
+                                    me.templatesLoading = true;
+                                    me.customMergeFields$ = me.contractService.getCustomMergeFields(mkt.id).pipe(
+                                        map(mf => mf.sort((a, b) => a.fieldName.toLocaleLowerCase() < b.fieldName.toLocaleLowerCase() ? -1 : (a.fieldName.toLocaleLowerCase() > b.fieldName.toLocaleLowerCase() ? 1 : 0)))
+                                    );
+                                }),
+                                switchMap(mkt => me.contractService.getContractTemplates(mkt.id))
+                            );
+                        })
+                    );
+                }
+                // if template id was NOT found in the document custom properties
+                // then create observable for loading the market's custom merge fields and templates
+                else {
+                    templateAndMergeFields = me.orgService.currentMarket$.pipe(
+                        me.takeUntilDestroyed(),
+                        distinctUntilChanged(),
+                        filter(mkt => mkt != null),
+                        tap(mkt => {
+                            me.templatesLoading = true;
+                            me.customMergeFields$ = me.contractService.getCustomMergeFields(mkt.id).pipe(
+                                map(mf => mf.sort((a, b) => a.fieldName.toLocaleLowerCase() < b.fieldName.toLocaleLowerCase() ? -1 : (a.fieldName.toLocaleLowerCase() > b.fieldName.toLocaleLowerCase() ? 1 : 0)))
+                            );
+                        }),
+                        switchMap(mkt => me.contractService.getContractTemplates(mkt.id))                    
+                    );
+                }
+
+                templateAndMergeFields.subscribe(templates => {
+                    me.templates = templates.sort((a, b) => a.documentName.toLocaleLowerCase() < b.documentName.toLocaleLowerCase() ? -1 : (a.documentName.toLocaleLowerCase() > b.documentName.toLocaleLowerCase() ? 1 : 0));
+                    me.templatesLoading = false;
+                });
+            }
+            catch (error)
+            {
+                me.appInsights.trackException({
+                    error
+                });
+            }
         });
     }
 

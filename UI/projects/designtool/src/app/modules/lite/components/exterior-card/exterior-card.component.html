@@ -1,0 +1,26 @@
+<div class="phd-exterior-card" [class.active]="isOptionSelected" [class.selected]="isOptionSelected" [@flipOver]>
+	<div class="phd-header">
+        <span class="phd-2-line-limit">
+            {{option.name}}
+        </span>                 
+    </div>
+    <div class="phd-divider"></div>
+    <div class="phd-body">
+        <div class="phd-option-body">
+            <div class="d-flex justify-content-end">
+                <p>
+                    <strong>{{option.listPrice | currency:'USD':'symbol':'0.0-0'}}</strong>
+                </p>
+            </div>
+            <p class="phd-2-line-limit">{{option.description}}</p>
+        </div>   
+    </div>
+    
+    <div class="phd-footer">
+        <div class="phd-footer-btn-container" (click)="$event.stopPropagation()">
+			<div class="d-flex align-items-center phd-footer-btns">
+				<button class="btn phd-experience-btn-choice" (click)="toggleSelection()">{{getButtonLabel()}}</button>
+			</div>
+        </div>
+    </div>
+</div>

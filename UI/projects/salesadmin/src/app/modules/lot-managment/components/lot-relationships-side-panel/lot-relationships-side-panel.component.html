@@ -18,9 +18,9 @@
 				</div>
 
 				<div class="form-group text-center phd-buttons-row">
-					<button class="btn btn-sm btn-secondary mr-1" (click)="addHighlightedItems('assignedLotIds')"><i class="fa fa-angle-down fa-fw"></i></button>
-					<button class="btn btn-sm btn-secondary mr-1" (click)="addAllItems('assignedLotIds')"><i class="fa fa-angle-double-down fa-fw"></i></button>
-					<button class="btn btn-sm btn-secondary" (click)="removeAllItems('assignedLotIds')"><i class="fa fa-angle-double-up fa-fw"></i></button>
+					<button class="btn btn-sm btn-secondary mr-1" [disabled]="selected" (click)="addHighlightedItems('assignedLotIds')"><i class="fa fa-angle-down fa-fw"></i></button>
+					<button class="btn btn-sm btn-secondary mr-1" [disabled]="selected" (click)="addAllItems('assignedLotIds')"><i class="fa fa-angle-double-down fa-fw"></i></button>
+					<button class="btn btn-sm btn-secondary" [disabled]="selected" (click)="removeAllItems('assignedLotIds')"><i class="fa fa-angle-double-up fa-fw"></i></button>
 				</div>
 
 				<div class="form-group">
@@ -28,7 +28,7 @@
 					<div id="selectedHomesite" *ngIf="selectedLots.length > 0" class="phd-tags-input" [class.phd-tags-4row]="selectedLots.length > 16">
 						<div class="phd-tag" *ngFor="let lot of selectedLots">
 							<span>{{ lot.dto.lotBlock }}</span>
-							<a class="phd-tags-input-remove-link" (click)="removeItem(lot)"></a>
+							<a *ngIf="!selected" class="phd-tags-input-remove-link" (click)="removeItem(lot)"></a>
 						</div>
 					</div>
 					<div id="noSelectedHomesites" class="phd-tags-input" *ngIf="selectedLots.length === 0">
@@ -75,7 +75,7 @@
 					<div class="card-header">
 						<strong>Add Choice</strong>
 					</div>
-					<search-bar selectedSearchFilter="Choice" (onClearFilter)="clearFilter()" (onKeywordSearch)="keywordSearch($event)"></search-bar>
+					<search-bar selectedSearchFilter="Choice" [isDisabled]="selected" (onClearFilter)="clearFilter()" (onKeywordSearch)="keywordSearch($event)"></search-bar>
 					<div *ngIf="showSearchResults && searchResults.length > 0" class="phd-item-multiselect-results">
 						<div>
 							<a class="close" (click)="clearFilter()">&times;</a>
@@ -113,7 +113,7 @@
 						</phd-column>
 						<phd-column width="50px">
 							<ng-template #body let-choice>
-								<i class="fa fa-trash fa-fw" (click)="removeChoice(choice)"></i>
+								<i *ngIf="!selected" class="fa fa-trash fa-fw" (click)="removeChoice(choice)"></i>
 							</ng-template>
 						</phd-column>
 					</phd-table>

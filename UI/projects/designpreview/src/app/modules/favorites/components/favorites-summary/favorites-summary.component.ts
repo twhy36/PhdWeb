@@ -32,6 +32,7 @@ import * as CommonActions from '../../../ngrx-store/actions';
 import { ReportsService } from '../../../core/services/reports.service';
 
 import { SummaryHeader, SummaryHeaderComponent } from './summary-header/summary-header.component';
+import { GroupExt } from '../../../shared/models/group-ext.model';
 
 @Component({
 	selector: 'favorites-summary',
@@ -44,7 +45,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 
 	communityName: string = '';
 	planName: string = '';
-	groups: Group[];
+	groups: GroupExt[];
 	priceBreakdown: PriceBreakdown;
 	summaryHeader: SummaryHeader = new SummaryHeader();
 	isSticky: boolean = false;
@@ -163,7 +164,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 			select(fromRoot.filteredTree)
 		).subscribe(tree => {
 			if (tree) {
-				this.groups = tree.groups;
+				this.groups = this.getGroupExts(tree.groups);
 			}
 		});
 
@@ -193,18 +194,6 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 	onBack()
 	{
 		this.location.back();
-	}
-
-	getGroupSubTotals(group: SDGroup)
-	{
-		var groupSubtotal = 0;
-
-		group.subGroups.map(sg =>
-		{
-			groupSubtotal += sg.points.reduce((sum, point) => sum += (point.price || 0), 0);
-		});
-
-		return groupSubtotal;
 	}
 
 	displayPoint(dp: DecisionPoint)
@@ -249,6 +238,10 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 	onContractedOptionsToggled()
 	{
 		this.store.dispatch(new FavoriteActions.ToggleContractedOptions());
+
+		setTimeout(() => {
+            this.cd.detectChanges();
+        }, 50);
 	}
 
 	onViewFavorites(point: DecisionPoint)
@@ -280,6 +273,10 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 
 		this.store.dispatch(new ScenarioActions.SelectChoices(this.isDesignComplete, ...removedChoices));
 		this.store.dispatch(new FavoriteActions.SaveMyFavoritesChoices());
+
+		setTimeout(() => {
+            this.cd.detectChanges();
+        }, 50);
 	}
 
 	onPrint()
@@ -398,5 +395,12 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		}
 
 		return types;
+	}
+
+	getGroupExts(groups: Group[]) : GroupExt[]
+	{
+		return groups.map(g => {
+			return new GroupExt(g);
+		})
 	}
 }

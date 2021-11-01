@@ -60,3 +60,9 @@
 		color: $dark_gray;
 	}
 }
+
+@media(max-width: 700px) {
+	.phd-price-label {
+		font-size: 9px !important;
+	}
+}

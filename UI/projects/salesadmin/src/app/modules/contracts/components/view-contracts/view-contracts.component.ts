@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, HostListener } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { Observable } from 'rxjs';
-import { distinctUntilChanged, filter, switchMap, tap } from 'rxjs/operators';
+import { distinctUntilChanged, filter, tap } from 'rxjs/operators';
 import { cloneDeep } from "lodash";
 
 import * as moment from 'moment';
@@ -16,6 +16,7 @@ import { UnsubscribeOnDestroy } from '../../../shared/utils/unsubscribe-on-destr
 import { SearchBarComponent } from '../../../shared/components/search-bar/search-bar.component';
 import { ViewContractsSidePanelComponent } from '../view-contracts-side-panel/view-contracts-side-panel.component';
 import { ConfirmModalComponent, PhdTableComponent } from 'phd-common';
+import { FinancialMarket } from '../../../shared/models/financialMarket.model';
 
 @Component({
 	selector: 'view-contracts',
@@ -28,12 +29,15 @@ export class ViewContractsComponent extends UnsubscribeOnDestroy implements OnIn
 	private sidePanel: ViewContractsSidePanelComponent;
 
 	private _selected: ContractTemplate;
+	private _allTemplates: Array<ContractTemplate>;
+	private _filteredContractTemplates: Array<ContractTemplate>;
 	sidePanelOpen: boolean = false;
 	currentMktId: number;
 	draggedTemplate: ContractTemplate;
 	filteredContractTemplates: Array<ContractTemplate>;
 	allTemplates: Array<ContractTemplate>;
 	templatesWithUpdatedAddendum: Array<ContractTemplate> = [];
+	isSaving: boolean = false;
 	isSorting: boolean = false;
 	canSort: boolean = false;
 	canManageDocument: boolean = true;
@@ -83,21 +87,25 @@ export class ViewContractsComponent extends UnsubscribeOnDestroy implements OnIn
 				this.isSorting = false;
 				this.canManageDocument = true;
 			}),
-			switchMap(mkt => this._contractService.getDraftOrInUseContractTemplates(mkt.id))
-		).subscribe(templates =>
-		{
-			this.allTemplates = templates;
-			this.allTemplates.forEach(template =>
-				{
-					template.application = this.getApplication(template);
-				})
-			this.getTemplatesToBedisplayed();
-			this.resetSearchBar();
-		});
+		).subscribe(() => this.updateTemplates());
 
 		this._orgService.canEdit(this._route.parent.snapshot.data['requiresClaim']).pipe(
 			this.takeUntilDestroyed(),
 		).subscribe(canEdit => this.canEdit = canEdit);
+	}
+
+	updateTemplates(): void
+	{
+		this._contractService.getDraftOrInUseContractTemplates(this.currentMktId).subscribe(templates =>
+			{
+				this.allTemplates = templates;
+				this.allTemplates.forEach(template =>
+					{
+						template.application = this.getApplication(template);
+					})
+				this.getTemplatesToBedisplayed();
+				this.resetSearchBar();
+		});
 	}
 
 	getTemplatesToBedisplayed()
@@ -237,6 +245,9 @@ export class ViewContractsComponent extends UnsubscribeOnDestroy implements OnIn
 
 	addendumOrder()
 	{
+		// Keep record of the original sort order in case user cancels sort
+		this._allTemplates = cloneDeep(this.allTemplates);
+		this._filteredContractTemplates = cloneDeep(this.filteredContractTemplates);
 		this.filteredContractTemplates = this.allTemplates.filter(t => t.templateTypeId === 2);
 		let templateIdsWithParent = this.filteredContractTemplates.filter(t => t.parentTemplateId !== null).map(t => t.parentTemplateId);
 
@@ -251,7 +262,10 @@ export class ViewContractsComponent extends UnsubscribeOnDestroy implements OnIn
 
 	cancelSort()
 	{
-		this.filteredContractTemplates = this.allTemplates;
+		// Set back to original presort record
+		this.allTemplates = this._allTemplates;
+		this.filteredContractTemplates = this._filteredContractTemplates;
+		this._filteredContractTemplates = [];
 		this.isSorting = false;
 		this.canManageDocument = true;
 	}
@@ -265,7 +279,8 @@ export class ViewContractsComponent extends UnsubscribeOnDestroy implements OnIn
 	{
 		if (contractTemplateDto.templateTypeId != 1)
 		{
-			contractTemplateDto.displayOrder = this.allTemplates.filter(t => t.templateTypeId !== 1).length > 0 ? this.allTemplates.filter(t => t.templateTypeId !== 1).length + 3 : 3;
+			// Set display order to the max display order of all the templates + 1
+			contractTemplateDto.displayOrder = this.allTemplates.length > 0 ? this.allTemplates.reduce((a, b) => a.displayOrder > b.displayOrder ? a : b).displayOrder + 1 : 3;
 		}
 		else
 		{
@@ -289,6 +304,7 @@ export class ViewContractsComponent extends UnsubscribeOnDestroy implements OnIn
 		this._contractService.saveDocument(contractTemplateDto)
 			.subscribe(newDto =>
 			{
+				this.updateTemplates();
 				newDto.assignedCommunityIds = contractTemplateDto.assignedCommunityIds;
 				newDto.application = this.getApplication(newDto);
 
@@ -382,60 +398,20 @@ export class ViewContractsComponent extends UnsubscribeOnDestroy implements OnIn
 		})
 	}
 
-	updateAddendumOrder(itemList: Array<ContractTemplate>, oldIndex: number, newIndex: number)
-	{
-		if (newIndex > oldIndex)
-		{
-			let dispOrderForOldIndex = itemList[newIndex].displayOrder;
-			let num = newIndex - oldIndex;
-
-			for (let n = num; n >= 1; n--)
-			{
-				itemList[oldIndex + n].displayOrder = itemList[oldIndex + n - 1].displayOrder;
-
-				this.trackUpdatedTemplates(itemList[oldIndex + n]);
-			}
-
-			itemList[oldIndex].displayOrder = dispOrderForOldIndex;
-
-			this.trackUpdatedTemplates(itemList[oldIndex]);
-		}
-
-		else if (oldIndex > newIndex)
-		{
-			let dispOrderForOldIndex = itemList[newIndex].displayOrder;
-			let num = oldIndex - newIndex;
-
-			for (let n = 1; n <= num; n++)
-			{
-				itemList[newIndex + n - 1].displayOrder = itemList[newIndex + n].displayOrder;
-
-				this.trackUpdatedTemplates(itemList[newIndex + n - 1]);
-			}
-
-			itemList[oldIndex].displayOrder = dispOrderForOldIndex;
-
-			this.trackUpdatedTemplates(itemList[oldIndex]);
-		}
-	}
-
-	trackUpdatedTemplates(template: ContractTemplate)
-	{
-		this.templatesWithUpdatedAddendum = this.templatesWithUpdatedAddendum.filter(t => t.templateId !== template.templateId);
-		this.templatesWithUpdatedAddendum.push(template);
-	}
-
 	saveSort()
 	{
 		if (this.templatesWithUpdatedAddendum.length !== 0)
 		{
+			this.isSaving = true;
 			this._contractService.updateAddendumOrder(this.templatesWithUpdatedAddendum)
 				.subscribe(data =>
 				{
-					this.filteredContractTemplates = this.allTemplates;
+					this.getTemplatesToBedisplayed();
+					this.isSaving = false;
 					this.isSorting = false;
 					this.canManageDocument = true;
 					this.templatesWithUpdatedAddendum = [];
+					this._filteredContractTemplates = [];
 
 					this._msgService.add({ severity: 'success', summary: 'Sort', detail: `Sort saved!` });
 				});
@@ -459,32 +435,40 @@ export class ViewContractsComponent extends UnsubscribeOnDestroy implements OnIn
 			let parent = this.filteredContractTemplates;
 
 			this.updateSort(parent, event.dragIndex, event.dropIndex);
-			this.updateAddendumOrder(parent, event.dragIndex, event.dropIndex);
 
 			this.filteredContractTemplates = cloneDeep(parent);
 		}
 	}
 
-	private updateSort(itemList: any, oldIndex: number, newIndex: number)
+	private updateSort(itemList: ContractTemplate[], oldIndex: number, newIndex: number)
 	{
-		let sortName = 'sortOrder';
+		// Make sure list is sorted by sortOrder
+		itemList.sort((left: ContractTemplate, right: ContractTemplate) =>
+		{
+			return left.displayOrder === right.displayOrder ? 0 : (left.displayOrder < right.displayOrder ? -1 : 1);
+		});
 
-		// reorder items in array
+		// Move the dragged element
 		itemList.splice(newIndex, 0, itemList.splice(oldIndex, 1)[0]);
 
-		let counter = 0;
-
+		// Update sortOrder
+		let counter = 2;
 		itemList.forEach(item =>
 		{
-			// update sortOrder
-			item[sortName] = counter++;
+			counter++;
+			// If the sort order is changed add it to list to be updated
+			if (item.displayOrder != counter)
+			{
+				item.displayOrder = counter
+				this.trackUpdatedTemplates(item);
+			}
 		});
+	}
 
-		// resort using new sortOrders
-		itemList.sort((left: any, right: any) =>
-		{
-			return left[sortName] === right[sortName] ? 0 : (left[sortName] < right[sortName] ? -1 : 1);
-		});
+	private trackUpdatedTemplates(addendum: ContractTemplate)
+	{
+		this.templatesWithUpdatedAddendum = this.templatesWithUpdatedAddendum.filter(t => t.templateId !== addendum.templateId);
+		this.templatesWithUpdatedAddendum.push(addendum);
 	}
 
 	private getApplication(dto: ContractTemplate)
