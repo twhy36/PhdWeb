@@ -1,6 +1,6 @@
 <div class="modal-content mx-auto" [class.alert]="['success', 'error'].indexOf(modalType) != -1" [class.alert-success]="modalType == 'success'" [class.alert-danger]="modalType == 'error'" [class.alert-warning]="modalType == 'warning'" [class.alert-light]="modalType == 'normal'">
 	<div *ngIf="header" class="row justify-content-start modal-header m-0">
-		<div class="col-12">{{header}}</div>
+		<div class="col-12" [class.remove-left-margin]="headerRemoveMargin === true">{{header}}</div>
 	</div>
 
 	<div class="modal-text p-2">

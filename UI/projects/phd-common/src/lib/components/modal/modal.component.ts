@@ -18,6 +18,7 @@ export class ModalComponent extends ModalContent implements OnInit
 	autodismissTimer?: Subscription;
 	needsInput = false;
 	inputLabel?: string;
+	headerRemoveMargin?: boolean;
 
 	get hasTemplate(): boolean
 	{

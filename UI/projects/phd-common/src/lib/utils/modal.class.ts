@@ -24,6 +24,7 @@ export class ModalOptions<TResult>
 	header?: string;
 	inputLabel?: string;
 	needsInput?: boolean;
+	headerRemoveMargin?: boolean;
 }
 
 export class ModalRef
