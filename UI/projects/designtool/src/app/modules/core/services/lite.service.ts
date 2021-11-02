@@ -89,13 +89,12 @@ export class LiteService
 		);		
 	}
 
-	saveScenarioOptions(scenarioId: number, opportunityId: string,  scenarioOptions: ScenarioOption[]) : Observable<ScenarioOption[]>
+	saveScenarioOptions(scenarioId: number, scenarioOptions: ScenarioOption[]) : Observable<ScenarioOption[]>
 	{
 		const endpoint = environment.apiUrl + `SaveScenarioOptions`;
 
 		let data = {
 			scenarioId: scenarioId,
-			opportunityId: opportunityId,
 			scenarioOptions: scenarioOptions
 		};
 

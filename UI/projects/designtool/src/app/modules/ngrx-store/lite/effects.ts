@@ -73,10 +73,9 @@ export class LiteEffects
 			withLatestFrom(this.store),
 			switchMap(([action, store]) => {
 				const scenarioId = store.scenario.scenario?.scenarioId;
-				const opportunityId = store.scenario.scenario?.opportunityId;
 
-				return scenarioId && opportunityId
-					? this.liteService.saveScenarioOptions(scenarioId, opportunityId, action.scenarioOptions)
+				return scenarioId
+					? this.liteService.saveScenarioOptions(scenarioId, action.scenarioOptions)
 					: of([]);
 			}),
 			map(options => new ScenarioOptionsSaved(options))
