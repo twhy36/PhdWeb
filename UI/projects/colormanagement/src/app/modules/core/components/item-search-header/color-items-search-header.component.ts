@@ -451,7 +451,7 @@ export class ColorItemsSearchHeaderComponent
 			if(planOptions.filter(x=>x.colorItem[0].isActive)?.length>0)
 			{
 				const message = 'There is already an active color item for this elevation option';
-				this._modalService.showOkOnlyModal(message, 'Warning');
+				this._modalService.showOkOnlyModal(message, 'Warning',true);
 			}
 			else
 			{
