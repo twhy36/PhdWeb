@@ -73,6 +73,7 @@ export class ColorItemsSearchHeaderComponent
 							...plans
 						];
 					})
+
 				)
 			})
 		);
@@ -173,7 +174,7 @@ export class ColorItemsSearchHeaderComponent
 			.pipe(
 				map((colorItemDtos) => {
 					// Bug: ColorItems with same EDHPlanOptionId dont show.
-					// Add to this list when there are multiple coloritem for same planoption.					
+					// Add to this list when there are multiple coloritem for same planoption.
 					return	planoptionDto.map(opt => colorItemDtos?.filter(colorItem => colorItem.edhPlanOptionId === opt.planOptionId)
 						.map(colorItem => ({ ...opt, colorItem })))
 						.reduce((a,b) => [...a, ...b], [])
@@ -207,7 +208,7 @@ export class ColorItemsSearchHeaderComponent
 								let item = groupByColorItemName[key];
 								let planOptiongrid: IPlanOptionCommunityGridDto =
 								{
-									//Use planOptionId as a rowId 
+									//Use planOptionId as a rowId
 									planOptionId: item[0].planOptionId,
 									planCommunity: item.map(x => x.planCommunity).sort((a, b) => a.planSalesName.localeCompare(b.planSalesName)),
 									optionCommunityId: item[0].optionCommunityId,
@@ -226,7 +227,7 @@ export class ColorItemsSearchHeaderComponent
 						planOptionBaseHouse.map((item) => {
 							let planOptiongrid: IPlanOptionCommunityGridDto =
 							{
-								//Use planOptionId as a rowId 
+								//Use planOptionId as a rowId
 								planOptionId: item.planOptionId,
 								planCommunity: [item.planCommunity],
 								optionCommunityId: item.optionCommunityId,
@@ -246,7 +247,7 @@ export class ColorItemsSearchHeaderComponent
 						planOptionDtos.map((item) => {
 							let planOptiongrid: IPlanOptionCommunityGridDto =
 							{
-								//Use planOptionId as a rowId 
+								//Use planOptionId as a rowId
 								planOptionId: item.planOptionId,
 								planCommunity: [item.planCommunity],
 								optionCommunityId: item.optionCommunityId,
@@ -408,7 +409,7 @@ export class ColorItemsSearchHeaderComponent
 
 	activateInactivateColorItem(coloritemDto: IColorItemDto[], planOptionDto: IPlanOptionCommunityGridDto, activate: boolean)
 	{
-		let isElevation;		
+		let isElevation;
 		const option = this.planOptionList.find(x=>x.id === planOptionDto.optionCommunityId);
 		if(option)
 			isElevation = this.isElevationOption(option.optionSubCategoryId);
@@ -429,7 +430,7 @@ export class ColorItemsSearchHeaderComponent
 			});
 		}
 		else
-		{	
+		{
 			if(activate)
 			{
 				this.activateColorItem(coloritemDto, planOptionDto, isElevation);
@@ -460,7 +461,7 @@ export class ColorItemsSearchHeaderComponent
 		else
 		{
 			this.activateUpdateColorItem(coloritemDto, planOptionDto);
-						
+
 		}
 	}
 	activateUpdateColorItem(coloritemDto: IColorItemDto[], planOptionDto : IPlanOptionCommunityGridDto)
@@ -511,7 +512,7 @@ export class ColorItemsSearchHeaderComponent
 			);
 	}
 	inactivateColorItem(coloritemDto: IColorItemDto[], planOptionDto : IPlanOptionCommunityGridDto)
-	{			
+	{
 		const message = 'Are you sure you want to inactivate this color item?';
 		let cancelled = false;
 		let toast:IToastInfo;
@@ -542,7 +543,7 @@ export class ColorItemsSearchHeaderComponent
 						}
 						this._msgService.add(toast);
 						const updatedResult = this.planOptionDtosList.find(row => row.planOptionId === planOptionDto.planOptionId).colorItem;
-						updatedResult.forEach((coloritem) => 
+						updatedResult.forEach((coloritem) =>
 						{
 							coloritem.isActive =colorItems.find(c =>c.colorItemId === coloritem.colorItemId).isActive;
 						})
