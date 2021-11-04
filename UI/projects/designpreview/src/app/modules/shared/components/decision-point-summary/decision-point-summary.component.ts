@@ -23,6 +23,7 @@ export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implemen
 	@Input() includeContractedOptions: boolean;
 	@Input() buildMode: string;
 	@Input() isDesignComplete: boolean = false;
+	@Input() contractedOptionsPage: boolean = false;
 
 	@Output() onViewFavorites = new EventEmitter<DecisionPoint>();
 	@Output() onRemoveFavorites = new EventEmitter<Choice>();
@@ -66,7 +67,7 @@ export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implemen
 
 	setPointChoices()
 	{
-		const choices = this.includeContractedOptions
+		const choices = this.includeContractedOptions || this.contractedOptionsPage
 							? this.decisionPoint.choices
 							: this.decisionPoint.choices.filter(c => !this.salesChoices || this.salesChoices.findIndex(sc => sc.divChoiceCatalogId === c.divChoiceCatalogId) === -1);
 		this.choicesCustom = choices.map(c => new ChoiceCustom(c));

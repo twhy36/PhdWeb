@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { Observable } from 'rxjs';
-import { Store } from '@ngrx/store';
+import { select, Store } from '@ngrx/store';
 
 import { BrowserService, UnsubscribeOnDestroy} from 'phd-common';
 
@@ -19,6 +19,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 	currentRoute: string;
 	isTablet$: Observable<boolean>;
 	isMenuCollapsed: boolean = true;
+	showContractedOptionsLink: boolean = true;
 
 	constructor(
 		private router: Router, 
@@ -41,6 +42,15 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 		this.isTablet$ = this.browser.isTablet();
 		this.isTablet$.subscribe(data => {
 			this.isMenuCollapsed = true;
+		});
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(state => state.scenario),
+		).subscribe((state) => {
+			if (state.buildMode === 'preview') {
+				this.showContractedOptionsLink = false;
+			} 
 		});
 	}
 

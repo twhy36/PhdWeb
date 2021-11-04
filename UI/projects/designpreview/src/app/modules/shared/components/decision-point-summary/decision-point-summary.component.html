@@ -57,10 +57,10 @@
 						<ng-container *ngIf="choice.priceHiddenFromBuyerView">
 							<span>Pricing Varies</span>
 						</ng-container>
-						<div class="actions actionLinks">
+						<ng-container *ngIf="!contractedOptionsPage" class="actions actionLinks">
 							<a (click)="onViewOrEdit()" class="phd-choice-action-label">{{actionLabel}}</a>
 							<i *ngIf="!isReadonly" class="fa fa-times phd-clickable" (click)="onRemove(choice)"></i>
-						</div>
+						</ng-container>
 					</div>
 				</div>
 			</ng-container>
