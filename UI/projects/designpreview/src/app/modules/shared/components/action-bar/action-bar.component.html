@@ -18,7 +18,7 @@
 		</div>
 	</div>
 	<div *ngIf="primaryAction" class="d-flex flex-row align-items-end">
-		<div class="d-flex flex-column">
+		<div class="d-flex flex-column align-items-end">
 			<span *ngIf="!isDesignComplete" class="phd-price">{{ favoritesPrice | currency:'USD':'symbol':'0.0-0' }}</span>
 			<span class="phd-price">{{ price | currency:'USD':'symbol':'0.0-0' }}</span>
 		</div>
