@@ -53,6 +53,7 @@ export class AddColorItemDialogComponent implements OnInit {
 
 		const isElevationOption = [Elevations.AttachedElevation, Elevations.DetachedElevation].includes(this.selectedOption.optionSubCategoryId);
 		const somePlansHaveActiveColorItem = this.optionsWithColorItemInfo.some(x => x.colorItem.isActive);
+		this.allPlans = this.allPlans.filter(x => x.planSalesName.toLowerCase() !== 'all plans');
 
 		//remove any plans that already have an active color item
 		if (isElevationOption && somePlansHaveActiveColorItem)
