@@ -90,7 +90,7 @@ export class OrganizationService
 		const qryStrOnMarkets = `${this._ds}expand=${encodeURIComponent(expandOnMarkets)}&${this._ds}filter=${encodeURIComponent(filterOnMarkets)}&${this._ds}select=${encodeURIComponent(selectOnMarkets)}&${this._ds}orderby=${encodeURIComponent(orderByOnMarkets)}`;
 
     endPoint += `markets?${qryStrOnMarkets}`;
-    
+
 		this._financialMarkets$ = this._http.get<any>(endPoint).pipe(
 			map(response =>
           {
@@ -104,7 +104,7 @@ export class OrganizationService
 	}
 
   getSalesCommunity(id: number, includeMarket: boolean = false): Observable<ISalesCommunity>
-  {    
+  {
 		const entity = `salesCommunities`;
 		const expand = `market($select = id, number, name)`;
 		const filter = `id eq ${id}`;
@@ -128,7 +128,7 @@ export class OrganizationService
 	}
 
 	getWebSiteCommunity(salesCommunityId: number): Observable<IWebSiteCommunity>
-  	{    
+  	{
 		const entity = `salesCommunities(${salesCommunityId})`;
 		const expand = `salesCommunityWebSiteCommunityAssocs($expand=websiteCommunity($filter=orgStatusDescription eq 'Active' and webSiteIntegrationKey ne ''))`;
 		let qryStr = `${this._ds}expand=${encodeURIComponent(expand)}`;
@@ -138,11 +138,11 @@ export class OrganizationService
 		return this._http.get<any>(endpoint).pipe(
 			map(response => {
 				const r = response.salesCommunityWebSiteCommunityAssocs as Array<ISalesCommunityWebSiteCommunityAssoc>;
-				let websiteCommunities = r.map(x => x.webSiteCommunity).filter(x => {
-					if (x.webSiteIntegrationKey) {
-						return true;
-					}
-				});
+				let websiteCommunities = r
+					.map(x => x.webSiteCommunity)
+					.filter(x => x.orgStatusDescription === 'Active' && !!x.webSiteIntegrationKey)
+					.sort((a, b) => new Date(a.lastModifiedUtcDate).valueOf() - new Date(b.lastModifiedUtcDate).valueOf())
+					.reverse();
 				return websiteCommunities[0];
 			}),
 			catchError(this.handleError)
@@ -263,7 +263,7 @@ export class OrganizationService
 	{
 		// In the future, we may send the server to some remote logging infrastructure.
 		console.error('Error message: ', error);
-		
+
 		return throwError(error || 'Server error');
 	}
 }

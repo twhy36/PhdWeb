@@ -35,6 +35,7 @@ export interface ISalesCommunityWebSiteCommunityAssoc {
 
 export interface IWebSiteCommunity {
   id: number,
+  lastModifiedUtcDate: string;
   name: string,
   orgStatusDescription: string,
   webSiteIntegrationKey: number
