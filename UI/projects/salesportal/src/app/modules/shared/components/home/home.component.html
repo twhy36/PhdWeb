@@ -20,7 +20,7 @@
 	</ng-template>
 </portal-item>
 
-<portal-item title="Preview" icon="binoculars" #preview>
+<portal-item title="Preview" icon="binoculars" *requiresClaim="'SalesAgreements'; permission: Permission.Read" #preview>
 	<ng-template>
 		<plan-preview [action]="previewAction" [roles]="roles" (onClose)="preview.close()"></plan-preview>
 	</ng-template>
