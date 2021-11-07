@@ -4,7 +4,7 @@ import { environment } from '../../../../environments/environment';
 import { catchError, filter, map, switchMap } from 'rxjs/operators';
 import {Observable, throwError} from 'rxjs';
 import {IColorIdBatch, IColor, IColorDto} from '../../shared/models/color.model';
-import {IColorItem, IColorItemColorAssoc, IColorItemDto} from '../../shared/models/colorItem.model';
+import {IColorItem, IColorItemAssoc, IColorItemColorAssoc, IColorItemDto} from '../../shared/models/colorItem.model';
 import * as _ from 'lodash';
 import {
 	newGuid,
@@ -74,7 +74,7 @@ export class ColorService {
 	}
 
 	getPlanOptionAssocColorItems(communityId: number,	edhPlanOptionIds: Array<number>, isActive?: boolean, name?: string, topRows?: number, skipRows?: number): Observable<IColorItemDto[]>
-	{		
+	{
 			return this.identityService.token.pipe(
 				switchMap((token: string) =>
 				{
@@ -120,6 +120,7 @@ export class ColorService {
 				{
 					let bodies = response.responses.map(res=>res.body);
 					let colorItemDtoList: Array<IColorItemDto> = [];
+
 					bodies.forEach((result)=>
 					{
 						let colorItems = result.value as Array<IColorItem>;
@@ -137,12 +138,13 @@ export class ColorService {
 									name:item[0].name,
 									isActive:item[0].isActive,
 									edhPlanOptionId:item[0].edhPlanOptionId,
-									colors:item.map(x=>x.colorItemColorAssoc?.color)
+									colors:item.map(x => x.colorItemColorAssoc.map(c=>c.color)).reduce((a,b)=>[...a,...b],[])
 								}
 								colorItemDtoList.push(colorItemDto);
 							}
 						}
 					})
+
 				return colorItemDtoList;
 			}),
 				catchError(this.handleError)
@@ -334,21 +336,18 @@ export class ColorService {
 
 	saveColorItem(dtoColorItems: IColorItemDto[]): Observable<IColorItem[]>
 	{
-		const colorItems: IColorItem[] = [];
+		const colorItems: IColorItemAssoc[] = [];
 
 		dtoColorItems.forEach(dtoItem => {
-			if (dtoItem.colors.length === 0)
-			{
-				const item: IColorItem = {
-					colorItemId: dtoItem.colorItemId,
-					name: dtoItem.name,
-					edhPlanOptionId: dtoItem.edhPlanOptionId,
-					isActive: dtoItem.isActive,
-					colorItemColorAssoc: null
-				};
-				colorItems.push(item);
-			}
-			else
+			const item: IColorItemAssoc = {
+				colorItemId: dtoItem.colorItemId,
+				name: dtoItem.name,
+				edhPlanOptionId: dtoItem.edhPlanOptionId,
+				isActive: dtoItem.isActive,
+				colorItemColorAssoc: []
+			};
+
+			if (dtoItem.colors.length > 0)
 			{
 				dtoItem.colors.forEach(color => {
 					const colorInfo: IColorItemColorAssoc = {
@@ -357,16 +356,11 @@ export class ColorService {
 						colorItemId: dtoItem.colorItemId
 					};
 
-					const item: IColorItem = {
-						colorItemId: dtoItem.colorItemId,
-						name: dtoItem.name,
-						edhPlanOptionId: dtoItem.edhPlanOptionId,
-						isActive: dtoItem.isActive,
-						colorItemColorAssoc: colorInfo
-					};
-					colorItems.push(item);
+					item.colorItemColorAssoc.push(colorInfo);
 				});
 			}
+
+			colorItems.push(item);
 		});
 
 		const body = {
