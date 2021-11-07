@@ -21,6 +21,7 @@ export class EditColorItemDialogComponent implements OnInit {
     @Input() selectedColorItems: IColorItemDto[];
 	@Input() communityId: number;
     @Input() selectedOption: IOptionCommunity;
+	@Input() canEditName: boolean;
 	@Output() ModalWasClosed = new EventEmitter();
 	@Output() dialogWasCanceled = new EventEmitter();
 
@@ -29,18 +30,19 @@ export class EditColorItemDialogComponent implements OnInit {
         private _fb: FormBuilder,
         private _colorService: ColorService
       ) { }
-
+	  
       ngOnInit(): void {
 		this.editColorItemForm = this._fb.group({
-			name: [this.selectedColorItems[0].name, [Validators.required, Validators.maxLength(50)]],
-		});
+			name: [{ value: this.selectedColorItems[0].name, disabled:!this.canEditName},[Validators.required, Validators.maxLength(50)]],			
+		}); 
+		
 		this.selectedColors = this.selectedColorItems[0].colors;
+		const selectedColorIdList = this.selectedColors.map(color => color.colorId);
 		this._colorService.getColors(this.communityId, '', this.selectedOption.optionSubCategoryId)
 			.subscribe(colors => {
-					this.availableColors = colors.filter(x => x.isActive);
+					this.availableColors = colors.filter(x => x.isActive && !selectedColorIdList.includes(x.colorId));
 				}
 			);
-
 		//const isElevationOption = [Elevations.AttachedElevation, Elevations.DetachedElevation].includes(this.selectedOption.optionSubCategoryId);
 		//const somePlansHaveActiveColorItem = this.optionsWithColorItemInfo.some(x => x.colorItem.isActive);		
 	}
@@ -60,6 +62,33 @@ export class EditColorItemDialogComponent implements OnInit {
 		if (closeWithoutSavingData) {
 			this.dialogWasCanceled.emit();
 		}
+	}
+
+	saveButtonWasClicked(){
+
+		this.selectedColorItems.forEach(colorItemToUpdate => {
+			const colorItemToSave = {
+				colorItemId: colorItemToUpdate.colorItemId,
+				name: this.editColorItemForm.get('name').value.toString().trim(),
+				edhPlanOptionId: colorItemToUpdate.edhPlanOptionId,
+				colors: colorItemToUpdate.colors,
+				isActive: colorItemToUpdate.isActive
+			} as IColorItemDto;
+			this._colorService.updateColorItem(colorItemToSave).subscribe((updatedColor) => {
+				// const successful = updatedColor !== undefined && updatedColor !== null;
+	
+				// if (successful) {
+				// 	this.sidePanelIsOpen = false;
+				// 	this._colorAdminService.emitEditingColor(false);
+				// }
+	
+				// this.colorWasEdited.emit(successful);
+			},
+			error => {
+			//	this.colorWasEdited.emit(false);
+			});
+		});
+		
 	}
 
     private async showConfirmModal(body: string, title: string, defaultButton: string): Promise<boolean>

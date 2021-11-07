@@ -25,6 +25,7 @@ export class ColorItemsSearchHeaderComponent
 	planCommunityList: Array<IPlanCommunity>;
 	currentFinancialCommunityId: number;
 	selectedPlans: Array<number> = [];
+	selectedOption: IOptionCommunity = null;
 	planOptionList: Array<IOptionCommunity>;
 	optionListIndex: number;
 	planOptionDtosList: Array<IPlanOptionCommunityGridDto> = [];
@@ -43,6 +44,7 @@ export class ColorItemsSearchHeaderComponent
 	modalReference: ModalRef;
 	disableAddColorItemButton: boolean = true;
 	currentColorItems: IColorItemDto[];
+	canEditName: boolean;
 	@ViewChild('addColorItemModal') addColorItemModal: any;
 	@ViewChild('editColorItemModal') editColorItemModal: any;
 
@@ -120,8 +122,10 @@ export class ColorItemsSearchHeaderComponent
 		this.modalReference.result.catch(err => console.log(err));
 	}
 
-	showEditColorItemDialog(coloritems : IColorItemDto[]) {
-		this.currentColorItems = coloritems;
+	showEditColorItemDialog(planOptionDto: IPlanOptionCommunityGridDto) {
+		this.currentColorItems = planOptionDto.colorItem;
+		this.selectedOption = this.planOptionList.find(option => option.id==planOptionDto.optionCommunityId);
+		(planOptionDto.hasConfig ===false && planOptionDto.hasSalesAgreement === false) ? this.canEditName = true : this.canEditName = false
 		this.modalReference = this._modalService.open(this.editColorItemModal);
 		this.modalReference.result.catch(err => console.log(err));
 	}
@@ -400,22 +404,7 @@ export class ColorItemsSearchHeaderComponent
 
 		return from(confirm.result.then((result) => result !== 'Continue'));
 	}
-
-	checkColorItemName(coloritemname: string, optionCommnunityId: number): Observable<IColorItemDto[]>
-	{
-		return this._planService.getPlanOptionsByOption(optionCommnunityId).pipe(
-		filter((res) => !!res),
-		switchMap((res)=>
-		{
-			return this._colorService.getPlanOptionAssocColorItems
-			(this.currentFinancialCommunityId,
-				res.map(planoption => planoption.id),
-				null,
-				coloritemname
-			);
-		})
-		);
-	}
+    
 
 	activateInactivateColorItem(coloritemDto: IColorItemDto[], planOptionDto: IPlanOptionCommunityGridDto, activate: boolean)
 	{
@@ -426,7 +415,7 @@ export class ColorItemsSearchHeaderComponent
 
 		if(!this.selectedAllPlans && !isElevation && !planOptionDto.isBaseHouse)
 		{
-			this.checkColorItemName(coloritemDto[0].name, planOptionDto.optionCommunityId).subscribe((coloritems) =>
+			this._colorService.getColorItemForAssociatedPlans(coloritemDto[0].name, planOptionDto.optionCommunityId, this.currentFinancialCommunityId).subscribe((coloritems) =>
 			{
 				coloritemDto = coloritems;
 				if(activate)
@@ -479,7 +468,7 @@ export class ColorItemsSearchHeaderComponent
 
 			let toast:IToastInfo;
 
-			this._colorService.updateColorItem(colorItemsToUpdate, planOptionDto.planOptionId).subscribe((colorItems) => {
+			this._colorService.updateColorItemIsActiveField(colorItemsToUpdate, planOptionDto.planOptionId).subscribe((colorItems) => {
 				if (colorItems) {
 					toast = {
 						severity: 'success',
@@ -536,7 +525,7 @@ export class ColorItemsSearchHeaderComponent
 
 					colorItemsToUpdate.push(colorItemToSave);
 				})
-				return this._colorService.updateColorItem(colorItemsToUpdate, planOptionDto.planOptionId)
+				return this._colorService.updateColorItemIsActiveField(colorItemsToUpdate, planOptionDto.planOptionId)
 				})).subscribe((colorItems:IColorItemDto[]) => {
 					if (colorItems) {
 						toast = {

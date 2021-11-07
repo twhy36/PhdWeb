@@ -126,7 +126,7 @@
 					class="fa fa-pencil fa-fw"	
 					title="Edit Color Item"	
 					*ngIf="planOptionDto.colorItem[0]?.isActive"
-					(click)="showEditColorItemDialog(planOptionDto.colorItem)">
+					(click)="showEditColorItemDialog(planOptionDto)">
 					</i>
 				</ng-template>
 			</phd-column>
@@ -149,7 +149,7 @@
 	<ng-template #addColorItemModal>
 		<add-color-item-dialog
 			[communityId]="currentFinancialCommunityId"
-			[selectedOption]="currentOption"
+			[selectedOption]="selectedOption"
 			[plansUsedInSearch]="selectedPlans"
 			(dialogWasCanceled)="onAddColorItemDialogWasCanceled()"
 			[allPlans]="planCommunityList"
@@ -161,8 +161,9 @@
 	<ng-template #editColorItemModal>
 		<edit-color-item-dialog
 			[communityId]="currentFinancialCommunityId"
-			[selectedOption]="currentOption"
+			[selectedOption]="selectedOption"
 			[selectedColorItems]="currentColorItems"
+			[canEditName]="canEditName"
 			(dialogWasCanceled)="onEditColorItemDialogWasCanceled()"
 		>
 		</edit-color-item-dialog>

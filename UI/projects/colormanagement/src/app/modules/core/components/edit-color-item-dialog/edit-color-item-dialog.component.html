@@ -9,7 +9,7 @@
 					<div class="phd-color-item-name">
 						<label for="name" class="mt-2">Color Item Name</label>
 						<i class="fa fa-asterisk phd-dialog-asterisk mb-2"></i>
-						<input type="text" id="name" formControlName="name" class="phd-dialogTextBox ml-3" required maxlength="50">
+						<input type="text" id="name" formControlName="name" class="phd-dialogTextBox ml-3" maxlength="50">
 						<div class="phd-color-item-name ml-4">
 							<label class="mt-2" for="name">Option</label>
 							<input [value]="selectedOption.optionSalesName" type="text" id="option" class="phd-dialogTextBox ml-3" disabled >
@@ -50,6 +50,7 @@
 	<div class="modal-footer">
 		<button class="btn btn-primary"
 				type="button"
+				(click)="saveButtonWasClicked()"
 		>
 			Save
 		</button>
