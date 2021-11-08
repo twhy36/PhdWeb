@@ -149,10 +149,11 @@
 		<add-color-item-dialog
 			[communityId]="currentFinancialCommunityId"
 			[selectedOption]="currentOption"
-			[plansUsedInSearch]="selectedPlans"
-			(dialogWasCanceled)="onAddColorItemDialogWasCanceled()"
+			[planIdsUsedInSearch]="selectedPlans"
+			[searchedByAllPlans]="selectedAllPlans"
 			[allPlans]="planCommunityList"
 			[optionsWithColorItemInfo]="optionsWithColorItems"
+			(dialogWasCanceled)="onAddColorItemDialogWasCanceled()"
 			(colorItemSaveAttempted)="colorItemSaveWasAttempted($event)"
 		>
 		</add-color-item-dialog>

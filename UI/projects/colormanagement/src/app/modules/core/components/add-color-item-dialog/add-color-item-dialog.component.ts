@@ -9,6 +9,7 @@ import {
 	IPlanOptionCommunityDto
 } from '../../../shared/models/community.model';
 import {IColorItemDto} from '../../../shared/models/colorItem.model';
+import { PlanOptionService } from '../../services/plan-option.service';
 
 @Component({
   selector: 'add-color-item-dialog',
@@ -26,10 +27,12 @@ export class AddColorItemDialogComponent implements OnInit {
 	selectedPlans: Array<IPlanCommunity> = [];
 	availablePlans: Array<IPlanCommunity> = [];
 	plansAndColorsArePristine = true;
+
 	@Input() allPlans: Array<IPlanCommunity> = [];
 	@Input() communityId: number;
 	@Input() selectedOption: IOptionCommunity;
-	@Input() plansUsedInSearch: Array<number> = [];
+	@Input() planIdsUsedInSearch: Array<number> = [];
+	@Input() searchedByAllPlans: boolean;
 	@Input() optionsWithColorItemInfo: Array<IPlanOptionCommunityDto> = [];
 	@Output() dialogWasCanceled = new EventEmitter();
 	@Output() colorItemSaveAttempted = new EventEmitter<boolean>();
@@ -37,7 +40,8 @@ export class AddColorItemDialogComponent implements OnInit {
 	constructor(
 	  private _modalService: ModalService,
 	  private _fb: FormBuilder,
-	  private _colorService: ColorService
+	  private _colorService: ColorService,
+	  private _planService: PlanOptionService
 	) { }
 
 	ngOnInit(): void {
@@ -51,36 +55,37 @@ export class AddColorItemDialogComponent implements OnInit {
 				}
 			);
 
-		const isElevationOption = [Elevations.AttachedElevation, Elevations.DetachedElevation].includes(this.selectedOption.optionSubCategoryId);
-		const somePlansHaveActiveColorItem = this.optionsWithColorItemInfo.some(x => x.colorItem.isActive);
-		this.allPlans = this.allPlans.filter(x => x.planSalesName.toLowerCase() !== 'all plans');
+		this._planService.getPlanOptionsByOption(this.selectedOption.id).subscribe(result => {
+				const  allOptionRelatedPlanIds = result.map(x => x.planId);
+				const isElevationOption = [Elevations.AttachedElevation, Elevations.DetachedElevation].includes(this.selectedOption.optionSubCategoryId);
+				const somePlansHaveActiveColorItem = this.optionsWithColorItemInfo.some(x => x.colorItem.isActive);
+				let plansLookupList = this.allPlans.filter(x => x.planSalesName.toLowerCase() !== 'all plans');
 
-		//remove any plans that already have an active color item
-		if (isElevationOption && somePlansHaveActiveColorItem)
-		{
-			const plansWithActiveColorItems = this.optionsWithColorItemInfo.filter(x => x.colorItem.isActive).map(x => x.planCommunity);
-			this.allPlans = this.allPlans.filter(ap => plansWithActiveColorItems.every(plan => plan.id !== ap.id));
-		}
+				//remove any plans that already have an active color item
+				if (isElevationOption && somePlansHaveActiveColorItem)
+				{
+					const plansWithActiveColorItems = this.optionsWithColorItemInfo.filter(x => x.colorItem.isActive).map(x => x.planCommunity);
+					plansLookupList = plansLookupList.filter(ap => plansWithActiveColorItems.every(plan => plan.id !== ap.id));
+				}
 
-		const searchedByAllPlans = this.plansUsedInSearch.some(x => x === 0);
+				if (this.searchedByAllPlans)
+				{
+					//find all plans related to the selectedOption and default them to the selected control
+					this.selectedPlans = plansLookupList
+						.filter(plan => this.selectedOption.planOptionCommunities.some(optionPlan => optionPlan.planId === plan.id))
+						.sort((planA, planB) => planA.planSalesName.toLowerCase() > planB.planSalesName.toLowerCase() ? 1 : -1)
+				}
+				else
+				{
+					//find individual plans that were used to search by on the color items page and default them to the selected control
+					this.selectedPlans = plansLookupList
+						.filter(plan => this.planIdsUsedInSearch.some(searchId => searchId === plan.id))
+						.sort((planA, planB) => planA.planSalesName.toLowerCase() > planB.planSalesName.toLowerCase() ? 1 : -1);
 
-		if (searchedByAllPlans)
-		{
-			//find all plans related to the selectedOption and default them to the selected control
-			this.selectedPlans = this.allPlans
-				.filter(plan => this.selectedOption.planOptionCommunities.some(optionPlan => optionPlan.planId === plan.id))
-				.sort((planA, planB) => planA.planSalesName.toLowerCase() > planB.planSalesName.toLowerCase() ? 1 : -1)
-		}
-		else
-		{
-			//find individual plans that were used to search by on the color items page and default them to the selected control
-			this.selectedPlans = this.allPlans
-				.filter(plan => this.plansUsedInSearch.filter(searchId => searchId === plan.id))
-				.sort((planA, planB) => planA.planSalesName.toLowerCase() > planB.planSalesName.toLowerCase() ? 1 : -1);
-
-			const remainingPlans = this.selectedOption.planOptionCommunities.filter(plan => this.selectedPlans.every(sp => sp.id !== plan.planId));
-			this.availablePlans = this.allPlans.filter(plan => remainingPlans.some(rp => plan.id === rp.planId ))
-		}
+					const remainingPlans = allOptionRelatedPlanIds.filter(planId => this.selectedPlans.every(sp => sp.id !== planId));
+					this.availablePlans = plansLookupList.filter(plan => remainingPlans.some(rpId => plan.id === rpId ))
+				}
+			});
 	}
 
 	async cancelButtonWasClicked() {
@@ -127,7 +132,7 @@ export class AddColorItemDialogComponent implements OnInit {
 
 			const item = {
 				colorItemId: 0,
-				name: this.addColorItemForm.get('name').value.toString(),
+				name: this.addColorItemForm.get('name').value.toString().trim(),
 				isActive: true,
 				edhPlanOptionId: planOptionId,
 				colors: this.selectedColors
@@ -148,7 +153,7 @@ export class AddColorItemDialogComponent implements OnInit {
 	{
 		this.isDuplicateName = false;
 		this.noPlansSelected = false;
-		const colorItemName = this.addColorItemForm.get('name').value.toString().toLowerCase();
+		const colorItemName = this.addColorItemForm.get('name').value.toString().toLowerCase().trim();
 
 		if (colorItemName.length === 0)
 		{
