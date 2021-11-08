@@ -1,4 +1,4 @@
-import { NgModule, ModuleWithProviders, InjectionToken } from '@angular/core';
+import { NgModule, ModuleWithProviders } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
@@ -9,9 +9,10 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { DropdownModule } from 'primeng/dropdown';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
 
-import { OAuthModule, OAuthModuleConfig, AuthConfig } from 'angular-oauth2-oidc';
+import { OAuthModule, OAuthModuleConfig } from 'angular-oauth2-oidc';
+import { ApplicationInsights } from '@microsoft/applicationinsights-web';
 
-import { API_URL, WINDOW_ORIGIN } from './injection-tokens';
+import { API_URL, WINDOW_ORIGIN, APP_INSIGHTS_CONFIG } from './injection-tokens';
 import { PhdTableComponent } from './components/table/phd-table.component';
 import { ConfirmModalComponent } from './components/confirm-modal/confirm-modal.component';
 import { SidePanelComponent } from './components/side-panel/side-panel.component';
@@ -27,7 +28,6 @@ import { DragTargetDirective } from './directives/drag-target.directive';
 import { RequiresClaimDirective } from './directives/requires-claim.directive';
 import { ControlDisabledDirective } from './directives/control-disabled.directive';
 import { SpinnerInterceptor } from './services/interceptors/spinner.interceptor';
-import { AuthInterceptor } from './http-interceptors/auth-interceptor';
 import { CanDeactivateGuard } from './guards/can-deactivate.guard';
 import { ClaimGuard } from './guards/claim.guard';
 import { IdentityService } from './services/identity.service';
@@ -38,6 +38,7 @@ import { EllipsisPipe } from './pipes/ellipsis.pipe';
 import { SafeUrlPipe } from './pipes/safe-url.pipe';
 import { MinusSignToParens } from './pipes/minusSignToParens.pipe'; 
 import { PrimeNGCorrectionService } from './services/primeng.service';
+import { initAppInsights, TELEMETRY_INIT } from './utils/appInsights';
 
 export function oAuthModuleConfigFactory(apiUrl: string) {
     return {
@@ -48,6 +49,8 @@ export function oAuthModuleConfigFactory(apiUrl: string) {
         }
     };
 }
+
+
 
 export function getOrigin() {
 	return window.origin;
@@ -109,6 +112,11 @@ export class PhdCommonModule {
         return {
             ngModule: PhdCommonModule,
             providers: [
+				{
+					provide: ApplicationInsights,
+					useFactory: initAppInsights,
+					deps: [APP_INSIGHTS_CONFIG, TELEMETRY_INIT]
+				},
                 CanDeactivateGuard,
                 SpinnerService,
                 {

@@ -17,7 +17,8 @@ export const environment: IEnvironment = {
 		salesTally: 'https://salesportal.pulte.com/salesportal/salestally'
     },
     appInsights: {
-        instrumentationKey: 'f6f360eb-b343-428f-ab2b-c53d417f272e'
+        instrumentationKey: 'f6f360eb-b343-428f-ab2b-c53d417f272e',
+		enableAutoRouteTracking: true
     },
 	production: true,
 	authConfig: {

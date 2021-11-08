@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injector, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Action, Store } from '@ngrx/store';
@@ -6,9 +6,8 @@ import { Action, Store } from '@ngrx/store';
 import { Observable, from, of, timer, never } from 'rxjs';
 import { switchMap, withLatestFrom, share, combineLatest, flatMap, map, take, delay, filter } from 'rxjs/operators';
 
-import { AppInsights } from 'applicationinsights-js';
-
 import * as _ from 'lodash';
+import { ApplicationInsights } from '@microsoft/applicationinsights-web';
 
 import { Plan, DtoScenarioInfo } from 'phd-common';
 
@@ -272,13 +271,14 @@ export class ScenarioEffects {
 				if (state.scenario.tree) {
 
 					if (typeof Worker !== 'undefined') {
-						AppInsights.startTrackEvent(`Calculate Price Ranges - TreeVersionID: ${state.scenario.tree.treeVersion.id}`);
+						const appInsights = this.injector.get(ApplicationInsights);
+						appInsights.startTrackEvent(`Calculate Price Ranges - TreeVersionID: ${state.scenario.tree.treeVersion.id}`);
 						return new Observable<any>(observer => {
 							const worker = new Worker('../../../app.worker', { type: 'module' });
 							worker.onmessage = ({ data }) => {
 								observer.next(data);
 								observer.complete();
-								AppInsights.stopTrackEvent(`Calculate Price Ranges - TreeVersionID: ${state.scenario.tree.treeVersion.id}`);
+								appInsights.stopTrackEvent(`Calculate Price Ranges - TreeVersionID: ${state.scenario.tree.treeVersion.id}`);
 							};
 
 							worker.postMessage({
@@ -306,5 +306,6 @@ export class ScenarioEffects {
 		private orgService: OrganizationService,
 		private planService: PlanService,
 		private store: Store<fromRoot.State>,
-		private router: Router) { }
+		private router: Router,
+		private injector: Injector) { }
 }
