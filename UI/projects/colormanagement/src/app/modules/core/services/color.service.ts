@@ -316,16 +316,28 @@ export class ColorService {
 
 	updateColorItem(colorItemToUpdate: IColorItemDto)
 	{
-		const url = `${environment.apiUrl}colorItems(${colorItemToUpdate.colorItemId})`;
-		 
 		const body = {
 			colorItemId: colorItemToUpdate.colorItemId,
 			name: colorItemToUpdate.name,
 			edhPlanOptionId: colorItemToUpdate.edhPlanOptionId,
-			colors: colorItemToUpdate.colors,
+			colorItemColorAssoc: [],
 			isActive: colorItemToUpdate.isActive
-		} as IColorItemDto;
+		} as IColorItemAssoc;
 
+		if (colorItemToUpdate.colors.length > 0)
+		{
+			colorItemToUpdate.colors.forEach(color => {
+				const colorInfo: IColorItemColorAssoc = {
+					colorId: color.colorId,
+					color: color,
+					colorItemId: colorItemToUpdate.colorItemId
+				};
+
+				body.colorItemColorAssoc.push(colorInfo);
+			});
+		}
+
+		const url = `${environment.apiUrl}colorItems(${colorItemToUpdate.colorItemId})`;
 		return withSpinner(this._http).patch(url, body, { headers: { 'Prefer': 'return=representation' } }).pipe(
 			map(resp => {
 				return resp as IColorItemDto
