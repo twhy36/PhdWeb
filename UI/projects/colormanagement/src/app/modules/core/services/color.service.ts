@@ -316,7 +316,8 @@ export class ColorService {
 
 	updateColorItem(colorItemToUpdate: IColorItemDto)
 	{
-		const body = {
+		const colorItems: IColorItemAssoc[] = [];
+		const item = {
 			colorItemId: colorItemToUpdate.colorItemId,
 			name: colorItemToUpdate.name,
 			edhPlanOptionId: colorItemToUpdate.edhPlanOptionId,
@@ -333,17 +334,25 @@ export class ColorService {
 					colorItemId: colorItemToUpdate.colorItemId
 				};
 
-				body.colorItemColorAssoc.push(colorInfo);
+				item.colorItemColorAssoc.push(colorInfo);
 			});
 		}
+		colorItems.push(item);
 
-		const url = `${environment.apiUrl}colorItems(${colorItemToUpdate.colorItemId})`;
-		return withSpinner(this._http).patch(url, body, { headers: { 'Prefer': 'return=representation' } }).pipe(
-			map(resp => {
-				return resp as IColorItemDto
+		const body = {
+			'editColorItems': colorItems
+		};
+
+		const action = `updateColorItems`;
+		const endpoint = `${environment.apiUrl}${action}`;
+
+		return this._http.post<any>(endpoint, body, { headers: { 'Prefer': 'return=representation' } }).pipe(
+			map(response =>
+			{
+				return response.value;
 			}),
 			catchError(this.handleError)
-		);
+		);		
 	}
 
 	saveColorItem(dtoColorItems: IColorItemDto[]): Observable<IColorItem[]>

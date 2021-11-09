@@ -75,17 +75,10 @@ export class EditColorItemDialogComponent implements OnInit {
 				isActive: colorItemToUpdate.isActive
 			} as IColorItemDto;
 			this._colorService.updateColorItem(colorItemToSave).subscribe((updatedColor) => {
-				// const successful = updatedColor !== undefined && updatedColor !== null;
-	
-				// if (successful) {
-				// 	this.sidePanelIsOpen = false;
-				// 	this._colorAdminService.emitEditingColor(false);
-				// }
-	
-				// this.colorWasEdited.emit(successful);
+			
 			},
 			error => {
-			//	this.colorWasEdited.emit(false);
+			
 			});
 		});
 		
