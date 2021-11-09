@@ -235,15 +235,24 @@ export class JobService
 		);
 	}
 
-	saveFloorPlanImages(jobId: number, floors: { index: number, name: string }[], images: any[])
+	saveFloorPlanImages(jobId: number, floors: { index: number, name: string }[], images: any[]): Observable<FloorPlanImage[]>
 	{
-		var floorPlanImages = floors.map((val, i) =>
+		const floorPlanImages = floors.map((val, i) =>
 		{
-			return { floorName: val.name, floorIndex: val.index, svg: images[i].outerHTML };
+			return { floorName: val.name, floorIndex: val.index, svg: images[i].outerHTML } as FloorPlanImage;
 		});
 
-		this._http.put(`${environment.apiUrl}jobs(${jobId})/floorPlanAttachments`, floorPlanImages)
-			.subscribe();
+		return this._http.put(`${environment.apiUrl}jobs(${jobId})/floorPlanAttachments`, floorPlanImages).pipe(
+			map(() =>
+			{
+				return floorPlanImages;
+			}),
+			catchError(error =>
+			{
+				console.error(error);
+				return _throw(error);
+			})
+		);
 	}
 
 	getFloorPlanImages(jobId: number, isChangeOrder: boolean): Observable<FloorPlanImage[]>
