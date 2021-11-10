@@ -594,6 +594,10 @@ export class ColorItemsSearchHeaderComponent
 		{
 			this.modalReference.dismiss();
 			this.showToast(successful, CrudMode.Add);
+			this.planOptionDtosList = [];
+			this.skip = 0;
+			this.currentPage = 0;
+			this.pageNumber = 1;
 			this.loadColorItemsGrid();
 			return;
 		}
