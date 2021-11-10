@@ -1,6 +1,7 @@
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { cloneDeep } from "lodash";
+import * as moment from "moment";
 import { MessageService } from "primeng/api";
 import { CommunityService } from "../../../core/services/community.service";
 import { OrganizationService } from "../../../core/services/organization.service";
@@ -20,12 +21,14 @@ export class CommunityPdfComponent extends UnsubscribeOnDestroy implements OnIni
 	private _homeWarrantyPdfs: Array<CommunityPdf> = [];
 	private _communityAssociationPdfs: Array<CommunityPdf> = [];
 	private _additionalDocumentPdfs: Array<CommunityPdf> = [];
+	private _includedFeaturesPdfs: Array<CommunityPdf> = [];
 	selectedCommunity: FinancialCommunityViewModel = null;
 	selectedMarket: FinancialMarket = null;
 	allCommunityPdfs: Array<CommunityPdf> = [];
 	homeWarrantyPdfs: Array<CommunityPdf> = [];
 	communityAssociationPdfs: Array<CommunityPdf> = [];
 	additionalDocumentPdfs: Array<CommunityPdf> = [];
+	includedFeaturesPdfs: Array<CommunityPdf> = [];
 	isCanceling: boolean = false;
 	isSorting: boolean = false;
 	isSidePanelOpen: boolean = false;
@@ -89,9 +92,11 @@ export class CommunityPdfComponent extends UnsubscribeOnDestroy implements OnIni
 		this.homeWarrantyPdfs = [];
 		this.communityAssociationPdfs = [];
 		this.additionalDocumentPdfs = [];
+		this.includedFeaturesPdfs = [];
 		this._homeWarrantyPdfs = [];
 		this._communityAssociationPdfs = [];
 		this._additionalDocumentPdfs = [];
+		this._includedFeaturesPdfs = [];
 
 		if (this.selectedMarket !== null && this.selectedCommunity !== null)
 		{
@@ -103,11 +108,14 @@ export class CommunityPdfComponent extends UnsubscribeOnDestroy implements OnIni
 				this.homeWarrantyPdfs = pdfs.filter(x => x.sectionHeader === SectionHeader.HomeWarranty);
 				this.communityAssociationPdfs = pdfs.filter(x => x.sectionHeader === SectionHeader.CommunityAssociation);
 				this.additionalDocumentPdfs = pdfs.filter(x => x.sectionHeader === SectionHeader.AdditionalDocuments);
+				this.includedFeaturesPdfs = pdfs.filter(x => x.sectionHeader === SectionHeader.IncludedFeatures
+					&& (x.expirationDate === null || x.expirationDate === 'null' || x.expirationDate === '' || new Date(moment.parseZone(x.expirationDate).format("M/DD/YYYY")).getTime() > Date.now()));
 
 				// Create a source of truth for when a sort edit is cancelled
 				this._homeWarrantyPdfs = cloneDeep(this.homeWarrantyPdfs);
 				this._communityAssociationPdfs = cloneDeep(this.communityAssociationPdfs);
 				this._additionalDocumentPdfs = cloneDeep(this.additionalDocumentPdfs);
+				this._includedFeaturesPdfs = cloneDeep(this.includedFeaturesPdfs);
 			});
 		}
 	}
@@ -140,6 +148,9 @@ export class CommunityPdfComponent extends UnsubscribeOnDestroy implements OnIni
 				this.additionalDocumentPdfs = this.additionalDocumentPdfs.filter(pdf => pdf.fileName != communityPdf.fileName);
 				this._additionalDocumentPdfs = cloneDeep(this.additionalDocumentPdfs);
 				break;
+			case SectionHeader.IncludedFeatures:
+				this.includedFeaturesPdfs = this.includedFeaturesPdfs.filter(pdf => pdf.fileName != communityPdf.fileName);
+				this._includedFeaturesPdfs = cloneDeep(this.includedFeaturesPdfs);
 		}
 	}
 
@@ -169,6 +180,7 @@ export class CommunityPdfComponent extends UnsubscribeOnDestroy implements OnIni
 		this.homeWarrantyPdfs = cloneDeep(this._homeWarrantyPdfs);
 		this.communityAssociationPdfs = cloneDeep(this._communityAssociationPdfs);
 		this.additionalDocumentPdfs = cloneDeep(this._additionalDocumentPdfs);
+		this.includedFeaturesPdfs = cloneDeep(this._includedFeaturesPdfs);
 		this.isCanceling = true;
 	}
 
@@ -187,6 +199,7 @@ export class CommunityPdfComponent extends UnsubscribeOnDestroy implements OnIni
 		this._homeWarrantyPdfs = cloneDeep(this.homeWarrantyPdfs);
 		this._communityAssociationPdfs = cloneDeep(this.communityAssociationPdfs);
 		this._additionalDocumentPdfs = cloneDeep(this.additionalDocumentPdfs);
+		this._includedFeaturesPdfs = cloneDeep(this.includedFeaturesPdfs);
 	}
 
 	save(formData: FormData)
@@ -194,6 +207,7 @@ export class CommunityPdfComponent extends UnsubscribeOnDestroy implements OnIni
 		formData.set('marketId', this.selectedMarket.id.toString());
 		formData.set('financialCommunityId', this.selectedCommunity.dto.id.toString());
 		formData.set('sortOrder', this.getSortOrder(parseInt(formData.get('sectionHeader').valueOf().toString()) as SectionHeader, formData.get('fileName').valueOf().toString()));
+		formData.set('financialCommunityName', this.selectedCommunity.name);
 
 		this._communityService.saveCommunityPdf(formData)
 			.subscribe(communityPdf =>
@@ -238,6 +252,10 @@ export class CommunityPdfComponent extends UnsubscribeOnDestroy implements OnIni
 				this.additionalDocumentPdfs.push(communityPdf);
 				this._additionalDocumentPdfs = cloneDeep(this.additionalDocumentPdfs);
 				break;
+			case SectionHeader.IncludedFeatures:
+				this.includedFeaturesPdfs = [];
+				this.includedFeaturesPdfs.push(communityPdf);
+				this._includedFeaturesPdfs = cloneDeep(this.includedFeaturesPdfs);
 		}
 	}
 
@@ -246,14 +264,16 @@ export class CommunityPdfComponent extends UnsubscribeOnDestroy implements OnIni
 		switch(sectionHeader)
 		{
 			case SectionHeader.HomeWarranty:
-			const homePdf = this.homeWarrantyPdfs.find(pdf => pdf.fileName === fileName);
-			return (homePdf?.sortOrder ?? this.homeWarrantyPdfs.length + 1).toString();
+				const homePdf = this.homeWarrantyPdfs.find(pdf => pdf.fileName === fileName);
+				return (homePdf?.sortOrder ?? this.homeWarrantyPdfs.length + 1).toString();
 			case SectionHeader.CommunityAssociation:
-			const commPdf = this.communityAssociationPdfs.find(pdf => pdf.fileName === fileName);
-			return (commPdf?.sortOrder ?? this.communityAssociationPdfs.length + 1).toString();
+				const commPdf = this.communityAssociationPdfs.find(pdf => pdf.fileName === fileName);
+				return (commPdf?.sortOrder ?? this.communityAssociationPdfs.length + 1).toString();
 			case SectionHeader.AdditionalDocuments:
-			const addPdf = this.additionalDocumentPdfs.find(pdf => pdf.fileName === fileName);
-			return (addPdf?.sortOrder ?? this.additionalDocumentPdfs.length + 1).toString();
+				const addPdf = this.additionalDocumentPdfs.find(pdf => pdf.fileName === fileName);
+				return (addPdf?.sortOrder ?? this.additionalDocumentPdfs.length + 1).toString();
+			case SectionHeader.IncludedFeatures:
+				return '1';
 		}
 	}
 }

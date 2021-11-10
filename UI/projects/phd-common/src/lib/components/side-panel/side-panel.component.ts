@@ -13,6 +13,7 @@ import { ConfirmModalComponent } from '../confirm-modal/confirm-modal.component'
 
 export class SidePanelComponent {
 	@Output() onSidePanelClose = new EventEmitter<boolean>();
+	@Output() onSidePanelConfirmed = new EventEmitter<boolean>();
 	@Input() sidePanelOpen: boolean = false;
 	@Input() customClasses: string = '';
 
@@ -20,7 +21,8 @@ export class SidePanelComponent {
 	@Input() subheaderTemplate: TemplateRef<any>;
 	@Input() bodyTemplate: TemplateRef<any>;
 	@Input() footerTemplate: TemplateRef<any>;
-    @Input() isDirty: boolean;
+  @Input() isDirty: boolean;
+	@Input() customMsgBody: string;
 
 	constructor(private _modalService: NgbModal) { }
 
@@ -33,7 +35,7 @@ export class SidePanelComponent {
 		}
 	}
 
-    showNavAway() {
+  showNavAway() {
 		let msgBody = `If you continue you will lose your changes.<br><br> `;
 		msgBody += `Do you wish to continue?`;
 
@@ -47,9 +49,20 @@ export class SidePanelComponent {
 			if (result == 'Continue') {
 				this.onSidePanelClose.emit(!this.sidePanelOpen);
 			}
-		}, (reason) => {
+		}, (reason) => {} );  
+	}
 
-            });
-        
+	showCustomConfirm() {
+		let confirm = this._modalService.open(ConfirmModalComponent, { centered: true });
+
+		confirm.componentInstance.title = 'Attention!';
+		confirm.componentInstance.body = this.customMsgBody;
+		confirm.componentInstance.defaultOption = 'Cancel';
+
+		confirm.result.then((result) => {
+			if (result == 'Continue') {
+				this.onSidePanelConfirmed.emit(!this.sidePanelOpen);
+			}
+		}, (reason) => {} );  
 	}
 }
