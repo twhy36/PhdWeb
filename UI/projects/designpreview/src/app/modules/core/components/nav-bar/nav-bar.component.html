@@ -12,7 +12,8 @@
 		<div *ngIf="!(isTablet$ | async)" class="col-6 d-flex ml-auto phd-menu-options">
 			<div>
 				<a [routerLink]="['/favorites/summary']"
-				   [routerLinkActive]="['phd-active-link-full']">
+				   [routerLinkActive]="['phd-active-link-full']"
+				   (click)="toFavoritesPage ? onViewFavorites() : false">
 					My Favorites
 				</a>
 			</div>

@@ -9,6 +9,11 @@
 			<i class="fa fa-print fa-2x"></i>
 			<span class="align-self-center">Print</span>
 		</div>
+
+		<div *ngIf="showFavorites" class="d-flex phd-clickable" (click)="onViewFavorites()">
+			<i class="fa fa-list-alt fa-2x"></i>
+			<span class="align-self-center">My Favorites</span>
+		</div>
 	</div>
 
 	<div *ngIf="primaryAction" class="d-flex flex-row align-items-end">
