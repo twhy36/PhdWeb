@@ -102,19 +102,19 @@
 				</ng-template>
 			</phd-column>
 			<phd-column field="isActive" columnClass="phd-icon">
-				<ng-template #body let-planOptionDto>
+				<ng-template #body let-planOptionDto let-rowIndex="rowIndex">
 						<i
 						class="fa fa-fw fa-repeat text-success"
 						title="Reactivate Color Item"
 						*ngIf="!planOptionDto.colorItem[0]?.isActive"
-						(click)="activateInactivateColorItem(planOptionDto.colorItem, planOptionDto,true)"
+						(click)="activateInactivateColorItem(planOptionDto.colorItem, planOptionDto,true,rowIndex)"
 						>
 						</i>
 						<i
 						class="fa fa-fw fa-undo text-danger"
 						title="Inactivate Color Item"
 						*ngIf="planOptionDto.colorItem[0]?.isActive"
-						(click)="activateInactivateColorItem(planOptionDto.colorItem, planOptionDto,false)"
+						(click)="activateInactivateColorItem(planOptionDto.colorItem, planOptionDto,false,rowIndex)"
 						>
 						</i>
 				</ng-template>

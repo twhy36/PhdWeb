@@ -292,7 +292,7 @@ export class ColorService {
 		);
 	}
 
-	updateColorItem(colorItemToUpdate: IColorItemDto[],rowId:number): Observable<IColorItemDto[]>
+	updateColorItem(colorItemToUpdate: IColorItemDto[]): Observable<IColorItemDto[]>
 	{
 		return this.identityService.token.pipe(
 			switchMap((token: string) =>
