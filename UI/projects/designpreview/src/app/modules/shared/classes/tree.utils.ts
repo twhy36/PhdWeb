@@ -705,17 +705,26 @@ export function mergeLocations(locations: Array<any>, missingLocations: Array<De
 // Choice-To-Choice Structural Items
 export function hideChoicesByStructuralItems(choiceRules: ChoiceRules[], choices: Choice[], points: DecisionPoint[], hiddenChoiceIds: number[], hiddenPointIds: number[]) {
 	choiceRules.forEach(cr => {
+		let numOrRules = cr.rules.length;
+		let numBlocked = 0;
 		cr.rules.forEach(r => {
+			let numAndBlocked = 0;
 			r.choices.forEach(ch => {
 				const choice = r.ruleType === 1 ? choices.find(c => c.id === ch && c.quantity === 0) : choices.find(c => c.id === ch && c.quantity > 0);
 				if (choice) {
 					const dp = points.find(p => p.choices.findIndex(c => c.id === ch) >= 0);
 					if (dp.isStructuralItem && hiddenChoiceIds.indexOf(cr.choiceId) < 0) {
-						hiddenChoiceIds.push(cr.choiceId);
+						numAndBlocked++;
 					}
 				}
 			})
+			if (numAndBlocked > 0) {
+				numBlocked++;
+			}
 		})
+		if (numOrRules === numBlocked) {
+			hiddenChoiceIds.push(cr.choiceId);
+		}
 	})
 	let hiddenChoicesFound = false;
 	while (!hiddenChoicesFound) {
@@ -746,6 +755,9 @@ export function hideChoicesByStructuralItems(choiceRules: ChoiceRules[], choices
 
 // Point-To-Choice && Point-To-Point Structural Items
 export function hidePointsByStructuralItems(pointRules: PointRules[], choices: Choice[], points: DecisionPoint[], hiddenChoiceIds: number[], hiddenPointIds: number[]) {
+	// cr.choiceId is the affected choice
+		// cr.rules = number of rules for choice, these are all ORS
+		// r.choices are the affecting choice per rule, if multiple choices, its an AND
 	pointRules.forEach(pr => {
     // Must Have Rules
     const dpToChoiceRules = pr.rules.filter(r => r.ruleType === 1 && r.choices.length > 0);
