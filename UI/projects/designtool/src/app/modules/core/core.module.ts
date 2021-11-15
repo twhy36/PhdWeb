@@ -99,7 +99,7 @@ import { ApplicationInsights } from '@microsoft/applicationinsights-web';
 		NotificationService,
 		FavoriteService,
 		LiteService,
-		{ provide: ErrorHandler, useClass: PhdErrorHandler, deps: [ApplicationInsights] }
+		{ provide: ErrorHandler, useClass: PhdErrorHandler, deps: [LoggingService] }
 	]
 })
 export class CoreModule { }
