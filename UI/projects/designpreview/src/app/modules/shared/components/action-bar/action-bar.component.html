@@ -9,6 +9,11 @@
 			<i class="fa fa-print fa-2x"></i>
 			<span class="align-self-center">Print</span>
 		</div>
+
+		<div *ngIf="showFavorites" class="d-flex phd-clickable" (click)="onViewFavorites()">
+			<i class="fa fa-list-alt fa-2x"></i>
+			<span class="align-self-center">My Favorites</span>
+		</div>
 	</div>
 
 	<div *ngIf="primaryAction" class="d-flex flex-row align-items-end">
@@ -18,7 +23,7 @@
 		</div>
 	</div>
 	<div *ngIf="primaryAction" class="d-flex flex-row align-items-end">
-		<div class="d-flex flex-column">
+		<div class="d-flex flex-column align-items-end">
 			<span *ngIf="!isDesignComplete" class="phd-price">{{ favoritesPrice | currency:'USD':'symbol':'0.0-0' }}</span>
 			<span class="phd-price">{{ price | currency:'USD':'symbol':'0.0-0' }}</span>
 		</div>

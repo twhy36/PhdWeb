@@ -14,6 +14,7 @@ import { ManageFavoritesComponent } from './components/manage-favorites/manage-f
 import { MyFavoritesComponent } from './components/my-favorites/my-favorites.component';
 import { NormalExperienceComponent } from './components/my-favorites/normal-experience/normal-experience.component';
 import { FavoritesSummaryComponent } from './components/favorites-summary/favorites-summary.component';
+import { ContractedSummaryComponent } from './components/contracted-summary/contracted-summary.component';
 import { SummaryHeaderComponent } from './components/favorites-summary/summary-header/summary-header.component';
 import { FloorPlanExperienceComponent } from './components/my-favorites/floor-plan-experience/floor-plan-experience.component';
 
@@ -38,6 +39,11 @@ const moduleRoutes: Routes = [
 				canActivate: [ExternalGuard]  
 			},
 			{ 
+				path: 'contracted', 
+				component: ContractedSummaryComponent, 
+				canActivate: [ExternalGuard]  
+			},
+			{ 
 				path: 'favorites/my-favorites/:favoritesId/:subGroupCatalogId', 
 				component: MyFavoritesComponent, 
 				canActivate: [ExternalGuard]  
@@ -57,6 +63,7 @@ const moduleRoutes: Routes = [
 		MyFavoritesComponent,
 		NormalExperienceComponent,
 		FavoritesSummaryComponent,
+		ContractedSummaryComponent,
 		SummaryHeaderComponent,
 		FloorPlanExperienceComponent
     ],
@@ -65,6 +72,7 @@ const moduleRoutes: Routes = [
 		MyFavoritesComponent,
 		NormalExperienceComponent,
 		FavoritesSummaryComponent,
+		ContractedSummaryComponent,
 		SummaryHeaderComponent,
 		FloorPlanExperienceComponent
     ],

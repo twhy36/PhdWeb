@@ -126,7 +126,7 @@ export class PlanOptionService {
 	getPlanOptionsByOption(optionCommunityId: number): Observable<IPlanOptionCommunity[]>
 	{
 		const entity = `planOptionCommunities`;
-		const select = `Id`;
+		const select = `Id,planId`;
 		const filter = `optionCommunityId eq ${optionCommunityId} `
 		let qryStr = `${this._ds}select=${encodeURIComponent(select)}&${this._ds}filter=${encodeURIComponent(filter)}`;
 		const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;

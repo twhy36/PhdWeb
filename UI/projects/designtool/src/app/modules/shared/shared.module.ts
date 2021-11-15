@@ -53,6 +53,7 @@ import { PriceRangePipe } from './pipes/priceRange.pipe';
 
 import { PhoneNumberDirective } from './directives';
 import { InputFilterDirective } from './directives/input-filter.directive';
+import { FloorPlanComponent } from './components/floor-plan/floor-plan.component';
 
 @NgModule({
     exports: [
@@ -93,7 +94,8 @@ import { InputFilterDirective } from './directives/input-filter.directive';
 		InputFilterDirective,
 		DistributionListComponent,
 		ContactFullNamePipe,
-		PriceRangePipe
+		PriceRangePipe,
+		FloorPlanComponent
     ],
     declarations: [
         AttributeListComponent,
@@ -134,7 +136,8 @@ import { InputFilterDirective } from './directives/input-filter.directive';
 		InputFilterDirective,
 		DistributionListComponent,
 		ContactFullNamePipe,
-		PriceRangePipe
+		PriceRangePipe,
+		FloorPlanComponent
     ],
     imports: [
         BrowserAnimationsModule,

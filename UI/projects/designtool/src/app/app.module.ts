@@ -18,7 +18,7 @@ import { never, of } from 'rxjs';
 export const cloudinary = { Cloudinary: CloudinaryCore };
 export const config: CloudinaryConfiguration = environment.cloudinary;
 
-import { PhdCommonModule, IdentityService, AUTH_CONFIG } from 'phd-common';
+import { PhdCommonModule, IdentityService, AUTH_CONFIG, APP_INSIGHTS_CONFIG, TELEMETRY_INIT, setClientApp } from 'phd-common';
 
 import { CoreModule } from './modules/core/core.module';
 import { ChangeOrdersModule } from './modules/change-orders/change-orders.module';
@@ -87,7 +87,9 @@ export function getBaseHref(platformLocation: PlatformLocation): string
         { provide: APP_INITIALIZER, useFactory: appInitializerFn, deps: [IdentityService], multi: true },
         { provide: APP_BASE_HREF, useFactory: getBaseHref, deps: [PlatformLocation] },
         { provide: NgbDateParserFormatter, useClass: NgbDateCustomParserFormatter },
-		{ provide: AUTH_CONFIG, useValue: environment.authConfig }
+		{ provide: AUTH_CONFIG, useValue: environment.authConfig },
+        { provide: APP_INSIGHTS_CONFIG, useValue: environment.appInsights },
+        { provide: TELEMETRY_INIT, useValue: setClientApp("Design Tool")}
     ],
     bootstrap: [AppComponent]
 })

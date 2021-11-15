@@ -12,27 +12,27 @@
 		<div *ngIf="!(isTablet$ | async)" class="col-6 d-flex ml-auto phd-menu-options">
 			<div>
 				<a [routerLink]="['/favorites/summary']"
-				   [routerLinkActive]="['phd-active-link-full']">
+				   [routerLinkActive]="['phd-active-link-full']"
+				   (click)="toFavoritesPage ? onViewFavorites() : false">
 					My Favorites
 				</a>
 			</div>
 		</div>
-		<!-- Need to remove (isTablet$ | async) from hamburger div once at least 2 link pages are active -->
-		<div *ngIf="(isTablet$ | async)" class="phd-menu-bars">
+		<div class="phd-menu-bars">
 			<i *ngIf="isMenuCollapsed" class="fa fa-bars fa-2x" (click)="isMenuCollapsed = !isMenuCollapsed"></i>
 			<i *ngIf="!isMenuCollapsed" class="fa fa-times fa-2x" (click)="isMenuCollapsed = !isMenuCollapsed"></i>
 		</div>
 	</div>
 </nav>
 
-<!-- Need to remove (isTablet$ | async) from dropdown div once at least 2 link pages are active -->
-<div *ngIf="!isMenuCollapsed && (isTablet$ | async)" class="phd-collapsable-menu">
+<div *ngIf="!isMenuCollapsed" class="phd-collapsable-menu">
 	<div [class.phd-active-link-collapsed]="currentRoute?.startsWith('/favorites/summary')">
 		<a *ngIf="(isTablet$ | async)" [routerLink]="['/favorites/summary']">My Favorites</a>
 		<!-- Send these links to their proper pages, uncomment as needed -->
 		<!-- <a [routerLink]="['/home']">Floorplan</a> -->
-		<!-- <a [routerLink]="['/home']">Contracted Options</a> -->
-		<!-- <a [routerLink]="['/home']">Instructions</a> -->
+		<a *ngIf="showContractedOptionsLink" [routerLink]="['/contracted']">Contracted Options</a>
+		<a *ngIf="!showContractedOptionsLink" class="phd-contracted-link-banned">Contracted Options</a>
+		<!-- <a [routerLink]="['/home']">FAQ</a> -->
 		<!-- Send these links to their proper pages -->
 	</div>
 </div>

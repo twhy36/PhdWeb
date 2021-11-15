@@ -43,7 +43,7 @@ export function reducer(state: State = initialState, action: Action): State
 						&& nonSalesChangeOrders[0].jobChangeOrderTypeDescription !== 'SalesJIO';
 
 				}
-				let newBuyers = saAction.salesAgreement.status === 'Pending' || isPendingChangeOrder ? mergeSalesChangeOrderBuyers(saAction.salesAgreement.buyers, newCurrentChangeOrder) : [];
+				let newBuyers = saAction.salesAgreement.status !== 'Approved' || isPendingChangeOrder ? mergeSalesChangeOrderBuyers(saAction.salesAgreement.buyers, newCurrentChangeOrder) : [];
 
 				let newChangeOrder = {
 					...state,

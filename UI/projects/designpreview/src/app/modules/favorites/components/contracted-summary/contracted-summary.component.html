@@ -1,23 +1,8 @@
-<div>
-	<group-bar [communityName]="communityName"
-			   [planName]="planName"
-			   [groups]="groups"
-			   (onSubgroupSelected)="onSubgroupSelected($event)">
-	</group-bar>
-</div>
-
 <div class="d-flex">
-	<div class="phd-favorites-summary">
-		<summary-header [summaryHeader]="summaryHeader"
-						[priceBreakdown]="priceBreakdown"
-						[includeContractedOptions]="includeContractedOptions"
-						[isPreview]="isPreview"
-						[isDesignComplete]="isDesignComplete"
-						(isStickyChanged)="onIsStickyChanged($event)"
-						(contractedOptionsToggled)="onContractedOptionsToggled()">
-		</summary-header>
+	<div class="phd-contracted-summary">
+		<strong class="phd-contracted-title">Contracted Options</strong>
 
-		<div class="tree-view" [class.phd-is-sticky]="isSticky">
+		<div class="tree-view">
 			<ng-container *ngFor="let group of groups">
 				<div class="group" *ngIf="group.subGroups.length > 0">
 					<div class="label">
@@ -37,11 +22,9 @@
 													[subGroup]="subGroup"
 													[group]="group"
 													[salesChoices]="salesChoices"
-													[includeContractedOptions]="includeContractedOptions"
 													[buildMode]="buildMode"
 													[isDesignComplete]="isDesignComplete"
-													(onViewFavorites)="onViewFavorites($event)"
-													(onRemoveFavorites)="onRemoveFavorites($event)">
+													[contractedOptionsPage]="true">
 							</decision-point-summary>
 						</ng-container>
 					</div>								
@@ -54,9 +37,6 @@
 <action-bar [primaryAction]="'Back'"
 			[favoritesPrice]="priceBreakdown.favoritesPrice"
 			[price]="priceBreakdown.totalPrice"
-			[showPrint]="true"
-			[showFavorites]="false"
 			[isDesignComplete]="isDesignComplete"
-			(callToAction)="onBack()"
-			(onPrintAction)="onPrint()">
+			(callToAction)="onBack()">
 </action-bar>
