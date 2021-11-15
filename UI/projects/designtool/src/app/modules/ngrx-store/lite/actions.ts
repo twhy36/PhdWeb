@@ -1,12 +1,14 @@
 import { Action } from '@ngrx/store';
-import { LitePlanOption, ScenarioOption } from '../../shared/models/lite.model';
+import { LitePlanOption, ScenarioOption, ScenarioOptionColor, ScenarioOptionColorDto } from '../../shared/models/lite.model';
 
 export enum LiteActionTypes {
     SetIsPhdLite = 'Set Is Phd Lite',
     LiteOptionsLoaded = 'Lite Options Loaded',
     SelectOptions = 'Select Options',
     SaveScenarioOptions = 'Select Scenario Options',
-    ScenarioOptionsSaved = 'Scenario Options Saved'
+    ScenarioOptionsSaved = 'Scenario Options Saved',
+    SelectOptionColors = 'Select Option Colors',
+    SaveScenarioOptionColors = 'Select Scenario Option Colors',
 }
 
 export class SetIsPhdLite implements Action {
@@ -39,9 +41,23 @@ export class ScenarioOptionsSaved implements Action {
     constructor(public scenarioOptions: ScenarioOption[]) { }
 }
 
+export class SelectOptionColors implements Action {
+    readonly type = LiteActionTypes.SelectOptionColors;
+
+    constructor(public optionColors: ScenarioOptionColorDto[]) { }
+}
+
+export class SaveScenarioOptionColors implements Action {
+    readonly type = LiteActionTypes.SaveScenarioOptionColors;
+
+    constructor(public optionColors: ScenarioOptionColorDto[]) { }
+}
+
 export type LiteActions =
     SetIsPhdLite |
     LiteOptionsLoaded |
     SelectOptions |
     SaveScenarioOptions |
-    ScenarioOptionsSaved;
+    ScenarioOptionsSaved |
+    SelectOptionColors |
+    SaveScenarioOptionColors;

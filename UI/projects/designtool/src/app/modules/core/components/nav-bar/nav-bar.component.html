@@ -110,9 +110,9 @@
 		<ng-container *ngIf="selectedPlanId && (isPhdLite$ | async)">
 			<phd-nav-menu-item 
 				label="Exterior"
-				[status]="(isElevationSelected$ | async) ? PointStatus.PARTIALLY_COMPLETED : PointStatus.REQUIRED"
+				[status]="exteriorStatus"
 				[showStatusIndicator]="showStatusIndicator$ | async"
-				[isActive]="currentRoute?.startsWith('/lite/elevation')"
+				[isActive]="currentRoute?.startsWith('/lite/elevation') || currentRoute?.startsWith('/lite/color-scheme')"
 				[ngClass]="(isTablet$ | async) && invertHamburgerMenuColor ? 'phd-menu-item-color' : null"
 				(click)="onExteriorPath()">
 			</phd-nav-menu-item>
