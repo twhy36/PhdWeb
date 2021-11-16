@@ -35,7 +35,7 @@ export class ContractService
 	getTemplates(marketId: number, financialCommunityId: number): Observable<Array<Template>>
 	{
 		const entity = `contractTemplates`;
-		const filter = `org/edhMarketId eq ${marketId} and templateFinancialCommunityAssocs/any(c: c/org/edhFinancialCommunityId eq ${financialCommunityId}) and status eq 'In Use'`;
+		const filter = `org/edhMarketId eq ${marketId} and templateFinancialCommunityAssocs/any(c: c/org/edhFinancialCommunityId eq ${financialCommunityId}) and status eq 'In Use' and isPhd eq true`;
 		const orderBy = `orderby=displayOrder`;
 		const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}${encodeURIComponent(orderBy)}`;
 		const url = `${environment.apiUrl}${entity}?${qryStr}`;
