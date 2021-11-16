@@ -50,7 +50,8 @@ export class ViewContractsSidePanelComponent implements OnInit
 	public templateTypes: Array<ITemplateType> = [
 		{ label: 'Sales Agreement', value: 'SalesAgreement', id: 1 },
 		{ label: 'Addendum', value: 'Addendum', id: 2 },
-		{ label: 'Cancel Form', value: 'CancelForm', id: 3 }
+		{ label: 'Cancel Form', value: 'CancelForm', id: 3 },
+		{ label: 'Consent to do Business Electronically', id: 5 }
 	];
 
 	public addendaTypes: Array<ITemplateType> = [
@@ -229,6 +230,10 @@ export class ViewContractsSidePanelComponent implements OnInit
 			})
 		).subscribe(data =>
 		{
+			// Enable these so the as ContractTemplate cast properly picks up these to form values
+			this.viewContractsForm.get('isPhd').enable();
+			this.viewContractsForm.get('isTho').enable();
+
 			this.onSave.emit(this.viewContractsForm.value as ContractTemplate);
 		},
 		error =>
@@ -260,12 +265,22 @@ export class ViewContractsSidePanelComponent implements OnInit
 
 	updateSelection()
 	{
+		this.viewContractsForm.get('isPhd').enable();
+		this.viewContractsForm.get('isTho').enable();
 		this.selectedTemplateTypeId = this.viewContractsForm.get('templateTypeId').value;
-		const isPhd = this.viewContractsForm.get('isPhd').value;
-		const isTho = this.viewContractsForm.get('isTho').value;
 
 		if (this.selectedTemplateTypeId !== 2)
 		{
+			// If template is Consent to do Business Electronically, force it to be THO only
+			if (this.selectedTemplateTypeId === 5)
+			{
+				this.viewContractsForm.get('isPhd').setValue(false);
+				this.viewContractsForm.get('isTho').setValue(true);
+				this.viewContractsForm.get('isPhd').disable();
+				this.viewContractsForm.get('isTho').disable();
+			}
+			const isPhd = this.viewContractsForm.get('isPhd').value;
+			const isTho = this.viewContractsForm.get('isTho').value;
 			this._contractService.getCommunitiesWithExistingTemplate(this.currentMktId, this.selectedTemplateTypeId, isPhd, isTho)
 				.subscribe(data =>
 				{
@@ -398,7 +413,12 @@ export class ViewContractsSidePanelComponent implements OnInit
 	{
 		const items = this.selectedCommunities;
 
-		if (tag)
+		// If it is currently an active Consent to do Business Electronically don't add
+		if (this.selected && this.selected.templateTypeId === 5 && this.selected.status === 'In Use' && tag)
+		{
+			this._msgService.add({ severity: 'error', summary: 'Error', detail: 'Cannot unassign community from \'In-Use\' document.' });
+		}
+		else if (tag)
 		{
 			const index = items.indexOf(tag);
 
