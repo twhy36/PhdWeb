@@ -7,7 +7,7 @@ import { environment } from '../../../environments/environment';
 import { reducers } from './reducers';
 
 // meta-reducers
-import { stopwatchReducerFactory } from './stopwatch';
+import { LoggingEffects } from 'phd-common';
 import { sessionStateReducer } from './sessionStorage';
 import { stateReset } from './state-reset';
 import { exceptionHandlerFactory } from './exceptionHandler';
@@ -52,7 +52,8 @@ import { LoggingService } from '../core/services/logging.service';
 			CommonEffects,
 			UserEffects,
 			FavoriteEffects,
-			LiteEffects
+			LiteEffects,
+			LoggingEffects
 		]
 		)
 	],
@@ -61,12 +62,6 @@ import { LoggingService } from '../core/services/logging.service';
 			provide: META_REDUCERS,
 			deps: [LoggingService],
 			useFactory: exceptionHandlerFactory,
-			multi: true
-		},
-		{
-			provide: META_REDUCERS,
-			deps: [Injector],
-			useFactory: stopwatchReducerFactory,
 			multi: true
 		}
 	]

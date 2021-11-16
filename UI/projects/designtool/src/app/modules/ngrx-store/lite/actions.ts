@@ -1,3 +1,4 @@
+import { Log } from 'phd-common';
 import { Action } from '@ngrx/store';
 import { LitePlanOption, ScenarioOption, ScenarioOptionColor, ScenarioOptionColorDto } from '../../shared/models/lite.model';
 
@@ -11,30 +12,35 @@ export enum LiteActionTypes {
     SaveScenarioOptionColors = 'Select Scenario Option Colors',
 }
 
+@Log(true)
 export class SetIsPhdLite implements Action {
     readonly type = LiteActionTypes.SetIsPhdLite;
 
     constructor(public isPhdLite: boolean) { }
 }
 
+@Log()
 export class LiteOptionsLoaded implements Action {
     readonly type = LiteActionTypes.LiteOptionsLoaded;
 
     constructor(public options: LitePlanOption[], public scenarioOptions: ScenarioOption[]) { }
 }
 
+@Log(true)
 export class SelectOptions implements Action {
     readonly type = LiteActionTypes.SelectOptions;
 
     constructor(public scenarioOptions: ScenarioOption[]) { }
 }
 
+@Log()
 export class SaveScenarioOptions implements Action {
     readonly type = LiteActionTypes.SaveScenarioOptions;
 
     constructor(public scenarioOptions: ScenarioOption[]) { }
 }
 
+@Log()
 export class ScenarioOptionsSaved implements Action {
     readonly type = LiteActionTypes.ScenarioOptionsSaved;
 

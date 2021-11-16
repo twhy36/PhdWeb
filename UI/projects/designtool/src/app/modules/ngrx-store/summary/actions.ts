@@ -1,5 +1,5 @@
 import { Action } from '@ngrx/store';
-import { ChangeOrderHanding } from 'phd-common';
+import { ChangeOrderHanding, Log } from 'phd-common';
 import { PointStatusFilter } from '../../shared/models/decisionPointFilter';
 
 export enum SummaryActionTypes {
@@ -13,6 +13,7 @@ export class SetPointStatusFilter implements Action {
 	constructor(public pointStatusFilter: PointStatusFilter) { }
 }
 
+@Log(true)
 export class SetHanding implements Action {
 	readonly type = SummaryActionTypes.SetHanding;
 
