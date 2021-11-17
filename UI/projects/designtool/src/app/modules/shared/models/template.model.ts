@@ -18,8 +18,7 @@ export enum TemplateTypeEnum {
 	"Sales Agreement" = 1,
 	"Addendum" = 2,
 	"Cancel Form" = 3,
-	"JIO" = 4,
-	"Consent to do Business Electronically" = 5
+	"JIO" = 4
 }
 
 export interface ITemplateInfo {

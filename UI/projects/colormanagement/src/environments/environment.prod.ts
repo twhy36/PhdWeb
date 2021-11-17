@@ -4,8 +4,7 @@ export const environment: IEnvironment = {
     apiUrl: 'https://phdapi.pulte.com/odata/',
     authQueryParams: "domain_hint=pulte.com",
     appInsights: {
-        instrumentationKey: 'f6f360eb-b343-428f-ab2b-c53d417f272e',
-		enableAutoRouteTracking: true
+        instrumentationKey: 'f6f360eb-b343-428f-ab2b-c53d417f272e'
     },
 	production: true,
 	authConfig: {

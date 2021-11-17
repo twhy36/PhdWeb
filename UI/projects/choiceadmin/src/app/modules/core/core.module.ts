@@ -75,7 +75,7 @@ import { PhdCommonModule } from 'phd-common';
 		LoadingService,
 		CanDeactivateGuard,
 		ModalService,
-		{ provide: ErrorHandler, useClass: PhdErrorHandler, deps: [LoggingService] }
+		{ provide: ErrorHandler, useClass: PhdErrorHandler }
 	]
 })
 export class CoreModule { }

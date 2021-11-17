@@ -1,5 +1,5 @@
 import { Action } from '@ngrx/store';
-import { Lot, LotExt, MonotonyRule, Log } from 'phd-common';
+import { Lot, LotExt, MonotonyRule } from 'phd-common';
 import { ErrorAction } from '../error.action';
 import { SalesAgreementLoaded, JobLoaded, ScenarioLoaded } from '../actions';
 
@@ -16,7 +16,6 @@ export enum LotActionTypes
 	MonotonyRulesLoaded = 'MonotonyRulesLoaded'
 }
 
-@Log(true, [LotActionTypes.LotsLoaded, LotActionTypes.LoadError])
 export class LoadLots implements Action
 {
 	readonly type = LotActionTypes.LoadLots;
@@ -38,7 +37,6 @@ export class LoadError extends ErrorAction
 	constructor(public error: Error, public friendlyMessage?: string) { super(error, friendlyMessage); }
 }
 
-@Log(true)
 export class SelectLot implements Action
 {
 	readonly type = LotActionTypes.SelectLot;
@@ -46,14 +44,12 @@ export class SelectLot implements Action
 	constructor(public id: number) { }
 }
 
-@Log(true)
 export class SelectedLotLoaded implements Action {
 	readonly type = LotActionTypes.SelectedLotLoaded;
 
 	constructor(public selectedLot: LotExt) { }
 }
 
-@Log(true)
 export class SelectHanding implements Action
 {
 	readonly type = LotActionTypes.SelectHanding;
@@ -61,7 +57,6 @@ export class SelectHanding implements Action
 	constructor(public lotId: number, public handing: string) { }
 }
 
-@Log()
 export class DeselectLot implements Action
 {
 	readonly type = LotActionTypes.DeselectLot;
@@ -69,14 +64,12 @@ export class DeselectLot implements Action
 	constructor() { }
 }
 
-@Log(true)
 export class LoadMonotonyRules implements Action {
 	readonly type = LotActionTypes.LoadMonotonyRules;
 
 	constructor(public salesCommunityId: number) { }
 }
 
-@Log()
 export class MonotonyRulesLoaded implements Action {
 	readonly type = LotActionTypes.MonotonyRulesLoaded;
 

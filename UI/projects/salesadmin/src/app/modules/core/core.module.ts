@@ -23,7 +23,6 @@ import { StorageService } from './services/storage.service';
 import { LoggingService, PhdErrorHandler } from './services/logging.service';
 import { PhdCommonModule } from 'phd-common';
 import { ReOrgService } from './services/re-org.service';
-import { CatalogService } from './services/catalog.service';
 
 @NgModule({
     exports: [
@@ -43,7 +42,6 @@ import { CatalogService } from './services/catalog.service';
 		PhdCommonModule
     ],
 	providers: [
-        CatalogService,
 		ContractService,
         HomeSiteService,
         OrganizationService,
@@ -58,7 +56,7 @@ import { CatalogService } from './services/catalog.service';
         NotificationService,
         CommunityService,
         ReOrgService,
-		{ provide: ErrorHandler, useClass: PhdErrorHandler, deps: [LoggingService] }
+		{ provide: ErrorHandler, useClass: PhdErrorHandler }
     ]
 })
 export class CoreModule { }

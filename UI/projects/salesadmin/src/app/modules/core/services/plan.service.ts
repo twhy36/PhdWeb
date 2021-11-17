@@ -7,7 +7,7 @@ import { catchError, map } from 'rxjs/operators';
 
 import { SettingsService } from './settings.service';
 
-import { IPlanDto, Plan } from '../../shared/models/plan.model';
+import { IPlanDto } from '../../shared/models/plan.model';
 import { Settings } from '../../shared/models/settings.model';
 
 const settings: Settings = new SettingsService().getSettings();
@@ -41,36 +41,12 @@ export class PlanService
 			catchError(this.handleError));
 	}
 
-	getPlans(orgID: number): Observable<Array<Plan>>
-	{
-		let url = settings.apiUrl;
-
-		let filter = `communityId eq ${orgID}`;
-		url += `plans?${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}`;
-
-		return this._http.get(url).pipe(
-			map((response: any) =>
-			{
-				let retVal = response.value.map(data =>
-				{
-					return {
-						planID: data.planID,
-						communityID: data.communityID,
-						integrationKey: data.integrationKey
-					}
-				});
-
-				return retVal as Array<Plan>;
-			}),
-			catchError(this.handleError));
-	}
-
 	private mapPlans(data: any, financialCommunityId: number): IPlanDto
 	{
 		return {
 			id: data.id,
-			salesName: data.planSalesName,
-			integrationKey: data.financialPlanIntegrationKey,
+            salesName: data.planSalesName,
+            integrationKey: data.financialPlanIntegrationKey,
 			numBed: data.bedrooms,
 			numFullBath: data.fullBaths,
 			numHalfBath: data.halfBaths,
@@ -83,8 +59,8 @@ export class PlanService
 	{
 		return {
 			id: 0,
-			salesName: '',
-			integrationKey: '',
+            salesName: '',
+            integrationKey: '',
 			numBed: 0,
 			numFullBath: 0,
 			numHalfBath: 0,

@@ -112,9 +112,6 @@
 			Monotony Conflict
 		</div>
 
-		<div *ngIf="(choice?.isRequired)" class="phd-choice-disabled-msg">
-			<i class="fas fa-info-circle fa-sm"></i> Required
-		</div>
 		<div *ngIf="(isPastCutOff && !canOverride)" class="phd-past-cutt-off">
 			<i class="fas fa-info-circle fa-sm"></i> Disabled Due to Cut-Off
 		</div>
@@ -126,7 +123,7 @@
 		</div>
 
 		<div *ngIf="((!isPastCutOff || canOverride) && !choice.enabled) || optionDisabled" class="phd-past-cutt-off phd-clickable" (click)="!optionDisabled && onShowDisabledMessage()">
-			<i class="fas fa-info-circle fa-sm"></i> {{choice?.isRequired ? 'Required' : 'Disabled'}}
+			<i class="fas fa-info-circle fa-sm"></i> Disabled
 		</div>
 	</div>
 </div>

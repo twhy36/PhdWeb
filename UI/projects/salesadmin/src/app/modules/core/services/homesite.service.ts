@@ -1,10 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 
 import { Observable ,  throwError as _throw } from 'rxjs';
 import { combineLatest, catchError, map } from 'rxjs/operators';
-
-import * as odataUtils from '../../shared/utils/odata.util';
 
 import { Settings } from '../../shared/models/settings.model';
 import { HomeSiteDtos } from '../../shared/models/homesite.model';
@@ -12,7 +10,6 @@ import { withSpinner } from 'phd-common';
 
 import { SettingsService } from './settings.service';
 import { MonotonyRule } from '../../shared/models/monotonyRule.model';
-import { LotChoiceRuleAssoc } from '../../shared/models/lotChoiceRule.model';
 
 const settings: Settings = new SettingsService().getSettings();
 
@@ -273,78 +270,6 @@ export class HomeSiteService
 			{
 				return homesiteDto;
 			}), catchError(this.handleError));
-	}
-
-	deleteLotChoiceRuleAssoc(dtos: LotChoiceRuleAssoc[]): Observable<boolean>
-	{
-		const lotChoiceRulesToBeDeleted = dtos.map(t => ({ lotChoiceRuleAssocId: t.lotChoiceRuleAssocId } as LotChoiceRuleAssoc));
-
-		const endPoint = `${settings.apiUrl}$batch`;
-		const batchRequests = odataUtils.createBatchDelete<LotChoiceRuleAssoc>(lotChoiceRulesToBeDeleted, 'lotChoiceRuleAssocId', 'lotChoiceRuleAssocs');
-		const batchGuid = odataUtils.getNewGuid();
-		const batchBody = odataUtils.createBatchBody(batchGuid, [batchRequests]);
-		const headers = new HttpHeaders(odataUtils.createBatchHeaders(batchGuid));
-
-		return this._http.post(endPoint, batchBody, { headers, responseType: 'text' }).pipe(
-			map(results =>
-			{
-				return true;
-			}), catchError(this.handleError));
-	}
-
-	getLotChoiceRuleAssocs(marketId: number): Observable<Array<LotChoiceRuleAssoc>>
-	{
-		let url = settings.apiUrl;
-		const filter = `DivChoiceCatalog/DivDPointCatalog/Org/EdhMarketId eq ${marketId}`;
-		const select = `lotChoiceRuleAssocId, edhLotId, planId, divChoiceCatalogId, mustHave`;
-		const qryStr = `${encodeURIComponent("$")}filter=${encodeURIComponent(filter)}&${encodeURIComponent("$")}select=${encodeURIComponent(select)}`;
-		url += `lotChoiceRuleAssocs?${qryStr}`;
-
-		return withSpinner(this._http).get(url).pipe(
-			map((response: any) =>
-			{
-				return response.value as Array<LotChoiceRuleAssoc>;
-			}), catchError(this.handleError));
-	}
-
-	saveLotChoiceRuleAssoc(assoc: LotChoiceRuleAssoc): Observable<LotChoiceRuleAssoc>
-	{
-		let url = settings.apiUrl;
-
-		if (assoc.lotChoiceRuleAssocId)
-		{
-			url += `lotChoiceRuleAssocs(${assoc.lotChoiceRuleAssocId})`;
-
-			return this._http.patch(url, assoc).pipe(
-				map((response: LotChoiceRuleAssoc) =>
-				{
-					return {
-						lotChoiceRuleAssocId: response.lotChoiceRuleAssocId,
-						edhLotId: response.edhLotId,
-						planId: response.planId,
-						divChoiceCatalogId: response.divChoiceCatalogId,
-						mustHave: response.mustHave
-					} as LotChoiceRuleAssoc;
-				}),
-				catchError(this.handleError));
-		}
-		else
-		{
-			url += 'lotChoiceRuleAssocs';
-
-			return this._http.post(url, assoc).pipe(
-				map((response: LotChoiceRuleAssoc) =>
-				{
-					return {
-						lotChoiceRuleAssocId: response.lotChoiceRuleAssocId,
-						edhLotId: response.edhLotId,
-						planId: response.planId,
-						divChoiceCatalogId: response.divChoiceCatalogId,
-						mustHave: response.mustHave
-					} as LotChoiceRuleAssoc;
-				}),
-				catchError(this.handleError));
-		}
 	}
 
 	getMonotonyRules(lotId: number): Observable<Array<MonotonyRule>>

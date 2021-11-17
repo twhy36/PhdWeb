@@ -41,7 +41,6 @@ import { ModalOverrideSaveComponent } from './components/modal-override-save/mod
 import { NotificationService } from './services/notification.service';
 import { FavoriteService } from './services/favorite.service';
 import { LiteService } from './services/lite.service';
-import { ApplicationInsights } from '@microsoft/applicationinsights-web';
 
 @NgModule({
 	exports: [
@@ -99,7 +98,7 @@ import { ApplicationInsights } from '@microsoft/applicationinsights-web';
 		NotificationService,
 		FavoriteService,
 		LiteService,
-		{ provide: ErrorHandler, useClass: PhdErrorHandler, deps: [LoggingService] }
+		{ provide: ErrorHandler, useClass: PhdErrorHandler }
 	]
 })
 export class CoreModule { }

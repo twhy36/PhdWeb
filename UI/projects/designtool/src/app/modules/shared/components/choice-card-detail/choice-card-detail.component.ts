@@ -134,7 +134,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 
 	displayButton(): boolean
 	{
-		if (!this.choice.enabled || !this.canConfigure || this.optionDisabled || this.choice.isRequired)
+		if (!this.choice.enabled || !this.canConfigure || this.optionDisabled)
 		{
 			return false;
 		}
@@ -178,7 +178,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 
 		if (this.choice.quantity > 0)
 		{
-			btnLabel = this.canEditAgreement && this.canConfigure ? 'Unselect' : 'Selected';
+			btnLabel = this.canEditAgreement ? 'Unselect' : 'Selected';
 		}
 		else
 		{

@@ -1,8 +1,8 @@
 import { Component, OnInit, ViewChild, HostListener } from '@angular/core';
 import { ActivatedRoute, } from '@angular/router';
 
-import { Observable, Subscription, forkJoin } from 'rxjs';
-import { map, finalize } from 'rxjs/operators';
+import { Observable, Subscription, forkJoin, of } from 'rxjs';
+import { map, switchMap, tap, finalize } from 'rxjs/operators';
 
 import { MessageService } from 'primeng/api';
 
@@ -13,7 +13,7 @@ import { PlanService } from '../../../core/services/plan.service';
 import { HomeSiteService } from '../../../core/services/homesite.service';
 
 import { UnsubscribeOnDestroy } from '../../../shared/utils/unsubscribe-on-destroy';
-import { DivChoiceCatalog } from '../../../shared/models/choice.model';
+import { FinancialCommunity } from '../../../shared/models/financialCommunity.model';
 import { FinancialCommunityViewModel, HomeSiteViewModel, PlanViewModel, ITag } from '../../../shared/models/plan-assignment.model';
 import { PlanAssignmentSidePanelComponent } from '../plan-assignment-side-panel/plan-assignment-side-panel.component';
 
@@ -29,8 +29,9 @@ export class PlanAssignmentComponent extends UnsubscribeOnDestroy implements OnI
 
 	private _subscription: Subscription[] = [];
 	sidePanelOpen: boolean = false;
+	activeCommunities: Observable<Array<FinancialCommunityViewModel>>;
+
 	selectedCommunity: FinancialCommunityViewModel;
-	divChoiceCatalogs: Array<DivChoiceCatalog>;
 	selectedPlan: PlanViewModel;
 	selectedLot: HomeSiteViewModel;
 	saving: boolean = false;
@@ -66,6 +67,23 @@ export class PlanAssignmentComponent extends UnsubscribeOnDestroy implements OnI
 
 	ngOnInit()
 	{
+		this.activeCommunities = this._orgService.currentMarket$.pipe(
+			this.takeUntilDestroyed(),
+			tap(mkt => this.onSidePanelClose(false)),
+			switchMap(mkt =>
+			{
+				if (mkt)
+				{
+					return this._orgService.getFinancialCommunities(mkt.id);
+				}
+				else
+				{
+					return of([]);
+				}
+			}),
+			map(comms => comms.map(comm => new FinancialCommunityViewModel(comm)).filter(c => c.isActive))
+		);
+
 		this._orgService.currentCommunity$.pipe(
 			this.takeUntilDestroyed()
 		).subscribe(comm =>
@@ -84,9 +102,19 @@ export class PlanAssignmentComponent extends UnsubscribeOnDestroy implements OnI
 			}
 		});
 
-		this._orgService.canEdit(this._route.snapshot.data['requiresClaim']).pipe(
+		this._orgService.canEdit(this._route.parent.snapshot.data['requiresClaim']).pipe(
 			this.takeUntilDestroyed()
 		).subscribe(canEdit => this.canEdit = canEdit);
+	}
+
+	onChangeCommunity(comm: FinancialCommunity)
+	{
+		this.onSidePanelClose(false);
+
+		if (comm != null)
+		{
+			this._orgService.selectCommunity(comm);
+		}
 	}
 
 	onSidePanelClose(status: boolean)

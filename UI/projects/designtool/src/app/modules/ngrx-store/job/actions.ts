@@ -1,9 +1,9 @@
 import { Action } from '@ngrx/store';
 
-import { ChangeOrderGroup, Job, SpecInformation, JobPlanOption, Log } from 'phd-common';
+import { ChangeOrderGroup, Job, SpecInformation, JobPlanOption } from 'phd-common';
 
 import { ErrorAction } from '../error.action';
-import { SalesAgreementLoaded, JobLoaded, SalesAgreementCancelled, ESignEnvelopesLoaded, ChangeOrdersUpdated, ChangeOrderEnvelopeCreated, ScenarioLoaded, CommonActionTypes } from '../actions';
+import { SalesAgreementLoaded, JobLoaded, SalesAgreementCancelled, ESignEnvelopesLoaded, ChangeOrdersUpdated, ChangeOrderEnvelopeCreated, ScenarioLoaded } from '../actions';
 
 export enum JobActionTypes
 {
@@ -24,7 +24,6 @@ export enum JobActionTypes
 	JobPlanOptionsUpdated = 'Job Plan Options Updated'
 }
 
-@Log(true)
 export class SpecsLoaded implements Action
 {
 	readonly type = JobActionTypes.SpecsLoaded;
@@ -32,7 +31,6 @@ export class SpecsLoaded implements Action
 	constructor(public jobs: Job[]) { }
 }
 
-@Log()
 export class DeselectSpec implements Action
 {
 	readonly type = JobActionTypes.DeselectSpec;
@@ -47,7 +45,6 @@ export class SaveError extends ErrorAction
 	constructor(public error: Error, public friendlyMessage?: string) { super(error, friendlyMessage); }
 }
 
-@Log()
 export class JobUpdated implements Action
 {
 	readonly type = JobActionTypes.JobUpdated;
@@ -55,7 +52,6 @@ export class JobUpdated implements Action
 	constructor(public job: Job) { }
 }
 
-@Log()
 export class ChangeOrdersCreatedForJob implements Action
 {
 	readonly type = JobActionTypes.ChangeOrdersCreatedForJob;
@@ -63,7 +59,6 @@ export class ChangeOrdersCreatedForJob implements Action
 	constructor(public changeOrderGroups: Array<ChangeOrderGroup>) { }
 }
 
-@Log(true, [CommonActionTypes.ChangeOrderEnvelopeCreated, JobActionTypes.EnvelopeError])
 export class CreateChangeOrderEnvelope implements Action
 {
 	readonly type = JobActionTypes.CreateChangeOrderEnvelope;
@@ -71,7 +66,6 @@ export class CreateChangeOrderEnvelope implements Action
 	constructor(public changeOrder: any) { }
 }
 
-@Log(true)
 export class EnvelopeError extends ErrorAction
 {
 	readonly type = JobActionTypes.EnvelopeError;
@@ -79,7 +73,6 @@ export class EnvelopeError extends ErrorAction
 	constructor(public error: Error, public friendlyMessage?: string) { super(error, friendlyMessage); }
 }
 
-@Log()
 export class LoadSpecs implements Action
 {
 	readonly type = JobActionTypes.LoadSpecs;
@@ -87,7 +80,6 @@ export class LoadSpecs implements Action
 	constructor() { }
 }
 
-@Log(true)
 export class LoadJobForJob implements Action
 {
 	readonly type = JobActionTypes.LoadJobForJob;
@@ -95,7 +87,6 @@ export class LoadJobForJob implements Action
 	constructor(public jobId: number, public clearState: boolean = true) { }
 }
 
-@Log()
 export class JobLoadedByJobId implements Action
 {
 	readonly type = JobActionTypes.JobLoadedByJobId;
@@ -103,7 +94,6 @@ export class JobLoadedByJobId implements Action
 	constructor(public job: Job) { }
 }
 
-@Log(true)
 export class LoadPulteInfo implements Action
 {
 	readonly type = JobActionTypes.LoadPulteInfo;
@@ -111,7 +101,6 @@ export class LoadPulteInfo implements Action
 	constructor(public jobId: number) { }
 }
 
-@Log()
 export class PulteInfoLoaded implements Action
 {
 	readonly type = JobActionTypes.PulteInfoLoaded;
@@ -119,7 +108,6 @@ export class PulteInfoLoaded implements Action
 	constructor(public pulteInfo: SpecInformation) { }
 }
 
-@Log(true)
 export class SavePulteInfo implements Action
 {
 	readonly type = JobActionTypes.SavePulteInfo;
@@ -127,7 +115,6 @@ export class SavePulteInfo implements Action
 	constructor(public pulteInfo: SpecInformation) { }
 }
 
-@Log()
 export class PulteInfoSaved implements Action
 {
 	readonly type = JobActionTypes.PulteInfoSaved;
@@ -135,7 +122,6 @@ export class PulteInfoSaved implements Action
 	constructor() { }
 }
 
-@Log(true)
 export class JobPlanOptionsUpdated implements Action 
 {
 	readonly type = JobActionTypes.JobPlanOptionsUpdated;

@@ -4,9 +4,7 @@ import { Observable, ReplaySubject, throwError as _throw, of } from "rxjs";
 
 import { OAuthService, AuthConfig } from 'angular-oauth2-oidc';
 
-import { map, catchError, tap, share, take, switchMap, filter } from 'rxjs/operators';
-
-import { ApplicationInsights } from '@microsoft/applicationinsights-web';
+import { map, catchError, tap, share, take, switchMap } from 'rxjs/operators';
 
 import { ClaimTypes, Claims, Permission } from '../models/claims.model';
 import { API_URL, AUTH_CONFIG, WINDOW_ORIGIN } from '../injection-tokens';
@@ -79,8 +77,7 @@ export class IdentityService
 		@Inject(forwardRef(() => OAuthService)) private osvc: OAuthService,
 		@Inject(forwardRef(() => API_URL)) private apiUrl: string,
 		@Inject(forwardRef(() => AUTH_CONFIG)) private authConfig: AuthConfig | Observable<AuthConfig>,
-		@Inject(forwardRef(() => WINDOW_ORIGIN)) private origin: string,
-		@Inject(forwardRef(() => ApplicationInsights)) private appInsights: ApplicationInsights)
+		@Inject(forwardRef(() => WINDOW_ORIGIN)) private origin: string)
 	{
 		if (isObservable(this.authConfig))
 		{
@@ -104,14 +101,6 @@ export class IdentityService
 			tap(mkts => this.assignedMarkets = mkts),
 			share()
 		);
-
-		this.loggedInSubject$.pipe(
-            filter(loggedIn => loggedIn),
-            take(1)
-        ).subscribe(() => 
-        {
-            this.appInsights.setAuthenticatedUserContext(this.osvc.getIdentityClaims()['preferred_username']);
-         });
 	}
 
 	private configure(authConfig: AuthConfig)

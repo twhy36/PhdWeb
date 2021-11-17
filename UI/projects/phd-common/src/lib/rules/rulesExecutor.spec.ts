@@ -115,8 +115,7 @@ describe('rulesExecutor', function () {
                 }
             ],
             pointRules: [],
-			optionRules: [],
-			lotChoiceRules: []
+            optionRules: []
         };
 
         var depChoices = rules.getDependentChoices(tree, tvRules, [], <any>{ id: 2, quantity: 0 });
@@ -167,8 +166,7 @@ describe('rulesExecutor', function () {
                 }
             ],
             pointRules: [],
-			optionRules: [],
-			lotChoiceRules: []
+            optionRules: []
         };
 
         var depChoices = rules.getDependentChoices(tree, tvRules, [], <any>{ id: 2, quantity: 0 });
@@ -217,8 +215,7 @@ describe('rulesExecutor', function () {
                     { ruleId: 1, ruleType: 1, choices: [], points: [1]}
                 ]
             }],
-			optionRules: [],
-			lotChoiceRules: []
+            optionRules: []
         };
 
         var depChoices = rules.getDependentChoices(tree, tvRules, [], <any>{ id: 1, quantity: 1 });
@@ -267,8 +264,7 @@ describe('rulesExecutor', function () {
                     { ruleId: 1, ruleType: 1, choices: [], points: [1]}
                 ]
             }],
-			optionRules: [],
-			lotChoiceRules: []
+            optionRules: []
         };
 
         var depChoices = rules.getDependentChoices(tree, tvRules, [], <any>{ id: 2, quantity: 0 });
@@ -329,8 +325,7 @@ describe('rulesExecutor', function () {
                     { ruleId: 1, ruleType: 1, choices: [], points: [2]}
                 ]
             }],
-			optionRules: [],
-			lotChoiceRules: []
+            optionRules: []
         };
 
         var depChoices = rules.getDependentChoices(tree, tvRules, [], <any>{ id: 2, quantity: 0 });
@@ -382,8 +377,7 @@ describe('rulesExecutor', function () {
                 }
             ],
             pointRules: [],
-			optionRules: [],
-			lotChoiceRules: []
+            optionRules: []
         };
 
         var depChoices = rules.getDependentChoices(tree, tvRules, [], <any>{ id: 2, quantity: 0 });

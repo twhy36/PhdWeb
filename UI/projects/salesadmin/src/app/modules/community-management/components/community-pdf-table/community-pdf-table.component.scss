@@ -6,6 +6,16 @@
 	margin: 10px 0px;
 }
 
+.phd-icon-container {
+	display: flex;
+	justify-content: space-around;
+
+	i {
+		width: 50px;
+		text-align: center;
+	}
+}
+
 .phd-pdf-span {
 	display: block;
 }

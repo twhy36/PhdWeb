@@ -1,5 +1,4 @@
 import { AuthConfig } from 'angular-oauth2-oidc';
-import { IConfiguration, IConfig } from '@microsoft/applicationinsights-web';
 
 export interface IEnvironment {
 	apiUrl: string;
@@ -8,7 +7,9 @@ export interface IEnvironment {
 	pictureParkAssetUrl: string;
 	designToolUrl: string;
 	designPreviewUrl: string;
-	appInsights: IConfiguration & IConfig;
+	appInsights: {
+		instrumentationKey: string;
+	};
 	authConfig: AuthConfig;
 	production: boolean;
 	whatFix: { scriptUrl: string };

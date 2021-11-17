@@ -1,36 +1,55 @@
 import { Injectable, Injector, ErrorHandler } from '@angular/core';
 import { LocationStrategy, PathLocationStrategy } from '@angular/common';
 
-import { ApplicationInsights } from '@microsoft/applicationinsights-web';
+import { AppInsights } from "applicationinsights-js";
+
+import { SettingsService } from "./settings.service";
+
+import { IdentityService } from 'phd-common';
 
 @Injectable()
 export class LoggingService
 {
+	private config: Microsoft.ApplicationInsights.IConfig;
 
-	constructor(private injector: Injector, private appInsights: ApplicationInsights)
+	constructor(private settingsService: SettingsService, private injector: Injector, private identityService: IdentityService)
 	{
+		this.config = {
+			instrumentationKey: this.settingsService.getSettings().appInsightsKey
+		};
+
+		AppInsights.downloadAndSetup(this.config);
+
+		this.identityService.user.subscribe(u =>
+		{
+			if (u)
+			{
+				AppInsights.setAuthenticatedUserContext(u.upn);
+			}
+			else
+			{
+				AppInsights.clearAuthenticatedUserContext();
+			}
+		});
 	}
 
 	logError(error: Error)
 	{
-		this.appInsights.trackException({error});
+		const location = this.injector.get(LocationStrategy);
+		const message = error.message ? error.message : error.toString();
+		const url = location instanceof PathLocationStrategy ? location.path() : '';
+
+		AppInsights.trackException(error, url, { message: message, stack: error.stack });
 	}
 
 	logEvent(message: string)
 	{
-		this.appInsights.trackEvent({name: message});
+		AppInsights.trackEvent(message);
 	}
 
-	logPageView(name?: string, uri?: string, properties?: any, measurements?: any, duration?: number)
+	logPageView(name?: string, url?: string, properties?: any, measurements?: any, duration?: number)
 	{
-		if (!!duration)
-		{
-			this.appInsights.trackPageViewPerformance({name, uri, properties: {...properties, ...measurements}, duration: ''+duration});
-		}
-		else 
-		{
-			this.appInsights.trackPageView({name, uri, properties: {...properties, ...measurements }});
-		}
+		AppInsights.trackPageView(name, url, properties, measurements, duration);
 	}
 }
 

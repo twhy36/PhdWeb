@@ -19,16 +19,14 @@
 			</div>
 			<form [formGroup]="viewContractsForm">
 				<div [ngClass]="{'phd-hidden': (selectedTab !== 'Details') }">
-					<div class="form-group" [ngClass]="{'phd-hidden': hideExperienceCheckboxes }">
-						<div class="phd-checkbox-group">
-							<div class="phd-checkbox-label">
-								<input type="checkbox" id="isPhd" name="isPhd" formControlName="isPhd" class="phd-checkbox-label" (change)="updateSelectionFromFormGroup()"/>
-								<label for="isPhd" class="form-check-label">PHD</label>
-							</div>
-							<div class="phd-checkbox-label">
-								<input type="checkbox" id="isTho" name="isTho" formControlName="isTho" class="phd-checkbox-label" (change)="updateSelectionFromFormGroup()"/>
-								<label for="isTho" class="form-check-label">THO</label>
-							</div>
+					<div class="form-group phd-checkbox-group" [ngClass]="{'phd-hidden': hideExperienceCheckboxes }">
+						<div class="phd-checkbox-label">
+							<input type="checkbox" id="isPhd" name="isPhd" formControlName="isPhd" class="phd-checkbox-label" (change)="updateSelectionFromFormGroup()"/>
+							<label for="isPhd" class="form-check-label">PHD</label>
+						</div>
+						<div class="phd-checkbox-label">
+							<input type="checkbox" id="isTho" name="isPMCAffiliate" formControlName="isTho" class="phd-checkbox-label" (change)="updateSelectionFromFormGroup()"/>
+							<label for="isTho" class="form-check-label">THO</label>
 						</div>
 						<span class="text-danger"
 								*ngIf="viewContractsForm.errors?.requireCheckBoxesToBeChecked && ((viewContractsForm.controls.isPhd.dirty || viewContractsForm.controls.isPhd.touched) || (viewContractsForm.controls.isTho.dirty || viewContractsForm.controls.isTho.touched))">

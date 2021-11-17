@@ -23,8 +23,7 @@ export const environment = {
 		strictDiscoveryDocumentValidation: false
 	},
     appInsights: {
-        instrumentationKey: '59530951-22f6-449f-ac70-8dffc824b34d',
-		enableAutoRouteTracking: true
+        instrumentationKey: '59530951-22f6-449f-ac70-8dffc824b34d'
 	},
 	whatFix: {
 		scriptUrl: '//whatfix.com/01caf5e0-cb2f-11e8-b979-04013d24cd02/embed/embed.nocache.js'

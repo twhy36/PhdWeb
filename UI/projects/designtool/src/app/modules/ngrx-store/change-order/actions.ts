@@ -1,7 +1,7 @@
 import { Action } from '@ngrx/store';
 import {
 	ChangeOrderGroup, ChangeInput, ChangeOrderNonStandardOption, ChangeOrderHanding, Note, SalesAgreement,
-	SalesChangeOrderPriceAdjustment, SalesChangeOrderSalesProgram, ChangeOrderBuyer, Log
+	SalesChangeOrderPriceAdjustment, SalesChangeOrderSalesProgram, ChangeOrderBuyer
 } from 'phd-common';
 import { ErrorAction } from '../error.action';
 import { SalesAgreementLoaded, JobLoaded, ESignEnvelopesLoaded, ChangeOrderEnvelopeCreated, ChangeOrdersUpdated } from '../actions';
@@ -58,7 +58,6 @@ export enum ChangeOrderActionTypes
 	DeleteTermsAndConditions = 'Delete Terms and Conditons'
 }
 
-@Log(true)
 export class SetChangingOrder implements Action
 {
 	readonly type = ChangeOrderActionTypes.SetChangingOrder;
@@ -66,7 +65,6 @@ export class SetChangingOrder implements Action
 	constructor(public isChangingOrder: boolean, public changeInput: ChangeInput, public cancel?: boolean, public handing?: ChangeOrderHanding, public changeOrderGroupSequence?: number) { }
 }
 
-@Log()
 export class CurrentChangeOrderLoaded implements Action
 {
 	readonly type = ChangeOrderActionTypes.CurrentChangeOrderLoaded;
@@ -81,7 +79,6 @@ export class LoadError extends ErrorAction
 	constructor(public error: Error, public friendlyMessage?: string) { super(error, friendlyMessage); }
 }
 
-@Log(true)
 export class SetChangeOrderDescription implements Action
 {
 	readonly type = ChangeOrderActionTypes.SetChangeOrderDescription;
@@ -103,7 +100,6 @@ export class SaveChangeOrderScenario implements Action
 	constructor() { }
 }
 
-@Log(true)
 export class ChangeInputInitialized implements Action
 {
 	readonly type = ChangeOrderActionTypes.ChangeInputInitialized;
@@ -111,7 +107,6 @@ export class ChangeInputInitialized implements Action
 	constructor(public changeInput: ChangeInput) { }
 }
 
-@Log(true)
 export class SetChangeOrderTrustName implements Action
 {
 	readonly type = ChangeOrderActionTypes.SetChangeOrderTrustName;
@@ -119,7 +114,6 @@ export class SetChangeOrderTrustName implements Action
 	constructor(public trustName: string) { }
 }
 
-@Log(true)
 export class UpdateChangeOrderBuyer implements Action
 {
 	readonly type = ChangeOrderActionTypes.UpdateChangeOrderBuyer;
@@ -127,7 +121,6 @@ export class UpdateChangeOrderBuyer implements Action
 	constructor(public changeOrderBuyer: ChangeOrderBuyer) { }
 }
 
-@Log(true)
 export class AddChangeOrderCoBuyer implements Action
 {
 	readonly type = ChangeOrderActionTypes.AddChangeOrderCoBuyer;
@@ -135,7 +128,6 @@ export class AddChangeOrderCoBuyer implements Action
 	constructor(public changeOrderBuyer: ChangeOrderBuyer) { }
 }
 
-@Log(true)
 export class DeleteChangeOrderCoBuyer implements Action
 {
 	readonly type = ChangeOrderActionTypes.DeleteChangeOrderCoBuyer;
@@ -143,7 +135,6 @@ export class DeleteChangeOrderCoBuyer implements Action
 	constructor(public changeOrderBuyer: ChangeOrderBuyer) { }
 }
 
-@Log(true)
 export class SwapChangeOrderPrimaryBuyer implements Action
 {
 	readonly type = ChangeOrderActionTypes.SwapChangeOrderPrimaryBuyer;
@@ -151,7 +142,6 @@ export class SwapChangeOrderPrimaryBuyer implements Action
 	constructor(public changeOrderBuyer: ChangeOrderBuyer) { }
 }
 
-@Log(true)
 export class ReSortChangeOrderBuyers implements Action
 {
 	readonly type = ChangeOrderActionTypes.ReSortChangeOrderBuyers;
@@ -159,7 +149,6 @@ export class ReSortChangeOrderBuyers implements Action
 	constructor(public sourceSortKey: number, public targetSortKey: number) { }
 }
 
-@Log()
 export class CurrentChangeOrderCancelled implements Action
 {
 	readonly type = ChangeOrderActionTypes.CurrentChangeOrderCancelled;
@@ -167,7 +156,6 @@ export class CurrentChangeOrderCancelled implements Action
 	constructor() { }
 }
 
-@Log(true)
 export class CurrentChangeOrderOutForSignature implements Action
 {
 	readonly type = ChangeOrderActionTypes.CurrentChangeOrderOutForSignature;
@@ -175,7 +163,6 @@ export class CurrentChangeOrderOutForSignature implements Action
 	constructor(public statusUtcDate: Date) { }
 }
 
-@Log(true)
 export class CurrentChangeOrderSigned implements Action
 {
 	readonly type = ChangeOrderActionTypes.CurrentChangeOrderSigned;
@@ -183,7 +170,6 @@ export class CurrentChangeOrderSigned implements Action
 	constructor(public statusUtcDate: Date) { }
 }
 
-@Log(true)
 export class CurrentChangeOrderApproved implements Action
 {
 	readonly type = ChangeOrderActionTypes.CurrentChangeOrderApproved;
@@ -191,7 +177,6 @@ export class CurrentChangeOrderApproved implements Action
 	constructor() { }
 }
 
-@Log(true)
 export class CurrentChangeOrderPending implements Action
 {
 	readonly type = ChangeOrderActionTypes.CurrentChangeOrderPending;
@@ -199,7 +184,6 @@ export class CurrentChangeOrderPending implements Action
 	constructor(public statusUtcDate: Date, public eSignEnvelopeId: number) { }
 }
 
-@Log()
 export class CreateJobChangeOrders implements Action
 {
 	readonly type = ChangeOrderActionTypes.CreateJobChangeOrders;
@@ -207,7 +191,6 @@ export class CreateJobChangeOrders implements Action
 	constructor() { }
 }
 
-@Log()
 export class ChangeOrdersCreated implements Action
 {
 	readonly type = ChangeOrderActionTypes.ChangeOrdersCreated;
@@ -215,7 +198,6 @@ export class ChangeOrdersCreated implements Action
 	constructor(public changeOrders: Array<ChangeOrderGroup>) { }
 }
 
-@Log(true)
 export class SaveError extends ErrorAction
 {
 	readonly type = ChangeOrderActionTypes.SaveError;
@@ -223,7 +205,6 @@ export class SaveError extends ErrorAction
 	constructor(public error: Error, public friendlyMessage?: string) { super(error, friendlyMessage); }
 }
 
-@Log()
 export class CancelJobChangeOrder implements Action
 {
 	readonly type = ChangeOrderActionTypes.CancelJobChangeOrder;
@@ -231,7 +212,6 @@ export class CancelJobChangeOrder implements Action
 	constructor() { }
 }
 
-@Log(["handing"])
 export class SetChangeOrderHanding implements Action
 {
 	readonly type = ChangeOrderActionTypes.SetChangeOrderHanding;
@@ -239,7 +219,6 @@ export class SetChangeOrderHanding implements Action
 	constructor(public handing: ChangeOrderHanding, public dirty: boolean = true) { }
 }
 
-@Log(true)
 export class CreateSalesChangeOrder implements Action
 {
 	readonly type = ChangeOrderActionTypes.CreateSalesChangeOrder;
@@ -247,7 +226,6 @@ export class CreateSalesChangeOrder implements Action
 	constructor(public specSales: boolean = false) { }
 }
 
-@Log(true)
 export class CreateNonStandardChangeOrder implements Action
 {
 	readonly type = ChangeOrderActionTypes.CreateNonStandardChangeOrder;
@@ -255,7 +233,6 @@ export class CreateNonStandardChangeOrder implements Action
 	constructor(public options: Array<ChangeOrderNonStandardOption>) { }
 }
 
-@Log()
 export class CreatePlanChangeOrder implements Action
 {
 	readonly type = ChangeOrderActionTypes.CreatePlanChangeOrder;
@@ -263,7 +240,6 @@ export class CreatePlanChangeOrder implements Action
 	constructor() { }
 }
 
-@Log()
 export class CancelPlanChangeOrder implements Action
 {
 	readonly type = ChangeOrderActionTypes.CancelPlanChangeOrder;
@@ -271,7 +247,6 @@ export class CancelPlanChangeOrder implements Action
 	constructor() { }
 }
 
-@Log(true)
 export class SetSalesChangeOrderPriceAdjustments implements Action
 {
 	readonly type = ChangeOrderActionTypes.SetSalesChangeOrderPriceAdjustments;
@@ -279,7 +254,6 @@ export class SetSalesChangeOrderPriceAdjustments implements Action
 	constructor(public salesChangeOrderPriceAdjustments: Array<SalesChangeOrderPriceAdjustment>) { }
 }
 
-@Log(true)
 export class SetSalesChangeOrderSalesPrograms implements Action
 {
 	readonly type = ChangeOrderActionTypes.SetSalesChangeOrderSalesPrograms;
@@ -287,7 +261,6 @@ export class SetSalesChangeOrderSalesPrograms implements Action
 	constructor(public action: string, public salesChangeOrderSalesPrograms: Array<SalesChangeOrderSalesProgram>, public agreement?: SalesAgreement, public originalProgramId?: number) { }
 }
 
-@Log()
 export class CancelLotTransferChangeOrder implements Action
 {
 	readonly type = ChangeOrderActionTypes.CancelLotTransferChangeOrder;
@@ -295,7 +268,6 @@ export class CancelLotTransferChangeOrder implements Action
 	constructor() { }
 }
 
-@Log()
 export class CancelSalesChangeOrder implements Action
 {
 	readonly type = ChangeOrderActionTypes.CancelSalesChangeOrder;
@@ -303,7 +275,6 @@ export class CancelSalesChangeOrder implements Action
 	constructor() { }
 }
 
-@Log()
 export class DeleteSalesChangeOrderPriceAdjustment implements Action
 {
 	readonly type = ChangeOrderActionTypes.DeleteSalesChangeOrderPriceAdjustment;
@@ -311,7 +282,6 @@ export class DeleteSalesChangeOrderPriceAdjustment implements Action
 	constructor() { }
 }
 
-@Log(true)
 export class UpdateSalesChangeOrderPriceAdjustment implements Action
 {
 	readonly type = ChangeOrderActionTypes.UpdateSalesChangeOrderPriceAdjustment;
@@ -319,7 +289,6 @@ export class UpdateSalesChangeOrderPriceAdjustment implements Action
 	constructor(public priceAdjustment: SalesChangeOrderPriceAdjustment, public position: number) { }
 }
 
-@Log(true)
 export class SetCurrentChangeOrder implements Action
 {
 	readonly type = ChangeOrderActionTypes.SetCurrentChangeOrder;
@@ -327,7 +296,6 @@ export class SetCurrentChangeOrder implements Action
 	constructor(public changeOrderId: number) { }
 }
 
-@Log(true)
 export class SetChangeOrderOverrideNote implements Action
 {
 	readonly type = ChangeOrderActionTypes.SetChangeOrderOverrideNote;
@@ -335,7 +303,6 @@ export class SetChangeOrderOverrideNote implements Action
 	constructor(public overrideNote: string) { }
 }
 
-@Log()
 export class CancelNonStandardChangeOrder implements Action
 {
 	readonly type = ChangeOrderActionTypes.CancelNonStandardChangeOrder;
@@ -343,7 +310,6 @@ export class CancelNonStandardChangeOrder implements Action
 	constructor() { }
 }
 
-@Log(true)
 export class SavePendingJio implements Action
 {
 	readonly type = ChangeOrderActionTypes.SavePendingJio;
@@ -351,7 +317,6 @@ export class SavePendingJio implements Action
 	constructor(public handing?: ChangeOrderHanding) { }
 }
 
-@Log()
 export class CreateCancellationChangeOrder implements Action
 {
 	readonly type = ChangeOrderActionTypes.CreateCancellationChangeOrder;
@@ -359,7 +324,6 @@ export class CreateCancellationChangeOrder implements Action
 	constructor() { }
 }
 
-@Log()
 export class CreateLotTransferChangeOrder implements Action
 {
 	readonly type = ChangeOrderActionTypes.CreateLotTransferChangeOrder;
@@ -367,7 +331,6 @@ export class CreateLotTransferChangeOrder implements Action
 	constructor() { }
 }
 
-@Log(true)
 export class SetChangeOrderLot implements Action
 {
 	readonly type = ChangeOrderActionTypes.SetChangeOrderLot;
@@ -375,7 +338,6 @@ export class SetChangeOrderLot implements Action
 	constructor(public lotId: number) { }
 }
 
-@Log(true)
 export class SetChangeOrderRevertToDirt implements Action
 {
 	readonly type = ChangeOrderActionTypes.SetChangeOrderRevertToDirt;
@@ -383,7 +345,6 @@ export class SetChangeOrderRevertToDirt implements Action
 	constructor(public revertToDirt: boolean) { }
 }
 
-@Log(true)
 export class ResubmitChangeOrder implements Action
 {
 	readonly type = ChangeOrderActionTypes.ResubmitChangeOrder;
@@ -391,7 +352,6 @@ export class ResubmitChangeOrder implements Action
 	constructor(public changeInput: ChangeInput, public sequence: number, public sequenceSuffix: string) { }
 }
 
-@Log(true)
 export class SetChangeOrderNonStandardOptions implements Action
 {
 	readonly type = ChangeOrderActionTypes.SetChangeOrderNonStandardOptions;
@@ -399,7 +359,6 @@ export class SetChangeOrderNonStandardOptions implements Action
 	constructor(public changeOrderNonStandardOption: ChangeOrderNonStandardOption) { }
 }
 
-@Log(true)
 export class ChangeOrderOutForSignature implements Action
 {
 	readonly type = ChangeOrderActionTypes.ChangeOrderOutForSignature;
@@ -412,14 +371,13 @@ export class ChangeOrderOutForSignature implements Action
 	) { }
 }
 
-@Log(true)
 export class SetChangeOrderPlanId implements Action {
 	readonly type = ChangeOrderActionTypes.SetChangeOrderPlanId;
 
 	constructor(public planId: number) { }
 }
 
-@Log(true)
+
 export class SetSalesChangeOrderTermsAndConditions implements Action
 {
 	readonly type = ChangeOrderActionTypes.SetSalesChangeOrderTermsAndConditions;
@@ -427,7 +385,6 @@ export class SetSalesChangeOrderTermsAndConditions implements Action
 	constructor(public termsAndConditionsNote: Note, public agreementNote: boolean = false) { }
 }
 
-@Log(true)
 export class SalesChangeOrderTermsAndConditionsSaved implements Action
 {
 	readonly type = ChangeOrderActionTypes.SalesChangeOrderTermsAndConditionsSaved;
@@ -435,7 +392,6 @@ export class SalesChangeOrderTermsAndConditionsSaved implements Action
 	constructor(public termsAndConditionsNote: Note) { }
 }
 
-@Log(true)
 export class DeleteTermsAndConditions implements Action
 {
 	readonly type = ChangeOrderActionTypes.DeleteTermsAndConditions;

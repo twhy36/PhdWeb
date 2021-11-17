@@ -1,4 +1,3 @@
-import { Log } from 'phd-common';
 import { Action } from '@ngrx/store';
 import { ErrorAction } from '../error.action';
 import { SalesAgreementLoaded } from '../actions';
@@ -10,7 +9,6 @@ export enum FavoriteActionTypes
 	SaveError = 'Save Error'
 }
 
-@Log()
 export class DeleteMyFavorites implements Action
 {
 	readonly type = FavoriteActionTypes.DeleteMyFavorites;
@@ -18,7 +16,6 @@ export class DeleteMyFavorites implements Action
 	constructor() {  }
 }
 
-@Log()
 export class MyFavoritesDeleted implements Action
 {
 	readonly type = FavoriteActionTypes.MyFavoritesDeleted;

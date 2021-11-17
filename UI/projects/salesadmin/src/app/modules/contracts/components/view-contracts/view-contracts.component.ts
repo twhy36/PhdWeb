@@ -16,6 +16,7 @@ import { UnsubscribeOnDestroy } from '../../../shared/utils/unsubscribe-on-destr
 import { SearchBarComponent } from '../../../shared/components/search-bar/search-bar.component';
 import { ViewContractsSidePanelComponent } from '../view-contracts-side-panel/view-contracts-side-panel.component';
 import { ConfirmModalComponent, PhdTableComponent } from 'phd-common';
+import { FinancialMarket } from '../../../shared/models/financialMarket.model';
 
 @Component({
 	selector: 'view-contracts',
