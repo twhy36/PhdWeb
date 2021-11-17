@@ -164,7 +164,9 @@
 			[selectedOption]="selectedOption"
 			[selectedColorItems]="currentColorItems"
 			[canEditName]="canEditName"
+			[optionsWithColorItemInfo]="optionsWithColorItems"
 			(dialogWasCanceled)="onEditColorItemDialogWasCanceled()"
+			(colorItemWasEdited)="onColorItemWasEdited()"
 		>
 		</edit-color-item-dialog>
 	</ng-template>

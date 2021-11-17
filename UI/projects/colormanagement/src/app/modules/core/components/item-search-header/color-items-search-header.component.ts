@@ -30,6 +30,7 @@ export class ColorItemsSearchHeaderComponent
 	optionListIndex: number;
 	planOptionDtosList: Array<IPlanOptionCommunityGridDto> = [];
 	optionsWithColorItems: Array<IPlanOptionCommunityDto> = [];
+	currentEditItem: IPlanOptionCommunityGridDto;
 	currentOption: IOptionCommunity = null;
 	isActiveColor: boolean = null;
 	settings: Settings;
@@ -126,13 +127,25 @@ export class ColorItemsSearchHeaderComponent
 	showEditColorItemDialog(planOptionDto: IPlanOptionCommunityGridDto) {
 		this.currentColorItems = planOptionDto.colorItem;
 		this.selectedOption = this.planOptionList.find(option => option.id==planOptionDto.optionCommunityId);
-		(planOptionDto.hasConfig ===false && planOptionDto.hasSalesAgreement === false) ? this.canEditName = true : this.canEditName = false
+		this.currentEditItem = planOptionDto;
+		(planOptionDto.hasConfig === false && planOptionDto.hasSalesAgreement === false) ? this.canEditName = true : this.canEditName = false
 		this.modalReference = this._modalService.open(this.editColorItemModal);
 		this.modalReference.result.catch(err => console.log(err));
 	}
 	onEditColorItemDialogWasCanceled()
 	{
 		this.modalReference.dismiss();
+	}
+	
+	onColorItemWasEdited()
+	{
+		this.modalReference.dismiss();
+		this.skip = 0;
+		this.planOptionDtosList = [];
+		this.currentPage = 0;
+		this.pageNumber = 1;
+		this.optionListIndex = -1;
+		this.loadColorItemsGrid();
 	}
 
 	loadColorItemsGrid() {
@@ -344,7 +357,6 @@ export class ColorItemsSearchHeaderComponent
 		this.pageNumber = 1;
 		this.loadColorItemsGrid();
 	}
-
 	onChangeOption() {
 		this.planOptionDtosList = [];
 		this.skip = 0;

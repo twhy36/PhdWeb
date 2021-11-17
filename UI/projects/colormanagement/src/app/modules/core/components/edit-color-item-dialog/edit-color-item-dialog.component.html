@@ -16,9 +16,10 @@
 						</div>
 					</div>
 					<small
-						class="text-danger"
-						*ngIf="nameIsMissing">
-						This is a required field
+						class="text-danger phd-name-error"
+						*ngIf="isDuplicateName || nameErrorMessage.length > 0 || editColorItemForm.get('name').dirty && editColorItemForm.get('name').value.toString().length === 0"
+					>
+						{{nameErrorMessage}}
 					</small>
 				</div>
 			</div>
@@ -39,7 +40,9 @@
 					[showTargetControls]="false">
 					<ng-template let-color pTemplate="item">
 						<div>
-							<div class="phd-list-item">{{color?.name}}</div>
+							<div [ngClass]="{
+								'phd-disabled': color?.isActive === false
+							}" class="phd-list-item">{{color?.name}}</div>
 						</div>
 					</ng-template>
 				</p-pickList>

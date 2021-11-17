@@ -314,30 +314,33 @@ export class ColorService {
 
 	}
 
-	updateColorItem(colorItemToUpdate: IColorItemDto)
+	updateColorItem(colorItemsToUpdate: IColorItemDto[])
 	{
 		const colorItems: IColorItemAssoc[] = [];
-		const item = {
-			colorItemId: colorItemToUpdate.colorItemId,
-			name: colorItemToUpdate.name,
-			edhPlanOptionId: colorItemToUpdate.edhPlanOptionId,
-			colorItemColorAssoc: [],
-			isActive: colorItemToUpdate.isActive
-		} as IColorItemAssoc;
-
-		if (colorItemToUpdate.colors.length > 0)
-		{
-			colorItemToUpdate.colors.forEach(color => {
-				const colorInfo: IColorItemColorAssoc = {
-					colorId: color.colorId,
-					color: color,
-					colorItemId: colorItemToUpdate.colorItemId
-				};
-
-				item.colorItemColorAssoc.push(colorInfo);
-			});
-		}
-		colorItems.push(item);
+		colorItemsToUpdate.forEach(colorItemToUpdate => {
+			const item = {
+				colorItemId: colorItemToUpdate.colorItemId,
+				name: colorItemToUpdate.name,
+				edhPlanOptionId: colorItemToUpdate.edhPlanOptionId,
+				colorItemColorAssoc: [],
+				isActive: colorItemToUpdate.isActive
+			} as IColorItemAssoc;
+	
+			if (colorItemToUpdate.colors.length > 0)
+			{
+				colorItemToUpdate.colors.forEach(color => {
+					const colorInfo: IColorItemColorAssoc = {
+						colorId: color.colorId,
+						color: color,
+						colorItemId: colorItemToUpdate.colorItemId
+					};
+	
+					item.colorItemColorAssoc.push(colorInfo);
+				});
+			}
+			colorItems.push(item);
+		});
+		
 
 		const body = {
 			'editColorItems': colorItems
@@ -346,7 +349,7 @@ export class ColorService {
 		const action = `updateColorItems`;
 		const endpoint = `${environment.apiUrl}${action}`;
 
-		return this._http.post<any>(endpoint, body, { headers: { 'Prefer': 'return=representation' } }).pipe(
+		return withSpinner(this._http).post<any>(endpoint, body, { headers: { 'Prefer': 'return=representation' } }).pipe(
 			map(response =>
 			{
 				return response.value;
