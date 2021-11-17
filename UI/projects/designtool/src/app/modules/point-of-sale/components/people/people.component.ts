@@ -102,8 +102,10 @@ export class PeopleComponent extends UnsubscribeOnDestroy implements OnInit, Con
 		this.primaryBuyer$ = this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(fromRoot.activePrimaryBuyer),
-			map(buyer => {
+			map(buyer =>
+			{
 				this.primaryBuyer = buyer;
+
 				return buyer;
 			})
 		);
@@ -204,7 +206,7 @@ export class PeopleComponent extends UnsubscribeOnDestroy implements OnInit, Con
 
 	addTrust()
 	{
-		this.selectedBuyer = this.savedTrustName ? this.savedTrustName : "";
+		this.selectedBuyer = this.savedTrustName ? this.savedTrustName : '';
 	}
 
 	addRealtor()
@@ -308,7 +310,7 @@ export class PeopleComponent extends UnsubscribeOnDestroy implements OnInit, Con
 	saveBuyer(buyer: Buyer | Realtor | string)
 	{
 		// save trust
-		if (typeof buyer === "string")
+		if (typeof buyer === 'string')
 		{
 			if (this.isChangingOrder)
 			{
@@ -327,7 +329,7 @@ export class PeopleComponent extends UnsubscribeOnDestroy implements OnInit, Con
 		else
 		{
 			// save buyer
-			if (buyer.hasOwnProperty("isPrimaryBuyer"))
+			if (buyer.hasOwnProperty('isPrimaryBuyer'))
 			{
 				let b = buyer as Buyer;
 

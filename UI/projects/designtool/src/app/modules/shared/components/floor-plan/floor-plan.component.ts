@@ -9,20 +9,20 @@ import * as _ from 'lodash';
 
 import {
 	UnsubscribeOnDestroy, flipOver, ModalRef, ScenarioStatusType, PriceBreakdown, TreeFilter, SubGroup,
-	DecisionPoint, Choice, loadScript, unloadScript, ModalService, MyFavoritesChoice, DesignToolAttribute
+	DecisionPoint, Choice, loadScript, unloadScript, ModalService, MyFavoritesChoice, DesignToolAttribute, FloorPlanImage
 } from 'phd-common';
 
-import * as fromRoot from '../../../../ngrx-store/reducers';
-import * as fromScenario from '../../../../ngrx-store/scenario/reducer';
-import * as fromFavorite from '../../../../ngrx-store/favorite/reducer';
-import * as SalesAgreementActions from '../../../../ngrx-store/sales-agreement/actions';
-import * as ScenarioActions from '../../../../ngrx-store/scenario/actions';
-import { ActionBarCallType } from '../../../../shared/classes/constants.class';
-import { DecisionPointFilterType } from '../../../../shared/models/decisionPointFilter';
-import { environment } from '../../../../../../environments/environment';
-import { JobService } from '../../../../core/services/job.service';
-import { ScenarioService } from '../../../../core/services/scenario.service';
-import { AttributeService } from '../../../../core/services/attribute.service';
+import * as fromRoot from '../../../ngrx-store/reducers';
+import * as fromScenario from '../../../ngrx-store/scenario/reducer';
+import * as fromFavorite from '../../../ngrx-store/favorite/reducer';
+import * as SalesAgreementActions from '../../../ngrx-store/sales-agreement/actions';
+import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
+import { ActionBarCallType } from '../../../shared/classes/constants.class';
+import { DecisionPointFilterType } from '../../models/decisionPointFilter';
+import { environment } from '../../../../../environments/environment';
+import { JobService } from '../../../core/services/job.service';
+import { ScenarioService } from '../../../core/services/scenario.service';
+import { AttributeService } from '../../../core/services/attribute.service';
 
 declare var AVFloorplan: any;
 
@@ -53,12 +53,14 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 	@Input() treeFilter: TreeFilter;
 	@Input() canConfigure: boolean;
 	@Input() canOverride: boolean;
+	@Input() canForceSave: boolean;
 
 	@Output() onBuildIt = new EventEmitter<void>();
 	@Output() onSaveScenario = new EventEmitter<void>();
 	@Output() onSelectChoice = new EventEmitter<{choice: Choice, saveNow: boolean, quantity?: number}>();
 	@Output() onChoiceModal = new EventEmitter<Choice>();
 	@Output() pointTypeFilterChanged = new EventEmitter<DecisionPointFilterType>();
+	@Output() onFloorPlanSaved = new EventEmitter<FloorPlanImage[]>();
 
 	private enabledOptions: number[] = [];
 	private initialized$ = new Subject<any>();
@@ -416,15 +418,21 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 		).subscribe(([scenarioId, buildMode]) =>
 		{
 
-			if (buildMode !== 'preview' && buildMode !== 'spec' && buildMode !== 'model' && !this.useDefaultFP && this.canEditAgreement)
+			if (buildMode !== 'preview' && buildMode !== 'spec' && buildMode !== 'model' && !this.useDefaultFP && (this.canForceSave || this.canEditAgreement))
 			{
 				if (!this.jobId)
 				{
-					this.scenarioService.saveFloorPlanImages(scenarioId, this.fp.floors, this.fp.exportStaticSVG());
+					this.scenarioService.saveFloorPlanImages(scenarioId, this.fp.floors, this.fp.exportStaticSVG()).subscribe(images =>
+					{
+						this.onFloorPlanSaved.emit(images);
+					});
 				}
 				else
 				{
-					this.jobService.saveFloorPlanImages(this.jobId, this.fp.floors, this.fp.exportStaticSVG());
+					this.jobService.saveFloorPlanImages(this.jobId, this.fp.floors, this.fp.exportStaticSVG()).subscribe(images =>
+					{
+						this.onFloorPlanSaved.emit(images);
+					})
 				}
 			}
 		});

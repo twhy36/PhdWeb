@@ -54,8 +54,17 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 		});
 	}
 
+	get toFavoritesPage() {
+		return !this.currentRoute.includes('summary') ? true : false;
+	}
+
 	onHomePage() {
 		this.store.dispatch(new ScenarioActions.SetTreeFilter(null));
 		this.router.navigateByUrl('/home');
+	}
+
+	onViewFavorites() {
+		this.store.dispatch(new ScenarioActions.SetTreeFilter(null));
+		this.router.navigateByUrl('/favorites/summary');
 	}
 }

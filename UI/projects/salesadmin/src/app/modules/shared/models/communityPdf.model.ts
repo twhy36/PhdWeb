@@ -16,6 +16,7 @@ export enum SectionHeader
 	HomeWarranty = 0,
 	CommunityAssociation = 1,
 	AdditionalDocuments = 2,
+	IncludedFeatures = 3,
 }
 
 export interface ISectionHeader

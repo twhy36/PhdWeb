@@ -21,6 +21,7 @@ export class LitePlanOption implements PlanOption
 
     // Lite
     optionSubCategoryId: number;
+    colorItems: ColorItem[] = [];
 }
 
 export interface ScenarioOption
@@ -29,6 +30,44 @@ export interface ScenarioOption
 	scenarioId: number;
 	edhPlanOptionId: number;
     planOptionQuantity: number;
+    scenarioOptionColors: ScenarioOptionColor[]; 
+}
+
+export interface ScenarioOptionColor
+{
+    scenarioOptionColorId: number;
+    scenarioOptionId: number;
+    colorItemId: number;
+    colorId: number;
+}
+
+export class ScenarioOptionColorDto implements ScenarioOptionColor
+{
+    scenarioOptionColorId: number;
+    scenarioOptionId: number;
+    colorItemId: number;
+    colorId: number;
+    isDeleted: boolean;
+}
+
+export interface ColorItem
+{
+    colorItemId: number;
+    name: string;
+    edhPlanOptionId: number;
+    isActive: boolean;
+    color: Color[];
+}
+
+export interface Color
+{
+    colorId: number;    
+    name: string;
+    sku: string;
+    edhFinancialCommunityId: number;    
+    edhOptionSubcategoryId: number;
+    isActive: boolean;
+    colorItemId: number;
 }
 
 export enum Elevation

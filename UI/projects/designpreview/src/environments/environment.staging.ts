@@ -28,7 +28,8 @@ export const environment: IEnvironment = {
 	},
 	authQueryParams: "domain_hint=pulte.com",
 	appInsights: {
-		instrumentationKey: 'cf19cbb8-e39b-4e28-8199-3d06eaf051f0'
+		instrumentationKey: 'cf19cbb8-e39b-4e28-8199-3d06eaf051f0',
+		enableAutoRouteTracking: true
 	},
 	cloudinary: { cloud_name: 'dv0jqjrc3', responsive_use_breakpoints: false },
 	alphavision: {

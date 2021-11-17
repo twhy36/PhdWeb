@@ -21,6 +21,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit
 	@Input() price: number = 0;
 	@Input() favoritesPrice: number = 0;
 	@Input() showPrint = false;
+	@Input() showFavorites = true;
 	@Input() isDesignComplete: boolean = false;
 
 	@Output() callToAction = new EventEmitter<{ actionBarCallType: ActionBarCallType }>();
@@ -80,5 +81,10 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit
 	onPrint() 
 	{
 		this.onPrintAction?.emit();
+	}
+
+	onViewFavorites() {
+		this.store.dispatch(new ScenarioActions.SetTreeFilter(null));
+		this.router.navigateByUrl('/favorites/summary');
 	}
 }

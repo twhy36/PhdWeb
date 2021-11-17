@@ -1,7 +1,8 @@
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from "@angular/core";
 import { AbstractControl, FormControl, FormGroup, ValidatorFn, Validators } from "@angular/forms";
 import { SidePanelComponent } from "phd-common";
-import { CommunityPdf, ISectionHeader } from "../../../shared/models/communityPdf.model";
+import { CommunityPdf, ISectionHeader, SectionHeader } from "../../../shared/models/communityPdf.model";
+import { FinancialCommunityViewModel } from "../../../shared/models/plan-assignment.model";
 
 import * as moment from "moment";
 
@@ -19,23 +20,28 @@ export class CommunityPdfSidePanelComponent implements OnInit
 	@Output() onSave = new EventEmitter<object>();
 	@Output() onUpdate = new EventEmitter<object>();
 	@Input() communityPdfs: Array<CommunityPdf>;
+	@Input() includedFeaturesExists: boolean;
 	@Input() selected: CommunityPdf;
+	@Input() selectedCommunity: FinancialCommunityViewModel;
 	@Input() saving: boolean;
 	@Input() sidePanelOpen: boolean = false;
 
 	communityPdfForm: FormGroup;
 
+	customMsgBody: string;
 	oneDay: number = 86400000;
 	pdf: Blob;
 	effectiveDate: Date;
 	expirationDate: Date;
+	includedFeaturesSelected: boolean = false;
 	minEffectiveDate: Date = new Date(new Date().getTime() - this.oneDay);
 	minDate: Date = new Date();
 
 	public sectionHeaders: Array<ISectionHeader> = [
 		{ label: 'Home Warranty', id: 0 },
 		{ label: 'Community Association', id: 1 },
-		{ label: 'Additional Documents', id: 2 }
+		{ label: 'Additional Documents', id: 2 },
+		{ label: 'Included Features', id: 3 }
 	]
 
 	get isDirty(): boolean
@@ -54,12 +60,27 @@ export class CommunityPdfSidePanelComponent implements OnInit
 
 	ngOnInit()
 	{
+		this.customMsgBody = `An Included Features PDF exists for this community.<br>
+			If you choose to Continue, the existing PDF will be<br>
+			expired. If you choose to Cancel, no changes will be<br>
+			made.`;
 		this.createForm();
 	}
 
 	convertDate(date)
 	{
-		return moment.parseZone(date).format("M/DD/YYYY")
+		return moment.parseZone(date).format("M/DD/YYYY");
+	}
+
+	handleSave()
+	{
+		if (this.includedFeaturesExists)
+		{
+			this.sidePanel.showCustomConfirm();
+		}
+		else{
+			this.save();
+		}
 	}
 
 	save()
@@ -99,6 +120,13 @@ export class CommunityPdfSidePanelComponent implements OnInit
 					formData.append(key, this.communityPdfForm.get(key).value);
 				}
 			}
+			
+			if (this.communityPdfForm.get('sectionHeader').value === SectionHeader.IncludedFeatures)
+			{
+				formData.set('fileName', this.communityPdfForm.get('fileName').value);
+				formData.set('linkText', this.communityPdfForm.get('linkText').value);
+			}
+
 			this.onSave.emit(formData);
 
 			this.saving = true;
@@ -123,6 +151,8 @@ export class CommunityPdfSidePanelComponent implements OnInit
 			{
 				this.minDate = new Date(this.effectiveDate.getTime() + this.oneDay);
 			}
+
+			this.includedFeaturesSelected = this.selected.sectionHeader === SectionHeader.IncludedFeatures ? true : false;
 		}
 
 		let sortOrder = this.selected ? this.selected.sortOrder : null;
@@ -215,6 +245,28 @@ export class CommunityPdfSidePanelComponent implements OnInit
 		{
 			this.communityPdfForm.controls.effectiveDate.markAsDirty();
 			this.communityPdfForm.controls.effectiveDate.markAsTouched();
+		}
+	}
+
+	onSectionHeaderChange()
+	{
+		if (this.communityPdfForm.get('sectionHeader').value as SectionHeader === SectionHeader.IncludedFeatures)
+		{
+			this.includedFeaturesSelected = true;
+			this.communityPdfForm.get('linkText').setValue('Included Features');
+			this.communityPdfForm.get('linkText').disable();
+			// TODO: 335674 - make this effective date when date logic is added
+			const fileName = `${this.selectedCommunity.name}-Included Features-${new Date().toISOString().split('T')[0]}`;
+			this.communityPdfForm.get('fileName').setValue(fileName);
+			this.communityPdfForm.get('fileName').disable();
+		}
+		else
+		{
+			this.includedFeaturesSelected = false;
+			this.communityPdfForm.get('linkText').setValue(null);
+			this.communityPdfForm.get('linkText').enable();
+			this.communityPdfForm.get('fileName').setValue(null);
+			this.communityPdfForm.get('fileName').enable();
 		}
 	}
 

@@ -149,11 +149,12 @@
 	<ng-template #addColorItemModal>
 		<add-color-item-dialog
 			[communityId]="currentFinancialCommunityId"
-			[selectedOption]="selectedOption"
-			[plansUsedInSearch]="selectedPlans"
-			(dialogWasCanceled)="onAddColorItemDialogWasCanceled()"
+			[selectedOption]="currentOption"
+			[planIdsUsedInSearch]="selectedPlans"
+			[searchedByAllPlans]="selectedAllPlans"
 			[allPlans]="planCommunityList"
 			[optionsWithColorItemInfo]="optionsWithColorItems"
+			(dialogWasCanceled)="onAddColorItemDialogWasCanceled()"
 			(colorItemSaveAttempted)="colorItemSaveWasAttempted($event)"
 		>
 		</add-color-item-dialog>

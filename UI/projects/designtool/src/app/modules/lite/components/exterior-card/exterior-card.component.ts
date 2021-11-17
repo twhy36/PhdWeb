@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 
 import { UnsubscribeOnDestroy, flipOver3 } from 'phd-common';
-import { LitePlanOption, ScenarioOption } from '../../../shared/models/lite.model';
+import { LitePlanOption, ScenarioOption, Color } from '../../../shared/models/lite.model';
 
 @Component({
 	selector: 'exterior-card',
@@ -14,24 +14,26 @@ import { LitePlanOption, ScenarioOption } from '../../../shared/models/lite.mode
 export class ExteriorCardComponent extends UnsubscribeOnDestroy
 {
 	@Input() option: LitePlanOption;
+	@Input() color: Color;
 	@Input() scenarioOptions: ScenarioOption[];
+	@Input() isSelected: boolean;
 
-	@Output() toggled: EventEmitter<LitePlanOption> = new EventEmitter();
+	@Output() toggled: EventEmitter<{option: LitePlanOption, color: Color}> = new EventEmitter();
 
 	constructor() { super(); }
 
-	get isOptionSelected()
+	getName(): string
 	{
-		return !!this.scenarioOptions.find(opt => opt.edhPlanOptionId === this.option.id && opt.planOptionQuantity > 0);
+		return this.color ? this.color.name : this.option.name;
 	}
 
 	getButtonLabel(): string
 	{
-		return this.isOptionSelected ? 'Unselect' : 'CHOOSE';
+		return this.isSelected ? 'Unselect' : 'CHOOSE';
 	}
 
 	toggleSelection()
 	{
-		this.toggled.emit(this.option);
+		this.toggled.emit({option: this.option, color: this.color});
 	}
 }

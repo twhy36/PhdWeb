@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { Injector, NgModule } from '@angular/core';
 import { META_REDUCERS, StoreModule as NgrxStoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
@@ -7,7 +7,7 @@ import { environment } from '../../../environments/environment';
 import { reducers } from './reducers';
 
 // meta-reducers
-import { stopwatchReducer } from './stopwatch';
+import { LoggingEffects } from 'phd-common';
 import { sessionStateReducer } from './sessionStorage';
 import { stateReset } from './state-reset';
 import { exceptionHandlerFactory } from './exceptionHandler';
@@ -31,7 +31,7 @@ import { LoggingService } from '../core/services/logging.service';
 
 @NgModule({
 	imports: [
-		NgrxStoreModule.forRoot(reducers, { metaReducers: [sessionStateReducer, stopwatchReducer, stateReset] }),
+		NgrxStoreModule.forRoot(reducers, { metaReducers: [sessionStateReducer, stateReset] }),
 		environment.production ? [] : StoreDevtoolsModule.instrument({
 			name: 'PHD Store DevTools',
 			logOnly: false
@@ -52,7 +52,8 @@ import { LoggingService } from '../core/services/logging.service';
 			CommonEffects,
 			UserEffects,
 			FavoriteEffects,
-			LiteEffects
+			LiteEffects,
+			LoggingEffects
 		]
 		)
 	],

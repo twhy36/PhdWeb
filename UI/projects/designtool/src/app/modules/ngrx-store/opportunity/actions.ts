@@ -1,6 +1,6 @@
 import { Action } from '@ngrx/store';
 
-import { OpportunityContactAssoc } from 'phd-common';
+import { OpportunityContactAssoc, Log } from 'phd-common';
 import { ScenarioLoaded, SalesAgreementLoaded } from '../actions';
 
 export enum OpportunityActionTypes {
@@ -21,6 +21,7 @@ export class OpportunityLoaded implements Action {
 	constructor(public opportunity: OpportunityContactAssoc) { }
 }
 
+@Log(true)
 export class OpportunityContactAssocUpdated implements Action {
 	readonly type = OpportunityActionTypes.OpportunityContactAssocUpdated;
 

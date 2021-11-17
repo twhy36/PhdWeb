@@ -9,6 +9,7 @@ import { SharedModule } from '../shared/shared.module';
 import { PhdCommonModule } from 'phd-common';
 
 import { ElevationComponent } from './components/elevation/elevation.component';
+import { ColorSchemeComponent } from './components/color-scheme/color-scheme.component';
 import { ExteriorCardComponent } from './components/exterior-card/exterior-card.component';
 import { LiteExperienceComponent } from './components/lite-experience/lite-experience.component';
 
@@ -20,7 +21,8 @@ const moduleRoutes: Routes = [
 		data: {},
 		children: [
 			{ path: '', redirectTo: 'elevation', pathMatch: 'full' },
-			{ path: 'elevation', component: ElevationComponent }		
+			{ path: 'elevation', component: ElevationComponent },
+			{ path: 'color-scheme', component: ColorSchemeComponent }		
 		]
 	}
 ];
@@ -28,11 +30,13 @@ const moduleRoutes: Routes = [
 @NgModule({
 	exports: [
 		ElevationComponent,
+		ColorSchemeComponent,
 		ExteriorCardComponent,
 		LiteExperienceComponent
 	],
 	declarations: [
 		ElevationComponent,
+		ColorSchemeComponent,
 		ExteriorCardComponent,
 		LiteExperienceComponent
 	],

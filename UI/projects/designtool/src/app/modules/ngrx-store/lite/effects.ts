@@ -7,7 +7,9 @@ import { switchMap, withLatestFrom, map } from 'rxjs/operators';
 import { LiteService } from '../../core/services/lite.service';
 import { PlanActionTypes, PlansLoaded } from '../plan/actions';
 import { ScenarioActionTypes, ScenarioSaved } from '../scenario/actions';
-import { LiteActionTypes, SetIsPhdLite, LiteOptionsLoaded, SaveScenarioOptions, ScenarioOptionsSaved } from './actions';
+import { 
+	LiteActionTypes, SetIsPhdLite, LiteOptionsLoaded, SaveScenarioOptions, ScenarioOptionsSaved, SaveScenarioOptionColors 
+} from './actions';
 import * as fromRoot from '../reducers';
 
 
@@ -47,8 +49,20 @@ export class LiteEffects
 						this.liteService.getLitePlanOptions(action.scenario.planId),
 						this.liteService.getScenarioOptions(action.scenario.scenarioId)
 					]).pipe(
-						map(([options, scenarioOptions]) => {
-							return { options, scenarioOptions };
+						switchMap(([options, scenarioOptions]) => {
+							const optionIds = options.map(o => o.id);
+							return this.liteService.getColorItems(optionIds).pipe(
+								map(colorItems => {
+									colorItems.forEach(colorItem => {
+										let option = options.find(option => option.id === colorItem.edhPlanOptionId);
+										if (option)
+										{
+											option.colorItems.push(colorItem);
+										}
+									});
+									return { options, scenarioOptions };
+								})
+							)
 						})
 					);
 				}
@@ -76,6 +90,21 @@ export class LiteEffects
 
 				return scenarioId
 					? this.liteService.saveScenarioOptions(scenarioId, action.scenarioOptions)
+					: of([]);
+			}),
+			map(options => new ScenarioOptionsSaved(options))
+		);
+	});	
+
+	saveScenarioOptionColors$: Observable<Action> = createEffect(() => {
+		return this.actions$.pipe(
+			ofType<SaveScenarioOptionColors>(LiteActionTypes.SaveScenarioOptionColors),
+			withLatestFrom(this.store),
+			switchMap(([action, store]) => {
+				const scenarioId = store.scenario.scenario?.scenarioId;
+
+				return scenarioId
+					? this.liteService.saveScenarioOptionColors(scenarioId, action.optionColors)
 					: of([]);
 			}),
 			map(options => new ScenarioOptionsSaved(options))

@@ -1,12 +1,12 @@
-<div class="phd-exterior-card" [class.active]="isOptionSelected" [class.selected]="isOptionSelected" [@flipOver]>
+<div class="phd-exterior-card" [class.active]="isSelected" [class.selected]="isSelected" [@flipOver]>
 	<div class="phd-header">
         <span class="phd-2-line-limit">
-            {{option.name}}
+            {{getName()}}
         </span>                 
     </div>
     <div class="phd-divider"></div>
     <div class="phd-body">
-        <div class="phd-option-body">
+        <div class="phd-option-body" *ngIf="!color && option">
             <div class="d-flex justify-content-end">
                 <p>
                     <strong>{{option.listPrice | currency:'USD':'symbol':'0.0-0'}}</strong>
