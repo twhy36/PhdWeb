@@ -74,7 +74,7 @@
         <!--Data Row-->
         <tr *ngIf="!rowFilter || rowFilter(rowData)" [ngClass]="rowClass ? rowClass(rowData) : getDefaultRowClass(rowIndex)"
             [pSelectableRow]="selectionMode ? rowData : ''" [pSelectableRowIndex]="selectionMode ? rowIndex : ''" [pReorderableRow]="canReorderRows ? rowIndex : ''">
-            <ng-container *ngTemplateOutlet="rowBody; context: {$implicit: rowData, columns: columns, reorderableRow: canReorderRows, expanded: expanded, rowIndex: rowIndex}"></ng-container>
+            <ng-container *ngTemplateOutlet="rowBody; context: {$implicit: rowData, columns: columns, reorderableRow: canReorderRows, expanded: expanded}"></ng-container>
         </tr>
 
         <!--Row Group Footer Display-->
@@ -117,12 +117,12 @@
 </p-table>
 
 <!--ROW BODY TEMPLATE-->
-<ng-template #rowBody let-rowData let-columns="columns" let-reorderable="reorderableRow" let-rowIndex="rowIndex" let-expanded="expanded">
+<ng-template #rowBody let-rowData let-columns="columns" let-reorderable="reorderableRow" let-expanded="expanded">
     <ng-template ngFor [ngForOf]="columns" let-col let-index="index">
         <td [ngClass]="col.styleClass" [style.width]="col.width" [class.reorderable-row]="reorderable && index === 0" class="p-resizable-column">
             <!--BODY TEMPLATE DEFINED-->
             <ng-template [ngIf]="col.bodyTemplate">
-                <ng-container *ngTemplateOutlet="col.bodyTemplate; context: {$implicit: rowData, expanded: expanded, rowIndex: rowIndex}"></ng-container>
+                <ng-container *ngTemplateOutlet="col.bodyTemplate; context: {$implicit: rowData, expanded: expanded}"></ng-container>
             </ng-template>
 
             <!--USING FIELD PROPERTY-->

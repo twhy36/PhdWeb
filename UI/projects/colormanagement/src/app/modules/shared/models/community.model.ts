@@ -72,7 +72,7 @@ export interface IPlanOptionCommunityDto {
 }
 
 export interface IPlanOptionCommunityGridDto {
-	planOptionId: number;
+	planOptionId: string;
 	planCommunity: IPlanCommunity[];
 	optionCommunityId: number;
 	optionSalesName: string;
