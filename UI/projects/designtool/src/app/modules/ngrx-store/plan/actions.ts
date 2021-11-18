@@ -1,5 +1,5 @@
 import { Action } from '@ngrx/store';
-import { Plan } from 'phd-common';
+import { Plan, Log } from 'phd-common';
 import { ErrorAction } from '../error.action';
 import { ScenarioLoaded, SalesAgreementLoaded, JobLoaded } from '../actions';
 
@@ -32,12 +32,14 @@ export class LoadError extends ErrorAction {
 	constructor(public error: Error, public friendlyMessage?: string) { super(error, friendlyMessage); }
 }
 
+@Log(true)
 export class SelectPlan implements Action {
     readonly type = PlanActionTypes.SelectPlan;
 
     constructor(public planId: number, public treeVersionId: number, public marketingPlanId?: number[]) { }
 }
 
+@Log()
 export class DeselectPlan implements Action {
     readonly type = PlanActionTypes.DeselectPlan;
 
@@ -50,6 +52,7 @@ export class SetWebPlanMapping implements Action {
 	constructor(public marketingPlanId: number[]) { }
 }
 
+@Log(true)
 export class LoadSelectedPlan implements Action {
 	readonly type = PlanActionTypes.LoadSelectedPlan;
 

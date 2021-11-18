@@ -2,7 +2,7 @@ import { Action } from '@ngrx/store';
 
 import {
 	Buyer, Note, SalesAgreement, Realtor, SalesAgreementProgram, SalesAgreementDeposit, SalesAgreementContingency,
-	SalesAgreementCancelVoidInfo, Consultant, SalesAgreementInfo
+	SalesAgreementCancelVoidInfo, Consultant, SalesAgreementInfo, Log
 } from 'phd-common';
 
 import { ErrorAction } from '../error.action';
@@ -88,6 +88,7 @@ export enum SalesAgreementActionTypes
 	SalesAgreementTerminated = 'Sales Agreement Terminated'
 }
 
+@Log(true)
 export class SalesAgreementTerminated implements Action
 {
 	readonly type = SalesAgreementActionTypes.SalesAgreementTerminated;
@@ -102,6 +103,7 @@ export class SalesAgreementInfoViewed implements Action
 	constructor() { }
 }
 
+@Log(true)
 export class SaveSalesAgreementInfoNA implements Action
 {
 	readonly type = SalesAgreementActionTypes.SaveSalesAgreementInfoNA;
@@ -123,6 +125,7 @@ export class SalesAgreementLoadError extends ErrorAction
 	constructor(public error: Error, public friendlyMessage?: string) { super(error, friendlyMessage); }
 }
 
+@Log(true)
 export class CreateSalesAgreementForScenario implements Action
 {
 	readonly type = SalesAgreementActionTypes.CreateSalesAgreementForScenario;
@@ -130,6 +133,7 @@ export class CreateSalesAgreementForScenario implements Action
 	constructor(public scenarioId: number) { }
 }
 
+@Log()
 export class SalesAgreementCreated implements Action
 {
 	readonly type = SalesAgreementActionTypes.SalesAgreementCreated;
@@ -137,6 +141,7 @@ export class SalesAgreementCreated implements Action
 	constructor(public salesAgreement: SalesAgreement) { }
 }
 
+@Log()
 export class UpdateSalesAgreement implements Action
 {
 	readonly type = SalesAgreementActionTypes.UpdateSalesAgreement;
@@ -151,6 +156,7 @@ export class SalesAgreementSaved implements Action
 	constructor(public salesAgreement: SalesAgreement) { }
 }
 
+@Log(true)
 export class VoidSalesAgreement implements Action
 {
 	readonly type = SalesAgreementActionTypes.VoidSalesAgreement;
@@ -158,6 +164,7 @@ export class VoidSalesAgreement implements Action
 	constructor(public reasonKey: string) { }
 }
 
+@Log(true)
 export class CancelSalesAgreement implements Action
 {
 	readonly type = SalesAgreementActionTypes.CancelSalesAgreement;
@@ -165,6 +172,7 @@ export class CancelSalesAgreement implements Action
 	constructor(public buildType: string, public noteContent: string, public reasonKey: string) { }
 }
 
+@Log(true)
 export class SalesAgreementOutForSignature implements Action
 {
 	readonly type = SalesAgreementActionTypes.SalesAgreementOutForSignature;
@@ -172,6 +180,7 @@ export class SalesAgreementOutForSignature implements Action
 	constructor(public isWetSign: boolean, public isEdit: boolean) { }
 }
 
+@Log()
 export class SalesAgreementPending implements Action
 {
 	readonly type = SalesAgreementActionTypes.SalesAgreementPending;
@@ -179,6 +188,7 @@ export class SalesAgreementPending implements Action
 	constructor() { }
 }
 
+@Log(true)
 export class SignSalesAgreement implements Action
 {
 	readonly type = SalesAgreementActionTypes.SignSalesAgreement;
@@ -186,6 +196,7 @@ export class SignSalesAgreement implements Action
 	constructor(public signedDate: Date) { }
 }
 
+@Log()
 export class ApproveSalesAgreement implements Action
 {
 	readonly type = SalesAgreementActionTypes.ApproveSalesAgreement;
@@ -193,6 +204,7 @@ export class ApproveSalesAgreement implements Action
 	constructor() { }
 }
 
+@Log(true)
 export class AddUpdateRealtor implements Action
 {
 	readonly type = SalesAgreementActionTypes.AddUpdateRealtor;
@@ -207,6 +219,7 @@ export class RealtorSaved implements Action
 	constructor(public realtor: Realtor) { }
 }
 
+@Log(true)
 export class SetTrustName implements Action
 {
 	readonly type = SalesAgreementActionTypes.SetTrustName;
@@ -221,6 +234,7 @@ export class TrustNameSaved implements Action
 	constructor(public trustName: string) { }
 }
 
+@Log(true)
 export class SwapPrimaryBuyer implements Action
 {
 	readonly type = SalesAgreementActionTypes.SwapPrimaryBuyer;
@@ -235,6 +249,7 @@ export class BuyersSwapped implements Action
 	constructor(public oldPrimaryBuyer: Buyer, public newPrimaryBuyer: Buyer) { }
 }
 
+@Log(true)
 export class DeleteCoBuyer implements Action
 {
 	readonly type = SalesAgreementActionTypes.DeleteCoBuyer;
@@ -249,6 +264,7 @@ export class CoBuyerDeleted implements Action
 	constructor(public deletedCoBuyerId: number, public deletedCoBuyerSortKey: number) { }
 }
 
+@Log(true)
 export class UpdatePrimaryBuyer implements Action
 {
 	readonly type = SalesAgreementActionTypes.UpdatePrimaryBuyer;
@@ -256,6 +272,7 @@ export class UpdatePrimaryBuyer implements Action
 	constructor(public buyer: Buyer) { }
 }
 
+@Log(true)
 export class UpdateCoBuyer implements Action
 {
 	readonly type = SalesAgreementActionTypes.UpdateCoBuyer;
@@ -270,6 +287,7 @@ export class BuyerSaved implements Action
 	constructor(public buyer: Buyer) { }
 }
 
+@Log(true)
 export class AddCoBuyer implements Action
 {
 	readonly type = SalesAgreementActionTypes.AddCoBuyer;
@@ -284,6 +302,7 @@ export class CoBuyerAdded implements Action
 	constructor(public coBuyer: Buyer) { }
 }
 
+@Log(true)
 export class ReSortCoBuyers implements Action
 {
 	readonly type = SalesAgreementActionTypes.ReSortCoBuyers;
@@ -319,6 +338,7 @@ export class PrimaryBuyerLoaded implements Action
 	constructor(public buyer: Buyer) { }
 }
 
+@Log(true)
 export class DeleteProgram implements Action
 {
 	readonly type = SalesAgreementActionTypes.DeleteProgram;
@@ -333,6 +353,7 @@ export class ProgramDeleted implements Action
 	constructor(public deletedProgramId: number) { }
 }
 
+@Log(true)
 export class SaveProgram implements Action
 {
 	readonly type = SalesAgreementActionTypes.SaveProgram;
@@ -361,6 +382,7 @@ export class RealtorLoaded implements Action
 	constructor(public realtor: Realtor) { }
 }
 
+@Log(true)
 export class DeleteDeposit implements Action
 {
 	readonly type = SalesAgreementActionTypes.DeleteDeposit;
@@ -375,6 +397,7 @@ export class DepositDeleted implements Action
 	constructor(public deletedDepositId: number) { }
 }
 
+@Log(true)
 export class SaveDeposit implements Action
 {
 	readonly type = SalesAgreementActionTypes.SaveDeposit;
@@ -389,6 +412,7 @@ export class DepositSaved implements Action
 	constructor(public deposit: SalesAgreementDeposit) { }
 }
 
+@Log(true)
 export class DeleteContingency implements Action
 {
 	readonly type = SalesAgreementActionTypes.DeleteContingency;
@@ -403,6 +427,7 @@ export class ContingencyDeleted implements Action
 	constructor(public deletedContingencyId: number) { }
 }
 
+@Log(true)
 export class SaveContingency implements Action
 {
 	readonly type = SalesAgreementActionTypes.SaveContingency;
@@ -417,6 +442,7 @@ export class ContingencySaved implements Action
 	constructor(public contingency: SalesAgreementContingency) { }
 }
 
+@Log(true)
 export class DeleteNote implements Action
 {
 	readonly type = SalesAgreementActionTypes.DeleteNote;
@@ -431,6 +457,7 @@ export class NoteDeleted implements Action
 	constructor(public noteId: number) { }
 }
 
+@Log(true)
 export class SaveNote implements Action
 {
 	readonly type = SalesAgreementActionTypes.SaveNote;
@@ -452,6 +479,7 @@ export class SaveError extends ErrorAction
 	constructor(public error: Error, public friendlyMessage?: string) { super(error, friendlyMessage); }
 }
 
+@Log()
 export class CreateJIOForSpec implements Action
 {
 	readonly type = SalesAgreementActionTypes.CreateJIOForSpec;
@@ -473,6 +501,7 @@ export class IsFloorplanFlippedAgreement implements Action
 	constructor(public flipped: boolean) { }
 }
 
+@Log(true)
 export class SetIsFloorplanFlippedAgreement implements Action
 {
 	readonly type = SalesAgreementActionTypes.SetIsFloorplanFlippedAgreement;
@@ -487,6 +516,7 @@ export class IsDesignCompleteSaved implements Action
 	constructor(public isDesignComplete: boolean) { }
 }
 
+@Log(true)
 export class SetIsDesignComplete implements Action
 {
 	readonly type = SalesAgreementActionTypes.SetIsDesignComplete;
@@ -508,6 +538,7 @@ export class ConsultantsLoaded implements Action
 	constructor(public consultants: Array<Consultant>) { }
 }
 
+@Log(true)
 export class SaveSalesConsultants implements Action
 {
 	readonly type = SalesAgreementActionTypes.SaveSalesConsultants;

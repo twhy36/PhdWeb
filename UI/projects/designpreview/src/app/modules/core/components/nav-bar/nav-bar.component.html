@@ -29,7 +29,7 @@
 	<div [class.phd-active-link-collapsed]="currentRoute?.startsWith('/favorites/summary')">
 		<a *ngIf="(isTablet$ | async)" [routerLink]="['/favorites/summary']">My Favorites</a>
 		<!-- Send these links to their proper pages, uncomment as needed -->
-		<!-- <a [routerLink]="['/home']">Floorplan</a> -->
+		<a [routerLink]="['/floorplan']">Floorplan</a>
 		<a *ngIf="showContractedOptionsLink" [routerLink]="['/contracted']">Contracted Options</a>
 		<a *ngIf="!showContractedOptionsLink" class="phd-contracted-link-banned">Contracted Options</a>
 		<!-- <a [routerLink]="['/home']">FAQ</a> -->

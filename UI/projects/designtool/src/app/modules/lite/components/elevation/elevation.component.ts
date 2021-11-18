@@ -1,14 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { Store, select } from '@ngrx/store';
+
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromLite from '../../../ngrx-store/lite/reducer';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 
 import * as LiteActions from '../../../ngrx-store/lite/actions';
-import * as NavActions from '../../../ngrx-store/nav/actions';
 
-import { UnsubscribeOnDestroy, PointStatus } from 'phd-common';
-import { LitePlanOption, ScenarioOption, LiteSubMenu } from '../../../shared/models/lite.model';
+import { UnsubscribeOnDestroy } from 'phd-common';
+import { LitePlanOption, ScenarioOption, Color } from '../../../shared/models/lite.model';
 
 @Component({
 	selector: 'elevation',
@@ -20,6 +20,7 @@ export class ElevationComponent extends UnsubscribeOnDestroy implements OnInit
 	elevationOptions: LitePlanOption[];
 	scenarioOptions: ScenarioOption[];
 	scenarioId: number;
+	selectedElevation: LitePlanOption;
 
 	constructor(private store: Store<fromRoot.State>) { super(); }
 
@@ -31,8 +32,8 @@ export class ElevationComponent extends UnsubscribeOnDestroy implements OnInit
 		).subscribe(elevations =>
 		{
 			this.elevationOptions = elevations;
-		});		
-
+		});	
+		
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(state => state.lite.scenarioOptions)
@@ -43,11 +44,10 @@ export class ElevationComponent extends UnsubscribeOnDestroy implements OnInit
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
-			select(fromLite.isElevationSelected)
-		).subscribe(isElevationSelected =>
+			select(fromLite.selectedElevation)
+		).subscribe(elevation =>
 		{
-			const status = isElevationSelected ? PointStatus.COMPLETED : PointStatus.REQUIRED;
-			this.store.dispatch(new NavActions.SetSubNavItemStatus(LiteSubMenu.Elevation, status));
+			this.selectedElevation = elevation;
 		});
 
 		this.store.pipe(
@@ -59,15 +59,16 @@ export class ElevationComponent extends UnsubscribeOnDestroy implements OnInit
 		});
 	}
 
-	onToggleElevation(elevation: LitePlanOption)
+	onToggleElevation(data: { option: LitePlanOption, color: Color })
 	{
-		const elevationToggled = this.elevationOptions.find(option => option.id === elevation.id);
+		const elevationToggled = this.elevationOptions.find(option => option.id === data.option?.id);
 
 		if (elevationToggled)
 		{
 			let selectedOptions = [];
 
-			const scenarioOption = this.scenarioOptions.find(opt => opt.edhPlanOptionId === elevation.id && opt.planOptionQuantity > 0);
+			const scenarioOption = this.scenarioOptions.find(opt => opt.edhPlanOptionId === data.option?.id && opt.planOptionQuantity > 0);
+			
 			if (scenarioOption)
 			{
 				// De-select an elevation
@@ -82,6 +83,7 @@ export class ElevationComponent extends UnsubscribeOnDestroy implements OnInit
 			{
 				// Deselect current selected elevation
 				const currentElevation = this.elevationOptions.find(option => this.scenarioOptions.find(opt => opt.edhPlanOptionId === option.id && opt.planOptionQuantity > 0));
+				
 				if (currentElevation)
 				{
 					const currentScenarioOption = this.scenarioOptions.find(opt => opt.edhPlanOptionId === currentElevation.id);				
@@ -98,7 +100,8 @@ export class ElevationComponent extends UnsubscribeOnDestroy implements OnInit
 					scenarioOptionId: 0,
 					scenarioId: this.scenarioId,
 					edhPlanOptionId: elevationToggled.id,
-					planOptionQuantity: 1
+					planOptionQuantity: 1,
+					scenarioOptionColors: []
 				});
 			}
 
@@ -108,6 +111,5 @@ export class ElevationComponent extends UnsubscribeOnDestroy implements OnInit
 				this.store.dispatch(new LiteActions.SaveScenarioOptions(selectedOptions));
 			}
 		}
-
 	}
 }
