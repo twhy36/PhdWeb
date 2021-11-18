@@ -84,7 +84,7 @@ export class ColorService {
 							const entity = `colorItems`;
 							const expand =  `colorItemColorAssoc($expand=color($select=colorId,name,edhFinancialCommunityId,isActive;$filter=edhFinancialCommunityId eq ${communityId}))`
 							const endIndex = (i+50) < edhPlanOptionIds.length ? (i+50) : edhPlanOptionIds.length;
-							let filter = `(edhPlanOptionId in (${_.slice(edhPlanOptionIds, i, endIndex).join(',')}))`;
+							let filter = `(edhPlanOptionId in (${edhPlanOptionIds.slice(i, endIndex).join(',')}))`;
 							const select = `colorItemId,name,edhPlanOptionId,isActive,colorItemColorAssoc`;
 
 							if (isActive != null)
