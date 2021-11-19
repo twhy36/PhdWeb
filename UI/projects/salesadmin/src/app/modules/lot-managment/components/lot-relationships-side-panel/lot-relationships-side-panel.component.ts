@@ -82,6 +82,7 @@ export class LotRelationshipsSidePanelComponent implements OnInit
 			const divChoiceCatalog = this.divChoiceCatalogs.find(c => c.divChoiceCatalogID === this.selected.divChoiceCatalogId);
 			if (divChoiceCatalog)
 			{
+				divChoiceCatalog.mustHave = this.selected.mustHave;
 				this.selectedChoiceCatalogs.push(divChoiceCatalog);
 			}
 		}
