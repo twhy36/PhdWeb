@@ -293,27 +293,6 @@ export class ColorService {
 		);
 	}
 
-	updateColorItemIsActiveField(colorItemToUpdate: IColorItemDto[],rowId:number): Observable<IColorItemDto[]>
-	{
-		return this.identityService.token.pipe(
-			switchMap((token: string) =>
-			{
-				let guid = newGuid();
-				let requests = createBatchPatch<IColorItemDto>(colorItemToUpdate, 'colorItemId', 'colorItems', 'isActive');
-				let headers = new HttpHeaders(createBatchHeaders(guid, token));
-
-				let batchBody = createBatchBody(guid, [requests]);
-				const endPoint = `${environment.apiUrl}${this._batch}`;
-				return this._http.post(endPoint, batchBody,{ headers: headers });
-			}),
-			map((response: any)=>
-			{
-				let bodies = response.responses.map(res=>res.body);
-				return bodies;
-			}))
-
-	}
-
 	updateColorItem(colorItemsToUpdate: IColorItemDto[])
 	{
 		const colorItems: IColorItemAssoc[] = [];

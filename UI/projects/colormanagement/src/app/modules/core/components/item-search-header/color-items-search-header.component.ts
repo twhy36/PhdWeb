@@ -484,15 +484,17 @@ export class ColorItemsSearchHeaderComponent
 			{
 				const colorItemToSave = {
 					colorItemId: ci.colorItemId,
-					isActive: true,
-					} as IColorItemDto;
-
+					name: ci.name,
+					edhPlanOptionId: ci.edhPlanOptionId,
+					colors: ci.colors,
+					isActive: true
+				} as IColorItemDto;
 				colorItemsToUpdate.push(colorItemToSave);
 			})
 
 			let toast:IToastInfo;
 
-			this._colorService.updateColorItemIsActiveField(colorItemsToUpdate, planOptionDto.planOptionId).subscribe((colorItems) => {
+			this._colorService.updateColorItem(colorItemsToUpdate).subscribe((colorItems) => {
 				if (colorItems) {
 					toast = {
 						severity: 'success',
@@ -541,12 +543,14 @@ export class ColorItemsSearchHeaderComponent
 				{
 					const colorItemToSave = {
 						colorItemId: ci.colorItemId,
-						isActive: false,
-						} as IColorItemDto;
-
+						name: ci.name,
+						edhPlanOptionId: ci.edhPlanOptionId,
+						colors: ci.colors,
+						isActive: false
+					} as IColorItemDto;					
 					colorItemsToUpdate.push(colorItemToSave);
 				})
-				return this._colorService.updateColorItemIsActiveField(colorItemsToUpdate, planOptionDto.planOptionId)
+				return this._colorService.updateColorItem(colorItemsToUpdate)
 				})).subscribe((colorItems:IColorItemDto[]) => {
 					if (colorItems) {
 						toast = {
