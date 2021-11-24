@@ -83,7 +83,8 @@ export class ColorService {
 					{
 							const entity = `colorItems`;
 							const expand =  `colorItemColorAssoc($expand=color($select=colorId,name,edhFinancialCommunityId,isActive;$filter=edhFinancialCommunityId eq ${communityId}))`
-							let filter = `(edhPlanOptionId in (${_.take(edhPlanOptionIds,50).join(',')}))`;
+							const endIndex = (i+50) < edhPlanOptionIds.length ? (i+50) : edhPlanOptionIds.length;
+							let filter = `(edhPlanOptionId in (${edhPlanOptionIds.slice(i, endIndex).join(',')}))`;
 							const select = `colorItemId,name,edhPlanOptionId,isActive,colorItemColorAssoc`;
 
 							if (isActive != null)
@@ -107,7 +108,6 @@ export class ColorService {
 							}
 							const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
 							let request = createBatchGet(endpoint);
-							edhPlanOptionIds.splice(0,50);
 							requests.push(request);
 					}
 					let headers = createBatchHeaders(guid, token);
