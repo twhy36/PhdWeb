@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
-import {HttpClient, HttpHeaders} from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { catchError, map, switchMap } from 'rxjs/operators';
-import {Observable, throwError} from 'rxjs';
-import {IColorIdBatch, IColor, IColorDto} from '../../shared/models/color.model';
-import {IColorItem, IColorItemAssoc, IColorItemColorAssoc, IColorItemDto} from '../../shared/models/colorItem.model';
+import { Observable, throwError } from 'rxjs';
+import { IColorIdBatch, IColor, IColorDto } from '../../shared/models/color.model';
+import { IColorItemIdBatch, IColorItem, IColorItemAssoc, IColorItemColorAssoc, IColorItemDto } from '../../shared/models/colorItem.model';
 import * as _ from 'lodash';
 import {
 	newGuid,
@@ -21,26 +21,23 @@ import { IPlanOptionCommunityGridDto } from '../../shared/models/community.model
 
 @Injectable()
 export class ColorService {
-	constructor(private _http: HttpClient, private identityService: IdentityService) {}
+	constructor(private _http: HttpClient, private identityService: IdentityService) { }
 	private _ds: string = encodeURIComponent('$');
 	private _batch = '$batch';
 
 	/**
 	 * Gets the colors for the specified financial community
 	 */
-	getColors(communityId?: number,	colorName?: string,	subcategoryId?: number,	topRows?: number,	skipRows?: number,	isActive?: boolean): Observable<IColor[]>
-	{
+	getColors(communityId?: number, colorName?: string, subcategoryId?: number, topRows?: number, skipRows?: number, isActive?: boolean): Observable<IColor[]> {
 		const entity = `colors`;
 		let filter = `(EdhFinancialCommunityId eq ${communityId})`;
 		const select = `colorId,name,sku,isActive,edhOptionSubcategoryId`;
 		const orderBy = `name`;
-		if (colorName)
-		{
+		if (colorName) {
 			filter += `and contains(name,'${colorName}')`;
 		}
 
-		if (isActive != null)
-		{
+		if (isActive != null) {
 			filter += `and (isActive eq ${isActive})`;
 		}
 
@@ -50,13 +47,11 @@ export class ColorService {
 
 		let qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}orderBy=${encodeURIComponent(orderBy)}`;
 
-		if (topRows)
-		{
+		if (topRows) {
 			qryStr += `&${this._ds}top=${topRows}`;
 		}
 
-		if (skipRows)
-		{
+		if (skipRows) {
 			qryStr += `&${this._ds}skip=${skipRows}`;
 		}
 
@@ -72,125 +67,106 @@ export class ColorService {
 			);
 	}
 
-	getPlanOptionAssocColorItems(communityId: number,	edhPlanOptionIds: Array<number>, isActive?: boolean, name?: string, topRows?: number, skipRows?: number): Observable<IColorItemDto[]>
-	{
-			return this.identityService.token.pipe(
-				switchMap((token: string) =>
-				{
-					let guid = newGuid();
-					let requests=[];
-					for(let i=0;i<edhPlanOptionIds.length;i=i+50)
-					{
-							const entity = `colorItems`;
-							const expand =  `colorItemColorAssoc($expand=color($select=colorId,name,edhFinancialCommunityId,isActive;$filter=edhFinancialCommunityId eq ${communityId}))`
-							const endIndex = (i+50) < edhPlanOptionIds.length ? (i+50) : edhPlanOptionIds.length;
-							let filter = `(edhPlanOptionId in (${edhPlanOptionIds.slice(i, endIndex).join(',')}))`;
-							const select = `colorItemId,name,edhPlanOptionId,isActive,colorItemColorAssoc`;
+	getPlanOptionAssocColorItems(communityId: number, edhPlanOptionIds: Array<number>, isActive?: boolean, name?: string, topRows?: number, skipRows?: number): Observable<IColorItemDto[]> {
+		return this.identityService.token.pipe(
+			switchMap((token: string) => {
+				let guid = newGuid();
+				let requests = [];
+				for (let i = 0; i < edhPlanOptionIds.length; i = i + 50) {
+					const entity = `colorItems`;
+					const expand = `colorItemColorAssoc($expand=color($select=colorId,name,edhFinancialCommunityId,isActive;$filter=edhFinancialCommunityId eq ${communityId}))`
+					const endIndex = (i + 50) < edhPlanOptionIds.length ? (i + 50) : edhPlanOptionIds.length;
+					let filter = `(edhPlanOptionId in (${edhPlanOptionIds.slice(i, endIndex).join(',')}))`;
+					const select = `colorItemId,name,edhPlanOptionId,isActive,colorItemColorAssoc`;
 
-							if (isActive != null)
-							{
-								filter += ` and (isActive eq ${isActive})`;
-							}
-							if (name)
-							{
-								filter += ` and (name eq '${name}')`;
-							}
-							let qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
-
-							if (topRows)
-							{
-								qryStr += `&${this._ds}top=${topRows}`;
-							}
-
-							if (skipRows)
-							{
-								qryStr += `&${this._ds}skip=${skipRows}`;
-							}
-							const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
-							let request = createBatchGet(endpoint);
-							requests.push(request);
+					if (isActive != null) {
+						filter += ` and (isActive eq ${isActive})`;
 					}
-					let headers = createBatchHeaders(guid, token);
-					let batch = createBatchBody(guid, requests);
+					if (name) {
+						filter += ` and (name eq '${name}')`;
+					}
+					let qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
 
-					return withSpinner(this._http).post(`${environment.apiUrl}$batch`, batch, { headers: headers });
-				}),
-				map((response: any)=>
-				{
-					let bodies = response.responses.map(res=>res.body);
-					let colorItemDtoList: Array<IColorItemDto> = [];
+					if (topRows) {
+						qryStr += `&${this._ds}top=${topRows}`;
+					}
 
-					bodies.forEach((result)=>
-					{
-						let colorItems = result.value as Array<IColorItem>;
-						// Transform IColorItem to IColorItemDto
-						let groupedColorItems = _.groupBy(colorItems,c=>c.colorItemId);
+					if (skipRows) {
+						qryStr += `&${this._ds}skip=${skipRows}`;
+					}
+					const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
+					let request = createBatchGet(endpoint);
+					requests.push(request);
+				}
+				let headers = createBatchHeaders(guid, token);
+				let batch = createBatchBody(guid, requests);
 
-						for(const key in groupedColorItems)
-						{
-							if(groupedColorItems.hasOwnProperty(key))
+				return withSpinner(this._http).post(`${environment.apiUrl}$batch`, batch, { headers: headers });
+			}),
+			map((response: any) => {
+				let bodies = response.responses.map(res => res.body);
+				let colorItemDtoList: Array<IColorItemDto> = [];
+
+				bodies.forEach((result) => {
+					let colorItems = result.value as Array<IColorItem>;
+					// Transform IColorItem to IColorItemDto
+					let groupedColorItems = _.groupBy(colorItems, c => c.colorItemId);
+
+					for (const key in groupedColorItems) {
+						if (groupedColorItems.hasOwnProperty(key)) {
+							let item = groupedColorItems[key];
+							let colorItemDto: IColorItemDto =
 							{
-								let item = groupedColorItems[key];
-								let colorItemDto:IColorItemDto =
-								{
-									colorItemId:item[0].colorItemId,
-									name:item[0].name,
-									isActive:item[0].isActive,
-									edhPlanOptionId:item[0].edhPlanOptionId,
-									colors:item.map(x => x.colorItemColorAssoc.map(c=>c.color)).reduce((a,b)=>[...a,...b],[])
-								}
-								colorItemDtoList.push(colorItemDto);
+								colorItemId: item[0].colorItemId,
+								name: item[0].name,
+								isActive: item[0].isActive,
+								edhPlanOptionId: item[0].edhPlanOptionId,
+								colors: item.map(x => x.colorItemColorAssoc.map(c => c.color)).reduce((a, b) => [...a, ...b], [])
 							}
+							colorItemDtoList.push(colorItemDto);
 						}
-					})
+					}
+				})
 
 				return colorItemDtoList;
 			}),
-				catchError(this.handleError)
-			)
+			catchError(this.handleError)
+		)
 	}
 
-	getSalesConfiguration(colorList: Array<IColorDto>, communityId:number):Observable<IColorDto[]>
-	{
+	getSalesConfiguration(colorList: Array<IColorDto>, communityId: number): Observable<IColorDto[]> {
 		return this.identityService.token.pipe(
-			switchMap((token: string) =>
-			{
+			switchMap((token: string) => {
 				let guid = newGuid();
-				let requests = colorList.map(color =>
-				{
+				let requests = colorList.map(color => {
 					const entity = `jobs`;
 					const filter = `(FinancialCommunityId eq ${communityId}) and (jobPlanOptions/any(po: po/planOptionCommunity/optionCommunity/optionSubCategoryId eq ${color.optionSubCategoryId} and po/jobPlanOptionAttributes/any(a: a/attributeGroupCommunityId eq 1 and a/attributeName eq '${color.name}')) or jobChangeOrderGroups/any(cog: cog/jobChangeOrders/any(co: co/jobChangeOrderPlanOptions/any(po: po/planOptionCommunity/optionCommunity/optionSubCategoryId eq ${color.optionSubCategoryId} and po/jobChangeOrderPlanOptionAttributes/any(a: a/attributeGroupCommunityId eq 1 and a/attributeName eq '${color.name}')))))`;
 					const select = `id`;
 					let qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}top=1`;
 					const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
 					return createBatchGet(endpoint);
-					});
+				});
 				let headers = createBatchHeaders(guid, token);
 				let batch = createBatchBody(guid, requests);
 
 				return this._http.post(`${environment.apiUrl}$batch`, batch, { headers: headers });
 			}),
-			map((response: any)=>
-			{
-				let bodies = response.responses.map(res=>res.body);
-				colorList.forEach((color,i)=>
-				{
+			map((response: any) => {
+				let bodies = response.responses.map(res => res.body);
+				colorList.forEach((color, i) => {
 					color.hasSalesConfig = bodies[i]?.value?.length > 0 ? true : false;
 				})
 				return colorList;
 			}))
 	}
 
-	getSalesAgreementForGrid(itemList: Array<IPlanOptionCommunityGridDto>, communityId:number):Observable<IPlanOptionCommunityGridDto[]>
-	{
+	getSalesAgreementForGrid(itemList: Array<IPlanOptionCommunityGridDto>, communityId: number): Observable<IPlanOptionCommunityGridDto[]> {
 		return this.identityService.token.pipe(
-			switchMap((token: string) =>
-			{
+			switchMap((token: string) => {
 				let guid = newGuid();
-				let requests = itemList.map(item =>
-				{
+				let requests = itemList.map(item => {
 					const entity = `jobs`;
-					const filter = `(FinancialCommunityId eq ${communityId}) and ((jobPlanOptions/any(po: po/planOptionId in (${item.colorItem.map(c=>c.edhPlanOptionId).join(',')}))) or (jobChangeOrderGroups/any(cog: cog/jobChangeOrders/any(co: co/jobChangeOrderPlanOptions/any(po:po/planOptionId in (${item.colorItem.map(c=>c.edhPlanOptionId).join(',')}))))))`;
+					const filter = `(FinancialCommunityId eq ${communityId}) and ((jobPlanOptions/any(po: po/planOptionId in (${item.colorItem.map(c => c.edhPlanOptionId).join(',')}))) or (jobChangeOrderGroups/any(cog: cog/jobChangeOrders/any(co: co/jobChangeOrderPlanOptions/any(po:po/planOptionId in (${item.colorItem.map(c => c.edhPlanOptionId).join(',')}))))))`;
 					const select = `id`;
 					let qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}top=1`;
 					const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
@@ -202,27 +178,22 @@ export class ColorService {
 
 				return this._http.post(`${environment.apiUrl}$batch`, batch, { headers: headers });
 			}),
-			map((response: any)=>
-			{
-				let bodies = response.responses.map(res=>res.body);
-				itemList.forEach((item,i)=>
-				{
+			map((response: any) => {
+				let bodies = response.responses.map(res => res.body);
+				itemList.forEach((item, i) => {
 					item.hasSalesAgreement = bodies[i]?.value?.length > 0 ? true : false;
 				})
 				return itemList;
 			}))
 	}
 
-	getconfigForGrid(itemList: Array<IPlanOptionCommunityGridDto>, communityId:number):Observable<IPlanOptionCommunityGridDto[]>
-	{
+	getconfigForGrid(itemList: Array<IPlanOptionCommunityGridDto>, communityId: number): Observable<IPlanOptionCommunityGridDto[]> {
 		return this.identityService.token.pipe(
-			switchMap((token: string) =>
-			{
+			switchMap((token: string) => {
 				let guid = newGuid();
-				let requests = itemList.map(item =>
-				{
+				let requests = itemList.map(item => {
 					const entity = `scenarioOptions`;
-					const filter = `(EdhPlanOptionId in (${item.colorItem.map(c=>c.edhPlanOptionId).join(',')}))`;
+					const filter = `(EdhPlanOptionId in (${item.colorItem.map(c => c.edhPlanOptionId).join(',')}))`;
 					const select = `id`;
 					let qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}top=1`;
 					const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
@@ -233,40 +204,35 @@ export class ColorService {
 
 				return this._http.post(`${environment.apiUrl}$batch`, batch, { headers: headers });
 			}),
-			map((response: any)=>
-			{
-				let bodies = response.responses.map(res=>res.body);
-				itemList.forEach((item,i)=>
-				{
+			map((response: any) => {
+				let bodies = response.responses.map(res => res.body);
+				itemList.forEach((item, i) => {
 					item.hasConfig = bodies[i]?.value?.length > 0 ? true : false;
 				})
 				return itemList;
 			}))
 	}
-	private handleError(error: Response)
-	{
+	private handleError(error: Response) {
 		// In the future, we may send the server to some remote logging infrastructure
 		console.error(error);
 		return throwError(error || 'Server error');
 	}
 
 	deleteColors(colorIds: number[]): Observable<boolean> {
-		const colorsToBeDeleted = colorIds.map(colorId =>
-		{
+		const colorsToBeDeleted = colorIds.map(colorId => {
 			return {
 				colorId
 			} as IColorIdBatch;
 		});
 
 		const endpoint = `${environment.apiUrl}${this._batch}`;
-		const batchRequests = createBatch<IColorIdBatch>(colorsToBeDeleted, 'colorId', `deleteColor`, null, true);
+		const batchRequests = createBatch<IColorIdBatch>(colorsToBeDeleted, 'colorId', `colors`, null, true);
 		const batchGuid = getNewGuid();
 		const batchBody = createBatchBody(batchGuid, [batchRequests]);
 		const headers = new HttpHeaders(createBatchHeaders(batchGuid));
 
 		return this._http.post(endpoint, batchBody, { headers, responseType: 'text' }).pipe(
-			map(results =>
-			{
+			map(results => {
 				return results.length > 0;
 			}),
 			catchError(this.handleError)
@@ -292,29 +258,25 @@ export class ColorService {
 		);
 	}
 
-	updateColorItem(colorItemToUpdate: IColorItemDto[],rowId:number): Observable<IColorItemDto[]>
-	{
+	updateColorItem(colorItemToUpdate: IColorItemDto[], rowId: number): Observable<IColorItemDto[]> {
 		return this.identityService.token.pipe(
-			switchMap((token: string) =>
-			{
+			switchMap((token: string) => {
 				let guid = newGuid();
 				let requests = createBatchPatch<IColorItemDto>(colorItemToUpdate, 'colorItemId', 'colorItems', 'isActive');
 				let headers = new HttpHeaders(createBatchHeaders(guid, token));
 
 				let batchBody = createBatchBody(guid, [requests]);
 				const endPoint = `${environment.apiUrl}${this._batch}`;
-				return this._http.post(endPoint, batchBody,{ headers: headers });
+				return this._http.post(endPoint, batchBody, { headers: headers });
 			}),
-			map((response: any)=>
-			{
-				let bodies = response.responses.map(res=>res.body);
+			map((response: any) => {
+				let bodies = response.responses.map(res => res.body);
 				return bodies;
 			}))
 
 	}
 
-	saveColorItem(dtoColorItems: IColorItemDto[]): Observable<IColorItem[]>
-	{
+	saveColorItem(dtoColorItems: IColorItemDto[]): Observable<IColorItem[]> {
 		const colorItems: IColorItemAssoc[] = [];
 
 		dtoColorItems.forEach(dtoItem => {
@@ -326,8 +288,7 @@ export class ColorService {
 				colorItemColorAssoc: []
 			};
 
-			if (dtoItem.colors.length > 0)
-			{
+			if (dtoItem.colors.length > 0) {
 				dtoItem.colors.forEach(color => {
 					const colorInfo: IColorItemColorAssoc = {
 						colorId: color.colorId,
@@ -350,9 +311,29 @@ export class ColorService {
 		const endpoint = `${environment.apiUrl}${action}`;
 
 		return this._http.post<any>(endpoint, body, { headers: { 'Prefer': 'return=representation' } }).pipe(
-			map(response =>
-			{
+			map(response => {
 				return response.value;
+			}),
+			catchError(this.handleError)
+		);
+	}
+
+	deleteColorItems(colorItemIds: number[]): Observable<boolean> {
+		const colorItemsToBeDeleted = colorItemIds.map(colorItemId => {
+			return {
+				colorItemId
+			} as IColorItemIdBatch;
+		});
+
+		const endpoint = `${environment.apiUrl}${this._batch}`;
+		const batchRequests = createBatch<IColorItemIdBatch>(colorItemsToBeDeleted, 'colorItemId', `colorItems`, null, true);
+		const batchGuid = getNewGuid();
+		const batchBody = createBatchBody(batchGuid, [batchRequests]);
+		const headers = new HttpHeaders(createBatchHeaders(batchGuid));
+
+		return this._http.post(endpoint, batchBody, { headers, responseType: 'text' }).pipe(
+			map(results => {
+				return results.length > 0;
 			}),
 			catchError(this.handleError)
 		);
