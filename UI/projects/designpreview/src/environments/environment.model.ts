@@ -1,5 +1,6 @@
 import { AuthConfig } from 'angular-oauth2-oidc';
 import { CloudinaryConfiguration } from '@cloudinary/angular-5.x';
+import { IConfiguration, IConfig } from '@microsoft/applicationinsights-web';
 
 export interface IEnvironment
 {
@@ -7,7 +8,7 @@ export interface IEnvironment
 	apiUrl: string;
 	authConfigs: { [key: string]: AuthConfig };
 	authQueryParams: string;
-	appInsights: any;
+	appInsights: IConfiguration & IConfig;
 	cloudinary: CloudinaryConfiguration;
 	alphavision: { builderId: string };
 	pdfViewerBaseUrl: string;

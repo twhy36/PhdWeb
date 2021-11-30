@@ -64,20 +64,3 @@ export const primaryBuyer = createSelector(
 	salesAgreementState,
 	(state) => state && state.buyers ? state.buyers.find(b => b.isPrimaryBuyer) : null
 );
-
-export const favoriteTitle = createSelector(
-	salesAgreementState,
-	primaryBuyer,
-	(state, primaryBuyer) =>
-	{
-		if (state?.id) 
-		{
-			const contact = primaryBuyer?.opportunityContactAssoc?.contact;
-			return `${contact ? contact.lastName || '' : ''} Favorites`;
-		}
-		else 
-		{
-			return 'Favorites';
-		}
-	}
-);

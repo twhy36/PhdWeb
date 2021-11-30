@@ -9,15 +9,13 @@ import { Observable, forkJoin } from 'rxjs';
 	styleUrls: ['./home.component.scss']
 })
 
-export class HomeComponent implements OnInit
-{
+export class HomeComponent implements OnInit {
 	Permission = Permission;
 	canAccessSalesAdmin: boolean = false;
 	canAccessReports: boolean = false;
 	roles: string[];
 	environment = environment;
 
-	colorManagementAction = { envBaseUrl: 'colorManagement', path: '' };
 	salesAdminAction = { envBaseUrl: 'salesAdmin', path: '' };
 	d365Action = { envBaseUrl: 'crm', path: '' };
 	buyerTrackerAction = { envBaseUrl: 'buyerTracker', path: '' };
@@ -30,8 +28,7 @@ export class HomeComponent implements OnInit
 
 	constructor(private _identityService: IdentityService) { }
 
-	ngOnInit()
-	{
+	ngOnInit() {
 		this._identityService.getRoles().subscribe(roles => {
 			this.roles = roles;
 			console.log("Roles: " + roles);

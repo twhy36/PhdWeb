@@ -4,3 +4,8 @@
 :host ::ng-deep .p-multiselect, .phd-options-select {
     min-width: 15rem;
 }
+
+::ng-deep .phd-inactive-color{
+    color: hsl(0,0*1%,55*1%) !important;
+      font-style: italic;
+  }

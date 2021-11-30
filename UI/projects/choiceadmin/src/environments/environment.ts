@@ -6,7 +6,7 @@ import { IEnvironment } from './environment.model';
 // The list of which env maps to which file can be found in `.angular-cli.json`.
 
 export const environment: IEnvironment = {
-    production: false,
+	production: false,
 	tenant: 'pulte.onmicrosoft.com',
 	authConfig: {
 		issuer: "https://login.microsoftonline.com/1a9277a3-ef66-41f6-96b5-c5390ee468a7/v2.0",
@@ -22,7 +22,8 @@ export const environment: IEnvironment = {
 	authQueryParams: 'domain_hint=pulte.com',
     pictureParkAssetUrl: 'https://pultegroup.picturepark.com/Website/Publisher.aspx?Page=AssetConnector',
     appInsights: {
-        instrumentationKey: '08875504-9c0f-45a6-8cc5-8a819e51aff0'
+		instrumentationKey: '08875504-9c0f-45a6-8cc5-8a819e51aff0',
+		enableAutoRouteTracking: true
 	},
 	cloudinary: { cloud_name: 'dv0jqjrc3', responsive_use_breakpoints: false },
 	whatFix: {
@@ -30,5 +31,6 @@ export const environment: IEnvironment = {
 	},
 	apiUrl: 'https://phdapi.dev.pulte.com/odata/',
 	designToolUrl: 'https://phd.dev.pulte.com/designtool/',
-	designPreviewUrl: 'https://phd.dev.pulte.com/designpreview/'
+	designPreviewUrl: 'https://phd.dev.pulte.com/designpreview/',
+	colorManagementUrl: 'https://phd.dev.pulte.com/colormanagement/'
 };

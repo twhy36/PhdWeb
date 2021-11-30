@@ -337,10 +337,8 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 			)
 		).subscribe(([choices, isDesignPreviewEnabled]) =>
 		{
-			// Will need to remove environment.production check once design preview goes live, 
-			this.isFavorite = !environment.production
-				&& isDesignPreviewEnabled
-				&& !!choices?.find(c => c.divChoiceCatalogId === this.choice.divChoiceCatalogId);
+			this.isFavorite = isDesignPreviewEnabled
+					&& !!choices?.find(c => c.divChoiceCatalogId === this.choice.divChoiceCatalogId);
 		});
 
 		// trigger attributeGroups observable in the init.
@@ -431,11 +429,11 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 		this.emitToggleEvent();
 	}
 
-	emitToggleEvent() 
+	emitToggleEvent()
 	{
 		let evt = { choice: this.choice, saveNow: false, quantity: this.unsavedQty };
 
-		if (this.choice.maxQuantity > 1 && this.choice.quantity === 0) 
+		if (this.choice.maxQuantity > 1 && this.choice.quantity === 0)
 		{
 			evt.quantity = this.unsavedQty;
 		}
@@ -491,7 +489,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 
 	onCallToAction({ choice: choice, quantity: quantity }: { choice: Choice, quantity?: number })
 	{
-		// Emitting onChoiceChange for when the action is taken from inside choice-card-detail. Sets the view choice in edit-home. 
+		// Emitting onChoiceChange for when the action is taken from inside choice-card-detail. Sets the view choice in edit-home.
 		this.onChoiceChange.emit(choice);
 
 		this.toggled.emit({ choice: choice, saveNow: true, quantity: quantity });
@@ -633,49 +631,49 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 		}
 	}
 
-	setAttributeMonotonyConflict() 
+	setAttributeMonotonyConflict()
 	{
-		if (this.lots) 
+		if (this.lots)
 		{
 			let monotonyConflicts = [];
 			const selectedAttributes = this.currentChoice.selectedAttributes;
 
-			this.attributeGroups && this.attributeGroups.forEach(attributeGroup => 
+			this.attributeGroups && this.attributeGroups.forEach(attributeGroup =>
 			{
-				attributeGroup.attributes.forEach(x => 
+				attributeGroup.attributes.forEach(x =>
 				{
 					x.monotonyConflict = false;
 				});
 
-				if (!this.monotonyConflict.choiceOverride) 
+				if (!this.monotonyConflict.choiceOverride)
 				{
-					this.lots.monotonyRules && this.lots.monotonyRules.forEach(rule => 
+					this.lots.monotonyRules && this.lots.monotonyRules.forEach(rule =>
 					{
-						if (rule.colorSchemeAttributeCommunityIds.length > 0 && rule.edhPlanId === this.plan.id) 
+						if (rule.colorSchemeAttributeCommunityIds.length > 0 && rule.edhPlanId === this.plan.id)
 						{
-							if (this.attributeGroups.length > 1) 
+							if (this.attributeGroups.length > 1)
 							{
-								selectedAttributes.forEach(x => 
+								selectedAttributes.forEach(x =>
 								{
-									if (x.attributeGroupId != attributeGroup.id) 
+									if (x.attributeGroupId != attributeGroup.id)
 									{
 										monotonyConflicts.push(rule.colorSchemeAttributeCommunityIds.some(id => id === x.attributeId))
 									}
 								});
 
-								if (monotonyConflicts.length > 0) 
+								if (monotonyConflicts.length > 0)
 								{
-									if (monotonyConflicts.some(x => x === false)) 
+									if (monotonyConflicts.some(x => x === false))
 									{
 										monotonyConflicts = [];
 									}
-									else 
+									else
 									{
-										attributeGroup.attributes.forEach((x => 
+										attributeGroup.attributes.forEach((x =>
 										{
-											if (x.monotonyConflict === false) 
+											if (x.monotonyConflict === false)
 											{
-												if (!selectedAttributes.some(selected => selected.attributeId === x.id)) 
+												if (!selectedAttributes.some(selected => selected.attributeId === x.id))
 												{
 													x.monotonyConflict = (rule.colorSchemeAttributeCommunityIds.some(s => s === x.id))
 												}
@@ -684,13 +682,13 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 									}
 								}
 							}
-							else 
+							else
 							{
-								attributeGroup.attributes.forEach((x => 
+								attributeGroup.attributes.forEach((x =>
 								{
-									if (x.monotonyConflict === false) 
+									if (x.monotonyConflict === false)
 									{
-										if (!selectedAttributes.some(selected => selected.attributeId === x.id)) 
+										if (!selectedAttributes.some(selected => selected.attributeId === x.id))
 										{
 											x.monotonyConflict = (rule.colorSchemeAttributeCommunityIds.some(s => s === x.id))
 										}

@@ -9,7 +9,7 @@ import { Action, Store, select } from '@ngrx/store';
 import 
 { 
 	ESignEnvelope, ESignStatusEnum, ESignTypeEnum, ChangeInput, ChangeTypeEnum, ChangeOrderGroup, ChangeOrderHanding, 
-	Job, SalesStatusEnum, ModalService
+	Job, SalesStatusEnum, ModalService, mergeSalesChangeOrderBuyers
 } from 'phd-common';
 
 import { ChangeOrderService } from '../../core/services/change-order.service';
@@ -214,17 +214,17 @@ export class ChangeOrderEffects
 			tryCatch(source => source.pipe(
 				switchMap(([action, store]) =>
 				{
+					const currentChangeOrder = this.changeOrderService.getCurrentChangeOrder(store.job.changeOrderGroups);
+
 					return forkJoin(
-						this.changeOrderService.getLockedInChoices(store.job, store.scenario.tree, store.changeOrder.currentChangeOrder),
-						of(store)
+						this.changeOrderService.getLockedInChoices(store.job, store.scenario.tree, currentChangeOrder),
+						of({ store: store, currentChangeOrder: currentChangeOrder })
 					);
 				}),
-				switchMap(([lockInChoices, store]) =>
-				{
-					const currentChangeOrder = this.changeOrderService.getCurrentChangeOrder(store.job.changeOrderGroups);
-					const changeOrderId = currentChangeOrder ? currentChangeOrder.id : 0;
-					const choices = this.changeOrderService.getOriginalChoicesAndAttributes(store.job, store.scenario.tree, (currentChangeOrder !== undefined) ? store.changeOrder.currentChangeOrder : null);
-					const handing = this.changeOrderService.getSelectedHanding(store.job);
+				switchMap(([lockInChoices, data]) => {
+					const changeOrderId = data.currentChangeOrder?.id || 0;
+					const choices = this.changeOrderService.getOriginalChoicesAndAttributes(data.store.job, data.store.scenario.tree, data.currentChangeOrder);
+					const handing = this.changeOrderService.getSelectedHanding(data.store.job);
 
 					let actions: any[] = [
 						new SetCurrentChangeOrder(changeOrderId)
@@ -242,7 +242,7 @@ export class ChangeOrderEffects
 
 					if (changeOrderId > 0)
 					{
-						actions.push(new CurrentChangeOrderLoaded(store.changeOrder.currentChangeOrder, handing));
+						actions.push(new CurrentChangeOrderLoaded(data.currentChangeOrder, handing));
 					}
 					else
 					{
@@ -532,7 +532,7 @@ export class ChangeOrderEffects
 					{
 						let newInput = { ...store.changeOrder.changeInput } as ChangeInput;
 
-						newInput.buyers = this.changeOrderService.mergeSalesChangeOrderBuyers(store.salesAgreement.buyers, action.changeOrder);
+						newInput.buyers = mergeSalesChangeOrderBuyers(store.salesAgreement.buyers, action.changeOrder);
 
 						const trust = this.changeOrderService.mergeSalesChangeOrderTrusts(store.salesAgreement, store.changeOrder.currentChangeOrder);
 
@@ -718,7 +718,7 @@ export class ChangeOrderEffects
 								if (isSpecSalePending && buyerChangeOrder)
 								{
 									let newInput = _.cloneDeep(store.changeOrder.changeInput);
-									newInput.buyers = this.changeOrderService.mergeSalesChangeOrderBuyers(store.salesAgreement.buyers, changeOrder);
+									newInput.buyers = mergeSalesChangeOrderBuyers(store.salesAgreement.buyers, changeOrder);
 									actions.push(new ChangeInputInitialized(newInput));
 								}
 

@@ -1,7 +1,8 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
 
-import { flatMap } from 'rxjs/operators';
+import { MessageService } from 'primeng/api';
+import { mergeMap } from 'rxjs/operators';
 import { of } from 'rxjs';
 
 import { ContractTemplate, ITemplateType } from '../../../shared/models/contracts.model';
@@ -49,7 +50,8 @@ export class ViewContractsSidePanelComponent implements OnInit
 	public templateTypes: Array<ITemplateType> = [
 		{ label: 'Sales Agreement', value: 'SalesAgreement', id: 1 },
 		{ label: 'Addendum', value: 'Addendum', id: 2 },
-		{ label: 'Cancel Form', value: 'CancelForm', id: 3 }
+		{ label: 'Cancel Form', value: 'CancelForm', id: 3 },
+		{ label: 'Consent to do Business Electronically', id: 5 }
 	];
 
 	public addendaTypes: Array<ITemplateType> = [
@@ -86,7 +88,8 @@ export class ViewContractsSidePanelComponent implements OnInit
 
 	constructor(
 		private _orgService: OrganizationService,
-		private _contractService: ContractService
+		private _contractService: ContractService,
+		private _msgService: MessageService
 	) { }
 
 	ngOnInit()
@@ -186,8 +189,12 @@ export class ViewContractsSidePanelComponent implements OnInit
 
 	save()
 	{
-		this.viewContractsForm.controls['assignedCommunityIds'].setValue(this.selectedCommunities.map(t => t.id));
-		this.saveNewOrgs(this.selectedCommunities);
+		// Prevents users from rapidly double clicking save and creating a contract twice
+		if (!this.saving)
+		{
+			this.viewContractsForm.controls['assignedCommunityIds'].setValue(this.selectedCommunities.map(t => t.id));
+			this.saveNewOrgs(this.selectedCommunities);
+		}
 	}
 
 	onSetDate(event: Date, dateType: 'expiration' | 'effective')
@@ -205,8 +212,9 @@ export class ViewContractsSidePanelComponent implements OnInit
 
 	saveNewOrgs(financialCommunityDto: Array<FinancialCommunity>)
 	{
+		this.saving = true;
 		this._orgService.getInternalOrgs(this.currentMktId).pipe(
-			flatMap(orgs =>
+			mergeMap(orgs =>
 			{
 				for (let financialCommunity of financialCommunityDto)
 				{
@@ -222,8 +230,16 @@ export class ViewContractsSidePanelComponent implements OnInit
 			})
 		).subscribe(data =>
 		{
+			// Enable these so the as ContractTemplate cast properly picks up these to form values
+			this.viewContractsForm.get('isPhd').enable();
+			this.viewContractsForm.get('isTho').enable();
+
 			this.onSave.emit(this.viewContractsForm.value as ContractTemplate);
-			this.saving = true;
+		},
+		error =>
+		{
+			this._msgService.add({ severity: 'error', summary: 'Error', detail: error.message });
+			this.saving = false;
 		});
 	}
 
@@ -249,12 +265,22 @@ export class ViewContractsSidePanelComponent implements OnInit
 
 	updateSelection()
 	{
+		this.viewContractsForm.get('isPhd').enable();
+		this.viewContractsForm.get('isTho').enable();
 		this.selectedTemplateTypeId = this.viewContractsForm.get('templateTypeId').value;
-		const isPhd = this.viewContractsForm.get('isPhd').value;
-		const isTho = this.viewContractsForm.get('isTho').value;
 
 		if (this.selectedTemplateTypeId !== 2)
 		{
+			// If template is Consent to do Business Electronically, force it to be THO only
+			if (this.selectedTemplateTypeId === 5)
+			{
+				this.viewContractsForm.get('isPhd').setValue(false);
+				this.viewContractsForm.get('isTho').setValue(true);
+				this.viewContractsForm.get('isPhd').disable();
+				this.viewContractsForm.get('isTho').disable();
+			}
+			const isPhd = this.viewContractsForm.get('isPhd').value;
+			const isTho = this.viewContractsForm.get('isTho').value;
 			this._contractService.getCommunitiesWithExistingTemplate(this.currentMktId, this.selectedTemplateTypeId, isPhd, isTho)
 				.subscribe(data =>
 				{
@@ -380,19 +406,26 @@ export class ViewContractsSidePanelComponent implements OnInit
 		});
 
 		this.selectedCommunities = [];
+		this.viewContractsForm.markAsDirty();
 	}
 
 	removeItem(tag: FinancialCommunity)
 	{
 		const items = this.selectedCommunities;
 
-		if (tag)
+		// If it is currently an active Consent to do Business Electronically don't add
+		if (this.selected && this.selected.templateTypeId === 5 && this.selected.status === 'In Use' && tag)
+		{
+			this._msgService.add({ severity: 'error', summary: 'Error', detail: 'Cannot unassign community from \'In-Use\' document.' });
+		}
+		else if (tag)
 		{
 			const index = items.indexOf(tag);
 
 			if (index !== -1)
 			{
 				items.splice(index, 1);
+				this.viewContractsForm.markAsDirty();
 			}
 
 			this.communitiesForSelectedTemplate.push(tag);

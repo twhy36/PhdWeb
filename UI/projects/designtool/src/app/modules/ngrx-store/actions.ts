@@ -3,11 +3,10 @@ import { Action } from '@ngrx/store';
 import {
 	SalesCommunity, ESignEnvelope, ChangeOrderGroup, ChangeOrderHanding, Job, JobChoice, LotExt,
 	OpportunityContactAssoc, PlanOption, TreeVersionRules, SalesAgreement, SalesAgreementInfo, Scenario,
-	Tree, OptionImage, MyFavorite
+	Tree, OptionImage, MyFavorite, Log
 } from 'phd-common';
 
 import { ErrorAction } from './error.action';
-import { Stopwatch } from './stopwatch';
 
 export enum CommonActionTypes {
     LoadScenario = "Load Scenario",
@@ -30,7 +29,7 @@ export class LoadError extends ErrorAction
 	constructor(public error: Error, public friendlyMessage?: string) { super(error, friendlyMessage); }
 }
 
-@Stopwatch([CommonActionTypes.ScenarioLoaded, CommonActionTypes.LoadError])
+@Log(true, [CommonActionTypes.ScenarioLoaded, CommonActionTypes.LoadError])
 export class LoadScenario implements Action
 {
 	readonly type = CommonActionTypes.LoadScenario;
@@ -57,7 +56,7 @@ export class ScenarioLoaded implements Action
 		public job: Job) { }
 }
 
-@Stopwatch([CommonActionTypes.SalesAgreementLoaded, CommonActionTypes.LoadError])
+@Log(true, [CommonActionTypes.SalesAgreementLoaded, CommonActionTypes.LoadError])
 export class LoadSalesAgreement implements Action
 {
 	readonly type = CommonActionTypes.LoadSalesAgreement;
@@ -93,7 +92,7 @@ export class SalesAgreementLoaded implements Action
 	}
 }
 
-@Stopwatch([CommonActionTypes.JobLoaded, CommonActionTypes.LoadError])
+@Log(true, [CommonActionTypes.JobLoaded, CommonActionTypes.LoadError])
 export class LoadSpec implements Action
 {
 	readonly type = CommonActionTypes.LoadSpec;
@@ -122,6 +121,7 @@ export class JobLoaded implements Action
 	) { }
 }
 
+@Log()
 export class ESignEnvelopesLoaded implements Action
 {
 	readonly type = CommonActionTypes.ESignEnvelopesLoaded;
@@ -129,12 +129,14 @@ export class ESignEnvelopesLoaded implements Action
 	constructor(public jobChangeOrderEnvelopes: ESignEnvelope[], public checkExpiredEnvelopes: boolean = false) { }
 }
 
+@Log()
 export class ChangeOrderEnvelopeCreated implements Action {
 	readonly type = CommonActionTypes.ChangeOrderEnvelopeCreated;
 
 	constructor(public changeOrder: any, public eSignEnvelope: ESignEnvelope) { }
 }
 
+@Log(["salesAgreement"])
 export class SalesAgreementCancelled implements Action
 {
 	readonly type = CommonActionTypes.SalesAgreementCancelled;
@@ -142,6 +144,7 @@ export class SalesAgreementCancelled implements Action
 	constructor(public salesAgreement: SalesAgreement, public job: Job, public buildType: string) { }
 }
 
+@Log()
 export class ChangeOrdersUpdated implements Action {
 	readonly type = CommonActionTypes.ChangeOrdersUpdated;
 

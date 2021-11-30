@@ -55,7 +55,7 @@ export class JobService
 		const expandChoiceAttributeLoc = `jobChangeOrderChoiceLocationAttributes($select=id,attributeGroupCommunityId,attributeCommunityId,action,attributeName,attributeGroupLabel)`;
 		const expandChoiceAttributes = `jobChangeOrderChoiceAttributes($select=id,attributeGroupCommunityId,attributeCommunityId,action,attributeName,attributeGroupLabel)`;
 		const expandChoiceLocations = `jobChangeOrderChoiceLocations($expand=${expandChoiceAttributeLoc};$select=id,locationGroupCommunityId,locationCommunityId,quantity,locationName,locationGroupLabel,action)`;
-		const expandJobChoices = `jobChangeOrderChoices($expand=${expandChoiceAttributes},${expandChoiceLocations},jobChangeOrderChoiceChangeOrderPlanOptionAssocs($select=jobChangeOrderPlanOptionId;$filter=jobChoiceEnabledOption eq true);$select=id,decisionPointChoiceID,quantity,decisionPointChoiceCalculatedPrice,choiceLabel,action,overrideNoteId)`;
+		const expandJobChoices = `jobChangeOrderChoices($expand=${expandChoiceAttributes},${expandChoiceLocations},jobChangeOrderChoiceChangeOrderPlanOptionAssocs($select=jobChangeOrderPlanOptionId,jobChoiceEnabledOption;$filter=jobChoiceEnabledOption eq true);$select=id,decisionPointChoiceID,quantity,decisionPointChoiceCalculatedPrice,choiceLabel,action,overrideNoteId)`;
 		const expandPlanOptions = 'jobChangeOrderPlanOptions($expand=jobChangeOrderPlanOptionAttributes,jobChangeOrderPlanOptionLocations,planOptionCommunity($expand=optionCommunity($expand=option($select=financialOptionIntegrationKey))))';
 		const expandOpportunityContact = `opportunityContactAssoc($expand=opportunity)`;
 		const expandSalesChanges = `jobSalesChangeOrderBuyers($expand=${expandOpportunityContact}),jobSalesChangeOrderPriceAdjustments,jobSalesChangeOrderSalesPrograms($expand=salesProgram($select=id, salesProgramType, name)),jobSalesChangeOrderTrusts`;
@@ -237,15 +237,24 @@ export class JobService
 		);
 	}
 
-	saveFloorPlanImages(jobId: number, floors: { index: number, name: string }[], images: any[])
+	saveFloorPlanImages(jobId: number, floors: { index: number, name: string }[], images: any[]): Observable<FloorPlanImage[]>
 	{
-		var floorPlanImages = floors.map((val, i) =>
+		const floorPlanImages = floors.map((val, i) =>
 		{
-			return { floorName: val.name, floorIndex: val.index, svg: images[i].outerHTML };
+			return { floorName: val.name, floorIndex: val.index, svg: images[i].outerHTML } as FloorPlanImage;
 		});
 
-		this._http.put(`${environment.apiUrl}jobs(${jobId})/floorPlanAttachments`, floorPlanImages)
-			.subscribe();
+		return this._http.put(`${environment.apiUrl}jobs(${jobId})/floorPlanAttachments`, floorPlanImages).pipe(
+			map(() =>
+			{
+				return floorPlanImages;
+			}),
+			catchError(error =>
+			{
+				console.error(error);
+				return _throw(error);
+			})
+		);
 	}
 
 	getFloorPlanImages(jobId: number, isChangeOrder: boolean): Observable<FloorPlanImage[]>

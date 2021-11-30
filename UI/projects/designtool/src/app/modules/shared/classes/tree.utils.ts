@@ -34,8 +34,8 @@ export function isChangeOrderChoice(choice: JobChoice | ChangeOrderChoice | MyFa
 function getOptions(choice: JobChoice | ChangeOrderChoice, options: (JobPlanOption | ChangeOrderPlanOption)[]): (JobPlanOption | ChangeOrderPlanOption)[]
 {
 	return isJobChoice(choice)
-		? choice.jobChoiceJobPlanOptionAssocs.filter(a => a.choiceEnabledOption).map(a => options.find(o => isJobPlanOption(o) && o.id === a.jobPlanOptionId))
-		: choice.jobChangeOrderChoiceChangeOrderPlanOptionAssocs.filter(a => a.jobChoiceEnabledOption).map(a => options.find(o => !isJobPlanOption(o) && o.id === a.jobChangeOrderPlanOptionId));
+		? choice.jobChoiceJobPlanOptionAssocs.filter(a => a.choiceEnabledOption)?.map(a => options.find(o => isJobPlanOption(o) && o.id === a.jobPlanOptionId))
+		: choice.jobChangeOrderChoiceChangeOrderPlanOptionAssocs.filter(a => a.jobChoiceEnabledOption)?.map(a => options.find(o => !isJobPlanOption(o) && o.id === a.jobChangeOrderPlanOptionId));
 }
 
 function mapLocation(loc: JobChoiceLocation | ChangeOrderChoiceLocation): DesignToolAttribute
@@ -419,7 +419,7 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 						.filter(o => o.choiceEnabledOption)
 						.map(o =>
 						{
-							return { optionNumber: options.find(opt => opt.id === o.jobPlanOptionId).integrationKey, dpChoiceId: c.dpChoiceId };
+							return { optionNumber: options.find(opt => opt.id === o.jobPlanOptionId)?.integrationKey, dpChoiceId: c.dpChoiceId };
 						});
 				}
 				else
@@ -428,7 +428,7 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 						.filter(o => o.jobChoiceEnabledOption)
 						.map(o =>
 						{
-							return { optionNumber: options.find(opt => opt.id === o.jobChangeOrderPlanOptionId).integrationKey, dpChoiceId: c.decisionPointChoiceID };
+							return { optionNumber: options.find(opt => opt.id === o.jobChangeOrderPlanOptionId)?.integrationKey, dpChoiceId: c.decisionPointChoiceID };
 						});
 				}
 			})))
@@ -528,11 +528,11 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 				{
 					if (isJobChoice(c))
 					{
-						choice.lockedInOptions = c.jobChoiceJobPlanOptionAssocs.filter(o => o.choiceEnabledOption).map(o => data.mapping[options.find(opt => opt.id === o.jobPlanOptionId).integrationKey] || getDefaultOptionRule(options.find(opt => opt.id === o.jobPlanOptionId).integrationKey, choice));
+						choice.lockedInOptions = c.jobChoiceJobPlanOptionAssocs?.filter(o => o.choiceEnabledOption)?.map(o => data.mapping[options.find(opt => opt.id === o.jobPlanOptionId)?.integrationKey] || getDefaultOptionRule(options.find(opt => opt.id === o.jobPlanOptionId)?.integrationKey, choice));
 					}
 					else
 					{
-						choice.lockedInOptions = c.jobChangeOrderChoiceChangeOrderPlanOptionAssocs.filter(o => o.jobChoiceEnabledOption).map(o => data.mapping[options.find(opt => opt.id === o.jobChangeOrderPlanOptionId).integrationKey] || getDefaultOptionRule(options.find(opt => opt.id === o.jobChangeOrderPlanOptionId).integrationKey, choice));
+						choice.lockedInOptions = c.jobChangeOrderChoiceChangeOrderPlanOptionAssocs?.filter(o => o.jobChoiceEnabledOption)?.map(o => data.mapping[options.find(opt => opt.id === o.jobChangeOrderPlanOptionId)?.integrationKey] || getDefaultOptionRule(options.find(opt => opt.id === o.jobChangeOrderPlanOptionId)?.integrationKey, choice));
 					}
 				}
 			});
@@ -887,25 +887,40 @@ export function updateWithNewTreeVersion<T extends { tree: Tree, rules: TreeVers
 	};
 }
 
-export function getJobOptionType(option: PlanOption, elevationDP: DecisionPoint, tree: Tree, optionRules: OptionRule[])
+export function getJobOptionType(option: PlanOption, elevationDP: DecisionPoint, isDPElevation: boolean, isColorScheme: boolean, tree: Tree, optionRules: OptionRule[])
 {
-	let optionType = '';
+	let optionType = 'Standard';
 
-	const optionRule = optionRules.find(opt => option. financialOptionIntegrationKey === opt.optionId);
-
-	// Check if this option replaces an elevation choice 
-	// If it does then set option type to Elevation
-	if (optionRule?.replaceOptions?.length)
+	if (isColorScheme)
 	{
-		const replaceOption = optionRule.replaceOptions.find(replaceOptionId => {
-			const replaceOptionRule = optionRules.find(r => r.optionId === replaceOptionId);
-			const replacedChoiceId = getMaxSortOrderChoice(tree, replaceOptionRule.choices.filter(ch => ch.mustHave).map(ch => ch.id));
-			return !!elevationDP.choices.find(ch => ch.id === replacedChoiceId);
-		});	
-		
-		if (replaceOption)
+		// DP is ColorScheme
+		optionType = 'ColorScheme';
+	}
+	else if (isDPElevation)
+	{
+		// DP is Elevation
+		optionType = 'Elevation';
+	}
+	else
+	{
+		const optionRule = optionRules.find(opt => option.financialOptionIntegrationKey === opt.optionId);
+
+		// Check if this option replaces an elevation choice 
+		// If it does then set option type to Elevation
+		if (optionRule?.replaceOptions?.length)
 		{
-			optionType = 'Elevation';
+			const replaceOption = optionRule.replaceOptions.find(replaceOptionId =>
+			{
+				const replaceOptionRule = optionRules.find(r => r.optionId === replaceOptionId);
+				const replacedChoiceId = getMaxSortOrderChoice(tree, replaceOptionRule.choices.filter(ch => ch.mustHave).map(ch => ch.id));
+
+				return !!elevationDP.choices.find(ch => ch.id === replacedChoiceId);
+			});
+
+			if (replaceOption)
+			{
+				optionType = 'Elevation';
+			}
 		}
 	}
 	

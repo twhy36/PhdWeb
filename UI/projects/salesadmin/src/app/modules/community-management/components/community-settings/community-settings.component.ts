@@ -43,7 +43,13 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 	get saveDisabled(): boolean
 	{
 		return !this.orgId
+			// Disables save if form is invalid and user is not trying to turn on preview
 			|| (!this.communitySettingsForm.valid && !this.previewEnabledDirty)
+			// Disables save if user trys to remove existing value for ecoeMonths
+			|| (this.communitySettingsForm.get('ecoeMonths').invalid && this.communitySettingsForm.get('ecoeMonths').dirty && this.financialCommunityInfo.defaultECOEMonths != null)
+			// Disables save is user trys to remove existing value for earnest money
+			|| (this.communitySettingsForm.get('earnestMoney').invalid && this.communitySettingsForm.get('earnestMoney').dirty && this.financialCommunityInfo.earnestMoneyAmount != null)
+			// Disables save if form and toggles are pristine
 			|| (
 				this.communitySettingsForm.pristine
 				&& !this.commmunityLinkEnabledDirty
@@ -81,29 +87,20 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 
 		this._orgService.currentCommunity$.pipe(
 			this.takeUntilDestroyed(),
-			switchMap(financialCommunity => financialCommunity?.salesCommunityId
-				? this._orgService.getWebsiteCommunity(financialCommunity?.salesCommunityId)
-				: of(null)),
-			map(websiteCommunity => websiteCommunity?.webSiteIntegrationKey),
-		).subscribe(webSiteIntegrationKey => {
-			this.url = (environment.thoUrl && webSiteIntegrationKey)
-				? environment.thoUrl + webSiteIntegrationKey
+			switchMap(financialCommunity => {
+				this.financialCommunity = financialCommunity;
+				if (financialCommunity.salesCommunityId) {
+					return combineLatest(
+						[this._orgService.getWebsiteCommunity(financialCommunity?.salesCommunityId),
+						this._orgService.getSalesCommunity(financialCommunity?.salesCommunityId)]);
+				}
+				return of([null, null]);
+			}),
+		).subscribe(([websiteCommunity, salesCommunity]) => {
+			this.url = (environment.thoUrl && websiteCommunity?.webSiteIntegrationKey)
+				? environment.thoUrl + websiteCommunity.webSiteIntegrationKey
 				: null;
-		});
-
-		this._orgService.currentCommunity$.pipe(
-			this.takeUntilDestroyed(),
-			switchMap(financialCommunity => financialCommunity?.salesCommunityId
-				? this._orgService.getSalesCommunity(financialCommunity?.salesCommunityId)
-				: of(null)),
-		).subscribe(salesCommunity => {
 			this.salesCommunity = salesCommunity;
-		});
-
-		this._orgService.currentCommunity$.pipe(
-			this.takeUntilDestroyed(),
-		).subscribe(financialCommunity => {
-			this.financialCommunity = financialCommunity;
 		});
 
 		this._orgService.currentMarket$.pipe(
@@ -185,6 +182,10 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 
 	createForm()
 	{
+		// Make sure the form is pristine
+		this.commmunityLinkEnabledDirty = false;
+		this.previewEnabledDirty = false;
+
 		let ecoeMonths = this.financialCommunityInfo ? this.financialCommunityInfo.defaultECOEMonths : null;
 		let earnestMoney = this.financialCommunityInfo ? this.financialCommunityInfo.earnestMoneyAmount : null;
 
@@ -197,24 +198,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 	save()
 	{
 		this.isSaving = true;
-		if (this.communitySettingsForm.pristine || this.communitySettingsForm.invalid)
-		{
-			this._orgService.saveFinancialCommunity(this.financialCommunity).subscribe(() =>
-			{
-				this.isSaving = false;
-				this.communitySettingsForm.markAsPristine();
-				this.previewEnabledDirty = false;
-				this.commmunityLinkEnabledDirty = false;
-				this.ecoeRequired = false;
-				this.earnestMoneyRequired = false;
-				this._msgService.add({ severity: 'success', summary: 'Community Settings', detail: 'Save successful.' });
-			}, error =>
-			{
-				this.isSaving = false;
-				this._msgService.add({ severity: 'error', summary: 'Error', detail: `Save failed. ${error}` });
-			})
-		}
-		else
+		if ((this.communitySettingsForm.dirty || this.commmunityLinkEnabledDirty || this.previewEnabledDirty) && this.communitySettingsForm.valid)
 		{
 			let ecoeMonths = this.communitySettingsForm.get('ecoeMonths').value;
 			let earnestMoney = this.communitySettingsForm.get('earnestMoney').value;
@@ -232,7 +216,6 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 					earnestMoneyAmount: earnestMoney,
 				}
 			}
-
 			combineLatest([
 				this._orgService.saveFinancialCommunityInfo(this.financialCommunityInfo, this.orgId),
 				this._orgService.saveSalesCommunity(this.salesCommunity),
@@ -243,6 +226,24 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 					this.communitySettingsForm.markAsPristine();
 					this.commmunityLinkEnabledDirty = false;
 					this.previewEnabledDirty = false;
+					this.ecoeRequired = false;
+					this.earnestMoneyRequired = false;
+					this._msgService.add({ severity: 'success', summary: 'Community Settings', detail: 'Save successful.' });
+				}, error =>
+				{
+					this.isSaving = false;
+					this._msgService.add({ severity: 'error', summary: 'Error', detail: `Save failed. ${error}` });
+				});
+		}
+		else if (this.previewEnabledDirty)
+		{
+			// Still want to be able to enable preview when the form is invalid
+			this._orgService.saveFinancialCommunity(this.financialCommunity).subscribe(() =>
+				{
+					this.isSaving = false;
+					this.communitySettingsForm.markAsPristine();
+					this.previewEnabledDirty = false;
+					this.commmunityLinkEnabledDirty = false;
 					this.ecoeRequired = false;
 					this.earnestMoneyRequired = false;
 					this._msgService.add({ severity: 'success', summary: 'Community Settings', detail: 'Save successful.' });

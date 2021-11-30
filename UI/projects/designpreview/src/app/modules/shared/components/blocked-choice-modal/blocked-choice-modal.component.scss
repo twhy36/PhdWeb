@@ -1,4 +1,3 @@
-@import "../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
 
 ::ng-deep .phd-blocked-choice-modal .modal-dialog {
 	max-width: 400px;
@@ -18,9 +17,4 @@
 
 .phd-blocked-list {
 	margin-left: 40px;
-}
-
-.phd-blocked-link {
-	color: $pantone_blue;
-  text-decoration: underline;
 }

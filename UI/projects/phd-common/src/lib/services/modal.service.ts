@@ -29,7 +29,7 @@ export class ModalService
 		return result;
 	}
 
-	showOkOnlyModal(message: string, title: string = '')
+	showOkOnlyModal(message: string, title: string = '', headerRemoveMargin?: boolean)
 	{
 		const options = new ModalOptions<boolean>();
 
@@ -37,6 +37,7 @@ export class ModalService
 		options.type = 'normal';
 		options.header = title.length ? title : 'Warning';
 		options.buttons = [{ 'text': 'Ok', 'cssClass': ['btn-primary'], 'result': true }];
+		options.headerRemoveMargin = headerRemoveMargin;
 		const result = this.startModal(options, true);
 
 		return result;
@@ -172,7 +173,8 @@ export class ModalService
 		confirm.componentInstance.buttons = options.buttons;
 		confirm.componentInstance.header = options.header;
 		confirm.componentInstance.needsInput = options.needsInput;
-
+		confirm.componentInstance.headerRemoveMargin = options.headerRemoveMargin;
+		
 		return from(confirm.result).pipe(
 			map(res => res as TResult)
 		);

@@ -2,7 +2,7 @@ import { Action } from '@ngrx/store';
 
 import {
 	DesignToolAttribute, SalesCommunity, ChangeOrderHanding, JobChoice, Job, LotExt, PlanOption,
-	TreeVersionRules, Scenario, DtoScenarioInfo, TreeFilter, Tree, OptionImage, Choice
+	TreeVersionRules, Scenario, DtoScenarioInfo, TreeFilter, Tree, OptionImage, Choice, Log
 } from 'phd-common';
 
 import { DecisionPointFilterType } from '../../shared/models/decisionPointFilter';
@@ -50,6 +50,7 @@ export class LoadTree implements Action
 	constructor(public scenario: Scenario) { }
 }
 
+@Log(true)
 export class LoadPreview implements Action
 {
 	readonly type = ScenarioActionTypes.LoadPreview;
@@ -57,6 +58,7 @@ export class LoadPreview implements Action
 	constructor(public treeVersionId: number) { }
 }
 
+@Log()
 export class LotConflict implements Action
 {
 	readonly type = ScenarioActionTypes.LotConflict;
@@ -85,6 +87,7 @@ export class LoadError extends ErrorAction
 	constructor(public error: Error, public friendlyMessage?: string) { super(error, friendlyMessage); }
 }
 
+@Log(true)
 export class SelectChoices implements Action
 {
 	readonly type = ScenarioActionTypes.SelectChoices;
@@ -98,6 +101,7 @@ export class SelectChoices implements Action
 	}
 }
 
+@Log(true)
 export class CreateScenario implements Action
 {
 	readonly type = ScenarioActionTypes.CreateScenario;
@@ -105,6 +109,7 @@ export class CreateScenario implements Action
 	constructor(public opportunityId: string, public scenarioName: string) { }
 }
 
+@Log(true)
 export class SetScenarioPlan implements Action
 {
 	readonly type = ScenarioActionTypes.SetScenarioPlan;
@@ -112,6 +117,7 @@ export class SetScenarioPlan implements Action
 	constructor(public treeVersionId: number, public planId: number) { }
 }
 
+@Log(true)
 export class SetScenarioLot implements Action
 {
 	readonly type = ScenarioActionTypes.SetScenarioLot;
@@ -119,6 +125,7 @@ export class SetScenarioLot implements Action
 	constructor(public lotId: number, public handing: ChangeOrderHanding, public premium: number) { }
 }
 
+@Log(true)
 export class SetScenarioLotHanding implements Action
 {
 	readonly type = ScenarioActionTypes.SetScenarioLotHanding;
@@ -126,6 +133,7 @@ export class SetScenarioLotHanding implements Action
 	constructor(public handing: ChangeOrderHanding) { }
 }
 
+@Log(true)
 export class SetScenarioName implements Action {
 	readonly type = ScenarioActionTypes.SetScenarioName;
 
@@ -230,6 +238,7 @@ export class SetIsFloorplanFlippedScenario implements Action
 	constructor(public isFlipped: boolean) { }
 }
 
+@Log(true)
 export class SetOverrideReason implements Action
 {
 	readonly type = ScenarioActionTypes.SetOverrideReason;

@@ -6,10 +6,10 @@ import { IEnvironment } from './environment.model';
 // The list of which env maps to which file can be found in `.angular-cli.json`.
 
 export const environment: IEnvironment = {
-    production: false,
+	production: false,
 	tenant: 'pulte.onmicrosoft.com',
 	authConfig: {
-		issuer: "https://login.microsoftonline.com/1a9277a3-ef66-41f6-96b5-c5390ee468a7/v2.0",
+		issuer: 'https://login.microsoftonline.com/1a9277a3-ef66-41f6-96b5-c5390ee468a7/v2.0',
 		clientId: 'f9c9611d-6a23-4d2e-8dce-14da56bd8acc',
 		responseType: 'code',
 		clearHashAfterLogin: true,
@@ -20,15 +20,17 @@ export const environment: IEnvironment = {
 		strictDiscoveryDocumentValidation: false
 	},
 	authQueryParams: 'domain_hint=pulte.com',
-    pictureParkAssetUrl: 'https://pultegroup.picturepark.com/Website/Publisher.aspx?Page=AssetConnector',
-    appInsights: {
-        instrumentationKey: '08875504-9c0f-45a6-8cc5-8a819e51aff0'
+	pictureParkAssetUrl: 'https://pultegroup.picturepark.com/Website/Publisher.aspx?Page=AssetConnector',
+	appInsights: {
+		instrumentationKey: '08875504-9c0f-45a6-8cc5-8a819e51aff0',
+		enableAutoRouteTracking: true
 	},
 	cloudinary: { cloud_name: 'dv0jqjrc3', responsive_use_breakpoints: false },
 	whatFix: {
 		scriptUrl: '//whatfix.com/01caf5e0-cb2f-11e8-b979-04013d24cd02/embed/embed.nocache.js'
 	},
-    apiUrl: 'http://localhost:2845/odata/',
+	apiUrl: 'http://localhost:2845/odata/',
 	designToolUrl: 'http://localhost:14767/',
-	designPreviewUrl: 'http://localhost:14769/'
+	designPreviewUrl: 'http://localhost:14769/',
+	colorManagementUrl: 'http://localhost:14770/'
 };

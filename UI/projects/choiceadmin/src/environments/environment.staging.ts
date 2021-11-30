@@ -22,7 +22,8 @@ export const environment: IEnvironment = {
 	authQueryParams: 'domain_hint=pulte.com',
 	pictureParkAssetUrl: 'https://pultegroup.picturepark.com/Website/Publisher.aspx?Page=AssetConnector',
 	appInsights: {
-		instrumentationKey: 'cf19cbb8-e39b-4e28-8199-3d06eaf051f0'
+		instrumentationKey: 'cf19cbb8-e39b-4e28-8199-3d06eaf051f0',
+		enableAutoRouteTracking: true
 	},
 	cloudinary: { cloud_name: 'dv0jqjrc3', responsive_use_breakpoints: false },
 	whatFix: {
@@ -30,5 +31,6 @@ export const environment: IEnvironment = {
 	},
 	apiUrl: 'https://phdapi.staging.pulte.com/odata/',
 	designToolUrl: 'https://phd.staging.pulte.com/designtool/',
-	designPreviewUrl: 'https://phd.staging.pulte.com/designpreview/'
+	designPreviewUrl: 'https://phd.staging.pulte.com/designpreview/',
+	colorManagementUrl: 'https://phd.staging.pulte.com/colormanagement/'
 };

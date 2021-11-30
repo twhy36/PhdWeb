@@ -1,16 +1,17 @@
-import {Component, OnInit, ViewChild } from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {OptionService} from '../../services/option.service';
 import {IOptionSubCategory} from '../../../shared/models/option.model';
 import {OrganizationService} from '../../../core/services/organization.service';
 import {filter, map, switchMap} from 'rxjs/operators';
 import {from, Observable, of} from 'rxjs';
-import {ModalRef, UnsubscribeOnDestroy, ModalService, ConfirmModalComponent} from 'phd-common';
-import {IColorDto, IColor} from '../../../shared/models/color.model';
+import {ConfirmModalComponent, ModalRef, ModalService, UnsubscribeOnDestroy} from 'phd-common';
+import {IColor, IColorDto} from '../../../shared/models/color.model';
 import {ColorService} from '../../services/color.service';
 import {SettingsService} from '../../services/settings.service';
 import {Settings} from '../../../shared/models/settings.model';
 import {MessageService} from 'primeng/api';
 import {IToastInfo} from '../../../../../../../phd-common/src/lib/models/toast-info.model';
+import { CrudMode } from '../../../shared/classes/constants.class';
 
 @Component({
 	selector: 'colors-search-header',
@@ -41,6 +42,10 @@ export class ColorsSearchHeaderComponent
 	deleteColorList: Array<IColorDto>=[];
 	editSidePanelIsOpen: boolean;
 	colorToEdit: IColorDto;
+
+	public get CrudMode() { //to allow using enum in html template
+		return CrudMode;
+	}
 
 	constructor(
 		private _optionService: OptionService,
@@ -112,10 +117,6 @@ export class ColorsSearchHeaderComponent
 						return colorsDto;
 					}) as Array<IColorDto>;
 					return colorsList;
-				}),
-				switchMap((colorDtos)=>
-				{
-					return this._colorService.getSalesConfiguration(colorDtos);
 				})
 			)
 			.subscribe((colorDtos) => {
@@ -124,12 +125,23 @@ export class ColorsSearchHeaderComponent
 					colorDtos.length < this.settings.infiniteScrollPageSize;
 				this.colorsDtoList = [...this.colorsDtoList, ...colorDtos];
 				this.isLoading = false;
+				this.getSalesConfig(colorDtos);
 	});
+	}
+
+	getSalesConfig(colorDtos: IColorDto[])
+	{
+		this._colorService.getSalesConfiguration(colorDtos,this.currentCommunityId).subscribe((config)=> {
+			config.map((color) => {
+				this.colorsDtoList.find(c =>c.colorId === color.colorId).hasSalesConfig = color.hasSalesConfig;
+			})
+		})
 	}
 
 	filterColors() {
 		this.colorsDtoList = [];
 		this.currentPage = 0;
+		this.skip = 0;
 		this.loadColors();
 	}
 
@@ -143,6 +155,13 @@ export class ColorsSearchHeaderComponent
 		this.selectedSubCategory = null;
 		this.isActiveColor = null;
 		this.colorsDtoList = [];
+		this.currentPage = 0;
+		this.skip = 0;
+	}
+
+	getRowClass(rowData: any): string
+	{
+		return rowData['isActive'] ? null : 'phd-inactive-color';
 	}
 
 	isDeleteSelected(color:IColorDto):boolean
@@ -173,21 +192,33 @@ export class ColorsSearchHeaderComponent
 		this.modalReference.result.catch(err => console.log(err));
 	}
 
-	onNewColorsWereSaved(message: string = '')
+	onNewColorsWereSaved(successful: boolean, mode: CrudMode)
 	{
-		if (this.modalReference)
+		if (this.modalReference && successful)
 		{
 			this.modalReference.dismiss();
 		}
 
+		this.showToast(successful, mode);
+
+		if (successful)
+		{
+			this.filterColors();
+		}
+	}
+
+	private showToast(successful: boolean, mode: CrudMode)
+	{
+		const messagePrefix = mode === CrudMode.Delete ? 'Delete' : 'Save';
+
 		const toast = {
-			severity: 'success',
-			summary: 'Color',
-			detail: message.length > 0 ? message : 'Save was successful! Refreshing grid...'
+			severity: successful ? 'success' : 'error',
+			summary: successful ? 'Success' : 'Error',
+			detail: successful ? `${messagePrefix} was successful! Refreshing grid...` : `${messagePrefix} failed. Please try again.`,
+			sticky: successful === false
 		} as IToastInfo;
 
 		this._msgService.add(toast);
-		this.filterColors();
 	}
 
 	onCloseDialogWasRequested()
@@ -219,8 +250,9 @@ export class ColorsSearchHeaderComponent
 			if (successful) {
 				this.skip = 0;
 				this.deleteColorList = [];
-				this.onNewColorsWereSaved('Delete was successful! Refreshing grid...');
 			}
+
+			this.onNewColorsWereSaved(successful, CrudMode.Delete);
 		});
 	}
 
@@ -235,15 +267,101 @@ export class ColorsSearchHeaderComponent
 		return from(confirm.result.then((result) => result !== 'Continue'));
 	}
 
-	onColorsWasEdited(toastInfo: IToastInfo) {
-		if (toastInfo.severity === 'success')
+	onColorsWasEdited(successful: boolean) {
+		if (successful)
 		{
 			this.editSidePanelIsOpen = false;
-			this._msgService.add(toastInfo);
+			this.showToast(successful, CrudMode.Edit);
 			this.filterColors();
 			return;
 		}
 
-		this._msgService.add(toastInfo);
+		this.showToast(successful, CrudMode.Edit);
+	}
+
+	activateColor(colorDto:IColorDto)
+	{		
+		const colorToSave = {
+			colorId: colorDto.colorId,
+			isActive: true
+		} as IColorDto;
+
+		let toast:IToastInfo;
+		
+		this._colorService.updateColor(colorToSave, this.currentCommunityId).subscribe((color) => {
+			if (color) {
+				toast = {
+					severity: 'success',
+					summary: 'Activate Color',
+					detail: 'Color activation was successful!'
+				}
+				this._msgService.add(toast);
+				this.colorsDtoList.find(c =>c.colorId === color.colorId).isActive = color.isActive;
+			}
+			else{				
+				toast = {
+					severity: 'error',
+					summary: 'Activate Color',
+					detail: 'Color activation failed. Please try again.'
+				} as IToastInfo;
+				this._msgService.add(toast);
+			}
+		},error => {
+			toast = {
+				severity: 'error',
+				summary: 'Activate Color',
+				detail: 'Color activation failed due to an unexpected error.'
+			} as IToastInfo;
+			this._msgService.add(toast);
+		}
+		);
+	}
+
+	inactivateColor(colorDto:IColorDto)
+	{	
+		const message = 'Are you sure you want to inactivate this color?';
+		let cancelled = false;
+		let toast:IToastInfo;
+		this.showConfirmModal(message, 'Warning', 'Continue').pipe(
+			switchMap(cancel => {
+				if (cancel) {
+					cancelled = true;
+					return;
+				}
+				const colorToSave = {
+					colorId: colorDto.colorId,
+					isActive: false
+				} as IColorDto;
+				return this._colorService.updateColor(colorToSave, this.currentCommunityId)
+				})).subscribe((color:IColor) => {
+					if (color) {
+						toast = {
+							severity: 'success',
+							summary: 'Inactivate Color',
+							detail: 'Color inactivation was successful!'
+						}
+						this._msgService.add(toast);
+						this.colorsDtoList.find(c =>c.colorId === color.colorId).isActive = color.isActive;
+					}
+					else{				
+						toast = {
+							severity: 'error',
+							summary: 'Inactivate Color',
+							detail: 'Color inactivation failed. Please try again.'
+						} as IToastInfo;
+						this._msgService.add(toast);
+					}
+				},error => {
+					if(!cancelled)
+					{
+						toast = {
+							severity: 'error',
+							summary: 'Inactivate Color',
+							detail: 'Color inactivation failed due to an unexpected error.'
+						} as IToastInfo;
+						this._msgService.add(toast);
+					}
+				}
+				);									
 	}
 }

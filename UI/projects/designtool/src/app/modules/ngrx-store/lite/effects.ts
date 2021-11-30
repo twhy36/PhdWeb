@@ -1,12 +1,17 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Action, Store } from '@ngrx/store';
-import { Observable, never, of } from 'rxjs';
-import { switchMap, withLatestFrom } from 'rxjs/operators';
+import { Observable, never, of, combineLatest } from 'rxjs';
+import { switchMap, withLatestFrom, map } from 'rxjs/operators';
 
+import { LiteService } from '../../core/services/lite.service';
 import { PlanActionTypes, PlansLoaded } from '../plan/actions';
-import { SetIsPhdLite } from './actions';
+import { ScenarioActionTypes, ScenarioSaved } from '../scenario/actions';
+import { 
+	LiteActionTypes, SetIsPhdLite, LiteOptionsLoaded, SaveScenarioOptions, ScenarioOptionsSaved, SaveScenarioOptionColors 
+} from './actions';
 import * as fromRoot from '../reducers';
+
 
 @Injectable()
 export class LiteEffects
@@ -30,5 +35,85 @@ export class LiteEffects
 		);
 	});
 
-	constructor(private actions$: Actions, private store: Store<fromRoot.State>) { }
+	loadOptions$: Observable<Action> = createEffect(() => {
+		return this.actions$.pipe(
+			ofType<ScenarioSaved>(ScenarioActionTypes.ScenarioSaved),
+			withLatestFrom(this.store),
+			switchMap(([action, store]) => {
+				const planOptions = store.lite.options;
+				const optionsLoaded = !!planOptions.find(option => option.planId === action.scenario.planId);
+				
+				if (store.lite.isPhdLite && !optionsLoaded)
+				{
+					return combineLatest([
+						this.liteService.getLitePlanOptions(action.scenario.planId),
+						this.liteService.getScenarioOptions(action.scenario.scenarioId)
+					]).pipe(
+						switchMap(([options, scenarioOptions]) => {
+							const optionIds = options.map(o => o.id);
+							return this.liteService.getColorItems(optionIds).pipe(
+								map(colorItems => {
+									colorItems.forEach(colorItem => {
+										let option = options.find(option => option.id === colorItem.edhPlanOptionId);
+										if (option)
+										{
+											option.colorItems.push(colorItem);
+										}
+									});
+									return { options, scenarioOptions };
+								})
+							)
+						})
+					);
+				}
+				else
+				{
+					return null;
+				}
+			}),
+			switchMap(data => {
+				if (data)
+				{
+					return of(new LiteOptionsLoaded(data.options, data.scenarioOptions));				
+				}
+				return never();
+			})
+		);
+	});	
+
+	saveScenarioOptions$: Observable<Action> = createEffect(() => {
+		return this.actions$.pipe(
+			ofType<SaveScenarioOptions>(LiteActionTypes.SaveScenarioOptions),
+			withLatestFrom(this.store),
+			switchMap(([action, store]) => {
+				const scenarioId = store.scenario.scenario?.scenarioId;
+
+				return scenarioId
+					? this.liteService.saveScenarioOptions(scenarioId, action.scenarioOptions)
+					: of([]);
+			}),
+			map(options => new ScenarioOptionsSaved(options))
+		);
+	});	
+
+	saveScenarioOptionColors$: Observable<Action> = createEffect(() => {
+		return this.actions$.pipe(
+			ofType<SaveScenarioOptionColors>(LiteActionTypes.SaveScenarioOptionColors),
+			withLatestFrom(this.store),
+			switchMap(([action, store]) => {
+				const scenarioId = store.scenario.scenario?.scenarioId;
+
+				return scenarioId
+					? this.liteService.saveScenarioOptionColors(scenarioId, action.optionColors)
+					: of([]);
+			}),
+			map(options => new ScenarioOptionsSaved(options))
+		);
+	});	
+
+	constructor(
+		private actions$: Actions, 
+		private store: Store<fromRoot.State>,
+		private liteService: LiteService
+	) { }
 }

@@ -127,8 +127,6 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 
 	modalReference: ModalRef;
 
-	hideGenericPreviewAccess: boolean;
-
 	get openGroups(): boolean
 	{
 		return this.treeToggle ? this.treeToggle.openGroups : true;
@@ -195,8 +193,6 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 		});
 
 		this._treeOptionSub = this._treeService.currentTreeOptions.subscribe(options => { this.currentTreeOptions = options; });
-
-		this.hideGenericPreviewAccess = this._settingsService.getSettings().production;
 	}
 
 	ngOnDestroy()

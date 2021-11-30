@@ -1,0 +1,102 @@
+@import "../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
+@import "../../../../../scss/color-pallet.scss";
+
+.phd-exterior-card-div {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.phd-exterior-card {
+	@extend .phd-exterior-card-div;
+	width: 250px;
+	height: 250px;
+	background-color: white;
+	margin: 5px;
+	margin-bottom: 10px;
+	border: 1px solid rgba(0,0,0,.125);
+	border-radius: .25rem;
+	
+	.phd-header {
+		margin: 15px 20px 0 20px;
+		min-height: 50px;
+		width: 210px;
+
+		span {
+			font-size: 16px;
+			font-weight: 500;
+			text-transform: uppercase;
+		}		
+	}
+
+	.phd-body {
+		flex: 1 1 auto;
+		display: flex;
+		flex-direction: column;
+		width: 100%;
+
+		.phd-option-body {
+			display: flex;
+			justify-content: center;
+			flex-direction: column;
+			margin: 16px 20px 0 20px;
+			max-height: 220px;
+
+			p {
+				font-size: 14px;
+				font-weight: 300;
+				margin-bottom: 5px;
+
+				strong {
+					font-weight: 500;
+					text-transform: capitalize;
+				}
+			}
+		}	
+	}
+
+	.phd-divider {
+		width: 100%;
+		height: 1px;
+		min-height: 1px;
+		background-color: $mid_gray;
+	}		
+
+	.phd-footer {
+		@extend .phd-exterior-card-div;
+		flex: 0 1 auto;
+		padding-bottom: 6px;
+		width: 100%;
+
+		.phd-footer-btn-container {
+			width: 100%;
+			cursor: default;
+			padding: 5px 15px 5px 15px;
+
+			.phd-footer-btns {
+				justify-content: space-around;
+			}
+		}
+	}	
+        
+	&.active {
+		box-shadow: 0 0 0 2pt $weird-green;
+		transition: all 0.12s;
+		transition-timing-function: cubic-bezier(.42, 0, 1, 1);
+
+		&.selected button {
+			background-color: $white;
+			color: $link-blue;
+			font-size: 12px;
+			text-transform: capitalize;
+		}
+    }   
+    
+	.phd-2-line-limit {
+		display: -webkit-box;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 2;
+		overflow: hidden;
+	}
+    
+}

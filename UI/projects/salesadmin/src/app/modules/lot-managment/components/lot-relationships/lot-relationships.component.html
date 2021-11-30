@@ -1,0 +1,58 @@
+<lot-relationships-side-panel *ngIf="sidePanelOpen"
+  [divChoiceCatalogs]="divChoiceCatalogs"
+  [edhToPhdPlanMap]="edhToPhdPlanMap"
+  [existingLotRelationships]="lotRelationshipsToDisplay"
+  [saving]="isSaving"
+  [selected]="selected"
+  [selectedCommunity]="selectedCommunity"
+  [sidePanelOpen]="sidePanelOpen"
+  (onSave)="onSave($event)"
+  (onSidePanelClose)="onSidePanelClose($event)">
+</lot-relationships-side-panel>
+
+<div>
+  <div class="phd-button-bar">
+    <button type="button" class="btn btn-primary" (click)="addLotRelationship()">Add New Lot Relationship</button>
+  </div>
+  <div class="phd-table-container mx-2">
+    <phd-table #dt [value]="lotRelationshipsToDisplay" [nonOverflow]="false">
+      <phd-column header="" columnClass="phd-icon" width="75px">
+        <ng-template #body let-relationship>
+          <div class="phd-icon-container">
+            <i class="fa fa-fw fa-pencil" (click)="editLotRelationship(relationship)" *ngIf="canEdit" phd-tooltip="Edit Lot Relationship"></i>
+            <i class="fa fa-trash fa-fw" (click)="deleteLotRelationship(relationship)" *ngIf="canEdit" phd-tooltip="Delete Lot Relationship"></i>
+          </div>
+        </ng-template>
+      </phd-column>
+
+      <phd-column header="Lot Block" field="relationship.edhLotId">
+        <ng-template #body let-relationship>
+          <span (mouseenter)="showTooltip($event, getLotName(relationship.edhLotId), dt)" (mouseleave)="hideTooltip(dt)">{{ getLotName(relationship.edhLotId) }}</span>
+        </ng-template>
+      </phd-column>
+
+      <phd-column header="Plan" field="relationship.planId">
+        <ng-template #body let-relationship>
+          <ng-container *ngIf="relationship.lotChoiceRuleAssocIds.length > 0; else any">
+            <span (mouseenter)="showTooltip($event, relationship.planIdDisplay, dt)" (mouseleave)="hideTooltip(dt)">{{ relationship.planIdDisplay }}</span>
+          </ng-container>
+          <ng-template #any>
+            All
+          </ng-template>
+        </ng-template>
+      </phd-column>
+
+      <phd-column header="Choice" field="relationship.divChoiceCatalogId">
+        <ng-template #body let-relationship>
+          <span (mouseenter)="showTooltip($event, getChoiceName(relationship.divChoiceCatalogId), dt)" (mouseleave)="hideTooltip(dt)">{{ getChoiceName(relationship.divChoiceCatalogId) }}</span>
+        </ng-template>
+      </phd-column>
+
+      <phd-column header="Rule" field="relationship.mustHave">
+        <ng-template #body let-relationship>
+          <span (mouseenter)="showTooltip($event, getMustHave(relationship.mustHave), dt)" (mouseleave)="hideTooltip(dt)">{{ getMustHave(relationship.mustHave) }}</span>
+        </ng-template>
+      </phd-column>
+    </phd-table>
+  </div>
+</div>

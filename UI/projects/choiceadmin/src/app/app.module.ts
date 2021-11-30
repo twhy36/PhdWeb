@@ -14,7 +14,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { AppComponent } from './app.component';
 
-import { IdentityService, PhdCommonModule, AUTH_CONFIG } from 'phd-common';
+import { IdentityService, PhdCommonModule, AUTH_CONFIG, APP_INSIGHTS_CONFIG, TELEMETRY_INIT, setClientApp } from 'phd-common';
 import { environment } from '../environments/environment';
 import { tap } from 'rxjs/operators';
 
@@ -70,7 +70,9 @@ export function getBaseHref(platformLocation: PlatformLocation): string
 	providers: [
 		{ provide: APP_INITIALIZER, useFactory: appInitializerFn, deps: [IdentityService], multi: true },
 		{ provide: APP_BASE_HREF, useFactory: getBaseHref, deps: [PlatformLocation] },
-		{ provide: AUTH_CONFIG, useValue: environment.authConfig }
+		{ provide: AUTH_CONFIG, useValue: environment.authConfig },
+		{ provide: APP_INSIGHTS_CONFIG, useValue: environment.appInsights },
+		{ provide: TELEMETRY_INIT, useValue: setClientApp("Choice Admin") }
 	],
 	bootstrap: [AppComponent]
 })

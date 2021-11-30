@@ -272,7 +272,7 @@ export class FavoriteEffects
 			ofType<LoadMyFavorite>(FavoriteActionTypes.LoadMyFavorite),
 			withLatestFrom(this.store.pipe(select(fromSalesAgreement.salesAgreementState)),
 				this.store.pipe(select(fromFavorite.favoriteState)),
-				this.store.pipe(select(fromSalesAgreement.favoriteTitle))
+				this.store.pipe(select(fromRoot.favoriteTitle))
 			),
 			tryCatch(source => source.pipe(
 				switchMap(([action, sag, fav, title]) => {

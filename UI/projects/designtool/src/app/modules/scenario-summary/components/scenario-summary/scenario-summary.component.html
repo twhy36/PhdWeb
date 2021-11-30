@@ -1,5 +1,24 @@
 <page-header mainTitle="{{title}}"></page-header>
 
+<!-- Initialize a hidden floorplan component if the images were not found -->
+<floor-plan *ngIf="!hasFloorPlanImages && interactiveFloorplanSG"
+			class="phd-hidden-floor-plan"
+			[canForceSave]="true"
+			[planId]="marketingPlanId.length === 1 ? marketingPlanId[0] : 0"
+			[subGroup]="interactiveFloorplanSG"
+			[priceBreakdown]="priceBreakdown"
+			[selectedPointFilter]="(selectedPointFilter$ | async)"
+			[enabledPointFilters]="(enabledPointFilters$ | async)"
+			[scenarioStatus]="(scenarioStatus$ | async)"
+			[complete]="(isComplete$ | async)"
+			[inChangeOrder]="(isChangingOrder$ | async)"
+			errorMessage=""
+			[treeFilter]="(treeFilter$ | async)"
+			[canOverride]="(canOverride$ | async)"
+			[canConfigure]="(canConfigure$ | async)"
+			(onFloorPlanSaved)="onFloorPlanSaved($event)">
+</floor-plan>
+
 <div class="d-flex justify-content-center">
 	<div *ngIf="canDisplay" class="summary-container d-flex align-items-onLoadImage flex-column">
 		<div class="position-relative phd-summary-header-image" *ngIf="summaryImages.length">
@@ -20,12 +39,12 @@
 						(pointStatusFilterChanged)="onPointStatusFilterChanged($event)"
 						(toggleAllAttributesChanged)="onToggleAllAttributesChanged($event)"
 						(toggleImagesChanged)="onToggleImagesChanged($event)"
-		                (isStickyChanged)="onIsStickyChanged($event)"
+						(isStickyChanged)="onIsStickyChanged($event)"
 						(handingChanged)="onHandingChanged($event)"
 						[summaryHeader]="summaryHeader"
 						[priceBreakdown]="priceBreakdown"
-		                [allowEstimates]="allowEstimates"
-		                [canEditHanding]="(canEditAgreement$ | async) && (canConfigure$ | async) && canEditHanding"
+						[allowEstimates]="allowEstimates"
+						[canEditHanding]="(canEditAgreement$ | async) && (canConfigure$ | async) && canEditHanding"
 						[canConfigure]="canConfigure$ | async"
 						[disableHanding]="disableHanding"
 						[canOverride]="canOverride$ | async"></summary-header>
@@ -63,8 +82,7 @@
 			</ng-container>
 		</div>
 
-		<summary-action-bar
-							[isComplete]="(isComplete$ | async)"
+		<summary-action-bar [isComplete]="(isComplete$ | async)"
 							[selectedPointFilter]="(selectedPointFilter$ | async)"
 							[enabledPointFilters]="(enabledPointFilters$ | async)"
 							[priceBreakdown]="priceBreakdown"

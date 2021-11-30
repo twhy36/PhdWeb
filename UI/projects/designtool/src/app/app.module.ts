@@ -18,7 +18,7 @@ import { never, of } from 'rxjs';
 export const cloudinary = { Cloudinary: CloudinaryCore };
 export const config: CloudinaryConfiguration = environment.cloudinary;
 
-import { PhdCommonModule, IdentityService, AUTH_CONFIG } from 'phd-common';
+import { PhdCommonModule, IdentityService, AUTH_CONFIG, APP_INSIGHTS_CONFIG, TELEMETRY_INIT, setClientApp } from 'phd-common';
 
 import { CoreModule } from './modules/core/core.module';
 import { ChangeOrdersModule } from './modules/change-orders/change-orders.module';
@@ -27,6 +27,8 @@ import { EditHomeModule } from './modules/edit-home/edit-home.module';
 import { NewHomeModule } from './modules/new-home/new-home.module';
 import { ScenarioSummaryModule } from './modules/scenario-summary/scenario-summary.module';
 import { PointOfSaleModule } from './modules/point-of-sale/point-of-sale.module';
+import { LiteModule } from './modules/lite/lite.module';
+
 import { NgbDateCustomParserFormatter } from './modules/shared/classes/ngbDatePicker/ngbDateCustomParserFormatter';
 
 import { AppComponent } from './app.component';
@@ -36,7 +38,8 @@ const appRoutes: Routes = [
     { path: 'edit-home', component: EditHomeModule },
     { path: 'scenario-summary', component: ScenarioSummaryModule },
 	{ path: 'point-of-sale', component: PointOfSaleModule },
-	{ path: 'change-orders', component: ChangeOrdersModule },
+    { path: 'change-orders', component: ChangeOrdersModule },
+    { path: 'lite', component: LiteModule },
     { path: '', pathMatch: 'full', redirectTo: 'new-home' }
 ];
 
@@ -70,6 +73,7 @@ export function getBaseHref(platformLocation: PlatformLocation): string
 		CoreModule,
 		ChangeOrdersModule,
         EditHomeModule,
+        LiteModule,
         NewHomeModule,
         ScenarioSummaryModule,
         PointOfSaleModule,
@@ -83,7 +87,9 @@ export function getBaseHref(platformLocation: PlatformLocation): string
         { provide: APP_INITIALIZER, useFactory: appInitializerFn, deps: [IdentityService], multi: true },
         { provide: APP_BASE_HREF, useFactory: getBaseHref, deps: [PlatformLocation] },
         { provide: NgbDateParserFormatter, useClass: NgbDateCustomParserFormatter },
-		{ provide: AUTH_CONFIG, useValue: environment.authConfig }
+		{ provide: AUTH_CONFIG, useValue: environment.authConfig },
+        { provide: APP_INSIGHTS_CONFIG, useValue: environment.appInsights },
+        { provide: TELEMETRY_INIT, useValue: setClientApp("Design Tool")}
     ],
     bootstrap: [AppComponent]
 })

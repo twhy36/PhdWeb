@@ -1,0 +1,32 @@
+<div class="phd-floor-plan-summary">
+	<div class="phd-names d-flex flex-column">
+		<div class="phd-community-name">{{communityName}} : </div>
+		<div class="phd-plan-name">{{planName}}</div>
+	</div>
+	<div class="phd-floorplan-container">
+		<ng-container *ngIf="!noVisibleGroups">
+			<floor-plan
+				[height]="'86vh'"
+				[planId$]="marketingPlanId$"
+				[selectedFloor]="selectedFloor"
+				[subGroup]="subGroup"
+				[isFlipped]="isFloorplanFlipped"
+				(onFloorPlanLoaded)="loadFloorPlan($event)"
+			>
+			</floor-plan>
+		</ng-container>
+	</div>
+	<div class="floor-select-container" *ngIf="floors && floors.length > 1">
+		<select id="floor-select" class="form-control" [ngModel]="selectedFloor" (ngModelChange)="selectFloor($event)">
+			<option *ngFor="let floor of floors" [ngValue]="floor">{{ floor.name }}</option>
+		</select>
+	</div>
+</div>
+
+<action-bar [primaryAction]="'Back'"
+			[favoritesPrice]="priceBreakdown.favoritesPrice"
+			[price]="priceBreakdown.totalPrice"
+			[isDesignComplete]="isDesignComplete"
+			(callToAction)="onBack()"
+			>
+</action-bar>

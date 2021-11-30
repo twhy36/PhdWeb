@@ -1,0 +1,19 @@
+<div class="phd-progress-bar">
+	<phase-progress-bar 
+		[items]="(subNavItems$ | async)"
+		[selectedItem]="(selectedSubNavItem$ | async)"
+		(onItemSelected)="onSubNavItemSelected($event)"
+		[showStatusIndicator]="(canConfigure$ | async)">
+	</phase-progress-bar>	
+</div>
+	
+<div class="phd-lite-experience">
+	<router-outlet></router-outlet>
+</div>
+
+<action-bar [actionBarStatus]='(isLiteComplete$ | async) ? "COMPLETE" : "INCOMPLETE"'
+			[primaryAction]='primaryAction'
+			[canChange]="canConfigure$ | async"
+			[price]="(priceBreakdown$ | async).totalPrice"
+			(callToAction)="onCallToAction($event)">
+</action-bar>	

@@ -235,7 +235,7 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 
 		if (!enabled)
 		{
-			point.choices.forEach(ch =>
+			point?.choices.forEach(ch =>
 			{
 				if (!ch.lockedInChoice) 
 				{

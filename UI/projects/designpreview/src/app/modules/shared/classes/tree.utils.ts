@@ -13,6 +13,7 @@ import {
 } from 'phd-common';
 
 import { TreeService } from '../../core/services/tree.service';
+import { BlockedByItemList } from '../models/blocked-by.model';
 
 export function isJobChoice(choice: JobChoice | ChangeOrderChoice): choice is JobChoice
 {
@@ -704,17 +705,26 @@ export function mergeLocations(locations: Array<any>, missingLocations: Array<De
 // Choice-To-Choice Structural Items
 export function hideChoicesByStructuralItems(choiceRules: ChoiceRules[], choices: Choice[], points: DecisionPoint[], hiddenChoiceIds: number[], hiddenPointIds: number[]) {
 	choiceRules.forEach(cr => {
+		let numOrRules = cr.rules.length;
+		let numBlocked = 0;
 		cr.rules.forEach(r => {
+			let numAndBlocked = 0;
 			r.choices.forEach(ch => {
 				const choice = r.ruleType === 1 ? choices.find(c => c.id === ch && c.quantity === 0) : choices.find(c => c.id === ch && c.quantity > 0);
 				if (choice) {
 					const dp = points.find(p => p.choices.findIndex(c => c.id === ch) >= 0);
 					if (dp.isStructuralItem && hiddenChoiceIds.indexOf(cr.choiceId) < 0) {
-						hiddenChoiceIds.push(cr.choiceId);
+						numAndBlocked++;
 					}
 				}
 			})
+			if (numAndBlocked > 0) {
+				numBlocked++;
+			}
 		})
+		if (numOrRules === numBlocked) {
+			hiddenChoiceIds.push(cr.choiceId);
+		}
 	})
 	let hiddenChoicesFound = false;
 	while (!hiddenChoicesFound) {
@@ -745,6 +755,9 @@ export function hideChoicesByStructuralItems(choiceRules: ChoiceRules[], choices
 
 // Point-To-Choice && Point-To-Point Structural Items
 export function hidePointsByStructuralItems(pointRules: PointRules[], choices: Choice[], points: DecisionPoint[], hiddenChoiceIds: number[], hiddenPointIds: number[]) {
+	// cr.choiceId is the affected choice
+		// cr.rules = number of rules for choice, these are all ORS
+		// r.choices are the affecting choice per rule, if multiple choices, its an AND
 	pointRules.forEach(pr => {
     // Must Have Rules
     const dpToChoiceRules = pr.rules.filter(r => r.ruleType === 1 && r.choices.length > 0);
@@ -833,41 +846,93 @@ export function hidePointsByStructuralItems(pointRules: PointRules[], choices: C
 
 export function getDisabledByList(tree: Tree, groups: Group[], point: DecisionPoint, choice: Choice)
 {
-	let disabledByList = [];
+	let disabledByList = new BlockedByItemList({
+		andPoints: [],
+		andChoices: [],
+		orPoints: [],
+		orChoices: []
+	});
+
 	const allPoints = _.flatMap(tree?.treeVersion?.groups, g => _.flatMap(g.subGroups, sg => sg.points));
 	const allChoices = _.flatMap(allPoints, p => p.choices.map(c => ({...c, pointId: p.id})));
 	const filteredPoints = _.flatMap(groups, g => _.flatMap(g.subGroups, sg => sg.points));
 	point?.disabledBy.forEach(disabledPoint => {
 		disabledPoint.rules.forEach(rule => {
-			rule.points.forEach(disabledByPointId => {
-				disabledByList.push({
+			if (rule.points?.length > 1)
+			{
+				rule.points.forEach(disabledByPointId => {
+					const disabledByPoint = allPoints.find(point => point.id === disabledByPointId);
+					if (disabledByPoint?.status !== PointStatus.COMPLETED)
+					{
+						disabledByList.andPoints.push({
+							label: disabledByPoint?.label,
+							pointId: filteredPoints.find(point => point.id === disabledByPointId) ? disabledByPointId : null,
+							ruleType: rule.ruleType
+						});
+					}
+				});
+			}
+			else if (rule.points?.length === 1)
+			{
+				const disabledByPointId = rule.points[0];
+				disabledByList.orPoints.push({
 					label: allPoints.find(point => point.id === disabledByPointId)?.label,
 					pointId: filteredPoints.find(point => point.id === disabledByPointId) ? disabledByPointId : null,
 					ruleType: rule.ruleType
 				});
-			});
-			rule.choices.forEach(disabledByChoiceId => {
-				const disabledByChoice = allChoices.find(choice => choice.id === disabledByChoiceId);
-				disabledByList.push({
+			}
+
+			if (rule.choices?.length > 1)
+			{
+				rule.choices.forEach(disabledByChoiceId => {
+					const disabledByChoice = allChoices.find(choice => choice.id === disabledByChoiceId);
+					if (disabledByChoice.quantity === 0)
+					{
+						disabledByList.andChoices.push({
+							label: disabledByChoice?.label,
+							pointId: filteredPoints.find(point => point.id === disabledByChoice?.pointId) ? disabledByChoice?.pointId : null,
+							choiceId: disabledByChoiceId,
+							ruleType: rule.ruleType
+						});
+					}
+				});
+			}
+			else if (rule.choices?.length === 1)
+			{
+				const disabledByChoice = allChoices.find(choice => choice.id === rule.choices[0]);
+				disabledByList.orChoices.push({
 					label: disabledByChoice?.label,
 					pointId: filteredPoints.find(point => point.id === disabledByChoice?.pointId) ? disabledByChoice?.pointId : null,
-					choiceId: disabledByChoiceId,
+					choiceId: rule.choices[0],
 					ruleType: rule.ruleType
 				});
-			});
+			}
 		});
 	});
 	choice?.disabledBy.forEach(disabledChoice => {
 		disabledChoice.rules.forEach(rule => {
-			rule.choices.forEach(disabledByChoiceId => {
-				const disabledByChoice = allChoices.find(choice => choice.id === disabledByChoiceId);
-				disabledByList.push({
+			if (rule.choices?.length > 1)
+			{
+				rule.choices.forEach(disabledByChoiceId => {
+					const disabledByChoice = allChoices.find(choice => choice.id === disabledByChoiceId);
+					disabledByList.andChoices.push({
+						label: disabledByChoice?.label,
+						pointId: filteredPoints.find(point => point.id === disabledByChoice?.pointId) ? disabledByChoice?.pointId : null,
+						choiceId: disabledByChoiceId,
+						ruleType: rule.ruleType
+					});
+				});
+			}
+			else if (rule.choices?.length === 1)
+			{
+				const disabledByChoice = allChoices.find(choice => choice.id === rule.choices[0]);
+				disabledByList.orChoices.push({
 					label: disabledByChoice?.label,
 					pointId: filteredPoints.find(point => point.id === disabledByChoice?.pointId) ? disabledByChoice?.pointId : null,
-					choiceId: disabledByChoiceId,
+					choiceId: rule.choices[0],
 					ruleType: rule.ruleType
 				});
-			});
+			}
 		});
 	});
 
@@ -875,20 +940,20 @@ export function getDisabledByList(tree: Tree, groups: Group[], point: DecisionPo
 }
 
 export function getLockedInChoice(choice: JobChoice | ChangeOrderChoice, options: Array<JobPlanOption | ChangeOrderPlanOption>)
-	: { 
+	: {
 		choice: (JobChoice | ChangeOrderChoice),
-		optionAttributeGroups: Array<{ optionId: string, attributeGroups: number[], locationGroups: number[] }> 
+		optionAttributeGroups: Array<{ optionId: string, attributeGroups: number[], locationGroups: number[] }>
 	}
 {
-	return { choice, 
+	return { choice,
 		optionAttributeGroups: isJobChoice(choice)
 			? choice.jobChoiceJobPlanOptionAssocs.filter(a => a.choiceEnabledOption)
 				.map(a => {
 					const opt = options.find(o => (o as JobPlanOption).id === a.jobPlanOptionId);
 					if (opt)
 					{
-						return { 
-							optionId: opt.integrationKey, 
+						return {
+							optionId: opt.integrationKey,
 							attributeGroups: (opt as JobPlanOption).jobPlanOptionAttributes?.map(att => att.attributeGroupCommunityId),
 							locationGroups: (opt as JobPlanOption).jobPlanOptionLocations?.map(loc => loc.locationGroupCommunityId)
 						};
@@ -903,11 +968,11 @@ export function getLockedInChoice(choice: JobChoice | ChangeOrderChoice, options
 					const opt = options.find(o => (o as ChangeOrderPlanOption).id === a.jobChangeOrderPlanOptionId);
 					if (opt)
 					{
-						return { 
-							optionId: opt.integrationKey, 
+						return {
+							optionId: opt.integrationKey,
 							attributeGroups: (opt as ChangeOrderPlanOption).jobChangeOrderPlanOptionAttributes?.map(att => att.attributeGroupCommunityId),
 							locationGroups: (opt as ChangeOrderPlanOption).jobChangeOrderPlanOptionLocations?.map(loc => loc.locationGroupCommunityId)
-						};	
+						};
 					}
 					else
 					{

@@ -12,7 +12,7 @@ import
 {
 	UnsubscribeOnDestroy, PriceBreakdown, SDGroup, SDSubGroup, SDPoint, SDChoice, SDAttributeReassignment, Group,
 	DecisionPoint, JobChoice, Tree, TreeVersionRules, SalesAgreement, getDependentChoices, ModalService, PDFViewerComponent,
-	SummaryData, BuyerInfo, PriceBreakdownType, PlanOption
+	SummaryData, BuyerInfo, PriceBreakdownType, PlanOption, Choice
 } from 'phd-common';
 
 import { environment } from '../../../../../environments/environment';
@@ -21,7 +21,6 @@ import { Store, select } from '@ngrx/store';
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromPlan from '../../../ngrx-store/plan/reducer';
 import * as fromFavorite from '../../../ngrx-store/favorite/reducer';
-import * as fromSalesAgreement from '../../../ngrx-store/sales-agreement/reducer';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 import { selectSelectedLot } from '../../../ngrx-store/lot/reducer';
 
@@ -33,6 +32,7 @@ import * as CommonActions from '../../../ngrx-store/actions';
 import { ReportsService } from '../../../core/services/reports.service';
 
 import { SummaryHeader, SummaryHeaderComponent } from './summary-header/summary-header.component';
+import { GroupExt } from '../../../shared/models/group-ext.model';
 
 @Component({
 	selector: 'favorites-summary',
@@ -45,7 +45,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 
 	communityName: string = '';
 	planName: string = '';
-	groups: Group[];
+	groups: GroupExt[];
 	priceBreakdown: PriceBreakdown;
 	summaryHeader: SummaryHeader = new SummaryHeader();
 	isSticky: boolean = false;
@@ -100,7 +100,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 					this.store.pipe(select(state => state.scenario)),
 					this.store.pipe(select(state => state.favorite)),
 					this.store.pipe(select(state => state.salesAgreement)),
-					this.store.pipe(select(fromSalesAgreement.favoriteTitle))
+					this.store.pipe(select(fromRoot.favoriteTitle))
 				]).pipe(take(1))),
 				this.takeUntilDestroyed(),
 				distinctUntilChanged()
@@ -164,7 +164,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 			select(fromRoot.filteredTree)
 		).subscribe(tree => {
 			if (tree) {
-				this.groups = tree.groups;
+				this.groups = this.getGroupExts(tree.groups);
 			}
 		});
 
@@ -194,18 +194,6 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 	onBack()
 	{
 		this.location.back();
-	}
-
-	getGroupSubTotals(group: SDGroup)
-	{
-		var groupSubtotal = 0;
-
-		group.subGroups.map(sg =>
-		{
-			groupSubtotal += sg.points.reduce((sum, point) => sum += (point.price || 0), 0);
-		});
-
-		return groupSubtotal;
 	}
 
 	displayPoint(dp: DecisionPoint)
@@ -250,6 +238,10 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 	onContractedOptionsToggled()
 	{
 		this.store.dispatch(new FavoriteActions.ToggleContractedOptions());
+
+		setTimeout(() => {
+            this.cd.detectChanges();
+        }, 50);
 	}
 
 	onViewFavorites(point: DecisionPoint)
@@ -263,28 +255,28 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		}
 	}
 
-	onRemoveFavorites(point: DecisionPoint)
+	onRemoveFavorites(choice: Choice)
 	{
 		let removedChoices = [];
-		const choices = point && point.choices ? point.choices.filter(c => c.quantity > 0) : [];
-		const favoriteChoices = choices.filter(c => !this.salesChoices || this.salesChoices.findIndex(sc => sc.divChoiceCatalogId === c.divChoiceCatalogId) === -1);
 
-		if (favoriteChoices && favoriteChoices.length)
+		if (!this.salesChoices || this.salesChoices.findIndex(sc => sc.divChoiceCatalogId === choice.divChoiceCatalogId) === -1)
 		{
-			favoriteChoices.forEach(choice => {
-				removedChoices.push({ choiceId: choice.id, divChoiceCatalogId: choice.divChoiceCatalogId, quantity: 0, attributes: choice.selectedAttributes });
+			removedChoices.push({ choiceId: choice.id, divChoiceCatalogId: choice.divChoiceCatalogId, quantity: 0, attributes: choice.selectedAttributes });
 
-				const impactedChoices = getDependentChoices(this.tree, this.treeVersionRules, this.options, choice);
+			const impactedChoices = getDependentChoices(this.tree, this.treeVersionRules, this.options, choice);
 
-				impactedChoices.forEach(c =>
-				{
-					removedChoices.push({ choiceId: c.id, divChoiceCatalogId: c.divChoiceCatalogId, quantity: 0, attributes: c.selectedAttributes });
-				});
+			impactedChoices.forEach(c =>
+			{
+				removedChoices.push({ choiceId: c.id, divChoiceCatalogId: c.divChoiceCatalogId, quantity: 0, attributes: c.selectedAttributes });
 			});
 		}
 
 		this.store.dispatch(new ScenarioActions.SelectChoices(this.isDesignComplete, ...removedChoices));
 		this.store.dispatch(new FavoriteActions.SaveMyFavoritesChoices());
+
+		setTimeout(() => {
+            this.cd.detectChanges();
+        }, 50);
 	}
 
 	onPrint()
@@ -333,13 +325,15 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 			{
 				let subGroup = new SDSubGroup(sg);
 
-				subGroup.points = sg.points.map(p =>
+				subGroup.points = sg.points.filter(p => {
+					return !p.isHiddenFromBuyerView;
+				}).map(p =>
 				{
 					let point = new SDPoint(p);
 
 					point.choices = p.choices.filter(ch => {
 						const isContracted = !!this.salesChoices?.find(x => x.divChoiceCatalogId === ch.divChoiceCatalogId);
-						return ch.quantity > 0 && (!isContracted || this.includeContractedOptions);
+						return ch.quantity > 0 && (!isContracted || this.includeContractedOptions) && !ch.isHiddenFromBuyerView;
 					}).map(c => new SDChoice(c));
 
 					return point;
@@ -401,5 +395,12 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		}
 
 		return types;
+	}
+
+	getGroupExts(groups: Group[]) : GroupExt[]
+	{
+		return groups.map(g => {
+			return new GroupExt(g);
+		})
 	}
 }

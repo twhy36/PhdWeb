@@ -46,13 +46,13 @@
 	<button class="btn btn-primary" (click)="sendNow();" [disabled]="disableButtons" [ngbTooltip]="tooltipTemplate" tooltipClass="phd-button-tooltip">
 		Send Now
 
-		<i class="fa fa-spinner fa-spin fa-fw" *ngIf="isSending"></i>
+		<span *ngIf="isSending"><i class="fa fa-spinner fa-spin fa-fw"></i></span>
 	</button>
 
 	<button class="btn btn-primary" (click)="edit();" [disabled]="disableButtons" [ngbTooltip]="tooltipTemplate" tooltipClass="phd-button-tooltip">
 		Edit Before Sending
 
-		<i class="fa fa-spinner fa-spin fa-fw" *ngIf="isEditBefore"></i>
+		<span *ngIf="isEditBefore"><i class="fa fa-spinner fa-spin fa-fw"></i></span>
 	</button>
 
 	<button type="button" class="btn btn-secondary" (click)="cancel()" [disabled]="disableCancel">Cancel</button>

@@ -123,8 +123,8 @@ export class CommonEffects
 								if (job && job.length)
 								{
 									return combineLatest([
-										this.orgService.getSalesCommunityByFinancialCommunityId(result.tree.financialCommunityId),
-										this.identityService.getClaims(),
+										this.orgService.getSalesCommunityByFinancialCommunityId(result.tree.financialCommunityId, true),
+										this.identityService.getClaims(), 
 										this.identityService.getAssignedMarkets()
 									]).pipe(
 										switchMap(([sc, claims, markets]: [SalesCommunity, Claims, IMarket[]]) =>
@@ -317,12 +317,10 @@ export class CommonEffects
 						return of({ ...result });
 					}
 				}),
-				switchMap(result =>
-				{
-					if (!result.isSpecScenario)
+				switchMap(result => {
+					if (!result.salesCommunity) 
 					{
-						return this.orgService.getSalesCommunityByFinancialCommunityId(result.tree.financialCommunityId).pipe(map(sc =>
-						{
+						return this.orgService.getSalesCommunityByFinancialCommunityId(result.tree.financialCommunityId, true).pipe(map(sc => {
 							return { ...result, salesCommunity: sc, overrideNote: null };
 						}));
 					}
@@ -442,6 +440,15 @@ export class CommonEffects
 							});
 
 							newResult.job.jobChoices = changedChoices;
+
+							// Set divChoiceCatalogId in job change order groups
+							_.flatMap(newResult.job.changeOrderGroups, cog => _.flatMap(cog.jobChangeOrders, co => co.jobChangeOrderChoices)).forEach(ch => {
+								const choice = choices.find(c => c.dpChoiceId === ch.dpChoiceId);
+
+								if (choice) {
+									ch.divChoiceCatalogId = choice.divChoiceCatalogId;
+								}
+							});
 
 							return { ...newResult, sc, currentChangeOrderGroup, jobPlanId };
 						})

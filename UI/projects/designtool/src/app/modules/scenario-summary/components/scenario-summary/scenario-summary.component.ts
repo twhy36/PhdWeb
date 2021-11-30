@@ -13,7 +13,7 @@ import {
 	UnsubscribeOnDestroy, blink, ChangeOrderHanding, ChangeTypeEnum, ChangeOrderChoice, PlanOption,
 	PointStatus, SelectedChoice, PriceBreakdown, ScenarioStatusType, SummaryData, BuyerInfo, SummaryReportType,
 	SDGroup, SDSubGroup, SDPoint, SDChoice, SDImage, SDAttributeReassignment, Group, Choice, DecisionPoint,
-	PDFViewerComponent, ModalService, ChoiceImageAssoc, SDChoiceImage
+	PDFViewerComponent, ModalService, SubGroup, TreeFilter, FloorPlanImage, ChoiceImageAssoc, SDChoiceImage
 } from 'phd-common';
 
 import { environment } from '../../../../../environments/environment';
@@ -100,6 +100,10 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 	selectedHanding: string;
 	canOverride$: Observable<boolean>;
 	overrideReason: string;
+	interactiveFloorplanSG: SubGroup;
+	hasFloorPlanImages: boolean = true;
+	marketingPlanId: number[];
+	treeFilter$: Observable<TreeFilter>;
 	choiceImagesLoaded: boolean = false;
 
 	constructor(private route: ActivatedRoute,
@@ -338,9 +342,13 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 			select(fromScenario.interactiveFloorplanSG),
 			map(sg =>
 			{
-				return sg ? true : false;
+				return sg;
 			})
-		).subscribe(hasFloorPlan => this.hasFloorPlan = hasFloorPlan);
+		).subscribe(sg =>
+		{
+			this.interactiveFloorplanSG = sg;
+			this.hasFloorPlan = sg != null;
+		});
 
 		this.store.pipe(
 			select(state => state.scenario),
@@ -363,7 +371,9 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 			take(1)
 		).subscribe(images =>
 		{
-			images && images.length && images.map(img =>
+			this.hasFloorPlanImages = images && images.length > 0;
+
+			this.hasFloorPlanImages && images.map(img =>
 			{
 				img.svg = `data:image/svg+xml;base64,${btoa(img.svg)}`;
 
@@ -430,6 +440,18 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 				this.canDisplay = true;
 			}
 		});
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(state => state.plan.marketingPlanId)
+		).subscribe(marketingPlanId =>
+		{
+			this.marketingPlanId = marketingPlanId;
+		});
+
+		this.treeFilter$ = this.store.pipe(
+			select(state => state.scenario.treeFilter)
+		);
 
 		this.canOverride$ = this.store.pipe(select(fromRoot.canOverride));
 	}
@@ -844,5 +866,29 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 
 			this.store.dispatch(new ScenarioActions.SelectChoices(true, ...deSelectedChoices));
 		}
+	}
+
+	/**
+	 * Handles a save event from the child floor plan component, in order to render the IFP report.
+	 * @param floorPlanImages The images that were saved.
+	 */
+	onFloorPlanSaved(floorPlanImages: FloorPlanImage[])
+	{
+		floorPlanImages.forEach(img =>
+		{
+			img.svg = `data:image/svg+xml;base64,${btoa(img.svg)}`;
+
+			const sdImg = { imageUrl: img.svg, hasDataUri: true, floorIndex: img.floorIndex, floorName: img.floorName } as SDImage;
+			const idx = this.summaryImages.findIndex(i => i.floorIndex === img.floorIndex);
+
+			if (idx === -1)
+			{
+				this.summaryImages.push(sdImg);
+			}
+			else
+			{
+				this.summaryImages[idx] = sdImg;
+			}
+		});
 	}
 }

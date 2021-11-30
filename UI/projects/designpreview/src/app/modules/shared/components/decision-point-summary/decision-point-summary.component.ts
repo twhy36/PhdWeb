@@ -23,10 +23,11 @@ export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implemen
 	@Input() includeContractedOptions: boolean;
 	@Input() buildMode: string;
 	@Input() isDesignComplete: boolean = false;
+	@Input() contractedOptionsPage: boolean = false;
 
 	@Output() onViewFavorites = new EventEmitter<DecisionPoint>();
-	@Output() onRemoveFavorites = new EventEmitter<DecisionPoint>();
-	
+	@Output() onRemoveFavorites = new EventEmitter<Choice>();
+
 	selections: Choice[] = [];
 	choicesCustom: ChoiceCustom[] = [];
 	isReadonly: boolean = false;
@@ -42,7 +43,6 @@ export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implemen
 	{
 		this.setDisplayName();
 		this.setPointChoices();
-		this.setPointPrice();
 
 		const choices = this.decisionPoint.choices.filter(c => c.quantity > 0) || [];
 		const favoriteChoices = choices.filter(c => !this.salesChoices || this.salesChoices.findIndex(sc => sc.divChoiceCatalogId === c.divChoiceCatalogId) === -1);
@@ -56,11 +56,6 @@ export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implemen
 			this.includeContractedOptions = changes['includeContractedOptions'].currentValue;
 			this.setPointChoices();
 		}
-	}	
-
-	setPointPrice()
-	{
-		this.decisionPoint.price = this.decisionPoint.choices.reduce((acc, ch) => acc + (!ch.priceHiddenFromBuyerView ? ch.quantity * ch.price : 0), 0);
 	}
 
 	setDisplayName()
@@ -72,7 +67,7 @@ export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implemen
 
 	setPointChoices()
 	{
-		const choices = this.includeContractedOptions
+		const choices = this.includeContractedOptions || this.contractedOptionsPage
 							? this.decisionPoint.choices
 							: this.decisionPoint.choices.filter(c => !this.salesChoices || this.salesChoices.findIndex(sc => sc.divChoiceCatalogId === c.divChoiceCatalogId) === -1);
 		this.choicesCustom = choices.map(c => new ChoiceCustom(c));
@@ -107,9 +102,9 @@ export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implemen
 		this.onViewFavorites.emit(this.decisionPoint);
 	}
 
-	onRemove()
+	onRemove(choice: Choice)
 	{
-		this.onRemoveFavorites.emit(this.decisionPoint);
+		this.onRemoveFavorites.emit(choice);
 	}
 }
 

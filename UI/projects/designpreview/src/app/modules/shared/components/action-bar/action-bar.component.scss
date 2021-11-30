@@ -40,6 +40,11 @@
 			text-transform: uppercase;
 			color: $midnight_blue;
 		}
+
+		.fa-list-alt {
+			margin-top: 2px;
+			margin-right: 8px;
+		}
 	}
 
 	.phd-action-bar-action-btn {
@@ -58,5 +63,11 @@
 		font-size: 15px;
 		font-weight: bold;
 		color: $dark_gray;
+	}
+}
+
+@media(max-width: 700px) {
+	.phd-price-label {
+		font-size: 9px !important;
 	}
 }

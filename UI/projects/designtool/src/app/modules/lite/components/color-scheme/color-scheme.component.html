@@ -1,0 +1,19 @@
+<div class="phd-error-msg-body-lite" *ngIf="errorMessage.length > 0">
+	<error-message  [@flipOver]>
+		<ng-template #body>{{ errorMessage }}</ng-template>
+	</error-message>
+</div>
+
+<ng-container *ngIf="!errorMessage.length">
+	<page-header mainTitle="Color Scheme" subTitle="Please select 1 of the choices below"></page-header>
+
+	<div class="p-2 d-flex flex-wrap phd-color-schemes">
+		<exterior-card *ngFor="let color of colorSchemes" 
+			[option]="selectedElevation"
+			[color]="color"
+			[scenarioOptions]="scenarioOptions"
+			[isSelected]="color.colorId === selectedColorScheme?.colorId"
+			(toggled)="onToggleColorScheme($event)">
+		</exterior-card>
+	</div>
+</ng-container>

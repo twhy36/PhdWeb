@@ -474,6 +474,20 @@ edit-home > choice-card {
 	margin-right: 15px;
 }
 
+/* PHD Lite */
+.phd-error-msg-body-lite {
+	display: flex;
+	justify-content: center;
+	height: calc(100vh - #{$action-bar});
+    align-items: center;
+
+    error-message {
+		.phd-error-message {
+        	width: calc(100vw - #{$nav-menu} - #{$phase-bar} - 50px);
+		}
+	}
+}
+
 /* bootstrap override start */
 .btn-secondary, .btn-secondary.dropdown-toggle, .btn-secondary.disabled, .btn-secondary:disabled {
 	color: #000;

@@ -1,7 +1,7 @@
 import { Action, createSelector, createFeatureSelector } from '@ngrx/store';
 import * as _ from "lodash";
 
-import { ChangeOrderGroup, isSalesChangeOrder } from 'phd-common';
+import { ChangeOrderGroup, isSalesChangeOrder, Buyer, mergeSalesChangeOrderBuyers } from 'phd-common';
 import { CommonActionTypes, SalesAgreementLoaded } from '../actions';
 
 export interface State
@@ -10,13 +10,15 @@ export interface State
 	loadingCurrentChangeOrder: boolean,
 	loadError: boolean,
 	currentChangeOrder: ChangeOrderGroup,
+	changeOrderBuyers: Array<Buyer>
 }
 
 export const initialState: State = {
 	isChangingOrder: false,
 	loadingCurrentChangeOrder: false,
 	loadError: false,
-	currentChangeOrder: null
+	currentChangeOrder: null,
+	changeOrderBuyers: []
 };
 
 export function reducer(state: State = initialState, action: Action): State
@@ -41,13 +43,15 @@ export function reducer(state: State = initialState, action: Action): State
 						&& nonSalesChangeOrders[0].jobChangeOrderTypeDescription !== 'SalesJIO';
 
 				}
+				let newBuyers = saAction.salesAgreement.status !== 'Approved' || isPendingChangeOrder ? mergeSalesChangeOrderBuyers(saAction.salesAgreement.buyers, newCurrentChangeOrder) : [];
 
 				let newChangeOrder = {
 					...state,
 					currentChangeOrder: newCurrentChangeOrder,
 					loadingCurrentChangeOrder: false,
 					loadError: false,
-					isChangingOrder: isPendingChangeOrder
+					isChangingOrder: isPendingChangeOrder,
+					changeOrderBuyers: newBuyers,
 				};
 
 				return newChangeOrder;
@@ -64,4 +68,9 @@ export const changeOrderState = createFeatureSelector<State>('changeOrder');
 export const currentChangeOrder = createSelector(
 	changeOrderState,
 	(state) => state ? state.currentChangeOrder : null
+);
+
+export const changeOrderPrimaryBuyer = createSelector(
+	changeOrderState,
+	(state) => state && state.changeOrderBuyers ? state.changeOrderBuyers?.find(b => b.isPrimaryBuyer) : null
 );

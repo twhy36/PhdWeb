@@ -40,6 +40,8 @@ import { ReportsService } from './services/reports.service';
 import { ModalOverrideSaveComponent } from './components/modal-override-save/modal-override-save.component';
 import { NotificationService } from './services/notification.service';
 import { FavoriteService } from './services/favorite.service';
+import { LiteService } from './services/lite.service';
+import { ApplicationInsights } from '@microsoft/applicationinsights-web';
 
 @NgModule({
 	exports: [
@@ -96,7 +98,8 @@ import { FavoriteService } from './services/favorite.service';
 		ReportsService,
 		NotificationService,
 		FavoriteService,
-		{ provide: ErrorHandler, useClass: PhdErrorHandler }
+		LiteService,
+		{ provide: ErrorHandler, useClass: PhdErrorHandler, deps: [LoggingService] }
 	]
 })
 export class CoreModule { }

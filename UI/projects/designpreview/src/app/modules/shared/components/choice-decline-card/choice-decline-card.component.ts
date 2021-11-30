@@ -1,6 +1,7 @@
 import { Component, Input, Output, OnInit, OnChanges, SimpleChanges, EventEmitter, ViewChild } from '@angular/core';
 
 import { UnsubscribeOnDestroy, flipOver3, DecisionPoint, Group, Tree, MyFavoritesPointDeclined } from 'phd-common';
+import { BlockedByItemList } from '../../models/blocked-by.model';
 import { getDisabledByList } from '../../../shared/classes/tree.utils';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
@@ -30,7 +31,7 @@ export class ChoiceDeclineCardComponent extends UnsubscribeOnDestroy implements 
 	point: DecisionPoint;
 	isDeclined: boolean = false;
 	blockedChoiceModalRef: NgbModalRef;
-	disabledByList: {label: string, pointId: number, choiceId?: number, ruleType: number}[] = null;
+	disabledByList: BlockedByItemList = null;
 
 	constructor(public modalService: NgbModal) {
 		super();

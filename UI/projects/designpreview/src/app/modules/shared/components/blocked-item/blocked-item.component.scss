@@ -1,0 +1,10 @@
+@import "../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
+
+.phd-blocked-link {
+	color: $pantone_blue;
+  	text-decoration: underline;
+}
+
+.phd-left-spacing {
+	padding-left: 4px;
+}

@@ -1,18 +1,19 @@
 import { Injectable } from '@angular/core';
 import { HttpHeaders, HttpClient } from '@angular/common/http';
 
-import { Observable ,  throwError as _throw ,  of } from 'rxjs';
+import { Observable, throwError as _throw, of } from 'rxjs';
 import { flatMap, map, catchError } from 'rxjs/operators';
 
 import * as _ from 'lodash';
 
-import {
-	defaultOnNotFound, getNewGuid, createBatchPatchWithAuth, createBatchBody, createBatchHeaders, parseBatchResults,
-	removeProperty, withSpinner, Buyer, IBuyer, Contact, Job, IJob, Note, PlanOption, SalesAgreement, ISalesAgreement,
-	SalesAgreementInfo, Realtor, ISalesAgreementInfo, IRealtor, SalesAgreementProgram, SalesAgreementDeposit, SalesAgreementContingency,
-	ISalesAgreementCancelVoidInfo, SalesAgreementCancelVoidInfo, Consultant, ISalesAgreementSalesConsultantDto,
-	Scenario, SelectedChoice, Tree, Choice, IdentityService, OptionRule, DecisionPoint
-} from 'phd-common';
+import
+	{
+		defaultOnNotFound, getNewGuid, createBatchPatchWithAuth, createBatchBody, createBatchHeaders, parseBatchResults,
+		removeProperty, withSpinner, Buyer, IBuyer, Contact, Job, IJob, Note, PlanOption, SalesAgreement, ISalesAgreement,
+		SalesAgreementInfo, Realtor, ISalesAgreementInfo, IRealtor, SalesAgreementProgram, SalesAgreementDeposit, SalesAgreementContingency,
+		ISalesAgreementCancelVoidInfo, SalesAgreementCancelVoidInfo, Consultant, ISalesAgreementSalesConsultantDto,
+		Scenario, SelectedChoice, Tree, Choice, IdentityService, OptionRule, DecisionPoint
+	} from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
 
@@ -126,7 +127,8 @@ export class SalesAgreementService
 		const url = `${environment.apiUrl}${entity}?${qryStr}`;
 
 		return this._http.get<IRealtor>(url).pipe(
-			map(dto => {
+			map(dto =>
+			{
 				return dto ? new Realtor(dto) : null;
 			}),
 			defaultOnNotFound("getSalesAgreementRealtor")
@@ -172,6 +174,8 @@ export class SalesAgreementService
 			scenarioId: scenario.scenarioId,
 			choices: choices.map(c =>
 			{
+				const isColorScheme = colorSchemeDP ? c.choice.treePointId === colorSchemeDP.id : false;
+				const isDPElevation = elevationDP ? c.choice.treePointId === elevationDP.id : false;
 
 				return {
 					dpChoiceId: c.choice.id,
@@ -183,11 +187,11 @@ export class SalesAgreementService
 					subgroupLabel: c.subgroupLabel,
 					groupLabel: c.groupLabel,
 					overrideNote: c.choice.overrideNote,
-					options: this.mapOptions(c.choice, elevationDP, tree, optionRules),
+					options: this.mapOptions(c.choice, elevationDP, isDPElevation, isColorScheme, tree, optionRules),
 					attributes: this.mapAttributes(c.choice),
 					locations: this.mapLocations(c.choice),
-					isElevation: elevationDP ? c.choice.treePointId === elevationDP.id : false,
-					isColorScheme: colorSchemeDP ? c.choice.treePointId === colorSchemeDP.id : false,
+					isElevation: isDPElevation,
+					isColorScheme: isColorScheme,
 					action: 'Add'
 				};
 			}),
@@ -550,12 +554,14 @@ export class SalesAgreementService
 		);
 	}
 
-	getDeposit(salesAgreementId: number, depositId: number): Observable<SalesAgreementDeposit> {
+	getDeposit(salesAgreementId: number, depositId: number): Observable<SalesAgreementDeposit>
+	{
 		const entity = `salesAgreements(${salesAgreementId})/deposits(${depositId})`;
 
 		return this._http.get<any>(environment.apiUrl + entity).pipe(
 			map((dto: SalesAgreementDeposit) => new SalesAgreementDeposit(dto)),
-			catchError(error => {
+			catchError(error =>
+			{
 				return _throw(error);
 			})
 		);
@@ -756,7 +762,7 @@ export class SalesAgreementService
 		);
 	}
 
-	private mapOptions(choice: Choice, elevationDP: DecisionPoint, tree: Tree, optionRules: OptionRule[]): Array<any>
+	private mapOptions(choice: Choice, elevationDP: DecisionPoint, isDPElevation: boolean, isColorScheme: boolean, tree: Tree, optionRules: OptionRule[]): Array<any>
 	{
 		let optionsDto: Array<any> = [];
 
@@ -770,9 +776,10 @@ export class SalesAgreementService
 					quantity: choice.quantity,
 					optionSalesName: o.name,
 					optionDescription: o.description,
-					jobOptionTypeName: getJobOptionType(o, elevationDP, tree, optionRules),
+					jobOptionTypeName: getJobOptionType(o, elevationDP, isDPElevation, isColorScheme, tree, optionRules),
 					attributes: choice.selectedAttributes.filter(att => !att.locationGroupId && o.attributeGroups.some(g => g === att.attributeGroupId))
-						.map(att => {
+						.map(att =>
+						{
 							return {
 								attributeCommunityId: att.attributeId,
 								attributeGroupCommunityId: att.attributeGroupId,
@@ -780,15 +787,20 @@ export class SalesAgreementService
 							};
 						}),
 					locations: choice.selectedAttributes.filter(att => att.locationGroupId && o.locationGroups.some(g => g === att.locationGroupId))
-						.reduce((prev, curr) => {
+						.reduce((prev, curr) =>
+						{
 							let existing = prev.find(l => l.locationCommunityId === curr.locationId);
-							if (existing) {
+
+							if (existing)
+							{
 								existing.attributes.push({
 									attributeCommunityId: curr.attributeId,
 									attributeGroupCommunityId: curr.attributeGroupId,
 									action: 'Add'
 								});
-							} else {
+							}
+							else
+							{
 								prev.push({
 									locationCommunityId: curr.locationId,
 									locationGroupCommunityId: curr.locationGroupId,
@@ -798,7 +810,7 @@ export class SalesAgreementService
 										attributeCommunityId: curr.attributeId,
 										attributeGroupCommunityId: curr.attributeGroupId,
 										action: 'Add'
-									}]: []
+									}] : []
 								});
 							}
 
@@ -907,6 +919,14 @@ export class SalesAgreementService
 			lotInfo,
 			choices: choices.map(c =>
 			{
+				const isColorScheme = colorSchemeDP ? c.choice.treePointId === colorSchemeDP.id : false;
+				const isDPElevation = elevationDP ? c.choice.treePointId === elevationDP.id : false;
+				const options = this.mapOptions(c.choice, elevationDP, isDPElevation, isColorScheme, tree, optionRules);
+
+				// look for any options marked as Elevation so the choice can be flagged and grouped with elevation CO.
+				const hasElevationOption = options.length && options.findIndex(x => x.jobOptionTypeName === 'Elevation') > -1;
+				const isElevation = hasElevationOption || isDPElevation;				
+
 				return {
 					dpChoiceId: c.choice.id,
 					dpChoiceQuantity: c.choice.quantity,
@@ -915,11 +935,11 @@ export class SalesAgreementService
 					pointLabel: c.pointLabel,
 					subgroupLabel: c.subgroupLabel,
 					groupLabel: c.groupLabel,
-					options: this.mapOptions(c.choice, elevationDP, tree, optionRules),
+					options: options,
 					attributes: this.mapAttributes(c.choice),
 					locations: this.mapLocations(c.choice),
-					isElevation: elevationDP ? c.choice.treePointId === elevationDP.id : false,
-					isColorScheme: colorSchemeDP ? c.choice.treePointId === colorSchemeDP.id : false,
+					isElevation: isElevation,
+					isColorScheme: isColorScheme,
 					action: 'Add'
 				};
 			}),
@@ -942,5 +962,4 @@ export class SalesAgreementService
 			})
 		);
 	}
-
 }
