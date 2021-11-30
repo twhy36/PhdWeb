@@ -11,15 +11,24 @@ import { SettingsService } from '../../core/services/settings.service';
 import { StorageService } from '../../core/services/storage.service';
 import { IPictureParkAsset } from '../../shared/models/image.model';
 
+import { newGuid } from '../../shared/classes/guid.class';
+
 import { IdentityService, UserProfile } from 'phd-common';
 
 const settings: Settings = new SettingsService().getSettings();
 
-@Injectable()
+@Injectable({
+	providedIn: 'root'
+})
 export class ImageService
 {
-	private _ds: string = encodeURIComponent('$');
 	private user: UserProfile;
+	private _pictureParkInstanceId: string = null;
+
+	get pictureParkInstanceId(): string
+	{
+		return this._pictureParkInstanceId;
+	}
 
 	constructor(private _http: HttpClient, private _loggingService: LoggingService, private _storageService: StorageService, private _identityService: IdentityService)
 	{
@@ -27,6 +36,16 @@ export class ImageService
 		{
 			this.user = u;
 		});
+	}
+
+	setPictureParkInstanceId()
+	{
+		this._pictureParkInstanceId = newGuid();
+	}
+
+	clearPictureParkInstanceId()
+	{
+		this._pictureParkInstanceId = null;
 	}
 
 	getAssets(assets: IPictureParkAsset[]): Observable<IPictureParkAsset[]>
