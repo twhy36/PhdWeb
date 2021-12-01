@@ -3,7 +3,7 @@ import {OptionService} from '../../services/option.service';
 import {IOptionSubCategory} from '../../../shared/models/option.model';
 import {OrganizationService} from '../../../core/services/organization.service';
 import {filter, map, switchMap} from 'rxjs/operators';
-import {from, Observable, of} from 'rxjs';
+import {from, Observable, EMPTY } from 'rxjs';
 import {ConfirmModalComponent, ModalRef, ModalService, UnsubscribeOnDestroy} from 'phd-common';
 import {IColor, IColorDto} from '../../../shared/models/color.model';
 import {ColorService} from '../../services/color.service';
@@ -240,7 +240,7 @@ export class ColorsSearchHeaderComponent
 		this.showConfirmModal(message, 'Warning', 'Continue').pipe(
 			switchMap(cancelDeletion => {
 				if (cancelDeletion) {
-					return of(false);
+					return EMPTY;
 				}
 
 				const colorsToDelete = this.deleteColorList.map(color => color.colorId);
@@ -280,14 +280,14 @@ export class ColorsSearchHeaderComponent
 	}
 
 	activateColor(colorDto:IColorDto)
-	{		
+	{
 		const colorToSave = {
 			colorId: colorDto.colorId,
 			isActive: true
 		} as IColorDto;
 
 		let toast:IToastInfo;
-		
+
 		this._colorService.updateColor(colorToSave, this.currentCommunityId).subscribe((color) => {
 			if (color) {
 				toast = {
@@ -298,7 +298,7 @@ export class ColorsSearchHeaderComponent
 				this._msgService.add(toast);
 				this.colorsDtoList.find(c =>c.colorId === color.colorId).isActive = color.isActive;
 			}
-			else{				
+			else{
 				toast = {
 					severity: 'error',
 					summary: 'Activate Color',
@@ -318,7 +318,7 @@ export class ColorsSearchHeaderComponent
 	}
 
 	inactivateColor(colorDto:IColorDto)
-	{	
+	{
 		const message = 'Are you sure you want to inactivate this color?';
 		let cancelled = false;
 		let toast:IToastInfo;
@@ -343,7 +343,7 @@ export class ColorsSearchHeaderComponent
 						this._msgService.add(toast);
 						this.colorsDtoList.find(c =>c.colorId === color.colorId).isActive = color.isActive;
 					}
-					else{				
+					else{
 						toast = {
 							severity: 'error',
 							summary: 'Inactivate Color',
@@ -362,6 +362,6 @@ export class ColorsSearchHeaderComponent
 						this._msgService.add(toast);
 					}
 				}
-				);									
+				);
 	}
 }
