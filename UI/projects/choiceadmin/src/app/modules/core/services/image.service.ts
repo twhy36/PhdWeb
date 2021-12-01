@@ -23,12 +23,8 @@ const settings: Settings = new SettingsService().getSettings();
 export class ImageService
 {
 	private user: UserProfile;
-	private _pictureParkInstanceId: string = null;
 
-	get pictureParkInstanceId(): string
-	{
-		return this._pictureParkInstanceId;
-	}
+	activePictureParkInstanceId: string = null;
 
 	constructor(private _http: HttpClient, private _loggingService: LoggingService, private _storageService: StorageService, private _identityService: IdentityService)
 	{
@@ -38,14 +34,9 @@ export class ImageService
 		});
 	}
 
-	setPictureParkInstanceId()
+	generatePictureParkInstanceId()
 	{
-		this._pictureParkInstanceId = newGuid();
-	}
-
-	clearPictureParkInstanceId()
-	{
-		this._pictureParkInstanceId = null;
+		return newGuid()
 	}
 
 	getAssets(assets: IPictureParkAsset[]): Observable<IPictureParkAsset[]>

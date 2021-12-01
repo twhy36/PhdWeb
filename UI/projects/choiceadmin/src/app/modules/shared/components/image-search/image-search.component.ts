@@ -27,32 +27,30 @@ export class ImageSearchComponent
 
 	@Output() getImages = new EventEmitter<IPictureParkAsset[]>();
 
+	private ppWin: any;
+
+	disableSearchBtn: boolean = false;
 	pictureParkInstanceId: string;
+
+	constructor(private _imageService: ImageService, private _msgService: MessageService, @Inject(APP_BASE_HREF) private baseHref: string)
+	{
+		// create a guid so we can track which instance of image-search is the active one
+		this.pictureParkInstanceId = _imageService.generatePictureParkInstanceId();
+	}
 
 	@HostListener('window:message', ['$event'])
 	onAssetsSelected(event: any)
 	{
 		// make sure we have data from picture park and the Ids match so in case there are multiple instances of ImageSearchComponent we only let the correct one continue.
-		if (event.data && event.data.assets && (this.pictureParkInstanceId !== null && this.pictureParkInstanceId === this.imageServicePictureParkInstanceId))
+		if (event.data && event.data.assets && this.pictureParkInstanceId === this._imageService.activePictureParkInstanceId)
 		{
 			let assets = event.data ? JSON.parse(event.data.assets) : null;
 
 			this.ppWin.close();
-			this.clearInstanceIds();
 			
 			this.getAssetData(assets);
 		}
 	}
-
-	private ppWin: any;
-	disableSearchBtn: boolean = false;
-
-	get imageServicePictureParkInstanceId()
-	{
-		return this._imageService.pictureParkInstanceId;
-	}
-
-	constructor(private _imageService: ImageService, private _msgService: MessageService, @Inject(APP_BASE_HREF) private baseHref: string) { }
 
 	getAssetData(assets: any)
 	{
@@ -101,40 +99,19 @@ export class ImageSearchComponent
 		});
 	}
 
-	setInstanceIds()
-	{
-		// generate and set a guid
-		this._imageService.setPictureParkInstanceId();
-
-		// set the guid id so we know which instance of image-search is valid
-		this.pictureParkInstanceId = this.imageServicePictureParkInstanceId;
-	}
-
-	clearInstanceIds()
-	{
-		// clear guid 
-		this._imageService.clearPictureParkInstanceId();
-
-		this.pictureParkInstanceId = null;
-	}
-
 	onSearchClick()
 	{
 		this.disableSearchBtn = true;
-
-		// check to see if we've already set a id 
-		if (this.pictureParkInstanceId === null || this.pictureParkInstanceId !== this.imageServicePictureParkInstanceId)
-		{
-			// create and set a guid for this instance
-			this.setInstanceIds();
-		}
-
-		const redirectUrl = `${window.location.origin}${this.baseHref}picturepark-response.html`;
 
 		this._imageService.getPictureParkToken()
 			.pipe(finalize(() => this.disableSearchBtn = false))
 			.subscribe(token =>
 			{
+				const redirectUrl = `${window.location.origin}${this.baseHref}picturepark-response.html`;
+
+				// assign the guid for this instance as the active one
+				this._imageService.activePictureParkInstanceId = this.pictureParkInstanceId;
+
 				this.ppWin = window.open(`${settings.pictureParkAssetUrl}&SecToken=${token}&redirect=${redirectUrl}`, 'ppWin', 'toolbar=0, location=0, menubar=0, height=600, width=800');
 			}, error =>
 			{
