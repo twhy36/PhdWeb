@@ -87,29 +87,20 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 
 		this._orgService.currentCommunity$.pipe(
 			this.takeUntilDestroyed(),
-			switchMap(financialCommunity => financialCommunity?.salesCommunityId
-				? this._orgService.getWebsiteCommunity(financialCommunity?.salesCommunityId)
-				: of(null)),
-			map(websiteCommunity => websiteCommunity?.webSiteIntegrationKey),
-		).subscribe(webSiteIntegrationKey => {
-			this.url = (environment.thoUrl && webSiteIntegrationKey)
-				? environment.thoUrl + webSiteIntegrationKey
+			switchMap(financialCommunity => {
+				this.financialCommunity = financialCommunity;
+				if (financialCommunity.salesCommunityId) {
+					return combineLatest(
+						[this._orgService.getWebsiteCommunity(financialCommunity?.salesCommunityId),
+						this._orgService.getSalesCommunity(financialCommunity?.salesCommunityId)]);
+				}
+				return of([null, null]);
+			}),
+		).subscribe(([websiteCommunity, salesCommunity]) => {
+			this.url = (environment.thoUrl && websiteCommunity?.webSiteIntegrationKey)
+				? environment.thoUrl + websiteCommunity.webSiteIntegrationKey
 				: null;
-		});
-
-		this._orgService.currentCommunity$.pipe(
-			this.takeUntilDestroyed(),
-			switchMap(financialCommunity => financialCommunity?.salesCommunityId
-				? this._orgService.getSalesCommunity(financialCommunity?.salesCommunityId)
-				: of(null)),
-		).subscribe(salesCommunity => {
 			this.salesCommunity = salesCommunity;
-		});
-
-		this._orgService.currentCommunity$.pipe(
-			this.takeUntilDestroyed(),
-		).subscribe(financialCommunity => {
-			this.financialCommunity = financialCommunity;
 		});
 
 		this._orgService.currentMarket$.pipe(
@@ -191,6 +182,10 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 
 	createForm()
 	{
+		// Make sure the form is pristine
+		this.commmunityLinkEnabledDirty = false;
+		this.previewEnabledDirty = false;
+
 		let ecoeMonths = this.financialCommunityInfo ? this.financialCommunityInfo.defaultECOEMonths : null;
 		let earnestMoney = this.financialCommunityInfo ? this.financialCommunityInfo.earnestMoneyAmount : null;
 

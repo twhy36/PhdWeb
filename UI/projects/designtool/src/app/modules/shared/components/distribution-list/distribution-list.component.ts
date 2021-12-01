@@ -13,6 +13,7 @@ import * as fromRoot from '../../../ngrx-store/reducers';
 import { ContractService } from '../../../core/services/contract.service';
 
 import { ESignRecipient, ESignRecipientRoles, IESignRecipient } from '../../models/contract.model';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
 	selector: 'distribution-list',
@@ -39,7 +40,7 @@ export class DistributionListComponent extends UnsubscribeOnDestroy implements O
 	isEditBefore: boolean = false;
 	docusignWindow: Window = null;
 
-	constructor(private store: Store<fromRoot.State>, private _contractService: ContractService, private _router: Router, @Inject(APP_BASE_HREF) private _baseHref: string)
+	constructor(private store: Store<fromRoot.State>, private _contractService: ContractService, private _router: Router, @Inject(APP_BASE_HREF) private _baseHref: string, private _toastrService: ToastrService)
 	{
 		super();
 	}
@@ -221,6 +222,10 @@ export class DistributionListComponent extends UnsubscribeOnDestroy implements O
 					//this would only happen if this code isn't running in a browser
 					this.closeClicked();
 				}
+			},
+			error =>
+			{
+				this._toastrService.error("Error sending envelope!");
 			});
 	}
 
@@ -256,6 +261,10 @@ export class DistributionListComponent extends UnsubscribeOnDestroy implements O
 			.subscribe(() =>
 			{
 				this.onEnvelopeSent.emit(true);
+			},
+			error =>
+			{
+				this._toastrService.error("Error sending envelope!");
 			});
 	}
 
