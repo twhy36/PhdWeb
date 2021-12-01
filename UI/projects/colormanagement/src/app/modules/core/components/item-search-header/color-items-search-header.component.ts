@@ -535,11 +535,18 @@ export class ColorItemsSearchHeaderComponent
 						detail: 'Color Item activation was successful!'
 					}
 					this._msgService.add(toast);
-					const updatedResult = this.planOptionDtosList.find(row => row.planOptionId === planOptionDto.planOptionId).colorItem;
-					updatedResult.forEach((coloritem) =>
+					const updatedResult = this.planOptionDtosList.filter(row => row.planOptionId === planOptionDto.planOptionId);		
+					colorItems.forEach((coloritem) =>
 					{
-						coloritem.isActive =colorItems.find(c =>c.colorItemId === coloritem.colorItemId).isActive;
-					})
+						updatedResult.map((row)=>
+						{
+							const updateColorItem = row.colorItem.find(ci=>ci.colorItemId === coloritem.colorItemId);
+							if(updateColorItem)
+							{
+								updateColorItem.isActive = coloritem.isActive;
+							}
+						});
+					});
 				}
 				else{
 					toast = {
@@ -590,11 +597,15 @@ export class ColorItemsSearchHeaderComponent
 							detail: 'Color Item inactivation was successful!'
 						}
 						this._msgService.add(toast);
-						const updatedResult = this.planOptionDtosList.find(row => row.planOptionId === planOptionDto.planOptionId).colorItem;
-						updatedResult.forEach((coloritem) =>
-						{
-							coloritem.isActive =colorItems.find(c =>c.colorItemId === coloritem.colorItemId).isActive;
-						})
+						const updatedResult = this.planOptionDtosList.filter(row => row.planOptionId === planOptionDto.planOptionId);		
+						colorItems.forEach((coloritem) => {
+							updatedResult.map((row) => {
+								const updateColorItem = row.colorItem.find(ci => ci.colorItemId === coloritem.colorItemId);
+								if (updateColorItem) {
+									updateColorItem.isActive = coloritem.isActive;
+								}
+							});
+						});						 
 					}
 					else{
 						toast = {
