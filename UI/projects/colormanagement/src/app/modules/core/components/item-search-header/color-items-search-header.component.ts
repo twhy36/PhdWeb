@@ -187,9 +187,9 @@ export class ColorItemsSearchHeaderComponent
 				{
 					const groupbyPlans = _.groupBy(planOptionDtos, x=>x.planCommunity.id);
 					let plansHavingActiveColorItemCount = 0;
-					for (const key in groupbyPlans) {
-						if (groupbyPlans.hasOwnProperty(key)) {
-							let item = groupbyPlans[key];
+					for (const planId in groupbyPlans) {
+						if (groupbyPlans.hasOwnProperty(planId)) {
+							let item = groupbyPlans[planId];
 							const hasActiveColorItem = item.filter(x => x.colorItem?.isActive === true);
 							if(hasActiveColorItem?.length > 0)
 							plansHavingActiveColorItemCount++;
