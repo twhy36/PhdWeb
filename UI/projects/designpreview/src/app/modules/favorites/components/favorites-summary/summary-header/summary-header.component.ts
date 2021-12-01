@@ -82,7 +82,7 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 		const clientRect = this.summaryHeaderElement.nativeElement.getBoundingClientRect();
 		if (clientRect.top < 110)
 		{
-			if (!this.isSticky) {
+			if (!this.isSticky && document.body.scrollHeight > 1500) {
 				this.isSticky = true;
 				this.cd.detectChanges();
 				this.isStickyChanged.emit(this.isSticky);

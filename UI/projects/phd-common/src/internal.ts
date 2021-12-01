@@ -72,6 +72,8 @@ export * from './lib/utils/odata-utils.class';
 export * from './lib/utils/unsubscribe-on-destroy';
 export * from './lib/utils/utils.class';
 
+export * from './lib/utils/ngrx/action-logging';
+
 // rules
 export * from './lib/rules/rulesExecutor';
 

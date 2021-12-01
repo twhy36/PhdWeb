@@ -54,14 +54,20 @@
 					width: 1.5em;
 				}
 
+				.phd-choice-quantity {
+					font-weight: bold;
+					display: flex;
+					justify-content: space-between;
+				}
+
+				.phd-quantity-label {
+					font-weight: bold;
+					margin-right: 5px;
+				}
+
 				.phd-choice-body {
 					flex: 1;
-
-					.phd-choice-quantity {
-						font-weight: bold;
-						display: flex;
-						justify-content: space-between;
-					}
+					margin-left: 12px;
 
 					.phd-choice-attributes-body {
 						display: flex;
@@ -69,7 +75,7 @@
 						flex: 1;
 
 						&:not(:last-child) {
-							margin-bottom: 3em;
+							margin-bottom: .3em;
 						}
 
 						.phd-label {
@@ -83,7 +89,7 @@
 
 						.phd-attribute {
 							display: flex;
-							justify-content: space-between;
+							gap: 5px;
 						}
 					}
 

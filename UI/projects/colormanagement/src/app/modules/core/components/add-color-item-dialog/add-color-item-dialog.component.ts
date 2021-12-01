@@ -59,7 +59,7 @@ export class AddColorItemDialogComponent implements OnInit {
 				const  allOptionRelatedPlanIds = result.map(x => x.planId);
 				const isElevationOption = [Elevations.AttachedElevation, Elevations.DetachedElevation].includes(this.selectedOption.optionSubCategoryId);
 				const somePlansHaveActiveColorItem = this.optionsWithColorItemInfo.some(x => x.colorItem.isActive);
-				let plansLookupList = this.allPlans.filter(x => x.planSalesName.toLowerCase() !== 'all plans');
+				let plansLookupList = this.allPlans.filter(x => x.planSalesName.toLowerCase() !== 'all plans' && allOptionRelatedPlanIds.some(optionId => x.id === optionId));
 
 				//remove any plans that already have an active color item
 				if (isElevationOption && somePlansHaveActiveColorItem)
@@ -72,8 +72,7 @@ export class AddColorItemDialogComponent implements OnInit {
 				{
 					//find all plans related to the selectedOption and default them to the selected control
 					this.selectedPlans = plansLookupList
-						.filter(plan => this.selectedOption.planOptionCommunities.some(optionPlan => optionPlan.planId === plan.id))
-						.sort((planA, planB) => planA.planSalesName.toLowerCase() > planB.planSalesName.toLowerCase() ? 1 : -1)
+						.sort((planA, planB) => planA.planSalesName.toLowerCase() > planB.planSalesName.toLowerCase() ? 1 : -1);
 				}
 				else
 				{
@@ -82,8 +81,9 @@ export class AddColorItemDialogComponent implements OnInit {
 						.filter(plan => this.planIdsUsedInSearch.some(searchId => searchId === plan.id))
 						.sort((planA, planB) => planA.planSalesName.toLowerCase() > planB.planSalesName.toLowerCase() ? 1 : -1);
 
-					const remainingPlans = allOptionRelatedPlanIds.filter(planId => this.selectedPlans.every(sp => sp.id !== planId));
-					this.availablePlans = plansLookupList.filter(plan => remainingPlans.some(rpId => plan.id === rpId ))
+					this.availablePlans = plansLookupList
+						.filter(plan => this.selectedPlans.every(sp => sp.id !== plan.id))
+						.sort((planA, planB) => planA.planSalesName.toLowerCase() > planB.planSalesName.toLowerCase() ? 1 : -1);;
 				}
 			});
 	}

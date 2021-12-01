@@ -58,7 +58,7 @@ import { CatalogService } from './services/catalog.service';
         NotificationService,
         CommunityService,
         ReOrgService,
-		{ provide: ErrorHandler, useClass: PhdErrorHandler }
+		{ provide: ErrorHandler, useClass: PhdErrorHandler, deps: [LoggingService] }
     ]
 })
 export class CoreModule { }

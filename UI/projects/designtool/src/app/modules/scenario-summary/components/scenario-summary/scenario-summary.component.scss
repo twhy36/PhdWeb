@@ -1,5 +1,16 @@
 @import "../../../../../scss/color-pallet.scss";
 
+/*
+	The floor plan cannot be truly hidden, otherwise alphavision has trouble accessing floors, etc.
+	So instead, the element will be positioned far off-screen.
+*/
+.phd-hidden-floor-plan {
+	position: absolute;
+	left: -10000px;
+	top: auto;
+	overflow: hidden;
+}
+
 .summary-container {
 	width: 1000px;
 	margin-top: 30px;

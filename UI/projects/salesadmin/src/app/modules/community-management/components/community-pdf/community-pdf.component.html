@@ -1,4 +1,4 @@
-<community-pdf-side-panel-component *ngIf="isSidePanelOpen" [communityPdfs]="allCommunityPdfs" [selected]="selected" [sidePanelOpen]="isSidePanelOpen" [saving]="isSaving" (onSidePanelClose)="onSidePanelClose($event)" (onUpdate)="update($event)" (onSave)="save($event)"></community-pdf-side-panel-component>
+<community-pdf-side-panel-component *ngIf="isSidePanelOpen" [communityPdfs]="allCommunityPdfs" [selected]="selected" [selectedCommunity]="selectedCommunity" [sidePanelOpen]="isSidePanelOpen" [saving]="isSaving" [includedFeaturesExists]="includedFeaturesPdfs.length > 0" (onSidePanelClose)="onSidePanelClose($event)" (onUpdate)="update($event)" (onSave)="save($event)"></community-pdf-side-panel-component>
 
 <div class="phd-page-container">
 	<page-header mainTitle="Community PDF Files"></page-header>
@@ -26,6 +26,8 @@
 		<community-pdf-table [filteredCommunityPdfs]="communityAssociationPdfs" [isCanceling]="isCanceling" [isSorting]="isSorting" [isSaving]="isSortSaving" [canEdit]="canEdit" (editClicked)="onEditClick($event)" (deleteComplete)="onDeleteComplete($event)" (saveComplete)="onSortComplete($event)" (sortInitiated)="enableSave($event)"></community-pdf-table>
 		<h2>Additional Documents</h2>
 		<community-pdf-table [filteredCommunityPdfs]="additionalDocumentPdfs" [isCanceling]="isCanceling" [isSorting]="isSorting" [isSaving]="isSortSaving" [canEdit]="canEdit" (editClicked)="onEditClick($event)" (deleteComplete)="onDeleteComplete($event)" (saveComplete)="onSortComplete($event)" (sortInitiated)="enableSave($event)"></community-pdf-table>
+		<h2>Included Features</h2>
+		<community-pdf-table [filteredCommunityPdfs]="includedFeaturesPdfs" [isCanceling]="isCanceling" [isSorting]="isSorting" [isSaving]="isSortSaving" [canEdit]="canEdit" (editClicked)="onEditClick($event)" (deleteComplete)="onDeleteComplete($event)" (saveComplete)="onSortComplete($event)" (sortInitiated)="enableSave($event)"></community-pdf-table>
 	</div>
 </div>
 

@@ -2,12 +2,17 @@
 	<div class="d-flex flex-row flex-grow-1 phd-action-icons">
 		<div class="d-flex phd-clickable" (click)="onHomePage()">
 			<i class="fa fa-home fa-2x"></i>
-			<span class="align-self-center">Home Page</span>
+			<span class="align-self-center">Home</span>
 		</div>
 
 		<div *ngIf="showPrint" class="d-flex phd-clickable" (click)="onPrint()">
 			<i class="fa fa-print fa-2x"></i>
 			<span class="align-self-center">Print</span>
+		</div>
+
+		<div *ngIf="showFavorites" class="d-flex phd-clickable" (click)="onViewFavorites()">
+			<i class="fa fa-list-alt fa-2x"></i>
+			<span class="align-self-center">My Favorites</span>
 		</div>
 	</div>
 

@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { Store, select } from '@ngrx/store';
-import { Observable } from 'rxjs';
+import { Observable, combineLatest } from 'rxjs';
 
 import * as _ from "lodash";
 
@@ -22,7 +22,7 @@ import { ConfirmModalComponent } from '../../../core/components/confirm-modal/co
 import { environment } from '../../../../../environments/environment';
 
 import * as fromLite from '../../../ngrx-store/lite/reducer';
-import { ExteriorSubNavItems, LiteSubMenu } from '../../../shared/models/lite.model';
+import { ExteriorSubNavItems, LiteSubMenu, LitePlanOption } from '../../../shared/models/lite.model';
 
 @Component({
 	selector: 'nav-bar',
@@ -65,7 +65,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 	isLockedIn: boolean = false;
 	newHomeStatus: PointStatus;
 	isPhdLite$: Observable<boolean>;
-	isElevationSelected$: Observable<boolean>;
+	exteriorStatus: PointStatus;
 
 	constructor(private lotService: LotService,
 		private identityService: IdentityService,
@@ -200,7 +200,25 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 			})
 		);	
 		
-		this.isElevationSelected$ = this.store.select(fromLite.isElevationSelected);
+		combineLatest([
+			this.store.pipe(select(fromLite.selectedElevation), this.takeUntilDestroyed()),
+			this.store.pipe(select(fromLite.selectedColorScheme), this.takeUntilDestroyed())
+		])
+		.subscribe(([elevation, colorScheme]) =>
+		{
+			if (!!elevation && !!colorScheme)
+			{
+				this.exteriorStatus = PointStatus.COMPLETED;
+			}
+			else if (!!elevation || !!colorScheme)
+			{
+				this.exteriorStatus = PointStatus.PARTIALLY_COMPLETED;
+			}
+			else
+			{
+				this.exteriorStatus = PointStatus.REQUIRED;
+			}
+		});		
 	}
 
 	navigate(path: any[], group?: Group)

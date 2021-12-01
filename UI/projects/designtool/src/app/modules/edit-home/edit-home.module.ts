@@ -10,7 +10,6 @@ import { PhdCommonModule } from 'phd-common';
 import { ConfirmNavigationGuard } from '../core/guards/confirm-navigation.guard';
 import { CloudinaryModule } from '@cloudinary/angular-5.x';
 import { NormalExperienceComponent } from './components/edit-home/normal-experience/normal-experience.component';
-import { FloorPlanComponent } from './components/edit-home/floor-plan/floor-plan.component';
 import { EditHomeComponent } from './components/edit-home/edit-home.component';
 import { DragScrollModule } from 'ngx-drag-scroll';
 import { FloorOptionsPipe } from './pipes/floor-options.pipe';
@@ -55,13 +54,11 @@ const moduleRoutes: Routes = [
 @NgModule({
     exports: [
         NormalExperienceComponent,
-		FloorPlanComponent,
         EditHomeComponent,
         PulteInfoComponent
     ],
     declarations: [
         NormalExperienceComponent,
-		FloorPlanComponent,
         EditHomeComponent,
         FloorOptionsPipe,
         PulteInfoComponent

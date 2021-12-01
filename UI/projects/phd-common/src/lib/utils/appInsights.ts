@@ -27,9 +27,13 @@ export function setClientApp(clientApp: string): TelemetryInitializer
 {
     return (item) => 
     {
-        if (item && item.baseData && item.baseData.properties)
+        if (item && item.baseData)
         {
-            item.baseData.properties["ClientApp"] = clientApp;
+            if (item.baseData.properties) {
+                item.baseData.properties["ClientApp"] = clientApp;
+            } else {
+                item.baseData.properties = { "ClientApp": clientApp };
+            }
         }
     }
 }

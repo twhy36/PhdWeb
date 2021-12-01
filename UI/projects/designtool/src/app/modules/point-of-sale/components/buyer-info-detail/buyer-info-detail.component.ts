@@ -5,10 +5,11 @@ import { Store, select } from '@ngrx/store';
 import * as fromRoot from '../../../ngrx-store/reducers';
 import { cloneDeep, trim } from 'lodash'
 
-import {
-	Buyer, EmailAssoc, PhoneAssoc, AddressAssoc, Address, Contact, Phone,
-	MatchingContact, Realtor, ModalService
-} from 'phd-common';
+import
+	{
+		Buyer, EmailAssoc, PhoneAssoc, AddressAssoc, Address, Contact, Phone,
+		MatchingContact, Realtor, ModalService
+	} from 'phd-common';
 
 import { ContactService } from '../../../core/services/contact.service';
 import { MatchingContactsComponent } from '../matching-contacts/matching-contacts.component';
@@ -49,7 +50,7 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 
 	ngOnInit()
 	{
-		if (typeof this.buyer === "string")
+		if (typeof this.buyer === 'string')
 		{
 			this.createTrustForm(this.buyer);
 		}
@@ -60,8 +61,8 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 			const addressFormArray = this.buyerForm.get('addresses') as FormArray;
 			// we are only working with the primary address for now so there will only be one Form Group
 			const addressFormGroup = (addressFormArray.controls as Array<FormGroup>)[0];
-			const address1Control = addressFormGroup.get("address1");
-			const cityControl = addressFormGroup.get("city");
+			const address1Control = addressFormGroup.get('address1');
+			const cityControl = addressFormGroup.get('city');
 
 			// determine when address1 and city are required
 			// - if any address field has a value then both are required
@@ -154,7 +155,7 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 
 	private async showMatchingContactsModal(contact: Contact, matchingContacts: Array<MatchingContact>): Promise<Contact>
 	{
-		const modal = this.modalService.open(MatchingContactsComponent, { size: "lg", windowClass: "phd-modal-window" });
+		const modal = this.modalService.open(MatchingContactsComponent, { size: 'lg', windowClass: 'phd-modal-window' });
 
 		modal.componentInstance.contact = contact;
 		modal.componentInstance.matchingContacts = matchingContacts;
@@ -168,33 +169,33 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 
 	isBuyer(): boolean
 	{
-		return this.buyer.hasOwnProperty("isPrimaryBuyer");
+		return this.buyer.hasOwnProperty('isPrimaryBuyer');
 	}
 
 	isRealtor(): boolean
 	{
-		return this.buyer.hasOwnProperty("brokerName");
+		return this.buyer.hasOwnProperty('brokerName');
 	}
 
 	isTrust(): boolean
 	{
-		return (typeof this.buyer === "string");
+		return (typeof this.buyer === 'string');
 	}
 
 	copyPrimaryBuyerAddress()
 	{
-		const formAddresses = this.buyerForm.get("addresses") as FormArray;
+		const formAddresses = this.buyerForm.get('addresses') as FormArray;
 		const primaryAddressGroup = formAddresses.controls[0] as FormGroup;
 		const primaryBuyerAddress = this.primaryBuyer.opportunityContactAssoc.contact.addressAssocs.find(a => a.isPrimary);
 
 		if (primaryBuyerAddress && primaryBuyerAddress.address)
 		{
-			primaryAddressGroup.get("address1").setValue(primaryBuyerAddress.address.address1);
-			primaryAddressGroup.get("address2").setValue(primaryBuyerAddress.address.address2);
-			primaryAddressGroup.get("city").setValue(primaryBuyerAddress.address.city);
-			primaryAddressGroup.get("stateProvince").setValue(primaryBuyerAddress.address.stateProvince);
-			primaryAddressGroup.get("postalCode").setValue(primaryBuyerAddress.address.postalCode);
-			primaryAddressGroup.get("country").setValue(primaryBuyerAddress.address.country);
+			primaryAddressGroup.get('address1').setValue(primaryBuyerAddress.address.address1);
+			primaryAddressGroup.get('address2').setValue(primaryBuyerAddress.address.address2);
+			primaryAddressGroup.get('city').setValue(primaryBuyerAddress.address.city);
+			primaryAddressGroup.get('stateProvince').setValue(primaryBuyerAddress.address.stateProvince);
+			primaryAddressGroup.get('postalCode').setValue(primaryBuyerAddress.address.postalCode);
+			primaryAddressGroup.get('country').setValue(primaryBuyerAddress.address.country);
 
 			primaryAddressGroup.markAsDirty();
 		}
@@ -217,9 +218,9 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 	{
 		let buyer: Buyer | Realtor | string;
 
-		if (typeof this.buyer === "string")
+		if (typeof this.buyer === 'string')
 		{
-			buyer = trim(this.trustForm.get("trust").value);
+			buyer = trim(this.trustForm.get('trust').value);
 
 			this.onSave.emit(buyer);
 		}
@@ -231,7 +232,7 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 
 			if (this.isRealtor())
 			{
-				const brokerName = trim(this.buyerForm.get("brokerName").value);
+				const brokerName = trim(this.buyerForm.get('brokerName').value);
 				(buyer as Realtor).brokerName = brokerName;
 				contact = (buyer as Realtor).contact;
 
@@ -244,7 +245,7 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 					contact.realEstateAgents = [{
 						id: 0,
 						brokerOfficeName: brokerName
-					}];					
+					}];
 				}
 			}
 			else
@@ -252,15 +253,15 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 				contact = (buyer as Buyer).opportunityContactAssoc.contact;
 			}
 
-			contact.prefix = this.buyerForm.get("prefix").value;
-			contact.firstName = trim(this.buyerForm.get("firstName").value);
-			contact.middleName = trim(this.buyerForm.get("middleName").value);
-			contact.lastName = trim(this.buyerForm.get("lastName").value);
-			contact.suffix = this.buyerForm.get("suffix").value;
+			contact.prefix = this.buyerForm.get('prefix').value;
+			contact.firstName = trim(this.buyerForm.get('firstName').value);
+			contact.middleName = trim(this.buyerForm.get('middleName').value);
+			contact.lastName = trim(this.buyerForm.get('lastName').value);
+			contact.suffix = this.buyerForm.get('suffix').value;
 
-			const formAddresses = this.buyerForm.get("addresses") as FormArray;
+			const formAddresses = this.buyerForm.get('addresses') as FormArray;
 			const primaryAddressGroup = formAddresses.controls[0] as FormGroup;
-			const primaryAddressAssocId = primaryAddressGroup.get("id").value as number;
+			const primaryAddressAssocId = primaryAddressGroup.get('id').value as number;
 
 			// add/update buyer address
 			let contactAddress = contact.addressAssocs.find(a => a.id === primaryAddressAssocId);
@@ -268,14 +269,14 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 			if (contactAddress)
 			{
 				// only update the address if the address fields are not empty
-				if (primaryAddressGroup.get("address1").value && (primaryAddressGroup.get("address1").value as string).length)
+				if (primaryAddressGroup.get('address1').value && (primaryAddressGroup.get('address1').value as string).length)
 				{
-					contactAddress.address.address1 = trim(primaryAddressGroup.get("address1").value);
-					contactAddress.address.address2 = trim(primaryAddressGroup.get("address2").value);
-					contactAddress.address.city = trim(primaryAddressGroup.get("city").value);
-					contactAddress.address.stateProvince = trim(primaryAddressGroup.get("stateProvince").value);
-					contactAddress.address.postalCode = trim(primaryAddressGroup.get("postalCode").value);
-					contactAddress.address.country = trim(primaryAddressGroup.get("country").value);
+					contactAddress.address.address1 = trim(primaryAddressGroup.get('address1').value);
+					contactAddress.address.address2 = trim(primaryAddressGroup.get('address2').value);
+					contactAddress.address.city = trim(primaryAddressGroup.get('city').value);
+					contactAddress.address.stateProvince = trim(primaryAddressGroup.get('stateProvince').value);
+					contactAddress.address.postalCode = trim(primaryAddressGroup.get('postalCode').value);
+					contactAddress.address.country = trim(primaryAddressGroup.get('country').value);
 				}
 				else
 				{
@@ -288,7 +289,7 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 			else
 			{
 				// only add address if the address fields are not empty
-				if (primaryAddressGroup.get("address1").value && (primaryAddressGroup.get("address1").value as string).length)
+				if (primaryAddressGroup.get('address1').value && (primaryAddressGroup.get('address1').value as string).length)
 				{
 					let newAddressAssoc: AddressAssoc = {
 						id: 0,
@@ -296,12 +297,12 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 						isPrimary: this.isRealtor() ? false : true,
 						address: {
 							id: 0,
-							address1: trim(primaryAddressGroup.get("address1").value),
-							address2: trim(primaryAddressGroup.get("address2").value),
-							city: trim(primaryAddressGroup.get("city").value),
-							stateProvince: trim(primaryAddressGroup.get("stateProvince").value),
-							postalCode: trim(primaryAddressGroup.get("postalCode").value),
-							country: trim(primaryAddressGroup.get("country").value),
+							address1: trim(primaryAddressGroup.get('address1').value),
+							address2: trim(primaryAddressGroup.get('address2').value),
+							city: trim(primaryAddressGroup.get('city').value),
+							stateProvince: trim(primaryAddressGroup.get('stateProvince').value),
+							postalCode: trim(primaryAddressGroup.get('postalCode').value),
+							country: trim(primaryAddressGroup.get('country').value),
 							county: null
 						}
 					};
@@ -310,13 +311,13 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 				}
 			}
 
-			const formPhones = this.buyerForm.get("phones") as FormArray;
+			const formPhones = this.buyerForm.get('phones') as FormArray;
 
 			for (var i = 0; i < formPhones.controls.length; i++)
 			{
 				const phone = formPhones.controls[i] as FormGroup;
-				const phoneAssocId = phone.get("id").value as number;
-				const phoneNumber = stripPhoneNumber(phone.get("phoneNumber").value as string);
+				const phoneAssocId = phone.get('id').value as number;
+				const phoneNumber = stripPhoneNumber(phone.get('phoneNumber').value as string);
 
 				if (phoneNumber && phoneNumber.length)
 				{
@@ -324,9 +325,9 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 
 					if (contactPhone)
 					{
-						contactPhone.phone.phoneExt = trim(phone.get("phoneExt").value);
+						contactPhone.phone.phoneExt = trim(phone.get('phoneExt').value);
 						contactPhone.phone.phoneNumber = phoneNumber;
-						contactPhone.phone.phoneType = phone.get("phoneType").value;
+						contactPhone.phone.phoneType = phone.get('phoneType').value;
 					}
 					else
 					{
@@ -336,9 +337,9 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 							isPrimary: i === 0,
 							phone: {
 								id: 0,
-								phoneExt: trim(phone.get("phoneExt").value),
+								phoneExt: trim(phone.get('phoneExt').value),
 								phoneNumber: phoneNumber,
-								phoneType: phone.get("phoneType").value
+								phoneType: phone.get('phoneType').value
 							}
 						}
 
@@ -357,13 +358,13 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 				}
 			}
 
-			const formEmails = this.buyerForm.get("emails") as FormArray;
+			const formEmails = this.buyerForm.get('emails') as FormArray;
 
 			for (var i = 0; i < formEmails.controls.length; i++)
 			{
 				const email = formEmails.controls[i] as FormGroup;
-				const emailAddress = email.get("emailAddress").value as string;
-				const emailAssocId = email.get("id").value as number;
+				const emailAddress = email.get('emailAddress').value as string;
+				const emailAssocId = email.get('id').value as number;
 
 				if (emailAddress && emailAddress.length)
 				{
@@ -427,9 +428,9 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 								if (this.isRealtor())
 								{
 									(buyer as Realtor).contact = selectedContact;
-									(buyer as Realtor).brokerName = selectedContact.realEstateAgents && selectedContact.realEstateAgents.length 
-											? selectedContact.realEstateAgents[0].brokerOfficeName
-											: '';
+									(buyer as Realtor).brokerName = selectedContact.realEstateAgents && selectedContact.realEstateAgents.length
+										? selectedContact.realEstateAgents[0].brokerOfficeName
+										: '';
 								}
 								else
 								{
@@ -626,19 +627,19 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 
 		if ((this.buyer as Buyer).isPrimaryBuyer)
 		{
-			addressGroup.addControl("address1", this.fb.control('', Validators.compose([Validators.required, noWhiteSpaceValidator])));
-			addressGroup.addControl("city", this.fb.control(null, Validators.compose([Validators.required, noWhiteSpaceValidator])));
-			addressGroup.addControl("stateProvince", this.fb.control(null, Validators.compose([Validators.required, noWhiteSpaceValidator])));
-			addressGroup.addControl("postalCode", this.fb.control(null, Validators.compose([Validators.required, noWhiteSpaceValidator])));
-			addressGroup.addControl("country", this.fb.control(null, Validators.compose([Validators.required, noWhiteSpaceValidator])));
+			addressGroup.addControl('address1', this.fb.control('', Validators.compose([Validators.required, noWhiteSpaceValidator])));
+			addressGroup.addControl('city', this.fb.control(null, Validators.compose([Validators.required, noWhiteSpaceValidator])));
+			addressGroup.addControl('stateProvince', this.fb.control(null, Validators.compose([Validators.required, noWhiteSpaceValidator])));
+			addressGroup.addControl('postalCode', this.fb.control(null, Validators.compose([Validators.required, noWhiteSpaceValidator])));
+			addressGroup.addControl('country', this.fb.control(null, Validators.compose([Validators.required, noWhiteSpaceValidator])));
 		}
 		else
 		{
-			addressGroup.addControl("address1", this.fb.control(''));
-			addressGroup.addControl("city", this.fb.control(null));
-			addressGroup.addControl("stateProvince", this.fb.control(null));
-			addressGroup.addControl("postalCode", this.fb.control(null));
-			addressGroup.addControl("country", this.fb.control(null));
+			addressGroup.addControl('address1', this.fb.control(''));
+			addressGroup.addControl('city', this.fb.control(null));
+			addressGroup.addControl('stateProvince', this.fb.control(null));
+			addressGroup.addControl('postalCode', this.fb.control(null));
+			addressGroup.addControl('country', this.fb.control(null));
 		}
 		return addressGroup;
 	}
@@ -654,13 +655,13 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 
 		if (isPrimary)
 		{
-			phoneGroup.addControl("phoneNumber", this.fb.control('', Validators.compose([Validators.required, phoneValidator])));
-			phoneGroup.addControl("phoneType", this.fb.control(null));
+			phoneGroup.addControl('phoneNumber', this.fb.control('', Validators.compose([Validators.required, phoneValidator])));
+			phoneGroup.addControl('phoneType', this.fb.control(null));
 		}
 		else
 		{
-			phoneGroup.addControl("phoneNumber", this.fb.control(null, phoneValidator));
-			phoneGroup.addControl("phoneType", this.fb.control(null));
+			phoneGroup.addControl('phoneNumber', this.fb.control(null, phoneValidator));
+			phoneGroup.addControl('phoneType', this.fb.control(null));
 		}
 
 		return phoneGroup;
@@ -676,11 +677,11 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 
 		if (isPrimary)
 		{
-			emailGroup.addControl("emailAddress", this.fb.control('', Validators.compose([Validators.required, customEmailValidator])));
+			emailGroup.addControl('emailAddress', this.fb.control('', Validators.compose([Validators.required, customEmailValidator])));
 		}
 		else
 		{
-			emailGroup.addControl("emailAddress", this.fb.control(null, Validators.compose([customEmailValidator])));
+			emailGroup.addControl('emailAddress', this.fb.control(null, Validators.compose([customEmailValidator])));
 		}
 
 		return emailGroup;
@@ -691,29 +692,43 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 		const addressFormArray = this.buyerForm.get('addresses') as FormArray;
 		const addressFormGroup = (addressFormArray.controls as Array<FormGroup>)[0];
 		const address1Control = addressFormGroup.get("address1");
-		if (address1Control) {
+
+		if (address1Control)
+		{
 			address1Control.clearValidators();
 		}
-		const cityControl = addressFormGroup.get("city");
-		if (cityControl) {
+
+		const cityControl = addressFormGroup.get('city');
+
+		if (cityControl)
+		{
 			cityControl.clearValidators();
 		}
-		const stateProvinceControl = addressFormGroup.get("stateProvince");
-		if (stateProvinceControl) {
+
+		const stateProvinceControl = addressFormGroup.get('stateProvince');
+
+		if (stateProvinceControl)
+		{
 			stateProvinceControl.clearValidators();
 		}
-		const postalCodeControl = addressFormGroup.get("postalCode");
-		if (postalCodeControl) {
+
+		const postalCodeControl = addressFormGroup.get('postalCode');
+
+		if (postalCodeControl)
+		{
 			postalCodeControl.clearValidators();
 		}
-		const countryControl = addressFormGroup.get("country");
-		if (countryControl) {
+
+		const countryControl = addressFormGroup.get('country');
+
+		if (countryControl)
+		{
 			countryControl.clearValidators();
 		}
 
 		const emailFormArray = this.buyerForm.get('emails') as FormArray;
 		const emailFormGroup = (emailFormArray.controls as Array<FormGroup>)[0];
-		const primaryEmailAddressControl = emailFormGroup.get("emailAddress");
+		const primaryEmailAddressControl = emailFormGroup.get('emailAddress');
 
 		if (primaryEmailAddressControl)
 		{
@@ -722,14 +737,14 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 
 		const phoneFormArray = this.buyerForm.get('phones') as FormArray;
 		const phoneFormGroup = (phoneFormArray.controls as Array<FormGroup>)[0];
-		const primaryPhoneNumberControl = phoneFormGroup.get("phoneNumber");
+		const primaryPhoneNumberControl = phoneFormGroup.get('phoneNumber');
 
 		if (primaryPhoneNumberControl)
 		{
 			primaryPhoneNumberControl.clearValidators();
 		}
 
-		const primaryPhoneTypeControl = phoneFormGroup.get("phoneType");
+		const primaryPhoneTypeControl = phoneFormGroup.get('phoneType');
 
 		if (primaryPhoneTypeControl)
 		{
