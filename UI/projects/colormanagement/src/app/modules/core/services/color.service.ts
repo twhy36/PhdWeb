@@ -4,7 +4,7 @@ import { environment } from '../../../../environments/environment';
 import { catchError, filter, map, switchMap } from 'rxjs/operators';
 import {Observable, throwError} from 'rxjs';
 import {IColorIdBatch, IColor, IColorDto} from '../../shared/models/color.model';
-import {IColorItem, IColorItemAssoc, IColorItemColorAssoc, IColorItemDto} from '../../shared/models/colorItem.model';
+import {IColorItem, IColorItemAssoc, IColorItemColorAssoc, IColorItemDto, IColorItemIdBatch} from '../../shared/models/colorItem.model';
 import * as _ from 'lodash';
 import {
 	newGuid,
