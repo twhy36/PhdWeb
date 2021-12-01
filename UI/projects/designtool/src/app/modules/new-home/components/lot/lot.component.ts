@@ -26,6 +26,10 @@ import { selectSelectedLot } from '../../../ngrx-store/lot/reducer';
 import { NewHomeService } from '../../services/new-home.service';
 import * as _ from 'lodash';
 
+// PHD Lite
+import { ExteriorSubNavItems, LiteSubMenu } from '../../../shared/models/lite.model';
+
+
 @Component({
 	selector: 'lot',
 	templateUrl: 'lot.component.html',
@@ -581,6 +585,8 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 			case (ActionBarCallType.PRIMARY_CALL_TO_ACTION):
 				if (this.isPhdLite)
 				{
+					this.store.dispatch(new NavActions.SetSubNavItems(ExteriorSubNavItems));		
+					this.store.dispatch(new NavActions.SetSelectedSubNavItem(LiteSubMenu.Elevation));
 					this.router.navigateByUrl('/lite/elevation');
 				}
 				else

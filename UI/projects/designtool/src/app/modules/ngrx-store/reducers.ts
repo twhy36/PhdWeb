@@ -930,6 +930,32 @@ export const isDesignPreviewEnabled = createSelector(
 	}
 );
 
+// PHD Lite
+export const isLiteComplete = createSelector(
+	fromScenario.selectScenario,
+	monotonyConflict,
+	fromSalesAgreement.salesAgreementState,
+	needsPlanChange,
+	hasSpecPlanId,
+	fromLite.liteState,
+	fromLite.selectedElevation,
+	fromLite.selectedColorScheme,
+	(scenario, monotonyConflict, sag, needsPlanChange, hasSpecPlanId, lite, selectedElevation, selectedColorScheme) =>
+	{
+		let isLiteComplete = false;
+
+		if (lite?.isPhdLite)
+		{
+			const hasLot = !!sag.id || (scenario.scenario ? !!scenario.scenario.lotId : false);
+			const hasPlan = !!sag.id || (scenario.scenario ? !!scenario.scenario.planId : false) || hasSpecPlanId;
+		
+			isLiteComplete = hasLot && hasPlan && !!selectedElevation && !!selectedColorScheme && !monotonyConflict.monotonyConflict && !needsPlanChange;
+		}
+
+		return isLiteComplete;
+	}
+);
+
 function mapLocations(choice: Choice, jobElevationChoice: JobChoice, changeOrderElevationChoice: ChangeOrderChoice): Array<string>
 {
 	let locations: Array<string> = [];

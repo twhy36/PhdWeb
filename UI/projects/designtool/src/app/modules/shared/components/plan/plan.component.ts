@@ -22,6 +22,10 @@ import * as JobActions from '../../../ngrx-store/job/actions';
 import * as LotActions from '../../../ngrx-store/lot/actions';
 import { selectSelectedLot } from '../../../ngrx-store/lot/reducer';
 
+// PHD Lite
+import { ExteriorSubNavItems, LiteSubMenu } from '../../../shared/models/lite.model';
+
+
 type planSortByType = "Price - Low to High" | "Price - High to Low";
 
 @Component({
@@ -284,6 +288,8 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 				}
 				else if (this.isPhdLite)
 				{
+					this.store.dispatch(new NavActions.SetSubNavItems(ExteriorSubNavItems));		
+					this.store.dispatch(new NavActions.SetSelectedSubNavItem(LiteSubMenu.Elevation));
 					this.router.navigateByUrl('/lite/elevation');
 				}
 				else

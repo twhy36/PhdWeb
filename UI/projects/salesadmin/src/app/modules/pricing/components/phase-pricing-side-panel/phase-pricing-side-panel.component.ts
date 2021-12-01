@@ -102,7 +102,7 @@ export class PhasePricingSidePanelComponent implements OnInit
 				validators.push(Validators.required);
 			}
 
-			this.phasePriceForm.addControl(p.plan.id.toString(), new FormControl({ value: p.listPrice, disabled: !isPhasePlanActive }, validators));
+			this.phasePriceForm.addControl(p.plan.id.toString(), new FormControl({ value: p.listPrice || 0, disabled: !isPhasePlanActive }, validators));
 		});
 	}
 
