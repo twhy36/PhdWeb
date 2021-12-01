@@ -194,7 +194,7 @@ export class ColorService {
 				let requests = itemList.map(item => {
 					const entity = `scenarioOptions`;
 					const filter = `(EdhPlanOptionId in (${item.colorItem.map(c => c.edhPlanOptionId).join(',')}))`;
-					const select = `id`;
+					const select = `scenarioOptionId`;
 					let qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}top=1`;
 					const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
 					return createBatchGet(endpoint);
