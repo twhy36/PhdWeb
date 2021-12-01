@@ -209,15 +209,28 @@ export class ColorItemsSearchHeaderComponent
 				})
 			).subscribe((planOptionDtos) => {
 				this.currentPage++;
-				this.allDataLoaded = isAllOption ? planOptionDtos.length < this.settings.infiniteScrollPageSize && (isAllOption && this.optionListIndex === (this.planOptionList.length - 1)) : planOptionDtos.length < this.settings.infiniteScrollPageSize;
-				//Verify if atleast one ColorItem missed for Elevation option, disable Add Button
-				if (isElevation) {
-					if (planOptionDtos.filter(x => !!x.colorItem).length === planOptionDtos.length && planOptionDtos.filter(x => !x.colorItem.isActive).length === 0) {
+				this.allDataLoaded = isAllOption ? planOptionDtos.length < this.settings.infiniteScrollPageSize && (isAllOption && this.optionListIndex === (this.planOptionList.length - 1)): planOptionDtos.length < this.settings.infiniteScrollPageSize;
+				//Verify if every plan has all coloritems active, then disable AddButton else enable it.
+				if(isElevation)
+				{
+					const groupbyPlans = _.groupBy(planOptionDtos, x=>x.planCommunity.id);
+					let plansHavingActiveColorItemCount = 0;
+					for (const planId in groupbyPlans) {
+						if (groupbyPlans.hasOwnProperty(planId)) {
+							let item = groupbyPlans[planId];
+							const hasActiveColorItem = item.filter(x => x.colorItem?.isActive === true);
+							if(hasActiveColorItem?.length > 0)
+							plansHavingActiveColorItemCount++;
+						}
+					}
+					if((!this.selectedAllPlans && this.selectedPlans.length === plansHavingActiveColorItemCount) || (this.selectedAllPlans && (this.planCommunityList.length - 1) === plansHavingActiveColorItemCount))
+					{						
 						this.planOptionHasNoColorItem = false;
 					}
-					else {
+					else
+					{
 						this.planOptionHasNoColorItem = true;
-					}
+					}										
 				}
 
 				planOptionDtos = planOptionDtos.filter(x => !!x.colorItem);
