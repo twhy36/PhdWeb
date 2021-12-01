@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
-import { catchError, map, switchMap } from 'rxjs/operators';
-import { Observable, throwError } from 'rxjs';
-import { IColorIdBatch, IColor, IColorDto } from '../../shared/models/color.model';
-import { IColorItemIdBatch, IColorItem, IColorItemAssoc, IColorItemColorAssoc, IColorItemDto } from '../../shared/models/colorItem.model';
+import { catchError, filter, map, switchMap } from 'rxjs/operators';
+import {Observable, throwError} from 'rxjs';
+import {IColorIdBatch, IColor, IColorDto} from '../../shared/models/color.model';
+import {IColorItem, IColorItemAssoc, IColorItemColorAssoc, IColorItemDto, IColorItemIdBatch} from '../../shared/models/colorItem.model';
 import * as _ from 'lodash';
 import {
 	newGuid,
@@ -18,10 +18,11 @@ import {
 	createBatchPatch,
 } from 'phd-common';
 import { IPlanOptionCommunityGridDto } from '../../shared/models/community.model';
+import { PlanOptionService } from './plan-option.service';
 
 @Injectable()
 export class ColorService {
-	constructor(private _http: HttpClient, private identityService: IdentityService) { }
+	constructor(private _http: HttpClient, private identityService: IdentityService, private _planService: PlanOptionService) {}
 	private _ds: string = encodeURIComponent('$');
 	private _batch = '$batch';
 
@@ -194,7 +195,7 @@ export class ColorService {
 				let requests = itemList.map(item => {
 					const entity = `scenarioOptions`;
 					const filter = `(EdhPlanOptionId in (${item.colorItem.map(c => c.edhPlanOptionId).join(',')}))`;
-					const select = `id`;
+					const select = `scenarioOptionId`;
 					let qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}top=1`;
 					const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
 					return createBatchGet(endpoint);
@@ -258,23 +259,48 @@ export class ColorService {
 		);
 	}
 
-	updateColorItem(colorItemToUpdate: IColorItemDto[]): Observable<IColorItemDto[]>
+	updateColorItem(colorItemsToUpdate: IColorItemDto[])
 	{
-		return this.identityService.token.pipe(
-			switchMap((token: string) => {
-				let guid = newGuid();
-				let requests = createBatchPatch<IColorItemDto>(colorItemToUpdate, 'colorItemId', 'colorItems', 'isActive');
-				let headers = new HttpHeaders(createBatchHeaders(guid, token));
+		const colorItems: IColorItemAssoc[] = [];
+		colorItemsToUpdate.forEach(colorItemToUpdate => {
+			const item = {
+				colorItemId: colorItemToUpdate.colorItemId,
+				name: colorItemToUpdate.name,
+				edhPlanOptionId: colorItemToUpdate.edhPlanOptionId,
+				colorItemColorAssoc: [],
+				isActive: colorItemToUpdate.isActive
+			} as IColorItemAssoc;
+	
+			if (colorItemToUpdate.colors.length > 0)
+			{
+				colorItemToUpdate.colors.forEach(color => {
+					const colorInfo: IColorItemColorAssoc = {
+						colorId: color.colorId,
+						color: color,
+						colorItemId: colorItemToUpdate.colorItemId
+					};
+	
+					item.colorItemColorAssoc.push(colorInfo);
+				});
+			}
+			colorItems.push(item);
+		});
+		
 
-				let batchBody = createBatchBody(guid, [requests]);
-				const endPoint = `${environment.apiUrl}${this._batch}`;
-				return this._http.post(endPoint, batchBody, { headers: headers });
+		const body = {
+			'editColorItems': colorItems
+		};
+
+		const action = `updateColorItems`;
+		const endpoint = `${environment.apiUrl}${action}`;
+
+		return withSpinner(this._http).post<any>(endpoint, body, { headers: { 'Prefer': 'return=representation' } }).pipe(
+			map(response =>
+			{
+				return response.value;
 			}),
-			map((response: any) => {
-				let bodies = response.responses.map(res => res.body);
-				return bodies;
-			}))
-
+			catchError(this.handleError)
+		);		
 	}
 
 	saveColorItem(dtoColorItems: IColorItemDto[]): Observable<IColorItem[]> {
@@ -337,6 +363,27 @@ export class ColorService {
 				return results.length > 0;
 			}),
 			catchError(this.handleError)
+		);
+	}
+
+	/*Example:  if user searches just for plan1 of an option, rather than all plans, the result list will show just plan1 in Plan column, 
+	rather than a column sep list, but the color item name may exist for other plans. 
+	If user searched for plan1, plan2, but the color item name is also attached to plan3, 
+	the Plan column will just show plan1, plan2.  This is also what HS does. 
+	But the edit/delete/active/inactive should occur for all color items of that same name, just like what HS does.*/
+	getColorItemForAssociatedPlans(coloritemname: string, optionCommnunityId: number, currentFinancialCommunityId: number): Observable<IColorItemDto[]>
+	{
+		return this._planService.getPlanOptionsByOption(optionCommnunityId).pipe(
+		filter((res) => !!res),
+		switchMap((res:any)=>
+		{
+			return this.getPlanOptionAssocColorItems
+			(currentFinancialCommunityId,
+				res.map(planoption => planoption.id),
+				null,
+				coloritemname
+			);
+		})
 		);
 	}
 }
