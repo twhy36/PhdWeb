@@ -99,12 +99,12 @@
 		</div>
 	</div>
 
-	<div class="phd-card-detail-footer text-center">
-		<div class="d-flex flex-row" *ngIf="displayButton()">
-			<button type="button" class="btn phd-experience-btn-choice mt-auto align-self-center" [class.selected]="choice?.quantity > 0" (click)="toggleSelection()" [disabled]="buttonDisabled" [class.phd-disable-hovering]="buttonDisabled">
+	<div class="d-flex flex-column align-items-center phd-card-detail-footer">
+		<span *ngIf="isFavorite" class="phd-favorite-icon"><i class="fa fa-heart"></i></span>
+		<div class="d-flex flex-column justify-content-center align-items-center" >
+			<button *ngIf="displayButton()" type="button" class="btn phd-experience-btn-choice mt-auto align-self-center" [class.selected]="choice?.quantity > 0" (click)="toggleSelection()" [disabled]="buttonDisabled" [class.phd-disable-hovering]="buttonDisabled">
 				{{getButtonLabel()}}
 			</button>
-			<span *ngIf="isFavorite" class="phd-favorite-icon"><i class="fa fa-heart"></i></span>
 		</div>
 
 		<div *ngIf="optionDisabled">  Choice Is No Longer Available </div>

@@ -362,6 +362,15 @@ export class CommonEffects
 
 							newResult.job.jobChoices = changedChoices;
 
+							// Set divChoiceCatalogId in job change order groups
+							_.flatMap(newResult.job.changeOrderGroups, cog => _.flatMap(cog.jobChangeOrders, co => co.jobChangeOrderChoices)).forEach(ch => {
+								const choice = choices.find(c => c.dpChoiceId === ch.dpChoiceId);
+
+								if (choice) {
+									ch.divChoiceCatalogId = choice.divChoiceCatalogId;
+								}
+							});
+
 							return { ...newResult, sc, currentChangeOrderGroup, jobPlanId };
 						})
 					);

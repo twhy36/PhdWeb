@@ -23,20 +23,23 @@ export const environment = {
 		strictDiscoveryDocumentValidation: false
 	},
     appInsights: {
-        instrumentationKey: '59530951-22f6-449f-ac70-8dffc824b34d'
+        instrumentationKey: '59530951-22f6-449f-ac70-8dffc824b34d',
+		enableAutoRouteTracking: true
 	},
 	whatFix: {
 		scriptUrl: '//whatfix.com/01caf5e0-cb2f-11e8-b979-04013d24cd02/embed/embed.nocache.js'
 	},
 	designPreviewMarketWhitelist: [
-		124, // Michigan Market
-		104, // Houston Market
 		460, // Arizona Market
-		465, // New Mexico
+		463, // Austin Market
+		104, // Houston Market
 		473, // Las Vegas
+		124, // Michigan Market
+		465, // New Mexico
+		40008, // Northeast Florida Market
+		122, // Northern California Market
 		448, // Pacific Northwest
-		122, // Northern California
-		151  // Southern California
+		151, // Southern California Market
 	],
 	salesAdminFinancialCommunityWhitelist: [],
 	salesAdminMarketWhitelist: []

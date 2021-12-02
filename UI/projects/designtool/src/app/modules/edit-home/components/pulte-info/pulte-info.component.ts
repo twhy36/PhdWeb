@@ -41,7 +41,7 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit {
     isChangingOrder: boolean;
     
     get actionBarStatus(): string {
-        return !((this.pulteInfoForm && this.pulteInfoForm.pristine) || !this.canEdit || this.pulteInfoForm.invalid) ? 'COMPLETE' : 'INCOMPLETE';
+        return !((this.pulteInfoForm && this.pulteInfoForm.pristine) || !this.canEdit || (this.pulteInfoForm && this.pulteInfoForm.invalid)) ? 'COMPLETE' : 'INCOMPLETE';
     }
     constructor(
         private store: Store<fromRoot.State>,

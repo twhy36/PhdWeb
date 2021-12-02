@@ -46,19 +46,22 @@
 	</div>
 
 	<div class="phd-footer">
-		<div class="phd-footer-btn-container" (click)="$event.stopPropagation()" *ngIf="showDisabledButton || showConfirmButton || showRequiredButton">
-			<div *ngIf="showConfirmButton" [class.phd-choice-disabled]="buttonDisabled" class="d-flex align-items-center phd-footer-btns">
-				<span *ngIf="isFavorite" class="phd-favorite-icon"></span>
-				<button class="btn phd-experience-btn-choice" (click)="toggleSelection()" [disabled]="buttonDisabled" [class.phd-disable-hover]="buttonDisabled">{{getButtonLabel()}}</button>
-				<span *ngIf="isFavorite" class="phd-favorite-icon"><i class="fa fa-heart"></i></span>
+		<div class="phd-footer-btn-container" (click)="$event.stopPropagation()" *ngIf="showDisabledButton || showConfirmButton || showRequiredButton || isFavorite">
+			<span *ngIf="isFavorite" class="phd-favorite-icon"><i class="fa fa-heart"></i></span>
+			<div [class.phd-choice-disabled]="buttonDisabled" class="d-flex align-items-center phd-footer-btns">
+				<button *ngIf="showConfirmButton" class="btn phd-experience-btn-choice" (click)="toggleSelection()" [disabled]="buttonDisabled" [class.phd-disable-hover]="buttonDisabled">{{getButtonLabel()}}</button>
 			</div>
 
-			<div *ngIf="showDisabledButton" class="phd-choice-disabled-msg phd-clickable" (click)="!optionDisabled && choice && showDisabledMessage()">
-				<i class="fas fa-info-circle fa-sm"></i> Disabled
+			<div *ngIf="showDisabledButton" class="d-flex flex-column align-items-center phd-choice-disabled-msg phd-clickable" (click)="!optionDisabled && choice && showDisabledMessage()">
+				<div class="d-flex flex-row align-items-center">
+					<i class="fas fa-info-circle fa-sm"></i> Disabled
+				</div>
 			</div>
 
-			<div *ngIf="showRequiredButton" class="phd-choice-disabled-msg phd-clickable" (click)="!optionDisabled && choice && showDisabledMessage()">
-				<i class="fas fa-info-circle fa-sm"></i> Required
+			<div *ngIf="showRequiredButton" class="d-flex flex-column align-items-center phd-choice-disabled-msg phd-clickable" (click)="!optionDisabled && choice && showDisabledMessage()">
+				<div class="d-flex flex-row align-items-center">
+					<i class="fas fa-info-circle fa-sm"></i> Required
+				</div>
 			</div>
 		</div>
 

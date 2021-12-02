@@ -1,14 +1,12 @@
 import { Component } from '@angular/core';
-import { ActivatedRoute, ActivatedRouteSnapshot, NavigationEnd, Router, GuardsCheckEnd, NavigationCancel, Event, NavigationStart } from '@angular/router';
+import { NavigationEnd, Router, GuardsCheckEnd, NavigationCancel, Event, NavigationStart } from '@angular/router';
 
 import { Observable } from 'rxjs';
 import { filter, map, scan } from 'rxjs/operators';
 
-import { LoggingService } from './modules/core/services/logging.service';
 import { loadScript, IdentityService, Claims } from 'phd-common';
 import { environment } from '../environments/environment';
 import * as build from './build.json';
-import { NotificationService } from './modules/core/services/notification.service';
 
 @Component({
   selector: 'app-root',
@@ -26,18 +24,14 @@ export class AppComponent
 		return build.branch.split('/').slice(2).join('/');
 	}
 
-	constructor(private router: Router, private loggingService: LoggingService, private route: ActivatedRoute, private identityService: IdentityService) {
+	constructor(private router: Router, private identityService: IdentityService) {
 		this.router.events.pipe(
             filter(evt => evt instanceof NavigationEnd)
-        ).subscribe((evt: NavigationEnd) => {
-            const url = evt.url;
-            const componentName = this.getComponentName(this.route.snapshot);
-
-			this.loggingService.logPageView(`Sales Admin - ${componentName}`, url);
+        ).subscribe(() => {
 			if (typeof (<any>window)._wfx_refresh === 'function') {
 				(<any>window)._wfx_refresh();
 			}
-			});
+		});
 
 		//router module doesn't know which page the user has access to, so we'll just let the route guards do the work
 		let entryPoints = ['/', '/contracts', 'community-management'];
@@ -71,13 +65,5 @@ export class AppComponent
 			map((claims: Claims) => !!claims.SalesAdmin || !!claims.AutoApproval)
 		);
 
-    }
-
-    private getComponentName(snapshot: ActivatedRouteSnapshot): string {
-        if (snapshot.children.find(c => c.outlet === 'primary')) {
-            return this.getComponentName(snapshot.children.find(c => c.outlet === 'primary'));
-        }
-
-        return typeof snapshot.component === 'string' ? snapshot.component : snapshot.component.name;
     }
 }

@@ -12,7 +12,7 @@ import { CoreModule } from './modules/core/core.module';
 import { LotManagementModule } from './modules/lot-managment/lot-management.module';
 import { PricingModule } from './modules/pricing/pricing.module';
 import { CommunityManagementModule } from './modules/community-management/community-management.module';
-import { PhdCommonModule, ConfirmModalComponent, IdentityService, AUTH_CONFIG } from 'phd-common';
+import { PhdCommonModule, ConfirmModalComponent, IdentityService, AUTH_CONFIG, APP_INSIGHTS_CONFIG, TELEMETRY_INIT, setClientApp } from 'phd-common';
 import { ReOrgModule } from './modules/re-org/re-org.module';
 import { AppComponent } from './app.component';
 
@@ -58,7 +58,9 @@ const appInitializerFn = (identityService: IdentityService) => {
 	],
 	providers: [
 		{ provide: APP_INITIALIZER, useFactory: appInitializerFn, deps: [IdentityService], multi: true },
-		{ provide: AUTH_CONFIG, useValue: environment.authConfig }
+		{ provide: AUTH_CONFIG, useValue: environment.authConfig },
+		{ provide: APP_INSIGHTS_CONFIG, useValue: environment.appInsights },
+		{ provide: TELEMETRY_INIT, useValue: setClientApp("Sales Admin") }
   ],
 	bootstrap: [AppComponent]
 })

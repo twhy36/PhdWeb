@@ -1,4 +1,4 @@
-import { BrowserModule, Title } from '@angular/platform-browser';
+import { BrowserModule } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -9,9 +9,8 @@ import { CloudinaryModule } from '@cloudinary/angular-5.x';
 import { Cloudinary } from 'cloudinary-core';
 import { ToastrModule } from 'ngx-toastr';
 import { NgIdleModule } from '@ng-idle/core'
-import { Observable, of } from 'rxjs';
 
-import { PhdCommonModule, IdentityService, AUTH_CONFIG } from 'phd-common';
+import { PhdCommonModule, IdentityService, AUTH_CONFIG, APP_INSIGHTS_CONFIG, TELEMETRY_INIT, setClientApp } from 'phd-common';
 
 import { environment } from '../environments/environment';
 import { AppComponent } from './app.component';
@@ -75,7 +74,9 @@ const tryInitAuth = (authService: AuthService, identityService: IdentityService)
     providers: [
 		{ provide: APP_INITIALIZER, useFactory: tryInitAuth, deps: [AuthService, IdentityService], multi: true },
 		{ provide: APP_BASE_HREF, useFactory: getBaseHref, deps: [PlatformLocation] },
-		{ provide: AUTH_CONFIG, useClass: AuthConfigSelector, deps: [AuthService] }
+		{ provide: AUTH_CONFIG, useClass: AuthConfigSelector, deps: [AuthService] },
+        { provide: APP_INSIGHTS_CONFIG, useValue: environment.appInsights },
+        { provide: TELEMETRY_INIT, useValue: setClientApp("Design Preview")},
     ],
     bootstrap: [AppComponent]
 })

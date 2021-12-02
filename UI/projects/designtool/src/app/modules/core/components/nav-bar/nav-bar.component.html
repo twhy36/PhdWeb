@@ -110,9 +110,9 @@
 		<ng-container *ngIf="selectedPlanId && (isPhdLite$ | async)">
 			<phd-nav-menu-item 
 				label="Exterior"
-				[status]="(isElevationSelected$ | async) ? PointStatus.PARTIALLY_COMPLETED : PointStatus.REQUIRED"
+				[status]="exteriorStatus"
 				[showStatusIndicator]="showStatusIndicator$ | async"
-				[isActive]="currentRoute?.startsWith('/lite/elevation')"
+				[isActive]="currentRoute?.startsWith('/lite/elevation') || currentRoute?.startsWith('/lite/color-scheme')"
 				[ngClass]="(isTablet$ | async) && invertHamburgerMenuColor ? 'phd-menu-item-color' : null"
 				(click)="onExteriorPath()">
 			</phd-nav-menu-item>
@@ -135,7 +135,7 @@
 	<hr *ngIf="!(isTablet$ | async) && !isSalesOnlyChangeOrder && (!isSalesAgreementCancelledOrVoided)">
 
 	<phd-nav-menu class="menu">
-		<phd-nav-menu-item *ngIf="job.id !== 0 && buildMode === 'spec' && (!isSalesAgreementCancelledOrVoided && !specCancelled)" (click)="navigate(['/spec'])" [isActive]="currentRoute?.startsWith('/spec')"
+		<phd-nav-menu-item *ngIf="job.id !== 0 && (buildMode === 'spec' || buildMode === 'model') && (!isSalesAgreementCancelledOrVoided && !specCancelled)" (click)="navigate(['/spec'])" [isActive]="currentRoute?.startsWith('/spec')"
 						   [ngClass]="(isTablet$ | async) && invertHamburgerMenuColor ? 'phd-menu-item-color' : null">
 			<ng-template>
 				<span class="phd-no-transform">Spec Info On Pulte.com </span>

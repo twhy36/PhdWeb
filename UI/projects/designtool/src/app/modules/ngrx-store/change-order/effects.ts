@@ -206,16 +206,17 @@ export class ChangeOrderEffects
 			tryCatch(source => source.pipe(
 				switchMap(([action, store]) =>
 				{
+					const currentChangeOrder = this.changeOrderService.getCurrentChangeOrder(store.job.changeOrderGroups);
+
 					return forkJoin(
-						this.changeOrderService.getLockedInChoices(store.job, store.scenario.tree, store.changeOrder.currentChangeOrder),
-						of(store)
+						this.changeOrderService.getLockedInChoices(store.job, store.scenario.tree, currentChangeOrder),
+						of({ store: store, currentChangeOrder: currentChangeOrder })
 					);
 				}),
-				switchMap(([lockInChoices, store]) => {
-					const currentChangeOrder = this.changeOrderService.getCurrentChangeOrder(store.job.changeOrderGroups);
-					const changeOrderId = currentChangeOrder ? currentChangeOrder.id : 0;
-					const choices = this.changeOrderService.getOriginalChoicesAndAttributes(store.job, store.scenario.tree, (currentChangeOrder !== undefined) ? store.changeOrder.currentChangeOrder : null);
-					const handing = this.changeOrderService.getSelectedHanding(store.job);
+				switchMap(([lockInChoices, data]) => {
+					const changeOrderId = data.currentChangeOrder?.id || 0;
+					const choices = this.changeOrderService.getOriginalChoicesAndAttributes(data.store.job, data.store.scenario.tree, data.currentChangeOrder);
+					const handing = this.changeOrderService.getSelectedHanding(data.store.job);
 
 					let actions: any[] = [
 						new SetCurrentChangeOrder(changeOrderId)
@@ -233,7 +234,7 @@ export class ChangeOrderEffects
 
 					if (changeOrderId > 0)
 					{
-						actions.push(new CurrentChangeOrderLoaded(store.changeOrder.currentChangeOrder, handing));
+						actions.push(new CurrentChangeOrderLoaded(data.currentChangeOrder, handing));
 					}
 					else
 					{

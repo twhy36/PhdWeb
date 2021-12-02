@@ -1,4 +1,4 @@
-<phd-side-panel-component [headerTemplate]="header" [bodyTemplate]="body" [footerTemplate]="footer" [sidePanelOpen]="sidePanelOpen" (onSidePanelClose)="onCloseSidePanel($event)" [isDirty]="isDirty">
+<phd-side-panel-component [headerTemplate]="header" [bodyTemplate]="body" [footerTemplate]="footer" [sidePanelOpen]="sidePanelOpen" (onSidePanelClose)="onCloseSidePanel($event)" (onSidePanelConfirmed)="save()" [isDirty]="isDirty" [customMsgBody]="customMsgBody">
 
 	<ng-template #header>
 		<h4 *ngIf="(!selected) || (selected.fileName === null)" class="phd-side-panel-header"><strong>Add Document</strong></h4>
@@ -8,6 +8,24 @@
 	<ng-template #body>
 		<div class="container pt-3">
 			<form [formGroup]="communityPdfForm">
+				<div class="form-group">
+					<label class="font-weight-bold" for="sectionHeader">Section Header</label>
+					<select id="release_rank" class="form-control phd-fieldRequired" formControlName="sectionHeader" (change)="onSectionHeaderChange()" required>
+						<option *ngFor="let type of sectionHeaders" [ngValue]="type.id">{{ type.label}}</option>
+					</select>
+					<div class="col-sm-12">
+						<span class="text-info" *ngIf="includedFeaturesSelected">
+							Reminder: Ensure the Included Feature addendum under Contract Setup is up to date.
+						</span>
+					</div>
+					<div class="col-sm-12">
+						<span class="text-danger"
+								*ngIf="communityPdfForm.controls.sectionHeader.invalid && (communityPdfForm.controls.sectionHeader.dirty || communityPdfForm.controls.sectionHeader.touched) && communityPdfForm.controls.sectionHeader.errors.required">
+							Invalid: A Section Header is required.
+						</span>
+					</div>
+				</div>
+				
 				<div class="form-group">
 					<label class="font-weight-bold" for="linkText">Link Text</label>
 					<input type="text" class="form-control phd-fieldRequired" id="linkText" maxlength="100" formControlName="linkText" required />
@@ -32,19 +50,6 @@
 						<span class="text-danger"
 								*ngIf="communityPdfForm.controls.fileName.invalid && communityPdfForm.controls.fileName.dirty && communityPdfForm.controls.fileName.errors.duplicateName">
 							Invalid: This File Name already exists.
-						</span>
-					</div>
-				</div>
-
-				<div class="form-group">
-					<label class="font-weight-bold" for="sectionHeader">Section Header</label>
-					<select id="release_rank" class="form-control phd-fieldRequired" formControlName="sectionHeader" required>
-						<option *ngFor="let type of sectionHeaders" [ngValue]="type.id">{{ type.label}}</option>
-					</select>
-					<div class="col-sm-12">
-						<span class="text-danger"
-								*ngIf="communityPdfForm.controls.sectionHeader.invalid && (communityPdfForm.controls.sectionHeader.dirty || communityPdfForm.controls.sectionHeader.touched) && communityPdfForm.controls.sectionHeader.errors.required">
-							Invalid: A Section Header is required.
 						</span>
 					</div>
 				</div>
@@ -104,7 +109,7 @@
 
 	<ng-template #footer>
 		<div class="pull-right">
-			<button class="btn btn-primary phd-btn-save" (click)="save();" [disabled]="saveDisabled">
+			<button class="btn btn-primary phd-btn-save" (click)="handleSave();" [disabled]="saveDisabled">
 				Save
 				<ng-container *ngIf="saving"><i class="fa fa-spinner fa-spin fa-fw"></i></ng-container>
 			</button>

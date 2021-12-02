@@ -1,0 +1,38 @@
+@import "../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
+
+$detailed-point-panel-width: 300px;
+
+.phd-floor-plan-summary {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-evenly;
+	overflow: hidden;
+
+	.phd-names {
+		padding: 10px;
+		min-height: 56px;
+	}
+
+	.floor-select-container {
+		padding: 10px;
+		min-height: 56px;
+		margin-left: auto;
+	}
+
+	.phd-community-name {
+		color: black;
+		font-size: 15px;
+		font-weight: bold;
+		text-transform: uppercase;
+	}
+
+	.phd-plan-name {
+		color: black;
+		font-size: 13px;
+	}
+
+	.phd-floorplan-container {
+		max-width: 100%;
+		margin-left: 25vw;
+	}
+}

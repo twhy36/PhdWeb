@@ -18,18 +18,19 @@ export const environment = {
 		strictDiscoveryDocumentValidation: false
 	},
 	appInsights: {
-		instrumentationKey: 'f6f360eb-b343-428f-ab2b-c53d417f272e'
+		instrumentationKey: 'f6f360eb-b343-428f-ab2b-c53d417f272e',
+		enableAutoRouteTracking: true
 	},
 	whatFix: {
 		scriptUrl: '//cdn.whatfix.com/prod/01caf5e0-cb2f-11e8-b979-04013d24cd02/embed/embed.nocache.js'
 	},
 	designPreviewMarketWhitelist: [
-		460, // Arizona
-		465, // New Mexico
-		473, // Las Vegas
-		448, // Pacific Northwest
-		122, // Northern California
-		151  // Southern California
+		460, // Arizona Market
+		473, // Las Vegas Market
+		465, // New Mexico Market
+		122, // Northern California Market
+		448, // Pacific Northwest Market
+		151, // Southern California Market
 	],
 	salesAdminFinancialCommunityWhitelist: [
 		18323, // 540 West

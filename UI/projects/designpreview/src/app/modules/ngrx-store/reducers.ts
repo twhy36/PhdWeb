@@ -143,6 +143,89 @@ export const filteredTree = createSelector(
 	}
 )
 
+export const contractedTree = createSelector(
+	fromScenario.selectScenario,
+	fromFavorite.favoriteState,
+	fromSalesAgreement.salesAgreementState,
+	(scenario, favorite, sag) => {
+		let tree = _.cloneDeep(scenario?.tree);
+		const treeFilter = scenario?.treeFilter;
+		let contractedTree: TreeVersion;
+
+		if (tree && tree.treeVersion) {
+			const isPreview = scenario.buildMode === 'preview';
+			const isDesignComplete = sag?.isDesignComplete || false;
+
+			const filter = (label: string) => {
+				return treeFilter ? label.toLowerCase().includes(treeFilter.keyword.toLowerCase()) : true;
+			};
+
+			let treeMatched = { subGroup: false, point: false };
+
+			contractedTree = {
+				...tree.treeVersion, groups: tree.treeVersion.groups.map(g => {
+					let subGroups = g.subGroups.map(sg => {
+						treeMatched.subGroup = filter(sg.label);
+
+						let points = sg.points.map(p => {
+							treeMatched.point = treeMatched.subGroup || filter(p.label);
+							const contractedChoices = p.choices.filter(c => favorite?.salesChoices?.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1);
+
+							let choices = p.choices.filter(c => {
+								let isValid = treeMatched.point || filter(c.label);
+
+								let isIncluded = true;
+								const isContractedChoice = contractedChoices?.includes(c);
+
+								if (p.isStructuralItem)
+								{
+									isIncluded = c.quantity > 0;
+								}
+								else
+								{
+									isIncluded = isContractedChoice;
+								}
+
+								if (scenario.hiddenChoiceIds.indexOf(c.id) > -1) {
+									isIncluded = false;
+								}
+
+								// Only display contracted choices when the design complete flag is turned on
+								if (isDesignComplete)
+								{
+									isIncluded = isContractedChoice;
+								}
+
+								return isValid && (isIncluded || isPreview) && !c.isHiddenFromBuyerView;
+							});
+							return { ...p, choices: choices };
+						});
+						points = points.filter(dp => {
+							dp.price = dp.choices.reduce((acc, ch) => acc + (!ch.priceHiddenFromBuyerView ? ch.quantity * ch.price : 0), 0);
+							let isIncluded = true;
+							if (dp.choices.length === 0) {
+								isIncluded = false;
+							} else if (!isPreview && scenario.hiddenPointIds.indexOf(dp.id) > -1) {
+								isIncluded = false;
+							}
+							return isIncluded && !dp.isHiddenFromBuyerView;
+						})
+						return { ...sg, points: points };
+					}).filter(sg => {
+						return !!sg.points.length;
+					});
+
+					return { ...g, subGroups: subGroups };
+				}).filter(g => {
+					return !!g.subGroups.length;
+				})
+			} as TreeVersion;
+		}
+
+		return contractedTree ? new TreeVersion(contractedTree) : null;
+	}
+)
+
 export const selectedPlanPrice = createSelector(
 	fromPlan.selectedPlanData,
 	fromLot.selectSelectedLot,

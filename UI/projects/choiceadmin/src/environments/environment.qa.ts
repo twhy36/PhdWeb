@@ -22,7 +22,8 @@ export const environment: IEnvironment = {
 	authQueryParams: 'domain_hint=pulte.com',
 	pictureParkAssetUrl: 'https://pultegroup.picturepark.com/Website/Publisher.aspx?Page=AssetConnector',
 	appInsights: {
-		instrumentationKey: '59530951-22f6-449f-ac70-8dffc824b34d'
+		instrumentationKey: '59530951-22f6-449f-ac70-8dffc824b34d',
+		enableAutoRouteTracking: true
 	},
 	whatFix: {
 		scriptUrl: '//whatfix.com/01caf5e0-cb2f-11e8-b979-04013d24cd02/embed/embed.nocache.js'
