@@ -9,6 +9,9 @@
 
 		<!--The errors array adds choice errors and point errors together-->
 		<ul [class.phd-multi-error]="isMultiError">
+			<li *ngIf="hasRequiredChoice && !choice?.isRequired && !choice?.disabledByHomesite">
+				<span>Disabled due to a Required choice</span>
+			</li>
 			<li *ngIf="choice?.isRequired">
 				<span>Required due to Homesite selection</span>
 			</li>
