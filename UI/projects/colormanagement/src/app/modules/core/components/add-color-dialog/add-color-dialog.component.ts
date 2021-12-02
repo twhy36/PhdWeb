@@ -98,7 +98,7 @@ export class AddColorDialogComponent implements OnInit, OnChanges {
 		const colorsToSave: IColor[] = [];
 		validEntries.forEach(control => {
 			colorsToSave.push({
-				name:control.value.name,
+				name:control.value.name.toString().trim(),
 				colorId: 0,
 				sku:control.value.sku,
 				edhOptionSubcategoryId: this.currentSubCategory.id,
@@ -133,7 +133,7 @@ export class AddColorDialogComponent implements OnInit, OnChanges {
 
 	private isDuplicate(colors: AbstractControl[]): boolean
 	{
-		return colors.some(color => this.allColors.some(existingColor => existingColor.name === color.get('name').value.toString()
+		return colors.some(color => this.allColors.some(existingColor => existingColor.name.toLowerCase() === color.get('name').value.toString().toLowerCase().trim()
 			&& existingColor.optionSubCategoryId === this.currentSubCategory.id));
 	}
 
