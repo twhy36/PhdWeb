@@ -29,6 +29,7 @@ export class DisabledErrorComponent extends UnsubscribeOnDestroy implements OnIn
 	ErrorTypeEnum = ErrorTypeEnum;
 	choicesById;
 	pointsById;
+	hasRequiredChoice: boolean = false;
 
 	constructor(private store: Store<fromRoot.State>) { super(); }
 
@@ -51,6 +52,8 @@ export class DisabledErrorComponent extends UnsubscribeOnDestroy implements OnIn
 			this.choicesById = choicesById;
 			this.pointsById = pointsById;
 		});
+
+		this.hasRequiredChoice = this.point.choices.find(c => c.isRequired)?.isRequired;
 
 		if (this.point && !!this.point.disabledBy.length)
 		{

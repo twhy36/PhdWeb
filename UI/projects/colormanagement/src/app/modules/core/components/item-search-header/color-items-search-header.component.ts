@@ -3,7 +3,7 @@ import { UnsubscribeOnDestroy, ModalRef, ModalService, ConfirmModalComponent, El
 import { IPlanCommunity, IOptionCommunity, IPlanOptionCommunityDto, IPlanOptionCommunity, IPlanOptionCommunityGridDto } from '../../../shared/models/community.model';
 import { OrganizationService } from '../../services/organization.service';
 import { PlanOptionService } from '../../services/plan-option.service';
-import { from, Observable, of } from 'rxjs';
+import { from, Observable, EMPTY } from 'rxjs';
 import { filter, map, switchMap } from 'rxjs/operators';
 import { ColorService } from '../../../core/services/color.service';
 import { SettingsService } from '../../services/settings.service';
@@ -375,7 +375,7 @@ export class ColorItemsSearchHeaderComponent
 		this.showConfirmModal(message, 'Warning', 'Continue').pipe(
 			switchMap(cancelDeletion => {
 				if (cancelDeletion) {
-					return of(false);
+					return EMPTY;
 				}
 
 				const colorItemIdsToDelete = coloritemsDtoList.map(colorItem => colorItem.colorItemId);
