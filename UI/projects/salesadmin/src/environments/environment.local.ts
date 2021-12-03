@@ -33,9 +33,8 @@ export const environment = {
 		// Input any FinancialMarket id here for testing purposes. For example...
 		// 113 // Charlotte Market
 	],
-	salesAdminFinancialCommunityWhitelist: [
+	salesAdminMarketWhitelist: [
 		// Input any FinancialMarket id here for testing purposes. For example...
-		// 14603 // Kingfield
-	],
-	salesAdminMarketWhitelist: []
+		// 113 // Charlotte
+	]
 };
