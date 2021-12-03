@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Location } from '@angular/common';
 
 import { BehaviorSubject } from 'rxjs';
-import { withLatestFrom } from 'rxjs/operators';
+import { combineLatest } from 'rxjs/operators';
 
 import { Store, select } from '@ngrx/store';
 import * as fromRoot from '../../../ngrx-store/reducers';
@@ -30,7 +30,7 @@ export class FloorPlanSummaryComponent extends UnsubscribeOnDestroy implements O
 	communityName: string = '';
 	planName: string = '';
 	marketingPlanId$ = new BehaviorSubject<number>(0);
-	noVisibleGroups: boolean = false; 
+	noVisibleFP: boolean = false; 
 
 	constructor(private store: Store<fromRoot.State>, private location: Location) {
 		super();
@@ -39,32 +39,18 @@ export class FloorPlanSummaryComponent extends UnsubscribeOnDestroy implements O
 	ngOnInit() {
 		this.store.pipe(
 			this.takeUntilDestroyed(),
-			select(fromRoot.filteredTree)
-		).subscribe(tree => {
-			if (tree) {
-				this.groups = tree.groups;
-				if (!this.groups.length) {
-					this.noVisibleGroups = true;
+			select(fromRoot.contractedTree),
+			combineLatest(this.store.pipe(select(state => state.scenario)), this.store.pipe(select(fromPlan.planState)))
+		).subscribe(([contractedTree, scenarioState, plan]) => {
+			const tree = contractedTree || scenarioState?.tree?.treeVersion;
+			if (tree && plan && plan.marketingPlanId && plan.marketingPlanId.length) {
+				const sgs = _.flatMap(tree?.groups, g => g.subGroups.filter(sg => sg.useInteractiveFloorplan));
+				const fpSubGroup = sgs.pop();
+				if (fpSubGroup) {
+					this.subGroup = fpSubGroup;
+					this.marketingPlanId$.next(plan.marketingPlanId[0]);
 				} else {
-					const sgs = _.flatMap(this.groups, g => g.subGroups.filter(sg => sg.useInteractiveFloorplan));
-					this.subGroup = sgs.pop();
-					this.noVisibleGroups = false;
-				}
-			}
-		});
-
-		this.store.pipe(
-			this.takeUntilDestroyed(),
-			select(fromPlan.planState),
-			withLatestFrom(this.store.pipe(select(state => state.scenario)))
-		).subscribe(([plan, scenario]) => {
-			if (plan && plan.marketingPlanId && plan.marketingPlanId.length) {
-				if (scenario.tree && scenario.tree.treeVersion) {
-					const subGroups = _.flatMap(scenario.tree.treeVersion.groups, g => g.subGroups) || [];
-					const fpSubGroup = subGroups.find(sg => sg.useInteractiveFloorplan);
-					if (fpSubGroup) {
-						this.marketingPlanId$.next(plan.marketingPlanId[0]);
-					}
+					this.noVisibleFP = true;
 				}
 			}
 		});
@@ -96,18 +82,6 @@ export class FloorPlanSummaryComponent extends UnsubscribeOnDestroy implements O
 			select(fromRoot.priceBreakdown)
 		).subscribe(pb => this.priceBreakdown = pb);
 
-		this.store.pipe(
-			this.takeUntilDestroyed(),
-			select(fromRoot.filteredTree)
-		).subscribe(tree => {
-			if (tree) {
-				if (!tree.groups.length) {
-					this.noVisibleGroups = true;
-				} else {
-					this.noVisibleGroups = false;
-				}
-			}
-		});
 	}
 
 	onBack() {
