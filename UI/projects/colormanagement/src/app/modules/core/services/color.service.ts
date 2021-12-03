@@ -2,9 +2,9 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { catchError, filter, map, switchMap } from 'rxjs/operators';
-import {Observable, throwError} from 'rxjs';
-import {IColorIdBatch, IColor, IColorDto} from '../../shared/models/color.model';
-import {IColorItem, IColorItemAssoc, IColorItemColorAssoc, IColorItemDto, IColorItemIdBatch} from '../../shared/models/colorItem.model';
+import { Observable, throwError } from 'rxjs';
+import { IColorIdBatch, IColor, IColorDto } from '../../shared/models/color.model';
+import { IColorItem, IColorItemAssoc, IColorItemColorAssoc, IColorItemDto, IColorItemIdBatch } from '../../shared/models/colorItem.model';
 import * as _ from 'lodash';
 import {
 	newGuid,
@@ -22,7 +22,7 @@ import { PlanOptionService } from './plan-option.service';
 
 @Injectable()
 export class ColorService {
-	constructor(private _http: HttpClient, private identityService: IdentityService, private _planService: PlanOptionService) {}
+	constructor(private _http: HttpClient, private identityService: IdentityService, private _planService: PlanOptionService) { }
 	private _ds: string = encodeURIComponent('$');
 	private _batch = '$batch';
 
@@ -122,7 +122,7 @@ export class ColorService {
 								name: item[0].name,
 								isActive: item[0].isActive,
 								edhPlanOptionId: item[0].edhPlanOptionId,
-								colors: item.map(x => x.colorItemColorAssoc.map(c => c.color)).reduce((a, b) => [...a, ...b], [])
+								colors: item.map(x => x.colorItemColorAssoc.map(c => c.color)).reduce((a, b) => [...a, ...b], []).sort((a, b) => a.name.localeCompare(b.name))
 							}
 							colorItemDtoList.push(colorItemDto);
 						}
@@ -259,8 +259,7 @@ export class ColorService {
 		);
 	}
 
-	updateColorItem(colorItemsToUpdate: IColorItemDto[])
-	{
+	updateColorItem(colorItemsToUpdate: IColorItemDto[]) {
 		const colorItems: IColorItemAssoc[] = [];
 		colorItemsToUpdate.forEach(colorItemToUpdate => {
 			const item = {
@@ -270,22 +269,21 @@ export class ColorService {
 				colorItemColorAssoc: [],
 				isActive: colorItemToUpdate.isActive
 			} as IColorItemAssoc;
-	
-			if (colorItemToUpdate.colors.length > 0)
-			{
+
+			if (colorItemToUpdate.colors.length > 0) {
 				colorItemToUpdate.colors.forEach(color => {
 					const colorInfo: IColorItemColorAssoc = {
 						colorId: color.colorId,
 						color: color,
 						colorItemId: colorItemToUpdate.colorItemId
 					};
-	
+
 					item.colorItemColorAssoc.push(colorInfo);
 				});
 			}
 			colorItems.push(item);
 		});
-		
+
 
 		const body = {
 			'editColorItems': colorItems
@@ -295,12 +293,11 @@ export class ColorService {
 		const endpoint = `${environment.apiUrl}${action}`;
 
 		return withSpinner(this._http).post<any>(endpoint, body, { headers: { 'Prefer': 'return=representation' } }).pipe(
-			map(response =>
-			{
+			map(response => {
 				return response.value;
 			}),
 			catchError(this.handleError)
-		);		
+		);
 	}
 
 	saveColorItem(dtoColorItems: IColorItemDto[]): Observable<IColorItem[]> {
@@ -366,24 +363,22 @@ export class ColorService {
 		);
 	}
 
-	/*Example:  if user searches just for plan1 of an option, rather than all plans, the result list will show just plan1 in Plan column, 
-	rather than a column sep list, but the color item name may exist for other plans. 
-	If user searched for plan1, plan2, but the color item name is also attached to plan3, 
-	the Plan column will just show plan1, plan2.  This is also what HS does. 
+	/*Example:  if user searches just for plan1 of an option, rather than all plans, the result list will show just plan1 in Plan column,
+	rather than a column sep list, but the color item name may exist for other plans.
+	If user searched for plan1, plan2, but the color item name is also attached to plan3,
+	the Plan column will just show plan1, plan2.  This is also what HS does.
 	But the edit/delete/active/inactive should occur for all color items of that same name, just like what HS does.*/
-	getColorItemForAssociatedPlans(coloritemname: string, optionCommnunityId: number, currentFinancialCommunityId: number): Observable<IColorItemDto[]>
-	{
+	getColorItemForAssociatedPlans(coloritemname: string, optionCommnunityId: number, currentFinancialCommunityId: number): Observable<IColorItemDto[]> {
 		return this._planService.getPlanOptionsByOption(optionCommnunityId).pipe(
-		filter((res) => !!res),
-		switchMap((res:any)=>
-		{
-			return this.getPlanOptionAssocColorItems
-			(currentFinancialCommunityId,
-				res.map(planoption => planoption.id),
-				null,
-				coloritemname
-			);
-		})
+			filter((res) => !!res),
+			switchMap((res: any) => {
+				return this.getPlanOptionAssocColorItems
+					(currentFinancialCommunityId,
+						res.map(planoption => planoption.id),
+						null,
+						coloritemname
+					);
+			})
 		);
 	}
 }
