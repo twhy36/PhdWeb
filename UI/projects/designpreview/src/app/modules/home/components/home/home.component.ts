@@ -15,6 +15,7 @@ import * as FavoriteActions from '../../../ngrx-store/favorite/actions';
 
 import { UnsubscribeOnDestroy, SalesAgreement, SDImage } from 'phd-common';
 import { JobService } from '../../../core/services/job.service';
+import { BrandService } from '../../../core/services/brand.service';
 
 @Component({
 	selector: 'home',
@@ -35,7 +36,8 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 		private activatedRoute: ActivatedRoute,
 		private store: Store<fromRoot.State>,
 		private router: Router,
-		private jobService: JobService)
+		private jobService: JobService,
+		private brandService: BrandService)
     {
         super();
     }
@@ -157,5 +159,9 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 		} else {
 			this.store.dispatch(new FavoriteActions.LoadMyFavorite());
 		}
+	}
+
+	getImageSrc() {
+		return this.brandService.getBrandImage('logo');
 	}
 }

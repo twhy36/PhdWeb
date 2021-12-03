@@ -1,8 +1,13 @@
 @import "../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
 @import "../../../../../../../phd-common/src/lib/scss/sizes.scss";
 
+:root {
+	--primary-ribbon-background-color: $dark_blue;
+	--logo-margin-top: "0px";
+}
+
 #phd-nav-bar {
-	background: $dark_blue;
+	background: var(--primary-ribbon-background-color);
 	height: 70px;
 	text-transform: uppercase;
 
@@ -11,6 +16,7 @@
 		height: 50px;
 
 		.phd-logo {
+			margin-top: var(--logo-margin-top);
 			max-width: 100%;
 			max-height: 100%;
 		}
@@ -19,6 +25,7 @@
 	.phd-nav-bar-title {
 		color: white;
 		margin-left: 30px;
+		width: 100%;
 
 		.phd-nav-bar-label {
 			font-size: 14px;
@@ -68,7 +75,7 @@
 }
 
 .phd-collapsable-menu {
-	background: $dark_blue;
+	background: var(--primary-ribbon-background-color);
 	width: 300px;
 	position: fixed;
 	top: 70px;

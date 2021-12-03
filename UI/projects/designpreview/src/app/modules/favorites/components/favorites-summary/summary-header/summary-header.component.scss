@@ -1,5 +1,9 @@
 @import "../../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
 
+:root {
+	--primary-icon-color: $pantone_blue;
+}
+
 .phd-logo-image {
 	width: calc(45vw);
 	height: calc(45vh);
@@ -43,7 +47,7 @@
 
 	.phd-breakdown-content {
 		flex-basis: 60%;
-	}	
+	}
 
 	.phd-estimate {
 		display: flex;
@@ -52,6 +56,16 @@
 
 	.phd-contracted-options {
 		padding-left: 15px;
+		display: flex;
+		flex-direction: row;
+
+		.phd-contracted-options-checkbox {
+			margin-right: 5px;
+		}
+
+		.phd-icon-selected {
+			color: var(--primary-icon-color);
+		}
 	}
 
 	.phd-divider {
@@ -70,12 +84,12 @@
 	&.is-sticky {
 		position: fixed;
 		top: 125px;
-	
+
 		&,
 		::ng-deep & * {
 			transition: all .2s;
 		}
-	
+
 		&::after {
 			content: ' ';
 			position: fixed;
@@ -86,5 +100,5 @@
 			background-color: white;
 			box-shadow: 0 9px 4px -8px $mid_gray;
 		}
-	}	
+	}
 }

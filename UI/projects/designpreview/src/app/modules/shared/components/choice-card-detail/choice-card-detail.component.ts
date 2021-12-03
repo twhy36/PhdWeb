@@ -7,9 +7,9 @@ import { Store, select } from '@ngrx/store';
 
 import * as _ from 'lodash';
 
-import 
-{ 
-	UnsubscribeOnDestroy, OptionImage, AttributeGroup, Attribute, LocationGroup, Location, DesignToolAttribute, 
+import
+{
+	UnsubscribeOnDestroy, OptionImage, AttributeGroup, Attribute, LocationGroup, Location, DesignToolAttribute,
 	DecisionPoint, Group, Tree, MyFavoritesPointDeclined, MyFavorite
 } from 'phd-common';
 import { mergeAttributes, mergeLocations, mergeAttributeImages } from '../../../shared/classes/tree.utils';
@@ -25,6 +25,7 @@ import { AttributeLocationComponent } from '../attribute-location/attribute-loca
 import { AttributeGroupExt, AttributeExt } from '../../models/attribute-ext.model';
 import { BlockedByItemList } from '../../models/blocked-by.model';
 import { getDisabledByList } from '../../../shared/classes/tree.utils';
+import { BrandService } from '../../../core/services/brand.service';
 
 @Component({
 	selector: 'choice-card-detail',
@@ -72,7 +73,8 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		private attributeService: AttributeService,
 		private toastr: ToastrService,
 		public modalService: NgbModal,
-		private store: Store<fromRoot.State>)
+		private store: Store<fromRoot.State>,
+		private brandService: BrandService)
     {
 		super();
 	}
@@ -98,7 +100,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 					? this.attributeService.getLocationCommunities(missingLocations.map(x => x.locationId))
 					: of([]);
 
-				// If the choice is not contracted, delete favorited attributes / locations if they  
+				// If the choice is not contracted, delete favorited attributes / locations if they
 				// are not found in the attribute groups / location groups
 				if (this.choice.choiceStatus !== 'Contracted' && (missingAttributes?.length || missingLocations?.length))
 				{
@@ -113,7 +115,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 					{
 						mergeAttributes(attributes, missingAttributes, attributeGroups);
 						mergeLocations(locations, missingLocations, locationGroups);
-						mergeAttributeImages(attributeGroups, attributeCommunityImageAssocs);							
+						mergeAttributeImages(attributeGroups, attributeCommunityImageAssocs);
 
 						return { attributeGroups, locationGroups };
 					}));
@@ -164,22 +166,22 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	deleteMyFavoritesChoiceAttributes(missingAttributes: DesignToolAttribute[], missingLocations: DesignToolAttribute[], favorite: MyFavorite)
 	{
 		const myFavoritesChoice = favorite?.myFavoritesChoice?.find(c => c.divChoiceCatalogId === this.choice.divChoiceCatalogId);
-		const choiceAttributes = myFavoritesChoice?.myFavoritesChoiceAttributes?.filter(x => 
+		const choiceAttributes = myFavoritesChoice?.myFavoritesChoiceAttributes?.filter(x =>
 			!!missingAttributes.find(att => att.attributeGroupId === x.attributeGroupCommunityId
 					&& att.attributeId === x.attributeCommunityId && !att.locationId));
-		
+
 		let choiceLocAttributes = _.flatMap(myFavoritesChoice?.myFavoritesChoiceLocations, loc => loc.myFavoritesChoiceLocationAttributes);
-		choiceLocAttributes = choiceLocAttributes?.filter(x => 
+		choiceLocAttributes = choiceLocAttributes?.filter(x =>
 			!!missingAttributes.find(att => att.attributeGroupId === x.attributeGroupCommunityId
 				&& att.attributeId === x.attributeCommunityId && !!att.locationId));
 
-		const choiceLocations = myFavoritesChoice?.myFavoritesChoiceLocations?.filter(x => 
+		const choiceLocations = myFavoritesChoice?.myFavoritesChoiceLocations?.filter(x =>
 			!!missingLocations.find(loc => loc.locationGroupId === x.locationGroupCommunityId
 				&& loc.locationId === x.locationCommunityId));
 
 		if (choiceAttributes?.length || choiceLocAttributes?.length || choiceLocations?.length)
 		{
-			this.store.dispatch(new FavoriteActions.DeleteMyFavoritesChoiceAttributes(missingAttributes, missingLocations, myFavoritesChoice));				
+			this.store.dispatch(new FavoriteActions.DeleteMyFavoritesChoiceAttributes(missingAttributes, missingLocations, myFavoritesChoice));
 		}
 	}
 
@@ -336,7 +338,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		// default image
 		if (!this.choiceImages.length)
 		{
-			this.choiceImages.push({ imageURL: 'assets/pultegroup_logo.jpg' });
+			this.choiceImages.push({ imageURL: this.brandService.getBrandImage('logo') });
 		}
 
 		this.selectedImageUrl = this.choiceImages[0].imageURL;
@@ -371,11 +373,11 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		}
 		this.store.dispatch(
 			new ScenarioActions.SelectChoices(this.isDesignComplete,
-			{ 
-				choiceId: this.choice.id, 
-				divChoiceCatalogId: this.choice.divChoiceCatalogId, 
-				quantity: this.choice.quantity, 
-				attributes: this.choice.selectedAttributes 
+			{
+				choiceId: this.choice.id,
+				divChoiceCatalogId: this.choice.divChoiceCatalogId,
+				quantity: this.choice.quantity,
+				attributes: this.choice.selectedAttributes
 			}));
 		this.store.dispatch(new ScenarioActions.SetStatusForPointsDeclined(this.myFavoritesPointsDeclined.map(dp => dp.divPointCatalogId), false));
 		this.store.dispatch(new FavoriteActions.SaveMyFavoritesChoices());
@@ -453,7 +455,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	{
 		this.imageLoading = false;
 
-		event.srcElement.src = 'assets/pultegroup_logo.jpg';
+		event.srcElement.src = this.brandService.getBrandImage('logo');
 	}
 
 	imageClick(image: OptionImage)
@@ -600,11 +602,11 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		this.choice.quantity = this.choice.quantity > 0 && totalQuantity === 0 ? 1 : totalQuantity;
 		this.store.dispatch(
 			new ScenarioActions.SelectChoices(this.isDesignComplete,
-			{ 
+			{
 				choiceId: this.choice.id,
-				divChoiceCatalogId: this.choice.divChoiceCatalogId, 
-				quantity: this.choice.quantity, 
-				attributes: this.choice.selectedAttributes 
+				divChoiceCatalogId: this.choice.divChoiceCatalogId,
+				quantity: this.choice.quantity,
+				attributes: this.choice.selectedAttributes
 			}));
 		this.store.dispatch(new FavoriteActions.SaveMyFavoritesChoices());
 	}

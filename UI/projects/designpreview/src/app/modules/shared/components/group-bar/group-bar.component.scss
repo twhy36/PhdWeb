@@ -1,8 +1,13 @@
 @import "../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
 @import "../../../../../../../phd-common/src/lib/scss/sizes.scss";
 
+:root {
+	--secondary-ribbon-background-color: $pantone_blue;
+	--primary-icon-color: $pantone_blue;
+}
+
 #phd-group-bar {
-	background: $pantone_blue;
+	background: var(--secondary-ribbon-background-color);
 	position: fixed;
 	top: 70px;
 	width: 100%;
@@ -57,8 +62,8 @@
 }
 
 ::ng-deep .phd-group-completed {
-	color: $midnight_blue;
-	-webkit-text-stroke: 1px $pantone_blue;
+	color: white;
+	-webkit-text-stroke: 1px var(--secondary-ribbon-background-color);
 }
 
 ::ng-deep .phd-sub-group-completed {
@@ -67,7 +72,7 @@
 }
 
 ::ng-deep .phd-mobile-completed {
-	color: $pantone_blue;
+	color: var(--primary-icon-color);
 	-webkit-text-stroke: 1px white;
 }
 

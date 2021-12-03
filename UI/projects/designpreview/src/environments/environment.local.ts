@@ -8,7 +8,7 @@ export const environment: IEnvironment = {
 	production: false,
 	apiUrl: 'http://localhost:2845/odata/',
 	authConfigs: {
-		sitecoreSSO: 
+		sitecoreSSO:
 		{
 			issuer: 'https://pultesso.dev.pulte.com',
 			clientId: 'DesignPreview',
@@ -44,7 +44,6 @@ export const environment: IEnvironment = {
 	pdfViewerBaseUrl: 'assets/pdfjs-dist/web/viewer.html',
 	brandMap: {
 		pulte: '',
-		centex: '',
 		delwebb: 'localhost:14769'
 	}
 };

@@ -1,5 +1,11 @@
 @import "../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
 
+:root {
+	--primary-ribbon-background-color: $twilight-blue;
+	--primary-button-color: $pantone_blue;
+	--button-border-radius: 0.3rem;
+}
+
 .phd-favorites-summary {
 	padding-bottom: 100px;
 	margin-top: 55px;
@@ -7,7 +13,7 @@
 
 	.phd-is-sticky {
 		margin-top: 160px;
-	}	
+	}
 }
 
 .tree-view {
@@ -70,4 +76,17 @@
 			}
 		}
 	}
+}
+
+::ng-deep .modal-header {
+	background: var(--primary-ribbon-background-color) !important;
+}
+
+::ng-deep .btn-primary {
+	background: var(--primary-button-color) !important;
+	border-radius: var(--button-border-radius);
+}
+
+::ng-deep .btn-secondary {
+	border-radius: var(--button-border-radius);
 }

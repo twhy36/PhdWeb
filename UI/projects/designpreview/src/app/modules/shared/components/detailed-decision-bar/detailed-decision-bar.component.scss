@@ -1,6 +1,10 @@
 @import "../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
 @import "../../../../../../../phd-common/src/lib/scss/animations.scss";
 
+:root {
+	--primary-icon-color: $pantone_blue;
+}
+
 $icon-size: 25px;
 
 ul {
@@ -48,7 +52,7 @@ ul {
 			width: $icon-size;
 
 			.fa-check {
-				color: $pantone_blue;
+				color: var(--primary-icon-color);
 				-webkit-text-stroke: 1px white;
 			}
 		}

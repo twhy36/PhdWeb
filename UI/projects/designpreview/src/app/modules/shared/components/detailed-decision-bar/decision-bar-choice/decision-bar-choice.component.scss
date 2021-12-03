@@ -1,6 +1,11 @@
 @import "../../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
 @import "../../../../../../../../phd-common/src/lib/scss/animations.scss";
 
+:root {
+	--primary-icon-color: $pantone_blue;
+	--link-color: $pantone_blue;
+}
+
 .choice-container {
 	display: flex;
 	flex-direction: row;
@@ -10,7 +15,7 @@
 
 	.choice-label {
 		max-width: 150px;
-		color: $pantone_blue;
+		color: var(--link-color);
 		text-decoration: underline;
 	}
 
@@ -32,6 +37,6 @@
 	width: 25px;
 
 	.phd-icon-selected {
-		color: $pantone_blue;
+		color: var(--primary-icon-color);
 	}
 }

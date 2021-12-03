@@ -3,9 +3,8 @@
 @import '~@angular/material/prebuilt-themes/deeppurple-amber.css';
 
 :root {
-	--background-color: #e5e5e5; // light grey
-	--font-color: #000000;
-  }
+	--font: 'Roboto';
+}
 
 html, body, app-root {
 	margin: 0;
@@ -14,8 +13,8 @@ html, body, app-root {
 }
 
 body {
-	font-family: 'Roboto', sans-serif;
-	background: var(--background-color);
+	font-family: var(--font), sans-serif;
+	background: white;
 	color: #4a4a4a;
 }
 

@@ -1,12 +1,16 @@
 @import "../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
 
+:root {
+	--primary-icon-color: $pantone_blue;
+}
+
 .phd-attribute-group-toggle {
-	color: $pantone_blue;
+	color: var(--primary-icon-color);
 	font-size: 16px;
 	margin-right: 8px;
 
 	i::before {
-		font-weight: 1000 !important;			
+		font-weight: 1000 !important;
 	}
 }
 
@@ -25,7 +29,7 @@
 }
 
 .phd-selected-attributes {
-	font-size: 14px;	
+	font-size: 14px;
 }
 
 .phd-attribute-group-body {
@@ -35,7 +39,7 @@
 
 .phd-location-attribute-body {
 	margin: 15px 0px 0px -220px;
-	width: calc(48vw - 20px);	
+	width: calc(48vw - 20px);
 }
 
 .phd-location-attribute-header {
@@ -44,12 +48,12 @@
 
 .phd-location-attribute-header-complete {
 	font-size: 14px;
-	margin: 55px 0px 0px -205px;	
+	margin: 55px 0px 0px -205px;
 }
 
 .phd-location-attribute-body-complete {
 	margin: 5px 0px 0px -205px;
-	width: calc(48vw - 20px);	
+	width: calc(48vw - 20px);
 }
 
 .phd-attribute-group-complete {

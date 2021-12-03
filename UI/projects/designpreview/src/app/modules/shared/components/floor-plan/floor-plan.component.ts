@@ -7,6 +7,7 @@ import { Store, select } from '@ngrx/store';
 import * as fromRoot from '../../../ngrx-store/reducers';
 import { UnsubscribeOnDestroy, loadScript, unloadScript, SubGroup, Group } from 'phd-common';
 import { environment } from '../../../../../environments/environment';
+import { BrandService } from '../../../core/services/brand.service';
 
 declare var AVFloorplan: any;
 
@@ -37,9 +38,12 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 	enabledOptions: number[] = [];
 	unfilteredGroups: Group[];
 
-	constructor(private store: Store<fromRoot.State>) {
+	constructor(
+		private store: Store<fromRoot.State>,
+		private brandService: BrandService
+	) {
       super();
-    }
+  }
 
 	ngOnInit(): void {
 		let wd: any = window;
@@ -136,4 +140,7 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 		this.initialized$.complete();
 	}
 
+	getImageSrc() {
+		return this.brandService.getBrandImage('logo');
+	}
 }

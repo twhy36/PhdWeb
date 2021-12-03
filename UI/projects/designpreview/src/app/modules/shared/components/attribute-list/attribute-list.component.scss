@@ -1,5 +1,10 @@
 @import "../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
 
+:root {
+	--selected-border-color: $pantone_blue;
+	--primary-icon-color: $pantone_blue;
+}
+
 .phd-attribute-list {
 	display: flex;
 	flex-wrap: wrap;
@@ -28,7 +33,7 @@
 	cursor: pointer;
 
 	.phd-attribute-item-image-selected {
-		border: solid 4px $pantone_blue;
+		border: solid 4px var(--selected-border-color);
 	}
 
 	.phd-image-is-inactive, &.disabled {
@@ -44,6 +49,6 @@
 	color: rgb(214, 214, 214);
 
     .phd-icon-selected {
-        color: $pantone_blue;
+        color: var(--primary-icon-color);
     }
 }

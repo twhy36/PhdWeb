@@ -1,4 +1,19 @@
 {
-    "background-color": "#FFFFFF",
-    "font-color": "#000000"
+	"images": {
+		"logo": "assets/pultegroup_logo.jpg",
+		"white_logo": "assets/Pulte_Homes_White_Logo.PNG"
+	},
+	"styles": {
+		"font": "Roboto",
+		"primary-ribbon-background-color": "#00334C",
+		"secondary-ribbon-background-color": "#1e81b3",
+		"primary-button-color": "#1e81b3",
+		"home-text-color": "#00334C",
+		"primary-icon-color": "#1e81b3",
+		"secondary-icon-color": "#00334C",
+		"selected-border-color": "#1e81b3",
+		"link-color": "#1e81b3",
+		"button-border-radius": "0.3rem",
+		"logo-margin-top": "5px"
+	}
 }

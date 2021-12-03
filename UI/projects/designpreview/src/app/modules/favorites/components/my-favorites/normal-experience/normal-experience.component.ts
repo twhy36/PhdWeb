@@ -2,8 +2,8 @@ import { Component, OnInit, Input, OnChanges, SimpleChanges, Output, EventEmitte
 
 import * as _ from 'lodash';
 
-import 
-{ 
+import
+{
 	UnsubscribeOnDestroy, flipOver, DecisionPoint, PickType, SubGroup, Choice, JobChoice, Group, ChoiceImageAssoc,
 	Tree, MyFavoritesChoice, MyFavoritesPointDeclined
 } from 'phd-common';
@@ -77,8 +77,8 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 		if (changes['decisionPointId'] || changes['myFavoritesChoices'] || changes['myFavoritesPointsDeclined'])
 		{
 			const pointId = changes['decisionPointId']?.currentValue;
-			if (pointId && pointId !== this.currentPointId 
-				|| this.isInputChanged(changes['myFavoritesChoices']) 
+			if (pointId && pointId !== this.currentPointId
+				|| this.isInputChanged(changes['myFavoritesChoices'])
 				|| this.isInputChanged(changes['myFavoritesPointsDeclined']))
 			{
 				this.selectDecisionPoint((pointId || this.currentPointId), 1600);
@@ -131,7 +131,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 				const firstPointId = this.points && this.points.length ? this.points[0].id : 0;
 				this.scrollPointIntoView(pointId, pointId === firstPointId);
 			}, interval || 500);
-			
+
 			this.onSelectDecisionPoint.emit(pointId);
 		}
 
@@ -152,7 +152,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 		this.onToggleChoice.emit(choice);
 	}
 
-	toggleContractedOptions(event: any) {
+	toggleContractedOptions() {
 		this.onToggleContractedOptions.emit();
 	}
 
@@ -245,8 +245,8 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 			const currentDiff = _.differenceBy(input.currentValue, input.previousValue, 'id');
 			const prevDiff = _.differenceBy(input.previousValue, input.currentValue, 'id');
 			isValueChanged = input.currentValue?.length !== input.previousValue?.length
-				|| !!currentDiff?.length 
-				|| !!prevDiff?.length;			
+				|| !!currentDiff?.length
+				|| !!prevDiff?.length;
 		}
 
 		return isValueChanged;

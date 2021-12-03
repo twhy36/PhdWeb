@@ -1,4 +1,19 @@
 {
-    "background-color": "#CCCCFF",
-    "font-color": "#222222"
+	"images": {
+		"logo": "assets/DelWebb_RGB.jpg",
+		"white_logo": "assets/DelWebb_White.png"
+	},
+	"styles": {
+		"font": "Museo",
+		"primary-ribbon-background-color": "#40b9da",
+		"secondary-ribbon-background-color": "#0a5165",
+		"primary-button-color": "#f89d32",
+		"home-text-color": "#000000",
+		"primary-icon-color": "#0a5165",
+		"secondary-icon-color": "#0a5165",
+		"selected-border-color": "#0a5165",
+		"link-color": "#0a5165",
+		"button-border-radius": "35px",
+		"logo-margin-top": "8px"
+	}
 }
