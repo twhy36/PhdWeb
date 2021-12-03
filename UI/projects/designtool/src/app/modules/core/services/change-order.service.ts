@@ -1053,7 +1053,7 @@ export class ChangeOrderService
 					currentChoice.selectedAttributes = origSelectedAttributes;
 				}
 
-				if (origChoice.dpChoiceQuantity !== currentChoice.quantity)
+				if (origChoice.dpChoiceQuantity !== currentChoice.quantity || origSelectedAttributes.length)
 				{
 					selectedChoices.push({
 						choiceId: currentChoice.id,
@@ -1298,11 +1298,15 @@ export class ChangeOrderService
 
 		changedLocations.forEach(loc =>
 		{
-			const changedJobLocation = jobChoice.jobChoiceLocations.find(
+			let changedJobLocation = jobChoice.jobChoiceLocations.find(
 				d => d.locationGroupCommunityId === loc.locationGroupCommunityId && d.locationCommunityId === loc.locationCommunityId);
 
 			if (changedJobLocation)
 			{
+                changedJobLocation.quantity = loc.quantity;
+                changedJobLocation.locationGroupLabel = loc.locationGroupLabel;
+                changedJobLocation.locationName = loc.locationName;
+
 				this.mergeSelectedLocationAttributes(changedJobLocation, loc);
 			}
 		});
