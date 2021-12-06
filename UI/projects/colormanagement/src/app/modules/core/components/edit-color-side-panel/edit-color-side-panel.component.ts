@@ -68,7 +68,7 @@ export class EditColorSidePanelComponent implements OnInit, OnDestroy {
 		const colorToSave = {
 			colorId: this.selectedColor.colorId,
 			name: originalName,
-			sku: this.editColorForm.get('sku').value.toString().trim(),
+			sku: this.editColorForm.get('sku').value?.toString().trim(),
 			optionSubCategoryId: this.selectedColor.optionSubCategoryId,
 			isActive: this.selectedColor.isActive
 		} as IColorDto;
