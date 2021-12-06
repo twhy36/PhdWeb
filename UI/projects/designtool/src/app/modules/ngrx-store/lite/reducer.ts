@@ -8,11 +8,19 @@ export interface State
 {
 	isPhdLite: boolean,
 	isSaving: boolean,
+	isScenarioLoaded: boolean,
 	options: LitePlanOption[],
 	scenarioOptions: ScenarioOption[];
 }
 
-export const initialState: State = { isPhdLite: false, isSaving: false, options: [], scenarioOptions: [] };
+export const initialState: State = 
+{ 
+	isPhdLite: false, 
+	isScenarioLoaded: false, 
+	isSaving: false, 
+	options: [], 
+	scenarioOptions: [] 
+};
 
 export function reducer(state: State = initialState, action: LiteActions): State
 {
@@ -92,6 +100,9 @@ export function reducer(state: State = initialState, action: LiteActions): State
 
 		case LiteActionTypes.ScenarioOptionsSaved:
 			return { ...state, isSaving: false, scenarioOptions: action.scenarioOptions };
+
+		case LiteActionTypes.SetScenarioLoaded:
+			return {  ...state, isScenarioLoaded: action.isLoaded };
 	
 		default:
 			return state;
