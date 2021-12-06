@@ -1,6 +1,10 @@
 @import "../../../../../scss/color-pallet.scss";
 @import "../../../../../scss/sizes.scss";
 
+i:hover {
+	cursor: pointer;
+}
+
 .phd-lot-relationship-select {
   max-height: calc(36px * 2);
 }
@@ -10,6 +14,28 @@
 	&.ng-invalid {
 		border-left: 5px solid #d9534f;
 	}
+}
+
+.phd-tree-rule {
+	cursor: pointer;
+}
+
+.phd-tree-rule-disabled {
+	color: #ccc;
+	cursor: auto;
+	pointer-events: none;
+}
+
+.phd-child-sp {
+	padding-left: 20px !important;
+}
+
+.phd-grand-child-sp {
+	padding-left: 40px !important;
+}
+
+.phd-great-grand-child-sp {
+	padding-left: 60px !important;
 }
 
 .phd-item-multiselect-results {
