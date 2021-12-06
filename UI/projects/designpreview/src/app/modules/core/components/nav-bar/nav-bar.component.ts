@@ -7,6 +7,7 @@ import { BrowserService, UnsubscribeOnDestroy} from 'phd-common';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
+import { BrandService } from '../../services/brand.service';
 
 @Component({
 	  selector: 'nav-bar',
@@ -22,9 +23,10 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 	showContractedOptionsLink: boolean = true;
 
 	constructor(
-		private router: Router, 
+		private router: Router,
 		private browser: BrowserService,
-		private store: Store<fromRoot.State>
+		private store: Store<fromRoot.State>,
+		private brandService: BrandService
 	)
     {
 		super();
@@ -50,7 +52,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 		).subscribe((state) => {
 			if (state.buildMode === 'preview') {
 				this.showContractedOptionsLink = false;
-			} 
+			}
 		});
 	}
 
@@ -66,5 +68,9 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 	onViewFavorites() {
 		this.store.dispatch(new ScenarioActions.SetTreeFilter(null));
 		this.router.navigateByUrl('/favorites/summary');
+	}
+
+	getImageSrc() {
+		return this.brandService.getBrandImage('white_logo');
 	}
 }
