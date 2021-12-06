@@ -3,7 +3,17 @@
 @import '~@angular/material/prebuilt-themes/deeppurple-amber.css';
 
 :root {
+	--button-border-radius: 0.3rem;
 	--font: 'Roboto';
+	--home-text-color: $navy_blue;
+	--link-color: $pantone_blue;
+	--logo-margin-top: "0px";
+	--primary-button-color: $pantone_blue;
+	--primary-icon-color: $pantone_blue;
+	--primary-ribbon-background-color: $twilight-blue;
+	--secondary-icon-color: $midnight_blue;
+	--secondary-ribbon-background-color: $pantone_blue;
+	--selected-border-color: $pantone_blue;
 }
 
 html, body, app-root {

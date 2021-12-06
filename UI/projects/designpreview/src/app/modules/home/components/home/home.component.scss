@@ -1,12 +1,6 @@
 @import "../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
 @import "../../../../../../../phd-common/src/lib/scss/sizes.scss";
 
-:root {
-	--home-text-color: $navy_blue;
-	--primary-button-color: $medium_blue;
-	--button-border-radius: 0.3rem;
-}
-
 .phd-logo-image {
 	width: calc(56vw);
 	height: calc(65vh);

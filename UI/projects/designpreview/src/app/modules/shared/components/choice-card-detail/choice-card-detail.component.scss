@@ -1,13 +1,6 @@
 @import "../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
 @import "../../../../../../../phd-common/src/lib/scss/sizes.scss";
 
-:root {
-	--link-color: $pantone_blue;
-	--primary-icon-color: $pantone_blue;
-	--selected-border-color: $pantone_blue;
-	--secondary-ribbon-background-color: $pantone_blue;
-}
-
 .phd-choice-card-detail {
 	display: flex;
 }

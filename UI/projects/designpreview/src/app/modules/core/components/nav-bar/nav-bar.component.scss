@@ -1,11 +1,6 @@
 @import "../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
 @import "../../../../../../../phd-common/src/lib/scss/sizes.scss";
 
-:root {
-	--primary-ribbon-background-color: $dark_blue;
-	--logo-margin-top: "0px";
-}
-
 #phd-nav-bar {
 	background: var(--primary-ribbon-background-color);
 	height: 70px;

@@ -1,11 +1,5 @@
 @import "../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
 
-:root {
-	--primary-button-color: $pantone_blue;
-	--secondary-icon-color: $midnight_blue;
-	--button-border-radius: 0.3rem;
-}
-
 #phd-action-bar {
 	position: fixed;
 	width: calc(100%);

@@ -1,11 +1,6 @@
 @import "../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
 @import "../../../../../../../phd-common/src/lib/scss/sizes.scss";
 
-:root {
-	--secondary-ribbon-background-color: $pantone_blue;
-	--primary-icon-color: $pantone_blue;
-}
-
 #phd-group-bar {
 	background: var(--secondary-ribbon-background-color);
 	position: fixed;

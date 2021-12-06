@@ -1,9 +1,5 @@
 @import "../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
 
-:root {
-	--link-color: $pantone_blue;
-}
-
 .phd-blocked-link {
 	color: var(--link-color);
   	text-decoration: underline;

@@ -1,9 +1,5 @@
 @import "../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
 
-:root {
-	--primary-icon-color: $pantone_blue;
-}
-
 .phd-attribute-group-toggle {
 	color: var(--primary-icon-color);
 	font-size: 16px;
