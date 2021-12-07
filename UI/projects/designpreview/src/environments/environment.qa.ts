@@ -38,6 +38,6 @@ export const environment: IEnvironment = {
 	pdfViewerBaseUrl: 'assets/pdfjs-dist/web/viewer.html',
 	brandMap: {
 		pulte: 'phd.qa.pulte.com',
-		delwebb: ' phd.qa.delwebb.com'
+		delwebb: 'phd.qa.delwebb.com'
 	}
 };
