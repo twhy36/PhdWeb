@@ -41,6 +41,5 @@ export const environment = {
 		447, // Pacific Northwest
 		150, // Southern California
 	],
-	salesAdminFinancialCommunityWhitelist: [],
 	salesAdminMarketWhitelist: []
 };

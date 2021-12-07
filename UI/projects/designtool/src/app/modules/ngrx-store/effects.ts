@@ -42,11 +42,16 @@ export class CommonEffects
 			tryCatch(source => source.pipe(
 				switchMap(action => this.scenarioService.getScenario(action.scenarioId)),
 				switchMap(scenario => {
+					const getTree = scenario.treeVersionId ? this.treeService.getTree(scenario.treeVersionId) : of(null);
+					const getRules = scenario.treeVersionId ? this.treeService.getRules(scenario.treeVersionId) : of(null);
+					const getPlanOptions = scenario.treeVersionId ? this.optionService.getPlanOptions(scenario.planId) : of(null);
+					const getOptionImages = scenario.treeVersionId ? this.treeService.getOptionImages(scenario.treeVersionId) : of(null);
+					
 					return combineLatest([
-						this.treeService.getTree(scenario.treeVersionId),
-						this.treeService.getRules(scenario.treeVersionId),
-						this.optionService.getPlanOptions(scenario.planId),
-						this.treeService.getOptionImages(scenario.treeVersionId),
+						getTree,
+						getRules,
+						getPlanOptions,
+						getOptionImages,
 						this.lotService.getLot(scenario.lotId),
 						combineLatest([
 							this.planService.getWebPlanMappingByPlanId(scenario.planId),
@@ -54,15 +59,18 @@ export class CommonEffects
 						])
 					]).pipe(
 						map(([tree, rules, options, optionImages, lot, [webPlanMapping, opportunity]]) => {
-							// apply images to options
-							options.forEach(option => {
-								let filteredImages = optionImages.filter(x => x.integrationKey === option.financialOptionIntegrationKey);
+							if (optionImages)
+							{
+								// apply images to options
+								options.forEach(option => {
+									let filteredImages = optionImages.filter(x => x.integrationKey === option.financialOptionIntegrationKey);
 
-								if (filteredImages.length) {
-									// make sure they're sorted properly
-									option.optionImages = filteredImages.sort((a, b) => a.sortKey < b.sortKey ? -1 : 1);
-								}
-							});
+									if (filteredImages.length) {
+										// make sure they're sorted properly
+										option.optionImages = filteredImages.sort((a, b) => a.sortKey < b.sortKey ? -1 : 1);
+									}
+								});								
+							}
 
 							return { tree, rules, options, optionImages, lot, webPlanMapping, opportunity };
 						}),
@@ -260,8 +268,16 @@ export class CommonEffects
 					}
 				}),
 				switchMap(result => {
-					if (!result.salesCommunity) {
-						return this.orgService.getSalesCommunityByFinancialCommunityId(result.tree.financialCommunityId, true).pipe(map(sc => {
+					const financialCommunityId = result.tree?.financialCommunityId;
+					const salesCommunityId = result.opportunity?.opportunity?.salesCommunityId
+
+					if (!result.salesCommunity && (!!financialCommunityId || !!salesCommunityId)) 
+					{
+						const getSalesCommunity = !!financialCommunityId
+							? this.orgService.getSalesCommunityByFinancialCommunityId(financialCommunityId, true)
+							: this.orgService.getSalesCommunity(salesCommunityId);
+
+						return getSalesCommunity.pipe(map(sc => {
 							return { ...result, salesCommunity: sc, overrideNote: null };
 						}));
 					}

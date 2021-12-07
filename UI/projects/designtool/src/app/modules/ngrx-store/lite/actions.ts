@@ -10,6 +10,7 @@ export enum LiteActionTypes {
     ScenarioOptionsSaved = 'Scenario Options Saved',
     SelectOptionColors = 'Select Option Colors',
     SaveScenarioOptionColors = 'Select Scenario Option Colors',
+    SetScenarioLoaded = 'Set Scenario Loaded'
 }
 
 @Log(true)
@@ -59,6 +60,13 @@ export class SaveScenarioOptionColors implements Action {
     constructor(public optionColors: ScenarioOptionColorDto[]) { }
 }
 
+@Log(true)
+export class SetScenarioLoaded implements Action {
+    readonly type = LiteActionTypes.SetScenarioLoaded;
+
+    constructor(public isLoaded: boolean) { }
+}
+
 export type LiteActions =
     SetIsPhdLite |
     LiteOptionsLoaded |
@@ -66,4 +74,5 @@ export type LiteActions =
     SaveScenarioOptions |
     ScenarioOptionsSaved |
     SelectOptionColors |
-    SaveScenarioOptionColors;
+    SaveScenarioOptionColors |
+    SetScenarioLoaded;

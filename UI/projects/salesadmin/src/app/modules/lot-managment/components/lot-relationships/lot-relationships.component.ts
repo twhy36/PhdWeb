@@ -8,7 +8,7 @@ import { CatalogService } from "../../../core/services/catalog.service";
 import { HomeSiteService } from "../../../core/services/homesite.service";
 import { OrganizationService } from "../../../core/services/organization.service";
 import { PlanService } from "../../../core/services/plan.service";
-import { DivChoiceCatalog } from "../../../shared/models/choice.model";
+import { DivDChoice, DivisionalCatalog } from "../../../shared/models/divisionalCatalog.model";
 import { FinancialMarket } from "../../../shared/models/financialMarket.model";
 import { LotChoiceRuleAssoc, LotChoiceRuleAssocView } from "../../../shared/models/lotChoiceRule.model";
 import { FinancialCommunityViewModel, HomeSiteViewModel, PlanViewModel } from "../../../shared/models/plan-assignment.model";
@@ -23,7 +23,8 @@ export class LotRelationshipsComponent extends UnsubscribeOnDestroy implements O
 {
 	canEdit: boolean = false;
 	currentMarket: FinancialMarket;
-	divChoiceCatalogs: Array<DivChoiceCatalog>;
+	divisionalCatalog: DivisionalCatalog
+	divChoiceCatalogs: Array<DivDChoice>;
 	edhToPhdPlanMap: Map<number, number> = new Map<number, number>();
 	isSaving: boolean = false;
 	lotRelationships: LotChoiceRuleAssoc[];
@@ -70,6 +71,7 @@ export class LotRelationshipsComponent extends UnsubscribeOnDestroy implements O
 					this.selectedCommunity = new FinancialCommunityViewModel(comm);
 				
 					return combineLatest([
+						this._catalogService.getDivisionalCatalog(comm.marketId),
 						this._catalogService.getDivChoiceCatalogsByMarketId(comm.marketId),
 						this._homeSiteService.getCommunityHomeSites(comm.id),
 						this._homeSiteService.getLotChoiceRuleAssocs(comm.marketId),
@@ -78,9 +80,17 @@ export class LotRelationshipsComponent extends UnsubscribeOnDestroy implements O
 					]);
 				}
 			}),
-			switchMap(([choices, lots, assocs, orgs, commPlans]) =>
+			switchMap(([catalog, choices, lots, assocs, orgs, commPlans]) =>
 			{
+				this.divisionalCatalog = catalog;
 				this.divChoiceCatalogs = choices;
+				if (this.divisionalCatalog) {
+					const activeChoices = this.divisionalCatalog.groups
+						.map(g => g.subGroups).reduce((a, b) => a.concat(b))
+						.map(sg => sg.points).reduce((a, b) => a.concat(b))
+						.map(p => p.choices).reduce((a, b) => a.concat(b));
+					this.divChoiceCatalogs = this.divChoiceCatalogs.concat(activeChoices);
+				}
 				this.orgId = orgs?.find(o => o.edhFinancialCommunityId === this.selectedCommunity.dto.id)?.orgID;
 	
 				// Filter lots and plans

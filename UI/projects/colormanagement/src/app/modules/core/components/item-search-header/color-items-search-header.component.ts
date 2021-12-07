@@ -128,7 +128,7 @@ export class ColorItemsSearchHeaderComponent
 		this.currentColorItems = planOptionDto.colorItem;
 		this.selectedOption = this.planOptionList.find(option => option.id==planOptionDto.optionCommunityId);
 		this.currentEditItem = planOptionDto;
-		(planOptionDto.hasConfig === false && planOptionDto.hasSalesAgreement === false) ? this.canEditName = true : this.canEditName = false
+		(planOptionDto.hasSalesAgreement === false) ? this.canEditName = true : this.canEditName = false
 		this.modalReference = this._modalService.open(this.editColorItemModal);
 		this.modalReference.result.catch(err => console.log(err));
 	}

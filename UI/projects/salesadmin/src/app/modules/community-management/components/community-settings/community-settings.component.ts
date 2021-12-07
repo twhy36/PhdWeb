@@ -6,7 +6,7 @@ import { ActivatedRoute } from '@angular/router';
 import { environment } from '../../../../../environments/environment';
 import { FinancialCommunityViewModel } from '../../../shared/models/plan-assignment.model';
 import { FinancialCommunity } from '../../../shared/models/financialCommunity.model';
-import { map, switchMap } from 'rxjs/operators';
+import { switchMap } from 'rxjs/operators';
 import { FinancialCommunityInfo } from '../../../shared/models/financialCommunity.model';
 import { combineLatest, of } from 'rxjs';
 import { FormControl, FormGroup, Validators } from '@angular/forms';

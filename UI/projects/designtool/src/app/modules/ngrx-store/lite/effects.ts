@@ -10,6 +10,7 @@ import { ScenarioActionTypes, ScenarioSaved } from '../scenario/actions';
 import { 
 	LiteActionTypes, SetIsPhdLite, LiteOptionsLoaded, SaveScenarioOptions, ScenarioOptionsSaved, SaveScenarioOptionColors 
 } from './actions';
+import { CommonActionTypes, ScenarioLoaded } from '../actions';
 import * as fromRoot from '../reducers';
 
 
@@ -37,13 +38,14 @@ export class LiteEffects
 
 	loadOptions$: Observable<Action> = createEffect(() => {
 		return this.actions$.pipe(
-			ofType<ScenarioSaved>(ScenarioActionTypes.ScenarioSaved),
+			ofType<ScenarioSaved | ScenarioLoaded>(ScenarioActionTypes.ScenarioSaved, CommonActionTypes.ScenarioLoaded),
 			withLatestFrom(this.store),
 			switchMap(([action, store]) => {
 				const planOptions = store.lite.options;
 				const optionsLoaded = !!planOptions.find(option => option.planId === action.scenario.planId);
-				
-				if (store.lite.isPhdLite && !optionsLoaded)
+				const isPhdLite = action instanceof ScenarioLoaded ? !action.scenario.treeVersionId : store.lite.isPhdLite;
+
+				if (isPhdLite && !optionsLoaded)
 				{
 					return combineLatest([
 						this.liteService.getLitePlanOptions(action.scenario.planId),
