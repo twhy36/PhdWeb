@@ -142,4 +142,23 @@ export class JobService
 		);
 	}
 
+	saveFloorPlanImages(jobId: number, floors: { index: number, name: string }[], images: any[]): Observable<FloorPlanImage[]>
+	{
+		const floorPlanImages = floors.map((val, i) =>
+		{
+			return { floorName: val.name, floorIndex: val.index, svg: images[i].outerHTML } as FloorPlanImage;
+		});
+
+		return this._http.put(`${environment.apiUrl}jobs(${jobId})/floorPlanAttachments`, floorPlanImages).pipe(
+			map(() =>
+			{
+				return floorPlanImages;
+			}),
+			catchError(error =>
+			{
+				console.error(error);
+				return _throw(error);
+			})
+		);
+	}
 }
