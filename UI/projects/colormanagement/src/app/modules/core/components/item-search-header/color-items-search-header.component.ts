@@ -128,9 +128,26 @@ export class ColorItemsSearchHeaderComponent
 		this.currentColorItems = planOptionDto.colorItem;
 		this.selectedOption = this.planOptionList.find(option => option.id==planOptionDto.optionCommunityId);
 		this.currentEditItem = planOptionDto;
-		(planOptionDto.hasSalesAgreement === false) ? this.canEditName = true : this.canEditName = false
-		this.modalReference = this._modalService.open(this.editColorItemModal);
-		this.modalReference.result.catch(err => console.log(err));
+		// Added this to handle cases when salesagreement for this row is not yet returned. Calling it here again.
+		if(planOptionDto.hasSalesAgreement === null){
+			this._colorService.getSalesAgreementForGrid([planOptionDto], this.currentFinancialCommunityId).subscribe((result) => {
+				result.map((item: IPlanOptionCommunityGridDto) => {
+					const planoption = this.planOptionDtosList.find(c => c.planOptionId === item.planOptionId);
+					if (planoption) {
+						planoption.hasSalesAgreement = item.hasSalesAgreement;
+						(planOptionDto.hasSalesAgreement === false) ? this.canEditName = true : this.canEditName = false
+						this.modalReference = this._modalService.open(this.editColorItemModal);
+						this.modalReference.result.catch(err => console.log(err));
+					}
+				});
+			});
+		}
+		else
+		{
+			(planOptionDto.hasSalesAgreement === false) ? this.canEditName = true : this.canEditName = false
+			this.modalReference = this._modalService.open(this.editColorItemModal);
+			this.modalReference.result.catch(err => console.log(err));
+		}
 	}
 	onEditColorItemDialogWasCanceled()
 	{
@@ -235,7 +252,6 @@ export class ColorItemsSearchHeaderComponent
 
 				planOptionDtos = planOptionDtos.filter(x => !!x.colorItem);
 				this.optionsWithColorItems = planOptionDtos;
-
 				if (planOptionDtos.length > 0) {
 					const planOptionGridList = [];
 					if (!isElevation) {
@@ -299,7 +315,7 @@ export class ColorItemsSearchHeaderComponent
 						});
 
 					}
-					this.planOptionDtosList = [...this.planOptionDtosList, ...planOptionGridList];
+					this.planOptionDtosList = [...this.planOptionDtosList, ...planOptionGridList];					
 					const expectedListLength = this.pageNumber * this.settings.infiniteScrollPageSize;
 					if (this.planOptionDtosList.length < expectedListLength && !this.allDataLoaded && isAllOption && this.optionListIndex < (this.planOptionList.length - 1)) {
 						this.onPanelScroll();

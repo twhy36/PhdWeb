@@ -3,7 +3,7 @@ import { ConfirmModalComponent, Elevations, ModalService } from 'phd-common';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ColorService } from '../../services/color.service';
 import { IColorItemDto } from '../../../shared/models/colorItem.model';
-import { IOptionCommunity, IPlanOptionCommunityDto } from '../../../shared/models/community.model';	
+import { IOptionCommunity, IPlanOptionCommunityGridDto } from '../../../shared/models/community.model';	
 import { IColor } from '../../../shared/models/color.model';
 import * as _ from 'lodash';
 import { MessageService } from 'primeng/api';
@@ -28,7 +28,7 @@ export class EditColorItemDialogComponent implements OnInit {
 	@Input() communityId: number;
     @Input() selectedOption: IOptionCommunity;
 	@Input() canEditName: boolean;
-	@Input() optionsWithColorItemInfo: Array<IPlanOptionCommunityDto> = [];
+	@Input() optionsWithColorItemInfo: Array<IPlanOptionCommunityGridDto> = [];
 	@Output() ModalWasClosed = new EventEmitter();
 	@Output() dialogWasCanceled = new EventEmitter();
 	@Output() colorItemWasEdited = new EventEmitter();
@@ -70,44 +70,45 @@ export class EditColorItemDialogComponent implements OnInit {
 	}
 
 	saveButtonWasClicked(){
-		this.validateForm();
-		let colorItemsToSave: IColorItemDto[] = [];
-		
-		this.selectedColorItems.forEach(colorItemToUpdate => {
-			const colorItemToSave = {
-				colorItemId: colorItemToUpdate.colorItemId,
-				name: this.editColorItemForm.get('name').value.toString().trim(),
-				edhPlanOptionId: colorItemToUpdate.edhPlanOptionId,
-				colors: this.selectedColors,
-				isActive: colorItemToUpdate.isActive
-			} as IColorItemDto;
-			colorItemsToSave.push(colorItemToSave);
-		});
-		let toast:IToastInfo;
-		this._colorService.updateColorItem(colorItemsToSave).subscribe((updatedColor) => {
-			if(updatedColor)
-			{
-				toast = {
-					severity: 'success',
-					summary: 'Updated Color Item',
-					detail: 'Color Item update was successful!'
+		const valid = this.validateForm();
+		if(valid)
+		{
+			let colorItemsToSave: IColorItemDto[] = [];
+			
+			this.selectedColorItems.forEach(colorItemToUpdate => {
+				const colorItemToSave = {
+					colorItemId: colorItemToUpdate.colorItemId,
+					name: this.editColorItemForm.get('name').value.toString().trim(),
+					edhPlanOptionId: colorItemToUpdate.edhPlanOptionId,
+					colors: this.selectedColors,
+					isActive: colorItemToUpdate.isActive
+				} as IColorItemDto;
+				colorItemsToSave.push(colorItemToSave);
+			});
+			let toast:IToastInfo;
+			this._colorService.updateColorItem(colorItemsToSave).subscribe((updatedColor) => {
+				if(updatedColor)
+				{
+					toast = {
+						severity: 'success',
+						summary: 'Updated Color Item',
+						detail: 'Color Item update was successful!'
+					}
+					this._msgService.add(toast);
+					//To refresh grid
+					this.colorItemWasEdited.emit();
 				}
+			},
+			error => {
+				toast = {
+					severity: 'error',
+					summary: 'Updated Color Item',
+					detail: 'Color Item update failed. Please try again.'
+				} as IToastInfo;
 				this._msgService.add(toast);
-				//To refresh grid
-				this.colorItemWasEdited.emit();
-			}
-		},
-		error => {
-			toast = {
-				severity: 'error',
-				summary: 'Updated Color Item',
-				detail: 'Color Item update failed. Please try again.'
-			} as IToastInfo;
-			this._msgService.add(toast);
-			this.dialogWasCanceled.emit();
-		});
-		
-		
+				this.dialogWasCanceled.emit();
+			});
+		}		
 	}
 
 	validateForm(): boolean
@@ -120,8 +121,7 @@ export class EditColorItemDialogComponent implements OnInit {
 			this.nameErrorMessage = this.requiredFieldMessage;
 			return false;
 		}
-
-		this.isDuplicateName = this.optionsWithColorItemInfo.filter(option => option.colorItem.name.toLowerCase() === colorItemName).length != this.selectedColorItems.length;
+		this.isDuplicateName = this.optionsWithColorItemInfo.some(option => option.colorItem[0].name.toLowerCase() === colorItemName && option.optionCommunityId === this.selectedOption.id && option.colorItem[0].colorItemId!=this.selectedColorItems[0].colorItemId);
 
 		if (this.isDuplicateName)
 		{
