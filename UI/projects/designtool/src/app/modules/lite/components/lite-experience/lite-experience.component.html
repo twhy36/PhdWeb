@@ -11,7 +11,7 @@
 	<router-outlet></router-outlet>
 </div>
 
-<action-bar [actionBarStatus]='"INCOMPLETE"'
+<action-bar [actionBarStatus]='(isLiteComplete$ | async) ? "COMPLETE" : "INCOMPLETE"'
 			[primaryAction]='primaryAction'
 			[canChange]="canConfigure$ | async"
 			[price]="(priceBreakdown$ | async).totalPrice"

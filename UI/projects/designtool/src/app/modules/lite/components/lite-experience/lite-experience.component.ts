@@ -23,6 +23,8 @@ export class LiteExperienceComponent extends UnsubscribeOnDestroy implements OnI
 	priceBreakdown$: Observable<PriceBreakdown>;
 	subNavItems$: Observable<any>;
 	selectedSubNavItem$: Observable<number>;
+	isLiteComplete$: Observable<boolean>;
+
 	primaryAction: string = 'Generate Agreement';
 
 	constructor(private store: Store<fromRoot.State>, private router: Router) 
@@ -37,6 +39,10 @@ export class LiteExperienceComponent extends UnsubscribeOnDestroy implements OnI
 		this.priceBreakdown$ = this.store.pipe(
 			select(fromRoot.priceBreakdown)
 		);
+
+		this.isLiteComplete$ = this.store.pipe(
+			select(fromRoot.isLiteComplete)
+		);		
 		
 		this.subNavItems$ = this.store.pipe(
 			select(state => state.nav.subNavItems)
@@ -57,7 +63,7 @@ export class LiteExperienceComponent extends UnsubscribeOnDestroy implements OnI
 
 			const colorSchemeStatus = !!colorScheme ? PointStatus.COMPLETED : PointStatus.REQUIRED;
 			this.store.dispatch(new NavActions.SetSubNavItemStatus(LiteSubMenu.ColorScheme, colorSchemeStatus));				
-		});			
+		});	
 	}
 
 	onSubNavItemSelected(id: number)

@@ -75,7 +75,12 @@
 		<phd-table #dt [value]="planOptionDtosList" [rowClass]="getRowClass">
 			<phd-column header="Plan" field="planSalesName">
 				<ng-template #body let-planOptionDto>
-					<span *ngFor="let plans of planOptionDto.planCommunity;let indexOfelement = index">
+					<span
+						*ngFor="
+							let plans of planOptionDto.planCommunity;
+							let indexOfelement = index
+						"
+					>
 						<span *ngIf="indexOfelement > 0">, </span>
 						<span>{{ plans?.planSalesName }}</span>
 					</span>
@@ -103,43 +108,68 @@
 			</phd-column>
 			<phd-column field="isActive" columnClass="phd-icon">
 				<ng-template #body let-planOptionDto>
-						<i
+					<i
 						class="fa fa-fw fa-repeat text-success"
 						title="Reactivate Color Item"
 						*ngIf="!planOptionDto.colorItem[0]?.isActive"
-						(click)="activateInactivateColorItem(planOptionDto.colorItem, planOptionDto,true)"
-						>
-						</i>
-						<i
+						(click)="
+							activateInactivateColorItem(
+								planOptionDto.colorItem,
+								planOptionDto,
+								true
+							)
+						"
+					>
+					</i>
+					<i
 						class="fa fa-fw fa-undo text-danger"
 						title="Inactivate Color Item"
 						*ngIf="planOptionDto.colorItem[0]?.isActive"
-						(click)="activateInactivateColorItem(planOptionDto.colorItem, planOptionDto,false)"
-						>
-						</i>
+						(click)="
+							activateInactivateColorItem(
+								planOptionDto.colorItem,
+								planOptionDto,
+								false
+							)
+						"
+					>
+					</i>
 				</ng-template>
 			</phd-column>
 
 			<phd-column header="" columnClass="phd-icon">
 				<ng-template #body let-planOptionDto>
-					<i
-					class="fa fa-pencil fa-fw"
-					title="Edit Color Item"
-					*ngIf="planOptionDto.colorItem[0]?.isActive">
+					<i	
+					class="fa fa-pencil fa-fw"	
+					title="Edit Color Item"	
+					*ngIf="planOptionDto.colorItem[0]?.isActive"
+					(click)="showEditColorItemDialog(planOptionDto)">
 					</i>
 				</ng-template>
 			</phd-column>
 			<phd-column header="" columnClass="phd-icon">
 				<ng-template #body let-planOptionDto>
 					<i
-					class="fa fa-fw fa-trash"
-					title="Delete Color Item"
-					*ngIf = "planOptionDto.hasConfig==false && planOptionDto.hasSalesAgreement == false">
+						class="fa fa-fw fa-trash"
+						title="Delete Color Item"
+						*ngIf="
+							planOptionDto.hasConfig == false &&
+							planOptionDto.hasSalesAgreement == false
+						"
+						(click)="
+							deleteSelectedColorItem(planOptionDto.colorItem)
+						"
+					>
 					</i>
 					<i
-					class="fa fa-spinner fa-spin fa-fw"
-					title="Loading Delete Color"
-					*ngIf="planOptionDto.loadingDeleteIcon && (planOptionDto.hasConfig == null || planOptionDto.hasSalesAgreement == null)">
+						class="fa fa-spinner fa-spin fa-fw"
+						title="Loading Delete Color"
+						*ngIf="
+							planOptionDto.loadingDeleteIcon &&
+							(planOptionDto.hasConfig == null ||
+								planOptionDto.hasSalesAgreement == null)
+						"
+					>
 					</i>
 				</ng-template>
 			</phd-column>
@@ -157,6 +187,18 @@
 			(colorItemSaveAttempted)="colorItemSaveWasAttempted($event)"
 		>
 		</add-color-item-dialog>
+	</ng-template>
+	<ng-template #editColorItemModal>
+		<edit-color-item-dialog
+			[communityId]="currentFinancialCommunityId"
+			[selectedOption]="selectedOption"
+			[selectedColorItems]="currentColorItems"
+			[canEditName]="canEditName"
+			[optionsWithColorItemInfo]="optionsWithColorItems"
+			(dialogWasCanceled)="onEditColorItemDialogWasCanceled()"
+			(colorItemWasEdited)="onColorItemWasEdited()"
+		>
+		</edit-color-item-dialog>
 	</ng-template>
 
 	<p-toast baseZIndex="1100"></p-toast>

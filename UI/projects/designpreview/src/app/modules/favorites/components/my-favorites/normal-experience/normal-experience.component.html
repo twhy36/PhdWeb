@@ -28,12 +28,10 @@
 
 	<div class="d-flex flex-column phd-card-panel" [ngClass]="isPointPanelCollapsed ? 'phd-card-panel-collapsed' : ''">
 		<div class="phd-include-options">
-			<input type="checkbox" 
-				(change)="toggleContractedOptions($event)" 
-				[ngModel]="includeContractedOptions" 
-				[ngClass]="{'phd-clickable' : !isContractedOptionsDisabled }" 
-				[disabled]="isContractedOptionsDisabled"
-			/>
+			<div class="phd-contracted-options-checkbox" [ngClass]="{'phd-clickable' : !isContractedOptionsDisabled }" (click)="$event.stopPropagation()">
+				<span class="phd-icon-selected"><i *ngIf="includeContractedOptions" class="fa fa-check-square" (click)="toggleContractedOptions()"></i></span>
+				<i *ngIf="!includeContractedOptions" class="fa fa-square-o" (click)="toggleContractedOptions()"></i>
+			</div>
 			<span class="phd-contracted-options">Display Contracted Options</span>
 		</div>
 		<ng-container *ngIf="!noVisibleGroups">

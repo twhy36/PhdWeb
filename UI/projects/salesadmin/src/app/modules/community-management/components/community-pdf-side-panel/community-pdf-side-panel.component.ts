@@ -74,7 +74,7 @@ export class CommunityPdfSidePanelComponent implements OnInit
 
 	handleSave()
 	{
-		if (this.includedFeaturesExists)
+		if (this.includedFeaturesExists && this.communityPdfForm.get('sectionHeader').value === SectionHeader.IncludedFeatures)
 		{
 			this.sidePanel.showCustomConfirm();
 		}

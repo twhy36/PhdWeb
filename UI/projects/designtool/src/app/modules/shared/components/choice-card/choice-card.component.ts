@@ -31,8 +31,6 @@ import * as _ from 'lodash';
 import { selectedPlanData } from '../../../ngrx-store/plan/reducer';
 import { TreeService } from '../../../core/services/tree.service';
 
-import { environment } from '../../../../../environments/environment';
-
 @Component({
 	selector: 'choice-card',
 	templateUrl: './choice-card.component.html',

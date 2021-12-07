@@ -2,7 +2,8 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { PointStatus } from 'phd-common';
-import { instance, mock } from 'ts-mockito';
+import { instance, mock, when } from 'ts-mockito';
+import { BrandService } from '../../../core/services/brand.service';
 
 import { ChoiceCardComponent } from './choice-card.component';
 
@@ -10,7 +11,8 @@ describe('ChoiceCardComponent', () => {
   let component: ChoiceCardComponent;
   let fixture: ComponentFixture<ChoiceCardComponent>;
 	const mockNgbModal = mock(NgbModal);
-	// when(mockActivatedRoute.paramMap).thenCall(() => new Observable());
+	const mockBrandService = mock(BrandService);
+	when(mockBrandService.getBrandImage).thenReturn(() => "");
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
@@ -18,6 +20,7 @@ describe('ChoiceCardComponent', () => {
 			imports: [ BrowserAnimationsModule ],
 			providers: [
 				{ provide: NgbModal, useFactory: () => instance(mockNgbModal) },
+				{ provide: BrandService, useFactory: () => instance(mockBrandService) },
 			]
     })
     .compileComponents();

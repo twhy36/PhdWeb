@@ -30,15 +30,16 @@ export const environment = {
 		scriptUrl: '//whatfix.com/01caf5e0-cb2f-11e8-b979-04013d24cd02/embed/embed.nocache.js'
 	},
 	designPreviewMarketWhitelist: [
-		123, // Michigan Market
-		103, // Houston Market
 		459, // Arizona Market
-		464, // New Mexico Market
+		462, // Austin Market
+		103, // Houston Market
 		472, // Las Vegas Market
-		447, // Pacific Northwest
+		123, // Michigan Market
+		464, // New Mexico Market
 		121, // Northern California
-		150 // Southern California
+		112, // North Florida
+		447, // Pacific Northwest
+		150, // Southern California
 	],
-	salesAdminFinancialCommunityWhitelist: [],
 	salesAdminMarketWhitelist: []
 };

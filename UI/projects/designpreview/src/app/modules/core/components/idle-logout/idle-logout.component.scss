@@ -21,11 +21,13 @@
 
 	&-signin {
 		@extend .phd-button;
-		background-color: $medium_blue;
+		background-color: var(--primary-button-color);
+		border-radius: var(--button-border-radius);
 	}
 
 	&-signout {
 		@extend .phd-button;
 		background-color: $gray-light;
-	}	
+		border-radius: var(--button-border-radius);
+	}
 }

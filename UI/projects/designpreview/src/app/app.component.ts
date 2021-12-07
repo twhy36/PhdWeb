@@ -7,6 +7,7 @@ import * as build from './build.json';
 
 import { ModalService, ModalRef, IdentityService } from 'phd-common';
 import { IdleLogoutComponent } from './modules/core/components/idle-logout/idle-logout.component';
+import { BrandService } from './modules/core/services/brand.service';
 
 @Component({
     selector: 'app-root',
@@ -26,15 +27,18 @@ export class AppComponent {
 	}
 
 	constructor(
-		private idle: Idle, 
-		private modalService: ModalService, 
-		private identityService: IdentityService) 
+		private idle: Idle,
+		private modalService: ModalService,
+		private identityService: IdentityService,
+		private brandService: BrandService)
 	{
 		// Start idle watch for user inactivities if an external user is logged in
 		if (sessionStorage.getItem('authProvider') === 'sitecoreSSO')
 		{
-			this.watchIdle();			
+			this.watchIdle();
 		}
+
+		this.brandService.applyBrandStyles();
 	}
 
 	watchIdle()
@@ -45,7 +49,7 @@ export class AppComponent {
 		this.idle.setTimeout(60);
 		// sets the default interrupts, in this case, things like clicks, scrolls, touches to the document
 		this.idle.setInterrupts(DEFAULT_INTERRUPTSOURCES);
-	
+
 		this.idle.onTimeout.subscribe(() => {
 			this.logout();
 		});
@@ -58,7 +62,7 @@ export class AppComponent {
 				backdrop: 'static',
 				keyboard: false
 			};
-	
+
 			this.logoutModal = this.modalService.open(IdleLogoutComponent, ngbModalOptions);
 
 			this.logoutModal.result.then((result) =>
@@ -74,16 +78,16 @@ export class AppComponent {
 					this.idle.watch();
 				}
 
-			}, (reason) => { });			
+			}, (reason) => { });
 		});
 
 		this.idle.onTimeoutWarning.subscribe((countdown) => {
 			this.logoutModal.componentInstance.countdown = countdown;
 		});
-	
+
 		this.idle.watch();
 	}
-	
+
 	logout()
 	{
 		this.idle.stop();

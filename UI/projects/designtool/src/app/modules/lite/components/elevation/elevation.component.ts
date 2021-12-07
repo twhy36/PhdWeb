@@ -55,7 +55,7 @@ export class ElevationComponent extends UnsubscribeOnDestroy implements OnInit
 			select(fromScenario.selectScenario)
 		).subscribe(scenario =>
 		{
-			this.scenarioId = scenario.scenario.scenarioId;
+			this.scenarioId = scenario?.scenario?.scenarioId;
 		});
 	}
 

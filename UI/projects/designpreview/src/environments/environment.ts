@@ -8,7 +8,7 @@ export const environment: IEnvironment = {
 	production: false,
 	apiUrl: 'https://phdapi.dev.pulte.com/odata/',
 	authConfigs: {
-		sitecoreSSO: 
+		sitecoreSSO:
 		{
 			issuer: 'https://pultesso.dev.pulte.com',
 			clientId: 'DesignPreview',
@@ -41,5 +41,9 @@ export const environment: IEnvironment = {
 	alphavision: {
 		builderId: '8D676CB9-C011-429D-8D71-87D34A87494B'
 	},
-	pdfViewerBaseUrl: 'assets/pdfjs-dist/web/viewer.html'
+	pdfViewerBaseUrl: 'assets/pdfjs-dist/web/viewer.html',
+	brandMap: {
+		pulte: 'phd.dev.pulte.com',
+		delwebb: 'phd.dev.delwebb.com'
+	}
 };

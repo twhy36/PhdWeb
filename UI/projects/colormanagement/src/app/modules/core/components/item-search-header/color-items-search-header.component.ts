@@ -1,18 +1,18 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { UnsubscribeOnDestroy, ModalRef, ModalService,ConfirmModalComponent,Elevations } from 'phd-common';
+import { UnsubscribeOnDestroy, ModalRef, ModalService, ConfirmModalComponent, Elevations } from 'phd-common';
 import { IPlanCommunity, IOptionCommunity, IPlanOptionCommunityDto, IPlanOptionCommunity, IPlanOptionCommunityGridDto } from '../../../shared/models/community.model';
 import { OrganizationService } from '../../services/organization.service';
 import { PlanOptionService } from '../../services/plan-option.service';
-import { from, Observable } from 'rxjs';
+import { from, Observable, EMPTY } from 'rxjs';
 import { filter, map, switchMap } from 'rxjs/operators';
 import { ColorService } from '../../../core/services/color.service';
 import { SettingsService } from '../../services/settings.service';
 import { Settings } from '../../../shared/models/settings.model';
 import * as _ from 'lodash';
 import { IColorItemDto } from '../../../shared/models/colorItem.model';
-import { IToastInfo } from  '../../../../../../../phd-common/src/lib/models/toast-info.model';
+import { IToastInfo } from '../../../../../../../phd-common/src/lib/models/toast-info.model';
 import { MessageService } from 'primeng/api';
-import {CrudMode} from '../../../shared/classes/constants.class';
+import { CrudMode } from '../../../shared/classes/constants.class';
 @Component({
 	selector: 'color-items-search-header',
 	templateUrl: './color-items-search-header.component.html',
@@ -25,10 +25,12 @@ export class ColorItemsSearchHeaderComponent
 	planCommunityList: Array<IPlanCommunity>;
 	currentFinancialCommunityId: number;
 	selectedPlans: Array<number> = [];
+	selectedOption: IOptionCommunity = null;
 	planOptionList: Array<IOptionCommunity>;
 	optionListIndex: number;
 	planOptionDtosList: Array<IPlanOptionCommunityGridDto> = [];
 	optionsWithColorItems: Array<IPlanOptionCommunityDto> = [];
+	currentEditItem: IPlanOptionCommunityGridDto;
 	currentOption: IOptionCommunity = null;
 	isActiveColor: boolean = null;
 	settings: Settings;
@@ -42,7 +44,10 @@ export class ColorItemsSearchHeaderComponent
 	planOptionHasNoColorItem: boolean;
 	modalReference: ModalRef;
 	disableAddColorItemButton: boolean = true;
+	currentColorItems: IColorItemDto[];
+	canEditName: boolean;
 	@ViewChild('addColorItemModal') addColorItemModal: any;
+	@ViewChild('editColorItemModal') editColorItemModal: any;
 
 	constructor(
 		private _orgService: OrganizationService,
@@ -119,6 +124,30 @@ export class ColorItemsSearchHeaderComponent
 		this.modalReference.result.catch(err => console.log(err));
 	}
 
+	showEditColorItemDialog(planOptionDto: IPlanOptionCommunityGridDto) {
+		this.currentColorItems = planOptionDto.colorItem;
+		this.selectedOption = this.planOptionList.find(option => option.id==planOptionDto.optionCommunityId);
+		this.currentEditItem = planOptionDto;
+		(planOptionDto.hasSalesAgreement === false) ? this.canEditName = true : this.canEditName = false
+		this.modalReference = this._modalService.open(this.editColorItemModal);
+		this.modalReference.result.catch(err => console.log(err));
+	}
+	onEditColorItemDialogWasCanceled()
+	{
+		this.modalReference.dismiss();
+	}
+	
+	onColorItemWasEdited()
+	{
+		this.modalReference.dismiss();
+		this.skip = 0;
+		this.planOptionDtosList = [];
+		this.currentPage = 0;
+		this.pageNumber = 1;
+		this.optionListIndex = -1;
+		this.loadColorItemsGrid();
+	}
+
 	loadColorItemsGrid() {
 		if (this.currentOption) {
 			//Case when all Options, get coloritems for each option.
@@ -164,8 +193,7 @@ export class ColorItemsSearchHeaderComponent
 		}
 	}
 
-	getColorItemsForOption(planoptionDto: IPlanOptionCommunityDto[], isAllOption:boolean, isElevation:boolean)
-	{
+	getColorItemsForOption(planoptionDto: IPlanOptionCommunityDto[], isAllOption: boolean, isElevation: boolean) {
 		this._colorService.getPlanOptionAssocColorItems
 			(this.currentFinancialCommunityId,
 				planoptionDto.map(planoption => planoption.planOptionId),
@@ -175,32 +203,42 @@ export class ColorItemsSearchHeaderComponent
 				map((colorItemDtos) => {
 					// Bug: ColorItems with same EDHPlanOptionId dont show.
 					// Add to this list when there are multiple coloritem for same planoption.
-					return	planoptionDto.map(opt => colorItemDtos?.filter(colorItem => colorItem.edhPlanOptionId === opt.planOptionId)
+					return planoptionDto.map(opt => colorItemDtos?.filter(colorItem => colorItem.edhPlanOptionId === opt.planOptionId)
 						.map(colorItem => ({ ...opt, colorItem })))
-						.reduce((a,b) => [...a, ...b], [])
+						.reduce((a, b) => [...a, ...b], [])
 				})
 			).subscribe((planOptionDtos) => {
 				this.currentPage++;
 				this.allDataLoaded = isAllOption ? planOptionDtos.length < this.settings.infiniteScrollPageSize && (isAllOption && this.optionListIndex === (this.planOptionList.length - 1)): planOptionDtos.length < this.settings.infiniteScrollPageSize;
-				//Verify if atleast one ColorItem missed for Elevation option, disable Add Button
+				//Verify if every plan has all coloritems active, then disable AddButton else enable it.
 				if(isElevation)
 				{
-					if (planOptionDtos.filter(x => !!x.colorItem).length === planOptionDtos.length && planOptionDtos.filter(x=>!x.colorItem.isActive).length===0) {
+					const groupbyPlans = _.groupBy(planOptionDtos, x=>x.planCommunity.id);
+					let plansHavingActiveColorItemCount = 0;
+					for (const planId in groupbyPlans) {
+						if (groupbyPlans.hasOwnProperty(planId)) {
+							let item = groupbyPlans[planId];
+							const hasActiveColorItem = item.filter(x => x.colorItem?.isActive === true);
+							if(hasActiveColorItem?.length > 0)
+							plansHavingActiveColorItemCount++;
+						}
+					}
+					if((!this.selectedAllPlans && this.selectedPlans.length === plansHavingActiveColorItemCount) || (this.selectedAllPlans && (this.planCommunityList.length - 1) === plansHavingActiveColorItemCount))
+					{						
 						this.planOptionHasNoColorItem = false;
 					}
-					else {
+					else
+					{
 						this.planOptionHasNoColorItem = true;
-					}
+					}										
 				}
 
 				planOptionDtos = planOptionDtos.filter(x => !!x.colorItem);
 				this.optionsWithColorItems = planOptionDtos;
 
-				if (planOptionDtos.length > 0)
-				{
+				if (planOptionDtos.length > 0) {
 					const planOptionGridList = [];
-					if(!isElevation)
-					{
+					if (!isElevation) {
 						//Group by ColorItem Name for Non basehouse and elevation options
 						const groupByColorItemName = _.groupBy(planOptionDtos.filter(x => x.isBaseHouse === false), c => c.colorItem.name);
 						for (const key in groupByColorItemName) {
@@ -241,8 +279,7 @@ export class ColorItemsSearchHeaderComponent
 							planOptionGridList.push(planOptiongrid);
 						});
 					}
-					else
-					{
+					else {
 						// Do not group by ColorItem Name for Elevation Option
 						planOptionDtos.map((item) => {
 							let planOptiongrid: IPlanOptionCommunityGridDto =
@@ -264,25 +301,23 @@ export class ColorItemsSearchHeaderComponent
 					}
 					this.planOptionDtosList = [...this.planOptionDtosList, ...planOptionGridList];
 					const expectedListLength = this.pageNumber * this.settings.infiniteScrollPageSize;
-					if (this.planOptionDtosList.length < expectedListLength && !this.allDataLoaded && isAllOption && this.optionListIndex < (this.planOptionList.length-1)) {
+					if (this.planOptionDtosList.length < expectedListLength && !this.allDataLoaded && isAllOption && this.optionListIndex < (this.planOptionList.length - 1)) {
 						this.onPanelScroll();
 					}
 					else if (this.planOptionDtosList.length >= expectedListLength && !this.allDataLoaded && isAllOption) {
 						this.pageNumber++;
 						this.getSalesagreementOrConfig(this.planOptionDtosList.filter(x => !x.loadingDeleteIcon));
 					}
-					else
-					{
+					else {
 						this.getSalesagreementOrConfig(this.planOptionDtosList.filter(x => !x.loadingDeleteIcon));
 						this.processAddColorItemButtonState();
 					}
 				}
-				else if (!this.allDataLoaded && isAllOption && this.optionListIndex < (this.planOptionList.length-1)) {
+				else if (!this.allDataLoaded && isAllOption && this.optionListIndex < (this.planOptionList.length - 1)) {
 					this.onPanelScroll();
 				}
-				else if(this.optionListIndex === (this.planOptionList.length-1) && isAllOption)
-				{
-					this.getSalesagreementOrConfig(this.planOptionDtosList.filter(x=>!x.loadingDeleteIcon));
+				else if (this.optionListIndex === (this.planOptionList.length - 1) && isAllOption) {
+					this.getSalesagreementOrConfig(this.planOptionDtosList.filter(x => !x.loadingDeleteIcon));
 				}
 
 				if (this.allDataLoaded && !isAllOption) {
@@ -291,30 +326,26 @@ export class ColorItemsSearchHeaderComponent
 			});
 
 	}
-	getSalesagreementOrConfig(gridlist:IPlanOptionCommunityGridDto[])
-	{
-		gridlist.map(x=>x.loadingDeleteIcon=true);
-		this._colorService.getSalesAgreementForGrid(gridlist,this.currentFinancialCommunityId).subscribe((result)=>
-		{
-			result.map((item:IPlanOptionCommunityGridDto) => {
-				const planoption = this.planOptionDtosList.find(c =>c.planOptionId === item.planOptionId);
-				if(planoption){
+	getSalesagreementOrConfig(gridlist: IPlanOptionCommunityGridDto[]) {
+		gridlist.map(x => x.loadingDeleteIcon = true);
+		this._colorService.getSalesAgreementForGrid(gridlist, this.currentFinancialCommunityId).subscribe((result) => {
+			result.map((item: IPlanOptionCommunityGridDto) => {
+				const planoption = this.planOptionDtosList.find(c => c.planOptionId === item.planOptionId);
+				if (planoption) {
 					planoption.hasSalesAgreement = item.hasSalesAgreement;
 				}
 			});
 		});
-		this._colorService.getconfigForGrid(gridlist,this.currentFinancialCommunityId).subscribe((result)=>
-		{
-			result.map((item:IPlanOptionCommunityGridDto) => {
-				const planoption = this.planOptionDtosList.find(c =>c.planOptionId === item.planOptionId);
-				if(planoption){
+		this._colorService.getconfigForGrid(gridlist, this.currentFinancialCommunityId).subscribe((result) => {
+			result.map((item: IPlanOptionCommunityGridDto) => {
+				const planoption = this.planOptionDtosList.find(c => c.planOptionId === item.planOptionId);
+				if (planoption) {
 					planoption.hasConfig = item.hasConfig;
 				}
 			});
 		});
 	}
-	onPanelScroll()
-	{
+	onPanelScroll() {
 		this.isLoading = true;
 		this.skip = this.currentPage * this.settings.infiniteScrollPageSize;
 		this.loadColorItemsGrid();
@@ -328,7 +359,6 @@ export class ColorItemsSearchHeaderComponent
 		this.pageNumber = 1;
 		this.loadColorItemsGrid();
 	}
-
 	onChangeOption() {
 		this.planOptionDtosList = [];
 		this.skip = 0;
@@ -340,9 +370,38 @@ export class ColorItemsSearchHeaderComponent
 		this.disableAddColorItemButton = true;
 	}
 
+	deleteSelectedColorItem(coloritemsDtoList: IColorItemDto[]) {
+		const message = 'Are you sure you want to delete this color item?';
+		this.showConfirmModal(message, 'Warning', 'Continue').pipe(
+			switchMap(cancelDeletion => {
+				if (cancelDeletion) {
+					return EMPTY;
+				}
+
+				const colorItemIdsToDelete = coloritemsDtoList.map(colorItem => colorItem.colorItemId);
+				return this._colorService.deleteColorItems(colorItemIdsToDelete);
+			})
+		).subscribe(successful => {
+			this.onDeleteSelectedColorItemCompleted(successful, CrudMode.Delete);
+		}
+		);
+	}
+
+	onDeleteSelectedColorItemCompleted(successful: boolean, mode: CrudMode) {
+		if (this.modalReference && successful) {
+			this.modalReference.dismiss();
+		}
+
+		this.showToast(successful, mode);
+
+		if (successful) {
+			this.onActiveColorChange();
+		}
+	}
+
 	private processAddColorItemButtonState() {
-		// 1. DONE. Add Color Item button is DISABLED unless a specific Option is chosen in criteria (which initiates search per prior story)
-		// 2. DONE. Add Color Item button is DISABLED if the Option "All" was used in search criteria.
+		// 1. Add Color Item button is DISABLED unless a specific Option is chosen in criteria (which initiates search per prior story)
+		// 2. Add Color Item button is DISABLED if the Option "All" was used in search criteria.
 		// 3. if 0 results in the grid after search is done, button is enabled (provided 'All' was not the option chosen)
 		// 4. if the option is an elevation option and any plans for the elevation option don't have an active color item,
 		//		then the button is enabled, otherwise it is disabled (because all plans for elevation option already have an active color item)
@@ -375,13 +434,11 @@ export class ColorItemsSearchHeaderComponent
 		return elevationOptionSubCategoryIds.includes(optionSubCategoryId);
 	}
 
-	getRowClass(rowData: any): string
-	{
-		return rowData.colorItem[0]?.isActive? null : 'phd-inactive-color';
+	getRowClass(rowData: any): string {
+		return rowData.colorItem[0]?.isActive ? null : 'phd-inactive-color';
 	}
 
-	private showConfirmModal(body: string, title: string, defaultButton: string): Observable<boolean>
-	{
+	private showConfirmModal(body: string, title: string, defaultButton: string): Observable<boolean> {
 		const confirm = this._modalService.open(ConfirmModalComponent, { centered: true, windowClass: "phd-modal-window" });
 
 		confirm.componentInstance.title = title;
@@ -407,59 +464,48 @@ export class ColorItemsSearchHeaderComponent
 		);
 	}
 
-	activateInactivateColorItem(coloritemDto: IColorItemDto[], planOptionDto: IPlanOptionCommunityGridDto, activate: boolean)
-	{
+	activateInactivateColorItem(coloritemDto: IColorItemDto[], planOptionDto: IPlanOptionCommunityGridDto, activate: boolean) {
 		let isElevation;
-		const option = this.planOptionList.find(x=>x.id === planOptionDto.optionCommunityId);
-		if(option)
+		const option = this.planOptionList.find(x => x.id === planOptionDto.optionCommunityId);
+		if (option)
 			isElevation = this.isElevationOption(option.optionSubCategoryId);
 
 		if(!this.selectedAllPlans && !isElevation && !planOptionDto.isBaseHouse)
 		{
-			this.checkColorItemName(coloritemDto[0].name, planOptionDto.optionCommunityId).subscribe((coloritems) =>
+			this._colorService.getColorItemForAssociatedPlans(coloritemDto[0].name, planOptionDto.optionCommunityId, this.currentFinancialCommunityId).subscribe((coloritems) =>
 			{
 				coloritemDto = coloritems;
-				if(activate)
-				{
+				if (activate) {
 					this.activateColorItem(coloritemDto, planOptionDto, isElevation);
 				}
-				else
-				{
+				else {
 					this.inactivateColorItem(coloritemDto, planOptionDto);
 				}
 			});
 		}
-		else
-		{
-			if(activate)
-			{
+		else {
+			if (activate) {
 				this.activateColorItem(coloritemDto, planOptionDto, isElevation);
 			}
-			else
-			{
+			else {
 				this.inactivateColorItem(coloritemDto, planOptionDto);
 			}
 		}
 	}
 
-	activateColorItem(coloritemDto: IColorItemDto[], planOptionDto : IPlanOptionCommunityGridDto,isElevation: boolean)
-	{
-		if(isElevation)
-		{
+	activateColorItem(coloritemDto: IColorItemDto[], planOptionDto: IPlanOptionCommunityGridDto, isElevation: boolean) {
+		if (isElevation) {
 			const planOptions = this.planOptionDtosList.filter(row => row.optionCommunityId === planOptionDto.optionCommunityId && row.planCommunity[0].id === planOptionDto.planCommunity[0].id);
 			//Verify if there is already an active color item for the elevation option
-			if(planOptions.filter(x=>x.colorItem[0].isActive)?.length>0)
-			{
+			if (planOptions.filter(x => x.colorItem[0].isActive)?.length > 0) {
 				const message = 'There is already an active color item for this elevation option';
-				this._modalService.showOkOnlyModal(message, 'Warning',true);
+				this._modalService.showOkOnlyModal(message, 'Warning', true);
 			}
-			else
-			{
+			else {
 				this.activateUpdateColorItem(coloritemDto, planOptionDto);
 			}
 		}
-		else
-		{
+		else {
 			this.activateUpdateColorItem(coloritemDto, planOptionDto);
 
 		}
@@ -471,15 +517,17 @@ export class ColorItemsSearchHeaderComponent
 			{
 				const colorItemToSave = {
 					colorItemId: ci.colorItemId,
-					isActive: true,
-					} as IColorItemDto;
-
+					name: ci.name,
+					edhPlanOptionId: ci.edhPlanOptionId,
+					colors: ci.colors,
+					isActive: true
+				} as IColorItemDto;
 				colorItemsToUpdate.push(colorItemToSave);
 			})
 
-			let toast:IToastInfo;
+		let toast: IToastInfo;
 
-			this._colorService.updateColorItem(colorItemsToUpdate, planOptionDto.planOptionId).subscribe((colorItems) => {
+			this._colorService.updateColorItem(colorItemsToUpdate).subscribe((colorItems) => {
 				if (colorItems) {
 					toast = {
 						severity: 'success',
@@ -487,11 +535,18 @@ export class ColorItemsSearchHeaderComponent
 						detail: 'Color Item activation was successful!'
 					}
 					this._msgService.add(toast);
-					const updatedResult = this.planOptionDtosList.find(row => row.planOptionId === planOptionDto.planOptionId).colorItem;
-					updatedResult.forEach((coloritem) =>
+					const updatedResult = this.planOptionDtosList.filter(row => row.planOptionId === planOptionDto.planOptionId);		
+					colorItems.forEach((coloritem) =>
 					{
-						coloritem.isActive =colorItems.find(c =>c.colorItemId === coloritem.colorItemId).isActive;
-					})
+						updatedResult.map((row)=>
+						{
+							const updateColorItem = row.colorItem.find(ci=>ci.colorItemId === coloritem.colorItemId);
+							if(updateColorItem)
+							{
+								updateColorItem.isActive = coloritem.isActive;
+							}
+						});
+					});
 				}
 				else{
 					toast = {
@@ -511,29 +566,29 @@ export class ColorItemsSearchHeaderComponent
 			}
 			);
 	}
-	inactivateColorItem(coloritemDto: IColorItemDto[], planOptionDto : IPlanOptionCommunityGridDto)
-	{
+	inactivateColorItem(coloritemDto: IColorItemDto[], planOptionDto: IPlanOptionCommunityGridDto) {
 		const message = 'Are you sure you want to inactivate this color item?';
 		let cancelled = false;
-		let toast:IToastInfo;
+		let toast: IToastInfo;
 
-	 	this.showConfirmModal(message, 'Warning', 'Continue').pipe(
+		this.showConfirmModal(message, 'Warning', 'Continue').pipe(
 			switchMap(cancel => {
 				if (cancel) {
 					cancelled = true;
 					return;
 				}
-				const colorItemsToUpdate: IColorItemDto[] =[];
-				coloritemDto.forEach((ci)=>
-				{
+				const colorItemsToUpdate: IColorItemDto[] = [];
+				coloritemDto.forEach((ci) => {
 					const colorItemToSave = {
 						colorItemId: ci.colorItemId,
-						isActive: false,
-						} as IColorItemDto;
-
+						name: ci.name,
+						edhPlanOptionId: ci.edhPlanOptionId,
+						colors: ci.colors,
+						isActive: false
+					} as IColorItemDto;					
 					colorItemsToUpdate.push(colorItemToSave);
 				})
-				return this._colorService.updateColorItem(colorItemsToUpdate, planOptionDto.planOptionId)
+				return this._colorService.updateColorItem(colorItemsToUpdate)
 				})).subscribe((colorItems:IColorItemDto[]) => {
 					if (colorItems) {
 						toast = {
@@ -542,11 +597,15 @@ export class ColorItemsSearchHeaderComponent
 							detail: 'Color Item inactivation was successful!'
 						}
 						this._msgService.add(toast);
-						const updatedResult = this.planOptionDtosList.find(row => row.planOptionId === planOptionDto.planOptionId).colorItem;
-						updatedResult.forEach((coloritem) =>
-						{
-							coloritem.isActive =colorItems.find(c =>c.colorItemId === coloritem.colorItemId).isActive;
-						})
+						const updatedResult = this.planOptionDtosList.filter(row => row.planOptionId === planOptionDto.planOptionId);		
+						colorItems.forEach((coloritem) => {
+							updatedResult.map((row) => {
+								const updateColorItem = row.colorItem.find(ci => ci.colorItemId === coloritem.colorItemId);
+								if (updateColorItem) {
+									updateColorItem.isActive = coloritem.isActive;
+								}
+							});
+						});						 
 					}
 					else{
 						toast = {
@@ -575,8 +634,7 @@ export class ColorItemsSearchHeaderComponent
 		this.modalReference.dismiss();
 	}
 
-	private showToast(successful: boolean, mode: CrudMode)
-	{
+	private showToast(successful: boolean, mode: CrudMode) {
 		const messagePrefix = mode === CrudMode.Delete ? 'Delete' : 'Save';
 
 		const toast = {
@@ -590,8 +648,7 @@ export class ColorItemsSearchHeaderComponent
 	}
 
 	colorItemSaveWasAttempted(successful: boolean) {
-		if (successful)
-		{
+		if (successful) {
 			this.modalReference.dismiss();
 			this.showToast(successful, CrudMode.Add);
 			this.planOptionDtosList = [];

@@ -28,7 +28,7 @@
 	cursor: pointer;
 
 	.phd-attribute-item-image-selected {
-		border: solid 4px $pantone_blue;
+		border: solid 4px var(--selected-border-color);
 	}
 
 	.phd-image-is-inactive, &.disabled {
@@ -44,6 +44,6 @@
 	color: rgb(214, 214, 214);
 
     .phd-icon-selected {
-        color: $pantone_blue;
+        color: var(--primary-icon-color);
     }
 }

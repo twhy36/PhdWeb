@@ -3,7 +3,7 @@ import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { SidePanelComponent } from "phd-common";
 import { MessageService } from "primeng/api";
 import { PlanService } from "../../../core/services/plan.service";
-import { DivChoiceCatalog } from "../../../shared/models/choice.model";
+import { DivisionalCatalog, DivDGroup, DivDSubGroup, DivDPoint, DivDChoice } from "../../../shared/models/divisionalCatalog.model";
 import { LotChoiceRuleAssoc, LotChoiceRuleAssocView } from "../../../shared/models/lotChoiceRule.model";
 import { FinancialCommunityViewModel, HomeSiteViewModel, PlanViewModel } from "../../../shared/models/plan-assignment.model";
 
@@ -19,7 +19,8 @@ export class LotRelationshipsSidePanelComponent implements OnInit
 
 	@Output() onSave = new EventEmitter<LotChoiceRuleAssoc[]>();
 	@Output() onSidePanelClose = new EventEmitter<boolean>();
-	@Input() divChoiceCatalogs: Array<DivChoiceCatalog>;
+	@Input() divChoiceCatalogs: Array<DivDChoice> = []; // Need this to view inactive choices from old rules
+	@Input() divisionalCatalog: DivisionalCatalog;
 	@Input() edhToPhdPlanMap: Map<number, number>;
 	@Input() existingLotRelationships: Array<LotChoiceRuleAssocView>;
 	@Input() saving: boolean;
@@ -27,16 +28,20 @@ export class LotRelationshipsSidePanelComponent implements OnInit
 	@Input() selectedCommunity: FinancialCommunityViewModel;
 	@Input() sidePanelOpen: boolean = false;
 
+	
 	lotRelationshipsForm: FormGroup;
 	lotsForSelectedCommunity: Array<HomeSiteViewModel>;
 	plansForSelectedCommunity: Array<PlanViewModel>;
-	selectedChoiceCatalogs: Array<DivChoiceCatalog> = [];
+	selectedChoiceCatalogs: Array<DivDChoice> = [];
 	selectedLots: Array<HomeSiteViewModel> = [];
 	selectedPlans: Array<PlanViewModel> = [];
-	searchResults: Array<DivChoiceCatalog> = [];
-	showSearchResults = false;
 
-	formControlLabels = 'assignedLotIds' || 'assignedPlanIds' || 'divChoiceCatalogId';
+	formControlLabels: string = 'assignedLotIds' || 'assignedPlanIds' || 'divChoiceCatalogId';
+	keyword: string = '';
+	searchFilters: Array<string> = ['All', 'Group', 'SubGroup', 'Decision Point', 'Choice'];
+	searchResultsCount: number = 0;
+	selectedSearchFilter: string = 'All';
+	showSearchResults: boolean = false;
 
 	get isDirty(): boolean
 	{
@@ -82,6 +87,7 @@ export class LotRelationshipsSidePanelComponent implements OnInit
 			const divChoiceCatalog = this.divChoiceCatalogs.find(c => c.divChoiceCatalogID === this.selected.divChoiceCatalogId);
 			if (divChoiceCatalog)
 			{
+				divChoiceCatalog.mustHave = this.selected.mustHave;
 				this.selectedChoiceCatalogs.push(divChoiceCatalog);
 			}
 		}
@@ -188,33 +194,30 @@ export class LotRelationshipsSidePanelComponent implements OnInit
 	clearFilter()
 	{
 		this.showSearchResults = false;
-		this.searchResults = [];
+		this._resetAllMatchValues(false);
 	}
 
 	keywordSearch(event: any)
 	{
 		// set the key search term
-		const keyword = event['keyword'] || '';
+		this.keyword = event['keyword'] || '';
+		this.selectedSearchFilter = event['searchFilter'];
 
-		// reset everything
-		this.showSearchResults = false;
-		this.searchResults = [];
+		// reset everything to unmatched
+		this._resetAllMatchValues(false);
 
-		// search the divChoiceCatalogs
-		this.searchResults = this.divChoiceCatalogs.filter(c => c.choiceLabel.toLowerCase().includes(keyword.toLowerCase()));
-
+		this.searchResultsCount = this._mainSearch(this.divisionalCatalog.groups, false);
 		this.showSearchResults = true;
 	}
 
-	toggleMustHave(choice: DivChoiceCatalog)
+	toggleMustHave(choice: DivDChoice)
 	{
 		choice.mustHave = !choice.mustHave;
 	}
 
-	choiceClicked(choice: DivChoiceCatalog)
+	choiceClicked(choice: DivDChoice)
 	{
 		if (this.selectedChoiceCatalogs.length === 0
-			&& this.selectedChoiceCatalogs.findIndex(r => r.divChoiceCatalogID === choice.divChoiceCatalogID) === -1
 			&& !this.doesLotRelationshipExist(choice.divChoiceCatalogID, 'choice'))
 		{
 			this.selectedChoiceCatalogs.push(choice);
@@ -229,7 +232,7 @@ export class LotRelationshipsSidePanelComponent implements OnInit
 		}
 	}
 
-	removeChoice(choice: DivChoiceCatalog)
+	removeChoice(choice: DivDChoice)
 	{
 		this.selectedChoiceCatalogs = this.selectedChoiceCatalogs.filter(c => c.divChoiceCatalogID !== choice.divChoiceCatalogID);
 	}
@@ -295,6 +298,26 @@ export class LotRelationshipsSidePanelComponent implements OnInit
 		return null;
 	}
 
+	isGroupInterface(arg: any): arg is DivDGroup
+	{
+		return arg.dGroupCatalogID !== undefined;
+	}
+
+	isSubGroupInterface(arg: any): arg is DivDSubGroup
+	{
+		return arg.dSubGroupCatalogID !== undefined;
+	}
+
+	isPointInterface(arg: any): arg is DivDPoint
+	{
+		return arg.dPointCatalogID !== undefined;
+	}
+
+	isChoiceInterface(arg: any): arg is DivDChoice
+	{
+		return arg.divChoiceCatalogID !== undefined;
+	}
+
 	private doesLotRelationshipExist(id: number, type: string)
 	{
 		let relationshipExists = false;
@@ -327,5 +350,175 @@ export class LotRelationshipsSidePanelComponent implements OnInit
 			});	
 		}
 		return relationshipExists;
+	}
+
+	// recursively searches groups/subgroups/points/choices
+	private _mainSearch = (items: Array<DivDGroup | DivDSubGroup | DivDPoint | DivDChoice>, inheritMatch: boolean): number =>
+	{
+		let count = 0;
+		const isFilteredGroup = this._isFiltered('Group');
+		const isFilteredSubGroup = this._isFiltered('SubGroup');
+		const isFilteredPoint = this._isFiltered('Decision Point');
+		const isFilteredChoice = this._isFiltered('Choice');
+		const isNotFiltered = !(isFilteredGroup || isFilteredSubGroup || isFilteredPoint || isFilteredChoice);
+
+		if (items != null)
+		{
+			items.forEach(i =>
+			{
+				if (this.isGroupInterface(i))
+				{
+					if (i.subGroups.length > 0)
+					{
+						// check for match if no filter has been selected OR filter by group has been selected
+						if ((isNotFiltered || isFilteredGroup) && this._isMatch(i.dGroupLabel, this.keyword))
+						{
+							count++;
+							i.matched = true;
+							// expand group to show everything in it
+							i.open = true;
+							// match found so show everything under this group by setting 2nd parm to true (inheritMatch)
+							count += this._mainSearch(i.subGroups as Array<DivDSubGroup>, true);
+						}
+						else
+						{
+							// check for a match in subgroups
+							const c = this._mainSearch(i.subGroups as Array<DivDSubGroup>, false);
+							// match and expand group to show everything in it if match count > 0
+							i.matched = c > 0;
+							i.open = c > 0;
+							count += c;
+						}
+					}
+					else
+					{
+						// the group does not have any subgroups so set matched to false
+						i.matched = false;
+					}
+				}
+				else if (this.isSubGroupInterface(i))
+				{
+					if (i.points.length > 0)
+					{
+						// check for match if no filter has been selected OR filter by subgroup has been selected
+						// automatically set subgroup matched to true if the group matches (inheritMatch is true)
+						if (((isNotFiltered || isFilteredSubGroup) && this._isMatch(i.dSubGroupLabel, this.keyword)) || inheritMatch)
+						{
+							count++;
+							i.matched = true;
+							// expand subgroup to show everything in it
+							i.open = true;
+							// show everything under this subgroup by setting 2nd parm to true (inheritMatch)
+							count += this._mainSearch(i.points as Array<DivDPoint>, true);
+						}
+						else
+						{
+							// check for a match in decision points
+							const c = this._mainSearch(i.points as Array<DivDPoint>, false);
+							// match and expand subgroup to show everything in it if match count > 0
+							i.matched = c > 0;
+							i.open = c > 0;
+							count += c;
+						}
+					}
+					else
+					{
+						// the subgroup does not have any decision points so set matched to false
+						i.matched = false;
+					}
+				}
+				else if (this.isPointInterface(i))
+				{
+					if (i.choices.length > 0)
+					{
+						// check for match if no filter has been selected OR filter by decision point has been selected
+						// automatically set decision point matched to true if the subgroup matches (inheritMatch is true)
+						if (((isNotFiltered || isFilteredPoint) && this._isMatch(i.dPointLabel, this.keyword)) || inheritMatch)
+						{
+							count++;
+							i.matched = true;
+							// expand decision point to show everything in it
+							i.open = true;
+							// show everything under this decision point by setting 2nd parm to true (inheritMatch)
+							count += this._mainSearch(i.choices as Array<DivDChoice>, true);
+						}
+						else
+						{
+							// check for a match in choices
+							const c = this._mainSearch(i.choices as Array<DivDChoice>, false);
+							// match and expand decision point to show everything in it if match count > 0
+							i.matched = c > 0;
+							i.open = c > 0;
+							count += c;
+						}
+					}
+					else
+					{
+						// the decision point does not have any choices so set matched to false
+						i.matched = false;
+					}
+				}
+				else if (this.isChoiceInterface(i))
+				{
+					// check for match if no filter has been selected OR filter by choice has been selected
+					// automatically set choice matched to true if the decision point matches (inheritMatch is true)
+					if (((isNotFiltered || isFilteredChoice) && this._isMatch(i.choiceLabel, this.keyword)) || inheritMatch)
+					{
+						count++;
+						i.matched = true;
+					}
+					else
+					{
+						// choice does not match
+						i.matched = false;
+					}
+				}
+			});
+		}
+		return count;
+	}
+
+	private _isMatch = (label: string, keyword: string): boolean =>
+	{
+		return label.toLowerCase().indexOf(keyword.toLowerCase()) >= 0;
+	}
+
+	private _isFiltered(filterType: string)
+	{
+		let filtered = false;
+
+		if (this.selectedSearchFilter === filterType || this.selectedSearchFilter === 'All')
+		{
+			filtered = true;
+		}
+
+		return filtered;
+	}
+
+	private _resetAllMatchValues(value: boolean)
+	{
+		this.showSearchResults = false;
+		this.searchResultsCount = 0;
+
+		this.divisionalCatalog.groups.forEach(gp =>
+		{
+			gp.matched = value;
+
+			if (gp.subGroups != null)
+			{
+				gp.subGroups.forEach(sg =>
+				{
+					sg.matched = value;
+
+					if (sg.points != null)
+					{
+						sg.points.forEach(dp =>
+						{
+							dp.matched = value;
+						});
+					}
+				});
+			}
+		});
 	}
 }

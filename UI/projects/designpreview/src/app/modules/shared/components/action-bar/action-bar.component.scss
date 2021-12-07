@@ -38,7 +38,7 @@
 		span {
 			font-size: 14px;
 			text-transform: uppercase;
-			color: $midnight_blue;
+			color: var(--secondary-icon-color);
 		}
 
 		.fa-list-alt {
@@ -48,7 +48,8 @@
 	}
 
 	.phd-action-bar-action-btn {
-		background: $pantone_blue;
+		background: var(--primary-button-color);
+		border-radius: var(--button-border-radius);
 		color: white;
 		min-width: 120px;
 		margin: 0px 10px 0px 20px;
