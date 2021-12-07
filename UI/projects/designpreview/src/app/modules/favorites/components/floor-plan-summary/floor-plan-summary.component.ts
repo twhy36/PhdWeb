@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Location } from '@angular/common';
 
 import { BehaviorSubject } from 'rxjs';
-import { combineLatest } from 'rxjs/operators';
+import { combineLatest } from 'rxjs';
 
 import { Store, select } from '@ngrx/store';
 import * as fromRoot from '../../../ngrx-store/reducers';
@@ -37,11 +37,13 @@ export class FloorPlanSummaryComponent extends UnsubscribeOnDestroy implements O
 	}
 
 	ngOnInit() {
-		this.store.pipe(
-			this.takeUntilDestroyed(),
-			select(fromRoot.contractedTree),
-			combineLatest(this.store.pipe(select(state => state.scenario)), this.store.pipe(select(fromPlan.planState)))
-		).subscribe(([contractedTree, scenarioState, plan]) => {
+		combineLatest([
+			this.store.pipe(select(fromRoot.contractedTree), this.takeUntilDestroyed()),
+			this.store.pipe(select(state => state.scenario), this.takeUntilDestroyed()),
+			this.store.pipe(select(fromPlan.planState), this.takeUntilDestroyed()),
+		])
+		.subscribe(([contractedTree, scenarioState, plan]) =>
+		{
 			const tree = contractedTree || scenarioState?.tree?.treeVersion;
 			if (tree && plan && plan.marketingPlanId && plan.marketingPlanId.length) {
 				const sgs = _.flatMap(tree?.groups, g => g.subGroups.filter(sg => sg.useInteractiveFloorplan));
@@ -53,7 +55,7 @@ export class FloorPlanSummaryComponent extends UnsubscribeOnDestroy implements O
 					this.noVisibleFP = true;
 				}
 			}
-		});
+		});	
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
