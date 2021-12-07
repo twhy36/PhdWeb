@@ -1,12 +1,14 @@
-<manage-homesites-side-panel-component *ngIf="sidePanelOpen" [saving]="saving" [sidePanelOpen]="sidePanelOpen" [monotonyRules]="monotonyRules"
-									   [lots]="lots"
-									   [selectedHomesite]="selectedHomesite"
-										 [communityWebsiteKey]="selectedCommunityWebsiteKey"
-									   [viewAdjacencies]="viewAdjacencies"
-									   [physicalLotTypes]="physicalLotTypes"
-									   [isColorSchemePlanRuleEnabled]="isColorSchemePlanRuleEnabled"
-									   (onSidePanelClose)="onSidePanelClose($event)"
-									   (onSaveHomesiteAndMonotonyRules)="saveHomesiteAndMonotonyRules($event)">
+<manage-homesites-side-panel-component *ngIf="sidePanelOpen" 
+										[saving]="saving" 
+										[sidePanelOpen]="sidePanelOpen" 
+									   	[monotonyRules]="monotonyRules"
+									  	[selectedHomesite]="selectedHomesite"
+										[communityWebsiteKey]="selectedCommunityWebsiteKey"
+									    [viewAdjacencies]="viewAdjacencies"
+									    [physicalLotTypes]="physicalLotTypes"
+									    [isColorSchemePlanRuleEnabled]="isColorSchemePlanRuleEnabled"
+									    (onSidePanelClose)="onSidePanelClose($event)"
+									    (onSaveHomesiteAndMonotonyRules)="saveHomesiteAndMonotonyRules($event)">
 </manage-homesites-side-panel-component>
 
 <div class="phd-page-container" [class.phd-side-panel-open]="sidePanelOpen">

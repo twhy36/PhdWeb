@@ -6,7 +6,7 @@ import { filter } from 'rxjs/operators';
 
 import { MessageService } from 'primeng/api';
 
-import { HomeSite, HomeSiteDtos } from '../../../shared/models/homesite.model';
+import { communityLot, HomeSite, HomeSiteDtos } from '../../../shared/models/homesite.model';
 import { MonotonyRule, MonotonyRuleDtos } from '../../../shared/models/monotonyRule.model';
 
 import { HomeSiteService } from '../../../core/services/homesite.service';
@@ -24,7 +24,6 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 	@Input() saving: boolean;
 	@Input() selectedHomesite: HomeSite;
 	@Input() monotonyRules: Array<MonotonyRule>;
-	@Input() lots: Array<HomeSite> = [];
 	@Input() viewAdjacencies: Array<HomeSiteDtos.ILabel> = [];
 	@Input() physicalLotTypes: Array<HomeSiteDtos.ILabel> = [];
 	@Input() communityWebsiteKey: string;
@@ -59,6 +58,7 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 	Handing = HomeSiteDtos.Handing;
 
 	selectedHandings: Array<HomeSiteDtos.IHanding> = [];
+	communitylots: Array<communityLot>;
 
 	get isDirty(): boolean
 	{
@@ -141,6 +141,7 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 
 	ngOnInit()
 	{
+		this.homeSiteService.getCommunityLots().subscribe(lots => this.communitylots = lots);
 		this.canEditAvailability = this.selectedHomesite.dto.lotStatusDescription === "Available"
 			|| (this.selectedHomesite.dto.lotBuildTypeDescription === "Spec" && this.selectedHomesite.dto.lotStatusDescription === "Unavailable"); //check on this
 		this.createForm();
@@ -216,7 +217,7 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 
 		this.monotonyRules.forEach(rule =>
 		{
-			const lot = this.lots.find(x => x.dto.id === rule.relatedLotId);
+			const lot = this.communitylots.find(x => x.id === rule.relatedLotId);
 			if (!!lot)
 			{
 				if (rule.monotonyRuleType === 'Elevation')
@@ -230,7 +231,7 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 			}
 		});
 
-		this.lots.forEach(lot =>
+		this.communitylots.forEach(lot =>
 		{
 			if (lot.lotBlock !== this.selectedHomesite.lotBlock)
 			{
@@ -387,7 +388,7 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 			monotonyRulesToSave.push({
 				monotonyRuleType: 'Elevation',
 				lotId: lotId,
-				relatedLotId: this.lots.find(x => x.lotBlock === lot).dto.id
+				relatedLotId: this.communitylots.find(x => x.lotBlock === lot).id
 			})
 		});
 
@@ -396,7 +397,7 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 			monotonyRulesToSave.push({
 				monotonyRuleType: 'ColorScheme',
 				lotId: lotId,
-				relatedLotId: this.lots.find(x => x.lotBlock === lot).dto.id
+				relatedLotId: this.communitylots.find(x => x.lotBlock === lot).id
 			})
 		});
 

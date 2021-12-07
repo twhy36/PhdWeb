@@ -60,6 +60,12 @@ export class HomeSite
 	}
 }
 
+export class communityLot
+{
+	id: number;
+	lotBlock: string;
+}
+
 export class Job
 {
 	jobId: number;
