@@ -128,26 +128,10 @@ export class ColorItemsSearchHeaderComponent
 		this.currentColorItems = planOptionDto.colorItem;
 		this.selectedOption = this.planOptionList.find(option => option.id==planOptionDto.optionCommunityId);
 		this.currentEditItem = planOptionDto;
-		// Added this to handle cases when salesagreement for this row is not yet returned. Calling it here again.
-		if(planOptionDto.hasSalesAgreement === null){
-			this._colorService.getSalesAgreementForGrid([planOptionDto], this.currentFinancialCommunityId).subscribe((result) => {
-				result.map((item: IPlanOptionCommunityGridDto) => {
-					const planoption = this.planOptionDtosList.find(c => c.planOptionId === item.planOptionId);
-					if (planoption) {
-						planoption.hasSalesAgreement = item.hasSalesAgreement;
-						(planOptionDto.hasSalesAgreement === false) ? this.canEditName = true : this.canEditName = false
-						this.modalReference = this._modalService.open(this.editColorItemModal);
-						this.modalReference.result.catch(err => console.log(err));
-					}
-				});
-			});
-		}
-		else
-		{
-			(planOptionDto.hasSalesAgreement === false) ? this.canEditName = true : this.canEditName = false
-			this.modalReference = this._modalService.open(this.editColorItemModal);
-			this.modalReference.result.catch(err => console.log(err));
-		}
+		(planOptionDto.hasSalesAgreement === false) ? this.canEditName = true : this.canEditName = false
+		this.modalReference = this._modalService.open(this.editColorItemModal);
+		this.modalReference.result.catch(err => console.log(err));
+		
 	}
 	onEditColorItemDialogWasCanceled()
 	{
