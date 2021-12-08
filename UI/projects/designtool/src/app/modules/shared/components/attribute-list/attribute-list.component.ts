@@ -218,7 +218,7 @@ export class AttributeListComponent extends UnsubscribeOnDestroy implements OnIn
 
 	getTitle(attribute: Attribute): string
 	{
-		return (this.isActive || this.attributes.length === 1) ? attribute.name : 'Please enter a quantity first.';
+		return this.isActive ? attribute.name : 'Please enter a quantity first.';
 	}
 
 	getImageSrc(attribute: Attribute): string

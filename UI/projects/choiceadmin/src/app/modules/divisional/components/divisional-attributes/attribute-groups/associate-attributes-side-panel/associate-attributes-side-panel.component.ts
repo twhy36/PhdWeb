@@ -92,7 +92,7 @@ export class AssociateAttributesSidePanelComponent extends UnsubscribeOnDestroy 
 			filter(p => p.get('marketId') && p.get('marketId') != '0'),
 			map(p => +p.get('marketId')),
 			distinctUntilChanged(),
-			switchMap(marketId => this._attrService.getAttributesByMarketId(marketId, true, true))
+			switchMap(marketId => this._attrService.getAttributesByMarketId(marketId, true))
 		).subscribe(data =>
 		{
 			this.allAttributesInMarket = data;
@@ -283,8 +283,4 @@ export class AssociateAttributesSidePanelComponent extends UnsubscribeOnDestroy 
 		}
 	}
 
-	getRowClass(rowData: any): string
-	{
-		return rowData['active'] ? null : 'phd-inactive';
-	}
 }

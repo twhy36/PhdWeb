@@ -29,7 +29,7 @@ export class AttributeService
 
 	constructor(private _http: HttpClient, private _loggingService: LoggingService) { }
 
-	getAttributesByMarketId(marketId: number, status?: boolean, includeFutureDates?: boolean, topRows?: number, skipRows?: number, filterName?: string, keywords?: string, tableSort?: TableSort): Observable<Array<Attribute>>
+	getAttributesByMarketId(marketId: number, status?: boolean, topRows?: number, skipRows?: number, filterName?: string, keywords?: string, tableSort?: TableSort): Observable<Array<Attribute>>
 	{
 		let url = settings.apiUrl;
 
@@ -91,10 +91,7 @@ export class AttributeService
 
 			if(status)
 			{
-				filter += ` and ((startDate le ${today} and ${today} le endDate)`;
-
-				// include future start dates for those times where you need all active plus those that will be active.
-				filter += includeFutureDates ? ` or startDate gt ${today})` : ')'
+				filter += ` and (startDate le ${today} and ${today} le endDate)`;
 			}
 			else
 			{
