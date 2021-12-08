@@ -131,6 +131,7 @@ export class ColorItemsSearchHeaderComponent
 		(planOptionDto.hasSalesAgreement === false) ? this.canEditName = true : this.canEditName = false
 		this.modalReference = this._modalService.open(this.editColorItemModal);
 		this.modalReference.result.catch(err => console.log(err));
+		
 	}
 	onEditColorItemDialogWasCanceled()
 	{
@@ -235,7 +236,6 @@ export class ColorItemsSearchHeaderComponent
 
 				planOptionDtos = planOptionDtos.filter(x => !!x.colorItem);
 				this.optionsWithColorItems = planOptionDtos;
-
 				if (planOptionDtos.length > 0) {
 					const planOptionGridList = [];
 					if (!isElevation) {
@@ -299,7 +299,7 @@ export class ColorItemsSearchHeaderComponent
 						});
 
 					}
-					this.planOptionDtosList = [...this.planOptionDtosList, ...planOptionGridList];
+					this.planOptionDtosList = [...this.planOptionDtosList, ...planOptionGridList];					
 					const expectedListLength = this.pageNumber * this.settings.infiniteScrollPageSize;
 					if (this.planOptionDtosList.length < expectedListLength && !this.allDataLoaded && isAllOption && this.optionListIndex < (this.planOptionList.length - 1)) {
 						this.onPanelScroll();

@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
-import { Observable ,  throwError as _throw } from 'rxjs';
+import { Observable ,  ReplaySubject,  throwError as _throw } from 'rxjs';
 import { combineLatest, catchError, map } from 'rxjs/operators';
 
 import * as odataUtils from '../../shared/utils/odata.util';
 
 import { Settings } from '../../shared/models/settings.model';
-import { HomeSiteDtos } from '../../shared/models/homesite.model';
+import { communityLot, HomeSiteDtos } from '../../shared/models/homesite.model';
 import { withSpinner } from 'phd-common';
 
 import { SettingsService } from './settings.service';
@@ -22,6 +22,13 @@ export class HomeSiteService
 	constructor(
 		private _http: HttpClient
 	) { }
+
+	private _communityLots = new ReplaySubject<Array<communityLot>>(1);
+
+	getCommunityLots(): Observable<Array<communityLot>>
+	{
+		return this._communityLots;
+	}
 
 	/**
 	* Gets the homesites for the specified financial community
@@ -435,5 +442,22 @@ export class HomeSiteService
 		console.error(error);
 
 		return _throw(error || 'Server error');
+	}
+
+	loadCommunityLots(commId: number)
+	{
+			let url = settings.apiUrl;
+			let filter = `financialCommunity/id eq ${commId} and lotStatusDescription ne 'Deleted' and isMasterUnit eq false`;
+			const select = `id, lotBlock`;
+			const orderBy = 'lotBlock';
+
+			const qryStr = `${encodeURIComponent("$")}filter=${encodeURIComponent(filter)}&${encodeURIComponent("$")}select=${encodeURIComponent(select)}&${encodeURIComponent("$")}orderBy=${encodeURIComponent(orderBy)}`;
+
+			url += `lots?${qryStr}`;
+
+			return this._http.get(url).subscribe( (response: any) => {
+					this._communityLots.next(response.value);
+				}), catchError(this.handleError);
+		
 	}
 }

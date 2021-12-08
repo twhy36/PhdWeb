@@ -22,3 +22,15 @@
 		<button class="btn phd-design-list-button" (click)="viewOptions()">View Options</button>
 	</div>
 </div>
+
+<!-- Initialize a hidden floorplan component if the images were not found -->
+<ng-container class="phd-hidden-floor-plan" *ngIf="!hasFloorPlanImages && floorplanSG" >
+	<floor-plan
+		[height]="'0vh'"
+		[planId$]="marketingPlanId$"
+		[subGroup]="floorplanSG"
+		[isFlipped]="isFloorplanFlipped"
+		[isPresavedFloorplan]="true"
+		(onFloorPlanSaved)="onFloorPlanSaved($event)">
+	</floor-plan>
+</ng-container>
