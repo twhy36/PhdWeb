@@ -21,7 +21,15 @@ export class LitePlanOption implements PlanOption
 
     // Lite
     optionSubCategoryId: number;
+	optionCategoryId: number;
     colorItems: ColorItem[] = [];
+}
+
+export class LitePlanOptionUI extends LitePlanOption
+{
+	isSelected: boolean;
+	selectedQuantity: number;
+	quantityRange: number[] = [];
 }
 
 export interface ScenarioOption
@@ -30,7 +38,7 @@ export interface ScenarioOption
 	scenarioId: number;
 	edhPlanOptionId: number;
     planOptionQuantity: number;
-    scenarioOptionColors: ScenarioOptionColor[]; 
+    scenarioOptionColors: ScenarioOptionColor[];
 }
 
 export interface ScenarioOptionColor
@@ -61,10 +69,10 @@ export interface ColorItem
 
 export interface Color
 {
-    colorId: number;    
+    colorId: number;
     name: string;
     sku: string;
-    edhFinancialCommunityId: number;    
+    edhFinancialCommunityId: number;
     edhOptionSubcategoryId: number;
     isActive: boolean;
     colorItemId: number;
@@ -78,11 +86,25 @@ export enum Elevation
 
 export enum LiteSubMenu
 {
-    Elevation = 5,
-    ColorScheme = 6
+    Elevation = -5,
+    ColorScheme = -6
 }
 
 export const ExteriorSubNavItems: Array<{ label: string, status: any, id: number }> = [
 	{ label: "Elevation", status: PointStatus.REQUIRED, id: LiteSubMenu.Elevation },
 	{ label: "Color Scheme", status: PointStatus.REQUIRED, id: LiteSubMenu.ColorScheme }
 ];
+
+export interface IOptionCategory
+{
+    name: string,
+    id: number,
+    optionSubCategories: Array<IOptionSubCategory>,
+}
+export interface IOptionSubCategory
+{
+    name: string,
+    id: number,
+    optionCategory: IOptionCategory,
+	planOptions?: LitePlanOptionUI[]
+}

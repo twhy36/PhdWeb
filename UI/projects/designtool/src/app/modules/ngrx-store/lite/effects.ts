@@ -1,18 +1,19 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Action, Store } from '@ngrx/store';
-import { Observable, never, of, combineLatest } from 'rxjs';
+import { Observable, never, of, combineLatest, from } from 'rxjs';
 import { switchMap, withLatestFrom, map } from 'rxjs/operators';
 
 import { LiteService } from '../../core/services/lite.service';
 import { PlanActionTypes, PlansLoaded } from '../plan/actions';
 import { ScenarioActionTypes, ScenarioSaved } from '../scenario/actions';
-import { 
-	LiteActionTypes, SetIsPhdLite, LiteOptionsLoaded, SaveScenarioOptions, ScenarioOptionsSaved, SaveScenarioOptionColors 
+import {
+	LiteActionTypes, SetIsPhdLite, LiteOptionsLoaded, SaveScenarioOptions, ScenarioOptionsSaved, SaveScenarioOptionColors, OptionCategoriesLoaded
 } from './actions';
 import { CommonActionTypes, ScenarioLoaded } from '../actions';
 import * as fromRoot from '../reducers';
-
+import * as _ from 'lodash';
+import { IOptionCategory } from '../../shared/models/lite.model';
 
 @Injectable()
 export class LiteEffects
@@ -47,11 +48,27 @@ export class LiteEffects
 
 				if (isPhdLite && !optionsLoaded)
 				{
+					const communityId = store.plan.plans?.find(p => p.id === store.plan.selectedPlan)?.communityId;
+
 					return combineLatest([
 						this.liteService.getLitePlanOptions(action.scenario.planId),
-						this.liteService.getScenarioOptions(action.scenario.scenarioId)
+						this.liteService.getScenarioOptions(action.scenario.scenarioId),
+						this.liteService.getOptionsCategorySubcategory(communityId)
 					]).pipe(
-						switchMap(([options, scenarioOptions]) => {
+						switchMap(([options, scenarioOptions, optionsForCategories]) => {
+							let categories: IOptionCategory[] = [];
+
+							if (optionsForCategories)
+							{
+								let groups = _.groupBy(optionsForCategories, sc => sc.optionCategory.id);
+								categories = Object.keys(groups).map(g => ({
+									...groups[g][0].optionCategory,
+									optionSubCategories: groups[g].map(sc => ({ ...sc, optionCategory: undefined }))
+								})).sort((category1,category2) => {
+									return category1.name > category2.name ? 1 : -1;
+								});
+							}
+
 							const optionIds = options.map(o => o.id);
 							return this.liteService.getColorItems(optionIds).pipe(
 								map(colorItems => {
@@ -62,7 +79,7 @@ export class LiteEffects
 											option.colorItems.push(colorItem);
 										}
 									});
-									return { options, scenarioOptions };
+									return { options, scenarioOptions, categories };
 								})
 							)
 						})
@@ -76,12 +93,13 @@ export class LiteEffects
 			switchMap(data => {
 				if (data)
 				{
-					return of(new LiteOptionsLoaded(data.options, data.scenarioOptions));				
+					return from([new LiteOptionsLoaded(data.options, data.scenarioOptions), new OptionCategoriesLoaded(data.categories)]);
 				}
 				return never();
 			})
 		);
-	});	
+	});
+
 
 	saveScenarioOptions$: Observable<Action> = createEffect(() => {
 		return this.actions$.pipe(
@@ -96,7 +114,7 @@ export class LiteEffects
 			}),
 			map(options => new ScenarioOptionsSaved(options))
 		);
-	});	
+	});
 
 	saveScenarioOptionColors$: Observable<Action> = createEffect(() => {
 		return this.actions$.pipe(
@@ -111,10 +129,10 @@ export class LiteEffects
 			}),
 			map(options => new ScenarioOptionsSaved(options))
 		);
-	});	
+	});
 
 	constructor(
-		private actions$: Actions, 
+		private actions$: Actions,
 		private store: Store<fromRoot.State>,
 		private liteService: LiteService
 	) { }

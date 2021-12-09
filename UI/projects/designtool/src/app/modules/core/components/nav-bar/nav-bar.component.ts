@@ -22,7 +22,7 @@ import { ConfirmModalComponent } from '../../../core/components/confirm-modal/co
 import { environment } from '../../../../../environments/environment';
 
 import * as fromLite from '../../../ngrx-store/lite/reducer';
-import { ExteriorSubNavItems, LiteSubMenu, LitePlanOption } from '../../../shared/models/lite.model';
+import { ExteriorSubNavItems, LiteSubMenu, Elevation, IOptionCategory, IOptionSubCategory, LitePlanOption } from '../../../shared/models/lite.model';
 
 @Component({
 	selector: 'nav-bar',
@@ -66,14 +66,16 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 	newHomeStatus: PointStatus;
 	isPhdLite$: Observable<boolean>;
 	exteriorStatus: PointStatus;
+	categories: IOptionCategory[] = [];
+	subcategories: IOptionSubCategory[] = [];
+	options: LitePlanOption[];
 
 	constructor(private lotService: LotService,
 		private identityService: IdentityService,
 		private router: Router,
 		private browser: BrowserService,
 		private store: Store<fromRoot.State>,
-		private modalService: ModalService
-	)
+		private modalService: ModalService)
 	{
 		super();
 	}
@@ -198,8 +200,8 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 			{
 				return state.lite?.isPhdLite;
 			})
-		);	
-		
+		);
+
 		combineLatest([
 			this.store.pipe(select(fromLite.selectedElevation), this.takeUntilDestroyed()),
 			this.store.pipe(select(fromLite.selectedColorScheme), this.takeUntilDestroyed())
@@ -218,7 +220,20 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 			{
 				this.exteriorStatus = PointStatus.REQUIRED;
 			}
-		});		
+		});
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromLite.selectedOptionCategories)).subscribe(categories =>
+			{
+				this.categories = categories;
+			});
+
+		this.store
+		.pipe(
+			this.takeUntilDestroyed(),
+			select(state => state.lite.options))
+		.subscribe(options => this.options = options );
 	}
 
 	navigate(path: any[], group?: Group)
@@ -440,8 +455,33 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 
 	onExteriorPath()
 	{
-		this.store.dispatch(new NavActions.SetSubNavItems(ExteriorSubNavItems));		
+		this.store.dispatch(new NavActions.SetSubNavItems(ExteriorSubNavItems));
 		this.store.dispatch(new NavActions.SetSelectedSubNavItem(LiteSubMenu.Elevation));
-		this.router.navigate(['/lite/elevation']);		
+		this.router.navigate(['/lite/elevation']);
+	}
+
+	onOptionsNavPath()
+	{
+		const options = this.options.filter(x => x.isActive
+											&& !x.isBaseHouse
+											&& !x.isBaseHouseElevation
+											&& x.optionSubCategoryId !== Elevation.Attached
+											&& x.optionSubCategoryId !== Elevation.Detached);
+
+		//group scenario.options by their categories and then map over each category group
+		const groups = _.groupBy(options, o => o.optionCategoryId);
+		const subMenuitems = Object.keys(groups).map(key => {
+			const categoryName = this.categories.find(c => c.id.toString() === key).name;
+
+			return {
+				label: categoryName,
+				status: PointStatus.UNVIEWED,
+				id: Number.parseInt(key)
+			}
+		});
+
+		this.store.dispatch(new NavActions.SetSubNavItems(subMenuitems));
+		this.store.dispatch(new NavActions.SetSelectedSubNavItem(1));
+		this.router.navigate(['/lite/options']);
 	}
 }
