@@ -51,11 +51,12 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 
 			this.selectedCategory.optionSubCategories.forEach(subcategory => {
 				const subcategoryOptions = allCategoryRelatedOptions.filter(x => x.optionSubCategoryId === subcategory.id);
+
 				subcategory.planOptions = _.cloneDeep(subcategoryOptions)
+												.map(x => x as LitePlanOptionUI)
 												.sort((option1,option2) => {
 													return option1.name > option2.name ? 1 : -1;
-												})
-												.map(x => x as LitePlanOptionUI);
+												});
 
 				subcategory.planOptions.forEach(option => {
 					option.maxOrderQuantity = option.maxOrderQuantity === 0 ? 1 : option.maxOrderQuantity;
@@ -73,6 +74,7 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 				});
 			});
 
+			this.selectedCategory.optionSubCategories = this.selectedCategory.optionSubCategories.filter(x => x.planOptions.length > 0);
 			this.categorySubTotal = subtotal;
 		});
 	}
