@@ -108,6 +108,7 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 		if (!!selectedOptions.length)
 		{
 			this.store.dispatch(new LiteActions.SelectOptions(selectedOptions));
+			this.store.dispatch(new LiteActions.SaveScenarioOptions(selectedOptions));
 		}
 	}
 }
