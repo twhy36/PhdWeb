@@ -2,8 +2,8 @@ import { Component, OnInit, Input, OnChanges, SimpleChanges, Output, EventEmitte
 
 import * as _ from 'lodash';
 
-import 
-{ 
+import
+{
 	UnsubscribeOnDestroy, DecisionPoint, SubGroup, JobChoice, ChoiceImageAssoc, Group,
 	Tree, MyFavoritesChoice, MyFavoritesPointDeclined
 } from 'phd-common';
@@ -112,7 +112,7 @@ export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implement
 		this.onToggleChoice.emit(choice);
 	}
 
-	toggleContractedOptions(event: any) {
+	toggleContractedOptions() {
 		this.onToggleContractedOptions.emit();
 	}
 

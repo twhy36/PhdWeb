@@ -7,13 +7,14 @@ import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 
 import * as LiteActions from '../../../ngrx-store/lite/actions';
 
-import { UnsubscribeOnDestroy } from 'phd-common';
+import { UnsubscribeOnDestroy, flipOver } from 'phd-common';
 import { LitePlanOption, ScenarioOption, Color } from '../../../shared/models/lite.model';
 
 @Component({
 	selector: 'elevation',
 	templateUrl: './elevation.component.html',
-	styleUrls: ['./elevation.component.scss']
+	styleUrls: ['./elevation.component.scss'],
+	animations: [flipOver]
 })
 export class ElevationComponent extends UnsubscribeOnDestroy implements OnInit
 {
@@ -55,7 +56,7 @@ export class ElevationComponent extends UnsubscribeOnDestroy implements OnInit
 			select(fromScenario.selectScenario)
 		).subscribe(scenario =>
 		{
-			this.scenarioId = scenario.scenario.scenarioId;
+			this.scenarioId = scenario?.scenario?.scenarioId;
 		});
 	}
 

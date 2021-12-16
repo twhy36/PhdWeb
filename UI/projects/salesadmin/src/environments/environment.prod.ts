@@ -25,19 +25,20 @@ export const environment = {
 		scriptUrl: '//cdn.whatfix.com/prod/01caf5e0-cb2f-11e8-b979-04013d24cd02/embed/embed.nocache.js'
 	},
 	designPreviewMarketWhitelist: [
-		460, // Arizona
-		465, // New Mexico
-		473, // Las Vegas
-		448, // Pacific Northwest
-		122, // Northern California
-		151  // Southern California
-	],
-	salesAdminFinancialCommunityWhitelist: [
-		18323, // 540 West
-		14603 // Kingfield
+		460, // Arizona Market
+		473, // Las Vegas Market
+		465, // New Mexico Market
+		122, // Northern California Market
+		448, // Pacific Northwest Market
+		151, // Southern California Market
 	],
 	salesAdminMarketWhitelist: [
 		104, // Houston
-		110 // Raleigh
+		110, // Raleigh
+		114, // Charlotte
+		118, // Dallas
+		277, // Central Texas
+		460, // Arizona
+		464 // San Antonio
 	]
 };

@@ -20,7 +20,7 @@
 }
 
 .phd-blocked-link {
-	color: $pantone_blue;
+	color: var(--link-color);
   text-decoration: underline;
 }
 
@@ -29,6 +29,7 @@
 	display: flex;
 	flex-direction: column;
 	padding: 0px 10px;
+	overflow: scroll;
 
 	.phd-choice-path {
 		span {
@@ -61,7 +62,7 @@
 	}
 
 	.phd-icon-selected {
-		color: $pantone_blue;
+		color: var(--primary-icon-color);
 	}
 
 	.phd-image-thumbnail {
@@ -88,7 +89,7 @@
 	cursor: pointer;
 
 	.phd-choice-image-selected {
-		border: solid 4px $pantone_blue;
+		border: solid 4px var(--selected-border-color);
 	}
 }
 
@@ -117,7 +118,7 @@
 	}
 
 	.phd-available-selections {
-		background-color: $pantone_blue;
+		background-color: var(--secondary-ribbon-background-color);
 		color: white;
 		margin-top: 30px;
 

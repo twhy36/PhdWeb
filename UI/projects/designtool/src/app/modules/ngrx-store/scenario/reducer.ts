@@ -102,16 +102,19 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 				// initialize tree with loaded scenario data
 				let scenario = _.cloneDeep(action.scenario);
 
-				scenario.viewedDecisionPoints.forEach(point =>
+				if (newState.tree)
 				{
-					let p = _.flatMap(newState.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points))
-						.find(pt => point === pt.id);
-
-					if (p)
+					scenario.viewedDecisionPoints.forEach(point =>
 					{
-						p.viewed = true;
-					}
-				});
+						let p = _.flatMap(newState.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points))
+							.find(pt => point === pt.id);
+
+						if (p)
+						{
+							p.viewed = true;
+						}
+					});					
+				}
 
 				newState = { ...newState, scenario: scenario, isGanked: action.lotNoLongerAvailable, overrideReason: action.overrideReason };
 			}
@@ -194,7 +197,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 				newState = { ...newState, scenario: scenario };
 			}
 
-			if (newState.options)
+			if (newState.options && action.optionImages)
 			{
 				// apply images to options
 				newState.options.forEach(option =>

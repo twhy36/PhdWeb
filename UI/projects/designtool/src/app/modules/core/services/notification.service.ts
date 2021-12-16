@@ -84,7 +84,7 @@ export class NotificationService {
 	public registerHandlers(): void {
 		this.connection.on("SalesAgreementUpdated", () => {
 			if (this.salesAgreementID) {
-				this.store.dispatch(new CommonActionTypes.LoadSalesAgreement(this.salesAgreementID));
+				this.store.dispatch(new CommonActionTypes.LoadSalesAgreement(this.salesAgreementID, false));
 			}
 		});
 

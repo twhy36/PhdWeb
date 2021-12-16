@@ -2,7 +2,7 @@
 	<div class="d-flex container-fluid phd-mobile-header">
 		<div class="d-flex flex-row align-items-flex-start">
 			<div class="phd-nav-bar-header phd-clickable">
-				<img class="phd-logo" src="assets/Pulte_Homes_White_Logo.PNG" alt="Pulte Homes" (click)="onHomePage()">
+				<img class="phd-logo" [src]="getImageSrc()" alt="Pulte Homes" (click)="onHomePage()">
 			</div>
 			<div class="d-flex flex-column phd-nav-bar-title">
 				<span class="phd-nav-bar-label">Design Preview</span>

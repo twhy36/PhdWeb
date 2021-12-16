@@ -116,6 +116,7 @@ export class ChoiceSidePanelComponent implements OnInit
 		this.choiceSelectedItems = [];
 		this.choiceCurrentRule = this.blankRule;
 		this.optionSelectedItems = [];
+
 		this.onChoiceDetailsReset();
 		this.updateAttributeGroupsOrder();
 
@@ -178,9 +179,10 @@ export class ChoiceSidePanelComponent implements OnInit
 
 					// update the flag and count for the image indicator
 					this.setImageInfo();
+
 					this.origChoiceImageList = _.cloneDeep(this.choiceImageList);
 				}
-			})
+			});
 	}
 
 	saveImageSort()
@@ -703,7 +705,7 @@ export class ChoiceSidePanelComponent implements OnInit
 			'isDecisionDefault': new FormControl({ value: this.isDefault, disabled: this.disableDefault || this.isReadOnly || !this.canEditTree }),
 			'useMaxQuantity': new FormControl({ value: this.useMaxQuantity, disabled: !this.isDefault || this.isReadOnly || !this.canEditTree }),
 			'maxQuantity': new FormControl({ value: this.maxQuantity, disabled: !this.isDefault || (this.isDefault && !this.useMaxQuantity) || this.isReadOnly || !this.canEditTree }, [Validators.min(1), Validators.max(999999), this.numberValidator()]),
-			'description': new FormControl({ value: this.description, disabled: this.isReadOnly || !this.canEditTree }, [Validators.maxLength(500)])
+			'description': new FormControl({ value: this.description, disabled: this.isReadOnly || !this.canEditTree }, [Validators.maxLength(2000)])
 		});
 	}
 

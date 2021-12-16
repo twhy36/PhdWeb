@@ -7,7 +7,7 @@
 
 	.phd-is-sticky {
 		margin-top: 160px;
-	}	
+	}
 }
 
 .tree-view {
@@ -70,4 +70,17 @@
 			}
 		}
 	}
+}
+
+::ng-deep .modal-header {
+	background: var(--primary-ribbon-background-color) !important;
+}
+
+::ng-deep .btn-primary {
+	background: var(--primary-button-color) !important;
+	border-radius: var(--button-border-radius);
+}
+
+::ng-deep .btn-secondary {
+	border-radius: var(--button-border-radius);
 }

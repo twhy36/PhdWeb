@@ -8,7 +8,7 @@ import { map, filter, combineLatest, distinctUntilChanged, withLatestFrom, debou
 import { Observable, ReplaySubject, of } from 'rxjs';
 
 import * as fromLot from '../../../ngrx-store/lot/reducer';
-import * as fromJob from '../../../ngrx-store/job/reducer';
+import * as fromPlan from '../../../ngrx-store/plan/reducer';
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 import * as ChangeOrderActions from '../../../ngrx-store/change-order/actions';
@@ -20,7 +20,7 @@ import * as LotActions from '../../../ngrx-store/lot/actions';
 import {
 	UnsubscribeOnDestroy, ModalRef, ChangeTypeEnum, Job, TreeVersionRules, ScenarioStatusType, PriceBreakdown,
 	TreeFilter, Tree, SubGroup, Group, DecisionPoint, Choice, getDependentChoices, LotExt, getChoiceToDeselect,
-	PlanOption, ModalService
+	PlanOption, ModalService, Plan
 } from 'phd-common';
 
 import { LotService } from '../../../core/services/lot.service';
@@ -28,6 +28,10 @@ import { LotService } from '../../../core/services/lot.service';
 import { ChoiceCardComponent } from '../../../shared/components/choice-card/choice-card.component';
 import { DecisionPointFilterType } from '../../../shared/models/decisionPointFilter';
 import { MonotonyConflict } from '../../../shared/models/monotony-conflict.model';
+
+// PHD Lite
+import { ExteriorSubNavItems, LiteSubMenu } from '../../../shared/models/lite.model';
+import * as LiteActions from '../../../ngrx-store/lite/actions';
 
 @Component({
 	selector: 'edit-home',
@@ -159,12 +163,15 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(state => state.scenario),
-			combineLatest(this.params$),
+			combineLatest(this.params$,
+				this.store.pipe(select(state => state.lite)),
+				this.store.pipe(select(fromPlan.selectedPlanData))
+			),
 			withLatestFrom(this.store.pipe(select(fromRoot.filteredTree)),
 				this.route.data,
 				this.store.pipe(select(state => state.salesAgreement))
 			)
-		).subscribe(([[scenarioState, params], filteredTree, routeData, sag]) =>
+		).subscribe(([[scenarioState, params, lite, plan], filteredTree, routeData, sag]) =>
 		{
 			this.errorMessage = '';
 			this.showPhaseProgressBarItems = true;
@@ -266,6 +273,10 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 			else if (filteredTree)
 			{
 				this.router.navigate([filteredTree.groups[0].subGroups[0].points[0].divPointCatalogId], { relativeTo: this.route });
+			}
+			else if (lite.isPhdLite && !lite.isScenarioLoaded)
+			{
+				this.loadPhdLite(plan);
 			}
 		});
 
@@ -718,4 +729,20 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		return this.showConfirmModal(this.optionMappingChangedModal, 'Warning', primaryButton, secondaryButton);
 	}
 
+	loadPhdLite(plan: Plan)
+	{
+		if (plan)
+		{
+			this.store.dispatch(new NavActions.SetSubNavItems(ExteriorSubNavItems));		
+			this.store.dispatch(new NavActions.SetSelectedSubNavItem(LiteSubMenu.Elevation));				
+			this.router.navigateByUrl('/lite/elevation');					
+		}
+		else
+		{
+			this.store.dispatch(new NavActions.SetSelectedSubNavItem(1));
+			this.router.navigateByUrl('/new-home/name-scenario');					
+		}			
+
+		this.store.dispatch(new LiteActions.SetScenarioLoaded(true));
+	}
 }

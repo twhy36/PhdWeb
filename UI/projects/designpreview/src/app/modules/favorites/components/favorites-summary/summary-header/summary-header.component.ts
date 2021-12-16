@@ -1,6 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef, ElementRef, Renderer2, NgZone } from '@angular/core';
 
 import { UnsubscribeOnDestroy, LotExt, PriceBreakdown } from 'phd-common';
+import { BrandService } from '../../../../core/services/brand.service';
 
 @Component({
 	selector: 'summary-header',
@@ -17,7 +18,7 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 
 	@Output() isStickyChanged = new EventEmitter<boolean>();
 	@Output() contractedOptionsToggled = new EventEmitter<boolean>();
-	
+
 	scrolling: boolean = false;
 	isSticky: boolean = false;
 	listener: () => void;
@@ -25,8 +26,9 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 	constructor(
 		private ngZone: NgZone,
 		private renderer: Renderer2,
-		private cd: ChangeDetectorRef, 
-		private summaryHeaderElement: ElementRef)
+		private cd: ChangeDetectorRef,
+		private summaryHeaderElement: ElementRef,
+		private brandService: BrandService)
 	{
 		super();
 	}
@@ -62,7 +64,7 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 	get isContractedOptionsDisabled() : boolean
 	{
 		return this.isPreview || this.isDesignComplete;
-	}	
+	}
 
 	scrollHandler()
 	{
@@ -95,13 +97,17 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 				this.cd.detectChanges();
 				this.isStickyChanged.emit(this.isSticky);
 			}
-		}		
+		}
 
 		this.scrolling = false;
 	}
 
-	toggleContractedOptions(event: any) {
-		this.contractedOptionsToggled.emit();
+	toggleContractedOptions() {
+		if (!this.isContractedOptionsDisabled) this.contractedOptionsToggled.emit();
+	}
+
+	getImageSrc() {
+		return this.brandService.getBrandImage('logo');
 	}
 }
 

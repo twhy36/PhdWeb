@@ -4,6 +4,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { PhdCommonModule } from 'phd-common';
 
@@ -38,6 +39,7 @@ import { InputFilterDirective } from './directives/input-filter.directive';
 		ReactiveFormsModule,
 		HttpClientModule,
 		RouterModule,
+		NgbDropdownModule,
 		BrowserAnimationsModule,
 		PhdCommonModule
 	],

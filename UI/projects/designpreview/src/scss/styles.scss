@@ -2,6 +2,20 @@
 @import url(https://fonts.googleapis.com/css?family=Roboto:400,100,100italic,300,300itaâ€Œâ€‹lic,400italic,500,500italic,700,700italic,900italic,900);
 @import '~@angular/material/prebuilt-themes/deeppurple-amber.css';
 
+:root {
+	--button-border-radius: 0.3rem;
+	--font: 'Roboto';
+	--home-text-color: $navy_blue;
+	--link-color: $pantone_blue;
+	--logo-margin-top: "0px";
+	--primary-button-color: $pantone_blue;
+	--primary-icon-color: $pantone_blue;
+	--primary-ribbon-background-color: $twilight-blue;
+	--secondary-icon-color: $midnight_blue;
+	--secondary-ribbon-background-color: $pantone_blue;
+	--selected-border-color: $pantone_blue;
+}
+
 html, body, app-root {
 	margin: 0;
 	padding: 0;
@@ -9,7 +23,7 @@ html, body, app-root {
 }
 
 body {
-	font-family: 'Roboto', sans-serif;
+	font-family: var(--font), sans-serif;
 	background: white;
 	color: #4a4a4a;
 }
@@ -32,4 +46,12 @@ a:focus {
 
 .phd-clickable:hover {
 	cursor: pointer;
+}
+
+.phd-empty-checkbox {
+	width: 12px;
+	height: 12px;
+	background-color: white;
+	border-radius: 2px;
+	border: solid 2px;
 }

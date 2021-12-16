@@ -1,10 +1,15 @@
-<div>
-	<div class="d-flex justify-content-end">
-		<i class="fa fa-times-circle phd-close" (click)="closeClicked()"></i>
-	</div>
+<div class="modal-header">
+	<span *ngIf="disabledByRulesExist(true) && !disabledByRulesExist(false)" class="modal-title">Before this can be selected</span>
+	<span *ngIf="disabledByRulesExist(false) && !disabledByRulesExist(true)" class="modal-title">Disabled due to</span>
+	<span *ngIf="disabledByRulesExist(true) && disabledByRulesExist(false)" class="modal-title"></span>
+	<button type="button" class="close" aria-label="Close" (click)="this.closeClicked()">
+		<span aria-hidden="true">&times;</span>
+	</button>
+</div>
+<div class="phd-disabled-rules">
 	<!-- MUST HAVE -->
 	<ng-container *ngIf="disabledByRulesExist(true)">
-		<div class="phd-blocked-title">
+		<div class="phd-blocked-title" *ngIf="disabledByRulesExist(true) && disabledByRulesExist(false)">
 			Before this can be selected:
 		</div>
 		<ul class="phd-blocked-list">
@@ -49,7 +54,7 @@
 
 	<!-- MUST NOT HAVE -->
 	<ng-container *ngIf="disabledByRulesExist(false)">
-		<div class="phd-blocked-title">
+		<div class="phd-blocked-title" *ngIf="disabledByRulesExist(true) && disabledByRulesExist(false)">
 			Disabled due to:
 		</div>
 		<ul class="phd-blocked-list">

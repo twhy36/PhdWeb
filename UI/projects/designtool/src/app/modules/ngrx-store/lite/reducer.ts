@@ -1,18 +1,28 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store';
 import * as _ from "lodash";
 
-import { LitePlanOption, Elevation, ScenarioOption, ScenarioOptionColor } from '../../shared/models/lite.model';
+import { LitePlanOption, Elevation, ScenarioOption, ScenarioOptionColor, IOptionCategory, IOptionSubCategory } from '../../shared/models/lite.model';
 import { LiteActions, LiteActionTypes } from './actions';
 
 export interface State
 {
 	isPhdLite: boolean,
 	isSaving: boolean,
+	isScenarioLoaded: boolean,
 	options: LitePlanOption[],
 	scenarioOptions: ScenarioOption[];
+	categories: IOptionCategory[];
 }
 
-export const initialState: State = { isPhdLite: false, isSaving: false, options: [], scenarioOptions: [] };
+export const initialState: State =
+{
+	isPhdLite: false,
+	isScenarioLoaded: false,
+	isSaving: false,
+	options: [],
+	scenarioOptions: [],
+	categories: []
+};
 
 export function reducer(state: State = initialState, action: LiteActions): State
 {
@@ -47,7 +57,7 @@ export function reducer(state: State = initialState, action: LiteActions): State
 				}
 			});
 
-			return { ...state, scenarioOptions: newOptions };			
+			return { ...state, scenarioOptions: newOptions };
 		}
 
 		case LiteActionTypes.SelectOptionColors:
@@ -58,10 +68,10 @@ export function reducer(state: State = initialState, action: LiteActions): State
 				let scenarioOption = newOptions.find(opt => opt.scenarioOptionId === color.scenarioOptionId);
 				if (scenarioOption)
 				{
-					const optionColorIndex = scenarioOption.scenarioOptionColors 
+					const optionColorIndex = scenarioOption.scenarioOptionColors
 						? scenarioOption.scenarioOptionColors.findIndex(c => c.colorItemId === color.colorItemId && c.colorId === color.colorId)
 						: -1;
-						
+
 					if (optionColorIndex >= 0 && color.isDeleted)
 					{
 						scenarioOption.scenarioOptionColors.splice(optionColorIndex, 1);
@@ -77,9 +87,9 @@ export function reducer(state: State = initialState, action: LiteActions): State
 							scenarioOptionColorId: color.scenarioOptionColorId,
 							scenarioOptionId: color.scenarioOptionId,
 							colorItemId: color.colorItemId,
-							colorId: color.colorId,							
+							colorId: color.colorId,
 						})
-					}					
+					}
 				}
 			});
 
@@ -92,7 +102,13 @@ export function reducer(state: State = initialState, action: LiteActions): State
 
 		case LiteActionTypes.ScenarioOptionsSaved:
 			return { ...state, isSaving: false, scenarioOptions: action.scenarioOptions };
-	
+
+		case LiteActionTypes.SetScenarioLoaded:
+			return {  ...state, isScenarioLoaded: action.isLoaded };
+
+		case LiteActionTypes.OptionCategoriesLoaded:
+			return { ...state, categories: action.categories };
+
 		default:
 			return state;
 	}
@@ -121,7 +137,7 @@ export const selectedColorScheme = createSelector(
 	(state, elevation) => {
 		let colorScheme : ScenarioOptionColor = null;
 
-		if (elevation) 
+		if (elevation)
 		{
 			const scenarioOption = state.scenarioOptions?.find(opt => opt.edhPlanOptionId === elevation.id);
 			if (scenarioOption?.scenarioOptionColors?.length)
@@ -131,5 +147,12 @@ export const selectedColorScheme = createSelector(
 		}
 
 		return colorScheme;
+	}
+);
+
+export const selectedOptionCategories = createSelector(
+	liteState,
+	(state) => {
+		return state.categories;
 	}
 );

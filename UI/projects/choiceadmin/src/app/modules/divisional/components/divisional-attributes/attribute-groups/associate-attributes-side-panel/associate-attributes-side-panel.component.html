@@ -13,7 +13,7 @@
 			</div>
 
 			<div class="div-attribute-table">
-				<phd-table [value]="filteredAttributes" tableId="associateAttributes">
+				<phd-table [value]="filteredAttributes" tableId="associateAttributes" [rowClass]="getRowClass">
 					<phd-column columnId="select" width="50px">
 						<ng-template #header>
 							<p-checkbox [ngModel]="areAllAttributesSelected()" (ngModelChange)="toggleAllAttributes($event)" [binary]="true" [disabled]="filteredAttributes.length === 0"></p-checkbox>

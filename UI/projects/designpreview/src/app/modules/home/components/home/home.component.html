@@ -2,12 +2,12 @@
 	<div class="d-flex flex-row">
 		<cl-image *ngIf="planImageUrl" public-id="{{planImageUrl}}" type="fetch" style="width:calc(56vw);height:calc(65vh);" crop="fill">
 		</cl-image>
-		<img class="phd-logo-image" src="assets/pultegroup_logo.jpg" *ngIf="!planImageUrl">
+		<img class="phd-logo-image" [src]="getImageSrc()" *ngIf="!planImageUrl">
 
 		<div class="d-flex flex-column phd-home-plan">
 			<div class="d-flex flex-column">
 				<img class="phd-floor-plan-image" [src]="floorPlanImages[0].imageUrl | safeUrl" *ngIf="floorPlanImages.length">
-				<img class="phd-default-image" src="assets/pultegroup_logo.jpg" *ngIf="!floorPlanImages.length">
+				<img class="phd-default-image" [src]="getImageSrc()" *ngIf="!floorPlanImages.length">
 			</div>
 			<div class="d-flex justify-content-center phd-community-label">
 				<span class="phd-sales-community">{{communityName}}</span>
@@ -22,3 +22,15 @@
 		<button class="btn phd-design-list-button" (click)="viewOptions()">View Options</button>
 	</div>
 </div>
+
+<!-- Initialize a hidden floorplan component if the images were not found -->
+<ng-container class="phd-hidden-floor-plan" *ngIf="!hasFloorPlanImages && floorplanSG" >
+	<floor-plan
+		[height]="'0vh'"
+		[planId$]="marketingPlanId$"
+		[subGroup]="floorplanSG"
+		[isFlipped]="isFloorplanFlipped"
+		[isPresavedFloorplan]="true"
+		(onFloorPlanSaved)="onFloorPlanSaved($event)">
+	</floor-plan>
+</ng-container>

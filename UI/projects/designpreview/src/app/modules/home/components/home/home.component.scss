@@ -19,7 +19,7 @@
 .phd-floor-plan-image {
 	padding-top: calc(2vh);
 	padding-bottom: calc(2vh);
-	max-height: calc(55vh);		
+	max-height: calc(55vh);
 }
 
 .phd-default-image {
@@ -39,14 +39,15 @@
 
 .phd-start-reviewing {
 	font-size: 30px;
-	color: $navy_blue;
+	color: var(--home-text-color);
 	margin-top: 30px;
 	margin-bottom: 30px;
 	text-align: center;
 }
 
 .phd-design-list-button {
-	background-color: $medium_blue;
+	background-color: var(--primary-button-color);
+	border-radius: var(--button-border-radius);
 	color: white;
 	padding: 6px 25px;
 	min-width: 350px;

@@ -25,6 +25,7 @@ export class SummaryActionBarComponent extends UnsubscribeOnDestroy implements O
 	@Input() hasFloorPlan: boolean = false;
 	@Input() inChangeOrder: boolean = false;
 	@Input() canChange: boolean;
+	@Input() priceRangesCalculated: boolean;
 
 	@Output() pointTypeFilterChanged = new EventEmitter<DecisionPointFilterType>();
 	@Output() onBuildIt = new EventEmitter<void>();
@@ -79,5 +80,10 @@ export class SummaryActionBarComponent extends UnsubscribeOnDestroy implements O
 		}
 
 		this.onBuildIt.emit();
+	}
+
+	isReportDisabled(reportName: string): boolean
+	{
+		return !this.priceRangesCalculated && (reportName === SummaryReportType.CHOICE_LIST || reportName === SummaryReportType.DESIGN_CHOICE_LIST);
 	}
 }

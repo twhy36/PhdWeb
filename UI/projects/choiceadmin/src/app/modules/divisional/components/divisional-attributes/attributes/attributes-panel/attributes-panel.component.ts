@@ -97,7 +97,7 @@ export class AttributesPanelComponent extends UnsubscribeOnDestroy implements On
 			{
 				this.currentMarketId = marketId;
 
-				return this._attrService.getAttributesByMarketId(marketId, null, this.settings.infiniteScrollPageSize, 0);
+				return this._attrService.getAttributesByMarketId(marketId, null, false, this.settings.infiniteScrollPageSize, 0);
 			})
 		).subscribe(data =>
 		{
@@ -253,7 +253,7 @@ export class AttributesPanelComponent extends UnsubscribeOnDestroy implements On
 
 		keyword = this.searchBar.handleSingleQuotes(keyword);
 
-		this._attrService.getAttributesByMarketId(this.currentMarketId, status, null, null, field, keyword)
+		this._attrService.getAttributesByMarketId(this.currentMarketId, status, false, null, null, field, keyword)
 			.pipe(finalize(() =>
 			{
 				this.isSearchingFromServer = false;
@@ -278,7 +278,7 @@ export class AttributesPanelComponent extends UnsubscribeOnDestroy implements On
 			const top = this.settings.infiniteScrollPageSize;
 			const skip = this.currentPage * this.settings.infiniteScrollPageSize;
 
-			this._attrService.getAttributesByMarketId(this.currentMarketId, null, top, skip, null, null, this.currentTableSort).subscribe(data =>
+			this._attrService.getAttributesByMarketId(this.currentMarketId, null, false, top, skip, null, null, this.currentTableSort).subscribe(data =>
 			{
 				if (data.length)
 				{
@@ -306,7 +306,7 @@ export class AttributesPanelComponent extends UnsubscribeOnDestroy implements On
 		if (!this.allDataLoaded && !this.keyword && !this.selectedStatus)
 		{
 			// return data based on the sort options.  if currentTableSort is null then it will revert to the default sort.
-			this._attrService.getAttributesByMarketId(this.currentMarketId, null, this.settings.infiniteScrollPageSize, 0, null, null, this.currentTableSort).subscribe(data =>
+			this._attrService.getAttributesByMarketId(this.currentMarketId, null, false, this.settings.infiniteScrollPageSize, 0, null, null, this.currentTableSort).subscribe(data =>
 			{
 				this.attributeList = data;
 				this.filteredAttributeList = this.attributeList;

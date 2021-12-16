@@ -86,7 +86,7 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 	ngOnInit()
 	{
 		this.settings = this._settingsService.getSettings();
-
+		
 		this.activeCommunities = this._orgService.currentMarket$.pipe(
 			this.takeUntilDestroyed(),
 			tap(mkt =>
@@ -120,7 +120,7 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 			else if (!this.selectedCommunity || comm.id !== this.selectedCommunity.id)
 			{
 				this.selectedCommunity = comm;
-
+				this._homeSiteService.loadCommunityLots(comm.id);
 				this.getWebsiteIntegrationKey(this.selectedCommunity.salesCommunityId);
 				this.isColorSchemePlanRuleEnabled = comm.dto.isColorSchemePlanRuleEnabled;
 				this.loadHomeSites();

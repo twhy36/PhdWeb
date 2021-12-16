@@ -90,6 +90,7 @@
 							[hasFloorPlan]="hasFloorPlan"
 							[inChangeOrder]="(isChangingOrder$ | async)"
 							[canChange]="(canConfigure$ | async) && canEditSummary"
+							[priceRangesCalculated]="priceRangesCalculated"
 							(pointTypeFilterChanged)="onPointTypeFilterChanged($event)"
 							(onBuildIt)="onBuildIt()"
 							(onPrintPreview)="printPreview($event)">
