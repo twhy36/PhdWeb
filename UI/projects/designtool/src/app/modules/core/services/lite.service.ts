@@ -233,7 +233,7 @@ export class LiteService
 
 				responseBodies.forEach((result)=>
 				{
-					let resultItems = result.value as Array<OptionRelation>;
+					let resultItems = result?.value as Array<OptionRelation>;
 					
 					resultItems?.forEach(item => {
 						optionRelations.push({
