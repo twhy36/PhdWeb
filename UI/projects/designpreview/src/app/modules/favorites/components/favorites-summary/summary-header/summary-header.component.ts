@@ -103,7 +103,9 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 	}
 
 	toggleContractedOptions() {
-		if (!this.isContractedOptionsDisabled) this.contractedOptionsToggled.emit();
+		if (!this.isContractedOptionsDisabled) {
+			this.contractedOptionsToggled.emit();
+		}
 	}
 
 	getImageSrc() {
