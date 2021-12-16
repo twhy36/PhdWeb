@@ -18,7 +18,8 @@
 								class="form-check-input"
 								#optionCheckbox
 								[checked]="option.isSelected"
-								(click)="onSelectedOptionWasToggled(option)"
+								[disabled]="option.isReadonly"
+								(click)="onSelectedOptionWasToggled($event, option)"
 							 />
 						</div>
 						<div class="phd-lawson-name">
@@ -29,7 +30,7 @@
 							class="phd-quantity form-select"
 							*ngIf="option.maxOrderQuantity > 1"
 							[(ngModel)]="option.selectedQuantity"
-							[disabled]="optionCheckbox.checked === false"
+							[disabled]="optionCheckbox.checked === false || option.isReadonly"
 							(change)="saveSelectedOptionToStore(option)"
 						>
 							<option

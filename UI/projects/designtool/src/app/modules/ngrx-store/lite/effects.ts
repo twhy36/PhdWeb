@@ -48,12 +48,18 @@ export class LiteEffects
 
 				if (isPhdLite && !optionsLoaded)
 				{
-					const communityId = store.plan.plans?.find(p => p.id === store.plan.selectedPlan)?.communityId;
+					const financialCommunityId = action instanceof ScenarioLoaded
+						? action.scenario?.financialCommunityId
+						: store.plan.plans?.find(p => p.id === store.plan.selectedPlan)?.communityId;
+
+					const getOptionsCategorySubcategory = !!financialCommunityId
+						? this.liteService.getOptionsCategorySubcategory(financialCommunityId)
+						: null;
 
 					return combineLatest([
 						this.liteService.getLitePlanOptions(action.scenario.planId),
 						this.liteService.getScenarioOptions(action.scenario.scenarioId),
-						this.liteService.getOptionsCategorySubcategory(communityId)
+						getOptionsCategorySubcategory
 					]).pipe(
 						switchMap(([options, scenarioOptions, optionsForCategories]) => {
 							let categories: IOptionCategory[] = [];
@@ -70,8 +76,13 @@ export class LiteEffects
 							}
 
 							const optionIds = options.map(o => o.id);
-							return this.liteService.getColorItems(optionIds).pipe(
-								map(colorItems => {
+							const optionCommunityIds = _.uniq(options.map(o => o.optionCommunityId));
+
+							return combineLatest([
+								this.liteService.getColorItems(optionIds),
+								this.liteService.getOptionRelations(optionCommunityIds)
+							]).pipe(
+								map(([colorItems, optionRelations]) => {
 									colorItems.forEach(colorItem => {
 										let option = options.find(option => option.id === colorItem.edhPlanOptionId);
 										if (option)
@@ -79,6 +90,9 @@ export class LiteEffects
 											option.colorItems.push(colorItem);
 										}
 									});
+
+									this.liteService.applyOptionRelations(options, optionRelations);
+
 									return { options, scenarioOptions, categories };
 								})
 							)

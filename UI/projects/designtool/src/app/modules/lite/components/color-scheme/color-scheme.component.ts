@@ -9,13 +9,14 @@ import * as fromLite from '../../../ngrx-store/lite/reducer';
 
 import * as LiteActions from '../../../ngrx-store/lite/actions';
 
-import { UnsubscribeOnDestroy } from 'phd-common';
+import { UnsubscribeOnDestroy, flipOver } from 'phd-common';
 import { LitePlanOption, ScenarioOption, Color, ScenarioOptionColor } from '../../../shared/models/lite.model';
 
 @Component({
 	selector: 'color-scheme',
 	templateUrl: './color-scheme.component.html',
-	styleUrls: ['./color-scheme.component.scss']
+	styleUrls: ['./color-scheme.component.scss'],
+	animations: [flipOver]
 })
 export class ColorSchemeComponent extends UnsubscribeOnDestroy implements OnInit
 {

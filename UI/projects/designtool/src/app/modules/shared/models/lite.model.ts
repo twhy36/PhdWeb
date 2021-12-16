@@ -23,13 +23,17 @@ export class LitePlanOption implements PlanOption
     optionSubCategoryId: number;
 	optionCategoryId: number;
     colorItems: ColorItem[] = [];
+    optionCommunityId: number;
+    mustHavePlanOptionIds: number[];
+    cantHavePlanOptionIds: number[];
 }
 
 export class LitePlanOptionUI extends LitePlanOption
 {
 	isSelected: boolean;
 	selectedQuantity: number;
-	quantityRange: number[] = [];
+    quantityRange: number[] = [];
+    isReadonly: boolean;
 }
 
 export interface ScenarioOption
@@ -78,6 +82,14 @@ export interface Color
     colorItemId: number;
 }
 
+export class OptionRelation
+{
+    optionRelationId: number;
+    mainEdhOptionCommunityId: number;
+    relatedEdhOptionCommunityId: number;
+    relationType: number;
+}
+
 export enum Elevation
 {
 	Detached = 361,
@@ -107,4 +119,10 @@ export interface IOptionSubCategory
     id: number,
     optionCategory: IOptionCategory,
 	planOptions?: LitePlanOptionUI[]
+}
+
+export enum OptionRelationEnum
+{
+	CantHave = 1,
+	MustHave = 2
 }
