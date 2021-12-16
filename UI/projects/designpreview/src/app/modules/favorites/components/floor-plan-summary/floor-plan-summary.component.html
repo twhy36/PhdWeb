@@ -4,7 +4,7 @@
 		<div class="phd-plan-name">{{planName}}</div>
 	</div>
 	<div class="phd-floorplan-container">
-		<ng-container *ngIf="!noVisibleGroups">
+		<ng-container *ngIf="!noVisibleFP">
 			<floor-plan
 				[height]="'86vh'"
 				[planId$]="marketingPlanId$"

@@ -1,4 +1,3 @@
-
 import { IReOrg } from './../../shared/models/re-org.model';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
@@ -9,6 +8,7 @@ import { catchError, tap, map, publishReplay, concat, take, filter, switchMap, c
 import { SettingsService } from './settings.service';
 import { StorageService } from './storage.service';
 
+import { HomeSiteService } from './homesite.service';
 import { FinancialMarket } from '../../shared/models/financialMarket.model';
 import { Settings } from '../../shared/models/settings.model';
 import { FinancialCommunity, FinancialCommunityInfo } from '../../shared/models/financialCommunity.model';
@@ -130,7 +130,7 @@ export class OrganizationService
 		if (this.currentFinancialCommunityId !== commId)
 		{
 			this.currentFinancialCommunityId = commId;
-
+			this._homesiteService.loadCommunityLots(commId);
 			this._finCommObs.pipe(
 				take(1),
 				map(comms => comms.find(comm => comm.id === commId)),
@@ -144,7 +144,8 @@ export class OrganizationService
 	constructor(
 		private _http: HttpClient,
 		private _storageService: StorageService,
-		private _identityService: IdentityService
+		private _identityService: IdentityService,
+		private _homesiteService: HomeSiteService
 	)
 	{
 		this._salesMarketsObs = this.getMarkets().pipe(

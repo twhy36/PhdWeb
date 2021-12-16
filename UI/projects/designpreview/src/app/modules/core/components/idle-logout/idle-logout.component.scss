@@ -1,10 +1,27 @@
 @import "../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
 
-.phd-signout-title {
-	font-size: 20px;
-	font-weight: bold;
-	text-transform: uppercase;
-	margin-bottom: 10px;
+.modal-header {
+	background: var(--primary-ribbon-background-color);
+	border-top-left-radius: 0.2rem;
+	border-top-right-radius: 0.2rem;
+	color: #fff;
+
+	button {
+		color: #fff;
+	}
+}
+
+.btn-primary {
+	background: var(--primary-button-color) !important;
+	border-radius: var(--button-border-radius);
+}
+
+.btn-secondary {
+	border-radius: var(--button-border-radius);
+}
+
+.modal-title {
+	font-size: 1.25em;
 }
 
 .phd-signout-countdown {
@@ -14,18 +31,6 @@
 	font-weight: bold;
 }
 
-.phd-button {
-	color: white;
-	min-width: 150px;
-	font-weight: bold;
-
-	&-signin {
-		@extend .phd-button;
-		background-color: $medium_blue;
-	}
-
-	&-signout {
-		@extend .phd-button;
-		background-color: $gray-light;
-	}	
+.phd-signout-text {
+	margin-right: 25px;
 }

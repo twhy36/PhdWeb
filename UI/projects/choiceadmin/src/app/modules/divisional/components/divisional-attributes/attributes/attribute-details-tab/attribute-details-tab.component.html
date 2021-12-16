@@ -95,7 +95,7 @@
 				<label class="col-form-label">Start Date:</label>
 			</div>
 			<div class="col-sm-9">
-				<p-calendar [showOtherMonths]="false" readonlyInput="true" showIcon="true" formControlName="startDate" [disabled]="isReadOnly" appendTo="body"></p-calendar>
+				<p-calendar [showOtherMonths]="false" showIcon="true" formControlName="startDate" [disabled]="isReadOnly" appendTo="body"></p-calendar>
 			</div>
 		</div>
 		<div class="form-group row">
@@ -103,7 +103,7 @@
 				<label class="col-form-label">End Date:</label>
 			</div>
 			<div class="col-sm-9">
-				<p-calendar [showOtherMonths]="false" readonlyInput="true" showIcon="true" formControlName="endDate" [disabled]="isReadOnly" appendTo="body"></p-calendar>
+				<p-calendar [showOtherMonths]="false" showIcon="true" formControlName="endDate" [disabled]="isReadOnly" appendTo="body" showButtonBar="true"></p-calendar>
 			</div>
 			<div class="col-sm-12">
 				<span class="validation-error"

@@ -8,16 +8,14 @@ import { environment } from '../../../../../environments/environment';
 	templateUrl: './navigation-bar.component.html',
 	styleUrls: ['./navigation-bar.component.scss']
 })
-export class NavigationBarComponent extends UnsubscribeOnDestroy implements OnInit
-{
+export class NavigationBarComponent extends UnsubscribeOnDestroy implements OnInit {
 	Permission = Permission;
 	isCollapsed = true;
 	currentTreeVersionId: number;
 	environment = environment;
 	canAccessColorManagment: boolean = false;
 
-	toggleCollapsed(): void
-	{
+	toggleCollapsed(): void {
 		this.isCollapsed = !this.isCollapsed;
 	}
 
@@ -26,8 +24,7 @@ export class NavigationBarComponent extends UnsubscribeOnDestroy implements OnIn
 		super();
 	}
 
-	ngOnInit()
-	{
+	ngOnInit() {
 		this._treeService.currentTreeVersionId$.pipe(
 			this.takeUntilDestroyed()
 		).subscribe((treeVersionId: number) => this.currentTreeVersionId = treeVersionId);

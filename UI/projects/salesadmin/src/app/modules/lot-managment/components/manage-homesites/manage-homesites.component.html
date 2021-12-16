@@ -1,12 +1,14 @@
-<manage-homesites-side-panel-component *ngIf="sidePanelOpen" [saving]="saving" [sidePanelOpen]="sidePanelOpen" [monotonyRules]="monotonyRules"
-									   [lots]="lots"
-									   [selectedHomesite]="selectedHomesite"
-										 [communityWebsiteKey]="selectedCommunityWebsiteKey"
-									   [viewAdjacencies]="viewAdjacencies"
-									   [physicalLotTypes]="physicalLotTypes"
-									   [isColorSchemePlanRuleEnabled]="isColorSchemePlanRuleEnabled"
-									   (onSidePanelClose)="onSidePanelClose($event)"
-									   (onSaveHomesiteAndMonotonyRules)="saveHomesiteAndMonotonyRules($event)">
+<manage-homesites-side-panel-component *ngIf="sidePanelOpen" 
+										[saving]="saving" 
+										[sidePanelOpen]="sidePanelOpen" 
+									   	[monotonyRules]="monotonyRules"
+									  	[selectedHomesite]="selectedHomesite"
+										[communityWebsiteKey]="selectedCommunityWebsiteKey"
+									    [viewAdjacencies]="viewAdjacencies"
+									    [physicalLotTypes]="physicalLotTypes"
+									    [isColorSchemePlanRuleEnabled]="isColorSchemePlanRuleEnabled"
+									    (onSidePanelClose)="onSidePanelClose($event)"
+									    (onSaveHomesiteAndMonotonyRules)="saveHomesiteAndMonotonyRules($event)">
 </manage-homesites-side-panel-component>
 
 <div class="phd-page-container" [class.phd-side-panel-open]="sidePanelOpen">
@@ -97,7 +99,7 @@
 				<phd-column header="Status" field="lotStatusDescription"></phd-column>
 				<phd-column header="Hide in THO" width="158px">
 					<ng-template #body let-lot>
-						<button *ngIf="getAvailable(lot)" class="btn btn-sm btn-toggle btn-is-hidden-tho" [disabled]="!canEdit ? 'disabled' : null" [ngClass]="{'active': !lot.isHiddenInTho, 'btn-success': lot.isHiddenInTho, 'btn-secondary': !lot.isHiddenInTho }" (click)="toggleIsHiddenTho(lot)">
+						<button *ngIf="getAvailable(lot)" class="btn btn-sm btn-toggle btn-is-hidden-tho" [disabled]="!canEdit ? 'disabled' : null" [ngClass]="{'active': !lot.isHiddenInTho, 'btn-success': !lot.isHiddenInTho, 'btn-secondary': lot.isHiddenInTho }" (click)="toggleIsHiddenTho(lot)">
 								<div class="handle"></div>
 						</button>
 					</ng-template>

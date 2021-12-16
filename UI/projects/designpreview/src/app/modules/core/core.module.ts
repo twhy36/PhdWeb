@@ -19,6 +19,7 @@ import { TreeService } from './services/tree.service';
 import { AttributeService } from './services/attribute.service';
 import { AuthService } from './services/auth.service';
 import { ReportsService } from './services/reports.service';
+import { BrandService } from './services/brand.service';
 import { LoggedInGuard } from './guards/logged-in.guard';
 import { InternalGuard } from './guards/internal.guard';
 import { ExternalGuard } from './guards/external.guard';
@@ -51,6 +52,7 @@ import { ExternalGuard } from './guards/external.guard';
 		AttributeService,
 		AuthService,
 		ReportsService,
+		BrandService,
 		LoggedInGuard,
 		InternalGuard,
 		ExternalGuard

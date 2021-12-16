@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from "@angular/router";
 import { Location } from '@angular/common';
 import { ToastrService } from 'ngx-toastr';
+import { NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 
 import { combineLatest as combineLatestOperator, take, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { combineLatest }from 'rxjs';
@@ -12,7 +13,7 @@ import
 {
 	UnsubscribeOnDestroy, PriceBreakdown, SDGroup, SDSubGroup, SDPoint, SDChoice, SDAttributeReassignment, Group,
 	DecisionPoint, JobChoice, Tree, TreeVersionRules, SalesAgreement, getDependentChoices, ModalService, PDFViewerComponent,
-	SummaryData, BuyerInfo, PriceBreakdownType, PlanOption, Choice
+	SummaryData, BuyerInfo, PriceBreakdownType, PlanOption, Choice, ConfirmModalComponent
 } from 'phd-common';
 
 import { environment } from '../../../../../environments/environment';
@@ -257,26 +258,50 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 
 	onRemoveFavorites(choice: Choice)
 	{
-		let removedChoices = [];
+		let ngbModalOptions: NgbModalOptions = {
+			centered: true,
+			backdrop: true,
+			keyboard: false,
+		};
 
-		if (!this.salesChoices || this.salesChoices.findIndex(sc => sc.divChoiceCatalogId === choice.divChoiceCatalogId) === -1)
+		let confirm = this.modalService.open(ConfirmModalComponent, ngbModalOptions);
+
+		confirm.componentInstance.title = 'Are You Sure?';
+		confirm.componentInstance.body = 'This will delete this item from your list';
+		confirm.componentInstance.defaultOption = 'Continue';
+
+		confirm.result.then((result) =>
 		{
-			removedChoices.push({ choiceId: choice.id, divChoiceCatalogId: choice.divChoiceCatalogId, quantity: 0, attributes: choice.selectedAttributes });
 
-			const impactedChoices = getDependentChoices(this.tree, this.treeVersionRules, this.options, choice);
-
-			impactedChoices.forEach(c =>
+			if (result == 'Continue')
 			{
-				removedChoices.push({ choiceId: c.id, divChoiceCatalogId: c.divChoiceCatalogId, quantity: 0, attributes: c.selectedAttributes });
+
+				let removedChoices = [];
+
+				if (!this.salesChoices || this.salesChoices.findIndex(sc => sc.divChoiceCatalogId === choice.divChoiceCatalogId) === -1)
+				{
+					removedChoices.push({ choiceId: choice.id, divChoiceCatalogId: choice.divChoiceCatalogId, quantity: 0, attributes: choice.selectedAttributes });
+
+					const impactedChoices = getDependentChoices(this.tree, this.treeVersionRules, this.options, choice);
+
+					impactedChoices.forEach(c =>
+					{
+						removedChoices.push({ choiceId: c.id, divChoiceCatalogId: c.divChoiceCatalogId, quantity: 0, attributes: c.selectedAttributes });
+					});
+				}
+
+				this.store.dispatch(new ScenarioActions.SelectChoices(this.isDesignComplete, ...removedChoices));
+				this.store.dispatch(new FavoriteActions.SaveMyFavoritesChoices());
+
+				setTimeout(() => {
+					this.cd.detectChanges();
+				}, 50);
+			}
+
+		}, (reason) =>
+			{
+
 			});
-		}
-
-		this.store.dispatch(new ScenarioActions.SelectChoices(this.isDesignComplete, ...removedChoices));
-		this.store.dispatch(new FavoriteActions.SaveMyFavoritesChoices());
-
-		setTimeout(() => {
-            this.cd.detectChanges();
-        }, 50);
 	}
 
 	onPrint()

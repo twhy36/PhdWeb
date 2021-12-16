@@ -78,8 +78,11 @@
 			}
 
 			.phd-favorite-icon {
+				position: relative;
+				top: 38px;
+				left: 204px;
 				color: $pantone_blue;
-				width: 18px;
+				font-size: 24px;
 			}
 		}
 	}

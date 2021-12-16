@@ -21,6 +21,7 @@ export interface DtoScenario
 	treeVersionId: number;
 	viewedDivDPointCatalogIds: Array<number>;
 	salesAgreementId?: number;
+	financialCommunityId?: number;
 }
 
 export interface DtoScenarioInfo
@@ -104,6 +105,7 @@ export class Scenario
 	viewedDecisionPoints: Array<number>;
 	scenarioInfo: DtoScenarioInfo;
 	salesAgreementId?: number;
+	financialCommunityId?: number;
 
 	constructor(scenarioDto?: DtoScenario)
 	{
@@ -144,6 +146,7 @@ export class Scenario
 
 			this.viewedDecisionPoints = scenarioDto.viewedDivDPointCatalogIds;
 			this.salesAgreementId = scenarioDto.salesAgreementId;
+			this.financialCommunityId = scenarioDto.financialCommunityId;
 		}
 	}
 }

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { Observable, of } from 'rxjs';
+import { BehaviorSubject, Observable, of } from 'rxjs';
 import { distinctUntilChanged, combineLatest, switchMap, withLatestFrom, take } from 'rxjs/operators';
 
 import * as _ from 'lodash';
@@ -13,8 +13,9 @@ import * as CommonActions from '../../../ngrx-store/actions';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 import * as FavoriteActions from '../../../ngrx-store/favorite/actions';
 
-import { UnsubscribeOnDestroy, SalesAgreement, SDImage } from 'phd-common';
+import { UnsubscribeOnDestroy, SalesAgreement, SDImage, SubGroup, FloorPlanImage } from 'phd-common';
 import { JobService } from '../../../core/services/job.service';
+import { BrandService } from '../../../core/services/brand.service';
 
 @Component({
 	selector: 'home',
@@ -30,12 +31,17 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 	salesAgreement: SalesAgreement;
 	isPreview: boolean;
 	isLoadingMyFavorite: boolean = false;
+	hasFloorPlanImages: boolean = true;
+	marketingPlanId$ = new BehaviorSubject<number>(0);
+	isFloorplanFlipped: boolean;
+	floorplanSG: SubGroup;
 
 	constructor(
 		private activatedRoute: ActivatedRoute,
 		private store: Store<fromRoot.State>,
 		private router: Router,
-		private jobService: JobService)
+		private jobService: JobService,
+		private brandService: BrandService)
     {
         super();
     }
@@ -52,6 +58,7 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 						return new Observable<never>();
 					}
 
+					this.isFloorplanFlipped = salesAgreementState?.isFloorplanFlipped;
 					this.isPreview = routeData["isPreview"];
 
 					if (this.isPreview) {
@@ -103,6 +110,7 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 			take(1)
 		).subscribe(images =>
 		{
+			this.hasFloorPlanImages = images && images.length > 0;
 			images && images.length && images.map(img =>
 			{
 				img.svg = `data:image/svg+xml;base64,${btoa(img.svg)}`;
@@ -123,6 +131,28 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 			select(fromRoot.financialCommunityName),
 		).subscribe(communityName => {
 			this.communityName = communityName;
+		});
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromRoot.contractedTree),
+			combineLatest(this.store.pipe(select(state => state.scenario)), this.store.pipe(select(fromPlan.planState)))
+		).subscribe(([contractedTree, scenarioState, plan]) => {
+			const tree = scenarioState?.tree?.treeVersion;
+			const contractedSgs = _.flatMap(contractedTree?.groups, g => g.subGroups.filter(sg => sg.useInteractiveFloorplan));
+			const sgs = _.flatMap(tree?.groups, g => g.subGroups.filter(sg => sg.useInteractiveFloorplan));
+			if ((tree || contractedTree) && plan && plan.marketingPlanId && plan.marketingPlanId.length) {	
+				let fpSubGroup;
+				if (contractedSgs?.length) {
+					fpSubGroup = contractedSgs.pop();
+				} else if (sgs?.length) {
+					fpSubGroup = sgs.pop();
+				}
+				if (fpSubGroup) {
+					this.floorplanSG = fpSubGroup;
+					this.marketingPlanId$.next(plan.marketingPlanId[0]);
+				}
+			}
 		});
 
 		this.store.pipe(
@@ -157,5 +187,33 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 		} else {
 			this.store.dispatch(new FavoriteActions.LoadMyFavorite());
 		}
+	}
+
+	/**
+	 * Handles a save event from the child floor plan component, in order to render the IFP report.
+	 * @param floorPlanImages The images that were saved.
+	 */
+	onFloorPlanSaved(floorPlanImages: FloorPlanImage[])
+	{
+		floorPlanImages.forEach(img =>
+		{
+			img.svg = `data:image/svg+xml;base64,${btoa(img.svg)}`;
+
+			const sdImg = { imageUrl: img.svg, hasDataUri: true, floorIndex: img.floorIndex, floorName: img.floorName } as SDImage;
+			const idx = this.floorPlanImages.findIndex(i => i.floorIndex === img.floorIndex);
+
+			if (idx === -1)
+			{
+				this.floorPlanImages.push(sdImg);
+			}
+			else
+			{
+				this.floorPlanImages[idx] = sdImg;
+			}
+		});
+	}
+
+	getImageSrc() {
+		return this.brandService.getBrandImage('logo');
 	}
 }

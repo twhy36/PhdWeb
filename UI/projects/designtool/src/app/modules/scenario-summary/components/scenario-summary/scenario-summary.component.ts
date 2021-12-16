@@ -105,6 +105,7 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 	marketingPlanId: number[];
 	treeFilter$: Observable<TreeFilter>;
 	choiceImagesLoaded: boolean = false;
+	priceRangesCalculated: boolean;
 
 	constructor(private route: ActivatedRoute,
 		private lotService: LotService,
@@ -449,11 +450,41 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 			this.marketingPlanId = marketingPlanId;
 		});
 
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(state => state.plan.marketingPlanId)
+		).subscribe(marketingPlanId =>
+		{
+			this.marketingPlanId = marketingPlanId;
+		});
+
 		this.treeFilter$ = this.store.pipe(
 			select(state => state.scenario.treeFilter)
 		);
 
 		this.canOverride$ = this.store.pipe(select(fromRoot.canOverride));
+
+		// #335248
+		// Determine if the price ranges have been fully calculated
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromScenario.choicePriceRanges)
+		).subscribe(choicePriceRanges =>
+		{
+			this.priceRangesCalculated = choicePriceRanges != null;
+
+			const message = 'Calculating the price ranges may take a few minutes. Please do not close the tab until the PDF loads.';
+
+			if (this.priceRangesCalculated)
+			{
+				this._toastr.clear();
+			}
+			// Only display the toastr if it doesn't already exist. ToastrId doesn't seem to work for tracking, but going by the message works.
+			else if (!this._toastr.toasts.map(t => t.message).includes(message))
+			{
+				this._toastr.info(message, null, { disableTimeOut: true });
+			}
+		});
 	}
 
 	ngAfterViewInit()

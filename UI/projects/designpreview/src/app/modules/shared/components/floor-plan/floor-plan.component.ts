@@ -1,12 +1,14 @@
 import { Component, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import * as _ from 'lodash';
-import { Observable, Subject } from 'rxjs';
-import { combineLatest, flatMap, map, switchMap } from 'rxjs/operators';
+import { Observable, Subject, timer } from 'rxjs';
+import { combineLatest, flatMap, map, switchMap, withLatestFrom } from 'rxjs/operators';
 import { Store, select } from '@ngrx/store';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
-import { UnsubscribeOnDestroy, loadScript, unloadScript, SubGroup, Group } from 'phd-common';
+import { UnsubscribeOnDestroy, loadScript, unloadScript, SubGroup, Group, FloorPlanImage } from 'phd-common';
 import { environment } from '../../../../../environments/environment';
+import { JobService } from '../../../core/services/job.service';
+import { BrandService } from '../../../core/services/brand.service';
 
 declare var AVFloorplan: any;
 
@@ -25,8 +27,10 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 	@Input() selectedFloor: any;
 	@Input() subGroup: SubGroup;
 	@Input() isFlipped: boolean;
+	@Input() isPresavedFloorplan: boolean = false;
 
 	@Output() onFloorPlanLoaded = new EventEmitter();
+	@Output() onFloorPlanSaved = new EventEmitter<FloorPlanImage[]>();
 
 	fp: any;
 	private readonly avAPISrc = "//vpsstorage.blob.core.windows.net/api/floorplanAPIv2.3.js";
@@ -34,12 +38,17 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 	planId: number = 0;
 	subGroup$ = new Subject<SubGroup>();
 	initialized$ = new Subject<any>();
+	jobId: number;
 	enabledOptions: number[] = [];
 	unfilteredGroups: Group[];
 
-	constructor(private store: Store<fromRoot.State>) {
+	constructor(
+		private store: Store<fromRoot.State>,
+		private brandService: BrandService,
+		private jobService: JobService
+	) {
       super();
-    }
+  }
 
 	ngOnInit(): void {
 		let wd: any = window;
@@ -53,6 +62,9 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 				this.planId = planId;
 				try {
 					this.fp = wd.fp = new AVFloorplan(environment.alphavision.builderId, "" + planId, document.querySelector("#av-floor-plan"), [], this.fpInitialized.bind(this));
+					if (this.isPresavedFloorplan) {
+						this.saveFloorPlanImages();
+					}
 				}
 				catch (err) {
 					this.fp = { graphic: undefined };
@@ -61,6 +73,13 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 				}
 			}
 		});
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(state => state.job.id),
+		).subscribe((jobId) => {
+			this.jobId = jobId;
+		})
 
 		// On subGroup Changes (ie when a choice is favorited) this can modify the ifp image based on the options
 		this.subGroup$.pipe(combineLatest(this.initialized$),
@@ -136,4 +155,16 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 		this.initialized$.complete();
 	}
 
+	saveFloorPlanImages() {
+		// floor plan image save functionality in here
+		timer(100).subscribe(() => {
+			this.jobService.saveFloorPlanImages(this.jobId, this.fp.floors, this.fp.exportStaticSVG()).subscribe(images => {
+				this.onFloorPlanSaved.emit(images);
+			})
+		});
+	}
+	
+	getImageSrc() {
+		return this.brandService.getBrandImage('logo');
+	}
 }

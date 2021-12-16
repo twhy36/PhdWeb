@@ -43,12 +43,10 @@
 
 	<div class="d-flex flex-column phd-card-panel" [ngClass]="isPointPanelCollapsed ? 'phd-card-panel-collapsed' : ''">
 		<div class="phd-include-options">
-			<input type="checkbox" 
-				(change)="toggleContractedOptions($event)" 
-				[ngModel]="includeContractedOptions" 
-				[ngClass]="{'phd-clickable' : !isContractedOptionsDisabled }" 
-				[disabled]="isContractedOptionsDisabled"
-			/>
+			<div class="phd-contracted-options-checkbox" [ngClass]="{'phd-clickable' : !isContractedOptionsDisabled }" (click)="$event.stopPropagation()">
+				<span class="phd-icon-selected"><i *ngIf="includeContractedOptions" class="fa fa-check-square" (click)="toggleContractedOptions()"></i></span>
+				<div *ngIf="!includeContractedOptions" class="phd-empty-checkbox" (click)="toggleContractedOptions()"></div>
+			</div>
 			<span class="phd-contracted-options">Display Contracted Options</span>
 			<div class="floor-select-container" *ngIf="floors && floors.length > 1">
 				<select id="floor-select" class="form-control" [ngModel]="selectedFloor" (ngModelChange)="selectFloor($event)">

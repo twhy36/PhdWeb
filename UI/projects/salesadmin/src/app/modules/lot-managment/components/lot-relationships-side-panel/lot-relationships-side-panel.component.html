@@ -75,16 +75,42 @@
 					<div class="card-header">
 						<strong>Add Choice</strong>
 					</div>
-					<search-bar selectedSearchFilter="Choice" [isDisabled]="selected" (onClearFilter)="clearFilter()" (onKeywordSearch)="keywordSearch($event)"></search-bar>
-					<div *ngIf="showSearchResults && searchResults.length > 0" class="phd-item-multiselect-results">
+					<search-bar [searchFilters]="searchFilters" [selectedSearchFilter]="selectedSearchFilter" [isDisabled]="selected" (onClearFilter)="clearFilter()" (onKeywordSearch)="keywordSearch($event)"></search-bar>
+					<div *ngIf="showSearchResults && searchResultsCount > 0" class="phd-item-multiselect-results">
 						<div>
 							<a class="close" (click)="clearFilter()">&times;</a>
 						</div>
-						<div *ngFor="let result of searchResults">
-							<span class="phd-choice-rule" (click)="choiceClicked(result)">{{result.choiceLabel}}</span>
-						</div>
+						<ng-container *ngFor="let group of divisionalCatalog.groups">
+							<ng-container *ngIf="group.matched">
+								<div>
+									<i class="fa fa-fw" [class.fa-chevron-up]="group.open" [class.fa-chevron-down]="!group.open" (click)="group.open = !group.open"></i>
+									<span>{{group.dGroupLabel}}</span>
+								</div>
+								<ng-container *ngFor="let subGroup of group.subGroups">
+									<ng-container *ngIf="group.open && subGroup.matched">
+										<div class="phd-child-sp">
+											<i class="fa fa-fw" [class.fa-chevron-up]="subGroup.open" [class.fa-chevron-down]="!subGroup.open" (click)="subGroup.open = !subGroup.open"></i>
+											<span>{{subGroup.dSubGroupLabel}}</span>
+										</div>
+										<ng-container *ngFor="let point of subGroup.points">
+											<ng-container *ngIf="subGroup.open && group.open && point.matched">
+												<div class="phd-grand-child-sp">
+													<i class="fa fa-fw" [class.fa-chevron-up]="point.open" [class.fa-chevron-down]="!point.open" (click)="point.open = !point.open"></i>
+													<span>{{point.dPointLabel}}</span>
+												</div>
+												<ng-container *ngFor="let choice of point.choices">
+													<div *ngIf="point.open && subGroup.open && group.open && choice.matched" class="phd-great-grand-child-sp">
+														<span class="phd-tree-rule" (click)="choiceClicked(choice)" [class.phd-tree-rule-disabled]="!choice.isActive">{{choice.choiceLabel}}</span>
+													</div>
+												</ng-container>
+											</ng-container>
+										</ng-container>
+									</ng-container>
+								</ng-container>
+							</ng-container>
+						</ng-container>
 					</div>
-					<div *ngIf="showSearchResults && searchResults.length === 0">
+					<div *ngIf="showSearchResults && searchResultsCount === 0">
 						<div class="text-danger text-center">
 							No results found. Please try another search.
 						</div>

@@ -4,7 +4,7 @@
 			<cl-image *ngIf="imageUrl" public-id="{{imageUrl}}" type="fetch" background="#ffffff" crop="lpad" height="190" width="270"
 					  (onError)="onLoadImageError($event)">
 			</cl-image>
-			<img class="phd-logo-image" src="assets/pultegroup_logo.jpg" *ngIf="!imageUrl">
+			<img class="phd-logo-image" [src]="getImageSrc()" *ngIf="!imageUrl">
 		</div>
 	</div>
 

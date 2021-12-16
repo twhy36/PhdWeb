@@ -43,7 +43,7 @@
 
 	.phd-breakdown-content {
 		flex-basis: 60%;
-	}	
+	}
 
 	.phd-estimate {
 		display: flex;
@@ -52,6 +52,22 @@
 
 	.phd-contracted-options {
 		padding-left: 15px;
+		display: flex;
+		flex-direction: row;
+
+		.phd-contracted-options-checkbox {
+			margin-right: 5px;
+
+			.phd-empty-checkbox {
+				width: 14px;
+				height: 14px;
+				margin-top: 4px;
+			}
+		}
+
+		.phd-icon-selected {
+			color: var(--primary-icon-color);
+		}
 	}
 
 	.phd-divider {
@@ -70,12 +86,12 @@
 	&.is-sticky {
 		position: fixed;
 		top: 125px;
-	
+
 		&,
 		::ng-deep & * {
 			transition: all .2s;
 		}
-	
+
 		&::after {
 			content: ' ';
 			position: fixed;
@@ -86,5 +102,5 @@
 			background-color: white;
 			box-shadow: 0 9px 4px -8px $mid_gray;
 		}
-	}	
+	}
 }

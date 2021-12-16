@@ -26,8 +26,8 @@ export class AttributeDetailsTabComponent implements OnInit, OnDestroy
 	attributeForm: FormGroup;
 	attribute: Attribute;
 	isSaving: boolean;
-	
-    private formSubs: Subscription[];
+
+	private formSubs: Subscription[];
 
 	get imgUrl(): string
 	{
@@ -41,31 +41,40 @@ export class AttributeDetailsTabComponent implements OnInit, OnDestroy
 
 	constructor(private route: ActivatedRoute, private _msgService: MessageService) { }
 
-	ngOnInit() {
+	ngOnInit()
+	{
 		this.createForm();
 
-		this.isSaving$.subscribe(saving => {
+		this.isSaving$.subscribe(saving =>
+		{
 			this.isSaving = saving;
-			if (this.attributeForm) {
+
+			if (this.attributeForm)
+			{
 				this.isSaving ? this.attributeForm.disable() : this.attributeForm.enable();
 			}
 		});
-    }
+	}
 
-    ngOnDestroy() {
-        if (this.formSubs) {
-            this.formSubs.forEach(sub => sub.unsubscribe());
-        }
-    }
+	ngOnDestroy()
+	{
+		if (this.formSubs)
+		{
+			this.formSubs.forEach(sub => sub.unsubscribe());
+		}
+	}
 
-	createForm() {
+	createForm()
+	{
 		this.attribute = new Attribute(this.selectedAttribute);
-		if (this.selectedAttribute && this.selectedAttribute.isDefaultEndDate()) {
+
+		if (this.selectedAttribute && this.selectedAttribute.isDefaultEndDate())
+		{
 			this.attribute.endDate = null;
 		}
 
 		this.attributeForm = new FormGroup({
-			'name': new FormControl(this.attribute.name, { validators: [this.duplicateName()], updateOn: 'blur'}),
+			'name': new FormControl(this.attribute.name, { validators: [this.duplicateName()], updateOn: 'blur' }),
 			'image': new FormControl(this.attribute.imageUrl),
 			'manufacturer': new FormControl(this.attribute.manufacturer),
 			'sku': new FormControl(this.attribute.sku),
@@ -76,22 +85,25 @@ export class AttributeDetailsTabComponent implements OnInit, OnDestroy
 			'endDate': new FormControl(this.attribute.endDate),
 		});
 
-        this.attributeForm.validator = this.validateDates;
+		this.attributeForm.validator = this.validateDates;
 
-        this.formSubs = [
-            this.attributeForm.get('manufacturer').valueChanges.subscribe(() => this.attributeForm.get('name').updateValueAndValidity()),
-            this.attributeForm.get('sku').valueChanges.subscribe(() => this.attributeForm.get('name').updateValueAndValidity())
+		this.formSubs = [
+			this.attributeForm.get('manufacturer').valueChanges.subscribe(() => this.attributeForm.get('name').updateValueAndValidity()),
+			this.attributeForm.get('sku').valueChanges.subscribe(() => this.attributeForm.get('name').updateValueAndValidity())
 		];
 
 		const tagsArray = this.attributeForm.get("tags") as FormArray;
+
 		this.attribute.tags.forEach(t => tagsArray.push(new FormControl(t)));
 
-		this.attributeForm.valueChanges.subscribe(() => {
+		this.attributeForm.valueChanges.subscribe(() =>
+		{
 			this.attributeChanged.emit();
 		});
 	}
 
-	getFormData(): Attribute {
+	getFormData(): Attribute
+	{
 		const tagsArray = this.attributeForm.get("tags") as FormArray;
 
 		this.attribute.marketId = +this.route.parent.snapshot.paramMap.get('marketId');
@@ -121,10 +133,12 @@ export class AttributeDetailsTabComponent implements OnInit, OnDestroy
 	{
 		this.attributeForm.reset();
 		this.attribute = new Attribute();
-		this.imgUrl = "";
+		this.imgUrl = '';
 
 		let tags = <FormArray>this.attributeForm.controls['tags'];
-		for (let i = tags.length - 1; i >= 0; i--) {
+
+		for (let i = tags.length - 1; i >= 0; i--)
+		{
 			tags.removeAt(i);
 		}
 	}
@@ -141,11 +155,13 @@ export class AttributeDetailsTabComponent implements OnInit, OnDestroy
 			{
 				const tagsArray = this.attributeForm.get("tags") as FormArray;
 				const tagControl = new FormControl(tag);
+
 				tagsArray.push(tagControl);
 
 				this.detectChangesInTags(tagsArray);
 
 				let searchTagControl = this.attributeForm.controls['searchTag'];
+
 				if (searchTagControl)
 				{
 					searchTagControl.reset();
@@ -156,8 +172,10 @@ export class AttributeDetailsTabComponent implements OnInit, OnDestroy
 
 	onRemoveTag(index: number)
 	{
-		if (!this.isSaving) {
+		if (!this.isSaving)
+		{
 			const tagsArray = this.attributeForm.get("tags") as FormArray;
+
 			tagsArray.removeAt(index);
 
 			this.detectChangesInTags(tagsArray);
@@ -197,16 +215,16 @@ export class AttributeDetailsTabComponent implements OnInit, OnDestroy
 	duplicateName(): ValidatorFn
 	{
 		return (control: AbstractControl): { [key: string]: boolean } =>
-        {
-            const inputName = control.value as string;
-            const manufacturer = control.parent ? control.parent.get('manufacturer').value as string : null;
-            const sku = control.parent ? control.parent.get('sku').value as string : null;
+		{
+			const inputName = control.value as string;
+			const manufacturer = control.parent ? control.parent.get('manufacturer').value as string : null;
+			const sku = control.parent ? control.parent.get('sku').value as string : null;
 			const attPred = (att: Attribute) =>
 				!(this.selectedAttribute && this.selectedAttribute.id === att.id)
 				&& att.name.toLowerCase() === inputName.toLowerCase()
-                && ((att.manufacturer || '').toLowerCase() === (manufacturer || '').toLowerCase())
-                && ((att.sku || '').toLowerCase() === (sku || '').toLowerCase());
-            const existingName = inputName ? this.existingAttributes.find(attPred) : null;
+				&& ((att.manufacturer || '').toLowerCase() === (manufacturer || '').toLowerCase())
+				&& ((att.sku || '').toLowerCase() === (sku || '').toLowerCase());
+			const existingName = inputName ? this.existingAttributes.find(attPred) : null;
 
 			return existingName ? { duplicateName: true } : null;
 		};
@@ -224,12 +242,12 @@ export class AttributeDetailsTabComponent implements OnInit, OnDestroy
 			const imgUrl = assets[0].url;
 
 			this.imgUrl = imgUrl;
-			
+
 			imgForm.setValue(imgUrl);
 		}
 		else
 		{
-			this._msgService.add({ severity: 'error', summary: 'Unable to get image from Picture Park.'	});
+			this._msgService.add({ severity: 'error', summary: 'Unable to get image from Picture Park.' });
 		}
 	}
 
@@ -248,17 +266,21 @@ export class AttributeDetailsTabComponent implements OnInit, OnDestroy
 	 * and marks the FormArray for tags dirty or pristine 
 	 * @param tagsArray
 	 */
-	private detectChangesInTags(tagsArray: FormArray) {
-
+	private detectChangesInTags(tagsArray: FormArray)
+	{
 		const tags = tagsArray.controls.map(c => c.value as string);
 
 		const diffA = difference(tags, this.attribute.tags);
 		const diffB = difference(this.attribute.tags, tags);
 
-		if (diffA.length > 0 || diffB.length > 0) {
+		if (diffA.length > 0 || diffB.length > 0)
+		{
 			tagsArray.markAsDirty();
+
 			this.attributeChanged.emit();
-		} else {
+		}
+		else
+		{
 			tagsArray.markAsPristine();
 		}
 	}
