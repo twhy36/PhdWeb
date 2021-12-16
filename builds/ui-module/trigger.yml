@@ -1,10 +1,8 @@
 variables:
 - name: template
-  ${{ if or(eq(variables['Build.SourceBranch'], 'refs/heads/main'), eq(variables['Build.SourceBranch'], 'refs/heads/next')) }}:
+  ${{ if ne(variables['Build.Reason'], 'PullRequest') }}:
     value: main.yml
-  ${{ if or(startsWith(variables['Build.SourceBranch'], 'refs/heads/release'), startsWith(variables['Build.SourceBranch'], 'refs/heads/hotfix')) }}:
-    value: release.yml
-  ${{ if or(eq(variables['Build.Reason'], 'PullRequest'), startsWith(variables['Build.SourceBranch'], 'refs/heads/feature'), startsWith(variables['Build.SourceBranch'], 'refs/heads/bugfix'), startsWith(variables['Build.SourceBranch'], 'refs/heads/chore')) }}:
+  ${{ if eq(variables['Build.Reason'], 'PullRequest') }}:
     value: dev.yml
 - name: branch
   value: $(Build.SourceBranch)
