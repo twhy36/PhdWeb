@@ -32,19 +32,21 @@
 		</div>
 
 		<div class="flex-column phd-card-detail-choice-body">
-			<div>
-				<h4 class="phd-title">
-					{{choice?.label}}
-				</h4>
+			<div [class.phd-choice-header]="hasQuantityLocationsAttributes">
+				<h4 class="phd-title">{{choice?.label}}</h4>
+			</div>
 
-				<strong *ngIf="choice?.enabled && !optionDisabled">{{choice.price | currency:'USD':'symbol':'0.0-0'}}</strong>
-				<strong *ngIf="!choice?.enabled && !optionDisabled">{{ choice.id | priceRange | async }}</strong>
+			<div class="phd-choice-price" *ngIf="!optionDisabled">
+				<strong *ngIf="choice?.enabled">{{choice.price | currency:'USD':'symbol':'0.0-0'}}</strong>
+				<strong *ngIf="!choice?.enabled">{{ choice.id | priceRange | async }}</strong>
 			</div>
 
 			<div class="phd-choice-content">
-				<div *ngIf="choiceDescriptions.length && !optionDisabled" class="phd-choice-description">
+				<div *ngIf="choiceDescriptions.length && !optionDisabled" class="phd-choice-description" [class.phd-choice-description-full]="!this.optionDisabled && !hasQuantityLocationsAttributes" [class.phd-choice-description-half]="!this.optionDisabled && expandChoiceDescription && hasQuantityLocationsAttributes">
 					<div *ngFor="let description of choiceDescriptions">{{ description }}</div>
 				</div>
+
+				<div *ngIf="!this.optionDisabled && showChoiceDescriptionExpand && hasQuantityLocationsAttributes" class="phd-choice-description-expand" (click)="choiceDescriptionToggle()">{{ expandChoiceDescription ? 'Show Less' : 'Show More' }}...</div>
 
 				<ng-container *ngIf="choice?.maxQuantity > 1 && !optionDisabled">
 					<div class="mt-auto align-self-left">

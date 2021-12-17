@@ -1,0 +1,17 @@
+@import "../../../../../scss/color-pallet.scss";
+@import "../../../../../scss/sizes.scss";
+
+.phd-flex-container {
+  display: flex;
+  flex-grow: 1;
+  flex-direction: column;
+  justify-content: space-around;
+}
+
+.phd-option-list {
+  margin: 20px 0px;
+}
+
+.phd-option-action {
+  margin-bottom: 15px;
+}

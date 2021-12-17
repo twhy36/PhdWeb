@@ -30,7 +30,7 @@
 		<div class="phd-include-options">
 			<div class="phd-contracted-options-checkbox" [ngClass]="{'phd-clickable' : !isContractedOptionsDisabled }" (click)="$event.stopPropagation()">
 				<span class="phd-icon-selected"><i *ngIf="includeContractedOptions" class="fa fa-check-square" (click)="toggleContractedOptions()"></i></span>
-				<i *ngIf="!includeContractedOptions" class="fa fa-square-o" (click)="toggleContractedOptions()"></i>
+				<div *ngIf="!includeContractedOptions" class="phd-empty-checkbox" [ngClass]="{'phd-disabled-checkbox' : isContractedOptionsDisabled }" (click)="toggleContractedOptions()"></div>
 			</div>
 			<span class="phd-contracted-options">Display Contracted Options</span>
 		</div>

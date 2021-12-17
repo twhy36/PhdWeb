@@ -9,14 +9,17 @@ $detailed-point-panel-width: 300px;
 	overflow: hidden;
 
 	.phd-names {
+		position: fixed;
+		left: 0px;
 		padding: 10px;
 		min-height: 56px;
 	}
 
 	.floor-select-container {
+		position: fixed;
+		right: 0px;
 		padding: 10px;
 		min-height: 56px;
-		margin-left: auto;
 	}
 
 	.phd-community-name {
@@ -33,6 +36,5 @@ $detailed-point-panel-width: 300px;
 
 	.phd-floorplan-container {
 		max-width: 100%;
-		margin-left: 25vw;
 	}
 }

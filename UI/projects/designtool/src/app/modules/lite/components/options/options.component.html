@@ -1,0 +1,51 @@
+<div id="top" class="phd-container">
+	<div class="phd-category-header">
+		<span class="phd-category">{{selectedCategory.name}}</span>
+		<div class="phd-category-subtotal-container">
+			<span class="phd-category-subtotal-label">Subtotal : </span>
+			<span class="phd-category-subtotal-amount">{{categorySubTotal | currency}}</span>
+		</div>
+	</div>
+
+	<div class="phd-options-grid">
+		<ng-container *ngFor="let subCategory of selectedCategory.optionSubCategories">
+			<span class="phd-sub-category">{{subCategory.name}}</span>
+				<div *ngFor="let option of subCategory.planOptions" class="phd-grid-row">
+					<div class="phd-row-fields">
+						<div class="phd-selected-option form-check">
+							<input
+								type="checkbox"
+								class="form-check-input"
+								#optionCheckbox
+								[checked]="option.isSelected"
+								[disabled]="option.isReadonly"
+								(click)="onSelectedOptionWasToggled($event, option)"
+							 />
+						</div>
+						<div class="phd-lawson-name">
+							<span ngbTooltip="{{option.description}}">{{option.financialOptionIntegrationKey}} : <span>{{option.name}}</span></span>
+						</div>
+						<span>Quantity:</span>
+						<select
+							class="phd-quantity form-select"
+							*ngIf="option.maxOrderQuantity > 1"
+							[(ngModel)]="option.selectedQuantity"
+							[disabled]="optionCheckbox.checked === false || option.isReadonly"
+							(change)="saveSelectedOptionToStore(option)"
+						>
+							<option
+
+								*ngFor="let item of option.quantityRange;"
+							>
+								{{ item }}
+							</option>
+						</select>
+						<span *ngIf="option.maxOrderQuantity === 0 || option.maxOrderQuantity === 1" class="phd-quantity">(1)</span>
+						<span class="phd-list-price"> {{option.listPrice | currency}} </span>
+					</div>
+					<hr class="phd-row-divider"/>
+				</div>
+		</ng-container>
+	</div>
+</div>
+

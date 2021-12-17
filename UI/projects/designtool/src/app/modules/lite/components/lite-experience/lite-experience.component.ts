@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from "@angular/router";
+import { NavigationEnd, Router } from "@angular/router";
 import { Observable, combineLatest } from 'rxjs';
 
 import { Store, select } from '@ngrx/store';
@@ -26,14 +26,22 @@ export class LiteExperienceComponent extends UnsubscribeOnDestroy implements OnI
 	isLiteComplete$: Observable<boolean>;
 
 	primaryAction: string = 'Generate Agreement';
+	currentRoute: string;
 
-	constructor(private store: Store<fromRoot.State>, private router: Router) 
-	{ 
-		super(); 
+	constructor(private store: Store<fromRoot.State>, private router: Router)
+	{
+		super();
 	}
 
 	ngOnInit()
 	{
+		this.router.events.subscribe(evt => {
+			if (evt instanceof NavigationEnd)
+			{
+				this.currentRoute = evt.url.toLowerCase();
+			}
+		});
+
 		this.canConfigure$ = this.store.pipe(select(fromRoot.canConfigure));
 
 		this.priceBreakdown$ = this.store.pipe(
@@ -42,8 +50,8 @@ export class LiteExperienceComponent extends UnsubscribeOnDestroy implements OnI
 
 		this.isLiteComplete$ = this.store.pipe(
 			select(fromRoot.isLiteComplete)
-		);		
-		
+		);
+
 		this.subNavItems$ = this.store.pipe(
 			select(state => state.nav.subNavItems)
 		);
@@ -62,8 +70,8 @@ export class LiteExperienceComponent extends UnsubscribeOnDestroy implements OnI
 			this.store.dispatch(new NavActions.SetSubNavItemStatus(LiteSubMenu.Elevation, elevationStatus));
 
 			const colorSchemeStatus = !!colorScheme ? PointStatus.COMPLETED : PointStatus.REQUIRED;
-			this.store.dispatch(new NavActions.SetSubNavItemStatus(LiteSubMenu.ColorScheme, colorSchemeStatus));				
-		});	
+			this.store.dispatch(new NavActions.SetSubNavItemStatus(LiteSubMenu.ColorScheme, colorSchemeStatus));
+		});
 	}
 
 	onSubNavItemSelected(id: number)
@@ -80,7 +88,7 @@ export class LiteExperienceComponent extends UnsubscribeOnDestroy implements OnI
 				this.router.navigateByUrl('/lite/color-scheme');
 				break;
 		}
-	}	
+	}
 
 	onCallToAction($event: { actionBarCallType: ActionBarCallType })
 	{

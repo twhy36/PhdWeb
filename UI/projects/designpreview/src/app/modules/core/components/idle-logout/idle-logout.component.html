@@ -1,10 +1,18 @@
+<div class="modal-header">
+	<span class="modal-title">You're About To Be Signed Out</span>
+</div>
 <div class="modal-body">
-	<div class="phd-signout-title">You're about to be signed out</div>
 	<div >You've been inactive for a while. For your security, you will be signed out in:</div>
 	<div class="phd-signout-countdown">: {{countdown | number:'2.0'}}</div>
 </div>
 
-<div class="modal-footer d-flex justify-content-around">
-	<button type="button" class="btn phd-button-signin" (click)="close('Continue')">Stay Signed In</button>
-	<button type="button" class="btn phd-button-signout" (click)="close('Logout')">Sign Out</button>
+<div class="modal-footer">
+	<button type="button" class="btn btn-sm btn-primary" (click)="close('Continue')">
+		<span class="fa fa-fw fa-check"></span>
+		<span class="">Stay Signed In</span>
+	</button>
+	<button type="button" class="btn btn-sm ml-auto btn-secondary" (click)="close('Logout')">
+		<span class="fa fa-fw fa-close"></span>
+		<span class="phd-signout-text">Sign Out</span>
+	</button>
 </div>

@@ -1,12 +1,12 @@
 <div class="phd-progress-bar">
-	<phase-progress-bar 
+	<phase-progress-bar
 		[items]="(subNavItems$ | async)"
 		[selectedItem]="(selectedSubNavItem$ | async)"
 		(onItemSelected)="onSubNavItemSelected($event)"
-		[showStatusIndicator]="(canConfigure$ | async)">
-	</phase-progress-bar>	
+		[showStatusIndicator]="(canConfigure$ | async) && (currentRoute?.startsWith('/lite/options') === false)">
+	</phase-progress-bar>
 </div>
-	
+
 <div class="phd-lite-experience">
 	<router-outlet></router-outlet>
 </div>
@@ -16,4 +16,4 @@
 			[canChange]="canConfigure$ | async"
 			[price]="(priceBreakdown$ | async).totalPrice"
 			(callToAction)="onCallToAction($event)">
-</action-bar>	
+</action-bar>

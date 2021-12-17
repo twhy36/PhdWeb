@@ -8,7 +8,10 @@ import { environment } from '../../../../environments/environment';
 import { withSpinner, getNewGuid, createBatchGet, createBatchHeaders, createBatchBody } from 'phd-common';
 
 import { map, catchError } from 'rxjs/operators';
-import { LitePlanOption, ScenarioOption, ScenarioOptionColor, ColorItem, Color, ScenarioOptionColorDto } from '../../shared/models/lite.model';
+import { 
+	LitePlanOption, ScenarioOption, ColorItem, Color, ScenarioOptionColorDto, IOptionSubCategory, OptionRelation,
+	OptionRelationEnum
+} from '../../shared/models/lite.model';
 
 @Injectable()
 export class LiteService
@@ -16,7 +19,7 @@ export class LiteService
 	private _ds: string = encodeURIComponent("$");
 
     constructor(private _http: HttpClient) { }
-        
+
 	getLitePlanOptions(planId: number, optionIds?: Array<string>, skipSpinner?: boolean): Observable<LitePlanOption[]>
 	{
 		let filterOptions = '';
@@ -27,7 +30,7 @@ export class LiteService
 		}
 
 		const entity = 'planOptionCommunities';
-		const expand = `optionCommunity($expand=option($select=financialOptionIntegrationKey,id); $select=optionSalesName,optionDescription,option,id,optionSubCategoryId)`;
+		const expand = `optionCommunity($expand=option($select=financialOptionIntegrationKey,id),optionSubCategory($select=optionCategoryId); $select=optionSalesName,optionDescription,option,id,optionSubCategoryId)`;
 		const filter = `planId eq ${planId}${filterOptions}`;
 		const select = `id, planId, optionCommunity, maxOrderQty, listPrice, isActive, isBaseHouse, isBaseHouseElevation`;
 
@@ -38,7 +41,7 @@ export class LiteService
 			catchError(this.handleError)
 		);
     }
-    
+
 	private mapOptions = () => (source: Observable<any>) =>
 		source.pipe(
 			map((response: any) =>
@@ -61,12 +64,16 @@ export class LiteService
 						planId: data['planId'] ? data['planId'] : 0,
                         communityId: data['communityId'] ? data['communityId'] : 0,
 						optionSubCategoryId: data['optionCommunity']['optionSubCategoryId'],
-						colorItems: []
+						optionCommunityId: data['optionCommunity']['id'],
+						colorItems: [],
+						optionCategoryId: data['optionCommunity']['optionSubCategory']['optionCategoryId'],
+						mustHavePlanOptionIds: [],
+						cantHavePlanOptionIds: []
 					} as LitePlanOption;
 				}) as LitePlanOption[];
 			})
         );
-		  
+
 	getScenarioOptions(scenarioId: number) : Observable<ScenarioOption[]>
 	{
 		const entity = `scenarioOptions`;
@@ -81,7 +88,7 @@ export class LiteService
 				return results['value'];
 			}),
 			catchError(this.handleError)
-		);		
+		);
 	}
 
 	saveScenarioOptions(scenarioId: number, scenarioOptions: ScenarioOption[]) : Observable<ScenarioOption[]>
@@ -99,7 +106,7 @@ export class LiteService
 				return response['value'];
 			}),
 			catchError(this.handleError)
-		);		
+		);
 	}
 
 	saveScenarioOptionColors(scenarioId: number, optionColors: ScenarioOptionColorDto[]) : Observable<ScenarioOption[]>
@@ -117,9 +124,9 @@ export class LiteService
 				return response['value'];
 			}),
 			catchError(this.handleError)
-		);		
-	}	
-	
+		);
+	}
+
 	getColorItems(optionIds: Array<number>): Observable<ColorItem[]>
 	{
 		const batchGuid = getNewGuid();
@@ -154,14 +161,14 @@ export class LiteService
 				responseBodies.forEach((result)=>
 				{
 					let resultItems = result.value as Array<ColorItem>;
-					
+
 					resultItems.forEach(item => {
 						colorItems.push({
 							colorItemId: item.colorItemId,
 							name: item.name,
 							edhPlanOptionId: item.edhPlanOptionId,
 							isActive: item.isActive,
-							color: this.mapColors(item['colorItemColorAssoc'], item.colorItemId)							
+							color: this.mapColors(item['colorItemColorAssoc'], item.colorItemId)
 						});
 					});
 				})
@@ -180,20 +187,94 @@ export class LiteService
 		{
 			colorItemAssoc.forEach(assoc => {
 				colors.push({
-					colorId: assoc.color?.colorId,    
+					colorId: assoc.color?.colorId,
 					name: assoc.color?.name,
 					sku: assoc.color?.sku,
-					edhFinancialCommunityId: assoc.color?.edhFinancialCommunityId, 
+					edhFinancialCommunityId: assoc.color?.edhFinancialCommunityId,
 					edhOptionSubcategoryId: assoc.color?.edhOptionSubcategoryId,
 					isActive: assoc.color?.isActive,
-					colorItemId: colorItemId					
+					colorItemId: colorItemId
 				})
 			})
 		}
 
 		return colors;
 	}
+
+	getOptionRelations(optionCommunityIds: Array<number>): Observable<OptionRelation[]>
+	{
+		const batchGuid = getNewGuid();
+		const batchSize = 50;
+
+		let requests = [];
+
+		for (let i = 0; i < optionCommunityIds.length; i = i + batchSize)
+		{
+			const batchIds = optionCommunityIds.slice(i, i + batchSize);
+			const entity = `optionRelations`;
+			let filter = `(mainEdhOptionCommunityId in (${batchIds.join(',')}))`;
+			const select = `optionRelationId,mainEdhOptionCommunityId,relatedEdhOptionCommunityId,relationType`;
+
+			let qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
+
+			const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
+
+			requests.push(createBatchGet(endpoint));
+		}
+
+		let headers = createBatchHeaders(batchGuid);
+		let batch = createBatchBody(batchGuid, requests);
+
+		return withSpinner(this._http).post(`${environment.apiUrl}$batch`, batch, { headers: headers }).pipe(
+			map((response: any) =>
+			{
+				let responseBodies = response.responses.map(res => res.body);
+				let optionRelations: Array<OptionRelation> = [];
+
+				responseBodies.forEach((result)=>
+				{
+					let resultItems = result?.value as Array<OptionRelation>;
+					
+					resultItems?.forEach(item => {
+						optionRelations.push({
+							optionRelationId: item.optionRelationId,
+							mainEdhOptionCommunityId: item.mainEdhOptionCommunityId,
+							relatedEdhOptionCommunityId: item.relatedEdhOptionCommunityId,
+							relationType: item.relationType
+						});
+					});
+				})
+
+			return optionRelations;
+		}),
+			catchError(this.handleError)
+		)
+	}
 	
+	applyOptionRelations(options: LitePlanOption[], optionRelations: OptionRelation[])
+	{
+		if (optionRelations?.length)
+		{
+			optionRelations.forEach(or => {
+				const mainOption = options.find(o => o.optionCommunityId === or.mainEdhOptionCommunityId && o.isActive);
+				const relatedOption = options.find(o => o.optionCommunityId === or.relatedEdhOptionCommunityId && o.isActive);
+				
+				if (mainOption && relatedOption)
+				{
+					if (or.relationType === OptionRelationEnum.CantHave)
+					{
+						mainOption.cantHavePlanOptionIds.push(relatedOption.id);
+						relatedOption.cantHavePlanOptionIds.push(mainOption.id);						
+					}
+					else if (or.relationType === OptionRelationEnum.MustHave)
+					{
+						mainOption.mustHavePlanOptionIds.push(relatedOption.id);
+					}
+				}
+			});
+		}
+	}
+
 	private handleError(error: Response)
 	{
 		// In the future, we may send the server to some remote logging infrastructure
@@ -201,5 +282,64 @@ export class LiteService
 
 		return _throw(error || 'Server error');
 	}
-	
+
+	getOptionsCategorySubcategory(
+		financialCommunityId: number
+	): Observable<IOptionSubCategory[]> {
+		const dollarSign: string = encodeURIComponent('$');
+		const entity = `optionSubCategories`;
+		const expand = `optionCategory($select=id,name)`;
+		const filter = `optionCommunities/any(oc: oc/financialCommunityId eq ${financialCommunityId})`;
+		const select = `id,name`;
+
+		let qryStr = `${dollarSign}expand=${encodeURIComponent(expand)}&${
+			dollarSign
+		}filter=${encodeURIComponent(filter)}&${
+			dollarSign
+		}select=${encodeURIComponent(select)}`;
+
+		const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
+
+		return this._http.get<any>(endpoint).pipe(
+			map((response) => {
+				let subCategoryList =
+					response.value as Array<IOptionSubCategory>;
+				// sort by categoryname and then by subcategoryname
+				return subCategoryList.sort((a, b) => {
+					let aName = a.optionCategory.name.toLowerCase();
+					let bName = b.optionCategory.name.toLowerCase();
+
+					if (aName < bName) {
+						return -1;
+					}
+
+					if (aName > bName) {
+						return 1;
+					}
+
+					if ((aName === bName)) {
+						let aSubName = a.name.toLowerCase();
+						let bSubName = b.name.toLowerCase();
+
+						if (aSubName < bSubName) {
+							return -1;
+						}
+
+						if (aSubName > bSubName) {
+							return 1;
+						}
+
+						return 0;
+					}
+					return 0;
+				});
+			}),
+			catchError(error =>
+				{
+					console.error(error);
+
+					return _throw(error);
+				})
+		);
+	}
 }

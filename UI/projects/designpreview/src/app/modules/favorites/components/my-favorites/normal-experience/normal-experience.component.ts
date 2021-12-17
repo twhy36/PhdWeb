@@ -153,7 +153,9 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	}
 
 	toggleContractedOptions() {
-		this.onToggleContractedOptions.emit();
+		if (!this.isContractedOptionsDisabled) {
+			this.onToggleContractedOptions.emit();
+		}
 	}
 
 	getChoiceExt(choice: Choice, point: DecisionPoint) : ChoiceExt
