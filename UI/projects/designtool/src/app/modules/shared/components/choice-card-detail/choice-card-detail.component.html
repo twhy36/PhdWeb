@@ -117,6 +117,9 @@
 		<div *ngIf="(choice?.isRequired)" class="phd-choice-disabled-msg">
 			<i class="fas fa-info-circle fa-sm"></i> Required
 		</div>
+		<div *ngIf="choice.disabledByHomesite" class="phd-choice-disabled-msg">
+			<i class="fas fa-info-circle fa-sm"></i> Disabled
+		</div>
 		<div *ngIf="(isPastCutOff && !canOverride)" class="phd-past-cutt-off">
 			<i class="fas fa-info-circle fa-sm"></i> Disabled Due to Cut-Off
 		</div>

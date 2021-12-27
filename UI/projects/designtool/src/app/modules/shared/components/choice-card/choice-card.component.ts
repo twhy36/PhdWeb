@@ -115,7 +115,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 
 	get showDisabledButton(): boolean
 	{
-		return (this.choice && !this.choice.enabled || this.currentDecisionPoint && !this.currentDecisionPoint.enabled || this.optionDisabled) && !this.choice.lockedInChoice;
+		return (this.choice && (!this.choice.enabled || this.choice.disabledByHomesite) || this.currentDecisionPoint && !this.currentDecisionPoint.enabled || this.optionDisabled) && !this.choice.lockedInChoice;
 	}
 
 	get showRequiredButton(): boolean
