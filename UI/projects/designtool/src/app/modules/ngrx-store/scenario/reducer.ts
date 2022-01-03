@@ -389,14 +389,6 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 		case ScenarioActionTypes.SetScenarioPlan:
 			return { ...state, scenario: { ...state.scenario, treeVersionId: action.treeVersionId, planId: action.planId } };
 		case ScenarioActionTypes.SetScenarioLot:
-			return { ...state, scenario: { ...state.scenario, lotId: action.lotId, handing: action.handing }, lotPremium: action.premium, isGanked: false };
-		case ScenarioActionTypes.SetScenarioLotHanding:
-			return { ...state, scenario: { ...state.scenario, handing: action.handing } };
-		case ScenarioActionTypes.SetScenarioName:
-			return { ...state, scenario: { ...state.scenario, scenarioName: action.scenarioName } };
-		case ScenarioActionTypes.SaveScenario:
-			return { ...state, savingScenario: true };
-		case ScenarioActionTypes.ScenarioSaved:
 			newTree = _.cloneDeep(state.tree);
 			rules = _.cloneDeep(state.rules);
 			options = _.cloneDeep(state.options);
@@ -407,7 +399,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 				points = _.flatMap(subGroups, sg => sg.points);
 				choices = _.flatMap(points, p => p.choices);
 
-				applyRules(newTree, rules, options, state.scenario && state.scenario?.lotId);
+				applyRules(newTree, rules, options, action.lotId);
 
 				// check selected attributes to make sure they're still valid after applying rules
 				checkSelectedAttributes(choices);
@@ -416,8 +408,15 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 				subGroups.forEach(sg => setSubgroupStatus(sg));
 				newTree.treeVersion.groups.forEach(g => setGroupStatus(g));
 			}
-
-			return { ...state, scenario: action.scenario, tree: newTree, rules: rules, options: options, savingScenario: false, saveError: false, isUnsaved: false };
+			return { ...state, scenario: { ...state.scenario, lotId: action.lotId, handing: action.handing }, tree: newTree, rules: rules, options: options, lotPremium: action.premium, isGanked: false };
+		case ScenarioActionTypes.SetScenarioLotHanding:
+			return { ...state, scenario: { ...state.scenario, handing: action.handing } };
+		case ScenarioActionTypes.SetScenarioName:
+			return { ...state, scenario: { ...state.scenario, scenarioName: action.scenarioName } };
+		case ScenarioActionTypes.SaveScenario:
+			return { ...state, savingScenario: true };
+		case ScenarioActionTypes.ScenarioSaved:
+			return { ...state, scenario: action.scenario, savingScenario: false, saveError: false, isUnsaved: false };
 		case ScenarioActionTypes.SaveError:
 			return { ...state, savingScenario: false, saveError: true };
 		case ScenarioActionTypes.SetIsFloorplanFlippedScenario:

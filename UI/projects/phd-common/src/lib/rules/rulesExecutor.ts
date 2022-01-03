@@ -131,14 +131,15 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 
 		let hasRequiredChoice = pt.choices.find(c => c.isRequired)?.isRequired;
 
-		if (hasRequiredChoice)
+		if (hasRequiredChoice && (pt.pointPickTypeId === PickType.Pick1 || pt.pointPickTypeId === PickType.Pick0or1))
 		{
 			pt.choices.forEach(ch =>
 			{
 				// Disable choice if the DP has a required choice + the choice itself is not required + the pick type is Pick1 or Pick0or1
-				if (ch.enabled)
+				if (ch.enabled && !ch.isRequired)
 				{
-					ch.enabled = !(hasRequiredChoice && !ch.isRequired && (pt.pointPickTypeId === PickType.Pick1 || pt.pointPickTypeId === PickType.Pick0or1));
+					ch.enabled = false;
+					ch.quantity = 0;
 				}
 			});
 		}
@@ -192,6 +193,7 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 			else
 			{
 				choice.quantity = 0;
+				choice.isRequired = false;
 
 				choice.disabledBy.push(cr);
 			}
