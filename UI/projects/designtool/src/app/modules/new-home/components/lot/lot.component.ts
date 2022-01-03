@@ -433,22 +433,22 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 	{
 		if (!!this.colorSchemeConflictOverride)
 		{
-            this.store.dispatch(new ScenarioActions.SelectChoices(true, { choiceId: this.colorSchemeChoice.id, overrideNote: null, quantity: 1 }));
-        }
+			this.store.dispatch(new ScenarioActions.SelectChoices(true, { choiceId: this.colorSchemeChoice.id, overrideNote: null, quantity: 1 }));
+		}
 		else if (!!this.elevationConflictOverride)
 		{
-            this.store.dispatch(new ScenarioActions.SelectChoices(true, { choiceId: this.elevationChoice.id, overrideNote: null, quantity: 1 }));
-        }
+			this.store.dispatch(new ScenarioActions.SelectChoices(true, { choiceId: this.elevationChoice.id, overrideNote: null, quantity: 1 }));
+		}
 
 		if (this.monotonyConflictMessage(lot) && !selected)
 		{
-            this.onOverride(lot, selected);
-        }
+			this.onOverride(lot, selected);
+		}
 		else
 		{
-            this.toggleSelectedLot(lot, selected, null);
-        }
-    }
+			this.toggleSelectedLot(lot, selected, null);
+		}
+	}
 
 	addOverrideReason(lot: LotComponentLot, selected: boolean, overrideReason: string)
 	{

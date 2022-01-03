@@ -67,6 +67,7 @@
 		flex: 0 1 auto;
 		padding-bottom: 6px;
 		width: 100%;
+		position: relative;
 
 		.phd-footer-btn-container {
 			width: 100%;
@@ -75,14 +76,6 @@
 
 			.phd-footer-btns {
 				justify-content: space-around;
-			}
-
-			.phd-favorite-icon {
-				position: relative;
-				top: 38px;
-				left: 204px;
-				color: $pantone_blue;
-				font-size: 24px;
 			}
 		}
 	}
@@ -269,4 +262,12 @@
 	}
 }
 
-
+.phd-favorite-icon {
+	position: absolute;
+	bottom: 13px;
+	left: 230px;
+	z-index: 100;
+	font-size: 24px;
+	display: inline-block;
+	color: $pantone_blue;
+}

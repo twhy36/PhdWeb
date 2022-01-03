@@ -113,7 +113,9 @@ export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implement
 	}
 
 	toggleContractedOptions() {
-		this.onToggleContractedOptions.emit();
+		if (!this.isContractedOptionsDisabled) {
+			this.onToggleContractedOptions.emit();
+		}
 	}
 
 	viewChoiceDetail(choice: ChoiceExt) {
