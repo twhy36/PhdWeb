@@ -10,7 +10,8 @@ import { IFinancialCommunity } from '../../../../../shared/models/financial-comm
 
 import { DivisionalOptionService } from '../../../../../core/services/divisional-option.service';
 
-import { isEqual, orderBy } from 'lodash';
+import { clone, isEqual, orderBy } from 'lodash';
+import { DivCatalogTab } from '../../../../../shared/models/divisional-catalog.model';
 
 @Component({
 	selector: 'expansion-associate-groups-tab-panel',
@@ -51,11 +52,11 @@ export class ExpansionAssociateGroupsTabPanelComponent implements OnInit
 		// instanceof not working in this instance so using isAttributeGroup instead
 		if (isAttributeGroup(item))
 		{
-			isSelected = this.selectedAttributes.some(s => s.id === item.id);;
+			isSelected = this.selectedAttributes.some(s => s.id === item.id);
 		}
 		else if (isLocationGroup(item))
 		{
-			isSelected = this.selectedLocations.some(s => s.id === item.id);;
+			isSelected = this.selectedLocations.some(s => s.id === item.id);
 		}
 		else if (isOptionMarketImage(item))
 		{
@@ -77,7 +78,6 @@ export class ExpansionAssociateGroupsTabPanelComponent implements OnInit
 		}
 		else if (isLocationGroup(item))
 		{
-			this.selectedLocations = [];
 			selectedItems = this.selectedLocations;
 			item = item as LocationGroupMarket;
 		}
@@ -175,16 +175,28 @@ export class ExpansionAssociateGroupsTabPanelComponent implements OnInit
 				this.canAssociate = false;
 				this.isSaving = false;
 
+				// Tell the service which related tabs have had their data changed
+				this._divOptService.sendTabUpdate([
+					!isEqual(this.selectedAttributes, this.origSelectedAttributes) ? DivCatalogTab.attributeGroups : null,
+					!isEqual(this.selectedLocations, this.origSelectedLocations) ? DivCatalogTab.locationGroups : null,
+					!isEqual(this.selectedOptionMarketImages, this.origSelectedOptionMarketImages) ? DivCatalogTab.images : null
+				]);
+
+				// Update the original arrays for comparison
+				this.origSelectedAttributes = clone(this.selectedAttributes);
+				this.origSelectedLocations = clone(this.selectedLocations);
+				this.origSelectedOptionMarketImages = clone(this.selectedOptionMarketImages);
+
 				this.onDataChange.emit();
 			}))
 			.subscribe(response =>
 			{
 				this._msgService.add({ severity: 'success', summary: 'Associations', detail: `Updated successfully!` });
 			},
-			(error) =>
-			{
-				this._msgService.add({ severity: 'error', summary: 'Associations', detail: `An error has occured!` });
-			});
+				(error) =>
+				{
+					this._msgService.add({ severity: 'error', summary: 'Associations', detail: `An error has occured!` });
+				});
 	}
 
 	onLoadImageError(event: any)

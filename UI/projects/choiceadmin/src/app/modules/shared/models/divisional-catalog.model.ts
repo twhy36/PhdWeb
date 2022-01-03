@@ -213,3 +213,11 @@ export interface IDivChoiceCatalogLocationGroupCommunityDto
 	locationGroupCommunityId: number;
 	locationGroupMarketId: number;
 }
+
+export enum DivCatalogTab
+{
+	attributeGroups,
+	locationGroups,
+	images,
+	communities
+}

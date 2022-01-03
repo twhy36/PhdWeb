@@ -13,7 +13,7 @@ import { IFinancialCommunity } from '../../../../../../shared/models/financial-c
 import { AttributeGroupMarket } from '../../../../../../shared/models/attribute-group-market.model';
 import { LocationGroupMarket } from '../../../../../../shared/models/location-group-market.model';
 import { DivisionalOptionService } from '../../../../../../core/services/divisional-option.service';
-import { DivChoiceCatalogAttributeGroupCommunity, DivChoiceCatalogAttributeGroupMarket, DivChoiceCatalogCommunityImage, DivChoiceCatalogLocationGroupCommunity, DivChoiceCatalogLocationGroupMarket, DivChoiceCatalogMarketImage, DivisionalChoice, isDivChoiceCatalogAttributeGroupMarket } from '../../../../../../shared/models/divisional-catalog.model';
+import { DivCatalogTab, DivChoiceCatalogAttributeGroupCommunity, DivChoiceCatalogAttributeGroupMarket, DivChoiceCatalogCommunityImage, DivChoiceCatalogLocationGroupCommunity, DivChoiceCatalogLocationGroupMarket, DivChoiceCatalogMarketImage, DivisionalChoice, isDivChoiceCatalogAttributeGroupMarket } from '../../../../../../shared/models/divisional-catalog.model';
 import { OrganizationService } from '../../../../../../core/services/organization.service';
 import { map, mergeMap } from 'rxjs/operators';
 import { DivisionalService } from '../../../../../../core/services/divisional.service';
@@ -299,6 +299,13 @@ export class AssociateCommunitiesSidePanelComponent extends UnsubscribeOnDestroy
 
 		saveAssocs.subscribe(data =>
 		{
+			// Let related components know of tabs that need to be updated
+			this._divOptService.sendTabUpdate([
+				this.associatingType === AssociatingType.OptionAttributeGroups ? DivCatalogTab.attributeGroups : null,
+				this.associatingType === AssociatingType.OptionLocationGroups ? DivCatalogTab.locationGroups : null,
+				this.associatingType === AssociatingType.OptionImages ? DivCatalogTab.images : null
+			]);
+
 			if (this.callback)
 			{
 				this.callback();

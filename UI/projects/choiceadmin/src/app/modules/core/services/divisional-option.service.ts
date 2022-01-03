@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpHeaders, HttpClient } from '@angular/common/http';
 
-import { Observable, throwError as _throw } from 'rxjs';
+import { Observable, Subject, throwError as _throw } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 
 import * as odataUtils from '../../shared/classes/odata-utils.class';
@@ -17,6 +17,7 @@ import { TableSort } from '../../../../../../phd-common/src/lib/components/table
 import { LoggingService } from '../../core/services/logging.service';
 import { SettingsService } from '../../core/services/settings.service';
 import { withSpinner } from 'phd-common';
+import { DivCatalogTab } from '../../shared/models/divisional-catalog.model';
 
 const settings: Settings = new SettingsService().getSettings();
 
@@ -25,6 +26,8 @@ export class DivisionalOptionService
 {
 	private _ds: string = encodeURIComponent('$');
 	private _batch = "$batch";
+
+	private tabsSubject = new Subject<DivCatalogTab[]>();
 
 	constructor(private _http: HttpClient, private _loggingService: LoggingService) { }
 
@@ -159,12 +162,12 @@ export class DivisionalOptionService
 		);
 	}
 
-	getAttributeGroupsForOption(option: IOptionMarket): Observable<Array<AttributeGroupMarket>>
+	getAttributeGroupsForOption(optionMarketId: number): Observable<Array<AttributeGroupMarket>>
 	{
 		let url = settings.apiUrl;
 
 		const expand = `attributeGroupOptionMarketAssocs($select=attributeGroupMarketId,sortOrder; $expand=attributeGroupMarket($expand=attributeGroupMarketTags($select=attributeGroupMarketId,tag); $select=id, groupName, groupLabel, description))`;
-		const filter = `id eq ${option.id}`;
+		const filter = `id eq ${optionMarketId}`;
 
 		const qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=id`;
 
@@ -183,12 +186,12 @@ export class DivisionalOptionService
 			catchError(this.handleError));
 	}
 
-	getLocationGroupsForOption(option: IOptionMarket): Observable<Array<LocationGroupMarket>>
+	getLocationGroupsForOption(optionMarketId: number): Observable<Array<LocationGroupMarket>>
 	{
 		let url = settings.apiUrl;
 
 		const expand = `locationGroupOptionMarketAssocs($select=locationGroupMarketId; $expand=locationGroupMarket($expand=locationGroupMarketTags($select=locationGroupMarketId,tag); $select=id, locationGroupName, groupLabel, locationGroupDescription))`;
-		const filter = `id eq ${option.id}`;
+		const filter = `id eq ${optionMarketId}`;
 
 		const qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=id`;
 
@@ -363,8 +366,8 @@ export class DivisionalOptionService
 				category: om.optionSubCategory.optionCategory.name,
 				hasImages: imageCount > 0,
 				imageCount: imageCount,
-				attributeGroups$: this.getAttributeGroupsForOption(om),
-				locationGroups$: this.getLocationGroupsForOption(om),
+				attributeGroups$: this.getAttributeGroupsForOption(om.id),
+				locationGroups$: this.getLocationGroupsForOption(om.id),
 				communities$: this.getCommunitiesForOption(om),
 				optionMarketImages$: this.getDivisionalOptionImages(om.id),
 				hasAttributeLocationAssoc: om['attributeGroupOptionMarketAssocs'].length > 0 || om['locationGroupOptionMarketAssocs'].length > 0
@@ -436,6 +439,23 @@ export class DivisionalOptionService
 				return response;
 			}),
 			catchError(this.handleError));
+	}
+
+	/**
+	 * Enables a component to broadcast a message requiring one or more tabs to be updated.
+	 * @param message The tabs to be updated.
+	 */
+	sendTabUpdate(message: DivCatalogTab[])
+	{
+		this.tabsSubject.next(message);
+	}
+
+	/**
+	 * Enables a component to receive information about which tabs to update.
+	 */
+	get onTabUpdate(): Observable<DivCatalogTab[]>
+	{
+		return this.tabsSubject.asObservable();
 	}
 
 	private handleError(error: Response)

@@ -21,6 +21,7 @@ import { ExpansionLocationGroupsTabPanelComponent } from '../expansion-location-
 import { ExpansionAttributeGroupsTabPanelComponent } from '../expansion-attribute-groups-tab-panel/expansion-attribute-groups-tab-panel.component';
 import { TableLazyLoadEvent, TableSort } from '../../../../../../../../../phd-common/src/lib/components/table/phd-table.model';
 import { ExpansionOptionImagesTabPanelComponent } from '../expansion-option-images-tab-panel/expansion-option-images-tab-panel.component';
+import { DivCatalogTab } from '../../../../../shared/models/divisional-catalog.model';
 
 @Component({
 	selector: 'divisional-options-panel',
@@ -38,7 +39,11 @@ export class DivisionalOptionsPanelComponent extends UnsubscribeOnDestroy implem
 	currentMarketId: number;
 	currentPage: number = 0;
 	isReadOnly: boolean;
-	sortField: TableSort = new TableSort({ multiSortMeta: [{ field: 'category', order: 1 }, { field: 'subCategory', order: 1 }, { field: 'optionSalesName', order: 1 }] })
+	sortField: TableSort = new TableSort({ multiSortMeta: [{ field: 'category', order: 1 }, { field: 'subCategory', order: 1 }, { field: 'optionSalesName', order: 1 }] });
+	currentTabIndex: number;
+	currentOption: Option;
+
+	tabsToUpdate: DivCatalogTab[] = [];
 
 	@Output() onAssociateAttributeGroups = new EventEmitter<any>();
 	@Output() onAssociateLocationGroups = new EventEmitter<any>();
@@ -148,6 +153,20 @@ export class DivisionalOptionsPanelComponent extends UnsubscribeOnDestroy implem
 
 			this.performChangeDetection();
 		});
+
+		// Listen for updates that require any tab to be refreshed
+		this._divOptService.onTabUpdate.pipe(
+			this.takeUntilDestroyed()
+		).subscribe(tabs =>
+		{
+			tabs.filter(t => t !== null).forEach(t =>
+			{
+				if (!this.tabsToUpdate.includes(t))
+				{
+					this.tabsToUpdate.push(t);
+				}
+			});
+		});
 	}
 
 	associateAttributeGroups(event: any)
@@ -177,6 +196,9 @@ export class DivisionalOptionsPanelComponent extends UnsubscribeOnDestroy implem
 
 	performChangeDetection()
 	{
+		// Refresh the current tab in case of new data
+		this.refreshTabData();
+
 		this.cd.detectChanges();
 	}
 
@@ -240,22 +262,65 @@ export class DivisionalOptionsPanelComponent extends UnsubscribeOnDestroy implem
 		}
 	}
 
+	refreshTabData()
+	{
+		if (this.currentTabIndex === 0)
+		{
+			const idx = this.tabsToUpdate.findIndex(t => t === DivCatalogTab.attributeGroups);
+
+			if (idx > -1)
+			{
+				this.currentOption.attributeGroups$ = this._divOptService.getAttributeGroupsForOption(this.currentOption.id);
+
+				this.tabsToUpdate.splice(idx, 1);
+			}
+		}
+		else if (this.currentTabIndex === 1)
+		{
+			const idx = this.tabsToUpdate.findIndex(t => t === DivCatalogTab.locationGroups);
+
+			if (idx > -1)
+			{
+				this.currentOption.locationGroups$ = this._divOptService.getLocationGroupsForOption(this.currentOption.id);
+
+				this.tabsToUpdate.splice(idx, 1);
+			}
+		}
+		else if (this.currentTabIndex === 2)
+		{
+			const idx = this.tabsToUpdate.findIndex(t => t === DivCatalogTab.images);
+
+			if (idx > -1)
+			{
+				this.currentOption.optionMarketImages$ = this._divOptService.getDivisionalOptionImages(this.currentOption.id);
+
+				this.tabsToUpdate.splice(idx, 1);
+			}
+		}
+	}
+
 	/**
 	 * Used to call functions when changing tabs
 	 * event.index:
 	 *	0 = Attribute Groups
 	 *	1 = Location Groups
-	 *	2 = Associate Communities
+	 *	2 = Images
+	 *	3 = Associate Communities
 	 * @param event
 	 */
-	onTabChange(event: any)
+	onTabChange(event: any, option: Option)
 	{
-		if (event.index === 0)
+		this.currentTabIndex = event.index;
+		this.currentOption = option;
+
+		this.refreshTabData();
+
+		if (this.currentTabIndex === 0)
 		{
 			// clear selected groups
 			this.expansionAttributeGroupsTabPanelComponent.toggleAllGroups(false);
 		}
-		else if (event.index === 1)
+		else if (this.currentTabIndex === 1)
 		{
 			if (this.expansionLocationGroupsTabPanelComponent)
 			{
@@ -263,14 +328,15 @@ export class DivisionalOptionsPanelComponent extends UnsubscribeOnDestroy implem
 				this.expansionLocationGroupsTabPanelComponent.toggleAllGroups(false);
 			}
 		}
-		else if (event.index === 2)
+		else if (this.currentTabIndex === 2)
 		{
 			if (this.expansionOptionImagesTabPanelComponent)
 			{
+				// clear selected images
 				this.expansionOptionImagesTabPanelComponent.toggleAllImages(false);
 			}
 		}
-		else if (event.index === 3)
+		else if (this.currentTabIndex === 3)
 		{
 			if (this.expansionAssociateCommunitiesTabPanelComponent)
 			{

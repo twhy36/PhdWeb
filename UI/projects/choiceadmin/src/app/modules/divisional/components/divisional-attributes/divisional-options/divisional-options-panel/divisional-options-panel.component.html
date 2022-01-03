@@ -13,7 +13,7 @@
 						<tr>
 							<td [attr.colspan]="columns.length">
 								<div class="div-row-expansion">
-									<phd-tabView orientation="left" styleClass="phd-div-opt-tabview" (onTabClick)="onTabChange($event)">
+									<phd-tabView orientation="left" styleClass="phd-div-opt-tabview" (onTabClick)="onTabChange($event, option)">
 										<phd-tabPanel header="Attribute Groups" [data]="option.attributeGroups$">
 											<ng-template let-groups>
 												<expansion-attribute-groups-tab-panel [option]="option"
