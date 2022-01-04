@@ -717,7 +717,7 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 							point.choices = p.choices.filter(choiceFilter).map(c =>
 							{
 								let choice = new SDChoice(c, choicePriceRanges.find(ch => ch.choiceId === c.id));
-								let choiceImages = this.choiceImages.filter(x => x.dpChoiceId === choice.id);
+								let choiceImages = this.choiceImages && this.choiceImages.length ? this.choiceImages.filter(x => x.dpChoiceId === choice.id) : [];
 
 								// add images to choice
 								choice.choiceImages = choiceImages.length ? choiceImages.map(x => new SDChoiceImage(x)).sort((a, b) => a.sortKey < b.sortKey ? -1 : 1) : [];
