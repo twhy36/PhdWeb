@@ -3,9 +3,9 @@ import { select, Store } from '@ngrx/store';
 import { ReplaySubject } from 'rxjs';
 
 import 
-{
-	UnsubscribeOnDestroy, AttributeGroup, DesignToolAttribute, LocationGroup, Choice, ChoiceImageAssoc,
-	OptionImage, ModalService, MyFavoritesChoiceAttribute, MyFavoritesChoiceLocation
+{ 
+	UnsubscribeOnDestroy, AttributeGroup, DesignToolAttribute, LocationGroup, Choice, ChoiceImageAssoc, 
+	OptionImage, ModalService, MyFavoritesChoiceAttribute, MyFavoritesChoiceLocation 
 } from 'phd-common';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
@@ -62,22 +62,9 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 
 	totalQuantitySelected: number = 0;
 	quantityMin: number = 1;
-	expandChoiceDescription: boolean = false;
 
 	favoriteChoiceAttributes?: MyFavoritesChoiceAttribute[];
 	favoriteChoiceLocations?: MyFavoritesChoiceLocation[];
-
-	get showChoiceDescriptionExpand(): boolean
-	{
-		// can have multiple sets of descriptions, so if there is a description, two or more of them, or the length is > 100 then display the Show More toggle for Choice Description
-		return this.choiceDescriptions.length && (this.choiceDescriptions.length > 1 || this.choiceDescriptions[0].length > 100);
-	}
-
-	get hasQuantityLocationsAttributes(): boolean
-	{
-		// does the choice have quantity? location? location and attribute?
-		return this.choice?.maxQuantity > 1 || (this.locationGroups?.length > 0 || (this.locationGroups?.length === 0 && this.attributeGroups?.length > 0));
-	}
 
 	constructor(private store: Store<fromRoot.State>,
 		private modalService: ModalService)
@@ -89,8 +76,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	{
 		this.hasMonotonyConflict = this.monotonyConflict.monotonyConflict;
 
-		if (this.isFavorite)
-		{
+		if (this.isFavorite) {
 			this.store.pipe(
 				this.takeUntilDestroyed(),
 				select(fromFavorite.myFavoriteChoices)
@@ -119,11 +105,6 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		this.override$.next((!!this.choice.overrideNote));
 	}
 
-	choiceDescriptionToggle()
-	{
-		this.expandChoiceDescription = !this.expandChoiceDescription;
-	}
-
 	ngAfterViewInit()
 	{
 		this.totalQuantitySelected = this.getSelectedQuantity();
@@ -135,10 +116,9 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		if (changes['currentChoiceImages'])
 		{
 			this.choiceImages = changes['currentChoiceImages'].currentValue;
-
 			this.getImages();
 		}
-	}
+	}	
 
 	getQuantityMin(): number
 	{
@@ -244,7 +224,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		let locationMaxQty = choiceMaxQty;
 
 		const location = this.locationComponents.find(lc => lc.attributeLocation.id === locationId);
-
+		
 		// if the choice max qty has been reached then set the max qty for the location to the location qty
 		if (totalQtyAllLocations === choiceMaxQty)
 		{
@@ -447,7 +427,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	attributeGroupSelected()
 	{
 		this.choice.selectedAttributes = this.getSelectedAttributes();
-
+		
 		this.store.dispatch(new ScenarioActions.SelectChoices(true, { choiceId: this.choice.id, overrideNote: null, quantity: this.choice.quantity, attributes: this.choice.selectedAttributes }));
 
 		// only trigger a save if the choice is selected - Change orders only

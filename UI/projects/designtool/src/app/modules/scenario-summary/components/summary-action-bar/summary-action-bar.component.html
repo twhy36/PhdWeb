@@ -23,7 +23,7 @@
 				<div ngbDropdownMenu aria-labelledby="printDropdown">
 					<ul class="list-group list-group-flush phd-print-list">
 						<li class="list-group-item phd-print-item" *ngFor="let reportType of summaryReportType | enumToArray">
-							<a (click)="printConfig(reportType)" [class.disabled]="isReportDisabled(reportType)">{{ reportType }}</a>
+							<a (click)="printConfig(reportType)">{{ reportType }}</a>
 						</li>
 					</ul>
 				</div>
