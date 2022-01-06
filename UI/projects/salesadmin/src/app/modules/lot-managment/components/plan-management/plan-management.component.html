@@ -18,11 +18,9 @@
 						<li [routerLink]="['/lot-management/plan-management/plan-assignment']" [routerLinkActive]="['active']" class="nav-item phd-tab" [ngClass]="{'show phd-active': (selectedTab === commTabs.HomePlanAssignments)}" *requiresClaim="'SalesAdmin'">
 							<a [routerLink]="['/lot-management/plan-management/plan-assignment']" class="nav-link" (click)="onTabClick(commTabs.HomePlanAssignments)">Home Plan Assignments</a>
 						</li>
-						<div *ngIf="!environment.production">
-							<li [routerLink]="['/lot-management/plan-management/lot-relationships']" [routerLinkActive]="['active']" class="nav-item phd-tab" [ngClass]="{'show phd-active': (selectedTab === commTabs.LotRelationships) }" *requiresClaim="'SalesAdmin'">
-								<a [routerLink]="['/lot-management/plan-management/lot-relationships']" class="nav-link" (click)="onTabClick(commTabs.LotRelationships)">Lot Relationships</a>
-							</li>
-						</div>
+						<li [routerLink]="['/lot-management/plan-management/lot-relationships']" [routerLinkActive]="['active']" class="nav-item phd-tab" [ngClass]="{'show phd-active': (selectedTab === commTabs.LotRelationships) }" *requiresClaim="'SalesAdmin'">
+							<a [routerLink]="['/lot-management/plan-management/lot-relationships']" class="nav-link" (click)="onTabClick(commTabs.LotRelationships)">Lot Relationships</a>
+						</li>
 					</ul>
 				</div>
 			</div>
