@@ -28,6 +28,7 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 	@Input() subGroup: SubGroup;
 	@Input() isFlipped: boolean;
 	@Input() isPresavedFloorplan: boolean = false;
+	@Input() isPlainFloorplan: boolean = false;
 
 	@Output() onFloorPlanLoaded = new EventEmitter();
 	@Output() onFloorPlanSaved = new EventEmitter<FloorPlanImage[]>();
@@ -99,8 +100,10 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 			// We want to use the unfiltered tree so that all enabled options will appear on the ifp and not just the DPs and choices shown
 			if (data.unfilteredSubGroup) {
 				_.flatMap(data.unfilteredSubGroup.points, p => p.choices).forEach(c => {
-						if (c.quantity) {
-							this.enabledOptions.push(...c.options.map(o => +o.financialOptionIntegrationKey));
+						if (!this.isPlainFloorplan) {
+							if (c.quantity) {
+								this.enabledOptions.push(...c.options.map(o => +o.financialOptionIntegrationKey));
+							}
 						}
 					});
 
