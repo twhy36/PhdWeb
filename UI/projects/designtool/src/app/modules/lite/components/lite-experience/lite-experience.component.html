@@ -3,7 +3,7 @@
 		[items]="(subNavItems$ | async)"
 		[selectedItem]="(selectedSubNavItem$ | async)"
 		(onItemSelected)="onSubNavItemSelected($event)"
-		[showStatusIndicator]="(canConfigure$ | async) && (currentRoute?.startsWith('/lite/options') === false)">
+		[showStatusIndicator]="(canConfigure$ | async) && showStatusIndicator">
 	</phase-progress-bar>
 </div>
 

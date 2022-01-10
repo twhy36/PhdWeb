@@ -23,6 +23,7 @@ import { environment } from '../../../../../environments/environment';
 
 import * as fromLite from '../../../ngrx-store/lite/reducer';
 import { ExteriorSubNavItems, LiteSubMenu, Elevation, IOptionCategory, IOptionSubCategory, LitePlanOption } from '../../../shared/models/lite.model';
+import { SubNavItems, PhdSubMenu } from '../../../new-home/subNavItems';
 
 @Component({
 	selector: 'nav-bar',
@@ -176,9 +177,10 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 		{
 			if (navItems)
 			{
-				let plan = navItems.find(x => x.id === 2);
-				let lot = navItems.find(x => x.id === 3);
-				let qmi = navItems.find(x => x.id === 4);
+				// Find plan/lot/qmi based on id and label to avoid id conflicts
+				let plan = navItems.find(x => x.id === PhdSubMenu.ChoosePlan && x.label === SubNavItems.find(item => item.id === PhdSubMenu.ChoosePlan).label);
+				let lot = navItems.find(x => x.id === PhdSubMenu.ChooseLot  && x.label === SubNavItems.find(item => item.id === PhdSubMenu.ChooseLot).label);
+				let qmi = navItems.find(x => x.id === PhdSubMenu.QuickMoveIns  && x.label === SubNavItems.find(item => item.id === PhdSubMenu.QuickMoveIns).label);
 
 				if (plan || lot || qmi)
 				{
