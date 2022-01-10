@@ -3,6 +3,41 @@
 	padding-top: 70px;
 }
 
+/* Pulte Brand Font */
+@font-face {
+    font-family: "Lineto-Brown-Pro";
+	font-style: normal;
+	font-weight: normal;
+    src: url('../assets/pulte/fonts/lineto-brown-pro-regular.woff') format("woff");
+}
+
+@font-face {
+    font-family: "Lineto-Brown-Pro";
+	font-style: italic;
+	font-weight: normal;
+    src: url('../assets/pulte/fonts/lineto-brown-pro-Italic.woff') format("woff");
+}
+
+@font-face {
+    font-family: "Lineto-Brown-Pro";
+	font-style: normal;
+	font-weight: bold;
+    src: url('../assets/pulte/fonts/lineto-brown-pro-bold.woff') format("woff");
+}
+
+@font-face {
+    font-family: "Lineto-Brown-Pro";
+	font-style: normal;
+	font-weight: lighter;
+    src: url('../assets/pulte/fonts/lineto-brown-pro-light.woff') format("woff");
+}
+
+@font-face {
+    font-family: "Lineto-Brown-Pro";
+	font-style: italic;
+	font-weight: lighter;
+    src: url('../assets/pulte/fonts/lineto-brown-pro-lightItalic.woff') format("woff");
+}
 /* Del Webb Brand Font */
 @font-face {
     font-family: "Museo Sans";
