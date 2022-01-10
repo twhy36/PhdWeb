@@ -2,3 +2,26 @@
 {
 	padding-top: 70px;
 }
+
+/* Del Webb Brand Font */
+@font-face {
+    font-family: "Museo Sans";
+	font-style: normal;
+	font-weight: normal;
+    src: url('../assets/del-webb/fonts/museo-sans/museo-sans-regular.woff') format("woff");
+}
+
+@font-face {
+    font-family: "Museo Sans";
+	font-weight: bold;
+	font-style: normal;
+    src: url("../assets/del-webb/fonts/museo-sans/museo-sans-bold.woff") format("woff");
+}
+
+@font-face {
+    font-family: "Museo Sans";
+	font-weight: lighter;
+    font-style: normal;
+    src: url("../assets/del-webb/fonts/museo-sans/museo-sans-light.woff") format("woff");
+}
+

@@ -4,7 +4,7 @@
 		"white_logo": "assets/DelWebb_White.png"
 	},
 	"styles": {
-		"font": "Museo",
+		"font": "Museo Sans",
 		"primary-ribbon-background-color": "#40b9da",
 		"secondary-ribbon-background-color": "#0a5165",
 		"primary-button-color": "#f89d32",
