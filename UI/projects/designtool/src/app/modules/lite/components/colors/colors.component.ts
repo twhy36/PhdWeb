@@ -98,18 +98,13 @@ export class ColorsComponent extends UnsubscribeOnDestroy implements OnInit {
 				});
 
 				defaultSubMenu = baseHouseCategory.id;
-			}
 
-			const baseHouseOptions = this.allOptions
-				.filter(option => option.optionCategoryId === baseHouseCategory.id
-								&& option.colorItems.length > 0
-								&& option.colorItems.some(item => item.isActive && item.color.length > 0 && item.color.some(c => c.isActive)))
-				.map(x => x as LitePlanOptionUI);
+				const baseHouseOptions = this.allOptions
+					.filter(option => option.optionCategoryId === baseHouseCategory.id
+									&& option.colorItems.length > 0
+									&& option.colorItems.some(item => item.isActive && item.color.length > 0 && item.color.some(c => c.isActive)))
+					.map(x => x as LitePlanOptionUI);
 
-			const baseHouseSubMenuExists = nav.subNavItems.some(x => x.id === baseHouseCategory.id);
-
-			if (baseHouseSubMenuExists && baseHouseOptions.length > 0)
-			{
 				let baseHouseScenarioOptions: ScenarioOption[] = [];
 
 				baseHouseOptions.forEach(baseOption => {
