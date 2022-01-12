@@ -69,7 +69,8 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 	exteriorStatus: PointStatus;
 	categories: IOptionCategory[] = [];
 	subcategories: IOptionSubCategory[] = [];
-	options: LitePlanOption[];
+	allOptions: LitePlanOption[];
+
 
 	constructor(private lotService: LotService,
 		private identityService: IdentityService,
@@ -235,7 +236,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 		.pipe(
 			this.takeUntilDestroyed(),
 			select(state => state.lite.options))
-		.subscribe(options => this.options = options );
+		.subscribe(options => this.allOptions = options );
 	}
 
 	navigate(path: any[], group?: Group)
@@ -464,7 +465,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 
 	onOptionsNavPath()
 	{
-		const options = this.options.filter(x => x.isActive
+		const options = this.allOptions.filter(x => x.isActive
 											&& !x.isBaseHouse
 											&& !x.isBaseHouseElevation
 											&& x.optionSubCategoryId !== Elevation.Attached
@@ -485,5 +486,9 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 		this.store.dispatch(new NavActions.SetSubNavItems(subMenuitems));
 		this.store.dispatch(new NavActions.SetSelectedSubNavItem(1));
 		this.router.navigate(['/lite/options']);
+	}
+
+	onColorsPath() {
+		this.router.navigate(['/lite/colors']);
 	}
 }

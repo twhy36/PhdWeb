@@ -14,6 +14,7 @@ import { ExteriorCardComponent } from './components/exterior-card/exterior-card.
 import { LiteExperienceComponent } from './components/lite-experience/lite-experience.component';
 import { OptionsComponent } from './components/options/options.component';
 import { ConfirmOptionRelationComponent } from './components/confirm-option-relation/confirm-option-relation.component';
+import { ColorsComponent } from './components/colors/colors.component';
 
 const moduleRoutes: Routes = [
 	{
@@ -25,7 +26,8 @@ const moduleRoutes: Routes = [
 			{ path: '', redirectTo: 'elevation', pathMatch: 'full' },
 			{ path: 'elevation', component: ElevationComponent },
 			{ path: 'options', component: OptionsComponent },
-			{ path: 'color-scheme', component: ColorSchemeComponent }
+			{ path: 'color-scheme', component: ColorSchemeComponent },
+			{ path: 'colors', component: ColorsComponent}
 		]
 	}
 ];
@@ -37,7 +39,8 @@ const moduleRoutes: Routes = [
 		ExteriorCardComponent,
 		LiteExperienceComponent,
 		OptionsComponent,
-		ConfirmOptionRelationComponent
+		ConfirmOptionRelationComponent,
+		ColorsComponent
 	],
 	declarations: [
 		ElevationComponent,
@@ -45,7 +48,8 @@ const moduleRoutes: Routes = [
 		ExteriorCardComponent,
 		LiteExperienceComponent,
 		OptionsComponent,
-		ConfirmOptionRelationComponent
+		ConfirmOptionRelationComponent,
+  		ColorsComponent
 	],
 	imports: [
 		CommonModule,

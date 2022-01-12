@@ -112,7 +112,7 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 						// Select the option while deselecting the cant have options
 						this.selectOption(option);
 
-						// If 'Continue' is selected from the first cant-have dialog, 
+						// If 'Continue' is selected from the first cant-have dialog,
 						// then display the must-have dialog if it selects the checkbox
 						if (option.mustHavePlanOptionIds?.length && !option.isSelected)
 						{
@@ -124,7 +124,7 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 		else if (option.mustHavePlanOptionIds?.length)
 		{
 			// If it is selecting the checkbox, display the must-have dialog
-			// If it is unselecting the checkbox, unselect the option 
+			// If it is unselecting the checkbox, unselect the option
 			option.isSelected ?	this.deselectOption(option) : this.confirmMustHaveOptions(option);
 		}
 		else
@@ -182,11 +182,11 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 				if (result === 'Continue')
 				{
 					const mustHaveOptionIds = allMustHaveOptionIds.filter(id => !this.scenarioOptions.find(o => o.edhPlanOptionId === id));
-				
+
 					const selectedOptionIds = mustHaveOptionIds?.length
 						? [ ...mustHaveOptionIds, option.id ]
 						: [ option.id ];
-				
+
 					let selectedOptions = [];
 					selectedOptionIds.forEach(id => {
 						selectedOptions.push({
@@ -195,9 +195,9 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 							edhPlanOptionId: id,
 							planOptionQuantity: 1,
 							scenarioOptionColors: []
-						});				
+						});
 					});
-			
+
 					this.store.dispatch(new LiteActions.SelectOptions(selectedOptions));
 					this.store.dispatch(new LiteActions.SaveScenarioOptions(selectedOptions));
 				}
@@ -238,7 +238,7 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 					scenarioId: o.scenarioId,
 					edhPlanOptionId: o.edhPlanOptionId,
 					planOptionQuantity: 0
-				});				
+				});
 			});
 		}
 
@@ -249,7 +249,7 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 			edhPlanOptionId: option.id,
 			planOptionQuantity: 1,
 			scenarioOptionColors: []
-		});	
+		});
 
 		this.store.dispatch(new LiteActions.SelectOptions(selectedOptions));
 		this.store.dispatch(new LiteActions.SaveScenarioOptions(selectedOptions));
@@ -258,7 +258,7 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 	deselectOption(option: LitePlanOptionUI)
 	{
 		const scenarioOption = this.scenarioOptions.find(scenarioOption => scenarioOption.edhPlanOptionId === option.id);
-				
+
 		if (scenarioOption)
 		{
 			let selectedOptions = [];
@@ -267,10 +267,10 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 				scenarioId: scenarioOption.scenarioId,
 				edhPlanOptionId: scenarioOption.edhPlanOptionId,
 				planOptionQuantity: 0
-			});				
+			});
 
 			this.store.dispatch(new LiteActions.SelectOptions(selectedOptions));
-			this.store.dispatch(new LiteActions.SaveScenarioOptions(selectedOptions));					
+			this.store.dispatch(new LiteActions.SaveScenarioOptions(selectedOptions));
 		}
 	}
 
@@ -293,11 +293,11 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 							return true;
 						}
 					}
-					
+
 					return false;
 				});
 		}
-		
+
 		return isReadonly;
 	}
 }

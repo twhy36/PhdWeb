@@ -127,9 +127,11 @@
 			<phd-nav-menu-item
 				label="Colors"
 				[status]="PointStatus.REQUIRED"
-				[showStatusIndicator]="true"
+				[showStatusIndicator]="false"
 				[disabled]="false"
-				[ngClass]="(isTablet$ | async) && invertHamburgerMenuColor ? 'phd-menu-item-color' : null">
+				[isActive]="currentRoute?.startsWith('/lite/colors')"
+				[ngClass]="(isTablet$ | async) && invertHamburgerMenuColor ? 'phd-menu-item-color' : null"
+				(click)="onColorsPath()">
 			</phd-nav-menu-item>
 		</ng-container>
 	</phd-nav-menu>
