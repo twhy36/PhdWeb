@@ -211,8 +211,8 @@ stages:
                       "edhSettings/scope": "$(edhSettings:scope)",
                       "phdSettings/url": "$(phdSettings:url)",
                       "phdSettings/apiKey": "$(phdSettings:key)",
-                      "AzureAD/ClientId": $(azureAD:clientID)",
-                      "AzureAD/Secret": $(azureAD:secret)",
+                      "AzureAD/ClientId": "$(azureAD:clientID)",
+                      "AzureAD/Secret": "$(azureAD:secret)",
                       "AzureDocumentStorage": "$(storageAccessKey)",
                       "ApplicationInsights/InstrumentationKey": "$(appInsights:instrumentationKey)"
                   }
@@ -229,8 +229,8 @@ stages:
                       "EDH/Scope": "$(edhSettings:scope)",
                       "PhdApi/ApiUrl": "$(phdSettings:url)",
                       "PhdApi/ApiKey": "$(phdSettings:key)",
-                      "AzureAD/ClientId": $(azureAD:clientID)",
-                      "AzureAD/Secret": $(azureAD:secret)",
+                      "AzureAD/ClientId": "$(azureAD:clientID)",
+                      "AzureAD/Secret": "$(azureAD:secret)",
                       "AzureDocumentStorage": "$(storageAccessKey)",
                       "ApplicationInsights/InstrumentationKey": "$(appInsights:instrumentationKey)"
                   }
@@ -247,8 +247,8 @@ stages:
                       "edhSettings/scope": "$(edhSettings:scope)",
                       "phdSettings/url": "$(phdSettings:url)",
                       "phdSettings/apiKey": "$(phdSettings:key)",
-                      "AzureAD/ClientId": $(azureAD:clientID)",
-                      "AzureAD/Secret": $(azureAD:secret)",
+                      "AzureAD/ClientId": "$(azureAD:clientID)",
+                      "AzureAD/Secret": "$(azureAD:secret)",
                       "AzureDocumentStorage": "$(storageAccessKey)",
                       "ApplicationInsights/InstrumentationKey": "$(appInsights:instrumentationKey)"
                   }
@@ -337,8 +337,8 @@ stages:
                     "edhSettings/scope": "$(edhSettings:scope)",
                     "phdSettings/url": "$(phdSettings:url)",
                     "phdSettings/apiKey": "$(phdSettings:key)",
-                    "AzureAD/ClientId": $(azureAD:clientID)",
-                    "AzureAD/Secret": $(azureAD:secret)",
+                    "AzureAD/ClientId": "$(azureAD:clientID)",
+                    "AzureAD/Secret": "$(azureAD:secret)",
                     "AzureDocumentStorage": "$(storageAccessKey)",
                     "ApplicationInsights/InstrumentationKey": "$(appInsights:instrumentationKey)"
                   }
@@ -355,8 +355,8 @@ stages:
                     "EDH/Scope": "$(edhSettings:scope)",
                     "PhdApi/ApiUrl": "$(phdSettings:url)",
                     "PhdApi/ApiKey": "$(phdSettings:key)",
-                    "AzureAD/ClientId": $(azureAD:clientID)",
-                    "AzureAD/Secret": $(azureAD:secret)",
+                    "AzureAD/ClientId": "$(azureAD:clientID)",
+                    "AzureAD/Secret": "$(azureAD:secret)",
                     "AzureDocumentStorage": "$(storageAccessKey)",
                     "ApplicationInsights/InstrumentationKey": "$(appInsights:instrumentationKey)"
                   }
@@ -373,8 +373,8 @@ stages:
                     "edhSettings/scope": "$(edhSettings:scope)",
                     "phdSettings/url": "$(phdSettings:url)",
                     "phdSettings/apiKey": "$(phdSettings:key)",
-                    "AzureAD/ClientId": $(azureAD:clientID)",
-                    "AzureAD/Secret": $(azureAD:secret)",
+                    "AzureAD/ClientId": "$(azureAD:clientID)",
+                    "AzureAD/Secret": "$(azureAD:secret)",
                     "AzureDocumentStorage": "$(storageAccessKey)",
                     "ApplicationInsights/InstrumentationKey": "$(appInsights:instrumentationKey)"
                   }
@@ -504,8 +504,8 @@ stages:
                     "edhSettings/scope": "$(edhSettings:scope)",
                     "phdSettings/url": "$(phdSettings:url)",
                     "phdSettings/apiKey": "$(phdSettings:key)",
-                    "AzureAD/ClientId": $(azureAD:clientID)",
-                    "AzureAD/Secret": $(azureAD:secret)",
+                    "AzureAD/ClientId": "$(azureAD:clientID)",
+                    "AzureAD/Secret": "$(azureAD:secret)",
                     "AzureDocumentStorage": "$(storageAccessKey)",
                     "ApplicationInsights/InstrumentationKey": "$(appInsights:instrumentationKey)"
                   }
@@ -522,8 +522,8 @@ stages:
                     "EDH/Scope": "$(edhSettings:scope)",
                     "PhdApi/ApiUrl": "$(phdSettings:url)",
                     "PhdApi/ApiKey": "$(phdSettings:key)",
-                    "AzureAD/ClientId": $(azureAD:clientID)",
-                    "AzureAD/Secret": $(azureAD:secret)",
+                    "AzureAD/ClientId": "$(azureAD:clientID)",
+                    "AzureAD/Secret": "$(azureAD:secret)",
                     "AzureDocumentStorage": "$(storageAccessKey)",
                     "ApplicationInsights/InstrumentationKey": "$(appInsights:instrumentationKey)"
                   }
@@ -540,8 +540,8 @@ stages:
                     "edhSettings/scope": "$(edhSettings:scope)",
                     "phdSettings/url": "$(phdSettings:url)",
                     "phdSettings/apiKey": "$(phdSettings:key)",
-                    "AzureAD/ClientId": $(azureAD:clientID)",
-                    "AzureAD/Secret": $(azureAD:secret)",
+                    "AzureAD/ClientId": "$(azureAD:clientID)",
+                    "AzureAD/Secret": "$(azureAD:secret)",
                     "AzureDocumentStorage": "$(storageAccessKey)",
                     "ApplicationInsights/InstrumentationKey": "$(appInsights:instrumentationKey)"
                   }
