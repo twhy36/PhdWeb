@@ -32,6 +32,7 @@ export class SummaryHeaderComponent implements OnInit, OnDestroy
 	@Input() canConfigure: boolean;
 	@Input() disableHanding: boolean;
 	@Input() canOverride: boolean;
+	@Input() isPhdLite: boolean;
 
 	@Output() pointStatusFilterChanged = new EventEmitter<PointStatusFilter>();
 	@Output() toggleAllAttributesChanged = new EventEmitter<boolean>();

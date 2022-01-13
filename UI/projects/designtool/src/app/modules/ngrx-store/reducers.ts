@@ -702,9 +702,14 @@ export const priceBreakdown = createSelector(
 			{
 				breakdown.baseHouse = planPrice;
 
+				const baseHouseCategory = lite.categories.find(x => x.name.toLowerCase() === 'base house');
 				let selections = 0;
+
 				lite.scenarioOptions?.forEach(scenarioOption => {
-					const planOption = lite.options?.find(option => option.id === scenarioOption.edhPlanOptionId);
+					const planOption = lite.options?.find(option => 
+						option.id === scenarioOption.edhPlanOptionId
+						&& option.optionCategoryId !== baseHouseCategory.id);
+
 					if (planOption)
 					{
 						selections += planOption.listPrice * scenarioOption.planOptionQuantity;

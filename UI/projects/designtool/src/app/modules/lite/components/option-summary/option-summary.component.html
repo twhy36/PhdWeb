@@ -1,0 +1,39 @@
+<div class="phd-option-summary">
+	<div class="phd-option-item d-flex justify-content-start align-items-center">
+		<div class="phd-option-label">{{option.financialOptionIntegrationKey}}</div>
+
+		<div class="phd-option">
+			<div class="phd-option-detail" *ngIf="option.quantity > 0">
+				<div class="phd-option-expand">
+					<div (click)="toggleCollapsed()" *ngIf="option.colors.length">
+						<span *ngIf="!option.showColors"><i class="fas fa-fw phd-clickable fa-chevron-circle-right"></i></span>
+						<span *ngIf="option.showColors"><i class="fas fa-fw phd-clickable fa-chevron-circle-down"></i></span>
+					</div>
+				</div>
+
+				<div class="phd-option-name">{{option.name}}</div>
+				
+				<div class="phd-option-body">
+					<div class="phd-option-quantity" *ngIf="option.quantity > 0">
+						<span class="phd-label">Quantity:</span>
+						<span class="phd-content">({{ option.quantity }})</span>
+					</div>
+					<div class="my-3" *ngIf="option.colors.length && option.showColors">
+						<div class="phd-option-colors-body" *ngFor="let color of option.colors">
+							<div class="phd-color">
+								<span class="phd-label">{{ color.colorItemName }}:</span>
+								<span class="phd-content">{{ color.colorName }}</span>
+							</div>
+						</div>
+					</div>
+				</div>
+				
+				<div class="phd-divider"></div>
+				
+				<div class="phd-option-total d-flex justify-content-end">
+					<span *ngIf="option.quantity > 0">{{option.listPrice * option.quantity | currency:'USD':'symbol':'0.0-0'}}</span>
+				</div>			
+			</div>
+		</div>
+	</div>		
+</div>

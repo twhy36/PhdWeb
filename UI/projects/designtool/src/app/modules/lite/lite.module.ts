@@ -14,6 +14,8 @@ import { ExteriorCardComponent } from './components/exterior-card/exterior-card.
 import { LiteExperienceComponent } from './components/lite-experience/lite-experience.component';
 import { OptionsComponent } from './components/options/options.component';
 import { ConfirmOptionRelationComponent } from './components/confirm-option-relation/confirm-option-relation.component';
+import { LiteSummaryComponent } from './components/lite-summary/lite-summary.component';
+import { OptionSummaryComponent } from './components/option-summary/option-summary.component';
 import { ColorsComponent } from './components/colors/colors.component';
 
 const moduleRoutes: Routes = [
@@ -29,7 +31,8 @@ const moduleRoutes: Routes = [
 			{ path: 'color-scheme', component: ColorSchemeComponent },
 			{ path: 'colors', component: ColorsComponent}
 		]
-	}
+	},
+	{ path: 'lite-summary', component: LiteSummaryComponent }
 ];
 
 @NgModule({
@@ -40,6 +43,8 @@ const moduleRoutes: Routes = [
 		LiteExperienceComponent,
 		OptionsComponent,
 		ConfirmOptionRelationComponent,
+		LiteSummaryComponent,
+		OptionSummaryComponent,
 		ColorsComponent
 	],
 	declarations: [
@@ -49,6 +54,8 @@ const moduleRoutes: Routes = [
 		LiteExperienceComponent,
 		OptionsComponent,
 		ConfirmOptionRelationComponent,
+		LiteSummaryComponent,
+		OptionSummaryComponent,
   		ColorsComponent
 	],
 	imports: [
