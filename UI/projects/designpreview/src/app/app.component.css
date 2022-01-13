@@ -60,3 +60,17 @@
     src: url("../assets/del-webb/fonts/museo-sans/museo-sans-light.woff") format("woff");
 }
 
+/* American West Brand Font */
+@font-face {
+    font-family: "Optima";
+	font-style: normal;
+	font-weight: normal;
+    src: url('../assets/american-west/fonts/Optima-LinoType-Roman.woff2') format("woff2");
+}
+
+@font-face {
+    font-family: "Optima";
+	font-weight: bold;
+	font-style: normal;
+    src: url("../assets/american-west/fonts/Optima-LinoType-Bold.woff2") format("woff2");
+}
