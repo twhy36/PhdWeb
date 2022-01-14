@@ -29,7 +29,8 @@ export class FloorPlanSummaryComponent extends UnsubscribeOnDestroy implements O
 	communityName: string = '';
 	planName: string = '';
 	marketingPlanId$ = new BehaviorSubject<number>(0);
-	noVisibleFP: boolean = false; 
+	noVisibleFP: boolean = false;
+	isPlainFloorplan: boolean = false;
 
 	constructor(private store: Store<fromRoot.State>, private location: Location) {
 		super();
@@ -45,7 +46,12 @@ export class FloorPlanSummaryComponent extends UnsubscribeOnDestroy implements O
 		{
 			const tree = contractedTree || scenarioState?.tree?.treeVersion;
 			if (tree && plan && plan.marketingPlanId && plan.marketingPlanId.length) {
-				const sgs = _.flatMap(tree?.groups, g => g.subGroups.filter(sg => sg.useInteractiveFloorplan));
+				let sgs = _.flatMap(contractedTree?.groups, g => g.subGroups.filter(sg => sg.useInteractiveFloorplan));
+				this.isPlainFloorplan = false;
+				if (sgs.length === 0) {
+					sgs = _.flatMap(scenarioState?.tree?.treeVersion?.groups, g => g.subGroups.filter(sg => sg.useInteractiveFloorplan));
+					this.isPlainFloorplan = true;
+				}
 				const fpSubGroup = sgs.pop();
 				if (fpSubGroup) {
 					this.subGroup = fpSubGroup;

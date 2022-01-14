@@ -4,7 +4,9 @@ import { Store, select } from '@ngrx/store';
 import { Actions, ofType } from '@ngrx/effects';
 import { FormGroup, FormControl, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
 
-import { combineLatest, switchMap, take, finalize } from 'rxjs/operators';
+import { ToastrService } from 'ngx-toastr';
+
+import { combineLatest, switchMap, take, finalize, catchError, shareReplay } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
@@ -189,7 +191,8 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 		private _contractService: ContractService,
 		private _actions$: Actions,
 		private renderer: Renderer2,
-		private modalService: ModalService
+		private modalService: ModalService,
+		private toastr: ToastrService
 	) { super(); }
 
 	ngOnInit()
@@ -1010,11 +1013,10 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 	{
 		this.isDownloadingEnvelope = false;
 
-		if ((changeOrder.salesStatus === "Pending"))
+		if ((changeOrder.salesStatus === 'Pending'))
 		{
 			this._contractService.compareSnapshots(this.jobId, changeOrder).subscribe(currentSnapshot =>
 			{
-
 				if (currentSnapshot)
 				{
 					this._actions$.pipe(
@@ -1022,8 +1024,10 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 						take(1)).subscribe(() =>
 						{
 							this.isDownloadingEnvelope = true;
+
 							this.openPdfViewer(changeOrder.id);
 						});
+
 					this.store.dispatch(new JobActions.CreateChangeOrderEnvelope(currentSnapshot));
 				}
 				else
@@ -1032,7 +1036,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 				}
 			});
 		}
-		else if ((changeOrder.changeOrderTypeDescription === "SalesJIO" && changeOrder.salesStatus === "Approved") || (changeOrder.changeOrderTypeDescription === "SpecJIO" && changeOrder.salesStatus === "Approved") || (changeOrder.id === this.changeOrders[0].id && changeOrder.salesStatus === "Approved"))
+		else if ((changeOrder.changeOrderTypeDescription === 'SalesJIO' && changeOrder.salesStatus === 'Approved') || (changeOrder.changeOrderTypeDescription === 'SpecJIO' && changeOrder.salesStatus === 'Approved') || (changeOrder.id === this.changeOrders[0].id && changeOrder.salesStatus === 'Approved'))
 		{
 			this._contractService.getEnvelope(this.jobId, changeOrder.id, this.approvedDate, this.signedDate).subscribe(() =>
 			{
@@ -1047,15 +1051,46 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 
 	openPdfViewer(changeOrderId: string)
 	{
-		this._contractService.getPDFFromStorageByteArray(changeOrderId, this.jobId)
-			.subscribe(pdfObjectUrl =>
+		// attempt to get the pdf if in storage
+		this._contractService.getPDFFromStorageByteArray(changeOrderId, this.jobId).pipe(
+			catchError(() =>
 			{
-				let pdfViewer = this.modalService.open(PDFViewerComponent, { backdrop: 'static', windowClass: 'phd-pdf-modal', size: 'lg' });
+				// if unable to get the pdf, the files might be missing so lets try to recreate them.
+				let changeOrder = this.changeOrders.find(x => x.id === changeOrderId);
 
-				pdfViewer.componentInstance.pdfModalTitle = 'Change Order PDF';
-				pdfViewer.componentInstance.pdfData = pdfObjectUrl;
-				pdfViewer.componentInstance.pdfBaseUrl = `${environment.pdfViewerBaseUrl}`;
-			});
+				// create a new snapshot
+				let retObs = this._contractService.createSnapShot(changeOrder).pipe(
+					switchMap(currentSnapshot =>
+					{
+						let obs = this._actions$.pipe(
+							ofType<CommonActions.ChangeOrderEnvelopeCreated>(CommonActions.CommonActionTypes.ChangeOrderEnvelopeCreated),
+							take(1),
+							shareReplay()); // so that we don't miss the ChangeOrderEnvelopeCreated action because we're subscribing after the dispatch
+
+						obs.subscribe();
+
+						// create enveope / pdf
+						this.store.dispatch(new JobActions.CreateChangeOrderEnvelope(currentSnapshot));
+
+						// lets try to open the pdf again
+						return obs.pipe(switchMap(() => this._contractService.getPDFFromStorageByteArray(changeOrderId, this.jobId)));
+					}));
+
+				return retObs;
+			})
+		)
+		.subscribe(pdfObjectUrl =>
+		{
+			let pdfViewer = this.modalService.open(PDFViewerComponent, { backdrop: 'static', windowClass: 'phd-pdf-modal', size: 'lg' });
+
+			pdfViewer.componentInstance.pdfModalTitle = 'Change Order PDF';
+			pdfViewer.componentInstance.pdfData = pdfObjectUrl;
+			pdfViewer.componentInstance.pdfBaseUrl = `${environment.pdfViewerBaseUrl}`;
+		},
+		error =>
+		{
+			this.toastr.error('Unable to open PDF', 'Error');
+		});
 	}
 
 	withdrawChangeOrder()
@@ -1251,7 +1286,8 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 			});
 	}
 
-	toggleDesignComplete() {
+	toggleDesignComplete()
+	{
 		this.store.dispatch(new SalesAgreementActions.SetIsDesignComplete(!this.isDesignComplete));
 
 		if (!this.isDesignComplete)

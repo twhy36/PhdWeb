@@ -10,9 +10,9 @@ namespace AttributeCleanup
 {
     public class PhdClient
     {
-        private IConfigurationRoot _configuration { get; }
+        private IConfiguration _configuration { get; }
 
-        public PhdClient(IConfigurationRoot configuration)
+        public PhdClient(IConfiguration configuration)
         {
             _configuration = configuration;
         }

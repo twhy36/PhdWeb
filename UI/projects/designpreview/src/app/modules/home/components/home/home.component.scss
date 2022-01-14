@@ -10,9 +10,10 @@
 	background-color: #e4e5e4;
 	width: calc(44vw);
 	max-height: calc(65vh);
+	border: var(--home-page-floorplan-border);
 
 	span {
-		color: $bright_grey;
+		color: var(--home-page-community-label)
 	}
 }
 

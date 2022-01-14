@@ -32,7 +32,9 @@ stages:
       displayName: Use .NET Core SDK
       inputs:
         packageType: 'sdk'
-        version: '3.1.409'
+        version: '3.1.416'
+    - task: NuGetAuthenticate@0
+      displayName: 'NuGet Authenticate'
     - task: DotNetCoreCLI@2
       displayName: Build Lot Release
       inputs:
@@ -206,9 +208,11 @@ stages:
                 transformations: |
                   {
                       "edhSettings/url": "$(edhSettings:url)",
-                      "edhSettings/apiKey": "$(edhSettings:key)",
+                      "edhSettings/scope": "$(edhSettings:scope)",
                       "phdSettings/url": "$(phdSettings:url)",
                       "phdSettings/apiKey": "$(phdSettings:key)",
+                      "AzureAD/ClientId": "$(azureAD:clientID)",
+                      "AzureAD/Secret": "$(azureAD:secret)",
                       "AzureDocumentStorage": "$(storageAccessKey)",
                       "ApplicationInsights/InstrumentationKey": "$(appInsights:instrumentationKey)"
                   }
@@ -222,9 +226,11 @@ stages:
                 transformations: |
                   {
                       "EDH/ApiUrl": "$(edhSettings:url)",
-                      "EDH/ApiKey": "$(edhSettings:key)",
+                      "EDH/Scope": "$(edhSettings:scope)",
                       "PhdApi/ApiUrl": "$(phdSettings:url)",
                       "PhdApi/ApiKey": "$(phdSettings:key)",
+                      "AzureAD/ClientId": "$(azureAD:clientID)",
+                      "AzureAD/Secret": "$(azureAD:secret)",
                       "AzureDocumentStorage": "$(storageAccessKey)",
                       "ApplicationInsights/InstrumentationKey": "$(appInsights:instrumentationKey)"
                   }
@@ -238,9 +244,11 @@ stages:
                 transformations: |
                   {
                       "edhSettings/url": "$(edhSettings:url)",
-                      "edhSettings/apiKey": "$(edhSettings:key)",
+                      "edhSettings/scope": "$(edhSettings:scope)",
                       "phdSettings/url": "$(phdSettings:url)",
                       "phdSettings/apiKey": "$(phdSettings:key)",
+                      "AzureAD/ClientId": "$(azureAD:clientID)",
+                      "AzureAD/Secret": "$(azureAD:secret)",
                       "AzureDocumentStorage": "$(storageAccessKey)",
                       "ApplicationInsights/InstrumentationKey": "$(appInsights:instrumentationKey)"
                   }
@@ -326,9 +334,11 @@ stages:
                 transformations: |
                   {
                     "edhSettings/url": "$(edhSettings:url)",
-                    "edhSettings/apiKey": "$(edhSettings:key)",
+                    "edhSettings/scope": "$(edhSettings:scope)",
                     "phdSettings/url": "$(phdSettings:url)",
                     "phdSettings/apiKey": "$(phdSettings:key)",
+                    "AzureAD/ClientId": "$(azureAD:clientID)",
+                    "AzureAD/Secret": "$(azureAD:secret)",
                     "AzureDocumentStorage": "$(storageAccessKey)",
                     "ApplicationInsights/InstrumentationKey": "$(appInsights:instrumentationKey)"
                   }
@@ -342,9 +352,11 @@ stages:
                 transformations: |
                   {
                     "EDH/ApiUrl": "$(edhSettings:url)",
-                    "EDH/ApiKey": "$(edhSettings:key)",
+                    "EDH/Scope": "$(edhSettings:scope)",
                     "PhdApi/ApiUrl": "$(phdSettings:url)",
                     "PhdApi/ApiKey": "$(phdSettings:key)",
+                    "AzureAD/ClientId": "$(azureAD:clientID)",
+                    "AzureAD/Secret": "$(azureAD:secret)",
                     "AzureDocumentStorage": "$(storageAccessKey)",
                     "ApplicationInsights/InstrumentationKey": "$(appInsights:instrumentationKey)"
                   }
@@ -358,9 +370,11 @@ stages:
                 transformations: |
                   {
                     "edhSettings/url": "$(edhSettings:url)",
-                    "edhSettings/apiKey": "$(edhSettings:key)",
+                    "edhSettings/scope": "$(edhSettings:scope)",
                     "phdSettings/url": "$(phdSettings:url)",
                     "phdSettings/apiKey": "$(phdSettings:key)",
+                    "AzureAD/ClientId": "$(azureAD:clientID)",
+                    "AzureAD/Secret": "$(azureAD:secret)",
                     "AzureDocumentStorage": "$(storageAccessKey)",
                     "ApplicationInsights/InstrumentationKey": "$(appInsights:instrumentationKey)"
                   }
@@ -487,9 +501,11 @@ stages:
                 transformations: |
                   {
                     "edhSettings/url": "$(edhSettings:url)",
-                    "edhSettings/apiKey": "$(edhSettings:key)",
+                    "edhSettings/scope": "$(edhSettings:scope)",
                     "phdSettings/url": "$(phdSettings:url)",
                     "phdSettings/apiKey": "$(phdSettings:key)",
+                    "AzureAD/ClientId": "$(azureAD:clientID)",
+                    "AzureAD/Secret": "$(azureAD:secret)",
                     "AzureDocumentStorage": "$(storageAccessKey)",
                     "ApplicationInsights/InstrumentationKey": "$(appInsights:instrumentationKey)"
                   }
@@ -503,9 +519,11 @@ stages:
                 transformations: |
                   {
                     "EDH/ApiUrl": "$(edhSettings:url)",
-                    "EDH/ApiKey": "$(edhSettings:key)",
+                    "EDH/Scope": "$(edhSettings:scope)",
                     "PhdApi/ApiUrl": "$(phdSettings:url)",
                     "PhdApi/ApiKey": "$(phdSettings:key)",
+                    "AzureAD/ClientId": "$(azureAD:clientID)",
+                    "AzureAD/Secret": "$(azureAD:secret)",
                     "AzureDocumentStorage": "$(storageAccessKey)",
                     "ApplicationInsights/InstrumentationKey": "$(appInsights:instrumentationKey)"
                   }
@@ -519,9 +537,11 @@ stages:
                 transformations: |
                   {
                     "edhSettings/url": "$(edhSettings:url)",
-                    "edhSettings/apiKey": "$(edhSettings:key)",
+                    "edhSettings/scope": "$(edhSettings:scope)",
                     "phdSettings/url": "$(phdSettings:url)",
                     "phdSettings/apiKey": "$(phdSettings:key)",
+                    "AzureAD/ClientId": "$(azureAD:clientID)",
+                    "AzureAD/Secret": "$(azureAD:secret)",
                     "AzureDocumentStorage": "$(storageAccessKey)",
                     "ApplicationInsights/InstrumentationKey": "$(appInsights:instrumentationKey)"
                   }

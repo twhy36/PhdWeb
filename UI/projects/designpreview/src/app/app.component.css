@@ -2,3 +2,75 @@
 {
 	padding-top: 70px;
 }
+
+/* Pulte Brand Font */
+@font-face {
+    font-family: "Lineto-Brown-Pro";
+	font-style: normal;
+	font-weight: normal;
+    src: url('../assets/pulte/fonts/lineto-brown-pro-regular.woff') format("woff");
+}
+
+@font-face {
+    font-family: "Lineto-Brown-Pro";
+	font-style: italic;
+	font-weight: normal;
+    src: url('../assets/pulte/fonts/lineto-brown-pro-Italic.woff') format("woff");
+}
+
+@font-face {
+    font-family: "Lineto-Brown-Pro";
+	font-style: normal;
+	font-weight: bold;
+    src: url('../assets/pulte/fonts/lineto-brown-pro-bold.woff') format("woff");
+}
+
+@font-face {
+    font-family: "Lineto-Brown-Pro";
+	font-style: normal;
+	font-weight: lighter;
+    src: url('../assets/pulte/fonts/lineto-brown-pro-light.woff') format("woff");
+}
+
+@font-face {
+    font-family: "Lineto-Brown-Pro";
+	font-style: italic;
+	font-weight: lighter;
+    src: url('../assets/pulte/fonts/lineto-brown-pro-lightItalic.woff') format("woff");
+}
+/* Del Webb Brand Font */
+@font-face {
+    font-family: "Museo Sans";
+	font-style: normal;
+	font-weight: normal;
+    src: url('../assets/del-webb/fonts/museo-sans/museo-sans-regular.woff') format("woff");
+}
+
+@font-face {
+    font-family: "Museo Sans";
+	font-weight: bold;
+	font-style: normal;
+    src: url("../assets/del-webb/fonts/museo-sans/museo-sans-bold.woff") format("woff");
+}
+
+@font-face {
+    font-family: "Museo Sans";
+	font-weight: lighter;
+    font-style: normal;
+    src: url("../assets/del-webb/fonts/museo-sans/museo-sans-light.woff") format("woff");
+}
+
+/* American West Brand Font */
+@font-face {
+    font-family: "Optima";
+	font-style: normal;
+	font-weight: normal;
+    src: url('../assets/american-west/fonts/Optima-LinoType-Roman.woff2') format("woff2");
+}
+
+@font-face {
+    font-family: "Optima";
+	font-weight: bold;
+	font-style: normal;
+    src: url("../assets/american-west/fonts/Optima-LinoType-Bold.woff2") format("woff2");
+}

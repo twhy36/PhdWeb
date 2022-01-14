@@ -4,6 +4,7 @@ import { Subject, Observable, ReplaySubject } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import * as pulte from '../../../../brands/pulte.json';
 import * as delwebb from '../../../../brands/delwebb.json';
+import * as americanWest from '../../../../brands/americanwest.json';
 
 import { applyBrand, getBrandImageSrc } from 'phd-common';
 
@@ -15,6 +16,7 @@ export class BrandService {
 	constructor() {
 		this.brandMap[environment.brandMap.pulte] = (pulte as any).default;
 		this.brandMap[environment.brandMap.delwebb] = (delwebb as any).default;
+		this.brandMap[environment.brandMap.americanWest] = (americanWest as any).default;
 	}
 
 	applyBrandStyles(): void {

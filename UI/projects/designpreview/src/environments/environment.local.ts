@@ -44,6 +44,7 @@ export const environment: IEnvironment = {
 	pdfViewerBaseUrl: 'assets/pdfjs-dist/web/viewer.html',
 	brandMap: {
 		pulte: 'localhost:14769',
-		delwebb: ''
+		delwebb: '',
+		americanWest: ''
 	}
 };

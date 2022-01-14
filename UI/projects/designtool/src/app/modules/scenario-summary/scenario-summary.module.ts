@@ -10,8 +10,6 @@ import { CloudinaryModule } from '@cloudinary/angular-5.x';
 import { PhdCommonModule } from 'phd-common';
 
 import { ScenarioSummaryComponent } from './components/scenario-summary/scenario-summary.component';
-import { SummaryHeaderComponent } from './components/summary-header/summary-header.component';
-import { PricingBreakdownComponent } from './components/pricing-breakdown/pricing-breakdown.component';
 import { SummaryActionBarComponent } from './components/summary-action-bar/summary-action-bar.component';
 
 import { SharedModule } from '../shared/shared.module';
@@ -45,8 +43,6 @@ const moduleRoutes: Routes = [
 	],
 	declarations: [
 		ScenarioSummaryComponent,
-		SummaryHeaderComponent,
-		PricingBreakdownComponent,
 		IsFilteredPipe,
 		SummaryActionBarComponent
 	]

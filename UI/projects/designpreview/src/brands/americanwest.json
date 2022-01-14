@@ -1,0 +1,24 @@
+{
+	"images": {
+		"logo": "assets/american-west/logos/american-west-full.png",
+		"white_logo": "assets/american-west/logos/american-west-long.png"
+	},
+	"styles": {
+		"font": "Optima",
+		"primary-ribbon-background-color": "#f3f3f3",
+        "secondary-ribbon-background-color": "#255c7b",
+		"primary-button-color": "#285b7d",
+        "home-page-community-label": "#002e5d",
+        "nav-bar-text-color": "#002e5d",
+        "home-text-color": "#002e5d",
+        "primary-icon-color": "#2f6c8f",
+        "secondary-icon-color": "#255c7b",
+		"action-icon-color": "#255c7b",
+        "selected-border-color": "#255c7b",
+        "link-color": "#255c7b",
+        "popup-ribbon-background-color": "#255c7b",
+        "home-page-floorplan-border": "1px solid #002e5d",
+        "button-border-radius": "35px",
+        "logo-margin-top": "10px"
+	}
+}

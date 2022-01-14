@@ -1,0 +1,86 @@
+@import "../../../../../scss/color-pallet.scss";
+
+.phd-option-summary {
+	font-size: 14px;
+	line-height: 1.36;
+	margin: 0 20px;
+	transition: all .3s;
+	min-height: 60px;
+	display: flex;
+    justify-content: flex-start;
+    
+	.phd-option-item {
+		text-transform: capitalize;
+        flex-basis: 100%;
+        
+        .phd-option-label {
+            flex-basis: 20%;
+        }
+
+        .phd-option {
+			display: flex;
+			flex-direction: column;
+			flex: 1;
+            margin-top: 5px;
+            
+            .phd-option-detail {
+                display: flex;
+                margin-bottom: 5px;
+                margin-right: 5px;
+        
+                .phd-option-expand {
+                    width: 1.5em;
+                }
+                
+                .phd-option-name {
+                    flex-basis: 40%;
+                }
+                
+                .phd-option-body {
+                    flex-basis: 40%;
+
+                    .phd-option-quantity {
+                        font-weight: bold;
+                        display: flex;
+                        justify-content: space-between;
+                    }
+
+                    .phd-option-colors-body {
+                        display: flex;
+                        flex-direction: column;
+                        flex: 1;
+
+                        &:not(:last-child) {
+                            margin-bottom: 1.5em;
+                        }
+
+                        .phd-label {
+                            font-weight: bold;
+                        }
+
+                        .phd-color {
+                            display: flex;
+                            justify-content: space-between;
+                        }
+                    }
+                }
+                
+                .phd-label {
+                    font-weight: bold;
+                }        
+
+                .phd-divider {
+                    margin: 0px 15px;
+                    background: #d4d4d4;
+                    width: 1px;
+                }
+
+                .phd-option-total {
+                    font-size: 14px;
+                    font-weight: 500;
+                    min-width: 100px;
+                }            
+            }
+        }
+    }
+}

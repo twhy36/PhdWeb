@@ -33,19 +33,19 @@
 		</div>
 	</div>
 
-	<div>
+	<div *ngIf="!isPhdLite">
 		<decision-point-filter [pointStatusFilter]="pointStatusFilter" (pointStatusFilterChanged)="filtersUpdated($event)"></decision-point-filter>
 	</div>
 
 	<div>
-		<div class="phd-filter">
+		<div [ngClass]="isPhdLite ? 'phd-filter-lite' : 'phd-filter'">
 			<div (click)="toggleAllAttributes()" class="phd-attribute-toggle phd-clickable">
 				<span *ngIf="!showAllAttributes"><i class="fas fa-fw fa-chevron-circle-right"></i></span>
 				<span *ngIf="showAllAttributes"><i class="fas fa-fw fa-chevron-circle-down"></i></span>
 				Attributes
 			</div>
 
-			<div class="phd-image-toggle">
+			<div class="phd-image-toggle" *ngIf="!isPhdLite">
 				<label class="switch-small">
 					<input type="checkbox" (change)="toggleImages()">
 					<span class="slider-small round"></span>

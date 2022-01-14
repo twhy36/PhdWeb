@@ -37,7 +37,7 @@ import { PointStatusFilter, DecisionPointFilterType } from '../../../shared/mode
 import * as JobActions from '../../../ngrx-store/job/actions';
 
 import { DecisionPointSummaryComponent } from '../../../shared/components/decision-point-summary/decision-point-summary.component';
-import { SummaryHeader, SummaryHeaderComponent } from '../summary-header/summary-header.component';
+import { SummaryHeader, SummaryHeaderComponent } from '../../../shared/components/summary-header/summary-header.component';
 
 import { selectSelectedLot } from '../../../ngrx-store/lot/reducer';
 import { TreeService } from '../../../core/services/tree.service';
