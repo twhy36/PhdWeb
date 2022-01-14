@@ -15,12 +15,12 @@ import {
 
 import { SalesInfoService } from '../../../core/services/sales-info.service';
 import { ConfirmNavigationComponent } from '../../../core/guards/confirm-navigation.guard';
-import { SalesProgram, SalesProgramTypeEnum } from '../../../shared/models/sales-program.model';
+import { SalesProgram } from '../../../shared/models/sales-program.model';
 
 import * as SalesAgreementActions from '../../../ngrx-store/sales-agreement/actions';
 import * as ChangeOrderActions from '../../../ngrx-store/change-order/actions';
 import * as CommonActions from '../../../ngrx-store/actions';
-import { NEVER as never, of, Observable, Subject } from 'rxjs';
+import { of, Observable, Subject } from 'rxjs';
 
 import * as _ from 'lodash';
 import { selectSelectedLot } from '../../../ngrx-store/lot/reducer';
@@ -61,6 +61,7 @@ export class SalesInfoComponent extends UnsubscribeOnDestroy implements OnInit, 
 	canEditAgreement: boolean = true;
 	canSell: boolean;
 	canDesign: boolean;
+	canDesignInChangeOrder: boolean;
 	cancelOrVoid: boolean;
 	canAddIncentive: boolean;
 	canLockSalesAgreement: boolean;
@@ -194,7 +195,8 @@ export class SalesInfoComponent extends UnsubscribeOnDestroy implements OnInit, 
 			select(fromRoot.canDesign),
 			combineLatest(this.store.pipe(select(state => state.changeOrder)))
 		).subscribe(([canDesign, changeOrder]) => {
-			this.canDesign = canDesign && changeOrder && changeOrder.isChangingOrder;
+			this.canDesign = canDesign;
+			this.canDesignInChangeOrder = canDesign && changeOrder && changeOrder.isChangingOrder;
 		});
 
 		this.store.pipe(
