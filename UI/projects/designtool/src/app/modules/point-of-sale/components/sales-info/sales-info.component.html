@@ -8,14 +8,15 @@
 			  [hasPlus]="false"></add-card>
 
 	<!--Sales Agreement Information Card-->
-	<sales-info-misc class="phd-editable-box"
-					 [agreement]="agreement"
-					 [editing]="editing"
-					 (onEdit)="edit($event)"
-					 [jobsProjectedFinalDate]="jobsProjectedFinalDate$ | async"
-					 [canEdit]="canSell && !cancelOrVoid && !isLockedIn"
-					 [canUpdateECOE]="canUpdateECOE"
-					 *ngIf="agreement && !isChangingOrder"></sales-info-misc>
+	<sales-info-misc *ngIf="agreement" 
+					class="phd-editable-box"
+					[agreement]="agreement"
+					[editing]="editing"
+					(onEdit)="edit($event)"
+					[jobsProjectedFinalDate]="jobsProjectedFinalDate$ | async"
+					[canEdit]="canSell && !cancelOrVoid && !isLockedIn"
+					[canUpdateECOE]="canUpdateECOE">
+	</sales-info-misc>
 
 	<!--Programs and Add Program Cards-->
 	<program-detail *ngFor="let program of programs; let i = index"
