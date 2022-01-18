@@ -44,6 +44,8 @@ export class ExpansionChoiceImagesTabPanelComponent extends UnsubscribeOnDestroy
 	originalImages: DivChoiceCatalogMarketImage[];
 	marketKey: string = '';
 
+	defaultSrc: string = 'assets/pultegroup_logo.jpg';
+
 	get saveDisabled(): boolean
 	{
 		return !this.selectedImages.length || this.isSaving;
@@ -106,7 +108,10 @@ export class ExpansionChoiceImagesTabPanelComponent extends UnsubscribeOnDestroy
 
 	onLoadImageError(event: any)
 	{
-		event.srcElement.src = 'assets/pultegroup_logo.jpg';
+		if (!(event.srcElement.src as string).includes(this.defaultSrc))
+		{
+			event.srcElement.src = this.defaultSrc;
+		}
 	}
 
 	/**

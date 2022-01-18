@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { isEqual } from 'lodash';
+import { cloneDeep, isEqual } from 'lodash';
 import { MessageService } from 'primeng/api';
 import { of } from 'rxjs';
 import { combineLatest, finalize, map, switchMap } from 'rxjs/operators';
@@ -37,15 +37,7 @@ export class ExpansionCommunitiesTabDropdownPanelComponent implements OnInit
 	origSelectedAttributeGroups: DivChoiceCatalogAttributeGroupMarket[] = [];
 	origSelectedLocationGroups: DivChoiceCatalogLocationGroupMarket[] = [];
 
-	get saveDisabled(): boolean
-	{
-		return this.isSaving || this.isReadOnly || (this.selectedImages.length == this.origSelectedImages.length
-			&& this.selectedImages.every((item, idx) => item === this.origSelectedImages[idx])
-			&& this.selectedAttributeGroups.length == this.origSelectedAttributeGroups.length
-			&& this.selectedAttributeGroups.every((item, idx) => item === this.origSelectedAttributeGroups[idx])
-			&& this.selectedLocationGroups.length == this.origSelectedLocationGroups.length
-			&& this.selectedLocationGroups.every((item, idx) => item === this.origSelectedLocationGroups[idx]));
-	}
+	defaultSrc: string = 'assets/pultegroup_logo.jpg';
 
 	constructor(private _attrService: AttributeService,
 		private cd: ChangeDetectorRef,
@@ -128,7 +120,7 @@ export class ExpansionCommunitiesTabDropdownPanelComponent implements OnInit
 			selectedItems = [...selectedItems];
 		}
 
-		this.canAssociate = !isEqual(this.selectedImages, this.origSelectedImages);
+		this.canAssociate = !isEqual(this.selectedAttributeGroups, this.origSelectedAttributeGroups) || !isEqual(this.selectedLocationGroups, this.origSelectedLocationGroups) || !isEqual(this.selectedImages, this.origSelectedImages);
 	}
 
 	/**
@@ -268,6 +260,12 @@ export class ExpansionCommunitiesTabDropdownPanelComponent implements OnInit
 				this.isSaving = false;
 
 				this.onDataChange.emit();
+
+				// Update the original arrays for comparison
+				this.origSelectedAttributeGroups = cloneDeep(this.selectedAttributeGroups);
+				this.origSelectedLocationGroups = cloneDeep(this.selectedLocationGroups);
+				this.origSelectedImages = cloneDeep(this.selectedImages);
+
 			}))
 			.subscribe(() =>
 			{
@@ -280,6 +278,9 @@ export class ExpansionCommunitiesTabDropdownPanelComponent implements OnInit
 
 	onLoadImageError(event: any)
 	{
-		event.srcElement.src = 'assets/pultegroup_logo.jpg';
+		if (!(event.srcElement.src as string).includes(this.defaultSrc))
+		{
+			event.srcElement.src = this.defaultSrc;
+		}
 	}
 }

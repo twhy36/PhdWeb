@@ -10,7 +10,7 @@ import { IFinancialCommunity } from '../../../../../shared/models/financial-comm
 
 import { DivisionalOptionService } from '../../../../../core/services/divisional-option.service';
 
-import { clone, isEqual, orderBy } from 'lodash';
+import { cloneDeep, isEqual, orderBy } from 'lodash';
 import { DivCatalogTab } from '../../../../../shared/models/divisional-catalog.model';
 
 @Component({
@@ -37,6 +37,8 @@ export class ExpansionAssociateGroupsTabPanelComponent implements OnInit
 	origSelectedAttributes: AttributeGroupMarket[] = [];
 	origSelectedLocations: LocationGroupMarket[] = [];
 	origSelectedOptionMarketImages: OptionMarketImage[] = [];
+
+	defaultSrc: string = 'assets/pultegroup_logo.jpg';
 
 	constructor(private _divOptService: DivisionalOptionService, private _msgService: MessageService) { }
 
@@ -183,9 +185,9 @@ export class ExpansionAssociateGroupsTabPanelComponent implements OnInit
 				]);
 
 				// Update the original arrays for comparison
-				this.origSelectedAttributes = clone(this.selectedAttributes);
-				this.origSelectedLocations = clone(this.selectedLocations);
-				this.origSelectedOptionMarketImages = clone(this.selectedOptionMarketImages);
+				this.origSelectedAttributes = cloneDeep(this.selectedAttributes);
+				this.origSelectedLocations = cloneDeep(this.selectedLocations);
+				this.origSelectedOptionMarketImages = cloneDeep(this.selectedOptionMarketImages);
 
 				this.onDataChange.emit();
 			}))
@@ -201,6 +203,9 @@ export class ExpansionAssociateGroupsTabPanelComponent implements OnInit
 
 	onLoadImageError(event: any)
 	{
-		event.srcElement.src = 'assets/pultegroup_logo.jpg';
+		if (!(event.srcElement.src as string).includes(this.defaultSrc))
+		{
+			event.srcElement.src = this.defaultSrc;
+		}
 	}
 }
