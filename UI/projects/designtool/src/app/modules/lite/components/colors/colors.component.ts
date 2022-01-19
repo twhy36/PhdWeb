@@ -56,18 +56,20 @@ export class ColorsComponent extends UnsubscribeOnDestroy implements OnInit {
 			this.takeUntilDestroyed(),
 			select(fromLite.selectedOptionCategories)).subscribe(categories =>
 			{
-				this.categories = categories;
+				this.categories = _.cloneDeep(categories);
 			});
 
-		this.store.pipe(
-			take(1),
-			select(state => state.nav),
-		).subscribe(nav =>
-		{
+		combineLatest([
+			this.store.select(state => state.nav),
+			this.store.pipe(select(fromLite.selectedElevation))
+		])
+		.pipe(take(1))
+		.subscribe(([nav, selectedElevationOption]) => {
 			const selectedOptions = this.allOptions
-			.filter(option => this.scenarioOptions.some(so => so.edhPlanOptionId === option.id)
-														   && option.colorItems.length > 0
-														   && option.colorItems.some(ci => ci.isActive && ci.color.length > 0 && ci.color.some(c => c.isActive)));
+				.filter(option => this.scenarioOptions.some(so => so.edhPlanOptionId === option.id)
+														&& option.id !== selectedElevationOption?.id
+														&& option.colorItems.length > 0
+														&& option.colorItems.some(ci => ci.isActive && ci.color.length > 0 && ci.color.some(c => c.isActive)));
 
 			const selectedCategoryGroups = _.groupBy(selectedOptions, o => o.optionCategoryId);
 			const categorySubMenus = Object.keys(selectedCategoryGroups).map(categoryId =>
@@ -138,7 +140,7 @@ export class ColorsComponent extends UnsubscribeOnDestroy implements OnInit {
 		.pipe(this.takeUntilDestroyed())
 		.subscribe(([nav, lite]) => {
 			this.selectedColorIds = {};
-			this.selectedCategory = _.cloneDeep(lite.categories.find(x => x.id === nav.selectedItem));
+			this.selectedCategory = this.categories.find(x => x.id === nav.selectedItem);
 
 			this.selectedOptions = lite.options
 								.filter(option => (lite.scenarioOptions.some(so => so.edhPlanOptionId === option.id)

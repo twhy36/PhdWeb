@@ -38,7 +38,7 @@
 			<div class="phd-point-container">
 				<ng-container *ngFor="let point of points">
 					<ng-container *ngIf="displayDecisionPoint(point)">
-						<div class="phd-point-label" [attr.id]="point.id">{{point?.label}}</div>
+						<div class="phd-point-label" [attr.id]="'point-card-' + point.id">{{point?.label}}</div>
 						<div class="phd-point-title">{{getSubTitle(point)}}</div>
 						<div class="d-flex flex-wrap phd-choice-cards">
 							<ng-container *ngFor="let choice of point.choices">
