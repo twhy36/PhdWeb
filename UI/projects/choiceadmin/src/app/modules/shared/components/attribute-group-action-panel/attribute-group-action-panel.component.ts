@@ -72,7 +72,10 @@ export class AttributeGroupActionPanelComponent implements OnInit, AfterContentI
 		this.groups.subscribe(grps =>
 		{
 			this.groupList = grps;
-			this.searchResultGroups = this.searchEnabled ? this.searchResultGroups.filter(g => grps.find(grp => grp.id === g.id)) : grps;
+
+			this.concatDivGroups();
+
+			this.searchResultGroups = this.searchEnabled ? this.searchResultGroups.filter(g => this.groupList.find(grp => grp.id === g.id)) : this.groupList;
 
 			this.orderSearchResultGroups();
 		});
@@ -161,6 +164,18 @@ export class AttributeGroupActionPanelComponent implements OnInit, AfterContentI
 		}
 	}
 
+	concatDivGroups()
+	{
+		if (this.divGroups && this.divGroups.length)
+		{
+			// #327666 remove any divisional level groups from the results that may appear twice
+			this.groupList = this.groupList.filter(group => !this.divGroups.some(g => g.id === group.id));
+
+			// Add the divisional groups to the result set, this also includes the isDivisional flag for hiding the checkbox
+			this.groupList = this.groupList.concat(this.divGroups);
+		}
+	}
+
 	startSearch(selectedFilter: string, keyword: string)
 	{
 		keyword = keyword || '';
@@ -173,14 +188,7 @@ export class AttributeGroupActionPanelComponent implements OnInit, AfterContentI
 
 		if (this.groupList)
 		{
-			if (this.divGroups && this.divGroups.length)
-			{
-				// #327666 remove any divisional level groups from the results that may appear twice
-				this.groupList = this.groupList.filter(group => !this.divGroups.some(g => g.id === group.id));
-
-				// Add the divisional groups to the result set, this also includes the isDivisional flag for hiding the checkbox
-				this.groupList = this.groupList.concat(this.divGroups);
-			}
+			this.concatDivGroups();
 
 			let searchFilter = this.searchFilters.find(f => f.name === selectedFilter);
 			let filteredResults = this.filterByKeyword(searchFilter, keyword);

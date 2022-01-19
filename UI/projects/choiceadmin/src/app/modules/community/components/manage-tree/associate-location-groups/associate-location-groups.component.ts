@@ -77,7 +77,7 @@ export class AssociateLocationGroupComponent implements OnInit
 					this.availableGroups.next(availGrps);
 				}
 
-				this.hasGroupAssociated = group.length > 0;
+				this.hasGroupAssociated = this.divGroupsInMarket.length > 0 || group.length > 0;
 
 				// only update the choice if locations are tied to the choice and not a option
 				if (!this.optionRules || this.optionRules.length === 0)
