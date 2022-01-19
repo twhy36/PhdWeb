@@ -3,10 +3,8 @@ import { FormGroup, FormControl, AbstractControl, ValidatorFn, FormArray } from 
 import { ActivatedRoute } from '@angular/router';
 
 import { Observable } from 'rxjs';
-import { MessageService } from 'primeng/api';
 
 import { Location } from '../../../../../shared/models/location.model';
-import { LocationService } from '../../../../../core/services/location.service';
 
 import { difference } from "lodash";
 
@@ -27,15 +25,18 @@ export class LocationsDetailsTabComponent implements OnInit
 	location: Location;
 	isSaving: boolean;
 
-	constructor(private route: ActivatedRoute, private _locoService: LocationService, private _msgService: MessageService) { }
+	constructor(private route: ActivatedRoute) { }
 
 	ngOnInit()
 	{
 		this.createForm();
 
-		this.isSaving$.subscribe(saving => {
+		this.isSaving$.subscribe(saving =>
+		{
 			this.isSaving = saving;
-			if (this.locationForm) {
+
+			if (this.locationForm)
+			{
 				this.isSaving ? this.locationForm.disable() : this.locationForm.enable();
 			}
 		});
@@ -52,16 +53,19 @@ export class LocationsDetailsTabComponent implements OnInit
 			'locationDescription': new FormControl(this.location.locationDescription)
 		});
 
-		const tagsArray = this.locationForm.get("tags") as FormArray;
+		const tagsArray = this.locationForm.get('tags') as FormArray;
+
 		this.location.tags.forEach(t => tagsArray.push(new FormControl(t)));
 
-		this.locationForm.valueChanges.subscribe(() => {
+		this.locationForm.valueChanges.subscribe(() =>
+		{
 			this.locationChanged.emit();
 		});
 	}
 
-	getFormData(): Location {
-		const tagsArray = this.locationForm.get("tags") as FormArray;
+	getFormData(): Location
+	{
+		const tagsArray = this.locationForm.get('tags') as FormArray;
 
 		this.location.marketId = +this.route.parent.snapshot.paramMap.get('marketId');
 		this.location.locationName = this.locationForm.get('locationName').value;
@@ -71,12 +75,15 @@ export class LocationsDetailsTabComponent implements OnInit
 		return this.location;
 	}
 
-	reset() {
+	reset()
+	{
 		this.locationForm.reset();
 		this.location = new Location();
 
 		let tags = <FormArray>this.locationForm.controls['tags'];
-		for (let i = tags.length - 1; i >= 0; i--) {
+
+		for (let i = tags.length - 1; i >= 0; i--)
+		{
 			tags.removeAt(i);
 		}
 	}
@@ -110,8 +117,9 @@ export class LocationsDetailsTabComponent implements OnInit
 
 	onRemoveTag(index: number)
 	{
-		if (!this.isSaving) {
-			const tagsArray = this.locationForm.get("tags") as FormArray;
+		if (!this.isSaving)
+		{
+			const tagsArray = this.locationForm.get('tags') as FormArray;
 
 			tagsArray.removeAt(index);
 
@@ -134,6 +142,7 @@ export class LocationsDetailsTabComponent implements OnInit
 		if (diffA.length > 0 || diffB.length > 0)
 		{
 			tagsArray.markAsDirty();
+
 			this.locationChanged.emit();
 		}
 		else
@@ -162,5 +171,4 @@ export class LocationsDetailsTabComponent implements OnInit
 			return existingName ? { duplicateName: true } : null;
 		};
 	}
-
 }

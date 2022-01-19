@@ -25,13 +25,13 @@ export class LocationsGroupsTabComponent extends UnsubscribeOnDestroy implements
 
 	@Input() selectedGroups: Array<LocationGroupMarket> = [];
 	@Input() activeLocationGroups: Array<LocationGroupMarket>;
-	@Output() groupSelectionChanged = new EventEmitter<void>();
-
 	@Input() searchKeyword: string;
 	@Input() searchFilter: string;
 	@Input() searchSelectedAddGroup: Array<LocationGroupMarket>;
 	@Input() searchSelectedRemoveGroup: Array<LocationGroupMarket>;
 	@Input() isSaving: boolean;
+
+	@Output() groupSelectionChanged = new EventEmitter<void>();
 
 	availableGroups$: BehaviorSubject<Array<LocationGroupMarket>>;
 	selectedGroups$: ReplaySubject<Array<LocationGroupMarket>>;
@@ -46,82 +46,108 @@ export class LocationsGroupsTabComponent extends UnsubscribeOnDestroy implements
 		{ text: 'Cancel', class: 'btn btn-secondary', action: this.cancelRemoveSelection.bind(this), disabled: false }
 	];
 
-	constructor(private _msgService: MessageService, private _uiUtilsService: UiUtilsService, ) {
-		 super();
+	constructor(private _msgService: MessageService, private _uiUtilsService: UiUtilsService,)
+	{
+		super();
 	}
 
-	ngOnInit() {
+	ngOnInit()
+	{
 		this.availableGroups$ = new BehaviorSubject<Array<LocationGroupMarket>>(this.activeLocationGroups);
 
 		this.selectedGroups$ = new ReplaySubject<Array<LocationGroupMarket>>(1);
 		this.onGroupSelectionChange();
 	}
 
-	reset() {
-		if (this.addGroups) {
+	reset()
+	{
+		if (this.addGroups)
+		{
 			this.addGroups.reset();
 		}
 
-		if (this.removeGroups) {
+		if (this.removeGroups)
+		{
 			this.removeGroups.reset();
 		}
 	}
 
-	onGroupSelectionChange() {
+	onGroupSelectionChange()
+	{
 		this.selectedGroups$.next(this.selectedGroups);
 
 		const availableGroups = this.activeLocationGroups.filter(group => this.selectedGroups.findIndex(g => g.id === group.id) === -1);
+
 		this.availableGroups$.next(availableGroups);
 
 		this.groupSelectionChanged.emit();
 	}
 
-	saveSelection() {
+	saveSelection()
+	{
 		const newGroups = this.addGroups.selectedGroups as LocationGroupMarket[];
+
 		this.selectedGroups.push(...newGroups);
+
 		this.onGroupSelectionChange();
+
 		this.addGroups.selectedGroups = [];
 	}
 
-	async cancelSelection() {
-		if (this.addGroups.selectedGroups.length > 0) {
-			if (!await this._uiUtilsService.confirmCancellation()) {
+	async cancelSelection()
+	{
+		if (this.addGroups.selectedGroups.length > 0)
+		{
+			if (!await this._uiUtilsService.confirmCancellation())
+			{
 				return;
 			}
-			else {
+			else
+			{
 				this.addGroups.reset();
 			}
 		}
-		else {
+		else
+		{
 			this.addGroups.reset();
 		}
 	}
 
-	async removeSelection() {
+	async removeSelection()
+	{
 		const removedGroups = this.removeGroups.selectedGroups as LocationGroupMarket[];
+
 		remove(this.selectedGroups, g => removedGroups.findIndex(group => group.id === g.id) !== -1);
+
 		this.onGroupSelectionChange();
+
 		this.removeGroups.selectedGroups = [];
 	}
 
-	async cancelRemoveSelection() {
-		if (this.removeGroups.selectedGroups.length > 0) {
-			if (!await this._uiUtilsService.confirmCancellation()) {
+	async cancelRemoveSelection()
+	{
+		if (this.removeGroups.selectedGroups.length > 0)
+		{
+			if (!await this._uiUtilsService.confirmCancellation())
+			{
 				return;
 			}
-			else {
+			else
+			{
 				this.removeGroups.reset();
 			}
 		}
-		else {
+		else
+		{
 			this.removeGroups.reset();
 		}
 	}
 
-	displayErrorMessage(message: string) {
-		if (message) {
+	displayErrorMessage(message: string)
+	{
+		if (message)
+		{
 			this._msgService.add({ severity: 'error', summary: 'Location', detail: message });
 		}
 	}
-
 }

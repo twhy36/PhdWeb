@@ -23,13 +23,12 @@ export class LocationGroupsSidePanelComponent implements OnInit
 	@ViewChild(SidePanelComponent)
 	private sidePanel: SidePanelComponent;
 
-	@Output() onSidePanelClose = new EventEmitter<boolean>();
 	@Input() sidePanelOpen: boolean = false;
-
-	@Output() onSaveLocationGroup = new EventEmitter<LocationGroupMarket>();
-
 	@Input() locationGroups: Array<LocationGroupMarket>;
 	@Input() locationGroup: LocationGroupMarket;
+
+	@Output() onSidePanelClose = new EventEmitter<boolean>();
+	@Output() onSaveLocationGroup = new EventEmitter<LocationGroupMarket>();
 
 	locationForm: FormGroup;
 
@@ -83,7 +82,7 @@ export class LocationGroupsSidePanelComponent implements OnInit
 			'groupLabel': new FormControl(this.locationGroup.groupLabel, { updateOn: 'blur' })
 		});
 
-		const tagsArray = this.locationForm.get("tags") as FormArray;
+		const tagsArray = this.locationForm.get('tags') as FormArray;
 
 		this.locationGroup.tags.forEach(t => tagsArray.push(new FormControl(t)));
 	}
@@ -91,7 +90,9 @@ export class LocationGroupsSidePanelComponent implements OnInit
 	onCloseSidePanel(status: boolean)
 	{
 		this.onSidePanelClose.emit(status);
+
 		this.locationForm.reset();
+
 		this.locationGroup = new LocationGroupMarket();
 	}
 
@@ -99,6 +100,7 @@ export class LocationGroupsSidePanelComponent implements OnInit
 	{
 		if (!this.locationForm.pristine)
 		{
+			// sets isDirty flag to allow nav away message to show.
 			this.sidePanel.setIsDirty();
 		}
 
@@ -109,7 +111,7 @@ export class LocationGroupsSidePanelComponent implements OnInit
 	{
 		this.isSaving = true;
 
-		const tagsArray = this.locationForm.get("tags") as FormArray;
+		const tagsArray = this.locationForm.get('tags') as FormArray;
 
 		this.locationGroup.marketId = +this.route.parent.snapshot.paramMap.get('marketId');
 		this.locationGroup.locationGroupName = this.locationForm.get('locationGroupName').value;
@@ -234,7 +236,7 @@ export class LocationGroupsSidePanelComponent implements OnInit
 
 	onRemoveTag(index: number)
 	{
-		const tagsArray = this.locationForm.get("tags") as FormArray;
+		const tagsArray = this.locationForm.get('tags') as FormArray;
 
 		tagsArray.removeAt(index);
 
@@ -287,6 +289,7 @@ export class LocationGroupsSidePanelComponent implements OnInit
 	private handleSaveError()
 	{
 		this.isSaving = false;
+
 		this._msgService.add({ severity: 'error', summary: 'Location Group', detail: `failed to saved!` });
 
 		return empty;

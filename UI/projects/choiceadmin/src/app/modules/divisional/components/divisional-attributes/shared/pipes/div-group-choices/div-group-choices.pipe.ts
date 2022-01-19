@@ -21,7 +21,8 @@ export class GroupChoicesPipe implements PipeTransform
 		{
 			choices = this._locationService.getLocationGroupChoices(group);
 		}
-		else if (group instanceof AttributeGroupMarket) {
+		else if (group instanceof AttributeGroupMarket)
+		{
 			choices = this._attributeService.getAttributeGroupChoices(group);
 		}
 		
