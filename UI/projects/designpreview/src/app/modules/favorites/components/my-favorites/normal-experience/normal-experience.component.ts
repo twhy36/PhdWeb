@@ -190,24 +190,30 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 
 	scrollPointIntoView(pointId: number, isFirstPoint: boolean)
 	{
-		const decision = document.getElementById(pointId?.toString());
-		if (decision)
+		const pointCardElement = document.getElementById('point-card-' + pointId?.toString());
+		if (pointCardElement)
 		{
 			if (isFirstPoint)
 			{
-				decision.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+				pointCardElement.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
 			}
 			else
 			{
 				// Workaround to display the element moved under the nav bar
-				const pos = decision.style.position;
-				const top = decision.style.top;
-				decision.style.position = 'relative';
-				decision.style.top = '-200px';
-				decision.scrollIntoView({behavior: 'smooth', block: 'start'});
-				decision.style.top = top;
-				decision.style.position = pos;
+				const pos = pointCardElement.style.position;
+				const top = pointCardElement.style.top;
+				pointCardElement.style.position = 'relative';
+				pointCardElement.style.top = '-200px';
+				pointCardElement.scrollIntoView({behavior: 'smooth', block: 'start'});
+				pointCardElement.style.top = top;
+				pointCardElement.style.position = pos;
 			}
+		}
+
+		const decisionBarElement = document.getElementById('decision-bar-' + pointId?.toString());
+		if (decisionBarElement)
+		{
+				decisionBarElement.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
 		}
 	}
 

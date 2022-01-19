@@ -6,7 +6,7 @@
 					<div class="icon">
 						<i class="fa fa-check" *ngIf="isPointComplete(point)"></i>
 					</div>
-					<div [attr.id]="point.id">
+					<div [attr.id]="'decision-bar-' + point.id">
 						{{point.label}}
 						<div class="sub-title">{{getSubTitle(point)}}</div>
 					</div>
