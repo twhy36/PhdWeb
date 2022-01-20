@@ -154,11 +154,9 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 			this.updateChoiceAttributes();
 		});
 
-		if (this.choice.enabled)
-		{
-			let desc = this.choice.description ? [this.choice.description] : [];
-			this.choiceDescriptions = this.choice.options && this.choice.options.length > 0 ? this.choice.options.filter(o => o.description != null).map(o => o.description) : desc;
-		}
+		let desc = this.choice.description ? [this.choice.description] : [];
+		this.choiceDescriptions = this.choice.options && this.choice.options.length > 0 ? this.choice.options.filter(o => o.description != null).map(o => o.description) : desc;
+
 		const dps = _.flatMap(this.groups, g => _.flatMap(g.subGroups, sg => sg.points));
 		this.currentPoint = dps.find(pt => pt.choices.find(ch => ch.id === this.choice.id));
 	}
