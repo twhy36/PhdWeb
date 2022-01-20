@@ -115,12 +115,20 @@
 
 	.phd-choice-desc {
 		margin-left: 10px;
+		height: 37em;
+		overflow: scroll;
+		padding-left: 10px;
+		padding-right: 15px;
+	}
+
+	.phd-choice-desc-attr-short {
+		height: 17.5em;
 	}
 
 	.phd-available-selections {
 		background-color: var(--secondary-ribbon-background-color);
 		color: white;
-		margin-top: 30px;
+		margin-top: 0px;
 
 		span {
 			padding: 8px 0px 8px 10px;
@@ -151,7 +159,7 @@
 }
 
 // Normal view
-@media screen and (min-width: $tablet-max-width + 1) {
+@media screen and (min-width: ($tablet-max-width + 1)) {
 	.phd-choice-card-detail {
 		flex-direction: row;
 		overflow: hidden;
@@ -190,7 +198,7 @@
 		width: calc(48vw);
 
 		.phd-attr-loc-group-container {
-			margin-top: 55px;
+			margin-top: 25px;
 			position: fixed;
 			width: calc(48vw - 7px);
 			height: calc(100vh - 290px);
