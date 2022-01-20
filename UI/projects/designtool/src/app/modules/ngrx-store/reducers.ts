@@ -111,7 +111,7 @@ export const canConfigure = createSelector(
 		|| ((scenario.buildMode === 'model' || scenario.buildMode === 'spec') && !!market && user.canDesign && user.assignedMarkets && user.assignedMarkets.some(m => m.number === market.number))
 		// if there is a sales agreement, user can make changes if (a) user can Create Sales Agreements or (b) user can create Job Change Orders
 		// if the change order hasn't been saved yet, the contact field on the change order will be null
-		|| ((sag && sag.id ? (user.canSell || (user.canDesign && !!co && (!co.createdByContactId))) : user.canConfigure) 
+		|| ((sag && sag.id ? (user.canSell || (user.canDesign && !!co)) : user.canConfigure) 
 		&& !!market && user.assignedMarkets && user.assignedMarkets.some(m => m.number === market.number))
 )
 
