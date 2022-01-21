@@ -223,17 +223,16 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 		this.optionCategories = [];
 
 		// Add selected elevation
-		if (selectedElevation) 
-		{
-			this.optionCategories.push({
-				categoryName: 'Exterior',
-				optionSubCategories: this.buildOptionSubCategories(
-					[selectedElevation],
-					allSubCategories,
-					lite.scenarioOptions
-				)
-			});
-		}
+		this.optionCategories.push({
+			categoryName: 'Exterior',
+			optionSubCategories: selectedElevation 
+				? this.buildOptionSubCategories(
+						[selectedElevation],
+						allSubCategories,
+						lite.scenarioOptions
+					)
+				: []
+		});
 
 		// Add selected base house options
 		const baseHouseCategory = lite.categories.find(x => x.name.toLowerCase() === "base house");
