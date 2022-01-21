@@ -89,7 +89,7 @@ export class ColorsComponent extends UnsubscribeOnDestroy implements OnInit {
 																	&& option.colorItems.length > 0
 																	&& option.colorItems.some(item => item.isActive && item.color.length > 0 && item.color.some(c => c.isActive)));
 
-			let defaultSubMenu = categorySubMenus[0].id;
+			let defaultSubMenu = categorySubMenus[0]?.id ?? baseHouseCategory.id;
 
 			if (baseHouseOptionsNotAlreadySaved && baseHouseHasColorItems)
 			{
@@ -133,17 +133,16 @@ export class ColorsComponent extends UnsubscribeOnDestroy implements OnInit {
 			this.store.dispatch(new NavActions.SetSelectedSubNavItem(defaultSubMenu));
 		});
 
-		combineLatest([
-			this.store.select(state => state.nav),
-			this.store.select(state => state.lite)
-		])
-		.pipe(this.takeUntilDestroyed())
-		.subscribe(([nav, lite]) => {
+		this.store
+		.pipe(
+			this.takeUntilDestroyed(),
+			select(state => state.nav.selectedItem))
+		.subscribe(selectedItem => {
 			this.selectedColorIds = {};
-			this.selectedCategory = this.categories.find(x => x.id === nav.selectedItem);
+			this.selectedCategory = this.categories.find(x => x.id === selectedItem);
 
-			this.selectedOptions = lite.options
-								.filter(option => (lite.scenarioOptions.some(so => so.edhPlanOptionId === option.id)
+			this.selectedOptions = this.allOptions
+								.filter(option => (this.scenarioOptions.some(so => so.edhPlanOptionId === option.id)
 												&& option.optionCategoryId === this.selectedCategory.id))
 								.map(x => x as LitePlanOptionUI);
 
@@ -166,7 +165,10 @@ export class ColorsComponent extends UnsubscribeOnDestroy implements OnInit {
 										.filter(c => c.isActive)
 										.sort((c1,c2) => c1.name > c2.name ? 1 : -1 )
 
-						this.setColorItemsDefaultColor(po, ci);
+						if (ci.colorItemId in this.selectedColorIds === false)
+						{
+							this.setColorItemsDefaultColor(po, ci);
+						}
 					})
 				})
 			});
@@ -236,21 +238,23 @@ export class ColorsComponent extends UnsubscribeOnDestroy implements OnInit {
 			.map(x => x as ScenarioOptionColorDto);
 
 		const previousSelectedColor = scenarioColors.find(x => x.colorItemId === item.colorItemId);
+		let colorsToSave: ScenarioOptionColorDto[] = [];
+		const newColorWasSelected = this.selectedColorIds[item.colorItemId] !== null
 
 		if (previousSelectedColor)
 		{
-			if (this.selectedColorIds[item.colorItemId] === null)
-			{
-				previousSelectedColor.isDeleted = true;
-			}
-			else
-			{
-				previousSelectedColor.colorId = this.selectedColorIds[item.colorItemId];
-			}
+			colorsToSave.push({
+				scenarioOptionColorId: previousSelectedColor.scenarioOptionColorId,
+				scenarioOptionId: previousSelectedColor.scenarioOptionId,
+				colorItemId: previousSelectedColor.colorItemId,
+				colorId: previousSelectedColor.colorId,
+				isDeleted: true
+			});
 		}
-		else
+
+		if (newColorWasSelected)
 		{
-			scenarioColors.push({
+			colorsToSave.push({
 				scenarioOptionColorId: 0,
 				scenarioOptionId: previousSelectedOption.scenarioOptionId,
 				colorItemId: item.colorItemId,
@@ -259,10 +263,10 @@ export class ColorsComponent extends UnsubscribeOnDestroy implements OnInit {
 			});
 		}
 
-		if (!!scenarioColors.length)
+		if (!!colorsToSave.length)
 		{
-			this.store.dispatch(new LiteActions.SelectOptionColors(scenarioColors));
-			this.store.dispatch(new LiteActions.SaveScenarioOptionColors(scenarioColors));
+			this.store.dispatch(new LiteActions.SelectOptionColors(colorsToSave));
+			this.store.dispatch(new LiteActions.SaveScenarioOptionColors(colorsToSave));
 		}
 	}
 }
