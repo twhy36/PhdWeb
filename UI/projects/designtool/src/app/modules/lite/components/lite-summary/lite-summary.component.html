@@ -18,7 +18,7 @@
 
 		<div class="phd-tree-view d-flex flex-column" [class.phd-is-sticky]="isSticky">
 			<ng-container *ngFor="let optionCategory of optionCategories">
-				<div class="phd-option-category" *ngIf="optionCategory.optionSubCategories?.length > 0">
+				<div class="phd-option-category" *ngIf="optionCategory.categoryName === 'Exterior' || optionCategory.optionSubCategories?.length > 0">
 					<div class="phd-category-label">
 						<span>{{optionCategory.categoryName}}</span>
 						<div class="phd-category-detail">
