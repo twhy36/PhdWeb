@@ -124,6 +124,12 @@
 				</div>
 			</ng-container>
 
+			<div class="phd-alternate-mapping" *ngIf="showAlternateMappingBtn">
+				<button type="button" class="btn btn-primary" (click)="addAlternateMapping()">Add Alternate Mapping</button>
+					
+				<i class="fa fa-exclamation-circle ml-2" aria-hidden="true" ngbTooltip="When multiple option mappings exist, all mappings must end on the same Choice OR end on the same pick 1 Decision Point" container="body"></i>
+			</div>
+			
 			<div *ngIf="isSaving" id="option-side-panel-saving" class="alert alert-info m-0 py-1 px-2 pull-right" role="alert">Saving...</div>
 
 			<div hidden *ngIf="sidePanelHasChanges"></div>

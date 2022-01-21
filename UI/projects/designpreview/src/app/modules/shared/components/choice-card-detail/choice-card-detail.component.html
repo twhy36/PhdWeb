@@ -72,7 +72,7 @@
 	</div>
 	<div class="phd-info-section">
 		<div class="phd-choice-label">{{choice?.label}}</div>
-		<div *ngIf="choiceDescriptions.length && !optionDisabled" class="phd-choice-desc">
+		<div *ngIf="choiceDescriptions.length && !optionDisabled" class="phd-choice-desc" [ngClass]="{'phd-choice-desc-attr-short' : hasAttributes}">
 			<div *ngFor="let description of choiceDescriptions">{{ description }}</div>
 		</div>
 		<div class="d-flex flex-column flex-grow-1" *ngIf="hasAttributes">

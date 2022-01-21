@@ -83,6 +83,7 @@ export class TreeService
 
 		return (skipSpinner ? this.http : withSpinner(this.http)).get<Tree>(endPoint).pipe(
 			tap(response => response['@odata.context'] = undefined),
+			switchMap(response => this.getDivDPointCatalogs(response, skipSpinner)),
 			map((response: Tree) => new Tree(response)),
 			catchError(error =>
 			{
@@ -471,4 +472,43 @@ export class TreeService
 			})
 		);
 	}
+
+	// Retrieve the latest cutOffDays in case GetTreeDto returns cached tree data from API
+	getDivDPointCatalogs(tree: Tree, skipSpinner?: boolean): Observable<Tree>
+    {
+        const entity = `divDPointCatalogs`;
+        let points = _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points));
+
+		const pointCatalogIds = points.map(x => x.divPointCatalogId);
+        const filter = `divDpointCatalogID in (${pointCatalogIds})`;
+
+        const select = `divDpointCatalogID,cutOffDays`;
+
+        const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
+        const endPoint = `${environment.apiUrl}${entity}?${qryStr}`;
+
+        return (skipSpinner ? this.http : withSpinner(this.http)).get<Tree>(endPoint).pipe(
+            map(response =>
+            {
+                if (response)
+                {
+                    response['value'].map(x => {
+                        let point = points.find(p => p.divPointCatalogId === x.divDpointCatalogID);
+                        if (point)
+                        {
+                            point.cutOffDays = x.cutOffDays;
+                        }
+                    });
+                }
+                return tree;
+            }),
+            catchError(error =>
+            {
+                console.error(error);
+
+                return empty;
+            })
+        );
+	}
+
 }
