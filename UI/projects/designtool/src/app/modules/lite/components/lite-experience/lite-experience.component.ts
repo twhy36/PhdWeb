@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { NavigationEnd, Router } from "@angular/router";
 import { Observable, combineLatest } from 'rxjs';
+import { withLatestFrom, filter } from 'rxjs/operators';
 
 import { Store, select } from '@ngrx/store';
 import * as fromRoot from '../../../ngrx-store/reducers';
@@ -10,7 +11,7 @@ import * as NavActions from '../../../ngrx-store/nav/actions';
 import { UnsubscribeOnDestroy, PriceBreakdown, PointStatus } from 'phd-common';
 
 import { ActionBarCallType } from '../../../shared/classes/constants.class';
-import { LiteSubMenu } from '../../../shared/models/lite.model';
+import { LiteSubMenu, LitePlanOption, ScenarioOptionColor } from '../../../shared/models/lite.model';
 
 @Component({
 	selector: 'lite-experience',
@@ -26,7 +27,7 @@ export class LiteExperienceComponent extends UnsubscribeOnDestroy implements OnI
 	isLiteComplete$: Observable<boolean>;
 
 	primaryAction: string = 'Generate Agreement';
-	currentRoute: string;
+	showStatusIndicator: boolean;
 
 	constructor(private store: Store<fromRoot.State>, private router: Router)
 	{
@@ -35,12 +36,23 @@ export class LiteExperienceComponent extends UnsubscribeOnDestroy implements OnI
 
 	ngOnInit()
 	{
-		this.router.events.subscribe(evt => {
-			if (evt instanceof NavigationEnd)
+		this.router.events.pipe(
+			filter(evt => evt instanceof NavigationEnd),
+			withLatestFrom(
+				this.store.pipe(select(fromLite.selectedElevation)),
+				this.store.pipe(select(fromLite.selectedColorScheme))
+			)
+		)
+		.subscribe(([evt, elevation, colorScheme]) => {
+			this.showStatusIndicator = !this.router.url.includes('options');
+
+			if (this.router.url.includes('elevation') || this.router.url.includes('color-scheme'))
 			{
-				this.currentRoute = evt.url.toLowerCase();
+				this.setExteriorItemsStatus(elevation, colorScheme);			
 			}
 		});
+		
+		this.showStatusIndicator = !this.router.url.includes('options');
 
 		this.canConfigure$ = this.store.pipe(select(fromRoot.canConfigure));
 
@@ -66,12 +78,17 @@ export class LiteExperienceComponent extends UnsubscribeOnDestroy implements OnI
 		])
 		.subscribe(([elevation, colorScheme]) =>
 		{
-			const elevationStatus = !!elevation ? PointStatus.COMPLETED : PointStatus.REQUIRED;
-			this.store.dispatch(new NavActions.SetSubNavItemStatus(LiteSubMenu.Elevation, elevationStatus));
-
-			const colorSchemeStatus = !!colorScheme ? PointStatus.COMPLETED : PointStatus.REQUIRED;
-			this.store.dispatch(new NavActions.SetSubNavItemStatus(LiteSubMenu.ColorScheme, colorSchemeStatus));
+			this.setExteriorItemsStatus(elevation, colorScheme);
 		});
+	}
+
+	setExteriorItemsStatus(elevation: LitePlanOption, colorScheme: ScenarioOptionColor)
+	{
+		const elevationStatus = !!elevation ? PointStatus.COMPLETED : PointStatus.REQUIRED;
+		this.store.dispatch(new NavActions.SetSubNavItemStatus(LiteSubMenu.Elevation, elevationStatus));
+
+		const colorSchemeStatus = !!colorScheme ? PointStatus.COMPLETED : PointStatus.REQUIRED;
+		this.store.dispatch(new NavActions.SetSubNavItemStatus(LiteSubMenu.ColorScheme, colorSchemeStatus));
 	}
 
 	onSubNavItemSelected(id: number)

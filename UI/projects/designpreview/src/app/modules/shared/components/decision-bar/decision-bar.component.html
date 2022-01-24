@@ -8,7 +8,7 @@
 			<div class="icon">
 				<i class="fa fa-check" *ngIf="point.completed"></i>
 			</div>
-			<div class="label" title="{{point.label}}">{{point.label | ellipsis: 40}}</div>
+			<div class="label" title="{{point.label}}" [attr.id]="'decision-bar-' + point.id">{{point.label | ellipsis: 40}}</div>
 		</li>
 	</ng-container>
 </ul>

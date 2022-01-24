@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 import { LocationGroupMarket } from '../../../../../shared/models/location-group-market.model';
 

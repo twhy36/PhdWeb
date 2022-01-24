@@ -36,15 +36,15 @@ export class LocationsSidePanelComponent implements OnInit
 	@ViewChild(LocationsGroupsTabComponent)
 	private groupsTab: LocationsGroupsTabComponent;
 
-	@Output() onSidePanelClose = new EventEmitter<boolean>();
+	
 	@Input() sidePanelOpen: boolean = false;
 	@Input() isAdd: boolean = false;
-
-	@Output() onSaveLocation = new EventEmitter<Location>();
-
 	@Input() selectedLocation: Location;
 	@Input() existingLocations: Array<Location>;
 	@Input() activeLocationGroups: Array<LocationGroupMarket>;
+
+	@Output() onSidePanelClose = new EventEmitter<boolean>();
+	@Output() onSaveLocation = new EventEmitter<Location>();
 
 	isAddingAnother: boolean = false;
 	isSaving: boolean = false;
@@ -70,6 +70,7 @@ export class LocationsSidePanelComponent implements OnInit
 	get saveDisabled(): boolean
 	{
 		let isGroupChangeValid = (this.selectedLocation ? this.selectedLocation.locationName : false) && this.isGroupSelectionChanged;
+
 		if (this.detailsTab)
 		{
 			isGroupChangeValid = this.detailsTab.locationForm.valid && this.isGroupSelectionChanged;
@@ -233,6 +234,7 @@ export class LocationsSidePanelComponent implements OnInit
 	private handleSaveError()
 	{
 		this.isSaving = false;
+
 		this.isSaving$.next(this.isSaving);
 
 		this._msgService.add({ severity: 'error', summary: 'Location', detail: `failed to saved!` });

@@ -18,7 +18,7 @@
 	}
 
 	.phd-nav-bar-title {
-		color: white;
+		color: var(--nav-bar-text-color);
 		margin-left: 30px;
 		width: 100%;
 
@@ -37,7 +37,7 @@
 
 	a {
 		font-size: 16px;
-		color: white;
+		color: var(--nav-bar-text-color);
 		padding-right: 5px;
 		padding-left: 10px;
 	}
@@ -50,7 +50,7 @@
 
 	.phd-menu-bars {
 		display: inline !important;
-		color: white;
+		color: var(--nav-bar-text-color);
 
 		.fa-bars {
 			margin-right: 0px;
@@ -82,7 +82,7 @@
 
 	a {
 		font-size: 20px;
-		color: white;
+		color: var(--nav-bar-text-color);
 		display: block;
 		text-transform: uppercase;
 		text-decoration: none;

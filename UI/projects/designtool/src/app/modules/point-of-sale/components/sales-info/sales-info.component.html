@@ -8,14 +8,15 @@
 			  [hasPlus]="false"></add-card>
 
 	<!--Sales Agreement Information Card-->
-	<sales-info-misc class="phd-editable-box"
-					 [agreement]="agreement"
-					 [editing]="editing"
-					 (onEdit)="edit($event)"
-					 [jobsProjectedFinalDate]="jobsProjectedFinalDate$ | async"
-					 [canEdit]="canSell && !cancelOrVoid && !isLockedIn"
-					 [canUpdateECOE]="canUpdateECOE"
-					 *ngIf="agreement && !isChangingOrder"></sales-info-misc>
+	<sales-info-misc *ngIf="agreement" 
+					class="phd-editable-box"
+					[agreement]="agreement"
+					[editing]="editing"
+					(onEdit)="edit($event)"
+					[jobsProjectedFinalDate]="jobsProjectedFinalDate$ | async"
+					[canEdit]="canSell && !cancelOrVoid && !isLockedIn"
+					[canUpdateECOE]="canUpdateECOE">
+	</sales-info-misc>
 
 	<!--Programs and Add Program Cards-->
 	<program-detail *ngFor="let program of programs; let i = index"
@@ -34,7 +35,7 @@
 					(checkChanges)="changes($event)">
 	</program-detail>
 
-	<add-card *ngIf="!editing && canEditAgreement && (canSell || canDesign || canAddIncentive) && !cancelOrVoid && hasAvailableSalesPrograms"
+	<add-card *ngIf="!editing && canEditAgreement && (canSell || canDesignInChangeOrder || canAddIncentive) && !cancelOrVoid && hasAvailableSalesPrograms"
 			  [hasNA]="!programs || programs.length === 0 && !isChangingOrder"
 			  [isNA]="isProgramNa"
 			  [label]="'Incentive'"
@@ -50,7 +51,7 @@
 								 [currentClosingCostIncentive]="currentClosingCostIncentive$ | async"
 								 [totalCurrentClosingCostAmount]="totalCurrentClosingCostAmount$ | async"
 								 [editing]="editing"
-								 [canEdit]="(canSell || canDesign || canAddIncentive) && canEditAgreement && priceAdjustments.length > 0"
+								 [canEdit]="(canSell || canDesignInChangeOrder || canAddIncentive) && canEditAgreement && priceAdjustments.length > 0"
 								 (onEdit)="edit($event)"
 								 (onRemove)="remove('priceAdjustments', $event)"
 								 (onSavingPriceAdjustments)="saveSalesChangeOrderPriceAdjustments($event)"
@@ -59,11 +60,12 @@
 	</ng-template>
 
 	<ng-template [ngIf]="isChangingOrder">
-		<add-card *ngIf="!editing && (canSell || canDesign || canAddIncentive) && (!priceAdjustments || priceAdjustments.length === 0)"
+		<add-card *ngIf="!editing && (canSell || canDesignInChangeOrder || canAddIncentive) && (!priceAdjustments || priceAdjustments.length === 0)"
 				  [hasNA]="false"
 				  [label]="'Price Adjustment'"
 				  [labels]="'Price Adjustments'"
-				  (onAdd)="add('priceAdjustments')"></add-card>
+				  (onAdd)="add('priceAdjustments')">
+		</add-card>
 	</ng-template>
 
 	<!--Deposits and Add Deposit Cards-->

@@ -1,0 +1,62 @@
+<page-header mainTitle="{{title}}"></page-header>
+
+<div class="d-flex justify-content-center">
+	<div class="phd-summary-container d-flex flex-column">
+		<summary-header 
+			[summaryHeader]="summaryHeader"
+			[priceBreakdown]="priceBreakdown"
+			[allowEstimates]="allowEstimates"
+			[canEditHanding]="(canEditAgreement$ | async) && (canConfigure$ | async) && canEditHanding"
+			[canConfigure]="canConfigure$ | async"
+			[disableHanding]="disableHanding"
+			[canOverride]="canOverride$ | async"
+			[isPhdLite]="true"
+			(toggleAllAttributesChanged)="onToggleAllColorsChanged($event)"
+			(isStickyChanged)="onIsStickyChanged($event)"
+			(handingChanged)="onHandingChanged($event)">
+		</summary-header>
+
+		<div class="phd-tree-view d-flex flex-column" [class.phd-is-sticky]="isSticky">
+			<ng-container *ngFor="let optionCategory of optionCategories">
+				<div class="phd-option-category" *ngIf="optionCategory.categoryName === 'Exterior' || optionCategory.optionSubCategories?.length > 0">
+					<div class="phd-category-label">
+						<span>{{optionCategory.categoryName}}</span>
+						<div class="phd-category-detail">
+							<span class="phd-category-subtotal-label">Subtotal : </span>
+							<span class="phd-category-subtotal-amount"> {{getCategorySubTotals(optionCategory) | currency}} </span>
+						</div>
+					</div>						
+
+					<div class="phd-option-subcategory d-flex flex-column justify-content-between" *ngFor="let optionSubCategory of optionCategory.optionSubCategories">
+						<div *ngIf="optionCategory.categoryName !== 'Exterior'" class="phd-subcategory-header d-flex justify-content-between align-items-center">
+							<span>{{optionSubCategory.subCategoryName}}</span>
+						</div>
+						<ng-container *ngFor="let option of optionSubCategory.options">
+							<option-summary [option]="option"></option-summary>
+						</ng-container>
+					</div>
+				</div>
+			</ng-container>
+		</div>
+
+		<action-bar [actionBarStatus]="(isLiteComplete$ | async) ? 'COMPLETE' : 'INCOMPLETE'"
+			[primaryAction]="primaryAction"
+			[price]="priceBreakdown.totalPrice"
+			[changePrice]="priceBreakdown.changePrice"
+			[inChangeOrder]="(isChangingOrder$ | async)"
+			[canChange]="(canConfigure$ | async) && canEditSummary"
+			(callToAction)="onCallToAction()">
+
+			<ng-template #rightCellTemplate>
+				<div class="d-flex flex-column flex-grow-1 align-items-center mr-4 links">
+					<div ngbDropdown placement="top" [autoClose]="true" class="d-inline-block">
+						<div id="printDropdown" ngbDropdownToggle class="phd-print-link d-flex align-items-center">
+							Print Configuration
+						</div>
+					</div>
+				</div>
+			</ng-template>
+		</action-bar>
+
+	</div>	
+</div>

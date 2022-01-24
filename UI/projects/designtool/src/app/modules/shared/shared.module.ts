@@ -37,6 +37,8 @@ import { StatusIndicatorComponent } from './components/status-indicator/status-i
 import { TreeFilterComponent } from './components/tree-filter/tree-filter.component';
 import { PlanComponent } from './components/plan/plan.component';
 import { PlanCardComponent } from './components/plan-card/plan-card.component';
+import { SummaryHeaderComponent } from './components/summary-header/summary-header.component';
+import { PricingBreakdownComponent } from './components/pricing-breakdown/pricing-breakdown.component';
 
 import { CapitalCaseSpacePipe } from './pipes/capitalCaseSpace.pipe';
 import { ChoiceIdToNamePipe } from './pipes/choiceIdToName.pipe';
@@ -95,7 +97,9 @@ import { FloorPlanComponent } from './components/floor-plan/floor-plan.component
 		DistributionListComponent,
 		ContactFullNamePipe,
 		PriceRangePipe,
-		FloorPlanComponent
+		FloorPlanComponent,
+		SummaryHeaderComponent,
+		PricingBreakdownComponent
     ],
     declarations: [
         AttributeListComponent,
@@ -137,7 +141,9 @@ import { FloorPlanComponent } from './components/floor-plan/floor-plan.component
 		DistributionListComponent,
 		ContactFullNamePipe,
 		PriceRangePipe,
-		FloorPlanComponent
+		FloorPlanComponent,
+		SummaryHeaderComponent,
+		PricingBreakdownComponent
     ],
     imports: [
         BrowserAnimationsModule,

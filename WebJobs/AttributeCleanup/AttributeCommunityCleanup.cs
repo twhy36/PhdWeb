@@ -14,11 +14,13 @@ namespace AttributeCleanup
 {
     public class AttributeCommunityCleanup
     {
-        private IConfigurationRoot _configuration { get; }
+        private IConfiguration _configuration { get; }
+        private readonly string _edhToken;
 
-        public AttributeCommunityCleanup(IConfigurationRoot configuration)
+        public AttributeCommunityCleanup(IConfiguration configuration, string edhToken)
         {
             _configuration = configuration;
+            _edhToken = edhToken;
         }
 
         public async Task Run()
@@ -72,7 +74,7 @@ namespace AttributeCleanup
             var edhClientSettings = new ODataClientSettings(new Uri(_configuration["edhSettings:url"]));
             edhClientSettings.BeforeRequest = rq =>
             {
-                rq.Headers.Add("Authorization", $"Basic {_configuration["edhSettings:apiKey"]}");
+                rq.Headers.Add("Authorization", $"Bearer {_edhToken}");
             };
 
             // Contact EDH to get orphaned AttributeCommunity IDs
@@ -108,7 +110,7 @@ namespace AttributeCleanup
             var edhClientSettings = new ODataClientSettings(new Uri(_configuration["edhSettings:url"]));
             edhClientSettings.BeforeRequest = rq =>
             {
-                rq.Headers.Add("Authorization", $"Basic {_configuration["edhSettings:apiKey"]}");
+                rq.Headers.Add("Authorization", $"Bearer {_edhToken}");
             };
             ODataClient edhClient = new ODataClient(edhClientSettings);
             var batch = new ODataBatch(edhClient);

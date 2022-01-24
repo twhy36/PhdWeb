@@ -1,0 +1,134 @@
+@import "../../../../../scss/sizes.scss";
+@import "../../../../../scss/color-pallet.scss";
+
+.phd-summary-container {
+	width: 1000px;
+    margin-top: 30px;
+    
+	.phd-is-sticky {
+		margin-top: 195px;
+	}
+
+	.phd-tree-view {
+		width: 100%;
+		margin-bottom: 180px;
+
+		.phd-option-category {
+			text-transform: uppercase;
+			margin-top: 50px;
+
+			.phd-category-label {
+				display: inline-block;
+				width: 98%;
+				font-weight: 500;
+				font-size: 30px;
+				line-height: 0.83;
+				margin-bottom: 20px;
+				text-transform: uppercase;
+
+				.phd-category-detail {
+					float: right;
+
+					.phd-category-subtotal-label {
+						font-weight: 300;
+						font-size: 20px;
+						text-transform: none;
+					}
+
+					.phd-category-subtotal-amount {
+						font-weight: 500;
+						font-size: 20px;
+						text-transform: none;
+					}
+				}
+			}
+
+			.phd-option-subcategory {
+				background-color: white;
+				border-radius: 4px;
+				min-height: 45px;
+				margin-bottom: 10px;
+				font-size: 14px;
+				font-weight: 500;
+				line-height: 1.36;
+
+				.phd-subcategory-header {
+					max-height: 40px;
+					height: 100%;
+					padding: 15px;
+					text-transform: uppercase;
+					border: none;
+					transition: all .3s;
+				}
+
+				::ng-deep option-summary:not(:last-child) .phd-option-summary {
+					border-bottom: 1px solid #d4d4d4;
+				}
+			}
+		}		
+	}
+}
+
+.links {
+	font-size: 14px;
+	line-height: 1.43;
+	min-width: 200px;
+}
+
+a,
+a:hover,
+a:focus {
+	color: $link-blue !important;
+	text-decoration: none;
+	font-size: 14px;
+	line-height: 1.43;
+	transition: all .05s;
+	cursor: pointer;
+
+	&.error {
+		color: $darkish-pink;
+	}
+
+	&.loading,
+	&.disabled {
+		color: lightgray;
+		pointer-events: none;
+		cursor: default;
+	}
+}
+
+.phd-print-link {
+	color: $link-blue;
+	cursor: pointer;
+
+	&::after {
+		display: none;
+	}
+}
+
+.phd-print-list {
+	width: 222px;
+
+	.phd-print-item {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 0.5rem 1.25rem
+	}
+}	
+
+@media (max-width: $tablet-max-width) { 
+	.links {
+		min-width: 100px;
+	}
+
+	.flex-grow-1 {
+		width:100%;
+	}
+}
+
+@media (max-width: 700px) {
+	.flex-grow-1 {
+		width:auto;
+	}
+}

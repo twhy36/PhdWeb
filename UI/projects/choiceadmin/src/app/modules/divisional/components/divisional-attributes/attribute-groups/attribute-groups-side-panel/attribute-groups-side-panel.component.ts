@@ -23,13 +23,12 @@ export class AttributeGroupsSidePanelComponent implements OnInit
 	@ViewChild(SidePanelComponent)
 	private sidePanel: SidePanelComponent;
 
-	@Output() onSidePanelClose = new EventEmitter<boolean>();
 	@Input() sidePanelOpen: boolean = false;
-
-	@Output() onSaveAttributeGroup = new EventEmitter<AttributeGroupMarket>();
-
 	@Input() selectedAttributeGroup: AttributeGroupMarket;
 	@Input() existingAttributeGroups: Array<AttributeGroupMarket>;
+
+	@Output() onSidePanelClose = new EventEmitter<boolean>();
+	@Output() onSaveAttributeGroup = new EventEmitter<AttributeGroupMarket>();
 
 	attributeForm: FormGroup;
 	attributeGroup: AttributeGroupMarket;

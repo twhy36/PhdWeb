@@ -39,7 +39,7 @@ export class LocationsContainerComponent extends UnsubscribeOnDestroy implements
 
 	sidePanelOpen: boolean = false;
 	isAddingLocation: boolean = false;
-	marketKey: string = "";
+	marketKey: string = '';
 
 	actionButtons: Array<ActionButton>;
 
@@ -74,6 +74,7 @@ export class LocationsContainerComponent extends UnsubscribeOnDestroy implements
 	onAddSingleClicked(button: ActionButton)
 	{
 		this.selectedLocation = new Location();
+
 		this.onSidePanelOpen({ event: null, location: this.selectedLocation });
 	}
 

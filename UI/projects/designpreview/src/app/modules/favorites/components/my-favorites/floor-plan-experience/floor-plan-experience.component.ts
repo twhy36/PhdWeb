@@ -87,8 +87,17 @@ export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implement
 	}
 
 	selectDecisionPoint(pointId: number) {
+		if (pointId)
+		{
+			setTimeout(() =>
+			{
+				this.scrollPointIntoView(pointId);
+			}, 500);
+
+			this.onSelectDecisionPoint.emit(pointId);
+		}
+
 		this.currentPointId = pointId;
-		this.onSelectDecisionPoint.emit(pointId);
 	}
 
 	choiceToggleHandler(choice: ChoiceExt) {
@@ -150,6 +159,15 @@ export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implement
 	get isContractedOptionsDisabled() : boolean
 	{
 		return this.isPreview || this.isDesignComplete;
+	}
+
+	scrollPointIntoView(pointId: number)
+	{
+		const decisionBarElement = document.getElementById('decision-bar-' + pointId?.toString());
+		if (decisionBarElement)
+		{
+				decisionBarElement.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+		}
 	}
 }
 

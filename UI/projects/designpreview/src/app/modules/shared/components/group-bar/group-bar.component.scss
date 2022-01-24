@@ -123,3 +123,7 @@
 		font-weight: bold;
 	}
 }
+
+::ng-deep .mat-button, .mat-menu-item {
+	font-family: var(--font);
+}

@@ -387,7 +387,7 @@ export const elevationImageUrl = createSelector(
 		const elevationOption = scenario && scenario.options ? scenario.options.find(x => x.isBaseHouseElevation) : null;
 
 		if (dp) {
-			const selectedChoice = dp.choices.find(x => x.quantity > 0 || x.isDecisionDefault);
+			const selectedChoice = dp.choices.find(x => x.quantity > 0);
 			let option: PlanOption = null;
 
 			if (selectedChoice && selectedChoice.options && selectedChoice.options.length) {

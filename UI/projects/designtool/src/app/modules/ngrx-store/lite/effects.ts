@@ -54,7 +54,7 @@ export class LiteEffects
 
 					const getOptionsCategorySubcategory = !!financialCommunityId
 						? this.liteService.getOptionsCategorySubcategory(financialCommunityId)
-						: null;
+						: of(null);
 
 					return combineLatest([
 						this.liteService.getLitePlanOptions(action.scenario.planId),
@@ -101,7 +101,7 @@ export class LiteEffects
 				}
 				else
 				{
-					return null;
+					return never();
 				}
 			}),
 			switchMap(data => {

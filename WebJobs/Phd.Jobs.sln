@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28010.2026
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31919.166
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LotRelease", "LotRelease\LotRelease.csproj", "{ACA531C0-AC3D-498F-8456-C02D06C2B911}"
 EndProject
@@ -10,6 +10,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChangeOrderExpiration", "ChangeOrderExpiration\ChangeOrderExpiration.csproj", "{9C5E8C0D-CDC3-40A2-830A-3F00055F8CEF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AttributeCleanup", "AttributeCleanup\AttributeCleanup.csproj", "{9669E71D-910D-4C57-91F6-B5487100EC3C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Phd.Jobs.Common", "Phd.Jobs.Common\Phd.Jobs.Common.csproj", "{14178AD7-5C9B-49C5-AD7E-7CB78F64817B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,26 +31,15 @@ Global
 		{9669E71D-910D-4C57-91F6-B5487100EC3C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9669E71D-910D-4C57-91F6-B5487100EC3C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9669E71D-910D-4C57-91F6-B5487100EC3C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{14178AD7-5C9B-49C5-AD7E-7CB78F64817B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{14178AD7-5C9B-49C5-AD7E-7CB78F64817B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{14178AD7-5C9B-49C5-AD7E-7CB78F64817B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{14178AD7-5C9B-49C5-AD7E-7CB78F64817B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {22AF069D-668C-48AC-9A6C-CFBE80477167}
-	EndGlobalSection
-	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 4
-		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccTeamFoundationServer = https://pultevsts.visualstudio.com/
-		SccLocalPath0 = .
-		SccProjectUniqueName1 = LotRelease\\LotRelease.csproj
-		SccProjectName1 = LotRelease
-		SccLocalPath1 = LotRelease
-		SccProjectUniqueName2 = ChangeOrderExpiration\\ChangeOrderExpiration.csproj
-		SccProjectName2 = ChangeOrderExpiration
-		SccLocalPath2 = ChangeOrderExpiration
-		SccProjectUniqueName3 = AttributeCleanup\\AttributeCleanup.csproj
-		SccProjectName3 = AttributeCleanup
-		SccLocalPath3 = AttributeCleanup
 	EndGlobalSection
 EndGlobal

@@ -123,7 +123,7 @@
 						<label class="font-weight-bold" for="effective_date">Effective Date</label>
 						<div class="input-group">
 							<input type="hidden" name="effectiveDate" formControlName="effectiveDate" />
-							<p-calendar [ngModel]="effectiveDate" [ngModelOptions]="{standalone: true}" (onSelect)="setMinimumExpirationDate($event)" dateFormat="mm/dd/yy" readonlyInput="true" [minDate]="minEffectiveDate" showIcon="true" appendTo="body" [disabled]="selected && selected.status === 'In Use'"></p-calendar>
+							<p-calendar [ngModel]="effectiveDate" [ngModelOptions]="{standalone: true}" (onSelect)="setMinimumExpirationDate($event)" dateFormat="mm/dd/yy" readonlyInput="true" [minDate]="minEffectiveDate" showIcon="true" appendTo="body" [disabled]="selected && (!documentAssociated || selected.status === 'In Use')"></p-calendar>
 						</div>
 					</div>
 

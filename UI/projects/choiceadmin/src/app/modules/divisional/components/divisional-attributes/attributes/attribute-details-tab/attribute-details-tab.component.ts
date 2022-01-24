@@ -6,7 +6,7 @@ import { Subscription, Observable } from 'rxjs';
 import { Attribute } from '../../../../../shared/models/attribute.model';
 import { MessageService } from 'primeng/api';
 
-import { difference } from "lodash";
+import { difference } from 'lodash';
 import { IPictureParkAsset } from '../../../../../shared/models/image.model';
 
 @Component({
@@ -92,7 +92,7 @@ export class AttributeDetailsTabComponent implements OnInit, OnDestroy
 			this.attributeForm.get('sku').valueChanges.subscribe(() => this.attributeForm.get('name').updateValueAndValidity())
 		];
 
-		const tagsArray = this.attributeForm.get("tags") as FormArray;
+		const tagsArray = this.attributeForm.get('tags') as FormArray;
 
 		this.attribute.tags.forEach(t => tagsArray.push(new FormControl(t)));
 
@@ -104,7 +104,7 @@ export class AttributeDetailsTabComponent implements OnInit, OnDestroy
 
 	getFormData(): Attribute
 	{
-		const tagsArray = this.attributeForm.get("tags") as FormArray;
+		const tagsArray = this.attributeForm.get('tags') as FormArray;
 
 		this.attribute.marketId = +this.route.parent.snapshot.paramMap.get('marketId');
 		this.attribute.name = this.attributeForm.get('name').value;
@@ -132,6 +132,7 @@ export class AttributeDetailsTabComponent implements OnInit, OnDestroy
 	reset()
 	{
 		this.attributeForm.reset();
+
 		this.attribute = new Attribute();
 		this.imgUrl = '';
 
@@ -153,7 +154,7 @@ export class AttributeDetailsTabComponent implements OnInit, OnDestroy
 
 			if (!existingTag)
 			{
-				const tagsArray = this.attributeForm.get("tags") as FormArray;
+				const tagsArray = this.attributeForm.get('tags') as FormArray;
 				const tagControl = new FormControl(tag);
 
 				tagsArray.push(tagControl);
@@ -174,7 +175,7 @@ export class AttributeDetailsTabComponent implements OnInit, OnDestroy
 	{
 		if (!this.isSaving)
 		{
-			const tagsArray = this.attributeForm.get("tags") as FormArray;
+			const tagsArray = this.attributeForm.get('tags') as FormArray;
 
 			tagsArray.removeAt(index);
 

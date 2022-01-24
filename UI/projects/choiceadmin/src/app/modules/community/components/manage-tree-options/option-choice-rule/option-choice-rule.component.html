@@ -68,19 +68,12 @@
 		<table class="table table-striped">
 			<caption style="caption-side: top;">
 				<strong class="phd-caption-header">{{record.pointLabel}}</strong>
-				<span class="phd-caption-text">{{getText(record.choices)}}</span>
 			</caption>
-			<thead>
-				<tr>
-					<th>Choice</th>
-					<th>Type</th>
-					<th *ngIf="!isReadOnly"></th>
-				</tr>
-			</thead>
+			
 			<tbody>
 				<tr *ngFor="let rule of record.choices">
 					<td>{{rule.label}}</td>
-					<td>
+					<td class="phd-toggle-td">
 						<button type="button" class="btn btn-sm btn-toggle" *ngIf="!isReadOnly" [ngClass]="{'active': rule.mustHave, 'btn-primary':  rule.mustHave, 'btn-secondary': !rule.mustHave }" (click)="toggleMustHave(record)">
 							<div class="handle"></div>
 						</button>

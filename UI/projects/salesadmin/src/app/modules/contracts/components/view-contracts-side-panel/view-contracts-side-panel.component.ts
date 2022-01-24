@@ -46,6 +46,7 @@ export class ViewContractsSidePanelComponent implements OnInit
 	expirationDate: Date;
 	minEffectiveDate: Date = new Date(new Date().getTime() - this.oneDay);
 	minDate: Date = new Date();
+	documentAssociated: boolean = false;
 
 	public templateTypes: Array<ITemplateType> = [
 		{ label: 'Sales Agreement', value: 'SalesAgreement', id: 1 },
@@ -120,6 +121,8 @@ export class ViewContractsSidePanelComponent implements OnInit
 					}
 				}
 			})
+
+		this.checkForDocument(this.selected.templateId);
 	}
 
 	convertDate(date)
@@ -436,4 +439,18 @@ export class ViewContractsSidePanelComponent implements OnInit
 	{
 		this.selectedTab = selectedTab;
 	}
+	
+	checkForDocument(templateId: number)
+	{
+		this._contractService.getTemplateUrl(templateId)
+			.subscribe(data =>
+			{
+				this.documentAssociated = true;
+			},
+			error =>
+			{
+				this.documentAssociated = false;
+			});
+	}
+
 }

@@ -6,7 +6,6 @@ import { forkJoin } from 'rxjs';
 import { IdentityService, Permission } from 'phd-common';
 
 import { DivisionalAttributesComponent } from '../../divisional-attributes/divisional-attributes.component';
-import { DivisionalAttributeTemplateComponent } from '../../divisional-attribute-template/divisional-attribute-template.component';
 import { AttributesPanelComponent } from '../attributes-panel/attributes-panel.component';
 
 import { UnsubscribeOnDestroy } from '../../../../../shared/classes/unsubscribeOnDestroy';
@@ -25,9 +24,6 @@ export class AttributesContainerComponent extends UnsubscribeOnDestroy implement
 {
 	Permission = Permission;
 
-	@ViewChild(DivisionalAttributeTemplateComponent)
-	private divisionAttributeTemplate: DivisionalAttributeTemplateComponent;
-
 	@ViewChild(AttributesPanelComponent)
 	private attributesPanel: AttributesPanelComponent;
 
@@ -36,7 +32,7 @@ export class AttributesContainerComponent extends UnsubscribeOnDestroy implement
 
 	sidePanelOpen: boolean = false;
 	isAddingAttribute: boolean = false;
-	marketKey: string = "";
+	marketKey: string = '';
 	isReadOnly: boolean;
 	canEditImages: boolean;
 

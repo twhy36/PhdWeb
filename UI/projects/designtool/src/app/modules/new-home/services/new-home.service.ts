@@ -6,6 +6,7 @@ import * as fromRoot from '../../ngrx-store/reducers';
 import * as NavActions from '../../ngrx-store/nav/actions';
 
 import { Job, PointStatus, Scenario } from 'phd-common';
+import { PhdSubMenu } from '../../new-home/subNavItems';
 
 @Injectable()
 export class NewHomeService
@@ -38,7 +39,7 @@ export class NewHomeService
 	{
 		let status = isScenarioNamed ? PointStatus.COMPLETED : PointStatus.REQUIRED;
 
-		this.store.dispatch(new NavActions.SetSubNavItemStatus(1, status));
+		this.store.dispatch(new NavActions.SetSubNavItemStatus(PhdSubMenu.ConfigurationName, status));
 	}
 
 	private setPlanSubNavItemStatus(selectedPlanId: number, isScenarioNamed: boolean, isJob: boolean)
@@ -57,7 +58,7 @@ export class NewHomeService
 			}
 		}
 
-		this.store.dispatch(new NavActions.SetSubNavItemStatus(2, status));
+		this.store.dispatch(new NavActions.SetSubNavItemStatus(PhdSubMenu.ChoosePlan, status));
 	}
 
 	private setLotSubNavItemStatus(selectedLotId: number, isScenarioNamed: boolean, isJob: boolean)
@@ -76,7 +77,7 @@ export class NewHomeService
 			}
 		}
 
-		this.store.dispatch(new NavActions.SetSubNavItemStatus(3, status));
+		this.store.dispatch(new NavActions.SetSubNavItemStatus(PhdSubMenu.ChooseLot, status));
 	}
 
 	private setQMISubNavItemStatus(selectedPlanId: number, selectedLotId: number, isScenarioNamed: boolean, isJob: boolean)
@@ -95,6 +96,6 @@ export class NewHomeService
 			}
 		}
 
-		this.store.dispatch(new NavActions.SetSubNavItemStatus(4, status));
+		this.store.dispatch(new NavActions.SetSubNavItemStatus(PhdSubMenu.QuickMoveIns, status));
 	}
 }

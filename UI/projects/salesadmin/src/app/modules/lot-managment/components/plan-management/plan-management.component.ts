@@ -6,7 +6,6 @@ import { OrganizationService } from "../../../core/services/organization.service
 import { FinancialCommunity } from "../../../shared/models/financialCommunity.model";
 import { FinancialCommunityViewModel } from "../../../shared/models/plan-assignment.model";
 import { UnsubscribeOnDestroy } from "../../../shared/utils/unsubscribe-on-destroy";
-import { environment } from '../../../../../environments/environment';
 
 enum Tabs
 {
@@ -24,7 +23,6 @@ export class PlanManagementComponent extends UnsubscribeOnDestroy implements OnI
 	commTabs = Tabs;
 	selectedCommunity: FinancialCommunityViewModel;
 	selectedTab: Tabs;
-	environment = environment;
 	
 	constructor(private router: Router,
 		private _orgService: OrganizationService) { super(); }
