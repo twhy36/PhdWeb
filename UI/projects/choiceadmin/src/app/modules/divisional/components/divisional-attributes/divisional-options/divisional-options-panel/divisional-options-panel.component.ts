@@ -139,7 +139,7 @@ export class DivisionalOptionsPanelComponent extends UnsubscribeOnDestroy implem
 
 				return forkJoin(
 					this._divOptService.getDivisionalOptions(marketId, this.settings.infiniteScrollPageSize, 0),
-					this._identityService.hasClaimWithPermission('Attributes', Permission.Edit),
+					this._identityService.hasClaimWithPermission('DivisionOptions', Permission.Edit),
 					this._identityService.hasMarket(marketId));
 			})
 		).subscribe(([data, hasPermission, hasMarket]) =>
