@@ -110,7 +110,7 @@
 				  (onAdd)="add('contingencies')"
 				  (onNA)="setNA('contingency')"></add-card>
 
-		<add-card *ngIf="!editing && canSell && !cancelOrVoid && !inSalesChangeOrder"
+		<add-card *ngIf="!editing && canEditInternalNotes && !cancelOrVoid"
 				  [hasNA]="!notes || notes.length === 0"
 				  [isNA]="isNoteNa"
 				  [label]="'Note'"
@@ -128,7 +128,7 @@
 				[editing]="editing"
 				[position]="i"
 				[inChangeOrder]="isChangingOrder"
-				[canEdit]="canSell && !cancelOrVoid"
+				[canEdit]="canEditInternalNotes && !cancelOrVoid"
 				(onRemove)="remove('notes', $event)"
 				(onEdit)="edit($event)"
 				(checkChanges)="changes($event)"

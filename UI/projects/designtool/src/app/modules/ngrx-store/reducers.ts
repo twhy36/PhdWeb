@@ -168,6 +168,12 @@ export const canLockSalesAgreement = createSelector(
 	(market, user) => !!market && user.canLockSalesAgreement && user.assignedMarkets.some(m => m.number === market.number)
 )
 
+export const canEditInternalNotes = createSelector(
+	fromOrg.market,
+	fromUser.selectUser,
+	(market, user) => !!market && user.canEditInternalNotes && user.assignedMarkets.some(m => m.number === market.number)
+)
+
 export const monotonyConflict = createSelector(
 	fromLot.selectSelectedLot,
 	fromPlan.selectedPlanData,

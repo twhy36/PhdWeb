@@ -1,4 +1,24 @@
-export type ClaimTypes = 'CommunityTree' | 'Configuration' | 'DivisionCatalog' | 'SalesAgreements' | 'NationalCatalog' | 'Attributes' | 'CatalogImages' | 'TreeImages' | 'SalesAdmin' | 'ContractTemplates' | 'JobChangeOrders' | 'Incentives' | 'AutoApproval' | 'PhdReports' | 'ECOE' | 'LockSalesAgreement' | 'ExecuteReOrg' | 'EnableCommunity' | 'ColorManagement' | 'LotRelationships';
+export type ClaimTypes = 'CommunityTree' 
+							| 'Configuration' 
+							| 'DivisionCatalog' 
+							| 'SalesAgreements' 
+							| 'NationalCatalog' 
+							| 'Attributes' 
+							| 'CatalogImages' 
+							| 'TreeImages' 
+							| 'SalesAdmin' 
+							| 'ContractTemplates' 
+							| 'JobChangeOrders' 
+							| 'Incentives' 
+							| 'AutoApproval' 
+							| 'PhdReports' 
+							| 'ECOE' 
+							| 'LockSalesAgreement' 
+							| 'ExecuteReOrg' 
+							| 'EnableCommunity' 
+							| 'ColorManagement' 
+							| 'LotRelationships'
+							| 'InternalNotes';
 
 export type Claims = { [K in ClaimTypes]: number };
 
