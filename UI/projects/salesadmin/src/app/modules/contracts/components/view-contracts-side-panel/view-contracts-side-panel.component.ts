@@ -122,7 +122,7 @@ export class ViewContractsSidePanelComponent implements OnInit
 				}
 			})
 
-		this.checkForDocument(this.selected.templateId);
+		this.selected && this.selected.templateId && this.checkForDocument(this.selected.templateId);
 	}
 
 	convertDate(date)

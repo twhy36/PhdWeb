@@ -64,6 +64,7 @@ export class SalesInfoComponent extends UnsubscribeOnDestroy implements OnInit, 
 	canDesignInChangeOrder: boolean;
 	cancelOrVoid: boolean;
 	canAddIncentive: boolean;
+	canEditInternalNotes: boolean;
 	canLockSalesAgreement: boolean;
 	canUpdateECOE: boolean;
 	jobsProjectedFinalDate$: Observable<Date>;
@@ -181,6 +182,13 @@ export class SalesInfoComponent extends UnsubscribeOnDestroy implements OnInit, 
 		).subscribe(canEditAgreement =>
 			{
 			this.canEditAgreement = canEditAgreement;
+		});
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromRoot.canEditInternalNotes)
+		).subscribe( canEditInternalNotes => {
+			this.canEditInternalNotes = canEditInternalNotes;
 		});
 
 		this.jobsProjectedFinalDate$ = this.store.pipe(select(state => state.job.projectedFinalDate));
