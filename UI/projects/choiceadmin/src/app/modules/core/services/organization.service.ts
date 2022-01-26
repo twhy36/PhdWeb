@@ -196,6 +196,28 @@ export class OrganizationService
 		);
 	}
 
+	/**
+	 * Gets all communities that include at least one plan with a specific choice.
+	 * @param marketId The community's market.
+	 * @param divChoiceCatalogId The ID of the choice.
+	 */
+	getCommunitiesWithChoice(marketId: number, divChoiceCatalogId: number): Observable<Array<IFinancialCommunity>>
+	{
+		const url = `${settings.apiUrl}GetCommunitiesForDivCatalogChoice`;
+
+		const body = {
+			marketId: marketId,
+			divChoiceCatalogId: divChoiceCatalogId
+		};
+
+		return withSpinner(this._http).post(url, body).pipe(
+			map(response =>
+			{
+				return response['value'] as Array<IFinancialCommunity>;
+			})
+		);
+	}
+
 	getOrgsForCommunities(marketId: number, financialCommunityIds: number[]): Observable<Array<PhdEntityDto.IOrgCommunityDto>> {
 		const url = `${settings.apiUrl}getOrgsForFinancialCommunities`;
 

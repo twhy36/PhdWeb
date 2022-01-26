@@ -98,7 +98,7 @@ export class AssociateCommunitiesSidePanelComponent extends UnsubscribeOnDestroy
 
 		if (this.choice)
 		{
-			const communities$ = this._orgService.getCommunities(this.marketId);
+			const communities$ = this._orgService.getCommunitiesWithChoice(this.marketId, this.choice.divChoiceCatalogId);
 
 			communities$.pipe(
 				mergeMap(communities => this._orgService.getOrgsForCommunities(this.marketId, communities.map(c => c.id)).pipe(
