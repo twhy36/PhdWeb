@@ -22,7 +22,9 @@ export class SalesNoteComponent extends ComponentCanNavAway implements OnInit
 	@Input() position: number;
 	@Input() editing: any;
 	@Input() note: Note;
-	@Input() canEdit: boolean;
+	@Input() cancelOrVoid: boolean;
+	@Input() canEditInternalNotes: boolean;
+	@Input() canEditExternalNotes: boolean;
 	@Input() inChangeOrder: boolean;
 	default: Note;
 
@@ -55,14 +57,6 @@ export class SalesNoteComponent extends ComponentCanNavAway implements OnInit
 
 	get externalCategoryOptions() {
 		return this.subCategoryOptions.filter(cat => !cat.internal);
-	}
-
-	get canAddPublicNote() {
-		return this.agreement.status === 'Pending' || this.inChangeOrder;
-	}
-
-	get canAddInternalNote() {
-		return this.agreement.status === 'Pending' || (this.agreement.status !== 'Pending' && !this.inChangeOrder);
 	}
 
 	get subCategoryName() {

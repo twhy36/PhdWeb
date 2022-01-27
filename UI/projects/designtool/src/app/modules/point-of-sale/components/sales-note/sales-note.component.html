@@ -3,7 +3,7 @@
 	<div class="phd-card-header">
 		<span>Notes</span>
 
-		<a (click)="!deleting && delete()" class="phd-delete-button" [class.phd-deleting]="deleting" *ngIf="canEdit && ((note.noteSubCategoryId !== 10 && canAddInternalNote) || (note.noteSubCategoryId === 10 && canAddPublicNote))">
+		<a (click)="!deleting && delete()" class="phd-delete-button" [class.phd-deleting]="deleting" *ngIf="!cancelOrVoid && ((note.noteSubCategoryId !== 10 && canEditInternalNotes) || (note.noteSubCategoryId === 10 && canEditExternalNotes))">
 			<span>
 				<i class="fas fa-spinner"></i>
 			</span>
@@ -35,7 +35,7 @@
 	</div>
 
 	<div class="phd-card-footer">
-		<a class="btn m-0 p-0" (click)="edit()" *ngIf="canEdit && ((note.noteSubCategoryId !== 10 && canAddInternalNote) || (note.noteSubCategoryId === 10 && canAddPublicNote))">Edit</a>
+		<a class="btn m-0 p-0" (click)="edit()" *ngIf="!cancelOrVoid && ((note.noteSubCategoryId !== 10 && canEditInternalNotes) || (note.noteSubCategoryId === 10 && canEditExternalNotes))">Edit</a>
 	</div>
 </div>
 
@@ -45,10 +45,10 @@
 		<label for="subCategory">Category *</label>
 		<select class="form-control" formControlName="subCategory" id="subCategory" name="subCategory" (change)="selectChange()">
 			<optgroup label="Internal">
-				<option *ngFor="let item of internalCategoryOptions"  [disabled]="!canAddInternalNote"  [ngValue]="item.id">{{ item.value }}</option>
+				<option *ngFor="let item of internalCategoryOptions"  [disabled]="!canEditInternalNotes"  [ngValue]="item.id">{{ item.value }}</option>
 			</optgroup>
 			<optgroup label="Public">
-				<option *ngFor="let item of externalCategoryOptions" [disabled]="!canAddPublicNote" [ngValue]="item.id">{{ item.value }}</option>
+				<option *ngFor="let item of externalCategoryOptions" [disabled]="!canEditExternalNotes" [ngValue]="item.id">{{ item.value }}</option>
 			</optgroup>
 		</select>
 	</div>
