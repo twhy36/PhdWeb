@@ -117,6 +117,24 @@ export class OptionChoiceRuleComponent implements OnInit, OnDestroy
 		return optChoiceList;
 	}
 
+	getText(choices: Array<PhdApiDto.IOptionChoiceRuleChoice>): string
+	{
+		let text = '';
+
+		const mustHave = choices[0].mustHave;
+
+		if (mustHave)
+		{
+			text = `${choices.length > 1 ? 'One of these choices' : 'This choice'} must be selected:`;
+		}
+		else
+		{
+			text = (choices.length > 1) ? 'NONE of these choices may be selected:' : 'This choice may NOT be selected:';
+		}
+
+		return text;
+	}
+
 	onAddItemClick(item: DTChoice)
 	{
 		this.addItem(item);

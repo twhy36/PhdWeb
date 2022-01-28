@@ -38,7 +38,6 @@ export const environment: IEnvironment = {
 	pdfViewerBaseUrl: 'assets/pdfjs-dist/web/viewer.html',
 	brandMap: {
 		pulte: 'phd.staging.pulte.com',
-		delwebb: 'phd.staging.delwebb.com',
-		americanWest: 'phd.staging.americanwesthomes.com'
+		delwebb: 'phd.staging.delwebb.com'
 	}
 };

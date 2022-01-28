@@ -100,7 +100,6 @@ export class OptionSidePanelComponent implements OnInit, OnChanges
 		}
 
 		this.optionRuleSelectedChoices = [];
-
 		this.resetImageSort();
 
 		this.currentTab = $event.activeId;
@@ -109,9 +108,7 @@ export class OptionSidePanelComponent implements OnInit, OnChanges
 	get sidePanelHasChanges(): boolean
 	{
 		const b = this.optionRuleSelectedChoices.length > 0;
-
 		this.hasChanges.emit(b);
-
 		return b;
 	}
 
@@ -132,12 +129,6 @@ export class OptionSidePanelComponent implements OnInit, OnChanges
 		const description = this.option.optionDescription;
 
 		return description || 'No Description';
-	}
-
-	get showAlternateMappingBtn(): boolean
-	{
-		// must have a rule with a choice rule, and max order equal to 1 along with the other fun stuff to display button on the choice rules tab.
-		return this.optionRule.id !== 0 && this.optionRule.choices.length > 0 && this.option.maxOrderQuantity === 1 && !this.isReadOnly && this.canEdit && this.currentTab === 'rules';
 	}
 
 	getRules()
@@ -619,11 +610,6 @@ export class OptionSidePanelComponent implements OnInit, OnChanges
 
 				this.setImageInfo();
 			});
-	}
-
-	addAlternateMapping()
-	{
-
 	}
 
 	onSaveAttributeReassignment(params: { attributeReassignment: PhdApiDto.IAttributeReassignmentDto, callback: Function })

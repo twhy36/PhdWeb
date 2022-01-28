@@ -1,22 +1,18 @@
 {
 	"images": {
-		"logo": "assets/del-webb/logos/DelWebb_RGB.jpg",
-		"white_logo": "assets/del-webb/logos/DelWebb_White.png"
+		"logo": "assets/DelWebb_RGB.jpg",
+		"white_logo": "assets/DelWebb_White.png"
 	},
 	"styles": {
 		"font": "Museo Sans",
 		"primary-ribbon-background-color": "#40b9da",
 		"secondary-ribbon-background-color": "#0a5165",
 		"primary-button-color": "#f89d32",
-		"home-page-community-label": "#5b6470",
-		"nav-bar-text-color": "white",
 		"home-text-color": "#000000",
 		"primary-icon-color": "#0a5165",
 		"secondary-icon-color": "#0a5165",
-		"action-icon-color": "#044465",
 		"selected-border-color": "#0a5165",
 		"link-color": "#0a5165",
-		"popup-ribbon-background-color": "#40b9da",
 		"button-border-radius": "35px",
 		"logo-margin-top": "8px"
 	}
