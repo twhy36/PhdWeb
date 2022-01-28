@@ -520,11 +520,16 @@ export class CommonEffects
 								const favoriteChoices = !!favorites ? _.flatMap(favorites, x => x.myFavoritesChoice) : [];
 								const getFavoritesChoiceCatalogIds = !!favoriteChoices?.length ? this.treeService.getChoiceCatalogIds([...favoriteChoices]) : of([]);
 
+								const getTree = treeVersionId ? this.treeService.getTree(treeVersionId) : of(null);
+								const getRules = treeVersionId ? this.treeService.getRules(treeVersionId, true) : of(null);
+								const getPlanOptions = treeVersionId ? this.optionService.getPlanOptions(result.selectedPlanId, null, true) : of([]);
+								const getOptionImages = treeVersionId ? this.treeService.getOptionImages(treeVersionId, [], null, true) : of(null);
+			
 								return combineLatest([
-									this.treeService.getTree(treeVersionId),
-									this.treeService.getRules(treeVersionId, true),
-									this.optionService.getPlanOptions(result.selectedPlanId, null, true),
-									this.treeService.getOptionImages(treeVersionId, [], null, true),
+									getTree,
+									getRules,
+									getPlanOptions,
+									getOptionImages,
 									this.planService.getWebPlanMappingByPlanId(result.selectedPlanId),
 									combineLatest([
 										this.lotService.getLot(result.selectedLotId),
@@ -576,7 +581,10 @@ export class CommonEffects
 										result.salesAgreement && ['OutforSignature', 'Signed', 'Approved', 'Closed'].indexOf(result.salesAgreement.status) !== -1),
 									map(data =>
 									{
-										setTreePointsPastCutOff(data.tree, data.job);
+										if (data.tree)
+										{
+											setTreePointsPastCutOff(data.tree, data.job);
+										}
 
 										return data;
 									})
@@ -684,9 +692,16 @@ export class CommonEffects
 					return { ...curr, sagLoaded: false, plansLoaded: false, lotsLoaded: false, salesAgreement: null, currentChangeOrder: null };
 				}
 
-				if (action instanceof SalesAgreementLoaded)
-				{
-					return { ...curr, sagLoaded: true, salesAgreement: action.salesAgreement, currentChangeOrder: action.changeOrder };
+				if (action instanceof SalesAgreementLoaded) {
+					// PHD Lite
+					// The filter for PHD Lite will be removed once the saving pending JIO functionality is implemented.
+					return { 
+						...curr, 
+						sagLoaded: true, 
+						salesAgreement: action.salesAgreement, 
+						currentChangeOrder: action.changeOrder, 
+						isPhdLite: !action.tree 
+					};
 				}
 				else if (action instanceof PlansLoaded)
 				{
@@ -701,7 +716,7 @@ export class CommonEffects
 					return curr; //should never get here
 				}
 			}, { lotsLoaded: false, plansLoaded: false, sagLoaded: false, salesAgreement: null, currentChangeOrder: null }),
-			filter(res => res.lotsLoaded && res.plansLoaded && res.sagLoaded),
+			filter(res => res.lotsLoaded && res.plansLoaded && res.sagLoaded && !res.isPhdLite),
 			distinct(res => res.salesAgreement.id),
 			switchMap(res =>
 			{

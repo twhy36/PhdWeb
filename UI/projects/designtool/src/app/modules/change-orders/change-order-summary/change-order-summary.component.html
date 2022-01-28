@@ -4,7 +4,7 @@
 	</div>
 
 	<div class="phd-status-table">
-		<div *ngIf="isDesignPreviewEnabled" class="phd-contracted-options">
+		<div *ngIf="isDesignPreviewEnabled && !(isPhdLite$ | async)" class="phd-contracted-options">
 			<strong>
 				<input class="phd-clickable" type="checkbox" (change)="toggleDesignComplete()" [ngModel]="isDesignComplete"/>
 				DESIGN COMPLETE

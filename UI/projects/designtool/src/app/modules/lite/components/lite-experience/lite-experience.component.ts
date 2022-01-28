@@ -6,12 +6,15 @@ import { withLatestFrom, filter } from 'rxjs/operators';
 import { Store, select } from '@ngrx/store';
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromLite from '../../../ngrx-store/lite/reducer';
+import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 import * as NavActions from '../../../ngrx-store/nav/actions';
 
-import { UnsubscribeOnDestroy, PriceBreakdown, PointStatus } from 'phd-common';
+import { UnsubscribeOnDestroy, PriceBreakdown, PointStatus, LotExt } from 'phd-common';
 
 import { ActionBarCallType } from '../../../shared/classes/constants.class';
 import { LiteSubMenu, LitePlanOption, ScenarioOptionColor } from '../../../shared/models/lite.model';
+import { LiteService } from '../../../core/services/lite.service';
+import { LotService } from '../../../core/services/lot.service';
 
 @Component({
 	selector: 'lite-experience',
@@ -28,8 +31,17 @@ export class LiteExperienceComponent extends UnsubscribeOnDestroy implements OnI
 
 	primaryAction: string = 'Generate Agreement';
 	showStatusIndicator: boolean;
+	salesAgreementId: number;
+	buildMode: string;
+	lotStatus: string;
+	selectedLot: LotExt;
 
-	constructor(private store: Store<fromRoot.State>, private router: Router)
+	constructor(
+		private store: Store<fromRoot.State>, 
+		private router: Router, 
+		private liteService: LiteService,
+		private lotService: LotService
+	)
 	{
 		super();
 	}
@@ -80,6 +92,40 @@ export class LiteExperienceComponent extends UnsubscribeOnDestroy implements OnI
 		{
 			this.setExteriorItemsStatus(elevation, colorScheme);
 		});
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromScenario.buildMode),
+			withLatestFrom(this.store.pipe(select(state => state.salesAgreement)))
+		).subscribe(([build, salesAgreement]) =>
+		{
+			if (salesAgreement.id)
+			{
+				this.salesAgreementId = salesAgreement.id;
+				this.primaryAction = 'Agreement Info';
+			}
+			else if (build === 'spec')
+			{
+				this.primaryAction = 'Create Spec';
+			}
+			else if (build === 'model')
+			{
+				this.primaryAction = 'Create Model';
+			}
+			
+			this.buildMode = build;
+		});
+		
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(state => state.lot)
+		).subscribe(lot => {
+			if (lot.selectedLot)
+			{
+				this.selectedLot = lot.selectedLot;
+				this.lotStatus = lot.selectedLot.lotStatusDescription;
+			}
+		});		
 	}
 
 	setExteriorItemsStatus(elevation: LitePlanOption, colorScheme: ScenarioOptionColor)
@@ -112,7 +158,37 @@ export class LiteExperienceComponent extends UnsubscribeOnDestroy implements OnI
 		switch ($event.actionBarCallType)
 		{
 			case (ActionBarCallType.PRIMARY_CALL_TO_ACTION):
+				if (this.salesAgreementId)
+				{
+					this.router.navigateByUrl(`/point-of-sale/people/${this.salesAgreementId}`);
+				}
+				else
+				{
+					this.onBuildIt();
+				}
+
 				break;
 		}
 	}
+
+	onBuildIt()
+	{
+		this.lotService.hasMonotonyConflict().subscribe(mc =>
+		{
+			if (mc.monotonyConflict)
+			{
+				alert('Danger! Monotony Issues!  Please fix!')
+			}
+			else
+			{
+				this.liteService.onGenerateSalesAgreement(
+					this.buildMode, 
+					this.lotStatus,
+					this.selectedLot.id,
+					this.salesAgreementId
+				);
+			}
+		});
+	}
+
 }

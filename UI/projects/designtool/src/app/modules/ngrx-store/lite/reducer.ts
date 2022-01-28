@@ -1,7 +1,7 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store';
 import * as _ from "lodash";
 
-import { LitePlanOption, Elevation, ScenarioOption, ScenarioOptionColor, IOptionCategory, IOptionSubCategory } from '../../shared/models/lite.model';
+import { LitePlanOption, Elevation, ScenarioOption, ScenarioOptionColor, IOptionCategory } from '../../shared/models/lite.model';
 import { LiteActions, LiteActionTypes } from './actions';
 
 export interface State

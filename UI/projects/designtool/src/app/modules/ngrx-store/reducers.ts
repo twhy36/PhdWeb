@@ -711,16 +711,20 @@ export const priceBreakdown = createSelector(
 				const baseHouseCategory = lite.categories.find(x => x.name.toLowerCase() === 'base house');
 				let selections = 0;
 
-				lite.scenarioOptions?.forEach(scenarioOption => {
-					const planOption = lite.options?.find(option => 
-						option.id === scenarioOption.edhPlanOptionId
-						&& option.optionCategoryId !== baseHouseCategory.id);
+				if (lite.scenarioOptions && baseHouseCategory)
+				{
+					lite.scenarioOptions.forEach(scenarioOption => {
+						const planOption = lite.options?.find(option => 
+							option.id === scenarioOption.edhPlanOptionId
+							&& option.optionCategoryId !== baseHouseCategory.id);
 
-					if (planOption)
-					{
-						selections += planOption.listPrice * scenarioOption.planOptionQuantity;
-					}
-				});
+						if (planOption)
+						{
+							selections += planOption.listPrice * scenarioOption.planOptionQuantity;
+						}
+					});					
+				}
+
 				breakdown.selections = selections;
 			}
 

@@ -1,5 +1,4 @@
 import { Component, OnInit, ChangeDetectorRef, ViewChildren, QueryList } from '@angular/core';
-import { Router } from '@angular/router';
 import { Observable, combineLatest } from 'rxjs';
 import { withLatestFrom, map } from 'rxjs/operators';
 import { Store, select } from '@ngrx/store';
@@ -16,6 +15,8 @@ import * as SummaryActions from '../../../ngrx-store/summary/actions';
 import { selectSelectedLot } from '../../../ngrx-store/lot/reducer';
 
 import { ChangeOrderService } from '../../../core/services/change-order.service';
+import { LotService } from '../../../core/services/lot.service';
+import { LiteService } from '../../../core/services/lite.service';
 import { ModalOverrideSaveComponent } from '../../../core/components/modal-override-save/modal-override-save.component';
 
 import { SummaryHeader } from '../../../shared/components/summary-header/summary-header.component';
@@ -49,12 +50,14 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 	primaryAction: string = 'Generate Agreement';
 	salesAgreementId: number;
 	isChangingOrder$: Observable<boolean>;
+	buildMode: string;
 
 	constructor(private store: Store<fromRoot.State>, 
 		private cd: ChangeDetectorRef,
 		private modalService: ModalService,
-		private router: Router,
-		private changeOrderService: ChangeOrderService)
+		private changeOrderService: ChangeOrderService,
+		private lotService: LotService,
+		private liteService: LiteService)
 	{
 		super();
 	}
@@ -153,7 +156,7 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 		{
 			// Build the data list for UI display
 			this.buildOptionCategories(lite, selectedElevation);
-		});		
+		});
 
 		this.isLiteComplete$ = this.store.pipe(
 			select(fromRoot.isLiteComplete)
@@ -178,6 +181,8 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 			{
 				this.primaryAction = 'Create Model';
 			}
+
+			this.buildMode = build;
 		});		
 
 		this.isChangingOrder$ = combineLatest([
@@ -217,8 +222,16 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 		);		
 	}
 
-	private buildOptionCategories(lite: fromLite.State, selectedElevation: LitePlanOption) 
+	private buildOptionCategories(lite: fromLite.State, selectedElevation: LitePlanOption)
 	{
+		const baseHouseOptions = this.liteService.getSelectedBaseHouseOptions(
+			lite.scenarioOptions, 
+			lite.options, 
+			lite.categories
+		);
+
+		const selectedBaseHouseOptions: LitePlanOption[] = baseHouseOptions.selectedBaseHouseOptions;
+
 		const allSubCategories = _.flatMap(lite.categories, c => c.optionSubCategories) || [];
 		this.optionCategories = [];
 
@@ -235,17 +248,14 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 		});
 
 		// Add selected base house options
-		const baseHouseCategory = lite.categories.find(x => x.name.toLowerCase() === "base house");
-		const selctedBaseHouseOptions = lite.options.filter(option => 
-			option.optionCategoryId === baseHouseCategory.id
-			&& lite.scenarioOptions?.find(opt => opt.edhPlanOptionId === option.id));
-
-		if (selctedBaseHouseOptions?.length)
+		if (selectedBaseHouseOptions?.length)
 		{
+			const baseHouseCategory = baseHouseOptions.baseHouseCategory;
+
 			this.optionCategories.push({
 				categoryName: baseHouseCategory.name,
 				optionSubCategories: this.buildOptionSubCategories(
-					selctedBaseHouseOptions,
+					selectedBaseHouseOptions,
 					allSubCategories,
 					lite.scenarioOptions
 				)
@@ -256,7 +266,7 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 		const selectedOptions = lite.options.filter(option => 
 			lite.scenarioOptions?.find(opt => opt.edhPlanOptionId === option.id)
 			&& (!selectedElevation || selectedElevation.id !== option.id)
-			&& !selctedBaseHouseOptions?.find(opt => opt.id === option.id));
+			&& !selectedBaseHouseOptions?.find(opt => opt.id === option.id));
 		const optionCategoryGroups = _.groupBy(selectedOptions, option => option.optionCategoryId);
 		let sortedOptionCategories = []
 
@@ -402,11 +412,23 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 		return subtotal;
 	}
 
-	onCallToAction()
+	onBuildIt()
 	{
-		if (this.salesAgreementId)
+		this.lotService.hasMonotonyConflict().subscribe(mc =>
 		{
-			this.router.navigateByUrl(`/point-of-sale/people/${this.salesAgreementId}`);
-		}
-	}
+			if (mc.monotonyConflict)
+			{
+				alert('Danger! Monotony Issues!  Please fix!')
+			}
+			else
+			{
+				this.liteService.onGenerateSalesAgreement(
+					this.buildMode, 
+					this.summaryHeader.lot.lotStatusDescription,
+					this.summaryHeader.lot.id,
+					this.salesAgreementId
+				);
+			}
+		});
+	}	
 }

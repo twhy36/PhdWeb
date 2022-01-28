@@ -1,24 +1,38 @@
 import { Injectable } from '@angular/core';
+import { Router } from "@angular/router";
 import { HttpClient } from '@angular/common/http';
 import { Observable, throwError as _throw } from 'rxjs';
+import { map, catchError, switchMap } from 'rxjs/operators';
 
 import * as _ from 'lodash';
 
 import { environment } from '../../../../environments/environment';
-import { withSpinner, getNewGuid, createBatchGet, createBatchHeaders, createBatchBody } from 'phd-common';
+import 
+{ 
+	withSpinner, getNewGuid, createBatchGet, createBatchHeaders, createBatchBody, 
+	SalesAgreement, ISalesAgreement, ModalService, Job, ChangeOrderGroup, JobPlanOptionAttribute,
+	ChangeOrderPlanOptionAttribute, JobPlanOption, ChangeOrderPlanOption
+} from 'phd-common';
 
-import { map, catchError } from 'rxjs/operators';
 import { 
 	LitePlanOption, ScenarioOption, ColorItem, Color, ScenarioOptionColorDto, IOptionSubCategory, OptionRelation,
-	OptionRelationEnum
+	OptionRelationEnum, ScenarioOptionColor, Elevation, IOptionCategory
 } from '../../shared/models/lite.model';
+import { LotService } from './lot.service';
+import { ChangeOrderService } from './change-order.service';
 
 @Injectable()
 export class LiteService
 {
 	private _ds: string = encodeURIComponent("$");
 
-    constructor(private _http: HttpClient) { }
+    constructor(
+		private _http: HttpClient, 
+		private router: Router,
+		private lotService: LotService,
+		private changeOrderService: ChangeOrderService,
+		private modalService: ModalService
+	) { }
 
 	getLitePlanOptions(planId: number, optionIds?: Array<string>, skipSpinner?: boolean): Observable<LitePlanOption[]>
 	{
@@ -341,5 +355,259 @@ export class LiteService
 					return _throw(error);
 				})
 		);
+	}
+
+	createSalesAgreementForLiteScenario(
+		scenarioOptions: ScenarioOption[], 
+		options: LitePlanOption[],
+		categories: IOptionCategory[],
+		scenarioId: number, 
+		salePrice: number
+	): Observable<SalesAgreement>
+	{
+		const action = `CreateSalesAgreementForLiteScenario`;
+		const url = `${environment.apiUrl}${action}`;
+
+		const elevations = options.filter(option => option.optionSubCategoryId === Elevation.Detached || option.optionSubCategoryId === Elevation.Attached);
+		const selectedElevation = elevations.find(elev => scenarioOptions?.find(opt => opt.edhPlanOptionId === elev.id && opt.planOptionQuantity > 0));
+		const baseHouseOptions = this.getSelectedBaseHouseOptions(scenarioOptions, options, categories);
+		
+		const data = {
+			scenarioId: scenarioId,
+			options: this.mapScenarioOptions(
+						scenarioOptions, 
+						options, 
+						selectedElevation, 
+						baseHouseOptions.selectedBaseHouseOptions),
+			salePrice: salePrice
+		};
+
+		return this._http.post<ISalesAgreement>(url, data).pipe(
+			map(dto => new SalesAgreement(dto)),
+			catchError(error =>
+			{
+				console.error(error);
+
+				return _throw(error);
+			})
+		);
+	}
+
+	getSelectedBaseHouseOptions(scenarioOptions: ScenarioOption[], options: LitePlanOption[], categories: IOptionCategory[])
+	{
+		const baseHouseCategory = categories.find(x => x.name.toLowerCase() === "base house");
+		const selectedBaseHouseOptions = options.filter(option => 
+			option.optionCategoryId === baseHouseCategory.id
+			&& scenarioOptions?.find(opt => opt.edhPlanOptionId === option.id));
+	
+		return { selectedBaseHouseOptions: selectedBaseHouseOptions, baseHouseCategory: baseHouseCategory };
+	}
+
+	private mapScenarioOptions(
+		scenarioOptions: ScenarioOption[], 
+		options: LitePlanOption[], 
+		selectedElevation: LitePlanOption,
+		selectedBaseHouseOptions: LitePlanOption[]
+	) : Array<any>
+	{
+		return scenarioOptions.reduce((optionList, scenarioOption) => 
+		{
+			const planOption = options.find(opt => opt.id === scenarioOption.edhPlanOptionId);
+
+			if (planOption)
+			{
+				optionList.push({
+					planOptionId: scenarioOption.edhPlanOptionId,
+					price: planOption.listPrice,
+					quantity: scenarioOption.planOptionQuantity,
+					optionSalesName: planOption.name,
+					optionDescription: planOption.description,
+					jobOptionTypeName: this.mapJobOptionType(planOption, selectedElevation, selectedBaseHouseOptions),
+					colors: this.mapOptionColors(planOption, scenarioOption.scenarioOptionColors),
+					action: 'Add'
+				});
+			}
+			
+			return optionList;
+		}, []);
+	}
+
+	private mapJobOptionType(
+		option: LitePlanOption, 
+		selectedElevation: LitePlanOption, 
+		selectedBaseHouseOptions: LitePlanOption[]
+	) : string
+	{
+		let optionType = 'Standard';
+
+		if (option.id === selectedElevation.id)
+		{
+			optionType = 'Elevation';
+		}
+
+		if (!!selectedBaseHouseOptions.find(opt => opt.id === option.id))
+		{
+			optionType = 'BaseHouse';
+		}
+
+		return optionType;
+	}
+
+	private mapOptionColors(option: LitePlanOption, optionColors: ScenarioOptionColor[]) : Array<any>
+	{
+		return optionColors.reduce((colorList, optionColor) => 
+		{
+			const colorItem = option.colorItems?.find(item => item.colorItemId === optionColor.colorItemId);
+			const color = colorItem?.color?.find(c => c.colorId === optionColor.colorId);
+
+			if (colorItem && color)
+			{
+				colorList.push({
+					colorName: color.name,
+					colorItemName: colorItem.name,
+					sku: color.sku,
+					action: 'Add'					
+				});
+			}
+			
+			return colorList;
+		}, []);
+	}
+
+	onGenerateSalesAgreement(buildMode: string, lotStatus: string, selectedLotId: number, salesAgreementId: number) 
+	{
+		if (buildMode === 'spec' || buildMode === 'model')
+		{
+			if (buildMode === 'model' && lotStatus === 'Available')
+			{
+				const title = 'Create Model';
+				const body = 'The Lot Status for this model will be set to UNAVAILABLE.';
+				const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
+
+				this.showConfirmModal(body, title, primaryButton).subscribe(result =>
+				{
+					this.lotService.buildScenario();
+				});
+			} 
+			else if (buildMode === 'model' && lotStatus === 'PendingRelease')
+			{
+				this.lotService.getLotReleaseDate(selectedLotId).pipe(
+					switchMap((releaseDate) =>
+					{
+						const title = 'Create Model';
+						const body = 'The selected lot is scheduled to be released on ' + releaseDate + '. <br><br> If you continue, the lot will be removed from the release and the Lot Status will be set to UNAVAILABLE.';
+
+						const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
+						const secondaryButton = { text: 'Cancel', result: false, cssClass: 'btn-secondary' };
+
+						return this.showConfirmModal(body, title, primaryButton, secondaryButton);
+					})).subscribe(result =>
+					{
+						if (result)
+						{
+							this.lotService.buildScenario();
+						}
+					});
+			}
+			else
+			{
+				this.lotService.buildScenario();
+			}
+		}
+		else if (salesAgreementId)
+		{
+			this.router.navigateByUrl(`/point-of-sale/people/${salesAgreementId}`);
+		}
+		else
+		{
+			const title = 'Generate Home Purchase Agreement';
+			const body = 'You are about to generate an Agreement for your configuration. Do you wish to continue?';
+			
+			const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
+			const secondaryButton = { text: 'Cancel', result: false, cssClass: 'btn-secondary' };
+			
+			this.showConfirmModal(body, title, primaryButton, secondaryButton).subscribe(result =>
+			{
+				if (result)
+				{
+					this.lotService.buildScenario();
+				}
+			});
+		}
+	}
+	
+	private showConfirmModal(body: string, title: string, primaryButton: any = null, secondaryButton: any = null): Observable<boolean>
+	{
+		const buttons = [];
+
+		if (primaryButton)
+		{
+			buttons.push(primaryButton);
+		}
+
+		if (secondaryButton)
+		{
+			buttons.push(secondaryButton);
+		}
+
+		return this.modalService.showModal({
+			buttons: buttons,
+			content: body,
+			header: title,
+			type: 'normal'
+		});
+	}
+	
+	getSelectedOptions(options: LitePlanOption[], job: Job, changeOrder?: ChangeOrderGroup ): Array<ScenarioOption>
+	{
+		let planOptions: (JobPlanOption | ChangeOrderPlanOption)[] = [
+			...job.jobPlanOptions, 
+			...(changeOrder ? this.changeOrderService.getJobChangeOrderPlanOptions(changeOrder) : [])
+		];
+
+		return planOptions.map(planOption => {
+			const option = options.find(opt => opt.id === planOption.planOptionId);
+
+			return {
+				scenarioOptionId: 0,
+				scenarioId: 0,
+				edhPlanOptionId: planOption.planOptionId,
+				planOptionQuantity: planOption instanceof JobPlanOption ? planOption.optionQty : planOption.qty,
+				scenarioOptionColors: this.mapSelectedOptionColors(
+					option, 
+					planOption instanceof JobPlanOption ? planOption.jobPlanOptionAttributes : planOption.jobChangeOrderPlanOptionAttributes
+				)
+			};
+		});	
+	}
+
+	mapSelectedOptionColors(option: LitePlanOption, optionAttributes: (JobPlanOptionAttribute | ChangeOrderPlanOptionAttribute)[]): Array<ScenarioOptionColor>
+	{
+		return option && optionAttributes 
+			? optionAttributes.reduce((colorList, att) => 
+				{
+					const attributeGroupLabel = att instanceof JobPlanOptionAttribute
+						? att.attributeGroupLabel
+						: att['attributeGroupLabel'];
+					const attributeName = att instanceof JobPlanOptionAttribute
+						? att.attributeName
+						: att['attributeName'];					
+
+					const colorItem = option.colorItems?.find(item => item.name === attributeGroupLabel);
+					const color = colorItem?.color?.find(c => c.name === attributeName);
+		
+					if (colorItem && color)
+					{
+						colorList.push({
+							scenarioOptionColorId: 0,
+							scenarioOptionId: 0,
+							colorItemId: colorItem.colorItemId,
+							colorId: color.colorId
+						});
+					}
+					
+					return colorList;
+				}, []) 
+			: [];
 	}
 }
