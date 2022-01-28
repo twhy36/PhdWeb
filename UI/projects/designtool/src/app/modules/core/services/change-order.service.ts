@@ -471,9 +471,9 @@ export class ChangeOrderService
 	getJobChangeOrderInputData(tree: Tree, changeOrder: ChangeOrderGroup, job: Job, handing: ChangeOrderHanding, salesAgreementId: number, baseHouseOption: PlanOption | JobPlanOption, optionRules: OptionRule[], isJio: boolean = false, planPrice: number = 0): any
 	{
 		const origChoices = isJio ? [] : job.jobChoices;
-		const currentChoices = _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices))) || [];
-		const elevationDP = _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points)).find(dp => dp.dPointTypeId === 1);
-		const colorSchemeDP = _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points)).find(dp => dp.dPointTypeId === 2);
+		const currentChoices = tree ? _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices))) : [];
+		const elevationDP = tree ? _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points)).find(dp => dp.dPointTypeId === 1) : null;
+		const colorSchemeDP = tree ? _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points)).find(dp => dp.dPointTypeId === 2) : null;
 		const origHanding = isJio ? '' : job.handing;
 
 		return {

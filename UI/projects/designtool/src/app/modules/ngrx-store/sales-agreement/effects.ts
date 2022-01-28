@@ -40,6 +40,9 @@ import { tryCatch } from '../error.action';
 import { SalesAgreementCancelled, LoadSpec } from '../actions';
 import { TemplatesLoaded, CreateEnvelope } from '../contract/actions';
 
+// Phd Lite
+import { LiteService } from '../../core/services/lite.service';
+
 @Injectable()
 export class SalesAgreementEffects
 {
@@ -60,15 +63,25 @@ export class SalesAgreementEffects
 				salePrice = priceBreakdown.salesProgram > 0 ? salePrice + priceBreakdown.salesProgram : salePrice;
 				salePrice = priceBreakdown.priceAdjustments > 0 ? salePrice + priceBreakdown.priceAdjustments : salePrice;
 
-				return this.salesAgreementService.createSalesAgreementForScenario(
+				const createSalesAgreementForScenario = store.lite.isPhdLite
+					? this.liteService.createSalesAgreementForLiteScenario(
+						store.lite.scenarioOptions,
+						store.lite.options,
+						store.lite.categories,
+						store.scenario.scenario.scenarioId, 
+						salePrice
+					)
+					: this.salesAgreementService.createSalesAgreementForScenario(
 						store.scenario.scenario, 
 						store.scenario.tree, 
 						store.scenario.options.find(o => o.isBaseHouse), 
 						salePrice,
 						store.scenario.rules.optionRules
-					).pipe(
+					);
+
+				return createSalesAgreementForScenario.pipe(
 					combineLatest(//fetch contract templates
-						this.contractService.getTemplates(store.org.salesCommunity.market.id, store.scenario.tree.financialCommunityId).pipe(
+						this.contractService.getTemplates(store.org.salesCommunity.market.id, store.scenario.scenario.financialCommunityId).pipe(
 							map(templates => [...templates, { displayName: "JIO", displayOrder: 2, documentName: "JIO", templateId: 0, templateTypeId: 4, marketId: 0, version: 0 }]),
 						)),
 					tap(([sag]) => this.router.navigateByUrl('/point-of-sale/people/' + sag.id)),
@@ -959,6 +972,7 @@ export class SalesAgreementEffects
 		private changeOrderService: ChangeOrderService,
 		private contractService: ContractService,
 		private router: Router,
-		private spinnerService: SpinnerService
+		private spinnerService: SpinnerService,
+		private liteService: LiteService
 	) { }
 }

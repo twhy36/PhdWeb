@@ -172,183 +172,148 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 		source.pipe(
 			switchMap(data =>
 			{
-				let currentSubgroups = _.flatMap(data.tree.treeVersion.groups, g => g.subGroups);
-				let currentPoints = _.flatMap(data.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points));
-				let currentChoices = _.flatMap(data.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)));
-
-				if (choices)
+				if (data.tree && data.tree.treeVersion)
 				{
-					let missingChoices = [];
+					let currentSubgroups = _.flatMap(data.tree.treeVersion.groups, g => g.subGroups);
+					let currentPoints = _.flatMap(data.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points));
+					let currentChoices = _.flatMap(data.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)));
 
-					//find previosly selected choices which are no longer in the tree
-					choices.filter(isLocked(changeOrder)).forEach(choice =>
+					if (choices)
 					{
-						let existingChoice = currentChoices.find(c => c.divChoiceCatalogId === choice.divChoiceCatalogId);
+						let missingChoices = [];
 
-						if (!existingChoice)
+						//find previosly selected choices which are no longer in the tree
+						choices.filter(isLocked(changeOrder)).forEach(choice =>
 						{
-							missingChoices.push(choice.dpChoiceId);
-						}
-					});
+							let existingChoice = currentChoices.find(c => c.divChoiceCatalogId === choice.divChoiceCatalogId);
 
-					if (missingChoices.length)
-					{
-						return treeService.getChoiceDetails(missingChoices).pipe(map(response =>
-						{
-							choices.forEach(choice =>
+							if (!existingChoice)
 							{
-								let ch = response.find(r => r.dpChoiceID === choice.dpChoiceId);
+								missingChoices.push(choice.dpChoiceId);
+							}
+						});
 
-								if (ch)
+						if (missingChoices.length)
+						{
+							return treeService.getChoiceDetails(missingChoices).pipe(map(response =>
+							{
+								choices.forEach(choice =>
 								{
-									let point = currentPoints.find(p => p.divPointCatalogId === ch.dPoint.divDPointCatalogID);
+									let ch = response.find(r => r.dpChoiceID === choice.dpChoiceId);
 
-									//get a list of all the original mapped options for the choice
-									let opt = getOptions(choice, options).map(option =>
+									if (ch)
 									{
-										if (option)
+										let point = currentPoints.find(p => p.divPointCatalogId === ch.dPoint.divDPointCatalogID);
+
+										//get a list of all the original mapped options for the choice
+										let opt = getOptions(choice, options).map(option =>
 										{
-											let qty = option instanceof JobPlanOption ? option.optionQty : option.qty;
-											let attributeGroups = option instanceof JobPlanOption ? option.jobPlanOptionAttributes.map(att => att.attributeGroupCommunityId) : option.jobChangeOrderPlanOptionAttributes.map(att => att.attributeGroupCommunityId);
-											let locationGroups = option instanceof JobPlanOption ? option.jobPlanOptionLocations.map(loc => loc.locationGroupCommunityId) : option.jobChangeOrderPlanOptionLocations.map(loc => loc.locationGroupCommunityId);
-
-											let existingOption = data.options.find(o => o.financialOptionIntegrationKey === option.integrationKey);
-
-											if (existingOption)
+											if (option)
 											{
-												attributeGroups.push(...existingOption.attributeGroups.filter(ag => !attributeGroups.some(ag2 => ag2 === ag)));
-											}
+												let qty = option instanceof JobPlanOption ? option.optionQty : option.qty;
+												let attributeGroups = option instanceof JobPlanOption ? option.jobPlanOptionAttributes.map(att => att.attributeGroupCommunityId) : option.jobChangeOrderPlanOptionAttributes.map(att => att.attributeGroupCommunityId);
+												let locationGroups = option instanceof JobPlanOption ? option.jobPlanOptionLocations.map(loc => loc.locationGroupCommunityId) : option.jobChangeOrderPlanOptionLocations.map(loc => loc.locationGroupCommunityId);
 
-											return <any>{
-												attributeGroups: attributeGroups,
-												locationGroups: locationGroups,
-												calculatedPrice: option.listPrice * qty,
-												listPrice: option.listPrice,
-												id: option.planOptionId,
-												isActive: existingOption?.isActive || false,
-												maxOrderQuantity: qty,
-												name: option.optionSalesName,
-												description: option.optionDescription,
-												financialOptionIntegrationKey: option.integrationKey
-											};
-										}
-										else
-										{
-											return null;
-										}
-									}).filter(o => !!o);
+												let existingOption = data.options.find(o => o.financialOptionIntegrationKey === option.integrationKey);
 
-									let maxQuantity = 1;
-									let choiceMaxQuantity = ch.choiceMaxQuantity as number;
+												if (existingOption)
+												{
+													attributeGroups.push(...existingOption.attributeGroups.filter(ag => !attributeGroups.some(ag2 => ag2 === ag)));
+												}
 
-									if (choiceMaxQuantity != null && opt.length > 0)
-									{
-										//If there is an option tied to a default choice and Choice Admin set - up a max quantity in the slide out panel, then the minimum quantity of the two will be used.
-										maxQuantity = Math.min(opt[0].maxOrderQuantity, choiceMaxQuantity);
-									}
-									else if (choiceMaxQuantity != null)
-									{
-										maxQuantity = choiceMaxQuantity;
-									}
-									else if (opt.length > 0)
-									{
-										maxQuantity = opt[0].maxOrderQuantity;
-									}
-
-									let newChoice = new Choice();
-
-									newChoice = {...newChoice,
-										divChoiceCatalogId: ch.divChoiceCatalogID,
-										enabled: true,
-										id: ch.dpChoiceID,
-										imagePath: ch.imagePath,
-										isDecisionDefault: ch.isDecisionDefault,
-										isSelectable: true,
-										sortOrder: ch.dpChoiceSortOrder,
-										label: ch.divChoiceCatalog.choiceLabel,
-										options: opt, //this is setting it to an empty array for some reason
-										maxQuantity: maxQuantity, //max them out at what was previously selected
-										quantity: choice.dpChoiceQuantity,
-										treePointId: point ? point.id : ch.dPoint.dPointID,
-										treeVersionId: ch.dTreeVersionID,
-										selectedAttributes: mapAttributes(choice)
-									};
-
-									newChoice.price = newChoice.options.reduce((x, y) => x + y.listPrice, 0);
-
-									if (point)
-									{
-										point.choices.push(newChoice);
-									}
-									else
-									{
-										let subgroup = currentSubgroups.find(sg => ch.dPoint.dSubGroup.dSubGroupCatalogID === sg.subGroupCatalogId);
-
-										if (subgroup)
-										{
-											let newPoint = <DecisionPoint>{
-												choices: [newChoice],
-												completed: true,
-												divPointCatalogId: ch.dPoint.divDPointCatalogID,
-												enabled: true,
-												id: ch.dPoint.dPointID,
-												isQuickQuoteItem: ch.dPoint.divDPointCatalog.isQuickQuoteItem,
-												isStructuralItem: ch.dPoint.divDPointCatalog.isStructuralItem,
-												label: ch.dPoint.divDPointCatalog.dPointLabel,
-												sortOrder: ch.dPoint.dPointSortOrder,
-												status: PointStatus.COMPLETED,
-												subGroupCatalogId: ch.dPoint.dSubGroup.dSubGroupCatalogID,
-												subGroupId: ch.dPoint.dSubGroupID,
-												treeVersionId: ch.dTreeVersionID,
-												viewed: true
-											};
-
-											subgroup.points.push(newPoint);
-										}
-										else
-										{
-											let group = data.tree.treeVersion.groups.find(g => ch.dPoint.dSubGroup.dGroup.dGroupCatalogID === g.groupCatalogId);
-
-											if (group)
-											{
-												let newSubGroup = <SubGroup>{
-													groupId: ch.dPoint.dSubGroup.dGroup.dGroupID,
-													id: ch.dPoint.dSubGroupID,
-													label: ch.dPoint.dSubGroup.dSubGroupCatalog.dSubGroupLabel,
-													points: [<DecisionPoint>{
-														choices: [newChoice],
-														completed: true,
-														divPointCatalogId: ch.dPoint.divDPointCatalogID,
-														enabled: true,
-														id: ch.dPoint.dPointID,
-														isQuickQuoteItem: ch.dPoint.divDPointCatalog.isQuickQuoteItem,
-														isStructuralItem: ch.dPoint.divDPointCatalog.isStructuralItem,
-														label: ch.dPoint.divDPointCatalog.dPointLabel,
-														sortOrder: ch.dPoint.dPointSortOrder,
-														status: PointStatus.COMPLETED,
-														subGroupCatalogId: ch.dPoint.dSubGroup.dSubGroupCatalogID,
-														subGroupId: ch.dPoint.dSubGroupID,
-														treeVersionId: ch.dTreeVersionID,
-														viewed: true
-													}],
-													sortOrder: ch.dPoint.dSubGroup.dSubGroupSortOrder,
-													status: PointStatus.COMPLETED,
-													subGroupCatalogId: ch.dPoint.dSubGroup.dSubGroupCatalogID,
-													treeVersionId: ch.dTreeVersionID,
-													useInteractiveFloorplan: false
+												return <any>{
+													attributeGroups: attributeGroups,
+													locationGroups: locationGroups,
+													calculatedPrice: option.listPrice * qty,
+													listPrice: option.listPrice,
+													id: option.planOptionId,
+													isActive: existingOption?.isActive || false,
+													maxOrderQuantity: qty,
+													name: option.optionSalesName,
+													description: option.optionDescription,
+													financialOptionIntegrationKey: option.integrationKey
 												};
-
-												group.subGroups.push(newSubGroup);
 											}
 											else
 											{
-												const newGroup = <Group>{
-													groupCatalogId: ch.dPoint.dSubGroup.dGroup.dGroupCatalogID,
-													id: ch.dPoint.dSubGroup.dGroup.dGroupID,
-													label: ch.dPoint.dSubGroup.dGroup.dGroupCatalog.dGroupLabel,
-													sortOrder: ch.dPoint.dSubGroup.dGroup.dGroupSortOrder,
+												return null;
+											}
+										}).filter(o => !!o);
+
+										let maxQuantity = 1;
+										let choiceMaxQuantity = ch.choiceMaxQuantity as number;
+
+										if (choiceMaxQuantity != null && opt.length > 0)
+										{
+											//If there is an option tied to a default choice and Choice Admin set - up a max quantity in the slide out panel, then the minimum quantity of the two will be used.
+											maxQuantity = Math.min(opt[0].maxOrderQuantity, choiceMaxQuantity);
+										}
+										else if (choiceMaxQuantity != null)
+										{
+											maxQuantity = choiceMaxQuantity;
+										}
+										else if (opt.length > 0)
+										{
+											maxQuantity = opt[0].maxOrderQuantity;
+										}
+
+										let newChoice = new Choice();
+
+										newChoice = {...newChoice,
+											divChoiceCatalogId: ch.divChoiceCatalogID,
+											enabled: true,
+											id: ch.dpChoiceID,
+											imagePath: ch.imagePath,
+											isDecisionDefault: ch.isDecisionDefault,
+											isSelectable: true,
+											sortOrder: ch.dpChoiceSortOrder,
+											label: ch.divChoiceCatalog.choiceLabel,
+											options: opt, //this is setting it to an empty array for some reason
+											maxQuantity: maxQuantity, //max them out at what was previously selected
+											quantity: choice.dpChoiceQuantity,
+											treePointId: point ? point.id : ch.dPoint.dPointID,
+											treeVersionId: ch.dTreeVersionID,
+											selectedAttributes: mapAttributes(choice)
+										};
+
+										newChoice.price = newChoice.options.reduce((x, y) => x + y.listPrice, 0);
+
+										if (point)
+										{
+											point.choices.push(newChoice);
+										}
+										else
+										{
+											let subgroup = currentSubgroups.find(sg => ch.dPoint.dSubGroup.dSubGroupCatalogID === sg.subGroupCatalogId);
+
+											if (subgroup)
+											{
+												let newPoint = <DecisionPoint>{
+													choices: [newChoice],
+													completed: true,
+													divPointCatalogId: ch.dPoint.divDPointCatalogID,
+													enabled: true,
+													id: ch.dPoint.dPointID,
+													isQuickQuoteItem: ch.dPoint.divDPointCatalog.isQuickQuoteItem,
+													isStructuralItem: ch.dPoint.divDPointCatalog.isStructuralItem,
+													label: ch.dPoint.divDPointCatalog.dPointLabel,
+													sortOrder: ch.dPoint.dPointSortOrder,
 													status: PointStatus.COMPLETED,
-													subGroups: [{
+													subGroupCatalogId: ch.dPoint.dSubGroup.dSubGroupCatalogID,
+													subGroupId: ch.dPoint.dSubGroupID,
+													treeVersionId: ch.dTreeVersionID,
+													viewed: true
+												};
+
+												subgroup.points.push(newPoint);
+											}
+											else
+											{
+												let group = data.tree.treeVersion.groups.find(g => ch.dPoint.dSubGroup.dGroup.dGroupCatalogID === g.groupCatalogId);
+
+												if (group)
+												{
+													let newSubGroup = <SubGroup>{
 														groupId: ch.dPoint.dSubGroup.dGroup.dGroupID,
 														id: ch.dPoint.dSubGroupID,
 														label: ch.dPoint.dSubGroup.dSubGroupCatalog.dSubGroupLabel,
@@ -373,34 +338,72 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 														subGroupCatalogId: ch.dPoint.dSubGroup.dSubGroupCatalogID,
 														treeVersionId: ch.dTreeVersionID,
 														useInteractiveFloorplan: false
-													}],
-													treeVersionId: ch.dTreeVersionID
-												};
+													};
 
-												data.tree.treeVersion.groups.splice(data.tree.treeVersion.groups.findIndex(g => g.sortOrder > newGroup.sortOrder), 0, newGroup);
+													group.subGroups.push(newSubGroup);
+												}
+												else
+												{
+													const newGroup = <Group>{
+														groupCatalogId: ch.dPoint.dSubGroup.dGroup.dGroupCatalogID,
+														id: ch.dPoint.dSubGroup.dGroup.dGroupID,
+														label: ch.dPoint.dSubGroup.dGroup.dGroupCatalog.dGroupLabel,
+														sortOrder: ch.dPoint.dSubGroup.dGroup.dGroupSortOrder,
+														status: PointStatus.COMPLETED,
+														subGroups: [{
+															groupId: ch.dPoint.dSubGroup.dGroup.dGroupID,
+															id: ch.dPoint.dSubGroupID,
+															label: ch.dPoint.dSubGroup.dSubGroupCatalog.dSubGroupLabel,
+															points: [<DecisionPoint>{
+																choices: [newChoice],
+																completed: true,
+																divPointCatalogId: ch.dPoint.divDPointCatalogID,
+																enabled: true,
+																id: ch.dPoint.dPointID,
+																isQuickQuoteItem: ch.dPoint.divDPointCatalog.isQuickQuoteItem,
+																isStructuralItem: ch.dPoint.divDPointCatalog.isStructuralItem,
+																label: ch.dPoint.divDPointCatalog.dPointLabel,
+																sortOrder: ch.dPoint.dPointSortOrder,
+																status: PointStatus.COMPLETED,
+																subGroupCatalogId: ch.dPoint.dSubGroup.dSubGroupCatalogID,
+																subGroupId: ch.dPoint.dSubGroupID,
+																treeVersionId: ch.dTreeVersionID,
+																viewed: true
+															}],
+															sortOrder: ch.dPoint.dSubGroup.dSubGroupSortOrder,
+															status: PointStatus.COMPLETED,
+															subGroupCatalogId: ch.dPoint.dSubGroup.dSubGroupCatalogID,
+															treeVersionId: ch.dTreeVersionID,
+															useInteractiveFloorplan: false
+														}],
+														treeVersionId: ch.dTreeVersionID
+													};
+
+													data.tree.treeVersion.groups.splice(data.tree.treeVersion.groups.findIndex(g => g.sortOrder > newGroup.sortOrder), 0, newGroup);
+												}
 											}
 										}
 									}
-								}
-							});
+								});
 
-							//save original locked in choice information on the tree
-							saveLockedInChoices(choices,
-								_.flatMap(data.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices))),
-								options,
-								changeOrder);
+								//save original locked in choice information on the tree
+								saveLockedInChoices(choices,
+									_.flatMap(data.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices))),
+									options,
+									changeOrder);
 
-							return data;
-						}));
-					}
-					else
-					{
-						saveLockedInChoices(choices, currentChoices, options, changeOrder);
+								return data;
+							}));
+						}
+						else
+						{
+							saveLockedInChoices(choices, currentChoices, options, changeOrder);
 
-						return of(data);
+							return of(data);
+						}
 					}
 				}
-
+				
 				return of(data);
 			})
 		),

@@ -10,7 +10,7 @@ import { ScenarioActionTypes, ScenarioSaved } from '../scenario/actions';
 import {
 	LiteActionTypes, SetIsPhdLite, LiteOptionsLoaded, SaveScenarioOptions, ScenarioOptionsSaved, SaveScenarioOptionColors, OptionCategoriesLoaded
 } from './actions';
-import { CommonActionTypes, ScenarioLoaded } from '../actions';
+import { CommonActionTypes, ScenarioLoaded, SalesAgreementLoaded } from '../actions';
 import * as fromRoot from '../reducers';
 import * as _ from 'lodash';
 import { IOptionCategory } from '../../shared/models/lite.model';
@@ -114,6 +114,71 @@ export class LiteEffects
 		);
 	});
 
+	loadSalesAgreementOptions$: Observable<Action> = createEffect(() => {
+		return this.actions$.pipe(
+			ofType<SalesAgreementLoaded>(CommonActionTypes.SalesAgreementLoaded),
+			withLatestFrom(this.store),
+			switchMap(([action, store]) => {
+				if (!action.tree)
+				{
+					return combineLatest([
+						this.liteService.getLitePlanOptions(action.job.planId),
+						this.liteService.getOptionsCategorySubcategory(action.job.financialCommunityId)
+					]).pipe(
+						switchMap(([options, optionsForCategories]) => {
+							let categories: IOptionCategory[] = [];
+
+							if (optionsForCategories)
+							{
+								let groups = _.groupBy(optionsForCategories, sc => sc.optionCategory.id);
+								categories = Object.keys(groups).map(g => ({
+									...groups[g][0].optionCategory,
+									optionSubCategories: groups[g].map(sc => ({ ...sc, optionCategory: undefined }))
+								})).sort((category1,category2) => {
+									return category1.name > category2.name ? 1 : -1;
+								});
+							}
+
+							const optionIds = options.map(o => o.id);
+							const optionCommunityIds = _.uniq(options.map(o => o.optionCommunityId));
+
+							return combineLatest([
+								this.liteService.getColorItems(optionIds),
+								this.liteService.getOptionRelations(optionCommunityIds)
+							]).pipe(
+								map(([colorItems, optionRelations]) => {
+									colorItems.forEach(colorItem => {
+										let option = options.find(option => option.id === colorItem.edhPlanOptionId);
+										if (option)
+										{
+											option.colorItems.push(colorItem);
+										}
+									});
+
+									this.liteService.applyOptionRelations(options, optionRelations);
+
+									const scenarioOptions = this.liteService.getSelectedOptions(options, action.job, action.changeOrder);
+									
+									return { options, scenarioOptions, categories };
+								})
+							)
+						})
+					);
+				}
+				else
+				{
+					return never();
+				}
+			}),
+			switchMap(data => {
+				if (data)
+				{
+					return from([new LiteOptionsLoaded(data.options, data.scenarioOptions), new OptionCategoriesLoaded(data.categories)]);
+				}
+				return never();
+			})
+		);
+	});	
 
 	saveScenarioOptions$: Observable<Action> = createEffect(() => {
 		return this.actions$.pipe(

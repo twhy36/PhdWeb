@@ -45,7 +45,7 @@
 			[changePrice]="priceBreakdown.changePrice"
 			[inChangeOrder]="(isChangingOrder$ | async)"
 			[canChange]="(canConfigure$ | async) && canEditSummary"
-			(callToAction)="onCallToAction()">
+			(callToAction)="onBuildIt()">
 
 			<ng-template #rightCellTemplate>
 				<div class="d-flex flex-column flex-grow-1 align-items-center mr-4 links">
