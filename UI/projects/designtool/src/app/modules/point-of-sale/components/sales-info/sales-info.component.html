@@ -108,18 +108,19 @@
 				  [labels]="'Contingency'"
 				  [canAdd]="!isLockedIn"
 				  (onAdd)="add('contingencies')"
-				  (onNA)="setNA('contingency')"></add-card>
-
-		<add-card *ngIf="!editing && canEditInternalNotes && !cancelOrVoid"
-				  [hasNA]="!notes || notes.length === 0"
-				  [isNA]="isNoteNa"
-				  [label]="'Note'"
-				  [labels]="'Notes'"
-				  (onAdd)="add('notes')"
-				  (onNA)="setNA('notes')">
+				  (onNA)="setNA('contingency')">
 		</add-card>
 	</ng-template>
-
+				
+				
+	<add-card *ngIf="!editing && canEditInternalNotes && !cancelOrVoid"
+				[hasNA]="!notes || notes.length === 0"
+				[isNA]="isNoteNa"
+				[label]="'Note'"
+				[labels]="'Notes'"
+				(onAdd)="add('notes')"
+				(onNA)="setNA('notes')">
+	</add-card>
 
 	<!--Notes and Add Note Cards-->
 	<sales-note class="phd-editable-box"
