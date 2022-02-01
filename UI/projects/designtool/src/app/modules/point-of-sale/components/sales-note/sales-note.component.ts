@@ -59,6 +59,10 @@ export class SalesNoteComponent extends ComponentCanNavAway implements OnInit
 		return this.subCategoryOptions.filter(cat => !cat.internal);
 	}
 
+	get isPendingOrInChangeOrder() {
+		return this.agreement.status === 'Pending' || this.inChangeOrder;
+	}
+
 	get subCategoryName() {
 		return this.subCategoryOptions.find(category => category.id === this.note.noteSubCategoryId).value;
 	}
