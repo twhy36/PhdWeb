@@ -39,7 +39,7 @@ export class AttributeService
 			{
 				const attributeGroupsDto = response.value as any[];
 
-				const attributeGroups = attributeGroupsDto.map<AttributeGroup>(g =>
+				let attributeGroups = attributeGroupsDto.map<AttributeGroup>(g =>
 				{
 					var sortOrder = 0;
 
@@ -70,7 +70,12 @@ export class AttributeService
 					};
 				});
 
-				return attributeGroups;
+				// Sort the divisional-level groups after the tree-level, if applicable
+				attributeGroups = orderBy(attributeGroups, 'sortOrder');
+
+				const divisionalGroups = attributeGroups.filter(ag => choice.divChoiceCatalogAttributeGroups && choice.divChoiceCatalogAttributeGroups.includes(ag.id));
+
+				return attributeGroups.filter(ag => choice.divChoiceCatalogAttributeGroups && !choice.divChoiceCatalogAttributeGroups.includes(ag.id)).concat(divisionalGroups);
 			}),
 			catchError(error =>
 			{
@@ -81,9 +86,9 @@ export class AttributeService
 		);
 	}
 
-	getLocationGroups(locationGroupIds: number[]): Observable<LocationGroup[]>
+	getLocationGroups(choice: Choice): Observable<LocationGroup[]>
 	{
-		const filterLocationGroupIds = locationGroupIds.map(id => `id eq ${id}`).join(' or ');
+		const filterLocationGroupIds = choice.mappedLocationGroups.map(lg => `id eq ${lg.id}`).join(' or ');
 
 		const entity = `locationGroupCommunities`;
 		const expand = `locationGroupLocationCommunityAssocs($expand=locationCommunity($select=id,locationName,locationDescription,isActive);$filter=locationCommunity/isActive eq true)`;
@@ -97,7 +102,7 @@ export class AttributeService
 			{
 				const locationGroupsDto = response.value as any[];
 
-				return locationGroupsDto.map<LocationGroup>(g =>
+				let locationGroups = locationGroupsDto.map<LocationGroup>(g =>
 				{
 					return {
 						id: g.id,
@@ -112,13 +117,13 @@ export class AttributeService
 						})
 					};
 				});
-			}),
-			catchError(error =>
-			{
-				console.error(error);
 
-				return _throw(error);
-			})
+				// Sort the divisional-level groups after the tree-level, if applicable
+				const divisionalGroups = locationGroups.filter(lg => choice.divChoiceCatalogLocationGroups && choice.divChoiceCatalogLocationGroups.includes(lg.id));
+
+				return locationGroups.filter(lg => choice.divChoiceCatalogLocationGroups && !choice.divChoiceCatalogLocationGroups.includes(lg.id)).concat(divisionalGroups);
+			}),
+			catchError(this.handleError)
 		);
 	}
 
@@ -154,12 +159,7 @@ export class AttributeService
 					};
 				});
 			}),
-			catchError(error =>
-			{
-				console.error(error);
-
-				return _throw(error);
-			})
+			catchError(this.handleError)
 		);
 	}
 
@@ -215,12 +215,7 @@ export class AttributeService
 					};
 				});
 			}),
-			catchError(error =>
-			{
-				console.error(error);
-
-				return _throw(error);
-			})
+			catchError(this.handleError)
 		);
 	}
 
@@ -246,12 +241,7 @@ export class AttributeService
 
 				return attributeGroups;
 			}),
-			catchError(error =>
-			{
-				console.error(error);
-
-				return _throw(error);
-			})
+			catchError(this.handleError)
 		);
 	}
 
@@ -274,6 +264,13 @@ export class AttributeService
 				return acImageAssoc;
 			})
 		);
+	}
+
+	private handleError(error: Response)
+	{
+		console.error(error);
+
+		return _throw(error || 'Server error');
 	}
 }
 

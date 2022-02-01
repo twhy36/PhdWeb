@@ -2,8 +2,8 @@ import { Component, Input, OnInit, OnChanges, SimpleChanges, Output, EventEmitte
 import { ActivatedRoute, Router, UrlSegment } from '@angular/router';
 import { APP_BASE_HREF } from '@angular/common';
 
-import { ReplaySubject, of, Observable, Subject } from 'rxjs';
-import { combineLatest, switchMap, map, withLatestFrom, distinctUntilChanged } from 'rxjs/operators';
+import { ReplaySubject, of, Observable, Subject, combineLatest } from 'rxjs';
+import { switchMap, map, withLatestFrom, distinctUntilChanged } from 'rxjs/operators';
 
 import { Store, select } from '@ngrx/store';
 
@@ -49,7 +49,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 	@Input() overrideReason: string;
 	@Input() buildMode: 'buyer' | 'spec' | 'model' | 'preview';
 
-	@Output() toggled: EventEmitter<{ choice: Choice, saveNow: boolean, quantity?: number }> = new EventEmitter();
+	@Output() toggled: EventEmitter<{ choice: Choice, saveNow: boolean, quantity?: number; }> = new EventEmitter();
 	@Output() saveAttributes = new EventEmitter<void>();
 	// When the choice detail modal opens or closes
 	@Output() onChoiceModal = new EventEmitter<Choice>();
@@ -139,6 +139,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 	{
 		return !(this.loadingAttributeImage || this.loadingChoiceImage);
 	}
+
 	ngOnInit()
 	{
 		this.isPastCutOff = this.currentDecisionPoint && this.currentDecisionPoint.isPastCutOff;
@@ -156,45 +157,49 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 				}
 			});
 
-		let attributeGroups: Observable<AttributeGroup[]> = this.onChanges$.pipe(
+		const attributeGroups$: Observable<AttributeGroup[]> = this.onChanges$.pipe(
 			map(() => this.choice.mappedAttributeGroups),
 			distinctUntilChanged((prev, curr) => _.isEqual(prev, curr)),
 			switchMap(() => this.choice.mappedAttributeGroups.length > 0 ? this.attributeService.getAttributeGroups(this.choice) : of([]))
 		);
 
-		const getLocationGroups: Observable<LocationGroup[]> = this.choice.mappedLocationGroups.length > 0 ? this.attributeService.getLocationGroups(this.choice.mappedLocationGroups.map(x => x.id)) : of([]);
+		const getLocationGroups$: Observable<LocationGroup[]> = this.choice.mappedLocationGroups.length > 0 ? this.attributeService.getLocationGroups(this.choice) : of([]);
 
-		attributeGroups.pipe(
-			combineLatest(getLocationGroups),
+		combineLatest([attributeGroups$, getLocationGroups$]).pipe(
 			switchMap(([attributeGroups, locationGroups]) =>
 			{
+				attributeGroups = attributeGroups;
+				locationGroups = locationGroups;
+
 				const attributeIds = _.flatMap(attributeGroups, gp => _.flatMap(gp.attributes, att => att.id));
 				const missingAttributes = this.choice.selectedAttributes.filter(x => x.attributeId && !attributeIds.some(att => att === x.attributeId));
 				const locationIds = _.flatMap(locationGroups, gp => _.flatMap(gp.locations, loc => loc.id));
 				const missingLocations = this.choice.selectedAttributes.filter(x => x.locationId && !locationIds.some(loc => loc === x.locationId));
 
-				return (missingAttributes && missingAttributes.length
+				const missingAttributesObs$ = missingAttributes && missingAttributes.length
 					? this.attributeService.getAttributeCommunities(missingAttributes.map(x => x.attributeId))
-					: of([])
-				).pipe(combineLatest(missingLocations && missingLocations.length
-					? this.attributeService.getLocationCommunities(missingLocations.map(x => x.locationId))
-					: of([]),
-					this.attributeService.getAttributeCommunityImageAssoc(attributeIds, this.choice.lockedInChoice ? this.choice.lockedInChoice.choice.outForSignatureDate : null))
-				).pipe(
-					map(([attributes, locations, attributeCommunityImageAssocs]) =>
-					{
-						mergeAttributes(attributes, missingAttributes, attributeGroups);
-						mergeLocations(locations, missingLocations, locationGroups);
-						mergeAttributeImages(attributeGroups, attributeCommunityImageAssocs);
+					: of([]);
 
-						return { attributeGroups, locationGroups };
-					}));
+				const missingLocationsObs$ = missingLocations && missingLocations.length
+					? this.attributeService.getLocationCommunities(missingLocations.map(x => x.locationId))
+					: of([]);
+
+				return combineLatest([missingAttributesObs$, missingLocationsObs$, this.attributeService.getAttributeCommunityImageAssoc(attributeIds, this.choice.lockedInChoice ? this.choice.lockedInChoice.choice.outForSignatureDate : null)])
+					.pipe(
+						map(([attributes, locations, attributeCommunityImageAssocs]) =>
+						{
+							mergeAttributes(attributes, missingAttributes, attributeGroups);
+							mergeLocations(locations, missingLocations, locationGroups);
+							mergeAttributeImages(attributeGroups, attributeCommunityImageAssocs);
+
+							return { attributeGroups, locationGroups };
+						}));
 			})
 		).subscribe(data =>
 		{
 			this.loadingAttributeImage = false;
 			this.hasAttributes = (data.attributeGroups.length > 0 || data.locationGroups.length > 0);
-			this.attributeGroups = _.orderBy(data.attributeGroups, 'sortOrder');
+			this.attributeGroups = data.attributeGroups
 			this.attributeGroups.forEach(group => group.choiceId = this.choice.id);
 			this.locationGroups = data.locationGroups;
 
@@ -249,22 +254,22 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 				});
 			}
 		},
-		error =>
-		{
-			this.loadingAttributeImage = false;
-		});
+			error =>
+			{
+				this.loadingAttributeImage = false;
+			});
 
 		this.override$.next((!!this.choice.overrideNote));
 
-		this.store.pipe(
+		const selectMonotonyChoiceIds$: Observable<any> = this.store.pipe(
 			this.takeUntilDestroyed(),
-			select(fromRoot.monotonyChoiceIds),
-			combineLatest(
-				this.store.pipe(select(fromScenario.choiceOverrides)),
-				this.store.pipe(select(selectSelectedLot)),
-				this.store.pipe(select(selectedPlanData)),
-				this.treeService.getChoiceImages([this.choice.lockedInChoice ? this.choice.lockedInChoice.choice.dpChoiceId : this.choice.id], this.buildMode === 'preview')
-			))
+			select(fromRoot.monotonyChoiceIds)
+		);
+
+		combineLatest([selectMonotonyChoiceIds$, this.store.pipe(select(fromScenario.choiceOverrides)),
+			this.store.pipe(select(selectSelectedLot)),
+			this.store.pipe(select(selectedPlanData)),
+			this.treeService.getChoiceImages([this.choice.lockedInChoice ? this.choice.lockedInChoice.choice.dpChoiceId : this.choice.id], this.buildMode === 'preview')])
 			.subscribe(([monotonyChoices, choiceOverride, lots, plan, choiceImages]) =>
 			{
 				this.choiceImages = choiceImages.length ? choiceImages.sort((a, b) => a.sortKey < b.sortKey ? -1 : 1) : [];;
@@ -336,7 +341,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 		).subscribe(([choices, isDesignPreviewEnabled]) =>
 		{
 			this.isFavorite = isDesignPreviewEnabled
-					&& !!choices?.find(c => c.divChoiceCatalogId === this.choice.divChoiceCatalogId);
+				&& !!choices?.find(c => c.divChoiceCatalogId === this.choice.divChoiceCatalogId);
 		});
 
 		// trigger attributeGroups observable in the init.
@@ -485,7 +490,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 		this.choice.selectedAttributes = selectedAttributes;
 	}
 
-	onCallToAction({ choice: choice, quantity: quantity }: { choice: Choice, quantity?: number })
+	onCallToAction({ choice: choice, quantity: quantity }: { choice: Choice, quantity?: number; })
 	{
 		// Emitting onChoiceChange for when the action is taken from inside choice-card-detail. Sets the view choice in edit-home.
 		this.onChoiceChange.emit(choice);
@@ -615,7 +620,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 
 	// When the user clicks on a link from within the 'disabled' information modal
 	// It will include either the Choice object that the user clicked on, or the path to the Decision Point url.
-	disabledModalAction(to: { choice: Choice, path: Array<string | number> })
+	disabledModalAction(to: { choice: Choice, path: Array<string | number>; })
 	{
 		this.closeModal();
 
@@ -655,7 +660,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 								{
 									if (x.attributeGroupId != attributeGroup.id)
 									{
-										monotonyConflicts.push(rule.colorSchemeAttributeCommunityIds.some(id => id === x.attributeId))
+										monotonyConflicts.push(rule.colorSchemeAttributeCommunityIds.some(id => id === x.attributeId));
 									}
 								});
 
@@ -673,7 +678,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 											{
 												if (!selectedAttributes.some(selected => selected.attributeId === x.id))
 												{
-													x.monotonyConflict = (rule.colorSchemeAttributeCommunityIds.some(s => s === x.id))
+													x.monotonyConflict = (rule.colorSchemeAttributeCommunityIds.some(s => s === x.id));
 												}
 											}
 										}));
@@ -688,7 +693,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 									{
 										if (!selectedAttributes.some(selected => selected.attributeId === x.id))
 										{
-											x.monotonyConflict = (rule.colorSchemeAttributeCommunityIds.some(s => s === x.id))
+											x.monotonyConflict = (rule.colorSchemeAttributeCommunityIds.some(s => s === x.id));
 										}
 									}
 								}));

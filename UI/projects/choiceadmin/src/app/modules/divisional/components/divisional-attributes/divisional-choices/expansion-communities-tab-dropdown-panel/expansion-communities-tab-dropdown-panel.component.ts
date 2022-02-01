@@ -7,9 +7,11 @@ import { AttributeService } from '../../../../../core/services/attribute.service
 import { DivisionalService } from '../../../../../core/services/divisional.service';
 import { LocationService } from '../../../../../core/services/location.service';
 import { OrganizationService } from '../../../../../core/services/organization.service';
+import { AttributeGroupCommunity } from '../../../../../shared/models/attribute-group-community.model';
 import { AttributeGroupMarket, isAttributeGroup } from '../../../../../shared/models/attribute-group-market.model';
 import { DivChoiceCatalogAttributeGroupMarket, DivChoiceCatalogLocationGroupMarket, DivChoiceCatalogMarketImage, DivisionalChoice, isDivChoiceCatalogAttributeGroupMarket, isDivChoiceCatalogLocationGroupMarket, isDivChoiceCatalogMarketImage } from '../../../../../shared/models/divisional-catalog.model';
 import { IFinancialCommunity } from '../../../../../shared/models/financial-community.model';
+import { LocationGroupCommunity } from '../../../../../shared/models/location-group-community.model';
 import { LocationGroupMarket } from '../../../../../shared/models/location-group-market.model';
 
 @Component({
@@ -138,8 +140,8 @@ export class ExpansionCommunitiesTabDropdownPanelComponent implements OnInit
 			const getMarketImages$ = this._divService.getDivChoiceCatalogMarketImages(this.choice.divChoiceCatalogId);
 
 			// Community observables
-			const getCommunityAttributeGroups$ = this._divService.getDivChoiceCatalogCommunityAttributeGroupsByOrgId(this.community.orgId);
-			const getCommunityLocationGroups$ = this._divService.getDivChoiceCatalogCommunityLocationGroupsByOrgId(this.community.orgId);
+			const getCommunityAttributeGroups$ = this._divService.getDivChoiceCatalogCommunityAttributeGroupsByDivChoiceCatalogId(this.choice.divChoiceCatalogId);
+			const getCommunityLocationGroups$ = this._divService.getDivChoiceCatalogCommunityLocationGroupsByDivChoiceCatalogId(this.choice.divChoiceCatalogId);
 			const getCommunityImages$ = this._divService.getDivChoiceCatalogCommunityImagesByOrgId(this.community.orgId);
 
 			getMarketAttributeGroups$.pipe(
@@ -221,7 +223,7 @@ export class ExpansionCommunitiesTabDropdownPanelComponent implements OnInit
 
 				data.divMarketAttrGroups.forEach(m =>
 				{
-					if (data.communityAttrGroups.findIndex(c => c.attributeGroupMarketId === m.attributeGroupMarketId) > -1)
+					if (data.communityAttrGroups.findIndex(c => c.attributeGroupMarketId === m.attributeGroupMarketId && this.community.attributeGroupCommunities.map(a => a.id).includes(c.attributeGroupCommunityId)) > -1)
 					{
 						this.selectedAttributeGroups.push(m);
 						this.origSelectedAttributeGroups.push(m);
@@ -230,7 +232,7 @@ export class ExpansionCommunitiesTabDropdownPanelComponent implements OnInit
 
 				data.divMarketLocGroups.forEach(m =>
 				{
-					if (data.communityLocGroups.findIndex(c => c.locationGroupMarketId === m.locationGroupMarketId) > -1)
+					if (data.communityLocGroups.findIndex(c => c.locationGroupMarketId === m.locationGroupMarketId && this.community.locationGroupCommunities.map(l => l.id).includes(c.locationGroupCommunityId)) > -1)
 					{
 						this.selectedLocationGroups.push(m);
 						this.origSelectedLocationGroups.push(m);
@@ -253,7 +255,7 @@ export class ExpansionCommunitiesTabDropdownPanelComponent implements OnInit
 
 		this._msgService.add({ severity: 'info', summary: 'Associations', detail: `Saving selected associations!` });
 
-		this._divService.associateChoiceItemsToCommunity(this.choice.divChoiceCatalogId, this.community.marketId, this.community.orgId, this.selectedAttributeGroups, this.selectedLocationGroups, this.selectedImages)
+		this._divService.associateChoiceItemsToCommunity(this.choice.divChoiceCatalogId, this.community.marketId, this.community.orgId, this.community.id, this.selectedAttributeGroups, this.selectedLocationGroups, this.selectedImages)
 			.pipe(finalize(() =>
 			{
 				this.canAssociate = false;
@@ -265,11 +267,66 @@ export class ExpansionCommunitiesTabDropdownPanelComponent implements OnInit
 				this.origSelectedAttributeGroups = cloneDeep(this.selectedAttributeGroups);
 				this.origSelectedLocationGroups = cloneDeep(this.selectedLocationGroups);
 				this.origSelectedImages = cloneDeep(this.selectedImages);
-
 			}))
-			.subscribe(() =>
+			.subscribe(response =>
 			{
 				this._msgService.add({ severity: 'success', summary: 'Associations', detail: `Updated successfully!` });
+
+				// Update the group communities data in case the dropdown is reopened
+				if (response.attributeGroupCommunities)
+				{
+					response.attributeGroupCommunities.map(acg =>
+					{
+						if (!this.community.attributeGroupCommunities.find(c => c.id === acg.attributeGroupCommunityId))
+						{
+							this.community.attributeGroupCommunities.push({
+								id: acg.attributeGroupCommunityId,
+								attributeGroupMarketId: acg.attributeGroupMarketId
+							} as AttributeGroupCommunity);
+						}
+					});
+				}
+
+				this.choiceAssociations.divChoiceCatalogMarketAttributes.map(m =>
+				{
+					if (!this.selectedAttributeGroups.map(x => x.id).includes(m.attributeGroupMarketId))
+					{
+						const idx = this.community.attributeGroupCommunities.findIndex(acg => acg.attributeGroupMarketId === m.attributeGroupMarketId);
+
+						if (idx > -1)
+						{
+							this.community.attributeGroupCommunities.splice(idx, 1);
+						}
+					}
+				});
+
+				if (response.locationGroupCommunities)
+				{
+					response.locationGroupCommunities.map(lcg =>
+					{
+						if (!this.community.locationGroupCommunities.find(c => c.id === lcg.locationGroupCommunityId))
+						{
+							this.community.locationGroupCommunities.push({
+								id: lcg.locationGroupCommunityId,
+								locationGroupMarketId: lcg.locationGroupMarketId
+							} as LocationGroupCommunity);
+						}
+					});
+				}
+
+				this.choiceAssociations.divChoiceCatalogMarketLocations.map(m =>
+				{
+					if (!this.selectedLocationGroups.map(x => x.id).includes(m.locationGroupMarketId))
+					{
+						const idx = this.community.locationGroupCommunities.findIndex(lcg => lcg.locationGroupMarketId === m.locationGroupMarketId);
+
+						if (idx > -1)
+						{
+							this.community.locationGroupCommunities.splice(idx, 1);
+						}
+					}
+				});
+
 			}, () =>
 			{
 				this._msgService.add({ severity: 'error', summary: 'Associations', detail: `An error has occured!` });

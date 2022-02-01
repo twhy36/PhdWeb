@@ -404,8 +404,8 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 			else
 			{
 				// does not have options so we default to the choice for attributes and locations
-				currentAttributeGroupIds = [...currentAttributeGroupIds, ...choice.attributeGroups.map(x => new MappedAttributeGroup({ id: x }))];
-				currentLocationGroupIds = [...currentLocationGroupIds, ...choice.locationGroups.map(x => new MappedLocationGroup({ id: x }))];
+				currentAttributeGroupIds = [...currentAttributeGroupIds, ...choice.attributeGroups.map(x => new MappedAttributeGroup({ id: x })), ...choice.divChoiceCatalogAttributeGroups.map(x => new MappedAttributeGroup({ id: x }))];
+				currentLocationGroupIds = [...currentLocationGroupIds, ...choice.locationGroups.map(x => new MappedLocationGroup({ id: x })), ...choice.divChoiceCatalogLocationGroups.map(x => new MappedLocationGroup({ id: x }))];
 			}
 
 			if (choice.lockedInChoice?.choice?.hasOwnProperty('jobChoiceAttributes'))
@@ -537,8 +537,8 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 			else
 			{
 				// does not have options so we default to the choice for attributes and locations
-				mappedAttributeGroups = choice.attributeGroups.map(x => new MappedAttributeGroup({ id: x }));
-				mappedLocationGroups = choice.locationGroups.map(x => new MappedLocationGroup({ id: x }));
+				mappedAttributeGroups = [...choice.attributeGroups.map(x => new MappedAttributeGroup({ id: x })), ...choice.divChoiceCatalogAttributeGroups.map(x => new MappedAttributeGroup({ id: x }))];
+				mappedLocationGroups = [...choice.locationGroups.map(x => new MappedLocationGroup({ id: x })), ...choice.divChoiceCatalogLocationGroups.map(x => new MappedLocationGroup({ id: x }))];
 			}
 
 			// check option rules for any attribute reassignments that we need to apply

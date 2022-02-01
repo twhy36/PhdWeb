@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
-import { map, catchError, tap, switchMap } from 'rxjs/operators';
-import { EMPTY as empty, Observable, of, throwError } from 'rxjs';
+import { map, catchError, tap, switchMap, mergeMap } from 'rxjs/operators';
+import { EMPTY as empty, forkJoin, Observable, of, throwError } from 'rxjs';
 
 import
 	{
@@ -83,8 +83,67 @@ export class TreeService
 
 		return (skipSpinner ? this.http : withSpinner(this.http)).get<Tree>(endPoint).pipe(
 			tap(response => response['@odata.context'] = undefined),
-			switchMap(response => this.getDivDPointCatalogs(response, skipSpinner)),
-			map((response: Tree) => new Tree(response)),
+			mergeMap((response: Tree) => forkJoin(
+				of(response),
+				this.getDivDPointCatalogs(response, skipSpinner),
+				this.getDivChoiceCatalogAttributeGroups(response, skipSpinner),
+				this.getDivChoiceCatalogLocationGroups(response, skipSpinner)
+			)),
+			map(([tree, points, attrChoices, locChoices]) =>
+			{
+				const treePoints = _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points)).filter(x => x.treeVersionId === tree.treeVersion.id);
+				const treeChoices = _.flatMap(treePoints, p => p.choices).filter(x => x.treeVersionId === tree.treeVersion.id);
+
+				if (points)
+				{
+					points.map(x =>
+					{
+						let point = treePoints.find(p => p.divPointCatalogId === x.divDpointCatalogID);
+						if (point)
+						{
+							point.cutOffDays = x.cutOffDays;
+						}
+					});
+				}
+
+				if (attrChoices)
+				{
+					attrChoices.map(x =>
+					{
+						let choice = treeChoices.find(c => c.divChoiceCatalogId === x.divChoiceCatalogId);
+
+						if (choice)
+						{
+							if (!choice.divChoiceCatalogAttributeGroups)
+							{
+								choice.divChoiceCatalogAttributeGroups = [];
+							}
+
+							choice.divChoiceCatalogAttributeGroups.push(x.attributeGroupCommunityId);
+						}
+					});
+				}
+
+				if (locChoices)
+				{
+					locChoices.map(x =>
+					{
+						let choice = treeChoices.find(c => c.divChoiceCatalogId === x.divChoiceCatalogId);
+
+						if (choice)
+						{
+							if (!choice.divChoiceCatalogLocationGroups)
+							{
+								choice.divChoiceCatalogLocationGroups = [];
+							}
+
+							choice.divChoiceCatalogLocationGroups.push(x.locationGroupCommunityId);
+						}
+					});
+				}
+
+				return new Tree(tree);
+			}),
 			catchError(error =>
 			{
 				console.error(error);
@@ -474,7 +533,7 @@ export class TreeService
 	}
 
 	// Retrieve the latest cutOffDays in case GetTreeDto returns cached tree data from API
-	getDivDPointCatalogs(tree: Tree, skipSpinner?: boolean): Observable<Tree>
+	getDivDPointCatalogs(tree: Tree, skipSpinner?: boolean): Observable<any[]>
     {
         const entity = `divDPointCatalogs`;
         let points = _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points));
@@ -489,18 +548,8 @@ export class TreeService
 
         return (skipSpinner ? this.http : withSpinner(this.http)).get<Tree>(endPoint).pipe(
             map(response =>
-            {
-                if (response)
-                {
-                    response['value'].map(x => {
-                        let point = points.find(p => p.divPointCatalogId === x.divDpointCatalogID);
-                        if (point)
-                        {
-                            point.cutOffDays = x.cutOffDays;
-                        }
-                    });
-                }
-                return tree;
+			{
+				return response['value'] as any[];
             }),
             catchError(error =>
             {
@@ -511,4 +560,65 @@ export class TreeService
         );
 	}
 
+	/**
+	 * Gets the Division-level Attribute Groups tied to the tree.
+	 */
+	getDivChoiceCatalogAttributeGroups(tree: Tree, skipSpinner?: boolean): Observable<any[]>
+	{
+		const entity = `divChoiceCatalogAttributeGroupCommunityAssocs`;
+		const points = _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points)).filter(x => x.treeVersionId === tree.treeVersion.id);
+		const choices = _.flatMap(points, p => p.choices).filter(x => x.treeVersionId === tree.treeVersion.id);
+
+		const divChoiceCatalogIds = choices.map(x => x.divChoiceCatalogId);
+		const filter = `divChoiceCatalogID in (${divChoiceCatalogIds})`;
+
+		const select = `divChoiceCatalogID, AttributeGroupMarketId, AttributeGroupCommunityId`;
+
+		const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
+		const endPoint = `${environment.apiUrl}${entity}?${qryStr}`;
+
+		return (skipSpinner ? this.http : withSpinner(this.http)).get<Tree>(endPoint).pipe(
+			map(response =>
+			{
+				return response['value'] as any[];
+			}),
+			catchError(error =>
+			{
+				console.error(error);
+
+				return empty;
+			})
+		);
+	}
+
+	/**
+	 * Gets the Division-level Location Groups tied to the tree.
+	 */
+	getDivChoiceCatalogLocationGroups(tree: Tree, skipSpinner?: boolean): Observable<any[]>
+	{
+		const entity = `divChoiceCatalogLocationGroupCommunityAssocs`;
+		const points = _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points)).filter(x => x.treeVersionId === tree.treeVersion.id);
+		const choices = _.flatMap(points, p => p.choices).filter(x => x.treeVersionId === tree.treeVersion.id);
+
+		const divChoiceCatalogIds = choices.map(x => x.divChoiceCatalogId);
+		const filter = `divChoiceCatalogID in (${divChoiceCatalogIds})`;
+
+		const select = `divChoiceCatalogID, LocationGroupMarketId, LocationGroupCommunityId`;
+
+		const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
+		const endPoint = `${environment.apiUrl}${entity}?${qryStr}`;
+
+		return (skipSpinner ? this.http : withSpinner(this.http)).get<Tree>(endPoint).pipe(
+			map(response =>
+			{
+				return response['value'] as any[];
+			}),
+			catchError(error =>
+			{
+				console.error(error);
+
+				return empty;
+			})
+		);
+	}
 }

@@ -175,6 +175,8 @@ export class Choice
 	isRequired?: boolean = false;
 	disabledByHomesite?: boolean = false;
 	choiceImages?: ChoiceImageAssoc[] = [];
+	divChoiceCatalogAttributeGroups?: number[] = [];
+	divChoiceCatalogLocationGroups?: number[] = [];
 }
 
 export class MappedGroup

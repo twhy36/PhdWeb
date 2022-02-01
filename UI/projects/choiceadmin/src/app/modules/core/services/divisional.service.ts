@@ -15,7 +15,7 @@ import { DivDSubGroup } from '../../shared/models/subgroup.model';
 import { DivDPoint, IDivCatalogPointDto, IDPointPickType, DivDPointCatalog } from '../../shared/models/point.model';
 import { DivDChoice, IDivCatalogChoiceDto, DivChoiceCatalog } from '../../shared/models/choice.model';
 import { Settings } from '../../shared/models/settings.model';
-import { IDivisionalCatalogGroupDto, IDivisionalCatalogPointDto, IDivisionalCatalogDto, IDivisionalCatalogChoiceDto, DivisionalCatalog, IDivSortList, DivisionalChoice, IDivChoiceCatalogMarketImageDto, DivChoiceCatalogMarketImage, IDivChoiceCatalogCommunityImageDto, DivChoiceCatalogCommunityImage, IDivChoiceCatalogAttributeGroupCommunityDto, DivChoiceCatalogAttributeGroupCommunity, DivChoiceCatalogAttributeGroupMarket, IDivChoiceCatalogLocationGroupCommunityDto, DivChoiceCatalogLocationGroupCommunity, DivChoiceCatalogLocationGroupMarket } from '../../shared/models/divisional-catalog.model';
+import { IDivisionalCatalogGroupDto, IDivisionalCatalogPointDto, IDivisionalCatalogDto, IDivisionalCatalogChoiceDto, DivisionalCatalog, IDivSortList, DivisionalChoice, IDivChoiceCatalogMarketImageDto, DivChoiceCatalogMarketImage, IDivChoiceCatalogCommunityImageDto, DivChoiceCatalogCommunityImage, IDivChoiceCatalogAttributeGroupCommunityDto, DivChoiceCatalogAttributeGroupCommunity, DivChoiceCatalogAttributeGroupMarket, IDivChoiceCatalogLocationGroupCommunityDto, DivChoiceCatalogLocationGroupCommunity, DivChoiceCatalogLocationGroupMarket, IDivChoiceCatalogGroupCommunitiesDto } from '../../shared/models/divisional-catalog.model';
 import { PhdEntityDto } from '../../shared/models/api-dtos.model';
 import { TableSort } from '../../../../../../phd-common/src/lib/components/table/phd-table.model';
 import { OrganizationService } from './organization.service';
@@ -149,7 +149,7 @@ export class DivisionalService
 					choice.imageCount = c['divChoiceCatalog_MarketImages@odata.count'] as number;
 					choice.divChoiceCatalogMarketAttributes$ = this.getDivChoiceCatalogMarketAttributeGroups(c.divChoiceCatalogID);
 					choice.divChoiceCatalogMarketLocations$ = this.getDivChoiceCatalogMarketLocationGroups(c.divChoiceCatalogID);
-					choice.divChoiceCatalogCommunities$ = this._orgService.getCommunities(marketId);
+					choice.divChoiceCatalogCommunities$ = this._orgService.getCommunitiesIncludingGroups(marketId);
 
 					return choice;
 				});
@@ -322,11 +322,11 @@ export class DivisionalService
 			catchError(this.handleError));
 	}
 
-	getDivChoiceCatalogCommunityAttributeGroupsByOrgId(orgId: number): Observable<DivChoiceCatalogAttributeGroupCommunity[]>
+	getDivChoiceCatalogCommunityAttributeGroupsByDivChoiceCatalogId(divChoiceCatalogId: number): Observable<DivChoiceCatalogAttributeGroupCommunity[]>
 	{
 		let url = settings.apiUrl;
 
-		const filter = `attributeGroupCommunityId eq ${orgId}`;
+		const filter = `divChoiceCatalogId eq ${divChoiceCatalogId}`;
 		const select = `divChoiceCatalogId, AttributeGroupCommunityId, AttributeGroupMarketId`;
 
 		const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
@@ -346,18 +346,18 @@ export class DivisionalService
 	/**
 	 * Updates the communities associated to a collection of DivChoiceCatalog_AttributeGroupMarketAssocs.
 	 * @param divChoiceCatalogId The ID of the DivChoiceCatalog in which the group(s) exist.
-	 * @param associatedOrgIds The communities (via their OrgID) to be associated with the group(s).
-	 * @param disassociatedOrgIds The communities (via their OrgID) to be disassociated with the group(s).
+	 * @param associatedCommunityIds The communities to be associated with the group(s).
+	 * @param disassociatedCommunityIds The communities to be disassociated with the group(s).
 	 * @param marketGroups The group(s) for which the communities are to be updated.
 	 */
-	updateDivChoiceCatalogAttributeGroupCommunityAssocs(divChoiceCatalogId: number, associatedOrgIds: number[], disassociatedOrgIds: number[], marketGroups: DivChoiceCatalogAttributeGroupMarket[]): Observable<any>
+	updateDivChoiceCatalogAttributeGroupCommunityAssocs(divChoiceCatalogId: number, associatedCommunityIds: number[], disassociatedCommunityIds: number[], marketGroups: DivChoiceCatalogAttributeGroupMarket[]): Observable<any>
 	{
 		const url = settings.apiUrl + `UpdateDivChoiceCatalogAttributeGroupCommunityAssocs`;
 
 		const data = {
 			'divChoiceCatalogId': divChoiceCatalogId,
-			'associatedOrgIds': associatedOrgIds,
-			'disassociatedOrgIds': disassociatedOrgIds,
+			'associatedCommunityIds': associatedCommunityIds,
+			'disassociatedCommunityIds': disassociatedCommunityIds,
 			'choiceMarketGroupIds': marketGroups.map(x => x.id)
 		};
 
@@ -411,11 +411,11 @@ export class DivisionalService
 			catchError(this.handleError));
 	}
 
-	getDivChoiceCatalogCommunityLocationGroupsByOrgId(orgId: number): Observable<DivChoiceCatalogLocationGroupCommunity[]>
+	getDivChoiceCatalogCommunityLocationGroupsByDivChoiceCatalogId(divChoiceCatalogId: number): Observable<DivChoiceCatalogLocationGroupCommunity[]>
 	{
 		let url = settings.apiUrl;
 
-		const filter = `locationGroupCommunityId eq ${orgId}`;
+		const filter = `divChoiceCatalogId eq ${divChoiceCatalogId}`;
 		const select = `divChoiceCatalogId, LocationGroupCommunityId, LocationGroupMarketId`;
 
 		const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
@@ -435,18 +435,18 @@ export class DivisionalService
 	/**
 	 * Updates the communities associated to a collection of DivChoiceCatalog_LocationGroupMarketAssocs.
 	 * @param divChoiceCatalogId The ID of the DivChoiceCatalog in which the group(s) exist.
-	 * @param associatedOrgIds The communities (via their OrgID) to be associated with the group(s).
-	 * @param disassociatedOrgIds The communities (via their OrgID) to be disassociated with the group(s).
+	 * @param associatedCommunityIds The communities to be associated with the group(s).
+	 * @param disassociatedCommunityIds The communities to be disassociated with the group(s).
 	 * @param marketGroups The group(s) for which the communities are to be updated.
 	 */
-	updateDivChoiceCatalogLocationGroupCommunityAssocs(divChoiceCatalogId: number, associatedOrgIds: number[], disassociatedOrgIds: number[], marketGroups: DivChoiceCatalogLocationGroupMarket[]): Observable<any>
+	updateDivChoiceCatalogLocationGroupCommunityAssocs(divChoiceCatalogId: number, associatedCommunityIds: number[], disassociatedCommunityIds: number[], marketGroups: DivChoiceCatalogLocationGroupMarket[]): Observable<any>
 	{
 		const url = settings.apiUrl + `UpdateDivChoiceCatalogLocationGroupCommunityAssocs`;
 
 		const data = {
 			'divChoiceCatalogId': divChoiceCatalogId,
-			'associatedOrgIds': associatedOrgIds,
-			'disassociatedOrgIds': disassociatedOrgIds,
+			'associatedCommunityIds': associatedCommunityIds,
+			'disassociatedCommunityIds': disassociatedCommunityIds,
 			'choiceMarketGroupIds': marketGroups.map(x => x.id)
 		};
 
@@ -458,7 +458,7 @@ export class DivisionalService
 			catchError(this.handleError));
 	}
 
-	associateChoiceItemsToCommunity(divChoiceCatalogId: number, marketId: number, orgId: number, selectedAttributes: DivChoiceCatalogAttributeGroupMarket[], selectedLocations: DivChoiceCatalogLocationGroupMarket[], selectedMarketImages: DivChoiceCatalogMarketImage[]): Observable<any>
+	associateChoiceItemsToCommunity(divChoiceCatalogId: number, marketId: number, orgId: number, communityId: number, selectedAttributes: DivChoiceCatalogAttributeGroupMarket[], selectedLocations: DivChoiceCatalogLocationGroupMarket[], selectedMarketImages: DivChoiceCatalogMarketImage[]): Observable<IDivChoiceCatalogGroupCommunitiesDto>
 	{
 		let url = settings.apiUrl + `AssociateChoiceItemsToCommunity`;
 
@@ -466,6 +466,7 @@ export class DivisionalService
 			'divChoiceCatalogId': divChoiceCatalogId,
 			'marketId': marketId,
 			'orgId': orgId,
+			'communityId': communityId,
 			'selectedAttributes': selectedAttributes.map(x => x.id),
 			'selectedLocations': selectedLocations.map(x => x.id),
 			'selectedMarketImages': selectedMarketImages.map(x => x.divChoiceCatalogMarketImageId)
@@ -474,9 +475,7 @@ export class DivisionalService
 		return this._http.post(url, { choiceItemsAssocDto: data }).pipe(
 			map(response =>
 			{
-				let choice = response as DivisionalChoice;
-
-				return choice;
+				return response['value'] as IDivChoiceCatalogGroupCommunitiesDto;
 			}),
 			catchError(this.handleError));
 	}

@@ -101,6 +101,7 @@ export class AssociateCommunitiesSidePanelComponent extends UnsubscribeOnDestroy
 			const communities$ = this._orgService.getCommunitiesWithChoice(this.marketId, this.choice.divChoiceCatalogId);
 
 			communities$.pipe(
+				// Get the OrgId for DivChoice Images
 				mergeMap(communities => this._orgService.getOrgsForCommunities(this.marketId, communities.map(c => c.id)).pipe(
 					map(orgs =>
 					{
@@ -140,13 +141,13 @@ export class AssociateCommunitiesSidePanelComponent extends UnsubscribeOnDestroy
 
 		this.communities.forEach(community =>
 		{
-			if (this.groups && this.option)
+			if (this.groups)
 			{
 				const nonAssociatedGroups = this.groups.filter(group =>
 				{
-					const groups = this.associatingType == AssociatingType.OptionAttributeGroups
-						? community.attributeGroupCommunities.filter(attr => attr.attributeGroupMarketId === group.id)
-						: community.locationGroupCommunities.filter(loc => loc.locationGroupMarketId === group.id);
+					const groups = this.associatingType == (AssociatingType.OptionAttributeGroups || AssociatingType.ChoiceAttributeGroups)
+						? community.attributeGroupCommunities.filter(attr => attr.attributeGroupMarketId === group.id && (!this.communityGroups || (this.communityGroups as DivChoiceCatalogAttributeGroupCommunity[]).filter(cg => cg.attributeGroupCommunityId === attr.id).length))
+						: community.locationGroupCommunities.filter(loc => loc.locationGroupMarketId === group.id && (!this.communityGroups || (this.communityGroups as DivChoiceCatalogLocationGroupCommunity[]).filter(cg => cg.locationGroupCommunityId === loc.id).length));
 
 					return !groups || !groups.length;
 				});
@@ -155,35 +156,6 @@ export class AssociateCommunitiesSidePanelComponent extends UnsubscribeOnDestroy
 				{
 					this.setOriginallySelectedCommunity(community);
 				}
-			}
-
-			if (this.groups && this.choice)
-			{
-				selectedChoiceCommunities.push(community);
-
-				this.groups.forEach(group =>
-				{
-					// Don't include this community if at least one market group is not associated
-					if (isDivChoiceCatalogAttributeGroupMarket(group))
-					{
-						if (this.communityGroups.findIndex(cg => (cg as DivChoiceCatalogAttributeGroupCommunity).attributeGroupMarketId === (group as AttributeGroupMarket).id && (cg as DivChoiceCatalogAttributeGroupCommunity).attributeGroupCommunityId === community.orgId) == -1)
-						{
-							selectedChoiceCommunities.pop();
-						}
-					}
-					else
-					{
-						if (this.communityGroups.findIndex(cg => (cg as DivChoiceCatalogLocationGroupCommunity).locationGroupMarketId === (group as LocationGroupMarket).id && (cg as DivChoiceCatalogLocationGroupCommunity).locationGroupCommunityId === community.orgId) == -1)
-						{
-							selectedChoiceCommunities.pop();
-						}
-					}
-				});
-
-				selectedChoiceCommunities.forEach(c =>
-				{
-					this.setOriginallySelectedCommunity(c);
-				});
 			}
 
 			if (this.images && this.option)
@@ -267,10 +239,6 @@ export class AssociateCommunitiesSidePanelComponent extends UnsubscribeOnDestroy
 		const deSelectedCommunities = differenceBy(this.origSelectedCommunities, this.selectedCommunities, 'id');
 		const disassociatedCommunityIds = deSelectedCommunities.map(c => c.id);
 
-		// Choices are saved using the community's OrgID instead of its primary ID
-		const associatedOrgIds = newlySelectedCommunities.map(c => c.orgId);
-		const disassociatedOrgIds = deSelectedCommunities.map(c => c.orgId);
-
 		let saveAssocs: Observable<any>;
 
 		switch (this.associatingType)
@@ -279,18 +247,22 @@ export class AssociateCommunitiesSidePanelComponent extends UnsubscribeOnDestroy
 				saveAssocs = this.saveOptionAttributeGroupsAssocs(associatedCommunityIds, disassociatedCommunityIds);
 				break;
 			case AssociatingType.ChoiceAttributeGroups:
-				saveAssocs = this.saveChoiceAttributeGroupsAssocs(associatedOrgIds, disassociatedOrgIds);
+				saveAssocs = this.saveChoiceAttributeGroupsAssocs(associatedCommunityIds, disassociatedCommunityIds);
 				break;
 			case AssociatingType.OptionLocationGroups:
 				saveAssocs = this.saveOptionLocationGroupsAssocs(associatedCommunityIds, disassociatedCommunityIds);
 				break;
 			case AssociatingType.ChoiceLocationGroups:
-				saveAssocs = this.saveChoiceLocationGroupsAssocs(associatedOrgIds, disassociatedOrgIds);
+				saveAssocs = this.saveChoiceLocationGroupsAssocs(associatedCommunityIds, disassociatedCommunityIds);
 				break;
 			case AssociatingType.OptionImages:
 				saveAssocs = this.saveOptionImageAssocs(associatedCommunityIds, disassociatedCommunityIds);
 				break;
 			case AssociatingType.ChoiceImages:
+				// Choices are saved using the community's OrgID instead of its primary ID
+				const associatedOrgIds = newlySelectedCommunities.map(c => c.orgId);
+				const disassociatedOrgIds = deSelectedCommunities.map(c => c.orgId);
+
 				saveAssocs = this.saveChoiceImageAssocs(associatedOrgIds, disassociatedOrgIds);
 				break;
 			default:
@@ -333,12 +305,12 @@ export class AssociateCommunitiesSidePanelComponent extends UnsubscribeOnDestroy
 			associatedCommunityIds, disassociatedCommunityIds, attrGroups);
 	}
 
-	saveChoiceAttributeGroupsAssocs(associatedOrgIds: number[], disassociatedOrgIds: number[]): Observable<any>
+	saveChoiceAttributeGroupsAssocs(associatedCommunityIds: number[], disassociatedCommunityIds: number[]): Observable<any>
 	{
 		const attrGroups = this.groups as DivChoiceCatalogAttributeGroupMarket[];
 
 		return this._divService.updateDivChoiceCatalogAttributeGroupCommunityAssocs(this.choice.divChoiceCatalogId,
-			associatedOrgIds, disassociatedOrgIds, attrGroups);
+			associatedCommunityIds, disassociatedCommunityIds, attrGroups);
 	}
 
 	saveOptionLocationGroupsAssocs(associatedCommunityIds: number[], disassociatedCommunityIds: number[]): Observable<any>
@@ -349,12 +321,12 @@ export class AssociateCommunitiesSidePanelComponent extends UnsubscribeOnDestroy
 			associatedCommunityIds, disassociatedCommunityIds, locGroups);
 	}
 
-	saveChoiceLocationGroupsAssocs(associatedOrgIds: number[], disassociatedOrgIds: number[]): Observable<any>
+	saveChoiceLocationGroupsAssocs(associatedCommunityIds: number[], disassociatedCommunityIds: number[]): Observable<any>
 	{
 		const locGroups = this.groups as DivChoiceCatalogLocationGroupMarket[];
 
 		return this._divService.updateDivChoiceCatalogLocationGroupCommunityAssocs(this.choice.divChoiceCatalogId,
-			associatedOrgIds, disassociatedOrgIds, locGroups);
+			associatedCommunityIds, disassociatedCommunityIds, locGroups);
 	}
 
 	saveOptionImageAssocs(associatedCommunityIds: number[], disassociatedCommunityIds: number[]): Observable<any>

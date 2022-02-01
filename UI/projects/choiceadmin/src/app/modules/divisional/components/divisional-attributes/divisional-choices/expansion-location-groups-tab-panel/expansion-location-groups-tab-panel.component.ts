@@ -72,16 +72,13 @@ export class ExpansionChoiceLocationGroupsTabPanelComponent extends UnsubscribeO
 				{
 					// Force the table to update with the added labels, etc.
 					this.cd.detectChanges();
-
-					// Update the originalGroups on init and Add Group
-					//this.originalGroups = cloneDeep(this.groups);
 				}))
-				.subscribe(attributeGroupMarkets =>
+				.subscribe(locationGroupMarkets =>
 				{
 					// Convert the groups to an AttributeGroupMarket type
 					this.groups = this.groups.map(g =>
 					{
-						const lgm = attributeGroupMarkets.find(lgm => lgm.id === g.locationGroupMarketId);
+						const lgm = locationGroupMarkets.find(lgm => lgm.id === g.locationGroupMarketId);
 
 						if (lgm)
 						{

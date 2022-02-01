@@ -136,6 +136,12 @@ export class DivChoiceCatalogLocationGroupCommunity
 	}
 }
 
+export interface IDivChoiceCatalogGroupCommunitiesDto
+{
+	attributeGroupCommunities: DivChoiceCatalogAttributeGroupCommunity[];
+	locationGroupCommunities: DivChoiceCatalogLocationGroupCommunity[];
+}
+
 export interface IDivisionalCatalogDto
 {
 	groups: Array<IDivisionalCatalogGroupDto>;

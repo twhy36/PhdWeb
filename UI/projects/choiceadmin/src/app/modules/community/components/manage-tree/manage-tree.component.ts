@@ -356,49 +356,28 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 	/**
 	 * Gets the list of attribute and location groups associated with this choice/community combination.
 	 */
-	getDivisionalGroups()
+	getDivisionalGroups(divChoiceCatalogId: number)
 	{
-		// Because the divisional groups are associated via the Org ID, we need to get that for this selected community
-		const getOrgsForCommunity$ = this._orgService.getOrgsForCommunities(this.selectedMarket.id, [this.selectedCommunity.id]);
-
-		getOrgsForCommunity$.pipe(
-			switchMap(orgs =>
+		forkJoin(this._divService.getDivChoiceCatalogCommunityAttributeGroupsByDivChoiceCatalogId(divChoiceCatalogId), this._divService.getDivChoiceCatalogCommunityLocationGroupsByDivChoiceCatalogId(divChoiceCatalogId))
+			.subscribe(([divAttrGroups, divLocGroups]) =>
 			{
-				// We should only get one result
-				const orgId = orgs[0].orgId;
+				// Get the metadata from the existing groups lists, and mark these as divisional-level
+				this.groupsInMarket.divCatalogChoiceAttributeGroups = this.groupsInMarket.attributeGroups
+					.filter(treeGroup => divAttrGroups.some(g => g.attributeGroupMarketId === treeGroup.id))
+					.map(g =>
+					{
+						g.isDivisional = true;
+						return g;
+					});
 
-				// Retrieve the groups based on the Org ID
-				return forkJoin(this._divService.getDivChoiceCatalogCommunityAttributeGroupsByOrgId(orgId), this._divService.getDivChoiceCatalogCommunityLocationGroupsByOrgId(orgId))
-					.pipe(
-						map(([divAttrGroups, divLocGroups]) =>
-						{
-							// We now have every group that is associated with the community, but need to filter out anything not associated with this choice
-							divAttrGroups = divAttrGroups.filter(ag => ag.divChoiceCatalogId === this.selectedChoice.divChoiceCatalogId);
-							divLocGroups = divLocGroups.filter(lg => lg.divChoiceCatalogId === this.selectedChoice.divChoiceCatalogId);
-
-							return { divAttrGroups, divLocGroups };
-						})
-					);
-			})
-		).subscribe(data =>
-		{
-			// Get the metadata from the existing groups lists, and mark these as divisional-level
-			this.groupsInMarket.divCatalogChoiceAttributeGroups = this.groupsInMarket.attributeGroups
-				.filter(treeGroup => data.divAttrGroups.some(g => g.attributeGroupMarketId === treeGroup.id))
-				.map(g =>
-				{
-					g.isDivisional = true;
-					return g;
-				});
-
-			this.groupsInMarket.divCatalogChoiceLocationGroups = this.groupsInMarket.locationGroups
-				.filter(treeGroup => data.divLocGroups.some(g => g.locationGroupMarketId === treeGroup.id))
-				.map(g =>
-				{
-					g.isDivisional = true;
-					return g;
-				});
-		});
+				this.groupsInMarket.divCatalogChoiceLocationGroups = this.groupsInMarket.locationGroups
+					.filter(treeGroup => divLocGroups.some(g => g.locationGroupMarketId === treeGroup.id))
+					.map(g =>
+					{
+						g.isDivisional = true;
+						return g;
+					});
+			});
 	}
 
 	get treeOptionRouteLink(): string
@@ -942,7 +921,7 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 		this.currentTab = params.tab;
 		this.selectedChoice = params.item;
 
-		this.getDivisionalGroups();
+		this.getDivisionalGroups(this.selectedChoice.divChoiceCatalogId);
 	}
 
 	onPointSelected(params: { item: DTPoint, tab: string; })

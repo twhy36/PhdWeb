@@ -39,15 +39,19 @@ namespace AttributeCleanup
                 var taskLocationAttribute = phdClient.GetIdsUsedInLocationAttribute("attributeGroupCommunityId", unusedEdhAttributeGroupIds);
                 // [dt].[DPChoice_AttributeGroupCommunityAssoc]
                 var taskChoiceAttribute = phdClient.GetIdsUsedInCollection("dPChoiceAttributeGroupCommunityAssocs", "attributeGroupCommunityId", unusedEdhAttributeGroupIds);
+                // [dt].[DivChoiceCatalog_AttributeGroupCommunityAssoc]
+                var taskDivChoiceAttribute = phdClient.GetIdsUsedInCollection("divChoiceCatalogAttributeGroupCommunityAssocs", "attributeGroupCommunityId", unusedEdhAttributeGroupIds);
 
-                await Task.WhenAll(taskPhdAttributeGroup, taskLocationAttribute, taskChoiceAttribute);
+                await Task.WhenAll(taskPhdAttributeGroup, taskLocationAttribute, taskChoiceAttribute, taskDivChoiceAttribute);
 
                 var usedPhdAttributeGroupIds = taskPhdAttributeGroup.Result;
                 var usedIdsLocationAttribute = taskLocationAttribute.Result;
                 var usedIdsInChoiceAttribute = taskChoiceAttribute.Result;
+                var usedIdsInDivChoiceAttribute = taskDivChoiceAttribute.Result;
 
                 usedPhdAttributeGroupIds.AddRange(usedIdsLocationAttribute);
                 usedPhdAttributeGroupIds.AddRange(usedIdsInChoiceAttribute);
+                usedPhdAttributeGroupIds.AddRange(usedIdsInDivChoiceAttribute);
 
                 // Remove AttributeGroupCommunity IDs used in PHD from EDH list
                 List<int> attributeGroupIdsToDelete = unusedEdhAttributeGroupIds.Except(usedPhdAttributeGroupIds).ToList();
