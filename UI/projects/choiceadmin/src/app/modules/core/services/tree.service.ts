@@ -478,7 +478,9 @@ export class TreeService
 	getOptionChoiceRules(treeVersionId: number, optionKey: string): Observable<PhdApiDto.IOptionChoiceRule>
 	{
 		const entity = `optionRules`;
-		const expand = `optionRuleReplaces($expand=planOption($select=integrationKey)),planOption($select=integrationKey),dpChoice_OptionRuleAssoc($expand=dpChoice($select=dPointID,divChoiceCatalog;$expand=divChoiceCatalog($select=choiceLabel),dPoint($select=divDPointCatalog;$expand=divDPointCatalog($select=dPointLabel))))`;
+		let expand = `optionRuleReplaces($expand=planOption($select=integrationKey)),`
+		expand += `planOption($select=integrationKey),`;
+		expand += `dpChoice_OptionRuleAssoc($expand=dpChoice($select=dPointID, divChoiceCatalog; $expand=divChoiceCatalog($select = choiceLabel), dPoint($select = divDPointCatalog; $expand = divDPointCatalog($select = dPointLabel))))`;
 		const filter = `dTreeVersionID eq ${treeVersionId} and planOption/integrationKey eq '${optionKey}'`;
 
 		const qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}`;
@@ -510,7 +512,8 @@ export class TreeService
 							optionRuleId: c.optionRuleID,
 							pointId: c.dpChoice.dPointID,
 							pointLabel: c.dpChoice.dPoint.divDPointCatalog.dPointLabel,
-							treeVersionId: c.dTreeVersionID
+							treeVersionId: c.dTreeVersionID,
+							mappingIndex: c.mappingIndex
 						} as PhdApiDto.IOptionChoiceRuleChoice;
 					}),
 					replaceRules: rules[0].optionRuleReplaces.map(o =>
@@ -1526,7 +1529,7 @@ export class TreeService
 		return this._http.post<any>(endPoint, body);
 	}
 
-	deleteOptionChoiceRuleChoice(treeVersionId: number, choiceOptionRuleId: number): Observable<any>
+	deleteOptionChoiceRuleChoice(choiceOptionRuleId: number): Observable<any>
 	{
 		const entity = `dPChoiceOptionRuleAssocs(${choiceOptionRuleId})`;
 		const endPoint = `${settings.apiUrl}${entity}`;
@@ -1534,9 +1537,24 @@ export class TreeService
 		return this._http.delete<any>(endPoint);
 	}
 
+	deleteDPChoiceOptionRuleAssocs(optionRuleId: number, mappingIndex: number): Observable<any>
+	{
+		// calling unbound odata action
+		const body =
+		{
+			'optionRuleId': optionRuleId,
+			'mappingIndex': mappingIndex
+		};
+
+		const action = 'DeleteDPChoiceOptionRuleAssocs';
+		const endPoint = `${settings.apiUrl}${action}`;
+
+		return this._http.post<any>(endPoint, body);
+	}
+
 	toggleInteractiveFloor(subGroupId: number, useInteractiveFloorplan: boolean)
 	{
-		const body = { "useInteractiveFloorplan": useInteractiveFloorplan };
+		const body = { 'useInteractiveFloorplan': useInteractiveFloorplan };
 		const endPoint = `${settings.apiUrl}dSubGroups(${subGroupId})`;
 
 		return this._http.patch(endPoint, body)
@@ -1548,19 +1566,6 @@ export class TreeService
 		const endPoint = `${settings.apiUrl}${entity}`;
 
 		return this._http.delete<any>(endPoint);
-	}
-
-	deleteAllAttributeReassignment(treeVersionId: number, dpChoiceOptionRuleAssocID: number): Observable<any>
-	{
-		// calling unbound odata action
-		const body = {
-			'dpChoiceOptionRuleAssocID': dpChoiceOptionRuleAssocID,
-		};
-
-		const action = 'DeleteAttributeReassignmentAll';
-		const endPoint = `${settings.apiUrl}${action}`;
-
-		return this._http.post<any>(endPoint, body);
 	}
 
 	saveAttributeReassignment(attributeReassignment: PhdApiDto.IAttributeReassignmentDto): Observable<AttributeReassignment>
@@ -1660,10 +1665,10 @@ export class TreeService
 		);
 	}
 
-	hasAttributeReassignment(dpChoiceOptionRuleAssocID: number): Observable<boolean>
+	hasAttributeReassignment(dpChoiceOptionRuleAssocIDs: number[]): Observable<boolean>
 	{
 		const entity = `attributeReassignments`;
-		const filter = `dpChoiceOptionRuleAssocID eq ${dpChoiceOptionRuleAssocID}`;
+		const filter = `dpChoiceOptionRuleAssocID in (${dpChoiceOptionRuleAssocIDs.join(',')})`;
 		const select = `attributeReassignmentID`;
 		const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}count=true`;
 		const endpoint = `${settings.apiUrl}${entity}?${qryStr}`;
