@@ -1,22 +1,23 @@
 import { Injectable } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from "@angular/router";
-import { HttpClient } from '@angular/common/http';
 import { Observable, throwError as _throw } from 'rxjs';
 import { map, catchError, switchMap } from 'rxjs/operators';
 
 import * as _ from 'lodash';
 
 import { environment } from '../../../../environments/environment';
-import 
-{ 
-	withSpinner, getNewGuid, createBatchGet, createBatchHeaders, createBatchBody, 
+
+import
+{
+	withSpinner, getNewGuid, createBatchGet, createBatchHeaders, createBatchBody,
 	SalesAgreement, ISalesAgreement, ModalService, Job, ChangeOrderGroup, JobPlanOptionAttribute,
-	ChangeOrderPlanOptionAttribute, JobPlanOption, ChangeOrderPlanOption
+	ChangeOrderPlanOptionAttribute, JobPlanOption, ChangeOrderPlanOption, SummaryData
 } from 'phd-common';
 
-import { 
+import {
 	LitePlanOption, ScenarioOption, ColorItem, Color, ScenarioOptionColorDto, IOptionSubCategory, OptionRelation,
-	OptionRelationEnum, ScenarioOptionColor, Elevation, IOptionCategory
+	OptionRelationEnum, ScenarioOptionColor, Elevation, IOptionCategory, LiteReportType
 } from '../../shared/models/lite.model';
 import { LotService } from './lot.service';
 import { ChangeOrderService } from './change-order.service';
@@ -27,7 +28,7 @@ export class LiteService
 	private _ds: string = encodeURIComponent("$");
 
     constructor(
-		private _http: HttpClient, 
+		private _http: HttpClient,
 		private router: Router,
 		private lotService: LotService,
 		private changeOrderService: ChangeOrderService,
@@ -248,7 +249,7 @@ export class LiteService
 				responseBodies.forEach((result)=>
 				{
 					let resultItems = result?.value as Array<OptionRelation>;
-					
+
 					resultItems?.forEach(item => {
 						optionRelations.push({
 							optionRelationId: item.optionRelationId,
@@ -264,7 +265,7 @@ export class LiteService
 			catchError(this.handleError)
 		)
 	}
-	
+
 	applyOptionRelations(options: LitePlanOption[], optionRelations: OptionRelation[])
 	{
 		if (optionRelations?.length)
@@ -272,13 +273,13 @@ export class LiteService
 			optionRelations.forEach(or => {
 				const mainOption = options.find(o => o.optionCommunityId === or.mainEdhOptionCommunityId && o.isActive);
 				const relatedOption = options.find(o => o.optionCommunityId === or.relatedEdhOptionCommunityId && o.isActive);
-				
+
 				if (mainOption && relatedOption)
 				{
 					if (or.relationType === OptionRelationEnum.CantHave)
 					{
 						mainOption.cantHavePlanOptionIds.push(relatedOption.id);
-						relatedOption.cantHavePlanOptionIds.push(mainOption.id);						
+						relatedOption.cantHavePlanOptionIds.push(mainOption.id);
 					}
 					else if (or.relationType === OptionRelationEnum.MustHave)
 					{
@@ -358,10 +359,10 @@ export class LiteService
 	}
 
 	createSalesAgreementForLiteScenario(
-		scenarioOptions: ScenarioOption[], 
+		scenarioOptions: ScenarioOption[],
 		options: LitePlanOption[],
 		categories: IOptionCategory[],
-		scenarioId: number, 
+		scenarioId: number,
 		salePrice: number
 	): Observable<SalesAgreement>
 	{
@@ -371,13 +372,13 @@ export class LiteService
 		const elevations = options.filter(option => option.optionSubCategoryId === Elevation.Detached || option.optionSubCategoryId === Elevation.Attached);
 		const selectedElevation = elevations.find(elev => scenarioOptions?.find(opt => opt.edhPlanOptionId === elev.id && opt.planOptionQuantity > 0));
 		const baseHouseOptions = this.getSelectedBaseHouseOptions(scenarioOptions, options, categories);
-		
+
 		const data = {
 			scenarioId: scenarioId,
 			options: this.mapScenarioOptions(
-						scenarioOptions, 
-						options, 
-						selectedElevation, 
+						scenarioOptions,
+						options,
+						selectedElevation,
 						baseHouseOptions.selectedBaseHouseOptions),
 			salePrice: salePrice
 		};
@@ -396,21 +397,21 @@ export class LiteService
 	getSelectedBaseHouseOptions(scenarioOptions: ScenarioOption[], options: LitePlanOption[], categories: IOptionCategory[])
 	{
 		const baseHouseCategory = categories.find(x => x.name.toLowerCase() === "base house");
-		const selectedBaseHouseOptions = options.filter(option => 
+		const selectedBaseHouseOptions = options.filter(option =>
 			option.optionCategoryId === baseHouseCategory.id
 			&& scenarioOptions?.find(opt => opt.edhPlanOptionId === option.id));
-	
+
 		return { selectedBaseHouseOptions: selectedBaseHouseOptions, baseHouseCategory: baseHouseCategory };
 	}
 
 	private mapScenarioOptions(
-		scenarioOptions: ScenarioOption[], 
-		options: LitePlanOption[], 
+		scenarioOptions: ScenarioOption[],
+		options: LitePlanOption[],
 		selectedElevation: LitePlanOption,
 		selectedBaseHouseOptions: LitePlanOption[]
 	) : Array<any>
 	{
-		return scenarioOptions.reduce((optionList, scenarioOption) => 
+		return scenarioOptions.reduce((optionList, scenarioOption) =>
 		{
 			const planOption = options.find(opt => opt.id === scenarioOption.edhPlanOptionId);
 
@@ -427,14 +428,14 @@ export class LiteService
 					action: 'Add'
 				});
 			}
-			
+
 			return optionList;
 		}, []);
 	}
 
 	private mapJobOptionType(
-		option: LitePlanOption, 
-		selectedElevation: LitePlanOption, 
+		option: LitePlanOption,
+		selectedElevation: LitePlanOption,
 		selectedBaseHouseOptions: LitePlanOption[]
 	) : string
 	{
@@ -455,7 +456,7 @@ export class LiteService
 
 	private mapOptionColors(option: LitePlanOption, optionColors: ScenarioOptionColor[]) : Array<any>
 	{
-		return optionColors.reduce((colorList, optionColor) => 
+		return optionColors.reduce((colorList, optionColor) =>
 		{
 			const colorItem = option.colorItems?.find(item => item.colorItemId === optionColor.colorItemId);
 			const color = colorItem?.color?.find(c => c.colorId === optionColor.colorId);
@@ -466,15 +467,15 @@ export class LiteService
 					colorName: color.name,
 					colorItemName: colorItem.name,
 					sku: color.sku,
-					action: 'Add'					
+					action: 'Add'
 				});
 			}
-			
+
 			return colorList;
 		}, []);
 	}
 
-	onGenerateSalesAgreement(buildMode: string, lotStatus: string, selectedLotId: number, salesAgreementId: number) 
+	onGenerateSalesAgreement(buildMode: string, lotStatus: string, selectedLotId: number, salesAgreementId: number)
 	{
 		if (buildMode === 'spec' || buildMode === 'model')
 		{
@@ -488,7 +489,7 @@ export class LiteService
 				{
 					this.lotService.buildScenario();
 				});
-			} 
+			}
 			else if (buildMode === 'model' && lotStatus === 'PendingRelease')
 			{
 				this.lotService.getLotReleaseDate(selectedLotId).pipe(
@@ -522,10 +523,10 @@ export class LiteService
 		{
 			const title = 'Generate Home Purchase Agreement';
 			const body = 'You are about to generate an Agreement for your configuration. Do you wish to continue?';
-			
+
 			const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
 			const secondaryButton = { text: 'Cancel', result: false, cssClass: 'btn-secondary' };
-			
+
 			this.showConfirmModal(body, title, primaryButton, secondaryButton).subscribe(result =>
 			{
 				if (result)
@@ -535,7 +536,7 @@ export class LiteService
 			});
 		}
 	}
-	
+
 	private showConfirmModal(body: string, title: string, primaryButton: any = null, secondaryButton: any = null): Observable<boolean>
 	{
 		const buttons = [];
@@ -557,11 +558,11 @@ export class LiteService
 			type: 'normal'
 		});
 	}
-	
+
 	getSelectedOptions(options: LitePlanOption[], job: Job, changeOrder?: ChangeOrderGroup ): Array<ScenarioOption>
 	{
 		let planOptions: (JobPlanOption | ChangeOrderPlanOption)[] = [
-			...job.jobPlanOptions, 
+			...job.jobPlanOptions,
 			...(changeOrder ? this.changeOrderService.getJobChangeOrderPlanOptions(changeOrder) : [])
 		];
 
@@ -574,28 +575,28 @@ export class LiteService
 				edhPlanOptionId: planOption.planOptionId,
 				planOptionQuantity: planOption instanceof JobPlanOption ? planOption.optionQty : planOption.qty,
 				scenarioOptionColors: this.mapSelectedOptionColors(
-					option, 
+					option,
 					planOption instanceof JobPlanOption ? planOption.jobPlanOptionAttributes : planOption.jobChangeOrderPlanOptionAttributes
 				)
 			};
-		});	
+		});
 	}
 
 	mapSelectedOptionColors(option: LitePlanOption, optionAttributes: (JobPlanOptionAttribute | ChangeOrderPlanOptionAttribute)[]): Array<ScenarioOptionColor>
 	{
-		return option && optionAttributes 
-			? optionAttributes.reduce((colorList, att) => 
+		return option && optionAttributes
+			? optionAttributes.reduce((colorList, att) =>
 				{
 					const attributeGroupLabel = att instanceof JobPlanOptionAttribute
 						? att.attributeGroupLabel
 						: att['attributeGroupLabel'];
 					const attributeName = att instanceof JobPlanOptionAttribute
 						? att.attributeName
-						: att['attributeName'];					
+						: att['attributeName'];
 
 					const colorItem = option.colorItems?.find(item => item.name === attributeGroupLabel);
 					const color = colorItem?.color?.find(c => c.name === attributeName);
-		
+
 					if (colorItem && color)
 					{
 						colorList.push({
@@ -605,9 +606,58 @@ export class LiteService
 							colorId: color.colorId
 						});
 					}
-					
+
 					return colorList;
-				}, []) 
+				}, [])
 			: [];
+	}
+
+	getSelectionSummary(reportType: LiteReportType, summaryData: SummaryData, showSalesDescription?: boolean): Observable<string>
+	{
+		const action = this.getSummaryAction(reportType);
+		const url = `${environment.apiUrl}${action}`;
+		const headers = new HttpHeaders({
+			'Content-Type': 'application/json',
+			'Accept': 'application/pdf'
+		});
+
+		let data = {};
+
+		switch(reportType)
+		{
+			case LiteReportType.PRICE_LIST:
+			case LiteReportType.PRICE_LIST_WITH_SALES_DESCRIPTION:
+				if (typeof showSalesDescription === 'undefined')
+				{
+					return _throw('no value was provided for the showSalesDescription parameter in the getSelectionSummary function');
+				}
+				else
+				{
+					data = { summaryData, showSalesDescription };
+				}
+
+				break;
+
+			default:
+				data = {summaryData: summaryData};
+				break;
+		}
+
+		return withSpinner(this._http).post(url, data, { headers: headers, responseType: 'blob' }).pipe(
+			map(response =>
+			{
+				return window.URL.createObjectURL(response);
+			}),
+		);
+	}
+
+	private getSummaryAction(reportType: LiteReportType): string
+	{
+		switch (reportType)
+		{
+			case LiteReportType.PRICE_LIST:
+			case LiteReportType.PRICE_LIST_WITH_SALES_DESCRIPTION:
+				return 'GetPriceList';
+		}
 	}
 }

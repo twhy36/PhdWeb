@@ -106,7 +106,7 @@ export class SalesNoteComponent extends ComponentCanNavAway implements OnInit
 
 	setSelectedSubCategory(id)
 	{
-		this.subCategory.setValue((this.agreement.status !== 'Pending' && this.inChangeOrder) ? 10 : id ? this.subCategoryOptions.find(item => item.id === id).id : null);
+		this.subCategory.setValue(id ? this.subCategoryOptions.find(item => item.id === id).id : null);
 	}
 
 	save()

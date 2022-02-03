@@ -126,3 +126,10 @@ export enum OptionRelationEnum
 	CantHave = 1,
 	MustHave = 2
 }
+
+export enum LiteReportType
+{
+	PRICE_LIST = 'Price List',
+	PRICE_LIST_WITH_SALES_DESCRIPTION = 'Price List with sales description',
+	SUMMARY = 'Summary',
+}

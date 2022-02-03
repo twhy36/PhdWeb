@@ -1,11 +1,11 @@
 import { Component, OnInit, ChangeDetectorRef, ViewChildren, QueryList } from '@angular/core';
 import { Observable, combineLatest } from 'rxjs';
-import { withLatestFrom, map } from 'rxjs/operators';
+import { withLatestFrom, map, take } from 'rxjs/operators';
 import { Store, select } from '@ngrx/store';
 
 import * as _ from "lodash";
 
-import { UnsubscribeOnDestroy, PriceBreakdown, ChangeTypeEnum, ChangeOrderHanding, ModalService } from 'phd-common';
+import { UnsubscribeOnDestroy, PriceBreakdown, ChangeTypeEnum, ChangeOrderHanding, ModalService, SummaryData, BuyerInfo, PDFViewerComponent, SDGroup, SDSubGroup, SDPoint, SDChoice } from 'phd-common';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
@@ -20,8 +20,10 @@ import { LiteService } from '../../../core/services/lite.service';
 import { ModalOverrideSaveComponent } from '../../../core/components/modal-override-save/modal-override-save.component';
 
 import { SummaryHeader } from '../../../shared/components/summary-header/summary-header.component';
-import { LitePlanOption, IOptionSubCategory, ScenarioOption } from '../../../shared/models/lite.model';
+import { LitePlanOption, IOptionSubCategory, ScenarioOption, LiteReportType } from '../../../shared/models/lite.model';
 import { OptionSummaryComponent } from '../option-summary/option-summary.component';
+import { environment } from '../../../../../environments/environment';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
 	selector: 'lite-summary',
@@ -50,11 +52,13 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 	primaryAction: string = 'Generate Agreement';
 	salesAgreementId: number;
 	isChangingOrder$: Observable<boolean>;
+	summaryReportType = [LiteReportType.PRICE_LIST_WITH_SALES_DESCRIPTION, LiteReportType.PRICE_LIST, LiteReportType.SUMMARY];
 	buildMode: string;
 
-	constructor(private store: Store<fromRoot.State>, 
+	constructor(private store: Store<fromRoot.State>,
 		private cd: ChangeDetectorRef,
 		private modalService: ModalService,
+		private _toastr: ToastrService,
 		private changeOrderService: ChangeOrderService,
 		private lotService: LotService,
 		private liteService: LiteService)
@@ -73,15 +77,15 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 			this.takeUntilDestroyed(),
 			select(fromRoot.priceBreakdown)
 		).subscribe(pb => this.priceBreakdown = pb);
-		
+
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(state => state.salesAgreement)
 		).subscribe(sag =>
 		{
 			this.allowEstimates = sag ? sag.id === 0 : true;
-		});		
-	
+		});
+
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(state => state.plan.plans ? state.plan.plans.find(p => p.id === state.plan.selectedPlan) : null)
@@ -96,14 +100,14 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 			this.takeUntilDestroyed(),
 			select(state => state.scenario)
 		).subscribe(sc => this.summaryHeader.communitySalesName = sc.salesCommunity ? sc.salesCommunity.name : null);
-	
+
 		combineLatest([
 			this.store.pipe(select(state => state.changeOrder)),
 			this.store.pipe(select(state => state.scenario)),
 			this.store.pipe(select(state => state.job)),
 			this.store.pipe(select(state => state.salesAgreement))
 		])
-		.pipe(this.takeUntilDestroyed())		
+		.pipe(this.takeUntilDestroyed())
 		.subscribe(([changeOrder, scenario, job, sag]) =>
 		{
 			if (changeOrder.isChangingOrder)
@@ -143,7 +147,7 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 
 		this.canConfigure$ = this.store.pipe(
 			select(fromRoot.canConfigure));
-			
+
 		this.canOverride$ = this.store.pipe(
 			select(fromRoot.canOverride));
 
@@ -151,7 +155,7 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 			this.store.pipe(select(state => state.lite)),
 			this.store.pipe(select(fromLite.selectedElevation))
 		])
-		.pipe(this.takeUntilDestroyed())		
+		.pipe(this.takeUntilDestroyed())
 		.subscribe(([lite, selectedElevation]) =>
 		{
 			// Build the data list for UI display
@@ -183,7 +187,7 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 			}
 
 			this.buildMode = build;
-		});		
+		});
 
 		this.isChangingOrder$ = combineLatest([
 			this.store.pipe(select(state => state.changeOrder)),
@@ -219,14 +223,14 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 						: false;
 				}
 			})
-		);		
+		);
 	}
 
 	private buildOptionCategories(lite: fromLite.State, selectedElevation: LitePlanOption)
 	{
 		const baseHouseOptions = this.liteService.getSelectedBaseHouseOptions(
-			lite.scenarioOptions, 
-			lite.options, 
+			lite.scenarioOptions,
+			lite.options,
 			lite.categories
 		);
 
@@ -238,7 +242,7 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 		// Add selected elevation
 		this.optionCategories.push({
 			categoryName: 'Exterior',
-			optionSubCategories: selectedElevation 
+			optionSubCategories: selectedElevation
 				? this.buildOptionSubCategories(
 						[selectedElevation],
 						allSubCategories,
@@ -259,21 +263,21 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 					allSubCategories,
 					lite.scenarioOptions
 				)
-			});			
+			});
 		}
 
 		// Add other selected options
-		const selectedOptions = lite.options.filter(option => 
+		const selectedOptions = lite.options.filter(option =>
 			lite.scenarioOptions?.find(opt => opt.edhPlanOptionId === option.id)
 			&& (!selectedElevation || selectedElevation.id !== option.id)
 			&& !selectedBaseHouseOptions?.find(opt => opt.id === option.id));
 		const optionCategoryGroups = _.groupBy(selectedOptions, option => option.optionCategoryId);
 		let sortedOptionCategories = []
 
-		for (const categoryId in optionCategoryGroups) 
+		for (const categoryId in optionCategoryGroups)
 		{
 			const categoryName = lite.categories?.find(category => category.id === +categoryId)?.name;
-			if (categoryName) 
+			if (categoryName)
 			{
 				sortedOptionCategories.push({
 					categoryName: categoryName,
@@ -308,16 +312,16 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 							id: option.id,
 							name: option.name,
 							financialOptionIntegrationKey: option.financialOptionIntegrationKey,
-							listPrice: option.listPrice,					
+							listPrice: option.listPrice,
 							quantity: scenarioOption?.planOptionQuantity || 0,
 							colors: this.buildOptionColors(option, scenarioOption),
 							showColors: false
 						};
 					})
-				});					
+				});
 			}
 		};
-		
+
 		return optionSubCategories;
 	}
 
@@ -347,12 +351,12 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 			{
 				opt.toggleColors(toggleAllColors);
 			});
-	}	
+	}
 
 	/**
 	 * Used to add additional padding to the header when scrolling so the first category doesn't get hidden
-	 * @param isSticky 
-	 */	
+	 * @param isSticky
+	 */
 	onIsStickyChanged(isSticky: boolean)
 	{
 		this.isSticky = isSticky;
@@ -398,7 +402,7 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 
 			this.selectedHanding = handing;
 		}
-	}	
+	}
 
 	getCategorySubTotals(optionCategory: any)
 	{
@@ -423,12 +427,352 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 			else
 			{
 				this.liteService.onGenerateSalesAgreement(
-					this.buildMode, 
+					this.buildMode,
 					this.summaryHeader.lot.lotStatusDescription,
 					this.summaryHeader.lot.id,
 					this.salesAgreementId
 				);
 			}
 		});
-	}	
+	}
+
+	printConfig(reportType: LiteReportType)
+	{
+		if (reportType === LiteReportType.SUMMARY)
+		{
+			return;
+		}
+
+		const showSalesDescription = reportType === LiteReportType.PRICE_LIST_WITH_SALES_DESCRIPTION;
+		const reportData = this.getPriceListReportData();
+		this.liteService.getSelectionSummary(LiteReportType.PRICE_LIST, reportData, showSalesDescription)
+			.subscribe(pdfData =>
+			{
+				let pdfViewer = this.modalService.open(PDFViewerComponent, { backdrop: 'static', windowClass: 'phd-pdf-modal', size: 'lg' });
+				pdfViewer.componentInstance.pdfModalTitle = `Configuration Preview - ${reportType}`;
+				pdfViewer.componentInstance.pdfData = pdfData;
+				pdfViewer.componentInstance.pdfBaseUrl = `${environment.pdfViewerBaseUrl}`;
+			},
+			error =>
+			{
+				this._toastr.error(`There was an issue generating ${reportType} configuration.`, 'Error - Print Configuration');
+			});
+	}
+
+	getPriceListReportData(): SummaryData
+	{
+		let summaryData = {} as SummaryData;
+		let buyerInfo = {} as BuyerInfo;
+		summaryData.title = 'Price List';
+		summaryData.groups = [];
+		buyerInfo.communityName = this.summaryHeader.communitySalesName;
+		buyerInfo.planName = this.summaryHeader.plan.salesName;
+
+		summaryData.buyerInfo = buyerInfo;
+		summaryData.includeImages = false;
+
+		combineLatest([
+			this.store.select(state => state.lite.categories),
+			this.store.select(state => state.lite.options)
+		])
+		.pipe(take(1))
+		.subscribe(([categories, options]) => {
+			const baseHouseCategory = categories.find(x => x.name.toLowerCase() === "base house");
+
+			options.filter(x => x.optionCategoryId !== baseHouseCategory.id && x.isActive).forEach(option => {
+				let categoryGroup = summaryData.groups.find(g => g.id === option.optionCategoryId);
+
+				if (! categoryGroup)
+				{
+					categoryGroup = new SDGroup({
+						id: option.optionCategoryId,
+						label: categories.find(c => c.id === option.optionCategoryId).name,
+						groupCatalogId: 0,
+						treeVersionId: 0,
+						sortOrder: 0,
+						subGroups: [],
+						status: 0,
+					});
+
+					summaryData.groups.push(categoryGroup);
+				}
+
+				let subGroupPlaceholder = categoryGroup.subGroups.find(x => x.id === option.optionCategoryId);
+
+				if (! subGroupPlaceholder)
+				{
+					subGroupPlaceholder = new SDSubGroup({
+						id: option.optionCategoryId,
+						label: option.name,
+						groupId: 0,
+						subGroupCatalogId: 0,
+						sortOrder: 0,
+						useInteractiveFloorplan: false,
+						treeVersionId: 0,
+						points: [],
+						status: 0
+					});
+
+					categoryGroup.subGroups.push(subGroupPlaceholder);
+				}
+
+				let subcategory = subGroupPlaceholder.points.find(x => x.id === option.optionSubCategoryId);
+
+				if (! subcategory)
+				{
+					subcategory = new SDPoint({
+						id: option.optionSubCategoryId,
+						label: categories.find(x => x.id === option.optionCategoryId).optionSubCategories.find(x => x.id === option.optionSubCategoryId).name,
+						hasPointToPointRules: false,
+						hasPointToChoiceRules: false,
+						subGroupId: 0,
+						divPointCatalogId: 0,
+						pointPickTypeId: 0,
+						pointPickTypeLabel: '',
+						sortOrder: 0,
+						isQuickQuoteItem: false,
+						isStructuralItem: false,
+						isHiddenFromBuyerView: false,
+						edhConstructionStageId: 0,
+						cutOffDays: 0,
+						description: '',
+						treeVersionId: 0,
+						choices: [],
+						completed: false,
+						viewed: false,
+						enabled: true,
+						disabledBy: [],
+						status: 0,
+						price: 0,
+						dPointTypeId: 0,
+						subGroupCatalogId: 0,
+						isPastCutOff: false
+					});
+
+					subGroupPlaceholder.points.push(subcategory);
+				}
+
+				subcategory.choices.push(new SDChoice({
+					id: option.id,
+					label: option.name,
+					description: option.description,
+					price: option.listPrice,
+					mappedAttributeGroups: [],
+					mappedLocationGroups: [],
+					attributeGroups: [],
+					locationGroups: [],
+					choiceMaxQuantity: null,
+					disabledBy: [],
+					divChoiceCatalogId: 0,
+					enabled: false,
+					hasChoiceRules: false,
+					hasOptionRules: false,
+					imagePath: '',
+					hasImage: false,
+					isDecisionDefault: false,
+					isSelectable: false,
+					maxQuantity: 1,
+					options: [],
+					overrideNote: '',
+					quantity: 0,
+					selectedAttributes: [],
+					sortOrder: 0,
+					treePointId: 0,
+					treeVersionId: 0,
+					lockedInOptions: [],
+					changedDependentChoiceIds: [],
+					lockedInChoice: null,
+					mappingChanged: false,
+					isHiddenFromBuyerView: false,
+					priceHiddenFromBuyerView: false,
+					isRequired: false,
+					disabledByHomesite: false
+				}));
+			});
+
+			let exteriorSubGroup =  new SDSubGroup({
+				id: 8888,
+				label: 'Exterior',
+				groupId: 0,
+				subGroupCatalogId: 0,
+				sortOrder: 0,
+				useInteractiveFloorplan: false,
+				treeVersionId: 0,
+				points: [],
+				status: 0
+			});
+
+			let elevationsSubCategory =  new SDPoint({
+				id: 7777,
+				label: 'Elevations',
+				price: 0,
+				hasPointToPointRules: false,
+				hasPointToChoiceRules: false,
+				subGroupId: 0,
+				divPointCatalogId: 0,
+				pointPickTypeId: 0,
+				pointPickTypeLabel: '',
+				sortOrder: 0,
+				isQuickQuoteItem: false,
+				isStructuralItem: false,
+				isHiddenFromBuyerView: false,
+				edhConstructionStageId: 0,
+				cutOffDays: 0,
+				description: '',
+				treeVersionId: 0,
+				choices: [],
+				completed: false,
+				viewed: false,
+				enabled: true,
+				disabledBy: [],
+				status: 0,
+				dPointTypeId: 0,
+				subGroupCatalogId: 0,
+				isPastCutOff: false
+			});
+
+			const elevationsGroup = summaryData.groups.find(x => x.label.toLowerCase() === "elevations");
+			const elevationsSubGroup = elevationsGroup.subGroups[0];
+			elevationsSubCategory.choices = elevationsSubGroup.points.find(x => x.label.toLowerCase() === "attached" || x.label.toLowerCase() === "detached").choices;
+			exteriorSubGroup.points.push(elevationsSubCategory);
+
+			let colorSubGroup =  new SDSubGroup({
+				id: 9999,
+				label: 'Color Scheme',
+				groupId: 0,
+				subGroupCatalogId: 0,
+				sortOrder: 0,
+				useInteractiveFloorplan: false,
+				treeVersionId: 0,
+				points: [],
+				status: 0
+			});
+
+			let colorSubCategory =  new SDPoint({
+				id: 9999,
+				label: 'Color Scheme',
+				price: 0,
+				hasPointToPointRules: false,
+				hasPointToChoiceRules: false,
+				subGroupId: 0,
+				divPointCatalogId: 0,
+				pointPickTypeId: 0,
+				pointPickTypeLabel: '',
+				sortOrder: 0,
+				isQuickQuoteItem: false,
+				isStructuralItem: false,
+				isHiddenFromBuyerView: false,
+				edhConstructionStageId: 0,
+				cutOffDays: 0,
+				description: '',
+				treeVersionId: 0,
+				choices: [],
+				completed: false,
+				viewed: false,
+				enabled: true,
+				disabledBy: [],
+				status: 0,
+				dPointTypeId: 0,
+				subGroupCatalogId: 0,
+				isPastCutOff: false
+			});
+
+			colorSubGroup.points.push(colorSubCategory);
+			const exteriorCategory = categories.find(x => x.name.toLowerCase() === "elevations");
+
+			options.filter(x => x.optionCategoryId === exteriorCategory.id && x.isActive).forEach(elOption => {
+				elOption.colorItems.filter(ci => ci.isActive).forEach(ci => {
+					ci.color.filter(color => color.isActive)
+					.sort((color1,color2) => {
+						return color1.name > color2.name ? 1 : -1;
+					})
+					.forEach(color => {
+						colorSubCategory.choices
+						.push(new SDChoice({
+							id: color.colorId,
+							label: color.name,
+							description: '',
+							price: 0,
+							mappedAttributeGroups: [],
+							mappedLocationGroups: [],
+							attributeGroups: [],
+							locationGroups: [],
+							choiceMaxQuantity: null,
+							disabledBy: [],
+							divChoiceCatalogId: 0,
+							enabled: false,
+							hasChoiceRules: false,
+							hasOptionRules: false,
+							imagePath: '',
+							hasImage: false,
+							isDecisionDefault: false,
+							isSelectable: false,
+							maxQuantity: 1,
+							options: [],
+							overrideNote: '',
+							quantity: 0,
+							selectedAttributes: [],
+							sortOrder: 0,
+							treePointId: 0,
+							treeVersionId: 0,
+							lockedInOptions: [],
+							changedDependentChoiceIds: [],
+							lockedInChoice: null,
+							mappingChanged: false,
+							isHiddenFromBuyerView: false,
+							priceHiddenFromBuyerView: false,
+							isRequired: false,
+							disabledByHomesite: false
+						}));
+					})
+				});
+			});
+
+			let exteriorGroup = new SDGroup({
+				id: 99999,
+				label: 'Exterior',
+				groupCatalogId: 0,
+				treeVersionId: 0,
+				sortOrder: 0,
+				subGroups: [],
+				status: 0,
+			});
+
+			exteriorGroup.subGroups.push(exteriorSubGroup);
+			exteriorGroup.subGroups.push(colorSubGroup);
+			exteriorGroup.subGroups.forEach(subgrp => {
+				subgrp.points = subgrp.points.sort((group1,group2) => {
+					return group1.label > group2.label ? 1 : -1;
+				});
+
+				subgrp.points.forEach(point => {
+					point.choices = point.choices.sort((group1,group2) => {
+						return group1.label > group2.label ? 1 : -1;
+					});
+				})
+			});
+
+			summaryData.groups = summaryData.groups.sort((group1,group2) => {
+				return group1.label > group2.label ? 1 : -1;
+			});
+
+			summaryData.groups.forEach(grp => {
+				grp.subGroups.forEach(subgrp => {
+					subgrp.points = subgrp.points.sort((group1,group2) => {
+						return group1.label > group2.label ? 1 : -1;
+					});
+
+					subgrp.points.forEach(point => {
+						point.choices = point.choices.sort((group1,group2) => {
+							return group1.label > group2.label ? 1 : -1;
+						});
+					})
+				})
+			})
+			summaryData.groups.unshift(exteriorGroup);
+			summaryData.groups = summaryData.groups.filter(g => g.label.toLowerCase() !== "elevations");
+		});
+
+		return summaryData;
+	}
 }
