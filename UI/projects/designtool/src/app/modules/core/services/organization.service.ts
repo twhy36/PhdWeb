@@ -60,7 +60,7 @@ export class OrganizationService
 	{
 		const entity = `salesCommunities`;
 		const expandFilter = `; $filter=id eq ${id}`;
-		const expand = `financialCommunities($select=id,name,number,city,state,zip,isDesignPreviewEnabled,isColorSchemePlanRuleEnabled${includeFinancialCommunities ? '' : expandFilter}),market($select=id,number)`;
+		const expand = `financialCommunities($select=id,name,number,city,state,zip,isDesignPreviewEnabled,isColorSchemePlanRuleEnabled,financialBrandId${includeFinancialCommunities ? '' : expandFilter}),market($select=id,number)`;
 		const filter = `financialCommunities/any(fc: fc/id eq ${id})`;
 		const select = `id, number, name`;
 		let qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;

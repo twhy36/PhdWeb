@@ -163,7 +163,7 @@ export class OrganizationService
     }
 
     const filter = `marketId eq ${marketId} and (salesStatusDescription eq 'Active' or salesStatusDescription eq 'New')`;
-    const expand = `financialCommunities($select=id, name, number, isDesignPreviewEnabled;$filter=salesStatusDescription eq 'Active' or salesStatusDescription eq 'New')`
+    const expand = `financialCommunities($select=id, name, number, isDesignPreviewEnabled, financialBrandId;$filter=salesStatusDescription eq 'Active' or salesStatusDescription eq 'New')`
 	const orderBy = `name`;
 
     const qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}orderby=${encodeURIComponent(orderBy)}`;

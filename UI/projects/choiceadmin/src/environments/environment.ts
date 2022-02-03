@@ -30,6 +30,13 @@ export const environment: IEnvironment = {
 	},
 	apiUrl: 'https://phdapi.dev.pulte.com/odata/',
 	designToolUrl: 'https://phd.dev.pulte.com/designtool/',
-	designPreviewUrl: 'https://phd.dev.pulte.com/designpreview/',
+	designPreviewUrls: {
+		pulte: 'https://phd.dev.pulte.com/designpreview/',
+		delWebb: 'https://phd.dev.delwebb.com/designpreview/',
+		americanWest: 'https://phd.dev.americanwesthomes.com/designpreview/',
+		diVosta: 'https://phd.dev.pulte.com/designpreview/',// CHANGE TO DIVOSTA WHEN READY
+		centex: 'https://phd.dev.pulte.com/designpreview/',// CHANGE TO CENTEX WHEN READY
+		johnWieland: 'https://phd.dev.pulte.com/designpreview/',// CHANGE TO JOHN-WIELAND WHEN READY
+	},
 	colorManagementUrl: 'https://phd.dev.pulte.com/colormanagement/'
 };

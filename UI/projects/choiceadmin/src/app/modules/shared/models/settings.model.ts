@@ -10,7 +10,14 @@ export interface Settings
 	extraQueryParameter: string;
 	expireOffsetSeconds: number;
 	designToolUrl: string;
-	designPreviewUrl: string,
+	designPreviewUrls: { 
+		pulte: string;
+		delWebb: string; 
+		americanWest: string; 
+		diVosta: string; 
+		centex: string; 
+		johnWieland: string
+	},
 	pictureParkAssetUrl: string;
 	infiniteScrollThrottle: number;
 	infiniteScrollPageSize: number;

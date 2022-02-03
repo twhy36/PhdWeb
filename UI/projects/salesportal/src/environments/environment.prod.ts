@@ -10,7 +10,14 @@ export const environment: IEnvironment = {
         crm: 'https://pulte.crm.dynamics.com/main.aspx?appid=9b2076c5-b1d3-41e7-8b71-0115e952d2ac',
         salesAdmin: 'https://phd.pulte.com/salesadmin/',
 		designTool: 'https://phd.pulte.com/designtool/',
-		designPreview: 'https://phd.pulte.com/designpreview/',
+		designPreview: {
+			pulte: 'https://phd.pulte.com/designpreview/',
+			delWebb: 'https://phd.delwebb.com/designpreview/',
+			americanWest: 'https://phd.americanwesthomes.com/designpreview/',
+			diVosta: 'https://phd.pulte.com/designpreview/',// CHANGE TO DIVOSTA WHEN READY
+			centex: 'https://phd.pulte.com/designpreview/',// CHANGE TO CENTEX WHEN READY
+			johnWieland: 'https://phd.pulte.com/designpreview/',// CHANGE TO JOHN-WIELAND WHEN READY
+		},
 		thoPreview: 'https://tho.centex.com/',
 		reports: 'http://powerbi.pulte.com/Reports/browse/IDEA/Sales/PHD',
 		homeSelections: 'https://homebuilder.pulte.com/HomeSelections/',

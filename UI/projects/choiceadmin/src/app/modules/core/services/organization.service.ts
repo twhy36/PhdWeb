@@ -182,7 +182,7 @@ export class OrganizationService
 	getCommunities(marketId: number): Observable<Array<IFinancialCommunity>>
 	{
 		const filter = `marketId eq ${marketId} and (salesStatusDescription eq 'Active' or salesStatusDescription eq 'New')`;
-		const select = `id,number,name,salesCommunityId,salesStatusDescription,marketId`;
+		const select = `id,number,name,salesCommunityId,salesStatusDescription,marketId,financialBrandId`;
 		const orderBy = `name`;
 
 		const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}orderby=${encodeURIComponent(orderBy)}`;

@@ -11,7 +11,14 @@ export interface IEnvironment {
         crm: string;
         salesAdmin: string;
 		designTool: string;
-        designPreview: string;
+        designPreview: {
+			pulte: string;
+			delWebb: string;
+			americanWest: string;
+			diVosta: string;
+			centex: string;
+			johnWieland: string;
+		};
         thoPreview: string;
         reports: string;
 		homeSelections: string;

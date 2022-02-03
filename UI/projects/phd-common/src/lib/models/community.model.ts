@@ -18,7 +18,15 @@ export interface FinancialCommunity
 	city: string;
 	state: string;
 	zip: string;
+	financialBrandId: number;
 	isPhasedPricingEnabled: boolean;
 	isDesignPreviewEnabled: boolean;
 	isColorSchemePlanRuleEnabled: boolean;
+}
+
+export interface FinancialBrand
+{
+	id: number;
+    key: number;
+	name?: string;
 }
