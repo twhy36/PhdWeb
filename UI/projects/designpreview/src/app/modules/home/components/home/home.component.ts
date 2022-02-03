@@ -214,6 +214,6 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 	}
 
 	getImageSrc() {
-		return this.brandService.getBrandImage('logo');
+		return this.brandService.getBrandImage('home-page-logo');
 	}
 }

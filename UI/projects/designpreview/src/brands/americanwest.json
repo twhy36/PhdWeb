@@ -1,7 +1,9 @@
 {
 	"images": {
-		"logo": "assets/american-west/logos/American West_Logo_Blue.png",
-		"white_logo": "assets/american-west/logos/american-west-long.png"
+		"logo": "assets/american-west/logos/american-west-full.png",
+		"white_logo": "assets/american-west/logos/american-west-long.png",
+        "choice-card-logo": "assets/american-west/logos/American-West_Logo-Home-Page.png",
+		"home-page-logo": "assets/american-west/logos/American-West_Logo-Home-Page.png"
 	},
 	"styles": {
 		"font": "Optima",
