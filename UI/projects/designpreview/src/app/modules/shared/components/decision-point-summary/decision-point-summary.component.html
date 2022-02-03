@@ -19,17 +19,28 @@
 							<div class="my-3 phd-choice-attributes" *ngIf="choice.showAttributes">
 								<ng-container *ngIf="choice.selectedAttributes.length || isDesignComplete; else attributeMsg">
 									<div class="phd-choice-attributes-body" *ngFor="let attr of choice.selectedAttributes">
-										<div class="phd-location" *ngIf="attr.locationGroupId != null || attr.locationId != null">
-											<span class="phd-label">{{ attr.locationGroupLabel}}:</span>
-											<span class="phd-content">{{ attr.locationName }}</span>
+										<div class="phd-choice-attributes-labels">
+											<div class="phd-location" *ngIf="attr.locationGroupId != null || attr.locationId != null">
+												<span class="phd-label">{{ attr.locationGroupLabel}}:</span>
+											</div>
+											<div class="phd-location" *ngIf="attr.locationGroupId != null || attr.locationId != null">
+												<span class="phd-label">Quantity:</span>
+											</div>
+											<div class="phd-attribute" *ngIf="attr.attributeGroupId != null || attr.attributeId != null">
+												<span class="phd-label">{{ attr.attributeGroupLabel}}:</span>
+
+											</div>
 										</div>
-										<div class="phd-location" *ngIf="attr.locationGroupId != null || attr.locationId != null">
-											<span class="phd-label">Quantity:</span>
-											<span class="phd-content">{{ attr.locationQuantity }}</span>
-										</div>
-										<div class="phd-attribute" *ngIf="attr.attributeGroupId != null || attr.attributeId != null">
-											<span class="phd-label">{{ attr.attributeGroupLabel}}:</span>
-											<span class="phd-content">{{ attr.attributeName }}</span>
+										<div class="phd-choice-attributes-content">
+											<div class="phd-location" *ngIf="attr.locationGroupId != null || attr.locationId != null">
+												<span class="phd-content">{{ attr.locationName }}</span>
+											</div>
+											<div class="phd-location" *ngIf="attr.locationGroupId != null || attr.locationId != null">
+												<span class="phd-content">{{ attr.locationQuantity }}</span>
+											</div>
+											<div class="phd-attribute" *ngIf="attr.attributeGroupId != null || attr.attributeId != null">
+												<span class="phd-content">{{ attr.attributeName }}</span>
+											</div>
 										</div>
 									</div>
 									<ng-container *ngIf="isChoiceComplete(choice); else attributeMsg"></ng-container>
