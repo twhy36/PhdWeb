@@ -134,7 +134,7 @@ export class DivChoicesPanelComponent extends UnsubscribeOnDestroy implements On
 
 				return forkJoin(
 					this._divService.getDivisionalChoices(marketId, this.settings.infiniteScrollPageSize, 0),
-					this._identityService.hasClaimWithPermission('Attributes', Permission.Edit),
+					this._identityService.hasClaimWithPermission('DivisionChoices', Permission.Edit),
 					this._identityService.hasMarket(marketId));
 			})
 		).subscribe(([data, hasPermission, hasMarket]) =>
