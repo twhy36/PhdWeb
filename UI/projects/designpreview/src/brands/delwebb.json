@@ -1,6 +1,8 @@
 {
 	"images": {
-		"logo": "assets/del-webb/logos/DelWebb_RGB.jpg",
+		"logo": "assets/del-webb/logos/DelWebb_RGB.png",
+		"choice-card-logo": "assets/del-webb/logos/Del-Webb_Logo-Choice-Card.png",
+		"home-page-logo": "assets/del-webb/logos/Del-Webb_Logo-Home-Page.png",
 		"white_logo": "assets/del-webb/logos/DelWebb_White.png"
 	},
 	"styles": {
