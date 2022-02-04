@@ -119,7 +119,7 @@ export class AssociateCommunitiesSidePanelComponent extends UnsubscribeOnDestroy
 
 				if (this.groups && this.groups.length)
 				{
-					this.associatingType = this.groups[0] instanceof DivChoiceCatalogAttributeGroupMarket ? AssociatingType.ChoiceAttributeGroups : AssociatingType.ChoiceLocationGroups;
+					this.associatingType = isDivChoiceCatalogAttributeGroupMarket(this.groups[0]) ? AssociatingType.ChoiceAttributeGroups : AssociatingType.ChoiceLocationGroups;
 
 					this.selectCommunities();
 				}
