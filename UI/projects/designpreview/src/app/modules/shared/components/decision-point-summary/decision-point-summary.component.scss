@@ -71,8 +71,9 @@
 
 					.phd-choice-attributes-body {
 						display: flex;
-						flex-direction: column;
+						flex-direction: row;
 						flex: 1;
+						gap: 15px;
 
 						&:not(:last-child) {
 							margin-bottom: .3em;
@@ -89,7 +90,7 @@
 
 						.phd-attribute {
 							display: flex;
-							gap: 5px;
+							justify-content: space-between;
 						}
 					}
 

@@ -35,7 +35,7 @@ import
 	ITreeSortList
 } from '../../../shared/models/tree.model';
 import { PhdApiDto, PhdEntityDto } from '../../../shared/models/api-dtos.model';
-import { Permission, IdentityService } from 'phd-common';
+import { Permission, IdentityService, BrandService, FinancialBrand, getBrandUrl } from 'phd-common';
 import { IDPointPickType } from '../../../shared/models/point.model';
 
 import { OrganizationService } from '../../../core/services/organization.service';
@@ -49,6 +49,8 @@ import { TreeToggleComponent } from '../../../shared/components/tree-toggle/tree
 import { ModalService } from '../../../core/services/modal.service';
 import { ModalRef } from '../../../shared/classes/modal.class';
 import { DivisionalService } from '../../../core/services/divisional.service';
+
+import { environment } from '../../../../../environments/environment';
 
 @Component({
 	selector: 'manage-tree',
@@ -86,6 +88,7 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 	selectedTreeVersion: DTreeVersionDropDown = null;
 	selectedPoint: DTPoint;
 	selectedChoice: DTChoice;
+	financialBrand: FinancialBrand = null;
 
 	marketsLoaded = false;
 	communitiesLoading = false;
@@ -127,6 +130,8 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 
 	modalReference: ModalRef;
 
+	environment = environment;
+
 	get openGroups(): boolean
 	{
 		return this.treeToggle ? this.treeToggle.openGroups : true;
@@ -147,6 +152,7 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 		private _planService: PlanService,
 		private _treeService: TreeService,
 		private _identityService: IdentityService,
+		private _brandService: BrandService,
 		private _settingsService: SettingsService,
 		private _modalService: ModalService,
 		private _msgService: MessageService,
@@ -261,6 +267,11 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 
 				if (this.selectedCommunity)
 				{
+					// set brand
+					let financialBrandId = this.selectedCommunity.financialBrandId;
+					this._brandService.getFinancialBrand(financialBrandId, this.environment.apiUrl).subscribe(brand => {
+						this.financialBrand = brand;
+					});
 					// set local storage
 					this._orgService.currentFinancialCommunity = this.selectedCommunity.number;
 
@@ -643,6 +654,12 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 	onChangeCommunity()
 	{
 		this.plansLoading = true;
+		// set brand
+		let financialBrandId = this.selectedCommunity.financialBrandId;
+		this._brandService.getFinancialBrand(financialBrandId, this.environment.apiUrl).subscribe(brand => {
+			this.financialBrand = brand;
+		});
+		
 		// set local storage
 		this._orgService.currentFinancialCommunity = this.selectedCommunity.number;
 		this._planService.getCommunityPlans(this.selectedCommunity.id)
@@ -812,11 +829,13 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 
 		const ref = window.open('', "genericDesignPreview", '');
 
-		const dtUrl = this._settingsService.getSettings().designPreviewUrl;
+		const dpUrls = this._settingsService.getSettings().designPreviewUrls;
 
-		if (!ref.location.href.endsWith(`${dtUrl}/${path}`)) // just opened
+		const brandUrl = getBrandUrl(this.financialBrand.key, dpUrls);
+
+		if (!ref.location.href.endsWith(`${brandUrl}/${path}`)) // just opened
 		{
-			ref.location.href = `${dtUrl}${path}`;
+			ref.location.href = `${brandUrl}${path}`;
 		}
 		else
 		{ // was already opened -- we refresh it

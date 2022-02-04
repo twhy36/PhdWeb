@@ -946,6 +946,15 @@ export const isDesignPreviewEnabled = createSelector(
 	}
 );
 
+export const financialBrandId = createSelector(
+	fromJob.jobState,
+	fromOrg.selectOrg,
+	(job, org) => {
+		const financialCommunity = org?.salesCommunity?.financialCommunities?.find(f => f.id === job?.financialCommunityId);
+		return financialCommunity.financialBrandId;
+	}
+);
+
 // PHD Lite
 export const isLiteComplete = createSelector(
 	fromScenario.selectScenario,

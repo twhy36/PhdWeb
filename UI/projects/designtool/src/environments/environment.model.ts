@@ -8,7 +8,14 @@ export interface IEnvironment
 	apiUrl: string;
 	hubUrl: string;
 	baseUrl: {
-		designPreview: string,
+		designPreviewUrls: {
+			pulte: string;
+			delWebb: string;
+			americanWest: string;
+			diVosta: string;
+			centex: string;
+			johnWieland: string;
+		};
 	},
 	tenant: string;
 	clientId: string;

@@ -4,7 +4,8 @@ export interface IFinancialCommunity
   name?: string,
   number?: string,
   salesStatusDescription?: string,
-  isDesignPreviewEnabled?: boolean
+  isDesignPreviewEnabled?: boolean,
+  financialBrandId?: number
 }
 
 export interface IMarket

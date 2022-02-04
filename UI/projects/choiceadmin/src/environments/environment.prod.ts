@@ -26,6 +26,13 @@ export const environment: IEnvironment = {
 	},
 	apiUrl: 'https://phdapi.pulte.com/odata/',
 	designToolUrl: 'https://phd.pulte.com/designtool/',
-	designPreviewUrl: 'https://phd.pulte.com/designpreview/',
+	designPreviewUrls: {
+		pulte: 'https://phd.pulte.com/designpreview/',
+		delWebb: 'https://phd.delwebb.com/designpreview/',
+		americanWest: 'https://phd.americanwesthomes.com/designpreview/',
+		diVosta: 'https://phd.pulte.com/designpreview/',// CHANGE TO DIVOSTA WHEN READY
+		centex: 'https://phd.pulte.com/designpreview/',// CHANGE TO CENTEX WHEN READY
+		johnWieland: 'https://phd.pulte.com/designpreview/',// CHANGE TO JOHN-WIELAND WHEN READY
+	},
 	colorManagementUrl: 'https://phd.pulte.com/colormanagement/'
 };

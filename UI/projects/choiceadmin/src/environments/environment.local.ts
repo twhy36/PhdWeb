@@ -31,6 +31,13 @@ export const environment: IEnvironment = {
 	},
 	apiUrl: 'http://localhost:2845/odata/',
 	designToolUrl: 'http://localhost:14767/',
-	designPreviewUrl: 'http://localhost:14769/',
+	designPreviewUrls: {
+		pulte: 'http://localhost:14769/',
+		delWebb: 'http://localhost:14769/',
+		americanWest: 'http://localhost:14769/',
+		diVosta: 'http://localhost:14769/',	
+		centex: 'http://localhost:14769/',
+		johnWieland: 'http://localhost:14769/',
+	},
 	colorManagementUrl: 'http://localhost:14770/'
 };

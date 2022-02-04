@@ -31,6 +31,7 @@ export class NavigationComponent implements OnInit
 	opportunityName$: Observable<string>;
 	salesAgreementId$: Observable<number>;
 	buildMode$: Observable<string>;
+	financialBrandId$: Observable<number>;
 
 	constructor(private store: Store<fromRoot.State>, private route: ActivatedRoute, private router: Router) { }
 
@@ -76,6 +77,9 @@ export class NavigationComponent implements OnInit
 
 		this.isDesignPreviewEnabled$ = this.store.pipe(
 			select(fromRoot.isDesignPreviewEnabled));
+
+		this.financialBrandId$ = this.store.pipe(
+			select(fromRoot.financialBrandId));
 
 		this.buildMode$ = this.store.pipe(
 			select(fromScenario.buildMode));

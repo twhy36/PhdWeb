@@ -276,7 +276,7 @@ export class ManageTreeOptionsComponent extends ComponentCanNavAway implements O
 	{
 		const path = `preview/${this.currentTree.version.id}`;
 
-		const ref = window.open('', "preview", '', true);
+		const ref = window.open('', "preview", '');
 
 		if (!ref.location.href.endsWith(path)) // just opened
 		{
@@ -287,7 +287,7 @@ export class ManageTreeOptionsComponent extends ComponentCanNavAway implements O
 		else
 		{
 			// was already opened -- we refresh it
-			ref.location.reload(true);
+			ref.location.reload();
 		}
 
 		ref.focus();

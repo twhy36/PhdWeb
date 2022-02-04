@@ -33,6 +33,7 @@ import { ClaimGuard } from './guards/claim.guard';
 import { IdentityService } from './services/identity.service';
 import { SpinnerService } from './services/spinner.service';
 import { BrowserService } from './services/browser.service';
+import { BrandService } from './services/brand.service';
 import { ModalService } from './services/modal.service';
 import { EllipsisPipe } from './pipes/ellipsis.pipe';
 import { SafeUrlPipe } from './pipes/safe-url.pipe';
@@ -133,6 +134,7 @@ export class PhdCommonModule {
                 },
                 IdentityService,
 				BrowserService,
+				BrandService,
 				ClaimGuard,
 				PrimeNGCorrectionService,
 				ModalService
