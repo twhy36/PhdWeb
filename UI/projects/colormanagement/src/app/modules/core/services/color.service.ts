@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
-import { catchError, filter, map, switchMap } from 'rxjs/operators';
+import { catchError, filter, map, switchMap, take } from 'rxjs/operators';
 import { Observable, throwError } from 'rxjs';
 import { IColorIdBatch, IColor, IColorDto } from '../../shared/models/color.model';
 import { IColorItem, IColorItemAssoc, IColorItemColorAssoc, IColorItemDto, IColorItemIdBatch } from '../../shared/models/colorItem.model';
@@ -14,17 +14,32 @@ import {
 	createBatchBody,
 	getNewGuid,
 	withSpinner,
-	IdentityService,
-	createBatchPatch,
+	IdentityService
 } from 'phd-common';
 import { IPlanOptionCommunityGridDto } from '../../shared/models/community.model';
 import { PlanOptionService } from './plan-option.service';
+import { AttributeGroupKey } from '../../shared/models/option.model';
 
 @Injectable()
 export class ColorService {
-	constructor(private _http: HttpClient, private identityService: IdentityService, private _planService: PlanOptionService) { }
+	constructor(
+		private _http: HttpClient,
+		private identityService: IdentityService,
+		private _planService: PlanOptionService)
+		{
+			this.getAttributeGroupCommunityId()
+				.pipe(take(1))
+				.subscribe(attrId => attrId);
+		}
+
 	private _ds: string = encodeURIComponent('$');
 	private _batch = '$batch';
+	private _attributeGroupCommunityId: number;
+
+	get attributeGroupCommunityId(): number
+	{
+		return this._attributeGroupCommunityId;
+	}
 
 	/**
 	 * Gets the colors for the specified financial community
@@ -141,7 +156,7 @@ export class ColorService {
 				let guid = newGuid();
 				let requests = colorList.map(color => {
 					const entity = `jobs`;
-					const filter = `(FinancialCommunityId eq ${communityId}) and (jobPlanOptions/any(po: po/planOptionCommunity/optionCommunity/optionSubCategoryId eq ${color.optionSubCategoryId} and po/jobPlanOptionAttributes/any(a: a/attributeGroupCommunityId eq 1 and a/attributeName eq '${color.name}')) or jobChangeOrderGroups/any(cog: cog/jobChangeOrders/any(co: co/jobChangeOrderPlanOptions/any(po: po/planOptionCommunity/optionCommunity/optionSubCategoryId eq ${color.optionSubCategoryId} and po/jobChangeOrderPlanOptionAttributes/any(a: a/attributeGroupCommunityId eq 1 and a/attributeName eq '${color.name}')))))`;
+					const filter = `(FinancialCommunityId eq ${communityId}) and (jobPlanOptions/any(po: po/planOptionCommunity/optionCommunity/optionSubCategoryId eq ${color.optionSubCategoryId} and po/jobPlanOptionAttributes/any(a: a/attributeGroupCommunityId eq ${this.attributeGroupCommunityId} and a/attributeName eq '${color.name}')) or jobChangeOrderGroups/any(cog: cog/jobChangeOrders/any(co: co/jobChangeOrderPlanOptions/any(po: po/planOptionCommunity/optionCommunity/optionSubCategoryId eq ${color.optionSubCategoryId} and po/jobChangeOrderPlanOptionAttributes/any(a: a/attributeGroupCommunityId eq ${this.attributeGroupCommunityId} and a/attributeName eq '${color.name}')))))`;
 					const select = `id`;
 					let qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}top=1`;
 					const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
@@ -167,7 +182,7 @@ export class ColorService {
 				let guid = newGuid();
 				let requests = itemList.map(item => {
 					const entity = `jobs`;
-					const filter = `(FinancialCommunityId eq ${communityId}) and (jobPlanOptions/any(po: po/planOptionId in (${item.colorItem.map(c => c.edhPlanOptionId).join(',')}) and po/jobPlanOptionAttributes/any(a: a/attributeGroupCommunityId eq 1 and a/attributeGroupLabel eq ('${item.colorItem[0].name}'))) or jobChangeOrderGroups/any(cog: cog/jobChangeOrders/any(co: co/jobChangeOrderPlanOptions/any(po:po/planOptionId in (${item.colorItem.map(c => c.edhPlanOptionId).join(',')})  and po/jobChangeOrderPlanOptionAttributes/any(a: a/attributeGroupCommunityId eq 1 and a/attributeGroupLabel in ('${item.colorItem[0].name}'))))))`;
+					const filter = `(FinancialCommunityId eq ${communityId}) and (jobPlanOptions/any(po: po/planOptionId in (${item.colorItem.map(c => c.edhPlanOptionId).join(',')}) and po/jobPlanOptionAttributes/any(a: a/attributeGroupCommunityId eq ${this.attributeGroupCommunityId} and a/attributeGroupLabel eq ('${item.colorItem[0].name}'))) or jobChangeOrderGroups/any(cog: cog/jobChangeOrders/any(co: co/jobChangeOrderPlanOptions/any(po:po/planOptionId in (${item.colorItem.map(c => c.edhPlanOptionId).join(',')})  and po/jobChangeOrderPlanOptionAttributes/any(a: a/attributeGroupCommunityId eq ${this.attributeGroupCommunityId} and a/attributeGroupLabel in ('${item.colorItem[0].name}'))))))`;
 					const select = `id`;
 					let qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}top=1`;
 					const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
@@ -379,6 +394,24 @@ export class ColorService {
 						coloritemname
 					);
 			})
+		);
+	}
+
+	getAttributeGroupCommunityId(): Observable<number>
+	{
+		const entity = `attributeGroupCommunities`;
+		const filter = `financialCommunity/number eq '${AttributeGroupKey.FinancialCommunityKey}' and financialCommunity/market/number eq '${AttributeGroupKey.MarketKey}'`;
+		const select = `id`;
+		const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
+		const url = `${environment.apiUrl}${entity}?${qryStr}`;
+
+		return this._http.get<any>(`${url}`).pipe(
+			map(response =>
+			{
+				this._attributeGroupCommunityId = response.value[0].id;
+				return this.attributeGroupCommunityId;
+			}),
+			catchError(this.handleError)
 		);
 	}
 }
