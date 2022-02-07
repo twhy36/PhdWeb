@@ -9,6 +9,10 @@ import {SharedModule} from '../shared/shared.module';
 import {ColorAdminPageComponent} from './components/color-admin-page/color-admin-page.component';
 import {ColorItemsPageComponent} from './components/color-items-page/color-items-page.component';
 import {ColorsPageComponent} from './components/colors-page/colors-page.component';
+import {OptionPackagesPageComponent}  from './components/option-packages-page/option-packages-page.component';
+import { OptionPackagesHeaderComponent } from './components/option-packages-header/option-packages-header.component';
+import { InfiniteScrollModule } from 'ngx-infinite-scroll';
+import { PhdCommonModule } from 'phd-common';
 
 const routes: Routes = [
 	{ path: '', component: ColorAdminPageComponent }
@@ -18,7 +22,9 @@ const routes: Routes = [
 	declarations: [
 		ColorAdminPageComponent,
 		ColorItemsPageComponent,
-		ColorsPageComponent
+		ColorsPageComponent,
+		OptionPackagesPageComponent,
+		OptionPackagesHeaderComponent
 	],
     imports: [
         NgbModule,
@@ -26,6 +32,8 @@ const routes: Routes = [
         FormsModule,
         CoreModule,
         SharedModule,
+		InfiniteScrollModule,
+		PhdCommonModule,
         RouterModule.forChild(routes)
     ],
 	exports: [
