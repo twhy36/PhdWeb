@@ -2,7 +2,9 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from "@angular/router";
 import { Observable, throwError as _throw } from 'rxjs';
-import { map, catchError, switchMap } from 'rxjs/operators';
+import { map, catchError, switchMap, take } from 'rxjs/operators';
+import { Store, ActionsSubject, select } from '@ngrx/store';
+import { ofType } from '@ngrx/effects';
 
 import * as _ from 'lodash';
 
@@ -15,12 +17,16 @@ import
 	ChangeOrderPlanOptionAttribute, JobPlanOption, ChangeOrderPlanOption, SummaryData
 } from 'phd-common';
 
+import * as fromRoot from '../../ngrx-store/reducers';
+
 import {
 	LitePlanOption, ScenarioOption, ColorItem, Color, ScenarioOptionColorDto, IOptionSubCategory, OptionRelation,
 	OptionRelationEnum, ScenarioOptionColor, Elevation, IOptionCategory, LiteReportType
 } from '../../shared/models/lite.model';
 import { LotService } from './lot.service';
 import { ChangeOrderService } from './change-order.service';
+import { MonotonyConflict } from '../../shared/models/monotony-conflict.model';
+import * as LotActions from '../../ngrx-store/lot/actions';
 
 @Injectable()
 export class LiteService
@@ -32,7 +38,9 @@ export class LiteService
 		private router: Router,
 		private lotService: LotService,
 		private changeOrderService: ChangeOrderService,
-		private modalService: ModalService
+		private modalService: ModalService,
+		private store: Store<fromRoot.State>,
+		private actions: ActionsSubject
 	) { }
 
 	getLitePlanOptions(planId: number, optionIds?: Array<string>, skipSpinner?: boolean): Observable<LitePlanOption[]>
@@ -660,4 +668,24 @@ export class LiteService
 				return 'GetPriceList';
 		}
 	}
+
+	hasLiteMonotonyConflict(): Observable<MonotonyConflict> {
+		return this.store.pipe(
+			select(state => state.org),
+			switchMap(org => {
+				//TODO: check if it's a Job change order
+				this.store.dispatch(new LotActions.LoadLots(org.salesCommunity.id));
+
+				return this.actions.pipe(
+					ofType<LotActions.LotsLoaded>(LotActions.LotActionTypes.LotsLoaded),
+					switchMap(() => this.store.pipe(
+						select(fromRoot.monotonyConflict)
+					)),
+					take(1)
+				);
+			}),
+			take(1)
+		);
+	}
+
 }

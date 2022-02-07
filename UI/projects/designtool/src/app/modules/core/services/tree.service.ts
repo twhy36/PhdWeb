@@ -223,7 +223,7 @@ export class TreeService
 		return (skipSpinner ? this.http : withSpinner(this.http)).get(url).pipe(
 			map(response =>
 			{
-				let dtos = response['value'];
+				let dtos = response ? response['value'] : [];
 
 				let images = dtos.map(x =>
 				{
