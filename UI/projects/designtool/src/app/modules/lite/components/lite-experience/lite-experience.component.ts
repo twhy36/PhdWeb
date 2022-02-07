@@ -39,8 +39,7 @@ export class LiteExperienceComponent extends UnsubscribeOnDestroy implements OnI
 	constructor(
 		private store: Store<fromRoot.State>, 
 		private router: Router, 
-		private liteService: LiteService,
-		private lotService: LotService
+		private liteService: LiteService
 	)
 	{
 		super();
@@ -173,7 +172,7 @@ export class LiteExperienceComponent extends UnsubscribeOnDestroy implements OnI
 
 	onBuildIt()
 	{
-		this.lotService.hasMonotonyConflict().subscribe(mc =>
+		this.liteService.hasLiteMonotonyConflict().subscribe(mc =>
 		{
 			if (mc.monotonyConflict)
 			{

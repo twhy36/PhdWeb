@@ -60,7 +60,6 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 		private modalService: ModalService,
 		private _toastr: ToastrService,
 		private changeOrderService: ChangeOrderService,
-		private lotService: LotService,
 		private liteService: LiteService)
 	{
 		super();
@@ -418,7 +417,7 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 
 	onBuildIt()
 	{
-		this.lotService.hasMonotonyConflict().subscribe(mc =>
+		this.liteService.hasLiteMonotonyConflict().subscribe(mc =>
 		{
 			if (mc.monotonyConflict)
 			{
