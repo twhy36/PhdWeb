@@ -16,3 +16,10 @@ export interface IOptionCommunity
   financialCommunityId: number,
   optionSubCategory:IOptionSubCategory
 }
+
+//This is for the dummy attribute group
+export enum AttributeGroupKey
+{
+    MarketKey = '9997',
+    FinancialCommunityKey = '8997'
+}

@@ -2,7 +2,7 @@ import {Component, OnInit, ViewChild} from '@angular/core';
 import {OptionService} from '../../services/option.service';
 import {IOptionSubCategory} from '../../../shared/models/option.model';
 import {OrganizationService} from '../../../core/services/organization.service';
-import {filter, map, switchMap} from 'rxjs/operators';
+import {filter, map, switchMap, take} from 'rxjs/operators';
 import {from, Observable, EMPTY } from 'rxjs';
 import {ConfirmModalComponent, ModalRef, ModalService, UnsubscribeOnDestroy} from 'phd-common';
 import {IColor, IColorDto} from '../../../shared/models/color.model';
@@ -71,6 +71,7 @@ export class ColorsSearchHeaderComponent
 				);
 			})
 		);
+
 		this.optionSubCategory$.subscribe((subcategoryList) => {
 			this.optionSubCategoryList = subcategoryList;
 			this.resetFilter();

@@ -57,7 +57,7 @@ export interface DesignToolAttribute
 	locationGroupName: string;
 	locationId: number;
 	locationName: string;
-	locationQuantity: number;	
+	locationQuantity: number;
 	scenarioChoiceLocationId: number;
 	scenarioChoiceLocationAttributeId: number;
 	selected?: boolean;
