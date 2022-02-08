@@ -165,7 +165,7 @@ export class SDChoice
 		this.minPrice = priceRange ? priceRange.min : null;
 		this.maxPrice = priceRange ? priceRange.max : null;
 		this.priceHiddenFromBuyerView = c.priceHiddenFromBuyerView;
-		this.choiceImages = c.choiceImages.map(c => new SDChoiceImage(c));
+		this.choiceImages = c.choiceImages ? c.choiceImages.map(c => new SDChoiceImage(c)) : [];
 	}
 }
 
