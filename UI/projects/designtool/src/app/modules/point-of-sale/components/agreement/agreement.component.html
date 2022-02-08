@@ -88,7 +88,7 @@
 				<strong>Elevation:</strong>
 			</div>
 			<div class="flex-column phd-flex-fill pl-1">
-				{{ !isSalesAgreementCancelledOrVoided ? elevationChoice?.label : ''}}
+				{{ !isSalesAgreementCancelledOrVoided ? elevationChoice?.label || liteElevationName : ''}}
 			</div>
 		</div>
 		<div class="d-flex flex-wrap py-2" *ngIf="status !== 'Void'">
@@ -96,7 +96,7 @@
 				<strong>Color Scheme:</strong>
 			</div>
 			<div class="flex-column phd-flex-fill pl-1">
-				{{ !isSalesAgreementCancelledOrVoided ? colorScheme : ''}}
+				{{ !isSalesAgreementCancelledOrVoided ? colorScheme || liteColorSchemeName : ''}}
 			</div>
 		</div>
 		<div class="d-flex flex-wrap py-2" *ngIf="status !== 'Void'">
