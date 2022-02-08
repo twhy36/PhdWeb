@@ -67,7 +67,7 @@ export class JobEffects
 					return this.contractService.saveSnapshot(data.changeOrder, data.jobId, data.changeOrderGroupId).pipe(
 						switchMap(() =>
 							this.contractService.createEnvelope(data.jioSelections, data.templates, data.financialCommunityId, data.salesAgreement.salesAgreementNumber, data.salesAgreement.status, data.envelopeInfo, data.jobId, data.changeOrderGroupId, data.constructionChangeOrderSelectionsDto, data.salesChangeOrderSelections, data.planChangeOrderSelectionsDto, data.nonStandardOptionSelectionsDto, data.lotTransferSeletionsDto, data.changeOrderInformation)),
-							map(envelopeId => {
+						map(envelopeId => {
 							return { envelopeId, changeOrder: data.changeOrder };
 						}
 					));
@@ -78,7 +78,7 @@ export class JobEffects
 						envelopeGuid: data.envelopeId,
 						eSignStatusId: ESignStatusEnum.Created,
 						eSignTypeId: ESignTypeEnum.ChangeOrder,
-						edhChangeOrderGroupId: data.changeOrder.changeOrderGroupId					
+						edhChangeOrderGroupId: data.changeOrder.changeOrderGroupId
 					};
 
 					return forkJoin(of(data.changeOrder), this.changeOrderService.createESignEnvelope(eSignEnvelope));
