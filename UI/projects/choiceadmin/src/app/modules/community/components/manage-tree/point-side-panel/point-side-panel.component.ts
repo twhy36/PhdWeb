@@ -103,6 +103,11 @@ export class PointSidePanelComponent implements OnInit
 		return canSave;
 	}
 
+	get allRules(): IRule[]
+	{
+		return this.choiceRules.concat(this.pointRules)
+	}
+
 	ngOnInit(): void
 	{
 		this.getPointRules();

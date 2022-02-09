@@ -41,7 +41,7 @@
 										<ng-container *ngIf="ruleType !== 'point'">
 											<ng-container *ngFor="let choice of point.choices">
 												<div *ngIf="point.open && subGroup.open && group.open && choice.matched" class="phd-great-grand-child-sp">
-													<span class="phd-tree-rule" (click)="onAddItemClick(id, ruleType, choice)" [class.phd-tree-rule-disabled]="id == point.id || id == choice.id">{{choice.label}}</span>
+													<span class="phd-tree-rule" (click)="onAddItemClick(id, ruleType, choice)" [class.phd-tree-rule-disabled]="isChoiceDisabled(point, choice)">{{choice.label}}</span>
 													<span *ngIf="choice.isDecisionDefault" class="text-danger">*</span>
 												</div>
 											</ng-container>
