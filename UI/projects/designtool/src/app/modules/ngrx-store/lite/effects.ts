@@ -5,15 +5,15 @@ import { Observable, never, of, combineLatest, from } from 'rxjs';
 import { switchMap, withLatestFrom, map } from 'rxjs/operators';
 
 import { LiteService } from '../../core/services/lite.service';
-import { PlanActionTypes, PlansLoaded } from '../plan/actions';
+import { DeselectPlan, PlanActionTypes, PlansLoaded, SelectPlan } from '../plan/actions';
 import { ScenarioActionTypes, ScenarioSaved } from '../scenario/actions';
 import {
-	LiteActionTypes, SetIsPhdLite, LiteOptionsLoaded, SaveScenarioOptions, ScenarioOptionsSaved, SaveScenarioOptionColors, OptionCategoriesLoaded
+	LiteActionTypes, SetIsPhdLite, LiteOptionsLoaded, SaveScenarioOptions, ScenarioOptionsSaved, SaveScenarioOptionColors, OptionCategoriesLoaded, SelectOptions
 } from './actions';
 import { CommonActionTypes, ScenarioLoaded, SalesAgreementLoaded } from '../actions';
 import * as fromRoot from '../reducers';
 import * as _ from 'lodash';
-import { IOptionCategory } from '../../shared/models/lite.model';
+import { IOptionCategory, ScenarioOption } from '../../shared/models/lite.model';
 
 @Injectable()
 export class LiteEffects
@@ -158,7 +158,7 @@ export class LiteEffects
 									this.liteService.applyOptionRelations(options, optionRelations);
 
 									const scenarioOptions = this.liteService.getSelectedOptions(options, action.job, action.changeOrder);
-									
+
 									return { options, scenarioOptions, categories };
 								})
 							)
@@ -178,7 +178,7 @@ export class LiteEffects
 				return never();
 			})
 		);
-	});	
+	});
 
 	saveScenarioOptions$: Observable<Action> = createEffect(() => {
 		return this.actions$.pipe(
@@ -207,6 +207,44 @@ export class LiteEffects
 					: of([]);
 			}),
 			map(options => new ScenarioOptionsSaved(options))
+		);
+	});
+
+	planWasSelectedOrDeselected$: Observable<Action> = createEffect(() => {
+		return this.actions$.pipe(
+			ofType<LiteOptionsLoaded | SelectPlan | DeselectPlan>(LiteActionTypes.LiteOptionsLoaded, PlanActionTypes.SelectPlan, PlanActionTypes.DeselectPlan),
+			withLatestFrom(this.store),
+			switchMap(([action, store]) => {
+				if (store.lite.options.length === 0)
+				{
+					return never();
+				}
+
+				const baseHouseOption = store.lite.options.find(o => o.name.toLowerCase() === 'base house'
+												&& o.isActive
+												&& o.colorItems.length > 0
+												&& o.colorItems.some(item => item.isActive && item.color.length > 0 && item.color.some(c => c.isActive)));
+
+				const baseHouseOptionSaveIsNeeded = baseHouseOption && store.lite.scenarioOptions.every(so => so.edhPlanOptionId !== baseHouseOption.id);
+
+				if (baseHouseOptionSaveIsNeeded)
+				{
+					let baseHouseScenarioOptions: ScenarioOption[] = [{
+							scenarioOptionId: 0,
+							scenarioId: store.scenario.scenario.scenarioId,
+							edhPlanOptionId: baseHouseOption.id,
+							planOptionQuantity: 1,
+							scenarioOptionColors: []
+						}];
+
+					return from([
+						new SelectOptions(baseHouseScenarioOptions),
+						new SaveScenarioOptions(baseHouseScenarioOptions)
+					]);
+				}
+
+				return never();
+			})
 		);
 	});
 

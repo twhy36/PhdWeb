@@ -84,53 +84,8 @@ export class ColorsComponent extends UnsubscribeOnDestroy implements OnInit {
 			});
 
 			const baseHouseCategory = this.categories.find(c => c.name.toLowerCase() === 'base house');
-			const baseHouseOptionsNotAlreadySaved = selectedOptions.every(x => x.optionCategoryId !== baseHouseCategory.id);
-			const baseHouseHasColorItems = this.allOptions.some(option => option.optionCategoryId === baseHouseCategory.id
-																	&& option.colorItems.length > 0
-																	&& option.colorItems.some(item => item.isActive && item.color.length > 0 && item.color.some(c => c.isActive)));
-
-			let defaultSubMenu = categorySubMenus[0]?.id ?? baseHouseCategory.id;
-
-			if (baseHouseOptionsNotAlreadySaved && baseHouseHasColorItems)
-			{
-				categorySubMenus.unshift({
-					label: baseHouseCategory.name,
-					status: PointStatus.UNVIEWED,
-					id: baseHouseCategory.id
-				});
-
-				defaultSubMenu = baseHouseCategory.id;
-
-				const baseHouseOptions = this.allOptions
-					.filter(option => option.optionCategoryId === baseHouseCategory.id
-									&& option.colorItems.length > 0
-									&& option.colorItems.some(item => item.isActive && item.color.length > 0 && item.color.some(c => c.isActive)))
-					.map(x => x as LitePlanOptionUI);
-
-				let baseHouseScenarioOptions: ScenarioOption[] = [];
-
-				baseHouseOptions.forEach(baseOption => {
-					if (this.scenarioOptions.every(so => so.edhPlanOptionId !== baseOption.id))
-					{
-						baseHouseScenarioOptions.push({
-							scenarioOptionId: 0,
-							scenarioId: this.scenarioId,
-							edhPlanOptionId: baseOption.id,
-							planOptionQuantity: 1,
-							scenarioOptionColors: []
-						});
-					}
-				});
-
-				if (baseHouseScenarioOptions.length > 0)
-				{
-					this.store.dispatch(new LiteActions.SelectOptions(baseHouseScenarioOptions));
-					this.store.dispatch(new LiteActions.SaveScenarioOptions(baseHouseScenarioOptions));
-				}
-			}
-
 			this.store.dispatch(new NavActions.SetSubNavItems(categorySubMenus));
-			this.store.dispatch(new NavActions.SetSelectedSubNavItem(defaultSubMenu));
+			this.store.dispatch(new NavActions.SetSelectedSubNavItem(baseHouseCategory.id));
 		});
 
 		this.store
