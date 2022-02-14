@@ -35,7 +35,7 @@
 					(checkChanges)="changes($event)">
 	</program-detail>
 
-	<add-card *ngIf="!editing && canEditAgreement && (canSell || canDesignInChangeOrder || canAddIncentive) && !cancelOrVoid && hasAvailableSalesPrograms"
+	<add-card *ngIf="!editing && canEditAgreement && canAddIncentive && !cancelOrVoid && hasAvailableSalesPrograms"
 			  [hasNA]="!programs || programs.length === 0 && !isChangingOrder"
 			  [isNA]="isProgramNa"
 			  [label]="'Incentive'"
@@ -51,7 +51,7 @@
 								 [currentClosingCostIncentive]="currentClosingCostIncentive$ | async"
 								 [totalCurrentClosingCostAmount]="totalCurrentClosingCostAmount$ | async"
 								 [editing]="editing"
-								 [canEdit]="(canSell || canDesignInChangeOrder || canAddIncentive) && canEditAgreement && priceAdjustments.length > 0"
+								 [canEdit]="canAddIncentive && canEditAgreement && priceAdjustments.length > 0"
 								 (onEdit)="edit($event)"
 								 (onRemove)="remove('priceAdjustments', $event)"
 								 (onSavingPriceAdjustments)="saveSalesChangeOrderPriceAdjustments($event)"
@@ -60,7 +60,7 @@
 	</ng-template>
 
 	<ng-template [ngIf]="isChangingOrder">
-		<add-card *ngIf="!editing && (canSell || canDesignInChangeOrder || canAddIncentive) && (!priceAdjustments || priceAdjustments.length === 0)"
+		<add-card *ngIf="!editing && canAddIncentive && (!priceAdjustments || priceAdjustments.length === 0)"
 				  [hasNA]="false"
 				  [label]="'Price Adjustment'"
 				  [labels]="'Price Adjustments'"
