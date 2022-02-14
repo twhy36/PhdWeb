@@ -207,9 +207,12 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 			})
 		);
 
-		this.brandService.getFinancialBrand(this.financialBrandId, environment.apiUrl).subscribe(brand => {
-			this.financialBrand = brand;
-		});
+		if (this.financialBrandId)
+		{
+			this.brandService.getFinancialBrand(this.financialBrandId, environment.apiUrl).subscribe(brand => {
+				this.financialBrand = brand;
+			});			
+		}
 
 		combineLatest([
 			this.store.pipe(select(fromLite.selectedElevation), this.takeUntilDestroyed()),

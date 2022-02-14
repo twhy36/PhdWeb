@@ -15,7 +15,6 @@ import * as SummaryActions from '../../../ngrx-store/summary/actions';
 import { selectSelectedLot } from '../../../ngrx-store/lot/reducer';
 
 import { ChangeOrderService } from '../../../core/services/change-order.service';
-import { LotService } from '../../../core/services/lot.service';
 import { LiteService } from '../../../core/services/lite.service';
 import { ModalOverrideSaveComponent } from '../../../core/components/modal-override-save/modal-override-save.component';
 

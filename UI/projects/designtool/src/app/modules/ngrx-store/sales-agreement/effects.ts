@@ -69,7 +69,8 @@ export class SalesAgreementEffects
 						store.lite.options,
 						store.lite.categories,
 						store.scenario.scenario.scenarioId, 
-						salePrice
+						salePrice,
+						store.lite.elevationOverrideNote || store.lite.colorSchemeOverrideNote
 					)
 					: this.salesAgreementService.createSalesAgreementForScenario(
 						store.scenario.scenario, 

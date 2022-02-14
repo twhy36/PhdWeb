@@ -1,4 +1,4 @@
-import { PlanOption, OptionImage, PointStatus } from 'phd-common';
+import { PlanOption, OptionImage, PointStatus, MonotonyRuleType } from 'phd-common';
 
 export class LitePlanOption implements PlanOption
 {
@@ -132,4 +132,18 @@ export enum LiteReportType
 	PRICE_LIST = 'Price List',
 	PRICE_LIST_WITH_SALES_DESCRIPTION = 'Price List with sales description',
 	SUMMARY = 'Summary',
+}
+
+export interface LiteMonotonyRule {
+    edhLotId: number;
+    relatedLotsElevationColorScheme: Array<LiteMonotonyRuleLot>;
+}
+
+export interface LiteMonotonyRuleLot {
+    edhLotId: number;
+    edhPlanId: number;
+    ruleType: MonotonyRuleType;
+    elevationPlanOptionId?: number;
+    colorSchemeColorName: string;
+    colorSchemeColorItemName: string;
 }

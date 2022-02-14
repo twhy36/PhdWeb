@@ -1,0 +1,52 @@
+.phd-modal-body {
+    margin: 0;
+    padding: 0;
+
+	.row {
+		margin: 0;
+	}
+
+	a {
+		display: block;
+		cursor: pointer;
+		padding: 20px 0 34px;
+		background: #0d4b6b;
+		border-left: 1px solid #033048;
+		border-right: 1px solid #3e7a99;
+		line-height: 27px;
+		color: #fff;
+
+		span {
+			font-size: 44px;
+			font-weight: bold;
+			//text-transform: uppercase;
+			display: block;
+			color: #fff;
+			text-shadow: 2px 1px #3e7a99;
+		}
+
+		&:hover {
+			background: #1e6990;
+			border-left: 1px solid #1e6990;
+			color: #fff;
+		}
+    }
+    
+    .phd-single {
+        width: 100%;
+    }
+
+    .phd-double {
+		width: 50%;
+    }
+
+    .phd-advisement {
+        font-weight: 500;
+        padding: 5px;
+	}
+	
+	.phd-lot {
+		padding-top: 18%;
+		padding-bottom: 18%;
+	}
+}
