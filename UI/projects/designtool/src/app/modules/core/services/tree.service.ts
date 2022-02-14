@@ -8,7 +8,7 @@ import
 	{
 		newGuid, createBatchGet, createBatchHeaders, createBatchBody, withSpinner, ChangeOrderChoice, ChangeOrderPlanOption,
 		JobChoice, JobPlanOption, TreeVersionRules, OptionRule, Tree, ChoiceImageAssoc, PlanOptionCommunityImageAssoc,
-		TreeBaseHouseOption, OptionImage, IdentityService, MyFavoritesChoice, getDateWithUtcOffset
+		TreeBaseHouseOption, OptionImage, IdentityService, MyFavoritesChoice, getDateWithUtcOffset, convertDateToUtcString, Choice
 	} from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
@@ -325,38 +325,92 @@ export class TreeService
 		);
 	}
 
-	getChoiceImageAssoc(choices: Array<number>): Observable<Array<ChoiceImageAssoc>>
+	getChoiceImageAssoc(choices: Choice[]): Observable<Array<ChoiceImageAssoc>>
 	{
-		let url = environment.apiUrl;
-		const filter = `dpChoiceId in (${choices.join(',')})`;
-		const orderby = `sortKey`;
-
-		const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}orderBy=${orderby}&${this._ds}select=dpChoiceImageAssocId, dpChoiceId, imageUrl, sortKey`;
-
-		url += `dPChoiceImageAssocs?${qryStr}`;
-
-		return this.http.get(url).pipe(
-			map(response =>
+		return this.identityService.token.pipe(
+			switchMap((token: string) =>
 			{
-				let choiceImageAssoc = response['value'] as Array<ChoiceImageAssoc>;
+				let guid = newGuid();
 
-				return choiceImageAssoc;
+				let buildRequestUrl = (choices: Choice[]) =>
+				{
+					let optFilter = (choice: Choice) => 
+					{
+						let choiceId = choice.lockedInChoice ? choice.lockedInChoice.choice.dpChoiceId : choice.id;
+
+						let filter = `(dpChoiceId eq ${choiceId}`;
+
+						if (choice.lockedInChoice && choice.lockedInChoice.choice.outForSignatureDate)
+						{
+							filter += ` and startDate le ${choice.lockedInChoice.choice.outForSignatureDate} and (endDate eq null or endDate gt ${choice.lockedInChoice.choice.outForSignatureDate})`;
+						}
+						else
+						{
+							filter += ` and endDate eq null`;
+						}
+
+						return filter + ')';
+					}
+
+					let filter = `${choices.map(choice => optFilter(choice)).join(' or ')}`;
+					let select = `dpChoiceImageAssocId, dpChoiceId, imageUrl, sortKey`;
+					let orderBy = `sortKey`;
+
+					return `${environment.apiUrl}dPChoiceImageAssocs?${encodeURIComponent('$')}select=${select}&${encodeURIComponent('$')}filter=${filter}&${encodeURIComponent('$')}orderby=${orderBy}&${this._ds}count=true`;
+				}
+
+				const batchSize = 35;
+				let batchBundles: string[] = [];
+
+				// create a batch request with a max of 100 choices per request
+				for (var x = 0; x < choices.length; x = x + batchSize)
+				{
+					let optionList = choices.slice(x, x + batchSize);
+
+					batchBundles.push(buildRequestUrl(optionList));
+				}
+
+				let requests = batchBundles.map(req => createBatchGet(req));
+
+				var headers = createBatchHeaders(guid, token);
+				var batch = createBatchBody(guid, requests);
+
+				return this.http.post(`${environment.apiUrl}$batch`, batch, { headers: headers });
+			}),
+			map((response: any) =>
+			{
+				let bodies: any[] = response.responses.map(r => r.body);
+
+				return _.flatten(bodies.map(body =>
+				{
+					return body.value?.length > 0 ? body.value : null;
+				}).filter(res => res));
 			})
 		);
 	}
 
-	getChoiceImages(choiceIds: number[], isPreview: boolean): Observable<ChoiceImageAssoc[]>
+	getChoiceImages(choices: Choice[], isPreview: boolean, publishStartDate: Date): Observable<ChoiceImageAssoc[]>
 	{
-		const endPoint = environment.apiUrl + `GetChoiceImages`;
+		const utcNow = getDateWithUtcOffset();
 
-		const body = {
-			choiceIds: choiceIds,
-			isPreview: isPreview
-		};
+		// return images for a preview or future dated tree - DPChoiceImages or DivChoiceCatalog_CommunityImages
+		if (isPreview && (publishStartDate === null || convertDateToUtcString(publishStartDate) > utcNow))
+		{
+			const endPoint = environment.apiUrl + `GetChoiceImages`;
 
-		return this.http.post(endPoint, body).pipe(
-			map(response => response['value'] as ChoiceImageAssoc[])
-		);
+			const body = {
+				choiceIds: choices.map(choice => choice.id)
+			};
+
+			return this.http.post(endPoint, body).pipe(
+				map(response => response['value'] as ChoiceImageAssoc[])
+			);
+		}
+		else
+		{
+			// return images for a active tree - EDH DPChoiceImageAssoc
+			return this.getChoiceImageAssoc(choices);
+		}
 	}
 
 	getPlanOptionCommunityImageAssoc(options: Array<JobPlanOption | ChangeOrderPlanOption>): Observable<Array<PlanOptionCommunityImageAssoc>>

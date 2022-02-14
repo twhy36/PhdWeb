@@ -143,6 +143,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 	ngOnInit()
 	{
 		this.isPastCutOff = this.currentDecisionPoint && this.currentDecisionPoint.isPastCutOff;
+
 		this.route.paramMap.pipe(
 			this.takeUntilDestroyed(),
 			map(params =>
@@ -254,10 +255,10 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 				});
 			}
 		},
-			error =>
-			{
-				this.loadingAttributeImage = false;
-			});
+		error =>
+		{
+			this.loadingAttributeImage = false;
+		});
 
 		this.override$.next((!!this.choice.overrideNote));
 
@@ -266,13 +267,25 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 			select(fromRoot.monotonyChoiceIds)
 		);
 
+		const choiceImages$: Observable<ChoiceImageAssoc[]> = this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(state => state.scenario),
+			switchMap(scenario =>
+			{
+				const publishStartDate = scenario.tree.treeVersion.publishStartDate;
+
+				// get images from DPChoiceImages or DivChoiceCatalog_CommunityImages if preview and publishStartDate is in the future or DPChoiceImageAssoc otherwise
+				return this.treeService.getChoiceImages([this.choice], this.buildMode === 'preview', publishStartDate);
+			})
+		);
+
 		combineLatest([selectMonotonyChoiceIds$, this.store.pipe(select(fromScenario.choiceOverrides)),
 			this.store.pipe(select(selectSelectedLot)),
 			this.store.pipe(select(selectedPlanData)),
-			this.treeService.getChoiceImages([this.choice.lockedInChoice ? this.choice.lockedInChoice.choice.dpChoiceId : this.choice.id], this.buildMode === 'preview')])
+			choiceImages$])
 			.subscribe(([monotonyChoices, choiceOverride, lots, plan, choiceImages]) =>
 			{
-				this.choiceImages = choiceImages.length ? choiceImages.sort((a, b) => a.sortKey < b.sortKey ? -1 : 1) : [];;
+				this.choiceImages = choiceImages.length ? choiceImages.sort((a, b) => a.sortKey < b.sortKey ? -1 : 1) : [];
 				this.loadingChoiceImage = false;
 
 				let conflictMessage: MonotonyConflict = new MonotonyConflict();
@@ -329,6 +342,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 			this.inChangeOrder = state.isChangingOrder;
 
 			const changeOrder = state.currentChangeOrder as ChangeOrderGroup;
+
 			this.changeOrderOverrideReason = changeOrder ? changeOrder.overrideNote : null;
 		});
 
@@ -340,8 +354,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 			)
 		).subscribe(([choices, isDesignPreviewEnabled]) =>
 		{
-			this.isFavorite = isDesignPreviewEnabled
-				&& !!choices?.find(c => c.divChoiceCatalogId === this.choice.divChoiceCatalogId);
+			this.isFavorite = isDesignPreviewEnabled && !!choices?.find(c => c.divChoiceCatalogId === this.choice.divChoiceCatalogId);
 		});
 
 		// trigger attributeGroups observable in the init.

@@ -43,6 +43,7 @@ export class TreeVersion
 	treeId: number;
 	planKey: string;
 	name: string;
+	publishStartDate?: Date;
 	groups: Array<Group>;
 }
 

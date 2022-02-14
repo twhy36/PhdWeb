@@ -164,12 +164,12 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 					const subGroups = _.flatMap(this.fullGroups, g => g.subGroups);
 					const points = _.flatMap(subGroups, sg => sg.points);
 					const choices = _.flatMap(points, p => p.choices);
-					const selectedChoiceIds = choices.filter(c => c.quantity > 0).map(c => c.id);
-
-					if (selectedChoiceIds.length)
+					const selectedChoices = choices.filter(c => c.quantity > 0);
+					
+					if (selectedChoices.length)
 					{
 						// get images for only selected choices
-						choiceImages$ = this.treeService.getChoiceImages(selectedChoiceIds, isPreview);
+						choiceImages$ = this.treeService.getChoiceImages(selectedChoices, isPreview, scenario.tree?.treeVersion.publishStartDate);
 					}
 				}
 
