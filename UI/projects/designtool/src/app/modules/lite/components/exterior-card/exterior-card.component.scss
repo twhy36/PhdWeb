@@ -10,7 +10,7 @@
 .phd-exterior-card {
 	@extend .phd-exterior-card-div;
 	width: 250px;
-	height: 250px;
+	height: 280px;
 	background-color: white;
 	margin: 5px;
 	margin-bottom: 10px;
@@ -98,5 +98,22 @@
 		-webkit-line-clamp: 2;
 		overflow: hidden;
 	}
-    
+
+	&.phd-monotony-conflict {
+		> div:not(.phd-monotony-conflict-message) {
+			opacity: 0.5;
+		}
+	}
+
+	.phd-monotony-conflict-message {
+		color: red;
+		font-weight: bold;
+		height: 40px;
+		margin-bottom: 5px;
+		margin-top: 10px;
+	}
+	
+	.phd-option-disabled {
+		opacity: 0.5;
+	}	
 }

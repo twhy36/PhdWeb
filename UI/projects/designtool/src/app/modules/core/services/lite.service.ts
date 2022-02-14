@@ -14,19 +14,19 @@ import
 {
 	withSpinner, getNewGuid, createBatchGet, createBatchHeaders, createBatchBody,
 	SalesAgreement, ISalesAgreement, ModalService, Job, ChangeOrderGroup, JobPlanOptionAttribute,
-	ChangeOrderPlanOptionAttribute, JobPlanOption, ChangeOrderPlanOption, SummaryData
+	ChangeOrderPlanOptionAttribute, JobPlanOption, ChangeOrderPlanOption, SummaryData, defaultOnNotFound
 } from 'phd-common';
 
 import * as fromRoot from '../../ngrx-store/reducers';
 
 import {
 	LitePlanOption, ScenarioOption, ColorItem, Color, ScenarioOptionColorDto, IOptionSubCategory, OptionRelation,
-	OptionRelationEnum, ScenarioOptionColor, Elevation, IOptionCategory, LiteReportType
+	OptionRelationEnum, ScenarioOptionColor, Elevation, IOptionCategory, LiteReportType, LiteMonotonyRule
 } from '../../shared/models/lite.model';
 import { LotService } from './lot.service';
 import { ChangeOrderService } from './change-order.service';
 import { MonotonyConflict } from '../../shared/models/monotony-conflict.model';
-import * as LotActions from '../../ngrx-store/lot/actions';
+import * as LiteActions from '../../ngrx-store/lite/actions';
 
 @Injectable()
 export class LiteService
@@ -371,7 +371,8 @@ export class LiteService
 		options: LitePlanOption[],
 		categories: IOptionCategory[],
 		scenarioId: number,
-		salePrice: number
+		salePrice: number,
+		overrideNote: string
 	): Observable<SalesAgreement>
 	{
 		const action = `CreateSalesAgreementForLiteScenario`;
@@ -387,7 +388,8 @@ export class LiteService
 						scenarioOptions,
 						options,
 						selectedElevation,
-						baseHouseOptions.selectedBaseHouseOptions),
+						baseHouseOptions.selectedBaseHouseOptions,
+						overrideNote),
 			salePrice: salePrice
 		};
 
@@ -416,7 +418,8 @@ export class LiteService
 		scenarioOptions: ScenarioOption[],
 		options: LitePlanOption[],
 		selectedElevation: LitePlanOption,
-		selectedBaseHouseOptions: LitePlanOption[]
+		selectedBaseHouseOptions: LitePlanOption[],
+		overrideNote: string
 	) : Array<any>
 	{
 		return scenarioOptions.reduce((optionList, scenarioOption) =>
@@ -432,6 +435,7 @@ export class LiteService
 					optionSalesName: planOption.name,
 					optionDescription: planOption.description,
 					jobOptionTypeName: this.mapJobOptionType(planOption, selectedElevation, selectedBaseHouseOptions),
+					overrideNote: planOption.id === selectedElevation.id ? overrideNote : null,
 					colors: this.mapOptionColors(planOption, scenarioOption.scenarioOptionColors),
 					action: 'Add'
 				});
@@ -586,7 +590,7 @@ export class LiteService
 					option,
 					planOption instanceof JobPlanOption ? planOption.jobPlanOptionAttributes : planOption.jobChangeOrderPlanOptionAttributes
 				)
-			};
+			} as ScenarioOption;
 		});
 	}
 
@@ -674,17 +678,28 @@ export class LiteService
 			select(state => state.org),
 			switchMap(org => {
 				//TODO: check if it's a Job change order
-				this.store.dispatch(new LotActions.LoadLots(org.salesCommunity.id));
+				this.store.dispatch(new LiteActions.LoadLiteMonotonyRules(org.salesCommunity.id));
 
 				return this.actions.pipe(
-					ofType<LotActions.LotsLoaded>(LotActions.LotActionTypes.LotsLoaded),
+					ofType<LiteActions.LiteMonotonyRulesLoaded>(LiteActions.LiteActionTypes.LiteMonotonyRulesLoaded),
 					switchMap(() => this.store.pipe(
-						select(fromRoot.monotonyConflict)
+						select(fromRoot.liteMonotonyConflict)
 					)),
 					take(1)
 				);
 			}),
 			take(1)
+		);
+	}
+
+	getMonotonyRulesForLiteSalesCommunity(salesCommunityId: number, skipSpinner: boolean = true): Observable<Array<LiteMonotonyRule>> {
+		const url = `${environment.apiUrl}GetMonotonyRulesForLiteSalesCommunity(id=${salesCommunityId})`;
+
+		return (skipSpinner ? this._http : withSpinner(this._http)).get<any>(url).pipe(
+			map(response => {
+				return response.value as Array<LiteMonotonyRule>;
+			}),
+			defaultOnNotFound('getMonotonyRulesForLiteSalesCommunity', [])
 		);
 	}
 

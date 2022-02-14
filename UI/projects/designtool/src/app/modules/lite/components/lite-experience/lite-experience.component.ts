@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { NavigationEnd, Router } from "@angular/router";
 import { Observable, combineLatest } from 'rxjs';
 import { withLatestFrom, filter } from 'rxjs/operators';
@@ -8,13 +8,17 @@ import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromLite from '../../../ngrx-store/lite/reducer';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 import * as NavActions from '../../../ngrx-store/nav/actions';
+import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 
-import { UnsubscribeOnDestroy, PriceBreakdown, PointStatus, LotExt } from 'phd-common';
+import { 
+	UnsubscribeOnDestroy, PriceBreakdown, PointStatus, LotExt, ModalRef, ModalService 
+} from 'phd-common';
 
 import { ActionBarCallType } from '../../../shared/classes/constants.class';
 import { LiteSubMenu, LitePlanOption, ScenarioOptionColor } from '../../../shared/models/lite.model';
+import { MonotonyConflict } from '../../../shared/models/monotony-conflict.model';
 import { LiteService } from '../../../core/services/lite.service';
-import { LotService } from '../../../core/services/lot.service';
+import { PhdSubMenu } from '../../../new-home/subNavItems';
 
 @Component({
 	selector: 'lite-experience',
@@ -23,6 +27,8 @@ import { LotService } from '../../../core/services/lot.service';
 })
 export class LiteExperienceComponent extends UnsubscribeOnDestroy implements OnInit
 {
+	@ViewChild('monotonyConflictModal') monotonyConflictModal: any;
+
 	canConfigure$: Observable<boolean>;
 	priceBreakdown$: Observable<PriceBreakdown>;
 	subNavItems$: Observable<any>;
@@ -35,11 +41,14 @@ export class LiteExperienceComponent extends UnsubscribeOnDestroy implements OnI
 	buildMode: string;
 	lotStatus: string;
 	selectedLot: LotExt;
+	monotonyConflict: MonotonyConflict;
+	monotonyConflictModalRef: ModalRef;
 
 	constructor(
 		private store: Store<fromRoot.State>, 
 		private router: Router, 
-		private liteService: LiteService
+		private liteService: LiteService,
+		private modalService: ModalService
 	)
 	{
 		super();
@@ -124,6 +133,26 @@ export class LiteExperienceComponent extends UnsubscribeOnDestroy implements OnI
 				this.selectedLot = lot.selectedLot;
 				this.lotStatus = lot.selectedLot.lotStatusDescription;
 			}
+		});
+		
+		//monotony conflict advisement
+		this.store.pipe(
+			select(state => state.lot),
+			withLatestFrom(this.store.pipe(select(fromRoot.liteMonotonyConflict))),
+			this.takeUntilDestroyed()
+		).subscribe(([selectedLot, monotonyConflict]) => 
+		{
+			if (selectedLot.selectedLot) 
+			{
+				this.monotonyConflict = monotonyConflict;
+
+				if (((monotonyConflict.elevationConflict && !monotonyConflict.elevationConflictOverride) || ((monotonyConflict.colorSchemeAttributeConflict || monotonyConflict.colorSchemeConflict) && !monotonyConflict.colorSchemeConflictOverride)) && !monotonyConflict.conflictSeen)
+				{
+					this.store.dispatch(new ScenarioActions.MonotonyAdvisementShown());
+
+					setTimeout(() => this.loadMonotonyModal());
+				}
+			}
 		});		
 	}
 
@@ -176,7 +205,7 @@ export class LiteExperienceComponent extends UnsubscribeOnDestroy implements OnI
 		{
 			if (mc.monotonyConflict)
 			{
-				alert('Danger! Monotony Issues!  Please fix!')
+				this.loadMonotonyModal();
 			}
 			else
 			{
@@ -190,4 +219,30 @@ export class LiteExperienceComponent extends UnsubscribeOnDestroy implements OnI
 		});
 	}
 
+	loadMonotonyModal()
+	{
+		this.monotonyConflictModalRef = this.modalService.open(this.monotonyConflictModal);
+		this.monotonyConflictModalRef.result.catch(err => console.log(err));
+	}
+
+	navigateToElevation()
+	{
+		this.monotonyConflictModalRef.dismiss();
+		this.store.dispatch(new NavActions.SetSelectedSubNavItem(LiteSubMenu.Elevation));
+		this.router.navigateByUrl('/lite/elevation');
+	}
+
+	navigateToColorScheme()
+	{
+		this.monotonyConflictModalRef.dismiss();
+		this.store.dispatch(new NavActions.SetSelectedSubNavItem(LiteSubMenu.ColorScheme));
+		this.router.navigateByUrl('/lite/color-scheme');
+	}
+
+	navigateToLot()
+	{
+		this.monotonyConflictModalRef.dismiss();
+		this.store.dispatch(new NavActions.SetSelectedSubNavItem(PhdSubMenu.ChooseLot));
+		this.router.navigateByUrl('/new-home/lot');
+	}	
 }

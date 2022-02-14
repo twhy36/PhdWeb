@@ -1,11 +1,11 @@
-<div class="phd-exterior-card" [class.active]="isSelected" [class.selected]="isSelected" [@flipOver]>
-	<div class="phd-header">
+<div class="phd-exterior-card" [class.active]="isSelected" [class.selected]="isSelected" [class.phd-monotony-conflict]="(monotonyConflict.monotonyConflict && !canOverride)" [@flipOver]>
+	<div class="phd-header" [class.phd-option-disabled]="monotonyConflict.monotonyConflict">
         <span class="phd-2-line-limit">
             {{getName()}}
         </span>                 
     </div>
     <div class="phd-divider"></div>
-    <div class="phd-body">
+    <div class="phd-body" [class.phd-option-disabled]="monotonyConflict.monotonyConflict">
         <div class="phd-option-body" *ngIf="!color && option">
             <div class="d-flex justify-content-end">
                 <p>
@@ -17,10 +17,14 @@
     </div>
     
     <div class="phd-footer">
-        <div class="phd-footer-btn-container" (click)="$event.stopPropagation()">
+        <div class="phd-footer-btn-container" (click)="$event.stopPropagation()" *ngIf="showConfirmButton">
 			<div class="d-flex align-items-center phd-footer-btns">
 				<button class="btn phd-experience-btn-choice" (click)="toggleSelection()">{{getButtonLabel()}}</button>
 			</div>
         </div>
+
+		<span class="phd-monotony-conflict-message" *ngIf="monotonyConflict.monotonyConflict && !(override$ | async)">
+			Monotony Conflict
+		</span>        
     </div>
 </div>
