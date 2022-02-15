@@ -23,7 +23,7 @@ export class OptionChoiceRuleComponent implements OnInit, OnDestroy
 	@Input() isReadOnly: boolean;
 	@Input() canCreateAlternateMapping: boolean;
 
-	@Output() deleteRule = new EventEmitter<{ optionRuleChoices: IOptionRuleChoice[], mappingIndex: number, callback: Function }>();
+	@Output() deleteRule = new EventEmitter<{ optionRuleChoices: IOptionRuleChoice[], mappingIndex: number, displayIndex: number, callback: Function }>();
 	@Output() saveRule = new EventEmitter<{ selectedItems: Array<DTChoice>, callback: Function, mappingIndex: number }>();
 	@Output() updateMustHave = new EventEmitter<{ optionRuleChoiceGroup: IOptionRuleChoiceGroup }>();
 
@@ -58,6 +58,15 @@ export class OptionChoiceRuleComponent implements OnInit, OnDestroy
 	get hideToggleAndDelete(): boolean
 	{
 		return this.isNewMapping || this.isEditMapping;
+	}
+
+	get showMappingTooltip(): boolean
+	{
+		const groupChoicesByIndex = _.groupBy(this.optionRule.choices, c => c.mappingIndex);
+		const groupChoiceSize = _.size(groupChoicesByIndex);
+
+		// only show message if adding/editing where an alternate mapping is in play.
+		return this.canCreateAlternateMapping && this.showNewRuleForm && (this.isEditMapping && groupChoiceSize > 1 || this.isNewMapping && groupChoiceSize >= 1);
 	}
 
 	constructor(
@@ -191,11 +200,11 @@ export class OptionChoiceRuleComponent implements OnInit, OnDestroy
 		this.mappingGroupList = this.getMappingGroupList(choiceList);
 	}
 
-	deleteMapping(mappingGroup: IMappingGroup)
+	deleteMapping(mappingGroup: IMappingGroup, displayIndex: number)
 	{
 		let optionRuleChoices = this.optionRule.choices.filter(x => x.mappingIndex === mappingGroup.mappingIndex);
 
-		this.deleteRule.emit({ optionRuleChoices: optionRuleChoices, mappingIndex: mappingGroup.mappingIndex, callback: this.onDeleteRuleCallback });
+		this.deleteRule.emit({ optionRuleChoices: optionRuleChoices, mappingIndex: mappingGroup.mappingIndex, displayIndex: displayIndex, callback: this.onDeleteRuleCallback });
 	}
 
 	onAddItemClick(item: DTChoice)
@@ -271,7 +280,7 @@ export class OptionChoiceRuleComponent implements OnInit, OnDestroy
 
 	localDeleteRule(choice: IOptionRuleChoice)
 	{
-		this.deleteRule.emit({ optionRuleChoices: [choice], mappingIndex: null, callback: this.onDeleteRuleCallback });
+		this.deleteRule.emit({ optionRuleChoices: [choice], mappingIndex: null, displayIndex: null, callback: this.onDeleteRuleCallback });
 	}
 
 	@bind

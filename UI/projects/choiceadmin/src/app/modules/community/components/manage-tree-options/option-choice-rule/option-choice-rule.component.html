@@ -2,7 +2,7 @@
 	<button type="button" class="btn btn-primary" (click)="addMapping()" *ngIf="canCreateAlternateMapping && !isReadOnly && !option.baseHouse && !showNewRuleForm">Add Alternate Mapping</button>
 </div>
 
-<div *ngIf="showNewRuleForm" class="phd-add-new-rule-form">
+<div *ngIf="!isReadOnly && !option.baseHouse && showNewRuleForm" class="phd-add-new-rule-form">
 	<div class="phd-rule-form-headermodal-header">
 		<div class="modal-title">
 			<strong>{{ ruleFormHeaderText }}</strong>
@@ -67,7 +67,7 @@
 	<div class="clearfix">
 		<div class="pull-left">
 			<div class="phd-indicator"><span class="text-danger">*</span> Default Choice</div>
-			<div class="phd-indicator" *ngIf="canCreateAlternateMapping">
+			<div class="phd-indicator" *ngIf="showMappingTooltip">
 				<i class="fa fa-exclamation-circle"></i> When multiple option mappings exist, all mappings must end on the same Choice OR end on the same pick 1 Decision Point
 			</div>
 		</div>
@@ -83,7 +83,7 @@
 				</div>
 				<div class="phd-rules-list-header-buttons" *ngIf="!showNewRuleForm">
 					<i class="fa fa-fw fa-pencil" (click)="editMapping(mappingGroup, i)" title="Edit Mapping"></i>
-					<i class="fa fa-fw fa-trash" (click)="deleteMapping(mappingGroup)" title="Delete Mapping"></i>
+					<i class="fa fa-fw fa-trash" (click)="deleteMapping(mappingGroup, i)" title="Delete Mapping"></i>
 				</div>
 			</div>
 
