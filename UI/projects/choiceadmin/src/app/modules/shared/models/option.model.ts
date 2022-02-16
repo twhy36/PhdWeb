@@ -270,7 +270,6 @@ export interface IOptionRuleChoice
 	label: string;
 	pointId: number;
 	pointLabel: string;
-	mappingIndex: number;
 }
 
 export interface IOptionRuleChoiceGroup

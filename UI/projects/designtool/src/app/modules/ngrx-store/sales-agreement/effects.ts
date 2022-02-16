@@ -791,7 +791,6 @@ export class SalesAgreementEffects
 							if (envelopeIndex > -1)
 							{
 								co.eSignEnvelopes.splice(envelopeIndex, 1);
-								co.envelopeId = null; // Envelope ID has been deleted at this stage. Reset envelope ID to null
 							}
 						}
 					});

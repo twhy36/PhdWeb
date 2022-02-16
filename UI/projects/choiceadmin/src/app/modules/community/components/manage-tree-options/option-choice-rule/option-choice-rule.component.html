@@ -1,15 +1,7 @@
-<div>
-	<button type="button" class="btn btn-primary" (click)="addMapping()" *ngIf="canCreateAlternateMapping && !isReadOnly && !option.baseHouse && !showNewRuleForm">Add Alternate Mapping</button>
-</div>
-
-<div *ngIf="showNewRuleForm" class="phd-add-new-rule-form">
+<div *ngIf="!isReadOnly && !option.baseHouse" class="phd-add-new-rule-form">
 	<div class="phd-rule-form-headermodal-header">
 		<div class="modal-title">
-			<strong>{{ ruleFormHeaderText }}</strong>
-		</div>
-		<div *ngIf="canCreateAlternateMapping">
-			<button type="button" class="btn btn-secondary" (click)="localCancelRule()" *ngIf="selectedChoices.length === 0 && ((isEditMapping || isNewMapping) && currentMappingIndex !== null)">Cancel</button>
-			<button type="button" class="btn btn-primary" (click)="addMapping()" *ngIf="!isEditMapping && !isNewMapping">Add Alternate Mapping</button>
+			<strong>{{selectedRuleId === 0 ? 'Add New Mapping' : 'Edit Mapping'}}</strong>
 		</div>
 	</div>
 
@@ -67,51 +59,39 @@
 	<div class="clearfix">
 		<div class="pull-left">
 			<div class="phd-indicator"><span class="text-danger">*</span> Default Choice</div>
-			<div class="phd-indicator" *ngIf="canCreateAlternateMapping">
-				<i class="fa fa-exclamation-circle"></i> When multiple option mappings exist, all mappings must end on the same Choice OR end on the same pick 1 Decision Point
-			</div>
 		</div>
 	</div>
 </div>
 
-<div *ngIf="mappingGroupList.length > 0" class="phd-rules-list">
-	<ng-container *ngFor="let mappingGroup of mappingGroupList; index as i">
-		<div class="phd-rules-list-container">
-			<div class="phd-rules-list-header">
-				<div class="phd-rules-list-header-text">
-					Mapping {{ (displayIndex === null ? i : displayIndex) + 1 }}
-				</div>
-				<div class="phd-rules-list-header-buttons" *ngIf="!showNewRuleForm">
-					<i class="fa fa-fw fa-pencil" (click)="editMapping(mappingGroup, i)" title="Edit Mapping"></i>
-					<i class="fa fa-fw fa-trash" (click)="deleteMapping(mappingGroup)" title="Delete Mapping"></i>
-				</div>
-			</div>
+<div *ngIf="optionChoiceList.length > 0" class="phd-rules-list">
+	<ng-container *ngFor="let record of optionChoiceList">
+		<table class="table table-striped">
+			<caption style="caption-side: top;">
+				<strong class="phd-caption-header">{{record.pointLabel}}</strong>
+				<span class="phd-caption-text">{{getText(record.choices)}}</span>
+			</caption>
+			<thead>
+				<tr>
+					<th>Choice</th>
+					<th>Type</th>
+					<th *ngIf="!isReadOnly"></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let rule of record.choices">
+					<td>{{rule.label}}</td>
+					<td>
+						<button type="button" class="btn btn-sm btn-toggle" *ngIf="!isReadOnly" [ngClass]="{'active': rule.mustHave, 'btn-primary':  rule.mustHave, 'btn-secondary': !rule.mustHave }" (click)="toggleMustHave(record)">
+							<div class="handle"></div>
+						</button>
 
-			<div class="phd-rules-list-body">
-				<ng-container *ngFor="let record of mappingGroup.optionRuleChoiceGroups">
-					<table class="table table-striped">
-						<caption style="caption-side: top;">
-							<strong class="phd-caption-header">{{record.pointLabel}}</strong>
-						</caption>
-
-						<tbody>
-							<tr *ngFor="let rule of record.choices">
-								<td>{{rule.label}}</td>
-								<td class="phd-toggle-td">
-									<button type="button" class="btn btn-sm btn-toggle" *ngIf="!isReadOnly && !hideToggleAndDelete" [ngClass]="{'active': rule.mustHave, 'btn-primary':  rule.mustHave, 'btn-secondary': !rule.mustHave }" (click)="toggleMustHave(record)">
-										<div class="handle"></div>
-									</button>
-
-									<span *ngIf="isReadOnly || hideToggleAndDelete">{{rule.mustHave ? 'Must Have' : 'Must Not Have'}}</span>
-								</td>
-								<td *ngIf="!isReadOnly && !hideToggleAndDelete" class="phd-icon-col">
-									<i class="fa fa-fw fa-trash" (click)="localDeleteRule(rule)" title="Delete"></i>
-								</td>
-							</tr>
-						</tbody>
-					</table>
-				</ng-container>
-			</div>
-		</div>
+						<span *ngIf="isReadOnly">{{rule.mustHave ? 'Must Have' : 'Must Not Have'}}</span>
+					</td>
+					<td *ngIf="!isReadOnly" class="phd-icon-col">
+						<i class="fa fa-fw fa-trash" (click)="localDeleteRule(rule)" title="Delete"></i>
+					</td>
+				</tr>
+			</tbody>
+		</table>
 	</ng-container>
 </div>

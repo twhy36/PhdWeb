@@ -103,17 +103,14 @@ export function reducer(state: State = initialState, action: ChangeOrderActions)
 					{
 						let eSignEnvelopes = changeOrder.eSignEnvelopes.filter(e => e.eSignStatusId !== ESignStatusEnum.Created);
 
-						changeOrder.eSignEnvelopes = action.eSignEnvelope ? [...(eSignEnvelopes || []), action.eSignEnvelope] : [...(eSignEnvelopes || [])];
+						changeOrder.eSignEnvelopes = [...(eSignEnvelopes || []), action.eSignEnvelope];
 					}
 					else
 					{
-						changeOrder.eSignEnvelopes = action.eSignEnvelope ? [...(changeOrder.eSignEnvelopes || []), action.eSignEnvelope] : [...(changeOrder.eSignEnvelopes || [])] ;
+						changeOrder.eSignEnvelopes = [...(changeOrder.eSignEnvelopes || []), action.eSignEnvelope];
 					}
 
-					if (action.eSignEnvelope)
-					{
-						changeOrder.envelopeId = action.eSignEnvelope.envelopeGuid;
-					}
+					changeOrder.envelopeId = action.eSignEnvelope.envelopeGuid;
 				}
 
 				return { ...state, currentChangeOrder: changeOrder, saveError: false };

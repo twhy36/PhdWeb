@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, Output, EventEmitter, OnDestroy } from '@angular/core';
-import { BehaviorSubject, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 
 import * as _ from 'lodash';
 
@@ -11,6 +11,7 @@ import { bind } from '../../../../shared/classes/decorators.class';
 import { ITreeOption, IOptionRuleChoice, IOptionRuleChoiceGroup } from '../../../../shared/models/option.model';
 import { PhdApiDto } from '../../../../shared/models/api-dtos.model';
 
+
 @Component({
 	selector: 'option-choice-rule',
 	templateUrl: './option-choice-rule.component.html',
@@ -21,10 +22,9 @@ export class OptionChoiceRuleComponent implements OnInit, OnDestroy
 	@Input() option: ITreeOption;
 	@Input() optionRule: PhdApiDto.IOptionChoiceRule;
 	@Input() isReadOnly: boolean;
-	@Input() canCreateAlternateMapping: boolean;
 
-	@Output() deleteRule = new EventEmitter<{ optionRuleChoices: IOptionRuleChoice[], mappingIndex: number, callback: Function }>();
-	@Output() saveRule = new EventEmitter<{ selectedItems: Array<DTChoice>, callback: Function, mappingIndex: number }>();
+	@Output() deleteRule = new EventEmitter<{ optionRuleChoice: IOptionRuleChoice, callback: Function }>();
+	@Output() saveRule = new EventEmitter<{ selectedItems: Array<DTChoice>, callback: Function }>();
 	@Output() updateMustHave = new EventEmitter<{ optionRuleChoiceGroup: IOptionRuleChoiceGroup }>();
 
 	groups: Array<IDTGroup> = [];
@@ -41,25 +41,6 @@ export class OptionChoiceRuleComponent implements OnInit, OnDestroy
 	selectedRuleId = 0;
 	treeSubscription: Subscription;
 
-	showNewRuleForm: boolean = false;
-	currentMappingIndex: number = null;
-	displayIndex: number = null;
-	isNewMapping: boolean = false;
-	isEditMapping: boolean = false;
-
-	mappingGroupList: IMappingGroup[] = [];
-	choiceList: BehaviorSubject<PhdApiDto.IOptionChoiceRuleChoice[]>
-
-	get ruleFormHeaderText(): string
-	{
-		return this.isNewMapping ? 'Add New Mapping' : 'Edit Mapping';
-	}
-
-	get hideToggleAndDelete(): boolean
-	{
-		return this.isNewMapping || this.isEditMapping;
-	}
-
 	constructor(
 		private _treeService: TreeService,
 		private _msgService: MessageService
@@ -67,8 +48,6 @@ export class OptionChoiceRuleComponent implements OnInit, OnDestroy
 
 	ngOnInit(): void
 	{
-		this.choiceList = new BehaviorSubject<PhdApiDto.IOptionChoiceRuleChoice[]>(this.optionRule.choices);
-
 		this.treeSubscription = this._treeService.currentTree.subscribe(t =>
 		{
 			this.groups = t.version.groups.map(g =>
@@ -99,11 +78,6 @@ export class OptionChoiceRuleComponent implements OnInit, OnDestroy
 				return group;
 			});
 		});
-
-		this.choiceList.subscribe(choiceList =>
-		{
-			this.mappingGroupList = this.getMappingGroupList(choiceList);
-		});
 	}
 
 	ngOnDestroy(): void
@@ -114,88 +88,51 @@ export class OptionChoiceRuleComponent implements OnInit, OnDestroy
 		}
 	}
 
-	getMappingGroupList(choiceList: PhdApiDto.IOptionChoiceRuleChoice[]): IMappingGroup[]
+	get optionChoiceList(): Array<IOptionRuleChoiceGroup>
 	{
-		const mappingGroupList: IMappingGroup[] = [];
-				
-		if (this.optionRule.id !== 0 && choiceList.length)
+		const optChoiceList: Array<IOptionRuleChoiceGroup> = [];
+
+		if (this.optionRule.id !== 0)
 		{
-			const groupChoicesByIndex = _.groupBy(choiceList, c => c.mappingIndex);
-			const groupChoiceSize = _.size(groupChoicesByIndex);
+			// group choices by pointId
+			const groupedChoices = _.groupBy(this.optionRule.choices, c => c.pointId);
 
-			// show form if only one Mapping Group found, else hide it.
-			this.showNewRuleForm = groupChoiceSize === 1;
-
-			// if working with only one record, then default the currentMappingIndex to that one records value.
-			this.currentMappingIndex = groupChoiceSize === 1 ? choiceList[0].mappingIndex : 0;
-
-			for (const index in groupChoicesByIndex)
+			for (const key in groupedChoices)
 			{
-				if (groupChoicesByIndex.hasOwnProperty(index))
+				if (groupedChoices.hasOwnProperty(key))
 				{
-					const choicesByIndex = groupChoicesByIndex[index] as PhdApiDto.IOptionChoiceRuleChoice[];
+					const choices = groupedChoices[key] as Array<IOptionRuleChoice>;
 
-					// group choices by pointId
-					const groupedChoices = _.groupBy(choicesByIndex, c => c.pointId);
+					const newItem = {
+						choices: choices,
+						pointId: choices[0].pointId,
+						pointLabel: choices[0].pointLabel
+					} as IOptionRuleChoiceGroup;
 
-					let optChoiceList: IOptionRuleChoiceGroup[] = [];
-
-					for (const key in groupedChoices)
-					{
-						if (groupedChoices.hasOwnProperty(key))
-						{
-							const choices = groupedChoices[key] as Array<IOptionRuleChoice>;
-
-							const newItem = {
-								choices: choices,
-								pointId: choices[0].pointId,
-								pointLabel: choices[0].pointLabel
-							} as IOptionRuleChoiceGroup;
-
-							optChoiceList.push(newItem);
-						}
-					}
-
-					mappingGroupList.push({ mappingIndex: parseInt(index), optionRuleChoiceGroups: optChoiceList } as IMappingGroup);
+					optChoiceList.push(newItem);
 				}
 			}
 		}
+
+		return optChoiceList;
+	}
+
+	getText(choices: Array<PhdApiDto.IOptionChoiceRuleChoice>): string
+	{
+		let text = '';
+
+		const mustHave = choices[0].mustHave;
+
+		if (mustHave)
+		{
+			text = `${choices.length > 1 ? 'One of these choices' : 'This choice'} must be selected:`;
+		}
 		else
 		{
-			// auto display the choice selector component if no Rule is found.
-			this.showNewRuleForm = true;
-			this.isNewMapping = true;
-			this.currentMappingIndex = null;
+			text = (choices.length > 1) ? 'NONE of these choices may be selected:' : 'This choice may NOT be selected:';
 		}
 
-		return mappingGroupList;
-	}
-
-	addMapping()
-	{
-		this.isNewMapping = true;
-		this.showNewRuleForm = true;
-
-		// find the largest mappingIndex and add 1 else default to 0
-		this.currentMappingIndex = this.optionRule.choices.length ? _.max(this.optionRule.choices.map(x => x.mappingIndex)) + 1 : 0; 
-	}
-
-	editMapping(mappingGroup: IMappingGroup, displayIndex: number)
-	{
-		this.isEditMapping = true;
-		this.showNewRuleForm = true;
-		this.displayIndex = displayIndex; // used to display which mapping is being edited. 		
-
-		let choiceList = this.optionRule.choices.filter(x => x.mappingIndex === mappingGroup.mappingIndex);
-
-		this.mappingGroupList = this.getMappingGroupList(choiceList);
-	}
-
-	deleteMapping(mappingGroup: IMappingGroup)
-	{
-		let optionRuleChoices = this.optionRule.choices.filter(x => x.mappingIndex === mappingGroup.mappingIndex);
-
-		this.deleteRule.emit({ optionRuleChoices: optionRuleChoices, mappingIndex: mappingGroup.mappingIndex, callback: this.onDeleteRuleCallback });
+		return text;
 	}
 
 	onAddItemClick(item: DTChoice)
@@ -217,14 +154,6 @@ export class OptionChoiceRuleComponent implements OnInit, OnDestroy
 		this.keyword = '';
 		this.selectedSearchFilter = 'All';
 		this.selectedChoices = [];
-
-		this.isNewMapping = false;
-		this.isEditMapping = false;
-		this.showNewRuleForm = false;
-		this.displayIndex = null;
-
-		// update choice list
-		this.choiceList.next(this.optionRule.choices);
 	}
 
 	localCancelRule()
@@ -251,7 +180,7 @@ export class OptionChoiceRuleComponent implements OnInit, OnDestroy
 
 	localSaveRule()
 	{
-		this.saveRule.emit({ selectedItems: this.selectedChoices, callback: this.onSaveRuleCallback, mappingIndex: this.currentMappingIndex || 0 });
+		this.saveRule.emit({ selectedItems: this.selectedChoices, callback: this.onSaveRuleCallback });
 	}
 
 	@bind
@@ -271,7 +200,7 @@ export class OptionChoiceRuleComponent implements OnInit, OnDestroy
 
 	localDeleteRule(choice: IOptionRuleChoice)
 	{
-		this.deleteRule.emit({ optionRuleChoices: [choice], mappingIndex: null, callback: this.onDeleteRuleCallback });
+		this.deleteRule.emit({ optionRuleChoice: choice, callback: this.onDeleteRuleCallback });
 	}
 
 	@bind
@@ -502,10 +431,4 @@ export class OptionChoiceRuleComponent implements OnInit, OnDestroy
 			}
 		});
 	}
-}
-
-interface IMappingGroup
-{
-	mappingIndex: number;
-	optionRuleChoiceGroups: IOptionRuleChoiceGroup[];
 }

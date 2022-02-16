@@ -2,15 +2,12 @@ import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, ViewChil
 import { Router, ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
 import { Observable, of } from 'rxjs';
-import { map, combineLatest, filter, switchMap, distinctUntilChanged, take, withLatestFrom } from 'rxjs/operators';
+import { map, combineLatest, filter, switchMap, distinctUntilChanged, take } from 'rxjs/operators';
 import { Store, select } from '@ngrx/store';
 import { Actions, ofType } from '@ngrx/effects';
 
 import * as _ from 'lodash';
 import * as fromRoot from '../../../ngrx-store/reducers';
-import * as fromLot from '../../../ngrx-store/lot/reducer';
-import * as fromScenario from '../../../ngrx-store/scenario/reducer';
-import * as fromChangeOrder from '../../../ngrx-store/change-order/reducer';
 import * as ContractActions from '../../../ngrx-store/contract/actions';
 import * as SalesAgreementActions from '../../../ngrx-store/sales-agreement/actions';
 import * as ChangeOrderActions from '../../../ngrx-store/change-order/actions';
@@ -27,7 +24,6 @@ import { ContractService } from '../../../core/services/contract.service';
 
 import { SignAgreementComponent } from '../sign-agreement/sign-agreement.component';
 import { ConfirmModalComponent } from '../../../core/components/confirm-modal/confirm-modal.component';
-import { ToastrService } from 'ngx-toastr';
 
 type ActionBarStatusType = 'INCOMPLETE' | 'COMPLETE' | 'DISABLED';
 
@@ -74,7 +70,6 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 	canAddIncentive$: Observable<boolean>;
 	canLockSalesAgreement$: Observable<boolean>;
 	canCancelSalesAgreement$: Observable<boolean>;
-	isAddenda: boolean = false;
 
 	constructor(
 		private store: Store<fromRoot.State>,
@@ -86,8 +81,7 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 		private _location: Location,
 		private elRef: ElementRef,
 		private renderer: Renderer2,
-		private _actions$: Actions,
-		private toastr: ToastrService
+		private _actions$: Actions
 	)
 	{
 		super();
@@ -350,12 +344,9 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 
 				break;
 			case (ActionBarCallType.PREVIEW_AGREEMENT):
+				this.generateHPA(undefined, true);
+
 				this.showPDFViewerFooter = this.salesAgreement.status !== 'Pending';
-
-				this.isAddenda = this.showPDFViewerFooter;
-
-				this.viewAddenda();
-
 				this.showPricingLockText = false;
 
 				break;
@@ -386,43 +377,8 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 		}
 	}
 
-	viewAddenda()
-	{
-		this.store.pipe(
-			withLatestFrom(this.store.select(fromRoot.priceBreakdown),
-				this.store.select(fromRoot.isSpecSalePending),
-				this.store.select(fromLot.selectLot),
-				this.store.select(fromScenario.elevationDP),
-				this.store.select(fromChangeOrder.changeOrderPrimaryBuyer),
-				this.store.select(fromChangeOrder.changeOrderCoBuyers)
-			),
-			switchMap(([store, priceBreakdown, isSpecSalePending, selectLot, elevationDP, coPrimaryBuyer, coCoBuyers]) =>
-			{
-				var currentSnapshot = this.contractService.createContractSnapshot(store, priceBreakdown, isSpecSalePending, selectLot, elevationDP, coPrimaryBuyer, coCoBuyers);
-
-				return of(currentSnapshot);
-			}),
-			switchMap((currentSnapshot: any) =>
-			{
-				return this.contractService.getPreviewDocument(currentSnapshot.jioSelections, currentSnapshot.templates, currentSnapshot.financialCommunityId, currentSnapshot.salesAgreementNumber, currentSnapshot.salesAgreementStatus, currentSnapshot.envelopeInfo, currentSnapshot.jobId, currentSnapshot.changeOrderGroupId, currentSnapshot.constructionChangeOrderSelections, currentSnapshot.salesChangeOrderSelections, currentSnapshot.planChangeOrderSelections, currentSnapshot.nonStandardChangeOrderSelections, currentSnapshot.lotTransferChangeOrderSelections, currentSnapshot.changeOrderInformation, true, true);
-			}),
-			take(1)
-		).subscribe(pdfObject =>
-		{
-			if (!!pdfObject)
-			{
-				this.openPdfViewer(pdfObject);
-			}
-		},
-		error =>
-		{
-			this.toastr.error(`There was an issue generating the PDF.`, 'Error - Print');
-		});
-    }
-
 	closeModal()
 	{
-		this.isAddenda = false;
 		this.modalReference.close();
 	}
 
@@ -450,27 +406,10 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 
 	eSign()
 	{
-		if (this.isAddenda)
-		{
-			this.store.dispatch(new ContractActions.CreateEnvelope(true));
+		// close PDF before opening a new modal
+		this.cancel();
 
-			this._actions$.pipe(
-				ofType<ContractActions.EnvelopeCreated>(ContractActions.ContractActionTypes.EnvelopeCreated),
-				take(1)).subscribe(() =>
-				{
-					// close PDF before opening a new modal
-					this.cancel();
-
-					this.modalReference = this.modalService.open(this.content, { size: 'lg', windowClass: 'phd-distribution-list', keyboard: false });
-				});
-		}
-		else
-		{
-			// close PDF before opening a new modal
-			this.cancel();
-
-			this.modalReference = this.modalService.open(this.content, { size: 'lg', windowClass: 'phd-distribution-list', keyboard: false });
-		}
+		this.modalReference = this.modalService.open(this.content, { size: 'lg', windowClass: 'phd-distribution-list', keyboard: false });
 	}
 
 	print()
@@ -480,7 +419,6 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 
 	cancel()
 	{
-		this.isAddenda = false;
 		this.pdfViewer.dismiss();
 		this.showPDFViewerFooter = true;
 		this.showPricingLockText = true;
