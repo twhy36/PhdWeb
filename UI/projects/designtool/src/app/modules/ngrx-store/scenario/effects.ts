@@ -57,29 +57,40 @@ export class ScenarioEffects {
 			withLatestFrom(this.store),
 			tryCatch(source => source.pipe(
 				switchMap(([action, store]) => {
-					if (action.scenario.treeVersionId && (!store.scenario.tree || store.scenario.tree.treeVersion.id !== action.scenario.treeVersionId)) {
-						return of(action);
+					const isPhdLite = store.lite.isPhdLite;
+					const salesCommunityId = store.org.salesCommunity.id;
+
+					if (isPhdLite || action.scenario.treeVersionId && (!store.scenario.tree || store.scenario.tree.treeVersion.id !== action.scenario.treeVersionId)) {
+						return of({ action, isPhdLite, salesCommunityId });
 					}
 
 					// plan deselected so clear tree
 					if (!action.scenario.treeVersionId && store.scenario.tree && store.scenario.tree.treeVersion.id) {
-
-						return of(new TreeLoaded(null, null, null, null, null, store.scenario.salesCommunity));
+						return of({
+							action: new TreeLoaded(null, null, null, null, null, store.scenario.salesCommunity),
+							isPhdLite,
+							salesCommunityId
+						});
 					}
 
 					return new Observable<never>();
 				}),
-				switchMap(action => {
-					if (action.type === ScenarioActionTypes.TreeLoaded) {
-						return of(action);
+				switchMap(result => {
+					if (result.action.type === ScenarioActionTypes.TreeLoaded) {
+						return of(result.action);
+					}
+					else if (result.isPhdLite) {
+						return this.orgService.getSalesCommunity(result.salesCommunityId).pipe(
+							switchMap(salesCommunity => of(new TreeLoaded(null, null, null, null, null, salesCommunity)))
+						);
 					}
 					else {
-						return this.treeService.getTree(action.scenario.treeVersionId)
+						return this.treeService.getTree(result.action.scenario.treeVersionId)
 							.pipe(
 								combineLatest(
-									this.treeService.getRules(action.scenario.treeVersionId),
-									this.optionService.getPlanOptions(action.scenario.planId),
-									this.treeService.getOptionImages(action.scenario.treeVersionId)
+									this.treeService.getRules(result.action.scenario.treeVersionId),
+									this.optionService.getPlanOptions(result.action.scenario.planId),
+									this.treeService.getOptionImages(result.action.scenario.treeVersionId)
 								),
 								switchMap(([tree, rules, options, optionImages]) => {
 									return this.orgService.getSalesCommunityByFinancialCommunityId(tree.financialCommunityId).pipe(map(sc => {
