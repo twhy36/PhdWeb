@@ -34,6 +34,7 @@ import { ReportsService } from '../../../core/services/reports.service';
 
 import { SummaryHeader, SummaryHeaderComponent } from './summary-header/summary-header.component';
 import { GroupExt } from '../../../shared/models/group-ext.model';
+import { TreeService } from '../../../core/services/tree.service';
 
 @Component({
 	selector: 'favorites-summary',
@@ -67,7 +68,8 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		private modalService: ModalService,
 		private reportsService: ReportsService,
 		private location: Location,
-		private toastr: ToastrService)
+		private toastr: ToastrService,
+		private treeService: TreeService)
 	{
 		super();
 	}
@@ -150,7 +152,34 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 			this.takeUntilDestroyed(),
 			select(fromRoot.elevationImageUrl)
 		).subscribe(imageUrl => {
-			this.summaryHeader.elevationImageUrl = imageUrl;
+			if (imageUrl)
+			{
+				this.summaryHeader.elevationImageUrl = imageUrl;
+			}
+			else
+			{
+				this.store.pipe(
+					this.takeUntilDestroyed(),
+					select(state => state.scenario),
+				).subscribe(scenario => {
+					const elevationChoice =
+						_.flatMap(
+							_.flatMap(
+								scenario.tree.treeVersion.groups,
+								g => g.subGroups
+							),
+							sg => sg.points
+						)
+						.find(dp => dp.label === 'Elevation')
+						.choices
+						.find(c => c.quantity > 0);
+
+					this.treeService.getChoiceImageAssoc([elevationChoice.lockedInChoice ? elevationChoice.lockedInChoice.choice.dpChoiceId : elevationChoice.id])
+					.subscribe(choiceImages => {
+						this.summaryHeader.elevationImageUrl = choiceImages[0]?.imageUrl
+					});
+				});
+			}
 		});
 
 		this.store.pipe(

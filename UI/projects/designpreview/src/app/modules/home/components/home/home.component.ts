@@ -98,7 +98,6 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 			}
 			else
 			{
-				console.log('else');
 				this.store.pipe(
 					this.takeUntilDestroyed(),
 					select(state => state.scenario),
