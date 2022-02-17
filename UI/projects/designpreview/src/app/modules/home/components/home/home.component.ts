@@ -16,6 +16,7 @@ import * as FavoriteActions from '../../../ngrx-store/favorite/actions';
 import { UnsubscribeOnDestroy, SalesAgreement, SDImage, SubGroup, FloorPlanImage } from 'phd-common';
 import { JobService } from '../../../core/services/job.service';
 import { BrandService } from '../../../core/services/brand.service';
+import { TreeService } from '../../../core/services/tree.service';
 
 @Component({
 	selector: 'home',
@@ -41,7 +42,8 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 		private store: Store<fromRoot.State>,
 		private router: Router,
 		private jobService: JobService,
-		private brandService: BrandService)
+		private brandService: BrandService,
+		private treeService: TreeService)
     {
         super();
     }
@@ -90,7 +92,35 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 			this.takeUntilDestroyed(),
 			select(fromRoot.elevationImageUrl)
 		).subscribe(imageUrl => {
-			this.planImageUrl = imageUrl;
+			if (imageUrl)
+			{
+				this.planImageUrl = imageUrl;
+			}
+			else
+			{
+				console.log('else');
+				this.store.pipe(
+					this.takeUntilDestroyed(),
+					select(state => state.scenario),
+				).subscribe(scenario => {
+					const elevationChoice =
+						_.flatMap(
+							_.flatMap(
+								scenario.tree.treeVersion.groups,
+								g => g.subGroups
+							),
+							sg => sg.points
+						)
+						.find(dp => dp.label === 'Elevation')
+						.choices
+						.find(c => c.quantity > 0);
+
+					this.treeService.getChoiceImageAssoc([elevationChoice.lockedInChoice ? elevationChoice.lockedInChoice.choice.dpChoiceId : elevationChoice.id])
+					.subscribe(choiceImages => {
+						this.planImageUrl = choiceImages[0]?.imageUrl
+					});
+				});
+			}
 		});
 
 		this.store.pipe(
@@ -141,7 +171,7 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 			const tree = scenarioState?.tree?.treeVersion;
 			const contractedSgs = _.flatMap(contractedTree?.groups, g => g.subGroups.filter(sg => sg.useInteractiveFloorplan));
 			const sgs = _.flatMap(tree?.groups, g => g.subGroups.filter(sg => sg.useInteractiveFloorplan));
-			if ((tree || contractedTree) && plan && plan.marketingPlanId && plan.marketingPlanId.length) {	
+			if ((tree || contractedTree) && plan && plan.marketingPlanId && plan.marketingPlanId.length) {
 				let fpSubGroup;
 				if (contractedSgs?.length) {
 					fpSubGroup = contractedSgs.pop();
