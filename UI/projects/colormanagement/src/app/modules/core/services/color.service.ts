@@ -209,10 +209,8 @@ export class ColorService {
 				let guid = newGuid();
 				let requests = itemList.map(item => {
 					const entity = `scenarioOptions`;
-					const filter = `(EdhPlanOptionId in (${item.colorItem.map(c => c.edhPlanOptionId).join(',')}))`;
-					const select = `scenarioOptionId`;
-					let qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}top=1`;
-					const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
+					const filter = `scenarioOptionColors/any(soc:soc/colorItemId in (${item.colorItem.map(c => c.colorItemId).join(',')}))`;
+					const endpoint = `${environment.apiUrl}${entity}?${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}top=1`;
 					return createBatchGet(endpoint);
 				});
 				let headers = createBatchHeaders(guid, token);
