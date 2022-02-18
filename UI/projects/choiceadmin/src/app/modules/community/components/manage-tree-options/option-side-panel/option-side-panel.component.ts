@@ -301,22 +301,29 @@ export class OptionSidePanelComponent implements OnInit, OnChanges
 			}, (error) => callback(false));
 	}
 	
-	async onDeleteOptionChoiceRule(params: { optionRuleChoices: IOptionRuleChoice[], mappingIndex: number, callback: Function })
+	async onDeleteOptionChoiceRule(params: { optionRuleChoices: IOptionRuleChoice[], mappingIndex: number, displayIndex: number, callback: Function })
 	{
-		// get a list of Ids to check for any reassignment records
-		let optionRuleChoiceIds = params.optionRuleChoices.map(x => x.id);
+		// if deleting a full mapping we need to make sure this is what they want before continuing
+		let confirmDelete = params.displayIndex !== null ? await this.confirmMappingDelete(params.displayIndex + 1) : true;
 
-		// check for Attribute Reassignments
-		this._treeService.hasAttributeReassignment(optionRuleChoiceIds).subscribe(async hasAttributeReassignment =>
+		// They said YES!!!!!!!!
+		if (confirmDelete)
 		{
-			let optionRuleChoiceLabels = params.optionRuleChoices.map(x => x.label);
+			// get a list of Ids to check for any reassignment records
+			let optionRuleChoiceIds = params.optionRuleChoices.map(x => x.id);
 
-			// if no reassignments proceed, else show prompt asking if they'd like to continue
-			if (!hasAttributeReassignment || (hasAttributeReassignment && await this.confirmAttributeReassignment(optionRuleChoiceLabels)))
+			// check for Attribute Reassignments
+			this._treeService.hasAttributeReassignment(optionRuleChoiceIds).subscribe(async hasAttributeReassignment =>
 			{
-				this.deleteOptionChoiceRule(params.optionRuleChoices, params.mappingIndex, params.callback);
-			}
-		});
+				let optionRuleChoiceLabels = params.optionRuleChoices.map(x => x.label);
+
+				// if no reassignments proceed, else show prompt asking if they'd like to continue
+				if (!hasAttributeReassignment || (hasAttributeReassignment && await this.confirmAttributeReassignment(optionRuleChoiceLabels)))
+				{
+					this.deleteOptionChoiceRule(params.optionRuleChoices, params.mappingIndex, params.callback);
+				}
+			});
+		}
 	}
 	
 	deleteOptionChoiceRule(optionRuleChoices: IOptionRuleChoice[], mappingIndex: number, callback: Function)
@@ -719,6 +726,18 @@ export class OptionSidePanelComponent implements OnInit, OnChanges
 		let confirmMessage = `You are about to delete the Attribute Group Re-Assignment:<br><br>`;
 
 		attributeGroupLabels.forEach(label => confirmMessage += `${label}<br>`);
+
+		confirmMessage += `<br>Do you want to continue?`;
+
+		const confirmTitle = `Warning!`;
+		const confirmDefaultOption = `Cancel`;
+
+		return this.showConfirmModal(confirmMessage, confirmTitle, confirmDefaultOption);
+	}
+
+	private confirmMappingDelete(displayIndex: number): Promise<boolean>
+	{
+		let confirmMessage = `You are about to delete Mapping ${displayIndex}.<br>`;
 
 		confirmMessage += `<br>Do you want to continue?`;
 
