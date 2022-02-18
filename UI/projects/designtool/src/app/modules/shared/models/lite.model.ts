@@ -147,3 +147,41 @@ export interface LiteMonotonyRuleLot {
     colorSchemeColorName: string;
     colorSchemeColorItemName: string;
 }
+
+export class SummaryReportData {
+	configurationName: string;
+	community?: string;
+	plan?: string;
+	lot?: string;
+	address?: string;
+	basePrice?: number;
+	lotPremium?: number;
+	optionsTotal?: number;
+	totalPrice?: number;
+	groups?: Array<SummaryReportGroup>;
+
+}
+
+export class SummaryReportGroup {
+	groupName?: string;
+	groupSubTotal?: number;
+	subGroups?: Array<SummaryReportSubGroup>;
+}
+
+export class SummaryReportSubGroup {
+	subGroupName?: string;
+	options?: Array<SummaryReportOption>
+}
+
+export class SummaryReportOption {
+	name?: string;
+	id?: string;
+	quantity?: number;
+	listPrice?: number;
+	subOptions?: Array<SummaryReportSubOption>;
+}
+
+export class SummaryReportSubOption {
+	attribute?: string;
+	attributeValue?: string;
+}

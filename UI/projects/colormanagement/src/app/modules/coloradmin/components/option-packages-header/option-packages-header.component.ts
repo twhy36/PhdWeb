@@ -49,6 +49,7 @@ export class OptionPackagesHeaderComponent
         }
 
     ngOnInit(): void {
+
         //settings need for grids/divs
         this.settings = this._settingsService.getSettings();
         this._orgService.currentCommunity$.pipe(

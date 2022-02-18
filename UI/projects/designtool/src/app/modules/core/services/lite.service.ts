@@ -21,7 +21,7 @@ import * as fromRoot from '../../ngrx-store/reducers';
 
 import {
 	LitePlanOption, ScenarioOption, ColorItem, Color, ScenarioOptionColorDto, IOptionSubCategory, OptionRelation,
-	OptionRelationEnum, ScenarioOptionColor, Elevation, IOptionCategory, LiteReportType, LiteMonotonyRule
+	OptionRelationEnum, ScenarioOptionColor, Elevation, IOptionCategory, LiteReportType, LiteMonotonyRule, SummaryReportData
 } from '../../shared/models/lite.model';
 import { LotService } from './lot.service';
 import { ChangeOrderService } from './change-order.service';
@@ -624,6 +624,26 @@ export class LiteService
 			: [];
 	}
 
+	getLiteSelectionSummaryReport(reportType: LiteReportType, summaryRptData: SummaryReportData): Observable<string>
+	{
+		const action = this.getSummaryAction(reportType);
+		const url = `${environment.apiUrl}${action}`;
+		const headers = new HttpHeaders({
+			'Content-Type': 'application/json',
+			'Accept': 'application/pdf'
+		});
+
+		let data = {};
+		data = {summaryRptData: summaryRptData};
+
+		return withSpinner(this._http).post(url, data, { headers: headers, responseType: 'blob' }).pipe(
+			map(response =>
+			{
+				return window.URL.createObjectURL(response);
+			}),
+		);
+	}
+	
 	getSelectionSummary(reportType: LiteReportType, summaryData: SummaryData, showSalesDescription?: boolean): Observable<string>
 	{
 		const action = this.getSummaryAction(reportType);
@@ -670,6 +690,8 @@ export class LiteService
 			case LiteReportType.PRICE_LIST:
 			case LiteReportType.PRICE_LIST_WITH_SALES_DESCRIPTION:
 				return 'GetPriceList';
+			case LiteReportType.SUMMARY:
+				return 'GetLiteSelectionSummaryReport';
 		}
 	}
 

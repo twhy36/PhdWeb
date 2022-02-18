@@ -5,7 +5,10 @@ import { Store, select } from '@ngrx/store';
 
 import * as _ from "lodash";
 
-import { UnsubscribeOnDestroy, PriceBreakdown, ChangeTypeEnum, ChangeOrderHanding, ModalService, SummaryData, BuyerInfo, PDFViewerComponent, SDGroup, SDSubGroup, SDPoint, SDChoice } from 'phd-common';
+import { UnsubscribeOnDestroy, PriceBreakdown, ChangeTypeEnum, 
+			ChangeOrderHanding, ModalService, SummaryData, BuyerInfo, 
+			PDFViewerComponent, SDGroup, SDSubGroup, SDPoint, 
+			SDChoice } from 'phd-common';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
@@ -19,7 +22,8 @@ import { LiteService } from '../../../core/services/lite.service';
 import { ModalOverrideSaveComponent } from '../../../core/components/modal-override-save/modal-override-save.component';
 
 import { SummaryHeader } from '../../../shared/components/summary-header/summary-header.component';
-import { LitePlanOption, IOptionSubCategory, ScenarioOption, LiteReportType } from '../../../shared/models/lite.model';
+import { LitePlanOption, IOptionSubCategory, ScenarioOption, LiteReportType, SummaryReportData, 
+			SummaryReportGroup, SummaryReportSubGroup, SummaryReportOption, SummaryReportSubOption } from '../../../shared/models/lite.model';
 import { OptionSummaryComponent } from '../option-summary/option-summary.component';
 import { environment } from '../../../../../environments/environment';
 import { ToastrService } from 'ngx-toastr';
@@ -438,6 +442,15 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 	{
 		if (reportType === LiteReportType.SUMMARY)
 		{
+			//return;
+			let data = this.getSummaryReportData();
+			this.liteService.getLiteSelectionSummaryReport(LiteReportType.SUMMARY, data)
+				.subscribe(pdfData => {
+					let pdfViewer = this.modalService.open(PDFViewerComponent, {backdrop: 'static', windowClass: 'phd-pdf-modal', size: 'lg'});
+					pdfViewer.componentInstance.pdfModalTitle = `Configuration Preview - ${reportType}`;
+					pdfViewer.componentInstance.pdfData = pdfData;
+					pdfViewer.componentInstance.pdfBaseUrl = `${environment.pdfViewerBaseUrl}`;
+				})
 			return;
 		}
 
@@ -770,6 +783,56 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 			summaryData.groups.unshift(exteriorGroup);
 			summaryData.groups = summaryData.groups.filter(g => g.label.toLowerCase() !== "elevations");
 		});
+
+		return summaryData;
+	}
+
+	getSummaryReportData(): SummaryReportData {
+		
+		let summaryData = {} as SummaryReportData;
+		summaryData.configurationName = this.title;
+		summaryData.community = this.summaryHeader.communitySalesName || "N/A";
+		summaryData.plan = this.summaryHeader.plan.salesName + ", " + this.summaryHeader.plan.integrationKey;
+		summaryData.lot = this.summaryHeader.lot.lotBlock;
+		if (this.summaryHeader.handing){
+			summaryData.lot += " (" + this.summaryHeader.handing + " Garage)";
+		}
+		summaryData.address = this.summaryHeader.lot.streetAddress1 + ", " 
+			+ this.summaryHeader.lot.city + ", " + this.summaryHeader.lot.stateProvince 
+			+ ", " + this.summaryHeader.lot.postalCode;
+		summaryData.basePrice = this.priceBreakdown.baseHouse;
+		summaryData.lotPremium = this.priceBreakdown.homesiteEstimate;
+		summaryData.optionsTotal = this.priceBreakdown.selections;
+		summaryData.totalPrice = this.priceBreakdown.totalPrice;
+		summaryData.groups = [];
+		this.optionCategories.forEach(category => {
+			let newGroup = new SummaryReportGroup();
+			newGroup.groupName = category.categoryName;
+			newGroup.groupSubTotal = 0;
+			summaryData.groups.push(newGroup);
+			newGroup.subGroups = [];
+			category.optionSubCategories.forEach(subCategory => {
+				let newSubGroup = new SummaryReportSubGroup();
+				newSubGroup.subGroupName = subCategory.subCategoryName;
+				newGroup.subGroups.push(newSubGroup);
+				newSubGroup.options = [];
+				subCategory.options.forEach(option =>{
+					let newOption = new SummaryReportOption();
+					newOption.name = option.name;
+					newOption.id = option.financialOptionIntegrationKey;
+					newOption.quantity = option.quantity;
+					newOption.listPrice = option.listPrice;
+					newSubGroup.options.push(newOption);
+					newOption.subOptions = [];
+					option.colors.forEach(color => {
+						let newSubOption = new SummaryReportSubOption();
+						newSubOption.attribute = color.colorItemName;
+						newSubOption.attributeValue = color.colorName;
+						newOption.subOptions.push(newSubOption);
+					})
+				})	
+			})
+		})
 
 		return summaryData;
 	}
