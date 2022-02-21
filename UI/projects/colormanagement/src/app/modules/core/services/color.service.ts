@@ -150,7 +150,7 @@ export class ColorService {
 		)
 	}
 
-	getSalesConfiguration(colorList: Array<IColorDto>, communityId: number): Observable<IColorDto[]> {
+	getSalesAgreementForColors(colorList: Array<IColorDto>, communityId: number): Observable<IColorDto[]> {
 		return this.identityService.token.pipe(
 			switchMap((token: string) => {
 				let guid = newGuid();
@@ -160,6 +160,30 @@ export class ColorService {
 					const select = `id`;
 					let qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}top=1`;
 					const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
+					return createBatchGet(endpoint);
+				});
+				let headers = createBatchHeaders(guid, token);
+				let batch = createBatchBody(guid, requests);
+
+				return this._http.post(`${environment.apiUrl}$batch`, batch, { headers: headers });
+			}),
+			map((response: any) => {
+				let bodies = response.responses.map(res => res.body);
+				colorList.forEach((color, i) => {
+					color.hasSalesAgreement = bodies[i]?.value?.length > 0 ? true : false;
+				})
+				return colorList;
+			}))
+	}
+
+	getSalesConfigurationForColors(colorList: Array<IColorDto>, communityId: number): Observable<IColorDto[]> {
+		return this.identityService.token.pipe(
+			switchMap((token: string) => {
+				let guid = newGuid();
+				let requests = colorList.map(color => {
+					const entity = `scenarioOptions`;
+					const filter = `scenarioOptionColors/any(soc:soc/colorId eq ${color.colorId})`;
+					const endpoint = `${environment.apiUrl}${entity}?${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}top=1`;
 					return createBatchGet(endpoint);
 				});
 				let headers = createBatchHeaders(guid, token);

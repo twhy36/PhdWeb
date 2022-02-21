@@ -16,7 +16,8 @@ export interface IColorDto{
     optionSubCategoryName:string,
     optionCategoryName:string,
     isActive:boolean,
-    hasSalesConfig:boolean
+    hasSalesConfig:boolean,
+	hasSalesAgreement: boolean
 }
 
 export interface IColorIdBatch {

@@ -113,7 +113,8 @@ export class ColorsSearchHeaderComponent
 							optionSubCategoryName: categorySubcategory?.name,
 							optionSubCategoryId: categorySubcategory?.id??null,
 							isActive: color.isActive,
-							hasSalesConfig:null
+							hasSalesConfig:null,
+							hasSalesAgreement: null
 						};
 						return colorsDto;
 					}) as Array<IColorDto>;
@@ -132,9 +133,15 @@ export class ColorsSearchHeaderComponent
 
 	getSalesConfig(colorDtos: IColorDto[])
 	{
-		this._colorService.getSalesConfiguration(colorDtos,this.currentCommunityId).subscribe((config)=> {
+		this._colorService.getSalesConfigurationForColors(colorDtos,this.currentCommunityId).subscribe((config)=> {
 			config.map((color) => {
 				this.colorsDtoList.find(c =>c.colorId === color.colorId).hasSalesConfig = color.hasSalesConfig;
+			})
+		})
+
+		this._colorService.getSalesAgreementForColors(colorDtos,this.currentCommunityId).subscribe((config)=> {
+			config.map((color) => {
+				this.colorsDtoList.find(c =>c.colorId === color.colorId).hasSalesAgreement = color.hasSalesAgreement;
 			})
 		})
 	}
