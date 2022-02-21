@@ -43,6 +43,8 @@ export class AttributeService
 				{
 					var sortOrder = 0;
 
+					let choiceAttributeGroup: any;
+
 					if (g.attributeGroupOptionCommunityAssocs && g.attributeGroupOptionCommunityAssocs.length)
 					{
 						const attrAssoc = g.attributeGroupOptionCommunityAssocs.find(
@@ -52,7 +54,7 @@ export class AttributeService
 					}
 					else
 					{
-						var choiceAttributeGroup = choiceAttributeGroups.find(x => x.id === g.id);
+						choiceAttributeGroup = choiceAttributeGroups.find(x => x.id === g.id);
 
 						if (choiceAttributeGroup)
 						{
@@ -66,7 +68,8 @@ export class AttributeService
 						label: g.groupLabel,
 						choiceId: null,
 						sortOrder: sortOrder,
-						attributes: orderBy(g.attributeGroupAttributeCommunityAssocs.map(a => a.attributeCommunity as Attribute[]), [attr => attr.name.toLowerCase()])
+						attributes: orderBy(g.attributeGroupAttributeCommunityAssocs.map(a => a.attributeCommunity as Attribute[]), [attr => attr.name.toLowerCase()]),
+						hasOptionCommunityAssoc: (g.attributeGroupOptionCommunityAssocs && g.attributeGroupOptionCommunityAssocs.length > 0) || choiceAttributeGroup
 					};
 				});
 

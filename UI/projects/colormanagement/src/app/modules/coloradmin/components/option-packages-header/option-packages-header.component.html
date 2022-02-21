@@ -1,9 +1,6 @@
 <div class="container-fluid"><!--change to class="container" if you want a full width table... in this scenario, a narrower table accommodates the data nicely-->
     <div class="row">
-        <div class="col-10">
-            <h5>Option Packages</h5>
-        </div>
-        <div class="col-2" style="text-align: rigth;">
+        <div class="col" style="text-align: right;">
             <button class="mx-2 phd-add-color-button btn btn-primary" 
                 [disabled]="disableAddButton"
                 (click)="addPackage()">
@@ -21,10 +18,12 @@
         [scrollWindow]="false">
         <phd-table 
             #pkgCommon 
-            [value]="commonPackages$ | async">
-            <phd-column header="Common Packages" field="name"></phd-column>
+            tableId = "communityOptionPackages"
+            [value]="commonPackages$ | async"
+            showColumnHeaders="false">
+            <phd-column field="name"></phd-column>
             <phd-column 
-                header="" 
+                width="48px"
                 columnClass="phd-icon">
                 <ng-template #body let-currentRecord>
                     <i class="fa fa-pencil" title="Edit Package" *ngIf="currentRecord.isCommon != null"
@@ -49,21 +48,21 @@
             [value]="communityPackages$ | async" 
             sortField="presentationOrder"
             canReorderRows="draggableRows" 
-            (onRowReorder)="onRowReorder($event)">
-            <phd-column header='' field="dragPlaceholder" style="width:43.25em"></phd-column>
-            <phd-column header="Other Packages" field="name"></phd-column>
-            <phd-column header="" columnClass="phd-icon" style="width:43.25em">
+            (onRowReorder)="onRowReorder($event)"
+            showColumnHeaders="false">
+            <phd-column isDragHandler="true" width="48px" field="dragPlaceholder"></phd-column>
+            <phd-column field="name"></phd-column>
+            <phd-column width="48px" columnClass="phd-icon" >
                 <ng-template #body let-currentRecord>
                     <i class="fa fa-pencil" title="Edit Package" (click)="editPackage(currentRecord)"></i>
                 </ng-template>
             </phd-column>            
-            <phd-column header="" columnClass="phd-icon" style="width:43.25em">
+            <phd-column width="48px" columnClass="phd-icon">
                 <ng-template #body let-currentRecord>
                     <i class="fa fa-edit" title="Rename Package" (click)="renamePackage(currentRecord)">
                     </i>
                 </ng-template>
             </phd-column>
-
         </phd-table>
     </div>
 </div>
