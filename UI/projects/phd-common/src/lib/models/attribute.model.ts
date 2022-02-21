@@ -20,6 +20,7 @@ export interface AttributeGroup
 	label: string;
 	name: string;
 	sortOrder: number;
+	hasOptionCommunityAssoc?: boolean;
 }
 
 export interface AttributeCommunityImageAssoc

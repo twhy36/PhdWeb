@@ -44,7 +44,7 @@
 					<cl-image public-id="{{getImageSrc(attribute)}}" title="{{getTitle(attribute)}}" type="fetch" gravity="auto" [class.disabled]="disableAttribute"
 							  crop="fill" height="80" width="80" (click)="attributeClick(attribute)" (onError)="onLoadImageError($event)" class="phd-attribute-item-image"
 							  [class.phd-attribute-disabled]="!canEditAttributes"
-							  [class.phd-attribute-item-image-selected]="selectedAttributeId === attribute.id"
+							  [class.phd-attribute-item-image-selected]="isAttributeSelected(attribute)"
 							  [class.phd-image-is-inactive]="(!isActive && attribute.monotonyConflict)">
 					</cl-image>
 
