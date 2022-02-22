@@ -531,6 +531,22 @@ export class TreeService
 			}));
 	}
 
+	getOptionRuleReplacesForTree(treeVersionId: number): Observable<Array<PhdEntityDto.IOptionRuleDto>>
+	{
+		const entity = `optionRules`;
+		let expand = `optionRuleReplaces($expand=planOption($select=integrationKey)),`;
+		expand += `planOption($select=integrationKey),`;
+		const filter = `dTreeVersionID eq ${treeVersionId} and optionRuleReplaces/any()`;
+
+		const qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}`;
+
+		const endPoint = `${settings.apiUrl}${entity}?${qryStr}`;
+
+		return this._http.get<any>(endPoint).pipe(
+			map(response => response.value as Array<PhdEntityDto.IOptionRuleDto>)
+		);
+	}
+
 	getPlanOptions(treeVersionId: number): Observable<Array<PhdApiDto.IDTPlanOption>>
 	{
 		const entity = `dTreeVersions`;

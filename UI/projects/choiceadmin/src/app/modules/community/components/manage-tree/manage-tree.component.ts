@@ -788,19 +788,48 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 
 	onPublishClicked()
 	{
-		const inactiveOptions = this.currentTreeOptions.filter(option => !option.isActive);
-
-		if (inactiveOptions.length > 0)
+		// #335671 Need to determine if any unmapped options are found in replace rules, and if so, prevent publishing the tree
+		this._treeService.getOptionRuleReplacesForTree(this.currentTree.version.id).subscribe(options =>
 		{
-			const inactiveOptionText = '<ul>' + inactiveOptions.map(option => '<li>' + option.id + '</li>').join('') + '</ul>';
+			// List to track any options that have replace rules for unmapped options
+			let badOptions: ITreeOption[] = [];
 
-			this.showConfirmModal('<span class="font-weight-bold text-primary">Warning:</span> The following inactive options are mapped to choices. Please adjust your mapping/rules, remove any images, and then publish. </br> ' + inactiveOptionText, 'Inactive Options', '', { hide: true, text: '' }, { hide: true, text: '' });
-		}
-		else
-		{
-			this.treeDetailsTitle = 'Publish Decision Tree';
-			this.showTreeDetails = true;
-		}
+			// Get all options in the current tree that are unmapped
+			const allUnmappedOptions = this.currentTreeOptions.filter(o => !o.hasRules && !o.baseHouse);
+
+			options.forEach(opt =>
+			{
+				// Map all of the replaced option IDs
+				const optionsToReplace = opt.optionRuleReplaces.map(orr => orr.planOption.integrationKey);
+
+				// Look for any unmapped option in the replace rules
+				if (optionsToReplace.some(r => allUnmappedOptions.map(o => o.id).includes(r)))
+				{
+					// There is an unmapped option in a replace rule, so flag this option as needing to be fixed
+					badOptions.push(this.currentTreeOptions.find(treeOpt => treeOpt.id === opt.planOption.integrationKey));
+				}
+			});
+
+			const inactiveOptions = this.currentTreeOptions.filter(option => !option.isActive);
+
+			if (badOptions.length > 0)
+			{
+				const badOptionText = '<ul>' + badOptions.map(option => '<li>' + option.id + '</li>').join('') + '</ul>';
+
+				this.showConfirmModal('<span class="font-weight-bold text-primary">Warning:</span> The following option(s) have an unmapped option as a replace rule.  Please adjust your mapping/rules and then publish. </br> ' + badOptionText, 'Replace Rule Error', '', { hide: true, text: '' }, { hide: true, text: '' });
+			}
+			else if (inactiveOptions.length > 0)
+			{
+				const inactiveOptionText = '<ul>' + inactiveOptions.map(option => '<li>' + option.id + '</li>').join('') + '</ul>';
+
+				this.showConfirmModal('<span class="font-weight-bold text-primary">Warning:</span> The following inactive options are mapped to choices. Please adjust your mapping/rules, remove any images, and then publish. </br> ' + inactiveOptionText, 'Inactive Options', '', { hide: true, text: '' }, { hide: true, text: '' });
+			}
+			else
+			{
+				this.treeDetailsTitle = 'Publish Decision Tree';
+				this.showTreeDetails = true;
+			}
+		});
 	}
 
 	onPreviewTreeClicked()
