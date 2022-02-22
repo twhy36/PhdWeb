@@ -1,13 +1,15 @@
 import { Component, Input, OnInit, EventEmitter, Output, SimpleChanges, OnChanges } from '@angular/core';
 import { FormGroup, FormControl } from '@angular/forms';
 
+import * as _ from 'lodash';
+
 import { finalize, combineLatest } from 'rxjs/operators';
 
 import { NgbModal, NgbNavChangeEvent } from '@ng-bootstrap/ng-bootstrap';
 import { ConfirmModalComponent } from '../../../../core/components/confirm-modal/confirm-modal.component';
 import { MessageService } from 'primeng/api';
 
-import { DTChoice, IDTPoint, DTree } from '../../../../shared/models/tree.model';
+import { DTChoice, IDTPoint, DTree, IDTChoice } from '../../../../shared/models/tree.model';
 import { TreeService } from '../../../../core/services/tree.service';
 import { PhdApiDto, PhdEntityDto } from '../../../../shared/models/api-dtos.model';
 import { ITreeOption, OptionImage, IOptionRuleChoice, IOptionRuleChoiceGroup } from '../../../../shared/models/option.model';
@@ -212,31 +214,136 @@ export class OptionSidePanelComponent implements OnInit, OnChanges
 		this.optionRuleSelectedChoices = [];
 	}
 
+	/**
+	 * Checks the mappings for all the groups to make sure they all end on the same choice or the choices fall under the same Point.
+	 * @param optionRuleChoices
+	 * @param isDelete
+	 */
+	checkMappingRules(optionRuleChoices: IOptionRuleChoice[] = [], isDelete: boolean = false) : boolean
+	{
+		let isValid = true;
+
+		// group all the choices by their mappedIndex
+		const groupChoicesByIndex = _.groupBy(this.optionRule.choices, c => c.mappingIndex);
+
+		// add the results into a easy to handle array
+		const groupChoices: IOptionRuleChoice[][] = _.map(groupChoicesByIndex, (ruleChoices) => ruleChoices);
+
+		// will hold each groups max choice id
+		let maxChoiceIds: number[] = [];
+
+		// if there is a new mapping, there will not be a record yet so we need to include its maxChoice
+		if (!isDelete && optionRuleChoices.length && !this.optionRule.choices.some(c => c.mappingIndex === optionRuleChoices[0].mappingIndex))
+		{
+			let newMaxChoice = getMaxSortOrderChoice(this.currentTree, optionRuleChoices.map(c => c.choiceId));
+
+			maxChoiceIds.push(newMaxChoice);
+		}
+
+		groupChoices.forEach(choiceList =>
+		{
+			let choiceIdList = choiceList.map(c => c.choiceId);
+
+			// preexisting rules that need to be updated by either adding/deleting choices
+			if (optionRuleChoices.length && choiceList[0].mappingIndex === optionRuleChoices[0].mappingIndex)
+			{
+				if (isDelete)
+				{
+					// remove each choice from the main list
+					optionRuleChoices.forEach(choice =>
+					{
+						const index = choiceIdList.findIndex(c => c === choice.choiceId);
+
+						// remove choiceId from array
+						choiceIdList.splice(index, 1);
+					});
+				}
+				else
+				{
+					choiceIdList = choiceIdList.concat(optionRuleChoices.map(x => x.choiceId));
+				}
+			}
+
+			if (choiceIdList.length)
+			{
+				// get the last choice for each group.
+				let maxChoiceId = getMaxSortOrderChoice(this.currentTree, choiceIdList);
+
+				maxChoiceIds.push(maxChoiceId);
+			}
+		});
+
+		let filteredChoices: IDTChoice[] = [];
+
+		if (maxChoiceIds.length)
+		{
+			const subGroups = _.flatMap(this.currentTree.version.groups, g => g.subGroups);
+			const points = _.flatMap(subGroups, sg => sg.points);
+			const choices = _.flatMap(points, p => p.choices);
+
+			// need a full choice record so we can get the point info
+			filteredChoices = choices.filter(c => maxChoiceIds.find(x => x === c.id));
+		}
+
+		// max choices must be the same or found on the same point.
+		if (!maxChoiceIds.every((val, index, arr) => val === arr[0]) && !filteredChoices.every((val, index, arr) => val.parent.id === arr[0].parent.id))
+		{
+			isValid = false;
+
+			this._msgService.add({ severity: 'error', summary: `All the option's mappings must end in the same choice or on the same pick 1 decision point.` });
+		}
+
+		return isValid;
+	}
+
 	async onSaveOptionChoiceRule(params: { selectedItems: DTChoice[], callback: Function, mappingIndex: number })
 	{
+		// check for choices, if none then just add, else we need to do some checks.
 		if (this.optionRule.choices.length > 0)
 		{
-			let choiceIdList = this.optionRule.choices.filter(c => c.mustHave).map(c => c.choiceId);
-			let newChoiceIdList = choiceIdList.concat(params.selectedItems.map(c => c.id));
-
-			let currentMaxChoiceId = getMaxSortOrderChoice(this.currentTree, choiceIdList);
-			let newMaxChoiceId = getMaxSortOrderChoice(this.currentTree, newChoiceIdList);
-
-			let maxChoice = this.optionRule.choices.find(c => c.choiceId === currentMaxChoiceId);
-
-			// check for Attribute Reassignments
-			this._treeService.hasAttributeReassignment([maxChoice.id]).subscribe(async hasAttributeReassignment =>
+			let selectedItemList = params.selectedItems.map(choice =>
 			{
-				let deleteAttributeReassignments = hasAttributeReassignment && currentMaxChoiceId !== newMaxChoiceId && await this.confirmAttributeReassignment([maxChoice.label]);
-
-				// if no reassignments proceed or the order doesn't change or show prompt asking if they'd like to continue
-				if (!hasAttributeReassignment || currentMaxChoiceId === newMaxChoiceId || deleteAttributeReassignments)
-				{
-					let assocId = deleteAttributeReassignments ? this.optionRule.choices.find(x => x.choiceId === currentMaxChoiceId).id : null;
-
-					this.saveOptionChoiceRule(params.selectedItems, params.callback, params.mappingIndex, assocId);
-				}
+				return {
+					choiceId: choice.id,
+					mustHave: true,
+					pointId: choice.parent.id,
+					mappingIndex: params.mappingIndex
+				} as PhdApiDto.IOptionChoiceRuleChoice;
 			});
+
+			if (this.checkMappingRules(selectedItemList))
+			{
+				// make sure the list is only for choices with the same mappingIndex.
+				let choiceIdList = this.optionRule.choices.filter(c => c.mustHave && c.mappingIndex === params.mappingIndex).map(c => c.choiceId);
+
+				if (choiceIdList.length)
+				{
+					let newChoiceIdList = choiceIdList.concat(params.selectedItems.map(c => c.id));
+
+					let currentMaxChoiceId = getMaxSortOrderChoice(this.currentTree, choiceIdList);
+					let newMaxChoiceId = getMaxSortOrderChoice(this.currentTree, newChoiceIdList);
+
+					let maxChoice = this.optionRule.choices.find(c => c.choiceId === currentMaxChoiceId);
+
+					// check for Attribute Reassignments
+					this._treeService.hasAttributeReassignment([maxChoice.id]).subscribe(async hasAttributeReassignment =>
+					{
+						let deleteAttributeReassignments = hasAttributeReassignment && currentMaxChoiceId !== newMaxChoiceId && await this.confirmAttributeReassignment([maxChoice.label]);
+
+						// if no reassignments proceed or the order doesn't change or show prompt asking if they'd like to continue
+						if (!hasAttributeReassignment || currentMaxChoiceId === newMaxChoiceId || deleteAttributeReassignments)
+						{
+							let assocId = deleteAttributeReassignments ? this.optionRule.choices.find(x => x.choiceId === currentMaxChoiceId).id : null;
+
+							this.saveOptionChoiceRule(params.selectedItems, params.callback, params.mappingIndex, assocId);
+						}
+					});
+				}
+				else
+				{
+					this.saveOptionChoiceRule(params.selectedItems, params.callback, params.mappingIndex);
+				}
+			}
 		}
 		else
 		{
@@ -302,8 +409,8 @@ export class OptionSidePanelComponent implements OnInit, OnChanges
 	
 	async onDeleteOptionChoiceRule(params: { optionRuleChoices: IOptionRuleChoice[], mappingIndex: number, displayIndex: number, callback: Function })
 	{
-		// if deleting a full mapping we need to make sure this is what they want before continuing
-		let confirmDelete = params.displayIndex !== null ? await this.confirmMappingDelete(params.displayIndex + 1) : true;
+		// if deleting a full mapping we need to make sure this is what they want before continuing, else lets check the mappingRules
+		let confirmDelete = params.displayIndex !== null ? await this.confirmMappingDelete(params.displayIndex + 1) : this.checkMappingRules(params.optionRuleChoices, true);
 
 		// They said YES!!!!!!!!
 		if (confirmDelete)
