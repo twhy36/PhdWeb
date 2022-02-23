@@ -37,7 +37,7 @@ export class ReplaceOptionRuleComponent implements OnInit
 	{
 		const options: Array<ITreeOption> = [];
 
-		Object.assign(options, this.options.filter(o => !this.optionRule.replaceRules.some(r => r.optionKey === o.id)));
+		Object.assign(options, this.options.filter(o => !this.optionRule.replaceRules.some(r => r.optionKey === o.id) && o.id !== this.option.id));
 
 		return options.sort((a, b) => a.id < b.id ? -1 : 1);
 	}
