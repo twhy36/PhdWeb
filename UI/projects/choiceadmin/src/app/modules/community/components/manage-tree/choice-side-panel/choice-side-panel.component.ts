@@ -500,22 +500,6 @@ export class ChoiceSidePanelComponent implements OnInit
 		}
 	}
 
-	updateOptionHasRule(rule: PhdApiDto.IChoiceOptionRule, hasRules: boolean)
-	{
-		this._treeService.currentTreeOptions.subscribe(options =>
-		{
-			if (options)
-			{
-				const workingOption = options.find(x => x.id.toString() === rule.integrationKey);
-
-				if (workingOption != null)
-				{
-					workingOption.hasRules = hasRules;
-				}
-			}
-		});
-	}
-
 	onUpdateMustHave(params: { rule: IRule, ruleType: RuleType })
 	{
 		this.isSaving = true;

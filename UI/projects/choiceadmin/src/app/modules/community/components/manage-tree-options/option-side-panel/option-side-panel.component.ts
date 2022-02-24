@@ -166,7 +166,7 @@ export class OptionSidePanelComponent implements OnInit, OnChanges
 		{
 			message = 'Unable to set Choice Rules as this option has been flagged as Included in Base House';
 		}
-		else if (!this.option.hasRules && (this.isReadOnly || !this.canEdit))
+		else if (this.option.optionRuleMappingCount === 0 && (this.isReadOnly || !this.canEdit))
 		{
 			message = 'No Choice Rules records found.';
 		}
@@ -178,11 +178,11 @@ export class OptionSidePanelComponent implements OnInit, OnChanges
 	{
 		let message = '';
 
-		if (!this.option.hasRules && !this.isReadOnly && this.canEdit)
+		if (this.option.optionRuleMappingCount === 0 && !this.isReadOnly && this.canEdit)
 		{
 			message = 'Must have Choice Rules set before Replace Rules can be added';
 		}
-		else if (!this.option.hasRules && (this.isReadOnly || !this.canEdit))
+		else if (this.option.optionRuleMappingCount === 0 && (this.isReadOnly || !this.canEdit))
 		{
 			message = 'No Replace Rules records found.';
 		}
@@ -397,7 +397,10 @@ export class OptionSidePanelComponent implements OnInit, OnChanges
 
 					this.onUpdateTreeChoiceOptionRules(optionRule.choices, true);
 
-					this.option.hasRules = this.optionRule.choices.length > 0;
+					const groupChoicesByIndex = _.groupBy(this.optionRule.choices, c => c.mappingIndex);
+					const groupChoiceSize = _.size(groupChoicesByIndex);
+
+					this.option.optionRuleMappingCount = groupChoiceSize;
 
 					callback(true);
 				}
@@ -458,16 +461,18 @@ export class OptionSidePanelComponent implements OnInit, OnChanges
 
 					// remove choice from array
 					this.optionRule.choices.splice(index, 1);
-				});		
+				});
 
-				// check to see if there are other choices in the array.
-				if (this.optionRule.choices.length === 0)
+				const groupChoicesByIndex = _.groupBy(this.optionRule.choices, c => c.mappingIndex);
+				const groupChoiceSize = _.size(groupChoicesByIndex);
+
+				this.option.optionRuleMappingCount = groupChoiceSize;
+
+				// if the count is 0 then we have no option mappings, and no rule.
+				if (this.option.optionRuleMappingCount === 0)
 				{
 					//  no more choices, no more option rule or replace
 					this.optionRule = this.blankRule;
-
-					// remove rule icon
-					this.option.hasRules = false;
 				}
 
 				callback(true);

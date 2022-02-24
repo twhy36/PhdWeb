@@ -517,7 +517,7 @@ export namespace PhdApiDto
 		planOptionId: number;
 		planId: number;
 		optionKey: string;
-		hasRules: boolean;
+		optionRuleMappingCount: number;
 		isReplaceRuleTarget: boolean; 
 		baseHouse: boolean;
 		imageCount: number;
