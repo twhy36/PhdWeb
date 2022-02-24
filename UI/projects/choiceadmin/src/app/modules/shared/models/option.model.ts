@@ -147,7 +147,7 @@ export interface ITreeOption
 	id: string;
 	isActive: boolean;
 	baseHouse: boolean;
-	hasRules: boolean;
+	optionRuleMappingCount: number;
 	hasImages: boolean;
 	imageCount: number;
 	listPrice: number;
@@ -166,7 +166,7 @@ export class TreeOption implements ITreeOption
 	id = '';
 	isActive = false;
 	baseHouse = false;
-	hasRules = false;
+	optionRuleMappingCount = 0;
 	hasImages = false;
 	imageCount = 0;
 	listPrice = 0;
@@ -181,13 +181,20 @@ export class TreeOption implements ITreeOption
 	
 	constructor(option: IPlanOptionDto, planOption: PhdApiDto.IDTPlanOption)
 	{
-		if (option == null) { throw new Error('dto must be specified'); }
-		if (planOption == null) { throw new Error('plan option must be specified'); }
+		if (option == null)
+		{
+			throw new Error('dto must be specified');
+		}
+
+		if (planOption == null)
+		{
+			throw new Error('plan option must be specified');
+		}
 
 		this.id = option.id;
 		this.isActive = option.isActive;
 		this.baseHouse = planOption.baseHouse;
-		this.hasRules = planOption.hasRules;
+		this.optionRuleMappingCount = planOption.optionRuleMappingCount;
 		this.hasImages = planOption.hasImages;
 		this.imageCount = planOption.imageCount;
 		this.listPrice = option.listPrice;

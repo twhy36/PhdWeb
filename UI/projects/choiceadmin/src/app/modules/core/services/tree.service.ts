@@ -244,13 +244,13 @@ export class TreeService
 							planOptionId: 0,
 							planId: 0,
 							optionKey: null,
-							hasRules: false,
+							optionRuleMappingCount: 0,
 							isReplaceRuleTarget: false,
 							baseHouse: false
 						} as PhdApiDto.IDTPlanOption : phdPlanOptions[index];
 
 						// filter options to show only active, those that have rules, or are target of replace rules.
-						if (option.isActive || planOption.hasRules || planOption.isReplaceRuleTarget)
+						if (option.isActive || planOption.optionRuleMappingCount || planOption.isReplaceRuleTarget)
 						{
 							let tOption = new TreeOption(option, planOption);
 
@@ -549,7 +549,11 @@ export class TreeService
 	getPlanOptions(treeVersionId: number): Observable<Array<PhdApiDto.IDTPlanOption>>
 	{
 		const entity = `dTreeVersions`;
-		const expand = `dTree($expand=plan($expand=planOptions($expand=baseHouseOptions($top=1;$filter=dTreeVersionID eq ${treeVersionId};$select=baseHouseOptionId), optionImages($filter=hideImage eq false and dTreeVersionID eq ${treeVersionId};$select=optionImageId,dTreeVersionId), optionRules($top=1;$filter=dTreeVersionID eq ${treeVersionId};$select=optionRuleID), optionRuleReplaces($top=1;$filter=dTreeVersionID eq ${treeVersionId};$select=optionRuleReplaceID))))`;
+		const expandBaseHouse = `baseHouseOptions($top=1;$filter=dTreeVersionID eq ${treeVersionId};$select=baseHouseOptionId)`;
+		const expandOptionImages = `optionImages($filter=hideImage eq false and dTreeVersionID eq ${treeVersionId};$select=optionImageId,dTreeVersionId)`;
+		const expandOptionRules = `optionRules($filter=dTreeVersionID eq ${treeVersionId};$select=optionRuleID;$expand=DPChoice_OptionRuleAssoc($select=dpchoiceOptionRuleAssocId, mappingIndex))`;
+		const expandOptionReplace = `optionRuleReplaces($top=1;$filter=dTreeVersionID eq ${treeVersionId};$select=optionRuleReplaceID)`;
+		const expand = `dTree($expand=plan($expand=planOptions($expand=${expandBaseHouse}, ${expandOptionImages}, ${expandOptionRules}, ${expandOptionReplace})))`;
 		const select = "dTree";
 		const filter = `dTreeVersionId eq ${treeVersionId}`;
 
@@ -565,12 +569,15 @@ export class TreeService
 				{
 					let imageCount = o.optionImages.length;
 
+					const groupChoicesByIndex = o.optionRules.length ? _.groupBy(o.optionRules[0].dpChoice_OptionRuleAssoc, c => c.mappingIndex) : [];
+					const groupChoiceSize = _.size(groupChoicesByIndex);
+
 					return {
 						planOptionId: o.planOptionID,
 						planId: o.planID,
 						optionKey: o.integrationKey,
 						baseHouse: !!o.baseHouseOptions.length,
-						hasRules: !!o.optionRules.length,
+						optionRuleMappingCount: groupChoiceSize,
 						isReplaceRuleTarget: !!o.optionRuleReplaces.length,
 						hasImages: imageCount > 0,
 						imageCount: imageCount
