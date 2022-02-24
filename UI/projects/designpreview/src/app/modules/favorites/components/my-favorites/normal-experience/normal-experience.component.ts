@@ -216,9 +216,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 
 		const decisionBarElement = document.getElementById('decision-bar-' + pointId?.toString());
 		if (decisionBarElement) {
-			setTimeout(() => {
-				decisionBarElement.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
-			}, 0);
+			decisionBarElement.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
 		}
 	}
 
