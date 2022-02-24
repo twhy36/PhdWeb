@@ -442,7 +442,6 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 	{
 		if (reportType === LiteReportType.SUMMARY)
 		{
-			//return;
 			let data = this.getSummaryReportData();
 			this.liteService.getLiteSelectionSummaryReport(LiteReportType.SUMMARY, data)
 				.subscribe(pdfData => {
@@ -800,10 +799,13 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 		summaryData.address = this.summaryHeader.lot.streetAddress1 + ", " 
 			+ this.summaryHeader.lot.city + ", " + this.summaryHeader.lot.stateProvince 
 			+ ", " + this.summaryHeader.lot.postalCode;
-		summaryData.basePrice = this.priceBreakdown.baseHouse;
-		summaryData.lotPremium = this.priceBreakdown.homesiteEstimate;
-		summaryData.optionsTotal = this.priceBreakdown.selections;
-		summaryData.totalPrice = this.priceBreakdown.totalPrice;
+		summaryData.basePrice = this.priceBreakdown.baseHouse || 0;
+		summaryData.lotPremium = this.priceBreakdown.homesiteEstimate || 0;
+		summaryData.optionsTotal = this.priceBreakdown.selections || 0;
+		summaryData.totalPrice = this.priceBreakdown.totalPrice || 0;
+		summaryData.salesProgram = this.priceBreakdown.salesProgram || 0;
+		summaryData.closingIncentive = this.priceBreakdown.closingIncentive || 0;
+		summaryData.designEstimate = this.priceBreakdown.designEstimate || 0;
 		summaryData.groups = [];
 		this.optionCategories.forEach(category => {
 			let newGroup = new SummaryReportGroup();

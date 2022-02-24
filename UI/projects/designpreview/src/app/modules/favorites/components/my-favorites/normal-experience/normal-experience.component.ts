@@ -190,30 +190,33 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 
 	scrollPointIntoView(pointId: number, isFirstPoint: boolean)
 	{
-		const pointCardElement = document.getElementById('point-card-' + pointId?.toString());
+		const pointCardElement = <HTMLElement><any>document.getElementById(`point-card-${pointId?.toString()}`);
 		if (pointCardElement)
 		{
 			if (isFirstPoint)
 			{
-				pointCardElement.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+				setTimeout(() => {
+					pointCardElement.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+				}, 250);
 			}
 			else
 			{
 				// Workaround to display the element moved under the nav bar
-				const pos = pointCardElement.style.position;
-				const top = pointCardElement.style.top;
-				pointCardElement.style.position = 'relative';
-				pointCardElement.style.top = '-200px';
-				pointCardElement.scrollIntoView({behavior: 'smooth', block: 'start'});
-				pointCardElement.style.top = top;
-				pointCardElement.style.position = pos;
+				setTimeout(() => {
+					const pos = pointCardElement.style.position;
+					const top = pointCardElement.style.top;
+					pointCardElement.style.position = 'relative';
+					pointCardElement.style.top = '-200px';
+					pointCardElement.scrollIntoView({behavior: 'smooth', block: 'start'});
+					pointCardElement.style.top = top;
+					pointCardElement.style.position = pos;
+				}, 250);
 			}
 		}
 
 		const decisionBarElement = document.getElementById('decision-bar-' + pointId?.toString());
-		if (decisionBarElement)
-		{
-				decisionBarElement.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+		if (decisionBarElement) {
+			decisionBarElement.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
 		}
 	}
 

@@ -552,7 +552,7 @@ export class TreeService
 			}),
 			map((response: any) =>
 			{
-				let bodyValue: any[] = response.responses.filter(r => r.body.value.length > 0).map(r => r.body.value);
+				let bodyValue: any[] = response.responses.filter(r => r.body?.value?.length > 0).map(r => r.body.value);
 				let optionRules = _.flatten(bodyValue);
 
 				let mappings: { [optionNumber: string]: OptionRule } = {};

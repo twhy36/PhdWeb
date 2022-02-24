@@ -410,7 +410,7 @@ export class TreeService
 						return `${environment.apiUrl}planOptionCommunityImageAssocs?${encodeURIComponent('$')}select=${select}&${encodeURIComponent('$')}filter=${filter}&${encodeURIComponent('$')}orderby=${orderBy}&${this._ds}count=true`;
 					}
 
-					const batchSize = 75;
+					const batchSize = 35;
 					let batchBundles: string[] = [];
 
 					// create a batch request with a max of 100 options per request
@@ -517,7 +517,7 @@ export class TreeService
 			}),
 			map((response: any) =>
 			{
-				let bodyValue: any[] = response.responses.filter(r => r.body.value.length > 0).map(r => r.body.value);
+				let bodyValue: any[] = response.responses.filter(r => r.body?.value?.length > 0).map(r => r.body.value);
 				let optionRules = _.flatten(bodyValue);
 
 				let mappings: { [optionNumber: string]: OptionRule } = {};

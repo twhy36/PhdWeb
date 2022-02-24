@@ -158,6 +158,9 @@ export class SummaryReportData {
 	lotPremium?: number;
 	optionsTotal?: number;
 	totalPrice?: number;
+    salesProgram?: number;
+    closingIncentive?: number;
+    designEstimate?: number;
 	groups?: Array<SummaryReportGroup>;
 
 }
