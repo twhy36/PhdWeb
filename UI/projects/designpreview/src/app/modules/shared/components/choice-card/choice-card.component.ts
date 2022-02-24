@@ -89,7 +89,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 	 */
 	onLoadImageError(event: any)
 	{
-		event.srcElement.src = this.brandService.getBrandImage('logo');
+		event.srcElement.src = this.brandService.getBrandImage('choice-card-logo');
 	}
 
 	toggleChoice()
@@ -132,6 +132,6 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 	}
 
 	getImageSrc() {
-		return this.brandService.getBrandImage('logo');
+		return this.brandService.getBrandImage('choice-card-logo');
 	}
 }

@@ -305,8 +305,9 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 			combineLatest(
 				this.store.pipe(select(fromScenario.scenarioHasSalesAgreement)),
 				this.store.pipe(select(fromLot.lotsLoaded))
-			)
-		).subscribe(([isGanked, hasAgreement, lotsLoaded]) =>
+			),
+			withLatestFrom(this.store.pipe(select(state => state.scenario?.scenario?.treeVersionId)))
+		).subscribe(([[isGanked, hasAgreement, lotsLoaded], treeVersionId]) =>
 		{
 			if (lotsLoaded)
 			{
@@ -324,7 +325,8 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 						{
 							if (this.scenarioHasSalesAgreement)
 							{
-								this.router.navigateByUrl('/scenario-summary');
+								const summaryUrl = !!treeVersionId ? '/scenario-summary' : '/lite-summary';
+								this.router.navigateByUrl(summaryUrl);
 							}
 							else
 							{

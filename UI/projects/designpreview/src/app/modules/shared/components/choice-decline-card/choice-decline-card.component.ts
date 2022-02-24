@@ -59,7 +59,7 @@ export class ChoiceDeclineCardComponent extends UnsubscribeOnDestroy implements 
 	 */
 	onLoadImageError(event: any)
 	{
-		event.srcElement.src = this.brandService.getBrandImage('logo');
+		event.srcElement.src = this.brandService.getBrandImage('choice-card-logo');
 	}
 
 	toggleDecline()
@@ -89,6 +89,6 @@ export class ChoiceDeclineCardComponent extends UnsubscribeOnDestroy implements 
 	}
 
 	getImageSrc() {
-		return this.brandService.getBrandImage('logo');
+		return this.brandService.getBrandImage('choice-card-logo');
 	}
 }

@@ -7,7 +7,14 @@ export interface IEnvironment {
 	authQueryParams: string;
 	pictureParkAssetUrl: string;
 	designToolUrl: string;
-	designPreviewUrl: string;
+	designPreviewUrls: {
+		pulte: string;
+		delWebb: string;
+		americanWest: string;
+		diVosta: string;
+		centex: string;
+		johnWieland: string;
+	};
 	appInsights: IConfiguration & IConfig;
 	authConfig: AuthConfig;
 	production: boolean;

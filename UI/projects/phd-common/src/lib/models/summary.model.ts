@@ -180,3 +180,4 @@ export class SDImage
 	floorIndex?: number;
 	floorName?: string;
 }
+

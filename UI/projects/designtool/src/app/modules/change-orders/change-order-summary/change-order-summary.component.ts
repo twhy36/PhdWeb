@@ -6,8 +6,8 @@ import { FormGroup, FormControl, Validators, AbstractControl, ValidatorFn } from
 
 import { ToastrService } from 'ngx-toastr';
 
-import { combineLatest, switchMap, take, finalize, catchError, shareReplay } from 'rxjs/operators';
-import { Observable } from 'rxjs';
+import { combineLatest, switchMap, take, finalize, catchError, shareReplay, map } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
 
@@ -74,6 +74,9 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 	isLockedIn: boolean = false;
 	isDesignComplete: boolean = false;
 	isDesignPreviewEnabled: boolean;
+
+	// PHD Lite
+	isPhdLite$: Observable<boolean>;
 
 	JOB_CHANGEORDER_TYPES = [
 		{ value: 'SalesJIO', id: 0 },
@@ -435,6 +438,14 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 		this.store.pipe(
 			select(fromRoot.isDesignPreviewEnabled)
 		).subscribe(enabled => this.isDesignPreviewEnabled = enabled);
+
+		this.isPhdLite$ = this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(state =>
+			{
+				return state.lite?.isPhdLite;
+			})
+		);		
 	}
 
 	getESignStatus(changeOrder: any): string
@@ -1015,25 +1026,29 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 
 		if ((changeOrder.salesStatus === 'Pending'))
 		{
-			this._contractService.compareSnapshots(this.jobId, changeOrder).subscribe(currentSnapshot =>
+			this._contractService.compareSnapshots(this.jobId, changeOrder).pipe(
+				switchMap(currentSnapshot =>
+				{
+					if (currentSnapshot)
+					{
+						return this._contractService.saveSnapshot(currentSnapshot, this.jobId, changeOrder.id).pipe(
+							switchMap(() =>
+								this._contractService.getPreviewDocument(currentSnapshot.jioSelections, currentSnapshot.templates, currentSnapshot.financialCommunityId, currentSnapshot.salesAgreementNumber, currentSnapshot.salesAgreementStatus, currentSnapshot.envelopeInfo, currentSnapshot.jobId, currentSnapshot.changeOrderGroupId, currentSnapshot.constructionChangeOrderSelections, currentSnapshot.salesChangeOrderSelections, currentSnapshot.planChangeOrderSelections, currentSnapshot.nonStandardChangeOrderSelections, currentSnapshot.lotTransferChangeOrderSelections, currentSnapshot.changeOrderInformation, true, false)),
+							map(pdfObject =>
+							{
+								return pdfObject;
+							}
+						));
+					}
+					else
+					{
+						return of(null);
+					}
+				}),
+				take(1)
+			).subscribe(pdfObject =>
 			{
-				if (currentSnapshot)
-				{
-					this._actions$.pipe(
-						ofType<CommonActions.ChangeOrderEnvelopeCreated>(CommonActions.CommonActionTypes.ChangeOrderEnvelopeCreated),
-						take(1)).subscribe(() =>
-						{
-							this.isDownloadingEnvelope = true;
-
-							this.openPdfViewer(changeOrder.id);
-						});
-
-					this.store.dispatch(new JobActions.CreateChangeOrderEnvelope(currentSnapshot));
-				}
-				else
-				{
-					this.openPdfViewer(changeOrder.id);
-				}
+				this.openPdfViewer(changeOrder.id);
 			});
 		}
 		else if ((changeOrder.changeOrderTypeDescription === 'SalesJIO' && changeOrder.salesStatus === 'Approved') || (changeOrder.changeOrderTypeDescription === 'SpecJIO' && changeOrder.salesStatus === 'Approved') || (changeOrder.id === this.changeOrders[0].id && changeOrder.salesStatus === 'Approved'))

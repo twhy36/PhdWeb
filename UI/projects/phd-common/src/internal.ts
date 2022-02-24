@@ -55,6 +55,7 @@ export * from './lib/http-interceptors/auth-interceptor';
 //services
 export * from './lib/services/browser.service';
 export * from './lib/services/identity.service';
+export * from './lib/services/brand.service';
 export * from './lib/services/interceptors/spinner.interceptor';
 export * from './lib/services/spinner.service';
 export * from './lib/services/modal.service';

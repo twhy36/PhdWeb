@@ -2,7 +2,7 @@ import {Component, OnInit, ViewChild} from '@angular/core';
 import {OptionService} from '../../services/option.service';
 import {IOptionSubCategory} from '../../../shared/models/option.model';
 import {OrganizationService} from '../../../core/services/organization.service';
-import {filter, map, switchMap} from 'rxjs/operators';
+import {filter, map, switchMap, take} from 'rxjs/operators';
 import {from, Observable, EMPTY } from 'rxjs';
 import {ConfirmModalComponent, ModalRef, ModalService, UnsubscribeOnDestroy} from 'phd-common';
 import {IColor, IColorDto} from '../../../shared/models/color.model';
@@ -71,6 +71,7 @@ export class ColorsSearchHeaderComponent
 				);
 			})
 		);
+
 		this.optionSubCategory$.subscribe((subcategoryList) => {
 			this.optionSubCategoryList = subcategoryList;
 			this.resetFilter();
@@ -112,7 +113,8 @@ export class ColorsSearchHeaderComponent
 							optionSubCategoryName: categorySubcategory?.name,
 							optionSubCategoryId: categorySubcategory?.id??null,
 							isActive: color.isActive,
-							hasSalesConfig:null
+							hasSalesConfig:null,
+							hasSalesAgreement: null
 						};
 						return colorsDto;
 					}) as Array<IColorDto>;
@@ -131,9 +133,15 @@ export class ColorsSearchHeaderComponent
 
 	getSalesConfig(colorDtos: IColorDto[])
 	{
-		this._colorService.getSalesConfiguration(colorDtos,this.currentCommunityId).subscribe((config)=> {
+		this._colorService.getSalesConfigurationForColors(colorDtos,this.currentCommunityId).subscribe((config)=> {
 			config.map((color) => {
 				this.colorsDtoList.find(c =>c.colorId === color.colorId).hasSalesConfig = color.hasSalesConfig;
+			})
+		})
+
+		this._colorService.getSalesAgreementForColors(colorDtos,this.currentCommunityId).subscribe((config)=> {
+			config.map((color) => {
+				this.colorsDtoList.find(c =>c.colorId === color.colorId).hasSalesAgreement = color.hasSalesAgreement;
 			})
 		})
 	}

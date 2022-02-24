@@ -11,3 +11,42 @@ export function getBrandImageSrc(brands: {[hostname: string]: unknown}, imagePro
 		return brands[window.location.host]['images'][imageProperty];
 	}
 }
+
+export function getBrandUrl(key: number, dpUrls: { pulte: string, delWebb: string, americanWest: string, diVosta: string, centex: string, johnWieland: string }) {
+	if (financialBrands.americanWest.includes(key)) {
+		return dpUrls.americanWest;
+	} else if (financialBrands.delWebb.includes(key)) {
+		return dpUrls.delWebb;
+	} else if (financialBrands.diVosta.includes(key)) {
+		return dpUrls.diVosta;
+	} else if (financialBrands.centex.includes(key)) {
+		return dpUrls.centex;
+	} else if (financialBrands.johnWieland.includes(key)) {
+		return dpUrls.johnWieland;
+	} else { // If Pulte Brand OR Unknown Brand
+		return dpUrls.pulte;
+	}
+}
+
+export const financialBrands = {
+	pulte: [
+		110,
+		120,
+	],
+	delWebb: [
+		310,
+		320,
+	],
+	americanWest: [
+		140,
+	],
+	diVosta: [
+		200,
+	],
+	centex: [
+		410,
+	],
+	johnWieland: [
+		130,
+	],
+}

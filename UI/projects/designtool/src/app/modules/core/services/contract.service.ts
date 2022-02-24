@@ -6,7 +6,7 @@ import { map, catchError, switchMap, withLatestFrom, take, combineLatest } from 
 
 import {
 	defaultOnNotFound, withSpinner, Buyer, Contact, PhoneType, ESignTypeEnum, ChangeOrderChoice, ChangeOrderNonStandardOption,
-	ChangeOrderGroup, LotExt, Plan, SalesAgreementProgram, SDPoint, DecisionPoint, formatPhoneNumber
+	ChangeOrderGroup, LotExt, Plan, SalesAgreementProgram, SDPoint, DecisionPoint, formatPhoneNumber, PriceBreakdown
 } from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
@@ -22,6 +22,7 @@ import { isNull } from "../../shared/classes/string-utils.class";
 import * as fromLot from '../../ngrx-store/lot/reducer';
 import * as fromChangeOrder from '../../ngrx-store/change-order/reducer';
 import { TreeService } from '../../core/services/tree.service';
+import { _throw } from 'rxjs/observable/throw';
 
 @Injectable()
 export class ContractService
@@ -342,6 +343,344 @@ export class ContractService
 		);
 	}
 
+	getPreviewDocument(jioSelections: any, templates: Array<ITemplateInfo>, financialCommunityId: number, salesAgreementNumber: string, salesAgreementStatus: string, envelopeInfo: EnvelopeInfo, jobId: number, changeOrderGroupId: number, constructionChangeOrderSelectionsDto?: any, salesChangeOrderSelections?: any, planChangeOrderSelectionsDto?: any, nonStandardChangeOrderSelectionsDto?: Array<ChangeOrderNonStandardOption>, lotTransferSeletionsDto?: { addedLot: LotExt, deletedLot: LotExt }, changeOrderInformation?: any, isPreview? : boolean, isAddenda?: boolean)
+	{
+		const action = `GetPreviewDocument`;
+		const url = `${environment.apiUrl}${action}`;
+		const headers = new HttpHeaders({
+			'Content-Type': 'application/json',
+			'Accept': 'application/pdf'
+		});
+
+		const data = {
+			isPreview: isPreview ? isPreview : false,
+			isAddenda: isAddenda ? isAddenda : false,
+			templates: templates,
+			jioSelections: jioSelections,
+			financialCommunityId: financialCommunityId,
+			jobId: jobId,
+			changeOrderGroupId: changeOrderGroupId,
+			salesAgreementNumber: salesAgreementNumber,
+			salesAgreementStatus: salesAgreementStatus,
+			constructionChangeOrderSelections: constructionChangeOrderSelectionsDto,
+			salesChangeOrderSelections: salesChangeOrderSelections,
+			planChangeOrderSelections: planChangeOrderSelectionsDto,
+			nonStandardChangeOrderSelections: nonStandardChangeOrderSelectionsDto,
+			lotTransferChangeOrderSelections: lotTransferSeletionsDto ? { lotDtos: lotTransferSeletionsDto } : null,
+			changeOrderInformation: changeOrderInformation,
+			salesAgreementInfo: { ...envelopeInfo }
+		};
+
+		return withSpinner(this._http).post(url, data, { headers: headers, responseType: 'blob' }).pipe(
+			map(response =>
+			{
+				return window.URL.createObjectURL(response);
+			}),
+			catchError(error =>
+			{
+				console.error(error);
+
+				return _throw(error);
+			})
+		);
+	}
+
+	createContractSnapshot(store: fromRoot.State, priceBreakdown: PriceBreakdown, isSpecSalePending: boolean, selectLot: fromLot.State, elevationDP: DecisionPoint, coPrimaryBuyer: Buyer, coCoBuyers: Buyer[])
+	{
+		// get selected templates and sort by display order
+		const templates = store.contract.selectedTemplates.length ? store.contract.selectedTemplates.map(id => {
+			return store.contract.templates.find(t => t.templateId === id);
+		}).sort((a, b) => a.displayOrder < b.displayOrder ? -1 : a.displayOrder > b.displayOrder ? 1 : 0) : [{ displayName: "JIO", displayOrder: 2, documentName: "JIO", templateId: 0, templateTypeId: 4, marketId: 0, version: 0 }];
+
+		let salesAgreementNotes = !!store.salesAgreement.notes && store.salesAgreement.notes.length ? store.salesAgreement.notes.filter(n => n.targetAudiences.find(x => x.name === "Public") && n.noteSubCategoryId !== 10).map(n => n.noteContent).join(", ") : '';
+		let termsAndConditions = !!store.salesAgreement.notes && store.salesAgreement.notes.length ? store.salesAgreement.notes.filter(n => n.targetAudiences.find(x => x.name === "Public") && n.noteSubCategoryId === 10).map(n => n.noteContent).join() : '';
+
+		const currentHouseSelections = templates.some(t => t.templateId === 0) ? getCurrentHouseSelections(store.scenario.tree.treeVersion.groups) : [];
+
+		let jioSelections =
+		{
+			currentHouseSelections: currentHouseSelections,
+			salesAgreementNotes: salesAgreementNotes
+		};
+
+		if (templates.length)
+		{
+			const salesAgreementStatus = store.salesAgreement.status;
+			const financialCommunityId = store.job.financialCommunityId;
+			const salesAgreement = store.salesAgreement;
+			const primBuyer = isSpecSalePending && store.changeOrder.changeInput.buyers ? store.changeOrder.changeInput.buyers.find(b => b.isPrimaryBuyer) : store.salesAgreement.buyers.find(b => b.isPrimaryBuyer);
+			const primaryBuyer = primBuyer ? primBuyer.opportunityContactAssoc.contact : new Contact();
+			const coBuyers = isSpecSalePending && store.changeOrder.changeInput.buyers ? store.changeOrder.changeInput.buyers.filter(b => !b.isPrimaryBuyer).sort((a, b) => a.sortKey === b.sortKey ? 0 : a.sortKey < b.sortKey ? -1 : 1) : store.salesAgreement.buyers ? store.salesAgreement.buyers.filter(b => !b.isPrimaryBuyer).sort((a, b) => a.sortKey === b.sortKey ? 0 : a.sortKey < b.sortKey ? -1 : 1) : [] as Buyer[];
+			const nsoSummary = store.job.changeOrderGroups ? store.job.changeOrderGroups.filter(x => x.jobChangeOrders.find(y => y.jobChangeOrderTypeDescription == "NonStandard") && (x.salesStatusDescription === "Pending")) : [];
+
+			const customerAddress = primaryBuyer.addressAssocs.find(a => a.isPrimary);
+			const customerHomePhone = primaryBuyer.phoneAssocs.find(p => p.isPrimary);
+			const customerWorkPhone = primaryBuyer.phoneAssocs.find(p => p.phone.phoneType === PhoneType.Business);
+			const customerEmail = primaryBuyer.emailAssocs.find(e => e.isPrimary);
+
+			// Fetch price break down information
+
+			const baseHousePrice = priceBreakdown.baseHouse || 0;
+			const lotPremium = priceBreakdown.homesite || 0;
+			const selectionsPrice = priceBreakdown.selections || 0;
+			const totalHousePrice = priceBreakdown.totalPrice || 0;
+			const nonStandardPrice = priceBreakdown.nonStandardSelections || 0;
+			const salesIncentivePrice = priceBreakdown.salesProgram !== null ? (-Math.abs(priceBreakdown.salesProgram) + priceBreakdown.priceAdjustments) : 0;
+			const buyerClosingCosts = (priceBreakdown.closingIncentive || 0) + (priceBreakdown.closingCostAdjustment || 0);
+
+			const jio = store.job.changeOrderGroups[store.job.changeOrderGroups.length - 1];
+
+			const createdDate = store.salesAgreement.createdUtcDate || jio.createdUtcDate;
+
+			let jobBuyerHeaderInfo =
+			{
+				homePhone: customerHomePhone ? isNull(formatPhoneNumber(customerHomePhone.phone.phoneNumber), "") : "",
+				workPhone: customerWorkPhone ? isNull(formatPhoneNumber(customerWorkPhone.phone.phoneNumber), "") : "",
+				email: customerEmail ? isNull(customerEmail.email.emailAddress, "") : "",
+				address: customerAddress && customerAddress.address ? isNull(customerAddress.address.address1, "").trim() + " " + isNull(customerAddress.address.address2, "").trim() : "",
+				cityStateZip: customerAddress && customerAddress.address ? `${isNull(customerAddress.address.city, "").trim()}, ${isNull(customerAddress.address.stateProvince, "").trim()} ${isNull(customerAddress.address.postalCode, "").trim()}` : ""
+			}
+
+			let jobAgreementHeaderInfo =
+			{
+				agreementNumber: store.salesAgreement.salesAgreementNumber,
+				agreementCreatedDate: new Date(createdDate).toLocaleDateString('en-US', { month: "2-digit", day: "2-digit", year: "numeric" }),
+				agreementApprovedDate: !!store.salesAgreement.approvedDate ? (new Date(store.salesAgreement.approvedDate.toString().replace(/-/g, '\/').replace(/T.+/, ''))).toLocaleDateString('en-US', { month: "2-digit", day: "2-digit", year: "numeric" }) : null,
+				agreementSignedDate: !!store.salesAgreement.signedDate ? (new Date(store.salesAgreement.signedDate.toString().replace(/-/g, '\/').replace(/T.+/, ''))).toLocaleDateString('en-US', { month: "2-digit", day: "2-digit", year: "numeric" }) : null,
+				communityName: selectLot.selectedLot.financialCommunity.name,
+				communityMarketingName: store.org.salesCommunity.name,
+				phaseName: !!store.job.lot.salesPhase && !!store.job.lot.salesPhase.salesPhaseName ? store.job.lot.salesPhase.salesPhaseName : "",
+				garage: isNull(store.job.handing, ""),
+				planName: store.job.plan.planSalesName,
+				planID: store.job.plan.masterPlanNumber,
+				elevation: elevationDP && elevationDP.choices.find(c => c.quantity > 0) ? elevationDP.choices.find(c => c.quantity > 0).label : "",
+				lotBlock: isNull(store.job.lot.alternateLotBlock, ""),
+				lotAddress: isNull(store.job.lot.streetAddress1, "").trim() + " " + isNull(store.job.lot.streetAddress2, "").trim(),
+				cityStateZip: store.job.lot.city ? `${isNull(store.job.lot.city, "").trim()}, ${isNull(store.job.lot.stateProvince, "").trim()} ${isNull(store.job.lot.postalCode, "").trim()}` : "",
+				lotBlockFullNumber: store.job.lot.lotBlock,
+				salesAssociate: store.salesAgreement.consultants && store.salesAgreement.consultants.length ? store.salesAgreement.consultants[0].contact.firstName + " " + store.salesAgreement.consultants[0].contact.lastName :
+					jio && jio.contact ? jio.contact.displayName : "",
+				salesDescription: jio ? jio.jobChangeOrderGroupDescription : ""
+			}
+
+			var envelopeInfo =
+			{
+				oldHanding: store.job.handing,
+				newHanding: store.changeOrder && store.changeOrder.changeInput && store.changeOrder.changeInput.handing ? store.changeOrder.changeInput.handing.handing : null,
+				buildType: store.job.lot ? store.job.lot.lotBuildTypeDesc : "",
+				primaryBuyerName: isNull(store.changeOrder && store.changeOrder.changeInput ? store.changeOrder.changeInput.trustName : null, `${primaryBuyer.firstName ? primaryBuyer.firstName : ''}${primaryBuyer.middleName ? ' ' + primaryBuyer.middleName : ''} ${primaryBuyer.lastName ? ' ' + primaryBuyer.lastName : ''}${primaryBuyer.suffix ? ' ' + primaryBuyer.suffix : ''}`),
+				primaryBuyerTrustName: isNull(store.changeOrder && store.changeOrder.changeInput && store.changeOrder.changeInput.trustName && store.changeOrder.changeInput.trustName.length > 20 ? `${store.changeOrder.changeInput.trustName.substring(0, 20)}...` : store.changeOrder && store.changeOrder.changeInput ? store.changeOrder.changeInput.trustName : null, `${primaryBuyer.firstName ? primaryBuyer.firstName : ''}${primaryBuyer.middleName ? ' ' + primaryBuyer.middleName : ''} ${primaryBuyer.lastName ? ' ' + primaryBuyer.lastName : ''}${primaryBuyer.suffix ? ' ' + primaryBuyer.suffix : ''}`),
+				salesAgreementNotes: salesAgreementNotes,
+				termsAndConditions: termsAndConditions,
+				coBuyers: coBuyers ? coBuyers.map(result => {
+					return {
+						firstName: result.opportunityContactAssoc.contact.firstName,
+						lastName: result.opportunityContactAssoc.contact.lastName,
+						middleName: result.opportunityContactAssoc.contact.middleName,
+						suffix: result.opportunityContactAssoc.contact.suffix
+					};
+				}) : [],
+				nsoSummary: this.getNsoOptionDetailsData(nsoSummary, store.job.jobNonStandardOptions),
+				closingCostInformation: this.getProgramDetails(store.salesAgreement.programs, store.job.changeOrderGroups, 'BuyersClosingCost')
+					.concat(store.salesAgreement.priceAdjustments ? store.salesAgreement.priceAdjustments.filter(a => a.priceAdjustmentType === 'ClosingCost')
+						.map(a => {
+							return { salesProgramDescription: '', amount: a.amount, name: 'Price Adjustment', salesProgramId: 0 };
+						}) : []),
+				salesIncentiveInformation: this.getProgramDetails(store.salesAgreement.programs, store.job.changeOrderGroups, 'DiscountFlatAmount')
+					.concat(store.salesAgreement.priceAdjustments ? store.salesAgreement.priceAdjustments.filter(a => a.priceAdjustmentType === 'Discount')
+						.map(a => {
+							return { salesProgramDescription: '', amount: a.amount, name: 'Price Adjustment', salesProgramId: 0 };
+						}) : []),
+				baseHousePrice: baseHousePrice,
+				lotPremium: lotPremium,
+				selectionsPrice: selectionsPrice,
+				totalHousePrice: totalHousePrice,
+				nonStandardPrice: nonStandardPrice,
+				salesIncentivePrice: salesIncentivePrice,
+				buyerClosingCosts: buyerClosingCosts,
+				jobBuyerHeaderInfo: jobBuyerHeaderInfo,
+				jobAgreementHeaderInfo: jobAgreementHeaderInfo
+			};
+
+			// Create a snapshot
+
+			let planChangeOrderSelections = null;
+			let constructionChangeOrderSelections = [];
+			let nonStandardChangeOrderSelections = [];
+			let lotTransferChangeOrderSelections = null;
+			let mappedTemplates = templates.map(t => {
+				return { templateId: t.templateId, displayOrder: templates.indexOf(t) + 1, documentName: t.documentName, templateTypeId: t.templateTypeId };
+			});
+
+			let planId = 0;
+			let planName = '';
+
+			if (store.plan.plans)
+			{
+				store.plan.plans.forEach(t =>
+				{
+					if (t.id === store.plan.selectedPlan)
+					{
+						planId = t.id;
+						planName = t.salesName;
+					}
+				});
+			}
+
+			let lot = store.lot.selectedLot;
+			let lotAddress = (lot.streetAddress1 ? lot.streetAddress1 : "") + " " + (lot.streetAddress2 ? lot.streetAddress2 : "") + "," + (lot.city ? lot.city : "") + "," + (lot.stateProvince ? lot.stateProvince : "") + " " + (lot.postalCode ? lot.postalCode : "");
+
+			const inChangeOrderOrSpecSale = store.changeOrder.isChangingOrder || isSpecSalePending;
+			let buyer = inChangeOrderOrSpecSale ? coPrimaryBuyer : store.salesAgreement.buyers.find(t => t.isPrimaryBuyer === true);
+			const buyerContact = buyer && buyer.opportunityContactAssoc ? buyer.opportunityContactAssoc.contact : null;
+			const currentBuyerName = buyerContact ? `${buyerContact.firstName ? buyerContact.firstName : ''}${buyerContact.middleName ? ' ' + buyerContact.middleName : ''} ${buyerContact.lastName ? ' ' + buyerContact.lastName : ''}${buyerContact.suffix ? ' ' + buyerContact.suffix : ''}` : '';
+
+			const sagBuyers = store.salesAgreement.buyers.filter(t => t.isPrimaryBuyer === false);
+			let coBuyerList = sagBuyers;
+
+			if (inChangeOrderOrSpecSale)
+			{
+				const deletedBuyers = sagBuyers.filter(x => x.id !== buyer.id && coCoBuyers.findIndex(b => b.opportunityContactAssoc.id === x.opportunityContactAssoc.id) < 0);
+
+				coBuyerList = coCoBuyers.concat(deletedBuyers);
+			}
+
+			const currentCoBuyers = coBuyerList ? coBuyerList.map(b =>
+			{
+				return {
+					firstName: b.opportunityContactAssoc.contact.firstName,
+					lastName: b.opportunityContactAssoc.contact.lastName,
+					middleName: b.opportunityContactAssoc.contact.middleName,
+					suffix: b.opportunityContactAssoc.contact.suffix
+				};
+			}) : [];
+
+			let salesConsultant = store.salesAgreement.consultants.length > 0 ? (store.salesAgreement.consultants[0].contact.firstName + " " + store.salesAgreement.consultants[0].contact.lastName) : "";
+			let homePhone = "";
+			let workPhone = "";
+			let buyerCurrentAddress = "";
+
+			if (buyer && buyer.opportunityContactAssoc && buyer.opportunityContactAssoc.contact.phoneAssocs.length > 0) {
+				buyer.opportunityContactAssoc.contact.phoneAssocs.forEach(t =>
+				{
+					if (t.isPrimary === true)
+					{
+						homePhone = t.phone.phoneNumber;
+					}
+					else if (t.isPrimary === false)
+					{
+						workPhone = t.phone.phoneNumber;
+					}
+				})
+			}
+
+			let buyerAddressAssoc = buyer && buyer.opportunityContactAssoc.contact.addressAssocs.length > 0 ? buyer.opportunityContactAssoc.contact.addressAssocs.find(t => t.isPrimary === true) : null;
+
+			if (buyerAddressAssoc)
+			{
+				buyerCurrentAddress = (buyerAddressAssoc.address.address1 ? buyerAddressAssoc.address.address1 : "") + " " + (buyerAddressAssoc.address.address2 ? buyerAddressAssoc.address.address2 : "") + "," + (buyerAddressAssoc.address.city ? buyerAddressAssoc.address.city : "") + "," + (buyerAddressAssoc.address.stateProvince ? buyerAddressAssoc.address.stateProvince : "") + " " + (buyerAddressAssoc.address.postalCode ? buyerAddressAssoc.address.postalCode : "");
+			}
+
+			let financialCommunity = store.org.salesCommunity.financialCommunities[0];
+
+			let decisionPoints = _.flatMap(store.scenario.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points));
+
+			const elevationChoice = decisionPoints.find(t => t.dPointTypeId === 1)
+				? decisionPoints.find(t => t.dPointTypeId === 1).choices.find(c => c.quantity > 0)
+				: null;
+
+			let jobChangeOrderGroups = store.job.changeOrderGroups.map(o =>
+			{
+				return {
+					id: o.id,
+					createdUtcDate: o.createdUtcDate,
+					salesStatus: o.salesStatusDescription,
+					index: o.changeOrderGroupSequence ? (o.changeOrderGroupSequence + o.changeOrderGroupSequenceSuffix) : 0,
+					changeOrderTypeDescription: o.jobChangeOrders.length ? o.jobChangeOrders[0].jobChangeOrderTypeDescription : '',
+					jobChangeOrderGroupDescription: o.jobChangeOrderGroupDescription,
+					changeOrderNotes: o.note ? o.note.noteContent : '',
+					jobChangeOrderChoices: o.jobChangeOrders.length ? _.flatten(o.jobChangeOrders.map(t => t.jobChangeOrderChoices)) : null,
+					envelopeId: o.envelopeId
+				}
+			});
+
+			jobChangeOrderGroups.sort((a: any, b: any) =>
+			{
+				return new Date(a.createdUtcDate).getTime() - new Date(b.createdUtcDate).getTime();
+			});
+
+			// Fetches SalesJIO, SpecJIO and Spec Customer JIO since they will be the first on the agreement. Not checking for pending since SpecJIO would be approved at this point.
+			let activeChangeOrderGroup = jobChangeOrderGroups[jobChangeOrderGroups.length - 1];
+
+			let currentChangeOrderChoices = store.changeOrder && store.changeOrder.currentChangeOrder
+				? _.flatten(store.changeOrder.currentChangeOrder.jobChangeOrders.map(t => t.jobChangeOrderChoices))
+				: [];
+			let constructionChangeOrderSelectionsDto = null;
+
+			let customerSelections = getChangeOrderGroupSelections(store.scenario.tree.treeVersion.groups, <ChangeOrderChoice[]>currentChangeOrderChoices);
+
+			constructionChangeOrderSelectionsDto = {
+				constructionChangeOrderSelections: customerSelections,
+				changeOrderChoices: currentChangeOrderChoices
+			};
+
+			let jobChangeOrderChoices = this.getConstructionChangeOrderPdfData(<ChangeOrderChoice[]>currentChangeOrderChoices);
+
+			constructionChangeOrderSelections = constructionChangeOrderSelectionsDto.constructionChangeOrderSelections;
+
+			let changeOrderInformation = {
+				agreementId: store.salesAgreement.id,
+				createdUtcDate: store.salesAgreement.createdUtcDate,
+				approvedDate: store.salesAgreement.approvedDate,
+				communityName: financialCommunity.name.trim() + " - " + financialCommunity.number,
+				lotAddress: lotAddress,
+				lotBlock: lot.lotBlock,
+				phase: lot.salesPhase ? lot.salesPhase.salesPhaseName : '',
+				unit: lot.unitNumber,
+				garage: lot.handings.map(h => h.name),
+				planName: planName,
+				planId: planId,
+				elevation: elevationChoice ? elevationChoice.label : '',
+				buyerName: currentBuyerName,
+				coBuyerName: '',
+				currentCoBuyers: currentCoBuyers,
+				homePhone: homePhone,
+				workPhone: workPhone,
+				email: buyer && buyer.opportunityContactAssoc.contact.emailAssocs.length > 0 ? buyer.opportunityContactAssoc.contact.emailAssocs.find(t => t.isPrimary === true).email.emailAddress : "",
+				currentAddress: buyerCurrentAddress,
+				salesConsultant: salesConsultant,
+				salesAgreementNotes: salesAgreementNotes,
+				changeOrderCreatedDate: new Date(activeChangeOrderGroup.createdUtcDate).toLocaleDateString('en-US', { month: "2-digit", day: "2-digit", year: "numeric" }),
+				changeOrderId: activeChangeOrderGroup.id,
+				changeOrderNumber: activeChangeOrderGroup.index.toString(),
+				changeOrderType: activeChangeOrderGroup.changeOrderTypeDescription,
+				changeOrderDescription: activeChangeOrderGroup.jobChangeOrderGroupDescription,
+				changeOrderNotes: activeChangeOrderGroup.changeOrderNotes,
+				changeOrderStatus: activeChangeOrderGroup.salesStatus,
+				jobChangeOrderChoices: jobChangeOrderChoices
+			};
+
+			const currentSnapshot = {
+				templates: mappedTemplates,
+				jioSelections: jioSelections,
+				financialCommunityId: financialCommunityId,
+				jobId: store.job.id,
+				changeOrderGroupId: activeChangeOrderGroup.id,
+				salesAgreementNumber: salesAgreement.salesAgreementNumber,
+				salesAgreementStatus: salesAgreementStatus,
+				constructionChangeOrderSelections: constructionChangeOrderSelections,
+				salesChangeOrderSelections: null,
+				planChangeOrderSelections: planChangeOrderSelections,
+				nonStandardChangeOrderSelections: nonStandardChangeOrderSelections,
+				lotTransferChangeOrderSelections: lotTransferChangeOrderSelections ? { lotDtos: lotTransferChangeOrderSelections } : null,
+				changeOrderInformation: changeOrderInformation,
+				envelopeInfo: envelopeInfo
+			}
+
+			return currentSnapshot;
+		}
+	}
+
 	createSnapShot(changeOrder: any): Observable<any>
 	{
 		return this.treeService.getChoiceCatalogIds(changeOrder.jobChangeOrderChoices || []).pipe(
@@ -354,17 +693,8 @@ export class ContractService
 				),
 				map(([store, priceBreakdown, isSpecSalePending, selectLot, coPrimaryBuyer, coCoBuyers]) =>
 				{
-					const templates = store.contract.selectedTemplates.map(id =>
-					{
-						return store.contract.templates.find(t => t.templateId === id);
-					}).sort((a, b) => a.displayOrder < b.displayOrder ? -1 : a.displayOrder > b.displayOrder ? 1 : 0);
-
-					let template = store.contract.templates.find(t => t.templateId === 0);
-
-					if (template && !templates.includes(template))
-					{
-						templates.unshift(template);
-					}
+					// Only display the CO#/JIO - Exclude any selected addenda's
+					const templates = [{ displayName: 'JIO', displayOrder: 2, documentName: 'JIO', templateId: 0, templateTypeId: 4, marketId: 0, version: 0 }];
 
 					let currentHouseSelections = templates.some(t => t.templateId === 0) ? getCurrentHouseSelections(store.scenario.tree.treeVersion.groups) : [];
 
@@ -925,37 +1255,27 @@ export class ContractService
 
 					if (JSON.stringify(lockedSnapshot) !== JSON.stringify(clonedSnapshot))
 					{
+						// Only show the JIO
+						clonedSnapshot.templates = [{ templateId: 0, displayOrder: 2, documentName: 'JIO', templateTypeId: 4 }];
+
 						return this.saveSnapshot(clonedSnapshot, jobId, changeOrderId).pipe(
 							switchMap(() =>
 							{
-								return this.createEnvelope(clonedSnapshot.jioSelections, clonedSnapshot.templates.filter(t => t.templateId === 0), clonedSnapshot.financialCommunityId, clonedSnapshot.salesAgreementNumber,
+								return this.createEnvelope(clonedSnapshot.jioSelections, clonedSnapshot.templates, clonedSnapshot.financialCommunityId, clonedSnapshot.salesAgreementNumber,
 									clonedSnapshot.salesAgreementStatus, clonedSnapshot.envelopeInfo, clonedSnapshot.jobId, clonedSnapshot.changeOrderGroupId, clonedSnapshot.constructionChangeOrderSelections,
 									clonedSnapshot.salesChangeOrderSelections, clonedSnapshot.planChangOrderSelections, clonedSnapshot.nonStandardChangeOrderSelections, clonedSnapshot.lotTransferSelections,
 									clonedSnapshot.changeOrderInformation).pipe(
-										map((res) =>
+										map(() =>
 										{
-											if (res)
-											{
-												return true;
-											}
-											else
-											{
-												return false;
-											}
+											return of(true);
 										})
 									);
 							})
 						);
 					}
-					else
-					{
-						return of(true);
-					}
+					return of(true);
 				}
-				else
-				{
-					return of(false);
-				}
+				return of(false);
 			})
 		);
 	}

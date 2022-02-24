@@ -26,7 +26,7 @@ export class SettingsService
 				expireOffsetSeconds: 0, // 60 minutes.  For testing set to 3480 = 58 min so should time out after 2 minutes
 				extraQueryParameter: environment.authQueryParams,
 				designToolUrl: environment.designToolUrl,
-				designPreviewUrl: environment.designPreviewUrl,
+				designPreviewUrls: environment.designPreviewUrls,
 				pictureParkAssetUrl: environment.pictureParkAssetUrl,
 				infiniteScrollThrottle: 50,
 				infiniteScrollPageSize: 50,

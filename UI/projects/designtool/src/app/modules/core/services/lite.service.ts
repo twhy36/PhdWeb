@@ -1,24 +1,47 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Router } from "@angular/router";
 import { Observable, throwError as _throw } from 'rxjs';
+import { map, catchError, switchMap, take } from 'rxjs/operators';
+import { Store, ActionsSubject, select } from '@ngrx/store';
+import { ofType } from '@ngrx/effects';
 
 import * as _ from 'lodash';
 
 import { environment } from '../../../../environments/environment';
-import { withSpinner, getNewGuid, createBatchGet, createBatchHeaders, createBatchBody } from 'phd-common';
 
-import { map, catchError } from 'rxjs/operators';
-import { 
+import
+{
+	withSpinner, getNewGuid, createBatchGet, createBatchHeaders, createBatchBody,
+	SalesAgreement, ISalesAgreement, ModalService, Job, ChangeOrderGroup, JobPlanOptionAttribute,
+	ChangeOrderPlanOptionAttribute, JobPlanOption, ChangeOrderPlanOption, SummaryData, defaultOnNotFound
+} from 'phd-common';
+
+import * as fromRoot from '../../ngrx-store/reducers';
+
+import {
 	LitePlanOption, ScenarioOption, ColorItem, Color, ScenarioOptionColorDto, IOptionSubCategory, OptionRelation,
-	OptionRelationEnum
+	OptionRelationEnum, ScenarioOptionColor, Elevation, IOptionCategory, LiteReportType, LiteMonotonyRule, SummaryReportData
 } from '../../shared/models/lite.model';
+import { LotService } from './lot.service';
+import { ChangeOrderService } from './change-order.service';
+import { MonotonyConflict } from '../../shared/models/monotony-conflict.model';
+import * as LiteActions from '../../ngrx-store/lite/actions';
 
 @Injectable()
 export class LiteService
 {
 	private _ds: string = encodeURIComponent("$");
 
-    constructor(private _http: HttpClient) { }
+    constructor(
+		private _http: HttpClient,
+		private router: Router,
+		private lotService: LotService,
+		private changeOrderService: ChangeOrderService,
+		private modalService: ModalService,
+		private store: Store<fromRoot.State>,
+		private actions: ActionsSubject
+	) { }
 
 	getLitePlanOptions(planId: number, optionIds?: Array<string>, skipSpinner?: boolean): Observable<LitePlanOption[]>
 	{
@@ -234,7 +257,7 @@ export class LiteService
 				responseBodies.forEach((result)=>
 				{
 					let resultItems = result?.value as Array<OptionRelation>;
-					
+
 					resultItems?.forEach(item => {
 						optionRelations.push({
 							optionRelationId: item.optionRelationId,
@@ -250,7 +273,7 @@ export class LiteService
 			catchError(this.handleError)
 		)
 	}
-	
+
 	applyOptionRelations(options: LitePlanOption[], optionRelations: OptionRelation[])
 	{
 		if (optionRelations?.length)
@@ -258,13 +281,13 @@ export class LiteService
 			optionRelations.forEach(or => {
 				const mainOption = options.find(o => o.optionCommunityId === or.mainEdhOptionCommunityId && o.isActive);
 				const relatedOption = options.find(o => o.optionCommunityId === or.relatedEdhOptionCommunityId && o.isActive);
-				
+
 				if (mainOption && relatedOption)
 				{
 					if (or.relationType === OptionRelationEnum.CantHave)
 					{
 						mainOption.cantHavePlanOptionIds.push(relatedOption.id);
-						relatedOption.cantHavePlanOptionIds.push(mainOption.id);						
+						relatedOption.cantHavePlanOptionIds.push(mainOption.id);
 					}
 					else if (or.relationType === OptionRelationEnum.MustHave)
 					{
@@ -342,4 +365,364 @@ export class LiteService
 				})
 		);
 	}
+
+	createSalesAgreementForLiteScenario(
+		scenarioOptions: ScenarioOption[],
+		options: LitePlanOption[],
+		categories: IOptionCategory[],
+		scenarioId: number,
+		salePrice: number,
+		overrideNote: string
+	): Observable<SalesAgreement>
+	{
+		const action = `CreateSalesAgreementForLiteScenario`;
+		const url = `${environment.apiUrl}${action}`;
+
+		const elevations = options.filter(option => option.optionSubCategoryId === Elevation.Detached || option.optionSubCategoryId === Elevation.Attached);
+		const selectedElevation = elevations.find(elev => scenarioOptions?.find(opt => opt.edhPlanOptionId === elev.id && opt.planOptionQuantity > 0));
+		const baseHouseOptions = this.getSelectedBaseHouseOptions(scenarioOptions, options, categories);
+
+		const data = {
+			scenarioId: scenarioId,
+			options: this.mapScenarioOptions(
+						scenarioOptions,
+						options,
+						selectedElevation,
+						baseHouseOptions.selectedBaseHouseOptions,
+						overrideNote),
+			salePrice: salePrice
+		};
+
+		return this._http.post<ISalesAgreement>(url, data).pipe(
+			map(dto => new SalesAgreement(dto)),
+			catchError(error =>
+			{
+				console.error(error);
+
+				return _throw(error);
+			})
+		);
+	}
+
+	getSelectedBaseHouseOptions(scenarioOptions: ScenarioOption[], options: LitePlanOption[], categories: IOptionCategory[])
+	{
+		const baseHouseCategory = categories.find(x => x.name.toLowerCase() === "base house");
+		const selectedBaseHouseOptions = options.filter(option =>
+			option.optionCategoryId === baseHouseCategory.id
+			&& scenarioOptions?.find(opt => opt.edhPlanOptionId === option.id));
+
+		return { selectedBaseHouseOptions: selectedBaseHouseOptions, baseHouseCategory: baseHouseCategory };
+	}
+
+	private mapScenarioOptions(
+		scenarioOptions: ScenarioOption[],
+		options: LitePlanOption[],
+		selectedElevation: LitePlanOption,
+		selectedBaseHouseOptions: LitePlanOption[],
+		overrideNote: string
+	) : Array<any>
+	{
+		return scenarioOptions.reduce((optionList, scenarioOption) =>
+		{
+			const planOption = options.find(opt => opt.id === scenarioOption.edhPlanOptionId);
+
+			if (planOption)
+			{
+				optionList.push({
+					planOptionId: scenarioOption.edhPlanOptionId,
+					price: planOption.listPrice,
+					quantity: scenarioOption.planOptionQuantity,
+					optionSalesName: planOption.name,
+					optionDescription: planOption.description,
+					jobOptionTypeName: this.mapJobOptionType(planOption, selectedElevation, selectedBaseHouseOptions),
+					overrideNote: planOption.id === selectedElevation.id ? overrideNote : null,
+					colors: this.mapOptionColors(planOption, scenarioOption.scenarioOptionColors),
+					action: 'Add'
+				});
+			}
+
+			return optionList;
+		}, []);
+	}
+
+	private mapJobOptionType(
+		option: LitePlanOption,
+		selectedElevation: LitePlanOption,
+		selectedBaseHouseOptions: LitePlanOption[]
+	) : string
+	{
+		let optionType = 'Standard';
+
+		if (option.id === selectedElevation.id)
+		{
+			optionType = 'Elevation';
+		}
+
+		if (!!selectedBaseHouseOptions.find(opt => opt.id === option.id))
+		{
+			optionType = 'BaseHouse';
+		}
+
+		return optionType;
+	}
+
+	private mapOptionColors(option: LitePlanOption, optionColors: ScenarioOptionColor[]) : Array<any>
+	{
+		return optionColors.reduce((colorList, optionColor) =>
+		{
+			const colorItem = option.colorItems?.find(item => item.colorItemId === optionColor.colorItemId);
+			const color = colorItem?.color?.find(c => c.colorId === optionColor.colorId);
+
+			if (colorItem && color)
+			{
+				colorList.push({
+					colorName: color.name,
+					colorItemName: colorItem.name,
+					sku: color.sku,
+					action: 'Add'
+				});
+			}
+
+			return colorList;
+		}, []);
+	}
+
+	onGenerateSalesAgreement(buildMode: string, lotStatus: string, selectedLotId: number, salesAgreementId: number)
+	{
+		if (buildMode === 'spec' || buildMode === 'model')
+		{
+			if (buildMode === 'model' && lotStatus === 'Available')
+			{
+				const title = 'Create Model';
+				const body = 'The Lot Status for this model will be set to UNAVAILABLE.';
+				const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
+
+				this.showConfirmModal(body, title, primaryButton).subscribe(result =>
+				{
+					this.lotService.buildScenario();
+				});
+			}
+			else if (buildMode === 'model' && lotStatus === 'PendingRelease')
+			{
+				this.lotService.getLotReleaseDate(selectedLotId).pipe(
+					switchMap((releaseDate) =>
+					{
+						const title = 'Create Model';
+						const body = 'The selected lot is scheduled to be released on ' + releaseDate + '. <br><br> If you continue, the lot will be removed from the release and the Lot Status will be set to UNAVAILABLE.';
+
+						const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
+						const secondaryButton = { text: 'Cancel', result: false, cssClass: 'btn-secondary' };
+
+						return this.showConfirmModal(body, title, primaryButton, secondaryButton);
+					})).subscribe(result =>
+					{
+						if (result)
+						{
+							this.lotService.buildScenario();
+						}
+					});
+			}
+			else
+			{
+				this.lotService.buildScenario();
+			}
+		}
+		else if (salesAgreementId)
+		{
+			this.router.navigateByUrl(`/point-of-sale/people/${salesAgreementId}`);
+		}
+		else
+		{
+			const title = 'Generate Home Purchase Agreement';
+			const body = 'You are about to generate an Agreement for your configuration. Do you wish to continue?';
+
+			const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
+			const secondaryButton = { text: 'Cancel', result: false, cssClass: 'btn-secondary' };
+
+			this.showConfirmModal(body, title, primaryButton, secondaryButton).subscribe(result =>
+			{
+				if (result)
+				{
+					this.lotService.buildScenario();
+				}
+			});
+		}
+	}
+
+	private showConfirmModal(body: string, title: string, primaryButton: any = null, secondaryButton: any = null): Observable<boolean>
+	{
+		const buttons = [];
+
+		if (primaryButton)
+		{
+			buttons.push(primaryButton);
+		}
+
+		if (secondaryButton)
+		{
+			buttons.push(secondaryButton);
+		}
+
+		return this.modalService.showModal({
+			buttons: buttons,
+			content: body,
+			header: title,
+			type: 'normal'
+		});
+	}
+
+	getSelectedOptions(options: LitePlanOption[], job: Job, changeOrder?: ChangeOrderGroup ): Array<ScenarioOption>
+	{
+		let planOptions: (JobPlanOption | ChangeOrderPlanOption)[] = [
+			...job.jobPlanOptions,
+			...(changeOrder ? this.changeOrderService.getJobChangeOrderPlanOptions(changeOrder) : [])
+		];
+
+		return planOptions.map(planOption => {
+			const option = options.find(opt => opt.id === planOption.planOptionId);
+
+			return {
+				scenarioOptionId: 0,
+				scenarioId: 0,
+				edhPlanOptionId: planOption.planOptionId,
+				planOptionQuantity: planOption instanceof JobPlanOption ? planOption.optionQty : planOption.qty,
+				scenarioOptionColors: this.mapSelectedOptionColors(
+					option,
+					planOption instanceof JobPlanOption ? planOption.jobPlanOptionAttributes : planOption.jobChangeOrderPlanOptionAttributes
+				)
+			} as ScenarioOption;
+		});
+	}
+
+	mapSelectedOptionColors(option: LitePlanOption, optionAttributes: (JobPlanOptionAttribute | ChangeOrderPlanOptionAttribute)[]): Array<ScenarioOptionColor>
+	{
+		return option && optionAttributes
+			? optionAttributes.reduce((colorList, att) =>
+				{
+					const attributeGroupLabel = att instanceof JobPlanOptionAttribute
+						? att.attributeGroupLabel
+						: att['attributeGroupLabel'];
+					const attributeName = att instanceof JobPlanOptionAttribute
+						? att.attributeName
+						: att['attributeName'];
+
+					const colorItem = option.colorItems?.find(item => item.name === attributeGroupLabel);
+					const color = colorItem?.color?.find(c => c.name === attributeName);
+
+					if (colorItem && color)
+					{
+						colorList.push({
+							scenarioOptionColorId: 0,
+							scenarioOptionId: 0,
+							colorItemId: colorItem.colorItemId,
+							colorId: color.colorId
+						});
+					}
+
+					return colorList;
+				}, [])
+			: [];
+	}
+
+	getLiteSelectionSummaryReport(reportType: LiteReportType, summaryRptData: SummaryReportData): Observable<string>
+	{
+		const action = this.getSummaryAction(reportType);
+		const url = `${environment.apiUrl}${action}`;
+		const headers = new HttpHeaders({
+			'Content-Type': 'application/json',
+			'Accept': 'application/pdf'
+		});
+
+		let data = {};
+		data = {summaryRptData: summaryRptData};
+
+		return withSpinner(this._http).post(url, data, { headers: headers, responseType: 'blob' }).pipe(
+			map(response =>
+			{
+				return window.URL.createObjectURL(response);
+			}),
+		);
+	}
+	
+	getSelectionSummary(reportType: LiteReportType, summaryData: SummaryData, showSalesDescription?: boolean): Observable<string>
+	{
+		const action = this.getSummaryAction(reportType);
+		const url = `${environment.apiUrl}${action}`;
+		const headers = new HttpHeaders({
+			'Content-Type': 'application/json',
+			'Accept': 'application/pdf'
+		});
+
+		let data = {};
+
+		switch(reportType)
+		{
+			case LiteReportType.PRICE_LIST:
+			case LiteReportType.PRICE_LIST_WITH_SALES_DESCRIPTION:
+				if (typeof showSalesDescription === 'undefined')
+				{
+					return _throw('no value was provided for the showSalesDescription parameter in the getSelectionSummary function');
+				}
+				else
+				{
+					data = { summaryData, showSalesDescription };
+				}
+
+				break;
+
+			default:
+				data = {summaryData: summaryData};
+				break;
+		}
+
+		return withSpinner(this._http).post(url, data, { headers: headers, responseType: 'blob' }).pipe(
+			map(response =>
+			{
+				return window.URL.createObjectURL(response);
+			}),
+		);
+	}
+
+	private getSummaryAction(reportType: LiteReportType): string
+	{
+		switch (reportType)
+		{
+			case LiteReportType.PRICE_LIST:
+			case LiteReportType.PRICE_LIST_WITH_SALES_DESCRIPTION:
+				return 'GetPriceList';
+			case LiteReportType.SUMMARY:
+				return 'GetLiteSelectionSummaryReport';
+		}
+	}
+
+	hasLiteMonotonyConflict(): Observable<MonotonyConflict> {
+		return this.store.pipe(
+			select(state => state.org),
+			switchMap(org => {
+				//TODO: check if it's a Job change order
+				this.store.dispatch(new LiteActions.LoadLiteMonotonyRules(org.salesCommunity.id));
+
+				return this.actions.pipe(
+					ofType<LiteActions.LiteMonotonyRulesLoaded>(LiteActions.LiteActionTypes.LiteMonotonyRulesLoaded),
+					switchMap(() => this.store.pipe(
+						select(fromRoot.liteMonotonyConflict)
+					)),
+					take(1)
+				);
+			}),
+			take(1)
+		);
+	}
+
+	getMonotonyRulesForLiteSalesCommunity(salesCommunityId: number, skipSpinner: boolean = true): Observable<Array<LiteMonotonyRule>> {
+		const url = `${environment.apiUrl}GetMonotonyRulesForLiteSalesCommunity(id=${salesCommunityId})`;
+
+		return (skipSpinner ? this._http : withSpinner(this._http)).get<any>(url).pipe(
+			map(response => {
+				return response.value as Array<LiteMonotonyRule>;
+			}),
+			defaultOnNotFound('getMonotonyRulesForLiteSalesCommunity', [])
+		);
+	}
+
 }

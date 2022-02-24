@@ -4,6 +4,7 @@ import { IFinancialCommunity, IPlan, ITreeVersion, IWebSiteCommunity } from '../
 import { LinkAction } from '../../models/action.model';
 import { OrganizationService } from '../../../core/services/organization.service';
 import { environment } from '../../../../../environments/environment';
+import { BrandService, FinancialBrand, getBrandUrl } from 'phd-common';
 
 @Component({
 	selector: 'plan-preview',
@@ -24,6 +25,8 @@ export class PlanPreviewComponent implements OnInit
 	selectedPlan: number = 0;
 	selectedType: number = 0;
 	selectedTreeVersion: number = 0;
+	
+	currentFinancialBrand: FinancialBrand;
 
 	types: Array<{
 		typeId: number;
@@ -55,7 +58,7 @@ export class PlanPreviewComponent implements OnInit
 		EMPTY: 'No Previews Available'
 	}
 
-	constructor(private organizationService: OrganizationService) { }
+	constructor(private organizationService: OrganizationService, private brandService: BrandService) { }
 
 	ngOnInit()
 	{
@@ -156,6 +159,14 @@ export class PlanPreviewComponent implements OnInit
 		// If financial community is not null, get plans
 		this.selectedFinancialCommunity = financialCommunity?.id;
 		this.designPreviewEnabled = financialCommunity?.isDesignPreviewEnabled;
+		if (this.designPreviewEnabled) {
+      		// Get the finacial brand if DP Enabled
+      		this.brandService.getFinancialBrand(financialCommunity.financialBrandId, environment.apiUrl).subscribe(brand => {
+        		this.currentFinancialBrand = brand;
+      		});
+		} else {
+			this.currentFinancialBrand = null;
+		}
 
 		this.setType();
 	}
@@ -188,7 +199,7 @@ export class PlanPreviewComponent implements OnInit
 			url = `${environment.baseUrl.thoPreview}${webSiteIntegrationKey}?preview=true`;
 		} else if (this.selectedType === 3)
 		{ // Open in Design Preview
-			url = `${environment.baseUrl.designPreview}preview/${this.selectedTreeVersion}`;
+			url = `${getBrandUrl(this.currentFinancialBrand.key, environment.baseUrl.designPreview)}preview/${this.selectedTreeVersion}`;
 		}
 		window.open(url, '_blank');
 	}

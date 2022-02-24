@@ -244,13 +244,13 @@ export class TreeService
 							planOptionId: 0,
 							planId: 0,
 							optionKey: null,
-							hasRules: false,
+							optionRuleMappingCount: 0,
 							isReplaceRuleTarget: false,
 							baseHouse: false
 						} as PhdApiDto.IDTPlanOption : phdPlanOptions[index];
 
 						// filter options to show only active, those that have rules, or are target of replace rules.
-						if (option.isActive || planOption.hasRules || planOption.isReplaceRuleTarget)
+						if (option.isActive || planOption.optionRuleMappingCount || planOption.isReplaceRuleTarget)
 						{
 							let tOption = new TreeOption(option, planOption);
 
@@ -478,7 +478,9 @@ export class TreeService
 	getOptionChoiceRules(treeVersionId: number, optionKey: string): Observable<PhdApiDto.IOptionChoiceRule>
 	{
 		const entity = `optionRules`;
-		const expand = `optionRuleReplaces($expand=planOption($select=integrationKey)),planOption($select=integrationKey),dpChoice_OptionRuleAssoc($expand=dpChoice($select=dPointID,divChoiceCatalog;$expand=divChoiceCatalog($select=choiceLabel),dPoint($select=divDPointCatalog;$expand=divDPointCatalog($select=dPointLabel))))`;
+		let expand = `optionRuleReplaces($expand=planOption($select=integrationKey)),`
+		expand += `planOption($select=integrationKey),`;
+		expand += `dpChoice_OptionRuleAssoc($expand=dpChoice($select=dPointID, divChoiceCatalog; $expand=divChoiceCatalog($select = choiceLabel), dPoint($select = divDPointCatalog; $expand = divDPointCatalog($select = dPointLabel))))`;
 		const filter = `dTreeVersionID eq ${treeVersionId} and planOption/integrationKey eq '${optionKey}'`;
 
 		const qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}`;
@@ -510,7 +512,8 @@ export class TreeService
 							optionRuleId: c.optionRuleID,
 							pointId: c.dpChoice.dPointID,
 							pointLabel: c.dpChoice.dPoint.divDPointCatalog.dPointLabel,
-							treeVersionId: c.dTreeVersionID
+							treeVersionId: c.dTreeVersionID,
+							mappingIndex: c.mappingIndex
 						} as PhdApiDto.IOptionChoiceRuleChoice;
 					}),
 					replaceRules: rules[0].optionRuleReplaces.map(o =>
@@ -527,10 +530,30 @@ export class TreeService
 			}));
 	}
 
+	getOptionRuleReplacesForTree(treeVersionId: number): Observable<Array<PhdEntityDto.IOptionRuleDto>>
+	{
+		const entity = `optionRules`;
+		let expand = `optionRuleReplaces($expand=planOption($select=integrationKey)),`;
+		expand += `planOption($select=integrationKey),`;
+		const filter = `dTreeVersionID eq ${treeVersionId} and optionRuleReplaces/any()`;
+
+		const qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}`;
+
+		const endPoint = `${settings.apiUrl}${entity}?${qryStr}`;
+
+		return this._http.get<any>(endPoint).pipe(
+			map(response => response.value as Array<PhdEntityDto.IOptionRuleDto>)
+		);
+	}
+
 	getPlanOptions(treeVersionId: number): Observable<Array<PhdApiDto.IDTPlanOption>>
 	{
 		const entity = `dTreeVersions`;
-		const expand = `dTree($expand=plan($expand=planOptions($expand=baseHouseOptions($top=1;$filter=dTreeVersionID eq ${treeVersionId};$select=baseHouseOptionId), optionImages($filter=hideImage eq false and dTreeVersionID eq ${treeVersionId};$select=optionImageId,dTreeVersionId), optionRules($top=1;$filter=dTreeVersionID eq ${treeVersionId};$select=optionRuleID), optionRuleReplaces($top=1;$filter=dTreeVersionID eq ${treeVersionId};$select=optionRuleReplaceID))))`;
+		const expandBaseHouse = `baseHouseOptions($top=1;$filter=dTreeVersionID eq ${treeVersionId};$select=baseHouseOptionId)`;
+		const expandOptionImages = `optionImages($filter=hideImage eq false and dTreeVersionID eq ${treeVersionId};$select=optionImageId,dTreeVersionId)`;
+		const expandOptionRules = `optionRules($filter=dTreeVersionID eq ${treeVersionId};$select=optionRuleID;$expand=DPChoice_OptionRuleAssoc($select=dpchoiceOptionRuleAssocId, mappingIndex))`;
+		const expandOptionReplace = `optionRuleReplaces($top=1;$filter=dTreeVersionID eq ${treeVersionId};$select=optionRuleReplaceID)`;
+		const expand = `dTree($expand=plan($expand=planOptions($expand=${expandBaseHouse}, ${expandOptionImages}, ${expandOptionRules}, ${expandOptionReplace})))`;
 		const select = "dTree";
 		const filter = `dTreeVersionId eq ${treeVersionId}`;
 
@@ -546,12 +569,15 @@ export class TreeService
 				{
 					let imageCount = o.optionImages.length;
 
+					const groupChoicesByIndex = o.optionRules.length ? _.groupBy(o.optionRules[0].dpChoice_OptionRuleAssoc, c => c.mappingIndex) : [];
+					const groupChoiceSize = _.size(groupChoicesByIndex);
+
 					return {
 						planOptionId: o.planOptionID,
 						planId: o.planID,
 						optionKey: o.integrationKey,
 						baseHouse: !!o.baseHouseOptions.length,
-						hasRules: !!o.optionRules.length,
+						optionRuleMappingCount: groupChoiceSize,
 						isReplaceRuleTarget: !!o.optionRuleReplaces.length,
 						hasImages: imageCount > 0,
 						imageCount: imageCount
@@ -1526,7 +1552,7 @@ export class TreeService
 		return this._http.post<any>(endPoint, body);
 	}
 
-	deleteOptionChoiceRuleChoice(treeVersionId: number, choiceOptionRuleId: number): Observable<any>
+	deleteOptionChoiceRuleChoice(choiceOptionRuleId: number): Observable<any>
 	{
 		const entity = `dPChoiceOptionRuleAssocs(${choiceOptionRuleId})`;
 		const endPoint = `${settings.apiUrl}${entity}`;
@@ -1534,9 +1560,24 @@ export class TreeService
 		return this._http.delete<any>(endPoint);
 	}
 
+	deleteDPChoiceOptionRuleAssocs(optionRuleId: number, mappingIndex: number): Observable<any>
+	{
+		// calling unbound odata action
+		const body =
+		{
+			'optionRuleId': optionRuleId,
+			'mappingIndex': mappingIndex
+		};
+
+		const action = 'DeleteDPChoiceOptionRuleAssocs';
+		const endPoint = `${settings.apiUrl}${action}`;
+
+		return this._http.post<any>(endPoint, body);
+	}
+
 	toggleInteractiveFloor(subGroupId: number, useInteractiveFloorplan: boolean)
 	{
-		const body = { "useInteractiveFloorplan": useInteractiveFloorplan };
+		const body = { 'useInteractiveFloorplan': useInteractiveFloorplan };
 		const endPoint = `${settings.apiUrl}dSubGroups(${subGroupId})`;
 
 		return this._http.patch(endPoint, body)
@@ -1548,19 +1589,6 @@ export class TreeService
 		const endPoint = `${settings.apiUrl}${entity}`;
 
 		return this._http.delete<any>(endPoint);
-	}
-
-	deleteAllAttributeReassignment(treeVersionId: number, dpChoiceOptionRuleAssocID: number): Observable<any>
-	{
-		// calling unbound odata action
-		const body = {
-			'dpChoiceOptionRuleAssocID': dpChoiceOptionRuleAssocID,
-		};
-
-		const action = 'DeleteAttributeReassignmentAll';
-		const endPoint = `${settings.apiUrl}${action}`;
-
-		return this._http.post<any>(endPoint, body);
 	}
 
 	saveAttributeReassignment(attributeReassignment: PhdApiDto.IAttributeReassignmentDto): Observable<AttributeReassignment>
@@ -1660,10 +1688,10 @@ export class TreeService
 		);
 	}
 
-	hasAttributeReassignment(dpChoiceOptionRuleAssocID: number): Observable<boolean>
+	hasAttributeReassignment(dpChoiceOptionRuleAssocIDs: number[]): Observable<boolean>
 	{
 		const entity = `attributeReassignments`;
-		const filter = `dpChoiceOptionRuleAssocID eq ${dpChoiceOptionRuleAssocID}`;
+		const filter = `dpChoiceOptionRuleAssocID in (${dpChoiceOptionRuleAssocIDs.join(',')})`;
 		const select = `attributeReassignmentID`;
 		const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}count=true`;
 		const endpoint = `${settings.apiUrl}${entity}?${qryStr}`;

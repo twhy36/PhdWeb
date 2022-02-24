@@ -7,7 +7,7 @@ import * as _ from "lodash";
 
 import {
 	UnsubscribeOnDestroy, IdentityService, ChangeTypeEnum, Job, Lot, PointStatus,
-	Group, DecisionPoint, BrowserService, ModalService
+	Group, DecisionPoint, BrowserService, ModalService, BrandService, FinancialBrand, getBrandUrl
 } from 'phd-common';
 
 import * as fromLot from '../../../ngrx-store/lot/reducer';
@@ -24,7 +24,6 @@ import { environment } from '../../../../../environments/environment';
 import * as fromLite from '../../../ngrx-store/lite/reducer';
 import { ExteriorSubNavItems, LiteSubMenu, Elevation, IOptionCategory, IOptionSubCategory, LitePlanOption } from '../../../shared/models/lite.model';
 import { SubNavItems, PhdSubMenu } from '../../../new-home/subNavItems';
-
 @Component({
 	selector: 'nav-bar',
 	templateUrl: 'nav-bar.component.html',
@@ -43,6 +42,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 	@Input() isDesignPreviewEnabled: boolean;
 	@Input() opportunityName: Observable<string>;
 	@Input() buildMode: string;
+	@Input() financialBrandId: number;
 
 	currentRoute: string;
 	PointStatus = PointStatus;
@@ -70,6 +70,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 	categories: IOptionCategory[] = [];
 	subcategories: IOptionSubCategory[] = [];
 	allOptions: LitePlanOption[];
+	financialBrand: FinancialBrand;
 
 
 	constructor(private lotService: LotService,
@@ -77,7 +78,8 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 		private router: Router,
 		private browser: BrowserService,
 		private store: Store<fromRoot.State>,
-		private modalService: ModalService)
+		private modalService: ModalService,
+		private brandService: BrandService)
 	{
 		super();
 	}
@@ -204,6 +206,13 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 				return state.lite?.isPhdLite;
 			})
 		);
+
+		if (this.financialBrandId)
+		{
+			this.brandService.getFinancialBrand(this.financialBrandId, environment.apiUrl).subscribe(brand => {
+				this.financialBrand = brand;
+			});			
+		}
 
 		combineLatest([
 			this.store.pipe(select(fromLite.selectedElevation), this.takeUntilDestroyed()),
@@ -452,7 +461,12 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 	launchPreview()
 	{
 		const buyerSpecific = 'favorites/preview/'
-		const url = `${environment.baseUrl.designPreview}${buyerSpecific}${this.salesAgreementId}`;
+
+		const dpUrls = environment.baseUrl.designPreviewUrls;
+
+		const brandUrl = getBrandUrl(this.financialBrand.key, dpUrls);
+
+		const url = `${brandUrl}${buyerSpecific}${this.salesAgreementId}`;
 		window.open(url, '_blank');
 	}
 

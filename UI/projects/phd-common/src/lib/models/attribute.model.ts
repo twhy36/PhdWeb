@@ -20,6 +20,7 @@ export interface AttributeGroup
 	label: string;
 	name: string;
 	sortOrder: number;
+	hasOptionCommunityAssoc?: boolean;
 }
 
 export interface AttributeCommunityImageAssoc
@@ -55,7 +56,7 @@ export interface DesignToolAttribute
 	locationGroupName: string;
 	locationId: number;
 	locationName: string;
-	locationQuantity: number;	
+	locationQuantity: number;
 	scenarioChoiceLocationId: number;
 	scenarioChoiceLocationAttributeId: number;
 	selected?: boolean;

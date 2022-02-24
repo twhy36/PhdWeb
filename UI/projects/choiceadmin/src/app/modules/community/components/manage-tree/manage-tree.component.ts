@@ -35,7 +35,7 @@ import
 	ITreeSortList
 } from '../../../shared/models/tree.model';
 import { PhdApiDto, PhdEntityDto } from '../../../shared/models/api-dtos.model';
-import { Permission, IdentityService } from 'phd-common';
+import { Permission, IdentityService, BrandService, FinancialBrand, getBrandUrl } from 'phd-common';
 import { IDPointPickType } from '../../../shared/models/point.model';
 
 import { OrganizationService } from '../../../core/services/organization.service';
@@ -48,6 +48,8 @@ import { ITreeOption } from '../../../shared/models/option.model';
 import { TreeToggleComponent } from '../../../shared/components/tree-toggle/tree-toggle.component';
 import { ModalService } from '../../../core/services/modal.service';
 import { ModalRef } from '../../../shared/classes/modal.class';
+
+import { environment } from '../../../../../environments/environment';
 
 @Component({
 	selector: 'manage-tree',
@@ -85,6 +87,7 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 	selectedTreeVersion: DTreeVersionDropDown = null;
 	selectedPoint: DTPoint;
 	selectedChoice: DTChoice;
+	financialBrand: FinancialBrand = null;
 
 	marketsLoaded = false;
 	communitiesLoading = false;
@@ -126,6 +129,8 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 
 	modalReference: ModalRef;
 
+	environment = environment;
+
 	get openGroups(): boolean
 	{
 		return this.treeToggle ? this.treeToggle.openGroups : true;
@@ -146,6 +151,7 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 		private _planService: PlanService,
 		private _treeService: TreeService,
 		private _identityService: IdentityService,
+		private _brandService: BrandService,
 		private _settingsService: SettingsService,
 		private _modalService: ModalService,
 		private _msgService: MessageService,
@@ -259,6 +265,11 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 
 				if (this.selectedCommunity)
 				{
+					// set brand
+					let financialBrandId = this.selectedCommunity.financialBrandId;
+					this._brandService.getFinancialBrand(financialBrandId, this.environment.apiUrl).subscribe(brand => {
+						this.financialBrand = brand;
+					});
 					// set local storage
 					this._orgService.currentFinancialCommunity = this.selectedCommunity.number;
 
@@ -614,6 +625,12 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 	onChangeCommunity()
 	{
 		this.plansLoading = true;
+		// set brand
+		let financialBrandId = this.selectedCommunity.financialBrandId;
+		this._brandService.getFinancialBrand(financialBrandId, this.environment.apiUrl).subscribe(brand => {
+			this.financialBrand = brand;
+		});
+		
 		// set local storage
 		this._orgService.currentFinancialCommunity = this.selectedCommunity.number;
 		this._planService.getCommunityPlans(this.selectedCommunity.id)
@@ -742,19 +759,48 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 
 	onPublishClicked()
 	{
-		const inactiveOptions = this.currentTreeOptions.filter(option => !option.isActive);
-
-		if (inactiveOptions.length > 0)
+		// #335671 Need to determine if any unmapped options are found in replace rules, and if so, prevent publishing the tree
+		this._treeService.getOptionRuleReplacesForTree(this.currentTree.version.id).subscribe(options =>
 		{
-			const inactiveOptionText = '<ul>' + inactiveOptions.map(option => '<li>' + option.id + '</li>').join('') + '</ul>';
+			// List to track any options that have replace rules for unmapped options
+			let badOptions: ITreeOption[] = [];
 
-			this.showConfirmModal('<span class="font-weight-bold text-primary">Warning:</span> The following inactive options are mapped to choices. Please adjust your mapping/rules, remove any images, and then publish. </br> ' + inactiveOptionText, 'Inactive Options', '', { hide: true, text: '' }, { hide: true, text: '' })
-		}
-		else
-		{
-			this.treeDetailsTitle = 'Publish Decision Tree';
-			this.showTreeDetails = true;
-		}
+			// Get all options in the current tree that are unmapped
+			const allUnmappedOptions = this.currentTreeOptions.filter(o => o.optionRuleMappingCount === 0 && !o.baseHouse);
+
+			options.forEach(opt =>
+			{
+				// Map all of the replaced option IDs
+				const optionsToReplace = opt.optionRuleReplaces.map(orr => orr.planOption.integrationKey);
+
+				// Look for any unmapped option in the replace rules
+				if (optionsToReplace.some(r => allUnmappedOptions.map(o => o.id).includes(r)))
+				{
+					// There is an unmapped option in a replace rule, so flag this option as needing to be fixed
+					badOptions.push(this.currentTreeOptions.find(treeOpt => treeOpt.id === opt.planOption.integrationKey));
+				}
+			});
+
+			const inactiveOptions = this.currentTreeOptions.filter(option => !option.isActive);
+
+			if (badOptions.length > 0)
+			{
+				const badOptionText = '<ul>' + badOptions.map(option => '<li>' + option.id + '</li>').join('') + '</ul>';
+
+				this.showConfirmModal('<span class="font-weight-bold text-primary">Warning:</span> The following option(s) have an unmapped option as a replace rule.  Please adjust your mapping/rules and then publish. </br> ' + badOptionText, 'Replace Rule Error', '', { hide: true, text: '' }, { hide: true, text: '' });
+			}
+			else if (inactiveOptions.length > 0)
+			{
+				const inactiveOptionText = '<ul>' + inactiveOptions.map(option => '<li>' + option.id + '</li>').join('') + '</ul>';
+
+				this.showConfirmModal('<span class="font-weight-bold text-primary">Warning:</span> The following inactive options are mapped to choices. Please adjust your mapping/rules, remove any images, and then publish. </br> ' + inactiveOptionText, 'Inactive Options', '', { hide: true, text: '' }, { hide: true, text: '' });
+			}
+			else
+			{
+				this.treeDetailsTitle = 'Publish Decision Tree';
+				this.showTreeDetails = true;
+			}
+		});
 	}
 
 	onPreviewTreeClicked()
@@ -783,11 +829,13 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 
 		const ref = window.open('', "genericDesignPreview", '');
 
-		const dtUrl = this._settingsService.getSettings().designPreviewUrl;
+		const dpUrls = this._settingsService.getSettings().designPreviewUrls;
 
-		if (!ref.location.href.endsWith(`${dtUrl}/${path}`)) // just opened
+		const brandUrl = getBrandUrl(this.financialBrand.key, dpUrls);
+
+		if (!ref.location.href.endsWith(`${brandUrl}/${path}`)) // just opened
 		{
-			ref.location.href = `${dtUrl}${path}`;
+			ref.location.href = `${brandUrl}${path}`;
 		}
 		else
 		{ // was already opened -- we refresh it
@@ -1307,8 +1355,8 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 
 						if (tOption != null)
 						{
-							// setting has rules to false should remove the record from the options list
-							tOption.hasRules = false;
+							// setting optionRuleMappingCount to 0 should remove the record from the options list
+							tOption.optionRuleMappingCount = 0;
 						}
 					});
 				}

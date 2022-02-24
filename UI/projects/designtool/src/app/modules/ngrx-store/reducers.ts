@@ -168,6 +168,12 @@ export const canLockSalesAgreement = createSelector(
 	(market, user) => !!market && user.canLockSalesAgreement && user.assignedMarkets.some(m => m.number === market.number)
 )
 
+export const canEditInternalNotes = createSelector(
+	fromOrg.market,
+	fromUser.selectUser,
+	(market, user) => !!market && user.canEditInternalNotes && user.assignedMarkets.some(m => m.number === market.number)
+)
+
 export const monotonyConflict = createSelector(
 	fromLot.selectSelectedLot,
 	fromPlan.selectedPlanData,
@@ -705,16 +711,20 @@ export const priceBreakdown = createSelector(
 				const baseHouseCategory = lite.categories.find(x => x.name.toLowerCase() === 'base house');
 				let selections = 0;
 
-				lite.scenarioOptions?.forEach(scenarioOption => {
-					const planOption = lite.options?.find(option => 
-						option.id === scenarioOption.edhPlanOptionId
-						&& option.optionCategoryId !== baseHouseCategory.id);
+				if (lite.scenarioOptions && baseHouseCategory)
+				{
+					lite.scenarioOptions.forEach(scenarioOption => {
+						const planOption = lite.options?.find(option => 
+							option.id === scenarioOption.edhPlanOptionId
+							&& option.optionCategoryId !== baseHouseCategory.id);
 
-					if (planOption)
-					{
-						selections += planOption.listPrice * scenarioOption.planOptionQuantity;
-					}
-				});
+						if (planOption)
+						{
+							selections += planOption.listPrice * scenarioOption.planOptionQuantity;
+						}
+					});					
+				}
+
 				breakdown.selections = selections;
 			}
 
@@ -936,10 +946,70 @@ export const isDesignPreviewEnabled = createSelector(
 	}
 );
 
+export const financialBrandId = createSelector(
+	fromJob.jobState,
+	fromOrg.selectOrg,
+	(job, org) => {
+		const financialCommunity = org?.salesCommunity?.financialCommunities?.find(f => f.id === job?.financialCommunityId);
+		return financialCommunity?.financialBrandId;
+	}
+);
+
 // PHD Lite
+export const liteMonotonyConflict = createSelector(
+	fromLot.selectSelectedLot,
+	fromPlan.selectedPlanData,
+	fromLite.selectedElevation,
+	fromScenario.hasMonotonyAdvisement,
+	fromLite.selectedColorScheme,
+	fromLite.liteState,
+	(selectedLot, selectedPlan, elevation, advisement, colorScheme, lite) =>
+	{
+		let conflict = {
+			monotonyConflict: false,
+			conflictSeen: advisement,
+			colorSchemeConflict: false,
+			colorSchemeConflictOverride: false,
+			elevationConflict: false,
+			elevationConflictOverride: false
+		} as MonotonyConflict;
+
+		if (selectedLot !== null && lite.isPhdLite)
+		{
+			let isColorSchemePlanRuleEnabled = selectedLot.financialCommunity?.isColorSchemePlanRuleEnabled;
+			let planId = !!selectedPlan ? selectedPlan.id : 0;
+			const monotonyRules = lite.liteMonotonyRules?.find(rule => rule.edhLotId === selectedLot.id)?.relatedLotsElevationColorScheme || [];
+
+			if (elevation && colorScheme)
+			{
+				conflict.elevationConflict = !lite.elevationOverrideNote && monotonyRules.some(rule => rule.elevationPlanOptionId === elevation.id);
+				
+				const colorItem = elevation.colorItems?.find(item => item.colorItemId === colorScheme.colorItemId);
+				const color = colorItem?.color?.find(c => c.colorId === colorScheme.colorId);
+
+				if (colorItem && color && !lite.colorSchemeOverrideNote)
+				{
+					conflict.colorSchemeConflict = isColorSchemePlanRuleEnabled 
+						? monotonyRules.some(r => 
+							r.colorSchemeColorItemName === colorItem.name 
+							&& r.colorSchemeColorName === color.name
+							&& r.edhPlanId === planId) 
+						: monotonyRules.some(r => 
+							r.colorSchemeColorItemName === colorItem.name 
+							&& r.colorSchemeColorName === color.name) ; 
+				}
+			}
+
+			conflict.monotonyConflict = (conflict.colorSchemeConflict || conflict.elevationConflict);
+		}
+
+		return conflict;
+	}
+);
+
 export const isLiteComplete = createSelector(
 	fromScenario.selectScenario,
-	monotonyConflict,
+	liteMonotonyConflict,
 	fromSalesAgreement.salesAgreementState,
 	needsPlanChange,
 	hasSpecPlanId,
@@ -961,6 +1031,47 @@ export const isLiteComplete = createSelector(
 		return isLiteComplete;
 	}
 );
+
+export const liteMonotonyOptions = createSelector(
+	fromLot.selectSelectedLot,
+	fromPlan.selectedPlanData,
+	fromLite.liteState,
+	(selectedLot, selectedPlan, lite) =>
+	{
+		let monotonyOptions = { elevationOptionIds: [], colorSchemeNames: [] };
+
+		if (selectedLot && lite.isPhdLite)
+		{
+			const isColorSchemePlanRuleEnabled = selectedLot.financialCommunity.isColorSchemePlanRuleEnabled;
+			const monotonyRules = lite.liteMonotonyRules?.find(rule => rule.edhLotId === selectedLot.id)?.relatedLotsElevationColorScheme;
+
+			if (monotonyRules?.length)
+			{
+				let planId = selectedPlan !== null ? selectedPlan.id : 0;
+
+				monotonyOptions.elevationOptionIds = monotonyRules
+					.filter(r => (r.ruleType === "Elevation" || r.ruleType === "Both") && !!r.elevationPlanOptionId && r.edhPlanId === planId)
+					.map(r => r.elevationPlanOptionId);
+
+				monotonyOptions.colorSchemeNames = monotonyRules
+					.filter(r => (r.ruleType === "ColorScheme" || r.ruleType === "Both")
+								 && !!r.colorSchemeColorName
+								 && !!r.colorSchemeColorItemName 
+								 && (!isColorSchemePlanRuleEnabled || isColorSchemePlanRuleEnabled && r.edhPlanId === planId))
+					.map(r => {
+						return {
+							colorSchemeColorName: r.colorSchemeColorName,
+							colorSchemeColorItemName: r.colorSchemeColorItemName
+						};
+					});
+			}
+		}
+
+		return monotonyOptions;
+	}
+);
+
+// End PHD Lite
 
 function mapLocations(choice: Choice, jobElevationChoice: JobChoice, changeOrderElevationChoice: ChangeOrderChoice): Array<string>
 {

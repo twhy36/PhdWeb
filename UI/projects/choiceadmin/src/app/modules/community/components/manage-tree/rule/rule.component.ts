@@ -25,7 +25,8 @@ export class RuleComponent implements OnInit
 	@Input() searchFilters: Array<string>;
 	@Input() isReadOnly: boolean;
 	@Input() currentRule: IRule;
-	@Input() rules: Array<IRule> = [];
+	@Input() rules: Array<IRule> = []; // This set of rules is specifc to points or choices, whichever is being viewed
+	@Input() allRules: Array<IRule> = []; // This set of rules contains both points and choices
 	@Input() selectedItems: Array<IRuleItem> = [];
 	@Input() blankRule: IRule;
 	@Input() isLoading = true;
@@ -108,7 +109,17 @@ export class RuleComponent implements OnInit
 
 	isPointDisabled(point: DTPoint)
 	{
-		return this.id === point.id || this.selectedItems.some(i => i.itemId === point.id);
+		return this.id === point.id
+			|| this.selectedItems.some(i => i.itemId === point.id)
+			|| _.flatMap(this.allRules, r => r.ruleItems).some(ri => ri.itemId === point.id
+				|| point.choices.some(c => c.id === ri.itemId));
+	}
+
+	isChoiceDisabled(point: DTPoint, choice: DTChoice)
+	{
+		return this.id == point.id
+			|| this.id == choice.id
+			|| _.flatMap(this.allRules, r => r.ruleItems).some(ri => ri.itemId === point.id || ri.itemId === choice.id);
 	}
 
 	/**

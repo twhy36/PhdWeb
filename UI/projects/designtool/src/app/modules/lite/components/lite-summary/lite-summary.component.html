@@ -2,7 +2,7 @@
 
 <div class="d-flex justify-content-center">
 	<div class="phd-summary-container d-flex flex-column">
-		<summary-header 
+		<summary-header
 			[summaryHeader]="summaryHeader"
 			[priceBreakdown]="priceBreakdown"
 			[allowEstimates]="allowEstimates"
@@ -25,7 +25,7 @@
 							<span class="phd-category-subtotal-label">Subtotal : </span>
 							<span class="phd-category-subtotal-amount"> {{getCategorySubTotals(optionCategory) | currency}} </span>
 						</div>
-					</div>						
+					</div>
 
 					<div class="phd-option-subcategory d-flex flex-column justify-content-between" *ngFor="let optionSubCategory of optionCategory.optionSubCategories">
 						<div *ngIf="optionCategory.categoryName !== 'Exterior'" class="phd-subcategory-header d-flex justify-content-between align-items-center">
@@ -45,7 +45,7 @@
 			[changePrice]="priceBreakdown.changePrice"
 			[inChangeOrder]="(isChangingOrder$ | async)"
 			[canChange]="(canConfigure$ | async) && canEditSummary"
-			(callToAction)="onCallToAction()">
+			(callToAction)="onBuildIt()">
 
 			<ng-template #rightCellTemplate>
 				<div class="d-flex flex-column flex-grow-1 align-items-center mr-4 links">
@@ -53,10 +53,17 @@
 						<div id="printDropdown" ngbDropdownToggle class="phd-print-link d-flex align-items-center">
 							Print Configuration
 						</div>
+						<div ngbDropdownMenu aria-labelledby="printDropdown">
+							<ul class="list-group list-group-flush phd-print-list">
+								<li class="list-group-item phd-print-item" *ngFor="let reportType of summaryReportType | enumToArray">
+									<a (click)="printConfig(reportType)">{{ reportType }}</a>
+								</li>
+							</ul>
+						</div>
 					</div>
 				</div>
 			</ng-template>
 		</action-bar>
 
-	</div>	
+	</div>
 </div>

@@ -10,10 +10,15 @@ import * as fromRoot from '../../ngrx-store/reducers';
 import * as fromSalesAgreement from '../../ngrx-store/sales-agreement/reducer';
 import * as fromOpportunity from '../../ngrx-store/opportunity/reducer';
 import * as fromLot from '../../ngrx-store/lot/reducer';
+
 import * as CommonActionTypes from '../../ngrx-store/actions';
 import * as LotActionTypes from '../../ngrx-store/lot/actions';
 import { Store } from '@ngrx/store';
 import { LotExt } from 'phd-common';
+
+// PHD Lite
+import * as fromLite from '../../ngrx-store/lite/reducer';
+import * as LiteActionTypes from '../../ngrx-store/lite/actions';
 
 @Injectable()
 export class NotificationService {
@@ -24,6 +29,8 @@ export class NotificationService {
 	private salesCommunitySub: Subscription;
 	private selectedLotId: number;
 	private selectedLotSub: Subscription;
+	private isPhdLite: boolean;
+	private isPhdLiteSub: Subscription;
 
 	constructor(private store: Store<fromRoot.State>) {	}
 
@@ -61,6 +68,10 @@ export class NotificationService {
 					this.selectedLotId = lot.id;
 				}
 			});
+
+			this.isPhdLiteSub = this.store.select(fromLite.liteState).subscribe(lite => {
+				this.isPhdLite = lite?.isPhdLite;
+			});			
 		};
 
 		connectObs.subscribe(initializeSubscriptions);
@@ -74,6 +85,9 @@ export class NotificationService {
 
 			this.selectedLotSub.unsubscribe();
 			this.selectedLotId = null;
+
+			this.isPhdLiteSub.unsubscribe();
+			this.isPhdLite = null;
 
 			console.error(err);
 
@@ -90,7 +104,14 @@ export class NotificationService {
 
 		this.connection.on("LotsMonotonyUpdated", (lotId: number) => {
 			if (this.salesCommunityId && this.selectedLotId !== lotId) {
-				this.store.dispatch(new LotActionTypes.LoadMonotonyRules(this.salesCommunityId));
+				if (this.isPhdLite)
+				{
+					this.store.dispatch(new LiteActionTypes.LoadLiteMonotonyRules(this.salesCommunityId));
+				}
+				else
+				{
+					this.store.dispatch(new LotActionTypes.LoadMonotonyRules(this.salesCommunityId));
+				}
 			}
 		});
 	}

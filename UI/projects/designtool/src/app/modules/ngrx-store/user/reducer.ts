@@ -15,6 +15,7 @@ export interface State
 	canAddIncentive: boolean;
 	canUpdateECOE: boolean;
 	canLockSalesAgreement: boolean;
+	canEditInternalNotes: boolean;
 	contactId: number;
 }
 
@@ -31,7 +32,8 @@ export const initialState: State =
 	canAddIncentive: false, 
 	contactId: null, 
 	canUpdateECOE: false, 
-	canLockSalesAgreement: false 
+	canLockSalesAgreement: false ,
+	canEditInternalNotes: false,
 };
 
 export function reducer(state: State = initialState, action: UserActions): State
@@ -51,6 +53,7 @@ export function reducer(state: State = initialState, action: UserActions): State
 				canAddIncentive: action.claims.Incentives && !!(action.claims.Incentives & Permission.Create),
 				canUpdateECOE: action.claims.ECOE && !!(action.claims.ECOE & Permission.Edit),
 				canLockSalesAgreement: action.claims.LockSalesAgreement && !!(action.claims.LockSalesAgreement && Permission.Edit),
+				canEditInternalNotes: action.claims.InternalNotes && !!(action.claims.InternalNotes & Permission.Edit),
 				contactId: action.contactId
 			};
 		default:

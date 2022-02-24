@@ -25,6 +25,12 @@
 						<color-items-page class="content"></color-items-page>
 					</ng-template>
 				</li>
+				<li ngbNavItem>
+					<a ngbNavLink>Option Packages</a>
+					<ng-template ngbNavContent>
+						<option-packages-page class="content"></option-packages-page>
+					</ng-template>
+				</li>
 			</ul>
 		</div>
 		<div class="user" *ngIf="user"><i class="fa fa-user"></i>{{user.displayName}}</div>

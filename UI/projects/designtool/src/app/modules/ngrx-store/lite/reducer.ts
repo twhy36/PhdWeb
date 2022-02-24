@@ -1,7 +1,10 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store';
 import * as _ from "lodash";
 
-import { LitePlanOption, Elevation, ScenarioOption, ScenarioOptionColor, IOptionCategory, IOptionSubCategory } from '../../shared/models/lite.model';
+import { 
+	LitePlanOption, Elevation, ScenarioOption, ScenarioOptionColor, IOptionCategory, LiteMonotonyRule 
+} from '../../shared/models/lite.model';
+
 import { LiteActions, LiteActionTypes } from './actions';
 
 export interface State
@@ -12,6 +15,9 @@ export interface State
 	options: LitePlanOption[],
 	scenarioOptions: ScenarioOption[];
 	categories: IOptionCategory[];
+	liteMonotonyRules: LiteMonotonyRule[];
+	elevationOverrideNote: string;
+	colorSchemeOverrideNote: string;
 }
 
 export const initialState: State =
@@ -21,7 +27,10 @@ export const initialState: State =
 	isSaving: false,
 	options: [],
 	scenarioOptions: [],
-	categories: []
+	categories: [],
+	liteMonotonyRules: [],
+	elevationOverrideNote: null,
+	colorSchemeOverrideNote: null	
 };
 
 export function reducer(state: State = initialState, action: LiteActions): State
@@ -108,6 +117,16 @@ export function reducer(state: State = initialState, action: LiteActions): State
 
 		case LiteActionTypes.OptionCategoriesLoaded:
 			return { ...state, categories: action.categories };
+
+		case LiteActionTypes.LiteMonotonyRulesLoaded:
+			return { ...state, liteMonotonyRules: action.monotonyRules };
+
+		case LiteActionTypes.SetLiteOverrideReason:
+		{
+			return action.isElevation
+				? { ...state, elevationOverrideNote: action.overrideReason }
+				: { ...state, colorSchemeOverrideNote: action.overrideReason };
+		}
 
 		default:
 			return state;

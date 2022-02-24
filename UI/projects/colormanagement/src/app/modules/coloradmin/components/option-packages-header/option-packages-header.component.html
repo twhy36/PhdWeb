@@ -1,0 +1,68 @@
+<div class="container-fluid"><!--change to class="container" if you want a full width table... in this scenario, a narrower table accommodates the data nicely-->
+    <div class="row">
+        <div class="col" style="text-align: right;">
+            <button class="mx-2 phd-add-color-button btn btn-primary" 
+                [disabled]="disableAddButton"
+                (click)="addPackage()">
+                Add Option Package
+            </button>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <div style="height: auto;" class="mx-2 phd-table-container" 
+        infiniteScroll
+        [infiniteScrollThrottle]="settings.infiniteScrollThrottle" 
+        [infiniteScrollDisabled]="allDataLoaded"
+        (scrolled)="onPanelScroll()" 
+        [scrollWindow]="false">
+        <phd-table 
+            #pkgCommon 
+            tableId = "communityOptionPackages"
+            [value]="commonPackages$ | async"
+            showColumnHeaders="false">
+            <phd-column field="name"></phd-column>
+            <phd-column 
+                width="48px"
+                columnClass="phd-icon">
+                <ng-template #body let-currentRecord>
+                    <i class="fa fa-pencil" title="Edit Package" *ngIf="currentRecord.isCommon != null"
+                        (click)="editPackage(currentRecord)">
+                    </i>
+                    <!--<i class="fa fa-plus" title="Add Package" *ngIf="currentRecord.isCommon == null"
+                        (click)="addPackage()">
+                    </i>-->
+                </ng-template>
+            </phd-column>
+        </phd-table>
+    </div>
+
+    <div style="height: auto;" class="mx-2 phd-table-container" 
+        infiniteScroll
+        [infiniteScrollThrottle]="settings.infiniteScrollThrottle" 
+        [infiniteScrollDisabled]="allDataLoaded"
+        (scrolled)="onPanelScroll()" 
+        [scrollWindow]="false">
+        <phd-table 
+            #pkgCommunity 
+            [value]="communityPackages$ | async" 
+            sortField="presentationOrder"
+            canReorderRows="draggableRows" 
+            (onRowReorder)="onRowReorder($event)"
+            showColumnHeaders="false">
+            <phd-column isDragHandler="true" width="48px" field="dragPlaceholder"></phd-column>
+            <phd-column field="name"></phd-column>
+            <phd-column width="48px" columnClass="phd-icon" >
+                <ng-template #body let-currentRecord>
+                    <i class="fa fa-pencil" title="Edit Package" (click)="editPackage(currentRecord)"></i>
+                </ng-template>
+            </phd-column>            
+            <phd-column width="48px" columnClass="phd-icon">
+                <ng-template #body let-currentRecord>
+                    <i class="fa fa-edit" title="Rename Package" (click)="renamePackage(currentRecord)">
+                    </i>
+                </ng-template>
+            </phd-column>
+        </phd-table>
+    </div>
+</div>

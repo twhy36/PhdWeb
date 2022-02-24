@@ -183,7 +183,7 @@
 			</ng-template>
 		</phd-nav-menu-item>
 
-		<ng-container *ngIf="isDesignPreviewEnabled">
+		<ng-container *ngIf="isDesignPreviewEnabled && !(isPhdLite$ | async)">
 			<phd-nav-menu-item label="Design Preview" (click)="launchPreview()" [isActive]="false"
 								[ngClass]="(isTablet$ | async) && invertHamburgerMenuColor ? 'phd-menu-item-color' : null">
 			</phd-nav-menu-item>

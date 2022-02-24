@@ -1,13 +1,15 @@
 import { Component, Input, OnInit, EventEmitter, Output, SimpleChanges, OnChanges } from '@angular/core';
 import { FormGroup, FormControl } from '@angular/forms';
 
+import * as _ from 'lodash';
+
 import { finalize, combineLatest } from 'rxjs/operators';
 
 import { NgbModal, NgbNavChangeEvent } from '@ng-bootstrap/ng-bootstrap';
 import { ConfirmModalComponent } from '../../../../core/components/confirm-modal/confirm-modal.component';
 import { MessageService } from 'primeng/api';
 
-import { DTChoice, IDTPoint, DTree } from '../../../../shared/models/tree.model';
+import { DTChoice, IDTPoint, DTree, IDTChoice } from '../../../../shared/models/tree.model';
 import { TreeService } from '../../../../core/services/tree.service';
 import { PhdApiDto, PhdEntityDto } from '../../../../shared/models/api-dtos.model';
 import { ITreeOption, OptionImage, IOptionRuleChoice, IOptionRuleChoiceGroup } from '../../../../shared/models/option.model';
@@ -64,12 +66,14 @@ export class OptionSidePanelComponent implements OnInit, OnChanges
 	dragHasChanged = false;
 	lockedFromChanges = false;
 	canEditImages = false;
+	canCreateAlternateMapping: boolean = false;
 	versionId: number = 0;
 
 	ngOnInit(): void
 	{
 		this.versionId = this.currentTree.version.id;
 		this.optionRule = this.blankRule;
+
 		this.getRules();
 		this.getImages();
 		this.createForm();
@@ -81,9 +85,10 @@ export class OptionSidePanelComponent implements OnInit, OnChanges
 		{
 			this._identityService.hasClaimWithPermission('TreeImages', Permission.Edit).pipe(
 				combineLatest(this._identityService.hasMarket(this.selectedMarket))
-			).subscribe(([hasClaim, hasMarket]) =>
+			).subscribe(([hasTreeImagesClaim, hasMarket]) =>
 			{
-				this.canEditImages = hasMarket && hasClaim
+				this.canEditImages = hasMarket && hasTreeImagesClaim;
+				this.canCreateAlternateMapping = true; // ToDo: Feature Switch at a later time. Setting to True for now for future stories.
 			});
 		}
 	}
@@ -134,12 +139,6 @@ export class OptionSidePanelComponent implements OnInit, OnChanges
 		return description || 'No Description';
 	}
 
-	get showAlternateMappingBtn(): boolean
-	{
-		// must have a rule with a choice rule, and max order equal to 1 along with the other fun stuff to display button on the choice rules tab.
-		return this.optionRule.id !== 0 && this.optionRule.choices.length > 0 && this.option.maxOrderQuantity === 1 && !this.isReadOnly && this.canEdit && this.currentTab === 'rules';
-	}
-
 	getRules()
 	{
 		this.isLoadingChoiceRules = true;
@@ -147,17 +146,14 @@ export class OptionSidePanelComponent implements OnInit, OnChanges
 		if (this.optionRule.id === 0)
 		{
 			// get saved Option Choice Rules.
-			this._treeService.getOptionChoiceRules(this.versionId, this.option.id.toString())
+			this._treeService.getOptionChoiceRules(this.versionId, this.option.id.toString()).pipe(
+				finalize(() =>
+				{
+					this.isLoadingChoiceRules = false;
+				}))
 				.subscribe(rule =>
 				{
-					if (rule)
-					{
-						this.optionRule = rule;
-					}
-					else
-					{
-						this.optionRule = this.blankRule;
-					}
+					this.optionRule = rule || this.blankRule;				
 				});
 		}
 	}
@@ -170,7 +166,7 @@ export class OptionSidePanelComponent implements OnInit, OnChanges
 		{
 			message = 'Unable to set Choice Rules as this option has been flagged as Included in Base House';
 		}
-		else if (!this.option.hasRules && (this.isReadOnly || !this.canEdit))
+		else if (this.option.optionRuleMappingCount === 0 && (this.isReadOnly || !this.canEdit))
 		{
 			message = 'No Choice Rules records found.';
 		}
@@ -182,11 +178,11 @@ export class OptionSidePanelComponent implements OnInit, OnChanges
 	{
 		let message = '';
 
-		if (!this.option.hasRules && !this.isReadOnly && this.canEdit)
+		if (this.option.optionRuleMappingCount === 0 && !this.isReadOnly && this.canEdit)
 		{
 			message = 'Must have Choice Rules set before Replace Rules can be added';
 		}
-		else if (!this.option.hasRules && (this.isReadOnly || !this.canEdit))
+		else if (this.option.optionRuleMappingCount === 0 && (this.isReadOnly || !this.canEdit))
 		{
 			message = 'No Replace Rules records found.';
 		}
@@ -218,37 +214,144 @@ export class OptionSidePanelComponent implements OnInit, OnChanges
 		this.optionRuleSelectedChoices = [];
 	}
 
-	async onSaveOptionChoiceRule(params: { selectedItems: DTChoice[], callback: Function })
+	/**
+	 * Checks the mappings for all the groups to make sure they all end on the same choice or the choices fall under the same Point.
+	 * @param optionRuleChoices
+	 * @param isDelete
+	 */
+	checkMappingRules(optionRuleChoices: IOptionRuleChoice[] = [], isDelete: boolean = false) : boolean
 	{
+		let isValid = true;
+
+		// group all the choices by their mappedIndex
+		const groupChoicesByIndex = _.groupBy(this.optionRule.choices, c => c.mappingIndex);
+
+		// add the results into a easy to handle array
+		const groupChoices: IOptionRuleChoice[][] = _.map(groupChoicesByIndex, (ruleChoices) => ruleChoices);
+
+		// will hold each groups max choice id
+		let maxChoiceIds: number[] = [];
+
+		// if there is a new mapping, there will not be a record yet so we need to include its maxChoice
+		if (!isDelete && optionRuleChoices.length && !this.optionRule.choices.some(c => c.mappingIndex === optionRuleChoices[0].mappingIndex))
+		{
+			let newMaxChoice = getMaxSortOrderChoice(this.currentTree, optionRuleChoices.map(c => c.choiceId));
+
+			maxChoiceIds.push(newMaxChoice);
+		}
+
+		groupChoices.forEach(choiceList =>
+		{
+			let choiceIdList = choiceList.map(c => c.choiceId);
+
+			// preexisting rules that need to be updated by either adding/deleting choices
+			if (optionRuleChoices.length && choiceList[0].mappingIndex === optionRuleChoices[0].mappingIndex)
+			{
+				if (isDelete)
+				{
+					// remove each choice from the main list
+					optionRuleChoices.forEach(choice =>
+					{
+						const index = choiceIdList.findIndex(c => c === choice.choiceId);
+
+						// remove choiceId from array
+						choiceIdList.splice(index, 1);
+					});
+				}
+				else
+				{
+					choiceIdList = choiceIdList.concat(optionRuleChoices.map(x => x.choiceId));
+				}
+			}
+
+			if (choiceIdList.length)
+			{
+				// get the last choice for each group.
+				let maxChoiceId = getMaxSortOrderChoice(this.currentTree, choiceIdList);
+
+				maxChoiceIds.push(maxChoiceId);
+			}
+		});
+
+		let filteredChoices: IDTChoice[] = [];
+
+		if (maxChoiceIds.length)
+		{
+			const subGroups = _.flatMap(this.currentTree.version.groups, g => g.subGroups);
+			const points = _.flatMap(subGroups, sg => sg.points);
+			const choices = _.flatMap(points, p => p.choices);
+
+			// need a full choice record so we can get the point info
+			filteredChoices = choices.filter(c => maxChoiceIds.find(x => x === c.id));
+		}
+
+		// max choices must be the same or found on the same point.
+		if (!maxChoiceIds.every((val, index, arr) => val === arr[0]) && !filteredChoices.every((val, index, arr) => val.parent.id === arr[0].parent.id))
+		{
+			isValid = false;
+
+			this._msgService.add({ severity: 'error', summary: `All the option's mappings must end in the same choice or on the same pick 1 decision point.` });
+		}
+
+		return isValid;
+	}
+
+	async onSaveOptionChoiceRule(params: { selectedItems: DTChoice[], callback: Function, mappingIndex: number })
+	{
+		// check for choices, if none then just add, else we need to do some checks.
 		if (this.optionRule.choices.length > 0)
 		{
-			let choiceIdList = this.optionRule.choices.filter(c => c.mustHave).map(c => c.choiceId);
-			let newChoiceIdList = choiceIdList.concat(params.selectedItems.map(c => c.id));
-
-			let currentMaxChoiceId = getMaxSortOrderChoice(this.currentTree, choiceIdList);
-			let newMaxChoiceId = getMaxSortOrderChoice(this.currentTree, newChoiceIdList);
-
-			let maxChoice = this.optionRule.choices.find(c => c.choiceId === currentMaxChoiceId);
-
-			// check for Attribute Reassignments
-			this._treeService.hasAttributeReassignment(maxChoice.id).subscribe(async hasAttributeReassignment =>
+			let selectedItemList = params.selectedItems.map(choice =>
 			{
-				let deleteAttributeReassignments = hasAttributeReassignment && currentMaxChoiceId !== newMaxChoiceId && await this.confirmAttributeReassignment(maxChoice.label)
-
-				// if no reassignments proceed or the order doesn't change or show prompt asking if they'd like to continue
-				if (!hasAttributeReassignment || currentMaxChoiceId === newMaxChoiceId || deleteAttributeReassignments)
-				{
-					this.saveOptionChoiceRule(params.selectedItems, params.callback, deleteAttributeReassignments ? this.optionRule.choices.find(x => x.choiceId === currentMaxChoiceId).id : null);
-				}
+				return {
+					choiceId: choice.id,
+					mustHave: true,
+					pointId: choice.parent.id,
+					mappingIndex: params.mappingIndex
+				} as PhdApiDto.IOptionChoiceRuleChoice;
 			});
+
+			if (this.checkMappingRules(selectedItemList))
+			{
+				// make sure the list is only for choices with the same mappingIndex.
+				let choiceIdList = this.optionRule.choices.filter(c => c.mustHave && c.mappingIndex === params.mappingIndex).map(c => c.choiceId);
+
+				if (choiceIdList.length)
+				{
+					let newChoiceIdList = choiceIdList.concat(params.selectedItems.map(c => c.id));
+
+					let currentMaxChoiceId = getMaxSortOrderChoice(this.currentTree, choiceIdList);
+					let newMaxChoiceId = getMaxSortOrderChoice(this.currentTree, newChoiceIdList);
+
+					let maxChoice = this.optionRule.choices.find(c => c.choiceId === currentMaxChoiceId);
+
+					// check for Attribute Reassignments
+					this._treeService.hasAttributeReassignment([maxChoice.id]).subscribe(async hasAttributeReassignment =>
+					{
+						let deleteAttributeReassignments = hasAttributeReassignment && currentMaxChoiceId !== newMaxChoiceId && await this.confirmAttributeReassignment([maxChoice.label]);
+
+						// if no reassignments proceed or the order doesn't change or show prompt asking if they'd like to continue
+						if (!hasAttributeReassignment || currentMaxChoiceId === newMaxChoiceId || deleteAttributeReassignments)
+						{
+							let assocId = deleteAttributeReassignments ? this.optionRule.choices.find(x => x.choiceId === currentMaxChoiceId).id : null;
+
+							this.saveOptionChoiceRule(params.selectedItems, params.callback, params.mappingIndex, assocId);
+						}
+					});
+				}
+				else
+				{
+					this.saveOptionChoiceRule(params.selectedItems, params.callback, params.mappingIndex);
+				}
+			}
 		}
 		else
 		{
-			this.saveOptionChoiceRule(params.selectedItems, params.callback);
+			this.saveOptionChoiceRule(params.selectedItems, params.callback, params.mappingIndex);
 		}
 	}
 
-	saveOptionChoiceRule(selectedItems: DTChoice[], callback: Function, assocId?:number)
+	saveOptionChoiceRule(selectedItems: DTChoice[], callback: Function, mappingIndex: number, assocId?:number)
 	{
 		this.isSaving = true;
 
@@ -272,7 +375,8 @@ export class OptionSidePanelComponent implements OnInit, OnChanges
 				optionRuleId: this.optionRule.id,
 				pointId: choice.parent.id,
 				pointLabel: choice.parent.label,
-				treeVersionId: this.optionRule.treeVersionId
+				treeVersionId: this.optionRule.treeVersionId,
+				mappingIndex: mappingIndex
 			};
 
 			optionChoiceRule.choices.push(newChoice);
@@ -292,7 +396,11 @@ export class OptionSidePanelComponent implements OnInit, OnChanges
 					this.optionRule.replaceRules = optionRule.replaceRules;
 
 					this.onUpdateTreeChoiceOptionRules(optionRule.choices, true);
-					this.option.hasRules = this.optionRule.choices.length > 0;
+
+					const groupChoicesByIndex = _.groupBy(this.optionRule.choices, c => c.mappingIndex);
+					const groupChoiceSize = _.size(groupChoicesByIndex);
+
+					this.option.optionRuleMappingCount = groupChoiceSize;
 
 					callback(true);
 				}
@@ -302,44 +410,69 @@ export class OptionSidePanelComponent implements OnInit, OnChanges
 				}
 			}, (error) => callback(false));
 	}
-
-	async onDeleteOptionChoiceRule(params: { optionRuleChoice: IOptionRuleChoice, callback: Function })
+	
+	async onDeleteOptionChoiceRule(params: { optionRuleChoices: IOptionRuleChoice[], mappingIndex: number, displayIndex: number, callback: Function })
 	{
-		// check for Attribute Reassignments
-		this._treeService.hasAttributeReassignment(params.optionRuleChoice.id).subscribe(async hasAttributeReassignment =>
+		// if deleting a full mapping we need to make sure this is what they want before continuing, else lets check the mappingRules
+		let confirmDelete = params.displayIndex !== null ? await this.confirmMappingDelete(params.displayIndex + 1) : this.checkMappingRules(params.optionRuleChoices, true);
+
+		// They said YES!!!!!!!!
+		if (confirmDelete)
 		{
-			// if no reassignments proceed, else show prompt asking if they'd like to continue
-			if (!hasAttributeReassignment || (hasAttributeReassignment && await this.confirmAttributeReassignment(params.optionRuleChoice.label)))
+			// get a list of Ids to check for any reassignment records
+			let optionRuleChoiceIds = params.optionRuleChoices.map(x => x.id);
+
+			// check for Attribute Reassignments
+			this._treeService.hasAttributeReassignment(optionRuleChoiceIds).subscribe(async hasAttributeReassignment =>
 			{
-				this.deleteOptionChoiceRule(params.optionRuleChoice, params.callback);
-			}
-		});
+				let optionRuleChoiceLabels = params.optionRuleChoices.map(x => x.label);
+
+				// if no reassignments proceed, else show prompt asking if they'd like to continue
+				if (!hasAttributeReassignment || (hasAttributeReassignment && await this.confirmAttributeReassignment(optionRuleChoiceLabels)))
+				{
+					this.deleteOptionChoiceRule(params.optionRuleChoices, params.mappingIndex, params.callback);
+				}
+			});
+		}
 	}
 	
-	deleteOptionChoiceRule(optionRuleChoice: IOptionRuleChoice, callback: Function)
+	deleteOptionChoiceRule(optionRuleChoices: IOptionRuleChoice[], mappingIndex: number, callback: Function)
 	{
 		this.isSaving = true;
 
+		let firstChoice = optionRuleChoices[0];
+		let deleteChoiceMethod = mappingIndex === null ?
+			this._treeService.deleteOptionChoiceRuleChoice(firstChoice.id) :
+			this._treeService.deleteDPChoiceOptionRuleAssocs(firstChoice.optionRuleId, mappingIndex);
+
 		// delete choice
-		this._treeService.deleteOptionChoiceRuleChoice(this.versionId, optionRuleChoice.id)
+		deleteChoiceMethod
 			.pipe(finalize(() => this.isSaving = false))
 			.subscribe(response =>
 			{
-				this.onUpdateTreeChoiceOptionRules([optionRuleChoice as PhdApiDto.IOptionChoiceRuleChoice], false);
+				// filter by id for the one choice that needs to go bye bye, or if multiple choices then by mappingIndex.
+				const choicesToRemove = mappingIndex === null ? this.optionRule.choices.filter(x => x.id === firstChoice.id) : this.optionRule.choices.filter(x => x.mappingIndex === mappingIndex);
 
-				const index = this.optionRule.choices.findIndex(c => c.id === optionRuleChoice.id);
+				this.onUpdateTreeChoiceOptionRules(choicesToRemove, false);
 
-				// remove choice from array
-				this.optionRule.choices.splice(index, 1);
+				choicesToRemove.forEach(choiceAssoc =>
+				{
+					const index = this.optionRule.choices.findIndex(c => c.id === choiceAssoc.id);
 
-				// check to see if there are other choices in the array.
-				if (this.optionRule.choices.length === 0)
+					// remove choice from array
+					this.optionRule.choices.splice(index, 1);
+				});
+
+				const groupChoicesByIndex = _.groupBy(this.optionRule.choices, c => c.mappingIndex);
+				const groupChoiceSize = _.size(groupChoicesByIndex);
+
+				this.option.optionRuleMappingCount = groupChoiceSize;
+
+				// if the count is 0 then we have no option mappings, and no rule.
+				if (this.option.optionRuleMappingCount === 0)
 				{
 					//  no more choices, no more option rule or replace
 					this.optionRule = this.blankRule;
-
-					// remove rule icon
-					this.option.hasRules = false;
 				}
 
 				callback(true);
@@ -388,9 +521,9 @@ export class OptionSidePanelComponent implements OnInit, OnChanges
 		if (!hasMustHave && maxChoice)
 		{
 			// check for Attribute Reassignments
-			this._treeService.hasAttributeReassignment(maxChoice.id).subscribe(async hasAttributeReassignment =>
+			this._treeService.hasAttributeReassignment([maxChoice.id]).subscribe(async hasAttributeReassignment =>
 			{
-				let canToggle = !hasAttributeReassignment || await this.confirmAttributeReassignment(maxChoice.label)
+				let canToggle = !hasAttributeReassignment || await this.confirmAttributeReassignment([maxChoice.label])
 
 				if (canToggle)
 				{
@@ -699,9 +832,26 @@ export class OptionSidePanelComponent implements OnInit, OnChanges
 		return this.showConfirmModal(confirmMessage, confirmTitle, confirmDefaultOption);
 	}
 
-	private confirmAttributeReassignment(attributeGroupLabel: string): Promise<boolean>
+	private confirmAttributeReassignment(attributeGroupLabels: string[]): Promise<boolean>
 	{
-		const confirmMessage = `You are about to delete the Attribute Group Re-Assignment:<br><br> ${attributeGroupLabel}<br><br>Do you want to continue?`;
+		let confirmMessage = `You are about to delete the Attribute Group Re-Assignment:<br><br>`;
+
+		attributeGroupLabels.forEach(label => confirmMessage += `${label}<br>`);
+
+		confirmMessage += `<br>Do you want to continue?`;
+
+		const confirmTitle = `Warning!`;
+		const confirmDefaultOption = `Cancel`;
+
+		return this.showConfirmModal(confirmMessage, confirmTitle, confirmDefaultOption);
+	}
+
+	private confirmMappingDelete(displayIndex: number): Promise<boolean>
+	{
+		let confirmMessage = `You are about to delete Mapping ${displayIndex}.<br>`;
+
+		confirmMessage += `<br>Do you want to continue?`;
+
 		const confirmTitle = `Warning!`;
 		const confirmDefaultOption = `Cancel`;
 

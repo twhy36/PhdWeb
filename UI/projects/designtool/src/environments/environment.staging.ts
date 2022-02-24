@@ -10,7 +10,14 @@ export const environment: IEnvironment = {
 	apiUrl: 'https://phdapi.staging.pulte.com/odata/',
 	hubUrl: 'https://phdhub.staging.pulte.com/hub',
 	baseUrl: {
-		designPreview: 'https://phd.staging.pulte.com/designpreview/',
+		designPreviewUrls: {
+			pulte: 'https://phd.staging.pulte.com/designpreview/',
+			delWebb: 'https://phd.staging.delwebb.com/designpreview/',
+			americanWest: 'https://phd.staging.americanwesthomes.com/designpreview/',
+			diVosta: 'https://phd.staging.pulte.com/designpreview/',// CHANGE TO DIVOSTA WHEN READY
+			centex: 'https://phd.staging.pulte.com/designpreview/',// CHANGE TO CENTEX WHEN READY
+			johnWieland: 'https://phd.staging.pulte.com/designpreview/',// CHANGE TO JOHN-WIELAND WHEN READY
+		},
 	},
     tenant: "pulte.onmicrosoft.com",
 	clientId: "d6e4e999-c413-4d1d-b0fb-618759cb69e5",

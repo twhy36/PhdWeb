@@ -75,7 +75,7 @@ export class AttributeListComponent extends UnsubscribeOnDestroy implements OnIn
 
 	get disableAttribute(): boolean
 	{
-		return !this.isActive || this.attributes.length === 1;
+		return (!this.isActive && this.attributes.length > 1) || (this.attributes.length === 1 && this.selectedAttributeGroup.hasOptionCommunityAssoc); // If it is a single-attribute, allow it to be toggled if the attribute group is no longer associated to the community
 	}
 
 	constructor(private store: Store<fromRoot.State>) { super() }
@@ -150,7 +150,7 @@ export class AttributeListComponent extends UnsubscribeOnDestroy implements OnIn
 				this.isActive = true;
 			}
 
-			if (this.selectedAttributeId == null)
+			if (this.selectedAttributeId == null && this.selectedAttributeGroup.hasOptionCommunityAssoc)
 			{
 				// apply the only item
 				this.setAttribute(this.attributes[0]);
@@ -230,6 +230,11 @@ export class AttributeListComponent extends UnsubscribeOnDestroy implements OnIn
 
 	isFavoriteAttribute(attribute: Attribute): boolean {
 		return this.favoriteChoiceAttributes?.findIndex(fca => fca.attributeCommunityId === attribute.id) > -1;
+	}
+
+	isAttributeSelected(attribute: Attribute): boolean
+	{
+		return this.selectedAttributeId === attribute.id;
 	}
 
 	/**

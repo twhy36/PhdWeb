@@ -471,9 +471,9 @@ export class ChangeOrderService
 	getJobChangeOrderInputData(tree: Tree, changeOrder: ChangeOrderGroup, job: Job, handing: ChangeOrderHanding, salesAgreementId: number, baseHouseOption: PlanOption | JobPlanOption, optionRules: OptionRule[], isJio: boolean = false, planPrice: number = 0): any
 	{
 		const origChoices = isJio ? [] : job.jobChoices;
-		const currentChoices = _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices))) || [];
-		const elevationDP = _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points)).find(dp => dp.dPointTypeId === 1);
-		const colorSchemeDP = _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points)).find(dp => dp.dPointTypeId === 2);
+		const currentChoices = tree ? _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices))) : [];
+		const elevationDP = tree ? _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points)).find(dp => dp.dPointTypeId === 1) : null;
+		const colorSchemeDP = tree ? _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points)).find(dp => dp.dPointTypeId === 2) : null;
 		const origHanding = isJio ? '' : job.handing;
 
 		return {
@@ -563,7 +563,7 @@ export class ChangeOrderService
 		origChoices.forEach(orig =>
 		{
 			const currentChoice = currentSelectedChoices.find(cur => cur.id === orig.dpChoiceId || cur.divChoiceCatalogId === orig.divChoiceCatalogId);
-			const labels = this.getChoiceLabels(orig, tree);
+			let labels = this.getChoiceLabels(orig, tree);
 
 			if (!currentChoice || (currentChoice && mappingsChanged(orig, currentChoice)))
 			{
@@ -576,6 +576,18 @@ export class ChangeOrderService
 				// look for any options marked as Elevation so the choice can be flagged and grouped with elevation CO.
 				hasElevationOption = options.length && options.findIndex(x => x.jobOptionTypeName === 'Elevation') > -1;
 				isElevation = hasElevationOption || isDPElevation;
+
+				// #347028 if the tree was changed between the original JIO and the latest change order, use the current tree data if labels aren't found
+				if (!labels)
+				{
+					const choices = _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)));
+					const updatedChoice = choices.find(x => x.label === orig.choiceLabel);
+
+					if (updatedChoice)
+					{
+						labels = this.getChoiceLabels(updatedChoice, tree);
+					}
+				}
 
 				// deleted choice
 				choicesDto.push({

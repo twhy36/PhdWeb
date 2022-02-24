@@ -17,6 +17,7 @@ import { ConfirmOptionRelationComponent } from './components/confirm-option-rela
 import { LiteSummaryComponent } from './components/lite-summary/lite-summary.component';
 import { OptionSummaryComponent } from './components/option-summary/option-summary.component';
 import { ColorsComponent } from './components/colors/colors.component';
+import { MonotonyConflictModalComponent } from './components/monotony-conflict-modal/monotony-conflict-modal.component';
 
 const moduleRoutes: Routes = [
 	{
@@ -45,7 +46,8 @@ const moduleRoutes: Routes = [
 		ConfirmOptionRelationComponent,
 		LiteSummaryComponent,
 		OptionSummaryComponent,
-		ColorsComponent
+		ColorsComponent,
+		MonotonyConflictModalComponent
 	],
 	declarations: [
 		ElevationComponent,
@@ -56,7 +58,8 @@ const moduleRoutes: Routes = [
 		ConfirmOptionRelationComponent,
 		LiteSummaryComponent,
 		OptionSummaryComponent,
-  		ColorsComponent
+		ColorsComponent,
+		MonotonyConflictModalComponent
 	],
 	imports: [
 		CommonModule,

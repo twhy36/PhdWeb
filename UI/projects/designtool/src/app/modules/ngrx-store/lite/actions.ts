@@ -1,6 +1,8 @@
 import { Log } from 'phd-common';
 import { Action } from '@ngrx/store';
-import { IOptionCategory, IOptionSubCategory, LitePlanOption, ScenarioOption, ScenarioOptionColor, ScenarioOptionColorDto } from '../../shared/models/lite.model';
+import { 
+    IOptionCategory, LitePlanOption, ScenarioOption, ScenarioOptionColorDto, LiteMonotonyRule 
+} from '../../shared/models/lite.model';
 
 export enum LiteActionTypes {
     SetIsPhdLite = 'Set Is Phd Lite',
@@ -11,7 +13,10 @@ export enum LiteActionTypes {
     SelectOptionColors = 'Select Option Colors',
     SaveScenarioOptionColors = 'Select Scenario Option Colors',
     SetScenarioLoaded = 'Set Scenario Loaded',
-	OptionCategoriesLoaded = 'Option Categories Loaded',
+    OptionCategoriesLoaded = 'Option Categories Loaded',
+	LoadLiteMonotonyRules = 'Load Lite Monotony Rules',
+    LiteMonotonyRulesLoaded = 'LiteMonotonyRulesLoaded',
+    SetLiteOverrideReason = 'Set Lite Override Reason'   
 }
 
 @Log(true)
@@ -75,6 +80,27 @@ export class OptionCategoriesLoaded implements Action {
 		public categories: IOptionCategory[]) { }
 }
 
+@Log(true)
+export class LoadLiteMonotonyRules implements Action {
+	readonly type = LiteActionTypes.LoadLiteMonotonyRules;
+
+	constructor(public salesCommunityId: number) { }
+}
+
+@Log()
+export class LiteMonotonyRulesLoaded implements Action {
+	readonly type = LiteActionTypes.LiteMonotonyRulesLoaded;
+
+	constructor(public monotonyRules: LiteMonotonyRule[]) { }
+}
+
+@Log(true)
+export class SetLiteOverrideReason implements Action
+{
+	readonly type = LiteActionTypes.SetLiteOverrideReason;
+	constructor(public overrideReason: string, public isElevation: boolean) { }
+}
+
 export type LiteActions =
     SetIsPhdLite |
     LiteOptionsLoaded |
@@ -84,5 +110,8 @@ export type LiteActions =
     SelectOptionColors |
     SaveScenarioOptionColors |
 	SetScenarioLoaded |
-	OptionCategoriesLoaded;
+    OptionCategoriesLoaded |
+    LoadLiteMonotonyRules | 
+    LiteMonotonyRulesLoaded |
+    SetLiteOverrideReason;
 

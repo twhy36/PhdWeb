@@ -328,6 +328,7 @@ export namespace PhdEntityDto
 		dpChoice?: IDPChoiceDto;
 		dTreeVersion?: IDTreeVersionDto;
 		optionRule?: IOptionRuleDto;
+		mappingIndex?: number;
 	}
 
 	export interface IDPChoiceRule_DPChoiceAssocDto
@@ -498,7 +499,7 @@ export namespace PhdApiDto
 		planOptionId: number;
 		planId: number;
 		optionKey: string;
-		hasRules: boolean;
+		optionRuleMappingCount: number;
 		isReplaceRuleTarget: boolean; 
 		baseHouse: boolean;
 		hasImages: boolean;
@@ -622,7 +623,7 @@ export namespace PhdApiDto
 		label: string;
 		pointId: number;
 		pointLabel: string;
-		//attributeReassignments: IAttributeReassignment[];
+		mappingIndex: number;
 	}
 
 	export interface IOptionReplace

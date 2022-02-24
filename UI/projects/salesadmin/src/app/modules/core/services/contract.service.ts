@@ -118,7 +118,7 @@ export class ContractService
 	{
 		let url = this.settings.apiUrl;
 
-		if (documentDto.templateId)
+		if (documentDto.templateId !== null)
 		{
 			url += `contractTemplates(${documentDto.templateId})`;
 

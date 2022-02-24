@@ -8,21 +8,39 @@ $border-radius-base: 4px;
 	padding-left: 5px;
 }
 
-.phd-rules-list {
-	border: solid 1px lightgray;
-	border-radius: 4px;
-	margin-top: 15px;
-	margin-bottom: 15px;
+.phd-rules-list-container {
+	margin-top: 1em;
+
+	.phd-rules-list-header {
+		display: flex;
+		justify-content: space-between;
+
+		.phd-rules-list-header-text {
+			font-size: 1.2rem;
+			font-weight: bold;
+		}
+
+		.phd-rules-list-header-buttons i {
+			margin-left: 0.5em
+		}
+	}
+
+	.phd-rules-list-body {
+		border: solid 1px lightgray;
+		border-radius: 4px;
+		margin-top: 15px;
+		margin-bottom: 15px;
+	}
+
+	i:hover {
+		cursor: pointer;
+	}
 
 	table {
 		margin-bottom: 0;
 
 		.phd-icon-col {
 			width: 38px;
-
-			i:hover {
-				cursor: pointer;
-			}
 		}
 
 		.phd-toggle-td {
@@ -73,3 +91,9 @@ $border-radius-base: 4px;
 }
 
 /*item selector - END*/
+
+.phd-rule-form-headermodal-header {
+	display: flex;
+	justify-content: space-between;
+	margin-bottom: 1em;
+}

@@ -7,6 +7,7 @@ import { of,  Observable } from 'rxjs';
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromJob from '../../../ngrx-store/job/reducer';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
+import * as fromLite from '../../../ngrx-store/lite/reducer';
 
 import * as CommonActions from '../../../ngrx-store/actions';
 
@@ -41,6 +42,10 @@ export class AgreementComponent extends UnsubscribeOnDestroy implements OnInit
 	ConstructionStageTypes = ConstructionStageTypes;
 	fieldManager: string;
 	customerCareManager: string;
+
+	// PHD Lite
+	liteElevationName: string;
+	liteColorSchemeName: string;
 
 	constructor(private activatedRoute: ActivatedRoute, private store: Store<fromRoot.State>, private _jobService: JobService) { super(); }
 
@@ -106,6 +111,25 @@ export class AgreementComponent extends UnsubscribeOnDestroy implements OnInit
 			this.elevationChoice = elevationDp && elevationDp.choices.find(c => c.quantity > 0);
 			this.colorScheme = agreementColorScheme;
 			this.projectedFinalDate = this.job.projectedFinalDate ? convertDateToUtcString(this.job.projectedFinalDate) : '';
+		});
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(state => state.lite),
+			withLatestFrom(
+				this.store.pipe(select(fromLite.selectedElevation)),
+				this.store.pipe(select(fromLite.selectedColorScheme))
+			)
+		).subscribe(([lite, liteElevation, liteColorScheme]) =>
+		{
+			if (lite.isPhdLite)
+			{
+				this.liteElevationName = liteElevation?.name;
+
+				const colorSchemes = _.flatMap(liteElevation?.colorItems, item => item.color);
+				const color = colorSchemes?.find(c => c.colorItemId === liteColorScheme.colorItemId && c.colorId === liteColorScheme.colorId);
+				this.liteColorSchemeName = color?.name;
+			}
 		});
 
 		this.canSell$ = this.store.pipe(select(fromRoot.canSell));

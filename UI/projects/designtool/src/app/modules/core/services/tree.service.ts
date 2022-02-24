@@ -164,7 +164,7 @@ export class TreeService
 		return (skipSpinner ? this.http : withSpinner(this.http)).get(url).pipe(
 			map(response =>
 			{
-				let dtos = response['value'];
+				let dtos = response ? response['value'] : [];
 
 				let images = dtos.map(x =>
 				{
@@ -320,7 +320,7 @@ export class TreeService
 						return `${environment.apiUrl}planOptionCommunityImageAssocs?${encodeURIComponent('$')}select=${select}&${encodeURIComponent('$')}filter=${filter}&${encodeURIComponent('$')}orderby=${orderBy}&${this._ds}count=true`;
 					}
 
-					const batchSize = 75;
+					const batchSize = 35;
 					let batchBundles: string[] = [];
 
 					// create a batch request with a max of 100 options per request

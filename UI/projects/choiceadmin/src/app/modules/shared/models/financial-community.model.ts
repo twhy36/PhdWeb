@@ -14,7 +14,8 @@ export interface IFinancialCommunity
 	optionAssociated: boolean;
 	attributeGroupCommunities: Array<AttributeGroupCommunity>;
 	locationGroupCommunities: Array<LocationGroupCommunity>;
-	planCommunities?: IPlan[]
+	planCommunities?: IPlan[];
+	financialBrandId?: number;
 }
 
 export class FinancialCommunity extends BaseNode<IFinancialCommunity>
@@ -37,5 +38,10 @@ export class FinancialCommunity extends BaseNode<IFinancialCommunity>
 	get planCommunities(): IPlan[]
 	{
 		return this.dto.planCommunities;
+	}
+
+	get financialBrandId(): number
+	{
+		return this.dto.financialBrandId;
 	}
 }

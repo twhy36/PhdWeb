@@ -17,6 +17,9 @@ import * as fromJob from './job/reducer';
 import * as fromChangeOrder from './change-order/reducer';
 import * as fromContract from './contract/reducer';
 
+// PHD Lite
+import * as fromLite from './lite/reducer';
+
 /**
  * Reset action to its initial state
  * @param reducer
@@ -39,7 +42,8 @@ export function stateReset(reducer: ActionReducer<any>): ActionReducer<any>
 				changeOrder: fromChangeOrder.initialState,
 				contract: fromContract.initialState,
 				user: fromUser.initialState,
-				scenario: fromScenario.initialState
+				scenario: fromScenario.initialState,
+				lite: fromLite.initialState
 			};
 		}
 
