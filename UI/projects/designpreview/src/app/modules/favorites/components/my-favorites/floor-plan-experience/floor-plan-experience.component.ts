@@ -163,10 +163,12 @@ export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implement
 
 	scrollPointIntoView(pointId: number)
 	{
-		const decisionBarElement = document.getElementById('decision-bar-' + pointId?.toString());
+		const decisionBarElement = <HTMLElement><any>document.getElementById('decision-bar-' + pointId?.toString());
 		if (decisionBarElement)
 		{
+			setTimeout(() => {
 				decisionBarElement.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+			}, 0);
 		}
 	}
 }
