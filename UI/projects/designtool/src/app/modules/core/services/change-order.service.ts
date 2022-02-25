@@ -774,7 +774,7 @@ export class ChangeOrderService
 		return choice ? choice.treePointId === pointId : false;
 	}
 
-	private createJobChangeOrderHandings(currentHanding: ChangeOrderHanding, jobHanding: string): Array<any>
+	createJobChangeOrderHandings(currentHanding: ChangeOrderHanding, jobHanding: string): Array<any>
 	{
 		const handings = [];
 

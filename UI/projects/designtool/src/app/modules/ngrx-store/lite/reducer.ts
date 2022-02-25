@@ -74,7 +74,7 @@ export function reducer(state: State = initialState, action: LiteActions): State
 			let newOptions = _.cloneDeep(state.scenarioOptions);
 
 			action.optionColors.forEach(color => {
-				let scenarioOption = newOptions.find(opt => opt.scenarioOptionId === color.scenarioOptionId);
+				let scenarioOption = newOptions.find(opt => opt.edhPlanOptionId === color.edhPlanOptionId);
 				if (scenarioOption)
 				{
 					const optionColorIndex = scenarioOption.scenarioOptionColors

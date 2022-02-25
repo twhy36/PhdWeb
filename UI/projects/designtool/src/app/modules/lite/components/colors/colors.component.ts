@@ -168,7 +168,8 @@ export class ColorsComponent extends UnsubscribeOnDestroy implements OnInit {
 				scenarioOptionId: selectedScenarioOption.scenarioOptionId,
 				colorItemId: colorItem.colorItemId,
 				colorId: this.selectedColorIds[colorItem.colorItemId],
-				isDeleted: false
+				isDeleted: false,
+				edhPlanOptionId: selectedScenarioOption.edhPlanOptionId
 			});
 
 			this.store.dispatch(new LiteActions.SelectOptionColors(scenarioColors));
@@ -203,7 +204,8 @@ export class ColorsComponent extends UnsubscribeOnDestroy implements OnInit {
 				scenarioOptionId: previousSelectedColor.scenarioOptionId,
 				colorItemId: previousSelectedColor.colorItemId,
 				colorId: previousSelectedColor.colorId,
-				isDeleted: true
+				isDeleted: true,
+				edhPlanOptionId: previousSelectedOption.edhPlanOptionId
 			});
 		}
 
@@ -214,7 +216,8 @@ export class ColorsComponent extends UnsubscribeOnDestroy implements OnInit {
 				scenarioOptionId: previousSelectedOption.scenarioOptionId,
 				colorItemId: item.colorItemId,
 				colorId: this.selectedColorIds[item.colorItemId],
-				isDeleted: false
+				isDeleted: false,
+				edhPlanOptionId: previousSelectedOption.edhPlanOptionId
 			});
 		}
 

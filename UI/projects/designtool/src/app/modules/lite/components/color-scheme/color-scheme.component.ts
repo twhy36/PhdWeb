@@ -79,7 +79,8 @@ export class ColorSchemeComponent extends UnsubscribeOnDestroy implements OnInit
 					scenarioOptionId: selectedColorScheme.scenarioOptionId,
 					colorItemId: selectedColorScheme.colorItemId,
 					colorId: selectedColorScheme.colorId,
-					isDeleted: true
+					isDeleted: true,
+					edhPlanOptionId: scenarioOption.edhPlanOptionId
 				});				
 			}
 			else
@@ -94,7 +95,8 @@ export class ColorSchemeComponent extends UnsubscribeOnDestroy implements OnInit
 						scenarioOptionId: currentColorScheme.scenarioOptionId,
 						colorItemId: currentColorScheme.colorItemId,
 						colorId: currentColorScheme.colorId,
-						isDeleted: true
+						isDeleted: true,
+						edhPlanOptionId: scenarioOption.edhPlanOptionId
 					});					
 				}
 
@@ -104,7 +106,8 @@ export class ColorSchemeComponent extends UnsubscribeOnDestroy implements OnInit
 					scenarioOptionId: scenarioOption.scenarioOptionId,
 					colorItemId: data.color.colorItemId,
 					colorId: data.color.colorId,
-					isDeleted: false
+					isDeleted: false,
+					edhPlanOptionId: scenarioOption.edhPlanOptionId
 				});				
 			}
 

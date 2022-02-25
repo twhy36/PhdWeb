@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { Action, Store } from '@ngrx/store';
-import { Observable, never, of, combineLatest, from } from 'rxjs';
-import { switchMap, withLatestFrom, map } from 'rxjs/operators';
+import { Action, Store, select } from '@ngrx/store';
+import { Observable, never, of, combineLatest, from, EMPTY as empty } from 'rxjs';
+import { switchMap, withLatestFrom, map, scan, filter, distinct } from 'rxjs/operators';
 
 import { LiteService } from '../../core/services/lite.service';
 import { DeselectPlan, PlanActionTypes, PlansLoaded, SelectPlan } from '../plan/actions';
@@ -11,11 +11,14 @@ import {
 	LiteActionTypes, SetIsPhdLite, LiteOptionsLoaded, SaveScenarioOptions, ScenarioOptionsSaved, SaveScenarioOptionColors, OptionCategoriesLoaded, SelectOptions,
 	LoadLiteMonotonyRules, LiteMonotonyRulesLoaded
 } from './actions';
-import { CommonActionTypes, ScenarioLoaded, SalesAgreementLoaded, LoadError } from '../actions';
+import { CommonActionTypes, ScenarioLoaded, LoadSalesAgreement, SalesAgreementLoaded, LoadError } from '../actions';
 import * as fromRoot from '../reducers';
 import * as _ from 'lodash';
 import { IOptionCategory, ScenarioOption } from '../../shared/models/lite.model';
 import { tryCatch } from '../error.action';
+import { SavePendingJio, CreateJobChangeOrders, CreatePlanChangeOrder } from '../change-order/actions';
+import { LotsLoaded, LotActionTypes } from '../lot/actions';
+import { canDesign } from '../reducers';
 
 @Injectable()
 export class LiteEffects
@@ -201,12 +204,29 @@ export class LiteEffects
 			withLatestFrom(this.store),
 			switchMap(([action, store]) => {
 				const scenarioId = store.scenario.scenario?.scenarioId;
-
-				return scenarioId
+				const saveScenarioOptions$ = scenarioId
 					? this.liteService.saveScenarioOptions(scenarioId, action.scenarioOptions)
-					: of([]);
+					: of(null);
+				const isPendingJio = store.salesAgreement.id && store.salesAgreement.status === 'Pending';
+
+				return saveScenarioOptions$.pipe(
+					map(scenarioOptions => {
+						return { scenarioOptions, isPendingJio };
+					})
+				);
 			}),
-			map(options => new ScenarioOptionsSaved(options))
+			switchMap(result => {
+				if (result.isPendingJio)
+				{
+					return of(new SavePendingJio());
+				}
+				else if (result.scenarioOptions)
+				{
+					return of(new ScenarioOptionsSaved(result.scenarioOptions));
+				}
+
+				return never();
+			})
 		);
 	});
 
@@ -216,12 +236,29 @@ export class LiteEffects
 			withLatestFrom(this.store),
 			switchMap(([action, store]) => {
 				const scenarioId = store.scenario.scenario?.scenarioId;
-
-				return scenarioId
+				const saveScenarioOptionColors$ = scenarioId
 					? this.liteService.saveScenarioOptionColors(scenarioId, action.optionColors)
-					: of([]);
+					: of(null);				
+				const isPendingJio = store.salesAgreement.id && store.salesAgreement.status === 'Pending';
+				
+				return saveScenarioOptionColors$.pipe(
+					map(scenarioOptions => {
+						return { scenarioOptions, isPendingJio };
+					})
+				);				
 			}),
-			map(options => new ScenarioOptionsSaved(options))
+			switchMap(result => {
+				if (result.isPendingJio)
+				{
+					return of(new SavePendingJio());
+				}
+				else if (result.scenarioOptions)
+				{
+					return of(new ScenarioOptionsSaved(result.scenarioOptions));
+				}
+				
+				return never();				
+			})
 		);
 	});
 
@@ -270,6 +307,87 @@ export class LiteEffects
 				switchMap(action => this.liteService.getMonotonyRulesForLiteSalesCommunity(action.salesCommunityId, false)),
 				map(monotonyRules => new LiteMonotonyRulesLoaded(monotonyRules))
 			), LoadError, "Error loading lite monotony rules!")
+		);
+	});
+
+	/**
+	 * Runs SavePendingJio when SA, Plans, Lots, Options have all loaded.
+	 * This is to make sure we have the most current data when the SA loads.
+	 * Same for CreateJobChangeOrders
+	**/
+	updatePricingOnInitLite$: Observable<Action> = createEffect(() => {
+		return this.actions$.pipe(
+			ofType<SalesAgreementLoaded | PlansLoaded | LotsLoaded | LoadSalesAgreement | LiteOptionsLoaded | OptionCategoriesLoaded>
+				(CommonActionTypes.SalesAgreementLoaded, PlanActionTypes.PlansLoaded, LotActionTypes.LotsLoaded, CommonActionTypes.LoadSalesAgreement, LiteActionTypes.LiteOptionsLoaded, LiteActionTypes.OptionCategoriesLoaded),
+			scan<Action, any>((curr, action) => {
+				if (action instanceof LoadSalesAgreement) {
+					return { 
+						...curr, 
+						sagLoaded: false, 
+						plansLoaded: false, 
+						lotsLoaded: false, 
+						optionsLoaded: false,
+						categoriesLoaded: false,
+						salesAgreement: null, 
+						currentChangeOrder: null 
+					};
+				}
+
+				if (action instanceof SalesAgreementLoaded) {
+					return { 
+						...curr, 
+						sagLoaded: true, 
+						salesAgreement: action.salesAgreement, 
+						currentChangeOrder: action.changeOrder, 
+						isPhdLite: !action.tree 
+					};
+				}
+				else if (action instanceof PlansLoaded) {
+					return { ...curr, plansLoaded: true };
+				}
+				else if (action instanceof LotsLoaded) {
+					return { ...curr, lotsLoaded: true };
+				}
+				else if (action instanceof LiteOptionsLoaded) {
+					return { ...curr, optionsLoaded: true };
+				}
+				else if (action instanceof OptionCategoriesLoaded) {
+					return { ...curr, categoriesLoaded: true };
+				}				
+				else {
+					return curr; //should never get here
+				}
+			}, { lotsLoaded: false, plansLoaded: false, sagLoaded: false, optionsLoaded: false, categoriesLoaded: false, salesAgreement: null, currentChangeOrder: null }),
+			filter(res => res.lotsLoaded && res.plansLoaded && res.sagLoaded && res.optionsLoaded && res.categoriesLoaded && res.isPhdLite),
+			distinct(res => res.salesAgreement.id),
+			switchMap(res => {
+				return this.store.pipe(
+					select(canDesign),
+					switchMap(canDesign => {
+						//don't do anything if user doesn't have permissions
+						if (!canDesign) {
+							return empty;
+						}
+
+						if (res.salesAgreement.status === 'Pending') {
+							return of(new SavePendingJio());
+						}
+						else if (res.salesAgreement.status === 'Approved' && res.currentChangeOrder && res.currentChangeOrder.salesStatusDescription === 'Pending') {
+							const jco = res.currentChangeOrder.jobChangeOrders;
+
+							if (jco.some(co => co.jobChangeOrderTypeDescription === 'Plan')) {
+								return of(new CreatePlanChangeOrder());
+							}
+							else if (jco.some(co => co.jobChangeOrderTypeDescription === 'ChoiceAttribute' || co.jobChangeOrderTypeDescription === 'Elevation')) {
+								return of(new CreateJobChangeOrders());
+							}
+						}
+						else {
+							return empty;
+						}
+					})
+				);
+			})
 		);
 	});
 

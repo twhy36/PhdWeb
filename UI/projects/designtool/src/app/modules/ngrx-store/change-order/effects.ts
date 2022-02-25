@@ -45,6 +45,8 @@ import { mergeIntoTree, setTreePointsPastCutOff } from '../../shared/classes/tre
 import { tryCatch } from '../error.action';
 import { priceBreakdown } from '../reducers';
 
+// PHD Lite
+import { LiteService } from '../../core/services/lite.service';
 
 @Injectable()
 export class ChangeOrderEffects
@@ -619,6 +621,7 @@ export class ChangeOrderEffects
 					const jio = store.job.changeOrderGroups
 						? store.job.changeOrderGroups.find(x => x.jobChangeOrders && x.jobChangeOrders.some(co => co.jobChangeOrderTypeDescription === typeDescription))
 						: null;
+					const isPhdLite = store.lite.isPhdLite || !store.scenario.tree;
 
 					if (jio) {
 						let jobHanding = new ChangeOrderHanding();
@@ -626,15 +629,28 @@ export class ChangeOrderEffects
 						let currentHanding = action.handing || (isSpecSalePending ? this.changeOrderService.getSelectedHanding(store.job) : jobHanding);
 
 						const baseHouseOption = store.scenario.options ? store.scenario.options.find(o => o.isBaseHouse) : null;
-						const inputData = this.changeOrderService.getJobChangeOrderInputData(store.scenario.tree,
-							jio as ChangeOrderGroup,
-							store.job,
-							currentHanding,
-							store.salesAgreement.id,
-							baseHouseOption,
-							store.scenario.rules.optionRules,
-							!isSpecSalePending,
-							priceBreakdown.baseHouse);
+						const inputData = isPhdLite
+							? this.liteService.getJobChangeOrderInputDataLite(
+								jio as ChangeOrderGroup,
+								store.job,
+								currentHanding,
+								store.salesAgreement.id,
+								store.lite.scenarioOptions,
+								store.lite.options,
+								store.lite.categories,
+								store.scenario.overrideReason,
+								true
+							)
+							: this.changeOrderService.getJobChangeOrderInputData(
+								store.scenario.tree,
+								jio as ChangeOrderGroup,
+								store.job,
+								currentHanding,
+								store.salesAgreement.id,
+								baseHouseOption,
+								store.scenario.rules.optionRules,
+								!isSpecSalePending,
+								priceBreakdown.baseHouse);
 
 						if (isSpecSalePending) {
 							var data = this.changeOrderService.mergePosData(
@@ -648,7 +664,11 @@ export class ChangeOrderEffects
 							data.saveBuyerContact = true;
 						}
 
-						return this.changeOrderService.createJobChangeOrder(isSpecSalePending ? data : inputData, priceBreakdown.totalPrice).pipe(
+						const createJobChangeOrder$ = isPhdLite
+							? this.liteService.createJobChangeOrderLite(isSpecSalePending ? data : inputData, priceBreakdown.totalPrice)
+							: this.changeOrderService.createJobChangeOrder(isSpecSalePending ? data : inputData, priceBreakdown.totalPrice);
+
+						return createJobChangeOrder$.pipe(
 							switchMap(changeOrder => {
 								let actions: any[] = [
 									new ChangeOrdersCreatedForJob([changeOrder]),
@@ -879,5 +899,6 @@ export class ChangeOrderEffects
 		private planService: PlanService,
 		private salesAgreementService: SalesAgreementService,
 		private contractService: ContractService,
-		private modalService: ModalService) { }
+		private modalService: ModalService,
+		private liteService: LiteService) { }
 }
