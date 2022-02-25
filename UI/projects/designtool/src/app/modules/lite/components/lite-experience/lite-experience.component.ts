@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { NavigationEnd, Router } from "@angular/router";
 import { Observable, combineLatest } from 'rxjs';
-import { withLatestFrom, filter } from 'rxjs/operators';
+import { withLatestFrom, filter, take } from 'rxjs/operators';
 
 import { Store, select } from '@ngrx/store';
 import * as fromRoot from '../../../ngrx-store/reducers';
@@ -201,20 +201,33 @@ export class LiteExperienceComponent extends UnsubscribeOnDestroy implements OnI
 
 	onBuildIt()
 	{
-		this.liteService.hasLiteMonotonyConflict().subscribe(mc =>
-		{
-			if (mc.monotonyConflict)
+		combineLatest([
+			this.liteService.hasLiteMonotonyConflict(),
+			this.store.pipe(select(fromLite.areColorSelectionsValid),take(1))
+		])
+			.subscribe(([mc, areColorsValid]) =>
 			{
-				this.loadMonotonyModal();
-			}
-			else
-			{
-				this.liteService.onGenerateSalesAgreement(
-					this.buildMode, 
-					this.lotStatus,
-					this.selectedLot.id,
-					this.salesAgreementId
-				);
+				if (mc.monotonyConflict)
+				{
+					this.loadMonotonyModal();
+				}
+				else if (!areColorsValid)
+				{
+					this.liteService.onGenerateSalesAgreementWithColorWarning(
+						this.buildMode,
+						this.lotStatus,
+						this.selectedLot.id,
+						this.salesAgreementId
+					);
+				}
+				else
+				{
+					this.liteService.onGenerateSalesAgreement(
+						this.buildMode, 
+						this.lotStatus,
+						this.selectedLot.id,
+						this.salesAgreementId
+					);
 			}
 		});
 	}

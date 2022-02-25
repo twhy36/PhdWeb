@@ -21,7 +21,7 @@ import * as fromRoot from '../../ngrx-store/reducers';
 
 import {
 	LitePlanOption, ScenarioOption, ColorItem, Color, ScenarioOptionColorDto, IOptionSubCategory, OptionRelation,
-	OptionRelationEnum, ScenarioOptionColor, Elevation, IOptionCategory, LiteReportType, LiteMonotonyRule, SummaryReportData
+	OptionRelationEnum, ScenarioOptionColor, Elevation, IOptionCategory, LiteReportType, LiteMonotonyRule, SummaryReportData, LitePlanOptionUI
 } from '../../shared/models/lite.model';
 import { LotService } from './lot.service';
 import { ChangeOrderService } from './change-order.service';
@@ -485,6 +485,22 @@ export class LiteService
 
 			return colorList;
 		}, []);
+	}
+
+	onGenerateSalesAgreementWithColorWarning(buildMode: string, lotStatus: string, selectedLotId: number, salesAgreementId: number)
+	{
+		const title = "Generate Home Purchase Agreement";
+		const body = 'This House Configuration has Options selected that require a color.  Either some colors were not selected or some colors you selected have been set to inactive.  Click Continue to generate this sales agreement now, or click Cancel to select the colors for options.';
+		const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
+		const secondaryButton = { text: 'Cancel', result: false, cssClass: 'btn-secondary' };
+
+		this.showConfirmModal(body, title, primaryButton, secondaryButton).subscribe(result =>
+		{
+			if (result) 
+			{
+				this.onGenerateSalesAgreement(buildMode, lotStatus, selectedLotId, salesAgreementId);
+			}
+		});
 	}
 
 	onGenerateSalesAgreement(buildMode: string, lotStatus: string, selectedLotId: number, salesAgreementId: number)

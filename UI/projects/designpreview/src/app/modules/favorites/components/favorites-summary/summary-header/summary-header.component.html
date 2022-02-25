@@ -1,6 +1,6 @@
 <div class="summary-header" [class.is-sticky]="isSticky">
-	<div *ngIf="!isSticky">
-		<cl-image *ngIf="summaryHeader.elevationImageUrl" public-id="{{summaryHeader.elevationImageUrl}}" type="fetch" style="width:calc(45vw);height:calc(45vh);" crop="fill">
+	<div *ngIf="!isSticky" class="phd-elevation-container">
+		<cl-image *ngIf="summaryHeader.elevationImageUrl" public-id="{{summaryHeader.elevationImageUrl}}" type="fetch" style="width:calc(45vw);height:auto;" crop="fill">
 		</cl-image>
 		<img class="phd-logo-image" [src]="getImageSrc()" *ngIf="!summaryHeader.elevationImageUrl">
 	</div>

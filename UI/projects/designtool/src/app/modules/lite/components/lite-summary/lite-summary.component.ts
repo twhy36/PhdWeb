@@ -420,11 +420,24 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 
 	onBuildIt()
 	{
-		this.liteService.hasLiteMonotonyConflict().subscribe(mc =>
+		combineLatest([
+			this.liteService.hasLiteMonotonyConflict(),
+			this.store.pipe(select(fromLite.areColorSelectionsValid),take(1))
+		])
+		.subscribe(([mc, areColorsValid]) =>
 		{
 			if (mc.monotonyConflict)
 			{
 				alert('Danger! Monotony Issues!  Please fix!')
+			}
+			else if (!areColorsValid)
+			{
+				this.liteService.onGenerateSalesAgreementWithColorWarning(
+					this.buildMode,
+					this.summaryHeader.lot.lotStatusDescription,
+					this.summaryHeader.lot.id,
+					this.salesAgreementId
+				);
 			}
 			else
 			{

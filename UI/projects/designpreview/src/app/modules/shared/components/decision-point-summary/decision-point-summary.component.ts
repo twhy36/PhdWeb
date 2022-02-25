@@ -111,6 +111,7 @@ export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implemen
 class ChoiceCustom extends Choice
 {
 	showAttributes: boolean;
+	mappedSelectedAttributes: any[];
 
 	get hasMappedAttributes(): boolean
 	{
@@ -122,5 +123,17 @@ class ChoiceCustom extends Choice
 		super(c);
 
 		this.showAttributes = this.hasMappedAttributes;
+		this.mappedSelectedAttributes = this.selectedAttributes.filter(attr => attr.attributeId === null).map(attr => ({...attr, attributes: []}));
+		this.selectedAttributes.filter(attr => attr.attributeId !== null).forEach(selectedAttribute => {
+			let mappedSelectedAttribute = this.mappedSelectedAttributes.find(mappedAttr => mappedAttr.locationId === selectedAttribute.locationId);
+			if (mappedSelectedAttribute)
+			{
+				mappedSelectedAttribute.attributes.push(selectedAttribute);
+			}
+			else
+			{
+				this.mappedSelectedAttributes.push({...selectedAttribute, attributes: [selectedAttribute]})
+			}
+		})
 	}
 }
