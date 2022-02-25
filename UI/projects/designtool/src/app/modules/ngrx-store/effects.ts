@@ -693,8 +693,7 @@ export class CommonEffects
 				}
 
 				if (action instanceof SalesAgreementLoaded) {
-					// PHD Lite
-					// The filter for PHD Lite will be removed once the saving pending JIO functionality is implemented.
+					// Filter out actions in PHD Lite. Handled by updatePricingOnInitLite$() in lite effects.
 					return { 
 						...curr, 
 						sagLoaded: true, 

@@ -60,6 +60,7 @@ export class ScenarioOptionColorDto implements ScenarioOptionColor
     colorItemId: number;
     colorId: number;
     isDeleted: boolean;
+    edhPlanOptionId: number;
 }
 
 export interface ColorItem
