@@ -395,7 +395,9 @@ export class ContractService
 		let salesAgreementNotes = !!store.salesAgreement.notes && store.salesAgreement.notes.length ? store.salesAgreement.notes.filter(n => n.targetAudiences.find(x => x.name === "Public") && n.noteSubCategoryId !== 10).map(n => n.noteContent).join(", ") : '';
 		let termsAndConditions = !!store.salesAgreement.notes && store.salesAgreement.notes.length ? store.salesAgreement.notes.filter(n => n.targetAudiences.find(x => x.name === "Public") && n.noteSubCategoryId === 10).map(n => n.noteContent).join() : '';
 
-		const currentHouseSelections = templates.some(t => t.templateId === 0) ? getCurrentHouseSelections(store.scenario.tree.treeVersion.groups) : [];
+		const currentHouseSelections = templates.some(t => t.templateId === 0) && !store.lite.isPhdLite
+			? getCurrentHouseSelections(store.scenario.tree.treeVersion.groups) 
+			: [];
 
 		let jioSelections =
 		{
@@ -583,7 +585,7 @@ export class ContractService
 
 			let financialCommunity = store.org.salesCommunity.financialCommunities[0];
 
-			let decisionPoints = _.flatMap(store.scenario.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points));
+			let decisionPoints = store.lite.isPhdLite ? [] : _.flatMap(store.scenario.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points));
 
 			const elevationChoice = decisionPoints.find(t => t.dPointTypeId === 1)
 				? decisionPoints.find(t => t.dPointTypeId === 1).choices.find(c => c.quantity > 0)
@@ -617,7 +619,7 @@ export class ContractService
 				: [];
 			let constructionChangeOrderSelectionsDto = null;
 
-			let customerSelections = getChangeOrderGroupSelections(store.scenario.tree.treeVersion.groups, <ChangeOrderChoice[]>currentChangeOrderChoices);
+			let customerSelections = store.lite.isPhdLite ? [] : getChangeOrderGroupSelections(store.scenario.tree.treeVersion.groups, <ChangeOrderChoice[]>currentChangeOrderChoices);
 
 			constructionChangeOrderSelectionsDto = {
 				constructionChangeOrderSelections: customerSelections,
