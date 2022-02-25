@@ -170,6 +170,11 @@ export class AttributeGroupComponent extends UnsubscribeOnDestroy implements OnI
 			// sets the current value for the modal version
 			this.expandedSelectedAttributeId = alc.selectedAttributeId;
 		}
+		else
+		{
+			// If there is no selected attribute, ensure the modal's value is unset
+			this.expandedSelectedAttributeId = null;
+		}
 
 		this.expandedAttributeGroup = attributeGroup;
 		this.expandedAttributeGroupId = attributeGroup.id;
@@ -193,6 +198,12 @@ export class AttributeGroupComponent extends UnsubscribeOnDestroy implements OnI
 		//if a user selected a different attribute and the attribute group is active
 		if (this.isActive && selectedAttributeId !== attribute.id)
 		{
+			// update the selectedAttributeId before calling attributeSelected, else nothing gets updated properly. This is for the modal/expanded version of the attribute group.
+			if ($event.updateParent && alc)
+			{
+				alc.selectedAttributeId = attribute.id;
+			}
+
 			if (attribute.monotonyConflict || this.isPastCutOff)
 			{
 				if (this.canOverride)
@@ -205,12 +216,6 @@ export class AttributeGroupComponent extends UnsubscribeOnDestroy implements OnI
 				this.overrideNote = null;
 
 				this.monotonyOverride$.next(!!this.overrideNote);
-
-				// update the selectedAttributeId before calling attributeSelected, else nothing gets updated properly. This is for the modal/expanded version of the attribute group.
-				if ($event.updateParent && alc)
-				{
-					alc.selectedAttributeId = attribute.id;
-				}
 
 				this.attributeSelected(attribute, attributeGroupId, false);
 			}
