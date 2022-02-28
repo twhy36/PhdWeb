@@ -35,6 +35,8 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 	marketingPlanId$ = new BehaviorSubject<number>(0);
 	isFloorplanFlipped: boolean;
 	floorplanSG: SubGroup;
+	noVisibleFP: boolean = false;
+	selectedFloor: any;
 
 	constructor(
 		private activatedRoute: ActivatedRoute,
@@ -216,5 +218,16 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 
 	getImageSrc() {
 		return this.brandService.getBrandImage('home-page-logo');
+	}
+
+	loadFloorPlan(fp) {
+		if (!this.selectedFloor) {
+			const floor1 = fp.floors.find(floor => floor.name === 'Floor 1');
+			if (floor1) {
+				this.selectedFloor = floor1;
+			} else {
+				this.selectedFloor = fp.floors[0];
+			}
+		}
 	}
 }
