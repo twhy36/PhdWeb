@@ -38,7 +38,7 @@ export class LiteEffects
 					let actions = [];
 					actions.push(new SetIsPhdLite(isPhdLite));
 
-					if (isPhdLite) 
+					if (isPhdLite)
 					{
 						actions.push(new LoadLiteMonotonyRules(salesCommunityId));
 					}
@@ -175,7 +175,7 @@ export class LiteEffects
 										this.liteService.applyOptionRelations(options, optionRelations);
 
 										const scenarioOptions = this.liteService.getSelectedOptions(options, action.job, action.changeOrder);
-										
+
 										return { options, scenarioOptions, categories };
 									})
 								)
@@ -194,7 +194,7 @@ export class LiteEffects
 					}
 					return never();
 				})
-			), LoadError, "Unable to load options")	
+			), LoadError, "Unable to load options")
 		);
 	});
 
@@ -238,14 +238,14 @@ export class LiteEffects
 				const scenarioId = store.scenario.scenario?.scenarioId;
 				const saveScenarioOptionColors$ = scenarioId
 					? this.liteService.saveScenarioOptionColors(scenarioId, action.optionColors)
-					: of(null);				
+					: of(null);
 				const isPendingJio = store.salesAgreement.id && store.salesAgreement.status === 'Pending';
-				
+
 				return saveScenarioOptionColors$.pipe(
 					map(scenarioOptions => {
 						return { scenarioOptions, isPendingJio };
 					})
-				);				
+				);
 			}),
 			switchMap(result => {
 				if (result.isPendingJio)
@@ -256,8 +256,8 @@ export class LiteEffects
 				{
 					return of(new ScenarioOptionsSaved(result.scenarioOptions));
 				}
-				
-				return never();				
+
+				return never();
 			})
 		);
 	});
@@ -272,10 +272,7 @@ export class LiteEffects
 					return never();
 				}
 
-				const baseHouseOption = store.lite.options.find(o => o.name.toLowerCase() === 'base house'
-												&& o.isActive
-												&& o.colorItems.length > 0
-												&& o.colorItems.some(item => item.isActive && item.color.length > 0 && item.color.some(c => c.isActive)));
+				const baseHouseOption = store.lite.options.find(o => o.isBaseHouse && o.isActive);
 
 				const baseHouseOptionSaveIsNeeded = baseHouseOption && store.lite.scenarioOptions.every(so => so.edhPlanOptionId !== baseHouseOption.id);
 
@@ -321,25 +318,25 @@ export class LiteEffects
 				(CommonActionTypes.SalesAgreementLoaded, PlanActionTypes.PlansLoaded, LotActionTypes.LotsLoaded, CommonActionTypes.LoadSalesAgreement, LiteActionTypes.LiteOptionsLoaded, LiteActionTypes.OptionCategoriesLoaded),
 			scan<Action, any>((curr, action) => {
 				if (action instanceof LoadSalesAgreement) {
-					return { 
-						...curr, 
-						sagLoaded: false, 
-						plansLoaded: false, 
-						lotsLoaded: false, 
+					return {
+						...curr,
+						sagLoaded: false,
+						plansLoaded: false,
+						lotsLoaded: false,
 						optionsLoaded: false,
 						categoriesLoaded: false,
-						salesAgreement: null, 
-						currentChangeOrder: null 
+						salesAgreement: null,
+						currentChangeOrder: null
 					};
 				}
 
 				if (action instanceof SalesAgreementLoaded) {
-					return { 
-						...curr, 
-						sagLoaded: true, 
-						salesAgreement: action.salesAgreement, 
-						currentChangeOrder: action.changeOrder, 
-						isPhdLite: !action.tree 
+					return {
+						...curr,
+						sagLoaded: true,
+						salesAgreement: action.salesAgreement,
+						currentChangeOrder: action.changeOrder,
+						isPhdLite: !action.tree
 					};
 				}
 				else if (action instanceof PlansLoaded) {
@@ -353,7 +350,7 @@ export class LiteEffects
 				}
 				else if (action instanceof OptionCategoriesLoaded) {
 					return { ...curr, categoriesLoaded: true };
-				}				
+				}
 				else {
 					return curr; //should never get here
 				}
