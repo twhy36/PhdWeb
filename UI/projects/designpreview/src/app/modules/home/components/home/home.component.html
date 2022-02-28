@@ -7,7 +7,19 @@
 		<div class="d-flex flex-column phd-home-plan">
 			<div class="d-flex flex-column">
 				<img class="phd-floor-plan-image" [src]="floorPlanImages[0].imageUrl | safeUrl" *ngIf="floorPlanImages.length">
-				<img class="phd-default-image" [src]="getImageSrc()" *ngIf="!floorPlanImages.length">
+				<ng-container *ngIf="!hasFloorPlanImages && !noVisibleFP">
+					<floor-plan
+						[height]="'86vh'"
+						[planId$]="marketingPlanId$"
+						[selectedFloor]="selectedFloor"
+						[subGroup]="floorplanSG"
+						[isPlainFloorplan]="true"
+						[isFlipped]="isFloorplanFlipped"
+						(onFloorPlanLoaded)="loadFloorPlan($event)"
+					>
+					</floor-plan>
+				</ng-container>
+				<img class="phd-default-image" [src]="getImageSrc()" *ngIf="!hasFloorPlanImages && noVisibleFP">
 			</div>
 			<div class="d-flex justify-content-center phd-community-label">
 				<span class="phd-sales-community">{{communityName}}</span>
