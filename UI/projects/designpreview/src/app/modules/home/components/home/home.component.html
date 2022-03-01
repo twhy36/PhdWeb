@@ -1,6 +1,6 @@
 <div class="d-flex flex-column">
 	<div class="d-flex flex-row home-images-container">
-		<cl-image *ngIf="planImageUrl" public-id="{{planImageUrl}}" type="fetch" class="phd-elevation-image" style="width:calc(56vw);height:auto;">
+		<cl-image *ngIf="planImageUrl" public-id="{{planImageUrl}}" type="fetch" class="phd-elevation-image" style="width:calc(56vw);height:auto;max-height:calc(65vh);">
 		</cl-image>
 		<img class="phd-logo-image" [src]="getImageSrc()" *ngIf="!planImageUrl">
 
@@ -19,7 +19,6 @@
 					>
 					</floor-plan>
 				</ng-container>
-				<img class="phd-default-image" [src]="getImageSrc()" *ngIf="!hasFloorPlanImages && noVisibleFP">
 			</div>
 			<div class="d-flex justify-content-center phd-community-label">
 				<span class="phd-sales-community">{{communityName}}</span>

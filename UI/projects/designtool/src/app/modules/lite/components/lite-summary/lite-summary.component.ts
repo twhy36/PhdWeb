@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, ViewChildren, QueryList } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ViewChildren, QueryList, ViewChild } from '@angular/core';
 import { Observable, combineLatest } from 'rxjs';
 import { withLatestFrom, map, take } from 'rxjs/operators';
 import { Store, select } from '@ngrx/store';
@@ -8,7 +8,8 @@ import * as _ from "lodash";
 import { UnsubscribeOnDestroy, PriceBreakdown, ChangeTypeEnum, 
 			ChangeOrderHanding, ModalService, SummaryData, BuyerInfo, 
 			PDFViewerComponent, SDGroup, SDSubGroup, SDPoint, 
-			SDChoice } from 'phd-common';
+			SDChoice, 
+			PriceBreakdownType} from 'phd-common';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
@@ -21,7 +22,7 @@ import { ChangeOrderService } from '../../../core/services/change-order.service'
 import { LiteService } from '../../../core/services/lite.service';
 import { ModalOverrideSaveComponent } from '../../../core/components/modal-override-save/modal-override-save.component';
 
-import { SummaryHeader } from '../../../shared/components/summary-header/summary-header.component';
+import { SummaryHeader, SummaryHeaderComponent } from '../../../shared/components/summary-header/summary-header.component';
 import { LitePlanOption, IOptionSubCategory, ScenarioOption, LiteReportType, SummaryReportData, 
 			SummaryReportGroup, SummaryReportSubGroup, SummaryReportOption, SummaryReportSubOption } from '../../../shared/models/lite.model';
 import { OptionSummaryComponent } from '../option-summary/option-summary.component';
@@ -36,7 +37,8 @@ import { ToastrService } from 'ngx-toastr';
 export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	@ViewChildren(OptionSummaryComponent) options: QueryList<OptionSummaryComponent>;
-
+	@ViewChild(SummaryHeaderComponent) summaryHeaderComponent: SummaryHeaderComponent;
+	
 	title: string;
 	summaryHeader: SummaryHeader = new SummaryHeader();
 	priceBreakdown: PriceBreakdown;
@@ -801,7 +803,14 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 
 	getSummaryReportData(): SummaryReportData {
 		
+		let summaryHeader = this.summaryHeaderComponent;
+		let priceBreakdown = summaryHeader.priceBreakdownComponent;
+		let optionalPricingSelections: string = priceBreakdown.breakdownFilters.toString();
+
 		let summaryData = {} as SummaryReportData;
+		summaryData.showDesignEstimate = optionalPricingSelections.includes(PriceBreakdownType.DESIGN.toString());
+		summaryData.showClosingIncentive = optionalPricingSelections.includes(PriceBreakdownType.CLOSING.toString());
+		summaryData.showSalesProgram = optionalPricingSelections.includes(PriceBreakdownType.DISCOUNT.toString());		
 		summaryData.configurationName = this.title;
 		summaryData.community = this.summaryHeader.communitySalesName || "N/A";
 		summaryData.plan = this.summaryHeader.plan.salesName + ", " + this.summaryHeader.plan.integrationKey;

@@ -22,9 +22,11 @@
 	width: calc(44vw);
 	max-height: calc(65vh);
 	border: var(--home-page-floorplan-border);
+	justify-content: flex-end;
 
 	span {
-		color: var(--home-page-community-label)
+		color: var(--home-page-community-label);
+		padding-bottom: 40px;
 	}
 }
 
