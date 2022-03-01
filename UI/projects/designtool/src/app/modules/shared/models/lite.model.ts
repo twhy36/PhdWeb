@@ -162,6 +162,9 @@ export class SummaryReportData {
     salesProgram?: number;
     closingIncentive?: number;
     designEstimate?: number;
+    showSalesProgram?: boolean;
+    showClosingIncentive?: boolean;
+    showDesignEstimate?: boolean;    
 	groups?: Array<SummaryReportGroup>;
 
 }
