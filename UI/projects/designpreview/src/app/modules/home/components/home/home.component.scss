@@ -4,28 +4,16 @@
 .phd-logo-image {
 	width: calc(56vw);
 	height: auto;
-	margin-top: auto;
-	margin-bottom: auto;
-}
-
-.home-images-container {
-	height:calc(65vh);
-}
-
-.phd-elevation-image {
-	margin-top: auto;
-	margin-bottom: auto;
 }
 
 .phd-home-plan {
 	background-color: #e4e5e4;
 	width: calc(44vw);
 	max-height: calc(65vh);
-	border: var(--home-page-floorplan-border);
 	justify-content: flex-end;
 
 	span {
-		color: var(--home-page-community-label);
+		color: $bright_grey;
 		padding-bottom: 40px;
 	}
 }

@@ -3,7 +3,7 @@
 		<span>Price Adjustment Detail</span>
 
 		<a (click)="delete()" class="phd-delete-button" 
-		   *ngIf="canEdit && (!priceAdjustments || priceAdjustments.length > 0)">
+		   *ngIf="(!priceAdjustments || priceAdjustments.length > 0)">
 			<span>
 				<i class="fas fa-spinner"></i>
 			</span>

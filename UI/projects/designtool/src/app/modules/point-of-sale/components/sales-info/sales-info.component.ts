@@ -572,6 +572,6 @@ export class SalesInfoComponent extends UnsubscribeOnDestroy implements OnInit, 
 	canEditProgramIncentive(program: SalesChangeOrderSalesProgram | SalesAgreementProgram) 
 	{
 		// can edit as long as it's not cancel or void, or in a pending status, or was created on the current change order
-		return this.canEditAgreement && this.canAddIncentive && !this.cancelOrVoid && (this.isChangingOrder && this.salesChangeOrderSalesPrograms.findIndex(x => x.id === program.id && x.salesProgramId === program.salesProgramId) > -1 || !this.isChangingOrder);
+		return this.canEditAgreement && (this.canSell || this.canDesign || this.canAddIncentive) && !this.cancelOrVoid && (this.isChangingOrder && this.salesChangeOrderSalesPrograms.findIndex(x => x.id === program.id && x.salesProgramId === program.salesProgramId) > -1 || !this.isChangingOrder);
 	}
 }

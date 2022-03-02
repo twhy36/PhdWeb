@@ -1,24 +1,20 @@
 {
 	"images": {
-		"logo": "assets/pulte/logos/Pulte-Homes_Logo-Basic.png",
-		"choice-card-logo": "assets/pulte/logos/Pulte-Homes_Logo-Basic.png",
-		"home-page-logo": "assets/pulte/logos/Pulte-Homes_Logo-Home-Page.png",
-		"white_logo": "assets/pulte/logos/Pulte_Homes_White_Logo.PNG"
+		"logo": "assets/Pulte-Homes_Logo-Basic.png",
+		"choice-card-logo": "assets/Pulte-Homes_Logo-Basic.png",
+		"home-page-logo": "assets/Pulte-Homes_Logo-Home-Page.png",
+		"white_logo": "assets/Pulte_Homes_White_Logo.PNG"
 	},
 	"styles": {
 		"font": "Lineto-Brown-Pro",
 		"primary-ribbon-background-color": "#00334C",
 		"secondary-ribbon-background-color": "#1e81b3",
 		"primary-button-color": "#1e81b3",
-		"home-page-community-label": "#5b6470",
 		"home-text-color": "#00334C",
-		"nav-bar-text-color": "white",
 		"primary-icon-color": "#1e81b3",
 		"secondary-icon-color": "#00334C",
-		"action-icon-color": "#044465",
 		"selected-border-color": "#1e81b3",
 		"link-color": "#1e81b3",
-		"popup-ribbon-background-color": "#00334C",
 		"button-border-radius": "0.3rem",
 		"logo-margin-top": "5px"
 	}
