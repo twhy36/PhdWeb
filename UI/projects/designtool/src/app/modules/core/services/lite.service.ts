@@ -381,6 +381,7 @@ export class LiteService
 		categories: IOptionCategory[],
 		scenarioId: number,
 		salePrice: number,
+		baseHousePrice: number,
 		overrideNote: string
 	): Observable<SalesAgreement>
 	{
@@ -398,6 +399,7 @@ export class LiteService
 						options,
 						selectedElevation,
 						baseHouseOptions.selectedBaseHouseOptions,
+						baseHousePrice,
 						overrideNote),
 			salePrice: salePrice
 		};
@@ -428,6 +430,7 @@ export class LiteService
 		options: LitePlanOption[],
 		selectedElevation: LitePlanOption,
 		selectedBaseHouseOptions: LitePlanOption[],
+		baseHousePrice: number,
 		overrideNote: string
 	) : Array<any>
 	{
@@ -437,9 +440,15 @@ export class LiteService
 
 			if (planOption)
 			{
+				let optionPrice = planOption.listPrice;
+				if (!!selectedBaseHouseOptions.find(opt => opt.id === planOption.id))
+				{
+					optionPrice = baseHousePrice;
+				}
+
 				optionList.push({
 					planOptionId: scenarioOption.edhPlanOptionId,
-					price: planOption.listPrice,
+					price: optionPrice,
 					quantity: scenarioOption.planOptionQuantity,
 					optionSalesName: planOption.name,
 					optionDescription: planOption.description,
