@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, Inject } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 import { Idle, DEFAULT_INTERRUPTSOURCES } from '@ng-idle/core';
 import { NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 
@@ -30,7 +31,8 @@ export class AppComponent {
 		private idle: Idle,
 		private modalService: ModalService,
 		private identityService: IdentityService,
-		private brandService: BrandService)
+		private brandService: BrandService,
+		@Inject(DOCUMENT) private doc: any)
 	{
 		// Start idle watch for user inactivities if an external user is logged in
 		if (sessionStorage.getItem('authProvider') === 'sitecoreSSO')
@@ -39,6 +41,10 @@ export class AppComponent {
 		}
 
 		this.brandService.applyBrandStyles();
+	}
+
+	ngOnInit() {
+		this.setAdobeAnalytics();
 	}
 
 	watchIdle()
@@ -93,5 +99,14 @@ export class AppComponent {
 		this.idle.stop();
 		this.logoutModal.dismiss();
 		this.identityService.logout();
+	}
+
+	setAdobeAnalytics() {
+		const script = this.doc.createElement('script');
+		script.type = 'text/javascript'
+		script.src = environment.adobeUrl;
+		script.async = true;
+		const head = this.doc.getElementsByTagName('head')[0];
+		head.appendChild(script);
 	}
 }

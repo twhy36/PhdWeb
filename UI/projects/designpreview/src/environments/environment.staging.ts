@@ -40,5 +40,6 @@ export const environment: IEnvironment = {
 		pulte: 'phd.staging.pulte.com',
 		delwebb: 'phd.staging.delwebb.com',
 		americanWest: 'phd.staging.americanwesthomes.com'
-	}
+	},
+	adobeUrl: 'https://assets.adobedtm.com/73ef53bd253f/c533c20a08e9/launch-0c0228c569fd-staging.min.js'
 };
