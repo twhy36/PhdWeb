@@ -185,8 +185,8 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 			});
 		}
 
-		// default to pultegroup image if no choice/option image is found
-		if (!this.choiceImages.length && !this.optionImages.length)
+		// default to pultegroup image if no choice/option image is found, or if an option is mapped
+		if (!this.choiceImages.length && !this.optionImages.length || (this.choice.options && this.choice.options.length && !this.optionImages.length))
 		{
 			this.optionImages.push({ imageURL: 'assets/pultegroup_logo.jpg' });
 		}
