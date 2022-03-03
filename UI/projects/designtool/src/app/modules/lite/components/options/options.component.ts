@@ -23,6 +23,7 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 	scenarioOptions: ScenarioOption[];
 	scenarioId: number;
 	options: LitePlanOption[];
+	cannotEditAgreement: boolean;
 
   	constructor(
 		  private store: Store<fromRoot.State>,
@@ -39,6 +40,14 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 			this.scenarioId = scenario.scenario.scenarioId;
 		});
 
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromRoot.canEditAgreementOrSpec)
+		)
+		.subscribe(canEditAgreement => {
+			this.cannotEditAgreement = !canEditAgreement;
+		});
+
 		combineLatest([
 			this.store.select(state => state.nav),
 			this.store.select(state => state.lite)
@@ -50,7 +59,7 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 			this.selectedCategory = _.cloneDeep(lite.categories.find(x => x.id === nav.selectedItem));
 
 			let subtotal = 0;
-			
+
 			if (this.selectedCategory)
 			{
 				const allCategoryRelatedOptions = lite.options.filter(x => x.optionCategoryId === this.selectedCategory.id
@@ -88,7 +97,7 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 
 				this.selectedCategory.optionSubCategories = this.selectedCategory.optionSubCategories.filter(x => x.planOptions.length > 0);
 			}
-			
+
 			this.categorySubTotal = subtotal;
 		});
 	}

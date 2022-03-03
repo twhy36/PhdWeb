@@ -2,7 +2,7 @@
 	<div class="phd-header" [class.phd-option-disabled]="monotonyConflict.monotonyConflict">
         <span class="phd-2-line-limit">
             {{getName()}}
-        </span>                 
+        </span>
     </div>
     <div class="phd-divider"></div>
     <div class="phd-body" [class.phd-option-disabled]="monotonyConflict.monotonyConflict">
@@ -13,18 +13,18 @@
                 </p>
             </div>
             <p class="phd-2-line-limit">{{option.description}}</p>
-        </div>   
+        </div>
     </div>
-    
+
     <div class="phd-footer">
         <div class="phd-footer-btn-container" (click)="$event.stopPropagation()" *ngIf="showConfirmButton">
 			<div class="d-flex align-items-center phd-footer-btns">
-				<button class="btn phd-experience-btn-choice" (click)="toggleSelection()">{{getButtonLabel()}}</button>
+				<button class="btn phd-experience-btn-choice" [disabled]="cannotEditAgreement" [class.phd-option-disabled]="cannotEditAgreement" (click)="toggleSelection()">{{getButtonLabel()}}</button>
 			</div>
         </div>
 
 		<span class="phd-monotony-conflict-message" *ngIf="monotonyConflict.monotonyConflict && !(override$ | async)">
 			Monotony Conflict
-		</span>        
+		</span>
     </div>
 </div>

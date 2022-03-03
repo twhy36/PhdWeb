@@ -18,7 +18,7 @@ import * as LiteActions from '../../../ngrx-store/lite/actions';
 	styleUrls: ['./exterior-card.component.scss'],
 	animations: [
 		flipOver3
-	]	
+	]
 })
 export class ExteriorCardComponent extends UnsubscribeOnDestroy implements OnInit
 {
@@ -35,12 +35,13 @@ export class ExteriorCardComponent extends UnsubscribeOnDestroy implements OnIni
 	monotonyConflict = new MonotonyConflict();
 	override$ = new ReplaySubject<boolean>(1);
 	overrideReason: string;
+	cannotEditAgreement: boolean;
 
 	constructor(
 		private store: Store<fromRoot.State>,
-		private modalService: ModalService) 
-	{ 
-		super(); 
+		private modalService: ModalService)
+	{
+		super();
 	}
 
 	ngOnInit()
@@ -60,13 +61,13 @@ export class ExteriorCardComponent extends UnsubscribeOnDestroy implements OnIni
 			else if (this.color && monotonyOptions.colorSchemeNames?.length)
 			{
 				const colorItemName = this.option?.colorItems?.find(item => item.colorItemId === this.color.colorItemId)?.name;
-				
-				if (monotonyOptions.colorSchemeNames.some(names => 
+
+				if (monotonyOptions.colorSchemeNames.some(names =>
 					names.colorSchemeColorItemName === colorItemName
 					&& names.colorSchemeColorName === this.color.name))
 				{
 					conflictMessage.colorSchemeConflict = true;
-					conflictMessage.monotonyConflict = true;					
+					conflictMessage.monotonyConflict = true;
 				}
 			}
 
@@ -79,7 +80,7 @@ export class ExteriorCardComponent extends UnsubscribeOnDestroy implements OnIni
 		).subscribe(canConfigure =>
 		{
 			this.canConfigure = canConfigure;
-		});	
+		});
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
@@ -87,6 +88,7 @@ export class ExteriorCardComponent extends UnsubscribeOnDestroy implements OnIni
 		).subscribe(canEditAgreement =>
 		{
 			this.canEditAgreement = canEditAgreement;
+			this.cannotEditAgreement = !canEditAgreement;
 		});
 
 		this.store.pipe(
@@ -116,6 +118,11 @@ export class ExteriorCardComponent extends UnsubscribeOnDestroy implements OnIni
 
 	getButtonLabel(): string
 	{
+		if (this.cannotEditAgreement)
+		{
+			return 'AGREEMENT LOCKED'
+		}
+
 		return this.isSelected ? 'Unselect' : 'CHOOSE';
 	}
 

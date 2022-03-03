@@ -24,6 +24,7 @@ export class ColorsComponent extends UnsubscribeOnDestroy implements OnInit {
 	selectedColorIds: { [id: number] : number } = {};
 	allOptions: LitePlanOptionUI[];
 	categories: IOptionCategory[] = [];
+	cannotEditAgreement: boolean;
 
   constructor(
 	private store: Store<fromRoot.State>,
@@ -32,6 +33,14 @@ export class ColorsComponent extends UnsubscribeOnDestroy implements OnInit {
 
 	ngOnInit(): void
 	{
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromRoot.canEditAgreementOrSpec)
+		)
+		.subscribe(canEditAgreement => {
+			this.cannotEditAgreement = !canEditAgreement;
+		});
+
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(fromScenario.selectScenario)
