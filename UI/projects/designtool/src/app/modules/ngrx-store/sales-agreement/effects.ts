@@ -70,6 +70,7 @@ export class SalesAgreementEffects
 						store.lite.categories,
 						store.scenario.scenario.scenarioId, 
 						salePrice,
+						priceBreakdown.baseHouse,
 						store.lite.elevationOverrideNote || store.lite.colorSchemeOverrideNote
 					)
 					: this.salesAgreementService.createSalesAgreementForScenario(

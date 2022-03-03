@@ -33,7 +33,7 @@ export class ColorSchemeComponent extends UnsubscribeOnDestroy implements OnInit
 		combineLatest([
 			this.store.pipe(select(fromLite.selectedElevation), this.takeUntilDestroyed()),
 			this.store.pipe(select(fromLite.selectedColorScheme), this.takeUntilDestroyed())
-		])		
+		])
 		.subscribe(([elevation, colorScheme]) =>
 		{
 			this.selectedElevation = elevation;
@@ -50,11 +50,11 @@ export class ColorSchemeComponent extends UnsubscribeOnDestroy implements OnInit
 			{
 				this.errorMessage = 'Seems there are no color schemes that are set up for the selected elevation.';
 			}
-		});		
+		});
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
-			select(state => state.lite.scenarioOptions)		
+			select(state => state.lite.scenarioOptions)
 		).subscribe(scenarioOptions =>
 		{
 			this.scenarioOptions = scenarioOptions;
@@ -70,7 +70,7 @@ export class ColorSchemeComponent extends UnsubscribeOnDestroy implements OnInit
 			let optionColors = [];
 
 			const selectedColorScheme = scenarioOption.scenarioOptionColors?.find(c => c.colorItemId === data.color?.colorItemId && c.colorId === data.color?.colorId);
-			
+
 			if (selectedColorScheme)
 			{
 				// De-select a color scheme
@@ -81,13 +81,13 @@ export class ColorSchemeComponent extends UnsubscribeOnDestroy implements OnInit
 					colorId: selectedColorScheme.colorId,
 					isDeleted: true,
 					edhPlanOptionId: scenarioOption.edhPlanOptionId
-				});				
+				});
 			}
 			else
 			{
 				// Deselect current selected color scheme
 				const currentColorScheme = scenarioOption.scenarioOptionColors?.length ? scenarioOption.scenarioOptionColors[0] : null;
-				
+
 				if (currentColorScheme)
 				{
 					optionColors.push({
@@ -97,7 +97,7 @@ export class ColorSchemeComponent extends UnsubscribeOnDestroy implements OnInit
 						colorId: currentColorScheme.colorId,
 						isDeleted: true,
 						edhPlanOptionId: scenarioOption.edhPlanOptionId
-					});					
+					});
 				}
 
 				// Select color scheme
@@ -108,15 +108,15 @@ export class ColorSchemeComponent extends UnsubscribeOnDestroy implements OnInit
 					colorId: data.color.colorId,
 					isDeleted: false,
 					edhPlanOptionId: scenarioOption.edhPlanOptionId
-				});				
+				});
 			}
 
 			if (!!optionColors.length)
 			{
 				this.store.dispatch(new LiteActions.SelectOptionColors(optionColors));
-				this.store.dispatch(new LiteActions.SaveScenarioOptionColors(optionColors));					
+				this.store.dispatch(new LiteActions.SaveScenarioOptionColors(optionColors));
 			}
 		}
-		
+
 	}
 }

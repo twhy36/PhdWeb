@@ -11,7 +11,7 @@
 			<span [class.font-weight-bold]="!this.summaryHeader.lot">
 				<span class="phd-content">{{ homesite }}</span>
 				<span *ngIf="canEditHanding && summaryHeader.handing != 'NA' && summaryHeader.handing && summaryHeader.lot?.handings" class="phd-change-order-handing">
-					
+
 					<div ngbDropdown class="d-inline-block" [autoClose]="true">
 						<button class="btn btn-outline-primary" id="handingMenu" ngbDropdownToggle [disabled]="disableHanding && !canOverride">{{handing}}</button>
 						<div ngbDropdownMenu aria-labelledby="handingMenu" class="dropdown-menu">
@@ -20,7 +20,7 @@
 						<span class="phd-content">Garage</span>
 						<div *ngIf="disableHanding" class="phd-past-cut-off"><i class="fas fa-info-circle fa-sm"></i>Past Cut-Off</div>
 					</div>
-					
+
 				</span>
 			</span>
 

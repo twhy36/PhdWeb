@@ -157,13 +157,14 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 
 		combineLatest([
 			this.store.pipe(select(state => state.lite)),
-			this.store.pipe(select(fromLite.selectedElevation))
+			this.store.pipe(select(fromLite.selectedElevation)),
+			this.store.pipe(select(fromRoot.selectedPlanPrice))
 		])
 		.pipe(this.takeUntilDestroyed())
-		.subscribe(([lite, selectedElevation]) =>
+		.subscribe(([lite, selectedElevation, planPrice]) =>
 		{
 			// Build the data list for UI display
-			this.buildOptionCategories(lite, selectedElevation);
+			this.buildOptionCategories(lite, selectedElevation, planPrice);
 		});
 
 		this.isLiteComplete$ = this.store.pipe(
@@ -230,7 +231,7 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 		);
 	}
 
-	private buildOptionCategories(lite: fromLite.State, selectedElevation: LitePlanOption)
+	private buildOptionCategories(lite: fromLite.State, selectedElevation: LitePlanOption, planPrice: number)
 	{
 		const baseHouseOptions = this.liteService.getSelectedBaseHouseOptions(
 			lite.scenarioOptions,
@@ -265,7 +266,8 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 				optionSubCategories: this.buildOptionSubCategories(
 					selectedBaseHouseOptions,
 					allSubCategories,
-					lite.scenarioOptions
+					lite.scenarioOptions,
+					planPrice
 				)
 			});
 		}
@@ -297,7 +299,11 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 		this.optionCategories.push(...(_.sortBy(sortedOptionCategories, 'categoryName')));
 	}
 
-	private buildOptionSubCategories(options: LitePlanOption[], subCategories: IOptionSubCategory[], scenarioOptions: ScenarioOption[])
+	private buildOptionSubCategories(
+		options: LitePlanOption[], 
+		subCategories: IOptionSubCategory[], 
+		scenarioOptions: ScenarioOption[],
+		planPrice?: number)
 	{
 		let optionSubCategories = [];
 
@@ -316,7 +322,7 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 							id: option.id,
 							name: option.name,
 							financialOptionIntegrationKey: option.financialOptionIntegrationKey,
-							listPrice: option.listPrice,
+							listPrice: planPrice || option.listPrice,
 							quantity: scenarioOption?.planOptionQuantity || 0,
 							colors: this.buildOptionColors(option, scenarioOption),
 							showColors: false

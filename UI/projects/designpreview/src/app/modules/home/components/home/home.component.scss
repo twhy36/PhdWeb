@@ -36,15 +36,6 @@
 	max-height: calc(55vh);
 }
 
-.phd-default-image {
-	padding-left: calc(3vw);
-	padding-right: calc(3vw);
-	padding-top: calc(4vh);
-	padding-bottom: calc(4vh);
-	width: 100%;
-	height: auto;
-}
-
 .phd-sales-community {
 	text-transform: uppercase;
 	font-weight: bold;
@@ -90,9 +81,6 @@
 		margin-right: auto;
 	}
 	.phd-floor-plan-image {
-		max-height: calc(50vh)
-	}
-	.phd-default-image {
 		max-height: calc(50vh)
 	}
 }
