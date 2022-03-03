@@ -136,11 +136,12 @@ export class LiteExperienceComponent extends UnsubscribeOnDestroy implements OnI
 		});
 		
 		//monotony conflict advisement
-		this.store.pipe(
-			select(state => state.lot),
-			withLatestFrom(this.store.pipe(select(fromRoot.liteMonotonyConflict))),
-			this.takeUntilDestroyed()
-		).subscribe(([selectedLot, monotonyConflict]) => 
+		combineLatest([
+			this.store.pipe(select(state => state.lot)),
+			this.store.pipe(select(fromRoot.liteMonotonyConflict))
+		])
+		.pipe(this.takeUntilDestroyed())
+		.subscribe(([selectedLot, monotonyConflict]) => 
 		{
 			if (selectedLot.selectedLot) 
 			{
