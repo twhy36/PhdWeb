@@ -1,8 +1,10 @@
 <div class="d-flex flex-column">
 	<div class="d-flex flex-row home-images-container">
-		<cl-image *ngIf="planImageUrl" public-id="{{planImageUrl}}" type="fetch" class="phd-elevation-image" style="width:calc(56vw);height:auto;max-height:calc(65vh);">
+
+		<cl-image *ngIf="planImageUrl" public-id="{{planImageUrl}}" type="fetch" class="phd-elevation-image" style="width:calc(56vw);height:calc(65vh);object-fit:contain;">
 		</cl-image>
 		<img class="phd-logo-image" [src]="getImageSrc()" *ngIf="!planImageUrl">
+
 
 		<div class="d-flex flex-column phd-home-plan">
 			<div class="d-flex flex-column">
