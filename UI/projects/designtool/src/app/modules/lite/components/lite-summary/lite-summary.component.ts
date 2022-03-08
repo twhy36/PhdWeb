@@ -315,7 +315,7 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 			{
 				optionSubCategories.push({
 					subCategoryName: subCategoryName,
-					options: optionsubCategories[subCategoryId].map(option => {
+					options: _.sortBy(optionsubCategories[subCategoryId].map(option => {
 						const scenarioOption = scenarioOptions?.find(opt => opt.edhPlanOptionId === option.id);
 
 						return {
@@ -327,7 +327,7 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 							colors: this.buildOptionColors(option, scenarioOption),
 							showColors: false
 						};
-					})
+					}), 'name')
 				});
 			}
 		};
