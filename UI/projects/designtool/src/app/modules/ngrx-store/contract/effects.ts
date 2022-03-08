@@ -6,10 +6,11 @@ import { switchMap, withLatestFrom, exhaustMap, map, take } from 'rxjs/operators
 
 import {
 	Buyer, Contact, PhoneType, ESignEnvelope, ESignStatusEnum, ESignTypeEnum, ChangeOrderGroup,
-	ChangeOrderChoice, formatPhoneNumber
+	formatPhoneNumber
 } from 'phd-common';
 
 import * as fromRoot from '../reducers';
+import * as fromLite from '../lite/reducer';
 import
 {
 	LoadError, TemplatesLoaded, ContractActionTypes, CreateEnvelope,
@@ -20,7 +21,7 @@ import
 import { ContractService } from '../../core/services/contract.service';
 import { ChangeOrderService } from '../../core/services/change-order.service';
 import { tryCatch } from '../error.action';
-import { getCurrentHouseSelections, getChangeOrderGroupSelections } from '../../shared/classes/contract-utils';
+import { getCurrentHouseSelections } from '../../shared/classes/contract-utils';
 import { ChangeOrderEnvelopeCreated, ESignEnvelopesLoaded } from '../actions';
 import { isNull } from "../../shared/classes/string-utils.class";
 import * as fromLot from '../lot/reducer';
@@ -60,14 +61,16 @@ export class ContractEffects
 				this.store.select(fromLot.selectLot),
 				this.store.select(fromScenario.elevationDP),
 				this.store.select(fromChangeOrder.changeOrderPrimaryBuyer),
-				this.store.select(fromChangeOrder.changeOrderCoBuyers)
+				this.store.select(fromChangeOrder.changeOrderCoBuyers),
+				this.store.select(fromLite.selectedElevation),
+				this.store.select(fromLite.selectedColorScheme)
 			),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store, priceBreakdown, isSpecSalePending, selectLot, elevationDP, coPrimaryBuyer, coCoBuyers]) =>
+				switchMap(([action, store, priceBreakdown, isSpecSalePending, selectLot, elevationDP, coPrimaryBuyer, coCoBuyers, selectedLiteElevation, selectedLiteColorScheme]) =>
 				{
 					const isPreview = action.isPreview;
 
-					const currentSnapshot = this.contractService.createContractSnapshot(store, priceBreakdown, isSpecSalePending, selectLot, elevationDP, coPrimaryBuyer, coCoBuyers);
+					const currentSnapshot = this.contractService.createContractSnapshot(store, priceBreakdown, isSpecSalePending, selectLot, elevationDP, coPrimaryBuyer, coCoBuyers, selectedLiteElevation, selectedLiteColorScheme);
 
 					let jobChangeOrderGroups = store.job.changeOrderGroups.map(o =>
 					{
