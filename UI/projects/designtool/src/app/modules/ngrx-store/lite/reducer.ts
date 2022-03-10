@@ -12,6 +12,7 @@ export interface State
 	isPhdLite: boolean,
 	isSaving: boolean,
 	isScenarioLoaded: boolean,
+	isUnsaved: boolean;
 	options: LitePlanOption[],
 	scenarioOptions: ScenarioOption[];
 	categories: IOptionCategory[];
@@ -25,6 +26,7 @@ export const initialState: State =
 	isPhdLite: false,
 	isScenarioLoaded: false,
 	isSaving: false,
+	isUnsaved: false,
 	options: [],
 	scenarioOptions: [],
 	categories: [],
@@ -66,7 +68,7 @@ export function reducer(state: State = initialState, action: LiteActions): State
 				}
 			});
 
-			return { ...state, scenarioOptions: newOptions };
+			return { ...state, scenarioOptions: newOptions, isUnsaved: true };
 		}
 
 		case LiteActionTypes.SelectOptionColors:
@@ -102,7 +104,7 @@ export function reducer(state: State = initialState, action: LiteActions): State
 				}
 			});
 
-			return { ...state, scenarioOptions: newOptions };
+			return { ...state, scenarioOptions: newOptions, isUnsaved: true };
 		}
 
 		case LiteActionTypes.SaveScenarioOptions:
@@ -110,7 +112,7 @@ export function reducer(state: State = initialState, action: LiteActions): State
 			return { ...state, isSaving: true };
 
 		case LiteActionTypes.ScenarioOptionsSaved:
-			return { ...state, isSaving: false, scenarioOptions: action.scenarioOptions };
+			return { ...state, isSaving: false, scenarioOptions: action.scenarioOptions, isUnsaved: false };
 
 		case LiteActionTypes.SetScenarioLoaded:
 			return {  ...state, isScenarioLoaded: action.isLoaded };

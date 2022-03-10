@@ -27,6 +27,10 @@ import * as ChangeOrderActions from '../../../ngrx-store/change-order/actions';
 import { ChangeOrderService } from './../../../core/services/change-order.service';
 import { ConfirmModalComponent } from '../../../core/components/confirm-modal/confirm-modal.component';
 
+// PHD Lite
+import { LiteService } from './../../../core/services/lite.service';
+import * as LiteActions from '../../../ngrx-store/lite/actions';
+
 @Component({
 	selector: 'action-bar',
 	templateUrl: 'action-bar.component.html',
@@ -92,6 +96,9 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 	isOutForESign: boolean;
 	canApprove: boolean;
 
+	// PHD Lite
+	isPhdLite: boolean;
+
 	setSummaryText()
 	{
 		let labelVal = 'View On Summary';
@@ -120,7 +127,8 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 		private store: Store<fromRoot.State>,
 		private _navService: NavigationService,
 		private modalService: ModalService,
-		private _changeOrderService: ChangeOrderService
+		private _changeOrderService: ChangeOrderService,
+		private liteService: LiteService
 	) { super(); }
 
 	ngOnInit()
@@ -171,7 +179,17 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 						state.changeOrder.currentChangeOrder, 
 						state.changeOrder.changeInput, 
 						state.salesAgreement,
-						state.scenario.rules.optionRules))
+						state.scenario.rules?.optionRules)
+					&& !this.liteService.liteChangeOrderHasChanges(
+						state.job, 
+						state.changeOrder.currentChangeOrder, 
+						state.changeOrder.changeInput, 
+						state.salesAgreement,
+						state.lite.scenarioOptions,
+						state.lite.options,
+						state.lite.categories,
+						state.scenario.overrideReason
+					))
 		).subscribe(changeOrderIsEmpty => this.isChangeEmpty = changeOrderIsEmpty);
 
 		this.store.pipe(
@@ -237,6 +255,11 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 			this.takeUntilDestroyed(),
 			select(fromRoot.canApprove)
 		).subscribe(canApprove => this.canApprove = canApprove);
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(state => state.lite)
+		).subscribe(lite => this.isPhdLite = lite?.isPhdLite);
 
 		this.setSummaryText();
 	}
@@ -535,7 +558,9 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 		{
 			if (this.changeType === ChangeTypeEnum.CONSTRUCTION)
 			{
-				this.store.dispatch(new ChangeOrderActions.CancelJobChangeOrder());
+				this.isPhdLite
+					? this.store.dispatch(new LiteActions.CancelJobChangeOrderLite())
+					: this.store.dispatch(new ChangeOrderActions.CancelJobChangeOrder());
 			}
 			else if (this.changeType === ChangeTypeEnum.PLAN)
 			{

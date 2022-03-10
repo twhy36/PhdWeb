@@ -200,7 +200,6 @@ export class ColorsComponent extends UnsubscribeOnDestroy implements OnInit {
 			});
 
 			this.store.dispatch(new LiteActions.SelectOptionColors(scenarioColors));
-			this.store.dispatch(new LiteActions.SaveScenarioOptionColors(scenarioColors));
 		}
 		else
 		{
@@ -251,7 +250,6 @@ export class ColorsComponent extends UnsubscribeOnDestroy implements OnInit {
 		if (!!colorsToSave.length)
 		{
 			this.store.dispatch(new LiteActions.SelectOptionColors(colorsToSave));
-			this.store.dispatch(new LiteActions.SaveScenarioOptionColors(colorsToSave));
 		}
 	}
 }

@@ -114,7 +114,6 @@ export class ColorSchemeComponent extends UnsubscribeOnDestroy implements OnInit
 			if (!!optionColors.length)
 			{
 				this.store.dispatch(new LiteActions.SelectOptionColors(optionColors));
-				this.store.dispatch(new LiteActions.SaveScenarioOptionColors(optionColors));
 			}
 		}
 

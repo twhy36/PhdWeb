@@ -92,19 +92,34 @@ export class ChangeOrderEffects
 			withLatestFrom(this.store, this.store.pipe(select(priceBreakdown))),
 			tryCatch(source => source.pipe(
 				switchMap(([action, store, priceBreakdown]) => {
+					const isPhdLite = store.lite.isPhdLite || !store.scenario.tree;
+
 					let changePrice = !!store.salesAgreement
 						? priceBreakdown.totalPrice - store.salesAgreement.salePrice
 						: 0;
 
 					const baseHouseOption = store.job.jobPlanOptions ? store.job.jobPlanOptions.find(x => x.jobOptionTypeName === 'BaseHouse') : null;
-					const inputData = this.changeOrderService.getJobChangeOrderInputData(
-						store.scenario.tree,
-						store.changeOrder.currentChangeOrder,
-						store.job,
-						store.changeOrder.changeInput.handing,
-						store.salesAgreement.id,
-						baseHouseOption,
-						store.scenario.rules.optionRules);
+					const inputData = isPhdLite
+						? this.liteService.getJobChangeOrderInputDataLite(
+							store.changeOrder.currentChangeOrder,
+							store.job,
+							store.changeOrder.changeInput.handing,
+							store.salesAgreement.id,
+							store.lite.scenarioOptions,
+							store.lite.options,
+							store.lite.categories,
+							store.scenario.overrideReason,
+							false
+						)
+						: this.changeOrderService.getJobChangeOrderInputData(
+							store.scenario.tree,
+							store.changeOrder.currentChangeOrder,
+							store.job,
+							store.changeOrder.changeInput.handing,
+							store.salesAgreement.id,
+							baseHouseOption,
+							store.scenario.rules.optionRules);
+
 					const data = this.changeOrderService.mergePosData(
 						inputData,
 						store.changeOrder.currentChangeOrder,
@@ -112,12 +127,24 @@ export class ChangeOrderEffects
 						store.changeOrder.changeInput,
 						store.job.id);
 
-					return this.changeOrderService.createJobChangeOrder(data, changePrice).pipe(
+					const createJobChangeOrder$ = isPhdLite
+						? this.liteService.createJobChangeOrderLite(data, changePrice)
+						: this.changeOrderService.createJobChangeOrder(data, changePrice);
+
+					return createJobChangeOrder$.pipe(
 						switchMap(changeOrder => {
-							let jobChangeOrderChoices = this.changeOrderService.getJobChangeOrderChoices([changeOrder]);
-							return this.treeService.getChoiceCatalogIds(jobChangeOrderChoices).pipe(
-								map(choices => { return changeOrder })
-							);
+							if (isPhdLite)
+							{
+								return of(changeOrder);
+							}
+							else
+							{
+								let jobChangeOrderChoices = this.changeOrderService.getJobChangeOrderChoices([changeOrder]);
+								return this.treeService.getChoiceCatalogIds(jobChangeOrderChoices).pipe(
+									map(choices => { return changeOrder })
+								);								
+							}
+
 						}),
 						switchMap(changeOrder => from([
 							new ChangeOrdersCreatedForJob([changeOrder]),
