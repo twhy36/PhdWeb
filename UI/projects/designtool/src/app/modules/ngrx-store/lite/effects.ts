@@ -4,19 +4,23 @@ import { Action, Store, select } from '@ngrx/store';
 import { Observable, never, of, combineLatest, from, EMPTY as empty } from 'rxjs';
 import { switchMap, withLatestFrom, map, scan, filter, distinct } from 'rxjs/operators';
 
+import { ChangeOrderHanding } from 'phd-common';
+
 import { LiteService } from '../../core/services/lite.service';
+import { ChangeOrderService } from '../../core/services/change-order.service';
+
 import { DeselectPlan, PlanActionTypes, PlansLoaded, SelectPlan } from '../plan/actions';
 import { ScenarioActionTypes, ScenarioSaved } from '../scenario/actions';
 import {
 	LiteActionTypes, SetIsPhdLite, LiteOptionsLoaded, SaveScenarioOptions, ScenarioOptionsSaved, SaveScenarioOptionColors, OptionCategoriesLoaded, SelectOptions,
-	LoadLiteMonotonyRules, LiteMonotonyRulesLoaded
+	LoadLiteMonotonyRules, LiteMonotonyRulesLoaded, CancelJobChangeOrderLite, SelectOptionColors
 } from './actions';
 import { CommonActionTypes, ScenarioLoaded, LoadSalesAgreement, SalesAgreementLoaded, LoadError } from '../actions';
 import * as fromRoot from '../reducers';
 import * as _ from 'lodash';
 import { IOptionCategory, ScenarioOption } from '../../shared/models/lite.model';
 import { tryCatch } from '../error.action';
-import { SavePendingJio, CreateJobChangeOrders, CreatePlanChangeOrder } from '../change-order/actions';
+import { SavePendingJio, CreateJobChangeOrders, CreatePlanChangeOrder, SaveChangeOrderScenario, CurrentChangeOrderLoaded, SetChangingOrder } from '../change-order/actions';
 import { LotsLoaded, LotActionTypes } from '../lot/actions';
 import { canDesign } from '../reducers';
 
@@ -156,6 +160,15 @@ export class LiteEffects
 									});
 								}
 
+								// locked-in option price
+								action.job.jobPlanOptions.forEach(jobPlanOption => {
+									let option = options.find(option => option.id === jobPlanOption.planOptionId);
+									if (option && option.listPrice !== jobPlanOption.listPrice)
+									{
+										option.listPrice = jobPlanOption.listPrice;
+									}
+								})
+
 								const optionIds = options.map(o => o.id);
 								const optionCommunityIds = _.uniq(options.map(o => o.optionCommunityId));
 
@@ -204,29 +217,12 @@ export class LiteEffects
 			withLatestFrom(this.store),
 			switchMap(([action, store]) => {
 				const scenarioId = store.scenario.scenario?.scenarioId;
-				const saveScenarioOptions$ = scenarioId
+
+				return scenarioId
 					? this.liteService.saveScenarioOptions(scenarioId, action.scenarioOptions)
-					: of(null);
-				const isPendingJio = store.salesAgreement.id && store.salesAgreement.status === 'Pending';
-
-				return saveScenarioOptions$.pipe(
-					map(scenarioOptions => {
-						return { scenarioOptions, isPendingJio };
-					})
-				);
+					: of([]);
 			}),
-			switchMap(result => {
-				if (result.isPendingJio)
-				{
-					return of(new SavePendingJio());
-				}
-				else if (result.scenarioOptions)
-				{
-					return of(new ScenarioOptionsSaved(result.scenarioOptions));
-				}
-
-				return never();
-			})
+			map(options => new ScenarioOptionsSaved(options))
 		);
 	});
 
@@ -286,10 +282,7 @@ export class LiteEffects
 							scenarioOptionColors: []
 						}];
 
-					return from([
-						new SelectOptions(baseHouseScenarioOptions),
-						new SaveScenarioOptions(baseHouseScenarioOptions)
-					]);
+					return of(new SelectOptions(baseHouseScenarioOptions));
 				}
 
 				return never();
@@ -388,9 +381,85 @@ export class LiteEffects
 		);
 	});
 
+	selectOptions$: Observable<Action> = createEffect(() => {
+		return this.actions$.pipe(
+			ofType<SelectOptions | SelectOptionColors>(LiteActionTypes.SelectOptions, LiteActionTypes.SelectOptionColors),
+			withLatestFrom(this.store),
+			switchMap(([action, store]) => {
+				const savingScenario = !store.salesAgreement.id 
+					&& store.lite.isUnsaved 
+					&& !store.lite.isSaving 
+					&& store.scenario.buildMode === 'buyer';
+
+				const savingPendingJio = store.salesAgreement.id && store.salesAgreement.status === 'Pending';
+
+				const savingChangeOrder = !!store.changeOrder &&
+					store.changeOrder.currentChangeOrder &&
+					(store.changeOrder.currentChangeOrder.id ||
+						store.changeOrder.currentChangeOrder.salesStatusDescription === 'Pending');
+
+				if (!savingScenario && !savingPendingJio && savingChangeOrder) {
+					return of(new SaveChangeOrderScenario());
+				}
+				else if (savingScenario) {
+					return action instanceof SelectOptions
+							? of(new SaveScenarioOptions(action.scenarioOptions))
+							: of(new SaveScenarioOptionColors(action.optionColors));
+				}
+				else if (savingPendingJio) {
+					return of(new SavePendingJio());
+				}
+			})
+		);
+	});
+
+	cancelJobChangeOrderLite$: Observable<Action> = createEffect(() => {
+		return this.actions$.pipe(
+			ofType<CancelJobChangeOrderLite>(LiteActionTypes.CancelJobChangeOrderLite),
+			withLatestFrom(this.store),
+			switchMap(([action, store]) =>
+			{
+				const currentChangeOrder = this.changeOrderService.getCurrentChangeOrder(store.job.changeOrderGroups);
+				const changeOrderId = currentChangeOrder?.id || 0;
+				const handing = this.changeOrderService.getSelectedHanding(store.job);
+				const selectedOptions = this.liteService.getSelectedOptions(store.lite.options, store.job, currentChangeOrder);
+				const deselectedOptions = store.lite.scenarioOptions
+					.filter(option => !selectedOptions.some(opt => opt.edhPlanOptionId === option.edhPlanOptionId))
+					.map(opt => {
+						return { ...opt, planOptionQuantity : 0 };
+					});
+
+				let actions: any[] = [];
+				
+				if (selectedOptions?.length)
+				{
+					actions.push(new SelectOptions([...selectedOptions, ...deselectedOptions]));
+				}
+				
+				if (changeOrderId > 0)
+				{
+					actions.push(new CurrentChangeOrderLoaded(currentChangeOrder, handing));
+				}
+				else
+				{
+					if (store.changeOrder?.currentChangeOrder)
+					{
+						const jobHanding = new ChangeOrderHanding();
+						jobHanding.handing = store.job.handing;
+						actions.push(new CurrentChangeOrderLoaded(null, jobHanding));						
+					}
+					actions.push(new SetChangingOrder(false, null, true, handing));
+				}
+
+				return from(actions);					
+			})
+		);
+	});
+
 	constructor(
 		private actions$: Actions,
 		private store: Store<fromRoot.State>,
-		private liteService: LiteService
+		private liteService: LiteService,
+		private changeOrderService: ChangeOrderService
 	) { }
 }

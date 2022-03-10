@@ -100,7 +100,7 @@ export function getLiteCurrentHouseSelections(lite: fromLite.State, selectedElev
 	const allSubCategories = _.flatMap(lite.categories, c => c.optionSubCategories) || [];
 
 	// Add selected elevation
-	const elevationChoice = createLiteSDChoice(selectedElevation.name, selectedElevation.description);
+	const elevationChoice = createLiteSDChoice(selectedElevation.name, selectedElevation.description, selectedElevation.listPrice);
 	const elevationPoint = createLiteSDPoint('Elevation', [elevationChoice]);
 	
 	// Add color scheme
@@ -173,7 +173,7 @@ export function buildLiteOptionSubCategories(options: LitePlanOption[], subCateg
 }
 
 export function buildLiteOptionChoice(option: LitePlanOption, scenarioOption: ScenarioOption): SDChoice {
-	const choice = createLiteSDChoice(option.name, option.description, buildLiteOptionColors(option, scenarioOption));
+	const choice = createLiteSDChoice(option.name, option.description, option.listPrice, scenarioOption.planOptionQuantity, buildLiteOptionColors(option, scenarioOption));
 	return choice;
 }
 
@@ -227,14 +227,14 @@ export const createLiteSDPoint = (label: string, choices: SDChoice[] = []): SDPo
 	}
 );
 
-export const createLiteSDChoice = (label: string, description: string = null, selectedAttributes: DesignToolAttribute[] = []): SDChoice => (
+export const createLiteSDChoice = (label: string, description: string = null, price: number = null, quantity: number = 1, selectedAttributes: DesignToolAttribute[] = []): SDChoice => (
 	{
 		id: 0,
 		label,
 		imagePath: null,
-		quantity: 1,
+		quantity,
 		maxQuantity: 1,
-		price: 0,
+		price,
 		selectedAttributes,
 		options: [],
 		hasChoiceRules: false,

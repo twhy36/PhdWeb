@@ -167,7 +167,6 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 		if (!!selectedOptions.length)
 		{
 			this.store.dispatch(new LiteActions.SelectOptions(selectedOptions));
-			this.store.dispatch(new LiteActions.SaveScenarioOptions(selectedOptions));
 		}
 	}
 
@@ -208,7 +207,6 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 					});
 
 					this.store.dispatch(new LiteActions.SelectOptions(selectedOptions));
-					this.store.dispatch(new LiteActions.SaveScenarioOptions(selectedOptions));
 				}
 				else if (result === 'Cancel')
 				{
@@ -261,7 +259,6 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 		});
 
 		this.store.dispatch(new LiteActions.SelectOptions(selectedOptions));
-		this.store.dispatch(new LiteActions.SaveScenarioOptions(selectedOptions));
 	}
 
 	deselectOption(option: LitePlanOptionUI)
@@ -279,7 +276,6 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 			});
 
 			this.store.dispatch(new LiteActions.SelectOptions(selectedOptions));
-			this.store.dispatch(new LiteActions.SaveScenarioOptions(selectedOptions));
 		}
 	}
 

@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { NavigationEnd, Router } from "@angular/router";
 import { Observable, combineLatest } from 'rxjs';
-import { withLatestFrom, filter, take } from 'rxjs/operators';
+import { withLatestFrom, filter, take, map } from 'rxjs/operators';
 
 import { Store, select } from '@ngrx/store';
 import * as fromRoot from '../../../ngrx-store/reducers';
@@ -11,7 +11,7 @@ import * as NavActions from '../../../ngrx-store/nav/actions';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 
 import { 
-	UnsubscribeOnDestroy, PriceBreakdown, PointStatus, LotExt, ModalRef, ModalService 
+	UnsubscribeOnDestroy, PriceBreakdown, PointStatus, LotExt, ModalRef, ModalService, ChangeTypeEnum 
 } from 'phd-common';
 
 import { ActionBarCallType } from '../../../shared/classes/constants.class';
@@ -43,6 +43,8 @@ export class LiteExperienceComponent extends UnsubscribeOnDestroy implements OnI
 	selectedLot: LotExt;
 	monotonyConflict: MonotonyConflict;
 	monotonyConflictModalRef: ModalRef;
+	inChangeOrder$: Observable<boolean>;
+	inChangeOrder: boolean;	
 
 	constructor(
 		private store: Store<fromRoot.State>, 
@@ -154,7 +156,22 @@ export class LiteExperienceComponent extends UnsubscribeOnDestroy implements OnI
 					setTimeout(() => this.loadMonotonyModal());
 				}
 			}
-		});		
+		});
+		
+		this.inChangeOrder$ = this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(state => state.changeOrder),
+			map(changeOrder =>
+			{
+				this.inChangeOrder = (changeOrder.changeInput
+					&& (changeOrder.changeInput.type === ChangeTypeEnum.CONSTRUCTION
+						|| changeOrder.changeInput.type === ChangeTypeEnum.PLAN))
+					? changeOrder.isChangingOrder
+					: false;
+
+				return this.inChangeOrder;
+			})
+		);		
 	}
 
 	setExteriorItemsStatus(elevation: LitePlanOption, colorScheme: ScenarioOptionColor)

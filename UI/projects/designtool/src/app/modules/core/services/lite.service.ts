@@ -14,8 +14,8 @@ import
 {
 	withSpinner, getNewGuid, createBatchGet, createBatchHeaders, createBatchBody,
 	SalesAgreement, ISalesAgreement, ModalService, Job, ChangeOrderGroup, JobPlanOptionAttribute,
-	ChangeOrderPlanOptionAttribute, JobPlanOption, ChangeOrderPlanOption, SummaryData, defaultOnNotFound,
-	ChangeOrderHanding
+	JobPlanOption, ChangeOrderPlanOption, SummaryData, defaultOnNotFound,
+	ChangeOrderHanding, ChangeTypeEnum, ChangeInput
 } from 'phd-common';
 
 import * as fromRoot from '../../ngrx-store/reducers';
@@ -607,38 +607,113 @@ export class LiteService
 
 	getSelectedOptions(options: LitePlanOption[], job: Job, changeOrder?: ChangeOrderGroup ): Array<ScenarioOption>
 	{
-		let planOptions: (JobPlanOption | ChangeOrderPlanOption)[] = [
-			...job.jobPlanOptions,
-			...(changeOrder ? this.changeOrderService.getJobChangeOrderPlanOptions(changeOrder) : [])
-		];
+		let selectedOptions: JobPlanOption[] = _.cloneDeep(job.jobPlanOptions);
+		
+		const jobChangeOrderPlanOptions = changeOrder?.id
+			? this.changeOrderService.getJobChangeOrderPlanOptions(changeOrder) 
+			: [];
 
-		return planOptions.map(planOption => {
+		if (jobChangeOrderPlanOptions.length) 
+		{
+			// Delete options
+			selectedOptions = selectedOptions.filter(option => !jobChangeOrderPlanOptions.filter(opt => opt.action === 'Delete').some(opt => opt.planOptionId === option.planOptionId));
+
+			// Add options
+			selectedOptions = [
+				...selectedOptions, 
+				...jobChangeOrderPlanOptions.filter(option => option.action === 'Add').map(opt => 
+					{
+						return <JobPlanOption> {
+							id: opt.id,
+							planOptionId: opt.planOptionId,
+							listPrice: opt.listPrice,
+							optionSalesName: opt.optionSalesName,
+							optionDescription: opt.optionDescription,
+							integrationKey: opt.integrationKey,
+							optionQty: opt.qty,
+							jobPlanOptionAttributes: opt.jobChangeOrderPlanOptionAttributes?.length
+								? opt.jobChangeOrderPlanOptionAttributes.map(a => new JobPlanOptionAttribute(<JobPlanOptionAttribute>{
+									id: a.id,
+									attributeGroupLabel: a.attributeGroupLabel,
+									attributeName: a.attributeName,
+									manufacturer: a.manufacturer,
+									sku: a.sku
+								}))
+								: []
+						};
+					})
+			];
+		
+			// Update options
+			jobChangeOrderPlanOptions.filter(option => option.action === 'Change').forEach(opt =>
+			{
+				let changedOption = selectedOptions.find(selectedOption => selectedOption.planOptionId === opt.planOptionId);
+
+				if (changedOption)
+				{
+					this.mergeSelectedOptionAttributes(changedOption, opt);
+
+					changedOption.optionQty = opt.qty;
+				}
+			});
+			
+		
+		}
+
+		return selectedOptions.map(planOption => {
 			const option = options.find(opt => opt.id === planOption.planOptionId);
 
 			return {
 				scenarioOptionId: 0,
 				scenarioId: 0,
 				edhPlanOptionId: planOption.planOptionId,
-				planOptionQuantity: planOption instanceof JobPlanOption ? planOption.optionQty : planOption.qty,
+				planOptionQuantity: planOption.optionQty,
 				scenarioOptionColors: this.mapSelectedOptionColors(
 					option,
-					planOption instanceof JobPlanOption ? planOption.jobPlanOptionAttributes : planOption.jobChangeOrderPlanOptionAttributes
+					planOption.jobPlanOptionAttributes
 				)
 			} as ScenarioOption;
 		});
 	}
 
-	mapSelectedOptionColors(option: LitePlanOption, optionAttributes: (JobPlanOptionAttribute | ChangeOrderPlanOptionAttribute)[]): Array<ScenarioOptionColor>
+	mergeSelectedOptionAttributes(jobPlanOption: JobPlanOption, changeOrderPlanOption: ChangeOrderPlanOption)
+	{
+		const deletedAttributes = changeOrderPlanOption.jobChangeOrderPlanOptionAttributes.filter(x => x.action === 'Delete');
+
+		deletedAttributes.forEach(attr =>
+		{
+			const deletedAttribute = jobPlanOption.jobPlanOptionAttributes.findIndex(
+				d => d.attributeGroupLabel === attr.attributeGroupLabel && d.attributeName === attr.attributeName);
+
+			if (deletedAttribute > -1)
+			{
+				jobPlanOption.jobPlanOptionAttributes.splice(deletedAttribute, 1);
+			}
+		});
+
+		const addedAttributes = changeOrderPlanOption.jobChangeOrderPlanOptionAttributes.filter(x => x.action === 'Add');
+
+		addedAttributes.forEach(attr =>
+		{
+			jobPlanOption.jobPlanOptionAttributes.push(
+				new JobPlanOptionAttribute(<JobPlanOptionAttribute>{
+					id: attr.id,
+					attributeGroupLabel: attr.attributeGroupLabel,
+					attributeName: attr.attributeName,
+					manufacturer: attr.manufacturer,
+					sku: attr.sku
+				})
+			);
+		});
+	}
+
+	mapSelectedOptionColors(option: LitePlanOption, optionAttributes: JobPlanOptionAttribute[]): Array<ScenarioOptionColor>
 	{
 		return option && optionAttributes
 			? optionAttributes.reduce((colorList, att) =>
 				{
-					const attributeGroupLabel = att instanceof JobPlanOptionAttribute
-						? att.attributeGroupLabel
-						: att['attributeGroupLabel'];
-					const attributeName = att instanceof JobPlanOptionAttribute
-						? att.attributeName
-						: att['attributeName'];
+					const attributeGroupLabel = att.attributeGroupLabel;
+					const attributeName = att.attributeName;
 
 					const colorItem = option.colorItems?.find(item => item.name === attributeGroupLabel);
 					const color = colorItem?.color?.find(c => c.name === attributeName);
@@ -787,7 +862,7 @@ export class LiteService
 		options: LitePlanOption[],
 		categories: IOptionCategory[],
 		overrideNote: string,		 
-		isJio: boolean): any
+		isJio: boolean = false): any
 	{
 		const origOptions = isJio ? [] : job.jobPlanOptions;
 		const origHanding = isJio ? '' : job.handing;
@@ -983,5 +1058,42 @@ export class LiteService
 		});
 
 		return attributes;
-	}	
+	}
+	
+	liteChangeOrderHasChanges(
+		job: Job, 
+		currentChangeOrder: ChangeOrderGroup, 
+		changeInput: ChangeInput, 
+		salesAgreement: SalesAgreement, 
+		currentOptions: ScenarioOption[], 
+		options: LitePlanOption[],
+		categories: IOptionCategory[],
+		overrideNote: string		 
+	): boolean
+	{
+		if (changeInput.type !== ChangeTypeEnum.SALES && changeInput.type !== ChangeTypeEnum.NON_STANDARD)
+		{
+			const inputData = this.getJobChangeOrderInputDataLite(
+				currentChangeOrder,
+				job,
+				changeInput.handing,
+				salesAgreement.id,
+				currentOptions,
+				options,
+				categories,
+				overrideNote
+			);
+
+			const data = this.changeOrderService.mergePosData(
+				inputData,
+				currentChangeOrder,
+				salesAgreement,
+				changeInput,
+				job.id
+			);
+
+			return data.options && data.options.length;
+		}
+	}
+
 }

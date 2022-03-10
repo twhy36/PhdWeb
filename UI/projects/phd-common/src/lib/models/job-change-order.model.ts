@@ -360,6 +360,10 @@ export class ChangeOrderPlanOptionAttribute {
 	id: number;
 	attributeGroupCommunityId: number;
 	attributeCommunityId: number;
+	attributeName: string;
+	attributeGroupLabel: string;
+	manufacturer: string;
+	sku: string;
 	action: string;
 
 	constructor(dto?: ChangeOrderPlanOptionAttribute) {
