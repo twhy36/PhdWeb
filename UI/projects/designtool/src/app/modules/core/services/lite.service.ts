@@ -22,7 +22,7 @@ import * as fromRoot from '../../ngrx-store/reducers';
 
 import {
 	LitePlanOption, ScenarioOption, ColorItem, Color, ScenarioOptionColorDto, IOptionSubCategory, OptionRelation,
-	OptionRelationEnum, ScenarioOptionColor, Elevation, IOptionCategory, LiteReportType, LiteMonotonyRule, SummaryReportData, LitePlanOptionUI
+	OptionRelationEnum, ScenarioOptionColor, Elevation, IOptionCategory, LiteReportType, LiteMonotonyRule, SummaryReportData
 } from '../../shared/models/lite.model';
 import { LotService } from './lot.service';
 import { ChangeOrderService } from './change-order.service';
@@ -1058,6 +1058,18 @@ export class LiteService
 		});
 
 		return attributes;
+	}	
+
+	checkLiteAgreement(job: Job, changeOrder: ChangeOrderGroup): boolean {
+		const changeOrderChoices = changeOrder?.jobChangeOrders
+			? _.flatMap(changeOrder.jobChangeOrders, co => co.jobChangeOrderChoices)
+			: [];
+		const changeOrderOptions = changeOrder?.jobChangeOrders
+			? _.flatMap(changeOrder.jobChangeOrders, co => co.jobChangeOrderPlanOptions)
+			: [];
+
+		return !job.jobChoices?.length && !!job.jobPlanOptions?.length // there are no job choices but job plan options
+			|| !changeOrderChoices.length && !!changeOrderOptions.length; // there are no change order choices but change order options
 	}
 	
 	liteChangeOrderHasChanges(
