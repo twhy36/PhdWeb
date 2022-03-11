@@ -17,18 +17,18 @@ export class AttributeLocationComponent implements OnInit, OnChanges
 {
 	@Input() currentChoice: ChoiceExt;
 	@Input() attributeLocation: Location;
-	@Input() attributeLocationGroup: LocationGroup;	
+	@Input() attributeLocationGroup: LocationGroup;
 	@Input() currentAttributeGroups: AttributeGroupExt[];
 	@Input() maxQuantity: number;
 	@Input() isBlocked: boolean;
 	@Input() highlightedAttribute: {attributeId: number, attributeGroupId: number};
 	@Input() isReadonly: boolean;
 	@Input() isDesignComplete: boolean;
-		
+
 	@Output() onLocationAttributeClick = new EventEmitter<{attribute: Attribute, attributeGroupId: number, locationId: number, locationGroupId: number}>();
 	@Output() onToggleAttribute = new EventEmitter<{attribute: Attribute, attributeGroup: AttributeGroup, location: Location, locationGroup: LocationGroup, quantity: number}>();
 	@Output() onQuantiyChange = new EventEmitter<{location: Location, locationGroup: LocationGroup, quantity: number, clearAttribute: boolean}>();
-	
+
 	@ViewChild('maxQuantityModal') maxQuantityModal: any;
 
 	choice: ChoiceExt;
@@ -84,9 +84,9 @@ export class AttributeLocationComponent implements OnInit, OnChanges
 				{
 					ag.attributes.forEach(att => {
 						const selAttribute = this.choice.selectedAttributes.find(x =>
-							x.attributeId === att.id && x.attributeGroupId === ag.id && 
+							x.attributeId === att.id && x.attributeGroupId === ag.id &&
 							x.locationId === this.attributeLocation.id && x.locationGroupId === this.attributeLocationGroup.id);
-						
+
 						let attribute = attributeGroup.attributes.find(x => x.id === att.id);
 						if (attribute)
 						{
@@ -94,7 +94,7 @@ export class AttributeLocationComponent implements OnInit, OnChanges
 							{
 								attribute.attributeStatus = 'ViewOnly';
 							}
-							
+
 							attribute.isFavorite = att.isFavorite;
 							if (att.isFavorite && !selAttribute)
 							{
@@ -103,7 +103,7 @@ export class AttributeLocationComponent implements OnInit, OnChanges
 						}
 					});
 				}
-			});	
+			});
 		}
 	}
 
@@ -124,17 +124,23 @@ export class AttributeLocationComponent implements OnInit, OnChanges
 		else
 		{
 			this.locationQuantityTotal = null;
-			this.maxQuantityModalRef = this.modalService.open(this.maxQuantityModal, { windowClass: 'phd-max-quantity-modal' });
+			let modalOptions = {
+				windowClass: 'phd-max-quantity-modal',
+				centered: true,
+				backdrop: true,
+				keyboard: false,
+			}
+			this.maxQuantityModalRef = this.modalService.open(this.maxQuantityModal, modalOptions);
 		}
-	}	
+	}
 
 	attributeClick(data: {attribute: Attribute, attributeGroup: AttributeGroup})
 	{
 		this.onLocationAttributeClick.emit({
-			attribute: data.attribute, 
+			attribute: data.attribute,
 			attributeGroupId: data.attributeGroup.id,
 			locationId: this.attributeLocation.id,
-			locationGroupId: this.attributeLocationGroup.id 
+			locationGroupId: this.attributeLocationGroup.id
 		});
 	}
 
@@ -147,20 +153,20 @@ export class AttributeLocationComponent implements OnInit, OnChanges
 
 	attributeGroupSelected(data: {attribute: Attribute, attributeGroup: AttributeGroup})
 	{
-		const existingAttribute = this.selectedLocationAttributes.find(a => 
+		const existingAttribute = this.selectedLocationAttributes.find(a =>
 			a.attributeId === data.attribute.id && a.attributeGroupId === data.attributeGroup.id);
-		
+
 		if (!this.locationQuantityTotal && !existingAttribute)
 		{
 			this.locationQuantityTotal = 1;
 		}
-		
+
 		this.onToggleAttribute.emit({
-			attribute: data.attribute, 
+			attribute: data.attribute,
 			attributeGroup: data.attributeGroup,
 			location: this.attributeLocation,
 			locationGroup: this.attributeLocationGroup,
-			quantity: this.locationQuantityTotal 
+			quantity: this.locationQuantityTotal
 		});
 	}
 

@@ -14,7 +14,7 @@ import { environment } from '../../../../environments/environment';
 import { Template, ITemplateInfo } from '../../shared/models/template.model';
 import { IFinancialCommunityESign, FinancialCommunityESign, IESignRecipient } from '../../shared/models/contract.model';
 import { EnvelopeInfo } from '../../shared/models/envelope-info.model';
-import { getCurrentHouseSelections, getChangeOrderGroupSelections } from '../../shared/classes/contract-utils';
+import { getCurrentHouseSelections, getChangeOrderGroupSelections, getLiteCurrentHouseSelections } from '../../shared/classes/contract-utils';
 import * as _ from 'lodash';
 import { Store } from '@ngrx/store';
 import * as fromRoot from '../../../modules/ngrx-store/reducers';
@@ -23,6 +23,8 @@ import * as fromLot from '../../ngrx-store/lot/reducer';
 import * as fromChangeOrder from '../../ngrx-store/change-order/reducer';
 import { TreeService } from '../../core/services/tree.service';
 import { _throw } from 'rxjs/observable/throw';
+import { LitePlanOption, ScenarioOptionColor } from '../../shared/models/lite.model';
+import { LiteService } from './lite.service';
 
 @Injectable()
 export class ContractService
@@ -31,7 +33,8 @@ export class ContractService
 
 	constructor(private _http: HttpClient,
 		private store: Store<fromRoot.State>,
-		private treeService: TreeService) { }
+		private treeService: TreeService,
+		private liteService: LiteService) { }
 
 	getTemplates(marketId: number, financialCommunityId: number): Observable<Array<Template>>
 	{
@@ -385,7 +388,7 @@ export class ContractService
 		);
 	}
 
-	createContractSnapshot(store: fromRoot.State, priceBreakdown: PriceBreakdown, isSpecSalePending: boolean, selectLot: fromLot.State, elevationDP: DecisionPoint, coPrimaryBuyer: Buyer, coCoBuyers: Buyer[])
+	createContractSnapshot(store: fromRoot.State, priceBreakdown: PriceBreakdown, isSpecSalePending: boolean, selectLot: fromLot.State, elevationDP: DecisionPoint, coPrimaryBuyer: Buyer, coCoBuyers: Buyer[], selectedLiteElevation: LitePlanOption, selectedLiteColorScheme: ScenarioOptionColor)
 	{
 		// get selected templates and sort by display order
 		const templates = store.contract.selectedTemplates.length ? store.contract.selectedTemplates.map(id => {
@@ -395,7 +398,19 @@ export class ContractService
 		let salesAgreementNotes = !!store.salesAgreement.notes && store.salesAgreement.notes.length ? store.salesAgreement.notes.filter(n => n.targetAudiences.find(x => x.name === "Public") && n.noteSubCategoryId !== 10).map(n => n.noteContent).join(", ") : '';
 		let termsAndConditions = !!store.salesAgreement.notes && store.salesAgreement.notes.length ? store.salesAgreement.notes.filter(n => n.targetAudiences.find(x => x.name === "Public") && n.noteSubCategoryId === 10).map(n => n.noteContent).join() : '';
 
-		const currentHouseSelections = templates.some(t => t.templateId === 0) ? getCurrentHouseSelections(store.scenario.tree.treeVersion.groups) : [];
+		const liteBaseHouseOptions = this.liteService.getSelectedBaseHouseOptions(
+			store.lite.scenarioOptions,
+			store.lite.options,
+			store.lite.categories
+		);
+
+		let currentHouseSelections = [];
+		if (templates.some(t => t.templateId === 0))
+		{
+			currentHouseSelections = store.lite.isPhdLite
+				? getLiteCurrentHouseSelections(store.lite, selectedLiteElevation, selectedLiteColorScheme, liteBaseHouseOptions)
+				: getCurrentHouseSelections(store.scenario.tree.treeVersion.groups);
+		}
 
 		let jioSelections =
 		{
@@ -441,6 +456,14 @@ export class ContractService
 				cityStateZip: customerAddress && customerAddress.address ? `${isNull(customerAddress.address.city, "").trim()}, ${isNull(customerAddress.address.stateProvince, "").trim()} ${isNull(customerAddress.address.postalCode, "").trim()}` : ""
 			}
 
+			const elevationName = store.lite.isPhdLite
+				? selectedLiteElevation.name
+				: elevationDP && elevationDP.choices.find(c => c.quantity > 0) ? elevationDP.choices.find(c => c.quantity > 0).label : '';
+			
+			const lotBlockName = store.lite.isPhdLite
+				? selectLot.selectedLot.lotBlock
+				: isNull(store.job.lot.alternateLotBlock, '');
+
 			let jobAgreementHeaderInfo =
 			{
 				agreementNumber: store.salesAgreement.salesAgreementNumber,
@@ -453,8 +476,8 @@ export class ContractService
 				garage: isNull(store.job.handing, ""),
 				planName: store.job.plan.planSalesName,
 				planID: store.job.plan.masterPlanNumber,
-				elevation: elevationDP && elevationDP.choices.find(c => c.quantity > 0) ? elevationDP.choices.find(c => c.quantity > 0).label : "",
-				lotBlock: isNull(store.job.lot.alternateLotBlock, ""),
+				elevation: elevationName,
+				lotBlock: lotBlockName,
 				lotAddress: isNull(store.job.lot.streetAddress1, "").trim() + " " + isNull(store.job.lot.streetAddress2, "").trim(),
 				cityStateZip: store.job.lot.city ? `${isNull(store.job.lot.city, "").trim()}, ${isNull(store.job.lot.stateProvince, "").trim()} ${isNull(store.job.lot.postalCode, "").trim()}` : "",
 				lotBlockFullNumber: store.job.lot.lotBlock,
@@ -583,7 +606,9 @@ export class ContractService
 
 			let financialCommunity = store.org.salesCommunity.financialCommunities[0];
 
-			let decisionPoints = _.flatMap(store.scenario.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points));
+			let decisionPoints = store.lite.isPhdLite
+				? [] // TODO For PHD Lite 
+				: _.flatMap(store.scenario.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points));
 
 			const elevationChoice = decisionPoints.find(t => t.dPointTypeId === 1)
 				? decisionPoints.find(t => t.dPointTypeId === 1).choices.find(c => c.quantity > 0)
@@ -617,7 +642,9 @@ export class ContractService
 				: [];
 			let constructionChangeOrderSelectionsDto = null;
 
-			let customerSelections = getChangeOrderGroupSelections(store.scenario.tree.treeVersion.groups, <ChangeOrderChoice[]>currentChangeOrderChoices);
+			let customerSelections = store.lite.isPhdLite
+				? [] // TODO For PHD Lite 
+				: getChangeOrderGroupSelections(store.scenario.tree.treeVersion.groups, <ChangeOrderChoice[]>currentChangeOrderChoices);
 
 			constructionChangeOrderSelectionsDto = {
 				constructionChangeOrderSelections: customerSelections,

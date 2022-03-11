@@ -111,7 +111,7 @@ export const canConfigure = createSelector(
 		|| ((scenario.buildMode === 'model' || scenario.buildMode === 'spec') && !!market && user.canDesign && user.assignedMarkets && user.assignedMarkets.some(m => m.number === market.number))
 		// if there is a sales agreement, user can make changes if (a) user can Create Sales Agreements or (b) user can create Job Change Orders
 		// if the change order hasn't been saved yet, the contact field on the change order will be null
-		|| ((sag && sag.id ? (user.canSell || (user.canDesign && !!co)) : user.canConfigure) 
+		|| ((sag && sag.id ? (user.canSell || (user.canDesign && !!co)) : user.canConfigure)
 		&& !!market && user.assignedMarkets && user.assignedMarkets.some(m => m.number === market.number))
 )
 
@@ -237,7 +237,7 @@ export const monotonyConflict = createSelector(
 				let colorChoice = colorScheme.choices.find(x => x.quantity > 0);
 
 				conflict.colorSchemeConflict = isColorSchemePlanRuleEnabled ? monotonyrules.some(x => x.colorSchemeDivChoiceCatalogId === colorChoice.divChoiceCatalogId && x.edhPlanId === planId) :
-					monotonyrules.some(x => x.colorSchemeDivChoiceCatalogId === colorChoice.divChoiceCatalogId); 
+					monotonyrules.some(x => x.colorSchemeDivChoiceCatalogId === colorChoice.divChoiceCatalogId);
 			}
 
 			conflict.monotonyConflict = (conflict.colorSchemeConflict || conflict.elevationConflict);
@@ -348,11 +348,11 @@ export const canEditAgreementOrSpec = createSelector(
 		}
 		else
 		{
-			return isPreview 
-				|| (salesAgreement.id === 0 && !scenarioHasSalesAgreement) 
+			return isPreview
+				|| (salesAgreement.id === 0 && !scenarioHasSalesAgreement)
 				|| salesAgreement.status === 'Pending'
-				|| (currentChangeOrder 
-						? currentChangeOrder.salesStatusDescription === 'Pending' 
+				|| (currentChangeOrder
+						? currentChangeOrder.salesStatusDescription === 'Pending'
 						: false
 					);
 		}
@@ -461,7 +461,7 @@ export const scenarioStatus = createSelector(
 						//Shows after SC has made selections (Pick 1's) or viewed (Pick 0's) all DP's.
 						status = ScenarioStatusType.READY_TO_BUILD;
 					}
-					else 
+					else
 					{
 						//Shows after SC has made selections (Pick 1's) for or viewed (Pick 0's) all DP's flagged as "Structural"
 						status = ScenarioStatusType.READY_FOR_DESIGN;
@@ -714,7 +714,7 @@ export const priceBreakdown = createSelector(
 				if (lite.scenarioOptions && baseHouseCategory)
 				{
 					lite.scenarioOptions.forEach(scenarioOption => {
-						const planOption = lite.options?.find(option => 
+						const planOption = lite.options?.find(option =>
 							option.id === scenarioOption.edhPlanOptionId
 							&& option.optionCategoryId !== baseHouseCategory.id);
 
@@ -722,7 +722,7 @@ export const priceBreakdown = createSelector(
 						{
 							selections += planOption.listPrice * scenarioOption.planOptionQuantity;
 						}
-					});					
+					});
 				}
 
 				breakdown.selections = selections;
@@ -748,18 +748,18 @@ export const filteredTree = createSelector(
 		const inPlanChangeOrder = changeOrder && changeOrder.isChangingOrder &&
 			changeOrder.changeInput && changeOrder.changeInput.type === ChangeTypeEnum.PLAN;
 
-		// Set point status 
-		if (tree && tree.treeVersion) 
+		// Set point status
+		if (tree && tree.treeVersion)
 		{
-			tree.treeVersion.groups.forEach(group => group.subGroups.forEach(subGroup => subGroup.points.forEach(point => 
+			tree.treeVersion.groups.forEach(group => group.subGroups.forEach(subGroup => subGroup.points.forEach(point =>
 			{
-				if (point.dPointTypeId === 2 && (monotonyConflict.colorSchemeConflict && !monotonyConflict.colorSchemeConflictOverride)) 
+				if (point.dPointTypeId === 2 && (monotonyConflict.colorSchemeConflict && !monotonyConflict.colorSchemeConflictOverride))
 				{
 					point.status = PointStatus.REQUIRED;
 					subGroup.status = PointStatus.REQUIRED;
 					group.status = PointStatus.REQUIRED;
 				}
-				else if (point.dPointTypeId === 1 && ((monotonyConflict.elevationConflict || monotonyConflict.colorSchemeAttributeConflict) && !monotonyConflict.elevationConflictOverride)) 
+				else if (point.dPointTypeId === 1 && ((monotonyConflict.elevationConflict || monotonyConflict.colorSchemeAttributeConflict) && !monotonyConflict.elevationConflictOverride))
 				{
 					point.status = PointStatus.REQUIRED;
 					subGroup.status = PointStatus.REQUIRED;
@@ -983,20 +983,20 @@ export const liteMonotonyConflict = createSelector(
 			if (elevation && colorScheme)
 			{
 				conflict.elevationConflict = !lite.elevationOverrideNote && monotonyRules.some(rule => rule.elevationPlanOptionId === elevation.id);
-				
+
 				const colorItem = elevation.colorItems?.find(item => item.colorItemId === colorScheme.colorItemId);
 				const color = colorItem?.color?.find(c => c.colorId === colorScheme.colorId);
 
 				if (colorItem && color && !lite.colorSchemeOverrideNote)
 				{
-					conflict.colorSchemeConflict = isColorSchemePlanRuleEnabled 
-						? monotonyRules.some(r => 
-							r.colorSchemeColorItemName === colorItem.name 
+					conflict.colorSchemeConflict = isColorSchemePlanRuleEnabled
+						? monotonyRules.some(r =>
+							r.colorSchemeColorItemName === colorItem.name
 							&& r.colorSchemeColorName === color.name
-							&& r.edhPlanId === planId) 
-						: monotonyRules.some(r => 
-							r.colorSchemeColorItemName === colorItem.name 
-							&& r.colorSchemeColorName === color.name) ; 
+							&& r.edhPlanId === planId)
+						: monotonyRules.some(r =>
+							r.colorSchemeColorItemName === colorItem.name
+							&& r.colorSchemeColorName === color.name) ;
 				}
 			}
 
@@ -1024,7 +1024,7 @@ export const isLiteComplete = createSelector(
 		{
 			const hasLot = !!sag.id || (scenario.scenario ? !!scenario.scenario.lotId : false);
 			const hasPlan = !!sag.id || (scenario.scenario ? !!scenario.scenario.planId : false) || hasSpecPlanId;
-		
+
 			isLiteComplete = hasLot && hasPlan && !!selectedElevation && !!selectedColorScheme && !monotonyConflict.monotonyConflict && !needsPlanChange;
 		}
 
@@ -1056,7 +1056,7 @@ export const liteMonotonyOptions = createSelector(
 				monotonyOptions.colorSchemeNames = monotonyRules
 					.filter(r => (r.ruleType === "ColorScheme" || r.ruleType === "Both")
 								 && !!r.colorSchemeColorName
-								 && !!r.colorSchemeColorItemName 
+								 && !!r.colorSchemeColorItemName
 								 && (!isColorSchemePlanRuleEnabled || isColorSchemePlanRuleEnabled && r.edhPlanId === planId))
 					.map(r => {
 						return {

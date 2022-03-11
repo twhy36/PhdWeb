@@ -1,8 +1,10 @@
 import {
-	ChangeOrderChoice, SDGroup, SDSubGroup, SDPoint, SDChoice, Group
+	ChangeOrderChoice, SDGroup, SDSubGroup, SDPoint, SDChoice, Group, DesignToolAttribute
 } from "phd-common";
 
 import * as _ from 'lodash';
+import { IOptionCategory, IOptionSubCategory, LitePlanOption, ScenarioOption, ScenarioOptionColor } from '../models/lite.model';
+import * as fromLite from '../../ngrx-store/lite/reducer';
 
 export function getCurrentHouseSelections(groups: Array<Group>)
 {
@@ -88,3 +90,181 @@ export function getChangeOrderGroupSelections(groups: Array<Group>, jobChangeOrd
 		});
 	});
 }
+
+// BEGIN PHD Lite
+export function getLiteCurrentHouseSelections(lite: fromLite.State, selectedElevation: LitePlanOption, selectedColorScheme: ScenarioOptionColor, baseHouseOptions: { selectedBaseHouseOptions: LitePlanOption[], baseHouseCategory: IOptionCategory }): SDGroup[]
+{
+	const selectedBaseHouseOptions: LitePlanOption[] = baseHouseOptions.selectedBaseHouseOptions;
+
+	const optionCategories: SDGroup[] = [];
+	const allSubCategories = _.flatMap(lite.categories, c => c.optionSubCategories) || [];
+
+	// Add selected elevation
+	const elevationChoice = createLiteSDChoice(selectedElevation.name, selectedElevation.description, selectedElevation.listPrice);
+	const elevationPoint = createLiteSDPoint('Elevation', [elevationChoice]);
+	
+	// Add color scheme
+	const colorSchemes = _.flatMap(selectedElevation?.colorItems, item => item.color);
+	const color = colorSchemes?.find(c => c.colorItemId === selectedColorScheme.colorItemId && c.colorId === selectedColorScheme.colorId);
+	const colorSchemeChoice = createLiteSDChoice(color?.name);
+	const colorSchemePoint = createLiteSDPoint('Color Scheme', [colorSchemeChoice]);
+	
+	const blankSubGroup = createLiteSDSubGroup('Elevation & Color Scheme', [elevationPoint, colorSchemePoint])
+	const exteriorGroup = createLiteSDGroup('Exterior', [blankSubGroup]);
+	optionCategories.push(exteriorGroup);
+
+	// Add other selected options FIRST
+	const selectedOptions = lite.options.filter(option =>
+		lite.scenarioOptions?.find(opt => opt.edhPlanOptionId === option.id)
+		&& (!selectedElevation || selectedElevation.id !== option.id)
+		&& !selectedBaseHouseOptions?.find(opt => opt.id === option.id));
+	const optionCategoryGroups = _.groupBy(selectedOptions, option => option.optionCategoryId);
+	let sortedOptionCategories: SDGroup[] = []
+
+	for (const categoryId in optionCategoryGroups)
+	{
+		const category = lite.categories?.find(category => category.id === +categoryId);
+		if (category)
+		{
+			const subCategories = buildLiteOptionSubCategories(optionCategoryGroups[categoryId], allSubCategories, lite.scenarioOptions);
+			const optionCategories = createLiteSDGroup(category?.name, subCategories);
+			sortedOptionCategories.push(optionCategories);
+		}
+	};
+
+	optionCategories.push(...(_.sortBy(sortedOptionCategories, 'label')));
+
+	// Add selected base house options LAST
+	if (selectedBaseHouseOptions?.length)
+	{
+		const baseHouseCategory = baseHouseOptions.baseHouseCategory;
+		const baseHouseSubCategories = buildLiteOptionSubCategories(selectedBaseHouseOptions, allSubCategories, lite.scenarioOptions);
+		const baseHouseCategories = createLiteSDGroup(baseHouseCategory.name, baseHouseSubCategories);
+		optionCategories.push(baseHouseCategories);
+	}
+
+	return optionCategories;
+}
+
+export function buildLiteOptionSubCategories(options: LitePlanOption[], subCategories: IOptionSubCategory[], scenarioOptions: ScenarioOption[]): SDSubGroup[]
+{
+	let optionSubCategories: SDSubGroup[] = [];
+
+	const optionsubCategories = _.groupBy(options, o => o.optionSubCategoryId);
+	for (const subCategoryId in optionsubCategories)
+	{
+		const subCategory = subCategories.find(subCategory => subCategory.id === +subCategoryId);
+		if (subCategoryId)
+		{
+			const sortedOptionSubCategories = _.sortBy(optionsubCategories[subCategoryId], 'name');
+			const points = sortedOptionSubCategories.map(option =>
+			{
+				const scenarioOption = scenarioOptions?.find(opt => opt.edhPlanOptionId === option.id);
+				const optionChoice = buildLiteOptionChoice(option, scenarioOption);
+				const optionPoint = createLiteSDPoint(option.financialOptionIntegrationKey, [optionChoice]);
+				return optionPoint;
+			});
+			const optionSubCategory = createLiteSDSubGroup(subCategory?.name, points);
+			optionSubCategories.push(optionSubCategory);
+		}
+	};
+
+	return optionSubCategories;
+}
+
+export function buildLiteOptionChoice(option: LitePlanOption, scenarioOption: ScenarioOption): SDChoice {
+	const choice = createLiteSDChoice(option.name, option.description, option.listPrice, scenarioOption.planOptionQuantity, buildLiteOptionColors(option, scenarioOption));
+	return choice;
+}
+
+export function buildLiteOptionColors(option: LitePlanOption, scenarioOption: ScenarioOption): DesignToolAttribute[]
+{
+	let optionColors: DesignToolAttribute[] = [];
+
+	scenarioOption?.scenarioOptionColors?.forEach(scnOptColor =>
+	{
+		const colorItem = option.colorItems?.find(item => item.colorItemId === scnOptColor.colorItemId);
+		const color = colorItem?.color?.find(c => c.colorId === scnOptColor.colorId);
+
+		if (colorItem && color)
+		{
+			const optionColor = createLiteDTAttribute(colorItem.name, color.name);
+			optionColors.push(optionColor);
+		}
+	});
+
+	return optionColors;
+}
+
+export const createLiteSDGroup = (label: string, subGroups: SDSubGroup[] = []): SDGroup => (
+	{
+		id: 0,
+		label,
+		subGroups
+	}
+);
+
+export const createLiteSDSubGroup = (label: string, points: SDPoint[] = []): SDSubGroup => (
+	{
+		id: 0,
+		label,
+		useInteractiveFloorplan: false,
+		points
+	}
+);
+
+export const createLiteSDPoint = (label: string, choices: SDChoice[] = []): SDPoint => (
+	{
+		id: 0,
+		label,
+		choices,
+		completed: false,
+		status: '0',
+		price: 0,
+		dPointTypeId: 0,
+		groupName: null,
+		subGroupName: null
+	}
+);
+
+export const createLiteSDChoice = (label: string, description: string = null, price: number = null, quantity: number = 1, selectedAttributes: DesignToolAttribute[] = []): SDChoice => (
+	{
+		id: 0,
+		label,
+		imagePath: null,
+		quantity,
+		maxQuantity: 1,
+		price,
+		selectedAttributes,
+		options: [],
+		hasChoiceRules: false,
+		hasOptionRules: false,
+		hasAttributes: false,
+		hasLocations: false,
+		isElevationChoice: false,
+		description,
+		attributeReassignments: []
+	}
+);
+
+export const createLiteDTAttribute = (label: string, value: string): DesignToolAttribute => (
+	{
+		attributeGroupId: null,
+		attributeGroupLabel: label,
+		attributeGroupName: null,
+		attributeId: null,
+		attributeImageUrl: null,
+		attributeName: value,
+		manufacturer: null,
+		sku: null,
+		locationGroupId: null,
+		locationGroupLabel: null,
+		locationGroupName: null,
+		locationId: null,
+		locationName: null,
+		locationQuantity: null,
+		scenarioChoiceLocationId: null,
+		scenarioChoiceLocationAttributeId: null
+	}
+);
+// END PHD Lite

@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, ViewChildren, QueryList } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ViewChildren, QueryList, ViewChild } from '@angular/core';
 import { Observable, combineLatest } from 'rxjs';
 import { withLatestFrom, map, take } from 'rxjs/operators';
 import { Store, select } from '@ngrx/store';
@@ -8,7 +8,8 @@ import * as _ from "lodash";
 import { UnsubscribeOnDestroy, PriceBreakdown, ChangeTypeEnum, 
 			ChangeOrderHanding, ModalService, SummaryData, BuyerInfo, 
 			PDFViewerComponent, SDGroup, SDSubGroup, SDPoint, 
-			SDChoice } from 'phd-common';
+			SDChoice, 
+			PriceBreakdownType} from 'phd-common';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
@@ -21,7 +22,7 @@ import { ChangeOrderService } from '../../../core/services/change-order.service'
 import { LiteService } from '../../../core/services/lite.service';
 import { ModalOverrideSaveComponent } from '../../../core/components/modal-override-save/modal-override-save.component';
 
-import { SummaryHeader } from '../../../shared/components/summary-header/summary-header.component';
+import { SummaryHeader, SummaryHeaderComponent } from '../../../shared/components/summary-header/summary-header.component';
 import { LitePlanOption, IOptionSubCategory, ScenarioOption, LiteReportType, SummaryReportData, 
 			SummaryReportGroup, SummaryReportSubGroup, SummaryReportOption, SummaryReportSubOption } from '../../../shared/models/lite.model';
 import { OptionSummaryComponent } from '../option-summary/option-summary.component';
@@ -36,7 +37,8 @@ import { ToastrService } from 'ngx-toastr';
 export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	@ViewChildren(OptionSummaryComponent) options: QueryList<OptionSummaryComponent>;
-
+	@ViewChild(SummaryHeaderComponent) summaryHeaderComponent: SummaryHeaderComponent;
+	
 	title: string;
 	summaryHeader: SummaryHeader = new SummaryHeader();
 	priceBreakdown: PriceBreakdown;
@@ -155,13 +157,14 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 
 		combineLatest([
 			this.store.pipe(select(state => state.lite)),
-			this.store.pipe(select(fromLite.selectedElevation))
+			this.store.pipe(select(fromLite.selectedElevation)),
+			this.store.pipe(select(fromRoot.selectedPlanPrice))
 		])
 		.pipe(this.takeUntilDestroyed())
-		.subscribe(([lite, selectedElevation]) =>
+		.subscribe(([lite, selectedElevation, planPrice]) =>
 		{
 			// Build the data list for UI display
-			this.buildOptionCategories(lite, selectedElevation);
+			this.buildOptionCategories(lite, selectedElevation, planPrice);
 		});
 
 		this.isLiteComplete$ = this.store.pipe(
@@ -228,7 +231,7 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 		);
 	}
 
-	private buildOptionCategories(lite: fromLite.State, selectedElevation: LitePlanOption)
+	private buildOptionCategories(lite: fromLite.State, selectedElevation: LitePlanOption, planPrice: number)
 	{
 		const baseHouseOptions = this.liteService.getSelectedBaseHouseOptions(
 			lite.scenarioOptions,
@@ -263,7 +266,8 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 				optionSubCategories: this.buildOptionSubCategories(
 					selectedBaseHouseOptions,
 					allSubCategories,
-					lite.scenarioOptions
+					lite.scenarioOptions,
+					planPrice
 				)
 			});
 		}
@@ -295,7 +299,11 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 		this.optionCategories.push(...(_.sortBy(sortedOptionCategories, 'categoryName')));
 	}
 
-	private buildOptionSubCategories(options: LitePlanOption[], subCategories: IOptionSubCategory[], scenarioOptions: ScenarioOption[])
+	private buildOptionSubCategories(
+		options: LitePlanOption[], 
+		subCategories: IOptionSubCategory[], 
+		scenarioOptions: ScenarioOption[],
+		planPrice?: number)
 	{
 		let optionSubCategories = [];
 
@@ -307,19 +315,19 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 			{
 				optionSubCategories.push({
 					subCategoryName: subCategoryName,
-					options: optionsubCategories[subCategoryId].map(option => {
+					options: _.sortBy(optionsubCategories[subCategoryId].map(option => {
 						const scenarioOption = scenarioOptions?.find(opt => opt.edhPlanOptionId === option.id);
 
 						return {
 							id: option.id,
 							name: option.name,
 							financialOptionIntegrationKey: option.financialOptionIntegrationKey,
-							listPrice: option.listPrice,
+							listPrice: planPrice || option.listPrice,
 							quantity: scenarioOption?.planOptionQuantity || 0,
 							colors: this.buildOptionColors(option, scenarioOption),
 							showColors: false
 						};
-					})
+					}), 'name')
 				});
 			}
 		};
@@ -420,11 +428,24 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 
 	onBuildIt()
 	{
-		this.liteService.hasLiteMonotonyConflict().subscribe(mc =>
+		combineLatest([
+			this.liteService.hasLiteMonotonyConflict(),
+			this.store.pipe(select(fromLite.areColorSelectionsValid),take(1))
+		])
+		.subscribe(([mc, areColorsValid]) =>
 		{
 			if (mc.monotonyConflict)
 			{
 				alert('Danger! Monotony Issues!  Please fix!')
+			}
+			else if (!areColorsValid)
+			{
+				this.liteService.onGenerateSalesAgreementWithColorWarning(
+					this.buildMode,
+					this.summaryHeader.lot.lotStatusDescription,
+					this.summaryHeader.lot.id,
+					this.salesAgreementId
+				);
 			}
 			else
 			{
@@ -442,7 +463,6 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 	{
 		if (reportType === LiteReportType.SUMMARY)
 		{
-			//return;
 			let data = this.getSummaryReportData();
 			this.liteService.getLiteSelectionSummaryReport(LiteReportType.SUMMARY, data)
 				.subscribe(pdfData => {
@@ -789,7 +809,14 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 
 	getSummaryReportData(): SummaryReportData {
 		
+		let summaryHeader = this.summaryHeaderComponent;
+		let priceBreakdown = summaryHeader.priceBreakdownComponent;
+		let optionalPricingSelections: string = priceBreakdown.breakdownFilters.toString();
+
 		let summaryData = {} as SummaryReportData;
+		summaryData.showDesignEstimate = optionalPricingSelections.includes(PriceBreakdownType.DESIGN.toString());
+		summaryData.showClosingIncentive = optionalPricingSelections.includes(PriceBreakdownType.CLOSING.toString());
+		summaryData.showSalesProgram = optionalPricingSelections.includes(PriceBreakdownType.DISCOUNT.toString());		
 		summaryData.configurationName = this.title;
 		summaryData.community = this.summaryHeader.communitySalesName || "N/A";
 		summaryData.plan = this.summaryHeader.plan.salesName + ", " + this.summaryHeader.plan.integrationKey;
@@ -800,10 +827,13 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 		summaryData.address = this.summaryHeader.lot.streetAddress1 + ", " 
 			+ this.summaryHeader.lot.city + ", " + this.summaryHeader.lot.stateProvince 
 			+ ", " + this.summaryHeader.lot.postalCode;
-		summaryData.basePrice = this.priceBreakdown.baseHouse;
-		summaryData.lotPremium = this.priceBreakdown.homesiteEstimate;
-		summaryData.optionsTotal = this.priceBreakdown.selections;
-		summaryData.totalPrice = this.priceBreakdown.totalPrice;
+		summaryData.basePrice = this.priceBreakdown.baseHouse || 0;
+		summaryData.lotPremium = this.priceBreakdown.homesiteEstimate || 0;
+		summaryData.optionsTotal = this.priceBreakdown.selections || 0;
+		summaryData.totalPrice = this.priceBreakdown.totalPrice || 0;
+		summaryData.salesProgram = this.priceBreakdown.salesProgram || 0;
+		summaryData.closingIncentive = this.priceBreakdown.closingIncentive || 0;
+		summaryData.designEstimate = this.priceBreakdown.designEstimate || 0;
 		summaryData.groups = [];
 		this.optionCategories.forEach(category => {
 			let newGroup = new SummaryReportGroup();

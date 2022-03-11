@@ -2,7 +2,7 @@ import { createFeatureSelector, createSelector } from '@ngrx/store';
 import * as _ from "lodash";
 
 import { 
-	LitePlanOption, Elevation, ScenarioOption, ScenarioOptionColor, IOptionCategory, LiteMonotonyRule 
+	LitePlanOption, Elevation, ScenarioOption, ScenarioOptionColor, IOptionCategory, LiteMonotonyRule, LitePlanOptionUI, IOptionSubCategory 
 } from '../../shared/models/lite.model';
 
 import { LiteActions, LiteActionTypes } from './actions';
@@ -12,6 +12,7 @@ export interface State
 	isPhdLite: boolean,
 	isSaving: boolean,
 	isScenarioLoaded: boolean,
+	isUnsaved: boolean;
 	options: LitePlanOption[],
 	scenarioOptions: ScenarioOption[];
 	categories: IOptionCategory[];
@@ -25,6 +26,7 @@ export const initialState: State =
 	isPhdLite: false,
 	isScenarioLoaded: false,
 	isSaving: false,
+	isUnsaved: false,
 	options: [],
 	scenarioOptions: [],
 	categories: [],
@@ -66,7 +68,7 @@ export function reducer(state: State = initialState, action: LiteActions): State
 				}
 			});
 
-			return { ...state, scenarioOptions: newOptions };
+			return { ...state, scenarioOptions: newOptions, isUnsaved: true };
 		}
 
 		case LiteActionTypes.SelectOptionColors:
@@ -74,7 +76,7 @@ export function reducer(state: State = initialState, action: LiteActions): State
 			let newOptions = _.cloneDeep(state.scenarioOptions);
 
 			action.optionColors.forEach(color => {
-				let scenarioOption = newOptions.find(opt => opt.scenarioOptionId === color.scenarioOptionId);
+				let scenarioOption = newOptions.find(opt => opt.edhPlanOptionId === color.edhPlanOptionId);
 				if (scenarioOption)
 				{
 					const optionColorIndex = scenarioOption.scenarioOptionColors
@@ -102,7 +104,7 @@ export function reducer(state: State = initialState, action: LiteActions): State
 				}
 			});
 
-			return { ...state, scenarioOptions: newOptions };
+			return { ...state, scenarioOptions: newOptions, isUnsaved: true };
 		}
 
 		case LiteActionTypes.SaveScenarioOptions:
@@ -110,7 +112,7 @@ export function reducer(state: State = initialState, action: LiteActions): State
 			return { ...state, isSaving: true };
 
 		case LiteActionTypes.ScenarioOptionsSaved:
-			return { ...state, isSaving: false, scenarioOptions: action.scenarioOptions };
+			return { ...state, isSaving: false, scenarioOptions: action.scenarioOptions, isUnsaved: false };
 
 		case LiteActionTypes.SetScenarioLoaded:
 			return {  ...state, isScenarioLoaded: action.isLoaded };
@@ -173,5 +175,102 @@ export const selectedOptionCategories = createSelector(
 	liteState,
 	(state) => {
 		return state.categories;
+	}
+);
+
+export const areColorSelectionsValid = createSelector(
+	liteState,
+	selectedElevation,
+	selectedOptionCategories,
+	(state, selectedElevationOption, selectedOptionCategories) =>
+	{
+		const options = state.options;
+		const scenarioOptions = state.scenarioOptions;
+		const selectedOptions = options
+			.filter(option => scenarioOptions.some(so => so.edhPlanOptionId === option.id)
+				&& option.id !== selectedElevationOption?.id
+				&& option.colorItems.length > 0
+				&& option.colorItems.some(ci => ci.isActive && ci.color.length > 0 && ci.color.some(c => c.isActive)));
+	
+		const allOptionSubCategories = _.cloneDeep(selectedOptionCategories)
+			.map(c => c.optionSubCategories)
+			.reduce((all, a) => all.concat(a), []);
+		
+		allOptionSubCategories.forEach(subcategory =>
+		{
+			const subcategoryOptions = selectedOptions
+				.map(x => x as LitePlanOptionUI)
+				.filter(x => x.optionSubCategoryId === subcategory.id && x.colorItems.length > 0);
+		
+			subcategory.planOptions = _.cloneDeep(subcategoryOptions)
+				.sort((option1, option2) =>
+				{
+					return option1.name > option2.name ? 1 : -1;
+				});
+
+			subcategory.planOptions.forEach(po =>
+			{
+				//only keep color items that are active and has one or more active colors associated with it
+				po.colorItems = po.colorItems
+					.filter(ci => ci.isActive && ci.color.length > 0 && ci.color.some(c => c.isActive))
+					.sort((ci1, ci2) => ci1.name > ci2.name ? 1 : -1);
+
+				//only keep colors that are active
+				po.colorItems.forEach(ci =>
+				{
+					ci.color = ci.color
+						.filter(c => c.isActive)
+						.sort((c1, c2) => c1.name > c2.name ? 1 : -1)
+				})
+			})
+		});
+	
+		let subcategories: IOptionSubCategory[] = [];
+	
+		//Only keep subCategories where the option has some related color items defined;
+		allOptionSubCategories.forEach(subcategory =>
+		{
+			subcategory.planOptions?.forEach(option =>
+			{
+				if (option.colorItems.length && subcategories.every(x => x.id !== option.optionSubCategoryId))
+				{
+					subcategories.push(subcategory);
+				}
+			});
+		});
+	
+		const allScenarioOptions = scenarioOptions
+			.map(so => so.scenarioOptionColors)
+			.reduce((all, a) => all.concat(a), []);
+		
+		const allPlanOptions = subcategories
+			.map(so => so.planOptions ?? [])
+			.reduce((all, a) => all.concat(a), []);
+
+		const allColorItems = allPlanOptions ? allPlanOptions
+			.map(so => so.colorItems)
+			.reduce((all, a) => all.concat(a), []) : [];
+
+		// Add coloritems for selected elevation option
+		selectedElevationOption?.colorItems.forEach(c =>
+		{
+			if (c.isActive && c.color.some(c => c.isActive))
+			{
+				allColorItems.push(c);
+			}
+		})
+
+		let isValid = true;
+		allColorItems.forEach(item =>
+		{
+			const foundColorItem = allScenarioOptions.find(i => i.colorItemId === item?.colorItemId);
+			const foundColor = item.color?.find(c => c.colorId === foundColorItem?.colorId);
+			if (!foundColor)
+			{
+				isValid = false;
+			}
+		});
+		
+		return isValid;
 	}
 );

@@ -13,4 +13,5 @@ export interface IEnvironment
 	alphavision: { builderId: string };
 	pdfViewerBaseUrl: string;
 	brandMap: { pulte: string, delwebb: string, americanWest: string };
+	adobeUrl: string;
 }

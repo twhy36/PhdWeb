@@ -4,6 +4,17 @@
 .phd-logo-image {
 	width: calc(56vw);
 	height: auto;
+	margin-top: auto;
+	margin-bottom: auto;
+}
+
+.home-images-container {
+	height:calc(65vh);
+}
+
+.phd-elevation-image {
+	margin-top: auto;
+	margin-bottom: auto;
 }
 
 .phd-home-plan {
@@ -11,9 +22,11 @@
 	width: calc(44vw);
 	max-height: calc(65vh);
 	border: var(--home-page-floorplan-border);
+	justify-content: flex-end;
 
 	span {
-		color: var(--home-page-community-label)
+		color: var(--home-page-community-label);
+		padding-bottom: 40px;
 	}
 }
 
@@ -21,15 +34,6 @@
 	padding-top: calc(2vh);
 	padding-bottom: calc(2vh);
 	max-height: calc(55vh);
-}
-
-.phd-default-image {
-	padding-left: calc(3vw);
-	padding-right: calc(3vw);
-	padding-top: calc(4vh);
-	padding-bottom: calc(4vh);
-	width: 100%;
-	height: auto;
 }
 
 .phd-sales-community {
@@ -77,9 +81,6 @@
 		margin-right: auto;
 	}
 	.phd-floor-plan-image {
-		max-height: calc(50vh)
-	}
-	.phd-default-image {
 		max-height: calc(50vh)
 	}
 }

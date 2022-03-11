@@ -32,6 +32,7 @@ import { TemplatesLoaded } from './contract/actions';
 import { SavePendingJio, CreateJobChangeOrders, CreatePlanChangeOrder } from './change-order/actions';
 import { State, canDesign, showSpinner } from './reducers';
 import { FavoriteService } from '../core/services/favorite.service';
+import { LiteService } from '../core/services/lite.service';
 
 @Injectable()
 export class CommonEffects
@@ -597,14 +598,13 @@ export class CommonEffects
 				}
 
 				if (action instanceof SalesAgreementLoaded) {
-					// PHD Lite
-					// The filter for PHD Lite will be removed once the saving pending JIO functionality is implemented.
+					// Filter out actions in PHD Lite. Handled by updatePricingOnInitLite$() in lite effects.
 					return { 
 						...curr, 
 						sagLoaded: true, 
 						salesAgreement: action.salesAgreement, 
 						currentChangeOrder: action.changeOrder, 
-						isPhdLite: !action.tree 
+						isPhdLite: !action.tree || this.liteService.checkLiteAgreement(action.job, action.changeOrder)
 					};
 				}
 				else if (action instanceof PlansLoaded) {
@@ -683,6 +683,7 @@ export class CommonEffects
 		private changeOrderService: ChangeOrderService,
 		private contractService: ContractService,
 		private spinnerService: SpinnerService,
-		private favoriteService: FavoriteService
+		private favoriteService: FavoriteService,
+		private liteService: LiteService
 	) { }
 }

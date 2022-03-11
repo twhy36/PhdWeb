@@ -8,6 +8,7 @@ import { Actions, ofType } from '@ngrx/effects';
 
 import * as _ from 'lodash';
 import * as fromRoot from '../../../ngrx-store/reducers';
+import * as fromLite from '../../../ngrx-store/lite/reducer';
 import * as fromLot from '../../../ngrx-store/lot/reducer';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 import * as fromChangeOrder from '../../../ngrx-store/change-order/reducer';
@@ -394,11 +395,13 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 				this.store.select(fromLot.selectLot),
 				this.store.select(fromScenario.elevationDP),
 				this.store.select(fromChangeOrder.changeOrderPrimaryBuyer),
-				this.store.select(fromChangeOrder.changeOrderCoBuyers)
+				this.store.select(fromChangeOrder.changeOrderCoBuyers),
+				this.store.select(fromLite.selectedElevation),
+				this.store.select(fromLite.selectedColorScheme)
 			),
-			switchMap(([store, priceBreakdown, isSpecSalePending, selectLot, elevationDP, coPrimaryBuyer, coCoBuyers]) =>
+			switchMap(([store, priceBreakdown, isSpecSalePending, selectLot, elevationDP, coPrimaryBuyer, coCoBuyers, selectedLiteElevation, selectedLiteColorScheme]) =>
 			{
-				var currentSnapshot = this.contractService.createContractSnapshot(store, priceBreakdown, isSpecSalePending, selectLot, elevationDP, coPrimaryBuyer, coCoBuyers);
+				var currentSnapshot = this.contractService.createContractSnapshot(store, priceBreakdown, isSpecSalePending, selectLot, elevationDP, coPrimaryBuyer, coCoBuyers, selectedLiteElevation, selectedLiteColorScheme);
 
 				return of(currentSnapshot);
 			}),

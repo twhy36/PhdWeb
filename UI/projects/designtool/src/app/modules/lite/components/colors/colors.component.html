@@ -11,6 +11,7 @@
 
 						<select
 							class="phd-color-select"
+							[disabled]="cannotEditAgreement"
 							[(ngModel)]="selectedColorIds[item.colorItemId]"
 							(change)="onColorWasSelected(option, item)"
 						>

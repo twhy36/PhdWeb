@@ -60,6 +60,7 @@ export class ScenarioOptionColorDto implements ScenarioOptionColor
     colorItemId: number;
     colorId: number;
     isDeleted: boolean;
+    edhPlanOptionId: number;
 }
 
 export interface ColorItem
@@ -158,6 +159,12 @@ export class SummaryReportData {
 	lotPremium?: number;
 	optionsTotal?: number;
 	totalPrice?: number;
+    salesProgram?: number;
+    closingIncentive?: number;
+    designEstimate?: number;
+    showSalesProgram?: boolean;
+    showClosingIncentive?: boolean;
+    showDesignEstimate?: boolean;    
 	groups?: Array<SummaryReportGroup>;
 
 }

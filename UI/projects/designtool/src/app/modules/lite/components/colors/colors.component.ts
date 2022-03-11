@@ -24,6 +24,7 @@ export class ColorsComponent extends UnsubscribeOnDestroy implements OnInit {
 	selectedColorIds: { [id: number] : number } = {};
 	allOptions: LitePlanOptionUI[];
 	categories: IOptionCategory[] = [];
+	cannotEditAgreement: boolean;
 
   constructor(
 	private store: Store<fromRoot.State>,
@@ -32,6 +33,14 @@ export class ColorsComponent extends UnsubscribeOnDestroy implements OnInit {
 
 	ngOnInit(): void
 	{
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromRoot.canEditAgreementOrSpec)
+		)
+		.subscribe(canEditAgreement => {
+			this.cannotEditAgreement = !canEditAgreement;
+		});
+
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(fromScenario.selectScenario)
@@ -65,28 +74,46 @@ export class ColorsComponent extends UnsubscribeOnDestroy implements OnInit {
 		])
 		.pipe(take(1))
 		.subscribe(([nav, selectedElevationOption]) => {
+			//filter out the selected options have valid active color items and have one or more related active colors
 			const selectedOptions = this.allOptions
-				.filter(option => this.scenarioOptions.some(so => so.edhPlanOptionId === option.id)
-														&& option.id !== selectedElevationOption?.id
-														&& option.colorItems.length > 0
-														&& option.colorItems.some(ci => ci.isActive && ci.color.length > 0 && ci.color.some(c => c.isActive)));
+			  .filter(option => this.scenarioOptions.some(so => so.edhPlanOptionId === option.id)
+								  && option.id !== selectedElevationOption?.id
+								  && option.colorItems.length > 0
+								  && option.colorItems.some(ci => ci.isActive && ci.color.length > 0 && ci.color.some(c => c.isActive)));
 
-			const selectedCategoryGroups = _.groupBy(selectedOptions, o => o.optionCategoryId);
-			const categorySubMenus = Object.keys(selectedCategoryGroups).map(categoryId =>
+			if (selectedOptions.length > 0)
 			{
+			  const selectedCategoryGroups = _.groupBy(selectedOptions, o => o.optionCategoryId);
+
+			  const categorySubMenus = Object.keys(selectedCategoryGroups).map(categoryId =>
+			  {
 				const categoryName = this.categories.find(c => c.id.toString() === categoryId).name;
 
 				return {
-					label: categoryName,
-					status: PointStatus.UNVIEWED,
-					id: Number.parseInt(categoryId)
+				  label: categoryName,
+				  status: PointStatus.UNVIEWED,
+				  id: Number.parseInt(categoryId)
 				}
-			});
+			  });
 
-			const baseHouseCategory = this.categories.find(c => c.name.toLowerCase() === 'base house');
-			this.store.dispatch(new NavActions.SetSubNavItems(categorySubMenus));
-			this.store.dispatch(new NavActions.SetSelectedSubNavItem(baseHouseCategory.id));
-		});
+			  //check if base house is one of the options that has the properly configured color items and if so use it as default selected sub menu
+			  const baseHouseOptionFound = selectedOptions.some(o => o.isBaseHouse);
+			  let defaultSubnavId = categorySubMenus[0].id;
+
+			  if (baseHouseOptionFound)
+			  {
+				const baseHouseCategory = this.categories.find(c => c.name.toLowerCase() === 'base house');
+
+				if (baseHouseCategory)
+				{
+				  defaultSubnavId = baseHouseCategory.id;
+				}
+			  }
+
+			  this.store.dispatch(new NavActions.SetSubNavItems(categorySubMenus));
+			  this.store.dispatch(new NavActions.SetSelectedSubNavItem(defaultSubnavId));
+			}
+		  });
 
 		this.store
 		.pipe(
@@ -168,11 +195,11 @@ export class ColorsComponent extends UnsubscribeOnDestroy implements OnInit {
 				scenarioOptionId: selectedScenarioOption.scenarioOptionId,
 				colorItemId: colorItem.colorItemId,
 				colorId: this.selectedColorIds[colorItem.colorItemId],
-				isDeleted: false
+				isDeleted: false,
+				edhPlanOptionId: selectedScenarioOption.edhPlanOptionId
 			});
 
 			this.store.dispatch(new LiteActions.SelectOptionColors(scenarioColors));
-			this.store.dispatch(new LiteActions.SaveScenarioOptionColors(scenarioColors));
 		}
 		else
 		{
@@ -203,7 +230,8 @@ export class ColorsComponent extends UnsubscribeOnDestroy implements OnInit {
 				scenarioOptionId: previousSelectedColor.scenarioOptionId,
 				colorItemId: previousSelectedColor.colorItemId,
 				colorId: previousSelectedColor.colorId,
-				isDeleted: true
+				isDeleted: true,
+				edhPlanOptionId: previousSelectedOption.edhPlanOptionId
 			});
 		}
 
@@ -214,14 +242,14 @@ export class ColorsComponent extends UnsubscribeOnDestroy implements OnInit {
 				scenarioOptionId: previousSelectedOption.scenarioOptionId,
 				colorItemId: item.colorItemId,
 				colorId: this.selectedColorIds[item.colorItemId],
-				isDeleted: false
+				isDeleted: false,
+				edhPlanOptionId: previousSelectedOption.edhPlanOptionId
 			});
 		}
 
 		if (!!colorsToSave.length)
 		{
 			this.store.dispatch(new LiteActions.SelectOptionColors(colorsToSave));
-			this.store.dispatch(new LiteActions.SaveScenarioOptionColors(colorsToSave));
 		}
 	}
 }

@@ -35,6 +35,8 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 	marketingPlanId$ = new BehaviorSubject<number>(0);
 	isFloorplanFlipped: boolean;
 	floorplanSG: SubGroup;
+	noVisibleFP: boolean = false;
+	selectedFloor: any;
 
 	constructor(
 		private activatedRoute: ActivatedRoute,
@@ -59,9 +61,10 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 					}
 
 					this.isFloorplanFlipped = salesAgreementState?.isFloorplanFlipped;
-					this.isPreview = routeData["isPreview"];
+					this.isPreview = scenarioState.buildMode === 'preview' || routeData["isPreview"];
 
-					if (this.isPreview) {
+					// we only want to fetch on treeVersion during first load of home page
+					if (routeData["isPreview"]) {
 						const treeVersionId = +params.get('treeVersionId');
 						if (!scenarioState.tree || scenarioState.tree.treeVersion.id !== treeVersionId) {
 							this.store.dispatch(new ScenarioActions.LoadPreview(treeVersionId));
@@ -141,7 +144,7 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 			const tree = scenarioState?.tree?.treeVersion;
 			const contractedSgs = _.flatMap(contractedTree?.groups, g => g.subGroups.filter(sg => sg.useInteractiveFloorplan));
 			const sgs = _.flatMap(tree?.groups, g => g.subGroups.filter(sg => sg.useInteractiveFloorplan));
-			if ((tree || contractedTree) && plan && plan.marketingPlanId && plan.marketingPlanId.length) {	
+			if ((tree || contractedTree) && plan && plan.marketingPlanId && plan.marketingPlanId.length) {
 				let fpSubGroup;
 				if (contractedSgs?.length) {
 					fpSubGroup = contractedSgs.pop();
@@ -215,5 +218,16 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 
 	getImageSrc() {
 		return this.brandService.getBrandImage('home-page-logo');
+	}
+
+	loadFloorPlan(fp) {
+		if (!this.selectedFloor) {
+			const floor1 = fp.floors.find(floor => floor.name === 'Floor 1');
+			if (floor1) {
+				this.selectedFloor = floor1;
+			} else {
+				this.selectedFloor = fp.floors[0];
+			}
+		}
 	}
 }

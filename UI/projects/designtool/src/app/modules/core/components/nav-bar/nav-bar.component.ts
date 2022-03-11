@@ -1,7 +1,8 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { Store, select } from '@ngrx/store';
-import { Observable, combineLatest } from 'rxjs';
+import { Observable, combineLatest, of } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 
 import * as _ from "lodash";
 
@@ -42,7 +43,6 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 	@Input() isDesignPreviewEnabled: boolean;
 	@Input() opportunityName: Observable<string>;
 	@Input() buildMode: string;
-	@Input() financialBrandId: number;
 
 	currentRoute: string;
 	PointStatus = PointStatus;
@@ -207,12 +207,21 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 			})
 		);
 
-		if (this.financialBrandId)
-		{
-			this.brandService.getFinancialBrand(this.financialBrandId, environment.apiUrl).subscribe(brand => {
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromRoot.financialBrandId),
+			switchMap(financialBrandId =>
+			{
+				return financialBrandId && !this.financialBrand
+					? this.brandService.getFinancialBrand(financialBrandId, environment.apiUrl)
+					: of(null);
+			})
+		).subscribe(brand => {
+			if (brand)
+			{
 				this.financialBrand = brand;
-			});			
-		}
+			}
+		});		
 
 		combineLatest([
 			this.store.pipe(select(fromLite.selectedElevation), this.takeUntilDestroyed()),
@@ -464,7 +473,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 
 		const dpUrls = environment.baseUrl.designPreviewUrls;
 
-		const brandUrl = getBrandUrl(this.financialBrand.key, dpUrls);
+		const brandUrl = getBrandUrl(this.financialBrand?.key, dpUrls);
 
 		const url = `${brandUrl}${buyerSpecific}${this.salesAgreementId}`;
 		window.open(url, '_blank');

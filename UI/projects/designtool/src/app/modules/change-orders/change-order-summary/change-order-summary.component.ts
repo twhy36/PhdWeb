@@ -77,6 +77,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 
 	// PHD Lite
 	isPhdLite$: Observable<boolean>;
+	isPhdLite: boolean;
 
 	JOB_CHANGEORDER_TYPES = [
 		{ value: 'SalesJIO', id: 0 },
@@ -443,7 +444,8 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 			this.takeUntilDestroyed(),
 			select(state =>
 			{
-				return state.lite?.isPhdLite;
+				this.isPhdLite = state.lite.isPhdLite;
+				return this.isPhdLite;
 			})
 		);		
 	}
@@ -1186,7 +1188,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 			case 'Construction Change':
 				this.store.dispatch(new ChangeOrderActions.SetChangingOrder(true, new ChangeInput(ChangeTypeEnum.CONSTRUCTION), null, null, nextGroupSequence));
 
-				this.router.navigateByUrl('/scenario-summary');
+				this.router.navigateByUrl(this.isPhdLite ? '/lite-summary' : '/scenario-summary');
 
 				break;
 			case 'Sales Change only':

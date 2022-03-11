@@ -8,7 +8,7 @@ export enum LiteActionTypes {
     SetIsPhdLite = 'Set Is Phd Lite',
     LiteOptionsLoaded = 'Lite Options Loaded',
     SelectOptions = 'Select Options',
-    SaveScenarioOptions = 'Select Scenario Options',
+    SaveScenarioOptions = 'Save Scenario Options',
     ScenarioOptionsSaved = 'Scenario Options Saved',
     SelectOptionColors = 'Select Option Colors',
     SaveScenarioOptionColors = 'Select Scenario Option Colors',
@@ -16,7 +16,8 @@ export enum LiteActionTypes {
     OptionCategoriesLoaded = 'Option Categories Loaded',
 	LoadLiteMonotonyRules = 'Load Lite Monotony Rules',
     LiteMonotonyRulesLoaded = 'LiteMonotonyRulesLoaded',
-    SetLiteOverrideReason = 'Set Lite Override Reason'   
+    SetLiteOverrideReason = 'Set Lite Override Reason',
+    CancelJobChangeOrderLite = 'Cancel Job Change Order Lite',   
 }
 
 @Log(true)
@@ -101,6 +102,14 @@ export class SetLiteOverrideReason implements Action
 	constructor(public overrideReason: string, public isElevation: boolean) { }
 }
 
+@Log()
+export class CancelJobChangeOrderLite implements Action
+{
+	readonly type = LiteActionTypes.CancelJobChangeOrderLite;
+
+	constructor() { }
+}
+
 export type LiteActions =
     SetIsPhdLite |
     LiteOptionsLoaded |
@@ -113,5 +122,6 @@ export type LiteActions =
     OptionCategoriesLoaded |
     LoadLiteMonotonyRules | 
     LiteMonotonyRulesLoaded |
-    SetLiteOverrideReason;
+    SetLiteOverrideReason |
+    CancelJobChangeOrderLite;
 
