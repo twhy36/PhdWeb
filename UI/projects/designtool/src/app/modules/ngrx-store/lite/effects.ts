@@ -36,7 +36,8 @@ export class LiteEffects
 
 				if (!isPreview)
 				{
-					const isPhdLite = action.plans.some(plan => !plan.treeVersionId);
+					const isPhdLite = action.plans.some(plan => !plan.treeVersionId)
+						|| this.liteService.checkLiteAgreement(store.job, store.changeOrder.currentChangeOrder);
 					const salesCommunityId = store.opportunity.opportunityContactAssoc.opportunity.salesCommunityId;
 
 					let actions = [];
@@ -140,7 +141,7 @@ export class LiteEffects
 			withLatestFrom(this.store),
 			tryCatch(source => source.pipe(
 				switchMap(([action, store]) => {
-					if (!action.tree)
+					if (!action.tree || this.liteService.checkLiteAgreement(action.job, action.changeOrder))
 					{
 						return combineLatest([
 							this.liteService.getLitePlanOptions(action.job.planId),
@@ -329,7 +330,7 @@ export class LiteEffects
 						sagLoaded: true,
 						salesAgreement: action.salesAgreement,
 						currentChangeOrder: action.changeOrder,
-						isPhdLite: !action.tree
+						isPhdLite: !action.tree || this.liteService.checkLiteAgreement(action.job, action.changeOrder)
 					};
 				}
 				else if (action instanceof PlansLoaded) {

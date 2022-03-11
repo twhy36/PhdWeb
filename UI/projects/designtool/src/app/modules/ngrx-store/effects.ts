@@ -34,6 +34,7 @@ import { TemplatesLoaded } from './contract/actions';
 import { SavePendingJio, CreateJobChangeOrders, CreatePlanChangeOrder } from './change-order/actions';
 import { State, canDesign, showSpinner } from './reducers';
 import { FavoriteService } from '../core/services/favorite.service';
+import { LiteService } from '../core/services/lite.service';
 
 @Injectable()
 export class CommonEffects
@@ -699,7 +700,7 @@ export class CommonEffects
 						sagLoaded: true, 
 						salesAgreement: action.salesAgreement, 
 						currentChangeOrder: action.changeOrder, 
-						isPhdLite: !action.tree 
+						isPhdLite: !action.tree || this.liteService.checkLiteAgreement(action.job, action.changeOrder)
 					};
 				}
 				else if (action instanceof PlansLoaded)
@@ -793,6 +794,7 @@ export class CommonEffects
 		private contractService: ContractService,
 		private spinnerService: SpinnerService,
 		private attributeService: AttributeService,
-		private favoriteService: FavoriteService
+		private favoriteService: FavoriteService,
+		private liteService: LiteService
 	) { }
 }
