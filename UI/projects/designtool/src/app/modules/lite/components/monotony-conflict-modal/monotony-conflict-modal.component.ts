@@ -1,5 +1,7 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 
+import { UnsubscribeOnDestroy } from 'phd-common';
+
 import { MonotonyConflict } from '../../../shared/models/monotony-conflict.model';
 
 @Component({
@@ -7,7 +9,7 @@ import { MonotonyConflict } from '../../../shared/models/monotony-conflict.model
 	templateUrl: './monotony-conflict-modal.component.html',
 	styleUrls: ['./monotony-conflict-modal.component.scss']
 })
-export class MonotonyConflictModalComponent
+export class MonotonyConflictModalComponent extends UnsubscribeOnDestroy
 {
 	@Input() monotonyConflict: MonotonyConflict;
 
@@ -17,7 +19,7 @@ export class MonotonyConflictModalComponent
 
 	acknowledgedMonotonyConflict: boolean;
 
-	constructor() {	}
+	constructor() { super(); }
 
 	acknowledgeMonotonyConflict()
 	{
