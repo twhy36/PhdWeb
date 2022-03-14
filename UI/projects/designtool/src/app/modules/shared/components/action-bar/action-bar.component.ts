@@ -187,7 +187,6 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 						state.salesAgreement,
 						state.lite.scenarioOptions,
 						state.lite.options,
-						state.lite.categories,
 						state.scenario.overrideReason
 					))
 		).subscribe(changeOrderIsEmpty => this.isChangeEmpty = changeOrderIsEmpty);

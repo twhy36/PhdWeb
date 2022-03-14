@@ -860,7 +860,6 @@ export class LiteService
 		salesAgreementId: number,
 		currentOptions: ScenarioOption[], 
 		options: LitePlanOption[],
-		categories: IOptionCategory[],
 		overrideNote: string,		 
 		isJio: boolean = false): any
 	{
@@ -879,7 +878,6 @@ export class LiteService
 				origOptions, 
 				currentOptions, 
 				options, 
-				categories, 
 				overrideNote
 			),
 			handings: this.changeOrderService.createJobChangeOrderHandings(handing, origHanding),
@@ -892,7 +890,6 @@ export class LiteService
 		origOptions: JobPlanOption[], 
 		currentOptions: ScenarioOption[], 
 		options: LitePlanOption[],
-		categories: IOptionCategory[],
 		overrideNote: string
 	): Array<any>
 	{
@@ -902,12 +899,6 @@ export class LiteService
 				(opt.optionSubCategoryId === Elevation.Detached || opt.optionSubCategoryId === Elevation.Attached));
 		};
 
-		const isBaseHouseOption = function(planOptionId: number)
-		{
-			const baseHouseCategory = categories.find(x => x.name.toLowerCase() === "base house");
-			return !!options.find(opt => opt.optionCategoryId === baseHouseCategory?.id	&& opt.id === planOptionId);
-		};
-
 		let optionsDto = [];
 
 		// Loop through selected options to find new or changed options
@@ -915,7 +906,7 @@ export class LiteService
 			const origOption = origOptions.find(orig => orig.planOptionId === curr.edhPlanOptionId);
 			const option = options.find(option => option.id === curr.edhPlanOptionId);
 			const isElevation = isElevationOption(curr.edhPlanOptionId);
-			const optionType = isElevation ? 'Elevation' : (isBaseHouseOption(option.id) ? 'BaseHouse' : 'Standard');
+			const optionType = isElevation ? 'Elevation' : (option.isBaseHouse ? 'BaseHouse' : 'Standard');
 
 			if (origOption)
 			{
@@ -1079,7 +1070,6 @@ export class LiteService
 		salesAgreement: SalesAgreement, 
 		currentOptions: ScenarioOption[], 
 		options: LitePlanOption[],
-		categories: IOptionCategory[],
 		overrideNote: string		 
 	): boolean
 	{
@@ -1092,7 +1082,6 @@ export class LiteService
 				salesAgreement.id,
 				currentOptions,
 				options,
-				categories,
 				overrideNote
 			);
 

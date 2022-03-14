@@ -161,14 +161,49 @@ export class LiteEffects
 									});
 								}
 
-								// locked-in option price
-								action.job.jobPlanOptions.forEach(jobPlanOption => {
-									let option = options.find(option => option.id === jobPlanOption.planOptionId);
-									if (option && option.listPrice !== jobPlanOption.listPrice)
+								// Option price
+								if (store.salesAgreement.status === 'Approved')
+								{
+									// Price locked in job
+									action.job.jobPlanOptions?.forEach(jobPlanOption => {
+										let option = options.find(option => option.id === jobPlanOption.planOptionId);
+										if (option && option.listPrice !== jobPlanOption.listPrice)
+										{
+											option.listPrice = jobPlanOption.listPrice;
+										}
+									});
+								}
+								else if (store.salesAgreement.status === 'Signed' || store.salesAgreement.status === 'OutforSignature')
+								{
+									if (action.changeOrder?.jobChangeOrders)
 									{
-										option.listPrice = jobPlanOption.listPrice;
+										// Price locked in JIO when the agreement is out for signature or signed
+										const changeOrderPlanOptions = _.flatMap(action.changeOrder.jobChangeOrders, co => co.jobChangeOrderPlanOptions) || [];
+
+										changeOrderPlanOptions.forEach(coPlanOption => {
+											let option = options.find(option => option.id === coPlanOption.planOptionId);
+											if (option && option.listPrice !== coPlanOption.listPrice)
+											{
+												option.listPrice = coPlanOption.listPrice;
+											}
+										});										
 									}
-								})
+								}
+								else if (store.salesAgreement.status === 'Pending')
+								{
+									// Update the base house price if phase pricing is set up for the plan
+									if (action.lot.salesPhase?.salesPhasePlanPriceAssocs?.length)
+									{
+										const isPhaseEnabled = action.lot.financialCommunity?.isPhasedPricingEnabled;
+										const phasePlanPrice = action.lot.salesPhase?.salesPhasePlanPriceAssocs?.find(x => x.planId === action.job.planId);
+							
+										if (isPhaseEnabled && phasePlanPrice)
+										{
+											let baseHouseOption = options.find(option => option.isBaseHouse && option.isActive);
+											baseHouseOption.listPrice = phasePlanPrice.price;
+										}
+									}									
+								}
 
 								const optionIds = options.map(o => o.id);
 								const optionCommunityIds = _.uniq(options.map(o => o.optionCommunityId));

@@ -388,7 +388,17 @@ export class ContractService
 		);
 	}
 
-	createContractSnapshot(store: fromRoot.State, priceBreakdown: PriceBreakdown, isSpecSalePending: boolean, selectLot: fromLot.State, elevationDP: DecisionPoint, coPrimaryBuyer: Buyer, coCoBuyers: Buyer[], selectedLiteElevation: LitePlanOption, selectedLiteColorScheme: ScenarioOptionColor)
+	createContractSnapshot(
+		store: fromRoot.State, 
+		priceBreakdown: PriceBreakdown, 
+		isSpecSalePending: boolean, 
+		selectLot: fromLot.State, 
+		elevationDP: DecisionPoint, 
+		coPrimaryBuyer: Buyer, 
+		coCoBuyers: Buyer[], 
+		selectedLiteElevation: LitePlanOption, 
+		selectedLiteColorScheme: ScenarioOptionColor,
+		planPrice: number)
 	{
 		// get selected templates and sort by display order
 		const templates = store.contract.selectedTemplates.length ? store.contract.selectedTemplates.map(id => {
@@ -408,7 +418,7 @@ export class ContractService
 		if (templates.some(t => t.templateId === 0))
 		{
 			currentHouseSelections = store.lite.isPhdLite
-				? getLiteCurrentHouseSelections(store.lite, selectedLiteElevation, selectedLiteColorScheme, liteBaseHouseOptions)
+				? getLiteCurrentHouseSelections(store.lite, selectedLiteElevation, selectedLiteColorScheme, liteBaseHouseOptions, planPrice)
 				: getCurrentHouseSelections(store.scenario.tree.treeVersion.groups);
 		}
 
