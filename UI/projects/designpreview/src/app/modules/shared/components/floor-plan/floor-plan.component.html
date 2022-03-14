@@ -1,2 +1,2 @@
-<div id="av-floor-plan" class="mt-auto phd-ifp" #av_floor_plan height [style.height]="height"></div>
+<div *ngIf="planId !== 0" id="av-floor-plan" class="mt-auto phd-ifp" #av_floor_plan height [style.height]="height"></div>
 <img *ngIf="planId === 0" class="phd-default-ifp" [src]="getImageSrc()" >

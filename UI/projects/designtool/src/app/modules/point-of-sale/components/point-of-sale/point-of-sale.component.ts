@@ -397,11 +397,12 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 				this.store.select(fromChangeOrder.changeOrderPrimaryBuyer),
 				this.store.select(fromChangeOrder.changeOrderCoBuyers),
 				this.store.select(fromLite.selectedElevation),
-				this.store.select(fromLite.selectedColorScheme)
+				this.store.select(fromLite.selectedColorScheme),
+				this.store.select(fromRoot.selectedPlanPrice)
 			),
-			switchMap(([store, priceBreakdown, isSpecSalePending, selectLot, elevationDP, coPrimaryBuyer, coCoBuyers, selectedLiteElevation, selectedLiteColorScheme]) =>
+			switchMap(([store, priceBreakdown, isSpecSalePending, selectLot, elevationDP, coPrimaryBuyer, coCoBuyers, selectedLiteElevation, selectedLiteColorScheme, planPrice]) =>
 			{
-				var currentSnapshot = this.contractService.createContractSnapshot(store, priceBreakdown, isSpecSalePending, selectLot, elevationDP, coPrimaryBuyer, coCoBuyers, selectedLiteElevation, selectedLiteColorScheme);
+				var currentSnapshot = this.contractService.createContractSnapshot(store, priceBreakdown, isSpecSalePending, selectLot, elevationDP, coPrimaryBuyer, coCoBuyers, selectedLiteElevation, selectedLiteColorScheme, planPrice);
 
 				return of(currentSnapshot);
 			}),

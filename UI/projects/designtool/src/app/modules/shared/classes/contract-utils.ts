@@ -92,9 +92,17 @@ export function getChangeOrderGroupSelections(groups: Array<Group>, jobChangeOrd
 }
 
 // BEGIN PHD Lite
-export function getLiteCurrentHouseSelections(lite: fromLite.State, selectedElevation: LitePlanOption, selectedColorScheme: ScenarioOptionColor, baseHouseOptions: { selectedBaseHouseOptions: LitePlanOption[], baseHouseCategory: IOptionCategory }): SDGroup[]
+export function getLiteCurrentHouseSelections(
+	lite: fromLite.State, 
+	selectedElevation: LitePlanOption, 
+	selectedColorScheme: ScenarioOptionColor, 
+	baseHouseOptions: { selectedBaseHouseOptions: LitePlanOption[], baseHouseCategory: IOptionCategory },
+	planPrice: number
+): SDGroup[]
 {
-	const selectedBaseHouseOptions: LitePlanOption[] = baseHouseOptions.selectedBaseHouseOptions;
+	const selectedBaseHouseOptions: LitePlanOption[] = baseHouseOptions.selectedBaseHouseOptions?.map(option => {
+		return {...option, listPrice: planPrice};
+	});
 
 	const optionCategories: SDGroup[] = [];
 	const allSubCategories = _.flatMap(lite.categories, c => c.optionSubCategories) || [];

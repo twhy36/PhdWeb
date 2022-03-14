@@ -76,7 +76,6 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 	isDesignPreviewEnabled: boolean;
 
 	// PHD Lite
-	isPhdLite$: Observable<boolean>;
 	isPhdLite: boolean;
 
 	JOB_CHANGEORDER_TYPES = [
@@ -440,14 +439,10 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 			select(fromRoot.isDesignPreviewEnabled)
 		).subscribe(enabled => this.isDesignPreviewEnabled = enabled);
 
-		this.isPhdLite$ = this.store.pipe(
+		this.store.pipe(
 			this.takeUntilDestroyed(),
-			select(state =>
-			{
-				this.isPhdLite = state.lite.isPhdLite;
-				return this.isPhdLite;
-			})
-		);		
+			select(state => state.lite)
+		).subscribe(lite => this.isPhdLite = lite.isPhdLite);
 	}
 
 	getESignStatus(changeOrder: any): string

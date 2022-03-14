@@ -140,7 +140,7 @@ export const liteState = createFeatureSelector<State>('lite');
 export const elevationOptions = createSelector(
 	liteState,
 	(state) => {
-		const elevations = state.options.filter(option => option.optionSubCategoryId === Elevation.Detached || option.optionSubCategoryId === Elevation.Attached);
+		const elevations = state?.options?.filter(option => option.optionSubCategoryId === Elevation.Detached || option.optionSubCategoryId === Elevation.Attached) || [];
 		return _.sortBy(elevations, 'name');
 	});
 
@@ -174,7 +174,7 @@ export const selectedColorScheme = createSelector(
 export const selectedOptionCategories = createSelector(
 	liteState,
 	(state) => {
-		return state.categories;
+		return state?.categories;
 	}
 );
 
