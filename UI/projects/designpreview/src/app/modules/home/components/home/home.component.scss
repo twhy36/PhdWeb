@@ -22,7 +22,7 @@
 	width: calc(44vw);
 	max-height: calc(65vh);
 	border: var(--home-page-floorplan-border);
-	justify-content: flex-end;
+	justify-content: space-between;
 
 	span {
 		color: var(--home-page-community-label);
