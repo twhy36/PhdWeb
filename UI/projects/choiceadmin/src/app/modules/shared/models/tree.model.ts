@@ -595,6 +595,7 @@ export class AttributeReassignment
 	attributeGroupLabel: string = '';
 	dPointLabel: string = '';
 	choiceLabel: string = '';
+	dpChoiceOptionRuleAssocDPChoiceId: number = 0;
 
 	private _dto: PhdApiDto.IAttributeReassignment;
 
@@ -613,6 +614,7 @@ export class AttributeReassignment
 		this.attributeGroupLabel = dto.attributeGroupLabel;
 		this.dPointLabel = dto.dPointLabel;
 		this.choiceLabel = dto.choiceLabel;
+		this.dpChoiceOptionRuleAssocDPChoiceId = dto.dpChoiceOptionRuleAssocDPChoiceId;
 
 		this._dto = dto;
 	}

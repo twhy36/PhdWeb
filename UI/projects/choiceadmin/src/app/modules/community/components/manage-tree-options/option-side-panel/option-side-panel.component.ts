@@ -761,17 +761,17 @@ export class OptionSidePanelComponent implements OnInit, OnChanges
 
 	}
 
-	onSaveAttributeReassignment(params: { attributeReassignment: PhdApiDto.IAttributeReassignmentDto, callback: Function })
+	onSaveAttributeReassignment(params: { attributeReassignments: PhdApiDto.IAttributeReassignmentDto[], callback: Function })
 	{
 		this.isSaving = true;
 
-		this._treeService.saveAttributeReassignment(params.attributeReassignment)
+		this._treeService.saveAttributeReassignments(params.attributeReassignments)
 			.pipe(finalize(() => this.isSaving = false))
-			.subscribe(attributeReassignment =>
+			.subscribe(attributeReassignments =>
 			{
-				if (attributeReassignment != null)
+				if (attributeReassignments.length)
 				{
-					params.callback(true, attributeReassignment);
+					params.callback(true, attributeReassignments);
 				}
 				else
 				{
@@ -780,16 +780,16 @@ export class OptionSidePanelComponent implements OnInit, OnChanges
 			}, (error) => params.callback(false));
 	}
 
-	onDeleteAttributeReassignment(params: { attributeReassignmentId: number, callback: Function })
+	onDeleteAttributeReassignment(params: { attributeReassignmentIds: number[], callback: Function })
 	{
 		this.isSaving = true;
 
 		// delete choice
-		this._treeService.deleteAttributeReassignment(params.attributeReassignmentId)
+		this._treeService.deleteAttributeReassignment(params.attributeReassignmentIds)
 			.pipe(finalize(() => this.isSaving = false))
 			.subscribe(response =>
 			{
-				params.callback(true);
+				params.callback(true, params.attributeReassignmentIds);
 			}, (error) => params.callback(false));
 	}
 

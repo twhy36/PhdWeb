@@ -458,11 +458,11 @@ export namespace PhdEntityDto
 	{
 		attributeReassignmentID?: number;
 		dTreeVersionID?: number;
-		toDPChoiceID?: number;
+		todpChoiceID?: number;
 		dpChoiceOptionRuleAssocID?: number;
 		attributeGroupID?: number;
 
-		dpChoiceOptionRuleAssoc?: IDPChoice_OptionRuleAssocDto;
+		dpChoice_OptionRuleAssoc?: IDPChoice_OptionRuleAssocDto;
 		todpChoice?: IDPChoiceDto;
 		dTreeVersion?: IDTreeVersionDto;
 	}
@@ -747,5 +747,6 @@ export namespace PhdApiDto
 		attributeGroupLabel: string;
 		dPointLabel: string;
 		choiceLabel: string;
+		dpChoiceOptionRuleAssocDPChoiceId: number;
 	}
 }
