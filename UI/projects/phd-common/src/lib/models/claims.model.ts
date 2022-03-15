@@ -20,7 +20,8 @@ export type ClaimTypes =
 	'ColorManagement' |
 	'LotRelationships' |
 	'LotRelationships' |
-	'InternalNotes';
+	'InternalNotes' |
+	'Deposits';
 
 export type Claims = { [K in ClaimTypes]: number };
 

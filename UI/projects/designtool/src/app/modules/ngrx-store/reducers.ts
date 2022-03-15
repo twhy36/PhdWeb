@@ -120,6 +120,19 @@ export const canSell = createSelector(
 	fromUser.selectUser,
 	(market, user) => !!market && user.canSell && user.assignedMarkets.some(m => m.number === market.number)
 )
+
+export const canDeleteDeposit = createSelector(
+	fromOrg.market,
+	fromUser.selectUser,
+	(market, user) => !!market && user.canDeleteDeposits && user.assignedMarkets.some(m => m.number === market.number)
+)
+
+export const canCreateDeposit = createSelector(
+	fromOrg.market,
+	fromUser.selectUser,
+	(market, user) => !!market && user.canCreateDeposits && user.assignedMarkets.some(m => m.number === market.number)
+)
+
 export const canCancelSalesAgreement = createSelector(
 	fromOrg.market,
 	fromUser.selectUser,
