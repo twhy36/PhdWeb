@@ -2,7 +2,7 @@ import { Component, Input, OnInit, OnDestroy, Output, EventEmitter, ViewChild } 
 
 import { finalize } from 'rxjs/operators';
 
-import * as _ from "lodash";
+import * as _ from 'lodash';
 
 import { AttributeService } from '../../../../core/services/attribute.service';
 import { MessageService, Message } from 'primeng/api';
@@ -12,7 +12,7 @@ import { DTChoice, IDTGroup, IDTSubGroup, IDTPoint, IDTChoice, AttributeReassign
 import { Subscription } from 'rxjs';
 import { TreeService } from '../../../../core/services/tree.service';
 import { PhdApiDto, PhdEntityDto } from '../../../../shared/models/api-dtos.model';
-import { ITreeOption } from '../../../../shared/models/option.model';
+import { IOptionRuleChoice, ITreeOption } from '../../../../shared/models/option.model';
 import { bind } from '../../../../shared/classes/decorators.class';
 import { ChoiceSelectorComponent } from '../../../../shared/components/choice-selector/choice-selector.component';
 import { getMaxSortOrderChoice } from '../../../../shared/classes/utils.class';
@@ -29,14 +29,14 @@ export class OptionAttributesPanelComponent implements OnInit, OnDestroy
 	@Input() isReadOnly: boolean;
 	@Input() currentTree: DTree;
 
-	@Output() saveAttributeReassignment = new EventEmitter<{ attributeReassignment: PhdApiDto.IAttributeReassignmentDto, callback: Function }>();
-	@Output() deleteAttributeReassignment = new EventEmitter<{ attributeReassignmentId: number, callback: Function }>();
+	@Output() saveAttributeReassignment = new EventEmitter<{ attributeReassignments: PhdApiDto.IAttributeReassignmentDto[], callback: Function }>();
+	@Output() deleteAttributeReassignment = new EventEmitter<{ attributeReassignmentIds: number[], callback: Function }>();
 
 	@ViewChild(ChoiceSelectorComponent) choiceSelector: ChoiceSelectorComponent;
 
 	optionAttributeMessage: string = '';
 	attributeGroups: Array<AttributeGroupCommunity>;
-	selectedGroup: AttributeGroupCommunity;
+	selectedAttributeGroup: AttributeGroupCommunity;
 	attributesLoaded: boolean = false;
 
 	treeVersionId: number;
@@ -48,19 +48,46 @@ export class OptionAttributesPanelComponent implements OnInit, OnDestroy
 	searchResultsCount = 0;
 	selectedChoices: Array<DTChoice> = [];
 
+	selectedMapping: IReassignmentOptionChoiceMapping = null;
+
 	keyword = '';
 	treeSubscription: Subscription;
 
-	selectedAttributeReassignment: AttributeReassignment;
+	currentAttributeReassignments: AttributeReassignment[] = [];
 
-	originalChoice: PhdApiDto.IOptionChoiceRuleChoice;
+	originalChoiceList: IReassignmentOptionChoiceMapping[] = [];
 
 	constructor(private _msgService: MessageService, private _attrService: AttributeService, private _treeService: TreeService) { }
 
 	get showAttributeReassignment(): boolean
 	{
 		// To allow Attribute Reassignment the Option must be mapped to a choice, there must be a choice to choice or point to choice rule between the mapped choice and the rule, and the option must have attributes.
-		return this.selectedGroup && this.groups && this.groups.length > 0 && (this.optionRule && this.optionRule.choices.length > 0);
+		return this.selectedAttributeGroup && this.originalChoiceList.some(c => c.groups && c.groups.length > 0) && (this.optionRule && this.optionRule.choices.length > 0);
+	}
+
+	get filteredChoiceList(): IReassignmentOptionChoiceMapping[]
+	{
+		// filter down the list to only choices that have yet to be replaced
+		return this.originalChoiceList.filter(oc => oc.groups.length && (this.currentAttributeReassignments.length ? !this.currentAttributeReassignments.some(ar => oc.choices.some(c => c.id === ar.dpChoiceOptionRuleAssocID)) : true));
+	}
+
+	get filteredAttributeReassignments(): AttributeReassignment[]
+	{
+		// group all the attributeReassignments by their parent choiceId
+		const groupedAttributeReassignmentByAssocId = _.groupBy(this.currentAttributeReassignments, ar => ar.dpChoiceOptionRuleAssocDPChoiceId);
+
+		// add the results into a easy to handle array
+		const groupedAttributeReassignments: AttributeReassignment[][] = _.map(groupedAttributeReassignmentByAssocId, (ar) => ar);
+
+		// bring down the array to one item per
+		const attributeReassignments = groupedAttributeReassignments.map(ar => ar[0]);
+
+		return attributeReassignments;
+	}
+
+	get showChoiceListSelect(): boolean
+	{
+		return this.originalChoiceList.length > 1 || (this.originalChoiceList.length === 1 && this.originalChoiceList[0].choices.length > 1);
 	}
 
 	ngOnInit(): void
@@ -70,8 +97,101 @@ export class OptionAttributesPanelComponent implements OnInit, OnDestroy
 		this.getAssociatedAttributeGroups();
 	}
 
+	getAssociatedAttributeGroups()
+	{
+		this._attrService.getOptionCommunityAttributeGroups(this.option.optionCommunityId)
+			.pipe(finalize(() => this.attributesLoaded = true))
+			.subscribe(groups =>
+			{
+				this.attributeGroups = groups as Array<AttributeGroupCommunity>;
+
+				if (this.attributeGroups && this.attributeGroups.length)
+				{
+					this.selectedAttributeGroup = this.attributeGroups[0];
+
+					if (this.optionRule && this.optionRule.choices.length > 0)
+					{
+						// sets originalChoiceList with each mapping groups maxSortOrderChoice
+						this.setMappingList();
+
+						// get any point to choice or choice to choice rules
+						this.getChoiceRules();
+
+						// pull in any existing Attribute Reassignments for the selected Attribute Group
+						this.getAttributeReassignment();
+					}
+				}
+				else
+				{
+					this.optionAttributeMessage = `No Attributes Found.`;
+				}
+			},
+			error =>
+			{
+				this.optionAttributeMessage = `Unable to load attribute group(s).`;
+			});
+	}
+
+	setMappingList()
+	{
+		// group all the choices by their mappedIndex
+		const groupChoicesByIndex = _.groupBy(this.optionRule.choices, c => c.mappingIndex);
+
+		// add the results into a easy to handle array
+		const groupChoices: IOptionRuleChoice[][] = _.map(groupChoicesByIndex, (ruleChoices) => ruleChoices);
+
+		groupChoices.forEach(choiceList =>
+		{
+			let maxSortOrderChoice = getMaxSortOrderChoice(this.currentTree, choiceList.filter(c => c.mustHave).map(c => c.choiceId));
+			let choice = choiceList.find(c => c.choiceId === maxSortOrderChoice);
+
+			let ocl = this.originalChoiceList.find(x => x.choiceId === choice.choiceId);
+
+			if (ocl)
+			{
+				// combine choices with the same choiceId
+				ocl.choices.push(choice);
+			}
+			else
+			{
+				this.originalChoiceList.push({ choiceId: choice.choiceId, choices: [choice], groups: [] } as IReassignmentOptionChoiceMapping);
+			}
+		});
+	}
+
+	getChoiceRules()
+	{
+		// get any point to choice or choice to choice rules for the maxSortOrder Option Mapping Choices
+		this._treeService.getChoiceRulesByChoiceId(this.originalChoiceList.map(c => c.choiceId))
+			.subscribe(choices =>
+			{
+				if (choices.length)
+				{
+					choices.forEach(choice =>
+					{
+						this.setGroups(choice);
+					});
+
+					if (choices.length > 1)
+					{
+						// set default mapping 
+						this.selectedMapping = this.filteredChoiceList[0];
+					}
+
+					// set a default group
+					this.groups = this.filteredChoiceList[0].groups;
+				}
+			},
+			error =>
+			{
+
+			});
+	}
+
 	setGroups(choice: PhdEntityDto.IDPChoiceDto)
 	{
+		let workingChoiceList = this.originalChoiceList.find(c => c.choiceId === choice.dpChoiceID);
+
 		let pointToChoices: PhdEntityDto.IDPointRuleAssoc_DPChoiceAssocDto[] = choice.dPointRuleAssoc_DPChoiceAssoc || [];
 		let choiceToChoices: PhdEntityDto.IDPChoiceRule_DPChoiceAssocDto[] = choice.dpChoiceRule_DPChoiceAssoc || [];
 
@@ -83,8 +203,8 @@ export class OptionAttributesPanelComponent implements OnInit, OnDestroy
 
 		// find groups that appear in the point and choice rules
 		let filteredGroups = this.currentTree.version.groups.filter(g => g.subGroups.some(sg => sg.points.some(p => (points.findIndex(x => x === p.id) > -1 || p.choices.some(c => choices.findIndex(x => x === c.id) > -1)))));
-
-		this.groups = filteredGroups.map(g =>
+		
+		workingChoiceList.groups = filteredGroups.map(g =>
 		{
 			// find subGroups that appear in the point and choice rules
 			let filteredSubGroups = g.subGroups.filter(sg => sg.points.some(p => (points.findIndex(x => x === p.id) > -1 || p.choices.some(c => choices.findIndex(x => x === c.id) > -1))));
@@ -131,86 +251,47 @@ export class OptionAttributesPanelComponent implements OnInit, OnDestroy
 		});
 	}
 
+	getAttributeReassignment()
+	{
+		this.currentAttributeReassignments = [];
+
+		this._treeService.getAttributeReassignments(this.treeVersionId, this.optionRule.id, this.selectedAttributeGroup.id).pipe(
+			finalize(() =>
+			{
+				this.resetRule();
+			}))
+			.subscribe(attributeReassignments =>
+			{
+				if (attributeReassignments.length)
+				{
+					attributeReassignments.map(attributeReassignment => attributeReassignment.attributeGroupLabel = this.selectedAttributeGroup.groupName);
+
+					this.currentAttributeReassignments = attributeReassignments;
+				}
+			},
+			error =>
+			{
+
+			});
+	}
+
 	ngOnDestroy(): void
 	{
 		if (this.treeSubscription)
 		{
 			this.treeSubscription.unsubscribe();
 		}
-	}
+	}	
 
-	getAssociatedAttributeGroups()
+	onChangeMapping()
 	{
-		this._attrService.getOptionCommunityAttributeGroups(this.option.optionCommunityId)
-			.pipe(finalize(() => this.attributesLoaded = true))
-			.subscribe(groups =>
-			{
-				this.attributeGroups = groups as Array<AttributeGroupCommunity>;
+		this.resetRule(false);
 
-				if (this.attributeGroups && this.attributeGroups.length)
-				{
-					this.selectedGroup = this.attributeGroups[0];
-
-					if (this.optionRule && this.optionRule.choices.length > 0)
-					{
-						this.getChoiceRules();
-						this.getAttributeReassignment();
-					}
-				}
-				else
-				{
-					this.optionAttributeMessage = `No Attributes Found.`;
-				}
-			},
-			error =>
-			{
-				this.optionAttributeMessage = `Unable to load attribute group(s).`;
-			});
-	}
-
-	getChoiceRules()
-	{
-		const maxSortOrderChoice = getMaxSortOrderChoice(this.currentTree, this.optionRule.choices.filter(c => c.mustHave).map(c => c.choiceId));
-
-		this.originalChoice = this.optionRule.choices.find(c => c.choiceId === maxSortOrderChoice);
-
-		this._treeService.getChoiceRulesByChoiceId(this.originalChoice.choiceId)
-			.subscribe(choice =>
-			{
-				if (choice)
-				{
-					this.setGroups(choice);
-				}
-			},
-			error =>
-			{
-
-			});
-	}
-
-	getAttributeReassignment()
-	{
-		this.selectedAttributeReassignment = null;
-
-		this._treeService.getAttributeReassignment(this.treeVersionId, this.optionRule.id, this.selectedGroup.id)
-			.subscribe(attributeReassignment =>
-			{
-				if (attributeReassignment)
-				{
-					attributeReassignment.attributeGroupLabel = this.selectedGroup.groupName;
-
-					this.selectedAttributeReassignment = attributeReassignment;
-				}
-			},
-			error =>
-			{
-
-			});
+		this.groups = this.selectedMapping ? this.selectedMapping.groups : [];
 	}
 
 	onChangeAttributeGroup()
 	{
-		this.resetRule();
 		this.getAttributeReassignment();
 	}
 
@@ -457,9 +538,12 @@ export class OptionAttributesPanelComponent implements OnInit, OnDestroy
 		this.selectedChoices.splice(index, 1);
 	}
 
-	removeChoice(attributeReassignmentId: number)
+	deleteAttributeReassignmentClick(attributeReassignment: AttributeReassignment)
 	{
-		this.deleteAttributeReassignment.emit({ attributeReassignmentId: attributeReassignmentId, callback: this.onDeleteAttributeReassignment });
+		// get all the Ids since we need to delete all matching records
+		const attributeReassignmentIds = this.currentAttributeReassignments.filter(ar => ar.dpChoiceOptionRuleAssocDPChoiceId === attributeReassignment.dpChoiceOptionRuleAssocDPChoiceId).map(ar => ar.id);
+
+		this.deleteAttributeReassignment.emit({ attributeReassignmentIds: attributeReassignmentIds, callback: this.onDeleteAttributeReassignment });
 	}
 
 	cancelClick()
@@ -469,21 +553,28 @@ export class OptionAttributesPanelComponent implements OnInit, OnDestroy
 
 	saveClick()
 	{
-		let choice = this.selectedChoices[0];
+		let selectedChoice = this.selectedChoices[0];
+		let attributeReassignments: PhdApiDto.IAttributeReassignmentDto[] = [];
+		let mappingChoices = this.selectedMapping ? this.selectedMapping.choices : this.originalChoiceList[0].choices;
 
-		let attributeReassignment = {
-			attributeReassignmentId: 0,
-			attributeGroupId: this.selectedGroup.id,
-			toChoiceId: choice.id,
-			dpChoiceOptionRuleAssocID: this.originalChoice.id,
-			treeVersionId: choice.treeVersionId
-		} as PhdApiDto.IAttributeReassignmentDto;
+		mappingChoices.forEach(choice =>
+		{
+			let attributeReassignment = {
+				attributeReassignmentId: 0,
+				attributeGroupId: this.selectedAttributeGroup.id,
+				toChoiceId: selectedChoice.id,
+				dpChoiceOptionRuleAssocID: choice.id,
+				treeVersionId: choice.treeVersionId
+			} as PhdApiDto.IAttributeReassignmentDto;
 
-		this.saveAttributeReassignment.emit({ attributeReassignment: attributeReassignment, callback: this.onSaveAttributeReassignmentCallback });
+			attributeReassignments.push(attributeReassignment);
+		});
+
+		this.saveAttributeReassignment.emit({ attributeReassignments: attributeReassignments, callback: this.onSaveAttributeReassignmentCallback });
 	}
 
 	@bind
-	private onSaveAttributeReassignmentCallback(success: boolean, attributeReassignment: AttributeReassignment)
+	private onSaveAttributeReassignmentCallback(success: boolean, attributeReassignments: AttributeReassignment[])
 	{
 		let message: Message = {};
 
@@ -491,11 +582,18 @@ export class OptionAttributesPanelComponent implements OnInit, OnDestroy
 		{
 			let choice = this.selectedChoices[0];
 
-			attributeReassignment.attributeGroupLabel = this.selectedGroup.groupName;
-			attributeReassignment.dPointLabel = choice.parent.label;
-			attributeReassignment.choiceLabel = choice.label;
+			// need the mapping used so we can add the parent choiceId to the new records
+			const selectedMapping = this.selectedMapping || this.originalChoiceList[0];
 
-			this.selectedAttributeReassignment = attributeReassignment;
+			attributeReassignments.forEach(attributeReassignment =>
+			{
+				attributeReassignment.attributeGroupLabel = this.selectedAttributeGroup.groupName;
+				attributeReassignment.dPointLabel = choice.parent.label;
+				attributeReassignment.choiceLabel = choice.label;
+				attributeReassignment.dpChoiceOptionRuleAssocDPChoiceId = selectedMapping.choiceId;
+
+				this.currentAttributeReassignments.push(attributeReassignment);
+			});
 
 			message.severity = 'success';
 			message.summary = 'Attribute Reassignment Saved';
@@ -514,7 +612,7 @@ export class OptionAttributesPanelComponent implements OnInit, OnDestroy
 	}
 
 	@bind
-	private onDeleteAttributeReassignment(success: boolean)
+	private onDeleteAttributeReassignment(success: boolean, attributeReassignmentIds: number[])
 	{
 		let message: Message = {};
 
@@ -533,21 +631,49 @@ export class OptionAttributesPanelComponent implements OnInit, OnDestroy
 
 		this._msgService.add(message);
 
-		this.resetRule();
+		if (success)
+		{
+			attributeReassignmentIds.forEach(attributeReassignmentId =>
+			{
+				const index = this.currentAttributeReassignments.findIndex(c => c.id === attributeReassignmentId);
 
-		this.selectedAttributeReassignment = null;
+				this.currentAttributeReassignments.splice(index, 1);
+			});
+		}
+
+		this.resetRule();
 	}
 
-	resetRule()
+	resetRule(resetSelectedMapping: boolean = true)
 	{
 		this.showSearchResults = false;
 		this.searchResultsCount = 0;
 		this.keyword = '';
 		this.selectedChoices = [];
 
+		if (resetSelectedMapping)
+		{
+			this.selectedMapping = this.filteredChoiceList.length ? this.filteredChoiceList[0] : null;
+		}
+
 		if (this.choiceSelector)
 		{
 			this.choiceSelector.reset();
 		}
 	}
+
+	getOriginalChoiceLabel(attributeReassignment: AttributeReassignment)
+	{
+		let choiceMapping = this.originalChoiceList.find(oc => oc.choices.some(c => c.id === attributeReassignment.dpChoiceOptionRuleAssocID));
+		let label = choiceMapping !== null ? choiceMapping.choices[0].label : '';
+
+		return label;
+	}
+}
+
+interface IReassignmentOptionChoiceMapping
+{
+	choiceId: number;
+	choices: PhdApiDto.IOptionChoiceRuleChoice[];
+	groups: IDTGroup[];
 }
