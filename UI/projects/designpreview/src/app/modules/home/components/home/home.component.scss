@@ -18,10 +18,9 @@
 }
 
 .phd-home-plan {
-	background-color: #e4e5e4;
+	background-color: var(--home-page-floorplan-background-color);
 	width: calc(44vw);
 	max-height: calc(65vh);
-	border: var(--home-page-floorplan-border);
 	justify-content: space-between;
 
 	span {
