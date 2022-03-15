@@ -20,7 +20,8 @@ export type ClaimTypes = 'CommunityTree'
 	| 'LotRelationships'
 	| 'InternalNotes'
 	| 'DivisionOptions'
-	| 'DivisionChoices';
+	| 'DivisionChoices'
+	| 'Deposits';
 
 export type Claims = { [K in ClaimTypes]: number };
 

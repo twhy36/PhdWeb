@@ -75,13 +75,14 @@
 					[editing]="editing"
 					[position]="i"
 					[canEdit]="canSell && !cancelOrVoid && !isLockedIn"
+					[canDelete]="canDeleteDeposit && !cancelOrVoid && !isLockedIn"
 					(onRemove)="remove('deposits', $event)"
 					(onEdit)="edit($event)"
 					(checkChanges)="changes($event)"
 					*ngFor="let deposit of deposits; let i = index">
 	</deposit-detail>
 
-	<add-card *ngIf="!editing && (canSell || ( canDesign && canAddIncentive)) && !cancelOrVoid && !isLockedIn"
+	<add-card *ngIf="!editing && canCreateDeposit && !cancelOrVoid && !isLockedIn"
 			[hasNA]="false"
 			[label]="'Deposit'"
 			[labels]="'Deposits'"
