@@ -512,8 +512,12 @@ export class CommonEffects
 								? this.favoriteService.loadMyFavorites(result.salesAgreement.id)
 								: of([]);
 
+						const getTreeVersionIdByJobPlan$ = this.liteService.checkLiteAgreement(result.job, result.changeOrderGroup)
+							? of(null)
+							: this.changeOrderService.getTreeVersionIdByJobPlan(result.selectedPlanId);
+
 						return combineLatest([
-							this.changeOrderService.getTreeVersionIdByJobPlan(result.selectedPlanId),
+							getTreeVersionIdByJobPlan$,
 							getMyFavorites
 						]).pipe(
 							switchMap(([treeVersionId, favorites]) =>

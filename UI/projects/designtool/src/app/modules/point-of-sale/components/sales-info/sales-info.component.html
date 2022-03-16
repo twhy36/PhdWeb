@@ -74,7 +74,7 @@
 					[deposit]="deposit"
 					[editing]="editing"
 					[position]="i"
-					[canEdit]="canSell && !cancelOrVoid && !isLockedIn"
+					[canEdit]="canCreateDeposit && !cancelOrVoid && !isLockedIn"
 					[canDelete]="canDeleteDeposit && !cancelOrVoid && !isLockedIn"
 					(onRemove)="remove('deposits', $event)"
 					(onEdit)="edit($event)"
