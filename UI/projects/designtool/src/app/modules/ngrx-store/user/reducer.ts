@@ -16,6 +16,8 @@ export interface State
 	canUpdateECOE: boolean;
 	canLockSalesAgreement: boolean;
 	canEditInternalNotes: boolean;
+	canCreateDeposits: boolean;
+	canDeleteDeposits: boolean;
 	contactId: number;
 }
 
@@ -34,6 +36,8 @@ export const initialState: State =
 	canUpdateECOE: false, 
 	canLockSalesAgreement: false ,
 	canEditInternalNotes: false,
+	canCreateDeposits: false,
+	canDeleteDeposits: false
 };
 
 export function reducer(state: State = initialState, action: UserActions): State
@@ -54,6 +58,8 @@ export function reducer(state: State = initialState, action: UserActions): State
 				canUpdateECOE: action.claims.ECOE && !!(action.claims.ECOE & Permission.Edit),
 				canLockSalesAgreement: action.claims.LockSalesAgreement && !!(action.claims.LockSalesAgreement && Permission.Edit),
 				canEditInternalNotes: action.claims.InternalNotes && !!(action.claims.InternalNotes & Permission.Edit),
+				canCreateDeposits: action.claims.Deposits && !!(action.claims.Deposits & Permission.Create),
+				canDeleteDeposits: action.claims.Deposits && !!(action.claims.Deposits & Permission.DeleteCancel),
 				contactId: action.contactId
 			};
 		default:

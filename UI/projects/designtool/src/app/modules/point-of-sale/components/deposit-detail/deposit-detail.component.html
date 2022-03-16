@@ -3,7 +3,7 @@
 	<div class="phd-card-header">
 		<span>Deposit Detail</span>
 
-		<a (click)="!deleting && delete()" class="phd-delete-button" [class.phd-deleting]="deleting" *ngIf="!deposit.paidDate && canEdit">
+		<a (click)="!deleting && delete()" class="phd-delete-button" [class.phd-deleting]="deleting" *ngIf="!deposit.paidDate && canDelete">
 			<span>
 				<i class="fas fa-spinner"></i>
 			</span>

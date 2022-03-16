@@ -138,30 +138,74 @@ export class OptionChoiceRuleComponent implements OnInit, OnDestroy
 			// if working with only one record, then default the currentMappingIndex to that one records value.
 			this.currentMappingIndex = groupChoiceSize === 1 ? choiceList[0].mappingIndex : 0;
 
+			let subGroups = _.flatMap(this.groups, g => g.subGroups);
+			let points = _.flatMap(subGroups, sg => sg.points);
+			let choices = _.flatMap(points, p => p.choices);
+
 			for (const index in groupChoicesByIndex)
 			{
 				if (groupChoicesByIndex.hasOwnProperty(index))
 				{
+					// get mappings by index
 					const choicesByIndex = groupChoicesByIndex[index] as PhdApiDto.IOptionChoiceRuleChoice[];
 
-					// group choices by pointId
-					const groupedChoices = _.groupBy(choicesByIndex, c => c.pointId);
+					// get a flat list of choices with their sort orders.
+					let orderedChoices = choices.filter(c => choicesByIndex.find(x => x.choiceId === c.id)).map(c =>
+					{
+						return {
+							choiceId: c.id,
+							pointId: c.parent.id,
+							choiceSortOrder: c.sortOrder,
+							pointSortOrder: c.parent.sortOrder,
+							subGroupSortOrder: c.parent.parent.sortOrder,
+							groupSortOrder: c.parent.parent.parent.sortOrder
+						}
+					});
+
+					// sort the choices so we have the correct display order
+					let sortedChoices = _.orderBy(orderedChoices, ['groupSortOrder', 'subGroupSortOrder', 'pointSortOrder', 'choiceSortOrder']);
+
+					let loopPoint = { currPoint: null, prevPoint: null };
+					let sortedChoice = null;
+					let optionRuleChoiceGroup: IOptionRuleChoiceGroup = null;
+					let x = 0;
 
 					let optChoiceList: IOptionRuleChoiceGroup[] = [];
 
-					for (const key in groupedChoices)
+					while (x < sortedChoices.length)
 					{
-						if (groupedChoices.hasOwnProperty(key))
+						sortedChoice = sortedChoices[x];
+
+						// find our current working choice
+						let ruleChoice = choicesByIndex.find(x => x.choiceId === sortedChoice.choiceId);
+
+						loopPoint.currPoint = ruleChoice.pointId;
+
+						if (loopPoint.currPoint !== loopPoint.prevPoint)
 						{
-							const choices = groupedChoices[key] as Array<IOptionRuleChoice>;
+							if (optionRuleChoiceGroup !== null)
+							{
+								// we just changed points so lets output this one and move to the next
+								optChoiceList.push(optionRuleChoiceGroup);
+							}
 
-							const newItem = {
-								choices: choices,
-								pointId: choices[0].pointId,
-								pointLabel: choices[0].pointLabel
+							optionRuleChoiceGroup = {
+								choices: [],
+								pointId: ruleChoice.pointId,
+								pointLabel: ruleChoice.pointLabel
 							} as IOptionRuleChoiceGroup;
+						}
 
-							optChoiceList.push(newItem);
+						optionRuleChoiceGroup.choices.push(ruleChoice);
+
+						loopPoint.prevPoint = loopPoint.currPoint;
+
+						x++;
+
+						// out of sortedChoices, push our last record.
+						if (x === sortedChoices.length)
+						{							
+							optChoiceList.push(optionRuleChoiceGroup);
 						}
 					}
 

@@ -20,6 +20,7 @@
         "link-color": "#255c7b",
         "popup-ribbon-background-color": "#255c7b",
         "home-page-floorplan-border": "1px solid #002e5d",
+        "home-page-floorplan-background-color": "#f3f3f3",
         "button-border-radius": "35px",
         "logo-margin-top": "10px"
 	}

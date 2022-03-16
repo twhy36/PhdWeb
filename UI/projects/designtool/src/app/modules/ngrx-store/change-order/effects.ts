@@ -1,4 +1,4 @@
-import { Observable, forkJoin, from, of } from 'rxjs';
+import { Observable, forkJoin, from, of, never } from 'rxjs';
 import { switchMap, withLatestFrom, map, combineLatest } from 'rxjs/operators';
 
 import { SalesAgreementService } from './../../core/services/sales-agreement.service';
@@ -18,14 +18,14 @@ import
 	ChangeOrderActionTypes, LoadError, CurrentChangeOrderLoaded, SetChangingOrder, ChangeInputInitialized,
 	CreateJobChangeOrders, ChangeOrdersCreated, SaveError, CancelJobChangeOrder, CreateSalesChangeOrder, CreateNonStandardChangeOrder, CreatePlanChangeOrder, CancelPlanChangeOrder,
 	CancelLotTransferChangeOrder, CancelSalesChangeOrder, SetCurrentChangeOrder, CancelNonStandardChangeOrder, SavePendingJio, CreateCancellationChangeOrder, CreateLotTransferChangeOrder,
-	ResubmitChangeOrder, ChangeOrderOutForSignature, SetSalesChangeOrderTermsAndConditions, CurrentChangeOrderPending
+	ResubmitChangeOrder, ChangeOrderOutForSignature, SetSalesChangeOrderTermsAndConditions, CurrentChangeOrderPending, CurrentChangeOrderOutForSignature
 } from './actions';
 import { TreeLoadedFromJob, SelectChoices, SetLockedInChoices } from '../scenario/actions';
 import { ChangeOrdersCreatedForJob, JobUpdated } from '../job/actions';
 import { SelectLot } from '../lot/actions';
 import { OpportunityLoaded } from '../opportunity/actions';
 import { SetChangeOrderTemplates } from '../contract/actions';
-import { SelectPlan } from '../plan/actions';
+import { SelectPlan, PlansLoaded } from '../plan/actions';
 import { SalesAgreementSaved } from '../sales-agreement/actions';
 
 import { CommonActionTypes, SalesAgreementLoaded, JobLoaded, ESignEnvelopesLoaded } from '../actions';
@@ -107,7 +107,6 @@ export class ChangeOrderEffects
 							store.salesAgreement.id,
 							store.lite.scenarioOptions,
 							store.lite.options,
-							store.lite.categories,
 							store.scenario.overrideReason,
 							false
 						)
@@ -664,7 +663,6 @@ export class ChangeOrderEffects
 								store.salesAgreement.id,
 								store.lite.scenarioOptions,
 								store.lite.options,
-								store.lite.categories,
 								store.scenario.overrideReason,
 								true
 							)
@@ -917,6 +915,27 @@ export class ChangeOrderEffects
 		)
 	);
 
+	currentChangeOrderOutForSignature$: Observable<Action> = createEffect(() => {
+		return this.actions$.pipe(
+			ofType<CurrentChangeOrderOutForSignature>(ChangeOrderActionTypes.CurrentChangeOrderOutForSignature),
+			withLatestFrom(this.store),
+			switchMap(([action, store]) => {
+				const plans = _.cloneDeep(store.plan.plans);
+				const changeOrderPlanOptions = _.flatMap(store.changeOrder.currentChangeOrder?.jobChangeOrders, co => co.jobChangeOrderPlanOptions) || [];
+				const baseHouseOption = changeOrderPlanOptions.find(option => option.action === 'Add' && option.integrationKey === '00001');
+			
+				let selectedPlan = plans.find(plan => plan.id  === store.plan.selectedPlan);
+				if (selectedPlan && baseHouseOption)
+				{
+					selectedPlan.price = baseHouseOption.listPrice;
+					return of(new PlansLoaded(plans));						
+				}
+
+				return never();
+			})
+		);
+	});
+		
 	constructor(
 		private actions$: Actions,
 		private store: Store<fromRoot.State>,

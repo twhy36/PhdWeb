@@ -28,6 +28,7 @@ export class DepositDetailComponent extends ComponentCanNavAway implements OnIni
 	@Input() editing: any;
 	@Input() deposit: SalesAgreementDeposit;
 	@Input() canEdit: boolean;
+	@Input() canDelete: boolean;
 	default: SalesAgreementDeposit;
 
 	@Output() onRemove = new EventEmitter<number>();

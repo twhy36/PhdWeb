@@ -585,6 +585,7 @@ export class AttributeReassignment
 	attributeGroupLabel: string = '';
 	dPointLabel: string = '';
 	choiceLabel: string = '';
+	dpChoiceOptionRuleAssocDPChoiceId: number = 0;
 
 	private _dto: PhdApiDto.IAttributeReassignment;
 
@@ -603,6 +604,7 @@ export class AttributeReassignment
 		this.attributeGroupLabel = dto.attributeGroupLabel;
 		this.dPointLabel = dto.dPointLabel;
 		this.choiceLabel = dto.choiceLabel;
+		this.dpChoiceOptionRuleAssocDPChoiceId = dto.dpChoiceOptionRuleAssocDPChoiceId;
 
 		this._dto = dto;
 	}
@@ -616,12 +618,14 @@ export class AttributeReassignment
 	}
 }
 
-export class PointChoiceDependent {
+export class PointChoiceDependent
+{
 	pointDependentIds: Array<number>;
 	choiceDependentIds: Array<number>;
 }
 
-export interface ITreeSortList {
+export interface ITreeSortList
+{
 	pointList: Array<PhdApiDto.IDTreePointDto>;
 	choiceList: Array<PhdApiDto.IDTreeChoiceDto>;
 }

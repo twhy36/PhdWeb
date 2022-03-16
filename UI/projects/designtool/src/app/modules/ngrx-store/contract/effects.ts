@@ -63,14 +63,15 @@ export class ContractEffects
 				this.store.select(fromChangeOrder.changeOrderPrimaryBuyer),
 				this.store.select(fromChangeOrder.changeOrderCoBuyers),
 				this.store.select(fromLite.selectedElevation),
-				this.store.select(fromLite.selectedColorScheme)
+				this.store.select(fromLite.selectedColorScheme),
+				this.store.select(fromRoot.selectedPlanPrice)
 			),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store, priceBreakdown, isSpecSalePending, selectLot, elevationDP, coPrimaryBuyer, coCoBuyers, selectedLiteElevation, selectedLiteColorScheme]) =>
+				switchMap(([action, store, priceBreakdown, isSpecSalePending, selectLot, elevationDP, coPrimaryBuyer, coCoBuyers, selectedLiteElevation, selectedLiteColorScheme, planPrice]) =>
 				{
 					const isPreview = action.isPreview;
 
-					const currentSnapshot = this.contractService.createContractSnapshot(store, priceBreakdown, isSpecSalePending, selectLot, elevationDP, coPrimaryBuyer, coCoBuyers, selectedLiteElevation, selectedLiteColorScheme);
+					const currentSnapshot = this.contractService.createContractSnapshot(store, priceBreakdown, isSpecSalePending, selectLot, elevationDP, coPrimaryBuyer, coCoBuyers, selectedLiteElevation, selectedLiteColorScheme, planPrice);
 
 					let jobChangeOrderGroups = store.job.changeOrderGroups.map(o =>
 					{

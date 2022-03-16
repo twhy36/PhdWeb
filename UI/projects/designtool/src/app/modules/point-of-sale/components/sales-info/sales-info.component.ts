@@ -71,6 +71,8 @@ export class SalesInfoComponent extends UnsubscribeOnDestroy implements OnInit, 
 	hasPriceAdjustments: boolean = false;
 	isLockedIn: boolean = false;
 	inSalesChangeOrder = false;
+	canDeleteDeposit: boolean;
+	canCreateDeposit: boolean;
 
 	private cdSubject = new Subject<void>();
 
@@ -198,6 +200,16 @@ export class SalesInfoComponent extends UnsubscribeOnDestroy implements OnInit, 
 			select(fromRoot.canSell)
 		).subscribe(canSell => this.canSell = canSell);
 
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromRoot.canDeleteDeposit)
+		).subscribe(canDeleteDeposit => this.canDeleteDeposit = canDeleteDeposit);
+		
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromRoot.canCreateDeposit)
+		).subscribe(canCreateDeposit => this.canCreateDeposit = canCreateDeposit);
+		
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(fromRoot.canDesign),

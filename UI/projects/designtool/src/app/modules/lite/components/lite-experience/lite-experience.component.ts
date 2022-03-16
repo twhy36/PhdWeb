@@ -145,12 +145,15 @@ export class LiteExperienceComponent extends UnsubscribeOnDestroy implements OnI
 		.pipe(this.takeUntilDestroyed())
 		.subscribe(([selectedLot, monotonyConflict]) => 
 		{
-			if (selectedLot.selectedLot) 
+			if (selectedLot.selectedLot && monotonyConflict) 
 			{
-				this.monotonyConflict = monotonyConflict;
-
-				if (((monotonyConflict.elevationConflict && !monotonyConflict.elevationConflictOverride) || ((monotonyConflict.colorSchemeAttributeConflict || monotonyConflict.colorSchemeConflict) && !monotonyConflict.colorSchemeConflictOverride)) && !monotonyConflict.conflictSeen)
+				if (((monotonyConflict.elevationConflict && !monotonyConflict.elevationConflictOverride) || (monotonyConflict.colorSchemeConflict && !monotonyConflict.colorSchemeConflictOverride)) 
+					&& !monotonyConflict.conflictSeen
+					&& !this.monotonyConflict
+				)
 				{
+					this.monotonyConflict = monotonyConflict;
+
 					this.store.dispatch(new ScenarioActions.MonotonyAdvisementShown());
 
 					setTimeout(() => this.loadMonotonyModal());
