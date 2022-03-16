@@ -1,29 +1,29 @@
 <div *ngIf="optionAttributeMessage.length > 0" class="alert alert-info">{{optionAttributeMessage}}</div>
 
 <div *ngIf="attributeGroups && attributeGroups.length" class="div-section">
-	<select class="form-control" [(ngModel)]="selectedAttributeGroup" (change)="onChangeAttributeGroup()">
+	<select class="form-control" [(ngModel)]="selectedGroup" (change)="onChangeAttributeGroup()">
 		<option *ngFor="let group of attributeGroups" [ngValue]="group">
 			{{group.groupName}}
 		</option>
 	</select>
 </div>
 
-<div class="phd-option-attributes" *ngIf="selectedAttributeGroup">
+<div class="phd-option-attributes" *ngIf="selectedGroup">
 	<div class="form-group row">
 		<div class="col-sm-4 phd-option-label">Group Name:</div>
-		<div class="col-sm-8 phd-option-text">{{selectedAttributeGroup.groupName}}</div>
+		<div class="col-sm-8 phd-option-text">{{selectedGroup.groupName}}</div>
 	</div>
 
 	<div class="form-group row">
 		<div class="col-sm-4 phd-option-label">Group Label:</div>
-		<div class="col-sm-8 phd-option-text">{{selectedAttributeGroup.groupLabel}}</div>
+		<div class="col-sm-8 phd-option-text">{{selectedGroup.groupLabel}}</div>
 	</div>
 
 	<div class="form-group row">
 		<div class="col-sm-4 phd-option-label">Attributes:</div>
 		<div class="col-sm-8 phd-option-text" id="attributeList">
 			<ul style="list-style-type: none">
-				<li *ngFor="let attributeAssoc of selectedAttributeGroup.attributeGroupAttributeCommunityAssocs">
+				<li *ngFor="let attributeAssoc of selectedGroup.attributeGroupAttributeCommunityAssocs">
 					<span [class.phd-inactive]="!attributeAssoc.active">{{ attributeAssoc?.attributeCommunity?.name }}</span>
 				</li>
 			</ul>
@@ -32,12 +32,12 @@
 
 	<div class="form-group row">
 		<div class="col-sm-4 phd-option-label">Description:</div>
-		<div class="col-sm-8 phd-option-text">{{selectedAttributeGroup.description}}</div>
+		<div class="col-sm-8 phd-option-text">{{selectedGroup.description}}</div>
 	</div>
 
 	<div class="form-group row">
 		<div class="bold col-sm-4 phd-option-label">Search Tags:</div>
-		<div class="col-sm-8 phd-option-text">{{selectedAttributeGroup.formattedTags}}</div>
+		<div class="col-sm-8 phd-option-text">{{selectedGroup.formattedTags}}</div>
 	</div>
 </div>
 
@@ -46,20 +46,14 @@
 </div>
 
 <div class="phd-attribute-reassign" *ngIf="showAttributeReassignment">
-	<ng-container *ngIf="filteredChoiceList.length">
-		<div class="phd-attribute-reassign-header">Assign Attribute Group to a Different Choice:</div>
-		<div>
-			<div class="form-group row">
-				<div class="col-sm-4 phd-option-label">Original Choice(s):</div>
-				<div class="col-sm-8 phd-option-text">
-					<div *ngIf="originalChoiceList.length === 1 && originalChoiceList[0].choices.length === 1">{{ originalChoiceList[0].choices[0].label }}</div>
+	<div class="phd-attribute-reassign-header">Assign Attribute Group to a Different Choice:</div>
+	<div>
+		<div class="form-group row">
+			<div class="col-sm-4 phd-option-label">Original Choice:</div>
+			<div class="col-sm-8 phd-option-text">{{ originalChoice?.label }}</div>
+		</div>
 
-					<select class="form-control" *ngIf="showChoiceListSelect" id="mappings" [(ngModel)]="selectedMapping" (change)="onChangeMapping()">
-						<option *ngFor="let mapping of filteredChoiceList" [ngValue]="mapping">{{ mapping.choices[0].label }}</option>
-					</select>
-				</div>
-			</div>
-
+		<ng-container *ngIf="!selectedAttributeReassignment">
 			<div class="form-group">
 				<div class="col-sm phd-attribute-reassign-rules-label">Assign to Different Choice</div>
 				<div class="col-sm phd-attribute-reassign-rules">
@@ -68,7 +62,7 @@
 				</div>
 			</div>
 
-			<div *ngIf="!isReadOnly && groups.length">
+			<div *ngIf="!isReadOnly">
 				<choice-selector [selectedChoices]="selectedChoices"
 								 [showSearchResults]="showSearchResults"
 								 [searchResultsCount]="searchResultsCount"
@@ -111,30 +105,25 @@
 					</ng-container>
 				</choice-selector>
 			</div>
-		</div>
-	</ng-container>
+		</ng-container>
+	</div>
 
-	<div class="mb-3" *ngFor="let attributeReassignment of filteredAttributeReassignments">
+	<div *ngIf="selectedAttributeReassignment">
 		<div class="phd-attribute-reassign-header">Re-Assigned Choice</div>
 		<div>
-			<div class="row">
-				<div class="col-sm-4 phd-option-label">Original Choice:</div>
-				<div class="col-sm-8 phd-option-text">{{ getOriginalChoiceLabel(attributeReassignment) }}</div>
-			</div>
-
-			<div class="row">
+			<div class="form-group row">
 				<div class="col-sm-4 phd-option-label">Attribute Group:</div>
-				<div class="col-sm-8 phd-option-text">{{ attributeReassignment.attributeGroupLabel }}</div>
+				<div class="col-sm-8 phd-option-text">{{ selectedAttributeReassignment.attributeGroupLabel }}</div>
 			</div>
 
-			<div class="row">
+			<div class="form-group row">
 				<div class="col-sm-4 phd-option-label">Decision Point:</div>
-				<div class="col-sm-8 phd-option-text">{{ attributeReassignment.dPointLabel }}</div>
+				<div class="col-sm-8 phd-option-text">{{ selectedAttributeReassignment.dPointLabel }}</div>
 			</div>
 
-			<div class="row">
+			<div class="form-group row">
 				<div class="col-sm-4 phd-option-label">Choice:</div>
-				<div class="col-sm-8 phd-option-text">{{ attributeReassignment.choiceLabel }} <i class="fa fa-fw fa-trash phd-delete" (click)="deleteAttributeReassignmentClick(attributeReassignment)" title="Delete" *ngIf="!isReadOnly"></i></div>
+				<div class="col-sm-8 phd-option-text">{{ selectedAttributeReassignment.choiceLabel }} <i class="fa fa-fw fa-trash phd-delete" (click)="removeChoice(selectedAttributeReassignment.id)" title="Delete" *ngIf="!isReadOnly"></i></div>
 			</div>
 		</div>
 	</div>

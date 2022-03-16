@@ -766,7 +766,7 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 			let badOptions: ITreeOption[] = [];
 
 			// Get all options in the current tree that are unmapped
-			const allUnmappedOptions = this.currentTreeOptions.filter(o => o.optionRuleMappingCount === 0 && !o.baseHouse);
+			const allUnmappedOptions = this.currentTreeOptions.filter(o => !o.hasRules && !o.baseHouse);
 
 			options.forEach(opt =>
 			{
@@ -1355,8 +1355,8 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 
 						if (tOption != null)
 						{
-							// setting optionRuleMappingCount to 0 should remove the record from the options list
-							tOption.optionRuleMappingCount = 0;
+							// setting has rules to false should remove the record from the options list
+							tOption.hasRules = false;
 						}
 					});
 				}

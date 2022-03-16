@@ -19,7 +19,6 @@ export type ClaimTypes =
 	'EnableCommunity' |
 	'ColorManagement' |
 	'LotRelationships' |
-	'LotRelationships' |
 	'InternalNotes' |
 	'Deposits';
 
