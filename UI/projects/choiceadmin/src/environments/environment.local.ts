@@ -10,11 +10,11 @@ export const environment: IEnvironment = {
 	tenant: 'pulte.onmicrosoft.com',
 	authConfig: {
 		issuer: "https://login.microsoftonline.com/1a9277a3-ef66-41f6-96b5-c5390ee468a7/v2.0",
-		clientId: 'f9c9611d-6a23-4d2e-8dce-14da56bd8acc',
+		clientId: 'd6079aab-8c1d-40e7-81fb-78bda38faea2',
 		responseType: 'code',
 		clearHashAfterLogin: true,
 		requestAccessToken: true,
-		scope: 'api://f9c9611d-6a23-4d2e-8dce-14da56bd8acc/user_impersonation profile openid',
+		scope: 'api://d6079aab-8c1d-40e7-81fb-78bda38faea2/user_impersonation profile openid',
 		showDebugInformation: true,
 		skipIssuerCheck: false,
 		strictDiscoveryDocumentValidation: false
