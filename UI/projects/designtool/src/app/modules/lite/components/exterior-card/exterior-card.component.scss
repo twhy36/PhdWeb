@@ -16,7 +16,7 @@
 	margin-bottom: 10px;
 	border: 1px solid rgba(0,0,0,.125);
 	border-radius: .25rem;
-	
+
 	.phd-header {
 		margin: 15px 20px 0 20px;
 		min-height: 50px;
@@ -26,7 +26,7 @@
 			font-size: 16px;
 			font-weight: 500;
 			text-transform: uppercase;
-		}		
+		}
 	}
 
 	.phd-body {
@@ -52,7 +52,7 @@
 					text-transform: capitalize;
 				}
 			}
-		}	
+		}
 	}
 
 	.phd-divider {
@@ -60,7 +60,7 @@
 		height: 1px;
 		min-height: 1px;
 		background-color: $mid_gray;
-	}		
+	}
 
 	.phd-footer {
 		@extend .phd-exterior-card-div;
@@ -77,8 +77,8 @@
 				justify-content: space-around;
 			}
 		}
-	}	
-        
+	}
+
 	&.active {
 		box-shadow: 0 0 0 2pt $weird-green;
 		transition: all 0.12s;
@@ -90,8 +90,8 @@
 			font-size: 12px;
 			text-transform: capitalize;
 		}
-    }   
-    
+    }
+
 	.phd-2-line-limit {
 		display: -webkit-box;
 		-webkit-box-orient: vertical;
@@ -112,8 +112,12 @@
 		margin-bottom: 5px;
 		margin-top: 10px;
 	}
-	
+
 	.phd-option-disabled {
 		opacity: 0.5;
-	}	
+	}
+
+	.phd-past-cut-off {
+		color: $dodger-blue;
+	}
 }

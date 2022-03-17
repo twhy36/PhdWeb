@@ -84,6 +84,7 @@ export class LiteEffects
 							getOptionsCategorySubcategory
 						]).pipe(
 							switchMap(([options, scenarioOptions, optionsForCategories]) => {
+								this.liteService.setOptionsIsPastCutOff(options, store.job);
 								let categories: IOptionCategory[] = [];
 
 								if (optionsForCategories)
@@ -150,6 +151,7 @@ export class LiteEffects
 							this.liteService.getOptionsCategorySubcategory(action.job.financialCommunityId)
 						]).pipe(
 							switchMap(([options, optionsForCategories]) => {
+								this.liteService.setOptionsIsPastCutOff(options, action.job);
 								let categories: IOptionCategory[] = [];
 
 								if (optionsForCategories)
@@ -188,7 +190,7 @@ export class LiteEffects
 											{
 												option.listPrice = coPlanOption.listPrice;
 											}
-										});										
+										});
 									}
 								}
 								else if (store.salesAgreement.status === 'Pending')
@@ -198,13 +200,13 @@ export class LiteEffects
 									{
 										const isPhaseEnabled = action.lot.financialCommunity?.isPhasedPricingEnabled;
 										const phasePlanPrice = action.lot.salesPhase?.salesPhasePlanPriceAssocs?.find(x => x.planId === action.job.planId);
-							
+
 										if (isPhaseEnabled && phasePlanPrice)
 										{
 											let baseHouseOption = options.find(option => option.isBaseHouse && option.isActive);
 											baseHouseOption.listPrice = phasePlanPrice.price;
 										}
-									}									
+									}
 								}
 
 								const optionIds = options.map(o => o.id);
@@ -424,9 +426,9 @@ export class LiteEffects
 			ofType<SelectOptions | SelectOptionColors>(LiteActionTypes.SelectOptions, LiteActionTypes.SelectOptionColors),
 			withLatestFrom(this.store),
 			switchMap(([action, store]) => {
-				const savingScenario = !store.salesAgreement.id 
-					&& store.lite.isUnsaved 
-					&& !store.lite.isSaving 
+				const savingScenario = !store.salesAgreement.id
+					&& store.lite.isUnsaved
+					&& !store.lite.isSaving
 					&& store.scenario.buildMode === 'buyer';
 
 				const savingPendingJio = store.salesAgreement.id && store.salesAgreement.status === 'Pending';
@@ -468,12 +470,12 @@ export class LiteEffects
 					});
 
 				let actions: any[] = [];
-				
+
 				if (selectedOptions?.length)
 				{
 					actions.push(new SelectOptions([...selectedOptions, ...deselectedOptions]));
 				}
-				
+
 				if (changeOrderId > 0)
 				{
 					actions.push(new CurrentChangeOrderLoaded(currentChangeOrder, handing));
@@ -484,12 +486,12 @@ export class LiteEffects
 					{
 						const jobHanding = new ChangeOrderHanding();
 						jobHanding.handing = store.job.handing;
-						actions.push(new CurrentChangeOrderLoaded(null, jobHanding));						
+						actions.push(new CurrentChangeOrderLoaded(null, jobHanding));
 					}
 					actions.push(new SetChangingOrder(false, null, true, handing));
 				}
 
-				return from(actions);					
+				return from(actions);
 			})
 		);
 	});

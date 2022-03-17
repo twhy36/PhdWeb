@@ -111,6 +111,16 @@ export class ExteriorCardComponent extends UnsubscribeOnDestroy implements OnIni
 		});
 	}
 
+	get inCutOffPhaseButCantOverride(): boolean
+	{
+		return this.option.isPastCutOff && !this.canOverride;
+	}
+
+	get inCutOffPhaseAndCanOverride(): boolean
+	{
+		return this.option.isPastCutOff && this.canOverride;
+	}
+
 	getName(): string
 	{
 		return this.color ? this.color.name : this.option.name;
@@ -138,7 +148,7 @@ export class ExteriorCardComponent extends UnsubscribeOnDestroy implements OnIni
 		const selectedColors = _.flatMap(this.scenarioOptions, opt => opt.scenarioOptionColors) || [];
 		const isColorSelected = !!this.color && !!selectedColors.find(color => color.colorItemId === this.color.colorItemId && color.colorId === this.color.colorId);
 
-		if (this.monotonyConflict.monotonyConflict && !isOptionSelected && !isColorSelected)
+		if ((this.monotonyConflict.monotonyConflict && !isOptionSelected && !isColorSelected) || this.inCutOffPhaseAndCanOverride)
 		{
 			this.onOverride();
 		}
@@ -154,9 +164,17 @@ export class ExteriorCardComponent extends UnsubscribeOnDestroy implements OnIni
 		{
 			let body = '';
 
-			if (this.monotonyConflict.monotonyConflict)
+			if (this.monotonyConflict.monotonyConflict && this.option.isPastCutOff)
+			{
+				body = `This will override the Monotony Conflict and the Cut-off`;
+			}
+			else if (this.monotonyConflict.monotonyConflict)
 			{
 				body = `This will override the Monotony Conflict`;
+			}
+			else
+			{
+				body = `This will override the Cut-off`;
 			}
 
 			const confirm = this.modalService.open(ModalOverrideSaveComponent);
@@ -182,9 +200,7 @@ export class ExteriorCardComponent extends UnsubscribeOnDestroy implements OnIni
 	addOverrideReason(overrideReason: string)
 	{
 		this.override$.next((!!overrideReason));
-
 		this.store.dispatch(new LiteActions.SetLiteOverrideReason(overrideReason, !this.color));
-
 		this.toggled.emit({option: this.option, color: this.color});
 	}
 }

@@ -15,7 +15,7 @@ import
 	withSpinner, getNewGuid, createBatchGet, createBatchHeaders, createBatchBody,
 	SalesAgreement, ISalesAgreement, ModalService, Job, ChangeOrderGroup, JobPlanOptionAttribute,
 	JobPlanOption, ChangeOrderPlanOption, SummaryData, defaultOnNotFound,
-	ChangeOrderHanding, ChangeTypeEnum, ChangeInput, SelectedChoice
+	ChangeOrderHanding, ChangeTypeEnum, ChangeInput, SelectedChoice, ConstructionStageTypes
 } from 'phd-common';
 
 import * as fromRoot from '../../ngrx-store/reducers';
@@ -28,6 +28,7 @@ import { LotService } from './lot.service';
 import { ChangeOrderService } from './change-order.service';
 import { MonotonyConflict } from '../../shared/models/monotony-conflict.model';
 import * as LiteActions from '../../ngrx-store/lite/actions';
+import * as moment from 'moment';
 
 @Injectable()
 export class LiteService
@@ -56,7 +57,7 @@ export class LiteService
 		const entity = 'planOptionCommunities';
 		const expand = `optionCommunity($expand=option($select=financialOptionIntegrationKey,id),optionSubCategory($select=optionCategoryId); $select=optionSalesName,optionDescription,option,id,optionSubCategoryId)`;
 		const filter = `planId eq ${planId}${filterOptions}`;
-		const select = `id, planId, optionCommunity, maxOrderQty, listPrice, isActive, isBaseHouse, isBaseHouseElevation`;
+		const select = `id, planId, optionCommunity, maxOrderQty, listPrice, isActive, isBaseHouse, isBaseHouseElevation, cutOffDays, cutOffStage`;
 
 		const endPoint = environment.apiUrl + `${entity}?${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
 
@@ -92,7 +93,9 @@ export class LiteService
 						colorItems: [],
 						optionCategoryId: data['optionCommunity']['optionSubCategory']['optionCategoryId'],
 						mustHavePlanOptionIds: [],
-						cantHavePlanOptionIds: []
+						cantHavePlanOptionIds: [],
+						cutOffDays: data['cutOffDays'],
+						cutOffStage: data['cutOffStage']
 					} as LitePlanOption;
 				}) as LitePlanOption[];
 			})
@@ -145,7 +148,7 @@ export class LiteService
 					scenarioOptionId: color.scenarioOptionId,
 					colorItemId: color.colorItemId,
 					colorId: color.colorId,
-					isDeleted: color.isDeleted				
+					isDeleted: color.isDeleted
 				};
 			})
 		};
@@ -514,7 +517,7 @@ export class LiteService
 
 		this.showConfirmModal(body, title, primaryButton, secondaryButton).subscribe(result =>
 		{
-			if (result) 
+			if (result)
 			{
 				this.onGenerateSalesAgreement(buildMode, lotStatus, selectedLotId, salesAgreementId);
 			}
@@ -608,20 +611,20 @@ export class LiteService
 	getSelectedOptions(options: LitePlanOption[], job: Job, changeOrder?: ChangeOrderGroup ): Array<ScenarioOption>
 	{
 		let selectedOptions: JobPlanOption[] = _.cloneDeep(job.jobPlanOptions);
-		
+
 		const jobChangeOrderPlanOptions = changeOrder?.id
-			? this.changeOrderService.getJobChangeOrderPlanOptions(changeOrder) 
+			? this.changeOrderService.getJobChangeOrderPlanOptions(changeOrder)
 			: [];
 
-		if (jobChangeOrderPlanOptions.length) 
+		if (jobChangeOrderPlanOptions.length)
 		{
 			// Delete options
 			selectedOptions = selectedOptions.filter(option => !jobChangeOrderPlanOptions.filter(opt => opt.action === 'Delete').some(opt => opt.planOptionId === option.planOptionId));
 
 			// Add options
 			selectedOptions = [
-				...selectedOptions, 
-				...jobChangeOrderPlanOptions.filter(option => option.action === 'Add').map(opt => 
+				...selectedOptions,
+				...jobChangeOrderPlanOptions.filter(option => option.action === 'Add').map(opt =>
 					{
 						return <JobPlanOption> {
 							id: opt.id,
@@ -643,7 +646,7 @@ export class LiteService
 						};
 					})
 			];
-		
+
 			// Update options
 			jobChangeOrderPlanOptions.filter(option => option.action === 'Change').forEach(opt =>
 			{
@@ -656,8 +659,8 @@ export class LiteService
 					changedOption.optionQty = opt.qty;
 				}
 			});
-			
-		
+
+
 		}
 
 		return selectedOptions.map(planOption => {
@@ -752,7 +755,7 @@ export class LiteService
 			}),
 		);
 	}
-	
+
 	getSelectionSummary(reportType: LiteReportType, summaryData: SummaryData, showSalesDescription?: boolean): Observable<string>
 	{
 		const action = this.getSummaryAction(reportType);
@@ -854,13 +857,13 @@ export class LiteService
 	}
 
 	getJobChangeOrderInputDataLite(
-		changeOrder: ChangeOrderGroup, 
-		job: Job, 
-		handing: ChangeOrderHanding, 
+		changeOrder: ChangeOrderGroup,
+		job: Job,
+		handing: ChangeOrderHanding,
 		salesAgreementId: number,
-		currentOptions: ScenarioOption[], 
+		currentOptions: ScenarioOption[],
 		options: LitePlanOption[],
-		overrideNote: string,		 
+		overrideNote: string,
 		isJio: boolean = false): any
 	{
 		const origOptions = isJio ? [] : job.jobPlanOptions;
@@ -875,9 +878,9 @@ export class LiteService
 			note: changeOrder.note ? changeOrder.note.noteContent : null,
 			overrideNote: changeOrder.overrideNote,
 			options: this.createJobChangeOrderOptions(
-				origOptions, 
-				currentOptions, 
-				options, 
+				origOptions,
+				currentOptions,
+				options,
 				overrideNote
 			),
 			handings: this.changeOrderService.createJobChangeOrderHandings(handing, origHanding),
@@ -885,17 +888,17 @@ export class LiteService
 			changeOrderGroupSequenceSuffix: changeOrder.changeOrderGroupSequenceSuffix
 		};
 	}
-	
+
 	private createJobChangeOrderOptions(
-		origOptions: JobPlanOption[], 
-		currentOptions: ScenarioOption[], 
+		origOptions: JobPlanOption[],
+		currentOptions: ScenarioOption[],
 		options: LitePlanOption[],
 		overrideNote: string
 	): Array<any>
 	{
 		const isElevationOption = function(planOptionId: number)
 		{
-			return !!options.find(opt => opt.id  === planOptionId && 
+			return !!options.find(opt => opt.id  === planOptionId &&
 				(opt.optionSubCategoryId === Elevation.Detached || opt.optionSubCategoryId === Elevation.Attached));
 		};
 
@@ -914,7 +917,7 @@ export class LiteService
 				const currentAttributes = this.mapScenarioOptionColorsToAttributes(curr?.scenarioOptionColors, option, null);
 				const existingAttributes = this.mapJobPlanOptionAttributes(origOption?.jobPlanOptionAttributes, null);
 				const attributes = this.buildAttributeDifference(currentAttributes, existingAttributes);
-				
+
 				if (attributes.length || option.listPrice !== origOption.listPrice || curr.planOptionQuantity !== origOption.optionQty)
 				{
 					optionsDto.push({
@@ -924,7 +927,7 @@ export class LiteService
 						optionSalesName: option.name,
 						optionDescription: option.description,
 						jobOptionTypeName: optionType,
-						overrideNote: isElevation ? overrideNote : null,
+						overrideNote: overrideNote,
 						action: 'Change',
 						isElevation: isElevation,
 						attributes: attributes
@@ -941,7 +944,7 @@ export class LiteService
 					optionSalesName: option.name,
 					optionDescription: option.description,
 					jobOptionTypeName: optionType,
-					overrideNote: isElevation ? overrideNote : null,
+					overrideNote: overrideNote,
 					action: 'Add',
 					isElevation: isElevation,
 					attributes: this.mapScenarioOptionColorsToAttributes(curr?.scenarioOptionColors, option, 'Add')
@@ -973,8 +976,8 @@ export class LiteService
 	}
 
 	private mapScenarioOptionColorsToAttributes(
-		scenarioOptionColors: ScenarioOptionColor[], 
-		option: LitePlanOption, 
+		scenarioOptionColors: ScenarioOptionColor[],
+		option: LitePlanOption,
 		action: string): Array<any>
 	{
 		const attributesDto: Array<any> = [];
@@ -1019,14 +1022,14 @@ export class LiteService
 
 		return attributesDto;
 	}
-	
+
 	private buildAttributeDifference(currentAttributes: Array<any>, existingAttributes: Array<any>): Array<any>
 	{
 		let attributes = [];
 
 		currentAttributes.forEach(attr =>
 		{
-			const existingAttr = existingAttributes.find(ex => 
+			const existingAttr = existingAttributes.find(ex =>
 				ex.attributeName === attr.attributeName &&
 				ex.attributeGroupLabel === attr.attributeGroupLabel);
 
@@ -1038,7 +1041,7 @@ export class LiteService
 
 		existingAttributes.forEach(ex =>
 		{
-			const currentAttr = currentAttributes.find(attr => 
+			const currentAttr = currentAttributes.find(attr =>
 				ex.attributeName === attr.attributeName &&
 				ex.attributeGroupLabel === attr.attributeGroupLabel);
 
@@ -1049,7 +1052,7 @@ export class LiteService
 		});
 
 		return attributes;
-	}	
+	}
 
 	checkLiteAgreement(job: Job, changeOrder: ChangeOrderGroup): boolean {
 		const changeOrderChoices = changeOrder?.jobChangeOrders
@@ -1066,15 +1069,15 @@ export class LiteService
 	checkLiteScenario(scenarioChoices: SelectedChoice[], scenarioOptions: ScenarioOption[]): boolean {
 		return !scenarioChoices && !!scenarioOptions?.length; // no scenario choices (full) but scenarion options (lite) is lite
 	}
-	
+
 	liteChangeOrderHasChanges(
-		job: Job, 
-		currentChangeOrder: ChangeOrderGroup, 
-		changeInput: ChangeInput, 
-		salesAgreement: SalesAgreement, 
-		currentOptions: ScenarioOption[], 
+		job: Job,
+		currentChangeOrder: ChangeOrderGroup,
+		changeInput: ChangeInput,
+		salesAgreement: SalesAgreement,
+		currentOptions: ScenarioOption[],
 		options: LitePlanOption[],
-		overrideNote: string		 
+		overrideNote: string
 	): boolean
 	{
 		if (changeInput.type !== ChangeTypeEnum.SALES && changeInput.type !== ChangeTypeEnum.NON_STANDARD)
@@ -1101,4 +1104,30 @@ export class LiteService
 		}
 	}
 
+	setOptionsIsPastCutOff(options: LitePlanOption[], job: Job): void
+	{
+		let jobStageId = job && job.constructionStageName != null ? ConstructionStageTypes[job.constructionStageName] : null;
+		let jobStartDate = job ? job.startDate : null; // example: jobStartDate = 02/20/2019
+
+		options.forEach(option =>
+		{
+			if (option.cutOffStage != null || option.cutOffDays != null)
+			{
+				let optionStageId = ConstructionStageTypes[option.cutOffStage];
+				if (optionStageId != null && jobStageId != null)
+				{
+					// check if they have passed the stage cut off point
+					option.isPastCutOff = jobStageId >= optionStageId;
+				}
+				else if (option.cutOffDays != null && jobStartDate != null)
+				{
+					const now = moment(); // example: now = 02/27/2019
+					const dateDiff = now.diff(jobStartDate, 'days'); // example: dateDiff = 7
+
+					// check if they have passed the date cut off point.
+					option.isPastCutOff = option.cutOffDays <= dateDiff; // example:  10 < 7 = False
+				}
+			}
+		});
+	}
 }
