@@ -37,7 +37,8 @@ export class LiteEffects
 				if (!isPreview)
 				{
 					const isPhdLite = action.plans.some(plan => !plan.treeVersionId)
-						|| this.liteService.checkLiteAgreement(store.job, store.changeOrder.currentChangeOrder);
+						|| this.liteService.checkLiteAgreement(store.job, store.changeOrder.currentChangeOrder)
+						|| this.liteService.checkLiteScenario(store.scenario.scenario.scenarioChoices, store.lite.scenarioOptions);
 					const salesCommunityId = store.opportunity.opportunityContactAssoc.opportunity.salesCommunityId;
 
 					let actions = [];
@@ -64,7 +65,8 @@ export class LiteEffects
 				switchMap(([action, store]) => {
 					const planOptions = store.lite.options;
 					const optionsLoaded = !!planOptions.find(option => option.planId === action.scenario.planId);
-					const isPhdLite = action instanceof ScenarioLoaded ? !action.scenario.treeVersionId : store.lite.isPhdLite;
+					const isPhdLite = (action instanceof ScenarioLoaded ? !action.scenario.treeVersionId : store.lite.isPhdLite)
+						|| this.liteService.checkLiteScenario(action.scenario.scenarioChoices, store.lite.scenarioOptions);
 
 					if (isPhdLite && !optionsLoaded)
 					{

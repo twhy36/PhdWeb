@@ -15,7 +15,7 @@ import
 	withSpinner, getNewGuid, createBatchGet, createBatchHeaders, createBatchBody,
 	SalesAgreement, ISalesAgreement, ModalService, Job, ChangeOrderGroup, JobPlanOptionAttribute,
 	JobPlanOption, ChangeOrderPlanOption, SummaryData, defaultOnNotFound,
-	ChangeOrderHanding, ChangeTypeEnum, ChangeInput
+	ChangeOrderHanding, ChangeTypeEnum, ChangeInput, SelectedChoice
 } from 'phd-common';
 
 import * as fromRoot from '../../ngrx-store/reducers';
@@ -1061,6 +1061,10 @@ export class LiteService
 
 		return !job.jobChoices?.length && !!job.jobPlanOptions?.length // there are no job choices but job plan options
 			|| !changeOrderChoices.length && !!changeOrderOptions.length; // there are no change order choices but change order options
+	}
+
+	checkLiteScenario(scenarioChoices: SelectedChoice[], scenarioOptions: ScenarioOption[]): boolean {
+		return !scenarioChoices && !!scenarioOptions?.length; // no scenario choices (full) but scenarion options (lite) is lite
 	}
 	
 	liteChangeOrderHasChanges(
