@@ -55,7 +55,7 @@
 			</div>
 		</div>
 		<div class="phd-point-container">
-			<ng-container *ngIf="!noVisibleGroups">
+			<ng-container *ngIf="!noVisibleFP">
 				<floor-plan
 					[height]="'73vh'"
 					[planId$]="marketingPlanId"
@@ -65,6 +65,9 @@
 					(onFloorPlanLoaded)="loadFloorPlan($event)"
 				>
 				</floor-plan>
+			</ng-container>
+			<ng-container *ngIf="noVisibleFP">
+				<img class="phd-default-ifp" [src]="getDefaultFPImageSrc()" >
 			</ng-container>
 		</div>
 	</div>

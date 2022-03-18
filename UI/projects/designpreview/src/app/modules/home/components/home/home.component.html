@@ -20,6 +20,9 @@
 					>
 					</floor-plan>
 				</ng-container>
+				<ng-container *ngIf="!hasFloorPlanImages && noVisibleFP">
+					<img class="phd-default-ifp" [src]="getDefaultFPImageSrc()" >
+				</ng-container>
 			</div>
 			<div class="d-flex justify-content-center phd-community-label">
 				<span class="phd-sales-community">{{communityName}}</span>

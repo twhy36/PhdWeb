@@ -27,7 +27,7 @@ import {
 	getDependentChoices,
 	DecisionPoint,
 	ChoiceImageAssoc,
-	MyFavoritesChoice, 
+	MyFavoritesChoice,
 	MyFavoritesPointDeclined,
 	getChoiceToDeselect
 } from 'phd-common';
@@ -74,6 +74,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 	isDesignComplete: boolean;
 	isReadonly: boolean = false;
 	noVisibleGroups: boolean = false;
+	noVisibleFP: boolean = false;
 
 	constructor(private store: Store<fromRoot.State>,
 		private route: ActivatedRoute,
@@ -250,8 +251,14 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 					const fpSubGroup = subGroups.find(sg => sg.useInteractiveFloorplan);
 					if (fpSubGroup) {
 						this.marketingPlanId$.next(plan.marketingPlanId[0]);
+					} else {
+						this.noVisibleFP = true;
 					}
+				} else {
+					this.noVisibleFP = true;
 				}
+			} else {
+				this.noVisibleFP = true;
 			}
 		});
 
@@ -429,7 +436,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		this.store.dispatch(new ScenarioActions.SetStatusForPointsDeclined(declPointIds, !!declPoint));
 	}
 
-	treeFilterChanged() 
+	treeFilterChanged()
 	{
 		this.showDetails = false;
 		this.selectedChoice = null;

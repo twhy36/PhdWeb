@@ -11,6 +11,7 @@ import * as fromSalesAgreement from '../../../ngrx-store/sales-agreement/reducer
 import * as _ from 'lodash';
 
 import { UnsubscribeOnDestroy, PriceBreakdown, Group, SubGroup } from 'phd-common';
+import { BrandService } from '../../../core/services/brand.service';
 
 @Component({
   selector: 'floor-plan-summary',
@@ -18,12 +19,12 @@ import { UnsubscribeOnDestroy, PriceBreakdown, Group, SubGroup } from 'phd-commo
   styleUrls: ['./floor-plan-summary.component.scss']
 })
 
-export class FloorPlanSummaryComponent extends UnsubscribeOnDestroy implements OnInit {	
+export class FloorPlanSummaryComponent extends UnsubscribeOnDestroy implements OnInit {
 	floors: any[];
 	groups: Group[];
 	subGroup: SubGroup;
 	isDesignComplete: boolean;
-	isFloorplanFlipped: boolean; 
+	isFloorplanFlipped: boolean;
 	selectedFloor: any;
 	priceBreakdown: PriceBreakdown;
 	communityName: string = '';
@@ -32,7 +33,11 @@ export class FloorPlanSummaryComponent extends UnsubscribeOnDestroy implements O
 	noVisibleFP: boolean = false;
 	isPlainFloorplan: boolean = false;
 
-	constructor(private store: Store<fromRoot.State>, private location: Location) {
+	constructor(
+		private store: Store<fromRoot.State>,
+		private location: Location,
+		private brandService: BrandService
+	) {
 		super();
 	}
 
@@ -59,8 +64,10 @@ export class FloorPlanSummaryComponent extends UnsubscribeOnDestroy implements O
 				} else {
 					this.noVisibleFP = true;
 				}
+			} else {
+				this.noVisibleFP = true;
 			}
-		});	
+		});
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
@@ -110,5 +117,9 @@ export class FloorPlanSummaryComponent extends UnsubscribeOnDestroy implements O
 
 	selectFloor(floor: any) {
 		this.selectedFloor = floor;
+	}
+
+	getDefaultFPImageSrc() {
+		return this.brandService.getBrandImage('logo');
 	}
 }

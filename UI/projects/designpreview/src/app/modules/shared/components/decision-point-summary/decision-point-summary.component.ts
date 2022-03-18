@@ -106,6 +106,13 @@ export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implemen
 	{
 		this.onRemoveFavorites.emit(choice);
 	}
+
+	getAttributeLabel(name: string) {
+		if (name) {
+			return name + ':';
+		}
+	}
+	
 }
 
 class ChoiceCustom extends Choice

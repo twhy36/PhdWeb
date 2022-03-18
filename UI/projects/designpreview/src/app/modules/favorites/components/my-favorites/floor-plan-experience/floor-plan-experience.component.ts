@@ -7,6 +7,7 @@ import
 	UnsubscribeOnDestroy, DecisionPoint, SubGroup, JobChoice, ChoiceImageAssoc, Group,
 	Tree, MyFavoritesChoice, MyFavoritesPointDeclined
 } from 'phd-common';
+import { BrandService } from '../../../../core/services/brand.service';
 
 import { ChoiceExt } from '../../../../shared/models/choice-ext.model';
 
@@ -34,6 +35,7 @@ export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implement
 	@Input() isPreview: boolean = false;
 	@Input() isDesignComplete: boolean = false;
 	@Input() noVisibleGroups: boolean = false;
+	@Input() noVisibleFP: boolean = false;
 
 	@Output() onToggleChoice = new EventEmitter<ChoiceExt>();
 	@Output() onToggleContractedOptions = new EventEmitter();
@@ -50,7 +52,7 @@ export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implement
 	fpOptions: any[];
 	selectedFloor: any;
 
-	constructor() {
+	constructor(private brandService: BrandService) {
 		super();
 	}
 
@@ -168,6 +170,10 @@ export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implement
 		{
 			decisionBarElement.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
 		}
+	}
+
+	getDefaultFPImageSrc() {
+		return this.brandService.getBrandImage('logo');
 	}
 }
 
