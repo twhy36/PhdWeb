@@ -18,7 +18,7 @@
 								class="form-check-input"
 								#optionCheckbox
 								[checked]="option.isSelected"
-								[disabled]="option.isReadonly || cannotEditAgreement"
+								[disabled]="option.isReadonly || cannotEditAgreement || (option.isPastCutOff && !canOverride)"
 								(click)="onSelectedOptionWasToggled($event, option)"
 							 />
 						</div>
@@ -30,7 +30,7 @@
 							class="phd-quantity form-select"
 							*ngIf="option.maxOrderQuantity > 1"
 							[(ngModel)]="option.selectedQuantity"
-							[disabled]="optionCheckbox.checked === false || option.isReadonly || cannotEditAgreement"
+							[disabled]="optionCheckbox.checked === false || option.isReadonly || cannotEditAgreement || (option.isPastCutOff && !canOverride)"
 							(change)="saveSelectedOptionToStore(option)"
 						>
 							<option
@@ -42,6 +42,12 @@
 						</select>
 						<span *ngIf="option.maxOrderQuantity === 0 || option.maxOrderQuantity === 1" class="phd-quantity">(1)</span>
 						<span class="phd-list-price"> {{option.listPrice | currency}} </span>
+					</div>
+					<div *ngIf="option.isPastCutOff && !canOverride" class="phd-past-cut-off">
+						<i class="fas fa-info-circle fa-sm"></i> Disabled Due to Cut-Off
+					</div>
+					<div *ngIf="option.isPastCutOff && canOverride" class="phd-past-cut-off">
+						<i class="fas fa-info-circle fa-sm"></i> Past Cut-Off
 					</div>
 					<hr class="phd-row-divider"/>
 				</div>

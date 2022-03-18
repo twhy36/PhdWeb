@@ -26,6 +26,9 @@ export class LitePlanOption implements PlanOption
     optionCommunityId: number;
     mustHavePlanOptionIds: number[];
     cantHavePlanOptionIds: number[];
+	cutOffDays: number;
+	cutOffStage: string;
+	isPastCutOff: boolean;
 }
 
 export class LitePlanOptionUI extends LitePlanOption
@@ -164,7 +167,7 @@ export class SummaryReportData {
     designEstimate?: number;
     showSalesProgram?: boolean;
     showClosingIncentive?: boolean;
-    showDesignEstimate?: boolean;    
+    showDesignEstimate?: boolean;
 	groups?: Array<SummaryReportGroup>;
 
 }

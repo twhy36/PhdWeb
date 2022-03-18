@@ -11,9 +11,10 @@
 
 						<select
 							class="phd-color-select"
-							[disabled]="cannotEditAgreement"
+							[disabled]="cannotEditAgreement || option.isPastCutOff && !canOverride"
 							[(ngModel)]="selectedColorIds[item.colorItemId]"
-							(change)="onColorWasSelected(option, item)"
+							(change)="onColorWasChanged(option, item)"
+							(click)="onColorWasClicked($event, option)"
 						>
 							<option [ngValue]="null"></option>
 							<option
@@ -23,6 +24,12 @@
 								{{ itemColor.name }}
 							</option>
 						</select>
+					</div>
+					<div *ngIf="option.isPastCutOff && !canOverride" class="phd-past-cut-off">
+						<i class="fas fa-info-circle fa-sm"></i> Disabled Due to Cut-Off
+					</div>
+					<div *ngIf="option.isPastCutOff && canOverride" class="phd-past-cut-off">
+						<i class="fas fa-info-circle fa-sm"></i> Past Cut-Off
 					</div>
 					<hr class="phd-row-divider"/>
 				</ng-container>

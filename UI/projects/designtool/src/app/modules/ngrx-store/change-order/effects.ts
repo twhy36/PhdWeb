@@ -6,9 +6,9 @@ import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Action, Store, select } from '@ngrx/store';
 
-import 
-{ 
-	ESignEnvelope, ESignStatusEnum, ESignTypeEnum, ChangeInput, ChangeTypeEnum, ChangeOrderGroup, ChangeOrderHanding, 
+import
+{
+	ESignEnvelope, ESignStatusEnum, ESignTypeEnum, ChangeInput, ChangeTypeEnum, ChangeOrderGroup, ChangeOrderHanding,
 	Job, SalesStatusEnum, ModalService, mergeSalesChangeOrderBuyers
 } from 'phd-common';
 
@@ -115,7 +115,7 @@ export class ChangeOrderEffects
 							store.salesAgreement.id,
 							store.lite.scenarioOptions,
 							store.lite.options,
-							store.scenario.overrideReason,
+							store.lite.elevationOverrideNote || store.lite.colorSchemeOverrideNote,
 							false
 						)
 						: this.changeOrderService.getJobChangeOrderInputData(
@@ -150,7 +150,7 @@ export class ChangeOrderEffects
 								let jobChangeOrderChoices = this.changeOrderService.getJobChangeOrderChoices([changeOrder]);
 								return this.treeService.getChoiceCatalogIds(jobChangeOrderChoices).pipe(
 									map(choices => { return changeOrder })
-								);								
+								);
 							}
 
 						}),
@@ -721,7 +721,7 @@ export class ChangeOrderEffects
 								store.salesAgreement.id,
 								store.lite.scenarioOptions,
 								store.lite.options,
-								store.scenario.overrideReason,
+								store.lite.elevationOverrideNote || store.lite.colorSchemeOverrideNote,
 								true
 							)
 							: this.changeOrderService.getJobChangeOrderInputData(
@@ -904,7 +904,7 @@ export class ChangeOrderEffects
 
 							const today = new Date();
 
-							if (today > expiredDate || salesAgreementStatus === 'Pending')			
+							if (today > expiredDate || salesAgreementStatus === 'Pending')
 							{
 								let envelopeDto = { ...draftESignEnvelope, eSignStatusId: 4 };
 
@@ -1002,19 +1002,19 @@ export class ChangeOrderEffects
 				const plans = _.cloneDeep(store.plan.plans);
 				const changeOrderPlanOptions = _.flatMap(store.changeOrder.currentChangeOrder?.jobChangeOrders, co => co.jobChangeOrderPlanOptions) || [];
 				const baseHouseOption = changeOrderPlanOptions.find(option => option.action === 'Add' && option.integrationKey === '00001');
-			
+
 				let selectedPlan = plans.find(plan => plan.id  === store.plan.selectedPlan);
 				if (selectedPlan && baseHouseOption)
 				{
 					selectedPlan.price = baseHouseOption.listPrice;
-					return of(new PlansLoaded(plans));						
+					return of(new PlansLoaded(plans));
 				}
 
 				return never();
 			})
 		);
 	});
-		
+
 	constructor(
 		private actions$: Actions,
 		private store: Store<fromRoot.State>,
