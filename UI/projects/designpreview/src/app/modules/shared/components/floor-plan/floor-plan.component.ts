@@ -166,8 +166,4 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 			})
 		});
 	}
-	
-	getImageSrc() {
-		return this.brandService.getBrandImage('logo');
-	}
 }

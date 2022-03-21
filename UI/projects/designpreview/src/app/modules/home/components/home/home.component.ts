@@ -154,7 +154,11 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 				if (fpSubGroup) {
 					this.floorplanSG = fpSubGroup;
 					this.marketingPlanId$.next(plan.marketingPlanId[0]);
+				} else {
+					this.noVisibleFP = true;
 				}
+			} else {
+				this.noVisibleFP = true;
 			}
 		});
 
@@ -218,6 +222,10 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 
 	getImageSrc() {
 		return this.brandService.getBrandImage('home-page-logo');
+	}
+
+	getDefaultFPImageSrc() {
+		return this.brandService.getBrandImage('logo');
 	}
 
 	loadFloorPlan(fp) {
