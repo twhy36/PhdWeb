@@ -19,7 +19,7 @@ export class OrganizationService
 	{
 		const entity = `salesCommunities`;
 		const expandFilter = `; $filter=id eq ${id}`;
-		const expand = `financialCommunities($select=id,name,number,city,state,zip,financialBrandId${includeFinancialCommunities ? '' : expandFilter}),market($select=id,number)`;
+		const expand = `financialCommunities($select=id,name,number,city,state,zip,financialBrandId${includeFinancialCommunities ? '' : expandFilter}),market($select=id,number,name)`;
 		const filter = `financialCommunities/any(fc: fc/id eq ${id})`;
 		const select = `id, number, name`;
 

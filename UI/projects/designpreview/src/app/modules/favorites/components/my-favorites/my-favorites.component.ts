@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
-import { combineLatest, map, filter, distinctUntilChanged, withLatestFrom, debounceTime, take } from 'rxjs/operators';
+import { combineLatest, map, filter, distinctUntilChanged, withLatestFrom, debounceTime } from 'rxjs/operators';
 import { ReplaySubject } from 'rxjs';
 
 import * as _ from 'lodash';
