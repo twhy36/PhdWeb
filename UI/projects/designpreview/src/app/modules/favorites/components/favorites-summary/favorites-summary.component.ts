@@ -5,7 +5,7 @@ import { ToastrService } from 'ngx-toastr';
 import { NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 
 import { combineLatest as combineLatestOperator, take, distinctUntilChanged, switchMap } from 'rxjs/operators';
-import { combineLatest }from 'rxjs';
+import { combineLatest } from 'rxjs';
 import { Observable, of } from 'rxjs';
 import * as _ from 'lodash';
 
@@ -34,6 +34,7 @@ import { ReportsService } from '../../../core/services/reports.service';
 
 import { SummaryHeader, SummaryHeaderComponent } from './summary-header/summary-header.component';
 import { GroupExt } from '../../../shared/models/group-ext.model';
+import { AdobeService } from '../../../core/services/adobe.service';
 
 @Component({
 	selector: 'favorites-summary',
@@ -59,6 +60,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 	buildMode: string;
 	isPreview: boolean = false;
 	isDesignComplete: boolean = false;
+	adobeLoadInitialized: boolean;
 
 	constructor(private store: Store<fromRoot.State>,
 		private activatedRoute: ActivatedRoute,
@@ -67,13 +69,15 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		private modalService: ModalService,
 		private reportsService: ReportsService,
 		private location: Location,
-		private toastr: ToastrService)
+		private toastr: ToastrService,
+		private adobeService: AdobeService)
 	{
 		super();
 	}
 
 	ngOnInit()
 	{
+		this.adobeLoadInitialized = false;
 		this.activatedRoute.paramMap
 			.pipe(
 				combineLatestOperator(this.store.pipe(select(state => state.salesAgreement))),
@@ -190,6 +194,8 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 			this.treeVersionRules = _.cloneDeep(scenario.rules);
 			this.options = _.cloneDeep(scenario.options);
 		});
+		
+		this.initializeAdobePageLoad();
 	}
 
 	onBack()
@@ -427,5 +433,14 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		return groups.map(g => {
 			return new GroupExt(g);
 		})
+	}
+
+	initializeAdobePageLoad() {
+		let pageType = 'Favorites Summary Page';
+		let pageName = 'Favorites Summary';
+		let groupName = '';
+		let subGroupName = '';
+
+		this.adobeService.setPageLoadEvent(this.adobeLoadInitialized, pageType, pageName, groupName, subGroupName);
 	}
 }

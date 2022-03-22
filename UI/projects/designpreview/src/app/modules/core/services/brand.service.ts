@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { Subject, Observable, ReplaySubject } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
 import * as pulte from '../../../../brands/pulte.json';
@@ -25,5 +24,15 @@ export class BrandService {
 
 	getBrandImage(imageProperty: string): string {
 		return getBrandImageSrc(this.brandMap, imageProperty);
+	}
+
+	getBrandName(brandMap: { pulte: string, delwebb: string, americanWest: string }, url: string) {
+		if (brandMap.pulte === url) {
+			return 'pulte';
+		} else if (brandMap.delwebb === url) {
+			return 'delwebb';
+		} else if (brandMap.americanWest === url) {
+			return 'americanWest'
+		}
 	}
 }

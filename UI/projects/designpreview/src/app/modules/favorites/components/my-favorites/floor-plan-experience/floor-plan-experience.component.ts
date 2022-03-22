@@ -10,7 +10,7 @@ import
 import { BrandService } from '../../../../core/services/brand.service';
 
 import { ChoiceExt } from '../../../../shared/models/choice-ext.model';
-
+import { AdobeService } from '../../../../core/services/adobe.service';
 @Component({
   selector: 'floor-plan-experience',
   templateUrl: './floor-plan-experience.component.html',
@@ -51,12 +51,16 @@ export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implement
 	floors: any[];
 	fpOptions: any[];
 	selectedFloor: any;
+	adobeLoadInitialized: boolean;
 
-	constructor(private brandService: BrandService) {
+	constructor(private adobeService: AdobeService,
+		private brandService: BrandService) {
 		super();
 	}
 
 	ngOnInit() {
+		this.adobeLoadInitialized = false;
+		this.initializeAdobePageLoad();
 	}
 
 	ngOnChanges(changes: SimpleChanges) {
@@ -172,6 +176,15 @@ export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implement
 		}
 	}
 
+	initializeAdobePageLoad() {
+		let pageType = 'IFP Choice Card Page';
+		let pageName = this.groupName + ' / ' + this.currentSubgroup?.label;
+		let groupName = this.groupName;
+		let subGroupName = this.currentSubgroup?.label;
+
+		this.adobeService.setPageLoadEvent(this.adobeLoadInitialized, pageType, pageName, groupName, subGroupName);
+	}
+	
 	getDefaultFPImageSrc() {
 		return this.brandService.getBrandImage('logo');
 	}

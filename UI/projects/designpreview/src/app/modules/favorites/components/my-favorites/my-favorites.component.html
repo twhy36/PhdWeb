@@ -61,6 +61,8 @@
 	<ng-container *ngIf="showDetails">
 		<choice-card-detail	[choice]="selectedChoice"
 						[path]="getChoicePath()"
+						[groupName]="groupName"
+						[subGroupName]="selectedSubGroup.label"
 						[groups]="groups"
 						[tree]="tree"
 						[myFavoritesPointsDeclined]="myFavoritesPointsDeclined"

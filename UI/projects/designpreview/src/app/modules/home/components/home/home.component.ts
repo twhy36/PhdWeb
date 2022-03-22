@@ -16,6 +16,7 @@ import * as FavoriteActions from '../../../ngrx-store/favorite/actions';
 import { UnsubscribeOnDestroy, SalesAgreement, SDImage, SubGroup, FloorPlanImage } from 'phd-common';
 import { JobService } from '../../../core/services/job.service';
 import { BrandService } from '../../../core/services/brand.service';
+import { AdobeService } from '../../../core/services/adobe.service';
 
 @Component({
 	selector: 'home',
@@ -37,18 +38,21 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 	floorplanSG: SubGroup;
 	noVisibleFP: boolean = false;
 	selectedFloor: any;
+	adobeLoadInitialized: boolean;
 
 	constructor(
 		private activatedRoute: ActivatedRoute,
 		private store: Store<fromRoot.State>,
 		private router: Router,
 		private jobService: JobService,
-		private brandService: BrandService)
+		private brandService: BrandService,
+		private adobeService: AdobeService)
     {
         super();
     }
 
 	ngOnInit() {
+		this.adobeLoadInitialized = false;
 		this.activatedRoute.paramMap
 			.pipe(
 				combineLatest(this.store.pipe(select(state => state.salesAgreement))),
@@ -184,6 +188,8 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 				}
 			}
 		});
+
+		this.initializeAdobePageLoad();
 	}
 
 	viewOptions()
@@ -237,5 +243,14 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 				this.selectedFloor = fp.floors[0];
 			}
 		}
+	}
+
+	initializeAdobePageLoad() {
+		let pageType = 'Home Page';
+		let pageName = 'Home';
+		let groupName = '';
+		let subGroupName = '';
+
+		this.adobeService.setPageLoadEvent(this.adobeLoadInitialized, pageType, pageName, groupName, subGroupName);
 	}
 }
