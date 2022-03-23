@@ -12,6 +12,7 @@ export interface IEnvironment
 	cloudinary: CloudinaryConfiguration;
 	alphavision: { builderId: string };
 	pdfViewerBaseUrl: string;
-	brandMap: { pulte: string, delwebb: string, americanWest: string };
+	brandMap: { pulte: string, delwebb: string, americanWest: string, divosta: string, johnWieland: string };
 	adobeUrl: string;
+	brandLogoutMap: { pulte: string, delwebb: string, americanWest: string, divosta: string, johnWieland: string };
 }
