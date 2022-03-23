@@ -1,17 +1,26 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, from, EMPTY as empty, throwError as _throw, of } from 'rxjs';
-import { combineLatest, map, catchError, flatMap, toArray, switchMap } from 'rxjs/operators';
+import { combineLatest, map, catchError, flatMap, toArray, switchMap, withLatestFrom } from 'rxjs/operators';
+import { Store, select } from '@ngrx/store';
+
 import { environment } from '../../../../environments/environment';
 import { withSpinner, SalesCommunity, Plan } from 'phd-common';
+import * as fromRoot from '../../ngrx-store/reducers';
 
 import { OptionService } from './option.service';
 import { TreeService } from './tree.service';
+import { LiteService } from './lite.service';
 
 @Injectable()
 export class PlanService
 {
-	constructor(private _http: HttpClient, private optionService: OptionService, private treeService: TreeService) { }
+	constructor(
+		private _http: HttpClient, 
+		private optionService: OptionService, 
+		private treeService: TreeService,
+		private liteService: LiteService,
+		private store: Store<fromRoot.State>) { }
 
 	private getPlans(salesCommunity: SalesCommunity): Observable<Plan[]>
 	{
@@ -25,15 +34,18 @@ export class PlanService
 			(
 				// tslint:disable-next-line: deprecation
 				combineLatest(this.getCommunityPlans(salesCommunity.id)),
-				flatMap(([treeVersions, plans]: [any, Plan[]]) =>
+				withLatestFrom(this.store.pipe(select(state => state.scenario))),
+				flatMap(([[treeVersions, plans], scenario]: [[any, Plan[]], any]) =>
 				{
+					const isPhdLite = !treeVersions || !treeVersions.length
+						|| this.liteService.checkLiteScenario(scenario?.scenario?.scenarioChoices, scenario?.scenario?.scenarioOptions,);
+
 					return from(plans)
 						.pipe(
 							flatMap(plan =>
 							{
 								const activePlans = treeVersions.find(p => p.planKey === plan.integrationKey && p.communityId === plan.communityId);
 
-								const isPhdLite = !treeVersions || !treeVersions.length;
 								if (activePlans != null || isPhdLite)
 								{
 									includedPlanOptions = activePlans?.includedOptions || [];

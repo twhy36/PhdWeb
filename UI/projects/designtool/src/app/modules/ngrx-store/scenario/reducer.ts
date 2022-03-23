@@ -94,7 +94,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 			if (action.type === CommonActionTypes.JobLoaded && !state.scenario)
 			{
 				const jobType = action.job.jobTypeName === 'Model' ? 'model' : 'spec';
-				newState = { ...newState, buildMode: jobType, scenario: { opportunityId: jobType, scenarioName: jobType, scenarioChoices: [], treeVersionId: 0, planId: 0, lotId: 0, handing: null, viewedDecisionPoints: [], scenarioInfo: null }, enabledPointFilters: [], selectedPointFilter: DecisionPointFilterType.FULL };
+				newState = { ...newState, buildMode: jobType, scenario: { opportunityId: jobType, scenarioName: jobType, scenarioChoices: [], treeVersionId: 0, planId: 0, lotId: 0, handing: null, viewedDecisionPoints: [], scenarioInfo: null, scenarioOptions: [] }, enabledPointFilters: [], selectedPointFilter: DecisionPointFilterType.FULL };
 			}
 
 			if (action.type === CommonActionTypes.ScenarioLoaded)
@@ -385,7 +385,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 			return { ...state, tree: newTree, rules: rules, options: options, isUnsaved: true, pointHasChanges: true };
 
 		case ScenarioActionTypes.CreateScenario:
-			return { ...state, scenario: { opportunityId: action.opportunityId, scenarioName: action.scenarioName, scenarioChoices: [], treeVersionId: 0, planId: 0, lotId: 0, handing: null, viewedDecisionPoints: [], scenarioInfo: null }, enabledPointFilters: [], selectedPointFilter: DecisionPointFilterType.FULL };
+			return { ...state, scenario: { opportunityId: action.opportunityId, scenarioName: action.scenarioName, scenarioChoices: [], treeVersionId: 0, planId: 0, lotId: 0, handing: null, viewedDecisionPoints: [], scenarioInfo: null, scenarioOptions: [] }, enabledPointFilters: [], selectedPointFilter: DecisionPointFilterType.FULL };
 		case ScenarioActionTypes.SetScenarioPlan:
 			return { ...state, scenario: { ...state.scenario, treeVersionId: action.treeVersionId, planId: action.planId } };
 		case ScenarioActionTypes.SetScenarioLot:
@@ -453,7 +453,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 		case ScenarioActionTypes.MonotonyAdvisementShown:
 			return { ...state, monotonyAdvisementShown: state.monotonyAdvisementShown };
 		case ScenarioActionTypes.SetBuildMode:
-			return { ...state, buildMode: action.buildMode, scenario: { opportunityId: action.buildMode, scenarioName: action.buildMode, scenarioChoices: [], treeVersionId: 0, planId: 0, lotId: 0, handing: null, viewedDecisionPoints: [], scenarioInfo: null }, enabledPointFilters: [], selectedPointFilter: DecisionPointFilterType.FULL };
+			return { ...state, buildMode: action.buildMode, scenario: { opportunityId: action.buildMode, scenarioName: action.buildMode, scenarioChoices: [], treeVersionId: 0, planId: 0, lotId: 0, handing: null, viewedDecisionPoints: [], scenarioInfo: null, scenarioOptions: [] }, enabledPointFilters: [], selectedPointFilter: DecisionPointFilterType.FULL };
 		case ScenarioActionTypes.SetFinancialCommunityFilter:
 			return { ...state, financialCommunityFilter: action.financialCommunityId };
 		case ScenarioActionTypes.SetTreeFilter:

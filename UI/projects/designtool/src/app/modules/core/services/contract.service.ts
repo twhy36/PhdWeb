@@ -6,7 +6,8 @@ import { map, catchError, switchMap, withLatestFrom, take, combineLatest } from 
 
 import {
 	defaultOnNotFound, withSpinner, Buyer, Contact, PhoneType, ESignTypeEnum, ChangeOrderChoice, ChangeOrderNonStandardOption,
-	ChangeOrderGroup, LotExt, Plan, SalesAgreementProgram, SDPoint, DecisionPoint, formatPhoneNumber, PriceBreakdown
+	ChangeOrderGroup, LotExt, Plan, SalesAgreementProgram, SDPoint, DecisionPoint, formatPhoneNumber, PriceBreakdown,
+	ScenarioOptionColor
 } from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
@@ -28,7 +29,7 @@ import { TreeService } from '../../core/services/tree.service';
 import { _throw } from 'rxjs/observable/throw';
 
 // PHD Lite
-import { LitePlanOption, ScenarioOptionColor } from '../../shared/models/lite.model';
+import { LitePlanOption } from '../../shared/models/lite.model';
 import { LiteService } from './lite.service';
 import * as fromLite from '../../ngrx-store/lite/reducer';
 

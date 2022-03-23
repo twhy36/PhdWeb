@@ -1,4 +1,4 @@
-import { PlanOption, OptionImage, PointStatus, MonotonyRuleType } from 'phd-common';
+import { PlanOption, OptionImage, PointStatus, MonotonyRuleType, ScenarioOptionColor } from 'phd-common';
 
 export class LitePlanOption implements PlanOption
 {
@@ -37,23 +37,6 @@ export class LitePlanOptionUI extends LitePlanOption
 	selectedQuantity: number;
     quantityRange: number[] = [];
     isReadonly: boolean;
-}
-
-export interface ScenarioOption
-{
-	scenarioOptionId: number;
-	scenarioId: number;
-	edhPlanOptionId: number;
-    planOptionQuantity: number;
-    scenarioOptionColors: ScenarioOptionColor[];
-}
-
-export interface ScenarioOptionColor
-{
-    scenarioOptionColorId: number;
-    scenarioOptionId: number;
-    colorItemId: number;
-    colorId: number;
 }
 
 export class ScenarioOptionColorDto implements ScenarioOptionColor

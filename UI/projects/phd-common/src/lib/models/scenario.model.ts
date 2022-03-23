@@ -106,6 +106,7 @@ export class Scenario
 	scenarioInfo: DtoScenarioInfo;
 	salesAgreementId?: number;
 	financialCommunityId?: number;
+	scenarioOptions: ScenarioOption[];
 
 	constructor(scenarioDto?: DtoScenario)
 	{
@@ -147,6 +148,28 @@ export class Scenario
 			this.viewedDecisionPoints = scenarioDto.viewedDivDPointCatalogIds;
 			this.salesAgreementId = scenarioDto.salesAgreementId;
 			this.financialCommunityId = scenarioDto.financialCommunityId;
+
+			// PHD Lite
+			this.scenarioOptions = scenarioDto['options'] && scenarioDto['options'].length
+				? scenarioDto['options'].map(option => {
+					return {
+						scenarioOptionId: option['scenarioOptionId'],
+						scenarioId: option['scenarioId'],
+						edhPlanOptionId: option['edhPlanOptionId'],
+						planOptionQuantity: option['planOptionQuantity'],
+						scenarioOptionColors: option['colors'] && option['colors'].length
+							? option['colors'].map(color => {
+								return {
+									scenarioOptionColorId: color['scenarioOptionColorId'],
+									scenarioOptionId: color['scenarioOptionId'],
+									colorItemId: color['colorItemId'],
+									colorId: color['colorId']									
+								}
+							})
+							: []				
+					};
+				})
+				: [];
 		}
 	}
 }
@@ -297,3 +320,22 @@ export enum ScenarioStatusType
 	READY_FOR_DESIGN,
 	READY_TO_BUILD
 }
+
+// BEGIN PHD Lite
+export interface ScenarioOption
+{
+	scenarioOptionId: number;
+	scenarioId: number;
+	edhPlanOptionId: number;
+    planOptionQuantity: number;
+    scenarioOptionColors: ScenarioOptionColor[];
+}
+
+export interface ScenarioOptionColor
+{
+    scenarioOptionColorId: number;
+    scenarioOptionId: number;
+    colorItemId: number;
+    colorId: number;
+}
+// END PHD Lite

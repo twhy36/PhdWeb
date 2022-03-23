@@ -4,8 +4,8 @@ import { ReplaySubject } from 'rxjs';
 
 import * as _ from 'lodash';
 
-import { UnsubscribeOnDestroy, flipOver3, ModalService } from 'phd-common';
-import { LitePlanOption, ScenarioOption, Color } from '../../../shared/models/lite.model';
+import { UnsubscribeOnDestroy, flipOver3, ModalService, ScenarioOption } from 'phd-common';
+import { LitePlanOption, Color } from '../../../shared/models/lite.model';
 import { MonotonyConflict } from '../../../shared/models/monotony-conflict.model';
 import { ModalOverrideSaveComponent } from '../../../core/components/modal-override-save/modal-override-save.component';
 

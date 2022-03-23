@@ -1,10 +1,11 @@
 import {
-	ChangeOrderChoice, SDGroup, SDSubGroup, SDPoint, SDChoice, Group, DesignToolAttribute, ChangeOrderPlanOption
+	ChangeOrderChoice, SDGroup, SDSubGroup, SDPoint, SDChoice, Group, DesignToolAttribute,
+	ScenarioOption, ScenarioOptionColor, ChangeOrderPlanOption
 } from "phd-common";
 
 import * as _ from 'lodash';
 import { 
-	IOptionCategory, IOptionSubCategory, LitePlanOption, ScenarioOption, ScenarioOptionColor, Elevation, ExteriorLabel
+	IOptionCategory, IOptionSubCategory, LitePlanOption, Elevation, ExteriorLabel
 } from '../models/lite.model';
 import * as fromLite from '../../ngrx-store/lite/reducer';
 
