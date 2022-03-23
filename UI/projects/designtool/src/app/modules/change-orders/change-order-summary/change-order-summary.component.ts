@@ -323,6 +323,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 					changeOrderTypeDescription: this._changeOrderService.getTypeFromChangeOrderGroup(o),
 					jobChangeOrderGroupDescription: o.jobChangeOrderGroupDescription,
 					jobChangeOrderChoices: _.flatten(o.jobChangeOrders.map(t => t.jobChangeOrderChoices)),
+					jobChangeOrderPlanOptions: _.flatten(o.jobChangeOrders.map(t => t.jobChangeOrderPlanOptions)),
 					jobChangeOrderPlans: _.flatten(o.jobChangeOrders.map(t => t.jobChangeOrderPlans)),
 					jobChangeOrderNonStandardOptions: _.flatten(o.jobChangeOrders.map(t => t.jobChangeOrderNonStandardOptions)),
 					jobChangeOrderLots: _.flatten(o.jobChangeOrders.map(t => t.jobChangeOrderLots)),
@@ -1030,7 +1031,8 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 					{
 						return this._contractService.saveSnapshot(currentSnapshot, this.jobId, changeOrder.id).pipe(
 							switchMap(() =>
-								this._contractService.getPreviewDocument(currentSnapshot.jioSelections, currentSnapshot.templates, currentSnapshot.financialCommunityId, currentSnapshot.salesAgreementNumber, currentSnapshot.salesAgreementStatus, currentSnapshot.envelopeInfo, currentSnapshot.jobId, currentSnapshot.changeOrderGroupId, currentSnapshot.constructionChangeOrderSelections, currentSnapshot.salesChangeOrderSelections, currentSnapshot.planChangeOrderSelections, currentSnapshot.nonStandardChangeOrderSelections, currentSnapshot.lotTransferChangeOrderSelections, currentSnapshot.changeOrderInformation, true, false)),
+								this._contractService.getPreviewDocument(currentSnapshot, true, false, this.isPhdLite)
+							),
 							map(pdfObject =>
 							{
 								return pdfObject;

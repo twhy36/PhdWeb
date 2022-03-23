@@ -138,6 +138,14 @@ export enum LiteReportType
 	SUMMARY = 'Summary',
 }
 
+export enum ExteriorLabel
+{
+    Exterior = 'Exterior',
+    ExteriorSubGroup = 'Elevation & Color Scheme',
+    Elevation = 'Elevation',
+    ColorScheme = 'Color Scheme',
+}
+
 export interface LiteMonotonyRule {
     edhLotId: number;
     relatedLotsElevationColorScheme: Array<LiteMonotonyRuleLot>;
