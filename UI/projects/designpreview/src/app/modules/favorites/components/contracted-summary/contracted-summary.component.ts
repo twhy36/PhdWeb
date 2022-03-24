@@ -10,6 +10,7 @@ import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromFavorite from '../../../ngrx-store/favorite/reducer';
 
 import { GroupExt } from '../../../shared/models/group-ext.model';
+import { AdobeService } from '../../../core/services/adobe.service';
 
 @Component({
 	selector: 'contracted-summary',
@@ -24,13 +25,17 @@ export class ContractedSummaryComponent extends UnsubscribeOnDestroy implements 
 	buildMode: string;
 	isPreview: boolean = false;
 	isDesignComplete: boolean = false;
+	adobeLoadInitialized: boolean;
 
-	constructor(private store: Store<fromRoot.State>, private location: Location) {
-		super();
-	}
+	constructor(private store: Store<fromRoot.State>, 
+		private location: Location,
+		private adobeService: AdobeService) {
+			super();
+		}
 
 	ngOnInit()
 	{
+		this.adobeLoadInitialized = false;
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(fromRoot.contractedTree)
@@ -51,6 +56,8 @@ export class ContractedSummaryComponent extends UnsubscribeOnDestroy implements 
 		).subscribe(fav => {
 			this.salesChoices = fav && fav.salesChoices;
 		});
+
+		this.initializeAdobePageLoad();
 	}
 
 	onBack()
@@ -73,5 +80,14 @@ export class ContractedSummaryComponent extends UnsubscribeOnDestroy implements 
 		return groups.map(g => {
 			return new GroupExt(g);
 		})
+	}
+
+	initializeAdobePageLoad() {
+		let pageType = 'Contracted Options Page';
+		let pageName = 'Contracted Options';
+		let groupName = '';
+		let subGroupName = '';
+
+		this.adobeService.setPageLoadEvent(this.adobeLoadInitialized, pageType, pageName, groupName, subGroupName);
 	}
 }

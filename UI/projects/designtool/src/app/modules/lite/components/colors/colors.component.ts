@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { select, Store } from '@ngrx/store';
-import { ModalService, PointStatus, UnsubscribeOnDestroy } from 'phd-common';
-import { ColorItem, IOptionCategory, IOptionSubCategory, LitePlanOptionUI, ScenarioOption, ScenarioOptionColorDto } from '../../../shared/models/lite.model';
+import { ModalService, PointStatus, UnsubscribeOnDestroy, ScenarioOption } from 'phd-common';
+import { ColorItem, IOptionCategory, IOptionSubCategory, LitePlanOptionUI, ScenarioOptionColorDto } from '../../../shared/models/lite.model';
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 import * as LiteActions from '../../../ngrx-store/lite/actions';

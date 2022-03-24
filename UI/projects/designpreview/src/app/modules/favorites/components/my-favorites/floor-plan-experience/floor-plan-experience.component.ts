@@ -7,9 +7,10 @@ import
 	UnsubscribeOnDestroy, DecisionPoint, SubGroup, JobChoice, ChoiceImageAssoc, Group,
 	Tree, MyFavoritesChoice, MyFavoritesPointDeclined
 } from 'phd-common';
+import { BrandService } from '../../../../core/services/brand.service';
 
 import { ChoiceExt } from '../../../../shared/models/choice-ext.model';
-
+import { AdobeService } from '../../../../core/services/adobe.service';
 @Component({
   selector: 'floor-plan-experience',
   templateUrl: './floor-plan-experience.component.html',
@@ -34,6 +35,7 @@ export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implement
 	@Input() isPreview: boolean = false;
 	@Input() isDesignComplete: boolean = false;
 	@Input() noVisibleGroups: boolean = false;
+	@Input() noVisibleFP: boolean = false;
 
 	@Output() onToggleChoice = new EventEmitter<ChoiceExt>();
 	@Output() onToggleContractedOptions = new EventEmitter();
@@ -49,12 +51,16 @@ export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implement
 	floors: any[];
 	fpOptions: any[];
 	selectedFloor: any;
+	adobeLoadInitialized: boolean;
 
-	constructor() {
+	constructor(private adobeService: AdobeService,
+		private brandService: BrandService) {
 		super();
 	}
 
 	ngOnInit() {
+		this.adobeLoadInitialized = false;
+		this.initializeAdobePageLoad();
 	}
 
 	ngOnChanges(changes: SimpleChanges) {
@@ -168,6 +174,19 @@ export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implement
 		{
 			decisionBarElement.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
 		}
+	}
+
+	initializeAdobePageLoad() {
+		let pageType = 'IFP Choice Card Page';
+		let pageName = this.groupName + ' / ' + this.currentSubgroup?.label;
+		let groupName = this.groupName;
+		let subGroupName = this.currentSubgroup?.label;
+
+		this.adobeService.setPageLoadEvent(this.adobeLoadInitialized, pageType, pageName, groupName, subGroupName);
+	}
+	
+	getDefaultFPImageSrc() {
+		return this.brandService.getBrandImage('logo');
 	}
 }
 

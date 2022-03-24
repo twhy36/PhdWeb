@@ -16,6 +16,9 @@
 			>
 			</floor-plan>
 		</ng-container>
+		<ng-container *ngIf="noVisibleFP">
+			<img class="phd-default-ifp" [src]="getDefaultFPImageSrc()" >
+		</ng-container>
 	</div>
 	<div class="floor-select-container" *ngIf="floors && floors.length > 1">
 		<select id="floor-select" class="form-control" [ngModel]="selectedFloor" (ngModelChange)="selectFloor($event)">

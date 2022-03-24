@@ -15,14 +15,15 @@ import
 	withSpinner, getNewGuid, createBatchGet, createBatchHeaders, createBatchBody,
 	SalesAgreement, ISalesAgreement, ModalService, Job, ChangeOrderGroup, JobPlanOptionAttribute,
 	JobPlanOption, ChangeOrderPlanOption, SummaryData, defaultOnNotFound,
-	ChangeOrderHanding, ChangeTypeEnum, ChangeInput, SelectedChoice, ConstructionStageTypes
+	ChangeOrderHanding, ChangeTypeEnum, ChangeInput, SelectedChoice, ConstructionStageTypes,
+	ScenarioOption, ScenarioOptionColor
 } from 'phd-common';
 
 import * as fromRoot from '../../ngrx-store/reducers';
 
 import {
-	LitePlanOption, ScenarioOption, ColorItem, Color, ScenarioOptionColorDto, IOptionSubCategory, OptionRelation,
-	OptionRelationEnum, ScenarioOptionColor, Elevation, IOptionCategory, LiteReportType, LiteMonotonyRule, SummaryReportData
+	LitePlanOption, ColorItem, Color, ScenarioOptionColorDto, IOptionSubCategory, OptionRelation,
+	OptionRelationEnum, Elevation, IOptionCategory, LiteReportType, LiteMonotonyRule, SummaryReportData
 } from '../../shared/models/lite.model';
 import { LotService } from './lot.service';
 import { ChangeOrderService } from './change-order.service';
@@ -1067,7 +1068,7 @@ export class LiteService
 	}
 
 	checkLiteScenario(scenarioChoices: SelectedChoice[], scenarioOptions: ScenarioOption[]): boolean {
-		return !scenarioChoices && !!scenarioOptions?.length; // no scenario choices (full) but scenarion options (lite) is lite
+		return !scenarioChoices?.length && !!scenarioOptions?.length; // no scenario choices (full) but scenarion options (lite) is lite
 	}
 
 	liteChangeOrderHasChanges(

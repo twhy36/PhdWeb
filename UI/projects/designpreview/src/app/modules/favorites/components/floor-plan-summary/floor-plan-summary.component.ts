@@ -11,6 +11,9 @@ import * as fromSalesAgreement from '../../../ngrx-store/sales-agreement/reducer
 import * as _ from 'lodash';
 
 import { UnsubscribeOnDestroy, PriceBreakdown, Group, SubGroup } from 'phd-common';
+import { withLatestFrom } from 'rxjs/operators';
+import { AdobeService } from '../../../core/services/adobe.service';
+import { BrandService } from '../../../core/services/brand.service';
 
 @Component({
   selector: 'floor-plan-summary',
@@ -18,12 +21,12 @@ import { UnsubscribeOnDestroy, PriceBreakdown, Group, SubGroup } from 'phd-commo
   styleUrls: ['./floor-plan-summary.component.scss']
 })
 
-export class FloorPlanSummaryComponent extends UnsubscribeOnDestroy implements OnInit {	
+export class FloorPlanSummaryComponent extends UnsubscribeOnDestroy implements OnInit {
 	floors: any[];
-	groups: Group[];
+	group: Group;
 	subGroup: SubGroup;
 	isDesignComplete: boolean;
-	isFloorplanFlipped: boolean; 
+	isFloorplanFlipped: boolean;
 	selectedFloor: any;
 	priceBreakdown: PriceBreakdown;
 	communityName: string = '';
@@ -31,19 +34,26 @@ export class FloorPlanSummaryComponent extends UnsubscribeOnDestroy implements O
 	marketingPlanId$ = new BehaviorSubject<number>(0);
 	noVisibleFP: boolean = false;
 	isPlainFloorplan: boolean = false;
+	adobeLoadInitialized: boolean;
+	pageName: string;
 
-	constructor(private store: Store<fromRoot.State>, private location: Location) {
+	constructor(
+		private store: Store<fromRoot.State>,
+		private location: Location,
+		private brandService: BrandService,
+		private adobeService: AdobeService
+	) {
 		super();
 	}
 
 	ngOnInit() {
+		this.adobeLoadInitialized = false;
 		combineLatest([
 			this.store.pipe(select(fromRoot.contractedTree), this.takeUntilDestroyed()),
 			this.store.pipe(select(state => state.scenario), this.takeUntilDestroyed()),
 			this.store.pipe(select(fromPlan.planState), this.takeUntilDestroyed()),
 		])
-		.subscribe(([contractedTree, scenarioState, plan]) =>
-		{
+		.subscribe(([contractedTree, scenarioState, plan]) => {
 			const tree = contractedTree || scenarioState?.tree?.treeVersion;
 			if (tree && plan && plan.marketingPlanId && plan.marketingPlanId.length) {
 				let sgs = _.flatMap(contractedTree?.groups, g => g.subGroups.filter(sg => sg.useInteractiveFloorplan));
@@ -59,8 +69,10 @@ export class FloorPlanSummaryComponent extends UnsubscribeOnDestroy implements O
 				} else {
 					this.noVisibleFP = true;
 				}
+			} else {
+				this.noVisibleFP = true;
 			}
-		});	
+		});
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
@@ -79,16 +91,25 @@ export class FloorPlanSummaryComponent extends UnsubscribeOnDestroy implements O
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
-			select(fromRoot.financialCommunityName),
-		).subscribe(communityName => {
+			select(fromRoot.financialCommunityName), // Delete
+			withLatestFrom(
+				this.store.pipe(select(fromPlan.selectedPlanData))), // 2
+		).subscribe(([communityName, planData]) => {
 			this.communityName = communityName;
+			let floorplanName = planData && planData.salesName; 
+
+			let pageType = 'Floorplan Page';
+			let pageName = communityName + ': ' + floorplanName + " Floorplan";
+			let groupName = '';
+			let subGroupName = '';
+
+			this.adobeService.setPageLoadEvent(this.adobeLoadInitialized, pageType, pageName, groupName, subGroupName);
 		});
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(fromRoot.priceBreakdown)
 		).subscribe(pb => this.priceBreakdown = pb);
-
 	}
 
 	onBack() {
@@ -110,5 +131,9 @@ export class FloorPlanSummaryComponent extends UnsubscribeOnDestroy implements O
 
 	selectFloor(floor: any) {
 		this.selectedFloor = floor;
+	}
+
+	getDefaultFPImageSrc() {
+		return this.brandService.getBrandImage('logo');
 	}
 }

@@ -45,7 +45,16 @@ export const environment: IEnvironment = {
 	brandMap: {
 		pulte: 'localhost:14769',
 		delwebb: '',
-		americanWest: ''
+		americanWest: '',
+		divosta: '',
+		johnWieland: ''
 	},
 	adobeUrl: 'https://assets.adobedtm.com/73ef53bd253f/c533c20a08e9/launch-08a9cce44e7a-development.min.js',
+	brandLogoutMap: {
+		pulte: 'https://cdr3.dev.pulte.com/My-Pulte-Account/Login',
+		delwebb: 'https://cdr.dev.delwebb.com/My-Del-Webb-Account/Login',
+		americanWest: 'https://cdr.dev.americanwesthomes.com/My-American-West-Account/Login',
+		divosta: 'https://cdr.dev.divosta.com/My-DiVosta-Account/Login',
+		johnWieland: 'https://cdr.dev.jwhomes.com/My-JW-Account/Login'
+	}
 };

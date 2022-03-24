@@ -1,7 +1,7 @@
-import { Log } from 'phd-common';
+import { Log, ScenarioOption } from 'phd-common';
 import { Action } from '@ngrx/store';
 import { 
-    IOptionCategory, LitePlanOption, ScenarioOption, ScenarioOptionColorDto, LiteMonotonyRule 
+    IOptionCategory, LitePlanOption, ScenarioOptionColorDto, LiteMonotonyRule 
 } from '../../shared/models/lite.model';
 
 export enum LiteActionTypes {

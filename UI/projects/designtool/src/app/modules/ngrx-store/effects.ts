@@ -46,10 +46,13 @@ export class CommonEffects
 			tryCatch(source => source.pipe(
 				switchMap(action => this.scenarioService.getScenario(action.scenarioId)),
 				switchMap(scenario => {
-					const getTree = scenario.treeVersionId ? this.treeService.getTree(scenario.treeVersionId) : of(null);
-					const getRules = scenario.treeVersionId ? this.treeService.getRules(scenario.treeVersionId) : of(null);
-					const getPlanOptions = scenario.treeVersionId ? this.optionService.getPlanOptions(scenario.planId) : of(null);
-					const getOptionImages = scenario.treeVersionId ? this.treeService.getOptionImages(scenario.treeVersionId) : of(null);
+					const isPhdLite = !scenario.treeVersionId
+						|| this.liteService.checkLiteScenario(scenario?.scenarioChoices, scenario?.scenarioOptions);
+					
+					const getTree = !isPhdLite ? this.treeService.getTree(scenario.treeVersionId) : of(null);
+					const getRules = !isPhdLite ? this.treeService.getRules(scenario.treeVersionId) : of(null);
+					const getPlanOptions = !isPhdLite ? this.optionService.getPlanOptions(scenario.planId) : of(null);
+					const getOptionImages = !isPhdLite ? this.treeService.getOptionImages(scenario.treeVersionId) : of(null);
 					
 					return combineLatest([
 						getTree,

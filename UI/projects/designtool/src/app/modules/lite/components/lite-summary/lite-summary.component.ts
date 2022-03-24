@@ -8,7 +8,7 @@ import * as _ from "lodash";
 import { UnsubscribeOnDestroy, PriceBreakdown, ChangeTypeEnum, 
 			ChangeOrderHanding, ModalService, SummaryData, BuyerInfo, 
 			PDFViewerComponent, SDGroup, SDSubGroup, SDPoint, 
-			SDChoice, 
+			SDChoice, ScenarioOption,
 			PriceBreakdownType} from 'phd-common';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
@@ -23,7 +23,7 @@ import { LiteService } from '../../../core/services/lite.service';
 import { ModalOverrideSaveComponent } from '../../../core/components/modal-override-save/modal-override-save.component';
 
 import { SummaryHeader, SummaryHeaderComponent } from '../../../shared/components/summary-header/summary-header.component';
-import { LitePlanOption, IOptionSubCategory, ScenarioOption, LiteReportType, SummaryReportData, 
+import { LitePlanOption, IOptionSubCategory, LiteReportType, SummaryReportData, 
 			SummaryReportGroup, SummaryReportSubGroup, SummaryReportOption, SummaryReportSubOption } from '../../../shared/models/lite.model';
 import { OptionSummaryComponent } from '../option-summary/option-summary.component';
 import { environment } from '../../../../../environments/environment';

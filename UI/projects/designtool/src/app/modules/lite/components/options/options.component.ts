@@ -3,12 +3,12 @@ import { select, Store } from '@ngrx/store';
 import { combineLatest } from 'rxjs';
 import * as _ from "lodash";
 
-import { UnsubscribeOnDestroy, ModalService } from 'phd-common';
+import { UnsubscribeOnDestroy, ModalService, ScenarioOption } from 'phd-common';
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 import * as LiteActions from '../../../ngrx-store/lite/actions';
 
-import { Elevation, IOptionCategory, LitePlanOptionUI, ScenarioOption, LitePlanOption, OptionRelationEnum } from '../../../shared/models/lite.model';
+import { Elevation, IOptionCategory, LitePlanOptionUI, LitePlanOption, OptionRelationEnum } from '../../../shared/models/lite.model';
 import { ConfirmOptionRelationComponent } from '../confirm-option-relation/confirm-option-relation.component';
 import { ModalOverrideSaveComponent } from '../../../core/components/modal-override-save/modal-override-save.component';
 

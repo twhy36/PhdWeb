@@ -30,6 +30,7 @@ import { DecisionPointFilterType } from '../../../shared/models/decisionPointFil
 import { MonotonyConflict } from '../../../shared/models/monotony-conflict.model';
 
 // PHD Lite
+import { LiteService } from '../../../core/services/lite.service';
 import { ExteriorSubNavItems, LiteSubMenu } from '../../../shared/models/lite.model';
 import * as LiteActions from '../../../ngrx-store/lite/actions';
 
@@ -94,6 +95,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 	impactedChoices: string = '';
 	lotStatus: string;
 	selectedLot: LotExt;
+	plan: Plan;
 
 	private params$ = new ReplaySubject<{ scenarioId: number, divDPointCatalogId: number, treeVersionId: number, choiceId?: number }>(1);
 	private selectedGroupId: number;
@@ -102,6 +104,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 
 	constructor(private cd: ChangeDetectorRef,
 		private lotService: LotService,
+		private liteService: LiteService,
 		private store: Store<fromRoot.State>,
 		private route: ActivatedRoute,
 		private router: Router,
@@ -182,6 +185,9 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 				return;
 			}
 
+			const isPhdLite = lite.isPhdLite
+				|| this.liteService.checkLiteScenario(scenarioState?.scenario?.scenarioChoices, scenarioState?.scenario?.scenarioOptions);
+
 			if (routeData["isPreview"])
 			{
 				if (!scenarioState.tree || scenarioState.tree.treeVersion.id !== params.treeVersionId)
@@ -197,7 +203,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 			{
 				this.store.dispatch(new CommonActions.LoadScenario(params.scenarioId));
 			}
-			else if (filteredTree && params.divDPointCatalogId > 0)
+			else if (filteredTree && params.divDPointCatalogId > 0 && !isPhdLite)
 			{
 				let groups = filteredTree.groups;
 				let sg;
@@ -270,14 +276,16 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 					this.showPhaseProgressBarItems = false;
 				}
 			}
-			else if (filteredTree)
+			else if (filteredTree && !isPhdLite)
 			{
 				this.router.navigate([filteredTree.groups[0].subGroups[0].points[0].divPointCatalogId], { relativeTo: this.route });
 			}
-			else if (lite.isPhdLite && !lite.isScenarioLoaded)
+			else if (isPhdLite && (!lite.isScenarioLoaded || !this.plan && !!plan))
 			{
 				this.loadPhdLite(plan);
 			}
+
+			this.plan = plan;
 		});
 
 		//subscribe to changes in phase progress selection

@@ -4,7 +4,7 @@ import { Action, Store, select } from '@ngrx/store';
 import { Observable, never, of, combineLatest, from, EMPTY as empty } from 'rxjs';
 import { switchMap, withLatestFrom, map, scan, filter, distinct } from 'rxjs/operators';
 
-import { ChangeOrderHanding } from 'phd-common';
+import { ChangeOrderHanding, ScenarioOption } from 'phd-common';
 
 import { LiteService } from '../../core/services/lite.service';
 import { ChangeOrderService } from '../../core/services/change-order.service';
@@ -18,7 +18,7 @@ import {
 import { CommonActionTypes, ScenarioLoaded, LoadSalesAgreement, SalesAgreementLoaded, LoadError } from '../actions';
 import * as fromRoot from '../reducers';
 import * as _ from 'lodash';
-import { IOptionCategory, ScenarioOption } from '../../shared/models/lite.model';
+import { IOptionCategory } from '../../shared/models/lite.model';
 import { tryCatch } from '../error.action';
 import { SavePendingJio, CreateJobChangeOrders, CreatePlanChangeOrder, SaveChangeOrderScenario, CurrentChangeOrderLoaded, SetChangingOrder } from '../change-order/actions';
 import { LotsLoaded, LotActionTypes } from '../lot/actions';
@@ -38,7 +38,8 @@ export class LiteEffects
 				{
 					const isPhdLite = action.plans.some(plan => !plan.treeVersionId)
 						|| this.liteService.checkLiteAgreement(store.job, store.changeOrder.currentChangeOrder)
-						|| this.liteService.checkLiteScenario(store.scenario.scenario.scenarioChoices, store.lite.scenarioOptions);
+						|| this.liteService.checkLiteScenario(store.scenario.scenario?.scenarioChoices, store.scenario.scenario?.scenarioOptions);
+
 					const salesCommunityId = store.opportunity.opportunityContactAssoc.opportunity.salesCommunityId;
 
 					let actions = [];
@@ -66,7 +67,7 @@ export class LiteEffects
 					const planOptions = store.lite.options;
 					const optionsLoaded = !!planOptions.find(option => option.planId === action.scenario.planId);
 					const isPhdLite = (action instanceof ScenarioLoaded ? !action.scenario.treeVersionId : store.lite.isPhdLite)
-						|| this.liteService.checkLiteScenario(action.scenario.scenarioChoices, store.lite.scenarioOptions);
+						|| this.liteService.checkLiteScenario(action.scenario.scenarioChoices, store.scenario.scenario?.scenarioOptions);
 
 					if (isPhdLite && !optionsLoaded)
 					{
