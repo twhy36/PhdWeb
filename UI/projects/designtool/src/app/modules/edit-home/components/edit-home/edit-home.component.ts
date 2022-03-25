@@ -96,6 +96,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 	lotStatus: string;
 	selectedLot: LotExt;
 	plan: Plan;
+	isPhdLite: boolean = false;
 
 	private params$ = new ReplaySubject<{ scenarioId: number, divDPointCatalogId: number, treeVersionId: number, choiceId?: number }>(1);
 	private selectedGroupId: number;
@@ -185,7 +186,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 				return;
 			}
 
-			const isPhdLite = lite.isPhdLite
+			this.isPhdLite = lite.isPhdLite
 				|| this.liteService.checkLiteScenario(scenarioState?.scenario?.scenarioChoices, scenarioState?.scenario?.scenarioOptions);
 
 			if (routeData["isPreview"])
@@ -203,7 +204,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 			{
 				this.store.dispatch(new CommonActions.LoadScenario(params.scenarioId));
 			}
-			else if (filteredTree && params.divDPointCatalogId > 0 && !isPhdLite)
+			else if (filteredTree && params.divDPointCatalogId > 0 && !this.isPhdLite)
 			{
 				let groups = filteredTree.groups;
 				let sg;
@@ -276,11 +277,11 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 					this.showPhaseProgressBarItems = false;
 				}
 			}
-			else if (filteredTree && !isPhdLite)
+			else if (filteredTree && !this.isPhdLite)
 			{
 				this.router.navigate([filteredTree.groups[0].subGroups[0].points[0].divPointCatalogId], { relativeTo: this.route });
 			}
-			else if (isPhdLite && (!lite.isScenarioLoaded || !this.plan && !!plan))
+			else if (this.isPhdLite && (!lite.isScenarioLoaded || !this.plan && !!plan))
 			{
 				this.loadPhdLite(plan);
 			}
@@ -333,7 +334,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 						{
 							if (this.scenarioHasSalesAgreement)
 							{
-								const summaryUrl = !!treeVersionId ? '/scenario-summary' : '/lite-summary';
+								const summaryUrl = !this.isPhdLite ? '/scenario-summary' : '/lite-summary';
 								this.router.navigateByUrl(summaryUrl);
 							}
 							else
