@@ -77,10 +77,9 @@ export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implement
 					}
 				});
 				this.choiceToggled = false;
-			} else {
-				this.subGroup = changes['currentSubgroup'].currentValue;
-				this.points = this.subGroup ? this.subGroup.points : null;
 			}
+			this.subGroup = changes['currentSubgroup'].currentValue;
+			this.points = this.subGroup ? this.subGroup.points : null;
 		}
 
 		if (changes['decisionPointId']) {
