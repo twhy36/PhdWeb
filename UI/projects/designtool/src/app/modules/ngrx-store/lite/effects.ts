@@ -413,9 +413,7 @@ export class LiteEffects
 								return of(new CreateJobChangeOrders());
 							}
 						}
-						else {
-							return empty;
-						}
+						return empty;
 					})
 				);
 			})
