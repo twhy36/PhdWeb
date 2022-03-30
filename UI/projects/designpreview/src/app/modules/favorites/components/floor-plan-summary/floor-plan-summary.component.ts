@@ -99,7 +99,7 @@ export class FloorPlanSummaryComponent extends UnsubscribeOnDestroy implements O
 			let floorplanName = planData && planData.salesName; 
 
 			let pageType = 'Floorplan Page';
-			let pageName = communityName + ': ' + floorplanName + " Floorplan";
+			let pageName = 'Floorplan';
 			let groupName = '';
 			let subGroupName = '';
 
