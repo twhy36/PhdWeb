@@ -1,6 +1,6 @@
 import { Action } from '@ngrx/store';
 
-import { ChangeOrderGroup, Job, SpecInformation, JobPlanOption, Log } from 'phd-common';
+import { ChangeOrderGroup, Job, SpecInformation, JobPlanOption, Log, TimeOfSaleOptionPrice } from 'phd-common';
 
 import { ErrorAction } from '../error.action';
 import { SalesAgreementLoaded, JobLoaded, SalesAgreementCancelled, ESignEnvelopesLoaded, ChangeOrdersUpdated, ChangeOrderEnvelopeCreated, ScenarioLoaded, CommonActionTypes } from '../actions';
@@ -21,7 +21,13 @@ export enum JobActionTypes
 	PulteInfoLoaded = 'PulteInfoLoaded',
 	SavePulteInfo = 'Save Pulte Info',
 	PulteInfoSaved = 'Pulte Info Saved',
-	JobPlanOptionsUpdated = 'Job Plan Options Updated'
+	JobPlanOptionsUpdated = 'Job Plan Options Updated',
+	SaveReplaceOptionPrice = 'Save Replace Option Price',
+	ReplaceOptionPriceSaved = 'Replace Option Price Saved',
+	DeleteReplaceOptionPrice = 'Delete Replace Option Price',
+	ReplaceOptionPriceDeleted = 'Replace Option Price Deleted',
+	UpdateReplaceOptionPrice = 'Update Replace Option Price',
+	ReplaceOptionPriceUpdated = 'Replace Option Price Updated'
 }
 
 @Log(true)
@@ -143,6 +149,56 @@ export class JobPlanOptionsUpdated implements Action
 	constructor(public jobPlanOptions: JobPlanOption[]) { }
 }
 
+export class SaveReplaceOptionPrice implements Action
+{
+	readonly type = JobActionTypes.SaveReplaceOptionPrice;
+	public timeOfSaleOptionPrices: TimeOfSaleOptionPrice[];
+
+	constructor(timeOfSaleOptionPrices: TimeOfSaleOptionPrice[])
+	{
+		this.timeOfSaleOptionPrices = timeOfSaleOptionPrices;
+	}
+}
+
+export class ReplaceOptionPriceSaved implements Action
+{
+	readonly type = JobActionTypes.ReplaceOptionPriceSaved;
+
+	constructor() { }
+}
+
+export class DeleteReplaceOptionPrice implements Action
+{
+	readonly type = JobActionTypes.DeleteReplaceOptionPrice;
+	public timeOfSaleOptionPrices: TimeOfSaleOptionPrice[];
+
+	constructor(timeOfSaleOptionPrices: TimeOfSaleOptionPrice[])
+	{
+		this.timeOfSaleOptionPrices = timeOfSaleOptionPrices;
+	}
+}
+
+export class ReplaceOptionPriceDeleted implements Action
+{
+	readonly type = JobActionTypes.ReplaceOptionPriceDeleted;
+
+	constructor(public timeOfSaleOptionPrices: TimeOfSaleOptionPrice[]) { }
+}
+
+export class UpdateReplaceOptionPrice implements Action
+{
+	readonly type = JobActionTypes.UpdateReplaceOptionPrice;
+
+	constructor(public timeOfSaleOptionPrices: TimeOfSaleOptionPrice[]) { }
+}
+
+export class ReplaceOptionPriceUpdated implements Action
+{
+	readonly type = JobActionTypes.ReplaceOptionPriceUpdated;
+
+	constructor(public timeOfSaleOptionPrices: TimeOfSaleOptionPrice[]) { }
+}
+
 export type JobActions =
 	ChangeOrdersUpdated |
 	JobUpdated |
@@ -165,4 +221,10 @@ export type JobActions =
 	PulteInfoSaved |
 	ESignEnvelopesLoaded |
 	ScenarioLoaded |
-	JobPlanOptionsUpdated;
+	JobPlanOptionsUpdated |
+	SaveReplaceOptionPrice |
+	ReplaceOptionPriceSaved |
+	DeleteReplaceOptionPrice |
+	ReplaceOptionPriceDeleted |
+	UpdateReplaceOptionPrice |
+	ReplaceOptionPriceUpdated;

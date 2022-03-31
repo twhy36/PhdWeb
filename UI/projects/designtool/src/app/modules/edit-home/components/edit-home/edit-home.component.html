@@ -125,6 +125,13 @@
 	</div>
 </ng-template>
 
+<ng-template #optionPriceChangedModal>
+	<div class="modal-body">
+		<p>Option pricing has changed. Pricing for the following selections will be adjusted on your configuration: {{impactedChoices}}</p>
+		<p>Do you wish to continue?</p>
+	</div>
+</ng-template>
+
 <choice-card *ngIf="viewChoice"
 			 [currentChoice]="viewChoice"
 			 [canConfigure]="canConfigure$ | async"

@@ -2,7 +2,7 @@ import { createFeatureSelector, createSelector } from '@ngrx/store';
 
 import * as _ from 'lodash';
 
-import { ESignStatusEnum, ChangeOrderGroup, Job, SpecInformation } from 'phd-common';
+import { ESignStatusEnum, ChangeOrderGroup, Job, SpecInformation, TimeOfSaleOptionPrice } from 'phd-common';
 
 import { CommonActionTypes } from '../actions';
 import { JobActions, JobActionTypes } from './actions';
@@ -201,7 +201,7 @@ export function reducer(state: State = initialState, action: JobActions): State
 						if (!existingEnvelope)
 						{
 							changeOrder.eSignEnvelopes = [...(changeOrder.eSignEnvelopes || []), env];
-							changeOrder.envelopeId = env.envelopeGuid;							
+							changeOrder.envelopeId = env.envelopeGuid;
 						}
 					}
 				});
@@ -217,7 +217,8 @@ export function reducer(state: State = initialState, action: JobActions): State
 			return { ...state, ...action.job };
 		case JobActionTypes.JobPlanOptionsUpdated:
 			let jobPlanOptions = _.cloneDeep(state.jobPlanOptions);
-			jobPlanOptions.forEach(jpo => {
+			jobPlanOptions.forEach(jpo =>
+			{
 				let savedOption = action.jobPlanOptions.find(j => j.id === jpo.id);
 				if (savedOption && savedOption.listPrice !== jpo.listPrice)
 				{
@@ -225,6 +226,46 @@ export function reducer(state: State = initialState, action: JobActions): State
 				}
 			});
 			return { ...state, jobPlanOptions: jobPlanOptions };
+		case JobActionTypes.ReplaceOptionPriceDeleted:
+			{
+				let timeOfSaleOptionPrices: Array<TimeOfSaleOptionPrice> = _.cloneDeep(state.timeOfSaleOptionPrices) || [];
+
+				if (action.timeOfSaleOptionPrices && action.timeOfSaleOptionPrices.length)
+				{
+					// For each deleted option price, remove it from the state
+					action.timeOfSaleOptionPrices.forEach(t1 =>
+					{
+						let idx = timeOfSaleOptionPrices.findIndex(t2 => t1.edhPlanOptionID === t2.edhPlanOptionID && t1.divChoiceCatalogID === t2.divChoiceCatalogID);
+
+						if (idx > -1)
+						{
+							timeOfSaleOptionPrices.splice(idx, 1);
+						}
+					});
+				}
+
+				return { ...state, timeOfSaleOptionPrices: timeOfSaleOptionPrices };
+			}
+		case JobActionTypes.ReplaceOptionPriceUpdated:
+			{
+				let timeOfSaleOptionPrices: Array<TimeOfSaleOptionPrice> = _.cloneDeep(state.timeOfSaleOptionPrices) || [];
+
+				if (action.timeOfSaleOptionPrices && action.timeOfSaleOptionPrices.length)
+				{
+					// For each updated option price, update the state's option price
+					action.timeOfSaleOptionPrices.forEach(t1 =>
+					{
+						let idx = timeOfSaleOptionPrices.findIndex(t2 => t1.edhPlanOptionID === t2.edhPlanOptionID && t1.divChoiceCatalogID === t2.divChoiceCatalogID);
+
+						if (idx > -1)
+						{
+							timeOfSaleOptionPrices[idx] = t1;
+						}
+					});
+				}
+
+				return { ...state, timeOfSaleOptionPrices: timeOfSaleOptionPrices };
+			}
 		default:
 			return state;
 	}
