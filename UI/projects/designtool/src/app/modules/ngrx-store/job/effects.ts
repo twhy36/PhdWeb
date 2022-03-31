@@ -18,6 +18,7 @@ import * as _ from "lodash";
 import { JobService } from '../../core/services/job.service';
 import { LoadError, LoadSpec, ChangeOrderEnvelopeCreated, SalesAgreementLoaded, ScenarioLoaded, CommonActionTypes, JobLoaded } from '../actions';
 import { SetPermissions, UserActionTypes } from '../user/actions';
+import { SnapShotData } from '../../shared/models/envelope-info.model';
 
 @Injectable()
 export class JobEffects
@@ -60,13 +61,29 @@ export class JobEffects
 						changeOrder: action.changeOrder, envelopeInfo: action.changeOrder.envelopeInfo, jobId: store.job.id, changeOrderGroupId: action.changeOrder.changeOrderGroupId,
 						envelopId: envelopeId, constructionChangeOrderSelectionsDto: action.changeOrder.constructionChangeOrderSelections,
 						salesChangeOrderSelections: action.changeOrder.salesChangeOrderSelections, planChangeOrderSelectionsDto: action.changeOrder.planChangeOrderSelections, nonStandardOptionSelectionsDto: action.changeOrder.nonStandardChangeOrderSelections,
-						lotTransferSeletionsDto: action.changeOrder.lotTransferChangeOrderSelections, changeOrderInformation: action.changeOrder.changeOrderInformation
+						lotTransferSeletionsDto: action.changeOrder.lotTransferChangeOrderSelections, changeOrderInformation: action.changeOrder.changeOrderInformation, idPhdLite: store.lite.isPhdLite
 					};
 				}),
 				exhaustMap((data) => {
+					const snapShotData: SnapShotData = {
+						jioSelections: data.jioSelections,
+						templates: data.templates,
+						financialCommunityId: data.financialCommunityId,
+						salesAgreementNumber: data.salesAgreement.salesAgreementNumber,
+						salesAgreementStatus: data.salesAgreement.status,
+						envelopeInfo: data.envelopeInfo,
+						jobId: data.jobId,
+						changeOrderGroupId: data.changeOrderGroupId,
+						constructionChangeOrderSelections: data.constructionChangeOrderSelectionsDto,
+						changeOrderInformation: data.changeOrderInformation,
+						salesChangeOrderSelections: data.salesChangeOrderSelections,
+						planChangeOrderSelections: data.planChangeOrderSelectionsDto,
+						nonStandardChangeOrderSelections: data.nonStandardOptionSelectionsDto,
+						lotTransferChangeOrderSelections: data.lotTransferSeletionsDto
+					};
 					return this.contractService.saveSnapshot(data.changeOrder, data.jobId, data.changeOrderGroupId).pipe(
 						switchMap(() =>
-							this.contractService.createEnvelope(data.jioSelections, data.templates, data.financialCommunityId, data.salesAgreement.salesAgreementNumber, data.salesAgreement.status, data.envelopeInfo, data.jobId, data.changeOrderGroupId, data.constructionChangeOrderSelectionsDto, data.salesChangeOrderSelections, data.planChangeOrderSelectionsDto, data.nonStandardOptionSelectionsDto, data.lotTransferSeletionsDto, data.changeOrderInformation)),
+							this.contractService.createEnvelope(snapShotData, null, data.idPhdLite)),
 						map(envelopeId => {
 							return { envelopeId, changeOrder: data.changeOrder };
 						}
