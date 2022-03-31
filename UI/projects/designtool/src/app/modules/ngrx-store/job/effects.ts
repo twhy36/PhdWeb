@@ -5,9 +5,9 @@ import { switchMap, withLatestFrom, exhaustMap, map, take, scan, skipWhile } fro
 import { NEVER, Observable, of, from, forkJoin } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
 
-import { ESignEnvelope, ESignStatusEnum, ESignTypeEnum, Job } from 'phd-common';
+import { ESignEnvelope, ESignStatusEnum, ESignTypeEnum, Job, TimeOfSaleOptionPrice } from 'phd-common';
 
-import { JobActionTypes, CreateChangeOrderEnvelope, EnvelopeError, LoadSpecs, SpecsLoaded, LoadJobForJob, JobLoadedByJobId, LoadPulteInfo, PulteInfoLoaded, SavePulteInfo, PulteInfoSaved, JobPlanOptionsUpdated } from './actions';
+import { JobActionTypes, CreateChangeOrderEnvelope, EnvelopeError, LoadSpecs, SpecsLoaded, LoadJobForJob, JobLoadedByJobId, LoadPulteInfo, PulteInfoLoaded, SavePulteInfo, PulteInfoSaved, JobPlanOptionsUpdated, SaveReplaceOptionPrice, ReplaceOptionPriceSaved, DeleteReplaceOptionPrice, ReplaceOptionPriceDeleted, SaveError, UpdateReplaceOptionPrice, ReplaceOptionPriceUpdated } from './actions';
 import { ContractService } from '../../core/services/contract.service';
 import { ChangeOrderService } from '../../core/services/change-order.service';
 
@@ -222,4 +222,76 @@ export class JobEffects
 			map(jobPlanOptions => new JobPlanOptionsUpdated(jobPlanOptions))
 		)
 	);
+
+	saveReplaceOptionPrices$: Observable<Action> = createEffect(() =>
+	{
+		return this.actions$.pipe(
+			ofType<SaveReplaceOptionPrice>(JobActionTypes.SaveReplaceOptionPrice),
+			withLatestFrom(this.store),
+			tryCatch(source => source.pipe(
+				switchMap(([action, store]) =>
+				{
+					const timeOfSaleOptionPrices = (action as SaveReplaceOptionPrice).timeOfSaleOptionPrices;
+
+					if (timeOfSaleOptionPrices && timeOfSaleOptionPrices.length)
+					{
+						return this.jobService.saveTimeOfSaleOptionPrices(timeOfSaleOptionPrices);
+					}
+					else
+					{
+						return of([]);
+					}
+				}),
+				map(resp => new ReplaceOptionPriceSaved())
+			), SaveError, 'Error saving replaced option prices!!')
+		);
+	});
+
+	deleteReplaceOptionPrices$: Observable<Action> = createEffect(() =>
+	{
+		return this.actions$.pipe(
+			ofType<DeleteReplaceOptionPrice>(JobActionTypes.DeleteReplaceOptionPrice),
+			withLatestFrom(this.store),
+			tryCatch(source => source.pipe(
+				switchMap(([action, store]) =>
+				{
+					const timeOfSaleOptionPrices = (action as DeleteReplaceOptionPrice).timeOfSaleOptionPrices;
+
+					if (timeOfSaleOptionPrices && timeOfSaleOptionPrices.length)
+					{
+						return this.jobService.deleteTimeOfSaleOptionPrices(timeOfSaleOptionPrices);
+					}
+					else
+					{
+						return of([] as TimeOfSaleOptionPrice[]);
+					}
+				}),
+				map(timeOfSaleOptionPrices => new ReplaceOptionPriceDeleted(timeOfSaleOptionPrices))
+			), SaveError, 'Error deleting replaced option prices!!')
+		);
+	});
+
+	updateReplaceOptionPrices$: Observable<Action> = createEffect(() =>
+	{
+		return this.actions$.pipe(
+			ofType<UpdateReplaceOptionPrice>(JobActionTypes.UpdateReplaceOptionPrice),
+			withLatestFrom(this.store),
+			tryCatch(source => source.pipe(
+				switchMap(([action, store]) =>
+				{
+					const timeOfSaleOptionPrices = (action as UpdateReplaceOptionPrice).timeOfSaleOptionPrices;
+
+					if (timeOfSaleOptionPrices && timeOfSaleOptionPrices.length)
+					{
+						return this.jobService.updateTimeOfSaleOptionPrices(timeOfSaleOptionPrices);
+					}
+					else
+					{
+						return of([] as TimeOfSaleOptionPrice[]);
+					}
+				}),
+				map(timeOfSaleOptionPrices => new ReplaceOptionPriceUpdated(timeOfSaleOptionPrices))
+			), SaveError, 'Error updating replaced option prices!!')
+		);
+	});
 }

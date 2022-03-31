@@ -16,11 +16,12 @@ import * as CommonActions from '../../../ngrx-store/actions';
 import * as NavActions from '../../../ngrx-store/nav/actions';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 import * as LotActions from '../../../ngrx-store/lot/actions';
+import * as fromJobs from '../../../ngrx-store/job/reducer';
 
 import {
 	UnsubscribeOnDestroy, ModalRef, ChangeTypeEnum, Job, TreeVersionRules, ScenarioStatusType, PriceBreakdown,
 	TreeFilter, Tree, SubGroup, Group, DecisionPoint, Choice, getDependentChoices, LotExt, getChoiceToDeselect,
-	PlanOption, ModalService, Plan
+	PlanOption, ModalService, Plan, TimeOfSaleOptionPrice, ITimeOfSaleOptionPrice
 } from 'phd-common';
 
 import { LotService } from '../../../core/services/lot.service';
@@ -56,6 +57,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 	}
 	@ViewChild('optionMappingChangedModal') optionMappingChangedModal: TemplateRef<any>;
 	@ViewChild('impactedChoicesModal') impactedChoicesModal: TemplateRef<any>;
+	@ViewChild('optionPriceChangedModal') optionPriceChangedModal: TemplateRef<any>;
 
 	acknowledgedMonotonyConflict: boolean;
 	agreementStatus$: Observable<string>;
@@ -97,6 +99,8 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 	selectedLot: LotExt;
 	plan: Plan;
 	isPhdLite: boolean = false;
+	jobId: number;
+	timeOfSaleOptionPrices: TimeOfSaleOptionPrice[];
 
 	private params$ = new ReplaySubject<{ scenarioId: number, divDPointCatalogId: number, treeVersionId: number, choiceId?: number }>(1);
 	private selectedGroupId: number;
@@ -431,6 +435,14 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 
 		this.canConfigure$ = this.store.pipe(select(fromRoot.canConfigure));
 		this.canOverride$ = this.store.pipe(select(fromRoot.canOverride));
+
+		this.store.pipe(
+			select(fromJobs.jobState)
+		).subscribe(job =>
+		{
+			this.jobId = job?.id;
+			this.timeOfSaleOptionPrices = job?.timeOfSaleOptionPrices;
+		});
 	}
 
 	ngOnDestroy()
@@ -649,13 +661,24 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 	{
 		const choiceToDeselect = getChoiceToDeselect(this.tree, choice);
 
-		let selectedChoices = [{ choiceId: choice.id, overrideNote: choice.overrideNote, quantity: !choice.quantity ? quantity || 1 : 0, attributes: choice.selectedAttributes }];
+		// #353697 Determine what options are being replaced by this choice, and track their original price
+		const timeOfSaleOptionPrices = this.getReplacedOptionPrices(choice);
+
+		let selectedChoices = [{ choiceId: choice.id, overrideNote: choice.overrideNote, quantity: !choice.quantity ? quantity || 1 : 0, attributes: choice.selectedAttributes, timeOfSaleOptionPrices: timeOfSaleOptionPrices }];
 		const impactedChoices = getDependentChoices(this.tree, this.treeVersionRules, this.options, choice);
 
 		impactedChoices.forEach(c =>
 		{
-			selectedChoices.push({ choiceId: c.id, overrideNote: c.overrideNote, quantity: 0, attributes: c.selectedAttributes });
+			selectedChoices.push({ choiceId: c.id, overrideNote: c.overrideNote, quantity: 0, attributes: c.selectedAttributes, timeOfSaleOptionPrices: this.getReplacedOptionPrices(c) });
 		});
+
+		// #353697 Prompt the user of affected choices with an adjusted price by deselecting this choice
+		let impactedOptionPriceChoices = [];
+
+		if (choiceToDeselect)
+		{
+			impactedOptionPriceChoices = this.getImpactedChoicesForReplacedOptionPrices(timeOfSaleOptionPrices);
+		}
 
 		let obs: Observable<boolean>;
 
@@ -666,6 +689,10 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		else if (this.isChangingOrder && impactedChoices && impactedChoices.length)
 		{
 			obs = this.showChoiceImpactModal(impactedChoices);
+		}
+		else if (impactedOptionPriceChoices && impactedOptionPriceChoices.length)
+		{
+			obs = this.showOptionPriceChangedModal(impactedOptionPriceChoices);
 		}
 		else
 		{
@@ -740,6 +767,14 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		return this.showConfirmModal(this.optionMappingChangedModal, 'Warning', primaryButton, secondaryButton);
 	}
 
+	private showOptionPriceChangedModal(choices: Array<Choice>): Observable<boolean>
+	{
+		this.impactedChoices = choices.map(c => c.label).sort().join(', ');
+		const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
+		const secondaryButton = { text: 'Cancel', result: false, cssClass: 'btn-secondary' };
+		return this.showConfirmModal(this.optionPriceChangedModal, 'Warning', primaryButton, secondaryButton);
+	}
+
 	loadPhdLite(plan: Plan)
 	{
 		if (plan)
@@ -755,5 +790,74 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		}			
 
 		this.store.dispatch(new LiteActions.SetScenarioLoaded(true));
+	}
+
+	getReplacedOptionPrices(choice: Choice): TimeOfSaleOptionPrice[]
+	{
+		let timeOfSaleOptionPrices: TimeOfSaleOptionPrice[] = [];
+
+		if (this.jobId)
+		{
+			// Get all options being replaced by this choice
+			const replacedOptions = _.flatMap(this.treeVersionRules.optionRules.filter(o => o.choices.map(ch => ch.id).includes(choice.id)), r => r.replaceOptions);
+
+			const choices = _.flatMap(this.tree.treeVersion.groups,
+				g => _.flatMap(g.subGroups,
+					sg => _.flatMap(sg.points,
+						p => p.choices)));
+
+			// Find their current price
+			replacedOptions.forEach(o =>
+			{
+				const option = this.options.find(opt => opt.financialOptionIntegrationKey === o);
+				if (option)
+				{
+					// Get the DivChoiceCatalogID for the choice mapped to the replaced option
+					const replacedChoices = _.flatMap(this.treeVersionRules.optionRules.filter(r => r.optionId === o), r => r.choices).map(c => c.id);
+
+					timeOfSaleOptionPrices = timeOfSaleOptionPrices.concat(choices
+						.filter(c => replacedChoices.includes(c.id))
+						.map(c => new TimeOfSaleOptionPrice({
+							edhJobID: this.jobId,
+							edhPlanOptionID: option.id,
+							divChoiceCatalogID: c.divChoiceCatalogId,
+							listPrice: option.listPrice
+						} as ITimeOfSaleOptionPrice)));
+				}
+			});
+		}
+
+		return timeOfSaleOptionPrices;
+	}
+
+	getImpactedChoicesForReplacedOptionPrices(timeOfSaleOptionPrices: TimeOfSaleOptionPrice[]): Choice[]
+	{
+		let choices: Choice[] = [];
+
+		// Compare option prices already being tracked to replaced options that are impacted by the selection
+		if (this.timeOfSaleOptionPrices && this.timeOfSaleOptionPrices.length)
+		{
+			const treeChoices = _.flatMap(this.tree.treeVersion.groups,
+				g => _.flatMap(g.subGroups,
+					sg => _.flatMap(sg.points,
+						p => p.choices)));
+
+			timeOfSaleOptionPrices.forEach(t1 =>
+			{
+				let comparedOpt = this.timeOfSaleOptionPrices.find(t2 => t1.edhPlanOptionID === t2.edhPlanOptionID && t1.divChoiceCatalogID === t2.divChoiceCatalogID && t1.listPrice !== t2.listPrice);
+
+				if (comparedOpt)
+				{
+					let choice = treeChoices.find(c => c.divChoiceCatalogId === comparedOpt.divChoiceCatalogID);
+
+					if (choice)
+					{
+						choices.push(choice);
+					}
+				}
+			});
+		}
+
+		return choices;
 	}
 }

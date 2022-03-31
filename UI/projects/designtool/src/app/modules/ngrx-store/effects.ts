@@ -6,11 +6,10 @@ import { Observable, EMPTY as empty, from, of, forkJoin, combineLatest } from 'r
 import { switchMap, map, concat, scan, filter, distinct, withLatestFrom, tap } from 'rxjs/operators';
 import * as _ from 'lodash';
 
-import
-	{
-		SalesCommunity, ChangeOrderChoice, ChangeOrderGroup, Job, IMarket, SalesAgreementInfo, DecisionPoint, Choice,
-		IdentityService, SpinnerService, Claims, Permission, MyFavorite, ModalService
-	} from 'phd-common';
+import {
+	SalesCommunity, ChangeOrderChoice, ChangeOrderGroup, Job, IMarket, SalesAgreementInfo, DecisionPoint, Choice,
+	IdentityService, SpinnerService, Claims, Permission, MyFavorite, ModalService, TimeOfSaleOptionPrice
+} from 'phd-common';
 
 import { CommonActionTypes, LoadScenario, LoadError, ScenarioLoaded, LoadSalesAgreement, SalesAgreementLoaded, LoadSpec, JobLoaded, ESignEnvelopesLoaded } from './actions';
 import { tryCatch } from './error.action';
@@ -35,6 +34,7 @@ import { SavePendingJio, CreateJobChangeOrders, CreatePlanChangeOrder } from './
 import { State, canDesign, showSpinner } from './reducers';
 import { FavoriteService } from '../core/services/favorite.service';
 import { LiteService } from '../core/services/lite.service';
+import { UpdateReplaceOptionPrice } from './job/actions';
 
 @Injectable()
 export class CommonEffects
@@ -652,10 +652,36 @@ export class CommonEffects
 							}
 						}
 
+						// #353697 Update tracked prices if they have changed while the agreement is pending
+						let timeOfSaleOptionPricesToUpdate: TimeOfSaleOptionPrice[] = [];
+
+						if (result.salesAgreement.status === 'Pending' && result.job.timeOfSaleOptionPrices && result.job.timeOfSaleOptionPrices.length)
+						{
+							result.job.timeOfSaleOptionPrices.forEach(p =>
+							{
+								let opt = result.options.find(o => o.id === p.edhPlanOptionID);
+
+								if (opt && opt.listPrice !== p.listPrice)
+								{
+									timeOfSaleOptionPricesToUpdate.push({
+										edhJobID: p.edhJobID,
+										edhPlanOptionID: p.edhPlanOptionID,
+										listPrice: opt.listPrice,
+										divChoiceCatalogID: p.divChoiceCatalogID,
+										createdBy: p.createdBy,
+										createdUtcDate: p.createdUtcDate,
+										lastModifiedBy: p.lastModifiedBy,
+										lastModifiedUtcDate: p.lastModifiedUtcDate
+									} as TimeOfSaleOptionPrice);
+								}
+							});
+						}
+
 						return <Observable<Action>>from([
 							new SalesAgreementLoaded(result.salesAgreement, result.salesAgreementInfo, result.job, result.sc, result.selectedChoices, result.selectedPlanId, result.selectedHanding, result.tree, result.rules, result.options, result.images, result.mappings, result.changeOrder, result.lot, result.myFavorites),
 							new LoadLots(result.sc.id),
-							new LoadPlans(result.sc.id, selectedPlanPrice)
+							new LoadPlans(result.sc.id, selectedPlanPrice),
+							new UpdateReplaceOptionPrice(timeOfSaleOptionPricesToUpdate)
 						]).pipe(
 							//fetch ESignEnvelopes after everything is loaded
 							concat(

@@ -20,7 +20,7 @@ import
 	CancelLotTransferChangeOrder, CancelSalesChangeOrder, SetCurrentChangeOrder, CancelNonStandardChangeOrder, SavePendingJio, CreateCancellationChangeOrder, CreateLotTransferChangeOrder,
 	ResubmitChangeOrder, ChangeOrderOutForSignature, SetSalesChangeOrderTermsAndConditions, CurrentChangeOrderPending, CurrentChangeOrderOutForSignature
 } from './actions';
-import { TreeLoadedFromJob, SelectChoices, SetLockedInChoices } from '../scenario/actions';
+import { TreeLoadedFromJob, SelectChoices, SetLockedInChoices, ScenarioSaved } from '../scenario/actions';
 import { ChangeOrdersCreatedForJob, JobUpdated } from '../job/actions';
 import { SelectLot } from '../lot/actions';
 import { OpportunityLoaded } from '../opportunity/actions';
