@@ -65,34 +65,33 @@ export class ContractService
 			})
 		);
 	}
-
-	createEnvelope(jioSelections: any, templates: Array<ITemplateInfo>, financialCommunityId: number, salesAgreementNumber: string, salesAgreementStatus: string, envelopeInfo: EnvelopeInfo, jobId: number, changeOrderGroupId: number, constructionChangeOrderSelectionsDto?: any, salesChangeOrderSelections?: any, planChangeOrderSelectionsDto?: any, nonStandardChangeOrderSelectionsDto?: Array<ChangeOrderNonStandardOption>, lotTransferSeletionsDto?: { addedLot: LotExt, deletedLot: LotExt }, changeOrderInformation?: any, isPreview?: boolean): Observable<string>
+	createEnvelope(snapShotData: SnapShotData, isPreview?: boolean, isPhdLite?: boolean): Observable<string>
 	{
-		const action = `CreateEnvelope`;
+		const action = isPhdLite ? `CreateEnvelopeLite` : `CreateEnvelope`;
 		const url = `${environment.apiUrl}${action}`;
 		const data = {
 			isPreview: isPreview ? isPreview : false,
-			templates: templates,
-			jioSelections: jioSelections,
-			financialCommunityId: financialCommunityId,
-			jobId: jobId,
-			changeOrderGroupId: changeOrderGroupId,
-			salesAgreementNumber: salesAgreementNumber,
-			salesAgreementStatus: salesAgreementStatus,
-			constructionChangeOrderSelections: constructionChangeOrderSelectionsDto,
-			salesChangeOrderSelections: salesChangeOrderSelections,
-			planChangeOrderSelections: planChangeOrderSelectionsDto,
-			nonStandardChangeOrderSelections: nonStandardChangeOrderSelectionsDto,
-			lotTransferChangeOrderSelections: lotTransferSeletionsDto ? { lotDtos: lotTransferSeletionsDto } : null,
-			changeOrderInformation: changeOrderInformation,
-			salesAgreementInfo: { ...envelopeInfo }
+			templates: snapShotData.templates,
+			jioSelections: snapShotData.jioSelections,
+			financialCommunityId: snapShotData.financialCommunityId,
+			jobId: snapShotData.jobId,
+			changeOrderGroupId: snapShotData.changeOrderGroupId,
+			salesAgreementNumber: snapShotData.salesAgreementNumber,
+			salesAgreementStatus: snapShotData.salesAgreementStatus,
+			constructionChangeOrderSelections: snapShotData.constructionChangeOrderSelections,
+			salesChangeOrderSelections: snapShotData.salesChangeOrderSelections,
+			planChangeOrderSelections: snapShotData.planChangeOrderSelections,
+			nonStandardChangeOrderSelections: snapShotData.nonStandardChangeOrderSelections,
+			lotTransferChangeOrderSelections: snapShotData.lotTransferChangeOrderSelections ? { lotDtos: snapShotData.lotTransferChangeOrderSelections } : null,
+			changeOrderInformation: snapShotData.changeOrderInformation,
+			salesAgreementInfo: { ...snapShotData.envelopeInfo }
 		};
 
 		return withSpinner(this._http).post<any>(url, data).pipe(
 			map(response => response.value),
 			catchError(error =>
 			{
-				return this.deleteSnapshot(jobId, changeOrderGroupId).pipe(
+				return this.deleteSnapshot(snapShotData.jobId, snapShotData.changeOrderGroupId).pipe(
 					switchMap(() => throwError(error))
 				);
 			})
@@ -1317,7 +1316,7 @@ export class ContractService
 		)
 	}
 
-	getEnvelope(jobId: number, changeOrderId: number, approvedDate: Date, signedDate: Date)
+	getEnvelope(jobId: number, changeOrderId: number, approvedDate: Date, signedDate: Date, isPhdLite: boolean)
 	{
 		return this.getSnapShot(jobId, changeOrderId).pipe(
 			switchMap(lockedSnapshot =>
@@ -1339,10 +1338,23 @@ export class ContractService
 						return this.saveSnapshot(clonedSnapshot, jobId, changeOrderId).pipe(
 							switchMap(() =>
 							{
-								return this.createEnvelope(clonedSnapshot.jioSelections, clonedSnapshot.templates, clonedSnapshot.financialCommunityId, clonedSnapshot.salesAgreementNumber,
-									clonedSnapshot.salesAgreementStatus, clonedSnapshot.envelopeInfo, clonedSnapshot.jobId, clonedSnapshot.changeOrderGroupId, clonedSnapshot.constructionChangeOrderSelections,
-									clonedSnapshot.salesChangeOrderSelections, clonedSnapshot.planChangOrderSelections, clonedSnapshot.nonStandardChangeOrderSelections, clonedSnapshot.lotTransferSelections,
-									clonedSnapshot.changeOrderInformation).pipe(
+								const snapShotData: SnapShotData = {
+									jioSelections: clonedSnapshot.jioSelections,
+									templates: clonedSnapshot.templates,
+									financialCommunityId: clonedSnapshot.financialCommunityId,
+									salesAgreementNumber: clonedSnapshot.salesAgreementNumber,
+									salesAgreementStatus: clonedSnapshot.salesAgreementStatus,
+									envelopeInfo: clonedSnapshot.envelopeInfo,
+									jobId: clonedSnapshot.jobId,
+									changeOrderGroupId: clonedSnapshot.changeOrderGroupId,
+									constructionChangeOrderSelections: clonedSnapshot.constructionChangeOrderSelections,
+									changeOrderInformation: clonedSnapshot.changeOrderInformation,
+									salesChangeOrderSelections: clonedSnapshot.salesChangeOrderSelections,
+									planChangeOrderSelections: clonedSnapshot.planChangOrderSelections,
+									nonStandardChangeOrderSelections: clonedSnapshot.nonStandardChangeOrderSelections,
+									lotTransferChangeOrderSelections: clonedSnapshot.lotTransferSelections
+								};
+								return this.createEnvelope(snapShotData, null, isPhdLite).pipe(
 										map(() =>
 										{
 											return of(true);
