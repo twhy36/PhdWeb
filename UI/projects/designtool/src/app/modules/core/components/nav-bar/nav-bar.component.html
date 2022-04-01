@@ -107,7 +107,7 @@
 			</ng-container>
 		</ng-container>
 
-		<ng-container *ngIf="selectedPlanId && (isPhdLite$ | async)">
+		<ng-container *ngIf="displayGroupMenuItem(null) && selectedPlanId && !(isSalesAgreementCancelledOrVoided && specCancelled) && (isPhdLite$ | async)">
 			<phd-nav-menu-item
 				label="Exterior"
 				[status]="exteriorStatus"
