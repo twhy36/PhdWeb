@@ -14,7 +14,7 @@ export const environment: IEnvironment = {
 			pulte: 'https://phd.dev.pulte.com/designpreview/',
 			delWebb: 'https://phd.dev.delwebb.com/designpreview/',
 			americanWest: 'https://phd.dev.americanwesthomes.com/designpreview/',
-			diVosta: 'https://phd.dev.pulte.com/designpreview/',// CHANGE TO DIVOSTA WHEN READY
+			diVosta: 'https://phd.dev.divosta.com/designpreview/',
 			centex: 'https://phd.dev.pulte.com/designpreview/',// CHANGE TO CENTEX WHEN READY
 			johnWieland: 'https://phd.dev.pulte.com/designpreview/',// CHANGE TO JOHN-WIELAND WHEN READY
 		},
@@ -31,7 +31,7 @@ export const environment: IEnvironment = {
 		showDebugInformation: true,
 		skipIssuerCheck: false,
 		strictDiscoveryDocumentValidation: false
-	},	
+	},
 	authQueryParams: 'domain_hint=pulte.com',
 	appInsights: {
 		instrumentationKey: '08875504-9c0f-45a6-8cc5-8a819e51aff0',
