@@ -138,7 +138,7 @@ export class TreeService
 		const pointCatalogIds = points.map(x => x.divPointCatalogId);
         const filter = `divDpointCatalogID in (${pointCatalogIds})`;
 
-        const select = `divDpointCatalogID,cutOffDays,isHiddenFromBuyerView`;
+        const select = `divDpointCatalogID,cutOffDays,edhConstructionStageId,isHiddenFromBuyerView`;
 
         const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
         const endPoint = `${environment.apiUrl}${entity}?${qryStr}`;
@@ -153,6 +153,7 @@ export class TreeService
                         if (point)
                         {
                             point.cutOffDays = x.cutOffDays;
+							point.edhConstructionStageId = x.edhConstructionStageId;
 							point.isHiddenFromBuyerView = x.isHiddenFromBuyerView;
                         }
                     });
