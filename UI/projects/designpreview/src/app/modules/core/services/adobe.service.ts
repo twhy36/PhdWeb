@@ -6,20 +6,27 @@ import { select, Store } from '@ngrx/store';
 
 import * as fromRoot from '../../ngrx-store/reducers';
 import * as fromPlan from '../../ngrx-store/plan/reducer';
+import * as fromSalesAgreement from '../../ngrx-store/sales-agreement/reducer';
 
-import { UnsubscribeOnDestroy } from 'phd-common';
+import { Choice, Group, JobChoice, MyFavorite, MyFavoritesChoice, Tree, UnsubscribeOnDestroy } from 'phd-common';
 
 import { BrandService } from './brand.service';
 import { PageLoadEvent } from '../../shared/models/adobe/page-load-event';
 import { environment } from '../../../../environments/environment';
+import { AdobeChoice, FavoriteEvent, FavoriteUpdateEvent } from '../../shared/models/adobe/favorite-event';
+import * as _ from 'lodash';
+import { Observable } from 'rxjs';
+import { FavoriteService } from './favorite.service';
 
 @Injectable()
 export class AdobeService extends UnsubscribeOnDestroy {
 	environment = environment;
+    choices: Choice[];
 
 	constructor(
         private store: Store<fromRoot.State>,
-		private brandService: BrandService) {
+		private brandService: BrandService,
+        private favoriteService: FavoriteService) {
             super();
 	    }
 
@@ -33,7 +40,7 @@ export class AdobeService extends UnsubscribeOnDestroy {
                 this.store.pipe(select(fromRoot.financialCommunityName)), 
                 this.store.pipe(select(fromRoot.financialCommunityId)), 
                 this.store.pipe(select(fromPlan.selectedPlanData)),
-                this.store.pipe(select(state => state.salesAgreement.id)),
+                this.store.pipe(select(fromSalesAgreement.salesAgreementId)),
                 this.store.pipe(select(fromRoot.isBuyerMode))
                 )
         ).subscribe(([org, communityName, communityId, planData, sagId, isBuyerMode]) => {
@@ -59,5 +66,72 @@ export class AdobeService extends UnsubscribeOnDestroy {
                 window['appEventData'].push(pageLoadEvent);
             }
         });
+    }
+
+    packageFavoriteEventData(postSaveFavoriteChoices: MyFavoritesChoice[], myFavorite: MyFavorite, tree: Tree, groups: Group[], salesChoices: JobChoice[]) {
+        const favoriteChoices = (myFavorite ? myFavorite.myFavoritesChoice : []) || [];
+        const updatedChoices = this.favoriteService.getMyFavoritesChoices(tree, salesChoices, favoriteChoices);	// Use this
+        const choices = [...updatedChoices, ...favoriteChoices];
+        postSaveFavoriteChoices.forEach(res => {
+            let resChoice = res as MyFavoritesChoice;
+            if (resChoice) {
+                const choice = choices.find(x => x.dpChoiceId === resChoice.dpChoiceId); // Need this exact choice/format of choice
+                if (choice && !choice.removed) {
+                    this.setFavoriteEvent(new AdobeChoice(choice), groups, favoriteChoices);
+                }
+            }
+        })
+    }
+
+    setFavoriteEvent(choice: AdobeChoice, groups: Group[], favoriteChoices: MyFavoritesChoice[]) {
+        let favoriteEvent = new FavoriteEvent();
+        let favoriteUpdateEvent = new FavoriteUpdateEvent();
+
+        window['appEventData'] = window['appEventData'] || [];
+
+        if (choice && !choice.removed && groups) {            
+            const choices = _.flatMap(groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices.filter(ch => ch.quantity > 0)))) || [];
+            const treeChoice = choices.find(c => choice.divChoiceCatalogId === c.divChoiceCatalogId);
+
+            favoriteEvent.favorite.choiceId = choice.dpChoiceId;
+            favoriteEvent.favorite.divChoiceCatalogId = choice.divChoiceCatalogId;
+            favoriteEvent.favorite.choice = treeChoice?.label;
+            favoriteEvent.favorite.price = treeChoice?.price;
+            favoriteEvent.favorite.decisionPoint = choice.decisionPointLabel;
+            favoriteEvent.favorite.quantity = choice.dpChoiceQuantity;
+            favoriteEvent.favorite.attribute = '';
+            favoriteEvent.favorite.location = '';
+
+            if (choice.attributes.length === 0 && choice.locations.length === 0) {
+                window['appEventData'].push(favoriteEvent);
+            } else if (choice.attributes.length > 0 && choice.locations.length === 0 && !choice.attributes[0].removed) {
+                let attribute = choice.attributes[0];
+                favoriteUpdateEvent.favorite = favoriteEvent.favorite;
+
+                favoriteUpdateEvent.favorite.attribute = attribute.attributeGroupLabel + ' | ' + attribute.attributeName;
+                favoriteUpdateEvent.favorite.location = '';
+                if (!!!favoriteChoices.find(c => c.divChoiceCatalogId === choice.divChoiceCatalogId)) {
+                    window['appEventData'].push(favoriteEvent);
+                }
+
+                window['appEventData'].push(favoriteUpdateEvent);
+
+            } else if (choice.attributes.length === 0 && choice.locations.length > 0 && !choice.locations[0].removed) {
+                let location = choice.locations[0];
+                let nestedAttribute = location.attributes[0];
+
+                favoriteUpdateEvent.favorite = favoriteEvent.favorite;
+
+                favoriteUpdateEvent.favorite.attribute = nestedAttribute ? nestedAttribute.attributeGroupLabel + ' | ' + nestedAttribute.attributeName : '';
+                favoriteUpdateEvent.favorite.location = location.locationName;
+                
+                if (!!!nestedAttribute || !nestedAttribute?.removed) {
+                    if (!!!favoriteChoices.find(c => c.divChoiceCatalogId === choice.divChoiceCatalogId)) {
+                        window['appEventData'].push(favoriteEvent);
+                    }
+                    window['appEventData'].push(favoriteUpdateEvent);
+                } 
+            }
+        }
     }
 }

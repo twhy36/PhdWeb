@@ -64,3 +64,8 @@ export const primaryBuyer = createSelector(
 	salesAgreementState,
 	(state) => state && state.buyers ? state.buyers.find(b => b.isPrimaryBuyer) : null
 );
+
+export const salesAgreementId = createSelector(
+	salesAgreementState,
+	(state) => state?.id || 0
+);

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Action, Store, select } from '@ngrx/store';
 import { Observable, of, from } from 'rxjs';
-import { switchMap, withLatestFrom, map } from 'rxjs/operators';
+import { switchMap, withLatestFrom, map, tap } from 'rxjs/operators';
 
 import * as _ from 'lodash';
 
@@ -26,6 +26,7 @@ import { TreeService } from '../../core/services/tree.service';
 import * as fromRoot from '../reducers';
 import * as fromFavorite from './reducer';
 import * as fromSalesAgreement from '../sales-agreement/reducer';
+import { AdobeService } from '../../core/services/adobe.service';
 
 @Injectable()
 export class FavoriteEffects
@@ -34,6 +35,7 @@ export class FavoriteEffects
 		private actions$: Actions,
 		private store: Store<fromRoot.State>,
 		private favoriteService: FavoriteService,
+		private adobeService: AdobeService,
 		private treeService: TreeService
 	) { }
 
@@ -197,6 +199,26 @@ export class FavoriteEffects
 				}),
 				switchMap(results => of(new MyFavoritesChoicesSaved(results)))
 			), SaveError, "Error saving my favorite choices!")
+		)
+	);
+
+	pushAdobeFavoriteEvent$: Observable<Action> = createEffect(() => 
+		this.actions$.pipe(
+			ofType<SaveMyFavoritesChoices>(FavoriteActionTypes.SaveMyFavoritesChoices),
+			withLatestFrom(this.store, this.store.pipe(select(fromFavorite.currentMyFavorite))),
+			tryCatch(source => source.pipe(
+				switchMap(([preSaveAction, store, fav]) => {
+					return this.actions$.pipe(
+						ofType<MyFavoritesChoicesSaved>(FavoriteActionTypes.MyFavoritesChoicesSaved),
+						tap((postSaveAction) => {
+							this.adobeService.packageFavoriteEventData(postSaveAction.choices, fav, store.scenario.tree, store.scenario.tree.treeVersion.groups, store.favorite.salesChoices)
+						})
+					)
+				}),
+				switchMap(results => {
+					return new Observable<never>()
+				})
+			), SaveError, "Error pushing favorite to Adobe!")
 		)
 	);
 
