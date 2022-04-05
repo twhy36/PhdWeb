@@ -1,8 +1,9 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store';
 import * as _ from "lodash";
 
+import { ScenarioOption, ScenarioOptionColor } from 'phd-common'
 import { 
-	LitePlanOption, Elevation, ScenarioOption, ScenarioOptionColor, IOptionCategory, LiteMonotonyRule, LitePlanOptionUI, IOptionSubCategory 
+	LitePlanOption, Elevation, IOptionCategory, LiteMonotonyRule, LitePlanOptionUI, IOptionSubCategory 
 } from '../../shared/models/lite.model';
 
 import { LiteActions, LiteActionTypes } from './actions';

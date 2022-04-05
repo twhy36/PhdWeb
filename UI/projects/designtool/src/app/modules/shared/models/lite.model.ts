@@ -1,4 +1,4 @@
-import { PlanOption, OptionImage, PointStatus, MonotonyRuleType } from 'phd-common';
+import { PlanOption, OptionImage, PointStatus, MonotonyRuleType, ScenarioOptionColor } from 'phd-common';
 
 export class LitePlanOption implements PlanOption
 {
@@ -26,6 +26,9 @@ export class LitePlanOption implements PlanOption
     optionCommunityId: number;
     mustHavePlanOptionIds: number[];
     cantHavePlanOptionIds: number[];
+	cutOffDays: number;
+	cutOffStage: string;
+	isPastCutOff: boolean;
 }
 
 export class LitePlanOptionUI extends LitePlanOption
@@ -34,23 +37,6 @@ export class LitePlanOptionUI extends LitePlanOption
 	selectedQuantity: number;
     quantityRange: number[] = [];
     isReadonly: boolean;
-}
-
-export interface ScenarioOption
-{
-	scenarioOptionId: number;
-	scenarioId: number;
-	edhPlanOptionId: number;
-    planOptionQuantity: number;
-    scenarioOptionColors: ScenarioOptionColor[];
-}
-
-export interface ScenarioOptionColor
-{
-    scenarioOptionColorId: number;
-    scenarioOptionId: number;
-    colorItemId: number;
-    colorId: number;
 }
 
 export class ScenarioOptionColorDto implements ScenarioOptionColor
@@ -135,6 +121,14 @@ export enum LiteReportType
 	SUMMARY = 'Summary',
 }
 
+export enum ExteriorLabel
+{
+    Exterior = 'Exterior',
+    ExteriorSubGroup = 'Elevation & Color Scheme',
+    Elevation = 'Elevation',
+    ColorScheme = 'Color Scheme',
+}
+
 export interface LiteMonotonyRule {
     edhLotId: number;
     relatedLotsElevationColorScheme: Array<LiteMonotonyRuleLot>;
@@ -164,7 +158,7 @@ export class SummaryReportData {
     designEstimate?: number;
     showSalesProgram?: boolean;
     showClosingIncentive?: boolean;
-    showDesignEstimate?: boolean;    
+    showDesignEstimate?: boolean;
 	groups?: Array<SummaryReportGroup>;
 
 }

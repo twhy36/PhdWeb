@@ -26,12 +26,9 @@
 											<div class="phd-location" *ngIf="attr.locationGroupId != null || attr.locationId != null">
 												<span class="phd-label">Quantity:</span>
 											</div>
-											<div class="phd-attribute" *ngIf="attr.attributeGroupId != null || attr.attributeId != null">
-												<span class="phd-label">{{ attr.attributeGroupLabel }}:</span>
-											</div>
 											<ng-container *ngIf="attr.attributes.length > 0">
 												<div class="phd-attribute" *ngFor="let subAttr of attr.attributes">
-													<span class="phd-label">{{ subAttr.attributeGroupLabel }}:</span>
+													<span class="phd-label">{{ getAttributeLabel(subAttr.attributeGroupLabel) }}</span>
 												</div>
 											</ng-container>
 										</div>
@@ -41,9 +38,6 @@
 											</div>
 											<div class="phd-location" *ngIf="attr.locationGroupId != null || attr.locationId != null">
 												<span class="phd-content">{{ attr.locationQuantity }}</span>
-											</div>
-											<div class="phd-attribute" *ngIf="attr.attributeGroupId != null || attr.attributeId != null">
-												<span class="phd-content">{{ attr.attributeName }}</span>
 											</div>
 											<ng-container *ngIf="attr.attributes.length > 0">
 												<div class="phd-attribute" *ngFor="let subAttr of attr.attributes">

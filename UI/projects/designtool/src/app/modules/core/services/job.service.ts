@@ -6,7 +6,7 @@ import { map, catchError, switchMap } from 'rxjs/operators';
 
 import {
 	newGuid, createBatchGet, createBatchHeaders, createBatchBody, withSpinner, Contact, ESignEnvelope,
-	ChangeOrderGroup, Job, IJob, SpecInformation, FloorPlanImage, IdentityService, JobPlanOption
+	ChangeOrderGroup, Job, IJob, SpecInformation, FloorPlanImage, IdentityService, JobPlanOption, TimeOfSaleOptionPrice
 } from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
@@ -35,6 +35,7 @@ export class JobService
 
 		return withSpinner(this._http).get<any>(url).pipe(
 			switchMap(response => this.getJobChangeOrderGroups(response['value'][0], salesAgreementId)),
+			switchMap(response => this.getTimeOfSaleOptionPricesForJob(response)),
 			map(response =>
 			{
 				return new Job(response);
@@ -134,6 +135,80 @@ export class JobService
 				console.error(error);
 
 				return _throw(error);
+			})
+		);
+	}
+
+	getTimeOfSaleOptionPricesForJob(jobDto: IJob): Observable<IJob>
+	{
+		const entity = `timeOfSaleOptionPrices`;
+		const filter = `edhJobId eq ${jobDto.id}`;
+
+		const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}`;
+		const url = `${environment.apiUrl}${entity}?${qryStr}`;
+
+		return withSpinner(this._http).get<any>(url).pipe(
+			map(response =>
+			{
+				jobDto.timeOfSaleOptionPrices = (response['value'] as Array<TimeOfSaleOptionPrice>).map(o => new TimeOfSaleOptionPrice(o));
+
+				return jobDto;
+			}),
+			catchError(error =>
+			{
+				console.error(error);
+
+				return _throw(error);
+			})
+		);
+	}
+
+	saveTimeOfSaleOptionPrices(timeOfSaleOptionPrices: TimeOfSaleOptionPrice[])
+	{
+		const url = `${environment.apiUrl}SaveTimeOfSaleOptionPrices`;
+		const body = {
+			timeOfSaleOptionPrices: timeOfSaleOptionPrices
+		}
+
+		return this._http.post<any>(url, body);
+	}
+
+	deleteTimeOfSaleOptionPricesForJob(jobId: number)
+	{
+		const url = `${environment.apiUrl}DeleteTimeOfSaleOptionPricesForJob`;
+		const body = {
+			jobId: jobId
+		};
+
+		return this._http.post<any>(url, body);
+	}
+
+	deleteTimeOfSaleOptionPrices(timeOfSaleOptionPrices: TimeOfSaleOptionPrice[]): Observable<TimeOfSaleOptionPrice[]>
+	{
+		const url = `${environment.apiUrl}DeleteTimeOfSaleOptionPrices`;
+		const body = {
+			timeOfSaleOptionPrices: timeOfSaleOptionPrices
+		};
+
+		return this._http.post<TimeOfSaleOptionPrice[]>(url, body).pipe(
+			map(response =>
+			{
+				return (response['value'] as Array<TimeOfSaleOptionPrice>).map(o => new TimeOfSaleOptionPrice(o));
+			})
+		);
+	}
+
+	updateTimeOfSaleOptionPrices(timeOfSaleOptionPrices: TimeOfSaleOptionPrice[]): Observable<TimeOfSaleOptionPrice[]>
+	{
+		const url = `${environment.apiUrl}UpdateTimeOfSaleOptionPrices`;
+		const body = {
+			timeOfSaleOptionPrices: timeOfSaleOptionPrices
+		};
+
+		return this._http.patch<TimeOfSaleOptionPrice[]>(url, body).pipe(
+			map(response =>
+			{
+				return (response['value'] as Array<TimeOfSaleOptionPrice>).map(o => new TimeOfSaleOptionPrice(o));
 			})
 		);
 	}

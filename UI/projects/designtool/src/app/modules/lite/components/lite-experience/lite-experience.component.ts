@@ -11,11 +11,12 @@ import * as NavActions from '../../../ngrx-store/nav/actions';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 
 import { 
-	UnsubscribeOnDestroy, PriceBreakdown, PointStatus, LotExt, ModalRef, ModalService, ChangeTypeEnum 
+	UnsubscribeOnDestroy, PriceBreakdown, PointStatus, LotExt, ModalRef, ModalService, ChangeTypeEnum,
+	ScenarioOptionColor 
 } from 'phd-common';
 
 import { ActionBarCallType } from '../../../shared/classes/constants.class';
-import { LiteSubMenu, LitePlanOption, ScenarioOptionColor } from '../../../shared/models/lite.model';
+import { LiteSubMenu, LitePlanOption } from '../../../shared/models/lite.model';
 import { MonotonyConflict } from '../../../shared/models/monotony-conflict.model';
 import { LiteService } from '../../../core/services/lite.service';
 import { PhdSubMenu } from '../../../new-home/subNavItems';

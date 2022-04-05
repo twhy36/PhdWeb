@@ -2,7 +2,7 @@ import { Action } from '@ngrx/store';
 
 import {
 	DesignToolAttribute, SalesCommunity, ChangeOrderHanding, JobChoice, Job, LotExt, PlanOption,
-	TreeVersionRules, Scenario, DtoScenarioInfo, TreeFilter, Tree, OptionImage, Choice, Log
+	TreeVersionRules, Scenario, DtoScenarioInfo, TreeFilter, Tree, OptionImage, Choice, Log, TimeOfSaleOptionPrice
 } from 'phd-common';
 
 import { DecisionPointFilterType } from '../../shared/models/decisionPointFilter';
@@ -91,10 +91,10 @@ export class LoadError extends ErrorAction
 export class SelectChoices implements Action
 {
 	readonly type = ScenarioActionTypes.SelectChoices;
-	public choices: { choiceId: number, overrideNote: string, quantity: number, attributes?: DesignToolAttribute[] }[];
+	public choices: { choiceId: number, overrideNote: string, quantity: number, attributes?: DesignToolAttribute[], timeOfSaleOptionPrices?: TimeOfSaleOptionPrice[] }[];
 	public save: boolean;
 
-	constructor(save: boolean, ...choices: { choiceId: number, overrideNote: string, quantity: number, attributes?: DesignToolAttribute[] }[])
+	constructor(save: boolean, ...choices: { choiceId: number, overrideNote: string, quantity: number, attributes?: DesignToolAttribute[], timeOfSaleOptionPrices?: TimeOfSaleOptionPrice[] }[])
 	{
 		this.choices = choices;
 		this.save = save;

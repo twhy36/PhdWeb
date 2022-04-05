@@ -9,8 +9,8 @@ import * as fromLite from '../../../ngrx-store/lite/reducer';
 
 import * as LiteActions from '../../../ngrx-store/lite/actions';
 
-import { UnsubscribeOnDestroy, flipOver } from 'phd-common';
-import { LitePlanOption, ScenarioOption, Color, ScenarioOptionColor } from '../../../shared/models/lite.model';
+import { UnsubscribeOnDestroy, flipOver, ScenarioOption, ScenarioOptionColor } from 'phd-common';
+import { LitePlanOption, Color } from '../../../shared/models/lite.model';
 
 @Component({
 	selector: 'color-scheme',

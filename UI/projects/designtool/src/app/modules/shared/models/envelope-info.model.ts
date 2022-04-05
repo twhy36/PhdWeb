@@ -1,4 +1,5 @@
 import { SDGroup } from "phd-common";
+import { ITemplateInfo } from '../../shared/models/template.model';
 
 export interface IEnvelopeInfo
 {
@@ -75,12 +76,12 @@ export interface INsoSummaryInfo
 
 export class SnapShotData
 {
-	templates: any;
+	templates: ITemplateInfo[];
 	jioSelections: JIOSelections;
 	financialCommunityId: number;
 	jobId: number;
 	changeOrderGroupId: number;
-	salesAgreementId: number;
+	salesAgreementNumber: string;
 	salesAgreementStatus: string;
 	constructionChangeOrderSelections: any;
 	salesChangeOrderSelections: any;
@@ -88,7 +89,7 @@ export class SnapShotData
 	nonStandardChangeOrderSelections: any;
 	lotTransferChangeOrderSelections: any;
 	changeOrderInformation: any;
-	salesAgreementInfo: any;
+	envelopeInfo: EnvelopeInfo;
 
 	constructor(dto?: any)
 	{
@@ -99,7 +100,7 @@ export class SnapShotData
 			this.financialCommunityId = dto.financialCommunityId;
 			this.jobId = dto.jobId;
 			this.changeOrderGroupId = dto.changeOrderGroupId;
-			this.salesAgreementId = dto.salesAgreementId;
+			this.salesAgreementNumber = dto.salesAgreementNumber;
 			this.salesAgreementStatus = dto.salesAgreementStatus;
 			this.constructionChangeOrderSelections = dto.constructionChangeOrderSelections;
 			this.salesChangeOrderSelections = dto.salesChangeOrderSelections;
@@ -107,7 +108,7 @@ export class SnapShotData
 			this.nonStandardChangeOrderSelections = dto.nonStandardChangeOrderSelections;
 			this.lotTransferChangeOrderSelections = dto.lotTransferChangeOrderSelections;
 			this.changeOrderInformation = dto.changeOrderInformation;
-			this.salesAgreementInfo = dto.salesAgreementInfo;
+			this.envelopeInfo = dto.envelopeInfo;
 		}
 	}
 }

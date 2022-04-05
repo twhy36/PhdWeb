@@ -3,13 +3,14 @@ import { select, Store } from '@ngrx/store';
 import { combineLatest } from 'rxjs';
 import * as _ from "lodash";
 
-import { UnsubscribeOnDestroy, ModalService } from 'phd-common';
+import { UnsubscribeOnDestroy, ModalService, ScenarioOption } from 'phd-common';
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 import * as LiteActions from '../../../ngrx-store/lite/actions';
 
-import { Elevation, IOptionCategory, LitePlanOptionUI, ScenarioOption, LitePlanOption, OptionRelationEnum } from '../../../shared/models/lite.model';
+import { Elevation, IOptionCategory, LitePlanOptionUI, LitePlanOption, OptionRelationEnum } from '../../../shared/models/lite.model';
 import { ConfirmOptionRelationComponent } from '../confirm-option-relation/confirm-option-relation.component';
+import { ModalOverrideSaveComponent } from '../../../core/components/modal-override-save/modal-override-save.component';
 
 @Component({
   selector: 'options-config',
@@ -24,6 +25,8 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 	scenarioId: number;
 	options: LitePlanOption[];
 	cannotEditAgreement: boolean;
+	canOverride: boolean;
+	overrideReason: string;
 
   	constructor(
 		  private store: Store<fromRoot.State>,
@@ -46,6 +49,22 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 		)
 		.subscribe(canEditAgreement => {
 			this.cannotEditAgreement = !canEditAgreement;
+		});
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromRoot.canOverride)
+		).subscribe(canOverride =>
+		{
+			this.canOverride = canOverride;
+		});
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(state => state.lite)
+		).subscribe(lite =>
+		{
+			this.overrideReason = lite.elevationOverrideNote || lite.colorSchemeOverrideNote;
 		});
 
 		combineLatest([
@@ -102,9 +121,19 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 		});
 	}
 
-	onSelectedOptionWasToggled($event: any, option: LitePlanOptionUI)
+	async onSelectedOptionWasToggled($event: any, option: LitePlanOptionUI)
 	{
 		$event.preventDefault();
+
+		if (option.isPastCutOff && !this.overrideReason)
+		{
+			const noOverrideReasonWasProvided = await this.onOverride(option) === false;
+
+			if (noOverrideReasonWasProvided)
+			{
+				return;
+			}
+		}
 
 		const canConfirmCantHaveOptions = option.cantHavePlanOptionIds?.length
 			? !!this.scenarioOptions.find(o => option.cantHavePlanOptionIds.includes(o.edhPlanOptionId))
@@ -304,5 +333,25 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 		}
 
 		return isReadonly;
+	}
+
+	async onOverride(option: LitePlanOptionUI): Promise<boolean>
+	{
+		const confirm = this.modalService.open(ModalOverrideSaveComponent);
+		confirm.componentInstance.title = 'Warning';
+		confirm.componentInstance.body = `This will override the Cut-off`;
+		confirm.componentInstance.defaultOption = 'Cancel';
+
+		return confirm.result.then((result) =>
+		{
+			const overrideReasonWasProvided = result !== 'Close';
+
+			if (overrideReasonWasProvided)
+			{
+				this.store.dispatch(new LiteActions.SetLiteOverrideReason(result, false));
+			}
+
+			return overrideReasonWasProvided;
+		});
 	}
 }

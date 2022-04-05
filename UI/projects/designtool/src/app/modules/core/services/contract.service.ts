@@ -6,15 +6,19 @@ import { map, catchError, switchMap, withLatestFrom, take, combineLatest } from 
 
 import {
 	defaultOnNotFound, withSpinner, Buyer, Contact, PhoneType, ESignTypeEnum, ChangeOrderChoice, ChangeOrderNonStandardOption,
-	ChangeOrderGroup, LotExt, Plan, SalesAgreementProgram, SDPoint, DecisionPoint, formatPhoneNumber, PriceBreakdown
+	ChangeOrderGroup, LotExt, Plan, SalesAgreementProgram, SDPoint, DecisionPoint, formatPhoneNumber, PriceBreakdown,
+	ScenarioOptionColor
 } from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
 
 import { Template, ITemplateInfo } from '../../shared/models/template.model';
 import { IFinancialCommunityESign, FinancialCommunityESign, IESignRecipient } from '../../shared/models/contract.model';
-import { EnvelopeInfo } from '../../shared/models/envelope-info.model';
-import { getCurrentHouseSelections, getChangeOrderGroupSelections, getLiteCurrentHouseSelections } from '../../shared/classes/contract-utils';
+import { EnvelopeInfo, SnapShotData } from '../../shared/models/envelope-info.model';
+import { 
+	getCurrentHouseSelections, getChangeOrderGroupSelections, getLiteCurrentHouseSelections, getLiteChangeOrderGroupSelections,
+	getLiteConstructionChangeOrderPdfData
+} from '../../shared/classes/contract-utils';
 import * as _ from 'lodash';
 import { Store } from '@ngrx/store';
 import * as fromRoot from '../../../modules/ngrx-store/reducers';
@@ -23,8 +27,11 @@ import * as fromLot from '../../ngrx-store/lot/reducer';
 import * as fromChangeOrder from '../../ngrx-store/change-order/reducer';
 import { TreeService } from '../../core/services/tree.service';
 import { _throw } from 'rxjs/observable/throw';
-import { LitePlanOption, ScenarioOptionColor } from '../../shared/models/lite.model';
+
+// PHD Lite
+import { LitePlanOption } from '../../shared/models/lite.model';
 import { LiteService } from './lite.service';
+import * as fromLite from '../../ngrx-store/lite/reducer';
 
 @Injectable()
 export class ContractService
@@ -58,34 +65,33 @@ export class ContractService
 			})
 		);
 	}
-
-	createEnvelope(jioSelections: any, templates: Array<ITemplateInfo>, financialCommunityId: number, salesAgreementNumber: string, salesAgreementStatus: string, envelopeInfo: EnvelopeInfo, jobId: number, changeOrderGroupId: number, constructionChangeOrderSelectionsDto?: any, salesChangeOrderSelections?: any, planChangeOrderSelectionsDto?: any, nonStandardChangeOrderSelectionsDto?: Array<ChangeOrderNonStandardOption>, lotTransferSeletionsDto?: { addedLot: LotExt, deletedLot: LotExt }, changeOrderInformation?: any, isPreview?: boolean): Observable<string>
+	createEnvelope(snapShotData: SnapShotData, isPreview?: boolean, isPhdLite?: boolean): Observable<string>
 	{
-		const action = `CreateEnvelope`;
+		const action = isPhdLite ? `CreateEnvelopeLite` : `CreateEnvelope`;
 		const url = `${environment.apiUrl}${action}`;
 		const data = {
 			isPreview: isPreview ? isPreview : false,
-			templates: templates,
-			jioSelections: jioSelections,
-			financialCommunityId: financialCommunityId,
-			jobId: jobId,
-			changeOrderGroupId: changeOrderGroupId,
-			salesAgreementNumber: salesAgreementNumber,
-			salesAgreementStatus: salesAgreementStatus,
-			constructionChangeOrderSelections: constructionChangeOrderSelectionsDto,
-			salesChangeOrderSelections: salesChangeOrderSelections,
-			planChangeOrderSelections: planChangeOrderSelectionsDto,
-			nonStandardChangeOrderSelections: nonStandardChangeOrderSelectionsDto,
-			lotTransferChangeOrderSelections: lotTransferSeletionsDto ? { lotDtos: lotTransferSeletionsDto } : null,
-			changeOrderInformation: changeOrderInformation,
-			salesAgreementInfo: { ...envelopeInfo }
+			templates: snapShotData.templates,
+			jioSelections: snapShotData.jioSelections,
+			financialCommunityId: snapShotData.financialCommunityId,
+			jobId: snapShotData.jobId,
+			changeOrderGroupId: snapShotData.changeOrderGroupId,
+			salesAgreementNumber: snapShotData.salesAgreementNumber,
+			salesAgreementStatus: snapShotData.salesAgreementStatus,
+			constructionChangeOrderSelections: snapShotData.constructionChangeOrderSelections,
+			salesChangeOrderSelections: snapShotData.salesChangeOrderSelections,
+			planChangeOrderSelections: snapShotData.planChangeOrderSelections,
+			nonStandardChangeOrderSelections: snapShotData.nonStandardChangeOrderSelections,
+			lotTransferChangeOrderSelections: snapShotData.lotTransferChangeOrderSelections ? { lotDtos: snapShotData.lotTransferChangeOrderSelections } : null,
+			changeOrderInformation: snapShotData.changeOrderInformation,
+			salesAgreementInfo: { ...snapShotData.envelopeInfo }
 		};
 
 		return withSpinner(this._http).post<any>(url, data).pipe(
 			map(response => response.value),
 			catchError(error =>
 			{
-				return this.deleteSnapshot(jobId, changeOrderGroupId).pipe(
+				return this.deleteSnapshot(snapShotData.jobId, snapShotData.changeOrderGroupId).pipe(
 					switchMap(() => throwError(error))
 				);
 			})
@@ -346,9 +352,9 @@ export class ContractService
 		);
 	}
 
-	getPreviewDocument(jioSelections: any, templates: Array<ITemplateInfo>, financialCommunityId: number, salesAgreementNumber: string, salesAgreementStatus: string, envelopeInfo: EnvelopeInfo, jobId: number, changeOrderGroupId: number, constructionChangeOrderSelectionsDto?: any, salesChangeOrderSelections?: any, planChangeOrderSelectionsDto?: any, nonStandardChangeOrderSelectionsDto?: Array<ChangeOrderNonStandardOption>, lotTransferSeletionsDto?: { addedLot: LotExt, deletedLot: LotExt }, changeOrderInformation?: any, isPreview? : boolean, isAddenda?: boolean)
+	getPreviewDocument(currentSnapshot : SnapShotData, isPreview? : boolean, isAddenda?: boolean, isPhdLite?: boolean)
 	{
-		const action = `GetPreviewDocument`;
+		const action = isPhdLite ? `GetPreviewDocumentLite` : `GetPreviewDocument`;
 		const url = `${environment.apiUrl}${action}`;
 		const headers = new HttpHeaders({
 			'Content-Type': 'application/json',
@@ -358,20 +364,20 @@ export class ContractService
 		const data = {
 			isPreview: isPreview ? isPreview : false,
 			isAddenda: isAddenda ? isAddenda : false,
-			templates: templates,
-			jioSelections: jioSelections,
-			financialCommunityId: financialCommunityId,
-			jobId: jobId,
-			changeOrderGroupId: changeOrderGroupId,
-			salesAgreementNumber: salesAgreementNumber,
-			salesAgreementStatus: salesAgreementStatus,
-			constructionChangeOrderSelections: constructionChangeOrderSelectionsDto,
-			salesChangeOrderSelections: salesChangeOrderSelections,
-			planChangeOrderSelections: planChangeOrderSelectionsDto,
-			nonStandardChangeOrderSelections: nonStandardChangeOrderSelectionsDto,
-			lotTransferChangeOrderSelections: lotTransferSeletionsDto ? { lotDtos: lotTransferSeletionsDto } : null,
-			changeOrderInformation: changeOrderInformation,
-			salesAgreementInfo: { ...envelopeInfo }
+			templates: currentSnapshot.templates,
+			jioSelections: currentSnapshot.jioSelections,
+			financialCommunityId: currentSnapshot.financialCommunityId,
+			jobId: currentSnapshot.jobId,
+			changeOrderGroupId: currentSnapshot.changeOrderGroupId,
+			salesAgreementNumber: currentSnapshot.salesAgreementNumber,
+			salesAgreementStatus: currentSnapshot.salesAgreementStatus,
+			constructionChangeOrderSelections: currentSnapshot.constructionChangeOrderSelections,
+			salesChangeOrderSelections: currentSnapshot.salesChangeOrderSelections,
+			planChangeOrderSelections: currentSnapshot.planChangeOrderSelections,
+			nonStandardChangeOrderSelections: currentSnapshot.nonStandardChangeOrderSelections,
+			lotTransferChangeOrderSelections: currentSnapshot.lotTransferChangeOrderSelections ? { lotDtos: currentSnapshot.lotTransferChangeOrderSelections } : null,
+			changeOrderInformation: currentSnapshot.changeOrderInformation,
+			salesAgreementInfo: { ...currentSnapshot.envelopeInfo }
 		};
 
 		return withSpinner(this._http).post(url, data, { headers: headers, responseType: 'blob' }).pipe(
@@ -469,10 +475,6 @@ export class ContractService
 			const elevationName = store.lite.isPhdLite
 				? selectedLiteElevation.name
 				: elevationDP && elevationDP.choices.find(c => c.quantity > 0) ? elevationDP.choices.find(c => c.quantity > 0).label : '';
-			
-			const lotBlockName = store.lite.isPhdLite
-				? selectLot.selectedLot.lotBlock
-				: isNull(store.job.lot.alternateLotBlock, '');
 
 			let jobAgreementHeaderInfo =
 			{
@@ -487,7 +489,7 @@ export class ContractService
 				planName: store.job.plan.planSalesName,
 				planID: store.job.plan.masterPlanNumber,
 				elevation: elevationName,
-				lotBlock: lotBlockName,
+				lotBlock: isNull(store.job.lot.alternateLotBlock, ''),
 				lotAddress: isNull(store.job.lot.streetAddress1, "").trim() + " " + isNull(store.job.lot.streetAddress2, "").trim(),
 				cityStateZip: store.job.lot.city ? `${isNull(store.job.lot.city, "").trim()}, ${isNull(store.job.lot.stateProvince, "").trim()} ${isNull(store.job.lot.postalCode, "").trim()}` : "",
 				lotBlockFullNumber: store.job.lot.lotBlock,
@@ -726,14 +728,33 @@ export class ContractService
 					this.store.select(fromRoot.isSpecSalePending),
 					this.store.select(fromLot.selectLot),
 					this.store.select(fromChangeOrder.changeOrderPrimaryBuyer),
-					this.store.select(fromChangeOrder.changeOrderCoBuyers)
+					this.store.select(fromChangeOrder.changeOrderCoBuyers),
+					this.store.select(fromLite.selectedElevation),
+					this.store.select(fromLite.selectedColorScheme)
 				),
-				map(([store, priceBreakdown, isSpecSalePending, selectLot, coPrimaryBuyer, coCoBuyers]) =>
+				map(([store, priceBreakdown, isSpecSalePending, selectLot, coPrimaryBuyer, coCoBuyers, selectedLiteElevation, selectedLiteColorScheme]) =>
 				{
 					// Only display the CO#/JIO - Exclude any selected addenda's
 					const templates = [{ displayName: 'JIO', displayOrder: 2, documentName: 'JIO', templateId: 0, templateTypeId: 4, marketId: 0, version: 0 }];
 
-					let currentHouseSelections = templates.some(t => t.templateId === 0) ? getCurrentHouseSelections(store.scenario.tree.treeVersion.groups) : [];
+					const liteBaseHouseOptions = this.liteService.getSelectedBaseHouseOptions(
+						store.lite.scenarioOptions,
+						store.lite.options,
+						store.lite.categories
+					);
+					
+					let currentHouseSelections = [];
+					if (templates.some(t => t.templateId === 0))
+					{
+						currentHouseSelections = store.lite.isPhdLite
+							? getLiteCurrentHouseSelections(
+								store.lite, selectedLiteElevation, 
+								selectedLiteColorScheme, 
+								liteBaseHouseOptions, 
+								priceBreakdown.baseHouse
+							)
+							: getCurrentHouseSelections(store.scenario.tree.treeVersion.groups);
+					}
 
 					let salesAgreementNotes = !!store.salesAgreement.notes && store.salesAgreement.notes.length ? store.salesAgreement.notes.filter(n => n.targetAudiences.find(x => x.name === "Public") && n.noteSubCategoryId !== 10).map(n => n.noteContent).join(", ") : '';
 					let addedTermsAndConditions = store.changeOrder.currentChangeOrder.jobChangeOrders.find(co => co.jobChangeOrderTypeDescription === 'SalesNotes') ? store.changeOrder.currentChangeOrder.jobChangeOrders.find(co => co.jobChangeOrderTypeDescription === 'SalesNotes').salesNotesChangeOrders.filter(sncos => sncos.action === 'Add').map(snco => snco.note) : [];
@@ -746,7 +767,9 @@ export class ContractService
 						salesAgreementNotes: salesAgreementNotes
 					};
 
-					let decisionPoints = _.flatMap(store.scenario.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points));
+					let decisionPoints = store.lite.isPhdLite
+						? []
+						: _.flatMap(store.scenario.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points));
 
 					let salesChangeOrderBuyers: Array<any> = [];
 
@@ -855,7 +878,13 @@ export class ContractService
 						case 'ChoiceAttribute':
 						case 'Elevation':
 						case 'Handing':
-							let constructionChangeOrderSelections = getChangeOrderGroupSelections(store.scenario.tree.treeVersion.groups, <ChangeOrderChoice[]>changeOrderChoices);
+							let constructionChangeOrderSelections = store.lite.isPhdLite
+								? getLiteChangeOrderGroupSelections(
+									changeOrder.jobChangeOrderPlanOptions, 
+									store.lite.options, 
+									store.lite.categories
+								)
+								: getChangeOrderGroupSelections(store.scenario.tree.treeVersion.groups, <ChangeOrderChoice[]>changeOrderChoices);
 
 							constructionChangeOrderSelectionsDto = {
 								constructionChangeOrderSelections: constructionChangeOrderSelections,
@@ -1028,6 +1057,10 @@ export class ContractService
 							cityStateZip: customerAddress && customerAddress.address ? `${isNull(customerAddress.address.city, "").trim()}, ${isNull(customerAddress.address.stateProvince, "").trim()} ${isNull(customerAddress.address.postalCode, "").trim()}` : ""
 						}
 
+						const elevationName = store.lite.isPhdLite
+							? selectedLiteElevation?.name
+							: (store.job.jobPlanOptions?.find(x => x.jobOptionTypeName === 'Elevation')?.optionSalesName || '');
+						
 						let jobAgreementHeaderInfo = {
 							agreementNumber: store.salesAgreement.salesAgreementNumber,
 							agreementCreatedDate: new Date(store.salesAgreement.createdUtcDate).toLocaleDateString('en-US', { month: "2-digit", day: "2-digit", year: "numeric" }),
@@ -1039,7 +1072,7 @@ export class ContractService
 							garage: isNull(store.job.handing, ""),
 							planName: store.job.plan.planSalesName,
 							planID: store.job.plan.masterPlanNumber,
-							elevation: store.job.jobPlanOptions && store.job.jobPlanOptions.find(x => x.jobOptionTypeName === "Elevation") ? store.job.jobPlanOptions.find(x => x.jobOptionTypeName === "Elevation").optionSalesName : '',
+							elevation: elevationName,
 							lotBlock: isNull(store.job.lot.alternateLotBlock, ""),
 							lotAddress: isNull(store.job.lot.streetAddress1, "").trim() + " " + isNull(store.job.lot.streetAddress2, "").trim(),
 							cityStateZip: store.job.lot.city ? `${isNull(store.job.lot.city, "").trim()}, ${isNull(store.job.lot.stateProvince, "").trim()} ${isNull(store.job.lot.postalCode, "").trim()}` : "",
@@ -1102,7 +1135,14 @@ export class ContractService
 
 						if (constructionChangeOrderSelectionsDto)
 						{
-							let jobChangeOrderChoices = this.getConstructionChangeOrderPdfData(constructionChangeOrderSelectionsDto.changeOrderChoices);
+							let jobChangeOrderChoices = store.lite.isPhdLite
+								? getLiteConstructionChangeOrderPdfData(
+									store.lite.options,
+									store.lite.categories,
+									changeOrder.jobChangeOrderPlanOptions, 
+									selectedLiteElevation
+								)
+								: this.getConstructionChangeOrderPdfData(constructionChangeOrderSelectionsDto.changeOrderChoices);
 
 							changeOrderInformation.jobChangeOrderChoices = jobChangeOrderChoices;
 
@@ -1276,7 +1316,7 @@ export class ContractService
 		)
 	}
 
-	getEnvelope(jobId: number, changeOrderId: number, approvedDate: Date, signedDate: Date)
+	getEnvelope(jobId: number, changeOrderId: number, approvedDate: Date, signedDate: Date, isPhdLite: boolean)
 	{
 		return this.getSnapShot(jobId, changeOrderId).pipe(
 			switchMap(lockedSnapshot =>
@@ -1298,10 +1338,23 @@ export class ContractService
 						return this.saveSnapshot(clonedSnapshot, jobId, changeOrderId).pipe(
 							switchMap(() =>
 							{
-								return this.createEnvelope(clonedSnapshot.jioSelections, clonedSnapshot.templates, clonedSnapshot.financialCommunityId, clonedSnapshot.salesAgreementNumber,
-									clonedSnapshot.salesAgreementStatus, clonedSnapshot.envelopeInfo, clonedSnapshot.jobId, clonedSnapshot.changeOrderGroupId, clonedSnapshot.constructionChangeOrderSelections,
-									clonedSnapshot.salesChangeOrderSelections, clonedSnapshot.planChangOrderSelections, clonedSnapshot.nonStandardChangeOrderSelections, clonedSnapshot.lotTransferSelections,
-									clonedSnapshot.changeOrderInformation).pipe(
+								const snapShotData: SnapShotData = {
+									jioSelections: clonedSnapshot.jioSelections,
+									templates: clonedSnapshot.templates,
+									financialCommunityId: clonedSnapshot.financialCommunityId,
+									salesAgreementNumber: clonedSnapshot.salesAgreementNumber,
+									salesAgreementStatus: clonedSnapshot.salesAgreementStatus,
+									envelopeInfo: clonedSnapshot.envelopeInfo,
+									jobId: clonedSnapshot.jobId,
+									changeOrderGroupId: clonedSnapshot.changeOrderGroupId,
+									constructionChangeOrderSelections: clonedSnapshot.constructionChangeOrderSelections,
+									changeOrderInformation: clonedSnapshot.changeOrderInformation,
+									salesChangeOrderSelections: clonedSnapshot.salesChangeOrderSelections,
+									planChangeOrderSelections: clonedSnapshot.planChangOrderSelections,
+									nonStandardChangeOrderSelections: clonedSnapshot.nonStandardChangeOrderSelections,
+									lotTransferChangeOrderSelections: clonedSnapshot.lotTransferSelections
+								};
+								return this.createEnvelope(snapShotData, null, isPhdLite).pipe(
 										map(() =>
 										{
 											return of(true);

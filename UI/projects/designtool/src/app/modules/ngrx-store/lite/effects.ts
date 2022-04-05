@@ -4,7 +4,7 @@ import { Action, Store, select } from '@ngrx/store';
 import { Observable, never, of, combineLatest, from, EMPTY as empty } from 'rxjs';
 import { switchMap, withLatestFrom, map, scan, filter, distinct } from 'rxjs/operators';
 
-import { ChangeOrderHanding } from 'phd-common';
+import { ChangeOrderHanding, ScenarioOption } from 'phd-common';
 
 import { LiteService } from '../../core/services/lite.service';
 import { ChangeOrderService } from '../../core/services/change-order.service';
@@ -18,7 +18,7 @@ import {
 import { CommonActionTypes, ScenarioLoaded, LoadSalesAgreement, SalesAgreementLoaded, LoadError } from '../actions';
 import * as fromRoot from '../reducers';
 import * as _ from 'lodash';
-import { IOptionCategory, ScenarioOption } from '../../shared/models/lite.model';
+import { IOptionCategory } from '../../shared/models/lite.model';
 import { tryCatch } from '../error.action';
 import { SavePendingJio, CreateJobChangeOrders, CreatePlanChangeOrder, SaveChangeOrderScenario, CurrentChangeOrderLoaded, SetChangingOrder } from '../change-order/actions';
 import { LotsLoaded, LotActionTypes } from '../lot/actions';
@@ -38,7 +38,8 @@ export class LiteEffects
 				{
 					const isPhdLite = action.plans.some(plan => !plan.treeVersionId)
 						|| this.liteService.checkLiteAgreement(store.job, store.changeOrder.currentChangeOrder)
-						|| this.liteService.checkLiteScenario(store.scenario.scenario.scenarioChoices, store.lite.scenarioOptions);
+						|| this.liteService.checkLiteScenario(store.scenario.scenario?.scenarioChoices, store.scenario.scenario?.scenarioOptions);
+
 					const salesCommunityId = store.opportunity.opportunityContactAssoc.opportunity.salesCommunityId;
 
 					let actions = [];
@@ -66,7 +67,7 @@ export class LiteEffects
 					const planOptions = store.lite.options;
 					const optionsLoaded = !!planOptions.find(option => option.planId === action.scenario.planId);
 					const isPhdLite = (action instanceof ScenarioLoaded ? !action.scenario.treeVersionId : store.lite.isPhdLite)
-						|| this.liteService.checkLiteScenario(action.scenario.scenarioChoices, store.lite.scenarioOptions);
+						|| this.liteService.checkLiteScenario(action.scenario.scenarioChoices, store.scenario.scenario?.scenarioOptions);
 
 					if (isPhdLite && !optionsLoaded)
 					{
@@ -84,6 +85,7 @@ export class LiteEffects
 							getOptionsCategorySubcategory
 						]).pipe(
 							switchMap(([options, scenarioOptions, optionsForCategories]) => {
+								this.liteService.setOptionsIsPastCutOff(options, store.job);
 								let categories: IOptionCategory[] = [];
 
 								if (optionsForCategories)
@@ -150,6 +152,7 @@ export class LiteEffects
 							this.liteService.getOptionsCategorySubcategory(action.job.financialCommunityId)
 						]).pipe(
 							switchMap(([options, optionsForCategories]) => {
+								this.liteService.setOptionsIsPastCutOff(options, action.job);
 								let categories: IOptionCategory[] = [];
 
 								if (optionsForCategories)
@@ -188,7 +191,7 @@ export class LiteEffects
 											{
 												option.listPrice = coPlanOption.listPrice;
 											}
-										});										
+										});
 									}
 								}
 								else if (store.salesAgreement.status === 'Pending')
@@ -198,13 +201,13 @@ export class LiteEffects
 									{
 										const isPhaseEnabled = action.lot.financialCommunity?.isPhasedPricingEnabled;
 										const phasePlanPrice = action.lot.salesPhase?.salesPhasePlanPriceAssocs?.find(x => x.planId === action.job.planId);
-							
+
 										if (isPhaseEnabled && phasePlanPrice)
 										{
 											let baseHouseOption = options.find(option => option.isBaseHouse && option.isActive);
 											baseHouseOption.listPrice = phasePlanPrice.price;
 										}
-									}									
+									}
 								}
 
 								const optionIds = options.map(o => o.id);
@@ -410,9 +413,7 @@ export class LiteEffects
 								return of(new CreateJobChangeOrders());
 							}
 						}
-						else {
-							return empty;
-						}
+						return empty;
 					})
 				);
 			})
@@ -424,9 +425,9 @@ export class LiteEffects
 			ofType<SelectOptions | SelectOptionColors>(LiteActionTypes.SelectOptions, LiteActionTypes.SelectOptionColors),
 			withLatestFrom(this.store),
 			switchMap(([action, store]) => {
-				const savingScenario = !store.salesAgreement.id 
-					&& store.lite.isUnsaved 
-					&& !store.lite.isSaving 
+				const savingScenario = !store.salesAgreement.id
+					&& store.lite.isUnsaved
+					&& !store.lite.isSaving
 					&& store.scenario.buildMode === 'buyer';
 
 				const savingPendingJio = store.salesAgreement.id && store.salesAgreement.status === 'Pending';
@@ -468,12 +469,12 @@ export class LiteEffects
 					});
 
 				let actions: any[] = [];
-				
+
 				if (selectedOptions?.length)
 				{
 					actions.push(new SelectOptions([...selectedOptions, ...deselectedOptions]));
 				}
-				
+
 				if (changeOrderId > 0)
 				{
 					actions.push(new CurrentChangeOrderLoaded(currentChangeOrder, handing));
@@ -484,12 +485,12 @@ export class LiteEffects
 					{
 						const jobHanding = new ChangeOrderHanding();
 						jobHanding.handing = store.job.handing;
-						actions.push(new CurrentChangeOrderLoaded(null, jobHanding));						
+						actions.push(new CurrentChangeOrderLoaded(null, jobHanding));
 					}
 					actions.push(new SetChangingOrder(false, null, true, handing));
 				}
 
-				return from(actions);					
+				return from(actions);
 			})
 		);
 	});

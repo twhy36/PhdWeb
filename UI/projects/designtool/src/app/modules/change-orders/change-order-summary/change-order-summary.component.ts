@@ -34,6 +34,7 @@ import { ContractService } from '../../core/services/contract.service';
 
 import * as _ from 'lodash';
 import { LotsLoaded, LotActionTypes } from '../../ngrx-store/lot/actions';
+import { JobService } from '../../core/services/job.service';
 
 @Component({
 	selector: 'change-order-summary',
@@ -323,6 +324,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 					changeOrderTypeDescription: this._changeOrderService.getTypeFromChangeOrderGroup(o),
 					jobChangeOrderGroupDescription: o.jobChangeOrderGroupDescription,
 					jobChangeOrderChoices: _.flatten(o.jobChangeOrders.map(t => t.jobChangeOrderChoices)),
+					jobChangeOrderPlanOptions: _.flatten(o.jobChangeOrders.map(t => t.jobChangeOrderPlanOptions)),
 					jobChangeOrderPlans: _.flatten(o.jobChangeOrders.map(t => t.jobChangeOrderPlans)),
 					jobChangeOrderNonStandardOptions: _.flatten(o.jobChangeOrders.map(t => t.jobChangeOrderNonStandardOptions)),
 					jobChangeOrderLots: _.flatten(o.jobChangeOrders.map(t => t.jobChangeOrderLots)),
@@ -811,9 +813,18 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 
 				return this._changeOrderService.updateJobChangeOrder(changeOrdersToBeUpdated);
 			}),
+			combineLatest(
+				this.store.pipe(
+					take(1),
+					select(state => state.job.timeOfSaleOptionPrices)
+				)
+			),
 			finalize(() => this.isSaving = false)
-		).subscribe(changeOrders =>
+		).subscribe(([changeOrders, timeOfSaleOptionPrices]) =>
 		{
+			// #353697 Once the CO is saved, we need to clear out any related option prices that have been restored, in both the database and the job state
+			this.store.dispatch(new JobActions.DeleteReplaceOptionPrice(timeOfSaleOptionPrices));
+
 			if (changeOrders.some(co => co.constructionStatusDescription === 'Approved'))
 			{
 				if (this.salesAgreementId)
@@ -1030,7 +1041,8 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 					{
 						return this._contractService.saveSnapshot(currentSnapshot, this.jobId, changeOrder.id).pipe(
 							switchMap(() =>
-								this._contractService.getPreviewDocument(currentSnapshot.jioSelections, currentSnapshot.templates, currentSnapshot.financialCommunityId, currentSnapshot.salesAgreementNumber, currentSnapshot.salesAgreementStatus, currentSnapshot.envelopeInfo, currentSnapshot.jobId, currentSnapshot.changeOrderGroupId, currentSnapshot.constructionChangeOrderSelections, currentSnapshot.salesChangeOrderSelections, currentSnapshot.planChangeOrderSelections, currentSnapshot.nonStandardChangeOrderSelections, currentSnapshot.lotTransferChangeOrderSelections, currentSnapshot.changeOrderInformation, true, false)),
+								this._contractService.getPreviewDocument(currentSnapshot, true, false, this.isPhdLite)
+							),
 							map(pdfObject =>
 							{
 								return pdfObject;
@@ -1050,7 +1062,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 		}
 		else if ((changeOrder.changeOrderTypeDescription === 'SalesJIO' && changeOrder.salesStatus === 'Approved') || (changeOrder.changeOrderTypeDescription === 'SpecJIO' && changeOrder.salesStatus === 'Approved') || (changeOrder.id === this.changeOrders[0].id && changeOrder.salesStatus === 'Approved'))
 		{
-			this._contractService.getEnvelope(this.jobId, changeOrder.id, this.approvedDate, this.signedDate).subscribe(() =>
+			this._contractService.getEnvelope(this.jobId, changeOrder.id, this.approvedDate, this.signedDate, this.isPhdLite).subscribe(() =>
 			{
 				this.openPdfViewer(changeOrder.id);
 			});

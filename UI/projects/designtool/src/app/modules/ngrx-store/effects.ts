@@ -8,7 +8,7 @@ import * as _ from 'lodash';
 
 import {
 	SalesCommunity, ChangeOrderChoice, ChangeOrderGroup, Job, IMarket, SalesAgreementInfo, DecisionPoint, Choice,
-	IdentityService, SpinnerService, Claims, Permission, MyFavorite, ModalService
+	IdentityService, SpinnerService, Claims, Permission, MyFavorite, ModalService, TimeOfSaleOptionPrice
 } from 'phd-common';
 
 import { CommonActionTypes, LoadScenario, LoadError, ScenarioLoaded, LoadSalesAgreement, SalesAgreementLoaded, LoadSpec, JobLoaded, ESignEnvelopesLoaded } from './actions';
@@ -33,6 +33,7 @@ import { SavePendingJio, CreateJobChangeOrders, CreatePlanChangeOrder } from './
 import { State, canDesign, showSpinner } from './reducers';
 import { FavoriteService } from '../core/services/favorite.service';
 import { LiteService } from '../core/services/lite.service';
+import { UpdateReplaceOptionPrice } from './job/actions';
 
 @Injectable()
 export class CommonEffects
@@ -43,10 +44,13 @@ export class CommonEffects
 			tryCatch(source => source.pipe(
 				switchMap(action => this.scenarioService.getScenario(action.scenarioId)),
 				switchMap(scenario => {
-					const getTree = scenario.treeVersionId ? this.treeService.getTree(scenario.treeVersionId) : of(null);
-					const getRules = scenario.treeVersionId ? this.treeService.getRules(scenario.treeVersionId) : of(null);
-					const getPlanOptions = scenario.treeVersionId ? this.optionService.getPlanOptions(scenario.planId) : of(null);
-					const getOptionImages = scenario.treeVersionId ? this.treeService.getOptionImages(scenario.treeVersionId) : of(null);
+					const isPhdLite = !scenario.treeVersionId
+						|| this.liteService.checkLiteScenario(scenario?.scenarioChoices, scenario?.scenarioOptions);
+					
+					const getTree = !isPhdLite ? this.treeService.getTree(scenario.treeVersionId) : of(null);
+					const getRules = !isPhdLite ? this.treeService.getRules(scenario.treeVersionId) : of(null);
+					const getPlanOptions = !isPhdLite ? this.optionService.getPlanOptions(scenario.planId) : of(null);
+					const getOptionImages = !isPhdLite ? this.treeService.getOptionImages(scenario.treeVersionId) : of(null);
 					
 					return combineLatest([
 						getTree,
@@ -557,10 +561,36 @@ export class CommonEffects
 							}
 						}
 
+						// #353697 Update tracked prices if they have changed while the agreement is pending
+						let timeOfSaleOptionPricesToUpdate: TimeOfSaleOptionPrice[] = [];
+
+						if (result.salesAgreement.status === 'Pending' && result.job.timeOfSaleOptionPrices && result.job.timeOfSaleOptionPrices.length)
+						{
+							result.job.timeOfSaleOptionPrices.forEach(p =>
+							{
+								let opt = result.options.find(o => o.id === p.edhPlanOptionID);
+
+								if (opt && opt.listPrice !== p.listPrice)
+								{
+									timeOfSaleOptionPricesToUpdate.push({
+										edhJobID: p.edhJobID,
+										edhPlanOptionID: p.edhPlanOptionID,
+										listPrice: opt.listPrice,
+										divChoiceCatalogID: p.divChoiceCatalogID,
+										createdBy: p.createdBy,
+										createdUtcDate: p.createdUtcDate,
+										lastModifiedBy: p.lastModifiedBy,
+										lastModifiedUtcDate: p.lastModifiedUtcDate
+									} as TimeOfSaleOptionPrice);
+								}
+							});
+						}
+
 						return <Observable<Action>>from([
 							new SalesAgreementLoaded(result.salesAgreement, result.salesAgreementInfo, result.job, result.sc, result.selectedChoices, result.selectedPlanId, result.selectedHanding, result.tree, result.rules, result.options, result.images, result.mappings, result.changeOrder, result.lot, result.myFavorites),
 							new LoadLots(result.sc.id),
-							new LoadPlans(result.sc.id, selectedPlanPrice)
+							new LoadPlans(result.sc.id, selectedPlanPrice),
+							new UpdateReplaceOptionPrice(timeOfSaleOptionPricesToUpdate)
 						]).pipe(
 							//fetch ESignEnvelopes after everything is loaded
 							concat(

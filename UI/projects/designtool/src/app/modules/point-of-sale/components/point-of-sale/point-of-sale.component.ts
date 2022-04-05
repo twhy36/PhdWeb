@@ -404,11 +404,11 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 			{
 				var currentSnapshot = this.contractService.createContractSnapshot(store, priceBreakdown, isSpecSalePending, selectLot, elevationDP, coPrimaryBuyer, coCoBuyers, selectedLiteElevation, selectedLiteColorScheme, planPrice);
 
-				return of(currentSnapshot);
+				return of({currentSnapshot, isPhdLite: store.lite.isPhdLite});
 			}),
-			switchMap((currentSnapshot: any) =>
+			switchMap((result: any) =>
 			{
-				return this.contractService.getPreviewDocument(currentSnapshot.jioSelections, currentSnapshot.templates, currentSnapshot.financialCommunityId, currentSnapshot.salesAgreementNumber, currentSnapshot.salesAgreementStatus, currentSnapshot.envelopeInfo, currentSnapshot.jobId, currentSnapshot.changeOrderGroupId, currentSnapshot.constructionChangeOrderSelections, currentSnapshot.salesChangeOrderSelections, currentSnapshot.planChangeOrderSelections, currentSnapshot.nonStandardChangeOrderSelections, currentSnapshot.lotTransferChangeOrderSelections, currentSnapshot.changeOrderInformation, true, true);
+				return this.contractService.getPreviewDocument(result.currentSnapshot, true, true, result.isPhdLite);
 			}),
 			take(1)
 		).subscribe(pdfObject =>

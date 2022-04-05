@@ -22,11 +22,11 @@ export const environment: IEnvironment = {
 		azureAD:
 		{
 			issuer: "https://login.microsoftonline.com/1a9277a3-ef66-41f6-96b5-c5390ee468a7/v2.0",
-			clientId: "f9c9611d-6a23-4d2e-8dce-14da56bd8acc",
+			clientId: "d6079aab-8c1d-40e7-81fb-78bda38faea2",
 			responseType: 'code',
 			clearHashAfterLogin: true,
 			requestAccessToken: true,
-			scope: 'api://f9c9611d-6a23-4d2e-8dce-14da56bd8acc/user_impersonation profile openid',
+			scope: 'api://d6079aab-8c1d-40e7-81fb-78bda38faea2/user_impersonation profile openid',
 			showDebugInformation: true,
 			skipIssuerCheck: false,
 			strictDiscoveryDocumentValidation: false
@@ -45,7 +45,16 @@ export const environment: IEnvironment = {
 	brandMap: {
 		pulte: 'localhost:14769',
 		delwebb: '',
-		americanWest: ''
+		americanWest: '',
+		divosta: '',
+		johnWieland: ''
 	},
 	adobeUrl: 'https://assets.adobedtm.com/73ef53bd253f/c533c20a08e9/launch-08a9cce44e7a-development.min.js',
+	brandLogoutMap: {
+		pulte: 'https://cdr3.dev.pulte.com/My-Pulte-Account/Login',
+		delwebb: 'https://cdr.dev.delwebb.com/My-Del-Webb-Account/Login',
+		americanWest: 'https://cdr.dev.americanwesthomes.com/My-American-West-Account/Login',
+		divosta: 'https://cdr.dev.divosta.com/My-DiVosta-Account/Login',
+		johnWieland: 'https://cdr.dev.jwhomes.com/My-JW-Account/Login'
+	}
 };

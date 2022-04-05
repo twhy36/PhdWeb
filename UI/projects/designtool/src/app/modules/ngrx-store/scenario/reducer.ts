@@ -5,7 +5,7 @@ import * as _ from "lodash";
 import {
 	DesignToolAttribute, SalesCommunity, PlanOption, TreeVersionRules, Scenario, TreeFilter,
 	Tree, Choice, Group, SubGroup, DecisionPoint, selectChoice, applyRules, setGroupStatus,
-	setPointStatus, setSubgroupStatus, checkReplacedOption, getChoiceToDeselect
+	setPointStatus, setSubgroupStatus, checkReplacedOption, getChoiceToDeselect, TimeOfSaleOptionPrice
 } from 'phd-common';
 import { ScenarioActions, ScenarioActionTypes } from './actions';
 
@@ -38,14 +38,16 @@ export interface State
 	treeFilter: TreeFilter;
 	treeLoading: boolean;
 	overrideReason: string;
-	priceRanges: { choiceId: number, min: number, max: number }[];
+	priceRanges: { choiceId: number, min: number, max: number; }[];
+	timeOfSaleOptionPrices: TimeOfSaleOptionPrice[];
 }
 
 export const initialState: State = {
 	tree: null, rules: null, scenario: null, options: null, lotPremium: 0, salesCommunity: null,
 	savingScenario: false, saveError: false, isUnsaved: false, treeLoading: false, loadError: false, isGanked: false,
 	pointHasChanges: false, buildMode: 'buyer', selectedPointFilter: DecisionPointFilterType.FULL, enabledPointFilters: [],
-	monotonyAdvisementShown: false, financialCommunityFilter: 0, treeFilter: null, overrideReason: null, priceRanges: null
+	monotonyAdvisementShown: false, financialCommunityFilter: 0, treeFilter: null, overrideReason: null, priceRanges: null,
+	timeOfSaleOptionPrices: null,
 };
 
 RehydrateMap.onRehydrate<State>('scenario', state => { return { ...state, savingScenario: false, saveError: false, treeLoading: false, loadError: false }; });
@@ -61,6 +63,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 	let subGroups: SubGroup[];
 	let rules: TreeVersionRules;
 	let options: PlanOption[];
+	let timeOfSaleOptionPrices: TimeOfSaleOptionPrice[];
 
 	switch (action.type)
 	{
@@ -94,7 +97,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 			if (action.type === CommonActionTypes.JobLoaded && !state.scenario)
 			{
 				const jobType = action.job.jobTypeName === 'Model' ? 'model' : 'spec';
-				newState = { ...newState, buildMode: jobType, scenario: { opportunityId: jobType, scenarioName: jobType, scenarioChoices: [], treeVersionId: 0, planId: 0, lotId: 0, handing: null, viewedDecisionPoints: [], scenarioInfo: null }, enabledPointFilters: [], selectedPointFilter: DecisionPointFilterType.FULL };
+				newState = { ...newState, buildMode: jobType, scenario: { opportunityId: jobType, scenarioName: jobType, scenarioChoices: [], treeVersionId: 0, planId: 0, lotId: 0, handing: null, viewedDecisionPoints: [], scenarioInfo: null, scenarioOptions: [] }, enabledPointFilters: [], selectedPointFilter: DecisionPointFilterType.FULL };
 			}
 
 			if (action.type === CommonActionTypes.ScenarioLoaded)
@@ -192,7 +195,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 					scenario.treeVersionId = action.tree ? action.tree.treeVersion.id : null;
 				}
 
-				newState = { ...newState, scenario: scenario };
+				newState = { ...newState, scenario: scenario, timeOfSaleOptionPrices: action.job.timeOfSaleOptionPrices };
 			}
 
 			if (newState.options && action.optionImages)
@@ -295,6 +298,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 			newTree = _.cloneDeep(state.tree);
 			rules = _.cloneDeep(state.rules);
 			options = _.cloneDeep(state.options);
+			timeOfSaleOptionPrices = _.cloneDeep(state.timeOfSaleOptionPrices);
 			subGroups = _.flatMap(newTree.treeVersion.groups, g => g.subGroups);
 			points = _.flatMap(subGroups, sg => sg.points);
 			choices = _.flatMap(points, p => p.choices);
@@ -373,7 +377,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 				choices.forEach(ch => (ch.id !== choice.choiceId && ch.treePointId === pointId) ? ch.overrideNote = null : null);
 			}
 
-			applyRules(newTree, rules, options, state.scenario.lotId);
+			applyRules(newTree, rules, options, state.scenario.lotId, timeOfSaleOptionPrices);
 
 			// check selected attributes to make sure they're still valid after applying rules
 			checkSelectedAttributes(choices);
@@ -385,7 +389,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 			return { ...state, tree: newTree, rules: rules, options: options, isUnsaved: true, pointHasChanges: true };
 
 		case ScenarioActionTypes.CreateScenario:
-			return { ...state, scenario: { opportunityId: action.opportunityId, scenarioName: action.scenarioName, scenarioChoices: [], treeVersionId: 0, planId: 0, lotId: 0, handing: null, viewedDecisionPoints: [], scenarioInfo: null }, enabledPointFilters: [], selectedPointFilter: DecisionPointFilterType.FULL };
+			return { ...state, scenario: { opportunityId: action.opportunityId, scenarioName: action.scenarioName, scenarioChoices: [], treeVersionId: 0, planId: 0, lotId: 0, handing: null, viewedDecisionPoints: [], scenarioInfo: null, scenarioOptions: [] }, enabledPointFilters: [], selectedPointFilter: DecisionPointFilterType.FULL };
 		case ScenarioActionTypes.SetScenarioPlan:
 			return { ...state, scenario: { ...state.scenario, treeVersionId: action.treeVersionId, planId: action.planId } };
 		case ScenarioActionTypes.SetScenarioLot:
@@ -453,7 +457,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 		case ScenarioActionTypes.MonotonyAdvisementShown:
 			return { ...state, monotonyAdvisementShown: state.monotonyAdvisementShown };
 		case ScenarioActionTypes.SetBuildMode:
-			return { ...state, buildMode: action.buildMode, scenario: { opportunityId: action.buildMode, scenarioName: action.buildMode, scenarioChoices: [], treeVersionId: 0, planId: 0, lotId: 0, handing: null, viewedDecisionPoints: [], scenarioInfo: null }, enabledPointFilters: [], selectedPointFilter: DecisionPointFilterType.FULL };
+			return { ...state, buildMode: action.buildMode, scenario: { opportunityId: action.buildMode, scenarioName: action.buildMode, scenarioChoices: [], treeVersionId: 0, planId: 0, lotId: 0, handing: null, viewedDecisionPoints: [], scenarioInfo: null, scenarioOptions: [] }, enabledPointFilters: [], selectedPointFilter: DecisionPointFilterType.FULL };
 		case ScenarioActionTypes.SetFinancialCommunityFilter:
 			return { ...state, financialCommunityFilter: action.financialCommunityId };
 		case ScenarioActionTypes.SetTreeFilter:

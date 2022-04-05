@@ -29,7 +29,7 @@ export const environment: IEnvironment = {
 		pulte: 'https://phd.pulte.com/designpreview/',
 		delWebb: 'https://phd.delwebb.com/designpreview/',
 		americanWest: 'https://phd.americanwesthomes.com/designpreview/',
-		diVosta: 'https://phd.pulte.com/designpreview/',// CHANGE TO DIVOSTA WHEN READY
+		diVosta: 'https://phd.divosta.com/designpreview/',
 		centex: 'https://phd.pulte.com/designpreview/',// CHANGE TO CENTEX WHEN READY
 		johnWieland: 'https://phd.pulte.com/designpreview/',// CHANGE TO JOHN-WIELAND WHEN READY
 	},

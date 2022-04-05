@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { select, Store } from '@ngrx/store';
-import { PointStatus, UnsubscribeOnDestroy } from 'phd-common';
-import { ColorItem, IOptionCategory, IOptionSubCategory, LitePlanOptionUI, ScenarioOption, ScenarioOptionColorDto } from '../../../shared/models/lite.model';
+import { ModalService, PointStatus, UnsubscribeOnDestroy, ScenarioOption } from 'phd-common';
+import { ColorItem, IOptionCategory, IOptionSubCategory, LitePlanOptionUI, ScenarioOptionColorDto } from '../../../shared/models/lite.model';
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 import * as LiteActions from '../../../ngrx-store/lite/actions';
@@ -10,6 +10,7 @@ import { combineLatest } from 'rxjs';
 import * as fromLite from '../../../ngrx-store/lite/reducer';
 import * as NavActions from '../../../ngrx-store/nav/actions';
 import { take } from 'rxjs/operators';
+import { ModalOverrideSaveComponent } from '../../../core/components/modal-override-save/modal-override-save.component';
 
 @Component({
   selector: 'colors',
@@ -25,9 +26,12 @@ export class ColorsComponent extends UnsubscribeOnDestroy implements OnInit {
 	allOptions: LitePlanOptionUI[];
 	categories: IOptionCategory[] = [];
 	cannotEditAgreement: boolean;
+	canOverride: boolean;
+	overrideReason: string;
 
   constructor(
 	private store: Store<fromRoot.State>,
+	private modalService: ModalService
 	) { super(); }
 
 
@@ -67,6 +71,22 @@ export class ColorsComponent extends UnsubscribeOnDestroy implements OnInit {
 			{
 				this.categories = _.cloneDeep(categories);
 			});
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromRoot.canOverride)
+		).subscribe(canOverride =>
+		{
+			this.canOverride = canOverride;
+		});
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(state => state.lite)
+		).subscribe(lite =>
+		{
+			this.overrideReason = lite.elevationOverrideNote || lite.colorSchemeOverrideNote;
+		});
 
 		combineLatest([
 			this.store.select(state => state.nav),
@@ -207,7 +227,17 @@ export class ColorsComponent extends UnsubscribeOnDestroy implements OnInit {
 		}
 	}
 
-	onColorWasSelected(option: LitePlanOptionUI, item: ColorItem)
+	async onColorWasClicked(event: Event, option: LitePlanOptionUI)
+	{
+		event.preventDefault();
+
+		if (option.isPastCutOff && !this.overrideReason)
+		{
+			await this.onOverride(option) === false;
+		}
+	}
+
+	onColorWasChanged(option: LitePlanOptionUI, item: ColorItem)
 	{
 		const previousSelectedOption = this.scenarioOptions.find(x => x.edhPlanOptionId === option.id);
 
@@ -251,5 +281,25 @@ export class ColorsComponent extends UnsubscribeOnDestroy implements OnInit {
 		{
 			this.store.dispatch(new LiteActions.SelectOptionColors(colorsToSave));
 		}
+	}
+
+	async onOverride(option: LitePlanOptionUI): Promise<boolean>
+	{
+		const confirm = this.modalService.open(ModalOverrideSaveComponent);
+		confirm.componentInstance.title = 'Warning';
+		confirm.componentInstance.body = `This will override the Cut-off`;
+		confirm.componentInstance.defaultOption = 'Cancel';
+
+		return confirm.result.then((result) =>
+		{
+			const overrideReasonWasProvided = result !== 'Close';
+
+			if (overrideReasonWasProvided)
+			{
+				this.store.dispatch(new LiteActions.SetLiteOverrideReason(result, false));
+			}
+
+			return overrideReasonWasProvided;
+		});
 	}
 }

@@ -379,6 +379,22 @@ export const financialCommunityName = createSelector(
 	}
 )
 
+export const financialCommunityId = createSelector(
+	fromOrg.selectOrg,
+	fromJob.jobState,
+	fromScenario.selectScenario,
+	(org, job, scenario) => {
+		let communityId = 0;
+		if (org && org.salesCommunity && org.salesCommunity.financialCommunities && org.salesCommunity.financialCommunities.length) {
+			const financialCommunity = org.salesCommunity.financialCommunities.find(x => x.id === (job?.financialCommunityId || scenario?.tree?.financialCommunityId));
+			if (financialCommunity) {
+				communityId = financialCommunity.id;
+			}
+		}
+		return communityId;
+	}
+)
+
 export const elevationImageUrl = createSelector(
 	fromScenario.selectScenario,
 	fromScenario.elevationDP,
@@ -437,3 +453,10 @@ export const favoriteTitle = createSelector(
 		}
 	}
 );
+
+export const isBuyerMode = createSelector(
+	fromScenario.selectScenario,
+	(scenario) => {
+		return scenario.buildMode === 'buyer';
+	}
+)

@@ -17,12 +17,14 @@ import { SharedModule } from '../shared/shared.module';
 import { ConfirmNavigationGuard } from '../core/guards/confirm-navigation.guard';
 
 import { IsFilteredPipe } from './pipes/is-filtered.pipe';
+import { LiteSummaryGuard } from '../lite/guards/lite-summary.guard';
 
 const moduleRoutes: Routes = [
 	{
 		path: 'scenario-summary',
 		component: ScenarioSummaryComponent,
-		canDeactivate: [ConfirmNavigationGuard]
+		canDeactivate: [ConfirmNavigationGuard],
+		canActivate: [LiteSummaryGuard]
 	},
 	{
 		path: 'scenario-summary/:jobId',

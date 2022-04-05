@@ -21,6 +21,7 @@ import { HomeModule } from './modules/home/home.module';
 import { FavoritesModule } from './modules/favorites/favorites.module';
 import { AuthService } from './modules/core/services/auth.service';
 import { AuthConfigSelector } from './modules/shared/classes/auth-config-selector.class';
+import { BrandService } from './modules/core/services/brand.service';
 
 const appRoutes: Routes = [
     { path: 'home', component: HomeModule },
@@ -74,7 +75,7 @@ const tryInitAuth = (authService: AuthService, identityService: IdentityService)
     providers: [
 		{ provide: APP_INITIALIZER, useFactory: tryInitAuth, deps: [AuthService, IdentityService], multi: true },
 		{ provide: APP_BASE_HREF, useFactory: getBaseHref, deps: [PlatformLocation] },
-		{ provide: AUTH_CONFIG, useClass: AuthConfigSelector, deps: [AuthService] },
+		{ provide: AUTH_CONFIG, useClass: AuthConfigSelector, deps: [AuthService, BrandService] },
         { provide: APP_INSIGHTS_CONFIG, useValue: environment.appInsights },
         { provide: TELEMETRY_INIT, useValue: setClientApp("Design Preview")},
     ],

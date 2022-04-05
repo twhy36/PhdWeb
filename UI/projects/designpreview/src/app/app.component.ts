@@ -44,6 +44,7 @@ export class AppComponent {
 	}
 
 	ngOnInit() {
+		window['appEventData'] = [];
 		this.setAdobeAnalytics();
 	}
 

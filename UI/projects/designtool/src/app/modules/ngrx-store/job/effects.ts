@@ -5,9 +5,9 @@ import { switchMap, withLatestFrom, exhaustMap, map, take, scan, skipWhile } fro
 import { NEVER, Observable, of, from, forkJoin } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
 
-import { ESignEnvelope, ESignStatusEnum, ESignTypeEnum, Job } from 'phd-common';
+import { ESignEnvelope, ESignStatusEnum, ESignTypeEnum, Job, TimeOfSaleOptionPrice } from 'phd-common';
 
-import { JobActionTypes, CreateChangeOrderEnvelope, EnvelopeError, LoadSpecs, SpecsLoaded, LoadJobForJob, JobLoadedByJobId, LoadPulteInfo, PulteInfoLoaded, SavePulteInfo, PulteInfoSaved, JobPlanOptionsUpdated } from './actions';
+import { JobActionTypes, CreateChangeOrderEnvelope, EnvelopeError, LoadSpecs, SpecsLoaded, LoadJobForJob, JobLoadedByJobId, LoadPulteInfo, PulteInfoLoaded, SavePulteInfo, PulteInfoSaved, JobPlanOptionsUpdated, SaveReplaceOptionPrice, ReplaceOptionPriceSaved, DeleteReplaceOptionPrice, ReplaceOptionPriceDeleted, SaveError, UpdateReplaceOptionPrice, ReplaceOptionPriceUpdated } from './actions';
 import { ContractService } from '../../core/services/contract.service';
 import { ChangeOrderService } from '../../core/services/change-order.service';
 
@@ -18,6 +18,7 @@ import * as _ from "lodash";
 import { JobService } from '../../core/services/job.service';
 import { LoadError, LoadSpec, ChangeOrderEnvelopeCreated, SalesAgreementLoaded, ScenarioLoaded, CommonActionTypes, JobLoaded } from '../actions';
 import { SetPermissions, UserActionTypes } from '../user/actions';
+import { SnapShotData } from '../../shared/models/envelope-info.model';
 
 @Injectable()
 export class JobEffects
@@ -60,13 +61,29 @@ export class JobEffects
 						changeOrder: action.changeOrder, envelopeInfo: action.changeOrder.envelopeInfo, jobId: store.job.id, changeOrderGroupId: action.changeOrder.changeOrderGroupId,
 						envelopId: envelopeId, constructionChangeOrderSelectionsDto: action.changeOrder.constructionChangeOrderSelections,
 						salesChangeOrderSelections: action.changeOrder.salesChangeOrderSelections, planChangeOrderSelectionsDto: action.changeOrder.planChangeOrderSelections, nonStandardOptionSelectionsDto: action.changeOrder.nonStandardChangeOrderSelections,
-						lotTransferSeletionsDto: action.changeOrder.lotTransferChangeOrderSelections, changeOrderInformation: action.changeOrder.changeOrderInformation
+						lotTransferSeletionsDto: action.changeOrder.lotTransferChangeOrderSelections, changeOrderInformation: action.changeOrder.changeOrderInformation, idPhdLite: store.lite.isPhdLite
 					};
 				}),
 				exhaustMap((data) => {
+					const snapShotData: SnapShotData = {
+						jioSelections: data.jioSelections,
+						templates: data.templates,
+						financialCommunityId: data.financialCommunityId,
+						salesAgreementNumber: data.salesAgreement.salesAgreementNumber,
+						salesAgreementStatus: data.salesAgreement.status,
+						envelopeInfo: data.envelopeInfo,
+						jobId: data.jobId,
+						changeOrderGroupId: data.changeOrderGroupId,
+						constructionChangeOrderSelections: data.constructionChangeOrderSelectionsDto,
+						changeOrderInformation: data.changeOrderInformation,
+						salesChangeOrderSelections: data.salesChangeOrderSelections,
+						planChangeOrderSelections: data.planChangeOrderSelectionsDto,
+						nonStandardChangeOrderSelections: data.nonStandardOptionSelectionsDto,
+						lotTransferChangeOrderSelections: data.lotTransferSeletionsDto
+					};
 					return this.contractService.saveSnapshot(data.changeOrder, data.jobId, data.changeOrderGroupId).pipe(
 						switchMap(() =>
-							this.contractService.createEnvelope(data.jioSelections, data.templates, data.financialCommunityId, data.salesAgreement.salesAgreementNumber, data.salesAgreement.status, data.envelopeInfo, data.jobId, data.changeOrderGroupId, data.constructionChangeOrderSelectionsDto, data.salesChangeOrderSelections, data.planChangeOrderSelectionsDto, data.nonStandardOptionSelectionsDto, data.lotTransferSeletionsDto, data.changeOrderInformation)),
+							this.contractService.createEnvelope(snapShotData, null, data.idPhdLite)),
 						map(envelopeId => {
 							return { envelopeId, changeOrder: data.changeOrder };
 						}
@@ -205,4 +222,76 @@ export class JobEffects
 			map(jobPlanOptions => new JobPlanOptionsUpdated(jobPlanOptions))
 		)
 	);
+
+	saveReplaceOptionPrices$: Observable<Action> = createEffect(() =>
+	{
+		return this.actions$.pipe(
+			ofType<SaveReplaceOptionPrice>(JobActionTypes.SaveReplaceOptionPrice),
+			withLatestFrom(this.store),
+			tryCatch(source => source.pipe(
+				switchMap(([action, store]) =>
+				{
+					const timeOfSaleOptionPrices = (action as SaveReplaceOptionPrice).timeOfSaleOptionPrices;
+
+					if (timeOfSaleOptionPrices && timeOfSaleOptionPrices.length)
+					{
+						return this.jobService.saveTimeOfSaleOptionPrices(timeOfSaleOptionPrices);
+					}
+					else
+					{
+						return of([]);
+					}
+				}),
+				map(resp => new ReplaceOptionPriceSaved())
+			), SaveError, 'Error saving replaced option prices!!')
+		);
+	});
+
+	deleteReplaceOptionPrices$: Observable<Action> = createEffect(() =>
+	{
+		return this.actions$.pipe(
+			ofType<DeleteReplaceOptionPrice>(JobActionTypes.DeleteReplaceOptionPrice),
+			withLatestFrom(this.store),
+			tryCatch(source => source.pipe(
+				switchMap(([action, store]) =>
+				{
+					const timeOfSaleOptionPrices = (action as DeleteReplaceOptionPrice).timeOfSaleOptionPrices;
+
+					if (timeOfSaleOptionPrices && timeOfSaleOptionPrices.length)
+					{
+						return this.jobService.deleteTimeOfSaleOptionPrices(timeOfSaleOptionPrices);
+					}
+					else
+					{
+						return of([] as TimeOfSaleOptionPrice[]);
+					}
+				}),
+				map(timeOfSaleOptionPrices => new ReplaceOptionPriceDeleted(timeOfSaleOptionPrices))
+			), SaveError, 'Error deleting replaced option prices!!')
+		);
+	});
+
+	updateReplaceOptionPrices$: Observable<Action> = createEffect(() =>
+	{
+		return this.actions$.pipe(
+			ofType<UpdateReplaceOptionPrice>(JobActionTypes.UpdateReplaceOptionPrice),
+			withLatestFrom(this.store),
+			tryCatch(source => source.pipe(
+				switchMap(([action, store]) =>
+				{
+					const timeOfSaleOptionPrices = (action as UpdateReplaceOptionPrice).timeOfSaleOptionPrices;
+
+					if (timeOfSaleOptionPrices && timeOfSaleOptionPrices.length)
+					{
+						return this.jobService.updateTimeOfSaleOptionPrices(timeOfSaleOptionPrices);
+					}
+					else
+					{
+						return of([] as TimeOfSaleOptionPrice[]);
+					}
+				}),
+				map(timeOfSaleOptionPrices => new ReplaceOptionPriceUpdated(timeOfSaleOptionPrices))
+			), SaveError, 'Error updating replaced option prices!!')
+		);
+	});
 }

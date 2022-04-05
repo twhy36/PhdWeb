@@ -28,7 +28,7 @@ import * as fromLot from '../lot/reducer';
 import * as fromScenario from '../scenario/reducer';
 import * as fromChangeOrder from '../change-order/reducer';
 import * as _ from 'lodash';
-import { EnvelopeInfo } from '../../shared/models/envelope-info.model';
+import { EnvelopeInfo, SnapShotData } from '../../shared/models/envelope-info.model';
 
 @Injectable()
 export class ContractEffects
@@ -103,13 +103,30 @@ export class ContractEffects
 					return lockedSnapshot.pipe(
 						map(lockedSnapshot =>
 						{
-							return { lockedSnapshot, jioSelections: currentSnapshot.jioSelections, templates: currentSnapshot.templates, financialCommunityId: currentSnapshot.financialCommunityId, salesAgreement: store.salesAgreement, changeOrder: changeOrderData, envelopeInfo: currentSnapshot.envelopeInfo, isPreview: isPreview, jobId: store.job.id, changeOrderGroupId: activeChangeOrderGroup.id, envelopeId: activeChangeOrderGroup.envelopeId, currentSnapshot: currentSnapshot };
+							return { lockedSnapshot, jioSelections: currentSnapshot.jioSelections, templates: currentSnapshot.templates, financialCommunityId: currentSnapshot.financialCommunityId, salesAgreement: store.salesAgreement, changeOrder: changeOrderData, envelopeInfo: currentSnapshot.envelopeInfo, isPreview: isPreview, jobId: store.job.id, changeOrderGroupId: activeChangeOrderGroup.id, envelopeId: activeChangeOrderGroup.envelopeId, currentSnapshot: currentSnapshot, isPhdLite: store.lite.isPhdLite };
 						}),
 						take(1)
 					);
 				}),
 				exhaustMap(data =>
 				{
+					const snapShotData: SnapShotData = {
+						jioSelections: data.jioSelections,
+						templates: data.templates,
+						financialCommunityId: data.financialCommunityId,
+						salesAgreementNumber: data.salesAgreement.salesAgreementNumber,
+						salesAgreementStatus: data.salesAgreement.status,
+						envelopeInfo: data.envelopeInfo,
+						jobId: data.jobId,
+						changeOrderGroupId: data.changeOrderGroupId,
+						constructionChangeOrderSelections: data.currentSnapshot.constructionChangeOrderSelections,
+						changeOrderInformation: data.currentSnapshot.changeOrderInformation,
+						salesChangeOrderSelections: null,
+						planChangeOrderSelections: null,
+						nonStandardChangeOrderSelections: null,
+						lotTransferChangeOrderSelections: null
+					};
+
 					if (data.lockedSnapshot)
 					{
 						delete (data.lockedSnapshot['@odata.context']);
@@ -124,7 +141,7 @@ export class ContractEffects
 						if (data.isPreview)
 						{
 							// Don't save snapshot for previews - ESign Addenda
-							return this.contractService.createEnvelope(data.jioSelections, data.templates, data.financialCommunityId, data.salesAgreement.salesAgreementNumber, data.salesAgreement.status, data.envelopeInfo, data.jobId, data.changeOrderGroupId, data.currentSnapshot.constructionChangeOrderSelections, null, null, null, null, data.currentSnapshot.changeOrderInformation, data.isPreview).pipe(
+							return this.contractService.createEnvelope(snapShotData, data.isPreview, data.isPhdLite).pipe(
 								map(envelopeId =>
 								{
 									return { envelopeId, changeOrder: data.changeOrder, isPreview: data.isPreview };
@@ -133,7 +150,7 @@ export class ContractEffects
 						}
 						return this.contractService.saveSnapshot(data.currentSnapshot, data.jobId, data.changeOrderGroupId).pipe(
 							switchMap(() =>
-								this.contractService.createEnvelope(data.jioSelections, data.templates, data.financialCommunityId, data.salesAgreement.salesAgreementNumber, data.salesAgreement.status, data.envelopeInfo, data.jobId, data.changeOrderGroupId, data.currentSnapshot.constructionChangeOrderSelections, null, null, null, null, data.currentSnapshot.changeOrderInformation, data.isPreview)),
+								this.contractService.createEnvelope(snapShotData, data.isPreview, data.isPhdLite)),
 							map(envelopeId =>
 							{
 								return { envelopeId, changeOrder: data.changeOrder, isPreview: data.isPreview };
@@ -334,7 +351,7 @@ export class ContractEffects
 							return { templateId: t.templateId, displayOrder: templates.indexOf(t) + 1, documentName: t.documentName, templateTypeId: t.templateTypeId };
 						});
 
-						return { jioSelections, mappedTemplates, financialCommunityId, salesAgreement: store.salesAgreement, envelopeInfo, jobId: store.job.id, changeOrderGroupId };
+						return { jioSelections, mappedTemplates, financialCommunityId, salesAgreement: store.salesAgreement, envelopeInfo, jobId: store.job.id, changeOrderGroupId, isPhdLite: store.lite.isPhdLite };
 					}
 					else
 					{
@@ -343,7 +360,23 @@ export class ContractEffects
 				}),
 				exhaustMap(data =>
 				{
-					return this.contractService.createEnvelope(data.jioSelections, data.mappedTemplates, data.financialCommunityId, data.salesAgreement.salesAgreementNumber, data.salesAgreement.status, data.envelopeInfo, data.jobId, data.changeOrderGroupId);
+					const snapShotData: SnapShotData = {
+						jioSelections: data.jioSelections,
+						templates: data.mappedTemplates,
+						financialCommunityId: data.financialCommunityId,
+						salesAgreementNumber: data.salesAgreement.salesAgreementNumber,
+						salesAgreementStatus: data.salesAgreement.status,
+						envelopeInfo: data.envelopeInfo,
+						jobId: data.jobId,
+						changeOrderGroupId: data.changeOrderGroupId,
+						constructionChangeOrderSelections: null,
+						changeOrderInformation: null,
+						salesChangeOrderSelections: null,
+						planChangeOrderSelections: null,
+						nonStandardChangeOrderSelections: null,
+						lotTransferChangeOrderSelections: null
+					};
+					return this.contractService.createEnvelope(snapShotData, null, data.isPhdLite);
 				}),
 				switchMap(envelopeId =>
 				{
