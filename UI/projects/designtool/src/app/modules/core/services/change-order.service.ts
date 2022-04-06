@@ -1768,6 +1768,13 @@ export class ChangeOrderService
 			{
 				jobChangeOrderPlanOptions = [...jobChangeOrderPlanOptions, ...elevationChangeOrder.jobChangeOrderPlanOptions];
 			}
+
+			const planChangeOrder = changeOrderGroup.jobChangeOrders.find(x => x.jobChangeOrderTypeDescription === 'Plan');
+
+			if (planChangeOrder)
+			{
+				jobChangeOrderPlanOptions = [...jobChangeOrderPlanOptions, ...planChangeOrder.jobChangeOrderPlanOptions];
+			}
 		}
 
 		return jobChangeOrderPlanOptions;
