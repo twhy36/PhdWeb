@@ -49,6 +49,9 @@
 					<div *ngIf="option.isPastCutOff && canOverride" class="phd-past-cut-off">
 						<i class="fas fa-info-circle fa-sm"></i> Past Cut-Off
 					</div>
+					<div *ngIf="!option.isActive && !option.isSelected" class="phd-past-cut-off">
+						<i class="fas fa-info-circle fa-sm"></i> Disabled
+					</div>
 					<hr class="phd-row-divider"/>
 				</div>
 		</ng-container>

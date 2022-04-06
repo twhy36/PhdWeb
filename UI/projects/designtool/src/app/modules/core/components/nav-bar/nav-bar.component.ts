@@ -23,7 +23,7 @@ import { ConfirmModalComponent } from '../../../core/components/confirm-modal/co
 import { environment } from '../../../../../environments/environment';
 
 import * as fromLite from '../../../ngrx-store/lite/reducer';
-import { ExteriorSubNavItems, LiteSubMenu, Elevation, IOptionCategory, IOptionSubCategory, LitePlanOption } from '../../../shared/models/lite.model';
+import { ExteriorSubNavItems, LiteSubMenu } from '../../../shared/models/lite.model';
 import { SubNavItems, PhdSubMenu } from '../../../new-home/subNavItems';
 @Component({
 	selector: 'nav-bar',
@@ -67,9 +67,6 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 	newHomeStatus: PointStatus;
 	isPhdLite$: Observable<boolean>;
 	exteriorStatus: PointStatus;
-	categories: IOptionCategory[] = [];
-	subcategories: IOptionSubCategory[] = [];
-	allOptions: LitePlanOption[];
 	financialBrand: FinancialBrand;
 
 
@@ -243,18 +240,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 			}
 		});
 
-		this.store.pipe(
-			this.takeUntilDestroyed(),
-			select(fromLite.selectedOptionCategories)).subscribe(categories =>
-			{
-				this.categories = categories;
-			});
 
-		this.store
-		.pipe(
-			this.takeUntilDestroyed(),
-			select(state => state.lite.options))
-		.subscribe(options => this.allOptions = options );
 	}
 
 	navigate(path: any[], group?: Group)
@@ -488,26 +474,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 
 	onOptionsNavPath()
 	{
-		const options = this.allOptions.filter(x => x.isActive
-											&& !x.isBaseHouse
-											&& !x.isBaseHouseElevation
-											&& x.optionSubCategoryId !== Elevation.Attached
-											&& x.optionSubCategoryId !== Elevation.Detached);
 
-		//group scenario.options by their categories and then map over each category group
-		const groups = _.groupBy(options, o => o.optionCategoryId);
-		const subMenuitems = Object.keys(groups).map(key => {
-			const categoryName = this.categories.find(c => c.id.toString() === key).name;
-
-			return {
-				label: categoryName,
-				status: PointStatus.UNVIEWED,
-				id: Number.parseInt(key)
-			}
-		});
-
-		this.store.dispatch(new NavActions.SetSubNavItems(subMenuitems));
-		this.store.dispatch(new NavActions.SetSelectedSubNavItem(1));
 		this.router.navigate(['/lite/options']);
 	}
 
