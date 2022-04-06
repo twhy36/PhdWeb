@@ -1,12 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { select, Store } from '@ngrx/store';
 import { combineLatest } from 'rxjs';
+import { take } from 'rxjs/operators';
 import * as _ from "lodash";
 
-import { UnsubscribeOnDestroy, ModalService, ScenarioOption } from 'phd-common';
+import { UnsubscribeOnDestroy, ModalService, ScenarioOption, PointStatus } from 'phd-common';
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 import * as LiteActions from '../../../ngrx-store/lite/actions';
+import * as fromLite from '../../../ngrx-store/lite/reducer';
+import * as NavActions from '../../../ngrx-store/nav/actions';
 
 import { Elevation, IOptionCategory, LitePlanOptionUI, LitePlanOption, OptionRelationEnum } from '../../../shared/models/lite.model';
 import { ConfirmOptionRelationComponent } from '../confirm-option-relation/confirm-option-relation.component';
@@ -68,6 +71,29 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 		});
 
 		combineLatest([
+			this.store.select(state => state.lite.options),
+			this.store.pipe(select(fromLite.selectedOptionCategories))
+		]).pipe(
+			take(1)
+		).subscribe(([options, categories]) =>
+		{
+			const groups = _.groupBy(this.filteredOptions(options), o => o.optionCategoryId);
+			const subMenuitems = Object.keys(groups).map(key =>
+			{
+				const categoryName = categories.find(c => c.id.toString() === key).name;
+	
+				return {
+					label: categoryName,
+					status: PointStatus.UNVIEWED,
+					id: Number.parseInt(key)
+				};
+			});
+	
+			this.store.dispatch(new NavActions.SetSubNavItems(subMenuitems));
+			this.store.dispatch(new NavActions.SetSelectedSubNavItem(1));
+		});
+
+		combineLatest([
 			this.store.select(state => state.nav),
 			this.store.select(state => state.lite)
 		])
@@ -81,12 +107,7 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 
 			if (this.selectedCategory)
 			{
-				const allCategoryRelatedOptions = lite.options.filter(x => x.optionCategoryId === this.selectedCategory.id
-																		&& x.isActive
-																		&& !x.isBaseHouse
-																		&& !x.isBaseHouseElevation
-																		&& x.optionSubCategoryId !== Elevation.Attached
-																		&& x.optionSubCategoryId !== Elevation.Detached);
+				const allCategoryRelatedOptions = this.filteredOptions(this.options).filter(x => x.optionCategoryId === this.selectedCategory.id);
 
 				this.selectedCategory.optionSubCategories.forEach(subcategory => {
 					const subcategoryOptions = allCategoryRelatedOptions.filter(x => x.optionSubCategoryId === subcategory.id);
@@ -119,6 +140,13 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 
 			this.categorySubTotal = subtotal;
 		});
+	}
+
+	private filteredOptions(options: LitePlanOption[]) {
+		return options.filter(x => !x.isBaseHouse
+			&& !x.isBaseHouseElevation
+			&& x.optionSubCategoryId !== Elevation.Attached
+			&& x.optionSubCategoryId !== Elevation.Detached);
 	}
 
 	async onSelectedOptionWasToggled($event: any, option: LitePlanOptionUI)
@@ -330,6 +358,10 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 
 					return false;
 				});
+		}
+		else 
+		{
+			isReadonly = !option.isActive;
 		}
 
 		return isReadonly;

@@ -19,7 +19,7 @@
     <div class="phd-footer">
         <div class="phd-footer-btn-container" (click)="$event.stopPropagation()" *ngIf="showConfirmButton">
 			<div class="d-flex align-items-center phd-footer-btns">
-				<button class="btn phd-experience-btn-choice" [disabled]="cannotEditAgreement || inCutOffPhaseButCantOverride" [class.phd-option-disabled]="cannotEditAgreement || inCutOffPhaseButCantOverride" (click)="toggleSelection()">{{getButtonLabel()}}</button>
+				<button class="btn phd-experience-btn-choice" [disabled]="isReadonly || cannotEditAgreement || inCutOffPhaseButCantOverride" [class.phd-option-disabled]="cannotEditAgreement || inCutOffPhaseButCantOverride" (click)="toggleSelection()">{{getButtonLabel()}}</button>
 			</div>
         </div>
 
@@ -34,5 +34,8 @@
 		<div *ngIf="inCutOffPhaseAndCanOverride" class="phd-past-cut-off">
 			<i class="fas fa-info-circle fa-sm"></i> Past Cut-Off
 		</div>
+        <div *ngIf="!option.isActive" class="phd-past-cut-off">
+            <i class="fas fa-info-circle fa-sm"></i> Disabled
+        </div>
     </div>
 </div>

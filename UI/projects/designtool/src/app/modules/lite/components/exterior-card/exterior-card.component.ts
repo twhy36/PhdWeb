@@ -121,6 +121,11 @@ export class ExteriorCardComponent extends UnsubscribeOnDestroy implements OnIni
 		return this.option.isPastCutOff && this.canOverride;
 	}
 
+	get isReadonly(): boolean
+	{
+		return this.isSelected ? false : !this.option.isActive;
+	}
+
 	getName(): string
 	{
 		return this.color ? this.color.name : this.option.name;
