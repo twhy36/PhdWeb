@@ -103,15 +103,13 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 					this.store.pipe(select((state: fromRoot.State) => state.scenario && state.scenario.scenario && state.scenario.scenario.scenarioId)),
 					this.store.pipe(select((state: fromRoot.State) => state.salesAgreement && state.salesAgreement.isFloorplanFlipped)),
 					this.store.pipe(select((state: fromRoot.State) => state.scenario && state.scenario.scenario && state.scenario.scenario.scenarioInfo && state.scenario.scenario.scenarioInfo.isFloorplanFlipped)),
-					this.store.pipe(select(fromRoot.canEditAgreementOrSpec)),
 					this.store.pipe(select(state => state.job.id)),
 				)
-			).subscribe(([first, agreementId, scenarioId, isAgreementFlipped, isScenarioFlipped, canEditAgreement, jobId]) =>
+			).subscribe(([first, agreementId, scenarioId, isAgreementFlipped, isScenarioFlipped, jobId]) =>
 			{
 				this.jobId = jobId;
 				this.salesAgreementId = agreementId;
 				this.scenarioId = scenarioId;
-				this.canEditAgreement = canEditAgreement;
 
 				const isFlipped: boolean = (!!agreementId ? isAgreementFlipped : isScenarioFlipped) || false;
 
@@ -132,18 +130,14 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 					{
 						this.scenarioService.getFloorPlanImages(this.scenarioId).subscribe(p =>
 						{
-							this.fp.floors = p.map(floor => { return { name: floor.floorName, index: floor.floorIndex, svg: floor.svg } });
-
-							this.setStaticImage(1);
+							this.handleStaticImages(p);
 						});
 					}
 					else
 					{
 						this.jobService.getFloorPlanImages(this.jobId, false).subscribe(p =>
 						{
-							this.fp.floors = p.map(p => { return { name: p.floorName, index: p.floorIndex, svg: p.svg } });
-
-							this.setStaticImage(1);
+							this.handleStaticImages(p);
 						});
 					}
 				}
@@ -153,30 +147,38 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 		let wd: any = window;
 		wd.message = function (str) { };
 
-		if (this.canEditAgreement)
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromRoot.canEditAgreementOrSpec)
+		).subscribe(canEditAgreement =>
 		{
-			loadScript(this.jquerySrc).pipe(
-				flatMap(() => loadScript(this.avAPISrc))
-			).subscribe(() =>
+			this.canEditAgreement = canEditAgreement;
+
+			if (this.canEditAgreement)
 			{
-				try
+				loadScript(this.jquerySrc).pipe(
+					flatMap(() => loadScript(this.avAPISrc))
+				).subscribe(() =>
 				{
-					this.fp = wd.fp = new AVFloorplan(environment.alphavision.builderId, "" + this.planId, document.querySelector("#av-floor-plan"), [], this.fpInitialized.bind(this));
+					try
+					{
+						this.fp = wd.fp = new AVFloorplan(environment.alphavision.builderId, "" + this.planId, document.querySelector("#av-floor-plan"), [], this.fpInitialized.bind(this));
 
-					this.saveFloorPlanImages();
-				}
-				catch (err)
-				{
-					this.fp = { graphic: undefined };
+						this.saveFloorPlanImages();
+					}
+					catch (err)
+					{
+						this.fp = { graphic: undefined };
 
-					this.fpInitialized(null);
-				}
-			});
-		}
-		else
-		{
-			this.fpInitialized(null);
-		}
+						this.fpInitialized(null);
+					}
+				});
+			}
+			else
+			{
+				this.fpInitialized(null);
+			}
+		});
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
@@ -267,9 +269,8 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 		svgContainer.innerHTML = this.selectedFloor.svg;
 
-		this.renderer.setAttribute(svgContainer, 'width', '600');
-		this.renderer.setAttribute(svgContainer, 'height', '400');
-		this.renderer.appendChild(this.img.nativeElement, svgContainer);
+		// The div container causes magnification of the SVG, so append the pure SVG element instead
+		this.renderer.appendChild(this.img.nativeElement, svgContainer.firstChild);
 	}
 
 	onPointTypeFilterChanged(pointTypeFilter: DecisionPointFilterType)
@@ -536,10 +537,7 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 				this.selectedFloor = floor1;
 			}
 
-			this.fp.setRoomsColor("#080049");
-			this.fp.setOptionsColor("#48A5F1");
-			this.fp.addHomeFootPrint("#eaf1fc");
-
+			this.setFloorPlanColors();
 		}
 		else
 		{
@@ -555,5 +553,60 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 	hasAttributeOrLocationGroups(choice: Choice)
 	{
 		return (choice.mappedAttributeGroups && choice.mappedAttributeGroups.length > 0) || (choice.mappedLocationGroups && choice.mappedLocationGroups.length > 0);
+	}
+
+	/*
+	 * Callback function once the IFP has completed its data request.
+	 */
+	private staticFloorPlanInitialized(): void
+	{
+		this.setFloorPlanColors();
+
+		const svgs = this.fp.exportStaticSVG();
+
+		this.fp.floors.forEach((f, idx) =>
+		{
+			f.svg = svgs[idx].outerHTML;
+		});
+
+		this.setStaticImage(0);
+	}
+
+	/*
+	 * Maps static SVGs to each floor, or if no images are found, creates an IFP instance for further data retrieval.
+	 */
+	handleStaticImages(images: FloorPlanImage[])
+	{
+		if (this.fp && images.length)
+		{
+			this.fp.floors = images.map(img => { return { name: img.floorName, index: img.floorIndex, svg: img.svg }; });
+
+			this.setStaticImage(0);
+		}
+		else
+		{
+			loadScript(this.jquerySrc).pipe(
+				flatMap(() => loadScript(this.avAPISrc))
+			).subscribe(() =>
+			{
+				try
+				{
+					let wd: any = window;
+
+					this.fp = wd.fp = new AVFloorplan(environment.alphavision.builderId, "" + this.planId, document.querySelector("#av-floor-plan"), [], this.staticFloorPlanInitialized.bind(this));
+				}
+				catch (err)
+				{
+					this.fp = { graphic: undefined };
+				}
+			});
+		}
+	}
+
+	setFloorPlanColors()
+	{
+		this.fp.setRoomsColor("#080049");
+		this.fp.setOptionsColor("#48A5F1");
+		this.fp.addHomeFootPrint("#eaf1fc");
 	}
 }

@@ -87,7 +87,7 @@
 						<option *ngFor="let floor of fp.floors" [ngValue]="floor">{{ floor.name }}</option>
 					</select>
 				</div>
-				<div *ngIf="fpLoaded && !useDefaultFP">
+				<div *ngIf="fpLoaded && !useDefaultFP && canEditAgreement">
 					<div class="phd-switch-button btn btn-primary" (click)="swapHanding()" *ngIf="!flipping">
 						<i class="fas fa-exchange-alt"></i>
 					</div>
