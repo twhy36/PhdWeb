@@ -2,21 +2,24 @@ import { Injectable } from '@angular/core';
 
 import { combineLatest } from 'rxjs/operators';
 
+import * as _ from 'lodash';
+
 import { select, Store } from '@ngrx/store';
 
 import * as fromRoot from '../../ngrx-store/reducers';
 import * as fromPlan from '../../ngrx-store/plan/reducer';
 import * as fromSalesAgreement from '../../ngrx-store/sales-agreement/reducer';
 
-import { Choice, Group, JobChoice, MyFavorite, MyFavoritesChoice, Tree, UnsubscribeOnDestroy } from 'phd-common';
+import { Choice, Group, JobChoice, MyFavorite, MyFavoritesChoice, Tree, TreeVersion, UnsubscribeOnDestroy } from 'phd-common';
 
 import { BrandService } from './brand.service';
-import { PageLoadEvent } from '../../shared/models/adobe/page-load-event';
-import { environment } from '../../../../environments/environment';
-import { AdobeChoice, FavoriteEvent, FavoriteUpdateEvent } from '../../shared/models/adobe/favorite-event';
-import * as _ from 'lodash';
-import { Observable } from 'rxjs';
 import { FavoriteService } from './favorite.service';
+import { environment } from '../../../../environments/environment';
+
+import { PageLoadEvent } from '../../shared/models/adobe/page-load-event';
+import { SearchEvent } from '../../shared/models/adobe/search-event';
+import { AdobeChoice, FavoriteEvent, FavoriteUpdateEvent } from '../../shared/models/adobe/favorite-event';
+
 
 @Injectable()
 export class AdobeService extends UnsubscribeOnDestroy {
@@ -68,6 +71,17 @@ export class AdobeService extends UnsubscribeOnDestroy {
         });
     }
 
+    setSearchEvent(term: string, tree: TreeVersion) {
+        window['appEventData'] = window['appEventData'] || [];
+
+        if (term.length > 2) {
+            const choices = _.flatMap(tree.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices))) || [];
+            const searchEvent = new SearchEvent(term, choices.length);
+
+            window['appEventData'].push(searchEvent);
+        }
+    }
+    
     packageFavoriteEventData(postSaveFavoriteChoices: MyFavoritesChoice[], myFavorite: MyFavorite, tree: Tree, groups: Group[], salesChoices: JobChoice[]) {
         const favoriteChoices = (myFavorite ? myFavorite.myFavoritesChoice : []) || [];
         const updatedChoices = this.favoriteService.getMyFavoritesChoices(tree, salesChoices, favoriteChoices);	// Use this
