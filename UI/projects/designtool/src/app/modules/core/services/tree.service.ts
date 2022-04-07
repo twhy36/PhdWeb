@@ -102,6 +102,7 @@ export class TreeService
 						if (point)
 						{
 							point.cutOffDays = x.cutOffDays;
+							point.edhConstructionStageId = x.edhConstructionStageId;
 						}
 					});
 				}
