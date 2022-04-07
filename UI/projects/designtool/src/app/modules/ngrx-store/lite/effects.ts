@@ -8,19 +8,20 @@ import { ChangeOrderHanding, ScenarioOption } from 'phd-common';
 
 import { LiteService } from '../../core/services/lite.service';
 import { ChangeOrderService } from '../../core/services/change-order.service';
+import { PlanService } from '../../core/services/plan.service';
 
 import { DeselectPlan, PlanActionTypes, PlansLoaded, SelectPlan } from '../plan/actions';
 import { ScenarioActionTypes, ScenarioSaved } from '../scenario/actions';
 import {
 	LiteActionTypes, SetIsPhdLite, LiteOptionsLoaded, SaveScenarioOptions, ScenarioOptionsSaved, SaveScenarioOptionColors, OptionCategoriesLoaded, SelectOptions,
-	LoadLiteMonotonyRules, LiteMonotonyRulesLoaded, CancelJobChangeOrderLite, SelectOptionColors
+	LoadLiteMonotonyRules, LiteMonotonyRulesLoaded, CancelJobChangeOrderLite, SelectOptionColors, LoadLitePlan, CancelPlanChangeOrderLite
 } from './actions';
 import { CommonActionTypes, ScenarioLoaded, LoadSalesAgreement, SalesAgreementLoaded, LoadError } from '../actions';
 import * as fromRoot from '../reducers';
 import * as _ from 'lodash';
 import { IOptionCategory } from '../../shared/models/lite.model';
 import { tryCatch } from '../error.action';
-import { SavePendingJio, CreateJobChangeOrders, CreatePlanChangeOrder, SaveChangeOrderScenario, CurrentChangeOrderLoaded, SetChangingOrder } from '../change-order/actions';
+import { SavePendingJio, CreateJobChangeOrders, CreatePlanChangeOrder, SaveChangeOrderScenario, CurrentChangeOrderLoaded, SetChangingOrder, SetCurrentChangeOrder } from '../change-order/actions';
 import { LotsLoaded, LotActionTypes } from '../lot/actions';
 import { canDesign } from '../reducers';
 
@@ -495,10 +496,141 @@ export class LiteEffects
 		);
 	});
 
+	loadLitePlan$: Observable<Action> = createEffect(() => {
+		return this.actions$.pipe(
+			ofType<LoadLitePlan>(LiteActionTypes.LoadLitePlan),
+			withLatestFrom(this.store),
+			tryCatch(source => source.pipe(
+				switchMap(([action, store]) => {
+					return this.liteService.getLitePlanOptions(action.planId).pipe(
+						map(options => {
+							this.liteService.setOptionsIsPastCutOff(options, store.job);
+							return options;
+						})
+					);
+				}),
+				switchMap(options => {
+					const optionIds = options.map(o => o.id);
+					const optionCommunityIds = _.uniq(options.map(o => o.optionCommunityId));
+
+					return combineLatest([
+						this.liteService.getColorItems(optionIds),
+						this.liteService.getOptionRelations(optionCommunityIds)
+					]).pipe(
+						map(([colorItems, optionRelations]) => {
+							colorItems.forEach(colorItem => {
+								let option = options.find(option => option.id === colorItem.edhPlanOptionId);
+								if (option)
+								{
+									option.colorItems.push(colorItem);
+								}
+							});
+
+							this.liteService.applyOptionRelations(options, optionRelations);
+
+							return options;
+						})
+					);
+				}),
+				switchMap(options => of(new LiteOptionsLoaded(options, [])))
+			), LoadError, "Error loading lite plan!")
+		);
+	});
+
+	cancelPlanChangeOrderLite$: Observable<Action> = createEffect(() => {
+		return this.actions$.pipe(
+			ofType<CancelPlanChangeOrderLite>(LiteActionTypes.CancelPlanChangeOrderLite),
+			withLatestFrom(this.store),
+			switchMap(([action, store]) => {
+				const currentChangeOrder = this.changeOrderService.getCurrentChangeOrder(store.job.changeOrderGroups);
+				const selectedHanding = this.changeOrderService.getSelectedHanding(store.job);
+				const selectedPlanId = this.changeOrderService.getSelectedPlan(store.job);
+
+				let actions: any[] = [
+					new SetChangingOrder(false, null, true),
+					new CurrentChangeOrderLoaded(currentChangeOrder, selectedHanding)
+				];
+
+				if (selectedPlanId === store.plan.selectedPlan)
+				{
+					// Restore option selection from the job and the change order
+					if (currentChangeOrder) {
+						const selectedOptions = this.liteService.getSelectedOptions(store.lite.options, store.job, currentChangeOrder);
+						const deselectedOptions = store.lite.scenarioOptions
+							.filter(option => !selectedOptions.some(opt => opt.edhPlanOptionId === option.edhPlanOptionId))
+							.map(opt => {
+								return { ...opt, planOptionQuantity : 0 };
+							});
+		
+						actions.push(new SelectOptions([...selectedOptions, ...deselectedOptions]));
+					}
+
+					return from(actions); 
+				}
+
+				// Reload options if plan has changed
+				return combineLatest([
+					this.liteService.getLitePlanOptions(selectedPlanId),
+					this.planService.getWebPlanMappingByPlanId(selectedPlanId)
+				]).pipe(
+					switchMap(([options, mappings]) => {
+						this.liteService.setOptionsIsPastCutOff(options, store.job);
+
+						// Option price
+						if (store.salesAgreement.status === 'Approved')
+						{
+							// Price locked in job
+							store.job.jobPlanOptions?.forEach(jobPlanOption => {
+								let option = options.find(option => option.id === jobPlanOption.planOptionId);
+								if (option && option.listPrice !== jobPlanOption.listPrice)
+								{
+									option.listPrice = jobPlanOption.listPrice;
+								}
+							});
+						}
+
+						const optionIds = options.map(o => o.id);
+						const optionCommunityIds = _.uniq(options.map(o => o.optionCommunityId));
+
+						return combineLatest([
+							this.liteService.getColorItems(optionIds),
+							this.liteService.getOptionRelations(optionCommunityIds)
+						]).pipe(
+							map(([colorItems, optionRelations]) => {
+								colorItems.forEach(colorItem => {
+									let option = options.find(option => option.id === colorItem.edhPlanOptionId);
+									if (option)
+									{
+										option.colorItems.push(colorItem);
+									}
+								});
+
+								this.liteService.applyOptionRelations(options, optionRelations);
+
+								const scenarioOptions = this.liteService.getSelectedOptions(options, store.job, currentChangeOrder);
+
+								return { options, scenarioOptions, mappings };
+							})
+						)
+					}),
+					switchMap(data => {
+						if (data)
+						{
+							actions.push(new LiteOptionsLoaded(data.options, data.scenarioOptions));
+							actions.push(new SelectPlan(selectedPlanId, 0, data.mappings));
+						}
+						return from(actions);
+					})					
+				);				
+			})
+		);
+	});
+
 	constructor(
 		private actions$: Actions,
 		private store: Store<fromRoot.State>,
 		private liteService: LiteService,
-		private changeOrderService: ChangeOrderService
+		private changeOrderService: ChangeOrderService,
+		private planService: PlanService
 	) { }
 }

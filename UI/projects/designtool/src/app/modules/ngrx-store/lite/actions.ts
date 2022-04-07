@@ -17,7 +17,9 @@ export enum LiteActionTypes {
 	LoadLiteMonotonyRules = 'Load Lite Monotony Rules',
     LiteMonotonyRulesLoaded = 'LiteMonotonyRulesLoaded',
     SetLiteOverrideReason = 'Set Lite Override Reason',
-    CancelJobChangeOrderLite = 'Cancel Job Change Order Lite',   
+    CancelJobChangeOrderLite = 'Cancel Job Change Order Lite', 
+    LoadLitePlan = 'Load Lite Plan',  
+    CancelPlanChangeOrderLite = 'Cancel Plan Change Order Lite',
 }
 
 @Log(true)
@@ -110,6 +112,21 @@ export class CancelJobChangeOrderLite implements Action
 	constructor() { }
 }
 
+@Log(true)
+export class LoadLitePlan implements Action {
+	readonly type = LiteActionTypes.LoadLitePlan;
+
+	constructor(public planId: number) { }
+}
+
+@Log()
+export class CancelPlanChangeOrderLite implements Action
+{
+	readonly type = LiteActionTypes.CancelPlanChangeOrderLite;
+
+	constructor() { }
+}
+
 export type LiteActions =
     SetIsPhdLite |
     LiteOptionsLoaded |
@@ -123,5 +140,6 @@ export type LiteActions =
     LoadLiteMonotonyRules | 
     LiteMonotonyRulesLoaded |
     SetLiteOverrideReason |
-    CancelJobChangeOrderLite;
-
+    CancelJobChangeOrderLite |
+    LoadLitePlan |
+    CancelPlanChangeOrderLite;
