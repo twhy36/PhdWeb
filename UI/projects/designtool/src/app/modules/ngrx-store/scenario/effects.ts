@@ -119,12 +119,15 @@ export class ScenarioEffects {
 					!store.scenario.savingScenario &&
 					store.scenario.buildMode === 'buyer';
 
-				const savingPendingJio = store.salesAgreement.id && store.salesAgreement.status === 'Pending';
+				const savingPendingJio = store.salesAgreement.id 
+					&& store.salesAgreement.status === 'Pending'
+					&& store.scenario.buildMode !== 'preview';
 
 				const savingChangeOrder = !!store.changeOrder &&
 					store.changeOrder.currentChangeOrder &&
-					(store.changeOrder.currentChangeOrder.id ||
-						store.changeOrder.currentChangeOrder.salesStatusDescription === 'Pending');
+					(!!store.changeOrder.currentChangeOrder.id ||
+						store.changeOrder.currentChangeOrder.salesStatusDescription === 'Pending')
+					&& store.scenario.buildMode !== 'preview';
 
 				const timeOfSaleOptionPricesToSave = _.flatMap((action as SelectChoices).choices.filter(c => c.quantity !== 0), c => c.timeOfSaleOptionPrices);
 
