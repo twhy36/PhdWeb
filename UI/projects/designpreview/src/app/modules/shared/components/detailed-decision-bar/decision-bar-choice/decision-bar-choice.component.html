@@ -8,7 +8,7 @@
 		</ng-container>
 		<ng-container *ngIf="choice.choiceStatus === 'Available' && !choice.enabled">
 			<div class="phd-clickable">
-				<i class="fa fa-ban" (click)="openBlockedChoiceModal()"></i>				
+				<i class="fa fa-ban" (click)="openBlockedChoiceModal()"></i>
 			</div>
 		</ng-container>
 	</div>
@@ -26,6 +26,7 @@
 <ng-template #blockedChoiceModal let-c="close" let-d="dismiss">
 	<blocked-choice-modal
 		[disabledByList]="disabledByList"
+		[choiceLabel]="choice?.label"
 		(closeModal)="onCloseClicked()"
 		(blockedItemClick)="onBlockedItemClick($event)"
 	></blocked-choice-modal>

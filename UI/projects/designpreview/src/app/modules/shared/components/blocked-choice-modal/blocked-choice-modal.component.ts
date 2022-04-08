@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { AdobeService } from '../../../core/services/adobe.service';
 import { BlockedByItemList } from '../../models/blocked-by.model';
 
 @Component({
@@ -8,13 +9,22 @@ import { BlockedByItemList } from '../../models/blocked-by.model';
 })
 export class BlockedChoiceModalComponent implements OnInit {
 	@Input() disabledByList: BlockedByItemList;
+	@Input() choiceLabel: string;
 
 	@Output() closeModal = new EventEmitter();
 	@Output() blockedItemClick = new EventEmitter();
 
-	constructor() { }
+	constructor(private adobeService: AdobeService) { }
 
 	ngOnInit(): void {
+		let modalText =
+			this.choiceLabel
+			+ ' Blocked by: '
+			+ this.disabledByList.andChoices.map(c => c.label).join(', ')
+			+ this.disabledByList.andPoints.map(p => p.label).join(', ')
+			+ this.disabledByList.orChoices.map(c => c.label).join(', ')
+			+ this.disabledByList.orPoints.map(p => p.label).join(', ');
+		this.adobeService.setAlertEvent(modalText);
 	}
 
 	closeClicked() {
@@ -31,7 +41,7 @@ export class BlockedChoiceModalComponent implements OnInit {
 			andPoints: this.disabledByList?.andPoints.filter(r => r.ruleType === 1),
 			andChoices: this.disabledByList?.andChoices.filter(r => r.ruleType === 1),
 			orPoints: this.disabledByList?.orPoints.filter(r => r.ruleType === 1),
-			orChoices: this.disabledByList?.orChoices.filter(r => r.ruleType === 1)		
+			orChoices: this.disabledByList?.orChoices.filter(r => r.ruleType === 1)
 		};
 	}
 
@@ -41,7 +51,7 @@ export class BlockedChoiceModalComponent implements OnInit {
 			andPoints: this.disabledByList?.andPoints.filter(r => r.ruleType === 2),
 			andChoices: this.disabledByList?.andChoices.filter(r => r.ruleType === 2),
 			orPoints: this.disabledByList?.orPoints.filter(r => r.ruleType === 2),
-			orChoices: this.disabledByList?.orChoices.filter(r => r.ruleType === 2)		
+			orChoices: this.disabledByList?.orChoices.filter(r => r.ruleType === 2)
 		};
 	}
 
@@ -50,5 +60,5 @@ export class BlockedChoiceModalComponent implements OnInit {
 		const disabledRules = mustHave ? this.disabledByMustHaveRules : this.disabledByMustNotHaveRules;
 		return disabledRules?.andPoints?.length || disabledRules?.andChoices?.length
 			|| disabledRules?.orPoints?.length || disabledRules?.orChoices?.length
-	}	
+	}
 }
