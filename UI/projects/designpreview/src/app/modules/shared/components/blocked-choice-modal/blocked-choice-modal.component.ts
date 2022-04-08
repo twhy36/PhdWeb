@@ -20,10 +20,10 @@ export class BlockedChoiceModalComponent implements OnInit {
 		let modalText =
 			this.choiceLabel
 			+ ' Blocked by: '
-			+ this.disabledByList.andChoices.map(c => c.label).join(', ')
-			+ this.disabledByList.andPoints.map(p => p.label).join(', ')
-			+ this.disabledByList.orChoices.map(c => c.label).join(', ')
-			+ this.disabledByList.orPoints.map(p => p.label).join(', ');
+			+ this.disabledByList?.andChoices?.map(c => c.label)?.join(', ')
+			+ this.disabledByList?.andPoints?.map(p => p.label)?.join(', ')
+			+ this.disabledByList?.orChoices?.map(c => c.label)?.join(', ')
+			+ this.disabledByList?.orPoints?.map(p => p.label)?.join(', ');
 		this.adobeService.setAlertEvent(modalText);
 	}
 
