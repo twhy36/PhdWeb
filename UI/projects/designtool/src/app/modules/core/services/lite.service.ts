@@ -1131,4 +1131,128 @@ export class LiteService
 			}
 		});
 	}
+
+	getPlanChangeOrderDataLite(
+		changeOrder: ChangeOrderGroup, 
+		job: Job, 
+		selectedPlanId: number, 
+		salesAgreementId: number,
+		currentOptions: ScenarioOption[],
+		options: LitePlanOption[],
+		overrideNote: string 
+	): any
+	{
+		let plans = [];
+
+		if (selectedPlanId && selectedPlanId !== job.planId)
+		{
+			let addId = 0;
+			let deleteId = 0;
+
+			if (changeOrder.jobChangeOrders && changeOrder.jobChangeOrders.length)
+			{
+				const planChangeOrder = changeOrder.jobChangeOrders.find(x => x.jobChangeOrderTypeDescription === 'Plan');
+
+				if (planChangeOrder)
+				{
+					const changeOrderPlans = changeOrder.jobChangeOrders[0].jobChangeOrderPlans;
+
+					if (changeOrderPlans && changeOrderPlans.length)
+					{
+						const addedPlan = changeOrderPlans.find(x => x.action === 'Add');
+
+						addId = addedPlan ? addedPlan.id : 0;
+
+						const deletedPlan = changeOrderPlans.find(x => x.action === 'Delete');
+
+						deleteId = deletedPlan ? deletedPlan.id : 0;
+					}
+				}
+			}
+
+			plans.push({
+				id: addId,
+				planCommunityId: selectedPlanId,
+				action: 'Add'
+			});
+
+			plans.push({
+				id: deleteId,
+				planCommunityId: job.planId,
+				action: 'Delete'
+			});
+		}
+
+		return {
+			changeOrderGroupId: changeOrder.id,
+			changeOrderType: 'Plan',
+			jobId: job.id,
+			salesAgreementId: salesAgreementId,
+			description: changeOrder.jobChangeOrderGroupDescription,
+			note: changeOrder.note ? changeOrder.note.noteContent : null,
+			overrideNote: changeOrder.overrideNote,
+			changeOrderGroupSequence: changeOrder.changeOrderGroupSequence,
+			changeOrderGroupSequenceSuffix: changeOrder.changeOrderGroupSequenceSuffix,
+			plans: plans,
+			options: this.createPlanChangeOrderOptions(
+				job.jobPlanOptions, 
+				currentOptions, 
+				options, 
+				overrideNote
+			)
+		};
+	}
+	
+	private createPlanChangeOrderOptions(
+		origOptions: JobPlanOption[],
+		currentOptions: ScenarioOption[],
+		options: LitePlanOption[],
+		overrideNote: string
+	): Array<any>
+	{
+		const isElevationOption = function(planOptionId: number)
+		{
+			return !!options.find(opt => opt.id  === planOptionId &&
+				(opt.optionSubCategoryId === Elevation.Detached || opt.optionSubCategoryId === Elevation.Attached));
+		};
+
+		let optionsDto = [];
+
+		// Add options selected in the new plan
+		currentOptions.forEach(curr => {
+			const option = options.find(option => option.id === curr.edhPlanOptionId);
+			const isElevation = isElevationOption(curr.edhPlanOptionId);
+			const optionType = isElevation ? 'Elevation' : (option.isBaseHouse ? 'BaseHouse' : 'Standard');
+
+			optionsDto.push({
+				planOptionId: curr.edhPlanOptionId,
+				price: option.listPrice,
+				quantity: curr.planOptionQuantity,
+				optionSalesName: option.name,
+				optionDescription: option.description,
+				jobOptionTypeName: optionType,
+				overrideNote: overrideNote,
+				action: 'Add',
+				isElevation: isElevation,
+				attributes: this.mapScenarioOptionColorsToAttributes(curr?.scenarioOptionColors, option, 'Add')
+			});
+		});
+
+		// Remove options selected in the old plan
+		origOptions.forEach(orig => {
+			optionsDto.push({
+				planOptionId: orig.planOptionId,
+				price: orig.listPrice,
+				quantity: orig.optionQty,
+				optionSalesName: orig.optionSalesName,
+				optionDescription: orig.optionDescription,
+				jobOptionTypeName: orig.jobOptionTypeName,
+				action: 'Delete',
+				isElevation: isElevationOption(orig.planOptionId),
+				attributes: this.mapJobPlanOptionAttributes(orig.jobPlanOptionAttributes, 'Delete')
+			});
+		});
+
+		return optionsDto;
+	}	
 }

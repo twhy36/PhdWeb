@@ -799,7 +799,10 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		if (this.jobId)
 		{
 			// Get all options being replaced by this choice
-			const replacedOptions = _.flatMap(this.treeVersionRules.optionRules.filter(o => o.choices.map(ch => ch.id).includes(choice.id)), r => r.replaceOptions);
+			let replacedOptions = _.flatMap(this.treeVersionRules.optionRules.filter(o => o.choices.map(ch => ch.id).includes(choice.id)), r => r.replaceOptions);
+
+			// Make the list distinct
+			replacedOptions = replacedOptions.filter((o, i) => replacedOptions.indexOf(o) === i);
 
 			const choices = _.flatMap(this.tree.treeVersion.groups,
 				g => _.flatMap(g.subGroups,

@@ -563,7 +563,9 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 			}
 			else if (this.changeType === ChangeTypeEnum.PLAN)
 			{
-				this.store.dispatch(new ChangeOrderActions.CancelPlanChangeOrder());
+				this.isPhdLite
+					? this.store.dispatch(new LiteActions.CancelPlanChangeOrderLite())
+					: this.store.dispatch(new ChangeOrderActions.CancelPlanChangeOrder());
 			}
 			else if (this.changeType === ChangeTypeEnum.LOT_TRANSFER)
 			{

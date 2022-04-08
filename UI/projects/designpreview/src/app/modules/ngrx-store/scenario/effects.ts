@@ -5,7 +5,7 @@ import { Action, Store, select } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import { combineLatest, map, switchMap, withLatestFrom } from 'rxjs/operators';
 
-import { LoadPreview, ScenarioActionTypes, SelectChoices, SetStatusForPointsDeclined, TreeLoaded } from './actions';
+import { LoadPreview, ScenarioActionTypes, SelectChoices, SetStatusForPointsDeclined, TreeLoaded, SetTreeFilter } from './actions';
 import * as fromRoot from '../reducers';
 import * as fromFavorite from '../favorite/reducer';
 import * as _ from 'lodash';
@@ -20,6 +20,7 @@ import { Plan } from 'phd-common';
 import { LoadError } from '../actions';
 import { PlansLoaded, SelectPlan, SetWebPlanMapping } from '../plan/actions';
 import { LoadLots } from '../lot/actions';
+import { AdobeService } from '../../core/services/adobe.service';
 
 @Injectable()
 export class ScenarioEffects
@@ -108,10 +109,24 @@ export class ScenarioEffects
 		)
 	);
 
+	pushSearchEvent$: Observable<Action> = createEffect(() => 
+		this.actions$.pipe(
+			ofType<SetTreeFilter>(ScenarioActionTypes.SetTreeFilter),
+			withLatestFrom(this.store.pipe(select(fromRoot.filteredTree))),
+			tryCatch(source => source.pipe(
+				switchMap(([action, tree]) => {
+					this.adobeService.setSearchEvent(action.treeFilter.keyword, tree);
+					return new Observable<never>()
+				})
+			), LoadError, "")
+		)
+	);
+
 	constructor(
 		private actions$: Actions,
 		private store: Store<fromRoot.State>,
 		private treeService: TreeService,
+		private adobeService: AdobeService,
 		private optionService: OptionService,
 		private planService: PlanService,
 		private orgService: OrganizationService) { }

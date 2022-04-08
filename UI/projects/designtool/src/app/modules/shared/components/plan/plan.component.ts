@@ -17,14 +17,13 @@ import { ActionBarCallType } from '../../../shared/classes/constants.class';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 import * as fromJob from '../../../ngrx-store/job/reducer';
 import * as fromSalesAgreement from '../../../ngrx-store/sales-agreement/reducer';
-import * as fromPlan from '../../../ngrx-store/plan/reducer';
 import * as JobActions from '../../../ngrx-store/job/actions';
 import * as LotActions from '../../../ngrx-store/lot/actions';
 import { selectSelectedLot } from '../../../ngrx-store/lot/reducer';
 
 // PHD Lite
 import { ExteriorSubNavItems, LiteSubMenu } from '../../../shared/models/lite.model';
-
+import * as LiteActions from '../../../ngrx-store/lite/actions';
 
 type planSortByType = "Price - Low to High" | "Price - High to Low";
 
@@ -281,7 +280,9 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 					{
 						if (!this.changeOrderPlanId || this.changeOrderPlanId !== this.selectedPlan.id)
 						{
-							this.store.dispatch(new PlanActions.LoadSelectedPlan(this.selectedPlan.id, this.selectedPlan.treeVersionId));
+							this.isPhdLite
+								? this.store.dispatch(new LiteActions.LoadLitePlan(this.selectedPlan.id))
+								: this.store.dispatch(new PlanActions.LoadSelectedPlan(this.selectedPlan.id, this.selectedPlan.treeVersionId));
 						}
 						this.router.navigateByUrl('/scenario-summary');
 					}
@@ -290,7 +291,7 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 				{
 					this.store.dispatch(new NavActions.SetSubNavItems(ExteriorSubNavItems));		
 					this.store.dispatch(new NavActions.SetSelectedSubNavItem(LiteSubMenu.Elevation));
-					this.router.navigateByUrl('/lite/elevation');
+					this.router.navigateByUrl('/lite/elevation');						
 				}
 				else
 				{
