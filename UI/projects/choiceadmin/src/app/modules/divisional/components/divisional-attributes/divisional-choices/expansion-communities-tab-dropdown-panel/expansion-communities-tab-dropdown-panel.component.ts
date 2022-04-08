@@ -114,6 +114,12 @@ export class ExpansionCommunitiesTabDropdownPanelComponent implements OnInit
 
 		if (isSelected && index < 0)
 		{
+			if (isDivChoiceCatalogLocationGroupMarket(item))
+			{
+				// Remove all other selections
+				selectedItems = this.selectedLocationGroups = [];
+			}
+
 			selectedItems.push(item);
 		}
 		else if (!isSelected && index >= 0)

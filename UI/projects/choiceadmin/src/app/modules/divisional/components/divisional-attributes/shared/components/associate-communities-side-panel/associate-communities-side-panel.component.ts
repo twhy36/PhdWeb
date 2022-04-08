@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, Input, Output, EventEmitter } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 
 import { Message } from 'primeng/api';
 import { isEqual, differenceBy } from "lodash";
@@ -49,6 +49,8 @@ export class AssociateCommunitiesSidePanelComponent extends UnsubscribeOnDestroy
 
 	public AssociatingType = AssociatingType;
 	associatingType: AssociatingType;
+
+	choiceLocationGroups: Array<DivChoiceCatalogLocationGroupCommunity>;
 
 	get saveDisabled(): boolean
 	{
@@ -112,24 +114,33 @@ export class AssociateCommunitiesSidePanelComponent extends UnsubscribeOnDestroy
 
 						return communities;
 					})
-				))
-			).subscribe(communities =>
+				)),
+				mergeMap(communities =>
+				{
+					this.communities = communities;
+
+					if (this.groups && this.groups.length)
+					{
+						this.associatingType = isDivChoiceCatalogAttributeGroupMarket(this.groups[0]) ? AssociatingType.ChoiceAttributeGroups : AssociatingType.ChoiceLocationGroups;
+					}
+
+					if (this.images && this.images.length)
+					{
+						this.associatingType = AssociatingType.ChoiceImages;
+					}
+
+					return this.associatingType === AssociatingType.ChoiceLocationGroups
+						? this._divService.getDivChoiceCatalogCommunityLocationGroupsByDivChoiceCatalogId(this.choice.divChoiceCatalogId)
+						: of([]);
+				})
+			).subscribe(choiceLocationGroups =>
 			{
-				this.communities = communities;
-
-				if (this.groups && this.groups.length)
+				if (choiceLocationGroups && choiceLocationGroups.length)
 				{
-					this.associatingType = isDivChoiceCatalogAttributeGroupMarket(this.groups[0]) ? AssociatingType.ChoiceAttributeGroups : AssociatingType.ChoiceLocationGroups;
-
-					this.selectCommunities();
+					this.choiceLocationGroups = choiceLocationGroups;
 				}
 
-				if (this.images && this.images.length)
-				{
-					this.associatingType = AssociatingType.ChoiceImages;
-
-					this.selectCommunities();
-				}
+				this.selectCommunities();
 			});
 		}
 	}
@@ -399,6 +410,15 @@ export class AssociateCommunitiesSidePanelComponent extends UnsubscribeOnDestroy
 		{
 			return community.locationGroupCommunities && community.locationGroupCommunities.length
 				? ': ' + community.locationGroupCommunities[0].locationGroupName
+				: '';
+		}
+
+		if (this.associatingType === AssociatingType.ChoiceLocationGroups)
+		{
+			let choiceLocationGroupCommunities = community.locationGroupCommunities.filter(loc => this.choiceLocationGroups.map(cg => cg.locationGroupCommunityId).includes(loc.id));
+
+			return choiceLocationGroupCommunities && choiceLocationGroupCommunities.length
+				? ': ' + choiceLocationGroupCommunities[0].locationGroupName
 				: '';
 		}
 
