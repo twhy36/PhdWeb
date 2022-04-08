@@ -3,6 +3,7 @@ import { ActionReducer } from '@ngrx/store';
 import { LoadSalesAgreement, LoadScenario } from './actions';
 import { LoadJobForJob } from './job/actions';
 import { LoadOpportunity } from './opportunity/actions';
+import { LoadPreview } from './scenario/actions';
 
 import * as fromScenario from './scenario/reducer';
 import * as fromLot from './lot/reducer';
@@ -28,7 +29,11 @@ export function stateReset(reducer: ActionReducer<any>): ActionReducer<any>
 {
 	return function (state, action)
 	{
-		if ((action instanceof LoadSalesAgreement && action.clearState) || action instanceof LoadScenario || (action instanceof LoadJobForJob && action.clearState) || action instanceof LoadOpportunity)
+		if ((action instanceof LoadSalesAgreement && action.clearState) 
+			|| action instanceof LoadScenario 
+			|| (action instanceof LoadJobForJob && action.clearState) 
+			|| action instanceof LoadOpportunity
+			|| action instanceof LoadPreview)
 		{
 			state = {
 				salesAgreement: fromSalesAgreement.initialState,
