@@ -9,6 +9,7 @@ import * as build from './build.json';
 import { ModalService, ModalRef, IdentityService } from 'phd-common';
 import { IdleLogoutComponent } from './modules/core/components/idle-logout/idle-logout.component';
 import { BrandService } from './modules/core/services/brand.service';
+import { AdobeService } from './modules/core/services/adobe.service';
 
 @Component({
     selector: 'app-root',
@@ -32,6 +33,7 @@ export class AppComponent {
 		private modalService: ModalService,
 		private identityService: IdentityService,
 		private brandService: BrandService,
+		private adobeService: AdobeService,
 		@Inject(DOCUMENT) private doc: any)
 	{
 		// Start idle watch for user inactivities if an external user is logged in
@@ -71,6 +73,7 @@ export class AppComponent {
 			};
 
 			this.logoutModal = this.modalService.open(IdleLogoutComponent, ngbModalOptions);
+			this.adobeService.setAlertEvent("You're About To Be Signed Out");
 
 			this.logoutModal.result.then((result) =>
 			{
