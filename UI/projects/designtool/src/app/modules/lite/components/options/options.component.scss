@@ -53,8 +53,7 @@
 			flex-direction: column;
 			align-content: start;
 			width: 100%;
-			height: 40px;
-			margin: 10px 0;
+			margin: 0;
 
 			.phd-row-fields {
 				display: flex;
@@ -90,13 +89,15 @@
 			}
 
 			.phd-row-divider {
+				margin: 10px 0 2px 0;
+				padding: 0;
 				width: 100%;
 			}
 
-			.phd-past-cut-off {
+			.phd-row-note {
 				color: $dodger-blue;
 				margin-left: 55px;
-				margin-top: -10px;
+				font-weight: normal;
 			}
 		}
 	}
