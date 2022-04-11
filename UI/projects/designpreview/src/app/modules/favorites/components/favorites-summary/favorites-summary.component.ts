@@ -194,7 +194,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 			this.treeVersionRules = _.cloneDeep(scenario.rules);
 			this.options = _.cloneDeep(scenario.options);
 		});
-		
+
 		this.initializeAdobePageLoad();
 	}
 
@@ -276,6 +276,8 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		confirm.componentInstance.body = 'This will delete this item from your list';
 		confirm.componentInstance.defaultOption = 'Continue';
 
+		this.adobeService.setAlertEvent(confirm.componentInstance.title + " " + confirm.componentInstance.body);
+
 		confirm.result.then((result) =>
 		{
 
@@ -316,6 +318,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		this.reportsService.getFavoritesSummary(summaryData).subscribe(pdfData =>
 		{
 			let pdfViewer = this.modalService.open(PDFViewerComponent, { backdrop: 'static', windowClass: 'phd-pdf-modal', size: 'lg' });
+			this.adobeService.setAlertEvent(this.summaryHeader.favoritesListName);
 
 			pdfViewer.componentInstance.pdfModalTitle = this.summaryHeader.favoritesListName;
 			pdfViewer.componentInstance.pdfData = pdfData;

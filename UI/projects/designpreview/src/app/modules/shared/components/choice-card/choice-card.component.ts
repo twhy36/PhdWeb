@@ -7,6 +7,7 @@ import { ChoiceExt } from '../../models/choice-ext.model';
 import { BlockedByItemList } from '../../models/blocked-by.model';
 import { getDisabledByList } from '../../../shared/classes/tree.utils';
 import { BrandService } from '../../../core/services/brand.service';
+import { AdobeService } from '../../../core/services/adobe.service';
 
 @Component({
 	selector: 'choice-card',
@@ -38,10 +39,12 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 	blockedChoiceModalRef: NgbModalRef;
 	hiddenChoicePriceModalRef: NgbModalRef;
 	disabledByList: BlockedByItemList = null;
+	choiceDisabledLabel: string;
 
 	constructor(
 		public modalService: NgbModal,
-		private brandService: BrandService
+		private brandService: BrandService,
+		private adobeService: AdobeService
 	) {
 		super();
 	}
@@ -117,6 +120,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 		if (this.choice.priceHiddenFromBuyerView)
 		{
 			this.hiddenChoicePriceModalRef = this.modalService.open(this.hiddenChoicePriceModal, { windowClass: 'phd-hidden-choice-price-modal' });
+			this.adobeService.setAlertEvent("Pricing Varies. Pricing TBD with Design");
 		}
 	}
 

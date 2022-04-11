@@ -639,7 +639,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 
 	initializeAdobePageLoad() {
 		let pageType = 'Choice Card Detail Page';
-		let pageName = this.currentPoint.label + ' / ' + this.choice.label;	
+		let pageName = this.currentPoint.label + ' / ' + this.choice.label;
 		let groupName = this.groupName;
 		let subGroupName = this.subGroupName
 
