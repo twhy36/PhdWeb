@@ -221,7 +221,7 @@ export class OrganizationService
 	 */
 	getCommunitiesWithChoice(marketId: number, divChoiceCatalogId: number): Observable<Array<IFinancialCommunity>>
 	{
-		const expand = `attributeGroupCommunities($select=id, attributeGroupMarketId),locationGroupCommunities($select=id, locationGroupMarketId)`;
+		const expand = `attributeGroupCommunities($select=id, attributeGroupMarketId),locationGroupCommunities($select=id, locationGroupMarketId, locationGroupName)`;
 		const filter = `marketId eq ${marketId} and (salesStatusDescription eq 'Active' or salesStatusDescription eq 'New')`;
 		const select = `id,number,name,salesCommunityId,salesStatusDescription,marketId`;
 		const orderBy = `name`;
