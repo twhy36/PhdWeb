@@ -24,7 +24,7 @@ export class BlockedChoiceModalComponent implements OnInit {
 			+ this.disabledByList?.andPoints?.map(p => p.label)?.join(', ')
 			+ this.disabledByList?.orChoices?.map(c => c.label)?.join(', ')
 			+ this.disabledByList?.orPoints?.map(p => p.label)?.join(', ');
-		this.adobeService.setAlertEvent(modalText);
+		this.adobeService.setAlertEvent(modalText, 'Blocked Choice Alert');
 	}
 
 	closeClicked() {
