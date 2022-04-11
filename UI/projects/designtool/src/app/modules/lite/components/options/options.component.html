@@ -43,13 +43,13 @@
 						<span *ngIf="option.maxOrderQuantity === 0 || option.maxOrderQuantity === 1" class="phd-quantity">(1)</span>
 						<span class="phd-list-price"> {{option.listPrice | currency}} </span>
 					</div>
-					<div *ngIf="option.isPastCutOff && !canOverride" class="phd-past-cut-off">
+					<div *ngIf="option.isPastCutOff && !canOverride" class="phd-row-note">
 						<i class="fas fa-info-circle fa-sm"></i> Disabled Due to Cut-Off
 					</div>
-					<div *ngIf="option.isPastCutOff && canOverride" class="phd-past-cut-off">
+					<div *ngIf="option.isPastCutOff && canOverride" class="phd-row-note">
 						<i class="fas fa-info-circle fa-sm"></i> Past Cut-Off
 					</div>
-					<div *ngIf="!option.isActive && !option.isSelected" class="phd-past-cut-off">
+					<div *ngIf="!option.isActive && !option.isSelected" class="phd-row-note">
 						<i class="fas fa-info-circle fa-sm"></i> Disabled
 					</div>
 					<hr class="phd-row-divider"/>
