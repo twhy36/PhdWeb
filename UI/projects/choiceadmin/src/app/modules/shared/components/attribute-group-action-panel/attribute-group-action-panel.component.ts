@@ -166,13 +166,17 @@ export class AttributeGroupActionPanelComponent implements OnInit, AfterContentI
 
 	concatDivGroups()
 	{
-		if (this.divGroups && this.divGroups.length)
+		// #354898 Only display division-level groups if no tree-level groups are currently associated
+		if (this.groupList && !this.groupList.filter(g => !g.isDivisional).length)
 		{
-			// #327666 remove any divisional level groups from the results that may appear twice
-			this.groupList = this.groupList.filter(group => !this.divGroups.some(g => g.id === group.id));
+			if (this.divGroups && this.divGroups.length)
+			{
+				// #327666 remove any divisional level groups from the results that may appear twice
+				this.groupList = this.groupList.filter(group => !this.divGroups.some(g => g.id === group.id));
 
-			// Add the divisional groups to the result set, this also includes the isDivisional flag for hiding the checkbox
-			this.groupList = this.groupList.concat(this.divGroups);
+				// Add the divisional groups to the result set, this also includes the isDivisional flag for hiding the checkbox
+				this.groupList = this.groupList.concat(this.divGroups);
+			}
 		}
 	}
 

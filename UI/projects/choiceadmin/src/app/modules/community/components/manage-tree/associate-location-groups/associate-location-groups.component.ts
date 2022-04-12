@@ -43,6 +43,7 @@ export class AssociateLocationGroupComponent implements OnInit
 	isLoading = new BehaviorSubject<boolean>(false);
 
 	hasGroupAssociated: boolean = false;
+	hasTreeGroupAssociated: boolean = false;
 
 	get isDirty()
 	{
@@ -78,6 +79,7 @@ export class AssociateLocationGroupComponent implements OnInit
 				}
 
 				this.hasGroupAssociated = this.divGroupsInMarket.length > 0 || group.length > 0;
+				this.hasTreeGroupAssociated = group.length > 0;
 
 				// only update the choice if locations are tied to the choice and not a option
 				if (!this.optionRules || this.optionRules.length === 0)
@@ -180,9 +182,13 @@ export class AssociateLocationGroupComponent implements OnInit
 					this.associatedGroups.next(this.currentAssociatedGroups);
 				}
 
-				this.addGroups.selectedGroups = [];
-				this.addGroups.searchBar.clearFilter();
-				this.addGroups.clearFilter();
+				// #354898 If a tree-level group is associated, the `addGroups` component will be gone
+				if (this.addGroups)
+				{
+					this.addGroups.selectedGroups = [];
+					this.addGroups.searchBar.clearFilter();
+					this.addGroups.clearFilter();
+				}
 
 				this._msgService.add({
 					id: 'toast-locations-choice',

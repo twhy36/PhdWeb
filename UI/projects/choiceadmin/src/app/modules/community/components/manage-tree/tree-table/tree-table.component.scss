@@ -97,3 +97,20 @@ tr.phd-tr-error {
 tr.selected.phd-tr-error {
 	background-color: lighten($brand-danger, 20%) !important;
 }
+
+.phd-divisional-tree-group-container {
+
+	display: table;
+
+	/* The tree icon */
+	i:first-child {
+		font-size: 10px;
+		margin-right: 4px;
+	}
+
+	i {
+		display: table-cell;
+		vertical-align: middle;
+		text-align: center;
+	}
+}

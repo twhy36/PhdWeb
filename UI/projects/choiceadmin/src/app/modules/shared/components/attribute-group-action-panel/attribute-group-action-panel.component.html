@@ -25,7 +25,11 @@
 							<p-checkbox *ngIf="!group.isDivisional" [ngModel]="isGroupSelected(group)" (ngModelChange)="setGroupSelected(group, $event)" [binary]="true" [disabled]="isDisabled"></p-checkbox>
 						</ng-template>
 					</phd-column>
-					<phd-column [field]="groupNameField" header="Group Name" isDragHandler="canReorderRows"></phd-column>
+					<phd-column [field]="groupNameField" header="Group Name" isDragHandler="canReorderRows">
+						<ng-template let-group #body>
+							<span [ngClass]="{'phd-divisional-group-text': group.isDivisional}">{{group.locationGroupName}}</span>
+						</ng-template>
+					</phd-column>
 				</phd-table>
 			</div>
 		</div>
