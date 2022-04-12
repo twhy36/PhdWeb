@@ -19,6 +19,7 @@ import * as LotActions from '../../ngrx-store/lot/actions';
 import * as SalesAgreementActions from '../../ngrx-store/sales-agreement/actions';
 import { MonotonyConflict } from '../../shared/models/monotony-conflict.model';
 import { formatDate } from '@angular/common';
+import * as LiteActions from '../../ngrx-store/lite/actions';
 
 @Injectable()
 export class LotService
@@ -153,10 +154,11 @@ export class LotService
 			select(fromSalesAgreement.salesAgreementState),
 			withLatestFrom(
 				this.store.pipe(select(fromChangeOrder.currentChangeOrder)),
-				this.store.pipe(select(state => state.scenario))
+				this.store.pipe(select(state => state.scenario)),
+				this.store.pipe(select(state => state.lite))
 			),
 			take(1)
-		).subscribe(([sag, co, scenario]) =>
+		).subscribe(([sag, co, scenario, lite]) =>
 		{
 			if (!sag.id || co || (scenario.buildMode === 'spec' || scenario.buildMode === 'model'))
 			{
@@ -164,7 +166,14 @@ export class LotService
 
 				if (scenario.buildMode === 'spec' || scenario.buildMode === 'model')
 				{
-					this.store.dispatch(new SalesAgreementActions.CreateJIOForSpec())
+					if (lite.isPhdLite)
+					{
+						this.store.dispatch(new LiteActions.CreateJIOForSpecLite());
+					}
+					else
+					{
+						this.store.dispatch(new SalesAgreementActions.CreateJIOForSpec());
+					}
 				}
 				else if (!sag.id)
 				{

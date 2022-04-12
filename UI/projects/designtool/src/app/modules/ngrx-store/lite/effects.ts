@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Action, Store, select } from '@ngrx/store';
-import { Observable, never, of, combineLatest, from, EMPTY as empty } from 'rxjs';
-import { switchMap, withLatestFrom, map, scan, filter, distinct } from 'rxjs/operators';
+import { Observable, never, of, combineLatest, from, EMPTY as empty, NEVER } from 'rxjs';
+import { switchMap, withLatestFrom, map, scan, filter, distinct, exhaustMap, tap, take, concat, catchError } from 'rxjs/operators';
 
 import { ChangeOrderHanding, ScenarioOption } from 'phd-common';
 
@@ -11,12 +11,12 @@ import { ChangeOrderService } from '../../core/services/change-order.service';
 import { PlanService } from '../../core/services/plan.service';
 
 import { DeselectPlan, PlanActionTypes, PlansLoaded, SelectPlan } from '../plan/actions';
-import { ScenarioActionTypes, ScenarioSaved } from '../scenario/actions';
+import { LotConflict, SaveError, ScenarioActionTypes, ScenarioSaved } from '../scenario/actions';
 import {
 	LiteActionTypes, SetIsPhdLite, LiteOptionsLoaded, SaveScenarioOptions, ScenarioOptionsSaved, SaveScenarioOptionColors, OptionCategoriesLoaded, SelectOptions,
-	LoadLiteMonotonyRules, LiteMonotonyRulesLoaded, CancelJobChangeOrderLite, SelectOptionColors, LoadLitePlan, CancelPlanChangeOrderLite
+	LoadLiteMonotonyRules, LiteMonotonyRulesLoaded, CancelJobChangeOrderLite, SelectOptionColors, LoadLitePlan, CancelPlanChangeOrderLite, CreateJIOForSpecLite, LoadLiteSpecOrModel
 } from './actions';
-import { CommonActionTypes, ScenarioLoaded, LoadSalesAgreement, SalesAgreementLoaded, LoadError } from '../actions';
+import { CommonActionTypes, ScenarioLoaded, LoadSalesAgreement, SalesAgreementLoaded, LoadError, LoadSpec } from '../actions';
 import * as fromRoot from '../reducers';
 import * as _ from 'lodash';
 import { IOptionCategory } from '../../shared/models/lite.model';
@@ -24,6 +24,11 @@ import { tryCatch } from '../error.action';
 import { SavePendingJio, CreateJobChangeOrders, CreatePlanChangeOrder, SaveChangeOrderScenario, CurrentChangeOrderLoaded, SetChangingOrder, SetCurrentChangeOrder } from '../change-order/actions';
 import { LotsLoaded, LotActionTypes } from '../lot/actions';
 import { canDesign } from '../reducers';
+import { Router } from '@angular/router';
+import * as CommonActions from '../actions';
+import { CreateEnvelope } from '../contract/actions';
+import { JIOForSpecCreated } from '../sales-agreement/actions';
+import * as fromLite from '../lite/reducer';
 
 @Injectable()
 export class LiteEffects
@@ -61,13 +66,17 @@ export class LiteEffects
 
 	loadOptions$: Observable<Action> = createEffect(() => {
 		return this.actions$.pipe(
-			ofType<ScenarioSaved | ScenarioLoaded>(ScenarioActionTypes.ScenarioSaved, CommonActionTypes.ScenarioLoaded),
+			ofType<ScenarioSaved | ScenarioLoaded | LoadLiteSpecOrModel>(ScenarioActionTypes.ScenarioSaved, CommonActionTypes.ScenarioLoaded, LiteActionTypes.LoadLiteSpecOrModel),
 			withLatestFrom(this.store),
 			tryCatch(source => source.pipe(
 				switchMap(([action, store]) => {
 					const planOptions = store.lite.options;
-					const optionsLoaded = !!planOptions.find(option => option.planId === action.scenario.planId);
-					const isPhdLite = (action instanceof ScenarioLoaded ? !action.scenario.treeVersionId : store.lite.isPhdLite)
+					const isLiteSpecOrModelLoaded = (action instanceof LoadLiteSpecOrModel);
+					const planId = action.scenario?.planId;
+					const optionsLoaded = !!planOptions.find(option => option.planId === planId);
+
+					const isPhdLite = isLiteSpecOrModelLoaded ||
+						(action instanceof ScenarioLoaded ? !action.scenario.treeVersionId : store.lite.isPhdLite)
 						|| this.liteService.checkLiteScenario(action.scenario.scenarioChoices, store.scenario.scenario?.scenarioOptions);
 
 					if (isPhdLite && !optionsLoaded)
@@ -80,9 +89,13 @@ export class LiteEffects
 							? this.liteService.getOptionsCategorySubcategory(financialCommunityId)
 							: of(null);
 
+						let scenarioOptions = isLiteSpecOrModelLoaded
+							? of([])
+							: this.liteService.getScenarioOptions(action.scenario.scenarioId);
+
 						return combineLatest([
-							this.liteService.getLitePlanOptions(action.scenario.planId),
-							this.liteService.getScenarioOptions(action.scenario.scenarioId),
+							this.liteService.getLitePlanOptions(planId),
+							scenarioOptions,
 							getOptionsCategorySubcategory
 						]).pipe(
 							switchMap(([options, scenarioOptions, optionsForCategories]) => {
@@ -449,6 +462,9 @@ export class LiteEffects
 				else if (savingPendingJio) {
 					return of(new SavePendingJio());
 				}
+				else {
+					return NEVER;
+				}
 			})
 		);
 	});
@@ -493,6 +509,47 @@ export class LiteEffects
 
 				return from(actions);
 			})
+		);
+	});
+
+	createJIOForSpecLite$: Observable<Action> = createEffect(() => {
+		return this.actions$.pipe(
+			ofType<CreateJIOForSpecLite>(LiteActionTypes.CreateJIOForSpecLite),
+			withLatestFrom(this.store, this.store.pipe(select(fromLite.selectedElevation))),
+			exhaustMap(([action, store, selectedElevation]) =>
+				this.liteService.createJioForSpecLite(
+					store.scenario.scenario,
+					store.lite.scenarioOptions,
+					store.lot.selectedLot?.financialCommunity.id,
+					store.scenario.buildMode,
+					store.lite.options,
+					selectedElevation
+				)
+				.pipe(
+					tap(sag => this.router.navigateByUrl('/change-orders')),
+					switchMap(job => {
+						let jobLoaded$ = this.actions$.pipe(
+							ofType<CommonActions.JobLoaded>(CommonActions.CommonActionTypes.JobLoaded),
+							take(1),
+							map(() => new CreateEnvelope(false))
+						);
+
+						return <Observable<Action>>from([
+							new LoadSpec(job),
+							new JIOForSpecCreated()
+						]).pipe(
+							concat(jobLoaded$)
+						);
+					}),
+					catchError<Action, Observable<Action>>(error => {
+						if (error.error.Message === "Lot Unavailable") {
+							return of(new LotConflict());
+						}
+
+						return of(new SaveError(error))
+					})
+				)
+			)
 		);
 	});
 
@@ -561,11 +618,11 @@ export class LiteEffects
 							.map(opt => {
 								return { ...opt, planOptionQuantity : 0 };
 							});
-		
+
 						actions.push(new SelectOptions([...selectedOptions, ...deselectedOptions]));
 					}
 
-					return from(actions); 
+					return from(actions);
 				}
 
 				// Reload options if plan has changed
@@ -620,8 +677,8 @@ export class LiteEffects
 							actions.push(new SelectPlan(selectedPlanId, 0, data.mappings));
 						}
 						return from(actions);
-					})					
-				);				
+					})
+				);
 			})
 		);
 	});
@@ -631,6 +688,7 @@ export class LiteEffects
 		private store: Store<fromRoot.State>,
 		private liteService: LiteService,
 		private changeOrderService: ChangeOrderService,
-		private planService: PlanService
+		private planService: PlanService,
+		private router: Router
 	) { }
 }
