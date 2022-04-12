@@ -419,13 +419,6 @@ export function reducer(state: State = initialState, action: ChangeOrderActions)
 						changeOrder.envelopeId = state.currentChangeOrder.envelopeId;
 						changeOrder.eSignEnvelopes = state.currentChangeOrder.eSignEnvelopes;
 					}
-
-					let buyerChangeOrderGroup = action.changeOrders.find(co => co.jobChangeOrders.some(c => c.jobChangeOrderTypeDescription === 'BuyerChangeOrder'));
-					if (buyerChangeOrderGroup)
-					{
-						newChangeInput.buyers = buyerChangeOrderGroup.jobChangeOrders.find(co => co.jobChangeOrderTypeDescription === 'BuyerChangeOrder')
-							.jobSalesChangeOrderBuyers;
-					}
 				}
 
 				return { ...state, savingChangeOrder: false, saveError: false, currentChangeOrder: changeOrder, changeInput: newChangeInput };

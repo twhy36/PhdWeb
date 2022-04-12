@@ -181,6 +181,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 						state.salesAgreement,
 						state.scenario.rules?.optionRules)
 					&& !this.liteService.liteChangeOrderHasChanges(
+						state.lite.isPhdLite,
 						state.job, 
 						state.changeOrder.currentChangeOrder, 
 						state.changeOrder.changeInput, 

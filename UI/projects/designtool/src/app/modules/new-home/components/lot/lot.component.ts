@@ -206,7 +206,7 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 				this.store.pipe(
 					select(selectSelectedLot)
 				),
-				this.store.pipe(select(state=> state.org.salesCommunity.financialCommunities)),
+				this.store.pipe(select(state=> state.org.salesCommunity?.financialCommunities)),
 				this.store.pipe(select(state => state.lot.selectedHanding)),
 				this.selectedFilterBy$
 			)
