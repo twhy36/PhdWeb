@@ -206,7 +206,7 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 				this.store.pipe(
 					select(selectSelectedLot)
 				),
-				this.store.pipe(select(state=> state.org.salesCommunity.financialCommunities)),
+				this.store.pipe(select(state=> state.org.salesCommunity?.financialCommunities)),
 				this.store.pipe(select(state => state.lot.selectedHanding)),
 				this.selectedFilterBy$
 			)
@@ -300,33 +300,33 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 		return lot.planAssociations ? lot.planAssociations.some(p => p.planId === this.selectedPlanId) : false;
 	}
 
-	monotonyConflictMessage(lot: LotComponentLot): string 
+	monotonyConflictMessage(lot: LotComponentLot): string
 	{
 		const planId = this.selectedPlanId ?? 0;
 		const isColorSchemePlanRuleEnabled = this.financialCommunities.find(fc => fc.id == lot.financialCommunityId).isColorSchemePlanRuleEnabled;
 
-		if (this.colorSchemeChoice && !this.colorSchemeConflictOverride) 
+		if (this.colorSchemeChoice && !this.colorSchemeConflictOverride)
 		{
 			lot.colorSchemeMonotonyConflict = isColorSchemePlanRuleEnabled ? lot.monotonyRules.some(x => x.colorSchemeDivChoiceCatalogId === this.colorSchemeChoice.divChoiceCatalogId && x.edhPlanId === planId) :
 				lot.monotonyRules.some(x => x.colorSchemeDivChoiceCatalogId === this.colorSchemeChoice.divChoiceCatalogId);
 		}
 
-		if (this.elevationChoice && !this.elevationConflictOverride) 
+		if (this.elevationChoice && !this.elevationConflictOverride)
 		{
 			lot.elevationMonotonyConflict = lot.monotonyRules.some(r => r.elevationDivChoiceCatalogId === this.elevationChoice.divChoiceCatalogId && r.edhPlanId === planId);
 
-			if (!this.colorSchemeChoice && this.elevationChoice.selectedAttributes.length > 0) 
+			if (!this.colorSchemeChoice && this.elevationChoice.selectedAttributes.length > 0)
 			{
-				lot.monotonyRules.forEach(rule => 
+				lot.monotonyRules.forEach(rule =>
 				{
 					// must be on the same plan
 					if (rule.edhPlanId === planId)
 					{
 						let colorAttributeConflicts = [];
 
-						if (!this.colorSchemeMonotonyConflict) 
+						if (!this.colorSchemeMonotonyConflict)
 						{
-							this.elevationChoice.selectedAttributes.forEach(x => 
+							this.elevationChoice.selectedAttributes.forEach(x =>
 							{
 								const doesColorSchemeAttributeExist = rule.colorSchemeAttributeCommunityIds.some(colorAttributeIds => colorAttributeIds === x.attributeId);
 
@@ -340,7 +340,7 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 			}
 		}
 
-		if (lot.elevationMonotonyConflict && lot.colorSchemeMonotonyConflict) 
+		if (lot.elevationMonotonyConflict && lot.colorSchemeMonotonyConflict)
 		{
 			lot.colorSchemeMonotonyConflict = true;
 			lot.elevationMonotonyConflict = true;
@@ -348,14 +348,14 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 			return "The Homesite selection is unavailable with the elevation and color scheme you have chosen.";
 		}
 
-		if (lot.elevationMonotonyConflict) 
+		if (lot.elevationMonotonyConflict)
 		{
 			lot.elevationMonotonyConflict = true;
 
 			return "The Homesite selection is unavailable with the elevation you have chosen.";
 		}
 
-		if (lot.colorSchemeMonotonyConflict) 
+		if (lot.colorSchemeMonotonyConflict)
 		{
 			lot.colorSchemeMonotonyConflict = true;
 
@@ -365,7 +365,7 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 		return "";
 	}
 
-	getLotsMontonyConflictMessage() 
+	getLotsMontonyConflictMessage()
 	{
 		this.lots.forEach(x => x.monotonyConflictMessage = this.monotonyConflictMessage(x));
 	}
@@ -383,6 +383,11 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 			return { ...lcr, rules: lcr.rules.filter((rule) => rule.edhLotId === this.scenario.lotId) }
 		}).filter(r => r.rules.length);
 
+		// All previously required lot choice rules that are not required on the current lot
+		const noLongerRequiredSelections = prevLotChoiceRules.map((lcr) => {
+			return { ...lcr, rules: lcr.rules.filter((rule) => rule.mustHave && !requiredSelections.some(r2 => lcr.divChoiceCatalogId == r2.divChoiceCatalogId)) }
+		}).filter(r => r.rules.length);
+
 		// Previous lot choice selections does not include lot choice required/disabled choices, hence the check to filter previous lot choice rules
 		let previousLotSelections = this.scenario.scenarioChoices?.filter(sc => !prevLotChoiceRules?.find(plc => plc.divChoiceCatalogId === sc.choice.choiceCatalogId));
 
@@ -392,7 +397,8 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 			return { ...lcr, rules: lcr.rules.filter(rule => rule.edhLotId === lot.id && !rule.mustHave && previousLotSelections?.find(pls => pls.choice.choiceCatalogId === lcr.divChoiceCatalogId)) }
 		}).filter(r => r.rules.length);
 
-		if ((requiredSelections?.length || disabledSelections?.length) && !selected)
+		if (((requiredSelections?.length || disabledSelections?.length) && !selected)
+				|| noLongerRequiredSelections.length)
 		{
 			const confirm = this.modalService.open(ConfirmModalComponent, { centered: true });
 
@@ -410,6 +416,14 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 			disabledSelections.forEach(ncr =>
 			{
 				body += 'Choice ' + this.currentChoices.find(cc => cc.divChoiceCatalogId === ncr.divChoiceCatalogId)?.label + ' Disabled' + '<br />';
+			});
+
+			body += noLongerRequiredSelections.length ? '<br />' + '<b>' + 'The following choice(s) will no longer be required for Lot ' + lot.lotBlock + '.'
+					+ ' You will be able to modify the choice(s) if you continue: ' + '</b>' + '<br />' : '';
+
+			noLongerRequiredSelections.forEach(ncr =>
+			{
+				body += 'Choice ' + this.currentChoices.find(cc => cc.divChoiceCatalogId === ncr.divChoiceCatalogId)?.label + '<br />';
 			});
 
 			confirm.componentInstance.body = body;
@@ -548,7 +562,7 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 		let handing : string = lot.selectedHanding;
 
 		this.monotonyConflictMessage(lot);
-		
+
 		//if the selected lot is falsy or the dropdown's lot id differs from the previously existing lot id
 		//select it
 		if (!this.selectedLot || lotId !== this.selectedLot.id)
@@ -556,7 +570,7 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 			this.toggleSelection(this.lots.find(l => l.id === lotId), false);
 			return;
 		}
-		
+
 		//if chosen handing was null for No Selection, deselect
 		if (handing === null)
 		{
@@ -564,12 +578,12 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 			this.toggleSelection(this.lots.find(l => l.id === lotId), true);
 			return;
 		}
-		
+
 		const newHanding = new ChangeOrderHanding();
-		
+
 		//If NA was chosen, pass null to save to the scenario
 		if(handing !== 'NA')
-		{	
+		{
 			newHanding.handing = handing;
 		}
 
@@ -585,7 +599,7 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 			case (ActionBarCallType.PRIMARY_CALL_TO_ACTION):
 				if (this.isPhdLite)
 				{
-					this.store.dispatch(new NavActions.SetSubNavItems(ExteriorSubNavItems));		
+					this.store.dispatch(new NavActions.SetSubNavItems(ExteriorSubNavItems));
 					this.store.dispatch(new NavActions.SetSelectedSubNavItem(LiteSubMenu.Elevation));
 					this.router.navigateByUrl('/lite/elevation');
 				}

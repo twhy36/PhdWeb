@@ -129,7 +129,7 @@ export class ScenarioEffects {
 						store.changeOrder.currentChangeOrder.salesStatusDescription === 'Pending')
 					&& store.scenario.buildMode !== 'preview';
 
-				const timeOfSaleOptionPricesToSave = _.flatMap((action as SelectChoices).choices.filter(c => c.quantity !== 0), c => c.timeOfSaleOptionPrices);
+				const timeOfSaleOptionPricesToSave = _.flatMap((action as SelectChoices).choices.filter(c => c.quantity !== 0), c => c.timeOfSaleOptionPrices || []);
 
 				if (!savingScenario && !savingPendingJio && savingChangeOrder)
 				{

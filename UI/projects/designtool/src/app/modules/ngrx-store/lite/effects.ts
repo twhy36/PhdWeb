@@ -41,12 +41,12 @@ export class LiteEffects
 						|| this.liteService.checkLiteAgreement(store.job, store.changeOrder.currentChangeOrder)
 						|| this.liteService.checkLiteScenario(store.scenario.scenario?.scenarioChoices, store.scenario.scenario?.scenarioOptions);
 
-					const salesCommunityId = store.opportunity.opportunityContactAssoc.opportunity.salesCommunityId;
+					const salesCommunityId = store.opportunity?.opportunityContactAssoc?.opportunity?.salesCommunityId;
 
 					let actions = [];
 					actions.push(new SetIsPhdLite(isPhdLite));
 
-					if (isPhdLite)
+					if (isPhdLite && !!salesCommunityId)
 					{
 						actions.push(new LoadLiteMonotonyRules(salesCommunityId));
 					}

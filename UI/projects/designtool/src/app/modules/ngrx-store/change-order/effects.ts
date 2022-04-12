@@ -1,4 +1,4 @@
-import { Observable, forkJoin, from, of, never } from 'rxjs';
+import { Observable, forkJoin, from, of, NEVER } from 'rxjs';
 import { switchMap, withLatestFrom, map, combineLatest } from 'rxjs/operators';
 
 import { SalesAgreementService } from './../../core/services/sales-agreement.service';
@@ -1033,7 +1033,34 @@ export class ChangeOrderEffects
 					return of(new PlansLoaded(plans));
 				}
 
-				return never();
+				return NEVER;
+			})
+		);
+	});
+
+	changeOrdersCreated$: Observable<Action> = createEffect(() => {
+		return this.actions$.pipe(
+			ofType<ChangeOrdersCreated>(ChangeOrderActionTypes.ChangeOrdersCreated),
+			withLatestFrom(this.store),
+			switchMap(([action, store]) => {
+				let buyerChangeOrderGroup = action.changeOrders.find(co => co.jobChangeOrders.some(c => c.jobChangeOrderTypeDescription === 'BuyerChangeOrder'));
+				if (buyerChangeOrderGroup && store.changeOrder?.changeInput)
+				{
+					let newInput = { ...store.changeOrder.changeInput } as ChangeInput;
+
+					newInput.buyers = mergeSalesChangeOrderBuyers(store.salesAgreement.buyers, buyerChangeOrderGroup);
+
+					const trust = this.changeOrderService.mergeSalesChangeOrderTrusts(store.salesAgreement, buyerChangeOrderGroup);
+
+					if (trust) {
+						newInput.trustName = trust.trustName;
+						newInput.isTrustNa = trust.isTrustNa;
+					}
+
+					return of(new ChangeInputInitialized(newInput));
+				}
+
+				return NEVER;
 			})
 		);
 	});

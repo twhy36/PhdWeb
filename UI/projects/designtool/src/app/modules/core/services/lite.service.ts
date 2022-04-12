@@ -1072,6 +1072,7 @@ export class LiteService
 	}
 
 	liteChangeOrderHasChanges(
+		isPhdLite: boolean,
 		job: Job,
 		currentChangeOrder: ChangeOrderGroup,
 		changeInput: ChangeInput,
@@ -1081,7 +1082,7 @@ export class LiteService
 		overrideNote: string
 	): boolean
 	{
-		if (changeInput.type !== ChangeTypeEnum.SALES && changeInput.type !== ChangeTypeEnum.NON_STANDARD)
+		if (isPhdLite && changeInput.type !== ChangeTypeEnum.SALES && changeInput.type !== ChangeTypeEnum.NON_STANDARD)
 		{
 			const inputData = this.getJobChangeOrderInputDataLite(
 				currentChangeOrder,
@@ -1103,6 +1104,8 @@ export class LiteService
 
 			return data.options && data.options.length;
 		}
+
+		return false;
 	}
 
 	setOptionsIsPastCutOff(options: LitePlanOption[], job: Job): void
@@ -1221,21 +1224,24 @@ export class LiteService
 		// Add options selected in the new plan
 		currentOptions.forEach(curr => {
 			const option = options.find(option => option.id === curr.edhPlanOptionId);
-			const isElevation = isElevationOption(curr.edhPlanOptionId);
-			const optionType = isElevation ? 'Elevation' : (option.isBaseHouse ? 'BaseHouse' : 'Standard');
-
-			optionsDto.push({
-				planOptionId: curr.edhPlanOptionId,
-				price: option.listPrice,
-				quantity: curr.planOptionQuantity,
-				optionSalesName: option.name,
-				optionDescription: option.description,
-				jobOptionTypeName: optionType,
-				overrideNote: overrideNote,
-				action: 'Add',
-				isElevation: isElevation,
-				attributes: this.mapScenarioOptionColorsToAttributes(curr?.scenarioOptionColors, option, 'Add')
-			});
+			if (option)
+			{
+				const isElevation = isElevationOption(curr.edhPlanOptionId);
+				const optionType = isElevation ? 'Elevation' : (option.isBaseHouse ? 'BaseHouse' : 'Standard');
+	
+				optionsDto.push({
+					planOptionId: curr.edhPlanOptionId,
+					price: option.listPrice,
+					quantity: curr.planOptionQuantity,
+					optionSalesName: option.name,
+					optionDescription: option.description,
+					jobOptionTypeName: optionType,
+					overrideNote: overrideNote,
+					action: 'Add',
+					isElevation: isElevation,
+					attributes: this.mapScenarioOptionColorsToAttributes(curr?.scenarioOptionColors, option, 'Add')
+				});
+			}
 		});
 
 		// Remove options selected in the old plan

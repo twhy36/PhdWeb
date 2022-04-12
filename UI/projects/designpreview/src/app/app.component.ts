@@ -73,7 +73,7 @@ export class AppComponent {
 			};
 
 			this.logoutModal = this.modalService.open(IdleLogoutComponent, ngbModalOptions);
-			this.adobeService.setAlertEvent("You're About To Be Signed Out");
+			this.adobeService.setAlertEvent("You're About To Be Signed Out", 'Idle Logout Alert');
 
 			this.logoutModal.result.then((result) =>
 			{
