@@ -105,7 +105,7 @@ export class JobEffects
 		)
 	);
 
-	loadJobForJob$: Observable<Action> = createEffect(() => 
+	loadJobForJob$: Observable<Action> = createEffect(() =>
 		this.actions$.pipe(
 			ofType<LoadJobForJob>(JobActionTypes.LoadJobForJob),
 			withLatestFrom(this.store),
@@ -127,7 +127,7 @@ export class JobEffects
 		)
 	);
 
-	loadPulteInfo$: Observable<Action> = createEffect(() => 
+	loadPulteInfo$: Observable<Action> = createEffect(() =>
 		this.actions$.pipe(
 			ofType<LoadPulteInfo>(JobActionTypes.LoadPulteInfo),
 			tryCatch(source => source.pipe(
@@ -142,7 +142,7 @@ export class JobEffects
 		)
 	);
 
-	savePulteInfo$: Observable<Action> = createEffect(() => 
+	savePulteInfo$: Observable<Action> = createEffect(() =>
 		this.actions$.pipe(
 			ofType<SavePulteInfo>(JobActionTypes.SavePulteInfo),
 			tryCatch(source => source.pipe(
@@ -185,18 +185,18 @@ export class JobEffects
 		return jio ? jio.constructionStatusDescription === 'Approved' : false;
 	}
 
-	updateSpecJobPricing$: Observable<Action> = createEffect(() => 
+	updateSpecJobPricing$: Observable<Action> = createEffect(() =>
 		this.actions$.pipe(
 			ofType<SalesAgreementLoaded | ScenarioLoaded | JobLoaded | SetPermissions>(CommonActionTypes.SalesAgreementLoaded, CommonActionTypes.ScenarioLoaded, CommonActionTypes.JobLoaded, UserActionTypes.SetPermissions),
 			scan((prev, action) => (
 				{
-					sagScenarioLoaded: prev.sagScenarioLoaded || action instanceof SalesAgreementLoaded || action instanceof ScenarioLoaded || action instanceof JobLoaded, 
-					userPermissions: prev.userPermissions || action instanceof SetPermissions, 
+					sagScenarioLoaded: prev.sagScenarioLoaded || action instanceof SalesAgreementLoaded || action instanceof ScenarioLoaded || action instanceof JobLoaded,
+					userPermissions: prev.userPermissions || action instanceof SetPermissions,
 					action: action instanceof SalesAgreementLoaded || action instanceof ScenarioLoaded || action instanceof JobLoaded ? action : prev.action
 				}), {sagScenarioLoaded: false, userPermissions: false, action: <SalesAgreementLoaded | ScenarioLoaded>null}),
 			skipWhile(result => !result.sagScenarioLoaded || !result.userPermissions),
 			map(result => result.action),
-			switchMap(action => 
+			switchMap(action =>
 				this.store.pipe(
 					take(1),
 					switchMap(state => {
@@ -209,11 +209,11 @@ export class JobEffects
 						if (action instanceof SalesAgreementLoaded && action.salesAgreement.status !== 'Pending') {
 							return NEVER;
 						}
-						
+
 						if (state.job && state.scenario?.options && state.job.jobPlanOptions.some(jpo => state.scenario.options.find(o => o.id === jpo.planOptionId && o.listPrice !== jpo.listPrice))) {
 							return this.jobService.updateSpecJobPricing(state.job.lotId);
 						}
-						
+
 						return NEVER;
 					})
 
