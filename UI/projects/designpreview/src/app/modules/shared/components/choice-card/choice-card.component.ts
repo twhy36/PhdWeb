@@ -120,7 +120,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 		if (this.choice.priceHiddenFromBuyerView)
 		{
 			this.hiddenChoicePriceModalRef = this.modalService.open(this.hiddenChoicePriceModal, { windowClass: 'phd-hidden-choice-price-modal' });
-			this.adobeService.setAlertEvent("Pricing Varies. Pricing TBD with Design");
+			this.adobeService.setAlertEvent('Pricing Varies. Pricing TBD with Design', 'Pricing Varies Alert');
 		}
 	}
 

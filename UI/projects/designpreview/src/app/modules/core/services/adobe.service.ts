@@ -83,9 +83,9 @@ export class AdobeService extends UnsubscribeOnDestroy {
         }
     }
 
-    setAlertEvent(message: string) {
+    setAlertEvent(message: string, type: string) {
         window['appEventData'] = window['appEventData'] || [];
-				const alertEvent = new AlertEvent(message);
+				const alertEvent = new AlertEvent(message, type);
 
 				window['appEventData'].push(alertEvent);
     }

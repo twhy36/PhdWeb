@@ -119,7 +119,7 @@ export class ManageFavoritesComponent extends UnsubscribeOnDestroy implements On
 		confirm.componentInstance.body = msgBody;
 		confirm.componentInstance.defaultOption = 'Continue';
 
-		this.adobeService.setAlertEvent(confirm.componentInstance.title + " " + confirm.componentInstance.body);
+		this.adobeService.setAlertEvent(confirm.componentInstance.title + " " + confirm.componentInstance.body, 'Delete Favorite List Alert');
 
 		confirm.result.then((result) =>
 		{
