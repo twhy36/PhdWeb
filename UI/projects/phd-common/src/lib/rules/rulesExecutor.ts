@@ -3,12 +3,11 @@ import { TreeVersionRules, ChoiceRules, PointRules, OptionRule } from '../models
 import { PlanOption } from '../models/option.model';
 import { PointStatus } from '../models/point.model';
 import { PriceBreakdown } from '../models/scenario.model';
-import { Job, JobChoice } from '../models/job.model';
+import { JobChoice } from '../models/job.model';
 import { ChangeOrderChoice } from '../models/job-change-order.model';
 import { isChoiceAttributesComplete } from '../utils/utils.class';
 
 import * as _ from 'lodash';
-import { TimeOfSaleOptionPrice } from '../models/time-of-sale-option-price.model';
 
 export function findPoint(tree: Tree, predicate: (point: DecisionPoint) => boolean)
 {
@@ -70,7 +69,7 @@ export function selectChoice(tree: Tree, selectedChoice: number)
 	}
 }
 
-export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOption[], lotId: number = 0, timeOfSaleOptionPrices: TimeOfSaleOptionPrice[] = [])
+export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOption[], lotId: number = 0)
 {
 	let points = _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points)).filter(x => x.treeVersionId === tree.treeVersion.id);
 	let choices = _.flatMap(points, p => p.choices).filter(x => x.treeVersionId === tree.treeVersion.id);
@@ -342,36 +341,6 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 				else
 				{
 					let calculatedPrice = option.calculatedPrice;
-
-					// #352779
-					// Determine if this option has been replaced and use the original pricing if necessary
-					const replaceRules = rules.optionRules.filter(o => o.replaceOptions.includes(option.financialOptionIntegrationKey));
-
-					if (replaceRules && replaceRules.length)
-					{
-						// Ensure the choices are still selected
-						let useOriginalPricing = true;
-						const replaceRuleChoices = _.flatMap(replaceRules, rr => rr.choices).map(rrc => rrc.id);
-
-						for (let rrc of replaceRuleChoices)
-						{
-							if (find(rrc).quantity === 0)
-							{
-								useOriginalPricing = false;
-								break;
-							}
-						}
-
-						if (useOriginalPricing)
-						{
-							const originalPriceIdx = timeOfSaleOptionPrices ? timeOfSaleOptionPrices.findIndex(x => x.divChoiceCatalogID === choice.divChoiceCatalogId && option.id === x.edhPlanOptionID) : -1;
-
-							if (originalPriceIdx > -1)
-							{
-								calculatedPrice = timeOfSaleOptionPrices[originalPriceIdx].listPrice;
-							}
-						}
-					}
 
 					// Handle replace price here. We need to remove the list price of the options that are being removed
 					// because the cost of this option is really a delta
@@ -950,6 +919,12 @@ export function checkReplacedOption(deselectedChoice: Choice, rules: TreeVersion
 
 				if (prevChoice && prevChoice.lockedInChoice)
 				{
+					// If list price is changed between change orders, we need to restore the original choice price
+					const option = options.find(o => o.financialOptionIntegrationKey === replaceOptionId);
+					const sum = prevChoice.price - prevChoice.options.filter(opt => opt.financialOptionIntegrationKey !== replaceOptionId).reduce((sum, current) => sum + current.listPrice, 0);
+
+					option.listPrice = sum;
+
 					// lockedInOptions uses divChoiceCatalogID instead of dpChoiceId.
 					// fetch divChoiceCatalogID from the tree
 					replaceOptionRule = {

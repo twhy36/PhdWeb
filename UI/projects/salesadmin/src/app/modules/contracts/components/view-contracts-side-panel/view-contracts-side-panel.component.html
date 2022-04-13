@@ -19,7 +19,7 @@
 			</div>
 			<form [formGroup]="viewContractsForm">
 				<div [ngClass]="{'phd-hidden': (selectedTab !== 'Details') }">
-					<div class="form-group">
+					<div class="form-group" [ngClass]="{'phd-hidden': hideExperienceCheckboxes }">
 						<div class="phd-checkbox-group">
 							<div class="phd-checkbox-label">
 								<input type="checkbox" id="isPhd" name="isPhd" formControlName="isPhd" class="phd-checkbox-label" (change)="updateSelectionFromFormGroup()"/>

@@ -5,7 +5,7 @@ import * as _ from "lodash";
 import {
 	DesignToolAttribute, SalesCommunity, PlanOption, TreeVersionRules, Scenario, TreeFilter,
 	Tree, Choice, Group, SubGroup, DecisionPoint, selectChoice, applyRules, setGroupStatus,
-	setPointStatus, setSubgroupStatus, checkReplacedOption, getChoiceToDeselect, TimeOfSaleOptionPrice
+	setPointStatus, setSubgroupStatus, checkReplacedOption, getChoiceToDeselect
 } from 'phd-common';
 import { ScenarioActions, ScenarioActionTypes } from './actions';
 
@@ -38,16 +38,14 @@ export interface State
 	treeFilter: TreeFilter;
 	treeLoading: boolean;
 	overrideReason: string;
-	priceRanges: { choiceId: number, min: number, max: number; }[];
-	timeOfSaleOptionPrices: TimeOfSaleOptionPrice[];
+	priceRanges: { choiceId: number, min: number, max: number }[];
 }
 
 export const initialState: State = {
 	tree: null, rules: null, scenario: null, options: null, lotPremium: 0, salesCommunity: null,
 	savingScenario: false, saveError: false, isUnsaved: false, treeLoading: false, loadError: false, isGanked: false,
 	pointHasChanges: false, buildMode: 'buyer', selectedPointFilter: DecisionPointFilterType.FULL, enabledPointFilters: [],
-	monotonyAdvisementShown: false, financialCommunityFilter: 0, treeFilter: null, overrideReason: null, priceRanges: null,
-	timeOfSaleOptionPrices: null,
+	monotonyAdvisementShown: false, financialCommunityFilter: 0, treeFilter: null, overrideReason: null, priceRanges: null
 };
 
 RehydrateMap.onRehydrate<State>('scenario', state => { return { ...state, savingScenario: false, saveError: false, treeLoading: false, loadError: false }; });
@@ -63,7 +61,6 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 	let subGroups: SubGroup[];
 	let rules: TreeVersionRules;
 	let options: PlanOption[];
-	let timeOfSaleOptionPrices: TimeOfSaleOptionPrice[];
 
 	switch (action.type)
 	{
@@ -195,7 +192,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 					scenario.treeVersionId = action.tree ? action.tree.treeVersion.id : null;
 				}
 
-				newState = { ...newState, scenario: scenario, timeOfSaleOptionPrices: action.job.timeOfSaleOptionPrices };
+				newState = { ...newState, scenario: scenario };
 			}
 
 			if (newState.options && action.optionImages)
@@ -298,7 +295,6 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 			newTree = _.cloneDeep(state.tree);
 			rules = _.cloneDeep(state.rules);
 			options = _.cloneDeep(state.options);
-			timeOfSaleOptionPrices = _.cloneDeep(state.timeOfSaleOptionPrices);
 			subGroups = _.flatMap(newTree.treeVersion.groups, g => g.subGroups);
 			points = _.flatMap(subGroups, sg => sg.points);
 			choices = _.flatMap(points, p => p.choices);
@@ -377,7 +373,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 				choices.forEach(ch => (ch.id !== choice.choiceId && ch.treePointId === pointId) ? ch.overrideNote = null : null);
 			}
 
-			applyRules(newTree, rules, options, state.scenario.lotId, timeOfSaleOptionPrices);
+			applyRules(newTree, rules, options, state.scenario.lotId);
 
 			// check selected attributes to make sure they're still valid after applying rules
 			checkSelectedAttributes(choices);

@@ -82,6 +82,11 @@ export class ViewContractsSidePanelComponent implements OnInit
 		return this.templateTypes.find(t => t.id === this.selected.templateTypeId);
 	}
 
+	get hideExperienceCheckboxes(): boolean
+	{
+		return environment.production && !environment.salesAdminMarketWhitelist.includes(this.currentMktId);
+	}
+
 	constructor(
 		private _orgService: OrganizationService,
 		private _contractService: ContractService,

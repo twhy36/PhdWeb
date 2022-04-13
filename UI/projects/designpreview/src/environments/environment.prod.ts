@@ -40,7 +40,7 @@ export const environment: IEnvironment = {
 		pulte: 'phd.pulte.com',
 		delwebb: 'phd.delwebb.com',
 		americanWest: 'phd.americanwesthomes.com',
-		divosta: 'phd.divosta.com',
+		divosta: '',
 		johnWieland: ''
 	},
 	adobeUrl: 'https://assets.adobedtm.com/73ef53bd253f/c533c20a08e9/launch-3b8029c3091a.min.js',

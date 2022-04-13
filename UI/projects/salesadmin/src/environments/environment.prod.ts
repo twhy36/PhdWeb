@@ -31,5 +31,14 @@ export const environment = {
 		122, // Northern California Market
 		448, // Pacific Northwest Market
 		151, // Southern California Market
+	],
+	salesAdminMarketWhitelist: [
+		104, // Houston
+		110, // Raleigh
+		114, // Charlotte
+		118, // Dallas
+		277, // Central Texas
+		460, // Arizona
+		464 // San Antonio
 	]
 };

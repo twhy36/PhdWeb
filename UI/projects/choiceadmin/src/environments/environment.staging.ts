@@ -34,7 +34,7 @@ export const environment: IEnvironment = {
 		pulte: 'https://phd.staging.pulte.com/designpreview/',
 		delWebb: 'https://phd.staging.delwebb.com/designpreview/',
 		americanWest: 'https://phd.staging.americanwesthomes.com/designpreview/',
-		diVosta: 'https://phd.staging.divosta.com/designpreview/',
+		diVosta: 'https://phd.staging.pulte.com/designpreview/',// CHANGE TO DIVOSTA WHEN READY
 		centex: 'https://phd.staging.pulte.com/designpreview/',// CHANGE TO CENTEX WHEN READY
 		johnWieland: 'https://phd.staging.pulte.com/designpreview/',// CHANGE TO JOHN-WIELAND WHEN READY
 	},

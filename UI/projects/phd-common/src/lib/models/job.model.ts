@@ -3,7 +3,6 @@ import { JobSalesAgreementAssoc } from './sales-agreement.model';
 import { JobPlan } from "./plan.model";
 import { ChangeOrderGroup } from "./job-change-order.model";
 import * as moment from 'moment';
-import { TimeOfSaleOptionPrice } from './time-of-sale-option-price.model';
 
 export interface IJob
 {
@@ -29,7 +28,6 @@ export interface IJob
 	jobSalesAgreementAssocs: JobSalesAgreementAssoc[];
 	jobTypeName: string;
 	createdBy: string;
-	timeOfSaleOptionPrices: TimeOfSaleOptionPrice[];
 }
 
 export class Job
@@ -56,7 +54,6 @@ export class Job
 	jobSalesAgreementAssocs: JobSalesAgreementAssoc[] = [];
 	jobTypeName: string;
 	createdBy: string;
-	timeOfSaleOptionPrices: TimeOfSaleOptionPrice[] = [];
 
 	constructor(dto: IJob = null)
 	{
@@ -83,8 +80,7 @@ export class Job
 			this.projectedDates = dto.projectedDates ? new ProjectedDate(dto.projectedDates) : null;
 			this.jobSalesAgreementAssocs = dto.jobSalesAgreementAssocs ? dto.jobSalesAgreementAssocs : null;
 			this.jobTypeName = dto.jobTypeName;
-			this.createdBy = dto.createdBy;
-			this.timeOfSaleOptionPrices = dto.timeOfSaleOptionPrices ? dto.timeOfSaleOptionPrices : null;
+			this.createdBy = dto.createdBy
 		}
 	}
 }

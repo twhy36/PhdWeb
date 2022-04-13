@@ -74,18 +74,3 @@
 	font-style: normal;
     src: url("../assets/american-west/fonts/Optima-LinoType-Bold.woff2") format("woff2");
 }
-
-/* Divosta Brand Font */
-@font-face {
-  font-family: "StagSans";
-	font-style: normal;
-	font-weight: normal;
-  src: url('../assets/divosta/fonts/StagSans-Book-Web.woff') format("woff2");
-}
-
-@font-face {
-  font-family: "StagSans";
-	font-weight: lighter;
-	font-style: normal;
-  src: url("../assets/divosta/fonts/StagSans-Light-Web.woff") format("woff2");
-}

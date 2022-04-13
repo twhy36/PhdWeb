@@ -34,7 +34,6 @@ import { ContractService } from '../../core/services/contract.service';
 
 import * as _ from 'lodash';
 import { LotsLoaded, LotActionTypes } from '../../ngrx-store/lot/actions';
-import { JobService } from '../../core/services/job.service';
 
 @Component({
 	selector: 'change-order-summary',
@@ -813,18 +812,9 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 
 				return this._changeOrderService.updateJobChangeOrder(changeOrdersToBeUpdated);
 			}),
-			combineLatest(
-				this.store.pipe(
-					take(1),
-					select(state => state.job.timeOfSaleOptionPrices)
-				)
-			),
 			finalize(() => this.isSaving = false)
-		).subscribe(([changeOrders, timeOfSaleOptionPrices]) =>
+		).subscribe(changeOrders =>
 		{
-			// #353697 Once the CO is saved, we need to clear out any related option prices that have been restored, in both the database and the job state
-			this.store.dispatch(new JobActions.DeleteReplaceOptionPrice(timeOfSaleOptionPrices));
-
 			if (changeOrders.some(co => co.constructionStatusDescription === 'Approved'))
 			{
 				if (this.salesAgreementId)

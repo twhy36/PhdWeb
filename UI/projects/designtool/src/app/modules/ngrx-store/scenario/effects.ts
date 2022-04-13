@@ -9,7 +9,7 @@ import { switchMap, withLatestFrom, share, combineLatest, flatMap, map, take, de
 import * as _ from 'lodash';
 import { ApplicationInsights } from '@microsoft/applicationinsights-web';
 
-import { Plan, DtoScenarioInfo, TimeOfSaleOptionPrice, ITimeOfSaleOptionPrice } from 'phd-common';
+import { Plan, DtoScenarioInfo } from 'phd-common';
 
 import { CommonActionTypes, JobLoaded, SalesAgreementLoaded, ScenarioLoaded } from './../actions';
 import { OptionService } from '../../core/services/option.service';
@@ -28,7 +28,6 @@ import { SetWebPlanMapping, PlansLoaded, SelectPlan } from '../plan/actions';
 import * as fromRoot from '../reducers';
 import { tryCatch, MapFunction } from '../error.action';
 import { SalesCommunityLoaded } from '../org/actions';
-import { SaveReplaceOptionPrice } from '../job/actions';
 
 @Injectable()
 export class ScenarioEffects {
@@ -129,11 +128,8 @@ export class ScenarioEffects {
 						store.changeOrder.currentChangeOrder.salesStatusDescription === 'Pending')
 					&& store.scenario.buildMode !== 'preview';
 
-				const timeOfSaleOptionPricesToSave = _.flatMap((action as SelectChoices).choices.filter(c => c.quantity !== 0), c => c.timeOfSaleOptionPrices);
-
-				if (!savingScenario && !savingPendingJio && savingChangeOrder)
-				{
-					return from([new SaveChangeOrderScenario(), new SaveReplaceOptionPrice(timeOfSaleOptionPricesToSave)]);
+				if (!savingScenario && !savingPendingJio && savingChangeOrder) {
+					return of(new SaveChangeOrderScenario());
 				}
 				else {
 					return timer(3000).pipe(
