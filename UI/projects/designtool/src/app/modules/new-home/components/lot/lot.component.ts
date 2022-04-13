@@ -384,7 +384,7 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 		}).filter(r => r.rules.length);
 
 		// All previously required lot choice rules that are not required on the current lot
-		const noLongerRequiredSelections = prevLotChoiceRules.map((lcr) => {
+		const noLongerRequiredSelections = prevLotChoiceRules?.map((lcr) => {
 			return { ...lcr, rules: lcr.rules.filter((rule) => rule.mustHave && !requiredSelections.some(r2 => lcr.divChoiceCatalogId == r2.divChoiceCatalogId)) }
 		}).filter(r => r.rules.length);
 
@@ -398,7 +398,7 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 		}).filter(r => r.rules.length);
 
 		if (((requiredSelections?.length || disabledSelections?.length) && !selected)
-				|| noLongerRequiredSelections.length)
+				|| noLongerRequiredSelections?.length)
 		{
 			const confirm = this.modalService.open(ConfirmModalComponent, { centered: true });
 
@@ -418,10 +418,10 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 				body += 'Choice ' + this.currentChoices.find(cc => cc.divChoiceCatalogId === ncr.divChoiceCatalogId)?.label + ' Disabled' + '<br />';
 			});
 
-			body += noLongerRequiredSelections.length ? '<br />' + '<b>' + 'The following choice(s) will no longer be required for Lot ' + lot.lotBlock + '.'
+			body += noLongerRequiredSelections?.length ? '<br />' + '<b>' + 'The following choice(s) will no longer be required for Lot ' + lot.lotBlock + '.'
 					+ ' You will be able to modify the choice(s) if you continue: ' + '</b>' + '<br />' : '';
 
-			noLongerRequiredSelections.forEach(ncr =>
+			noLongerRequiredSelections?.forEach(ncr =>
 			{
 				body += 'Choice ' + this.currentChoices.find(cc => cc.divChoiceCatalogId === ncr.divChoiceCatalogId)?.label + '<br />';
 			});
