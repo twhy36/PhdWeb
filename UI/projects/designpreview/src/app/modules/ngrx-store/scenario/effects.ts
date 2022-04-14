@@ -25,7 +25,7 @@ import { AdobeService } from '../../core/services/adobe.service';
 @Injectable()
 export class ScenarioEffects
 {
-	selectChoices$: Observable<Action> = createEffect(() => 
+	selectChoices$: Observable<Action> = createEffect(() =>
 		this.actions$.pipe(
 			ofType<SelectChoices>(ScenarioActionTypes.SelectChoices),
 			withLatestFrom(this.store.pipe(select(fromRoot.filteredTree)), this.store.pipe(select(fromFavorite.currentMyFavorite))),
@@ -109,13 +109,13 @@ export class ScenarioEffects
 		)
 	);
 
-	pushSearchEvent$: Observable<Action> = createEffect(() => 
+	pushSearchEvent$: Observable<Action> = createEffect(() =>
 		this.actions$.pipe(
 			ofType<SetTreeFilter>(ScenarioActionTypes.SetTreeFilter),
 			withLatestFrom(this.store.pipe(select(fromRoot.filteredTree))),
 			tryCatch(source => source.pipe(
 				switchMap(([action, tree]) => {
-					this.adobeService.setSearchEvent(action.treeFilter.keyword, tree);
+					this.adobeService.setSearchEvent(action?.treeFilter?.keyword, tree);
 					return new Observable<never>()
 				})
 			), LoadError, "")

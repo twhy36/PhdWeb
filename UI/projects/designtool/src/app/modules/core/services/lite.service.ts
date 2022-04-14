@@ -423,7 +423,7 @@ export class LiteService
 	{
 		const baseHouseCategory = categories.find(x => x.name.toLowerCase() === "base house");
 		const selectedBaseHouseOptions = options.filter(option =>
-			option.optionCategoryId === baseHouseCategory.id
+			option.optionCategoryId === baseHouseCategory?.id
 			&& scenarioOptions?.find(opt => opt.edhPlanOptionId === option.id));
 
 		return { selectedBaseHouseOptions: selectedBaseHouseOptions, baseHouseCategory: baseHouseCategory };
