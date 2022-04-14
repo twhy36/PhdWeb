@@ -156,6 +156,7 @@
 		<!-- Show Summary in PhdLite -->
 		<phd-nav-menu-item *ngIf="selectedPlanId && (isPhdLite$ | async) && (!isSalesAgreementCancelledOrVoided && !specCancelled)"
 			[ngClass]="(isTablet$ | async) && invertHamburgerMenuColor ? 'phd-menu-item-color' : null"
+			[isActive]="currentRoute?.startsWith('/lite-summary')"
 			(click)="navigate(['/lite-summary'])">
 			<ng-template>
 				<span>Summary </span>

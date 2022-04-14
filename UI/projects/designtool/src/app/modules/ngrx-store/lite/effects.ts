@@ -16,7 +16,7 @@ import {
 	LiteActionTypes, SetIsPhdLite, LiteOptionsLoaded, SaveScenarioOptions, ScenarioOptionsSaved, SaveScenarioOptionColors, OptionCategoriesLoaded, SelectOptions,
 	LoadLiteMonotonyRules, LiteMonotonyRulesLoaded, CancelJobChangeOrderLite, SelectOptionColors, LoadLitePlan, CancelPlanChangeOrderLite, CreateJIOForSpecLite, LoadLiteSpecOrModel
 } from './actions';
-import { CommonActionTypes, ScenarioLoaded, LoadSalesAgreement, SalesAgreementLoaded, LoadError, LoadSpec } from '../actions';
+import { CommonActionTypes, ScenarioLoaded, LoadSalesAgreement, SalesAgreementLoaded, LoadError, LoadSpec, JobLoaded } from '../actions';
 import * as fromRoot from '../reducers';
 import * as _ from 'lodash';
 import { IOptionCategory } from '../../shared/models/lite.model';
@@ -155,7 +155,7 @@ export class LiteEffects
 
 	loadSalesAgreementOptions$: Observable<Action> = createEffect(() => {
 		return this.actions$.pipe(
-			ofType<SalesAgreementLoaded>(CommonActionTypes.SalesAgreementLoaded),
+			ofType<SalesAgreementLoaded | JobLoaded>(CommonActionTypes.SalesAgreementLoaded, CommonActionTypes.JobLoaded),
 			withLatestFrom(this.store),
 			tryCatch(source => source.pipe(
 				switchMap(([action, store]) => {

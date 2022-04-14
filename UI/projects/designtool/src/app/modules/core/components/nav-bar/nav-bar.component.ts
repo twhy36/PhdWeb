@@ -96,7 +96,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 
 				if (this.currentRoute)
 				{
-					this.invertHamburgerMenuColor = this.currentRoute.startsWith('/point-of-sale') || this.currentRoute.startsWith('/change-orders') || this.currentRoute.startsWith('/scenario-summary');
+					this.invertHamburgerMenuColor = this.currentRoute.startsWith('/point-of-sale') || this.currentRoute.startsWith('/change-orders') || this.currentRoute.startsWith('/scenario-summary') || this.currentRoute.startsWith('/lite-summary');
 				}
 			}
 		});
