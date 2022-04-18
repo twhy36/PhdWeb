@@ -239,10 +239,10 @@ export class JobEffects
 					}
 					else
 					{
-						return of([]);
+						return of([] as TimeOfSaleOptionPrice[]);
 					}
 				}),
-				map(resp => new ReplaceOptionPriceSaved())
+				map(timeOfSaleOptionPrices => new ReplaceOptionPriceSaved(timeOfSaleOptionPrices))
 			), SaveError, 'Error saving replaced option prices!!')
 		);
 	});
@@ -251,21 +251,24 @@ export class JobEffects
 	{
 		return this.actions$.pipe(
 			ofType<DeleteReplaceOptionPrice>(JobActionTypes.DeleteReplaceOptionPrice),
-			withLatestFrom(this.store),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store]) =>
-				{
-					const timeOfSaleOptionPrices = (action as DeleteReplaceOptionPrice).timeOfSaleOptionPrices;
+				switchMap(action =>
+					this.store.pipe(
+						take(1),
+						switchMap(state =>
+						{
+							const timeOfSaleOptionPrices = state.job.timeOfSaleOptionPrices;
 
-					if (timeOfSaleOptionPrices && timeOfSaleOptionPrices.length)
-					{
-						return this.jobService.deleteTimeOfSaleOptionPrices(timeOfSaleOptionPrices);
-					}
-					else
-					{
-						return of([] as TimeOfSaleOptionPrice[]);
-					}
-				}),
+							if (timeOfSaleOptionPrices && timeOfSaleOptionPrices.length)
+							{
+								return this.jobService.deleteTimeOfSaleOptionPrices(timeOfSaleOptionPrices);
+							}
+							else
+							{
+								return of([] as TimeOfSaleOptionPrice[]);
+							}
+						})
+					)),
 				map(timeOfSaleOptionPrices => new ReplaceOptionPriceDeleted(timeOfSaleOptionPrices))
 			), SaveError, 'Error deleting replaced option prices!!')
 		);
