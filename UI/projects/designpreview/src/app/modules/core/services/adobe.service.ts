@@ -34,7 +34,7 @@ export class AdobeService extends UnsubscribeOnDestroy {
             super();
 	    }
 
-    setPageLoadEvent(adobeLoadInitialized: boolean, pageType: string,
+    setPageLoadEvent(adobeLoadInitialized: boolean, pageType: string, 
         pageName: string, groupName: string, subGroupName: string) {
         window['appEventData'] = window['appEventData'] || [];
         this.store.pipe(
@@ -75,7 +75,7 @@ export class AdobeService extends UnsubscribeOnDestroy {
     setSearchEvent(term: string, tree: TreeVersion) {
         window['appEventData'] = window['appEventData'] || [];
 
-        if (term.length > 2) {
+        if (term?.length > 2) {
             const choices = _.flatMap(tree.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices))) || [];
             const searchEvent = new SearchEvent(term, choices.length);
 

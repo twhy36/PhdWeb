@@ -29,7 +29,8 @@ import {
 	ChoiceImageAssoc,
 	MyFavoritesChoice,
 	MyFavoritesPointDeclined,
-	getChoiceToDeselect
+	Choice,
+	PickType
 } from 'phd-common';
 
 import { GroupBarComponent } from '../../../shared/components/group-bar/group-bar.component';
@@ -50,7 +51,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 	communityName: string = '';
 	planName: string = '';
 	groups: Group[];
-	params$ = new ReplaySubject<{ favoritesId: number, subGroupCatalogId: number }>(1);
+	params$ = new ReplaySubject<{ favoritesId: number, subGroupCatalogId: number, divChoiceCatalogId: number }>(1);
 	groupName: string = '';
 	selectedSubGroup : SubGroup;
 	selectedSubgroupId: number;
@@ -116,7 +117,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 
 		this.route.paramMap.pipe(
 			this.takeUntilDestroyed(),
-			map(params => { return { favoritesId: +params.get('favoritesId'), subGroupCatalogId: +params.get('subGroupCatalogId') }; }),
+			map(params => { return { favoritesId: +params.get('favoritesId'), subGroupCatalogId: +params.get('subGroupCatalogId'), divChoiceCatalogId: +params.get('divChoiceCatalogId') }; }),
 			distinctUntilChanged()
 		).subscribe(params => this.params$.next(params));
 
@@ -161,11 +162,19 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 								}
 							}
 						}
-
 						this.router.navigate(['..', subGroupCatalogId], { relativeTo: this.route });
 					}
 					else {
 						this.setSelectedGroup(groups.find(g => g.subGroups.some(sg1 => sg1.id === sg.id)), sg);
+
+						if (params.divChoiceCatalogId > 0) {
+							const paramPoint = this.selectedSubGroup.points.find(p => p.choices.find(c => params.divChoiceCatalogId === c.divChoiceCatalogId));
+							const paramChoice = paramPoint.choices.find(c => params.divChoiceCatalogId === c.divChoiceCatalogId);
+							
+							if (!!paramChoice) {
+								this.openChoiceDetailPage(this.getChoiceExt(paramChoice, paramPoint));
+							}
+						}
 					}
 				}
 				else if (scenarioState.treeFilter) {
@@ -181,7 +190,9 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 				}
 			}
 			else if (filteredTree && !this.noVisibleGroups) {
-				this.router.navigate([filteredTree.groups[0].subGroups[0].subGroupCatalogId], { relativeTo: this.route });
+				const subGroup = filteredTree.groups[0].subGroups[0];
+				this.store.dispatch(new NavActions.SetSelectedSubgroup(subGroup.id));
+				this.router.navigate([subGroup.subGroupCatalogId], { relativeTo: this.route });
 			}
 		});
 
@@ -193,7 +204,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			debounceTime(100)
 		).subscribe(([nav, groups]) => {
 			const sgId = nav && nav.selectedSubGroup;
-			const subGroup = _.flatMap(groups, g => g.subGroups).find(s => s.id === sgId);
+			const subGroup = _.flatMap(groups, g => g.subGroups).find(s => s.id === sgId) || _.flatMap(groups, g => g.subGroups)[0];
 
 			this.selectedPointId = nav && nav.selectedPoint;
 			if (!this.selectedPointId && subGroup && subGroup.points && subGroup.points.length)
@@ -201,8 +212,8 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 				this.selectedPointId = subGroup.points[0].id;
 			}
 
-			if (sgId && sgId !== this.selectedSubgroupId && subGroup) {
-				this.router.navigate(['..', subGroup.subGroupCatalogId], { relativeTo: this.route });
+			if ((nav.selectedSubGroup !== this.selectedSubGroup?.id) && subGroup) {
+				this.router.navigate(['..', subGroup?.subGroupCatalogId], { relativeTo: this.route });
 			}
 		});
 
@@ -360,16 +371,24 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		this.store.dispatch(new FavoriteActions.ToggleContractedOptions());
 	}
 
-	viewChoiceDetail(choice: ChoiceExt)
+	openChoiceDetailPage(choice: ChoiceExt)
 	{
 		this.selectedChoice = choice;
 		this.showDetails = true;
+		this.selectedPointId = this.selectedChoice.treePointId;
+		this.store.dispatch(new NavActions.SetSelectedSubgroup(this.selectedSubgroupId, this.selectedPointId, this.selectedChoice.id));
+	}
+
+	viewChoiceDetail(choice: ChoiceExt) {
+		this.router.navigateByUrl(`/favorites/my-favorites/${this.myFavoriteId}/${this.selectedSubGroup.subGroupCatalogId}/${choice.divChoiceCatalogId}`);
 	}
 
 	hideDetails()
 	{
+		this.router.navigateByUrl(`/favorites/my-favorites/${this.myFavoriteId}/${this.selectedSubGroup.subGroupCatalogId}`);
 		this.showDetails = false;
 		this.selectedChoice = null;
+		this.store.dispatch(new NavActions.SetSelectedSubgroup(this.selectedSubgroupId, this.selectedPointId, null));
 
 		this.cd.detectChanges();
 		setTimeout(() => {
@@ -440,5 +459,28 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 	{
 		this.showDetails = false;
 		this.selectedChoice = null;
+	}
+
+	getChoiceExt(choice: Choice, point: DecisionPoint) : ChoiceExt
+	{
+		let choiceStatus = 'Available';
+		if (point.isPastCutOff || this.salesChoices?.findIndex(c => c.divChoiceCatalogId === choice.divChoiceCatalogId) > -1)
+		{
+			choiceStatus = 'Contracted';
+		}
+		else
+		{
+			const contractedChoices = point.choices.filter(c => this.salesChoices?.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1);
+			if (contractedChoices && contractedChoices.length &&
+				(point.pointPickTypeId === PickType.Pick1 || point.pointPickTypeId === PickType.Pick0or1))
+			{
+				choiceStatus = 'ViewOnly';
+			}
+		}
+
+		const myFavoritesChoice = this.myFavoritesChoices ? this.myFavoritesChoices.find(x => x.divChoiceCatalogId === choice.divChoiceCatalogId) : null;
+		const images = this.currentChoiceImages?.filter(x => x.dpChoiceId === choice.id);
+
+		return new ChoiceExt(choice, choiceStatus, myFavoritesChoice, point.isStructuralItem, images);
 	}
 }
