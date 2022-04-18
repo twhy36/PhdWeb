@@ -4,13 +4,14 @@ import { switchMap, catchError, map } from 'rxjs/operators';
 import * as _ from 'lodash';
 import * as moment from "moment";
 
-import {
-	findChoice, DesignToolAttribute, JobChoice, JobPlanOption, JobChoiceAttribute, JobChoiceLocation, Job,
-	ChangeOrderGroup, ChangeOrderChoice, ChangeOrderPlanOption, ChangeOrderChoiceAttribute, ChangeOrderChoiceLocation,
-	PlanOption, PointStatus, ConstructionStageTypes, Tree, Choice, DecisionPoint, MappedAttributeGroup, MappedLocationGroup,
-	Attribute, AttributeGroup, AttributeCommunityImageAssoc, Location, LocationGroup, OptionImage, ChoiceRules, PointRules,
-	Group, SubGroup, OptionRule, MyFavoritesChoice
-} from 'phd-common';
+import
+	{
+		findChoice, DesignToolAttribute, JobChoice, JobPlanOption, JobChoiceAttribute, JobChoiceLocation, Job,
+		ChangeOrderGroup, ChangeOrderChoice, ChangeOrderPlanOption, ChangeOrderChoiceAttribute, ChangeOrderChoiceLocation,
+		PlanOption, PointStatus, ConstructionStageTypes, Tree, Choice, DecisionPoint, MappedAttributeGroup, MappedLocationGroup,
+		Attribute, AttributeGroup, AttributeCommunityImageAssoc, Location, LocationGroup, OptionImage, ChoiceRules, PointRules,
+		Group, SubGroup, OptionRule, MyFavoritesChoice
+	} from 'phd-common';
 
 import { TreeService } from '../../core/services/tree.service';
 import { BlockedByItemList } from '../models/blocked-by.model';
@@ -134,14 +135,17 @@ function isOptionLocked(changeOrder: ChangeOrderGroup): (option: JobPlanOption |
 export function getDefaultOptionRule(optionNumber: string, choice: Choice): OptionRule
 {
 	return <OptionRule>{
-		optionId: optionNumber, choices: [
-			{
+		optionId: optionNumber,
+		optionMappings: [{
+			mappingIndex: 0,
+			choices: [{
 				id: choice.divChoiceCatalogId,
 				mustHave: true,
 				attributeReassignments: []
-			}
-		],
-		ruleId: 0, replaceOptions: []
+			}]
+		}],
+		ruleId: 0,
+		replaceOptions: []
 	};
 }
 
@@ -155,13 +159,14 @@ function saveLockedInChoices(choices: Array<JobChoice | ChangeOrderChoice>, tree
 		{
 			treeChoice.lockedInChoice = getLockedInChoice(choice, options);
 			treeChoice.mappedAttributeGroups = (isJobChoice(choice)
-					? _.uniq(choice.jobChoiceAttributes.map(jca => jca.attributeGroupCommunityId))
-					: _.uniq(choice.jobChangeOrderChoiceAttributes.map(coca => coca.attributeGroupCommunityId))
-				).map(att => new MappedAttributeGroup({ id: att }));
+				? _.uniq(choice.jobChoiceAttributes.map(jca => jca.attributeGroupCommunityId))
+				: _.uniq(choice.jobChangeOrderChoiceAttributes.map(coca => coca.attributeGroupCommunityId))
+			).map(att => new MappedAttributeGroup({ id: att }));
+
 			treeChoice.mappedLocationGroups = (isJobChoice(choice)
-					? _.uniq(choice.jobChoiceLocations.map(jcl => jcl.locationGroupCommunityId))
-					: _.uniq(choice.jobChangeOrderChoiceLocations.map(cocl => cocl.locationGroupCommunityId))
-				).map(loc => new MappedLocationGroup({ id: loc }));
+				? _.uniq(choice.jobChoiceLocations.map(jcl => jcl.locationGroupCommunityId))
+				: _.uniq(choice.jobChangeOrderChoiceLocations.map(cocl => cocl.locationGroupCommunityId))
+			).map(loc => new MappedLocationGroup({ id: loc }));
 		}
 	});
 }
@@ -257,7 +262,8 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 
 									let newChoice = new Choice();
 
-									newChoice = {...newChoice,
+									newChoice = {
+										...newChoice,
 										divChoiceCatalogId: ch.divChoiceCatalogID,
 										enabled: true,
 										id: ch.dpChoiceID,
@@ -408,26 +414,26 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 
 		//capture original option mappings for locked-in options/choices
 		treeService.getHistoricOptionMapping(_.flatten(choices.map(c =>
+		{
+			if (isJobChoice(c))
 			{
-				if (isJobChoice(c))
-				{
-					return c.jobChoiceJobPlanOptionAssocs
-						.filter(o => o.choiceEnabledOption)
-						.map(o =>
-						{
-							return { optionNumber: options.find(opt => opt.id === o.jobPlanOptionId).integrationKey, dpChoiceId: c.dpChoiceId };
-						});
-				}
-				else
-				{
-					return c.jobChangeOrderChoiceChangeOrderPlanOptionAssocs
-						.filter(o => o.jobChoiceEnabledOption)
-						.map(o =>
-						{
-							return { optionNumber: options.find(opt => opt.id === o.jobChangeOrderPlanOptionId).integrationKey, dpChoiceId: c.decisionPointChoiceID };
-						});
-				}
-			})))
+				return c.jobChoiceJobPlanOptionAssocs
+					.filter(o => o.choiceEnabledOption)
+					.map(o =>
+					{
+						return { optionNumber: options.find(opt => opt.id === o.jobPlanOptionId).integrationKey, dpChoiceId: c.dpChoiceId };
+					});
+			}
+			else
+			{
+				return c.jobChangeOrderChoiceChangeOrderPlanOptionAssocs
+					.filter(o => o.jobChoiceEnabledOption)
+					.map(o =>
+					{
+						return { optionNumber: options.find(opt => opt.id === o.jobChangeOrderPlanOptionId).integrationKey, dpChoiceId: c.decisionPointChoiceID };
+					});
+			}
+		})))
 	]).pipe(
 		//update pricing information for locked-in options/choices
 		map(([res, optImageAssoc, mapping]) =>
@@ -570,7 +576,8 @@ export function checkSelectedAttributes(choices: Choice[])
 	choices.forEach(choice =>
 	{
 		//if the choice is locked, we don't want to mess with attributes
-		if (choice.lockedInChoice) {
+		if (choice.lockedInChoice)
+		{
 			return;
 		}
 
@@ -703,140 +710,209 @@ export function mergeLocations(locations: Array<any>, missingLocations: Array<De
 }
 
 // Choice-To-Choice Structural Items
-export function hideChoicesByStructuralItems(choiceRules: ChoiceRules[], choices: Choice[], points: DecisionPoint[], hiddenChoiceIds: number[], hiddenPointIds: number[]) {
-	choiceRules.forEach(cr => {
+export function hideChoicesByStructuralItems(choiceRules: ChoiceRules[], choices: Choice[], points: DecisionPoint[], hiddenChoiceIds: number[], hiddenPointIds: number[])
+{
+	choiceRules.forEach(cr =>
+	{
 		let numOrRules = cr.rules.length;
 		let numBlocked = 0;
-		cr.rules.forEach(r => {
+
+		cr.rules.forEach(r =>
+		{
 			let numAndBlocked = 0;
-			r.choices.forEach(ch => {
+
+			r.choices.forEach(ch =>
+			{
 				const choice = r.ruleType === 1 ? choices.find(c => c.id === ch && c.quantity === 0) : choices.find(c => c.id === ch && c.quantity > 0);
-				if (choice) {
+
+				if (choice)
+				{
 					const dp = points.find(p => p.choices.findIndex(c => c.id === ch) >= 0);
-					if (dp.isStructuralItem && hiddenChoiceIds.indexOf(cr.choiceId) < 0) {
+
+					if (dp.isStructuralItem && hiddenChoiceIds.indexOf(cr.choiceId) < 0)
+					{
 						numAndBlocked++;
 					}
 				}
-			})
-			if (numAndBlocked > 0) {
+			});
+
+			if (numAndBlocked > 0)
+			{
 				numBlocked++;
 			}
-		})
-		if (numOrRules === numBlocked) {
+		});
+
+		if (numOrRules === numBlocked)
+		{
 			hiddenChoiceIds.push(cr.choiceId);
 		}
-	})
+	});
+
 	let hiddenChoicesFound = false;
-	while (!hiddenChoicesFound) {
+
+	while (!hiddenChoicesFound)
+	{
 		hiddenChoicesFound = true;
-		choiceRules.forEach(cr => {
-			cr.rules.forEach(r => {
+
+		choiceRules.forEach(cr =>
+		{
+			cr.rules.forEach(r =>
+			{
 				const choice = r.choices.find(ch => hiddenChoiceIds.indexOf(ch) > -1 && hiddenChoiceIds.indexOf(cr.choiceId) < 0);
-				if (choice) {
+
+				if (choice)
+				{
 					hiddenChoicesFound = false;
 					hiddenChoiceIds.push(cr.choiceId);
 				}
 			})
 		})
 	}
+
 	// Covers scenario that all choices within a DP are hidden, even if DP is not disabled
-	points.forEach(p => {
+	points.forEach(p =>
+	{
 		let hiddenChoiceQuantity = 0;
-		p.choices.forEach(c => {
-			if (hiddenChoiceIds.findIndex(hid => hid === c.id) > -1) {
+
+		p.choices.forEach(c =>
+		{
+			if (hiddenChoiceIds.findIndex(hid => hid === c.id) > -1)
+			{
 				hiddenChoiceQuantity++;
 			}
-		})
-		if (hiddenChoiceQuantity === p.choices.length) {
+		});
+
+		if (hiddenChoiceQuantity === p.choices.length)
+		{
 			hiddenPointIds.push(p.id);
 		}
 	})
 }
 
 // Point-To-Choice && Point-To-Point Structural Items
-export function hidePointsByStructuralItems(pointRules: PointRules[], choices: Choice[], points: DecisionPoint[], hiddenChoiceIds: number[], hiddenPointIds: number[]) {
+export function hidePointsByStructuralItems(pointRules: PointRules[], choices: Choice[], points: DecisionPoint[], hiddenChoiceIds: number[], hiddenPointIds: number[])
+{
 	// cr.choiceId is the affected choice
-		// cr.rules = number of rules for choice, these are all ORS
-		// r.choices are the affecting choice per rule, if multiple choices, its an AND
-	pointRules.forEach(pr => {
-    // Must Have Rules
-    const dpToChoiceRules = pr.rules.filter(r => r.ruleType === 1 && r.choices.length > 0);
-    if(dpToChoiceRules.length > 0) {
-      // At least one rule must be dissatisfied for the point to be hidden
-      if(hiddenPointIds.indexOf(pr.pointId) < 0 && dpToChoiceRules.reduce((isHiddenPoint, r) => {
-        // All choices in the rule must be satisfied for the rule to be considered satisfied
-        return isHiddenPoint && r.choices.length ===
-          r.choices.filter(ch => {
-            const choice = choices.find(c => c.id === ch && c.quantity === 0);
-            if (choice) {
-              const dp = points.find(p => p.choices.findIndex(c => c.id === ch) >= 0 && p.isStructuralItem);
-              return !!dp;
-            } else {
-              return false;
-            }
-          }).length
-      }, true)) {
-        hiddenPointIds.push(pr.pointId);
-      };
-    }
-    const dpToDpRules = pr.rules.filter(r => r.ruleType === 1 && r.points.length > 0);
-    if(dpToDpRules.length > 0) {
-      // At least one rule must be dissatisfied for the point to be hidden
-      if(hiddenPointIds.indexOf(pr.pointId) < 0 && dpToDpRules.reduce((isHiddenPoint, r) => {
-        // All points in the rule must be satisfied for the rule to be considered satisfied
-        return isHiddenPoint && r.points.length ===
-          r.points.filter(po => {
-            const dp = points.find(p => p.id === po && p.isStructuralItem && !p.completed);
-            return dp && dp.choices.reduce((quantity, c) => quantity + c.quantity, 0) === 0;
-          }).length
-      }, true)) {
-        hiddenPointIds.push(pr.pointId);
-      };
-    }
-    // Must Not Have Rules
-		pr.rules.filter(r => r.ruleType === 2).forEach(r => {
-      // Point to Choice
-      if(r.choices.length > 0) {
-        // At least one choice must be dissatisfied for the point to be hidden
-        if(hiddenPointIds.indexOf(pr.pointId) < 0 && r.choices.reduce((isHiddenPoint, ch) => {
-          const choice = choices.find(c => c.id === ch && c.quantity > 0);
-          return !!choice
-            && isHiddenPoint
-            && !!(points.find(p => (p.choices.findIndex(c => c.id === ch) >= 0) && p.isStructuralItem));
-        }, true)) {
-          hiddenPointIds.push(pr.pointId);
-        }
-      }
-      // Point to Point
-      if(r.points.length > 0) {
-        // At least one point must be dissatisfied for the point to be hidden
-        if(hiddenPointIds.indexOf(pr.pointId) < 0 && r.points.reduce((isHiddenPoint, po) => {
-          const dp = points.find(p => p.id === po && p.isStructuralItem && !p.completed);
-          return isHiddenPoint
-            && dp
-            && dp.choices.reduce((quantity, c) => quantity + c.quantity, 0) > 0;
-        }, true)) {
-          hiddenPointIds.push(pr.pointId);
-        }
-      }
+	// cr.rules = number of rules for choice, these are all ORS
+	// r.choices are the affecting choice per rule, if multiple choices, its an AND
+	pointRules.forEach(pr =>
+	{
+		// Must Have Rules
+		const dpToChoiceRules = pr.rules.filter(r => r.ruleType === 1 && r.choices.length > 0);
+
+		if (dpToChoiceRules.length > 0)
+		{
+			// At least one rule must be dissatisfied for the point to be hidden
+			if (hiddenPointIds.indexOf(pr.pointId) < 0 && dpToChoiceRules.reduce((isHiddenPoint, r) =>
+			{
+				// All choices in the rule must be satisfied for the rule to be considered satisfied
+				return isHiddenPoint && r.choices.length ===
+					r.choices.filter(ch =>
+					{
+						const choice = choices.find(c => c.id === ch && c.quantity === 0);
+
+						if (choice)
+						{
+							const dp = points.find(p => p.choices.findIndex(c => c.id === ch) >= 0 && p.isStructuralItem);
+
+							return !!dp;
+						}
+						else
+						{
+							return false;
+						}
+					}).length
+			}, true))
+			{
+				hiddenPointIds.push(pr.pointId);
+			};
+		}
+
+		const dpToDpRules = pr.rules.filter(r => r.ruleType === 1 && r.points.length > 0);
+
+		if (dpToDpRules.length > 0)
+		{
+			// At least one rule must be dissatisfied for the point to be hidden
+			if (hiddenPointIds.indexOf(pr.pointId) < 0 && dpToDpRules.reduce((isHiddenPoint, r) =>
+			{
+				// All points in the rule must be satisfied for the rule to be considered satisfied
+				return isHiddenPoint && r.points.length ===
+					r.points.filter(po =>
+					{
+						const dp = points.find(p => p.id === po && p.isStructuralItem && !p.completed);
+
+						return dp && dp.choices.reduce((quantity, c) => quantity + c.quantity, 0) === 0;
+					}).length
+			}, true))
+			{
+				hiddenPointIds.push(pr.pointId);
+			};
+		}
+
+		// Must Not Have Rules
+		pr.rules.filter(r => r.ruleType === 2).forEach(r =>
+		{
+			// Point to Choice
+			if (r.choices.length > 0)
+			{
+				// At least one choice must be dissatisfied for the point to be hidden
+				if (hiddenPointIds.indexOf(pr.pointId) < 0 && r.choices.reduce((isHiddenPoint, ch) =>
+				{
+					const choice = choices.find(c => c.id === ch && c.quantity > 0);
+
+					return !!choice
+						&& isHiddenPoint
+						&& !!(points.find(p => (p.choices.findIndex(c => c.id === ch) >= 0) && p.isStructuralItem));
+				}, true))
+				{
+					hiddenPointIds.push(pr.pointId);
+				}
+			}
+			// Point to Point
+			if (r.points.length > 0)
+			{
+				// At least one point must be dissatisfied for the point to be hidden
+				if (hiddenPointIds.indexOf(pr.pointId) < 0 && r.points.reduce((isHiddenPoint, po) =>
+				{
+					const dp = points.find(p => p.id === po && p.isStructuralItem && !p.completed);
+
+					return isHiddenPoint
+						&& dp
+						&& dp.choices.reduce((quantity, c) => quantity + c.quantity, 0) > 0;
+				}, true))
+				{
+					hiddenPointIds.push(pr.pointId);
+				}
+			}
 		});
 	});
 
-  // Hide all DPs that are blocked by hidden DPs or Choices
+	// Hide all DPs that are blocked by hidden DPs or Choices
 	let hiddenPointsFound = false;
-	while (!hiddenPointsFound) {
+
+	while (!hiddenPointsFound)
+	{
 		hiddenPointsFound = true;
-		pointRules.forEach(pr => {
-			pr.rules.forEach(r => {
+
+		pointRules.forEach(pr =>
+		{
+			pr.rules.forEach(r =>
+			{
 				const choice = r.choices.find(ch => hiddenChoiceIds.indexOf(ch) > -1);
-				if (choice && hiddenPointIds.indexOf(pr.pointId) < 0) {
+
+				if (choice && hiddenPointIds.indexOf(pr.pointId) < 0)
+				{
 					hiddenPointsFound = false;
-						hiddenPointIds.push(pr.pointId);
+
+					hiddenPointIds.push(pr.pointId);
 				}
 
 				const point = r.points.find(p => hiddenPointIds.indexOf(p) > -1);
-				if (point && hiddenPointIds.indexOf(pr.pointId) < 0) {
+
+				if (point && hiddenPointIds.indexOf(pr.pointId) < 0)
+				{
 					hiddenPointsFound = false;
+
 					hiddenPointIds.push(pr.pointId);
 				}
 			});
@@ -854,14 +930,19 @@ export function getDisabledByList(tree: Tree, groups: Group[], point: DecisionPo
 	});
 
 	const allPoints = _.flatMap(tree?.treeVersion?.groups, g => _.flatMap(g.subGroups, sg => sg.points));
-	const allChoices = _.flatMap(allPoints, p => p.choices.map(c => ({...c, pointId: p.id})));
+	const allChoices = _.flatMap(allPoints, p => p.choices.map(c => ({ ...c, pointId: p.id })));
 	const filteredPoints = _.flatMap(groups, g => _.flatMap(g.subGroups, sg => sg.points));
-	point?.disabledBy.forEach(disabledPoint => {
-		disabledPoint.rules.forEach(rule => {
+
+	point?.disabledBy.forEach(disabledPoint =>
+	{
+		disabledPoint.rules.forEach(rule =>
+		{
 			if (rule.points?.length > 1)
 			{
-				rule.points.forEach(disabledByPointId => {
+				rule.points.forEach(disabledByPointId =>
+				{
 					const disabledByPoint = allPoints.find(point => point.id === disabledByPointId);
+
 					if (disabledByPoint?.status !== PointStatus.COMPLETED)
 					{
 						disabledByList.andPoints.push({
@@ -875,6 +956,7 @@ export function getDisabledByList(tree: Tree, groups: Group[], point: DecisionPo
 			else if (rule.points?.length === 1)
 			{
 				const disabledByPointId = rule.points[0];
+
 				disabledByList.orPoints.push({
 					label: allPoints.find(point => point.id === disabledByPointId)?.label,
 					pointId: filteredPoints.find(point => point.id === disabledByPointId) ? disabledByPointId : null,
@@ -884,8 +966,10 @@ export function getDisabledByList(tree: Tree, groups: Group[], point: DecisionPo
 
 			if (rule.choices?.length > 1)
 			{
-				rule.choices.forEach(disabledByChoiceId => {
+				rule.choices.forEach(disabledByChoiceId =>
+				{
 					const disabledByChoice = allChoices.find(choice => choice.id === disabledByChoiceId);
+
 					if (disabledByChoice.quantity === 0)
 					{
 						disabledByList.andChoices.push({
@@ -900,6 +984,7 @@ export function getDisabledByList(tree: Tree, groups: Group[], point: DecisionPo
 			else if (rule.choices?.length === 1)
 			{
 				const disabledByChoice = allChoices.find(choice => choice.id === rule.choices[0]);
+
 				disabledByList.orChoices.push({
 					label: disabledByChoice?.label,
 					pointId: filteredPoints.find(point => point.id === disabledByChoice?.pointId) ? disabledByChoice?.pointId : null,
@@ -909,12 +994,16 @@ export function getDisabledByList(tree: Tree, groups: Group[], point: DecisionPo
 			}
 		});
 	});
-	choice?.disabledBy.forEach(disabledChoice => {
-		disabledChoice.rules.forEach(rule => {
+	choice?.disabledBy.forEach(disabledChoice =>
+	{
+		disabledChoice.rules.forEach(rule =>
+		{
 			if (rule.choices?.length > 1)
 			{
-				rule.choices.forEach(disabledByChoiceId => {
+				rule.choices.forEach(disabledByChoiceId =>
+				{
 					const disabledByChoice = allChoices.find(choice => choice.id === disabledByChoiceId);
+
 					disabledByList.andChoices.push({
 						label: disabledByChoice?.label,
 						pointId: filteredPoints.find(point => point.id === disabledByChoice?.pointId) ? disabledByChoice?.pointId : null,
@@ -926,6 +1015,7 @@ export function getDisabledByList(tree: Tree, groups: Group[], point: DecisionPo
 			else if (rule.choices?.length === 1)
 			{
 				const disabledByChoice = allChoices.find(choice => choice.id === rule.choices[0]);
+
 				disabledByList.orChoices.push({
 					label: disabledByChoice?.label,
 					pointId: filteredPoints.find(point => point.id === disabledByChoice?.pointId) ? disabledByChoice?.pointId : null,
@@ -940,16 +1030,20 @@ export function getDisabledByList(tree: Tree, groups: Group[], point: DecisionPo
 }
 
 export function getLockedInChoice(choice: JobChoice | ChangeOrderChoice, options: Array<JobPlanOption | ChangeOrderPlanOption>)
-	: {
-		choice: (JobChoice | ChangeOrderChoice),
-		optionAttributeGroups: Array<{ optionId: string, attributeGroups: number[], locationGroups: number[] }>
-	}
+	:
+		{
+			choice: (JobChoice | ChangeOrderChoice),
+			optionAttributeGroups: Array<{ optionId: string, attributeGroups: number[], locationGroups: number[] }>
+		}
 {
-	return { choice,
+	return {
+		choice,
 		optionAttributeGroups: isJobChoice(choice)
 			? choice.jobChoiceJobPlanOptionAssocs.filter(a => a.choiceEnabledOption)
-				.map(a => {
+				.map(a =>
+				{
 					const opt = options.find(o => (o as JobPlanOption).id === a.jobPlanOptionId);
+
 					if (opt)
 					{
 						return {
@@ -964,8 +1058,10 @@ export function getLockedInChoice(choice: JobChoice | ChangeOrderChoice, options
 					}
 				})
 			: choice.jobChangeOrderChoiceChangeOrderPlanOptionAssocs.filter(a => a.jobChoiceEnabledOption)
-				.map(a => {
+				.map(a =>
+				{
 					const opt = options.find(o => (o as ChangeOrderPlanOption).id === a.jobChangeOrderPlanOptionId);
+
 					if (opt)
 					{
 						return {
@@ -979,5 +1075,5 @@ export function getLockedInChoice(choice: JobChoice | ChangeOrderChoice, options
 						return null;
 					}
 				})
-			};
+	};
 }
