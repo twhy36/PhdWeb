@@ -3,7 +3,7 @@ import { FormGroup, FormControl } from '@angular/forms';
 
 import * as _ from 'lodash';
 
-import { finalize, combineLatest } from 'rxjs/operators';
+import { finalize, combineLatest, switchMap } from 'rxjs/operators';
 
 import { NgbModal, NgbNavChangeEvent } from '@ng-bootstrap/ng-bootstrap';
 import { ConfirmModalComponent } from '../../../../core/components/confirm-modal/confirm-modal.component';
@@ -11,12 +11,14 @@ import { MessageService } from 'primeng/api';
 
 import { DTChoice, IDTPoint, DTree, IDTChoice } from '../../../../shared/models/tree.model';
 import { TreeService } from '../../../../core/services/tree.service';
+import { OrganizationService } from '../../../../core/services/organization.service';
 import { PhdApiDto, PhdEntityDto } from '../../../../shared/models/api-dtos.model';
 import { ITreeOption, OptionImage, IOptionRuleChoice, IOptionRuleChoiceGroup } from '../../../../shared/models/option.model';
 
 import { cloneDeep } from "lodash";
-import { IdentityService, Permission } from 'phd-common';
+import { IdentityService, Permission, FeatureSwitchService } from 'phd-common';
 import { getMaxSortOrderChoice } from '../../../../shared/classes/utils.class';
+
 
 @Component({
 	selector: 'option-side-panel',
@@ -29,7 +31,9 @@ export class OptionSidePanelComponent implements OnInit, OnChanges
 		private _treeService: TreeService,
 		private _msgService: MessageService,
 		private _modalService: NgbModal,
-		private _identityService: IdentityService
+		private _identityService: IdentityService,
+		private _featureSwitchService: FeatureSwitchService,
+		private _orgService: OrganizationService
 	) { }
 
 	@Input() currentTab: string;
@@ -40,6 +44,7 @@ export class OptionSidePanelComponent implements OnInit, OnChanges
 	@Input() currentTree: DTree;
 	@Input() isSaving = false;
 	@Input() selectedMarket: string;
+	@Input() selectedCommunity: string;
 	@Input() canEdit = false;
 
 	@Output() hasChanges = new EventEmitter<boolean>();
@@ -83,13 +88,24 @@ export class OptionSidePanelComponent implements OnInit, OnChanges
 	{
 		if (changes.selectedMarket)
 		{
-			this._identityService.hasClaimWithPermission('TreeImages', Permission.Edit).pipe(
-				combineLatest(this._identityService.hasMarket(this.selectedMarket))
-			).subscribe(([hasTreeImagesClaim, hasMarket]) =>
-			{
-				this.canEditImages = hasMarket && hasTreeImagesClaim;
-				this.canCreateAlternateMapping = true; // ToDo: Feature Switch at a later time. Setting to True for now for future stories.
-			});
+			this._orgService.getOrgByKey(this.selectedCommunity, false).pipe(
+				switchMap(org =>
+				{
+					const marketId = org.edhMarketId;
+					const communityId = org.edhFinancialCommunityId;
+
+					return this._identityService.hasClaimWithPermission('TreeImages', Permission.Edit).pipe(
+						combineLatest(
+							this._identityService.hasMarket(this.selectedMarket),
+							this._featureSwitchService.isFeatureEnabled('Or Mapping', { edhMarketId: marketId, edhFinancialCommunityId: communityId })
+						)
+					);
+				}))
+				.subscribe(([hasTreeImagesClaim, hasMarket, isOrMappingEnabled]) =>
+				{
+					this.canEditImages = hasMarket && hasTreeImagesClaim;
+					this.canCreateAlternateMapping = isOrMappingEnabled;
+				});
 		}
 	}
 

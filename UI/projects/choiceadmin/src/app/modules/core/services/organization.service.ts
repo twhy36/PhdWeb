@@ -316,6 +316,23 @@ export class OrganizationService
 		return retMarkets;
 	}
 
+	getOrgByKey(integrationKey: string, isMarket: boolean)
+	{
+		const select = `orgID, edhMarketId, edhFinancialCommunityId`;
+		let filter = `integrationKey eq '${integrationKey}' and edhFinancialCommunityId ${isMarket ? 'eq' : 'ne'} null`;
+
+		const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
+
+		let url = `${settings.apiUrl}orgs?${qryStr}`;
+
+		return this._http.get(url).pipe(
+			map(response =>
+			{
+				return response['value'][0] as PhdEntityDto.IOrgDto;
+			})
+		);
+	}
+
 	getAssignedMarkets(): Observable<Array<IFinancialMarket>>
 	{
 		const filter = `financialCommunities/any() and companyType eq 'HB' and salesStatusDescription eq 'Active'`;
