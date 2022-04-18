@@ -27,7 +27,7 @@
 					</phd-column>
 					<phd-column [field]="groupNameField" header="Group Name" isDragHandler="canReorderRows">
 						<ng-template let-group #body>
-							<span [ngClass]="{'phd-divisional-group-text': group.isDivisional}">{{group.locationGroupName}}</span>
+							<span [ngClass]="{'phd-divisional-group-text': group.isDivisional}">{{groupNameField === 'groupName' ? group.groupName : group.locationGroupName}}</span>
 						</ng-template>
 					</phd-column>
 				</phd-table>

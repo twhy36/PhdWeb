@@ -2,7 +2,7 @@
 
 <div *ngIf="isReadOnly && !hasGroupAssociated && !(isLoading | async)" class="alert alert-info">No attribute groups associated.</div>
 
-<div *ngIf="!isReadOnly">
+<div *ngIf="!hasTreeGroupAssociated && !isReadOnly">
 	<attribute-group-action-panel #addGroups
 								  [headerText]="'Attribute Groups'"
 								  [actionButtons]="addAssocButtons"
@@ -22,6 +22,8 @@
 	<i class="fa fa-spinner fa-spin fa-3x"></i>
 </div>
 
+<div class="phd-indicator" *ngIf="hasGroupAssociated && (!isReadOnly || isReadOnly && !(isLoading | async))"><span class="text-danger">*</span> Associating attributes at the tree level will override attributes associated at the division level.</div>
+
 <div *ngIf="hasGroupAssociated" class="phd-rules-list">
 	<attribute-group-action-panel #removeGroups
 								  [headerText]="'Associated Groups'"
@@ -33,9 +35,9 @@
 								  [groups]="associatedGroups"
 								  [divGroups]="divGroupsInMarket"
 								  [customClass]="'card mb-2'"
-	                              [customBodyClass]="'card-body'"
+								  [customBodyClass]="'card-body'"
 								  groupType="sorted-attribute"
-	                              [canReorderRows]="!isReadOnly"
+								  [canReorderRows]="!isReadOnly"
 								  (onRowReorder)="onChangeAssociatedGroupOrder($event)"
 								  (displayErrorMessage)="displayErrorMessage($event)"
 								  (isLoadingChange)="isLoadingChange($event)">
