@@ -163,14 +163,19 @@ export class JobService
 		);
 	}
 
-	saveTimeOfSaleOptionPrices(timeOfSaleOptionPrices: TimeOfSaleOptionPrice[])
+	saveTimeOfSaleOptionPrices(timeOfSaleOptionPrices: TimeOfSaleOptionPrice[]): Observable<TimeOfSaleOptionPrice[]>
 	{
 		const url = `${environment.apiUrl}SaveTimeOfSaleOptionPrices`;
 		const body = {
 			timeOfSaleOptionPrices: timeOfSaleOptionPrices
 		}
 
-		return this._http.post<any>(url, body);
+		return this._http.post<TimeOfSaleOptionPrice[]>(url, body).pipe(
+			map(response =>
+			{
+				return (response['value'] as Array<TimeOfSaleOptionPrice>).map(o => new TimeOfSaleOptionPrice(o));
+			})
+		);
 	}
 
 	deleteTimeOfSaleOptionPricesForJob(jobId: number)
