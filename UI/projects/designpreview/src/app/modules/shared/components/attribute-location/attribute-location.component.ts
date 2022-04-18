@@ -6,6 +6,7 @@ import * as _ from 'lodash';
 import { Location, Attribute, AttributeGroup, LocationGroup, DesignToolAttribute } from 'phd-common';
 import { ChoiceExt } from '../../models/choice-ext.model';
 import { AttributeGroupExt } from '../../models/attribute-ext.model';
+import { AdobeService } from '../../../core/services/adobe.service';
 
 @Component({
 	selector: 'attribute-location',
@@ -37,7 +38,10 @@ export class AttributeLocationComponent implements OnInit, OnChanges
 	attributeGroups: AttributeGroupExt[] = [];
 	maxQuantityModalRef: NgbModalRef;
 
-	constructor(private modalService: NgbModal) { }
+	constructor(
+		private modalService: NgbModal,
+		private adobeService: AdobeService
+	) { }
 
 	get selectedLocationAttributes(): DesignToolAttribute[]
 	{
@@ -131,6 +135,7 @@ export class AttributeLocationComponent implements OnInit, OnChanges
 				keyboard: false,
 			}
 			this.maxQuantityModalRef = this.modalService.open(this.maxQuantityModal, modalOptions);
+			this.adobeService.setAlertEvent("You won't need that many for your home. Max quantity is " + (this.maxQuantity !== null ? this.maxQuantity : 0).toString() + ".", 'Max Quantity Alert');
 		}
 	}
 

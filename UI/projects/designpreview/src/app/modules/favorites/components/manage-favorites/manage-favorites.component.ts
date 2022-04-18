@@ -14,6 +14,7 @@ import * as FavoriteActions from '../../../ngrx-store/favorite/actions';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 import * as CommonActions from '../../../ngrx-store/actions';
 import { FavoriteService } from '../../../core/services/favorite.service';
+import { AdobeService } from '../../../core/services/adobe.service';
 
 @Component({
 	selector: 'manage-favorites',
@@ -33,7 +34,8 @@ export class ManageFavoritesComponent extends UnsubscribeOnDestroy implements On
 		private router: Router,
 		private toastr: ToastrService,
 		private modalService: NgbModal,
-		private favoriteService: FavoriteService)
+		private favoriteService: FavoriteService,
+		private adobeService: AdobeService)
     {
 		super();
 	}
@@ -116,6 +118,8 @@ export class ManageFavoritesComponent extends UnsubscribeOnDestroy implements On
 		confirm.componentInstance.title = 'WARNING';
 		confirm.componentInstance.body = msgBody;
 		confirm.componentInstance.defaultOption = 'Continue';
+
+		this.adobeService.setAlertEvent(confirm.componentInstance.title + " " + confirm.componentInstance.body, 'Delete Favorite List Alert');
 
 		confirm.result.then((result) =>
 		{

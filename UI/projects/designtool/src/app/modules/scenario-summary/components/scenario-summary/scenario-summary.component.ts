@@ -40,6 +40,7 @@ import { DecisionPointSummaryComponent } from '../../../shared/components/decisi
 import { SummaryHeader, SummaryHeaderComponent } from '../../../shared/components/summary-header/summary-header.component';
 
 import { selectSelectedLot } from '../../../ngrx-store/lot/reducer';
+import { LiteService } from '../../../core/services/lite.service';
 
 @Component({
 	selector: 'app-scenario-summary',
@@ -114,7 +115,8 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 		private scenarioService: ScenarioService,
 		private jobService: JobService,
 		private changeOrderService: ChangeOrderService,
-		private router: Router
+		private router: Router,
+		private liteService: LiteService
 	) { super(); }
 
 	isDirty(status: { pointId: number, isDirty: boolean, updatedChoices: { choiceId: number, quantity: number }[] }[]): boolean
@@ -217,9 +219,19 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 			select(state => state.changeOrder),
 			combineLatest(this.store.pipe(select(state => state.scenario)),
 				this.store.pipe(select(state => state.job)),
-				this.store.pipe(select(state => state.salesAgreement)))
+				this.store.pipe(select(state => state.salesAgreement))),
+			this.takeUntilDestroyed()
 		).subscribe(([changeOrder, scenario, job, sag]) =>
 		{
+			if (scenario.buildMode === 'model' && job && !job.jobLoading && changeOrder && !changeOrder.loadingCurrentChangeOrder) 
+			{
+				const isPhdLite = this.liteService.checkLiteAgreement(job, changeOrder.currentChangeOrder);
+				if (isPhdLite) 
+				{
+					this.router.navigate(['lite-summary']);
+				}
+			}
+
 			if (changeOrder.isChangingOrder)
 			{
 				this.summaryHeader.handing = changeOrder.changeInput && changeOrder.changeInput.handing ? changeOrder.changeInput.handing.handing : null;

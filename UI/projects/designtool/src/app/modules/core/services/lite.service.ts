@@ -16,7 +16,7 @@ import
 	SalesAgreement, ISalesAgreement, ModalService, Job, ChangeOrderGroup, JobPlanOptionAttribute,
 	JobPlanOption, ChangeOrderPlanOption, SummaryData, defaultOnNotFound,
 	ChangeOrderHanding, ChangeTypeEnum, ChangeInput, SelectedChoice, ConstructionStageTypes,
-	ScenarioOption, ScenarioOptionColor
+	ScenarioOption, ScenarioOptionColor, Scenario, IJob
 } from 'phd-common';
 
 import * as fromRoot from '../../ngrx-store/reducers';
@@ -423,7 +423,7 @@ export class LiteService
 	{
 		const baseHouseCategory = categories.find(x => x.name.toLowerCase() === "base house");
 		const selectedBaseHouseOptions = options.filter(option =>
-			option.optionCategoryId === baseHouseCategory.id
+			option.optionCategoryId === baseHouseCategory?.id
 			&& scenarioOptions?.find(opt => opt.edhPlanOptionId === option.id));
 
 		return { selectedBaseHouseOptions: selectedBaseHouseOptions, baseHouseCategory: baseHouseCategory };
@@ -1072,6 +1072,7 @@ export class LiteService
 	}
 
 	liteChangeOrderHasChanges(
+		isPhdLite: boolean,
 		job: Job,
 		currentChangeOrder: ChangeOrderGroup,
 		changeInput: ChangeInput,
@@ -1081,7 +1082,7 @@ export class LiteService
 		overrideNote: string
 	): boolean
 	{
-		if (changeInput.type !== ChangeTypeEnum.SALES && changeInput.type !== ChangeTypeEnum.NON_STANDARD)
+		if (isPhdLite && changeInput.type !== ChangeTypeEnum.SALES && changeInput.type !== ChangeTypeEnum.NON_STANDARD)
 		{
 			const inputData = this.getJobChangeOrderInputDataLite(
 				currentChangeOrder,
@@ -1103,6 +1104,8 @@ export class LiteService
 
 			return data.options && data.options.length;
 		}
+
+		return false;
 	}
 
 	setOptionsIsPastCutOff(options: LitePlanOption[], job: Job): void
@@ -1132,14 +1135,64 @@ export class LiteService
 		});
 	}
 
+	createJioForSpecLite(scenario: Scenario,
+						 scenarioOptions: ScenarioOption[],
+						 financialCommunityId: number,
+						 buildMode: string,
+						 options: LitePlanOption[],
+						 selectedElevation: LitePlanOption,
+						 skipSpinner: boolean = true): Observable<Job>
+	{
+		const action = `CreateJIOForSpecLite`;
+		const url = `${environment.apiUrl}${action}`;
+		const selectedOptions = options.filter(o => scenarioOptions.some(so => so.edhPlanOptionId === o.id));
+		const baseHouseOptions = selectedOptions.filter(x => x.isBaseHouse);
+		const liteOptions = selectedOptions.map(selectedOption => {
+
+			const jobOptionType = this.mapJobOptionType(selectedOption, selectedElevation, baseHouseOptions);
+			const optionColors = this.mapOptionColors(selectedOption, scenarioOptions.find(x => x.edhPlanOptionId === selectedOption.id).scenarioOptionColors);
+
+			return {
+				planOptionId: selectedOption.id,
+				price: selectedOption.listPrice,
+				quantity: scenarioOptions.find(x => x.edhPlanOptionId === selectedOption.id).planOptionQuantity,
+				optionSalesName: selectedOption.name,
+				optionDescription: selectedOption.description,
+				jobOptionTypeName: jobOptionType,
+				overrideNote: '',
+				colors: optionColors,
+				action: 'Add'
+			}
+		});
+
+		const data = {
+			litePlanOptions: liteOptions,
+			lotInfo: {
+				communityId: financialCommunityId,
+				lotId: scenario.lotId,
+				planId: scenario.planId,
+				handing: scenario.handing ? scenario.handing.handing : null,
+				buildMode: buildMode
+			}
+		};
+
+		return (skipSpinner ? this._http : withSpinner(this._http)).post(url, data).pipe(
+			map((results: IJob) => new Job(results)),
+			catchError(error =>
+			{
+				console.error(error);
+				return _throw(error);
+			})
+		);
+	}
 	getPlanChangeOrderDataLite(
-		changeOrder: ChangeOrderGroup, 
-		job: Job, 
-		selectedPlanId: number, 
+		changeOrder: ChangeOrderGroup,
+		job: Job,
+		selectedPlanId: number,
 		salesAgreementId: number,
 		currentOptions: ScenarioOption[],
 		options: LitePlanOption[],
-		overrideNote: string 
+		overrideNote: string
 	): any
 	{
 		let plans = [];
@@ -1195,14 +1248,14 @@ export class LiteService
 			changeOrderGroupSequenceSuffix: changeOrder.changeOrderGroupSequenceSuffix,
 			plans: plans,
 			options: this.createPlanChangeOrderOptions(
-				job.jobPlanOptions, 
-				currentOptions, 
-				options, 
+				job.jobPlanOptions,
+				currentOptions,
+				options,
 				overrideNote
 			)
 		};
 	}
-	
+
 	private createPlanChangeOrderOptions(
 		origOptions: JobPlanOption[],
 		currentOptions: ScenarioOption[],
@@ -1221,21 +1274,24 @@ export class LiteService
 		// Add options selected in the new plan
 		currentOptions.forEach(curr => {
 			const option = options.find(option => option.id === curr.edhPlanOptionId);
-			const isElevation = isElevationOption(curr.edhPlanOptionId);
-			const optionType = isElevation ? 'Elevation' : (option.isBaseHouse ? 'BaseHouse' : 'Standard');
-
-			optionsDto.push({
-				planOptionId: curr.edhPlanOptionId,
-				price: option.listPrice,
-				quantity: curr.planOptionQuantity,
-				optionSalesName: option.name,
-				optionDescription: option.description,
-				jobOptionTypeName: optionType,
-				overrideNote: overrideNote,
-				action: 'Add',
-				isElevation: isElevation,
-				attributes: this.mapScenarioOptionColorsToAttributes(curr?.scenarioOptionColors, option, 'Add')
-			});
+			if (option)
+			{
+				const isElevation = isElevationOption(curr.edhPlanOptionId);
+				const optionType = isElevation ? 'Elevation' : (option.isBaseHouse ? 'BaseHouse' : 'Standard');
+	
+				optionsDto.push({
+					planOptionId: curr.edhPlanOptionId,
+					price: option.listPrice,
+					quantity: curr.planOptionQuantity,
+					optionSalesName: option.name,
+					optionDescription: option.description,
+					jobOptionTypeName: optionType,
+					overrideNote: overrideNote,
+					action: 'Add',
+					isElevation: isElevation,
+					attributes: this.mapScenarioOptionColorsToAttributes(curr?.scenarioOptionColors, option, 'Add')
+				});
+			}
 		});
 
 		// Remove options selected in the old plan
@@ -1254,5 +1310,5 @@ export class LiteService
 		});
 
 		return optionsDto;
-	}	
+	}
 }

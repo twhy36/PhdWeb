@@ -3,7 +3,7 @@ import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Action, Store, select } from '@ngrx/store';
 
 import { Observable } from 'rxjs';
-import { combineLatest, map, switchMap, withLatestFrom } from 'rxjs/operators';
+import { combineLatest, map, switchMap, tap, withLatestFrom } from 'rxjs/operators';
 
 import { LoadPreview, ScenarioActionTypes, SelectChoices, SetStatusForPointsDeclined, TreeLoaded, SetTreeFilter } from './actions';
 import * as fromRoot from '../reducers';
@@ -25,7 +25,7 @@ import { AdobeService } from '../../core/services/adobe.service';
 @Injectable()
 export class ScenarioEffects
 {
-	selectChoices$: Observable<Action> = createEffect(() => 
+	selectChoices$: Observable<Action> = createEffect(() =>
 		this.actions$.pipe(
 			ofType<SelectChoices>(ScenarioActionTypes.SelectChoices),
 			withLatestFrom(this.store.pipe(select(fromRoot.filteredTree)), this.store.pipe(select(fromFavorite.currentMyFavorite))),
@@ -109,17 +109,14 @@ export class ScenarioEffects
 		)
 	);
 
-	pushSearchEvent$: Observable<Action> = createEffect(() => 
+	pushSearchEvent$ = createEffect(() => 
 		this.actions$.pipe(
 			ofType<SetTreeFilter>(ScenarioActionTypes.SetTreeFilter),
 			withLatestFrom(this.store.pipe(select(fromRoot.filteredTree))),
-			tryCatch(source => source.pipe(
-				switchMap(([action, tree]) => {
-					this.adobeService.setSearchEvent(action.treeFilter.keyword, tree);
-					return new Observable<never>()
-				})
-			), LoadError, "")
-		)
+			tap(([action, tree]) => {
+				this.adobeService.setSearchEvent(action?.treeFilter?.keyword, tree);
+			})),
+		{ dispatch: false }
 	);
 
 	constructor(

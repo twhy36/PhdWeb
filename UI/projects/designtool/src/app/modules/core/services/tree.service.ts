@@ -8,7 +8,7 @@ import
 	{
 		newGuid, createBatchGet, createBatchHeaders, createBatchBody, withSpinner, ChangeOrderChoice, ChangeOrderPlanOption,
 		JobChoice, JobPlanOption, TreeVersionRules, OptionRule, Tree, ChoiceImageAssoc, PlanOptionCommunityImageAssoc,
-		TreeBaseHouseOption, OptionImage, IdentityService, MyFavoritesChoice, getDateWithUtcOffset
+		TreeBaseHouseOption, OptionImage, IdentityService, MyFavoritesChoice, getDateWithUtcOffset, ChoiceRules, LotChoiceRule, PointRule, PointRules, LotChoiceRules, OptionMapping, OptionRuleChoice, OptionRuleAttributeReassignment
 	} from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
@@ -125,7 +125,46 @@ export class TreeService
 
 		return (skipSpinner ? this.http : withSpinner(this.http)).get(endPoint).pipe(
 			tap(response => response['@odata.context'] = undefined),
-			map(response => response as TreeVersionRules),
+			map(response =>
+			{
+				let rules = {
+					choiceRules: response['choiceRules'] as ChoiceRules[],
+					lotChoiceRules: response['lotChoiceRules'] as LotChoiceRules[],
+					optionRules: [],
+					pointRules: response['pointRules'] as PointRules[]
+				} as TreeVersionRules;
+
+				let optionRulesDto = response['optionRules'];
+				let optionRules: OptionRule[] = [];
+
+				if (optionRulesDto !== null)
+				{
+					optionRules = optionRulesDto.map(optionRuleDto =>
+					{
+						// group by mappingIndex to handle multiple option mappings
+						const groupedOptionChoices = _.groupBy(optionRuleDto.choices, c => c.mappingIndex);
+						const optionChoices = _.map(groupedOptionChoices, (choices) => choices);
+						let optionMappings: OptionMapping[] = optionChoices.map(oc =>
+						{
+							return {
+								mappingIndex: oc[0].mappingIndex,
+								choices: oc
+							} as OptionMapping;
+						})
+
+						return {
+							optionId: optionRuleDto.optionId,
+							ruleId: optionRuleDto.ruleId,
+							optionMappings: optionMappings,
+							replaceOptions: optionRuleDto.replaceOptions
+						} as OptionRule;
+					});
+				}
+
+				rules.optionRules = optionRules;
+
+				return rules;
+			}),
 			catchError(error =>
 			{
 				console.error(error);
@@ -396,7 +435,7 @@ export class TreeService
 		{
 			let optFilter = (opt: { optionNumber: string; dpChoiceId: number }) => `(dpChoice_OptionRuleAssoc/any(or: or/dpChoiceId eq ${opt.dpChoiceId}) and planOption/integrationKey eq '${opt.optionNumber}')`;
 			let filter = `${options.map(opt => optFilter(opt)).join(' or ')}`;
-			let expand = `dpChoice_OptionRuleAssoc($select=dpChoiceId,mustHave;$expand=attributeReassignments($select=attributeReassignmentID, todpChoiceID, attributeGroupID;$expand=todpChoice($select=dpChoiceID,divChoiceCatalogID)),dpChoice($select=divChoiceCatalogId,dpChoiceSortOrder;$expand=dPoint($select=dPointSortOrder;$expand=dSubGroup($select=dSubGroupSortOrder;$expand=dGroup($select=dGroupSortOrder))))),planOption,optionRuleReplaces($expand=planOption($select=integrationKey))`;
+			let expand = `dpChoice_OptionRuleAssoc($select=dpChoiceId,mustHave,mappingIndex;$expand=attributeReassignments($select=attributeReassignmentID, todpChoiceID, attributeGroupID;$expand=todpChoice($select=dpChoiceID,divChoiceCatalogID)),dpChoice($select=divChoiceCatalogId,dpChoiceSortOrder;$expand=dPoint($select=dPointSortOrder;$expand=dSubGroup($select=dSubGroupSortOrder;$expand=dGroup($select=dGroupSortOrder))))),planOption,optionRuleReplaces($expand=planOption($select=integrationKey))`;
 
 			return `${environment.apiUrl}optionRules?${encodeURIComponent('$')}expand=${expand}&${encodeURIComponent('$')}filter=${filter}`;
 		}
@@ -434,23 +473,36 @@ export class TreeService
 				{
 					let res = optionRules.find(or => or.planOption.integrationKey === opt.optionNumber && or.dpChoice_OptionRuleAssoc.some(r => r.dpChoiceID === opt.dpChoiceId));
 
+					// group by mappingIndex to handle multiple option mappings
+					const groupedOptionChoices = _.groupBy(res.dpChoice_OptionRuleAssoc, c => c.mappingIndex);
+					let optionChoices = _.map(groupedOptionChoices, (choices) => choices);
+
 					mappings[opt.optionNumber] = !!res ? <OptionRule>{
-						optionId: opt.optionNumber, choices: res.dpChoice_OptionRuleAssoc.sort(sortChoices).map(c =>
+						optionId: opt.optionNumber,
+						optionMappings: optionChoices.map(oc =>
 						{
 							return {
-								id: c.dpChoice.divChoiceCatalogID,
-								mustHave: c.mustHave,
-								attributeReassignments: c.attributeReassignments.map(ar =>
+								mappingIndex: oc[0].mappingIndex,
+								choices: oc.sort(sortChoices).map(c =>
 								{
 									return {
-										id: ar.attributeReassignmentID,
-										choiceId: ar.todpChoiceID,
-										attributeGroupId: ar.attributeGroupID,
-										divChoiceCatalogId: ar.todpChoice.divChoiceCatalogID
-									};
+										id: c.dpChoice.divChoiceCatalogID,
+										mustHave: c.mustHave,
+										attributeReassignments: c.attributeReassignments.map(ar =>
+										{
+											return {
+												id: ar.attributeReassignmentID,
+												choiceId: ar.todpChoiceID,
+												attributeGroupId: ar.attributeGroupID,
+												divChoiceCatalogId: ar.todpChoice.divChoiceCatalogID
+											} as OptionRuleAttributeReassignment;
+										})
+									} as OptionRuleChoice;
 								})
-							};
-						}), ruleId: res.optionRuleID, replaceOptions: res.optionRuleReplaces.map(orr => orr.planOption.integrationKey)
+							} as OptionMapping;
+						}),
+						ruleId: res.optionRuleID,
+						replaceOptions: res.optionRuleReplaces.map(orr => orr.planOption.integrationKey)
 					} : null;
 				});
 

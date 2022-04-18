@@ -2,11 +2,12 @@ import { createSelector, createFeatureSelector } from '@ngrx/store';
 
 import * as _ from "lodash";
 
-import {
-	applyRules, getMaxSortOrderChoice, findChoice, findPoint, selectChoice,
-	DesignToolAttribute, SalesCommunity, PlanOption, TreeVersionRules, Scenario, TreeFilter,
-	Tree, Choice, Group, SubGroup, DecisionPoint, PickType, setPointStatus, setSubgroupStatus, setGroupStatus, PointStatus
-} from 'phd-common';
+import
+	{
+		applyRules, getMaxSortOrderChoice, findChoice, findPoint, selectChoice,
+		DesignToolAttribute, SalesCommunity, PlanOption, TreeVersionRules, Scenario, TreeFilter,
+		Tree, Choice, Group, SubGroup, DecisionPoint, PickType, setPointStatus, setSubgroupStatus, setGroupStatus, PointStatus, getOptionRuleOptionMappingChoices
+	} from 'phd-common';
 
 import { checkSelectedAttributes, hideChoicesByStructuralItems, hidePointsByStructuralItems } from '../../shared/classes/tree.utils';
 import { RehydrateMap } from '../sessionStorage';
@@ -72,7 +73,8 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 				hiddenPointIds: []
 			} as State;
 
-			if (action.type === CommonActionTypes.SalesAgreementLoaded) {
+			if (action.type === CommonActionTypes.SalesAgreementLoaded)
+			{
 				if (newState.tree)
 				{
 					action.choices.forEach(choice =>
@@ -133,7 +135,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 
 				let scenario = _.cloneDeep(newState.scenario || state.scenario);
 				scenario = <any>{ scenarioId: 0, scenarioName: '--PREVIEW--', lotId: action.job.lotId, scenarioInfo: null };
-				
+
 				newState = { ...newState, scenario: scenario };
 			}
 
@@ -165,8 +167,9 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 				if (action.type === CommonActionTypes.SalesAgreementLoaded && action.info?.isDesignComplete)
 				{
 					// When it is design complete, all points and subgroups should be in complete status
-					points.forEach(pt => {
-						pt.status = PointStatus.COMPLETED; 
+					points.forEach(pt =>
+					{
+						pt.status = PointStatus.COMPLETED;
 						pt.completed = true;
 					});
 					subGroups.forEach(sg => sg.status = PointStatus.COMPLETED);
@@ -181,15 +184,15 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 						points.filter(pt => pt.isStructuralItem || pt.isPastCutOff || pt.isHiddenFromBuyerView)
 							.forEach(pt => pt.status = PointStatus.COMPLETED);
 					}
-					
+
 					// For each point with a pick 0, we need to change the status to required (if no thanks is selected, the status is later updated to Completed)
 					points.filter(pt =>
 						[PickType.Pick0or1, PickType.Pick0ormore].indexOf(pt.pointPickTypeId) > 0
-							&& [PointStatus.UNVIEWED, PointStatus.VIEWED].indexOf(pt.status) > 0
+						&& [PointStatus.UNVIEWED, PointStatus.VIEWED].indexOf(pt.status) > 0
 					).forEach(pt => pt.status = PointStatus.REQUIRED);
 
-					 subGroups.forEach(sg => setSubgroupStatus(sg));					
-				}				
+					subGroups.forEach(sg => setSubgroupStatus(sg));
+				}
 
 				newState.tree.treeVersion.groups.forEach(g => setGroupStatus(g));
 
@@ -268,7 +271,8 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 				}
 			}
 
-			points.forEach(point => {
+			points.forEach(point =>
+			{
 				point.completed = point && point.choices && point.choices.some(ch => ch.quantity > 0);
 			});
 			applyRules(newTree, rules, options);
@@ -279,10 +283,11 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 			if (action.isDesignComplete)
 			{
 				// When it is design complete, all points and subgroups should be in complete status
-				points.forEach(pt => {
-					pt.status = PointStatus.COMPLETED; 
+				points.forEach(pt =>
+				{
+					pt.status = PointStatus.COMPLETED;
 					pt.completed = true;
-				});				
+				});
 				subGroups.forEach(sg => sg.status = PointStatus.COMPLETED);
 			}
 			else
@@ -299,11 +304,11 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 				// For each point with a pick 0, we need to change the status to required (if no thanks is selected, the status is later updated to Completed)
 				points.filter(pt =>
 					[PickType.Pick0or1, PickType.Pick0ormore].indexOf(pt.pointPickTypeId) > -1
-						&& [PointStatus.UNVIEWED, PointStatus.VIEWED].indexOf(pt.status) > -1
+					&& [PointStatus.UNVIEWED, PointStatus.VIEWED].indexOf(pt.status) > -1
 				).forEach(pt => pt.status = PointStatus.REQUIRED);
 
 				subGroups.forEach(sg => setSubgroupStatus(sg));
-			}			
+			}
 
 			newTree.treeVersion.groups.forEach(g => setGroupStatus(g));
 
@@ -314,7 +319,8 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 			subGroups = _.flatMap(newTree.treeVersion.groups, g => g.subGroups);
 			points = _.flatMap(subGroups, sg => sg.points);
 
-			action.divPointCatalogIds?.forEach(id => {
+			action.divPointCatalogIds?.forEach(id =>
+			{
 				let point = points.find(x => x.divPointCatalogId === id);
 				if (point)
 				{
@@ -323,7 +329,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 				}
 			});
 
-			subGroups.forEach(sg => setSubgroupStatus(sg));	
+			subGroups.forEach(sg => setSubgroupStatus(sg));
 			newTree.treeVersion.groups.forEach(g => setGroupStatus(g));
 
 			return { ...state, tree: newTree };
@@ -333,38 +339,41 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 
 		case CommonActionTypes.LoadSalesAgreement:
 			let newBuildMode = state.buildMode;
+
 			if (action.isBuyerPreview)
 			{
 				newBuildMode = 'buyerPreview';
 			}
 			return { ...state, buildMode: newBuildMode }
 
-		case CommonActionTypes.MyFavoritesChoiceAttributesDeleted:	
-		{
-			newTree = _.cloneDeep(state.tree);
-			choices = _.flatMap(newTree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)));
-			let choice = choices?.find(c => c.divChoiceCatalogId === action.myFavoritesChoice?.divChoiceCatalogId);
-
-			if (choice)
+		case CommonActionTypes.MyFavoritesChoiceAttributesDeleted:
 			{
-				const deletedAttributes = [...action.attributes, ...action.locations];
-				deletedAttributes?.forEach(att => {
-					let attributeIndex = choice.selectedAttributes?.findIndex(selAtt => 
-						att.locationGroupId === selAtt.locationGroupId
-						&& att.locationId === selAtt.locationId
-						&& att.attributeGroupId === selAtt.attributeGroupId
-						&& att.attributeId === selAtt.attributeId
-					);
+				newTree = _.cloneDeep(state.tree);
+				choices = _.flatMap(newTree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)));
+				let choice = choices?.find(c => c.divChoiceCatalogId === action.myFavoritesChoice?.divChoiceCatalogId);
 
-					if (attributeIndex > -1)
+				if (choice)
+				{
+					const deletedAttributes = [...action.attributes, ...action.locations];
+
+					deletedAttributes?.forEach(att =>
 					{
-						choice.selectedAttributes.splice(attributeIndex, 1);
-					}
-				});				
-			}
+						let attributeIndex = choice.selectedAttributes?.findIndex(selAtt =>
+							att.locationGroupId === selAtt.locationGroupId
+							&& att.locationId === selAtt.locationId
+							&& att.attributeGroupId === selAtt.attributeGroupId
+							&& att.attributeId === selAtt.attributeId
+						);
 
-			return { ...state, tree: newTree };
-		}
+						if (attributeIndex > -1)
+						{
+							choice.selectedAttributes.splice(attributeIndex, 1);
+						}
+					});
+				}
+
+				return { ...state, tree: newTree };
+			}
 
 		default:
 			return state;
@@ -677,19 +686,30 @@ export const choiceOverrides = createSelector(
 	}
 );
 
-function getChoicePriceRange(choice: Choice, rules: TreeVersionRules, tree: Tree, treeChoices: Choice[], treePoints: DecisionPoint[], planOptions: PlanOption[]) {
-	let maxSortOrderChoices = rules.optionRules.map(opt => {
+function getChoicePriceRange(choice: Choice, rules: TreeVersionRules, tree: Tree, treeChoices: Choice[], treePoints: DecisionPoint[], planOptions: PlanOption[])
+{
+	let maxSortOrderChoices = rules.optionRules.map(opt =>
+	{
+		// find a valid option mapping
+		const optionMappingChoices = getOptionRuleOptionMappingChoices(opt, null, treeChoices, tree);
+		const choiceIds = optionMappingChoices.filter(c => c.mustHave).map(c => c.id);
+
 		return {
 			rule: opt,
-			maxSortOrderChoice: getMaxSortOrderChoice(tree, opt.choices.filter(c => c.mustHave).map(c => c.id)),
-			allChoices: opt.choices.filter(c => c.mustHave).map(c => c.id)
+			maxSortOrderChoice: getMaxSortOrderChoice(tree, choiceIds),
+			allChoices: choiceIds
 		};
 	});
 
 	//find all the choices this one depends on
 	//currently an issue getting the nested dependencies
-	let getRelevantChoices = (ch: number, existing: number[] = []) => {
-		if (existing.indexOf(ch) !== -1) return [];
+	let getRelevantChoices = (ch: number, existing: number[] = []) =>
+	{
+		if (existing.indexOf(ch) !== -1)
+		{
+			return [];
+		}
+
 		var currentChoice = treeChoices.find(c => c.id === ch);
 		var previousChoices = [
 			..._.flatten(rules.choiceRules.filter(r => r.choiceId === ch).map(r => _.flatMap(r.rules, r1 => r1.choices))),
@@ -698,75 +718,100 @@ function getChoicePriceRange(choice: Choice, rules: TreeVersionRules, tree: Tree
 		];
 
 		previousChoices.push(..._.flatten(previousChoices.map(c => getRelevantChoices(c, [ch, ...existing]))));
+
 		return _.uniq(previousChoices);
 	};
 
 	//make an iterable with each possible choice selection
-	function* choicePermutations(choices: number[], selections: { choiceId: number, selected: boolean }[] = []): IterableIterator<{ choiceId: number, selected: boolean }[]> {
-		if (choices.length === 0) {
+	function* choicePermutations(choices: number[], selections: { choiceId: number, selected: boolean }[] = []): IterableIterator<{ choiceId: number, selected: boolean }[]>
+	{
+		if (choices.length === 0)
+		{
 			//throw out combinations that violate pick types
-			if (treePoints.some(p => (p.pointPickTypeId === PickType.Pick0or1 || p.pointPickTypeId === PickType.Pick1) && selections.filter(s => p.choices.some(c => c.id === s.choiceId && s.selected)).length > 1)) {
+			if (treePoints.some(p => (p.pointPickTypeId === PickType.Pick0or1 || p.pointPickTypeId === PickType.Pick1) && selections.filter(s => p.choices.some(c => c.id === s.choiceId && s.selected)).length > 1))
+			{
 				return;
 			}
 
 			//throw out combinations that violate choice rule
-			if (rules.choiceRules.some(r => {
+			if (rules.choiceRules.some(r =>
+			{
 				let ch = selections.find(s => s.choiceId === r.choiceId);
-				if (ch && ch.selected) {
-					return !r.rules.some(rule => (rule.ruleType === 1 && rule.choices.every(c1 => {
+
+				if (ch && ch.selected)
+				{
+					return !r.rules.some(rule => (rule.ruleType === 1 && rule.choices.every(c1 =>
+					{
 						//must have rule satisfied if all choices are selected
 						let c2 = selections.find(s => s.choiceId === c1);
+
 						return c2 && c2.selected;
-					})) || (rule.ruleType === 2 && rule.choices.every(c1 => {
+					})) || (rule.ruleType === 2 && rule.choices.every(c1 =>
+					{
 						//must not have satisfied if no choices are selected
 						let c2 = selections.find(s => s.choiceId === c1);
+
 						return !c2 || !c2.selected;
 					})));
-				} else {
+				}
+				else
+				{
 					return false; //rule doesn't apply
 				}
-			})) {
+			}))
+			{
 				return;
 			}
 
 			//throw out combinations that violate point rule
-			if (rules.pointRules.some(r => {
+			if (rules.pointRules.some(r =>
+			{
 				let point = treePoints.find(p => r.pointId === p.id);
 				let ch = selections.find(s => s.selected && point && point.choices.some(c => c.id === s.choiceId));
-				if (ch && point) {
-					return !r.rules.some(rule => (rule.ruleType === 1 && rule.choices.length && rule.choices.every(c1 => {
+				if (ch && point)
+				{
+					return !r.rules.some(rule => (rule.ruleType === 1 && rule.choices.length && rule.choices.every(c1 =>
+					{
 						//must have rule satisfied if all choices are selected
 						let c2 = selections.find(s => s.choiceId === c1);
 						return c2 && c2.selected;
-					})) || (rule.ruleType === 2 && rule.choices.length && rule.choices.every(c1 => {
+					})) || (rule.ruleType === 2 && rule.choices.length && rule.choices.every(c1 =>
+					{
 						//must not have satisfied if no choices are selected
 						let c2 = selections.find(s => s.choiceId === c1);
 						return !c2 || !c2.selected;
-					})) || (rule.ruleType === 1 && rule.points.length && rule.points.every(p1 => {
+					})) || (rule.ruleType === 1 && rule.points.length && rule.points.every(p1 =>
+					{
 						//must have rule satisfied if all points are selected
-						let c2 = selections.find(s => {
+						let c2 = selections.find(s =>
+						{
 							let p2 = treePoints.find(p3 => p3.id === p1);
 							return p2 && p2.choices.some(c => c.id === s.choiceId) && s.selected;
 						});
 						return !!c2;
-					})) || (rule.ruleType === 2 && rule.points.length && rule.points.every(p1 => {
+					})) || (rule.ruleType === 2 && rule.points.length && rule.points.every(p1 =>
+					{
 						//must not have rule satisfied if no points are selected
-						let c2 = selections.find(s => {
+						let c2 = selections.find(s =>
+						{
 							let p2 = treePoints.find(p3 => p3.id === p1);
 							return p2 && p2.choices.some(c => c.id === s.choiceId) && s.selected;
 						});
 						return !c2;
 					})));
-				} else {
+				} else
+				{
 					return false; //rule doesn't apply
 				}
-			})) {
+			}))
+			{
 				return;
 			}
 
 			yield selections;
 		}
-		else {
+		else
+		{
 			yield* choicePermutations(choices.slice(1), [{ choiceId: choices[0], selected: false }, ...selections]);
 			yield* choicePermutations(choices.slice(1), [{ choiceId: choices[0], selected: true }, ...selections]);
 		}
@@ -775,22 +820,28 @@ function getChoicePriceRange(choice: Choice, rules: TreeVersionRules, tree: Tree
 	var previousChoices = getRelevantChoices(choice.id);
 	let min: number = null, max: number = null;
 
-	if (previousChoices.length) {
-		for (let perm of choicePermutations(previousChoices)) {
-			treeChoices.forEach(c => {
+	if (previousChoices.length)
+	{
+		for (let perm of choicePermutations(previousChoices))
+		{
+			treeChoices.forEach(c =>
+			{
 				c.quantity = 0;
 				c.enabled = true;
 			});
 
-			treePoints.forEach(p => {
+			treePoints.forEach(p =>
+			{
 				p.enabled = true;
 				p.completed = false;
 			});
 
-			for (let p of [...perm]) {
+			for (let p of [...perm])
+			{
 				let ch = findChoice(tree, c => c.id === p.choiceId);
 
-				if (p.selected) {
+				if (p.selected)
+				{
 					ch.quantity = 1;
 					findPoint(tree, p => p.id === ch.treePointId).completed = true;
 				}
@@ -800,26 +851,32 @@ function getChoicePriceRange(choice: Choice, rules: TreeVersionRules, tree: Tree
 
 			let clonedChoice = findChoice(tree, c => c.id === choice.id);
 
-			if (clonedChoice.enabled && findPoint(tree, p => p.id === choice.treePointId).enabled) {
-				if (min === null || min > clonedChoice.price) {
+			if (clonedChoice.enabled && findPoint(tree, p => p.id === choice.treePointId).enabled)
+			{
+				if (min === null || min > clonedChoice.price)
+				{
 					min = clonedChoice.price;
 				}
 
-				if (max === null || max < clonedChoice.price) {
+				if (max === null || max < clonedChoice.price)
+				{
 					max = clonedChoice.price;
 				}
 			}
 		}
 	}
-	else {
+	else
+	{
 		//may not have to apply rules in this case; could possible look at just the option mappings. But this should be a smaller part of the overall
 		//computation so I'll leave it as-is for now.
-		treeChoices.forEach(c => {
+		treeChoices.forEach(c =>
+		{
 			c.quantity = 0;
 			c.enabled = true;
 		});
 
-		treePoints.forEach(p => {
+		treePoints.forEach(p =>
+		{
 			p.enabled = true;
 			p.completed = false;
 		});
@@ -828,11 +885,13 @@ function getChoicePriceRange(choice: Choice, rules: TreeVersionRules, tree: Tree
 
 		let clonedChoice = treeChoices.find(ch => ch.id === choice.id);
 
-		if (min === null || min > clonedChoice.price) {
+		if (min === null || min > clonedChoice.price)
+		{
 			min = clonedChoice.price;
 		}
 
-		if (max === null || max < clonedChoice.price) {
+		if (max === null || max < clonedChoice.price)
+		{
 			max = clonedChoice.price;
 		}
 	}
@@ -842,8 +901,10 @@ function getChoicePriceRange(choice: Choice, rules: TreeVersionRules, tree: Tree
 
 export const choicePriceRangeByChoice = createSelector(
 	selectScenario,
-	(state, props) => {
-		if (!state.options || !state.rules || !state.tree) {
+	(state, props) =>
+	{
+		if (!state.options || !state.rules || !state.tree)
+		{
 			return;
 		}
 
@@ -859,8 +920,10 @@ export const choicePriceRangeByChoice = createSelector(
 
 export const choicePriceRanges = createSelector(
 	selectScenario,
-	(state) => {
-		if (!state.options || !state.rules || !state.tree) {
+	(state) =>
+	{
+		if (!state.options || !state.rules || !state.tree)
+		{
 			return;
 		}
 
@@ -870,7 +933,8 @@ export const choicePriceRanges = createSelector(
 		let points = _.flatMap(staticTree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points));
 		let choices = _.flatMap(points, p => p.choices);
 
-		return choices.map(choice => {
+		return choices.map(choice =>
+		{
 			let { min, max } = getChoicePriceRange(choice, rules, staticTree, choices, points, options);
 
 			return {

@@ -25,6 +25,7 @@ import { environment } from '../../../../../environments/environment';
 import * as fromLite from '../../../ngrx-store/lite/reducer';
 import { ExteriorSubNavItems, LiteSubMenu } from '../../../shared/models/lite.model';
 import { SubNavItems, PhdSubMenu } from '../../../new-home/subNavItems';
+
 @Component({
 	selector: 'nav-bar',
 	templateUrl: 'nav-bar.component.html',
@@ -66,9 +67,9 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 	isLockedIn: boolean = false;
 	newHomeStatus: PointStatus;
 	isPhdLite$: Observable<boolean>;
+	isPhdLite: boolean;
 	exteriorStatus: PointStatus;
 	financialBrand: FinancialBrand;
-
 
 	constructor(private lotService: LotService,
 		private identityService: IdentityService,
@@ -95,7 +96,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 
 				if (this.currentRoute)
 				{
-					this.invertHamburgerMenuColor = this.currentRoute.startsWith('/point-of-sale') || this.currentRoute.startsWith('/change-orders') || this.currentRoute.startsWith('/scenario-summary');
+					this.invertHamburgerMenuColor = this.currentRoute.startsWith('/point-of-sale') || this.currentRoute.startsWith('/change-orders') || this.currentRoute.startsWith('/scenario-summary') || this.currentRoute.startsWith('/lite-summary');
 				}
 			}
 		});
@@ -200,6 +201,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 			this.takeUntilDestroyed(),
 			select(state =>
 			{
+				this.isPhdLite = state.lite?.isPhdLite;
 				return state.lite?.isPhdLite;
 			})
 		);
@@ -218,7 +220,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 			{
 				this.financialBrand = brand;
 			}
-		});		
+		});
 
 		combineLatest([
 			this.store.pipe(select(fromLite.selectedElevation), this.takeUntilDestroyed()),
@@ -245,7 +247,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 
 	navigate(path: any[], group?: Group)
 	{
-		if ((this.buildMode === 'spec' || this.buildMode === 'model') && path[0] !== '/scenario-summary')
+		if ((this.buildMode === 'spec' || this.buildMode === 'model') && path[0] !== '/scenario-summary' && !this.isPhdLite)
 		{
 			path[1] = 0;
 		}

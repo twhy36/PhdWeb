@@ -8,7 +8,7 @@ export enum NavActionTypes {
 export class SetSelectedSubgroup implements Action {
 	readonly type = NavActionTypes.SetSelectedSubgroup;
 
-    constructor(public selectedSubGroup: number, public selectedPoint?: number) { }
+    constructor(public selectedSubGroup: number, public selectedPoint?: number, public selectedChoice?: number) { }
 }
 
 export type NavActions = 

@@ -4,6 +4,7 @@ import { DecisionPoint, Group, Tree } from 'phd-common';
 import { BlockedByItemList } from '../../../models/blocked-by.model';
 import { getDisabledByList } from '../../../classes/tree.utils';
 import { ChoiceExt } from '../../../models/choice-ext.model';
+import { AdobeService } from '../../../../core/services/adobe.service';
 
 @Component({
   selector: 'decision-bar-choice',
@@ -28,7 +29,10 @@ export class DecisionBarChoiceComponent implements OnInit {
 	blockedChoiceModalRef: NgbModalRef;
 	hiddenChoicePriceModalRef: NgbModalRef;
 
-  constructor(public modalService: NgbModal) {
+  constructor(
+		public modalService: NgbModal,
+		private adobeService: AdobeService
+	) {
 
 	}
 
@@ -69,6 +73,7 @@ export class DecisionBarChoiceComponent implements OnInit {
 		if (this.choice.priceHiddenFromBuyerView)
 		{
 			this.hiddenChoicePriceModalRef = this.modalService.open(this.hiddenChoicePriceModal, { windowClass: 'phd-hidden-choice-price-modal' });
+			this.adobeService.setAlertEvent('Pricing Varies. Pricing TBD with Design', 'Pricing Varies Alert');
 		}
 	}
 }
