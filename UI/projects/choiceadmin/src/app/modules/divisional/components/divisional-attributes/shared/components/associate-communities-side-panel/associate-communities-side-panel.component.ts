@@ -50,7 +50,7 @@ export class AssociateCommunitiesSidePanelComponent extends UnsubscribeOnDestroy
 	public AssociatingType = AssociatingType;
 	associatingType: AssociatingType;
 
-	choiceLocationGroups: Array<DivChoiceCatalogLocationGroupCommunity>;
+	choiceLocationGroups: Array<DivChoiceCatalogLocationGroupCommunity> = [];
 
 	get saveDisabled(): boolean
 	{
