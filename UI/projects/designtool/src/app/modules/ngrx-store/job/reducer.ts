@@ -226,6 +226,17 @@ export function reducer(state: State = initialState, action: JobActions): State
 				}
 			});
 			return { ...state, jobPlanOptions: jobPlanOptions };
+		case JobActionTypes.ReplaceOptionPriceSaved:
+			{
+				let timeOfSaleOptionPrices: Array<TimeOfSaleOptionPrice> = _.cloneDeep(state.timeOfSaleOptionPrices) || [];
+
+				if (action.timeOfSaleOptionPrices && action.timeOfSaleOptionPrices.length)
+				{
+					timeOfSaleOptionPrices = timeOfSaleOptionPrices.concat(action.timeOfSaleOptionPrices);
+				}
+
+				return { ...state, timeOfSaleOptionPrices: timeOfSaleOptionPrices };
+			}
 		case JobActionTypes.ReplaceOptionPriceDeleted:
 			{
 				let timeOfSaleOptionPrices: Array<TimeOfSaleOptionPrice> = _.cloneDeep(state.timeOfSaleOptionPrices) || [];
