@@ -8,8 +8,8 @@ import
 	{
 		newGuid, createBatchGet, createBatchHeaders, createBatchBody, withSpinner, ChangeOrderChoice, ChangeOrderPlanOption,
 		JobChoice, JobPlanOption, TreeVersionRules, OptionRule, Tree, ChoiceImageAssoc, PlanOptionCommunityImageAssoc,
-		TreeBaseHouseOption, OptionImage, IdentityService, MyFavoritesChoice, getDateWithUtcOffset, ChoiceRules, LotChoiceRule, PointRule, PointRules, LotChoiceRules, OptionMapping, OptionRuleChoice, OptionRuleAttributeReassignment
-		convertDateToUtcString, Choice
+		TreeBaseHouseOption, OptionImage, IdentityService, MyFavoritesChoice, getDateWithUtcOffset, ChoiceRules, PointRules, LotChoiceRules,
+		OptionMapping, OptionRuleChoice, OptionRuleAttributeReassignment, convertDateToUtcString, Choice
 	} from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
