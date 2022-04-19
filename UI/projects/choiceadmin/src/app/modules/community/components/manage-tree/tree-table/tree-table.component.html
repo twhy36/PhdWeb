@@ -136,10 +136,10 @@
 									<i class="fa fa-fw fa-check-square" *ngIf="choice.isDecisionDefault" title="Default"></i>
 								</td>
 								<td class="phd-icon-col">
-									<i class="fa fa-fw fa-unlink phd-default-pointer" *ngIf="choice.hasImage" title="Images are maintained at the tree level"></i>
-								</td>
-								<td class="phd-icon-col">
-									<i class="fa fa-fw fa-image" *ngIf="!lockedFromChanges && (choice.hasDivCatalogChoiceImages || choice.hasImage)" (click)="onShowChoiceDetailsClick(choice, 'images')" title="Images"></i>
+									<div *ngIf="!lockedFromChanges" class="phd-divisional-tree-group-container" (click)="onShowChoiceDetailsClick(choice, 'images')" title="{{choice.hasImage ? 'Images are maintained at the tree level' : 'Images'}}">
+										<i class="fa fa-fw fa-tree" [hidden]="!choice.hasImage"></i>
+										<i class="fa fa-fw fa-image" [hidden]="!(choice.hasDivCatalogChoiceImages || choice.hasImage)"></i>
+									</div>
 								</td>
 								<td class="phd-text-col"></td>
 								<td class="phd-text-col"></td>

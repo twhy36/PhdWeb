@@ -47,13 +47,13 @@
 								<i class="fa fa-fw fa-list-alt fa-sm fa-stack-2x"></i>
 							</span>
 						</td>
-						<td class="phd-icon-col">
-							<i class="fa fa-fw fa-unlink fa-sm phd-default-pointer" *ngIf="option.treeLevelImageCount > 0" title="Images are maintained at the tree level"></i>
-						</td>
 						<td class="phd-icon-col-med">
-							<i class="fa fa-fw fa-image fa-sm phd-clickable-inline" *ngIf="option.imageCount > 0" (click)="onSelectOption(option, 'images')">
-								<span class="phd-img-count">{{option.imageCount}}</span>
-							</i>
+							<div *ngIf="option.imageCount > 0 || option.treeLevelImageCount > 0" class="phd-divisional-tree-group-container" (click)="onSelectOption(option, 'images')" title="{{option.treeLevelImageCount > 0 ? 'Images are maintained at the tree level' : 'Images'}}">
+								<i class="fa fa-fw fa-tree" [hidden]="option.treeLevelImageCount === 0"></i>
+								<i class="fa fa-fw fa-image fa-sm phd-clickable-inline">
+									<span class="phd-img-count">{{option.imageCount}}</span>
+								</i>
+							</div>
 						</td>
 						<td class="phd-small-col">
 							<a (click)="onSelectOption(option, 'details')" class="phd-clickable">{{option.id}}</a>
