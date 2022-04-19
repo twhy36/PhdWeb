@@ -8,7 +8,7 @@ import * as _ from 'lodash';
 
 import {
 	SalesCommunity, ChangeOrderChoice, ChangeOrderGroup, Job, IMarket, SalesAgreementInfo, DecisionPoint, Choice,
-	IdentityService, SpinnerService, Claims, Permission, MyFavorite, ModalService, TimeOfSaleOptionPrice
+	IdentityService, SpinnerService, Claims, Permission, MyFavorite, ModalService, TimeOfSaleOptionPrice, Tree, TreeVersionRules, PlanOption, OptionImage, updateLotChoiceRules, LotChoiceRuleAssoc
 } from 'phd-common';
 
 import { CommonActionTypes, LoadScenario, LoadError, ScenarioLoaded, LoadSalesAgreement, SalesAgreementLoaded, LoadSpec, JobLoaded, ESignEnvelopesLoaded } from './actions';
@@ -49,10 +49,11 @@ export class CommonEffects
 					const isPhdLite = !scenario.treeVersionId
 						|| this.liteService.checkLiteScenario(scenario?.scenarioChoices, scenario?.scenarioOptions);
 					
-					const getTree = !isPhdLite ? this.treeService.getTree(scenario.treeVersionId) : of(null);
-					const getRules = !isPhdLite ? this.treeService.getRules(scenario.treeVersionId) : of(null);
-					const getPlanOptions = !isPhdLite ? this.optionService.getPlanOptions(scenario.planId) : of(null);
-					const getOptionImages = !isPhdLite ? this.treeService.getOptionImages(scenario.treeVersionId) : of(null);
+					const getTree = !isPhdLite ? this.treeService.getTree(scenario.treeVersionId) : of<Tree>(null);
+					const getRules = !isPhdLite ? this.treeService.getRules(scenario.treeVersionId) : of<TreeVersionRules>(null);
+					const getLotChoiceRules = !isPhdLite && scenario.lotId ? this.lotService.getLotChoiceRuleAssocs(scenario.lotId) : of<LotChoiceRuleAssoc[]>(null);
+					const getPlanOptions = !isPhdLite ? this.optionService.getPlanOptions(scenario.planId) : of<PlanOption[]>(null);
+					const getOptionImages = !isPhdLite ? this.treeService.getOptionImages(scenario.treeVersionId) : of<OptionImage[]>(null);
 					
 					return combineLatest([
 						getTree,
@@ -62,10 +63,11 @@ export class CommonEffects
 						this.lotService.getLot(scenario.lotId),
 						combineLatest([
 							this.planService.getWebPlanMappingByPlanId(scenario.planId),
-							this.oppService.getOpportunityContactAssoc(scenario.opportunityId)
+							this.oppService.getOpportunityContactAssoc(scenario.opportunityId),
+							getLotChoiceRules
 						])
 					]).pipe(
-						map(([tree, rules, options, optionImages, lot, [webPlanMapping, opportunity]]) => {
+						map(([tree, rules, options, optionImages, lot, [webPlanMapping, opportunity, lotChoiceRulesAssoc]]) => {
 							if (optionImages)
 							{
 								// apply images to options
@@ -78,6 +80,10 @@ export class CommonEffects
 									}
 								});								
 							}
+
+							// Assign new lot choice rules everytime we load a scenario
+							// This assigns the most latest lot choice rules, instead of waiting for 1 hour
+							rules.lotChoiceRules = updateLotChoiceRules(lotChoiceRulesAssoc, rules.lotChoiceRules);
 
 							return { tree, rules, options, optionImages, lot, webPlanMapping, opportunity };
 						}),
@@ -528,10 +534,11 @@ export class CommonEffects
 								const favoriteChoices = !!favorites ? _.flatMap(favorites, x => x.myFavoritesChoice) : [];
 								const getFavoritesChoiceCatalogIds = !!favoriteChoices?.length ? this.treeService.getChoiceCatalogIds([...favoriteChoices]) : of([]);
 
-								const getTree = treeVersionId ? this.treeService.getTree(treeVersionId) : of(null);
-								const getRules = treeVersionId ? this.treeService.getRules(treeVersionId, true) : of(null);
-								const getPlanOptions = treeVersionId ? this.optionService.getPlanOptions(result.selectedPlanId, null, true) : of([]);
-								const getOptionImages = treeVersionId ? this.treeService.getOptionImages(treeVersionId, [], null, true) : of(null);
+								const getTree = treeVersionId ? this.treeService.getTree(treeVersionId) : of<Tree>(null);
+								const getRules = treeVersionId ? this.treeService.getRules(treeVersionId, true) : of<TreeVersionRules>(null);
+								const getLotChoiceRules = result.selectedLotId ? this.lotService.getLotChoiceRuleAssocs(result.selectedLotId) : of<LotChoiceRuleAssoc[]>(null);
+								const getPlanOptions = treeVersionId ? this.optionService.getPlanOptions(result.selectedPlanId, null, true) : of<PlanOption[]>([]);
+								const getOptionImages = treeVersionId ? this.treeService.getOptionImages(treeVersionId, [], null, true) : of<OptionImage[]>(null);
 			
 								return combineLatest([
 									getTree,
@@ -541,11 +548,11 @@ export class CommonEffects
 									this.planService.getWebPlanMappingByPlanId(result.selectedPlanId),
 									combineLatest([
 										this.lotService.getLot(result.selectedLotId),
-										getFavoritesChoiceCatalogIds
+										getFavoritesChoiceCatalogIds,
+										getLotChoiceRules
 									])
 								]).pipe(
-									map(([tree, rules, options, images, mappings, [lot, choices]]) =>
-									{
+									map(([tree, rules, options, images, mappings, [lot, choices, lotChoiceRules]]) => {
 										if (choices?.length)
 										{
 											_.flatMap(favorites, fav => fav.myFavoritesChoice).forEach(ch =>
@@ -558,6 +565,10 @@ export class CommonEffects
 												}
 											});
 										}
+
+										// Assign new lot choice rules everytime we load an agreement
+										// This assigns the most latest lot choice rules, instead of waiting for 1 hour
+										rules.lotChoiceRules = updateLotChoiceRules(lotChoiceRules, rules.lotChoiceRules);
 
 										return {
 											tree,

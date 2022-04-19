@@ -399,6 +399,8 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 			rules = _.cloneDeep(state.rules);
 			options = _.cloneDeep(state.options);
 
+			rules.lotChoiceRules = action.lotChoiceRules;
+
 			if (newTree)
 			{
 				subGroups = _.flatMap(newTree.treeVersion.groups, g => g.subGroups);

@@ -8,7 +8,7 @@ import { ofType } from '@ngrx/effects';
 import { Observable, throwError as _throw, of } from 'rxjs';
 import { combineLatest, map, catchError, withLatestFrom, take, switchMap } from 'rxjs/operators';
 
-import { defaultOnNotFound, withSpinner, Lot, MonotonyRule, LotExt, DecisionPoint } from 'phd-common';
+import { defaultOnNotFound, withSpinner, Lot, MonotonyRule, LotExt, DecisionPoint, LotChoiceRuleAssoc } from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
 
@@ -104,6 +104,28 @@ export class LotService
 				const lotsDto = (response['value'] as Array<LotExt>);
 
 				return lotsDto.length ? new LotExt(lotsDto[0]) : null;
+			}),
+			catchError(error =>
+			{
+				console.error(error);
+
+				return _throw(error);
+			})
+		);
+	}
+
+	getLotChoiceRuleAssocs(lotId: number): Observable<Array<LotChoiceRuleAssoc>>
+	{
+		let url = environment.apiUrl;
+		const filter = `edhLotId eq ${lotId}`;
+		const select = `lotChoiceRuleAssocId, edhLotId, planId, divChoiceCatalogId, mustHave`;
+		const qryStr = `${encodeURIComponent("$")}filter=${encodeURIComponent(filter)}&${encodeURIComponent("$")}select=${encodeURIComponent(select)}`;
+		url += `lotChoiceRuleAssocs?${qryStr}`;
+
+		return withSpinner(this._http).get(url).pipe(
+			map((response: any) =>
+			{
+				return response.value as Array<LotChoiceRuleAssoc>;
 			}),
 			catchError(error =>
 			{
