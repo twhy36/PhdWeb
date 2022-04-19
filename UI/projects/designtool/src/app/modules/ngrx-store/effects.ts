@@ -83,7 +83,9 @@ export class CommonEffects
 
 							// Assign new lot choice rules everytime we load a scenario
 							// This assigns the most latest lot choice rules, instead of waiting for 1 hour
-							rules.lotChoiceRules = updateLotChoiceRules(lotChoiceRulesAssoc, rules.lotChoiceRules);
+							if (rules) {
+								rules.lotChoiceRules = updateLotChoiceRules(lotChoiceRulesAssoc, rules.lotChoiceRules);
+							}
 
 							return { tree, rules, options, optionImages, lot, webPlanMapping, opportunity };
 						}),

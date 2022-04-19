@@ -4,11 +4,13 @@ import { Store, select } from '@ngrx/store';
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromLite from '../../../ngrx-store/lite/reducer';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
+import * as NavActions from '../../../ngrx-store/nav/actions';
 
 import * as LiteActions from '../../../ngrx-store/lite/actions';
 
 import { UnsubscribeOnDestroy, flipOver, ScenarioOption } from 'phd-common';
 import { LitePlanOption, Color } from '../../../shared/models/lite.model';
+import { ExteriorSubNavItems, LiteSubMenu } from '../../../shared/models/lite.model';
 
 @Component({
 	selector: 'elevation',
@@ -49,6 +51,8 @@ export class ElevationComponent extends UnsubscribeOnDestroy implements OnInit
 		).subscribe(elevation =>
 		{
 			this.selectedElevation = elevation;
+			this.store.dispatch(new NavActions.SetSubNavItems(ExteriorSubNavItems));
+			this.store.dispatch(new NavActions.SetSelectedSubNavItem(LiteSubMenu.Elevation));
 		});
 
 		this.store.pipe(
