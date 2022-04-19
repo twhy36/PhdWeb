@@ -78,3 +78,18 @@
 		margin-left: 5px;
 	}
 }
+
+.phd-divisional-tree-group-container {
+	display: table;
+	/* The tree icon */
+	i:first-child {
+		font-size: 10px;
+		margin-right: 4px;
+	}
+
+	i {
+		display: table-cell;
+		vertical-align: middle;
+		text-align: center;
+	}
+}
