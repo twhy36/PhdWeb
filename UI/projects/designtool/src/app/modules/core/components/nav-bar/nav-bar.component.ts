@@ -23,7 +23,6 @@ import { ConfirmModalComponent } from '../../../core/components/confirm-modal/co
 import { environment } from '../../../../../environments/environment';
 
 import * as fromLite from '../../../ngrx-store/lite/reducer';
-import { ExteriorSubNavItems, LiteSubMenu } from '../../../shared/models/lite.model';
 import { SubNavItems, PhdSubMenu } from '../../../new-home/subNavItems';
 
 @Component({
@@ -469,8 +468,6 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 
 	onExteriorPath()
 	{
-		this.store.dispatch(new NavActions.SetSubNavItems(ExteriorSubNavItems));
-		this.store.dispatch(new NavActions.SetSelectedSubNavItem(LiteSubMenu.Elevation));
 		this.router.navigate(['/lite/elevation']);
 	}
 
