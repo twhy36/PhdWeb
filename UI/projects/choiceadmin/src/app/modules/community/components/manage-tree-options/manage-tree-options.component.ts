@@ -126,7 +126,8 @@ export class ManageTreeOptionsComponent extends ComponentCanNavAway implements O
 			this.currentTreeOptions = options ? options : [];
 			this.optionsTable.optionsList = this.currentTreeOptions;
 			this.marketCommunityPlanBreadcrumb = `${community.market.name} > ${community.name} - ${community.number} > ${plan.planSalesName}`;
-			this._orgService.currentFinancialCommunity = community.id.toString();
+			this._orgService.currentFinancialCommunity = community.number;
+
 			this.loading.next(false);
 		});
 
@@ -220,6 +221,11 @@ export class ManageTreeOptionsComponent extends ComponentCanNavAway implements O
 	get titleAddon(): string
 	{
 		return this.isDraft ? ' - Draft' : '';
+	}
+
+	get selectedCommunity(): string
+	{
+		return this._orgService.currentFinancialCommunity;
 	}
 
 	onHasChanges(value: boolean)

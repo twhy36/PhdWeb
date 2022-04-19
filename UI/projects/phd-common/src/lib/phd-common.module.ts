@@ -35,30 +35,31 @@ import { SpinnerService } from './services/spinner.service';
 import { BrowserService } from './services/browser.service';
 import { BrandService } from './services/brand.service';
 import { ModalService } from './services/modal.service';
+import { FeatureSwitchService } from './services/feature-switch.service';
 import { EllipsisPipe } from './pipes/ellipsis.pipe';
 import { SafeUrlPipe } from './pipes/safe-url.pipe';
-import { MinusSignToParens } from './pipes/minusSignToParens.pipe'; 
+import { MinusSignToParens } from './pipes/minusSignToParens.pipe';
 import { PrimeNGCorrectionService } from './services/primeng.service';
 import { initAppInsights, TELEMETRY_INIT } from './utils/appInsights';
 
-export function oAuthModuleConfigFactory(apiUrl: string) {
-    return {
-        resourceServer:
-        {
-            allowedUrls: [apiUrl], //URL of your API
-            sendAccessToken: true
-        }
-    };
+export function oAuthModuleConfigFactory(apiUrl: string)
+{
+	return {
+		resourceServer:
+		{
+			allowedUrls: [apiUrl], //URL of your API
+			sendAccessToken: true
+		}
+	};
 }
 
-
-
-export function getOrigin() {
+export function getOrigin()
+{
 	return window.origin;
 }
 
 @NgModule({
-    imports: [
+	imports: [
 		TableModule,
 		MultiSelectModule,
 		DropdownModule,
@@ -69,7 +70,7 @@ export function getOrigin() {
 		HttpClientModule,
 		OAuthModule.forRoot()
 	],
-    declarations: [
+	declarations: [
 		PhdTableComponent,
 		ConfirmModalComponent,
 		SidePanelComponent,
@@ -88,7 +89,7 @@ export function getOrigin() {
 		SafeUrlPipe,
 		MinusSignToParens
 	],
-    exports: [
+	exports: [
 		PhdTableComponent,
 		ConfirmModalComponent,
 		SidePanelComponent,
@@ -108,37 +109,40 @@ export function getOrigin() {
 		MinusSignToParens
 	],
 })
-export class PhdCommonModule {
-    static forRoot(apiUrl?: string): ModuleWithProviders<PhdCommonModule> {
-        return {
-            ngModule: PhdCommonModule,
-            providers: [
+export class PhdCommonModule
+{
+	static forRoot(apiUrl?: string): ModuleWithProviders<PhdCommonModule>
+	{
+		return {
+			ngModule: PhdCommonModule,
+			providers: [
 				{
 					provide: ApplicationInsights,
 					useFactory: initAppInsights,
 					deps: [APP_INSIGHTS_CONFIG, TELEMETRY_INIT]
 				},
-                CanDeactivateGuard,
-                SpinnerService,
-                {
-                    provide: HTTP_INTERCEPTORS,
-                    useClass: SpinnerInterceptor,
-                    multi: true
-                },
+				CanDeactivateGuard,
+				SpinnerService,
+				{
+					provide: HTTP_INTERCEPTORS,
+					useClass: SpinnerInterceptor,
+					multi: true
+				},
 				{ provide: WINDOW_ORIGIN, useFactory: getOrigin },
 				{ provide: API_URL, useValue: apiUrl },
-                {
-                    provide: OAuthModuleConfig,
-                    useFactory: oAuthModuleConfigFactory,
-                    deps: [API_URL]
-                },
-                IdentityService,
+				{
+					provide: OAuthModuleConfig,
+					useFactory: oAuthModuleConfigFactory,
+					deps: [API_URL]
+				},
+				IdentityService,
 				BrowserService,
 				BrandService,
+				FeatureSwitchService,
 				ClaimGuard,
 				PrimeNGCorrectionService,
 				ModalService
-            ]
-        };
-    }
+			]
+		};
+	}
 }
