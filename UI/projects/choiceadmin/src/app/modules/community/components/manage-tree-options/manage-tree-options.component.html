@@ -11,7 +11,8 @@
 				   (isBaseHouseChange)="onIsBaseHouseChange($event)"
 				   (hasChanges)="onHasChanges($event)"
 				   (updateTreeChoiceOptionRules)="onUpdateTreeChoiceOptionRules($event)"
-				   [selectedMarket]="selectedMarket$ | async">
+				   [selectedMarket]="selectedMarket$ | async"
+				   [selectedCommunity]="selectedCommunity">
 </option-side-panel>
 <messages-side-panel *ngIf="showMessages"
 					 [tabsTemplate]="tabs"

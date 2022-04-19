@@ -43,6 +43,8 @@ export * from './lib/models/scenario.model';
 export * from './lib/models/summary.model';
 export * from './lib/models/time-of-sale-option-price.model';
 export * from './lib/models/tree.model';
+export * from './lib/models/feature-switch.model';
+export * from './lib/models/org.model';
 
 export * from './lib/extensions/withSpinner.extension';
 
@@ -60,6 +62,7 @@ export * from './lib/services/brand.service';
 export * from './lib/services/interceptors/spinner.interceptor';
 export * from './lib/services/spinner.service';
 export * from './lib/services/modal.service';
+export * from './lib/services/feature-switch.service';
 
 //utils
 export * from './lib/utils/animations.class';

@@ -55,6 +55,11 @@ const moduleRoutes: Routes = [
 				canActivate: [ExternalGuard]  
 			},
 			{ 
+				path: 'favorites/my-favorites/:favoritesId/:subGroupCatalogId/:divChoiceCatalogId', 
+				component: MyFavoritesComponent, 
+				canActivate: [ExternalGuard]  
+			},
+			{ 
 				path: 'favorites/my-favorites/:favoritesId', 
 				component: MyFavoritesComponent, 
 				canActivate: [ExternalGuard]  

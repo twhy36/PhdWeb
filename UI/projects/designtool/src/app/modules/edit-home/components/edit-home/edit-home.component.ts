@@ -799,7 +799,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		if (this.jobId)
 		{
 			// Get all options being replaced by this choice
-			let replacedOptions = _.flatMap(this.treeVersionRules.optionRules.filter(o => o.choices.map(ch => ch.id).includes(choice.id)), r => r.replaceOptions);
+			let replacedOptions = _.flatMap(this.treeVersionRules.optionRules.filter(r => r.optionMappings.filter(om => om.choices.map(ch => ch.id).includes(choice.id))), r => r.replaceOptions);
 
 			// Make the list distinct
 			replacedOptions = replacedOptions.filter((o, i) => replacedOptions.indexOf(o) === i);
@@ -813,10 +813,12 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 			replacedOptions.forEach(o =>
 			{
 				const option = this.options.find(opt => opt.financialOptionIntegrationKey === o);
+
 				if (option)
 				{
+					const optionRules = this.treeVersionRules.optionRules.filter(r => r.optionId === o);
 					// Get the DivChoiceCatalogID for the choice mapped to the replaced option
-					const replacedChoices = _.flatMap(this.treeVersionRules.optionRules.filter(r => r.optionId === o), r => r.choices).map(c => c.id);
+					const replacedChoices = _.flatMap(optionRules, r => _.flatMap(r.optionMappings, om => om.choices)).map(c => c.id);
 
 					timeOfSaleOptionPrices = timeOfSaleOptionPrices.concat(choices
 						.filter(c => replacedChoices.includes(c.id))
