@@ -171,7 +171,7 @@ export class DeleteReplaceOptionPrice implements Action
 {
 	readonly type = JobActionTypes.DeleteReplaceOptionPrice;
 
-	constructor() {	}
+	constructor(public isRevertChangeOrder: boolean) {	}
 }
 
 export class ReplaceOptionPriceDeleted implements Action
