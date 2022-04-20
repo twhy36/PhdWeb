@@ -261,7 +261,7 @@ export class JobEffects
 
 							if (timeOfSaleOptionPrices && timeOfSaleOptionPrices.length)
 							{
-								return this.jobService.deleteTimeOfSaleOptionPrices(timeOfSaleOptionPrices);
+								return this.jobService.deleteTimeOfSaleOptionPrices(timeOfSaleOptionPrices, (action as DeleteReplaceOptionPrice).isRevertChangeOrder);
 							}
 							else
 							{

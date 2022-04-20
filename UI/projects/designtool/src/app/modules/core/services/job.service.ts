@@ -178,21 +178,27 @@ export class JobService
 		);
 	}
 
-	deleteTimeOfSaleOptionPricesForJob(jobId: number)
+	deleteTimeOfSaleOptionPricesForJob(jobId: number): Observable<TimeOfSaleOptionPrice[]>
 	{
 		const url = `${environment.apiUrl}DeleteTimeOfSaleOptionPricesForJob`;
 		const body = {
 			jobId: jobId
 		};
 
-		return this._http.post<any>(url, body);
+		return this._http.post<TimeOfSaleOptionPrice[]>(url, body).pipe(
+			map(response =>
+			{
+				return (response['value'] as Array<TimeOfSaleOptionPrice>).map(o => new TimeOfSaleOptionPrice(o));
+			})
+		);
 	}
 
-	deleteTimeOfSaleOptionPrices(timeOfSaleOptionPrices: TimeOfSaleOptionPrice[]): Observable<TimeOfSaleOptionPrice[]>
+	deleteTimeOfSaleOptionPrices(timeOfSaleOptionPrices: TimeOfSaleOptionPrice[], isRevertChangeOrder: boolean): Observable<TimeOfSaleOptionPrice[]>
 	{
 		const url = `${environment.apiUrl}DeleteTimeOfSaleOptionPrices`;
 		const body = {
-			timeOfSaleOptionPrices: timeOfSaleOptionPrices
+			timeOfSaleOptionPrices: timeOfSaleOptionPrices,
+			isRevertChangeOrder: isRevertChangeOrder
 		};
 
 		return this._http.post<TimeOfSaleOptionPrice[]>(url, body).pipe(

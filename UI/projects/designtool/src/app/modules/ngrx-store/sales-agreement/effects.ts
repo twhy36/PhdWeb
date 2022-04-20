@@ -40,6 +40,8 @@ import { tryCatch } from '../error.action';
 import { SalesAgreementCancelled, LoadSpec } from '../actions';
 import { TemplatesLoaded, CreateEnvelope } from '../contract/actions';
 
+import { JobService } from '../../core/services/job.service';
+
 // Phd Lite
 import { LiteService } from '../../core/services/lite.service';
 
@@ -640,15 +642,16 @@ export class SalesAgreementEffects
 
 					// Unlike voiding an agreement, which EDH handles,
 					// we need to manually withdraw the active change order ourselves
-					return forkJoin(of(action), of(salesAgreement), of(job), this.changeOrderService.updateJobChangeOrder(activeChangeOrders));
+					return forkJoin(of(action), of(salesAgreement), of(job), this.changeOrderService.updateJobChangeOrder(activeChangeOrders), this.jobService.deleteTimeOfSaleOptionPricesForJob(job.id));
 				}),
-				switchMap(([action, salesAgreement, job, updatedChangeOrders]) => {
+				switchMap(([action, salesAgreement, job, updatedChangeOrders, deletedOptionPrices]) => {
 					return from([
 						new CommonActions.ChangeOrdersUpdated(updatedChangeOrders),
 						new ChangeOrderActions.CreateCancellationChangeOrder(),
 						new ChangeOrderActions.CurrentChangeOrderCancelled(),
 						new JobActions.JobUpdated(job),
-						new SalesAgreementCancelled(salesAgreement, job, action.buildType)
+						new SalesAgreementCancelled(salesAgreement, job, action.buildType),
+						new JobActions.ReplaceOptionPriceDeleted(deletedOptionPrices)
 					]);
 				})
 			), SaveError, 'Error canceling sales agreement!!')
@@ -976,6 +979,7 @@ export class SalesAgreementEffects
 		private contractService: ContractService,
 		private router: Router,
 		private spinnerService: SpinnerService,
-		private liteService: LiteService
+		private liteService: LiteService,
+		private jobService: JobService
 	) { }
 }
