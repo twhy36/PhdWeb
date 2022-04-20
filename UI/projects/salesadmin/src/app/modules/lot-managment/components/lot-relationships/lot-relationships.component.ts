@@ -1,6 +1,6 @@
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { PhdTableComponent } from "phd-common";
+import { LotChoiceRuleAssoc, LotChoiceRuleAssocView, PhdTableComponent } from "phd-common";
 import { MessageService } from "primeng/api";
 import { combineLatest } from "rxjs";
 import { switchMap } from "rxjs/operators";
@@ -10,7 +10,6 @@ import { OrganizationService } from "../../../core/services/organization.service
 import { PlanService } from "../../../core/services/plan.service";
 import { DivDChoice, DivisionalCatalog } from "../../../shared/models/divisionalCatalog.model";
 import { FinancialMarket } from "../../../shared/models/financialMarket.model";
-import { LotChoiceRuleAssoc, LotChoiceRuleAssocView } from "../../../shared/models/lotChoiceRule.model";
 import { FinancialCommunityViewModel, HomeSiteViewModel, PlanViewModel } from "../../../shared/models/plan-assignment.model";
 import { UnsubscribeOnDestroy } from "../../../shared/utils/unsubscribe-on-destroy";
 

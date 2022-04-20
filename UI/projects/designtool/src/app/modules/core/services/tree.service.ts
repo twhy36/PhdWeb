@@ -473,37 +473,44 @@ export class TreeService
 				{
 					let res = optionRules.find(or => or.planOption.integrationKey === opt.optionNumber && or.dpChoice_OptionRuleAssoc.some(r => r.dpChoiceID === opt.dpChoiceId));
 
-					// group by mappingIndex to handle multiple option mappings
-					const groupedOptionChoices = _.groupBy(res.dpChoice_OptionRuleAssoc, c => c.mappingIndex);
-					let optionChoices = _.map(groupedOptionChoices, (choices) => choices);
+					if (!!res)
+					{
+						// group by mappingIndex to handle multiple option mappings
+						const groupedOptionChoices = _.groupBy(res.dpChoice_OptionRuleAssoc, c => c.mappingIndex);
+						let optionChoices = _.map(groupedOptionChoices, (choices) => choices);
 
-					mappings[opt.optionNumber] = !!res ? <OptionRule>{
-						optionId: opt.optionNumber,
-						optionMappings: optionChoices.map(oc =>
-						{
-							return {
-								mappingIndex: oc[0].mappingIndex,
-								choices: oc.sort(sortChoices).map(c =>
-								{
-									return {
-										id: c.dpChoice.divChoiceCatalogID,
-										mustHave: c.mustHave,
-										attributeReassignments: c.attributeReassignments.map(ar =>
-										{
-											return {
-												id: ar.attributeReassignmentID,
-												choiceId: ar.todpChoiceID,
-												attributeGroupId: ar.attributeGroupID,
-												divChoiceCatalogId: ar.todpChoice.divChoiceCatalogID
-											} as OptionRuleAttributeReassignment;
-										})
-									} as OptionRuleChoice;
-								})
-							} as OptionMapping;
-						}),
-						ruleId: res.optionRuleID,
-						replaceOptions: res.optionRuleReplaces.map(orr => orr.planOption.integrationKey)
-					} : null;
+						mappings[opt.optionNumber] = <OptionRule>{
+							optionId: opt.optionNumber,
+							optionMappings: optionChoices.map(oc =>
+							{
+								return {
+									mappingIndex: oc[0].mappingIndex,
+									choices: oc.sort(sortChoices).map(c =>
+									{
+										return {
+											id: c.dpChoice.divChoiceCatalogID,
+											mustHave: c.mustHave,
+											attributeReassignments: c.attributeReassignments.map(ar =>
+											{
+												return {
+													id: ar.attributeReassignmentID,
+													choiceId: ar.todpChoiceID,
+													attributeGroupId: ar.attributeGroupID,
+													divChoiceCatalogId: ar.todpChoice.divChoiceCatalogID
+												} as OptionRuleAttributeReassignment;
+											})
+										} as OptionRuleChoice;
+									})
+								} as OptionMapping;
+							}),
+							ruleId: res.optionRuleID,
+							replaceOptions: res.optionRuleReplaces.map(orr => orr.planOption.integrationKey)
+						};
+					}
+					else
+					{
+						mappings[opt.optionNumber] = null;
+					}
 				});
 
 				return mappings;
