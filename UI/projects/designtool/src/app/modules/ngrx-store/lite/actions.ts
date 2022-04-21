@@ -1,7 +1,7 @@
-import { Log, ScenarioOption } from 'phd-common';
+import { Log, ScenarioOption, Scenario } from 'phd-common';
 import { Action } from '@ngrx/store';
-import { 
-    IOptionCategory, LitePlanOption, ScenarioOptionColorDto, LiteMonotonyRule 
+import {
+    IOptionCategory, LitePlanOption, ScenarioOptionColorDto, LiteMonotonyRule
 } from '../../shared/models/lite.model';
 
 export enum LiteActionTypes {
@@ -17,8 +17,10 @@ export enum LiteActionTypes {
 	LoadLiteMonotonyRules = 'Load Lite Monotony Rules',
     LiteMonotonyRulesLoaded = 'LiteMonotonyRulesLoaded',
     SetLiteOverrideReason = 'Set Lite Override Reason',
-    CancelJobChangeOrderLite = 'Cancel Job Change Order Lite', 
-    LoadLitePlan = 'Load Lite Plan',  
+	CreateJIOForSpecLite = 'Create JIO For Spec Lite',
+	LoadLiteSpecOrModel = 'Load Lite Spec Or Model',
+    CancelJobChangeOrderLite = 'Cancel Job Change Order Lite',
+    LoadLitePlan = 'Load Lite Plan',
     CancelPlanChangeOrderLite = 'Cancel Plan Change Order Lite',
 }
 
@@ -127,6 +129,20 @@ export class CancelPlanChangeOrderLite implements Action
 	constructor() { }
 }
 
+@Log()
+export class CreateJIOForSpecLite implements Action
+{
+	readonly type = LiteActionTypes.CreateJIOForSpecLite;
+	constructor() { }
+}
+
+@Log()
+export class LoadLiteSpecOrModel implements Action
+{
+	readonly type = LiteActionTypes.LoadLiteSpecOrModel;
+	constructor(public scenario: Scenario) { }
+}
+
 export type LiteActions =
     SetIsPhdLite |
     LiteOptionsLoaded |
@@ -137,9 +153,11 @@ export type LiteActions =
     SaveScenarioOptionColors |
 	SetScenarioLoaded |
     OptionCategoriesLoaded |
-    LoadLiteMonotonyRules | 
+    LoadLiteMonotonyRules |
     LiteMonotonyRulesLoaded |
     SetLiteOverrideReason |
     CancelJobChangeOrderLite |
     LoadLitePlan |
-    CancelPlanChangeOrderLite;
+    CancelPlanChangeOrderLite |
+	CreateJIOForSpecLite |
+	LoadLiteSpecOrModel;

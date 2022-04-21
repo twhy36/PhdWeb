@@ -1,10 +1,9 @@
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
-import { SidePanelComponent } from "phd-common";
+import { LotChoiceRuleAssoc, LotChoiceRuleAssocView, SidePanelComponent } from "phd-common";
 import { MessageService } from "primeng/api";
 import { PlanService } from "../../../core/services/plan.service";
 import { DivisionalCatalog, DivDGroup, DivDSubGroup, DivDPoint, DivDChoice } from "../../../shared/models/divisionalCatalog.model";
-import { LotChoiceRuleAssoc, LotChoiceRuleAssocView } from "../../../shared/models/lotChoiceRule.model";
 import { FinancialCommunityViewModel, HomeSiteViewModel, PlanViewModel } from "../../../shared/models/plan-assignment.model";
 
 @Component({

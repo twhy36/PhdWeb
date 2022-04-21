@@ -9,7 +9,7 @@ import { switchMap, withLatestFrom, share, combineLatest, flatMap, map, take, de
 import * as _ from 'lodash';
 import { ApplicationInsights } from '@microsoft/applicationinsights-web';
 
-import { Plan, DtoScenarioInfo, TimeOfSaleOptionPrice, ITimeOfSaleOptionPrice } from 'phd-common';
+import { Plan, DtoScenarioInfo } from 'phd-common';
 
 import { CommonActionTypes, JobLoaded, SalesAgreementLoaded, ScenarioLoaded } from './../actions';
 import { OptionService } from '../../core/services/option.service';
@@ -20,7 +20,7 @@ import { TreeService } from '../../core/services/tree.service';
 
 import {
 ScenarioActionTypes, SaveScenario, ScenarioSaved, SaveError, SetChoicePriceRanges,
-SetScenarioPlan, SetScenarioLot, SetScenarioLotHanding, TreeLoaded, LoadError, SetPointViewed, SetOverrideReason,
+SetScenarioPlan, SetScenarioLot, SetScenarioLotHanding, TreeLoaded, LoadError, SetPointViewed,
 LoadPreview, SaveScenarioInfo, ScenarioInfoSaved, LoadTree, SelectChoices, SetIsFloorplanFlippedScenario, IsFloorplanFlippedScenario, TreeLoadedFromJob
 } from './actions';
 import { SaveChangeOrderScenario, SavePendingJio } from '../change-order/actions';
@@ -129,7 +129,7 @@ export class ScenarioEffects {
 						store.changeOrder.currentChangeOrder.salesStatusDescription === 'Pending')
 					&& store.scenario.buildMode !== 'preview';
 
-				const timeOfSaleOptionPricesToSave = _.flatMap((action as SelectChoices).choices.filter(c => c.quantity !== 0), c => c.timeOfSaleOptionPrices);
+				const timeOfSaleOptionPricesToSave = _.flatMap((action as SelectChoices).choices.filter(c => c.quantity !== 0), c => c.timeOfSaleOptionPrices || []);
 
 				if (!savingScenario && !savingPendingJio && savingChangeOrder)
 				{

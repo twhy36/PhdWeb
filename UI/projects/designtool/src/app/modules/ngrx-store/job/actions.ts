@@ -164,18 +164,14 @@ export class ReplaceOptionPriceSaved implements Action
 {
 	readonly type = JobActionTypes.ReplaceOptionPriceSaved;
 
-	constructor() { }
+	constructor(public timeOfSaleOptionPrices: TimeOfSaleOptionPrice[]) { }
 }
 
 export class DeleteReplaceOptionPrice implements Action
 {
 	readonly type = JobActionTypes.DeleteReplaceOptionPrice;
-	public timeOfSaleOptionPrices: TimeOfSaleOptionPrice[];
 
-	constructor(timeOfSaleOptionPrices: TimeOfSaleOptionPrice[])
-	{
-		this.timeOfSaleOptionPrices = timeOfSaleOptionPrices;
-	}
+	constructor(public isRevertChangeOrder: boolean) {	}
 }
 
 export class ReplaceOptionPriceDeleted implements Action

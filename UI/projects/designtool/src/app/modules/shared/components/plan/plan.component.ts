@@ -148,12 +148,12 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 			select(state =>
 				{
 					this.selectedPlan = state.plan.selectedTree && state.plan.plans ? state.plan.plans.find(p => p.treeVersionId === state.plan.selectedTree) : null;
-	
+
 					if (!this.selectedPlan && state.plan.selectedPlan && state.lite?.isPhdLite)
 					{
 						this.selectedPlan = state.plan.plans.find(p => p.id === state.plan.selectedPlan);
 					}
-	
+
 					return this.selectedPlan;
 				})
 		);
@@ -256,7 +256,14 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 
 				if (this.buildMode === 'spec' || this.buildMode === 'model')
 				{
-					this.store.dispatch(new ScenarioActions.LoadTree(this.scenario));
+					if (this.isPhdLite)
+					{
+						this.store.dispatch(new LiteActions.LoadLiteSpecOrModel(this.scenario));
+					}
+					else
+					{
+						this.store.dispatch(new ScenarioActions.LoadTree(this.scenario));
+					}
 				}
 			}
 		}
@@ -289,9 +296,9 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 				}
 				else if (this.isPhdLite)
 				{
-					this.store.dispatch(new NavActions.SetSubNavItems(ExteriorSubNavItems));		
+					this.store.dispatch(new NavActions.SetSubNavItems(ExteriorSubNavItems));
 					this.store.dispatch(new NavActions.SetSelectedSubNavItem(LiteSubMenu.Elevation));
-					this.router.navigateByUrl('/lite/elevation');						
+					this.router.navigateByUrl('/lite/elevation');
 				}
 				else
 				{

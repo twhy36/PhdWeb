@@ -8,7 +8,7 @@ import { ofType } from '@ngrx/effects';
 import { Observable, throwError as _throw, of } from 'rxjs';
 import { combineLatest, map, catchError, withLatestFrom, take, switchMap } from 'rxjs/operators';
 
-import { defaultOnNotFound, withSpinner, Lot, MonotonyRule, LotExt, DecisionPoint } from 'phd-common';
+import { defaultOnNotFound, withSpinner, Lot, MonotonyRule, LotExt, DecisionPoint, LotChoiceRuleAssoc } from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
 
@@ -19,6 +19,7 @@ import * as LotActions from '../../ngrx-store/lot/actions';
 import * as SalesAgreementActions from '../../ngrx-store/sales-agreement/actions';
 import { MonotonyConflict } from '../../shared/models/monotony-conflict.model';
 import { formatDate } from '@angular/common';
+import * as LiteActions from '../../ngrx-store/lite/actions';
 
 @Injectable()
 export class LotService
@@ -113,6 +114,28 @@ export class LotService
 		);
 	}
 
+	getLotChoiceRuleAssocs(lotId: number): Observable<Array<LotChoiceRuleAssoc>>
+	{
+		let url = environment.apiUrl;
+		const filter = `edhLotId eq ${lotId}`;
+		const select = `lotChoiceRuleAssocId, edhLotId, planId, divChoiceCatalogId, mustHave`;
+		const qryStr = `${encodeURIComponent("$")}filter=${encodeURIComponent(filter)}&${encodeURIComponent("$")}select=${encodeURIComponent(select)}`;
+		url += `lotChoiceRuleAssocs?${qryStr}`;
+
+		return withSpinner(this._http).get(url).pipe(
+			map((response: any) =>
+			{
+				return response.value as Array<LotChoiceRuleAssoc>;
+			}),
+			catchError(error =>
+			{
+				console.error(error);
+
+				return _throw(error);
+			})
+		);
+	}
+
 	getLotReleaseDate(lotId: number):Observable<string>
 	{
 		const filter = `Release_LotAssoc/any(c: c/EDHLotId eq ${lotId})`
@@ -153,10 +176,11 @@ export class LotService
 			select(fromSalesAgreement.salesAgreementState),
 			withLatestFrom(
 				this.store.pipe(select(fromChangeOrder.currentChangeOrder)),
-				this.store.pipe(select(state => state.scenario))
+				this.store.pipe(select(state => state.scenario)),
+				this.store.pipe(select(state => state.lite))
 			),
 			take(1)
-		).subscribe(([sag, co, scenario]) =>
+		).subscribe(([sag, co, scenario, lite]) =>
 		{
 			if (!sag.id || co || (scenario.buildMode === 'spec' || scenario.buildMode === 'model'))
 			{
@@ -164,7 +188,14 @@ export class LotService
 
 				if (scenario.buildMode === 'spec' || scenario.buildMode === 'model')
 				{
-					this.store.dispatch(new SalesAgreementActions.CreateJIOForSpec())
+					if (lite.isPhdLite)
+					{
+						this.store.dispatch(new LiteActions.CreateJIOForSpecLite());
+					}
+					else
+					{
+						this.store.dispatch(new SalesAgreementActions.CreateJIOForSpec());
+					}
 				}
 				else if (!sag.id)
 				{

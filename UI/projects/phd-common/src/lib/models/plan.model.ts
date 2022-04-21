@@ -1,30 +1,32 @@
-export class Plan {
-    id: number;
-    title: string;
-    subtitle: string;
-    feature: string;
-    description: string;
-    price: number;
-    salesName: string;
-    numBed: number;
-    numFullBath: number;
-    numHalfBath: number;
-    squareFeet: number;
-    communityId: number;
-    foundation: string;
-    garageConfiguration: string;
-    masterBedLocation: string;
-    productConfiguration: string;
-    productType: string;
-    integrationKey: number;
-    salesDescription: string;
+export class Plan
+{
+	id: number;
+	title: string;
+	subtitle: string;
+	feature: string;
+	description: string;
+	price: number;
+	salesName: string;
+	numBed: number;
+	numFullBath: number;
+	numHalfBath: number;
+	squareFeet: number;
+	communityId: number;
+	foundation: string;
+	garageConfiguration: string;
+	masterBedLocation: string;
+	productConfiguration: string;
+	productType: string;
+	integrationKey: number;
+	salesDescription: string;
 	treeVersionId: number;
 	marketingPlanId: number[];
 	baseHouseElevationImageUrl: string;
 	lotAssociations: number[];
 }
 
-export class JobPlan {
+export class JobPlan
+{
 	bedrooms: number;
 	financialCommunityId: number;
 	financialPlanIntegrationKey: string;

@@ -813,17 +813,11 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 
 				return this._changeOrderService.updateJobChangeOrder(changeOrdersToBeUpdated);
 			}),
-			combineLatest(
-				this.store.pipe(
-					take(1),
-					select(state => state.job.timeOfSaleOptionPrices)
-				)
-			),
 			finalize(() => this.isSaving = false)
-		).subscribe(([changeOrders, timeOfSaleOptionPrices]) =>
+		).subscribe(changeOrders =>
 		{
 			// #353697 Once the CO is saved, we need to clear out any related option prices that have been restored, in both the database and the job state
-			this.store.dispatch(new JobActions.DeleteReplaceOptionPrice(timeOfSaleOptionPrices));
+			this.store.dispatch(new JobActions.DeleteReplaceOptionPrice(false));
 
 			if (changeOrders.some(co => co.constructionStatusDescription === 'Approved'))
 			{
@@ -1020,6 +1014,9 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 
 					if (changeOrder.salesStatusDescription === 'Withdrawn')
 					{
+						// #353697 Once the CO is withdrawn, we need to clear out any new option prices in both the database and the job state
+						this.store.dispatch(new JobActions.DeleteReplaceOptionPrice(true));
+
 						this.store.dispatch(new CommonActions.LoadSalesAgreement(this.salesAgreementId, false));
 					}
 				}

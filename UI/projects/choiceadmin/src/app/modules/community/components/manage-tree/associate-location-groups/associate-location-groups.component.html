@@ -2,7 +2,7 @@
 
 <div *ngIf="isReadOnly && !hasGroupAssociated && !(isLoading | async)" class="alert alert-info">No location groups associated.</div>
 
-<div *ngIf="!isReadOnly">
+<div *ngIf="!hasTreeGroupAssociated && !isReadOnly">
 	<attribute-group-action-panel #addGroups
 								  [headerText]="'Location Groups'"
 								  [actionButtons]="addAssocButtons"
@@ -23,6 +23,8 @@
 <div *ngIf="isLoading | async" class="container-fluid text-center phd-loading">
 	<i class="fa fa-spinner fa-spin fa-3x"></i>
 </div>
+
+<div class="phd-indicator" *ngIf="hasGroupAssociated && (!isReadOnly || isReadOnly && !(isLoading | async))"><span class="text-danger">*</span> Associating locations at the tree level will override locations associated at the division level.</div>
 
 <div *ngIf="hasGroupAssociated" class="phd-rules-list">
 	<attribute-group-action-panel #removeGroups

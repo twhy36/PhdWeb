@@ -6,7 +6,7 @@ import { combineLatest, map, filter, take, withLatestFrom } from 'rxjs/operators
 
 import {
 	UnsubscribeOnDestroy, flipOver, FinancialCommunity, ChangeOrderHanding, Job, Lot, ViewAdjacency, Handing,
-	PhysicalLotType, PlanAssociation, MonotonyRuleLot, SalesPhase, Plan, Scenario, Choice, ModalService, LotChoiceRules, ConfirmModalComponent
+	PhysicalLotType, PlanAssociation, MonotonyRuleLot, SalesPhase, Plan, Scenario, Choice, ModalService, LotChoiceRules, ConfirmModalComponent, updateLotChoiceRules
 } from 'phd-common';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
@@ -28,6 +28,7 @@ import * as _ from 'lodash';
 
 // PHD Lite
 import { ExteriorSubNavItems, LiteSubMenu } from '../../../shared/models/lite.model';
+import { LotService } from '../../../core/services/lot.service';
 
 
 @Component({
@@ -74,7 +75,8 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 		private store: Store<fromRoot.State>,
 		private route: ActivatedRoute,
 		private modalService: ModalService,
-		private newHomeService: NewHomeService
+		private newHomeService: NewHomeService,
+		private lotService: LotService
 	)
 	{
 		super();
@@ -206,7 +208,7 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 				this.store.pipe(
 					select(selectSelectedLot)
 				),
-				this.store.pipe(select(state=> state.org.salesCommunity.financialCommunities)),
+				this.store.pipe(select(state=> state.org.salesCommunity?.financialCommunities)),
 				this.store.pipe(select(state => state.lot.selectedHanding)),
 				this.selectedFilterBy$
 			)
@@ -300,33 +302,33 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 		return lot.planAssociations ? lot.planAssociations.some(p => p.planId === this.selectedPlanId) : false;
 	}
 
-	monotonyConflictMessage(lot: LotComponentLot): string 
+	monotonyConflictMessage(lot: LotComponentLot): string
 	{
 		const planId = this.selectedPlanId ?? 0;
 		const isColorSchemePlanRuleEnabled = this.financialCommunities.find(fc => fc.id == lot.financialCommunityId).isColorSchemePlanRuleEnabled;
 
-		if (this.colorSchemeChoice && !this.colorSchemeConflictOverride) 
+		if (this.colorSchemeChoice && !this.colorSchemeConflictOverride)
 		{
 			lot.colorSchemeMonotonyConflict = isColorSchemePlanRuleEnabled ? lot.monotonyRules.some(x => x.colorSchemeDivChoiceCatalogId === this.colorSchemeChoice.divChoiceCatalogId && x.edhPlanId === planId) :
 				lot.monotonyRules.some(x => x.colorSchemeDivChoiceCatalogId === this.colorSchemeChoice.divChoiceCatalogId);
 		}
 
-		if (this.elevationChoice && !this.elevationConflictOverride) 
+		if (this.elevationChoice && !this.elevationConflictOverride)
 		{
 			lot.elevationMonotonyConflict = lot.monotonyRules.some(r => r.elevationDivChoiceCatalogId === this.elevationChoice.divChoiceCatalogId && r.edhPlanId === planId);
 
-			if (!this.colorSchemeChoice && this.elevationChoice.selectedAttributes.length > 0) 
+			if (!this.colorSchemeChoice && this.elevationChoice.selectedAttributes.length > 0)
 			{
-				lot.monotonyRules.forEach(rule => 
+				lot.monotonyRules.forEach(rule =>
 				{
 					// must be on the same plan
 					if (rule.edhPlanId === planId)
 					{
 						let colorAttributeConflicts = [];
 
-						if (!this.colorSchemeMonotonyConflict) 
+						if (!this.colorSchemeMonotonyConflict)
 						{
-							this.elevationChoice.selectedAttributes.forEach(x => 
+							this.elevationChoice.selectedAttributes.forEach(x =>
 							{
 								const doesColorSchemeAttributeExist = rule.colorSchemeAttributeCommunityIds.some(colorAttributeIds => colorAttributeIds === x.attributeId);
 
@@ -340,7 +342,7 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 			}
 		}
 
-		if (lot.elevationMonotonyConflict && lot.colorSchemeMonotonyConflict) 
+		if (lot.elevationMonotonyConflict && lot.colorSchemeMonotonyConflict)
 		{
 			lot.colorSchemeMonotonyConflict = true;
 			lot.elevationMonotonyConflict = true;
@@ -348,14 +350,14 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 			return "The Homesite selection is unavailable with the elevation and color scheme you have chosen.";
 		}
 
-		if (lot.elevationMonotonyConflict) 
+		if (lot.elevationMonotonyConflict)
 		{
 			lot.elevationMonotonyConflict = true;
 
 			return "The Homesite selection is unavailable with the elevation you have chosen.";
 		}
 
-		if (lot.colorSchemeMonotonyConflict) 
+		if (lot.colorSchemeMonotonyConflict)
 		{
 			lot.colorSchemeMonotonyConflict = true;
 
@@ -365,59 +367,87 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 		return "";
 	}
 
-	getLotsMontonyConflictMessage() 
+	getLotsMontonyConflictMessage()
 	{
 		this.lots.forEach(x => x.monotonyConflictMessage = this.monotonyConflictMessage(x));
 	}
 
 	toggleSelection(lot: LotComponentLot, selected: boolean)
 	{
-		// All required lot choice rules on the current lot
-		const requiredSelections = this.lotChoiceRules?.map((lcr) =>
+		if (!selected)
 		{
-			return { ...lcr, rules: lcr.rules.filter((rule) => rule.edhLotId === lot.id && rule.mustHave) }
-		}).filter(r => r.rules.length);
-
-		// Fetch previous lot choice rules
-		let prevLotChoiceRules = this.lotChoiceRules?.map((lcr) => {
-			return { ...lcr, rules: lcr.rules.filter((rule) => rule.edhLotId === this.scenario.lotId) }
-		}).filter(r => r.rules.length);
-
-		// Previous lot choice selections does not include lot choice required/disabled choices, hence the check to filter previous lot choice rules
-		let previousLotSelections = this.scenario.scenarioChoices?.filter(sc => !prevLotChoiceRules?.find(plc => plc.divChoiceCatalogId === sc.choice.choiceCatalogId));
-
-		// Disabled selections on the new lot for choices that were selected on the previous lot
-		const disabledSelections = this.lotChoiceRules?.map(lcr =>
-		{
-			return { ...lcr, rules: lcr.rules.filter(rule => rule.edhLotId === lot.id && !rule.mustHave && previousLotSelections?.find(pls => pls.choice.choiceCatalogId === lcr.divChoiceCatalogId)) }
-		}).filter(r => r.rules.length);
-
-		if ((requiredSelections?.length || disabledSelections?.length) && !selected)
-		{
-			const confirm = this.modalService.open(ConfirmModalComponent, { centered: true });
-
-			confirm.componentInstance.title = 'Attention!';
-
-			var body = requiredSelections.length ? '<b>' + 'Lot ' + lot.lotBlock + ' has the following requirement(s): ' + '</b>' + '<br />': '';
-
-			requiredSelections.forEach(ncr =>
+			this.lotService.getLotChoiceRuleAssocs(lot.id).subscribe(lotChoiceRuleAssoc =>
 			{
-				body += 'Choice ' + this.currentChoices.find(cc => cc.divChoiceCatalogId === ncr.divChoiceCatalogId)?.label + ' Required' + '<br />';
-			});
+				// Assign new lot choice rules everytime we select a lot
+				// This assigns the most latest lot choice rules, instead of waiting for 1 hour
+				this.lotChoiceRules = lotChoiceRuleAssoc?.length ? updateLotChoiceRules(lotChoiceRuleAssoc, this.lotChoiceRules) : [];
 
-			body += disabledSelections.length ? '<br />' + '<b>' + 'Lot ' + lot.lotBlock + ' has the following restriction(s): ' + '</b>' + '<br />' : '';
+				// All required lot choice rules on the current lot
+				const requiredSelections = this.lotChoiceRules?.map((lcr) =>
+				{
+					return { ...lcr, rules: lcr.rules.filter((rule) => rule.edhLotId === lot.id && rule.mustHave) }
+				}).filter(r => r.rules.length);
 
-			disabledSelections.forEach(ncr =>
-			{
-				body += 'Choice ' + this.currentChoices.find(cc => cc.divChoiceCatalogId === ncr.divChoiceCatalogId)?.label + ' Disabled' + '<br />';
-			});
+				// Fetch previous lot choice rules
+				let prevLotChoiceRules = this.lotChoiceRules?.map((lcr) => {
+					return { ...lcr, rules: lcr.rules.filter((rule) => rule.edhLotId === this.scenario.lotId) }
+				}).filter(r => r.rules.length);
 
-			confirm.componentInstance.body = body;
-			confirm.componentInstance.defaultOption = 'Continue';
+				// All previously required lot choice rules that are not required on the current lot
+				const noLongerRequiredSelections = prevLotChoiceRules?.map((lcr) => {
+					return { ...lcr, rules: lcr.rules.filter((rule) => rule.mustHave && !requiredSelections.some(r2 => lcr.divChoiceCatalogId == r2.divChoiceCatalogId)) }
+				}).filter(r => r.rules.length);
 
-			return confirm.result.then((result) =>
-			{
-				if (result !== 'Close')
+				// Previous lot choice selections does not include lot choice required/disabled choices, hence the check to filter previous lot choice rules
+				let previousLotSelections = this.scenario.scenarioChoices?.filter(sc => !prevLotChoiceRules?.find(plc => plc.divChoiceCatalogId === sc.choice.choiceCatalogId));
+
+				// Disabled selections on the new lot for choices that were selected on the previous lot
+				const disabledSelections = this.lotChoiceRules?.map(lcr =>
+				{
+					return { ...lcr, rules: lcr.rules.filter(rule => rule.edhLotId === lot.id && !rule.mustHave && previousLotSelections?.find(pls => pls.choice.choiceCatalogId === lcr.divChoiceCatalogId)) }
+				}).filter(r => r.rules.length);
+
+				if (((requiredSelections?.length || disabledSelections?.length) && !selected)
+					|| noLongerRequiredSelections?.length)
+				{
+					const confirm = this.modalService.open(ConfirmModalComponent, { centered: true });
+
+					confirm.componentInstance.title = 'Attention!';
+
+					var body = requiredSelections.length ? '<b>' + 'Lot ' + lot.lotBlock + ' has the following requirement(s): ' + '</b>' + '<br />': '';
+
+					requiredSelections.forEach(ncr =>
+					{
+						body += 'Choice ' + this.currentChoices.find(cc => cc.divChoiceCatalogId === ncr.divChoiceCatalogId)?.label + ' Required' + '<br />';
+					});
+
+					body += disabledSelections.length ? '<br />' + '<b>' + 'Lot ' + lot.lotBlock + ' has the following restriction(s): ' + '</b>' + '<br />' : '';
+
+					disabledSelections.forEach(ncr =>
+					{
+						body += 'Choice ' + this.currentChoices.find(cc => cc.divChoiceCatalogId === ncr.divChoiceCatalogId)?.label + ' Disabled' + '<br />';
+					});
+
+					body += noLongerRequiredSelections?.length ? '<br />' + '<b>' + 'The following choice(s) will no longer be required for Lot ' + lot.lotBlock + '.'
+						+ ' You will be able to modify the choice(s) if you continue: ' + '</b>' + '<br />' : '';
+
+					noLongerRequiredSelections?.forEach(ncr =>
+					{
+						body += 'Choice ' + this.currentChoices.find(cc => cc.divChoiceCatalogId === ncr.divChoiceCatalogId)?.label + '<br />';
+					});
+
+					confirm.componentInstance.body = body;
+					confirm.componentInstance.defaultOption = 'Continue';
+
+					return confirm.result.then((result) =>
+					{
+						if (result !== 'Close')
+						{
+							this.toggleLot(lot, selected);
+						}
+					});
+				}
+				else
 				{
 					this.toggleLot(lot, selected);
 				}
@@ -425,6 +455,7 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 		}
 		else
 		{
+			this.lotChoiceRules = [];
 			this.toggleLot(lot, selected);
 		}
 	}
@@ -522,7 +553,7 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 			}
 
 			this.store.dispatch(new LotActions.SelectLot(lot.id));
-			this.store.dispatch(new ScenarioActions.SetScenarioLot(lot.id, handing, lot.premium));
+			this.store.dispatch(new ScenarioActions.SetScenarioLot(lot.id, handing, lot.premium, this.lotChoiceRules));
 
 			if (!this.selectedPlanId)
 			{
@@ -534,7 +565,7 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 			lot.selectedHanding = null;
 
 			this.store.dispatch(new LotActions.DeselectLot());
-			this.store.dispatch(new ScenarioActions.SetScenarioLot(null, null, 0));
+			this.store.dispatch(new ScenarioActions.SetScenarioLot(null, null, 0, this.lotChoiceRules));
 
 			this.getLotsMontonyConflictMessage();
 		}
@@ -548,7 +579,7 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 		let handing : string = lot.selectedHanding;
 
 		this.monotonyConflictMessage(lot);
-		
+
 		//if the selected lot is falsy or the dropdown's lot id differs from the previously existing lot id
 		//select it
 		if (!this.selectedLot || lotId !== this.selectedLot.id)
@@ -556,7 +587,7 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 			this.toggleSelection(this.lots.find(l => l.id === lotId), false);
 			return;
 		}
-		
+
 		//if chosen handing was null for No Selection, deselect
 		if (handing === null)
 		{
@@ -564,12 +595,12 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 			this.toggleSelection(this.lots.find(l => l.id === lotId), true);
 			return;
 		}
-		
+
 		const newHanding = new ChangeOrderHanding();
-		
+
 		//If NA was chosen, pass null to save to the scenario
 		if(handing !== 'NA')
-		{	
+		{
 			newHanding.handing = handing;
 		}
 
@@ -585,7 +616,7 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 			case (ActionBarCallType.PRIMARY_CALL_TO_ACTION):
 				if (this.isPhdLite)
 				{
-					this.store.dispatch(new NavActions.SetSubNavItems(ExteriorSubNavItems));		
+					this.store.dispatch(new NavActions.SetSubNavItems(ExteriorSubNavItems));
 					this.store.dispatch(new NavActions.SetSelectedSubNavItem(LiteSubMenu.Elevation));
 					this.router.navigateByUrl('/lite/elevation');
 				}

@@ -26,6 +26,7 @@ import * as CommonActions from '../../../ngrx-store/actions';
 import * as ChangeOrderActions from '../../../ngrx-store/change-order/actions';
 import { ChangeOrderService } from './../../../core/services/change-order.service';
 import { ConfirmModalComponent } from '../../../core/components/confirm-modal/confirm-modal.component';
+import * as JobActions from '../../../ngrx-store/job/actions';
 
 // PHD Lite
 import { LiteService } from './../../../core/services/lite.service';
@@ -181,6 +182,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 						state.salesAgreement,
 						state.scenario.rules?.optionRules)
 					&& !this.liteService.liteChangeOrderHasChanges(
+						state.lite.isPhdLite,
 						state.job, 
 						state.changeOrder.currentChangeOrder, 
 						state.changeOrder.changeInput, 
@@ -583,6 +585,10 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 			{
 				this.store.dispatch(new ChangeOrderActions.SetChangingOrder(false, null));
 			}
+
+			// #353697 Revert all new TimeOFSaleOptionPrice records
+			this.store.dispatch(new JobActions.DeleteReplaceOptionPrice(true));
+
 			this.router.navigateByUrl('/change-orders');
 		}
 	}
