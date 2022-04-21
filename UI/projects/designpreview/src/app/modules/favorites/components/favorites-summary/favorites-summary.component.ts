@@ -60,7 +60,6 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 	buildMode: string;
 	isPreview: boolean = false;
 	isDesignComplete: boolean = false;
-	adobeLoadInitialized: boolean;
 
 	constructor(private store: Store<fromRoot.State>,
 		private activatedRoute: ActivatedRoute,
@@ -70,14 +69,14 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		private reportsService: ReportsService,
 		private location: Location,
 		private toastr: ToastrService,
-		private adobeService: AdobeService)
+		private adobeService: AdobeService
+		)
 	{
 		super();
 	}
 
 	ngOnInit()
 	{
-		this.adobeLoadInitialized = false;
 		this.activatedRoute.paramMap
 			.pipe(
 				combineLatestOperator(this.store.pipe(select(state => state.salesAgreement))),
@@ -194,8 +193,6 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 			this.treeVersionRules = _.cloneDeep(scenario.rules);
 			this.options = _.cloneDeep(scenario.options);
 		});
-
-		this.initializeAdobePageLoad();
 	}
 
 	onBack()
@@ -438,14 +435,5 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		return groups.map(g => {
 			return new GroupExt(g);
 		})
-	}
-
-	initializeAdobePageLoad() {
-		let pageType = 'Favorites Summary Page';
-		let pageName = 'Favorites Summary';
-		let groupName = '';
-		let subGroupName = '';
-
-		this.adobeService.setPageLoadEvent(this.adobeLoadInitialized, pageType, pageName, groupName, subGroupName);
 	}
 }
