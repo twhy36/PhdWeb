@@ -137,7 +137,9 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		},
 		error =>
 		{
-			this.toastr.error('Failed to load choice attributes!', 'Error');
+			const msg = 'Failed to load choice attributes!';
+			this.toastr.error(msg, 'Error');
+			this.adobeService.setErrorEvent(msg);
 		});
 
 		this.store.pipe(

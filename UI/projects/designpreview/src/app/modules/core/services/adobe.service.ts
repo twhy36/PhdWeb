@@ -156,4 +156,13 @@ export class AdobeService extends UnsubscribeOnDestroy {
             }
         }
     }
+
+    setErrorEvent(error: string) {
+        let errorEvent = new ErrorEvent(error);
+
+        window['appEventData'] = window['appEventData'] || [];
+        if (errorEvent && errorEvent.message.length) {
+            window['appEventData'].push(errorEvent);
+        }
+    }
 }

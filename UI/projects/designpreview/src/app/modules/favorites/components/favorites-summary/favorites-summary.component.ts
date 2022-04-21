@@ -326,7 +326,9 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		},
 		error =>
 		{
-			this.toastr.error(`There was an issue generating the favorites summary report.`, 'Error - Print');
+			const msg = `There was an issue generating the favorites summary report.`;
+			this.toastr.error(msg, 'Error - Print');
+			this.adobeService.setErrorEvent(msg);
 		});
 	}
 

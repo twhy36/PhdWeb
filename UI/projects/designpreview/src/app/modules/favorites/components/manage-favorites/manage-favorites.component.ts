@@ -82,7 +82,9 @@ export class ManageFavoritesComponent extends UnsubscribeOnDestroy implements On
 						}
 					},
 					error => {
-						this.toastr.error('Failed to create favorites list!', 'Error');
+						const msg = 'Failed to create favorites list!';
+						this.toastr.error(msg, 'Error');
+						this.adobeService.setErrorEvent(msg);
 					});
 			}
 		}

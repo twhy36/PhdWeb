@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, from, EMPTY as empty, throwError as _throw, of } from 'rxjs';
 import { combineLatest, map, catchError, flatMap, toArray, switchMap, withLatestFrom } from 'rxjs/operators';
-import { Store, select } from '@ngrx/store';
+import { Store } from '@ngrx/store';
 
 import { environment } from '../../../../environments/environment';
 import { withSpinner, SalesCommunity, Plan } from 'phd-common';
@@ -34,11 +34,12 @@ export class PlanService
 			(
 				// tslint:disable-next-line: deprecation
 				combineLatest(this.getCommunityPlans(salesCommunity.id)),
-				withLatestFrom(this.store.pipe(select(state => state.scenario))),
-				flatMap(([[treeVersions, plans], scenario]: [[any, Plan[]], any]) =>
+				withLatestFrom(this.store),
+				flatMap(([[treeVersions, plans], store]: [[any, Plan[]], fromRoot.State]) =>
 				{
 					const isPhdLite = !treeVersions || !treeVersions.length
-						|| this.liteService.checkLiteScenario(scenario?.scenario?.scenarioChoices, scenario?.scenario?.scenarioOptions,);
+						|| this.liteService.checkLiteScenario(store.scenario?.scenario?.scenarioChoices, store.scenario?.scenario?.scenarioOptions)
+						|| this.liteService.checkLiteAgreement(store.job, store.changeOrder.currentChangeOrder);
 
 					return from(plans)
 						.pipe(

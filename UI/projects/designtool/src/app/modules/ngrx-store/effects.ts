@@ -570,7 +570,9 @@ export class CommonEffects
 
 										// Assign new lot choice rules everytime we load an agreement
 										// This assigns the most latest lot choice rules, instead of waiting for 1 hour
-										rules.lotChoiceRules = updateLotChoiceRules(lotChoiceRules, rules.lotChoiceRules);
+										if (rules) {
+											rules.lotChoiceRules = updateLotChoiceRules(lotChoiceRules, rules.lotChoiceRules);
+										}
 
 										return {
 											tree,
