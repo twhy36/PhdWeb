@@ -538,7 +538,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 				{
 					this.modalReference.dismiss();
 				}
-
+				this.onGenerateDocument(changeOrder , false)
 				this.createForm(changeOrder, this.ACTION_TYPES.WITHDRAW);
 
 				this.openModal(this.updateChangeOrderModal);
@@ -817,7 +817,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 		).subscribe(changeOrders =>
 		{
 			// #353697 Once the CO is saved, we need to clear out any related option prices that have been restored, in both the database and the job state
-			this.store.dispatch(new JobActions.DeleteReplaceOptionPrice());
+			this.store.dispatch(new JobActions.DeleteReplaceOptionPrice(false));
 
 			if (changeOrders.some(co => co.constructionStatusDescription === 'Approved'))
 			{
@@ -1014,8 +1014,8 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 
 					if (changeOrder.salesStatusDescription === 'Withdrawn')
 					{
-						// #353697 Once the CO is withdrawn, we need to clear out any related option prices in both the database and the job state
-						this.store.dispatch(new JobActions.DeleteReplaceOptionPrice());
+						// #353697 Once the CO is withdrawn, we need to clear out any new option prices in both the database and the job state
+						this.store.dispatch(new JobActions.DeleteReplaceOptionPrice(true));
 
 						this.store.dispatch(new CommonActions.LoadSalesAgreement(this.salesAgreementId, false));
 					}
@@ -1025,7 +1025,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 			});
 	}
 
-	onGenerateDocument(changeOrder: any)
+	onGenerateDocument(changeOrder: any, showPDF: boolean = true)
 	{
 		this.isDownloadingEnvelope = false;
 
@@ -1054,19 +1054,28 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 				take(1)
 			).subscribe(pdfObject =>
 			{
-				this.openPdfViewer(changeOrder.id);
+				if(showPDF)
+				{
+					this.openPdfViewer(changeOrder.id);
+				}
 			});
 		}
 		else if ((changeOrder.changeOrderTypeDescription === 'SalesJIO' && changeOrder.salesStatus === 'Approved') || (changeOrder.changeOrderTypeDescription === 'SpecJIO' && changeOrder.salesStatus === 'Approved') || (changeOrder.id === this.changeOrders[0].id && changeOrder.salesStatus === 'Approved'))
 		{
 			this._contractService.getEnvelope(this.jobId, changeOrder.id, this.approvedDate, this.signedDate, this.isPhdLite).subscribe(() =>
 			{
-				this.openPdfViewer(changeOrder.id);
+				if(showPDF)
+				{
+					this.openPdfViewer(changeOrder.id);
+				}
 			});
 		}
 		else
 		{
-			this.openPdfViewer(changeOrder.id);
+			if(showPDF)
+			{
+				this.openPdfViewer(changeOrder.id);
+			}
 		}
 	}
 
