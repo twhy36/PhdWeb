@@ -315,7 +315,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		this.reportsService.getFavoritesSummary(summaryData).subscribe(pdfData =>
 		{
 			let pdfViewer = this.modalService.open(PDFViewerComponent, { backdrop: 'static', windowClass: 'phd-pdf-modal', size: 'lg' });
-			this.adobeService.setAlertEvent(this.summaryHeader.favoritesListName, 'PDF Summary Report Alert');
+			this.adobeService.setAlertEvent('Favorites Summary - PDF', 'PDF Summary Report Alert');
 
 			pdfViewer.componentInstance.pdfModalTitle = this.summaryHeader.favoritesListName;
 			pdfViewer.componentInstance.pdfData = pdfData;
