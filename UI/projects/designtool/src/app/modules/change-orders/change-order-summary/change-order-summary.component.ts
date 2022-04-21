@@ -538,7 +538,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 				{
 					this.modalReference.dismiss();
 				}
-
+				this.onGenerateDocument(changeOrder , false)
 				this.createForm(changeOrder, this.ACTION_TYPES.WITHDRAW);
 
 				this.openModal(this.updateChangeOrderModal);
@@ -1025,7 +1025,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 			});
 	}
 
-	onGenerateDocument(changeOrder: any)
+	onGenerateDocument(changeOrder: any, showPDF: boolean = true)
 	{
 		this.isDownloadingEnvelope = false;
 
@@ -1054,19 +1054,28 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 				take(1)
 			).subscribe(pdfObject =>
 			{
-				this.openPdfViewer(changeOrder.id);
+				if(showPDF)
+				{
+					this.openPdfViewer(changeOrder.id);
+				}
 			});
 		}
 		else if ((changeOrder.changeOrderTypeDescription === 'SalesJIO' && changeOrder.salesStatus === 'Approved') || (changeOrder.changeOrderTypeDescription === 'SpecJIO' && changeOrder.salesStatus === 'Approved') || (changeOrder.id === this.changeOrders[0].id && changeOrder.salesStatus === 'Approved'))
 		{
 			this._contractService.getEnvelope(this.jobId, changeOrder.id, this.approvedDate, this.signedDate, this.isPhdLite).subscribe(() =>
 			{
-				this.openPdfViewer(changeOrder.id);
+				if(showPDF)
+				{
+					this.openPdfViewer(changeOrder.id);
+				}
 			});
 		}
 		else
 		{
-			this.openPdfViewer(changeOrder.id);
+			if(showPDF)
+			{
+				this.openPdfViewer(changeOrder.id);
+			}
 		}
 	}
 
