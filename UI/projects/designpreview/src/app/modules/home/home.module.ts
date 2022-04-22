@@ -16,13 +16,13 @@ const moduleRoutes: Routes = [
 		path: 'home/:salesAgreementId',
 		canActivate: [InternalGuard],
 		component: HomeComponent,
-		data: { isPreview: false },
+		data: { isPreview: false, pageLoadEvent: 'Home' },
 	},
 	{
 		path: 'home',
 		canActivate: [ExternalGuard],
 		component: HomeComponent,
-		data: { isPreview: false },
+		data: { isPreview: false, pageLoadEvent: 'Home' },
 	},
 	{
 		path: 'preview/:treeVersionId',

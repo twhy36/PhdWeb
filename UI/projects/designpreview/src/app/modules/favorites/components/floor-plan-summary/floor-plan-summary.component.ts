@@ -11,8 +11,6 @@ import * as fromSalesAgreement from '../../../ngrx-store/sales-agreement/reducer
 import * as _ from 'lodash';
 
 import { UnsubscribeOnDestroy, PriceBreakdown, Group, SubGroup } from 'phd-common';
-import { withLatestFrom } from 'rxjs/operators';
-import { AdobeService } from '../../../core/services/adobe.service';
 import { BrandService } from '../../../core/services/brand.service';
 
 @Component({
@@ -34,20 +32,16 @@ export class FloorPlanSummaryComponent extends UnsubscribeOnDestroy implements O
 	marketingPlanId$ = new BehaviorSubject<number>(0);
 	noVisibleFP: boolean = false;
 	isPlainFloorplan: boolean = false;
-	adobeLoadInitialized: boolean;
 	pageName: string;
 
 	constructor(
 		private store: Store<fromRoot.State>,
 		private location: Location,
-		private brandService: BrandService,
-		private adobeService: AdobeService
-	) {
+		private brandService: BrandService) {
 		super();
 	}
 
 	ngOnInit() {
-		this.adobeLoadInitialized = false;
 		combineLatest([
 			this.store.pipe(select(fromRoot.contractedTree), this.takeUntilDestroyed()),
 			this.store.pipe(select(state => state.scenario), this.takeUntilDestroyed()),
@@ -87,23 +81,6 @@ export class FloorPlanSummaryComponent extends UnsubscribeOnDestroy implements O
 			select(fromPlan.selectedPlanData)
 		).subscribe(planData => {
 			this.planName = planData && planData.salesName;
-		});
-
-		this.store.pipe(
-			this.takeUntilDestroyed(),
-			select(fromRoot.financialCommunityName), // Delete
-			withLatestFrom(
-				this.store.pipe(select(fromPlan.selectedPlanData))), // 2
-		).subscribe(([communityName, planData]) => {
-			this.communityName = communityName;
-			let floorplanName = planData && planData.salesName; 
-
-			let pageType = 'Floorplan Page';
-			let pageName = 'Floorplan';
-			let groupName = '';
-			let subGroupName = '';
-
-			this.adobeService.setPageLoadEvent(this.adobeLoadInitialized, pageType, pageName, groupName, subGroupName);
 		});
 
 		this.store.pipe(
