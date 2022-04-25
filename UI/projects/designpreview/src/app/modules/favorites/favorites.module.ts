@@ -37,32 +37,38 @@ const moduleRoutes: Routes = [
 			{ 
 				path: 'favorites/summary', 
 				component: FavoritesSummaryComponent, 
-				canActivate: [ExternalGuard]  
+				canActivate: [ExternalGuard],
+				data: { pageLoadEvent: 'FavoritesSummary' }
 			},
 			{ 
 				path: 'contracted', 
 				component: ContractedSummaryComponent, 
-				canActivate: [ExternalGuard]  
+				canActivate: [ExternalGuard],
+				data: { pageLoadEvent: 'ContractedSummary' }
 			},
 			{ 
 				path: 'floorplan', 
 				component: FloorPlanSummaryComponent, 
-				canActivate: [ExternalGuard]  
+				canActivate: [ExternalGuard],
+				data: { pageLoadEvent: 'FloorplanSummary' }
 			},
 			{ 
 				path: 'favorites/my-favorites/:favoritesId/:subGroupCatalogId', 
 				component: MyFavoritesComponent, 
-				canActivate: [ExternalGuard]  
+				canActivate: [ExternalGuard],
+				data: { pageLoadEvent: 'ChoiceCard' }
 			},
 			{ 
 				path: 'favorites/my-favorites/:favoritesId/:subGroupCatalogId/:divChoiceCatalogId', 
 				component: MyFavoritesComponent, 
-				canActivate: [ExternalGuard]  
+				canActivate: [ExternalGuard],
+				data: { pageLoadEvent: 'ChoiceDetail' }
 			},
 			{ 
 				path: 'favorites/my-favorites/:favoritesId', 
 				component: MyFavoritesComponent, 
-				canActivate: [ExternalGuard]  
+				canActivate: [ExternalGuard],
+				data: { pageLoadEvent: 'ChoiceCard' }
 			}
 		]
 	}

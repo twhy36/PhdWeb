@@ -104,6 +104,7 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 	marketingPlanId: number[];
 	treeFilter$: Observable<TreeFilter>;
 	priceRangesCalculated: boolean;
+	isPhdLite: boolean = false;
 
 	constructor(private route: ActivatedRoute,
 		private lotService: LotService,
@@ -225,9 +226,10 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 		{
 			if (scenario.buildMode === 'model' && job && !job.jobLoading && changeOrder && !changeOrder.loadingCurrentChangeOrder) 
 			{
-				const isPhdLite = this.liteService.checkLiteAgreement(job, changeOrder.currentChangeOrder);
-				if (isPhdLite) 
+				this.isPhdLite = this.liteService.checkLiteAgreement(job, changeOrder.currentChangeOrder);
+				if (this.isPhdLite) 
 				{
+					this._toastr.clear();
 					this.router.navigate(['lite-summary']);
 				}
 			}
@@ -441,7 +443,7 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 				this._toastr.clear();
 			}
 			// Only display the toastr if it doesn't already exist. ToastrId doesn't seem to work for tracking, but going by the message works.
-			else if (!this._toastr.toasts.map(t => t.message).includes(message))
+			else if (!this._toastr.toasts.map(t => t.message).includes(message) && !this.isPhdLite)
 			{
 				this._toastr.info(message, null, { disableTimeOut: true });
 			}

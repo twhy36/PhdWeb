@@ -71,7 +71,6 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	blockedChoiceModalRef: NgbModalRef;
 	disabledByList: BlockedByItemList = null;
 	isChoiceImageLoaded: boolean = false;
-	adobeLoadInitialized: boolean;
 
 	constructor(private cd: ChangeDetectorRef,
 		private attributeService: AttributeService,
@@ -85,8 +84,6 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	}
 
 	ngOnInit() {
-		this.adobeLoadInitialized = false;
-
 		const getAttributeGroups: Observable<AttributeGroup[]> = this.choice.mappedAttributeGroups.length > 0 ? this.attributeService.getAttributeGroups(this.choice) : of([]);
 		const getLocationGroups: Observable<LocationGroup[]> = this.choice.mappedLocationGroups.length > 0 ? this.attributeService.getLocationGroups(this.choice.mappedLocationGroups.map(x => x.id)) : of([]);
 
@@ -137,7 +134,9 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		},
 		error =>
 		{
-			this.toastr.error('Failed to load choice attributes!', 'Error');
+			const msg = 'Failed to load choice attributes!';
+			this.toastr.error(msg, 'Error');
+			this.adobeService.setErrorEvent(msg);
 		});
 
 		this.store.pipe(
@@ -166,8 +165,6 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 
 		const dps = _.flatMap(this.groups, g => _.flatMap(g.subGroups, sg => sg.points));
 		this.currentPoint = dps.find(pt => pt.choices.find(ch => ch.id === this.choice.id));
-
-		this.initializeAdobePageLoad();
 	}
 
 	deleteMyFavoritesChoiceAttributes(missingAttributes: DesignToolAttribute[], missingLocations: DesignToolAttribute[], favorite: MyFavorite)
@@ -635,14 +632,5 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		delete this.disabledByList;
 		this.onSelectDecisionPoint.emit(pointId);
 		this.onBack.emit();
-	}
-
-	initializeAdobePageLoad() {
-		let pageType = 'Choice Card Detail Page';
-		let pageName = this.currentPoint.label + ' / ' + this.choice.label;
-		let groupName = this.groupName;
-		let subGroupName = this.subGroupName
-
-		this.adobeService.setPageLoadEvent(this.adobeLoadInitialized, pageType, pageName, groupName, subGroupName);
 	}
 }

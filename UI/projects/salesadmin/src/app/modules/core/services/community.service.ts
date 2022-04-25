@@ -106,7 +106,7 @@ export class CommunityService
 		let url = settings.apiUrl;
 		url += `GetCommunityPdfs(financialCommunityId=${financialCommunityId})`
 		return withSpinner(this._http).get<any>(url).pipe(
-			map(response => 
+			map(response =>
 			{
 				let returnVal = response.value.map(data =>
 				{
@@ -130,6 +130,7 @@ export class CommunityService
 	getCommunityPdfUrl(financialCommunityId: number, fileName: string): Observable<string>
 	{
 		let url = settings.apiUrl;
+		fileName = fileName.replace(/'/g, "''");
 		url += `GetCommunityPdfSasUrl(financialCommunityId=${financialCommunityId},fileName='${fileName}')`
 		return this._http.get<any>(url).pipe(
 			map(response => response.value as string)
@@ -141,7 +142,7 @@ export class CommunityService
 		let url = settings.apiUrl;
 		url += 'AddCommunityPdf';
 		return this._http.post<any>(url, formData).pipe(
-			map(response => 
+			map(response =>
 			{
 				return {
 					marketId: response.marketId,
@@ -154,7 +155,7 @@ export class CommunityService
 					fileName: response.fileName,
 					sectionHeader: SectionHeader[response.sectionHeader as string]
 				}
-			}	
+			}
 			)
 		);
 	}
@@ -163,7 +164,7 @@ export class CommunityService
 	{
 		// Put SectionHeader in format that OData likes
 		const pdfs = Array<any>();
-		pdfList.forEach(pdf => 
+		pdfList.forEach(pdf =>
 		{
 			const newPdf: any = pdf as CommunityPdf;
 			newPdf.sectionHeader = pdf.sectionHeader.toString();
@@ -177,7 +178,7 @@ export class CommunityService
 			communityPdfs: pdfs
 		}
 		return this._http.patch<any>(url, body).pipe(
-			map(response => 
+			map(response =>
 			{
 				let returnVal = response.value.map(data =>
 				{

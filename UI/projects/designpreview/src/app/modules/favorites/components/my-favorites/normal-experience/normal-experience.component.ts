@@ -9,7 +9,6 @@ import
 } from 'phd-common';
 
 import { ChoiceExt } from '../../../../shared/models/choice-ext.model';
-import { AdobeService } from '../../../../core/services/adobe.service';
 
 @Component({
 	selector: 'normal-experience',
@@ -46,14 +45,10 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	currentPointId: number;
 	subGroup: SubGroup;
 	choiceToggled: boolean = false;
-	adobeLoadInitialized: boolean;
 
-	constructor(private adobeService: AdobeService) { super(); }
+	constructor() { super(); }
 
-	ngOnInit() {
-		this.adobeLoadInitialized = false;
-		this.initializeAdobePageLoad();
-	}
+	ngOnInit() { }
 
 	ngOnChanges(changes: SimpleChanges)
 	{
@@ -266,16 +261,5 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 		}
 
 		return isValueChanged;
-	}
-
-	initializeAdobePageLoad() {
-		if (this.currentSubgroup?.label) {
-			let pageType = 'Choice Card Page';
-			let pageName = this.groupName + ' / ' + this.currentSubgroup?.label;
-			let groupName = this.groupName;
-			let subGroupName = this.currentSubgroup?.label;
-	
-			this.adobeService.setPageLoadEvent(this.adobeLoadInitialized, pageType, pageName, groupName, subGroupName);
-		}
 	}
 }

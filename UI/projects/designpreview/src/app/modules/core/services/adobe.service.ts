@@ -20,56 +20,129 @@ import { PageLoadEvent } from '../../shared/models/adobe/page-load-event';
 import { SearchEvent } from '../../shared/models/adobe/search-event';
 import { AlertEvent } from '../../shared/models/adobe/alert-event';
 import { AdobeChoice, FavoriteEvent, FavoriteUpdateEvent } from '../../shared/models/adobe/favorite-event';
+import { ActivatedRouteSnapshot, Router, RouterStateSnapshot, RoutesRecognized } from '@angular/router';
 
 
 @Injectable()
 export class AdobeService extends UnsubscribeOnDestroy {
 	environment = environment;
     choices: Choice[];
+    pageLoadExecuted: boolean = false;
 
 	constructor(
         private store: Store<fromRoot.State>,
 		private brandService: BrandService,
-        private favoriteService: FavoriteService) {
+        private favoriteService: FavoriteService,
+        private router: Router) {
             super();
+            this.router.events.subscribe(data => {
+                if (data instanceof RoutesRecognized && data?.state) {
+                    this.pageLoadExecuted = false;
+                    this.detectPageLoad(this.findPageLoadData(data?.state));
+                }
+            })
 	    }
 
-    setPageLoadEvent(adobeLoadInitialized: boolean, pageType: string, 
+        findPageLoadData(snap: RouterStateSnapshot): string {
+            let nextSnap = snap?.root;
+            while (!!nextSnap) {
+                if (nextSnap?.data['pageLoadEvent']) {
+                    return nextSnap?.data['pageLoadEvent']
+                } else {
+                    nextSnap = nextSnap.firstChild;
+                }
+            }
+            return '';
+        }
+
+        detectPageLoad(page: string) {
+            if (!this.pageLoadExecuted && !!page) {
+                this.store.pipe(
+                    this.takeUntilDestroyed(),
+                    select(state => state?.favorite),
+                    combineLatest(
+                        this.store.pipe(select(fromRoot.filteredTree)), 
+                        this.store.pipe(select(state => state.nav)),
+                        )
+                ).subscribe(([fav, tree, nav]) => {
+                    if (fav && tree && !this.pageLoadExecuted) {
+                        const subGroups = _.flatMap(tree.groups, g => _.flatMap(g.subGroups)) || [];
+                        const points = _.flatMap(subGroups, sg => sg.points) || [];
+                        const choices = _.flatMap(points, p => p.choices) || [];
+
+                        const selectedSubGroup = subGroups.find(sg => sg.id === nav.selectedSubGroup);
+                        const selectedPoint = points.find(p => p.id === nav.selectedPoint);
+                        const selectedChoice = choices.find(c => c.id === nav.selectedChoice);
+
+                        if (page === 'Home') {
+                            this.setPageLoadEvent(this.pageLoadExecuted, 'Home Page', 'Home', '', '');
+                        } else if (page === 'FloorplanSummary') {
+                            this.setPageLoadEvent(this.pageLoadExecuted, 'Floorplan Page', 'Floorplan', '', '');
+                        } else if (page === 'ContractedSummary') {
+                            this.setPageLoadEvent(this.pageLoadExecuted, 'Contracted Options Page', 'Contracted Options', '', '');
+                        } else if (page === 'FavoritesSummary') {
+                            this.setPageLoadEvent(this.pageLoadExecuted, 'Favorites Summary Page', 'Favorites Summary', '', '');
+                        } else if (page === 'ChoiceDetail') {
+                            const group = tree.groups.find(g => g.subGroups.find(sg => sg.id === selectedSubGroup?.id));
+                            if (!!group && !!selectedSubGroup && !!selectedChoice && !!selectedPoint) {
+                                this.setPageLoadEvent(this.pageLoadExecuted, 'Choice Card Detail Page', selectedPoint?.label + ' / ' + selectedChoice.label, group?.label, selectedSubGroup?.label);
+                            }
+                        } else if (page === 'ChoiceCard') {
+                            const group = tree.groups.find(g => g.subGroups.find(sg => sg.id === selectedSubGroup?.id));
+                            const pageName = group?.label + ' / ' + selectedSubGroup?.label;
+
+                            if (selectedSubGroup.useInteractiveFloorplan) {
+                                this.setPageLoadEvent(this.pageLoadExecuted, 'IFP Choice Card Page', pageName, group?.label, selectedSubGroup?.label);
+                            } else {
+                                this.setPageLoadEvent(this.pageLoadExecuted, 'Choice Card Page', pageName, group?.label, selectedSubGroup?.label);   
+                            }
+                        } 
+                    }
+                });
+            }
+        }
+    
+    setPageLoadEvent(adobeLoadInitialized: boolean, pageType: string,
         pageName: string, groupName: string, subGroupName: string) {
         window['appEventData'] = window['appEventData'] || [];
-        this.store.pipe(
-            this.takeUntilDestroyed(),
-            select(state => state.org),
-            combineLatest(
-                this.store.pipe(select(fromRoot.financialCommunityName)),
-                this.store.pipe(select(fromRoot.financialCommunityId)),
-                this.store.pipe(select(fromPlan.selectedPlanData)),
-                this.store.pipe(select(fromSalesAgreement.salesAgreementId)),
-                this.store.pipe(select(fromRoot.isBuyerMode))
-                )
-        ).subscribe(([org, communityName, communityId, planData, sagId, isBuyerMode]) => {
-            if (isBuyerMode && !adobeLoadInitialized && org?.salesCommunity?.market?.name && communityName && communityId && planData && sagId) {
-                let pageLoadEvent = new PageLoadEvent();
-                let baseUrl = window.location.host;
+        if (!adobeLoadInitialized) {
+            this.store.pipe(
+                this.takeUntilDestroyed(),
+                select(state => state.org),
+                combineLatest(
+                    this.store.pipe(select(fromRoot.financialCommunityName)),
+                    this.store.pipe(select(fromRoot.financialCommunityId)),
+                    this.store.pipe(select(fromPlan.selectedPlanData)),
+                    this.store.pipe(select(fromSalesAgreement.salesAgreementId)),
+                    this.store.pipe(select(fromRoot.isBuyerMode))
+                    )
+            ).subscribe(([org, communityName, communityId, planData, sagId, isBuyerMode]) => {
+                if (isBuyerMode && !adobeLoadInitialized && org?.salesCommunity?.market?.name && communityName && communityId && planData && sagId) {
+                    let pageLoadEvent = new PageLoadEvent();
+                    let baseUrl = window.location.host;
 
-                pageLoadEvent.page.pageType = pageType;
-                pageLoadEvent.page.pageURL = baseUrl + window.location.pathname;
-                pageLoadEvent.page.pageName = pageName;
-                pageLoadEvent.page.brandName = this.brandService.getBrandName(environment.brandMap, baseUrl);;
-                pageLoadEvent.page.group = groupName;
-                pageLoadEvent.page.subGroup = subGroupName;
+                    pageLoadEvent.page.pageType = pageType;
+                    pageLoadEvent.page.pageURL = baseUrl + window.location.pathname;
+                    pageLoadEvent.page.pageName = pageName;
+                    pageLoadEvent.page.brandName = this.brandService.getBrandName(environment.brandMap, baseUrl);;
+                    pageLoadEvent.page.group = groupName;
+                    pageLoadEvent.page.subGroup = subGroupName;
 
-                pageLoadEvent.contract.communityName = communityName;
-                pageLoadEvent.contract.communityNumber = communityId;
-                pageLoadEvent.contract.planName = planData && planData.salesName;
-                pageLoadEvent.contract.market = org?.salesCommunity?.market?.name;
-                pageLoadEvent.contract.salesAgreementNumber = sagId;
+                    pageLoadEvent.contract.communityName = communityName;
+                    pageLoadEvent.contract.communityNumber = communityId;
+                    pageLoadEvent.contract.planName = planData && planData.salesName;
+                    pageLoadEvent.contract.market = org?.salesCommunity?.market?.name;
+                    pageLoadEvent.contract.salesAgreementNumber = sagId;
 
-                adobeLoadInitialized = true;
+                    adobeLoadInitialized = true;
 
-                window['appEventData'].push(pageLoadEvent);
-            }
-        });
+                    if ((window['appEventData'][window['appEventData'].length - 1]?.page?.pageName !== pageLoadEvent?.page?.pageName) || !!!window['appEventData'][window['appEventData'].length - 1]?.page) {
+                        window['appEventData'].push(pageLoadEvent);
+                        this.pageLoadExecuted = true;
+                    }
+                }
+            });
+        }
     }
 
     setSearchEvent(term: string, tree: TreeVersion) {
@@ -92,12 +165,12 @@ export class AdobeService extends UnsubscribeOnDestroy {
 
     packageFavoriteEventData(postSaveFavoriteChoices: MyFavoritesChoice[], myFavorite: MyFavorite, tree: Tree, groups: Group[], salesChoices: JobChoice[]) {
         const favoriteChoices = (myFavorite ? myFavorite.myFavoritesChoice : []) || [];
-        const updatedChoices = this.favoriteService.getMyFavoritesChoices(tree, salesChoices, favoriteChoices);	// Use this
+        const updatedChoices = this.favoriteService.getMyFavoritesChoices(tree, salesChoices, favoriteChoices);	
         const choices = [...updatedChoices, ...favoriteChoices];
         postSaveFavoriteChoices.forEach(res => {
             let resChoice = res as MyFavoritesChoice;
             if (resChoice) {
-                const choice = choices.find(x => x.dpChoiceId === resChoice.dpChoiceId); // Need this exact choice/format of choice
+                const choice = choices.find(x => x.dpChoiceId === resChoice.dpChoiceId); 
                 if (choice && !choice.removed) {
                     this.setFavoriteEvent(new AdobeChoice(choice), groups, favoriteChoices);
                 }
@@ -154,6 +227,15 @@ export class AdobeService extends UnsubscribeOnDestroy {
                     window['appEventData'].push(favoriteUpdateEvent);
                 }
             }
+        }
+    }
+
+    setErrorEvent(error: string) {
+        let errorEvent = new ErrorEvent(error);
+
+        window['appEventData'] = window['appEventData'] || [];
+        if (errorEvent && errorEvent.message.length) {
+            window['appEventData'].push(errorEvent);
         }
     }
 }
