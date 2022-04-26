@@ -192,7 +192,7 @@ export class AdobeService extends UnsubscribeOnDestroy {
             favoriteEvent.favorite.choiceId = choice.dpChoiceId;
             favoriteEvent.favorite.divChoiceCatalogId = choice.divChoiceCatalogId;
             favoriteEvent.favorite.choice = treeChoice?.label;
-            favoriteEvent.favorite.price = treeChoice?.price;
+            favoriteEvent.favorite.price = treeChoice?.priceHiddenFromBuyerView ? 'Pricing Varies' : treeChoice?.price.toString();
             favoriteEvent.favorite.decisionPoint = choice.decisionPointLabel;
             favoriteEvent.favorite.quantity = choice.dpChoiceQuantity;
             favoriteEvent.favorite.attribute = '';
