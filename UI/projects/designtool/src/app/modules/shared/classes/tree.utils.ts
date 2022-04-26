@@ -145,7 +145,12 @@ export function getDefaultOptionRule(optionNumber: string, choice: Choice): Opti
 	};
 }
 
-function saveLockedInChoices(choices: Array<JobChoice | ChangeOrderChoice>, treeChoices: Choice[], options: Array<JobPlanOption | ChangeOrderPlanOption>, changeOrder?: ChangeOrderGroup)
+function saveLockedInChoices(
+	choices: Array<JobChoice | ChangeOrderChoice>, 
+	treeChoices: Choice[], 
+	options: Array<JobPlanOption | ChangeOrderPlanOption>, 
+	changeOrder?: ChangeOrderGroup,
+	missingChoices?: number[])
 {
 	choices.filter(isLocked(changeOrder)).forEach(choice =>
 	{
@@ -162,6 +167,12 @@ function saveLockedInChoices(choices: Array<JobChoice | ChangeOrderChoice>, tree
 				? _.uniq(choice.jobChoiceLocations.map(jcl => jcl.locationGroupCommunityId))
 				: _.uniq(choice.jobChangeOrderChoiceLocations.map(cocl => cocl.locationGroupCommunityId))
 			).map(loc => new MappedLocationGroup({ id: loc }));
+
+			// Set locked in price for selected choices which have been removed from the tree
+			if (missingChoices?.find(ch => ch === treeChoice.id))
+			{
+				treeChoice.price = treeChoice.lockedInChoice.choice.dpChoiceCalculatedPrice; 
+			}
 		}
 	});
 }
@@ -390,7 +401,8 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 								saveLockedInChoices(choices,
 									_.flatMap(data.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices))),
 									options,
-									changeOrder);
+									changeOrder,
+									missingChoices);
 
 								return data;
 							}));
