@@ -21,6 +21,7 @@ import { SearchEvent } from '../../shared/models/adobe/search-event';
 import { AlertEvent } from '../../shared/models/adobe/alert-event';
 import { AdobeChoice, FavoriteEvent, FavoriteUpdateEvent } from '../../shared/models/adobe/favorite-event';
 import { Router, RouterStateSnapshot, RoutesRecognized } from '@angular/router';
+import { ClickEvent } from '../../shared/models/adobe/click-event';
 import { ErrorEvent } from '../../shared/models/adobe/error-event';
 
 
@@ -62,7 +63,7 @@ export class AdobeService extends UnsubscribeOnDestroy {
                     this.takeUntilDestroyed(),
                     select(state => state?.favorite),
                     combineLatest(
-                        this.store.pipe(select(fromRoot.filteredTree)), 
+                        this.store.pipe(select(fromRoot.filteredTree)),
                         this.store.pipe(select(state => state.nav)),
                         )
                 ).subscribe(([fav, tree, nav]) => {
@@ -95,14 +96,14 @@ export class AdobeService extends UnsubscribeOnDestroy {
                             if (selectedSubGroup?.useInteractiveFloorplan) {
                                 this.setPageLoadEvent(this.pageLoadExecuted, 'IFP Choice Card Page', pageName, group?.label, selectedSubGroup?.label);
                             } else {
-                                this.setPageLoadEvent(this.pageLoadExecuted, 'Choice Card Page', pageName, group?.label, selectedSubGroup?.label);   
+                                this.setPageLoadEvent(this.pageLoadExecuted, 'Choice Card Page', pageName, group?.label, selectedSubGroup?.label);
                             }
-                        } 
+                        }
                     }
                 });
             }
         }
-    
+
     setPageLoadEvent(adobeLoadInitialized: boolean, pageType: string,
         pageName: string, groupName: string, subGroupName: string) {
         window['appEventData'] = window['appEventData'] || [];
@@ -164,14 +165,21 @@ export class AdobeService extends UnsubscribeOnDestroy {
 				window['appEventData'].push(alertEvent);
     }
 
+    setClickEvent(container: string, element: string, text: string) {
+        window['appEventData'] = window['appEventData'] || [];
+				const clickEvent = new ClickEvent(container, element, text);
+
+				window['appEventData'].push(clickEvent);
+    }
+
     packageFavoriteEventData(postSaveFavoriteChoices: MyFavoritesChoice[], myFavorite: MyFavorite, tree: Tree, groups: Group[], salesChoices: JobChoice[]) {
         const favoriteChoices = (myFavorite ? myFavorite.myFavoritesChoice : []) || [];
-        const updatedChoices = this.favoriteService.getMyFavoritesChoices(tree, salesChoices, favoriteChoices);	
+        const updatedChoices = this.favoriteService.getMyFavoritesChoices(tree, salesChoices, favoriteChoices);
         const choices = [...updatedChoices, ...favoriteChoices];
         postSaveFavoriteChoices.forEach(res => {
             let resChoice = res as MyFavoritesChoice;
             if (resChoice) {
-                const choice = choices.find(x => x.dpChoiceId === resChoice.dpChoiceId); 
+                const choice = choices.find(x => x.dpChoiceId === resChoice.dpChoiceId);
                 if (choice && !choice.removed) {
                     this.setFavoriteEvent(new AdobeChoice(choice), groups, favoriteChoices);
                 }
