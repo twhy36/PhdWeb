@@ -20,7 +20,8 @@ import { PageLoadEvent } from '../../shared/models/adobe/page-load-event';
 import { SearchEvent } from '../../shared/models/adobe/search-event';
 import { AlertEvent } from '../../shared/models/adobe/alert-event';
 import { AdobeChoice, FavoriteEvent, FavoriteUpdateEvent } from '../../shared/models/adobe/favorite-event';
-import { ActivatedRouteSnapshot, Router, RouterStateSnapshot, RoutesRecognized } from '@angular/router';
+import { Router, RouterStateSnapshot, RoutesRecognized } from '@angular/router';
+import { ErrorEvent } from '../../shared/models/adobe/error-event';
 
 
 @Injectable()
@@ -234,7 +235,7 @@ export class AdobeService extends UnsubscribeOnDestroy {
         let errorEvent = new ErrorEvent(error);
 
         window['appEventData'] = window['appEventData'] || [];
-        if (errorEvent && errorEvent.message.length) {
+        if (errorEvent && errorEvent?.error?.message?.length) {
             window['appEventData'].push(errorEvent);
         }
     }
