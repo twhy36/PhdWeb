@@ -518,6 +518,30 @@ export class TreeService
 		);
 	}
 
+	getHistoricRules(choices: Array<JobChoice | ChangeOrderChoice>): Observable<TreeVersionRules>
+	{
+		if (!choices || !choices.length)
+		{
+			return of(null);
+		}
+
+		return this.identityService.token.pipe(
+			switchMap((token: string) =>
+			{
+				const choiceIds: Array<number> = choices.map(x => isChangeOrderChoice(x) ? x.decisionPointChoiceID : x.dpChoiceId);
+				const url = `${environment.apiUrl}GetRulesByChoiceIds(dpChoiceIds=[${choiceIds}])`;
+
+				return this.http.get<any>(url);
+			}),
+			map((response: any) =>
+			{
+				let rules = response ? response as TreeVersionRules : null;
+
+				return rules;
+			})
+		);
+	}
+
 	// Retrieve the latest cutOffDays in case GetTreeDto returns cached tree data from API
 	getDivDPointCatalogs(tree: Tree, skipSpinner?: boolean): Observable<Tree>
     {
