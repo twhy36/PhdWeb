@@ -10,7 +10,7 @@ import
 		ChangeOrderGroup, ChangeOrderChoice, ChangeOrderPlanOption, ChangeOrderChoiceAttribute, ChangeOrderChoiceLocation,
 		JobChoice, JobPlanOption, JobChoiceAttribute, JobChoiceLocation, Job, PlanOption, PointStatus, ConstructionStageTypes,
 		OptionRule, TreeVersionRules, Scenario, SelectedChoice, Tree, Choice, DecisionPoint, MappedAttributeGroup, MappedLocationGroup,
-		OptionImage, SubGroup, Group, applyRules, findChoice, MyFavoritesChoice, getMaxSortOrderChoice
+		OptionImage, SubGroup, Group, applyRules, findChoice, MyFavoritesChoice, getMaxSortOrderChoice, ChoiceRules
 	} from 'phd-common';
 
 import { TreeService } from '../../core/services/tree.service';
@@ -430,10 +430,11 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 							return { optionNumber: options.find(opt => opt.id === o.jobChangeOrderPlanOptionId)?.integrationKey, dpChoiceId: c.decisionPointChoiceID };
 						});
 				}
-			})))
+			}))),
+		treeService.getHistoricRules(choices)
 	]).pipe(
 		//update pricing information for locked-in options/choices
-		map(([res, optImageAssoc, mapping]) =>
+		map(([res, optImageAssoc, mapping, historicRules]) =>
 		{
 			//override option prices if prices are locked
 			if (options.length)
@@ -499,7 +500,7 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 				});
 			}
 
-			return { res, mapping };
+			return { res, mapping, historicRules };
 		}),
 		//store the original option mapping on the choice where it was selected
 		//rules engine can use this to 'override' current option mappings
@@ -518,6 +519,11 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 					else
 					{
 						choice.lockedInOptions = c.jobChangeOrderChoiceChangeOrderPlanOptionAssocs?.filter(o => o.jobChoiceEnabledOption)?.map(o => data.mapping[options.find(opt => opt.id === o.jobChangeOrderPlanOptionId)?.integrationKey] || getDefaultOptionRule(options.find(opt => opt.id === o.jobChangeOrderPlanOptionId)?.integrationKey, choice));
+					}
+
+					if (choice.lockedInChoice && choice.lockedInChoice.choice)
+					{
+						choice.lockedInChoice.choiceRules = data.historicRules?.choiceRules?.filter(cr => cr.choiceId === choice.lockedInChoice.choice.dpChoiceId);
 					}
 				}
 			});
@@ -912,10 +918,14 @@ export function getJobOptionType(option: PlanOption, elevationDP: DecisionPoint,
 	return optionType;
 }
 
-export function getLockedInChoice(choice: JobChoice | ChangeOrderChoice, options: Array<JobPlanOption | ChangeOrderPlanOption>)
+export function getLockedInChoice(
+	choice: JobChoice | ChangeOrderChoice, 
+	options: Array<JobPlanOption | ChangeOrderPlanOption>,
+	choiceRules?: Array<ChoiceRules>)
 	: { 
 		choice: (JobChoice | ChangeOrderChoice),
-		optionAttributeGroups: Array<{ optionId: string, attributeGroups: number[], locationGroups: number[] }> 
+		optionAttributeGroups: Array<{ optionId: string, attributeGroups: number[], locationGroups: number[] }>,
+		choiceRules: Array<ChoiceRules>
 	}
 {
 	return { choice, 
@@ -951,6 +961,7 @@ export function getLockedInChoice(choice: JobChoice | ChangeOrderChoice, options
 					{
 						return null;
 					}
-				})
-			};
+				}),
+		choiceRules: choiceRules ? choiceRules.filter(cr => cr.choiceId === choice.dpChoiceId) : []
+	};
 }
