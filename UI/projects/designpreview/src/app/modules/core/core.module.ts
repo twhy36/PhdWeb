@@ -24,15 +24,18 @@ import { AdobeService } from './services/adobe.service';
 import { LoggedInGuard } from './guards/logged-in.guard';
 import { InternalGuard } from './guards/internal.guard';
 import { ExternalGuard } from './guards/external.guard';
+import { ClickDirective } from './directives/click-directive.directive';
 
 @NgModule({
 	exports: [
 		NavBarComponent,
-		IdleLogoutComponent
+		IdleLogoutComponent,
+		ClickDirective
 	],
 	declarations: [
 		NavBarComponent,
-		IdleLogoutComponent
+		IdleLogoutComponent,
+		ClickDirective
 	],
 	imports: [
 		CommonModule,

@@ -22,7 +22,7 @@
 					>
 					</floor-plan>
 				</ng-container>
-				<ng-container *ngIf="!hasFloorPlanImages && noVisibleFP">
+				<ng-container *ngIf="!hasFloorPlanImages && noVisibleFP && !floorPlanImages.length">
 					<img class="phd-default-ifp" [src]="getDefaultFPImageSrc()" >
 				</ng-container>
 			</div>
