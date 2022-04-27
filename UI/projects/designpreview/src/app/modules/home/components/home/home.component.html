@@ -9,8 +9,8 @@
 		<div class="d-flex flex-column phd-home-plan">
 			<div></div>
 			<div class="d-flex flex-column">
-				<img class="phd-floor-plan-image" [src]="floorPlanImages[0].imageUrl | safeUrl" *ngIf="floorPlanImages.length">
-				<ng-container *ngIf="!hasFloorPlanImages && !noVisibleFP">
+				<img class="phd-floor-plan-image" [src]="floorPlanImages[0].imageUrl | safeUrl" *ngIf="floorPlanImages?.length && hasFloorPlanImages">
+				<ng-container *ngIf="!hasFloorPlanImages && !noVisibleFP && !floorPlanImages?.length">
 					<floor-plan
 						[height]="'86vh'"
 						[planId$]="marketingPlanId$"
