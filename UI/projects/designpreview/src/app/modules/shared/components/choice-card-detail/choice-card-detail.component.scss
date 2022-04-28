@@ -108,7 +108,8 @@
 	padding: 5px;
 
 	.phd-choice-desc-section {
-		height: calc((100vh - 248px) / 2);
+		min-height: 10px;
+		max-height: calc((100vh - 248px) / 2);
 
 		.phd-choice-label {
 			font-size: 22px;
@@ -118,7 +119,7 @@
 	
 		.phd-choice-desc {
 			margin-left: 10px;
-			height: calc(100vh - 197px);
+			height: auto;
 			overflow: scroll;
 			padding-left: 10px;
 			padding-right: 15px;
@@ -126,7 +127,7 @@
 	}
 
 	.phd-choice-desc-section-long {
-		height: calc(100vh - 197px);
+		max-height: calc(100vh - 197px);
 	}
 
 	.phd-selections-section {
