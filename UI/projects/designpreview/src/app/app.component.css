@@ -89,3 +89,18 @@
 	font-style: normal;
   src: url("../assets/divosta/fonts/StagSans-Light-Web.woff") format("woff2");
 }
+
+/* Centex Brand Font */
+@font-face {
+    font-family: "Apercu";
+      font-style: normal;
+      font-weight: normal;
+    src: url('../assets/centex/fonts/apercu-regular.woff') format("woff");
+  }
+  
+  @font-face {
+    font-family: "Apercu";
+      font-weight: lighter;
+      font-style: normal;
+    src: url("../assets/centex/fonts/apercu-light.woff") format("woff");
+  }

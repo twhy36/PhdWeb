@@ -14,14 +14,14 @@
 	}
 
 	.phd-community-name {
-		color: $pale_white;
+		color: var(--group-bar-text-color);
 		font-size: 15px;
 		font-weight: bold;
 		text-transform: uppercase;
 	}
 
 	.phd-plan-name {
-		color: $pale_white;
+		color: var(--group-bar-text-color);
 		font-size: 13px;
 	}
 
@@ -34,14 +34,14 @@
 		margin-top: 2px;
 
 		.phd-group-menu-item {
-			color: $pale_white;
+			color: var(--group-bar-text-color);
 			text-transform: uppercase;
 			font-size: 13px;
 			outline: none;
 		}
 
 		.phd-group-menu-selected {
-			color: white;
+			color: var(--group-bar-selected-color);
 			font-size: 15px;
 			font-weight: bold;
 		}

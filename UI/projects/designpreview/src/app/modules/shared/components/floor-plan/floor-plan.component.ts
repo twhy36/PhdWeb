@@ -161,7 +161,7 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 	saveFloorPlanImages() {
 		// floor plan image save functionality in here
 		timer(1000).subscribe(() => {
-			this.jobService.saveFloorPlanImages(this.jobId, this.fp.floors, this.fp.exportStaticSVG()).subscribe(images => {
+			this.jobService.saveFloorPlanImages(this.jobId, this.fp?.floors, this.fp?.exportStaticSVG()).subscribe(images => {
 				this.onFloorPlanSaved.emit(images);
 			})
 		});
