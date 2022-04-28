@@ -19,7 +19,7 @@
     <div class="phd-footer">
         <div class="phd-footer-btn-container" (click)="$event.stopPropagation()" *ngIf="showConfirmButton">
 			<div class="d-flex align-items-center phd-footer-btns">
-				<button class="btn phd-experience-btn-choice" [disabled]="isReadonly || cannotEditAgreement || inCutOffPhaseButCantOverride" [class.phd-option-disabled]="cannotEditAgreement || inCutOffPhaseButCantOverride" (click)="toggleSelection()">{{getButtonLabel()}}</button>
+				<button class="btn phd-experience-btn-choice" [disabled]="isReadonly || !canEditAgreementOrSpec || inCutOffPhaseButCantOverride" [class.phd-option-disabled]="!canEditAgreementOrSpec || inCutOffPhaseButCantOverride" (click)="toggleSelection()">{{getButtonLabel()}}</button>
 			</div>
         </div>
 

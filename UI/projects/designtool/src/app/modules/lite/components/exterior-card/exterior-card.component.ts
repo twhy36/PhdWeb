@@ -11,6 +11,8 @@ import { ModalOverrideSaveComponent } from '../../../core/components/modal-overr
 
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as LiteActions from '../../../ngrx-store/lite/actions';
+import * as fromScenario from '../../../ngrx-store/scenario/reducer';
+import { withLatestFrom } from 'rxjs/operators';
 
 @Component({
 	selector: 'exterior-card',
@@ -30,12 +32,12 @@ export class ExteriorCardComponent extends UnsubscribeOnDestroy implements OnIni
 	@Output() toggled: EventEmitter<{option: LitePlanOption, color: Color}> = new EventEmitter();
 
 	canConfigure: boolean;
-	canEditAgreement: boolean;
+	canEditAgreementOrSpec: boolean;
 	canOverride: boolean;
 	monotonyConflict = new MonotonyConflict();
 	override$ = new ReplaySubject<boolean>(1);
 	overrideReason: string;
-	cannotEditAgreement: boolean;
+	buildMode: "buyer" | "spec" | "model" | "preview";
 
 	constructor(
 		private store: Store<fromRoot.State>,
@@ -84,11 +86,12 @@ export class ExteriorCardComponent extends UnsubscribeOnDestroy implements OnIni
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
-			select(fromRoot.canEditAgreementOrSpec)
-		).subscribe(canEditAgreement =>
+			select(fromRoot.canEditAgreementOrSpec),
+			withLatestFrom(this.store.pipe(select(fromScenario.buildMode)))
+		).subscribe(([canEditAgreementOrSpec, buildMode]) =>
 		{
-			this.canEditAgreement = canEditAgreement;
-			this.cannotEditAgreement = !canEditAgreement;
+			this.canEditAgreementOrSpec = canEditAgreementOrSpec;
+			this.buildMode = buildMode;
 		});
 
 		this.store.pipe(
@@ -133,9 +136,9 @@ export class ExteriorCardComponent extends UnsubscribeOnDestroy implements OnIni
 
 	getButtonLabel(): string
 	{
-		if (this.cannotEditAgreement)
+		if (!this.canEditAgreementOrSpec)
 		{
-			return 'AGREEMENT LOCKED'
+			return this.buildMode === 'spec' ? 'SPEC LOCKED' : 'AGREEMENT LOCKED';
 		}
 
 		return this.isSelected ? 'Unselect' : 'CHOOSE';
@@ -157,7 +160,7 @@ export class ExteriorCardComponent extends UnsubscribeOnDestroy implements OnIni
 		{
 			this.onOverride();
 		}
-		else if (this.canEditAgreement)
+		else if (this.canEditAgreementOrSpec)
 		{
 			this.addOverrideReason(null);
 		}
