@@ -3,14 +3,15 @@ import { Router } from '@angular/router';
 import { Store, select } from '@ngrx/store';
 
 import { Subject, Subscription, timer } from 'rxjs';
-import { flatMap, combineLatest, switchMap, withLatestFrom } from 'rxjs/operators';
+import { flatMap, combineLatest, switchMap, withLatestFrom, take } from 'rxjs/operators';
 
 import * as _ from 'lodash';
 
-import {
-	UnsubscribeOnDestroy, flipOver, ModalRef, ScenarioStatusType, PriceBreakdown, TreeFilter, SubGroup,
-	DecisionPoint, Choice, loadScript, unloadScript, ModalService, MyFavoritesChoice, DesignToolAttribute, FloorPlanImage
-} from 'phd-common';
+import
+	{
+		UnsubscribeOnDestroy, flipOver, ModalRef, ScenarioStatusType, PriceBreakdown, TreeFilter, SubGroup,
+		DecisionPoint, Choice, loadScript, unloadScript, ModalService, MyFavoritesChoice, DesignToolAttribute, FloorPlanImage
+	} from 'phd-common';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
@@ -35,8 +36,8 @@ declare var AVFloorplan: any;
 export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, OnChanges, OnDestroy
 {
 	fp: any;
-	private readonly avAPISrc = "//vpsstorage.blob.core.windows.net/api/floorplanAPIv2.3.js";
-	private readonly jquerySrc = "//cdnjs.cloudflare.com/ajax/libs/jquery/1.11.1/jquery.min.js";
+	private readonly avAPISrc = '//apps.alpha-vision.com/api/floorplanAPIv2.3.js';
+	private readonly jquerySrc = '//cdnjs.cloudflare.com/ajax/libs/jquery/1.11.1/jquery.min.js';
 
 	@ViewChild('disabledModal') disabledModal: any;
 	@ViewChild('av_floor_plan') img: any;
@@ -57,7 +58,7 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 	@Output() onBuildIt = new EventEmitter<void>();
 	@Output() onSaveScenario = new EventEmitter<void>();
-	@Output() onSelectChoice = new EventEmitter<{choice: Choice, saveNow: boolean, quantity?: number}>();
+	@Output() onSelectChoice = new EventEmitter<{ choice: Choice, saveNow: boolean, quantity?: number }>();
 	@Output() onChoiceModal = new EventEmitter<Choice>();
 	@Output() pointTypeFilterChanged = new EventEmitter<DecisionPointFilterType>();
 	@Output() onFloorPlanSaved = new EventEmitter<FloorPlanImage[]>();
@@ -71,7 +72,7 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 	currentChoice: Choice;
 	currentDecisionPoint: DecisionPoint;
 	flipping: boolean = false;
-	fpLoaded = false;
+	fpLoaded: boolean = false;
 	isFloorplanFlipped: boolean;
 	mergedOptions: any[];
 	modalReference: ModalRef;
@@ -79,10 +80,15 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 	salesAgreementId: number;
 	scenarioId: number;
 	selectedFloor: any = null;
-	useDefaultFP = false;
+	useDefaultFP: boolean = false;
 	jobId: number;
 	buildMode: string;
 	favoriteChoices: MyFavoritesChoice[];
+
+	get fpFloors()
+	{
+		return this.fpLoaded && this.fp ? this.fp.floors : [];
+	}
 
 	constructor(private router: Router,
 		private store: Store<fromRoot.State>,
@@ -97,7 +103,7 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 		this.initialized$.subscribe(() =>
 		{
 			this.store.pipe(
-				this.takeUntilDestroyed(),
+				take(1),
 				withLatestFrom(
 					this.store.pipe(select((state: fromRoot.State) => state.salesAgreement && state.salesAgreement.id)),
 					this.store.pipe(select((state: fromRoot.State) => state.scenario && state.scenario.scenario && state.scenario.scenario.scenarioId)),
@@ -117,6 +123,7 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 				if (this.canEditAgreement && (this.flipping || this.isFloorplanFlipped == null))
 				{
 					this.fp.graphic.flip(isFlipped);
+
 					this.isFloorplanFlipped = isFlipped;
 				}
 
@@ -124,8 +131,6 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 				if (!this.canEditAgreement && !this.fpLoaded)
 				{
-					this.fpLoaded = true;
-
 					if (!this.jobId)
 					{
 						this.scenarioService.getFloorPlanImages(this.scenarioId).subscribe(p =>
@@ -145,6 +150,7 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 		});
 
 		let wd: any = window;
+
 		wd.message = function (str) { };
 
 		this.store.pipe(
@@ -162,7 +168,7 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 				{
 					try
 					{
-						this.fp = wd.fp = new AVFloorplan(environment.alphavision.builderId, "" + this.planId, document.querySelector("#av-floor-plan"), [], this.fpInitialized.bind(this));
+						this.fp = wd.fp = new AVFloorplan(environment.alphavision.builderId, '' + this.planId, document.querySelector('#av-floor-plan'), [], this.fpInitialized.bind(this));
 
 						this.saveFloorPlanImages();
 					}
@@ -248,7 +254,8 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 			)
 		).subscribe(([choices, isDesignPreviewEnabled]) =>
 		{
-			if (isDesignPreviewEnabled) {
+			if (isDesignPreviewEnabled)
+			{
 				this.favoriteChoices = choices;
 			}
 		});
@@ -309,8 +316,8 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 	ngOnDestroy(): void
 	{
-		unloadScript("code.jquery.com", "jQuery", "$");
-		unloadScript("alpha-vision.com", "AVFloorplan");
+		unloadScript('code.jquery.com', 'jQuery', '$');
+		unloadScript('alpha-vision.com', 'AVFloorplan');
 
 		let wd: any = window;
 
@@ -325,7 +332,8 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 		super.ngOnDestroy();
 	}
 
-	isFavorite(choice: Choice) {
+	isFavorite(choice: Choice)
+	{
 		return !!this.favoriteChoices?.find(c => c.divChoiceCatalogId === choice.divChoiceCatalogId);
 	}
 
@@ -349,16 +357,15 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 		//open the modal
 		if (choice.mappedAttributeGroups.length === 1)
 		{
-
 			this.attributeService.getAttributeGroups(choice).subscribe(attributeGroups =>
 			{
 				//if there is only 1 attribute group that has 1 attribute, auto select that attribute to the choice
-				if(attributeGroups.length === 1 && attributeGroups[0].attributes.length === 1)
+				if (attributeGroups.length === 1 && attributeGroups[0].attributes.length === 1)
 				{
 					const attributeGroup = attributeGroups[0];
 					const attribute = attributeGroup.attributes[0];
 
-					const selectedAttribute : DesignToolAttribute = {
+					const selectedAttribute: DesignToolAttribute = {
 						attributeId: attribute.id,
 						attributeName: attribute.name,
 						attributeImageUrl: attribute.imageUrl,
@@ -375,7 +382,7 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 						scenarioChoiceLocationAttributeId: null,
 						sku: attribute.sku,
 						manufacturer: attribute.manufacturer
-					}
+					};
 
 					choice.selectedAttributes.push(selectedAttribute);
 				}
@@ -388,7 +395,6 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 			this.onSelectChoice.emit({ choice, saveNow: false, quantity: choice.quantity ? 0 : 1 });
 		}
-
 	}
 
 	onCallToAction(event: any)
@@ -418,7 +424,6 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 			))
 		).subscribe(([scenarioId, buildMode]) =>
 		{
-
 			if (buildMode !== 'preview' && buildMode !== 'spec' && buildMode !== 'model' && !this.useDefaultFP && (this.canForceSave || this.canEditAgreement))
 			{
 				if (!this.jobId)
@@ -433,7 +438,7 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 					this.jobService.saveFloorPlanImages(this.jobId, this.fp.floors, this.fp.exportStaticSVG()).subscribe(images =>
 					{
 						this.onFloorPlanSaved.emit(images);
-					})
+					});
 				}
 			}
 		});
@@ -489,6 +494,7 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 	{
 		this.currentChoice = null;
 		this.currentDecisionPoint = p;
+
 		this.showDisabledMessage();
 	}
 
@@ -496,6 +502,7 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 	{
 		this.currentChoice = c;
 		this.currentDecisionPoint = null;
+
 		this.showDisabledMessage();
 	}
 
@@ -534,6 +541,7 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 			if (!this.selectedFloor)
 			{
 				const floor1 = this.fp.floors.find(x => x.name === 'Floor 1');
+
 				this.selectedFloor = floor1;
 			}
 
@@ -546,6 +554,7 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 		}
 
 		this.fpLoaded = true;
+
 		this.initialized$.next();
 		this.initialized$.complete();
 	}
@@ -560,6 +569,8 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 	 */
 	private staticFloorPlanInitialized(): void
 	{
+		this.fpLoaded = true;
+
 		this.setFloorPlanColors();
 
 		const svgs = this.fp.exportStaticSVG();
@@ -579,7 +590,12 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 	{
 		if (this.fp && images.length)
 		{
-			this.fp.floors = images.map(img => { return { name: img.floorName, index: img.floorIndex, svg: img.svg }; });
+			this.fp.floors = images.map(img =>
+			{
+				return { name: img.floorName, index: img.floorIndex, svg: img.svg };
+			});
+
+			this.fpLoaded = true;
 
 			this.setStaticImage(0);
 		}
@@ -593,11 +609,13 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 				{
 					let wd: any = window;
 
-					this.fp = wd.fp = new AVFloorplan(environment.alphavision.builderId, "" + this.planId, document.querySelector("#av-floor-plan"), [], this.staticFloorPlanInitialized.bind(this));
+					this.fp = wd.fp = new AVFloorplan(environment.alphavision.builderId, '' + this.planId, document.querySelector('#av-floor-plan'), [], this.staticFloorPlanInitialized.bind(this));
 				}
 				catch (err)
 				{
 					this.fp = { graphic: undefined };
+
+					this.fpLoaded = true;
 				}
 			});
 		}
@@ -605,8 +623,8 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 	setFloorPlanColors()
 	{
-		this.fp.setRoomsColor("#080049");
-		this.fp.setOptionsColor("#48A5F1");
-		this.fp.addHomeFootPrint("#eaf1fc");
+		this.fp.setRoomsColor('#080049');
+		this.fp.setOptionsColor('#48A5F1');
+		this.fp.addHomeFootPrint('#eaf1fc');
 	}
 }

@@ -81,10 +81,10 @@
 
 		<div id="floorplan-col">
 			<div id="select-floor" class="d-flex flex-row align-items-end mb-2" *ngIf="fpLoaded && !useDefaultFP">
-				<div class="d-flex flex-column flex-fill mr-3" *ngIf="fp?.floors && fp.floors.length > 1">
+				<div class="d-flex flex-column flex-fill mr-3" *ngIf="fpFloors.length > 1">
 					<label for="floor-select">Select a floor</label>
 					<select id="floor-select" class="form-control form-control-md flex-fill" [ngModel]="selectedFloor" (ngModelChange)="selectFloor($event)">
-						<option *ngFor="let floor of fp.floors" [ngValue]="floor">{{ floor.name }}</option>
+						<option *ngFor="let floor of fpFloors" [ngValue]="floor">{{ floor.name }}</option>
 					</select>
 				</div>
 				<div *ngIf="fpLoaded && !useDefaultFP && canEditAgreement">
@@ -96,8 +96,8 @@
 					</div>
 				</div>
 			</div>
-			<div *ngIf="fpLoaded && !useDefaultFP && fp?.floors?.length === 1">
-				<span id="floor-label">{{ fp.floors[0].name }}</span>
+			<div *ngIf="fpLoaded && !useDefaultFP && fpFloors.length === 1">
+				<span id="floor-label">{{ fpFloors[0].name }}</span>
 			</div>
 
 			<div id="av-floor-plan" class="mt-auto" [style.width]="useDefaultFP ? '100%' : ''" #av_floor_plan>
