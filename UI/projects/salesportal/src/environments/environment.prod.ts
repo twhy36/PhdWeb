@@ -16,7 +16,7 @@ export const environment: IEnvironment = {
 			americanWest: 'https://phd.americanwesthomes.com/designpreview/',
 			diVosta: 'https://phd.divosta.com/designpreview/',
 			centex: 'https://phd.centex.com/designpreview/',
-			johnWieland: 'https://phd.pulte.com/designpreview/',// CHANGE TO JOHN-WIELAND WHEN READY
+			johnWieland: 'https://phd.jwhomes.com/designpreview/',
 		},
 		thoPreview: 'https://tho.centex.com/',
 		reports: 'http://powerbi.pulte.com/Reports/browse/IDEA/Sales/PHD',

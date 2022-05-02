@@ -16,7 +16,7 @@ export const environment: IEnvironment = {
 			americanWest: 'https://phd.staging.americanwesthomes.com/designpreview/',
 			diVosta: 'https://phd.staging.divosta.com/designpreview/',
 			centex: 'https://phd.staging.centex.com/designpreview/',
-			johnWieland: 'https://phd.staging.pulte.com/designpreview/',// CHANGE TO JOHN-WIELAND WHEN READY
+			johnWieland: 'https://phd.staging.jwhomes.com/designpreview/',
 		},
 	},
     tenant: "pulte.onmicrosoft.com",

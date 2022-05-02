@@ -6,6 +6,7 @@ import * as delwebb from '../../../../brands/delwebb.json';
 import * as americanWest from '../../../../brands/americanwest.json';
 import * as divosta from '../../../../brands/divosta.json';
 import * as centex from '../../../../brands/centex.json';
+import * as johnWieland from '../../../../brands/john-wieland.json';
 
 import { applyBrand, getBrandImageSrc } from 'phd-common';
 
@@ -20,7 +21,7 @@ export class BrandService {
 		this.brandMap[environment.brandMap.americanWest] = (americanWest as any).default;
 		this.brandMap[environment.brandMap.divosta] = (divosta as any).default;
 		this.brandMap[environment.brandMap.centex] = (centex as any).default;
-		this.brandMap[environment.brandMap.johnWieland] = (pulte as any).default;	// Here for testing purposes, Replace with proper brand when ready
+		this.brandMap[environment.brandMap.johnWieland] = (johnWieland as any).default;
 	}
 
 	applyBrandStyles(): void {
@@ -46,7 +47,7 @@ export class BrandService {
 		}
 	}
 
-	getBrandName(brandMap: { pulte: string, delwebb: string, americanWest: string, divosta: string, centex: string }, url: string) {
+	getBrandName(brandMap: { pulte: string, delwebb: string, americanWest: string, divosta: string, centex: string, johnWieland: string }, url: string) {
 		if (brandMap.pulte === url) {
 			return 'pulte';
 		} else if (brandMap.delwebb === url) {
@@ -57,6 +58,8 @@ export class BrandService {
 			return 'centex'
 		} else if (brandMap.divosta === url) {
 			return 'divosta'
+		} else if (brandMap.johnWieland === url) {
+			return 'johnWieland'
 		}
 	}
 }

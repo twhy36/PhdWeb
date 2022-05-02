@@ -1,0 +1,30 @@
+{
+	"images": {
+		"logo": "assets/john-wieland/logos/JWHN_Logo-Choice-Card.png",
+		"choice-card-logo": "assets/john-wieland/logos/JWHN_Logo-Choice-Card.png",
+		"home-page-logo": "assets/john-wieland/logos/JWHN_Logo-Home-Page.png",
+		"white_logo": "assets/john-wieland/logos/JWHN-SIG-White_Transparent.png"
+	},
+	"styles": {
+		"font": "Palatino",
+		"primary-ribbon-background-color": "#002855", 
+		"secondary-ribbon-background-color": "white",
+		"choice-detail-ribbon-color": "#002855",
+		"primary-button-color": "#002855",
+			"home-page-community-label": "#002855",
+		"home-text-color": "#002855",
+		"nav-bar-text-color": "white",
+		"group-bar-text-color": "#002855",
+		"group-bar-selected-color": "#002855",
+		"heart-icon-color": "#002855",
+		"primary-icon-color": "#002855",
+		"secondary-icon-color": "#002855",
+		"action-icon-color": "#002855",
+		"selected-border-color": "#002855",
+			"link-color": "#002855",
+		"popup-ribbon-background-color": "#002855",
+		"home-page-floorplan-background-color": "#E6E6E6",
+		"button-border-radius": "35px",
+		"logo-margin-top": "6px"
+	}
+}

@@ -48,7 +48,7 @@ export const environment: IEnvironment = {
 		americanWest: 'phd.dev.americanwesthomes.com',
 		divosta: 'phd.dev.divosta.com',
 		centex: 'phd.dev.centex.com',
-		johnWieland: ''
+		johnWieland: 'phd.dev.jwhomes.com'
 	},
 	adobeUrl: 'https://assets.adobedtm.com/73ef53bd253f/c533c20a08e9/launch-08a9cce44e7a-development.min.js',
 	brandLogoutMap: {

@@ -42,7 +42,7 @@ export const environment: IEnvironment = {
 		americanWest: 'phd.staging.americanwesthomes.com',
 		divosta: 'phd.staging.divosta.com',
 		centex: 'phd.staging.centex.com',
-		johnWieland: ''
+		johnWieland: 'phd.staging.jwhomes.com'
 	},
 	adobeUrl: 'https://assets.adobedtm.com/73ef53bd253f/c533c20a08e9/launch-0c0228c569fd-staging.min.js',
 	brandLogoutMap: {
