@@ -74,7 +74,6 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 {
 	let points = _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points)).filter(x => x.treeVersionId === tree.treeVersion.id);
 	let choices = _.flatMap(points, p => p.choices).filter(x => x.treeVersionId === tree.treeVersion.id);
-	const lockedInChoiceRules = _.flatMap(choices.map(c => c.lockedInChoice).filter(co => !!co), ch => ch.choiceRules);
 
 	choices.forEach(ch =>
 	{
@@ -149,9 +148,8 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 	});
 
 	let find = id => choices.find(ch => ch.id === id);
-	let findLockedInChoice = id => choices.find(ch => ch.lockedInChoice?.choice?.dpChoiceId === id);
 
-	function executeChoiceRule(cr: ChoiceRules, choice: Choice)
+	function executeChoiceRule(cr: ChoiceRules)
 	{
 		if (cr.executed)
 		{
@@ -161,11 +159,9 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 		let deps = _.intersectionBy(rules.choiceRules, _.flatMap(cr.rules, r => r.choices).map(c => { return { choiceId: c }; }), 'choiceId');
 
 		// Execute choice rules on dependent choices
-		deps.forEach(rule => {
-			let depChoice = find(rule.choiceId);
-			executeChoiceRule(rule, depChoice);
-		});
+		deps.forEach(rule => executeChoiceRule(rule));
 
+		let choice = find(cr.choiceId);
 		choice.enabled = false;
 
 		cr.rules.forEach(r =>
@@ -209,64 +205,6 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 		cr.executed = true;
 	}
 
-	function executeLockedInChoiceRule(cr: ChoiceRules, choice: Choice)
-	{
-		if (cr.executed)
-		{
-			return;
-		}
-
-		let deps = _.intersectionBy(lockedInChoiceRules, _.flatMap(cr.rules, r => r.choices).map(c => { return { choiceId: c }; }), 'choiceId');
-
-		// Execute locked-in choice rules on dependent choices
-		deps.forEach(rule => {
-			let depChoice = findLockedInChoice(rule.choiceId);
-			executeLockedInChoiceRule(rule, depChoice);
-		});
-
-		choice.enabled = false;
-
-		cr.rules.forEach(r =>
-		{
-			if (r.ruleType === 1)
-			{
-				//must have
-				if (r.choices.filter(c => { let ch = findLockedInChoice(c); return !ch || !ch.quantity; }).length === 0)
-				{
-					choice.enabled = true;
-
-					return;
-				}
-			}
-			else
-			{
-				if (r.choices.filter(c => { let ch = findLockedInChoice(c); return !ch || ch.quantity; }).length === 0)
-				{
-					choice.enabled = true;
-
-					return;
-				}
-			}
-		});
-
-		if (!choice.enabled)
-		{
-			if (choice.lockedInChoice)
-			{
-				choice.enabled = true;
-			}
-			else
-			{
-				choice.quantity = 0;
-				choice.isRequired = false;
-
-				choice.disabledBy.push(cr);
-			}
-		}
-
-		cr.executed = true;
-	}
-
 	//make sure each rule gets executed anew
 	rules.choiceRules.forEach(cr =>
 	{
@@ -275,23 +213,8 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 
 	rules.choiceRules.forEach(cr =>
 	{
-		// Find the choice that has the choice rule
-		let choice = find(cr.choiceId);
-		
-		if (choice?.lockedInChoice)
-		{
-			// Execute the locked-in choice rule if the choice is locked-in
-			if (!!choice.lockedInChoice.choiceRules?.length)
-			{
-				choice.lockedInChoice.choiceRules?.forEach(choiceRule => choiceRule.executed = false);
-				choice.lockedInChoice.choiceRules?.forEach(choiceRule => executeLockedInChoiceRule(choiceRule, choice));
-			}
-		}
-		else
-		{
-			// Execute the choice rule in the tree
-			executeChoiceRule(cr, choice);
-		}
+		// Execute the choice rule in the tree
+		executeChoiceRule(cr);
 	});
 
 	function executePointRule(pr: PointRules)
@@ -1033,7 +956,7 @@ export function getDependentChoices(tree: Tree, rules: TreeVersionRules, options
 					if (!!ch.lockedInChoice?.choiceRules?.length)
 					{
 						const ruleChoiceIds = _.flatMap(ch.lockedInChoice.choiceRules, cr => _.flatMap(cr.rules, rule => rule.choices));
-						if (ruleChoiceIds?.find(rc => rc === choice.lockedInChoice.choice.dpChoiceId))
+						if (ruleChoiceIds?.find(rc => rc === choice.lockedInChoice.choice.divChoiceCatalogId))
 						{
 							clearLockedInData(ch);
 						}
@@ -1052,6 +975,7 @@ export function getDependentChoices(tree: Tree, rules: TreeVersionRules, options
 		if (newChoice)
 		{
 			//clear locked in data on the cloned tree for both the toggled choice and its dependent choices
+			//so that the rules on the tree could be applied to the choice
 			clearLockedInData(newChoice);
 			newChoice.quantity = 0;
 		}
