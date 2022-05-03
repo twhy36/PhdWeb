@@ -470,7 +470,7 @@ export class TreeService
 			switchMap((token: string) =>
 			{
 				const choiceIds: Array<number> = choices.map(x => isChangeOrderChoice(x) ? x.decisionPointChoiceID : x.dpChoiceId);
-				const url = `${environment.apiUrl}GetRulesByChoiceIds(dpChoiceIds=[${choiceIds}])`;
+				const url = `${environment.apiUrl}GetHistoricRulesByChoiceIds(dpChoiceIds=[${choiceIds}])`;
 
 				return this.http.get<any>(url);
 			}),
