@@ -469,16 +469,39 @@ export class TreeService
 		return this.identityService.token.pipe(
 			switchMap((token: string) =>
 			{
-				const choiceIds: Array<number> = choices.map(x => isChangeOrderChoice(x) ? x.decisionPointChoiceID : x.dpChoiceId);
-				const url = `${environment.apiUrl}GetHistoricRulesByChoiceIds(dpChoiceIds=[${choiceIds}])`;
+				let guid = newGuid();
 
-				return this.http.get<any>(url);
+				let buildRequestUrl = (reqChoices: Array<JobChoice | ChangeOrderChoice>) =>
+				{
+					const choiceIds: Array<number> = reqChoices.map(x => isChangeOrderChoice(x) ? x.decisionPointChoiceID : x.dpChoiceId);
+
+					return `${environment.apiUrl}GetHistoricRulesByChoiceIds(dpChoiceIds=[${choiceIds}])`;
+				}
+
+				const batchSize = 30;
+				let batchBundles: string[] = [];
+
+				// create a batch request with a max of 30 choices per request
+				for (var x = 0; x < choices.length; x = x + batchSize)
+				{
+					let choiceList = choices.slice(x, x + batchSize);
+
+					batchBundles.push(buildRequestUrl(choiceList));
+				}
+
+				let requests = batchBundles.map(req => createBatchGet(req));
+
+				var headers = createBatchHeaders(guid, token);
+				var batch = createBatchBody(guid, requests);
+
+				return this.http.post(`${environment.apiUrl}$batch`, batch, { headers: headers });
 			}),
 			map((response: any) =>
 			{
-				let rules = response ? response as TreeVersionRules : null;
-
-				return rules;
+				 let choiceRules: any[] = _.flatMap(response.responses, res => res.body.choiceRules);
+				 return {
+					choiceRules: choiceRules
+				 } as TreeVersionRules;
 			})
 		);
 	}
