@@ -482,7 +482,14 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 		{
 			this.selectedFloor = floor;
 
-			this.fp.setFloor(floor.id);
+			try
+			{
+				this.fp.setFloor(floor.id);
+			}
+			catch (err)
+			{
+				this.setStaticImage(floor.index);
+			}
 		}
 		else
 		{
