@@ -10,7 +10,7 @@ import { IFinancialCommunity } from '../../../../../shared/models/financial-comm
 
 import { DivisionalOptionService } from '../../../../../core/services/divisional-option.service';
 
-import { isEqual, orderBy } from "lodash";
+import { isEqual, orderBy } from 'lodash';
 
 @Component({
 	selector: 'expansion-associate-groups-tab-panel',
@@ -22,8 +22,10 @@ export class ExpansionAssociateGroupsTabPanelComponent implements OnInit
 	@Input() community: IFinancialCommunity;
 	@Input() option: Option;
 	@Input() isReadOnly: boolean;
+	@Input() disableSaveBtn: boolean;
 
 	@Output() onDataChange = new EventEmitter();
+	@Output() disableSaveBtnChange = new EventEmitter<boolean>();
 
 	optionGroups: Option;
 	canAssociate: boolean = false;
@@ -34,14 +36,19 @@ export class ExpansionAssociateGroupsTabPanelComponent implements OnInit
 
 	origSelectedAttributes: AttributeGroupMarket[] = [];
 	origSelectedLocations: LocationGroupMarket[] = [];
-	
+
+	get disableSaveButton(): boolean
+	{
+		return this.isReadOnly || !this.canAssociate || this.isSaving || this.disableSaveBtn;
+	}
+
 	constructor(private _divOptService: DivisionalOptionService, private _msgService: MessageService) { }
 
 	ngOnInit()
 	{
 		this.getOptionGroups();
 	}
-	
+
 	isGroupSelected(group: AttributeGroupMarket | LocationGroupMarket): boolean
 	{
 		let isSelected = false;
@@ -58,7 +65,7 @@ export class ExpansionAssociateGroupsTabPanelComponent implements OnInit
 
 		return isSelected;
 	}
-	
+
 	setGroupSelected(group: AttributeGroupMarket | LocationGroupMarket, isSelected: boolean): void
 	{
 		let selectedGroups = [];
@@ -75,7 +82,7 @@ export class ExpansionAssociateGroupsTabPanelComponent implements OnInit
 			selectedGroups = this.selectedLocations;
 			group = group as LocationGroupMarket;
 		}
-		 
+
 		let index = selectedGroups.findIndex(s => s.id === group.id);
 
 		if (isSelected && index < 0)
@@ -113,6 +120,7 @@ export class ExpansionAssociateGroupsTabPanelComponent implements OnInit
 						});
 					}
 				});
+
 				this.optionGroups.attributeGroups = orderBy(this.optionGroups.attributeGroups, 'sortOrder');
 
 				this.optionGroups.locationGroups.forEach(group =>
@@ -129,7 +137,7 @@ export class ExpansionAssociateGroupsTabPanelComponent implements OnInit
 						});
 					}
 				});
-		
+
 				this.onDataChange.emit();
 			}
 		});
@@ -139,6 +147,9 @@ export class ExpansionAssociateGroupsTabPanelComponent implements OnInit
 	{
 		this.isSaving = true;
 
+		// disable all other save buttons until this finishes
+		this.disableSaveBtnChange.emit(true);
+
 		this._msgService.add({ severity: 'info', summary: 'Groups', detail: `Saving selected groups!` });
 
 		this._divOptService.associateGroupsToCommunity(this.option.id, this.community.id, this.selectedAttributes, this.selectedLocations)
@@ -146,6 +157,9 @@ export class ExpansionAssociateGroupsTabPanelComponent implements OnInit
 			{
 				this.canAssociate = false;
 				this.isSaving = false;
+
+				// enable other save buttons
+				this.disableSaveBtnChange.emit(false);
 
 				this.onDataChange.emit();
 			}))

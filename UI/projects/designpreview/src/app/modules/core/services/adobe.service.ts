@@ -93,10 +93,12 @@ export class AdobeService extends UnsubscribeOnDestroy {
                             const group = tree.groups.find(g => g.subGroups.find(sg => sg.id === selectedSubGroup?.id));
                             const pageName = group?.label + ' / ' + selectedSubGroup?.label;
 
-                            if (selectedSubGroup?.useInteractiveFloorplan) {
-                                this.setPageLoadEvent(this.pageLoadExecuted, 'IFP Choice Card Page', pageName, group?.label, selectedSubGroup?.label);
-                            } else {
-                                this.setPageLoadEvent(this.pageLoadExecuted, 'Choice Card Page', pageName, group?.label, selectedSubGroup?.label);
+                            if (!!group && !!selectedSubGroup) {
+                                if (selectedSubGroup?.useInteractiveFloorplan) {
+                                    this.setPageLoadEvent(this.pageLoadExecuted, 'IFP Choice Card Page', pageName, group?.label, selectedSubGroup?.label);
+                                } else {
+                                    this.setPageLoadEvent(this.pageLoadExecuted, 'Choice Card Page', pageName, group?.label, selectedSubGroup?.label);   
+                                }
                             }
                         }
                     }

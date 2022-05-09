@@ -85,6 +85,13 @@ export class FloorPlanSummaryComponent extends UnsubscribeOnDestroy implements O
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
+			select(fromRoot.financialCommunityName),
+		).subscribe(communityName => {
+			this.communityName = communityName;
+		});
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
 			select(fromRoot.priceBreakdown)
 		).subscribe(pb => this.priceBreakdown = pb);
 	}

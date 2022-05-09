@@ -77,15 +77,45 @@
 
 /* Divosta Brand Font */
 @font-face {
-  font-family: "StagSans";
+    font-family: "StagSans";
 	font-style: normal;
 	font-weight: normal;
-  src: url('../assets/divosta/fonts/StagSans-Book-Web.woff') format("woff2");
+    src: url('../assets/divosta/fonts/StagSans-Book-Web.woff') format("woff2");
 }
 
 @font-face {
-  font-family: "StagSans";
+    font-family: "StagSans";
 	font-weight: lighter;
 	font-style: normal;
-  src: url("../assets/divosta/fonts/StagSans-Light-Web.woff") format("woff2");
+    src: url("../assets/divosta/fonts/StagSans-Light-Web.woff") format("woff2");
+}
+
+/* Centex Brand Font */
+@font-face {
+    font-family: "Apercu";
+    font-style: normal;
+    font-weight: normal;
+    src: url('../assets/centex/fonts/apercu-regular.woff') format("woff");
+}
+  
+@font-face {
+    font-family: "Apercu";
+    font-weight: lighter;
+    font-style: normal;
+    src: url("../assets/centex/fonts/apercu-light.woff") format("woff");
+}
+
+/* John Wieland Brand Font */
+@font-face {
+    font-family: "Palatino";
+    font-style: normal;
+    font-weight: normal;
+    src: url('../assets/john-wieland/fonts/Palatino-Linotype-Regular.woff2') format("woff2");
+}
+  
+@font-face {
+    font-family: "Palatino";
+    font-weight: bold;
+    font-style: normal;
+    src: url("../assets/john-wieland/fonts/Palatino-Linotype-Bold.woff2") format("woff2");
 }

@@ -20,8 +20,8 @@ export const environment: IEnvironment = {
 			delWebb: 'https://phd.staging.delwebb.com/designpreview/',
 			americanWest: 'https://phd.staging.americanwesthomes.com/designpreview/',
 			diVosta: 'https://phd.staging.divosta.com/designpreview/',
-			centex: 'https://phd.staging.pulte.com/designpreview/',// CHANGE TO CENTEX WHEN READY
-			johnWieland: 'https://phd.staging.pulte.com/designpreview/',// CHANGE TO JOHN-WIELAND WHEN READY
+			centex: 'https://phd.staging.centex.com/designpreview/',
+			johnWieland: 'https://phd.staging.jwhomes.com/designpreview/',
 		},
 		thoPreview: 'https://tho.staging.centex.com/',
 		reports: 'http://powerbi.staging.pulte.com/Reports/browse/IDEA/Sales/PHD',

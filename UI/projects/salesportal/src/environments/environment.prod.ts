@@ -15,8 +15,8 @@ export const environment: IEnvironment = {
 			delWebb: 'https://phd.delwebb.com/designpreview/',
 			americanWest: 'https://phd.americanwesthomes.com/designpreview/',
 			diVosta: 'https://phd.divosta.com/designpreview/',
-			centex: 'https://phd.pulte.com/designpreview/',// CHANGE TO CENTEX WHEN READY
-			johnWieland: 'https://phd.pulte.com/designpreview/',// CHANGE TO JOHN-WIELAND WHEN READY
+			centex: 'https://phd.centex.com/designpreview/',
+			johnWieland: 'https://phd.jwhomes.com/designpreview/',
 		},
 		thoPreview: 'https://tho.centex.com/',
 		reports: 'http://powerbi.pulte.com/Reports/browse/IDEA/Sales/PHD',

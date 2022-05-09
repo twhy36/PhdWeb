@@ -9,18 +9,20 @@
 		<div class="d-flex flex-column phd-home-plan">
 			<div></div>
 			<div class="d-flex flex-column">
-				<img class="phd-floor-plan-image" [src]="floorPlanImages[0].imageUrl | safeUrl" *ngIf="floorPlanImages.length">
-				<ng-container *ngIf="!hasFloorPlanImages && !noVisibleFP">
-					<floor-plan
-						[height]="'86vh'"
-						[planId$]="marketingPlanId$"
-						[selectedFloor]="selectedFloor"
-						[subGroup]="floorplanSG"
-						[isPlainFloorplan]="true"
-						[isFlipped]="isFloorplanFlipped"
-						(onFloorPlanLoaded)="loadFloorPlan($event)"
-					>
-					</floor-plan>
+				<img class="phd-floor-plan-image" [src]="floorPlanImages[0].imageUrl | safeUrl" *ngIf="floorPlanImages?.length && hasFloorPlanImages">
+				<ng-container *ngIf="!hasFloorPlanImages && !noVisibleFP && !floorPlanImages?.length">
+					<div class="phd-floor-plan-image">
+						<floor-plan
+							[height]="'calc(55vh)'"
+							[planId$]="marketingPlanId$"
+							[selectedFloor]="selectedFloor"
+							[subGroup]="floorplanSG"
+							[isPlainFloorplan]="true"
+							[isFlipped]="isFloorplanFlipped"
+							(onFloorPlanLoaded)="loadFloorPlan($event)"
+						>
+						</floor-plan>
+					</div>
 				</ng-container>
 				<ng-container *ngIf="!hasFloorPlanImages && noVisibleFP && !floorPlanImages.length">
 					<img class="phd-default-ifp" [src]="getDefaultFPImageSrc()" >

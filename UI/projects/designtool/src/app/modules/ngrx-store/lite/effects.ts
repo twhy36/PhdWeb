@@ -46,7 +46,8 @@ export class LiteEffects
 						|| this.liteService.checkLiteAgreement(store.job, store.changeOrder.currentChangeOrder)
 						|| this.liteService.checkLiteScenario(store.scenario.scenario?.scenarioChoices, store.scenario.scenario?.scenarioOptions);
 
-					const salesCommunityId = store.opportunity?.opportunityContactAssoc?.opportunity?.salesCommunityId;
+					const salesCommunityId = store.opportunity?.opportunityContactAssoc?.opportunity?.salesCommunityId
+						?? store.org?.salesCommunity?.id;
 
 					let actions = [];
 					actions.push(new SetIsPhdLite(isPhdLite));
