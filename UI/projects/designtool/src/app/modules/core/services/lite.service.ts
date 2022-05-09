@@ -1063,8 +1063,9 @@ export class LiteService
 			? _.flatMap(changeOrder.jobChangeOrders, co => co.jobChangeOrderPlanOptions)
 			: [];
 
-		return !job.jobChoices?.length && !!job.jobPlanOptions?.length // there are no job choices but job plan options
-			|| !changeOrderChoices.length && !!changeOrderOptions.length; // there are no change order choices but change order options
+			return !job.jobChoices?.length && !!job.jobPlanOptions?.length // there are no job choices but job plan options
+			|| !changeOrderChoices.length && !!changeOrderOptions.length // there are no change order choices but change order options
+				&& !job.jobChoices?.length && !job.jobPlanOptions?.length;
 	}
 
 	checkLiteScenario(scenarioChoices: SelectedChoice[], scenarioOptions: ScenarioOption[]): boolean {
