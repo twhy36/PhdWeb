@@ -209,8 +209,8 @@ export class ProgramDetailComponent extends ComponentCanNavAway implements OnIni
 
 			if (this.form.controls['programName'].value !== null && this.form.controls['discountAmount'].value !== null)
 			{
-				let changeOrderProgramId = this.changeOrderPrograms.find(cop => cop.salesProgramId === this.selectedSalesProgram.id).id;
-				salesChangeOrderSalesPrograms.push({id: changeOrderProgramId, salesProgramId: this.selectedSalesProgram.id, salesProgramDescription: this.form.controls['description'].value, amount: this.form.controls['discountAmount'].value, action: 'Add', salesProgramType: this.selectedSalesProgram.salesProgramType.toString() });
+				let changeOrderProgramId = this.changeOrderPrograms.find(cop => cop.salesProgramId === this.selectedSalesProgram.id)?.id;
+				salesChangeOrderSalesPrograms.push({id: changeOrderProgramId ? changeOrderProgramId : 0, salesProgramId: this.selectedSalesProgram.id, salesProgramDescription: this.form.controls['description'].value, amount: this.form.controls['discountAmount'].value, action: 'Add', salesProgramType: this.selectedSalesProgram.salesProgramType.toString() });
 			}
 
 			let originalProgramId = this.default.salesProgramId !== salesChangeOrderSalesPrograms[0].salesProgramId ? this.default.salesProgramId : null;
