@@ -5,11 +5,11 @@ export class SearchEvent {
 
     constructor(term: string, results: number) {
         this.search.term = term;
-        this.search.results = results;
+        this.search.results = results.toString();
     }
 }
 
 export class Search {
     term: string;
-    results: number;
+    results: string;
 }

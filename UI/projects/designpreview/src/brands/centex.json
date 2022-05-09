@@ -1,0 +1,30 @@
+{
+	"images": {
+		"logo": "assets/centex/logos/Centex_Logo-Choice-Card.png",
+		"choice-card-logo": "assets/centex/logos/Centex_Logo-Choice-Card.png",
+		"home-page-logo": "assets/centex/logos/Centex_Logo-Home-Page.png",
+		"white_logo": "assets/centex/logos/Centex_4C White.png"
+	},
+	"styles": {
+		"font": "Apercu",
+		"primary-ribbon-background-color": "#CC0000", 
+		"secondary-ribbon-background-color": "#ffffff",
+		"choice-detail-ribbon-color": "#1a1a1a",
+		"primary-button-color": "#257FA2",
+		"home-page-community-label": "#1a1a1a",
+		"home-text-color": "#1a1a1a",
+		"nav-bar-text-color": "white",
+		"group-bar-text-color": "#1a1a1a",
+		"group-bar-selected-color": "black",
+		"heart-icon-color": "#CC0000",
+		"primary-icon-color": "#1a1a1a",
+		"secondary-icon-color": "#1a1a1a",
+		"action-icon-color": "#1a1a1a",
+		"selected-border-color": "#CC0000",
+		"link-color": "#1a1a1a",
+		"popup-ribbon-background-color": "#CC0000",
+		"home-page-floorplan-background-color": "#eeeeee",
+		"button-border-radius": "35px",
+		"logo-margin-top": "8px"
+	}
+}

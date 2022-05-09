@@ -8,7 +8,7 @@ export class Favorite {
     choice: string;
     choiceId: number;
     divChoiceCatalogId: number; 
-    price: number;
+    price: string;
     decisionPoint: string;
     attribute: string;
     location: string;

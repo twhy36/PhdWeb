@@ -23,8 +23,10 @@ export class ExpansionAssociateGroupsTabPanelComponent implements OnInit
 	@Input() community: IFinancialCommunity;
 	@Input() option: Option;
 	@Input() isReadOnly: boolean;
+	@Input() disableSaveBtn: boolean;
 
 	@Output() onDataChange = new EventEmitter();
+	@Output() disableSaveBtnChange = new EventEmitter<boolean>();
 
 	optionAssociations: Option;
 	canAssociate: boolean = false;
@@ -39,6 +41,12 @@ export class ExpansionAssociateGroupsTabPanelComponent implements OnInit
 	origSelectedOptionMarketImages: OptionMarketImage[] = [];
 
 	defaultSrc: string = 'assets/pultegroup_logo.jpg';
+
+
+	get disableSaveButton(): boolean
+	{
+		return this.isReadOnly || !this.canAssociate || this.isSaving || this.disableSaveBtn;
+	}
 
 	constructor(private _divOptService: DivisionalOptionService, private _msgService: MessageService) { }
 
@@ -169,6 +177,9 @@ export class ExpansionAssociateGroupsTabPanelComponent implements OnInit
 	{
 		this.isSaving = true;
 
+		// disable all other save buttons until this finishes
+		this.disableSaveBtnChange.emit(true);
+
 		this._msgService.add({ severity: 'info', summary: 'Associations', detail: `Saving selected associations!` });
 
 		this._divOptService.associateItemsToCommunity(this.option.id, this.community.id, this.selectedAttributes, this.selectedLocations, this.selectedOptionMarketImages)
@@ -188,6 +199,9 @@ export class ExpansionAssociateGroupsTabPanelComponent implements OnInit
 				this.origSelectedAttributes = cloneDeep(this.selectedAttributes);
 				this.origSelectedLocations = cloneDeep(this.selectedLocations);
 				this.origSelectedOptionMarketImages = cloneDeep(this.selectedOptionMarketImages);
+
+				// enable other save buttons
+				this.disableSaveBtnChange.emit(false);
 
 				this.onDataChange.emit();
 			}))

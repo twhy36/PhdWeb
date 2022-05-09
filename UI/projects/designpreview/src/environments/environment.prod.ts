@@ -41,7 +41,8 @@ export const environment: IEnvironment = {
 		delwebb: 'phd.delwebb.com',
 		americanWest: 'phd.americanwesthomes.com',
 		divosta: 'phd.divosta.com',
-		johnWieland: ''
+		centex: 'phd.centex.com',
+		johnWieland: 'phd.jwhomes.com'
 	},
 	adobeUrl: 'https://assets.adobedtm.com/73ef53bd253f/c533c20a08e9/launch-3b8029c3091a.min.js',
 	brandLogoutMap: {
@@ -49,6 +50,7 @@ export const environment: IEnvironment = {
 		delwebb: 'https://www.delwebb.com/My-Del-Webb-Account/Login',
 		americanWest: 'https://www.americanwesthomes.com/My-American-West-Account/Login',
 		divosta: 'https://www.divosta.com/My-DiVosta-Account/Login',
-		johnWieland: 'https://www.jwhomes.com/My-JW-Account/Login'
+		johnWieland: 'https://www.jwhomes.com/My-JW-Account/Login',
+		centex: 'https://www.centex.com/My-Centex-Account/Login'
 	}
 };

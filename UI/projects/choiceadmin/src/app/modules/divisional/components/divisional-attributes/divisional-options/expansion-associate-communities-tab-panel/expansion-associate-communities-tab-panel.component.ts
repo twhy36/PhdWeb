@@ -19,6 +19,7 @@ export class ExpansionAssociateCommunitiesTabPanelComponent implements OnInit
 	@Output() onDataChange = new EventEmitter();
 
 	associatedCommunities: Array<IFinancialCommunity>;
+	disableSaveBtn: boolean = false;
 
 	@ViewChild(PhdTableComponent)
 	private tableComponent: PhdTableComponent;

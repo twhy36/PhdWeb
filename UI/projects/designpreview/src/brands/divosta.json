@@ -1,18 +1,22 @@
 {
 	"images": {
-		"logo": "assets/divosta/logos/Divosta-Logo-Blue RGB 1628x212.png",
+		"logo": "assets/divosta/logos/Divosta-Logo-Blue-Choice-Card.png",
 		"choice-card-logo": "assets/divosta/logos/Divosta-Logo-Blue-Choice-Card.png",
-		"home-page-logo": "assets/divosta/logos/Divosta-Logo-Blue RGB 1628x212.png",
+		"home-page-logo": "assets/divosta/logos/Divosta-Logo-Blue-Home-Page.png",
 		"white_logo": "assets/divosta/logos/Divosta-Logo-White.png"
 	},
 	"styles": {
 		"font": "StagSans",
 		"primary-ribbon-background-color": "#1F667E",
 		"secondary-ribbon-background-color": "#19405C",
+		"choice-detail-ribbon-color": "#1F667E",
 		"primary-button-color": "#19405C",
 		"home-page-community-label": "#19405C",
 		"home-text-color": "#19405C",
 		"nav-bar-text-color": "white",
+		"group-bar-text-color": "#E9F3F8",
+		"group-bar-selected-color": "white",
+		"heart-icon-color": "#1F667E",
 		"primary-icon-color": "#1F667E",
 		"secondary-icon-color": "#19405C",
 		"action-icon-color": "#19405C",
