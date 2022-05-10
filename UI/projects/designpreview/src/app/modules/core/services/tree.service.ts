@@ -611,6 +611,30 @@ export class TreeService
 			})
 		);
 	}
+	
+	getHistoricRules(choices: Array<JobChoice | ChangeOrderChoice>): Observable<TreeVersionRules>
+	{
+		if (!choices || !choices.length)
+		{
+			return of(null);
+		}
+
+		return this.identityService.token.pipe(
+			switchMap((token: string) =>
+			{
+				const choiceIds: Array<number> = choices.map(x => isChangeOrderChoice(x) ? x.decisionPointChoiceID : x.dpChoiceId);
+				const url = `${environment.apiUrl}GetHistoricRulesByChoiceIds(dpChoiceIds=[${choiceIds}])`;
+
+				return this.http.get<any>(url);
+			}),
+			map((response: any) =>
+			{
+				let rules = response ? response as TreeVersionRules : null;
+
+				return rules;
+			})
+		);
+	}
 
 	getChoiceImageAssoc(choices: Array<number>): Observable<Array<ChoiceImageAssoc>>
 	{

@@ -158,6 +158,7 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 
 		let deps = _.intersectionBy(rules.choiceRules, _.flatMap(cr.rules, r => r.choices).map(c => { return { choiceId: c }; }), 'choiceId');
 
+		// Execute choice rules on dependent choices
 		deps.forEach(rule => executeChoiceRule(rule));
 
 		let choice = find(cr.choiceId);
@@ -212,6 +213,7 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 
 	rules.choiceRules.forEach(cr =>
 	{
+		// Execute the choice rule in the tree
 		executeChoiceRule(cr);
 	});
 
@@ -942,25 +944,47 @@ export function getDependentChoices(tree: Tree, rules: TreeVersionRules, options
 {
 	let newTree = _.cloneDeep(tree);
 
+	// Recursive function to clear the locked in data for both the choice and its dependent choices
+	function clearLockedInData(choice: Choice)
+	{
+		if (choice.lockedInChoice)
+		{
+			_.flatMap(newTree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, p => p.choices)))
+				.forEach(ch =>
+				{
+					// Search for dependent choices on the choice and clear their locked-in data
+					if (!!ch.lockedInChoice?.choiceRules?.length)
+					{
+						const ruleChoiceIds = _.flatMap(ch.lockedInChoice.choiceRules, cr => _.flatMap(cr.rules, rule => rule.choices));
+						if (ruleChoiceIds?.find(rc => rc === choice.lockedInChoice.choice.divChoiceCatalogId))
+						{
+							clearLockedInData(ch);
+						}
+					}
+				});
+				
+			choice.lockedInChoice = null;
+			choice.lockedInOptions = [];
+		}
+	}
+
 	//deselecting choice
 	if (choice.quantity)
 	{
-		findChoice(newTree, ch => ch.id === choice.id).quantity = 0;
+		let newChoice = findChoice(newTree, ch => ch.id === choice.id);
+		if (newChoice)
+		{
+			//clear locked in data on the cloned tree for both the toggled choice and its dependent choices
+			//so that the rules on the tree could be applied to the choice
+			clearLockedInData(newChoice);
+			newChoice.quantity = 0;
+		}
 	}
 	else 
 	{
 		selectChoice(newTree, choice.id); //this checks pick type and clears other choices if necessary
 		findChoice(newTree, ch => ch.id === choice.id).quantity = 1;
 	}
-
-	//clear locked in data on the cloned tree so we can see which choices "should"
-	//be disabled
-	_.flatMap(newTree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, p => p.choices)))
-		.forEach(ch =>
-		{
-			ch.lockedInChoice = null;
-			ch.lockedInOptions = [];
-		});
 
 	//apply rules to cloned tree
 	applyRules(newTree, rules, options);
