@@ -229,11 +229,12 @@ export class LiteExperienceComponent extends UnsubscribeOnDestroy implements OnI
 		])
 			.subscribe(([mc, areColorsValid]) =>
 			{
+				const specOrModel = this.buildMode === 'spec' || this.buildMode === 'model';
 				if (mc.monotonyConflict)
 				{
 					this.loadMonotonyModal();
 				}
-				else if (!areColorsValid)
+				else if (!areColorsValid && !specOrModel)
 				{
 					this.liteService.onGenerateSalesAgreementWithColorWarning(
 						this.buildMode,
