@@ -28,18 +28,6 @@
                         "tsConfig": "projects/phd-common/tsconfig.spec.json",
                         "karmaConfig": "projects/phd-common/karma.conf.js"
                     }
-                },
-                "lint": {
-                    "builder": "@angular-devkit/build-angular:tslint",
-                    "options": {
-                        "tsConfig": [
-                            "projects/phd-common/tsconfig.lib.json",
-                            "projects/phd-common/tsconfig.spec.json"
-                        ],
-                        "exclude": [
-                            "**/node_modules/**"
-                        ]
-                    }
                 }
             }
         },
@@ -183,18 +171,6 @@
                         ],
                         "assets": [
                             "projects/choiceadmin/src/assets"
-                        ]
-                    }
-                },
-                "lint": {
-                    "builder": "@angular-devkit/build-angular:tslint",
-                    "options": {
-                        "tsConfig": [
-                            "projects/choiceadmin/tsconfig.app.json",
-                            "projects/choiceadmin/tsconfig.spec.json"
-                        ],
-                        "exclude": [
-                            "**/node_modules/**"
                         ]
                     }
                 }
@@ -342,19 +318,6 @@
                             "projects/designtool/src/assets"
                         ]
                     }
-                },
-                "lint": {
-                    "builder": "@angular-devkit/build-angular:tslint",
-                    "options": {
-                        "tsConfig": [
-                            "projects/designtool/tsconfig.app.json",
-                            "projects/designtool/tsconfig.spec.json",
-                            "projects/designtool/tsconfig.worker.json"
-                        ],
-                        "exclude": [
-                            "**/node_modules/**"
-                        ]
-                    }
                 }
             }
         },
@@ -498,18 +461,6 @@
                             "projects/salesadmin/src/assets"
                         ]
                     }
-                },
-                "lint": {
-                    "builder": "@angular-devkit/build-angular:tslint",
-                    "options": {
-                        "tsConfig": [
-                            "projects/salesadmin/tsconfig.app.json",
-                            "projects/salesadmin/tsconfig.spec.json"
-                        ],
-                        "exclude": [
-                            "**/node_modules/**"
-                        ]
-                    }
                 }
             }
         },
@@ -650,18 +601,6 @@
                         ],
                         "assets": [
                             "projects/salesportal/src/assets"
-                        ]
-                    }
-                },
-                "lint": {
-                    "builder": "@angular-devkit/build-angular:tslint",
-                    "options": {
-                        "tsConfig": [
-                            "projects/salesportal/tsconfig.app.json",
-                            "projects/salesportal/tsconfig.spec.json"
-                        ],
-                        "exclude": [
-                            "**/node_modules/**"
                         ]
                     }
                 }
@@ -811,18 +750,6 @@
                             "projects/designpreview/src/assets"
                         ]
                     }
-                },
-                "lint": {
-                    "builder": "@angular-devkit/build-angular:tslint",
-                    "options": {
-                        "tsConfig": [
-                            "projects/designpreview/tsconfig.app.json",
-                            "projects/designpreview/tsconfig.spec.json"
-                        ],
-                        "exclude": [
-                            "**/node_modules/**"
-                        ]
-                    }
                 }
             }
         },
@@ -963,18 +890,6 @@
                         ],
                         "assets": [
                             "projects/colormanagement/src/assets"
-                        ]
-                    }
-                },
-                "lint": {
-                    "builder": "@angular-devkit/build-angular:tslint",
-                    "options": {
-                        "tsConfig": [
-                            "projects/colormanagement/tsconfig.app.json",
-                            "projects/colormanagement/tsconfig.spec.json"
-                        ],
-                        "exclude": [
-                            "**/node_modules/**"
                         ]
                     }
                 }
