@@ -56,7 +56,6 @@
 							"lodash",
 							"rxjs"
 						],
-						"aot": true,
 						"baseHref": "/choiceadmin/",
 						"outputHashing": "all",
 						"outputPath": "dist/choiceadmin",
@@ -80,7 +79,13 @@
 							"node_modules/primeicons/primeicons.css",
 							"projects/choiceadmin/src/scss/styles.scss"
 						],
-						"scripts": []
+						"scripts": [],
+            "vendorChunk": true,
+            "extractLicenses": false,
+            "buildOptimizer": false,
+            "sourceMap": true,
+            "optimization": false,
+            "namedChunks": true
 					},
                     "configurations": {
                         "local": {
@@ -95,7 +100,6 @@
                         },
                         "qa": {                        
                             "optimization": true,
-                            "sourceMap": true,
                             "namedChunks": false,
                             "extractLicenses": true,
                             "vendorChunk": false,
@@ -109,7 +113,6 @@
                         },
                         "staging": {          
                             "optimization": true,
-                            "sourceMap": true,
                             "namedChunks": false,
                             "extractLicenses": true,
                             "vendorChunk": false,
@@ -135,7 +138,8 @@
                                 }
                             ]
                         }
-                    }
+                    },
+          "defaultConfiguration": ""
                 },
                 "serve": {
                     "builder": "@angular-devkit/build-angular:dev-server",
@@ -210,7 +214,6 @@
 							"lodash",
 							"rxjs"
 						],
-						"aot": true,
 						"baseHref": "/designtool/",
 						"outputHashing": "all",
 						"outputPath": "dist/designtool",
@@ -234,7 +237,13 @@
 							"projects/designtool/src/scss/styles.scss"
 						],
 						"scripts": [],
-						"webWorkerTsConfig": "projects/designtool/tsconfig.worker.json"
+						"webWorkerTsConfig": "projects/designtool/tsconfig.worker.json",
+            "vendorChunk": true,
+            "extractLicenses": false,
+            "buildOptimizer": false,
+            "sourceMap": true,
+            "optimization": false,
+            "namedChunks": true
 					},
                     "configurations": {
                         "local": {
@@ -249,7 +258,6 @@
                         },
                         "qa": {
                             "optimization": true,
-                            "sourceMap": true,
                             "namedChunks": false,
                             "extractLicenses": true,
                             "vendorChunk": false,
@@ -263,7 +271,6 @@
                         },
                         "staging": {
                             "optimization": true,
-                            "sourceMap": true,
                             "namedChunks": false,
                             "extractLicenses": true,
                             "vendorChunk": false,
@@ -289,7 +296,8 @@
                                 }
                             ]
                         }
-                    }
+                    },
+          "defaultConfiguration": ""
                 },
                 "serve": {
                     "builder": "@angular-devkit/build-angular:dev-server",
@@ -363,7 +371,6 @@
 							"lodash",
 							"rxjs"
 						],
-						"aot": true,
 						"baseHref": "/salesadmin/",
 						"outputHashing": "all",
 						"outputPath": "dist/salesadmin",
@@ -385,7 +392,13 @@
 							"node_modules/primeicons/primeicons.css",
 							"projects/salesadmin/src/scss/styles.scss"
 						],
-						"scripts": []
+						"scripts": [],
+            "vendorChunk": true,
+            "extractLicenses": false,
+            "buildOptimizer": false,
+            "sourceMap": true,
+            "optimization": false,
+            "namedChunks": true
 					},
                     "configurations": {
                         "local": {
@@ -400,7 +413,6 @@
                         },
                         "qa": {
                             "optimization": true,
-                            "sourceMap": true,
                             "namedChunks": false,
                             "extractLicenses": true,
                             "vendorChunk": false,
@@ -414,7 +426,6 @@
                         },
                         "staging": {
                             "optimization": true,
-                            "sourceMap": true,
                             "namedChunks": false,
                             "extractLicenses": true,
                             "vendorChunk": false,
@@ -440,7 +451,8 @@
                                 }
                             ]
                         }
-                    }
+                    },
+          "defaultConfiguration": ""
                 },
                 "serve": {
                     "builder": "@angular-devkit/build-angular:dev-server",
@@ -514,7 +526,6 @@
 							"lodash",
 							"rxjs"
 						],
-						"aot": true,
 						"baseHref": "/salesportal/",
 						"outputHashing": "all",
 						"outputPath": "dist/salesportal",
@@ -535,7 +546,13 @@
 							"node_modules/primeicons/primeicons.css",
 							"projects/salesportal/src/scss/styles.scss"
 						],
-						"scripts": []
+						"scripts": [],
+            "vendorChunk": true,
+            "extractLicenses": false,
+            "buildOptimizer": false,
+            "sourceMap": true,
+            "optimization": false,
+            "namedChunks": true
 					},
                     "configurations": {
                         "local": {
@@ -550,7 +567,6 @@
                         },
                         "qa": {
                             "optimization": true,
-                            "sourceMap": true,
                             "namedChunks": false,
                             "extractLicenses": true,
                             "vendorChunk": false,
@@ -564,7 +580,6 @@
                         },
                         "staging": {
                             "optimization": true,
-                            "sourceMap": true,
                             "namedChunks": false,
                             "extractLicenses": true,
                             "vendorChunk": false,
@@ -590,7 +605,8 @@
                                 }
                             ]
                         }
-                    }
+                    },
+          "defaultConfiguration": ""
                 },
                 "serve": {
                     "builder": "@angular-devkit/build-angular:dev-server",
@@ -667,7 +683,6 @@
 						],
 						"progress": true,
 						"preserveSymlinks": true,
-						"aot": true,
 						"baseHref": "/designpreview/",
 						"outputHashing": "all",
 						"outputPath": "dist/designpreview",
@@ -689,7 +704,13 @@
 							"node_modules/primeicons/primeicons.css",
 							"projects/designpreview/src/scss/styles.scss"
 						],
-						"scripts": []
+						"scripts": [],
+            "vendorChunk": true,
+            "extractLicenses": false,
+            "buildOptimizer": false,
+            "sourceMap": true,
+            "optimization": false,
+            "namedChunks": true
 					},
                     "configurations": {
                         "local": {
@@ -704,7 +725,6 @@
                         },
                         "qa": {
                             "optimization": true,
-                            "sourceMap": true,
                             "namedChunks": false,
                             "extractLicenses": true,
                             "vendorChunk": false,
@@ -718,7 +738,6 @@
                         },
                         "staging": {
                             "optimization": true,
-                            "sourceMap": true,
                             "namedChunks": false,
                             "extractLicenses": true,
                             "vendorChunk": false,
@@ -744,7 +763,8 @@
                             "vendorChunk": false,
                             "buildOptimizer": true
                         }
-                    }
+                    },
+          "defaultConfiguration": ""
                 },
                 "serve": {
                     "builder": "@angular-devkit/build-angular:dev-server",
@@ -819,7 +839,6 @@
 							"lodash",
 							"rxjs"
 						],
-                        "aot": true,
                         "baseHref": "/colormanagement/",
                         "outputHashing": "all",
                         "outputPath": "dist/colormanagement",
@@ -840,7 +859,13 @@
                             "node_modules/primeicons/primeicons.css",
                             "projects/colormanagement/src/scss/styles.scss"
 						],
-                        "scripts": []
+                        "scripts": [],
+            "vendorChunk": true,
+            "extractLicenses": false,
+            "buildOptimizer": false,
+            "sourceMap": true,
+            "optimization": false,
+            "namedChunks": true
                     },
                     "configurations": {
                         "local": {
@@ -855,7 +880,6 @@
                         },
                         "qa": {
                             "optimization": true,
-                            "sourceMap": true,
                             "namedChunks": false,
                             "extractLicenses": true,
                             "vendorChunk": false,
@@ -869,7 +893,6 @@
                         },
                         "staging": {
                             "optimization": true,
-                            "sourceMap": true,
                             "namedChunks": false,
                             "extractLicenses": true,
                             "vendorChunk": false,
@@ -895,7 +918,8 @@
                                 }
                             ]
                         }
-                    }
+                    },
+          "defaultConfiguration": ""
                 },
                 "serve": {
                     "builder": "@angular-devkit/build-angular:dev-server",

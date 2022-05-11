@@ -4,7 +4,7 @@ import { Idle, DEFAULT_INTERRUPTSOURCES } from '@ng-idle/core';
 import { NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 
 import { environment } from '../environments/environment';
-import * as build from './build.json';
+import { default as build } from './build.json';
 
 import { ModalService, ModalRef, IdentityService } from 'phd-common';
 import { IdleLogoutComponent } from './modules/core/components/idle-logout/idle-logout.component';
@@ -12,20 +12,26 @@ import { BrandService } from './modules/core/services/brand.service';
 import { AdobeService } from './modules/core/services/adobe.service';
 
 @Component({
-    selector: 'app-root',
-    templateUrl: './app.component.html',
-    styleUrls: ['./app.component.css']
+	selector: 'app-root',
+	templateUrl: './app.component.html',
+	styleUrls: ['./app.component.css']
 })
-export class AppComponent {
+export class AppComponent
+{
 	title = 'Design Preview';
 
-	build = (build as any).default;
 	environment = environment;
 
 	logoutModal: ModalRef;
 
-	get branch(): string {
+	get branch(): string
+	{
 		return build.branch.split('/').slice(2).join('/');
+	}
+
+	get version(): string
+	{
+		return build.version;
 	}
 
 	constructor(
@@ -45,8 +51,10 @@ export class AppComponent {
 		this.brandService.applyBrandStyles();
 	}
 
-	ngOnInit() {
+	ngOnInit()
+	{
 		window['appEventData'] = [];
+
 		this.setAdobeAnalytics();
 	}
 
@@ -59,11 +67,13 @@ export class AppComponent {
 		// sets the default interrupts, in this case, things like clicks, scrolls, touches to the document
 		this.idle.setInterrupts(DEFAULT_INTERRUPTSOURCES);
 
-		this.idle.onTimeout.subscribe(() => {
+		this.idle.onTimeout.subscribe(() =>
+		{
 			this.logout();
 		});
 
-		this.idle.onIdleStart.subscribe(() => {
+		this.idle.onIdleStart.subscribe(() =>
+		{
 			this.idle.clearInterrupts();
 
 			let ngbModalOptions: NgbModalOptions = {
@@ -91,7 +101,8 @@ export class AppComponent {
 			}, (reason) => { });
 		});
 
-		this.idle.onTimeoutWarning.subscribe((countdown) => {
+		this.idle.onTimeoutWarning.subscribe((countdown) =>
+		{
 			this.logoutModal.componentInstance.countdown = countdown;
 		});
 
@@ -105,12 +116,16 @@ export class AppComponent {
 		this.identityService.logout();
 	}
 
-	setAdobeAnalytics() {
+	setAdobeAnalytics()
+	{
 		const script = this.doc.createElement('script');
+
 		script.type = 'text/javascript'
 		script.src = environment.adobeUrl;
 		script.async = true;
+
 		const head = this.doc.getElementsByTagName('head')[0];
+
 		head.appendChild(script);
 	}
 }

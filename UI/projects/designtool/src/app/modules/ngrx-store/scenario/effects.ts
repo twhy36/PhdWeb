@@ -18,11 +18,12 @@ import { PlanService } from '../../core/services/plan.service';
 import { ScenarioService } from '../../core/services/scenario.service';
 import { TreeService } from '../../core/services/tree.service';
 
-import {
-ScenarioActionTypes, SaveScenario, ScenarioSaved, SaveError, SetChoicePriceRanges,
-SetScenarioPlan, SetScenarioLot, SetScenarioLotHanding, TreeLoaded, LoadError, SetPointViewed,
-LoadPreview, SaveScenarioInfo, ScenarioInfoSaved, LoadTree, SelectChoices, SetIsFloorplanFlippedScenario, IsFloorplanFlippedScenario, TreeLoadedFromJob
-} from './actions';
+import
+	{
+		ScenarioActionTypes, SaveScenario, ScenarioSaved, SaveError, SetChoicePriceRanges,
+		SetScenarioPlan, SetScenarioLot, SetScenarioLotHanding, TreeLoaded, LoadError, SetPointViewed,
+		LoadPreview, SaveScenarioInfo, ScenarioInfoSaved, LoadTree, SelectChoices, SetIsFloorplanFlippedScenario, IsFloorplanFlippedScenario, TreeLoadedFromJob
+	} from './actions';
 import { SaveChangeOrderScenario, SavePendingJio } from '../change-order/actions';
 import { SetWebPlanMapping, PlansLoaded, SelectPlan } from '../plan/actions';
 import * as fromRoot from '../reducers';
@@ -31,17 +32,22 @@ import { SalesCommunityLoaded } from '../org/actions';
 import { SaveReplaceOptionPrice } from '../job/actions';
 
 @Injectable()
-export class ScenarioEffects {
+export class ScenarioEffects
+{
 	// Save the Scenario when Plan, Lot, or Handing is set
-	setScenario$: Observable<Action> = createEffect(() => {
+	setScenario$: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<SetScenarioPlan | SetScenarioLot | SetScenarioLotHanding>(ScenarioActionTypes.SetScenarioPlan, ScenarioActionTypes.SetScenarioLot, ScenarioActionTypes.SetScenarioLotHanding),
 			withLatestFrom(this.store),
-			switchMap(([action, store]) => {
-				if (store.changeOrder && store.changeOrder.currentChangeOrder && (store.changeOrder.currentChangeOrder.id || store.changeOrder.currentChangeOrder.salesStatusDescription === 'Pending')) {
+			switchMap(([action, store]) =>
+			{
+				if (store.changeOrder && store.changeOrder.currentChangeOrder && (store.changeOrder.currentChangeOrder.id || store.changeOrder.currentChangeOrder.salesStatusDescription === 'Pending'))
+				{
 					return of(new SaveChangeOrderScenario());
 				}
-				else if (!store.changeOrder || !store.changeOrder.isChangingOrder && store.scenario.buildMode === 'buyer') {
+				else if (!store.changeOrder || !store.changeOrder.isChangingOrder && store.scenario.buildMode === 'buyer')
+				{
 					return of(new SaveScenario());
 				}
 
@@ -52,21 +58,25 @@ export class ScenarioEffects {
 
 	// Automatically trigger a tree fetch if the scenario is saved,
 	// except if the tree has already been loaded and has not changed.
-	loadTree$: Observable<Action> = createEffect(() => {
+	loadTree$: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<ScenarioSaved | LoadTree>(ScenarioActionTypes.ScenarioSaved, ScenarioActionTypes.LoadTree),
 			withLatestFrom(this.store),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store]) => {
+				switchMap(([action, store]) =>
+				{
 					const isPhdLite = store.lite.isPhdLite;
 					const salesCommunityId = store.org.salesCommunity.id;
 
-					if (isPhdLite || action.scenario.treeVersionId && (!store.scenario.tree || store.scenario.tree.treeVersion.id !== action.scenario.treeVersionId)) {
+					if (isPhdLite || action.scenario.treeVersionId && (!store.scenario.tree || store.scenario.tree.treeVersion.id !== action.scenario.treeVersionId))
+					{
 						return of({ action, isPhdLite, salesCommunityId });
 					}
 
 					// plan deselected so clear tree
-					if (!action.scenario.treeVersionId && store.scenario.tree && store.scenario.tree.treeVersion.id) {
+					if (!action.scenario.treeVersionId && store.scenario.tree && store.scenario.tree.treeVersion.id)
+					{
 						return of({
 							action: new TreeLoaded(null, null, null, null, null, store.scenario.salesCommunity),
 							isPhdLite,
@@ -76,16 +86,20 @@ export class ScenarioEffects {
 
 					return new Observable<never>();
 				}),
-				switchMap(result => {
-					if (result.action.type === ScenarioActionTypes.TreeLoaded) {
+				switchMap(result =>
+				{
+					if (result.action.type === ScenarioActionTypes.TreeLoaded)
+					{
 						return of(result.action);
 					}
-					else if (result.isPhdLite) {
+					else if (result.isPhdLite)
+					{
 						return this.orgService.getSalesCommunity(result.salesCommunityId).pipe(
 							switchMap(salesCommunity => of(new TreeLoaded(null, null, null, null, null, salesCommunity)))
 						);
 					}
-					else {
+					else
+					{
 						return this.treeService.getTree(result.action.scenario.treeVersionId)
 							.pipe(
 								combineLatest(
@@ -93,8 +107,10 @@ export class ScenarioEffects {
 									this.optionService.getPlanOptions(result.action.scenario.planId),
 									this.treeService.getOptionImages(result.action.scenario.treeVersionId)
 								),
-								switchMap(([tree, rules, options, optionImages]) => {
-									return this.orgService.getSalesCommunityByFinancialCommunityId(tree.financialCommunityId).pipe(map(sc => {
+								switchMap(([tree, rules, options, optionImages]) =>
+								{
+									return this.orgService.getSalesCommunityByFinancialCommunityId(tree.financialCommunityId).pipe(map(sc =>
+									{
 										return { tree, rules, options, optionImages, salesCommunity: sc };
 									}));
 								}),
@@ -108,18 +124,20 @@ export class ScenarioEffects {
 	});
 
 	//delayed scenario saving when choice is selected
-	saveScenarioTimer$: Observable<Action> = createEffect(() => {
+	saveScenarioTimer$: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<Action>(ScenarioActionTypes.SelectChoices),
 			filter(action => (action as SelectChoices).save),
 			withLatestFrom(this.store),
-			switchMap(([action, store]) => {
+			switchMap(([action, store]) =>
+			{
 				const savingScenario = !store.salesAgreement.id &&
 					store.scenario.isUnsaved &&
 					!store.scenario.savingScenario &&
 					store.scenario.buildMode === 'buyer';
 
-				const savingPendingJio = store.salesAgreement.id 
+				const savingPendingJio = store.salesAgreement.id
 					&& store.salesAgreement.status === 'Pending'
 					&& store.scenario.buildMode !== 'preview';
 
@@ -135,13 +153,17 @@ export class ScenarioEffects {
 				{
 					return from([new SaveChangeOrderScenario(), new SaveReplaceOptionPrice(timeOfSaleOptionPricesToSave)]);
 				}
-				else {
+				else
+				{
 					return timer(3000).pipe(
-						switchMap(data => {
-							if (savingScenario) {
+						switchMap(data =>
+						{
+							if (savingScenario)
+							{
 								return of(new SaveScenario());
 							}
-							else if (savingPendingJio) {
+							else if (savingPendingJio)
+							{
 								return of(new SavePendingJio());
 							}
 
@@ -153,16 +175,20 @@ export class ScenarioEffects {
 		);
 	});
 
-	saveScenario$: Observable<Action> = createEffect(() => {
+	saveScenario$: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<SaveScenario | JobLoaded>(ScenarioActionTypes.SaveScenario, CommonActionTypes.JobLoaded),
 			withLatestFrom(this.store),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store]) => {
-					if (store.scenario.buildMode === 'buyer') {
+				switchMap(([action, store]) =>
+				{
+					if (store.scenario.buildMode === 'buyer')
+					{
 						return of<[Action, fromRoot.State]>([action, store]);
 					}
-					else {
+					else
+					{
 						return new Observable<never>();
 					}
 				}),
@@ -179,14 +205,17 @@ export class ScenarioEffects {
 		() => this.actions$.pipe(
 			ofType<SetPointViewed>(ScenarioActionTypes.SetPointViewed),
 			withLatestFrom(this.store),
-			flatMap(([action, store]) => {
+			flatMap(([action, store]) =>
+			{
 				let point = _.flatMap(store.scenario.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points))
 					.find(p => p.id === action.pointId);
 
-				if (point && store.scenario.scenario && !!store.scenario.scenario.scenarioId) {
+				if (point && store.scenario.scenario && !!store.scenario.scenario.scenarioId)
+				{
 					return this.scenarioService.saveScenarioView(store.scenario.scenario.scenarioId, point.divPointCatalogId);
 				}
-				else {
+				else
+				{
 					return never();
 				}
 			})
@@ -194,17 +223,20 @@ export class ScenarioEffects {
 		{ dispatch: false }
 	);
 
-	saveIsFloorplanFlipped$: Observable<Action> = createEffect(() => {
+	saveIsFloorplanFlipped$: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<SetIsFloorplanFlippedScenario>(ScenarioActionTypes.SetIsFloorplanFlippedScenario),
 			withLatestFrom(this.store),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store]) => {
+				switchMap(([action, store]) =>
+				{
 					const scenarioInfo = store.scenario.scenario && store.scenario.scenario.scenarioInfo || { isFloorplanFlipped: false, closingIncentive: 0, designEstimate: 0, discount: 0, homesiteEstimate: 0 };
 					const currentFlip: boolean = scenarioInfo.isFloorplanFlipped;
 					const info: DtoScenarioInfo = { ...scenarioInfo, isFloorplanFlipped: action.isFlipped };
 
-					if (scenarioInfo.isFloorplanFlipped !== action.isFlipped) {
+					if (scenarioInfo.isFloorplanFlipped !== action.isFlipped)
+					{
 						return this.scenarioService.saveScenarioInfo(store.scenario.scenario.scenarioId, info);
 					}
 
@@ -217,11 +249,13 @@ export class ScenarioEffects {
 		);
 	});
 
-	loadPreview$: Observable<Action> = createEffect(() => {
+	loadPreview$: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<LoadPreview>(ScenarioActionTypes.LoadPreview),
 			tryCatch(source => source.pipe(
-				switchMap(action => {
+				switchMap(action =>
+				{
 					return this.treeService.getTree(action.treeVersionId).pipe(
 						combineLatest(
 							this.treeService.getRules(action.treeVersionId),
@@ -230,11 +264,13 @@ export class ScenarioEffects {
 						)
 					);
 				}),
-				switchMap(([tree, rules, optionImages, baseHouseOptions]) => {
+				switchMap(([tree, rules, optionImages, baseHouseOptions]) =>
+				{
 					const optionIds = baseHouseOptions.map(bho => bho.planOption.integrationKey);
 
 					return this.optionService.getPlanOptionsByPlanKey(tree.financialCommunityId, tree.planKey).pipe(
-						map(opt => {
+						map(opt =>
+						{
 							return {
 								tree,
 								rules,
@@ -249,7 +285,8 @@ export class ScenarioEffects {
 						)
 					);
 				}),
-				switchMap(result => {
+				switchMap(result =>
+				{
 					const plan: Plan = result[3];
 					const plans: Plan[] = [plan];
 
@@ -267,12 +304,14 @@ export class ScenarioEffects {
 		);
 	});
 
-	saveScenarioInfo$: Observable<Action> = createEffect(() => {
+	saveScenarioInfo$: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<SaveScenarioInfo>(ScenarioActionTypes.SaveScenarioInfo),
 			withLatestFrom(this.store),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store]) => {
+				switchMap(([action, store]) =>
+				{
 					return this.scenarioService.saveScenarioInfo(store.scenario.scenario.scenarioId, action.scenarioInfo).pipe(
 						map(() => new ScenarioInfoSaved(action.scenarioInfo)
 						));
@@ -281,21 +320,31 @@ export class ScenarioEffects {
 		);
 	});
 
-	calculatePriceRanges$: Observable<Action> = createEffect(() => {
+	calculatePriceRanges$: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<ScenarioLoaded | TreeLoaded | JobLoaded | SalesAgreementLoaded | TreeLoadedFromJob>(ScenarioActionTypes.TreeLoaded, CommonActionTypes.ScenarioLoaded, CommonActionTypes.JobLoaded, CommonActionTypes.SalesAgreementLoaded, ScenarioActionTypes.TreeLoadedFromJob),
 			withLatestFrom(this.store),
-			switchMap(([, state]) => {
-				if (state.scenario.tree) {
+			switchMap(([, state]) =>
+			{
+				if (state.scenario.tree)
+				{
 
-					if (typeof Worker !== 'undefined') {
+					if (typeof Worker !== 'undefined')
+					{
 						const appInsights = this.injector.get(ApplicationInsights);
+
 						appInsights.startTrackEvent(`Calculate Price Ranges - TreeVersionID: ${state.scenario.tree.treeVersion.id}`);
-						return new Observable<any>(observer => {
-							const worker = new Worker('../../../app.worker', { type: 'module' });
-							worker.onmessage = ({ data }) => {
+
+						return new Observable<any>(observer =>
+						{
+							const worker = new Worker(new URL('../../../app.worker'), { type: 'module' });
+
+							worker.onmessage = ({ data }) =>
+							{
 								observer.next(data);
 								observer.complete();
+
 								appInsights.stopTrackEvent(`Calculate Price Ranges - TreeVersionID: ${state.scenario.tree.treeVersion.id}`);
 							};
 
@@ -304,11 +353,14 @@ export class ScenarioEffects {
 								args: [state.scenario]
 							});
 						});
-					} else {
+					}
+					else
+					{
 						return never();
 					}
 				}
-				else {
+				else
+				{
 					return of(null);
 				}
 			}),
