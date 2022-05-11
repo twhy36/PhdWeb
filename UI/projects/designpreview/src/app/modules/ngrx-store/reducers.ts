@@ -87,12 +87,7 @@ export const filteredTree = createSelector(
 									if (!favorite.includeContractedOptions) {
 										if (contractedChoices?.length)
 										{
-											isIncluded = !isContractedChoice && !isComplete;
-										}
-									} else {
-									// If the choice is not a sales choice, but the DP has a sales choice, and the DP is a Pick1 or Pick0or1
-										if (!isContractedChoice && isComplete) {
-											isIncluded = false;
+											isIncluded = !isContractedChoice;
 										}
 									}
 
