@@ -117,7 +117,7 @@ export function getLiteCurrentHouseSelections(
 	// Add color scheme
 	const colorSchemes = _.flatMap(selectedElevation?.colorItems, item => item.color);
 	const color = colorSchemes?.find(c => c.colorItemId === selectedColorScheme.colorItemId && c.colorId === selectedColorScheme.colorId);
-	const colorSchemeChoice = createLiteSDChoice(color?.name, selectedElevation.id);
+	const colorSchemeChoice = createLiteSDChoice(color?.name, selectedElevation.id, color?.name, 0);
 	const colorSchemePoint = createLiteSDPoint(ExteriorLabel.ColorScheme, [colorSchemeChoice]);
 	
 	const blankSubGroup = createLiteSDSubGroup(ExteriorLabel.ExteriorSubGroup, [elevationPoint, colorSchemePoint])
@@ -318,7 +318,7 @@ export function getLiteChangeOrderGroupSelections(
 				if (coPlanOption.jobChangeOrderPlanOptionAttributes?.length)
 				{
 					coPlanOption.jobChangeOrderPlanOptionAttributes.map(att => {
-						const colorSchemeChoice = createLiteSDChoice(att.attributeName, option.id, null, null, coPlanOption.qty);
+						const colorSchemeChoice = createLiteSDChoice(att.attributeName, att.id, null, 0, 1);
 						colorSchemeChoices.push(colorSchemeChoice);
 					});
 				}
@@ -380,10 +380,72 @@ export function getLiteConstructionChangeOrderPdfData(
 	selectedElevation: LitePlanOption
 )
 {
-	return jobChangeOrderPlanOptions.map(t =>
+	let pdfData : any[] = [];
+
+	const elevationPlanOptions = jobChangeOrderPlanOptions.filter(coPlanOption => {
+		const option = options.find(option => option.id === coPlanOption.planOptionId);
+		return option.optionSubCategoryId === Elevation.Detached || option.optionSubCategoryId === Elevation.Attached;
+	});
+
+	if (elevationPlanOptions?.length)
 	{
-		const attributes = t.jobChangeOrderPlanOptionAttributes?.length
-			? t.jobChangeOrderPlanOptionAttributes.map(attr =>
+		elevationPlanOptions.forEach(coPlanOption => {
+			const option = options.find(option => option.id === coPlanOption.planOptionId);
+			if (option)
+			{
+				pdfData.push({
+					choiceLabel: coPlanOption.optionSalesName,
+					decisionPointLabel: coPlanOption.integrationKey,
+					dpChoiceCalculatedPrice: coPlanOption.listPrice,
+					dpChoiceQuantity: coPlanOption.qty,
+					groupLabel: ExteriorLabel.Exterior,
+					subgroupLabel: ExteriorLabel.ExteriorSubGroup,
+					isColorScheme: false,
+					isElevation: true,
+					locations: [],
+					options: [],
+					overrideNote: null,
+					dpChoiceId: 0,
+					divChoiceCatalogId: coPlanOption.planOptionId, // used for option filtering in API
+					attributes: [],
+					action: coPlanOption.action
+				});
+
+				if (coPlanOption.jobChangeOrderPlanOptionAttributes?.length)
+				{
+					coPlanOption.jobChangeOrderPlanOptionAttributes.forEach(att => {
+						pdfData.push({
+							choiceLabel: att.attributeName,
+							decisionPointLabel: ExteriorLabel.ColorScheme,
+							dpChoiceCalculatedPrice: 0,
+							dpChoiceQuantity: 1,
+							groupLabel: ExteriorLabel.Exterior,
+							subgroupLabel: ExteriorLabel.ExteriorSubGroup,
+							isColorScheme: true,
+							isElevation: false,
+							locations: [],
+							options: [],
+							overrideNote: null,
+							dpChoiceId: 0,
+							divChoiceCatalogId: att.id, // used for option filtering in API
+							attributes: [],
+							action: att.action
+						});
+					});
+				}
+			}
+		});
+	}
+
+	const nonElevationPlanOptions = jobChangeOrderPlanOptions.filter(coPlanOption => {
+		return !elevationPlanOptions.find(option => option.planOptionId === coPlanOption.planOptionId);
+	});
+
+	if (nonElevationPlanOptions?.length)
+	{
+		nonElevationPlanOptions?.forEach(coPlanOption => {
+			const attributes = coPlanOption.jobChangeOrderPlanOptionAttributes?.length
+			? coPlanOption.jobChangeOrderPlanOptionAttributes.map(attr =>
 				{
 					return {
 						attributeGroupCommunityId: 0,
@@ -397,33 +459,36 @@ export function getLiteConstructionChangeOrderPdfData(
 				})
 			: [];
 
-		const option = options.find(opt => opt.id === t.planOptionId);
-		const optionCategoryName = option 
-			? categories.find(cat => cat.id === option.optionCategoryId)?.name
-			: '';
-		const allSubCategories = _.flatMap(categories, c => c.optionSubCategories) || [];
-		const optionSubCategoryName = option 
-			? allSubCategories.find(cat => cat.id === option.optionSubCategoryId)?.name
-			: '';
+			const option = options.find(opt => opt.id === coPlanOption.planOptionId);
+			const optionCategoryName = option 
+				? categories.find(cat => cat.id === option.optionCategoryId)?.name
+				: '';
+			const allSubCategories = _.flatMap(categories, c => c.optionSubCategories) || [];
+			const optionSubCategoryName = option 
+				? allSubCategories.find(cat => cat.id === option.optionSubCategoryId)?.name
+				: '';
 
-		return {
-			choiceLabel: t.optionSalesName,
-			decisionPointLabel: t.integrationKey,
-			dpChoiceCalculatedPrice: t.listPrice,
-			dpChoiceQuantity: t.qty,
-			groupLabel: optionCategoryName,
-			subgroupLabel: optionSubCategoryName,
-			isColorScheme: false,
-			isElevation: t.planOptionId === selectedElevation.id,
-			locations: [],
-			options: [],
-			overrideNote: null,
-			dpChoiceId: 0,
-			divChoiceCatalogId: t.planOptionId, // used for option filtering in API
-			attributes: attributes,
-			action: t.action
-		};
-	});
+				pdfData.push({
+				choiceLabel: coPlanOption.optionSalesName,
+				decisionPointLabel: coPlanOption.integrationKey,
+				dpChoiceCalculatedPrice: coPlanOption.listPrice,
+				dpChoiceQuantity: coPlanOption.qty,
+				groupLabel: optionCategoryName,
+				subgroupLabel: optionSubCategoryName,
+				isColorScheme: false,
+				isElevation: coPlanOption.planOptionId === selectedElevation.id,
+				locations: [],
+				options: [],
+				overrideNote: null,
+				dpChoiceId: 0,
+				divChoiceCatalogId: coPlanOption.planOptionId, // used for option filtering in API
+				attributes: attributes,
+				action: coPlanOption.action
+			});
+		});		
+	}
+
+	return pdfData;
 }
 
 // END PHD Lite

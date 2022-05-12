@@ -33,6 +33,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	@Input() isPreview: boolean = false;
 	@Input() isDesignComplete: boolean = false;
 	@Input() noVisibleGroups: boolean = false;
+	@Input() unfilteredPoints: DecisionPoint[] = [];
 
 	@Output() onToggleChoice = new EventEmitter<ChoiceExt>();
 	@Output() onToggleContractedOptions = new EventEmitter();
@@ -160,6 +161,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 
 	getChoiceExt(choice: Choice, point: DecisionPoint) : ChoiceExt
 	{
+		let unfilteredPoint = this.unfilteredPoints.find(up => up.divPointCatalogId === point.divPointCatalogId);
 		let choiceStatus = 'Available';
 		if (point.isPastCutOff || this.salesChoices?.findIndex(c => c.divChoiceCatalogId === choice.divChoiceCatalogId) > -1)
 		{
@@ -167,7 +169,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 		}
 		else
 		{
-			const contractedChoices = point.choices.filter(c => this.salesChoices?.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1);
+			const contractedChoices = unfilteredPoint.choices.filter(c => this.salesChoices?.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1);
 			if (contractedChoices && contractedChoices.length &&
 				(point.pointPickTypeId === PickType.Pick1 || point.pointPickTypeId === PickType.Pick0or1))
 			{
@@ -182,10 +184,11 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	}
 
 	showDeclineCard(point: DecisionPoint): boolean {
-		return (point.pointPickTypeId === 2 || point.pointPickTypeId === 4)
-			&& !point.isStructuralItem
-			&& !point.isPastCutOff
-			&& point.choices.filter(c => this.salesChoices?.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1)?.length === 0;
+		let unfilteredPoint = this.unfilteredPoints.find(up => up.divPointCatalogId === point.divPointCatalogId);
+		return (unfilteredPoint.pointPickTypeId === 2 || unfilteredPoint.pointPickTypeId === 4)
+			&& !unfilteredPoint.isStructuralItem
+			&& !unfilteredPoint.isPastCutOff
+			&& unfilteredPoint.choices.filter(c => this.salesChoices?.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1)?.length === 0;
 	}
 
 	scrollPointIntoView(pointId: number, isFirstPoint: boolean)

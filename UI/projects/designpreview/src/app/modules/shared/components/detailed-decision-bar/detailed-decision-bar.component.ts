@@ -28,6 +28,7 @@ export class DetailedDecisionBarComponent extends UnsubscribeOnDestroy implement
 	@Input() isReadonly: boolean;
 	@Input() isPreview: boolean;
 	@Input() isDesignComplete: boolean = false;
+	@Input() unfilteredPoints: DecisionPoint[] = [];
 
 	@Output() onToggleChoice = new EventEmitter<ChoiceExt>();
 	@Output() onViewChoiceDetail = new EventEmitter<ChoiceExt>();
@@ -62,11 +63,12 @@ export class DetailedDecisionBarComponent extends UnsubscribeOnDestroy implement
 	}
 
 	getChoiceExt(choice: Choice, point: DecisionPoint) : ChoiceExt {
+		let unfilteredPoint = this.unfilteredPoints.find(up => up.divPointCatalogId === point.divPointCatalogId);
 		let choiceStatus = 'Available';
 		if (point.isPastCutOff || this.salesChoices?.findIndex(c => c.divChoiceCatalogId === choice.divChoiceCatalogId) > -1) {
 			choiceStatus = 'Contracted';
 		}	else {
-			const contractedChoices = point.choices.filter(c => this.salesChoices?.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1);
+			const contractedChoices = unfilteredPoint.choices.filter(c => this.salesChoices?.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1);
 			if (contractedChoices && contractedChoices.length && (point.pointPickTypeId === PickType.Pick1 || point.pointPickTypeId === PickType.Pick0or1)) {
 				choiceStatus = 'ViewOnly';
 			}
@@ -79,10 +81,11 @@ export class DetailedDecisionBarComponent extends UnsubscribeOnDestroy implement
 	}
 
 	showDeclineChoice(point: DecisionPoint): boolean {
-		return (point.pointPickTypeId === 2 || point.pointPickTypeId === 4)
-			&& !point.isStructuralItem
-			&& !point.isPastCutOff
-			&& point.choices.filter(c => this.salesChoices?.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1)?.length === 0;
+		let unfilteredPoint = this.unfilteredPoints.find(up => up.divPointCatalogId === point.divPointCatalogId);
+		return (unfilteredPoint.pointPickTypeId === 2 || point.pointPickTypeId === 4)
+			&& !unfilteredPoint.isStructuralItem
+			&& !unfilteredPoint.isPastCutOff
+			&& unfilteredPoint.choices.filter(c => this.salesChoices?.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1)?.length === 0;
 	}
 
 	toggleChoice (choice) {

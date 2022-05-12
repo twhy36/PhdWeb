@@ -76,6 +76,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 	isReadonly: boolean = false;
 	noVisibleGroups: boolean = false;
 	noVisibleFP: boolean = false;
+	unfilteredPoints: DecisionPoint[] = [];
 
 	constructor(private store: Store<fromRoot.State>,
 		private route: ActivatedRoute,
@@ -115,6 +116,15 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			}
 		});
 
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(state => state?.scenario?.tree?.treeVersion)
+		).subscribe(tree => {
+			if (tree) {
+				this.unfilteredPoints = _.flatMap(tree.groups, g => _.flatMap(g.subGroups, sg => sg.points)) || [];
+			}
+		});
+
 		this.route.paramMap.pipe(
 			this.takeUntilDestroyed(),
 			map(params => { return { favoritesId: +params.get('favoritesId'), subGroupCatalogId: +params.get('subGroupCatalogId'), divChoiceCatalogId: +params.get('divChoiceCatalogId') }; }),
@@ -125,9 +135,12 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			this.takeUntilDestroyed(),
 			select(state => state.scenario),
 			combineLatest(this.params$),
-			combineLatest(this.store.pipe(select(fromRoot.filteredTree)), this.store.pipe(select(state => state.salesAgreement)))
-		).subscribe(([[scenarioState, params], filteredTree, sag]) =>
+			combineLatest(this.store.pipe(select(fromRoot.filteredTree)), this.store.pipe(select(state => state.salesAgreement)), this.store.pipe(select(fromFavorite.favoriteState)))
+		).subscribe(([[scenarioState, params], filteredTree, sag, fav]) =>
 		{
+			this.includeContractedOptions = fav && fav.includeContractedOptions;
+			this.salesChoices = fav && fav.salesChoices;
+
 			this.errorMessage = '';
 
 			if (scenarioState.treeLoading) {
@@ -463,6 +476,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 
 	getChoiceExt(choice: Choice, point: DecisionPoint) : ChoiceExt
 	{
+		let unfilteredPoint = this.unfilteredPoints.find(up => up.divPointCatalogId === point.divPointCatalogId);
 		let choiceStatus = 'Available';
 		if (point.isPastCutOff || this.salesChoices?.findIndex(c => c.divChoiceCatalogId === choice.divChoiceCatalogId) > -1)
 		{
@@ -470,7 +484,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		}
 		else
 		{
-			const contractedChoices = point.choices.filter(c => this.salesChoices?.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1);
+			const contractedChoices = unfilteredPoint.choices.filter(c => this.salesChoices?.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1);
 			if (contractedChoices && contractedChoices.length &&
 				(point.pointPickTypeId === PickType.Pick1 || point.pointPickTypeId === PickType.Pick0or1))
 			{
