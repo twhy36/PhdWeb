@@ -3,7 +3,7 @@ import { cloneDeep, flatMap, flatten, uniq } from 'lodash';
 
 import { PlanOption, TreeVersionRules, PickType, Tree, getMaxSortOrderChoice, findChoice, findPoint, applyRules } from '../../../../../../phd-common/src/public-api';
 
-export function getChoicePriceRanges(state: { options: PlanOption[], rules: TreeVersionRules, tree: Tree })
+export function getChoicePriceRanges(state: { options: PlanOption[], rules: TreeVersionRules, tree: Tree; })
 {
 	if (!state.options || !state.rules || !state.tree)
 	{
@@ -56,7 +56,7 @@ export function getChoicePriceRanges(state: { options: PlanOption[], rules: Tree
 		return uniq(previousChoices);
 	};
 
-	type choiceSelection = { choiceId: number, selected: boolean };
+	type choiceSelection = { choiceId: number, selected: boolean; };
 
 	function* pointPermutations(points: number[], choices: number[] = []): IterableIterator<number[]>
 	{
@@ -286,7 +286,11 @@ export function getChoicePriceRanges(state: { options: PlanOption[], rules: Tree
 			let point = findPoint(staticTree, pt => pt.choices.some(ch => ch.id === choices[0].choiceId));
 
 			if (point && (point.pointPickTypeId === PickType.Pick0ormore || point.pointPickTypeId === PickType.Pick1ormore
-				|| point.choices.every(ch => !selections.some(s => s.selected && s.choiceId === ch.id))))
+				|| point.choices.every(ch => !selections.some(s => s.selected && s.choiceId === ch.id)) 
+				|| (point.pointPickTypeId === PickType.Pick1 
+					&& point.choices.filter(ch => selections.some(s => s.selected && s.choiceId === ch.id)).length === 1)
+				|| (point.pointPickTypeId === PickType.Pick0or1
+					&& point.choices.filter(ch => selections.some(s => s.selected && s.choiceId === ch.id)).length <= 1)))
 			{
 				yield* getChoiceRuleSelections(choices[0], selections);
 			}
@@ -302,7 +306,7 @@ export function getChoicePriceRanges(state: { options: PlanOption[], rules: Tree
 	}
 
 	//make an iterable with each possible choice selection
-	function* choicePermutations(choices: number[], selections: { choiceId: number, selected: boolean }[] = []): IterableIterator<{ choiceId: number, selected: boolean }[]>
+	function* choicePermutations(choices: number[], selections: { choiceId: number, selected: boolean; }[] = []): IterableIterator<{ choiceId: number, selected: boolean; }[]>
 	{
 		if (choices.length === 0)
 		{
@@ -334,6 +338,12 @@ export function getChoicePriceRanges(state: { options: PlanOption[], rules: Tree
 				//and add in the choice we're currently pricing
 				for (let selections of getSelections([...perm.filter(p => p.selected), { choiceId: choice.id, selected: true }], perm.filter(p => !p.selected)))
 				{
+					// Remove duplicates from the list
+					selections = selections.filter((ch, idx, arr) =>
+					{
+						return arr.indexOf(arr.find(ch1 => ch1.choiceId === ch.choiceId)) === idx;
+					});
+
 					choices.forEach(c =>
 					{
 						c.quantity = 0;
