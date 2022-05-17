@@ -46,13 +46,13 @@ export class CommonEffects
 				switchMap(scenario => {
 					const isPhdLite = !scenario.treeVersionId
 						|| this.liteService.checkLiteScenario(scenario?.scenarioChoices, scenario?.scenarioOptions);
-					
+
 					const getTree = !isPhdLite ? this.treeService.getTree(scenario.treeVersionId) : of<Tree>(null);
 					const getRules = !isPhdLite ? this.treeService.getRules(scenario.treeVersionId) : of<TreeVersionRules>(null);
 					const getLotChoiceRules = !isPhdLite && scenario.lotId ? this.lotService.getLotChoiceRuleAssocs(scenario.lotId) : of<LotChoiceRuleAssoc[]>(null);
 					const getPlanOptions = !isPhdLite ? this.optionService.getPlanOptions(scenario.planId) : of<PlanOption[]>(null);
 					const getOptionImages = !isPhdLite ? this.treeService.getOptionImages(scenario.treeVersionId) : of<OptionImage[]>(null);
-					
+
 					return combineLatest([
 						getTree,
 						getRules,
@@ -76,7 +76,7 @@ export class CommonEffects
 										// make sure they're sorted properly
 										option.optionImages = filteredImages.sort((a, b) => a.sortKey < b.sortKey ? -1 : 1);
 									}
-								});								
+								});
 							}
 
 							// Assign new lot choice rules everytime we load a scenario
@@ -108,7 +108,7 @@ export class CommonEffects
 
 							scenario.scenarioChoices = data.selectedChoices;
 
-							return { scenario, ...data, lotNoLongerAvailable, isSpecScenario };
+							return { scenario, ...data, lotNoLongerAvailable, isSpecScenario, isPhdLite };
 						})
 					);
 				}),
@@ -127,82 +127,102 @@ export class CommonEffects
 						return this.jobService.getJobByLotId(result.scenario.lotId).pipe(
 							switchMap(job => {
 								if (job && job.length) {
+									const financialCommunityId = result.tree?.financialCommunityId ?? result.scenario.financialCommunityId;
+									const salesCommunityId = result.opportunity?.opportunity?.salesCommunityId;
+									const getSalesCommunity = !!financialCommunityId
+										? this.orgService.getSalesCommunityByFinancialCommunityId(financialCommunityId, true)
+										: this.orgService.getSalesCommunity(salesCommunityId);
+
 									return combineLatest([
-										this.orgService.getSalesCommunityByFinancialCommunityId(result.tree.financialCommunityId, true),
-										this.identityService.getClaims(), 
+										getSalesCommunity,
+										this.identityService.getClaims(),
 										this.identityService.getAssignedMarkets()
 									]).pipe(
 										switchMap(([sc, claims, markets]: [SalesCommunity, Claims, IMarket[]]) => {
 											return this.treeService.getChoiceCatalogIds(job[0].jobChoices).pipe(
 												map(res => {
 													job[0].jobChoices = res;
-													
+
 													return [sc, job, claims, markets];
 												})
 											);
 										}),
 										switchMap(([sc, job, claims, markets]: [SalesCommunity, Job[], Claims, IMarket[]]) => {
-											return of({ job, salesCommunity: sc, claims, markets, tree: result.tree, options: result.options }).pipe(
-												//do this before checking cutoffs
-												mergeIntoTree(job[0].jobChoices, job[0].jobPlanOptions, this.treeService, null, false),
-												map(res => {
-													//add selections from the job into the tree
-													res.job[0].jobChoices.filter(ch => !result.scenario.scenarioChoices.some(sc => sc.choiceId === ch.dpChoiceId)).forEach(choice => {
-														const c = _.flatMap(result.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)))
-															.find(ch => ch.divChoiceCatalogId === choice.divChoiceCatalogId);
+											if (result.isPhdLite)
+											{
+												return of({ job, salesCommunity: sc, claims, markets, tree: result.tree, options: result.options, isPhdLite: result.isPhdLite });
+											}
+											else
+											{
+												return of({ job, salesCommunity: sc, claims, markets, tree: result.tree, options: result.options, isPhdLite: result.isPhdLite }).pipe(
+													//do this before checking cutoffs
+													mergeIntoTree(job[0].jobChoices, job[0].jobPlanOptions, this.treeService, null, false),
+													map(res => {
+														//add selections from the job into the tree
+														res.job[0].jobChoices.filter(ch => !result.scenario.scenarioChoices.some(sc => sc.choiceId === ch.dpChoiceId)).forEach(choice => {
+															const c = _.flatMap(result.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)))
+																.find(ch => ch.divChoiceCatalogId === choice.divChoiceCatalogId);
 
-														if (c) {
-															c.quantity = choice.dpChoiceQuantity;
-															c.selectedAttributes = mapAttributes(choice);
-														}
-													});
+															if (c) {
+																c.quantity = choice.dpChoiceQuantity;
+																c.selectedAttributes = mapAttributes(choice);
+															}
+														});
 
-													return res;
-												})
-											);
+														return res;
+													})
+												);
+											}
 										}),
 										map(res => {
-											setTreePointsPastCutOff(result.tree, res.job[0]);
-
-											const pointsPastCutoff = _.flatMap(result.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points))
-												.filter(pt => pt.isPastCutOff);
-											let jobChoices = [];
-
 											let needsOverride = false;
 											let canOverride = res.claims.SalesAgreements && !!(res.claims.SalesAgreements & Permission.Override) && res.markets.some(m => m.number === res.salesCommunity.market.number);
 
-											if (pointsPastCutoff.length > 0) {
-												// check if point is part of scenario or specJIO
-												res.job[0].changeOrderGroups.forEach(changeOrderGroup => {
-													changeOrderGroup.jobChangeOrders[0].jobChangeOrderChoices.forEach(jobChoice => {
-														if (jobChoice.action === 'Add') {
-															jobChoices.push({ choiceId: jobChoice.dpChoiceId, overrideNote: null, quantity: jobChoice.dpChoiceQuantity });
-														}
-														else if (jobChoice.action === 'Delete') {
-															jobChoices = jobChoices.filter(choice => choice.choiceId !== jobChoice.dpChoiceId);
-														}
-													});
-												});
-
-												pointsPastCutoff.forEach((point: DecisionPoint) => {
-													point.choices.forEach(choice => {
-														const coJobChoice = jobChoices.find(jcChoice => jcChoice.choiceId === choice.id);
-
-														if (coJobChoice) {
-															if (coJobChoice.quantity !== choice.quantity) {
-																needsOverride = true;
-															}
-														}
-														else {
-															if (choice.quantity > 0) {
-																needsOverride = true;
-															}
-														}
-													});
-												});
+											if (res.isPhdLite)
+											{
+												return { ...result, needsOverride, canOverride, pointsPastCutoff: [], jobChoices: [], salesCommunity: res.salesCommunity, job: res.job[0] };
 											}
+											else
+											{
+												setTreePointsPastCutOff(result.tree, res.job[0]);
 
-											return { ...result, needsOverride, canOverride, pointsPastCutoff, jobChoices, salesCommunity: res.salesCommunity, job: res.job[0] };
+												const pointsPastCutoff = _.flatMap(result.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points))
+													.filter(pt => pt.isPastCutOff);
+												let jobChoices = [];
+
+												if (pointsPastCutoff.length > 0) {
+													// check if point is part of scenario or specJIO
+													res.job[0].changeOrderGroups.forEach(changeOrderGroup => {
+														changeOrderGroup.jobChangeOrders[0].jobChangeOrderChoices.forEach(jobChoice => {
+															if (jobChoice.action === 'Add') {
+																jobChoices.push({ choiceId: jobChoice.dpChoiceId, overrideNote: null, quantity: jobChoice.dpChoiceQuantity });
+															}
+															else if (jobChoice.action === 'Delete') {
+																jobChoices = jobChoices.filter(choice => choice.choiceId !== jobChoice.dpChoiceId);
+															}
+														});
+													});
+
+													pointsPastCutoff.forEach((point: DecisionPoint) => {
+														point.choices.forEach(choice => {
+															const coJobChoice = jobChoices.find(jcChoice => jcChoice.choiceId === choice.id);
+
+															if (coJobChoice) {
+																if (coJobChoice.quantity !== choice.quantity) {
+																	needsOverride = true;
+																}
+															}
+															else {
+																if (choice.quantity > 0) {
+																	needsOverride = true;
+																}
+															}
+														});
+													});
+												}
+
+												return { ...result, needsOverride, canOverride, pointsPastCutoff, jobChoices, salesCommunity: res.salesCommunity, job: res.job[0] };
+											}
 										})
 									);
 								}
@@ -220,22 +240,28 @@ export class CommonEffects
 					let overrideNote: string;
 					let overrode = false;
 
-					if (result.needsOverride && result.canOverride) {
+					if (result.needsOverride && result.canOverride)
+					{
 						return this.modalService.showOverrideModal(`<div>Some of your scenario choices are Past Cutoff date/stage and will need to have an Cutoff Override.</div>`).pipe(map((modalResult) => {
 							if (modalResult !== 'cancel') {
 								overrode = true;
 								overrideNote = modalResult;
+
 								result.pointsPastCutoff.forEach((point: DecisionPoint) => {
 									point.choices.forEach(choice => {
 										const coJobChoice = result.jobChoices.find(jcChoice => jcChoice.choiceId === choice.id);
 
-										if (coJobChoice) {
-											if (coJobChoice.quantity !== choice.quantity) {
+										if (coJobChoice)
+										{
+											if (coJobChoice.quantity !== choice.quantity)
+											{
 												choice.overrideNote = overrideNote;
 											}
 										}
-										else {
-											if (choice.quantity > 0) {
+										else
+										{
+											if (choice.quantity > 0)
+											{
 												choice.overrideNote = overrideNote;
 											}
 										}
@@ -281,10 +307,10 @@ export class CommonEffects
 					}
 				}),
 				switchMap(result => {
-					const financialCommunityId = result.tree?.financialCommunityId;
+					const financialCommunityId = result.tree?.financialCommunityId  ?? result.scenario?.financialCommunityId;
 					const salesCommunityId = result.opportunity?.opportunity?.salesCommunityId
 
-					if (!result.salesCommunity && (!!financialCommunityId || !!salesCommunityId)) 
+					if (!result.salesCommunity && (!!financialCommunityId || !!salesCommunityId))
 					{
 						const getSalesCommunity = !!financialCommunityId
 							? this.orgService.getSalesCommunityByFinancialCommunityId(financialCommunityId, true)
@@ -440,9 +466,9 @@ export class CommonEffects
 						const financialCommunity = result.sc?.financialCommunities?.find(f => f.id === result.job?.financialCommunityId);
 						const isDesignPreviewEnabled = financialCommunity ? financialCommunity.isDesignPreviewEnabled : false;
 
-						const getMyFavorites: Observable<MyFavorite[]> = 
-							isDesignPreviewEnabled && result.salesAgreement && result.salesAgreement.id > 0 
-							? this.favoriteService.loadMyFavorites(result.salesAgreement.id) 
+						const getMyFavorites: Observable<MyFavorite[]> =
+							isDesignPreviewEnabled && result.salesAgreement && result.salesAgreement.id > 0
+							? this.favoriteService.loadMyFavorites(result.salesAgreement.id)
 							: of([]);
 
 						const getTreeVersionIdByJobPlan$ = this.liteService.checkLiteAgreement(result.job, result.changeOrderGroup)
@@ -462,7 +488,7 @@ export class CommonEffects
 								const getLotChoiceRules = result.selectedLotId ? this.lotService.getLotChoiceRuleAssocs(result.selectedLotId) : of<LotChoiceRuleAssoc[]>(null);
 								const getPlanOptions = treeVersionId ? this.optionService.getPlanOptions(result.selectedPlanId, null, true) : of<PlanOption[]>([]);
 								const getOptionImages = treeVersionId ? this.treeService.getOptionImages(treeVersionId, [], null, true) : of<OptionImage[]>(null);
-			
+
 								return combineLatest([
 									getTree,
 									getRules,
@@ -480,7 +506,7 @@ export class CommonEffects
 										{
 											_.flatMap(favorites, fav => fav.myFavoritesChoice).forEach(ch => {
 												let ch1 = choices.find(c => c.dpChoiceId === ch.dpChoiceId);
-				
+
 												if (ch1)
 												{
 													ch.divChoiceCatalogId = ch1.divChoiceCatalogId;
@@ -526,7 +552,7 @@ export class CommonEffects
 										{
 											setTreePointsPastCutOff(data.tree, data.job);
 										}
-										
+
 										return data;
 									})
 								);
@@ -649,11 +675,11 @@ export class CommonEffects
 
 				if (action instanceof SalesAgreementLoaded) {
 					// Filter out actions in PHD Lite. Handled by updatePricingOnInitLite$() in lite effects.
-					return { 
-						...curr, 
-						sagLoaded: true, 
-						salesAgreement: action.salesAgreement, 
-						currentChangeOrder: action.changeOrder, 
+					return {
+						...curr,
+						sagLoaded: true,
+						salesAgreement: action.salesAgreement,
+						currentChangeOrder: action.changeOrder,
 						isPhdLite: !action.tree || this.liteService.checkLiteAgreement(action.job, action.changeOrder)
 					};
 				}

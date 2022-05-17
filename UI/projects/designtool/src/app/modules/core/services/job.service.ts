@@ -285,7 +285,7 @@ export class JobService
 	}
 
 	getSpecJobs(lotIDs: number[]): Observable<Job[]> {
-		const expand = `jobChangeOrderGroups,jobPlanOptions,jobSalesInfos,lot($expand=lotPhysicalLotTypeAssocs($expand=physicalLotType),salesPhase,lotHandingAssocs($expand=handing($select=id,name))),planCommunity,jobConstructionStageHistories($select=id, constructionStageId, constructionStageStartDate)`;
+		const expand = `jobChangeOrderGroups,jobChoices,jobPlanOptions,jobSalesInfos,lot($expand=lotPhysicalLotTypeAssocs($expand=physicalLotType),salesPhase,lotHandingAssocs($expand=handing($select=id,name))),planCommunity,jobConstructionStageHistories($select=id, constructionStageId, constructionStageStartDate)`;
 		const select = `id,financialCommunityId,constructionStageName,lotId,planId,handing,warrantyTypeDesc,startDate,createdBy`;
 
 		const filter = `lotId in (${lotIDs.join(',')})`;

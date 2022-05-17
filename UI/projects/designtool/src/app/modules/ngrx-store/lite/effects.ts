@@ -4,7 +4,7 @@ import { Action, Store, select } from '@ngrx/store';
 import { Observable, never, of, combineLatest, from, EMPTY as empty, NEVER } from 'rxjs';
 import { switchMap, withLatestFrom, map, scan, filter, distinct, exhaustMap, tap, take, concat, catchError } from 'rxjs/operators';
 
-import { ChangeOrderHanding, ScenarioOption } from 'phd-common';
+import { ChangeOrderHanding, ScenarioOption, IdentityService, Permission, ModalService } from 'phd-common';
 
 import { LiteService } from '../../core/services/lite.service';
 import { ChangeOrderService } from '../../core/services/change-order.service';
@@ -14,14 +14,15 @@ import { DeselectPlan, PlanActionTypes, PlansLoaded, SelectPlan } from '../plan/
 import { LotConflict, SaveError, ScenarioActionTypes, ScenarioSaved } from '../scenario/actions';
 import {
 	LiteActionTypes, SetIsPhdLite, LiteOptionsLoaded, SaveScenarioOptions, ScenarioOptionsSaved, SaveScenarioOptionColors, OptionCategoriesLoaded, SelectOptions,
-	LoadLiteMonotonyRules, LiteMonotonyRulesLoaded, CancelJobChangeOrderLite, SelectOptionColors, LoadLitePlan, CancelPlanChangeOrderLite, CreateJIOForSpecLite, LoadLiteSpecOrModel
+	LoadLiteMonotonyRules, LiteMonotonyRulesLoaded, CancelJobChangeOrderLite, SelectOptionColors, LoadLitePlan, CancelPlanChangeOrderLite, CreateJIOForSpecLite, LoadLiteSpecOrModel,
+	ToggleQuickMoveInSelections
 } from './actions';
 import { CommonActionTypes, ScenarioLoaded, LoadSalesAgreement, SalesAgreementLoaded, LoadError, LoadSpec, JobLoaded } from '../actions';
 import * as fromRoot from '../reducers';
 import * as _ from 'lodash';
-import { IOptionCategory } from '../../shared/models/lite.model';
+import { IOptionCategory, LitePlanOption } from '../../shared/models/lite.model';
 import { tryCatch } from '../error.action';
-import { SavePendingJio, CreateJobChangeOrders, CreatePlanChangeOrder, SaveChangeOrderScenario, CurrentChangeOrderLoaded, SetChangingOrder, SetCurrentChangeOrder } from '../change-order/actions';
+import { SavePendingJio, CreateJobChangeOrders, CreatePlanChangeOrder, SaveChangeOrderScenario, CurrentChangeOrderLoaded, SetChangingOrder } from '../change-order/actions';
 import { LotsLoaded, LotActionTypes } from '../lot/actions';
 import { canDesign } from '../reducers';
 import { Router } from '@angular/router';
@@ -29,10 +30,12 @@ import * as CommonActions from '../actions';
 import { CreateEnvelope } from '../contract/actions';
 import { JIOForSpecCreated } from '../sales-agreement/actions';
 import * as fromLite from '../lite/reducer';
+import * as LiteActions from './actions';
 
 @Injectable()
 export class LiteEffects
 {
+
 	setIsPhdLite$: Observable<Action> = createEffect(() => {
 		return this.actions$.pipe(
 			ofType<PlansLoaded>(PlanActionTypes.PlansLoaded),
@@ -75,6 +78,8 @@ export class LiteEffects
 					const isLiteSpecOrModelLoaded = (action instanceof LoadLiteSpecOrModel);
 					const planId = action.scenario?.planId;
 					const optionsLoaded = !!planOptions.find(option => option.planId === planId);
+					const isSpecScenarioLoaded = (action instanceof ScenarioLoaded) &&  action.lot.lotBuildTypeDesc === 'Spec';
+					const marketNumber = (action instanceof ScenarioLoaded) ?  action.salesCommunity.market.number : '';
 
 					const isPhdLite = isLiteSpecOrModelLoaded ||
 						(action instanceof ScenarioLoaded ? !action.scenario.treeVersionId : store.lite.isPhdLite)
@@ -90,7 +95,7 @@ export class LiteEffects
 							? this.liteService.getOptionsCategorySubcategory(financialCommunityId)
 							: of(null);
 
-						let scenarioOptions = isLiteSpecOrModelLoaded
+						let scenarioOptions: Observable<ScenarioOption[]> = isLiteSpecOrModelLoaded
 							? of([])
 							: this.liteService.getScenarioOptions(action.scenario.scenarioId);
 
@@ -132,7 +137,7 @@ export class LiteEffects
 
 										this.liteService.applyOptionRelations(options, optionRelations);
 
-										return { options, scenarioOptions, categories };
+										return { options, scenarioOptions, categories, isSpecScenarioLoaded, marketNumber, job: store.job };
 									})
 								)
 							})
@@ -141,6 +146,105 @@ export class LiteEffects
 					else
 					{
 						return never();
+					}
+				}),
+				switchMap(data => {
+					if (data?.isSpecScenarioLoaded)
+					{
+						return combineLatest([
+							this.identityService.getClaims(),
+							this.identityService.getAssignedMarkets()
+						]).pipe(
+							map(([claims, markets]) => {
+								let needsOverride = false;
+								let canOverride = claims.SalesAgreements && !!(claims.SalesAgreements & Permission.Override) && markets.some(m => m.number === data.marketNumber);
+								let jobOptions = [];
+
+								const optionsPastCutoff = data.options?.filter(option => data.scenarioOptions.some(so => so.edhPlanOptionId === option.id) && option.isPastCutOff) || [];
+
+								if (optionsPastCutoff.length > 0)
+								{
+									// check if option is part of scenario or specJIO
+									jobOptions = data.job.jobPlanOptions?.map(jobOption => {
+										return { planOptionId: jobOption.planOptionId, overrideNote: null, quantity: jobOption.optionQty };
+									});
+
+									optionsPastCutoff.forEach(cutoffOption => {
+										const jobOption = jobOptions.find(jo => jo.planOptionId === cutoffOption.id);
+										const scenarioOption = data.scenarioOptions.find(so => so.edhPlanOptionId === cutoffOption.id);
+										needsOverride = jobOption && jobOption.quantity !== scenarioOption.planOptionQuantity || !jobOption && scenarioOption.planOptionQuantity > 0;
+									});
+								}
+
+								return { ...data, needsOverride, canOverride, optionsPastCutoff, jobOptions };
+							})
+						);
+					}
+					else
+					{
+						return of({ ...data, needsOverride: false, canOverride: false, optionsPastCutoff: null, jobOptions: null });
+					}
+				}),
+				switchMap(result => {
+					let overrideNote: string;
+					let overrode = false;
+
+					if (result.needsOverride && result.canOverride)
+					{
+						return this.modalService.showOverrideModal(`<div>Some of your scenario options are Past Cutoff date/stage and will need to have an Cutoff Override.</div>`).pipe(map((modalResult) => {
+							if (modalResult !== 'cancel') {
+								overrode = true;
+								overrideNote = modalResult;
+
+								result.optionsPastCutoff.forEach((option: LitePlanOption) => {
+									const scenarioOption = result.scenarioOptions.find(so => so.edhPlanOptionId === option.id);
+									const jobOption = result.jobOptions.find(jo => jo.planOptionId === option.id);
+
+									if (scenarioOption && jobOption && scenarioOption.planOptionQuantity !== jobOption.quantity)
+									{
+										this.store.dispatch(new LiteActions.SetLiteOverrideReason(overrideNote, false));
+									}
+									else if (! jobOption && scenarioOption?.planOptionQuantity > 0)
+									{
+										this.store.dispatch(new LiteActions.SetLiteOverrideReason(overrideNote, false));
+									}
+								});
+
+								return { ...result, overrideNote: overrideNote, overrode: overrode };
+							}
+							else {
+								return { ...result, overrideNote: null, overrode: false };
+							}
+						}));
+					}
+					else {
+						return of({ ...result, overrideNote: null, overrode: false });
+					}
+				}),
+				switchMap(result => {
+					if (result.needsOverride && !result.overrode) {
+						return this.modalService.showConfirmModal('Some of your scenario options are Past Cutoff date/stage and will need to have an Cutoff Override.').pipe(map(() => {
+							result.optionsPastCutoff.forEach((option: LitePlanOption) => {
+								const coJobOption = result.jobOptions.find(jo => jo.edhPlanOptionID === option.id);
+								const scenarioOption = result.scenarioOptions.find(so => so.edhPlanOptionId === option.id);
+
+								if (coJobOption) {
+									if (coJobOption.quantity !== scenarioOption.planOptionQuantity) {
+										scenarioOption.planOptionQuantity = coJobOption.quantity;
+									}
+								}
+								else {
+									if (scenarioOption.planOptionQuantity > 0) {
+										scenarioOption.planOptionQuantity = 0;
+									}
+								}
+							});
+
+							return { ...result };
+						}));
+					}
+					else {
+						return of({ ...result });
 					}
 				}),
 				switchMap(data => {
@@ -321,16 +425,33 @@ export class LiteEffects
 			switchMap(([action, store]) => {
 				if (store.lite.options.length === 0)
 				{
-					return never();
+					return NEVER;
 				}
 
 				const baseHouseOption = store.lite.options.find(o => o.isBaseHouse && o.isActive);
+				const selectedOptions = store.lite.options.filter(o => store.lite.scenarioOptions.some(so => so.edhPlanOptionId === o.id));
 
-				const baseHouseOptionSaveIsNeeded = baseHouseOption && store.lite.scenarioOptions.every(so => so.edhPlanOptionId !== baseHouseOption.id);
+				const baseHouseOptionSaveIsNeeded = baseHouseOption
+					&& store.lite.scenarioOptions.every(so => so.edhPlanOptionId !== baseHouseOption.id)
+					&& selectedOptions.every(o => (o.isBaseHouse === false) && (o.name.toLowerCase() !== 'base house'));
+
+				if (action instanceof DeselectPlan)
+				{
+					const deselectedOptions = store.lite.scenarioOptions.map(option => {
+						return {
+							scenarioOptionId: option.scenarioOptionId,
+							scenarioId: option.scenarioId,
+							edhPlanOptionId: option.edhPlanOptionId,
+							planOptionQuantity: 0
+						} as ScenarioOption;
+					})
+
+					return of(new SelectOptions(deselectedOptions));
+				}
 
 				if (baseHouseOptionSaveIsNeeded)
 				{
-					let baseHouseScenarioOptions: ScenarioOption[] = [{
+					const baseHouseScenarioOptions: ScenarioOption[] = [{
 							scenarioOptionId: 0,
 							scenarioId: store.scenario.scenario.scenarioId,
 							edhPlanOptionId: baseHouseOption.id,
@@ -341,7 +462,7 @@ export class LiteEffects
 					return of(new SelectOptions(baseHouseScenarioOptions));
 				}
 
-				return never();
+				return NEVER;
 			})
 		);
 	});
@@ -684,12 +805,50 @@ export class LiteEffects
 		);
 	});
 
+	toggleQuickMoveInSelections$: Observable<Action> = createEffect(() => {
+		return this.actions$.pipe(
+			ofType<ToggleQuickMoveInSelections>(LiteActionTypes.ToggleQuickMoveInSelections),
+			withLatestFrom(this.store),
+			switchMap(([action, store]) => {
+				const scenarioId = store.scenario.scenario?.scenarioId;
+				let scenarioOptions = action.previousScenarioOptions.map(opt => {
+					// Remove previous selected options
+					return {
+						scenarioOptionId: opt.scenarioOptionId,
+						scenarioId: scenarioId,
+						edhPlanOptionId: opt.edhPlanOptionId,
+						planOptionQuantity: 0,
+						scenarioOptionColors: []
+					};
+				});
+
+				store.lite?.scenarioOptions?.forEach(opt => {
+					// Add options from the newly selected spec job
+					scenarioOptions.push({
+						scenarioOptionId: opt.scenarioOptionId,
+						scenarioId: scenarioId,
+						edhPlanOptionId: opt.edhPlanOptionId,
+						planOptionQuantity: opt.planOptionQuantity,
+						scenarioOptionColors: opt.scenarioOptionColors
+					});
+				});
+
+				return scenarioId
+					? this.liteService.saveScenarioOptions(scenarioId, scenarioOptions)
+					: of([]);
+			}),
+			map(options => new ScenarioOptionsSaved(options))
+		);
+	});
+
 	constructor(
 		private actions$: Actions,
 		private store: Store<fromRoot.State>,
 		private liteService: LiteService,
 		private changeOrderService: ChangeOrderService,
 		private planService: PlanService,
-		private router: Router
+		private identityService: IdentityService,
+		private router: Router,
+		private modalService: ModalService
 	) { }
 }

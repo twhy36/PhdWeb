@@ -7,7 +7,7 @@ import { combineLatest, take } from 'rxjs/operators';
 
 import * as _ from 'lodash';
 
-import { UnsubscribeOnDestroy, Job, Plan, Scenario } from 'phd-common';
+import { UnsubscribeOnDestroy, Job, Plan, Scenario, ScenarioOption } from 'phd-common';
 
 import * as fromJobs from '../../../ngrx-store/job/reducer';
 import * as fromRoot from '../../../ngrx-store/reducers';
@@ -16,10 +16,13 @@ import * as PlanActions from '../../../ngrx-store/plan/actions';
 import * as LotActions from '../../../ngrx-store/lot/actions';
 import * as JobActions from '../../../ngrx-store/job/actions';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
+import * as LiteActions from '../../../ngrx-store/lite/actions';
 import { ChangeOrderService } from './../../../core/services/change-order.service';
 import { CommonActionTypes } from '../../../ngrx-store/actions';
 import { Router } from "@angular/router";
 import { NewHomeService } from "../../services/new-home.service";
+import { LiteService } from "../../../core/services/lite.service";
+import { ScenarioActionTypes } from "../../../ngrx-store/scenario/actions";
 
 @Component({
 	selector: 'quick-move-in',
@@ -37,12 +40,17 @@ export class QuickMoveInComponent extends UnsubscribeOnDestroy implements OnInit
 	scenario: Scenario;
 	buildMode: string;
 
+	// PHD Lite
+	scenarioOptions: ScenarioOption[];
+	previousScenarioOptions: ScenarioOption[];
+
 	constructor(
 		private store: Store<fromRoot.State>,
 		private router: Router,
 		private actions: ActionsSubject,
 		private changeOrderService: ChangeOrderService,
-		private newHomeService: NewHomeService)
+		private newHomeService: NewHomeService,
+		private liteService: LiteService)
 	{
 		super();
 
@@ -105,11 +113,20 @@ export class QuickMoveInComponent extends UnsubscribeOnDestroy implements OnInit
 			this.scenario = scenario.scenario;
 			this.buildMode = scenario.buildMode;
 		});
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(state => state.lite.scenarioOptions)
+		).subscribe(scenarioOptions =>
+		{
+			this.scenarioOptions = scenarioOptions;
+		});		
 	}
 
 	toggleSpecHome(event: { job: Job, selectedJobId: number })
 	{
 		let job = event.job;
+		const isPhdLite = this.liteService.checkLiteAgreement(event.job, null);
 
 		// quick move-in
 		if (event.selectedJobId === job.id)
@@ -126,6 +143,23 @@ export class QuickMoveInComponent extends UnsubscribeOnDestroy implements OnInit
 			this.store.dispatch(new ScenarioActions.SetScenarioLot(null, null, 0));
 
 			this.newHomeService.setSubNavItemsStatus(this.scenario, this.buildMode, null)
+		}
+		else if (isPhdLite)
+		{
+			this.previousScenarioOptions = _.cloneDeep(this.scenarioOptions);
+
+			this.store.dispatch(new CommonActions.LoadSpec(job));
+
+			this.actions.pipe(
+				ofType<ScenarioActions.ScenarioSaved>(ScenarioActionTypes.ScenarioSaved), take(1)).subscribe(() =>
+				{
+					this.store.dispatch(new LiteActions.ToggleQuickMoveInSelections(this.previousScenarioOptions));
+
+					this.newHomeService.setSubNavItemsStatus(this.scenario, this.buildMode, null)
+
+					this.router.navigate(['/lite-summary']);
+				});				
+	
 		}
 		else
 		{
