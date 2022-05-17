@@ -9,23 +9,14 @@
 				<div *ngIf="imageLoading" class="phd-image-loading">
 					<i class="fa fa-spinner fa-spin fa-3x phd-image-loader"></i>
 				</div>
-				<ngb-carousel *ngIf="optionImages.length > 0; else choiceTemplate" [showNavigationArrows]="optionImages.length > 1" [showNavigationIndicators]="optionImages.length > 1" [interval]="0" (slide)="onSlide($event)">
-					<ng-template ngbSlide *ngFor="let optionImage of optionImages; let currentIndex = index;" [id]="currentIndex">
+
+				<ngb-carousel #imageCarousel *ngIf="carouselImages.length > 0" [showNavigationArrows]="optionImages.length > 1" [showNavigationIndicators]="optionImages.length > 1" [interval]="0" (slide)="onSlide($event)">
+					<ng-template ngbSlide *ngFor="let carouselImage of carouselImages; let currentIndex = index;" id="{{currentIndex}}">
 						<div class="phd-image-wrapper">
-							<cl-image public-id="{{optionImage.imageURL}}" (onLoad)="onLoadImage()" (onError)="onLoadImageError($event)" type="fetch" background="#ffffff" crop="lpad" height="367" width="550" *ngIf="activeIndex?.current == currentIndex"></cl-image>
+							<cl-image public-id="{{carouselImage.imageURL}}" (onLoad)="onLoadImage()" (onError)="onLoadImageError($event)" type="fetch" background="#ffffff" crop="lpad" height="367" width="550" *ngIf="activeIndex?.current == currentIndex"></cl-image>
 						</div>
 					</ng-template>
 				</ngb-carousel>
-
-				<ng-template #choiceTemplate>
-					<ngb-carousel *ngIf="choiceImages.length > 0" [showNavigationArrows]="choiceImages.length > 1" [showNavigationIndicators]="choiceImages.length > 1" [interval]="0" (slide)="onSlide($event)">
-						<ng-template ngbSlide *ngFor="let choiceImage of choiceImages; let currentIndex = index;" [id]="currentIndex">
-							<div class="phd-image-wrapper">
-								<cl-image public-id="{{choiceImage.imageUrl}}" (onLoad)="onLoadImage()" (onError)="onLoadImageError($event)" type="fetch" background="#ffffff" crop="lpad" height="367" width="550" *ngIf="activeIndex?.current == currentIndex"></cl-image>
-							</div>
-						</ng-template>
-					</ngb-carousel>
-				</ng-template>
 			</div>
 
 			<div class="phd-image-warning">Images are examples only. Products are subject to change.</div>

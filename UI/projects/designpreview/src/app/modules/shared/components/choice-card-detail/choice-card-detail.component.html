@@ -7,40 +7,40 @@
 		<div class="phd-image-container">
 			<div class="phd-image-card">
 				<div class="phd-card-detail-image-body">
-				<div *ngIf="imageLoading" class="phd-image-loading">
-					<i class="fa fa-spinner fa-spin fa-3x phd-image-loader"></i>
-				</div>
-				<div *ngIf="highlightedAttribute">
-					<cl-image public-id="{{attributeImageUrl}}" (onLoad)="onLoadImage()" (onError)="onLoadImageError($event)" type="fetch" background="#ffffff" crop="lpad" class="phd-image-content"></cl-image>
-				</div>
-				<div *ngIf="!highlightedAttribute">
-					<ngb-carousel #imageCarousel [interval]="0" [showNavigationArrows]="choiceImages?.length > 1" (slide)="onSlide($event)">
-					<ng-template ngbSlide *ngFor="let image of choiceImages; let currentIndex = index;" id="{{currentIndex}}">
-						<cl-image public-id="{{image.imageURL}}" (onLoad)="onLoadImage()" (onError)="onLoadImageError($event)" type="fetch" background="#ffffff" crop="lpad" class="phd-image-content" *ngIf="activeIndex?.current == currentIndex"></cl-image>
-					</ng-template>
-					</ngb-carousel>
-				</div>
+					<div *ngIf="imageLoading" class="phd-image-loading">
+						<i class="fa fa-spinner fa-spin fa-3x phd-image-loader"></i>
+					</div>
+					<div *ngIf="highlightedAttribute">
+						<cl-image public-id="{{attributeImageUrl}}" (onLoad)="onLoadImage()" (onError)="onLoadImageError($event)" type="fetch" background="#ffffff" crop="lpad" class="phd-image-content"></cl-image>
+					</div>
+					<div *ngIf="!highlightedAttribute">
+						<ngb-carousel #imageCarousel [interval]="0" [showNavigationArrows]="choiceImages?.length > 1" (slide)="onSlide($event)">
+							<ng-template ngbSlide *ngFor="let image of choiceImages; let currentIndex = index;" id="{{currentIndex}}">
+								<cl-image public-id="{{image.imageURL}}" (onLoad)="onLoadImage()" (onError)="onLoadImageError($event)" type="fetch" background="#ffffff" crop="lpad" class="phd-image-content" *ngIf="activeIndex?.current == currentIndex"></cl-image>
+							</ng-template>
+						</ngb-carousel>
+					</div>
 				</div>
 				<span class="phd-image-caption">Images are examples only. Products are subject to change.</span>
 			</div>
 			<div class="phd-image-carousel">
 				<ng-container *ngIf="choiceImages.length <= 10">
-				<span *ngFor="let image of choiceImages" class="phd-image-thumbnail phd-clickable">
-					<cl-image public-id="{{image.imageURL}}" type="fetch" background="#ffffff" crop="lpad"
-					class="phd-choice-image" [class.phd-choice-image-selected]="!highlightedAttribute && selectedImageUrl === image.imageURL"
-					(onError)="onLoadImageError($event)" (click)="imageClick(image)">
-					</cl-image>
-				</span>
+					<span *ngFor="let image of choiceImages" class="phd-image-thumbnail phd-clickable">
+						<cl-image public-id="{{image.imageURL}}" type="fetch" background="#ffffff" crop="lpad"
+								  class="phd-choice-image" [class.phd-choice-image-selected]="!highlightedAttribute && selectedImageUrl === image.imageURL"
+								  (onError)="onLoadImageError($event)" (click)="imageClick(image)">
+						</cl-image>
+					</span>
 				</ng-container>
 				<ng-container *ngIf="choiceImages.length > 10">
-				<p-carousel [value]="choiceImages" [numVisible]="10" [numScroll]="1">
-					<ng-template let-image pTemplate="item">
-					<cl-image public-id="{{image.imageURL}}" type="fetch" background="#ffffff" crop="lpad"
-						class="phd-choice-image" [class.phd-choice-image-selected]="!highlightedAttribute && selectedImageUrl === image.imageURL"
-						(onError)="onLoadImageError($event)" (click)="imageClick(image)">
-					</cl-image>
-					</ng-template>
-				</p-carousel>
+					<p-carousel [value]="choiceImages" [numVisible]="10" [numScroll]="1">
+						<ng-template let-image pTemplate="item">
+							<cl-image public-id="{{image.imageURL}}" type="fetch" background="#ffffff" crop="lpad"
+									  class="phd-choice-image" [class.phd-choice-image-selected]="!highlightedAttribute && selectedImageUrl === image.imageURL"
+									  (onError)="onLoadImageError($event)" (click)="imageClick(image)">
+							</cl-image>
+						</ng-template>
+					</p-carousel>
 				</ng-container>
 			</div>
 		</div>
@@ -106,12 +106,12 @@
 				<div *ngIf="!optionDisabled && (!locationGroups?.length && attributeGroups?.length)" class="d-flex flex-column w-100">
 					<div *ngFor="let attributeGroup of attributeGroups" class="phd-attribute-group-container">
 						<attribute-group [attributeGroup]="attributeGroup"
-										[highlightedAttributeId]="getHighlightedAttributeId(attributeGroup)"
-										[isBlocked]="choice.choiceStatus === 'Available' && !choice.enabled"
-										[isReadonly]="isReadonly"
-										[isDesignComplete]="isDesignComplete"
-										(onAttributeClick)="attributeClick($event)"
-										(onToggleAttribute)="toggleAttribute($event)">
+										 [highlightedAttributeId]="getHighlightedAttributeId(attributeGroup)"
+										 [isBlocked]="choice.choiceStatus === 'Available' && !choice.enabled"
+										 [isReadonly]="isReadonly"
+										 [isDesignComplete]="isDesignComplete"
+										 (onAttributeClick)="attributeClick($event)"
+										 (onToggleAttribute)="toggleAttribute($event)">
 						</attribute-group>
 					</div>
 				</div>
@@ -121,10 +121,8 @@
 </div>
 
 <ng-template #blockedChoiceModal let-c="close" let-d="dismiss">
-	<blocked-choice-modal
-		[disabledByList]="disabledByList"
-		[choiceLabel]="choice?.label"
-		(closeModal)="onCloseClicked()"
-		(blockedItemClick)="onBlockedItemClick($event)"
-	></blocked-choice-modal>
+	<blocked-choice-modal [disabledByList]="disabledByList"
+						  [choiceLabel]="choice?.label"
+						  (closeModal)="onCloseClicked()"
+						  (blockedItemClick)="onBlockedItemClick($event)"></blocked-choice-modal>
 </ng-template>

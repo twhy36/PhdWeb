@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
 
 import * as _ from 'lodash';
 
-import { NgbTabChangeEvent, NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbNavChangeEvent, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { ConfirmModalComponent } from '../../../../core/components/confirm-modal/confirm-modal.component';
 import { SidePanelComponent } from '../../../../shared/components/side-panel/side-panel.component';
@@ -146,7 +146,7 @@ export class PointSidePanelComponent implements OnInit
 		this.onPointDetailsChange.emit({ point: this.point, pickType: pickType });
 	}
 
-	async onNavChange($event: NgbTabChangeEvent)
+	async onNavChange($event: NgbNavChangeEvent)
 	{
 		$event.preventDefault();
 

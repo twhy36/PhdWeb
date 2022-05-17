@@ -8,25 +8,28 @@
 	</ng-template>
 
 	<ng-template #body>
-		<ngb-tabset justify="fill" [activeId]="currentTab" (tabChange)="beforeChange($event)">
-			<ngb-tab title="Images" id="images">
-				<ng-template ngbTabContent>
+		<ul ngbNav #nav="ngbNav" justify="fill" [(activeId)]="currentTab" (navChange)="beforeNavChange($event)" class="nav-tabs">
+			<li ngbNavItem="images">
+				<a ngbNavLink>Images</a>
+
+				<ng-template ngbNavContent>
 					<div class="container pt-3">
-						<divisional-options-image-side-panel
-							[isReadOnly]="isReadOnly"
-							[isSaving]="isSaving"
-							[isDeleting]="isDeleting"
-							[optionsImageList]="optionsImageList"
-							[imagesLoaded]="optionImagesLoaded"
-							[dragEnable]="dragEnable"
-							(delete)="onDeleteImage($event)"
-							(save)="onSaveImage($event)"
-							(dragHasChanged)="onDragHasChanged()">
+						<divisional-options-image-side-panel [isReadOnly]="isReadOnly"
+															 [isSaving]="isSaving"
+															 [isDeleting]="isDeleting"
+															 [optionsImageList]="optionsImageList"
+															 [imagesLoaded]="optionImagesLoaded"
+															 [dragEnable]="dragEnable"
+															 (delete)="onDeleteImage($event)"
+															 (save)="onSaveImage($event)"
+															 (dragHasChanged)="onDragHasChanged()">
 						</divisional-options-image-side-panel>
 					</div>
 				</ng-template>
-			</ngb-tab>
-		</ngb-tabset>
+			</li>
+		</ul>
+
+		<div [ngbNavOutlet]="nav"></div>
 	</ng-template>
 
 	<ng-template #footer>

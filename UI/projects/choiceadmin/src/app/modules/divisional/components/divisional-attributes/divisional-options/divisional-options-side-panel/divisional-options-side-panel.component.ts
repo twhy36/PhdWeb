@@ -4,7 +4,7 @@ import { finalize } from 'rxjs/operators';
 
 import { MessageService } from 'primeng/api';
 
-import { NgbTabChangeEvent, NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbNavChangeEvent, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { SidePanelComponent } from '../../../../../shared/components/side-panel/side-panel.component';
 import { DivisionalAttributesComponent } from '../../divisional-attributes/divisional-attributes.component';
@@ -104,7 +104,7 @@ export class DivisionalOptionsSidePanelComponent implements OnInit
 		this.onOptionUpdate.emit();
 	}
 
-	async beforeChange($event: NgbTabChangeEvent)
+	async beforeNavChange($event: NgbNavChangeEvent)
 	{
 		$event.preventDefault();
 

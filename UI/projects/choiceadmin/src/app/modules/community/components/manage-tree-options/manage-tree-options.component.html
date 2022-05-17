@@ -19,9 +19,11 @@
 					 [sidePanelOpen]="showMessages"
 					 (sidePanelClose)="onMessagesSidePanelClose()">
 	<ng-template #tabs>
-		<ngb-tabset justify="fill" [activeId]="currentTab">
-			<ngb-tab [title]="'Inactive - ' + inactiveOptions.length.toString()" id="inactiveoptions">
-				<ng-template ngbTabContent>
+		<ul ngbNav #nav="ngbNav" justify="fill" [(activeId)]="currentTab" class="nav-tabs">
+			<li ngbNavItem="inactiveoptions">
+				<a ngbNavLink>Inactive - {{inactiveOptions.length.toString()}}</a>
+
+				<ng-template ngbNavContent>
 					<div class="container pt-3">
 						<div class="list-group">
 							<ng-container *ngFor="let option of inactiveOptions">
@@ -32,9 +34,11 @@
 						</div>
 					</div>
 				</ng-template>
-			</ngb-tab>
-			<ngb-tab [title]="'Unassigned - ' + unassignedOptions.length.toString()" id="unassignedoptions">
-				<ng-template ngbTabContent>
+			</li>
+			<li ngbNavItem="unassignedoptions">
+				<a ngbNavLink>Unassigned - {{unassignedOptions.length.toString()}}</a>
+
+				<ng-template ngbNavContent>
 					<div class="container pt-3">
 						<div class="list-group">
 							<ng-container *ngFor="let option of unassignedOptions">
@@ -45,8 +49,10 @@
 						</div>
 					</div>
 				</ng-template>
-			</ngb-tab>
-		</ngb-tabset>
+			</li>
+		</ul>
+
+		<div [ngbNavOutlet]="nav"></div>
 	</ng-template>
 </messages-side-panel>
 
