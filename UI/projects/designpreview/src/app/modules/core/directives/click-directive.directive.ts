@@ -16,9 +16,12 @@ export class ClickDirective {
 			}
 
 			const container = this.getContainerName(targetElement);
-			const element = targetElement?.tagName;
-			let text;
-			if (element === 'I') {
+			let text, element;
+
+			if (targetElement?.className?.includes('phd-empty-checkbox') || targetElement?.className?.includes('fa-check-square')){
+				element = 'checkbox';
+				text = 'contracted options'
+			} else if (targetElement?.tagName === 'I') {
 				// grabs what type of icon it is
 				const indexOfIcon = targetElement?.className?.indexOf('fa-');
 				if (indexOfIcon > 0) {
@@ -27,28 +30,43 @@ export class ClickDirective {
 				} else {
 					text = targetElement?.className
 				}
-			} else if (element === 'IMG') {
-				text = (targetElement as HTMLImageElement)?.src;
-			} else if (element === 'INPUT') {
-				text = (targetElement as HTMLInputElement)?.placeholder;
-			} else {
+				element = 'button';
+			} else if (targetElement?.tagName === 'BUTTON') {
 				text = targetElement?.textContent;
+				element = 'button';
+			} else if (targetElement?.tagName === 'div' && targetElement?.className?.includes('phd-clickable')) {
+				text = targetElement?.textContent;
+				element = 'link';
+			} else if (targetElement?.tagName === 'IMG') {
+				text = (targetElement as HTMLImageElement)?.src;
+				element = 'image';
+			} else if (targetElement?.tagName === 'A') {
+				text = targetElement?.textContent;
+				element = 'nav';
+			} else if (container === 'ribbon') {
+				text = targetElement?.textContent;
+				element = 'nav';
 			}
-			this.adobeService.setClickEvent(container, element, text);
+			if (!!element) {
+				this.adobeService.setClickEvent(container, element, text);
+			}
 
 	}
 
-	// custom tags must always include - whereas native html tags will never include -
+	// get which type of container it is in, ribbon, header, footer, or body.
 	getContainerName(element: HTMLElement) : string {
-		if (element?.className?.includes('mat-menu-item')) {
-			// special case for mat menu items as their parent elements are outside the app-root
-			return 'MAT-MENU-ITEM'
-		} else if (element?.tagName?.includes('-')) {
-			return element.tagName;
+		if (element?.className?.toLocaleLowerCase()?.includes('mat-menu-item')) {
+			return 'ribbon'
+		} else if (element?.tagName?.toLocaleLowerCase()?.includes('nav-bar')) {
+			return 'header';
+		} else if (element?.tagName?.toLocaleLowerCase()?.includes('group-bar')) {
+			return 'ribbon';
+		} else if (element?.tagName?.toLocaleLowerCase()?.includes('action-bar')) {
+			return 'footer';
 		} else if (element?.parentElement) {
 			return this.getContainerName(element.parentElement);
 		} else {
-			return '';
+			return 'body';
 		}
 	}
 
