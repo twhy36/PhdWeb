@@ -48,13 +48,13 @@ export class CommonEffects
 				switchMap(scenario => {
 					const isPhdLite = !scenario.treeVersionId
 						|| this.liteService.checkLiteScenario(scenario?.scenarioChoices, scenario?.scenarioOptions);
-					
+
 					const getTree = !isPhdLite ? this.treeService.getTree(scenario.treeVersionId) : of<Tree>(null);
 					const getRules = !isPhdLite ? this.treeService.getRules(scenario.treeVersionId) : of<TreeVersionRules>(null);
 					const getLotChoiceRules = !isPhdLite && scenario.lotId ? this.lotService.getLotChoiceRuleAssocs(scenario.lotId) : of<LotChoiceRuleAssoc[]>(null);
 					const getPlanOptions = !isPhdLite ? this.optionService.getPlanOptions(scenario.planId) : of<PlanOption[]>(null);
 					const getOptionImages = !isPhdLite ? this.treeService.getOptionImages(scenario.treeVersionId) : of<OptionImage[]>(null);
-					
+
 					return combineLatest([
 						getTree,
 						getRules,
@@ -78,7 +78,7 @@ export class CommonEffects
 										// make sure they're sorted properly
 										option.optionImages = filteredImages.sort((a, b) => a.sortKey < b.sortKey ? -1 : 1);
 									}
-								});								
+								});
 							}
 
 							// Assign new lot choice rules everytime we load a scenario
@@ -113,7 +113,7 @@ export class CommonEffects
 
 							scenario.scenarioChoices = data.selectedChoices;
 
-							return { scenario, ...data, lotNoLongerAvailable, isSpecScenario };
+							return { scenario, ...data, lotNoLongerAvailable, isSpecScenario, isPhdLite };
 						})
 					);
 				}),
@@ -134,13 +134,17 @@ export class CommonEffects
 					if (result.isSpecScenario)
 					{
 						return this.jobService.getJobByLotId(result.scenario.lotId).pipe(
-							switchMap(job =>
-							{
-								if (job && job.length)
-								{
+							switchMap(job => {
+								if (job && job.length) {
+									const financialCommunityId = result.tree?.financialCommunityId ?? result.scenario.financialCommunityId;
+									const salesCommunityId = result.opportunity?.opportunity?.salesCommunityId;
+									const getSalesCommunity = !!financialCommunityId
+										? this.orgService.getSalesCommunityByFinancialCommunityId(financialCommunityId, true)
+										: this.orgService.getSalesCommunity(salesCommunityId);
+
 									return combineLatest([
-										this.orgService.getSalesCommunityByFinancialCommunityId(result.tree.financialCommunityId, true),
-										this.identityService.getClaims(), 
+										getSalesCommunity,
+										this.identityService.getClaims(),
 										this.identityService.getAssignedMarkets()
 									]).pipe(
 										switchMap(([sc, claims, markets]: [SalesCommunity, Claims, IMarket[]]) =>
@@ -154,18 +158,21 @@ export class CommonEffects
 												})
 											);
 										}),
-										switchMap(([sc, job, claims, markets]: [SalesCommunity, Job[], Claims, IMarket[]]) =>
-										{
-											return of({ job, salesCommunity: sc, claims, markets, tree: result.tree, options: result.options, selectedChoices: result.selectedChoices }).pipe(
-												//do this before checking cutoffs
-												mergeIntoTree(job[0].jobChoices, job[0].jobPlanOptions, this.treeService, this.attributeService, null, false),
-												map(res =>
-												{
-													//add selections from the job into the tree
-													res.job[0].jobChoices.filter(ch => !result.scenario.scenarioChoices.some(sc => sc.choiceId === ch.dpChoiceId)).forEach(choice =>
-													{
-														const c = _.flatMap(result.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)))
-															.find(ch => ch.divChoiceCatalogId === choice.divChoiceCatalogId);
+										switchMap(([sc, job, claims, markets]: [SalesCommunity, Job[], Claims, IMarket[]]) => {
+											if (result.isPhdLite)
+											{
+												return of({ job, salesCommunity: sc, claims, markets, tree: result.tree, options: result.options, isPhdLite: result.isPhdLite, selectedChoices: result.selectedChoices });
+											}
+											else
+											{
+												return of({ job, salesCommunity: sc, claims, markets, tree: result.tree, options: result.options, isPhdLite: result.isPhdLite, selectedChoices: result.selectedChoices }).pipe(
+													//do this before checking cutoffs
+													mergeIntoTree(job[0].jobChoices, job[0].jobPlanOptions, this.treeService, this.attributeService, null, false),
+													map(res => {
+														//add selections from the job into the tree
+														res.job[0].jobChoices.filter(ch => !result.scenario.scenarioChoices.some(sc => sc.choiceId === ch.dpChoiceId)).forEach(choice => {
+															const c = _.flatMap(result.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)))
+																.find(ch => ch.divChoiceCatalogId === choice.divChoiceCatalogId);
 
 														if (c)
 														{
@@ -174,20 +181,26 @@ export class CommonEffects
 														}
 													});
 
-													return res;
-												})
-											);
+														return res;
+													})
+												);
+											}
 										}),
-										map(res =>
-										{
-											setTreePointsPastCutOff(result.tree, res.job[0]);
-
-											const pointsPastCutoff = _.flatMap(result.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points))
-												.filter(pt => pt.isPastCutOff);
-											let jobChoices = [];
-
+										map(res => {
 											let needsOverride = false;
 											let canOverride = res.claims.SalesAgreements && !!(res.claims.SalesAgreements & Permission.Override) && res.markets.some(m => m.number === res.salesCommunity.market.number);
+
+											if (res.isPhdLite)
+											{
+												return { ...result, needsOverride, canOverride, pointsPastCutoff: [], jobChoices: [], salesCommunity: res.salesCommunity, job: res.job[0] };
+											}
+											else
+											{
+												setTreePointsPastCutOff(result.tree, res.job[0]);
+
+												const pointsPastCutoff = _.flatMap(result.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points))
+													.filter(pt => pt.isPastCutOff);
+												let jobChoices = [];
 
 											if (pointsPastCutoff.length > 0)
 											{
@@ -231,7 +244,8 @@ export class CommonEffects
 												});
 											}
 
-											return { ...result, needsOverride, canOverride, pointsPastCutoff, jobChoices, salesCommunity: res.salesCommunity, job: res.job[0] };
+												return { ...result, needsOverride, canOverride, pointsPastCutoff, jobChoices, salesCommunity: res.salesCommunity, job: res.job[0] };
+											}
 										})
 									);
 								}
@@ -334,10 +348,10 @@ export class CommonEffects
 					}
 				}),
 				switchMap(result => {
-					const financialCommunityId = result.tree?.financialCommunityId;
+					const financialCommunityId = result.tree?.financialCommunityId  ?? result.scenario?.financialCommunityId;
 					const salesCommunityId = result.opportunity?.opportunity?.salesCommunityId
 
-					if (!result.salesCommunity && (!!financialCommunityId || !!salesCommunityId)) 
+					if (!result.salesCommunity && (!!financialCommunityId || !!salesCommunityId))
 					{
 						const getSalesCommunity = !!financialCommunityId
 							? this.orgService.getSalesCommunityByFinancialCommunityId(financialCommunityId, true)
@@ -541,7 +555,7 @@ export class CommonEffects
 								const getLotChoiceRules = result.selectedLotId ? this.lotService.getLotChoiceRuleAssocs(result.selectedLotId) : of<LotChoiceRuleAssoc[]>(null);
 								const getPlanOptions = treeVersionId ? this.optionService.getPlanOptions(result.selectedPlanId, null, true) : of<PlanOption[]>([]);
 								const getOptionImages = treeVersionId ? this.treeService.getOptionImages(treeVersionId, [], null, true) : of<OptionImage[]>(null);
-			
+
 								return combineLatest([
 									getTree,
 									getRules,
@@ -743,11 +757,11 @@ export class CommonEffects
 
 				if (action instanceof SalesAgreementLoaded) {
 					// Filter out actions in PHD Lite. Handled by updatePricingOnInitLite$() in lite effects.
-					return { 
-						...curr, 
-						sagLoaded: true, 
-						salesAgreement: action.salesAgreement, 
-						currentChangeOrder: action.changeOrder, 
+					return {
+						...curr,
+						sagLoaded: true,
+						salesAgreement: action.salesAgreement,
+						currentChangeOrder: action.changeOrder,
 						isPhdLite: !action.tree || this.liteService.checkLiteAgreement(action.job, action.changeOrder)
 					};
 				}

@@ -143,14 +143,15 @@ export class NewHomeComponent extends UnsubscribeOnDestroy implements OnInit
 				select(fromScenario.buildMode),
 				combineLatest(
 					this.store.pipe(select(fromJobs.specJobs)),
-					this.store.pipe(select(fromLot.lotsLoaded))
+					this.store.pipe(select(fromLot.lotsLoaded)),
+					this.store.pipe(select(state => state.lot.lotsLoading))
 				)
 			)
-			.subscribe(([buildMode, specJobs, lotsLoaded]) =>
+			.subscribe(([buildMode, specJobs, lotsLoaded, lotsLoading]) =>
 			{
 				this.buildMode = buildMode;
 
-				if (buildMode === 'buyer' && lotsLoaded && specJobs == null)
+				if (buildMode === 'buyer' && lotsLoaded && specJobs == null && !lotsLoading)
 				{
 					this.store.dispatch(new LoadSpecs());
 				}

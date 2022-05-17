@@ -1,4 +1,4 @@
-import { Log, ScenarioOption, Scenario } from 'phd-common';
+import { Log, ScenarioOption, Scenario, Job } from 'phd-common';
 import { Action } from '@ngrx/store';
 import {
     IOptionCategory, LitePlanOption, ScenarioOptionColorDto, LiteMonotonyRule
@@ -22,6 +22,7 @@ export enum LiteActionTypes {
     CancelJobChangeOrderLite = 'Cancel Job Change Order Lite',
     LoadLitePlan = 'Load Lite Plan',
     CancelPlanChangeOrderLite = 'Cancel Plan Change Order Lite',
+   ToggleQuickMoveInSelections = 'Toggle Quick Move In Selections'
 }
 
 @Log(true)
@@ -143,6 +144,13 @@ export class LoadLiteSpecOrModel implements Action
 	constructor(public scenario: Scenario) { }
 }
 
+@Log()
+export class ToggleQuickMoveInSelections implements Action
+{
+	readonly type = LiteActionTypes.ToggleQuickMoveInSelections;
+	constructor(public previousScenarioOptions: ScenarioOption[]) { }
+}
+
 export type LiteActions =
     SetIsPhdLite |
     LiteOptionsLoaded |
@@ -160,4 +168,5 @@ export type LiteActions =
     LoadLitePlan |
     CancelPlanChangeOrderLite |
 	CreateJIOForSpecLite |
-	LoadLiteSpecOrModel;
+	LoadLiteSpecOrModel |
+    ToggleQuickMoveInSelections;

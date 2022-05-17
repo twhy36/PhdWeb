@@ -2,8 +2,8 @@ import { createFeatureSelector, createSelector } from '@ngrx/store';
 import * as _ from "lodash";
 
 import { ScenarioOption, ScenarioOptionColor } from 'phd-common'
-import { 
-	LitePlanOption, Elevation, IOptionCategory, LiteMonotonyRule, LitePlanOptionUI, IOptionSubCategory 
+import {
+	LitePlanOption, Elevation, IOptionCategory, LiteMonotonyRule, LitePlanOptionUI, IOptionSubCategory
 } from '../../shared/models/lite.model';
 
 import { LiteActions, LiteActionTypes } from './actions';
@@ -33,7 +33,7 @@ export const initialState: State =
 	categories: [],
 	liteMonotonyRules: [],
 	elevationOverrideNote: null,
-	colorSchemeOverrideNote: null	
+	colorSchemeOverrideNote: null
 };
 
 export function reducer(state: State = initialState, action: LiteActions): State
@@ -192,17 +192,17 @@ export const areColorSelectionsValid = createSelector(
 				&& option.id !== selectedElevationOption?.id
 				&& option.colorItems.length > 0
 				&& option.colorItems.some(ci => ci.isActive && ci.color.length > 0 && ci.color.some(c => c.isActive)));
-	
+
 		const allOptionSubCategories = _.cloneDeep(selectedOptionCategories)
 			.map(c => c.optionSubCategories)
 			.reduce((all, a) => all.concat(a), []);
-		
+
 		allOptionSubCategories.forEach(subcategory =>
 		{
 			const subcategoryOptions = selectedOptions
 				.map(x => x as LitePlanOptionUI)
 				.filter(x => x.optionSubCategoryId === subcategory.id && x.colorItems.length > 0);
-		
+
 			subcategory.planOptions = _.cloneDeep(subcategoryOptions)
 				.sort((option1, option2) =>
 				{
@@ -225,9 +225,9 @@ export const areColorSelectionsValid = createSelector(
 				})
 			})
 		});
-	
+
 		let subcategories: IOptionSubCategory[] = [];
-	
+
 		//Only keep subCategories where the option has some related color items defined;
 		allOptionSubCategories.forEach(subcategory =>
 		{
@@ -239,11 +239,11 @@ export const areColorSelectionsValid = createSelector(
 				}
 			});
 		});
-	
+
 		const allScenarioOptions = scenarioOptions
 			.map(so => so.scenarioOptionColors)
 			.reduce((all, a) => all.concat(a), []);
-		
+
 		const allPlanOptions = subcategories
 			.map(so => so.planOptions ?? [])
 			.reduce((all, a) => all.concat(a), []);
@@ -271,7 +271,7 @@ export const areColorSelectionsValid = createSelector(
 				isValid = false;
 			}
 		});
-		
+
 		return isValid;
 	}
 );
