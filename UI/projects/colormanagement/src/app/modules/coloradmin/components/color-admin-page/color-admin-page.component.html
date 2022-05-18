@@ -25,7 +25,8 @@
 						<color-items-page class="content"></color-items-page>
 					</ng-template>
 				</li>
-				<li ngbNavItem>
+				<!-- We don't want the tab to show right now so "display:none" has been added, this may want to be removed in the future.  -->
+				<li style="display:none;" ngbNavItem>
 					<a ngbNavLink>Option Packages</a>
 					<ng-template ngbNavContent>
 						<option-packages-page class="content"></option-packages-page>
