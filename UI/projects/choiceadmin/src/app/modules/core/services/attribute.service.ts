@@ -391,7 +391,8 @@ export class AttributeService
 			'attributeIds': attributeIds,
 			'isRemoved': isRemoved
 		};
-		return this._http.patch(url, data, { headers: { 'Prefer': 'return=representation' } }).pipe(
+
+		return withSpinner(this._http).patch(url, data, { headers: { 'Prefer': 'return=representation' } }).pipe(
 			map(response =>
 			{
 				let attr = response as AttributeGroupMarket;
@@ -504,7 +505,7 @@ export class AttributeService
 			groupOrderDtos: groupOrders
 		};
 
-		return this._http.patch(url, { optionAttributeGroupAssocDto: data }, { headers: { 'Prefer': 'return=representation' } }).pipe(
+		return withSpinner(this._http).patch(url, { optionAttributeGroupAssocDto: data }, { headers: { 'Prefer': 'return=representation' } }).pipe(
 			map(response =>
 			{
 				let optionMarket = response as OptionMarket;

@@ -271,7 +271,6 @@ tr.p-state-highlight {
 
 	.p-tabview-nav {
 		flex-direction: column;
-		width: 15%;
 	}
 
 	.p-tabview-panels {
@@ -560,4 +559,19 @@ $toggle-content-after: 'Must Have';
 
 .phd-bullet::before, .phd-list-bullet > li::before {
 	@extend %phd-bullet-shared
+}
+
+.phd-default-pointer {
+	cursor: default !important;
+}
+
+.phd-div-tab-panel {
+	max-height: 250px;
+	overflow-y: auto;
+}
+
+.phd-div-button-panel {
+	margin-top: 1em;
+	display:flex;
+	justify-content:flex-end;
 }
