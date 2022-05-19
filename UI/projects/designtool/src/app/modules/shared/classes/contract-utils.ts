@@ -393,23 +393,26 @@ export function getLiteConstructionChangeOrderPdfData(
 			const option = options.find(option => option.id === coPlanOption.planOptionId);
 			if (option)
 			{
-				pdfData.push({
-					choiceLabel: coPlanOption.optionSalesName,
-					decisionPointLabel: coPlanOption.integrationKey,
-					dpChoiceCalculatedPrice: coPlanOption.listPrice,
-					dpChoiceQuantity: coPlanOption.qty,
-					groupLabel: ExteriorLabel.Exterior,
-					subgroupLabel: ExteriorLabel.ExteriorSubGroup,
-					isColorScheme: false,
-					isElevation: true,
-					locations: [],
-					options: [],
-					overrideNote: null,
-					dpChoiceId: 0,
-					divChoiceCatalogId: coPlanOption.planOptionId, // used for option filtering in API
-					attributes: [],
-					action: coPlanOption.action
-				});
+				if (['Add','Delete'].includes(coPlanOption.action))
+				{
+					pdfData.push({
+						choiceLabel: coPlanOption.optionSalesName,
+						decisionPointLabel: coPlanOption.integrationKey,
+						dpChoiceCalculatedPrice: coPlanOption.listPrice,
+						dpChoiceQuantity: coPlanOption.qty,
+						groupLabel: ExteriorLabel.Exterior,
+						subgroupLabel: ExteriorLabel.ExteriorSubGroup,
+						isColorScheme: false,
+						isElevation: true,
+						locations: [],
+						options: [],
+						overrideNote: null,
+						dpChoiceId: 0,
+						divChoiceCatalogId: coPlanOption.planOptionId, // used for option filtering in API
+						attributes: [],
+						action: coPlanOption.action
+					});
+				}
 
 				if (coPlanOption.jobChangeOrderPlanOptionAttributes?.length)
 				{
