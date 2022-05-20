@@ -14,17 +14,17 @@ div.phd-custom-control-right {
 	padding-left: 0;
 	margin-left: 0;
 	margin-right: 0;
-  }
+}
 
-  div.phd-custom-control-right .custom-control-label::before{
+div.phd-custom-control-right .custom-control-label::before {
 	right: -2.5rem;
 	left: auto;
-  }
+}
 
-  div.phd-custom-control-right .custom-control-label::after{
+div.phd-custom-control-right .custom-control-label::after {
 	right: -1.6rem;
 	left: auto;
-  }
+}
 
 /*******************************************/
 
@@ -38,19 +38,8 @@ body {
 	font-family: 'Roboto', sans-serif;
 	background: #f8f8f8;
 	color: #4a4a4a;
-}
-
-body, app-root, manage-homesites, plan-assignment, view-contracts, monotony-options, releases, sales-programs, phase-pricing, merge-fields, auto-approval, community-settings {
-	display: -webkit-box;
-	display: -webkit-flex;
-	display: -ms-flexbox;
 	display: flex;
 	flex-direction: column;
-}
-
-manage-homesites, plan-assignment, view-contracts, monotony-options, releases, sales-programs, phase-pricing, merge-fields, auto-approval, community-settings {
-	flex: 1;
-	height: 100%;
 }
 
 contracts, pricing {
@@ -76,12 +65,9 @@ a:focus {
 }
 
 .phd-page-container {
-	display: -webkit-box;
-	display: -webkit-flex;
-	display: -ms-flexbox;
 	display: flex;
 	flex-direction: column;
-	flex: 1;
+	height: 100%;
 
 	&.phd-side-panel-open {
 		margin-left: $side-panel-width;
@@ -89,27 +75,33 @@ a:focus {
 }
 
 .phd-page-body {
-	display: -webkit-box;
-	display: -webkit-flex;
-	display: -ms-flexbox;
 	display: flex;
 	background-color: #fff;
 	flex-direction: column;
 	flex: 1;
 	overflow-y: auto;
-	height: 0px;
+}
+
+.phd-router-outlet {
+	flex: 1;
+}
+
+.phd-tab-container {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
+
+.phd-tab-body {
+	display: flex;
+	flex-direction: column;
+	flex: 1 auto;
+	height: 0;
+	overflow-y: auto;
 }
 
 .phd-table-container {
-	display: -webkit-box;
-	display: -webkit-flex;
-	display: -ms-flexbox;
-	display: flex;
-	flex-direction: column;
-	flex-grow : 1;
-	height: calc(100vh - #{$nav-menu-height} - #{$sales-page-header-height} - #{$sales-action-bar-height});
 	overflow-y: auto;
-	margin-top: 20px;
 }
 
 .phd-experience-btn-choice {

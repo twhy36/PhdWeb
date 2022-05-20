@@ -1,4 +1,4 @@
-<phase-pricing-side-panel-component *ngIf="sidePanelOpen" [salesPhases]="phases" [activePhase]="activePhase" [sidePanelOpen]="sidePanelOpen" (onSidePanelClose)="onSidePanelClose($event)"  (onSaveSalesPhase)="saveSalePhase($event)" [saving]="saving">
+<phase-pricing-side-panel-component *ngIf="sidePanelOpen" [salesPhases]="phases" [activePhase]="activePhase" [sidePanelOpen]="sidePanelOpen" (onSidePanelClose)="onSidePanelClose($event)" (onSaveSalesPhase)="saveSalePhase($event)" [saving]="saving">
 </phase-pricing-side-panel-component>
 
 <div class="phd-page-container" [class.phd-side-panel-open]="sidePanelOpen">
@@ -27,7 +27,7 @@
 		</div>
 
 		<div class="phd-table-container mx-2">
-			<phd-table #dt [value]="pagedPhases | planPhases" [rowClass]="getRowClass" *ngIf="showGrid" [nonOverflow]="false">
+			<phd-table #dt [value]="pagedPhases | planPhases" [rowClass]="getRowClass" *ngIf="showGrid">
 				<phd-column field="_name" header="Plan Name"></phd-column>
 				<phd-column *ngFor="let phase of pagedPhases" [header]="phase.salesPhaseName">
 					<ng-template #header>
@@ -43,10 +43,12 @@
 					</ng-template>
 				</phd-column>
 			</phd-table>
-			<div class="phd-icon-container">
-				<span><i class="fa fa-angle-double-left" (click)="previousPage()" [hidden]="currentPage === 1"></i></span>
-				<span>Additional Phases</span>
-				<span><i class="fa fa-angle-double-right" (click)="nextPage()" [hidden]="currentPage === numberPages()"></i></span></div>
+		</div>
+
+		<div class="phd-icon-container">
+			<span><i class="fa fa-angle-double-left" (click)="previousPage()" [hidden]="currentPage === 1"></i></span>
+			<span>Additional Phases</span>
+			<span><i class="fa fa-angle-double-right" (click)="nextPage()" [hidden]="currentPage === numberPages()"></i></span>
 		</div>
 	</div>
 </div>

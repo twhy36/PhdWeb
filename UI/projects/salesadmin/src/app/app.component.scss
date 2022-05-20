@@ -1,10 +1,8 @@
 @import "../scss/sizes.scss";
 
 #phd-app {
-	display: -webkit-flex;
-	display: flex;
-	flex-direction: row;
-	flex: 1;
+	height: calc(100vh - 54px);
+	display:flex;
 }
 
 #phd-page-buttonbar {
