@@ -186,3 +186,44 @@ export class SummaryReportSubOption {
 	attribute?: string;
 	attributeValue?: string;
 }
+
+export interface LiteChangeOrderPlanOptionDto
+{
+	planOptionId: number;
+	price: number;
+	quantity: number;
+	optionSalesName: string;
+	optionDescription: string;
+	jobOptionTypeName: string;
+	overrideNote: string;
+	action: string;
+	isElevation: boolean;
+	attributes: LiteChangeOrderPlanOptionAttributeDto[];
+}
+export interface LitePlanOptionDto
+{
+	planOptionId: number;
+	price:  number;
+	quantity: number;
+	optionSalesName:  string;
+	optionDescription:  string;
+	jobOptionTypeName:  string;
+	overrideNote: string;
+	colors: LiteOptionColorDto[];
+	action: string;
+}
+
+export interface LiteOptionColorDto {
+	colorName: string;
+	colorItemName: string;
+	sku: string;
+	action: string;
+}
+
+export interface LiteChangeOrderPlanOptionAttributeDto {
+	attributeName: string;
+	attributeGroupLabel: string;
+	manufacturer: string;
+	sku: string;
+	action: string;
+}
