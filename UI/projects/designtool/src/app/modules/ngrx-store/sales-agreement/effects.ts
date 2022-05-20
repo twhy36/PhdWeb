@@ -73,7 +73,9 @@ export class SalesAgreementEffects
 						store.scenario.scenario.scenarioId, 
 						salePrice,
 						priceBreakdown.baseHouse,
-						store.lite.elevationOverrideNote || store.lite.colorSchemeOverrideNote
+						store.lite.elevationOverrideNote || store.lite.colorSchemeOverrideNote,
+						store.job.jobPlanOptions,
+						isSpecSale
 					)
 					: this.salesAgreementService.createSalesAgreementForScenario(
 						store.scenario.scenario, 

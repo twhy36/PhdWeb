@@ -23,7 +23,8 @@ import * as fromRoot from '../../ngrx-store/reducers';
 
 import {
 	LitePlanOption, ColorItem, Color, ScenarioOptionColorDto, IOptionSubCategory, OptionRelation,
-	OptionRelationEnum, Elevation, IOptionCategory, LiteReportType, LiteMonotonyRule, SummaryReportData
+	OptionRelationEnum, Elevation, IOptionCategory, LiteReportType, LiteMonotonyRule, SummaryReportData,
+	LitePlanOptionDto, LiteOptionColorDto, LiteChangeOrderPlanOptionDto
 } from '../../shared/models/lite.model';
 import { LotService } from './lot.service';
 import { ChangeOrderService } from './change-order.service';
@@ -386,7 +387,9 @@ export class LiteService
 		scenarioId: number,
 		salePrice: number,
 		baseHousePrice: number,
-		overrideNote: string
+		overrideNote: string,
+		jobPlanOptions: JobPlanOption[],
+		isSpecSale: boolean
 	): Observable<SalesAgreement>
 	{
 		const action = `CreateSalesAgreementForLiteScenario`;
@@ -396,15 +399,26 @@ export class LiteService
 		const selectedElevation = elevations.find(elev => scenarioOptions?.find(opt => opt.edhPlanOptionId === elev.id && opt.planOptionQuantity > 0));
 		const baseHouseOptions = this.getSelectedBaseHouseOptions(scenarioOptions, options, categories);
 
+		const changedOptions = isSpecSale
+			? this.createJobChangeOrderOptions(
+				jobPlanOptions,
+				scenarioOptions,
+				options,
+				overrideNote)
+			: [];
+
 		const data = {
 			scenarioId: scenarioId,
-			options: this.mapScenarioOptions(
-						scenarioOptions,
-						options,
-						selectedElevation,
-						baseHouseOptions.selectedBaseHouseOptions,
-						baseHousePrice,
-						overrideNote),
+			options: isSpecSale 
+				? this.mapChangedOptions(changedOptions, false)
+				: this.mapScenarioOptions(
+					scenarioOptions,
+					options,
+					selectedElevation,
+					baseHouseOptions.selectedBaseHouseOptions,
+					baseHousePrice,
+					overrideNote),
+			elevationOptions: isSpecSale ? this.mapChangedOptions(changedOptions, true) : [],
 			salePrice: salePrice
 		};
 
@@ -427,6 +441,34 @@ export class LiteService
 			&& scenarioOptions?.find(opt => opt.edhPlanOptionId === option.id));
 
 		return { selectedBaseHouseOptions: selectedBaseHouseOptions, baseHouseCategory: baseHouseCategory };
+	}
+
+	private mapChangedOptions(changeOrderOptions: LiteChangeOrderPlanOptionDto[] = [], isElevation: boolean = false): LitePlanOptionDto[]
+	{
+		return changeOrderOptions.map(item => { 
+			if (isElevation === item.isElevation) {
+				const colors = item.attributes.map(color => {
+					return {
+						colorName: color.attributeName,
+						colorItemName: color.attributeGroupLabel,
+						sku: color.sku,
+						action: color.action
+					} as LiteOptionColorDto;
+				});
+
+				return {
+					planOptionId: item.planOptionId,
+					price: item.price,
+					quantity: item.quantity,
+					optionSalesName: item.optionSalesName,
+					optionDescription: item.optionDescription,
+					jobOptionTypeName: item.jobOptionTypeName,
+					overrideNote: item.overrideNote,
+					colors: colors,
+					action: item.action
+				} as LitePlanOptionDto;
+			}
+		}).filter(item => item !== undefined) as LitePlanOptionDto[];
 	}
 
 	private mapScenarioOptions(
@@ -895,7 +937,7 @@ export class LiteService
 		currentOptions: ScenarioOption[],
 		options: LitePlanOption[],
 		overrideNote: string
-	): Array<any>
+	): LiteChangeOrderPlanOptionDto[]
 	{
 		const isElevationOption = function(planOptionId: number)
 		{
@@ -1313,3 +1355,4 @@ export class LiteService
 		return optionsDto;
 	}
 }
+
