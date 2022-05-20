@@ -88,6 +88,7 @@ export class ExpansionAssociateGroupsTabPanelComponent implements OnInit
 		}
 		else if (isLocationGroup(item))
 		{
+			this.selectedLocations = [];
 			selectedItems = this.selectedLocations;
 			item = item as LocationGroupMarket;
 		}
