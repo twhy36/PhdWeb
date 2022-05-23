@@ -15,6 +15,7 @@
 		"home-text-color": "#19405C",
 		"nav-bar-text-color": "white",
 		"group-bar-text-color": "#E9F3F8",
+		"group-bar-border-color": "1px solid #1F667E",
 		"group-bar-selected-color": "white",
 		"heart-icon-color": "#1F667E",
 		"primary-icon-color": "#1F667E",
@@ -24,7 +25,6 @@
 		"link-color": "#1F667E",
 		"popup-ribbon-background-color": "#1F667E",
 		"home-page-floorplan-background-color": "#e4e5e4",
-		"button-border-radius": "35px",
 		"logo-margin-top": "8px"
 	}
 }
