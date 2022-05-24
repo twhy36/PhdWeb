@@ -115,9 +115,6 @@ export function reducer(state: State = initialState, action: LiteActions): State
 		case LiteActionTypes.ScenarioOptionsSaved:
 			return { ...state, isSaving: false, scenarioOptions: action.scenarioOptions, isUnsaved: false };
 
-		case LiteActionTypes.SetScenarioLoaded:
-			return {  ...state, isScenarioLoaded: action.isLoaded };
-
 		case LiteActionTypes.OptionCategoriesLoaded:
 			return { ...state, categories: action.categories };
 

@@ -12,7 +12,6 @@ export enum LiteActionTypes {
     ScenarioOptionsSaved = 'Scenario Options Saved',
     SelectOptionColors = 'Select Option Colors',
     SaveScenarioOptionColors = 'Select Scenario Option Colors',
-    SetScenarioLoaded = 'Set Scenario Loaded',
     OptionCategoriesLoaded = 'Option Categories Loaded',
 	LoadLiteMonotonyRules = 'Load Lite Monotony Rules',
     LiteMonotonyRulesLoaded = 'LiteMonotonyRulesLoaded',
@@ -70,13 +69,6 @@ export class SaveScenarioOptionColors implements Action {
     readonly type = LiteActionTypes.SaveScenarioOptionColors;
 
     constructor(public optionColors: ScenarioOptionColorDto[]) { }
-}
-
-@Log(true)
-export class SetScenarioLoaded implements Action {
-    readonly type = LiteActionTypes.SetScenarioLoaded;
-
-    constructor(public isLoaded: boolean) { }
 }
 
 export class OptionCategoriesLoaded implements Action {
@@ -159,7 +151,6 @@ export type LiteActions =
     ScenarioOptionsSaved |
     SelectOptionColors |
     SaveScenarioOptionColors |
-	SetScenarioLoaded |
     OptionCategoriesLoaded |
     LoadLiteMonotonyRules |
     LiteMonotonyRulesLoaded |

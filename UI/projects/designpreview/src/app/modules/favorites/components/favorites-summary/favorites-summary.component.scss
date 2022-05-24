@@ -2,7 +2,7 @@
 
 .phd-favorites-summary {
 	padding-bottom: 100px;
-	margin-top: 55px;
+	margin-top: 59px;
 	width: 100%;
 
 	.phd-is-sticky {
@@ -78,9 +78,9 @@
 
 ::ng-deep .btn-primary {
 	background: var(--primary-button-color) !important;
-	border-radius: var(--button-border-radius);
+	border-radius: 35px;
 }
 
 ::ng-deep .btn-secondary {
-	border-radius: var(--button-border-radius);
+	border-radius: 35px;
 }
