@@ -8,7 +8,8 @@
 									    [physicalLotTypes]="physicalLotTypes"
 									    [isColorSchemePlanRuleEnabled]="isColorSchemePlanRuleEnabled"
 									    (onSidePanelClose)="onSidePanelClose($event)"
-									    (onSaveHomesiteAndMonotonyRules)="saveHomesiteAndMonotonyRules($event)">
+									    (onSaveHomesiteAndMonotonyRules)="saveHomesiteAndMonotonyRules($event)"
+										[filteredLots]="filteredLots">
 </manage-homesites-side-panel-component>
 
 <div class="phd-page-container" [class.phd-side-panel-open]="sidePanelOpen">

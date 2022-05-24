@@ -17,7 +17,7 @@ export interface MapApiInitializer {
 export interface MapApi {
 	selectLot: (id: string) => void;
 	selectMap: (name: string, callback?: Function) => void;
-	showLots: (lotBlocks: string[]) => void;
+	showLots: (lotBlock: string) => void;
 	setZoom: (scale: number, callback?: Function) => void;
 	zoomIn: (callback?: Function) => void;
 	zoomOut: (callback?: Function) => void;
@@ -57,7 +57,7 @@ export interface AlphaVisionFilterLotsResponse {
 }
 
 export interface AlphaVisionSelectLotResponse {
-	data: AlphaVisionLot;
+	data: AlphaVisionLotClickEvent;
 	datatype: AlphaVisionDataType;
 	eventtype: AlphaVisionEventType;
 }
@@ -68,7 +68,7 @@ export interface AlphaVisionPlan {
 	number: string;
 }
 
-export interface AlphaVisionLot {
+export interface AlphaVisionLotClickEvent {
 	lot: string;
 	lotGroupName: string;
 	lotImages: AlphaVisionImage[];
@@ -76,6 +76,12 @@ export interface AlphaVisionLot {
 	lotNumber: string;
 	plans: AlphaVisionPlan[];
 	status: string;
+	lotId: number;
+}
+
+export interface AlphaVisionLotDetails {
+	Lot: string;
+	LotId: number;
 }
 
 export interface AlphaVisionImage {
@@ -90,27 +96,21 @@ export interface AlphaVisionAmenity {
 
 export interface AlphaVisionSitePlan {
 	amenities: AlphaVisionAmenity[];
-
 	availablePlans: AlphaVisionPlan[];
-
 	availableStatus: string[];
-
-	lots: AlphaVisionLot[];
-
+	lots: AlphaVisionLotClickEvent[];
 	mapName: string;
-
 	siteplans: AlphaVisionSitePlan[];
 }
 
 export interface AlphaVisionAPIResultSiteplan {
 	SiteplanName: string;
+	LotDetails: AlphaVisionLotDetails[];
 }
 
 export interface AlphaVisionLotCounts {
 	HomesiteLotsCount: number;
-
 	AvailableHomesiteLotsCount: number;
-
 	QmiLotsCount: number;
 }
 
@@ -146,8 +146,8 @@ export enum AlphaVisionLotStatusType {
 	BogusStatus = 'BogusStatus',
 }
 
-export interface AlphaVisionGeneralResponseData extends AlphaVisionSitePlan, AlphaVisionLot, AlphaVisionPlan { }
+export interface AlphaVisionGeneralResponseData extends AlphaVisionSitePlan, AlphaVisionPlan, AlphaVisionLotDetails { }
 
-export interface AlphaVisionClickResponseData extends AlphaVisionLot, AlphaVisionAmenity, AlphaVisionSitePlan { }
+export interface AlphaVisionClickResponseData extends AlphaVisionLotClickEvent, AlphaVisionAmenity, AlphaVisionSitePlan { }
 
-export interface AlphaVisionFilterLotsResponseData extends AlphaVisionLot, AlphaVisionSitePlan { }
+export interface AlphaVisionFilterLotsResponseData extends AlphaVisionLotClickEvent, AlphaVisionSitePlan { }
