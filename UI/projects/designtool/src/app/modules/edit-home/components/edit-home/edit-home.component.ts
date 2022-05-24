@@ -33,7 +33,6 @@ import { MonotonyConflict } from '../../../shared/models/monotony-conflict.model
 // PHD Lite
 import { LiteService } from '../../../core/services/lite.service';
 import { ExteriorSubNavItems, LiteSubMenu } from '../../../shared/models/lite.model';
-import * as LiteActions from '../../../ngrx-store/lite/actions';
 
 @Component({
 	selector: 'edit-home',
@@ -285,9 +284,9 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 			{
 				this.router.navigate([filteredTree.groups[0].subGroups[0].points[0].divPointCatalogId], { relativeTo: this.route });
 			}
-			else if (this.isPhdLite && (!lite.isScenarioLoaded || !this.plan && !!plan))
+			else if (this.isPhdLite && !this.plan && !!plan)
 			{
-				this.loadPhdLite(plan);
+				this.loadPhdLite();
 			}
 
 			this.plan = plan;
@@ -775,21 +774,11 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		return this.showConfirmModal(this.optionPriceChangedModal, 'Warning', primaryButton, secondaryButton);
 	}
 
-	loadPhdLite(plan: Plan)
+	loadPhdLite()
 	{
-		if (plan)
-		{
-			this.store.dispatch(new NavActions.SetSubNavItems(ExteriorSubNavItems));		
-			this.store.dispatch(new NavActions.SetSelectedSubNavItem(LiteSubMenu.Elevation));				
-			this.router.navigateByUrl('/lite/elevation');					
-		}
-		else
-		{
-			this.store.dispatch(new NavActions.SetSelectedSubNavItem(1));
-			this.router.navigateByUrl('/new-home/name-scenario');					
-		}			
-
-		this.store.dispatch(new LiteActions.SetScenarioLoaded(true));
+		this.store.dispatch(new NavActions.SetSubNavItems(ExteriorSubNavItems));		
+		this.store.dispatch(new NavActions.SetSelectedSubNavItem(LiteSubMenu.Elevation));				
+		this.router.navigateByUrl('/lite/elevation');					
 	}
 
 	getReplacedOptionPrices(choice: Choice): TimeOfSaleOptionPrice[]
