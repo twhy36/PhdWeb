@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { NavigationEnd, Router } from "@angular/router";
 import { Observable, combineLatest } from 'rxjs';
-import { withLatestFrom, filter, take, map } from 'rxjs/operators';
+import { withLatestFrom, filter, take, map, tap } from 'rxjs/operators';
 
 import { Store, select } from '@ngrx/store';
 import * as fromRoot from '../../../ngrx-store/reducers';
@@ -16,7 +16,7 @@ import {
 } from 'phd-common';
 
 import { ActionBarCallType } from '../../../shared/classes/constants.class';
-import { LiteSubMenu, LitePlanOption } from '../../../shared/models/lite.model';
+import { ExteriorSubNavItems, LiteSubMenu, LitePlanOption } from '../../../shared/models/lite.model';
 import { MonotonyConflict } from '../../../shared/models/monotony-conflict.model';
 import { LiteService } from '../../../core/services/lite.service';
 import { PhdSubMenu } from '../../../new-home/subNavItems';
@@ -55,28 +55,34 @@ export class LiteExperienceComponent extends UnsubscribeOnDestroy implements OnI
 	)
 	{
 		super();
-	}
 
-	ngOnInit()
-	{
+		// Moved to constructor to ensure it's execution is ran on first load
 		this.router.events.pipe(
 			filter(evt => evt instanceof NavigationEnd),
 			withLatestFrom(
 				this.store.pipe(select(fromLite.selectedElevation)),
 				this.store.pipe(select(fromLite.selectedColorScheme))
-			)
+			),
+			this.takeUntilDestroyed()
 		)
 		.subscribe(([evt, elevation, colorScheme]) => {
-			this.showStatusIndicator = !this.router.url.includes('options');
+			this.showStatusIndicator = !this.router.url.includes('options') && !this.router.url.includes('colors');
 
-			if (this.router.url.includes('elevation') || this.router.url.includes('color-scheme'))
+			if(this.router.url.includes('elevation'))
+			{
+				this.store.dispatch(new NavActions.SetSubNavItems(ExteriorSubNavItems));
+				this.store.dispatch(new NavActions.SetSelectedSubNavItem(LiteSubMenu.Elevation));
+				this.setExteriorItemsStatus(elevation, colorScheme);
+			} 
+			else if(this.router.url.includes('color-scheme')) 
 			{
 				this.setExteriorItemsStatus(elevation, colorScheme);
 			}
 		});
+	}
 
-		this.showStatusIndicator = !this.router.url.includes('options');
-
+	ngOnInit()
+	{
 		this.canConfigure$ = this.store.pipe(select(fromRoot.canConfigure));
 
 		this.priceBreakdown$ = this.store.pipe(

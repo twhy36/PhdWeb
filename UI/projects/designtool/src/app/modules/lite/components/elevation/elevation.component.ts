@@ -51,8 +51,6 @@ export class ElevationComponent extends UnsubscribeOnDestroy implements OnInit
 		).subscribe(elevation =>
 		{
 			this.selectedElevation = elevation;
-			this.store.dispatch(new NavActions.SetSubNavItems(ExteriorSubNavItems));
-			this.store.dispatch(new NavActions.SetSelectedSubNavItem(LiteSubMenu.Elevation));
 		});
 
 		this.store.pipe(
