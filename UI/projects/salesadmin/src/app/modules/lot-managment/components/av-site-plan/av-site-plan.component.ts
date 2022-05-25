@@ -44,9 +44,15 @@ export class AvSitePlanComponent implements AfterViewInit, OnChanges
 
 	@Output() lotSelectedCallback = new EventEmitter<string | null>();
 
-	mapAPI?: MapApi;
+	@Output() currentMapName = new EventEmitter<string>();
+
+	@Output() communitySubmaps = new EventEmitter<string[] | undefined>();
+
+	@Output() selectedLotSubmap = new EventEmitter<string>();
 
 	@ViewChild('divSitePlan', { static: false }) divSitePlan?: ElementRef;
+
+	mapAPI?: MapApi;
 
 	mapInitStatuses: AlphaVisionLotStatusType[] = [];
 
@@ -68,6 +74,10 @@ export class AvSitePlanComponent implements AfterViewInit, OnChanges
 		{
 			this.filteredLotBlocks = this.filteredLots.map((lot) => lot.lotBlock);
 			this.mapAPI = this.instantiateAVSiteMap();
+		}
+		if (this.selectedLot && this.mapLoaded)
+		{
+			this.getSubmapFromLot(this.selectedLot.lotBlock);
 		}
 	}
 
@@ -115,19 +125,25 @@ export class AvSitePlanComponent implements AfterViewInit, OnChanges
 					{
 						this.errorMessage = res.data as string;
 					}
-					if (res.datatype === AlphaVisionDataType.MasterMap)
-					{
-						this.mapAPI?.selectMap(this.getSubMaps()[0]);
-					}
-					else
-					{
-						this.displayAndSelectLots();
-					}
+					this.displayAndSelectLots();
+				}
+				if (this.mapAPI?.alphamapApiResult)
+				{
+					this.communitySubmaps.emit(this.getSubMaps());
 				}
 			}, // Generic Map Callback
 			(res: AlphaVisionClickResponse) => 
 			{
-				this.selectLot(res);
+			
+				if (res.datatype !== 'lot')
+				{
+					this.currentMapName.emit(res.data.mapName);
+				}
+				else
+				{
+					this.selectLot(res);
+				}
+				this.displayAndSelectLots();
 			}, // Event Map Callback (lot click/ amenity click)
 			this.mapInitStatuses, // Status
 			this.mapInitPlanIds, // Plans
@@ -143,22 +159,34 @@ export class AvSitePlanComponent implements AfterViewInit, OnChanges
 		) || [];
 	}
 
+	getSubmapFromLot(id: string)
+	{
+		const selectedLotBlock = this.filteredLots.find(lot => lot.lotBlock === id)?.lotBlock;
+		const lotToSubmap = this.mapAPI?.alphamapApiResult?.Siteplans
+			.find(map => map.LotDetails.some(lot => lot.Lot === selectedLotBlock));
+		if (lotToSubmap && lotToSubmap.SiteplanName)
+		{
+			this.selectNewMap(lotToSubmap.SiteplanName);
+			this.currentMapName.emit(lotToSubmap.SiteplanName);
+			this.selectedLotSubmap.emit(lotToSubmap.SiteplanName);
+		}
+	}
+
 	displayAndSelectLots()
 	{
-		this.showLots(this.filteredLotBlocks);
+		this.showLots(this.selectedLot?.lotBlock || '');
 		this.selectLotOnMap(this.selectedLot?.lotBlock || '');
 	}
 
-	showLots(lotIds: string[])
+	showLots(lotId: string)
 	{
-		if (lotIds.length > 0)
+		if (lotId.length > 0)
 		{
-			this.mapAPI?.showLots(lotIds);
+			this.mapAPI?.showLots(lotId);
 		}
 		else
 		{
-			// eslint-disable-next-line max-len
-			this.mapAPI?.showLots(['Unfortunately, passing in an empty array of string ids to the mapAPI showLots will call the mapAPI resetLots method, which will show all lots. Since we actually dont want to show any lots if the filtered lots are empty, we instead pass in an array of ids that will most probably not exist.']);
+			this.mapAPI?.showLots('Unfortunately, passing in an empty string ids to the mapAPI showLots will call the mapAPI resetLots method, which will show all lots. Since we actually only want to show the selected lot, we instead pass in ids that will most probably not exist.');
 		}
 	}
 
@@ -169,6 +197,7 @@ export class AvSitePlanComponent implements AfterViewInit, OnChanges
 			if (this.filteredLotBlocks.includes(id))
 			{
 				this.mapSelectedLot = id;
+				this.getSubmapFromLot(id);
 				this.mapAPI?.selectLot(id);
 				this.flashLot(id);
 			}
@@ -190,7 +219,6 @@ export class AvSitePlanComponent implements AfterViewInit, OnChanges
 
 	flashLot(lotId: string)
 	{
-		const filteredLotsWithoutId = this.filteredLotBlocks.filter(id => id !== lotId);
 		window.clearInterval(this.lotFlashInterval);
 		let counter = 8;
 		this.lotFlashInterval = window.setInterval(() => 
@@ -198,16 +226,21 @@ export class AvSitePlanComponent implements AfterViewInit, OnChanges
 			counter -= 1;
 			if (counter % 2 === 0)
 			{
-				this.showLots(this.filteredLotBlocks);
+				this.showLots(lotId);
 			}
 			else
 			{
-				this.showLots(filteredLotsWithoutId);
+				this.showLots('Unfortunately, passing in an empty string id to the mapAPI showLots will call the mapAPI resetLots method, which will show all lots. Since we actually dont want to show any lots if the filtered lots are empty, we instead pass in ids that will most probably not exist.');
 			}
 			if (counter === 0)
 			{
 				window.clearInterval(this.lotFlashInterval);
 			}
 		}, 300);
+	}
+
+	selectNewMap(map: string)
+	{
+		this.mapAPI?.selectMap(map);
 	}
 }

@@ -238,6 +238,7 @@ export class ChoiceSidePanelComponent implements OnInit
 	resetImageSort()
 	{
 		this.dragEnable = false;
+
 		if (this.dragHasChanged)
 		{
 			this.choiceImageList = this.origChoiceImageList;
@@ -307,11 +308,14 @@ export class ChoiceSidePanelComponent implements OnInit
 			{
 				if (rules.length > 0)
 				{
+					// filter out possible duplicates from Or Mapping. Doesn't matter which record we get, just need one to show.
+					let filteredRules = rules.filter((value, index, array) => index === array.findIndex((rule) => (rule.integrationKey === value.integrationKey)));
+
 					this._treeService.currentTreeOptions.subscribe(options =>
 					{
 						if (options && options.length > 0)
 						{
-							rules.forEach(optionRule =>
+							filteredRules.forEach(optionRule =>
 							{
 								// find option so we can get the header name
 								const option = options.find(x => x.id === optionRule.integrationKey);
@@ -322,7 +326,7 @@ export class ChoiceSidePanelComponent implements OnInit
 								}
 							});
 
-							this.optionRules = rules;
+							this.optionRules = filteredRules;
 						}
 						else
 						{

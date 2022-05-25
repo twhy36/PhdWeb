@@ -216,10 +216,39 @@
 		<av-site-plan
 			*ngIf="communityWebsiteKey"
 			[webCommunityId]="communityWebsiteKey"
+			[selectedLot]="selectedHomesite.dto"
 			(lotSelectedCallback)="$event"
 			showLotNumbers="true"
+			(communitySubmaps)="getCommunitySubmapNames($event)"
+			(currentMapName)="getCurrentMap($event)"
+			(selectedLotSubmap)="getSelectedLotSubmap($event)"
+			[filteredLots]="filteredLots"
 		>
     </av-site-plan>
+	</div>
+	<div *ngIf="showMapsNavigation">
+		<div class="phd-list-nav">
+			<div class="phd-map-title">Maps</div>
+			<div *ngFor="let data of communitySubmaps; let last = last; let first = first">
+				<div>
+					<button 
+						*ngIf="first"
+						class="phd-smaller"
+						(click)="onMapNameChange('Master Map')"
+						[ngClass]="(currentSubmap === 'Master Map') ? 'phd-selected-text' : 'phd-unselected-text'">
+					  Master Map
+					</button>
+					<div *ngIf="first" class="phd-divider"></div>
+					<button
+						class="phd-smaller"
+						(click)="onMapNameChange(data)"
+						[ngClass]="(data === currentSubmap) ? 'phd-selected-text' : 'phd-unselected-text'">
+						{{ data }}
+					</button>
+					<div *ngIf="!last" class="phd-divider"></div>
+				</div>
+			</div>
+		</div>
 	</div>
 </div>
 
