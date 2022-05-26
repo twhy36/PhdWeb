@@ -15,7 +15,7 @@
 		"home-text-color": "#19405C",
 		"nav-bar-text-color": "white",
 		"group-bar-text-color": "#E9F3F8",
-		"group-bar-border-color": "1px solid #1F667E",
+		"group-bar-border-color": "#19405C",
 		"group-bar-selected-color": "white",
 		"heart-icon-color": "#1F667E",
 		"primary-icon-color": "#1F667E",
