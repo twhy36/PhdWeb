@@ -138,7 +138,7 @@ export class ExteriorCardComponent extends UnsubscribeOnDestroy implements OnIni
 	{
 		if (!this.canEditAgreementOrSpec)
 		{
-			return this.buildMode === 'spec' ? 'SPEC LOCKED' : 'AGREEMENT LOCKED';
+			return this.isSelected ? 'selected': this.buildMode === 'spec' ? 'SPEC LOCKED' : 'AGREEMENT LOCKED';
 		}
 
 		return this.isSelected ? 'Unselect' : 'CHOOSE';

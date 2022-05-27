@@ -10,8 +10,8 @@
 	z-index: 10;
 
 	.phd-group-bar-content {
-		padding: 8px;
-		border-bottom: var(--group-bar-border-color);
+		padding: 8px 8px 5px 8px;
+		border-bottom: 1px solid var(--group-bar-border-color);
 	}
 
 	.phd-community-name {
