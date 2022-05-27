@@ -5,6 +5,12 @@
 		"home-page-logo": "assets/del-webb/logos/Del-Webb_Logo-Home-Page.png",
 		"white_logo": "assets/del-webb/logos/DelWebb_White.png"
 	},
+	"banner": {
+		"1": "assets/del-webb/banner/DW Dark Kitchen.jpg",
+		"2": "assets/del-webb/banner/DW Light Floor.jpg",
+		"3": "assets/del-webb/banner/DW Kitchen Room.jpg",
+		"4": "assets/del-webb/banner/DW Blue Cabinet Detail.jpg"
+	},
 	"styles": {
 		"font": "Museo Sans",
 		"primary-ribbon-background-color": "#40b9da",

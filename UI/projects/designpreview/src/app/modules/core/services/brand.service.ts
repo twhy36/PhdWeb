@@ -8,7 +8,7 @@ import * as divosta from '../../../../brands/divosta.json';
 import * as centex from '../../../../brands/centex.json';
 import * as johnWieland from '../../../../brands/john-wieland.json';
 
-import { applyBrand, getBrandImageSrc } from 'phd-common';
+import { applyBrand, getBrandImageSrc, getBannerImageSrc } from 'phd-common';
 
 @Injectable()
 export class BrandService {
@@ -30,6 +30,10 @@ export class BrandService {
 
 	getBrandImage(imageProperty: string): string {
 		return getBrandImageSrc(this.brandMap, imageProperty);
+	}
+
+	getBannerImage(bannerPos: number): string {
+		return getBannerImageSrc(this.brandMap, bannerPos)
 	}
 
 	getBrandedLogoutUrl() {

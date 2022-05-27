@@ -1,0 +1,10 @@
+.phd-banner {
+    justify-content: space-between;
+    height: calc(50vh - 70px);
+
+    .phd-banner {
+        height: auto;
+        width: 24.5%;
+        object-fit: cover;
+    }
+}
