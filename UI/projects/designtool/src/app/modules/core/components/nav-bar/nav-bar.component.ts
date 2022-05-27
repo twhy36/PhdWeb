@@ -419,6 +419,11 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 		}
 	}
 
+	isActiveModelOrSpec()
+	{
+		return this.job.id !== 0 && (this.buildMode === 'spec' || this.buildMode === 'model');
+	}
+
 	onChangeOrderMenuItem()
 	{
 		switch (this.changeOrderType)
