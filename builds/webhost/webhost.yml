@@ -186,4 +186,16 @@ stages:
         runOnce:
           deploy:
             steps:
-            - script: echo 'Approved!'
+            - task: PowerShell@2
+              displayName: Tag Sources
+              inputs:
+                targetType: 'inline'
+                script: |
+                  CD "$Env:SYSTEM_SOURCESDIRECTORY"
+                  git tag -a $Env:BUILD_BUILDNUMBER $Env:BUILD_SOURCEVERSION -m ("Production release {0}" -f [DateTime]::Now.ToString("M/d/yy"))
+                  git push origin $Env:BUILD_BUILDNUMBER
+
+                  $tags = -split (git for-each-ref --sort=creatordate --format '%(refname)' refs/tags) | Where-Object {$_ -like ("refs/tags/{0}*" -f $Env:BUILD_DEFINITIONNAME) }
+                  for ($i = 0; $i -lt ($tags.Count - 3); $i++) {
+                    git push origin --delete ($tags[$i] -split "/")[-1]
+                  }
