@@ -35,11 +35,11 @@ const moduleRoutes: Routes = [
 
 @NgModule({
     exports: [
-        HomeComponent,
+		HomeComponent,
 		BannerComponent
     ],
     declarations: [
-        HomeComponent,
+		HomeComponent,
 		BannerComponent
     ],
 	imports: [

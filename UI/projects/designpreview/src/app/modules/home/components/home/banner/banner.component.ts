@@ -4,8 +4,8 @@ import { BrandService } from '../../../../core/services/brand.service';
 
 @Component({
 	selector: 'banner',
-    templateUrl: 'banner.component.html',
-    styleUrls: ['banner.component.scss']
+	templateUrl: 'banner.component.html',
+	styleUrls: ['banner.component.scss']
 })
 export class BannerComponent
 {
