@@ -120,13 +120,14 @@ export class LiteService
 		);
 	}
 
-	saveScenarioOptions(scenarioId: number, scenarioOptions: ScenarioOption[]) : Observable<ScenarioOption[]>
+	saveScenarioOptions(scenarioId: number, scenarioOptions: ScenarioOption[], deletePhdFullData: boolean = false) : Observable<ScenarioOption[]>
 	{
 		const endpoint = environment.apiUrl + `SaveScenarioOptions`;
 
 		let data = {
-			scenarioId: scenarioId,
-			scenarioOptions: scenarioOptions
+			scenarioId,
+			scenarioOptions,
+			deletePhdFullData
 		};
 
 		return this._http.post(endpoint, data).pipe(
@@ -409,7 +410,7 @@ export class LiteService
 
 		const data = {
 			scenarioId: scenarioId,
-			options: isSpecSale 
+			options: isSpecSale
 				? this.mapChangedOptions(changedOptions, false)
 				: this.mapScenarioOptions(
 					scenarioOptions,
@@ -445,7 +446,7 @@ export class LiteService
 
 	private mapChangedOptions(changeOrderOptions: LiteChangeOrderPlanOptionDto[] = [], isElevation: boolean = false): LitePlanOptionDto[]
 	{
-		return changeOrderOptions.map(item => { 
+		return changeOrderOptions.map(item => {
 			if (isElevation === item.isElevation) {
 				const colors = item.attributes.map(color => {
 					return {
@@ -1321,7 +1322,7 @@ export class LiteService
 			{
 				const isElevation = isElevationOption(curr.edhPlanOptionId);
 				const optionType = isElevation ? 'Elevation' : (option.isBaseHouse ? 'BaseHouse' : 'Standard');
-	
+
 				optionsDto.push({
 					planOptionId: curr.edhPlanOptionId,
 					price: option.listPrice,

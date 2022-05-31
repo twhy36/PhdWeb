@@ -1,4 +1,4 @@
-import { Log, ScenarioOption, Scenario, Job } from 'phd-common';
+import { Log, ScenarioOption, Scenario } from 'phd-common';
 import { Action } from '@ngrx/store';
 import {
     IOptionCategory, LitePlanOption, ScenarioOptionColorDto, LiteMonotonyRule
@@ -140,7 +140,10 @@ export class LoadLiteSpecOrModel implements Action
 export class ToggleQuickMoveInSelections implements Action
 {
 	readonly type = LiteActionTypes.ToggleQuickMoveInSelections;
-	constructor(public previousScenarioOptions: ScenarioOption[]) { }
+	constructor(
+		public optionsToDelete: ScenarioOption[],
+		public optionsToAdd: ScenarioOption[],
+		public deletePhdFullData: boolean) { }
 }
 
 export type LiteActions =
