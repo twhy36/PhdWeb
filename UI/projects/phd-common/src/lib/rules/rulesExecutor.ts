@@ -671,7 +671,7 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 		//lock in prices
 		if (choice.lockedInChoice)
 		{
-			choice.price = choice?.lockedInChoice?.choice?.dpChoiceCalculatedPrice;
+			choice.price = choice.lockedInChoice.choice.dpChoiceCalculatedPrice;
 		}
 
 		// #332687
