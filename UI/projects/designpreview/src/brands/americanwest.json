@@ -5,6 +5,12 @@
         "choice-card-logo": "assets/american-west/logos/American-West_Logo-Home-Page.png",
 		"home-page-logo": "assets/american-west/logos/American-West_Logo-Home-Page.png"
 	},
+    "banner": {
+		"1": "assets/centex/banner/CTX Kitchen.jpg",
+		"2": "assets/centex/banner/CTX Dark Wood.jpg",
+		"3": "assets/centex/banner/CTX Kitchen Living.jpg",
+		"4": "assets/centex/banner/CTX Faucet.jpg"
+	},
 	"styles": {
 		"font": "Optima",
 		"primary-ribbon-background-color": "#f3f3f3",

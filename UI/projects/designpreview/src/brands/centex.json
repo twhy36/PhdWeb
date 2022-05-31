@@ -5,6 +5,12 @@
 		"home-page-logo": "assets/centex/logos/Centex_Logo-Home-Page.png",
 		"white_logo": "assets/centex/logos/Centex_4C White.png"
 	},
+	"banner": {
+		"1": "assets/centex/banner/CTX Kitchen.jpg",
+		"2": "assets/centex/banner/CTX Dark Wood.jpg",
+		"3": "assets/centex/banner/CTX Kitchen Living.jpg",
+		"4": "assets/centex/banner/CTX Faucet.jpg"
+	},
 	"styles": {
 		"font": "Apercu",
 		"primary-ribbon-background-color": "#CE4235",
