@@ -34,21 +34,21 @@ const moduleRoutes: Routes = [
 ];
 
 @NgModule({
-    exports: [
+	exports: [
 		HomeComponent,
 		BannerComponent
-    ],
-    declarations: [
+	],
+	declarations: [
 		HomeComponent,
 		BannerComponent
-    ],
+	],
 	imports: [
 		CommonModule,
 		CloudinaryModule,
 		SharedModule,
 		PhdCommonModule,
-        RouterModule.forChild(moduleRoutes),
-    ],
-    providers: []
+		RouterModule.forChild(moduleRoutes),
+	],
+	providers: []
 })
 export class HomeModule { }
