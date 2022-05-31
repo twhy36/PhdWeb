@@ -407,8 +407,7 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 					return { ...lcr, rules: lcr.rules.filter(rule => rule.edhLotId === lot.id && !rule.mustHave && previousLotSelections?.find(pls => pls.choice.choiceCatalogId === lcr.divChoiceCatalogId)) }
 				}).filter(r => r.rules.length);
 
-				if (((requiredSelections?.length || disabledSelections?.length) && !selected)
-					|| noLongerRequiredSelections?.length)
+				if (this.selectedPlanId && (((requiredSelections?.length || disabledSelections?.length) && !selected) || noLongerRequiredSelections?.length))
 				{
 					const confirm = this.modalService.open(ConfirmModalComponent, { centered: true });
 
