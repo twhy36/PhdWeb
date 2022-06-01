@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from "@angular/router";
-import { Observable, throwError as _throw } from 'rxjs';
-import { map, catchError, switchMap, take, tap } from 'rxjs/operators';
+import { BehaviorSubject, Observable, of, throwError as _throw } from 'rxjs';
+import { map, catchError, switchMap, take, tap, shareReplay } from 'rxjs/operators';
 import { Store, ActionsSubject, select } from '@ngrx/store';
 import { ofType } from '@ngrx/effects';
 
@@ -16,7 +16,7 @@ import
 	SalesAgreement, ISalesAgreement, ModalService, Job, ChangeOrderGroup, JobPlanOptionAttribute,
 	JobPlanOption, ChangeOrderPlanOption, SummaryData, defaultOnNotFound,
 	ChangeOrderHanding, ChangeTypeEnum, ChangeInput, SelectedChoice, ConstructionStageTypes,
-	ScenarioOption, ScenarioOptionColor, Scenario, IJob
+	ScenarioOption, ScenarioOptionColor, Scenario, IJob, FeatureSwitchService
 } from 'phd-common';
 
 import * as fromRoot from '../../ngrx-store/reducers';
@@ -36,6 +36,8 @@ import * as moment from 'moment';
 export class LiteService
 {
 	private _ds: string = encodeURIComponent("$");
+	private isPhdLiteEnabled$ = new BehaviorSubject<boolean>(null);
+	private currentFinancialCommunityId: number;
 
     constructor(
 		private _http: HttpClient,
@@ -44,9 +46,36 @@ export class LiteService
 		private changeOrderService: ChangeOrderService,
 		private modalService: ModalService,
 		private store: Store<fromRoot.State>,
-		private actions: ActionsSubject
+		private actions: ActionsSubject,
+		private featureSwitchService: FeatureSwitchService
 	) { }
 
+	isPhdLiteEnabled(financialCommunityId: number) : Observable<boolean>
+	{
+		if (!financialCommunityId)
+		{
+			// Ignore the flag if financial community id is not valid
+			return of(true);
+		}
+
+		if (this.currentFinancialCommunityId !== financialCommunityId || this.isPhdLiteEnabled$.value === null)
+		{
+			return this.featureSwitchService.isFeatureEnabled('Phd Lite', { edhMarketId: null, edhFinancialCommunityId: financialCommunityId })
+				.pipe(
+					shareReplay(1),
+					map(isFeatureEnabled =>
+					{
+						this.isPhdLiteEnabled$.next(!!isFeatureEnabled);
+						this.currentFinancialCommunityId = financialCommunityId;
+
+						return !!isFeatureEnabled;
+					})
+				);				
+		}
+		
+		return this.isPhdLiteEnabled$;
+	}
+	
 	getLitePlanOptions(planId: number, optionIds?: Array<string>, skipSpinner?: boolean): Observable<LitePlanOption[]>
 	{
 		let filterOptions = '';
@@ -1106,7 +1135,7 @@ export class LiteService
 			? _.flatMap(changeOrder.jobChangeOrders, co => co.jobChangeOrderPlanOptions)
 			: [];
 
-			return !job.jobChoices?.length && !!job.jobPlanOptions?.length // there are no job choices but job plan options
+		return !job.jobChoices?.length && !!job.jobPlanOptions?.length // there are no job choices but job plan options
 			|| !changeOrderChoices.length && !!changeOrderOptions.length // there are no change order choices but change order options
 				&& !job.jobChoices?.length && !job.jobPlanOptions?.length;
 	}

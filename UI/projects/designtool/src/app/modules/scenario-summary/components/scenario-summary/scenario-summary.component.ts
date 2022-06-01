@@ -269,12 +269,15 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 		{
 			if (scenario.buildMode === 'model' && job && !job.jobLoading && changeOrder && !changeOrder.loadingCurrentChangeOrder) 
 			{
-				this.isPhdLite = this.liteService.checkLiteAgreement(job, changeOrder.currentChangeOrder);
-				if (this.isPhdLite) 
-				{
-					this._toastr.clear();
-					this.router.navigate(['lite-summary']);
-				}
+				this.liteService.isPhdLiteEnabled(job.financialCommunityId)
+					.subscribe(isPhdLiteEnabled => {
+						this.isPhdLite = isPhdLiteEnabled && this.liteService.checkLiteAgreement(job, changeOrder.currentChangeOrder);
+						if (this.isPhdLite) 
+						{
+							this._toastr.clear();
+							this.router.navigate(['lite-summary']);
+						}
+					});
 			}
 
 			if (changeOrder.isChangingOrder)

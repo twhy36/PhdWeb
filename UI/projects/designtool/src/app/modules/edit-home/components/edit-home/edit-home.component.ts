@@ -189,105 +189,107 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 				return;
 			}
 
-			this.isPhdLite = lite.isPhdLite
-				|| this.liteService.checkLiteScenario(scenarioState?.scenario?.scenarioChoices, scenarioState?.scenario?.scenarioOptions);
-
-			if (routeData["isPreview"])
+			this.liteService.isPhdLiteEnabled(scenarioState.scenario?.financialCommunityId).subscribe(isPhdLiteEnabled => 
 			{
-				if (!scenarioState.tree || scenarioState.tree.treeVersion.id !== params.treeVersionId)
-				{
-					this.store.dispatch(new ScenarioActions.LoadPreview(params.treeVersionId));
-				}
-				else if (filteredTree)
-				{
-					this.router.navigateByUrl(`edit-home/0/${filteredTree.groups[0].subGroups[0].points[0].divPointCatalogId}`);
-				}
-			}
-			else if ((!scenarioState.scenario || params.scenarioId !== scenarioState.scenario.scenarioId) && !sag.id && this.buildMode === 'buyer')
-			{
-				this.store.dispatch(new CommonActions.LoadScenario(params.scenarioId));
-			}
-			else if (filteredTree && params.divDPointCatalogId > 0 && !this.isPhdLite)
-			{
-				let groups = filteredTree.groups;
-				let sg;
-				let dp;
+				this.isPhdLite = isPhdLiteEnabled && (lite.isPhdLite || this.liteService.checkLiteScenario(scenarioState?.scenario?.scenarioChoices, scenarioState?.scenario?.scenarioOptions));
 
-				if (groups.length)
+				if (routeData["isPreview"])
 				{
-					sg = _.flatMap(groups, g => g.subGroups).find(sg => sg.points.some(p => p.divPointCatalogId === params.divDPointCatalogId));
-					dp = !!sg ? sg.points.find(p => p.divPointCatalogId === params.divDPointCatalogId) : null;
-
-					if (!dp)
+					if (!scenarioState.tree || scenarioState.tree.treeVersion.id !== params.treeVersionId)
 					{
-						let divPointCatalogId = groups[0].subGroups[0].points[0].divPointCatalogId;
+						this.store.dispatch(new ScenarioActions.LoadPreview(params.treeVersionId));
+					}
+					else if (filteredTree)
+					{
+						this.router.navigateByUrl(`edit-home/0/${filteredTree.groups[0].subGroups[0].points[0].divPointCatalogId}`);
+					}
+				}
+				else if ((!scenarioState.scenario || params.scenarioId !== scenarioState.scenario.scenarioId) && !sag.id && this.buildMode === 'buyer')
+				{
+					this.store.dispatch(new CommonActions.LoadScenario(params.scenarioId));
+				}
+				else if (filteredTree && params.divDPointCatalogId > 0 && !this.isPhdLite)
+				{
+					let groups = filteredTree.groups;
+					let sg;
+					let dp;
 
-						//this happens if the decision point has been filtered out of the tree - find a new decision point to navigate to
-						if (!!this.selectedGroupId)
+					if (groups.length)
+					{
+						sg = _.flatMap(groups, g => g.subGroups).find(sg => sg.points.some(p => p.divPointCatalogId === params.divDPointCatalogId));
+						dp = !!sg ? sg.points.find(p => p.divPointCatalogId === params.divDPointCatalogId) : null;
+
+						if (!dp)
 						{
-							let origGroup = groups.find(g => g.id === this.selectedGroupId);
+							let divPointCatalogId = groups[0].subGroups[0].points[0].divPointCatalogId;
 
-							if (origGroup)
+							//this happens if the decision point has been filtered out of the tree - find a new decision point to navigate to
+							if (!!this.selectedGroupId)
 							{
-								let origSg = origGroup.subGroups.find(sg => sg.id === this.selectedSubgroupId);
+								let origGroup = groups.find(g => g.id === this.selectedGroupId);
 
-								if (origSg)
+								if (origGroup)
 								{
-									divPointCatalogId = origSg.points[0].divPointCatalogId;
+									let origSg = origGroup.subGroups.find(sg => sg.id === this.selectedSubgroupId);
+
+									if (origSg)
+									{
+										divPointCatalogId = origSg.points[0].divPointCatalogId;
+									}
+									else
+									{
+										divPointCatalogId = origGroup.subGroups[0].points[0].divPointCatalogId;
+									}
 								}
-								else
+							}
+
+							this.router.navigate(['..', divPointCatalogId], { relativeTo: this.route });
+						}
+						else
+						{
+							this.setSelectedGroup(groups.find(g => g.subGroups.some(sg1 => sg1.id === sg.id)), sg);
+							this.selectedSubGroup$.next(sg);
+							this.selectedDecisionPoint$.next(dp);
+
+							//this is when they've actually navigated to a different decision point:
+							if (params.divDPointCatalogId !== this.selectedDivPointCatalogId)
+							{
+								this.selectedDivPointCatalogId = dp.divPointCatalogId;
+
+								if (!dp.viewed)
 								{
-									divPointCatalogId = origGroup.subGroups[0].points[0].divPointCatalogId;
+									this.store.dispatch(new ScenarioActions.SetPointViewed(dp.id));
 								}
 							}
 						}
-
-						this.router.navigate(['..', divPointCatalogId], { relativeTo: this.route });
 					}
-					else
+					else if (scenarioState.treeFilter)
 					{
-						this.setSelectedGroup(groups.find(g => g.subGroups.some(sg1 => sg1.id === sg.id)), sg);
-						this.selectedSubGroup$.next(sg);
-						this.selectedDecisionPoint$.next(dp);
+						// find the last point we were on using the full tree
+						groups = scenarioState.tree.treeVersion.groups;
+						sg = _.flatMap(groups, g => g.subGroups).find(sg => sg.points.some(p => p.divPointCatalogId === params.divDPointCatalogId));
+						dp = !!sg ? sg.points.find(p => p.divPointCatalogId === params.divDPointCatalogId) : null;
 
-						//this is when they've actually navigated to a different decision point:
-						if (params.divDPointCatalogId !== this.selectedDivPointCatalogId)
+						if (dp)
 						{
-							this.selectedDivPointCatalogId = dp.divPointCatalogId;
-
-							if (!dp.viewed)
-							{
-								this.store.dispatch(new ScenarioActions.SetPointViewed(dp.id));
-							}
+							this.setSelectedGroup(groups.find(g => g.subGroups.some(sg1 => sg1.id === sg.id)), sg);
+							this.selectedSubGroup$.next(sg);
+							this.selectedDecisionPoint$.next(dp);
 						}
+
+						this.errorMessage = 'Seems there are no results that match your search criteria.';
+						this.showPhaseProgressBarItems = false;
 					}
 				}
-				else if (scenarioState.treeFilter)
+				else if (filteredTree && !this.isPhdLite)
 				{
-					// find the last point we were on using the full tree
-					groups = scenarioState.tree.treeVersion.groups;
-					sg = _.flatMap(groups, g => g.subGroups).find(sg => sg.points.some(p => p.divPointCatalogId === params.divDPointCatalogId));
-					dp = !!sg ? sg.points.find(p => p.divPointCatalogId === params.divDPointCatalogId) : null;
-
-					if (dp)
-					{
-						this.setSelectedGroup(groups.find(g => g.subGroups.some(sg1 => sg1.id === sg.id)), sg);
-						this.selectedSubGroup$.next(sg);
-						this.selectedDecisionPoint$.next(dp);
-					}
-
-					this.errorMessage = 'Seems there are no results that match your search criteria.';
-					this.showPhaseProgressBarItems = false;
+					this.router.navigate([filteredTree.groups[0].subGroups[0].points[0].divPointCatalogId], { relativeTo: this.route });
 				}
-			}
-			else if (filteredTree && !this.isPhdLite)
-			{
-				this.router.navigate([filteredTree.groups[0].subGroups[0].points[0].divPointCatalogId], { relativeTo: this.route });
-			}
-			else if (this.isPhdLite && !this.plan && !!plan)
-			{
-				this.loadPhdLite();
-			}
+				else if (this.isPhdLite && !this.plan && !!plan)
+				{
+					this.loadPhdLite();
+				}
+			});
 
 			this.plan = plan;
 		});

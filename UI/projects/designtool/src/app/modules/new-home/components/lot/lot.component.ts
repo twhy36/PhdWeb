@@ -632,7 +632,7 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 	{
 		this.store.pipe(
 			select(state => state.scenario),
-			map(scenarioState => { return { scenarioId: scenarioState.scenario.scenarioId, divDPointCatalogId: scenarioState.tree.treeVersion.groups[0].subGroups[0].points[0].divPointCatalogId }; }),
+			map(scenarioState => { return { scenarioId: scenarioState.scenario.scenarioId, divDPointCatalogId: scenarioState.tree?.treeVersion?.groups[0]?.subGroups[0]?.points[0]?.divPointCatalogId || 0 }; }),
 			take(1)
 		).subscribe(state =>
 		{

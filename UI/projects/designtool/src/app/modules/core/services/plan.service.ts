@@ -35,19 +35,30 @@ export class PlanService
 				// tslint:disable-next-line: deprecation
 				combineLatest(this.getCommunityPlans(salesCommunity.id)),
 				withLatestFrom(this.store),
-				flatMap(([[treeVersions, plans], store]: [[any, Plan[]], fromRoot.State]) =>
+				switchMap(([[treeVersions, plans], store]: [[any, Plan[]], fromRoot.State]) =>
 				{
-					const isPhdLite = !treeVersions || !treeVersions.length
-						|| this.liteService.checkLiteScenario(store.scenario?.scenario?.scenarioChoices, store.scenario?.scenario?.scenarioOptions)
-						|| this.liteService.checkLiteAgreement(store.job, store.changeOrder.currentChangeOrder);
+					const financialCommunityId = store.job?.financialCommunityId || store.scenario?.scenario?.financialCommunityId;
 
-					return from(plans)
+					return this.liteService.isPhdLiteEnabled(financialCommunityId).pipe(
+						map(isPhdLiteEnabled => {
+							const isPhdLite = isPhdLiteEnabled && 
+								(!treeVersions || !treeVersions.length  
+									|| this.liteService.checkLiteScenario(store.scenario?.scenario?.scenarioChoices, store.scenario?.scenario?.scenarioOptions)
+									|| this.liteService.checkLiteAgreement(store.job, store.changeOrder.currentChangeOrder)
+								);
+	
+							return { treeVersions, plans, isPhdLite }
+						})
+					)
+				}),
+				switchMap(result => {
+					return from(result.plans)
 						.pipe(
 							flatMap(plan =>
 							{
-								const activePlans = treeVersions.find(p => p.planKey === plan.integrationKey && p.communityId === plan.communityId);
+								const activePlans = result.treeVersions.find(p => p.planKey === plan.integrationKey && p.communityId === plan.communityId);
 
-								if (activePlans != null || isPhdLite)
+								if (activePlans != null || result.isPhdLite)
 								{
 									includedPlanOptions = activePlans?.includedOptions || [];
 									plan.treeVersionId = activePlans?.id || null;

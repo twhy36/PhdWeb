@@ -26,8 +26,8 @@ export class SalesProgramsSidePanelComponent implements OnInit
 	@Input() customClasses: string = '';
 	@Input() disabled: boolean = false;
 	@Input() saving: boolean = false;
-	@Input() financialCommunityInfo: FinancialCommunityInfo;
-	@Input() selected: SalesProgram;
+	@Input() financialCommunityInfo: FinancialCommunityInfo; // DELETEME when THO columns are migrated to EDH
+	@Input() selectedSalesProgram: SalesProgram;
 
 	releaseForm: FormGroup;
 	agreementLocked: boolean;
@@ -58,7 +58,7 @@ export class SalesProgramsSidePanelComponent implements OnInit
 
 	ngOnInit()
 	{
-		this.agreementLocked = this.selected ? this.selected.agreementLocked : false;
+		this.agreementLocked = this.selectedSalesProgram ? this.selectedSalesProgram.agreementLocked : false;
 		this.createForm();
 	}
 
@@ -79,13 +79,13 @@ export class SalesProgramsSidePanelComponent implements OnInit
 
 	createForm()
 	{
-		let salesProgramType = this.selected ? this.selected.salesProgramType : null;
-		let maximumAmount = this.selected ? this.selected.maximumAmount : null;
-		let name = this.selected ? this.selected.name : null;
-		let isPmcAffiliate = this.selected ? this.selected.isPMCAffiliate : null;
+		let salesProgramType = this.selectedSalesProgram ? this.selectedSalesProgram.salesProgramType : null;
+		let maximumAmount = this.selectedSalesProgram ? this.selectedSalesProgram.maximumAmount : null;
+		let name = this.selectedSalesProgram ? this.selectedSalesProgram.name : null;
+		let isPmcAffiliate = this.selectedSalesProgram ? this.selectedSalesProgram.isPMCAffiliate : null;
 
-		this.startDate = this.selected ? new Date(this.convertDate(this.selected.startDate)) : this.startDate;
-		this.endDate = this.selected ? new Date(this.convertDate(this.selected.endDate)) : this.endDate;
+		this.startDate = this.selectedSalesProgram ? new Date(this.convertDate(this.selectedSalesProgram.startDate)) : this.startDate;
+		this.endDate = this.selectedSalesProgram ? new Date(this.convertDate(this.selectedSalesProgram.endDate)) : this.endDate;
 
 		// assign form controls
 		this.releaseForm = new FormGroup({
@@ -98,11 +98,12 @@ export class SalesProgramsSidePanelComponent implements OnInit
 		});
 
 		// if this is an edit, assign additional form controls
-		if (this.selected)
+		if (this.selectedSalesProgram)
 		{
-			this.releaseForm.addControl('id', new FormControl(this.selected.id));
-			this.releaseForm.addControl('createdBy', new FormControl(this.selected.createdBy));
-			this.releaseForm.addControl('createdUtcDate', new FormControl(this.selected.createdUtcDate));
+			this.releaseForm.addControl('id', new FormControl(this.selectedSalesProgram.id));
+			this.releaseForm.addControl('createdBy', new FormControl(this.selectedSalesProgram.createdBy));
+			this.releaseForm.addControl('createdUtcDate', new FormControl(this.selectedSalesProgram.createdUtcDate));
+			this.releaseForm.addControl('isWebSaleable', new FormControl(this.selectedSalesProgram.isWebSaleable));
 		}
 
 		if (this.agreementLocked)
@@ -122,7 +123,7 @@ export class SalesProgramsSidePanelComponent implements OnInit
 
 	onClick(event: any)
 	{
-		if (this.selected?.isThoEnabled && this.selected?.isPMCAffiliate && this.selected?.salesProgramType.toString() === 'BuyersClosingCost')
+		if (this.selectedSalesProgram?.isWebSaleable && this.selectedSalesProgram?.isPMCAffiliate && this.selectedSalesProgram?.salesProgramType.toString() === 'BuyersClosingCost')
 		{
 			event.preventDefault();
 
@@ -144,14 +145,18 @@ export class SalesProgramsSidePanelComponent implements OnInit
 			{
 				if (result == 'Continue')
 				{
+					// DELETEME when THO columns are migrated to EDH
 					this.financialCommunityInfo.thoBuyerClosingCostId = null;
 
-					this._orgService.saveFinancialCommunityInfo(this.financialCommunityInfo,null).subscribe(fcInfo =>
+					this._orgService.saveFinancialCommunityInfo(this.financialCommunityInfo, null).subscribe(fcInfo =>
 					{
-						this.selected.isThoEnabled = !this.selected.isThoEnabled;
-						this.releaseForm.controls.isPMCAffiliate.setValue(!event.target.checked);
-						this.releaseForm.controls.isPMCAffiliate.markAsDirty();
+						// logic moved...
 					});
+					//end DELETEME
+
+					this.releaseForm.controls.isWebSaleable.setValue(!this.selectedSalesProgram.isWebSaleable);
+					this.releaseForm.controls.isPMCAffiliate.setValue(!event.target.checked);
+					this.releaseForm.controls.isPMCAffiliate.markAsDirty();
 				}
 			}, (reason) =>
 			{

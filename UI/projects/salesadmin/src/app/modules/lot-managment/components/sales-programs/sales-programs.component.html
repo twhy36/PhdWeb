@@ -1,12 +1,15 @@
-<sales-programs-side-panel-component *ngIf="sidePanelOpen" [saving]="saving" [sidePanelOpen]="sidePanelOpen" [selected]="selected" [financialCommunityInfo]="financialCommunityInfo" (onSidePanelClose)="onSidePanelClose($event)" (onSave)="save($event)"></sales-programs-side-panel-component>
+<sales-programs-side-panel-component *ngIf="sidePanelOpen" [saving]="saving" [sidePanelOpen]="sidePanelOpen"
+	[selectedSalesProgram]="selectedSalesProgram" [financialCommunityInfo]="financialCommunityInfo"
+	(onSidePanelClose)="onSidePanelToggle($event)" (onSave)="save($event)"></sales-programs-side-panel-component>
 
 <div class="phd-page-container" [class.phd-side-panel-open]="sidePanelOpen">
 	<page-header mainTitle="Sales Programs">
 		<ng-template>
 			<div class="col">
-				<select class="form-control" [ngModel]="selectedCommunity ? selectedCommunity.dto : null" (ngModelChange)="onChangeCommunity($event)">
+				<select class="form-control" [ngModel]="selectedCommunity ? selectedCommunity.dto : null"
+					(ngModelChange)="onChangeCommunity($event)">
 					<option [ngValue]="null" disabled="disabled">Community</option>
-						<option *ngFor="let comm of activeCommunities" [ngValue]="comm.dto">{{ comm.name }}</option>
+					<option *ngFor="let comm of activeCommunities" [ngValue]="comm.dto">{{ comm.name }}</option>
 				</select>
 			</div>
 		</ng-template>
@@ -15,7 +18,8 @@
 	<div class="phd-page-body">
 		<div class="my-3 phd-filter-body">
 			<div class="pull-right mr-3">
-				<button class="btn btn-primary" (click)="create();" [disabled]="loading" *ngIf="canEdit">Create Sales Program</button>
+				<button class="btn btn-primary" (click)="create();" [disabled]="loading" *ngIf="canEdit">Create Sales
+					Program</button>
 			</div>
 		</div>
 
@@ -23,12 +27,14 @@
 			<phd-table #dt [value]="salesPrograms" sortMode="single" [nonOverflow]="false">
 				<phd-column header="" columnClass="phd-icon">
 					<ng-template #body let-item>
-						<i class="fa fa-trash fa-fw" (click)="inactivate(item);" phd-tooltip="Inactivate Homesite" *ngIf="canEdit && item.availability == 'Yes'"></i>
+						<i class="fa fa-trash fa-fw" (click)="inactivate(item);" phd-tooltip="Inactivate Homesite"
+							*ngIf="canEdit && item.availability == 'Yes'"></i>
 					</ng-template>
 				</phd-column>
 				<phd-column header="" columnClass="phd-icon">
 					<ng-template #body let-item>
-						<i class="fa fa-pencil fa-fw" (click)="edit(item);" phd-tooltip="Edit Homesite" *ngIf="canEdit"></i>
+						<i class="fa fa-pencil fa-fw" (click)="edit(item);" phd-tooltip="Edit Homesite"
+							*ngIf="canEdit"></i>
 					</ng-template>
 				</phd-column>
 				<phd-column header="Sales Program Name" field="name"></phd-column>
@@ -36,21 +42,24 @@
 				<phd-column header="Discount" field="maximumAmount">
 					<ng-template #body let-item>
 						<ng-container *ngIf="item.maximumAmount | currency; let formattedAmount">
-							<span (mouseenter)="showTooltip($event, formattedAmount, dt)" (mouseleave)="hideTooltip(dt)">{{ formattedAmount }}</span>
+							<span (mouseenter)="showTooltip($event, formattedAmount, dt)"
+								(mouseleave)="hideTooltip(dt)">{{ formattedAmount }}</span>
 						</ng-container>
 					</ng-template>
 				</phd-column>
 				<phd-column header="Effective Date" field="startDate">
 					<ng-template #body let-item>
 						<ng-container *ngIf="item.startDate | date:'L/dd/yyyy'; let formattedDate">
-							<span (mouseenter)="showTooltip($event, formattedDate, dt)" (mouseleave)="hideTooltip(dt)">{{ formattedDate }}</span>
+							<span (mouseenter)="showTooltip($event, formattedDate, dt)"
+								(mouseleave)="hideTooltip(dt)">{{ formattedDate }}</span>
 						</ng-container>
 					</ng-template>
 				</phd-column>
 				<phd-column header="Expiration Date" field="endDate">
 					<ng-template #body let-item>
 						<ng-container *ngIf="item.endDate | date:'L/dd/yyyy'; let formattedDate">
-							<span (mouseenter)="showTooltip($event, formattedDate, dt)" (mouseleave)="hideTooltip(dt)">{{ formattedDate }}</span>
+							<span (mouseenter)="showTooltip($event, formattedDate, dt)"
+								(mouseleave)="hideTooltip(dt)">{{ formattedDate }}</span>
 						</ng-container>
 					</ng-template>
 				</phd-column>
@@ -58,7 +67,10 @@
 				<phd-column header="PMC Affiliated" field="pmcAffiliated"></phd-column>
 				<phd-column header="THO Enabled">
 					<ng-template #body let-item>
-						<button *ngIf="canEdit && item.availability == 'Yes'" class="btn btn-sm btn-toggle btn-enabletho" [ngClass]="{'active': !item.isThoEnabled, 'btn-success': item.isThoEnabled, 'btn-secondary': !item.isThoEnabled }" (click)="toggleThoEnabled(item)">
+						<button *ngIf="canEdit && item.availability == 'Yes'"
+							class="btn btn-sm btn-toggle btn-enabletho"
+							[ngClass]="{'active': !item.isWebSaleable, 'btn-success': item.isWebSaleable, 'btn-secondary': !item.isWebSaleable }"
+							(click)="toggleThoEnabled(item)">
 							<div class="handle"></div>
 						</button>
 					</ng-template>

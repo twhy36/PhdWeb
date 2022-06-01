@@ -1,6 +1,7 @@
 import { FinancialMarket } from './financialMarket.model';
 
-export interface FinancialCommunity {
+export interface FinancialCommunity
+{
 	id: number;
 	key: string;
 	marketId: number;
@@ -15,23 +16,25 @@ export interface FinancialCommunity {
 	isColorSchemePlanRuleEnabled: boolean;
 }
 
-export class FinancialCommunityInfo {
+export class FinancialCommunityInfo
+{
 	financialCommunityId: number;
 	defaultECOEMonths?: number;
 	earnestMoneyAmount?: number;
-	thoBuyerClosingCostId?: number;
-	thoDiscountFlatAmountId?: number;
+	thoBuyerClosingCostId?: number; // DELETEME when THO columns are migrated to EDH
+	thoDiscountFlatAmountId?: number; // DELETEME when THO columns are migrated to EDH
 	createdBy?: string;
 	createdUtcDate?: Date;
 	lastModifiedBy?: string;
 	lastModifiedUtcDate?: Date;
 
-	constructor(data?: FinancialCommunityInfo) {
+	constructor(data?: FinancialCommunityInfo)
+	{
 		this.financialCommunityId = data.financialCommunityId;
 		this.defaultECOEMonths = data.defaultECOEMonths;
 		this.earnestMoneyAmount = data.earnestMoneyAmount;
-		this.thoBuyerClosingCostId = data.thoBuyerClosingCostId;
-		this.thoDiscountFlatAmountId = data.thoDiscountFlatAmountId;
+		this.thoBuyerClosingCostId = data.thoBuyerClosingCostId; // DELETEME when THO columns are migrated to EDH
+		this.thoDiscountFlatAmountId = data.thoDiscountFlatAmountId; // DELETEME when THO columns are migrated to EDH
 		this.createdBy = data.createdBy;
 		this.createdUtcDate = new Date(data.createdUtcDate);
 		this.lastModifiedBy = data.lastModifiedBy;

@@ -41,13 +41,27 @@ export class LiteEffects
 			ofType<PlansLoaded>(PlanActionTypes.PlansLoaded),
 			withLatestFrom(this.store),
 			switchMap(([action, store]) => {
+				const financialCommunityId = store.job?.financialCommunityId || store.scenario?.scenario?.financialCommunityId;
+				
+				return this.liteService.isPhdLiteEnabled(financialCommunityId).pipe(
+					map(isPhdLiteEnabled => {
+						return { action, store, isPhdLiteEnabled };
+					})
+				);
+			}),
+			switchMap(result => {
+				const action = result.action;
+				const store = result.store;
 				const isPreview = store.scenario?.buildMode === 'preview';
 
 				if (!isPreview)
 				{
-					const isPhdLite = action.plans.some(plan => !plan.treeVersionId)
+					const isPhdLite = result.isPhdLiteEnabled && 
+					(
+						action.plans.some(plan => !plan.treeVersionId)
 						|| this.liteService.checkLiteAgreement(store.job, store.changeOrder.currentChangeOrder)
-						|| this.liteService.checkLiteScenario(store.scenario.scenario?.scenarioChoices, store.scenario.scenario?.scenarioOptions);
+						|| this.liteService.checkLiteScenario(store.scenario.scenario?.scenarioChoices, store.scenario.scenario?.scenarioOptions)
+					);
 
 					const salesCommunityId = store.opportunity?.opportunityContactAssoc?.opportunity?.salesCommunityId
 						?? store.org?.salesCommunity?.id;
@@ -74,16 +88,29 @@ export class LiteEffects
 			withLatestFrom(this.store),
 			tryCatch(source => source.pipe(
 				switchMap(([action, store]) => {
+					const financialCommunityId = store.job?.financialCommunityId || store.scenario?.scenario?.financialCommunityId;
+					
+					return this.liteService.isPhdLiteEnabled(financialCommunityId).pipe(
+						map(isPhdLiteEnabled => {
+							return { action, store, isPhdLiteEnabled };
+						})
+					);
+				}),
+				switchMap(result => {
+					const action = result.action;
+					const store = result.store;
 					const planOptions = store.lite.options;
 					const isLiteSpecOrModelLoaded = (action instanceof LoadLiteSpecOrModel);
 					const planId = action.scenario?.planId;
 					const optionsLoaded = !!planOptions.find(option => option.planId === planId);
-					const isSpecScenarioLoaded = (action instanceof ScenarioLoaded) &&  action.lot.lotBuildTypeDesc === 'Spec';
+					const isSpecScenarioLoaded = (action instanceof ScenarioLoaded) &&  action.lot?.lotBuildTypeDesc === 'Spec';
 					const marketNumber = (action instanceof ScenarioLoaded) ?  action.salesCommunity.market.number : '';
 
-					const isPhdLite = isLiteSpecOrModelLoaded ||
-						(action instanceof ScenarioLoaded ? !action.scenario.treeVersionId : store.lite.isPhdLite)
-						|| this.liteService.checkLiteScenario(action.scenario.scenarioChoices, store.scenario.scenario?.scenarioOptions);
+					const isPhdLite = result.isPhdLiteEnabled && 
+						(isLiteSpecOrModelLoaded 
+							|| (action instanceof ScenarioLoaded ? !action.scenario.treeVersionId : store.lite.isPhdLite)
+							|| this.liteService.checkLiteScenario(action.scenario.scenarioChoices, store.scenario.scenario?.scenarioOptions)
+						);
 
 					if (isPhdLite && !optionsLoaded)
 					{
@@ -264,8 +291,18 @@ export class LiteEffects
 			withLatestFrom(this.store),
 			tryCatch(source => source.pipe(
 				switchMap(([action, store]) => {
-					if (!action.tree || this.liteService.checkLiteAgreement(action.job, action.changeOrder))
+					return this.liteService.isPhdLiteEnabled(action.job.financialCommunityId).pipe(
+						map(isPhdLiteEnabled => {
+							return { action, store, isPhdLiteEnabled };
+						})
+					);
+				}),
+				switchMap(result => {
+					if (result.isPhdLiteEnabled && (!result.action.tree || this.liteService.checkLiteAgreement(result.action.job, result.action.changeOrder)))
 					{
+						const action = result.action;
+						const store = result.store;
+
 						return combineLatest([
 							this.liteService.getLitePlanOptions(action.job.planId),
 							this.liteService.getOptionsCategorySubcategory(action.job.financialCommunityId)
@@ -357,7 +394,7 @@ export class LiteEffects
 					}
 					else
 					{
-						return never();
+						return NEVER;
 					}
 				}),
 				switchMap(data => {
@@ -365,7 +402,7 @@ export class LiteEffects
 					{
 						return from([new LiteOptionsLoaded(data.options, data.scenarioOptions), new OptionCategoriesLoaded(data.categories)]);
 					}
-					return never();
+					return NEVER;
 				})
 			), LoadError, "Unable to load options")
 		);
@@ -425,6 +462,16 @@ export class LiteEffects
 			switchMap(([action, store]) => {
 				if (store.lite.options.length === 0 || store.lite.isPhdLite === false)
 				{
+					// Select plan in a new configuration
+					if (action instanceof SelectPlan)
+					{
+						const financialCommunityId = store.plan.plans?.find(plan => plan.id === action.planId)?.communityId;
+
+						return this.liteService.isPhdLiteEnabled(financialCommunityId).pipe(
+							switchMap(isPhdLiteEnabled => of(new SetIsPhdLite(isPhdLiteEnabled && store.lite.isPhdLite)))
+						);
+					}
+
 					return NEVER;
 				}
 
@@ -506,7 +553,7 @@ export class LiteEffects
 						sagLoaded: true,
 						salesAgreement: action.salesAgreement,
 						currentChangeOrder: action.changeOrder,
-						isPhdLite: !action.tree || this.liteService.checkLiteAgreement(action.job, action.changeOrder)
+						isPhdLite: !action.tree
 					};
 				}
 				else if (action instanceof PlansLoaded) {
