@@ -423,7 +423,7 @@ export class LiteEffects
 			ofType<LiteOptionsLoaded | SelectPlan | DeselectPlan>(LiteActionTypes.LiteOptionsLoaded, PlanActionTypes.SelectPlan, PlanActionTypes.DeselectPlan),
 			withLatestFrom(this.store),
 			switchMap(([action, store]) => {
-				if (store.lite.options.length === 0)
+				if (store.lite.options.length === 0 || store.lite.isPhdLite === false)
 				{
 					return NEVER;
 				}
@@ -811,30 +811,32 @@ export class LiteEffects
 			withLatestFrom(this.store),
 			switchMap(([action, store]) => {
 				const scenarioId = store.scenario.scenario?.scenarioId;
-				let scenarioOptions = action.previousScenarioOptions.map(opt => {
-					// Remove previous selected options
-					return {
-						scenarioOptionId: opt.scenarioOptionId,
-						scenarioId: scenarioId,
-						edhPlanOptionId: opt.edhPlanOptionId,
-						planOptionQuantity: 0,
-						scenarioOptionColors: []
-					};
-				});
+				const optionsToAdd = _.cloneDeep(action.optionsToAdd);
+				const optionDetails = store.lite.options.filter(x => optionsToAdd.some(o => o.edhPlanOptionId === x.id));
+				const jobOptionsWithColors = store.job.jobPlanOptions.filter(jpo => jpo.jobPlanOptionAttributes?.length > 0);
 
-				store.lite?.scenarioOptions?.forEach(opt => {
-					// Add options from the newly selected spec job
-					scenarioOptions.push({
-						scenarioOptionId: opt.scenarioOptionId,
-						scenarioId: scenarioId,
-						edhPlanOptionId: opt.edhPlanOptionId,
-						planOptionQuantity: opt.planOptionQuantity,
-						scenarioOptionColors: opt.scenarioOptionColors
+				let scenarioOptions: ScenarioOption[] = _.cloneDeep(action.optionsToDelete);
+				//setting quantity to zero lets server-side method know that this option needs to be deleted
+				scenarioOptions.forEach(o => o.planOptionQuantity = 0);
+
+				jobOptionsWithColors.forEach(jobOption => {
+					const optionDetail = optionDetails.find(x => x.id === jobOption.planOptionId);
+					jobOption.jobPlanOptionAttributes.forEach(attr => {
+						const colorItem = optionDetail.colorItems.find(ci => ci.name === attr.attributeGroupLabel);
+
+						optionsToAdd.find(x => x.edhPlanOptionId === optionDetail.id).scenarioOptionColors.push({
+							scenarioOptionColorId: 0,
+							scenarioOptionId: 0,
+							colorItemId: colorItem.colorItemId,
+							colorId: colorItem.color.find(c => c.name === attr.attributeName).colorId
+						});
 					});
 				});
 
+				scenarioOptions = scenarioOptions.concat(optionsToAdd);
+
 				return scenarioId
-					? this.liteService.saveScenarioOptions(scenarioId, scenarioOptions)
+					? this.liteService.saveScenarioOptions(scenarioId, scenarioOptions, action.deletePhdFullData)
 					: of([]);
 			}),
 			map(options => new ScenarioOptionsSaved(options))

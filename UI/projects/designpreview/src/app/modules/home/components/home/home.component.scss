@@ -2,47 +2,26 @@
 @import "../../../../../../../phd-common/src/lib/scss/sizes.scss";
 
 .phd-logo-image {
-	width: calc(56vw);
+	max-width:calc(25vw);
+	max-height:calc(25vh);
 	height: auto;
 	margin-top: auto;
 	margin-bottom: auto;
 }
 
-.home-images-container {
-	height:calc(65vh);
+.phd-home-images-container {
+	max-width: 100vw;
 }
 
 .phd-elevation-image {
 	margin-top: auto;
 	margin-bottom: auto;
-}
-
-.phd-home-plan {
-	background-color: var(--home-page-floorplan-background-color);
-	width: calc(44vw);
-	max-height: calc(65vh);
-	justify-content: space-between;
-
-	span {
-		color: var(--home-page-community-label);
-		padding-bottom: 40px;
-	}
-}
-
-.phd-floor-plan-image {
-	padding-top: calc(2vh);
-	padding-bottom: calc(2vh);
-	max-height: calc(55vh);
-}
-
-.phd-sales-community {
-	text-transform: uppercase;
-	font-weight: bold;
-	margin-right: 10px;
+	margin-left: calc(0.2vw);
+	height: auto;
 }
 
 .phd-start-reviewing {
-	font-size: 30px;
+	font-size: 3.2vh;
 	color: var(--home-text-color);
 	margin-top: 30px;
 	margin-bottom: 30px;
@@ -54,13 +33,25 @@
 	border-radius: 35px;
 	color: white;
 	padding: 6px 25px;
-	min-width: 350px;
-	min-height: 50px;
-	font-size: 22px;
+	min-width: 14vw;
+	min-height: 5.5vh;
+	font-size: 2.5vh;
 }
 
-.phd-community-label {
-	flex-direction: row;
+.phd-elevation-row {
+	justify-content: space-between;
+	align-items: center;
+	margin: 10.5vh 7vw 9.5vh 7vw;
+}
+
+.phd-vl {
+	border: 1px solid #d4d4d4;
+	height: 30vh;
+}
+
+.phd-review-section {
+	width: 45vw;
+	padding-bottom: 4.5vh;
 }
 
 @media(max-width: $tablet-max-width) {
@@ -69,25 +60,3 @@
 	}
 }
 
-@media(max-width: 950px) {
-	.phd-community-label {
-		flex-direction: column;
-		margin-left: auto;
-		margin-right: auto;
-	}
-	.phd-plan-name {
-		margin-left: auto;
-		margin-right: auto;
-	}
-	.phd-floor-plan-image {
-		max-height: calc(50vh)
-	}
-}
-
-.phd-default-ifp {
-	width: 70%;
-	margin-top: 40px;
-	margin-left: 15%;
-	margin-right: 15%;
-	align-self: center;
-}

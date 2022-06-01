@@ -5,6 +5,12 @@
 		"home-page-logo": "assets/john-wieland/logos/JWHN_Logo-Home-Page.png",
 		"white_logo": "assets/john-wieland/logos/JWHN-SIG-White_Transparent.png"
 	},
+	"banner": {
+		"1": "assets/pulte/banner/Pulte Kiawh Island.jpg",
+		"2": "assets/pulte/banner/Pulte Floor Detail.jpg",
+		"3": "assets/pulte/banner/Pulte Kitchen Island.jpg",
+		"4": "assets/pulte/banner/Pulte Shower Tile.jpg"
+	},
 	"styles": {
 		"font": "Palatino",
 		"primary-ribbon-background-color": "#002855", 

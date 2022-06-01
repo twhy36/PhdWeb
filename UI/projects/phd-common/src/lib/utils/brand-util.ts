@@ -12,6 +12,12 @@ export function getBrandImageSrc(brands: {[hostname: string]: unknown}, imagePro
 	}
 }
 
+export function getBannerImageSrc(brands: {[hostname: string]: unknown}, position: number): string {
+	if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+		return brands[window.location.host]['banner'][position];
+	}
+}
+
 export function getBrandUrl(key: number, dpUrls: { pulte: string, delWebb: string, americanWest: string, diVosta: string, centex: string, johnWieland: string }) {
 	if (financialBrands.americanWest.includes(key)) {
 		return dpUrls.americanWest;

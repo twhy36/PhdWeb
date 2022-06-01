@@ -221,11 +221,11 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 	}
 
 	getImageSrc() {
-		return this.brandService.getBrandImage('home-page-logo');
+		return this.brandService.getBrandImage('logo');
 	}
 
-	getDefaultFPImageSrc() {
-		return this.brandService.getBrandImage('logo');
+	getBannerImage(position: number) {
+		return this.brandService.getBannerImage(position);
 	}
 
 	loadFloorPlan(fp) {

@@ -5,6 +5,12 @@
 		"home-page-logo": "assets/divosta/logos/Divosta-Logo-Blue-Home-Page.png",
 		"white_logo": "assets/divosta/logos/Divosta-Logo-White.png"
 	},
+	"banner": {
+		"1": "assets/del-webb/banner/DW Dark Kitchen.jpg",
+		"2": "assets/del-webb/banner/DW Light Floor.jpg",
+		"3": "assets/del-webb/banner/DW Kitchen Room.jpg",
+		"4": "assets/del-webb/banner/DW Blue Cabinet Detail.jpg"
+	},
 	"styles": {
 		"font": "StagSans",
 		"primary-ribbon-background-color": "#1F667E",

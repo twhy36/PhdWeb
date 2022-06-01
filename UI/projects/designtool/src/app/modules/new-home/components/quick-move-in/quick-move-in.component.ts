@@ -22,7 +22,8 @@ import { CommonActionTypes } from '../../../ngrx-store/actions';
 import { Router } from "@angular/router";
 import { NewHomeService } from "../../services/new-home.service";
 import { LiteService } from "../../../core/services/lite.service";
-import { ScenarioActionTypes } from "../../../ngrx-store/scenario/actions";
+import { LiteActionTypes } from "../../../ngrx-store/lite/actions";
+import { ScenarioActionTypes, ScenarioSaved } from '../../../ngrx-store/scenario/actions';
 
 @Component({
 	selector: 'quick-move-in',
@@ -120,13 +121,15 @@ export class QuickMoveInComponent extends UnsubscribeOnDestroy implements OnInit
 		).subscribe(scenarioOptions =>
 		{
 			this.scenarioOptions = scenarioOptions;
-		});		
+		});
 	}
 
 	toggleSpecHome(event: { job: Job, selectedJobId: number })
 	{
 		let job = event.job;
 		const isPhdLite = this.liteService.checkLiteAgreement(event.job, null);
+		const previousJob = this.specJobs.find(x => x.id === event.selectedJobId);
+		const previousJobWasPhdLite = previousJob ? this.liteService.checkLiteAgreement(previousJob, null) : false;
 
 		// quick move-in
 		if (event.selectedJobId === job.id)
@@ -146,23 +149,53 @@ export class QuickMoveInComponent extends UnsubscribeOnDestroy implements OnInit
 		}
 		else if (isPhdLite)
 		{
+			//TODO: need to account for no previous job but started out as a regular Full config and then lite QMI was chosen
 			this.previousScenarioOptions = _.cloneDeep(this.scenarioOptions);
+			//if previousJob was for PhdFull or no previous job but config was being filled out with PhdFull info
+			const needToDeletePhdFullData = (!!previousJob && previousJobWasPhdLite === false) || !!this.scenario.treeVersionId;
 
 			this.store.dispatch(new CommonActions.LoadSpec(job));
 
 			this.actions.pipe(
-				ofType<ScenarioActions.ScenarioSaved>(ScenarioActionTypes.ScenarioSaved), take(1)).subscribe(() =>
+				ofType<ScenarioSaved>(ScenarioActionTypes.ScenarioSaved), take(1)).subscribe((action) =>
 				{
-					this.store.dispatch(new LiteActions.ToggleQuickMoveInSelections(this.previousScenarioOptions));
+					let scenarioOptions: ScenarioOption[] = job.jobPlanOptions.map(jobOption => {
+						return {
+							scenarioOptionId: 0,
+							scenarioId: action.scenario.scenarioId,
+							edhPlanOptionId: jobOption.planOptionId,
+							planOptionQuantity: jobOption.optionQty,
+							scenarioOptionColors: []
+						}
+					});
 
-					this.newHomeService.setSubNavItemsStatus(this.scenario, this.buildMode, null)
+					if (previousJob && previousJobWasPhdLite)
+					{
+						this.store.dispatch(new LiteActions.ToggleQuickMoveInSelections(this.previousScenarioOptions, scenarioOptions, needToDeletePhdFullData));
+					}
+					else if (!previousJob || needToDeletePhdFullData)
+					{
+						/*there was no previous job OR there was a previous PhdFull job.
+						  Either way we need to save options for the newly selected Lite job and may or may need to delete PhdFull data*/
+						this.store.dispatch(new LiteActions.ToggleQuickMoveInSelections([], scenarioOptions, needToDeletePhdFullData));
+					}
 
-					this.router.navigate(['/lite-summary']);
-				});				
-	
+					this.actions.pipe(
+						ofType<LiteActions.ScenarioOptionsSaved>(LiteActionTypes.ScenarioOptionsSaved), take(1)).subscribe(() =>
+						{
+							this.newHomeService.setSubNavItemsStatus(this.scenario, this.buildMode, null)
+							this.router.navigate(['/lite-summary']);
+						});
+				});
 		}
 		else
 		{
+			//previous selected QMI was for PhdLite or the config was for PhdLite
+			if (previousJob && previousJobWasPhdLite || this.scenarioOptions?.length > 0)
+			{
+				this.previousScenarioOptions = _.cloneDeep(this.scenarioOptions);
+			}
+
 			this.changeOrderService.getTreeVersionIdByJobPlan(job.planId).subscribe(() =>
 			{
 				this.store.dispatch(new CommonActions.LoadSpec(job));
@@ -170,6 +203,11 @@ export class QuickMoveInComponent extends UnsubscribeOnDestroy implements OnInit
 				this.actions.pipe(
 					ofType<CommonActions.JobLoaded>(CommonActionTypes.JobLoaded), take(1)).subscribe(() =>
 					{
+						if (previousJob && previousJobWasPhdLite && this.previousScenarioOptions?.length > 0)
+						{
+							this.store.dispatch(new LiteActions.ToggleQuickMoveInSelections(this.previousScenarioOptions, [], false));
+						}
+
 						this.newHomeService.setSubNavItemsStatus(this.scenario, this.buildMode, null)
 
 						this.router.navigate(['/scenario-summary']);
