@@ -11,7 +11,7 @@ import { SalesService } from '../../../core/services/sales.service';
 import { MessageService } from 'primeng/api';
 import { OrganizationService } from '../../../core/services/organization.service';
 import { FinancialCommunityViewModel } from '../../../shared/models/plan-assignment.model';
-import { NgbModal, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbModalOptions, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ConfirmModalComponent, PhdTableComponent } from 'phd-common';
 import { SalesProgramsSidePanelComponent } from '../sales-programs-side-panel/sales-programs-side-panel.component';
 
@@ -29,7 +29,7 @@ export class SalesProgramsComponent extends UnsubscribeOnDestroy implements OnIn
 	@ViewChild(SalesProgramsSidePanelComponent)
 	private sidePanel: SalesProgramsSidePanelComponent;
 
-	private _selected: SalesProgram;
+	private _selectedSalesProgram: SalesProgram;
 
 	saving: boolean = false;
 	sidePanelOpen: boolean = false;
@@ -38,7 +38,7 @@ export class SalesProgramsComponent extends UnsubscribeOnDestroy implements OnIn
 	canEdit: boolean = false;
 	salesPrograms: Array<SalesProgram>;
 	_loading: boolean = true;
-	financialCommunityInfo: FinancialCommunityInfo;
+	financialCommunityInfo: FinancialCommunityInfo; // DELETEME when THO columns are migrated to EDH
 	internalOrgs: Array<Org>;
 	orgId: number;
 
@@ -93,15 +93,18 @@ export class SalesProgramsComponent extends UnsubscribeOnDestroy implements OnIn
 						.subscribe(([programs, fcInfo]) =>
 						{
 							this.salesPrograms = programs;
+
+							// DELETEME when THO columns are migrated to EDH
 							this.financialCommunityInfo = fcInfo;
 
 							if (this.financialCommunityInfo)
 							{
 								this.salesPrograms.map(sp =>
 								{
-									sp.isThoEnabled = this.financialCommunityInfo.thoBuyerClosingCostId === sp.id || this.financialCommunityInfo.thoDiscountFlatAmountId === sp.id;
+									sp.isWebSaleable = this.financialCommunityInfo.thoBuyerClosingCostId === sp.id || this.financialCommunityInfo.thoDiscountFlatAmountId === sp.id;
 								});
 							}
+							//end DELETEME
 
 							this.loading = false;
 						});
@@ -128,7 +131,7 @@ export class SalesProgramsComponent extends UnsubscribeOnDestroy implements OnIn
 		if (load)
 		{
 			this.salesPrograms = null;
-			this.onSidePanelClose(false);
+			this.onSidePanelToggle(false);
 		}
 
 		this._loading = load;
@@ -144,64 +147,70 @@ export class SalesProgramsComponent extends UnsubscribeOnDestroy implements OnIn
 		}
 	}
 
-	get selected(): SalesProgram
+	get selectedSalesProgram(): SalesProgram
 	{
-		return this._selected;
+		return this._selectedSalesProgram;
 	}
 
-	set selected(item: SalesProgram)
+	set selectedSalesProgram(item: SalesProgram)
 	{
-		this._selected = item;
+		this._selectedSalesProgram = item;
 	}
 
-	onSidePanelClose(status: boolean)
+	onSidePanelToggle(status: boolean)
 	{
 		this.sidePanelOpen = status;
 	}
 
-	save(dto: SalesProgram, inactivate: boolean = false)
+	save(salesProgram: SalesProgram, inactivate: boolean = false)
 	{
 		this.saving = true;
 
-		dto.financialCommunityId = this.selectedCommunity.id;
-		dto.startDate = moment(dto.startDate).format('Y-MM-DD');
-		dto.endDate = moment(dto.endDate).format('Y-MM-DD');
+		salesProgram.financialCommunityId = this.selectedCommunity.id;
+		salesProgram.startDate = moment(salesProgram.startDate).format('Y-MM-DD');
+		salesProgram.endDate = moment(salesProgram.endDate).format('Y-MM-DD');
 
-		this._salesService.saveSalesProgram(dto)
+		// When PMC Afilliate is disabled via the side panel, we need to ensure the THO Enabled switch shows the correct value
+		if (salesProgram.isWebSaleable && salesProgram.isWebSaleable !== this.selectedSalesProgram.isWebSaleable)
+		{
+			this.selectedSalesProgram.isWebSaleable = salesProgram.isWebSaleable;
+		}
+
+		this._salesService.saveSalesProgram(salesProgram)
 			.pipe(finalize(() =>
 			{
 				this.saving = false;
 			}))
-			.subscribe(newDto =>
+			.subscribe(dto =>
 			{
-				if (!this.selected)
+				if (!this.selectedSalesProgram)
 				{
-					const newSalesProgram = new SalesProgram(newDto);
+					const newSalesProgram = new SalesProgram(dto);
 
 					// add new record and use spread to trigger table change.
 					this.salesPrograms = [...this.salesPrograms, newSalesProgram];
 				}
 				else
 				{
-					this.salesPrograms.find(item => item.id === newDto.id).dto = newDto;
+					this.salesPrograms.find(sp => sp.id === dto.id).dto = dto;
 				}
 
 				this.sort();
-				this.onSidePanelClose(false);
+				this.onSidePanelToggle(false);
 
 				if (inactivate)
 				{
-					this._msgService.add({ severity: 'success', summary: `${dto.name}`, detail: `has been inactivated!` });
+					this._msgService.add({ severity: 'success', summary: `${salesProgram.name}`, detail: `has been inactivated!` });
 				}
 				else
 				{
-					this._msgService.add({ severity: 'success', summary: 'Sales Program', detail: `has been saved!` });
+					this._msgService.add({ severity: 'success', summary: `${salesProgram.name}`, detail: `has been saved!` });
 				}
 			},
-			error =>
-			{
-				this._msgService.add({ severity: 'error', summary: 'Error', detail: error.message });
-			});
+				error =>
+				{
+					this._msgService.add({ severity: 'error', summary: 'Error', detail: error.message });
+				});
 	}
 
 	sort()
@@ -215,30 +224,18 @@ export class SalesProgramsComponent extends UnsubscribeOnDestroy implements OnIn
 		});
 	}
 
-	edit(dto: SalesProgram)
+	edit(salesProgram: SalesProgram)
 	{
-		this.selected = dto;
+		this.selectedSalesProgram = salesProgram;
 
-		this.onSidePanelClose(true);
+		this.onSidePanelToggle(true);
 	}
 
-	inactivate(dto: SalesProgram)
+	inactivate(salesProgram: SalesProgram)
 	{
-		this.selected = dto;
+		this.selectedSalesProgram = salesProgram;
 
-		let ngbModalOptions: NgbModalOptions = {
-			centered: true,
-			backdrop: 'static',
-			keyboard: false
-		};
-
-		let msgBody = `Are you sure you want to inactivate the Sales Program<br /><br /> <strong>${dto.name}</strong>`;
-
-		let confirm = this._modalService.open(ConfirmModalComponent, ngbModalOptions);
-
-		confirm.componentInstance.title = 'Warning!';
-		confirm.componentInstance.body = msgBody;
-		confirm.componentInstance.defaultOption = 'Cancel';
+		const confirm = this.getConfirmModal(`Are you sure you want to inactivate the Sales Program<br /><br /> <strong>${salesProgram.name}</strong>`);
 
 		confirm.result.then((result) =>
 		{
@@ -248,15 +245,15 @@ export class SalesProgramsComponent extends UnsubscribeOnDestroy implements OnIn
 				let prevDate = moment(new Date(currDate).toISOString()).subtract(1, 'days').toISOString().split('T')[0];
 
 				// set expiration date to yesterdays date
-				dto.dto.endDate = prevDate;
+				salesProgram.dto.endDate = prevDate;
 
 				//If the Effective Date is current date, then set both the Effective Date and Expiration Date to yesterday's date.
-				if (moment(currDate).isSame(dto.startDate))
+				if (moment(currDate).isSame(salesProgram.startDate))
 				{
-					dto.dto.startDate = prevDate;
+					salesProgram.dto.startDate = prevDate;
 				}
 
-				this.save(dto.dto, true);
+				this.save(salesProgram.dto, true);
 			}
 		}, (reason) =>
 		{
@@ -271,9 +268,9 @@ export class SalesProgramsComponent extends UnsubscribeOnDestroy implements OnIn
 
 	create()
 	{
-		this.selected = null;
+		this.selectedSalesProgram = null;
 
-		this.onSidePanelClose(true);
+		this.onSidePanelToggle(true);
 	}
 
 	showTooltip(event: any, tooltipText: string, tableComponent: PhdTableComponent): void
@@ -286,8 +283,9 @@ export class SalesProgramsComponent extends UnsubscribeOnDestroy implements OnIn
 		tableComponent.hideTooltip();
 	}
 
-	toggleThoEnabled(dto: SalesProgram)
+	toggleThoEnabled(salesProgram: SalesProgram)
 	{
+		// DELETEME when THO columns are migrated to EDH
 		if (!this.financialCommunityInfo)
 		{
 			this.financialCommunityInfo = {
@@ -298,124 +296,151 @@ export class SalesProgramsComponent extends UnsubscribeOnDestroy implements OnIn
 				thoDiscountFlatAmountId: null
 			};
 		}
+		//end DELETEME
 
-		this.selected = dto;
+		this.selectedSalesProgram = salesProgram;
 
-		let thoEnabledCc = this.salesPrograms.find(sp => sp.isThoEnabled && sp.salesProgramType.toString() === 'BuyersClosingCost');
+		const existingClosingCostProgramForTho = this.salesPrograms.find(sp => sp.isWebSaleable && sp.salesProgramType.toString() === 'BuyersClosingCost');
 
-		let thoEnabledDfa = this.salesPrograms.find(sp => sp.isThoEnabled && sp.salesProgramType.toString() === 'DiscountFlatAmount');
+		const existingFlatAmountProgramForTho = this.salesPrograms.find(sp => sp.isWebSaleable && sp.salesProgramType.toString() === 'DiscountFlatAmount');
 
 		// Discount Flat Amount
-		if (dto.salesProgramType.toString() === 'DiscountFlatAmount')
+		if (salesProgram.salesProgramType.toString() === 'DiscountFlatAmount')
 		{
-			this.toggleDiscountFlatAmount(thoEnabledDfa, dto);
+			this.toggleDiscountFlatAmount(existingFlatAmountProgramForTho, salesProgram);
 		}
 		else
 		{
-			this.toggleClosingCostAmount(thoEnabledCc, dto);
+			this.toggleClosingCostAmount(existingClosingCostProgramForTho, salesProgram);
 		}
 	}
 
-	private toggleClosingCostAmount(thoEnabledCc: SalesProgram, dto: SalesProgram)
+	private toggleClosingCostAmount(existingClosingCostProgramForTho: SalesProgram, salesProgram: SalesProgram)
 	{
-		if (!dto.isPMCAffiliate || (thoEnabledCc && dto.id !== thoEnabledCc.id))
+		if (!salesProgram.isPMCAffiliate || (existingClosingCostProgramForTho && salesProgram.id !== existingClosingCostProgramForTho.id))
 		{
-            let ngbModalOptions: NgbModalOptions = {
-                centered: true,
-                backdrop: 'static',
-                keyboard: false
-            };
-
-            let msgBody = `Selecting to enable this THO Sales Program will also enable PMC Affiliation and disable any other active THO Enabled BuyerClosingCost Sales Program`;
-
-            let confirm = this._modalService.open(ConfirmModalComponent, ngbModalOptions);
-
-            confirm.componentInstance.title = 'Warning!';
-            confirm.componentInstance.body = msgBody;
-            confirm.componentInstance.defaultOption = 'Cancel';
+			const confirm = this.getConfirmModal(`Selecting to enable this THO Sales Program will also enable PMC Affiliation and disable any other active THO Enabled BuyerClosingCost Sales Program`);
 
 			confirm.result.then((result) =>
 			{
 				if (result == 'Continue')
 				{
-                    this.financialCommunityInfo.thoBuyerClosingCostId = dto.isThoEnabled ? null : dto.id;
+					// DELETEME when THO columns are migrated to EDH
+					this.financialCommunityInfo.thoBuyerClosingCostId = salesProgram.isWebSaleable ? null : salesProgram.id;
+
 					this._orgService.saveFinancialCommunityInfo(this.financialCommunityInfo, this.orgId).subscribe(fc =>
 					{
-                        // Toggle existing enabled closing cost
-						if (thoEnabledCc)
-						{
-                            thoEnabledCc.isThoEnabled = !thoEnabledCc.isThoEnabled;
-                        }
+						// logic moved...
+					});
+					//end DELETEME
 
-                        // Toggle selected closing cost
-                        dto.isThoEnabled = !dto.isThoEnabled;
+					// Toggle existing enabled closing cost
+					if (existingClosingCostProgramForTho)
+					{
+						existingClosingCostProgramForTho.dto.isWebSaleable = existingClosingCostProgramForTho.isWebSaleable = !existingClosingCostProgramForTho.isWebSaleable;
+						this.save(existingClosingCostProgramForTho.dto, false);
+					}
 
-                        // Update isPmcAffiliate if a closing cost is being tho enabled & isPMCAffiliate is false
-						if (dto.isThoEnabled && !dto.dto.isPMCAffiliate)
-						{
-                            dto.dto.isPMCAffiliate = true;
-                            this.save(dto.dto, false);
-                        }
-                    });
-                }
+					// Toggle isWebSaleable and assign it to the DTO for saving
+					salesProgram.dto.isWebSaleable = salesProgram.isWebSaleable = !salesProgram.isWebSaleable;
+
+					// Update isPmcAffiliate if a closing cost is being tho enabled & isPMCAffiliate is false
+					if (salesProgram.isWebSaleable && !salesProgram.dto.isPMCAffiliate)
+					{
+						salesProgram.dto.isPMCAffiliate = true;
+					}
+
+					// #358693 Save to EDH
+					this.save(salesProgram.dto, false);
+				}
 			}, (reason) =>
 			{
-                console.log("Error:", reason);
-            });
-        }
-
+				console.log("Error:", reason);
+			});
+		}
 		else
 		{
-            this.financialCommunityInfo.thoBuyerClosingCostId = dto.isThoEnabled ? null : dto.id;
+			// DELETEME when THO columns are migrated to EDH
+			this.financialCommunityInfo.thoBuyerClosingCostId = salesProgram.isWebSaleable ? null : salesProgram.id;
 			this._orgService.saveFinancialCommunityInfo(this.financialCommunityInfo, this.orgId).subscribe(fc =>
 			{
-                dto.isThoEnabled = !dto.isThoEnabled;
-            });
-        }
-    }
+				// logic moved...
+			});
+			//end DELETEME
 
-	private toggleDiscountFlatAmount(thoEnabledDfa: SalesProgram, dto: SalesProgram)
+			// Toggle isWebSaleable and assign it to the DTO for saving
+			salesProgram.dto.isWebSaleable = salesProgram.isWebSaleable = !salesProgram.isWebSaleable;
+
+			// #358693 Save to EDH
+			this.save(salesProgram.dto, false);
+		}
+	}
+
+	private toggleDiscountFlatAmount(existingFlatAmountProgramForTho: SalesProgram, salesProgram: SalesProgram)
 	{
-		if (thoEnabledDfa && dto.id !== thoEnabledDfa.id)
+		if (existingFlatAmountProgramForTho && salesProgram.id !== existingFlatAmountProgramForTho.id)
 		{
-            let ngbModalOptions: NgbModalOptions = {
-                centered: true,
-                backdrop: 'static',
-                keyboard: false
-            };
-
-            let msgBody = `Selecting to enable this THO Sales Program will disable any other active THO Enabled DiscountFlatAmount Sales Program`;
-
-            let confirm = this._modalService.open(ConfirmModalComponent, ngbModalOptions);
-
-            confirm.componentInstance.title = 'Warning!';
-            confirm.componentInstance.body = msgBody;
-            confirm.componentInstance.defaultOption = 'Cancel';
+			const confirm = this.getConfirmModal(`Selecting to enable this THO Sales Program will disable any other active THO Enabled DiscountFlatAmount Sales Program`);
 
 			confirm.result.then((result) =>
 			{
 				if (result == 'Continue')
 				{
-                    this.financialCommunityInfo.thoDiscountFlatAmountId = dto.isThoEnabled ? null : dto.id;
+					// DELETEME when THO columnns are migrated to EDH
+					this.financialCommunityInfo.thoDiscountFlatAmountId = salesProgram.isWebSaleable ? null : salesProgram.id;
 					this._orgService.saveFinancialCommunityInfo(this.financialCommunityInfo, this.orgId).subscribe(x =>
 					{
-                        thoEnabledDfa.isThoEnabled = !thoEnabledDfa.isThoEnabled;
-                        dto.isThoEnabled = !dto.isThoEnabled;
-                    });
-                }
+						// logic moved
+					});
+					//end DELETEME
+
+					// Toggle existing enabled flat amount
+					existingFlatAmountProgramForTho.dto.isWebSaleable = existingFlatAmountProgramForTho.isWebSaleable = !existingFlatAmountProgramForTho.isWebSaleable;
+
+					// Toggle isWebSaleable and assign it to the DTO for saving
+					salesProgram.dto.isWebSaleable = salesProgram.isWebSaleable = !salesProgram.isWebSaleable;
+
+					// #358693 Save to EDH
+					this.save(salesProgram.dto, false);
+					this.save(existingFlatAmountProgramForTho.dto, false);
+				}
 			}, (reason) =>
 			{
-                console.log("Error:", reason);
-            });
-        }
-
+				console.log("Error:", reason);
+			});
+		}
 		else
 		{
-            this.financialCommunityInfo.thoDiscountFlatAmountId = dto.isThoEnabled ? null : dto.id;
+			// DELETEME when THO columnns are migrated to EDH
+			this.financialCommunityInfo.thoDiscountFlatAmountId = salesProgram.isWebSaleable ? null : salesProgram.id;
 			this._orgService.saveFinancialCommunityInfo(this.financialCommunityInfo, this.orgId).subscribe(fc =>
 			{
-                dto.isThoEnabled = !dto.isThoEnabled;
-            });
-        }
-    }
+				// logic moved...
+			});
+			//end DELETEME
+
+			// Toggle isWebSaleable and assign it to the DTO for saving
+			salesProgram.dto.isWebSaleable = salesProgram.isWebSaleable = !salesProgram.isWebSaleable;
+
+			// #358693 Save to EDH
+			this.save(salesProgram.dto, false);
+		}
+	}
+
+	private getConfirmModal(msgBody: string): NgbModalRef
+	{
+		let ngbModalOptions: NgbModalOptions = {
+			centered: true,
+			backdrop: 'static',
+			keyboard: false
+		};
+
+		let confirm = this._modalService.open(ConfirmModalComponent, ngbModalOptions);
+
+		confirm.componentInstance.title = 'Warning!';
+		confirm.componentInstance.body = msgBody;
+		confirm.componentInstance.defaultOption = 'Cancel';
+
+		return confirm;
+	}
 }

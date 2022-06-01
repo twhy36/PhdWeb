@@ -13,7 +13,7 @@ export class SalesProgram
 	lastModifiedUtcDate?: string;
 	isPMCAffiliate?: boolean;
 	salesAgreementSalesProgramAssocs: Array<SalesAgreementSalesProgramAssoc> = [];
-	isThoEnabled?: boolean;
+	isWebSaleable?: boolean;
 
 	constructor(data)
 	{
@@ -28,7 +28,8 @@ export class SalesProgram
 		return today >= endDate ? 'No' : 'Yes';
 	}
 
-	get agreementLocked(): boolean {
+	get agreementLocked(): boolean
+	{
 		return this.salesAgreementSalesProgramAssocs.length > 0;
 	}
 
@@ -59,7 +60,7 @@ export class SalesProgram
 				{
 					this[prop] = data[prop];
 				}
-			}			
+			}
 		}
 	}
 
@@ -75,7 +76,8 @@ export enum SalesProgramTypeEnum
 	DiscountFlatAmount = 2
 }
 
-export class SalesAgreementSalesProgramAssoc {
+export class SalesAgreementSalesProgramAssoc
+{
 	salesAgreementId: number;
 	salesProgramId: number;
 }
