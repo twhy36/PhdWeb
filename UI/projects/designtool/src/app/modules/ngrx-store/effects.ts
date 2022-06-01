@@ -44,8 +44,14 @@ export class CommonEffects
 			tryCatch(source => source.pipe(
 				switchMap(action => this.scenarioService.getScenario(action.scenarioId)),
 				switchMap(scenario => {
-					const isPhdLite = !scenario.treeVersionId
-						|| this.liteService.checkLiteScenario(scenario?.scenarioChoices, scenario?.scenarioOptions);
+					return this.liteService.isPhdLiteEnabled(scenario?.financialCommunityId).pipe(
+						map(isPhdLiteEnabled => {
+							return { scenario, isPhdLiteEnabled };
+						}));
+				}),
+				switchMap(result => {
+					const scenario = result.scenario; 
+					const isPhdLite = !scenario.treeVersionId || result.isPhdLiteEnabled && this.liteService.checkLiteScenario(scenario?.scenarioChoices, scenario?.scenarioOptions);
 
 					const getTree = !isPhdLite ? this.treeService.getTree(scenario.treeVersionId) : of<Tree>(null);
 					const getRules = !isPhdLite ? this.treeService.getRules(scenario.treeVersionId) : of<TreeVersionRules>(null);
@@ -385,10 +391,11 @@ export class CommonEffects
 					return combineLatest([
 						this.orgService.getSalesCommunityByFinancialCommunityId(result.job.financialCommunityId, true),
 						this.treeService.getChoiceCatalogIds([...result.job.jobChoices, ...changeOrderChoices]),
-						selectedPlan$
+						selectedPlan$,
+						this.liteService.isPhdLiteEnabled(result.job.financialCommunityId)
 					]).pipe(
 						//assign divChoiceCatalogIDs to choices for job and current change order
-						map(([sc, choices, jobPlanId]) => {
+						map(([sc, choices, jobPlanId, isPhdLiteEnabled]) => {
 							const currentChangeOrderGroup = new ChangeOrderGroup(currentChangeOrder);
 
 							if (currentChangeOrderGroup) {
@@ -426,7 +433,7 @@ export class CommonEffects
 								}
 							});
 
-							return { ...newResult, sc, currentChangeOrderGroup, jobPlanId };
+							return { ...newResult, sc, currentChangeOrderGroup, jobPlanId, isPhdLiteEnabled };
 						})
 					);
 				}),
@@ -471,7 +478,7 @@ export class CommonEffects
 							? this.favoriteService.loadMyFavorites(result.salesAgreement.id)
 							: of([]);
 
-						const getTreeVersionIdByJobPlan$ = this.liteService.checkLiteAgreement(result.job, result.changeOrderGroup)
+						const getTreeVersionIdByJobPlan$ = result.isPhdLiteEnabled && this.liteService.checkLiteAgreement(result.job, result.changeOrderGroup)
 							? of(null)
 							: this.changeOrderService.getTreeVersionIdByJobPlan(result.selectedPlanId);
 
@@ -680,7 +687,7 @@ export class CommonEffects
 						sagLoaded: true,
 						salesAgreement: action.salesAgreement,
 						currentChangeOrder: action.changeOrder,
-						isPhdLite: !action.tree || this.liteService.checkLiteAgreement(action.job, action.changeOrder)
+						isPhdLite: !action.tree
 					};
 				}
 				else if (action instanceof PlansLoaded) {

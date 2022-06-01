@@ -157,7 +157,7 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 				{
 					this.selectedPlan = state.plan.selectedTree && state.plan.plans ? state.plan.plans.find(p => p.treeVersionId === state.plan.selectedTree) : null;
 
-					if (!this.selectedPlan && state.plan.selectedPlan && state.lite?.isPhdLite)
+					if (!this.selectedPlan && state.plan.selectedPlan)
 					{
 						this.selectedPlan = state.plan.plans.find(p => p.id === state.plan.selectedPlan);
 					}
@@ -211,7 +211,7 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 			this.selectionPrice = !!sag && !!pb ? pb.nonStandardSelections + pb.priceAdjustments - pb.salesProgram : 0;
 
 			// In plan change order, include the selection price if the current selected plan is the same as the job plan
-			if (inChangeOrder && selectedPlan.id === this.jobPlanId && pb)
+			if (inChangeOrder && selectedPlan?.id === this.jobPlanId && pb)
 			{
 				this.selectionPrice += pb.selections;
 			}
