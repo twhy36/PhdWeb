@@ -3,7 +3,7 @@ import { TreeVersionRules, ChoiceRules, PointRules, OptionRule, OptionMapping } 
 import { PlanOption } from '../models/option.model';
 import { PointStatus } from '../models/point.model';
 import { PriceBreakdown } from '../models/scenario.model';
-import { Job, JobChoice } from '../models/job.model';
+import { JobChoice } from '../models/job.model';
 import { ChangeOrderChoice } from '../models/job-change-order.model';
 import { isChoiceAttributesComplete } from '../utils/utils.class';
 
@@ -767,13 +767,18 @@ function getMaxQuantity(option: PlanOption, choice: Choice): number
 	return maxQuantity;
 }
 
+/**
+ * Get the Max sort Order Choice meaning, the choice lowest on the tree.  chocies can be either choiceId or divChoiceCatalogId
+ * @param tree
+ * @param choices
+ */
 export function getMaxSortOrderChoice(tree: Tree, choices: number[]): number
 {
 	const sortedChoices = choices.sort((a, b) =>
 	{
 		let [ga, gb] = [
-			tree.treeVersion.groups.find(g => g.subGroups.some(sg => sg.points.some(p => p.choices.some(c => c.id === a)))),
-			tree.treeVersion.groups.find(g => g.subGroups.some(sg => sg.points.some(p => p.choices.some(c => c.id === b))))
+			tree.treeVersion.groups.find(g => g.subGroups.some(sg => sg.points.some(p => p.choices.some(c => c.id === a || c.divChoiceCatalogId === a)))),
+			tree.treeVersion.groups.find(g => g.subGroups.some(sg => sg.points.some(p => p.choices.some(c => c.id === b || c.divChoiceCatalogId === b))))
 		];
 
 		if (ga.sortOrder !== gb.sortOrder)
@@ -782,8 +787,8 @@ export function getMaxSortOrderChoice(tree: Tree, choices: number[]): number
 		}
 
 		let [sga, sgb] = [
-			ga.subGroups.find(sg => sg.points.some(p => p.choices.some(c => c.id === a))),
-			gb.subGroups.find(sg => sg.points.some(p => p.choices.some(c => c.id === b)))
+			ga.subGroups.find(sg => sg.points.some(p => p.choices.some(c => c.id === a || c.divChoiceCatalogId === a))),
+			gb.subGroups.find(sg => sg.points.some(p => p.choices.some(c => c.id === b || c.divChoiceCatalogId === b)))
 		];
 
 		if (sga.sortOrder !== sgb.sortOrder)
@@ -792,8 +797,8 @@ export function getMaxSortOrderChoice(tree: Tree, choices: number[]): number
 		}
 
 		let [dpa, dpb] = [
-			sga.points.find(p => p.choices.some(c => c.id === a)),
-			sgb.points.find(p => p.choices.some(c => c.id === b))
+			sga.points.find(p => p.choices.some(c => c.id === a || c.divChoiceCatalogId === a)),
+			sgb.points.find(p => p.choices.some(c => c.id === b || c.divChoiceCatalogId === b))
 		];
 
 		if (dpa.sortOrder !== dpb.sortOrder)
@@ -801,7 +806,7 @@ export function getMaxSortOrderChoice(tree: Tree, choices: number[]): number
 			return dpa.sortOrder - dpb.sortOrder;
 		}
 
-		return dpa.choices.find(c => c.id === a).sortOrder - dpb.choices.find(c => c.id === b).sortOrder;
+		return dpa.choices.find(c => c.id === a || c.divChoiceCatalogId === a).sortOrder - dpb.choices.find(c => c.id === b || c.divChoiceCatalogId === b).sortOrder;
 	});
 
 	return sortedChoices[sortedChoices.length - 1];
@@ -956,6 +961,7 @@ export function getDependentChoices(tree: Tree, rules: TreeVersionRules, options
 					if (!!ch.lockedInChoice?.choiceRules?.length)
 					{
 						const ruleChoiceIds = _.flatMap(ch.lockedInChoice.choiceRules, cr => _.flatMap(cr.rules, rule => rule.choices));
+
 						if (ruleChoiceIds?.find(rc => rc === choice.lockedInChoice.choice.divChoiceCatalogId))
 						{
 							clearLockedInData(ch);
@@ -972,11 +978,13 @@ export function getDependentChoices(tree: Tree, rules: TreeVersionRules, options
 	if (choice.quantity)
 	{
 		let newChoice = findChoice(newTree, ch => ch.id === choice.id);
+
 		if (newChoice)
 		{
 			//clear locked in data on the cloned tree for both the toggled choice and its dependent choices
 			//so that the rules on the tree could be applied to the choice
 			clearLockedInData(newChoice);
+
 			newChoice.quantity = 0;
 		}
 	}
@@ -989,8 +997,7 @@ export function getDependentChoices(tree: Tree, rules: TreeVersionRules, options
 	//apply rules to cloned tree
 	applyRules(newTree, rules, options);
 
-	//return any choices that are locked in (i.e. previously sold), but are disabled
-	//on the new tree
+	//return any choices that are locked in (i.e. previously sold), but are disabled on the new tree
 	return _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, p => p.choices)))
 		.filter(ch => !!ch.lockedInChoice && !findChoice(newTree, ch1 => ch1.id === ch.id).enabled);
 }
