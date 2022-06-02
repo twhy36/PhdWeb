@@ -35,7 +35,7 @@
 			<phd-column columnId="inactivateAttribute" width="50px">
 				<ng-template #body let-attribute>
 					<i class="fa fa-sm" *ngIf="!isSaving || workingId !== attribute.id" (click)="onToggleAttribute(attribute)"
-					   [ngClass]="{'fa-trash': attribute.active, 'fa-undo text-danger': !attribute.active, 'phd-clickable': !isReadOnly, 'phd-disabled': isReadOnly}"
+					   [ngClass]="{'fa-trash-o': attribute.active, 'fa-undo text-danger': !attribute.active, 'phd-clickable': !isReadOnly, 'phd-disabled': isReadOnly}"
 					   [title]="isReadOnly ? '' : (attribute.active ? 'Inactivate attribute' : 'Reactivate attribute')">
 					</i>
 					<i class="fa fa-spinner fa-spin fa-fw" [ngClass]="{'phd-disabled': isReadOnly}" *ngIf="isSaving && workingId === attribute.id"></i>
