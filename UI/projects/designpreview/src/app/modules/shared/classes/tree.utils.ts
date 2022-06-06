@@ -960,8 +960,9 @@ export function getDisabledByList(tree: Tree, groups: Group[], point: DecisionPo
 				rule.points.forEach(disabledByPointId =>
 				{
 					const disabledByPoint = allPoints.find(point => point.id === disabledByPointId);
-
-					if (disabledByPoint?.status !== PointStatus.COMPLETED)
+ 
+					if (disabledByPoint?.status !== PointStatus.COMPLETED && disabledByPoint.completed !== true
+						|| (disabledByPoint.choices?.filter(c => c.quantity > 0)?.length === 0) && disabledByPoint?.status === PointStatus.COMPLETED)
 					{
 						disabledByList.andPoints.push({
 							label: disabledByPoint?.label,
