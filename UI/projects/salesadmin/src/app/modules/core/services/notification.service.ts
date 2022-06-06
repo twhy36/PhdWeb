@@ -4,20 +4,21 @@ import { Injectable } from '@angular/core';
 import { from, timer, of, Subscription, Observable } from 'rxjs';
 import { tap, retryWhen, delayWhen, take, switchMap } from 'rxjs/operators';
 
-import * as signalR from '@aspnet/signalr';
+import * as signalR from '@microsoft/signalr';
 
 import { environment } from '../../../../environments/environment';
 
-
 @Injectable()
-export class NotificationService {
+export class NotificationService
+{
 	private connection: signalR.HubConnection;
 
 	constructor(private _reOrgService: ReOrgService) { }
 
 	public init(): Observable<void>
 	{
-		return new Observable(subscriber => {
+		return new Observable(subscriber =>
+		{
 			this.connection = new signalR.HubConnectionBuilder()
 				.withUrl(environment.hubUrl)
 				.build();
@@ -39,7 +40,7 @@ export class NotificationService {
 				subscriber.next();
 			};
 
-			connectObs.subscribe(initializeSubscriptions, 
+			connectObs.subscribe(initializeSubscriptions,
 				err => subscriber.error(err),
 				() => subscriber.complete());
 		})
