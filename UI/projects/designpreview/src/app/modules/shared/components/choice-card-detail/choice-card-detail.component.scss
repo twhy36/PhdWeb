@@ -105,6 +105,10 @@
 	}
 }
 
+::ng-deep .carousel-indicators {
+	display: none;
+}
+
 .phd-info-section {
 	display: flex;
 	flex-direction: column;
