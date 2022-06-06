@@ -297,6 +297,7 @@ export function getLiteChangeOrderGroupSelections(
 ) : SDPoint[] 
 {
 	let sDPoints : SDPoint[] = [];
+	jobChangeOrderPlanOptions.sort((a, b) => a.optionSalesName.localeCompare(b.optionSalesName));
 
 	const elevationPlanOptions = jobChangeOrderPlanOptions.filter(coPlanOption => {
 		const option = options.find(option => option.id === coPlanOption.planOptionId);
@@ -370,6 +371,7 @@ export function getLiteChangeOrderGroupSelections(
 		});		
 	}
 
+	sDPoints.sort((a, b) => a.groupName.localeCompare(b.groupName));
 	return sDPoints;
 }
 
