@@ -4,7 +4,7 @@ import { combineLatest } from 'rxjs';
 import { take } from 'rxjs/operators';
 import * as _ from "lodash";
 
-import { UnsubscribeOnDestroy, ModalService, ScenarioOption, PointStatus } from 'phd-common';
+import { UnsubscribeOnDestroy, ModalService, ScenarioOption, PointStatus, ConfirmModalComponent } from 'phd-common';
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 import * as LiteActions from '../../../ngrx-store/lite/actions';
@@ -25,6 +25,7 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 	selectedCategory: IOptionCategory;
 	categorySubTotal: number;
 	scenarioOptions: ScenarioOption[];
+	originalScenarioOptions: ScenarioOption[];
 	scenarioId: number;
 	options: LitePlanOption[];
 	cannotEditAgreement: boolean;
@@ -93,6 +94,10 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 			this.store.dispatch(new NavActions.SetSelectedSubNavItem(1));
 		});
 
+		this.store.select(state => state.lite)
+			.pipe(take(1))
+			.subscribe(lite => this.originalScenarioOptions = _.cloneDeep(lite.scenarioOptions));
+
 		combineLatest([
 			this.store.select(state => state.nav),
 			this.store.select(state => state.lite)
@@ -124,6 +129,7 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 						option.quantityRange = quantities.map(x => x + 1); //make array 1-based instead of 0-based; used for select drop-down
 						option.selectedQuantity = 1;
 						option.isSelected = lite.scenarioOptions.some(so => so.edhPlanOptionId === option.id);
+						option.previouslySelected = this.originalScenarioOptions.some(so => so.edhPlanOptionId === option.id);
 						option.isReadonly = this.isReadonlyOption(option)
 
 						if (option.isSelected)
@@ -135,7 +141,7 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 					});
 				});
 
-				this.selectedCategory.optionSubCategories = this.selectedCategory.optionSubCategories.filter(x => x.planOptions.length > 0);
+				this.selectedCategory.optionSubCategories = this.selectedCategory.optionSubCategories.filter(x => x.planOptions.some(po => po.isActive && !po.isSelected));
 			}
 
 			this.categorySubTotal = subtotal;
@@ -152,6 +158,15 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 	async onSelectedOptionWasToggled($event: any, option: LitePlanOptionUI)
 	{
 		$event.preventDefault();
+
+		if (!option.isActive && option.isSelected)
+		{
+			const confirmed = await this.confirmDeselectInactiveOption();
+			if (!confirmed)
+			{
+				return;
+			}
+		}
 
 		if (option.isPastCutOff && !this.overrideReason)
 		{
@@ -384,6 +399,29 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 			}
 
 			return overrideReasonWasProvided;
+		});
+	}
+
+	async confirmDeselectInactiveOption()
+	{
+		const confirmTitle = 'This option is no longer active';
+		const confirmMessage = 'If unselected, you will not be able to select it again. Are you sure you want to deselect it?';
+		const confirmDefaultOption = 'Continue';
+
+		return await this.showConfirmModal(confirmMessage, confirmTitle, confirmDefaultOption);
+	}
+
+	private async showConfirmModal(body: string, title: string, defaultButton: string): Promise<boolean>
+	{
+		const confirm = this.modalService.open(ConfirmModalComponent);
+
+		confirm.componentInstance.title = title;
+		confirm.componentInstance.body = body;
+		confirm.componentInstance.defaultOption = defaultButton;
+
+		return confirm.result.then((result) =>
+		{
+			return result === 'Continue';
 		});
 	}
 }

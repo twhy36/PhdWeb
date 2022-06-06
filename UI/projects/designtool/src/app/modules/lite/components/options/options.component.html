@@ -11,48 +11,49 @@
 		<ng-container *ngFor="let subCategory of selectedCategory.optionSubCategories">
 			<span class="phd-sub-category">{{subCategory.name}}</span>
 				<div *ngFor="let option of subCategory.planOptions" class="phd-grid-row">
-					<div class="phd-row-fields">
-						<div class="phd-selected-option form-check">
-							<input
-								type="checkbox"
-								class="form-check-input"
-								#optionCheckbox
-								[checked]="option.isSelected"
-								[disabled]="option.isReadonly || cannotEditAgreement || (option.isPastCutOff && !canOverride)"
-								(click)="onSelectedOptionWasToggled($event, option)"
-							 />
-						</div>
-						<div class="phd-lawson-name">
-							<span ngbTooltip="{{option.description}}">{{option.financialOptionIntegrationKey}} : <span>{{option.name}}</span></span>
-						</div>
-						<span>Quantity:</span>
-						<select
-							class="phd-quantity form-select"
-							*ngIf="option.maxOrderQuantity > 1"
-							[(ngModel)]="option.selectedQuantity"
-							[disabled]="optionCheckbox.checked === false || option.isReadonly || cannotEditAgreement || (option.isPastCutOff && !canOverride)"
-							(change)="saveSelectedOptionToStore(option)"
-						>
-							<option
-
-								*ngFor="let item of option.quantityRange;"
+					<ng-container *ngIf="option.isActive || option.previouslySelected">
+						<div class="phd-row-fields">
+							<div class="phd-selected-option form-check">
+								<input
+									type="checkbox"
+									class="form-check-input"
+									#optionCheckbox
+									[checked]="option.isSelected"
+									[disabled]="option.isReadonly || cannotEditAgreement || (option.isPastCutOff && !canOverride)"
+									(click)="onSelectedOptionWasToggled($event, option)"
+								 />
+							</div>
+							<div class="phd-lawson-name">
+								<span ngbTooltip="{{option.description}}">{{option.financialOptionIntegrationKey}} : <span>{{option.name}}</span></span>
+							</div>
+							<span>Quantity:</span>
+							<select
+								class="phd-quantity form-select"
+								*ngIf="option.maxOrderQuantity > 1"
+								[(ngModel)]="option.selectedQuantity"
+								[disabled]="optionCheckbox.checked === false || option.isReadonly || cannotEditAgreement || (option.isPastCutOff && !canOverride)"
+								(change)="saveSelectedOptionToStore(option)"
 							>
-								{{ item }}
-							</option>
-						</select>
-						<span *ngIf="option.maxOrderQuantity === 0 || option.maxOrderQuantity === 1" class="phd-quantity">(1)</span>
-						<span class="phd-list-price"> {{option.listPrice | currency}} </span>
-					</div>
-					<div *ngIf="option.isPastCutOff && !canOverride" class="phd-row-note">
-						<i class="fas fa-info-circle fa-sm"></i> Disabled Due to Cut-Off
-					</div>
-					<div *ngIf="option.isPastCutOff && canOverride" class="phd-row-note">
-						<i class="fas fa-info-circle fa-sm"></i> Past Cut-Off
-					</div>
-					<div *ngIf="!option.isActive && !option.isSelected" class="phd-row-note">
-						<i class="fas fa-info-circle fa-sm"></i> Disabled
-					</div>
-					<hr class="phd-row-divider"/>
+								<option
+									*ngFor="let item of option.quantityRange;"
+								>
+									{{ item }}
+								</option>
+							</select>
+							<span *ngIf="option.maxOrderQuantity === 0 || option.maxOrderQuantity === 1" class="phd-quantity">(1)</span>
+							<span class="phd-list-price"> {{option.listPrice | currency}} </span>
+						</div>
+						<div *ngIf="option.isPastCutOff && !canOverride" class="phd-row-note">
+							<i class="fas fa-info-circle fa-sm"></i> Disabled Due to Cut-Off
+						</div>
+						<div *ngIf="option.isPastCutOff && canOverride" class="phd-row-note">
+							<i class="fas fa-info-circle fa-sm"></i> Past Cut-Off
+						</div>
+						<div *ngIf="!option.isActive && option.previouslySelected" class="phd-row-note">
+							<i class="fas fa-info-circle fa-sm"></i> Inactive
+						</div>
+						<hr class="phd-row-divider"/>
+					</ng-container>
 				</div>
 		</ng-container>
 	</div>
