@@ -1,5 +1,5 @@
 import { Tree, DecisionPoint, SubGroup, Group, Choice, PickType, MappedAttributeGroup, MappedLocationGroup } from '../models/tree.model';
-import { TreeVersionRules, ChoiceRules, PointRules, OptionRule, OptionMapping } from '../models/rule.model';
+import { TreeVersionRules, ChoiceRules, PointRules, OptionRule } from '../models/rule.model';
 import { PlanOption } from '../models/option.model';
 import { PointStatus } from '../models/point.model';
 import { PriceBreakdown } from '../models/scenario.model';
@@ -117,9 +117,8 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 		{
 			//detect if choice change affects locked in options
 			if (ch.lockedInOptions.some(o =>
-				o.optionMappings.some(om =>
-					om.choices.some(c => (c.mustHave && !choices.find(c1 => c1.divChoiceCatalogId === c.id)?.quantity)
-						|| (!c.mustHave && choices.find(c1 => c1.divChoiceCatalogId === c.id)?.quantity)))))
+				o.choices.some(c => (c.mustHave && !choices.find(c1 => c1.divChoiceCatalogId === c.id)?.quantity)
+					|| (!c.mustHave && choices.find(c1 => c1.divChoiceCatalogId === c.id)?.quantity))))
 			{
 				ch.lockedInChoice = null;
 				ch.lockedInOptions = [];
@@ -290,11 +289,6 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 	//apply option rules
 	let executedOptionRules = new Set<number>();
 
-	function getOptionMappingChoices(optionRule: OptionRule, choice: Choice)
-	{
-		return getOptionRuleOptionMappingChoices(optionRule, choice, choices, tree);
-	}
-
 	function executeOptionRule(optionRule: OptionRule)
 	{
 		//if there are any replace options, make sure the rules for those options are executed first
@@ -330,30 +324,27 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 
 		option.calculatedPrice = option.listPrice; //copy list price to calculated price so list price can be preserved
 
-		optionRule.optionMappings.forEach(optionMapping =>
+		const maxSortOrderChoice = getMaxSortOrderChoice(tree, optionRule.choices.filter(c => c.mustHave).map(c => c.id));
+		const choice = find(maxSortOrderChoice);
+
+		if (choice)
 		{
-			const optionRuleChoices = optionMapping.choices;
-			const maxSortOrderChoice = getMaxSortOrderChoice(tree, optionRuleChoices.filter(c => c.mustHave).map(c => c.id));
-			const choice = find(maxSortOrderChoice);
+			// set maxQuantity
+			choice.maxQuantity = getMaxQuantity(option, choice);
 
-			if (choice)
+			if (optionRule.choices.every(c => c.id === choice.id || (c.mustHave && find(c.id).quantity >= 1) || (!c.mustHave && find(c.id).quantity === 0)))
 			{
-				// set maxQuantity
-				choice.maxQuantity = getMaxQuantity(option, choice);
-
-				if (optionRuleChoices.every(c => c.id === choice.id || (c.mustHave && find(c.id).quantity >= 1) || (!c.mustHave && find(c.id).quantity === 0)))
+				// handle quantity options
+				if (option.maxOrderQuantity > 1)
 				{
-					// handle quantity options
-					if (option.maxOrderQuantity > 1)
-					{
-						//quantity options shouldn't be able to have replace rules (check this assumption)
+					//quantity options shouldn't be able to have replace rules (check this assumption)
 
-						choice.price = option.listPrice;
-						choice.options = [...choice.options, option];
-					}
-					else
-					{
-						let calculatedPrice = option.calculatedPrice;
+					choice.price = option.listPrice;
+					choice.options = [...choice.options, option];
+				}
+				else
+				{
+					let calculatedPrice = option.calculatedPrice;
 
 					// #352779
 					// Determine if this option has been replaced and use the original pricing if necessary
@@ -363,14 +354,13 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 					{
 						// Ensure the choices are still selected
 						let useOriginalPricing = true;
-						const replaceRuleChoices = _.flatMap(replaceRules, rr => _.flatMap(rr.optionMappings, om => om.choices)).map(rrc => rrc.id);
+						const replaceRuleChoices = _.flatMap(replaceRules, rr => rr.choices).map(rrc => rrc.id);
 
 						for (let rrc of replaceRuleChoices)
 						{
 							if (find(rrc).quantity === 0)
 							{
 								useOriginalPricing = false;
-
 								break;
 							}
 						}
@@ -394,30 +384,29 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 							.map(o => options.find(opt => opt.financialOptionIntegrationKey === o))
 							.filter(o => !!o);
 
-							calculatedPrice = replaceOptions.reduce((pv, cv) => pv - cv.calculatedPrice, calculatedPrice);
-						}
+						calculatedPrice = replaceOptions.reduce((pv, cv) => pv - cv.calculatedPrice, calculatedPrice);
+					}
 
-						// Apply the option price to the max sort order choice, if the rule is satisfied
-						choice.price += calculatedPrice;
-						choice.options = [...choice.options, option];
+					// Apply the option price to the max sort order choice, if the rule is satisfied
+					choice.price += calculatedPrice;
+					choice.options = [...choice.options, option];
 
-						//handle replace
-						if (choice.quantity >= 1 && optionRule.replaceOptions.length > 0)
+					//handle replace
+					if (choice.quantity >= 1 && optionRule.replaceOptions.length > 0)
+					{
+						optionRule.replaceOptions.forEach(opt =>
 						{
-							optionRule.replaceOptions.forEach(opt =>
-							{
-								let c = choices.find(ch => ch.options.some(o => o.financialOptionIntegrationKey === opt));
+							let c = choices.find(ch => ch.options.some(o => o.financialOptionIntegrationKey === opt));
 
-								if (c)
-								{
-									c.options = c.options.filter(o => o.financialOptionIntegrationKey !== opt);
-								}
-							});
-						}
+							if (c)
+							{
+								c.options = c.options.filter(o => o.financialOptionIntegrationKey !== opt);
+							}
+						});
 					}
 				}
 			}
-		});
+		}
 	};
 
 	/**
@@ -462,7 +451,6 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 					.filter(jca => !currentAttributeGroupIds.some(cag => cag.id === jca.attributeGroupCommunityId))
 					.map(x => new MappedAttributeGroup({ id: x.attributeGroupCommunityId }))
 				];
-
 				currentLocationGroupIds = [...currentLocationGroupIds,
 				...lockedInChoice.jobChoiceLocations
 					.filter(jcl => !currentLocationGroupIds.some(clg => clg.id === jcl.locationGroupCommunityId))
@@ -478,7 +466,6 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 					.filter(coca => !currentAttributeGroupIds.some(cag => cag.id === coca.attributeGroupCommunityId))
 					.map(x => new MappedAttributeGroup({ id: x.attributeGroupCommunityId }))
 				];
-
 				currentLocationGroupIds = [...currentLocationGroupIds,
 				...lockedInChoice.jobChangeOrderChoiceLocations
 					.filter(cocl => !currentLocationGroupIds.some(clg => clg.id === cocl.locationGroupCommunityId))
@@ -486,17 +473,14 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 				];
 			}
 
-			// this bit we try to filter out attributes that have been reassigned to other choices from locked in options
 			if (choice.lockedInOptions && choice.lockedInOptions.length > 0)
 			{
-				let optionRule = choice.lockedInOptions.find(optionRule => optionRule && optionRule.optionMappings.some(om => om.choices.some(c => c.attributeReassignments.length > 0)));
+				let optionRule = choice.lockedInOptions.find(o => o && o.choices.some(c => c.attributeReassignments.length > 0));
 
 				if (optionRule)
 				{
-					let orChoices = getOptionMappingChoices(optionRule, choice);
-
 					// find the choice on the rule that matches the current chocie
-					let orChoice = orChoices.find(c => c.id === choice.divChoiceCatalogId);
+					let orChoice = optionRule.choices.find(c => c.id === choice.divChoiceCatalogId);
 
 					if (orChoice)
 					{
@@ -515,37 +499,30 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 			mappedAttributeGroups = [...mappedAttributeGroups, ...currentAttributeGroupIds];
 			mappedLocationGroups = [...mappedLocationGroups, ...currentLocationGroupIds];
 
-			let lockedInChoicesWithReassignments = choices.filter(c => c.lockedInOptions && c.lockedInOptions.length > 0 && c.lockedInOptions.some(lo => lo && lo.optionMappings.some(om => om.choices.some(lc => lc.attributeReassignments.length > 0))));
+			let lockedInChoicesWithReassignments = choices.filter(c => c.lockedInOptions && c.lockedInOptions.length > 0 && c.lockedInOptions.some(lo => lo && lo.choices.some(lc => lc.attributeReassignments.length > 0)));
 
-			// in this bit we try to find and set attribute reassignments for locked in options
-			lockedInChoicesWithReassignments.forEach(lockedInChoice =>
+			lockedInChoicesWithReassignments.forEach(c =>
 			{
-				const optionRule = lockedInChoice.lockedInOptions.find(o => o.optionMappings.some(om => om.choices.some(c => c.attributeReassignments.length > 0)));
+				let optionRule = c.lockedInOptions.find(o => o.choices.some(c => c.attributeReassignments.length > 0));
 
-				// return mappings with attribute reassignments attached.
-				const optionMappings = optionRule.optionMappings.filter(om => om.choices.some(c => c.attributeReassignments && c.attributeReassignments.length > 0 && c.attributeReassignments.find(ar => ar.choiceId === choice.lockedInChoice.choice.dpChoiceId || ar.divChoiceCatalogId === choice.lockedInChoice.choice.divChoiceCatalogId)));
+				const choicesWithReassignments = optionRule.choices.filter(orChoice => orChoice.attributeReassignments && orChoice.attributeReassignments.length > 0 && orChoice.attributeReassignments.find(ar => ar.choiceId === choice.lockedInChoice.choice.dpChoiceId || ar.divChoiceCatalogId === choice.lockedInChoice.choice.divChoiceCatalogId));
 
-				if (optionMappings.length > 0)
+				if (choicesWithReassignments.length > 0)
 				{
+					// look for choices that have attribute Reassignments, then return only those that match the current choice
 					let attributeReassignments: MappedAttributeGroup[] = [];
 
-					optionMappings.forEach(optionMapping =>
+					choicesWithReassignments.forEach(arChoice =>
 					{
-						// find the main choice which should have the reassignment attached
-						const arChoice = optionMapping.choices.find(c => c.attributeReassignments && c.attributeReassignments.length > 0 && c.attributeReassignments.find(ar => ar.choiceId === choice.id));
+						const parentChoice = choices.find(c => c.divChoiceCatalogId === arChoice.id);
 
-						if (arChoice)
+						// apply reassignments when the parent has been selected
+						if (parentChoice.quantity > 0)
 						{
-							const parentChoice = choices.find(c => c.divChoiceCatalogId === arChoice.id);
+							let reassignments = arChoice.attributeReassignments.filter(ar => ar.choiceId === choice.lockedInChoice.choice.dpChoiceId || ar.divChoiceCatalogId === choice.lockedInChoice.choice.divChoiceCatalogId).map(ar => ar);
+							let newAttributeReassignments = reassignments.map(x => new MappedAttributeGroup({ id: x.attributeGroupId, attributeReassignmentFromChoiceId: parentChoice.id }));
 
-							// apply reassignments when the parent has been selected.  Not sure if we need to check if the whole mapping is still valid being a locked in choice
-							if (parentChoice.quantity > 0)
-							{
-								let reassignments = arChoice.attributeReassignments.filter(ar => ar.choiceId === choice.lockedInChoice.choice.dpChoiceId || ar.divChoiceCatalogId === choice.lockedInChoice.choice.divChoiceCatalogId).map(ar => ar);
-								let newAttributeReassignments = reassignments.map(x => new MappedAttributeGroup({ id: x.attributeGroupId, attributeReassignmentFromChoiceId: parentChoice.id }));
-
-								attributeReassignments = [...attributeReassignments, ...newAttributeReassignments.filter(nar => attributeReassignments.indexOf(nar) === -1)];
-							}
+							attributeReassignments = [...attributeReassignments, ...newAttributeReassignments];
 						}
 					});
 
@@ -559,7 +536,6 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 		}
 		else
 		{
-			// in this bit we try to filter out attributes that have been reassigned to other choices
 			if (choice.options && choice.options.length > 0)
 			{
 				// run through each option
@@ -572,10 +548,8 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 
 					if (optionRule)
 					{
-						const orChoices = getOptionMappingChoices(optionRule, choice);
-
 						// find the choice on the rule that matches the current chocie
-						let orChoice = orChoices.find(c => c.id === choice.id);
+						let orChoice = optionRule.choices.find(c => c.id === choice.id);
 
 						if (orChoice)
 						{
@@ -601,38 +575,29 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 				mappedLocationGroups = choice.locationGroups.map(x => new MappedLocationGroup({ id: x }));
 			}
 
-			// in this bit we check option rules for any attribute reassignments that we need to apply
+			// check option rules for any attribute reassignments that we need to apply
 			optionRules.forEach(optionRule =>
 			{
-				// find all the mappings that have reassignments
-				const optionMappings = optionRule.optionMappings.filter(om => om.choices.some(c => c.attributeReassignments && c.attributeReassignments.length > 0 && c.attributeReassignments.find(ar => ar.choiceId === choice.id)));
+				// return choices with reassignments where the toChoice is the current choice in the main loop
+				const choicesWithReassignments = optionRule.choices.filter(orChoice => orChoice.attributeReassignments && orChoice.attributeReassignments.length > 0 && orChoice.attributeReassignments.find(ar => ar.choiceId === choice.id));
 
-				if (optionMappings.length > 0)
+				if (choicesWithReassignments.length > 0)
 				{
+					// look for choices that have attribute Reassignments, then return only those that match the current choice
 					let attributeReassignments: MappedAttributeGroup[] = [];
 
-					optionMappings.forEach(optionMapping =>
+					choicesWithReassignments.forEach(arChoice =>
 					{
-						// find the main choice which should have the reassignment attached
-						const arChoice = optionMapping.choices.find(c => c.attributeReassignments && c.attributeReassignments.length > 0 && c.attributeReassignments.find(ar => ar.choiceId === choice.id));						
+						const parentChoice = choices.find(c => c.id === arChoice.id);
+						let parentHasReassignment = parentChoice.lockedInOptions && parentChoice.lockedInOptions.length > 0 && parentChoice.lockedInOptions.some(o => o.choices && o.choices.some(c => c.attributeReassignments.length > 0 && c.attributeReassignments.findIndex(ar => ar.choiceId === choice.id || ar.divChoiceCatalogId === choice.divChoiceCatalogId) > -1));
 
-						if (arChoice)
+						// apply reassignments when the parent has been selected, and isn't locked in via choice, or is locked in from a option rule.
+						if (parentChoice.quantity > 0 && (!parentChoice.lockedInChoice && (parentChoice.lockedInOptions || parentChoice.lockedInOptions.length === 0) || parentHasReassignment))
 						{
-							const parentChoice = choices.find(c => c.id === arChoice.id);
-							let parentHasReassignment = parentChoice.lockedInOptions && parentChoice.lockedInOptions.length > 0 && parentChoice.lockedInOptions.some(o => o.optionMappings && o.optionMappings.some(om => om.choices.some(c => c.attributeReassignments.length > 0 && c.attributeReassignments.findIndex(ar => ar.choiceId === choice.id || ar.divChoiceCatalogId === choice.divChoiceCatalogId) > -1)));
+							let reassignments = arChoice.attributeReassignments.filter(ar => ar.choiceId === choice.id || ar.divChoiceCatalogId === choice.divChoiceCatalogId).map(ar => ar);
+							let newAttributeReassignments = reassignments.map(x => new MappedAttributeGroup({ id: x.attributeGroupId, attributeReassignmentFromChoiceId: parentChoice.id }));
 
-							// make sure everything in the mapping has been selected
-							let optionMappingValid = optionMapping.choices.every(c => (c.mustHave && find(c.id).quantity >= 1) || (!c.mustHave && find(c.id).quantity === 0));
-
-							// apply reassignments when the parent has been selected, and isn't locked in via choice, or is locked in from a option rule
-							if (optionMappingValid && (!parentChoice.lockedInChoice && (parentChoice.lockedInOptions || parentChoice.lockedInOptions.length === 0) || parentHasReassignment))
-							{
-								let reassignments = arChoice.attributeReassignments.filter(ar => ar.choiceId === choice.id || ar.divChoiceCatalogId === choice.divChoiceCatalogId).map(ar => ar);
-								let newAttributeReassignments = reassignments.map(x => new MappedAttributeGroup({ id: x.attributeGroupId, attributeReassignmentFromChoiceId: parentChoice.id }));
-
-								// filter on newAttributeReassignments is to help remove duplicates
-								attributeReassignments = [...attributeReassignments, ...newAttributeReassignments.filter(nar => attributeReassignments.indexOf(nar) === -1)];								
-							}
+							attributeReassignments = [...attributeReassignments, ...newAttributeReassignments];
 						}
 					});
 
@@ -683,7 +648,7 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 			{
 				const filteredOptRules = rules.optionRules.filter(optRule => optRule.replaceOptions && optRule.replaceOptions.length
 					&& optRule.replaceOptions.includes(choice.lockedInOptions[i].optionId)
-					&& optRule.optionMappings.some(om => om.choices.every(c => (c.mustHave && choices.find(ch => ch.id === c.id && ch.quantity) || (!c.mustHave && choices.find(ch => ch.id === c.id && !ch.quantity))))));
+					&& optRule.choices.every(c => (c.mustHave && choices.find(ch => ch.id === c.id && ch.quantity) || (!c.mustHave && choices.find(ch => ch.id === c.id && !ch.quantity)))));
 
 				// If the entire option rule is satisfied (Must Have's are all selected, Must Not Have's are all deselected), then remove the lockedInOption
 				if (filteredOptRules && filteredOptRules.length) 
@@ -696,11 +661,9 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 						let lockedInChoice = choice.lockedInChoice.choice as JobChoice;
 						let j = choice.lockedInChoice.optionAttributeGroups.findIndex(oa => oa.optionId === removedMapping[0].optionId);
 						let removedOption = choice.lockedInChoice.optionAttributeGroups.splice(j, 1);
-
 						lockedInChoice.jobChoiceAttributes = lockedInChoice.jobChoiceAttributes.filter(jca =>
 							removedOption[0].attributeGroups.indexOf(jca.attributeGroupCommunityId) === -1
 							|| choice.lockedInChoice.optionAttributeGroups.some(o => o.attributeGroups.indexOf(jca.attributeGroupCommunityId) !== -1));
-
 						lockedInChoice.jobChoiceLocations = lockedInChoice.jobChoiceLocations.filter(jcl =>
 							removedOption[0].locationGroups.indexOf(jcl.locationGroupCommunityId) === -1
 							|| choice.lockedInChoice.optionAttributeGroups.some(o => o.locationGroups.indexOf(jcl.locationGroupCommunityId) !== -1));
@@ -717,14 +680,11 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 			choice.mappingChanged = true;
 
 			//since the option mapping is changed, flag each dependency
-			choice.lockedInOptions.forEach(optionRule =>
+			choice.lockedInOptions.forEach(o =>
 			{
-				if (optionRule)
+				if (o)
 				{
-					// find the working option mapping.  not sure this is correct.  Need to test this
-					const optionMappingChoices = getOptionMappingChoices(optionRule, null);
-
-					optionMappingChoices.forEach(c =>
+					o.choices.forEach(c =>
 					{
 						let pt = points.find(p => p.choices.some(ch => ch.divChoiceCatalogId === c.id));
 
@@ -1017,11 +977,7 @@ export function checkReplacedOption(deselectedChoice: Choice, rules: TreeVersion
 			optRule.replaceOptions.forEach(replaceOptionId =>
 			{
 				let replaceOptionRule = rules.optionRules.find(r => r.optionId === replaceOptionId);
-
-				// find out which option mapping is in play if there are multiple.
-				const optionMappingChoices = getOptionRuleOptionMappingChoices(replaceOptionRule, null, choices, tree);
-
-				const maxSortOrderChoice = getMaxSortOrderChoice(tree, optionMappingChoices.filter(ch => ch.mustHave).map(ch => ch.id));
+				const maxSortOrderChoice = getMaxSortOrderChoice(tree, replaceOptionRule.choices.filter(ch => ch.mustHave).map(ch => ch.id));
 				const prevChoice = choices.find(ch => ch.id === maxSortOrderChoice);
 
 				if (prevChoice && prevChoice.lockedInChoice)
@@ -1030,14 +986,9 @@ export function checkReplacedOption(deselectedChoice: Choice, rules: TreeVersion
 					// fetch divChoiceCatalogID from the tree
 					replaceOptionRule = {
 						...replaceOptionRule,
-						optionMappings: [
-							{
-								mappingIndex: 0,
-								choices: optionMappingChoices.map(c => (
-									{ ...c, id: findChoice(tree, tc => tc.id === c.id)?.divChoiceCatalogId || c.id }
-								))
-							} as OptionMapping
-						]
+						choices: replaceOptionRule.choices.map(c => (
+							{ ...c, id: findChoice(tree, tc => tc.id === c.id)?.divChoiceCatalogId || c.id }
+						))
 					};
 
 					if (prevChoice.lockedInOptions)
@@ -1052,47 +1003,4 @@ export function checkReplacedOption(deselectedChoice: Choice, rules: TreeVersion
 			});
 		});
 	}
-}
-
-/**
- * Tries to find a valid optiom mapping, valid being all must have choices have been selected in a mapping
- * @param optionRule
- * @param choiceId
- * @param choices
- * @param tree
- */
-export function getOptionRuleOptionMappingChoices(optionRule: OptionRule, choice: Choice, choices: Choice[], tree: Tree)
-{
-	// find the working choice.  The id passed in can be either divChoiceCatalogId or choice Id.
-	let find = id => choices.find(ch => (ch.divChoiceCatalogId === id || ch.id === id));
-	let optionMappings: OptionMapping[] = [];
-	
-	if (optionRule?.optionMappings)
-	{
-		optionRule.optionMappings.forEach(mapping =>
-		{
-			if (choice === null)
-			{
-				// make sure the mapping is valid, meaning everything has been selected that needs selecting
-				if (mapping.choices.every(c => (c.mustHave && find(c.id).quantity >= 1) || (!c.mustHave && find(c.id).quantity === 0)))
-				{
-					optionMappings.push(mapping);
-				}
-			}
-			else
-			{
-				const maxSortOrderChoice = getMaxSortOrderChoice(tree, mapping.choices.filter(c => c.mustHave).map(c => c.id));
-				const foundChoice = find(choice.id) || find(choice.divChoiceCatalogId);
-
-				// make sure the mapping is valid, meaning everything has been selected that needs selecting
-				if (maxSortOrderChoice === foundChoice.id && mapping.choices.every(c => (c.id === foundChoice.id || c.id === foundChoice.divChoiceCatalogId) || (c.mustHave && find(c.id).quantity >= 1) || (!c.mustHave && find(c.id).quantity === 0)))
-				{
-					optionMappings.push(mapping);
-				}
-			}
-		});
-	}
-
-	// if there are multiple valid option mappings lets just return the first and call it good?
-	return optionMappings.length ? optionMappings[0].choices : [];
 }

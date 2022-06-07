@@ -191,7 +191,7 @@ export class ManageTreeOptionsComponent extends ComponentCanNavAway implements O
 
 	get unassignedOptions(): Array<ITreeOption>
 	{
-		const options = this.currentTreeOptions.filter(o => o.optionRuleMappingCount === 0 && !o.baseHouse);
+		const options = this.currentTreeOptions.filter(o => !o.hasRules && !o.baseHouse);
 
 		return options ? options : [];
 	}
