@@ -1,20 +1,18 @@
 import { Injectable } from '@angular/core';
-import * as _ from 'lodash-es';
+import * as _ from 'lodash';
 
 import { ApplicationInsights } from '@microsoft/applicationinsights-web';
 import { Action } from '@ngrx/store';
 import { Actions, createEffect } from '@ngrx/effects';
 import { Observable } from 'rxjs';
-import { tap, scan, filter } from 'rxjs/operators';
+import { tap, scan, filter, map } from 'rxjs/operators';
 
 export function Log(includePayload: string[] | boolean = false, stopAt: string[] = null)
 {
 	if (stopAt)
 	{
-		return function <T extends { new(...args: any[]): {} }>(constructor: T)
-		{
-			return class extends constructor
-			{
+		return function <T extends { new(...args: any[]): {} }>(constructor: T) {
+			return class extends constructor {
 				logPayload = includePayload;
 				timeUntil = stopAt;
 			};
@@ -22,13 +20,11 @@ export function Log(includePayload: string[] | boolean = false, stopAt: string[]
 	}
 	else
 	{
-		return function <T extends { new(...args: any[]): {} }>(constructor: T)
-		{
-			return class extends constructor
-			{
+		return function <T extends { new(...args: any[]): {} }>(constructor: T) {
+			return class extends constructor {
 				logPayload = includePayload;
 			};
-		}
+		}	
 	}
 }
 
@@ -40,7 +36,6 @@ export class LoggingEffects
 			scan<Action, { action: Action, duration: boolean, timers: { action: Action, stopAt: string[] }[] }>((acc, curr) => 
 			{
 				let timers = acc.timers;
-
 				if (curr.hasOwnProperty('timeUntil')) 
 				{
 					timers.push({ action: curr, stopAt: (<any>curr).timeUntil });
@@ -48,7 +43,6 @@ export class LoggingEffects
 				}
 
 				let matchedTimer = timers.findIndex(t => t.stopAt.some(a => a === curr.type));
-
 				if (matchedTimer !== -1) 
 				{
 					const timer = timers.splice(matchedTimer, 1)[0];
@@ -69,13 +63,13 @@ export class LoggingEffects
 				if (Array.isArray(logPayload)) 
 				{
 					trackFunction(_.pick(acc.action, logPayload));
-				}
+				} 
 				else 
 				{
 					if (logPayload) 
 					{
 						trackFunction(_.omit(acc.action, 'type', 'logPayload', 'timeUntil'));
-					}
+					} 
 					else 
 					{
 						trackFunction();

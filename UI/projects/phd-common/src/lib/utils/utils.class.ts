@@ -2,7 +2,7 @@ import { Choice } from '../models/tree.model';
 import { Buyer } from '../models/buyer.model';
 import { ChangeOrderGroup } from '../models/job-change-order.model';
 
-import * as _ from 'lodash-es';
+import * as _ from 'lodash';
 import { LotChoiceRules } from '../models/rule.model';
 import { LotChoiceRuleAssoc } from '../models/lot.model';
 
