@@ -1,4 +1,4 @@
-<div class="row div-tab-panel">
+<div class="phd-div-tab-panel">
 	<phd-table [value]="locations" [displayTooltip]="false" tableId="expansionLocationTabPanel" [rowClass]="getRowClass">
 		<phd-column columnId="select" width="50px">
 			<ng-template #header>
@@ -14,7 +14,7 @@
 	</phd-table>
 </div>
 
-<div class="d-flex justify-content-end pt-3">
+<div class="phd-div-button-panel">
 	<button class="btn btn-primary phd-btn-left" (click)="onAssociate()" [disabled]="isReadOnly">Associate Locations</button>
 	<button class="btn btn-primary" (click)="onRemoveLocations()" [disabled]="isReadOnly || saveDisabled">Remove Locations</button>
 </div>

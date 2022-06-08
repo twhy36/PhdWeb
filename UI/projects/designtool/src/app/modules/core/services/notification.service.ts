@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 
 import { from, timer, of, Subscription } from 'rxjs';
 import { tap, retryWhen, delayWhen, take, switchMap } from 'rxjs/operators';
-import * as signalR from '@aspnet/signalr';
+import * as signalR from '@microsoft/signalr';
 
 import { environment } from '../../../../environments/environment';
 

@@ -92,8 +92,11 @@
 	<ng-template #header let-columns>
 		<ng-template ngFor [ngForOf]="columns" let-col>
 			<ng-template [ngIf]="rowGroupHeaderTemplate && rowGroupHeaderMode === 'repeat'" [ngIfElse]="resizableHeader">
-				<th [attr.data-columnId]="col.columnId" [style.width]="col.width" [class]="col.columnClass"><ng-container *ngTemplateOutlet="colHeader; context: {$implicit: col}"></ng-container></th>
+				<th [attr.data-columnId]="col.columnId" [style.width]="col.width" [class]="col.columnClass">
+					<ng-container *ngTemplateOutlet="colHeader; context: {$implicit: col}"></ng-container>
+				</th>
 			</ng-template>
+
 			<ng-template #resizableHeader>
 				<th *ngIf="sortMode && col.canSort" [pSortableColumn]="col.field" pResizableColumn [attr.data-columnId]="col.columnId" [style.width]="col.width" [class]="col.columnClass">
 					<ng-container *ngTemplateOutlet="colHeader; context: {$implicit: col}"></ng-container>

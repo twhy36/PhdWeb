@@ -326,7 +326,7 @@ export class LocationService
 			'isRemoved': isRemoved
 		};
 
-		return this._http.patch(url, data).pipe(
+		return withSpinner(this._http).patch(url, data).pipe(
 			map(response =>
 			{
 				let loco = response as LocationGroupMarket;
@@ -422,7 +422,7 @@ export class LocationService
 			'isRemoved': isRemoved
 		};
 
-		return this._http.patch(url, data).pipe(
+		return withSpinner(this._http).patch(url, data).pipe(
 			map(response =>
 			{
 				let option = response as Option;

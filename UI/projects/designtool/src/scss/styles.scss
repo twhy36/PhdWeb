@@ -1,6 +1,6 @@
 /* You can add global styles to this file, and also import other style files */
 
-@import './bootstrap.min.css';
+@import '~bootstrap/dist/css/bootstrap.min.css';
 @import url(https://fonts.googleapis.com/css?family=Roboto:400,100,100italic,300,300itaÃƒÂ¢Ã¢â€šÂ¬Ã…â€™ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â¹lic,400italic,500,500italic,700,700italic,900italic,900);
 @import "./color-pallet.scss";
 @import "./sizes.scss";
@@ -231,10 +231,6 @@ $slider-default-icon-bg-color: white;
 
 .validation-error {
 	color: red;
-}
-
-.phd-modal-backdrop {
-	z-index: 1051 !important;
 }
 
 .phd-modal-window {

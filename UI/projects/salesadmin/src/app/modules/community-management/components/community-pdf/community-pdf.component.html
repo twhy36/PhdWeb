@@ -1,7 +1,8 @@
 <community-pdf-side-panel-component *ngIf="isSidePanelOpen" [communityPdfs]="allCommunityPdfs" [selected]="selected" [selectedCommunity]="selectedCommunity" [sidePanelOpen]="isSidePanelOpen" [saving]="isSaving" [includedFeaturesExists]="includedFeaturesPdfs.length > 0" (onSidePanelClose)="onSidePanelClose($event)" (onUpdate)="update($event)" (onSave)="save($event)"></community-pdf-side-panel-component>
 
-<div class="phd-page-container">
+<div class="phd-tab-container">
 	<page-header mainTitle="Community PDF Files"></page-header>
+
 	<div class="phd-pdf-button-bar">
 		<ng-template [ngIf]="canEdit">
 			<div class="phd-edit">
@@ -19,7 +20,8 @@
 			</div>
 		</ng-template>
 	</div>
-	<div class="phd-page-body phd-table-view">
+
+	<div class="phd-tab-body">
 		<h2>Home Warranty</h2>
 		<community-pdf-table [filteredCommunityPdfs]="homeWarrantyPdfs" [isCanceling]="isCanceling" [isSorting]="isSorting" [isSaving]="isSortSaving" [canEdit]="canEdit" (editClicked)="onEditClick($event)" (deleteComplete)="onDeleteComplete($event)" (saveComplete)="onSortComplete($event)" (sortInitiated)="enableSave($event)"></community-pdf-table>
 		<h2>Community Association</h2>
@@ -30,5 +32,3 @@
 		<community-pdf-table [filteredCommunityPdfs]="includedFeaturesPdfs" [isCanceling]="isCanceling" [isSorting]="isSorting" [isSaving]="isSortSaving" [canEdit]="canEdit" (editClicked)="onEditClick($event)" (deleteComplete)="onDeleteComplete($event)" (saveComplete)="onSortComplete($event)" (sortInitiated)="enableSave($event)"></community-pdf-table>
 	</div>
 </div>
-
-<p-toast></p-toast>

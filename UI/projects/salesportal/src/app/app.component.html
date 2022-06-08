@@ -6,4 +6,5 @@
 </header>
 
 <router-outlet></router-outlet>
-<build-version *ngIf="!environment.production" [branch]="branch" [version]="build.version"></build-version>
+
+<build-version *ngIf="!environment.production" [branch]="branch" [version]="version"></build-version>

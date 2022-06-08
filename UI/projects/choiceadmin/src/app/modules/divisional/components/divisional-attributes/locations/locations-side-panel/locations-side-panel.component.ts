@@ -5,7 +5,7 @@ import { Observable, BehaviorSubject, of, EMPTY as empty, throwError as _throw }
 import { catchError, map, switchMap } from 'rxjs/operators';
 
 import { MessageService } from 'primeng/api';
-import { NgbTabChangeEvent } from '@ng-bootstrap/ng-bootstrap';
+import { NgbNavChangeEvent } from '@ng-bootstrap/ng-bootstrap';
 
 import { SidePanelComponent } from '../../../../../shared/components/side-panel/side-panel.component';
 
@@ -245,7 +245,7 @@ export class LocationsSidePanelComponent implements OnInit
 		this._msgService.add({ severity: 'success', summary: 'Location', detail: `has been saved!` });
 	}
 
-	async beforeTabChange($event: NgbTabChangeEvent)
+	async beforeNavChange($event: NgbNavChangeEvent)
 	{
 		this.updateLocationDetails();
 

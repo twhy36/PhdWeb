@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 
-import { NgbModule, NgbCollapseModule, NgbDropdownModule, NgbTabsetModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModule, NgbCollapseModule, NgbDropdownModule, NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { NavigationBarComponent } from './components/navigation-bar/navigation-bar.component';
 import { ConfirmModalComponent } from './components/confirm-modal/confirm-modal.component';
@@ -50,7 +50,7 @@ import { PhdCommonModule } from 'phd-common';
 		NgbModule,
 		NgbCollapseModule,
 		NgbDropdownModule,
-		NgbTabsetModule,
+		NgbNavModule,
 		PhdCommonModule
 	],
 	providers: [

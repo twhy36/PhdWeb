@@ -32,14 +32,7 @@ import 'core-js/es/symbol';
  import 'core-js/es/regexp';
  import 'core-js/es/map';
  import 'core-js/es/weak-map';
- import 'core-js/es/set';
-
-
-/**
- * Required to support Web Animations `@angular/platform-browser/animations`.
- * Needed for: All but Chrome, Firefox and Opera. http://caniuse.com/#feat=web-animation
- **/
-import 'web-animations-js';  // Run `npm install --save web-animations-js`.
+ import 'core-js/es/set';  // Run `npm install --save web-animations-js`.
 
 /**
  * By default, zone.js will patch all possible macroTask and DomEvents
@@ -59,7 +52,7 @@ import 'web-animations-js';  // Run `npm install --save web-animations-js`.
 /***************************************************************************************************
  * Zone JS is required by default for Angular itself.
  */
-import 'zone.js/dist/zone';  // Included with Angular CLI.
+import 'zone.js';  // Included with Angular CLI.
 
 
 

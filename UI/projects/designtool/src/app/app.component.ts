@@ -5,7 +5,7 @@ import { filter } from 'rxjs/operators';
 
 import { loadScript } from 'phd-common';
 import { environment } from '../environments/environment';
-import * as build from './build.json';
+import { default as build } from './build.json';
 import { NotificationService } from './modules/core/services/notification.service';
 
 @Component({
@@ -13,19 +13,28 @@ import { NotificationService } from './modules/core/services/notification.servic
 	templateUrl: './app.component.html',
 	styleUrls: ['./app.component.scss']
 })
-export class AppComponent {
-	build = (build as any).default;
+export class AppComponent
+{
 	environment = environment;
 
-	get branch(): string {
+	get branch(): string
+	{
 		return build.branch.split('/').slice(2).join('/');
 	}
 
-	constructor(private router: Router, private notificationService: NotificationService) {
+	get version(): string
+	{
+		return build.version;
+	}
+
+	constructor(private router: Router, private notificationService: NotificationService)
+	{
 		this.router.events.pipe(
 			filter(evt => evt instanceof NavigationEnd)
-		).subscribe(() => {
-			if (typeof (<any>window)._wfx_refresh === 'function') {
+		).subscribe(() =>
+		{
+			if (typeof (<any>window)._wfx_refresh === 'function')
+			{
 				(<any>window)._wfx_refresh();
 			}
 		});

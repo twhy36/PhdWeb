@@ -1,4 +1,6 @@
-<div id="buildVersion" (click)="dismiss($event.target)">
-    Branch: {{branch}}<br />
-    Version: {{version}}
-</div>
+<ng-container *ngIf="branch.length > 0 || version.length > 0">
+    <div id="buildVersion" (click)="dismiss($event.target)">
+        Branch: {{branch}}<br />
+        Version: {{version}}
+    </div>
+</ng-container>
