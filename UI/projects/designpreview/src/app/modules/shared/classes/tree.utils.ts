@@ -2,7 +2,7 @@ import { Observable, of, combineLatest, throwError } from 'rxjs';
 import { switchMap, catchError, map } from 'rxjs/operators';
 
 import * as _ from 'lodash';
-import moment from 'moment';
+import * as moment from "moment";
 
 import {
 	findChoice, DesignToolAttribute, JobChoice, JobPlanOption, JobChoiceAttribute, JobChoiceLocation, Job,
@@ -146,9 +146,9 @@ export function getDefaultOptionRule(optionNumber: string, choice: Choice): Opti
 }
 
 function saveLockedInChoices(
-	choices: Array<JobChoice | ChangeOrderChoice>,
-	treeChoices: Choice[],
-	options: Array<JobPlanOption | ChangeOrderPlanOption>,
+	choices: Array<JobChoice | ChangeOrderChoice>, 
+	treeChoices: Choice[], 
+	options: Array<JobPlanOption | ChangeOrderPlanOption>, 
 	changeOrder?: ChangeOrderGroup,
 	missingChoices?: number[])
 {
@@ -961,7 +961,7 @@ export function getDisabledByList(tree: Tree, groups: Group[], point: DecisionPo
 }
 
 export function getLockedInChoice(
-	choice: JobChoice | ChangeOrderChoice,
+	choice: JobChoice | ChangeOrderChoice, 
 	options: Array<JobPlanOption | ChangeOrderPlanOption>,
 	choiceRules?: Array<ChoiceRules>)
 	:

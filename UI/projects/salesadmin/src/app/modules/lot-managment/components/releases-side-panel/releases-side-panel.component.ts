@@ -5,7 +5,7 @@ import { HomeSite } from '../../../shared/models/homesite.model';
 import { IHomeSiteReleaseDto, IHomeSiteReleaseSidePanelItem } from '../../../shared/models/homesite-releases.model';
 import { ConfirmModalComponent, SidePanelComponent } from 'phd-common';
 
-import moment from 'moment';
+import * as moment from "moment";
 import { NgbModal, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 @Component({
 	selector: 'releases-side-panel-component',

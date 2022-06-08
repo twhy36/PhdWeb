@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, HostListener } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { Observable } from 'rxjs';
-import { tap, switchMap, finalize, combineLatest } from 'rxjs/operators';
+import { tap, switchMap, map, finalize, combineLatest } from 'rxjs/operators';
 
 import { UnsubscribeOnDestroy } from '../../../shared/utils/unsubscribe-on-destroy';
 import { FinancialCommunity, FinancialCommunityInfo } from '../../../shared/models/financialCommunity.model';
@@ -15,7 +15,7 @@ import { NgbModal, NgbModalOptions, NgbModalRef } from '@ng-bootstrap/ng-bootstr
 import { ConfirmModalComponent, PhdTableComponent } from 'phd-common';
 import { SalesProgramsSidePanelComponent } from '../sales-programs-side-panel/sales-programs-side-panel.component';
 
-import moment from 'moment';
+import * as moment from 'moment';
 import { Org } from '../../../shared/models/org.model';
 
 @Component({
@@ -23,6 +23,7 @@ import { Org } from '../../../shared/models/org.model';
 	templateUrl: './sales-programs.component.html',
 	styleUrls: ['./sales-programs.component.scss']
 })
+
 export class SalesProgramsComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	@ViewChild(SalesProgramsSidePanelComponent)

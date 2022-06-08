@@ -1,7 +1,7 @@
 import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 
 import * as _ from 'lodash';
-import moment from 'moment';
+import * as moment from 'moment';
 
 import { MessageService } from 'primeng/api';
 

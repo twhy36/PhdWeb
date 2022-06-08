@@ -2,7 +2,7 @@ import { Observable, combineLatest, of, throwError } from 'rxjs';
 import { switchMap, catchError, map, tap } from 'rxjs/operators';
 
 import * as _ from 'lodash';
-import moment from 'moment';
+import * as moment from "moment";
 
 import
 {
@@ -147,9 +147,9 @@ export function getDefaultOptionRule(optionNumber: string, choice: Choice): Opti
 }
 
 function saveLockedInChoices(
-	choices: Array<JobChoice | ChangeOrderChoice>,
-	treeChoices: Choice[],
-	options: Array<JobPlanOption | ChangeOrderPlanOption>,
+	choices: Array<JobChoice | ChangeOrderChoice>, 
+	treeChoices: Choice[], 
+	options: Array<JobPlanOption | ChangeOrderPlanOption>, 
 	changeOrder?: ChangeOrderGroup,
 	missingChoices?: number[])
 {
@@ -172,7 +172,7 @@ function saveLockedInChoices(
 			// Set locked in price for selected choices which have been removed from the tree
 			if (missingChoices?.find(ch => ch === treeChoice.id))
 			{
-				treeChoice.price = treeChoice.lockedInChoice.choice.dpChoiceCalculatedPrice;
+				treeChoice.price = treeChoice.lockedInChoice.choice.dpChoiceCalculatedPrice; 
 			}
 		}
 	});
@@ -932,7 +932,7 @@ export function getJobOptionType(option: PlanOption, elevationDP: DecisionPoint,
 }
 
 export function getLockedInChoice(
-	choice: JobChoice | ChangeOrderChoice,
+	choice: JobChoice | ChangeOrderChoice, 
 	options: Array<JobPlanOption | ChangeOrderPlanOption>,
 	choiceRules?: Array<ChoiceRules>)
 	:

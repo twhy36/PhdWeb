@@ -2,7 +2,7 @@ import { Component, ViewChild, TemplateRef, OnInit } from '@angular/core';
 import { DivAttributeWizardService, DivAttributeWizPlan, DivAttributeWizOption, DivAttributeWizChoice } from '../../../../services/div-attribute-wizard.service';
 import { TreeService } from '../../../../../core/services/tree.service';
 
-import moment from 'moment';
+import * as moment from 'moment';
 
 import { MessageService } from 'primeng/api';
 

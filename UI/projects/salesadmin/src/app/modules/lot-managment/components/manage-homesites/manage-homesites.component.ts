@@ -19,7 +19,7 @@ import { HomeSite, HomeSiteDtos } from '../../../shared/models/homesite.model';
 import { UnsubscribeOnDestroy } from '../../../shared/utils/unsubscribe-on-destroy';
 import { ManageHomesitesSidePanelComponent } from '../manage-homesites-side-panel/manage-homesites-side-panel.component';
 
-import moment from 'moment';
+import * as moment from 'moment';
 import { MonotonyRule, MonotonyRuleDtos } from '../../../shared/models/monotonyRule.model';
 import { Settings } from '../../../shared/models/settings.model';
 import { SettingsService } from '../../../core/services/settings.service';

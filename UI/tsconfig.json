@@ -12,7 +12,6 @@
 		"importHelpers": true,
 		"resolveJsonModule": true,
 		"allowSyntheticDefaultImports": true,
-		"esModuleInterop": true,
 		"target": "es2015",
 		"lib": [
 			"es2018",
