@@ -37,7 +37,7 @@
 		"cloudinary-core": "^2.8.1",
 		"core-js": "^3.22.8",
 		"font-awesome": "^4.7.0",
-		"lodash": "^4.17.21",
+		"lodash": "^4.17.15",
 		"moment": "^2.29.3",
 		"ngx-drag-scroll": "^13.0.1",
 		"ngx-infinite-scroll": "^13.1.0",
