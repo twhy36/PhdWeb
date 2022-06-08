@@ -1,7 +1,7 @@
 import { ChangeOrderGroup } from "./job-change-order.model";
 import { IBuyer, Buyer } from "./buyer.model";
 
-import * as _ from 'lodash';
+import * as _ from 'lodash-es';
 
 export function isSalesChangeOrder(dto: ChangeOrderGroup): boolean
 {

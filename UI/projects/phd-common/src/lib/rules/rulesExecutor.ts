@@ -7,7 +7,7 @@ import { JobChoice } from '../models/job.model';
 import { ChangeOrderChoice } from '../models/job-change-order.model';
 import { isChoiceAttributesComplete } from '../utils/utils.class';
 
-import * as _ from 'lodash';
+import * as _ from 'lodash-es';
 import { TimeOfSaleOptionPrice } from '../models/time-of-sale-option-price.model';
 
 export function findPoint(tree: Tree, predicate: (point: DecisionPoint) => boolean)
