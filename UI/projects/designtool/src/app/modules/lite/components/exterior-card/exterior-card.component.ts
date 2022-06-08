@@ -5,7 +5,7 @@ import { ReplaySubject } from 'rxjs';
 import * as _ from 'lodash';
 
 import { UnsubscribeOnDestroy, flipOver3, ModalService, ScenarioOption } from 'phd-common';
-import { LitePlanOption, Color } from '../../../shared/models/lite.model';
+import { LitePlanOption, Color, LitePlanOptionUI } from '../../../shared/models/lite.model';
 import { MonotonyConflict } from '../../../shared/models/monotony-conflict.model';
 import { ModalOverrideSaveComponent } from '../../../core/components/modal-override-save/modal-override-save.component';
 
@@ -24,7 +24,7 @@ import { withLatestFrom } from 'rxjs/operators';
 })
 export class ExteriorCardComponent extends UnsubscribeOnDestroy implements OnInit
 {
-	@Input() option: LitePlanOption;
+	@Input() option: LitePlanOptionUI;
 	@Input() color: Color;
 	@Input() scenarioOptions: ScenarioOption[];
 	@Input() isSelected: boolean;

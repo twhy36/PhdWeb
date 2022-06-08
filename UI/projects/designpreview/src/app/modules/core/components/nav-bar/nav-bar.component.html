@@ -11,14 +11,26 @@
 		</div>
 		<div *ngIf="!(isTablet$ | async)" class="col-6 d-flex ml-auto phd-menu-options">
 			<div>
-				<a [routerLink]="['/favorites/summary']"
+				<a class="phd-nav-page phd-page-separator"
+				   [routerLink]="['/favorites/summary']"
 				   [routerLinkActive]="['phd-active-link-full']"
 				   (click)="toFavoritesPage ? onViewFavorites() : false">
-					My Favorites
+				   My Favorites
+				</a>
+				<a class="phd-nav-page phd-page-separator"
+				   [routerLink]="['/floorplan']"
+				   [routerLinkActive]="['phd-active-link-full']">
+				   Floorplan
+				</a>
+				<a *ngIf="showContractedOptionsLink"
+				   class="phd-nav-page"
+				   [routerLink]="['/contracted']"
+				   [routerLinkActive]="['phd-active-link-full']">
+				   Contracted Options
 				</a>
 			</div>
 		</div>
-		<div class="phd-menu-bars">
+		<div *ngIf="isTablet$ | async" class="phd-menu-bars">
 			<i *ngIf="isMenuCollapsed" class="fa fa-bars fa-2x" (click)="isMenuCollapsed = !isMenuCollapsed"></i>
 			<i *ngIf="!isMenuCollapsed" class="fa fa-times fa-2x" (click)="isMenuCollapsed = !isMenuCollapsed"></i>
 		</div>

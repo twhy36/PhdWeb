@@ -24,14 +24,8 @@ export class OptionRule
 {
 	ruleId: number;
 	optionId: string;
-	optionMappings: OptionMapping[];
-	replaceOptions: Array<string>;
-}
-
-export class OptionMapping
-{
-	mappingIndex: number;
 	choices: OptionRuleChoice[];
+	replaceOptions: Array<string>;
 }
 
 export class OptionRuleChoice

@@ -492,7 +492,11 @@ export class CommonEffects
 
 								const getTree = treeVersionId ? this.treeService.getTree(treeVersionId) : of<Tree>(null);
 								const getRules = treeVersionId ? this.treeService.getRules(treeVersionId, true) : of<TreeVersionRules>(null);
-								const getLotChoiceRules = result.selectedLotId ? this.lotService.getLotChoiceRuleAssocs(result.selectedLotId) : of<LotChoiceRuleAssoc[]>(null);
+								const getLotChoiceRules = result.selectedLotId
+									&& (result.salesAgreement && !['OutforSignature', 'Signed', 'Approved', 'Closed'].includes(result.salesAgreement.status))
+									? this.lotService.getLotChoiceRuleAssocs(result.selectedLotId)
+									: of<LotChoiceRuleAssoc[]>(null);
+
 								const getPlanOptions = treeVersionId ? this.optionService.getPlanOptions(result.selectedPlanId, null, true) : of<PlanOption[]>([]);
 								const getOptionImages = treeVersionId ? this.treeService.getOptionImages(treeVersionId, [], null, true) : of<OptionImage[]>(null);
 

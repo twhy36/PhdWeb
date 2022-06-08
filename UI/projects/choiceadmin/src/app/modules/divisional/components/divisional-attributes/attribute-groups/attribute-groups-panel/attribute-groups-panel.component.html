@@ -8,7 +8,7 @@
 	</div>
 
 	<div class="phd-div-attr-panel" infiniteScroll [infiniteScrollThrottle]="settings.infiniteScrollThrottle" [infiniteScrollDisabled]="keyword || selectedStatus || allDataLoaded" (scrolled)="onPanelScroll()" [scrollWindow]="false">
-		<phd-table [value]="filteredAttributeGroupList" dataKey="id" tableId="divisionalAttributeGroups" sortMode="single" sortField="groupName" [lazy]="true" (onLazyLoad)="lazyLoadData($event)">
+		<phd-table [value]="filteredAttributeGroupList" dataKey="id" tableId="divisionalAttributeGroups" sortMode="single" [sortField]="sortField" [lazy]="true" (onLazyLoad)="lazyLoadData($event)">
 			<ng-template #rowExpansion let-group let-columns="columns">
 				<tr>
 					<td [attr.colspan]="columns.length">

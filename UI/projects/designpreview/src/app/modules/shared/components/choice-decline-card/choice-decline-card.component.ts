@@ -33,6 +33,7 @@ export class ChoiceDeclineCardComponent extends UnsubscribeOnDestroy implements 
 	isDeclined: boolean = false;
 	blockedChoiceModalRef: NgbModalRef;
 	disabledByList: BlockedByItemList = null;
+	imageSrc: string = 'assets/nographicgrey-removebg-preview.png'
 
 	constructor(
 		public modalService: NgbModal,
@@ -59,7 +60,7 @@ export class ChoiceDeclineCardComponent extends UnsubscribeOnDestroy implements 
 	 */
 	onLoadImageError(event: any)
 	{
-		event.srcElement.src = this.brandService.getBrandImage('choice-card-logo');
+		event.srcElement.src = this.imageSrc;
 	}
 
 	toggleDecline()
@@ -86,9 +87,5 @@ export class ChoiceDeclineCardComponent extends UnsubscribeOnDestroy implements 
 		this.blockedChoiceModalRef?.close();
 		delete this.disabledByList;
 		this.onSelectDecisionPoint.emit(pointId);
-	}
-
-	getImageSrc() {
-		return this.brandService.getBrandImage('choice-card-logo');
 	}
 }

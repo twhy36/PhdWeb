@@ -29,7 +29,6 @@
 	display: flex;
 	flex-direction: column;
 	padding: 0px 10px;
-	overflow: scroll;
 
 	.phd-choice-path {
 		span {
@@ -77,6 +76,10 @@
 		flex-direction: row;
 		justify-content: space-between;
 		margin-top: auto;
+
+		.phd-price-label {
+			margin-top: 8px;
+		}
 	}
 }
 
@@ -102,13 +105,16 @@
 	}
 }
 
+::ng-deep .carousel-indicators {
+	display: none;
+}
+
 .phd-info-section {
 	display: flex;
 	flex-direction: column;
 	padding: 5px;
 
 	.phd-choice-desc-section {
-		min-height: 10px;
 		max-height: calc((100vh - 248px) / 2);
 
 		.phd-choice-label {
@@ -116,7 +122,7 @@
 			font-weight: bold;
 			margin-left: 10px;
 		}
-	
+
 		.phd-choice-desc {
 			margin-left: 10px;
 			height: auto;
@@ -135,7 +141,7 @@
 			background-color: var(--choice-detail-ribbon-color);
 			color: white;
 			margin-top: 0px;
-	
+
 			span {
 				padding: 8px 0px 8px 10px;
 				font-weight: bold;
@@ -186,6 +192,23 @@
 		.phd-image-container {
 			display: flex;
 			flex-direction: column;
+			overflow: scroll;
+		}
+
+		.phd-image-container::-webkit-scrollbar {
+			-webkit-appearance: none;
+			width: 7px;
+			height: 0px;
+		}
+
+		.phd-image-container::-webkit-scrollbar-thumb {
+			background-color: rgba(0, 0, 0, .5);
+			border-radius: 4px;
+			box-shadow: 0 0 1px rgba(255, 255, 255, .5);
+		}
+
+		.phd-image-container::-webkit-scrollbar-corner {
+			background: rgba(0,0,0,0);
 		}
 
 		.phd-image-carousel {
@@ -203,13 +226,15 @@
 
 	.phd-info-section {
 		width: calc(48vw);
+		height: calc(100vh - 208px);
+
+		.phd-selections-section {
+			min-height: calc((100vh - 248px) / 2);
+		}
 
 		.phd-attr-loc-group-container {
-			margin-top: 25px;
 			padding-left: 10px;
-			position: fixed;
 			width: calc(48vw - 7px);
-			height: calc((100vh - 208px) / 2);
 			overflow-y: auto;
 		}
 		::-webkit-scrollbar {

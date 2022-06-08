@@ -10,7 +10,7 @@ import
 	ChangeOrderGroup, ChangeOrderChoice, ChangeOrderPlanOption, ChangeOrderChoiceAttribute, ChangeOrderChoiceLocation,
 	JobChoice, JobPlanOption, JobChoiceAttribute, JobChoiceLocation, Job, PlanOption, PointStatus, ConstructionStageTypes,
 	OptionRule, TreeVersionRules, Scenario, SelectedChoice, Tree, Choice, DecisionPoint, MappedAttributeGroup, MappedLocationGroup,
-	OptionImage, SubGroup, Group, applyRules, findChoice, MyFavoritesChoice, getMaxSortOrderChoice, getOptionRuleOptionMappingChoices, OptionMapping,
+	OptionImage, SubGroup, Group, applyRules, findChoice, MyFavoritesChoice, getMaxSortOrderChoice,
 	ChoiceRules
 } from 'phd-common';
 
@@ -135,17 +135,14 @@ function isOptionLocked(changeOrder: ChangeOrderGroup): (option: JobPlanOption |
 export function getDefaultOptionRule(optionNumber: string, choice: Choice): OptionRule
 {
 	return <OptionRule>{
-		optionId: optionNumber,
-		optionMappings: [{
-			mappingIndex: 0,
-			choices: [{
+		optionId: optionNumber, choices: [
+			{
 				id: choice.divChoiceCatalogId,
 				mustHave: true,
 				attributeReassignments: []
-			}]
-		}],
-		ruleId: 0,
-		replaceOptions: []
+			}
+		],
+		ruleId: 0, replaceOptions: []
 	};
 }
 
@@ -274,8 +271,7 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 
 										let newChoice = new Choice();
 
-										newChoice = {
-											...newChoice,
+										newChoice = {...newChoice,
 											divChoiceCatalogId: ch.divChoiceCatalogID,
 											enabled: true,
 											id: ch.dpChoiceID,
@@ -420,12 +416,12 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 						}
 					}
 				}
-
+				
 				return of(data);
 			})
 		),
 		treeService.getPlanOptionCommunityImageAssoc(options.filter(o => o.outForSignatureDate !== undefined)),
-
+		
 		//capture original option mappings for locked-in options/choices
 		treeService.getHistoricOptionMapping(_.flatten(choices.map(c =>
 		{
@@ -523,26 +519,6 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 		//rules engine can use this to 'override' current option mappings
 		map(data =>
 		{
-			// filter optionMappings for lockedInOptions so only the mapping used originally is available if there are multiple mappings.
-			const filterOptionMappings = (optionRule: OptionRule) =>
-			{
-				// if there is a option rule and there are multiple mappings lets figure out which one was used
-				if (optionRule.optionMappings && optionRule.optionMappings.length > 1)
-				{
-					let currentChoices = _.flatMap(data.res.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)));
-
-					// find the mapping Choices that were used
-					let optionMappingChoices = getOptionRuleOptionMappingChoices(optionRule, null, currentChoices, data.res.tree);
-
-					optionRule.optionMappings = [{
-						mappingIndex: 0,
-						choices: optionMappingChoices
-					} as OptionMapping];
-				}
-
-				return optionRule;
-			};
-
 			choices.filter(isLocked(changeOrder)).forEach(c =>
 			{
 				let choice = findChoice(data.res.tree, ch => ch.divChoiceCatalogId === c.divChoiceCatalogId);
@@ -551,27 +527,11 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 				{
 					if (isJobChoice(c))
 					{
-						choice.lockedInOptions = c.jobChoiceJobPlanOptionAssocs?.filter(o => o.choiceEnabledOption)?.map(o =>
-						{
-							const integrationKey = options.find(opt => opt.id === o.jobPlanOptionId)?.integrationKey;
-
-							let optionRule = data.mapping[integrationKey] || getDefaultOptionRule(integrationKey, choice);
-
-							// if multiple optionMappings exist we need to find out which one was valid and return just that mapping ignoring the rest
-							return filterOptionMappings(optionRule);
-						});
+						choice.lockedInOptions = c.jobChoiceJobPlanOptionAssocs?.filter(o => o.choiceEnabledOption)?.map(o => data.mapping[options.find(opt => opt.id === o.jobPlanOptionId)?.integrationKey] || getDefaultOptionRule(options.find(opt => opt.id === o.jobPlanOptionId)?.integrationKey, choice));
 					}
 					else
 					{
-						choice.lockedInOptions = c.jobChangeOrderChoiceChangeOrderPlanOptionAssocs?.filter(o => o.jobChoiceEnabledOption)?.map(o =>
-						{
-							const integrationKey = options.find(opt => opt.id === o.jobChangeOrderPlanOptionId)?.integrationKey;
-
-							let optionRule = data.mapping[integrationKey] || getDefaultOptionRule(integrationKey, choice);
-
-							// if multiple optionMappings exist we need to find out which one was valid and return just that mapping ignoring the rest
-							return filterOptionMappings(optionRule);
-						});
+						choice.lockedInOptions = c.jobChangeOrderChoiceChangeOrderPlanOptionAssocs?.filter(o => o.jobChoiceEnabledOption)?.map(o => data.mapping[options.find(opt => opt.id === o.jobChangeOrderPlanOptionId)?.integrationKey] || getDefaultOptionRule(options.find(opt => opt.id === o.jobChangeOrderPlanOptionId)?.integrationKey, choice));
 					}
 
 					if (choice.lockedInChoice && choice.lockedInChoice.choice)
@@ -779,7 +739,7 @@ export function updateWithNewTreeVersion<T extends { tree: Tree, rules: TreeVers
 		{
 			return combineLatest([
 				source,
-				treeService.getTree(scenario.originalTreeVersionId),
+				treeService.getTree(scenario.originalTreeVersionId), 
 				treeService.getRules(scenario.originalTreeVersionId)
 			]).pipe(
 				map(([data, origTree, origRules]: [T, Tree, TreeVersionRules]) =>
@@ -828,13 +788,11 @@ export function updateWithNewTreeVersion<T extends { tree: Tree, rules: TreeVers
 						let oldChoices = _.flatMap(oldPoints, p => p.choices);
 
 						// filter out any rule that didn't have anything to do with attribute reassignment
-						let oldOptionRules = origRules.optionRules.filter(or => or.optionMappings.some(om => om.choices.some(c => c.attributeReassignments.length > 0)));
-						let oldOptionRuleMappings = _.flatMap(oldOptionRules, r => r.optionMappings);
-						let oldOptionRuleChoices = _.flatMap(oldOptionRuleMappings, om => om.choices);
+						let oldOptionRules = origRules.optionRules.filter(or => or.choices.find(c => c.attributeReassignments.length > 0) !== null);
+						let oldOptionRuleChoices = _.flatMap(oldOptionRules, r => r.choices);
 
-						let newOptionRules = data.rules.optionRules.filter(or => or.optionMappings.some(om => om.choices.some(c => c.attributeReassignments.length > 0)));
-						let newOptionRuleMappings = _.flatMap(newOptionRules, r => r.optionMappings);
-						let newOptionRuleChoices = _.flatMap(newOptionRuleMappings, om => om.choices);
+						let newOptionRules = data.rules.optionRules.filter(or => or.choices.find(c => c.attributeReassignments.length > 0) !== null);
+						let newOptionRuleChoices = _.flatMap(newOptionRules, r => r.choices);
 
 						selectedChoices.forEach(selectedChoice =>
 						{
@@ -843,12 +801,11 @@ export function updateWithNewTreeVersion<T extends { tree: Tree, rules: TreeVers
 
 							if (lostAttributes.length > 0)
 							{
-								let oldChoice = oldChoices.find(c => c.divChoiceCatalogId === newChoice.divChoiceCatalogId);
-
 								lostAttributes.forEach(attribute =>
 								{
+									let oldChoice = oldChoices.find(c => c.divChoiceCatalogId === newChoice.divChoiceCatalogId);
+
 									// if it was a reassignment in its past life
-									// Might produce duplicates...need to check
 									let oldOptionRuleChoice = oldOptionRuleChoices.find(c => c.attributeReassignments.length > 0 && c.attributeReassignments.findIndex(ar => ar.attributeGroupId === attribute.attributeGroupId && ar.choiceId === oldChoice.id) > -1);
 
 									if (oldOptionRuleChoice != null)
@@ -860,12 +817,8 @@ export function updateWithNewTreeVersion<T extends { tree: Tree, rules: TreeVers
 										// then we can get the new selected choice
 										let newSelectedChoiceParent = selectedChoices.find(c => c.choiceId === newParentChoice.id);
 
-										// make sure the parent is still there.  The choice could have been removed from selectedChoices if option(s) were removed between trees
-										if (newSelectedChoiceParent)
-										{
-											// Add the selected attribute back to its original location before the reassignment
-											newSelectedChoiceParent.selectedAttributes.push(attribute);
-										}
+										// Add the selected attribute back to its original location before the reassignment
+										newSelectedChoiceParent.selectedAttributes.push(attribute);
 
 										const index = selectedChoice.selectedAttributes.indexOf(attribute);
 
@@ -963,12 +916,9 @@ export function getJobOptionType(option: PlanOption, elevationDP: DecisionPoint,
 			const replaceOption = optionRule.replaceOptions.find(replaceOptionId =>
 			{
 				const replaceOptionRule = optionRules.find(r => r.optionId === replaceOptionId);
+				const replacedChoiceId = getMaxSortOrderChoice(tree, replaceOptionRule.choices.filter(ch => ch.mustHave).map(ch => ch.id));
 
-				// go through each mapping and find the maxSortOrderChoice
-				const replacedChoiceIds = replaceOptionRule.optionMappings.map(om => getMaxSortOrderChoice(tree, om.choices.filter(ch => ch.mustHave).map(ch => ch.id)));
-
-				// look to see if any of the Ids match an elevation choice
-				return !!elevationDP.choices.find(ch => replacedChoiceIds.some(id => id === ch.id));
+				return !!elevationDP.choices.find(ch => ch.id === replacedChoiceId);
 			});
 
 			if (replaceOption)
@@ -977,7 +927,7 @@ export function getJobOptionType(option: PlanOption, elevationDP: DecisionPoint,
 			}
 		}
 	}
-
+	
 	return optionType;
 }
 
@@ -992,18 +942,15 @@ export function getLockedInChoice(
 		choiceRules: Array<ChoiceRules>
 	}
 {
-	return {
-		choice,
+	return { choice, 
 		optionAttributeGroups: isJobChoice(choice)
 			? choice.jobChoiceJobPlanOptionAssocs.filter(a => a.choiceEnabledOption)
-				.map(a =>
-				{
+				.map(a => {
 					const opt = options.find(o => (o as JobPlanOption).id === a.jobPlanOptionId);
-
 					if (opt)
 					{
-						return {
-							optionId: opt.integrationKey,
+						return { 
+							optionId: opt.integrationKey, 
 							attributeGroups: (opt as JobPlanOption).jobPlanOptionAttributes?.map(att => att.attributeGroupCommunityId),
 							locationGroups: (opt as JobPlanOption).jobPlanOptionLocations?.map(loc => loc.locationGroupCommunityId)
 						};
@@ -1014,17 +961,15 @@ export function getLockedInChoice(
 					}
 				})
 			: choice.jobChangeOrderChoiceChangeOrderPlanOptionAssocs.filter(a => a.jobChoiceEnabledOption)
-				.map(a =>
-				{
+				.map(a => {
 					const opt = options.find(o => (o as ChangeOrderPlanOption).id === a.jobChangeOrderPlanOptionId);
-
 					if (opt)
 					{
-						return {
-							optionId: opt.integrationKey,
+						return { 
+							optionId: opt.integrationKey, 
 							attributeGroups: (opt as ChangeOrderPlanOption).jobChangeOrderPlanOptionAttributes?.map(att => att.attributeGroupCommunityId),
 							locationGroups: (opt as ChangeOrderPlanOption).jobChangeOrderPlanOptionLocations?.map(loc => loc.locationGroupCommunityId)
-						};
+						};	
 					}
 					else
 					{

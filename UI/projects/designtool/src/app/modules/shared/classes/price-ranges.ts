@@ -1,7 +1,7 @@
 import * as _ from 'lodash';
 import { cloneDeep, flatMap, flatten, uniq } from 'lodash';
 
-import { PlanOption, TreeVersionRules, PickType, Tree, getMaxSortOrderChoice, findChoice, findPoint, applyRules } from '../../../../../../phd-common/src/public-api';
+import { PlanOption, TreeVersionRules, PickType, Tree, Choice, getMaxSortOrderChoice, findChoice, findPoint, applyRules } from '../../../../../../phd-common/src/public-api';
 
 export function getChoicePriceRanges(state: { options: PlanOption[], rules: TreeVersionRules, tree: Tree; })
 {
@@ -18,25 +18,10 @@ export function getChoicePriceRanges(state: { options: PlanOption[], rules: Tree
 
 	let maxSortOrderChoices = state.rules.optionRules.map(opt =>
 	{
-		let maxSortOrderChoices = [];
-		let choiceIds = [];
-
-		opt.optionMappings.forEach(om =>
-		{
-			// get all mustHave choices for the current optionMapping
-			let currentChoiceIds = om.choices.filter(c => c.mustHave).map(c => c.id);
-
-			// combine lists
-			choiceIds = _.union(choiceIds, currentChoiceIds);
-
-			// find the maxSortOrderChoice for each optionMapping / combine list
-			maxSortOrderChoices = _.union(maxSortOrderChoices, [getMaxSortOrderChoice(staticTree, currentChoiceIds)]);
-		});
-
 		return {
 			rule: opt,
-			maxSortOrderChoices: maxSortOrderChoices,
-			allChoices: choiceIds
+			maxSortOrderChoice: getMaxSortOrderChoice(staticTree, opt.choices.filter(c => c.mustHave).map(c => c.id)),
+			allChoices: opt.choices.filter(c => c.mustHave).map(c => c.id)
 		};
 	});
 
@@ -49,10 +34,10 @@ export function getChoicePriceRanges(state: { options: PlanOption[], rules: Tree
 			return [];
 		}
 
+		var currentChoice = choices.find(c => c.id === ch);
 		var previousChoices = [
-			...flatten(maxSortOrderChoices.filter(c => c.maxSortOrderChoices.findIndex(m => m === ch) > -1).map(c => c.allChoices.filter(c1 => c1 !== ch)))
+			...flatten(maxSortOrderChoices.filter(c => c.maxSortOrderChoice === ch).map(c => c.allChoices.filter(c1 => c1 !== ch)))
 		];
-
 		return uniq(previousChoices);
 	};
 
@@ -62,8 +47,7 @@ export function getChoicePriceRanges(state: { options: PlanOption[], rules: Tree
 	{
 		//iterates through every possible combination of selections for the given DP
 		const pt = findPoint(staticTree, p => p.id === points[0]);
-
-		for (let choice of pt.choices)
+		for(let choice of pt.choices)
 		{
 			if (points.length === 1)
 			{
@@ -71,7 +55,7 @@ export function getChoicePriceRanges(state: { options: PlanOption[], rules: Tree
 			}
 			else
 			{
-				yield* pointPermutations(points.slice(1), [choice.id]);
+				yield *pointPermutations(points.slice(1), [choice.id]);
 			}
 		}
 	}
@@ -82,7 +66,6 @@ export function getChoicePriceRanges(state: { options: PlanOption[], rules: Tree
 		//any DP rules for the given choice
 		const ch = findChoice(staticTree, c => c.id === choice.choiceId);
 		const pointRules = rules.pointRules?.find(pr => pr.pointId === ch?.treePointId);
-
 		if (pointRules && pointRules.rules.length)
 		{
 			//if point rules are already satisfied, yield the current selections
@@ -96,17 +79,16 @@ export function getChoicePriceRanges(state: { options: PlanOption[], rules: Tree
 				//must not have
 				: (r.choices && r.choices.length
 					//point-to-choice rule - no choice can be selected
-					? r.choices.every(c => !selections.some(s => s.selected && s.choiceId === c))
+					? r.choices.every(c => !selections.some(s => s.selected && s.choiceId === c)) 
 					//point-to-point rule - no point can be completed
 					: r.points.every(p => !selections.some(s => s.selected && findChoice(staticTree, c => c.id === s.choiceId)?.treePointId === p)))))
 			{
 				yield [...selections, choice];
-
 				return;
 			}
 
 			//yield each possible way to satisfy point rules
-			for (let rule of pointRules.rules)
+			for(let rule of pointRules.rules)
 			{
 				if (rule.ruleType === 1)
 				{
@@ -119,17 +101,15 @@ export function getChoicePriceRanges(state: { options: PlanOption[], rules: Tree
 						}
 
 						let newSelections = rule.choices.filter(c => !selections.some(s => s.choiceId === c && s.selected));
-
 						if (newSelections.length)
 						{
 							//yield every way to satisfy the rules for new new choices
-							yield* getSelections(newSelections.map(s => ({ choiceId: s, selected: true })), [...selections, choice]);
+							yield *getSelections(newSelections.map(s => ({choiceId: s, selected: true})), [...selections, choice]);
 						}
 					}
 					else
 					{
-						if (rule.points.some(p =>
-						{
+						if (rule.points.some(p => {
 							let pt = findPoint(staticTree, pt => pt.id === p);
 							return pt && pt.choices.every(c => selections.some(s => s.choiceId === c.id && !s.selected));
 						}))
@@ -139,14 +119,13 @@ export function getChoicePriceRanges(state: { options: PlanOption[], rules: Tree
 						}
 
 						let newSelections = rule.points.filter(p => !selections.some(s => s.selected && findChoice(staticTree, c => c.id === s.choiceId)?.treePointId === p));
-
 						if (newSelections.length)
 						{
 							//get each possible combination of choices that can complete the required DPs
-							for (let pointPermutation of pointPermutations(newSelections))
+							for(let pointPermutation of pointPermutations(newSelections))
 							{
 								//yield every way to satisfy the rules for the given choices
-								yield* getSelections(pointPermutation.map(s => ({ choiceId: s, selected: true })), [...selections, choice]);
+								yield *getSelections(pointPermutation.map(s => ({choiceId: s, selected: true})), [...selections, choice]);
 							}
 						}
 					}
@@ -163,12 +142,11 @@ export function getChoicePriceRanges(state: { options: PlanOption[], rules: Tree
 						}
 
 						let newSelections = rule.choices.filter(c => !selections.some(s => s.choiceId === c && !s.selected));
-
 						if (newSelections.length)
 						{
 							//yield the current selections, with the rule's choices added
 							//as deselected
-							yield [...selections, ...newSelections.map(s => ({ choiceId: s, selected: false })), choice];
+							yield [...selections, ...newSelections.map(s => ({choiceId: s, selected: false})), choice];
 						}
 					}
 					else
@@ -180,12 +158,11 @@ export function getChoicePriceRanges(state: { options: PlanOption[], rules: Tree
 						}
 
 						let newSelections = rule.points.filter(p => !selections.some(s => s.selected && findChoice(staticTree, c => c.id === s.choiceId)?.treePointId === p));
-
 						if (newSelections.length)
 						{
 							//yield the current selections, but add all choices within
 							//the required DPs as deselected
-							yield [...selections, choice, ..._.flatMap(newSelections, p => findPoint(staticTree, pt => pt.id === p)?.choices.map(c => ({ choiceId: c.id, selected: false })))];
+							yield [...selections, choice, ..._.flatMap(newSelections, p => findPoint(staticTree, pt => pt.id === p)?.choices.map(c => ({choiceId: c.id, selected: false})))];
 						}
 					}
 				}
@@ -203,7 +180,6 @@ export function getChoicePriceRanges(state: { options: PlanOption[], rules: Tree
 		//iterates through every minimal combination of choices that statisfies
 		//all choice-to-choice rules for the given choice
 		const choiceRules = rules.choiceRules?.find(cr => cr.choiceId === choice.choiceId);
-
 		if (choiceRules && choiceRules.rules.length)
 		{
 			if (choiceRules.rules.some(r => r.ruleType === 1
@@ -215,12 +191,11 @@ export function getChoicePriceRanges(state: { options: PlanOption[], rules: Tree
 				//choice-to-choice rules are already satisfied with current selections,
 				//so yield every possible combination of choices that satisfies
 				//DP rules
-				yield* getPointRuleSelections(choice, selections);
-
+				yield *getPointRuleSelections(choice, selections);
 				return;
 			}
 
-			for (let rule of choiceRules.rules)
+			for(let rule of choiceRules.rules)
 			{
 				if (rule.ruleType === 1)
 				{
@@ -231,16 +206,15 @@ export function getChoicePriceRanges(state: { options: PlanOption[], rules: Tree
 					}
 
 					let newSelections = rule.choices.filter(c => !selections.some(s => s.choiceId === c && s.selected));
-
 					if (newSelections.length)
 					{
 						//loop through every combination of choices that satisfy the 
 						//rules for choices required by this rule
-						for (let selection of getSelections(newSelections.map(s => ({ choiceId: s, selected: true })), [...selections, choice]))
+						for(let selection of getSelections(newSelections.map(s => ({choiceId: s, selected: true})), [...selections, choice]))
 						{
 							//yield every minimal combination of selections that satisfy
 							//point-to-point rules for the choice
-							yield* getPointRuleSelections(choice, [...selections, ...selection]);
+							yield *getPointRuleSelections(choice, [...selections, ...selection]);
 						}
 					}
 				}
@@ -253,12 +227,11 @@ export function getChoicePriceRanges(state: { options: PlanOption[], rules: Tree
 					}
 
 					let newSelections = rule.choices.filter(c => !selections.some(s => s.choiceId === c && !s.selected));
-
 					if (newSelections.length)
 					{
 						//yield every minimal combination of selections that satisfy point rules
 						//for this choice, but specify choices for this rule are deselected
-						yield* getPointRuleSelections(choice, [...selections, ...newSelections.map(s => ({ choiceId: s, selected: false }))]);
+						yield *getPointRuleSelections(choice, [...selections, ...newSelections.map(s => ({choiceId: s, selected: false}))]);
 					}
 				}
 			}
@@ -267,7 +240,7 @@ export function getChoicePriceRanges(state: { options: PlanOption[], rules: Tree
 		{
 			//no choice-to-choice rules, so go ahead and yield all the combinations
 			//that satisfy point rules
-			yield* getPointRuleSelections(choice, selections);
+			yield *getPointRuleSelections(choice, selections);
 		}
 	}
 
@@ -284,7 +257,6 @@ export function getChoicePriceRanges(state: { options: PlanOption[], rules: Tree
 			//pick type rules, yield every combination that satisfied choice rules
 			//for this choice
 			let point = findPoint(staticTree, pt => pt.choices.some(ch => ch.id === choices[0].choiceId));
-
 			if (point && (point.pointPickTypeId === PickType.Pick0ormore || point.pointPickTypeId === PickType.Pick1ormore
 				|| point.choices.every(ch => !selections.some(s => s.selected && s.choiceId === ch.id)) 
 				|| (point.pointPickTypeId === PickType.Pick1 
@@ -292,7 +264,7 @@ export function getChoicePriceRanges(state: { options: PlanOption[], rules: Tree
 				|| (point.pointPickTypeId === PickType.Pick0or1
 					&& point.choices.filter(ch => selections.some(s => s.selected && s.choiceId === ch.id)).length <= 1)))
 			{
-				yield* getChoiceRuleSelections(choices[0], selections);
+				yield *getChoiceRuleSelections(choices[0], selections);
 			}
 		}
 		else
@@ -300,7 +272,7 @@ export function getChoicePriceRanges(state: { options: PlanOption[], rules: Tree
 			//recursive step to reduce the problem to one choice at a time
 			for (let selection of getSelections([choices[0]], selections))
 			{
-				yield* getSelections(choices.slice(1), selection);
+				yield *getSelections(choices.slice(1), selection);
 			}
 		}
 	}
@@ -389,7 +361,7 @@ export function getChoicePriceRanges(state: { options: PlanOption[], rules: Tree
 							max = clonedChoice.price;
 						}
 					}
-
+					
 					//since we've found a valid combination of choices, we can stop
 					//iterating through the possibilities. this is the key to this 
 					//function scaling reasonably.
