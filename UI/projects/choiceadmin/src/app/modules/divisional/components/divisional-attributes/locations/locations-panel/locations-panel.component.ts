@@ -55,6 +55,7 @@ export class LocationsPanelComponent extends UnsubscribeOnDestroy implements OnI
 	isSaving: boolean = false;
 	workingId: number = 0;
 	isReadOnly: boolean;
+	sortField: string = 'locationName';
 
 	get currentTableSort(): TableSort
 	{
@@ -273,6 +274,7 @@ export class LocationsPanelComponent extends UnsubscribeOnDestroy implements OnI
 			});
 	}
 
+	
 	onPanelScroll()
 	{
 		if (!this.keyword && !this.selectedStatus)

@@ -55,6 +55,7 @@ export class AttributeGroupsPanelComponent extends UnsubscribeOnDestroy implemen
 	isSaving: boolean = false;
 	workingId: number = 0;
 	isReadOnly: boolean;
+	sortField: string = 'groupName';
 
 	get currentTableSort(): TableSort
 	{
@@ -88,6 +89,7 @@ export class AttributeGroupsPanelComponent extends UnsubscribeOnDestroy implemen
 		this.isSearchingFromServer = false;
 		this.settings = this._settingsService.getSettings();
 
+		
 		this.route.parent.params.pipe(
 			this.takeUntilDestroyed(),
 			filter(p => p['marketId'] && p['marketId'] != '0'),
@@ -331,6 +333,7 @@ export class AttributeGroupsPanelComponent extends UnsubscribeOnDestroy implemen
 	 */
 	lazyLoadData(event: TableLazyLoadEvent)
 	{
+		
 		if (!this.allDataLoaded && !this.keyword && !this.selectedStatus)
 		{
 			// return data based on the sort options.  if currentTableSort is null then it will revert to the default sort.
