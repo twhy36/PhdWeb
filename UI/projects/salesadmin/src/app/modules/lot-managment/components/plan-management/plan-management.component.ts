@@ -23,7 +23,12 @@ export class PlanManagementComponent extends UnsubscribeOnDestroy implements OnI
 	commTabs = Tabs;
 	selectedCommunity: FinancialCommunityViewModel;
 	selectedTab: Tabs;
-	
+
+	get mainTitle(): string
+	{
+		return 'Homesite Plan Assignment > ' + this.selectedTab;
+	}
+
 	constructor(private router: Router,
 		private _orgService: OrganizationService) { super(); }
 
@@ -70,7 +75,7 @@ export class PlanManagementComponent extends UnsubscribeOnDestroy implements OnI
 		{
 			this.selectedTab = this.commTabs.HomePlanAssignments;
 		}
-		
+
 	}
 
 	onChangeCommunity(comm: FinancialCommunity)

@@ -7,7 +7,7 @@
 	</div>
 	<div class="d-flex flex-row mx-2">
 		<ng-container *ngIf="tableMessage.length <= 0">
-			<div class="option-panel" infiniteScroll [infiniteScrollThrottle]="settings.infiniteScrollThrottle" [infiniteScrollDisabled]="allDataLoaded" (scrolled)="onPanelScroll()" [scrollWindow]="false">
+			<div class="phd-option-panel" infiniteScroll [infiniteScrollThrottle]="settings.infiniteScrollThrottle" [infiniteScrollDisabled]="allDataLoaded" (scrolled)="onPanelScroll()" [scrollWindow]="false">
 				<phd-table id="divisionalOptionsPanel" [value]="filteredOptions" selectionMode="single" [(selection)]="selectedOption" dataKey="financialOptionIntegrationKey" tableId="divisionalOptions" [displayTooltip]="false" sortMode="single" [sortField]="sortField" [lazy]="true" (onLazyLoad)="lazyLoadData($event)">
 					<ng-template #rowExpansion let-option let-columns="columns">
 						<tr>

@@ -8,7 +8,7 @@ import { Attribute } from '../../../../../shared/models/attribute.model';
 import { AttributeGroupMarket } from '../../../../../shared/models/attribute-group-market.model';
 import { AttributeService } from '../../../../../core/services/attribute.service';
 import { MessageService } from 'primeng/api';
-import { NgbTabChangeEvent } from '@ng-bootstrap/ng-bootstrap';
+import { NgbNavChangeEvent } from '@ng-bootstrap/ng-bootstrap';
 
 import { cloneDeep, differenceBy } from "lodash";
 import { AttributeDetailsTabComponent } from '../attribute-details-tab/attribute-details-tab.component';
@@ -214,7 +214,7 @@ export class AttributesSidePanelComponent implements OnInit
 		this._msgService.add({ severity: 'success', summary: 'Attribute', detail: `has been saved!` });
 	}
 
-	async beforeTabChange($event: NgbTabChangeEvent)
+	async beforeNavChange($event: NgbNavChangeEvent)
 	{
 		this.updateAttributeDetails();
 

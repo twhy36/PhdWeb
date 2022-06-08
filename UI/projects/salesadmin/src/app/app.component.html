@@ -4,12 +4,16 @@
 	<div id="phd-app">
 		<button-bar id="phd-page-buttonbar"></button-bar>
 
-		<router-outlet></router-outlet>
+		<div class="phd-router-outlet">
+			<router-outlet></router-outlet>
+		</div>
 	</div>
+
 	<common-spinner></common-spinner>
 </ng-container>
 
 <ng-template #noAccess>
 	You do not have access to this application. Please contact TSC to be granted access.
 </ng-template>
-<build-version *ngIf="!environment.production" [branch]="branch" [version]="build.version"></build-version>
+
+<build-version *ngIf="!environment.production" [branch]="branch" [version]="version"></build-version>

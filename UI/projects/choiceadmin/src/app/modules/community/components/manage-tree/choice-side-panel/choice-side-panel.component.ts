@@ -7,7 +7,7 @@ import * as _ from 'lodash';
 
 import { MessageService } from 'primeng/api';
 
-import { NgbTabChangeEvent, NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbNavChangeEvent, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { TreeService } from '../../../../core/services/tree.service';
 
@@ -100,7 +100,7 @@ export class ChoiceSidePanelComponent implements OnInit
 		this.createChoiceDetailsForm();
 	}
 
-	async onNavChange($event: NgbTabChangeEvent)
+	async onNavChange($event: NgbNavChangeEvent)
 	{
 		$event.preventDefault();
 

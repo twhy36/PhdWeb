@@ -29,21 +29,16 @@
 	}
 }
 
-::ng-deep .div-tab-panel {
-	height: 300px;
-	padding: 10px 20px;
-	overflow-y: auto;
-}
-
 ::ng-deep .div-button-panel {
 	.action-button {
 		margin: 20px;
 	}
 }
 
-.option-panel {
+.phd-option-panel {
 	height: calc(100vh - #{$nav-menu-height} - #{$attribute-page-header-height} - #{$attribute-action-bar-height});
 	overflow-y: auto;
+	flex: 1;
 }
 
 .div-search-bar {

@@ -38,6 +38,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	@Input() overrideReason: string;
 	@Input() optionDisabled: boolean;
 	@Input() isFavorite: boolean;
+	@Input() currentChoiceImages: ChoiceImageAssoc[];
 
 	@Output() callToAction = new EventEmitter<{ choice: Choice, quantity?: number }>();
 	@Output() saveAttributes = new EventEmitter<void>();
@@ -53,9 +54,8 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	imageLoading: boolean = false;
 	qtyAvailable: number;
 	selectedQuantity: number;
-
-	@Input() currentChoiceImages: ChoiceImageAssoc[];
-	choiceImages: ChoiceImageAssoc[];
+		
+	choiceImages: ChoiceImageAssoc[] = [];
 	optionImages: OptionImage[] = [];
 	override$ = new ReplaySubject<boolean>(1);
 	choiceDescriptions: string[] = [];
@@ -77,6 +77,11 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	{
 		// does the choice have quantity? location? location and attribute?
 		return this.choice?.maxQuantity > 1 || (this.locationGroups?.length > 0 || (this.locationGroups?.length === 0 && this.attributeGroups?.length > 0));
+	}
+
+	get carouselImages(): OptionImage[] | ChoiceImageAssoc[]
+	{
+		return this.optionImages ?? this.choiceImages
 	}
 
 	constructor(private store: Store<fromRoot.State>,
@@ -170,6 +175,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	getImages()
 	{
 		this.optionImages = [];
+
 		if (this.choice.options)
 		{
 			this.choice.options.forEach(option =>

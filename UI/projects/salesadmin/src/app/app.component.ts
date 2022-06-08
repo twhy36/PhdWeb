@@ -6,29 +6,37 @@ import { filter, map, scan } from 'rxjs/operators';
 
 import { loadScript, IdentityService, Claims } from 'phd-common';
 import { environment } from '../environments/environment';
-import * as build from './build.json';
+import { default as build } from './build.json';
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+	selector: 'app-root',
+	templateUrl: './app.component.html',
+	styleUrls: ['./app.component.scss']
 })
 export class AppComponent
 {
 	canAccessSalesAdmin$: Observable<boolean>;
 
-	build = (build as any).default;
 	environment = environment;
 
-	get branch(): string {
+	get branch(): string
+	{
 		return build.branch.split('/').slice(2).join('/');
 	}
 
-	constructor(private router: Router, private identityService: IdentityService) {
+	get version(): string
+	{
+		return build.version;
+	}
+
+	constructor(private router: Router, private identityService: IdentityService)
+	{
 		this.router.events.pipe(
-            filter(evt => evt instanceof NavigationEnd)
-        ).subscribe(() => {
-			if (typeof (<any>window)._wfx_refresh === 'function') {
+			filter(evt => evt instanceof NavigationEnd)
+		).subscribe(() =>
+		{
+			if (typeof (<any>window)._wfx_refresh === 'function')
+			{
 				(<any>window)._wfx_refresh();
 			}
 		});
@@ -36,24 +44,33 @@ export class AppComponent
 		//router module doesn't know which page the user has access to, so we'll just let the route guards do the work
 		let entryPoints = ['/', '/contracts', 'community-management'];
 		this.router.events.pipe(
-			scan<Event, { shouldCancel: boolean, canceled: boolean }>((res, evt) => {
-				if (evt instanceof GuardsCheckEnd) {
+			scan<Event, { shouldCancel: boolean, canceled: boolean }>((res, evt) =>
+			{
+				if (evt instanceof GuardsCheckEnd)
+				{
 					return { shouldCancel: !evt.shouldActivate, canceled: false };
 				}
-				else if (evt instanceof NavigationCancel) {
+				else if (evt instanceof NavigationCancel)
+				{
 					return { shouldCancel: res.shouldCancel, canceled: true };
 				}
-				else if (evt instanceof NavigationStart) {
+				else if (evt instanceof NavigationStart)
+				{
 					return { shouldCancel: false, canceled: false };
 				}
-				else {
+				else
+				{
 					return res;
 				}
 			})
-		).subscribe(res => {
-			if (res.shouldCancel && res.canceled) {
+		).subscribe(res =>
+		{
+			if (res.shouldCancel && res.canceled)
+			{
 				let url = entryPoints.pop();
-				if (!!url) {
+
+				if (!!url)
+				{
 					this.router.navigateByUrl(url);
 				}
 			}
@@ -64,6 +81,5 @@ export class AppComponent
 		this.canAccessSalesAdmin$ = this.identityService.getClaims().pipe(
 			map((claims: Claims) => !!claims.SalesAdmin || !!claims.AutoApproval)
 		);
-
-    }
+	}
 }

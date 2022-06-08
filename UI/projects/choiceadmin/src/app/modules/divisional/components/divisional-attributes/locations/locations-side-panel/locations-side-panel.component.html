@@ -4,9 +4,11 @@
 	</ng-template>
 
 	<ng-template #body>
-		<ngb-tabset justify="start" (tabChange)="beforeTabChange($event)">
-			<ngb-tab title="Details" id="details">
-				<ng-template ngbTabContent>
+		<ul ngbNav #nav="ngbNav" justify="start" (navChange)="beforeNavChange($event)" class="nav-tabs">
+			<li ngbNavItem="details">
+				<a ngbNavLink>Details</a>
+
+				<ng-template ngbNavContent>
 					<div class="container pt-3">
 						<locations-details-tab [selectedLocation]="selectedLocation"
 											   [existingLocations]="existingLocations"
@@ -15,9 +17,11 @@
 						</locations-details-tab>
 					</div>
 				</ng-template>
-			</ngb-tab>
-			<ngb-tab title="Groups" id="groups">
-				<ng-template ngbTabContent>
+			</li>
+			<li ngbNavItem="groups">
+				<a ngbNavLink>Groups</a>
+
+				<ng-template ngbNavContent>
 					<div class="container pt-3">
 						<locations-groups-tab [selectedGroups]="selectedGroups"
 											  [activeLocationGroups]="activeLocationGroups"
@@ -30,8 +34,10 @@
 						</locations-groups-tab>
 					</div>
 				</ng-template>
-			</ngb-tab>
-		</ngb-tabset>
+			</li>
+		</ul>
+
+		<div [ngbNavOutlet]="nav"></div>
 	</ng-template>
 
 	<ng-template #footer>

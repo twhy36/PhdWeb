@@ -1,5 +1,7 @@
 /* You can add global styles to this file, and also import other style files */
 
+@use "sass:math" as math;
+
 @import '~bootstrap/dist/css/bootstrap.min.css';
 @import url(https://fonts.googleapis.com/css?family=Roboto:400,100,100italic,300,300itaâ€Œâ€‹lic,400italic,500,500italic,700,700italic,900italic,900);
 @import "color-pallet";
@@ -269,7 +271,6 @@ tr.p-state-highlight {
 
 	.p-tabview-nav {
 		flex-direction: column;
-		width: 15%;
 	}
 
 	.p-tabview-panels {
@@ -341,8 +342,8 @@ $toggle-content-after: 'Must Have';
 
 	> .handle {
 		position: absolute;
-		top: ($size * .25) / 2;
-		left: ($size * .25) / 2;
+		top: math.div($size * .25, 2);
+		left: math.div($size * .25, 2);
 		width: $size * .75;
 		height: $size * .75;
 		border-radius: $size * .75;
@@ -354,7 +355,6 @@ $toggle-content-after: 'Must Have';
 		transition: background-color .25s;
 
 		> .handle {
-			//left: $size-width + (($size * .25) / 2);
 			left: ($size-width * 2) - 1.5;
 			transition: left .25s;
 		}
@@ -479,7 +479,6 @@ $toggle-content-after: 'Must Have';
 .phd-tagsinput {
 	border: 1px solid #e3e6ed;
 	border-radius: 6px;
-	/*height: 100px;*/
 	max-height: calc(36px * 5);
 	padding: 6px 1px 1px 6px;
 	overflow-y: auto;
@@ -564,4 +563,15 @@ $toggle-content-after: 'Must Have';
 
 .phd-default-pointer {
 	cursor: default !important;
+}
+
+.phd-div-tab-panel {
+	max-height: 250px;
+	overflow-y: auto;
+}
+
+.phd-div-button-panel {
+	margin-top: 1em;
+	display:flex;
+	justify-content:flex-end;
 }

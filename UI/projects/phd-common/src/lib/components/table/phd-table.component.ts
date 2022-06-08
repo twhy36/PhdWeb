@@ -127,6 +127,7 @@ export class PhdTableComponent implements AfterContentInit, OnChanges
 			settings.cols.forEach((col: any) =>
 			{
 				let colRef = this.columnRefs.find(c => c.columnId === col.columnId);
+
 				if (colRef)
 				{
 					colRef.colSize = col.colSize;

@@ -1,5 +1,5 @@
 <div class="phd-page-container">
-	<page-header mainTitle="Homesite Plan Assignment">
+	<page-header [mainTitle]="mainTitle">
 		<ng-template>
 			<div class="col">
 				<select class="form-control" [ngModel]="selectedCommunity ? selectedCommunity.dto : null" (ngModelChange)="onChangeCommunity($event)">
@@ -11,22 +11,21 @@
 	</page-header>
 
 	<div class="phd-page-body">
-		<div class="container-fluid mx-auto">
-			<div class="mx-1 row">
-				<div>
-					<ul class="nav nav-tabs">
-						<li [routerLink]="['/lot-management/plan-management/plan-assignment']" [routerLinkActive]="['active']" class="nav-item phd-tab" [ngClass]="{'show phd-active': (selectedTab === commTabs.HomePlanAssignments)}" *requiresClaim="'SalesAdmin'">
-							<a [routerLink]="['/lot-management/plan-management/plan-assignment']" class="nav-link" (click)="onTabClick(commTabs.HomePlanAssignments)">Home Plan Assignments</a>
-						</li>
-						<li [routerLink]="['/lot-management/plan-management/lot-relationships']" [routerLinkActive]="['active']" class="nav-item phd-tab" [ngClass]="{'show phd-active': (selectedTab === commTabs.LotRelationships) }" *requiresClaim="'SalesAdmin'">
-							<a [routerLink]="['/lot-management/plan-management/lot-relationships']" class="nav-link" (click)="onTabClick(commTabs.LotRelationships)">Lot Relationships</a>
-						</li>
-					</ul>
-				</div>
-			</div>
-      <div class="row">
-				<router-outlet></router-outlet>
+		<div class="mx-1 row">
+			<div>
+				<ul class="nav nav-tabs">
+					<li [routerLink]="['/lot-management/plan-management/plan-assignment']" [routerLinkActive]="['active']" class="nav-item phd-tab" [ngClass]="{'show phd-active': (selectedTab === commTabs.HomePlanAssignments)}" *requiresClaim="'SalesAdmin'">
+						<a [routerLink]="['/lot-management/plan-management/plan-assignment']" class="nav-link" (click)="onTabClick(commTabs.HomePlanAssignments)">Home Plan Assignments</a>
+					</li>
+					<li [routerLink]="['/lot-management/plan-management/lot-relationships']" [routerLinkActive]="['active']" class="nav-item phd-tab" [ngClass]="{'show phd-active': (selectedTab === commTabs.LotRelationships) }" *requiresClaim="'SalesAdmin'">
+						<a [routerLink]="['/lot-management/plan-management/lot-relationships']" class="nav-link" (click)="onTabClick(commTabs.LotRelationships)">Lot Relationships</a>
+					</li>
+				</ul>
 			</div>
 		</div>
-  </div>
+
+		<div class="phd-router-outlet">
+			<router-outlet></router-outlet>
+		</div>
+	</div>
 </div>

@@ -5,7 +5,7 @@ import { filter } from 'rxjs/operators';
 
 import { loadScript } from 'phd-common';
 import { environment } from '../environments/environment';
-import * as build from './build.json';
+import { default as build } from './build.json';
 
 @Component({
 	selector: 'app-root',
@@ -14,7 +14,6 @@ import * as build from './build.json';
 })
 export class AppComponent
 {
-	build = (build as any).default;
 	environment = environment;
 
 	title = 'app';
@@ -22,6 +21,11 @@ export class AppComponent
 	get branch(): string
 	{
 		return build.branch.split('/').slice(2).join('/');
+	}
+
+	get version(): string
+	{
+		return build.version;
 	}
 
 	constructor(private router: Router)

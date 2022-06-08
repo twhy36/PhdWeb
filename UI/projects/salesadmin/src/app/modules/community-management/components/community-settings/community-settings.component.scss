@@ -10,7 +10,7 @@
 
 .phd-box {
 	text-align: center;
-	padding:15px;
+	padding: 15px;
 }
 
 .phd-line {
@@ -37,22 +37,22 @@
 
 .phd-save-button {
 	margin: auto;
-	margin-top: 1rem;
+	margin-bottom: 1rem;
 }
 
-.btn-toggle.btn-sm.btn-auto-approval{
+.btn-toggle.btn-sm.btn-auto-approval {
 	margin: 10px 0.5rem;
 }
 
-.phd-settings-container{
-	width: 750px;
-	height: 750px;
+.phd-settings-container {
+	display: flex;
+	flex-direction: column;
 }
 
 .phd-center {
 	display: flex;
-  justify-content: center;
-  align-items: center;
+	justify-content: center;
+	align-items: center;
 }
 
 .phd-no-community {

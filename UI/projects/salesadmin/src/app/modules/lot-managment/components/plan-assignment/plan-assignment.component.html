@@ -1,43 +1,48 @@
 <plan-assignment-side-panel-component *ngIf="sidePanelOpen" [saving]="saving" [sidePanelOpen]="sidePanelOpen" [selectedCommunity]="selectedCommunity" [selectedPlan]="selectedPlan" (onSidePanelClose)="onSidePanelClose($event)" (onAssignPlanLot)="assignPlanLot($event)"></plan-assignment-side-panel-component>
 
-<div class="phd-table-container mx-2">
-	<phd-table #dt [value]="plans" [nonOverflow]="false" dataKey="id">
-		<ng-template #rowExpansion let-plan let-columns="columns">
-			<tr *ngIf="plan.lots.length > 0">
-				<td [attr.colspan]="columns.length">
-					<div class="phd-row-expansion">
-						<lot-table [lots]="plan.lots"></lot-table>
-					</div>
-				</td>
-			</tr>
-		</ng-template>
+<div class="phd-tab-container">
+	<page-header mainTitle="Home Plan Assignments"></page-header>
 
-		<phd-column header="" columnClass="phd-icon">
-			<ng-template #body let-plan>
-				<i class="fa fa-pencil fa-fw" (click)="editPlan(plan);" *ngIf="canEdit" phd-tooltip="Edit / View Assignments"></i>
-			</ng-template>
-		</phd-column>
+	<div class="phd-tab-body">
+		<div class="phd-table-container mx-2">
+			<phd-table #dt [value]="plans" [nonOverflow]="false" dataKey="id">
+				<ng-template #rowExpansion let-plan let-columns="columns">
+					<tr *ngIf="plan.lots.length > 0">
+						<td [attr.colspan]="columns.length">
+							<div class="phd-row-expansion">
+								<lot-table [lots]="plan.lots"></lot-table>
+							</div>
+						</td>
+					</tr>
+				</ng-template>
 
-		<phd-column header="Plan" field="plan.displayName">
-			<ng-template #body let-plan>
-				<span (mouseenter)="showTooltip($event, plan.displayName, dt)" (mouseleave)="hideTooltip(dt)">{{ plan.displayName }}</span>
-			</ng-template>
-		</phd-column>
+				<phd-column header="" columnClass="phd-icon">
+					<ng-template #body let-plan>
+						<i class="fa fa-pencil fa-fw" (click)="editPlan(plan);" *ngIf="canEdit" phd-tooltip="Edit / View Assignments"></i>
+					</ng-template>
+				</phd-column>
 
-		<phd-column header="Homesite">
-			<ng-template #body let-plan let-expanded="expanded">
-				<i class="fa fa-map-marker fa-fw" *ngIf="plan.lots.length > 0" phd-tooltip="Show Homesites" [phdRowToggler]="plan"></i>
+				<phd-column header="Plan" field="plan.displayName">
+					<ng-template #body let-plan>
+						<span (mouseenter)="showTooltip($event, plan.displayName, dt)" (mouseleave)="hideTooltip(dt)">{{ plan.displayName }}</span>
+					</ng-template>
+				</phd-column>
 
-				<span (mouseenter)="showTooltip($event, plan.lots.length, dt)" (mouseleave)="hideTooltip(dt)">{{ "(" + plan.lots.length + ")" }}</span>
-			</ng-template>
-		</phd-column>
+				<phd-column header="Homesite">
+					<ng-template #body let-plan let-expanded="expanded">
+						<i class="fa fa-map-marker fa-fw" *ngIf="plan.lots.length > 0" phd-tooltip="Show Homesites" [phdRowToggler]="plan"></i>
 
-		<phd-column header="Details" field="plan.details">
-			<ng-template #body let-plan>
-				<span (mouseenter)="showTooltip($event, plan.details, dt)" (mouseleave)="hideTooltip(dt)">{{ plan.details }}</span>
-			</ng-template>
-		</phd-column>
-	</phd-table>
+						<span (mouseenter)="showTooltip($event, plan.lots.length, dt)" (mouseleave)="hideTooltip(dt)">{{ "(" + plan.lots.length + ")" }}</span>
+					</ng-template>
+				</phd-column>
+
+				<phd-column header="Details" field="plan.details">
+					<ng-template #body let-plan>
+						<span (mouseenter)="showTooltip($event, plan.details, dt)" (mouseleave)="hideTooltip(dt)">{{ plan.details }}</span>
+					</ng-template>
+				</phd-column>
+			</phd-table>
+		</div>
+	</div>
 </div>
 
-<p-toast></p-toast>
