@@ -58,7 +58,7 @@
 }
 
 ::ng-deep .phd-group-completed {
-	color: white;
+	color: var(--group-bar-selected-color);
 	-webkit-text-stroke: 1px var(--secondary-ribbon-background-color);
 }
 
