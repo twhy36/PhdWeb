@@ -7,7 +7,7 @@ import { combineLatest, switchMap, distinctUntilChanged, map, finalize, catchErr
 
 import { MessageService } from 'primeng/api';
 
-import * as moment from 'moment';
+import moment from 'moment';
 
 import { ChoiceSidePanelComponent } from './choice-side-panel/choice-side-panel.component';
 import { PointSidePanelComponent } from './point-side-panel/point-side-panel.component';

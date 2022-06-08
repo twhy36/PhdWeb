@@ -2,16 +2,16 @@ import { Observable, of, combineLatest, throwError } from 'rxjs';
 import { switchMap, catchError, map } from 'rxjs/operators';
 
 import * as _ from 'lodash';
-import * as moment from "moment";
+import moment from 'moment';
 
 import
-	{
-		findChoice, DesignToolAttribute, JobChoice, JobPlanOption, JobChoiceAttribute, JobChoiceLocation, Job,
-		ChangeOrderGroup, ChangeOrderChoice, ChangeOrderPlanOption, ChangeOrderChoiceAttribute, ChangeOrderChoiceLocation,
-		PlanOption, PointStatus, ConstructionStageTypes, Tree, Choice, DecisionPoint, MappedAttributeGroup, MappedLocationGroup,
-		Attribute, AttributeGroup, AttributeCommunityImageAssoc, Location, LocationGroup, OptionImage, ChoiceRules, PointRules,
-		Group, SubGroup, OptionRule, MyFavoritesChoice
-	} from 'phd-common';
+{
+	findChoice, DesignToolAttribute, JobChoice, JobPlanOption, JobChoiceAttribute, JobChoiceLocation, Job,
+	ChangeOrderGroup, ChangeOrderChoice, ChangeOrderPlanOption, ChangeOrderChoiceAttribute, ChangeOrderChoiceLocation,
+	PlanOption, PointStatus, ConstructionStageTypes, Tree, Choice, DecisionPoint, MappedAttributeGroup, MappedLocationGroup,
+	Attribute, AttributeGroup, AttributeCommunityImageAssoc, Location, LocationGroup, OptionImage, ChoiceRules, PointRules,
+	Group, SubGroup, OptionRule, MyFavoritesChoice
+} from 'phd-common';
 
 import { TreeService } from '../../core/services/tree.service';
 import { BlockedByItemList } from '../models/blocked-by.model';
@@ -150,9 +150,9 @@ export function getDefaultOptionRule(optionNumber: string, choice: Choice): Opti
 }
 
 function saveLockedInChoices(
-	choices: Array<JobChoice | ChangeOrderChoice>, 
-	treeChoices: Choice[], 
-	options: Array<JobPlanOption | ChangeOrderPlanOption>, 
+	choices: Array<JobChoice | ChangeOrderChoice>,
+	treeChoices: Choice[],
+	options: Array<JobPlanOption | ChangeOrderPlanOption>,
 	changeOrder?: ChangeOrderGroup,
 	missingChoices?: number[])
 {
@@ -1048,7 +1048,7 @@ export function getDisabledByList(tree: Tree, groups: Group[], point: DecisionPo
 }
 
 export function getLockedInChoice(
-	choice: JobChoice | ChangeOrderChoice, 
+	choice: JobChoice | ChangeOrderChoice,
 	options: Array<JobPlanOption | ChangeOrderPlanOption>,
 	choiceRules?: Array<ChoiceRules>)
 	:

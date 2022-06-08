@@ -1,10 +1,10 @@
-import { Component, Input, OnInit, ViewChild, Output, EventEmitter, Inject } from '@angular/core';
-import { FormGroup, FormControl, Validators, AbstractControl, ValidatorFn, FormBuilder } from '@angular/forms';
+import { Component, Input, OnInit, ViewChild, Output, EventEmitter } from '@angular/core';
+import { FormGroup, Validators, AbstractControl, FormBuilder } from '@angular/forms';
 
 import { SidePanelComponent } from '../../../../shared/components/side-panel/side-panel.component';
 import { DTVersion } from '../../../../shared/models/tree.model';
-import * as moment from 'moment';
-import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
+import moment from 'moment';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ConfirmModalComponent } from '../../../../core/components/confirm-modal/confirm-modal.component';
 
 @Component({
