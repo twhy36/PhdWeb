@@ -371,6 +371,7 @@ export function getLiteChangeOrderGroupSelections(
 		});		
 	}
 
+	sDPoints.sort((a, b) => a.subGroupName.localeCompare(b.subGroupName));
 	sDPoints.sort((a, b) => a.groupName.localeCompare(b.groupName));
 	return sDPoints;
 }
