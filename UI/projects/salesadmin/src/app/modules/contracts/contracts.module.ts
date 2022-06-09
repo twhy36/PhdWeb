@@ -5,6 +5,7 @@ import { Routes, RouterModule } from '@angular/router';
 
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
+import { AutoCompleteModule } from 'primeng/autocomplete';
 import { CalendarModule } from 'primeng/calendar';
 import { ToastModule } from 'primeng/toast';
 import { TableModule } from 'primeng/table';
@@ -54,10 +55,12 @@ const moduleRoutes: Routes = [
 		TableModule,
 		CalendarModule,
 		NgbModule,
+		AutoCompleteModule,
 		RouterModule.forChild(moduleRoutes)
 	],
 	providers: []
 })
-export class ContractsModule {
+export class ContractsModule
+{
 
 }
