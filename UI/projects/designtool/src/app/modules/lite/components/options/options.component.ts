@@ -141,7 +141,7 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 					});
 				});
 
-				this.selectedCategory.optionSubCategories = this.selectedCategory.optionSubCategories.filter(x => x.planOptions.some(po => po.isActive && !po.isSelected));
+				this.selectedCategory.optionSubCategories = this.selectedCategory.optionSubCategories.filter(x => x.planOptions.some(po => po.isActive || po.previouslySelected));
 			}
 
 			this.categorySubTotal = subtotal;
