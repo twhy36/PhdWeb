@@ -417,14 +417,22 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 
 					requiredSelections.forEach(ncr =>
 					{
-						body += 'Choice ' + this.currentChoices.find(cc => cc.divChoiceCatalogId === ncr.divChoiceCatalogId)?.label + ' Required' + '<br />';
+						let foundChoice = this.currentChoices.find(cc => cc.divChoiceCatalogId === ncr.divChoiceCatalogId);
+						if (foundChoice)
+						{
+							body += 'Choice ' + foundChoice.label + ' Required' + '<br />';
+						}
 					});
 
 					body += disabledSelections.length ? '<br />' + '<b>' + 'Lot ' + lot.lotBlock + ' has the following restriction(s): ' + '</b>' + '<br />' : '';
 
 					disabledSelections.forEach(ncr =>
 					{
-						body += 'Choice ' + this.currentChoices.find(cc => cc.divChoiceCatalogId === ncr.divChoiceCatalogId)?.label + ' Disabled' + '<br />';
+						let foundChoice = this.currentChoices.find(cc => cc.divChoiceCatalogId === ncr.divChoiceCatalogId);
+						if (foundChoice)
+						{
+							body += 'Choice ' + foundChoice.label + ' Disabled' + '<br />';
+						}
 					});
 
 					body += noLongerRequiredSelections?.length ? '<br />' + '<b>' + 'The following choice(s) will no longer be required for Lot ' + lot.lotBlock + '.'
@@ -432,7 +440,11 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 
 					noLongerRequiredSelections?.forEach(ncr =>
 					{
-						body += 'Choice ' + this.currentChoices.find(cc => cc.divChoiceCatalogId === ncr.divChoiceCatalogId)?.label + '<br />';
+						let foundChoice = this.currentChoices.find(cc => cc.divChoiceCatalogId === ncr.divChoiceCatalogId);
+						if (foundChoice)
+						{
+							body += 'Choice ' + foundChoice.label + '<br />';
+						}
 					});
 
 					confirm.componentInstance.body = body;
