@@ -84,7 +84,7 @@ export class ContractService
 		}
 		else if (isPhd || isTho)
 		{
-			isPhdThoCondition = ` and ${ isPhd ? 'isPhd' : 'isTho' } eq true`;
+			isPhdThoCondition = ` and ${isPhd ? 'isPhd' : 'isTho'} eq true`;
 		}
 
 		let url = this.settings.apiUrl;
@@ -355,7 +355,7 @@ export class ContractService
 
 	getSignField(financialCommunityId: number): Observable<ESignField>
 	{
-		let url = this.settings.apiUrl + `eSignFields(${financialCommunityId})`;
+		const url = this.settings.apiUrl + `eSignFields(${financialCommunityId})`;
 
 		return withSpinner(this._http).get(url).pipe(
 			map((response: ESignField) =>
@@ -368,7 +368,7 @@ export class ContractService
 
 	saveESignField(signFieldDto: ESignField): Observable<ESignField>
 	{
-		let url = this.settings.apiUrl + `eSignFields`;
+		const url = this.settings.apiUrl + `eSignFields`;
 
 		return this._http.post(url, signFieldDto).pipe(
 			map((response: ESignField) =>
@@ -381,7 +381,7 @@ export class ContractService
 
 	updateESignField(signFieldDto: ESignField): Observable<ESignField>
 	{
-		let url = this.settings.apiUrl + `eSignFields(${signFieldDto.financialCommunityId})`;
+		const url = this.settings.apiUrl + `eSignFields(${signFieldDto.orgId})`;
 
 		return this._http.patch(url, signFieldDto, { headers: { 'Prefer': 'return=representation' } }).pipe(
 			map((response: ESignField) =>

@@ -5,3 +5,19 @@
 	border-left-width: 5px;
 	box-shadow: none;
 }
+
+::ng-deep p-autocomplete .p-component {
+	width: 100%;
+}
+
+p-autocomplete.ng-invalid {
+	border: initial !important;
+	border-left-width: initial !important;
+	box-shadow: initial !important;
+}
+
+p-autocomplete.ng-dirty.ng-invalid ::ng-deep>.p-autocomplete>.p-inputtext {
+	border: solid 1px $darkish-pink;
+	border-left-width: 5px;
+	box-shadow: none;
+}

@@ -24,6 +24,7 @@ import { LoggingService, PhdErrorHandler } from './services/logging.service';
 import { PhdCommonModule } from 'phd-common';
 import { ReOrgService } from './services/re-org.service';
 import { CatalogService } from './services/catalog.service';
+import { ContactService } from './services/contact.service';
 
 @NgModule({
     exports: [
@@ -39,17 +40,17 @@ import { CatalogService } from './services/catalog.service';
         CommonModule,
         FormsModule,
         HttpClientModule,
-		RouterModule,
-		PhdCommonModule
+        RouterModule,
+        PhdCommonModule
     ],
-	providers: [
+    providers: [
         CatalogService,
-		ContractService,
+        ContractService,
         HomeSiteService,
         OrganizationService,
         PlanService,
-		ReleasesService,
-		SalesService,
+        ReleasesService,
+        SalesService,
         SettingsService,
         StorageService,
         MessageService,
@@ -58,7 +59,8 @@ import { CatalogService } from './services/catalog.service';
         NotificationService,
         CommunityService,
         ReOrgService,
-		{ provide: ErrorHandler, useClass: PhdErrorHandler, deps: [LoggingService] }
+        ContactService,
+        { provide: ErrorHandler, useClass: PhdErrorHandler, deps: [LoggingService] }
     ]
 })
 export class CoreModule { }
