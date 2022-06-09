@@ -83,26 +83,30 @@ export class PhdTableComponent implements AfterContentInit, OnChanges
 	}
 
 	ngOnChanges(): void
-	{
-	
-		if (this.value)
+	{	
+		if (this.currentTableSort && this.value)
 		{
-			this.value.forEach((val, i) => val["__index"] = i);
+			this.value.forEach((val, i) => val['__index'] = i);
+
 			if (this.value.length > 0)
-			{				
+			{
+				let applySort: SortEvent;
+
 				if (this.currentTableSort.sortField !== this.defaultTableSort.sortField)
 				{
-					const applySort: SortEvent = { data: this.value, field: this.currentTableSort.sortField, order: this.currentTableSort.sortOrder };
-					this.customSort(applySort);
+					applySort = { data: this.value, field: this.currentTableSort.sortField, order: this.currentTableSort.sortOrder } as SortEvent;
 				}
-				else if (this.currentTableSort.sortField === this.defaultTableSort.sortField && this.currentTableSort.sortOrder !== this.defaultTableSort.sortOrder) {
-
-					const applySort: SortEvent = { data: this.value, field: this.currentTableSort.sortField, order: this.currentTableSort.sortOrder };
-					this.customSort(applySort);
+				else if (this.currentTableSort.sortField === this.defaultTableSort.sortField && this.currentTableSort.sortOrder !== this.defaultTableSort.sortOrder)
+				{
+					applySort = { data: this.value, field: this.currentTableSort.sortField, order: this.currentTableSort.sortOrder } as SortEvent;
 				}
 				else if (this.currentTableSort.sortOrder === this.defaultTableSort.sortOrder)
 				{
-					const applySort: SortEvent = { data: this.value, field: this.defaultTableSort.sortField, order: this.defaultTableSort.sortOrder };
+					applySort = { data: this.value, field: this.defaultTableSort.sortField, order: this.defaultTableSort.sortOrder } as SortEvent;
+				}
+
+				if (applySort)
+				{
 					this.customSort(applySort);
 				}
 			}
