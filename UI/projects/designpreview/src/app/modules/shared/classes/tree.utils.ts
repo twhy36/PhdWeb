@@ -428,7 +428,7 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 					.filter(o => o.choiceEnabledOption)
 					.map(o =>
 					{
-						return { optionNumber: options.find(opt => opt.id === o.jobPlanOptionId).integrationKey, dpChoiceId: c.dpChoiceId };
+						return { optionNumber: options.find(opt => opt.id === o.jobPlanOptionId)?.integrationKey, dpChoiceId: c.dpChoiceId };
 					});
 			}
 			else
@@ -437,7 +437,7 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 					.filter(o => o.jobChoiceEnabledOption)
 					.map(o =>
 					{
-						return { optionNumber: options.find(opt => opt.id === o.jobChangeOrderPlanOptionId).integrationKey, dpChoiceId: c.decisionPointChoiceID };
+						return { optionNumber: options.find(opt => opt.id === o.jobChangeOrderPlanOptionId)?.integrationKey, dpChoiceId: c.decisionPointChoiceID };
 					});
 			}
 		}))),
@@ -524,11 +524,11 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 				{
 					if (isJobChoice(c))
 					{
-						choice.lockedInOptions = c.jobChoiceJobPlanOptionAssocs.filter(o => o.choiceEnabledOption).map(o => data.mapping[options.find(opt => opt.id === o.jobPlanOptionId).integrationKey] || getDefaultOptionRule(options.find(opt => opt.id === o.jobPlanOptionId).integrationKey, choice));
+						choice.lockedInOptions = c.jobChoiceJobPlanOptionAssocs?.filter(o => o.choiceEnabledOption)?.map(o => data.mapping[options.find(opt => opt.id === o.jobPlanOptionId)?.integrationKey] || getDefaultOptionRule(options.find(opt => opt.id === o.jobPlanOptionId)?.integrationKey, choice));
 					}
 					else
 					{
-						choice.lockedInOptions = c.jobChangeOrderChoiceChangeOrderPlanOptionAssocs.filter(o => o.jobChoiceEnabledOption).map(o => data.mapping[options.find(opt => opt.id === o.jobChangeOrderPlanOptionId).integrationKey] || getDefaultOptionRule(options.find(opt => opt.id === o.jobChangeOrderPlanOptionId).integrationKey, choice));
+						choice.lockedInOptions = c.jobChangeOrderChoiceChangeOrderPlanOptionAssocs?.filter(o => o.jobChoiceEnabledOption)?.map(o => data.mapping[options.find(opt => opt.id === o.jobChangeOrderPlanOptionId)?.integrationKey] || getDefaultOptionRule(options.find(opt => opt.id === o.jobChangeOrderPlanOptionId)?.integrationKey, choice));
 					}
 
 					if (choice.lockedInChoice && choice.lockedInChoice.choice)
