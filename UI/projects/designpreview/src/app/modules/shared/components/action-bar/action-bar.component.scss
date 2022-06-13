@@ -41,9 +41,12 @@
 			color: var(--secondary-icon-color);
 		}
 
-		.fa-list-alt {
-			margin-top: 2px;
-			margin-right: 8px;
+
+		.phd-favorites-list {
+			width: 27px;
+			right: 8px;
+			object-fit: cover;
+			object-position: right;
 		}
 	}
 

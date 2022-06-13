@@ -11,7 +11,7 @@
 		</div>
 
 		<div *ngIf="showFavorites" class="d-flex phd-clickable" (click)="onViewFavorites()">
-			<i class="fa fa-list-alt fa-2x"></i>
+			<img class="phd-favorites-list" [src]="favoritesListIcon">
 			<span class="align-self-center">My Favorites</span>
 		</div>
 	</div>
