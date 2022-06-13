@@ -338,7 +338,7 @@ export class ScenarioEffects
 
 						return new Observable<any>(observer =>
 						{
-							const worker = new Worker(new URL('../../../app.worker'), { type: 'module' });
+							const worker = new Worker(new URL('../../../app.worker', import.meta.url), { type: 'module' });
 
 							worker.onmessage = ({ data }) =>
 							{
