@@ -38,7 +38,7 @@
 	}
 
 	.phd-page-separator {
-		border-right: 1px solid #FFFFFF;
+		border-right: 1px solid var(--nav-bar-text-color);
   		padding: 0 10px;
 	}
 
@@ -76,9 +76,6 @@
 	}
 }
 
-.phd-contracted-link-banned {
-	cursor: not-allowed;
-}
 
 .phd-collapsable-menu {
 	background: var(--primary-ribbon-background-color);

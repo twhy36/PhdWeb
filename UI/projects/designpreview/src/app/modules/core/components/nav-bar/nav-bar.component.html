@@ -17,7 +17,8 @@
 				   (click)="toFavoritesPage ? onViewFavorites() : false">
 				   My Favorites
 				</a>
-				<a class="phd-nav-page phd-page-separator"
+				<a class="phd-nav-page"
+				   [ngClass]="showContractedOptionsLink ? 'phd-page-separator' : ''"
 				   [routerLink]="['/floorplan']"
 				   [routerLinkActive]="['phd-active-link-full']">
 				   Floorplan
@@ -43,7 +44,6 @@
 		<!-- Send these links to their proper pages, uncomment as needed -->
 		<a [routerLink]="['/floorplan']">Floorplan</a>
 		<a *ngIf="showContractedOptionsLink" [routerLink]="['/contracted']">Contracted Options</a>
-		<a *ngIf="!showContractedOptionsLink" class="phd-contracted-link-banned">Contracted Options</a>
 		<!-- <a [routerLink]="['/home']">FAQ</a> -->
 		<!-- Send these links to their proper pages -->
 	</div>
