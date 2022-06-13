@@ -84,6 +84,7 @@ a:focus {
 
 .phd-router-outlet {
 	flex: 1;
+	overflow:hidden; //might be bad...will see
 }
 
 .phd-tab-container {

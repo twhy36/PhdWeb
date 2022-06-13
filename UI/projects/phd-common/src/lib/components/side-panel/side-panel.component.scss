@@ -59,26 +59,13 @@
 	margin-left: 0;
 }
 
-.disabled-overlay {
-	opacity: 1;
-	display: inherit;
-	cursor: not-allowed;
-	position: absolute;
+::ng-deep .phd-side-panel-overlay {
+	z-index: 999 !important;
+	position: fixed;
+	top: 0;
 	left: 0;
-	right: 0;
-	top: $nav-menu-height;
-	bottom: 0;
-	z-index: 900;
-	margin-left: 0;
-
-	> div {
-		position: absolute;
-		left: 0;
-		right: 0;
-		top: 0;
-		bottom: 0;
-		opacity: .35;
-		background-color: black;
-		cursor: not-allowed;
-	}
+	width: 100vw;
+	height: 100vh;
+	background-color: #000;
+	opacity: .5;
 }
