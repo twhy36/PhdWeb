@@ -12,7 +12,7 @@ export const environment: IEnvironment = {
 		colorManagement: 'https://phd.qa.pulte.com/colormanagement/',
         buyerTracker: 'http://buyertracker.qa.pulte.com/',
         choiceAdmin: 'https://phd.qa.pulte.com/choiceadmin/',
-        crm: 'https://pulteqa.crm.dynamics.com/main.aspx?appid=fd4b6997-db24-46d9-ae08-413c5059fcbe',
+        crm: 'https://pulteqa.crm.dynamics.com/Apps/uniquename/pulte_Sales',
         salesAdmin: 'https://phd.qa.pulte.com/salesadmin/',
 		designTool: 'https://phd.qa.pulte.com/designtool/',
 		designPreview: {
