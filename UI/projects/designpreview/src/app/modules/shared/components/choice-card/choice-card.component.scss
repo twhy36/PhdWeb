@@ -14,6 +14,8 @@
 	.phd-header {
 		flex: 0 1 auto;
 		position: relative;
+		border-bottom: 1px solid lightgrey;
+		text-align: center;
 	}
 
 	.phd-body {
@@ -33,7 +35,6 @@
 	.phd-choice-image {
 		width: 100%;
 		flex-basis: 75%;
-		border-bottom: 1px solid lightgrey;
 		min-height: 200px;
 
 		::ng-deep img {
@@ -44,8 +45,7 @@
 	}
 
 	.phd-logo-image {
-		width: 270px;
-		height: 190px;
+		height: 200px;
 	}
 
 	.phd-choice-details {

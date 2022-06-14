@@ -25,7 +25,6 @@ import { AttributeLocationComponent } from '../attribute-location/attribute-loca
 import { AttributeGroupExt, AttributeExt } from '../../models/attribute-ext.model';
 import { BlockedByItemList } from '../../models/blocked-by.model';
 import { getDisabledByList } from '../../../shared/classes/tree.utils';
-import { BrandService } from '../../../core/services/brand.service';
 import { AdobeService } from '../../../core/services/adobe.service';
 
 @Component({
@@ -77,7 +76,6 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		private toastr: ToastrService,
 		public modalService: NgbModal,
 		private store: Store<fromRoot.State>,
-		private brandService: BrandService,
 		private adobeService: AdobeService)
     {
 		super();
@@ -342,7 +340,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		// default image
 		if (!this.choiceImages.length)
 		{
-			this.choiceImages.push({ imageURL: this.brandService.getBrandImage('logo') });
+			this.choiceImages.push({ imageURL: 'assets/NoImageAvailable.png' });
 		}
 
 		this.selectedImageUrl = this.choiceImages[0].imageURL;
@@ -459,7 +457,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	{
 		this.imageLoading = false;
 
-		event.srcElement.src = this.brandService.getBrandImage('logo');
+		event.srcElement.src = 'assets/NoImageAvailable.png';
 	}
 
 	imageClick(image: OptionImage)

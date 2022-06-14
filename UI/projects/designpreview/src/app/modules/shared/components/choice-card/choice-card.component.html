@@ -1,11 +1,11 @@
 <div class="phd-choice-card" [class.active]="choice?.quantity" [class.selected]="choice?.quantity" [@flipOver] (click)="viewChoiceDetail()">
 	<div class="phd-header">
-		<div class="phd-choice-image">
-			<cl-image *ngIf="imageUrl" public-id="{{imageUrl}}" type="fetch" background="#ffffff" crop="lpad" height="190" width="270"
+		<div class="phd-choice-image"*ngIf="imageUrl">
+			<cl-image public-id="{{imageUrl}}" type="fetch" background="#ffffff" crop="lpad" height="190" width="270"
 					  (onError)="onLoadImageError($event)">
 			</cl-image>
-			<img class="phd-logo-image" [src]="getImageSrc()" *ngIf="!imageUrl">
 		</div>
+		<img class="phd-logo-image" src="assets/NoImageAvailable.png" *ngIf="!imageUrl">
 	</div>
 
 	<div class="phd-body">

@@ -1,7 +1,6 @@
 {
 	"images": {
 		"logo": "assets/john-wieland/logos/JWHN_Logo-Choice-Card.png",
-		"choice-card-logo": "assets/john-wieland/logos/JWHN_Logo-Choice-Card.png",
 		"home-page-logo": "assets/john-wieland/logos/JWHN_Logo-Home-Page.png",
 		"white_logo": "assets/john-wieland/logos/JWHN-SIG-White_Transparent.png",
 		"favorites_list": "assets/john-wieland/icons/heart_list-JWH.png"
@@ -14,7 +13,7 @@
 	},
 	"styles": {
 		"font": "Palatino",
-		"primary-ribbon-background-color": "#002855", 
+		"primary-ribbon-background-color": "#002855",
 		"secondary-ribbon-background-color": "#ffffff",
 		"choice-detail-ribbon-color": "#002855",
 		"primary-button-color": "#002855",
