@@ -749,14 +749,18 @@ export function hideChoicesByStructuralItems(choiceRules: ChoiceRules[], choices
 	while (!hiddenChoicesFound) {
 		hiddenChoicesFound = true;
 		choiceRules.forEach(cr => {
+			let hiddenChoicesCount = 0
 			cr.rules.forEach(r => {
 				const choice = r.choices.find(ch => hiddenChoiceIds.indexOf(ch) > -1 && hiddenChoiceIds.indexOf(cr.choiceId) < 0);
 				if (choice) {
-					hiddenChoicesFound = false;
-					hiddenChoiceIds.push(cr.choiceId);
+					hiddenChoicesCount++;
 				}
-			})
-		})
+			});
+			if (hiddenChoicesCount === cr.rules.length) {
+				hiddenChoicesFound = false;
+				hiddenChoiceIds.push(cr.choiceId);
+			}
+		});
 	}
 	// Covers scenario that all choices within a DP are hidden, even if DP is not disabled
 	points.forEach(p => {
