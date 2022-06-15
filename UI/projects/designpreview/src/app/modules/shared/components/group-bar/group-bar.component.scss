@@ -98,8 +98,16 @@
 	}
 }
 
+@media(min-width: ($tablet-max-width + 1)) {
+	.phd-hamburger-menu {
+		display: none !important;
+	}
+}
 @media(max-width: $tablet-max-width) {
-	.phd-group-menu {
+	.phd-primary-menu {
+		display: none !important;
+	}
+	.phd-hamburger-menu {
 		justify-content: flex-start !important;
 		margin-left: 30px;
 
@@ -108,7 +116,7 @@
 			outline: none;
 
 			i {
-				color: white;
+				color: var(--group-bar-text-color);
 				outline: none;
 			}
 		}
