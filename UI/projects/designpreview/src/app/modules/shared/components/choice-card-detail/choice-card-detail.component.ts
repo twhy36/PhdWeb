@@ -26,6 +26,7 @@ import { AttributeGroupExt, AttributeExt } from '../../models/attribute-ext.mode
 import { BlockedByItemList } from '../../models/blocked-by.model';
 import { getDisabledByList } from '../../../shared/classes/tree.utils';
 import { AdobeService } from '../../../core/services/adobe.service';
+import { TreeService } from '../../../core/services/tree.service';
 
 @Component({
 	selector: 'choice-card-detail',
@@ -76,7 +77,8 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		private toastr: ToastrService,
 		public modalService: NgbModal,
 		private store: Store<fromRoot.State>,
-		private adobeService: AdobeService)
+		private adobeService: AdobeService,
+		private treeService: TreeService)
     {
 		super();
 	}
@@ -340,12 +342,30 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		// default image
 		if (!this.choiceImages.length)
 		{
-			this.choiceImages.push({ imageURL: 'assets/NoImageAvailable.png' });
+			return this.treeService.getChoiceImageAssoc([this.choice.id]).subscribe(choiceImages =>
+				{
+					if (choiceImages && choiceImages.length > 0)
+					{
+						choiceImages.forEach(i => this.choiceImages.push({ imageURL: i.imageUrl }));
+					}
+					else
+					{
+						// We need to triger the cloudinary error so that the elements image is set to
+						// noImageAvailable. This will trigger a cloudinary error, but isn't the most
+						// elegant. Removing this causes an indinite load or no image to appear.
+						this.choiceImages.push({ imageURL: 'this image does not exist' });
+					}
+					this.selectedImageUrl = this.choiceImages[0].imageURL;
+
+					this.imageLoading = true;
+				});
 		}
+		else
+		{
+			this.selectedImageUrl = this.choiceImages[0].imageURL;
 
-		this.selectedImageUrl = this.choiceImages[0].imageURL;
-
-		this.imageLoading = true;
+			this.imageLoading = true;
+		}
 	}
 
 	get optionDisabled(): boolean

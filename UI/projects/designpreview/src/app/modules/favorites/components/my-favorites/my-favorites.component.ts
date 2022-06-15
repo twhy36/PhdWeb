@@ -183,7 +183,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 						if (params.divChoiceCatalogId > 0) {
 							const paramPoint = this.selectedSubGroup.points.find(p => p.choices.find(c => params.divChoiceCatalogId === c.divChoiceCatalogId));
 							const paramChoice = paramPoint.choices.find(c => params.divChoiceCatalogId === c.divChoiceCatalogId);
-							
+
 							if (!!paramChoice) {
 								this.openChoiceDetailPage(this.getChoiceExt(paramChoice, paramPoint));
 							}
