@@ -4,8 +4,6 @@ import { Store, select } from '@ngrx/store';
 import { Observable, combineLatest, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 
-import * as _ from "lodash";
-
 import {
 	UnsubscribeOnDestroy, IdentityService, ChangeTypeEnum, Job, Lot, PointStatus,
 	Group, DecisionPoint, BrowserService, ModalService, BrandService, FinancialBrand, getBrandUrl
@@ -69,6 +67,8 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 	isPhdLite: boolean;
 	exteriorStatus: PointStatus;
 	financialBrand: FinancialBrand;
+	optionsAndColorsMenuAreVisible: boolean;
+	currentChangeOrderSalesStatus: string;
 
 	constructor(private lotService: LotService,
 		private identityService: IdentityService,
@@ -167,6 +167,9 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 					currentChangeOrder.jobChangeOrders[0].id > 0 &&
 					currentChangeOrder.jobChangeOrders[0].jobChangeOrderTypeDescription !== 'SalesJIO' &&
 					['Pending', 'OutforSignature', 'Signed'].indexOf(this.salesAgreementStatus) === -1;
+
+				this.currentChangeOrderSalesStatus = currentChangeOrder.salesStatusDescription;
+				this.setVisibilityOfOptionsAndColorsMenu();
 			}
 		});
 
@@ -201,6 +204,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 			select(state =>
 			{
 				this.isPhdLite = state.lite?.isPhdLite;
+				this.setVisibilityOfOptionsAndColorsMenu();
 				return state.lite?.isPhdLite;
 			})
 		);
@@ -240,8 +244,24 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 				this.exteriorStatus = PointStatus.REQUIRED;
 			}
 		});
+	}
 
+	setVisibilityOfOptionsAndColorsMenu()
+	{
+		//same pre-existing logic from the ngContainer tag that wraps Exterior, Options and Colors
+		this.optionsAndColorsMenuAreVisible = !!this.isPhdLite
+			&& this.displayGroupMenuItem(null)
+			&& this.selectedPlanId
+			&& !(this.isSalesAgreementCancelledOrVoided && this.specCancelled);
 
+		if (this.optionsAndColorsMenuAreVisible && this.hasActiveChangeOrder && this.changeOrderType === ChangeTypeEnum.PLAN)
+		{
+			//only hide options and colors if there is an active plan change order with a pending status
+			if (this.currentChangeOrderSalesStatus.trim().toLowerCase() === 'pending')
+			{
+				this.optionsAndColorsMenuAreVisible = false;
+			}
+		}
 	}
 
 	navigate(path: any[], group?: Group)
