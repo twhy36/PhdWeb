@@ -81,7 +81,7 @@ export class SignFieldsComponent extends UnsubscribeOnDestroy implements OnInit,
 
 	createForm()
 	{
-		let authorizedAgent = this.existingSignField?.id ? {
+		let authorizedAgent = this.existingSignField ? {
 			id: this.existingSignField.contactId,
 			fullName: this.existingSignField.authorizedAgentFullName,
 			emailAddress: this.existingSignField.authorizedAgentEmail
