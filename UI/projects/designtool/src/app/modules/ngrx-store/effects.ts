@@ -53,10 +53,10 @@ export class CommonEffects
 					const scenario = result.scenario; 
 					const isPhdLite = !scenario.treeVersionId || result.isPhdLiteEnabled && this.liteService.checkLiteScenario(scenario?.scenarioChoices, scenario?.scenarioOptions);
 
-					const getTree = !isPhdLite ? this.treeService.getTree(scenario.treeVersionId) : of<Tree>(null);
-					const getRules = !isPhdLite ? this.treeService.getRules(scenario.treeVersionId) : of<TreeVersionRules>(null);
-					const getPlanOptions = !isPhdLite ? this.optionService.getPlanOptions(scenario.planId) : of<PlanOption[]>(null);
-					const getOptionImages = !isPhdLite ? this.treeService.getOptionImages(scenario.treeVersionId) : of<OptionImage[]>(null);
+					const getTree = !isPhdLite ? this.treeService.getTree(scenario.treeVersionId) : of(null);
+					const getRules = !isPhdLite ? this.treeService.getRules(scenario.treeVersionId) : of(null);
+					const getPlanOptions = !isPhdLite ? this.optionService.getPlanOptions(scenario.planId) : of(null);
+					const getOptionImages = !isPhdLite ? this.treeService.getOptionImages(scenario.treeVersionId) : of(null);
 
 					return combineLatest([
 						getTree,
@@ -482,10 +482,10 @@ export class CommonEffects
 								const favoriteChoices = !!favorites ? _.flatMap(favorites, x => x.myFavoritesChoice) : [];
 								const getFavoritesChoiceCatalogIds = !!favoriteChoices?.length ? this.treeService.getChoiceCatalogIds([...favoriteChoices]) : of([]);
 
-								const getTree = treeVersionId ? this.treeService.getTree(treeVersionId) : of<Tree>(null);
-								const getRules = treeVersionId ? this.treeService.getRules(treeVersionId, true) : of<TreeVersionRules>(null);
-								const getPlanOptions = treeVersionId ? this.optionService.getPlanOptions(result.selectedPlanId, null, true) : of<PlanOption[]>([]);
-								const getOptionImages = treeVersionId ? this.treeService.getOptionImages(treeVersionId, [], null, true) : of<OptionImage[]>(null);
+								const getTree = treeVersionId ? this.treeService.getTree(treeVersionId) : of(null);
+								const getRules = treeVersionId ? this.treeService.getRules(treeVersionId, true) : of(null);
+								const getPlanOptions = treeVersionId ? this.optionService.getPlanOptions(result.selectedPlanId, null, true) : of([]);
+								const getOptionImages = treeVersionId ? this.treeService.getOptionImages(treeVersionId, [], null, true) : of(null);
 
 								return combineLatest([
 									getTree,
