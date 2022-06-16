@@ -11,18 +11,9 @@ i:hover {
 	cursor: pointer;
 }
 
-.phd-flexbox {
+.phd-button-bar {
 	display: flex;
 	flex-direction: row;
-	align-items: center;
-	justify-content: space-between;
-	padding: .5rem !important;
-}
-
-.phd-tab-subheader {
-	display: flex;
-	flex-direction: row-reverse;
-	justify-content: space-between;
-	margin-top:0rem !important;
-	margin-bottom: 0.5rem !important;
+	justify-content: right;
+	margin:0 1em 1em 1em;
 }

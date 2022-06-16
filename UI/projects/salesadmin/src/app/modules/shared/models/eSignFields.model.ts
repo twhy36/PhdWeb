@@ -1,12 +1,7 @@
-export class ESignField
-{
-	id: number; // ContactFinancialCommunityAuthorizedAgentAssocId 
-	contactId: number;
+export class ESignField {
 	financialCommunityId: number;
 	authorizedAgentFullName: string;
 	authorizedAgentEmail: string;
-
-	orgId: number;
 	reminderDays: number;
 	repeatReminderDays: number;
 	expirationDays: number;

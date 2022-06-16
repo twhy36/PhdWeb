@@ -64,7 +64,7 @@
 												{{ choice.id | priceRange | async }}
 											</div>
 
-											<div *ngIf="choice.disabledBy.length || choice.disabledByHomesite" class="phd-disabled-link phd-link phd-clickable phd-ifp-choice-disabled" (click)="showDisabledChoiceMessage(choice);">
+											<div *ngIf="choice.disabledBy.length" class="phd-disabled-link phd-link phd-clickable phd-ifp-choice-disabled" (click)="showDisabledChoiceMessage(choice);">
 												<i class="fas fa-info-circle"></i> Disabled
 											</div>
 										</div>

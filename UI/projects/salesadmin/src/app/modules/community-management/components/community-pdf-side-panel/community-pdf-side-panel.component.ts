@@ -165,7 +165,7 @@ export class CommunityPdfSidePanelComponent implements OnInit
 			'sortOrder': new FormControl(sortOrder),
 			'linkText': new FormControl( linkText, Validators.required),
 			'fileName': new FormControl({ value: fileName, disabled: (this.selected) }, { validators: [Validators.required, this.duplicateName()]}),
-			'sectionHeader': new FormControl({ value: sectionHeader, disabled: (this.selected) }, { validators: [Validators.required]}),
+			'sectionHeader': new FormControl(sectionHeader, Validators.required),
 			'effectiveDate': new FormControl(this.effectiveDate ? this.effectiveDate.toISOString() : null),
 			'expirationDate': new FormControl(this.expirationDate ? this.expirationDate.toISOString() : null),
 			'description': new FormControl(description),

@@ -40,5 +40,6 @@ export const environment = {
 		122, // Northern California Market
 		448, // Pacific Northwest
 		151, // Southern California Market
-	]
+	],
+	salesAdminMarketWhitelist: []
 };

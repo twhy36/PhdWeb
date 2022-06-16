@@ -93,8 +93,7 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 		//Check for LotChoiceRules and mark them as enabled/disabled
 		let choiceRules = rules.lotChoiceRules?.find(lcr => lcr.divChoiceCatalogId === ch.divChoiceCatalogId);
 
-		// Filter by planID if a plan is selected
-		let lcRule = tree.planId ? choiceRules?.rules.find(cr => cr.edhLotId === lotId && cr.planId === tree.planId) : choiceRules?.rules.find(cr => cr.edhLotId === lotId);
+		let lcRule = choiceRules?.rules.find(cr => cr.edhLotId === lotId);
 
 		if (lcRule)
 		{

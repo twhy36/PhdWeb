@@ -94,12 +94,6 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 				loadError: false
 			} as State;
 
-			// If a tree is loaded, copy lot choice rules from the state
-			if (action.type === ScenarioActionTypes.TreeLoaded)
-			{
-				newState.rules = { ...newState.rules, lotChoiceRules: state.rules?.lotChoiceRules };
-			}
-
 			if (action.type === CommonActionTypes.JobLoaded && !state.scenario)
 			{
 				const jobType = action.job.jobTypeName === 'Model' ? 'model' : 'spec';
@@ -402,22 +396,6 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 			newTree = _.cloneDeep(state.tree);
 			rules = _.cloneDeep(state.rules);
 			options = _.cloneDeep(state.options);
-
-			// If a lot is selected without a plan, the rules object is not set yet - Create new rules object
-			if (!rules)
-			{
-				rules =
-				{
-					lotChoiceRules: _.cloneDeep(action.lotChoiceRules),
-					choiceRules: null,
-					optionRules: null,
-					pointRules: null
-				};
-			}
-			else
-			{
-				rules = { ...rules, lotChoiceRules: _.cloneDeep(action.lotChoiceRules) };
-			}
 
 			if (newTree)
 			{

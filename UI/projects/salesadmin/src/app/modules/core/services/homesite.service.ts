@@ -8,10 +8,11 @@ import * as odataUtils from '../../shared/utils/odata.util';
 
 import { Settings } from '../../shared/models/settings.model';
 import { communityLot, HomeSiteDtos } from '../../shared/models/homesite.model';
-import { LotChoiceRuleAssoc, withSpinner } from 'phd-common';
+import { withSpinner } from 'phd-common';
 
 import { SettingsService } from './settings.service';
 import { MonotonyRule } from '../../shared/models/monotonyRule.model';
+import { LotChoiceRuleAssoc } from '../../shared/models/lotChoiceRule.model';
 
 const settings: Settings = new SettingsService().getSettings();
 

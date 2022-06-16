@@ -32,8 +32,8 @@ export interface IFinancialCommunityESign
 {
 	financialCommunityId: number;
 	isActive: boolean;
-	authorizedAgentFullName?: string; // DELETEME when THO data is migrated to EDH
-	authorizedAgentEmail?: string; // DELETEME when THO data is migrated to EDH
+	authorizedAgentFullName?: string;
+	authorizedAgentEmail?: string;
 	reminderDays?: number;
 	repeatReminderDays?: number;
 	expirationDays?: number;

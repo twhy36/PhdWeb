@@ -4,7 +4,7 @@ import { Store, select } from '@ngrx/store';
 import { Observable, ReplaySubject } from 'rxjs';
 import { combineLatest, map, filter, take } from 'rxjs/operators';
 
-import { UnsubscribeOnDestroy, flipOver, FinancialCommunity, ChangeTypeEnum, Job, LotExt, Plan, Scenario, SalesCommunity } from 'phd-common';
+import { UnsubscribeOnDestroy, flipOver, FinancialCommunity, ChangeTypeEnum, Job, LotExt, Plan, Scenario } from 'phd-common';
 
 import { PlanService } from '../../../core/services/plan.service';
 
@@ -59,7 +59,6 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 	selectedPlanPrice$: Observable<number>;
 	job: Job;
 	isPhdLite: boolean = false;
-    salesCommunity: SalesCommunity;
 
 	constructor(public planService: PlanService,
 		private router: Router,
@@ -80,13 +79,6 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 			select(state => state.scenario.scenario)).subscribe(scenario =>
 			{
 				this.scenario = scenario;
-			});
-
-		this.store.pipe(
-			this.takeUntilDestroyed(),
-			select(state => state.org.salesCommunity)).subscribe(sc =>
-			{
-				this.salesCommunity = sc;
 			});
 
 		this.store.pipe(
@@ -279,12 +271,6 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 		{
 			this.store.dispatch(new PlanActions.DeselectPlan());
 			this.store.dispatch(new ScenarioActions.SetScenarioPlan(null, null));
-
-			// Clear tree when a spec is deselected
-			if (this.buildMode === 'spec')
-			{
-				this.store.dispatch(new ScenarioActions.TreeLoaded(null, null, null, null, null, this.salesCommunity));
-			}
 		}
 
 		this.onPlanToggled.emit();

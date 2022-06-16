@@ -11,7 +11,6 @@ import { MonotonyRule, MonotonyRuleDtos } from '../../../shared/models/monotonyR
 
 import { HomeSiteService } from '../../../core/services/homesite.service';
 import { SidePanelComponent } from 'phd-common';
-import { AvSitePlanComponent } from '../av-site-plan/av-site-plan.component';
 
 @Component({
 	selector: 'manage-homesites-side-panel-component',
@@ -29,16 +28,11 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 	@Input() physicalLotTypes: Array<HomeSiteDtos.ILabel> = [];
 	@Input() communityWebsiteKey: string;
 	@Input() isColorSchemePlanRuleEnabled: boolean;
-	@Input() communitySubmaps?: string[];
-	@Input() filteredLots: Array<HomeSiteDtos.ILotDto> = []
 
 	@Output() onSaveHomesiteAndMonotonyRules = new EventEmitter<{ homesite: HomeSiteDtos.IHomeSiteEventDto, rule: MonotonyRuleDtos.IMonotonyRuleEventDto }>();
 
 	@ViewChild(SidePanelComponent)
-	private sidePanel: SidePanelComponent;
-	
-	@ViewChild(AvSitePlanComponent)
-	private alphaVisionMap!: AvSitePlanComponent;
+	private sidePanel: SidePanelComponent
 
 	homesiteForm: FormGroup;
 	elevationAvailableLots: Array<string> = [];
@@ -65,14 +59,6 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 
 	selectedHandings: Array<HomeSiteDtos.IHanding> = [];
 	communitylots: Array<communityLot>;
-
-	showMapsNavigation: boolean = false;
-
-	currentSubmap: string ='Master Map';
-
-	selectedLotSubmap: string = '';
-
-	isSelectedLotMap: boolean = true;
 
 	get isDirty(): boolean
 	{
@@ -538,38 +524,5 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 	getAvailable(homesite: HomeSite)
 	{
 		return homesite.lotStatusDescription === 'Available';
-	}
-
-	getCommunitySubmapNames(mapNameList: string[] | undefined)
-	{
-		this.communitySubmaps = mapNameList;
-		if (this.communitySubmaps && this.communitySubmaps.length > 1)
-		{
-			this.showMapsNavigation = true;
-		}
-	}
-	
-	getCurrentMap(currentMap: string)
-	{
-		this.currentSubmap = (currentMap === '') ? 'Master Map' : currentMap;
-		this.changeSubmap();
-	}
-	
-	getSelectedLotSubmap(selectedLotSubmap: string)
-	{
-		this.selectedLotSubmap = selectedLotSubmap;
-		this.changeSubmap();
-	}
-
-	changeSubmap() 
-	{
-		this.isSelectedLotMap = !(this.selectedHomesite.dto.lotBlock && this.currentSubmap !== this.selectedLotSubmap);
-	}
-
-	onMapNameChange(submap: string) 
-	{
-		this.alphaVisionMap?.selectNewMap(submap);
-		this.currentSubmap = submap;
-		this.changeSubmap();
 	}
 }

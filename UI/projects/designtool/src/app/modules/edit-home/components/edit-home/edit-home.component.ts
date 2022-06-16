@@ -4,7 +4,7 @@ import { Store, select } from '@ngrx/store';
 
 import * as _ from 'lodash';
 
-import { map, filter, combineLatest, distinctUntilChanged, withLatestFrom, debounceTime, switchMap } from 'rxjs/operators';
+import { map, filter, combineLatest, distinctUntilChanged, withLatestFrom, debounceTime, take, switchMap } from 'rxjs/operators';
 import { Observable, ReplaySubject, of } from 'rxjs';
 
 import * as fromLot from '../../../ngrx-store/lot/reducer';

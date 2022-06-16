@@ -2,7 +2,7 @@ import { Action } from '@ngrx/store';
 
 import {
 	DesignToolAttribute, SalesCommunity, ChangeOrderHanding, JobChoice, Job, LotExt, PlanOption,
-	TreeVersionRules, Scenario, DtoScenarioInfo, TreeFilter, Tree, OptionImage, Choice, Log, TimeOfSaleOptionPrice, LotChoiceRules
+	TreeVersionRules, Scenario, DtoScenarioInfo, TreeFilter, Tree, OptionImage, Choice, Log, TimeOfSaleOptionPrice
 } from 'phd-common';
 
 import { DecisionPointFilterType } from '../../shared/models/decisionPointFilter';
@@ -122,7 +122,7 @@ export class SetScenarioLot implements Action
 {
 	readonly type = ScenarioActionTypes.SetScenarioLot;
 
-	constructor(public lotId: number, public handing: ChangeOrderHanding, public premium: number, public lotChoiceRules?: LotChoiceRules[]) { }
+	constructor(public lotId: number, public handing: ChangeOrderHanding, public premium: number) { }
 }
 
 @Log(true)

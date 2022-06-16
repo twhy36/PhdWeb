@@ -94,7 +94,7 @@
 					</div>
 				</div>
 			</form>
-			<div *ngIf="!selected" class="form-group">
+			<div class="form-group">
 				<label class="font-weight-bold" for="pdf">Upload Pdf</label>
 				<input ngModel #pdf type="file" id="pdf" accept=".pdf" (change)="onFileSelect($event)" required/>
 				<div class="col-sm-12">

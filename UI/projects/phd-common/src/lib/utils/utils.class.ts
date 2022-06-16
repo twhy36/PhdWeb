@@ -3,8 +3,6 @@ import { Buyer } from '../models/buyer.model';
 import { ChangeOrderGroup } from '../models/job-change-order.model';
 
 import * as _ from 'lodash';
-import { LotChoiceRules } from '../models/rule.model';
-import { LotChoiceRuleAssoc } from '../models/lot.model';
 
 export function isChoiceComplete(choice: Choice, isChoiceAttributesRequired: boolean = true): boolean
 {
@@ -148,45 +146,7 @@ export function mergeSalesChangeOrderBuyers(salesAgreementBuyers: Array<Buyer>, 
 		}
 
 		return buyers;
-}
-
-export function updateLotChoiceRules(lotChoiceRulesAssoc: LotChoiceRuleAssoc[], lotChoiceRules: LotChoiceRules[]): LotChoiceRules[]
-{
-	if (lotChoiceRulesAssoc?.length)
-	{
-		lotChoiceRules = [];
-
-		lotChoiceRulesAssoc.forEach(choiceRule =>
-		{
-			const found = lotChoiceRules
-				.findIndex(item => item.divChoiceCatalogId === choiceRule.divChoiceCatalogId);
-
-			if (found > -1)
-			{
-				lotChoiceRules[found].rules.push({
-					edhLotId: choiceRule.edhLotId,
-					mustHave: choiceRule.mustHave,
-					ruleId: choiceRule.lotChoiceRuleAssocId,
-					planId: choiceRule.planId,
-				});
-			}
-			else
-			{
-				lotChoiceRules.push({
-					divChoiceCatalogId: choiceRule.divChoiceCatalogId,
-					executed: false,
-					rules: [{
-						ruleId: choiceRule.lotChoiceRuleAssocId,
-						edhLotId: choiceRule.edhLotId,
-						mustHave: choiceRule.mustHave,
-						planId: choiceRule.planId,
-					}],
-				});
-			}
-		});
 	}
-	return lotChoiceRules;
-}
 
 /**
  * Removes a property from an object.
