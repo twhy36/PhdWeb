@@ -1,21 +1,21 @@
 <div class="phd-form">
 	<div class="container">
 		<div class="text-right mb-3 col-sm-9">
-			<button class="btn btn-primary phd-save-icon" (click)="saveSignField()" [disabled]="saveDisabled"
-				*ngIf="canEdit && selectedCommunity">
+			<button class="btn btn-primary phd-save-icon" (click)="saveSignField()" [disabled]="saveDisabled" *ngIf="canEdit && selectedCommunity">
 				Save
 			</button>
 		</div>
 
 		<form [formGroup]="signFieldForm">
-
-			<!-- READ-ONLY -->
 			<div class="form-group row">
 				<label class="col-sm-3 col-form-label">Default Authorized Agent Email</label>
 
 				<div class="col-sm-5">
-					<input type="email" class="form-control" maxlength="250" formControlName="authorizedAgentEmail"
-						email>
+					<input type="email" class="form-control" maxlength="250" formControlName="authorizedAgentEmail" email>
+
+					<span class="text-danger phd-error" *ngIf="(signFieldForm.controls.authorizedAgentEmail.value === '') ? false : (signFieldForm.controls.authorizedAgentEmail.invalid && signFieldForm.controls.authorizedAgentEmail.dirty && signFieldForm.controls.authorizedAgentEmail.errors.email)">
+						Invalid: Enter a valid Email address.
+					</span>
 				</div>
 			</div>
 
@@ -23,21 +23,7 @@
 				<label class="col-sm-3 col-form-label">Default Authorized Agent Name</label>
 
 				<div class="col-sm-5">
-					<p-autoComplete [suggestions]="employeeContactSearchResultsList"
-						(completeMethod)="findContact($event)" (onSelect)="onSelectContact($event)"
-						formControlName="authorizedAgent" field="fullName" minLength="3" inputStyleClass="form-control"
-						forceSelection="true" [controlDisabled]="!canEdit" required>
-						<ng-template let-result pTemplate="item">
-							<div class="p-helper-clearfix">
-								<div>{{result.displayValue}}</div>
-							</div>
-						</ng-template>
-					</p-autoComplete>
-
-					<span class="text-danger phd-error"
-						*ngIf="(signFieldForm.controls.authorizedAgent.value) ? false : (signFieldForm.controls.authorizedAgent.invalid && signFieldForm.controls.authorizedAgent.dirty)">
-						Required
-					</span>
+					<input type="text" class="form-control" maxlength="250" id="authorizedAgentFullName" formControlName="authorizedAgentFullName" />
 				</div>
 			</div>
 
@@ -45,15 +31,11 @@
 				<label class="col-sm-3 col-form-label">Expire/Void envelope in x days</label>
 
 				<div class="col-sm-5">
-					<input type="number" class="form-control" id="expirationDays" formControlName="expirationDays"
-						max="999" (keypress)="checkIfNumber($event)" />
+					<input type="number" class="form-control" id="expirationDays" formControlName="expirationDays" max="999" (keypress)="checkIfNumber($event)" />
 
-					<span class="text-danger phd-error"
-						*ngIf="(signFieldForm.controls.expirationDays.value === '') ? false : signFieldForm.controls.expirationDays.invalid && signFieldForm.controls.expirationDays.dirty">
-						<ng-container *ngIf="signFieldForm.controls.expirationDays.errors.expireValidator">Signers can
-							only be warned before the envelope expires</ng-container>
-						<ng-container *ngIf="signFieldForm.controls.expirationDays.errors.max">Invalid: Enter a value
-							less than 1000</ng-container>
+					<span class="text-danger phd-error" *ngIf="(signFieldForm.controls.expirationDays.value === '') ? false : signFieldForm.controls.expirationDays.invalid && signFieldForm.controls.expirationDays.dirty">
+						<ng-container *ngIf="signFieldForm.controls.expirationDays.errors.expireValidator">Signers can only be warned before the envelope expires</ng-container>
+						<ng-container *ngIf="signFieldForm.controls.expirationDays.errors.max">Invalid: Enter a value less than 1000</ng-container>
 					</span>
 				</div>
 			</div>
@@ -62,15 +44,11 @@
 				<label class="col-sm-3 col-form-label">Warn of expiration in x days</label>
 
 				<div class="col-sm-5">
-					<input type="number" class="form-control phd-input" id="expirationWarnDays"
-						formControlName="expirationWarnDays" max="999" (keypress)="checkIfNumber($event)" />
+					<input type="number" class="form-control phd-input" id="expirationWarnDays" formControlName="expirationWarnDays" max="999" (keypress)="checkIfNumber($event)" />
 
-					<span class="text-danger phd-error"
-						*ngIf="(signFieldForm.controls.expirationWarnDays.value === '') ? false : signFieldForm.controls.expirationWarnDays.invalid && signFieldForm.controls.expirationWarnDays.dirty">
-						<ng-container *ngIf="signFieldForm.controls.expirationWarnDays.errors.expireValidator">Signers
-							can only be warned before the envelope expires</ng-container>
-						<ng-container *ngIf="signFieldForm.controls.expirationWarnDays.errors.max">Invalid: Enter a
-							value less than 1000</ng-container>
+					<span class="text-danger phd-error" *ngIf="(signFieldForm.controls.expirationWarnDays.value === '') ? false : signFieldForm.controls.expirationWarnDays.invalid && signFieldForm.controls.expirationWarnDays.dirty">
+						<ng-container *ngIf="signFieldForm.controls.expirationWarnDays.errors.expireValidator">Signers can only be warned before the envelope expires</ng-container>
+						<ng-container *ngIf="signFieldForm.controls.expirationWarnDays.errors.max">Invalid: Enter a value less than 1000</ng-container>
 					</span>
 				</div>
 			</div>
@@ -79,11 +57,9 @@
 				<label class="col-sm-3 col-form-label">Send reminder in x days</label>
 
 				<div class="col-sm-5">
-					<input type="number" class="form-control phd-input" id="reminderDays" formControlName="reminderDays"
-						max="999" (keypress)="checkIfNumber($event)" />
+					<input type="number" class="form-control phd-input" id="reminderDays" formControlName="reminderDays" max="999" (keypress)="checkIfNumber($event)" />
 
-					<span class="text-danger phd-error"
-						*ngIf="(signFieldForm.controls.reminderDays.value === '') ? false : signFieldForm.controls.reminderDays.invalid && signFieldForm.controls.reminderDays.dirty">
+					<span class="text-danger phd-error" *ngIf="(signFieldForm.controls.reminderDays.value === '') ? false : signFieldForm.controls.reminderDays.invalid && signFieldForm.controls.reminderDays.dirty">
 						Invalid: Enter a value less than 1000
 					</span>
 				</div>
@@ -93,11 +69,9 @@
 				<label class="col-sm-3 col-form-label">Repeat reminder every x days until complete</label>
 
 				<div class="col-sm-5">
-					<input type="number" class="form-control phd-input" id="repeatReminderDays"
-						formControlName="repeatReminderDays" max="999" (keypress)="checkIfNumber($event)" />
+					<input type="number" class="form-control phd-input" id="repeatReminderDays" formControlName="repeatReminderDays" max="999" (keypress)="checkIfNumber($event)" />
 
-					<span class="text-danger phd-error"
-						*ngIf="(signFieldForm.controls.repeatReminderDays.value === '') ? false : signFieldForm.controls.repeatReminderDays.invalid && signFieldForm.controls.repeatReminderDays.dirty">
+					<span class="text-danger phd-error" *ngIf="(signFieldForm.controls.repeatReminderDays.value === '') ? false : signFieldForm.controls.repeatReminderDays.invalid && signFieldForm.controls.repeatReminderDays.dirty">
 						Invalid: Enter a value less than 1000
 					</span>
 				</div>
@@ -107,22 +81,17 @@
 				<label class="col-sm-3 col-form-label">Default email(s) to receive signed copies</label>
 
 				<div class="col-sm-5">
-					<div class="input-group mb-3"
-						*ngFor="let emailControl of signFieldForm.get('defaultEmailForSignedCopies')['controls']; let i = index">
-						<input type="email" [ngClass]="{'phd-alignment': (i > 0)}" class="form-control"
-							id="defaultEmailForSignedCopies_{{i}}" [formControlName]="i" maxlength="250" />
+					<div class="input-group mb-3" *ngFor="let emailControl of signFieldForm.get('defaultEmailForSignedCopies')['controls']; let i = index">
+						<input type="email" [ngClass]="{'phd-alignment': (i > 0)}" class="form-control" id="defaultEmailForSignedCopies_{{i}}" [formControlName]="i" maxlength="250" />
 
 						<div class="input-group-append">
-							<button class="btn btn-outline-secondary" (click)="addInput()" *ngIf="canEdit && i === 0"
-								title="Add Email"><i class="fa fa-plus"></i></button>
+							<button class="btn btn-outline-secondary" (click)="addInput()" *ngIf="canEdit && i === 0" title="Add Email"><i class="fa fa-plus"></i></button>
 
-							<button class="btn btn-outline-secondary" (click)="deleteInput(i)" *ngIf="canEdit && i > 0"
-								title="Delete Email"><i class="fa fa-trash"></i></button>
+							<button class="btn btn-outline-secondary" (click)="deleteInput(i)" *ngIf="canEdit && i > 0" title="Delete Email"><i class="fa fa-trash"></i></button>
 						</div>
 
 						<div class="col-sm-12">
-							<span class="text-danger"
-								*ngIf="(emailControl.value === '') ? false : emailControl.invalid && emailControl.dirty">
+							<span class="text-danger" *ngIf="(emailControl.value === '') ? false : emailControl.invalid && emailControl.dirty">
 								Invalid: Enter a valid Email address.
 							</span>
 						</div>
@@ -134,3 +103,4 @@
 </div>
 
 <p-toast></p-toast>
+

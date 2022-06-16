@@ -55,8 +55,7 @@ export interface IContact
 	addressAssocs: Array<AddressAssoc>,
 	emailAssocs: Array<EmailAssoc>,
 	phoneAssocs: Array<PhoneAssoc>,
-	realEstateAgents: Array<RealEstateAgent>,
-	jobTitle: string
+	realEstateAgents: Array<RealEstateAgent>
 }
 
 export class Contact
@@ -73,7 +72,6 @@ export class Contact
 	emailAssocs: Array<EmailAssoc> = [];
 	phoneAssocs: Array<PhoneAssoc> = [];
 	realEstateAgents: Array<RealEstateAgent> = [];
-	jobTitle: string = null;
 
 	constructor(dto: IContact = null)
 	{
@@ -91,7 +89,6 @@ export class Contact
 			this.emailAssocs = dto.emailAssocs ? dto.emailAssocs.map(e => new EmailAssoc(e)) : null;
 			this.phoneAssocs = dto.phoneAssocs ? dto.phoneAssocs.map(p => new PhoneAssoc(p)) : null;
 			this.realEstateAgents = dto.realEstateAgents ? dto.realEstateAgents.map(x => new RealEstateAgent(x)) : null;
-			this.jobTitle = dto.jobTitle;
 		}
 	}
 }
@@ -279,10 +276,8 @@ export class RealEstateAgent
 	id: number = 0;
 	brokerOfficeName: string = null;
 
-	constructor(dto: RealEstateAgent = null)
-	{
-		if (dto)
-		{
+	constructor(dto: RealEstateAgent = null) {
+		if (dto) {
 			this.id = dto.id;
 			this.brokerOfficeName = dto.brokerOfficeName;
 		}
