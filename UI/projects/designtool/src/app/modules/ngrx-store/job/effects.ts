@@ -36,7 +36,7 @@ export class JobEffects
 			withLatestFrom(this.store),
 			tryCatch(source => source.pipe(
 				switchMap(([, store]) => {
-					let lotIDs = store.lot.lots.filter(x => x.lotBuildTypeDesc === 'Spec' && x.lotStatusDescription === 'Available')
+					let lotIDs = store.lot.lots?.filter(x => x.lotBuildTypeDesc === 'Spec' && x.lotStatusDescription === 'Available')
 						.map(l => l.id);
 
 					return (lotIDs.length > 0) ? this.jobService.getSpecJobs(lotIDs) : of([]);
