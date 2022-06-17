@@ -254,12 +254,12 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 		{
 			this.communities = comms;
 
-			const storedCommunity = this._orgService.currentFinancialCommunity;
+			const financialCommunity = this._orgService.currentFinancialCommunity;
 
-			if (commId || storedCommunity)
+			if (commId || financialCommunity)
 			{
 				// try to find a match for the stored community.
-				const community = this.communities.find(x => (commId ? x.id === commId : x.number === storedCommunity));
+				const community = this.communities.find(x => (commId ? x.id === commId : x.number === financialCommunity.number));
 
 				this.selectedCommunity = community ? community : null;
 
@@ -267,11 +267,13 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 				{
 					// set brand
 					let financialBrandId = this.selectedCommunity.financialBrandId;
+
 					this._brandService.getFinancialBrand(financialBrandId, this.environment.apiUrl).subscribe(brand => {
 						this.financialBrand = brand;
 					});
+
 					// set local storage
-					this._orgService.currentFinancialCommunity = this.selectedCommunity.number;
+					this._orgService.currentFinancialCommunity = this.selectedCommunity;
 
 					this.getPlans(planKey, treeVersionId);
 				}
@@ -627,12 +629,14 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 		this.plansLoading = true;
 		// set brand
 		let financialBrandId = this.selectedCommunity.financialBrandId;
+
 		this._brandService.getFinancialBrand(financialBrandId, this.environment.apiUrl).subscribe(brand => {
 			this.financialBrand = brand;
 		});
 		
 		// set local storage
-		this._orgService.currentFinancialCommunity = this.selectedCommunity.number;
+		this._orgService.currentFinancialCommunity = this.selectedCommunity;
+
 		this._planService.getCommunityPlans(this.selectedCommunity.id)
 			.pipe(
 				finalize(() => { this.plansLoading = false; })
