@@ -6,7 +6,7 @@
 		</div>
 
 		<!--Group menu-->
-		<div class="phd-group-menu phd-primary-menu">
+		<div class="phd-primary-menu">
 			<ng-container *ngFor="let group of groups">
 				<button mat-button [matMenuTriggerFor]="group_menu"
 						class="phd-group-menu-item"
@@ -27,7 +27,7 @@
 		</div>
 
 		<!--Group menu in mobile view -->
-		<div class="phd-group-menu phd-hamburger-menu">
+		<div class="phd-hamburger-menu">
 			<button mat-button [matMenuTriggerFor]="main_menu" class="phd-menu-bars">
 				<i class="fa fa-bars fa-2x"></i>
 			</button>
