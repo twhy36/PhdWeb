@@ -9,13 +9,16 @@
 
 		<form [formGroup]="signFieldForm">
 
-			<!-- READ-ONLY -->
 			<div class="form-group row">
 				<label class="col-sm-3 col-form-label">Default Authorized Agent Email</label>
 
 				<div class="col-sm-5">
-					<input type="email" class="form-control" maxlength="250" formControlName="authorizedAgentEmail"
-						email>
+					<input type="email" class="form-control" maxlength="250" formControlName="emailAddress" email>
+
+					<span class="text-danger phd-error"
+						*ngIf="(signFieldForm.controls.emailAddress.value === '') ? false : (signFieldForm.controls.emailAddress.invalid && signFieldForm.controls.emailAddress.dirty && signFieldForm.controls.emailAddress.errors.email)">
+						Invalid: Enter a valid Email address.
+					</span>
 				</div>
 			</div>
 
@@ -23,19 +26,11 @@
 				<label class="col-sm-3 col-form-label">Default Authorized Agent Name</label>
 
 				<div class="col-sm-5">
-					<p-autoComplete [suggestions]="employeeContactSearchResultsList"
-						(completeMethod)="findContact($event)" (onSelect)="onSelectContact($event)"
-						formControlName="authorizedAgent" field="fullName" minLength="3" inputStyleClass="form-control"
-						forceSelection="true" [controlDisabled]="!canEdit" required>
-						<ng-template let-result pTemplate="item">
-							<div class="p-helper-clearfix">
-								<div>{{result.displayValue}}</div>
-							</div>
-						</ng-template>
-					</p-autoComplete>
+					<input type="text" class="form-control" maxlength="250" id="agentName"
+						formControlName="agentName" />
 
 					<span class="text-danger phd-error"
-						*ngIf="(signFieldForm.controls.authorizedAgent.value) ? false : (signFieldForm.controls.authorizedAgent.invalid && signFieldForm.controls.authorizedAgent.dirty)">
+						*ngIf="(signFieldForm.controls.agentName.value) ? false : (signFieldForm.controls.agentName.invalid && signFieldForm.controls.agentName.dirty)">
 						Required
 					</span>
 				</div>
