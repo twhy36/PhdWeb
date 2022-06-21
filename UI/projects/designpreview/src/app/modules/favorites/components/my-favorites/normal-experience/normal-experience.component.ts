@@ -30,13 +30,10 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	@Input() tree: Tree;
 	@Input() choiceImages: ChoiceImageAssoc[];
 	@Input() isReadonly: boolean;
-	@Input() isPreview: boolean = false;
-	@Input() isDesignComplete: boolean = false;
 	@Input() noVisibleGroups: boolean = false;
 	@Input() unfilteredPoints: DecisionPoint[] = [];
 
 	@Output() onToggleChoice = new EventEmitter<ChoiceExt>();
-	@Output() onToggleContractedOptions = new EventEmitter();
 	@Output() onViewChoiceDetail = new EventEmitter<ChoiceExt>();
 	@Output() onSelectDecisionPoint = new EventEmitter<number>();
 	@Output() onDeclineDecisionPoint = new EventEmitter<DecisionPoint>();
@@ -153,12 +150,6 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 		this.onToggleChoice.emit(choice);
 	}
 
-	toggleContractedOptions() {
-		if (!this.isContractedOptionsDisabled) {
-			this.onToggleContractedOptions.emit();
-		}
-	}
-
 	getChoiceExt(choice: Choice, point: DecisionPoint) : ChoiceExt
 	{
 		let unfilteredPoint = this.unfilteredPoints.find(up => up.divPointCatalogId === point.divPointCatalogId);
@@ -243,11 +234,6 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 			})
 			return aChoiceExists;
 		}
-	}
-
-	get isContractedOptionsDisabled() : boolean
-	{
-		return this.isPreview || this.isDesignComplete;
 	}
 
 	isInputChanged(input: any) : boolean

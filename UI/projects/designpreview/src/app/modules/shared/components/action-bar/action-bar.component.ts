@@ -23,10 +23,13 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit
 	@Input() favoritesPrice: number = 0;
 	@Input() showPrint = false;
 	@Input() showFavorites = true;
+	@Input() includeContractedOptions: boolean = false;
 	@Input() isDesignComplete: boolean = false;
+	@Input() isPreview: boolean = false;
 
 	@Output() callToAction = new EventEmitter<{ actionBarCallType: ActionBarCallType }>();
 	@Output() onPrintAction = new EventEmitter();
+	@Output() onToggleContractedOptions = new EventEmitter();
 
 	autoHideTimer: any;
 	isActionBarHidden = false;
@@ -36,6 +39,11 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit
 	currentTopPosition = 0;
 	previousTopPosition = 0;
 	favoritesListIcon = '';
+
+	get isContractedOptionsDisabled() : boolean
+	{
+		return this.isPreview || this.isDesignComplete;
+	}
 
 	constructor(
 		private cd: ChangeDetectorRef,
@@ -72,6 +80,12 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit
 
 		this.previousTopPosition = this.currentTopPosition;
 		this.scrolling = false;
+	}
+
+	toggleContractedOptions() {
+		if (!this.isContractedOptionsDisabled) {
+			this.onToggleContractedOptions.emit();
+		}
 	}
 
 	onPrimaryCallToActionClick() {

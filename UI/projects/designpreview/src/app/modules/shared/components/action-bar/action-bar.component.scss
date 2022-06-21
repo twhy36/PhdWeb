@@ -50,6 +50,27 @@
 		}
 	}
 
+	.phd-contracted-options {
+		align-items: center;
+
+		div {
+			margin: 0;
+		}
+
+		i {
+			margin: 0;
+			padding-bottom: 7px;
+		}
+
+		.phd-contracted-options-label {
+			margin-left: 8px;
+		}
+	}
+
+	.phd-icon-selected {
+		color: var(--primary-icon-color);
+	}
+
 	.phd-action-bar-action-btn {
 		background: var(--primary-button-color);
 		border-radius: 35px;
