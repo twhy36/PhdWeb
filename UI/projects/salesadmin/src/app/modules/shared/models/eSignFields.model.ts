@@ -1,7 +1,6 @@
 export class ESignField
 {
-	id: number; // ContactFinancialCommunityAuthorizedAgentAssocId 
-	contactId: number;
+	id: number; // ContactFinancialCommunityAuthorizedAgentAssocId
 	financialCommunityId: number;
 	authorizedAgentFullName: string;
 	authorizedAgentEmail: string;
