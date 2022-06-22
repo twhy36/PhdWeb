@@ -1,8 +1,8 @@
 <div class="phd-exterior-card" [class.active]="isSelected" [class.selected]="isSelected" [class.phd-monotony-conflict]="(monotonyConflict.monotonyConflict && !canOverride)" [@flipOver]>
 	<div class="phd-header" [class.phd-option-disabled]="monotonyConflict.monotonyConflict">
-        <span class="phd-2-line-limit">
-            {{getName()}}
-        </span>
+        <span class="phd-2-line-limit" ngbTooltip="{{getName()}}">
+			<span>{{getName()}}</span>
+		</span>
     </div>
     <div class="phd-divider"></div>
     <div class="phd-body" [class.phd-option-disabled]="monotonyConflict.monotonyConflict">
@@ -12,7 +12,9 @@
                     <strong>{{option.listPrice | currency:'USD':'symbol':'0.0-0'}}</strong>
                 </p>
             </div>
-            <p class="phd-2-line-limit">{{option.description}}</p>
+            <p class="phd-2-line-limit" ngbTooltip="{{option.description}}">
+				<span>{{option.description}}</span>
+			</p>
         </div>
     </div>
 
