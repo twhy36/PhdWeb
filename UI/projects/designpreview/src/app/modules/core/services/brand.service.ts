@@ -51,18 +51,19 @@ export class BrandService {
 		}
 	}
 
-	getBrandName(brandMap: { pulte: string, delwebb: string, americanWest: string, divosta: string, centex: string, johnWieland: string }, url: string) {
-		if (brandMap.pulte === url) {
+	getBrandName() {
+		const baseUrl = window.location.host;
+		if (environment.brandMap.pulte === baseUrl) {
 			return 'pulte';
-		} else if (brandMap.delwebb === url) {
+		} else if (environment.brandMap.delwebb === baseUrl) {
 			return 'delwebb';
-		} else if (brandMap.americanWest === url) {
+		} else if (environment.brandMap.americanWest === baseUrl) {
 			return 'americanWest'
-		} else if (brandMap.centex === url) {
+		} else if (environment.brandMap.centex === baseUrl) {
 			return 'centex'
-		} else if (brandMap.divosta === url) {
+		} else if (environment.brandMap.divosta === baseUrl) {
 			return 'divosta'
-		} else if (brandMap.johnWieland === url) {
+		} else if (environment.brandMap.johnWieland === baseUrl) {
 			return 'johnWieland'
 		}
 	}

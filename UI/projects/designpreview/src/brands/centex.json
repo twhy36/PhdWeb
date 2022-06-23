@@ -31,6 +31,7 @@
 		"link-color": "#1a1a1a",
 		"popup-ribbon-background-color": "#CE4235",
 		"home-page-floorplan-background-color": "#eeeeee",
-		"logo-margin-top": "8px"
+		"logo-margin-top": "8px",
+		"logo-max-height": "34px"
 	}
 }

@@ -13,15 +13,15 @@
 
 		.phd-logo {
 			margin-top: var(--logo-margin-top);
-			max-width: 100%;
-			max-height: 100%;
+			max-width: 250px;
+			max-height: var(--logo-max-height);
 		}
 	}
 
 	.phd-nav-bar-title {
 		color: var(--nav-bar-text-color);
 		margin-left: 30px;
-		width: 100%;
+		width: max-content;
 
 		.phd-nav-bar-label {
 			font-size: 14px;
@@ -98,8 +98,10 @@
 	}
 }
 
-@media(max-width: 460px) {
-	.phd-nav-bar-title {
+// Pulte
+@media(max-width: 410px) {
+	.phd-nav-bar-pulte {
+		width: 105px !important;
 		.phd-nav-bar-label {
 			font-size: 10px !important;
 		}
@@ -108,4 +110,73 @@
 			font-size: 16px !important;
 		}
 	}
+}
+
+// DelWebb
+@media(max-width: 540px) {
+	.phd-nav-bar-delwebb {
+		width: 105px !important;
+		.phd-nav-bar-label {
+			font-size: 11px !important;
+		}
+
+		.phd-nav-bar-config {
+			font-size: 15px !important;
+		}
+	}
+}
+// American West
+@media(max-width: 600px) {
+	.phd-nav-bar-americanWest {
+		width: 105px !important;
+		.phd-nav-bar-label {
+			font-size: 11px !important;
+		}
+
+		.phd-nav-bar-config {
+			font-size: 15px !important;
+		}
+	}
+}
+
+// Centex
+@media(max-width: 500px) {
+	.phd-nav-bar-centex {
+		width: 95px !important;
+		.phd-nav-bar-label {
+			font-size: 11px !important;
+		}
+
+		.phd-nav-bar-config {
+			font-size: 15px !important;
+		}
+	}
+}
+
+// Divosta
+@media(max-width: 590px) {
+	.phd-nav-bar-divosta {
+		width: 95px !important;
+		.phd-nav-bar-label {
+			font-size: 11px !important;
+		}
+
+		.phd-nav-bar-config {
+			font-size: 15px !important;
+		}
+	}
+}
+
+// John Wieland
+@media(max-width: 520px) {
+	.phd-nav-bar-johnWieland {
+		width: 105px !important;
+		.phd-nav-bar-label {
+			font-size: 11px !important;
+		}
+
+		.phd-nav-bar-config {
+			font-size: 15px !important;
+		}
+	} 
 }

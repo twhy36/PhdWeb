@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { select, Store } from '@ngrx/store';
 
 import { BrowserService, UnsubscribeOnDestroy} from 'phd-common';
+import { environment } from '../../../../../environments/environment';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
@@ -72,5 +73,9 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 
 	getImageSrc() {
 		return this.brandService.getBrandImage('white_logo');
+	}
+
+	getBrandedTitle () {
+		return 'phd-nav-bar-' + this.brandService.getBrandName();
 	}
 }
