@@ -129,7 +129,7 @@
 					label="Colors"
 					[status]="PointStatus.REQUIRED"
 					[showStatusIndicator]="false"
-					[disabled]="false"
+					[disabled]="colorMenuIsDisabled"
 					[isActive]="currentRoute?.startsWith('/lite/colors')"
 					[ngClass]="(isTablet$ | async) && invertHamburgerMenuColor ? 'phd-menu-item-color' : null"
 					(click)="onColorsPath()">

@@ -69,6 +69,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 	financialBrand: FinancialBrand;
 	optionsAndColorsMenuAreVisible: boolean;
 	currentChangeOrderSalesStatus: string;
+	colorMenuIsDisabled: boolean;
 
 	constructor(private lotService: LotService,
 		private identityService: IdentityService,
@@ -242,6 +243,31 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 			else
 			{
 				this.exteriorStatus = PointStatus.REQUIRED;
+			}
+		});
+
+		this.store.select(fromLite.liteState)
+			.pipe(this.takeUntilDestroyed())
+		.subscribe(liteState =>
+		{
+			if (liteState.isPhdLite)
+			{
+				const elevationCategory = liteState.categories.find(c => c.name.toLowerCase() === 'elevations');
+
+				if (elevationCategory)
+				{
+					const selectedOptions =
+						liteState.options.filter(o => liteState.scenarioOptions.some(so =>
+							so.edhPlanOptionId === o.id && o.optionCategoryId !== elevationCategory.id));
+
+					this.colorMenuIsDisabled = selectedOptions.every(selectedOption => {
+						const hasColors = selectedOption.colorItems?.some(colorItem =>
+							colorItem.isActive
+							&& colorItem.color?.some(color => color.isActive));
+
+						return !hasColors;
+					});
+				}
 			}
 		});
 	}
@@ -498,11 +524,16 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 
 	onOptionsNavPath()
 	{
-
 		this.router.navigate(['/lite/options']);
 	}
 
-	onColorsPath() {
+	onColorsPath()
+	{
+		if (this.colorMenuIsDisabled)
+		{
+			return;
+		}
+
 		this.router.navigate(['/lite/colors']);
 	}
 }
