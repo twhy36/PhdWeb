@@ -73,6 +73,6 @@ export class SaveCancelButtonsComponent extends UnsubscribeOnDestroy implements 
 	}
 
 	formIsValid() {
-		return this.form && this.form.valid;
+		return this.form && this.form.valid && this.form.dirty;
 	}
 }
