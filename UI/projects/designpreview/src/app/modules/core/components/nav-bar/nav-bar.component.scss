@@ -33,6 +33,13 @@
 	}
 
 	.phd-menu-options {
+		display: flex;
+		justify-content: flex-end;
+		padding-right: 0px;
+	}
+
+	.phd-menu-options-jw {
+		display: flex;
 		justify-content: flex-end;
 		padding-right: 0px;
 	}
@@ -60,7 +67,7 @@
 	}
 
 	.phd-menu-bars {
-		display: inline !important;
+		display: inline;
 		color: var(--nav-bar-text-color);
 
 		.fa-bars {
@@ -95,6 +102,31 @@
 		text-transform: uppercase;
 		text-decoration: none;
 		padding: 15px 8px 15px 32px;
+	}
+}
+
+.phd-hamburger-menu {
+	display: none !important;
+}
+.phd-hamburger-menu-jw {
+	display: none !important;
+}
+
+@media(max-width: $tablet-max-width) {
+	.phd-menu-options {
+		display: none !important;
+	}
+	.phd-hamburger-menu {
+		display: inline !important;
+	}
+}
+
+@media(max-width: 1045px) {
+	.phd-menu-options-jw {
+		display: none !important;
+	}
+	.phd-hamburger-menu-jw {
+		display: inline !important;
 	}
 }
 
@@ -178,5 +210,5 @@
 		.phd-nav-bar-config {
 			font-size: 15px !important;
 		}
-	} 
+	}
 }

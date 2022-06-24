@@ -97,7 +97,7 @@ export class AdobeService extends UnsubscribeOnDestroy {
                                 if (selectedSubGroup?.useInteractiveFloorplan) {
                                     this.setPageLoadEvent(this.pageLoadExecuted, 'IFP Choice Card Page', pageName, group?.label, selectedSubGroup?.label);
                                 } else {
-                                    this.setPageLoadEvent(this.pageLoadExecuted, 'Choice Card Page', pageName, group?.label, selectedSubGroup?.label);   
+                                    this.setPageLoadEvent(this.pageLoadExecuted, 'Choice Card Page', pageName, group?.label, selectedSubGroup?.label);
                                 }
                             }
                         }

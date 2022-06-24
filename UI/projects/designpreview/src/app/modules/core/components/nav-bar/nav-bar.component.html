@@ -9,7 +9,7 @@
 				<span class="phd-nav-bar-config">Welcome To Your Home</span>
 			</div>
 		</div>
-		<div *ngIf="!(isTablet$ | async)" class="col-6 d-flex ml-auto phd-menu-options">
+		<div class="col-6 d-flex ml-auto" [ngClass]="getBrandedMenuClass(false)">
 			<div>
 				<a class="phd-nav-page phd-page-separator"
 				   [routerLink]="['/favorites/summary']"
@@ -31,7 +31,7 @@
 				</a>
 			</div>
 		</div>
-		<div *ngIf="isTablet$ | async" class="phd-menu-bars">
+		<div class="phd-menu-bars" [ngClass]="getBrandedMenuClass(true)">
 			<i *ngIf="isMenuCollapsed" class="fa fa-bars fa-2x" (click)="isMenuCollapsed = !isMenuCollapsed"></i>
 			<i *ngIf="!isMenuCollapsed" class="fa fa-times fa-2x" (click)="isMenuCollapsed = !isMenuCollapsed"></i>
 		</div>
@@ -40,7 +40,7 @@
 
 <div *ngIf="!isMenuCollapsed" class="phd-collapsable-menu">
 	<div [class.phd-active-link-collapsed]="currentRoute?.startsWith('/favorites/summary')">
-		<a *ngIf="(isTablet$ | async)" [routerLink]="['/favorites/summary']">My Favorites</a>
+		<a [routerLink]="['/favorites/summary']">My Favorites</a>
 		<!-- Send these links to their proper pages, uncomment as needed -->
 		<a [routerLink]="['/floorplan']">Floorplan</a>
 		<a *ngIf="showContractedOptionsLink" [routerLink]="['/contracted']">Contracted Options</a>

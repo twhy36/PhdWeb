@@ -37,7 +37,7 @@ export class BrandService {
 	}
 
 	getBrandedLogoutUrl() {
-		let baseUrl = window.location.host;
+		const baseUrl = window.location.host;
 		if (environment.brandMap.pulte === baseUrl) {
 			return environment.brandLogoutMap.pulte;
 		} else if (environment.brandMap.delwebb === baseUrl) {
