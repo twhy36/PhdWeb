@@ -280,7 +280,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 			&& this.selectedPlanId
 			&& !(this.isSalesAgreementCancelledOrVoided && this.specCancelled);
 
-		if (this.optionsAndColorsMenuAreVisible && this.hasActiveChangeOrder && this.changeOrderType === ChangeTypeEnum.PLAN)
+		if (this.optionsAndColorsMenuAreVisible && this.changeOrderType === ChangeTypeEnum.PLAN)
 		{
 			//only hide options and colors if there is an active plan change order with a pending status
 			if (this.currentChangeOrderSalesStatus.trim().toLowerCase() === 'pending')
