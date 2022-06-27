@@ -29,7 +29,7 @@
 				(ngModelChange)="onChangeOption()"
 			>
 				<option [ngValue]="null" [defaultSelected]></option>
-				<option [ngValue]="-1">All</option>
+				<option [ngValue]="allOption">{{allOption?.optionSalesName}}</option>
 				<option
 					*ngFor="let option of planOptionList"
 					[ngValue]="option"
