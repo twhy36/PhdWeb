@@ -58,14 +58,5 @@
 			</div>
 		</div>
 		<div *ngIf="!isSticky" class="phd-divider"></div>
-		<div *ngIf="!isSticky" class="phd-contracted-options">
-			<div class="phd-contracted-options-checkbox" [ngClass]="{'phd-clickable' : !isContractedOptionsDisabled }">
-				<span class="phd-icon-selected"><i *ngIf="includeContractedOptions" class="fa fa-check-square" (click)="toggleContractedOptions()"></i></span>
-				<div *ngIf="!includeContractedOptions" class="phd-empty-checkbox" [ngClass]="{'phd-disabled-checkbox' : isContractedOptionsDisabled }" (click)="toggleContractedOptions()"></div>
-			</div>
-			<label>
-				Display Contracted Options
-			</label>
-		</div>
 	</div>
 </div>

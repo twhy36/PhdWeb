@@ -26,6 +26,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit
 	@Input() includeContractedOptions: boolean = false;
 	@Input() isDesignComplete: boolean = false;
 	@Input() isPreview: boolean = false;
+	@Input() hideContractedToggle: boolean = false;
 
 	@Output() callToAction = new EventEmitter<{ actionBarCallType: ActionBarCallType }>();
 	@Output() onPrintAction = new EventEmitter();
