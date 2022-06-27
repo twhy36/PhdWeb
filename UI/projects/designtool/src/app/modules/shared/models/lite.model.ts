@@ -26,6 +26,7 @@ export class LitePlanOption implements PlanOption
     optionCommunityId: number;
     mustHavePlanOptionIds: number[];
     cantHavePlanOptionIds: number[];
+    cantHaveInactivePlanOptionIds: number[];
 	cutOffDays: number;
 	cutOffStage: string;
 	isPastCutOff: boolean;
