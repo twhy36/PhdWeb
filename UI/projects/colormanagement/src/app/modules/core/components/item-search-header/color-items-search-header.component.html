@@ -23,6 +23,7 @@
 		</div>
 		<div class="p-2">
 			<select
+				role="button"
 				class="form-control ml-3 phd-options-select"
 				[(ngModel)]="currentOption"
 				(ngModelChange)="onChangeOption()"
@@ -42,6 +43,7 @@
 		</div>
 		<div class="p-2">
 			<select
+				role="button"
 				class="form-control ml-3"
 				[(ngModel)]="isActiveColor"
 				(change)="onActiveColorChange()"
@@ -110,6 +112,7 @@
 			<phd-column field="isActive" columnClass="phd-icon">
 				<ng-template #body let-planOptionDto>
 					<i
+						role="button"
 						class="fa fa-fw fa-undo text-danger"
 						title="Reactivate Color Item"
 						*ngIf="!planOptionDto.colorItem[0]?.isActive"
@@ -123,6 +126,7 @@
 					>
 					</i>
 					<i
+						role="button"
 						class="fa fa-fw fa-trash-o"
 						title="Inactivate Color Item"
 						*ngIf="planOptionDto.colorItem[0]?.isActive"
@@ -141,6 +145,7 @@
 			<phd-column header="" columnClass="phd-icon">
 				<ng-template #body let-planOptionDto>
 					<i
+					role="button"
 					class="fa fa-pencil fa-fw"
 					title="Edit Color Item"
 					*ngIf="planOptionDto.colorItem[0]?.isActive && (planOptionDto.hasConfig != null &&
@@ -162,6 +167,7 @@
 			<phd-column header="" columnClass="phd-icon">
 				<ng-template #body let-planOptionDto>
 					<i
+						role="button"
 						class="fa fa-fw fa-close text-danger"
 						title="Delete Color Item"
 						*ngIf="
