@@ -167,8 +167,7 @@ export class Choice
 	changedDependentChoiceIds: number[] = [];
 	lockedInChoice: { 
 		choice: (JobChoice | ChangeOrderChoice),
-		optionAttributeGroups: Array<{ optionId: string, attributeGroups: number[], locationGroups: number[] }>,
-		choiceRules: Array<ChoiceRules>
+		optionAttributeGroups: Array<{ optionId: string, attributeGroups: number[], locationGroups: number[] }> 
 	} = null;
 	mappingChanged: boolean = false;
 	isHiddenFromBuyerView?: boolean;
