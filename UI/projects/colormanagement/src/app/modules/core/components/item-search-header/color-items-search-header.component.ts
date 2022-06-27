@@ -124,6 +124,18 @@ export class ColorItemsSearchHeaderComponent
 		this.modalReference.result.catch(err => console.log(err));
 	}
 
+	getAddColorItemTitle():string {
+		if (!this.currentOption) 
+		{
+			return 'You must choose an option from the Option dropdown list to add a Color Item';
+		}
+		if (this.isElevationOption(this.currentOption.optionSubCategoryId) && !this.planOptionHasNoColorItem)
+		{
+			return 'This elevation already has an active color item';
+		}
+		return '';
+	}
+
 	showEditColorItemDialog(planOptionDto: IPlanOptionCommunityGridDto) {
 		this.currentColorItems = planOptionDto.colorItem;
 		this.selectedOption = this.planOptionList.find(option => option.id==planOptionDto.optionCommunityId);

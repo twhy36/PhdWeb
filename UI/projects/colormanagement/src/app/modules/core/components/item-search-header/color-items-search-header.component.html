@@ -56,6 +56,7 @@
 <div>
 	<div class="d-flex flex-row-reverse mx-2">
 		<button
+			title="{{disableAddColorItemButton? getAddColorItemTitle():''}}"
 			[disabled]="disableAddColorItemButton"
 			class="mx-2 phd-add-color-button btn btn-primary"
 			(click)="showAddColorItemDialog()"
