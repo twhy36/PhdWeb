@@ -58,12 +58,10 @@ export class AttributesPanelComponent extends UnsubscribeOnDestroy implements On
 	isSaving: boolean = false;
 	workingId: number = 0;
 	sortField: string = 'name';
-	
-	
 
 	get currentTableSort(): TableSort
 	{
-		return this.tableComponent.currentTableSort;		
+		return this.tableComponent.currentTableSort;
 	}
 
 	get selectedStatus(): string
@@ -86,13 +84,11 @@ export class AttributesPanelComponent extends UnsubscribeOnDestroy implements On
 		super();
 	}
 
-	
 	ngOnInit()
 	{
 		this.allDataLoaded = false;
 		this.isSearchingFromServer = false;
 		this.settings = this._settingsService.getSettings();
-		
 		this.route.parent.paramMap.pipe(
 			this.takeUntilDestroyed(),
 			filter(p => p.get('marketId') && p.get('marketId') != '0'),
@@ -109,8 +105,7 @@ export class AttributesPanelComponent extends UnsubscribeOnDestroy implements On
 			this.attributeList = data;
 			this.currentPage = 1;
 			this.allDataLoaded = data.length < this.settings.infiniteScrollPageSize;
-			
-			this.setSearchBarFilters();			
+			this.setSearchBarFilters();
 			this.filterAttributes();
 		});
 	}
@@ -118,11 +113,10 @@ export class AttributesPanelComponent extends UnsubscribeOnDestroy implements On
 	setSearchBarFilters()
 	{
 		let searchBarFilter = this.searchBar.storedSearchBarFilter;
-
 		this.selectedSearchFilter = searchBarFilter?.searchFilter ?? 'All';
 		this.keyword = searchBarFilter?.keyword ?? null;
 	}
-	
+
 	isAttributeSelected(attribute: Attribute): boolean
 	{
 		return this.attributeList.some(m => m.name === attribute.name);
@@ -163,8 +157,7 @@ export class AttributesPanelComponent extends UnsubscribeOnDestroy implements On
 	keywordSearch(event: any)
 	{
 		this.selectedSearchFilter = event['searchFilter'];
-		this.keyword = event['keyword'];
-
+		this.searchBar.keyword = this.keyword = event['keyword'].trim();
 		this.filterAttributes();
 
 		if (!this.isSearchingFromServer)
@@ -183,13 +176,13 @@ export class AttributesPanelComponent extends UnsubscribeOnDestroy implements On
 		}
 		else
 		{
-			this.filteredAttributeList = orderBy(this.filteredAttributeList, [attr => attr.name.toLowerCase()]);			
+			this.filteredAttributeList = orderBy(this.filteredAttributeList, [attr => attr.name.toLowerCase()]);
 		}
 	}
 
 	private filterAttributes()
 	{
-		this.isSearchingFromServer = false;		
+		this.isSearchingFromServer = false;
 		const isActiveStatus = this.selectedStatus ? this.selectedStatus === 'Active' : null;
 		let searchFilter = this.searchFilters.find(f => f.name === this.selectedSearchFilter);
 
@@ -198,7 +191,6 @@ export class AttributesPanelComponent extends UnsubscribeOnDestroy implements On
 			if (this.allDataLoaded)
 			{
 				this.filteredAttributeList = [];
-				
 				let filteredResults = this.filterByKeyword(searchFilter, this.keyword);
 
 				if (isActiveStatus !== null)
@@ -226,7 +218,7 @@ export class AttributesPanelComponent extends UnsubscribeOnDestroy implements On
 		}
 		else
 		{
-			this.filteredAttributeList = orderBy(this.attributeList, [attr => attr.name.toLowerCase()]);			
+			this.filteredAttributeList = orderBy(this.attributeList, [attr => attr.name.toLowerCase()]);
 		}
 	}
 
@@ -301,15 +293,12 @@ export class AttributesPanelComponent extends UnsubscribeOnDestroy implements On
 		}
 	}
 
-	
-		
 	/**
 	 * The table is flagged as lazy which means any paging, sorting, and/or filtering done will call this method.
 	 * @param event
 	 */
 	lazyLoadData(event: TableLazyLoadEvent)
 	{
-				
 		if (!this.allDataLoaded && !this.keyword && !this.selectedStatus)
 		{
 			// return data based on the sort options.  if currentTableSort is null then it will revert to the default sort.
@@ -318,7 +307,7 @@ export class AttributesPanelComponent extends UnsubscribeOnDestroy implements On
 				this.attributeList = data;
 				this.filteredAttributeList = this.attributeList;
 				this.currentPage = 1;
-				this.allDataLoaded = !data.length || data.length < this.settings.infiniteScrollPageSize;				
+				this.allDataLoaded = !data.length || data.length < this.settings.infiniteScrollPageSize;
 			});
 
 		}
@@ -328,7 +317,6 @@ export class AttributesPanelComponent extends UnsubscribeOnDestroy implements On
 			this.tableComponent.sortLazy();
 		}
 	}
-	
 
 	editAttribute(attribute: Attribute)
 	{

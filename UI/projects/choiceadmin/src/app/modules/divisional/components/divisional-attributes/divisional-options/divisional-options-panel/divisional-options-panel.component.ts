@@ -231,7 +231,7 @@ export class DivisionalOptionsPanelComponent extends UnsubscribeOnDestroy implem
 		}
 		else if (this.allDataLoaded || this.isSearchFilterOn)
 		{
-			// all the data is either loaded or we are filtering so all the data should be loaded at this time so we can just update the sort.				
+			// all the data is either loaded or we are filtering so all the data should be loaded at this time so we can just update the sort.
 			this.tableComponent.sortLazy();
 		}
 	}
@@ -262,7 +262,7 @@ export class DivisionalOptionsPanelComponent extends UnsubscribeOnDestroy implem
 		{
 			if (this.expansionAssociateCommunitiesTabPanelComponent)
 			{
-				// close all opened panels 
+				// close all opened panels
 				this.expansionAssociateCommunitiesTabPanelComponent.toggleCommunities();
 			}
 		}
@@ -279,7 +279,7 @@ export class DivisionalOptionsPanelComponent extends UnsubscribeOnDestroy implem
 	clearFilter()
 	{
 		this.filteredOptions = orderBy(this.options, ['category', 'subCategory', 'optionSalesName']);
-		this.isSearchFilterOn = false;		
+		this.isSearchFilterOn = false;
 
 		this.performChangeDetection();
 	}
@@ -287,8 +287,7 @@ export class DivisionalOptionsPanelComponent extends UnsubscribeOnDestroy implem
 	keywordSearch(event: any)
 	{
 		this.selectedSearchFilter = event['searchFilter'];
-		this.keyword = event['keyword'];
-
+		this.searchBar.keyword = this.keyword = event['keyword'].trim();
 		this.filterOptions(this.selectedSearchFilter, this.keyword);
 
 		if (!this.isSearchingFromServer)
@@ -324,9 +323,7 @@ export class DivisionalOptionsPanelComponent extends UnsubscribeOnDestroy implem
 			if (this.allDataLoaded)
 			{
 				this.filteredOptions = [];
-				
 				let filteredResults = this.filterByKeyword(searchFilter, keyword);
-
 				this.filteredOptions = unionBy(this.filteredOptions, filteredResults, 'id');
 			}
 			else

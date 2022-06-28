@@ -90,7 +90,7 @@ export class LocationGroupsPanelComponent extends UnsubscribeOnDestroy implement
 		this.isSearchingFromServer = false;
 		this.settings = this._settingsService.getSettings();
 
-		
+
 		this.route.parent.paramMap.pipe(
 			this.takeUntilDestroyed(),
 			filter(p => p.get('marketId') && p.get('marketId') != '0'),
@@ -174,8 +174,7 @@ export class LocationGroupsPanelComponent extends UnsubscribeOnDestroy implement
 	keywordSearch(event: any)
 	{
 		this.selectedSearchFilter = event['searchFilter'];
-		this.keyword = event['keyword'];
-
+		this.searchBar.keyword = this.keyword = event['keyword'].trim();
 		this.filterLocationGroups();
 
 		if (!this.isSearchingFromServer)
@@ -210,7 +209,7 @@ export class LocationGroupsPanelComponent extends UnsubscribeOnDestroy implement
 			if (this.allDataLoaded)
 			{
 				this.filteredLocationGroupsList = [];
-								
+
 				let filteredResults = this.filterByKeyword(searchFilter, this.keyword);
 
 				if (isActiveStatus !== null)
@@ -334,7 +333,7 @@ export class LocationGroupsPanelComponent extends UnsubscribeOnDestroy implement
 	 */
 	lazyLoadData(event: TableLazyLoadEvent)
 	{
-		
+
 		if (!this.allDataLoaded && !this.keyword && !this.selectedStatus)
 		{
 			// return data based on the sort options.  if currentTableSort is null then it will revert to the default sort.
@@ -347,7 +346,7 @@ export class LocationGroupsPanelComponent extends UnsubscribeOnDestroy implement
 			});
 		}
 		else if (this.allDataLoaded || this.keyword || this.selectedStatus)
-		{	
+		{
 			this.tableComponent.sortLazy();
 		}
 	}

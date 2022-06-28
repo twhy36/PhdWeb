@@ -27,7 +27,6 @@ export class LotRelationshipsSidePanelComponent implements OnInit
 	@Input() selectedCommunity: FinancialCommunityViewModel;
 	@Input() sidePanelOpen: boolean = false;
 
-	
 	lotRelationshipsForm: FormGroup;
 	lotsForSelectedCommunity: Array<HomeSiteViewModel>;
 	plansForSelectedCommunity: Array<PlanViewModel>;
@@ -54,7 +53,7 @@ export class LotRelationshipsSidePanelComponent implements OnInit
 
 		return saveDisabled;
 	}
-	
+
 	constructor(private _msgService: MessageService, private _planService: PlanService) { }
 
 	ngOnInit()
@@ -199,7 +198,7 @@ export class LotRelationshipsSidePanelComponent implements OnInit
 	keywordSearch(event: any)
 	{
 		// set the key search term
-		this.keyword = event['keyword'] || '';
+		this.keyword = event['keyword'].trim();
 		this.selectedSearchFilter = event['searchFilter'];
 
 		// reset everything to unmatched
@@ -270,7 +269,7 @@ export class LotRelationshipsSidePanelComponent implements OnInit
 				});
 			});
 		});
-		
+
 		this.onSave.emit(lotRelationships);
 		this.saving = true;
 	}
@@ -346,7 +345,7 @@ export class LotRelationshipsSidePanelComponent implements OnInit
 					const choiceErrorMessage = `Choice: ${choiceName} & Homesite: ${lot.dto.lotBlock} relationship already exists. Please edit existing relationship.`;
 					this._msgService.add({ severity: 'error', summary: 'Lot Rule Association' , detail: choiceErrorMessage });
 				}
-			});	
+			});
 		}
 		return relationshipExists;
 	}

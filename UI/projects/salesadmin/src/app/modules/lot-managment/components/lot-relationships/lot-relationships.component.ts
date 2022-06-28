@@ -83,7 +83,6 @@ export class LotRelationshipsComponent extends UnsubscribeOnDestroy implements O
 				if (comm)
 				{
 					this.selectedCommunity = new FinancialCommunityViewModel(comm);
-				
 					return combineLatest([
 						this._catalogService.getDivisionalCatalog(comm.marketId),
 						this._catalogService.getDivChoiceCatalogsByMarketId(comm.marketId),
@@ -109,21 +108,21 @@ export class LotRelationshipsComponent extends UnsubscribeOnDestroy implements O
 					this.divChoiceCatalogs = this.divChoiceCatalogs.concat(activeChoices);
 				}
 				this.orgId = orgs?.find(o => o.edhFinancialCommunityId === this.selectedCommunity.dto.id)?.orgID;
-	
+
 				// Filter lots and plans
 				this.selectedCommunity.lots = lots.filter(l => l.lotStatusDescription !== "Closed").map(l => new HomeSiteViewModel(l, this.selectedCommunity.dto)).sort(HomeSiteViewModel.sorter);
 				this.selectedCommunity.plans = commPlans.map(p => new PlanViewModel(p, this.selectedCommunity)).sort(PlanViewModel.sorter);
-	
+
 				// Find assocs for this community
 				const lotIds = lots.map(l => l.id);
 				this.lotRelationships = assocs.filter(a => lotIds.some(id => id === a.edhLotId));
-	
+
 				// Add lots to plans
 				this.selectedCommunity.plans.forEach(p =>
 				{
 					p.lots = this.selectedCommunity.lots.filter(l => l.plans.some(lp => lp === p.id));
 				});
-				
+
 				return this._planService.getPlans(this.orgId);
 			}),
 		).subscribe(plans =>
@@ -218,7 +217,7 @@ export class LotRelationshipsComponent extends UnsubscribeOnDestroy implements O
 				}
 				this.lotRelationships.push(association);
 				savedCount++;
-				
+
 				// All lot choice rules have been saved and deleted
 				if (savedCount === rules.length && deleteProcessed)
 				{
@@ -261,7 +260,7 @@ export class LotRelationshipsComponent extends UnsubscribeOnDestroy implements O
 
 	keywordSearch(event: any)
 	{
-		this.keyword = event['keyword'];
+		this.searchBar.keyword = this.keyword = event['keyword'].trim();
 		this.filterRelationships();
 	}
 

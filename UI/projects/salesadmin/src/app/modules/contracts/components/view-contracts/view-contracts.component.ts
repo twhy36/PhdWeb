@@ -129,7 +129,7 @@ export class ViewContractsComponent extends UnsubscribeOnDestroy implements OnIn
 
 	keywordSearch(event: any)
 	{
-		this.keyword = event['keyword'];
+		this.searchBar.keyword = this.keyword = event['keyword'].trim();
 		this.filterTemplates(this.searchFilter, this.keyword);
 	}
 

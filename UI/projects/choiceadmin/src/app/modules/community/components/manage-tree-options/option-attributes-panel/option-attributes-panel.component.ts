@@ -216,7 +216,7 @@ export class OptionAttributesPanelComponent implements OnInit, OnDestroy
 
 	keywordSearch(event: any)
 	{
-		this.keyword = event['keyword'] || '';
+		this.keyword = event['keyword'].trim() || '';
 
 		// reset everything to unmatched.
 		this._resetAllMatchValues(false);
