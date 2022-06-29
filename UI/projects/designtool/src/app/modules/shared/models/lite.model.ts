@@ -126,7 +126,7 @@ export enum LiteReportType
 export enum ExteriorLabel
 {
     Exterior = 'Exterior',
-    ExteriorSubGroup = 'Elevation & Color Scheme',
+    ExteriorSubGroup = '', // Do not show sub-category for exterior
     Elevation = 'Elevation',
     ColorScheme = 'Color Scheme',
 }
