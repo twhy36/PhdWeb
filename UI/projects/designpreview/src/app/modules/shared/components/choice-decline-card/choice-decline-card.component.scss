@@ -62,12 +62,21 @@
 			margin-bottom: 0;
 		}
 
-		.fa-heart {
-			background: white;
+		.phd-non-clickable {
+			font-size: 20px;
+			margin-top: -3px;
+			.fa-heart {
+				background: white;
+			}
+	
+			.fa-heart-o {
+				background: white;
+			}
 		}
 
-		.fa-heart-o {
-			background: white;
+		.phd-clickable {
+			font-size: 20px;
+			margin-top: -3px;
 		}
 
 		.phd-icon-selected {
