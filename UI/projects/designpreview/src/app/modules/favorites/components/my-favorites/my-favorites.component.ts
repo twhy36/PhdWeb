@@ -204,7 +204,6 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			}
 			else if (filteredTree && !this.noVisibleGroups) {
 				const subGroup = filteredTree.groups[0].subGroups[0];
-				this.store.dispatch(new NavActions.SetSelectedSubgroup(subGroup.id));
 				this.router.navigate([subGroup.subGroupCatalogId], { relativeTo: this.route });
 			}
 		});
