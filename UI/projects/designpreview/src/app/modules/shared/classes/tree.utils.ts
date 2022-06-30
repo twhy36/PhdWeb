@@ -145,7 +145,12 @@ export function getDefaultOptionRule(optionNumber: string, choice: Choice): Opti
 	};
 }
 
-function saveLockedInChoices(choices: Array<JobChoice | ChangeOrderChoice>, treeChoices: Choice[], options: Array<JobPlanOption | ChangeOrderPlanOption>, changeOrder?: ChangeOrderGroup)
+function saveLockedInChoices(
+	choices: Array<JobChoice | ChangeOrderChoice>, 
+	treeChoices: Choice[], 
+	options: Array<JobPlanOption | ChangeOrderPlanOption>, 
+	changeOrder?: ChangeOrderGroup,
+	missingChoices?: number[])
 {
 	choices.filter(isLocked(changeOrder)).forEach(choice =>
 	{
@@ -160,9 +165,15 @@ function saveLockedInChoices(choices: Array<JobChoice | ChangeOrderChoice>, tree
 			).map(att => new MappedAttributeGroup({ id: att }));
 
 			treeChoice.mappedLocationGroups = (isJobChoice(choice)
-					? _.uniq(choice.jobChoiceLocations.map(jcl => jcl.locationGroupCommunityId))
-					: _.uniq(choice.jobChangeOrderChoiceLocations.map(cocl => cocl.locationGroupCommunityId))
-				).map(loc => new MappedLocationGroup({ id: loc }));
+				? _.uniq(choice.jobChoiceLocations.map(jcl => jcl.locationGroupCommunityId))
+				: _.uniq(choice.jobChangeOrderChoiceLocations.map(cocl => cocl.locationGroupCommunityId))
+			).map(loc => new MappedLocationGroup({ id: loc }));
+
+			// Set locked in price for selected choices which have been removed from the tree
+			if (missingChoices?.find(ch => ch === treeChoice.id))
+			{
+				treeChoice.price = treeChoice.lockedInChoice.choice.dpChoiceCalculatedPrice;
+			}
 		}
 	});
 }
@@ -389,7 +400,8 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 							saveLockedInChoices(choices,
 								_.flatMap(data.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices))),
 								options,
-								changeOrder);
+								changeOrder,
+								missingChoices);
 
 							return data;
 						}));
@@ -416,7 +428,7 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 					.filter(o => o.choiceEnabledOption)
 					.map(o =>
 					{
-						return { optionNumber: options.find(opt => opt.id === o.jobPlanOptionId).integrationKey, dpChoiceId: c.dpChoiceId };
+						return { optionNumber: options.find(opt => opt.id === o.jobPlanOptionId)?.integrationKey, dpChoiceId: c.dpChoiceId };
 					});
 			}
 			else
@@ -425,13 +437,14 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 					.filter(o => o.jobChoiceEnabledOption)
 					.map(o =>
 					{
-						return { optionNumber: options.find(opt => opt.id === o.jobChangeOrderPlanOptionId).integrationKey, dpChoiceId: c.decisionPointChoiceID };
+						return { optionNumber: options.find(opt => opt.id === o.jobChangeOrderPlanOptionId)?.integrationKey, dpChoiceId: c.decisionPointChoiceID };
 					});
 			}
-		})))
+		}))),
+		treeService.getHistoricRules(choices)
 	]).pipe(
 		//update pricing information for locked-in options/choices
-		map(([res, optImageAssoc, mapping]) =>
+		map(([res, optImageAssoc, mapping, historicRules]) =>
 		{
 			//override option prices if prices are locked
 			if (options.length)
@@ -497,7 +510,7 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 				});
 			}
 
-			return { res, mapping };
+			return { res, mapping, historicRules };
 		}),
 		//store the original option mapping on the choice where it was selected
 		//rules engine can use this to 'override' current option mappings
@@ -516,6 +529,11 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 					else
 					{
 						choice.lockedInOptions = c.jobChangeOrderChoiceChangeOrderPlanOptionAssocs?.filter(o => o.jobChoiceEnabledOption)?.map(o => data.mapping[options.find(opt => opt.id === o.jobChangeOrderPlanOptionId)?.integrationKey] || getDefaultOptionRule(options.find(opt => opt.id === o.jobChangeOrderPlanOptionId)?.integrationKey, choice));
+					}
+
+					if (choice.lockedInChoice && choice.lockedInChoice.choice)
+					{
+						choice.lockedInChoice.choiceRules = data.historicRules?.choiceRules?.filter(cr => cr.choiceId === choice.lockedInChoice.choice.dpChoiceId);
 					}
 				}
 			});
@@ -946,10 +964,15 @@ export function getDisabledByList(tree: Tree, groups: Group[], point: DecisionPo
 	return disabledByList;
 }
 
-export function getLockedInChoice(choice: JobChoice | ChangeOrderChoice, options: Array<JobPlanOption | ChangeOrderPlanOption>)
-	: {
+export function getLockedInChoice(
+	choice: JobChoice | ChangeOrderChoice, 
+	options: Array<JobPlanOption | ChangeOrderPlanOption>,
+	choiceRules?: Array<ChoiceRules>)
+	:
+	{
 		choice: (JobChoice | ChangeOrderChoice),
-		optionAttributeGroups: Array<{ optionId: string, attributeGroups: number[], locationGroups: number[] }>
+		optionAttributeGroups: Array<{ optionId: string, attributeGroups: number[], locationGroups: number[] }>,
+		choiceRules: Array<ChoiceRules>
 	}
 {
 	return { choice,
@@ -985,6 +1008,7 @@ export function getLockedInChoice(choice: JobChoice | ChangeOrderChoice, options
 					{
 						return null;
 					}
-				})
-			};
+				}),
+		choiceRules: choiceRules ? choiceRules.filter(cr => cr.choiceId === choice.dpChoiceId) : []
+	};
 }

@@ -459,6 +459,53 @@ export class TreeService
 		);
 	}
 
+	getHistoricRules(choices: Array<JobChoice | ChangeOrderChoice>): Observable<TreeVersionRules>
+	{
+		if (!choices || !choices.length)
+		{
+			return of(null);
+		}
+
+		return this.identityService.token.pipe(
+			switchMap((token: string) =>
+			{
+				let guid = newGuid();
+
+				let buildRequestUrl = (reqChoices: Array<JobChoice | ChangeOrderChoice>) =>
+				{
+					const choiceIds: Array<number> = reqChoices.map(x => isChangeOrderChoice(x) ? x.decisionPointChoiceID : x.dpChoiceId);
+
+					return `${environment.apiUrl}GetHistoricRulesByChoiceIds(dpChoiceIds=[${choiceIds}])`;
+				}
+
+				const batchSize = 30;
+				let batchBundles: string[] = [];
+
+				// create a batch request with a max of 30 choices per request
+				for (var x = 0; x < choices.length; x = x + batchSize)
+				{
+					let choiceList = choices.slice(x, x + batchSize);
+
+					batchBundles.push(buildRequestUrl(choiceList));
+				}
+
+				let requests = batchBundles.map(req => createBatchGet(req));
+
+				var headers = createBatchHeaders(guid, token);
+				var batch = createBatchBody(guid, requests);
+
+				return this.http.post(`${environment.apiUrl}$batch`, batch, { headers: headers });
+			}),
+			map((response: any) =>
+			{
+				 let choiceRules: any[] = _.flatMap(response.responses, res => res.body.choiceRules);
+				 return {
+					choiceRules: choiceRules
+				 } as TreeVersionRules;
+			})
+		);
+	}
+
 	// Retrieve the latest cutOffDays in case GetTreeDto returns cached tree data from API
 	getDivDPointCatalogs(tree: Tree, skipSpinner?: boolean): Observable<Tree>
     {
