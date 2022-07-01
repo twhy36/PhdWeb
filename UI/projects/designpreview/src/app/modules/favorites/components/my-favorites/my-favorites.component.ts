@@ -388,7 +388,6 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		this.selectedChoice = choice;
 		this.showDetails = true;
 		this.selectedPointId = this.selectedChoice.treePointId;
-		this.store.dispatch(new NavActions.SetSelectedSubgroup(this.selectedSubgroupId, this.selectedPointId, this.selectedChoice.id));
 	}
 
 	viewChoiceDetail(choice: ChoiceExt) {
