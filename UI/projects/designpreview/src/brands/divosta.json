@@ -1,9 +1,9 @@
 {
 	"images": {
 		"logo": "assets/divosta/logos/Divosta-Logo-Blue-Choice-Card.png",
-		"choice-card-logo": "assets/divosta/logos/Divosta-Logo-Blue-Choice-Card.png",
 		"home-page-logo": "assets/divosta/logos/Divosta-Logo-Blue-Home-Page.png",
-		"white_logo": "assets/divosta/logos/Divosta-Logo-White.png"
+		"white_logo": "assets/divosta/logos/Divosta-Logo-White.png",
+		"favorites_list": "assets/pulte/icons/heart_list-PULTE.png"
 	},
 	"banner": {
 		"1": "assets/del-webb/banner/DW Dark Kitchen.jpg",
@@ -31,6 +31,7 @@
 		"link-color": "#1F667E",
 		"popup-ribbon-background-color": "#1F667E",
 		"home-page-floorplan-background-color": "#e4e5e4",
-		"logo-margin-top": "8px"
+		"logo-margin-top": "9px",
+		"logo-max-height": "40px"
 	}
 }

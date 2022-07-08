@@ -11,7 +11,7 @@ import { OrganizationService } from '../../../core/services/organization.service
 import { ContractService } from '../../../core/services/contract.service';
 import { SidePanelComponent } from 'phd-common';
 
-import * as moment from "moment";
+import * as moment from 'moment';
 import { environment } from '../../../../../environments/environment';
 
 @Component({
@@ -26,19 +26,21 @@ export class ViewContractsSidePanelComponent implements OnInit
 
 	@Output() onSave = new EventEmitter<object>();
 	@Output() onSidePanelClose = new EventEmitter<boolean>();
+
 	@Input() selected: ContractTemplate;
 	@Input() currentMktId: number;
 	@Input() saving: boolean;
 	@Input() sidePanelOpen: boolean = false;
-	selectedTemplateTypeId: number;
 	@Input() contracts: Array<ContractTemplate> = [];
+
+	selectedTemplateTypeId: number;
 
 	viewContractsForm: FormGroup;
 	allCommunities: Array<FinancialCommunity> = [];
 	communitiesForSelectedTemplate: Array<FinancialCommunity> = [];
 	selectedCommunities: Array<FinancialCommunity> = [];
 	communitiesWithExistingTemplate: Array<number> = [];
-	selectedTab: 'Details' | 'Community' = 'Details';
+	currentTab: string = 'details';
 	environment = environment;
 
 	oneDay: number = 86400000;
@@ -179,6 +181,7 @@ export class ViewContractsSidePanelComponent implements OnInit
 		if (this.viewContractsForm.value.expirationDate && (new Date(this.viewContractsForm.value.expirationDate).getTime() < this.minDate.getTime()))
 		{
 			this.expirationDate = this.minDate;
+
 			this.onSetDate(this.minDate, 'expiration');
 		}
 
@@ -205,6 +208,7 @@ export class ViewContractsSidePanelComponent implements OnInit
 		{
 			this.viewContractsForm.controls.effectiveDate.setValue(event.toISOString());
 		}
+
 		this.viewContractsForm.markAsDirty();
 	}
 
@@ -277,8 +281,10 @@ export class ViewContractsSidePanelComponent implements OnInit
 				this.viewContractsForm.get('isPhd').disable();
 				this.viewContractsForm.get('isTho').disable();
 			}
+
 			const isPhd = this.viewContractsForm.get('isPhd').value;
 			const isTho = this.viewContractsForm.get('isTho').value;
+
 			this._contractService.getCommunitiesWithExistingTemplate(this.currentMktId, this.selectedTemplateTypeId, isPhd, isTho)
 				.subscribe(data =>
 				{
@@ -338,6 +344,7 @@ export class ViewContractsSidePanelComponent implements OnInit
 			{
 				return { requireCheckBoxesToBeChecked: true };
 			}
+
 			return null;
 		}
 	}
@@ -350,6 +357,7 @@ export class ViewContractsSidePanelComponent implements OnInit
 			{
 				return { requireAddendumSelect: true };
 			}
+
 			return null;
 		}
 	}
@@ -404,6 +412,7 @@ export class ViewContractsSidePanelComponent implements OnInit
 		});
 
 		this.selectedCommunities = [];
+
 		this.viewContractsForm.markAsDirty();
 	}
 
@@ -429,12 +438,7 @@ export class ViewContractsSidePanelComponent implements OnInit
 			this.communitiesForSelectedTemplate.push(tag);
 		}
 	}
-
-	onTabClick(selectedTab: any)
-	{
-		this.selectedTab = selectedTab;
-	}
-	
+		
 	checkForDocument(templateId: number)
 	{
 		this._contractService.getTemplateUrl(templateId)
@@ -447,5 +451,4 @@ export class ViewContractsSidePanelComponent implements OnInit
 				this.documentAssociated = false;
 			});
 	}
-
 }

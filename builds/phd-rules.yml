@@ -68,7 +68,7 @@ jobs:
   - checkout: self
   - task: NodeTool@0
     inputs:
-      versionSpec: '12.x'
+      versionSpec: '12.20.x'
     displayName: 'Install Node.js'
   - task: Npm@1
     inputs:
@@ -113,61 +113,62 @@ jobs:
       publishLocation: 'pipeline'
     displayName: publish artifact
 
-- job: THO
-  displayName: Validate THO
-  dependsOn:
-  - Build
-  - SetVersion
-  variables:
-    packageVersion: $[ dependencies.SetVersion.outputs['PS.packageVersion'] ]
-  steps:
-  - checkout: ThoWeb
-  - task: InlinePowershell@1
-    displayName: Get Package Path
-    inputs:
-      Script: |
-        Param(
-          [string]$packageVersion,
-          [string]$workspace
-        )
-        
-        Write-Host "##vso[task.setvariable variable=packagePath]"$workspace"/phd-common/phcorp-phd-common-"$packageVersion".tgz"
-      ScriptArguments: '-packageVersion $(packageVersion) -workspace $(System.ArtifactsDirectory)'
-  - task: DownloadPipelineArtifact@2
-    inputs:
-      buildType: 'current'
-      artifactName: 'phd-common'
-      targetPath: '$(System.ArtifactsDirectory)/phd-common'
-    displayName: download artifact
-  - task: NodeTool@0
-    displayName: Install Node.js
-    inputs:
-      versionSpec: '12.x'
-  - task: Npm@1
-    displayName: Pack phd-common
-    inputs:
-      command: 'custom'
-      workingDir: '$(System.ArtifactsDirectory)/phd-common'
-      customCommand: 'pack --ignore-scripts'
-  - task: Npm@1
-    displayName: Install dependencies
-    inputs:
-      command: 'install'
-      workingDir: ''
-  - task: Npm@1
-    displayName: Install phd-common
-    inputs:
-      command: 'custom'
-      customCommand: 'install $(packagePath)'
-  - task: Npm@1
-    displayName: Build THO
-    inputs:
-      command: 'custom'
-      workingDir: ''
-      customCommand: 'run build -- --configuration=develop'
+- ${{ if false }}:
+  - job: THO
+    displayName: Validate THO
+    dependsOn:
+    - Build
+    - SetVersion
+    variables:
+      packageVersion: $[ dependencies.SetVersion.outputs['PS.packageVersion'] ]
+    steps:
+    - checkout: ThoWeb
+    - task: InlinePowershell@1
+      displayName: Get Package Path
+      inputs:
+        Script: |
+          Param(
+            [string]$packageVersion,
+            [string]$workspace
+          )
+          
+          Write-Host "##vso[task.setvariable variable=packagePath]"$workspace"/phd-common/phcorp-phd-common-"$packageVersion".tgz"
+        ScriptArguments: '-packageVersion $(packageVersion) -workspace $(System.ArtifactsDirectory)'
+    - task: DownloadPipelineArtifact@2
+      inputs:
+        buildType: 'current'
+        artifactName: 'phd-common'
+        targetPath: '$(System.ArtifactsDirectory)/phd-common'
+      displayName: download artifact
+    - task: NodeTool@0
+      displayName: Install Node.js
+      inputs:
+        versionSpec: '12.x'
+    - task: Npm@1
+      displayName: Pack phd-common
+      inputs:
+        command: 'custom'
+        workingDir: '$(System.ArtifactsDirectory)/phd-common'
+        customCommand: 'pack --ignore-scripts'
+    - task: Npm@1
+      displayName: Install dependencies
+      inputs:
+        command: 'install'
+        workingDir: ''
+    - task: Npm@1
+      displayName: Install phd-common
+      inputs:
+        command: 'custom'
+        customCommand: 'install $(packagePath)'
+    - task: Npm@1
+      displayName: Build THO
+      inputs:
+        command: 'custom'
+        workingDir: ''
+        customCommand: 'run build -- --configuration=develop'
 - ${{ if ne(variables['Build.Reason'], 'PullRequest') }}:
   - job: Publish
-    dependsOn: THO
+    dependsOn: Build
     steps:
     - checkout: none
     - task: DownloadPipelineArtifact@2

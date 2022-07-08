@@ -188,17 +188,17 @@ export class RuleComponent implements OnInit
 		selectedItems.splice(index, 1);
 	}
 
-	async localSaveRule() 
+	async localSaveRule()
 	{
 		const circularReferenceItems = this.dependentIds.length
 			? this.selectedItems.filter(x => this.dependentIds.find(id => id === x.itemId))
 			: [];
 
-		if (circularReferenceItems.length) 
+		if (circularReferenceItems.length)
 		{
 			const message = this.buildCircularReferenceWarningMessage(circularReferenceItems);
 
-			if (!await this.displayWarningMessage(message)) 
+			if (!await this.displayWarningMessage(message))
 			{
 				return;
 			}
@@ -252,7 +252,7 @@ export class RuleComponent implements OnInit
 
 	keywordSearch(event: any)
 	{
-		this.keyword = event['keyword'] || '';
+		this.keyword = event['keyword'].trim() || '';
 		this.selectedSearchFilter = event['searchFilter'];
 
 		// reset everything to unmatched.

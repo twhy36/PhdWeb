@@ -1,7 +1,8 @@
-import { Component, Input, Output, NgZone, Renderer2, OnInit, ChangeDetectorRef, EventEmitter } from '@angular/core';
+import { Component, Input, Output, OnInit, ChangeDetectorRef, EventEmitter } from '@angular/core';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { UnsubscribeOnDestroy } from 'phd-common';
+import { BrandService } from '../../../core/services/brand.service';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
@@ -22,10 +23,14 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit
 	@Input() favoritesPrice: number = 0;
 	@Input() showPrint = false;
 	@Input() showFavorites = true;
+	@Input() includeContractedOptions: boolean = false;
 	@Input() isDesignComplete: boolean = false;
+	@Input() isPreview: boolean = false;
+	@Input() hideContractedToggle: boolean = false;
 
 	@Output() callToAction = new EventEmitter<{ actionBarCallType: ActionBarCallType }>();
 	@Output() onPrintAction = new EventEmitter();
+	@Output() onToggleContractedOptions = new EventEmitter();
 
 	autoHideTimer: any;
 	isActionBarHidden = false;
@@ -34,14 +39,23 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit
 	scrolling = false;
 	currentTopPosition = 0;
 	previousTopPosition = 0;
+	favoritesListIcon = '';
+
+	get isContractedOptionsDisabled() : boolean
+	{
+		return this.isPreview || this.isDesignComplete;
+	}
 
 	constructor(
 		private cd: ChangeDetectorRef,
 		private router: Router,
-		private store: Store<fromRoot.State>
+		private store: Store<fromRoot.State>,
+		private brandService: BrandService
 	) { super(); }
 
-	ngOnInit(){ }
+	ngOnInit(){ 
+		this.favoritesListIcon = this.brandService.getBrandImage('favorites_list');
+	}
 
 	animateHeaderTransition(pageY) {
 		this.currentTopPosition = pageY;
@@ -67,6 +81,12 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit
 
 		this.previousTopPosition = this.currentTopPosition;
 		this.scrolling = false;
+	}
+
+	toggleContractedOptions() {
+		if (!this.isContractedOptionsDisabled) {
+			this.onToggleContractedOptions.emit();
+		}
 	}
 
 	onPrimaryCallToActionClick() {

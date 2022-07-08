@@ -1,8 +1,8 @@
 import { Component, OnInit, ViewChild, HostListener } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
-import { distinctUntilChanged, filter, switchMap, tap, map, combineLatest, finalize, take } from 'rxjs/operators';
-import { of ,  Observable } from 'rxjs';
+import { distinctUntilChanged, filter, switchMap, tap, map, finalize, take } from 'rxjs/operators';
+import { of, Observable, combineLatest } from 'rxjs';
 
 import { NgbModal, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 
@@ -35,7 +35,7 @@ export class MergeFieldsComponent extends UnsubscribeOnDestroy implements OnInit
 
 	sidePanelOpen: boolean = false;
 	loading: boolean = false;
-	activeCommunities: Observable<Array<FinancialCommunityViewModel>>;
+	activeCommunities$: Observable<Array<FinancialCommunityViewModel>>;
 	marketMergeFields: Array<MergeField> = [];
 	communityMergeFields: Array<CommunityMergeField> = [];
 	currentMkt: FinancialMarket;
@@ -70,7 +70,7 @@ export class MergeFieldsComponent extends UnsubscribeOnDestroy implements OnInit
 			filter(mkt => !!mkt)
 		);
 
-		this.activeCommunities = mkt$.pipe(
+		this.activeCommunities$ = mkt$.pipe(
 			switchMap(mkt =>
 			{
 				return mkt ? this._orgService.getFinancialCommunities(mkt.id) : of([]);
@@ -103,9 +103,8 @@ export class MergeFieldsComponent extends UnsubscribeOnDestroy implements OnInit
 			}),
 			filter(comm => !!comm),
 			switchMap(comm =>
-				this._contractService.getAllMergeFields(this.currentMkt.id, comm.id).pipe(
-					combineLatest(this._contractService.getSignField(comm.id))
-				)
+				combineLatest([this._contractService.getAllMergeFields(this.currentMkt.id, comm.id),
+				this._contractService.getSignField(comm.id)])
 			)
 		).subscribe(([communityMergeFields, eSignField]) =>
 		{
@@ -260,10 +259,10 @@ export class MergeFieldsComponent extends UnsubscribeOnDestroy implements OnInit
 
 						this._msgService.add({ severity: 'success', summary: 'Merge Fields', detail: `have been reverted!` });
 					},
-					error =>
-					{
-						this._msgService.add({ severity: 'error', summary: 'Error', detail: error.message });
-					});
+						error =>
+						{
+							this._msgService.add({ severity: 'error', summary: 'Error', detail: error.message });
+						});
 			}
 		}, (reason) =>
 		{
@@ -298,10 +297,10 @@ export class MergeFieldsComponent extends UnsubscribeOnDestroy implements OnInit
 
 						this._msgService.add({ severity: 'success', summary: 'Merge Field', detail: `has been reverted!` });
 					},
-					error =>
-					{
-						this._msgService.add({ severity: 'error', summary: 'Error', detail: error.message });
-					});
+						error =>
+						{
+							this._msgService.add({ severity: 'error', summary: 'Error', detail: error.message });
+						});
 			}
 		}, (reason) =>
 		{
@@ -343,12 +342,11 @@ export class MergeFieldsComponent extends UnsubscribeOnDestroy implements OnInit
 		}
 		else
 		{
-			this._orgService.getInternalOrgs(this.currentMkt.id).pipe(
+			combineLatest([this._orgService.getInternalOrgs(this.currentMkt.id), this.activeCommunities$]).pipe(
 				finalize(() =>
 				{
 					this.saving = false;
 				}),
-				combineLatest(this.activeCommunities),
 				take(1),
 				switchMap(([orgs, edhCommunities]) =>
 				{
@@ -357,7 +355,7 @@ export class MergeFieldsComponent extends UnsubscribeOnDestroy implements OnInit
 
 					mergeFieldDto.communityIds = activePhdCommunties.map(x => x.orgID);
 					mergeFieldDto.marketId = this.currentMkt.id;
-					
+
 					return this._contractService.saveMergeField(mergeFieldDto);
 				}),
 				tap(data =>
@@ -457,10 +455,10 @@ export class MergeFieldsComponent extends UnsubscribeOnDestroy implements OnInit
 					});
 			}
 		},
-		(reason) =>
-		{
+			(reason) =>
+			{
 
-		});
+			});
 	}
 
 	onSaveSignField(dto: ESignField)

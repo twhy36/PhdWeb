@@ -150,7 +150,7 @@ export interface ITreeOption
 	id: string;
 	isActive: boolean;
 	baseHouse: boolean;
-	optionRuleMappingCount: number;
+	hasRules: boolean;
 	divLevelImageCount: number;
 	treeLevelImageCount: number;
 	listPrice: number;
@@ -169,7 +169,7 @@ export class TreeOption implements ITreeOption
 	id = '';
 	isActive = false;
 	baseHouse = false;
-	optionRuleMappingCount = 0;
+	hasRules = false;
 	divLevelImageCount = 0;
 	treeLevelImageCount = 0;
 	listPrice = 0;
@@ -197,7 +197,6 @@ export class TreeOption implements ITreeOption
 		this.id = option.id;
 		this.isActive = option.isActive;
 		this.baseHouse = planOption.baseHouse;
-		this.optionRuleMappingCount = planOption.optionRuleMappingCount;
 		this.divLevelImageCount = option.imageCount;
 		this.treeLevelImageCount = planOption.imageCount;
 		this.listPrice = option.listPrice;
@@ -284,7 +283,8 @@ export class OptionMarketImage
 	}
 }
 
-export function isOptionMarketImage(obj: any): obj is OptionMarketImage {
+export function isOptionMarketImage(obj: any): obj is OptionMarketImage 
+{
 	return typeof obj.imageUrl !== 'undefined';
 }
 
@@ -298,7 +298,6 @@ export interface IOptionRuleChoice
 	label: string;
 	pointId: number;
 	pointLabel: string;
-	mappingIndex: number;
 }
 
 export interface IOptionRuleChoiceGroup
@@ -308,7 +307,8 @@ export interface IOptionRuleChoiceGroup
 	choices: Array<IOptionRuleChoice>;
 }
 
-export interface IOptionCommunity {
+export interface IOptionCommunity 
+{
 	id: number;
 	financialCommunityId: number;
 }

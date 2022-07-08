@@ -141,7 +141,7 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 					});
 				});
 
-				this.selectedCategory.optionSubCategories = this.selectedCategory.optionSubCategories.filter(x => x.planOptions.some(po => po.isActive && !po.isSelected));
+				this.selectedCategory.optionSubCategories = this.selectedCategory.optionSubCategories.filter(x => x.planOptions.some(po => po.isActive || po.previouslySelected));
 			}
 
 			this.categorySubTotal = subtotal;
@@ -178,14 +178,12 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 			}
 		}
 
-		const canConfirmCantHaveOptions = option.cantHavePlanOptionIds?.length
-			? !!this.scenarioOptions.find(o => option.cantHavePlanOptionIds.includes(o.edhPlanOptionId))
-			: false;
+		const cantHaveOptions = this.allCantHaveOptions(option);
 
-		if (canConfirmCantHaveOptions)
+		if (cantHaveOptions?.length)
 		{
 			// Display the cant-have dialog first
-			this.confirmOptionRelations(OptionRelationEnum.CantHave, option.cantHavePlanOptionIds)
+			this.confirmOptionRelations(OptionRelationEnum.CantHave, cantHaveOptions.map(o => o.edhPlanOptionId))
 				.then((result) =>
 				{
 					if (result === 'Continue')
@@ -308,7 +306,8 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 		let selectedOptions = [];
 
 		// Deselect cant-have options
-		const cantHaveOptions = this.scenarioOptions.filter(o => option.cantHavePlanOptionIds.includes(o.edhPlanOptionId));
+		const cantHaveOptions = this.allCantHaveOptions(option);
+
 		if (cantHaveOptions?.length)
 		{
 			cantHaveOptions.forEach(o => {
@@ -331,6 +330,14 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 		});
 
 		this.store.dispatch(new LiteActions.SelectOptions(selectedOptions));
+	}
+
+	private allCantHaveOptions(option: LitePlanOptionUI): ScenarioOption[] {
+		return option.cantHavePlanOptionIds?.length || option.cantHaveInactivePlanOptionIds?.length
+			? this.scenarioOptions.filter(o =>
+				option.cantHavePlanOptionIds.includes(o.edhPlanOptionId) ||
+				option.cantHaveInactivePlanOptionIds.includes(o.edhPlanOptionId))
+			: [];
 	}
 
 	deselectOption(option: LitePlanOptionUI)

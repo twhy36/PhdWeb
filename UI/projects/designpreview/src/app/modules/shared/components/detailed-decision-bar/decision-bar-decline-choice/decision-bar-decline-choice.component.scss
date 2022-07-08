@@ -10,15 +10,17 @@
 
 	.choice-label {
 		max-width: 150px;
-		color: $pantone_blue;
+		color: var(--link-color);
 		text-decoration: underline;
 	}
 }
 
 .icon {
 	width: 25px;
+	font-size: 18px;
+	margin-top: -4px;
 
 	.phd-icon-selected {
-		color: $pantone_blue;
+		color: var(--heart-icon-color);
 	}
 }

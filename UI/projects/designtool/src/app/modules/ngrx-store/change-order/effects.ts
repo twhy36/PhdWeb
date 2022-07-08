@@ -745,7 +745,7 @@ export class ChangeOrderEffects
 								store.lite.scenarioOptions,
 								store.lite.options,
 								store.lite.elevationOverrideNote || store.lite.colorSchemeOverrideNote,
-								true
+								!isSpecSalePending
 							)
 							: this.changeOrderService.getJobChangeOrderInputData(
 								store.scenario.tree,

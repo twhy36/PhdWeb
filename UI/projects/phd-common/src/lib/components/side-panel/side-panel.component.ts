@@ -1,4 +1,4 @@
-import { Component, Input, TemplateRef, Output, EventEmitter } from '@angular/core';
+import { Component, Input, TemplateRef, Output, EventEmitter, OnDestroy, OnChanges, SimpleChanges } from '@angular/core';
 
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
@@ -11,21 +11,35 @@ import { ConfirmModalComponent } from '../confirm-modal/confirm-modal.component'
 	styleUrls: ['./side-panel.component.scss']
 })
 
-export class SidePanelComponent
+export class SidePanelComponent implements OnChanges, OnDestroy
 {
 	@Output() onSidePanelClose = new EventEmitter<boolean>();
 	@Output() onSidePanelConfirmed = new EventEmitter<boolean>();
+
 	@Input() sidePanelOpen: boolean = false;
 	@Input() customClasses: string = '';
-
 	@Input() headerTemplate: TemplateRef<any>;
 	@Input() subheaderTemplate: TemplateRef<any>;
 	@Input() bodyTemplate: TemplateRef<any>;
 	@Input() footerTemplate: TemplateRef<any>;
 	@Input() isDirty: boolean;
 	@Input() customMsgBody: string;
+	@Input() createDisabledOverlay: boolean = true;
 
-	constructor(private _modalService: NgbModal) { }
+	constructor(private _modalService: NgbModal)
+	{
+		this.createOverlay();
+	}
+
+	ngOnChanges() 
+	{
+		this.createDisabledOverlay ? this.createOverlay() : this.removeOverlay();
+	}
+
+	ngOnDestroy()
+	{
+		this.removeOverlay();
+	}
 
 	toggleSidePanel()
 	{
@@ -36,6 +50,32 @@ export class SidePanelComponent
 		else
 		{
 			this.onSidePanelClose.emit(!this.sidePanelOpen);
+			
+		}
+	}
+
+	createOverlay()
+	{
+		var overlayDiv: HTMLElement = document.getElementById('phd-side-panel-overlay');
+
+		if (!overlayDiv)
+		{
+			overlayDiv = document.createElement('div');
+
+			overlayDiv.id = 'phd-side-panel-overlay';
+			overlayDiv.className = 'phd-side-panel-overlay';
+
+			document.body.appendChild(overlayDiv);
+		}
+	}
+
+	removeOverlay()
+	{
+		var overlayDiv = document.getElementById('phd-side-panel-overlay');
+
+		if (overlayDiv)
+		{ 
+			overlayDiv.remove();
 		}
 	}
 

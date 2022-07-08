@@ -128,7 +128,9 @@ export class ManageTreeOptionsComponent extends ComponentCanNavAway implements O
 			this.currentTreeOptions = options ? options : [];
 			this.optionsTable.optionsList = this.currentTreeOptions;
 			this.marketCommunityPlanBreadcrumb = `${community.market.name} > ${community.name} - ${community.number} > ${plan.planSalesName}`;
-			this._orgService.currentFinancialCommunity = community.number;
+
+			// update local storage
+			this._orgService.currentFinancialCommunity = community;
 
 			this.loading.next(false);
 		});
@@ -193,7 +195,7 @@ export class ManageTreeOptionsComponent extends ComponentCanNavAway implements O
 
 	get unassignedOptions(): Array<ITreeOption>
 	{
-		const options = this.currentTreeOptions.filter(o => o.optionRuleMappingCount === 0 && !o.baseHouse);
+		const options = this.currentTreeOptions.filter(o => !o.hasRules && !o.baseHouse);
 
 		return options ? options : [];
 	}
@@ -223,11 +225,6 @@ export class ManageTreeOptionsComponent extends ComponentCanNavAway implements O
 	get titleAddon(): string
 	{
 		return this.isDraft ? ' - Draft' : '';
-	}
-
-	get selectedCommunity(): string
-	{
-		return this._orgService.currentFinancialCommunity;
 	}
 
 	onHasChanges(value: boolean)

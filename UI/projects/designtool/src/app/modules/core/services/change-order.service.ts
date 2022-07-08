@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
-import { Observable, throwError as _throw, combineLatest } from 'rxjs';
+import { Observable, throwError as _throw } from 'rxjs';
 import { map, catchError, tap, flatMap } from 'rxjs/operators';
 
 import * as _ from 'lodash';
@@ -1098,31 +1098,28 @@ export class ChangeOrderService
 		const changeOrderPlanOptions = changeOrder ? this.getJobChangeOrderPlanOptions(changeOrder) : null;
 		const options = [...job.jobPlanOptions, ...((changeOrder && changeOrder.salesStatusDescription !== 'Pending') ? changeOrderPlanOptions : [])];
 
-		return combineLatest([ 
-			this._treeService.getHistoricOptionMapping(_.flatten(choices.map(c =>
+		return this._treeService.getHistoricOptionMapping(_.flatten(choices.map(c =>
+		{
+			if (isJobChoice(c))
 			{
-				if (isJobChoice(c))
-				{
-					return c.jobChoiceJobPlanOptionAssocs
-						.filter(o => o.choiceEnabledOption)
-						.map(o =>
-						{
-							return { optionNumber: options.find(opt => opt.id === o.jobPlanOptionId)?.integrationKey, dpChoiceId: c.dpChoiceId };
-						});
-				}
-				else
-				{
-					return c.jobChangeOrderChoiceChangeOrderPlanOptionAssocs
-						.filter(o => o.jobChoiceEnabledOption)
-						.map(o =>
-						{
-							return { optionNumber: options.find(opt => opt.id === o.jobChangeOrderPlanOptionId)?.integrationKey, dpChoiceId: c.decisionPointChoiceID };
-						});
-				}
-			}))),
-			this._treeService.getHistoricRules(choices)
-		]).pipe(
-			map(([mapping, historicRules]) =>
+				return c.jobChoiceJobPlanOptionAssocs
+					.filter(o => o.choiceEnabledOption)
+					.map(o =>
+					{
+						return { optionNumber: options.find(opt => opt.id === o.jobPlanOptionId)?.integrationKey, dpChoiceId: c.dpChoiceId };
+					});
+			}
+			else
+			{
+				return c.jobChangeOrderChoiceChangeOrderPlanOptionAssocs
+					.filter(o => o.jobChoiceEnabledOption)
+					.map(o =>
+					{
+						return { optionNumber: options.find(opt => opt.id === o.jobChangeOrderPlanOptionId)?.integrationKey, dpChoiceId: c.decisionPointChoiceID };
+					});
+			}
+		}))).pipe(
+			map(mapping =>
 			{
 				let lockedInChoices: Choice[] = [];
 				choices.filter(isLocked(changeOrder)).forEach(choice =>
@@ -1133,7 +1130,7 @@ export class ChangeOrderService
 					{
 						let lockInChoice = _.cloneDeep(treeChoice);
 
-						lockInChoice.lockedInChoice = getLockedInChoice(choice, options, historicRules?.choiceRules);
+						lockInChoice.lockedInChoice = getLockedInChoice(choice, options);
 
 						if (isJobChoice(choice))
 						{

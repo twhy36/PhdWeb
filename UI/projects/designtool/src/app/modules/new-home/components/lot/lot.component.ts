@@ -50,6 +50,7 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 	plans$: Observable<Array<Plan>>;
 	selectedPlan$: Observable<Plan>;
 	selectedPlanId: number;
+	scenarioPlanId?: number;
 
 	canOverride: boolean;
 	canConfigure: boolean;
@@ -140,6 +141,7 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 			select(state => state.scenario.tree),
 			map(tree =>
 			{
+				this.scenarioPlanId = tree?.planId;
 				return  _.flatMap(tree?.treeVersion?.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)));
 			})
 		).subscribe(choices => this.currentChoices = choices);
@@ -378,6 +380,8 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 		{
 			this.lotService.getLotChoiceRuleAssocs(lot.id).subscribe(lotChoiceRuleAssoc =>
 			{
+				let prevLotChoiceRules = this.lotChoiceRules;
+
 				// Assign new lot choice rules everytime we select a lot
 				// This assigns the most latest lot choice rules, instead of waiting for 1 hour
 				this.lotChoiceRules = lotChoiceRuleAssoc?.length ? updateLotChoiceRules(lotChoiceRuleAssoc, this.lotChoiceRules) : [];
@@ -385,27 +389,51 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 				// All required lot choice rules on the current lot
 				const requiredSelections = this.lotChoiceRules?.map((lcr) =>
 				{
-					return { ...lcr, rules: lcr.rules.filter((rule) => rule.edhLotId === lot.id && rule.mustHave) }
-				}).filter(r => r.rules.length);
-
-				// Fetch previous lot choice rules
-				let prevLotChoiceRules = this.lotChoiceRules?.map((lcr) => {
-					return { ...lcr, rules: lcr.rules.filter((rule) => rule.edhLotId === this.scenario.lotId) }
+					return {
+						...lcr, rules: lcr.rules.filter((rule) => rule.edhLotId === lot.id
+							&& (this.scenarioPlanId ? rule.planId === this.scenarioPlanId : true)
+							&& rule.mustHave)
+					}
 				}).filter(r => r.rules.length);
 
 				// All previously required lot choice rules that are not required on the current lot
 				const noLongerRequiredSelections = prevLotChoiceRules?.map((lcr) => {
-					return { ...lcr, rules: lcr.rules.filter((rule) => rule.mustHave && !requiredSelections.some(r2 => lcr.divChoiceCatalogId == r2.divChoiceCatalogId)) }
+					return {
+						...lcr, rules: lcr.rules.filter((rule) => rule.mustHave
+							&& (this.scenarioPlanId ? rule.planId === this.scenarioPlanId : true)
+							&& !requiredSelections.some(r2 => lcr.divChoiceCatalogId == r2.divChoiceCatalogId))
+					}
 				}).filter(r => r.rules.length);
 
 				// Previous lot choice selections does not include lot choice required/disabled choices, hence the check to filter previous lot choice rules
-				let previousLotSelections = this.scenario.scenarioChoices?.filter(sc => !prevLotChoiceRules?.find(plc => plc.divChoiceCatalogId === sc.choice.choiceCatalogId));
-
-				// Disabled selections on the new lot for choices that were selected on the previous lot
-				const disabledSelections = this.lotChoiceRules?.map(lcr =>
+				if (this.buildMode === 'spec' || this.buildMode === 'model')
 				{
-					return { ...lcr, rules: lcr.rules.filter(rule => rule.edhLotId === lot.id && !rule.mustHave && previousLotSelections?.find(pls => pls.choice.choiceCatalogId === lcr.divChoiceCatalogId)) }
-				}).filter(r => r.rules.length);
+					let previousLotSelections = this.currentChoices.filter(cc => !prevLotChoiceRules?.find(plc => plc.divChoiceCatalogId === cc.divChoiceCatalogId) && cc.quantity > 0);
+
+					// Disabled selections on the new lot for choices that were selected on the previous lot
+					var disabledSelections = this.lotChoiceRules?.map(lcr => {
+						return {
+							...lcr, rules: lcr.rules.filter(rule => rule.edhLotId === lot.id
+								&& !rule.mustHave
+								&& (this.scenarioPlanId ? rule.planId === this.scenarioPlanId : true)
+								&& previousLotSelections?.find(pls => pls.divChoiceCatalogId === lcr.divChoiceCatalogId))
+						}
+					}).filter(r => r.rules.length);
+				}
+				else
+				{
+					let previousLotSelections = this.scenario.scenarioChoices?.filter(sc => !prevLotChoiceRules?.find(plc => plc.divChoiceCatalogId === sc.choice.choiceCatalogId));
+
+					// Disabled selections on the new lot for choices that were selected on the previous lot
+					var disabledSelections = this.lotChoiceRules?.map(lcr => {
+						return {
+							...lcr, rules: lcr.rules.filter(rule => rule.edhLotId === lot.id
+								&& !rule.mustHave
+								&& (this.scenarioPlanId ? rule.planId === this.scenarioPlanId : true)
+								&& previousLotSelections?.find(pls => pls.choice.choiceCatalogId === lcr.divChoiceCatalogId))
+						}
+					}).filter(r => r.rules.length);
+				}
 
 				if (this.selectedPlanId && (((requiredSelections?.length || disabledSelections?.length) && !selected) || noLongerRequiredSelections?.length))
 				{
@@ -417,23 +445,42 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 
 					requiredSelections.forEach(ncr =>
 					{
-						body += 'Choice ' + this.currentChoices.find(cc => cc.divChoiceCatalogId === ncr.divChoiceCatalogId)?.label + ' Required' + '<br />';
+						let foundChoice = this.currentChoices.find(cc => cc.divChoiceCatalogId === ncr.divChoiceCatalogId);
+						if (foundChoice)
+						{
+							body += 'Choice ' + foundChoice.label + ' Required' + '<br />';
+						}
 					});
 
-					body += disabledSelections.length ? '<br />' + '<b>' + 'Lot ' + lot.lotBlock + ' has the following restriction(s): ' + '</b>' + '<br />' : '';
-
-					disabledSelections.forEach(ncr =>
+					if (disabledSelections?.length)
 					{
-						body += 'Choice ' + this.currentChoices.find(cc => cc.divChoiceCatalogId === ncr.divChoiceCatalogId)?.label + ' Disabled' + '<br />';
-					});
+						body += requiredSelections?.length ? '<br />' : '';
 
-					body += noLongerRequiredSelections?.length ? '<br />' + '<b>' + 'The following choice(s) will no longer be required for Lot ' + lot.lotBlock + '.'
-						+ ' You will be able to modify the choice(s) if you continue: ' + '</b>' + '<br />' : '';
+						body += '<b>' + 'Lot ' + lot.lotBlock + ' has the following restriction(s): ' + '</b>' + '<br />';
 
-					noLongerRequiredSelections?.forEach(ncr =>
+						disabledSelections.forEach(ncr =>
+						{
+							let foundChoice = this.currentChoices.find(cc => cc.divChoiceCatalogId === ncr.divChoiceCatalogId);
+							if (foundChoice)
+							{
+								body += 'Choice ' + foundChoice.label + ' Disabled' + '<br />';
+							}
+						});
+					}
+
+					if (noLongerRequiredSelections?.length)
 					{
-						body += 'Choice ' + this.currentChoices.find(cc => cc.divChoiceCatalogId === ncr.divChoiceCatalogId)?.label + '<br />';
-					});
+						body += requiredSelections?.length || disabledSelections.length ? '<br />' : '';
+
+						body += '<b>' + 'The following choice(s) will no longer be required for Lot ' + lot.lotBlock + '.' + ' You will be able to modify the choice(s) if you continue: ' + '</b>' + '<br />';
+
+						noLongerRequiredSelections?.forEach(ncr => {
+							let foundChoice = this.currentChoices.find(cc => cc.divChoiceCatalogId === ncr.divChoiceCatalogId);
+							if (foundChoice) {
+								body += 'Choice ' + foundChoice.label + '<br />';
+							}
+						});
+					}
 
 					confirm.componentInstance.body = body;
 					confirm.componentInstance.defaultOption = 'Continue';
@@ -443,6 +490,11 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 						if (result !== 'Close')
 						{
 							this.toggleLot(lot, selected);
+						}
+						else
+						{
+							//Set previous lot choice rules if the user cancels
+							this.lotChoiceRules = prevLotChoiceRules;
 						}
 					});
 				}

@@ -6,7 +6,6 @@ import { UnsubscribeOnDestroy, flipOver3, OptionImage, DecisionPoint, Group, Tre
 import { ChoiceExt } from '../../models/choice-ext.model';
 import { BlockedByItemList } from '../../models/blocked-by.model';
 import { getDisabledByList } from '../../../shared/classes/tree.utils';
-import { BrandService } from '../../../core/services/brand.service';
 import { AdobeService } from '../../../core/services/adobe.service';
 
 @Component({
@@ -43,7 +42,6 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 
 	constructor(
 		public modalService: NgbModal,
-		private brandService: BrandService,
 		private adobeService: AdobeService
 	) {
 		super();
@@ -92,7 +90,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 	 */
 	onLoadImageError(event: any)
 	{
-		event.srcElement.src = this.brandService.getBrandImage('choice-card-logo');
+		event.srcElement.src = 'assets/NoImageAvailable.png';
 	}
 
 	toggleChoice()
@@ -133,9 +131,5 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 		this.blockedChoiceModalRef?.close();
 		delete this.disabledByList;
 		this.onSelectDecisionPoint.emit(pointId);
-	}
-
-	getImageSrc() {
-		return this.brandService.getBrandImage('choice-card-logo');
 	}
 }

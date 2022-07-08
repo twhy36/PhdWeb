@@ -11,8 +11,15 @@
 		</div>
 
 		<div *ngIf="showFavorites" class="d-flex phd-clickable" (click)="onViewFavorites()">
-			<i class="fa fa-list-alt fa-2x"></i>
+			<img class="phd-favorites-list" [src]="favoritesListIcon">
 			<span class="align-self-center">My Favorites</span>
+		</div>
+		<div *ngIf="!isPreview && !hideContractedToggle" class="d-flex phd-contracted-options">
+			<div [ngClass]="{'phd-clickable' : !isContractedOptionsDisabled }"> 
+				<span class="phd-icon-selected"><i *ngIf="includeContractedOptions" class="fa fa-check-square" (click)="toggleContractedOptions()"></i></span>
+				<div *ngIf="!includeContractedOptions" class="phd-empty-checkbox" [ngClass]="{'phd-disabled-checkbox' : isContractedOptionsDisabled }" (click)="toggleContractedOptions()"></div>
+			</div>
+			<span class="phd-contracted-options-label">Display Contracted Options</span>
 		</div>
 	</div>
 

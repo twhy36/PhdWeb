@@ -4,7 +4,7 @@ import { DomHandler } from 'primeng/dom';
 import { ObjectUtils } from 'primeng/utils';
 import { Table, TableService } from 'primeng/table';
 import { OverlayPanel } from 'primeng/overlaypanel';
-import { FilterMetadata, FilterService } from 'primeng/api';
+import { FilterMetadata, FilterService, SortEvent } from 'primeng/api';
 import { PrimeNGCorrectionService } from '../../services/primeng.service';
 import { TableSort } from './phd-table.model';
 
@@ -71,6 +71,7 @@ export class PhdTableComponent implements AfterContentInit, OnChanges
 
 	defaultTableSort: TableSort;
 	currentTableSort: TableSort;
+	sortOrder: number;
 
 	constructor(private filterService: FilterService, private primeNgCorrectionService: PrimeNGCorrectionService) {}
 
@@ -82,10 +83,33 @@ export class PhdTableComponent implements AfterContentInit, OnChanges
 	}
 
 	ngOnChanges(): void
-	{
-		if (this.value)
+	{	
+		if (this.currentTableSort && this.value)
 		{
-			this.value.forEach((val, i) => val["__index"] = i);
+			this.value.forEach((val, i) => val['__index'] = i);
+
+			if (this.value.length > 0)
+			{
+				let applySort: SortEvent;
+
+				if (this.currentTableSort.sortField !== this.defaultTableSort.sortField)
+				{
+					applySort = { data: this.value, field: this.currentTableSort.sortField, order: this.currentTableSort.sortOrder } as SortEvent;
+				}
+				else if (this.currentTableSort.sortField === this.defaultTableSort.sortField && this.currentTableSort.sortOrder !== this.defaultTableSort.sortOrder)
+				{
+					applySort = { data: this.value, field: this.currentTableSort.sortField, order: this.currentTableSort.sortOrder } as SortEvent;
+				}
+				else if (this.currentTableSort.sortOrder === this.defaultTableSort.sortOrder)
+				{
+					applySort = { data: this.value, field: this.defaultTableSort.sortField, order: this.defaultTableSort.sortOrder } as SortEvent;
+				}
+
+				if (applySort)
+				{
+					this.customSort(applySort);
+				}
+			}
 		}
 
 		if (this.groupByKey && this.value)
@@ -115,15 +139,17 @@ export class PhdTableComponent implements AfterContentInit, OnChanges
 			}
 		}
 	}
+	
 
 	ngAfterContentInit(): void
 	{
-		let settingsJSON = localStorage.getItem(this.tableId);
 
+		let settingsJSON = localStorage.getItem(this.tableId);		
+		
 		if (settingsJSON)
 		{
 			let settings = JSON.parse(settingsJSON);
-
+			
 			settings.cols.forEach((col: any) =>
 			{
 				let colRef = this.columnRefs.find(c => c.columnId === col.columnId);
@@ -200,6 +226,8 @@ export class PhdTableComponent implements AfterContentInit, OnChanges
 		if (this.sortField)
 		{
 			this.defaultTableSort = this.sortField instanceof TableSort ? this.sortField : new TableSort({ sortField: this.sortField as string, sortOrder: 1 });
+			this.currentTableSort = this.sortField instanceof TableSort ? this.sortField : new TableSort({ sortField: this.sortField as string, sortOrder: this.sortOrder });
+			
 		}
 	}
 
@@ -289,13 +317,14 @@ export class PhdTableComponent implements AfterContentInit, OnChanges
 	onLazyLoad(event: any): void
 	{
 		let tableSort = new TableSort(event);
-		let isDefault = this.defaultTableSort && !this.defaultTableSort.multiSortMeta ? tableSort.sortField == this.defaultTableSort.sortField && tableSort.sortOrder === this.defaultTableSort.sortOrder : false;
 
+		let isDefault = this.defaultTableSort && !this.defaultTableSort.multiSortMeta ? tableSort.sortField == this.defaultTableSort.sortField && tableSort.sortOrder === this.defaultTableSort.sortOrder : false;
+		
 		if (!isDefault)
 		{
-			// update the current sort. Adding an artificial third option so it will reset to the original state.
+			// update the current sort. Adding an artificial third option so it will reset to the original state.			
 			this.currentTableSort = tableSort.sortField === this.currentTableSort?.sortField && this.currentTableSort?.sortOrder === -1 ? null : tableSort;
-
+						
 			// if sort is null then reset table to it's original sort
 			if (!this.currentTableSort)
 			{
@@ -500,7 +529,6 @@ export class PhdTableComponent implements AfterContentInit, OnChanges
 	sortLazy(tableSortOverride?: TableSort)
 	{
 		let tableSort = this.currentTableSort;
-		
 		if (tableSortOverride)
 		{
 			tableSort = tableSortOverride;
@@ -512,7 +540,6 @@ export class PhdTableComponent implements AfterContentInit, OnChanges
 			// get sort fields
 			tableSort.sortField = this.currentTableSort?.sortField != null ? this.currentTableSort.sortField : this.defaultTableSort.sortField;
 			tableSort.sortOrder = this.currentTableSort?.sortOrder != null ? this.currentTableSort.sortOrder : this.defaultTableSort.sortOrder;
-
 			if (tableSort.sortField == null)
 			{
 				// if sortField is null then there might be a multisort in use
@@ -532,13 +559,45 @@ export class PhdTableComponent implements AfterContentInit, OnChanges
 		else
 		{
 			this.table._sortField = tableSort.sortField;
-			this.table._sortOrder = tableSort.sortOrder;
+			this.table._sortOrder = tableSort.sortOrder;			
 
 			this.table.sortSingle();
 		}
 		
 		// turn on lazyLoad
 		this.table.lazy = true;
+	}
+
+	customSort(event: SortEvent)
+	{
+		event.data.sort((data1, data2) => {
+			let value1 = data1[event.field];
+			let value2 = data2[event.field];
+			let result = null;
+
+			if (value1 == null && value2 != null)
+			{
+				result = -1;
+			}
+			else if (value1 != null && value2 == null)
+			{
+				result = 1;
+			}
+			else if (value1 == null && value2 == null)
+			{
+				result = 0;
+			}
+			else if (typeof value1 === 'string' && typeof value2 === 'string')
+			{
+				result = value1.localeCompare(value2);
+			}
+			else
+			{
+				result = (value1 < value2) ? -1 : (value1 > value2) ? 1 : 0;
+			}
+
+			return (event.order * result);
+		});
 	}
 
 	resetSortDefaultsLazy(tableSort?: TableSort)

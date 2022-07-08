@@ -304,7 +304,7 @@ export class LiteEffects
 						const store = result.store;
 
 						return combineLatest([
-							this.liteService.getLitePlanOptions(action.job.planId),
+							this.liteService.getLitePlanOptions(store.plan.selectedPlan),
 							this.liteService.getOptionsCategorySubcategory(action.job.financialCommunityId)
 						]).pipe(
 							switchMap(([options, optionsForCategories]) => {

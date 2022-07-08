@@ -52,6 +52,13 @@ export class ContractedSummaryComponent extends UnsubscribeOnDestroy implements 
 		).subscribe(fav => {
 			this.salesChoices = fav && fav.salesChoices;
 		});
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(state => state.scenario),
+		).subscribe((scenario) => {
+			this.isPreview = scenario.buildMode === 'preview';
+		});
 	}
 
 	onBack()

@@ -41,15 +41,41 @@
 			color: var(--secondary-icon-color);
 		}
 
-		.fa-list-alt {
-			margin-top: 2px;
-			margin-right: 8px;
+
+		.phd-favorites-list {
+			height: 32px;
+			right: 8px;
 		}
 
 		.fa-list-alt {
 			margin-top: 2px;
 			margin-right: 8px;
 		}
+	}
+
+	.phd-clickable {
+		align-items: center;
+	}
+
+	.phd-contracted-options {
+		align-items: center;
+
+		div {
+			margin: 0;
+		}
+
+		i {
+			margin: 0;
+			padding-bottom: 7px;
+		}
+
+		.phd-contracted-options-label {
+			margin-left: 8px;
+		}
+	}
+
+	.phd-icon-selected {
+		color: var(--primary-icon-color);
 	}
 
 	.phd-action-bar-action-btn {

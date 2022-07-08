@@ -56,6 +56,7 @@ export class LocationGroupsPanelComponent extends UnsubscribeOnDestroy implement
 	isSaving: boolean = false;
 	workingId: number = 0;
 	isReadOnly: boolean;
+	sortField: string = 'locationGroupName';
 
 	get currentTableSort(): TableSort
 	{
@@ -88,6 +89,7 @@ export class LocationGroupsPanelComponent extends UnsubscribeOnDestroy implement
 		this.allDataLoaded = false;
 		this.isSearchingFromServer = false;
 		this.settings = this._settingsService.getSettings();
+
 
 		this.route.parent.paramMap.pipe(
 			this.takeUntilDestroyed(),
@@ -172,8 +174,7 @@ export class LocationGroupsPanelComponent extends UnsubscribeOnDestroy implement
 	keywordSearch(event: any)
 	{
 		this.selectedSearchFilter = event['searchFilter'];
-		this.keyword = event['keyword'];
-
+		this.searchBar.keyword = this.keyword = event['keyword'].trim();
 		this.filterLocationGroups();
 
 		if (!this.isSearchingFromServer)
@@ -208,7 +209,7 @@ export class LocationGroupsPanelComponent extends UnsubscribeOnDestroy implement
 			if (this.allDataLoaded)
 			{
 				this.filteredLocationGroupsList = [];
-								
+
 				let filteredResults = this.filterByKeyword(searchFilter, this.keyword);
 
 				if (isActiveStatus !== null)
@@ -332,6 +333,7 @@ export class LocationGroupsPanelComponent extends UnsubscribeOnDestroy implement
 	 */
 	lazyLoadData(event: TableLazyLoadEvent)
 	{
+
 		if (!this.allDataLoaded && !this.keyword && !this.selectedStatus)
 		{
 			// return data based on the sort options.  if currentTableSort is null then it will revert to the default sort.
@@ -345,7 +347,6 @@ export class LocationGroupsPanelComponent extends UnsubscribeOnDestroy implement
 		}
 		else if (this.allDataLoaded || this.keyword || this.selectedStatus)
 		{
-			// all the data is either loaded or we are filtering so all the data should be loaded at this time so we can just update the sort.				
 			this.tableComponent.sortLazy();
 		}
 	}

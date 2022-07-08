@@ -55,6 +55,7 @@ export class AttributeGroupsPanelComponent extends UnsubscribeOnDestroy implemen
 	isSaving: boolean = false;
 	workingId: number = 0;
 	isReadOnly: boolean;
+	sortField: string = 'groupName';
 
 	get currentTableSort(): TableSort
 	{
@@ -181,8 +182,7 @@ export class AttributeGroupsPanelComponent extends UnsubscribeOnDestroy implemen
 	keywordSearch(event: any)
 	{
 		this.selectedSearchFilter = event['searchFilter'];
-		this.keyword = event['keyword'];
-
+		this.searchBar.keyword = this.keyword = event['keyword'].trim();
 		this.filterAttributeGroups();
 
 		if (!this.isSearchingFromServer)
@@ -344,7 +344,7 @@ export class AttributeGroupsPanelComponent extends UnsubscribeOnDestroy implemen
 		}
 		else if (this.allDataLoaded || this.keyword || this.selectedStatus)
 		{
-			// all the data is either loaded or we are filtering so all the data should be loaded at this time so we can just update the sort.				
+			// all the data is either loaded or we are filtering so all the data should be loaded at this time so we can just update the sort.
 			this.tableComponent.sortLazy();
 		}
 	}

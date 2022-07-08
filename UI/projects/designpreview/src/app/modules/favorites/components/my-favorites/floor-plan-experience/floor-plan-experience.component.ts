@@ -122,12 +122,6 @@ export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implement
 		this.onToggleChoice.emit(choice);
 	}
 
-	toggleContractedOptions() {
-		if (!this.isContractedOptionsDisabled) {
-			this.onToggleContractedOptions.emit();
-		}
-	}
-
 	viewChoiceDetail(choice: ChoiceExt) {
 		setTimeout(() => {
 			this.onViewChoiceDetail.emit(choice);
@@ -155,11 +149,6 @@ export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implement
 
 	declineDecisionPoint(point: DecisionPoint) {
 		this.onDeclineDecisionPoint.emit(point);
-	}
-
-	get isContractedOptionsDisabled() : boolean
-	{
-		return this.isPreview || this.isDesignComplete;
 	}
 
 	scrollPointIntoView(pointId: number)

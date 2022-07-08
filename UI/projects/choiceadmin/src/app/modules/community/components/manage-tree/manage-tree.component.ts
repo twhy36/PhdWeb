@@ -256,12 +256,12 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 		{
 			this.communities = comms;
 
-			const storedCommunity = this._orgService.currentFinancialCommunity;
+			const financialCommunity = this._orgService.currentFinancialCommunity;
 
-			if (commId || storedCommunity)
+			if (commId || financialCommunity)
 			{
 				// try to find a match for the stored community.
-				const community = this.communities.find(x => (commId ? x.id === commId : x.number === storedCommunity));
+				const community = this.communities.find(x => (commId ? x.id === commId : x.number === financialCommunity.number));
 
 				this.selectedCommunity = community ? community : null;
 
@@ -269,11 +269,13 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 				{
 					// set brand
 					let financialBrandId = this.selectedCommunity.financialBrandId;
+
 					this._brandService.getFinancialBrand(financialBrandId, this.environment.apiUrl).subscribe(brand => {
 						this.financialBrand = brand;
 					});
+
 					// set local storage
-					this._orgService.currentFinancialCommunity = this.selectedCommunity.number;
+					this._orgService.currentFinancialCommunity = this.selectedCommunity;
 
 					this.getPlans(planKey, treeVersionId);
 				}
@@ -656,12 +658,14 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 		this.plansLoading = true;
 		// set brand
 		let financialBrandId = this.selectedCommunity.financialBrandId;
+
 		this._brandService.getFinancialBrand(financialBrandId, this.environment.apiUrl).subscribe(brand => {
 			this.financialBrand = brand;
 		});
 		
 		// set local storage
-		this._orgService.currentFinancialCommunity = this.selectedCommunity.number;
+		this._orgService.currentFinancialCommunity = this.selectedCommunity;
+
 		this._planService.getCommunityPlans(this.selectedCommunity.id)
 			.pipe(
 				finalize(() => { this.plansLoading = false; })
@@ -795,7 +799,7 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 			let badOptions: ITreeOption[] = [];
 
 			// Get all options in the current tree that are unmapped
-			const allUnmappedOptions = this.currentTreeOptions.filter(o => o.optionRuleMappingCount === 0 && !o.baseHouse);
+			const allUnmappedOptions = this.currentTreeOptions.filter(o => !o.hasRules && !o.baseHouse);
 
 			options.forEach(opt =>
 			{
@@ -1386,8 +1390,8 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 
 						if (tOption != null)
 						{
-							// setting optionRuleMappingCount to 0 should remove the record from the options list
-							tOption.optionRuleMappingCount = 0;
+							// setting has rules to false should remove the record from the options list
+							tOption.hasRules = false;
 						}
 					});
 				}

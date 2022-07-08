@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, Output, EventEmitter, OnDestroy } from '@angular/core';
-import { BehaviorSubject, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 
 import * as _ from 'lodash';
 
@@ -11,6 +11,7 @@ import { bind } from '../../../../shared/classes/decorators.class';
 import { ITreeOption, IOptionRuleChoice, IOptionRuleChoiceGroup } from '../../../../shared/models/option.model';
 import { PhdApiDto } from '../../../../shared/models/api-dtos.model';
 
+
 @Component({
 	selector: 'option-choice-rule',
 	templateUrl: './option-choice-rule.component.html',
@@ -21,10 +22,9 @@ export class OptionChoiceRuleComponent implements OnInit, OnDestroy
 	@Input() option: ITreeOption;
 	@Input() optionRule: PhdApiDto.IOptionChoiceRule;
 	@Input() isReadOnly: boolean;
-	@Input() canCreateAlternateMapping: boolean;
 
-	@Output() deleteRule = new EventEmitter<{ optionRuleChoices: IOptionRuleChoice[], mappingIndex: number, displayIndex: number, callback: Function }>();
-	@Output() saveRule = new EventEmitter<{ selectedItems: Array<DTChoice>, callback: Function, mappingIndex: number }>();
+	@Output() deleteRule = new EventEmitter<{ optionRuleChoice: IOptionRuleChoice, callback: Function }>();
+	@Output() saveRule = new EventEmitter<{ selectedItems: Array<DTChoice>, callback: Function }>();
 	@Output() updateMustHave = new EventEmitter<{ optionRuleChoiceGroup: IOptionRuleChoiceGroup }>();
 
 	groups: Array<IDTGroup> = [];
@@ -41,34 +41,6 @@ export class OptionChoiceRuleComponent implements OnInit, OnDestroy
 	selectedRuleId = 0;
 	treeSubscription: Subscription;
 
-	showNewRuleForm: boolean = false;
-	currentMappingIndex: number = null;
-	displayIndex: number = null;
-	isNewMapping: boolean = false;
-	isEditMapping: boolean = false;
-
-	mappingGroupList: IMappingGroup[] = [];
-	choiceList: BehaviorSubject<PhdApiDto.IOptionChoiceRuleChoice[]>
-
-	get ruleFormHeaderText(): string
-	{
-		return this.isNewMapping ? 'Add New Mapping' : 'Edit Mapping';
-	}
-
-	get hideToggleAndDelete(): boolean
-	{
-		return this.isNewMapping || this.isEditMapping;
-	}
-
-	get showMappingTooltip(): boolean
-	{
-		const groupChoicesByIndex = _.groupBy(this.optionRule.choices, c => c.mappingIndex);
-		const groupChoiceSize = _.size(groupChoicesByIndex);
-
-		// only show message if adding/editing where an alternate mapping is in play.
-		return this.canCreateAlternateMapping && this.showNewRuleForm && (this.isEditMapping && groupChoiceSize > 1 || this.isNewMapping && groupChoiceSize >= 1);
-	}
-
 	constructor(
 		private _treeService: TreeService,
 		private _msgService: MessageService
@@ -76,8 +48,6 @@ export class OptionChoiceRuleComponent implements OnInit, OnDestroy
 
 	ngOnInit(): void
 	{
-		this.choiceList = new BehaviorSubject<PhdApiDto.IOptionChoiceRuleChoice[]>(this.optionRule.choices);
-
 		this.treeSubscription = this._treeService.currentTree.subscribe(t =>
 		{
 			this.groups = t.version.groups.map(g =>
@@ -108,11 +78,6 @@ export class OptionChoiceRuleComponent implements OnInit, OnDestroy
 				return group;
 			});
 		});
-
-		this.choiceList.subscribe(choiceList =>
-		{
-			this.mappingGroupList = this.getMappingGroupList(choiceList);
-		});
 	}
 
 	ngOnDestroy(): void
@@ -123,132 +88,51 @@ export class OptionChoiceRuleComponent implements OnInit, OnDestroy
 		}
 	}
 
-	getMappingGroupList(choiceList: PhdApiDto.IOptionChoiceRuleChoice[]): IMappingGroup[]
+	get optionChoiceList(): Array<IOptionRuleChoiceGroup>
 	{
-		const mappingGroupList: IMappingGroup[] = [];
-				
-		if (this.optionRule.id !== 0 && choiceList.length)
+		const optChoiceList: Array<IOptionRuleChoiceGroup> = [];
+
+		if (this.optionRule.id !== 0)
 		{
-			const groupChoicesByIndex = _.groupBy(choiceList, c => c.mappingIndex);
-			const groupChoiceSize = _.size(groupChoicesByIndex);
+			// group choices by pointId
+			const groupedChoices = _.groupBy(this.optionRule.choices, c => c.pointId);
 
-			// show form if only one Mapping Group found, else hide it.
-			this.showNewRuleForm = groupChoiceSize === 1;
-
-			// if working with only one record, then default the currentMappingIndex to that one records value.
-			this.currentMappingIndex = groupChoiceSize === 1 ? choiceList[0].mappingIndex : 0;
-
-			let subGroups = _.flatMap(this.groups, g => g.subGroups);
-			let points = _.flatMap(subGroups, sg => sg.points);
-			let choices = _.flatMap(points, p => p.choices);
-
-			for (const index in groupChoicesByIndex)
+			for (const key in groupedChoices)
 			{
-				if (groupChoicesByIndex.hasOwnProperty(index))
+				if (groupedChoices.hasOwnProperty(key))
 				{
-					// get mappings by index
-					const choicesByIndex = groupChoicesByIndex[index] as PhdApiDto.IOptionChoiceRuleChoice[];
+					const choices = groupedChoices[key] as Array<IOptionRuleChoice>;
 
-					// get a flat list of choices with their sort orders.
-					let orderedChoices = choices.filter(c => choicesByIndex.find(x => x.choiceId === c.id)).map(c =>
-					{
-						return {
-							choiceId: c.id,
-							pointId: c.parent.id,
-							choiceSortOrder: c.sortOrder,
-							pointSortOrder: c.parent.sortOrder,
-							subGroupSortOrder: c.parent.parent.sortOrder,
-							groupSortOrder: c.parent.parent.parent.sortOrder
-						}
-					});
+					const newItem = {
+						choices: choices,
+						pointId: choices[0].pointId,
+						pointLabel: choices[0].pointLabel
+					} as IOptionRuleChoiceGroup;
 
-					// sort the choices so we have the correct display order
-					let sortedChoices = _.orderBy(orderedChoices, ['groupSortOrder', 'subGroupSortOrder', 'pointSortOrder', 'choiceSortOrder']);
-
-					let loopPoint = { currPoint: null, prevPoint: null };
-					let sortedChoice = null;
-					let optionRuleChoiceGroup: IOptionRuleChoiceGroup = null;
-					let x = 0;
-
-					let optChoiceList: IOptionRuleChoiceGroup[] = [];
-
-					while (x < sortedChoices.length)
-					{
-						sortedChoice = sortedChoices[x];
-
-						// find our current working choice
-						let ruleChoice = choicesByIndex.find(x => x.choiceId === sortedChoice.choiceId);
-
-						loopPoint.currPoint = ruleChoice.pointId;
-
-						if (loopPoint.currPoint !== loopPoint.prevPoint)
-						{
-							if (optionRuleChoiceGroup !== null)
-							{
-								// we just changed points so lets output this one and move to the next
-								optChoiceList.push(optionRuleChoiceGroup);
-							}
-
-							optionRuleChoiceGroup = {
-								choices: [],
-								pointId: ruleChoice.pointId,
-								pointLabel: ruleChoice.pointLabel
-							} as IOptionRuleChoiceGroup;
-						}
-
-						optionRuleChoiceGroup.choices.push(ruleChoice);
-
-						loopPoint.prevPoint = loopPoint.currPoint;
-
-						x++;
-
-						// out of sortedChoices, push our last record.
-						if (x === sortedChoices.length)
-						{							
-							optChoiceList.push(optionRuleChoiceGroup);
-						}
-					}
-
-					mappingGroupList.push({ mappingIndex: parseInt(index), optionRuleChoiceGroups: optChoiceList } as IMappingGroup);
+					optChoiceList.push(newItem);
 				}
 			}
 		}
+
+		return optChoiceList;
+	}
+
+	getText(choices: Array<PhdApiDto.IOptionChoiceRuleChoice>): string
+	{
+		let text = '';
+
+		const mustHave = choices[0].mustHave;
+
+		if (mustHave)
+		{
+			text = `${choices.length > 1 ? 'One of these choices' : 'This choice'} must be selected:`;
+		}
 		else
 		{
-			// auto display the choice selector component if no Rule is found.
-			this.showNewRuleForm = true;
-			this.isNewMapping = true;
-			this.currentMappingIndex = null;
+			text = (choices.length > 1) ? 'NONE of these choices may be selected:' : 'This choice may NOT be selected:';
 		}
 
-		return mappingGroupList;
-	}
-
-	addMapping()
-	{
-		this.isNewMapping = true;
-		this.showNewRuleForm = true;
-
-		// find the largest mappingIndex and add 1 else default to 0
-		this.currentMappingIndex = this.optionRule.choices.length ? _.max(this.optionRule.choices.map(x => x.mappingIndex)) + 1 : 0; 
-	}
-
-	editMapping(mappingGroup: IMappingGroup, displayIndex: number)
-	{
-		this.isEditMapping = true;
-		this.showNewRuleForm = true;
-		this.displayIndex = displayIndex; // used to display which mapping is being edited. 		
-
-		let choiceList = this.optionRule.choices.filter(x => x.mappingIndex === mappingGroup.mappingIndex);
-
-		this.mappingGroupList = this.getMappingGroupList(choiceList);
-	}
-
-	deleteMapping(mappingGroup: IMappingGroup, displayIndex: number)
-	{
-		let optionRuleChoices = this.optionRule.choices.filter(x => x.mappingIndex === mappingGroup.mappingIndex);
-
-		this.deleteRule.emit({ optionRuleChoices: optionRuleChoices, mappingIndex: mappingGroup.mappingIndex, displayIndex: displayIndex, callback: this.onDeleteRuleCallback });
+		return text;
 	}
 
 	onAddItemClick(item: DTChoice)
@@ -270,14 +154,6 @@ export class OptionChoiceRuleComponent implements OnInit, OnDestroy
 		this.keyword = '';
 		this.selectedSearchFilter = 'All';
 		this.selectedChoices = [];
-
-		this.isNewMapping = false;
-		this.isEditMapping = false;
-		this.showNewRuleForm = false;
-		this.displayIndex = null;
-
-		// update choice list
-		this.choiceList.next(this.optionRule.choices);
 	}
 
 	localCancelRule()
@@ -304,7 +180,7 @@ export class OptionChoiceRuleComponent implements OnInit, OnDestroy
 
 	localSaveRule()
 	{
-		this.saveRule.emit({ selectedItems: this.selectedChoices, callback: this.onSaveRuleCallback, mappingIndex: this.currentMappingIndex || 0 });
+		this.saveRule.emit({ selectedItems: this.selectedChoices, callback: this.onSaveRuleCallback });
 	}
 
 	@bind
@@ -324,7 +200,7 @@ export class OptionChoiceRuleComponent implements OnInit, OnDestroy
 
 	localDeleteRule(choice: IOptionRuleChoice)
 	{
-		this.deleteRule.emit({ optionRuleChoices: [choice], mappingIndex: null, displayIndex: null, callback: this.onDeleteRuleCallback });
+		this.deleteRule.emit({ optionRuleChoice: choice, callback: this.onDeleteRuleCallback });
 	}
 
 	@bind
@@ -350,7 +226,7 @@ export class OptionChoiceRuleComponent implements OnInit, OnDestroy
 	keywordSearch(event: any)
 	{
 		this.selectedSearchFilter = event['searchFilter'];
-		this.keyword = event['keyword'] || '';
+		this.keyword = event['keyword'].trim() || '';
 
 		// reset everything to unmatched.
 		this._resetAllMatchValues(false);
@@ -555,10 +431,4 @@ export class OptionChoiceRuleComponent implements OnInit, OnDestroy
 			}
 		});
 	}
-}
-
-interface IMappingGroup
-{
-	mappingIndex: number;
-	optionRuleChoiceGroups: IOptionRuleChoiceGroup[];
 }

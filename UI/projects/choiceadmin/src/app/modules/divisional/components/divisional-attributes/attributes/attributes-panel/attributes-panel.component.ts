@@ -20,6 +20,7 @@ import { StorageService } from '../../../../../core/services/storage.service';
 import { PhdTableComponent } from 'phd-common';
 import { TableLazyLoadEvent, TableSort } from '../../../../../../../../../phd-common/src/lib/components/table/phd-table.model';
 
+
 @Component({
 	selector: 'attributes-panel',
 	templateUrl: './attributes-panel.component.html',
@@ -56,6 +57,7 @@ export class AttributesPanelComponent extends UnsubscribeOnDestroy implements On
 	isSearchingFromServer: boolean;
 	isSaving: boolean = false;
 	workingId: number = 0;
+	sortField: string = 'name';
 
 	get currentTableSort(): TableSort
 	{
@@ -87,7 +89,6 @@ export class AttributesPanelComponent extends UnsubscribeOnDestroy implements On
 		this.allDataLoaded = false;
 		this.isSearchingFromServer = false;
 		this.settings = this._settingsService.getSettings();
-
 		this.route.parent.paramMap.pipe(
 			this.takeUntilDestroyed(),
 			filter(p => p.get('marketId') && p.get('marketId') != '0'),
@@ -104,7 +105,6 @@ export class AttributesPanelComponent extends UnsubscribeOnDestroy implements On
 			this.attributeList = data;
 			this.currentPage = 1;
 			this.allDataLoaded = data.length < this.settings.infiniteScrollPageSize;
-						
 			this.setSearchBarFilters();
 			this.filterAttributes();
 		});
@@ -113,7 +113,6 @@ export class AttributesPanelComponent extends UnsubscribeOnDestroy implements On
 	setSearchBarFilters()
 	{
 		let searchBarFilter = this.searchBar.storedSearchBarFilter;
-
 		this.selectedSearchFilter = searchBarFilter?.searchFilter ?? 'All';
 		this.keyword = searchBarFilter?.keyword ?? null;
 	}
@@ -158,8 +157,7 @@ export class AttributesPanelComponent extends UnsubscribeOnDestroy implements On
 	keywordSearch(event: any)
 	{
 		this.selectedSearchFilter = event['searchFilter'];
-		this.keyword = event['keyword'];
-
+		this.searchBar.keyword = this.keyword = event['keyword'].trim();
 		this.filterAttributes();
 
 		if (!this.isSearchingFromServer)
@@ -185,7 +183,6 @@ export class AttributesPanelComponent extends UnsubscribeOnDestroy implements On
 	private filterAttributes()
 	{
 		this.isSearchingFromServer = false;
-
 		const isActiveStatus = this.selectedStatus ? this.selectedStatus === 'Active' : null;
 		let searchFilter = this.searchFilters.find(f => f.name === this.selectedSearchFilter);
 
@@ -194,7 +191,6 @@ export class AttributesPanelComponent extends UnsubscribeOnDestroy implements On
 			if (this.allDataLoaded)
 			{
 				this.filteredAttributeList = [];
-				
 				let filteredResults = this.filterByKeyword(searchFilter, this.keyword);
 
 				if (isActiveStatus !== null)
@@ -296,7 +292,7 @@ export class AttributesPanelComponent extends UnsubscribeOnDestroy implements On
 			});
 		}
 	}
-		
+
 	/**
 	 * The table is flagged as lazy which means any paging, sorting, and/or filtering done will call this method.
 	 * @param event
@@ -313,10 +309,11 @@ export class AttributesPanelComponent extends UnsubscribeOnDestroy implements On
 				this.currentPage = 1;
 				this.allDataLoaded = !data.length || data.length < this.settings.infiniteScrollPageSize;
 			});
+
 		}
 		else if (this.allDataLoaded || this.keyword || this.selectedStatus)
 		{
-			// all the data is either loaded or we are filtering so all the data should be loaded at this time so we can just update the sort.				
+			// all the data is either loaded or we are filtering so all the data should be loaded at this time so we can just update the sort.
 			this.tableComponent.sortLazy();
 		}
 	}

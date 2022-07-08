@@ -1,9 +1,9 @@
 {
 	"images": {
 		"logo": "assets/pulte/logos/Pulte-Homes_Logo-Basic.png",
-		"choice-card-logo": "assets/pulte/logos/Pulte-Homes_Logo-Basic.png",
 		"home-page-logo": "assets/pulte/logos/Pulte-Homes_Logo-Home-Page.png",
-		"white_logo": "assets/pulte/logos/Pulte_Homes_White_Logo.PNG"
+		"white_logo": "assets/pulte/logos/Pulte_Homes_White_Logo.PNG",
+		"favorites_list": "assets/pulte/icons/heart_list-PULTE.png"
 	},
 	"banner": {
 		"1": "assets/pulte/banner/Pulte Kiawh Island.jpg",
@@ -31,6 +31,7 @@
 		"link-color": "#1e81b3",
 		"popup-ribbon-background-color": "#00334C",
 		"home-page-floorplan-background-color": "#e4e5e4",
-		"logo-margin-top": "5px"
+		"logo-margin-top": "5px",
+		"logo-max-height": "42px"
 	}
 }

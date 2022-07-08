@@ -40,14 +40,14 @@ export class OrganizationService
 		this._storageService.setLocal('CA_CURRENT_FM', val);
 	}
 
-	get currentFinancialCommunity(): string
+	get currentFinancialCommunity(): IFinancialCommunity
 	{
-		return this._storageService.getLocal<string>('CA_CURRENT_FC');
+		return this._storageService.getLocal<IFinancialCommunity>('CA_CURRENT_FC');
 	}
 
-	set currentFinancialCommunity(val: string)
+	set currentFinancialCommunity(val: IFinancialCommunity)
 	{
-		this._storageService.setLocal('CA_CURRENT_FC', val);
+		this._storageService.setLocal('CA_CURRENT_FC', { id: val.id, number: val.number });
 	}
 
 	constructor(private _http: HttpClient, private _loggingService: LoggingService, private _storageService: StorageService)

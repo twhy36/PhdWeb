@@ -343,7 +343,6 @@ export namespace PhdEntityDto
 		dpChoice?: IDPChoiceDto;
 		dTreeVersion?: IDTreeVersionDto;
 		optionRule?: IOptionRuleDto;
-		mappingIndex?: number;
 	}
 
 	export interface IDPChoiceRule_DPChoiceAssocDto
@@ -458,11 +457,11 @@ export namespace PhdEntityDto
 	{
 		attributeReassignmentID?: number;
 		dTreeVersionID?: number;
-		todpChoiceID?: number;
+		toDPChoiceID?: number;
 		dpChoiceOptionRuleAssocID?: number;
 		attributeGroupID?: number;
 
-		dpChoice_OptionRuleAssoc?: IDPChoice_OptionRuleAssocDto;
+		dpChoiceOptionRuleAssoc?: IDPChoice_OptionRuleAssocDto;
 		todpChoice?: IDPChoiceDto;
 		dTreeVersion?: IDTreeVersionDto;
 	}
@@ -517,7 +516,7 @@ export namespace PhdApiDto
 		planOptionId: number;
 		planId: number;
 		optionKey: string;
-		optionRuleMappingCount: number;
+		hasRules: boolean;
 		isReplaceRuleTarget: boolean; 
 		baseHouse: boolean;
 		imageCount: number;
@@ -640,7 +639,7 @@ export namespace PhdApiDto
 		label: string;
 		pointId: number;
 		pointLabel: string;
-		mappingIndex: number;
+		//attributeReassignments: IAttributeReassignment[];
 	}
 
 	export interface IOptionReplace
@@ -747,6 +746,5 @@ export namespace PhdApiDto
 		attributeGroupLabel: string;
 		dPointLabel: string;
 		choiceLabel: string;
-		dpChoiceOptionRuleAssocDPChoiceId: number;
 	}
 }

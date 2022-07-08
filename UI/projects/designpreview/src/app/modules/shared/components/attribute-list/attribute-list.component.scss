@@ -8,6 +8,7 @@
 
 .phd-attribute-item {
 	display: flex;
+	position: relative;
 	flex-direction: column;
 	margin: 0px 10px 10px 0px;
 }
@@ -21,6 +22,12 @@
 	font-weight: 600px;
 	word-break: break-word;
 	overflow: hidden;
+}
+
+.phd-clickable {
+	font-size: 20px;
+	margin-top: -5px;
+	margin-left: -4px;
 }
 
 ::ng-deep .phd-attribute-item-image {

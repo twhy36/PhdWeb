@@ -81,7 +81,7 @@ describe('rulesExecutor', function () {
         expect(rules.findChoice(tree, c => c.id === 15).quantity).toBe(1);
     });
 
-    xit('prompts if choice-to-choice rule results in deselection', () => {
+    it('prompts if choice-to-choice rule results in deselection', () => {
         const tree: Tree = <any>{
             treeVersion: {
                 groups: [
@@ -135,7 +135,7 @@ describe('rulesExecutor', function () {
         expect(depChoices[0].id).toBe(4);
     });
 
-    xit('prompts if must not have choice-to-choice rule results in deselection', () => {
+    it('prompts if must not have choice-to-choice rule results in deselection', () => {
         const tree: Tree = <any>{
             treeVersion: {
                 groups: [
@@ -188,7 +188,7 @@ describe('rulesExecutor', function () {
         expect(depChoices[0].id).toBe(4);
     });
 
-    xit('prompts if point-to-point rule results in deselection', () => {
+    it('prompts if point-to-point rule results in deselection', () => {
         const tree: Tree = <any>{
             treeVersion: {
                 groups: [
@@ -239,7 +239,7 @@ describe('rulesExecutor', function () {
         expect(depChoices[0].id).toBe(4);
     });
 
-    xit('does not prompt if point-to-point rule is still satisfied', () => {
+    it('does not prompt if point-to-point rule is still satisfied', () => {
         const tree: Tree = <any>{
             treeVersion: {
                 groups: [
@@ -289,7 +289,7 @@ describe('rulesExecutor', function () {
         expect(depChoices.length).toBe(0);
     });
 
-    xit('prompts if point-to-point rule results in recursive deselection', () => {
+    it('prompts if point-to-point rule results in recursive deselection', () => {
         const tree: Tree = <any>{
             treeVersion: {
                 groups: [
@@ -354,7 +354,7 @@ describe('rulesExecutor', function () {
         expect(depChoices[1].id).toBe(7);
     });
 
-    xit('does not prompt if deselected choice is not under contract', () => {
+    it('does not prompt if deselected choice is not under contract', () => {
         const tree: Tree = <any>{
             treeVersion: {
                 groups: [

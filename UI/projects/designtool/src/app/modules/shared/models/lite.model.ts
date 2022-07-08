@@ -26,6 +26,7 @@ export class LitePlanOption implements PlanOption
     optionCommunityId: number;
     mustHavePlanOptionIds: number[];
     cantHavePlanOptionIds: number[];
+    cantHaveInactivePlanOptionIds: number[];
 	cutOffDays: number;
 	cutOffStage: string;
 	isPastCutOff: boolean;
@@ -125,7 +126,7 @@ export enum LiteReportType
 export enum ExteriorLabel
 {
     Exterior = 'Exterior',
-    ExteriorSubGroup = 'Elevation & Color Scheme',
+    ExteriorSubGroup = '', // Do not show sub-category for exterior
     Elevation = 'Elevation',
     ColorScheme = 'Color Scheme',
 }

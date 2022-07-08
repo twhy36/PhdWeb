@@ -175,7 +175,8 @@ export function buildLiteOptionSubCategories(options: LitePlanOption[], subCateg
 				const optionPoint = createLiteSDPoint(option.financialOptionIntegrationKey, [optionChoice]);
 				return optionPoint;
 			});
-			const optionSubCategory = createLiteSDSubGroup(subCategory?.name, points);
+			const subCategoryName = subCategory?.name !== 'BaseHouse' ? subCategory?.name : ''; // Do not show sub-category for base house
+			const optionSubCategory = createLiteSDSubGroup(subCategoryName, points);
 			optionSubCategories.push(optionSubCategory);
 		}
 	};
@@ -214,6 +215,7 @@ export function buildLiteOptionColors(option: LitePlanOption, scenarioOption: Sc
 		});		
 	}
 
+	optionColors.sort((a, b) => a.attributeGroupLabel.localeCompare(b.attributeGroupLabel));
 	return optionColors;
 }
 
@@ -292,20 +294,30 @@ export const createLiteDTAttribute = (label: string, value: string): DesignToolA
 
 export function getLiteChangeOrderGroupSelections(
 	jobChangeOrderPlanOptions: ChangeOrderPlanOption[],
+	baseHouseOptions: { selectedBaseHouseOptions: LitePlanOption[], baseHouseCategory: IOptionCategory },
 	options: LitePlanOption[],
 	categories: IOptionCategory[]
 ) : SDPoint[] 
 {
 	let sDPoints : SDPoint[] = [];
-	jobChangeOrderPlanOptions.sort((a, b) => a.optionSalesName.localeCompare(b.optionSalesName));
 
+	const selectedBaseHouseOptions: LitePlanOption[] = baseHouseOptions.selectedBaseHouseOptions;
+	const selectedBaseHouseChangeOrderOptions = jobChangeOrderPlanOptions.filter(coPlanOption => {
+		const option = options.find(option => option.id === coPlanOption.planOptionId &&
+			selectedBaseHouseOptions?.find(opt => opt.id === coPlanOption.planOptionId));
+		return option;
+	});
+
+	// Add selected elevation
 	const elevationPlanOptions = jobChangeOrderPlanOptions.filter(coPlanOption => {
-		const option = options.find(option => option.id === coPlanOption.planOptionId);
-		return option.optionSubCategoryId === Elevation.Detached || option.optionSubCategoryId === Elevation.Attached;
+		const option = options.find(option => option.id === coPlanOption.planOptionId &&
+			!selectedBaseHouseOptions?.find(opt => opt.id === coPlanOption.planOptionId));
+		return option?.optionSubCategoryId === Elevation.Detached || option?.optionSubCategoryId === Elevation.Attached;
 	});
 
 	if (elevationPlanOptions?.length)
 	{
+		let elevationColorPoints : SDPoint[] = [];
 		let elevationChoices : SDChoice[] = [];
 		let colorSchemeChoices : SDChoice[] = [];
 
@@ -333,7 +345,7 @@ export function getLiteChangeOrderGroupSelections(
 			elevationPoint.groupName = ExteriorLabel.Exterior;
 			elevationPoint.subGroupName = ExteriorLabel.ExteriorSubGroup;
 
-			sDPoints.push(elevationPoint);			
+			elevationColorPoints.push(elevationPoint);
 		}
 
 		// Add Color Scheme point
@@ -343,16 +355,22 @@ export function getLiteChangeOrderGroupSelections(
 			colorSchemePoint.groupName = ExteriorLabel.Exterior;
 			colorSchemePoint.subGroupName = ExteriorLabel.ExteriorSubGroup;
 	
-			sDPoints.push(colorSchemePoint);			
+			elevationColorPoints.push(colorSchemePoint);
 		}
+		
+		sDPoints = sDPoints.concat(elevationColorPoints);
 	}
 
+	// Add other selected options FIRST
 	const nonElevationPlanOptions = jobChangeOrderPlanOptions.filter(coPlanOption => {
-		return !elevationPlanOptions.find(option => option.planOptionId === coPlanOption.planOptionId);
+		return !elevationPlanOptions.find(option => option.planOptionId === coPlanOption.planOptionId)
+			&& !selectedBaseHouseOptions?.find(opt => opt.id === coPlanOption.planOptionId);
 	});
 
 	if (nonElevationPlanOptions?.length)
 	{
+		let nonElevationPoints: SDPoint[] = [];
+
 		nonElevationPlanOptions?.forEach(coPlanOption => {
 			const option = options.find(option => option.id === coPlanOption.planOptionId);
 
@@ -366,12 +384,39 @@ export function getLiteChangeOrderGroupSelections(
 				optionPoint.groupName = category?.name;
 				optionPoint.subGroupName = subCategory?.name;
 	
-				sDPoints.push(optionPoint);
+				nonElevationPoints.push(optionPoint);
 			}
-		});		
+		});	
+
+		nonElevationPoints.sort((a, b) => a.subGroupName.localeCompare(b.subGroupName));
+		nonElevationPoints.sort((a, b) => a.groupName.localeCompare(b.groupName));
+		sDPoints = sDPoints.concat(nonElevationPoints);
 	}
 
-	sDPoints.sort((a, b) => a.groupName.localeCompare(b.groupName));
+	// Add selected base house options LAST
+	if (selectedBaseHouseOptions?.length)
+	{
+		let baseHousePoints: SDPoint[] = [];
+		selectedBaseHouseChangeOrderOptions?.forEach(baseHouseOption => {
+			const option = options.find(option => option.id === baseHouseOption.planOptionId);
+
+			if (option)
+			{
+				const category = categories?.find(category => category.id === option.optionCategoryId);
+				const optionChoice = createLiteSDChoice(option.name, option.id, option.description, option.listPrice, baseHouseOption.qty, buildLiteOptionColors(option, baseHouseOption));
+				
+				let optionPoint = createLiteSDPoint(option.financialOptionIntegrationKey, [optionChoice]);
+				optionPoint.groupName = category?.name;
+				optionPoint.subGroupName = ''; // Do not show sub-category for base house
+	
+				baseHousePoints.push(optionPoint);
+			}
+		});
+
+		baseHousePoints.sort((a, b) => a.groupName.localeCompare(b.groupName));
+		sDPoints = sDPoints.concat(baseHousePoints);
+	}
+
 	return sDPoints;
 }
 
@@ -461,7 +506,7 @@ export function getLiteConstructionChangeOrderPdfData(
 						manufacturer: attr.manufacturer ? attr.manufacturer : null,
 						sku: attr.sku ? attr.sku : null,
 					};
-				})
+				}).sort((a, b) => a.attributeGroupLabel.localeCompare(b.attributeGroupLabel))
 			: [];
 
 			const option = options.find(opt => opt.id === coPlanOption.planOptionId);

@@ -4,7 +4,6 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { PointStatus } from 'phd-common';
 import { instance, mock, when } from 'ts-mockito';
 import { AdobeService } from '../../../core/services/adobe.service';
-import { BrandService } from '../../../core/services/brand.service';
 
 import { ChoiceCardComponent } from './choice-card.component';
 
@@ -12,8 +11,6 @@ describe('ChoiceCardComponent', () => {
   let component: ChoiceCardComponent;
   let fixture: ComponentFixture<ChoiceCardComponent>;
 	const mockNgbModal = mock(NgbModal);
-	const mockBrandService = mock(BrandService);
-	when(mockBrandService.getBrandImage).thenReturn(() => "");
 	const mockAdobeService = mock(AdobeService);
 
   beforeEach(async(() => {
@@ -22,7 +19,6 @@ describe('ChoiceCardComponent', () => {
 			imports: [ BrowserAnimationsModule ],
 			providers: [
 				{ provide: NgbModal, useFactory: () => instance(mockNgbModal) },
-				{ provide: BrandService, useFactory: () => instance(mockBrandService) },
 				{ provide: AdobeService, useFactory: () => instance(mockAdobeService) },
 			]
     })

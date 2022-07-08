@@ -238,7 +238,6 @@ export class ChoiceSidePanelComponent implements OnInit
 	resetImageSort()
 	{
 		this.dragEnable = false;
-
 		if (this.dragHasChanged)
 		{
 			this.choiceImageList = this.origChoiceImageList;
@@ -308,14 +307,11 @@ export class ChoiceSidePanelComponent implements OnInit
 			{
 				if (rules.length > 0)
 				{
-					// filter out possible duplicates from Or Mapping. Doesn't matter which record we get, just need one to show.
-					let filteredRules = rules.filter((value, index, array) => index === array.findIndex((rule) => (rule.integrationKey === value.integrationKey)));
-
 					this._treeService.currentTreeOptions.subscribe(options =>
 					{
 						if (options && options.length > 0)
 						{
-							filteredRules.forEach(optionRule =>
+							rules.forEach(optionRule =>
 							{
 								// find option so we can get the header name
 								const option = options.find(x => x.id === optionRule.integrationKey);
@@ -326,7 +322,7 @@ export class ChoiceSidePanelComponent implements OnInit
 								}
 							});
 
-							this.optionRules = filteredRules;
+							this.optionRules = rules;
 						}
 						else
 						{
@@ -375,6 +371,11 @@ export class ChoiceSidePanelComponent implements OnInit
 		this.originalSelectedItems = [];
 	}
 
+	onCancelOptionRule()
+	{
+		this.optionSelectedItems = [];
+	}
+
 	onDeleteRule(params: { rule: IRule, ruleType: RuleType })
 	{
 		this._treeService.hasAttributeReassignmentByChoice(this.choice.id, params.rule.ruleItems.map(c => c.itemId), params.ruleType).subscribe(async choiceIds =>
@@ -406,6 +407,24 @@ export class ChoiceSidePanelComponent implements OnInit
 				this.choiceRules.splice(index, 1);
 
 				this.choice.hasChoiceRules = this.choiceRules.length > 0;
+			});
+	}
+
+	onDeleteOptionRule(option: PhdApiDto.IChoiceOptionRule)
+	{
+		this.isSaving = true;
+
+		this._treeService.deleteOptionChoiceRuleChoice(this.versionId, option.choiceOptionRuleId)
+			.pipe(finalize(() => this.isSaving = false))
+			.subscribe(response =>
+			{
+				const index = this.optionRules.indexOf(option);
+
+				this.optionRules.splice(index, 1);
+
+				this.updateOptionHasRule(option, false);
+
+				this.choice.hasOptionRules = this.optionRules.length > 0;
 			});
 	}
 
@@ -502,6 +521,49 @@ export class ChoiceSidePanelComponent implements OnInit
 
 			callback(false);
 		}
+	}
+
+	onSaveOptionRule(params: { choiceId: number, selectedItems: Array<PhdApiDto.IChoiceOptionRule>, callback: Function })
+	{
+		this.isSaving = true;
+
+		this._treeService.saveChoiceOptionRules(this.versionId, params.choiceId, params.selectedItems)
+			.pipe(finalize(() =>
+			{
+				this.isSaving = false;
+				this.optionSelectedItems = [];
+			}))
+			.subscribe(optionRules =>
+			{
+				if (optionRules != null)
+				{
+					optionRules.forEach(rule =>
+					{
+						this.optionRules.push(rule);
+						this.updateOptionHasRule(rule, true);
+					});
+
+					this.choice.hasOptionRules = optionRules.length > 0;
+				}
+
+				params.callback(true);
+			}, (error) => { params.callback(false); });
+	}
+
+	updateOptionHasRule(rule: PhdApiDto.IChoiceOptionRule, hasRules: boolean)
+	{
+		this._treeService.currentTreeOptions.subscribe(options =>
+		{
+			if (options)
+			{
+				const workingOption = options.find(x => x.id.toString() === rule.integrationKey);
+
+				if (workingOption != null)
+				{
+					workingOption.hasRules = hasRules;
+				}
+			}
+		});
 	}
 
 	onUpdateMustHave(params: { rule: IRule, ruleType: RuleType })

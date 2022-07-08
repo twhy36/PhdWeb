@@ -1,12 +1,17 @@
-<merge-fields-side-panel-component *ngIf="sidePanelOpen" [sidePanelOpen]="sidePanelOpen" [saving]="saving" (onSidePanelClose)="onSidePanelClose($event)" (onSave)="save($event)" [selected]="selected" [marketMergeFields]="marketMergeFields" [communityMergeFields]="communityMergeFields" [currentMkt]="currentMkt"></merge-fields-side-panel-component>
+<merge-fields-side-panel-component *ngIf="sidePanelOpen" [sidePanelOpen]="sidePanelOpen" [saving]="saving"
+	(onSidePanelClose)="onSidePanelClose($event)" (onSave)="save($event)" [selected]="selected"
+	[marketMergeFields]="marketMergeFields" [communityMergeFields]="communityMergeFields" [currentMkt]="currentMkt">
+</merge-fields-side-panel-component>
 
 <div class="phd-page-container" [class.phd-side-panel-open]="sidePanelOpen">
 	<page-header mainTitle="Sales Contract Setup > Manage Custom Fields">
 		<ng-template>
 			<div class="col">
 				<span>
-					<button type="button" class="btn btn-md btn-link" (click)="addField()" *ngIf="selectedTab === 'Market' && canEdit">Add Field</button>
-					<button type="button" class="btn btn-md btn-link" (click)="resetAllCommunityFieldValues()" *ngIf="selectedTab === 'Community' && canEdit">Reset All Field Values</button>
+					<button type="button" class="btn btn-md btn-link" (click)="addField()"
+						*ngIf="selectedTab === 'Market' && canEdit">Add Field</button>
+					<button type="button" class="btn btn-md btn-link" (click)="resetAllCommunityFieldValues()"
+						*ngIf="selectedTab === 'Community' && canEdit">Reset All Field Values</button>
 					<i class="fa fa-file fa-2x" [routerLink]="['/contracts/view-contracts']"></i>
 				</span>
 			</div>
@@ -29,19 +34,26 @@
 				</ul>
 			</div>
 			<div>
-				<select class="form-control phd-communities" [hidden]="(selectedTab === 'Market')" [ngModel]="selectedCommunity ? selectedCommunity : null" (ngModelChange)="onChangeCommunity($event)">
+				<select class="form-control phd-communities" [hidden]="(selectedTab === 'Market')"
+					[ngModel]="selectedCommunity ? selectedCommunity : null"
+					(ngModelChange)="onChangeCommunity($event)">
 					<option [ngValue]="null" disabled="disabled">Community</option>
-					<option *ngFor="let comm of (activeCommunities | async)" [ngValue]="comm.dto">{{ comm.name }}</option>
+					<option *ngFor="let comm of (activeCommunities$ | async)" [ngValue]="comm.dto">{{ comm.name }}
+					</option>
 				</select>
 			</div>
 		</div>
 
-		<div class="phd-table-container mx-2" *ngIf="(selectedTab === 'Market' || selectedTab === 'Community'); else signField">
-			<phd-table #dt [value]="(selectedTab === 'Market') ? marketMergeFields : communityMergeFields" class="phd-table">
+		<div class="phd-table-container mx-2"
+			*ngIf="(selectedTab === 'Market' || selectedTab === 'Community'); else signField">
+			<phd-table #dt [value]="(selectedTab === 'Market') ? marketMergeFields : communityMergeFields"
+				class="phd-table">
 				<phd-column header="" columnClass="phd-icon">
 					<ng-template #body let-mergeField>
 						<ng-container *ngIf="canEdit">
-							<i *ngIf="(selectedTab === 'Market')" class="fa fa-fw fa-trash-o" ngbTooltip="Delete Merge Field" placement="top-left" container="body" (click)="deleteMergeField(mergeField)"></i>
+							<i *ngIf="(selectedTab === 'Market')" class="fa fa-fw fa-trash-o"
+								ngbTooltip="Delete Merge Field" placement="top-left" container="body"
+								(click)="deleteMergeField(mergeField)"></i>
 						</ng-container>
 					</ng-template>
 				</phd-column>
@@ -49,7 +61,8 @@
 				<phd-column header="" columnClass="phd-icon">
 					<ng-template #body let-mergeField>
 						<ng-container *ngIf="canEdit">
-							<i class="fa fa-pencil fa-fw" ngbTooltip="Edit Merge Field" container="body" (click)="editMergeField(mergeField)"></i>
+							<i class="fa fa-pencil fa-fw" ngbTooltip="Edit Merge Field" container="body"
+								(click)="editMergeField(mergeField)"></i>
 						</ng-container>
 					</ng-template>
 				</phd-column>
@@ -57,7 +70,10 @@
 				<phd-column header="" columnClass="phd-icon">
 					<ng-template #body let-mergeField>
 						<ng-container *ngIf="canEdit">
-							<i class="fa fa-fw fa-undo" *ngIf="(selectedTab === 'Community') && (mergeField.fieldValue !== mergeField.marketFieldValue)" ngbTooltip="Reset Merge Field Value" container="body"  (click)="resetCommunityFieldValue(mergeField)"></i>
+							<i class="fa fa-fw fa-undo"
+								*ngIf="(selectedTab === 'Community') && (mergeField.fieldValue !== mergeField.marketFieldValue)"
+								ngbTooltip="Reset Merge Field Value" container="body"
+								(click)="resetCommunityFieldValue(mergeField)"></i>
 						</ng-container>
 					</ng-template>
 				</phd-column>
@@ -67,7 +83,8 @@
 				<phd-column header="Status">
 					<ng-template #body let-mergeField>
 						<ng-container *ngIf="mergeField.isActive ? 'Active' : 'Inactive'; let isActive">
-							<span (mouseenter)="showTooltip($event, isActive, dt)" (mouseleave)="hideTooltip(dt)">{{ isActive }}</span>
+							<span (mouseenter)="showTooltip($event, isActive, dt)" (mouseleave)="hideTooltip(dt)">{{
+								isActive }}</span>
 						</ng-container>
 					</ng-template>
 				</phd-column>
@@ -76,7 +93,9 @@
 
 		<ng-template #signField>
 			<div class="phd-form">
-				<sign-fields (signFieldSaved)="onSaveSignField($event)" [currentMkt]="currentMkt" [selectedCommunity]="selectedCommunity" [existingSignField]="existingSignField" [canEdit]="canEdit"></sign-fields>
+				<sign-fields (signFieldSaved)="onSaveSignField($event)" [currentMkt]="currentMkt"
+					[selectedCommunity]="selectedCommunity" [existingSignField]="existingSignField" [canEdit]="canEdit">
+				</sign-fields>
 			</div>
 		</ng-template>
 	</div>

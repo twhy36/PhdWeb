@@ -39,17 +39,17 @@ import { CatalogService } from './services/catalog.service';
         CommonModule,
         FormsModule,
         HttpClientModule,
-		RouterModule,
-		PhdCommonModule
+        RouterModule,
+        PhdCommonModule
     ],
-	providers: [
+    providers: [
         CatalogService,
-		ContractService,
+        ContractService,
         HomeSiteService,
         OrganizationService,
         PlanService,
-		ReleasesService,
-		SalesService,
+        ReleasesService,
+        SalesService,
         SettingsService,
         StorageService,
         MessageService,
@@ -58,7 +58,7 @@ import { CatalogService } from './services/catalog.service';
         NotificationService,
         CommunityService,
         ReOrgService,
-		{ provide: ErrorHandler, useClass: PhdErrorHandler, deps: [LoggingService] }
+        { provide: ErrorHandler, useClass: PhdErrorHandler, deps: [LoggingService] }
     ]
 })
 export class CoreModule { }

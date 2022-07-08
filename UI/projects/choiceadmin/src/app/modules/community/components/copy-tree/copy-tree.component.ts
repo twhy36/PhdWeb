@@ -166,16 +166,16 @@ export class CopyTreeComponent implements OnInit
 
 	onChangeCommunityFrom()
 	{
-		this.copyForm.get('communityFrom').valueChanges.subscribe((value: IFinancialCommunity) =>
+		this.copyForm.get('communityFrom').valueChanges.subscribe((financialCommunity: IFinancialCommunity) =>
 		{
 			this.copyForm.get('planFrom').setValue(null);
 
-			if (value != null)
+			if (financialCommunity != null)
 			{
 				// set local storage 
-				this._orgService.currentFinancialCommunity = value.number;
+				this._orgService.currentFinancialCommunity = financialCommunity;
 
-				this.getPlans(this.ddPlanFrom, value.id);
+				this.getPlans(this.ddPlanFrom, financialCommunity.id);
 			}
 			else
 			{
@@ -304,11 +304,11 @@ export class CopyTreeComponent implements OnInit
 					if (!this.hasDivisionCatalogEdit)
 					{
 						// look for a stored community
-						const storedCommunity = this._orgService.currentFinancialCommunity;
+						const financialCommunity = this._orgService.currentFinancialCommunity;
 
-						if (storedCommunity)
+						if (financialCommunity)
 						{
-							this.copyForm.controls['communityFrom'].setValue(communities.find(x => x.number == storedCommunity));
+							this.copyForm.controls['communityFrom'].setValue(communities.find(x => x.number == financialCommunity.number));
 						}
 					}
 				});

@@ -22,4 +22,4 @@ export * from './lib/models/sales-change-order.model';
 export * from './lib/models/scenario.model';
 export * from './lib/models/tree.model';
 
-export { applyRules, getMaxSortOrderChoice, getOptionRuleOptionMappingChoices, findChoice, findPoint } from './lib/rules/rulesExecutor';
+export { applyRules, getMaxSortOrderChoice, findChoice, findPoint } from './lib/rules/rulesExecutor';

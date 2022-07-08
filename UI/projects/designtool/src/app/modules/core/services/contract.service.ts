@@ -881,6 +881,7 @@ export class ContractService
 							let constructionChangeOrderSelections = store.lite.isPhdLite
 								? getLiteChangeOrderGroupSelections(
 									changeOrder.jobChangeOrderPlanOptions, 
+									liteBaseHouseOptions,
 									store.lite.options, 
 									store.lite.categories
 								)

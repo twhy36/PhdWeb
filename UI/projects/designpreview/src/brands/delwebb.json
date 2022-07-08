@@ -1,9 +1,9 @@
 {
 	"images": {
 		"logo": "assets/del-webb/logos/Del-Webb_Logo-Home-Page.png",
-		"choice-card-logo": "assets/del-webb/logos/Del-Webb_Logo-Choice-Card.png",
 		"home-page-logo": "assets/del-webb/logos/Del-Webb_Logo-Home-Page.png",
-		"white_logo": "assets/del-webb/logos/DelWebb_White.png"
+		"white_logo": "assets/del-webb/logos/DelWebb_White.png",
+		"favorites_list": "assets/pulte/icons/heart_list-PULTE.png"
 	},
 	"banner": {
 		"1": "assets/del-webb/banner/DW Dark Kitchen.jpg",
@@ -31,6 +31,7 @@
 		"link-color": "#0a5165",
 		"popup-ribbon-background-color": "#40b9da",
 		"home-page-floorplan-background-color": "#e4e5e4",
-		"logo-margin-top": "8px"
+		"logo-margin-top": "8px",
+		"logo-max-height": "40px"
 	}
 }

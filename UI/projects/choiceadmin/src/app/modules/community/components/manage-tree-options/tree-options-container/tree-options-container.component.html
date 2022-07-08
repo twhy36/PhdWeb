@@ -35,17 +35,12 @@
 			</thead>
 			<tbody>
 				<ng-container *ngFor="let option of optionsList">
-					<tr class="row-group" *ngIf="option.matched" [class.phd-tr-error]="option.optionRuleMappingCount > 0 && !option.isActive" [attr.id]="'option_' + option.id">
+					<tr class="row-group" *ngIf="option.matched" [class.phd-tr-error]="option.hasRules && !option.isActive" [attr.id]="'option_' + option.id">
 						<td scope="row" class="phd-icon-col">
 							<i class="fa fa-fw fa-home fa-sm phd-clickable" *ngIf="option.baseHouse" (click)="onSelectOption(option, 'details')"></i>
 						</td>
 						<td class="phd-icon-col">
-							<i class="fa fa-fw fa-list-alt fa-sm phd-clickable" *ngIf="option.optionRuleMappingCount === 1" (click)="onSelectOption(option, 'rules')"></i>
-
-							<span class="fa-stack small phd-clickable" *ngIf="option.optionRuleMappingCount > 1" (click)="onSelectOption(option, 'rules')">
-								<i class="fa fa-fw fa-list-alt fa-sm fa-stack-1x phd-list-alt-stack-offset"></i>
-								<i class="fa fa-fw fa-list-alt fa-sm fa-stack-2x"></i>
-							</span>
+							<i class="fa fa-fw fa-list-alt fa-sm phd-clickable" *ngIf="option.hasRules" (click)="onSelectOption(option, 'rules')"></i>
 						</td>
 						<td class="phd-icon-col-med">
 							<div *ngIf="option.imageCount > 0 || option.treeLevelImageCount > 0" class="phd-divisional-tree-group-container" (click)="onSelectOption(option, 'images')" title="{{option.treeLevelImageCount > 0 ? 'Images are maintained at the tree level' : 'Images'}}">

@@ -1,9 +1,9 @@
 {
 	"images": {
 		"logo": "assets/john-wieland/logos/JWHN_Logo-Choice-Card.png",
-		"choice-card-logo": "assets/john-wieland/logos/JWHN_Logo-Choice-Card.png",
 		"home-page-logo": "assets/john-wieland/logos/JWHN_Logo-Home-Page.png",
-		"white_logo": "assets/john-wieland/logos/JWHN-SIG-White_Transparent.png"
+		"white_logo": "assets/john-wieland/logos/JWHN-SIG-White_Transparent.png",
+		"favorites_list": "assets/john-wieland/icons/heart_list-JWH.png"
 	},
 	"banner": {
 		"1": "assets/pulte/banner/Pulte Kiawh Island.jpg",
@@ -13,7 +13,7 @@
 	},
 	"styles": {
 		"font": "Palatino",
-		"primary-ribbon-background-color": "#002855", 
+		"primary-ribbon-background-color": "#002855",
 		"secondary-ribbon-background-color": "#ffffff",
 		"choice-detail-ribbon-color": "#002855",
 		"primary-button-color": "#002855",
@@ -31,6 +31,7 @@
 		"link-color": "#002855",
 		"popup-ribbon-background-color": "#002855",
 		"home-page-floorplan-background-color": "#E6E6E6",
-		"logo-margin-top": "6px"
+		"logo-margin-top": "2px",
+		"logo-max-height": "45px"
 	}
 }

@@ -25,7 +25,7 @@
 			<label class="col-form-label">Category/Subcategory</label>
 		</div>
 		<div class="p-2">
-			<select class="form-control" [(ngModel)]="selectedSubCategory">
+			<select role="button" class="form-control" [(ngModel)]="selectedSubCategory">
 				<option [defaultSelected] [ngValue]=null></option>
 				<option [ngValue]="null">---- All Colors ----</option>
 				<option
@@ -41,7 +41,7 @@
 			<label class="row-form-label">Active</label>
 		</div>
 		<div class="p-2">
-			<select class="form-control" [(ngModel)]="isActiveColor">
+			<select role="button" class="form-control" [(ngModel)]="isActiveColor">
 				<option [defaultSelected] [ngValue]="null">All</option>
 				<option [ngValue]="true">Active</option>
 				<option [ngValue]="false">Inactive</option>
@@ -73,6 +73,7 @@
             <phd-column  field="isActive" columnClass="phd-icon">
                 <ng-template #body let-colordto>
 					<i
+					role="button"
 					class="fa fa-fw fa-undo text-danger"
 					title="Reactivate Color"
 					*ngIf="!colordto.isActive"
@@ -80,6 +81,7 @@
 					>
 					</i>
 					<i
+					role="button"
 					class="fa fa-fw fa-trash-o"
 					title="Inactivate Color"
 					*ngIf="colordto.isActive"
@@ -91,6 +93,7 @@
             <phd-column header="" columnClass="phd-icon">
                 <ng-template #body let-colordto>
                         <i
+							role="button"
 							class="fa fa-pencil fa-fw"
 							title="Edit Color"
 							*ngIf="colordto.hasSalesAgreement === false && colordto.hasSalesConfig === false && colordto.isActive"

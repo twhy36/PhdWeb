@@ -1,9 +1,9 @@
 {
 	"images": {
 		"logo": "assets/centex/logos/Centex_Logo-Choice-Card.png",
-		"choice-card-logo": "assets/centex/logos/Centex_Logo-Choice-Card.png",
 		"home-page-logo": "assets/centex/logos/Centex_Logo-Home-Page.png",
-		"white_logo": "assets/centex/logos/Centex_4C White.png"
+		"white_logo": "assets/centex/logos/Centex_4C White.png",
+		"favorites_list": "assets/centex/icons/heart_list-Centex.png"
 	},
 	"banner": {
 		"1": "assets/centex/banner/CTX Kitchen.jpg",
@@ -31,6 +31,7 @@
 		"link-color": "#1a1a1a",
 		"popup-ribbon-background-color": "#CE4235",
 		"home-page-floorplan-background-color": "#eeeeee",
-		"logo-margin-top": "8px"
+		"logo-margin-top": "8px",
+		"logo-max-height": "34px"
 	}
 }

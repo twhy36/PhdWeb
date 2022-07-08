@@ -145,65 +145,6 @@ export function createBatchPatch<T>(items: Array<T>, nameOfIdProperty: string, e
 	return createBatchPatchWithAuth(items, nameOfIdProperty, endpoint, ...nameOfPatchProperties);
 }
 
-export function createBatchDelete<T>(items: Array<T>, nameOfIdProperty: string, endpoint: string, ...nameOfPatchProperties: string[]): string[]
-{
-	return createBatchDeleteWithAuth(null, items, nameOfIdProperty, endpoint, ...nameOfPatchProperties);
-}
-
-export function createBatchDeleteWithAuth<T>(token: string, items: Array<T>, nameOfIdProperty: string, endpoint: string, ...nameOfPatchProperties: string[]): string[]
-{
-	let batchRequests: string[] = [];
-
-	if (items.length > 0)
-	{
-		const changeSetGuid = newGuid();
-
-		batchRequests.push(`Content-Type: multipart/mixed; boundary=changeset_${changeSetGuid}`);
-
-		let contentId = 0;
-
-		items.forEach(g =>
-		{
-			batchRequests.push('');
-			batchRequests.push(`--changeset_${changeSetGuid}`);
-			batchRequests.push('Content-Type: application/http');
-			batchRequests.push('Content-Transfer-Encoding: binary');
-			batchRequests.push(`Content-ID: ${contentId++}`);
-			batchRequests.push('');
-
-			batchRequests.push(`DELETE ${endpoint}(${g[nameOfIdProperty]}) HTTP/1.1`);
-			batchRequests.push('OData-Version: 4.0;NetFx');
-			batchRequests.push('OData-MaxVersion: 4.0;NetFx');
-			batchRequests.push('Content-Type: application/json;odata.metadata=minimal');
-			batchRequests.push('Prefer: return=representation');
-			batchRequests.push('Accept: application/json;odata.metadata=minimal');
-			batchRequests.push('Accept-Charset: UTF-8');
-
-			if (token)
-			{
-				batchRequests.push(`Authorization: Bearer ${token}`);
-			}
-
-			batchRequests.push('');
-			batchRequests.push('{');
-
-			let keycount = 0;
-
-			for (let key in g)
-			{
-				keycount++;
-				batchRequests.push(`${keycount > 1 ? "," : ""}${getKeyValueString(key, g)}`);
-			}
-
-			batchRequests.push('}');
-		});
-
-		batchRequests.push(`--changeset_${changeSetGuid}--`);
-	}
-
-	return batchRequests;
-}
-
 export function createBatchPatchWithAuth<T>(items: Array<T>, nameOfIdProperty: string, endpoint: string, ...nameOfPatchProperties: string[]): string[]
 {
 	let batchRequests: string[] = [];

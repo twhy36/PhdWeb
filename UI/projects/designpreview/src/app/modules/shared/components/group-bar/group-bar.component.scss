@@ -8,7 +8,7 @@
 	width: 100%;
 	height: 55px;
 	z-index: 10;
-	border-bottom: 1px solid var(--group-bar-border-color); 
+	border-bottom: 1px solid var(--group-bar-border-color);
 
 	.phd-group-bar-content {
 		padding: 8px 8px 5px 8px;
@@ -26,28 +26,6 @@
 		font-size: 13px;
 	}
 
-	.phd-group-menu {
-		display: flex;
-		justify-content: center;
-		align-self: flex-start;
-		align-content: center;
-		flex-grow: 1;
-		margin-top: 2px;
-
-		.phd-group-menu-item {
-			color: var(--group-bar-text-color);
-			text-transform: uppercase;
-			font-size: 13px;
-			outline: none;
-		}
-
-		.phd-group-menu-selected {
-			color: var(--group-bar-selected-color);
-			font-size: 15px;
-			font-weight: bold;
-		}
-	}
-
 	.phd-tree-filter {
 		min-width: 300px;
 	}
@@ -58,7 +36,7 @@
 }
 
 ::ng-deep .phd-group-completed {
-	color: white;
+	color: var(--group-bar-selected-color);
 	-webkit-text-stroke: 1px var(--secondary-ribbon-background-color);
 }
 
@@ -98,20 +76,66 @@
 	}
 }
 
-@media(max-width: $tablet-max-width) {
-	.phd-group-menu {
-		justify-content: flex-start !important;
-		margin-left: 30px;
+.phd-primary-menu {
+	display: flex;
+	justify-content: center;
+	align-self: flex-start;
+	align-content: center;
+	flex-grow: 1;
+	margin-top: 2px;
 
-		.phd-menu-bars {
-			align-self: flex-start;
+	.phd-group-menu-item {
+		color: var(--group-bar-text-color);
+		text-transform: uppercase;
+		font-size: 13px;
+		outline: none;
+	}
+
+	.phd-group-menu-selected {
+		color: var(--group-bar-selected-color);
+		font-size: 15px;
+		font-weight: bold;
+	}
+}
+.phd-hamburger-menu {
+	display: none;
+	justify-content: flex-start !important;
+	align-self: flex-start;
+	align-content: center;
+	flex-grow: 1;
+	margin-top: 2px;
+	margin-left: 30px;
+
+	.phd-group-menu-item {
+		color: var(--group-bar-text-color);
+		text-transform: uppercase;
+		font-size: 13px;
+		outline: none;
+	}
+
+	.phd-group-menu-selected {
+		color: var(--group-bar-selected-color);
+		font-size: 15px;
+		font-weight: bold;
+	}
+
+	.phd-menu-bars {
+		align-self: flex-start;
+		outline: none;
+
+		i {
+			color: var(--group-bar-text-color);
 			outline: none;
-
-			i {
-				color: white;
-				outline: none;
-			}
 		}
+	}
+}
+
+@media(max-width: $tablet-max-width) {
+	.phd-primary-menu {
+		display: none !important;
+	}
+	.phd-hamburger-menu {
+		display: flex;
 	}
 
 	::ng-deep .phd-pop-menu {

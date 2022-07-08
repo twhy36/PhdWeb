@@ -44,7 +44,7 @@ export class OptionLocationComponent implements OnInit
 
 	getLocationGroup()
 	{
-		this._treeService.getOptionLocationGroupCommunity(+this._orgService.currentFinancialCommunity, this.option.id)
+		this._treeService.getOptionLocationGroupCommunity(+this._orgService.currentFinancialCommunity?.id, this.option.id)
 			.pipe(finalize(() => this.locationGroupLoaded = true))
 			.subscribe(locationGroup =>
 			{

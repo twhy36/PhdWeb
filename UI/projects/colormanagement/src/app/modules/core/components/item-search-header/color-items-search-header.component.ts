@@ -32,6 +32,10 @@ export class ColorItemsSearchHeaderComponent
 	optionsWithColorItems: Array<IPlanOptionCommunityDto> = [];
 	currentEditItem: IPlanOptionCommunityGridDto;
 	currentOption: IOptionCommunity = null;
+	allOption: IOptionCommunity = {	id: -1,
+									optionSalesName: "All",
+									optionSubCategoryId: null,
+									planOptionCommunities: []};
 	isActiveColor: boolean = null;
 	settings: Settings;
 	allDataLoaded: boolean;
@@ -100,6 +104,12 @@ export class ColorItemsSearchHeaderComponent
 
 	onShowOptions() {
 
+		// Checks if the selected plan has not changed
+		if(_.isEqual(this.selectedplanids,this.selectedPlans)){
+			return;
+		}
+
+		const previousSelectedOption = this.currentOption;
 		this.reset();
 		this.selectedplanids = null;
 		// if >= 0 means user selected all plans
@@ -111,17 +121,38 @@ export class ColorItemsSearchHeaderComponent
 		if (this.selectedPlans?.findIndex(x => x == 0) >= 0) {
 			this.selectedAllPlans = true;
 		}
+		if(this.selectedPlans.length === 0)
+		{
+			return;
+		}
 
 		this._planService
 			.getPlanOptions(this.currentFinancialCommunityId, this.selectedplanids)
 			.subscribe((options) => {
 				this.planOptionList = options;
+				this.currentOption = previousSelectedOption?.id === this.allOption.id
+										? this.allOption
+										: this.planOptionList.find(x => x.id === previousSelectedOption?.id);
+				this.onChangeOption();
 			});
+		this.processAddColorItemButtonState();
 	}
 
 	showAddColorItemDialog() {
 		this.modalReference = this._modalService.open(this.addColorItemModal);
 		this.modalReference.result.catch(err => console.log(err));
+	}
+
+	getAddColorItemTitle():string {
+		if (!this.currentOption) 
+		{
+			return 'You must choose an option from the Option dropdown list to add a Color Item';
+		}
+		if (this.isElevationOption(this.currentOption.optionSubCategoryId) && !this.planOptionHasNoColorItem)
+		{
+			return 'This elevation already has an active color item';
+		}
+		return '';
 	}
 
 	showEditColorItemDialog(planOptionDto: IPlanOptionCommunityGridDto) {
@@ -152,7 +183,7 @@ export class ColorItemsSearchHeaderComponent
 	loadColorItemsGrid() {
 		if (this.currentOption) {
 			//Case when all Options, get coloritems for each option.
-			if (!this.currentOption?.id) {
+			if (this.currentOption?.id === this.allOption.id) {
 				this.optionListIndex++;
 				const list = this.planOptionList[this.optionListIndex].planOptionCommunities.map((planoption: IPlanOptionCommunity) => {
 					let planOptionDto: IPlanOptionCommunityDto = {
@@ -410,7 +441,7 @@ export class ColorItemsSearchHeaderComponent
 		// Default is disabled
 		this.disableAddColorItemButton = true;
 
-		if (this.currentOption.id > 0) {
+		if (this.currentOption?.id > 0) {
 			// Specific option was selected
 
 			if (this.planOptionDtosList.length == 0) {

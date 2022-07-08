@@ -281,7 +281,7 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 			this.store.dispatch(new ScenarioActions.SetScenarioPlan(null, null));
 
 			// Clear tree when a spec is deselected
-			if (this.buildMode === 'spec')
+			if (this.buildMode === 'spec' || this.buildMode === 'model')
 			{
 				this.store.dispatch(new ScenarioActions.TreeLoaded(null, null, null, null, null, this.salesCommunity));
 			}

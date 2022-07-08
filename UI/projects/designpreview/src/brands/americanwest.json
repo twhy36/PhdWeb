@@ -2,8 +2,8 @@
 	"images": {
 		"logo": "assets/american-west/logos/american-west-full.png",
 		"white_logo": "assets/american-west/logos/american-west-long.png",
-        "choice-card-logo": "assets/american-west/logos/American-West_Logo-Home-Page.png",
-		"home-page-logo": "assets/american-west/logos/American-West_Logo-Home-Page.png"
+		"home-page-logo": "assets/american-west/logos/American-West_Logo-Home-Page.png",
+		"favorites_list": "assets/american-west/icons/heart_list-AmWest.png"
 	},
     "banner": {
 		"1": "assets/centex/banner/CTX Kitchen.jpg",
@@ -32,6 +32,8 @@
         "popup-ribbon-background-color": "#255c7b",
         "home-page-floorplan-border": "1px solid #002e5d",
         "home-page-floorplan-background-color": "#f3f3f3",
-        "logo-margin-top": "10px"
+        "logo-margin-top": "10px",
+		"logo-max-height": "50px",
+        "group-bar-collapse-width": "600px"
 	}
 }
