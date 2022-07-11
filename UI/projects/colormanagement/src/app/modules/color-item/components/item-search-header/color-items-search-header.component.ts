@@ -1,12 +1,12 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { UnsubscribeOnDestroy, ModalRef, ModalService, ConfirmModalComponent, Elevations } from 'phd-common';
 import { IPlanCommunity, IOptionCommunity, IPlanOptionCommunityDto, IPlanOptionCommunity, IPlanOptionCommunityGridDto } from '../../../shared/models/community.model';
-import { OrganizationService } from '../../services/organization.service';
-import { PlanOptionService } from '../../services/plan-option.service';
+import { OrganizationService } from '../../../core/services/organization.service';
+import { PlanOptionService } from '../../../core/services/plan-option.service';
 import { from, Observable, EMPTY } from 'rxjs';
 import { filter, map, switchMap } from 'rxjs/operators';
 import { ColorService } from '../../../core/services/color.service';
-import { SettingsService } from '../../services/settings.service';
+import { SettingsService } from '../../../core/services/settings.service';
 import { Settings } from '../../../shared/models/settings.model';
 import * as _ from 'lodash';
 import { IColorItemDto } from '../../../shared/models/colorItem.model';

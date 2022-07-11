@@ -27,7 +27,7 @@ export class OptionPackagesHeaderComponent
     //local
     errorMessage: string = "";
     settings: Settings;
-    disableAddButton: boolean = true;
+    disableAddButton: boolean;
     sortCounter: number = 0;
     currentFinancialCommunityId: number;
 
@@ -54,7 +54,7 @@ export class OptionPackagesHeaderComponent
         this.settings = this._settingsService.getSettings();
         this._orgService.currentCommunity$.pipe(
             this.takeUntilDestroyed()
-        ).subscribe(comm => this.currentFinancialCommunityId = comm.id);
+        ).subscribe(comm => this.currentFinancialCommunityId = comm?.id);
 
         //go get the data
         this.loadData();

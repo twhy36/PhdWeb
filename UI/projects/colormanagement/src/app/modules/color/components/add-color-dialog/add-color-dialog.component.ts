@@ -2,9 +2,9 @@ import { Component, Input, OnInit, Output, EventEmitter, SimpleChanges, OnChange
 import {FormGroup, FormBuilder, Validators, FormArray, AbstractControl} from '@angular/forms';
 import * as _ from 'lodash';
 import { ConfirmModalComponent, ModalRef, ModalService } from 'phd-common';
+import { OptionService } from '../../../core/services/option.service';
 import {IColor, IColorDto} from '../../../shared/models/color.model';
 import { IOptionCategory, IOptionSubCategory } from '../../../shared/models/option.model';
-import { OptionService } from '../../services/option.service';
 
 @Component({
   selector: 'add-color-dialog',

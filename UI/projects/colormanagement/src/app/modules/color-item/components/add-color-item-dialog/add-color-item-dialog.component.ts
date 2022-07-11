@@ -1,7 +1,7 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {ConfirmModalComponent, Elevations, ModalService} from 'phd-common';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {ColorService} from '../../services/color.service';
+import {ColorService} from '../../../core/services/color.service';
 import {IColor} from '../../../shared/models/color.model';
 import {
 	IOptionCommunity,
@@ -9,7 +9,7 @@ import {
 	IPlanOptionCommunityDto
 } from '../../../shared/models/community.model';
 import {IColorItemDto} from '../../../shared/models/colorItem.model';
-import { PlanOptionService } from '../../services/plan-option.service';
+import { PlanOptionService } from '../../../core/services/plan-option.service';
 
 @Component({
   selector: 'add-color-item-dialog',
