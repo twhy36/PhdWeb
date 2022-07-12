@@ -44,8 +44,9 @@ export class LiteEffects
 			switchMap(([action, store]) =>
 			{
 				const financialCommunityId = store.job?.financialCommunityId || store.scenario?.scenario?.financialCommunityId;
+				const marketId = store.org.salesCommunity?.market?.id;
 
-				return this.liteService.isPhdLiteEnabled(financialCommunityId).pipe(
+				return this.liteService.isPhdLiteEnabled(financialCommunityId, marketId).pipe(
 					map(isPhdLiteEnabled =>
 					{
 						return { action, store, isPhdLiteEnabled };
@@ -96,8 +97,9 @@ export class LiteEffects
 				switchMap(([action, store]) =>
 				{
 					const financialCommunityId = store.job?.financialCommunityId || store.scenario?.scenario?.financialCommunityId;
+					const marketId = store.org.salesCommunity?.market?.id;
 
-					return this.liteService.isPhdLiteEnabled(financialCommunityId).pipe(
+					return this.liteService.isPhdLiteEnabled(financialCommunityId, marketId).pipe(
 						map(isPhdLiteEnabled =>
 						{
 							return { action, store, isPhdLiteEnabled };
@@ -327,7 +329,7 @@ export class LiteEffects
 			tryCatch(source => source.pipe(
 				switchMap(([action, store]) =>
 				{
-					return this.liteService.isPhdLiteEnabled(action.job.financialCommunityId).pipe(
+					return this.liteService.isPhdLiteEnabled(action.job.financialCommunityId, store.org.salesCommunity?.market?.id).pipe(
 						map(isPhdLiteEnabled =>
 						{
 							return { action, store, isPhdLiteEnabled };
@@ -520,8 +522,9 @@ export class LiteEffects
 					if (action instanceof SelectPlan)
 					{
 						const financialCommunityId = store.plan.plans?.find(plan => plan.id === action.planId)?.communityId;
+						const marketId = store.org.salesCommunity?.market?.id;
 
-						return this.liteService.isPhdLiteEnabled(financialCommunityId).pipe(
+						return this.liteService.isPhdLiteEnabled(financialCommunityId, marketId).pipe(
 							switchMap(isPhdLiteEnabled => of(new SetIsPhdLite(isPhdLiteEnabled && store.lite.isPhdLite)))
 						);
 					}

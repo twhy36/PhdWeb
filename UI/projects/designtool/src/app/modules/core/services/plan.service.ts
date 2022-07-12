@@ -16,8 +16,8 @@ import { LiteService } from './lite.service';
 export class PlanService
 {
 	constructor(
-		private _http: HttpClient, 
-		private optionService: OptionService, 
+		private _http: HttpClient,
+		private optionService: OptionService,
 		private treeService: TreeService,
 		private liteService: LiteService,
 		private store: Store<fromRoot.State>) { }
@@ -38,15 +38,16 @@ export class PlanService
 				switchMap(([[treeVersions, plans], store]: [[any, Plan[]], fromRoot.State]) =>
 				{
 					const financialCommunityId = store.job?.financialCommunityId || store.scenario?.scenario?.financialCommunityId;
+					const marketId = store.org.salesCommunity?.market?.id;
 
-					return this.liteService.isPhdLiteEnabled(financialCommunityId).pipe(
+					return this.liteService.isPhdLiteEnabled(financialCommunityId, marketId).pipe(
 						map(isPhdLiteEnabled => {
-							const isPhdLite = isPhdLiteEnabled && 
-								(!treeVersions || !treeVersions.length  
+							const isPhdLite = isPhdLiteEnabled &&
+								(!treeVersions || !treeVersions.length
 									|| this.liteService.checkLiteScenario(store.scenario?.scenario?.scenarioChoices, store.scenario?.scenario?.scenarioOptions)
 									|| this.liteService.checkLiteAgreement(store.job, store.changeOrder.currentChangeOrder)
 								);
-	
+
 							return { treeVersions, plans, isPhdLite }
 						})
 					)
@@ -64,7 +65,7 @@ export class PlanService
 									plan.treeVersionId = activePlans?.id || null;
 									includedPlanOptions.push(baseHouseKey);
 
-									const getOptionImages = plan.treeVersionId 
+									const getOptionImages = plan.treeVersionId
 										? this.treeService.getOptionImages(plan.treeVersionId, includedPlanOptions, null, true)
 										: of([]);
 
