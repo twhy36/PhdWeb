@@ -202,7 +202,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 						if (params.divChoiceCatalogId > 0)
 						{
 							const paramPoint = this.selectedSubGroup.points.find(p => p.choices.find(c => params.divChoiceCatalogId === c.divChoiceCatalogId));
-							const paramChoice = paramPoint.choices.find(c => params.divChoiceCatalogId === c.divChoiceCatalogId);
+							const paramChoice = paramPoint?.choices.find(c => params.divChoiceCatalogId === c.divChoiceCatalogId);
 
 							if (!!paramChoice)
 							{
@@ -503,6 +503,9 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			const newSubGroup = allSubGroups.find(sg => sg.points.find(p => p.id === pointId));
 
 			this.store.dispatch(new NavActions.SetSelectedSubgroup(newSubGroup?.id, this.selectedPointId));
+		}
+		else {
+			this.store.dispatch(new NavActions.SetSelectedSubgroup(this.selectedSubGroup?.id, this.selectedPointId));
 		}
 	}
 
