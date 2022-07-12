@@ -13,18 +13,19 @@ export class OptionService {
 	private _ds: string = encodeURIComponent('$');
 
 	getOptionsCategorySubcategory(
-		financialCommunityId: number
+		financialCommunityId?: number
 	): Observable<IOptionSubCategory[]> {
 		const entity = `optionSubCategories`;
 		const expand = `optionCategory($select=id,name)`;
-		const filter = `optionCommunities/any(oc: oc/financialCommunityId eq ${financialCommunityId})`;
 		const select = `id,name`;
-
-		let qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${
-			this._ds
-		}filter=${encodeURIComponent(filter)}&${
-			this._ds
-		}select=${encodeURIComponent(select)}`;
+		
+		let qryStr = `${this._ds}expand=${encodeURIComponent(expand)}`;
+		if (financialCommunityId) 
+		{
+			const filter = `optionCommunities/any(oc: oc/financialCommunityId eq ${financialCommunityId})`;
+			qryStr += `& ${this._ds}filter=${encodeURIComponent(filter)}`;
+		}
+		qryStr += `& ${this._ds}select=${encodeURIComponent(select)}`;
 
 		const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
 

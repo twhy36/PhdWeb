@@ -71,9 +71,7 @@ export class ColorsSearchHeaderComponent
 			switchMap((comm) =>
 			{
 				this.currentCommunityId = comm.id;
-				return this._optionService.getOptionsCategorySubcategory(
-					this.currentCommunityId
-				);
+				return this._optionService.getOptionsCategorySubcategory();
 			})
 		);
 
