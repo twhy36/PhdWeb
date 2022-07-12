@@ -4,10 +4,11 @@ import { Store, select } from '@ngrx/store';
 import { Observable, ReplaySubject } from 'rxjs';
 import { combineLatest, map, filter, take, withLatestFrom } from 'rxjs/operators';
 
-import {
-	UnsubscribeOnDestroy, flipOver, FinancialCommunity, ChangeOrderHanding, Job, Lot, ViewAdjacency, Handing,
-	PhysicalLotType, PlanAssociation, MonotonyRuleLot, SalesPhase, Plan, Scenario, Choice, ModalService, LotChoiceRules, ConfirmModalComponent, updateLotChoiceRules
-} from 'phd-common';
+import
+	{
+		UnsubscribeOnDestroy, flipOver, FinancialCommunity, ChangeOrderHanding, Job, Lot, ViewAdjacency, Handing,
+		PhysicalLotType, PlanAssociation, MonotonyRuleLot, SalesPhase, Plan, Scenario, Choice, ModalService, LotChoiceRules, ConfirmModalComponent, updateLotChoiceRules
+	} from 'phd-common';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
@@ -101,7 +102,7 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 		).subscribe(lcr =>
 		{
 			this.lotChoiceRules = lcr;
-		})
+		});
 
 		this.plans$ = this.store.pipe(
 			this.takeUntilDestroyed(),
@@ -142,7 +143,7 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 			map(tree =>
 			{
 				this.scenarioPlanId = tree?.planId;
-				return  _.flatMap(tree?.treeVersion?.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)));
+				return _.flatMap(tree?.treeVersion?.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)));
 			})
 		).subscribe(choices => this.currentChoices = choices);
 
@@ -210,7 +211,7 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 				this.store.pipe(
 					select(selectSelectedLot)
 				),
-				this.store.pipe(select(state=> state.org.salesCommunity?.financialCommunities)),
+				this.store.pipe(select(state => state.org.salesCommunity?.financialCommunities)),
 				this.store.pipe(select(state => state.lot.selectedHanding)),
 				this.selectedFilterBy$
 			)
@@ -340,7 +341,7 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 
 						this.colorSchemeMonotonyConflict = !colorAttributeConflicts.some(x => x === false);
 					}
-				})
+				});
 			}
 		}
 
@@ -397,7 +398,8 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 				}).filter(r => r.rules.length);
 
 				// All previously required lot choice rules that are not required on the current lot
-				const noLongerRequiredSelections = prevLotChoiceRules?.map((lcr) => {
+				const noLongerRequiredSelections = prevLotChoiceRules?.map((lcr) =>
+				{
 					return {
 						...lcr, rules: lcr.rules.filter((rule) => rule.mustHave
 							&& (this.scenarioPlanId ? rule.planId === this.scenarioPlanId : true)
@@ -411,7 +413,8 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 					let previousLotSelections = this.currentChoices.filter(cc => !prevLotChoiceRules?.find(plc => plc.divChoiceCatalogId === cc.divChoiceCatalogId) && cc.quantity > 0);
 
 					// Disabled selections on the new lot for choices that were selected on the previous lot
-					var disabledSelections = this.lotChoiceRules?.map(lcr => {
+					var disabledSelections = this.lotChoiceRules?.map(lcr =>
+					{
 						return {
 							...lcr, rules: lcr.rules.filter(rule => rule.edhLotId === lot.id
 								&& !rule.mustHave
@@ -425,7 +428,8 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 					let previousLotSelections = this.scenario.scenarioChoices?.filter(sc => !prevLotChoiceRules?.find(plc => plc.divChoiceCatalogId === sc.choice.choiceCatalogId));
 
 					// Disabled selections on the new lot for choices that were selected on the previous lot
-					var disabledSelections = this.lotChoiceRules?.map(lcr => {
+					var disabledSelections = this.lotChoiceRules?.map(lcr =>
+					{
 						return {
 							...lcr, rules: lcr.rules.filter(rule => rule.edhLotId === lot.id
 								&& !rule.mustHave
@@ -441,11 +445,12 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 
 					confirm.componentInstance.title = 'Attention!';
 
-					var body = requiredSelections.length ? '<b>' + 'Lot ' + lot.lotBlock + ' has the following requirement(s): ' + '</b>' + '<br />': '';
+					var body = requiredSelections.length ? '<b>' + 'Lot ' + lot.lotBlock + ' has the following requirement(s): ' + '</b>' + '<br />' : '';
 
 					requiredSelections.forEach(ncr =>
 					{
 						let foundChoice = this.currentChoices.find(cc => cc.divChoiceCatalogId === ncr.divChoiceCatalogId);
+
 						if (foundChoice)
 						{
 							body += 'Choice ' + foundChoice.label + ' Required' + '<br />';
@@ -461,6 +466,7 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 						disabledSelections.forEach(ncr =>
 						{
 							let foundChoice = this.currentChoices.find(cc => cc.divChoiceCatalogId === ncr.divChoiceCatalogId);
+
 							if (foundChoice)
 							{
 								body += 'Choice ' + foundChoice.label + ' Disabled' + '<br />';
@@ -474,9 +480,11 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 
 						body += '<b>' + 'The following choice(s) will no longer be required for Lot ' + lot.lotBlock + '.' + ' You will be able to modify the choice(s) if you continue: ' + '</b>' + '<br />';
 
-						noLongerRequiredSelections?.forEach(ncr => {
+						noLongerRequiredSelections?.forEach(ncr =>
+						{
 							let foundChoice = this.currentChoices.find(cc => cc.divChoiceCatalogId === ncr.divChoiceCatalogId);
-							if (foundChoice) {
+							if (foundChoice)
+							{
 								body += 'Choice ' + foundChoice.label + '<br />';
 							}
 						});
@@ -626,8 +634,8 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 	//when handing is changed
 	changeHanding(lot: LotComponentLot)
 	{
-		let lotId : number = lot.id;
-		let handing : string = lot.selectedHanding;
+		let lotId: number = lot.id;
+		let handing: string = lot.selectedHanding;
 
 		this.monotonyConflictMessage(lot);
 
@@ -650,7 +658,7 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 		const newHanding = new ChangeOrderHanding();
 
 		//If NA was chosen, pass null to save to the scenario
-		if(handing !== 'NA')
+		if (handing !== 'NA')
 		{
 			newHanding.handing = handing;
 		}
@@ -766,7 +774,7 @@ class LotComponentLot
 		{
 
 			//if the selectedHanding was null, it's NA
-			if( selectedHanding == null)
+			if (selectedHanding == null)
 			{
 				this.selectedHanding = 'NA';
 				return;

@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { NavigationEnd, Router } from "@angular/router";
 import { Observable, combineLatest } from 'rxjs';
-import { withLatestFrom, filter, take, map, tap } from 'rxjs/operators';
+import { withLatestFrom, filter, take, map } from 'rxjs/operators';
 
 import { Store, select } from '@ngrx/store';
 import * as fromRoot from '../../../ngrx-store/reducers';
@@ -10,10 +10,11 @@ import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 import * as NavActions from '../../../ngrx-store/nav/actions';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 
-import {
-	UnsubscribeOnDestroy, PriceBreakdown, PointStatus, LotExt, ModalRef, ModalService, ChangeTypeEnum,
-	ScenarioOptionColor
-} from 'phd-common';
+import
+	{
+		UnsubscribeOnDestroy, PriceBreakdown, PointStatus, LotExt, ModalRef, ModalService, ChangeTypeEnum,
+		ScenarioOptionColor
+	} from 'phd-common';
 
 import { ActionBarCallType } from '../../../shared/classes/constants.class';
 import { ExteriorSubNavItems, LiteSubMenu, LitePlanOption } from '../../../shared/models/lite.model';
@@ -65,20 +66,21 @@ export class LiteExperienceComponent extends UnsubscribeOnDestroy implements OnI
 			),
 			this.takeUntilDestroyed()
 		)
-		.subscribe(([evt, elevation, colorScheme]) => {
-			this.showStatusIndicator = !this.router.url.includes('options') && !this.router.url.includes('colors');
+			.subscribe(([evt, elevation, colorScheme]) =>
+			{
+				this.showStatusIndicator = !this.router.url.includes('options') && !this.router.url.includes('colors');
 
-			if(this.router.url.includes('elevation'))
-			{
-				this.store.dispatch(new NavActions.SetSubNavItems(ExteriorSubNavItems));
-				this.store.dispatch(new NavActions.SetSelectedSubNavItem(LiteSubMenu.Elevation));
-				this.setExteriorItemsStatus(elevation, colorScheme);
-			} 
-			else if(this.router.url.includes('color-scheme')) 
-			{
-				this.setExteriorItemsStatus(elevation, colorScheme);
-			}
-		});
+				if (this.router.url.includes('elevation'))
+				{
+					this.store.dispatch(new NavActions.SetSubNavItems(ExteriorSubNavItems));
+					this.store.dispatch(new NavActions.SetSelectedSubNavItem(LiteSubMenu.Elevation));
+					this.setExteriorItemsStatus(elevation, colorScheme);
+				}
+				else if (this.router.url.includes('color-scheme')) 
+				{
+					this.setExteriorItemsStatus(elevation, colorScheme);
+				}
+			});
 	}
 
 	ngOnInit()
@@ -136,7 +138,8 @@ export class LiteExperienceComponent extends UnsubscribeOnDestroy implements OnI
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(state => state.lot)
-		).subscribe(lot => {
+		).subscribe(lot =>
+		{
 			if (lot.selectedLot)
 			{
 				this.selectedLot = lot.selectedLot;
@@ -149,24 +152,24 @@ export class LiteExperienceComponent extends UnsubscribeOnDestroy implements OnI
 			this.store.pipe(select(state => state.lot)),
 			this.store.pipe(select(fromRoot.liteMonotonyConflict))
 		])
-		.pipe(this.takeUntilDestroyed())
-		.subscribe(([selectedLot, monotonyConflict]) =>
-		{
-			if (selectedLot.selectedLot && monotonyConflict)
+			.pipe(this.takeUntilDestroyed())
+			.subscribe(([selectedLot, monotonyConflict]) =>
 			{
-				if (((monotonyConflict.elevationConflict && !monotonyConflict.elevationConflictOverride) || (monotonyConflict.colorSchemeConflict && !monotonyConflict.colorSchemeConflictOverride))
-					&& !monotonyConflict.conflictSeen
-					&& !this.monotonyConflict
-				)
+				if (selectedLot.selectedLot && monotonyConflict)
 				{
-					this.monotonyConflict = monotonyConflict;
+					if (((monotonyConflict.elevationConflict && !monotonyConflict.elevationConflictOverride) || (monotonyConflict.colorSchemeConflict && !monotonyConflict.colorSchemeConflictOverride))
+						&& !monotonyConflict.conflictSeen
+						&& !this.monotonyConflict
+					)
+					{
+						this.monotonyConflict = monotonyConflict;
 
-					this.store.dispatch(new ScenarioActions.MonotonyAdvisementShown());
+						this.store.dispatch(new ScenarioActions.MonotonyAdvisementShown());
 
-					setTimeout(() => this.loadMonotonyModal());
+						setTimeout(() => this.loadMonotonyModal());
+					}
 				}
-			}
-		});
+			});
 
 		this.inChangeOrder$ = this.store.pipe(
 			this.takeUntilDestroyed(),
@@ -199,11 +202,11 @@ export class LiteExperienceComponent extends UnsubscribeOnDestroy implements OnI
 
 		switch (id)
 		{
-			case  LiteSubMenu.Elevation:
+			case LiteSubMenu.Elevation:
 				this.router.navigateByUrl('/lite/elevation');
 				break;
 
-			case  LiteSubMenu.ColorScheme:
+			case LiteSubMenu.ColorScheme:
 				this.router.navigateByUrl('/lite/color-scheme');
 				break;
 		}
@@ -231,7 +234,7 @@ export class LiteExperienceComponent extends UnsubscribeOnDestroy implements OnI
 	{
 		combineLatest([
 			this.liteService.hasLiteMonotonyConflict(),
-			this.store.pipe(select(fromLite.areColorSelectionsValid),take(1))
+			this.store.pipe(select(fromLite.areColorSelectionsValid), take(1))
 		])
 			.subscribe(([mc, areColorsValid]) =>
 			{
@@ -257,8 +260,8 @@ export class LiteExperienceComponent extends UnsubscribeOnDestroy implements OnI
 						this.selectedLot.id,
 						this.salesAgreementId
 					);
-			}
-		});
+				}
+			});
 	}
 
 	loadMonotonyModal()

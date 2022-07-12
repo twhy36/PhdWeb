@@ -149,7 +149,7 @@ export class QuickMoveInComponent extends UnsubscribeOnDestroy implements OnInit
 					this.store.dispatch(new LotActions.DeselectLot());
 					this.store.dispatch(new ScenarioActions.SetScenarioLot(null, null, 0));
 
-					this.newHomeService.setSubNavItemsStatus(this.scenario, this.buildMode, null)
+					this.newHomeService.setSubNavItemsStatus(this.scenario, this.buildMode, null);
 				}
 				else if (isPhdLite)
 				{
@@ -163,7 +163,8 @@ export class QuickMoveInComponent extends UnsubscribeOnDestroy implements OnInit
 					this.actions.pipe(
 						ofType<ScenarioSaved>(ScenarioActionTypes.ScenarioSaved), take(1)).subscribe((action) =>
 						{
-							let scenarioOptions: ScenarioOption[] = job.jobPlanOptions.map(jobOption => {
+							let scenarioOptions: ScenarioOption[] = job.jobPlanOptions.map(jobOption =>
+							{
 								return {
 									scenarioOptionId: 0,
 									scenarioId: action.scenario.scenarioId,

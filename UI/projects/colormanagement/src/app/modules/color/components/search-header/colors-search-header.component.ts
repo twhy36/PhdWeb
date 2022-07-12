@@ -1,16 +1,16 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
-import {OptionService} from '../../../core/services/option.service';
-import {IOptionSubCategory} from '../../../shared/models/option.model';
-import {OrganizationService} from '../../../core/services/organization.service';
-import {filter, map, switchMap, take} from 'rxjs/operators';
-import {from, Observable, EMPTY } from 'rxjs';
-import {ConfirmModalComponent, ModalRef, ModalService, UnsubscribeOnDestroy} from 'phd-common';
-import {IColor, IColorDto} from '../../../shared/models/color.model';
-import {ColorService} from '../../../core/services/color.service';
-import {SettingsService} from '../../../core/services/settings.service';
-import {Settings} from '../../../shared/models/settings.model';
-import {MessageService} from 'primeng/api';
-import {IToastInfo} from '../../../../../../../phd-common/src/lib/models/toast-info.model';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { OptionService } from '../../../core/services/option.service';
+import { IOptionSubCategory } from '../../../shared/models/option.model';
+import { OrganizationService } from '../../../core/services/organization.service';
+import { filter, map, switchMap, take } from 'rxjs/operators';
+import { from, Observable, EMPTY } from 'rxjs';
+import { ConfirmModalComponent, ModalRef, ModalService, UnsubscribeOnDestroy } from 'phd-common';
+import { IColor, IColorDto } from '../../../shared/models/color.model';
+import { ColorService } from '../../../core/services/color.service';
+import { SettingsService } from '../../../core/services/settings.service';
+import { Settings } from '../../../shared/models/settings.model';
+import { MessageService } from 'primeng/api';
+import { IToastInfo } from '../../../../../../../phd-common/src/lib/models/toast-info.model';
 import { CrudMode } from '../../../shared/classes/constants.class';
 
 @Component({
@@ -39,11 +39,13 @@ export class ColorsSearchHeaderComponent
 	newColors: IColor[] = [];
 	@ViewChild('addColorModal') addColorModal: any;
 	@ViewChild('editColorSidePanel') editColorSidePanel: any;
-	deleteColorList: Array<IColorDto>=[];
+	deleteColorList: Array<IColorDto> = [];
 	editSidePanelIsOpen: boolean;
 	colorToEdit: IColorDto;
 
-	public get CrudMode() { //to allow using enum in html template
+	public get CrudMode()
+	{
+		//to allow using enum in html template
 		return CrudMode;
 	}
 
@@ -54,17 +56,20 @@ export class ColorsSearchHeaderComponent
 		private _settingsService: SettingsService,
 		private _modalService: ModalService,
 		private _msgService: MessageService
-	) {
+	)
+	{
 		super();
 	}
 
-	ngOnInit() {
+	ngOnInit()
+	{
 		this.settings = this._settingsService.getSettings();
 
 		this.optionSubCategory$ = this._orgService.currentCommunity$.pipe(
 			this.takeUntilDestroyed(),
 			filter((comm) => !!comm),
-			switchMap((comm) => {
+			switchMap((comm) =>
+			{
 				this.currentCommunityId = comm.id;
 				return this._optionService.getOptionsCategorySubcategory(
 					this.currentCommunityId
@@ -72,24 +77,29 @@ export class ColorsSearchHeaderComponent
 			})
 		);
 
-		this.optionSubCategory$.subscribe((subcategoryList) => {
+		this.optionSubCategory$.subscribe((subcategoryList) =>
+		{
 			this.optionSubCategoryList = subcategoryList;
 			this.resetFilter();
 			this.loadColors();
 		});
 	}
 
-	showCounter() {
+	showCounter()
+	{
 		this.isCounterVisible = true;
 	}
 
-	hideCounter() {
+	hideCounter()
+	{
 		this.isCounterVisible = false;
 	}
 
-	loadColors() {
+	loadColors()
+	{
 		this.allDataLoaded = false;
 		this.isLoading = true;
+
 		this._colorService
 			.getColors(
 				this.currentCommunityId,
@@ -100,10 +110,12 @@ export class ColorsSearchHeaderComponent
 				this.isActiveColor
 			)
 			.pipe(
-				map((colors) => {
-					let colorsList = colors.map((color) => {
+				map((colors) =>
+				{
+					let colorsList = colors.map((color) =>
+					{
 						let categorySubcategory =
-							this.optionSubCategoryList.find((subcategory) =>subcategory.id === color.edhOptionSubcategoryId);
+							this.optionSubCategoryList.find((subcategory) => subcategory.id === color.edhOptionSubcategoryId);
 						let colorsDto: IColorDto = {
 							colorId: color.colorId,
 							name: color.name,
@@ -111,54 +123,64 @@ export class ColorsSearchHeaderComponent
 							optionCategoryName:
 								categorySubcategory?.optionCategory?.name,
 							optionSubCategoryName: categorySubcategory?.name,
-							optionSubCategoryId: categorySubcategory?.id??null,
+							optionSubCategoryId: categorySubcategory?.id ?? null,
 							isActive: color.isActive,
-							hasSalesConfig:null,
+							hasSalesConfig: null,
 							hasSalesAgreement: null
 						};
+
 						return colorsDto;
 					}) as Array<IColorDto>;
+
 					return colorsList;
 				})
 			)
-			.subscribe((colorDtos) => {
+			.subscribe((colorDtos) =>
+			{
 				this.currentPage++;
 				this.allDataLoaded =
 					colorDtos.length < this.settings.infiniteScrollPageSize;
 				this.colorsDtoList = [...this.colorsDtoList, ...colorDtos];
 				this.isLoading = false;
 				this.getSalesConfig(colorDtos);
-	});
+			});
 	}
 
 	getSalesConfig(colorDtos: IColorDto[])
 	{
-		this._colorService.getSalesConfigurationForColors(colorDtos,this.currentCommunityId).subscribe((config)=> {
-			config.map((color) => {
-				this.colorsDtoList.find(c =>c.colorId === color.colorId).hasSalesConfig = color.hasSalesConfig;
-			})
-		})
+		this._colorService.getSalesConfigurationForColors(colorDtos, this.currentCommunityId).subscribe((config) =>
+		{
+			config.map((color) =>
+			{
+				this.colorsDtoList.find(c => c.colorId === color.colorId).hasSalesConfig = color.hasSalesConfig;
+			});
+		});
 
-		this._colorService.getSalesAgreementForColors(colorDtos,this.currentCommunityId).subscribe((config)=> {
-			config.map((color) => {
-				this.colorsDtoList.find(c =>c.colorId === color.colorId).hasSalesAgreement = color.hasSalesAgreement;
-			})
-		})
+		this._colorService.getSalesAgreementForColors(colorDtos, this.currentCommunityId).subscribe((config) =>
+		{
+			config.map((color) =>
+			{
+				this.colorsDtoList.find(c => c.colorId === color.colorId).hasSalesAgreement = color.hasSalesAgreement;
+			});
+		});
 	}
 
-	filterColors() {
+	filterColors()
+	{
 		this.colorsDtoList = [];
 		this.currentPage = 0;
 		this.skip = 0;
 		this.loadColors();
 	}
 
-	onPanelScroll() {
+	onPanelScroll()
+	{
 		this.skip = this.currentPage * this.settings.infiniteScrollPageSize;
 		this.loadColors();
 	}
 
-	resetFilter() {
+	resetFilter()
+	{
 		this.colorname = '';
 		this.selectedSubCategory = null;
 		this.isActiveColor = null;
@@ -172,9 +194,9 @@ export class ColorsSearchHeaderComponent
 		return rowData['isActive'] ? null : 'phd-inactive-color';
 	}
 
-	isDeleteSelected(color:IColorDto):boolean
+	isDeleteSelected(color: IColorDto): boolean
 	{
-		return this.deleteColorList.some(col => col.colorId	===	color.colorId);
+		return this.deleteColorList.some(col => col.colorId === color.colorId);
 	}
 
 	setDeleteSelected(color: IColorDto, isSelected: boolean): void
@@ -234,28 +256,37 @@ export class ColorsSearchHeaderComponent
 		this.modalReference.dismiss();
 	}
 
-	showEditColorSidePanel(color: IColorDto) {
+	showEditColorSidePanel(color: IColorDto)
+	{
 		this.colorToEdit = color;
 		this.editSidePanelIsOpen = true;
 	}
 
-	onEditSidePanelWasClosed() {
+	onEditSidePanelWasClosed()
+	{
 		this.editSidePanelIsOpen = false;
 	}
 
-	deleteSelectedColors() {
+	deleteSelectedColors()
+	{
 		const message = 'Are you sure you want to delete selected colors?';
+
 		this.showConfirmModal(message, 'Warning', 'Continue').pipe(
-			switchMap(cancelDeletion => {
-				if (cancelDeletion) {
+			switchMap(cancelDeletion =>
+			{
+				if (cancelDeletion)
+				{
 					return EMPTY;
 				}
 
 				const colorsToDelete = this.deleteColorList.map(color => color.colorId);
+
 				return this._colorService.deleteColors(colorsToDelete);
 			})
-		).subscribe(successful => {
-			if (successful) {
+		).subscribe(successful =>
+		{
+			if (successful)
+			{
 				this.skip = 0;
 				this.deleteColorList = [];
 			}
@@ -275,7 +306,8 @@ export class ColorsSearchHeaderComponent
 		return from(confirm.result.then((result) => result !== 'Continue'));
 	}
 
-	onColorsWasEdited(successful: boolean) {
+	onColorsWasEdited(successful: boolean)
+	{
 		if (successful)
 		{
 			this.editSidePanelIsOpen = false;
@@ -287,89 +319,111 @@ export class ColorsSearchHeaderComponent
 		this.showToast(successful, CrudMode.Edit);
 	}
 
-	activateColor(colorDto:IColorDto)
+	activateColor(colorDto: IColorDto)
 	{
 		const colorToSave = {
 			colorId: colorDto.colorId,
 			isActive: true
 		} as IColorDto;
 
-		let toast:IToastInfo;
+		let toast: IToastInfo;
 
-		this._colorService.updateColor(colorToSave, this.currentCommunityId).subscribe((color) => {
-			if (color) {
+		this._colorService.updateColor(colorToSave, this.currentCommunityId).subscribe((color) =>
+		{
+			if (color)
+			{
 				toast = {
 					severity: 'success',
 					summary: 'Activate Color',
 					detail: 'Color activation was successful!'
-				}
+				};
+
 				this._msgService.add(toast);
-				this.colorsDtoList.find(c =>c.colorId === color.colorId).isActive = color.isActive;
+
+				this.colorsDtoList.find(c => c.colorId === color.colorId).isActive = color.isActive;
 			}
-			else{
+			else
+			{
 				toast = {
 					severity: 'error',
 					summary: 'Activate Color',
 					detail: 'Color activation failed. Please try again.'
 				} as IToastInfo;
+
 				this._msgService.add(toast);
 			}
-		},error => {
+		}, error =>
+		{
 			toast = {
 				severity: 'error',
 				summary: 'Activate Color',
 				detail: 'Color activation failed due to an unexpected error.'
 			} as IToastInfo;
+
 			this._msgService.add(toast);
 		}
 		);
 	}
 
-	inactivateColor(colorDto:IColorDto)
+	inactivateColor(colorDto: IColorDto)
 	{
 		const message = 'Are you sure you want to inactivate this color?';
 		let cancelled = false;
-		let toast:IToastInfo;
+		let toast: IToastInfo;
+
 		this.showConfirmModal(message, 'Warning', 'Continue').pipe(
-			switchMap(cancel => {
-				if (cancel) {
+			switchMap(cancel =>
+			{
+				if (cancel)
+				{
 					cancelled = true;
+
 					return;
 				}
+
 				const colorToSave = {
 					colorId: colorDto.colorId,
 					isActive: false
 				} as IColorDto;
+
 				return this._colorService.updateColor(colorToSave, this.currentCommunityId)
-				})).subscribe((color:IColor) => {
-					if (color) {
-						toast = {
-							severity: 'success',
-							summary: 'Inactivate Color',
-							detail: 'Color inactivation was successful!'
-						}
-						this._msgService.add(toast);
-						this.colorsDtoList.find(c =>c.colorId === color.colorId).isActive = color.isActive;
+			})).subscribe((color: IColor) =>
+			{
+				if (color)
+				{
+					toast = {
+						severity: 'success',
+						summary: 'Inactivate Color',
+						detail: 'Color inactivation was successful!'
 					}
-					else{
-						toast = {
-							severity: 'error',
-							summary: 'Inactivate Color',
-							detail: 'Color inactivation failed. Please try again.'
-						} as IToastInfo;
-						this._msgService.add(toast);
-					}
-				},error => {
-					if(!cancelled)
-					{
-						toast = {
-							severity: 'error',
-							summary: 'Inactivate Color',
-							detail: 'Color inactivation failed due to an unexpected error.'
-						} as IToastInfo;
-						this._msgService.add(toast);
-					}
+
+					this._msgService.add(toast);
+
+					this.colorsDtoList.find(c => c.colorId === color.colorId).isActive = color.isActive;
 				}
-				);
+				else
+				{
+					toast = {
+						severity: 'error',
+						summary: 'Inactivate Color',
+						detail: 'Color inactivation failed. Please try again.'
+					} as IToastInfo;
+
+					this._msgService.add(toast);
+				}
+			}, error =>
+			{
+				if (!cancelled)
+				{
+					toast = {
+						severity: 'error',
+						summary: 'Inactivate Color',
+						detail: 'Color inactivation failed due to an unexpected error.'
+					} as IToastInfo;
+
+					this._msgService.add(toast);
+				}
+			}
+			);
 	}
 }

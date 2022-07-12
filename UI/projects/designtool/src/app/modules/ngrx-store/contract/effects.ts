@@ -4,18 +4,19 @@ import { Action, Store } from '@ngrx/store';
 import { Observable, of, from } from 'rxjs';
 import { switchMap, withLatestFrom, exhaustMap, map, take } from 'rxjs/operators';
 
-import {
-	Buyer, Contact, PhoneType, ESignEnvelope, ESignStatusEnum, ESignTypeEnum, ChangeOrderGroup,
-	formatPhoneNumber
-} from 'phd-common';
+import
+	{
+		Buyer, Contact, PhoneType, ESignEnvelope, ESignStatusEnum, ESignTypeEnum, ChangeOrderGroup,
+		formatPhoneNumber
+	} from 'phd-common';
 
 import * as fromRoot from '../reducers';
 import * as fromLite from '../lite/reducer';
 import
 {
 	LoadError, TemplatesLoaded, ContractActionTypes, CreateEnvelope,
-	EnvelopeCreated, EnvelopeError, AddRemoveSelectedTemplate, FinancialCommunityESignLoaded, 
-	LoadFinancialCommunityESign, CreateTerminationEnvelope, TerminationEnvelopeCreated, 
+	EnvelopeCreated, EnvelopeError, AddRemoveSelectedTemplate, FinancialCommunityESignLoaded,
+	LoadFinancialCommunityESign, CreateTerminationEnvelope, TerminationEnvelopeCreated,
 	TerminationEnvelopeError, SetChangeOrderTemplates
 } from './actions';
 import { ContractService } from '../../core/services/contract.service';
@@ -33,16 +34,20 @@ import { EnvelopeInfo, SnapShotData } from '../../shared/models/envelope-info.mo
 @Injectable()
 export class ContractEffects
 {
-	templatesLoaded: Observable<Action> = createEffect(() => {
+	templatesLoaded: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<TemplatesLoaded>(ContractActionTypes.TemplatesLoaded),
 			withLatestFrom(this.store),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store]) => {
-					if (store.salesAgreement.status === "Pending") {
+				switchMap(([action, store]) =>
+				{
+					if (store.salesAgreement.status === "Pending")
+					{
 						return of(new AddRemoveSelectedTemplate(0, false, ESignTypeEnum.SalesAgreement));
 					}
-					else if (store.changeOrder.isChangingOrder) {
+					else if (store.changeOrder.isChangingOrder)
+					{
 						return of(new SetChangeOrderTemplates(true));
 					}
 
@@ -52,7 +57,7 @@ export class ContractEffects
 		);
 	});
 
-	createEnvelope$: Observable<Action> = createEffect(() => 
+	createEnvelope$: Observable<Action> = createEffect(() =>
 		this.actions$.pipe(
 			ofType<CreateEnvelope>(ContractActionTypes.CreateEnvelope),
 			withLatestFrom(this.store,
@@ -155,7 +160,7 @@ export class ContractEffects
 							{
 								return { envelopeId, changeOrder: data.changeOrder, isPreview: data.isPreview };
 							}
-						));
+							));
 					}
 				}),
 				switchMap(data =>
@@ -197,7 +202,7 @@ export class ContractEffects
 							}
 							else
 							{
-								return of({ eSignEnvelope, changeOrder: data.changeOrder, isPreview: data.isPreview});
+								return of({ eSignEnvelope, changeOrder: data.changeOrder, isPreview: data.isPreview });
 							}
 						}
 					}
@@ -230,7 +235,7 @@ export class ContractEffects
 		)
 	);
 
-	createTerminationEnvelope$: Observable<Action> = createEffect(() => 
+	createTerminationEnvelope$: Observable<Action> = createEffect(() =>
 		this.actions$.pipe(
 			ofType<CreateTerminationEnvelope>(ContractActionTypes.CreateTerminationEnvelope),
 			withLatestFrom(this.store, this.store.select(fromRoot.priceBreakdown), this.store.select(fromRoot.isSpecSalePending), this.store.select(fromLot.selectLot), this.store.select(fromScenario.elevationDP)),
@@ -303,7 +308,7 @@ export class ContractEffects
 							lotBlockFullNumber: store.job.lot.lotBlock,
 							salesAssociate: store.salesAgreement.consultants && store.salesAgreement.consultants.length ? store.salesAgreement.consultants[0].contact.firstName + " " + store.salesAgreement.consultants[0].contact.lastName : "",
 							salesDescription: jio ? jio.jobChangeOrderGroupDescription : ""
-						}
+						};
 
 						var envelopeInfo: EnvelopeInfo = {
 							oldHanding: store.job.handing,
@@ -400,7 +405,8 @@ export class ContractEffects
 		}
 	}
 
-	loadFinancialCommunityESign$: Observable<Action> = createEffect(() => {
+	loadFinancialCommunityESign$: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<LoadFinancialCommunityESign>(ContractActionTypes.LoadFinancialCommunityESign),
 			tryCatch(source => source.pipe(

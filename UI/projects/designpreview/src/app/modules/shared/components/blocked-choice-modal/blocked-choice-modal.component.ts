@@ -3,11 +3,12 @@ import { AdobeService } from '../../../core/services/adobe.service';
 import { BlockedByItemList } from '../../models/blocked-by.model';
 
 @Component({
-  selector: 'blocked-choice-modal',
-  templateUrl: './blocked-choice-modal.component.html',
-  styleUrls: ['./blocked-choice-modal.component.scss']
+	selector: 'blocked-choice-modal',
+	templateUrl: './blocked-choice-modal.component.html',
+	styleUrls: ['./blocked-choice-modal.component.scss']
 })
-export class BlockedChoiceModalComponent implements OnInit {
+export class BlockedChoiceModalComponent implements OnInit
+{
 	@Input() disabledByList: BlockedByItemList;
 	@Input() choiceLabel: string;
 
@@ -16,7 +17,8 @@ export class BlockedChoiceModalComponent implements OnInit {
 
 	constructor(private adobeService: AdobeService) { }
 
-	ngOnInit(): void {
+	ngOnInit(): void
+	{
 		let modalText =
 			this.choiceLabel
 			+ ' Blocked by: '
@@ -24,14 +26,17 @@ export class BlockedChoiceModalComponent implements OnInit {
 			+ this.disabledByList?.andPoints?.map(p => p.label)?.join(', ')
 			+ this.disabledByList?.orChoices?.map(c => c.label)?.join(', ')
 			+ this.disabledByList?.orPoints?.map(p => p.label)?.join(', ');
+
 		this.adobeService.setAlertEvent(modalText, 'Blocked Choice Alert');
 	}
 
-	closeClicked() {
+	closeClicked()
+	{
 		this.closeModal.emit();
 	}
 
-	onBlockedItemClick(pointId: number) {
+	onBlockedItemClick(pointId: number)
+	{
 		this.blockedItemClick.emit(pointId);
 	}
 
@@ -58,6 +63,7 @@ export class BlockedChoiceModalComponent implements OnInit {
 	disabledByRulesExist(mustHave: boolean)
 	{
 		const disabledRules = mustHave ? this.disabledByMustHaveRules : this.disabledByMustNotHaveRules;
+
 		return disabledRules?.andPoints?.length || disabledRules?.andChoices?.length
 			|| disabledRules?.orPoints?.length || disabledRules?.orChoices?.length
 	}

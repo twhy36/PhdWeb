@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpHeaders, HttpClient } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 
-import { Observable, throwError as _throw, EMPTY as empty, of, forkJoin } from 'rxjs';
-import { tap, flatMap, catchError, map } from 'rxjs/operators';
+import { Observable, throwError as _throw, of, forkJoin } from 'rxjs';
+import { tap, catchError, map } from 'rxjs/operators';
 
 import { HomeSiteService } from './homesite.service';
 import { SettingsService } from './settings.service';
@@ -17,19 +17,20 @@ const settings: Settings = new SettingsService().getSettings();
 @Injectable()
 export class ReleasesService
 {
-    private _community: FinancialCommunity;
+	private _community: FinancialCommunity;
 
-    get currentCommunity(): FinancialCommunity
+	get currentCommunity(): FinancialCommunity
 	{
 		return this._community;
 	}
 
-    set currentCommunity(community: FinancialCommunity)
+	set currentCommunity(community: FinancialCommunity)
 	{
 		this._community = community;
 	}
 
 	private _homeSites: Array<HomeSite>;
+
 	get homeSites(): Array<HomeSite>
 	{
 		return this._homeSites;
@@ -43,6 +44,7 @@ export class ReleasesService
 	hasInitialized: boolean = false;
 
 	private _releases: Array<HomeSiteRelease> = [];
+
 	get releases(): Array<HomeSiteRelease>
 	{
 		return this._releases;
@@ -59,15 +61,15 @@ export class ReleasesService
 	)
 	{ }
 
-    trySetCommunity(community: FinancialCommunity): Observable<void>
-    {
+	trySetCommunity(community: FinancialCommunity): Observable<void>
+	{
 		if (community != null)
 		{
 			this.currentCommunity = community;
 
-            const obs = this.init().pipe(
-                tap(() => this.hasInitialized = true)
-            );
+			const obs = this.init().pipe(
+				tap(() => this.hasInitialized = true)
+			);
 
 			return obs;
 		}
@@ -78,10 +80,10 @@ export class ReleasesService
 	}
 
 	private init(): Observable<void>
-    {
+	{
 		const community = this.currentCommunity;
 
-        const homeSiteDtoPromise = this._homeSiteService.getCommunityHomeSites(community.id);
+		const homeSiteDtoPromise = this._homeSiteService.getCommunityHomeSites(community.id);
 		const releasesDtoPromise = this.getHomeSiteReleases(community.id);
 
 		return forkJoin(homeSiteDtoPromise, releasesDtoPromise).pipe(map(([hsDto, rDto]) =>
@@ -180,7 +182,7 @@ export class ReleasesService
 	 * @param forceRefresh
 	 */
 	getHomeSiteReleases(financialCommunityId: number, forceRefresh: boolean = false): Observable<Array<IHomeSiteReleaseDto>>
-    {
+	{
 		let url = settings.apiUrl;
 
 		const expand = `release_LotAssoc($select=releaseID, edhLotId), org($select=edhFinancialCommunityId,orgId)`;
@@ -192,8 +194,10 @@ export class ReleasesService
 		url += `releases?${qryStr}`;
 
 		return this._http.get(url).pipe(
-			map((response: any) => {
-				let retVal = response.value.map(data => {
+			map((response: any) =>
+			{
+				let retVal = response.value.map(data =>
+				{
 					return {
 						releaseId: data.releaseID,
 						releaseDate: data.releaseDate,
@@ -235,10 +239,10 @@ export class ReleasesService
 
 		return this._http.post(url, body).pipe(
 			map((response: any) =>
-				{
-					release.releaseId = response.releaseID;
+			{
+				release.releaseId = response.releaseID;
 
-					return release;
+				return release;
 			}),
 			catchError(this.handleError));
 	}
@@ -249,8 +253,8 @@ export class ReleasesService
 
 		return this._http.delete(url).pipe(
 			map(response =>
-				{
-					return response;
+			{
+				return response;
 			}),
 			catchError(this.handleError));
 	}
@@ -262,4 +266,4 @@ export class ReleasesService
 
 		return _throw(error || 'Server error');
 	}
-}//
+}

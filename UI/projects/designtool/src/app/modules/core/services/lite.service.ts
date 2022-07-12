@@ -21,11 +21,12 @@ import
 
 import * as fromRoot from '../../ngrx-store/reducers';
 
-import {
-	LitePlanOption, ColorItem, Color, ScenarioOptionColorDto, IOptionSubCategory, OptionRelation,
-	OptionRelationEnum, Elevation, IOptionCategory, LiteReportType, LiteMonotonyRule, SummaryReportData,
-	LitePlanOptionDto, LiteOptionColorDto, LiteChangeOrderPlanOptionDto
-} from '../../shared/models/lite.model';
+import
+	{
+		LitePlanOption, ColorItem, Color, ScenarioOptionColorDto, IOptionSubCategory, OptionRelation,
+		OptionRelationEnum, Elevation, IOptionCategory, LiteReportType, LiteMonotonyRule, SummaryReportData,
+		LitePlanOptionDto, LiteOptionColorDto, LiteChangeOrderPlanOptionDto
+	} from '../../shared/models/lite.model';
 import { LotService } from './lot.service';
 import { ChangeOrderService } from './change-order.service';
 import { MonotonyConflict } from '../../shared/models/monotony-conflict.model';
@@ -39,7 +40,7 @@ export class LiteService
 	private isPhdLiteEnabled$ = new BehaviorSubject<boolean>(null);
 	private currentFinancialCommunityId: number;
 
-    constructor(
+	constructor(
 		private _http: HttpClient,
 		private router: Router,
 		private lotService: LotService,
@@ -50,7 +51,7 @@ export class LiteService
 		private featureSwitchService: FeatureSwitchService
 	) { }
 
-	isPhdLiteEnabled(financialCommunityId: number) : Observable<boolean>
+	isPhdLiteEnabled(financialCommunityId: number): Observable<boolean>
 	{
 		if (!financialCommunityId)
 		{
@@ -70,12 +71,12 @@ export class LiteService
 
 						return !!isFeatureEnabled;
 					})
-				);				
+				);
 		}
-		
+
 		return this.isPhdLiteEnabled$;
 	}
-	
+
 	getLitePlanOptions(planId: number, optionIds?: Array<string>, skipSpinner?: boolean): Observable<LitePlanOption[]>
 	{
 		let filterOptions = '';
@@ -96,7 +97,7 @@ export class LiteService
 			this.mapOptions(),
 			catchError(this.handleError)
 		);
-    }
+	}
 
 	private mapOptions = () => (source: Observable<any>) =>
 		source.pipe(
@@ -118,7 +119,7 @@ export class LiteService
 						description: data['optionCommunity']['optionDescription'],
 						optionImages: [],
 						planId: data['planId'] ? data['planId'] : 0,
-                        communityId: data['communityId'] ? data['communityId'] : 0,
+						communityId: data['communityId'] ? data['communityId'] : 0,
 						optionSubCategoryId: data['optionCommunity']['optionSubCategoryId'],
 						optionCommunityId: data['optionCommunity']['id'],
 						colorItems: [],
@@ -131,9 +132,9 @@ export class LiteService
 					} as LitePlanOption;
 				}) as LitePlanOption[];
 			})
-        );
+		);
 
-	getScenarioOptions(scenarioId: number) : Observable<ScenarioOption[]>
+	getScenarioOptions(scenarioId: number): Observable<ScenarioOption[]>
 	{
 		const entity = `scenarioOptions`;
 		const filter = `scenarioId eq ${scenarioId}`;
@@ -150,7 +151,7 @@ export class LiteService
 		);
 	}
 
-	saveScenarioOptions(scenarioId: number, scenarioOptions: ScenarioOption[], deletePhdFullData: boolean = false) : Observable<ScenarioOption[]>
+	saveScenarioOptions(scenarioId: number, scenarioOptions: ScenarioOption[], deletePhdFullData: boolean = false): Observable<ScenarioOption[]>
 	{
 		const endpoint = environment.apiUrl + `SaveScenarioOptions`;
 
@@ -169,13 +170,14 @@ export class LiteService
 		);
 	}
 
-	saveScenarioOptionColors(scenarioId: number, optionColors: ScenarioOptionColorDto[]) : Observable<ScenarioOption[]>
+	saveScenarioOptionColors(scenarioId: number, optionColors: ScenarioOptionColorDto[]): Observable<ScenarioOption[]>
 	{
 		const endpoint = environment.apiUrl + `SaveScenarioOptionColors`;
 
 		let data = {
 			scenarioId: scenarioId,
-			scenarioOptionColors: optionColors.map(color => {
+			scenarioOptionColors: optionColors.map(color =>
+			{
 				return {
 					scenarioOptionColorId: color.scenarioOptionColorId,
 					scenarioOptionId: color.scenarioOptionId,
@@ -206,7 +208,7 @@ export class LiteService
 		{
 			const batchIds = optionIds.slice(i, i + batchSize);
 			const entity = `colorItems`;
-			const expand =  `colorItemColorAssoc($expand=color)`
+			const expand = `colorItemColorAssoc($expand=color)`
 			let filter = `(edhPlanOptionId in (${batchIds.join(',')})) and (isActive eq true)`;
 			const select = `colorItemId,name,edhPlanOptionId,isActive`;
 
@@ -226,11 +228,12 @@ export class LiteService
 				let responseBodies = response.responses.map(res => res.body);
 				let colorItems: Array<ColorItem> = [];
 
-				responseBodies.forEach((result)=>
+				responseBodies.forEach((result) =>
 				{
 					let resultItems = result.value as Array<ColorItem>;
 
-					resultItems.forEach(item => {
+					resultItems.forEach(item =>
+					{
 						colorItems.push({
 							colorItemId: item.colorItemId,
 							name: item.name,
@@ -241,19 +244,20 @@ export class LiteService
 					});
 				})
 
-			return colorItems;
-		}),
+				return colorItems;
+			}),
 			catchError(this.handleError)
 		)
 	}
 
-	private mapColors(colorItemAssoc: any[], colorItemId: number) : Color[]
+	private mapColors(colorItemAssoc: any[], colorItemId: number): Color[]
 	{
-		let colors : Color[] = [];
+		let colors: Color[] = [];
 
 		if (colorItemAssoc)
 		{
-			colorItemAssoc.forEach(assoc => {
+			colorItemAssoc.forEach(assoc =>
+			{
 				colors.push({
 					colorId: assoc.color?.colorId,
 					name: assoc.color?.name,
@@ -299,11 +303,12 @@ export class LiteService
 				let responseBodies = response.responses.map(res => res.body);
 				let optionRelations: Array<OptionRelation> = [];
 
-				responseBodies.forEach((result)=>
+				responseBodies.forEach((result) =>
 				{
 					let resultItems = result?.value as Array<OptionRelation>;
 
-					resultItems?.forEach(item => {
+					resultItems?.forEach(item =>
+					{
 						optionRelations.push({
 							optionRelationId: item.optionRelationId,
 							mainEdhOptionCommunityId: item.mainEdhOptionCommunityId,
@@ -313,17 +318,18 @@ export class LiteService
 					});
 				})
 
-			return optionRelations;
-		}),
+				return optionRelations;
+			}),
 			catchError(this.handleError)
-		)
+		);
 	}
 
 	applyOptionRelations(options: LitePlanOption[], optionRelations: OptionRelation[])
 	{
 		if (optionRelations?.length)
 		{
-			optionRelations.forEach(or => {
+			optionRelations.forEach(or =>
+			{
 				const mainOption = options.find(o => o.optionCommunityId === or.mainEdhOptionCommunityId);
 				const relatedOption = options.find(o => o.optionCommunityId === or.relatedEdhOptionCommunityId);
 
@@ -370,47 +376,53 @@ export class LiteService
 
 	getOptionsCategorySubcategory(
 		financialCommunityId: number
-	): Observable<IOptionSubCategory[]> {
+	): Observable<IOptionSubCategory[]>
+	{
 		const dollarSign: string = encodeURIComponent('$');
 		const entity = `optionSubCategories`;
 		const expand = `optionCategory($select=id,name)`;
 		const filter = `optionCommunities/any(oc: oc/financialCommunityId eq ${financialCommunityId})`;
 		const select = `id,name`;
 
-		let qryStr = `${dollarSign}expand=${encodeURIComponent(expand)}&${
-			dollarSign
-		}filter=${encodeURIComponent(filter)}&${
-			dollarSign
-		}select=${encodeURIComponent(select)}`;
+		let qryStr = `${dollarSign}expand=${encodeURIComponent(expand)}&${dollarSign
+			}filter=${encodeURIComponent(filter)}&${dollarSign
+			}select=${encodeURIComponent(select)}`;
 
 		const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
 
 		return this._http.get<any>(endpoint).pipe(
-			map((response) => {
+			map((response) =>
+			{
 				let subCategoryList =
 					response.value as Array<IOptionSubCategory>;
 				// sort by categoryname and then by subcategoryname
-				return subCategoryList.sort((a, b) => {
+				return subCategoryList.sort((a, b) =>
+				{
 					let aName = a.optionCategory.name.toLowerCase();
 					let bName = b.optionCategory.name.toLowerCase();
 
-					if (aName < bName) {
+					if (aName < bName)
+					{
 						return -1;
 					}
 
-					if (aName > bName) {
+					if (aName > bName)
+					{
 						return 1;
 					}
 
-					if ((aName === bName)) {
+					if ((aName === bName))
+					{
 						let aSubName = a.name.toLowerCase();
 						let bSubName = b.name.toLowerCase();
 
-						if (aSubName < bSubName) {
+						if (aSubName < bSubName)
+						{
 							return -1;
 						}
 
-						if (aSubName > bSubName) {
+						if (aSubName > bSubName)
+						{
 							return 1;
 						}
 
@@ -420,11 +432,11 @@ export class LiteService
 				});
 			}),
 			catchError(error =>
-				{
-					console.error(error);
+			{
+				console.error(error);
 
-					return _throw(error);
-				})
+				return _throw(error);
+			})
 		);
 	}
 
@@ -493,9 +505,12 @@ export class LiteService
 
 	private mapChangedOptions(changeOrderOptions: LiteChangeOrderPlanOptionDto[] = [], isElevation: boolean = false): LitePlanOptionDto[]
 	{
-		return changeOrderOptions.map(item => {
-			if (isElevation === item.isElevation) {
-				const colors = item.attributes.map(color => {
+		return changeOrderOptions.map(item =>
+		{
+			if (isElevation === item.isElevation)
+			{
+				const colors = item.attributes.map(color =>
+				{
 					return {
 						colorName: color.attributeName,
 						colorItemName: color.attributeGroupLabel,
@@ -526,7 +541,7 @@ export class LiteService
 		selectedBaseHouseOptions: LitePlanOption[],
 		baseHousePrice: number,
 		overrideNote: string
-	) : Array<any>
+	): Array<any>
 	{
 		return scenarioOptions.reduce((optionList, scenarioOption) =>
 		{
@@ -561,7 +576,7 @@ export class LiteService
 		option: LitePlanOption,
 		selectedElevation: LitePlanOption,
 		selectedBaseHouseOptions: LitePlanOption[]
-	) : string
+	): string
 	{
 		let optionType = 'Standard';
 
@@ -578,7 +593,7 @@ export class LiteService
 		return optionType;
 	}
 
-	private mapOptionColors(option: LitePlanOption, optionColors: ScenarioOptionColor[]) : Array<any>
+	private mapOptionColors(option: LitePlanOption, optionColors: ScenarioOptionColor[]): Array<any>
 	{
 		return optionColors.reduce((colorList, optionColor) =>
 		{
@@ -699,7 +714,7 @@ export class LiteService
 		});
 	}
 
-	getSelectedOptions(options: LitePlanOption[], job: Job, changeOrder?: ChangeOrderGroup ): Array<ScenarioOption>
+	getSelectedOptions(options: LitePlanOption[], job: Job, changeOrder?: ChangeOrderGroup): Array<ScenarioOption>
 	{
 		let selectedOptions: JobPlanOption[] = _.cloneDeep(job.jobPlanOptions);
 
@@ -716,26 +731,26 @@ export class LiteService
 			selectedOptions = [
 				...selectedOptions,
 				...jobChangeOrderPlanOptions.filter(option => option.action === 'Add').map(opt =>
-					{
-						return <JobPlanOption> {
-							id: opt.id,
-							planOptionId: opt.planOptionId,
-							listPrice: opt.listPrice,
-							optionSalesName: opt.optionSalesName,
-							optionDescription: opt.optionDescription,
-							integrationKey: opt.integrationKey,
-							optionQty: opt.qty,
-							jobPlanOptionAttributes: opt.jobChangeOrderPlanOptionAttributes?.length
-								? opt.jobChangeOrderPlanOptionAttributes.map(a => new JobPlanOptionAttribute(<JobPlanOptionAttribute>{
-									id: a.id,
-									attributeGroupLabel: a.attributeGroupLabel,
-									attributeName: a.attributeName,
-									manufacturer: a.manufacturer,
-									sku: a.sku
-								}))
-								: []
-						};
-					})
+				{
+					return <JobPlanOption>{
+						id: opt.id,
+						planOptionId: opt.planOptionId,
+						listPrice: opt.listPrice,
+						optionSalesName: opt.optionSalesName,
+						optionDescription: opt.optionDescription,
+						integrationKey: opt.integrationKey,
+						optionQty: opt.qty,
+						jobPlanOptionAttributes: opt.jobChangeOrderPlanOptionAttributes?.length
+							? opt.jobChangeOrderPlanOptionAttributes.map(a => new JobPlanOptionAttribute(<JobPlanOptionAttribute>{
+								id: a.id,
+								attributeGroupLabel: a.attributeGroupLabel,
+								attributeName: a.attributeName,
+								manufacturer: a.manufacturer,
+								sku: a.sku
+							}))
+							: []
+					};
+				})
 			];
 
 			// Update options
@@ -754,7 +769,8 @@ export class LiteService
 
 		}
 
-		return selectedOptions.map(planOption => {
+		return selectedOptions.map(planOption =>
+		{
 			const option = options.find(opt => opt.id === planOption.planOptionId);
 
 			return {
@@ -805,25 +821,25 @@ export class LiteService
 	{
 		return option && optionAttributes
 			? optionAttributes.reduce((colorList, att) =>
+			{
+				const attributeGroupLabel = att.attributeGroupLabel;
+				const attributeName = att.attributeName;
+
+				const colorItem = option.colorItems?.find(item => item.name === attributeGroupLabel);
+				const color = colorItem?.color?.find(c => c.name === attributeName);
+
+				if (colorItem && color)
 				{
-					const attributeGroupLabel = att.attributeGroupLabel;
-					const attributeName = att.attributeName;
+					colorList.push({
+						scenarioOptionColorId: 0,
+						scenarioOptionId: 0,
+						colorItemId: colorItem.colorItemId,
+						colorId: color.colorId
+					});
+				}
 
-					const colorItem = option.colorItems?.find(item => item.name === attributeGroupLabel);
-					const color = colorItem?.color?.find(c => c.name === attributeName);
-
-					if (colorItem && color)
-					{
-						colorList.push({
-							scenarioOptionColorId: 0,
-							scenarioOptionId: 0,
-							colorItemId: colorItem.colorItemId,
-							colorId: color.colorId
-						});
-					}
-
-					return colorList;
-				}, [])
+				return colorList;
+			}, [])
 			: [];
 	}
 
@@ -837,7 +853,7 @@ export class LiteService
 		});
 
 		let data = {};
-		data = {summaryRptData: summaryRptData};
+		data = { summaryRptData: summaryRptData };
 
 		return withSpinner(this._http).post(url, data, { headers: headers, responseType: 'blob' }).pipe(
 			map(response =>
@@ -858,7 +874,7 @@ export class LiteService
 
 		let data = {};
 
-		switch(reportType)
+		switch (reportType)
 		{
 			case LiteReportType.PRICE_LIST:
 			case LiteReportType.PRICE_LIST_WITH_SALES_DESCRIPTION:
@@ -874,7 +890,7 @@ export class LiteService
 				break;
 
 			default:
-				data = {summaryData: summaryData};
+				data = { summaryData: summaryData };
 				break;
 		}
 
@@ -898,10 +914,12 @@ export class LiteService
 		}
 	}
 
-	hasLiteMonotonyConflict(): Observable<MonotonyConflict> {
+	hasLiteMonotonyConflict(): Observable<MonotonyConflict>
+	{
 		return this.store.pipe(
 			select(state => state.org),
-			switchMap(org => {
+			switchMap(org =>
+			{
 				//TODO: check if it's a Job change order
 				this.store.dispatch(new LiteActions.LoadLiteMonotonyRules(org.salesCommunity.id));
 
@@ -917,11 +935,13 @@ export class LiteService
 		);
 	}
 
-	getMonotonyRulesForLiteSalesCommunity(salesCommunityId: number, skipSpinner: boolean = true): Observable<Array<LiteMonotonyRule>> {
+	getMonotonyRulesForLiteSalesCommunity(salesCommunityId: number, skipSpinner: boolean = true): Observable<Array<LiteMonotonyRule>>
+	{
 		const url = `${environment.apiUrl}GetMonotonyRulesForLiteSalesCommunity(id=${salesCommunityId})`;
 
 		return (skipSpinner ? this._http : withSpinner(this._http)).get<any>(url).pipe(
-			map(response => {
+			map(response =>
+			{
 				return response.value as Array<LiteMonotonyRule>;
 			}),
 			defaultOnNotFound('getMonotonyRulesForLiteSalesCommunity', [])
@@ -987,16 +1007,17 @@ export class LiteService
 		overrideNote: string
 	): LiteChangeOrderPlanOptionDto[]
 	{
-		const isElevationOption = function(planOptionId: number)
+		const isElevationOption = function (planOptionId: number)
 		{
-			return !!options.find(opt => opt.id  === planOptionId &&
+			return !!options.find(opt => opt.id === planOptionId &&
 				(opt.optionSubCategoryId === Elevation.Detached || opt.optionSubCategoryId === Elevation.Attached));
 		};
 
 		let optionsDto = [];
 
 		// Loop through selected options to find new or changed options
-		currentOptions.forEach(curr => {
+		currentOptions.forEach(curr =>
+		{
 			const origOption = origOptions.find(orig => orig.planOptionId === curr.edhPlanOptionId);
 			const option = options.find(option => option.id === curr.edhPlanOptionId);
 			const isElevation = isElevationOption(curr.edhPlanOptionId);
@@ -1043,7 +1064,8 @@ export class LiteService
 			}
 		});
 
-		origOptions.forEach(orig => {
+		origOptions.forEach(orig =>
+		{
 			const currentOption = currentOptions.find(curr => curr.edhPlanOptionId === orig.planOptionId);
 
 			if (!currentOption)
@@ -1078,7 +1100,7 @@ export class LiteService
 			scenarioOptionColors.forEach(optColor =>
 			{
 				const colorItem = option.colorItems?.find(item => item.colorItemId === optColor.colorItemId);
-				const color =  colorItem?.color.find(cl => cl.colorId === optColor.colorId);
+				const color = colorItem?.color.find(cl => cl.colorId === optColor.colorId);
 
 				attributesDto.push({
 					attributeName: color?.name,
@@ -1145,7 +1167,8 @@ export class LiteService
 		return attributes;
 	}
 
-	checkLiteAgreement(job: Job, changeOrder: ChangeOrderGroup): boolean {
+	checkLiteAgreement(job: Job, changeOrder: ChangeOrderGroup): boolean
+	{
 		const changeOrderChoices = changeOrder?.jobChangeOrders
 			? _.flatMap(changeOrder.jobChangeOrders, co => co.jobChangeOrderChoices)
 			: [];
@@ -1155,10 +1178,11 @@ export class LiteService
 
 		return !job.jobChoices?.length && !!job.jobPlanOptions?.length // there are no job choices but job plan options
 			|| !changeOrderChoices.length && !!changeOrderOptions.length // there are no change order choices but change order options
-				&& !job.jobChoices?.length && !job.jobPlanOptions?.length;
+			&& !job.jobChoices?.length && !job.jobPlanOptions?.length;
 	}
 
-	checkLiteScenario(scenarioChoices: SelectedChoice[], scenarioOptions: ScenarioOption[]): boolean {
+	checkLiteScenario(scenarioChoices: SelectedChoice[], scenarioOptions: ScenarioOption[]): boolean
+	{
 		return !scenarioChoices?.length && !!scenarioOptions?.length; // no scenario choices (full) but scenarion options (lite) is lite
 	}
 
@@ -1227,18 +1251,19 @@ export class LiteService
 	}
 
 	createJioForSpecLite(scenario: Scenario,
-						 scenarioOptions: ScenarioOption[],
-						 financialCommunityId: number,
-						 buildMode: string,
-						 options: LitePlanOption[],
-						 selectedElevation: LitePlanOption,
-						 skipSpinner: boolean = true): Observable<Job>
+		scenarioOptions: ScenarioOption[],
+		financialCommunityId: number,
+		buildMode: string,
+		options: LitePlanOption[],
+		selectedElevation: LitePlanOption,
+		skipSpinner: boolean = true): Observable<Job>
 	{
 		const action = `CreateJIOForSpecLite`;
 		const url = `${environment.apiUrl}${action}`;
 		const selectedOptions = options.filter(o => scenarioOptions.some(so => so.edhPlanOptionId === o.id));
 		const baseHouseOptions = selectedOptions.filter(x => x.isBaseHouse);
-		const liteOptions = selectedOptions.map(selectedOption => {
+		const liteOptions = selectedOptions.map(selectedOption =>
+		{
 
 			const jobOptionType = this.mapJobOptionType(selectedOption, selectedElevation, baseHouseOptions);
 			const optionColors = this.mapOptionColors(selectedOption, scenarioOptions.find(x => x.edhPlanOptionId === selectedOption.id).scenarioOptionColors);
@@ -1354,16 +1379,17 @@ export class LiteService
 		overrideNote: string
 	): Array<any>
 	{
-		const isElevationOption = function(planOptionId: number)
+		const isElevationOption = function (planOptionId: number)
 		{
-			return !!options.find(opt => opt.id  === planOptionId &&
+			return !!options.find(opt => opt.id === planOptionId &&
 				(opt.optionSubCategoryId === Elevation.Detached || opt.optionSubCategoryId === Elevation.Attached));
 		};
 
 		let optionsDto = [];
 
 		// Add options selected in the new plan
-		currentOptions.forEach(curr => {
+		currentOptions.forEach(curr =>
+		{
 			const option = options.find(option => option.id === curr.edhPlanOptionId);
 			if (option)
 			{
@@ -1386,7 +1412,8 @@ export class LiteService
 		});
 
 		// Remove options selected in the old plan
-		origOptions.forEach(orig => {
+		origOptions.forEach(orig =>
+		{
 			optionsDto.push({
 				planOptionId: orig.planOptionId,
 				price: orig.listPrice,

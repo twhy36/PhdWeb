@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
-import { Observable ,  throwError as _throw } from 'rxjs';
+import { Observable, throwError as _throw } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 
 import { withSpinner, defaultOnNotFound, SalesAgreement, ISalesAgreementInfo, SalesAgreementInfo } from 'phd-common';
@@ -21,6 +21,7 @@ export class SalesAgreementService
 		{
 			//use access token to get sales agreement
 			const url = `${environment.apiUrl}GetUserSalesAgreement?${this._ds}select=id,status`;
+
 			return this._http.get<any>(url).pipe(
 				map(dto => new SalesAgreement(dto.value[0])),
 				catchError(error =>
@@ -29,7 +30,7 @@ export class SalesAgreementService
 
 					return _throw(error);
 				})
-			)
+			);
 		}
 		else
 		{

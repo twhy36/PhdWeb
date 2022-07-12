@@ -31,7 +31,7 @@ export class TreeService
 	public getTreeVersions(planKey: number, communityId: number): Observable<any>
 	{
 		const communityFilter = ` and (dTree/plan/org/edhFinancialCommunityId eq ${communityId}) and (dTree/plan/integrationKey eq '${planKey}')`;
-		
+
 		const utcNow = getDateWithUtcOffset();
 
 		const entity = 'dTreeVersions';
@@ -84,11 +84,13 @@ export class TreeService
 				this.getDivDPointCatalogs(response),
 				this.getDivChoiceCatalogs(response)
 			])),
-			map((response: [Tree, Tree]) => {
+			map((response: [Tree, Tree]) =>
+			{
 				const modPoints = _.flatMap(response[0].treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points));
 				let finalPoints = _.flatMap(response[1].treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points));
 
-				modPoints.map(x => {
+				modPoints.map(x =>
+				{
 					let point = finalPoints.find(p => p.divPointCatalogId === x.divPointCatalogId);
 					if (point)
 					{
@@ -131,86 +133,91 @@ export class TreeService
 	}
 
 	getDivDPointCatalogs(tree: Tree): Observable<Tree>
-    {
-        const entity = `divDPointCatalogs`;
-        let points = _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points));
+	{
+		const entity = `divDPointCatalogs`;
+		let points = _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points));
 
 		const pointCatalogIds = points.map(x => x.divPointCatalogId);
-        const filter = `divDpointCatalogID in (${pointCatalogIds})`;
+		const filter = `divDpointCatalogID in (${pointCatalogIds})`;
 
-        const select = `divDpointCatalogID,cutOffDays,edhConstructionStageId,isHiddenFromBuyerView`;
+		const select = `divDpointCatalogID,cutOffDays,edhConstructionStageId,isHiddenFromBuyerView`;
 
-        const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
-        const endPoint = `${environment.apiUrl}${entity}?${qryStr}`;
+		const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
+		const endPoint = `${environment.apiUrl}${entity}?${qryStr}`;
 
-        return this.http.get<Tree>(endPoint).pipe(
-            map(response =>
-            {
-                if (response)
-                {
-                    response['value'].map(x => {
-                        let point = points.find(p => p.divPointCatalogId === x.divDpointCatalogID);
-                        if (point)
-                        {
-                            point.cutOffDays = x.cutOffDays;
+		return this.http.get<Tree>(endPoint).pipe(
+			map(response =>
+			{
+				if (response)
+				{
+					response['value'].map(x =>
+					{
+						let point = points.find(p => p.divPointCatalogId === x.divDpointCatalogID);
+						if (point)
+						{
+							point.cutOffDays = x.cutOffDays;
 							point.edhConstructionStageId = x.edhConstructionStageId;
 							point.isHiddenFromBuyerView = x.isHiddenFromBuyerView;
-                        }
-                    });
-                }
-                return tree;
-            }),
-            catchError(error =>
-            {
-                console.error(error);
+						}
+					});
+				}
+				return tree;
+			}),
+			catchError(error =>
+			{
+				console.error(error);
 
-                return empty;
-            })
-        );
-    }
+				return empty;
+			})
+		);
+	}
 
 	getDivChoiceCatalogs(tree: Tree): Observable<Tree>
-    {
+	{
 		let choices = _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)));
 		return this.identityService.token.pipe(
 			switchMap((token: string) =>
 			{
 				const batchSize = 75;
 				let batchBundles: string[] = [];
-	
+
 				// create a batch request with a max of 75 choices per request
 				let buildRequestUrl = (choices: Choice[]) =>
 				{
 					const entity = `divChoiceCatalogs`;
 					const select = `divChoiceCatalogID,isHiddenFromBuyerView,priceHiddenFromBuyerView`;
-		
+
 					const choiceCatalogIds = choices.map(x => x.divChoiceCatalogId);
 					const filter = `divChoiceCatalogID in (${choiceCatalogIds})`;
 					const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
 					const endPoint = `${environment.apiUrl}${entity}?${qryStr}`;
-		
+
 					return endPoint;
-				}
-	
+				};
+
 				for (var x = 0; x < choices.length; x = x + batchSize)
 				{
 					let choiceList = choices.slice(x, x + batchSize);
-		
+
 					batchBundles.push(buildRequestUrl(choiceList));
 				}
-	
+
 				let requests = batchBundles.map(req => createBatchGet(req));
 				let guid = newGuid();
-		
+
 				var headers = createBatchHeaders(guid, token);
 				var batch = createBatchBody(guid, requests);
-	
+
 				return this.http.post(`${environment.apiUrl}$batch`, batch, { headers: headers });
 			}),
-			map((response: any) => {
-				if (response) {
-					response['responses'].forEach(response => {
-						response['body']['value'].map(x => {
+			map((response: any) =>
+			{
+				if (response)
+				{
+					response['responses'].forEach(response =>
+					{
+						response['body']['value'].map(x =>
+						{
 							let choice = choices.find(p => p.divChoiceCatalogId === x.divChoiceCatalogID);
 							if (choice)
 							{
@@ -223,7 +230,7 @@ export class TreeService
 				return tree;
 			})
 		)
-    }
+	}
 
 	getRules(treeVersionId: number, skipSpinner?: boolean): Observable<TreeVersionRules>
 	{
@@ -294,7 +301,7 @@ export class TreeService
 		);
 	}
 
-	getPointCatalogIds(pointsDeclined: MyFavoritesPointDeclined[]) : Observable<MyFavoritesPointDeclined[]>
+	getPointCatalogIds(pointsDeclined: MyFavoritesPointDeclined[]): Observable<MyFavoritesPointDeclined[]>
 	{
 		return this.identityService.token.pipe(
 			switchMap((token: string) =>
@@ -309,7 +316,8 @@ export class TreeService
 			map((response: any) =>
 			{
 				let newPointsDeclined: MyFavoritesPointDeclined[] = [];
-				pointsDeclined.forEach(p => {
+				pointsDeclined.forEach(p =>
+				{
 					const respPoint = response.value.find(r => r.dPointID === p.dPointId);
 					if (respPoint)
 					{
@@ -409,7 +417,7 @@ export class TreeService
 						let orderBy = `sortOrder`;
 
 						return `${environment.apiUrl}planOptionCommunityImageAssocs?${encodeURIComponent('$')}select=${select}&${encodeURIComponent('$')}filter=${filter}&${encodeURIComponent('$')}orderby=${orderBy}&${this._ds}count=true`;
-					}
+					};
 
 					const batchSize = 35;
 					let batchBundles: string[] = [];

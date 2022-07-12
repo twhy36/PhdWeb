@@ -1,5 +1,5 @@
 import { createSelector, createFeatureSelector } from '@ngrx/store';
-import * as _ from "lodash";
+import * as _ from 'lodash';
 
 import { JobChoice, MyFavorite, MyFavoritesChoice } from 'phd-common';
 
@@ -75,7 +75,8 @@ export function reducer(state: State = initialState, action: FavoriteActions): S
 							currentMyFavorite.myFavoritesChoice = new Array<MyFavoritesChoice>();
 						}
 
-						action.choices.forEach(c => {
+						action.choices.forEach(c =>
+						{
 							let choiceIndex = currentMyFavorite.myFavoritesChoice.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId);
 							if (choiceIndex === -1 && c.id !== 0)
 							{
@@ -151,22 +152,26 @@ export function reducer(state: State = initialState, action: FavoriteActions): S
 		case FavoriteActionTypes.LoadMyFavorite:
 		case FavoriteActionTypes.LoadDefaultFavorite:
 			{
-				return { ...state, isLoading: true }
+				return { ...state, isLoading: true };
 			}
 
 		case FavoriteActionTypes.MyFavoriteLoaded:
 			{
-				return { ...state, isLoading: false }
+				return { ...state, isLoading: false };
 			}
 
 		case FavoriteActionTypes.MyFavoritesChoicesDeleted:
 			{
 				let myFavorites = _.cloneDeep(state.myFavorites);
+
 				if (myFavorites?.length && action.choices?.length)
 				{
 					let currentMyFavorite = myFavorites[0];
-					action.choices.forEach(c => {
+
+					action.choices.forEach(c =>
+					{
 						const choiceIndex = currentMyFavorite.myFavoritesChoice.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId);
+
 						if (choiceIndex > -1)
 						{
 							currentMyFavorite.myFavoritesChoice.splice(choiceIndex, 1);
@@ -184,18 +189,20 @@ export function reducer(state: State = initialState, action: FavoriteActions): S
 				{
 					let currentMyFavorite = myFavorites[0];
 					let myFavoritesChoice = currentMyFavorite.myFavoritesChoice.find(c => c.divChoiceCatalogId === action.myFavoritesChoice.divChoiceCatalogId);
-					
+
 					const deletedAttributes = [...action.attributes, ...action.locations];
-					deletedAttributes?.forEach(att => {
+
+					deletedAttributes?.forEach(att =>
+					{
 						if (att.locationId)
 						{
-							let myFavoritesChoiceLoc = myFavoritesChoice?.myFavoritesChoiceLocations?.find(x => 
+							let myFavoritesChoiceLoc = myFavoritesChoice?.myFavoritesChoiceLocations?.find(x =>
 								x.locationGroupCommunityId === att.locationGroupId
 								&& x.locationCommunityId === att.locationId);
-								
+
 							if (myFavoritesChoiceLoc?.myFavoritesChoiceLocationAttributes?.length)
 							{
-								const locAttributeIndex = myFavoritesChoiceLoc.myFavoritesChoiceLocationAttributes.findIndex(x => 
+								const locAttributeIndex = myFavoritesChoiceLoc.myFavoritesChoiceLocationAttributes.findIndex(x =>
 									x.attributeGroupCommunityId === att.attributeGroupId
 									&& x.attributeCommunityId === att.attributeId);
 
@@ -207,7 +214,7 @@ export function reducer(state: State = initialState, action: FavoriteActions): S
 						}
 						else
 						{
-							const attributeIndex = myFavoritesChoice?.myFavoritesChoiceAttributes?.findIndex(x => 
+							const attributeIndex = myFavoritesChoice?.myFavoritesChoiceAttributes?.findIndex(x =>
 								x.attributeGroupCommunityId === att.attributeGroupId
 								&& x.attributeCommunityId === att.attributeId);
 
@@ -220,9 +227,11 @@ export function reducer(state: State = initialState, action: FavoriteActions): S
 
 					const locationIds = action.locations?.map(loc => loc.locationId);
 					const locationGroupIds = action.locations?.map(loc => loc.locationGroupId);
-					locationIds?.forEach(locId => {
-						const locationIndex =  myFavoritesChoice?.myFavoritesChoiceLocations?.findIndex(x => 
-							x.locationCommunityId === locId	&& !!locationGroupIds.find(locGrpId => x.locationGroupCommunityId === locGrpId));
+
+					locationIds?.forEach(locId =>
+					{
+						const locationIndex = myFavoritesChoice?.myFavoritesChoiceLocations?.findIndex(x =>
+							x.locationCommunityId === locId && !!locationGroupIds.find(locGrpId => x.locationGroupCommunityId === locGrpId));
 
 						if (locationIndex > -1)
 						{

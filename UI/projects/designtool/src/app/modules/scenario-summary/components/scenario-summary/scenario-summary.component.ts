@@ -9,12 +9,13 @@ import { ToastrService } from 'ngx-toastr';
 
 import * as _ from 'lodash';
 
-import {
-	UnsubscribeOnDestroy, blink, ChangeOrderHanding, ChangeTypeEnum, ChangeOrderChoice, PlanOption,
-	PointStatus, SelectedChoice, PriceBreakdown, ScenarioStatusType, SummaryData, BuyerInfo, SummaryReportType,
-	SDGroup, SDSubGroup, SDPoint, SDChoice, SDImage, SDAttributeReassignment, Group, Choice, DecisionPoint,
-	PDFViewerComponent, ModalService, SubGroup, TreeFilter, FloorPlanImage
-} from 'phd-common';
+import
+	{
+		UnsubscribeOnDestroy, blink, ChangeOrderHanding, ChangeTypeEnum, ChangeOrderChoice, PlanOption,
+		PointStatus, SelectedChoice, PriceBreakdown, ScenarioStatusType, SummaryData, BuyerInfo, SummaryReportType,
+		SDGroup, SDSubGroup, SDPoint, SDChoice, SDImage, SDAttributeReassignment, Group, Choice, DecisionPoint,
+		PDFViewerComponent, ModalService, SubGroup, TreeFilter, FloorPlanImage
+	} from 'phd-common';
 
 import { environment } from '../../../../../environments/environment';
 
@@ -227,7 +228,8 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 			if (scenario.buildMode === 'model' && job && !job.jobLoading && changeOrder && !changeOrder.loadingCurrentChangeOrder) 
 			{
 				this.liteService.isPhdLiteEnabled(job.financialCommunityId)
-					.subscribe(isPhdLiteEnabled => {
+					.subscribe(isPhdLiteEnabled =>
+					{
 						this.isPhdLite = isPhdLiteEnabled && this.liteService.checkLiteAgreement(job, changeOrder.currentChangeOrder);
 						if (this.isPhdLite) 
 						{
@@ -544,7 +546,7 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 			if (mc.monotonyConflict)
 			{
 				// this really needs to get fixed.  the alert messsage isn't correct.
-				alert('Danger! Monotony Issues!  Please fix!')
+				alert('Danger! Monotony Issues!  Please fix!');
 			}
 			else
 			{
@@ -602,10 +604,10 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 			pdfViewer.componentInstance.pdfData = pdfData;
 			pdfViewer.componentInstance.pdfBaseUrl = `${environment.pdfViewerBaseUrl}`;
 		},
-		error =>
-		{
-			this._toastr.error(`There was an issue generating ${reportType} configuration.`, 'Error - Print Configuration');
-		});
+			error =>
+			{
+				this._toastr.error(`There was an issue generating ${reportType} configuration.`, 'Error - Print Configuration');
+			});
 	}
 
 	compileSummaryData(reportType: SummaryReportType): Observable<SummaryData>
@@ -730,7 +732,7 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 		{
 			const newHanding = new ChangeOrderHanding();
 
-			if(handing !== "NA")
+			if (handing !== "NA")
 			{
 				newHanding.handing = handing;
 			}

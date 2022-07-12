@@ -1,12 +1,12 @@
-import { Directive, HostListener, OnInit, ElementRef, PACKAGE_ROOT_URL, Input } from "@angular/core";
-import { NgControl, FormControl } from "@angular/forms";
+import { Directive, HostListener, OnInit } from "@angular/core";
+import { NgControl } from "@angular/forms";
 import { formatPhone } from "../classes/phoneUtils";
-
 
 @Directive({
 	selector: '[phone-number-directive]'
 })
-export class PhoneNumberDirective implements OnInit {
+export class PhoneNumberDirective implements OnInit
+{
 	private allowedKeys = [
 		KeyCode.HOME,
 		KeyCode.END,
@@ -19,20 +19,23 @@ export class PhoneNumberDirective implements OnInit {
 		KeyCode.BACK_SPACE
 	];
 
-	constructor(private ngControl: NgControl) {	}
+	constructor(private ngControl: NgControl) { }
 
-	ngOnInit(): void {
-		if (this.ngControl.control.value) {
+	ngOnInit(): void
+	{
+		if (this.ngControl.control.value)
+		{
 			let phone = formatPhone(this.ngControl.control.value);
 			this.ngControl.control.patchValue(phone);
 		}
 	}
-	
+
 	/**
 	 * restricts key presses
 	 * @param e
 	 */
-	@HostListener('keydown', ['$event']) onKeyDown(e: KeyboardEvent) {
+	@HostListener('keydown', ['$event']) onKeyDown(e: KeyboardEvent)
+	{
 		if (// Allow: tab and shift+tab
 			(e.keyCode == KeyCode.TAB || (e.shiftKey && e.keyCode == KeyCode.TAB)) ||
 			// Allow: Ctrl+C
@@ -45,7 +48,8 @@ export class PhoneNumberDirective implements OnInit {
 			(this.allowedKeys.some(k => k === e.keyCode)) ||
 			// Allow: numbers
 			((e.keyCode >= KeyCode._0 && e.keyCode <= KeyCode._9) || (e.keyCode >= KeyCode.NUMPAD0 && e.keyCode <= KeyCode.NUMPAD9))
-		) {
+		)
+		{
 			return;
 		}
 
@@ -56,7 +60,8 @@ export class PhoneNumberDirective implements OnInit {
 	 * transforms input into formatted phone number
 	 * @param e
 	 */
-	@HostListener('input', ['$event.target.value']) onInput(value: string) {
+	@HostListener('input', ['$event.target.value']) onInput(value: string)
+	{
 		let phone = formatPhone(value);
 		this.ngControl.control.patchValue(phone);
 
@@ -74,7 +79,8 @@ export class PhoneNumberDirective implements OnInit {
 	}
 }
 
-enum KeyCode {
+enum KeyCode
+{
 	LEFTCLICK = 1,
 	MIDDLECLICK = 2,
 	RIGHTCLICK = 3,

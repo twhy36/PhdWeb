@@ -6,10 +6,10 @@ import * as fromRoot from '../../../ngrx-store/reducers';
 import { cloneDeep, trim } from 'lodash'
 
 import
-	{
-		Buyer, EmailAssoc, PhoneAssoc, AddressAssoc, Address, Contact, Phone,
-		MatchingContact, Realtor, ModalService
-	} from 'phd-common';
+{
+	Buyer, EmailAssoc, PhoneAssoc, AddressAssoc, Address, Contact, Phone,
+	MatchingContact, Realtor, ModalService
+} from 'phd-common';
 
 import { ContactService } from '../../../core/services/contact.service';
 import { MatchingContactsComponent } from '../matching-contacts/matching-contacts.component';
@@ -341,7 +341,7 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 								phoneNumber: phoneNumber,
 								phoneType: phone.get('phoneType').value
 							}
-						}
+						};
 
 						contact.phoneAssocs.push(newPhoneAssoc);
 					}
@@ -384,7 +384,7 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 								id: 0,
 								emailAddress: emailAddress
 							}
-						}
+						};
 
 						contact.emailAssocs.push(newEmailAssoc);
 					}

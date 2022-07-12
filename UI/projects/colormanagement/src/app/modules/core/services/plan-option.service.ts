@@ -1,18 +1,20 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, Subject, ConnectableObservable } from 'rxjs';
-import { map, catchError, publishReplay, groupBy, mergeMap, toArray, distinct } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 import { _throw } from 'rxjs/observable/throw';
 import { environment } from '../../../../environments/environment';
 import { IPlanCommunity, IOptionCommunity, IPlanOptionCommunity } from '../../shared/models/community.model';
 import { withSpinner } from 'phd-common';
 
 @Injectable()
-export class PlanOptionService {
+export class PlanOptionService
+{
 	private _ds: string = encodeURIComponent('$');
 	constructor(private _http: HttpClient) { }
 
-	getPlanCommunities(financialCommunityId: number) {
+	getPlanCommunities(financialCommunityId: number)
+	{
 		const entity = `planCommunities`;
 		const filter = `financialCommunityId eq ${financialCommunityId} and productType ne 'MultiUnit Shell'`
 		const select = `id,planSalesName`
@@ -21,11 +23,13 @@ export class PlanOptionService {
 		const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
 
 		return withSpinner(this._http).get<any>(endpoint).pipe(
-			map(response => {
+			map(response =>
+			{
 
 				let planCommunityList = response.value as Array<IPlanCommunity>;
 
-				return planCommunityList.sort((a, b) => {
+				return planCommunityList.sort((a, b) =>
+				{
 					let aName = a.planSalesName.toLowerCase();
 					let bName = b.planSalesName.toLowerCase();
 
@@ -36,7 +40,8 @@ export class PlanOptionService {
 		)
 	}
 
-	getPlanOptions(financialCommunityId: number, planIds?: number[]) {
+	getPlanOptions(financialCommunityId: number, planIds?: number[])
+	{
 		const entity = `optionCommunities`;
 		const select = `id, optionSalesName, optionSubCategoryId`;
 		const orderBy = `optionSalesName asc`;
@@ -47,11 +52,13 @@ export class PlanOptionService {
 
 		let filter = `financialCommunityId eq ${financialCommunityId} and isActive eq true`;
 
-		if (planIds?.length > 0) {
+		if (planIds?.length > 0)
+		{
 			filter += ` and planOptionCommunities/any(x: x/planId in (${planIds.join()}))`;
-			expand =`planOptionCommunities($select=Id,isBaseHouse,planId;$filter=planId in (${planIds.join()}))`
+			expand = `planOptionCommunities($select=Id,isBaseHouse,planId;$filter=planId in (${planIds.join()}))`
 		}
-		else {
+		else
+		{
 			filter += ` and planOptionCommunities/any()`;
 			expand = `planOptionCommunities($select=Id,isBaseHouse,planid)`;
 		}
@@ -62,7 +69,8 @@ export class PlanOptionService {
 		const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
 
 		return withSpinner(this._http).get<any>(endpoint).pipe(
-			map(response => {
+			map(response =>
+			{
 				const optionCommunities = response.value.map(x => x) as Array<IOptionCommunity>;
 				return optionCommunities;
 			}),
@@ -70,7 +78,8 @@ export class PlanOptionService {
 		)
 	}
 
-	getPlanOptionsGrid(financialCommunityId: number, optionCommunityId?: number, planIds?: number[], topRows?: number, skipRows?: number): Observable<IPlanOptionCommunity[]> {
+	getPlanOptionsGrid(financialCommunityId: number, optionCommunityId?: number, planIds?: number[], topRows?: number, skipRows?: number): Observable<IPlanOptionCommunity[]>
+	{
 		const entity = `planOptionCommunities`;
 		const select = `Id`;
 		const expand = `planCommunity($select=Id,planSalesName),optionCommunity($select=Id,optionSalesName)`;
@@ -80,22 +89,27 @@ export class PlanOptionService {
 		let filter = ``;
 		let filtersList = [];
 
-		if (planIds?.length > 0) {
+		if (planIds?.length > 0)
+		{
 			let planFilter = [];
-			planIds.map(id => {
+			planIds.map(id =>
+			{
 				planFilter.push(` planId eq ${id}`);
 			});
 			filtersList.push(`(${planFilter.join(' or ')})`);
 		}
-		else {
+		else
+		{
 			//Get all plans when null
 			filtersList.push(`(planCommunity/financialCommunityId eq ${financialCommunityId} and planCommunity/productType ne 'MultiUnit Shell')`)
 		}
 
-		if (optionCommunityId) {
+		if (optionCommunityId)
+		{
 			filtersList.push(`optionCommunityId eq ${optionCommunityId}`);
 		}
-		else {
+		else
+		{
 			//Get all options when null
 			filtersList.push(`(optionCommunity/financialCommunityId eq ${financialCommunityId} and optionCommunity/isActive eq true)`)
 		}
@@ -104,18 +118,21 @@ export class PlanOptionService {
 
 		qryStr += `&${this._ds}filter=${encodeURIComponent(filter)}`;
 
-		if (topRows) {
+		if (topRows)
+		{
 			qryStr += `&${this._ds}top=${topRows}`;
 		}
 
-		if (skipRows) {
+		if (skipRows)
+		{
 			qryStr += `&${this._ds}skip=${skipRows}`;
 		}
 
 		const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
 
 		return withSpinner(this._http).get<any>(endpoint).pipe(
-			map(response => {
+			map(response =>
+			{
 				const planOptionCommunities = response.value as Array<IPlanOptionCommunity>
 				return planOptionCommunities;
 			}),
@@ -131,7 +148,8 @@ export class PlanOptionService {
 		let qryStr = `${this._ds}select=${encodeURIComponent(select)}&${this._ds}filter=${encodeURIComponent(filter)}`;
 		const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
 		return withSpinner(this._http).get<any>(endpoint).pipe(
-			map(response => {
+			map(response =>
+			{
 				const planOptionCommunities = response.value as Array<IPlanOptionCommunity>
 				return planOptionCommunities;
 			}),
@@ -139,11 +157,11 @@ export class PlanOptionService {
 		)
 	}
 
-	private handleError(error: Response) {
+	private handleError(error: Response)
+	{
 		// In the future, we may send the server to some remote logging infrastructure.
 		console.error('Error message: ', error);
 
 		return _throw(error || 'Server error');
 	}
-
 }

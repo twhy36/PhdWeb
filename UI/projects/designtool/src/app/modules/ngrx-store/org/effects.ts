@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Action } from '@ngrx/store';
-import { Observable ,  of } from 'rxjs';
-import { switchMap, catchError } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 
 import { OrganizationService } from '../../core/services/organization.service';
 import { LoadSalesCommunity, SalesCommunityLoaded, LoadError, OrgActionTypes } from './actions';
@@ -10,8 +10,10 @@ import { tryCatch } from '../error.action';
 
 
 @Injectable()
-export class OrgEffects {
-	loadSalesCommunity$: Observable<Action> = createEffect(() => {
+export class OrgEffects
+{
+	loadSalesCommunity$: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<LoadSalesCommunity>(OrgActionTypes.LoadSalesCommunity),
 			tryCatch(source => source.pipe(
@@ -21,5 +23,5 @@ export class OrgEffects {
 		);
 	});
 
-	constructor(private actions$: Actions, private orgService: OrganizationService){}
+	constructor(private actions$: Actions, private orgService: OrganizationService) { }
 }

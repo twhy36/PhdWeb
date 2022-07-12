@@ -1,13 +1,9 @@
 import { Component, ViewChild, Input, Output, EventEmitter } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
-import { filter, map, distinctUntilChanged, switchMap, tap } from 'rxjs/operators';
-import { Observable } from 'rxjs';
-
 import { UnsubscribeOnDestroy } from '../../../../shared/classes/unsubscribeOnDestroy';
 import { SearchBarComponent } from '../../../../shared/components/search-bar/search-bar.component';
 import { ITreeOption } from '../../../../shared/models/option.model';
-import { TreeService } from '../../../../core/services/tree.service';
 import { UiUtilsService } from '../../../../core/services/ui-utils.service';
 import { MessageService } from 'primeng/api';
 

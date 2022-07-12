@@ -1,13 +1,13 @@
-import { Injectable } from "@angular/core";
-import { HttpClient, HttpHeaders } from "@angular/common/http";
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
-import { Observable ,  throwError as _throw, of } from "rxjs";
-import { map, catchError, mergeMap } from "rxjs/operators";
-import * as _ from "lodash";
+import { Observable, throwError as _throw, of } from 'rxjs';
+import { map, catchError, mergeMap } from 'rxjs/operators';
+import * as _ from 'lodash';
 
 import { environment } from '../../../../environments/environment';
-import { createBatchGet, getNewGuid, createBatchBody, createBatchHeaders, parseBatchResults } from 'phd-common';
-import { SearchEntities, SearchResult, ISearchResults, IFilterItems } from "../../shared/models/search.model";
+import { createBatchGet, getNewGuid, createBatchBody, createBatchHeaders } from 'phd-common';
+import { SearchEntities, SearchResult, ISearchResults, IFilterItems } from '../../shared/models/search.model';
 
 @Injectable()
 export class SearchService
@@ -94,7 +94,7 @@ export class SearchService
 		selectData.salesAgreement = 'id, salesAgreementNumber,status';
 		selectData.salesCommunity = 'id,name,number';
 		selectData.financialCommunity = 'id,name,number,marketId,salesCommunityId';
-        selectData.scenarios = 'id,name';
+		selectData.scenarios = 'id,name';
 		selectData.jobChangeOrderGroup = 'id,jobId,jobChangeOrderGroupDescription,salesStatusDescription';
 
 		let expandData: SearchEntities = new SearchEntities();
@@ -134,12 +134,14 @@ export class SearchService
 			mergeMap(result =>
 			{
 				const needBuyers = result.filter(item => item.salesAgreements.some(sa => sa.jobSalesAgreementAssocs.some(jsaa => jsaa.isActive)));
+
 				if (needBuyers.length > 0)
 				{
 					const salesAgreementIds = needBuyers.map(sr => sr.salesAgreements.find(sa => sa.jobSalesAgreementAssocs.some(jsaa => jsaa.isActive)).id);
 					const expandBuyers = `buyers($expand=opportunityContactAssoc($expand=contact($select=firstName,lastName)))`;
 					const saFilter = `id in (${salesAgreementIds})`;
 					const saUrl = `${environment.apiUrl}salesAgreements?${encodeURIComponent('$')}filter=${encodeURIComponent(saFilter)}&${encodeURIComponent('$')}expand=${encodeURIComponent(expandBuyers)}`;
+
 					return this._http.get<any>(saUrl).pipe(
 						map(response =>
 						{
@@ -150,24 +152,26 @@ export class SearchService
 								if (sa.buyers.length > 0)
 								{
 									saLot.buyers = [];
-									
+
 									//get list of primary buyers
 									const primaryBuyerList = sa.buyers.filter(buyer => buyer.isPrimaryBuyer === true)
-																		.map(buyer => buyer.opportunityContactAssoc.contact);
+										.map(buyer => buyer.opportunityContactAssoc.contact);
 
 									//get list of cobuyers in order by sort key, lowest sort key values taking highest priority
 									const coBuyerList = sa.buyers.filter(buyer => buyer.isPrimaryBuyer === false)
-																.sort( (a,b) => { return a.sortKey < b.sortKey ? -1 : a.sortKey > b.sortKey ? 1 : 0; } )
-																.map(buyer => buyer.opportunityContactAssoc.contact);
+										.sort((a, b) => { return a.sortKey < b.sortKey ? -1 : a.sortKey > b.sortKey ? 1 : 0; })
+										.map(buyer => buyer.opportunityContactAssoc.contact);
 
 									//associate buyers to lot
 									saLot.buyers.push(...primaryBuyerList, ...coBuyerList);
 								}
 							});
+
 							return result;
 						})
 					);
 				}
+
 				return of(result);
 			}),
 			catchError(error =>

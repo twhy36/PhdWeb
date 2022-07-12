@@ -2,7 +2,7 @@ import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { IRule, IRuleItem, RuleType } from '../../../../shared/models/rule.model';
-import { DTGroup, DTChoice, DTPoint, DTSubGroup, IDTGroup, IDTSubGroup, IDTPoint, IDTChoice } from '../../../../shared/models/tree.model';
+import { DTChoice, DTPoint, IDTGroup, IDTSubGroup, IDTPoint, IDTChoice } from '../../../../shared/models/tree.model';
 
 import { TreeService } from '../../../../core/services/tree.service';
 import { ConfirmModalComponent } from '../../../../core/components/confirm-modal/confirm-modal.component';

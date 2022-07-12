@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpHeaders, HttpClient, HttpResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 
 import { Observable, throwError as _throw } from 'rxjs';
-import { combineLatest, map, catchError, flatMap, filter, toArray } from 'rxjs/operators';
+import { map, catchError } from 'rxjs/operators';
 
 import { LoggingService } from '../../core/services/logging.service';
 import { SettingsService } from '../../core/services/settings.service';
@@ -66,19 +66,20 @@ export class PlanService
 
 		return this._http.get<any>(url).pipe(
 			map(response =>
+			{
+				let plans = response.value.map(plan =>
 				{
-					let plans = response.value.map(plan => {
-						return {
-							id: plan.id,
-							financialPlanIntegrationKey: plan.financialPlanIntegrationKey,
-							planSalesName: plan.planSalesName,
-							bedrooms: plan.bedrooms,
-							fullBaths: plan.fullBaths,
-							halfBaths: plan.halfBaths,
-							squareFeet: plan.squareFeet,
-							isActive: plan.isActive
-						};
-					}) as Array<IPlan>;
+					return {
+						id: plan.id,
+						financialPlanIntegrationKey: plan.financialPlanIntegrationKey,
+						planSalesName: plan.planSalesName,
+						bedrooms: plan.bedrooms,
+						fullBaths: plan.fullBaths,
+						halfBaths: plan.halfBaths,
+						squareFeet: plan.squareFeet,
+						isActive: plan.isActive
+					};
+				}) as Array<IPlan>;
 
 				return plans;
 			}),
