@@ -86,7 +86,7 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 	ngOnInit()
 	{
 		this.settings = this._settingsService.getSettings();
-		
+
 		this.activeCommunities = this._orgService.currentMarket$.pipe(
 			this.takeUntilDestroyed(),
 			tap(mkt =>
@@ -143,7 +143,7 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 		});
 	}
 
-	getWebsiteIntegrationKey(salesCommunityId: number) 
+	getWebsiteIntegrationKey(salesCommunityId: number)
 	{
 		if (salesCommunityId == null)
 		{
@@ -263,8 +263,7 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 	keywordSearch(event: any)
 	{
 		this.resetFilteredData(); // Any filter change should re run the query and remove current filters
-
-		this.keyword = event['keyword'];
+		this.searchBar.keyword = this.keyword = event['keyword'].trim();
 		this.filterHomesites();
 
 		if (!this.isSearchingFromServer)

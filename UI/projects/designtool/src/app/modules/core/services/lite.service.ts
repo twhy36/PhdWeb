@@ -125,6 +125,7 @@ export class LiteService
 						optionCategoryId: data['optionCommunity']['optionSubCategory']['optionCategoryId'],
 						mustHavePlanOptionIds: [],
 						cantHavePlanOptionIds: [],
+						cantHaveInactivePlanOptionIds: [],
 						cutOffDays: data['cutOffDays'],
 						cutOffStage: data['cutOffStage']
 					} as LitePlanOption;
@@ -323,19 +324,36 @@ export class LiteService
 		if (optionRelations?.length)
 		{
 			optionRelations.forEach(or => {
-				const mainOption = options.find(o => o.optionCommunityId === or.mainEdhOptionCommunityId && o.isActive);
-				const relatedOption = options.find(o => o.optionCommunityId === or.relatedEdhOptionCommunityId && o.isActive);
+				const mainOption = options.find(o => o.optionCommunityId === or.mainEdhOptionCommunityId);
+				const relatedOption = options.find(o => o.optionCommunityId === or.relatedEdhOptionCommunityId);
 
 				if (mainOption && relatedOption)
 				{
 					if (or.relationType === OptionRelationEnum.CantHave)
 					{
-						mainOption.cantHavePlanOptionIds.push(relatedOption.id);
-						relatedOption.cantHavePlanOptionIds.push(mainOption.id);
+						if (relatedOption.isActive && mainOption.isActive)
+						{
+							relatedOption.cantHavePlanOptionIds.push(mainOption.id);
+						}
+						else if (relatedOption.isActive && !mainOption.isActive)
+						{
+							relatedOption.cantHaveInactivePlanOptionIds.push(mainOption.id);
+						}
+						if (relatedOption.isActive && mainOption.isActive)
+						{
+							mainOption.cantHavePlanOptionIds.push(relatedOption.id);
+						}
+						else if (mainOption.isActive && !relatedOption.isActive)
+						{
+							mainOption.cantHaveInactivePlanOptionIds.push(relatedOption.id);
+						}
 					}
 					else if (or.relationType === OptionRelationEnum.MustHave)
 					{
-						mainOption.mustHavePlanOptionIds.push(relatedOption.id);
+						if (mainOption.isActive && relatedOption.isActive)
+						{
+							mainOption.mustHavePlanOptionIds.push(relatedOption.id);
+						}
 					}
 				}
 			});

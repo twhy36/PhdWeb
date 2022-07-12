@@ -1,6 +1,6 @@
 <div class="summary-header" [class.is-sticky]="isSticky">
-	<div *ngIf="!isSticky" class="phd-elevation-container">
-		<cl-image *ngIf="summaryHeader.elevationImageUrl" public-id="{{summaryHeader.elevationImageUrl}}" type="fetch" style="width:calc(45vw);height:calc(45vh);object-fit:contain;" crop="fill">
+	<div *ngIf="!isSticky">
+		<cl-image *ngIf="summaryHeader.elevationImageUrl" public-id="{{summaryHeader.elevationImageUrl}}" type="fetch" style="width:calc(45vw);height:calc(45vh);" crop="fill">
 		</cl-image>
 		<img class="phd-logo-image" [src]="getImageSrc()" *ngIf="!summaryHeader.elevationImageUrl">
 	</div>
@@ -58,14 +58,5 @@
 			</div>
 		</div>
 		<div *ngIf="!isSticky" class="phd-divider"></div>
-		<div *ngIf="!isSticky" class="phd-contracted-options">
-			<div class="phd-contracted-options-checkbox" [ngClass]="{'phd-clickable' : !isContractedOptionsDisabled }">
-				<span class="phd-icon-selected"><i *ngIf="includeContractedOptions" class="fa fa-check-square" (click)="toggleContractedOptions()"></i></span>
-				<div *ngIf="!includeContractedOptions" class="phd-empty-checkbox" [ngClass]="{'phd-disabled-checkbox' : isContractedOptionsDisabled }" (click)="toggleContractedOptions()"></div>
-			</div>
-			<label>
-				Display Contracted Options
-			</label>
-		</div>
 	</div>
 </div>

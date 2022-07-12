@@ -75,6 +75,8 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 	isLockedIn: boolean = false;
 	isDesignComplete: boolean = false;
 	isDesignPreviewEnabled: boolean;
+	isChangingOrder: boolean;
+	isChangeDirty: boolean;
 
 	// PHD Lite
 	isPhdLite: boolean;
@@ -445,6 +447,19 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 			this.takeUntilDestroyed(),
 			select(state => state.lite)
 		).subscribe(lite => this.isPhdLite = lite.isPhdLite);
+		
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(state => state.changeOrder)
+		).subscribe( changeOrder => {
+			this.isChangeDirty = changeOrder.changeInput ? changeOrder.changeInput.isDirty : false;
+			this.isChangingOrder = (changeOrder.changeInput
+				&& (changeOrder.changeInput.type === ChangeTypeEnum.CONSTRUCTION
+					|| changeOrder.changeInput.type === ChangeTypeEnum.PLAN))
+				? changeOrder.isChangingOrder
+				: false;
+	});
+
 	}
 
 	getESignStatus(changeOrder: any): string
@@ -1027,6 +1042,27 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 
 	onGenerateDocument(changeOrder: any, showPDF: boolean = true)
 	{
+		let activeChangeOrder = this.activeChangeOrders.find(co => co.id === changeOrder.id);
+		if(this.isChangingOrder && this.isChangeDirty && activeChangeOrder)
+		{
+			this.store.dispatch(new ChangeOrderActions.CreateJobChangeOrders());
+			this._actions$.pipe(
+				ofType<ContractActions.SetChangeOrderTemplates>(ContractActions.ContractActionTypes.SetChangeOrderTemplates),
+				take(1)
+				).subscribe(() => {
+						let changeOrder = this.changeOrders.find(co => co.id === activeChangeOrder.id);
+						this.generateDocument(changeOrder, showPDF);
+				});
+		}
+		else
+		{
+			this.generateDocument(changeOrder, showPDF)
+		}
+	}
+
+	generateDocument(changeOrder: any, showPDF: boolean = true)
+	{
+
 		this.isDownloadingEnvelope = false;
 
 		if ((changeOrder.salesStatus === 'Pending'))

@@ -1,5 +1,5 @@
 <div class="d-flex flex-row mx-2 table-container">
-	<table class="table table-sm table-striped phd-table-fixed" *ngIf="!treeService.treeVersionIsLoading && treeVersion">
+	<table class="table table-sm table-striped phd-table-fixed" [class.phd-table-fixed-dragging]="dragEnable" *ngIf="!treeService.treeVersionIsLoading && treeVersion">
 		<thead>
 			<tr>
 				<th scope="col">Label</th>

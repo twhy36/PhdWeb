@@ -1,15 +1,15 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {ConfirmModalComponent, Elevations, ModalService} from 'phd-common';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {ColorService} from '../../services/color.service';
+import {ColorService} from '../../../core/services/color.service';
 import {IColor} from '../../../shared/models/color.model';
 import {
 	IOptionCommunity,
-	IPlanCommunity,
+	IPlanCommunity, IPlanOptionCommunity,
 	IPlanOptionCommunityDto
 } from '../../../shared/models/community.model';
 import {IColorItemDto} from '../../../shared/models/colorItem.model';
-import { PlanOptionService } from '../../services/plan-option.service';
+import { PlanOptionService } from '../../../core/services/plan-option.service';
 
 @Component({
   selector: 'add-color-item-dialog',
@@ -27,6 +27,7 @@ export class AddColorItemDialogComponent implements OnInit {
 	selectedPlans: Array<IPlanCommunity> = [];
 	availablePlans: Array<IPlanCommunity> = [];
 	plansAndColorsArePristine = true;
+	optionsByPlan: Array<IPlanOptionCommunity> = [];
 
 	@Input() allPlans: Array<IPlanCommunity> = [];
 	@Input() communityId: number;
@@ -57,6 +58,7 @@ export class AddColorItemDialogComponent implements OnInit {
 
 		this._planService.getPlanOptionsByOption(this.selectedOption.id).subscribe(result => {
 				const  allOptionRelatedPlanIds = result.map(x => x.planId);
+				this.optionsByPlan = result;
 				const isElevationOption = [Elevations.AttachedElevation, Elevations.DetachedElevation].includes(this.selectedOption.optionSubCategoryId);
 				const somePlansHaveActiveColorItem = this.optionsWithColorItemInfo.some(x => x.colorItem.isActive);
 				let plansLookupList = this.allPlans.filter(x => x.planSalesName.toLowerCase() !== 'all plans' && allOptionRelatedPlanIds.some(optionId => x.id === optionId));
@@ -128,25 +130,35 @@ export class AddColorItemDialogComponent implements OnInit {
 		const colorItems: Array<IColorItemDto> = [];
 
 		this.selectedPlans.forEach(plan => {
-			const planOptionId = this.selectedOption.planOptionCommunities.find(x => x.planId === plan.id).id;
+			const planOption = this.optionsByPlan.find(x => x.planId === plan.id);
 
-			const item = {
-				colorItemId: 0,
-				name: this.addColorItemForm.get('name').value.toString().trim(),
-				isActive: true,
-				edhPlanOptionId: planOptionId,
-				colors: this.selectedColors
-			} as IColorItemDto;
+			if (planOption)
+			{
+				const item = {
+					colorItemId: 0,
+					name: this.addColorItemForm.get('name').value.toString().trim(),
+					isActive: true,
+					edhPlanOptionId: planOption.id,
+					colors: this.selectedColors
+				} as IColorItemDto;
 
-			colorItems.push(item);
+				colorItems.push(item);
+			}
 		})
 
-		this._colorService.saveColorItem(colorItems).subscribe(savedColorItems => {
-			this.colorItemSaveAttempted.emit(savedColorItems.length > 0);
-		},
-		error => {
+		if (colorItems.length > 0)
+		{
+			this._colorService.saveColorItem(colorItems).subscribe(savedColorItems => {
+					this.colorItemSaveAttempted.emit(savedColorItems.length > 0);
+				},
+				error => {
+					this.colorItemSaveAttempted.emit(false);
+				});
+		}
+		else
+		{
 			this.colorItemSaveAttempted.emit(false);
-		});
+		}
 	}
 
 	validateForm(): boolean

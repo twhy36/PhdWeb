@@ -1,15 +1,15 @@
 <nav id="phd-nav-bar" class="navbar fixed-top navbar-expand-md">
 	<div class="d-flex container-fluid phd-mobile-header">
-		<div class="d-flex flex-row align-items-flex-start">
+		<div class="d-flex flex-row align-items-flex-start justify-content-space-between">
 			<div class="phd-nav-bar-header phd-clickable">
 				<img class="phd-logo" [src]="getImageSrc()" alt="Pulte Homes" (click)="onHomePage()">
 			</div>
-			<div class="d-flex flex-column phd-nav-bar-title">
+			<div class="d-flex flex-column phd-nav-bar-title" [ngClass]="getBrandedTitle()">
 				<span class="phd-nav-bar-label">Design Preview</span>
 				<span class="phd-nav-bar-config">Welcome To Your Home</span>
 			</div>
 		</div>
-		<div *ngIf="!(isTablet$ | async)" class="col-6 d-flex ml-auto phd-menu-options">
+		<div class="col-6 d-flex ml-auto" [ngClass]="getBrandedMenuClass(false)">
 			<div>
 				<a class="phd-nav-page phd-page-separator"
 				   [routerLink]="['/favorites/summary']"
@@ -31,7 +31,7 @@
 				</a>
 			</div>
 		</div>
-		<div *ngIf="isTablet$ | async" class="phd-menu-bars">
+		<div class="phd-menu-bars" [ngClass]="getBrandedMenuClass(true)">
 			<i *ngIf="isMenuCollapsed" class="fa fa-bars fa-2x" (click)="isMenuCollapsed = !isMenuCollapsed"></i>
 			<i *ngIf="!isMenuCollapsed" class="fa fa-times fa-2x" (click)="isMenuCollapsed = !isMenuCollapsed"></i>
 		</div>
@@ -40,7 +40,7 @@
 
 <div *ngIf="!isMenuCollapsed" class="phd-collapsable-menu">
 	<div [class.phd-active-link-collapsed]="currentRoute?.startsWith('/favorites/summary')">
-		<a *ngIf="(isTablet$ | async)" [routerLink]="['/favorites/summary']">My Favorites</a>
+		<a [routerLink]="['/favorites/summary']">My Favorites</a>
 		<!-- Send these links to their proper pages, uncomment as needed -->
 		<a [routerLink]="['/floorplan']">Floorplan</a>
 		<a *ngIf="showContractedOptionsLink" [routerLink]="['/contracted']">Contracted Options</a>

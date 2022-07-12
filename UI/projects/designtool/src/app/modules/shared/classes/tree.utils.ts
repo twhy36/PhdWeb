@@ -5,14 +5,13 @@ import * as _ from 'lodash';
 import * as moment from "moment";
 
 import
-{
-	LocationGroup, Location, AttributeGroup, Attribute, DesignToolAttribute, AttributeCommunityImageAssoc,
-	ChangeOrderGroup, ChangeOrderChoice, ChangeOrderPlanOption, ChangeOrderChoiceAttribute, ChangeOrderChoiceLocation,
-	JobChoice, JobPlanOption, JobChoiceAttribute, JobChoiceLocation, Job, PlanOption, PointStatus, ConstructionStageTypes,
-	OptionRule, TreeVersionRules, Scenario, SelectedChoice, Tree, Choice, DecisionPoint, MappedAttributeGroup, MappedLocationGroup,
-	OptionImage, SubGroup, Group, applyRules, findChoice, MyFavoritesChoice, getMaxSortOrderChoice,
-	ChoiceRules
-} from 'phd-common';
+	{
+		LocationGroup, Location, AttributeGroup, Attribute, DesignToolAttribute, AttributeCommunityImageAssoc,
+		ChangeOrderGroup, ChangeOrderChoice, ChangeOrderPlanOption, ChangeOrderChoiceAttribute, ChangeOrderChoiceLocation,
+		JobChoice, JobPlanOption, JobChoiceAttribute, JobChoiceLocation, Job, PlanOption, PointStatus, ConstructionStageTypes,
+		OptionRule, TreeVersionRules, Scenario, SelectedChoice, Tree, Choice, DecisionPoint, MappedAttributeGroup, MappedLocationGroup,
+		OptionImage, SubGroup, Group, applyRules, findChoice, MyFavoritesChoice, getMaxSortOrderChoice
+	} from 'phd-common';
 
 import { TreeService } from '../../core/services/tree.service';
 
@@ -146,12 +145,7 @@ export function getDefaultOptionRule(optionNumber: string, choice: Choice): Opti
 	};
 }
 
-function saveLockedInChoices(
-	choices: Array<JobChoice | ChangeOrderChoice>, 
-	treeChoices: Choice[], 
-	options: Array<JobPlanOption | ChangeOrderPlanOption>, 
-	changeOrder?: ChangeOrderGroup,
-	missingChoices?: number[])
+function saveLockedInChoices(choices: Array<JobChoice | ChangeOrderChoice>, treeChoices: Choice[], options: Array<JobPlanOption | ChangeOrderPlanOption>, changeOrder?: ChangeOrderGroup)
 {
 	choices.filter(isLocked(changeOrder)).forEach(choice =>
 	{
@@ -168,12 +162,6 @@ function saveLockedInChoices(
 				? _.uniq(choice.jobChoiceLocations.map(jcl => jcl.locationGroupCommunityId))
 				: _.uniq(choice.jobChangeOrderChoiceLocations.map(cocl => cocl.locationGroupCommunityId))
 			).map(loc => new MappedLocationGroup({ id: loc }));
-
-			// Set locked in price for selected choices which have been removed from the tree
-			if (missingChoices?.find(ch => ch === treeChoice.id))
-			{
-				treeChoice.price = treeChoice.lockedInChoice.choice.dpChoiceCalculatedPrice; 
-			}
 		}
 	});
 }
@@ -402,8 +390,7 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 								saveLockedInChoices(choices,
 									_.flatMap(data.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices))),
 									options,
-									changeOrder,
-									missingChoices);
+									changeOrder);
 
 								return data;
 							}));
@@ -443,11 +430,10 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 						return { optionNumber: options.find(opt => opt.id === o.jobChangeOrderPlanOptionId)?.integrationKey, dpChoiceId: c.decisionPointChoiceID };
 					});
 			}
-		}))),
-		treeService.getHistoricRules(choices)
+		})))
 	]).pipe(
 		//update pricing information for locked-in options/choices
-		map(([res, optImageAssoc, mapping, historicRules]) =>
+		map(([res, optImageAssoc, mapping]) =>
 		{
 			//override option prices if prices are locked
 			if (options.length)
@@ -513,7 +499,7 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 				});
 			}
 
-			return { res, mapping, historicRules };
+			return { res, mapping };
 		}),
 		//store the original option mapping on the choice where it was selected
 		//rules engine can use this to 'override' current option mappings
@@ -532,11 +518,6 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 					else
 					{
 						choice.lockedInOptions = c.jobChangeOrderChoiceChangeOrderPlanOptionAssocs?.filter(o => o.jobChoiceEnabledOption)?.map(o => data.mapping[options.find(opt => opt.id === o.jobChangeOrderPlanOptionId)?.integrationKey] || getDefaultOptionRule(options.find(opt => opt.id === o.jobChangeOrderPlanOptionId)?.integrationKey, choice));
-					}
-
-					if (choice.lockedInChoice && choice.lockedInChoice.choice)
-					{
-						choice.lockedInChoice.choiceRules = data.historicRules?.choiceRules?.filter(cr => cr.choiceId === choice.lockedInChoice.choice.dpChoiceId);
 					}
 				}
 			});
@@ -931,15 +912,10 @@ export function getJobOptionType(option: PlanOption, elevationDP: DecisionPoint,
 	return optionType;
 }
 
-export function getLockedInChoice(
-	choice: JobChoice | ChangeOrderChoice, 
-	options: Array<JobPlanOption | ChangeOrderPlanOption>,
-	choiceRules?: Array<ChoiceRules>)
-	:
-	{
+export function getLockedInChoice(choice: JobChoice | ChangeOrderChoice, options: Array<JobPlanOption | ChangeOrderPlanOption>)
+	: { 
 		choice: (JobChoice | ChangeOrderChoice),
-		optionAttributeGroups: Array<{ optionId: string, attributeGroups: number[], locationGroups: number[] }>,
-		choiceRules: Array<ChoiceRules>
+		optionAttributeGroups: Array<{ optionId: string, attributeGroups: number[], locationGroups: number[] }> 
 	}
 {
 	return { choice, 
@@ -975,7 +951,6 @@ export function getLockedInChoice(
 					{
 						return null;
 					}
-				}),
-		choiceRules: choiceRules ? choiceRules.filter(cr => cr.choiceId === choice.dpChoiceId) : []
-	};
+				})
+			};
 }

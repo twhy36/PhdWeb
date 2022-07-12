@@ -175,7 +175,8 @@ export function buildLiteOptionSubCategories(options: LitePlanOption[], subCateg
 				const optionPoint = createLiteSDPoint(option.financialOptionIntegrationKey, [optionChoice]);
 				return optionPoint;
 			});
-			const optionSubCategory = createLiteSDSubGroup(subCategory?.name, points);
+			const subCategoryName = subCategory?.name !== 'BaseHouse' ? subCategory?.name : ''; // Do not show sub-category for base house
+			const optionSubCategory = createLiteSDSubGroup(subCategoryName, points);
 			optionSubCategories.push(optionSubCategory);
 		}
 	};
@@ -214,6 +215,7 @@ export function buildLiteOptionColors(option: LitePlanOption, scenarioOption: Sc
 		});		
 	}
 
+	optionColors.sort((a, b) => a.attributeGroupLabel.localeCompare(b.attributeGroupLabel));
 	return optionColors;
 }
 
@@ -504,7 +506,7 @@ export function getLiteConstructionChangeOrderPdfData(
 						manufacturer: attr.manufacturer ? attr.manufacturer : null,
 						sku: attr.sku ? attr.sku : null,
 					};
-				})
+				}).sort((a, b) => a.attributeGroupLabel.localeCompare(b.attributeGroupLabel))
 			: [];
 
 			const option = options.find(opt => opt.id === coPlanOption.planOptionId);

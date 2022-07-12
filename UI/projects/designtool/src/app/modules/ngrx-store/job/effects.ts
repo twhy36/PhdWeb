@@ -39,7 +39,7 @@ export class JobEffects
 					let lotIDs = store.lot.lots?.filter(x => x.lotBuildTypeDesc === 'Spec' && x.lotStatusDescription === 'Available')
 						.map(l => l.id);
 
-					return (lotIDs.length > 0) ? this.jobService.getSpecJobs(lotIDs) : of([]);
+					return (lotIDs?.length > 0) ? this.jobService.getSpecJobs(lotIDs) : of([]);
 				}),
 				map(jobs => jobs.filter(job => this.showOnQuickMovin(job))),
 				map(jobs => new SpecsLoaded(jobs))

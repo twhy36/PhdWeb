@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ConfirmModalComponent, Elevations, ModalService } from 'phd-common';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ColorService } from '../../services/color.service';
+import { ColorService } from '../../../core/services/color.service';
 import { IColorItemDto } from '../../../shared/models/colorItem.model';
 import { IOptionCommunity, IPlanOptionCommunityGridDto } from '../../../shared/models/community.model';	
 import { IColor } from '../../../shared/models/color.model';

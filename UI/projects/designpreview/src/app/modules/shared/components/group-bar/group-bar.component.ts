@@ -1,7 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { Observable } from 'rxjs';
 
-import { UnsubscribeOnDestroy, BrowserService, Group, PointStatus } from 'phd-common';
+import { UnsubscribeOnDestroy, Group, PointStatus } from 'phd-common';
 
 @Component({
 	selector: 'group-bar',
@@ -19,16 +18,14 @@ export class GroupBarComponent extends UnsubscribeOnDestroy implements OnInit
 	@Output() onSetTreeFilter = new EventEmitter();
 
 	highlightedStyle: any = { 'font-weight': 'bold' };
-	isTablet$: Observable<boolean>;
 	completedStatuses = [PointStatus.COMPLETED, PointStatus.PARTIALLY_COMPLETED];
 
-	constructor(private browser: BrowserService)
+	constructor()
     {
 		super();
 	}
 
 	ngOnInit() {
-		this.isTablet$ = this.browser.isTablet();
 	}
 
 	selectSubgroup(sgId: number) {

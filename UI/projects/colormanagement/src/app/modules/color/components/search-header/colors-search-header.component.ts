@@ -1,13 +1,13 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
-import {OptionService} from '../../services/option.service';
+import {OptionService} from '../../../core/services/option.service';
 import {IOptionSubCategory} from '../../../shared/models/option.model';
 import {OrganizationService} from '../../../core/services/organization.service';
 import {filter, map, switchMap, take} from 'rxjs/operators';
 import {from, Observable, EMPTY } from 'rxjs';
 import {ConfirmModalComponent, ModalRef, ModalService, UnsubscribeOnDestroy} from 'phd-common';
 import {IColor, IColorDto} from '../../../shared/models/color.model';
-import {ColorService} from '../../services/color.service';
-import {SettingsService} from '../../services/settings.service';
+import {ColorService} from '../../../core/services/color.service';
+import {SettingsService} from '../../../core/services/settings.service';
 import {Settings} from '../../../shared/models/settings.model';
 import {MessageService} from 'primeng/api';
 import {IToastInfo} from '../../../../../../../phd-common/src/lib/models/toast-info.model';

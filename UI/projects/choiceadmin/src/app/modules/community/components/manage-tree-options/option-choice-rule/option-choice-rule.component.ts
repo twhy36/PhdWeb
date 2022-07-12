@@ -226,7 +226,7 @@ export class OptionChoiceRuleComponent implements OnInit, OnDestroy
 	keywordSearch(event: any)
 	{
 		this.selectedSearchFilter = event['searchFilter'];
-		this.keyword = event['keyword'] || '';
+		this.keyword = event['keyword'].trim() || '';
 
 		// reset everything to unmatched.
 		this._resetAllMatchValues(false);

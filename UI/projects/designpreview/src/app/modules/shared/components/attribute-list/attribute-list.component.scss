@@ -24,6 +24,12 @@
 	overflow: hidden;
 }
 
+.phd-clickable {
+	font-size: 20px;
+	margin-top: -5px;
+	margin-left: -4px;
+}
+
 ::ng-deep .phd-attribute-item-image {
 	border: solid 1px #ccc;
 	cursor: pointer;

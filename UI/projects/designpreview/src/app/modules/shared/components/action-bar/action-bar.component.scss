@@ -43,11 +43,13 @@
 
 
 		.phd-favorites-list {
-			width: 27px;
+			height: 32px;
 			right: 8px;
-			object-fit: cover;
-			object-position: right;
 		}
+	}
+
+	.phd-clickable {
+		align-items: center;
 	}
 
 	.phd-contracted-options {

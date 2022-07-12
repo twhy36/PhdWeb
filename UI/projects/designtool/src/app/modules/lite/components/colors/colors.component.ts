@@ -169,7 +169,7 @@ export class ColorsComponent extends UnsubscribeOnDestroy implements OnInit {
 
 						if (ci.colorItemId in this.selectedColorIds === false)
 						{
-							this.setColorItemsDefaultColor(po, ci);
+							this.setColorItem(po, ci);
 						}
 					})
 				})
@@ -190,7 +190,7 @@ export class ColorsComponent extends UnsubscribeOnDestroy implements OnInit {
 		});
 	}
 
-	setColorItemsDefaultColor(option: LitePlanOptionUI, colorItem: ColorItem)
+	setColorItem(option: LitePlanOptionUI, colorItem: ColorItem)
 	{
 		const selectedScenarioOption = this.scenarioOptions.find(x => x.edhPlanOptionId === option.id);
 
@@ -201,29 +201,11 @@ export class ColorsComponent extends UnsubscribeOnDestroy implements OnInit {
 			if (selectedScenarioColor)
 			{
 				this.selectedColorIds[colorItem.colorItemId] = selectedScenarioColor.colorId;
-				return;
 			}
-		}
-
-		if (colorItem.color.length === 1)
-		{
-			this.selectedColorIds[colorItem.colorItemId] = colorItem.color[0].colorId;
-			let scenarioColors: ScenarioOptionColorDto[] = [];
-
-			scenarioColors.push({
-				scenarioOptionColorId: 0,
-				scenarioOptionId: selectedScenarioOption.scenarioOptionId,
-				colorItemId: colorItem.colorItemId,
-				colorId: this.selectedColorIds[colorItem.colorItemId],
-				isDeleted: false,
-				edhPlanOptionId: selectedScenarioOption.edhPlanOptionId
-			});
-
-			this.store.dispatch(new LiteActions.SelectOptionColors(scenarioColors));
-		}
-		else
-		{
-			this.selectedColorIds[colorItem.colorItemId] = null;
+			else
+			{
+				this.selectedColorIds[colorItem.colorItemId] = null;
+			}
 		}
 	}
 

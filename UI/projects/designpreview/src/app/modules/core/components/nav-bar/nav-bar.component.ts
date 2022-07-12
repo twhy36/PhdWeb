@@ -1,9 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
-import { Observable } from 'rxjs';
 import { select, Store } from '@ngrx/store';
 
-import { BrowserService, UnsubscribeOnDestroy} from 'phd-common';
+import { UnsubscribeOnDestroy} from 'phd-common';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
@@ -18,18 +17,16 @@ import { BrandService } from '../../services/brand.service';
 export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	currentRoute: string;
-	isTablet$: Observable<boolean>;
 	isMenuCollapsed: boolean = true;
 	showContractedOptionsLink: boolean = true;
 
 	constructor(
 		private router: Router,
-		private browser: BrowserService,
 		private store: Store<fromRoot.State>,
 		private brandService: BrandService
 	)
     {
-		super();
+			super();
     }
 
 	ngOnInit()
@@ -39,11 +36,6 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 				this.currentRoute = evt.url.toLowerCase();
 				this.isMenuCollapsed = true;
 			}
-		});
-
-		this.isTablet$ = this.browser.isTablet();
-		this.isTablet$.subscribe(data => {
-			this.isMenuCollapsed = true;
 		});
 
 		this.store.pipe(
@@ -60,6 +52,19 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 		return !this.currentRoute.includes('summary') ? true : false;
 	}
 
+	getBrandedMenuClass (isCollapsedMenu: boolean) {
+		let menuClass = '';
+		if (isCollapsedMenu) {
+			menuClass = 'phd-hamburger-menu';
+		} else {
+			menuClass = 'phd-menu-options';
+		}
+		if (this.brandService.getBrandName() === 'johnWieland') {
+			menuClass += '-jw';
+		}
+		return menuClass;
+	}
+
 	onHomePage() {
 		this.store.dispatch(new ScenarioActions.SetTreeFilter(null));
 		this.router.navigateByUrl('/home');
@@ -72,5 +77,9 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 
 	getImageSrc() {
 		return this.brandService.getBrandImage('white_logo');
+	}
+
+	getBrandedTitle () {
+		return 'phd-nav-bar-' + this.brandService.getBrandName();
 	}
 }

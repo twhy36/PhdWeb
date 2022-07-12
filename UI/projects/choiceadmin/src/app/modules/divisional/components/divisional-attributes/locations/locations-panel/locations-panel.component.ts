@@ -162,8 +162,7 @@ export class LocationsPanelComponent extends UnsubscribeOnDestroy implements OnI
 	keywordSearch(event: any)
 	{
 		this.selectedSearchFilter = event['searchFilter'];
-		this.keyword = event['keyword'];
-
+		this.searchBar.keyword = this.keyword = event['keyword'].trim();
 		this.filterLocations();
 
 		if (!this.isSearchingFromServer)
@@ -198,7 +197,6 @@ export class LocationsPanelComponent extends UnsubscribeOnDestroy implements OnI
 			if (this.allDataLoaded)
 			{
 				this.filteredLocationsList = [];
-				
 				let filteredResults = this.filterByKeyword(searchFilter, this.keyword);
 
 				if (isActiveStatus !== null)
@@ -274,7 +272,6 @@ export class LocationsPanelComponent extends UnsubscribeOnDestroy implements OnI
 			});
 	}
 
-	
 	onPanelScroll()
 	{
 		if (!this.keyword && !this.selectedStatus)
@@ -320,7 +317,7 @@ export class LocationsPanelComponent extends UnsubscribeOnDestroy implements OnI
 		}
 		else if (this.allDataLoaded || this.keyword || this.selectedStatus)
 		{
-			// all the data is either loaded or we are filtering so all the data should be loaded at this time so we can just update the sort.				
+			// all the data is either loaded or we are filtering so all the data should be loaded at this time so we can just update the sort.
 			this.tableComponent.sortLazy();
 		}
 	}

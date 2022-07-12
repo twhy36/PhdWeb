@@ -13,11 +13,13 @@ import { tap } from 'rxjs/operators';
 import { PhdCommonModule, IdentityService, AUTH_CONFIG, APP_INSIGHTS_CONFIG, TELEMETRY_INIT, setClientApp } from 'phd-common';
 import { CoreModule } from './modules/core/core.module';
 import { SharedModule } from './modules/shared/shared.module';
-import { ColorAdminModule } from './modules/coloradmin/coloradmin.module';
+import { ColorModule } from './modules/color/color.module';
 
 import { AppComponent } from './app.component';
 
 import { environment } from '../environments/environment';
+import { OptionPackageModule } from './modules/option-package/option-package.module';
+import { ColorItemModule } from './modules/color-item/color-item.module';
 
 const appInitializerFn = (identityService: IdentityService) => {
     // the APP_INITIALIZER provider waits for promises to be resolved
@@ -50,15 +52,30 @@ const setTitle = (titleService: Title) => {
 		MultiSelectModule,
 		CoreModule,
 		SharedModule,
-		ColorAdminModule,
+		ColorModule,
 		NgbModule,
 		NgbButtonsModule,
 		PhdCommonModule.forRoot(environment.apiUrl),
 		ReactiveFormsModule,
+		OptionPackageModule,
+		ColorItemModule,
 		RouterModule.forRoot([
 			{ path: 'unauthorized', component: SharedModule },
-			{ path: '', pathMatch: 'full', component: ColorAdminModule }
-		])
+			{
+				path: 'color',
+				component: ColorModule
+			},
+			{
+				path: 'coloritem',
+				component: ColorItemModule
+			},
+			{
+				path: 'optionpackage',
+				component: OptionPackageModule
+			},
+			{ path: '', pathMatch: 'full', redirectTo: 'color' }
+		]),
+  
     ],
 	providers: [
         { provide: APP_INITIALIZER, useFactory: appInitializerFn, deps: [IdentityService], multi: true },
