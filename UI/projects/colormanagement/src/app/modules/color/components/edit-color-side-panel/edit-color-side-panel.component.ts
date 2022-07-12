@@ -1,9 +1,9 @@
 import {Component, OnInit, OnDestroy, Output, EventEmitter, Input} from '@angular/core';
 import {ConfirmModalComponent, ModalService} from 'phd-common';
 import { FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {ColorService} from '../../services/color.service';
+import {ColorService} from '../../../core/services/color.service';
 import {IColorDto} from '../../../shared/models/color.model';
-import {ColorAdminService} from '../../services/color-admin.service';
+import {ColorAdminService} from '../../../core/services/color-admin.service';
 
 @Component({
 	selector: 'edit-color-side-panel',

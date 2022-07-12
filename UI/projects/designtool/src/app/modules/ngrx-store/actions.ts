@@ -3,7 +3,7 @@ import { Action } from '@ngrx/store';
 import {
 	SalesCommunity, ESignEnvelope, ChangeOrderGroup, ChangeOrderHanding, Job, JobChoice, LotExt,
 	OpportunityContactAssoc, PlanOption, TreeVersionRules, SalesAgreement, SalesAgreementInfo, Scenario,
-	Tree, OptionImage, MyFavorite, Log
+	Tree, OptionImage, MyFavorite, Log, mergeSalesChangeOrderBuyers
 } from 'phd-common';
 
 import { ErrorAction } from './error.action';
@@ -88,7 +88,7 @@ export class SalesAgreementLoaded implements Action
 		public myFavorites: MyFavorite[]
 	)
 	{
-		this.opportunity = this.salesAgreement.buyers && this.salesAgreement.buyers.length ? this.salesAgreement.buyers.find(t => t.isPrimaryBuyer).opportunityContactAssoc : null;
+		this.opportunity = mergeSalesChangeOrderBuyers(this.salesAgreement.buyers, this.changeOrder)?.find(b => b.isPrimaryBuyer)?.opportunityContactAssoc ?? null;
 	}
 }
 
