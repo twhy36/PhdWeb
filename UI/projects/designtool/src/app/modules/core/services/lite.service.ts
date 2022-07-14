@@ -53,9 +53,9 @@ export class LiteService
 
 	isPhdLiteEnabled(financialCommunityId: number, marketId: number) : Observable<boolean>
 	{
-		if (!financialCommunityId && !marketId)
+		if (!financialCommunityId)
 		{
-			// Ignore the flag if financial community id and market id are not valid
+			// Ignore the flag if financial community id
 			return of(true);
 		}
 
