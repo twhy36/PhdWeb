@@ -1,0 +1,32 @@
+<header>
+    <div class="option-package-head">
+        <h2 class="col-form-label">Manage Option Package – {{getCurrentPackageInfo()}}</h2>
+        <button class="btn btn-secondary">
+            Back to Packages
+        </button>
+    </div>
+
+    <div>
+        <div class="form-inline">
+            <div>
+                <label class="col-form-label">Select one or more plans</label>
+            </div>
+            <div class="p-2">
+                <p-multiSelect 
+                    [options]="planCommunityList$ | async" 
+                    [(ngModel)]="selectedPlans" 
+                    optionValue="id"
+                    optionLabel="planSalesName" 
+                    [showToggleAll]="true"
+                    [maxSelectedLabels]="1" 
+                    [selectedItemsLabel]="'{0} Plans selected'">
+                </p-multiSelect>
+            </div>
+            <div class="p-2">
+                <button class="btn btn-primary" (click)="onLoadPlans()">
+                    Load Plans
+                </button>
+            </div>
+        </div>
+    </div>
+</header>
