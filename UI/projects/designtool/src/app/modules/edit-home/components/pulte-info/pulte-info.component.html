@@ -35,7 +35,7 @@
                     <label>Display On Pulte.com</label>
                 </div>
                 <div class="phd-items">
-                    <input formControlName="displayOnPulte" type="checkbox" [value]="pulteInfo.isPublishOnWebSite"
+                    <input formControlName="displayOnPulte" type="checkbox" class="phd-items-checkbox" [value]="pulteInfo.isPublishOnWebSite"
                         id="displayOnPulte" [controlDisabled]="!canEdit">
                 </div>
             </div>
@@ -65,7 +65,7 @@
                     <label>Hot Home</label>
                 </div>
                 <div class="phd-items">
-                    <input formControlName="hotHome" type="checkbox"  [value]="pulteInfo.isHotHomeActive" id="hotHome" [controlDisabled]="!canEdit">
+                    <input formControlName="hotHome" type="checkbox" class="phd-items-checkbox" [value]="pulteInfo.isHotHomeActive" id="hotHome" [controlDisabled]="!canEdit">
                 </div>
             </div>
             <br>
