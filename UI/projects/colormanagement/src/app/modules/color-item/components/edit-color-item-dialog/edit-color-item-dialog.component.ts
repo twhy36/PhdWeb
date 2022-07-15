@@ -24,7 +24,7 @@ export class EditColorItemDialogComponent implements OnInit
 	isDuplicateName: boolean;
 	nameErrorMessage = '';
 	colorsHasChanged: boolean = false;
-	
+
 	@Input() selectedColorItems: IColorItemDto[];
 	@Input() communityId: number;
 	@Input() selectedOption: IOptionCommunity;
@@ -144,7 +144,12 @@ export class EditColorItemDialogComponent implements OnInit
 
 			return false;
 		}
-		this.isDuplicateName = this.optionsWithColorItemInfo.some(option => option.colorItem[0].name.toLowerCase() === colorItemName && option.optionCommunityId === this.selectedOption.id && option.colorItem[0].colorItemId != this.selectedColorItems[0].colorItemId);
+
+		//1) find the selectedOption in the list of options that have their related color items
+		//2) then search thru all color items (excluding the color item that is being edited) and compare the names
+		this.isDuplicateName = this.optionsWithColorItemInfo
+			.find(o => o.optionCommunityId === this.selectedOption.id)
+			.colorItem.some(ci => ci.colorItemId !== this.selectedColorItems[0].colorItemId && ci.name.toLowerCase() === colorItemName);
 
 		if (this.isDuplicateName)
 		{
