@@ -87,12 +87,12 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 	get fpFloors()
 	{
-		return this.fpLoaded && this.fp ? this.fp.floors : [];
+		return this.isValidFp ? this.fp.floors : [];
 	}
 
 	get isValidFp() : boolean
 	{
-		return this.fpLoaded && this.fp.graphic;
+		return this.fpLoaded && this.fp?.graphic;
 	}
 
 	constructor(private router: Router,
