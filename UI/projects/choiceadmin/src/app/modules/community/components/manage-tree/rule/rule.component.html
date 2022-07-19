@@ -17,7 +17,8 @@
 							 (onRemoveItemClick)="removeItem($event)"
 							 (onClearFilter)="clearFilter()"
 							 (onCancel)="localCancelRule()"
-							 (onSave)="localSaveRule()">
+							 (onSave)="localSaveRule()"
+							 [parentSubject]="parentSubject">
 				<ng-container *ngFor="let group of groups">
 					<ng-container *ngIf="group.matched">
 						<div>

@@ -1,6 +1,7 @@
 import { Component, Input, OnInit, ViewChild, EventEmitter, Output } from '@angular/core';
 import { FormGroup, FormControl, Validators, ValidatorFn, AbstractControl } from '@angular/forms';
 
+import { BehaviorSubject } from 'rxjs';
 import { finalize, combineLatest } from 'rxjs/operators';
 
 import * as _ from 'lodash';
@@ -63,12 +64,12 @@ export class ChoiceSidePanelComponent implements OnInit
 	@Output() hasChanges = new EventEmitter<boolean>();
 	@Output() sidePanelClose = new EventEmitter();
 	@Output() onChoiceDetailsChange = new EventEmitter<{ choice: DTChoice, isDecisionDefault: boolean, description: string, maxQuantity: number }>();
-
 	choiceDetailsForm: FormGroup;
 	useMaxQuantity: boolean = false;
 	isDefault: boolean = false;
 	maxQuantity: number;
 	description: string;
+	parentSubject: BehaviorSubject<boolean>; // parent
 
 	choiceRules: Array<IRule> = [];
 	choiceSelectedItems: Array<IRuleItem> = [];
@@ -95,6 +96,7 @@ export class ChoiceSidePanelComponent implements OnInit
 
 	ngOnInit(): void
 	{
+		this.parentSubject = new BehaviorSubject<boolean>(false);
 		this.getChoiceRules();
 		this.getOptionRules();
 		this.getImages();
@@ -514,16 +516,21 @@ export class ChoiceSidePanelComponent implements OnInit
 					}
 
 					this.choice.hasChoiceRules = rules.length > 0;
-
+					this.parentSubject.next(false);
 					callback(true);
-				}, (error) => callback(false));
+				}, (error) => {
+					this.parentSubject.next(false);
+					callback(false)
+				});
 		}
 		else
 		{
 			this.isSaving = false;
 
+			this.parentSubject.next(false);
 			callback(false);
 		}
+		this.parentSubject.next(false);
 	}
 
 	onSaveOptionRule(params: { choiceId: number, selectedItems: Array<PhdApiDto.IChoiceOptionRule>, callback: Function })
@@ -549,6 +556,7 @@ export class ChoiceSidePanelComponent implements OnInit
 					this.choice.hasOptionRules = optionRules.length > 0;
 				}
 
+				this.parentSubject.next(false);
 				params.callback(true);
 			}, (error) => { params.callback(false); });
 	}
@@ -803,7 +811,7 @@ export class ChoiceSidePanelComponent implements OnInit
 		}
 	}
 
-	get canSave(): boolean
+	get canSave(): boolean // TODO click on tree draft option to open the choice to choice side panel
 	{
 		let canSave = this.choiceDetailsForm.pristine || !this.choiceDetailsForm.valid || this.isSaving;
 

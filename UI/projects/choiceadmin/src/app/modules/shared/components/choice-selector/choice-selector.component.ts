@@ -1,4 +1,5 @@
-import { Component, Input, TemplateRef, Output, EventEmitter, ViewChild } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ViewChild } from '@angular/core';
+import { Observable } from 'rxjs';
 import { SearchBarComponent } from '../search-bar/search-bar.component';
 
 @Component({
@@ -28,6 +29,16 @@ export class ChoiceSelectorComponent
 
 	@ViewChild(SearchBarComponent) searchBar: SearchBarComponent;
 
+	@Input() parentSubject: Observable<boolean>; // child
+
+	private isSaving: boolean = false;
+
+	ngOnInit() {
+		this.parentSubject.subscribe( event => {
+			this.enableSaveButton();
+		});
+	}
+
 	constructor() { }
 
 	clearFilter()
@@ -52,16 +63,22 @@ export class ChoiceSelectorComponent
 
 	saveClick()
 	{
+		this.isSaving = true;
 		this.onSave.emit();
 	}
 
-	get disableSaveButton()
+	enableSaveButton() {
+		this.isSaving = false;
+	}
+
+	get getSaveState()
 	{
-		return this.selectedChoices.length === 0;
+		return this.isSaving;
 	}
 
 	reset()
 	{
 		this.searchBar.reset();
+		this.isSaving = false;
 	}
 }

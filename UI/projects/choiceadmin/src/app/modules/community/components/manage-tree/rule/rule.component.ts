@@ -4,6 +4,8 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { IRule, IRuleItem, RuleType } from '../../../../shared/models/rule.model';
 import { DTGroup, DTChoice, DTPoint, DTSubGroup, IDTGroup, IDTSubGroup, IDTPoint, IDTChoice } from '../../../../shared/models/tree.model';
 
+import { Observable } from 'rxjs';
+
 import { TreeService } from '../../../../core/services/tree.service';
 import { ConfirmModalComponent } from '../../../../core/components/confirm-modal/confirm-modal.component';
 
@@ -31,6 +33,7 @@ export class RuleComponent implements OnInit
 	@Input() blankRule: IRule;
 	@Input() isLoading = true;
 	@Input() dependentIds: Array<number> = [];
+	@Input() parentSubject: Observable<boolean>;
 
 	@Output() cancelRule = new EventEmitter<RuleType>();
 	@Output() deleteRule = new EventEmitter<{ rule: IRule, ruleType: RuleType }>();

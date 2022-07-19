@@ -6,7 +6,7 @@
 			</div>
 			<div *ngIf="selectedChoices.length > 0 && displayButtons" class="phd-selected-right">
 				<button class="btn btn-secondary" (click)="cancelClick()">Cancel</button>
-				<button class="btn btn-primary" (click)="saveClick()" [disabled]="disableSaveButton">Save</button>
+				<button class="btn btn-primary" (click)="saveClick()" [disabled]="getSaveState">Save</button>
 			</div>
 		</div>
 		<div id="selectedChoicesTags" class="phd-tagsinput">
