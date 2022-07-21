@@ -13,6 +13,7 @@ import { SharedModule } from 'primeng/api';
 import { CoreModule } from '../core/core.module';
 import { AddDialogComponent } from './components/add-dialog/add-dialog.component';
 import { MultiSelectModule } from 'primeng/multiselect';
+import { TableModule } from 'primeng/table';
 
 
 @NgModule({
@@ -33,7 +34,8 @@ import { MultiSelectModule } from 'primeng/multiselect';
 		SharedModule,
 		InfiniteScrollModule,
 		PhdCommonModule,
-		MultiSelectModule
+		MultiSelectModule,
+		TableModule
 	],
 	exports: [
 		OptionPackagesPageComponent,
