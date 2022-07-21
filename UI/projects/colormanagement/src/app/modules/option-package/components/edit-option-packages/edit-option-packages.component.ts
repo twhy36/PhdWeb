@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
-import { IPlanCommunity } from '../../../shared/models/community.model';
+import { IOptionCommunity, IPlanCommunity } from '../../../shared/models/community.model';
 import { OrganizationService } from '../../../core/services/organization.service';
 import { PlanOptionService } from '../../../core/services/plan-option.service';
 import { UnsubscribeOnDestroy } from 'phd-common';
@@ -38,10 +38,55 @@ export class EditOptionPackagesComponent extends UnsubscribeOnDestroy
   planCommunityList$: Observable<Array<IPlanCommunity>>;
   selectedPlans: Array<number> = [];
 
+  public isExpanded:boolean = false;
+  expandedRows:{[s: string]: boolean;} = {};
+  options:Array<IOptionCommunity> = [{
+    id: 1,
+    optionSalesName: "option 1",
+    optionSubCategoryId: 1,
+    planOptionCommunities: [{id: 11,
+                            planId: 111,
+                            isBaseHouse: false}]
+  },
+  {
+    id: 315,
+    optionSalesName: "option 315",
+    optionSubCategoryId: 1,
+    planOptionCommunities: [{id: 11,
+                            planId: 111,
+                            isBaseHouse: false}]
+  },
+  {
+    id: 2,
+    optionSalesName: "option 2",
+    optionSubCategoryId: 2,
+    planOptionCommunities: [{id: 22,
+                            planId: 222,
+                            isBaseHouse: false}]
+  },
+  {
+    id: 3,
+    optionSalesName: "option 3",
+    optionSubCategoryId: 3,
+    planOptionCommunities: [{id: 33,
+                            planId: 333,
+                            isBaseHouse: false}]
+  },
+  {
+    id: 4,
+    optionSalesName: "option 4",
+    optionSubCategoryId: 4,
+    planOptionCommunities: [{id: 44,
+                            planId: 444,
+                            isBaseHouse: false}]
+  }];
+
+
   ngOnInit(): void {
     this._colorAdminService.emitEditingColor(true);
     const routeBundleId = parseInt(this.route.snapshot.paramMap.get('bundleId'));
     this.loadPackageInfo(routeBundleId);
+    this.expandAllRows();
   }
 
   ngOnDestroy(): void {
@@ -87,4 +132,15 @@ export class EditOptionPackagesComponent extends UnsubscribeOnDestroy
     }
     return `(Option Package Couldn't Be Loaded)`;
   }
+
+  expandAllRows() {
+    this.options.forEach(data =>{
+      this.expandedRows[data.id] = true;
+    })
+  }
+
+  collapseAllRows() {
+    this.expandedRows={};
+  }
+
 }
