@@ -1,12 +1,7 @@
 <header>
     <div class="option-package-head">
-<<<<<<< HEAD
-        <h2 class="col-form-label">Manage Option Package – {{getCurrentPackageInfo()}}</h2>
-        <button class="btn btn-secondary">
-=======
         <h2 class="col-form-label">Manage Option Package – {{getCurrentPackageTitle()}}</h2>
         <button class="btn btn-primary">
->>>>>>> story/keegan/344455_issue_package_name
             Back to Packages
         </button>
     </div>
@@ -32,6 +27,49 @@
                     Load Plans
                 </button>
             </div>
+        </div>
+        
+        <div >
+            <button class="btn btn-secondary" (click)="collapseAllRows()"> Collapse All</button>
+            <button class="btn btn-secondary" (click)="expandAllRows()"> Expand All</button>
+            <button class="btn btn-secondary" > Save</button>
+
+            <p-table    
+            [value]="options" 
+            sortField="optionSubCategoryId" 
+            sortMode="single" 
+            dataKey="optionSubCategoryId" 
+            rowGroupMode="subheader" 
+            groupRowsBy="optionSubCategoryId" 
+            responsiveLayout="scroll"
+            [expandedRowKeys]="expandedRows">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Category/SubCategory</th>
+                        <th>Abbey Ville</th>
+                        <th>Bankside</th>
+                        <th>Crazy Town</th>
+                        <th>Bikini Bottom</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="groupheader" let-option let-rowIndex="rowIndex" let-expanded="expanded">
+                    <tr>
+                        <td colspan="5" class=" btn-secondary">
+                            <i type="button" class="fa fa-solid {{expanded?'fa-chevron-up':'fa-chevron-down'}}" pButton pRipple [pRowToggler]="option"></i>
+                            <span class="font-bold ml-2">SubCategoryID:{{option.optionSubCategoryId}}</span>
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="rowexpansion" let-option>
+                    <tr>
+                        <td>{{option.optionSalesName}}</td>
+                        <td>Plan1.thing</td>
+                        <td>Plan2.thing</td>
+                        <td>Plan3.thing</td>
+                        <td>Plan4.thing</td>
+                    </tr>
+                </ng-template>
+            </p-table>
         </div>
     </div>
 </header>
