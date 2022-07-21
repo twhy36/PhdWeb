@@ -11,7 +11,7 @@
 .phd-choice-card {
 	@extend .phd-choice-card-div;
 	width: 269px;
-	height: 425px;
+	height: 440px;
 	background-color: white;
 	margin: 5px;
 	margin-bottom: 10px;
@@ -107,7 +107,7 @@
 		width: 100%;
 		flex-basis: 75%;
 		border-bottom: 1px solid lightgrey;
-		min-height:190px;
+		min-height: 190px;
 
 		::ng-deep img {
 			height: 190px;
