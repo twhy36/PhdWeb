@@ -90,24 +90,19 @@ export class OptionPackageService {
 
 				return count > 0;
 			}),
-			catchError(error =>
-			{
-				console.error(error);
-
-				return throwError(error);
-			})
+			catchError(this.handleError)
 		);
 	}
 
 	private handleError(err: any): Observable<never> {
 		let errorMessage: string;
-		if (err.error instanceof ErrorEvent) {
+		if (err?.error instanceof ErrorEvent) {
 			// A client-side or network error occurred. Handle it accordingly.
-			errorMessage = `An error occurred: ${err.error.message}`;
+			errorMessage = `An error occurred: ${err?.error?.message}`;
 		} else {
 			// The backend returned an unsuccessful response code.
 			// The response body may contain clues as to what went wrong,
-			errorMessage = `Backend returned code ${err.status}: ${err.body.error}`;
+			errorMessage = `Backend returned code ${err?.status}: ${err?.body?.error}`;
 		}
 		console.error(err);
 			return throwError(errorMessage);
