@@ -17,10 +17,11 @@ import { MyFavoritesComponent } from './my-favorites.component';
 import { PointStatus } from 'phd-common';
 import { TreeService } from '../../../core/services/tree.service';
 
-describe('MyFavoritesComponent', () => {
-  let component: MyFavoritesComponent;
-  let fixture: ComponentFixture<MyFavoritesComponent>;
-  let mockStore: MockStore;
+describe('MyFavoritesComponent', () =>
+{
+	let component: MyFavoritesComponent;
+	let fixture: ComponentFixture<MyFavoritesComponent>;
+	let mockStore: MockStore;
 	const initialState = {
 		salesAgreement: fromSalesAgreement.initialState,
 		lot: fromLot.initialState,
@@ -29,7 +30,7 @@ describe('MyFavoritesComponent', () => {
 		job: fromJob.initialState,
 		changeOrder: fromChangeOrder.initialState,
 		scenario: fromScenario.initialState
-	}
+	};
 	const mockActivatedRoute = mock(ActivatedRoute);
 	const mockRouter = mock(Router);
 	when(mockActivatedRoute.paramMap).thenCall(() => new Observable());
@@ -37,47 +38,54 @@ describe('MyFavoritesComponent', () => {
 	const mockChangeDetectorRef = mock(ChangeDetectorRef);
 	const mockTreeService = mock(TreeService);
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [
+	beforeEach(async(() =>
+	{
+		TestBed.configureTestingModule({
+			declarations: [
 				MyFavoritesComponent,
 				MockComponent({ selector: 'group-bar', inputs: ['communityName', 'planName', 'groups', 'selectedSubGroupId'], outputs: ['onSubgroupSelected', 'onSetTreeFilter'] }),
-				MockComponent({ selector: 'normal-experience', inputs: ['groupName', 'currentSubgroup', 'errorMessage', 'myFavoritesChoices', 'decisionPointId', 'includeContractedOptions', 'salesChoices', 'groups', 'myFavoritesPointsDeclined', 'choiceImages', 'unfilteredPoints'], outputs: ['onToggleChoice', 'onToggleContractedOptions', 'onViewChoiceDetail', 'onSelectDecisionPoint', 'onDeclineDecisionPoint']}),
-				MockComponent({ selector: 'floor-plan-experience', inputs: ['groupName', 'currentSubgroup', 'errorMessage', 'myFavoritesChoices', 'decisionPointId', 'includeContractedOptions', 'salesChoices', 'marketingPlanId', 'isFloorplanFlipped', 'noVisibleFP', 'unfilteredPoints'], outputs: ['onToggleChoice', 'onToggleContractedOptions', 'onViewChoiceDetail', 'onSelectDecisionPoint']}),
-				MockComponent({ selector: 'choice-card-detail', inputs: ['choice', 'path', 'myFavoritesPointsDeclined'], outputs: ['onBack', 'onToggleChoice']}),
+				MockComponent({ selector: 'normal-experience', inputs: ['groupName', 'currentSubgroup', 'errorMessage', 'myFavoritesChoices', 'decisionPointId', 'includeContractedOptions', 'salesChoices', 'groups', 'myFavoritesPointsDeclined', 'choiceImages', 'unfilteredPoints'], outputs: ['onToggleChoice', 'onToggleContractedOptions', 'onViewChoiceDetail', 'onSelectDecisionPoint', 'onDeclineDecisionPoint'] }),
+				MockComponent({ selector: 'floor-plan-experience', inputs: ['groupName', 'currentSubgroup', 'errorMessage', 'myFavoritesChoices', 'decisionPointId', 'includeContractedOptions', 'salesChoices', 'marketingPlanId', 'isFloorplanFlipped', 'noVisibleFP', 'unfilteredPoints'], outputs: ['onToggleChoice', 'onToggleContractedOptions', 'onViewChoiceDetail', 'onSelectDecisionPoint'] }),
+				MockComponent({ selector: 'choice-card-detail', inputs: ['choice', 'path', 'myFavoritesPointsDeclined'], outputs: ['onBack', 'onToggleChoice'] }),
 				MockComponent({ selector: 'action-bar', inputs: ['primaryAction', 'price', 'favoritesPrice'], outputs: ['callToAction'] })
 			],
 			providers: [
-        provideMockStore({ initialState }),
+				provideMockStore({ initialState }),
 				{ provide: ActivatedRoute, useFactory: () => instance(mockActivatedRoute) },
 				{ provide: Router, useFactory: () => instance(mockRouter) },
 				{ provide: ChangeDetectorRef, useFactory: () => instance(mockChangeDetectorRef) },
 				{ provide: TreeService, useFactory: () => instance(mockTreeService) },
 			]
-    })
-    .compileComponents();
+		})
+			.compileComponents();
 
-    mockStore = TestBed.inject(MockStore);
-  }));
+		mockStore = TestBed.inject(MockStore);
+	}));
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(MyFavoritesComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+	beforeEach(() =>
+	{
+		fixture = TestBed.createComponent(MyFavoritesComponent);
+		component = fixture.componentInstance;
+		fixture.detectChanges();
+	});
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+	it('should create', () =>
+	{
+		expect(component).toBeTruthy();
+	});
 
-	describe('selectDecisionPoint', () => {
-		it('should set the selected point id', () => {
+	describe('selectDecisionPoint', () =>
+	{
+		it('should set the selected point id', () =>
+		{
 			component.selectedPointId = 0;
 			component.selectDecisionPoint(1);
 			expect(component.selectedPointId).toEqual(1);
 		});
-		describe('when the point id is a part of a different subGroup', () => {
-			it('should select the new subGroup', () => {
+		describe('when the point id is a part of a different subGroup', () =>
+		{
+			it('should select the new subGroup', () =>
+			{
 				const onStoreSpy = spyOn(mockStore, 'dispatch');
 				component.selectedPointId = 0;
 				const groups = [{
@@ -122,7 +130,7 @@ describe('MyFavoritesComponent', () => {
 						status: PointStatus.REQUIRED
 					}],
 					status: PointStatus.REQUIRED
-				},{
+				}, {
 					id: 2,
 					groupCatalogId: 1,
 					treeVersionId: 1,

@@ -9,12 +9,13 @@ import { ToastrService } from 'ngx-toastr';
 
 import * as _ from 'lodash';
 
-import {
-	UnsubscribeOnDestroy, blink, ChangeOrderHanding, ChangeTypeEnum, ChangeOrderChoice, PlanOption,
-	PointStatus, SelectedChoice, PriceBreakdown, ScenarioStatusType, SummaryData, BuyerInfo, SummaryReportType,
-	SDGroup, SDSubGroup, SDPoint, SDChoice, SDImage, SDAttributeReassignment, Group, Choice, DecisionPoint,
-	PDFViewerComponent, ModalService, SubGroup, TreeFilter, FloorPlanImage
-} from 'phd-common';
+import
+	{
+		UnsubscribeOnDestroy, blink, ChangeOrderHanding, ChangeTypeEnum, ChangeOrderChoice, PlanOption,
+		PointStatus, SelectedChoice, PriceBreakdown, ScenarioStatusType, SummaryData, BuyerInfo, SummaryReportType,
+		SDGroup, SDSubGroup, SDPoint, SDChoice, SDImage, SDAttributeReassignment, Group, Choice, DecisionPoint,
+		PDFViewerComponent, ModalService, SubGroup, TreeFilter, FloorPlanImage
+	} from 'phd-common';
 
 import { environment } from '../../../../../environments/environment';
 
@@ -105,6 +106,7 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 	treeFilter$: Observable<TreeFilter>;
 	priceRangesCalculated: boolean;
 	isPhdLite: boolean = false;
+	isPhdLiteLoaded: boolean = false;
 
 	constructor(private route: ActivatedRoute,
 		private lotService: LotService,
@@ -220,19 +222,22 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 			select(state => state.changeOrder),
 			combineLatest(this.store.pipe(select(state => state.scenario)),
 				this.store.pipe(select(state => state.job)),
-				this.store.pipe(select(state => state.salesAgreement))),
+				this.store.pipe(select(state => state.salesAgreement)),
+				this.store.pipe(select(state => state.org))),
 			this.takeUntilDestroyed()
-		).subscribe(([changeOrder, scenario, job, sag]) =>
+		).subscribe(([changeOrder, scenario, job, sag, org]) =>
 		{
-			if (scenario.buildMode === 'model' && job && !job.jobLoading && changeOrder && !changeOrder.loadingCurrentChangeOrder) 
+			if (scenario.buildMode === 'model' && job && !job.jobLoading && changeOrder && !changeOrder.loadingCurrentChangeOrder && org.salesCommunity && !this.isPhdLiteLoaded)
 			{
-				this.liteService.isPhdLiteEnabled(job.financialCommunityId)
-					.subscribe(isPhdLiteEnabled => {
+				this.liteService.isPhdLiteEnabled(job.financialCommunityId, org.salesCommunity?.market?.id)
+					.subscribe(isPhdLiteEnabled =>
+					{
 						this.isPhdLite = isPhdLiteEnabled && this.liteService.checkLiteAgreement(job, changeOrder.currentChangeOrder);
-						if (this.isPhdLite) 
+						if (this.isPhdLite)
 						{
 							this._toastr.clear();
 							this.router.navigate(['lite-summary']);
+							this.isPhdLiteLoaded = true;
 						}
 					});
 			}
@@ -544,7 +549,7 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 			if (mc.monotonyConflict)
 			{
 				// this really needs to get fixed.  the alert messsage isn't correct.
-				alert('Danger! Monotony Issues!  Please fix!')
+				alert('Danger! Monotony Issues!  Please fix!');
 			}
 			else
 			{
@@ -602,10 +607,10 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 			pdfViewer.componentInstance.pdfData = pdfData;
 			pdfViewer.componentInstance.pdfBaseUrl = `${environment.pdfViewerBaseUrl}`;
 		},
-		error =>
-		{
-			this._toastr.error(`There was an issue generating ${reportType} configuration.`, 'Error - Print Configuration');
-		});
+			error =>
+			{
+				this._toastr.error(`There was an issue generating ${reportType} configuration.`, 'Error - Print Configuration');
+			});
 	}
 
 	compileSummaryData(reportType: SummaryReportType): Observable<SummaryData>
@@ -730,7 +735,7 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 		{
 			const newHanding = new ChangeOrderHanding();
 
-			if(handing !== "NA")
+			if (handing !== "NA")
 			{
 				newHanding.handing = handing;
 			}

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
-import { Observable ,  throwError as _throw } from 'rxjs';
+import { Observable, throwError as _throw } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
 import { SettingsService } from '../../core/services/settings.service';
@@ -89,12 +89,12 @@ export class AttributeService
 		{
 			const today = moment.utc(new Date()).format('YYYY-MM-DDThh:mm:ssZ');
 
-			if(status)
+			if (status)
 			{
 				filter += ` and ((startDate le ${today} and ${today} le endDate)`;
 
 				// include future start dates for those times where you need all active plus those that will be active.
-				filter += includeFutureDates ? ` or startDate gt ${today})` : ')'
+				filter += includeFutureDates ? ` or startDate gt ${today})` : ')';
 			}
 			else
 			{
@@ -478,7 +478,8 @@ export class AttributeService
 			catchError(this.handleError));
 	}
 
-	removeChoiceAttributeGroupAssocs(choiceId: number, dTreeVersionId: number, groupCommunityIds: Array<number>): Observable<Array<number>> {
+	removeChoiceAttributeGroupAssocs(choiceId: number, dTreeVersionId: number, groupCommunityIds: Array<number>): Observable<Array<number>>
+	{
 		let url = settings.apiUrl + `RemoveChoiceAttributeGroupAssocs`;
 
 		let data = {
@@ -488,7 +489,8 @@ export class AttributeService
 		};
 
 		return this._http.patch(url, data, { headers: { 'Prefer': 'return=representation' } }).pipe(
-			map(response => {
+			map(response =>
+			{
 				let groupIds = response['value'] as Array<number>;
 
 				return groupIds;

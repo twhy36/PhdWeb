@@ -529,6 +529,7 @@ export class PhdTableComponent implements AfterContentInit, OnChanges
 	sortLazy(tableSortOverride?: TableSort)
 	{
 		let tableSort = this.currentTableSort;
+
 		if (tableSortOverride)
 		{
 			tableSort = tableSortOverride;
@@ -540,6 +541,7 @@ export class PhdTableComponent implements AfterContentInit, OnChanges
 			// get sort fields
 			tableSort.sortField = this.currentTableSort?.sortField != null ? this.currentTableSort.sortField : this.defaultTableSort.sortField;
 			tableSort.sortOrder = this.currentTableSort?.sortOrder != null ? this.currentTableSort.sortOrder : this.defaultTableSort.sortOrder;
+
 			if (tableSort.sortField == null)
 			{
 				// if sortField is null then there might be a multisort in use

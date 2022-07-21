@@ -1,7 +1,7 @@
 import * as _ from 'lodash';
 import { cloneDeep, flatMap, flatten, uniq } from 'lodash';
 
-import { PlanOption, TreeVersionRules, PickType, Tree, Choice, getMaxSortOrderChoice, findChoice, findPoint, applyRules } from '../../../../../../phd-common/src/public-api';
+import { PlanOption, TreeVersionRules, PickType, Tree, getMaxSortOrderChoice, findChoice, findPoint, applyRules } from '../../../../../../phd-common/src/public-api';
 
 export function getChoicePriceRanges(state: { options: PlanOption[], rules: TreeVersionRules, tree: Tree; })
 {
@@ -34,10 +34,10 @@ export function getChoicePriceRanges(state: { options: PlanOption[], rules: Tree
 			return [];
 		}
 
-		var currentChoice = choices.find(c => c.id === ch);
 		var previousChoices = [
 			...flatten(maxSortOrderChoices.filter(c => c.maxSortOrderChoice === ch).map(c => c.allChoices.filter(c1 => c1 !== ch)))
 		];
+
 		return uniq(previousChoices);
 	};
 
@@ -47,6 +47,7 @@ export function getChoicePriceRanges(state: { options: PlanOption[], rules: Tree
 	{
 		//iterates through every possible combination of selections for the given DP
 		const pt = findPoint(staticTree, p => p.id === points[0]);
+
 		for(let choice of pt.choices)
 		{
 			if (points.length === 1)
@@ -66,6 +67,7 @@ export function getChoicePriceRanges(state: { options: PlanOption[], rules: Tree
 		//any DP rules for the given choice
 		const ch = findChoice(staticTree, c => c.id === choice.choiceId);
 		const pointRules = rules.pointRules?.find(pr => pr.pointId === ch?.treePointId);
+
 		if (pointRules && pointRules.rules.length)
 		{
 			//if point rules are already satisfied, yield the current selections
@@ -84,6 +86,7 @@ export function getChoicePriceRanges(state: { options: PlanOption[], rules: Tree
 					: r.points.every(p => !selections.some(s => s.selected && findChoice(staticTree, c => c.id === s.choiceId)?.treePointId === p)))))
 			{
 				yield [...selections, choice];
+
 				return;
 			}
 

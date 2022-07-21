@@ -160,6 +160,7 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 	{
 		this._releaseService.trySetCommunity(this.selectedCommunity.dto).subscribe();
 	}
+
 	loadHomeSites()
 	{
 		this.allDataLoaded = false;
@@ -178,6 +179,7 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 			let obs = forkJoin(lotDtosObs, releasesDtosObs).pipe(map(([lotDto, rDto]) =>
 			{
 				this.releaseDTOs = rDto;
+
 				return lotDto.map(l => new HomeSiteViewModel(l, fc.dto, rDto.find(r => r.homeSitesAssociated.findIndex(x => x == l.id) != -1)));
 			})).subscribe(l =>
 			{

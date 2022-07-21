@@ -18,11 +18,12 @@ import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 import * as LotActions from '../../../ngrx-store/lot/actions';
 import * as fromJobs from '../../../ngrx-store/job/reducer';
 
-import {
-	UnsubscribeOnDestroy, ModalRef, ChangeTypeEnum, Job, TreeVersionRules, ScenarioStatusType, PriceBreakdown,
-	TreeFilter, Tree, SubGroup, Group, DecisionPoint, Choice, getDependentChoices, LotExt, getChoiceToDeselect,
-	PlanOption, ModalService, Plan, TimeOfSaleOptionPrice, ITimeOfSaleOptionPrice
-} from 'phd-common';
+import
+	{
+		UnsubscribeOnDestroy, ModalRef, ChangeTypeEnum, Job, TreeVersionRules, ScenarioStatusType, PriceBreakdown,
+		TreeFilter, Tree, SubGroup, Group, DecisionPoint, Choice, getDependentChoices, LotExt, getChoiceToDeselect,
+		PlanOption, ModalService, Plan, TimeOfSaleOptionPrice, ITimeOfSaleOptionPrice
+	} from 'phd-common';
 
 import { LotService } from '../../../core/services/lot.service';
 
@@ -119,13 +120,14 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(state => state.lot)
-		).subscribe(lot => {
-			if(lot.selectedLot)
+		).subscribe(lot =>
+		{
+			if (lot.selectedLot)
 			{
 				this.selectedLot = lot.selectedLot;
 				this.lotStatus = lot.selectedLot.lotStatusDescription;
 			}
-		})
+		});
 
 		this.enabledPointFilters$ = this.store.pipe(
 			this.takeUntilDestroyed(),
@@ -176,9 +178,10 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 			),
 			withLatestFrom(this.store.pipe(select(fromRoot.filteredTree)),
 				this.route.data,
-				this.store.pipe(select(state => state.salesAgreement))
+				this.store.pipe(select(state => state.salesAgreement)),
+				this.store.pipe(select(state => state.org))
 			)
-		).subscribe(([[scenarioState, params, lite, plan], filteredTree, routeData, sag]) =>
+		).subscribe(([[scenarioState, params, lite, plan], filteredTree, routeData, sag, org]) =>
 		{
 			this.errorMessage = '';
 			this.showPhaseProgressBarItems = true;
@@ -189,7 +192,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 				return;
 			}
 
-			this.liteService.isPhdLiteEnabled(scenarioState.scenario?.financialCommunityId).subscribe(isPhdLiteEnabled => 
+			this.liteService.isPhdLiteEnabled(scenarioState.scenario?.financialCommunityId, org.salesCommunity?.market?.id).subscribe(isPhdLiteEnabled => 
 			{
 				this.isPhdLite = isPhdLiteEnabled && (lite.isPhdLite || this.liteService.checkLiteScenario(scenarioState?.scenario?.scenarioChoices, scenarioState?.scenario?.scenarioOptions));
 
@@ -330,6 +333,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 				if (isGanked && this.lotConflictModal && !this.lotcheckModalDisplayed)
 				{
 					this.lotcheckModalDisplayed = true;
+
 					const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
 					const secondaryButton = { text: 'Cancel', result: true, cssClass: 'btn-secondary' };
 
@@ -358,7 +362,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 					});
 				}
 			}
-		})
+		});
 
 		this.priceBreakdown$ = this.store.pipe(
 			select(fromRoot.priceBreakdown)
@@ -428,7 +432,8 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 
 		this.store.pipe(
 			select(fromScenario.selectScenario)
-		).subscribe(scenario => {
+		).subscribe(scenario =>
+		{
 			this.tree = scenario.tree;
 			this.treeVersionRules = _.cloneDeep(scenario.rules);
 			this.options = _.cloneDeep(scenario.options);
@@ -528,7 +533,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 						{
 							this.lotService.buildScenario();
 						});
-					} 
+					}
 					else if (this.buildMode === 'model' && this.lotStatus === 'PendingRelease')
 					{
 						this.lotService.getLotReleaseDate(this.selectedLot.id).pipe(
@@ -562,10 +567,10 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 				{
 					const title = 'Generate Home Purchase Agreement';
 					const body = 'You are about to generate an Agreement for your configuration. Do you wish to continue?';
-					
+
 					const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
 					const secondaryButton = { text: 'Cancel', result: false, cssClass: 'btn-secondary' };
-					
+
 					this.showConfirmModal(body, title, primaryButton, secondaryButton).subscribe(result =>
 					{
 						if (result)
@@ -778,9 +783,9 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 
 	loadPhdLite()
 	{
-		this.store.dispatch(new NavActions.SetSubNavItems(ExteriorSubNavItems));		
-		this.store.dispatch(new NavActions.SetSelectedSubNavItem(LiteSubMenu.Elevation));				
-		this.router.navigateByUrl('/lite/elevation');					
+		this.store.dispatch(new NavActions.SetSubNavItems(ExteriorSubNavItems));
+		this.store.dispatch(new NavActions.SetSelectedSubNavItem(LiteSubMenu.Elevation));
+		this.router.navigateByUrl('/lite/elevation');
 	}
 
 	getReplacedOptionPrices(choice: Choice): TimeOfSaleOptionPrice[]

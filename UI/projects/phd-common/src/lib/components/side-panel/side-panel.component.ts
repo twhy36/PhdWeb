@@ -1,9 +1,8 @@
-import { Component, Input, TemplateRef, Output, EventEmitter, OnDestroy, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, TemplateRef, Output, EventEmitter, OnDestroy, OnChanges } from '@angular/core';
 
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { ConfirmModalComponent } from '../confirm-modal/confirm-modal.component';
-
 
 @Component({
 	selector: 'phd-side-panel-component',

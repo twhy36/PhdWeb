@@ -3,7 +3,7 @@ import { ActionReducerMap, createSelector } from '@ngrx/store';
 import * as _ from 'lodash';
 
 import {
-	isChoiceComplete, isChoiceAttributesComplete, Buyer, ChangeOrderChoice, ChangeOrderChoiceAttribute,
+	isChoiceComplete, isChoiceAttributesComplete, ChangeOrderChoice, ChangeOrderChoiceAttribute,
 	ChangeOrderChoiceLocation, ChangeTypeEnum, JobChoice, JobChoiceAttribute, JobChoiceLocation, Lot, PointStatus,
 	isSalesChangeOrder, setPriceBreakdown, ScenarioStatusType, PriceBreakdown, PickType, TreeVersion, Choice
 } from 'phd-common';

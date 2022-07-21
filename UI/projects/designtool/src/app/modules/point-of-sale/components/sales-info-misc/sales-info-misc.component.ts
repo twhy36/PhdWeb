@@ -60,6 +60,7 @@ export class SalesInfoMiscComponent extends ComponentCanNavAway implements OnIni
 	)
 	{
 		super();
+
 		this.minDate = calendar.getToday();
 	}
 

@@ -3,7 +3,7 @@ import * as _ from 'lodash';
 import { ReplaySubject } from 'rxjs';
 import { Store } from '@ngrx/store';
 
-import { UnsubscribeOnDestroy, Attribute, AttributeGroup, DesignToolAttribute, MyFavoritesChoiceAttribute, MyFavoritesChoiceLocation } from 'phd-common';
+import { UnsubscribeOnDestroy, Attribute, AttributeGroup, DesignToolAttribute, MyFavoritesChoiceAttribute } from 'phd-common';
 
 import { DragScrollComponent } from 'ngx-drag-scroll';
 import * as fromRoot from '../../../ngrx-store/reducers';
@@ -181,7 +181,7 @@ export class AttributeListComponent extends UnsubscribeOnDestroy implements OnIn
 	private setAttribute(attribute: Attribute)
 	{
 		this.selectedAttributeId = this.selectedAttributeId !== attribute.id ? attribute.id : null;
-		
+
 		this.onAttributeClick.emit({ attribute: attribute, attributeGroupId: this.attributeGroupId, updateParent: this.updateParent });
 	}
 
@@ -228,7 +228,8 @@ export class AttributeListComponent extends UnsubscribeOnDestroy implements OnIn
 		return attribute.imageUrl || 'assets/attribute-image-not-available.png';
 	}
 
-	isFavoriteAttribute(attribute: Attribute): boolean {
+	isFavoriteAttribute(attribute: Attribute): boolean
+	{
 		return this.favoriteChoiceAttributes?.findIndex(fca => fca.attributeCommunityId === attribute.id) > -1;
 	}
 
@@ -247,7 +248,7 @@ export class AttributeListComponent extends UnsubscribeOnDestroy implements OnIn
 
 		event.srcElement.src = 'assets/attribute-image-not-available.png';
 	}
-	
+
 	closeClicked()
 	{
 		this.closeExpandedAttribute.emit(true)

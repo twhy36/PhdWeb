@@ -5,7 +5,7 @@ import { OptionPackagesPageComponent } from './components/option-packages-page/o
 
 const routes: Routes = [
   { path: 'optionpackage', pathMatch: 'full', component: OptionPackagesPageComponent },
-  { path: 'optionpackage/:bundleid', component: EditOptionPackagesComponent }
+  { path: 'optionpackage/:bundleId', component: EditOptionPackagesComponent }
 ];
 
 @NgModule({

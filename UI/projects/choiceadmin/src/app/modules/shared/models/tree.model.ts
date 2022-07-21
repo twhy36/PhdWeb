@@ -1,10 +1,9 @@
-import * as moment from "moment";
+import * as moment from 'moment';
 import { PhdApiDto, PhdEntityDto } from './api-dtos.model';
 import { LocationGroupMarket } from "./location-group-market.model";
 import { AttributeGroupMarket } from "./attribute-group-market.model";
 import { ConstructionStageTypes } from "./point.model";
 
-const oneDayInMs = 24 * 60 * 60 * 1000;
 const fifteenSeconds = 15 * 1000;
 
 export interface IItemAdd
@@ -436,7 +435,7 @@ export class DTPoint implements IDTPoint
 	get dto() { return this._dto; }
 	set dto(dto)
 	{
-		this.id = dto.id
+		this.id = dto.id;
 		this.treeVersionId = dto.treeVersionId;
 		this.subGroupId = dto.subGroupId;
 		this.divPointCatalogId = dto.divPointCatalogId;
@@ -528,7 +527,7 @@ export class DTChoice implements IDTChoice
 	{
 		this.id = dto.id;
 		this.treeVersionId = dto.treeVersionId;
-		this.treePointId = dto.treePointId
+		this.treePointId = dto.treePointId;
 		this.divChoiceCatalogId = dto.divChoiceCatalogId;
 		this.sortOrder = dto.sortOrder;
 		this.isSelectable = dto.isSelectable;
@@ -616,13 +615,14 @@ export class AttributeReassignment
 	}
 }
 
-export class PointChoiceDependent {
+export class PointChoiceDependent
+{
 	pointDependentIds: Array<number>;
 	choiceDependentIds: Array<number>;
 }
 
-export interface ITreeSortList {
+export interface ITreeSortList
+{
 	pointList: Array<PhdApiDto.IDTreePointDto>;
 	choiceList: Array<PhdApiDto.IDTreeChoiceDto>;
 }
-

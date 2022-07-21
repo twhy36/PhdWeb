@@ -1,5 +1,4 @@
 import { Component, Input, TemplateRef } from '@angular/core';
-import { NgTemplateOutlet } from '@angular/common';
 
 @Component({
 	selector: 'image-card',

@@ -90,6 +90,11 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 		return this.fpLoaded && this.fp ? this.fp.floors : [];
 	}
 
+	get isValidFp() : boolean
+	{
+		return this.fpLoaded && this.fp.graphic;
+	}
+
 	constructor(private router: Router,
 		private store: Store<fromRoot.State>,
 		private scenarioService: ScenarioService,
@@ -578,16 +583,24 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 	{
 		this.fpLoaded = true;
 
-		this.setFloorPlanColors();
-
-		const svgs = this.fp.exportStaticSVG();
-
-		this.fp.floors.forEach((f, idx) =>
+		if (this.isValidFp)
 		{
-			f.svg = svgs[idx].outerHTML;
-		});
 
-		this.setStaticImage(0);
+			this.setFloorPlanColors();
+
+			const svgs = this.fp.exportStaticSVG();
+
+			this.fp.floors.forEach((f, idx) => {
+				f.svg = svgs[idx].outerHTML;
+			});
+
+			this.setStaticImage(0);
+		}
+		else
+		{
+			//no fp found in AV
+			this.useDefaultFP = true;
+		}
 	}
 
 	/*
@@ -634,4 +647,5 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 		this.fp.setOptionsColor('#48A5F1');
 		this.fp.addHomeFootPrint('#eaf1fc');
 	}
+	
 }

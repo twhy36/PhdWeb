@@ -29,16 +29,4 @@ export const environment = {
 	whatFix: {
 		scriptUrl: '//whatfix.com/01caf5e0-cb2f-11e8-b979-04013d24cd02/embed/embed.nocache.js'
 	},
-	designPreviewMarketWhitelist: [
-		459, // Arizona Market
-		462, // Austin Market
-		103, // Houston Market
-		472, // Las Vegas Market
-		123, // Michigan Market
-		464, // New Mexico Market
-		121, // Northern California
-		112, // North Florida
-		447, // Pacific Northwest
-		150, // Southern California
-	]
 };

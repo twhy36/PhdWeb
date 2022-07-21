@@ -1,12 +1,13 @@
 import { createSelector, createFeatureSelector } from '@ngrx/store';
 
-import * as _ from "lodash";
+import * as _ from 'lodash';
 
-import {
-	DesignToolAttribute, SalesCommunity, PlanOption, TreeVersionRules, Scenario, TreeFilter,
-	Tree, Choice, Group, SubGroup, DecisionPoint, selectChoice, applyRules, setGroupStatus,
-	setPointStatus, setSubgroupStatus, checkReplacedOption, getChoiceToDeselect, TimeOfSaleOptionPrice
-} from 'phd-common';
+import
+	{
+		DesignToolAttribute, SalesCommunity, PlanOption, TreeVersionRules, Scenario, TreeFilter,
+		Tree, Choice, Group, SubGroup, DecisionPoint, selectChoice, applyRules, setGroupStatus,
+		setPointStatus, setSubgroupStatus, checkReplacedOption, getChoiceToDeselect, TimeOfSaleOptionPrice
+	} from 'phd-common';
 import { ScenarioActions, ScenarioActionTypes } from './actions';
 
 import { checkSelectedAttributes } from '../../shared/classes/tree.utils';
@@ -122,7 +123,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 						{
 							p.viewed = true;
 						}
-					});					
+					});
 				}
 
 				newState = { ...newState, scenario: scenario, isGanked: action.lotNoLongerAvailable, overrideReason: action.overrideReason };
@@ -330,7 +331,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 						{
 							deselectedChoice.lockedInOptions = [];
 							deselectedChoice.lockedInChoice = null;
-	
+
 							checkReplacedOption(deselectedChoice, rules, choices, options, newTree);
 						}
 					}
@@ -471,7 +472,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 		case ScenarioActionTypes.SaveScenarioInfo:
 			return { ...state, savingScenario: true };
 		case ScenarioActionTypes.ScenarioInfoSaved:
-			return { ...state, savingScenario: false, scenario: { ...state.scenario, scenarioInfo: action.scenarioInfo } }
+			return { ...state, savingScenario: false, scenario: { ...state.scenario, scenarioInfo: action.scenarioInfo } };
 		case ScenarioActionTypes.SetPointTypeFilter:
 			return { ...state, selectedPointFilter: action.pointTypeFilter };
 		case ScenarioActionTypes.DeleteScenarioInfo:
@@ -489,21 +490,23 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 		case ScenarioActionTypes.SetChoicePriceRanges:
 			return { ...state, priceRanges: action.priceRanges };
 		case ScenarioActionTypes.SetLockedInChoices:
-		{
-			newTree = _.cloneDeep(state.tree);
-			let newChoices = _.flatMap(newTree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)));
-
-			for (let choice of action.choices)
 			{
-				let newChoice = newChoices.find(x => x.divChoiceCatalogId === choice.divChoiceCatalogId);
-				if (newChoice)
+				newTree = _.cloneDeep(state.tree);
+				let newChoices = _.flatMap(newTree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)));
+
+				for (let choice of action.choices)
 				{
-					newChoice.lockedInChoice = choice.lockedInChoice;
-					newChoice.lockedInOptions = choice.lockedInOptions;
+					let newChoice = newChoices.find(x => x.divChoiceCatalogId === choice.divChoiceCatalogId);
+
+					if (newChoice)
+					{
+						newChoice.lockedInChoice = choice.lockedInChoice;
+						newChoice.lockedInOptions = choice.lockedInOptions;
+					}
 				}
+
+				return { ...state, tree: newTree };
 			}
-			return { ...state, tree: newTree };
-		}
 		default:
 			return state;
 	}

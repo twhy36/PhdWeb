@@ -1,19 +1,22 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 
 @Component({
-  selector: 'hidden-choice-price-modal',
-  templateUrl: './hidden-choice-price-modal.component.html',
-  styleUrls: ['./hidden-choice-price-modal.component.scss']
+	selector: 'hidden-choice-price-modal',
+	templateUrl: './hidden-choice-price-modal.component.html',
+	styleUrls: ['./hidden-choice-price-modal.component.scss']
 })
-export class HiddenChoicePriceModalComponent implements OnInit {
+export class HiddenChoicePriceModalComponent implements OnInit
+{
 	@Output() closeModal = new EventEmitter();
 
 	constructor() { }
 
-	ngOnInit(): void {
+	ngOnInit(): void
+	{
 	}
 
-	closeClicked() {
+	closeClicked()
+	{
 		this.closeModal.emit();
 	}
 }

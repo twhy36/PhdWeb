@@ -40,7 +40,6 @@ import { ModalOverrideSaveComponent } from './components/modal-override-save/mod
 import { NotificationService } from './services/notification.service';
 import { FavoriteService } from './services/favorite.service';
 import { LiteService } from './services/lite.service';
-import { ApplicationInsights } from '@microsoft/applicationinsights-web';
 
 @NgModule({
 	exports: [

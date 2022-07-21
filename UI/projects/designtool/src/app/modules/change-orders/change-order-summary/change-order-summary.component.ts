@@ -77,6 +77,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 	isDesignPreviewEnabled: boolean;
 	isChangingOrder: boolean;
 	isChangeDirty: boolean;
+	changeInput: ChangeInput;
 
 	// PHD Lite
 	isPhdLite: boolean;
@@ -452,6 +453,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 			this.takeUntilDestroyed(),
 			select(state => state.changeOrder)
 		).subscribe( changeOrder => {
+			this.changeInput = changeOrder.changeInput;
 			this.isChangeDirty = changeOrder.changeInput ? changeOrder.changeInput.isDirty : false;
 			this.isChangingOrder = (changeOrder.changeInput
 				&& (changeOrder.changeInput.type === ChangeTypeEnum.CONSTRUCTION
@@ -1043,9 +1045,33 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 	onGenerateDocument(changeOrder: any, showPDF: boolean = true)
 	{
 		let activeChangeOrder = this.activeChangeOrders.find(co => co.id === changeOrder.id);
-		if(this.isChangingOrder && this.isChangeDirty && activeChangeOrder)
+		if (this.isChangingOrder && this.isChangeDirty && activeChangeOrder)
 		{
-			this.store.dispatch(new ChangeOrderActions.CreateJobChangeOrders());
+			if (this.changeInput.type === ChangeTypeEnum.CONSTRUCTION)
+			{
+				this.store.dispatch(new ChangeOrderActions.CreateJobChangeOrders());
+			}
+			else if (this.changeInput.type === ChangeTypeEnum.PLAN)
+			{
+				this.store.dispatch(new ChangeOrderActions.CreatePlanChangeOrder());
+			}
+			else if (this.changeInput.type  === ChangeTypeEnum.SALES)
+			{
+				this.store.dispatch(new ChangeOrderActions.CreateSalesChangeOrder());
+			}
+			else if (this.changeInput.type  === ChangeTypeEnum.LOT_TRANSFER)
+			{
+				this.store.dispatch(new ChangeOrderActions.CreateLotTransferChangeOrder());
+			}
+			else if (this.changeInput.type  === ChangeTypeEnum.NON_STANDARD)
+			{
+				this.store.dispatch(new ChangeOrderActions.CreateNonStandardChangeOrder(activeChangeOrder.jobChangeOrderNonStandardOptions));
+			}
+			else
+			{
+				this.store.dispatch(new ChangeOrderActions.SetChangingOrder(false, null));
+			}
+
 			this._actions$.pipe(
 				ofType<ContractActions.SetChangeOrderTemplates>(ContractActions.ContractActionTypes.SetChangeOrderTemplates),
 				take(1)

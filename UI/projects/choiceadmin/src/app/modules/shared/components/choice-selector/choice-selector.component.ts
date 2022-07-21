@@ -1,4 +1,4 @@
-import { Component, Input, TemplateRef, Output, EventEmitter, ViewChild } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ViewChild } from '@angular/core';
 import { SearchBarComponent } from '../search-bar/search-bar.component';
 
 @Component({

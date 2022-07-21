@@ -7,17 +7,17 @@ import { IFeatureSwitch } from '../models/feature-switch.model';
 import { IOrg } from '../models/org.model';
 import { API_URL } from '../injection-tokens';
 
-type Feature = 'Or Mapping' | 'Phd Lite';
+type Feature = 'Or Mapping' | 'Phd Lite' | 'Option Packages';
 
 @Injectable()
 export class FeatureSwitchService
 {
 	private _ds: string = encodeURIComponent('$');
-	
+
 	constructor(private _http: HttpClient,
 		@Inject(forwardRef(() => API_URL)) private apiUrl: string)
 	{
-		
+
 	}
 
 	getFeatureSwitch(name: string, org: IOrg): Observable<IFeatureSwitch>
@@ -81,7 +81,7 @@ export class FeatureSwitchService
 
 				// feature is set to on
 				if (isEnabled)
-				{										
+				{
 					let marketOrg = fw.featureSwitchOrgAssocs.find(fsoa => fsoa.org.edhFinancialCommunityId === null);
 
 					// did we find a market?

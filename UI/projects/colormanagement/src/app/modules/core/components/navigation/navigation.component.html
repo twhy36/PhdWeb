@@ -19,7 +19,7 @@
 				<li ngbNavItem="coloritem">
 					<a ngbNavLink routerLink="coloritem">Color Items</a>
 				</li>
-				<li ngbNavItem="optionpackage">
+				<li *ngIf="optionPackagesEnabled$ | async" ngbNavItem="optionpackage" >
 					<a ngbNavLink routerLink="optionpackage">Option Packages</a>
 				</li>
 			</ul>

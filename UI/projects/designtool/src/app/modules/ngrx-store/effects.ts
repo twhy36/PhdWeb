@@ -44,13 +44,13 @@ export class CommonEffects
 			tryCatch(source => source.pipe(
 				switchMap(action => this.scenarioService.getScenario(action.scenarioId)),
 				switchMap(scenario => {
-					return this.liteService.isPhdLiteEnabled(scenario?.financialCommunityId).pipe(
+					return this.liteService.isPhdLiteEnabled(scenario?.financialCommunityId, scenario?.marketId).pipe(
 						map(isPhdLiteEnabled => {
 							return { scenario, isPhdLiteEnabled };
 						}));
 				}),
 				switchMap(result => {
-					const scenario = result.scenario; 
+					const scenario = result.scenario;
 					const isPhdLite = !scenario.treeVersionId || result.isPhdLiteEnabled && this.liteService.checkLiteScenario(scenario?.scenarioChoices, scenario?.scenarioOptions);
 
 					const getTree = !isPhdLite ? this.treeService.getTree(scenario.treeVersionId) : of<Tree>(null);
@@ -391,11 +391,10 @@ export class CommonEffects
 					return combineLatest([
 						this.orgService.getSalesCommunityByFinancialCommunityId(result.job.financialCommunityId, true),
 						this.treeService.getChoiceCatalogIds([...result.job.jobChoices, ...changeOrderChoices]),
-						selectedPlan$,
-						this.liteService.isPhdLiteEnabled(result.job.financialCommunityId)
+						selectedPlan$
 					]).pipe(
 						//assign divChoiceCatalogIDs to choices for job and current change order
-						map(([sc, choices, jobPlanId, isPhdLiteEnabled]) => {
+						map(([sc, choices, jobPlanId]) => {
 							const currentChangeOrderGroup = new ChangeOrderGroup(currentChangeOrder);
 
 							if (currentChangeOrderGroup) {
@@ -433,40 +432,47 @@ export class CommonEffects
 								}
 							});
 
-							return { ...newResult, sc, currentChangeOrderGroup, jobPlanId, isPhdLiteEnabled };
+							return { ...newResult, sc, currentChangeOrderGroup, jobPlanId };
 						})
 					);
 				}),
-				map(result => {
-					if (result.currentChangeOrderGroup) {
-						//change order stuff
-						const selectedChoices = this.changeOrderService.getSelectedChoices(result.job, result.currentChangeOrderGroup);
-						const selectedHanding = this.changeOrderService.getSelectedHanding(result.job);
-						const selectedPlanId = this.changeOrderService.getSelectedPlan(result.job);
-						const selectedLotId = this.changeOrderService.getSelectedLot(result.job);
-						const changeOrderPlanOptions = this.changeOrderService.getJobChangeOrderPlanOptions(result.currentChangeOrderGroup);
+				switchMap(result => {
+					return this.liteService.isPhdLiteEnabled(result.job.financialCommunityId, result.sc?.market?.id).pipe
+					(
+						map(isPhdLiteEnabled => {
+							if (result.currentChangeOrderGroup) {
+								//change order stuff
+								const selectedChoices = this.changeOrderService.getSelectedChoices(result.job, result.currentChangeOrderGroup);
+								const selectedHanding = this.changeOrderService.getSelectedHanding(result.job);
+								const selectedPlanId = this.changeOrderService.getSelectedPlan(result.job);
+								const selectedLotId = this.changeOrderService.getSelectedLot(result.job);
+								const changeOrderPlanOptions = this.changeOrderService.getJobChangeOrderPlanOptions(result.currentChangeOrderGroup);
 
-						return {
-							...result,
-							changeOrderGroup: result.currentChangeOrderGroup,
-							selectedChoices,
-							selectedHanding,
-							selectedPlanId,
-							selectedLotId,
-							changeOrderPlanOptions
-						};
-					}
-					else {
-						return {
-							...result,
-							changeOrderGroup: null,
-							selectedChoices: result.job.jobChoices,
-							selectedHanding: null,
-							selectedPlanId: result.jobPlanId,
-							selectedLotId: result.job.lotId,
-							changeOrderPlanOptions: null
-						};
-					}
+								return {
+									...result,
+									changeOrderGroup: result.currentChangeOrderGroup,
+									selectedChoices,
+									selectedHanding,
+									selectedPlanId,
+									selectedLotId,
+									changeOrderPlanOptions,
+									isPhdLiteEnabled
+								};
+							}
+							else {
+								return {
+									...result,
+									changeOrderGroup: null,
+									selectedChoices: result.job.jobChoices,
+									selectedHanding: null,
+									selectedPlanId: result.jobPlanId,
+									selectedLotId: result.job.lotId,
+									changeOrderPlanOptions: null,
+									isPhdLiteEnabled
+								};
+							}
+						})
+					);
 				}),
 				switchMap(result => {
 					if (result.selectedPlanId) {
