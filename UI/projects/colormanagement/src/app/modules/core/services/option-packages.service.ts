@@ -18,7 +18,8 @@ export class OptionPackageService {
 	private pulteApiUrl = `${environment.apiUrl}`;
 	private _ds: string = encodeURIComponent('$');
 
-	getCommonPackages(){
+	getCommonPackages()
+	{
 		const entity = "commonOptionPackages";
 		return withSpinner(this._http)
 		.get<any>(`${this.pulteApiUrl}${entity}`).pipe(
@@ -28,7 +29,8 @@ export class OptionPackageService {
 		);
 	}
 
-	getCommunityPackages(communityId?: number){
+	getCommunityPackages(communityId?: number)
+	{
 		const entity = "optionPackages";
 		let filter = `edhFinancialCommunityId eq ${communityId}`;
 		const select = `bundleId,bundleCommonId,name,isCommon,presentationOrder,edhFinancialCommunityId`;
@@ -72,7 +74,29 @@ export class OptionPackageService {
 		);
 	}
 
-	isOptionNameTaken(optionPackageName: string, edhFinancialCommunityId: number) {
+	updateOptionPackage(optionPackage: IOptionPackage)
+	{
+		const action = `optionPackages(${optionPackage.bundleId})`;
+		const endpoint = `${environment.apiUrl}${action}`;
+		
+		const optionPackageDto: Partial<OptionPackageDto> = {
+			name: optionPackage.name,
+			edhFinancialCommunityId: optionPackage.edhFinancialCommunityId,
+			isCommon: !!optionPackage.isCommon,
+			presentationOrder: optionPackage.presentationOrder
+		};
+
+		return withSpinner(this._http).patch<any>(endpoint, optionPackageDto, { headers: { 'Prefer': 'return=representation' } }).pipe(
+			map(response =>
+			{
+				return response.value;
+			}),
+			catchError(this.handleError)
+		);
+	}
+
+	isOptionNameTaken(optionPackageName: string, edhFinancialCommunityId: number)
+	{
 		optionPackageName = optionPackageName.replace(/'/g, "''");
 
 		const entity = `optionPackages`;
@@ -94,7 +118,8 @@ export class OptionPackageService {
 		);
 	}
 
-	private handleError(err: any): Observable<never> {
+	private handleError(err: any): Observable<never>
+	{
 		let errorMessage: string;
 		if (err?.error instanceof ErrorEvent) {
 			// A client-side or network error occurred. Handle it accordingly.

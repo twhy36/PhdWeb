@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Output, TemplateRef, ViewChild } from '@angular/core';
 import { FormControl, Validators, FormGroup, FormBuilder, FormControlStatus } from '@angular/forms';
+import _ from 'lodash';
 import { ConfirmModalComponent, ModalRef, ModalService } from 'phd-common';
 import { from, Observable, throwError } from 'rxjs';
 import { filter, map, switchMap } from 'rxjs/operators';
@@ -9,12 +10,12 @@ import { IOptionPackage } from '../../../shared/models/optionpackage.model';
 
 
 @Component({
-	selector: 'add-dialog',
-	templateUrl: './add-dialog.component.html',
-	styleUrls: ['./add-dialog.component.scss']
+	selector: 'name-dialog',
+	templateUrl: './name-dialog.component.html',
+	styleUrls: ['./name-dialog.component.scss']
 })
-export class AddDialogComponent {
-	currentFinancialCommunityId: number;
+export class NameDialogComponent {
+	optionPackage: IOptionPackage;
 	modalRef: ModalRef;
 
 	@ViewChild('content') content: TemplateRef<any>;
@@ -28,21 +29,53 @@ export class AddDialogComponent {
 		name: this.nameControl
 	});
 
-	get name() { return this.form.get('name'); }
+	get name()
+	{
+		return this.form.get('name');
+	}
 
-	@Output() changes: EventEmitter<IOptionPackage> = new EventEmitter();
+	get mode(): 'add' | 'edit'
+	{
+		return this.optionPackage.bundleId === undefined
+			? 'add'
+			: 'edit';
+	}
 
-  constructor(
+	get title()
+	{
+		return this.mode === 'add'
+			? 'Add Option Package'
+			: 'Rename Option Package';
+	}
+
+	@Output() change: EventEmitter<IOptionPackage> = new EventEmitter();
+
+	constructor(
 		private modalService: ModalService,
 		private formBuilder: FormBuilder,
 		private optionPackageService: OptionPackageService
-  ) {
+	) {}
+
+	add(currentFinancialCommunityId: number): void
+	{
+		this.optionPackage = {
+			bundleId: undefined,
+			bundleCommonId: undefined,
+			edhFinancialCommunityId: currentFinancialCommunityId,
+			name: undefined,
+			presentationOrder: 1,
+			isCommon: 0,
+			dragPlaceholder: undefined
+			
+		};
+		this.form.reset();
+		this.modalRef = this.modalService.open(this.content);
 	}
 
-	open(currentFinancialCommunityId: number): void
+	edit(optionPackage: IOptionPackage): void
 	{
-		this.currentFinancialCommunityId = currentFinancialCommunityId;
-		this.form.reset();
+		this.optionPackage = _.clone(optionPackage);
+		this.name.setValue(this.optionPackage.name);
 		this.modalRef = this.modalService.open(this.content);
 	}
 
@@ -53,18 +86,11 @@ export class AddDialogComponent {
 			return;
 		}
 
-		const optionPackage: IOptionPackage = {
-			bundleId: undefined,
-			bundleCommonId: undefined,
-			edhFinancialCommunityId: this.currentFinancialCommunityId,
-			name: this.name.value,
-			presentationOrder: 1,
-			isCommon: 0,
-			dragPlaceholder: undefined
-			
-		};
-		const validate$ = UniqueOptionNameValidatorService.validate(this.optionPackageService, this.name, this.currentFinancialCommunityId);
-		const save$ = this.optionPackageService.saveOptionPackage(optionPackage);
+		this.optionPackage.name = this.name.value;
+		const validate$ = UniqueOptionNameValidatorService.validate(this.optionPackageService, this.name, this.optionPackage.edhFinancialCommunityId);
+		const save$ = this.mode === 'add'
+			? this.optionPackageService.saveOptionPackage(this.optionPackage)
+			: this.optionPackageService.updateOptionPackage(this.optionPackage);
 
 		validate$.pipe(
 			switchMap((invalid) => invalid
@@ -74,8 +100,8 @@ export class AddDialogComponent {
 		)
 		.subscribe({
 			next: () => {
+				this.change.emit(this.optionPackage);
 				this.modalRef.close();
-				this.changes.emit(optionPackage);
 			},
 			error: (error) => {
 				this.name.setErrors(typeof error === 'string' ? { servererror: true } : error);
