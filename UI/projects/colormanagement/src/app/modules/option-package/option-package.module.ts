@@ -14,6 +14,7 @@ import { CoreModule } from '../core/core.module';
 import { AddDialogComponent } from './components/add-dialog/add-dialog.component';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { TableModule } from 'primeng/table';
+import { DropdownModule } from 'primeng/dropdown';
 
 
 @NgModule({
@@ -35,7 +36,8 @@ import { TableModule } from 'primeng/table';
 		InfiniteScrollModule,
 		PhdCommonModule,
 		MultiSelectModule,
-		TableModule
+		TableModule,
+		DropdownModule
 	],
 	exports: [
 		OptionPackagesPageComponent,
