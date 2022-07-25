@@ -140,7 +140,7 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(state => state.salesAgreement && state.salesAgreement.isFloorplanFlipped),
-			withLatestFrom(
+			combineLatest(
 				this.store.pipe(select((state: fromRoot.State) => state.scenario && state.scenario.scenario && state.scenario.scenario.scenarioInfo && state.scenario.scenario.scenarioInfo.isFloorplanFlipped))
 			)
 		).subscribe(([isAgreementFlipped, isScenarioFlipped]) => {
