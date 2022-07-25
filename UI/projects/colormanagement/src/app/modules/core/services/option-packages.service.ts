@@ -38,7 +38,7 @@ export class OptionPackageService {
 		return withSpinner(this._http)
 		.get<any>(`${endpoint}`).pipe(
 			map((response) => {
-				return response.value as IOptionPackage;
+				return response.value[0] as IOptionPackage;
 			}),
 			catchError(this.handleError)
 		);
