@@ -1,9 +1,10 @@
 import { Action } from '@ngrx/store';
 
-import {
-	DesignToolAttribute, SalesCommunity, ChangeOrderHanding, JobChoice, Job, LotExt, PlanOption,
-	TreeVersionRules, Scenario, DtoScenarioInfo, TreeFilter, Tree, OptionImage, Choice, Log, TimeOfSaleOptionPrice, LotChoiceRules
-} from 'phd-common';
+import
+	{
+		DesignToolAttribute, SalesCommunity, ChangeOrderHanding, JobChoice, Job, LotExt, PlanOption,
+		TreeVersionRules, Scenario, DtoScenarioInfo, TreeFilter, Tree, OptionImage, Choice, Log, TimeOfSaleOptionPrice, LotChoiceRules
+	} from 'phd-common';
 
 import { DecisionPointFilterType } from '../../shared/models/decisionPointFilter';
 
@@ -91,10 +92,10 @@ export class LoadError extends ErrorAction
 export class SelectChoices implements Action
 {
 	readonly type = ScenarioActionTypes.SelectChoices;
-	public choices: { choiceId: number, overrideNote: string, quantity: number, attributes?: DesignToolAttribute[], timeOfSaleOptionPrices?: TimeOfSaleOptionPrice[] }[];
+	public choices: { choiceId: number, overrideNote: string, quantity: number, attributes?: DesignToolAttribute[], timeOfSaleOptionPrices?: TimeOfSaleOptionPrice[], attributeOnly?: boolean }[];
 	public save: boolean;
 
-	constructor(save: boolean, ...choices: { choiceId: number, overrideNote: string, quantity: number, attributes?: DesignToolAttribute[], timeOfSaleOptionPrices?: TimeOfSaleOptionPrice[] }[])
+	constructor(save: boolean, ...choices: { choiceId: number, overrideNote: string, quantity: number, attributes?: DesignToolAttribute[], timeOfSaleOptionPrices?: TimeOfSaleOptionPrice[], attributeOnly?: boolean }[])
 	{
 		this.choices = choices;
 		this.save = save;
@@ -134,7 +135,8 @@ export class SetScenarioLotHanding implements Action
 }
 
 @Log(true)
-export class SetScenarioName implements Action {
+export class SetScenarioName implements Action
+{
 	readonly type = ScenarioActionTypes.SetScenarioName;
 
 	constructor(public scenarioName: string) { }
@@ -252,7 +254,8 @@ export class SetChoicePriceRanges implements Action
 	constructor(public priceRanges: { choiceId: number, min: number, max: number }[]) { }
 }
 
-export class SetLockedInChoices implements Action {
+export class SetLockedInChoices implements Action
+{
 	readonly type = ScenarioActionTypes.SetLockedInChoices;
 
 	constructor(public choices: Choice[]) { }
