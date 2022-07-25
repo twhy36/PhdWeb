@@ -51,16 +51,17 @@ export class LiteService
 		private featureSwitchService: FeatureSwitchService
 	) { }
 
-	isPhdLiteEnabled(financialCommunityId: number, marketId: number) : Observable<boolean>
+	isPhdLiteEnabled(financialCommunityId: number): Observable<boolean>
 	{
 		if (!financialCommunityId)
 		{
+			// Ignore the flag if financial community id is not valid
 			return of(true);
 		}
 
 		if (this.currentFinancialCommunityId !== financialCommunityId || this.isPhdLiteEnabled$.value === null)
 		{
-			return this.featureSwitchService.isFeatureEnabled('Phd Lite', { edhMarketId: marketId, edhFinancialCommunityId: financialCommunityId })
+			return this.featureSwitchService.isFeatureEnabled('Phd Lite', { edhMarketId: null, edhFinancialCommunityId: financialCommunityId })
 				.pipe(
 					shareReplay(1),
 					map(isFeatureEnabled =>

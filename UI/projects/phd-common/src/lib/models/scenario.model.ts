@@ -22,7 +22,6 @@ export interface DtoScenario
 	viewedDivDPointCatalogIds: Array<number>;
 	salesAgreementId?: number;
 	financialCommunityId?: number;
-	marketId?: number;
 }
 
 export interface DtoScenarioInfo
@@ -107,7 +106,6 @@ export class Scenario
 	scenarioInfo: DtoScenarioInfo;
 	salesAgreementId?: number;
 	financialCommunityId?: number;
-	marketId?: number;
 	scenarioOptions: ScenarioOption[];
 
 	constructor(scenarioDto?: DtoScenario)
@@ -150,7 +148,6 @@ export class Scenario
 			this.viewedDecisionPoints = scenarioDto.viewedDivDPointCatalogIds;
 			this.salesAgreementId = scenarioDto.salesAgreementId;
 			this.financialCommunityId = scenarioDto.financialCommunityId;
-			this.marketId = scenarioDto.marketId;
 
 			// PHD Lite
 			this.scenarioOptions = scenarioDto['options'] && scenarioDto['options'].length
