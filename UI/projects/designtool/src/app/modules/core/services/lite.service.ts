@@ -53,6 +53,11 @@ export class LiteService
 
 	isPhdLiteEnabled(financialCommunityId: number, marketId: number) : Observable<boolean>
 	{
+		if (!financialCommunityId)
+		{
+			return of(true);
+		}
+
 		if (this.currentFinancialCommunityId !== financialCommunityId || this.isPhdLiteEnabled$.value === null)
 		{
 			return this.featureSwitchService.isFeatureEnabled('Phd Lite', { edhMarketId: marketId, edhFinancialCommunityId: financialCommunityId })
