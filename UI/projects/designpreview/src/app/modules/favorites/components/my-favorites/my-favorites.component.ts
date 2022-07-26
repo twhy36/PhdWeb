@@ -252,7 +252,11 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 
 			if ((nav.selectedSubGroup !== this.selectedSubGroup?.id) && subGroup)
 			{
-				this.router.navigate(['..', subGroup?.subGroupCatalogId], { relativeTo: this.route });
+				if (!!this.selectedSubGroup) {
+					this.router.navigate(['..', this.selectedSubGroup?.subGroupCatalogId], { relativeTo: this.route });
+				} else {
+					this.router.navigate(['..', subGroup?.subGroupCatalogId], { relativeTo: this.route });
+				}
 			}
 		});
 
@@ -351,8 +355,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 
 	onSubgroupSelected(id: number)
 	{
-		this.hideDetails();
-		this.store.dispatch(new NavActions.SetSelectedSubgroup(id));
+		this.hideDetails(id);
 	}
 
 	onNextSubGroup()
@@ -434,6 +437,8 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		this.selectedChoice = choice;
 		this.showDetails = true;
 		this.selectedPointId = this.selectedChoice.treePointId;
+
+		this.store.dispatch(new NavActions.SetSelectedSubgroup(this.selectedSubGroup.id, this.selectedChoice.treePointId, choice.id));	 
 	}
 
 	viewChoiceDetail(choice: ChoiceExt)
@@ -441,12 +446,25 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		this.router.navigateByUrl(`/favorites/my-favorites/${this.myFavoriteId}/${this.selectedSubGroup.subGroupCatalogId}/${choice.divChoiceCatalogId}`);
 	}
 
-	hideDetails()
+	hideDetails(sgId?: number)
 	{
-		this.router.navigateByUrl(`/favorites/my-favorites/${this.myFavoriteId}/${this.selectedSubGroup.subGroupCatalogId}`);
-		this.showDetails = false;
-		this.selectedChoice = null;
-		this.store.dispatch(new NavActions.SetSelectedSubgroup(this.selectedSubgroupId, this.selectedPointId, null));
+		if (!!sgId && sgId !== this.selectedSubgroupId) {
+			const newSubgroup = _.flatMap(this.groups, g => g.subGroups).find(sg => sg.id === sgId);
+			const firstPoint = newSubgroup?.points[0] || null;
+
+			this.router.navigateByUrl(`/favorites/my-favorites/${this.myFavoriteId}/${newSubgroup.subGroupCatalogId}`);
+			this.showDetails = false;
+			this.selectedChoice = null;
+
+			this.store.dispatch(new NavActions.SetSelectedSubgroup(sgId, firstPoint.id, null));
+		} else {
+			this.router.navigateByUrl(`/favorites/my-favorites/${this.myFavoriteId}/${this.selectedSubGroup.subGroupCatalogId}`);
+			this.showDetails = false;
+			this.selectedChoice = null;
+
+			this.store.dispatch(new NavActions.SetSelectedSubgroup(this.selectedSubgroupId, this.selectedPointId, null));	 
+		}
+		
 
 		this.cd.detectChanges();
 		setTimeout(() =>

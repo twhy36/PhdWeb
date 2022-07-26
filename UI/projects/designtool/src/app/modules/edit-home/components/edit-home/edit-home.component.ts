@@ -178,10 +178,9 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 			),
 			withLatestFrom(this.store.pipe(select(fromRoot.filteredTree)),
 				this.route.data,
-				this.store.pipe(select(state => state.salesAgreement)),
-				this.store.pipe(select(state => state.org))
+				this.store.pipe(select(state => state.salesAgreement))
 			)
-		).subscribe(([[scenarioState, params, lite, plan], filteredTree, routeData, sag, org]) =>
+		).subscribe(([[scenarioState, params, lite, plan], filteredTree, routeData, sag]) =>
 		{
 			this.errorMessage = '';
 			this.showPhaseProgressBarItems = true;
@@ -192,7 +191,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 				return;
 			}
 
-			this.liteService.isPhdLiteEnabled(scenarioState.scenario?.financialCommunityId, org.salesCommunity?.market?.id).subscribe(isPhdLiteEnabled => 
+			this.liteService.isPhdLiteEnabled(scenarioState.scenario?.financialCommunityId).subscribe(isPhdLiteEnabled => 
 			{
 				this.isPhdLite = isPhdLiteEnabled && (lite.isPhdLite || this.liteService.checkLiteScenario(scenarioState?.scenario?.scenarioChoices, scenarioState?.scenario?.scenarioOptions));
 

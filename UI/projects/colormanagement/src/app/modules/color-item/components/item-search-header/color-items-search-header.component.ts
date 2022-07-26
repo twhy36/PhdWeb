@@ -43,9 +43,6 @@ export class ColorItemsSearchHeaderComponent
 	isActiveColor: boolean = null;
 	settings: Settings;
 	allDataLoaded: boolean;
-	currentPage: number = 0;
-	isLoading: boolean = true;
-	skip: number;
 	selectedplanids = null;
 	selectedAllPlans: boolean = false;
 	pageNumber: number = 1;
@@ -103,11 +100,9 @@ export class ColorItemsSearchHeaderComponent
 
 	reset()
 	{
-		this.skip = 0;
 		this.planOptionDtosList = [];
 		this.currentOption = null;
 		this.planOptionList = [];
-		this.currentPage = 0;
 		this.pageNumber = 1;
 		this.optionListIndex = -1;
 	}
@@ -158,7 +153,6 @@ export class ColorItemsSearchHeaderComponent
 	showAddColorItemDialog()
 	{
 		this.modalReference = this._modalService.open(this.addColorItemModal);
-		this.modalReference.result.catch(err => console.log(err));
 	}
 
 	getAddColorItemTitle(): string
@@ -183,7 +177,6 @@ export class ColorItemsSearchHeaderComponent
 		this.currentEditItem = planOptionDto;
 		(planOptionDto.hasSalesAgreement === false) ? this.canEditName = true : this.canEditName = false
 		this.modalReference = this._modalService.open(this.editColorItemModal);
-		this.modalReference.result.catch(err => console.log(err));
 
 	}
 	onEditColorItemDialogWasCanceled()
@@ -194,9 +187,7 @@ export class ColorItemsSearchHeaderComponent
 	onColorItemWasEdited()
 	{
 		this.modalReference.dismiss();
-		this.skip = 0;
 		this.planOptionDtosList = [];
-		this.currentPage = 0;
 		this.pageNumber = 1;
 		this.optionListIndex = -1;
 		this.loadColorItemsGrid();
@@ -276,8 +267,13 @@ export class ColorItemsSearchHeaderComponent
 				})
 			).subscribe((planOptionDtos) =>
 			{
-				this.currentPage++;
-				this.allDataLoaded = isAllOption ? planOptionDtos.length < this.settings.infiniteScrollPageSize && (isAllOption && this.optionListIndex === (this.planOptionList.length - 1)) : planOptionDtos.length < this.settings.infiniteScrollPageSize;
+				if (planOptionDtos.length > this.settings.infiniteScrollPageSize && !isAllOption)
+				{
+					this.pageNumber++;
+				}
+				this.allDataLoaded = isAllOption
+					? planOptionDtos.length < this.pageNumber * this.settings.infiniteScrollPageSize && (isAllOption && this.optionListIndex === (this.planOptionList.length - 1))
+					: planOptionDtos.length < this.pageNumber * this.settings.infiniteScrollPageSize;
 
 				//Verify if every plan has all coloritems active, then disable AddButton else enable it.
 				if (isElevation)
@@ -387,16 +383,15 @@ export class ColorItemsSearchHeaderComponent
 						});
 
 					}
-					this.planOptionDtosList = [...this.planOptionDtosList, ...planOptionGridList];
 					const expectedListLength = this.pageNumber * this.settings.infiniteScrollPageSize;
+					if (this.planOptionDtosList.length + planOptionGridList.length <= expectedListLength) 
+					{
+						this.planOptionDtosList = [...this.planOptionDtosList, ...planOptionGridList];
+					}
+					
 					if (this.planOptionDtosList.length < expectedListLength && !this.allDataLoaded && isAllOption && this.optionListIndex < (this.planOptionList.length - 1))
 					{
-						this.onPanelScroll();
-					}
-					else if (this.planOptionDtosList.length >= expectedListLength && !this.allDataLoaded && isAllOption)
-					{
-						this.pageNumber++;
-						this.getSalesagreementOrConfig(this.planOptionDtosList.filter(x => !x.loadingDeleteIcon));
+						this.loadColorItemsGrid();
 					}
 					else
 					{
@@ -406,7 +401,7 @@ export class ColorItemsSearchHeaderComponent
 				}
 				else if (!this.allDataLoaded && isAllOption && this.optionListIndex < (this.planOptionList.length - 1))
 				{
-					this.onPanelScroll();
+					this.loadColorItemsGrid();
 				}
 				else if (this.optionListIndex === (this.planOptionList.length - 1) && isAllOption)
 				{
@@ -448,25 +443,22 @@ export class ColorItemsSearchHeaderComponent
 	}
 	onPanelScroll()
 	{
-		this.isLoading = true;
-		this.skip = this.currentPage * this.settings.infiniteScrollPageSize;
-		this.loadColorItemsGrid();
+		if (!this.allDataLoaded) {
+			this.pageNumber++;
+			this.loadColorItemsGrid();
+		}
 	}
 
 	onActiveColorChange()
 	{
 		this.planOptionDtosList = [];
-		this.skip = 0;
 		this.optionListIndex = -1;
-		this.currentPage = 0;
 		this.pageNumber = 1;
 		this.loadColorItemsGrid();
 	}
 	onChangeOption()
 	{
 		this.planOptionDtosList = [];
-		this.skip = 0;
-		this.currentPage = 0;
 		this.pageNumber = 1;
 		this.optionListIndex = -1;
 		this.loadColorItemsGrid();
@@ -802,8 +794,6 @@ export class ColorItemsSearchHeaderComponent
 			this.modalReference.dismiss();
 			this.showToast(successful, CrudMode.Add);
 			this.planOptionDtosList = [];
-			this.skip = 0;
-			this.currentPage = 0;
 			this.pageNumber = 1;
 			this.loadColorItemsGrid();
 			return;

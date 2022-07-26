@@ -4,7 +4,7 @@ import { IOptionPackage } from '../../../shared/models/optionpackage.model';
 import { OptionPackageService } from '../../../core/services/option-packages.service';
 import { SettingsService } from '../../../core/services/settings.service';
 import { Settings } from '../../../shared/models/settings.model';
-import { ModalService, UnsubscribeOnDestroy } from 'phd-common';
+import { UnsubscribeOnDestroy } from 'phd-common';
 import { OrganizationService } from '../../../core/services';
 import { catchError, filter, switchMap, tap, map } from 'rxjs/operators';
 @Component({
@@ -17,6 +17,7 @@ export class OptionPackagesPageComponent extends UnsubscribeOnDestroy implements
 	isLoading: boolean = true;
 	currentPage: number = 0;
 	skip: number;
+
 	//data
 	commonPackages$: Observable<IOptionPackage[]>;  //the ui grid is binding to this with | async
 	commonPackagesWIP: Array<IOptionPackage> = [];  //not sure we need this one... WIP for user changes to top grid
@@ -36,15 +37,15 @@ export class OptionPackagesPageComponent extends UnsubscribeOnDestroy implements
 		//various services we'll need
 		private _optionPackageService: OptionPackageService,
 		private _settingsService: SettingsService,
-		private _orgService: OrganizationService,
-		private _modalService: ModalService
+		private _orgService: OrganizationService
 		)
 		{
 			//needed for UnsubscribeOnDestroy extension
 			super();
 	}
 	
-	ngOnInit(): void {
+	ngOnInit(): void
+	{
 
 		//settings need for grids/divs
 		this.settings = this._settingsService.getSettings();
@@ -56,7 +57,8 @@ export class OptionPackagesPageComponent extends UnsubscribeOnDestroy implements
 		this.loadData();
 	}
 
-	private loadData(){
+	private loadData()
+	{
 		//wanted to go fully declarative here, but need the community id
 		//and that was getting really messy
 
@@ -116,12 +118,14 @@ export class OptionPackagesPageComponent extends UnsubscribeOnDestroy implements
 		)
 	}
 
-	getRowClass(rowData: any): string {
+	getRowClass(rowData: any): string
+	{
 		//referrenced by phd-table to return a class name for formatting
 		return null;
 	}
 
-	onRowReorder(event: any){
+	onRowReorder(event: any)
+	{
 
 		//not sure here if we want to save as we go or all at once at the end
 		//this will update the WIP array with the new sort order
@@ -129,13 +133,15 @@ export class OptionPackagesPageComponent extends UnsubscribeOnDestroy implements
 		this.updateSort(this.communityPackagesWIP, event.dragIndex, event.dropIndex);
 	}
 
-	onPanelScroll(){
+	onPanelScroll()
+	{
 		//handles paging/scrolling - not sure we need it here
 		this.isLoading = true;
 		this.skip = this.currentPage * this.settings.infiniteScrollPageSize;
 	}
 
-	private updateSort(itemList: IOptionPackage[], oldIndex: number, newIndex: number){
+	private updateSort(itemList: IOptionPackage[], oldIndex: number, newIndex: number)
+	{
 
 		//stole this routine from contracts
 		//Make sure list is sorted by sortOrder
@@ -160,13 +166,12 @@ export class OptionPackagesPageComponent extends UnsubscribeOnDestroy implements
 		});
 	}
 
-	editPackage(currentRecord:IOptionPackage): void {
+	editPackage(currentRecord: IOptionPackage): void
+	{
 	}
 
-	addOptionPackage(currentRecord: IOptionPackage): void {
+	optionPackagesChange(currentRecord: IOptionPackage): void
+	{
 		this.loadData();
-	}
-
-	renamePackage(currentRecord:IOptionPackage): void {
 	}
 }

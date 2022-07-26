@@ -87,12 +87,12 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 	get fpFloors()
 	{
-		return this.fpLoaded && this.fp ? this.fp.floors : [];
+		return this.isValidFp ? this.fp.floors : [];
 	}
 
 	get isValidFp() : boolean
 	{
-		return this.fpLoaded && this.fp.graphic;
+		return this.fpLoaded && this.fp?.graphic;
 	}
 
 	constructor(private router: Router,
@@ -112,46 +112,39 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 				withLatestFrom(
 					this.store.pipe(select((state: fromRoot.State) => state.salesAgreement && state.salesAgreement.id)),
 					this.store.pipe(select((state: fromRoot.State) => state.scenario && state.scenario.scenario && state.scenario.scenario.scenarioId)),
-					this.store.pipe(select((state: fromRoot.State) => state.salesAgreement && state.salesAgreement.isFloorplanFlipped)),
-					this.store.pipe(select((state: fromRoot.State) => state.scenario && state.scenario.scenario && state.scenario.scenario.scenarioInfo && state.scenario.scenario.scenarioInfo.isFloorplanFlipped)),
 					this.store.pipe(select(state => state.job.id)),
 				)
-			).subscribe(([first, agreementId, scenarioId, isAgreementFlipped, isScenarioFlipped, jobId]) =>
-			{
+			).subscribe(([first, agreementId, scenarioId, jobId]) => {
 				this.jobId = jobId;
 				this.salesAgreementId = agreementId;
 				this.scenarioId = scenarioId;
 
-				const isFlipped: boolean = (!!agreementId ? isAgreementFlipped : isScenarioFlipped) || false;
-
-				// we need to set the floorplan direction, but if there's a salesagreementinfo value for it, then override the value scenario might have set
-				if (this.canEditAgreement && (this.flipping || this.isFloorplanFlipped == null))
-				{
-					this.fp.graphic.flip(isFlipped);
-
-					this.isFloorplanFlipped = isFlipped;
-				}
-
-				this.flipping = false;
-
-				if (!this.canEditAgreement && !this.fpLoaded)
-				{
+				if (!this.canEditAgreement && !this.fpLoaded) {
 					if (!this.jobId)
 					{
-						this.scenarioService.getFloorPlanImages(this.scenarioId).subscribe(p =>
-						{
+						this.scenarioService.getFloorPlanImages(this.scenarioId).subscribe(p => {
 							this.handleStaticImages(p);
 						});
 					}
 					else
 					{
-						this.jobService.getFloorPlanImages(this.jobId, false).subscribe(p =>
-						{
+						this.jobService.getFloorPlanImages(this.jobId, false).subscribe(p => {
 							this.handleStaticImages(p);
 						});
 					}
 				}
-			})
+			});
+		});
+		
+		
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(state => state.salesAgreement && state.salesAgreement.isFloorplanFlipped),
+			combineLatest(
+				this.store.pipe(select((state: fromRoot.State) => state.scenario && state.scenario.scenario && state.scenario.scenario.scenarioInfo && state.scenario.scenario.scenarioInfo.isFloorplanFlipped))
+			)
+		).subscribe(([isAgreementFlipped, isScenarioFlipped]) => {
+			this.handleFlip(isAgreementFlipped, isScenarioFlipped);
 		});
 
 		let wd: any = window;
@@ -165,7 +158,7 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 		{
 			this.canEditAgreement = canEditAgreement;
 
-			if (this.canEditAgreement)
+			if (this.canEditAgreement || this.canForceSave)
 			{
 				loadScript(this.jquerySrc).pipe(
 					flatMap(() => loadScript(this.avAPISrc))
@@ -450,7 +443,7 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 	}
 
 	swapHanding()
-	{
+	{		
 		// If there is a sales agreement, save the flipped preference
 		if (this.salesAgreementId && this.salesAgreementId > 0)
 		{
@@ -474,6 +467,22 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 			this.store.dispatch(new ScenarioActions.IsFloorplanFlippedScenario(!this.isFloorplanFlipped));
 		}
+		
+	}
+
+	handleFlip(isAgreementFlipped: boolean, isScenarioFlipped: boolean)
+	{				
+		const isFlipped: boolean = (!!this.salesAgreementId ? isAgreementFlipped : isScenarioFlipped) || false;
+
+		// we need to set the floorplan direction, but if there's a salesagreementinfo value for it, then override the value scenario might have set
+		if (this.canEditAgreement && (this.flipping || this.isFloorplanFlipped == null))
+		{
+			this.fp?.graphic.flip(isFlipped);
+
+			this.isFloorplanFlipped = isFlipped;
+		}
+
+		this.flipping = false;
 	}
 
 	closeModal()
