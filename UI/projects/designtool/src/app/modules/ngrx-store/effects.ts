@@ -8,7 +8,7 @@ import * as _ from 'lodash';
 
 import {
 	SalesCommunity, ChangeOrderChoice, ChangeOrderGroup, Job, IMarket, SalesAgreementInfo, DecisionPoint, Choice,
-	IdentityService, SpinnerService, Claims, Permission, MyFavorite, ModalService, TimeOfSaleOptionPrice, Tree, TreeVersionRules, PlanOption, OptionImage, updateLotChoiceRules, LotChoiceRuleAssoc
+	IdentityService, SpinnerService, Claims, Permission, MyFavorite, ModalService, TimeOfSaleOptionPrice, Tree, TreeVersionRules, PlanOption, OptionImage, updateLotChoiceRules, LotChoiceRuleAssoc, DesignToolAttribute, Group, SubGroup, applyRules, MappedAttributeGroup, MappedLocationGroup
 } from 'phd-common';
 
 import { CommonActionTypes, LoadScenario, LoadError, ScenarioLoaded, LoadSalesAgreement, SalesAgreementLoaded, LoadSpec, JobLoaded, ESignEnvelopesLoaded } from './actions';
@@ -34,6 +34,8 @@ import { State, canDesign, showSpinner } from './reducers';
 import { FavoriteService } from '../core/services/favorite.service';
 import { LiteService } from '../core/services/lite.service';
 import { UpdateReplaceOptionPrice } from './job/actions';
+import { AttributeService } from '../core/services/attribute.service';
+import { RequiredChoiceAttributesSelected, ScenarioActionTypes, SelectRequiredChoiceAttributes } from './scenario/actions';import { DTGroup, DTSubGroup } from '../../../../../choiceadmin/src/app/modules/shared/models/tree.model';
 
 @Injectable()
 export class CommonEffects
@@ -338,6 +340,11 @@ export class CommonEffects
 					if (result.opportunity && result.opportunity.opportunity && result.opportunity.opportunity.salesCommunityId) {
 						actions.push(new LoadPlans(result.opportunity.opportunity.salesCommunityId));
 						actions.push(new LoadLots(result.opportunity.opportunity.salesCommunityId));
+
+						if (result.lot?.id)
+						{
+							actions.push(new SelectRequiredChoiceAttributes());
+						}
 					}
 
 					return from(actions);
@@ -475,8 +482,8 @@ export class CommonEffects
 
 						const getMyFavorites: Observable<MyFavorite[]> =
 							isDesignPreviewEnabled && result.salesAgreement && result.salesAgreement.id > 0
-							? this.favoriteService.loadMyFavorites(result.salesAgreement.id)
-							: of([]);
+								? this.favoriteService.loadMyFavorites(result.salesAgreement.id)
+								: of([]);
 
 						const getTreeVersionIdByJobPlan$ = result.isPhdLiteEnabled && this.liteService.checkLiteAgreement(result.job, result.changeOrderGroup)
 							? of(null)
@@ -574,12 +581,12 @@ export class CommonEffects
 						return this.lotService.getLot(result.selectedLotId).pipe(
 							map(data => {
 								return {
-									tree: null,
-									rules: null,
-									options: null,
-									images: null,
+									tree: <Tree>(null),
+									rules: <TreeVersionRules>null,
+									options: <PlanOption[]>null,
+									images: <OptionImage[]>null,
 									job: result.job,
-									mappings: null,
+									mappings: <number[]>null,
 									lot: data,
 									sc: result.sc,
 									changeOrder: result.changeOrderGroup,
@@ -588,7 +595,7 @@ export class CommonEffects
 									selectedPlanId: result.selectedPlanId,
 									salesAgreement: result.salesAgreement,
 									salesAgreementInfo: result.salesAgreementInfo,
-									myFavorites: null
+									myFavorites: <MyFavorite[]>null
 								}
 							})
 						)
@@ -655,7 +662,10 @@ export class CommonEffects
 								this.contractService.getTemplates(result.sc.market.id, result.job.financialCommunityId).pipe(
 									map(templates => [...templates, { displayName: "JIO", displayOrder: 2, documentName: "JIO", templateId: 0, templateTypeId: 4, marketId: 0, version: 0 }]),
 									map(templates => new TemplatesLoaded(templates))
-								)
+								),
+
+								// Select required chocie attributes
+								result.lot?.id && result.salesAgreement.status === 'Pending' ? <Observable<Action>>from([new SelectRequiredChoiceAttributes()]) : of([])
 							)
 						);
 					}
@@ -668,6 +678,106 @@ export class CommonEffects
 					}
 				})
 			), LoadError, "Error loading sales agreement!!")
+		);
+	});
+
+	selectRequiredChoiceAttributes$: Observable<Action> = createEffect(() => {
+		return this.actions$.pipe(
+			ofType<SelectRequiredChoiceAttributes>(ScenarioActionTypes.SelectRequiredChoiceAttributes),
+			withLatestFrom(this.store),
+			tryCatch(source => source.pipe(
+				switchMap(([action, store]) =>
+				{
+					const tree = store.scenario?.tree;
+					let requiredChoices = action.choices; // Required choices that are impacted by a point to point rule
+
+					if (!requiredChoices)
+					{
+						// Get required choices while loading an agreement/spec/scenario/tree
+						requiredChoices = tree ? _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices.filter(c => c.isRequired && c.enabled)))) : [];
+					}
+
+					return this.attributeService.getAttributeGroupsForChoices(requiredChoices).pipe(
+						map(attributeGroups =>
+						{
+							return { tree: tree, attributeGroups: attributeGroups };
+						})
+					);
+				}),
+				switchMap(tree => {
+					let attributeGroups = tree.attributeGroups;
+					let newTree = tree.tree;
+					let groups = [];
+
+					if (attributeGroups.length)
+					{
+						groups = newTree.treeVersion.groups.map(g => {
+							let group = Object.assign({}, g);
+
+							group.subGroups = group.subGroups.map(s => {
+								let subgroup = Object.assign({}, s)
+
+								subgroup.points = subgroup.points.map(p => {
+									let point = Object.assign({}, p);
+
+									let choices = p.choices.map(ch => {
+										const foundAttributeGroups = attributeGroups.filter(ag => ag.requiredChoiceIds.includes(ch.id));
+
+										if (foundAttributeGroups.length) {
+											//if there is only 1 attribute group that has 1 attribute, auto select that attribute to the choice
+											let selectedAttributes: DesignToolAttribute[] = [];
+
+											foundAttributeGroups.forEach(ag => {
+												if (ag.attributes.length === 1) {
+													const attribute = ag.attributes[0];
+
+													selectedAttributes.push({
+														attributeId: attribute.id,
+														attributeName: attribute.name,
+														attributeImageUrl: attribute.imageUrl,
+														attributeGroupId: ag.id,
+														attributeGroupName: ag.name,
+														attributeGroupLabel: ag.label,
+														locationGroupId: null,
+														locationGroupName: null,
+														locationGroupLabel: null,
+														locationId: null,
+														locationName: null,
+														locationQuantity: null,
+														scenarioChoiceLocationId: null,
+														scenarioChoiceLocationAttributeId: null,
+														sku: attribute.sku,
+														manufacturer: attribute.manufacturer
+													});
+												}
+											});
+											ch = { ...ch, selectedAttributes: selectedAttributes };
+										}
+										let choice = Object.assign({}, ch);
+
+										return choice;
+									});
+									point.choices = choices;
+
+									return point;
+								});
+								return subgroup;
+							});
+							return group;
+						});
+
+						newTree = {
+							...newTree, treeVersion: {
+								...newTree.treeVersion, groups: groups
+							}
+						};
+					}
+
+					let actions = [];
+					actions.push(new RequiredChoiceAttributesSelected(newTree));
+					return from(actions);
+				})
+			), LoadError, 'Error setting required choice attributes!!')
 		);
 	});
 
@@ -771,6 +881,7 @@ export class CommonEffects
 		private contractService: ContractService,
 		private spinnerService: SpinnerService,
 		private favoriteService: FavoriteService,
-		private liteService: LiteService
+		private liteService: LiteService,
+		private attributeService: AttributeService
 	) { }
 }

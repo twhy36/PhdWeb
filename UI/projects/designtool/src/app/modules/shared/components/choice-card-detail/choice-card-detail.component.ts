@@ -467,7 +467,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	{
 		const selectedAttributes: DesignToolAttribute[] = [];
 
-		const attributeGroups = this.attributeComponent.attributeGroups;
+		const attributeGroups = this.attributeComponent?.attributeGroups;
 
 		this.attributeComponent.attributeListComponents.forEach(a =>
 		{

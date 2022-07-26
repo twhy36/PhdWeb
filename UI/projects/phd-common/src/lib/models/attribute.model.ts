@@ -21,6 +21,7 @@ export interface AttributeGroup
 	name: string;
 	sortOrder: number;
 	hasOptionCommunityAssoc?: boolean;
+	requiredChoiceIds?: number[];
 }
 
 export interface AttributeCommunityImageAssoc

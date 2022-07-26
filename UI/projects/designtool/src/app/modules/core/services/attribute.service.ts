@@ -6,9 +6,9 @@ import { map, catchError, combineLatest } from 'rxjs/operators';
 
 import { environment } from '../../../../environments/environment';
 
-import { AttributeGroup, LocationGroup, Location, Attribute, AttributeCommunityImageAssoc, Choice } from 'phd-common';
+import { AttributeGroup, LocationGroup, Location, Attribute, AttributeCommunityImageAssoc, Choice, getNewGuid, createBatchGet, createBatchHeaders, createBatchBody } from 'phd-common';
 
-import { orderBy } from "lodash";
+import _ from 'lodash';
 
 @Injectable()
 export class AttributeService
@@ -16,6 +16,59 @@ export class AttributeService
 	private _ds: string = encodeURIComponent("$");
 
 	constructor(private _http: HttpClient) { }
+
+	getAttributeGroupsForChoices(choices: Choice[]): Observable<AttributeGroup[]>
+	{
+		const batchGuid = getNewGuid();
+
+		let requests = choices.map(choice => {
+			if (choice.mappedAttributeGroups.length) {
+				const filterAttributeGroupIds = choice.mappedAttributeGroups.map(ag => `id eq ${ag.id}`).join(' or ');
+
+				const entity = `attributeGroupCommunities`;
+				const expand = `attributeGroupOptionCommunityAssocs($expand=optionCommunity($expand=option($select=id,financialOptionIntegrationKey);$select=id)),attributeGroupAttributeCommunityAssocs($expand=attributeCommunity($select=id,name,attributeDescription,manufacturer,sku,imageUrl,startDate,endDate);$filter=(attributeCommunity/endDate gt now()) and (attributeCommunity/startDate le now()))`;
+				const filter = `(${filterAttributeGroupIds})`;
+				const select = `id,groupName,groupLabel,description,isActive`;
+				const qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
+				const url = `${environment.apiUrl}${entity}?${qryStr}`;
+
+				return createBatchGet(url);
+			}
+		}).filter(req => req);
+
+		if (requests.length) {
+			let headers = createBatchHeaders(batchGuid);
+			let batch = createBatchBody(batchGuid, requests);
+
+			return this._http.post(`${environment.apiUrl}$batch`, batch, { headers: headers }).pipe(
+				map((response: any) => {
+					let bodies = response.responses.map(r => r.body);
+					let attributeGroups: Array<AttributeGroup> = [];
+
+					bodies.forEach(body => {
+						const attributeGroupsDto = body.value as any[];
+
+						const attributeGroup = attributeGroupsDto.map<AttributeGroup>(g => {
+							return {
+								id: g.id,
+								name: g.groupName,
+								label: g.groupLabel,
+								choiceId: null,
+								sortOrder: 0,
+								attributes: _.orderBy(g.attributeGroupAttributeCommunityAssocs.map(a => a.attributeCommunity as Attribute[]), [attr => attr.name.toLowerCase()]),
+								hasOptionCommunityAssoc: (g.attributeGroupOptionCommunityAssocs && g.attributeGroupOptionCommunityAssocs.length > 0),
+								requiredChoiceIds: choices.filter(ch => ch.mappedAttributeGroups.some(ags => ags.id === g.id)).map(ch => ch.id)
+							};
+						});
+						attributeGroups = attributeGroups.concat(attributeGroup);
+					});
+
+					return attributeGroups;
+				})
+			);
+		}
+		return of([]);
+	}
 
 	getAttributeGroups(choice: Choice): Observable<AttributeGroup[]>
 	{
@@ -68,7 +121,7 @@ export class AttributeService
 						label: g.groupLabel,
 						choiceId: null,
 						sortOrder: sortOrder,
-						attributes: orderBy(g.attributeGroupAttributeCommunityAssocs.map(a => a.attributeCommunity as Attribute[]), [attr => attr.name.toLowerCase()]),
+						attributes: _.orderBy(g.attributeGroupAttributeCommunityAssocs.map(a => a.attributeCommunity as Attribute[]), [attr => attr.name.toLowerCase()]),
 						hasOptionCommunityAssoc: (g.attributeGroupOptionCommunityAssocs && g.attributeGroupOptionCommunityAssocs.length > 0) || choiceAttributeGroup
 					};
 				});

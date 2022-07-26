@@ -399,6 +399,26 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 
 			return { ...state, tree: newTree, rules: rules, options: options, isUnsaved: true, pointHasChanges: true };
 
+		case ScenarioActionTypes.RequiredChoiceAttributesSelected:
+			newTree = _.cloneDeep(action.tree);
+			rules = _.cloneDeep(state.rules);
+			options = _.cloneDeep(state.options);
+			timeOfSaleOptionPrices = _.cloneDeep(state.timeOfSaleOptionPrices);
+			subGroups = _.flatMap(newTree.treeVersion.groups, g => g.subGroups);
+			points = _.flatMap(subGroups, sg => sg.points);
+			choices = _.flatMap(points, p => p.choices);
+
+			applyRules(newTree, rules, options, state.scenario?.lotId);
+
+			// check selected attributes to make sure they're still valid after applying rules
+			checkSelectedAttributes(choices);
+
+			points.forEach(pt => setPointStatus(pt));
+			subGroups.forEach(sg => setSubgroupStatus(sg));
+			newTree.treeVersion.groups.forEach(g => setGroupStatus(g));
+
+			return { ...state, tree: newTree, rules: rules };
+
 		case ScenarioActionTypes.CreateScenario:
 			return { ...state, scenario: { opportunityId: action.opportunityId, scenarioName: action.scenarioName, scenarioChoices: [], treeVersionId: 0, planId: 0, lotId: 0, handing: null, viewedDecisionPoints: [], scenarioInfo: null, scenarioOptions: [] }, enabledPointFilters: [], selectedPointFilter: DecisionPointFilterType.FULL };
 		case ScenarioActionTypes.SetScenarioPlan:

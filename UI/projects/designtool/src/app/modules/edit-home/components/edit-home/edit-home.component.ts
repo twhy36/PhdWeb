@@ -710,6 +710,36 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 			{
 				this.store.dispatch(new ScenarioActions.SelectChoices(true, ...selectedChoices));
 
+				const pointRules = this.treeVersionRules.pointRules;
+				const choiceRules = this.treeVersionRules.choiceRules;
+
+				// Fetch point to point rules
+				const point2PointRules = pointRules.filter(pr => pr.rules.some(rule => rule.points.some(p => p === choice.treePointId)));
+
+				// Fetch point to choice rules
+				const point2ChoiceRules = pointRules.filter(pr => pr.rules.some(rule => rule.choices.some(c => c === choice.id)));
+
+				// Fetch choice to choice rules
+				const choice2choiceRules = choiceRules.filter(pr => pr.rules.some(rule => rule.choices.some(c => c === choice.id)));
+
+				// Check for any required choices that might be impacted by the point to point rule
+				const requiredChoicesP2P = _.flatMap(this.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices.filter(c => c.isRequired && c.enabled && point2PointRules.some(p => p.pointId === c.treePointId)))));
+
+				// Check for any required choices that might be impacted by the point to choice rule
+				const requiredChoiceP2C = _.flatMap(this.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices.filter(c => c.isRequired && c.enabled && point2ChoiceRules.some(ch => ch.pointId === c.treePointId)))));
+
+				// Check for any required choices that might be impacted by the choice to choice rule
+				const requiredChoiceC2C = _.flatMap(this.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices.filter(c => c.isRequired && c.enabled && choice2choiceRules.some(ch => ch.choiceId === c.id)))));
+
+
+				const impactedChoices = [...requiredChoicesP2P, ...requiredChoiceP2C, ...requiredChoiceC2C];
+
+				// Select required choice attributes for impacted choices
+				if (impactedChoices.length > 0)
+				{
+					this.store.dispatch(new ScenarioActions.SelectRequiredChoiceAttributes(impactedChoices));
+				}
+
 				if (!choice.quantity && this.isChangingOrder && choice.overrideNote)
 				{
 					this.store.dispatch(new ChangeOrderActions.SetChangeOrderOverrideNote(choice.overrideNote));

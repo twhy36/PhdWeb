@@ -41,7 +41,9 @@ export enum ScenarioActionTypes
 	TreeLoaded = 'Tree Loaded',
 	TreeLoadedFromJob = 'Tree Loaded From Job',
 	SetOverrideReason = 'Set Override Reason',
-	SetLockedInChoices = 'Set Locked In Choices'
+	SetLockedInChoices = 'Set Locked In Choices',
+	SelectRequiredChoiceAttributes = 'Select Required Choice Attributes',
+	RequiredChoiceAttributesSelected = 'Required Choice Attributes Selected'
 }
 
 export class LoadTree implements Action
@@ -261,6 +263,20 @@ export class SetLockedInChoices implements Action
 	constructor(public choices: Choice[]) { }
 }
 
+@Log()
+export class SelectRequiredChoiceAttributes implements Action {
+	readonly type = ScenarioActionTypes.SelectRequiredChoiceAttributes;
+
+	constructor(public choices?: Choice[]) { }
+}
+
+@Log()
+export class RequiredChoiceAttributesSelected implements Action {
+	readonly type = ScenarioActionTypes.RequiredChoiceAttributesSelected;
+
+	constructor(public tree: Tree) { }
+}
+
 export type ScenarioActions =
 	CreateScenario |
 	DeleteScenarioInfo |
@@ -294,4 +310,6 @@ export type ScenarioActions =
 	SalesAgreementLoaded |
 	JobLoaded |
 	SetChoicePriceRanges |
-	SetLockedInChoices;
+	SetLockedInChoices |
+	SelectRequiredChoiceAttributes |
+	RequiredChoiceAttributesSelected;

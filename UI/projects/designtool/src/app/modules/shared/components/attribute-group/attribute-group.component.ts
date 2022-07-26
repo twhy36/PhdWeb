@@ -193,8 +193,8 @@ export class AttributeGroupComponent extends UnsubscribeOnDestroy implements OnI
 		const attributeGroupId = $event.attributeGroupId;
 		const attribute = $event.attribute;
 		const selectedAttributeId = this.getSelectedAttributeId(attributeGroupId);
-		const alc = this.attributeListComponents.find(x => x.attributeGroupId == attributeGroupId); //reference to attribute group's attribute list component
-
+		const alc = this.attributeListComponents?.find(x => x.attributeGroupId == attributeGroupId); //reference to attribute group's attribute list component
+		
 		//if a user selected a different attribute and the attribute group is active
 		if (this.isActive && selectedAttributeId !== attribute.id)
 		{
