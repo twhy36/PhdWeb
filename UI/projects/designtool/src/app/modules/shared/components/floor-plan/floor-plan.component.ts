@@ -158,7 +158,7 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 		{
 			this.canEditAgreement = canEditAgreement;
 
-			if (this.canEditAgreement || this.canForceSave)
+			if (this.canEditAgreement)
 			{
 				loadScript(this.jquerySrc).pipe(
 					flatMap(() => loadScript(this.avAPISrc))
