@@ -1,8 +1,8 @@
 <option-packages-header
-	(addOptionPackage)="add.open(currentFinancialCommunityId)"
+	(addOptionPackage)="nameDialog.add(currentFinancialCommunityId)"
 ></option-packages-header>
 
-<add-dialog #add (changes)="addOptionPackage($event)"></add-dialog>
+<name-dialog #nameDialog (change)="optionPackagesChange($event)"></name-dialog>
 
 <div class="container">
 	<div style="height: auto;" class="mx-2 phd-table-container" infiniteScroll
@@ -13,12 +13,9 @@
 			<phd-column field="name"></phd-column>
 			<phd-column width="48px" columnClass="phd-icon">
 				<ng-template #body let-currentRecord>
-					<i class="fa fa-pencil" title="Edit Package" *ngIf="currentRecord.isCommon != null"
+					<i role="button" class="fa fa-pencil" title="Edit Package" *ngIf="currentRecord.isCommon != null"
 						(click)="editPackage(currentRecord)">
 					</i>
-					<!--<i class="fa fa-plus" title="Add Package" *ngIf="currentRecord.isCommon == null"
-                        (click)="addPackage()">
-                    </i>-->
 				</ng-template>
 			</phd-column>
 		</phd-table>
@@ -33,12 +30,12 @@
 			<phd-column field="name"></phd-column>
 			<phd-column width="48px" columnClass="phd-icon">
 				<ng-template #body let-currentRecord>
-					<i class="fa fa-pencil" title="Edit Package" (click)="editPackage(currentRecord)"></i>
+					<i role="button" class="fa fa-pencil" title="Edit Package" (click)="editPackage(currentRecord)"></i>
 				</ng-template>
 			</phd-column>
 			<phd-column width="48px" columnClass="phd-icon">
 				<ng-template #body let-currentRecord>
-					<i class="fa fa-edit" title="Rename Package" (click)="renamePackage(currentRecord)">
+					<i role="button" class="fa fa-edit" title="Rename Package" (click)="nameDialog.edit(currentRecord)">
 					</i>
 				</ng-template>
 			</phd-column>

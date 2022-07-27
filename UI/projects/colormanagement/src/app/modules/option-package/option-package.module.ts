@@ -11,7 +11,7 @@ import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 import { PhdCommonModule } from 'phd-common';
 import { SharedModule } from 'primeng/api';
 import { CoreModule } from '../core/core.module';
-import { AddDialogComponent } from './components/add-dialog/add-dialog.component';
+import { NameDialogComponent } from './components/name-dialog/name-dialog.component';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { TableModule } from 'primeng/table';
 import { DropdownModule } from 'primeng/dropdown';
@@ -21,7 +21,7 @@ import { DropdownModule } from 'primeng/dropdown';
 	declarations: [
 		OptionPackagesPageComponent,
 		OptionPackagesHeaderComponent,
-		AddDialogComponent,
+		NameDialogComponent,
 		EditOptionPackagesComponent
 	],
 	imports: [

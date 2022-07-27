@@ -3,11 +3,11 @@ import { createSelector, createFeatureSelector } from '@ngrx/store';
 import * as _ from 'lodash';
 
 import
-	{
-		DesignToolAttribute, SalesCommunity, PlanOption, TreeVersionRules, Scenario, TreeFilter,
-		Tree, Choice, Group, SubGroup, DecisionPoint, selectChoice, applyRules, setGroupStatus,
-		setPointStatus, setSubgroupStatus, checkReplacedOption, getChoiceToDeselect, TimeOfSaleOptionPrice
-	} from 'phd-common';
+{
+	DesignToolAttribute, SalesCommunity, PlanOption, TreeVersionRules, Scenario, TreeFilter,
+	Tree, Choice, Group, SubGroup, DecisionPoint, selectChoice, applyRules, setGroupStatus,
+	setPointStatus, setSubgroupStatus, checkReplacedOption, getChoiceToDeselect, TimeOfSaleOptionPrice
+} from 'phd-common';
 import { ScenarioActions, ScenarioActionTypes } from './actions';
 
 import { checkSelectedAttributes } from '../../shared/classes/tree.utils';
@@ -316,23 +316,27 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 
 				if (c)
 				{
-					if (c.quantity !== 0)
+					// #364538 If only the attributes were changed, no need to check options
+					if (!choice.attributeOnly)
 					{
-						c.lockedInOptions = [];
-						c.lockedInChoice = null;
-
-						checkReplacedOption(c, rules, choices, options, newTree);
-					}
-					else
-					{
-						let deselectedChoice = getChoiceToDeselect(newTree, c);
-
-						if (deselectedChoice)
+						if (c.quantity !== 0)
 						{
-							deselectedChoice.lockedInOptions = [];
-							deselectedChoice.lockedInChoice = null;
+							c.lockedInOptions = [];
+							c.lockedInChoice = null;
 
-							checkReplacedOption(deselectedChoice, rules, choices, options, newTree);
+							checkReplacedOption(c, rules, choices, options, newTree);
+						}
+						else
+						{
+							let deselectedChoice = getChoiceToDeselect(newTree, c);
+
+							if (deselectedChoice)
+							{
+								deselectedChoice.lockedInOptions = [];
+								deselectedChoice.lockedInChoice = null;
+
+								checkReplacedOption(deselectedChoice, rules, choices, options, newTree);
+							}
 						}
 					}
 
@@ -497,14 +501,12 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 				for (let choice of action.choices)
 				{
 					let newChoice = newChoices.find(x => x.divChoiceCatalogId === choice.divChoiceCatalogId);
-
 					if (newChoice)
 					{
 						newChoice.lockedInChoice = choice.lockedInChoice;
 						newChoice.lockedInOptions = choice.lockedInOptions;
 					}
 				}
-
 				return { ...state, tree: newTree };
 			}
 		default:

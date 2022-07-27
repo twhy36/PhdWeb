@@ -106,7 +106,6 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 	treeFilter$: Observable<TreeFilter>;
 	priceRangesCalculated: boolean;
 	isPhdLite: boolean = false;
-	isPhdLiteLoaded: boolean = false;
 
 	constructor(private route: ActivatedRoute,
 		private lotService: LotService,
@@ -222,22 +221,20 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 			select(state => state.changeOrder),
 			combineLatest(this.store.pipe(select(state => state.scenario)),
 				this.store.pipe(select(state => state.job)),
-				this.store.pipe(select(state => state.salesAgreement)),
-				this.store.pipe(select(state => state.org))),
+				this.store.pipe(select(state => state.salesAgreement))),
 			this.takeUntilDestroyed()
-		).subscribe(([changeOrder, scenario, job, sag, org]) =>
+		).subscribe(([changeOrder, scenario, job, sag]) =>
 		{
-			if (scenario.buildMode === 'model' && job && !job.jobLoading && changeOrder && !changeOrder.loadingCurrentChangeOrder && org.salesCommunity && !this.isPhdLiteLoaded)
+			if (scenario.buildMode === 'model' && job && !job.jobLoading && changeOrder && !changeOrder.loadingCurrentChangeOrder) 
 			{
-				this.liteService.isPhdLiteEnabled(job.financialCommunityId, org.salesCommunity?.market?.id)
+				this.liteService.isPhdLiteEnabled(job.financialCommunityId)
 					.subscribe(isPhdLiteEnabled =>
 					{
 						this.isPhdLite = isPhdLiteEnabled && this.liteService.checkLiteAgreement(job, changeOrder.currentChangeOrder);
-						if (this.isPhdLite)
+						if (this.isPhdLite) 
 						{
 							this._toastr.clear();
 							this.router.navigate(['lite-summary']);
-							this.isPhdLiteLoaded = true;
 						}
 					});
 			}

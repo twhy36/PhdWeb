@@ -190,7 +190,7 @@ export class OrganizationService
 
 		return this._http.get<any>(`${endPoint}`).pipe(
 			map((response) => {
-				return response.value as IMarket;
+				return response.value[0] as IMarket;
 			}),
 			catchError(this.handleError)
 		);
