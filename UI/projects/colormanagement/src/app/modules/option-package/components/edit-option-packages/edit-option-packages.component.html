@@ -38,14 +38,14 @@
                 </div>
                 
                 <div class="d-flex" *ngIf="loadedPlans.length>=maxPlanColumns">
-                    <button class="btn btn-secondary fa fa-solid fa-chevron-left" *ngIf="loadedPlans.length>4" (click)="previousColumn()"></button>
+                    <button class="btn btn-secondary fa fa-solid fa-chevron-left" *ngIf="loadedPlans.length>maxPlanColumns" (click)="previousColumn()"></button>
                     <p class="col-form-label mx-2">{{1+planIndexOffset}} - {{maxPlanColumns+planIndexOffset}} of {{loadedPlans.length}} displayed</p>
-                    <button class="btn btn-secondary fa fa-solid fa-chevron-right" *ngIf="loadedPlans.length>4" (click)="nextColumn()"></button>
+                    <button class="btn btn-secondary fa fa-solid fa-chevron-right" *ngIf="loadedPlans.length>maxPlanColumns" (click)="nextColumn()"></button>
                 </div>
             </div>
 
             <p-table    
-            [value]="selectedPlansOptionList" 
+            [value]="selectedPlansOptionList$ | async" 
             sortMode="single" 
             sortField="optionSubCategoryId" 
             dataKey="optionSubCategoryId" 
@@ -57,10 +57,10 @@
                 <ng-template pTemplate="header">
                     <tr>
                         <th class="w-25">Category/SubCategory <br> Option/Lawson #</th>
-                        <th class="plan-column" *ngIf="loadedPlans[0+planIndexOffset]">{{loadedPlans[0+planIndexOffset].planSalesName}}</th>
-                        <th class="plan-column" *ngIf="loadedPlans[1+planIndexOffset]">{{loadedPlans[1+planIndexOffset].planSalesName}}</th>
-                        <th class="plan-column" *ngIf="loadedPlans[2+planIndexOffset]">{{loadedPlans[2+planIndexOffset].planSalesName}}</th>
-                        <th class="plan-column" *ngIf="loadedPlans[3+planIndexOffset]">{{loadedPlans[3+planIndexOffset].planSalesName}}</th>
+                        <th class="plan-column" *ngIf="loadedPlans[0+planIndexOffset]">{{loadedPlans[0+planIndexOffset]?.planSalesName}}</th>
+                        <th class="plan-column" *ngIf="loadedPlans[1+planIndexOffset]">{{loadedPlans[1+planIndexOffset]?.planSalesName}}</th>
+                        <th class="plan-column" *ngIf="loadedPlans[2+planIndexOffset]">{{loadedPlans[2+planIndexOffset]?.planSalesName}}</th>
+                        <th class="plan-column" *ngIf="loadedPlans[3+planIndexOffset]">{{loadedPlans[3+planIndexOffset]?.planSalesName}}</th>
                     </tr>
                 </ng-template>
 
@@ -76,25 +76,29 @@
                 <ng-template pTemplate="rowexpansion" let-option>
                     <tr>
                         <td>{{option.optionSalesName}}</td>
-                        <td *ngIf="loadedPlans[0+planIndexOffset]" [ngSwitch]="optionStatus(option,loadedPlans[0+planIndexOffset].id)">
+                        <td *ngIf="loadedPlans[0+planIndexOffset]" 
+                        [ngSwitch]="optionStatus(option,loadedPlans[0+planIndexOffset].id)">
                             <p-dropdown *ngSwitchCase="'dropdown'"></p-dropdown>
                             <input *ngSwitchCase="'entry'" type="number" min="0" value="0">
                             <input *ngSwitchCase="'checkbox'" type="checkbox">
                         </td>
 
-                        <td *ngIf="loadedPlans[1+planIndexOffset]" [ngSwitch]="optionStatus(option,loadedPlans[1+planIndexOffset].id)">
+                        <td *ngIf="loadedPlans[1+planIndexOffset]" 
+                        [ngSwitch]="optionStatus(option,loadedPlans[1+planIndexOffset].id)">
                             <p-dropdown *ngSwitchCase="'dropdown'"></p-dropdown>
                             <input *ngSwitchCase="'entry'" type="number" min="0" value="0">
                             <input *ngSwitchCase="'checkbox'" type="checkbox">
                         </td>
 
-                        <td *ngIf="loadedPlans[2+planIndexOffset]" [ngSwitch]="optionStatus(option,loadedPlans[2+planIndexOffset].id)">
+                        <td *ngIf="loadedPlans[2+planIndexOffset]" 
+                        [ngSwitch]="optionStatus(option,loadedPlans[2+planIndexOffset].id)">
                             <p-dropdown *ngSwitchCase="'dropdown'"></p-dropdown>
                             <input *ngSwitchCase="'entry'" type="number" min="0" value="0">
                             <input *ngSwitchCase="'checkbox'" type="checkbox">
                         </td>
 
-                        <td *ngIf="loadedPlans[3+planIndexOffset]" [ngSwitch]="optionStatus(option,loadedPlans[3+planIndexOffset].id)">
+                        <td *ngIf="loadedPlans[3+planIndexOffset]" 
+                        [ngSwitch]="optionStatus(option,loadedPlans[3+planIndexOffset].id)">
                             <p-dropdown *ngSwitchCase="'dropdown'"></p-dropdown>
                             <input *ngSwitchCase="'entry'" type="number" min="0" value="0">
                             <input *ngSwitchCase="'checkbox'" type="checkbox">
