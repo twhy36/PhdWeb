@@ -970,17 +970,26 @@ export class LiteEffects
 				jobOptionsWithColors.forEach(jobOption =>
 				{
 					const optionDetail = optionDetails.find(x => x.id === jobOption.planOptionId);
-					jobOption.jobPlanOptionAttributes.forEach(attr =>
+					if (optionDetail) 
 					{
-						const colorItem = optionDetail.colorItems.find(ci => ci.name === attr.attributeGroupLabel);
-
-						optionsToAdd.find(x => x.edhPlanOptionId === optionDetail.id).scenarioOptionColors.push({
-							scenarioOptionColorId: 0,
-							scenarioOptionId: 0,
-							colorItemId: colorItem.colorItemId,
-							colorId: colorItem.color.find(c => c.name === attr.attributeName).colorId
+						jobOption.jobPlanOptionAttributes.forEach(attr =>
+						{
+							const colorItem = optionDetail.colorItems.find(ci => ci.name === attr.attributeGroupLabel);
+							if (colorItem) 
+							{
+								const option = optionsToAdd.find(x => x.edhPlanOptionId === optionDetail.id)
+								if (option)
+								{
+									option.scenarioOptionColors.push({
+										scenarioOptionColorId: 0,
+										scenarioOptionId: 0,
+										colorItemId: colorItem.colorItemId,
+										colorId: colorItem.color.find(c => c.name === attr.attributeName)?.colorId
+									});
+								}
+							}
 						});
-					});
+					}
 				});
 
 				scenarioOptions = scenarioOptions.concat(optionsToAdd);
