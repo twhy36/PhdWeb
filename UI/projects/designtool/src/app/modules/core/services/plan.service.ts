@@ -5,7 +5,7 @@ import { combineLatest, map, catchError, flatMap, toArray, switchMap, withLatest
 import { Store } from '@ngrx/store';
 
 import { environment } from '../../../../environments/environment';
-import { withSpinner, SalesCommunity, Plan } from 'phd-common';
+import { withSpinner, SalesCommunity, Plan, FeatureSwitchService } from 'phd-common';
 import * as fromRoot from '../../ngrx-store/reducers';
 
 import { OptionService } from './option.service';
@@ -16,11 +16,12 @@ import { LiteService } from './lite.service';
 export class PlanService
 {
 	constructor(
-		private _http: HttpClient, 
-		private optionService: OptionService, 
+		private _http: HttpClient,
+		private optionService: OptionService,
 		private treeService: TreeService,
 		private liteService: LiteService,
-		private store: Store<fromRoot.State>) { }
+		private store: Store<fromRoot.State>,
+		private featureSwitchService: FeatureSwitchService) { }
 
 	private getPlans(salesCommunity: SalesCommunity): Observable<Plan[]>
 	{
@@ -41,15 +42,29 @@ export class PlanService
 
 					return this.liteService.isPhdLiteEnabled(financialCommunityId).pipe(
 						map(isPhdLiteEnabled => {
-							const isPhdLite = isPhdLiteEnabled && 
-								(!treeVersions || !treeVersions.length  
+							const isPhdLite = isPhdLiteEnabled &&
+								(!treeVersions || !treeVersions.length
 									|| this.liteService.checkLiteScenario(store.scenario?.scenario?.scenarioChoices, store.scenario?.scenario?.scenarioOptions)
 									|| this.liteService.checkLiteAgreement(store.job, store.changeOrder.currentChangeOrder)
 								);
-	
+
 							return { treeVersions, plans, isPhdLite }
 						})
 					)
+				}),
+				switchMap(result => {
+					if (!result.isPhdLite)
+					{
+						return of({...result, communityFlags:[]});
+					}
+
+					return this.featureSwitchService.getFeatureSwitchForCommunities('Phd Lite', communityIds)
+						.pipe(
+							map(communityFlags =>
+							{
+								return {...result, communityFlags};
+							})
+						);
 				}),
 				switchMap(result => {
 					return from(result.plans)
@@ -57,14 +72,17 @@ export class PlanService
 							flatMap(plan =>
 							{
 								const activePlans = result.treeVersions.find(p => p.planKey === plan.integrationKey && p.communityId === plan.communityId);
+								const isLiteEnabledCommunity = result.isPhdLite
+									? result.communityFlags.find(cf => cf.org.edhFinancialCommunityId === plan.communityId)?.state
+									: false;
 
-								if (activePlans != null || result.isPhdLite)
+								if (activePlans != null || (result.isPhdLite && isLiteEnabledCommunity))
 								{
 									includedPlanOptions = activePlans?.includedOptions || [];
 									plan.treeVersionId = activePlans?.id || null;
 									includedPlanOptions.push(baseHouseKey);
 
-									const getOptionImages = plan.treeVersionId 
+									const getOptionImages = plan.treeVersionId
 										? this.treeService.getOptionImages(plan.treeVersionId, includedPlanOptions, null, true)
 										: of([]);
 
