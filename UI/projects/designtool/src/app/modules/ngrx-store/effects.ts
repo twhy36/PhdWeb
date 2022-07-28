@@ -665,7 +665,7 @@ export class CommonEffects
 								),
 
 								// Select required chocie attributes
-								result.lot?.id && result.salesAgreement.status === 'Pending' ? <Observable<Action>>from([new SelectRequiredChoiceAttributes()]) : of([])
+								result.lot?.id && result.salesAgreement.status === 'Pending' ? <Observable<Action>>from([new SelectRequiredChoiceAttributes()]) : []
 							)
 						);
 					}
