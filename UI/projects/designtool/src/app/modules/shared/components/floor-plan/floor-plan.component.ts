@@ -424,14 +424,14 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 		{
 			if (buildMode !== 'preview' && buildMode !== 'spec' && buildMode !== 'model' && !this.useDefaultFP && (this.canForceSave || this.canEditAgreement))
 			{
-				if (!this.jobId)
+				if (!this.jobId && !!scenarioId)
 				{
 					this.scenarioService.saveFloorPlanImages(scenarioId, this.fp.floors, this.fp.exportStaticSVG()).subscribe(images =>
 					{
 						this.onFloorPlanSaved.emit(images);
 					});
 				}
-				else
+				else if (this.jobId)
 				{
 					this.jobService.saveFloorPlanImages(this.jobId, this.fp.floors, this.fp.exportStaticSVG()).subscribe(images =>
 					{
