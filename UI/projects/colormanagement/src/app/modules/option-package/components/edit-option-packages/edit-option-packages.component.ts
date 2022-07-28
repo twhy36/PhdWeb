@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, ParamMap } from '@angular/router';
 import { Observable } from 'rxjs';
 import { IPlanCommunity } from '../../../shared/models/community.model';
 import { OrganizationService } from '../../../core/services/organization.service';
 import { PlanOptionService } from '../../../core/services/plan-option.service';
 import { UnsubscribeOnDestroy } from 'phd-common';
-import { filter, map, switchMap } from 'rxjs/operators';
+import { IMarket } from '../../../shared/models/community.model';
+import { map, switchMap } from 'rxjs/operators';
 import { IOptionPackage } from '../../../shared/models/optionpackage.model';
 import { OptionPackageService } from '../../../core/services/option-packages.service';
 import { ColorAdminService } from '../../../core/services/color-admin.service';
@@ -15,8 +16,8 @@ import { ColorAdminService } from '../../../core/services/color-admin.service';
   templateUrl: './edit-option-packages.component.html',
   styleUrls: ['./edit-option-packages.component.scss']
 })
-export class EditOptionPackagesComponent extends UnsubscribeOnDestroy 
-implements OnInit {
+export class EditOptionPackagesComponent extends UnsubscribeOnDestroy
+  implements OnInit {
 
   constructor(
     private _optionPackageService: OptionPackageService,
@@ -24,62 +25,38 @@ implements OnInit {
     private _planService: PlanOptionService,
     private _orgService: OrganizationService,
     private _colorAdminService: ColorAdminService
-    ) {
+  ) {
     super();
   }
-  
-  isPackageLoaded:boolean = false;
-  currentPackage:IOptionPackage;
-  packageName:string = "";
-  packageDivisionName:string = "";
-  packageCommunityName:string = "";
 
-  currentFinancialCommunityId: number;
+  currentPackageTitle$: Observable<string>;
   planCommunityList$: Observable<Array<IPlanCommunity>>;
-	planCommunityList: Array<IPlanCommunity>;
   selectedPlans: Array<number> = [];
 
   ngOnInit(): void {
     this._colorAdminService.emitEditingColor(true);
-
-      const routeBundleId = this.route.snapshot.paramMap.get('bundleId');
-      
-      // Loads Plans belonging to the current community, and sets the current financial community id
-      this.planCommunityList$ = this._orgService.currentCommunity$.pipe(
-        this.takeUntilDestroyed(),
-        filter((comm) => !!comm),
-        switchMap((comm) => {
-          this.selectedPlans = [];
-          this.currentFinancialCommunityId = comm.id;
-          return this._planService.getPlanCommunities(this.currentFinancialCommunityId).pipe(
-            map((plans) => {
-              return plans;
-            })
-          )
-        })
+    const routeBundleId$ = this.route.paramMap.pipe(map((paramMap:ParamMap)=>+paramMap.get('bundleId')));
+    
+    this.planCommunityList$ = routeBundleId$.pipe(
+      switchMap((routeBundleId:number)=>this._optionPackageService.getOptionPackage(routeBundleId).pipe(
+        map((optionPackage:IOptionPackage)=>optionPackage?.edhFinancialCommunityId))),
+      switchMap((edhFinancialCommunityId:number)=>this._planService.getPlanCommunities(edhFinancialCommunityId))
       );
 
-      /**
-       * #TODO: Load Current Option Package (The bundleID from the route can be used maybe?)
-       *  - [ ] Assign values to packageName, packageDivisionName, and packageCommunityName
-       *  - [ ] Handle errors in loading a package, or trying to load a package that doesn't exist
-       *  - [ ] Set this.isPackageLoaded to the proper value
-       */
+    this.currentPackageTitle$ = routeBundleId$.pipe(
+      switchMap((routeBundleId:number)=>this._optionPackageService.getOptionPackage(routeBundleId)),
+      switchMap((optionPackage:IOptionPackage)=>this._orgService.getMarket(optionPackage?.edhFinancialCommunityId).pipe(
+        map((market)=>[market, optionPackage])
+      )),
+      map(([market,optionPackage]:[IMarket, IOptionPackage])=>{return `- ${optionPackage.name} (${market?.name} : ${market?.financialCommunities[0]?.name})`})
+    );
   }
 
   ngOnDestroy(): void {
-		this._colorAdminService.emitEditingColor(false);
-	}
+    this._colorAdminService.emitEditingColor(false);
+  }
 
   onLoadPlans() {
 
-	}
-
-  getCurrentPackageInfo():string {
-    // #TODO: Improve this method
-    // - [ ] Maybe have a way to grab the package's division and community name instead?
-    return (this.isPackageLoaded)      
-        ?`${this.currentPackage.name} (${this.packageDivisionName} : ${this.packageCommunityName} )`
-        :'(No Option Package Loaded)';
   }
 }

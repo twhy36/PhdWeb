@@ -29,6 +29,23 @@ export class OptionPackageService {
 		);
 	}
 
+	getOptionPackage(bundleId: number)
+	{
+		const entity = "optionPackages";
+		let filter = `BundleId eq ${bundleId}`
+		const select = `bundleId,bundleCommonId,name,isCommon,presentationOrder,edhFinancialCommunityId`;
+		let qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
+		const endpoint = `${this.pulteApiUrl}${entity}?${qryStr}`;
+		
+		return withSpinner(this._http)
+		.get<any>(`${endpoint}`).pipe(
+			map((response) => {
+				return response.value[0] as IOptionPackage;
+			}),
+			catchError(this.handleError)
+		);
+	}
+
 	getCommunityPackages(communityId?: number)
 	{
 		const entity = "optionPackages";
