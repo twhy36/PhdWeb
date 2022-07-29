@@ -23,6 +23,12 @@
     width: 15%;
 }
 
+.option-subcategory {
+    background-color: #f0f1f1;
+    height:10px;
+    font-weight:500;
+}
+
 :host ::ng-deep .p-rowgroup-footer td {
     font-weight: 700;
 }

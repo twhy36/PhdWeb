@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 
 import { Observable, throwError} from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
-import { IOptionSubCategory } from '../../shared/models/option.model';
+import { IOptionCategory, IOptionSubCategory } from '../../shared/models/option.model';
 import { environment } from '../../../../environments/environment';
 import {IColor} from '../../shared/models/color.model';
 
@@ -65,6 +65,37 @@ export class OptionService {
 			}),
 			catchError(this.handleError)
 		);
+	}
+
+	getOptionPackageCategories(financialCommunityId: number):Observable<Array<IOptionCategory>>
+	{
+		const entity = `optionSubCategories`;
+
+		const select = `name,id,optionCategoryId`;
+		const orderBy = `optionCategory/name asc`;
+		const expand = `optionCategory($select=name,id)`;
+		const filter = `optionCommunities/any(oc: oc/financialCommunityId eq ${financialCommunityId})`;
+
+		const qryStr =  `${this._ds}select=${encodeURIComponent(select)}&${this._ds}orderby=${encodeURIComponent(orderBy)}
+						&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}expand=${encodeURIComponent(expand)}`;
+
+		const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
+
+		return this._http.get<any>(endpoint).pipe(
+			map(response =>
+			{
+				const output:Array<IOptionCategory> = [];
+				response.value.map((x) => { 
+					if(!output.find((cat) => cat.id == x.optionCategoryId)?.optionSubCategories.push(x))
+					{
+						output.push({...x.optionCategory, optionSubCategories:[x] })
+					}
+				});
+
+				return output;
+			}),
+			catchError(this.handleError)
+		)
 	}
 
 	private handleError(error: Response)

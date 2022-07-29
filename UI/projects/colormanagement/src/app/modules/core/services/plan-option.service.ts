@@ -6,6 +6,7 @@ import { _throw } from 'rxjs/observable/throw';
 import { environment } from '../../../../environments/environment';
 import { IPlanCommunity, IOptionCommunity, IPlanOptionCommunity } from '../../shared/models/community.model';
 import { withSpinner } from 'phd-common';
+import { OptionPackageListItemDto } from '../../shared/models/option.model';
 
 @Injectable()
 export class PlanOptionService
@@ -13,11 +14,12 @@ export class PlanOptionService
 	private _ds: string = encodeURIComponent('$');
 	constructor(private _http: HttpClient) { }
 
-	getPlanCommunities(financialCommunityId: number)
+	getPlanCommunities(financialCommunityId: number,isActive?:boolean)
 	{
 		const entity = `planCommunities`;
 		const filter = `financialCommunityId eq ${financialCommunityId} and productType ne 'MultiUnit Shell'`
-		const select = `id,planSalesName`
+		let select = `id,planSalesName`;
+		if(isActive)select+=`,isActive`;
 		let qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
 
 		const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
@@ -73,6 +75,29 @@ export class PlanOptionService
 			{
 				const optionCommunities = response.value.map(x => x) as Array<IOptionCommunity>;
 				return optionCommunities;
+			}),
+			catchError(this.handleError)
+		)
+	}
+
+	getOptionPackageListOptions(financialCommunityId: number, planIds: number[]): Observable<Array<OptionPackageListItemDto>>
+	{
+		const entity = `optionCommunities`;
+		const select = `id, optionSalesName, optionSubCategoryId, financialCommunityId, optionSubCategory`;
+		const orderBy = `optionSalesName asc`;
+		const expand = `planOptionCommunities($select=Id,planId,MaxOrderQty;$filter=planId in (${planIds.join()})),optionSubCategory($expand=optionCategory($select=id,name);$select=id,name)`;
+		const filter = `financialCommunityId eq ${financialCommunityId} and isActive eq true and planOptionCommunities/any(x: x/planId in (${planIds.join()}))`;
+
+		const qryStr =  `${this._ds}select=${encodeURIComponent(select)}&${this._ds}orderby=${encodeURIComponent(orderBy)}
+						&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}expand=${encodeURIComponent(expand)}`;
+
+		const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
+
+		return withSpinner(this._http).get<any>(endpoint).pipe(
+			map(response =>
+			{
+				const optionPackageOptions = response.value.map(x => x) as Array<OptionPackageListItemDto>;
+				return optionPackageOptions;
 			}),
 			catchError(this.handleError)
 		)

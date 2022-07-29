@@ -10,10 +10,9 @@ import { OptionService } from '../../../core/services/option.service';
 import { OptionPackageService } from '../../../core/services/option-packages.service';
 import { PlanOptionService } from '../../../core/services/plan-option.service';
 
-import { IMarket, IOptionCommunity, IPlanCommunity } from '../../../shared/models/community.model';
+import { IMarket, IPlanCommunity } from '../../../shared/models/community.model';
 import { IOptionPackage } from '../../../shared/models/optionpackage.model';
-import { IOptionSubCategory, IOptionCategory } from '../../../shared/models/option.model';
-
+import { IOptionCategory, OptionPackageListItemDto } from '../../../shared/models/option.model';
 @Component({
   selector: 'edit-option-packages',
   templateUrl: './edit-option-packages.component.html',
@@ -33,137 +32,105 @@ export class EditOptionPackagesComponent extends UnsubscribeOnDestroy
     super();
   }
 
-  currentPackageTitle$: Observable<string>;
-  planCommunityList$: Observable<Array<IPlanCommunity>>;
+  currentPackageTitle$:Observable<string>;
+  planCommunityList$:Observable<Array<IPlanCommunity>>;
+  currentPackage$:Observable<IOptionPackage>;
+  optionPackageListOptions$:Observable<Array<OptionPackageListItemDto>>;
 
-  selectedPlans: Array<number> = [];
+  optionCategoryList:IOptionCategory[] = [];
+  selectedPlans:Array<number> = [];
   loadedPlans:Array<IPlanCommunity> = [];
 
-  public isExpanded:boolean = false;
-  expandedRows:{[s: string]: boolean;} = {};
+  expandedRows:{[s:string]:boolean} = {};
+  subcategoryOptionHeader:{[subCategoryId:string]:number}={}; // The number value will be the first option.id within the subCategory, used for displaying the subcategory
   planIndexOffset:number = 0; // This changes which plans are being displayed in the columns
   maxPlanColumns:number = 4;
 
-  optionSubcategoryList:IOptionSubCategory[];
-  optionCategoryList:IOptionCategory[];
-  selectedPlansOptionList$: Observable<Array<IOptionCommunity>>;
-
-
-  ngOnInit(): void {
+  ngOnInit():void 
+  {
     this._colorAdminService.emitEditingColor(true);
-    const routeBundleId = parseInt(this.route.snapshot.paramMap.get('bundleId'));
-    // this.loadPackageInfo(routeBundleId);    
-    const routeBundleId$ = this.route.paramMap.pipe(map((paramMap:ParamMap)=>+paramMap.get('bundleId')));
+    this.currentPackage$ = this.route.paramMap.pipe(
+      map((paramMap:ParamMap)=>+paramMap.get('bundleId'))).pipe(
+        switchMap((routeBundleId:number)=>this._optionPackageService.getOptionPackage(routeBundleId).pipe(
+          map((op:IOptionPackage)=>op))));
     
-    // Loads plans
-    this.planCommunityList$ = routeBundleId$.pipe(
-      switchMap((routeBundleId:number)=>this._optionPackageService.getOptionPackage(routeBundleId).pipe(
-        map((optionPackage:IOptionPackage)=>optionPackage?.edhFinancialCommunityId))),
-      switchMap((edhFinancialCommunityId:number)=>this._planService.getPlanCommunities(edhFinancialCommunityId))
-    );
+    // Loads plans in Community
+    this.planCommunityList$ = this.currentPackage$.pipe(
+      switchMap((op:IOptionPackage)=>this._planService.getPlanCommunities(op.edhFinancialCommunityId,true)))
 
     // Gets Package name and related Community and market
-    this.currentPackageTitle$ = routeBundleId$.pipe(
-      switchMap((routeBundleId:number)=>this._optionPackageService.getOptionPackage(routeBundleId)),
-      switchMap((optionPackage:IOptionPackage)=>this._orgService.getMarket(optionPackage?.edhFinancialCommunityId).pipe(
-        map((market)=>[market, optionPackage])
+    this.currentPackageTitle$ = this.currentPackage$.pipe(
+      switchMap((op:IOptionPackage)=>this._orgService.getMarket(op?.edhFinancialCommunityId).pipe(
+        map((market)=>[market, op])
       )),
-      map(([market,optionPackage]:[IMarket, IOptionPackage])=>{return `- ${optionPackage.name} (${market?.name} : ${market?.financialCommunities[0]?.name})`})
-    );
+      map(([market,op]:[IMarket, IOptionPackage])=>{return `- ${op.name} (${market?.name} : ${market?.financialCommunities[0]?.name})`}));
 
-    // Loads opion subCategories and Categories
-    // TODO: Add a getOptionsCategory method   
-    routeBundleId$.pipe(
-      switchMap((routeBundleId:number)=>this._optionPackageService.getOptionPackage(routeBundleId).pipe(
-        map((optionPackage:IOptionPackage)=>optionPackage?.edhFinancialCommunityId))),
-      switchMap((edhFinancialCommunityId:number)=>this._optionService.getOptionsCategorySubcategory(edhFinancialCommunityId))
-    ).subscribe(
-      (OptionsCategorySubcategories:IOptionSubCategory[]) => {
-        this.optionCategoryList = [];
-        OptionsCategorySubcategories.forEach(subCat=>{
-            if(!this.optionCategoryList.find(x => x.id === subCat.optionCategory.id)){
-              this.optionCategoryList.push(subCat.optionCategory);
-            }});
-            console.log(this.optionCategoryList);
-        return this.optionSubcategoryList = OptionsCategorySubcategories;
-      }
-    );
+    // Loads in the categories for the current community, used for collapsing groups
+    this.currentPackage$.pipe(
+      switchMap((op:IOptionPackage)=>
+        this._optionService.getOptionPackageCategories(op.edhFinancialCommunityId)))
+      .subscribe((categories:IOptionCategory[])=>this.optionCategoryList = categories)
   }
 
-  ngOnDestroy(): void {
+  ngOnDestroy():void 
+  {
     this._colorAdminService.emitEditingColor(false);
   }
 
-
-  onLoadPlans() {
-    const routeBundleId$ = this.route.paramMap.pipe(map((paramMap:ParamMap)=>+paramMap.get('bundleId')));
+  onLoadPlans() 
+  {
     this.planIndexOffset = 0;
 
-    
-    if(this.selectedPlans.length === 0)
-    {
-      this.selectedPlansOptionList$ = null;
-      return;
-    }
+    this.subcategoryOptionHeader = {};
+    // Sets up subheaders
+    this.optionPackageListOptions$ = this.currentPackage$.pipe(
+      switchMap((op:IOptionPackage)=>this._planService.getOptionPackageListOptions(op.edhFinancialCommunityId,this.selectedPlans).pipe(
+        map((optionList)=>{
+          optionList.forEach((option)=>{if(!this.subcategoryOptionHeader[option.optionSubCategoryId])this.subcategoryOptionHeader[option.optionSubCategoryId]=option.id});
+          return optionList;
+        })
+      ))
+    );
 
-    // Sets which plans are loaded in to the columns
+    //Sets which plans are loaded in to the columns
     this.planCommunityList$.subscribe(
       (planCommunityList) =>  {
         this.loadedPlans = planCommunityList.filter(comm => this.selectedPlans.find(x => x === comm.id))
         this.loadedPlans.sort((a, b) => a.planSalesName.localeCompare(b.planSalesName));
-      }
-    )
-
-    // Loads the options for the selected plans
-    this.selectedPlansOptionList$ = routeBundleId$.pipe(
-      switchMap((routeBundleId:number)=>this._optionPackageService.getOptionPackage(routeBundleId).pipe(
-        map((optionPackage:IOptionPackage)=>optionPackage?.edhFinancialCommunityId))),
-      switchMap((edhFinancialCommunityId:number)=>this._planService.getPlanOptions(edhFinancialCommunityId,this.selectedPlans))
-    );
+      })
 
     this.expandAllRows();
   }
 
-  onSavePlans(){
+  onSavePlans()
+  {
 
   }
 
-  expandAllRows() {
-    this.optionSubcategoryList.forEach(data =>{
-      this.expandedRows[data.id] = true;
-    })
+  expandAllRows():void
+  {
     this.optionCategoryList.forEach(data =>{
       this.expandedRows[data.id] = true;
     })
   }
 
-  collapseAllRows() {
+  collapseAllRows():void
+  {
     this.expandedRows={};
   }
 
-  previousColumn() {
+  previousColumn():void
+  {
     if(this.planIndexOffset!==0)this.planIndexOffset--;
   }
   
-  nextColumn() {
+  nextColumn():void
+  {
     if(this.planIndexOffset+this.maxPlanColumns!==this.loadedPlans.length)this.planIndexOffset++;
   }
 
-  optionStatus(option:IOptionCommunity, planId:number): string{
-    // TODO: Add a way to check which type of entry field an option should be 
-    if (option.planOptionCommunities.filter(optionPlan => optionPlan.planId === planId).length > 0) {
-      return 'checkbox';    
-    }
-    return 'disabled';
+  getOptionMaxQuantity(option:OptionPackageListItemDto, planId:number):number
+  {
+    return option.planOptionCommunities.find(x => x.planId === planId)?.maxOrderQty
   }
-
-  // TODO: Remove these and add a better method of retreiving names
-  subCategoryHeader(subCategoryId:number):string{
-    return this.optionSubcategoryList.find(x => x.id === subCategoryId).name;
-  }
-
-  categoryHeader(subCategoryId:number):string{
-    return this.optionSubcategoryList.find(x => x.id === subCategoryId)?.optionCategory.name;
-  }
-
 }
