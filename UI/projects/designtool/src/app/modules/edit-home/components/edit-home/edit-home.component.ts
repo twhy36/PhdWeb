@@ -19,11 +19,11 @@ import * as LotActions from '../../../ngrx-store/lot/actions';
 import * as fromJobs from '../../../ngrx-store/job/reducer';
 
 import
-	{
-		UnsubscribeOnDestroy, ModalRef, ChangeTypeEnum, Job, TreeVersionRules, ScenarioStatusType, PriceBreakdown,
-		TreeFilter, Tree, SubGroup, Group, DecisionPoint, Choice, getDependentChoices, LotExt, getChoiceToDeselect,
-		PlanOption, ModalService, Plan, TimeOfSaleOptionPrice, ITimeOfSaleOptionPrice
-	} from 'phd-common';
+{
+	UnsubscribeOnDestroy, ModalRef, ChangeTypeEnum, Job, TreeVersionRules, ScenarioStatusType, PriceBreakdown,
+	TreeFilter, Tree, SubGroup, Group, DecisionPoint, Choice, getDependentChoices, LotExt, getChoiceToDeselect,
+	PlanOption, ModalService, Plan, TimeOfSaleOptionPrice, ITimeOfSaleOptionPrice
+} from 'phd-common';
 
 import { LotService } from '../../../core/services/lot.service';
 
@@ -682,7 +682,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 
 		if (choiceToDeselect)
 		{
-			impactedOptionPriceChoices = this.getImpactedChoicesForReplacedOptionPrices(timeOfSaleOptionPrices);
+			impactedOptionPriceChoices = this.getImpactedChoicesForReplacedOptionPrices(timeOfSaleOptionPrices, choice, choiceToDeselect);
 		}
 
 		let obs: Observable<boolean>;
@@ -828,7 +828,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		return timeOfSaleOptionPrices;
 	}
 
-	getImpactedChoicesForReplacedOptionPrices(timeOfSaleOptionPrices: TimeOfSaleOptionPrice[]): Choice[]
+	getImpactedChoicesForReplacedOptionPrices(timeOfSaleOptionPrices: TimeOfSaleOptionPrice[], selectedChoice: Choice, deselectedChoice: Choice): Choice[]
 	{
 		let choices: Choice[] = [];
 
@@ -840,20 +840,61 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 					sg => _.flatMap(sg.points,
 						p => p.choices)));
 
-			timeOfSaleOptionPrices.forEach(t1 =>
+			for (const t1 of timeOfSaleOptionPrices)
 			{
-				let comparedOpt = this.timeOfSaleOptionPrices.find(t2 => t1.edhPlanOptionID === t2.edhPlanOptionID && t1.divChoiceCatalogID === t2.divChoiceCatalogID && t1.listPrice !== t2.listPrice);
+				const comparedOpt = this.timeOfSaleOptionPrices.find(t2 => t1.edhPlanOptionID === t2.edhPlanOptionID && t1.divChoiceCatalogID === t2.divChoiceCatalogID && t1.listPrice !== t2.listPrice);
 
 				if (comparedOpt)
 				{
-					let choice = treeChoices.find(c => c.divChoiceCatalogId === comparedOpt.divChoiceCatalogID);
+					const choice = treeChoices.find(c => c.divChoiceCatalogId === comparedOpt.divChoiceCatalogID);
 
-					if (choice)
+					if (choice && choice.quantity && choice.divChoiceCatalogId !== deselectedChoice.divChoiceCatalogId)
 					{
-						choices.push(choice);
+						// #364540 This choice is only impacted if no replace rule is satisfied
+						const option = this.options.find(opt => opt.id === comparedOpt.edhPlanOptionID);
+
+						if (option)
+						{
+							// Get the replace rules on this option
+							const replaceRules = this.treeVersionRules.optionRules.filter(r => r.replaceOptions.includes(option.financialOptionIntegrationKey));
+
+							// For all of the choices tied to the replace rules,
+							// copy them to a new list with forecasted quantity values based on what's being toggled
+							const clonedChoices = _.cloneDeep(treeChoices.filter(tc => _.flatMap(replaceRules, rr => rr.choices).map(rrc => rrc.id).includes(tc.id)))
+								.map(cc =>
+								{
+									if (cc.id === deselectedChoice.id)
+									{
+										cc.quantity = 0;
+									}
+									else if (cc.id === selectedChoice.id && selectedChoice.id !== deselectedChoice.id)
+									{
+										cc.quantity = 1;
+									}
+
+									return cc;
+								});
+
+							// If all choices are deselected, assume the potentially impacted choice has already been acknowledged
+							// Also, if any rule is still fully satisfied after the changes, the choice is not impacted
+							if (clonedChoices.filter(cc => cc.quantity >= 1).length === 0 || replaceRules.some(rr =>
+							{
+								return rr.choices.every(rrc =>
+								{
+									const ch = clonedChoices.find(c => c.id === rrc.id);
+
+									return (rrc.mustHave && ch.quantity >= 1) || (!rrc.mustHave && ch.quantity === 0);
+								});
+							}))
+							{
+								break;
+							}
+
+							choices.push(choice);
+						}
 					}
 				}
-			});
+			}
 		}
 
 		return choices;
