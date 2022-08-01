@@ -7,7 +7,8 @@ import { combineLatest, map, filter, take, withLatestFrom } from 'rxjs/operators
 import
 	{
 		UnsubscribeOnDestroy, flipOver, FinancialCommunity, ChangeOrderHanding, Job, Lot, ViewAdjacency, Handing,
-		PhysicalLotType, PlanAssociation, MonotonyRuleLot, SalesPhase, Plan, Scenario, Choice, ModalService, LotChoiceRules, ConfirmModalComponent, updateLotChoiceRules
+		PhysicalLotType, PlanAssociation, MonotonyRuleLot, SalesPhase, Plan, Scenario, Choice, ModalService, LotChoiceRules, 
+		ConfirmModalComponent, updateLotChoiceRules
 	} from 'phd-common';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
@@ -72,6 +73,7 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 	currentChoices: Choice[] = null;
 	financialCommunities: Array<FinancialCommunity>;
 	isPhdLite: boolean = false;
+	totalPrice: number;
 
 	constructor(private router: Router,
 		private store: Store<fromRoot.State>,
@@ -292,6 +294,11 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 			this.takeUntilDestroyed(),
 			select(state => state.lite)
 		).subscribe(lite => this.isPhdLite = lite?.isPhdLite);
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromRoot.priceBreakdown)
+		).subscribe(price => this.totalPrice = price.totalPrice);
 	}
 
 	isAssociatedWithSelectedPlan(lot: Lot): boolean

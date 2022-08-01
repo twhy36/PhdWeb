@@ -9,7 +9,7 @@
 		<action-bar primaryAction="Personalize It"
 					[actionBarStatus]="!!(selectedPlan$ | async) ? 'COMPLETE' : 'INCOMPLETE'"
 					(callToAction)="onCallToAction($event)"
-					[price]="(selectedPlan$ | async)?.price + (selectedLot$ | async)?.premium">
+					[price]="totalPrice">
 		</action-bar>
 	</ng-container>
 
@@ -85,7 +85,7 @@
 			<action-bar primaryAction="Personalize It"
 						[actionBarStatus]="!!(selectedPlan$ | async) ? 'COMPLETE' : 'INCOMPLETE'"
 						(callToAction)="onCallToAction($event)"
-						[price]="(selectedPlanPrice$ | async) + (selectedLot$ | async)?.premium"
+						[price]="totalPrice"
 						[canChange]="canConfigure">
 			</action-bar>
 		</div>
