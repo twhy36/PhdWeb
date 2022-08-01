@@ -4,7 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable ,  throwError as _throw } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
-import { SalesCommunity } from 'phd-common';
+import { FinancialCommunity, SalesCommunity } from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
 
@@ -36,6 +36,33 @@ export class OrganizationService
 				if (includeFinancialCommunities) {
 					comm.financialCommunities = value.financialCommunities;
 				}
+				return comm;
+			}),
+			catchError(error =>
+			{
+				console.error(error);
+
+				return _throw(error);
+			})
+		);
+	}
+
+	getFinancialCommunityByFinancialCommunityNumber(number: number): Observable<FinancialCommunity>
+	{
+		const entity = `financialCommunities`;
+		const filter = `number eq '${number}'`;
+		const select = `id, number, name`;
+
+		let qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
+
+		const url = `${environment.apiUrl}${entity}?${qryStr}`;
+
+		return this._http.get<any>(url).pipe(
+			map(response =>
+			{
+				var value = response.value[0];
+
+				let comm = { id: value.id, name: value.name, number: value.number } as FinancialCommunity;
 				return comm;
 			}),
 			catchError(error =>

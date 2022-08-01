@@ -13,10 +13,11 @@ import { checkSelectedAttributes, hideChoicesByStructuralItems, hidePointsByStru
 import { RehydrateMap } from '../sessionStorage';
 import { CommonActionTypes } from '../actions';
 import { ScenarioActions, ScenarioActionTypes } from './actions';
+import { BuildMode } from '../../shared/models/build-mode.model';
 
 export interface State
 {
-	buildMode: 'buyer' | 'preview' | 'buyerPreview';
+	buildMode: BuildMode;
 	financialCommunityFilter: number;
 	isGanked: boolean;
 	isUnsaved: boolean;
@@ -41,7 +42,7 @@ export interface State
 export const initialState: State = {
 	tree: null, rules: null, scenario: null, options: null, lotPremium: 0, salesCommunity: null,
 	savingScenario: false, saveError: false, isUnsaved: false, treeLoading: false, loadError: false, isGanked: false,
-	pointHasChanges: false, buildMode: 'buyer',
+	pointHasChanges: false, buildMode: BuildMode.Buyer,
 	monotonyAdvisementShown: false, financialCommunityFilter: 0, treeFilter: null, overrideReason: null,
 	hiddenChoiceIds: [], hiddenPointIds: []
 };
@@ -294,7 +295,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 			{
 				points.forEach(pt => setPointStatus(pt));
 
-				if (state.buildMode !== 'preview')
+				if (state.buildMode !== BuildMode.Preview)
 				{
 					// For each point, if the user cannot select the DP in this tool, then the status should be complete
 					points.filter(pt => pt.isStructuralItem || pt.isPastCutOff || pt.isHiddenFromBuyerView)
@@ -335,13 +336,16 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 			return { ...state, tree: newTree };
 
 		case ScenarioActionTypes.LoadPreview:
-			return { ...state, treeLoading: true, buildMode: 'preview', scenario: <any>{ scenarioId: 0, scenarioName: '--PREVIEW--', scenarioInfo: null } };
+			return { ...state, treeLoading: true, buildMode: BuildMode.Preview, scenario: <any>{ scenarioId: 0, scenarioName: '--PREVIEW--', scenarioInfo: null } };
+
+		case ScenarioActionTypes.LoadPresale:
+			return { ...state, treeLoading: true, buildMode: BuildMode.Presale, scenario: <any>{ scenarioId: 0, scenarioName: '--PRESALE--', scenarioInfo: null } };
 
 		case CommonActionTypes.LoadSalesAgreement:
 			let newBuildMode = state.buildMode;
 			if (action.isBuyerPreview)
 			{
-				newBuildMode = 'buyerPreview';
+				newBuildMode = BuildMode.BuyerPreview;
 			}
 			return { ...state, buildMode: newBuildMode };
 
@@ -600,7 +604,12 @@ export const interactiveFloorplanSG = createSelector(
 
 export const isPreview = createSelector(
 	selectScenario,
-	(state) => state.buildMode === 'preview'
+	(state) => state.buildMode === BuildMode.Preview
+);
+
+export const isPresale = createSelector(
+	selectScenario,
+	(state) => state.buildMode === BuildMode.Presale
 );
 
 export const hasMonotonyAdvisement = createSelector(

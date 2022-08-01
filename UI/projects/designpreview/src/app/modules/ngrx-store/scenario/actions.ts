@@ -6,6 +6,7 @@ import { LoadSalesAgreement, SalesAgreementLoaded, MyFavoritesChoiceAttributesDe
 export enum ScenarioActionTypes
 {
 	LoadPreview = 'Load Preview',
+	LoadPresale = 'Load Presale',
 	SelectChoices = 'Select Choices',
 	SetTreeFilter = 'Set Tree filter',
 	SetStatusForPointsDeclined = 'Set Status For Points Declined',
@@ -17,6 +18,13 @@ export class LoadPreview implements Action
 	readonly type = ScenarioActionTypes.LoadPreview;
 
 	constructor(public treeVersionId: number) { }
+}
+
+export class LoadPresale implements Action
+{
+	readonly type = ScenarioActionTypes.LoadPresale;
+
+	constructor(public financialCommunityNumber: number, public lawsonPlanId: number) { }
 }
 
 export class SelectChoices implements Action
@@ -55,6 +63,7 @@ export class TreeLoaded implements Action
 
 export type ScenarioActions =
 	LoadPreview |
+	LoadPresale |
 	LoadSalesAgreement |
 	SelectChoices |
 	SetTreeFilter |

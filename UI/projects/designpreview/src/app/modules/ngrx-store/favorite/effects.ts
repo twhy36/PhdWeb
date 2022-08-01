@@ -27,6 +27,7 @@ import * as fromRoot from '../reducers';
 import * as fromFavorite from './reducer';
 import * as fromSalesAgreement from '../sales-agreement/reducer';
 import { AdobeService } from '../../core/services/adobe.service';
+import { BuildMode } from '../../shared/models/build-mode.model';
 
 @Injectable()
 export class FavoriteEffects
@@ -193,8 +194,8 @@ export class FavoriteEffects
 			withLatestFrom(this.store, this.store.pipe(select(fromFavorite.currentMyFavorite))),
 			tryCatch(source => source.pipe(
 				switchMap(([action, store, fav]) => {
-					return store.scenario.buildMode === 'preview'
-						? this.favoriteService.saveMyFavoritesChoicesInPreview(store.scenario.tree, fav)
+					return store.scenario.buildMode === BuildMode.Preview || store.scenario.buildMode === BuildMode.Presale
+						? this.favoriteService.saveMyFavoritesChoicesInPreviewAndPresale(store.scenario.tree, fav)
 						: this.favoriteService.saveMyFavoritesChoices(store.scenario.tree, store.favorite.salesChoices, fav);
 				}),
 				switchMap(results => of(new MyFavoritesChoicesSaved(results)))
@@ -228,7 +229,7 @@ export class FavoriteEffects
 			withLatestFrom(this.store),
 			tryCatch(source => source.pipe(
 				switchMap(([action, store]) => {
-					if (store.scenario.buildMode === 'preview')
+					if (store.scenario.buildMode === BuildMode.Preview)
 					{
 						return of([{
 							id: -action.pointId,
@@ -261,7 +262,7 @@ export class FavoriteEffects
 			withLatestFrom(this.store),
 			tryCatch(source => source.pipe(
 				switchMap(([action, store]) => {
-					if (store.scenario.buildMode === 'preview')
+					if (store.scenario.buildMode === BuildMode.Preview)
 					{
 						const myFavorite = store.favorite?.myFavorites?.find(fav => fav.id === action.myFavoriteId);
 						const pointDeclined = myFavorite?.myFavoritesPointDeclined?.find(pt => pt.id === action.myFavoritesPointDeclineId);

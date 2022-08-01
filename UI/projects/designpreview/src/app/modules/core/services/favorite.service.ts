@@ -545,7 +545,7 @@ export class FavoriteService
 		);		
 	}
 
-	saveMyFavoritesChoicesInPreview(tree: Tree, favorites: MyFavorite): Observable<MyFavoritesChoice[]>
+	saveMyFavoritesChoicesInPreviewAndPresale(tree: Tree, favorites: MyFavorite): Observable<MyFavoritesChoice[]>
 	{
 		let choices = [];
 

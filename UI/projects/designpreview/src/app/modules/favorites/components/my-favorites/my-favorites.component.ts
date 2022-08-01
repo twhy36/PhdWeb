@@ -38,6 +38,7 @@ import { GroupBarComponent } from '../../../shared/components/group-bar/group-ba
 import { NormalExperienceComponent } from './normal-experience/normal-experience.component';
 import { ChoiceExt } from '../../../shared/models/choice-ext.model';
 import { TreeService } from '../../../core/services/tree.service';
+import { BuildMode } from '../../../shared/models/build-mode.model';
 
 @Component({
 	selector: 'my-favorites',
@@ -158,7 +159,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 				return;
 			}
 
-			this.isPreview = scenarioState.buildMode === 'preview';
+			this.isPreview = scenarioState.buildMode === BuildMode.Preview;
 			this.isDesignComplete = sag?.isDesignComplete || false;
 
 			if (filteredTree && params.subGroupCatalogId > 0)
@@ -272,7 +273,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			this.tree = scenario.tree;
 			this.treeVersionRules = _.cloneDeep(scenario.rules);
 			this.options = _.cloneDeep(scenario.options);
-			this.isReadonly = scenario.buildMode === 'buyerPreview';
+			this.isReadonly = scenario.buildMode === BuildMode.BuyerPreview;
 		});
 
 		this.store.pipe(

@@ -13,6 +13,7 @@ import * as fromSalesAgreement from './sales-agreement/reducer';
 import * as fromJob from './job/reducer';
 import * as fromChangeOrder from './change-order/reducer';
 import * as fromFavorite from './favorite/reducer';
+import { BuildMode } from '../shared/models/build-mode.model';
 
 export interface State
 {
@@ -51,7 +52,7 @@ export const filteredTree = createSelector(
 
 		if (tree && tree.treeVersion)
 		{
-			const isPreview = scenario.buildMode === 'preview';
+			const isPreview = scenario.buildMode === BuildMode.Preview;
 			const isDesignComplete = sag?.isDesignComplete || false;
 
 			const filter = (label: string) =>
@@ -169,7 +170,7 @@ export const contractedTree = createSelector(
 
 		if (tree && tree.treeVersion)
 		{
-			const isPreview = scenario.buildMode === 'preview';
+			const isPreview = scenario.buildMode === BuildMode.Preview;
 			const isDesignComplete = sag?.isDesignComplete || false;
 
 			const filter = (label: string) =>
@@ -400,7 +401,7 @@ export const priceBreakdown = createSelector(
 			let changePrice = salesAgreement.status === 'Approved' && currentChangeOrder?.amount || 0;
 			let salesPrice = salesAgreement.salePrice || 0;
 
-			if (salesPrice === 0 && scenario.buildMode === 'preview')
+			if (salesPrice === 0 && scenario.buildMode === BuildMode.Preview)
 			{
 				salesPrice = breakdown.baseHouse;
 			}
@@ -485,7 +486,10 @@ export const elevationImageUrl = createSelector(
 	(scenario, dp) =>
 	{
 		let imageUrl = '';
-		const elevationOption = scenario && scenario.options ? scenario.options.find(x => x.isBaseHouseElevation) : null;
+		let elevationOption = scenario && scenario.options ? scenario.options.find(x => x.isBaseHouseElevation) : null;
+		if (!!!elevationOption) {
+			elevationOption = scenario && scenario.options ? scenario.options.find(x => x.isBaseHouse) : null;
+		}
 
 		if (dp)
 		{
@@ -551,6 +555,6 @@ export const isBuyerMode = createSelector(
 	fromScenario.selectScenario,
 	(scenario) =>
 	{
-		return scenario.buildMode === 'buyer';
+		return scenario.buildMode === BuildMode.Buyer;
 	}
 );

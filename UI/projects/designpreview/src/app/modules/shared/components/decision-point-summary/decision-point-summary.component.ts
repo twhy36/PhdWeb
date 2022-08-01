@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { NgbDropdownConfig } from '@ng-bootstrap/ng-bootstrap';
 
 import { DecisionPoint, Group, SubGroup, Choice, JobChoice, UnsubscribeOnDestroy, flipOver2, isChoiceAttributesComplete } from 'phd-common';
+import { BuildMode } from '../../models/build-mode.model';
 
 @Component({
 	selector: 'decision-point-summary',
@@ -21,7 +22,7 @@ export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implemen
 	@Input() subGroup: SubGroup;
 	@Input() salesChoices: JobChoice[];
 	@Input() includeContractedOptions: boolean;
-	@Input() buildMode: string;
+	@Input() buildMode: BuildMode;
 	@Input() isDesignComplete: boolean = false;
 	@Input() contractedOptionsPage: boolean = false;
 
@@ -46,7 +47,7 @@ export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implemen
 
 		const choices = this.decisionPoint.choices.filter(c => c.quantity > 0) || [];
 		const favoriteChoices = choices.filter(c => !this.salesChoices || this.salesChoices.findIndex(sc => sc.divChoiceCatalogId === c.divChoiceCatalogId) === -1);
-		this.isReadonly = this.buildMode === 'buyerPreview' || !favoriteChoices || favoriteChoices.length < 1;
+		this.isReadonly = this.buildMode === BuildMode.BuyerPreview || !favoriteChoices || favoriteChoices.length < 1;
 	}
 
 	ngOnChanges(changes: SimpleChanges)
