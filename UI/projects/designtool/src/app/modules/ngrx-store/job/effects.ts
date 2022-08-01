@@ -150,11 +150,11 @@ export class JobEffects
 				{
 					return this.jobService.savePulteInfo(action.pulteInfo);
 				}),
-				map(() =>
+				map(pulteInfo =>
 				{
 					this.toastr.success('Spec Info Saved');
 
-					return new PulteInfoSaved();
+					return new PulteInfoSaved(pulteInfo);
 				})
 			), LoadError, 'Unable to save Spec Info')
 		)
