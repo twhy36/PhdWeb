@@ -35,6 +35,7 @@ export class FloorPlanSummaryComponent extends UnsubscribeOnDestroy implements O
 	isPlainFloorplan: boolean = false;
 	pageName: string;
 	isPreview: boolean = false;
+	isPresale: boolean = false;
 
 	constructor(
 		private store: Store<fromRoot.State>,
@@ -102,6 +103,7 @@ export class FloorPlanSummaryComponent extends UnsubscribeOnDestroy implements O
 			select(state => state.scenario),
 		).subscribe((scenario) => {
 			this.isPreview = scenario.buildMode === BuildMode.Preview;
+			this.isPresale = scenario.buildMode === BuildMode.Presale;
 		});
 	}
 

@@ -24,6 +24,7 @@ export class ContractedSummaryComponent extends UnsubscribeOnDestroy implements 
 	salesChoices: JobChoice[];
 	buildMode: BuildMode;
 	isPreview: boolean = false;
+	isPresale: boolean = false;
 	isDesignComplete: boolean = false;
 
 	constructor(private store: Store<fromRoot.State>, 
@@ -59,6 +60,7 @@ export class ContractedSummaryComponent extends UnsubscribeOnDestroy implements 
 			select(state => state.scenario),
 		).subscribe((scenario) => {
 			this.isPreview = scenario.buildMode === BuildMode.Preview;
+			this.isPresale = scenario.buildMode === BuildMode.Presale;
 		});
 	}
 

@@ -74,6 +74,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 	isFloorplanFlipped: boolean;
 	currentChoiceImages: ChoiceImageAssoc[];
 	isPreview: boolean;
+	isPresale: boolean;
 	isDesignComplete: boolean;
 	isReadonly: boolean = false;
 	noVisibleGroups: boolean = false;
@@ -160,6 +161,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			}
 
 			this.isPreview = scenarioState.buildMode === BuildMode.Preview;
+			this.isPresale = scenarioState.buildMode === BuildMode.Presale;
 			this.isDesignComplete = sag?.isDesignComplete || false;
 
 			if (filteredTree && params.subGroupCatalogId > 0)
