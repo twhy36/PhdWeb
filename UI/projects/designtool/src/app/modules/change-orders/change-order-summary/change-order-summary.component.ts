@@ -66,6 +66,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 	cancelOrVoid: boolean;
 	currentChangeOrderGroupSequence: number;
 	salesAgreementId: number;
+	job: Job;
 	jobId: number;
 	approvedDate: Date;
 	specCancelled$: Observable<boolean>;
@@ -259,6 +260,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 			this.constructionStageName = job.constructionStageName;
 			this.buildMode = buildMode;
 			this.jobChangeOrders = job.changeOrderGroups;
+			this.job = job;
 			this.jobId = job.id;
 			this.approvedDate = salesAgreement.approvedDate;
 			this.signedDate = salesAgreement.signedDate;
@@ -1034,7 +1036,14 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 						// #353697 Once the CO is withdrawn, we need to clear out any new option prices in both the database and the job state
 						this.store.dispatch(new JobActions.DeleteReplaceOptionPrice(true));
 
-						this.store.dispatch(new CommonActions.LoadSalesAgreement(this.salesAgreementId, false));
+						if (this.salesAgreementId != 0) 
+						{
+							this.store.dispatch(new CommonActions.LoadSalesAgreement(this.salesAgreementId, false));
+						}
+						else
+						{
+							this.store.dispatch(new CommonActions.LoadSpec(this.job));
+						}
 					}
 				}
 
