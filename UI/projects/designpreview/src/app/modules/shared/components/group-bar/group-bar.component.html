@@ -1,4 +1,4 @@
-<nav id="phd-group-bar">
+<nav (window:resize)="onResize($event)" id="phd-group-bar">
 	<div class="d-flex align-items-flex-start phd-group-bar-content">
 		<div class="d-flex flex-column">
 			<div class="phd-community-name">{{communityName}} : </div>
@@ -28,7 +28,7 @@
 
 		<!--Group menu in mobile view -->
 		<div class="phd-hamburger-menu">
-			<button mat-button [matMenuTriggerFor]="main_menu" class="phd-menu-bars">
+			<button mat-button [matMenuTriggerFor]="main_menu" class="phd-menu-bars" #hamburgerMenuTrigger="matMenuTrigger">
 				<i class="fa fa-bars fa-2x"></i>
 			</button>
 			<mat-menu #main_menu="matMenu" [class]="'phd-pop-menu'">

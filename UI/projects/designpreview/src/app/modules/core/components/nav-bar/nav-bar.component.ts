@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { select, Store } from '@ngrx/store';
 
@@ -23,6 +23,13 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 	showMyFavoritesLink: boolean = false;
 	showFloorplanLink: boolean = false;
 	showIncludedOptionsLink: boolean = false;
+
+	@HostListener("window:resize", ["$event"])
+	onResize(event) {
+		if (event.target.innerWidth > 1024) {
+			this.isMenuCollapsed = true;
+		}
+	}
 
 	constructor(
 		private router: Router,
