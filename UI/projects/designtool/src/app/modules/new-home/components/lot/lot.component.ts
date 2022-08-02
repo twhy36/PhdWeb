@@ -1,14 +1,14 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store, select } from '@ngrx/store';
-import { Observable, ReplaySubject } from 'rxjs';
-import { combineLatest, map, filter, take, withLatestFrom } from 'rxjs/operators';
+import { Observable, ReplaySubject, combineLatest } from 'rxjs';
+import { map, filter, take, withLatestFrom } from 'rxjs/operators';
 
 import
 	{
 		UnsubscribeOnDestroy, flipOver, FinancialCommunity, ChangeOrderHanding, Job, Lot, ViewAdjacency, Handing,
 		PhysicalLotType, PlanAssociation, MonotonyRuleLot, SalesPhase, Plan, Scenario, Choice, ModalService, LotChoiceRules, 
-		ConfirmModalComponent, updateLotChoiceRules
+		ConfirmModalComponent, updateLotChoiceRules, ScenarioOptionColor
 	} from 'phd-common';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
@@ -19,8 +19,10 @@ import * as LotActions from '../../../ngrx-store/lot/actions';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 import * as NavActions from '../../../ngrx-store/nav/actions';
 import * as JobActions from '../../../ngrx-store/job/actions';
+import * as LiteActions from '../../../ngrx-store/lite/actions';
 import * as fromJobs from '../../../ngrx-store/job/reducer';
 import * as fromPlan from '../../../ngrx-store/plan/reducer';
+import * as fromLite from '../../../ngrx-store/lite/reducer';
 
 import { ActionBarCallType } from '../../../shared/classes/constants.class';
 import { ModalOverrideSaveComponent } from '../../../core/components/modal-override-save/modal-override-save.component';
@@ -29,7 +31,7 @@ import { NewHomeService } from '../../services/new-home.service';
 import * as _ from 'lodash';
 
 // PHD Lite
-import { ExteriorSubNavItems, LiteSubMenu } from '../../../shared/models/lite.model';
+import { ExteriorSubNavItems, LiteSubMenu, LiteMonotonyRule, LitePlanOption } from '../../../shared/models/lite.model';
 import { LotService } from '../../../core/services/lot.service';
 
 
@@ -72,7 +74,15 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 	lotChoiceRules: LotChoiceRules[] = null;
 	currentChoices: Choice[] = null;
 	financialCommunities: Array<FinancialCommunity>;
+
+	// PHD Lite
 	isPhdLite: boolean = false;
+	liteMonotonyRules: LiteMonotonyRule[] = null;
+	liteElevationOption: LitePlanOption;
+	liteColorScheme: ScenarioOptionColor;
+	liteElevationOverrideNote: string;
+	liteColorSchemeOverrideNote: string;
+
 	totalPrice: number;
 
 	constructor(private router: Router,
@@ -158,66 +168,66 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 			})
 		).subscribe(ch => this.colorSchemeChoice = ch);
 
-		this.store.pipe(
-			this.takeUntilDestroyed(),
-			select(fromScenario.elevationConflictOverride),
-			combineLatest(this.store.pipe(select(fromScenario.colorSchemeConflictOverride))))
-			.subscribe(([elevationOverride, colorSchemeOverride]) =>
-			{
-				this.colorSchemeConflictOverride = colorSchemeOverride;
-				this.elevationConflictOverride = elevationOverride;
-			});
+		combineLatest([
+			this.store.pipe(select(fromScenario.elevationConflictOverride)),
+			this.store.pipe(select(fromScenario.colorSchemeConflictOverride))
+		])
+		.pipe(this.takeUntilDestroyed())
+		.subscribe(([elevationOverride, colorSchemeOverride]) =>
+		{
+			this.colorSchemeConflictOverride = colorSchemeOverride;
+			this.elevationConflictOverride = elevationOverride;			
+		});
 
-		this.store.pipe(
-			this.takeUntilDestroyed(),
-			select(fromLot.dirtLots),
-			filter(lots => !!lots),
-			withLatestFrom(this.store.pipe(select(state => state.plan.selectedPlan))),
-			map(([lots, selectedPlanId]) => lots.slice().sort(function (a, b)
-			{
-				// first group by lots that have the selected plan in its planAssocation
-				if (selectedPlanId)
+		combineLatest([
+			this.store.pipe(
+				select(fromLot.dirtLots),
+				filter(lots => !!lots),
+				withLatestFrom(this.store.pipe(select(state => state.plan.selectedPlan))),
+				map(([lots, selectedPlanId]) => lots.slice().sort(function (a, b)
 				{
-					const aHasPlanAssociation = a.planAssociations ? a.planAssociations.some(p => p.planId === selectedPlanId) : false;
-					const bHasPlanAssociation = b.planAssociations ? b.planAssociations.some(p => p.planId === selectedPlanId) : false;
-
-					if (aHasPlanAssociation && !bHasPlanAssociation)
+					// first group by lots that have the selected plan in its planAssocation
+					if (selectedPlanId)
+					{
+						const aHasPlanAssociation = a.planAssociations ? a.planAssociations.some(p => p.planId === selectedPlanId) : false;
+						const bHasPlanAssociation = b.planAssociations ? b.planAssociations.some(p => p.planId === selectedPlanId) : false;
+	
+						if (aHasPlanAssociation && !bHasPlanAssociation)
+						{
+							return -1;
+						}
+	
+						if (!aHasPlanAssociation && bHasPlanAssociation)
+						{
+							return 1;
+						}
+					}
+	
+					const aLotBuildTypeDesc = a.lotBuildTypeDesc ? a.lotBuildTypeDesc.toLowerCase() : "dirt";
+					const bLotBuildTypeDesc = b.lotBuildTypeDesc ? b.lotBuildTypeDesc.toLowerCase() : "dirt";
+	
+					// then group by lot build type ("dirt" or "spec")
+					if (aLotBuildTypeDesc < bLotBuildTypeDesc)
 					{
 						return -1;
 					}
-
-					if (!aHasPlanAssociation && bHasPlanAssociation)
+	
+					if (aLotBuildTypeDesc > bLotBuildTypeDesc)
 					{
 						return 1;
 					}
-				}
-
-				const aLotBuildTypeDesc = a.lotBuildTypeDesc ? a.lotBuildTypeDesc.toLowerCase() : "dirt";
-				const bLotBuildTypeDesc = b.lotBuildTypeDesc ? b.lotBuildTypeDesc.toLowerCase() : "dirt";
-
-				// then group by lot build type ("dirt" or "spec")
-				if (aLotBuildTypeDesc < bLotBuildTypeDesc)
-				{
-					return -1;
-				}
-
-				if (aLotBuildTypeDesc > bLotBuildTypeDesc)
-				{
-					return 1;
-				}
-
-				// then sort by lotblock
-				return a.lotBlock < b.lotBlock ? -1 : a.lotBlock > b.lotBlock ? 1 : 0;
-			})),
-			combineLatest(
-				this.store.pipe(
-					select(selectSelectedLot)
-				),
-				this.store.pipe(select(state => state.org.salesCommunity?.financialCommunities)),
-				this.store.pipe(select(state => state.lot.selectedHanding)),
-				this.selectedFilterBy$
-			)
-		).subscribe(([lots, selectedLot, financialCommunities, selectedHanding, selectedFilter]) =>
+	
+					// then sort by lotblock
+					return a.lotBlock < b.lotBlock ? -1 : a.lotBlock > b.lotBlock ? 1 : 0;
+				})),				
+			),
+			this.store.pipe(select(selectSelectedLot)),
+			this.store.pipe(select(state => state.org.salesCommunity?.financialCommunities)),
+			this.store.pipe(select(state => state.lot.selectedHanding)),
+			this.selectedFilterBy$			
+		])
+		.pipe(this.takeUntilDestroyed())
+		.subscribe(([lots, selectedLot, financialCommunities, selectedHanding, selectedFilter]) =>
 		{
 			this.financialCommunities = financialCommunities;
 			this.lots = lots.map(l => new LotComponentLot(l, selectedLot, selectedHanding));
@@ -293,7 +303,22 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(state => state.lite)
-		).subscribe(lite => this.isPhdLite = lite?.isPhdLite);
+		).subscribe(lite => {
+			this.isPhdLite = lite?.isPhdLite;
+			this.liteMonotonyRules = lite?.liteMonotonyRules;
+			this.liteElevationOverrideNote = lite?.elevationOverrideNote;
+			this.liteColorSchemeOverrideNote = lite?.colorSchemeOverrideNote;
+		});
+
+		combineLatest([
+			this.store.pipe(select(fromLite.selectedElevation)),
+			this.store.pipe(select(fromLite.selectedColorScheme))
+		])
+		.pipe(this.takeUntilDestroyed())
+		.subscribe(([elevation, colorScheme]) => {
+			this.liteElevationOption = elevation;
+			this.liteColorScheme = colorScheme;
+		});
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
@@ -323,32 +348,61 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 				lot.monotonyRules.some(x => x.colorSchemeDivChoiceCatalogId === this.colorSchemeChoice.divChoiceCatalogId);
 		}
 
-		if (this.elevationChoice && !this.elevationConflictOverride)
+		if (this.isPhdLite)
 		{
-			lot.elevationMonotonyConflict = lot.monotonyRules.some(r => r.elevationDivChoiceCatalogId === this.elevationChoice.divChoiceCatalogId && r.edhPlanId === planId);
-
-			if (!this.colorSchemeChoice && this.elevationChoice.selectedAttributes.length > 0)
+			if (this.liteElevationOption && !this.liteElevationOverrideNote)
 			{
-				lot.monotonyRules.forEach(rule =>
+				const lotLiteMonotonyRules = this.liteMonotonyRules?.find(monotonyRule => monotonyRule.edhLotId === lot.id)?.relatedLotsElevationColorScheme || [];
+				lot.elevationMonotonyConflict = lotLiteMonotonyRules.some(r => r.elevationPlanOptionId === this.liteElevationOption.id);
+
+				if (this.liteColorScheme && !this.liteColorSchemeOverrideNote)
 				{
-					// must be on the same plan
-					if (rule.edhPlanId === planId)
+					const colorItem = this.liteElevationOption.colorItems?.find(item => item.colorItemId === this.liteColorScheme.colorItemId);
+					const color = colorItem?.color?.find(c => c.colorId === this.liteColorScheme.colorId);
+
+					if (colorItem && color)
 					{
-						let colorAttributeConflicts = [];
+						lot.colorSchemeMonotonyConflict = isColorSchemePlanRuleEnabled 
+							? lotLiteMonotonyRules.some(r => 
+								r.colorSchemeColorItemName === colorItem.name 
+								&& r.colorSchemeColorName === color.name
+								&& r.edhPlanId === planId) 
+							: lotLiteMonotonyRules.some(r => 
+								r.colorSchemeColorItemName === colorItem.name 
+								&& r.colorSchemeColorName === color.name) ; 
+					}					
+				}
+			}
+		}
+		else
+		{
+			if (this.elevationChoice && !this.elevationConflictOverride)
+			{
+				lot.elevationMonotonyConflict = lot.monotonyRules.some(r => r.elevationDivChoiceCatalogId === this.elevationChoice.divChoiceCatalogId && r.edhPlanId === planId);
 
-						if (!this.colorSchemeMonotonyConflict)
+				if (!this.colorSchemeChoice && this.elevationChoice.selectedAttributes.length > 0)
+				{
+					lot.monotonyRules.forEach(rule =>
+					{
+						// must be on the same plan
+						if (rule.edhPlanId === planId)
 						{
-							this.elevationChoice.selectedAttributes.forEach(x =>
+							let colorAttributeConflicts = [];
+
+							if (!this.colorSchemeMonotonyConflict)
 							{
-								const doesColorSchemeAttributeExist = rule.colorSchemeAttributeCommunityIds.some(colorAttributeIds => colorAttributeIds === x.attributeId);
+								this.elevationChoice.selectedAttributes.forEach(x =>
+								{
+									const doesColorSchemeAttributeExist = rule.colorSchemeAttributeCommunityIds.some(colorAttributeIds => colorAttributeIds === x.attributeId);
 
-								colorAttributeConflicts.push(doesColorSchemeAttributeExist);
-							});
+									colorAttributeConflicts.push(doesColorSchemeAttributeExist);
+								});
+							}
+
+							this.colorSchemeMonotonyConflict = !colorAttributeConflicts.some(x => x === false);
 						}
-
-						this.colorSchemeMonotonyConflict = !colorAttributeConflicts.some(x => x === false);
-					}
-				});
+					});
+				}
 			}
 		}
 
@@ -554,14 +608,29 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 
 		lot.monotonyConflictMessage = '';
 
-		if (lot.colorSchemeMonotonyConflict)
+		if (this.isPhdLite)
 		{
-			this.store.dispatch(new ScenarioActions.SelectChoices(true, { choiceId: this.colorSchemeChoice.id, overrideNote: this.overrideNote, quantity: 1 }));
-		}
+			if (lot.colorSchemeMonotonyConflict)
+			{
+				this.store.dispatch(new LiteActions.SetLiteOverrideReason(overrideReason, false));
+			}
 
-		if (lot.elevationMonotonyConflict)
+			if (lot.elevationMonotonyConflict)
+			{
+				this.store.dispatch(new LiteActions.SetLiteOverrideReason(overrideReason, true));
+			}	
+		}
+		else
 		{
-			this.store.dispatch(new ScenarioActions.SelectChoices(true, { choiceId: this.elevationChoice.id, overrideNote: this.overrideNote, quantity: 1 }));
+			if (lot.colorSchemeMonotonyConflict)
+			{
+				this.store.dispatch(new ScenarioActions.SelectChoices(true, { choiceId: this.colorSchemeChoice.id, overrideNote: this.overrideNote, quantity: 1 }));
+			}
+
+			if (lot.elevationMonotonyConflict)
+			{
+				this.store.dispatch(new ScenarioActions.SelectChoices(true, { choiceId: this.elevationChoice.id, overrideNote: this.overrideNote, quantity: 1 }));
+			}			
 		}
 
 		this.toggleSelectedLot(lot, selected, overrideReason);
@@ -726,7 +795,10 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 			{
 				if (result !== 'Close')
 				{
-					this.store.dispatch(new ScenarioActions.SetOverrideReason(result));
+					if (!this.isPhdLite)
+					{
+						this.store.dispatch(new ScenarioActions.SetOverrideReason(result));
+					}
 
 					this.addOverrideReason(lot, selected, result);
 				}
