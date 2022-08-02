@@ -358,18 +358,8 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 
 					if (replaceRules && replaceRules.length)
 					{
-						// Ensure the choices are still selected
-						let useOriginalPricing = true;
-						const replaceRuleChoices = _.flatMap(replaceRules, rr => rr.choices).map(rrc => rrc.id);
-
-						for (let rrc of replaceRuleChoices)
-						{
-							if (find(rrc).quantity === 0)
-							{
-								useOriginalPricing = false;
-								break;
-							}
-						}
+						// If any rule to replace this option is completely satisfied, use the original pricing
+						let useOriginalPricing = replaceRules.some(rr => rr.choices.every(rrc => (rrc.mustHave && find(rrc.id).quantity >= 1) || (!rrc.mustHave && find(rrc.id).quantity === 0)));
 
 						if (useOriginalPricing)
 						{
@@ -386,9 +376,25 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 					// because the cost of this option is really a delta
 					if (optionRule.replaceOptions.length > 0)
 					{
-						const replaceOptions = optionRule.replaceOptions
+						let replaceOptions = optionRule.replaceOptions
 							.map(o => options.find(opt => opt.financialOptionIntegrationKey === o))
 							.filter(o => !!o);
+
+						// #364540
+						// If a TimeOfSale record exists for a replaced option,
+						// use the original pricing on this choice that replaces the option
+						if (timeOfSaleOptionPrices && timeOfSaleOptionPrices.length)
+						{
+							replaceOptions.forEach(ro =>
+							{
+								const existingTimeOfSaleOption = timeOfSaleOptionPrices.find(tos => tos.edhPlanOptionID === ro.id);
+
+								if (existingTimeOfSaleOption)
+								{
+									ro.calculatedPrice = existingTimeOfSaleOption.listPrice;
+								}
+							});
+						}
 
 						calculatedPrice = replaceOptions.reduce((pv, cv) => pv - cv.calculatedPrice, calculatedPrice);
 					}
@@ -643,7 +649,32 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 		//lock in prices
 		if (choice.lockedInChoice)
 		{
-			choice.price = choice.lockedInChoice.choice.dpChoiceCalculatedPrice;
+			// #364540
+			// For any option on this choice that has a corresponding TimeOfSale record,
+			// if every set of replace rules for that option is not satisified 
+			// (i.e., one or more Must Have's not selected and/or one or more Must Not Have's are selected)
+			// use the new pricing, which was calculated earlier.
+			// Otherwise, use the locked in price which is the time of sale price.
+			let useLockedInPrice = true;
+
+			for (let opt of choice.options)
+			{
+				if (timeOfSaleOptionPrices.find(tos => tos.edhPlanOptionID === opt.id))
+				{
+					const replaceRules = rules.optionRules.filter(o => o.replaceOptions.includes(opt.financialOptionIntegrationKey));
+
+					if (replaceRules && replaceRules.length && replaceRules.every(rr => rr.choices.some(rrc => (!rrc.mustHave && find(rrc.id).quantity >= 1) || (rrc.mustHave && find(rrc.id).quantity === 0))))
+					{
+						useLockedInPrice = false;
+						break;
+					}
+				}
+			}
+
+			if (useLockedInPrice)
+			{
+				choice.price = choice.lockedInChoice.choice.dpChoiceCalculatedPrice;
+			}
 		}
 
 		// #332687
@@ -916,9 +947,11 @@ function exludeConflictedRules(rules: TreeVersionRules, tree: Tree): TreeVersion
 {
 	return {
 		optionRules: rules.optionRules,
-		choiceRules: rules.choiceRules.filter(cr => {
+		choiceRules: rules.choiceRules.filter(cr =>
+		{
 			let choice = findChoice(tree, ch => ch.id === cr.choiceId);
-			if (!choice.quantity){
+			if (!choice.quantity)
+			{
 				//choice not selected, so irrelevant
 				return true;
 			}
@@ -927,7 +960,8 @@ function exludeConflictedRules(rules: TreeVersionRules, tree: Tree): TreeVersion
 				? r.choices.every(c => findChoice(tree, ch => ch.id === c)?.quantity > 0)
 				: r.choices.every(c => findChoice(tree, ch => ch.id === c)?.quantity == 0))
 		}),
-		pointRules: rules.pointRules.filter(pr => {
+		pointRules: rules.pointRules.filter(pr =>
+		{
 			let point = findPoint(tree, pt => pt.id === pr.pointId);
 			if (!point.completed)
 			{
@@ -936,7 +970,7 @@ function exludeConflictedRules(rules: TreeVersionRules, tree: Tree): TreeVersion
 			}
 
 			return pr.rules.some(r => r.ruleType === 1
-				? (r.choices && r.choices.length 
+				? (r.choices && r.choices.length
 					? r.choices.every(c => findChoice(tree, ch => ch.id === c)?.quantity > 0)
 					: r.points.every(p => findPoint(tree, pt => pt.id === p)?.completed))
 				: (r.choices && r.choices.length
