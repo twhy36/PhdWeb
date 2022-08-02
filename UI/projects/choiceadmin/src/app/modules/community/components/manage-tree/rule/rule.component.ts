@@ -3,13 +3,14 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { IRule, IRuleItem, RuleType } from '../../../../shared/models/rule.model';
 import { DTChoice, DTPoint, IDTGroup, IDTSubGroup, IDTPoint, IDTChoice } from '../../../../shared/models/tree.model';
+import { LoadingService } from '../../../../core/services/loading.service';
 
 import { TreeService } from '../../../../core/services/tree.service';
 import { ConfirmModalComponent } from '../../../../core/components/confirm-modal/confirm-modal.component';
 
 import { MessageService } from 'primeng/api';
 import { bind } from '../../../../shared/classes/decorators.class';
-import * as _ from "lodash";
+import * as _ from 'lodash';
 
 @Component({
 	selector: 'rule-component',
@@ -25,7 +26,7 @@ export class RuleComponent implements OnInit
 	@Input() searchFilters: Array<string>;
 	@Input() isReadOnly: boolean;
 	@Input() currentRule: IRule;
-	@Input() rules: Array<IRule> = []; // This set of rules is specifc to points or choices, whichever is being viewed
+	@Input() rules: Array<IRule> = []; // This set of rules is specific to points or choices, whichever is being viewed
 	@Input() allRules: Array<IRule> = []; // This set of rules contains both points and choices
 	@Input() selectedItems: Array<IRuleItem> = [];
 	@Input() blankRule: IRule;
@@ -58,7 +59,8 @@ export class RuleComponent implements OnInit
 	constructor(
 		private _treeService: TreeService,
 		private _msgService: MessageService,
-		private _modalService: NgbModal
+		private _modalService: NgbModal,
+		private _loadingService: LoadingService
 	) { }
 
 	ngOnInit(): void
@@ -133,7 +135,8 @@ export class RuleComponent implements OnInit
 		// only add items if:
 		// 1 - ruletype is point and selected item's id is not the same as this decision point's id
 		// 2 - ruletype is choice and selected item's id is not the same as this choice's id and the selected item is a choice
-		if ((ruleType === 'point' && id !== item.id) || (ruleType === 'choice' && (id !== item.id && id !== item.parent.id) && item.parent instanceof DTPoint))
+		if ((ruleType === 'point' && id !== item.id) ||
+			(ruleType === 'choice' && (id !== item.id && id !== item.parent.id) && item.parent instanceof DTPoint))
 		{
 			this.addItem(item);
 		}
@@ -204,10 +207,20 @@ export class RuleComponent implements OnInit
 			}
 		}
 
+		let dupes = this.isDuplicateRuleList(this.selectedItems, this.rules);
+		if (dupes.length > 0)
+		{
+			this._loadingService.isSaving$.next(false);
+			let error = this.generateDuplicateRuleError(dupes);
+			if (!await this.displayWarningMessage(error))
+			{
+				return;
+			}
+		}
+
 		this.selectedItems.map(item =>
 		{
 			item.typeId = item.typeId == null ? 1 : item.typeId;
-
 			return item;
 		});
 
@@ -218,6 +231,61 @@ export class RuleComponent implements OnInit
 			rules: this.rules,
 			callback: this.onSaveRuleCallback
 		});
+	}
+
+	private generateDuplicateRuleError(dupes: IRuleItem[]): string {
+		let error = 'Rule already exists: ';
+		dupes.map(d => error += d.label + ', ');
+		error = error.substring(0, error.length - 2);
+		error += ' with type ' + (dupes[0].typeId === 1 ? 'MUST HAVE.' : 'MUST NOT HAVE.');
+		return error;
+	}
+
+	private isDuplicateRuleList(ruleToBeAdded: IRuleItem[], ruleObject: IRule[]): IRuleItem[]
+	{
+		let selectedRules = this.cloneTrimAndSortRuleList(ruleToBeAdded);
+
+		for (let existingRule of ruleObject)
+		{
+			let currentRules = this.cloneTrimAndSortRuleList(existingRule.ruleItems);
+			if (_.isEqual(selectedRules, currentRules))
+			{
+				return selectedRules;
+			}
+		}
+
+		return [];
+	}
+
+	private cloneTrimAndSortRuleList(ruleList: IRuleItem[]): any[]
+	{
+		// only itemId and typeId matter when checking for duplicate choice to choice rules
+		const trimmedList = [];
+		ruleList.map(r =>
+		{
+			trimmedList.push({
+				'label': r.label,
+				'itemId': r.itemId,
+				'typeId': r.typeId
+			});
+		});
+		trimmedList.sort((r1, r2) =>
+		{
+			if (r1.itemId > r2.itemId)
+			{
+				return 1;
+			}
+			else if (r1.itemId < r2.itemId)
+			{
+				return -1;
+			}
+			else
+			{
+				return 0;
+			}
+		});
+
+		return trimmedList;
 	}
 
 	@bind

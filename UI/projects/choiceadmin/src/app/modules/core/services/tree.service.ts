@@ -612,7 +612,7 @@ export class TreeService
 
 	saveChoiceImages(choiceImages: PhdEntityDto.IDPChoiceDto[], treeVersionId: number): Observable<IChoiceImageAssoc[]>
 	{
-		// calling unbound odata action 
+		// calling unbound odata action
 		const body = {
 			'choiceImages': choiceImages,
 			'treeVersionId': treeVersionId,
@@ -946,7 +946,7 @@ export class TreeService
 
 	saveOptionImages(optionImages: PhdEntityDto.IOptionImageDto[], integrationKey: string): Observable<PhdEntityDto.IOptionImageDto[]>
 	{
-		// calling unbound odata action 
+		// calling unbound odata action
 		const body = {
 			'integrationKey': integrationKey,
 			'optionImages': optionImages

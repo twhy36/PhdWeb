@@ -3,9 +3,6 @@ import { BehaviorSubject } from 'rxjs';
 
 @Injectable()
 export class LoadingService {
-	isLoading$: BehaviorSubject<boolean>;
-
-	constructor() {
-		this.isLoading$ = new BehaviorSubject<boolean>(false);
-	}
+	readonly isLoading$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+	readonly isSaving$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 }
