@@ -13,13 +13,15 @@
 		</ng-container>
 	</div>
 	<div class="choice-label phd-clickable" (click)="viewChoiceDetail()">{{choice?.label}}</div>
-	<ng-container *ngIf='!choice.priceHiddenFromBuyerView'>
-		<div class="choice-price">{{choice?.price | currency:'USD':'symbol':'0.0-0'}}</div>
-	</ng-container>
-	<ng-container *ngIf='choice.priceHiddenFromBuyerView' (click)="$event.stopPropagation()">
-		<div class="phd-hidden-price">Pricing Varies
-			<i class="fa fa-info-circle" (click)="openHiddenChoicePriceModal()"></i>
-		</div>
+	<ng-container *ngIf="!isPresale">
+		<ng-container *ngIf='!choice.priceHiddenFromBuyerView'>
+			<div class="choice-price">{{choice?.price | currency:'USD':'symbol':'0.0-0'}}</div>
+		</ng-container>
+		<ng-container *ngIf='choice.priceHiddenFromBuyerView' (click)="$event.stopPropagation()">
+			<div class="phd-hidden-price">Pricing Varies
+				<i class="fa fa-info-circle" (click)="openHiddenChoicePriceModal()"></i>
+			</div>
+		</ng-container>
 	</ng-container>
 </div>
 

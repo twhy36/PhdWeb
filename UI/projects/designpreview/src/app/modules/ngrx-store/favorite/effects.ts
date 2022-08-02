@@ -229,7 +229,7 @@ export class FavoriteEffects
 			withLatestFrom(this.store),
 			tryCatch(source => source.pipe(
 				switchMap(([action, store]) => {
-					if (store.scenario.buildMode === BuildMode.Preview)
+					if (store.scenario.buildMode === BuildMode.Preview || store.scenario.buildMode === BuildMode.Presale)
 					{
 						return of([{
 							id: -action.pointId,
@@ -262,7 +262,7 @@ export class FavoriteEffects
 			withLatestFrom(this.store),
 			tryCatch(source => source.pipe(
 				switchMap(([action, store]) => {
-					if (store.scenario.buildMode === BuildMode.Preview)
+					if (store.scenario.buildMode === BuildMode.Preview || store.scenario.buildMode === BuildMode.Presale)
 					{
 						const myFavorite = store.favorite?.myFavorites?.find(fav => fav.id === action.myFavoriteId);
 						const pointDeclined = myFavorite?.myFavoritesPointDeclined?.find(pt => pt.id === action.myFavoritesPointDeclineId);

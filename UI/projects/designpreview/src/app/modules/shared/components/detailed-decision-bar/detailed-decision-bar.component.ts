@@ -27,6 +27,7 @@ export class DetailedDecisionBarComponent extends UnsubscribeOnDestroy implement
 	@Input() tree: Tree;
 	@Input() isReadonly: boolean;
 	@Input() isPreview: boolean;
+	@Input() isPresale: boolean;
 	@Input() isDesignComplete: boolean = false;
 	@Input() unfilteredPoints: DecisionPoint[] = [];
 
@@ -123,7 +124,7 @@ export class DetailedDecisionBarComponent extends UnsubscribeOnDestroy implement
 
 	isPointComplete(point: DecisionPoint)
 	{
-		return this.isPreview || this.isDesignComplete
+		return this.isPreview || this.isPresale || this.isDesignComplete
 			? point.status === PointStatus.COMPLETED || point.status === PointStatus.PARTIALLY_COMPLETED
 			: point.isStructuralItem || point.isPastCutOff || point.status === PointStatus.COMPLETED;
 	}

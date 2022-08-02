@@ -53,6 +53,7 @@ export const filteredTree = createSelector(
 		if (tree && tree.treeVersion)
 		{
 			const isPreview = scenario.buildMode === BuildMode.Preview;
+			const isPresale = scenario.buildMode === BuildMode.Presale;
 			const isDesignComplete = sag?.isDesignComplete || false;
 
 			const filter = (label: string) =>
@@ -116,7 +117,7 @@ export const filteredTree = createSelector(
 									isIncluded = isContractedChoice;
 								}
 
-								return isValid && (isIncluded || isPreview) && !c.isHiddenFromBuyerView;
+								return isValid && (isIncluded || isPreview || isPresale) && !c.isHiddenFromBuyerView;
 							});
 
 							return { ...p, choices: choices };
