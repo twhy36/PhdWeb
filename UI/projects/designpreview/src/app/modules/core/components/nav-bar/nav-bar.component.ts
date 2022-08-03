@@ -81,6 +81,10 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 		return !this.currentRoute.includes('summary') ? true : false;
 	}
 
+	get isLaunchedInBuyerPreview() {
+		return this.currentRoute?.includes('favorites/preview') ? true : false;
+	}
+
 	getBrandedMenuClass (isCollapsedMenu: boolean) {
 		let menuClass = '';
 		if (isCollapsedMenu) {

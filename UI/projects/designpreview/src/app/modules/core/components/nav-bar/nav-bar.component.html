@@ -13,6 +13,7 @@
 			<div>
 				<a *ngIf="showMyFavoritesLink"
 				   class="phd-nav-page phd-page-separator"
+				   [class.phd-active-link-full]="isLaunchedInBuyerPreview"
 				   [routerLink]="['/favorites/summary']"
 				   [routerLinkActive]="['phd-active-link-full']"
 				   (click)="toFavoritesPage ? onViewFavorites() : false">
