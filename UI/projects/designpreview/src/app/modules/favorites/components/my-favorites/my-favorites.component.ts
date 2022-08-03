@@ -361,17 +361,22 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		this.hideDetails(id);
 	}
 
-	onNextSubGroup()
+	onNextClicked()
 	{
 		const subGroups = _.flatMap(this.groups, g => _.flatMap(g.subGroups)) || [];
 		const subGroupIndex = subGroups.findIndex(sg => sg.id === this.selectedSubgroupId);
 		if (subGroupIndex > -1)
 		{
 			const nextSubgroup = subGroupIndex === subGroups.length - 1
-				? subGroups[0]
+				? null
 				: subGroups[subGroupIndex + 1];
 
-			this.groupBar.selectSubgroup(nextSubgroup.id);
+			if (!!nextSubgroup) {
+				this.groupBar.selectSubgroup(nextSubgroup.id);
+			} else {
+				this.store.dispatch(new ScenarioActions.SetTreeFilter(null));
+				this.router.navigateByUrl('/favorites/summary');
+			}
 		}
 	}
 
