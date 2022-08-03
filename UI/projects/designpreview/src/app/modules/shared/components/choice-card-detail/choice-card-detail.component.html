@@ -44,13 +44,13 @@
 				</ng-container>
 			</div>
 		</div>
-		<div class="phd-price">
-			<ng-container *ngIf="choice.priceHiddenFromBuyerView">
+		<div class="phd-price" [ngClass]="{'phd-price-right-justified' : isPresale}">
+			<ng-container *ngIf="choice.priceHiddenFromBuyerView && !isPresale">
 				<span container="body">
 					<strong>Pricing Varies</strong>
 				</span>
 			</ng-container>
-			<ng-container *ngIf="!choice.priceHiddenFromBuyerView">
+			<ng-container *ngIf="!choice.priceHiddenFromBuyerView && !isPresale">
 				<strong class="phd-price-label">{{choice.price * (choice.quantity > 0 ? choice.quantity : 1) | currency:'USD':'symbol':'0.0-0'}}</strong>
 			</ng-container>
 			<ng-container *ngIf="choice.choiceStatus === 'Contracted'">

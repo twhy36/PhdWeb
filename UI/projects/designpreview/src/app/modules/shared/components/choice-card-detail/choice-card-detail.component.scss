@@ -83,6 +83,10 @@
 			margin-top: 8px;
 		}
 	}
+
+	.phd-price-right-justified {
+		justify-content: end !important;
+	}
 }
 
 ::ng-deep .p-carousel-dots-container {
