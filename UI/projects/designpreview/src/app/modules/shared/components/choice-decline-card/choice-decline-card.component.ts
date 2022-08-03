@@ -23,6 +23,7 @@ export class ChoiceDeclineCardComponent extends UnsubscribeOnDestroy implements 
 	@Input() groups: Group[];
 	@Input() tree: Tree;
 	@Input() isReadonly: boolean;
+	@Input() isPresale: boolean = false;
 
 	@Output() onDeclineDecisionPoint = new EventEmitter<DecisionPoint>();
 	@Output() onSelectDecisionPoint = new EventEmitter<number>();
@@ -52,6 +53,10 @@ export class ChoiceDeclineCardComponent extends UnsubscribeOnDestroy implements 
 			this.point = changes['currentPoint'].currentValue;
 			this.isDeclined = !!this.myFavoritesPointsDeclined?.find(p => p.divPointCatalogId === this.point.divPointCatalogId) && this.point.enabled;
 		}
+	}
+
+	getBodyHeight(): string {
+		return this.isPresale ? '260px' : '285px';
 	}
 
 	/**

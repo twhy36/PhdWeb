@@ -6,7 +6,29 @@
 	</div>
 
 	<div class="phd-body">
-		<div class="phd-choice-decline-details">
+		<div *ngIf="!isPresale" class="phd-choice-decline-details">
+			<h1 class="phd-2-line-limit">
+				No Selections
+			</h1>
+			<div class="d-flex flex-row justify-content-between">
+				<div>
+					<strong></strong>
+				</div>
+				<ng-container>
+					<div class="phd-non-clickable" (click)="$event.stopPropagation()">
+						<span class="phd-icon-selected"><i *ngIf="isDeclined" class="fa fa-heart" (click)="toggleDecline()"></i></span>
+						<i *ngIf="!isDeclined && currentPoint.enabled" class="fa fa-heart-o" (click)="toggleDecline()"></i>
+					</div>
+				</ng-container>
+				<ng-container *ngIf="!currentPoint.enabled">
+					<div class="phd-clickable phd-favorite-selector">
+						<i class="fa fa-ban" (click)="openBlockedChoiceModal()"></i>
+					</div>
+				</ng-container>
+			</div>
+		</div>
+
+		<div *ngIf="isPresale" class="phd-choice-decline-details d-flex flex-row justify-content-between" [ngClass]="getBodyHeight()">
 			<h1 class="phd-2-line-limit">
 				No Selections
 			</h1>

@@ -9,7 +9,7 @@
 	</div>
 
 	<div class="phd-body">
-		<div class="phd-choice-details">
+		<div *ngIf="!isPresale" class="phd-choice-details">
 			<h1 class="phd-2-line-limit">
 				{{choice?.label}}
 			</h1>
@@ -39,7 +39,31 @@
 				</ng-container>
 			</div>
 		</div>
+
+
+		<div *ngIf="isPresale" class="phd-choice-details d-flex flex-row justify-content-between" [ngClass]="getBodyHeight()">
+			<h1 class="phd-2-line-limit">
+				{{choice?.label}}
+			</h1>
+			<div>
+				<ng-container *ngIf="choice.choiceStatus === 'Contracted'">
+					<i class="fa fa-check phd-icon-selected"></i>
+				</ng-container>
+				<ng-container *ngIf="choice.choiceStatus === 'Available' && choice.enabled">
+					<div class="phd-clickable" (click)="$event.stopPropagation()">
+						<span class="phd-icon-selected"><i *ngIf="choice.isFavorite" class="fa fa-heart" (click)="toggleChoice()"></i></span>
+						<i *ngIf="!choice.isFavorite" class="fa fa-heart-o" (click)="toggleChoice()"></i>
+					</div>
+				</ng-container>
+				<ng-container *ngIf="choice.choiceStatus === 'Available' && !choice.enabled">
+					<div class="phd-clickable" (click)="$event.stopPropagation()">
+						<i class="fa fa-ban" (click)="openBlockedChoiceModal()"></i>
+					</div>
+				</ng-container>
+			</div>
+		</div>
 	</div>
+
 </div>
 
 <ng-template #blockedChoiceModal let-c="close" let-d="dismiss">
