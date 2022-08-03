@@ -4,7 +4,7 @@ import { Store, select } from '@ngrx/store';
 
 import * as _ from 'lodash';
 
-import { map, filter, combineLatest, distinctUntilChanged, withLatestFrom, debounceTime, switchMap } from 'rxjs/operators';
+import { map, filter, combineLatest, distinctUntilChanged, withLatestFrom, debounceTime, switchMap, take } from 'rxjs/operators';
 import { Observable, ReplaySubject, of } from 'rxjs';
 
 import * as fromLot from '../../../ngrx-store/lot/reducer';
@@ -191,7 +191,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 				return;
 			}
 
-			this.liteService.isPhdLiteEnabled(scenarioState.scenario?.financialCommunityId).subscribe(isPhdLiteEnabled => 
+			this.liteService.isPhdLiteEnabled(scenarioState.scenario?.financialCommunityId).pipe(take(1)).subscribe(isPhdLiteEnabled => 
 			{
 				this.isPhdLite = isPhdLiteEnabled && (lite.isPhdLite || this.liteService.checkLiteScenario(scenarioState?.scenario?.scenarioChoices, scenarioState?.scenario?.scenarioOptions));
 

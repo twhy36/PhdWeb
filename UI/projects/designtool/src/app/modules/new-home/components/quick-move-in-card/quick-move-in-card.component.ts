@@ -69,7 +69,7 @@ export class QuickMoveInCardComponent extends UnsubscribeOnDestroy
 		this.lot = {
 			id: this.specJob.lot.id,
 			lotBlock: this.specJob.lot.lotBlock,
-			price: this.specJob.jobSalesInfo.specPrice,
+			price: this.specJob.jobSalesInfo?.specPrice,
 			salesName: this.plan?.salesName
 		};
 

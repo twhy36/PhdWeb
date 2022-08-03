@@ -63,6 +63,7 @@ export class LiteService
 		{
 			return this.featureSwitchService.isFeatureEnabled('Phd Lite', { edhMarketId: null, edhFinancialCommunityId: financialCommunityId })
 				.pipe(
+					take(1),
 					shareReplay(1),
 					map(isFeatureEnabled =>
 					{

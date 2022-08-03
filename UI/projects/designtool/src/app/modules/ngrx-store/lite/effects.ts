@@ -62,7 +62,7 @@ export class LiteEffects
 				{
 					const isPhdLite = result.isPhdLiteEnabled &&
 						(
-							action.plans.some(plan => !plan.treeVersionId)
+							!action.plans.some(plan => !plan.treeVersionId)
 							|| this.liteService.checkLiteAgreement(store.job, store.changeOrder.currentChangeOrder)
 							|| this.liteService.checkLiteScenario(store.scenario.scenario?.scenarioChoices, store.scenario.scenario?.scenarioOptions)
 						);
@@ -522,7 +522,11 @@ export class LiteEffects
 						const financialCommunityId = store.plan.plans?.find(plan => plan.id === action.planId)?.communityId;
 
 						return this.liteService.isPhdLiteEnabled(financialCommunityId).pipe(
-							switchMap(isPhdLiteEnabled => of(new SetIsPhdLite(isPhdLiteEnabled && store.lite.isPhdLite)))
+							switchMap(isPhdLiteEnabled => {
+								const selectedPlan = store.plan.plans?.find(p => p.id === action.planId);
+								const isPhdLite = isPhdLiteEnabled && !selectedPlan?.treeVersionId;
+								return of(new SetIsPhdLite(isPhdLite));
+							})
 						);
 					}
 

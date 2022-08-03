@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 
 import { Observable, throwError as _throw } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-import {IFeatureSwitch, IFeatureSwitchOrgAssoc} from '../models/feature-switch.model';
+import { IFeatureSwitch, IFeatureSwitchOrgAssoc } from '../models/feature-switch.model';
 import { IOrg } from '../models/org.model';
 import { API_URL } from '../injection-tokens';
 
