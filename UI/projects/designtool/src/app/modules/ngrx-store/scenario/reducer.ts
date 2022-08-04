@@ -404,18 +404,22 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 			rules = _.cloneDeep(state.rules);
 			options = _.cloneDeep(state.options);
 			timeOfSaleOptionPrices = _.cloneDeep(state.timeOfSaleOptionPrices);
-			subGroups = _.flatMap(newTree.treeVersion.groups, g => g.subGroups);
-			points = _.flatMap(subGroups, sg => sg.points);
-			choices = _.flatMap(points, p => p.choices);
 
-			applyRules(newTree, rules, options, state.scenario?.lotId);
+			if (newTree)
+			{
+				subGroups = _.flatMap(newTree.treeVersion.groups, g => g.subGroups);
+				points = _.flatMap(subGroups, sg => sg.points);
+				choices = _.flatMap(points, p => p.choices);
 
-			// check selected attributes to make sure they're still valid after applying rules
-			checkSelectedAttributes(choices);
+				applyRules(newTree, rules, options, state.scenario?.lotId);
 
-			points.forEach(pt => setPointStatus(pt));
-			subGroups.forEach(sg => setSubgroupStatus(sg));
-			newTree.treeVersion.groups.forEach(g => setGroupStatus(g));
+				// check selected attributes to make sure they're still valid after applying rules
+				checkSelectedAttributes(choices);
+
+				points.forEach(pt => setPointStatus(pt));
+				subGroups.forEach(sg => setSubgroupStatus(sg));
+				newTree.treeVersion.groups.forEach(g => setGroupStatus(g));				
+			}
 
 			return { ...state, tree: newTree, rules: rules };
 

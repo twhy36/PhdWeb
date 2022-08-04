@@ -341,7 +341,7 @@ export class CommonEffects
 						actions.push(new LoadPlans(result.opportunity.opportunity.salesCommunityId));
 						actions.push(new LoadLots(result.opportunity.opportunity.salesCommunityId));
 
-						if (result.lot?.id)
+						if (result.lot?.id && !result.isPhdLite)
 						{
 							actions.push(new SelectRequiredChoiceAttributes());
 						}
@@ -476,6 +476,8 @@ export class CommonEffects
 					}
 				}),
 				switchMap(result => {
+					const isPhdLite = result.isPhdLiteEnabled && this.liteService.checkLiteAgreement(result.job, result.changeOrderGroup);
+
 					if (result.selectedPlanId) {
 						const financialCommunity = result.sc?.financialCommunities?.find(f => f.id === result.job?.financialCommunityId);
 						const isDesignPreviewEnabled = financialCommunity ? financialCommunity.isDesignPreviewEnabled : false;
@@ -485,7 +487,7 @@ export class CommonEffects
 								? this.favoriteService.loadMyFavorites(result.salesAgreement.id)
 								: of([]);
 
-						const getTreeVersionIdByJobPlan$ = result.isPhdLiteEnabled && this.liteService.checkLiteAgreement(result.job, result.changeOrderGroup)
+						const getTreeVersionIdByJobPlan$ = isPhdLite
 							? of(null)
 							: this.changeOrderService.getTreeVersionIdByJobPlan(result.selectedPlanId);
 
@@ -553,7 +555,8 @@ export class CommonEffects
 											selectedPlanId: result.selectedPlanId,
 											salesAgreement: result.salesAgreement,
 											salesAgreementInfo: result.salesAgreementInfo,
-											myFavorites: favorites
+											myFavorites: favorites,
+											isPhdLite: isPhdLite
 										};
 									}),
 									mergeIntoTree(
@@ -595,7 +598,8 @@ export class CommonEffects
 									selectedPlanId: result.selectedPlanId,
 									salesAgreement: result.salesAgreement,
 									salesAgreementInfo: result.salesAgreementInfo,
-									myFavorites: <MyFavorite[]>null
+									myFavorites: <MyFavorite[]>null,
+									isPhdLite: isPhdLite
 								}
 							})
 						)
@@ -665,7 +669,7 @@ export class CommonEffects
 								),
 
 								// Select required chocie attributes
-								result.lot?.id && result.salesAgreement.status === 'Pending' ? <Observable<Action>>from([new SelectRequiredChoiceAttributes()]) : []
+								result.lot?.id && result.salesAgreement.status === 'Pending' && !result.isPhdLite ? <Observable<Action>>from([new SelectRequiredChoiceAttributes()]) : []
 							)
 						);
 					}

@@ -690,11 +690,11 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 			this.store.dispatch(new LotActions.SelectLot(lot.id));
 			this.store.dispatch(new ScenarioActions.SetScenarioLot(lot.id, handing, lot.premium, this.lotChoiceRules));
 
-			if (this.selectedPlanId)
+			if (this.selectedPlanId && !this.isPhdLite)
 			{
 				this.store.dispatch(new ScenarioActions.SelectRequiredChoiceAttributes());
 			}
-			else
+			else if (!this.selectedPlanId)
 			{
 				this.store.dispatch(new NavActions.SetSelectedSubNavItem(2));
 			}
