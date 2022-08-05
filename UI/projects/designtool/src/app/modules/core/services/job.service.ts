@@ -285,20 +285,35 @@ export class JobService
 	}
 
 	getSpecJobs(lotIDs: number[]): Observable<Job[]> {
-		const expand = `jobChangeOrderGroups,jobChoices,jobPlanOptions,jobSalesInfos,lot($expand=lotPhysicalLotTypeAssocs($expand=physicalLotType),salesPhase,lotHandingAssocs($expand=handing($select=id,name))),planCommunity,jobConstructionStageHistories($select=id, constructionStageId, constructionStageStartDate)`;
+		const expand = `jobChoices($select=id;$top=1),jobPlanOptions($select=id,jobOptionTypeName;$filter=jobOptionTypeName eq 'Elevation'),jobSalesInfos($select=specPrice),lot($select=id,lotBlock)`;
 		const select = `id,financialCommunityId,constructionStageName,lotId,planId,handing,warrantyTypeDesc,startDate,createdBy`;
-
+		const COGExpand = `jobChangeOrderGroups($select=id,jobId,jobChangeOrderGroupDescription,salesStatusDescription,constructionStatusDescription)`
 		const filter = `lotId in (${lotIDs.join(',')})`;
+		
+		return this.identityService.token.pipe(
+			switchMap((token: string) =>
+			{
+				let guid = newGuid();
+				let requests = [createBatchGet(`${environment.apiUrl}jobs?${this._ds}filter=${filter}&${this._ds}select=${select}&${this._ds}expand=${expand}`),
+				createBatchGet(`${environment.apiUrl}jobs?${this._ds}filter=${filter}&${this._ds}expand=${COGExpand}&${this._ds}select=${'id'}`)]
+				let headers = createBatchHeaders(guid, token);
+				let batch = createBatchBody(guid, requests);
 
-		const url = `${environment.apiUrl}jobs?${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}&${encodeURIComponent('$')}expand=${encodeURIComponent(expand)}&${encodeURIComponent('$')}select=${encodeURIComponent(select)}`;
-
-		return withSpinner(this._http).get<any>(url).pipe(
+				return this._http.post(`${environment.apiUrl}$batch`, batch, { headers: headers });
+			}),
 			map((response: any) =>
-				response.value
-					.map((r: IJob) => new Job(r))
-			)
-		);
-	}
+			{
+				
+				let bodies = response.responses.map(r => r.body);
+				let jobs = bodies[0].value.map((o) => new Job(o));
+				jobs.forEach(job => 
+					{
+						const cog = bodies[1].value
+						job.changeOrderGroups = cog.find(cogJob => cogJob.id === job.id)?.jobChangeOrderGroups;
+					});
+				return jobs
+			}));
+		}
 
 	getESignEnvelopes(jobDto: Job): Observable<ESignEnvelope[]>
 	{
