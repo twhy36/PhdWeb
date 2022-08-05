@@ -254,7 +254,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 				if (action.type === CommonActionTypes.ScenarioLoaded)
 				{
 					const optionsDisabled = _.flatMap(newState.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, p => p.choices)))
-						.filter(choice => choice.options.some((option) => !option.isActive));
+						.filter(choice => choice.options.some((option) => !option?.isActive));
 
 					if (optionsDisabled)
 					{
