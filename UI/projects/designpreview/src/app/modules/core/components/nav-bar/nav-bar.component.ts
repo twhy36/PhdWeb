@@ -26,8 +26,18 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 
 	@HostListener("window:resize", ["$event"])
 	onResize(event) {
-		if (event.target.innerWidth > 1024) {
-			this.isMenuCollapsed = true;
+
+		if (this.brandService.getBrandName() === 'johnWieland') {
+			//The 'johnWieland' logo is the biggest, so it has it's own pixel threshold for expanding/collapsing the nav links
+			if (event.target.innerWidth > 1130) {	//This is the point where the navbar expands from hamburger menu to links
+				this.isMenuCollapsed = true;		//	close the hamburger menu
+			}
+		}
+		else {
+			//All the other logos are either this size or less, so this else covers the rest
+			if (event.target.innerWidth > 1068) {
+				this.isMenuCollapsed = true;
+			}
 		}
 	}
 
@@ -88,12 +98,15 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 	getBrandedMenuClass (isCollapsedMenu: boolean) {
 		let menuClass = '';
 		if (isCollapsedMenu) {
-			menuClass = 'phd-hamburger-menu';
+			if (this.brandService.getBrandName() === 'johnWieland')
+				menuClass = 'phd-hamburger-menu-jw';
+			else
+				menuClass = 'phd-hamburger-menu';
 		} else {
-			menuClass = 'phd-menu-options';
-		}
-		if (this.brandService.getBrandName() === 'johnWieland') {
-			menuClass += '-jw';
+			if (this.brandService.getBrandName() === 'johnWieland')
+				menuClass = 'phd-menu-options-jw';
+			else
+				menuClass = 'phd-menu-options';
 		}
 		return menuClass;
 	}
