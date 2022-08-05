@@ -16,7 +16,7 @@
 		</div>
 		<div *ngIf="!isPreview && !hideContractedToggle && !isPresale" class="d-flex phd-contracted-options">
 			<div [ngClass]="{'phd-clickable' : !isContractedOptionsDisabled }"> 
-				<span class="phd-icon-selected"><i *ngIf="includeContractedOptions" class="fa fa-check-square" (click)="toggleContractedOptions()"></i></span>
+				<span class="phd-icon-selected"><i *ngIf="includeContractedOptions" class="fa fa-check-square fa-2x" (click)="toggleContractedOptions()"></i></span>
 				<div *ngIf="!includeContractedOptions" class="phd-empty-checkbox" [ngClass]="{'phd-disabled-checkbox' : isContractedOptionsDisabled }" (click)="toggleContractedOptions()"></div>
 			</div>
 			<span class="phd-contracted-options-label">Display Contracted Options</span>
