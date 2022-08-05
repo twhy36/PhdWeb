@@ -8,7 +8,7 @@ import
 	{
 		UnsubscribeOnDestroy, flipOver, FinancialCommunity, ChangeOrderHanding, Job, Lot, ViewAdjacency, Handing,
 		PhysicalLotType, PlanAssociation, MonotonyRuleLot, SalesPhase, Plan, Scenario, Choice, ModalService, LotChoiceRules, 
-		ConfirmModalComponent, updateLotChoiceRules, ScenarioOptionColor
+		ConfirmModalComponent, updateLotChoiceRules, ChoiceRules, PointRules, ScenarioOptionColor
 	} from 'phd-common';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
@@ -72,6 +72,8 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 	job: Job;
 	scenario: Scenario;
 	lotChoiceRules: LotChoiceRules[] = null;
+	choiceRules: ChoiceRules[] = null;
+	pointRules: PointRules[] = null;
 	currentChoices: Choice[] = null;
 	financialCommunities: Array<FinancialCommunity>;
 
@@ -110,10 +112,13 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
-			select(state => state.scenario.rules?.lotChoiceRules)
-		).subscribe(lcr =>
+			select(state => state.scenario.rules)
+		).subscribe(rules =>
 		{
-			this.lotChoiceRules = lcr;
+			this.lotChoiceRules = rules?.lotChoiceRules;
+			this.choiceRules = rules?.choiceRules;
+			this.pointRules = rules?.pointRules;
+
 		});
 
 		this.plans$ = this.store.pipe(
@@ -448,8 +453,8 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 				// This assigns the most latest lot choice rules, instead of waiting for 1 hour
 				this.lotChoiceRules = lotChoiceRuleAssoc?.length ? updateLotChoiceRules(lotChoiceRuleAssoc, this.lotChoiceRules) : [];
 
-				// All required lot choice rules on the current lot
-				const requiredSelections = this.lotChoiceRules?.map((lcr) =>
+				// All must have lot choice rules on the current lot
+				const mustHaveSelections = this.lotChoiceRules?.map((lcr) =>
 				{
 					return {
 						...lcr, rules: lcr.rules.filter((rule) => rule.edhLotId === lot.id
@@ -458,92 +463,145 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 					}
 				}).filter(r => r.rules.length);
 
-				// All previously required lot choice rules that are not required on the current lot
-				const noLongerRequiredSelections = prevLotChoiceRules?.map((lcr) =>
-				{
+				// All must not have lot choice rules on the current lot
+				const mustNotHaveSelections = this.lotChoiceRules?.map((lcr) => {
 					return {
-						...lcr, rules: lcr.rules.filter((rule) => rule.mustHave
+						...lcr, rules: lcr.rules.filter((rule) => rule.edhLotId === lot.id
 							&& (this.scenarioPlanId ? rule.planId === this.scenarioPlanId : true)
-							&& !requiredSelections.some(r2 => lcr.divChoiceCatalogId == r2.divChoiceCatalogId))
+							&& !rule.mustHave)
 					}
 				}).filter(r => r.rules.length);
 
-				// Previous lot choice selections does not include lot choice required/disabled choices, hence the check to filter previous lot choice rules
+				// Fetch user selected choices disabled by rules, due to a choice bing disabled by lot choice rules
+				var disabledByRules = new Array<Choice>();
+
 				if (this.buildMode === 'spec' || this.buildMode === 'model')
 				{
-					let previousLotSelections = this.currentChoices.filter(cc => !prevLotChoiceRules?.find(plc => plc.divChoiceCatalogId === cc.divChoiceCatalogId) && cc.quantity > 0);
+					// User selected lot choices that weren't required/disabled due to lot choice rules
+					let prevUserSelectedChoices = this.currentChoices.filter(cc => !prevLotChoiceRules?.find(plc => plc.divChoiceCatalogId === cc.divChoiceCatalogId) && cc.quantity > 0);
 
-					// Disabled selections on the new lot for choices that were selected on the previous lot
-					var disabledSelections = this.lotChoiceRules?.map(lcr =>
+					prevUserSelectedChoices.forEach(choice =>
 					{
-						return {
-							...lcr, rules: lcr.rules.filter(rule => rule.edhLotId === lot.id
-								&& !rule.mustHave
-								&& (this.scenarioPlanId ? rule.planId === this.scenarioPlanId : true)
-								&& previousLotSelections?.find(pls => pls.divChoiceCatalogId === lcr.divChoiceCatalogId))
-						}
-					}).filter(r => r.rules.length);
+						// Fetch any user selected choices disabled by choice to choice rules due to a choice being disabled by lot choice rules
+						const disabledByC2C = this.currentChoices.filter(cc => this.choiceRules.some(pr => pr.rules.some(rule => rule.choices.some(ch => ch === choice.id))
+							&& cc.id === pr.choiceId
+							&& cc.quantity > 0
+							&& mustNotHaveSelections.some(ch => ch.divChoiceCatalogId === choice.divChoiceCatalogId)));
+
+						// Fetch any user selected choices disabled by point to point rules due to a choice being disabled by lot choice rules
+						const disabledByP2P = this.currentChoices.filter(cc => this.pointRules.some(pr => pr.rules.some(rule => rule.points.some(pt => pt === choice.treePointId))
+							&& cc.treePointId === pr.pointId
+							&& cc.quantity > 0
+							&& mustNotHaveSelections.some(ch => ch.divChoiceCatalogId === choice.divChoiceCatalogId)));
+
+						// Fetch any user selected choices disabled by point to choice rules due to a choice being disabled by lot choice rules
+						const disabledByP2C = this.currentChoices.filter(cc => this.pointRules.some(pr => pr.rules.some(rule => rule.choices.some(ch => ch === choice.id))
+							&& cc.treePointId === pr.pointId
+							&& cc.quantity > 0
+							&& mustNotHaveSelections.some(ch => ch.divChoiceCatalogId === choice.divChoiceCatalogId)));
+
+						disabledByRules = [...disabledByRules, ...disabledByC2C, ...disabledByP2P, ...disabledByP2C];
+					});
 				}
 				else
 				{
-					let previousLotSelections = this.scenario.scenarioChoices?.filter(sc => !prevLotChoiceRules?.find(plc => plc.divChoiceCatalogId === sc.choice.choiceCatalogId));
+					// User selected lot choices that weren't required/disabled due to lot choice rules
+					let prevUserSelectedChoices = this.scenario.scenarioChoices?.filter(sc => !prevLotChoiceRules?.find(plc => plc.divChoiceCatalogId === sc.choice.choiceCatalogId));
 
-					// Disabled selections on the new lot for choices that were selected on the previous lot
-					var disabledSelections = this.lotChoiceRules?.map(lcr =>
+					prevUserSelectedChoices.forEach(choice =>
 					{
-						return {
-							...lcr, rules: lcr.rules.filter(rule => rule.edhLotId === lot.id
-								&& !rule.mustHave
-								&& (this.scenarioPlanId ? rule.planId === this.scenarioPlanId : true)
-								&& previousLotSelections?.find(pls => pls.choice.choiceCatalogId === lcr.divChoiceCatalogId))
-						}
-					}).filter(r => r.rules.length);
+						// Fetch choices disabled by choice to choice rules
+						const disabledByC2C = this.currentChoices.filter(cc => this.choiceRules.some(pr => pr.rules.some(rule => rule.choices.some(ch => ch === choice.choiceId))
+							&& cc.id === pr.choiceId
+							&& cc.quantity > 0
+							&& mustNotHaveSelections.some(ch => ch.divChoiceCatalogId === choice.choice.choiceCatalogId)));
+
+						// Fetch choices disabled by point to point rules
+						const disabledByP2P = this.currentChoices.filter(cc => this.pointRules.some(pr => pr.rules.some(rule => rule.points.some(pt => pt === choice.treePointId))
+							&& cc.treePointId === pr.pointId
+							&& cc.quantity > 0
+							&& mustNotHaveSelections.some(ch => ch.divChoiceCatalogId === choice.choice.choiceCatalogId)));
+
+						// Fetch choices disabled by point to choice rules
+						const disabledByP2C = this.currentChoices.filter(cc => this.pointRules.some(pr => pr.rules.some(rule => rule.choices.some(ch => ch === choice.choiceId))
+							&& cc.treePointId === pr.pointId
+							&& cc.quantity > 0
+							&& mustNotHaveSelections.some(ch => ch.divChoiceCatalogId === choice.choice.choiceCatalogId)));
+
+						disabledByRules = [...disabledByRules, ...disabledByC2C, ...disabledByP2P, ...disabledByP2C];
+					});
+
 				}
 
-				if (this.selectedPlanId && (((requiredSelections?.length || disabledSelections?.length) && !selected) || noLongerRequiredSelections?.length))
+
+				// All previously required lot choice rules that are not required on the current lot + aren't disabled on the new lot + aren't disabled by rules
+				const noLongerRequiredSelections = prevLotChoiceRules?.map((lcr) => {
+					return {
+						...lcr, rules: lcr.rules.filter((rule) => rule.mustHave
+							&& (this.scenarioPlanId ? rule.planId === this.scenarioPlanId : true)
+							&& !mustHaveSelections.some(mh => mh.divChoiceCatalogId === lcr.divChoiceCatalogId )
+							&& !mustNotHaveSelections.some(mnh => mnh.divChoiceCatalogId === lcr.divChoiceCatalogId)
+							&& !disabledByRules.some(dr => dr.divChoiceCatalogId === lcr.divChoiceCatalogId)
+						)
+					}
+				}).filter(r => r.rules.length);
+
+				if (this.selectedPlanId && (((mustHaveSelections?.length || disabledByRules?.length) && !selected) || mustNotHaveSelections?.length || noLongerRequiredSelections?.length))
 				{
 					const confirm = this.modalService.open(ConfirmModalComponent, { centered: true });
 
 					confirm.componentInstance.title = 'Attention!';
 
-					var body = requiredSelections.length ? '<b>' + 'Lot ' + lot.lotBlock + ' has the following requirement(s): ' + '</b>' + '<br />' : '';
+					var body = mustHaveSelections.length ? '<b>' + 'Lot ' + lot.lotBlock + ' has the following requirement(s) which will be systematially selected if you continue: ' + '</b>' + '<br />' : '';
 
-					requiredSelections.forEach(ncr =>
+					mustHaveSelections.forEach(mhs =>
 					{
-						let foundChoice = this.currentChoices.find(cc => cc.divChoiceCatalogId === ncr.divChoiceCatalogId);
+						let foundChoice = this.currentChoices.find(cc => cc.divChoiceCatalogId === mhs.divChoiceCatalogId);
 
 						if (foundChoice)
 						{
-							body += 'Choice ' + foundChoice.label + ' Required' + '<br />';
+							body += 'Choice ' + foundChoice.label + '<br />';
 						}
 					});
 
-					if (disabledSelections?.length)
+					if (mustNotHaveSelections?.length)
 					{
-						body += requiredSelections?.length ? '<br />' : '';
+						body += mustHaveSelections?.length ? '<br />' : '';
 
-						body += '<b>' + 'Lot ' + lot.lotBlock + ' has the following restriction(s): ' + '</b>' + '<br />';
+						body += '<b>' + 'Lot ' + lot.lotBlock + ' has the following choice restriction(s) which will be unavailable for selection if you continue. Please review the impacted decision point(s) to determine if a new choice selection is necessary: ' + '</b>' + '<br />';
 
-						disabledSelections.forEach(ncr =>
+						mustNotHaveSelections.forEach(mnh =>
 						{
-							let foundChoice = this.currentChoices.find(cc => cc.divChoiceCatalogId === ncr.divChoiceCatalogId);
+							let foundChoice = this.currentChoices.find(cc => cc.divChoiceCatalogId === mnh.divChoiceCatalogId);
 
 							if (foundChoice)
 							{
-								body += 'Choice ' + foundChoice.label + ' Disabled' + '<br />';
+								body += 'Choice ' + foundChoice.label + '<br />';
 							}
+						});
+					}
+
+					if (disabledByRules?.length)
+					{
+						body += mustHaveSelections?.length || mustNotHaveSelections?.length ? '<br />' : '';
+
+						body += '<b>' + 'The following choice(s) will be deselected based on the choice restriction(s) above. Please review the impacted decision point(s) to determine if a new choice selection is necessary' + '</b>' + '<br />';
+
+						disabledByRules.forEach(ch =>
+						{
+							body += 'Choice ' + ch.label + '<br />';
 						});
 					}
 
 					if (noLongerRequiredSelections?.length)
 					{
-						body += requiredSelections?.length || disabledSelections.length ? '<br />' : '';
+						body += mustHaveSelections?.length || mustNotHaveSelections?.length || disabledByRules.length ? '<br />' : '';
 
 						body += '<b>' + 'The following choice(s) will no longer be required for Lot ' + lot.lotBlock + '.' + ' You will be able to modify the choice(s) if you continue: ' + '</b>' + '<br />';
 
-						noLongerRequiredSelections?.forEach(ncr =>
+						noLongerRequiredSelections?.forEach(nlr =>
 						{
-							let foundChoice = this.currentChoices.find(cc => cc.divChoiceCatalogId === ncr.divChoiceCatalogId);
+							let foundChoice = this.currentChoices.find(cc => cc.divChoiceCatalogId === nlr.divChoiceCatalogId);
 							if (foundChoice)
 							{
 								body += 'Choice ' + foundChoice.label + '<br />';
