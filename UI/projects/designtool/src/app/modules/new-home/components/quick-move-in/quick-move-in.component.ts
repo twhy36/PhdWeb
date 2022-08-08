@@ -164,7 +164,7 @@ export class QuickMoveInComponent extends UnsubscribeOnDestroy implements OnInit
 						withLatestFrom(this.store),
 						take(1)).subscribe(([_action, store]) =>
 						{
-							let scenarioOptions: ScenarioOption[] = job.jobPlanOptions.map(jobOption =>
+							let scenarioOptions: ScenarioOption[] = store.job.jobPlanOptions?.map(jobOption =>
 							{
 								return {
 									scenarioOptionId: 0,
@@ -173,7 +173,7 @@ export class QuickMoveInComponent extends UnsubscribeOnDestroy implements OnInit
 									planOptionQuantity: jobOption.optionQty,
 									scenarioOptionColors: []
 								}
-							});
+							}) || [];
 
 							if (previousJob && previousJobWasPhdLite)
 							{

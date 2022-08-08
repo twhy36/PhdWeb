@@ -62,7 +62,7 @@ export class LiteEffects
 				{
 					const isPhdLite = result.isPhdLiteEnabled &&
 						(
-							!action.plans.some(plan => !plan.treeVersionId)
+							action.plans?.every(plan => !plan.treeVersionId)
 							|| this.liteService.checkLiteAgreement(store.job, store.changeOrder.currentChangeOrder)
 							|| this.liteService.checkLiteScenario(store.scenario.scenario?.scenarioChoices, store.scenario.scenario?.scenarioOptions)
 						);
