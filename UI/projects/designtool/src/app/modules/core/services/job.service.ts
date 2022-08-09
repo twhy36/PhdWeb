@@ -7,7 +7,7 @@ import { map, catchError, switchMap } from 'rxjs/operators';
 import
 {
 	newGuid, createBatchGet, createBatchHeaders, createBatchBody, withSpinner, Contact, ESignEnvelope,
-	ChangeOrderGroup, Job, IJob, SpecInformation, FloorPlanImage, IdentityService, JobPlanOption, TimeOfSaleOptionPrice, JobChoice
+	ChangeOrderGroup, Job, IJob, SpecInformation, FloorPlanImage, IdentityService, JobPlanOption, TimeOfSaleOptionPrice
 } from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
@@ -303,7 +303,7 @@ export class JobService
 				newRequest(filter, `id`, `jobChoices($select=${jobChoicesSelect};$expand=jobChoiceJobPlanOptionAssocs($select=id,choiceEnabledOption,jobChoiceId,jobPlanOptionId))`);
 				newRequest(filter, `id`, `jobChoices($select=id;$filter=jobChoiceAttributes/any();$expand=jobChoiceAttributes($select=id,attributeGroupCommunityId,attributeCommunityId,attributeName,attributeGroupLabel,manufacturer,sku))`);
 				newRequest(filter, `id`, `jobChoices($select=id;$filter=jobChoiceLocations/any();$expand=jobChoiceLocations($select=id,locationGroupCommunityId,locationCommunityId,quantity,locationName,locationGroupLabel;$expand=jobChoiceLocationAttributes($select=id,attributeGroupCommunityId,attributeCommunityId,attributeName,attributeGroupLabel,manufacturer,sku)))`);
-				newRequest(filter, `id`, `jobPlanOptions($select=id,constructionComplete,jobId,jobOptionTypeName,listPrice,optionDescription,optionQty,optionSalesName,planOptionId)`);
+				newRequest(filter, `id`, `jobPlanOptions($select=id,constructionComplete,jobId,jobOptionTypeName,listPrice,optionDescription,optionQty,optionSalesName,planOptionId;$expand=planOptionCommunity($select=id;$expand=optionCommunity($select=id;$expand=option($select=id,financialOptionIntegrationKey))))`);
 				newRequest(filter, `id`, `jobPlanOptions($select=id;$filter=jobPlanOptionAttributes/any();$expand=jobPlanOptionAttributes($select=id,attributeCommunityId,attributeGroupCommunityId,attributeGroupLabel,attributeName,jobPlanOptionId,manufacturer,sku))`);
 				newRequest(filter, `id`, `jobPlanOptions($select=id;$filter=jobPlanOptionLocations/any();$expand=jobPlanOptionLocations($select=id, jobPlanOptionId, locationGroupCommunityId,locationCommunityId,quantity,locationName,locationGroupLabel;$expand=jobPlanOptionLocationAttributes($select=id,attributeGroupCommunityId,attributeCommunityId,attributeName,attributeGroupLabel,manufacturer,sku)))`);
 
@@ -372,10 +372,12 @@ export class JobService
 					jobChoice.jobChoiceLocations = locations ?? [];
 				});
 
-				// find the jobPlanOptions reocrds
+				// find the jobPlanOptions records
 				const jobWithPlanOptions = data.filter(x => x.jobPlanOptions) as IJob[];
+				const iJobPlanOptions = jobWithPlanOptions.find(x => x.jobPlanOptions.every(o => o.planOptionId))?.jobPlanOptions;
 
-				iJob.jobPlanOptions = jobWithPlanOptions.find(x => x.jobPlanOptions.every(o => o.planOptionId))?.jobPlanOptions;
+				// jobPlanOption is a bit different since it holds financialOptionIntegrationKey vs it being on the option level. So new JobPlanOption takes care of that mapping.
+				iJob.jobPlanOptions = iJobPlanOptions ? iJobPlanOptions.map(po => new JobPlanOption(po)) : [];
 
 				const jobPlanOptionsWithAttributes = jobWithPlanOptions.find(x => x.jobPlanOptions.every(c => c.jobPlanOptionAttributes))?.jobPlanOptions;
 				const jobPlanOptionsWithLocations = jobWithPlanOptions.find(x => x.jobPlanOptions.every(c => c.jobPlanOptionLocations))?.jobPlanOptions;
