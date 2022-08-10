@@ -131,6 +131,9 @@ export function reducer(state: State = initialState, action: LiteActions): State
 					: { ...state, colorSchemeOverrideNote: action.overrideReason };
 			}
 
+		case LiteActionTypes.ResetLiteState:
+			return { ...initialState };
+
 		default:
 			return state;
 	}

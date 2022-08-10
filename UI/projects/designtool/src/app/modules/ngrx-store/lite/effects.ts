@@ -16,7 +16,7 @@ import
 	{
 		LiteActionTypes, SetIsPhdLite, LiteOptionsLoaded, SaveScenarioOptions, ScenarioOptionsSaved, SaveScenarioOptionColors, OptionCategoriesLoaded, SelectOptions,
 		LoadLiteMonotonyRules, LiteMonotonyRulesLoaded, CancelJobChangeOrderLite, SelectOptionColors, LoadLitePlan, CancelPlanChangeOrderLite, CreateJIOForSpecLite, LoadLiteSpecOrModel,
-		ToggleQuickMoveInSelections
+		ToggleQuickMoveInSelections, ResetLiteState
 	} from './actions';
 import { CommonActionTypes, ScenarioLoaded, LoadSalesAgreement, SalesAgreementLoaded, LoadError, LoadSpec, JobLoaded } from '../actions';
 import * as fromRoot from '../reducers';
@@ -514,6 +514,36 @@ export class LiteEffects
 			withLatestFrom(this.store),
 			switchMap(([action, store]) =>
 			{
+				const selectedPlan = action instanceof SelectPlan 
+					? store.plan.plans?.find(p => p.id === action.planId)
+					: null;
+
+				if (action instanceof SelectPlan && !!selectedPlan?.treeVersionId)
+				{
+					// Clean up lite data when a full plan is selected
+					let actions: any[] = [];
+
+					const scenarioId = store.scenario.scenario?.scenarioId;
+					const deselectedOptions = store.lite.scenarioOptions.map(option =>
+						{
+							return {
+								scenarioOptionId: option.scenarioOptionId,
+								scenarioId: option.scenarioId,
+								edhPlanOptionId: option.edhPlanOptionId,
+								planOptionQuantity: 0
+							} as ScenarioOption;
+						});
+
+					if (!!scenarioId && !!deselectedOptions?.length)
+					{
+						actions.push(new SelectOptions(deselectedOptions));
+					}
+
+					actions.push(new ResetLiteState());
+
+					return from(actions);
+				}
+
 				if (store.lite.options.length === 0 || store.lite.isPhdLite === false)
 				{
 					// Select plan in a new configuration
@@ -523,7 +553,6 @@ export class LiteEffects
 
 						return this.liteService.isPhdLiteEnabled(financialCommunityId).pipe(
 							switchMap(isPhdLiteEnabled => {
-								const selectedPlan = store.plan.plans?.find(p => p.id === action.planId);
 								const isPhdLite = isPhdLiteEnabled && !selectedPlan?.treeVersionId;
 								return of(new SetIsPhdLite(isPhdLite));
 							})

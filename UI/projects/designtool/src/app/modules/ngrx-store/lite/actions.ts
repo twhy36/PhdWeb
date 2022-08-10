@@ -21,7 +21,8 @@ export enum LiteActionTypes {
     CancelJobChangeOrderLite = 'Cancel Job Change Order Lite',
     LoadLitePlan = 'Load Lite Plan',
     CancelPlanChangeOrderLite = 'Cancel Plan Change Order Lite',
-   ToggleQuickMoveInSelections = 'Toggle Quick Move In Selections'
+    ToggleQuickMoveInSelections = 'Toggle Quick Move In Selections',
+    ResetLiteState = 'Reset Lite State'
 }
 
 @Log(true)
@@ -146,6 +147,12 @@ export class ToggleQuickMoveInSelections implements Action
 		public deletePhdFullData: boolean) { }
 }
 
+export class ResetLiteState implements Action {
+    readonly type = LiteActionTypes.ResetLiteState;
+
+    constructor() { }
+}
+
 export type LiteActions =
     SetIsPhdLite |
     LiteOptionsLoaded |
@@ -163,4 +170,5 @@ export type LiteActions =
     CancelPlanChangeOrderLite |
 	CreateJIOForSpecLite |
 	LoadLiteSpecOrModel |
-    ToggleQuickMoveInSelections;
+    ToggleQuickMoveInSelections |
+    ResetLiteState;
