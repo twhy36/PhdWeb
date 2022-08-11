@@ -32,10 +32,22 @@ const moduleRoutes: Routes = [
 		data: { isPreview: true, isPresale: false },
 	},
 	{
+		path: 'preview',
+		component: HomeComponent,
+		canActivate: [InternalGuard],
+		data: { isPreview: false, isPresale: false },
+	},
+	{
 		path: 'presale/:financialCommunityId/:lawsonPlanId',
 		component: HomeComponent,
 		canActivate: [InternalGuard],
 		data: { isPreview: false, pageLoadEvent: 'Home', isPresale: true },
+	},
+	{
+		path: 'presale',
+		component: HomeComponent,
+		canActivate: [InternalGuard],
+		data: { isPreview: false, pageLoadEvent: 'Home', isPresale: false },
 	},
 ];
 

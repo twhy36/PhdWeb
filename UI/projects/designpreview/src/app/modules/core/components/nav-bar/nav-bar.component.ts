@@ -23,6 +23,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 	showMyFavoritesLink: boolean = false;
 	showFloorplanLink: boolean = false;
 	showIncludedOptionsLink: boolean = false;
+	buildMode: BuildMode;
 
 	@HostListener("window:resize", ["$event"])
 	onResize(event) {
@@ -63,6 +64,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 			this.takeUntilDestroyed(),
 			select(state => state.scenario),
 		).subscribe((state) => {
+			this.buildMode = state.buildMode;
 			switch (state.buildMode)
 			{
 				case (BuildMode.Preview):
@@ -113,7 +115,18 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 
 	onHomePage() {
 		this.store.dispatch(new ScenarioActions.SetTreeFilter(null));
-		this.router.navigateByUrl('/home');
+		switch (this.buildMode)
+		{
+			case (BuildMode.Preview):
+				this.router.navigateByUrl('/preview');
+				break;
+			case (BuildMode.Presale):
+				this.router.navigateByUrl('/presale');
+				break;
+			default:
+				this.router.navigateByUrl('/home');
+				break;
+		}
 	}
 
 	onViewFavorites() {

@@ -96,7 +96,13 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit
 
 	onHomePage() {
 		this.store.dispatch(new ScenarioActions.SetTreeFilter(null));
-		this.router.navigateByUrl('/home');
+		if (this.isPresale) {
+			this.router.navigateByUrl('/presale');	
+		} else if (this.isPreview) {
+			this.router.navigateByUrl('/preview');
+		} else {
+			this.router.navigateByUrl('/home');
+		}
 	}
 
 	onPrint() 
