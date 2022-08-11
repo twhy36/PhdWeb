@@ -35,6 +35,7 @@ import { ReportsService } from '../../../core/services/reports.service';
 import { SummaryHeader, SummaryHeaderComponent } from './summary-header/summary-header.component';
 import { GroupExt } from '../../../shared/models/group-ext.model';
 import { AdobeService } from '../../../core/services/adobe.service';
+import { BuildMode } from '../../../shared/models/build-mode.model';
 
 @Component({
 	selector: 'favorites-summary',
@@ -59,6 +60,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 	options: PlanOption[];
 	buildMode: string;
 	isPreview: boolean = false;
+	isPresale: boolean;
 	isDesignComplete: boolean = false;
 
 	constructor(private store: Store<fromRoot.State>,
@@ -111,12 +113,13 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 			)
 			.subscribe(([scenario, fav, sag, title]) =>
 			{
-				this.isPreview = scenario.buildMode === 'preview';
+				this.isPreview = scenario.buildMode === BuildMode.Preview;
+				this.isPresale = scenario.buildMode === BuildMode.Presale;
 				this.isDesignComplete = sag?.isDesignComplete || false;
 				this.buildMode = scenario.buildMode;
 				this.summaryHeader.favoritesListName = this.isPreview ? 'Preview Favorites' : title;
 
-				if (this.isPreview)
+				if (this.isPreview || this.isPresale)
 				{
 					this.store.dispatch(new FavoriteActions.LoadDefaultFavorite());
 				}
@@ -335,7 +338,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		let buyerInfo = {} as BuyerInfo;
 		let summaryHeader = this.summaryHeaderComponent;
 
-		summaryData.title = summaryHeader.title;
+		summaryData.title = summaryHeader.headerTitle;
 		summaryData.images = [{ imageUrl: this.summaryHeader.elevationImageUrl }];
 		summaryData.hasHomesite = false;
 		summaryData.allowEstimates = false;

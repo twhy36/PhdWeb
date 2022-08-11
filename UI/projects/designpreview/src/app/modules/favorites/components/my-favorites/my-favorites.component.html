@@ -20,6 +20,7 @@
 						[tree]="tree"
 						[choiceImages]="currentChoiceImages"
 						[isReadonly]="isReadonly"
+						[isPresale]="isPresale"
 						[noVisibleGroups]="noVisibleGroups"
 						[unfilteredPoints]="unfilteredPoints"
 						(onToggleChoice)="toggleChoice($event)"
@@ -44,6 +45,7 @@
 						[choiceImages]="currentChoiceImages"
 						[isReadonly]="isReadonly"
 						[isPreview]="isPreview"
+						[isPresale]="isPresale"
 						[isDesignComplete]="isDesignComplete"
 						[noVisibleGroups]="noVisibleGroups"
 						[noVisibleFP]="noVisibleFP"
@@ -64,6 +66,7 @@
 						[myFavoritesPointsDeclined]="myFavoritesPointsDeclined"
 						[isReadonly]="isReadonly"
 						[isDesignComplete]="isDesignComplete"
+						[isPresale]="isPresale"
 						(onBack)="hideDetails()"
 						(onSelectDecisionPoint)="selectDecisionPoint($event)"
 						(onToggleChoice)="toggleChoice($event)">
@@ -77,6 +80,8 @@
 			[includeContractedOptions]="includeContractedOptions"
 			[isDesignComplete]="isDesignComplete"
 			[isPreview]="isPreview"
-			(callToAction)="showDetails ? hideDetails() : onNextSubGroup()"
+			[isPresale]="isPresale"
+			[hideContractedToggle]="showDetails"
+			(callToAction)="showDetails ? hideDetails() : onNextClicked()"
 			(onToggleContractedOptions)="toggleContractedOptions()">
 </action-bar>

@@ -10,6 +10,7 @@ import { MessageService } from 'primeng/api';
 import { NgbNavChangeEvent, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { TreeService } from '../../../../core/services/tree.service';
+import { LoadingService } from '../../../../core/services/loading.service';
 
 import { PhdApiDto, PhdEntityDto } from '../../../../shared/models/api-dtos.model';
 import { ITreeOption } from '../../../../shared/models/option.model';
@@ -37,7 +38,8 @@ export class ChoiceSidePanelComponent implements OnInit
 	constructor(
 		private _treeService: TreeService,
 		private _modalService: NgbModal,
-		private _msgService: MessageService
+		private _msgService: MessageService,
+		private _loadingService: LoadingService
 	) { }
 
 	@ViewChild(SidePanelComponent)
@@ -514,14 +516,17 @@ export class ChoiceSidePanelComponent implements OnInit
 					}
 
 					this.choice.hasChoiceRules = rules.length > 0;
-
+					this._loadingService.isSaving$.next(false);
 					callback(true);
-				}, (error) => callback(false));
+				}, (error) => {
+					this._loadingService.isSaving$.next(false);
+					callback(false);
+				});
 		}
 		else
 		{
 			this.isSaving = false;
-
+			this._loadingService.isSaving$.next(false);
 			callback(false);
 		}
 	}

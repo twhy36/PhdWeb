@@ -47,6 +47,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	@Input() isDesignComplete: boolean;
 	@Input() groupName: string;
 	@Input() subGroupName: string;
+	@Input() isPresale: boolean = false;
 
 	@Output() onBack = new EventEmitter();
 	@Output() onToggleChoice = new EventEmitter<ChoiceExt>();

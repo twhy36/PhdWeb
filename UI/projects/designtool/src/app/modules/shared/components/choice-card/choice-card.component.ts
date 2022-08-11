@@ -449,7 +449,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 	{
 		const selectedAttributes: DesignToolAttribute[] = [];
 
-		if (!this.locationGroups.length && this.attributeGroups.length)
+		if (!this.locationGroups?.length && this.attributeGroups?.length)
 		{
 			this.attributeGroups.forEach(ag =>
 			{

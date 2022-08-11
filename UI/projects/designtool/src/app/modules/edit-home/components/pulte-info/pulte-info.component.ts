@@ -9,6 +9,7 @@ import * as fromRoot from '../../../ngrx-store/reducers';
 import * as JobActions from '../../../ngrx-store/job/actions';
 
 import { UnsubscribeOnDestroy, ChangeTypeEnum, Job, SpecInformation, PriceBreakdown } from 'phd-common';
+import _ from 'lodash';
 
 @Component({
     selector: 'pulte-info',
@@ -96,19 +97,27 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit {
             this.takeUntilDestroyed(),
             select(state => state.job.specInformation),
             combineLatest(this.store.pipe(select(state => state.job.id)))).subscribe(([pulteInfo, jobId]) => {
-                if (pulteInfo) {
-                    if (pulteInfo.jobId) {
-                        this.getMonthList();
+				if (pulteInfo)
+				{
+					if (pulteInfo.jobId)
+					{
+						this.getMonthList();
+
                         this.pulteInfo = new SpecInformation(pulteInfo);
-                        this.pulteInfo.discountExpirationDate = this.pulteInfo.discountExpirationDate ? new Date(this.pulteInfo.discountExpirationDate) : null;
-                        if (!this.pulteInfo.discountExpirationDate || this.pulteInfo.discountExpirationDate.getFullYear() > 9000 ) {
+						this.pulteInfo.discountExpirationDate = this.pulteInfo.discountExpirationDate ? new Date(this.pulteInfo.discountExpirationDate) : null;
+
+						if (!this.pulteInfo.discountExpirationDate || this.pulteInfo.discountExpirationDate.getFullYear() > 9000)
+						{
                             this.pulteInfo.discountExpirationDate = null;
                         }
                     }
                     this.pulteInfoSet = true;
                     this.createForm();
-                } else {
-                    if (jobId && !this.loadingInfo) {
+				}
+				else
+				{
+					if (jobId && !this.loadingInfo)
+					{
                         this.loadingInfo = true;
                         this.store.dispatch(new JobActions.LoadPulteInfo(jobId));
                     }
@@ -143,24 +152,26 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit {
     }
 
     savePulteInformation() {
-         this.pulteInfo.webSiteDescription = this.pulteInfoForm.controls['tagLines'].value;
-         this.pulteInfo.isPublishOnWebSite = this.pulteInfoForm.controls['displayOnPulte'].value;
-         this.pulteInfo.discountAmount = +this.pulteInfoForm.controls['discountAmount'].value;
-         this.pulteInfo.discountExpirationDate = this.pulteInfoForm.controls['discountExpirationDate'].value ? this.pulteInfoForm.controls['discountExpirationDate'].value : null;
-         this.pulteInfo.isHotHomeActive = this.pulteInfoForm.controls['hotHome'].value;
-         this.pulteInfo.hotHomeBullet1 = this.pulteInfoForm.controls['keySellingPoint1'].value;
-         this.pulteInfo.hotHomeBullet2 = this.pulteInfoForm.controls['keySellingPoint2'].value;
-         this.pulteInfo.hotHomeBullet3 = this.pulteInfoForm.controls['keySellingPoint3'].value;
-         this.pulteInfo.hotHomeBullet4 = this.pulteInfoForm.controls['keySellingPoint4'].value;
-         this.pulteInfo.hotHomeBullet5 = this.pulteInfoForm.controls['keySellingPoint5'].value;
-         this.pulteInfo.hotHomeBullet6 = this.pulteInfoForm.controls['keySellingPoint6'].value;
-         this.pulteInfo.numberFullBathOverride = this.pulteInfoForm.controls['fullBaths'].value;
-         this.pulteInfo.numberHalfBathOverride = this.pulteInfoForm.controls['halfBaths'].value;
-         this.pulteInfo.numberBedOverride = this.pulteInfoForm.controls['bedrooms'].value;
-         this.pulteInfo.squareFeetOverride = this.pulteInfoForm.controls['squareFeet'].value;
-         this.pulteInfo.numberGarageOverride = this.pulteInfoForm.controls['numberOfGarages'].value;
-         this.pulteInfoForm.markAsPristine();
-         this.store.dispatch(new JobActions.SavePulteInfo(this.pulteInfo));
+		const clonePulteInfo = _.cloneDeep(this.pulteInfo);
+
+		clonePulteInfo.webSiteDescription = this.pulteInfoForm.controls['tagLines'].value;
+		clonePulteInfo.isPublishOnWebSite = this.pulteInfoForm.controls['displayOnPulte'].value;
+		clonePulteInfo.discountAmount = +this.pulteInfoForm.controls['discountAmount'].value;
+		clonePulteInfo.discountExpirationDate = this.pulteInfoForm.controls['discountExpirationDate'].value ? this.pulteInfoForm.controls['discountExpirationDate'].value : null;
+		clonePulteInfo.isHotHomeActive = this.pulteInfoForm.controls['hotHome'].value;
+		clonePulteInfo.hotHomeBullet1 = this.pulteInfoForm.controls['keySellingPoint1'].value;
+		clonePulteInfo.hotHomeBullet2 = this.pulteInfoForm.controls['keySellingPoint2'].value;
+		clonePulteInfo.hotHomeBullet3 = this.pulteInfoForm.controls['keySellingPoint3'].value;
+		clonePulteInfo.hotHomeBullet4 = this.pulteInfoForm.controls['keySellingPoint4'].value;
+		clonePulteInfo.hotHomeBullet5 = this.pulteInfoForm.controls['keySellingPoint5'].value;
+		clonePulteInfo.hotHomeBullet6 = this.pulteInfoForm.controls['keySellingPoint6'].value;
+		clonePulteInfo.numberFullBathOverride = this.pulteInfoForm.controls['fullBaths'].value;
+		clonePulteInfo.numberHalfBathOverride = this.pulteInfoForm.controls['halfBaths'].value;
+		clonePulteInfo.numberBedOverride = this.pulteInfoForm.controls['bedrooms'].value;
+		clonePulteInfo.squareFeetOverride = this.pulteInfoForm.controls['squareFeet'].value;
+		clonePulteInfo.numberGarageOverride = this.pulteInfoForm.controls['numberOfGarages'].value;
+		this.pulteInfoForm.markAsPristine();
+		this.store.dispatch(new JobActions.SavePulteInfo(clonePulteInfo));
     }
 
     getMonthList() {
@@ -174,11 +185,15 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit {
          }
     }
 
-    getAvailableDate(date: string) {
-        if (date && date.length > 0) {
-        const newDate = date.split('/');
-        return new Date(+newDate[1], +newDate[0], 1);
-        } else {
+	getAvailableDate(date: string)
+	{
+		if (date && date.length > 0)
+		{
+			const newDate = date.split('/');
+			return new Date(+newDate[1], +newDate[0], 1);
+		}
+		else
+		{
             return null;
         }
     }

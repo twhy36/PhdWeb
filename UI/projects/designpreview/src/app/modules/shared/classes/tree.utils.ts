@@ -416,7 +416,7 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 					.filter(o => o.choiceEnabledOption)
 					.map(o =>
 					{
-						return { optionNumber: options.find(opt => opt.id === o.jobPlanOptionId).integrationKey, dpChoiceId: c.dpChoiceId };
+						return { optionNumber: options.find(opt => opt.id === o.jobPlanOptionId)?.integrationKey, dpChoiceId: c.dpChoiceId };
 					});
 			}
 			else
@@ -425,7 +425,7 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 					.filter(o => o.jobChoiceEnabledOption)
 					.map(o =>
 					{
-						return { optionNumber: options.find(opt => opt.id === o.jobChangeOrderPlanOptionId).integrationKey, dpChoiceId: c.decisionPointChoiceID };
+						return { optionNumber: options.find(opt => opt.id === o.jobChangeOrderPlanOptionId)?.integrationKey, dpChoiceId: c.decisionPointChoiceID };
 					});
 			}
 		})))

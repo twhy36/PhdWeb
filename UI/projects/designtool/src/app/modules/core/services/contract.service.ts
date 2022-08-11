@@ -4,7 +4,8 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError, of } from 'rxjs';
 import { map, catchError, switchMap, withLatestFrom, take, combineLatest } from 'rxjs/operators';
 
-import {
+import
+{
 	defaultOnNotFound, withSpinner, Buyer, Contact, PhoneType, ESignTypeEnum, ChangeOrderChoice, ChangeOrderNonStandardOption,
 	ChangeOrderGroup, LotExt, Plan, SalesAgreementProgram, SDPoint, DecisionPoint, formatPhoneNumber, PriceBreakdown,
 	ScenarioOptionColor
@@ -15,7 +16,8 @@ import { environment } from '../../../../environments/environment';
 import { Template } from '../../shared/models/template.model';
 import { IFinancialCommunityESign, FinancialCommunityESign, IESignRecipient } from '../../shared/models/contract.model';
 import { SnapShotData } from '../../shared/models/envelope-info.model';
-import { 
+import
+{
 	getCurrentHouseSelections, getChangeOrderGroupSelections, getLiteCurrentHouseSelections, getLiteChangeOrderGroupSelections,
 	getLiteConstructionChangeOrderPdfData
 } from '../../shared/classes/contract-utils';
@@ -191,7 +193,7 @@ export class ContractService
 				return throwError(error);
 			})
 		);
-	}	
+	}
 
 	getConstructionChangeOrderPdfData(jobChangeOrderChoicesDto: Array<ChangeOrderChoice>)
 	{
@@ -352,7 +354,7 @@ export class ContractService
 		);
 	}
 
-	getPreviewDocument(currentSnapshot : SnapShotData, isPreview? : boolean, isAddenda?: boolean, isPhdLite?: boolean)
+	getPreviewDocument(currentSnapshot: SnapShotData, isPreview?: boolean, isAddenda?: boolean, isPhdLite?: boolean)
 	{
 		const action = isPhdLite ? `GetPreviewDocumentLite` : `GetPreviewDocument`;
 		const url = `${environment.apiUrl}${action}`;
@@ -395,19 +397,20 @@ export class ContractService
 	}
 
 	createContractSnapshot(
-		store: fromRoot.State, 
-		priceBreakdown: PriceBreakdown, 
-		isSpecSalePending: boolean, 
-		selectLot: fromLot.State, 
-		elevationDP: DecisionPoint, 
-		coPrimaryBuyer: Buyer, 
-		coCoBuyers: Buyer[], 
-		selectedLiteElevation: LitePlanOption, 
+		store: fromRoot.State,
+		priceBreakdown: PriceBreakdown,
+		isSpecSalePending: boolean,
+		selectLot: fromLot.State,
+		elevationDP: DecisionPoint,
+		coPrimaryBuyer: Buyer,
+		coCoBuyers: Buyer[],
+		selectedLiteElevation: LitePlanOption,
 		selectedLiteColorScheme: ScenarioOptionColor,
 		planPrice: number)
 	{
 		// get selected templates and sort by display order
-		const templates = store.contract.selectedTemplates.length ? store.contract.selectedTemplates.map(id => {
+		const templates = store.contract.selectedTemplates.length ? store.contract.selectedTemplates.map(id =>
+		{
 			return store.contract.templates.find(t => t.templateId === id);
 		}).sort((a, b) => a.displayOrder < b.displayOrder ? -1 : a.displayOrder > b.displayOrder ? 1 : 0) : [{ displayName: "JIO", displayOrder: 2, documentName: "JIO", templateId: 0, templateTypeId: 4, marketId: 0, version: 0 }];
 
@@ -421,6 +424,7 @@ export class ContractService
 		);
 
 		let currentHouseSelections = [];
+
 		if (templates.some(t => t.templateId === 0))
 		{
 			currentHouseSelections = store.lite.isPhdLite
@@ -470,7 +474,7 @@ export class ContractService
 				email: customerEmail ? isNull(customerEmail.email.emailAddress, "") : "",
 				address: customerAddress && customerAddress.address ? isNull(customerAddress.address.address1, "").trim() + " " + isNull(customerAddress.address.address2, "").trim() : "",
 				cityStateZip: customerAddress && customerAddress.address ? `${isNull(customerAddress.address.city, "").trim()}, ${isNull(customerAddress.address.stateProvince, "").trim()} ${isNull(customerAddress.address.postalCode, "").trim()}` : ""
-			}
+			};
 
 			const elevationName = store.lite.isPhdLite
 				? selectedLiteElevation.name
@@ -496,7 +500,7 @@ export class ContractService
 				salesAssociate: store.salesAgreement.consultants && store.salesAgreement.consultants.length ? store.salesAgreement.consultants[0].contact.firstName + " " + store.salesAgreement.consultants[0].contact.lastName :
 					jio && jio.contact ? jio.contact.displayName : "",
 				salesDescription: jio ? jio.jobChangeOrderGroupDescription : ""
-			}
+			};
 
 			var envelopeInfo =
 			{
@@ -507,7 +511,8 @@ export class ContractService
 				primaryBuyerTrustName: isNull(store.changeOrder && store.changeOrder.changeInput && store.changeOrder.changeInput.trustName && store.changeOrder.changeInput.trustName.length > 20 ? `${store.changeOrder.changeInput.trustName.substring(0, 20)}...` : store.changeOrder && store.changeOrder.changeInput ? store.changeOrder.changeInput.trustName : null, `${primaryBuyer.firstName ? primaryBuyer.firstName : ''}${primaryBuyer.middleName ? ' ' + primaryBuyer.middleName : ''} ${primaryBuyer.lastName ? ' ' + primaryBuyer.lastName : ''}${primaryBuyer.suffix ? ' ' + primaryBuyer.suffix : ''}`),
 				salesAgreementNotes: salesAgreementNotes,
 				termsAndConditions: termsAndConditions,
-				coBuyers: coBuyers ? coBuyers.map(result => {
+				coBuyers: coBuyers ? coBuyers.map(result =>
+				{
 					return {
 						firstName: result.opportunityContactAssoc.contact.firstName,
 						lastName: result.opportunityContactAssoc.contact.lastName,
@@ -518,12 +523,14 @@ export class ContractService
 				nsoSummary: this.getNsoOptionDetailsData(nsoSummary, store.job.jobNonStandardOptions),
 				closingCostInformation: this.getProgramDetails(store.salesAgreement.programs, store.job.changeOrderGroups, 'BuyersClosingCost')
 					.concat(store.salesAgreement.priceAdjustments ? store.salesAgreement.priceAdjustments.filter(a => a.priceAdjustmentType === 'ClosingCost')
-						.map(a => {
+						.map(a =>
+						{
 							return { salesProgramDescription: '', amount: a.amount, name: 'Price Adjustment', salesProgramId: 0 };
 						}) : []),
 				salesIncentiveInformation: this.getProgramDetails(store.salesAgreement.programs, store.job.changeOrderGroups, 'DiscountFlatAmount')
 					.concat(store.salesAgreement.priceAdjustments ? store.salesAgreement.priceAdjustments.filter(a => a.priceAdjustmentType === 'Discount')
-						.map(a => {
+						.map(a =>
+						{
 							return { salesProgramDescription: '', amount: a.amount, name: 'Price Adjustment', salesProgramId: 0 };
 						}) : []),
 				baseHousePrice: baseHousePrice,
@@ -543,7 +550,8 @@ export class ContractService
 			let constructionChangeOrderSelections = [];
 			let nonStandardChangeOrderSelections = [];
 			let lotTransferChangeOrderSelections = null;
-			let mappedTemplates = templates.map(t => {
+			let mappedTemplates = templates.map(t =>
+			{
 				return { templateId: t.templateId, displayOrder: templates.indexOf(t) + 1, documentName: t.documentName, templateTypeId: t.templateTypeId };
 			});
 
@@ -595,7 +603,8 @@ export class ContractService
 			let workPhone = "";
 			let buyerCurrentAddress = "";
 
-			if (buyer && buyer.opportunityContactAssoc && buyer.opportunityContactAssoc.contact.phoneAssocs.length > 0) {
+			if (buyer && buyer.opportunityContactAssoc && buyer.opportunityContactAssoc.contact.phoneAssocs.length > 0)
+			{
 				buyer.opportunityContactAssoc.contact.phoneAssocs.forEach(t =>
 				{
 					if (t.isPrimary === true)
@@ -606,7 +615,7 @@ export class ContractService
 					{
 						workPhone = t.phone.phoneNumber;
 					}
-				})
+				});
 			}
 
 			let buyerAddressAssoc = buyer && buyer.opportunityContactAssoc.contact.addressAssocs.length > 0 ? buyer.opportunityContactAssoc.contact.addressAssocs.find(t => t.isPrimary === true) : null;
@@ -714,7 +723,7 @@ export class ContractService
 				lotTransferChangeOrderSelections: lotTransferChangeOrderSelections ? { lotDtos: lotTransferChangeOrderSelections } : null,
 				changeOrderInformation: changeOrderInformation,
 				envelopeInfo: envelopeInfo
-			}
+			};
 
 			return currentSnapshot;
 		}
@@ -742,15 +751,15 @@ export class ContractService
 						store.lite.options,
 						store.lite.categories
 					);
-					
+
 					let currentHouseSelections = [];
 					if (templates.some(t => t.templateId === 0))
 					{
 						currentHouseSelections = store.lite.isPhdLite
 							? getLiteCurrentHouseSelections(
-								store.lite, selectedLiteElevation, 
-								selectedLiteColorScheme, 
-								liteBaseHouseOptions, 
+								store.lite, selectedLiteElevation,
+								selectedLiteColorScheme,
+								liteBaseHouseOptions,
 								priceBreakdown.baseHouse
 							)
 							: getCurrentHouseSelections(store.scenario.tree.treeVersion.groups);
@@ -880,9 +889,9 @@ export class ContractService
 						case 'Handing':
 							let constructionChangeOrderSelections = store.lite.isPhdLite
 								? getLiteChangeOrderGroupSelections(
-									changeOrder.jobChangeOrderPlanOptions, 
+									changeOrder.jobChangeOrderPlanOptions,
 									liteBaseHouseOptions,
-									store.lite.options, 
+									store.lite.options,
 									store.lite.categories
 								)
 								: getChangeOrderGroupSelections(store.scenario.tree.treeVersion.groups, <ChangeOrderChoice[]>changeOrderChoices);
@@ -961,7 +970,7 @@ export class ContractService
 							{
 								workPhone = t.phone.phoneNumber;
 							}
-						})
+						});
 					}
 
 					let buyerAddressAssoc = buyer && buyer.opportunityContactAssoc.contact.addressAssocs.length > 0 ? buyer.opportunityContactAssoc.contact.addressAssocs.find(t => t.isPrimary === true) : null;
@@ -1056,12 +1065,12 @@ export class ContractService
 							email: customerEmail ? isNull(customerEmail.email.emailAddress, "") : "",
 							address: customerAddress && customerAddress.address ? isNull(customerAddress.address.address1, "").trim() + " " + isNull(customerAddress.address.address2, "").trim() : "",
 							cityStateZip: customerAddress && customerAddress.address ? `${isNull(customerAddress.address.city, "").trim()}, ${isNull(customerAddress.address.stateProvince, "").trim()} ${isNull(customerAddress.address.postalCode, "").trim()}` : ""
-						}
+						};
 
 						const elevationName = store.lite.isPhdLite
 							? selectedLiteElevation?.name
 							: (store.job.jobPlanOptions?.find(x => x.jobOptionTypeName === 'Elevation')?.optionSalesName || '');
-						
+
 						let jobAgreementHeaderInfo = {
 							agreementNumber: store.salesAgreement.salesAgreementNumber,
 							agreementCreatedDate: new Date(store.salesAgreement.createdUtcDate).toLocaleDateString('en-US', { month: "2-digit", day: "2-digit", year: "numeric" }),
@@ -1081,7 +1090,7 @@ export class ContractService
 							salesAssociate: store.salesAgreement.consultants && store.salesAgreement.consultants.length ? store.salesAgreement.consultants[0].contact.firstName + " " + store.salesAgreement.consultants[0].contact.lastName :
 								changeOrder.createdBy ? changeOrder.createdBy : "",
 							salesDescription: changeOrder ? changeOrder.jobChangeOrderGroupDescription : ""
-						}
+						};
 
 						var envelopeInfo = {
 							oldHanding: store.job.handing,
@@ -1140,7 +1149,7 @@ export class ContractService
 								? getLiteConstructionChangeOrderPdfData(
 									store.lite.options,
 									store.lite.categories,
-									changeOrder.jobChangeOrderPlanOptions, 
+									changeOrder.jobChangeOrderPlanOptions,
 									selectedLiteElevation
 								)
 								: this.getConstructionChangeOrderPdfData(constructionChangeOrderSelectionsDto.changeOrderChoices);
@@ -1177,7 +1186,7 @@ export class ContractService
 							lotTransferChangeOrderSelections: lotTransferChangeOrderSelections ? { lotDtos: lotTransferChangeOrderSelections } : null,
 							changeOrderInformation: changeOrderInformation,
 							envelopeInfo: envelopeInfo
-						}
+						};
 
 						return currentSnapshot;
 					}
@@ -1356,11 +1365,11 @@ export class ContractService
 									lotTransferChangeOrderSelections: clonedSnapshot.lotTransferSelections
 								};
 								return this.createEnvelope(snapShotData, null, isPhdLite).pipe(
-										map(() =>
-										{
-											return of(true);
-										})
-									);
+									map(() =>
+									{
+										return of(true);
+									})
+								);
 							})
 						);
 					}

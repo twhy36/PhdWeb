@@ -30,6 +30,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	@Input() tree: Tree;
 	@Input() choiceImages: ChoiceImageAssoc[];
 	@Input() isReadonly: boolean;
+	@Input() isPresale: boolean = false;
 	@Input() noVisibleGroups: boolean = false;
 	@Input() unfilteredPoints: DecisionPoint[] = [];
 

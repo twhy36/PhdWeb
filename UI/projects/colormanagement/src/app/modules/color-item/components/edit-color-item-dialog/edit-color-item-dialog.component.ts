@@ -1,13 +1,13 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { ConfirmModalComponent, Elevations, ModalService } from 'phd-common';
+import { ConfirmModalComponent, ModalService } from 'phd-common';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ColorService } from '../../../core/services/color.service';
 import { IColorItemDto } from '../../../shared/models/colorItem.model';
-import { IOptionCommunity, IPlanOptionCommunityGridDto } from '../../../shared/models/community.model';	
+import { IOptionCommunity, IPlanOptionCommunityGridDto } from '../../../shared/models/community.model';
 import { IColor } from '../../../shared/models/color.model';
 import * as _ from 'lodash';
 import { MessageService } from 'primeng/api';
-import { IToastInfo } from  '../../../../../../../phd-common/src/lib/models/toast-info.model';
+import { IToastInfo } from '../../../../../../../phd-common/src/lib/models/toast-info.model';
 
 @Component({
 	selector: 'edit-color-item-dialog',
@@ -15,67 +15,81 @@ import { IToastInfo } from  '../../../../../../../phd-common/src/lib/models/toas
 	styleUrls: ['./edit-color-item-dialog.component.scss']
 })
 
-export class EditColorItemDialogComponent implements OnInit {
+export class EditColorItemDialogComponent implements OnInit
+{
 	editColorItemForm: FormGroup;
 	nameIsMissing: boolean;
 	availableColors: IColor[] = [];
 	selectedColors: IColor[] = [];
 	isDuplicateName: boolean;
-	nameErrorMessage = '';	
+	nameErrorMessage = '';
 	colorsHasChanged: boolean = false;
-	get requiredFieldMessage() { return 'This is a required field';	}
-    @Input() selectedColorItems: IColorItemDto[];
+
+	@Input() selectedColorItems: IColorItemDto[];
 	@Input() communityId: number;
-    @Input() selectedOption: IOptionCommunity;
+	@Input() selectedOption: IOptionCommunity;
 	@Input() canEditName: boolean;
 	@Input() optionsWithColorItemInfo: Array<IPlanOptionCommunityGridDto> = [];
 	@Output() ModalWasClosed = new EventEmitter();
 	@Output() dialogWasCanceled = new EventEmitter();
 	@Output() colorItemWasEdited = new EventEmitter();
 
-    constructor(
-        private _modalService: ModalService,
-        private _fb: FormBuilder,
-        private _colorService: ColorService,
+	get requiredFieldMessage()
+	{
+		return 'This is a required field';
+	}
+
+	constructor(
+		private _modalService: ModalService,
+		private _fb: FormBuilder,
+		private _colorService: ColorService,
 		private _msgService: MessageService
-      ) { }
-	  
-      ngOnInit(): void {
+	) { }
+
+	ngOnInit(): void
+	{
 		this.editColorItemForm = this._fb.group({
-			name: [{ value: this.selectedColorItems[0].name??'', disabled:!this.canEditName},[Validators.required, Validators.maxLength(50)]],			
-		}); 
+			name: [{ value: this.selectedColorItems[0].name ?? '', disabled: !this.canEditName }, [Validators.required, Validators.maxLength(50)]],
+		});
 		this.selectedColors = _.cloneDeep(this.selectedColorItems[0].colors);
 		const selectedColorIdList = this.selectedColors.map(color => color.colorId);
 		this._colorService.getColors(this.communityId, '', this.selectedOption.optionSubCategoryId)
-			.subscribe(colors => {
-					this.availableColors = colors.filter(x => x.isActive && !selectedColorIdList.includes(x.colorId));
-				}
-			);
+			.subscribe(colors =>
+			{
+				this.availableColors = colors.filter(x => x.isActive && !selectedColorIdList.includes(x.colorId));
+			});
 	}
 
-    async cancelButtonWasClicked() {
+	async cancelButtonWasClicked()
+	{
 		const noChangesWereFound = (this.editColorItemForm.get('name').value.toString().toLowerCase() === this.selectedColorItems[0].name.toLowerCase()) && this.colorsHasChanged === false;
 
-		if (noChangesWereFound) {
+		if (noChangesWereFound)
+		{
 			this.dialogWasCanceled.emit();
+
 			return;
 		}
 
 		const msg = 'Do you want to cancel without saving? If so, the data entered will be lost.';
 		const closeWithoutSavingData = await this.showConfirmModal(msg, 'Warning', 'Continue');
 
-		if (closeWithoutSavingData) {
+		if (closeWithoutSavingData)
+		{
 			this.dialogWasCanceled.emit();
 		}
 	}
 
-	saveButtonWasClicked(){
+	saveButtonWasClicked()
+	{
 		const valid = this.validateForm();
-		if(valid)
+
+		if (valid)
 		{
 			let colorItemsToSave: IColorItemDto[] = [];
-			
-			this.selectedColorItems.forEach(colorItemToUpdate => {
+
+			this.selectedColorItems.forEach(colorItemToUpdate =>
+			{
 				const colorItemToSave = {
 					colorItemId: colorItemToUpdate.colorItemId,
 					name: this.editColorItemForm.get('name').value.toString().trim(),
@@ -85,30 +99,38 @@ export class EditColorItemDialogComponent implements OnInit {
 				} as IColorItemDto;
 				colorItemsToSave.push(colorItemToSave);
 			});
-			let toast:IToastInfo;
-			this._colorService.updateColorItem(colorItemsToSave).subscribe((updatedColor) => {
-				if(updatedColor)
+
+			let toast: IToastInfo;
+
+			this._colorService.updateColorItem(colorItemsToSave).subscribe((updatedColor) =>
+			{
+				if (updatedColor)
 				{
 					toast = {
 						severity: 'success',
 						summary: 'Updated Color Item',
 						detail: 'Color Item update was successful!'
-					}
+					};
+
 					this._msgService.add(toast);
+
 					//To refresh grid
 					this.colorItemWasEdited.emit();
 				}
 			},
-			error => {
+			error =>
+			{
 				toast = {
 					severity: 'error',
 					summary: 'Updated Color Item',
 					detail: 'Color Item update failed. Please try again.'
 				} as IToastInfo;
+
 				this._msgService.add(toast);
+
 				this.dialogWasCanceled.emit();
 			});
-		}		
+		}
 	}
 
 	validateForm(): boolean
@@ -119,20 +141,27 @@ export class EditColorItemDialogComponent implements OnInit {
 		if (colorItemName.length === 0)
 		{
 			this.nameErrorMessage = this.requiredFieldMessage;
+
 			return false;
 		}
-		this.isDuplicateName = this.optionsWithColorItemInfo.some(option => option.colorItem[0].name.toLowerCase() === colorItemName && option.optionCommunityId === this.selectedOption.id && option.colorItem[0].colorItemId!=this.selectedColorItems[0].colorItemId);
+
+		//1) find the selectedOption in the list of options that have their related color items
+		//2) then search thru all color items (excluding the color item that is being edited) and compare the names
+		this.isDuplicateName = this.optionsWithColorItemInfo
+			.find(o => o.optionCommunityId === this.selectedOption.id)
+			.colorItem.some(ci => ci.colorItemId !== this.selectedColorItems[0].colorItemId && ci.name.toLowerCase() === colorItemName);
 
 		if (this.isDuplicateName)
 		{
 			this.nameErrorMessage = 'A color item with the same name already exists for this option.';
+
 			return false;
 		}
 
 		return true;
 	}
 
-    private async showConfirmModal(body: string, title: string, defaultButton: string): Promise<boolean>
+	private async showConfirmModal(body: string, title: string, defaultButton: string): Promise<boolean>
 	{
 		const confirm = this._modalService.open(ConfirmModalComponent, { centered: true, windowClass: "phd-modal-window" });
 
@@ -141,26 +170,35 @@ export class EditColorItemDialogComponent implements OnInit {
 		confirm.componentInstance.defaultOption = defaultButton;
 
 		const response = await confirm.result;
+
 		return response === 'Continue';
 	}
 
-    onMoveColorToSource() {
+	onMoveColorToSource()
+	{
 		this.availableColors.sort((colorA, colorB) => colorA.name.toLowerCase() > colorB.name.toLowerCase() ? 1 : -1);
+
 		this.colorsHasChanged = true;
 	}
 
-	onMoveAllColorsToSource() {
+	onMoveAllColorsToSource()
+	{
 		this.availableColors.sort((colorA, colorB) => colorA.name.toLowerCase() > colorB.name.toLowerCase() ? 1 : -1);
+
 		this.colorsHasChanged = true;
 	}
 
-	onMoveColorToTarget() {
+	onMoveColorToTarget()
+	{
 		this.selectedColors.sort((colorA, colorB) => colorA.name.toLowerCase() > colorB.name.toLowerCase() ? 1 : -1);
+
 		this.colorsHasChanged = true;
 	}
 
-	onMoveAllColorsToTarget() {
+	onMoveAllColorsToTarget()
+	{
 		this.selectedColors.sort((colorA, colorB) => colorA.name.toLowerCase() > colorB.name.toLowerCase() ? 1 : -1);
+
 		this.colorsHasChanged = true;
 	}
 }

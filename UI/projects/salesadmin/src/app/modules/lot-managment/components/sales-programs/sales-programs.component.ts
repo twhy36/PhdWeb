@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, HostListener } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { Observable } from 'rxjs';
-import { tap, switchMap, map, finalize, combineLatest } from 'rxjs/operators';
+import { tap, switchMap, finalize, combineLatest } from 'rxjs/operators';
 
 import { UnsubscribeOnDestroy } from '../../../shared/utils/unsubscribe-on-destroy';
 import { FinancialCommunity, FinancialCommunityInfo } from '../../../shared/models/financialCommunity.model';
@@ -48,7 +48,7 @@ export class SalesProgramsComponent extends UnsubscribeOnDestroy implements OnIn
 		private _modalService: NgbModal,
 		private _msgService: MessageService,
 		private _route: ActivatedRoute
-	) { super() }
+	) { super(); }
 
 	@HostListener('window:beforeunload')
 	canDeactivate(): Observable<boolean> | boolean

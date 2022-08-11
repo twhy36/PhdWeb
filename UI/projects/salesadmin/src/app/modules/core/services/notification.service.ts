@@ -1,7 +1,7 @@
 import { ReOrgService } from '../services/re-org.service';
 import { Injectable } from '@angular/core';
 
-import { from, timer, of, Subscription, Observable } from 'rxjs';
+import { from, timer, of, Observable } from 'rxjs';
 import { tap, retryWhen, delayWhen, take, switchMap } from 'rxjs/operators';
 
 import * as signalR from '@microsoft/signalr';

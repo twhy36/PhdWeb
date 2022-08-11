@@ -1,4 +1,5 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, HostListener, ViewChild, QueryList, ViewChildren } from '@angular/core';
+import { MatMenuTrigger } from '@angular/material/menu';
 
 import { UnsubscribeOnDestroy, Group, PointStatus } from 'phd-common';
 
@@ -19,7 +20,34 @@ export class GroupBarComponent extends UnsubscribeOnDestroy implements OnInit
 
 	highlightedStyle: any = { 'font-weight': 'bold' };
 	completedStatuses = [PointStatus.COMPLETED, PointStatus.PARTIALLY_COMPLETED];
+	widthLimit: number = 1025;
+	currInnerWidth: number = this.widthLimit;
+	prevInnerWidth: number = this.widthLimit;
+	
+	
+	@ViewChild('hamburgerMenuTrigger') hamburgerTrigger; 
+	@ViewChildren(MatMenuTrigger) trigger: QueryList<MatMenuTrigger>;
+	
+	@HostListener("window:resize", ["$event"])
 
+	onResize(event) {
+		this.currInnerWidth = event.target.innerWidth;
+		
+		//Catch the resize event of when the standard group-bar links disappear and the hamburger menu appears
+		if ((this.prevInnerWidth >= this.widthLimit) && (this.currInnerWidth < this.widthLimit)) {
+			for (let item of this.trigger.toArray()) {	//Close any open sub-menu's from the standard group-bar links
+				item.closeMenu();
+			}
+		}
+		
+		//Catch the resize event of when the hamburger menu disappears and the standard group-bar links appear
+		if ((this.prevInnerWidth < this.widthLimit) && (this.currInnerWidth >= this.widthLimit)) {
+			this.hamburgerTrigger.closeMenu();	//When the hamburger menu disappears, make its sub-menus also disappear
+		}
+		
+		this.prevInnerWidth = this.currInnerWidth;
+	}
+	
 	constructor()
     {
 		super();

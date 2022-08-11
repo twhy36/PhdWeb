@@ -54,7 +54,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	imageLoading: boolean = false;
 	qtyAvailable: number;
 	selectedQuantity: number;
-		
+
 	choiceImages: ChoiceImageAssoc[] = [];
 	optionImages: OptionImage[] = [];
 	override$ = new ReplaySubject<boolean>(1);
@@ -454,7 +454,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	{
 		this.choice.selectedAttributes = this.getSelectedAttributes();
 
-		this.store.dispatch(new ScenarioActions.SelectChoices(true, { choiceId: this.choice.id, overrideNote: null, quantity: this.choice.quantity, attributes: this.choice.selectedAttributes }));
+		this.store.dispatch(new ScenarioActions.SelectChoices(true, { choiceId: this.choice.id, overrideNote: null, quantity: this.choice.quantity, attributes: this.choice.selectedAttributes, attributeOnly: true }));
 
 		// only trigger a save if the choice is selected - Change orders only
 		if (this.choice.quantity > 0)
@@ -467,7 +467,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	{
 		const selectedAttributes: DesignToolAttribute[] = [];
 
-		const attributeGroups = this.attributeComponent.attributeGroups;
+		const attributeGroups = this.attributeComponent?.attributeGroups;
 
 		this.attributeComponent.attributeListComponents.forEach(a =>
 		{

@@ -1,4 +1,4 @@
-<nav id="phd-nav-bar" class="navbar fixed-top navbar-expand-md">
+<nav (window:resize)="onResize($event)" id="phd-nav-bar" class="navbar fixed-top navbar-expand-md">
 	<div class="d-flex container-fluid phd-mobile-header">
 		<div class="d-flex flex-row align-items-flex-start justify-content-space-between">
 			<div class="phd-nav-bar-header phd-clickable">
@@ -11,13 +11,16 @@
 		</div>
 		<div class="col-6 d-flex ml-auto" [ngClass]="getBrandedMenuClass(false)">
 			<div>
-				<a class="phd-nav-page phd-page-separator"
+				<a *ngIf="showMyFavoritesLink"
+				   class="phd-nav-page phd-page-separator"
+				   [class.phd-active-link-full]="isLaunchedInBuyerPreview"
 				   [routerLink]="['/favorites/summary']"
 				   [routerLinkActive]="['phd-active-link-full']"
 				   (click)="toFavoritesPage ? onViewFavorites() : false">
 				   My Favorites
 				</a>
-				<a class="phd-nav-page"
+				<a *ngIf="showFloorplanLink"
+				   class="phd-nav-page"
 				   [ngClass]="showContractedOptionsLink ? 'phd-page-separator' : ''"
 				   [routerLink]="['/floorplan']"
 				   [routerLinkActive]="['phd-active-link-full']">
@@ -28,6 +31,12 @@
 				   [routerLink]="['/contracted']"
 				   [routerLinkActive]="['phd-active-link-full']">
 				   Contracted Options
+				</a>
+				<a *ngIf="showIncludedOptionsLink"
+				   class="phd-nav-page"
+				   [routerLink]="['/included']"
+				   [routerLinkActive]="['phd-active-link-full']">
+				   Included Options
 				</a>
 			</div>
 		</div>
@@ -40,11 +49,9 @@
 
 <div *ngIf="!isMenuCollapsed" class="phd-collapsable-menu">
 	<div [class.phd-active-link-collapsed]="currentRoute?.startsWith('/favorites/summary')">
-		<a [routerLink]="['/favorites/summary']">My Favorites</a>
-		<!-- Send these links to their proper pages, uncomment as needed -->
-		<a [routerLink]="['/floorplan']">Floorplan</a>
+		<a *ngIf="showMyFavoritesLink" [routerLink]="['/favorites/summary']">My Favorites</a>
+		<a *ngIf="showFloorplanLink" [routerLink]="['/floorplan']">Floorplan</a>
 		<a *ngIf="showContractedOptionsLink" [routerLink]="['/contracted']">Contracted Options</a>
-		<!-- <a [routerLink]="['/home']">FAQ</a> -->
-		<!-- Send these links to their proper pages -->
+		<a *ngIf="showIncludedOptionsLink" [routerLink]="['/included']">Included Options</a>
 	</div>
 </div>

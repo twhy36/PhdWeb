@@ -54,6 +54,17 @@
 	padding-bottom: 4.5vh;
 }
 
+.phd-community-name {
+	font-size: 23px;
+	color: var(--home-text-color);
+	margin-bottom: -5px;
+}
+
+.phd-plan-name {
+	font-size: 20px;
+	color: var(--home-text-color);
+}
+
 @media(max-width: $tablet-max-width) {
 	.phd-start-reviewing {
 		font-size: 20px;

@@ -13,6 +13,7 @@ import { SidePanelComponent } from '../../../../shared/components/side-panel/sid
 
 import { TreeService } from '../../../../core/services/tree.service';
 import { DivisionalService } from '../../../../core/services/divisional.service';
+import { LoadingService } from '../../../../core/services/loading.service'
 
 import { DTPoint, DTSubGroup } from '../../../../shared/models/tree.model';
 import { IRule, IRuleItem, RuleType } from '../../../../shared/models/rule.model';
@@ -29,8 +30,16 @@ export class PointSidePanelComponent implements OnInit
 	constructor(
 		private _treeService: TreeService,
 		private _modalService: NgbModal,
-		private _divService: DivisionalService
+		private _divService: DivisionalService,
+		private _loadingService: LoadingService
 	) { }
+
+	ngOnInit(): void
+	{
+		this.getPointRules();
+		this.getChoiceRules();
+		this.createPointDetailsForm();
+	}
 
 	@ViewChild(SidePanelComponent)
 	private sidePanel: SidePanelComponent;
@@ -106,13 +115,6 @@ export class PointSidePanelComponent implements OnInit
 	get allRules(): IRule[]
 	{
 		return this.choiceRules.concat(this.pointRules)
-	}
-
-	ngOnInit(): void
-	{
-		this.getPointRules();
-		this.getChoiceRules();
-		this.createPointDetailsForm();
 	}
 
 	createPointDetailsForm()
@@ -418,6 +420,7 @@ export class PointSidePanelComponent implements OnInit
 				.pipe(finalize(() =>
 				{
 					this.isSaving = false;
+					this._loadingService.isSaving$.next(false);
 
 					if (ruleType === 'choice')
 					{
@@ -460,7 +463,7 @@ export class PointSidePanelComponent implements OnInit
 		else
 		{
 			this.isSaving = false;
-
+			this._loadingService.isSaving$.next(false);
 			callback(false);
 		}
 	}
@@ -511,7 +514,7 @@ export class PointSidePanelComponent implements OnInit
 		this.pointForm.reset({
 			'pointPickType': pointPickType,
 			'quickQuoteCheck': this.point.isQuickQuoteItem,
-			'structCheck': this.point.isStructuralItem 
+			'structCheck': this.point.isStructuralItem
 		});
 	}
 

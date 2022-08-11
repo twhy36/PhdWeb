@@ -6,9 +6,10 @@ import { Observable, EMPTY as empty, from, of, forkJoin, combineLatest } from 'r
 import { switchMap, map, concat, scan, filter, distinct, withLatestFrom, tap } from 'rxjs/operators';
 import * as _ from 'lodash';
 
-import {
+import
+{
 	SalesCommunity, ChangeOrderChoice, ChangeOrderGroup, Job, IMarket, SalesAgreementInfo, DecisionPoint, Choice,
-	IdentityService, SpinnerService, Claims, Permission, MyFavorite, ModalService, TimeOfSaleOptionPrice, Tree, TreeVersionRules, PlanOption, OptionImage, updateLotChoiceRules, LotChoiceRuleAssoc
+	IdentityService, SpinnerService, Claims, Permission, MyFavorite, ModalService, TimeOfSaleOptionPrice, Tree, TreeVersionRules, PlanOption, OptionImage, updateLotChoiceRules, LotChoiceRuleAssoc, DesignToolAttribute
 } from 'phd-common';
 
 import { CommonActionTypes, LoadScenario, LoadError, ScenarioLoaded, LoadSalesAgreement, SalesAgreementLoaded, LoadSpec, JobLoaded, ESignEnvelopesLoaded } from './actions';
@@ -34,23 +35,29 @@ import { State, canDesign, showSpinner } from './reducers';
 import { FavoriteService } from '../core/services/favorite.service';
 import { LiteService } from '../core/services/lite.service';
 import { UpdateReplaceOptionPrice } from './job/actions';
+import { AttributeService } from '../core/services/attribute.service';
+import { RequiredChoiceAttributesSelected, ScenarioActionTypes, SelectRequiredChoiceAttributes } from './scenario/actions';
 
 @Injectable()
 export class CommonEffects
 {
-	loadScenario$: Observable<Action> = createEffect(() => {
+	loadScenario$: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<LoadScenario>(CommonActionTypes.LoadScenario),
 			tryCatch(source => source.pipe(
 				switchMap(action => this.scenarioService.getScenario(action.scenarioId)),
-				switchMap(scenario => {
+				switchMap(scenario =>
+				{
 					return this.liteService.isPhdLiteEnabled(scenario?.financialCommunityId).pipe(
-						map(isPhdLiteEnabled => {
+						map(isPhdLiteEnabled =>
+						{
 							return { scenario, isPhdLiteEnabled };
 						}));
 				}),
-				switchMap(result => {
-					const scenario = result.scenario; 
+				switchMap(result =>
+				{
+					const scenario = result.scenario;
 					const isPhdLite = !scenario.treeVersionId || result.isPhdLiteEnabled && this.liteService.checkLiteScenario(scenario?.scenarioChoices, scenario?.scenarioOptions);
 
 					const getTree = !isPhdLite ? this.treeService.getTree(scenario.treeVersionId) : of<Tree>(null);
@@ -71,14 +78,17 @@ export class CommonEffects
 							getLotChoiceRules
 						])
 					]).pipe(
-						map(([tree, rules, options, optionImages, lot, [webPlanMapping, opportunity, lotChoiceRulesAssoc]]) => {
+						map(([tree, rules, options, optionImages, lot, [webPlanMapping, opportunity, lotChoiceRulesAssoc]]) =>
+						{
 							if (optionImages)
 							{
 								// apply images to options
-								options.forEach(option => {
+								options.forEach(option =>
+								{
 									let filteredImages = optionImages.filter(x => x.integrationKey === option.financialOptionIntegrationKey);
 
-									if (filteredImages.length) {
+									if (filteredImages.length)
+									{
 										// make sure they're sorted properly
 										option.optionImages = filteredImages.sort((a, b) => a.sortKey < b.sortKey ? -1 : 1);
 									}
@@ -87,20 +97,23 @@ export class CommonEffects
 
 							// Assign new lot choice rules everytime we load a scenario
 							// This assigns the most latest lot choice rules, instead of waiting for 1 hour
-							if (rules) {
+							if (rules)
+							{
 								rules.lotChoiceRules = updateLotChoiceRules(lotChoiceRulesAssoc, rules.lotChoiceRules);
 							}
 
 							return { tree, rules, options, optionImages, lot, webPlanMapping, opportunity };
 						}),
 						updateWithNewTreeVersion(scenario, this.treeService),
-						map(data => {
+						map(data =>
+						{
 							// If there's a lot in the scenario and...
 							// The lot's status is not Available and...
 							// There is no sales agreement
 							let lotNoLongerAvailable = false;
 
-							if (scenario.lotId && data.lot && data.lot.lotStatusDescription !== 'Available') {
+							if (scenario.lotId && data.lot && data.lot.lotStatusDescription !== 'Available')
+							{
 								// Then deselect the lot and gank it!
 								scenario.lotId = null;
 								lotNoLongerAvailable = true;
@@ -108,7 +121,8 @@ export class CommonEffects
 
 							let isSpecScenario = false;
 
-							if (data.lot) {
+							if (data.lot)
+							{
 								isSpecScenario = data.lot.lotBuildTypeDesc === 'Spec';
 							}
 
@@ -118,21 +132,27 @@ export class CommonEffects
 						})
 					);
 				}),
-				switchMap(result => {
-					result.scenario.scenarioChoices.forEach(choice => {
+				switchMap(result =>
+				{
+					result.scenario.scenarioChoices.forEach(choice =>
+					{
 						const c: Choice = _.flatMap(result.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)))
 							.find(ch => ch.id === choice.choiceId);
 
-						if (c) {
+						if (c)
+						{
 							c.quantity = choice.choiceQuantity;
 							c.selectedAttributes = choice.selectedAttributes;
 						}
 					});
 
-					if (result.isSpecScenario) {
+					if (result.isSpecScenario)
+					{
 						return this.jobService.getJobByLotId(result.scenario.lotId).pipe(
-							switchMap(job => {
-								if (job && job.length) {
+							switchMap(job =>
+							{
+								if (job)
+								{
 									const financialCommunityId = result.tree?.financialCommunityId ?? result.scenario.financialCommunityId;
 									const salesCommunityId = result.opportunity?.opportunity?.salesCommunityId;
 									const getSalesCommunity = !!financialCommunityId
@@ -144,16 +164,19 @@ export class CommonEffects
 										this.identityService.getClaims(),
 										this.identityService.getAssignedMarkets()
 									]).pipe(
-										switchMap(([sc, claims, markets]: [SalesCommunity, Claims, IMarket[]]) => {
-											return this.treeService.getChoiceCatalogIds(job[0].jobChoices).pipe(
-												map(res => {
-													job[0].jobChoices = res;
+										switchMap(([sc, claims, markets]: [SalesCommunity, Claims, IMarket[]]) =>
+										{
+											return this.treeService.getChoiceCatalogIds(job.jobChoices).pipe(
+												map(res =>
+												{
+													job.jobChoices = res;
 
 													return [sc, job, claims, markets];
 												})
 											);
 										}),
-										switchMap(([sc, job, claims, markets]: [SalesCommunity, Job[], Claims, IMarket[]]) => {
+										switchMap(([sc, job, claims, markets]: [SalesCommunity, Job, Claims, IMarket[]]) =>
+										{
 											if (result.isPhdLite)
 											{
 												return of({ job, salesCommunity: sc, claims, markets, tree: result.tree, options: result.options, isPhdLite: result.isPhdLite });
@@ -162,14 +185,17 @@ export class CommonEffects
 											{
 												return of({ job, salesCommunity: sc, claims, markets, tree: result.tree, options: result.options, isPhdLite: result.isPhdLite }).pipe(
 													//do this before checking cutoffs
-													mergeIntoTree(job[0].jobChoices, job[0].jobPlanOptions, this.treeService, null, false),
-													map(res => {
+													mergeIntoTree(job.jobChoices, job.jobPlanOptions, this.treeService, null, false),
+													map(res =>
+													{
 														//add selections from the job into the tree
-														res.job[0].jobChoices.filter(ch => !result.scenario.scenarioChoices.some(sc => sc.choiceId === ch.dpChoiceId)).forEach(choice => {
+														res.job.jobChoices.filter(ch => !result.scenario.scenarioChoices.some(sc => sc.choiceId === ch.dpChoiceId)).forEach(choice =>
+														{
 															const c = _.flatMap(result.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)))
 																.find(ch => ch.divChoiceCatalogId === choice.divChoiceCatalogId);
 
-															if (c) {
+															if (c)
+															{
 																c.quantity = choice.dpChoiceQuantity;
 																c.selectedAttributes = mapAttributes(choice);
 															}
@@ -180,46 +206,58 @@ export class CommonEffects
 												);
 											}
 										}),
-										map(res => {
+										map(res =>
+										{
 											let needsOverride = false;
 											let canOverride = res.claims.SalesAgreements && !!(res.claims.SalesAgreements & Permission.Override) && res.markets.some(m => m.number === res.salesCommunity.market.number);
 
 											if (res.isPhdLite)
 											{
-												return { ...result, needsOverride, canOverride, pointsPastCutoff: [], jobChoices: [], salesCommunity: res.salesCommunity, job: res.job[0] };
+												return { ...result, needsOverride, canOverride, pointsPastCutoff: [], jobChoices: [], salesCommunity: res.salesCommunity, job: res.job };
 											}
 											else
 											{
-												setTreePointsPastCutOff(result.tree, res.job[0]);
+												setTreePointsPastCutOff(result.tree, res.job);
 
 												const pointsPastCutoff = _.flatMap(result.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points))
 													.filter(pt => pt.isPastCutOff);
 												let jobChoices = [];
 
-												if (pointsPastCutoff.length > 0) {
+												if (pointsPastCutoff.length > 0)
+												{
 													// check if point is part of scenario or specJIO
-													res.job[0].changeOrderGroups.forEach(changeOrderGroup => {
-														changeOrderGroup.jobChangeOrders[0].jobChangeOrderChoices.forEach(jobChoice => {
-															if (jobChoice.action === 'Add') {
+													res.job.changeOrderGroups.forEach(changeOrderGroup =>
+													{
+														changeOrderGroup.jobChangeOrders[0].jobChangeOrderChoices.forEach(jobChoice =>
+														{
+															if (jobChoice.action === 'Add')
+															{
 																jobChoices.push({ choiceId: jobChoice.dpChoiceId, overrideNote: null, quantity: jobChoice.dpChoiceQuantity });
 															}
-															else if (jobChoice.action === 'Delete') {
+															else if (jobChoice.action === 'Delete')
+															{
 																jobChoices = jobChoices.filter(choice => choice.choiceId !== jobChoice.dpChoiceId);
 															}
 														});
 													});
 
-													pointsPastCutoff.forEach((point: DecisionPoint) => {
-														point.choices.forEach(choice => {
+													pointsPastCutoff.forEach((point: DecisionPoint) =>
+													{
+														point.choices.forEach(choice =>
+														{
 															const coJobChoice = jobChoices.find(jcChoice => jcChoice.choiceId === choice.id);
 
-															if (coJobChoice) {
-																if (coJobChoice.quantity !== choice.quantity) {
+															if (coJobChoice)
+															{
+																if (coJobChoice.quantity !== choice.quantity)
+																{
 																	needsOverride = true;
 																}
 															}
-															else {
-																if (choice.quantity > 0) {
+															else
+															{
+																if (choice.quantity > 0)
+																{
 																	needsOverride = true;
 																}
 															}
@@ -227,34 +265,41 @@ export class CommonEffects
 													});
 												}
 
-												return { ...result, needsOverride, canOverride, pointsPastCutoff, jobChoices, salesCommunity: res.salesCommunity, job: res.job[0] };
+												return { ...result, needsOverride, canOverride, pointsPastCutoff, jobChoices, salesCommunity: res.salesCommunity, job: res.job };
 											}
 										})
 									);
 								}
-								else {
+								else
+								{
 									return of({ ...result, salesCommunity: null, pointsPastCutoff: null, canOverride: false, jobChoices: null, needsOverride: false, job: null });
 								}
 							})
 						);
 					}
-					else {
+					else
+					{
 						return of({ ...result, salesCommunity: null, pointsPastCutoff: null, canOverride: false, jobChoices: null, needsOverride: false, job: null });
 					}
 				}),
-				switchMap(result => {
+				switchMap(result =>
+				{
 					let overrideNote: string;
 					let overrode = false;
 
 					if (result.needsOverride && result.canOverride)
 					{
-						return this.modalService.showOverrideModal(`<div>Some of your scenario choices are Past Cutoff date/stage and will need to have an Cutoff Override.</div>`).pipe(map((modalResult) => {
-							if (modalResult !== 'cancel') {
+						return this.modalService.showOverrideModal(`<div>Some of your scenario choices are Past Cutoff date/stage and will need to have an Cutoff Override.</div>`).pipe(map((modalResult) =>
+						{
+							if (modalResult !== 'cancel')
+							{
 								overrode = true;
 								overrideNote = modalResult;
 
-								result.pointsPastCutoff.forEach((point: DecisionPoint) => {
-									point.choices.forEach(choice => {
+								result.pointsPastCutoff.forEach((point: DecisionPoint) =>
+								{
+									point.choices.forEach(choice =>
+									{
 										const coJobChoice = result.jobChoices.find(jcChoice => jcChoice.choiceId === choice.id);
 
 										if (coJobChoice)
@@ -276,29 +321,40 @@ export class CommonEffects
 
 								return { ...result, overrideNote: overrideNote, overrode: overrode };
 							}
-							else {
+							else
+							{
 								return { ...result, overrideNote: null, overrode: false };
 							}
 						}));
 					}
-					else {
+					else
+					{
 						return of({ ...result, overrideNote: null, overrode: false });
 					}
 				}),
-				switchMap(result => {
-					if (result.needsOverride && !result.overrode) {
-						return this.modalService.showConfirmModal('Some of your scenario choices are Past Cutoff date/stage and will need to have an Cutoff Override.').pipe(map(() => {
-							result.pointsPastCutoff.forEach((point: DecisionPoint) => {
-								point.choices.forEach(choice => {
+				switchMap(result =>
+				{
+					if (result.needsOverride && !result.overrode)
+					{
+						return this.modalService.showConfirmModal('Some of your scenario choices are Past Cutoff date/stage and will need to have an Cutoff Override.').pipe(map(() =>
+						{
+							result.pointsPastCutoff.forEach((point: DecisionPoint) =>
+							{
+								point.choices.forEach(choice =>
+								{
 									const coJobChoice = result.jobChoices.find(jcChoice => jcChoice.choiceId === choice.id);
 
-									if (coJobChoice) {
-										if (coJobChoice.quantity !== choice.quantity) {
+									if (coJobChoice)
+									{
+										if (coJobChoice.quantity !== choice.quantity)
+										{
 											choice.quantity = coJobChoice.quantity;
 										}
 									}
-									else {
-										if (choice.quantity > 0) {
+									else
+									{
+										if (choice.quantity > 0)
+										{
 											choice.quantity = 0;
 										}
 									}
@@ -308,12 +364,14 @@ export class CommonEffects
 							return { ...result };
 						}));
 					}
-					else {
+					else
+					{
 						return of({ ...result });
 					}
 				}),
-				switchMap(result => {
-					const financialCommunityId = result.tree?.financialCommunityId  ?? result.scenario?.financialCommunityId;
+				switchMap(result =>
+				{
+					const financialCommunityId = result.tree?.financialCommunityId ?? result.scenario?.financialCommunityId;
 					const salesCommunityId = result.opportunity?.opportunity?.salesCommunityId
 
 					if (!result.salesCommunity && (!!financialCommunityId || !!salesCommunityId))
@@ -322,22 +380,31 @@ export class CommonEffects
 							? this.orgService.getSalesCommunityByFinancialCommunityId(financialCommunityId, true)
 							: this.orgService.getSalesCommunity(salesCommunityId);
 
-						return getSalesCommunity.pipe(map(sc => {
+						return getSalesCommunity.pipe(map(sc =>
+						{
 							return { ...result, salesCommunity: sc, overrideNote: null };
 						}));
 					}
-					else {
+					else
+					{
 						return of({ ...result });
 					}
 				}),
-				switchMap(result => {
+				switchMap(result =>
+				{
 					let actions: any[] = [
 						new ScenarioLoaded(result.scenario, result.tree, result.rules, result.options, result.optionImages, result.lot, result.salesCommunity, result.lotNoLongerAvailable, result.opportunity, result.webPlanMapping, result.overrideNote, result.job),
 					];
 
-					if (result.opportunity && result.opportunity.opportunity && result.opportunity.opportunity.salesCommunityId) {
+					if (result.opportunity && result.opportunity.opportunity && result.opportunity.opportunity.salesCommunityId)
+					{
 						actions.push(new LoadPlans(result.opportunity.opportunity.salesCommunityId));
 						actions.push(new LoadLots(result.opportunity.opportunity.salesCommunityId));
+
+						if (result.lot?.id && !result.isPhdLite)
+						{
+							actions.push(new SelectRequiredChoiceAttributes());
+						}
 					}
 
 					return from(actions);
@@ -346,31 +413,39 @@ export class CommonEffects
 		);
 	});
 
-	loadSalesAgreementOrSpec$: Observable<Action> = createEffect(() => {
+	loadSalesAgreementOrSpec$: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<LoadSalesAgreement | LoadSpec | SalesAgreementCreated>(CommonActionTypes.LoadSalesAgreement, CommonActionTypes.LoadSpec, SalesAgreementActionTypes.SalesAgreementCreated),
 			tryCatch(source => source.pipe(
-				switchMap(action => {
-					if (action instanceof LoadSpec) {
+				switchMap(action =>
+				{
+					if (action instanceof LoadSpec)
+					{
 						return this.jobService.loadJob(action.job.id).pipe(
 							map(job => ({ job, salesAgreement: null, salesAgreementInfo: null }))
 						);
 					}
-					else if (action instanceof SalesAgreementCreated) {
+					else if (action instanceof SalesAgreementCreated)
+					{
 						return this.jobService.loadJob(action.salesAgreement.jobSalesAgreementAssocs[0].jobId, action.salesAgreement.id).pipe(
-							map(job => {
+							map(job =>
+							{
 								return { job, salesAgreement: action.salesAgreement, salesAgreementInfo: null };
 							})
 						);
 					}
-					else {
+					else
+					{
 						return forkJoin([
 							this.salesAgreementService.getSalesAgreement(action.salesAgreementId),
 							this.salesAgreementService.getSalesAgreementInfo(action.salesAgreementId)
 						]).pipe(
-							switchMap(([sag, sagInfo]) => {
+							switchMap(([sag, sagInfo]) =>
+							{
 								return this.jobService.loadJob(sag.jobSalesAgreementAssocs[0].jobId, sag.id).pipe(
-									map(job => {
+									map(job =>
+									{
 										return { job, salesAgreement: sag, salesAgreementInfo: sagInfo || new SalesAgreementInfo() };
 									})
 								);
@@ -378,11 +453,13 @@ export class CommonEffects
 						);
 					}
 				}),
-				switchMap(result => {
+				switchMap(result =>
+				{
 					const currentChangeOrder = this.changeOrderService.getCurrentChangeOrder(result.job.changeOrderGroups);
 					let changeOrderChoices: ChangeOrderChoice[] = [];
 
-					if (currentChangeOrder) {
+					if (currentChangeOrder)
+					{
 						changeOrderChoices = this.changeOrderService.getJobChangeOrderChoices([currentChangeOrder])
 					}
 
@@ -395,14 +472,18 @@ export class CommonEffects
 						this.liteService.isPhdLiteEnabled(result.job.financialCommunityId)
 					]).pipe(
 						//assign divChoiceCatalogIDs to choices for job and current change order
-						map(([sc, choices, jobPlanId, isPhdLiteEnabled]) => {
+						map(([sc, choices, jobPlanId, isPhdLiteEnabled]) =>
+						{
 							const currentChangeOrderGroup = new ChangeOrderGroup(currentChangeOrder);
 
-							if (currentChangeOrderGroup) {
-								_.flatMap(currentChangeOrderGroup.jobChangeOrders, co => co.jobChangeOrderChoices).forEach(ch => {
+							if (currentChangeOrderGroup)
+							{
+								_.flatMap(currentChangeOrderGroup.jobChangeOrders, co => co.jobChangeOrderChoices).forEach(ch =>
+								{
 									let ch1 = choices.find(c => c.dpChoiceId === ch.dpChoiceId);
 
-									if (ch1) {
+									if (ch1)
+									{
 										ch.divChoiceCatalogId = ch1.divChoiceCatalogId;
 									}
 								});
@@ -411,13 +492,16 @@ export class CommonEffects
 							const newResult = { ...result, job: { ...result.job, jobChoices: [...result.job.jobChoices] } };
 							const changedChoices = [];
 
-							newResult.job.jobChoices.forEach(ch => {
+							newResult.job.jobChoices.forEach(ch =>
+							{
 								const ch1 = choices.find(c => c.dpChoiceId === ch.dpChoiceId);
 
-								if (ch1) {
+								if (ch1)
+								{
 									changedChoices.push({ ...ch, divChoiceCatalogId: ch1.divChoiceCatalogId });
 								}
-								else {
+								else
+								{
 									changedChoices.push({ ...ch });
 								}
 							});
@@ -425,10 +509,12 @@ export class CommonEffects
 							newResult.job.jobChoices = changedChoices;
 
 							// Set divChoiceCatalogId in job change order groups
-							_.flatMap(newResult.job.changeOrderGroups, cog => _.flatMap(cog.jobChangeOrders, co => co.jobChangeOrderChoices)).forEach(ch => {
+							_.flatMap(newResult.job.changeOrderGroups, cog => _.flatMap(cog.jobChangeOrders, co => co.jobChangeOrderChoices)).forEach(ch =>
+							{
 								const choice = choices.find(c => c.dpChoiceId === ch.dpChoiceId);
 
-								if (choice) {
+								if (choice)
+								{
 									ch.divChoiceCatalogId = choice.divChoiceCatalogId;
 								}
 							});
@@ -437,8 +523,10 @@ export class CommonEffects
 						})
 					);
 				}),
-				map(result => {
-					if (result.currentChangeOrderGroup) {
+				map(result =>
+				{
+					if (result.currentChangeOrderGroup)
+					{
 						//change order stuff
 						const selectedChoices = this.changeOrderService.getSelectedChoices(result.job, result.currentChangeOrderGroup);
 						const selectedHanding = this.changeOrderService.getSelectedHanding(result.job);
@@ -456,7 +544,8 @@ export class CommonEffects
 							changeOrderPlanOptions
 						};
 					}
-					else {
+					else
+					{
 						return {
 							...result,
 							changeOrderGroup: null,
@@ -468,17 +557,21 @@ export class CommonEffects
 						};
 					}
 				}),
-				switchMap(result => {
-					if (result.selectedPlanId) {
+				switchMap(result =>
+				{
+					const isPhdLite = result.isPhdLiteEnabled && this.liteService.checkLiteAgreement(result.job, result.changeOrderGroup);
+
+					if (result.selectedPlanId)
+					{
 						const financialCommunity = result.sc?.financialCommunities?.find(f => f.id === result.job?.financialCommunityId);
 						const isDesignPreviewEnabled = financialCommunity ? financialCommunity.isDesignPreviewEnabled : false;
 
 						const getMyFavorites: Observable<MyFavorite[]> =
 							isDesignPreviewEnabled && result.salesAgreement && result.salesAgreement.id > 0
-							? this.favoriteService.loadMyFavorites(result.salesAgreement.id)
-							: of([]);
+								? this.favoriteService.loadMyFavorites(result.salesAgreement.id)
+								: of([]);
 
-						const getTreeVersionIdByJobPlan$ = result.isPhdLiteEnabled && this.liteService.checkLiteAgreement(result.job, result.changeOrderGroup)
+						const getTreeVersionIdByJobPlan$ = isPhdLite
 							? of(null)
 							: this.changeOrderService.getTreeVersionIdByJobPlan(result.selectedPlanId);
 
@@ -486,7 +579,8 @@ export class CommonEffects
 							getTreeVersionIdByJobPlan$,
 							getMyFavorites
 						]).pipe(
-							switchMap(([treeVersionId, favorites]) => {
+							switchMap(([treeVersionId, favorites]) =>
+							{
 								const favoriteChoices = !!favorites ? _.flatMap(favorites, x => x.myFavoritesChoice) : [];
 								const getFavoritesChoiceCatalogIds = !!favoriteChoices?.length ? this.treeService.getChoiceCatalogIds([...favoriteChoices]) : of([]);
 
@@ -512,10 +606,12 @@ export class CommonEffects
 										getLotChoiceRules
 									])
 								]).pipe(
-									map(([tree, rules, options, images, mappings, [lot, choices, lotChoiceRules]]) => {
+									map(([tree, rules, options, images, mappings, [lot, choices, lotChoiceRules]]) =>
+									{
 										if (choices?.length)
 										{
-											_.flatMap(favorites, fav => fav.myFavoritesChoice).forEach(ch => {
+											_.flatMap(favorites, fav => fav.myFavoritesChoice).forEach(ch =>
+											{
 												let ch1 = choices.find(c => c.dpChoiceId === ch.dpChoiceId);
 
 												if (ch1)
@@ -527,7 +623,8 @@ export class CommonEffects
 
 										// Assign new lot choice rules everytime we load an agreement
 										// This assigns the most latest lot choice rules, instead of waiting for 1 hour
-										if (rules) {
+										if (rules)
+										{
 											rules.lotChoiceRules = updateLotChoiceRules(lotChoiceRules, rules.lotChoiceRules);
 										}
 
@@ -546,7 +643,8 @@ export class CommonEffects
 											selectedPlanId: result.selectedPlanId,
 											salesAgreement: result.salesAgreement,
 											salesAgreementInfo: result.salesAgreementInfo,
-											myFavorites: favorites
+											myFavorites: favorites,
+											isPhdLite: isPhdLite
 										};
 									}),
 									mergeIntoTree(
@@ -558,7 +656,8 @@ export class CommonEffects
 										this.treeService,
 										result.changeOrderGroup,
 										result.salesAgreement && ['OutforSignature', 'Signed', 'Approved', 'Closed'].indexOf(result.salesAgreement.status) !== -1),
-									map(data => {
+									map(data =>
+									{
 										if (data.tree)
 										{
 											setTreePointsPastCutOff(data.tree, data.job);
@@ -570,16 +669,18 @@ export class CommonEffects
 							})
 						);
 					}
-					else {
+					else
+					{
 						return this.lotService.getLot(result.selectedLotId).pipe(
-							map(data => {
+							map(data =>
+							{
 								return {
-									tree: null,
-									rules: null,
-									options: null,
-									images: null,
+									tree: <Tree>(null),
+									rules: <TreeVersionRules>null,
+									options: <PlanOption[]>null,
+									images: <OptionImage[]>null,
 									job: result.job,
-									mappings: null,
+									mappings: <number[]>null,
 									lot: data,
 									sc: result.sc,
 									changeOrder: result.changeOrderGroup,
@@ -588,27 +689,34 @@ export class CommonEffects
 									selectedPlanId: result.selectedPlanId,
 									salesAgreement: result.salesAgreement,
 									salesAgreementInfo: result.salesAgreementInfo,
-									myFavorites: null
+									myFavorites: <MyFavorite[]>null,
+									isPhdLite: isPhdLite
 								}
 							})
 						)
 					}
 				}),
-				switchMap(result => {
-					if (result.salesAgreement && result.salesAgreementInfo) {
+				switchMap(result =>
+				{
+					if (result.salesAgreement && result.salesAgreementInfo)
+					{
 						//make sure base price is locked in.
 						let baseHouseOption = result.job.jobPlanOptions.find(o => o.jobOptionTypeName === 'BaseHouse');
 						let selectedPlanPrice: { planId: number, listPrice: number } = null;
 
-						if (['OutforSignature', 'Signed', 'Approved', 'Closed'].indexOf(result.salesAgreement.status) !== -1) {
-							if (baseHouseOption) {
+						if (['OutforSignature', 'Signed', 'Approved', 'Closed'].indexOf(result.salesAgreement.status) !== -1)
+						{
+							if (baseHouseOption)
+							{
 								selectedPlanPrice = { planId: result.selectedPlanId, listPrice: baseHouseOption ? baseHouseOption.listPrice : 0 };
 							}
 
-							if (result.changeOrder && result.changeOrder.salesStatusDescription !== 'Pending') {
+							if (result.changeOrder && result.changeOrder.salesStatusDescription !== 'Pending')
+							{
 								let co = result.changeOrder.jobChangeOrders.find(co => co.jobChangeOrderPlanOptions && co.jobChangeOrderPlanOptions.some(po => po.integrationKey === '00001' && po.action === 'Add'));
 
-								if (co) {
+								if (co)
+								{
 									selectedPlanPrice = { planId: result.selectedPlanId, listPrice: co.jobChangeOrderPlanOptions.find(po => po.action === 'Add' && po.integrationKey === '00001').listPrice };
 								}
 							}
@@ -655,11 +763,15 @@ export class CommonEffects
 								this.contractService.getTemplates(result.sc.market.id, result.job.financialCommunityId).pipe(
 									map(templates => [...templates, { displayName: "JIO", displayOrder: 2, documentName: "JIO", templateId: 0, templateTypeId: 4, marketId: 0, version: 0 }]),
 									map(templates => new TemplatesLoaded(templates))
-								)
+								),
+
+								// Select required chocie attributes
+								result.lot?.id && result.salesAgreement.status === 'Pending' && !result.isPhdLite ? <Observable<Action>>from([new SelectRequiredChoiceAttributes()]) : []
 							)
 						);
 					}
-					else {
+					else
+					{
 						return <Observable<Action>>from([new JobLoaded(result.job, result.salesAgreement, result.sc, result.selectedChoices, result.selectedPlanId, result.selectedHanding, result.tree, result.rules, result.options, result.images, result.mappings, result.changeOrder, result.lot),
 						...(!result.salesAgreement ? [new LoadLots(result.sc.id)] : []),
 						...(!result.salesAgreement ? [new LoadPlans(result.sc.id)] : []),
@@ -671,20 +783,133 @@ export class CommonEffects
 		);
 	});
 
+	selectRequiredChoiceAttributes$: Observable<Action> = createEffect(() =>
+	{
+		return this.actions$.pipe(
+			ofType<SelectRequiredChoiceAttributes>(ScenarioActionTypes.SelectRequiredChoiceAttributes),
+			withLatestFrom(this.store),
+			tryCatch(source => source.pipe(
+				switchMap(([action, store]) =>
+				{
+					const tree = store.scenario?.tree;
+					let requiredChoices = action.choices; // Required choices that are impacted by a point to point rule
+
+					if (!requiredChoices)
+					{
+						// Get required choices while loading an agreement/spec/scenario/tree
+						requiredChoices = tree ? _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices.filter(c => c.isRequired && c.enabled)))) : [];
+					}
+
+					return this.attributeService.getAttributeGroupsForChoices(requiredChoices).pipe(
+						map(attributeGroups =>
+						{
+							return { tree: tree, attributeGroups: attributeGroups };
+						})
+					);
+				}),
+				switchMap(tree =>
+				{
+					let attributeGroups = tree.attributeGroups;
+					let newTree = tree.tree;
+					let groups = [];
+
+					if (attributeGroups.length)
+					{
+						groups = newTree.treeVersion.groups.map(g =>
+						{
+							let group = Object.assign({}, g);
+
+							group.subGroups = group.subGroups.map(s =>
+							{
+								let subgroup = Object.assign({}, s)
+
+								subgroup.points = subgroup.points.map(p =>
+								{
+									let point = Object.assign({}, p);
+
+									let choices = p.choices.map(ch =>
+									{
+										const foundAttributeGroups = attributeGroups.filter(ag => ag.requiredChoiceIds.includes(ch.id));
+
+										if (foundAttributeGroups.length)
+										{
+											//if there is only 1 attribute group that has 1 attribute, auto select that attribute to the choice
+											let selectedAttributes: DesignToolAttribute[] = [];
+
+											foundAttributeGroups.forEach(ag =>
+											{
+												if (ag.attributes.length === 1)
+												{
+													const attribute = ag.attributes[0];
+
+													selectedAttributes.push({
+														attributeId: attribute.id,
+														attributeName: attribute.name,
+														attributeImageUrl: attribute.imageUrl,
+														attributeGroupId: ag.id,
+														attributeGroupName: ag.name,
+														attributeGroupLabel: ag.label,
+														locationGroupId: null,
+														locationGroupName: null,
+														locationGroupLabel: null,
+														locationId: null,
+														locationName: null,
+														locationQuantity: null,
+														scenarioChoiceLocationId: null,
+														scenarioChoiceLocationAttributeId: null,
+														sku: attribute.sku,
+														manufacturer: attribute.manufacturer
+													});
+												}
+											});
+											ch = { ...ch, selectedAttributes: selectedAttributes };
+										}
+										let choice = Object.assign({}, ch);
+
+										return choice;
+									});
+									point.choices = choices;
+
+									return point;
+								});
+								return subgroup;
+							});
+							return group;
+						});
+
+						newTree = {
+							...newTree, treeVersion: {
+								...newTree.treeVersion, groups: groups
+							}
+						};
+					}
+
+					let actions = [];
+					actions.push(new RequiredChoiceAttributesSelected(newTree));
+					return from(actions);
+				})
+			), LoadError, 'Error setting required choice attributes!!')
+		);
+	});
+
 	/**
 	 * Runs SavePendingJio when SA, Plans, and Lots have all loaded.
 	 * This is to make sure we have the most current data when the SA loads.
 	 * Same for CreateJobChangeOrders
 	**/
-	updatePricingOnInit$: Observable<Action> = createEffect(() => {
+	updatePricingOnInit$: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<SalesAgreementLoaded | PlansLoaded | LotsLoaded | LoadSalesAgreement>(CommonActionTypes.SalesAgreementLoaded, PlanActionTypes.PlansLoaded, LotActionTypes.LotsLoaded),
-			scan<Action, any>((curr, action) => {
-				if (action instanceof LoadSalesAgreement) {
+			scan<Action, any>((curr, action) =>
+			{
+				if (action instanceof LoadSalesAgreement)
+				{
 					return { ...curr, sagLoaded: false, plansLoaded: false, lotsLoaded: false, salesAgreement: null, currentChangeOrder: null };
 				}
 
-				if (action instanceof SalesAgreementLoaded) {
+				if (action instanceof SalesAgreementLoaded)
+				{
 					// Filter out actions in PHD Lite. Handled by updatePricingOnInitLite$() in lite effects.
 					return {
 						...curr,
@@ -694,41 +919,52 @@ export class CommonEffects
 						isPhdLite: !action.tree
 					};
 				}
-				else if (action instanceof PlansLoaded) {
+				else if (action instanceof PlansLoaded)
+				{
 					return { ...curr, plansLoaded: true };
 				}
-				else if (action instanceof LotsLoaded) {
+				else if (action instanceof LotsLoaded)
+				{
 					return { ...curr, lotsLoaded: true };
 				}
-				else {
+				else
+				{
 					return curr; //should never get here
 				}
 			}, { lotsLoaded: false, plansLoaded: false, sagLoaded: false, salesAgreement: null, currentChangeOrder: null }),
 			filter(res => res.lotsLoaded && res.plansLoaded && res.sagLoaded && !res.isPhdLite),
 			distinct(res => res.salesAgreement.id),
-			switchMap(res => {
+			switchMap(res =>
+			{
 				return this.store.pipe(
 					select(canDesign),
-					switchMap(canDesign => {
+					switchMap(canDesign =>
+					{
 						//don't do anything if user doesn't have permissions
-						if (!canDesign) {
+						if (!canDesign)
+						{
 							return empty;
 						}
 
-						if (res.salesAgreement.status === 'Pending') {
+						if (res.salesAgreement.status === 'Pending')
+						{
 							return of(new SavePendingJio());
 						}
-						else if (res.salesAgreement.status === 'Approved' && res.currentChangeOrder && res.currentChangeOrder.salesStatusDescription === 'Pending') {
+						else if (res.salesAgreement.status === 'Approved' && res.currentChangeOrder && res.currentChangeOrder.salesStatusDescription === 'Pending')
+						{
 							const jco = res.currentChangeOrder.jobChangeOrders;
 
-							if (jco.some(co => co.jobChangeOrderTypeDescription === 'Plan')) {
+							if (jco.some(co => co.jobChangeOrderTypeDescription === 'Plan'))
+							{
 								return of(new CreatePlanChangeOrder());
 							}
-							else if (jco.some(co => co.jobChangeOrderTypeDescription === 'ChoiceAttribute' || co.jobChangeOrderTypeDescription === 'Elevation')) {
+							else if (jco.some(co => co.jobChangeOrderTypeDescription === 'ChoiceAttribute' || co.jobChangeOrderTypeDescription === 'Elevation'))
+							{
 								return of(new CreateJobChangeOrders());
 							}
 						}
-						else {
+						else
+						{
 							return empty;
 						}
 					})
@@ -740,12 +976,15 @@ export class CommonEffects
 	showLoadingSpinner$: Observable<any> = createEffect(
 		() => this.actions$.pipe(
 			withLatestFrom(this.store.pipe(select(showSpinner))),
-			map(([action, showSpinner]) => {
+			map(([action, showSpinner]) =>
+			{
 				return showSpinner;
 			}),
 			scan((prev, current) => ({ prev: prev.current, current: current }), { prev: false, current: false }),
-			tap((showSpinnerScan: { prev: boolean; current: boolean }) => {
-				if (showSpinnerScan.prev !== showSpinnerScan.current) {
+			tap((showSpinnerScan: { prev: boolean; current: boolean }) =>
+			{
+				if (showSpinnerScan.prev !== showSpinnerScan.current)
+				{
 					this.spinnerService.showSpinner(showSpinnerScan.current);
 				}
 			})
@@ -771,6 +1010,7 @@ export class CommonEffects
 		private contractService: ContractService,
 		private spinnerService: SpinnerService,
 		private favoriteService: FavoriteService,
-		private liteService: LiteService
+		private liteService: LiteService,
+		private attributeService: AttributeService
 	) { }
 }

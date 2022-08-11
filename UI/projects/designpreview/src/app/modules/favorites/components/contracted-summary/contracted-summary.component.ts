@@ -10,6 +10,7 @@ import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromFavorite from '../../../ngrx-store/favorite/reducer';
 
 import { GroupExt } from '../../../shared/models/group-ext.model';
+import { BuildMode } from '../../../shared/models/build-mode.model';
 
 @Component({
 	selector: 'contracted-summary',
@@ -21,8 +22,9 @@ export class ContractedSummaryComponent extends UnsubscribeOnDestroy implements 
 	groups: GroupExt[];
 	priceBreakdown: PriceBreakdown;
 	salesChoices: JobChoice[];
-	buildMode: string;
+	buildMode: BuildMode;
 	isPreview: boolean = false;
+	isPresale: boolean = false;
 	isDesignComplete: boolean = false;
 
 	constructor(private store: Store<fromRoot.State>, 
@@ -57,7 +59,8 @@ export class ContractedSummaryComponent extends UnsubscribeOnDestroy implements 
 			this.takeUntilDestroyed(),
 			select(state => state.scenario),
 		).subscribe((scenario) => {
-			this.isPreview = scenario.buildMode === 'preview';
+			this.isPreview = scenario.buildMode === BuildMode.Preview;
+			this.isPresale = scenario.buildMode === BuildMode.Presale;
 		});
 	}
 

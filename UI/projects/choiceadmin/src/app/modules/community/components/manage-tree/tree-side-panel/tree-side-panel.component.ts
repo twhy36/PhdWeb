@@ -1,11 +1,9 @@
-import { Component, Input, OnInit, ViewChild, Output, EventEmitter, Inject } from '@angular/core';
-import { FormGroup, FormControl, Validators, AbstractControl, ValidatorFn, FormBuilder } from '@angular/forms';
+import { Component, Input, OnInit, ViewChild, Output, EventEmitter } from '@angular/core';
+import { FormGroup, Validators, FormBuilder } from '@angular/forms';
 
 import { SidePanelComponent } from '../../../../shared/components/side-panel/side-panel.component';
 import { DTVersion } from '../../../../shared/models/tree.model';
 import * as moment from 'moment';
-import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
-import { ConfirmModalComponent } from '../../../../core/components/confirm-modal/confirm-modal.component';
 
 @Component({
 	selector: 'tree-side-panel',
@@ -15,7 +13,6 @@ import { ConfirmModalComponent } from '../../../../core/components/confirm-modal
 export class TreeSidePanelComponent implements OnInit
 {
 	constructor(
-		private _modalService: NgbModal,
 		private _fb: FormBuilder
 	) { }
 
@@ -73,7 +70,7 @@ export class TreeSidePanelComponent implements OnInit
 		this.treeDetailsForm = this._fb.group(
 			{
 				name: [{ value: this.treeVersion.name, disabled: this.isReadOnly }, [Validators.required, Validators.maxLength(50)]],
-				description: [{ value: this.treeVersion.description, disabled: this.isReadOnly  }, Validators.maxLength(50)],
+				description: [{ value: this.treeVersion.description, disabled: this.isReadOnly }, Validators.maxLength(50)],
 				effectiveDate: [{ value: this.publishStartDate, disabled: this.isReadOnly }, Validators.required],
 				endDate: [{ value: this.publishEndDate, disabled: !this.canUnpublishTree }]
 			}
@@ -139,7 +136,7 @@ export class TreeSidePanelComponent implements OnInit
 		{
 			this.treeVersion.publishEndDate = moment(endDate);
 		}
-		
+
 		this.save.emit({ treeVersion: this.treeVersion, canUnpublishTree: this.canUnpublishTree });
 	}
 
@@ -151,33 +148,5 @@ export class TreeSidePanelComponent implements OnInit
 	toggleSidePanel()
 	{
 		this.sidePanel.toggleSidePanel();
-	}
-
-	private confirmNavAway(): Promise<boolean>
-	{
-		const confirmMessage = `If you continue you will lose your changes.<br><br>Do you want to continue?`;
-		const confirmTitle = `Warning!`;
-		const confirmDefaultOption = `Cancel`;
-
-		return this.showConfirmModal(confirmMessage, confirmTitle, confirmDefaultOption);
-	}
-
-	private showConfirmModal(body: string, title: string, defaultButton: string): Promise<boolean>
-	{
-		const confirm = this._modalService.open(ConfirmModalComponent, { centered: true });
-
-		confirm.componentInstance.title = title;
-		confirm.componentInstance.body = body;
-		confirm.componentInstance.defaultOption = defaultButton;
-
-		return confirm.result.then((result) =>
-		{
-			return result === 'Continue';
-		});
-	}
-
-	private controlHasErrors(control: AbstractControl)
-	{
-		return control.invalid && (control.dirty || control.touched);
 	}
 }

@@ -302,6 +302,7 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 													subGroupCatalogId: ch.dPoint.dSubGroup.dSubGroupCatalogID,
 													subGroupId: ch.dPoint.dSubGroupID,
 													treeVersionId: ch.dTreeVersionID,
+													dPointTypeId: ch.dPoint.divDPointCatalog.dPointCatalog?.dPointTypeId,
 													viewed: true
 												};
 

@@ -1,7 +1,10 @@
 import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef, ElementRef, Renderer2, NgZone } from '@angular/core';
+import { select, Store } from '@ngrx/store';
 
+import * as fromRoot from '../../../../ngrx-store/reducers';
 import { UnsubscribeOnDestroy, LotExt, PriceBreakdown } from 'phd-common';
 import { BrandService } from '../../../../core/services/brand.service';
+import { BuildMode } from '../../../../shared/models/build-mode.model';
 
 @Component({
 	selector: 'summary-header',
@@ -13,19 +16,22 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 	@Input() summaryHeader: SummaryHeader;
 	@Input() priceBreakdown: PriceBreakdown;
 	@Input() includeContractedOptions: boolean;
-	@Input() isPreview: boolean = false;
 	@Input() isDesignComplete: boolean = false;
-
+	
 	@Output() isStickyChanged = new EventEmitter<boolean>();
 	@Output() contractedOptionsToggled = new EventEmitter<boolean>();
-
+	
 	scrolling: boolean = false;
 	isSticky: boolean = false;
+	isPreview: boolean = false;
+	isPresale: boolean = false;
+	headerTitle: string;
 	listener: () => void;
 
 	constructor(
 		private ngZone: NgZone,
 		private renderer: Renderer2,
+		private store: Store<fromRoot.State>,
 		private cd: ChangeDetectorRef,
 		private summaryHeaderElement: ElementRef,
 		private brandService: BrandService)
@@ -38,6 +44,28 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 		this.ngZone.runOutsideAngular(() =>
 		{
 			this.listener = this.renderer.listen('window', 'scroll', () => { this.scrollHandler.bind(this)(); });
+		});
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(state => state.scenario),
+		).subscribe((state) => {
+			switch (state.buildMode)
+			{
+				case (BuildMode.Preview):
+					this.isPreview = true;
+					this.headerTitle = 'Preview Favorites';
+					break;
+				case (BuildMode.Presale):
+					this.isPresale = true;
+					this.headerTitle = 'My Favorites';
+					break;
+				default:
+					this.isPreview = false;
+					this.isPresale = false;
+					this.headerTitle = this.summaryHeader.favoritesListName;
+					break;
+			}
 		});
 	}
 
@@ -57,8 +85,8 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 		return address;
 	}
 
-	get title() : string {
-		return this.isPreview ? 'Preview Favorites' : this.summaryHeader.favoritesListName;
+	getPlanName() : string {
+		return this.isPresale ? this.summaryHeader.planName + ' Floorplan' : this.summaryHeader.planName;
 	}
 
 	get isContractedOptionsDisabled() : boolean

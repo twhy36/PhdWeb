@@ -23,6 +23,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 	@Input() groups: Group[];
 	@Input() tree: Tree;
 	@Input() isReadonly: boolean;
+	@Input() isPresale: boolean = false;
 
 	@Output() toggled = new EventEmitter<ChoiceExt>();
 	@Output() onViewChoiceDetail = new EventEmitter<ChoiceExt>();
@@ -66,6 +67,10 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 
 			this.imageUrl = this.getImagePath();
 		}
+	}
+
+	getBodyHeight(): string {
+		return this.isPresale ? '260px' : '285px';
 	}
 
 	getImagePath(): string

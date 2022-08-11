@@ -18,5 +18,4 @@ export interface IEnvironment {
 	pdfViewerBaseUrl: string;
 	whatFix: { scriptUrl: string };
 	EBillUrl: string;
-	designPreviewMarketWhitelist: number[];
 }

@@ -1,10 +1,11 @@
 import { createSelector, createFeatureSelector } from '@ngrx/store';
-import * as _ from "lodash";
+import * as _ from 'lodash';
 
-import {
-	Buyer, ESignStatusEnum, ChangeOrderGroup, ChangeInput, ChangeTypeEnum, ChangeOrder, ChangeOrderLot,
-	SalesStatusEnum, ChangeOrderGroupSalesStatusHistory, SalesNotesChangeOrders, Note, isSalesChangeOrder
-} from 'phd-common';
+import
+	{
+		Buyer, ESignStatusEnum, ChangeOrderGroup, ChangeInput, ChangeTypeEnum, ChangeOrder, ChangeOrderLot,
+		SalesStatusEnum, ChangeOrderGroupSalesStatusHistory, SalesNotesChangeOrders, Note, isSalesChangeOrder
+	} from 'phd-common';
 
 import { ChangeOrderActions, ChangeOrderActionTypes } from './actions';
 import { CommonActionTypes } from '../actions';
@@ -85,7 +86,7 @@ export function reducer(state: State = initialState, action: ChangeOrderActions)
 						if (!existingEnvelope)
 						{
 							changeOrder.eSignEnvelopes = [...(changeOrder.eSignEnvelopes || []), env];
-							changeOrder.envelopeId = env.envelopeGuid;							
+							changeOrder.envelopeId = env.envelopeGuid;
 						}
 					}
 				});
@@ -107,7 +108,7 @@ export function reducer(state: State = initialState, action: ChangeOrderActions)
 					}
 					else
 					{
-						changeOrder.eSignEnvelopes = action.eSignEnvelope ? [...(changeOrder.eSignEnvelopes || []), action.eSignEnvelope] : [...(changeOrder.eSignEnvelopes || [])] ;
+						changeOrder.eSignEnvelopes = action.eSignEnvelope ? [...(changeOrder.eSignEnvelopes || []), action.eSignEnvelope] : [...(changeOrder.eSignEnvelopes || [])];
 					}
 
 					if (action.eSignEnvelope)
@@ -517,7 +518,7 @@ export function reducer(state: State = initialState, action: ChangeOrderActions)
 						salesStatusId: SalesStatusEnum.Pending,
 						createdUtcDate: action.statusUtcDate,
 						salesStatusUtcDate: action.statusUtcDate
-					}));					
+					}));
 				}
 
 				if (action.eSignEnvelopeId)
@@ -528,13 +529,13 @@ export function reducer(state: State = initialState, action: ChangeOrderActions)
 						if (changeOrder.envelopeId === changeOrder.eSignEnvelopes[envelopeIndex].envelopeGuid)
 						{
 							changeOrder.envelopeId = null;
-						}						
+						}
 						changeOrder.eSignEnvelopes.splice(envelopeIndex, 1);
 					}
 				}
 
 				return { ...state, currentChangeOrder: changeOrder };
-			}			
+			}
 
 		case ChangeOrderActionTypes.CreateSalesChangeOrder:
 			return { ...state, savingChangeOrder: true, saveError: false };
@@ -913,26 +914,32 @@ export function reducer(state: State = initialState, action: ChangeOrderActions)
 				{
 					salesChangeOrder.salesNotesChangeOrders = [];
 				}
+
 				if (!salesChangeOrder.salesNotesChangeOrders.some(snco => snco.noteId === action.termsAndConditionsNote.id))
 				{
 					const salesNote = new SalesNotesChangeOrders();
+
 					salesNote.noteId = action.agreementNote ? 0 : action.termsAndConditionsNote.id;
 					salesNote.changeOrderId = salesChangeOrder.id;
 					salesNote.action = 'Add';
-					salesNote.note = action.termsAndConditionsNote
-					salesChangeOrder.salesNotesChangeOrders.push(salesNote)
+					salesNote.note = action.termsAndConditionsNote;
+
+					salesChangeOrder.salesNotesChangeOrders.push(salesNote);
 
 					if (action.agreementNote)
 					{
 						const deleteAgreementNote = new SalesNotesChangeOrders();
+
 						deleteAgreementNote.noteId = action.termsAndConditionsNote.id;
 						deleteAgreementNote.changeOrderId = salesChangeOrder.id;
 						deleteAgreementNote.action = 'Delete';
+
 						salesChangeOrder.salesNotesChangeOrders.push(deleteAgreementNote)
 					}
 				}
 
 				const newInput = _.cloneDeep(state.changeInput);
+
 				if (state.isChangingOrder && state.changeInput)
 				{
 					newInput.isDirty = true;
@@ -946,6 +953,7 @@ export function reducer(state: State = initialState, action: ChangeOrderActions)
 				let salesChangeOrder = changeOrder.jobChangeOrders ? changeOrder.jobChangeOrders.find(x => x.jobChangeOrderTypeDescription === 'SalesNotes') : null;
 				let notes = salesChangeOrder.salesNotesChangeOrders || [];
 				let addedNotes = notes.find(note => (note.noteId === action.termsAndConditionsNote.id || !note.noteId) && note.action === 'Add');
+
 				if (addedNotes)
 				{
 					addedNotes.noteId = action.termsAndConditionsNote.id;
@@ -957,7 +965,7 @@ export function reducer(state: State = initialState, action: ChangeOrderActions)
 					addedNotes.note.lastModifiedUtcDate = action.termsAndConditionsNote.lastModifiedUtcDate;
 
 				}
-				
+
 				return { ...state, currentChangeOrder: changeOrder };
 			}
 		case ChangeOrderActionTypes.DeleteTermsAndConditions:
@@ -983,7 +991,7 @@ export function reducer(state: State = initialState, action: ChangeOrderActions)
 				if (savedNote)
 				{
 					const noteIndex = salesNotesChangeOrders.findIndex(salesNotesChangeOrder => salesNotesChangeOrder.noteId === action.termsAndConditionsNote.id);
-	
+
 					salesNotesChangeOrders.splice(noteIndex, 1);
 				}
 				else

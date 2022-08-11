@@ -76,6 +76,16 @@
 	}
 }
 
+@media(max-width: 1085px) {
+	.phd-community-name {
+		font-size: 12px !important;
+	}
+
+	.phd-plan-name {
+		font-size: 10px !important;
+	}
+}
+
 .phd-primary-menu {
 	display: flex;
 	justify-content: center;
@@ -93,7 +103,7 @@
 
 	.phd-group-menu-selected {
 		color: var(--group-bar-selected-color);
-		font-size: 15px;
+		font-size: 17px;
 		font-weight: bold;
 	}
 }

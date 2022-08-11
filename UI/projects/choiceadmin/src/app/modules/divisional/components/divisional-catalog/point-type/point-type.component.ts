@@ -5,7 +5,7 @@ import { DivDPoint, IDPointPickType, ConstructionStageTypes } from '../../../../
 import { DivDSubGroup } from '../../../../shared/models/subgroup.model';
 
 import { DivisionalService } from '../../../../core/services/divisional.service';
-import { Observable ,  of } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 @Component({
@@ -30,7 +30,7 @@ export class PointTypeComponent implements OnInit
 	{
 		return Object.keys(this.stageTypeEnum).filter(type => isNaN(<any>type));
 	}
-	
+
 	get isDirty(): boolean
 	{
 		return this.catalogForm.dirty;
@@ -165,7 +165,7 @@ export class PointTypeComponent implements OnInit
 		}
 
 		item.dto.dPointPickType = pickType;
-		item.dto.dPointPickTypeID = pickType.dPointPickTypeID
+		item.dto.dPointPickTypeID = pickType.dPointPickTypeID;
 		item.isQuickQuote = isQuickQuote;
 		item.isStructural = isStructural;
 		item.isHiddenFromBuyerView = isHiddenFromBuyerView;

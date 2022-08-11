@@ -12,6 +12,7 @@ import * as _ from 'lodash';
 
 import { UnsubscribeOnDestroy, PriceBreakdown, Group, SubGroup } from 'phd-common';
 import { BrandService } from '../../../core/services/brand.service';
+import { BuildMode } from '../../../shared/models/build-mode.model';
 
 @Component({
   selector: 'floor-plan-summary',
@@ -34,6 +35,7 @@ export class FloorPlanSummaryComponent extends UnsubscribeOnDestroy implements O
 	isPlainFloorplan: boolean = false;
 	pageName: string;
 	isPreview: boolean = false;
+	isPresale: boolean = false;
 
 	constructor(
 		private store: Store<fromRoot.State>,
@@ -100,7 +102,8 @@ export class FloorPlanSummaryComponent extends UnsubscribeOnDestroy implements O
 			this.takeUntilDestroyed(),
 			select(state => state.scenario),
 		).subscribe((scenario) => {
-			this.isPreview = scenario.buildMode === 'preview';
+			this.isPreview = scenario.buildMode === BuildMode.Preview;
+			this.isPresale = scenario.buildMode === BuildMode.Presale;
 		});
 	}
 

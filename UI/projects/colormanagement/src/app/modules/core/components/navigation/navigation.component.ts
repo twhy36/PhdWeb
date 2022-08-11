@@ -3,6 +3,7 @@ import { NavigationEnd, Router, RouterEvent } from '@angular/router';
 import { IdentityService } from 'phd-common';
 import { filter } from 'rxjs/operators';
 import { ColorAdminService } from '../../services/color-admin.service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'navigation',
@@ -13,6 +14,7 @@ export class NavigationComponent implements OnInit {
 	user;
 	editingColor = false;
 	currentRoute;
+	optionPackagesEnabled$: Observable<boolean> = this._colorAdminService.optionPackagesEnabled$;
 
 	constructor(
 		private _identityService: IdentityService,
@@ -29,7 +31,7 @@ export class NavigationComponent implements OnInit {
 		});
 
 		this.router.events.pipe(filter(event => event instanceof NavigationEnd))
-		.subscribe((event: RouterEvent) => 
+		.subscribe((event: RouterEvent) =>
 		{
 			if (event.url.includes('optionpackage'))
 			{
@@ -39,7 +41,7 @@ export class NavigationComponent implements OnInit {
 			{
 				this.currentRoute = 'coloritem';
 			}
-			else if (event.url.includes('color'))
+			else if (event.url.includes('color') || event.url === '/')
 			{
 				this.currentRoute = 'color';
 			}

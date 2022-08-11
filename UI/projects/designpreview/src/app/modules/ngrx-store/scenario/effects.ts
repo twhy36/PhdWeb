@@ -5,7 +5,7 @@ import { Action, Store, select } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import { combineLatest, map, switchMap, tap, withLatestFrom } from 'rxjs/operators';
 
-import { LoadPreview, ScenarioActionTypes, SelectChoices, SetStatusForPointsDeclined, TreeLoaded, SetTreeFilter } from './actions';
+import { LoadPreview, LoadPresale, ScenarioActionTypes, SelectChoices, SetStatusForPointsDeclined, TreeLoaded, SetTreeFilter } from './actions';
 import * as fromRoot from '../reducers';
 import * as fromFavorite from '../favorite/reducer';
 import * as _ from 'lodash';
@@ -106,6 +106,69 @@ export class ScenarioEffects
 					]);
 				})
 			), LoadError, 'Error loading preview!!')
+		)
+	);
+
+	loadPresale$: Observable<Action> = createEffect(() =>
+		this.actions$.pipe(
+			ofType<LoadPresale>(ScenarioActionTypes.LoadPresale),
+			tryCatch(source => source.pipe(
+				switchMap(action =>
+					{
+						return this.orgService.getFinancialCommunityByFinancialCommunityNumber(action.financialCommunityNumber).pipe(
+							switchMap(finComm => {
+								return this.treeService.getTreeVersions(action.lawsonPlanId, finComm.id).pipe(
+									switchMap(treeVersions => {
+										if (treeVersions && treeVersions.length) {
+											return this.treeService.getTree(treeVersions[0].id).pipe(
+												combineLatest(
+													this.treeService.getRules(treeVersions[0].id),
+													this.treeService.getOptionImages(treeVersions[0].id),
+													this.treeService.getTreeBaseHouseOptions(treeVersions[0].id)
+												)
+											);
+										}
+									})
+								)
+							})
+						)
+					}),
+				switchMap(([tree, rules, optionImages, baseHouseOptions]) =>
+				{
+					const optionIds = baseHouseOptions.map(bho => bho.planOption.integrationKey);
+
+					return this.optionService.getPlanOptionsByPlanKey(tree.financialCommunityId, tree.planKey).pipe(
+						map(opt =>
+						{
+							return {
+								tree,
+								rules,
+								opt,
+								optionImages
+							};
+						}),
+						combineLatest(
+							this.planService.getWebPlanMapping(tree.planKey, tree.financialCommunityId),
+							this.planService.getPlanByPlanKey(tree.planKey, tree.financialCommunityId, optionIds),
+							this.orgService.getSalesCommunityByFinancialCommunityId(tree.financialCommunityId, true)
+						)
+					);
+				}),
+				switchMap(result =>
+				{
+					const plan: Plan = result[2];
+					const plans: Plan[] = [plan];
+					const salesCommunity = result[3];
+
+					return from([
+						new TreeLoaded(result[0].tree, result[0].rules, result[0].opt, result[0].optionImages, salesCommunity ),
+						new PlansLoaded(plans),
+						new SelectPlan(plan.id, plan.treeVersionId, plan.marketingPlanId),
+						new SetWebPlanMapping(result[1]),
+						new LoadLots(salesCommunity.id),
+					]);
+				})
+			), LoadError, 'Error loading presale!!')
 		)
 	);
 

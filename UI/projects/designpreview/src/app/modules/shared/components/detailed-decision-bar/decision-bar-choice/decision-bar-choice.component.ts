@@ -17,6 +17,7 @@ export class DecisionBarChoiceComponent implements OnInit {
 	@Input() groups: Group[];
 	@Input() tree: Tree;
 	@Input() isReadonly: boolean;
+	@Input() isPresale: boolean;
 
 	@Output() onToggleChoice = new EventEmitter<ChoiceExt>();
 	@Output() onViewChoiceDetail = new EventEmitter<ChoiceExt>();

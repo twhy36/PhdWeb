@@ -60,6 +60,7 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 	job: Job;
 	isPhdLite: boolean = false;
     salesCommunity: SalesCommunity;
+	totalPrice: number;
 
 	constructor(public planService: PlanService,
 		private router: Router,
@@ -226,6 +227,11 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 			this.takeUntilDestroyed(),
 			select(state => state.lite)
 		).subscribe(lite => this.isPhdLite = lite?.isPhdLite);
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromRoot.priceBreakdown)
+		).subscribe(price => this.totalPrice = price.totalPrice);
 	}
 
 	sortPlans(sortBy: planSortByType)

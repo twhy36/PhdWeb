@@ -1,5 +1,6 @@
-import { Component, Input, TemplateRef, Output, EventEmitter, ViewChild } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ViewChild } from '@angular/core';
 import { SearchBarComponent } from '../search-bar/search-bar.component';
+import { LoadingService } from '../../../core/services/loading.service';
 
 @Component({
 	selector: 'choice-selector',
@@ -28,7 +29,15 @@ export class ChoiceSelectorComponent
 
 	@ViewChild(SearchBarComponent) searchBar: SearchBarComponent;
 
-	constructor() { }
+	private isSaveButtonDisabled: boolean = false;
+
+	constructor(private _loadingService: LoadingService) { }
+
+	ngOnInit() {
+		this._loadingService.isSaving$.subscribe( () => {
+			this.isSaveButtonDisabled = false;
+		});
+	}
 
 	clearFilter()
 	{
@@ -52,16 +61,18 @@ export class ChoiceSelectorComponent
 
 	saveClick()
 	{
+		this.isSaveButtonDisabled = true;
 		this.onSave.emit();
 	}
 
 	get disableSaveButton()
 	{
-		return this.selectedChoices.length === 0;
+		return this.isSaveButtonDisabled;
 	}
 
 	reset()
 	{
 		this.searchBar.reset();
+		this.isSaveButtonDisabled = false;
 	}
 }

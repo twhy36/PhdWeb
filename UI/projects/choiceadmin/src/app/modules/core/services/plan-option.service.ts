@@ -1,13 +1,12 @@
 import { Injectable } from '@angular/core';
-import { HttpHeaders, HttpClient, HttpResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 
-import { Observable, BehaviorSubject,  throwError as _throw } from 'rxjs';
-import { flatMap, catchError, map } from 'rxjs/operators';
+import { Observable, throwError as _throw } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 
 import { SettingsService } from './settings.service';
 
 import { Settings } from '../../shared/models/settings.model';
-import { PhdEntityDto, EdhEntityDto, PhdApiDto } from '../../shared/models/api-dtos.model';
 import { IPlanOptionDto } from '../../shared/models/option.model';
 
 @Injectable()

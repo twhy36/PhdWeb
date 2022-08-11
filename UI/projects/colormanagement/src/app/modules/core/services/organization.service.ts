@@ -176,6 +176,25 @@ export class OrganizationService
 		);
 	}
 
+	getMarket(edhFinancialCommunityId: number): Observable<IMarket>{
+		// Get's a specific market based on it's edhFinancialCommunityId, regardless of salesStatusDescription being active or not
+		const expandOnMarkets = `financialCommunities($select=salesStatusDescription,id,name;$filter=id eq ${edhFinancialCommunityId})`;
+		const filterOnMarkets = `financialCommunities/any(fc: fc/id eq ${edhFinancialCommunityId})`;
+		const selectOnMarkets = `id, number, name, companyType, salesStatusDescription, financialCommunities`;
+		const orderByOnMarkets = `name`;
+		
+		const qryStrOnMarkets = `${this._ds}expand=${encodeURIComponent(expandOnMarkets)}&${this._ds}filter=${encodeURIComponent(filterOnMarkets)}
+								&${this._ds}select=${encodeURIComponent(selectOnMarkets)}&${this._ds}orderby=${encodeURIComponent(orderByOnMarkets)}`;
+		
+		let endPoint = environment.apiUrl+`assignedMarkets?${qryStrOnMarkets}`;
+
+		return this._http.get<any>(`${endPoint}`).pipe(
+			map((response) => {
+				return response.value[0] as IMarket;
+			}),
+			catchError(this.handleError)
+		);
+	}
 
 	getFinancialCommunities(marketId: number): Observable<Array<IFinancialCommunity>>
 	{

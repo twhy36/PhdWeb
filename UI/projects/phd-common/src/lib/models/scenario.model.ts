@@ -40,6 +40,7 @@ export interface DtoScenarioChoice
 	dpChoiceID: number;
 	dpChoiceQuantity: number;
 	divChoiceCatalogID: number;
+	treePointId: number;
 	attributes: Array<DtoScenarioChoiceAttribute>;
 	locations: Array<DtoScenarioChoiceLocation>;
 }
@@ -141,6 +142,7 @@ export class Scenario
 						choiceId: choice.dpChoiceID,
 						choiceQuantity: choice.dpChoiceQuantity,
 						choice: { choiceCatalogId: choice.divChoiceCatalogID },
+						treePointId: choice.treePointId,
 						selectedAttributes: selectedAttributes
 					};
 				});
@@ -266,6 +268,7 @@ export interface SelectedChoice
 	choice: {
 		choiceCatalogId: number;
 	};
+	treePointId: number;
 	selectedAttributes: Array<DesignToolAttribute>;
 }
 

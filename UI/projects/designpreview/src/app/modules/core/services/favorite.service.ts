@@ -545,7 +545,7 @@ export class FavoriteService
 		);		
 	}
 
-	saveMyFavoritesChoicesInPreview(tree: Tree, favorites: MyFavorite): Observable<MyFavoritesChoice[]>
+	saveMyFavoritesChoicesInPreviewAndPresale(tree: Tree, favorites: MyFavorite): Observable<MyFavoritesChoice[]>
 	{
 		let choices = [];
 
@@ -566,8 +566,8 @@ export class FavoriteService
 					subGroupLabel: existingChoice.subGroupLabel,
 					groupLabel: existingChoice.groupLabel,
 					divChoiceCatalogId: existingChoice.divChoiceCatalogId,
-					myFavoritesChoiceAttributes: this.getMyFavoritesChoiceAttributesInPreview(nc, existingChoice),
-					myFavoritesChoiceLocations: this.getMyFavoritesChoiceLocationsInPreview(nc, existingChoice)
+					myFavoritesChoiceAttributes: this.getMyFavoritesChoiceAttributesInPreviewAndPresale(nc, existingChoice),
+					myFavoritesChoiceLocations: this.getMyFavoritesChoiceLocationsInPreviewAndPresale(nc, existingChoice)
 				});					
 			}
 			else
@@ -583,8 +583,8 @@ export class FavoriteService
 					subGroupLabel: labels.subgroupLabel,
 					groupLabel: labels.groupLabel,
 					divChoiceCatalogId: nc.divChoiceCatalogId,
-					myFavoritesChoiceAttributes: this.getMyFavoritesChoiceAttributesInPreview(nc, null),
-					myFavoritesChoiceLocations: this.getMyFavoritesChoiceLocationsInPreview(nc, null)
+					myFavoritesChoiceAttributes: this.getMyFavoritesChoiceAttributesInPreviewAndPresale(nc, null),
+					myFavoritesChoiceLocations: this.getMyFavoritesChoiceLocationsInPreviewAndPresale(nc, null)
 				});				
 			}
 		});
@@ -601,7 +601,7 @@ export class FavoriteService
 		return of(choices);
 	}
 
-	private getMyFavoritesChoiceAttributesInPreview(choice: Choice, favoriteChoice: MyFavoritesChoice): Array<any>
+	private getMyFavoritesChoiceAttributesInPreviewAndPresale(choice: Choice, favoriteChoice: MyFavoritesChoice): Array<any>
 	{
 		const selectedAttributes = this.mapAttributes(choice);
 		const favoriteAttributes = (favoriteChoice ? favoriteChoice.myFavoritesChoiceAttributes : null) || [];
@@ -640,7 +640,7 @@ export class FavoriteService
 		return attributes;
 	}	
 
-	private getMyFavoritesChoiceLocationsInPreview(choice: Choice, favoriteChoice: MyFavoritesChoice): Array<any>
+	private getMyFavoritesChoiceLocationsInPreviewAndPresale(choice: Choice, favoriteChoice: MyFavoritesChoice): Array<any>
 	{
 		const selectedLocations = this.mapLocations(choice);
 		const favoriteLocations = (favoriteChoice ? favoriteChoice.myFavoritesChoiceLocations : null) || [];
@@ -651,7 +651,7 @@ export class FavoriteService
 			if (existingLocation)
 			{
 				existingLocation.quantity = loc.quantity;
-				existingLocation.myFavoritesChoiceLocationAttributes = this.mapExistingLocationAttributesInPreview(loc, existingLocation);
+				existingLocation.myFavoritesChoiceLocationAttributes = this.mapExistingLocationAttributesInPreviewAndPresale(loc, existingLocation);
 			}
 			else
 			{
@@ -699,7 +699,7 @@ export class FavoriteService
 		return locations;
 	}
 
-	private mapExistingLocationAttributesInPreview(selectedLocation: any, existingLocation: MyFavoritesChoiceLocation): Array<any>
+	private mapExistingLocationAttributesInPreviewAndPresale(selectedLocation: any, existingLocation: MyFavoritesChoiceLocation): Array<any>
 	{
 		let locAttributes = _.cloneDeep(existingLocation.myFavoritesChoiceLocationAttributes);
 

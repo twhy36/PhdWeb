@@ -1,8 +1,9 @@
 import { createSelector, createFeatureSelector } from '@ngrx/store';
 
-import * as _ from "lodash";
+import * as _ from 'lodash';
 
-import {
+import
+{
 	DesignToolAttribute, SalesCommunity, PlanOption, TreeVersionRules, Scenario, TreeFilter,
 	Tree, Choice, Group, SubGroup, DecisionPoint, selectChoice, applyRules, setGroupStatus,
 	setPointStatus, setSubgroupStatus, checkReplacedOption, getChoiceToDeselect, TimeOfSaleOptionPrice
@@ -122,7 +123,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 						{
 							p.viewed = true;
 						}
-					});					
+					});
 				}
 
 				newState = { ...newState, scenario: scenario, isGanked: action.lotNoLongerAvailable, overrideReason: action.overrideReason };
@@ -221,7 +222,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 
 			if (newState.tree)
 			{
-				applyRules(newState.tree, newState.rules, newState.options, newState.scenario?.lotId || state.scenario?.lotId);
+				applyRules(newState.tree, newState.rules, newState.options, newState.scenario?.lotId || state.scenario?.lotId, newState.timeOfSaleOptionPrices);
 
 				subGroups = _.flatMap(newState.tree.treeVersion.groups, g => g.subGroups);
 				points = _.flatMap(subGroups, sg => sg.points);
@@ -253,7 +254,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 				if (action.type === CommonActionTypes.ScenarioLoaded)
 				{
 					const optionsDisabled = _.flatMap(newState.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, p => p.choices)))
-						.filter(choice => choice.options.some((option) => !option.isActive));
+						.filter(choice => choice.options.some((option) => !option?.isActive));
 
 					if (optionsDisabled)
 					{
@@ -315,23 +316,27 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 
 				if (c)
 				{
-					if (c.quantity !== 0)
+					// #364538 If only the attributes were changed, no need to check options
+					if (!choice.attributeOnly)
 					{
-						c.lockedInOptions = [];
-						c.lockedInChoice = null;
-
-						checkReplacedOption(c, rules, choices, options, newTree);
-					}
-					else
-					{
-						let deselectedChoice = getChoiceToDeselect(newTree, c);
-
-						if (deselectedChoice)
+						if (c.quantity !== 0)
 						{
-							deselectedChoice.lockedInOptions = [];
-							deselectedChoice.lockedInChoice = null;
-	
-							checkReplacedOption(deselectedChoice, rules, choices, options, newTree);
+							c.lockedInOptions = [];
+							c.lockedInChoice = null;
+
+							checkReplacedOption(c, rules, choices, options, newTree);
+						}
+						else
+						{
+							let deselectedChoice = getChoiceToDeselect(newTree, c);
+
+							if (deselectedChoice)
+							{
+								deselectedChoice.lockedInOptions = [];
+								deselectedChoice.lockedInChoice = null;
+
+								checkReplacedOption(deselectedChoice, rules, choices, options, newTree);
+							}
 						}
 					}
 
@@ -393,6 +398,30 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 			newTree.treeVersion.groups.forEach(g => setGroupStatus(g));
 
 			return { ...state, tree: newTree, rules: rules, options: options, isUnsaved: true, pointHasChanges: true };
+
+		case ScenarioActionTypes.RequiredChoiceAttributesSelected:
+			newTree = _.cloneDeep(action.tree);
+			rules = _.cloneDeep(state.rules);
+			options = _.cloneDeep(state.options);
+			timeOfSaleOptionPrices = _.cloneDeep(state.timeOfSaleOptionPrices);
+
+			if (newTree)
+			{
+				subGroups = _.flatMap(newTree.treeVersion.groups, g => g.subGroups);
+				points = _.flatMap(subGroups, sg => sg.points);
+				choices = _.flatMap(points, p => p.choices);
+
+				applyRules(newTree, rules, options, state.scenario?.lotId);
+
+				// check selected attributes to make sure they're still valid after applying rules
+				checkSelectedAttributes(choices);
+
+				points.forEach(pt => setPointStatus(pt));
+				subGroups.forEach(sg => setSubgroupStatus(sg));
+				newTree.treeVersion.groups.forEach(g => setGroupStatus(g));				
+			}
+
+			return { ...state, tree: newTree, rules: rules };
 
 		case ScenarioActionTypes.CreateScenario:
 			return { ...state, scenario: { opportunityId: action.opportunityId, scenarioName: action.scenarioName, scenarioChoices: [], treeVersionId: 0, planId: 0, lotId: 0, handing: null, viewedDecisionPoints: [], scenarioInfo: null, scenarioOptions: [] }, enabledPointFilters: [], selectedPointFilter: DecisionPointFilterType.FULL };
@@ -471,7 +500,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 		case ScenarioActionTypes.SaveScenarioInfo:
 			return { ...state, savingScenario: true };
 		case ScenarioActionTypes.ScenarioInfoSaved:
-			return { ...state, savingScenario: false, scenario: { ...state.scenario, scenarioInfo: action.scenarioInfo } }
+			return { ...state, savingScenario: false, scenario: { ...state.scenario, scenarioInfo: action.scenarioInfo } };
 		case ScenarioActionTypes.SetPointTypeFilter:
 			return { ...state, selectedPointFilter: action.pointTypeFilter };
 		case ScenarioActionTypes.DeleteScenarioInfo:
@@ -489,21 +518,21 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 		case ScenarioActionTypes.SetChoicePriceRanges:
 			return { ...state, priceRanges: action.priceRanges };
 		case ScenarioActionTypes.SetLockedInChoices:
-		{
-			newTree = _.cloneDeep(state.tree);
-			let newChoices = _.flatMap(newTree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)));
-
-			for (let choice of action.choices)
 			{
-				let newChoice = newChoices.find(x => x.divChoiceCatalogId === choice.divChoiceCatalogId);
-				if (newChoice)
+				newTree = _.cloneDeep(state.tree);
+				let newChoices = _.flatMap(newTree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)));
+
+				for (let choice of action.choices)
 				{
-					newChoice.lockedInChoice = choice.lockedInChoice;
-					newChoice.lockedInOptions = choice.lockedInOptions;
+					let newChoice = newChoices.find(x => x.divChoiceCatalogId === choice.divChoiceCatalogId);
+					if (newChoice)
+					{
+						newChoice.lockedInChoice = choice.lockedInChoice;
+						newChoice.lockedInOptions = choice.lockedInOptions;
+					}
 				}
+				return { ...state, tree: newTree };
 			}
-			return { ...state, tree: newTree };
-		}
 		default:
 			return state;
 	}

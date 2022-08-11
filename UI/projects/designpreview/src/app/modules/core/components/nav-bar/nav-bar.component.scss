@@ -1,5 +1,5 @@
 @import "../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
-@import "../../../../../../../phd-common/src/lib/scss/sizes.scss";
+@import "../../../../../../../designpreview/src/scss/sizes.scss";
 
 #phd-nav-bar {
 	background: var(--primary-ribbon-background-color);
@@ -62,7 +62,7 @@
 
 	.phd-active-link-full {
 		font-weight: bold;
-		font-size: 16px;
+		font-size: 18px;
 		cursor: default;
 	}
 
@@ -112,7 +112,7 @@
 	display: none !important;
 }
 
-@media(max-width: $tablet-max-width) {
+@media(max-width: $top-menu-collapse) {
 	.phd-menu-options {
 		display: none !important;
 	}
@@ -121,7 +121,7 @@
 	}
 }
 
-@media(max-width: 1058px) {
+@media(max-width: $top-menu-collapse-jw) {
 	.phd-menu-options-jw {
 		display: none !important;
 	}

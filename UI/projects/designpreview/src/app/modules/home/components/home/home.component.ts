@@ -16,6 +16,7 @@ import * as FavoriteActions from '../../../ngrx-store/favorite/actions';
 import { UnsubscribeOnDestroy, SalesAgreement, SDImage, SubGroup, FloorPlanImage } from 'phd-common';
 import { JobService } from '../../../core/services/job.service';
 import { BrandService } from '../../../core/services/brand.service';
+import { BuildMode } from '../../../shared/models/build-mode.model';
 
 @Component({
 	selector: 'home',
@@ -30,6 +31,7 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 	floorPlanImages: SDImage[] = [];
 	salesAgreement: SalesAgreement;
 	isPreview: boolean;
+	isPresale: boolean;
 	isLoadingMyFavorite: boolean = false;
 	hasFloorPlanImages: boolean = true;
 	marketingPlanId$ = new BehaviorSubject<number>(0);
@@ -61,13 +63,22 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 					}
 
 					this.isFloorplanFlipped = salesAgreementState?.isFloorplanFlipped;
-					this.isPreview = scenarioState.buildMode === 'preview' || routeData["isPreview"];
+					this.isPreview = scenarioState.buildMode === BuildMode.Preview || routeData["isPreview"];
+					this.isPresale = scenarioState.buildMode === BuildMode.Presale || routeData["isPresale"];
 
 					// we only want to fetch on treeVersion during first load of home page
 					if (routeData["isPreview"]) {
 						const treeVersionId = +params.get('treeVersionId');
 						if (!scenarioState.tree || scenarioState.tree.treeVersion.id !== treeVersionId) {
 							this.store.dispatch(new ScenarioActions.LoadPreview(treeVersionId));
+							return new Observable<never>();
+						}
+					} else if (routeData["isPresale"]) {
+						const financialCommunityId = +params.get('financialCommunityId');
+						const lawsonPlanId = +params.get('lawsonPlanId');
+						let lawsonPlanIdAsString = lawsonPlanId + '';
+						if (!scenarioState.tree || (scenarioState.tree.planKey !== lawsonPlanIdAsString || scenarioState.tree.financialCommunityId !== financialCommunityId)) {
+							this.store.dispatch(new ScenarioActions.LoadPresale(financialCommunityId, lawsonPlanId));
 							return new Observable<never>();
 						}
 					} else {
@@ -189,7 +200,7 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 	viewOptions()
 	{
 		this.isLoadingMyFavorite = true;
-		if (this.isPreview) {
+		if (this.isPreview || this.isPresale) {
 			this.store.dispatch(new FavoriteActions.LoadDefaultFavorite());
 		} else {
 			this.store.dispatch(new FavoriteActions.LoadMyFavorite());
@@ -226,6 +237,10 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 
 	getBannerImage(position: number) {
 		return this.brandService.getBannerImage(position);
+	}
+
+	getWelcomeText() {
+		return this.isPresale ? 'Let\'s review the options available for your home' : 'Let\'s review the rest of the options available for your home';
 	}
 
 	loadFloorPlan(fp) {

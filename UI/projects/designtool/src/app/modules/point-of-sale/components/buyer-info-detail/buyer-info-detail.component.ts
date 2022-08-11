@@ -6,10 +6,10 @@ import * as fromRoot from '../../../ngrx-store/reducers';
 import { cloneDeep, trim } from 'lodash'
 
 import
-	{
-		Buyer, EmailAssoc, PhoneAssoc, AddressAssoc, Address, Contact, Phone,
-		MatchingContact, Realtor, ModalService
-	} from 'phd-common';
+{
+	Buyer, EmailAssoc, PhoneAssoc, AddressAssoc, Address, Contact, Phone,
+	MatchingContact, Realtor, ModalService
+} from 'phd-common';
 
 import { ContactService } from '../../../core/services/contact.service';
 import { MatchingContactsComponent } from '../matching-contacts/matching-contacts.component';
@@ -63,6 +63,9 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 			const addressFormGroup = (addressFormArray.controls as Array<FormGroup>)[0];
 			const address1Control = addressFormGroup.get('address1');
 			const cityControl = addressFormGroup.get('city');
+			const stateProvinceControl = addressFormGroup.get('stateProvince');
+			const postalCodeControl = addressFormGroup.get('postalCode');
+			const countryControl = addressFormGroup.get('country');
 
 			// determine when address1 and city are required
 			// - if any address field has a value then both are required
@@ -81,15 +84,24 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 				{
 					address1Control.setValidators([Validators.required, noWhiteSpaceValidator]);
 					cityControl.setValidators([Validators.required, noWhiteSpaceValidator]);
+					stateProvinceControl.setValidators([Validators.required, noWhiteSpaceValidator]);
+					postalCodeControl.setValidators([Validators.required, noWhiteSpaceValidator]);
+					countryControl.setValidators([Validators.required, noWhiteSpaceValidator]);
 				}
 				else
 				{
 					address1Control.clearValidators();
 					cityControl.clearValidators();
+					stateProvinceControl.clearValidators();
+					postalCodeControl.clearValidators();
+					countryControl.clearValidators();
 				}
 
 				address1Control.updateValueAndValidity({ onlySelf: true, emitEvent: false });
 				cityControl.updateValueAndValidity({ onlySelf: true, emitEvent: false });
+				stateProvinceControl.updateValueAndValidity({ onlySelf: true, emitEvent: false });
+				postalCodeControl.updateValueAndValidity({ onlySelf: true, emitEvent: false });
+				countryControl.updateValueAndValidity({ onlySelf: true, emitEvent: false });
 				addressFormGroup.updateValueAndValidity({ onlySelf: true, emitEvent: false });
 				addressFormArray.updateValueAndValidity({ onlySelf: true, emitEvent: false });
 			});
@@ -341,7 +353,7 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 								phoneNumber: phoneNumber,
 								phoneType: phone.get('phoneType').value
 							}
-						}
+						};
 
 						contact.phoneAssocs.push(newPhoneAssoc);
 					}
@@ -384,7 +396,7 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 								id: 0,
 								emailAddress: emailAddress
 							}
-						}
+						};
 
 						contact.emailAssocs.push(newEmailAssoc);
 					}

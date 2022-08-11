@@ -138,7 +138,7 @@ export class PulteInfoSaved implements Action
 {
 	readonly type = JobActionTypes.PulteInfoSaved;
 
-	constructor() { }
+	constructor(public pulteInfo: SpecInformation) { }
 }
 
 @Log(true)

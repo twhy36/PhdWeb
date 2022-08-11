@@ -212,7 +212,7 @@ export function reducer(state: State = initialState, action: JobActions): State
 		case JobActionTypes.SavePulteInfo:
 			return { ...state, savingspecInformation: true };
 		case JobActionTypes.PulteInfoSaved:
-			return { ...state, savingspecInformation: false };
+			return { ...state, specInformation: action.pulteInfo, savingspecInformation: false };
 		case CommonActionTypes.ScenarioLoaded:
 			return { ...state, ...action.job };
 		case JobActionTypes.JobPlanOptionsUpdated:

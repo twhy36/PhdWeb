@@ -22,7 +22,7 @@ import
 	{
 		ScenarioActionTypes, SaveScenario, ScenarioSaved, SaveError, SetChoicePriceRanges,
 		SetScenarioPlan, SetScenarioLot, SetScenarioLotHanding, TreeLoaded, LoadError, SetPointViewed,
-		LoadPreview, SaveScenarioInfo, ScenarioInfoSaved, LoadTree, SelectChoices, SetIsFloorplanFlippedScenario, IsFloorplanFlippedScenario, TreeLoadedFromJob
+		LoadPreview, SaveScenarioInfo, ScenarioInfoSaved, LoadTree, SelectChoices, SetIsFloorplanFlippedScenario, IsFloorplanFlippedScenario, TreeLoadedFromJob, SelectRequiredChoiceAttributes
 	} from './actions';
 import { SaveChangeOrderScenario, SavePendingJio } from '../change-order/actions';
 import { SetWebPlanMapping, PlansLoaded, SelectPlan } from '../plan/actions';
@@ -114,7 +114,10 @@ export class ScenarioEffects
 										return { tree, rules, options, optionImages, salesCommunity: sc };
 									}));
 								}),
-								switchMap(result => of(new TreeLoaded(result.tree, result.rules, result.options, result.optionImages, null, result.salesCommunity)))
+								switchMap(result => <Observable<Action>>from([
+									new TreeLoaded(result.tree, result.rules, result.options, result.optionImages, null, result.salesCommunity),
+									new SelectRequiredChoiceAttributes()
+								]))
 							);
 					}
 				})

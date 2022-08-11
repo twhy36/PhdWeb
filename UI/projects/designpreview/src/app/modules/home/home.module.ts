@@ -17,20 +17,26 @@ const moduleRoutes: Routes = [
 		path: 'home/:salesAgreementId',
 		canActivate: [InternalGuard],
 		component: HomeComponent,
-		data: { isPreview: false, pageLoadEvent: 'Home' },
+		data: { isPreview: false, pageLoadEvent: 'Home', isPresale: false },
 	},
 	{
 		path: 'home',
 		canActivate: [ExternalGuard],
 		component: HomeComponent,
-		data: { isPreview: false, pageLoadEvent: 'Home' },
+		data: { isPreview: false, pageLoadEvent: 'Home', isPresale: false },
 	},
 	{
 		path: 'preview/:treeVersionId',
 		component: HomeComponent,
 		canActivate: [InternalGuard],
-		data: { isPreview: true },
-	}
+		data: { isPreview: true, isPresale: false },
+	},
+	{
+		path: 'presale/:financialCommunityId/:lawsonPlanId',
+		component: HomeComponent,
+		canActivate: [InternalGuard],
+		data: { isPreview: false, pageLoadEvent: 'Home', isPresale: true },
+	},
 ];
 
 @NgModule({

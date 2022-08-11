@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Observable, of, NEVER as never } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { distinctUntilChanged, combineLatest, switchMap, map, take } from 'rxjs/operators';
 import { Store, select } from '@ngrx/store';
 import * as _ from 'lodash';

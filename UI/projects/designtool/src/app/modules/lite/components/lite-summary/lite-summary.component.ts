@@ -5,11 +5,14 @@ import { Store, select } from '@ngrx/store';
 
 import * as _ from "lodash";
 
-import { UnsubscribeOnDestroy, PriceBreakdown, ChangeTypeEnum, 
-			ChangeOrderHanding, ModalService, SummaryData, BuyerInfo, 
-			PDFViewerComponent, SDGroup, SDSubGroup, SDPoint, 
-			SDChoice, ScenarioOption,
-			PriceBreakdownType} from 'phd-common';
+import
+	{
+		UnsubscribeOnDestroy, PriceBreakdown, ChangeTypeEnum,
+		ChangeOrderHanding, ModalService, SummaryData, BuyerInfo,
+		PDFViewerComponent, SDGroup, SDSubGroup, SDPoint,
+		SDChoice, ScenarioOption,
+		PriceBreakdownType
+	} from 'phd-common';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
@@ -23,8 +26,11 @@ import { LiteService } from '../../../core/services/lite.service';
 import { ModalOverrideSaveComponent } from '../../../core/components/modal-override-save/modal-override-save.component';
 
 import { SummaryHeader, SummaryHeaderComponent } from '../../../shared/components/summary-header/summary-header.component';
-import { LitePlanOption, IOptionSubCategory, LiteReportType, SummaryReportData, 
-			SummaryReportGroup, SummaryReportSubGroup, SummaryReportOption, SummaryReportSubOption } from '../../../shared/models/lite.model';
+import
+	{
+		LitePlanOption, IOptionSubCategory, LiteReportType, SummaryReportData,
+		SummaryReportGroup, SummaryReportSubGroup, SummaryReportOption, SummaryReportSubOption
+	} from '../../../shared/models/lite.model';
 import { OptionSummaryComponent } from '../option-summary/option-summary.component';
 import { environment } from '../../../../../environments/environment';
 import { ToastrService } from 'ngx-toastr';
@@ -38,7 +44,7 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	@ViewChildren(OptionSummaryComponent) options: QueryList<OptionSummaryComponent>;
 	@ViewChild(SummaryHeaderComponent) summaryHeaderComponent: SummaryHeaderComponent;
-	
+
 	title: string;
 	summaryHeader: SummaryHeader = new SummaryHeader();
 	priceBreakdown: PriceBreakdown;
@@ -111,35 +117,35 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 			this.store.pipe(select(state => state.job)),
 			this.store.pipe(select(state => state.salesAgreement))
 		])
-		.pipe(this.takeUntilDestroyed())
-		.subscribe(([changeOrder, scenario, job, sag]) =>
-		{
-			if (changeOrder.isChangingOrder)
+			.pipe(this.takeUntilDestroyed())
+			.subscribe(([changeOrder, scenario, job, sag]) =>
 			{
-				this.summaryHeader.handing = changeOrder.changeInput && changeOrder.changeInput.handing ? changeOrder.changeInput.handing.handing : null;
-			}
-			else if (!!sag.id)
-			{
-				this.summaryHeader.handing = this.changeOrderService.getSelectedHanding(job).handing;
-			}
-			else if (scenario.scenario)
-			{
-				this.summaryHeader.handing = scenario.scenario.handing && scenario.scenario.handing.handing ? scenario.scenario.handing.handing : job.handing;
-			}
+				if (changeOrder.isChangingOrder)
+				{
+					this.summaryHeader.handing = changeOrder.changeInput && changeOrder.changeInput.handing ? changeOrder.changeInput.handing.handing : null;
+				}
+				else if (!!sag.id)
+				{
+					this.summaryHeader.handing = this.changeOrderService.getSelectedHanding(job).handing;
+				}
+				else if (scenario.scenario)
+				{
+					this.summaryHeader.handing = scenario.scenario.handing && scenario.scenario.handing.handing ? scenario.scenario.handing.handing : job.handing;
+				}
 
-			this.selectedHanding = this.summaryHeader.handing;
+				this.selectedHanding = this.summaryHeader.handing;
 
-			if (job && job.projectedDates && job.projectedDates.projectedStartDate)
-			{
-				const constructionDate = new Date(job.projectedDates.projectedStartDate);
+				if (job && job.projectedDates && job.projectedDates.projectedStartDate)
+				{
+					const constructionDate = new Date(job.projectedDates.projectedStartDate);
 
-				constructionDate.setDate(constructionDate.getDate() - 14);
+					constructionDate.setDate(constructionDate.getDate() - 14);
 
-				const date = new Date();
+					const date = new Date();
 
-				this.disableHanding = constructionDate < date;
-			}
-		});
+					this.disableHanding = constructionDate < date;
+				}
+			});
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
@@ -160,12 +166,12 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 			this.store.pipe(select(fromLite.selectedElevation)),
 			this.store.pipe(select(fromRoot.selectedPlanPrice))
 		])
-		.pipe(this.takeUntilDestroyed())
-		.subscribe(([lite, selectedElevation, planPrice]) =>
-		{
-			// Build the data list for UI display
-			this.buildOptionCategories(lite, selectedElevation, planPrice);
-		});
+			.pipe(this.takeUntilDestroyed())
+			.subscribe(([lite, selectedElevation, planPrice]) =>
+			{
+				// Build the data list for UI display
+				this.buildOptionCategories(lite, selectedElevation, planPrice);
+			});
 
 		this.isLiteComplete$ = this.store.pipe(
 			select(fromRoot.isLiteComplete)
@@ -249,10 +255,10 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 			categoryName: 'Exterior',
 			optionSubCategories: selectedElevation
 				? this.buildOptionSubCategories(
-						[selectedElevation],
-						allSubCategories,
-						lite.scenarioOptions
-					)
+					[selectedElevation],
+					allSubCategories,
+					lite.scenarioOptions
+				)
 				: []
 		});
 
@@ -278,11 +284,12 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 			&& (!selectedElevation || selectedElevation.id !== option.id)
 			&& !selectedBaseHouseOptions?.find(opt => opt.id === option.id));
 		const optionCategoryGroups = _.groupBy(selectedOptions, option => option.optionCategoryId);
-		let sortedOptionCategories = []
+		let sortedOptionCategories = [];
 
 		for (const categoryId in optionCategoryGroups)
 		{
 			const categoryName = lite.categories?.find(category => category.id === +categoryId)?.name;
+
 			if (categoryName)
 			{
 				sortedOptionCategories.push({
@@ -300,22 +307,25 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 	}
 
 	private buildOptionSubCategories(
-		options: LitePlanOption[], 
-		subCategories: IOptionSubCategory[], 
+		options: LitePlanOption[],
+		subCategories: IOptionSubCategory[],
 		scenarioOptions: ScenarioOption[],
 		planPrice?: number)
 	{
 		let optionSubCategories = [];
 
 		const optionsubCategories = _.groupBy(options, o => o.optionSubCategoryId);
+
 		for (const subCategoryId in optionsubCategories)
 		{
 			const subCategoryName = subCategories.find(subCategory => subCategory.id === +subCategoryId)?.name;
+
 			if (subCategoryId)
 			{
 				optionSubCategories.push({
 					subCategoryName: subCategoryName,
-					options: _.sortBy(optionsubCategories[subCategoryId].map(option => {
+					options: _.sortBy(optionsubCategories[subCategoryId].map(option =>
+					{
 						const scenarioOption = scenarioOptions?.find(opt => opt.edhPlanOptionId === option.id);
 
 						return {
@@ -339,7 +349,8 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 	{
 		let optionColors = [];
 
-		scenarioOption?.scenarioOptionColors?.forEach(scnOptColor => {
+		scenarioOption?.scenarioOptionColors?.forEach(scnOptColor =>
+		{
 			const colorItem = option.colorItems?.find(item => item.colorItemId === scnOptColor.colorItemId);
 			const color = colorItem?.color?.find(c => c.colorId === scnOptColor.colorId);
 
@@ -358,9 +369,9 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 	onToggleAllColorsChanged(toggleAllColors: boolean)
 	{
 		this.options.forEach(opt =>
-			{
-				opt.toggleColors(toggleAllColors);
-			});
+		{
+			opt.toggleColors(toggleAllColors);
+		});
 	}
 
 	/**
@@ -380,7 +391,7 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 		{
 			const newHanding = new ChangeOrderHanding();
 
-			if(handing !== "NA")
+			if (handing !== "NA")
 			{
 				newHanding.handing = handing;
 			}
@@ -430,33 +441,33 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 	{
 		combineLatest([
 			this.liteService.hasLiteMonotonyConflict(),
-			this.store.pipe(select(fromLite.areColorSelectionsValid),take(1))
+			this.store.pipe(select(fromLite.areColorSelectionsValid), take(1))
 		])
-		.subscribe(([mc, areColorsValid]) =>
-		{
-			if (mc.monotonyConflict)
+			.subscribe(([mc, areColorsValid]) =>
 			{
-				alert('Danger! Monotony Issues!  Please fix!')
-			}
-			else if (!areColorsValid)
-			{
-				this.liteService.onGenerateSalesAgreementWithColorWarning(
-					this.buildMode,
-					this.summaryHeader.lot.lotStatusDescription,
-					this.summaryHeader.lot.id,
-					this.salesAgreementId
-				);
-			}
-			else
-			{
-				this.liteService.onGenerateSalesAgreement(
-					this.buildMode,
-					this.summaryHeader.lot.lotStatusDescription,
-					this.summaryHeader.lot.id,
-					this.salesAgreementId
-				);
-			}
-		});
+				if (mc.monotonyConflict)
+				{
+					alert('Danger! Monotony Issues!  Please fix!')
+				}
+				else if (!areColorsValid)
+				{
+					this.liteService.onGenerateSalesAgreementWithColorWarning(
+						this.buildMode,
+						this.summaryHeader.lot.lotStatusDescription,
+						this.summaryHeader.lot.id,
+						this.salesAgreementId
+					);
+				}
+				else
+				{
+					this.liteService.onGenerateSalesAgreement(
+						this.buildMode,
+						this.summaryHeader.lot.lotStatusDescription,
+						this.summaryHeader.lot.id,
+						this.salesAgreementId
+					);
+				}
+			});
 	}
 
 	printConfig(reportType: LiteReportType)
@@ -464,13 +475,16 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 		if (reportType === LiteReportType.SUMMARY)
 		{
 			let data = this.getSummaryReportData();
+
 			this.liteService.getLiteSelectionSummaryReport(LiteReportType.SUMMARY, data)
-				.subscribe(pdfData => {
-					let pdfViewer = this.modalService.open(PDFViewerComponent, {backdrop: 'static', windowClass: 'phd-pdf-modal', size: 'lg'});
+				.subscribe(pdfData =>
+				{
+					let pdfViewer = this.modalService.open(PDFViewerComponent, { backdrop: 'static', windowClass: 'phd-pdf-modal', size: 'lg' });
 					pdfViewer.componentInstance.pdfModalTitle = `Configuration Preview - ${reportType}`;
 					pdfViewer.componentInstance.pdfData = pdfData;
 					pdfViewer.componentInstance.pdfBaseUrl = `${environment.pdfViewerBaseUrl}`;
-				})
+				});
+
 			return;
 		}
 
@@ -506,326 +520,348 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 			this.store.select(state => state.lite.categories),
 			this.store.select(state => state.lite.options)
 		])
-		.pipe(take(1))
-		.subscribe(([categories, options]) => {
-			const baseHouseCategory = categories.find(x => x.name.toLowerCase() === "base house");
+			.pipe(take(1))
+			.subscribe(([categories, options]) =>
+			{
+				const baseHouseCategory = categories.find(x => x.name.toLowerCase() === "base house");
 
-			options.filter(x => x.optionCategoryId !== baseHouseCategory.id && x.isActive).forEach(option => {
-				let categoryGroup = summaryData.groups.find(g => g.id === option.optionCategoryId);
-
-				if (! categoryGroup)
+				options.filter(x => x.optionCategoryId !== baseHouseCategory.id && x.isActive).forEach(option =>
 				{
-					categoryGroup = new SDGroup({
-						id: option.optionCategoryId,
-						label: categories.find(c => c.id === option.optionCategoryId).name,
-						groupCatalogId: 0,
-						treeVersionId: 0,
-						sortOrder: 0,
-						subGroups: [],
-						status: 0,
-					});
+					let categoryGroup = summaryData.groups.find(g => g.id === option.optionCategoryId);
 
-					summaryData.groups.push(categoryGroup);
-				}
-
-				let subGroupPlaceholder = categoryGroup.subGroups.find(x => x.id === option.optionCategoryId);
-
-				if (! subGroupPlaceholder)
-				{
-					subGroupPlaceholder = new SDSubGroup({
-						id: option.optionCategoryId,
-						label: option.name,
-						groupId: 0,
-						subGroupCatalogId: 0,
-						sortOrder: 0,
-						useInteractiveFloorplan: false,
-						treeVersionId: 0,
-						points: [],
-						status: 0
-					});
-
-					categoryGroup.subGroups.push(subGroupPlaceholder);
-				}
-
-				let subcategory = subGroupPlaceholder.points.find(x => x.id === option.optionSubCategoryId);
-
-				if (! subcategory)
-				{
-					subcategory = new SDPoint({
-						id: option.optionSubCategoryId,
-						label: categories.find(x => x.id === option.optionCategoryId).optionSubCategories.find(x => x.id === option.optionSubCategoryId).name,
-						hasPointToPointRules: false,
-						hasPointToChoiceRules: false,
-						subGroupId: 0,
-						divPointCatalogId: 0,
-						pointPickTypeId: 0,
-						pointPickTypeLabel: '',
-						sortOrder: 0,
-						isQuickQuoteItem: false,
-						isStructuralItem: false,
-						isHiddenFromBuyerView: false,
-						edhConstructionStageId: 0,
-						cutOffDays: 0,
-						description: '',
-						treeVersionId: 0,
-						choices: [],
-						completed: false,
-						viewed: false,
-						enabled: true,
-						disabledBy: [],
-						status: 0,
-						price: 0,
-						dPointTypeId: 0,
-						subGroupCatalogId: 0,
-						isPastCutOff: false
-					});
-
-					subGroupPlaceholder.points.push(subcategory);
-				}
-
-				subcategory.choices.push(new SDChoice({
-					id: option.id,
-					label: option.name,
-					description: option.description,
-					price: option.listPrice,
-					mappedAttributeGroups: [],
-					mappedLocationGroups: [],
-					attributeGroups: [],
-					locationGroups: [],
-					choiceMaxQuantity: null,
-					disabledBy: [],
-					divChoiceCatalogId: 0,
-					enabled: false,
-					hasChoiceRules: false,
-					hasOptionRules: false,
-					imagePath: '',
-					hasImage: false,
-					isDecisionDefault: false,
-					isSelectable: false,
-					maxQuantity: 1,
-					options: [],
-					overrideNote: '',
-					quantity: 0,
-					selectedAttributes: [],
-					sortOrder: 0,
-					treePointId: 0,
-					treeVersionId: 0,
-					lockedInOptions: [],
-					changedDependentChoiceIds: [],
-					lockedInChoice: null,
-					mappingChanged: false,
-					isHiddenFromBuyerView: false,
-					priceHiddenFromBuyerView: false,
-					isRequired: false,
-					disabledByHomesite: false
-				}));
-			});
-
-			let exteriorSubGroup =  new SDSubGroup({
-				id: 8888,
-				label: 'Exterior',
-				groupId: 0,
-				subGroupCatalogId: 0,
-				sortOrder: 0,
-				useInteractiveFloorplan: false,
-				treeVersionId: 0,
-				points: [],
-				status: 0
-			});
-
-			let elevationsSubCategory =  new SDPoint({
-				id: 7777,
-				label: 'Elevations',
-				price: 0,
-				hasPointToPointRules: false,
-				hasPointToChoiceRules: false,
-				subGroupId: 0,
-				divPointCatalogId: 0,
-				pointPickTypeId: 0,
-				pointPickTypeLabel: '',
-				sortOrder: 0,
-				isQuickQuoteItem: false,
-				isStructuralItem: false,
-				isHiddenFromBuyerView: false,
-				edhConstructionStageId: 0,
-				cutOffDays: 0,
-				description: '',
-				treeVersionId: 0,
-				choices: [],
-				completed: false,
-				viewed: false,
-				enabled: true,
-				disabledBy: [],
-				status: 0,
-				dPointTypeId: 0,
-				subGroupCatalogId: 0,
-				isPastCutOff: false
-			});
-
-			const elevationsGroup = summaryData.groups.find(x => x.label.toLowerCase() === "elevations");
-			const elevationsSubGroup = elevationsGroup.subGroups[0];
-			elevationsSubCategory.choices = elevationsSubGroup.points.find(x => x.label.toLowerCase() === "attached" || x.label.toLowerCase() === "detached").choices;
-			exteriorSubGroup.points.push(elevationsSubCategory);
-
-			let colorSubGroup =  new SDSubGroup({
-				id: 9999,
-				label: 'Color Scheme',
-				groupId: 0,
-				subGroupCatalogId: 0,
-				sortOrder: 0,
-				useInteractiveFloorplan: false,
-				treeVersionId: 0,
-				points: [],
-				status: 0
-			});
-
-			let colorSubCategory =  new SDPoint({
-				id: 9999,
-				label: 'Color Scheme',
-				price: 0,
-				hasPointToPointRules: false,
-				hasPointToChoiceRules: false,
-				subGroupId: 0,
-				divPointCatalogId: 0,
-				pointPickTypeId: 0,
-				pointPickTypeLabel: '',
-				sortOrder: 0,
-				isQuickQuoteItem: false,
-				isStructuralItem: false,
-				isHiddenFromBuyerView: false,
-				edhConstructionStageId: 0,
-				cutOffDays: 0,
-				description: '',
-				treeVersionId: 0,
-				choices: [],
-				completed: false,
-				viewed: false,
-				enabled: true,
-				disabledBy: [],
-				status: 0,
-				dPointTypeId: 0,
-				subGroupCatalogId: 0,
-				isPastCutOff: false
-			});
-
-			colorSubGroup.points.push(colorSubCategory);
-			const exteriorCategory = categories.find(x => x.name.toLowerCase() === "elevations");
-
-			options.filter(x => x.optionCategoryId === exteriorCategory.id && x.isActive).forEach(elOption => {
-				elOption.colorItems.filter(ci => ci.isActive).forEach(ci => {
-					ci.color.filter(color => color.isActive)
-					.sort((color1,color2) => {
-						return color1.name > color2.name ? 1 : -1;
-					})
-					.forEach(color => {
-						colorSubCategory.choices
-						.push(new SDChoice({
-							id: color.colorId,
-							label: color.name,
-							description: '',
-							price: 0,
-							mappedAttributeGroups: [],
-							mappedLocationGroups: [],
-							attributeGroups: [],
-							locationGroups: [],
-							choiceMaxQuantity: null,
-							disabledBy: [],
-							divChoiceCatalogId: 0,
-							enabled: false,
-							hasChoiceRules: false,
-							hasOptionRules: false,
-							imagePath: '',
-							hasImage: false,
-							isDecisionDefault: false,
-							isSelectable: false,
-							maxQuantity: 1,
-							options: [],
-							overrideNote: '',
-							quantity: 0,
-							selectedAttributes: [],
-							sortOrder: 0,
-							treePointId: 0,
+					if (!categoryGroup)
+					{
+						categoryGroup = new SDGroup({
+							id: option.optionCategoryId,
+							label: categories.find(c => c.id === option.optionCategoryId).name,
+							groupCatalogId: 0,
 							treeVersionId: 0,
-							lockedInOptions: [],
-							changedDependentChoiceIds: [],
-							lockedInChoice: null,
-							mappingChanged: false,
+							sortOrder: 0,
+							subGroups: [],
+							status: 0,
+						});
+
+						summaryData.groups.push(categoryGroup);
+					}
+
+					let subGroupPlaceholder = categoryGroup.subGroups.find(x => x.id === option.optionCategoryId);
+
+					if (!subGroupPlaceholder)
+					{
+						subGroupPlaceholder = new SDSubGroup({
+							id: option.optionCategoryId,
+							label: option.name,
+							groupId: 0,
+							subGroupCatalogId: 0,
+							sortOrder: 0,
+							useInteractiveFloorplan: false,
+							treeVersionId: 0,
+							points: [],
+							status: 0
+						});
+
+						categoryGroup.subGroups.push(subGroupPlaceholder);
+					}
+
+					let subcategory = subGroupPlaceholder.points.find(x => x.id === option.optionSubCategoryId);
+
+					if (!subcategory)
+					{
+						subcategory = new SDPoint({
+							id: option.optionSubCategoryId,
+							label: categories.find(x => x.id === option.optionCategoryId).optionSubCategories.find(x => x.id === option.optionSubCategoryId).name,
+							hasPointToPointRules: false,
+							hasPointToChoiceRules: false,
+							subGroupId: 0,
+							divPointCatalogId: 0,
+							pointPickTypeId: 0,
+							pointPickTypeLabel: '',
+							sortOrder: 0,
+							isQuickQuoteItem: false,
+							isStructuralItem: false,
 							isHiddenFromBuyerView: false,
-							priceHiddenFromBuyerView: false,
-							isRequired: false,
-							disabledByHomesite: false
-						}));
-					})
+							edhConstructionStageId: 0,
+							cutOffDays: 0,
+							description: '',
+							treeVersionId: 0,
+							choices: [],
+							completed: false,
+							viewed: false,
+							enabled: true,
+							disabledBy: [],
+							status: 0,
+							price: 0,
+							dPointTypeId: 0,
+							subGroupCatalogId: 0,
+							isPastCutOff: false
+						});
+
+						subGroupPlaceholder.points.push(subcategory);
+					}
+
+					subcategory.choices.push(new SDChoice({
+						id: option.id,
+						label: option.name,
+						description: option.description,
+						price: option.listPrice,
+						mappedAttributeGroups: [],
+						mappedLocationGroups: [],
+						attributeGroups: [],
+						locationGroups: [],
+						choiceMaxQuantity: null,
+						disabledBy: [],
+						divChoiceCatalogId: 0,
+						enabled: false,
+						hasChoiceRules: false,
+						hasOptionRules: false,
+						imagePath: '',
+						hasImage: false,
+						isDecisionDefault: false,
+						isSelectable: false,
+						maxQuantity: 1,
+						options: [],
+						overrideNote: '',
+						quantity: 0,
+						selectedAttributes: [],
+						sortOrder: 0,
+						treePointId: 0,
+						treeVersionId: 0,
+						lockedInOptions: [],
+						changedDependentChoiceIds: [],
+						lockedInChoice: null,
+						mappingChanged: false,
+						isHiddenFromBuyerView: false,
+						priceHiddenFromBuyerView: false,
+						isRequired: false,
+						disabledByHomesite: false
+					}));
 				});
-			});
 
-			let exteriorGroup = new SDGroup({
-				id: 99999,
-				label: 'Exterior',
-				groupCatalogId: 0,
-				treeVersionId: 0,
-				sortOrder: 0,
-				subGroups: [],
-				status: 0,
-			});
+				let exteriorSubGroup = new SDSubGroup({
+					id: 8888,
+					label: 'Exterior',
+					groupId: 0,
+					subGroupCatalogId: 0,
+					sortOrder: 0,
+					useInteractiveFloorplan: false,
+					treeVersionId: 0,
+					points: [],
+					status: 0
+				});
 
-			exteriorGroup.subGroups.push(exteriorSubGroup);
-			exteriorGroup.subGroups.push(colorSubGroup);
-			exteriorGroup.subGroups.forEach(subgrp => {
-				subgrp.points = subgrp.points.sort((group1,group2) => {
+				let elevationsSubCategory = new SDPoint({
+					id: 7777,
+					label: 'Elevations',
+					price: 0,
+					hasPointToPointRules: false,
+					hasPointToChoiceRules: false,
+					subGroupId: 0,
+					divPointCatalogId: 0,
+					pointPickTypeId: 0,
+					pointPickTypeLabel: '',
+					sortOrder: 0,
+					isQuickQuoteItem: false,
+					isStructuralItem: false,
+					isHiddenFromBuyerView: false,
+					edhConstructionStageId: 0,
+					cutOffDays: 0,
+					description: '',
+					treeVersionId: 0,
+					choices: [],
+					completed: false,
+					viewed: false,
+					enabled: true,
+					disabledBy: [],
+					status: 0,
+					dPointTypeId: 0,
+					subGroupCatalogId: 0,
+					isPastCutOff: false
+				});
+
+				const elevationsGroup = summaryData.groups.find(x => x.label.toLowerCase() === "elevations");
+				const elevationsSubGroup = elevationsGroup.subGroups[0];
+				elevationsSubCategory.choices = elevationsSubGroup.points.find(x => x.label.toLowerCase() === "attached" || x.label.toLowerCase() === "detached").choices;
+				exteriorSubGroup.points.push(elevationsSubCategory);
+
+				let colorSubGroup = new SDSubGroup({
+					id: 9999,
+					label: 'Color Scheme',
+					groupId: 0,
+					subGroupCatalogId: 0,
+					sortOrder: 0,
+					useInteractiveFloorplan: false,
+					treeVersionId: 0,
+					points: [],
+					status: 0
+				});
+
+				let colorSubCategory = new SDPoint({
+					id: 9999,
+					label: 'Color Scheme',
+					price: 0,
+					hasPointToPointRules: false,
+					hasPointToChoiceRules: false,
+					subGroupId: 0,
+					divPointCatalogId: 0,
+					pointPickTypeId: 0,
+					pointPickTypeLabel: '',
+					sortOrder: 0,
+					isQuickQuoteItem: false,
+					isStructuralItem: false,
+					isHiddenFromBuyerView: false,
+					edhConstructionStageId: 0,
+					cutOffDays: 0,
+					description: '',
+					treeVersionId: 0,
+					choices: [],
+					completed: false,
+					viewed: false,
+					enabled: true,
+					disabledBy: [],
+					status: 0,
+					dPointTypeId: 0,
+					subGroupCatalogId: 0,
+					isPastCutOff: false
+				});
+
+				colorSubGroup.points.push(colorSubCategory);
+
+				const exteriorCategory = categories.find(x => x.name.toLowerCase() === "elevations");
+
+				options.filter(x => x.optionCategoryId === exteriorCategory.id && x.isActive).forEach(elOption =>
+				{
+					elOption.colorItems.filter(ci => ci.isActive).forEach(ci =>
+					{
+						ci.color.filter(color => color.isActive)
+							.sort((color1, color2) =>
+							{
+								return color1.name > color2.name ? 1 : -1;
+							})
+							.forEach(color =>
+							{
+								colorSubCategory.choices
+									.push(new SDChoice({
+										id: color.colorId,
+										label: color.name,
+										description: '',
+										price: 0,
+										mappedAttributeGroups: [],
+										mappedLocationGroups: [],
+										attributeGroups: [],
+										locationGroups: [],
+										choiceMaxQuantity: null,
+										disabledBy: [],
+										divChoiceCatalogId: 0,
+										enabled: false,
+										hasChoiceRules: false,
+										hasOptionRules: false,
+										imagePath: '',
+										hasImage: false,
+										isDecisionDefault: false,
+										isSelectable: false,
+										maxQuantity: 1,
+										options: [],
+										overrideNote: '',
+										quantity: 0,
+										selectedAttributes: [],
+										sortOrder: 0,
+										treePointId: 0,
+										treeVersionId: 0,
+										lockedInOptions: [],
+										changedDependentChoiceIds: [],
+										lockedInChoice: null,
+										mappingChanged: false,
+										isHiddenFromBuyerView: false,
+										priceHiddenFromBuyerView: false,
+										isRequired: false,
+										disabledByHomesite: false
+									}));
+							});
+					});
+				});
+
+				let exteriorGroup = new SDGroup({
+					id: 99999,
+					label: 'Exterior',
+					groupCatalogId: 0,
+					treeVersionId: 0,
+					sortOrder: 0,
+					subGroups: [],
+					status: 0,
+				});
+
+				exteriorGroup.subGroups.push(exteriorSubGroup);
+				exteriorGroup.subGroups.push(colorSubGroup);
+				exteriorGroup.subGroups.forEach(subgrp =>
+				{
+					subgrp.points = subgrp.points.sort((group1, group2) =>
+					{
+						return group1.label > group2.label ? 1 : -1;
+					});
+
+					subgrp.points.forEach(point =>
+					{
+						point.choices = point.choices.sort((group1, group2) =>
+						{
+							return group1.label > group2.label ? 1 : -1;
+						});
+					});
+				});
+
+				summaryData.groups = summaryData.groups.sort((group1, group2) =>
+				{
 					return group1.label > group2.label ? 1 : -1;
 				});
 
-				subgrp.points.forEach(point => {
-					point.choices = point.choices.sort((group1,group2) => {
-						return group1.label > group2.label ? 1 : -1;
-					});
-				})
-			});
-
-			summaryData.groups = summaryData.groups.sort((group1,group2) => {
-				return group1.label > group2.label ? 1 : -1;
-			});
-
-			summaryData.groups.forEach(grp => {
-				grp.subGroups.forEach(subgrp => {
-					subgrp.points = subgrp.points.sort((group1,group2) => {
-						return group1.label > group2.label ? 1 : -1;
-					});
-
-					subgrp.points.forEach(point => {
-						point.choices = point.choices.sort((group1,group2) => {
+				summaryData.groups.forEach(grp =>
+				{
+					grp.subGroups.forEach(subgrp =>
+					{
+						subgrp.points = subgrp.points.sort((group1, group2) =>
+						{
 							return group1.label > group2.label ? 1 : -1;
 						});
-					})
-				})
-			})
-			summaryData.groups.unshift(exteriorGroup);
-			summaryData.groups = summaryData.groups.filter(g => g.label.toLowerCase() !== "elevations");
-		});
+
+						subgrp.points.forEach(point =>
+						{
+							point.choices = point.choices.sort((group1, group2) =>
+							{
+								return group1.label > group2.label ? 1 : -1;
+							});
+						});
+					});
+				});
+
+				summaryData.groups.unshift(exteriorGroup);
+				summaryData.groups = summaryData.groups.filter(g => g.label.toLowerCase() !== "elevations");
+			});
 
 		return summaryData;
 	}
 
-	getSummaryReportData(): SummaryReportData {
-		
+	getSummaryReportData(): SummaryReportData
+	{
 		let summaryHeader = this.summaryHeaderComponent;
 		let priceBreakdown = summaryHeader.priceBreakdownComponent;
 		let optionalPricingSelections: string = priceBreakdown.breakdownFilters.toString();
 
 		let summaryData = {} as SummaryReportData;
+
 		summaryData.showDesignEstimate = optionalPricingSelections.includes(PriceBreakdownType.DESIGN.toString());
 		summaryData.showClosingIncentive = optionalPricingSelections.includes(PriceBreakdownType.CLOSING.toString());
-		summaryData.showSalesProgram = optionalPricingSelections.includes(PriceBreakdownType.DISCOUNT.toString());		
+		summaryData.showSalesProgram = optionalPricingSelections.includes(PriceBreakdownType.DISCOUNT.toString());
 		summaryData.configurationName = this.title;
 		summaryData.community = this.summaryHeader.communitySalesName || "N/A";
 		summaryData.plan = this.summaryHeader.plan.salesName + ", " + this.summaryHeader.plan.integrationKey;
 		summaryData.lot = this.summaryHeader.lot.lotBlock;
-		if (this.summaryHeader.handing){
+
+		if (this.summaryHeader.handing)
+		{
 			summaryData.lot += " (" + this.summaryHeader.handing + " Garage)";
 		}
-		summaryData.address = this.summaryHeader.lot.streetAddress1 + ", " 
-			+ this.summaryHeader.lot.city + ", " + this.summaryHeader.lot.stateProvince 
+
+		summaryData.address = this.summaryHeader.lot.streetAddress1 + ", "
+			+ this.summaryHeader.lot.city + ", " + this.summaryHeader.lot.stateProvince
 			+ ", " + this.summaryHeader.lot.postalCode;
 		summaryData.basePrice = this.priceBreakdown.baseHouse || 0;
 		summaryData.lotPremium = this.priceBreakdown.homesiteEstimate || 0;
@@ -835,18 +871,30 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 		summaryData.closingIncentive = this.priceBreakdown.closingIncentive || 0;
 		summaryData.designEstimate = this.priceBreakdown.designEstimate || 0;
 		summaryData.groups = [];
-		this.optionCategories.forEach(category => {
+
+		this.optionCategories.forEach(category =>
+		{
 			let newGroup = new SummaryReportGroup();
+
 			newGroup.groupName = category.categoryName;
 			newGroup.groupSubTotal = 0;
+
 			summaryData.groups.push(newGroup);
+
 			newGroup.subGroups = [];
-			category.optionSubCategories.forEach(subCategory => {
+
+			category.optionSubCategories.forEach(subCategory =>
+			{
 				let newSubGroup = new SummaryReportSubGroup();
+
 				newSubGroup.subGroupName = subCategory.subCategoryName;
+
 				newGroup.subGroups.push(newSubGroup);
+
 				newSubGroup.options = [];
-				subCategory.options.forEach(option =>{
+
+				subCategory.options.forEach(option =>
+				{
 					let newOption = new SummaryReportOption();
 					newOption.name = option.name;
 					newOption.id = option.financialOptionIntegrationKey;
@@ -854,15 +902,19 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 					newOption.listPrice = option.listPrice;
 					newSubGroup.options.push(newOption);
 					newOption.subOptions = [];
-					option.colors.forEach(color => {
+
+					option.colors.forEach(color =>
+					{
 						let newSubOption = new SummaryReportSubOption();
+
 						newSubOption.attribute = color.colorItemName;
 						newSubOption.attributeValue = color.colorName;
+
 						newOption.subOptions.push(newSubOption);
-					})
-				})	
-			})
-		})
+					});
+				});
+			});
+		});
 
 		return summaryData;
 	}
