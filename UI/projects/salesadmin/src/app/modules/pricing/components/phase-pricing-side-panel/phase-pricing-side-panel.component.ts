@@ -264,9 +264,7 @@ export class PhasePricingSidePanelComponent implements OnInit
 			}
 		});
 
-    this.selectedItems = soldItems;
-    
-    this.setSelectedLotValue();
+		this.selectedItems = soldItems;
 	}
 
 	removeItem(tag: ILot)
