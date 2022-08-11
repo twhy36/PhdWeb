@@ -196,7 +196,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 								}
 							}
 						}
-						this.router.navigate(['..', subGroupCatalogId], { relativeTo: this.route });
+						this.router.navigate(['..', subGroupCatalogId], { relativeTo: this.route, replaceUrl: true });
 					}
 					else
 					{
@@ -232,7 +232,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			{
 				const subGroup = filteredTree.groups[0].subGroups[0];
 
-				this.router.navigate([subGroup.subGroupCatalogId], { relativeTo: this.route });
+				this.router.navigate([subGroup.subGroupCatalogId], { relativeTo: this.route, replaceUrl: true });
 			}
 		});
 
@@ -256,9 +256,9 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			if ((nav.selectedSubGroup !== this.selectedSubGroup?.id) && subGroup)
 			{
 				if (!!this.selectedSubGroup) {
-					this.router.navigate(['..', this.selectedSubGroup?.subGroupCatalogId], { relativeTo: this.route });
+					this.router.navigate(['..', this.selectedSubGroup?.subGroupCatalogId], { relativeTo: this.route, replaceUrl: true });
 				} else {
-					this.router.navigate(['..', subGroup?.subGroupCatalogId], { relativeTo: this.route });
+					this.router.navigate(['..', subGroup?.subGroupCatalogId], { relativeTo: this.route, replaceUrl: true });
 				}
 			}
 		});
