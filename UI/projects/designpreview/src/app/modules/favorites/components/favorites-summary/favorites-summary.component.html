@@ -11,7 +11,6 @@
 		<summary-header [summaryHeader]="summaryHeader"
 						[priceBreakdown]="priceBreakdown"
 						[includeContractedOptions]="includeContractedOptions"
-						[isPreview]="isPreview"
 						[isDesignComplete]="isDesignComplete"
 						(isStickyChanged)="onIsStickyChanged($event)"
 						(contractedOptionsToggled)="onContractedOptionsToggled()">
@@ -22,7 +21,7 @@
 				<div class="group" *ngIf="group.subGroups.length > 0">
 					<div class="label">
 						<span>{{group.label}}</span>
-						<div class="phd-group-detail"> 
+						<div *ngIf="!isPresale" class="phd-group-detail"> 
 							<span class="phd-group-subtotal-label">Subtotal : </span>
 							<span class="phd-group-subtotal-amount"> {{group.price | currency:'USD':'symbol':'0.0-0'}} </span>
 						</div>
@@ -40,6 +39,7 @@
 													[includeContractedOptions]="includeContractedOptions"
 													[buildMode]="buildMode"
 													[isDesignComplete]="isDesignComplete"
+													[isPresale]="isPresale"
 													(onViewFavorites)="onViewFavorites($event)"
 													(onRemoveFavorites)="onRemoveFavorites($event)">
 							</decision-point-summary>

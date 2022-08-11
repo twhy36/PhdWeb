@@ -1,7 +1,7 @@
 <div class="phd-point">
 	<div class="phd-point-details d-flex justify-content-start align-items-start">
 		<div class="phd-point-indicator"></div>
-		<div class="phd-point-label">{{decisionPoint.label}}</div>
+		<div [ngClass]="{'phd-point-label': !isPresale, 'phd-point-label-presale': isPresale}">{{decisionPoint.label}}</div>
 
 		<div class="phd-choice">
 			<ng-container *ngFor="let choice of choicesCustom">
@@ -13,7 +13,7 @@
 						</div>
 					</div>
 
-					<div class="phd-choice-header">
+					<div [ngClass]="{'phd-choice-header': !isPresale, 'phd-choice-header-presale': isPresale}">
 						<span>{{ choice.label }}</span>
 						<div class="phd-choice-body">
 							<div class="my-3 phd-choice-attributes" *ngIf="choice.showAttributes">
@@ -61,12 +61,12 @@
 						<span class="phd-quantity-label">Quantity:</span>
 						<span class="phd-content">({{ choice.quantity }})</span>
 					</div>
-					<div class="phd-divider"></div>
-					<div class="actions d-flex justify-content-between align-items-start">
-						<ng-container *ngIf="!choice.priceHiddenFromBuyerView">
+					<div *ngIf="!isPresale" class="phd-divider"></div>
+					<div class="actions" [ngClass]="{'phd-edit': !isPresale, 'phd-edit-presale': isPresale}">
+						<ng-container *ngIf="!choice.priceHiddenFromBuyerView && !isPresale">
 							<span *ngIf="selections?.length > 0">{{choice.price * choice.quantity | currency:'USD':'symbol':'0.0-0'}}</span>
 						</ng-container>
-						<ng-container *ngIf="choice.priceHiddenFromBuyerView">
+						<ng-container *ngIf="choice.priceHiddenFromBuyerView && !isPresale">
 							<span>Pricing Varies</span>
 						</ng-container>
 						<div *ngIf="!contractedOptionsPage" class="actions actionLinks">

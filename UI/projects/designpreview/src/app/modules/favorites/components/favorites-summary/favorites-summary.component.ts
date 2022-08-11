@@ -338,7 +338,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		let buyerInfo = {} as BuyerInfo;
 		let summaryHeader = this.summaryHeaderComponent;
 
-		summaryData.title = summaryHeader.title;
+		summaryData.title = summaryHeader.headerTitle;
 		summaryData.images = [{ imageUrl: this.summaryHeader.elevationImageUrl }];
 		summaryData.hasHomesite = false;
 		summaryData.allowEstimates = false;

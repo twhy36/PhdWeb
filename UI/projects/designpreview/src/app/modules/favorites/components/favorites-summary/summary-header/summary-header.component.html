@@ -1,25 +1,31 @@
 <div class="summary-header" [class.is-sticky]="isSticky">
 	<div *ngIf="!isSticky">
-		<cl-image *ngIf="summaryHeader.elevationImageUrl" public-id="{{summaryHeader.elevationImageUrl}}" type="fetch" style="width:calc(45vw);height:calc(45vh);" crop="fill">
+		<cl-image *ngIf="summaryHeader.elevationImageUrl" public-id="{{summaryHeader.elevationImageUrl}}" type="fetch" style="width:calc(10vw);height:calc(10vh);margin:10px" crop="fill">
 		</cl-image>
 		<img class="phd-logo-image" [src]="getImageSrc()" *ngIf="!summaryHeader.elevationImageUrl">
 	</div>
 
+	<div *ngIf="isSticky && isPresale">
+		<cl-image *ngIf="summaryHeader.elevationImageUrl" public-id="{{summaryHeader.elevationImageUrl}}" type="fetch" style="width:calc(10vw);height:calc(10vh);margin:10px" crop="fill">
+		</cl-image>
+		<img class="phd-logo-image-sticky" [src]="getImageSrc()" *ngIf="!summaryHeader.elevationImageUrl">
+	</div>
+
 	<div class="phd-header-body">
 		<div class="phd-upper-header">
-			<div id="favoritesListName" class="phd-favorites-list">{{title}}</div>
-			<div>
+			<div id="favoritesListName" class="phd-favorites-list">{{headerTitle}}</div>
+			<div [ngClass]="{'phd-name-group-presale': isPresale}">
 				<span class="phd-lot-label">{{summaryHeader.communityName}},</span>
-				<span class="phd-lot-details">{{summaryHeader.planName}}</span>
+				<span class="phd-lot-details" [ngStyle]="{'margin-left': isPresale ? '0px' : '10px'}">{{getPlanName()}}</span>
 			</div>
-			<div>
+			<ng-container *ngIf="!isPresale">
 				<span class="phd-lot-label">LOT </span>
 				<span class="phd-lot-label">{{summaryHeader.lot?.lotBlock}},</span>
 				<span class="phd-lot-details">{{address}}</span>
-			</div>
+			</ng-container>
 		</div>
-		<div *ngIf="!isSticky" class="phd-divider"></div>
-		<div *ngIf="!isSticky" class="phd-price-breakdown">
+		<div *ngIf="!isSticky && !isPresale" class="phd-divider"></div>
+		<div *ngIf="!isSticky && !isPresale" class="phd-price-breakdown">
 			<div class="d-flex">
 				<span class="phd-breakdown-label">Base Price:</span>
 				<span class="phd-breakdown-content">{{priceBreakdown?.baseHouse | currency:'USD':'symbol':'0.0-0'}}</span>

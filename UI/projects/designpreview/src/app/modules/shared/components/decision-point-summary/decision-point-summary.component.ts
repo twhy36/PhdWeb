@@ -24,6 +24,7 @@ export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implemen
 	@Input() includeContractedOptions: boolean;
 	@Input() buildMode: BuildMode;
 	@Input() isDesignComplete: boolean = false;
+	@Input() isPresale: boolean = false;
 	@Input() contractedOptionsPage: boolean = false;
 
 	@Output() onViewFavorites = new EventEmitter<DecisionPoint>();

@@ -5,6 +5,11 @@
 	height: auto;
 }
 
+.phd-logo-image-sticky {
+	width: calc(10vw);
+	height: auto;
+}
+
 .phd-header-body {
 	display: flex;
 	flex-direction: column;
@@ -13,6 +18,10 @@
 
 	.phd-upper-header {
 		padding-left: 15px;
+	}
+
+	.phd-name-group-presale span {
+		display: block;
 	}
 
 	.phd-favorites-list {
@@ -28,7 +37,6 @@
 
 	.phd-lot-details {
 		font-size: 15px;
-		margin-left: 10px;
 	}
 
 	.phd-price-breakdown {
