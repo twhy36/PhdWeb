@@ -518,7 +518,7 @@ export class LiteEffects
 					? store.plan.plans?.find(p => p.id === action.planId)
 					: null;
 
-				if (action instanceof SelectPlan && !!selectedPlan?.treeVersionId)
+				if (action instanceof SelectPlan && !!action.treeVersionId && !!selectedPlan?.treeVersionId)
 				{
 					// Clean up lite data when a full plan is selected
 					let actions: any[] = [];

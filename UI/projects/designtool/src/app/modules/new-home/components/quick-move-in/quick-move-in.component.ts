@@ -2,8 +2,8 @@ import { Component, OnInit } from "@angular/core";
 
 import { Store, select, ActionsSubject } from "@ngrx/store";
 import { ofType } from '@ngrx/effects';
-import { Observable, ReplaySubject } from "rxjs";
-import { combineLatest, take, withLatestFrom } from 'rxjs/operators';
+import { Observable, ReplaySubject, combineLatest } from "rxjs";
+import { take, withLatestFrom } from 'rxjs/operators';
 
 import * as _ from 'lodash';
 
@@ -23,6 +23,7 @@ import { Router } from "@angular/router";
 import { NewHomeService } from "../../services/new-home.service";
 import { LiteService } from "../../../core/services/lite.service";
 import { LiteActionTypes } from "../../../ngrx-store/lite/actions";
+import { ScenarioActionTypes, ScenarioSaved } from '../../../ngrx-store/scenario/actions';
 
 @Component({
 	selector: 'quick-move-in',
@@ -42,7 +43,6 @@ export class QuickMoveInComponent extends UnsubscribeOnDestroy implements OnInit
 
 	// PHD Lite
 	scenarioOptions: ScenarioOption[];
-	previousScenarioOptions: ScenarioOption[];
 
 	constructor(
 		private store: Store<fromRoot.State>,
@@ -64,11 +64,12 @@ export class QuickMoveInComponent extends UnsubscribeOnDestroy implements OnInit
 			select(state => state.scenario.financialCommunityFilter)
 		).subscribe(filter => this.selectedFilterBy$.next(filter));
 
-		this.store.pipe(
-			this.takeUntilDestroyed(),
-			select(fromJobs.specJobs),
-			combineLatest(this.selectedFilterBy$)
-		).subscribe(([jobs, filter]) =>
+		combineLatest([
+			this.store.pipe(select(fromJobs.specJobs)),
+			this.selectedFilterBy$
+		])
+		.pipe(this.takeUntilDestroyed())		
+		.subscribe(([jobs, filter]) =>
 		{
 			if (jobs)
 			{
@@ -153,55 +154,57 @@ export class QuickMoveInComponent extends UnsubscribeOnDestroy implements OnInit
 				else if (isPhdLite)
 				{
 					//TODO: need to account for no previous job but started out as a regular Full config and then lite QMI was chosen
-					this.previousScenarioOptions = _.cloneDeep(this.scenarioOptions);
+					const previousScenarioOptions = _.cloneDeep(this.scenarioOptions);
 					//if previousJob was for PhdFull or no previous job but config was being filled out with PhdFull info
 					const needToDeletePhdFullData = (!!previousJob && previousJobWasPhdLite === false) || !!this.scenario.treeVersionId;
 
 					this.store.dispatch(new CommonActions.LoadSpec(job));
 
-					this.actions.pipe(
-						ofType<LiteActions.LiteOptionsLoaded>(LiteActionTypes.LiteOptionsLoaded),
+					combineLatest([
+						this.actions.pipe(ofType<LiteActions.LiteOptionsLoaded>(LiteActionTypes.LiteOptionsLoaded)),
+						this.actions.pipe(ofType<ScenarioSaved>(ScenarioActionTypes.ScenarioSaved))
+					])
+					.pipe(
 						withLatestFrom(this.store),
-						take(1)).subscribe(([_action, store]) =>
+						take(1)
+					)	
+					.subscribe(([[_action], store]) =>
+					{
+						let scenarioOptions: ScenarioOption[] = store.job.jobPlanOptions?.map(jobOption =>
 						{
-							let scenarioOptions: ScenarioOption[] = store.job.jobPlanOptions?.map(jobOption =>
-							{
-								return {
-									scenarioOptionId: 0,
-									scenarioId: store.scenario.scenario.scenarioId,
-									edhPlanOptionId: jobOption.planOptionId,
-									planOptionQuantity: jobOption.optionQty,
-									scenarioOptionColors: []
-								}
-							}) || [];
-
-							if (previousJob && previousJobWasPhdLite)
-							{
-								this.store.dispatch(new LiteActions.ToggleQuickMoveInSelections(this.previousScenarioOptions, scenarioOptions, needToDeletePhdFullData))
+							return {
+								scenarioOptionId: 0,
+								scenarioId: store.scenario.scenario.scenarioId,
+								edhPlanOptionId: jobOption.planOptionId,
+								planOptionQuantity: jobOption.optionQty,
+								scenarioOptionColors: []
 							}
-							else if (!previousJob || needToDeletePhdFullData)
-							{
-								/*there was no previous job OR there was a previous PhdFull job.
-								  Either way we need to save options for the newly selected Lite job and may or may need to delete PhdFull data*/
-								this.store.dispatch(new LiteActions.ToggleQuickMoveInSelections([], scenarioOptions, needToDeletePhdFullData))
-							}
+						}) || [];
 
-							this.actions.pipe(
-								ofType<LiteActions.ScenarioOptionsSaved>(LiteActionTypes.ScenarioOptionsSaved), take(1)).subscribe(() =>
-								{
-									this.newHomeService.setSubNavItemsStatus(this.scenario, this.buildMode, null)
-									this.router.navigate(['/lite-summary']);
-								});
-						});
+						if (previousJob && previousJobWasPhdLite)
+						{
+							this.store.dispatch(new LiteActions.ToggleQuickMoveInSelections(previousScenarioOptions, scenarioOptions, needToDeletePhdFullData));
+						}
+						else if (!previousJob || needToDeletePhdFullData)
+						{
+							/*there was no previous job OR there was a previous PhdFull job.
+								Either way we need to save options for the newly selected Lite job and may or may need to delete PhdFull data*/
+							this.store.dispatch(new LiteActions.ToggleQuickMoveInSelections([], scenarioOptions, needToDeletePhdFullData));
+						}
+						else
+						{
+							this.navigateToSummary(true);						
+						}
+
+						this.actions.pipe(
+							ofType<LiteActions.ScenarioOptionsSaved>(LiteActionTypes.ScenarioOptionsSaved), take(1)).subscribe(() =>
+							{
+								this.navigateToSummary(true);
+							});
+					});
 				}
 				else
 				{
-					//previous selected QMI was for PhdLite or the config was for PhdLite
-					if (previousJob && previousJobWasPhdLite || this.scenarioOptions?.length > 0)
-					{
-						this.previousScenarioOptions = _.cloneDeep(this.scenarioOptions);
-					}
-
 					this.changeOrderService.getTreeVersionIdByJobPlan(job.planId).subscribe(() =>
 					{
 						this.store.dispatch(new CommonActions.LoadSpec(job));
@@ -209,22 +212,35 @@ export class QuickMoveInComponent extends UnsubscribeOnDestroy implements OnInit
 						this.actions.pipe(
 							ofType<CommonActions.JobLoaded>(CommonActionTypes.JobLoaded), take(1)).subscribe(() =>
 							{
-								if (previousJob && previousJobWasPhdLite && this.previousScenarioOptions?.length > 0)
+								//previous selected QMI was for PhdLite or the config was for PhdLite
+								const previousScenarioOptions = (previousJob && previousJobWasPhdLite || this.scenarioOptions?.length > 0)
+									? _.cloneDeep(this.scenarioOptions)
+									: [];
+
+								if (previousJob && previousJobWasPhdLite && previousScenarioOptions?.length > 0)
 								{
 									this.actions.pipe(
-										ofType<LiteActions.LiteOptionsLoaded>(LiteActionTypes.LiteOptionsLoaded),
+										ofType<ScenarioSaved>(ScenarioActionTypes.ScenarioSaved),
 										take(1)
-									).subscribe(() =>
-										this.store.dispatch(new LiteActions.ToggleQuickMoveInSelections(this.previousScenarioOptions, [], false))
-									);
+									).subscribe(() => {
+										this.store.dispatch(new LiteActions.ToggleQuickMoveInSelections(previousScenarioOptions, [], false));
+										this.navigateToSummary(false);
+									});
 								}
-
-								this.newHomeService.setSubNavItemsStatus(this.scenario, this.buildMode, null)
-
-								this.router.navigate(['/scenario-summary']);
+								else
+								{
+									this.navigateToSummary(false);
+								}
 							});
 					});
 				}
 			});
+	}
+
+	navigateToSummary(isPhdLite: boolean)
+	{
+		this.newHomeService.setSubNavItemsStatus(this.scenario, this.buildMode, null);
+
+		isPhdLite ? this.router.navigate(['/lite-summary']) : this.router.navigate(['/scenario-summary']);		
 	}
 }
