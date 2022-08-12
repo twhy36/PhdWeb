@@ -144,8 +144,8 @@ export class FeatureSwitchService
 		return this._http.get<any>(url).pipe(
 			map(response =>
 			{
-				const featureSwitch = response.value[0] as IFeatureSwitch;
-				return featureSwitch.featureSwitchOrgAssocs;
+				const featureSwitch = !!response?.value?.length ? response.value[0] as IFeatureSwitch : null;
+				return featureSwitch?.featureSwitchOrgAssocs || [];
 			}),
 			catchError(error =>
 			{
