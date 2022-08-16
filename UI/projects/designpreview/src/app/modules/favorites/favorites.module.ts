@@ -13,6 +13,7 @@ import { InternalGuard } from '../core/guards/internal.guard';
 import { ManageFavoritesComponent } from './components/manage-favorites/manage-favorites.component';
 import { MyFavoritesComponent } from './components/my-favorites/my-favorites.component';
 import { NormalExperienceComponent } from './components/my-favorites/normal-experience/normal-experience.component';
+import { IncludedOptionsComponent } from './components/included-options/included-options.component';
 import { FavoritesSummaryComponent } from './components/favorites-summary/favorites-summary.component';
 import { ContractedSummaryComponent } from './components/contracted-summary/contracted-summary.component';
 import { FloorPlanSummaryComponent } from './components/floor-plan-summary/floor-plan-summary.component';
@@ -53,6 +54,12 @@ const moduleRoutes: Routes = [
 				data: { pageLoadEvent: 'FloorplanSummary' }
 			},
 			{ 
+				path: 'included', 
+				component: IncludedOptionsComponent, 
+				canActivate: [ExternalGuard],
+				data: { pageLoadEvent: 'IncludedOptions' }
+			},
+			{ 
 				path: 'favorites/my-favorites/:favoritesId/:subGroupCatalogId', 
 				component: MyFavoritesComponent, 
 				canActivate: [ExternalGuard],
@@ -79,6 +86,7 @@ const moduleRoutes: Routes = [
 		ManageFavoritesComponent,
 		MyFavoritesComponent,
 		NormalExperienceComponent,
+		IncludedOptionsComponent,
 		FavoritesSummaryComponent,
 		ContractedSummaryComponent,
 		FloorPlanSummaryComponent,
@@ -89,6 +97,7 @@ const moduleRoutes: Routes = [
 		ManageFavoritesComponent,
 		MyFavoritesComponent,
 		NormalExperienceComponent,
+		IncludedOptionsComponent,
 		FavoritesSummaryComponent,
 		ContractedSummaryComponent,
 		FloorPlanSummaryComponent,

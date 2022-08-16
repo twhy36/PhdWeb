@@ -15,7 +15,9 @@ import { ActionBarComponent } from './components/action-bar/action-bar.component
 import { FloorPlanComponent } from './components/floor-plan/floor-plan.component';
 import { TreeFilterComponent } from './components/tree-filter/tree-filter.component';
 import { GroupBarComponent } from './components/group-bar/group-bar.component';
+import { HeaderBarComponent } from './components/header-bar/header-bar.component';
 import { DecisionBarComponent } from './components/decision-bar/decision-bar.component';
+import { IncludedDecisionBarComponent } from './components/included-decision-bar/included-decision-bar.component';
 import { ChoiceCardComponent } from './components/choice-card/choice-card.component';
 import { ChoiceCardDetailComponent } from './components/choice-card-detail/choice-card-detail.component';
 import { ChoiceDeclineCardComponent } from './components/choice-decline-card/choice-decline-card.component';
@@ -37,22 +39,7 @@ import { BlockedItemComponent } from './components/blocked-item/blocked-item.com
 		FloorPlanComponent,
 		TreeFilterComponent,
 		GroupBarComponent,
-		DecisionBarComponent,
-		ChoiceCardComponent,
-		ChoiceDeclineCardComponent,
-		ChoiceCardDetailComponent,
-		DecisionPointSummaryComponent,
-		AttributeGroupComponent,
-		AttributeListComponent,
-		AttributeLocationComponent,
-		QuantityInputComponent,
-		DetailedDecisionBarComponent
-    ],
-	declarations: [
-		ActionBarComponent,
-		FloorPlanComponent,
-		TreeFilterComponent,
-		GroupBarComponent,
+		HeaderBarComponent,
 		DecisionBarComponent,
 		ChoiceCardComponent,
 		ChoiceDeclineCardComponent,
@@ -63,6 +50,25 @@ import { BlockedItemComponent } from './components/blocked-item/blocked-item.com
 		AttributeLocationComponent,
 		QuantityInputComponent,
 		DetailedDecisionBarComponent,
+		IncludedDecisionBarComponent
+    ],
+	declarations: [
+		ActionBarComponent,
+		FloorPlanComponent,
+		TreeFilterComponent,
+		GroupBarComponent,
+		HeaderBarComponent,
+		DecisionBarComponent,
+		ChoiceCardComponent,
+		ChoiceDeclineCardComponent,
+		ChoiceCardDetailComponent,
+		DecisionPointSummaryComponent,
+		AttributeGroupComponent,
+		AttributeListComponent,
+		AttributeLocationComponent,
+		QuantityInputComponent,
+		DetailedDecisionBarComponent,
+		IncludedDecisionBarComponent,
 		DecisionBarChoiceComponent,
 		DecisionBarDeclineChoiceComponent,
 		BlockedChoiceModalComponent,

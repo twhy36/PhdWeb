@@ -12,9 +12,6 @@ ul {
 		text-align: left;
 		overflow-wrap: break-word;
 		word-wrap: break-word; // depricated but required for MS Edge, should be removed as soon as edge is current
-		.phd-past-cutt-off {
-			opacity: .5;
-		}
 
 		.decision-point {
 			display: flex;

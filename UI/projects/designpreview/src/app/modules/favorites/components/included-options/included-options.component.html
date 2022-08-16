@@ -1,0 +1,63 @@
+<div>
+	<header-bar [communityName]="communityName"
+			   [planName]="planName">
+	</header-bar>
+</div>
+
+<div class="phd-included-options">
+	<div class="d-flex flex-row phd-point-panel">
+		<div *ngIf="!isPointPanelCollapsed" class="phd-point-bar">
+			<included-decision-bar
+				[tree]="tree"
+				[points]="points"
+				(onSelectDecisionPoint)="selectDecisionPoint($event)">
+			</included-decision-bar>
+		</div>
+		<div class="d-flex justify-content-center align-items-center phd-collapse-icon" [ngClass]="isPointPanelCollapsed ? 'phd-collapsed-icon-bg' : ''">
+			<i *ngIf="!isPointPanelCollapsed" class="fa fa-angle-double-left" (click)="togglePointPanel()"></i>
+			<i *ngIf="isPointPanelCollapsed" class="fa fa-angle-double-right" (click)="togglePointPanel()"></i>
+		</div>	
+	</div>
+
+	<div class="d-flex flex-column phd-card-panel" [ngClass]="isPointPanelCollapsed ? 'phd-card-panel-collapsed' : ''">
+		<ng-container *ngIf="!noVisibleGroups">
+			<div class="phd-point-container">
+				<ng-container *ngFor="let group of tree.groups">
+					<ng-container *ngFor="let subGroup of group.subGroups">
+						<div class="d-flex flex-row phd-group-subgroup-header" *ngIf="defaultChoicePresent(subGroup)">
+							<div class="phd-group-label">{{group.label}}:</div>
+							<div class="phd-subgroup-label">{{subGroup.label}}</div>
+						</div>
+						<div class="d-flex flex-wrap phd-choice-container">
+							<ng-container *ngFor="let point of subGroup.points">
+								<div *ngIf="displayDecisionPoint(point)">
+									<div class="phd-point-label" [attr.id]="'included-point-' + point.id">{{point?.label}}</div>
+									<div class="phd-choice-cards">
+										<ng-container *ngFor="let choice of displayedChoices(point.choices)">
+											<choice-card *ngIf="!choice.isHiddenFromBuyerView"
+													[currentChoice]="getChoiceExt(choice, point)"
+													[currentPoint]="point"
+													[groups]="tree.groups"
+													[tree]="tree"
+													[isPresale]="buildMode === 'presale'"
+													(toggled)="choiceToggleHandler($event)"
+													(onSelectDecisionPoint)="selectDecisionPoint($event)"
+													(onViewChoiceDetail)="viewChoiceDetail($event)">
+											</choice-card>
+										</ng-container>
+									</div>
+								</div>
+							</ng-container>
+						</div>
+					</ng-container>
+				</ng-container>
+			</div>
+		</ng-container>
+	</div>
+</div>
+
+<action-bar [primaryAction]="'Next'"
+			[isPresale]="true"
+			[hideContractedToggle]="true"
+			(callToAction)="onNextClicked()">
+</action-bar>
