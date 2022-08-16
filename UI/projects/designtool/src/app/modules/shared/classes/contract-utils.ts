@@ -119,7 +119,7 @@ export function getLiteCurrentHouseSelections(
 
 	// Add color scheme
 	const colorSchemes = _.flatMap(selectedElevation?.colorItems, item => item.color);
-	const color = colorSchemes?.find(c => c.colorItemId === selectedColorScheme.colorItemId && c.colorId === selectedColorScheme.colorId);
+	const color = colorSchemes?.find(c => c.colorItemId === selectedColorScheme?.colorItemId && c.colorId === selectedColorScheme?.colorId);
 	const colorSchemeChoice = createLiteSDChoice(color?.name, selectedElevation.id, null, 0);
 	const colorSchemePoint = createLiteSDPoint(ExteriorLabel.ColorScheme, [colorSchemeChoice]);
 
