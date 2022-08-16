@@ -24,6 +24,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 	showFloorplanLink: boolean = false;
 	showIncludedOptionsLink: boolean = false;
 	buildMode: BuildMode;
+	welcomeText: string = 'Welcome To Your Home';
 
 	@HostListener("window:resize", ["$event"])
 	onResize(event) {
@@ -78,6 +79,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 					this.showFloorplanLink = false;
 					this.showIncludedOptionsLink = true;
 					this.showMyFavoritesLink = true;
+					this.welcomeText = 'Welcome To Your Future Home';
 					break;
 				default:
 					this.showContractedOptionsLink = true;

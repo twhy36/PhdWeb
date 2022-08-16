@@ -239,10 +239,6 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 		return this.brandService.getBannerImage(position);
 	}
 
-	getWelcomeText() {
-		return this.isPresale ? 'Let\'s review the options available for your home' : 'Let\'s review the rest of the options available for your home';
-	}
-
 	loadFloorPlan(fp) {
 		if (!this.selectedFloor) {
 			const floor1 = fp.floors.find(floor => floor.name === 'Floor 1');
