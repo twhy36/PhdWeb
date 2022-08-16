@@ -674,6 +674,7 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 
 			this.clearTreeVersions();
 		}
+
 		this.updateUrl();
 	}
 
@@ -685,13 +686,16 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 			this._treeService.currentTreeVersionId$.next(this.selectedTreeVersion.id);
 
 			this._treeService.clearCurrentTree();
+
 			this.updateUrl(this.selectedTreeVersion.id);
 		}
 		else
 		{
 			this.clearTreeVersions();
+
 			this.isDeletingTree = false;
 			this.lockedFromChanges = false;
+
 			this.updateUrl();
 		}
 	}
@@ -862,8 +866,8 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 	onCreateNewTree(params: { treeVersionId: number })
 	{
 		this._msgService.add({ severity: 'info', summary: 'Loading...' });
+
 		this.treeVersionsLoading = true;
-		this.treeVersions = [];
 		this.noVersions = true;
 
 		const commId = this.selectedCommunity.id;
@@ -873,6 +877,15 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 
 		this._treeService.getNewTree(commId, planKey, newType, treeVersionId)
 			.pipe(
+				catchError((err) =>
+				{
+					this._msgService.add({ severity: 'error', summary: 'Error', detail: `Unable to Create New Tree.` });
+
+					this.treeVersionsLoading = false;
+					this.noVersions = this.treeVersions.length === 0;
+
+					return throwError(err);
+				}),
 				switchMap(tree =>
 				{
 					// getNewTree will set tree to null if there are no groups found in the tree
@@ -882,6 +895,8 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 					}
 					else
 					{
+						this.treeVersions = [];
+
 						return this._treeService.getTreeVersions(this.selectedCommunity.id, this.selectedPlan.financialPlanIntegrationKey)
 							.pipe(map(treeVersions =>
 							{
@@ -892,6 +907,7 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 								this.selectedTreeVersion = treeVersion ? treeVersion : null;
 
 								this.onChangeTreeVersion();
+
 								return tree.version.id;
 							}));
 					}
@@ -902,10 +918,12 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 				if (versionId)
 				{
 					this._treeService.currentTreeVersionId$.next(versionId);
+
 					this.treeVersionsLoading = false;
 					this.noVersions = false;
-					this.updateUrl(versionId);
 					this.dragEnable = false;
+
+					this.updateUrl(versionId);					
 				}
 				else
 				{

@@ -3,7 +3,7 @@ import { HttpHeaders, HttpClient } from '@angular/common/http';
 
 import { BehaviorSubject, Observable, throwError as _throw } from 'rxjs';
 import { EMPTY } from 'rxjs';
-import { combineLatest, map, catchError, flatMap, switchMap } from 'rxjs/operators';
+import { combineLatest, map, catchError, flatMap, switchMap, finalize } from 'rxjs/operators';
 
 import * as odataUtils from '../../shared/classes/odata-utils.class';
 
@@ -298,7 +298,11 @@ export class TreeService
 
 		const endPoint = `${settings.apiUrl}${action}?${qryStr}`;
 
-		return this._http.post<PhdApiDto.IDTreeDto>(endPoint, body).pipe(
+		return withSpinner(this._http).post<PhdApiDto.IDTreeDto>(endPoint, body).pipe(
+			finalize(() =>
+			{
+				this.treeVersionIsLoading = false;
+			}),
 			map(treeDto =>
 			{
 				let dTree: DTree;
@@ -308,10 +312,9 @@ export class TreeService
 					dTree = this.createTreeFromDto(treeDto);
 				}
 
-				this.treeVersionIsLoading = false;
-
 				return dTree;
-			}));
+			}),
+			catchError(this.handleError));
 	}
 
 	getChoiceOptionRules(treeVersionId: number, choiceId: number): Observable<Array<PhdApiDto.IChoiceOptionRule>>
