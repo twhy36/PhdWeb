@@ -864,7 +864,7 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 			+ this.summaryHeader.lot.city + ", " + this.summaryHeader.lot.stateProvince
 			+ ", " + this.summaryHeader.lot.postalCode;
 		summaryData.basePrice = this.priceBreakdown.baseHouse || 0;
-		summaryData.lotPremium = this.priceBreakdown.homesiteEstimate || 0;
+		summaryData.lotPremium = this.priceBreakdown.homesite || 0;
 		summaryData.optionsTotal = this.priceBreakdown.selections || 0;
 		summaryData.totalPrice = this.priceBreakdown.totalPrice || 0;
 		summaryData.salesProgram = this.priceBreakdown.salesProgram || 0;
