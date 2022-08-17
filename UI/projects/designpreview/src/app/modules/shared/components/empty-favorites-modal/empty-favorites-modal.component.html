@@ -1,0 +1,14 @@
+<ng-container>
+	<div class="modal-header">
+		<span class="modal-title">{{title}}</span>
+		<button *ngIf="isCloseable" type="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
+			<span aria-hidden="true">&times;</span>
+		</button>
+	</div>
+	<div class="modal-body">
+		<div [innerHTML]="body"></div>
+		<button type="button" class="btn btn-md modal-button" (click)="activeModal.close('Back')" [class.btn-secondary]="defaultOption != 'Back'" [class.btn-primary]="defaultOption == 'Back'">
+			<span>{{ buttonText }}</span>
+		</button>
+	</div>
+</ng-container>

@@ -36,6 +36,7 @@ import { SummaryHeader, SummaryHeaderComponent } from './summary-header/summary-
 import { GroupExt } from '../../../shared/models/group-ext.model';
 import { AdobeService } from '../../../core/services/adobe.service';
 import { BuildMode } from '../../../shared/models/build-mode.model';
+import { EmptyFavoritesModalComponent } from '../../../shared/components/empty-favorites-modal/empty-favorites-modal.component';
 
 @Component({
 	selector: 'favorites-summary',
@@ -55,12 +56,14 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 	includeContractedOptions: boolean = false;
 	favoritesId: number;
 	salesChoices: JobChoice[];
+	myFavorites: any[];
 	tree: Tree;
 	treeVersionRules: TreeVersionRules;
 	options: PlanOption[];
 	buildMode: string;
 	isPreview: boolean = false;
 	isPresale: boolean;
+	isEmptyFavorites: boolean;
 	isDesignComplete: boolean = false;
 
 	constructor(private store: Store<fromRoot.State>,
@@ -186,6 +189,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		).subscribe(fav => {
 			this.salesChoices = fav && fav.salesChoices;
 			this.includeContractedOptions = fav && fav.includeContractedOptions;
+			this.myFavorites = fav && fav.myFavorites;
 		});
 
 		this.store.pipe(
@@ -196,6 +200,12 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 			this.treeVersionRules = _.cloneDeep(scenario.rules);
 			this.options = _.cloneDeep(scenario.options);
 		});
+
+		this.checkForEmptyFavorites();
+
+		if (this.isPresale && this.isEmptyFavorites) {
+			this.displayEmptyFavoritesModal();
+		}
 	}
 
 	onBack()
@@ -300,6 +310,12 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 
 				this.store.dispatch(new ScenarioActions.SelectChoices(this.isDesignComplete, ...removedChoices));
 				this.store.dispatch(new FavoriteActions.SaveMyFavoritesChoices());
+
+				this.checkForEmptyFavorites();
+
+				if (this.isPresale && this.isEmptyFavorites) {
+					this.displayEmptyFavoritesModal();
+				}
 
 				setTimeout(() => {
 					this.cd.detectChanges();
@@ -438,5 +454,49 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		return groups.map(g => {
 			return new GroupExt(g);
 		})
+	}
+
+	checkForEmptyFavorites() {
+		let favorites = _.flatMap(this.myFavorites, fav => fav.myFavoritesChoice);
+		this.isEmptyFavorites = favorites.length === 0;
+	}
+
+	displayEmptyFavoritesModal() {
+		let ngbModalOptions: NgbModalOptions = {
+			centered: true,
+			backdrop: true,
+			beforeDismiss: () => false
+		};
+
+
+		let emptyFavoritesModal = this.modalService.open(EmptyFavoritesModalComponent, ngbModalOptions);
+
+		emptyFavoritesModal.componentInstance.title = 'Ooops. No options have been selected';
+		emptyFavoritesModal.componentInstance.body = `
+			<p>Select the <i class="fa fa-heart-o"></i> to add options to your favorites.</p>
+		`;
+		emptyFavoritesModal.componentInstance.buttonText = 'Back';
+		emptyFavoritesModal.componentInstance.defaultOption = 'Back';
+
+
+		this.adobeService.setAlertEvent(emptyFavoritesModal.componentInstance.title + " " + emptyFavoritesModal.componentInstance.body, 'Empty Favorites Alert');
+
+		emptyFavoritesModal.result.then((result) =>
+		{
+
+			if (result === 'Back')
+			{
+				this.location.back();
+
+				setTimeout(() => {
+					this.cd.detectChanges();
+				}, 50);
+			}
+
+		}, (reason) =>
+			{
+
+			});
+
 	}
 }

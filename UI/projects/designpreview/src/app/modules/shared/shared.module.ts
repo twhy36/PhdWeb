@@ -32,6 +32,7 @@ import { DecisionBarDeclineChoiceComponent } from './components/detailed-decisio
 import { BlockedChoiceModalComponent } from './components/blocked-choice-modal/blocked-choice-modal.component';
 import { HiddenChoicePriceModalComponent } from './components/hidden-choice-price-modal/hidden-choice-price-modal.component';
 import { BlockedItemComponent } from './components/blocked-item/blocked-item.component';
+import { EmptyFavoritesModalComponent } from './components/empty-favorites-modal/empty-favorites-modal.component';
 
 @NgModule({
 	exports: [
@@ -73,6 +74,7 @@ import { BlockedItemComponent } from './components/blocked-item/blocked-item.com
 		DecisionBarDeclineChoiceComponent,
 		BlockedChoiceModalComponent,
 		HiddenChoicePriceModalComponent,
+		EmptyFavoritesModalComponent,
 		BlockedItemComponent
     ],
 	imports: [
