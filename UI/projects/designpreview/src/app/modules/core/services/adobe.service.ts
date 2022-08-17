@@ -23,6 +23,7 @@ import { AdobeChoice, FavoriteEvent, FavoriteUpdateEvent } from '../../shared/mo
 import { Router, RouterStateSnapshot, RoutesRecognized } from '@angular/router';
 import { ClickEvent } from '../../shared/models/adobe/click-event';
 import { ErrorEvent } from '../../shared/models/adobe/error-event';
+import { BuildMode } from '../../shared/models/build-mode.model';
 
 
 @Injectable()
@@ -30,6 +31,7 @@ export class AdobeService extends UnsubscribeOnDestroy {
 	environment = environment;
     choices: Choice[];
     pageLoadExecuted: boolean = false;
+    buildMode: BuildMode;
 
 	constructor(
         private store: Store<fromRoot.State>,
@@ -43,6 +45,14 @@ export class AdobeService extends UnsubscribeOnDestroy {
                     this.detectPageLoad(this.findPageLoadData(data?.state));
                 }
             })
+            this.store.pipe(
+                this.takeUntilDestroyed(),
+                select(state => state?.scenario),
+            ).subscribe((scenario) => {
+                if (scenario && scenario.buildMode) {
+                    this.buildMode = scenario.buildMode;
+                }
+            });
 	    }
 
         findPageLoadData(snap: RouterStateSnapshot): string {
@@ -109,7 +119,7 @@ export class AdobeService extends UnsubscribeOnDestroy {
     setPageLoadEvent(adobeLoadInitialized: boolean, pageType: string,
         pageName: string, groupName: string, subGroupName: string) {
         window['appEventData'] = window['appEventData'] || [];
-        if (!adobeLoadInitialized) {
+        if (!adobeLoadInitialized && this.buildMode === BuildMode.Buyer) {
             this.store.pipe(
                 this.takeUntilDestroyed(),
                 select(state => state.org),
@@ -150,43 +160,52 @@ export class AdobeService extends UnsubscribeOnDestroy {
     }
 
     setSearchEvent(term: string, tree: TreeVersion) {
-        window['appEventData'] = window['appEventData'] || [];
+        if (this.buildMode === BuildMode.Buyer) {
+            window['appEventData'] = window['appEventData'] || [];
 
-        if (term?.length > 2) {
-            const choices = _.flatMap(tree.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices))) || [];
-            const searchEvent = new SearchEvent(term, choices.length);
-
-            window['appEventData'].push(searchEvent);
+            if (term?.length > 2) {
+                const choices = _.flatMap(tree.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices))) || [];
+                const searchEvent = new SearchEvent(term, choices.length);
+    
+                window['appEventData'].push(searchEvent);
+            }
         }
     }
 
     setAlertEvent(message: string, type: string) {
-        window['appEventData'] = window['appEventData'] || [];
-				const alertEvent = new AlertEvent(message, type);
-
-				window['appEventData'].push(alertEvent);
+        if (this.buildMode === BuildMode.Buyer) {
+            window['appEventData'] = window['appEventData'] || [];
+            const alertEvent = new AlertEvent(message, type);
+    
+            window['appEventData'].push(alertEvent);
+        }
     }
 
     setClickEvent(container: string, element: string, text: string) {
-        window['appEventData'] = window['appEventData'] || [];
-				const clickEvent = new ClickEvent(container, element, text);
+		if (this.buildMode === BuildMode.Buyer) {
+			window['appEventData'] = window['appEventData'] || [];
+			const clickEvent = new ClickEvent(container, element, text);
 
-				window['appEventData'].push(clickEvent);
+			window['appEventData'].push(clickEvent);
+		}
+		
     }
 
     packageFavoriteEventData(postSaveFavoriteChoices: MyFavoritesChoice[], myFavorite: MyFavorite, tree: Tree, groups: Group[], salesChoices: JobChoice[]) {
-        const favoriteChoices = (myFavorite ? myFavorite.myFavoritesChoice : []) || [];
-        const updatedChoices = this.favoriteService.getMyFavoritesChoices(tree, salesChoices, favoriteChoices);
-        const choices = [...updatedChoices, ...favoriteChoices];
-        postSaveFavoriteChoices.forEach(res => {
-            let resChoice = res as MyFavoritesChoice;
-            if (resChoice) {
-                const choice = choices.find(x => x.dpChoiceId === resChoice.dpChoiceId);
-                if (choice && !choice.removed) {
-                    this.setFavoriteEvent(new AdobeChoice(choice), groups, favoriteChoices);
-                }
-            }
-        })
+        if (this.buildMode === BuildMode.Buyer) {
+			const favoriteChoices = (myFavorite ? myFavorite.myFavoritesChoice : []) || [];
+			const updatedChoices = this.favoriteService.getMyFavoritesChoices(tree, salesChoices, favoriteChoices);
+			const choices = [...updatedChoices, ...favoriteChoices];
+			postSaveFavoriteChoices.forEach(res => {
+				let resChoice = res as MyFavoritesChoice;
+				if (resChoice) {
+					const choice = choices.find(x => x.dpChoiceId === resChoice.dpChoiceId);
+					if (choice && !choice.removed) {
+						this.setFavoriteEvent(new AdobeChoice(choice), groups, favoriteChoices);
+					}
+				}
+			})
+		}
     }
 
     setFavoriteEvent(choice: AdobeChoice, groups: Group[], favoriteChoices: MyFavoritesChoice[]) {
@@ -195,7 +214,7 @@ export class AdobeService extends UnsubscribeOnDestroy {
 
         window['appEventData'] = window['appEventData'] || [];
 
-        if (choice && !choice.removed && groups) {
+        if (choice && !choice.removed && groups && this.buildMode === BuildMode.Buyer) {
             const choices = _.flatMap(groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices.filter(ch => ch.quantity > 0)))) || [];
             const treeChoice = choices.find(c => choice.divChoiceCatalogId === c.divChoiceCatalogId);
 
@@ -242,11 +261,13 @@ export class AdobeService extends UnsubscribeOnDestroy {
     }
 
     setErrorEvent(error: string) {
-        let errorEvent = new ErrorEvent(error);
+		if (this.buildMode === BuildMode.Buyer) {
+        	let errorEvent = new ErrorEvent(error);
 
-        window['appEventData'] = window['appEventData'] || [];
-        if (errorEvent && errorEvent?.error?.message?.length) {
-            window['appEventData'].push(errorEvent);
-        }
+        	window['appEventData'] = window['appEventData'] || [];
+        	if (errorEvent && errorEvent?.error?.message?.length) {
+            	window['appEventData'].push(errorEvent);
+        	}
+		}
     }
 }
