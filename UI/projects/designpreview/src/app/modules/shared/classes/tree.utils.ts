@@ -275,7 +275,7 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 										selectedAttributes: mapAttributes(choice)
 									};
 
-									newChoice.price = newChoice.options.reduce((x, y) => x + y.listPrice, 0);
+									newChoice.price = choice.dpChoiceCalculatedPrice;
 
 									if (point)
 									{
