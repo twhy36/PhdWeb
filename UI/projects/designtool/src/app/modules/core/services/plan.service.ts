@@ -115,7 +115,7 @@ export class PlanService
 	{
 		const entity = 'planCommunities';
 		const expand = `financialCommunity($select=id,salesCommunityId),lotPlanAssocs($select=id,lotId,isActive,planId;$filter=isActive eq true),webSitePlanCommunityAssocs($expand=webSitePlan($select=webSitePlanIntegrationKey))`;
-		let filter = `financialCommunity/salesCommunityId eq ${salesCommunityId} and productConfiguration ne 'MultiUnit'`;
+		let filter = `financialCommunity/salesCommunityId eq ${salesCommunityId} and productType ne 'MultiUnit Shell'`;
 
 		const select = `id, financialPlanIntegrationKey, financialCommunityId, planSalesName, bedrooms, fullBaths, halfBaths, squareFeet, productType, foundation, garageConfiguration, masterBedLocation, productConfiguration, planSalesDescription`;
 		const orderBy = `planSalesName`;

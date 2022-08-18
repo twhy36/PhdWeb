@@ -16,7 +16,7 @@ export class PlanOptionService
 	getPlanCommunities(financialCommunityId: number)
 	{
 		const entity = `planCommunities`;
-		const filter = `financialCommunityId eq ${financialCommunityId} and productConfiguration ne 'MultiUnit'`
+		const filter = `financialCommunityId eq ${financialCommunityId} and productType ne 'MultiUnit Shell'`
 		const select = `id,planSalesName`
 		let qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
 
