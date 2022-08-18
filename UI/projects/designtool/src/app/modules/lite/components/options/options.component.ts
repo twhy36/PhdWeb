@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { select, Store } from '@ngrx/store';
 import { combineLatest } from 'rxjs';
-import { take } from 'rxjs/operators';
+import { delay, take } from 'rxjs/operators';
 import * as _ from "lodash";
 
 import { UnsubscribeOnDestroy, ModalService, ScenarioOption, PointStatus, ConfirmModalComponent } from 'phd-common';
@@ -103,7 +103,7 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 			this.store.select(state => state.nav),
 			this.store.select(state => state.lite)
 		])
-			.pipe(this.takeUntilDestroyed())
+			.pipe(delay(0), this.takeUntilDestroyed())
 			.subscribe(([nav, lite]) =>
 			{
 				this.options = lite.options;
@@ -130,9 +130,8 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 						subcategory.planOptions.forEach(option =>
 						{
 							option.maxOrderQuantity = option.maxOrderQuantity === 0 ? 1 : option.maxOrderQuantity;
-							const quantities = Array.from(Array(option.maxOrderQuantity).keys()); //e.g. maxOrderQuantity = 4 then array equals 0,1,2,3
-							option.quantityRange = quantities.map(x => x + 1); //make array 1-based instead of 0-based; used for select drop-down
 							option.selectedQuantity = 1;
+							option.previousQuantity = 1;
 							option.isSelected = lite.scenarioOptions.some(so => so.edhPlanOptionId === option.id);
 							option.previouslySelected = this.originalScenarioOptions.some(so => so.edhPlanOptionId === option.id);
 							option.isReadonly = this.isReadonlyOption(option)
@@ -141,6 +140,7 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 							{
 								const selectedScenario = lite.scenarioOptions.find(so => so.edhPlanOptionId === option.id);
 								option.selectedQuantity = selectedScenario.planOptionQuantity;
+								option.previousQuantity = selectedScenario.planOptionQuantity;
 								subtotal += option.listPrice * option.selectedQuantity;
 							}
 						});
@@ -224,6 +224,12 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 
 	saveSelectedOptionToStore(option: LitePlanOptionUI)
 	{
+		if (option.selectedQuantity === option.previousQuantity) 
+		{
+			return;
+		}
+
+		option.previousQuantity = option.selectedQuantity;
 		let selectedOptions: ScenarioOption[] = [];
 		const previousSelection = this.scenarioOptions.find(x => x.edhPlanOptionId === option.id);
 

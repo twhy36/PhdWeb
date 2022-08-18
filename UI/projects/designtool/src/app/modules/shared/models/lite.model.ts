@@ -37,7 +37,7 @@ export class LitePlanOptionUI extends LitePlanOption
 	isSelected: boolean;
 	previouslySelected: boolean;
 	selectedQuantity: number;
-    quantityRange: number[] = [];
+	previousQuantity: number;
     isReadonly: boolean;
 }
 

@@ -27,19 +27,14 @@
 								<span ngbTooltip="{{option.description}}">{{option.financialOptionIntegrationKey}} : <span>{{option.name}}</span></span>
 							</div>
 							<span>Quantity:</span>
-							<select
-								class="phd-quantity form-select"
-								*ngIf="option.maxOrderQuantity > 1"
-								[(ngModel)]="option.selectedQuantity"
-								[disabled]="optionCheckbox.checked === false || option.isReadonly || cannotEditAgreement || (option.isPastCutOff && !canOverride)"
-								(change)="saveSelectedOptionToStore(option)"
-							>
-								<option
-									*ngFor="let item of option.quantityRange;"
-								>
-									{{ item }}
-								</option>
-							</select>
+							<quantity-input 
+								*ngIf="option.maxOrderQuantity > 1" 
+								[min]="0" 
+								[max]="option.maxOrderQuantity" 
+								[(quantity)]="option.selectedQuantity" 
+								(focusout)="saveSelectedOptionToStore(option)" 
+								[canEditAgreement]="optionCheckbox.checked === true && !option.isReadonly && !cannotEditAgreement && !(option.isPastCutOff && !canOverride)" 
+								class="phd-quantity"></quantity-input>
 							<span *ngIf="option.maxOrderQuantity === 0 || option.maxOrderQuantity === 1" class="phd-quantity">(1)</span>
 							<span class="phd-list-price"> {{option.listPrice | currency}} </span>
 						</div>
@@ -58,4 +53,3 @@
 		</ng-container>
 	</div>
 </div>
-
