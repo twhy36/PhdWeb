@@ -401,7 +401,7 @@ export class JobService
 	{
 		const expand = `jobChoices($select=id;$top=1),jobPlanOptions($select=id,jobOptionTypeName;$filter=jobOptionTypeName eq 'Elevation'),jobSalesInfos($select=specPrice),lot($select=id,lotBlock)`;
 		const select = `id,financialCommunityId,constructionStageName,lotId,planId,handing,warrantyTypeDesc,startDate,createdBy`;
-		const COGExpand = `jobChangeOrderGroups($select=id,jobId,jobChangeOrderGroupDescription,salesStatusDescription,constructionStatusDescription)`
+		const COGExpand = `jobChangeOrderGroups($select=id,jobId,jobChangeOrderGroupDescription,salesStatusDescription,constructionStatusDescription,createdUtcDate)`
 		const filter = `lotId in (${lotIDs.join(',')})`;
 
 		return this.identityService.token.pipe(
