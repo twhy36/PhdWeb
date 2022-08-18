@@ -74,6 +74,7 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 {
 	let points = _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points)).filter(x => x.treeVersionId === tree.treeVersion.id);
 	let choices = _.flatMap(points, p => p.choices).filter(x => x.treeVersionId === tree.treeVersion.id);
+	let treeChoices = _.flatMap(points, p => p.choices);
 
 	choices.forEach(ch =>
 	{
@@ -116,9 +117,10 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 		if (ch.lockedInChoice && ch.lockedInOptions?.length)
 		{
 			//detect if choice change affects locked in options
+			//against all tree choices including the choices that are deleted after selected in the jobs
 			if (ch.lockedInOptions.some(o =>
-				o.choices.some(c => (c.mustHave && !choices.find(c1 => c1.divChoiceCatalogId === c.id)?.quantity)
-					|| (!c.mustHave && choices.find(c1 => c1.divChoiceCatalogId === c.id)?.quantity))))
+				o.choices.some(c => (c.mustHave && !treeChoices.find(c1 => c1.divChoiceCatalogId === c.id)?.quantity)
+					|| (!c.mustHave && treeChoices.find(c1 => c1.divChoiceCatalogId === c.id)?.quantity))))
 			{
 				ch.lockedInChoice = null;
 				ch.lockedInOptions = [];
