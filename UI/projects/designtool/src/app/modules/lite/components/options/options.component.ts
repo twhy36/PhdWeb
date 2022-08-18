@@ -131,7 +131,7 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 						{
 							option.maxOrderQuantity = option.maxOrderQuantity === 0 ? 1 : option.maxOrderQuantity;
 							option.selectedQuantity = 1;
-							option.previousQuantity = 1;
+							option.previousQuantity = 0;
 							option.isSelected = lite.scenarioOptions.some(so => so.edhPlanOptionId === option.id);
 							option.previouslySelected = this.originalScenarioOptions.some(so => so.edhPlanOptionId === option.id);
 							option.isReadonly = this.isReadonlyOption(option)
@@ -217,7 +217,7 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 		{
 			// Toggle the checkbox as normal
 			option.isSelected = !option.isSelected;
-
+			option.selectedQuantity = option.isSelected ? 1 : 0;
 			this.saveSelectedOptionToStore(option);
 		}
 	}
