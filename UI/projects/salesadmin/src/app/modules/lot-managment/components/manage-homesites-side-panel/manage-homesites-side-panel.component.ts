@@ -98,7 +98,8 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 	{
 		return !this.lotInaccessible && !this.monotonyForm.pristine && this.monotonyForm.valid && !this.saving;
 	}
-	
+
+		
 	get handings(): Array<HomeSiteDtos.Handing>
 	{
 		return [HomeSiteDtos.Handing.Left, HomeSiteDtos.Handing.Right, HomeSiteDtos.Handing.NA];
@@ -460,6 +461,14 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 		}
 
 		this._msgService.add({ severity: 'success', summary: 'Copy was successful' });
+		this.enableSaveMonotonyAndHomesiteButton();
+	}
+
+	enableSaveMonotonyAndHomesiteButton()
+	{
+		this.saving = false;
+		this.homesiteForm.markAsDirty();
+		this.monotonyForm.markAsDirty();
 	}
 
 	onCloseSidePanel(status: boolean)
