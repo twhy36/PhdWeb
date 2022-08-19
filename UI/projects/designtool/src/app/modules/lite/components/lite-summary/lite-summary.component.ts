@@ -108,8 +108,8 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
-			select(state => state.scenario)
-		).subscribe(sc => this.summaryHeader.communitySalesName = sc.salesCommunity ? sc.salesCommunity.name : null);
+			select(state => state.org)
+		).subscribe(o => this.summaryHeader.communitySalesName = o.salesCommunity ? o.salesCommunity.name : null);
 
 		combineLatest([
 			this.store.pipe(select(state => state.changeOrder)),
