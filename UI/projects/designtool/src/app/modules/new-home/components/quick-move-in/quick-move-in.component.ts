@@ -208,6 +208,7 @@ export class QuickMoveInComponent extends UnsubscribeOnDestroy implements OnInit
 					this.changeOrderService.getTreeVersionIdByJobPlan(job.planId).subscribe(() =>
 					{
 						this.store.dispatch(new CommonActions.LoadSpec(job));
+						this.store.dispatch(new LiteActions.SetIsPhdLite(false));
 
 						this.actions.pipe(
 							ofType<CommonActions.JobLoaded>(CommonActionTypes.JobLoaded), take(1)).subscribe(() =>
@@ -224,6 +225,7 @@ export class QuickMoveInComponent extends UnsubscribeOnDestroy implements OnInit
 										take(1)
 									).subscribe(() => {
 										this.store.dispatch(new LiteActions.ToggleQuickMoveInSelections(previousScenarioOptions, [], false));
+										this.store.dispatch(new LiteActions.ResetLiteState());
 										this.navigateToSummary(false);
 									});
 								}
