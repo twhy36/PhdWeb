@@ -382,7 +382,7 @@ export class LocationService
 			'locationGroupMarketIds': groupMarketIds
 		};
 
-		return this._http.post(url, data).pipe(
+		return this._http.patch(url, data).pipe(
 			map(response =>
 			{
 				let groups = response['value'] as Array<LocationGroupCommunity>;
