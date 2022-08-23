@@ -9,13 +9,15 @@ import { FileState } from '../models/file-state';
 import { handleError } from '../utils/handle-error';
 
 @Injectable()
-export class ContractService {
+export class ContractService
+{
     private _ds: string = encodeURIComponent("$");
 
     private readonly _currentTemplateId = new Subject<number>();
     currentTemplateId$: Observable<number>;
 
-    constructor(private _http: HttpClient) {
+    constructor(private _http: HttpClient)
+    {
         this.currentTemplateId$ = this._currentTemplateId.pipe(
             publishReplay(1)
         );
@@ -23,15 +25,20 @@ export class ContractService {
         (<ConnectableObservable<number>>this.currentTemplateId$).connect();
     }
 
-    selectTemplate(template: Template | number) {
+    selectTemplate(template: Template | number)
+    {
         let templateId: number;
 
-        if (typeof template === 'number') {
+        if (typeof template === 'number')
+        {
             templateId = template;
-        } else {
-            if (template) {
+        } else
+        {
+            if (template)
+            {
                 templateId = template.templateId;
-            } else {
+            } else
+            {
                 return;
             }
         }
@@ -39,7 +46,8 @@ export class ContractService {
         this._currentTemplateId.next(templateId);
     }
 
-    getContractTemplateMarketId(templateId: number): Observable<number> {
+    getContractTemplateMarketId(templateId: number): Observable<number>
+    {
         const entity = `contractTemplates`;
         const filter = `templateId eq ${templateId}`;
         const expand = `org`;
@@ -47,68 +55,81 @@ export class ContractService {
         const url = `${environment.apiUrl}${entity}?${qryStr}`;
 
         return this._http.get(url).pipe(
-            map(response => {
+            map(response =>
+            {
                 const marketId = response['value'][0]["org"]["edhMarketId"] as number;
+
                 return marketId;
             }),
             catchError(handleError)
         );
     }
 
-    getContractTemplates(marketId: number): Observable<Array<Template>> {
+    getContractTemplates(marketId: number): Observable<Array<Template>>
+    {
         const entity = `contractTemplates`;
         const filter = `org/edhMarketId eq ${marketId} and status ne 'Inactive'`;
-        const orderBy = `orderby=displayOrder`;
-        const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}${encodeURIComponent(orderBy)}`;
+        const orderBy = `displayOrder`;
+		const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${encodeURIComponent("$")}orderby=${orderBy}`;
         const url = `${environment.apiUrl}${entity}?${qryStr}`;
 
         return this._http.get(url).pipe(
-            map(response => {
+            map(response =>
+            {
                 const dto = response['value'] as Array<Template>;
+
                 return dto.map(t => new Template(t));
             }),
             catchError(handleError)
         );
     }
 
-    getTemplateBase64(templateId: number): Observable<string> {
+    getTemplateBase64(templateId: number): Observable<string>
+    {
         let url = `${environment.apiUrl}GetTemplateBase64String(TemplateId=${templateId})`;
 
         return this._http.get(url).pipe(
-            map(response => {
+            map(response =>
+            {
                 return response['value'];
             }),
             catchError(handleError)
         );
     }
 
-    getTemplateHeadersXml(templateId: number): Observable<Array<string>> {
+    getTemplateHeadersXml(templateId: number): Observable<Array<string>>
+    {
         let url = `${environment.apiUrl}GetTemplateHeadersXml(TemplateId=${templateId})`;
 
         return this._http.get(url).pipe(
-            map(response => {
+            map(response =>
+            {
                 return response['value'];
             }),
             catchError(handleError)
         );
     }
 
-    getTemplateFootersXml(templateId: number): Observable<Array<string>> {
+    getTemplateFootersXml(templateId: number): Observable<Array<string>>
+    {
         let url = `${environment.apiUrl}GetTemplateFootersXml(TemplateId=${templateId})`;
 
         return this._http.get(url).pipe(
-            map(response => {
+            map(response =>
+            {
                 return response['value'];
             }),
             catchError(handleError)
         );
     }
 
-    getTemplateBodyXml(templateId: number): Observable<string> {
+    getTemplateBodyXml(templateId: number): Observable<string>
+    {
         let url = `${environment.apiUrl}GetTemplateBodyXml(TemplateId=${templateId})`;
 
         return this._http.get(url).pipe(
-            map(response => {
+            map(response =>
+            {
                 return response['value'];
             }),
             catchError(handleError)
@@ -122,7 +143,8 @@ export class ContractService {
      * @param FileState 
      * @returns FileState with counter incremented
      */
-    saveTemplateSlice(fileSlice: Office.Slice, template: Template, fileState: FileState): Observable<FileState> {
+    saveTemplateSlice(fileSlice: Office.Slice, template: Template, fileState: FileState): Observable<FileState>
+    {
         let url = `${environment.apiUrl}SaveTemplateSlice`;
         let templateSlice = {
             documentName: template.documentName + '.docx',
@@ -139,7 +161,8 @@ export class ContractService {
         // doc.append("sliceCount", fileState.sliceCount.toString());
 
         return this._http.post(url, templateSlice).pipe(
-            map(response => {
+            map(response =>
+            {
                 fileState.counter++;
                 return fileState;
             }),
@@ -147,7 +170,8 @@ export class ContractService {
         );
     }
 
-    getCustomMergeFields(marketId: number): Observable<Array<MergeField>> {
+    getCustomMergeFields(marketId: number): Observable<Array<MergeField>>
+    {
         const filter = `org/edhMarketId eq ${marketId} and org/edhFinancialCommunityId eq null`;
         const expand = `org`;
         const select = `fieldName,isActive`;
@@ -155,7 +179,8 @@ export class ContractService {
         const url = `${environment.apiUrl}mergeFields?${qryStr}`;
 
         return this._http.get(url).pipe(
-            map(response => {
+            map(response =>
+            {
                 let dtoMergeFields = response['value'] as Array<MergeField>;
                 return dtoMergeFields.map(dto => new MergeField(dto));
             }),
@@ -163,7 +188,8 @@ export class ContractService {
         );
     }
 
-    get CommunityMergeFields$(): Observable<Array<MergeField>> {
+    get CommunityMergeFields$(): Observable<Array<MergeField>>
+    {
         return of([
             { fieldName: "Community Address", isActive: true },
             { fieldName: "Community City", isActive: true },
@@ -181,7 +207,8 @@ export class ContractService {
         ]);
     }
 
-    get LotMergeFields(): Observable<Array<MergeField>> {
+    get LotMergeFields(): Observable<Array<MergeField>>
+    {
         return of([
             { fieldName: "Alternate Lot/Block", isActive: true },
             { fieldName: "Building Number", isActive: true },
@@ -214,7 +241,8 @@ export class ContractService {
         ]);
     }
 
-    get BuyerMergeFields(): Observable<Array<MergeField>> {
+    get BuyerMergeFields(): Observable<Array<MergeField>>
+    {
         return of([
             { fieldName: "Co-Buyer 1 Name", isActive: true },
             { fieldName: "Co-Buyer 2 Name", isActive: true },
@@ -246,7 +274,8 @@ export class ContractService {
         ]);
     }
 
-    get SalesAgreementMergeFields(): Observable<Array<MergeField>> {
+    get SalesAgreementMergeFields(): Observable<Array<MergeField>>
+    {
         return of([
             { fieldName: "Contingency Expiration Date", isActive: true },
             { fieldName: "Estimated COE", isActive: true },
@@ -276,7 +305,8 @@ export class ContractService {
         ]);
     }
 
-    get DateMergeFields(): Observable<Array<MergeField>> {
+    get DateMergeFields(): Observable<Array<MergeField>>
+    {
         return of([
             { fieldName: "Current Date", isActive: true },
             { fieldName: "Current Date + 3 Days", isActive: true },
@@ -293,7 +323,8 @@ export class ContractService {
         ]);
     }
 
-    get FinancingMergeFields(): Observable<Array<MergeField>> {
+    get FinancingMergeFields(): Observable<Array<MergeField>>
+    {
         return of([
             { fieldName: "Financed Amount", isActive: true },
             { fieldName: "Home Owners Insurance", isActive: true },
@@ -308,7 +339,8 @@ export class ContractService {
         ]);
     }
 
-    get LenderMergeFields(): Observable<Array<MergeField>> {
+    get LenderMergeFields(): Observable<Array<MergeField>>
+    {
         return of([
             { fieldName: "Lender Type", isActive: true },
             { fieldName: "Loan Counselor", isActive: true },
@@ -322,7 +354,8 @@ export class ContractService {
         ]);
     }
 
-    get DepositMergeFields(): Observable<Array<MergeField>> {
+    get DepositMergeFields(): Observable<Array<MergeField>>
+    {
         return of([
             { fieldName: "Balance Due", isActive: true },
             { fieldName: "Cash at Closing Minus Down Payments", isActive: true },
@@ -357,7 +390,8 @@ export class ContractService {
         ]);
     }
 
-    get RealtorMergeFields(): Observable<Array<MergeField>> {
+    get RealtorMergeFields(): Observable<Array<MergeField>>
+    {
         return of([
             { fieldName: "Agent First Name", isActive: true },
             { fieldName: "Agent Last Name", isActive: true },
@@ -369,7 +403,8 @@ export class ContractService {
         ]);
     }
 
-    get PricingMergeFields(): Observable<Array<MergeField>> {
+    get PricingMergeFields(): Observable<Array<MergeField>>
+    {
         return of([
             { fieldName: "Base House Price", isActive: true },
             { fieldName: "Elevation Price", isActive: true },
