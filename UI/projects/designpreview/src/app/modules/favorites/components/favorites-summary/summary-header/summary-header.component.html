@@ -1,15 +1,15 @@
 <div class="summary-header" [class.is-sticky]="isSticky">
-	<div *ngIf="!isSticky">
-		<cl-image *ngIf="summaryHeader.elevationImageUrl" public-id="{{summaryHeader.elevationImageUrl}}" type="fetch" style="width:calc(10vw);height:calc(10vh);margin:10px" crop="fill">
-		</cl-image>
-		<img class="phd-logo-image" [src]="getImageSrc()" *ngIf="!summaryHeader.elevationImageUrl">
-	</div>
-
-	<div *ngIf="isSticky && isPresale">
+	<ng-container *ngIf="isPresale">
 		<cl-image *ngIf="summaryHeader.elevationImageUrl" public-id="{{summaryHeader.elevationImageUrl}}" type="fetch" style="width:calc(10vw);height:calc(10vh);margin:10px" crop="fill">
 		</cl-image>
 		<img class="phd-logo-image-sticky" [src]="getImageSrc()" *ngIf="!summaryHeader.elevationImageUrl">
-	</div>
+	</ng-container>
+	
+	<ng-container *ngIf="!isPresale && !isSticky">
+		<cl-image *ngIf="summaryHeader.elevationImageUrl" public-id="{{summaryHeader.elevationImageUrl}}" type="fetch" style="width:calc(45vw);height:calc(45vh);margin:10px" crop="fill">
+		</cl-image>
+		<img class="phd-logo-image" [src]="getImageSrc()" *ngIf="!summaryHeader.elevationImageUrl">
+	</ng-container>
 
 	<div class="phd-header-body">
 		<div class="phd-upper-header">
