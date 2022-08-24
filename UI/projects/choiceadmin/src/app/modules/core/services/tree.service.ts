@@ -1631,33 +1631,23 @@ export class TreeService
 
 	hasAttributeReassignmentsByChoiceId(choiceId: number): Observable<boolean>
 	{
-		const entity = `attributeReassignments`;
-		const filter = `(toDPChoiceID eq ${choiceId} or dpChoice_OptionRuleAssoc/dpChoiceID eq ${choiceId}) `;
-		const select = `attributeReassignmentID`;
-		const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}count=true`;
-		const endpoint = `${settings.apiUrl}${entity}?${qryStr}`;
-
-		return this._http.get<any>(endpoint).pipe(
-			map(response =>
-			{
-				let count = response['@odata.count'] as number;
-
-				return count > 0;
-			}));
+		return this.hasAttributeReassignmentsByChoiceIds([choiceId]);
 	}
 
 	hasAttributeReassignmentsByChoiceIds(choices: number[]): Observable<boolean>
 	{
 		const batchGuid = odataUtils.getNewGuid();
-		let requests = choices.map(choiceId =>
+		let requests = _.flatMap(choices, choiceId =>
 		{
 			const entity = `attributeReassignments`;
-			const filter = `(toDPChoiceID eq ${choiceId} or dpChoice_OptionRuleAssoc/dpChoiceID eq ${choiceId}) `;
+			const filterToChoiceId = `toDPChoiceID eq ${choiceId}`;
+			const filterChoiceId = `dpChoice_OptionRuleAssoc/dpChoiceID eq ${choiceId}`;
 			const select = `attributeReassignmentID`;
-			const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}count=true`;
-			const endpoint = `${settings.apiUrl}${entity}?${qryStr}`;
 
-			return odataUtils.createBatchGet(endpoint);
+			return [
+				odataUtils.createBatchGet(`${settings.apiUrl}${entity}?${this._ds}filter=${encodeURIComponent(filterToChoiceId)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}count=true`),
+				odataUtils.createBatchGet(`${settings.apiUrl}${entity}?${this._ds}filter=${encodeURIComponent(filterChoiceId)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}count=true`)
+			];
 		});
 
 		let headers = odataUtils.createBatchHeaders(batchGuid);
