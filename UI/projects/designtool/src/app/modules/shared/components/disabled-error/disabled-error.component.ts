@@ -53,7 +53,7 @@ export class DisabledErrorComponent extends UnsubscribeOnDestroy implements OnIn
 			this.pointsById = pointsById;
 		});
 
-		this.hasRequiredChoice = this.point.choices.find(c => c.isRequired)?.isRequired;
+		this.hasRequiredChoice = this.point?.choices.find(c => c.isRequired)?.isRequired ?? false;
 
 		if (this.point && !!this.point.disabledBy.length)
 		{
