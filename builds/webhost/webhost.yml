@@ -177,7 +177,7 @@ stages:
   - stage: ProdApproval
     displayName: Production Post-Deployment Approval
     dependsOn: Production
-    pool: PGAZADOR1P
+    pool: BUILD
     jobs:
     - deployment: ProdApproval
       displayName: Post-Deployment Approval
