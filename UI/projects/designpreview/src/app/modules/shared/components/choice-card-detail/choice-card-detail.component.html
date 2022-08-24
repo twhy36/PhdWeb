@@ -47,7 +47,7 @@
 		<div class="phd-price" [ngClass]="{'phd-price-right-justified' : isPresale}">
 			<ng-container *ngIf="choice.priceHiddenFromBuyerView && !isPresale">
 				<span container="body">
-					<strong>Pricing Varies</strong>
+					<strong class="phd-price-label">Pricing Varies</strong>
 				</span>
 			</ng-container>
 			<ng-container *ngIf="!choice.priceHiddenFromBuyerView && !isPresale">
