@@ -376,7 +376,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 
 	onClickBack()
 	{
-		this.onBack.emit();
+		history.back();
 	}
 
 	toggleChoice()

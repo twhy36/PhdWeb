@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter, HostListener, ViewChild, QueryList, ViewChildren } from '@angular/core';
+import { Component, Input, Output, EventEmitter, HostListener, ViewChild, QueryList, ViewChildren } from '@angular/core';
 import { MatMenuTrigger } from '@angular/material/menu';
 
 import { UnsubscribeOnDestroy, Group, PointStatus } from 'phd-common';
@@ -8,7 +8,7 @@ import { UnsubscribeOnDestroy, Group, PointStatus } from 'phd-common';
 	templateUrl: 'group-bar.component.html',
 	styleUrls: ['group-bar.component.scss']
 })
-export class GroupBarComponent extends UnsubscribeOnDestroy implements OnInit
+export class GroupBarComponent extends UnsubscribeOnDestroy
 {
 	@Input() communityName: string;
 	@Input() planName: string;
@@ -51,9 +51,6 @@ export class GroupBarComponent extends UnsubscribeOnDestroy implements OnInit
 	constructor()
     {
 		super();
-	}
-
-	ngOnInit() {
 	}
 
 	selectSubgroup(sgId: number) {

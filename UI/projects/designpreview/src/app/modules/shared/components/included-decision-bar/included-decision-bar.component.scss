@@ -12,6 +12,10 @@
 	.phd-subgroup-label {
 		font-weight: normal;
 		margin-left: 4px;
+		&.active {
+			font-weight: 600;
+			font-size: 15px;
+		}
 	}
 }
 

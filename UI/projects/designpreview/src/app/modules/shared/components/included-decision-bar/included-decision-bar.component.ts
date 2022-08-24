@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import * as _ from 'lodash';
 
 
@@ -13,23 +13,32 @@ import { UnsubscribeOnDestroy, flipOver2, slideOut, DecisionPoint, TreeVersion, 
 		slideOut
 	]
 })
-export class IncludedDecisionBarComponent extends UnsubscribeOnDestroy implements OnInit
+export class IncludedDecisionBarComponent extends UnsubscribeOnDestroy
 {
 	@Input() points: DecisionPoint[];
 	@Input() tree: TreeVersion;
 
 	@Output() onSelectDecisionPoint = new EventEmitter<number>();
+	@Output() onSelectSubGroup = new EventEmitter<number>();
 	
 	currentPointId: number;
+	currentSubGroupId: number;
 
 	constructor() { super(); }
-
-	ngOnInit() { }
 
 	onDecisionPointClick(point: DecisionPoint)
 	{
 		this.currentPointId = point.id;
+		this.currentSubGroupId = null;
 		this.onSelectDecisionPoint.emit(point.id);
+		this.onSelectSubGroup.emit(null);
+	}
+
+	onSubGroupClick(subGroup: SubGroup) {
+		this.currentSubGroupId = subGroup.id;
+		this.currentPointId = null;
+		this.onSelectSubGroup.emit(subGroup.id);
+		this.onSelectDecisionPoint.emit(null);
 	}
 
 	displaySubGroup(subGroup: SubGroup) {

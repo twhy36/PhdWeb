@@ -1,4 +1,4 @@
-import { Component, Input, Output, OnInit, OnChanges, SimpleChanges, EventEmitter, ViewChild } from '@angular/core';
+import { Component, Input, Output, OnChanges, SimpleChanges, EventEmitter, ViewChild } from '@angular/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import * as _ from 'lodash';
 
@@ -16,7 +16,7 @@ import { AdobeService } from '../../../core/services/adobe.service';
 		flipOver3
 	]
 })
-export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit, OnChanges
+export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnChanges
 {
 	@Input() currentChoice: ChoiceExt;
 	@Input() currentPoint: DecisionPoint;
@@ -47,8 +47,6 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 	) {
 		super();
 	}
-
-	ngOnInit() { }
 
 	ngOnChanges(changes: SimpleChanges)
 	{

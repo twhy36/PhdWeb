@@ -1,4 +1,4 @@
-import { Component, Input, Output, OnInit, OnChanges, SimpleChanges, EventEmitter, ViewChild } from '@angular/core';
+import { Component, Input, Output, OnChanges, SimpleChanges, EventEmitter, ViewChild } from '@angular/core';
 
 import { UnsubscribeOnDestroy, flipOver3, DecisionPoint, Group, Tree, MyFavoritesPointDeclined } from 'phd-common';
 import { BlockedByItemList } from '../../models/blocked-by.model';
@@ -16,7 +16,7 @@ import * as _ from 'lodash';
 		flipOver3
 	]
 })
-export class ChoiceDeclineCardComponent extends UnsubscribeOnDestroy implements OnInit, OnChanges
+export class ChoiceDeclineCardComponent extends UnsubscribeOnDestroy implements OnChanges
 {
 	@Input() currentPoint: DecisionPoint;
 	@Input() myFavoritesPointsDeclined?: MyFavoritesPointDeclined[]
@@ -41,10 +41,6 @@ export class ChoiceDeclineCardComponent extends UnsubscribeOnDestroy implements 
 		private brandService: BrandService
 	) {
 		super();
-	}
-
-	ngOnInit()
-	{
 	}
 
 	ngOnChanges(changes: SimpleChanges) {

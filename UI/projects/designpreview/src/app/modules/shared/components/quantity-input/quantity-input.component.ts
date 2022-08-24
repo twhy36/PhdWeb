@@ -1,11 +1,11 @@
-import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef, ViewChild, ElementRef } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ChangeDetectorRef, ViewChild, ElementRef } from '@angular/core';
 
 @Component({
 	selector: 'quantity-input',
 	templateUrl: './quantity-input.component.html',
 	styleUrls: ['./quantity-input.component.scss']
 })
-export class QuantityInputComponent implements OnInit
+export class QuantityInputComponent
 {
 	@Input() max?: number;
 	@Input() min?: number;
@@ -27,8 +27,6 @@ export class QuantityInputComponent implements OnInit
 	{
 		this.quantityChange = new EventEmitter();
 	}
-
-	ngOnInit() { }
 
 	enforceMinMax(value)
 	{

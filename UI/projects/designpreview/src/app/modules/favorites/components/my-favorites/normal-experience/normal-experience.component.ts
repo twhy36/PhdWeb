@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnChanges, SimpleChanges, Output, EventEmitter } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges, Output, EventEmitter } from '@angular/core';
 
 import * as _ from 'lodash';
 
@@ -16,7 +16,7 @@ import { ChoiceExt } from '../../../../shared/models/choice-ext.model';
 	styleUrls: ['./normal-experience.component.scss'],
 	animations: [flipOver]
 })
-export class NormalExperienceComponent extends UnsubscribeOnDestroy implements OnInit, OnChanges
+export class NormalExperienceComponent extends UnsubscribeOnDestroy implements OnChanges
 {
 	@Input() groupName: string;
 	@Input() currentSubgroup: SubGroup;
@@ -46,8 +46,6 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	choiceToggled: boolean = false;
 
 	constructor() { super(); }
-
-	ngOnInit() { }
 
 	ngOnChanges(changes: SimpleChanges)
 	{

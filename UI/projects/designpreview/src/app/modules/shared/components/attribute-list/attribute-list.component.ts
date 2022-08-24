@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import * as _ from 'lodash';
 
 import { UnsubscribeOnDestroy, Attribute } from 'phd-common';
@@ -10,7 +10,7 @@ import { AttributeExt } from '../../models/attribute-ext.model';
 	styleUrls: ['attribute-list.component.scss']
 })
 
-export class AttributeListComponent extends UnsubscribeOnDestroy implements OnInit
+export class AttributeListComponent extends UnsubscribeOnDestroy
 {
 	@Input() attributes: AttributeExt[];
 	@Input() highlightedAttributeId: number;
@@ -22,11 +22,6 @@ export class AttributeListComponent extends UnsubscribeOnDestroy implements OnIn
 	@Output() onToggleAttribute = new EventEmitter<Attribute>();
 
 	constructor() { super() }
-
-	ngOnInit()
-	{
-
-	}
 
 	attributeClick(attribute: Attribute)
 	{

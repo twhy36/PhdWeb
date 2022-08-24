@@ -1,10 +1,13 @@
 <ul class="phd-included-list">
 	<ng-container *ngFor="let group of tree.groups">
 		<ng-container *ngFor="let subGroup of group.subGroups">
-			<div *ngIf="displaySubGroup(subGroup)" class="d-flex flex-row phd-group-subgroup-title">
+			<li *ngIf="displaySubGroup(subGroup)" 
+				[class.active]="currentSubGroupId === subGroup.id"
+				class="d-flex flex-row phd-group-subgroup-title"
+				(click)="onSubGroupClick(subGroup)">
 				<div class="phd-group-label" title="{{group.label}}">{{group.label | ellipsis: 40}}:</div>
-				<div class="phd-subgroup-label" title="{{subGroup.label}}">{{subGroup.label | ellipsis: 40}}</div>
-			</div>
+				<div class="phd-subgroup-label" [class.active]="currentSubGroupId === subGroup.id" title="{{subGroup.label}}" [attr.id]="'decision-bar-sg-' + subGroup.id">{{subGroup.label | ellipsis: 40}}</div>
+			</li>
 			
 			<ng-container *ngFor="let point of subGroup.points">
 				<li *ngIf="displayDecisionPoint(point)"

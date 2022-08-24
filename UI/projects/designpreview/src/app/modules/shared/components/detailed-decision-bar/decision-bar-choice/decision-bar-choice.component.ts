@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { DecisionPoint, Group, Tree } from 'phd-common';
 import { BlockedByItemList } from '../../../models/blocked-by.model';
@@ -11,7 +11,7 @@ import { AdobeService } from '../../../../core/services/adobe.service';
   templateUrl: './decision-bar-choice.component.html',
   styleUrls: ['./decision-bar-choice.component.scss']
 })
-export class DecisionBarChoiceComponent implements OnInit {
+export class DecisionBarChoiceComponent {
 	@Input() choice: ChoiceExt;
 	@Input() point: DecisionPoint;
 	@Input() groups: Group[];
@@ -36,9 +36,6 @@ export class DecisionBarChoiceComponent implements OnInit {
 	) {
 
 	}
-
-  ngOnInit(): void {
-  }
 
 	toggleChoice()
 	{

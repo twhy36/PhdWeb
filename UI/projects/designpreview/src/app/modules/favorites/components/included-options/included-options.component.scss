@@ -65,6 +65,8 @@ $point-panel-width: 245px;
 	margin-top: 8px;
 	color: var(--link-color);
 	text-decoration: underline;
+	width: fit-content;
+	cursor: pointer;
 }
 
 .phd-choice-cards {

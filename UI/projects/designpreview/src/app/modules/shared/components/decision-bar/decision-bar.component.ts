@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import * as _ from 'lodash';
 
 import { UnsubscribeOnDestroy, flipOver2, slideOut, DecisionPoint } from 'phd-common';
@@ -12,7 +12,7 @@ import { UnsubscribeOnDestroy, flipOver2, slideOut, DecisionPoint } from 'phd-co
 		slideOut
 	]
 })
-export class DecisionBarComponent extends UnsubscribeOnDestroy implements OnInit
+export class DecisionBarComponent extends UnsubscribeOnDestroy
 {
 	@Input() points: DecisionPoint[];
 	@Input() currentPointId: number;
@@ -20,9 +20,6 @@ export class DecisionBarComponent extends UnsubscribeOnDestroy implements OnInit
 	@Output() onSelectDecisionPoint = new EventEmitter<number>();
 
 	constructor() { super(); }
-
-	ngOnInit() {
-	}
 
 	onDecisionPointClick(point: DecisionPoint)
 	{

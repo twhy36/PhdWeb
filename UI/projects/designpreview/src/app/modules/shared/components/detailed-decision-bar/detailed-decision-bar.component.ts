@@ -1,8 +1,8 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 
 import 
 { 
-	UnsubscribeOnDestroy, flipOver2, slideOut, DecisionPoint, JobChoice, PickType, Choice, ChoiceImageAssoc, Group,
+	UnsubscribeOnDestroy, slideOut, DecisionPoint, JobChoice, PickType, Choice, ChoiceImageAssoc, Group,
 	PointStatus, Tree, MyFavoritesChoice, MyFavoritesPointDeclined
 } from 'phd-common';
 import { ChoiceExt } from '../../models/choice-ext.model';
@@ -12,11 +12,10 @@ import { ChoiceExt } from '../../models/choice-ext.model';
 	templateUrl: './detailed-decision-bar.component.html',
 	styleUrls: ['./detailed-decision-bar.component.scss'],
 	animations: [
-		flipOver2,
 		slideOut
 	]
 })
-export class DetailedDecisionBarComponent extends UnsubscribeOnDestroy implements OnInit
+export class DetailedDecisionBarComponent extends UnsubscribeOnDestroy
 {
 	@Input() points: DecisionPoint[];
 	@Input() salesChoices: JobChoice[];
@@ -37,9 +36,6 @@ export class DetailedDecisionBarComponent extends UnsubscribeOnDestroy implement
 	@Output() onSelectDecisionPoint = new EventEmitter<number>();
 
 	constructor() { super(); }
-
-	ngOnInit() {
-	}
 
 	getSubTitle(point: DecisionPoint): string {
 		if (point) {

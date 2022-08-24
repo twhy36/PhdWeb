@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnChanges, SimpleChanges, Output, EventEmitter } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges, Output, EventEmitter } from '@angular/core';
 
 import * as _ from 'lodash';
 
@@ -16,7 +16,7 @@ import { ChoiceExt } from '../../../../shared/models/choice-ext.model';
   templateUrl: './floor-plan-experience.component.html',
   styleUrls: ['./floor-plan-experience.component.scss']
 })
-export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implements OnInit, OnChanges
+export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implements OnChanges
 {
 	@Input() groupName: string;
 	@Input() currentSubgroup: SubGroup;
@@ -57,8 +57,6 @@ export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implement
 	constructor(private brandService: BrandService) {
 		super();
 	}
-
-	ngOnInit() { }
 
 	ngOnChanges(changes: SimpleChanges) {
 		if (changes['currentSubgroup']) {
