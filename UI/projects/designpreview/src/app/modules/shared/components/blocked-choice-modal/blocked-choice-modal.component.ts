@@ -1,4 +1,8 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { select, Store } from '@ngrx/store';
+import * as fromRoot from '../../../ngrx-store/reducers';
+import _ from 'lodash';
+import { Choice, DecisionPoint, TreeVersion, UnsubscribeOnDestroy } from 'phd-common';
 import { AdobeService } from '../../../core/services/adobe.service';
 import { BlockedByItemList } from '../../models/blocked-by.model';
 
@@ -7,7 +11,7 @@ import { BlockedByItemList } from '../../models/blocked-by.model';
 	templateUrl: './blocked-choice-modal.component.html',
 	styleUrls: ['./blocked-choice-modal.component.scss']
 })
-export class BlockedChoiceModalComponent implements OnInit
+export class BlockedChoiceModalComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	@Input() disabledByList: BlockedByItemList;
 	@Input() choiceLabel: string;
@@ -15,7 +19,14 @@ export class BlockedChoiceModalComponent implements OnInit
 	@Output() closeModal = new EventEmitter();
 	@Output() blockedItemClick = new EventEmitter();
 
-	constructor(private adobeService: AdobeService) { }
+	tree: TreeVersion;
+	points: DecisionPoint[];
+	hiddenChoices: Choice[];
+
+	constructor(private adobeService: AdobeService,
+				private store: Store<fromRoot.State>) {
+					super();
+				 }
 
 	ngOnInit(): void
 	{
@@ -28,6 +39,21 @@ export class BlockedChoiceModalComponent implements OnInit
 			+ this.disabledByList?.orPoints?.map(p => p.label)?.join(', ');
 
 		this.adobeService.setAlertEvent(modalText, 'Blocked Choice Alert');
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(state => state?.scenario),
+		).subscribe((scenario) => {
+			if (scenario && scenario.tree?.treeVersion) {
+				// check for unfiltered tree 
+				this.tree = scenario.tree.treeVersion;
+				this.points = _.flatMap(this.tree.groups, g => _.flatMap(g.subGroups, sg => sg.points)) || [];
+
+				this.hiddenChoices = _.flatMap(this.points, c => _.flatMap(c.choices)).filter(choice => choice.isHiddenFromBuyerView) || [];
+			}
+
+		});
+
 	}
 
 	closeClicked()

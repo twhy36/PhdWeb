@@ -19,6 +19,7 @@
 					<blocked-item 	[disabledByItem]="disabledByItem"
 									[isChoiceItem]="false"
 									[conjunction]="disabledByMustHaveRules.andPoints?.length > 1 && itemIndex < disabledByMustHaveRules.andPoints?.length - 1 ? 'and' : ''"
+									[hiddenChoices]="hiddenChoices"
 									(blockedItemClick)="onBlockedItemClick(disabledByItem.pointId)">
 					</blocked-item>
 				</div>
@@ -27,6 +28,7 @@
 					<blocked-item 	[disabledByItem]="disabledByItem"
 									[isChoiceItem]="true"
 									[conjunction]="disabledByMustHaveRules.andChoices?.length > 1 && itemIndex < disabledByMustHaveRules.andChoices?.length - 1 ? 'and' : ''"
+									[hiddenChoices]="hiddenChoices"
 									(blockedItemClick)="onBlockedItemClick(disabledByItem.pointId)">
 					</blocked-item>
 				</div>
@@ -37,6 +39,7 @@
 					<blocked-item 	[disabledByItem]="disabledByItem"
 									[isChoiceItem]="false"
 									[conjunction]="disabledByMustHaveRules.orPoints?.length > 1 && itemIndex < disabledByMustHaveRules.orPoints?.length - 1 ? 'or' : ''"
+									[hiddenChoices]="hiddenChoices"
 									(blockedItemClick)="onBlockedItemClick(disabledByItem.pointId)">
 					</blocked-item>
 				</div>
@@ -45,6 +48,7 @@
 					<blocked-item 	[disabledByItem]="disabledByItem"
 									[isChoiceItem]="true"
 									[conjunction]="disabledByMustHaveRules.orChoices?.length > 1 && itemIndex < disabledByMustHaveRules.orChoices?.length - 1 ? 'or' : ''"
+									[hiddenChoices]="hiddenChoices"
 									(blockedItemClick)="onBlockedItemClick(disabledByItem.pointId)">
 					</blocked-item>
 				</div>

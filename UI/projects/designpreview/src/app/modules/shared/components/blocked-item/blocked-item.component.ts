@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Choice } from 'phd-common';
 import { BlockedByItem } from '../../models/blocked-by.model';
 
 @Component({
@@ -10,11 +11,23 @@ export class BlockedItemComponent {
 	@Input() disabledByItem: BlockedByItem;
 	@Input() isChoiceItem: boolean;
 	@Input() conjunction: string;
+	@Input() hiddenChoices: Choice[];
 	@Output() blockedItemClick = new EventEmitter();
 
+	isHiddenChoiceItem: boolean = false;
+
 	constructor() { }
+
+	ngOnInit(): void {
+		this.isHiddenChoiceItem = this.hiddenChoices.some(choice => choice.id === this.disabledByItem.choiceId);
+	}
 
 	onBlockedItemClick(pointId: number) {
 		this.blockedItemClick.emit(pointId);
 	}
+
+	displayBlockedItems() {
+		return this.isHiddenChoiceItem ? 'phd-hidden-item' : 'phd-clickable phd-blocked-link'
+	}
+
 }
