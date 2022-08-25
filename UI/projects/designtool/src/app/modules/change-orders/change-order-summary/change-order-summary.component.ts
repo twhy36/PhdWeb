@@ -314,7 +314,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 				}
 				else if (o.salesStatusDescription === 'Signed')
 				{
-					actionTypes = (o.id === changeOrders[changeOrders.length - 1].id) ? [] : this.actionTypesForSigned;
+					actionTypes = this.actionTypesForSigned;
 				}
 				else if (o.salesStatusDescription === 'Rejected'
 					|| (o.salesStatusDescription === 'Approved' && o.constructionStatusDescription === 'Rejected'))
