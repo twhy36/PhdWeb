@@ -13,7 +13,10 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { FinancialMarket } from '../../../shared/models/financialMarket.model';
 import { SalesCommunity } from '../../../shared/models/salesCommunity.model';
-import { IdentityService, Permission } from 'phd-common';
+import { ContractTemplate } from '../../../shared/models/contracts.model';
+import { CommunityPdf, SectionHeader } from "../../../shared/models/communityPdf.model";
+import { CommunityService } from "../../../core/services/community.service";
+import { ContractService } from '../../../core/services/contract.service';
 
 @Component({
 	selector: 'community-settings',
@@ -28,6 +31,13 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 	salesCommunity: SalesCommunity = null;
 	communitySettingsForm: FormGroup;
 	currentMarket: FinancialMarket;
+	allTemplates: Array<ContractTemplate> = [];
+	allCommunityPdfs: Array<CommunityPdf> = [];
+	homeWarrantyPdfs: Array<CommunityPdf> = [];
+	communityAssociationPdfs: Array<CommunityPdf> = [];
+	additionalDocumentPdfs: Array<CommunityPdf> = [];
+	includedFeaturesPdfs: Array<CommunityPdf> = [];
+	thoContract = null;
 	orgId: number;
 	canEdit = false;
 	isSaving = false;
@@ -38,6 +48,8 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 	environment = environment;
 	ecoeRequired = false;
 	earnestMoneyRequired = false;
+	requiredThoTemplates = [];
+	requiredPdfs = [];
 
 	get saveDisabled(): boolean
 	{
@@ -68,8 +80,9 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 
 	constructor(
 		public _orgService: OrganizationService,
+		private _contractService: ContractService,
+		private _communityService: CommunityService,
 		private _msgService: MessageService,
-		private _identityService: IdentityService,
 		private _route: ActivatedRoute) { super(); }
 
 	ngOnInit()
@@ -80,14 +93,14 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 			this.takeUntilDestroyed(),
 		).subscribe(canEdit => this.canEdit = canEdit);
 
-		this._identityService.hasClaimWithPermission('EnableCommunity', Permission.Edit).pipe(
-			this.takeUntilDestroyed(),
-		).subscribe((hasClaim) => { this.canToggleCommunitySettings = hasClaim; });
-
 		this._orgService.currentCommunity$.pipe(
 			this.takeUntilDestroyed(),
 			switchMap(financialCommunity => {
 				this.financialCommunity = financialCommunity;
+				if(this.financialCommunity.id)
+				{
+					this.checkRequiredFilesExist();
+				}
 				if (financialCommunity.salesCommunityId) {
 					return combineLatest(
 						[this._orgService.getWebsiteCommunity(financialCommunity?.salesCommunityId),
@@ -138,9 +151,75 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 			this.createForm();
 			this._msgService.add({ severity: 'error', summary: 'Error', detail: error });
 		});
+		this.checkRequiredFilesExist();
 	}
 
-	toggleCommunityLinkEnabled()
+	checkRequiredFilesExist()
+	{
+		if (this.financialCommunity && this.currentMarket) 
+		{
+			this._communityService.getCommunityPdfsByFinancialCommunityId(this.financialCommunity.id).subscribe(pdfs => 
+			{
+				this.allCommunityPdfs = pdfs;
+
+				this.requiredPdfs = [
+					{
+						pdfs: pdfs.filter(x => x.sectionHeader === SectionHeader.HomeWarranty),
+						message: '*Include: Home Warranty Documents'
+					},
+					{
+						pdfs: pdfs.filter(x => x.sectionHeader === SectionHeader.AdditionalDocuments),
+						message: '*Include: Included Features Documents'
+					},
+					{
+						pdfs: pdfs.filter(x => x.sectionHeader === SectionHeader.CommunityAssociation),
+						message: '*Include: Community Association Documents'
+					},
+					{
+						pdfs: pdfs.filter(x => x.sectionHeader === SectionHeader.IncludedFeatures),
+						message: '*Include: Additional Documents'
+					}
+				];
+			});
+
+			this._contractService.getDraftOrInUseContractTemplates(this.currentMarket.id).subscribe(templates => 
+			{
+				this.allTemplates = templates;
+
+				let thoTemplates = this.allTemplates.filter(x => x.assignedCommunityIds.includes(this.financialCommunity.id)).filter(x => x.isTho == true).filter(x => x.status == 'InUse');
+
+				this.requiredThoTemplates = [
+					{
+						thoTemplate: thoTemplates.filter(x => x.templateTypeId == 1),
+						message: '*Sales Agreement Contract'
+					},
+					{
+						thoTemplate: thoTemplates.filter(x => x.templateTypeId == 2),
+						message: '*Include: Addenda Contract',
+					},
+					{
+						thoTemplate: thoTemplates.filter(x => x.templateTypeId == 3),
+						message: '*Include: Cancel Form Contract',
+					},
+					{
+						thoTemplate: thoTemplates.filter(x => x.templateTypeId == 4),
+						message: '*Include: JIO Contract',
+					},
+					{
+						thoTemplate: thoTemplates.filter(x => x.templateTypeId == 5),
+						message: '*Include: To Do Business Electronically Contract',
+					}
+				];
+			});
+
+			if (this.requiredPdfs.filter(x => x.pdfs.length > 0) && this.requiredThoTemplates.filter(x => x.thoTemplate.length > 0))
+			{
+				this.canToggleCommunitySettings = true;
+			}
+		}
+	}
+
+	toggleCommunityLinkEnabled() 
 	{
 		if (this.communitySettingsForm.get('ecoeMonths').value && this.communitySettingsForm.get('earnestMoney').value)
 		{
@@ -148,7 +227,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 			this.earnestMoneyRequired = false;
 			this.commmunityLinkEnabledDirty = !this.commmunityLinkEnabledDirty;
 			this.salesCommunity.isOnlineSalesCommunityEnabled = !this.salesCommunity.isOnlineSalesCommunityEnabled;
-		}
+		} 
 		else if (this.communitySettingsForm.get('earnestMoney').value)
 		{
 			this.ecoeRequired = true;
@@ -159,7 +238,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 			this.earnestMoneyRequired = true;
 			this.communitySettingsForm.get('earnestMoney').markAsDirty();
 		}
-		else
+		else 
 		{
 			this.ecoeRequired = true;
 			this.earnestMoneyRequired = true;
