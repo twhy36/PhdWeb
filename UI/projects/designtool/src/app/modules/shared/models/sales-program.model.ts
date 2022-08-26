@@ -6,7 +6,7 @@ export class SalesProgram
 	financialCommunityId: number;
 	id?: number;
 	maximumAmount: number;
-	salesProgramType: SalesProgramTypeEnum;
+	salesProgramType: 'DiscountFlatAmount' | 'BuyersClosingCost';
 	startDate: string;
 	createdBy?: string;
 	createdUtcDate?: string;
@@ -37,10 +37,4 @@ export class SalesProgram
 			}
 		}
 	}
-}
-
-export enum SalesProgramTypeEnum
-{
-	BuyersClosingCost = 1,
-	DiscountFlatAmount = 2
 }
