@@ -358,7 +358,7 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 			{
 				optionColors.push({
 					colorItemName: colorItem.name,
-					colorName: color.name
+					colorName: color.sku ? color.name + "/" + color.sku : color.name
 				});
 			}
 		});
