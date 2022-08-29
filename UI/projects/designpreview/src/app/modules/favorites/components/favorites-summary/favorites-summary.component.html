@@ -44,7 +44,51 @@
 													(onRemoveFavorites)="onRemoveFavorites($event)">
 							</decision-point-summary>
 						</ng-container>
-					</div>								
+					</div>
+				</div>
+			</ng-container>
+
+			<!-- Show Floorplan(s) -->
+			<ng-container *ngIf="!noVisibleFP">
+				<div class="group">
+					<div class="label">floorplan</div>
+					<div class="sub-group d-flex flex-column justify-content-between">
+						<div class="header d-flex justify-content-between align-items-center">
+							<span *ngIf="firstDisplayedFloor">{{ firstDisplayedFloor.name }}</span>
+						</div>
+					</div>
+
+					<!-- this.floors is undefined until the first time floor-plan is executed, so explicitly call it this first time... -->
+					<floor-plan
+						[height]="'100vh'"
+						[planId$]="marketingPlanId"
+						[selectedFloor]="firstDisplayedFloor"
+						[subGroup]="IFPsubGroup"
+						[isFlipped]="isFloorplanFlipped"
+						[ifpID]="'firstDisplayedFloor'"
+						(onFloorPlanLoaded)="loadFloorPlan($event)"
+					></floor-plan>
+
+					<!-- Now that the floor(s) are defined the rest of the floors (if any) can be displayed -->
+					<ng-container *ngIf="floors">
+						<ng-container *ngFor="let floor of floors">
+							<div class="sub-group d-flex flex-column justify-content-between">
+								<div class="header d-flex justify-content-between align-items-center">
+									<span>{{ floor.name }}</span>
+								</div>
+							</div>
+							<!-- There needs to be a short delay between displaying the different floorplans -->
+							<floor-plan *ngIf="showNextIFP >= floor.index"
+								[height]="'100vh'"
+								[planId$]="marketingPlanId"
+								[selectedFloor]="floor"
+								[subGroup]="IFPsubGroup"
+								[isFlipped]="isFloorplanFlipped"
+								[ifpID]="'floor' + floor.id"
+								(onFloorPlanLoaded)="delayBetweenFloorPlans()"
+							></floor-plan>
+						</ng-container>						
+					</ng-container>
 				</div>
 			</ng-container>
 		</div>

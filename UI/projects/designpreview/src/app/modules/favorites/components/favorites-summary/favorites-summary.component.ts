@@ -4,16 +4,17 @@ import { Location } from '@angular/common';
 import { ToastrService } from 'ngx-toastr';
 import { NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 
-import { combineLatest as combineLatestOperator, take, distinctUntilChanged, switchMap } from 'rxjs/operators';
+import { combineLatest as combineLatestOperator, take, distinctUntilChanged, switchMap, withLatestFrom } from 'rxjs/operators';
 import { combineLatest } from 'rxjs';
 import { Observable, of } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import * as _ from 'lodash';
 
 import
 {
 	UnsubscribeOnDestroy, PriceBreakdown, SDGroup, SDSubGroup, SDPoint, SDChoice, SDAttributeReassignment, Group,
 	DecisionPoint, JobChoice, Tree, TreeVersionRules, SalesAgreement, getDependentChoices, ModalService, PDFViewerComponent,
-	SummaryData, BuyerInfo, PriceBreakdownType, PlanOption, Choice, ConfirmModalComponent
+	SummaryData, BuyerInfo, PriceBreakdownType, PlanOption, Choice, ConfirmModalComponent, SubGroup
 } from 'phd-common';
 
 import { environment } from '../../../../../environments/environment';
@@ -24,6 +25,7 @@ import * as fromPlan from '../../../ngrx-store/plan/reducer';
 import * as fromFavorite from '../../../ngrx-store/favorite/reducer';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 import { selectSelectedLot } from '../../../ngrx-store/lot/reducer';
+import * as fromSalesAgreement from '../../../ngrx-store/sales-agreement/reducer';
 
 import * as NavActions from '../../../ngrx-store/nav/actions';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
@@ -65,6 +67,13 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 	isPresale: boolean;
 	isEmptyFavorites: boolean;
 	isDesignComplete: boolean = false;
+	isFloorplanFlipped: boolean;
+	floors: any[];
+	marketingPlanId = new BehaviorSubject<number>(0);
+	noVisibleFP: boolean = false;
+	IFPsubGroup: SubGroup;
+	firstDisplayedFloor: any;
+	showNextIFP: number = 0;
 
 	constructor(private store: Store<fromRoot.State>,
 		private activatedRoute: ActivatedRoute,
@@ -206,6 +215,46 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		if (this.isPresale && this.isEmptyFavorites) {
 			this.displayEmptyFavoritesModal();
 		}
+
+		// marketing plan Id for interactive floorplan
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromPlan.planState),
+			withLatestFrom(this.store.pipe(select(state => state.scenario)))
+		).subscribe(([plan, scenario]) =>
+		{
+			if (plan && plan.marketingPlanId && plan.marketingPlanId.length)
+			{
+				if (scenario.tree && scenario.tree.treeVersion)
+				{
+					const subGroups = _.flatMap(scenario.tree.treeVersion.groups, g => g.subGroups) || [];
+					const fpSubGroup = subGroups.find(sg => sg.useInteractiveFloorplan);
+					this.IFPsubGroup = fpSubGroup;
+					if (fpSubGroup)
+					{
+						this.marketingPlanId.next(plan.marketingPlanId[0]);
+					} else
+					{
+						this.noVisibleFP = true;
+					}
+				} else
+				{
+					this.noVisibleFP = true;
+				}
+			} else
+			{
+				this.noVisibleFP = true;
+			}
+		});
+
+		// getting the floor plan flipped from the sales agreement
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromSalesAgreement.salesAgreementState)
+		).subscribe(sag =>
+		{
+			this.isFloorplanFlipped = sag.isFloorplanFlipped;
+		});
 	}
 
 	onBack()
@@ -499,4 +548,39 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 			});
 
 	}
+
+	loadFloorPlan(fp) {
+		// load floors
+		this.floors = fp.floors;
+
+		//Decide the first floor to display
+		let floorIndex = this.floors.findIndex(floor => floor.name === 'Basement');
+		if (floorIndex > -1) {
+			this.firstDisplayedFloor = this.floors[floorIndex];
+			this.floors.splice(floorIndex , 1);
+		}
+		else {
+			floorIndex = this.floors.findIndex(floor => floor.name === 'Floor 1');
+			if (floorIndex > -1) {
+				this.firstDisplayedFloor = this.floors[floorIndex];
+				this.floors.splice(floorIndex , 1);
+			}
+			else {
+				this.firstDisplayedFloor = this.floors[0];
+				this.floors.splice(0,1);
+			}
+		}
+
+		//There needs to be a short delay between displaying floorplans, or the floorplan.component gets confused
+		setTimeout(() => {
+			this.showNextIFP++;
+		}, 200);
+	}
+
+	delayBetweenFloorPlans() {
+		setTimeout(() => {
+			this.showNextIFP++;
+		}, 200);
+	}
+
 }

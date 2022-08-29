@@ -27,6 +27,7 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 	@Input() isFlipped: boolean;
 	@Input() isPresavedFloorplan: boolean = false;
 	@Input() isPlainFloorplan: boolean = false;
+	@Input() ifpID: string = "av-floor-plan";
 
 	@Output() onFloorPlanLoaded = new EventEmitter();
 	@Output() onFloorPlanSaved = new EventEmitter<FloorPlanImage[]>();
@@ -66,7 +67,7 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 				try
 				{
-					this.fp = wd.fp = new AVFloorplan(environment.alphavision.builderId, '' + planId, document.querySelector('#av-floor-plan'), [], this.fpInitialized.bind(this));
+					this.fp = wd.fp = new AVFloorplan(environment.alphavision.builderId, '' + planId, document.querySelector('#' + this.ifpID), [], this.fpInitialized.bind(this));
 
 					if (this.isPresavedFloorplan)
 					{
