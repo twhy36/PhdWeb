@@ -1,7 +1,7 @@
 import { forwardRef, Inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
-import { Observable, throwError as _throw } from 'rxjs';
+import { Observable, of, throwError as _throw } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { IFeatureSwitch, IFeatureSwitchOrgAssoc } from '../models/feature-switch.model';
 import { IOrg } from '../models/org.model';
@@ -130,6 +130,11 @@ export class FeatureSwitchService
 
 	getFeatureSwitchForCommunities(name: string, financialCommunityIds: number[]): Observable<IFeatureSwitchOrgAssoc[]>
 	{
+		if (!financialCommunityIds || financialCommunityIds.length === 0)
+		{
+			return of([]);
+		}
+
 		const entity = `featureSwitches`;
 		const filter = `name eq '${name}'`;
 		const select = `featureSwitchId, name, state`;
