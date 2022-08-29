@@ -554,7 +554,18 @@ export class LiteEffects
 						return this.liteService.isPhdLiteEnabled(financialCommunityId).pipe(
 							switchMap(isPhdLiteEnabled => {
 								const isPhdLite = isPhdLiteEnabled && !selectedPlan?.treeVersionId;
-								return of(new SetIsPhdLite(isPhdLite));
+
+								let selectPlanActions: any[] = [ new SetIsPhdLite(isPhdLite) ];
+								
+								if (isPhdLite && (store.scenario.buildMode === 'spec' || store.scenario.buildMode === 'model'))
+								{
+									let scenario = _.clone(store.scenario.scenario);
+									scenario.planId = action.planId;
+
+									selectPlanActions.push(new LoadLiteSpecOrModel(scenario));
+								}
+								
+								return from(selectPlanActions);
 							})
 						);
 					}
