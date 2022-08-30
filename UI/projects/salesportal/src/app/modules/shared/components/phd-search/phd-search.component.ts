@@ -270,7 +270,7 @@ export class PHDSearchComponent
 	{
 		this.clear();
 
-		this.selectedSalesAgreementStatus = ['Pending'];
+		this.selectedSalesAgreementStatus = ['Pending', 'OutforSignature', 'Signed'];
 
 		setTimeout(t =>
 		{
