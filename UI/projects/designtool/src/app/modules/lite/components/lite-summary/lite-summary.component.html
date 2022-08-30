@@ -5,7 +5,7 @@
 		<summary-header
 			[summaryHeader]="summaryHeader"
 			[priceBreakdown]="priceBreakdown"
-			[allowEstimates]="allowEstimates"
+			[allowEstimates]="allowEstimates$ | async"
 			[canEditHanding]="(canEditAgreement$ | async) && (canConfigure$ | async) && canEditHanding"
 			[canConfigure]="canConfigure$ | async"
 			[disableHanding]="disableHanding"

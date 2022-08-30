@@ -48,7 +48,7 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 	title: string;
 	summaryHeader: SummaryHeader = new SummaryHeader();
 	priceBreakdown: PriceBreakdown;
-	allowEstimates: boolean;
+	allowEstimates$: Observable<boolean>;
 	selectedHanding: string;
 	canEditAgreement$: Observable<boolean>;
 	canConfigure$: Observable<boolean>;
@@ -88,13 +88,7 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 			select(fromRoot.priceBreakdown)
 		).subscribe(pb => this.priceBreakdown = pb);
 
-		this.store.pipe(
-			this.takeUntilDestroyed(),
-			select(state => state.salesAgreement)
-		).subscribe(sag =>
-		{
-			this.allowEstimates = sag ? sag.id === 0 : true;
-		});
+		this.allowEstimates$ = this.store.select(fromRoot.canEstimateOnSummary);
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
