@@ -5,7 +5,7 @@ import { Observable, throwError} from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { IOptionSubCategory } from '../../shared/models/option.model';
 import { environment } from '../../../../environments/environment';
-import {IColor} from '../../shared/models/color.model';
+import { IColor } from 'phd-common';
 
 @Injectable()
 export class OptionService {

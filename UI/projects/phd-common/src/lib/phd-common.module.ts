@@ -36,6 +36,7 @@ import { BrowserService } from './services/browser.service';
 import { BrandService } from './services/brand.service';
 import { ModalService } from './services/modal.service';
 import { FeatureSwitchService } from './services/feature-switch.service';
+import { ColorDisplayPipe } from './pipes/colorDisplay.pipe';
 import { EllipsisPipe } from './pipes/ellipsis.pipe';
 import { SafeUrlPipe } from './pipes/safe-url.pipe';
 import { MinusSignToParens } from './pipes/minusSignToParens.pipe';
@@ -87,6 +88,7 @@ export function getOrigin()
 		PDFViewerComponent,
 		EllipsisPipe,
 		SafeUrlPipe,
+		ColorDisplayPipe,
 		MinusSignToParens
 	],
 	exports: [
@@ -106,6 +108,7 @@ export function getOrigin()
 		ModalComponent,
 		EllipsisPipe,
 		SafeUrlPipe,
+		ColorDisplayPipe,
 		MinusSignToParens
 	],
 })

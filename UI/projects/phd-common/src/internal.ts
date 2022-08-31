@@ -45,6 +45,7 @@ export * from './lib/models/time-of-sale-option-price.model';
 export * from './lib/models/tree.model';
 export * from './lib/models/feature-switch.model';
 export * from './lib/models/org.model';
+export * from './lib/models/color.model';
 
 export * from './lib/extensions/withSpinner.extension';
 
@@ -85,5 +86,6 @@ export * from './lib/rules/rulesExecutor';
 
 // pipes
 export * from './lib/pipes/ellipsis.pipe';
+export * from './lib/pipes/colorDisplay.pipe';
 
 export * from './lib/phd-common.module';

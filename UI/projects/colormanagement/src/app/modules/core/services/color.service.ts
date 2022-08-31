@@ -3,7 +3,6 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { catchError, filter, map, switchMap, take } from 'rxjs/operators';
 import { Observable, throwError } from 'rxjs';
-import { IColorIdBatch, IColor, IColorDto } from '../../shared/models/color.model';
 import { IColorItem, IColorItemAssoc, IColorItemColorAssoc, IColorItemDto, IColorItemIdBatch } from '../../shared/models/colorItem.model';
 import * as _ from 'lodash';
 import
@@ -15,7 +14,10 @@ import
 		createBatchBody,
 		getNewGuid,
 		withSpinner,
-		IdentityService
+		IdentityService,
+		IColor, 
+		IColorDto,
+		IColorIdBatch
 	} from 'phd-common';
 import { IPlanOptionCommunityGridDto } from '../../shared/models/community.model';
 import { PlanOptionService } from './plan-option.service';
@@ -92,6 +94,65 @@ export class ColorService
 			);
 	}
 
+	getColorsByNames(communityId: number, subcategoryId: number, colors: {name: string, sku: string}[]): Observable<IColor[]>
+	{
+		const batchGuid = getNewGuid();
+
+		let requests = colors.map(color => {
+			const entity = `colors`;
+			const select = `colorId,name,sku,isActive`;
+
+			let filter = `(EdhFinancialCommunityId eq ${communityId}) and (EdhOptionSubcategoryId eq ${subcategoryId})`;
+
+			if (color.name)
+			{
+				filter += ` and (tolower(name) eq tolower('${color.name}'))`; 
+			}
+
+			if (color.sku)
+			{
+				filter += ` and (tolower(sku) eq tolower('${color.sku}'))`;
+			}
+
+			let qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
+
+			const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
+
+			return createBatchGet(endpoint);
+		}).filter(req => req);
+
+		let headers = createBatchHeaders(batchGuid);
+		let batch = createBatchBody(batchGuid, requests);
+
+		return withSpinner(this._http).post(`${environment.apiUrl}$batch`, batch, { headers: headers }).pipe(
+			map((response: any) =>
+			{
+				let responseBodies = response.responses?.map(res => res.body);
+				let responseColors: Array<IColor> = [];
+
+				responseBodies?.forEach((result) =>
+				{
+					let resultItems = result.value as Array<IColor>;
+
+					resultItems.forEach(item =>
+					{
+						responseColors.push({
+							name: item.name,
+							colorId: item.colorId,
+							sku: item.sku,
+							edhOptionSubcategoryId: subcategoryId,
+							edhFinancialCommunityId: communityId,
+							isActive: item.isActive
+						});
+					});
+				});
+
+				return responseColors;
+			}),
+			catchError(this.handleError)
+		);
+	}	
+
 	getPlanOptionAssocColorItems(communityId: number, edhPlanOptionIds: Array<number>, isActive?: boolean, name?: string, topRows?: number, skipRows?: number): Observable<IColorItemDto[]>
 	{
 		return this.identityService.token.pipe(
@@ -103,7 +164,7 @@ export class ColorService
 				for (let i = 0; i < edhPlanOptionIds.length; i = i + 50)
 				{
 					const entity = `colorItems`;
-					const expand = `colorItemColorAssoc($expand=color($select=colorId,name,edhFinancialCommunityId,isActive;$filter=edhFinancialCommunityId eq ${communityId}))`;
+					const expand = `colorItemColorAssoc($expand=color($select=colorId,name,sku,edhFinancialCommunityId,isActive;$filter=edhFinancialCommunityId eq ${communityId}))`;
 					const endIndex = (i + 50) < edhPlanOptionIds.length ? (i + 50) : edhPlanOptionIds.length;
 					let filter = `(edhPlanOptionId in (${edhPlanOptionIds.slice(i, endIndex).join(',')}))`;
 					const select = `colorItemId,name,edhPlanOptionId,isActive,colorItemColorAssoc`;

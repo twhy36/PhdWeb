@@ -1,4 +1,5 @@
-import { IColor } from './color.model';
+import { IColor } from 'phd-common';
+
 export interface IColorItem {
 	colorItemId: number,
 	name: string,

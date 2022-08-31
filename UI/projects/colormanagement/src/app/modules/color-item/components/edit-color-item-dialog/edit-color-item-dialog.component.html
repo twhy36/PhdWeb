@@ -42,7 +42,7 @@
 						<div>
 							<div [ngClass]="{
 								'phd-disabled': color?.isActive === false
-							}" class="phd-list-item">{{color?.name}}</div>
+							}" class="phd-list-item">{{ color | colorDisplay }}</div>
 						</div>
 					</ng-template>
 				</p-pickList>

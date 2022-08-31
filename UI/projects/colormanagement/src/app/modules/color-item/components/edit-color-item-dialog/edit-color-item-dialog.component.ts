@@ -1,10 +1,9 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { ConfirmModalComponent, ModalService } from 'phd-common';
+import { ConfirmModalComponent, ModalService, IColor } from 'phd-common';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ColorService } from '../../../core/services/color.service';
 import { IColorItemDto } from '../../../shared/models/colorItem.model';
 import { IOptionCommunity, IPlanOptionCommunityGridDto } from '../../../shared/models/community.model';
-import { IColor } from '../../../shared/models/color.model';
 import * as _ from 'lodash';
 import { MessageService } from 'primeng/api';
 import { IToastInfo } from '../../../../../../../phd-common/src/lib/models/toast-info.model';

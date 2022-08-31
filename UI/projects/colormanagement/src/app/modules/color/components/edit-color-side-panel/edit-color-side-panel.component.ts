@@ -1,8 +1,7 @@
 import {Component, OnInit, OnDestroy, Output, EventEmitter, Input} from '@angular/core';
-import {ConfirmModalComponent, ModalService} from 'phd-common';
+import {ConfirmModalComponent, ModalService, IColorDto } from 'phd-common';
 import { FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {ColorService} from '../../../core/services/color.service';
-import {IColorDto} from '../../../shared/models/color.model';
 import {ColorAdminService} from '../../../core/services/color-admin.service';
 
 @Component({
@@ -54,38 +53,40 @@ export class EditColorSidePanelComponent implements OnInit, OnDestroy {
 
 		const originalName = this.editColorForm.get('name').value.toString().trim();
 		const colorName = originalName.toLowerCase().trim();
-		const nameExistsAlready =
-			this.allColors.some(color => color.colorId !== this.selectedColor.colorId
-									  && color.name.toLowerCase().trim() === colorName
-									  && color.optionSubCategoryId === this.selectedColor.optionSubCategoryId);
+		const sku = this.editColorForm.get('sku').value.toString().toLowerCase().trim();
 
-		if (nameExistsAlready)
+		this._colorService.getColorsByNames(this.communityId, this.selectedColor.optionSubCategoryId, [{name: colorName, sku: sku}])
+		.subscribe(colors =>
 		{
-			this._modalService.showOkOnlyModal(`A color with this name already exists. Please use a different name in the color field.`, 'Duplicate Color');
-			return;
-		}
-
-		const colorToSave = {
-			colorId: this.selectedColor.colorId,
-			name: originalName,
-			sku: this.editColorForm.get('sku').value?.toString().trim(),
-			optionSubCategoryId: this.selectedColor.optionSubCategoryId,
-			isActive: this.selectedColor.isActive
-		} as IColorDto;
-
-		this._colorService.updateColor(colorToSave, this.communityId).subscribe((updatedColor) => {
-			const successful = updatedColor !== undefined && updatedColor !== null;
-
-			if (successful) {
-				this.sidePanelIsOpen = false;
-				this._colorAdminService.emitEditingColor(false);
+			if (colors.length)
+			{
+				this._modalService.showOkOnlyModal(`This color/SKU combination already exists for this subcategory. <br><br>Please use a different color name or SKU.`, 'Duplicate Color');
 			}
-
-			this.colorWasEdited.emit(successful);
-		},
-		error => {
-			this.colorWasEdited.emit(false);
-		});
+			else
+			{
+				const colorToSave = {
+					colorId: this.selectedColor.colorId,
+					name: originalName,
+					sku: this.editColorForm.get('sku').value?.toString().trim(),
+					optionSubCategoryId: this.selectedColor.optionSubCategoryId,
+					isActive: this.selectedColor.isActive
+				} as IColorDto;
+		
+				this._colorService.updateColor(colorToSave, this.communityId).subscribe((updatedColor) => {
+					const successful = updatedColor !== undefined && updatedColor !== null;
+		
+					if (successful) {
+						this.sidePanelIsOpen = false;
+						this._colorAdminService.emitEditingColor(false);
+					}
+		
+					this.colorWasEdited.emit(successful);
+				},
+				error => {
+					this.colorWasEdited.emit(false);
+				});
+			}
+		});				  
 	}
 
 	async onCloseSidePanel() {

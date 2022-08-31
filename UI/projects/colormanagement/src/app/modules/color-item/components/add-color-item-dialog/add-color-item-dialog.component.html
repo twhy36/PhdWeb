@@ -48,7 +48,7 @@
 					[showTargetControls]="false">
 					<ng-template let-color pTemplate="item">
 						<div>
-							<div class="phd-list-item">{{color.name}}</div>
+							<div class="phd-list-item">{{ color | colorDisplay }}</div>
 						</div>
 					</ng-template>
 				</p-pickList>

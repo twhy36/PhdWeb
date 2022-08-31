@@ -16,7 +16,6 @@ import { EditColorItemDialogComponent } from './components/edit-color-item-dialo
 import { PickListModule } from 'primeng/picklist';
 import { ToastModule } from 'primeng/toast';
 
-
 @NgModule({
 	declarations: [
 		ColorItemsPageComponent,

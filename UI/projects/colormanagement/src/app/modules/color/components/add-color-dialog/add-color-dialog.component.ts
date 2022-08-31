@@ -1,9 +1,9 @@
 import { Component, Input, OnInit, Output, EventEmitter, SimpleChanges, OnChanges } from '@angular/core';
-import {FormGroup, FormBuilder, Validators, FormArray, AbstractControl} from '@angular/forms';
+import { FormGroup, FormBuilder, Validators, FormArray } from '@angular/forms';
 import * as _ from 'lodash';
-import { ConfirmModalComponent, ModalRef, ModalService } from 'phd-common';
+import { ConfirmModalComponent, ModalRef, ModalService, IColor, IColorDto } from 'phd-common';
 import { OptionService } from '../../../core/services/option.service';
-import {IColor, IColorDto} from '../../../shared/models/color.model';
+import { ColorService } from '../../../core/services/color.service';
 import { IOptionCategory, IOptionSubCategory } from '../../../shared/models/option.model';
 
 @Component({
@@ -35,6 +35,7 @@ export class AddColorDialogComponent implements OnInit, OnChanges {
 		private _optionService: OptionService,
 		private _modalService: ModalService,
 		private _fb: FormBuilder,
+		private _colorService: ColorService
   	) { }
 
 	ngOnInit(): void
@@ -89,27 +90,40 @@ export class AddColorDialogComponent implements OnInit, OnChanges {
 
 		let validEntries = this.colors.controls.filter(x => x.touched && x.dirty && x.valid);
 
-		if (this.isDuplicate(validEntries))
+		const colorEntries = validEntries.map(control => 
 		{
-			this._modalService.showOkOnlyModal(`A color with this name and subcategory already exists.`, 'Duplicate Color');
-			return;
-		}
-
-		const colorsToSave: IColor[] = [];
-		validEntries.forEach(control => {
-			colorsToSave.push({
-				name:control.value.name.toString().trim(),
-				colorId: 0,
-				sku:control.value.sku,
-				edhOptionSubcategoryId: this.currentSubCategory.id,
-				edhFinancialCommunityId:this.communityId,
-				isActive: control.value.isActive
+			return {
+				name: control.get('name').value.toString().toLowerCase().trim(),
+				sku: control.get('sku').value.toString().toLowerCase().trim()
+			};
+		}) || [];
+		
+		this._colorService.getColorsByNames(this.communityId, this.currentSubCategory.id, colorEntries)
+			.subscribe(colors =>
+			{
+				if (colors.length)
+				{
+					this._modalService.showOkOnlyModal(`This color/SKU combination already exists for this subcategory. <br><br>Please use a different color name or SKU.`, 'Duplicate Color');
+				}
+				else
+				{
+					const colorsToSave: IColor[] = [];
+					validEntries.forEach(control => {
+						colorsToSave.push({
+							name:control.value.name.toString().trim(),
+							colorId: 0,
+							sku:control.value.sku,
+							edhOptionSubcategoryId: this.currentSubCategory.id,
+							edhFinancialCommunityId:this.communityId,
+							isActive: control.value.isActive
+						});
+					});
+			
+					this._optionService.saveNewColors(colorsToSave).subscribe((savedColors) => {
+						this.newColorsWereSaved.emit(savedColors.length > 0);
+					});
+				}
 			});
-		});
-
-		this._optionService.saveNewColors(colorsToSave).subscribe((savedColors) => {
-			this.newColorsWereSaved.emit(savedColors.length > 0);
-		});
 	}
 
 	isFormValid(): boolean
@@ -129,12 +143,6 @@ export class AddColorDialogComponent implements OnInit, OnChanges {
 			&& subcategoryWasSelected
 			&& atLeastOneNewColorExists
 			&& hasNoOrphanedSkuEntries;
-	}
-
-	private isDuplicate(colors: AbstractControl[]): boolean
-	{
-		return colors.some(color => this.allColors.some(existingColor => existingColor.name.toLowerCase() === color.get('name').value.toString().toLowerCase().trim()
-			&& existingColor.optionSubCategoryId === this.currentSubCategory.id));
 	}
 
 	async cancelAddColorDialog()
