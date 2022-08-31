@@ -658,7 +658,7 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 
 		for (const opt of choice.options)
 		{
-			if (timeOfSaleOptionPrices.find(tos => tos.divChoiceCatalogID === choice.divChoiceCatalogId && tos.edhPlanOptionID === opt.id))
+			if (timeOfSaleOptionPrices?.find(tos => tos.divChoiceCatalogID === choice.divChoiceCatalogId && tos.edhPlanOptionID === opt.id))
 			{
 				const replaceRules = rules.optionRules.filter(o => o.replaceOptions.includes(opt.financialOptionIntegrationKey));
 
@@ -672,8 +672,7 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 
 		// #366542
 		// Check if this choice contains any options that have been replaced but no longer exist on the current tree
-		const hasRemovedOption = timeOfSaleOptionPrices
-			.filter(tos => tos.divChoiceCatalogID === choice.divChoiceCatalogId)
+		const hasRemovedOption = timeOfSaleOptionPrices?.filter(tos => tos.divChoiceCatalogID === choice.divChoiceCatalogId)
 			.map(tos => tos.edhPlanOptionID)
 			.some(optionId =>
 			{
