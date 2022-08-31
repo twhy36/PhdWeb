@@ -27,7 +27,7 @@ export class BlockedItemComponent {
 	}
 
 	displayBlockedItems() {
-		return this.isHiddenChoiceItem ? 'phd-hidden-item' : 'phd-clickable phd-blocked-link'
+		return (this.isHiddenChoiceItem || this.disabledByItem.pointId === null) ? 'phd-hidden-item' : 'phd-clickable phd-blocked-link'
 	}
 
 }
