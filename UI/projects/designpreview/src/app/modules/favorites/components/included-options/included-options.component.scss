@@ -12,7 +12,7 @@ $point-panel-width: 245px;
 		position: fixed;
 		width: $point-panel-width;
 		height: calc(110vh - 220px - 75px);
-		overflow-y: scroll;
+		overflow-y: auto;
 	
 		.phd-point-bar {
 			overflow-y: auto;
