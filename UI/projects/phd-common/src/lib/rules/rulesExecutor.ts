@@ -648,35 +648,75 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 
 	choices.forEach(choice =>
 	{
-		//lock in prices
-		if (choice.lockedInChoice)
+		// #364540
+		// For any option on this choice that has a corresponding TimeOfSale record,
+		// if every set of replace rules for that option is not satisified
+		// (i.e., one or more Must Have's not selected and/or one or more Must Not Have's are selected)
+		// use the new pricing, which was calculated earlier.
+		// Otherwise, use the locked in price which is the time of sale price.
+		let useLockedInPrice = true;
+
+		for (const opt of choice.options)
 		{
-			// #364540
-			// For any option on this choice that has a corresponding TimeOfSale record,
-			// if every set of replace rules for that option is not satisified 
-			// (i.e., one or more Must Have's not selected and/or one or more Must Not Have's are selected)
-			// use the new pricing, which was calculated earlier.
-			// Otherwise, use the locked in price which is the time of sale price.
-			let useLockedInPrice = true;
-
-			for (let opt of choice.options)
+			if (timeOfSaleOptionPrices.find(tos => tos.divChoiceCatalogID === choice.divChoiceCatalogId && tos.edhPlanOptionID === opt.id))
 			{
-				if (timeOfSaleOptionPrices.find(tos => tos.edhPlanOptionID === opt.id))
-				{
-					const replaceRules = rules.optionRules.filter(o => o.replaceOptions.includes(opt.financialOptionIntegrationKey));
+				const replaceRules = rules.optionRules.filter(o => o.replaceOptions.includes(opt.financialOptionIntegrationKey));
 
-					if (replaceRules && replaceRules.length && replaceRules.every(rr => rr.choices.some(rrc => (!rrc.mustHave && find(rrc.id).quantity >= 1) || (rrc.mustHave && find(rrc.id).quantity === 0))))
-					{
-						useLockedInPrice = false;
-						break;
-					}
+				if (replaceRules && replaceRules.length && replaceRules.every(rr => rr.choices.some(rrc => (!rrc.mustHave && find(rrc.id).quantity >= 1) || (rrc.mustHave && find(rrc.id).quantity === 0))))
+				{
+					useLockedInPrice = false;
+					break;
 				}
 			}
+		}
 
-			if (useLockedInPrice)
+		// #366542
+		// Check if this choice contains any options that have been replaced but no longer exist on the current tree
+		const hasRemovedOption = timeOfSaleOptionPrices
+			.filter(tos => tos.divChoiceCatalogID === choice.divChoiceCatalogId)
+			.map(tos => tos.edhPlanOptionID)
+			.some(optionId =>
 			{
-				choice.price = choice.lockedInChoice.choice.dpChoiceCalculatedPrice;
-			}
+				const financialOptionIntegrationKey = options.find(o => o.id === optionId)?.financialOptionIntegrationKey;
+
+				if (financialOptionIntegrationKey)
+				{
+					// Find any active rules that replace this option
+					const replaceRules = rules.optionRules.filter(o => o.replaceOptions.includes(financialOptionIntegrationKey));
+
+					// Find any choices with locked in options that still replace this option
+					const existingChoices = choices.filter(ch => ch.id !== choice.id && _.flatMap(ch.lockedInOptions, lio => lio.replaceOptions).includes(financialOptionIntegrationKey));
+
+					// If no rules currently replace this option, and no locked in options replace this option, then this choice has a removed option
+					return !replaceRules.length && !existingChoices.length;
+				}
+
+				return false;
+			}) || choice.lockedInOptions?.map(lio => lio.optionId)
+				.some(financialOptionIntegrationKey =>
+				{
+					// Find any active rules that replace this option
+					const replaceRules = rules.optionRules.filter(o => o.replaceOptions.includes(financialOptionIntegrationKey));
+
+					// Find any choices with locked in options that still replace this option
+					const existingChoices = choices.filter(ch => ch.id !== choice.id && _.flatMap(ch.lockedInOptions, lio => lio.replaceOptions).includes(financialOptionIntegrationKey));
+
+					// If no rules currently replace this option, and no locked in options replace this option, then this choice has a removed option
+					return !replaceRules.length && !existingChoices.length;
+				});
+
+		// Determine if any choices that currently affect this choice via replace rules are properly selected, etc.
+		const optionRuleChoices = rules.optionRules
+			.filter(o => o.replaceOptions.some(ro => choice.options.map(opt => opt.financialOptionIntegrationKey).includes(ro)))
+			.map(o => o.choices);
+
+		const hasActiveValidChoices = optionRuleChoices
+			.some(choices => choices.every(ch => (find(ch.id).quantity && ch.mustHave) || (!find(ch.id).quantity && !ch.mustHave)));
+
+		//lock in prices
+		if (choice.lockedInChoice && useLockedInPrice && (!hasRemovedOption || (!hasActiveValidChoices && optionRuleChoices?.length > 0)))
+		{
+			choice.price = choice.lockedInChoice.choice.dpChoiceCalculatedPrice;
 		}
 
 		// #332687
