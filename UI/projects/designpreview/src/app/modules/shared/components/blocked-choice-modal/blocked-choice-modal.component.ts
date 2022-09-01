@@ -22,6 +22,7 @@ export class BlockedChoiceModalComponent extends UnsubscribeOnDestroy implements
 	tree: TreeVersion;
 	points: DecisionPoint[];
 	hiddenChoices: Choice[];
+	choices: Choice[];
 
 	constructor(private adobeService: AdobeService,
 				private store: Store<fromRoot.State>) {
@@ -48,6 +49,7 @@ export class BlockedChoiceModalComponent extends UnsubscribeOnDestroy implements
 				// check for unfiltered tree 
 				this.tree = scenario.tree.treeVersion;
 				this.points = _.flatMap(this.tree.groups, g => _.flatMap(g.subGroups, sg => sg.points)) || [];
+				this.choices = _.flatMap(this.points, p => p.choices) || [];
 
 				this.hiddenChoices = _.flatMap(this.points, c => _.flatMap(c.choices)).filter(choice => choice.isHiddenFromBuyerView) || [];
 			}
@@ -70,7 +72,7 @@ export class BlockedChoiceModalComponent extends UnsubscribeOnDestroy implements
 	{
 		return {
 			andPoints: this.disabledByList?.andPoints.filter(r => r.ruleType === 1),
-			andChoices: this.disabledByList?.andChoices.filter(r => r.ruleType === 1),
+			andChoices: this.disabledByList?.andChoices.filter(r => r.ruleType === 1 && this.choices.find(c => c.id === r.choiceId).quantity === 0),
 			orPoints: this.disabledByList?.orPoints.filter(r => r.ruleType === 1),
 			orChoices: this.disabledByList?.orChoices.filter(r => r.ruleType === 1)
 		};
