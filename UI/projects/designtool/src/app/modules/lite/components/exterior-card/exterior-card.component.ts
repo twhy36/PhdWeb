@@ -62,11 +62,8 @@ export class ExteriorCardComponent extends UnsubscribeOnDestroy implements OnIni
 			}
 			else if (this.color && monotonyOptions.colorSchemeNames?.length)
 			{
-				const colorItemName = this.option?.colorItems?.find(item => item.colorItemId === this.color.colorItemId)?.name;
-
 				if (monotonyOptions.colorSchemeNames.some(names =>
-					names.colorSchemeColorItemName === colorItemName
-					&& names.colorSchemeColorName === this.color.name))
+					names.colorSchemeColorName === this.color.name))
 				{
 					conflictMessage.colorSchemeConflict = true;
 					conflictMessage.monotonyConflict = true;

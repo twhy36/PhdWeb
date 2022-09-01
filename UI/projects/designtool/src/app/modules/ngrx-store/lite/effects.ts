@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Action, Store, select } from '@ngrx/store';
-import { Observable, never, of, combineLatest, from, EMPTY as empty, NEVER } from 'rxjs';
+import { Observable, of, combineLatest, from, EMPTY as empty, NEVER } from 'rxjs';
 import { switchMap, withLatestFrom, map, scan, filter, distinct, exhaustMap, tap, take, concat, catchError } from 'rxjs/operators';
 
 import { ChangeOrderHanding, ScenarioOption, IdentityService, Permission, ModalService } from 'phd-common';
@@ -36,7 +36,7 @@ import * as LiteActions from './actions';
 @Injectable()
 export class LiteEffects
 {
-	setIsPhdLite$: Observable<Action> = createEffect(() =>
+	onPlansLoaded$: Observable<Action> = createEffect(() =>
 	{
 		return this.actions$.pipe(
 			ofType<PlansLoaded>(PlanActionTypes.PlansLoaded),
@@ -67,25 +67,33 @@ export class LiteEffects
 							|| this.liteService.checkLiteScenario(store.scenario.scenario?.scenarioChoices, store.scenario.scenario?.scenarioOptions)
 						);
 
-					const salesCommunityId = store.opportunity?.opportunityContactAssoc?.opportunity?.salesCommunityId
-						?? store.org?.salesCommunity?.id;
-
-					let actions = [];
-
-					actions.push(new SetIsPhdLite(isPhdLite));
-
-					if (isPhdLite && !!salesCommunityId)
-					{
-						actions.push(new LoadLiteMonotonyRules(salesCommunityId));
-					}
-
-					return from(actions);
+					return of(new SetIsPhdLite(isPhdLite));
 				}
 
-				return never();
+				return NEVER;
 			})
 		);
 	});
+
+	setIsPhdLite$: Observable<Action> = createEffect(() =>
+	{
+		return this.actions$.pipe(
+			ofType<SetIsPhdLite>(LiteActionTypes.SetIsPhdLite),
+			withLatestFrom(this.store),
+			switchMap(([action, store]) =>
+			{
+				const salesCommunityId = store.opportunity?.opportunityContactAssoc?.opportunity?.salesCommunityId
+					?? store.org?.salesCommunity?.id;				
+					
+				if (action.isPhdLite && !!salesCommunityId)
+				{
+					return of(new LoadLiteMonotonyRules(salesCommunityId));
+				}
+
+				return NEVER;
+			})
+		);
+	});	
 
 	loadOptions$: Observable<Action> = createEffect(() =>
 	{
@@ -186,7 +194,7 @@ export class LiteEffects
 					}
 					else
 					{
-						return never();
+						return NEVER;
 					}
 				}),
 				switchMap(data =>
@@ -313,7 +321,7 @@ export class LiteEffects
 					{
 						return from([new LiteOptionsLoaded(data.options, data.scenarioOptions), new OptionCategoriesLoaded(data.categories)]);
 					}
-					return never();
+					return NEVER;
 				})
 			), LoadError, "Unable to load options")
 		);
@@ -502,7 +510,7 @@ export class LiteEffects
 					return of(new ScenarioOptionsSaved(result.scenarioOptions));
 				}
 
-				return never();
+				return NEVER;
 			})
 		);
 	});
