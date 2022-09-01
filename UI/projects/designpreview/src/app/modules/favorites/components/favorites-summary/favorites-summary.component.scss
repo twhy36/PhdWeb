@@ -96,9 +96,8 @@
 		max-height: 10vh;
 		
 	}
-
 	.phd-show-on-print {
-		display: flex !important;
+		display: table !important;
 	}
 
 	.phd-hide-from-print {
@@ -141,6 +140,10 @@
 		page-break-after: always;
 	}
 
+	.phd-print-footer, .phd-print-footer-space {
+		height: 100px;
+	}
+
 	.phd-print-footer {
 		position: fixed;
 		width: calc(100%);
@@ -153,4 +156,5 @@
 
 @page {
     margin-top: 2cm;
+	size: letter;
  }

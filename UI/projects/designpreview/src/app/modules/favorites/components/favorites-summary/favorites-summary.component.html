@@ -6,108 +6,125 @@
 	</group-bar>
 </div>
 
-<div class="d-flex phd-summary-section">
-	<div class="phd-favorites-summary">
-		<summary-header class="phd-hide-from-print"
-						[summaryHeader]="summaryHeader"
-						[priceBreakdown]="priceBreakdown"
-						[includeContractedOptions]="includeContractedOptions"
-						[isDesignComplete]="isDesignComplete"
-						(isStickyChanged)="onIsStickyChanged($event)"
-						(contractedOptionsToggled)="onContractedOptionsToggled()">
-		</summary-header>
-		<summary-header class="phd-show-on-print"
-						[summaryHeader]="summaryHeader"
-						[priceBreakdown]="priceBreakdown"
-						[includeContractedOptions]="includeContractedOptions"
-						[isDesignComplete]="isDesignComplete"
-						[isPrintHeader]="true"
-						(isStickyChanged)="onIsStickyChanged($event)"
-						(contractedOptionsToggled)="onContractedOptionsToggled()">
-		</summary-header>
+<ng-template #content>
+	<div class="d-flex phd-summary-section">
+		<div class="phd-favorites-summary">
+			<summary-header class="phd-hide-from-print"
+							[summaryHeader]="summaryHeader"
+							[priceBreakdown]="priceBreakdown"
+							[includeContractedOptions]="includeContractedOptions"
+							[isDesignComplete]="isDesignComplete"
+							(isStickyChanged)="onIsStickyChanged($event)"
+							(contractedOptionsToggled)="onContractedOptionsToggled()">
+			</summary-header>
+			<summary-header class="phd-show-on-print"
+							[summaryHeader]="summaryHeader"
+							[priceBreakdown]="priceBreakdown"
+							[includeContractedOptions]="includeContractedOptions"
+							[isDesignComplete]="isDesignComplete"
+							[isPrintHeader]="true"
+							(isStickyChanged)="onIsStickyChanged($event)"
+							(contractedOptionsToggled)="onContractedOptionsToggled()">
+			</summary-header>
 
-		<div class="tree-view tree-view-on-print" [class.phd-is-sticky]="isSticky">
-			<ng-container *ngFor="let group of groups">
-				<div class="group" *ngIf="group.subGroups.length > 0">
-					<div class="label">
-						<span>{{group.label}}</span>
-						<div *ngIf="!isPresale" class="phd-group-detail"> 
-							<span class="phd-group-subtotal-label">Subtotal : </span>
-							<span class="phd-group-subtotal-amount"> {{group.price | currency:'USD':'symbol':'0.0-0'}} </span>
+			<div class="tree-view tree-view-on-print" [class.phd-is-sticky]="isSticky">
+				<ng-container *ngFor="let group of groups">
+					<div class="group" *ngIf="group.subGroups.length > 0">
+						<div class="label">
+							<span>{{group.label}}</span>
+							<div *ngIf="!isPresale" class="phd-group-detail"> 
+								<span class="phd-group-subtotal-label">Subtotal : </span>
+								<span class="phd-group-subtotal-amount"> {{group.price | currency:'USD':'symbol':'0.0-0'}} </span>
+							</div>
+						</div>
+						<div class="sub-group d-flex flex-column justify-content-between" *ngFor="let subGroup of group.subGroups">
+							<div class="header d-flex justify-content-between align-items-center">
+								<span>{{subGroup.label}}</span>
+							</div>
+							<ng-container *ngFor="let dp of subGroup.points">
+								<decision-point-summary *ngIf="displayPoint(dp)"
+														[decisionPoint]="dp"
+														[subGroup]="subGroup"
+														[group]="group"
+														[salesChoices]="salesChoices"
+														[includeContractedOptions]="includeContractedOptions"
+														[buildMode]="buildMode"
+														[isDesignComplete]="isDesignComplete"
+														[isPresale]="isPresale"
+														(onViewFavorites)="onViewFavorites($event)"
+														(onRemoveFavorites)="onRemoveFavorites($event)">
+								</decision-point-summary>
+							</ng-container>
 						</div>
 					</div>
-					<div class="sub-group d-flex flex-column justify-content-between" *ngFor="let subGroup of group.subGroups">
-						<div class="header d-flex justify-content-between align-items-center">
-							<span>{{subGroup.label}}</span>
+				</ng-container>
+
+				<!-- Show Floorplan(s) -->
+				<ng-container *ngIf="!noVisibleFP">
+					<div class="group">
+						<div class="phd-floorplan-image-section">
+							<div class="label">floorplan</div>
+							<div class="sub-group d-flex flex-column justify-content-between">
+								<div class="header d-flex justify-content-between align-items-center">
+									<span *ngIf="firstDisplayedFloor">{{ firstDisplayedFloor.name }}</span>
+								</div>
+							</div>
+		
+							<!-- this.floors is undefined until the first time floor-plan is executed, so explicitly call it this first time... -->
+							<floor-plan
+								[height]="'80vh'"
+								[planId$]="marketingPlanId"
+								[selectedFloor]="firstDisplayedFloor"
+								[subGroup]="IFPsubGroup"
+								[isFlipped]="isFloorplanFlipped"
+								[ifpID]="'firstDisplayedFloor'"
+								(onFloorPlanLoaded)="loadFloorPlan($event)"
+							></floor-plan>
 						</div>
-						<ng-container *ngFor="let dp of subGroup.points">
-							<decision-point-summary *ngIf="displayPoint(dp)"
-													[decisionPoint]="dp"
-													[subGroup]="subGroup"
-													[group]="group"
-													[salesChoices]="salesChoices"
-													[includeContractedOptions]="includeContractedOptions"
-													[buildMode]="buildMode"
-													[isDesignComplete]="isDesignComplete"
-													[isPresale]="isPresale"
-													(onViewFavorites)="onViewFavorites($event)"
-													(onRemoveFavorites)="onRemoveFavorites($event)">
-							</decision-point-summary>
+
+						<!-- Now that the floor(s) are defined the rest of the floors (if any) can be displayed -->
+						<ng-container *ngIf="floors">
+							<ng-container *ngFor="let floor of floors">
+								<div class="phd-floorplan-image-section">
+									<div class="sub-group d-flex flex-column justify-content-between">
+										<div class="header d-flex justify-content-between align-items-center">
+											<span>{{ floor.name }}</span>
+										</div>
+									</div>
+									<!-- There needs to be a short delay between displaying the different floorplans -->
+									<floor-plan *ngIf="showNextIFP >= floor.index"
+										[height]="'80vh'"
+										[planId$]="marketingPlanId"
+										[selectedFloor]="floor"
+										[subGroup]="IFPsubGroup"
+										[isFlipped]="isFloorplanFlipped"
+										[ifpID]="'floor' + floor.id"
+										(onFloorPlanLoaded)="delayBetweenFloorPlans()"
+									></floor-plan>
+								</div>
+							</ng-container>						
 						</ng-container>
 					</div>
-				</div>
-			</ng-container>
-
-			<!-- Show Floorplan(s) -->
-			<ng-container *ngIf="!noVisibleFP">
-				<div class="group">
-					<div class="phd-floorplan-image-section">
-						<div class="label">floorplan</div>
-						<div class="sub-group d-flex flex-column justify-content-between">
-							<div class="header d-flex justify-content-between align-items-center">
-								<span *ngIf="firstDisplayedFloor">{{ firstDisplayedFloor.name }}</span>
-							</div>
-						</div>
-	
-						<!-- this.floors is undefined until the first time floor-plan is executed, so explicitly call it this first time... -->
-						<floor-plan
-							[height]="'80vh'"
-							[planId$]="marketingPlanId"
-							[selectedFloor]="firstDisplayedFloor"
-							[subGroup]="IFPsubGroup"
-							[isFlipped]="isFloorplanFlipped"
-							[ifpID]="'firstDisplayedFloor'"
-							(onFloorPlanLoaded)="loadFloorPlan($event)"
-						></floor-plan>
-					</div>
-
-					<!-- Now that the floor(s) are defined the rest of the floors (if any) can be displayed -->
-					<ng-container *ngIf="floors">
-						<ng-container *ngFor="let floor of floors">
-							<div class="phd-floorplan-image-section">
-								<div class="sub-group d-flex flex-column justify-content-between">
-									<div class="header d-flex justify-content-between align-items-center">
-										<span>{{ floor.name }}</span>
-									</div>
-								</div>
-								<!-- There needs to be a short delay between displaying the different floorplans -->
-								<floor-plan *ngIf="showNextIFP >= floor.index"
-									[height]="'80vh'"
-									[planId$]="marketingPlanId"
-									[selectedFloor]="floor"
-									[subGroup]="IFPsubGroup"
-									[isFlipped]="isFloorplanFlipped"
-									[ifpID]="'floor' + floor.id"
-									(onFloorPlanLoaded)="delayBetweenFloorPlans()"
-								></floor-plan>
-							</div>
-						</ng-container>						
-					</ng-container>
-				</div>
-			</ng-container>
+				</ng-container>
+			</div>
 		</div>
 	</div>
+</ng-template>
+
+<div class="phd-hide-from-print">
+	<ng-container *ngTemplateOutlet="content"></ng-container>
 </div>
+
+<table class="phd-show-on-print">
+	<tbody><tr><td>
+		<div class="phd-print-content">
+			<ng-container *ngTemplateOutlet="content"></ng-container>
+		</div>
+	</td></tr></tbody>
+	<tfoot><tr><td>
+		<div class="phd-print-footer-space">&nbsp;</div>
+	</td></tr></tfoot>
+</table>
 
 <action-bar class="phd-hide-from-print"
 			[primaryAction]="'Back'"
