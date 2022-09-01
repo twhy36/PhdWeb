@@ -17,6 +17,7 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 	@Input() priceBreakdown: PriceBreakdown;
 	@Input() includeContractedOptions: boolean;
 	@Input() isDesignComplete: boolean = false;
+	@Input() isPrintHeader: boolean = false;
 	
 	@Output() isStickyChanged = new EventEmitter<boolean>();
 	@Output() contractedOptionsToggled = new EventEmitter<boolean>();
@@ -109,25 +110,27 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 
 	checkIfHeaderSticky()
 	{
-		const clientRect = this.summaryHeaderElement.nativeElement.getBoundingClientRect();
-		if (clientRect.top < 110)
-		{
-			if (!this.isSticky && document.body.scrollHeight > 1500) {
-				this.isSticky = true;
-				this.cd.detectChanges();
-				this.isStickyChanged.emit(this.isSticky);
+		if (!this.isPrintHeader) {
+			const clientRect = this.summaryHeaderElement.nativeElement.getBoundingClientRect();
+			if (clientRect.top < 110)
+			{
+				if (!this.isSticky && document.body.scrollHeight > 1500) {
+					this.isSticky = true;
+					this.cd.detectChanges();
+					this.isStickyChanged.emit(this.isSticky);
+				}
 			}
-		}
-		else
-		{
-			if (this.isSticky) {
-				this.isSticky = false;
-				this.cd.detectChanges();
-				this.isStickyChanged.emit(this.isSticky);
+			else
+			{
+				if (this.isSticky) {
+					this.isSticky = false;
+					this.cd.detectChanges();
+					this.isStickyChanged.emit(this.isSticky);
+				}
 			}
-		}
-
-		this.scrolling = false;
+	
+			this.scrolling = false;
+		}	
 	}
 
 	toggleContractedOptions() {

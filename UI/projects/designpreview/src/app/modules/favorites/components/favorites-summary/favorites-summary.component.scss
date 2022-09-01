@@ -84,3 +84,73 @@
 ::ng-deep .btn-secondary {
 	border-radius: 35px;
 }
+
+.phd-show-on-print {
+	display: none;
+}
+
+@media print {
+	// My attempt at setting a height for the content of the page
+	// It didn't seem to take
+	.phd-summary-section {
+		max-height: 10vh;
+		
+	}
+
+	.phd-show-on-print {
+		display: flex !important;
+	}
+
+	.phd-hide-from-print {
+		display: none;
+		height: 0px;
+	}
+	
+	.tree-view-on-print {
+		margin-top: 20px;
+		overflow: visible !important;
+		display: table !important;
+
+		.label {
+			display: block !important;
+		}
+	}
+
+	.phd-favorites-summary-on-print {
+		margin-top: 2cm !important;
+		margin-bottom: 5cm !important;
+		overflow: visible;
+	}
+
+	.group {
+		page-break-inside: avoid;
+	}
+
+	.sub-group {
+		-webkit-print-color-adjust: exact; 
+		display: block !important;
+		page-break-inside: avoid;
+
+		.header {
+			page-break-inside: avoid;
+		}
+	}
+
+	.phd-floorplan-image-section {
+		page-break-inside: avoid;
+		page-break-after: always;
+	}
+
+	.phd-print-footer {
+		position: fixed;
+		width: calc(100%);
+		bottom: 0px;
+		font-size: 14px;
+		border: 1px solid gray;
+		margin-bottom: 1cm;
+	}
+}
+
+@page {
+    margin-top: 2cm;
+ }

@@ -107,7 +107,9 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit
 
 	onPrint() 
 	{
-		this.onPrintAction?.emit();
+		window.print();
+		// Leaving this visible for now in case we want to revert to the old PDF generator
+		// this.onPrintAction?.emit();
 	}
 
 	onViewFavorites() {

@@ -1,4 +1,4 @@
-<div class="phd-point">
+<div class="phd-point phd-point-on-print">
 	<div class="phd-point-details d-flex justify-content-start align-items-start">
 		<div class="phd-point-indicator"></div>
 		<div [ngClass]="{'phd-point-label': !isPresale, 'phd-point-label-presale': isPresale}">{{decisionPoint.label}}</div>
@@ -61,7 +61,7 @@
 						<span class="phd-quantity-label">Quantity:</span>
 						<span class="phd-content">({{ choice.quantity }})</span>
 					</div>
-					<div *ngIf="!isPresale" class="phd-divider"></div>
+					<div *ngIf="!isPresale" class="phd-divider phd-hide-from-print"></div>
 					<div class="actions" [ngClass]="{'phd-edit': !isPresale, 'phd-edit-presale': isPresale}">
 						<ng-container *ngIf="!choice.priceHiddenFromBuyerView && !isPresale">
 							<span *ngIf="selections?.length > 0">{{choice.price * choice.quantity | currency:'USD':'symbol':'0.0-0'}}</span>
@@ -69,7 +69,7 @@
 						<ng-container *ngIf="choice.priceHiddenFromBuyerView && !isPresale">
 							<span>Pricing Varies</span>
 						</ng-container>
-						<div *ngIf="!contractedOptionsPage" class="actions actionLinks">
+						<div *ngIf="!contractedOptionsPage" class="actions actionLinks phd-hide-from-print">
 							<a (click)="onViewOrEdit()" class="phd-choice-action-label">{{actionLabel}}</a>
 							<i *ngIf="!isReadonly" class="fa fa-times phd-clickable" (click)="onRemove(choice)"></i>
 						</div>
