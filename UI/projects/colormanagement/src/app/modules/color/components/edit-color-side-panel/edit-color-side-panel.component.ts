@@ -52,41 +52,39 @@ export class EditColorSidePanelComponent implements OnInit, OnDestroy {
 		}
 
 		const originalName = this.editColorForm.get('name').value.toString().trim();
-		const colorName = originalName.toLowerCase().trim();
-		const sku = this.editColorForm.get('sku').value.toString().toLowerCase().trim();
 
-		this._colorService.getColorsByNames(this.communityId, this.selectedColor.optionSubCategoryId, [{name: colorName, sku: sku}])
-		.subscribe(colors =>
+		if (!!originalName.length)
 		{
-			if (colors.length)
-			{
-				this._modalService.showOkOnlyModal(`This color/SKU combination already exists for this subcategory. <br><br>Please use a different color name or SKU.`, 'Duplicate Color');
-			}
-			else
-			{
-				const colorToSave = {
-					colorId: this.selectedColor.colorId,
-					name: originalName,
-					sku: this.editColorForm.get('sku').value?.toString().trim(),
-					optionSubCategoryId: this.selectedColor.optionSubCategoryId,
-					isActive: this.selectedColor.isActive
-				} as IColorDto;
-		
-				this._colorService.updateColor(colorToSave, this.communityId).subscribe((updatedColor) => {
-					const successful = updatedColor !== undefined && updatedColor !== null;
-		
-					if (successful) {
-						this.sidePanelIsOpen = false;
-						this._colorAdminService.emitEditingColor(false);
-					}
-		
-					this.colorWasEdited.emit(successful);
-				},
-				error => {
-					this.colorWasEdited.emit(false);
-				});
-			}
-		});				  
+			const colorToSave = {
+				colorId: this.selectedColor.colorId,
+				name: originalName,
+				sku: this.editColorForm.get('sku').value?.toString().trim(),
+				optionSubCategoryId: this.selectedColor.optionSubCategoryId,
+				isActive: this.selectedColor.isActive
+			} as IColorDto;
+
+			this._colorService.updateColor(colorToSave, this.communityId).subscribe((updatedColor) => {
+				const successful = updatedColor !== undefined && updatedColor !== null;
+
+				if (successful) {
+					this.sidePanelIsOpen = false;
+					this._colorAdminService.emitEditingColor(false);
+				}
+
+				this.colorWasEdited.emit(successful);
+			},
+			error => {
+				this.colorWasEdited.emit(false);
+			});			
+		}
+		else
+		{
+			// Close the side panel if name is empty string
+			this.sidePanelIsOpen = false;
+			this.sidePanelWasClosed.emit();
+			this._colorAdminService.emitEditingColor(false);
+			return;
+		}
 	}
 
 	async onCloseSidePanel() {
