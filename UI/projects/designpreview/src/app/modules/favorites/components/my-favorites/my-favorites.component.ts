@@ -346,13 +346,17 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			this.selectedSubGroup = newSubGroup;
 			this.selectedSubgroupId = newSubGroup.id;
 
-			const choiceIds = (_.flatMap(newSubGroup.points, pt => pt.choices) || []).map(c => c.id);
+			// If a new subgroup then get new images
+			if (this.selectedSubgroupId !== newSubGroup.id)
+			{
+				const choiceIds = (_.flatMap(newSubGroup.points, pt => pt.choices) || []).map(c => c.id);
 
-			return this.treeService.getChoiceImageAssoc(choiceIds)
-				.subscribe(choiceImages =>
-				{
-					this.currentChoiceImages = choiceImages;
-				});
+				return this.treeService.getChoiceImageAssoc(choiceIds)
+					.subscribe(choiceImages =>
+					{
+						this.currentChoiceImages = choiceImages;
+					});
+			}
 		}
 	}
 
