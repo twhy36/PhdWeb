@@ -36,7 +36,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 
 	@Output() onToggleChoice = new EventEmitter<ChoiceExt>();
 	@Output() onViewChoiceDetail = new EventEmitter<ChoiceExt>();
-	@Output() onSelectDecisionPoint = new EventEmitter<any>();
+	@Output() onSelectDecisionPoint = new EventEmitter<number>();
 	@Output() onDeclineDecisionPoint = new EventEmitter<DecisionPoint>();
 
 	isPointPanelCollapsed: boolean = false;
@@ -78,7 +78,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 				|| this.isInputChanged(changes['myFavoritesChoices'])
 				|| this.isInputChanged(changes['myFavoritesPointsDeclined']))
 			{
-				this.selectDecisionPoint({pointId: (pointId || this.currentPointId), interval: 1600});
+				this.selectDecisionPoint((pointId || this.currentPointId), 1600);
 			}
 		}
 	}
@@ -120,19 +120,19 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 		this.isPointPanelCollapsed = !this.isPointPanelCollapsed;
 	}
 
-	selectDecisionPoint($event) {
-		if ($event.pointId)
+	selectDecisionPoint(pointId: number, interval?: number) {
+		if (pointId)
 		{
 			setTimeout(() =>
 			{
 				const firstPointId = this.points && this.points.length ? this.points[0].id : 0;
-				this.scrollPointIntoView($event.pointId, $event.pointId === firstPointId);
-			}, $event.interval || 500);
+				this.scrollPointIntoView(pointId, pointId === firstPointId);
+			}, interval || 500);
 
-			this.onSelectDecisionPoint.emit($event);
+			this.onSelectDecisionPoint.emit(pointId);
 		}
 
-		this.currentPointId = $event.pointId;
+		this.currentPointId = pointId;
 	}
 
 	declineDecisionPoint(point: DecisionPoint) {

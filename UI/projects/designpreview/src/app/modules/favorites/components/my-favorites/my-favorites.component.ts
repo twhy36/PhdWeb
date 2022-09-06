@@ -80,7 +80,6 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 	noVisibleGroups: boolean = false;
 	noVisibleFP: boolean = false;
 	unfilteredPoints: DecisionPoint[] = [];
-	fromModal: boolean = false;
 
 	constructor(private store: Store<fromRoot.State>,
 		private route: ActivatedRoute,
@@ -256,14 +255,10 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 
 			if ((nav.selectedSubGroup !== this.selectedSubGroup?.id) && subGroup)
 			{
-				if (!!this.selectedSubGroup && !this.fromModal) {
+				if (!!this.selectedSubGroup) {
 					this.router.navigate(['..', this.selectedSubGroup?.subGroupCatalogId], { relativeTo: this.route, replaceUrl: true });
 				} else {
-					if (this.fromModal) {
-						this.router.navigate(['..', subGroup?.subGroupCatalogId], { relativeTo: this.route });
-					} else {
-						this.router.navigate(['..', subGroup?.subGroupCatalogId], { relativeTo: this.route, replaceUrl: true });
-					}
+					this.router.navigate(['..', subGroup?.subGroupCatalogId], { relativeTo: this.route, replaceUrl: true });
 				}
 			}
 		});
@@ -345,23 +340,19 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 
 	setSelectedGroup(newGroup: Group, newSubGroup: SubGroup)
 	{
-		if (!!newSubGroup.id && this.selectedSubgroupId !== newSubGroup.id)
+		if (!!newSubGroup.id)
 		{
 			this.groupName = newGroup.label;
 			this.selectedSubGroup = newSubGroup;
 			this.selectedSubgroupId = newSubGroup.id;
 
-			// If a new subgroup then get new images
-			if (this.selectedSubgroupId !== newSubGroup.id)
-			{
-				const choiceIds = (_.flatMap(newSubGroup.points, pt => pt.choices) || []).map(c => c.id);
+			const choiceIds = (_.flatMap(newSubGroup.points, pt => pt.choices) || []).map(c => c.id);
 
-				return this.treeService.getChoiceImageAssoc(choiceIds)
-					.subscribe(choiceImages =>
-					{
-						this.currentChoiceImages = choiceImages;
-					});
-			}
+			return this.treeService.getChoiceImageAssoc(choiceIds)
+				.subscribe(choiceImages =>
+				{
+					this.currentChoiceImages = choiceImages;
+				});
 		}
 	}
 
@@ -527,16 +518,15 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		}
 	}
 
-	selectDecisionPoint($event)
+	selectDecisionPoint(pointId: number)
 	{
-		this.selectedPointId = $event.pointId;
-		this.fromModal = !!$event.fromModal;
-		
+		this.selectedPointId = pointId;
+
 		// if point is in a different subGroup, we need to select the subGroup as well
-		if (this.selectedSubGroup && !this.selectedSubGroup.points.find(p => p.id === $event.pointId))
+		if (this.selectedSubGroup && !this.selectedSubGroup.points.find(p => p.id === pointId))
 		{
 			const allSubGroups = _.flatMap(this.groups, g => g.subGroups)
-			const newSubGroup = allSubGroups.find(sg => sg.points.find(p => p.id === $event.pointId));
+			const newSubGroup = allSubGroups.find(sg => sg.points.find(p => p.id === pointId));
 
 			this.store.dispatch(new NavActions.SetSelectedSubgroup(newSubGroup?.id, this.selectedPointId));
 		}

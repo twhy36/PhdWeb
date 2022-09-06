@@ -27,7 +27,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnChang
 
 	@Output() toggled = new EventEmitter<ChoiceExt>();
 	@Output() onViewChoiceDetail = new EventEmitter<ChoiceExt>();
-	@Output() onSelectDecisionPoint = new EventEmitter<any>();
+	@Output() onSelectDecisionPoint = new EventEmitter<number>();
 
 	@ViewChild('blockedChoiceModal') blockedChoiceModal: any;
 	@ViewChild('hiddenChoicePriceModal') hiddenChoicePriceModal: any;
@@ -133,6 +133,6 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnChang
 	onBlockedItemClick(pointId: number) {
 		this.blockedChoiceModalRef?.close();
 		delete this.disabledByList;
-		this.onSelectDecisionPoint.emit({pointId: pointId, fromModal: true});
+		this.onSelectDecisionPoint.emit(pointId);
 	}
 }
