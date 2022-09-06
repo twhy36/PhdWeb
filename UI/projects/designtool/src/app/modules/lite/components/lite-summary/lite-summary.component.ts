@@ -847,16 +847,23 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 		summaryData.configurationName = this.title;
 		summaryData.community = this.summaryHeader.communitySalesName || "N/A";
 		summaryData.plan = this.summaryHeader.plan.salesName + ", " + this.summaryHeader.plan.integrationKey;
-		summaryData.lot = this.summaryHeader.lot.lotBlock;
 
-		if (this.summaryHeader.handing)
+		if (this.summaryHeader.lot) 
 		{
-			summaryData.lot += " (" + this.summaryHeader.handing + " Garage)";
+			summaryData.lot = this.summaryHeader.lot.lotBlock;
+			if (this.summaryHeader.handing)
+			{
+				summaryData.lot += " (" + this.summaryHeader.handing + " Garage)";
+			}
+			summaryData.address = this.summaryHeader.lot.streetAddress1 + ", "
+				+ this.summaryHeader.lot.city + ", " + this.summaryHeader.lot.stateProvince
+				+ ", " + this.summaryHeader.lot.postalCode;
+		}
+		else 
+		{
+			summaryData.lot = 'No Lot Selected';
 		}
 
-		summaryData.address = this.summaryHeader.lot.streetAddress1 + ", "
-			+ this.summaryHeader.lot.city + ", " + this.summaryHeader.lot.stateProvince
-			+ ", " + this.summaryHeader.lot.postalCode;
 		summaryData.basePrice = this.priceBreakdown.baseHouse || 0;
 		summaryData.lotPremium = this.priceBreakdown.homesite || 0;
 		summaryData.optionsTotal = this.priceBreakdown.selections || 0;

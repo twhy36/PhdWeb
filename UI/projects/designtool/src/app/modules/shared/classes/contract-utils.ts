@@ -207,7 +207,7 @@ export function buildLiteOptionColors(option: LitePlanOption, scenarioOption: Sc
 	{
 		scenarioOption?.jobChangeOrderPlanOptionAttributes?.forEach(coPlanOption =>
 		{
-			const optionColor = createLiteDTAttribute(coPlanOption.attributeGroupLabel, coPlanOption.attributeName);
+			const optionColor = createLiteDTAttribute(coPlanOption.attributeGroupLabel, coPlanOption.attributeName, coPlanOption.sku);
 
 			optionColors.push(optionColor);
 		})
@@ -221,7 +221,7 @@ export function buildLiteOptionColors(option: LitePlanOption, scenarioOption: Sc
 
 			if (colorItem && color)
 			{
-				const optionColor = createLiteDTAttribute(colorItem.name, color.name);
+				const optionColor = createLiteDTAttribute(colorItem.name, color.name, color.sku);
 
 				optionColors.push(optionColor);
 			}
@@ -229,7 +229,6 @@ export function buildLiteOptionColors(option: LitePlanOption, scenarioOption: Sc
 	}
 
 	optionColors.sort((a, b) => a.attributeGroupLabel.localeCompare(b.attributeGroupLabel));
-
 	return optionColors;
 }
 
@@ -285,14 +284,14 @@ export const createLiteSDChoice = (label: string, planOptionId: number = null, d
 	}
 );
 
-export const createLiteDTAttribute = (label: string, value: string): DesignToolAttribute => (
+export const createLiteDTAttribute = (label: string, value: string, sku: string): DesignToolAttribute => (
 	{
 		attributeGroupId: null,
 		attributeGroupLabel: label,
 		attributeGroupName: null,
 		attributeId: null,
 		attributeImageUrl: null,
-		attributeName: value,
+		attributeName: sku && sku.length > 0 ? value + "/" + sku : value,
 		manufacturer: null,
 		sku: null,
 		locationGroupId: null,
