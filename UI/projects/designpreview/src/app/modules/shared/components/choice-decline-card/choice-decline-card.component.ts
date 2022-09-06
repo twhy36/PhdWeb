@@ -26,7 +26,7 @@ export class ChoiceDeclineCardComponent extends UnsubscribeOnDestroy implements 
 	@Input() isPresale: boolean = false;
 
 	@Output() onDeclineDecisionPoint = new EventEmitter<DecisionPoint>();
-	@Output() onSelectDecisionPoint = new EventEmitter<number>();
+	@Output() onSelectDecisionPoint = new EventEmitter<any>();
 
 	@ViewChild('blockedChoiceModal') blockedChoiceModal: any;
 
@@ -87,6 +87,6 @@ export class ChoiceDeclineCardComponent extends UnsubscribeOnDestroy implements 
 	onBlockedItemClick(pointId: number) {
 		this.blockedChoiceModalRef?.close();
 		delete this.disabledByList;
-		this.onSelectDecisionPoint.emit(pointId);
+		this.onSelectDecisionPoint.emit({pointId: pointId, fromModal: true});
 	}
 }
