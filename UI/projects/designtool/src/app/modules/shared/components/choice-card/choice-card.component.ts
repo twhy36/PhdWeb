@@ -183,7 +183,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 				).pipe(
 					map(([attributes, locations, attributeCommunityImageAssocs]) =>
 					{
-						mergeAttributes(attributes, missingAttributes, attributeGroups);
+						mergeAttributes(attributes, missingAttributes, attributeGroups, this.choice.selectedAttributes);
 						mergeLocations(locations, missingLocations, locationGroups);
 						mergeAttributeImages(attributeGroups, attributeCommunityImageAssocs);
 						return { attributeGroups, locationGroups };

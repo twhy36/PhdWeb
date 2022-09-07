@@ -611,7 +611,11 @@ function getSelectedAttributes(locationGroups: number[], attributeGroups: number
 	});
 }
 
-export function mergeAttributes(attributes: Array<any>, missingAttributes: Array<DesignToolAttribute>, attributeGroups: Array<AttributeGroup>)
+export function mergeAttributes(
+		attributes: Array<any>, 
+		missingAttributes: Array<DesignToolAttribute>, 
+		attributeGroups: Array<AttributeGroup>,
+		selectedAttributes: DesignToolAttribute[])
 {
 	const lastGroup = attributeGroups.length ? _.maxBy(attributeGroups, 'sortOrder') : null;
 	let sortOrder = lastGroup ? lastGroup.sortOrder + 1 : 0;
@@ -645,6 +649,30 @@ export function mergeAttributes(attributes: Array<any>, missingAttributes: Array
 					newAttributeGroup.sortOrder = sortOrder++;
 					newAttributeGroup.attributes.push(newAttribute);
 					attributeGroups.push(newAttributeGroup);
+				}
+			}
+		}
+	});
+
+	// Check if any selected attributes are missing in the attribute groups	
+	const allAttributes = _.flatMap(attributeGroups, gp => _.flatMap(gp.attributes)) || [];
+	selectedAttributes.forEach(attr => {
+		const selectedAttributeGroup = attributeGroups.find(group => group.id === attr.attributeGroupId);
+		if (selectedAttributeGroup)
+		{
+			const selectedAttribute = selectedAttributeGroup.attributes?.find(attribute => attribute.id === attr.attributeId);
+			if (!selectedAttribute)
+			{
+				const missingSelectedAttribute = allAttributes.find(attribute => attribute.id === attr.attributeId);
+				if (missingSelectedAttribute)
+				{
+					// add the missing attribute
+					if (!selectedAttributeGroup.attributes)
+					{
+						selectedAttributeGroup.attributes = [];
+					}
+
+					selectedAttributeGroup.attributes.push(missingSelectedAttribute);						
 				}
 			}
 		}

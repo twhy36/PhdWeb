@@ -478,24 +478,27 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 				let attributeGroup = attributeGroups.find(ag => ag.id == a.attributeGroupId);
 				let attribute = a.attributes.find(x => x.id == a.selectedAttributeId);
 
-				selectedAttributes.push({
-					attributeId: attribute.id,
-					attributeName: attribute.name,
-					attributeImageUrl: attribute.imageUrl,
-					attributeGroupId: attributeGroup.id,
-					attributeGroupName: attributeGroup.name,
-					attributeGroupLabel: attributeGroup.label,
-					locationGroupId: null,
-					locationGroupName: null,
-					locationGroupLabel: null,
-					locationId: null,
-					locationName: null,
-					locationQuantity: null,
-					scenarioChoiceLocationId: null,
-					scenarioChoiceLocationAttributeId: null,
-					sku: attribute.sku,
-					manufacturer: attribute.manufacturer
-				});
+				if (attributeGroup && attribute)
+				{
+					selectedAttributes.push({
+						attributeId: attribute.id,
+						attributeName: attribute.name,
+						attributeImageUrl: attribute.imageUrl,
+						attributeGroupId: attributeGroup.id,
+						attributeGroupName: attributeGroup.name,
+						attributeGroupLabel: attributeGroup.label,
+						locationGroupId: null,
+						locationGroupName: null,
+						locationGroupLabel: null,
+						locationId: null,
+						locationName: null,
+						locationQuantity: null,
+						scenarioChoiceLocationId: null,
+						scenarioChoiceLocationAttributeId: null,
+						sku: attribute.sku,
+						manufacturer: attribute.manufacturer
+					});					
+				}
 			}
 		});
 
