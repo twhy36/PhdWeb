@@ -196,7 +196,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 			this.attributeGroups = _.orderBy(data.attributeGroups, 'sortOrder');
 			this.attributeGroups.forEach(group => group.choiceId = this.choice.id);
 			this.locationGroups = data.locationGroups;
-			this.locationGroups.forEach(x => x.locations = _.orderBy(x.locations, [l => l.name]))
+			this.locationGroups.forEach(x => x.locations = _.orderBy(x.locations, [l => l.name]));
 
 			const options = this.choice.options;
 			if (options.length)

@@ -178,7 +178,7 @@ export class LocationService
 	{
 		let url = settings.apiUrl;
 
-		const expand = `locationGroupLocationMarketAssocs($select=locationMarketId; $expand=locationMarket($expand=locationMarketTags($select=locationMarketId,tag); $select=id,locationName,locationDescription, isActive))`;
+		const expand = `locationGroupLocationMarketAssocs($select=locationMarketId; $expand=locationMarket($expand=locationMarketTags($select=locationMarketId,tag); $select=id,locationName,locationDescription, isActive); $orderby=locationMarket/locationName)`;
 		const filter = `id eq ${group.id}`;
 
 		const qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=id`;

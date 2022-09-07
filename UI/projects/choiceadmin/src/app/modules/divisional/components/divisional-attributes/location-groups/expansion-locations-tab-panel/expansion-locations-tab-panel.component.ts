@@ -1,6 +1,7 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 
 import { of } from 'rxjs';
+import _ from 'lodash';
 
 import { MessageService } from 'primeng/api';
 
@@ -13,7 +14,7 @@ import { LocationGroupMarket } from '../../../../../shared/models/location-group
 	templateUrl: './expansion-locations-tab-panel.component.html',
 	styleUrls: ['./expansion-locations-tab-panel.component.scss']
 })
-export class ExpansionLocationsTabPanelComponent
+export class ExpansionLocationsTabPanelComponent implements OnChanges
 {
 	@Input() group: LocationGroupMarket;
 	@Input() locations: Array<Location>;
@@ -29,6 +30,12 @@ export class ExpansionLocationsTabPanelComponent
 	}
 
 	constructor(private _msgService: MessageService, private _locoService: LocationService) { }
+
+	ngOnChanges(changes: SimpleChanges): void {
+		if (changes.locations) {
+			this.locations = _.orderBy(changes.locations.currentValue, [l => l.locationName]);
+		}
+    }
 
 	onAssociate()
 	{
