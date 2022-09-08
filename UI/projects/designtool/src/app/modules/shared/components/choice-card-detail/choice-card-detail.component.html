@@ -48,7 +48,7 @@
 						</span>
 					</div>
 
-					<div class="mt-auto align-self-center">
+					<div *ngIf="choice?.mappedLocationGroups.length > 0" class="mt-auto align-self-center">
 						<span class="text-center">Selected Qty: {{totalQuantitySelected}} of {{choice?.quantity}}</span>
 					</div>
 				</ng-container>
