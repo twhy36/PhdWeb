@@ -1,10 +1,10 @@
 import { Action } from '@ngrx/store';
 
 import
-	{
-		DesignToolAttribute, SalesCommunity, ChangeOrderHanding, JobChoice, Job, LotExt, PlanOption,
-		TreeVersionRules, Scenario, DtoScenarioInfo, TreeFilter, Tree, OptionImage, Choice, Log, TimeOfSaleOptionPrice, LotChoiceRules
-	} from 'phd-common';
+{
+	DesignToolAttribute, SalesCommunity, ChangeOrderHanding, JobChoice, Job, LotExt, PlanOption,
+	TreeVersionRules, Scenario, DtoScenarioInfo, TreeFilter, Tree, OptionImage, Choice, Log, TimeOfSaleOptionPrice, LotChoiceRules
+} from 'phd-common';
 
 import { DecisionPointFilterType } from '../../shared/models/decisionPointFilter';
 
@@ -264,14 +264,16 @@ export class SetLockedInChoices implements Action
 }
 
 @Log()
-export class SelectRequiredChoiceAttributes implements Action {
+export class SelectRequiredChoiceAttributes implements Action
+{
 	readonly type = ScenarioActionTypes.SelectRequiredChoiceAttributes;
 
 	constructor(public choices?: Choice[]) { }
 }
 
 @Log()
-export class RequiredChoiceAttributesSelected implements Action {
+export class RequiredChoiceAttributesSelected implements Action
+{
 	readonly type = ScenarioActionTypes.RequiredChoiceAttributesSelected;
 
 	constructor(public tree: Tree) { }

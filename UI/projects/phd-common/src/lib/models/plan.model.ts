@@ -20,6 +20,7 @@ export class Plan
 	integrationKey: number;
 	salesDescription: string;
 	treeVersionId: number;
+	treePlanId: number;
 	marketingPlanId: number[];
 	baseHouseElevationImageUrl: string;
 	lotAssociations: number[];
