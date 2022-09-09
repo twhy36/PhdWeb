@@ -86,7 +86,7 @@
 
 .phd-collapsable-menu {
 	background: var(--primary-ribbon-background-color);
-	width: 300px;
+	width: var(--hamburger-menu-width);
 	position: fixed;
 	top: 70px;
 	right: -20px;
