@@ -16,7 +16,8 @@ import _ from 'lodash';
     templateUrl: './pulte-info.component.html',
     styleUrls: ['./pulte-info.component.scss']
 })
-export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit {
+export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
+{
     params$ = new ReplaySubject<{ jobId: number }>(1);
     job: Job;
     jobId: number;
@@ -33,51 +34,55 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit {
     numberOfGaragesDefault: string;
     availableDates: Array<Date>;
     minDate: Date = new Date();
-	pulteInfoSet = false;
+    pulteInfoSet = false;
     canEdit: boolean;
 
     canSell$: Observable<boolean>;
-	priceBreakdown$: Observable<PriceBreakdown>;
+    priceBreakdown$: Observable<PriceBreakdown>;
     isChangingOrder$: Observable<boolean>;
     isChangingOrder: boolean;
-    
-    get actionBarStatus(): string {
+
+    get actionBarStatus(): string
+    {
         return !((this.pulteInfoForm && this.pulteInfoForm.pristine) || !this.canEdit || (this.pulteInfoForm && this.pulteInfoForm.invalid)) ? 'COMPLETE' : 'INCOMPLETE';
     }
     constructor(
         private store: Store<fromRoot.State>,
         private route: ActivatedRoute) { super(); }
 
-    ngOnInit() {
+    ngOnInit()
+    {
         this.canSell$ = this.store.pipe(select(fromRoot.canSell));
         this.priceBreakdown$ = this.store.pipe(select(fromRoot.priceBreakdown));
 
-        
-		this.isChangingOrder$ = this.store.pipe(
-			this.takeUntilDestroyed(),
-			select(state => state.changeOrder),
-			map(changeOrder =>
-			{
-				this.isChangingOrder = (changeOrder.changeInput
-					&& (changeOrder.changeInput.type === ChangeTypeEnum.CONSTRUCTION
-						|| changeOrder.changeInput.type === ChangeTypeEnum.PLAN))
-					? changeOrder.isChangingOrder
-					: false;
 
-				return this.isChangingOrder;
-			})
-		);
+        this.isChangingOrder$ = this.store.pipe(
+            this.takeUntilDestroyed(),
+            select(state => state.changeOrder),
+            map(changeOrder =>
+            {
+                this.isChangingOrder = (changeOrder.changeInput
+                    && (changeOrder.changeInput.type === ChangeTypeEnum.CONSTRUCTION
+                        || changeOrder.changeInput.type === ChangeTypeEnum.PLAN))
+                    ? changeOrder.isChangingOrder
+                    : false;
+
+                return this.isChangingOrder;
+            })
+        );
         this.route.paramMap.pipe(
-			this.takeUntilDestroyed(),
+            this.takeUntilDestroyed(),
             map(params => ({ jobId: +params.get('jobId') })),
             distinctUntilChanged()
         ).subscribe(params => this.params$.next(params));
 
         this.store.pipe(
-			this.takeUntilDestroyed(),
+            this.takeUntilDestroyed(),
             select(state => state.job),
-            combineLatest(this.params$)).subscribe(([job, params]) => {
-                if (job.plan) {
+            combineLatest(this.params$)).subscribe(([job, params]) =>
+            {
+                if (job.plan)
+                {
                     this.job = job;
                     this.jobId = job.id;
                     this.projectedFinalDate = job.projectedFinalDate && !isNaN(job.projectedFinalDate.getTime()) ? job.projectedFinalDate : null;
@@ -86,7 +91,8 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit {
                     this.bedroomsDefault = this.job.plan.bedrooms;
                     this.squareFeetDefault = this.job.plan.squareFeet;
                     this.numberOfGaragesDefault = this.job.plan.garageConfiguration;
-                } else if (!this.loadingJob) {
+                } else if (!this.loadingJob)
+                {
                     this.jobId = params.jobId;
                     this.loadingJob = true;
                     this.store.dispatch(new JobActions.LoadJobForJob(this.jobId));
@@ -96,44 +102,46 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit {
         this.store.pipe(
             this.takeUntilDestroyed(),
             select(state => state.job.specInformation),
-            combineLatest(this.store.pipe(select(state => state.job.id)))).subscribe(([pulteInfo, jobId]) => {
-				if (pulteInfo)
-				{
-					if (pulteInfo.jobId)
-					{
-						this.getMonthList();
+            combineLatest(this.store.pipe(select(state => state.job.id)))).subscribe(([pulteInfo, jobId]) =>
+            {
+                if (pulteInfo)
+                {
+                    if (pulteInfo.jobId)
+                    {
+                        this.getMonthList();
 
                         this.pulteInfo = new SpecInformation(pulteInfo);
-						this.pulteInfo.discountExpirationDate = this.pulteInfo.discountExpirationDate ? new Date(this.pulteInfo.discountExpirationDate) : null;
+                        this.pulteInfo.discountExpirationDate = this.pulteInfo.discountExpirationDate ? new Date(this.pulteInfo.discountExpirationDate) : null;
 
-						if (!this.pulteInfo.discountExpirationDate || this.pulteInfo.discountExpirationDate.getFullYear() > 9000)
-						{
+                        if (!this.pulteInfo.discountExpirationDate || this.pulteInfo.discountExpirationDate.getFullYear() > 9000)
+                        {
                             this.pulteInfo.discountExpirationDate = null;
                         }
                     }
                     this.pulteInfoSet = true;
                     this.createForm();
-				}
-				else
-				{
-					if (jobId && !this.loadingInfo)
-					{
+                }
+                else
+                {
+                    if (jobId && !this.loadingInfo)
+                    {
                         this.loadingInfo = true;
                         this.store.dispatch(new JobActions.LoadPulteInfo(jobId));
                     }
                 }
-			});
+            });
 
-		this.store.pipe(
-			this.takeUntilDestroyed(),
-			select(fromRoot.canConfigure)
+        this.store.pipe(
+            this.takeUntilDestroyed(),
+            select(fromRoot.canConfigure)
         ).subscribe(canConfigure => this.canEdit = canConfigure);
     }
 
-    createForm() {
+    createForm()
+    {
         this.pulteInfoForm = new FormGroup({
             'tagLines': new FormControl(this.pulteInfo.webSiteDescription),
-            'displayOnPulte': new FormControl(this.pulteInfo.isPublishOnWebSite ),
+            'displayOnPulte': new FormControl(this.pulteInfo.isPublishOnWebSite),
             'discountAmount': new FormControl(this.pulteInfo.discountAmount, [Validators.min(0)]),
             'discountExpirationDate': new FormControl(this.pulteInfo.discountExpirationDate),
             'hotHome': new FormControl(this.pulteInfo.isHotHomeActive),
@@ -151,54 +159,61 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit {
         });
     }
 
-    savePulteInformation() {
-		const clonePulteInfo = _.cloneDeep(this.pulteInfo);
+    savePulteInformation()
+    {
+        const clonePulteInfo = _.cloneDeep(this.pulteInfo);
 
-		clonePulteInfo.webSiteDescription = this.pulteInfoForm.controls['tagLines'].value;
-		clonePulteInfo.isPublishOnWebSite = this.pulteInfoForm.controls['displayOnPulte'].value;
-		clonePulteInfo.discountAmount = +this.pulteInfoForm.controls['discountAmount'].value;
-		clonePulteInfo.discountExpirationDate = this.pulteInfoForm.controls['discountExpirationDate'].value ? this.pulteInfoForm.controls['discountExpirationDate'].value : null;
-		clonePulteInfo.isHotHomeActive = this.pulteInfoForm.controls['hotHome'].value;
-		clonePulteInfo.hotHomeBullet1 = this.pulteInfoForm.controls['keySellingPoint1'].value;
-		clonePulteInfo.hotHomeBullet2 = this.pulteInfoForm.controls['keySellingPoint2'].value;
-		clonePulteInfo.hotHomeBullet3 = this.pulteInfoForm.controls['keySellingPoint3'].value;
-		clonePulteInfo.hotHomeBullet4 = this.pulteInfoForm.controls['keySellingPoint4'].value;
-		clonePulteInfo.hotHomeBullet5 = this.pulteInfoForm.controls['keySellingPoint5'].value;
-		clonePulteInfo.hotHomeBullet6 = this.pulteInfoForm.controls['keySellingPoint6'].value;
-		clonePulteInfo.numberFullBathOverride = this.pulteInfoForm.controls['fullBaths'].value;
-		clonePulteInfo.numberHalfBathOverride = this.pulteInfoForm.controls['halfBaths'].value;
-		clonePulteInfo.numberBedOverride = this.pulteInfoForm.controls['bedrooms'].value;
-		clonePulteInfo.squareFeetOverride = this.pulteInfoForm.controls['squareFeet'].value;
-		clonePulteInfo.numberGarageOverride = this.pulteInfoForm.controls['numberOfGarages'].value;
-		this.pulteInfoForm.markAsPristine();
-		this.store.dispatch(new JobActions.SavePulteInfo(clonePulteInfo));
+        clonePulteInfo.jobId = this.jobId;
+        clonePulteInfo.webSiteDescription = this.pulteInfoForm.controls['tagLines'].value;
+        clonePulteInfo.isPublishOnWebSite = this.pulteInfoForm.controls['displayOnPulte'].value ? this.pulteInfoForm.controls['displayOnPulte'].value : false;
+        clonePulteInfo.discountAmount = +this.pulteInfoForm.controls['discountAmount'].value;
+        clonePulteInfo.discountExpirationDate = this.pulteInfoForm.controls['discountExpirationDate'].value ? this.pulteInfoForm.controls['discountExpirationDate'].value : null;
+        clonePulteInfo.isHotHomeActive = this.pulteInfoForm.controls['hotHome'].value ? this.pulteInfoForm.controls['hotHome'].value : false;
+        clonePulteInfo.hotHomeBullet1 = this.pulteInfoForm.controls['keySellingPoint1'].value;
+        clonePulteInfo.hotHomeBullet2 = this.pulteInfoForm.controls['keySellingPoint2'].value;
+        clonePulteInfo.hotHomeBullet3 = this.pulteInfoForm.controls['keySellingPoint3'].value;
+        clonePulteInfo.hotHomeBullet4 = this.pulteInfoForm.controls['keySellingPoint4'].value;
+        clonePulteInfo.hotHomeBullet5 = this.pulteInfoForm.controls['keySellingPoint5'].value;
+        clonePulteInfo.hotHomeBullet6 = this.pulteInfoForm.controls['keySellingPoint6'].value;
+        clonePulteInfo.numberFullBathOverride = this.pulteInfoForm.controls['fullBaths'].value;
+        clonePulteInfo.numberHalfBathOverride = this.pulteInfoForm.controls['halfBaths'].value;
+        clonePulteInfo.numberBedOverride = this.pulteInfoForm.controls['bedrooms'].value;
+        clonePulteInfo.squareFeetOverride = this.pulteInfoForm.controls['squareFeet'].value;
+        clonePulteInfo.numberGarageOverride = this.pulteInfoForm.controls['numberOfGarages'].value;
+        clonePulteInfo.specPrice = this.pulteInfo.specPrice;
+        clonePulteInfo.webSiteAvailableDate = this.pulteInfo.webSiteAvailableDate;
+        this.pulteInfoForm.markAsPristine();
+        this.store.dispatch(new JobActions.SavePulteInfo(clonePulteInfo));
     }
 
-    getMonthList() {
+    getMonthList()
+    {
         this.availableDates = [];
         this.availableDates.push(null);
-        for (let i = 0; i < 15; i++) {
+        for (let i = 0; i < 15; i++)
+        {
             const currentDate = new Date();
             currentDate.setDate(1);
             this.availableDates.push(currentDate);
             currentDate.setMonth(currentDate.getMonth() + i);
-         }
+        }
     }
 
-	getAvailableDate(date: string)
-	{
-		if (date && date.length > 0)
-		{
-			const newDate = date.split('/');
-			return new Date(+newDate[1], +newDate[0], 1);
-		}
-		else
-		{
+    getAvailableDate(date: string)
+    {
+        if (date && date.length > 0)
+        {
+            const newDate = date.split('/');
+            return new Date(+newDate[1], +newDate[0], 1);
+        }
+        else
+        {
             return null;
         }
     }
 
-    allowNavigation(): boolean {
+    allowNavigation(): boolean
+    {
         return !this.pulteInfoForm.dirty;
     }
 }
