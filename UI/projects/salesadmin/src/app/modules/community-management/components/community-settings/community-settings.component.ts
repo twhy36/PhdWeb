@@ -137,7 +137,8 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 				if (mkt)
 				{
 					this.currentMarket = mkt;
-					if (environment.selectedCommunityWhitelist.length === 0) {
+					if (environment.selectedCommunityWhitelist.length === 0) 
+					{
 						this.isSelectedCommunity = true;
 					} else {
 						this.isSelectedCommunity = environment.selectedCommunityWhitelist?.includes(this.currentMarket.id);
