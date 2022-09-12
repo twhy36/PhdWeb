@@ -314,7 +314,7 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 		if (point.isHiddenFromBuyerView) {
 			return false;
 		} else {
-			const choices = _.flatMap(point.choices).filter(c => c.isDecisionDefault);
+			const choices = _.flatMap(point.choices).filter(c => c.isDecisionDefault); 
 			let displayChoice = false;
 			choices.forEach(c => {
 				if (!c.isHiddenFromBuyerView) {

@@ -18,10 +18,10 @@
 		<div class="phd-review-section">
 			<div class="d-flex flex-column align-items-center">
 				<div class="phd-start-reviewing-title">
-					Let's start personalizing your <ng-container *ngIf="isPresale">future</ng-container> home.
+					<strong>Let's start personalizing your <ng-container *ngIf="isPresale">future</ng-container> home.</strong>
 				</div>
 				<div class="phd-start-reviewing-desc">
-					Browse the different options available for your home. Select the <span class="phd-start-reviewing-heart ">♡</span> symbols to add to your <strong>MY FAVORITES</strong> list and review them later.					
+					Browse the different options available for your home. Select the <span class="phd-start-reviewing-heart ">♡</span> symbols to add to your <strong>MY FAVORITES</strong> list<ng-container *ngIf="!isPresale"> and review them later</ng-container>.					
 				</div>
 			</div>	
 			<div class="d-flex justify-content-center">
