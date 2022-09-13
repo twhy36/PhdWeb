@@ -29,7 +29,7 @@ export const environment = {
 	whatFix: {
 		scriptUrl: '//whatfix.com/01caf5e0-cb2f-11e8-b979-04013d24cd02/embed/embed.nocache.js'
 	},
-	selectedCommunityWhitelist: [
+	selectedCommunityBlacklist: [
 		1026, // New Mexico
 		1031, // Columbus
 		1057 // Cleveland

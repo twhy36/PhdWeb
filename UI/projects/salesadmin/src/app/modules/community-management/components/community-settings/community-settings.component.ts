@@ -137,11 +137,11 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 				if (mkt)
 				{
 					this.currentMarket = mkt;
-					if (environment.selectedCommunityWhitelist.length === 0) 
+					if (environment.selectedCommunityBlacklist.length === 0) 
 					{
 						this.isSelectedCommunity = true;
 					} else {
-						this.isSelectedCommunity = environment.selectedCommunityWhitelist?.includes(this.currentMarket.id);
+						this.isSelectedCommunity = environment.selectedCommunityBlacklist?.includes(this.currentMarket.id);
 					}
 					return combineLatest([this._orgService.getInternalOrgs(mkt.id), this._orgService.currentCommunity$]);
 				}
