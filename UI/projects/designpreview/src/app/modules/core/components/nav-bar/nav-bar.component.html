@@ -49,7 +49,7 @@
 
 <div *ngIf="!isMenuCollapsed" class="phd-collapsable-menu">
 	<div [class.phd-active-link-collapsed]="currentRoute?.startsWith('/favorites/summary')">
-		<a *ngIf="showMyFavoritesLink" [routerLink]="['/favorites/summary']" [routerLinkActive]="['phd-collapsable-menu-link-full']">My Favorites</a>
+		<a *ngIf="showMyFavoritesLink" [routerLink]="['/favorites/summary']" [routerLinkActive]="['phd-collapsable-menu-link-full']" [class.phd-collapsable-menu-link-full]="isLaunchedInBuyerPreview">My Favorites</a>
 		<a *ngIf="showFloorplanLink" [routerLink]="['/floorplan']" [routerLinkActive]="['phd-collapsable-menu-link-full']">Floorplan</a>
 		<a *ngIf="showContractedOptionsLink" [routerLink]="['/contracted']" [routerLinkActive]="['phd-collapsable-menu-link-full']">Contracted Options</a>
 		<a *ngIf="showIncludedOptionsLink" [routerLink]="['/included']" [routerLinkActive]="['phd-collapsable-menu-link-full']">Included Options</a>
