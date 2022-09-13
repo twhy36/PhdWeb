@@ -33,5 +33,6 @@ export const environment = {
 		1026, // New Mexico
 		1031, // Columbus
 		1057 // Cleveland
-	]
+	],
+	selectedCommunityWhitelist: []
 };

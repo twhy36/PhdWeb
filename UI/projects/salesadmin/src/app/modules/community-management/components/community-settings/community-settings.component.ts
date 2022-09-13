@@ -399,18 +399,22 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 		}
 	}
 
-	private enableDesignPreviewBox()
+	enableDesignPreviewBox()
 	{
-		if (!environment.production) {
-			if (environment.apiUrl.includes('staging') && !this.selectedCommunity) {
-				this.enableDpForCommunity = false;
-			} else if (environment.apiUrl.includes('qa') && this.selectedCommunity) {
-				this.enableDpForCommunity = false;
-			} else {
-				this.enableDpForCommunity = true;
+		if (!environment.production) 
+		{
+			if (environment.apiUrl.includes('staging') && !environment.selectedCommunityWhitelist?.includes(this.currentMarket.id)) 
+			{
+				return false;
+			} else if (environment.apiUrl.includes('qa') && environment.selectedCommunityBlacklist?.includes(this.currentMarket.id)) 
+			{
+				return false;
+			} else 
+			{
+				return true;
 			}
 		} else {
-			this.enableDpForCommunity = true;
+			return true;
 		}
 	}
 }

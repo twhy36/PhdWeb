@@ -19,4 +19,5 @@ export interface IEnvironment {
 	whatFix: { scriptUrl: string };
 	EBillUrl: string;
 	selectedCommunityBlacklist: number[];
+	selectedCommunityWhitelist: number[];
 }
