@@ -827,7 +827,7 @@ export class LiteService
 				const attributeName = att.attributeName;
 
 				const colorItem = option.colorItems?.find(item => item.name === attributeGroupLabel);
-				const color = colorItem?.color?.find(c => c.name === attributeName);
+				const color = colorItem?.color?.find(c => c.name === attributeName && c.sku === att.sku);
 
 				if (colorItem && color)
 				{
