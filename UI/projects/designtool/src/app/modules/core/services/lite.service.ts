@@ -1145,7 +1145,8 @@ export class LiteService
 		{
 			const existingAttr = existingAttributes.find(ex =>
 				ex.attributeName === attr.attributeName &&
-				ex.attributeGroupLabel === attr.attributeGroupLabel);
+				ex.attributeGroupLabel === attr.attributeGroupLabel &&
+				ex.sku === attr.sku);
 
 			if (!existingAttr)
 			{
@@ -1157,7 +1158,8 @@ export class LiteService
 		{
 			const currentAttr = currentAttributes.find(attr =>
 				ex.attributeName === attr.attributeName &&
-				ex.attributeGroupLabel === attr.attributeGroupLabel);
+				ex.attributeGroupLabel === attr.attributeGroupLabel &&
+				ex.sku === attr.sku);
 
 			if (!currentAttr)
 			{
@@ -1431,4 +1433,3 @@ export class LiteService
 		return optionsDto;
 	}
 }
-
