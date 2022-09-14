@@ -54,6 +54,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 	requiredThoTemplates = [];
 	requiredPdfs = [];
 	selectedOption = null;
+	loading: boolean = false;
 
 	get saveDisabled(): boolean
 	{
@@ -96,7 +97,6 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 		private _msgService: MessageService,
 		private _route: ActivatedRoute) { super(); }
 
-	loading: boolean = false;
 
 	ngOnInit()
 	{
@@ -166,7 +166,6 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 			this._msgService.add({ severity: 'error', summary: 'Error', detail: error });
 		});
 		this.checkRequiredFilesExist();
-		this.enableDesignPreviewBox();
 	}
 
 	checkRequiredFilesExist()
@@ -380,10 +379,8 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 				this.loading = false;
 			});
 		}
-		else
-		{
-			this.loading = false;
-		}
+
+		this.loading = false;
 	}
 
 	enableDesignPreviewBox()
