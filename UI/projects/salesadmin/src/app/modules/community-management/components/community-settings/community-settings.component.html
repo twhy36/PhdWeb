@@ -191,7 +191,7 @@
 
         <div class="phd-settings-container" *ngIf="financialCommunity; else noCommunityMessage">
             <div class="phd-settings-header">Design Preview Settings</div>
-			<div *ngIf="enableDesignPreviewBox()" class="phd-box-background">
+			<div class="phd-box-background">
 				<div class="phd-box">
 					<div class="phd-line">
 						<div class="font-weight-bold">Enable Design Preview Post-Contract</div>
@@ -205,7 +205,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="phd-box-background" *ngIf="!!url">
+			<div class="phd-box-background" *ngIf="enableDesignPreviewBox()">
 				<div class="phd-box">
 					<div class="phd-line">
 						<div class="font-weight-bold">Design Preview Pre-Sale Link by Plan</div>
@@ -219,7 +219,7 @@
 							<ng-container *ngIf="isSaving"><i class="fa fa-spinner fa-spin fa-fw"></i></ng-container>
 						</button>
 						<div class="phd-link-box phd-line">
-							<a class="btn-link" [href]="url" target="_blank" rel="noopener noreferrer">{{ url }}</a>
+							<a class="btn-link" [href]="designPreviewUrl" target="_blank" rel="noopener noreferrer">{{ designPreviewUrl }}</a>
                             <button class="phd-copy-image">
                                 <i class="fa fa-copy fa-thin"></i>
                             </button>

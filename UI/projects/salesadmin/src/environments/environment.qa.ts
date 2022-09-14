@@ -29,8 +29,7 @@ export const environment = {
 	whatFix: {
 		scriptUrl: '//whatfix.com/01caf5e0-cb2f-11e8-b979-04013d24cd02/embed/embed.nocache.js'
 	},
-	selectedCommunityWhitelist: [
-		// All ids of markets EXCEPT Cleveland, Columbus, and New Mexico
+	selectedCommunityWhiteList: [
 		104,
 		106,
 		107,
@@ -40,7 +39,7 @@ export const environment = {
 		116,
 		118,
 		122,
-		// 123, Cleveland Market
+		// 123, Cleveland
 		124,
 		129,
 		130,
@@ -54,8 +53,8 @@ export const environment = {
 		460,
 		463,
 		464,
-		// 465, New Mexico Market
-		// 471, Columbus Market
+		// 465, New Mexico
+		// 471, Columbus
 		473,
 		474,
 		479,

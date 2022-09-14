@@ -44,6 +44,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 	canEdit = false;
 	isSaving = false;
 	url?: string = null;
+	designPreviewUrl = 'www.example.com'; //TODO Make this the actual url in functionality story
 	commmunityLinkEnabledDirty = false;
 	previewEnabledDirty = false;
 	canToggleCommunitySettings = false;
@@ -387,7 +388,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 
 	enableDesignPreviewBox()
 	{
-		return (environment.production || environment.selectedCommunityWhitelist.length === 0) ? true : environment.selectedCommunityWhitelist.includes(this.currentMarket.id);
+		return environment.selectedCommunityWhitelist.includes(this.currentMarket.id);
 	}
 }
 
