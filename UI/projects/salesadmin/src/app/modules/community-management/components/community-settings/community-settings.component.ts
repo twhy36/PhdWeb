@@ -52,9 +52,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 	earnestMoneyRequired = false;
 	requiredThoTemplates = [];
 	requiredPdfs = [];
-	isSelectedCommunity: boolean = false;
 	isPlanSelected: boolean = false;
-	enableDpForCommunity: boolean = true;
 	selectedOption = null;
 
 	get saveDisabled(): boolean
@@ -137,13 +135,6 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 				if (mkt)
 				{
 					this.currentMarket = mkt;
-					if (environment.selectedCommunityWhitelist.length === 0) 
-					{
-						this.isSelectedCommunity = true;
-					} else 
-					{
-						this.isSelectedCommunity = environment.selectedCommunityWhitelist?.includes(this.currentMarket.id);
-					}
 					return combineLatest([this._orgService.getInternalOrgs(mkt.id), this._orgService.currentCommunity$]);
 				}
 				return of([null, null]);
@@ -402,7 +393,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 
 	enableDesignPreviewBox()
 	{
-		return environment.selectedCommunityWhitelist.includes(this.currentMarket.id);
+		return (environment.production) ? true : environment.selectedCommunityWhitelist.includes(this.currentMarket.id);
 	}
 }
 
