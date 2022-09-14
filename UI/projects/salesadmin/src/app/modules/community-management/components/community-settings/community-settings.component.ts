@@ -137,11 +137,12 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 				if (mkt)
 				{
 					this.currentMarket = mkt;
-					if (environment.selectedCommunityBlacklist.length === 0) 
+					if (environment.selectedCommunityWhitelist.length === 0) 
 					{
 						this.isSelectedCommunity = true;
-					} else {
-						this.isSelectedCommunity = environment.selectedCommunityBlacklist?.includes(this.currentMarket.id);
+					} else 
+					{
+						this.isSelectedCommunity = environment.selectedCommunityWhitelist?.includes(this.currentMarket.id);
 					}
 					return combineLatest([this._orgService.getInternalOrgs(mkt.id), this._orgService.currentCommunity$]);
 				}
@@ -401,21 +402,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 
 	enableDesignPreviewBox()
 	{
-		if (!environment.production) 
-		{
-			if (environment.apiUrl.includes('staging') && !environment.selectedCommunityWhitelist?.includes(this.currentMarket.id)) 
-			{
-				return false;
-			} else if (environment.apiUrl.includes('qa') && environment.selectedCommunityBlacklist?.includes(this.currentMarket.id)) 
-			{
-				return false;
-			} else 
-			{
-				return true;
-			}
-		} else {
-			return true;
-		}
+		return environment.selectedCommunityWhitelist.includes(this.currentMarket.id);
 	}
 }
 
