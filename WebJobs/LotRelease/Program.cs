@@ -11,7 +11,7 @@ namespace LotRelease
     {
         static async Task Main(string[] args)
         {
-            Console.WriteLine("Entering Main");
+            throw new Exception("TEST");
 
             var host = new HostBuilder()
                 .ConfigureHostConfiguration(hostConfig =>
