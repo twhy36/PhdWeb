@@ -207,7 +207,8 @@ export class AttributeDetailsTabComponent implements OnInit, OnDestroy
 	{
 		return (control: AbstractControl): { [key: string]: boolean } =>
 		{
-			let existingTag = this.attribute.tags.find(t => t == control.value);
+			const tagsArray = this.attributeForm?.get('tags') as FormArray;
+			const existingTag = tagsArray?.value.find(t => t?.toLowerCase() == control.value?.toLowerCase().trim());
 
 			return existingTag ? { duplicateTag: true } : null;
 		};
