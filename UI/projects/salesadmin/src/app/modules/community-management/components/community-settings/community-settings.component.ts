@@ -52,7 +52,6 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 	earnestMoneyRequired = false;
 	requiredThoTemplates = [];
 	requiredPdfs = [];
-	isPlanSelected: boolean = false;
 	selectedOption = null;
 
 	get saveDisabled(): boolean
@@ -167,11 +166,6 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 		});
 		this.checkRequiredFilesExist();
 		this.enableDesignPreviewBox();
-	}
-
-	onChange(event: any)
-	{
-		this.isPlanSelected = true;
 	}
 
 	checkRequiredFilesExist()
@@ -393,7 +387,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 
 	enableDesignPreviewBox()
 	{
-		return (environment.production) ? true : environment.selectedCommunityWhitelist.includes(this.currentMarket.id);
+		return (environment.production || environment.selectedCommunityWhitelist.length === 0) ? true : environment.selectedCommunityWhitelist.includes(this.currentMarket.id);
 	}
 }
 
