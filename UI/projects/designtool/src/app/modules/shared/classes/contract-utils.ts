@@ -207,7 +207,7 @@ export function buildLiteOptionColors(option: LitePlanOption, scenarioOption: Sc
 	{
 		scenarioOption?.jobChangeOrderPlanOptionAttributes?.forEach(coPlanOption =>
 		{
-			const optionColor = createLiteDTAttribute(coPlanOption.attributeGroupLabel, coPlanOption.attributeName, coPlanOption.sku);
+			const optionColor = createLiteDTAttribute(coPlanOption.attributeGroupLabel, concatColorSku(coPlanOption.attributeName, coPlanOption.sku));
 
 			optionColors.push(optionColor);
 		})
@@ -221,7 +221,7 @@ export function buildLiteOptionColors(option: LitePlanOption, scenarioOption: Sc
 
 			if (colorItem && color)
 			{
-				const optionColor = createLiteDTAttribute(colorItem.name, color.name, color.sku);
+				const optionColor = createLiteDTAttribute(colorItem.name, concatColorSku(color.name, color.sku));
 
 				optionColors.push(optionColor);
 			}
@@ -284,14 +284,14 @@ export const createLiteSDChoice = (label: string, planOptionId: number = null, d
 	}
 );
 
-export const createLiteDTAttribute = (label: string, value: string, sku: string): DesignToolAttribute => (
+export const createLiteDTAttribute = (label: string, value: string): DesignToolAttribute => (
 	{
 		attributeGroupId: null,
 		attributeGroupLabel: label,
 		attributeGroupName: null,
 		attributeId: null,
 		attributeImageUrl: null,
-		attributeName: sku && sku.length > 0 ? value + "/" + sku : value,
+		attributeName: value,
 		manufacturer: null,
 		sku: null,
 		locationGroupId: null,
@@ -304,6 +304,11 @@ export const createLiteDTAttribute = (label: string, value: string, sku: string)
 		scenarioChoiceLocationAttributeId: null
 	}
 );
+
+export function concatColorSku(color: string, sku: string): string
+{
+	return sku && sku.length > 0 ? `${color}/${sku}` : color;
+}
 
 export function getLiteChangeOrderGroupSelections(
 	jobChangeOrderPlanOptions: ChangeOrderPlanOption[],
@@ -527,7 +532,7 @@ export function getLiteConstructionChangeOrderPdfData(
 						attributeCommunityId: 0,
 						action: attr.action,
 						attributeGroupLabel: attr.attributeGroupLabel,
-						attributeName: attr.attributeName,
+						attributeName: concatColorSku(attr.attributeName, attr.sku),
 						manufacturer: attr.manufacturer ? attr.manufacturer : null,
 						sku: attr.sku ? attr.sku : null,
 					};
