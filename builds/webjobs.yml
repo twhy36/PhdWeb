@@ -50,6 +50,11 @@ stages:
         SourceFolder: '$(build.sourcesDirectory)\Build\LotRelease'
         Contents: '**'
         TargetFolder: '$(build.sourcesdirectory)\LotReleaseJob\App_Data\jobs\triggered\LotRelease'
+    - task: DeleteFiles@1
+      displayName: Delete createdump.exe
+      inputs:
+        SourceFolder: '$(build.sourcesdirectory)\LotReleaseJob\App_Data\jobs\triggered\LotRelease'
+        Contents: 'createdump.exe'
     - task: PublishBuildArtifacts@1
       displayName: Publish Lot Release Output
       inputs:
@@ -71,6 +76,11 @@ stages:
         SourceFolder: '$(build.sourcesDirectory)\Build\ChangeOrderExpiration'
         Contents: '**'
         TargetFolder: '$(build.sourcesdirectory)\ChangeOrderExpirationJob\App_Data\jobs\triggered\ChangeOrderExpiration'
+    - task: DeleteFiles@1
+      displayName: Delete createdump.exe
+      inputs:
+        SourceFolder: '$(build.sourcesdirectory)\LotReleaseJob\App_Data\jobs\triggered\ChangeOrderExpiration'
+        Contents: 'createdump.exe'
     - task: PublishBuildArtifacts@1
       displayName: Publish Change Order Expiration Output
       inputs:
@@ -92,6 +102,11 @@ stages:
         SourceFolder: '$(build.sourcesDirectory)\Build\AttributeCleanup'
         Contents: '**'
         TargetFolder: '$(build.sourcesdirectory)\AttributeCleanupJob\App_Data\jobs\triggered\AttributeCleanup'
+    - task: DeleteFiles@1
+      displayName: Delete createdump.exe
+      inputs:
+        SourceFolder: '$(build.sourcesdirectory)\LotReleaseJob\App_Data\jobs\triggered\AttributeCleanup'
+        Contents: 'createdump.exe'
     - task: PublishBuildArtifacts@1
       displayName: Publish Attribute Cleanup Output
       inputs:
