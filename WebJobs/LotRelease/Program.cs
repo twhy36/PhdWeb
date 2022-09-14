@@ -31,7 +31,7 @@ namespace LotRelease
             try{
                 await host.RunAsync();
             }catch (Exception ex){
-                Console.Error.Write(ex);
+                File.AppendAllText("error.log", ex.Message);
             }
         }
     }
