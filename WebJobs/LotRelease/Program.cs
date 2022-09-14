@@ -28,7 +28,11 @@ namespace LotRelease
                     services.AddHostedService<LotReleaseService>();
                 })
                 .Build();
-            await host.RunAsync();
+            try{
+                await host.RunAsync();
+            }catch (Exception ex){
+                Console.Error.Write(ex);
+            }
         }
     }
 }
