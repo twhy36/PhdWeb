@@ -345,12 +345,12 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 
 	private loadPlansAndHomeSites()
 	{
-		this.loading = true;
-
+		
 		let fc = this.selectedCommunity;
-
+		
 		if (!fc.inited)
 		{
+			this.loading = true;
 			const commId = fc.id;
 
 			// get promise of homesites for the financial community
@@ -379,8 +379,6 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 				this.loading = false;
 			});
 		}
-
-		this.loading = false;
 	}
 
 	enableDesignPreviewBox()
