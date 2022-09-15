@@ -121,7 +121,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	}
 
 	selectDecisionPoint($event) {
-		if ($event.pointId)
+		if ($event.pointId || typeof $event === "number")
 		{
 			setTimeout(() =>
 			{
