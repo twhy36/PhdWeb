@@ -80,8 +80,6 @@ export class SalesInfoMiscComponent extends ComponentCanNavAway implements OnIni
 
 			if (ngbDate)
 			{
-				ngbDate.day++;
-
 				this.minDate = ngbDate;
 			}
 		}
@@ -116,6 +114,7 @@ export class SalesInfoMiscComponent extends ComponentCanNavAway implements OnIni
 	cancel()
 	{
 		this.initializeData();
+
 		this.salesInfoForm.get('lenderType').setValue(this.selectedLenderType);
 		this.salesInfoForm.get('propertyType').setValue(this.selectedPropertyType);
 		this.salesInfoForm.get('quoteRequested').setValue(this.selectedQuoteRequested);
@@ -137,7 +136,9 @@ export class SalesInfoMiscComponent extends ComponentCanNavAway implements OnIni
 	{
 		this.agreement.ecoeDate = this.agreement.ecoeDate ? new Date(convertDateToUtcString(this.agreement.ecoeDate)) : null;
 		this.ecoeDate = NgbDate.from(this.adapter.fromModel(this.agreement.ecoeDate));
+
 		this.setDateDisplay();
+
 		this.selectedLenderType = this.agreement.lenderType && this.lenderTypes.indexOf(this.agreement.lenderType) + 1;
 		this.selectedPropertyType = this.agreement.propertyType && this.propertyTypes.indexOf(this.agreement.propertyType) + 1;
 		this.selectedQuoteRequested = this.agreement.insuranceQuoteOptIn;
@@ -156,6 +157,7 @@ export class SalesInfoMiscComponent extends ComponentCanNavAway implements OnIni
 	private setDateDisplay()
 	{
 		const dateStr: string = this.ecoeDate ? `${this.ecoeDate.month}/${this.ecoeDate.day}/${this.ecoeDate.year}` : '';
+
 		this.dateDisplay = 'Estimated COE: ' + dateStr;
 	}
 
