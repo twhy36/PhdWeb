@@ -11,7 +11,7 @@ import { LocationGroupMarketTag } from '../../../../../shared/models/location-gr
 import { LocationService } from '../../../../../core/services/location.service';
 import { MessageService } from 'primeng/api';
 
-import * as _ from 'lodash';
+import * as _ from "lodash";
 
 @Component({
 	selector: 'location-groups-side-panel',
@@ -269,8 +269,7 @@ export class LocationGroupsSidePanelComponent implements OnInit
 	{
 		return (control: AbstractControl): { [key: string]: boolean } =>
 		{
-			const tagsArray = this.locationForm?.get('tags') as FormArray;
-			const existingTag = tagsArray?.value.find(t => t?.toLowerCase() == control.value?.toLowerCase().trim());
+			let existingTag = this.locationGroup.tags.find(t => t == control.value);
 
 			return existingTag ? { duplicateTag: true } : null;
 		};

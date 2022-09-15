@@ -159,7 +159,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 
 	displayButton(): boolean
 	{
-		if (!this.choice.enabled || !this.canConfigure || this.optionDisabled || this.choice.isRequired || this.choice.disabledByHomesite || this.choice.disabledByReplaceRules?.length || this.choice.disabledByBadSetup)
+		if (!this.choice.enabled || !this.canConfigure || this.optionDisabled || this.choice.isRequired || this.choice.disabledByHomesite)
 		{
 			return false;
 		}

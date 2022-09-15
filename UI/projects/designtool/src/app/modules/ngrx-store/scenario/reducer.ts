@@ -463,7 +463,6 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 				subGroups.forEach(sg => setSubgroupStatus(sg));
 				newTree.treeVersion.groups.forEach(g => setGroupStatus(g));
 			}
-
 			return { ...state, scenario: { ...state.scenario, lotId: action.lotId, handing: action.handing }, tree: newTree, rules: rules, options: options, lotPremium: action.premium, isGanked: false };
 		case ScenarioActionTypes.SetScenarioLotHanding:
 			return { ...state, scenario: { ...state.scenario, handing: action.handing } };

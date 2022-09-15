@@ -11,7 +11,7 @@ import { AttributeGroupMarketTag } from '../../../../../shared/models/attribute-
 import { AttributeService } from '../../../../../core/services/attribute.service';
 import { MessageService } from 'primeng/api';
 
-import * as _ from 'lodash';
+import * as _ from "lodash";
 
 @Component({
 	selector: 'attribute-groups-side-panel',
@@ -246,8 +246,7 @@ export class AttributeGroupsSidePanelComponent implements OnInit
 	{
 		return (control: AbstractControl): { [key: string]: boolean } =>
 		{
-			const tagsArray = this.attributeForm?.get('tags') as FormArray;
-			const existingTag = tagsArray?.value.find(t => t?.toLowerCase() == control.value?.toLowerCase().trim());
+			let existingTag = this.attributeGroup.tags.find(t => t === control.value);
 
 			return existingTag ? { duplicateTag: true } : null;
 		};

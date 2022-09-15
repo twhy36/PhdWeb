@@ -3,11 +3,14 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, from, EMPTY as empty, throwError as _throw, of, combineLatest } from 'rxjs';
 import { map, catchError, flatMap, toArray, switchMap, take } from 'rxjs/operators';
 
+
 import { environment } from '../../../../environments/environment';
 import { withSpinner, SalesCommunity, Plan, FeatureSwitchService, IFeatureSwitchOrgAssoc } from 'phd-common';
 
+
 import { OptionService } from './option.service';
 import { TreeService } from './tree.service';
+
 
 @Injectable()
 export class PlanService
@@ -45,10 +48,7 @@ export class PlanService
 								if (activePlans != null || isLiteEnabledCommunity)
 								{
 									includedPlanOptions = activePlans?.includedOptions || [];
-
 									plan.treeVersionId = activePlans?.id || null;
-									plan.treePlanId = activePlans?.planId || null;
-
 									includedPlanOptions.push(baseHouseKey);
 
 									const getOptionImages = plan.treeVersionId

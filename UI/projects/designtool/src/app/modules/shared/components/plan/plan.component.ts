@@ -4,7 +4,7 @@ import { Store, select } from '@ngrx/store';
 import { Observable, ReplaySubject } from 'rxjs';
 import { combineLatest, map, filter, take } from 'rxjs/operators';
 
-import { UnsubscribeOnDestroy, flipOver, FinancialCommunity, ChangeTypeEnum, Job, LotExt, Plan, Scenario, SalesCommunity, ModalService, LotChoiceRules, ChoiceRules, PointRules, Choice, ConfirmModalComponent } from 'phd-common';
+import { UnsubscribeOnDestroy, flipOver, FinancialCommunity, ChangeTypeEnum, Job, LotExt, Plan, Scenario, SalesCommunity } from 'phd-common';
 
 import { PlanService } from '../../../core/services/plan.service';
 
@@ -24,12 +24,8 @@ import { selectSelectedLot } from '../../../ngrx-store/lot/reducer';
 // PHD Lite
 import { ExteriorSubNavItems, LiteSubMenu } from '../../../shared/models/lite.model';
 import * as LiteActions from '../../../ngrx-store/lite/actions';
-import { NewHomeService } from '../../../new-home/services/new-home.service';
-import { LotService } from '../../../core/services/lot.service';
 
-import * as _ from 'lodash';
-
-type planSortByType = 'Price - Low to High' | 'Price - High to Low';
+type planSortByType = "Price - Low to High" | "Price - High to Low";
 
 @Component({
 	selector: 'plan',
@@ -42,7 +38,6 @@ type planSortByType = 'Price - Low to High' | 'Price - High to Low';
 export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	@Input() canConfigure: boolean;
-
 	@Output() onPlanToggled = new EventEmitter<void>();
 
 	selectedSortBy$ = new ReplaySubject<planSortByType>(1);
@@ -57,7 +52,6 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 	isChangingOrder$: Observable<boolean>;
 	inChangeOrder: boolean = false;
 	selectedPlan: Plan;
-	prevSelectedPlan: Plan;
 	jobPlanId: number;
 	changeOrderPlanId: number;
 	salesPrice: number = 0;
@@ -68,24 +62,15 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
     salesCommunity: SalesCommunity;
 	totalPrice: number;
 
-	lotChoiceRules: LotChoiceRules[] = null;
-	choiceRules: ChoiceRules[] = null;
-	pointRules: PointRules[] = null;
-	currentChoices: Choice[] = null;
-	chooseClicked: boolean = false;
-
 	constructor(public planService: PlanService,
 		private router: Router,
 		private store: Store<fromRoot.State>,
-		private route: ActivatedRoute,
-		private newHomeService: NewHomeService,
-		private modalService: ModalService,
-		private lotService: LotService
+		private route: ActivatedRoute
 	)
 	{
 		super();
 
-		this.selectedSortBy$.next('Price - Low to High');
+		this.selectedSortBy$.next("Price - Low to High");
 		this.selectedFilterBy$.next(null);
 	}
 
@@ -155,7 +140,7 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 						}
 
 						// then sort by price, then name
-						if (sortBy === 'Price - Low to High')
+						if (sortBy === "Price - Low to High")
 						{
 							return a.price < b.price ? -1 : a.price > b.price ? 1 : a.salesName < b.salesName ? -1 : a.salesName > b.salesName ? 1 : 0;
 						}
@@ -247,36 +232,6 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 			this.takeUntilDestroyed(),
 			select(fromRoot.priceBreakdown)
 		).subscribe(price => this.totalPrice = price.totalPrice);
-
-		this.store.pipe(
-			this.takeUntilDestroyed(),
-			select(state => state.scenario.rules)
-		).subscribe(rules =>
-		{
-			this.lotChoiceRules = rules?.lotChoiceRules;
-			this.choiceRules = rules?.choiceRules;
-			this.pointRules = rules?.pointRules;
-		});
-
-		this.store.pipe(
-			this.takeUntilDestroyed(),
-			select(state => state.scenario.tree),
-			map(tree =>
-			{
-				return _.flatMap(tree?.treeVersion?.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)));
-			}),
-			combineLatest(this.selectedLot$)
-		).subscribe(([choices, lot]) =>
-		{
-			this.currentChoices = choices;
-
-			// only try to run the check when the user makes a new selection
-			if (this.chooseClicked)
-			{
-				// need to let the plan and tree load first before checking for changes
-				this.checkLotChoiceRuleChanges(this.selectedPlan, lot);
-			}
-		});
 	}
 
 	sortPlans(sortBy: planSortByType)
@@ -284,50 +239,7 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 		this.selectedSortBy$.next(sortBy);
 	}
 
-	checkLotChoiceRuleChanges(plan: Plan, lot: LotExt)
-	{
-		this.chooseClicked = false;
-
-		this.lotService.getLotChoiceRuleAssocs(lot.id).subscribe(lotChoiceRuleAssoc =>
-		{
-			let lotChoiceRuleResults = this.newHomeService.compileLotChoiceRuleChanges(lot.id, lotChoiceRuleAssoc, this.lotChoiceRules, this.currentChoices, this.choiceRules, this.pointRules, plan.treePlanId, this.buildMode, this.scenario);
-
-			let mustHaveSelections = lotChoiceRuleResults.mustHaveSelections;
-			let disabledByRules = lotChoiceRuleResults.disabledByRules;
-			let mustNotHaveSelections = lotChoiceRuleResults.mustNotHaveSelections;
-			let noLongerRequiredSelections = lotChoiceRuleResults.noLongerRequiredSelections;
-
-			if (plan.id && ((mustHaveSelections?.length || disabledByRules?.length) || mustNotHaveSelections?.length || noLongerRequiredSelections?.length))
-			{
-				const body = this.newHomeService.createLotChoiceRuleChangeMessageBody(lot.lotBlock, this.currentChoices, mustHaveSelections, mustNotHaveSelections, disabledByRules, noLongerRequiredSelections);
-
-				if (body.length)
-				{
-					const confirm = this.modalService.open(ConfirmModalComponent, { centered: true });
-
-					confirm.componentInstance.title = 'Attention!';
-					confirm.componentInstance.body = body;
-					confirm.componentInstance.defaultOption = 'Continue';
-
-					return confirm.result.then((result) =>
-					{
-						if (result === 'Close')
-						{
-							// Didn't want to change so lets revert back to the previous selection
-							this.toggleSelectedPlan(this.prevSelectedPlan, lot, this.prevSelectedPlan === null);
-						}
-					});
-				}
-			}
-		});
-	}
-
-	toggleSelection(event: { plan: Plan, lot: LotExt, isSelected: boolean })
-	{
-		this.toggleSelectedPlan(event.plan, event.lot, event.isSelected, true);
-	}
-
-	toggleSelectedPlan(plan: Plan, lot: LotExt, isSelected: boolean, chooseClicked: boolean = false)
+	toggleSelectedPlan(event: { plan: Plan, isSelected: boolean })
 	{
 		//if a spec home, remove the currently selected lot and spec
 		if (!this.inChangeOrder && this.job && this.job.id !== 0)
@@ -341,21 +253,20 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 		}
 
 		//if the plan was not selected, choose it
-		if (!isSelected)
+		if (!event.isSelected)
 		{
-			this.chooseClicked = chooseClicked;
-			this.prevSelectedPlan = this.selectedPlan;
-
-			this.store.dispatch(new PlanActions.SelectPlan(plan.id, plan.treeVersionId, plan.marketingPlanId));
-			this.store.dispatch(new ScenarioActions.SetScenarioPlan(plan.treeVersionId, plan.id));
+			this.store.dispatch(new PlanActions.SelectPlan(event.plan.id, event.plan.treeVersionId, event.plan.marketingPlanId));
+			this.store.dispatch(new ScenarioActions.SetScenarioPlan(event.plan.treeVersionId, event.plan.id));
 
 			if (!this.inChangeOrder)
 			{
-				if (!lot)
+				this.selectedLot$.subscribe(lot =>
 				{
-					// no lot you say? lets nav to the lots tab
-					this.store.dispatch(new NavActions.SetSelectedSubNavItem(3));
-				}
+					if (!lot)
+					{
+						this.store.dispatch(new NavActions.SetSelectedSubNavItem(3));
+					}
+				});
 
 				if (this.buildMode === 'spec' || this.buildMode === 'model')
 				{
@@ -380,8 +291,6 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 			{
 				this.store.dispatch(new ScenarioActions.TreeLoaded(null, null, null, null, null, this.salesCommunity));
 			}
-
-			this.prevSelectedPlan = null;
 		}
 
 		this.onPlanToggled.emit();
@@ -402,7 +311,6 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 								? this.store.dispatch(new LiteActions.LoadLitePlan(this.selectedPlan.id))
 								: this.store.dispatch(new PlanActions.LoadSelectedPlan(this.selectedPlan.id, this.selectedPlan.treeVersionId));
 						}
-
 						this.router.navigateByUrl('/scenario-summary');
 					}
 				}
@@ -410,7 +318,6 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 				{
 					this.store.dispatch(new NavActions.SetSubNavItems(ExteriorSubNavItems));
 					this.store.dispatch(new NavActions.SetSelectedSubNavItem(LiteSubMenu.Elevation));
-
 					this.router.navigateByUrl('/lite/elevation');
 				}
 				else

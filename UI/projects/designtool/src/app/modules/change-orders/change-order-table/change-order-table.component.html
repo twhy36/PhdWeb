@@ -76,8 +76,8 @@
 			<td>
 				<div *ngIf="changeOrder.actionTypes.length !== 0">
 					<span *ngIf="canEditChangeOrder(changeOrder)">
-						<select id="{{changeOrder.id}}" (change)="onChange($event.target.value, changeOrder.actionTypes)" #changeOrderAction [disabled]="(changeOrder.salesStatus === 'Signed' && !canApproveChangeOrder) || isSaving"
-								[attr.title]="changeOrder.salesStatus === 'Signed' && !canApproveChangeOrder ? 'Requires GSM Approval' : null">
+						<select id="{{changeOrder.id}}" (change)="onChange($event.target.value, changeOrder.actionTypes)" #changeOrderAction [disabled]="(changeOrder.salesStatus === 'Signed' && !canApprove) || isSaving"
+								[attr.title]="changeOrder.salesStatus === 'Signed' && !canApprove ? 'Requires GSM Approval' : null">
 							<option *ngFor="let action of changeOrder.actionTypes" [ngValue]="action.id" [disabled]="action.id === 0">{{action.value}}</option>
 						</select>
 					</span>
