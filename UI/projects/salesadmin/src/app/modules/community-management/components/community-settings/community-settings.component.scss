@@ -1,3 +1,5 @@
+$generate-link-background-color: #E4E4E4;
+
 .phd-box-background {
 	background-color: #D5D5D5;
 	border-style: solid;
@@ -11,6 +13,13 @@
 .phd-box {
 	text-align: center;
 	padding: 15px;
+}
+
+.phd-link-box {
+	border: 2px solid black;
+	border-radius: 5px;
+	background-color: $generate-link-background-color;
+	margin-top: 10px;
 }
 
 .phd-line {
@@ -40,6 +49,11 @@
 	margin-bottom: 1rem;
 }
 
+.phd-copy-image {
+	border: none;
+	background-color: $generate-link-background-color;
+}
+
 .btn-toggle.btn-sm.btn-auto-approval {
 	margin: 10px 0.5rem;
 }
@@ -61,4 +75,19 @@
 
 .phd-error {
 	border-left: 5px solid #d9534f;
+}
+
+.phd-settings-header {
+	margin-top: 20px;
+	text-align: center;
+	font-size: 20px;
+}
+
+.phd-tab-body-beta {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-around;
+	flex: 1 auto;
+	height: 0;
+	overflow-y: auto;
 }

@@ -4,11 +4,11 @@ import { OrganizationService } from '../../../core/services/organization.service
 import { UnsubscribeOnDestroy } from '../../../shared/utils/unsubscribe-on-destroy';
 import { ActivatedRoute } from '@angular/router';
 import { environment } from '../../../../../environments/environment';
-import { FinancialCommunityViewModel } from '../../../shared/models/plan-assignment.model';
+import { FinancialCommunityViewModel, HomeSiteViewModel, PlanViewModel } from '../../../shared/models/plan-assignment.model';
 import { FinancialCommunity } from '../../../shared/models/financialCommunity.model';
-import { switchMap } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
 import { FinancialCommunityInfo } from '../../../shared/models/financialCommunity.model';
-import { combineLatest, of } from 'rxjs';
+import { combineLatest, forkJoin, of } from 'rxjs';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { FinancialMarket } from '../../../shared/models/financialMarket.model';
@@ -17,6 +17,8 @@ import { ContractTemplate } from '../../../shared/models/contracts.model';
 import { CommunityPdf, SectionHeader } from "../../../shared/models/communityPdf.model";
 import { CommunityService } from "../../../core/services/community.service";
 import { ContractService } from '../../../core/services/contract.service';
+import { HomeSiteService } from '../../../core/services/homesite.service';
+import { PlanService } from '../../../core/services/plan.service';
 
 @Component({
 	selector: 'community-settings',
@@ -42,6 +44,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 	canEdit = false;
 	isSaving = false;
 	url?: string = null;
+	designPreviewUrl = 'www.example.com'; //TODO Make this the actual url in functionality story
 	commmunityLinkEnabledDirty = false;
 	previewEnabledDirty = false;
 	canToggleCommunitySettings = false;
@@ -50,6 +53,8 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 	earnestMoneyRequired = false;
 	requiredThoTemplates = [];
 	requiredPdfs = [];
+	selectedOption = null;
+	loading: boolean = false;
 
 	get saveDisabled(): boolean
 	{
@@ -78,12 +83,20 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 		return this.financialCommunity?.isDesignPreviewEnabled;
 	}
 
+	get plans(): PlanViewModel[]
+	{
+		return this.selectedCommunity ? this.selectedCommunity.plans : [];
+	}
+
 	constructor(
 		public _orgService: OrganizationService,
+		private _planService: PlanService,
+		private _homeSiteService: HomeSiteService,
 		private _contractService: ContractService,
 		private _communityService: CommunityService,
 		private _msgService: MessageService,
 		private _route: ActivatedRoute) { super(); }
+
 
 	ngOnInit()
 	{
@@ -132,6 +145,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 				{
 					this.orgId = orgs?.find(o => o.edhFinancialCommunityId === comm.id)?.orgID;
 					this.selectedCommunity = new FinancialCommunityViewModel(comm);
+					this.loadPlansAndHomeSites();
 
 					if (this.orgId)
 					{
@@ -326,6 +340,50 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 					this._msgService.add({ severity: 'error', summary: 'Error', detail: `Save failed. ${error}` });
 				});
 		}
+
+	}
+
+	private loadPlansAndHomeSites()
+	{
+		
+		let fc = this.selectedCommunity;
+		
+		if (!fc.inited)
+		{
+			this.loading = true;
+			const commId = fc.id;
+
+			// get promise of homesites for the financial community
+			const lotDtosObs = this._homeSiteService.getCommunityHomeSites(commId);
+
+			// get promise plans for the financial community
+			let plansObs = this._planService.getCommunityPlans(commId);
+
+			let obs = forkJoin(lotDtosObs, plansObs).pipe(map(([lotDto, plansDto]) =>
+			{
+
+				fc.lots = lotDto.filter(l => l.lotStatusDescription !== "Closed").map(l => new HomeSiteViewModel(l, fc.dto)).sort(HomeSiteViewModel.sorter);
+				fc.plans = plansDto.map(p => new PlanViewModel(p, fc)).sort(PlanViewModel.sorter);
+
+				// add lots to plans
+				fc.plans.forEach(p =>
+				{
+					p.lots = fc.lots.filter(l => l.plans.some(lp => lp === p.id))
+				});
+			}));
+
+			obs.subscribe(() =>
+			{
+				fc.inited = true;
+
+				this.loading = false;
+			});
+		}
+	}
+
+	enableDesignPreviewBox()
+	{
+		return environment.selectedCommunityWhitelist.includes(this.currentMarket.id);
 	}
 }
 
