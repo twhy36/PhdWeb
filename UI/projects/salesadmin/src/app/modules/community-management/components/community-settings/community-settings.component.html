@@ -99,10 +99,6 @@
 				</button>
 			</div>
 		</div>
-
-		<ng-template #noCommunityMessage>
-			<p class="phd-no-community">Please select a community.</p>
-		</ng-template>
 	</div>
 </div>
 
@@ -189,7 +185,7 @@
 			</div>
 		</div>
 
-        <div class="phd-settings-container" *ngIf="financialCommunity; else noCommunityMessage">
+        <div class="phd-settings-container" *ngIf="financialCommunity">
             <div class="phd-settings-header">Design Preview Settings</div>
 			<div class="phd-box-background">
 				<div class="phd-box">
@@ -228,10 +224,6 @@
 				</div>
 			</div>
 		</div>
-
-		<ng-template #noCommunityMessage>
-			<p class="phd-no-community">Please select a community.</p>
-		</ng-template>
 	</div>
 
     <div class="phd-save-button phd-center" *ngIf="canEdit">
@@ -241,3 +233,7 @@
         </button>
     </div>
 </div>
+
+<ng-template #noCommunityMessage>
+	<p class="phd-no-community">Please select a community.</p>
+</ng-template>
