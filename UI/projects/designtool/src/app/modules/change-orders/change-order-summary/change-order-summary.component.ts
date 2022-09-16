@@ -54,6 +54,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 	rejectedChangeOrder: ChangeOrderGroup = null;
 	buildMode: string;
 	constructionStageName: string;
+	canEdit$: Observable<boolean>;
 	canApprove$: Observable<boolean>;
 	canSell$: Observable<boolean>;
 	canDesign$: Observable<boolean>;
@@ -425,6 +426,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 			this.envelopeID = changeOrder ? changeOrder.envelopeId : 0;
 		});
 
+		this.canEdit$ = this.store.pipe(select(fromRoot.canCreateChangeOrder));
 		this.canApprove$ = this.store.pipe(select(fromRoot.canApprove));
 		this.canSell$ = this.store.pipe(select(fromRoot.canSell));
 		this.contactId$ = this.store.pipe(select(fromUser.contactId));

@@ -163,6 +163,12 @@ export const canDesign = createSelector(
 	(market, user) => !!market && user.canDesign && user.assignedMarkets.some(m => m.number === market.number)
 )
 
+export const canCreateChangeOrder = createSelector(
+	fromOrg.market,
+	fromUser.selectUser,
+	(market, user) => !!market && user.canCreateChangeOrder && user.assignedMarkets.some(m => m.number === market.number)
+)
+
 export const canApproveChangeOrder = createSelector(
 	fromOrg.market,
 	fromUser.selectUser,
