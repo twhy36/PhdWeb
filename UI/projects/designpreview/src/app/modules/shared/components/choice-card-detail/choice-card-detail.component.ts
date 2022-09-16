@@ -23,7 +23,7 @@ import * as FavoriteActions from '../../../ngrx-store/favorite/actions';
 import { ChoiceExt } from '../../models/choice-ext.model';
 import { AttributeLocationComponent } from '../attribute-location/attribute-location.component';
 import { AttributeGroupExt, AttributeExt } from '../../models/attribute-ext.model';
-import { BlockedByItemList } from '../../models/blocked-by.model';
+import { BlockedByItemObject } from '../../models/blocked-by.model';
 import { getDisabledByList } from '../../../shared/classes/tree.utils';
 import { AdobeService } from '../../../core/services/adobe.service';
 import { TreeService } from '../../../core/services/tree.service';
@@ -70,7 +70,8 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	choiceAttributeGroups: AttributeGroup[];
 	choiceLocationGroups: LocationGroup[];
 	blockedChoiceModalRef: NgbModalRef;
-	disabledByList: BlockedByItemList = null;
+	disabledByList: BlockedByItemObject
+		= { pointDisabledByList: null, choiceDisabledByList: null };
 	isChoiceImageLoaded: boolean = false;
 
 	constructor(private cd: ChangeDetectorRef,
@@ -635,7 +636,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	}
 
 	openBlockedChoiceModal() {
-		if (!this.disabledByList)
+		if (!this.disabledByList.choiceDisabledByList && !this.disabledByList.pointDisabledByList)
 		{
 			this.disabledByList = getDisabledByList(this.tree, this.groups, this.currentPoint, this.choice);
 		}

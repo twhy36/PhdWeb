@@ -13,7 +13,7 @@ import {
 } from 'phd-common';
 
 import { TreeService } from '../../core/services/tree.service';
-import { BlockedByItemList } from '../models/blocked-by.model';
+import { BlockedByItemList, BlockedByItemObject } from '../models/blocked-by.model';
 
 export function isJobChoice(choice: JobChoice | ChangeOrderChoice): choice is JobChoice
 {
@@ -849,9 +849,16 @@ export function hidePointsByStructuralItems(pointRules: PointRules[], choices: C
 	}
 }
 
-export function getDisabledByList(tree: Tree, groups: Group[], point: DecisionPoint, choice: Choice)
+export function getDisabledByList(tree: Tree, groups: Group[], point: DecisionPoint, choice: Choice): BlockedByItemObject
 {
-	let disabledByList = new BlockedByItemList({
+	let choiceDisabledByList = new BlockedByItemList({
+		andPoints: [],
+		andChoices: [],
+		orPoints: [],
+		orChoices: []
+	});
+
+	let pointDisabledByList = new BlockedByItemList({
 		andPoints: [],
 		andChoices: [],
 		orPoints: [],
@@ -861,6 +868,7 @@ export function getDisabledByList(tree: Tree, groups: Group[], point: DecisionPo
 	const allPoints = _.flatMap(tree?.treeVersion?.groups, g => _.flatMap(g.subGroups, sg => sg.points));
 	const allChoices = _.flatMap(allPoints, p => p.choices.map(c => ({...c, pointId: p.id})));
 	const filteredPoints = _.flatMap(groups, g => _.flatMap(g.subGroups, sg => sg.points));
+
 	point?.disabledBy.forEach(disabledPoint => {
 		disabledPoint.rules.forEach(rule => {
 			if (rule.points?.length > 1)
@@ -871,7 +879,7 @@ export function getDisabledByList(tree: Tree, groups: Group[], point: DecisionPo
 					if (disabledByPoint?.status !== PointStatus.COMPLETED && disabledByPoint.completed !== true
 						|| (disabledByPoint.choices?.filter(c => c.quantity > 0)?.length === 0) && disabledByPoint?.status === PointStatus.COMPLETED)
 					{
-						disabledByList.andPoints.push({
+						pointDisabledByList.andPoints.push({
 							label: disabledByPoint?.label,
 							pointId: filteredPoints.find(point => point.id === disabledByPointId) ? disabledByPointId : null,
 							ruleType: rule.ruleType
@@ -882,7 +890,8 @@ export function getDisabledByList(tree: Tree, groups: Group[], point: DecisionPo
 			else if (rule.points?.length === 1)
 			{
 				const disabledByPointId = rule.points[0];
-				disabledByList.orPoints.push({
+
+				pointDisabledByList.orPoints.push({
 					label: allPoints.find(point => point.id === disabledByPointId)?.label,
 					pointId: filteredPoints.find(point => point.id === disabledByPointId) ? disabledByPointId : null,
 					ruleType: rule.ruleType
@@ -895,7 +904,7 @@ export function getDisabledByList(tree: Tree, groups: Group[], point: DecisionPo
 					const disabledByChoice = allChoices.find(choice => choice.id === disabledByChoiceId);
 					if (disabledByChoice.quantity === 0)
 					{
-						disabledByList.andChoices.push({
+						pointDisabledByList.andChoices.push({
 							label: disabledByChoice?.label,
 							pointId: filteredPoints.find(point => point.id === disabledByChoice?.pointId) ? disabledByChoice?.pointId : null,
 							choiceId: disabledByChoiceId,
@@ -907,7 +916,8 @@ export function getDisabledByList(tree: Tree, groups: Group[], point: DecisionPo
 			else if (rule.choices?.length === 1)
 			{
 				const disabledByChoice = allChoices.find(choice => choice.id === rule.choices[0]);
-				disabledByList.orChoices.push({
+
+				pointDisabledByList.orChoices.push({
 					label: disabledByChoice?.label,
 					pointId: filteredPoints.find(point => point.id === disabledByChoice?.pointId) ? disabledByChoice?.pointId : null,
 					choiceId: rule.choices[0],
@@ -922,7 +932,8 @@ export function getDisabledByList(tree: Tree, groups: Group[], point: DecisionPo
 			{
 				rule.choices.forEach(disabledByChoiceId => {
 					const disabledByChoice = allChoices.find(choice => choice.id === disabledByChoiceId);
-					disabledByList.andChoices.push({
+
+					choiceDisabledByList.andChoices.push({
 						label: disabledByChoice?.label,
 						pointId: filteredPoints.find(point => point.id === disabledByChoice?.pointId) ? disabledByChoice?.pointId : null,
 						choiceId: disabledByChoiceId,
@@ -933,7 +944,8 @@ export function getDisabledByList(tree: Tree, groups: Group[], point: DecisionPo
 			else if (rule.choices?.length === 1)
 			{
 				const disabledByChoice = allChoices.find(choice => choice.id === rule.choices[0]);
-				disabledByList.orChoices.push({
+
+				choiceDisabledByList.orChoices.push({
 					label: disabledByChoice?.label,
 					pointId: filteredPoints.find(point => point.id === disabledByChoice?.pointId) ? disabledByChoice?.pointId : null,
 					choiceId: rule.choices[0],
@@ -943,7 +955,7 @@ export function getDisabledByList(tree: Tree, groups: Group[], point: DecisionPo
 		});
 	});
 
-	return disabledByList;
+	return new BlockedByItemObject({ pointDisabledByList, choiceDisabledByList });
 }
 
 export function getLockedInChoice(choice: JobChoice | ChangeOrderChoice, options: Array<JobPlanOption | ChangeOrderPlanOption>)

@@ -13,7 +13,8 @@ import { BlockedByItemList } from '../../models/blocked-by.model';
 })
 export class BlockedChoiceModalComponent extends UnsubscribeOnDestroy implements OnInit
 {
-	@Input() disabledByList: BlockedByItemList;
+	@Input() disabledByList: { pointDisabledByList: BlockedByItemList, choiceDisabledByList: BlockedByItemList }
+	= { pointDisabledByList: null, choiceDisabledByList: null };
 	@Input() choiceLabel: string;
 
 	@Output() closeModal = new EventEmitter();
@@ -34,10 +35,15 @@ export class BlockedChoiceModalComponent extends UnsubscribeOnDestroy implements
 		let modalText =
 			this.choiceLabel
 			+ ' Blocked by: '
-			+ this.disabledByList?.andChoices?.map(c => c.label)?.join(', ')
-			+ this.disabledByList?.andPoints?.map(p => p.label)?.join(', ')
-			+ this.disabledByList?.orChoices?.map(c => c.label)?.join(', ')
-			+ this.disabledByList?.orPoints?.map(p => p.label)?.join(', ');
+			+ this.disabledByList?.pointDisabledByList?.andChoices?.map(c => c.label)?.join(', ')
+			+ this.disabledByList?.pointDisabledByList?.andPoints?.map(p => p.label)?.join(', ')
+			+ this.disabledByList?.pointDisabledByList?.orChoices?.map(c => c.label)?.join(', ')
+			+ this.disabledByList?.pointDisabledByList?.orPoints?.map(p => p.label)?.join(', ');
+			+ ' AND '
+			+ this.disabledByList?.choiceDisabledByList?.andChoices?.map(c => c.label)?.join(', ')
+			+ this.disabledByList?.choiceDisabledByList?.andPoints?.map(p => p.label)?.join(', ')
+			+ this.disabledByList?.choiceDisabledByList?.orChoices?.map(c => c.label)?.join(', ')
+			+ this.disabledByList?.choiceDisabledByList?.orPoints?.map(p => p.label)?.join(', ');
 
 		this.adobeService.setAlertEvent(modalText, 'Blocked Choice Alert');
 
@@ -68,31 +74,55 @@ export class BlockedChoiceModalComponent extends UnsubscribeOnDestroy implements
 		this.blockedItemClick.emit(pointId);
 	}
 
-	get disabledByMustHaveRules()
+	get pointDisabledByMustHaveRules()
 	{
 		return {
-			andPoints: this.disabledByList?.andPoints.filter(r => r.ruleType === 1),
-			andChoices: this.disabledByList?.andChoices.filter(r => r.ruleType === 1 && this.choices.find(c => c.id === r.choiceId).quantity === 0),
-			orPoints: this.disabledByList?.orPoints.filter(r => r.ruleType === 1),
-			orChoices: this.disabledByList?.orChoices.filter(r => r.ruleType === 1)
+			andPoints: this.disabledByList?.pointDisabledByList?.andPoints.filter(r => r.ruleType === 1),
+			andChoices: this.disabledByList?.pointDisabledByList?.andChoices.filter(r => r.ruleType === 1 && this.choices?.find(c => c.id === r.choiceId).quantity === 0),
+			orPoints: this.disabledByList?.pointDisabledByList?.orPoints.filter(r => r.ruleType === 1),
+			orChoices: this.disabledByList?.pointDisabledByList?.orChoices.filter(r => r.ruleType === 1)
 		};
 	}
 
-	get disabledByMustNotHaveRules()
+	get choiceDisabledByMustHaveRules()
 	{
 		return {
-			andPoints: this.disabledByList?.andPoints.filter(r => r.ruleType === 2),
-			andChoices: this.disabledByList?.andChoices.filter(r => r.ruleType === 2),
-			orPoints: this.disabledByList?.orPoints.filter(r => r.ruleType === 2),
-			orChoices: this.disabledByList?.orChoices.filter(r => r.ruleType === 2)
+			andPoints: this.disabledByList?.choiceDisabledByList?.andPoints.filter(r => r.ruleType === 1),
+			andChoices: this.disabledByList?.choiceDisabledByList?.andChoices.filter(r => r.ruleType === 1 && this.choices?.find(c => c.id === r.choiceId).quantity === 0),
+			orPoints: this.disabledByList?.choiceDisabledByList?.orPoints.filter(r => r.ruleType === 1),
+			orChoices: this.disabledByList?.choiceDisabledByList?.orChoices.filter(r => r.ruleType === 1)
+		};
+	}
+
+	get pointDisabledByMustNotHaveRules()
+	{
+		return {
+			andPoints: this.disabledByList?.pointDisabledByList?.andPoints.filter(r => r.ruleType === 2),
+			andChoices: this.disabledByList?.pointDisabledByList?.andChoices.filter(r => r.ruleType === 2),
+			orPoints: this.disabledByList?.pointDisabledByList?.orPoints.filter(r => r.ruleType === 2),
+			orChoices: this.disabledByList?.pointDisabledByList?.orChoices.filter(r => r.ruleType === 2)
+		};
+	}
+
+	get choiceDisabledByMustNotHaveRules()
+	{
+		return {
+			andPoints: this.disabledByList?.choiceDisabledByList?.andPoints.filter(r => r.ruleType === 2),
+			andChoices: this.disabledByList?.choiceDisabledByList?.andChoices.filter(r => r.ruleType === 2),
+			orPoints: this.disabledByList?.choiceDisabledByList?.orPoints.filter(r => r.ruleType === 2),
+			orChoices: this.disabledByList?.choiceDisabledByList?.orChoices.filter(r => r.ruleType === 2)
 		};
 	}
 
 	disabledByRulesExist(mustHave: boolean)
 	{
-		const disabledRules = mustHave ? this.disabledByMustHaveRules : this.disabledByMustNotHaveRules;
+		const disabledRules = mustHave
+			? { point: this.pointDisabledByMustHaveRules, choice: this.choiceDisabledByMustHaveRules} 
+			: { point: this.pointDisabledByMustNotHaveRules, choice: this.choiceDisabledByMustNotHaveRules };
 
-		return disabledRules?.andPoints?.length || disabledRules?.andChoices?.length
-			|| disabledRules?.orPoints?.length || disabledRules?.orChoices?.length
+		return disabledRules?.point?.andPoints?.length || disabledRules?.point?.andChoices?.length
+			|| disabledRules?.point?.orPoints?.length || disabledRules?.point?.orChoices?.length
+			|| disabledRules?.choice?.andPoints?.length || disabledRules?.choice?.andChoices?.length
+			|| disabledRules?.choice?.orPoints?.length || disabledRules?.choice?.orChoices?.length
 	}
 }

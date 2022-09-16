@@ -212,10 +212,11 @@ describe('ChoiceCardComponent', () => {
 
 			component.openBlockedChoiceModal();
 			expect(component.disabledByList).not.toBeUndefined();
-			expect(component.disabledByList.orChoices.length).toEqual(1);
-			expect(component.disabledByList.orChoices[0].label).toEqual('test Choice 6');
-			expect(component.disabledByList.orChoices[0].choiceId).toEqual(6);
-			expect(component.disabledByList.orChoices[0].pointId).toEqual(11);
+			expect(component.disabledByList.choiceDisabledByList).not.toBeUndefined();
+			expect(component.disabledByList.choiceDisabledByList.orChoices.length).toEqual(1);
+			expect(component.disabledByList.choiceDisabledByList.orChoices[0].label).toEqual('test Choice 6');
+			expect(component.disabledByList.choiceDisabledByList.orChoices[0].choiceId).toEqual(6);
+			expect(component.disabledByList.choiceDisabledByList.orChoices[0].pointId).toEqual(11);
 		});
 		it('should set up disabledByList for DP-to-Choice rules', () => {
 			component.currentPoint.disabledBy = [{
@@ -226,10 +227,11 @@ describe('ChoiceCardComponent', () => {
 
 			component.openBlockedChoiceModal();
 			expect(component.disabledByList).not.toBeUndefined();
-			expect(component.disabledByList.orChoices.length).toEqual(1);
-			expect(component.disabledByList.orChoices[0].label).toEqual('test Choice 6');
-			expect(component.disabledByList.orChoices[0].choiceId).toEqual(6);
-			expect(component.disabledByList.orChoices[0].pointId).toEqual(11);
+			expect(component.disabledByList.pointDisabledByList).not.toBeUndefined();
+			expect(component.disabledByList.pointDisabledByList.orChoices.length).toEqual(1);
+			expect(component.disabledByList.pointDisabledByList.orChoices[0].label).toEqual('test Choice 6');
+			expect(component.disabledByList.pointDisabledByList.orChoices[0].choiceId).toEqual(6);
+			expect(component.disabledByList.pointDisabledByList.orChoices[0].pointId).toEqual(11);
 		});
 		it('should set up disabledByList for DP-to-DP rules', () => {
 			component.currentPoint.disabledBy = [{
@@ -240,10 +242,11 @@ describe('ChoiceCardComponent', () => {
 
 			component.openBlockedChoiceModal();
 			expect(component.disabledByList).not.toBeUndefined();
-			expect(component.disabledByList.orPoints.length).toEqual(1);
-			expect(component.disabledByList.orPoints[0].label).toEqual('test point 11');
-			expect(component.disabledByList.orPoints[0].choiceId).toBeUndefined();
-			expect(component.disabledByList.orPoints[0].pointId).toEqual(11);
+			expect(component.disabledByList.pointDisabledByList).not.toBeUndefined();
+			expect(component.disabledByList.pointDisabledByList.orPoints.length).toEqual(1);
+			expect(component.disabledByList.pointDisabledByList.orPoints[0].label).toEqual('test point 11');
+			expect(component.disabledByList.pointDisabledByList.orPoints[0].choiceId).toBeUndefined();
+			expect(component.disabledByList.pointDisabledByList.orPoints[0].pointId).toEqual(11);
 		});
 	});
 });
