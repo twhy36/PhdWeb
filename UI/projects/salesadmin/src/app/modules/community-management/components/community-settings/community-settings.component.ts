@@ -106,36 +106,16 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 			this.takeUntilDestroyed(),
 		).subscribe(canEdit => this.canEdit = canEdit);
 
-		this._orgService.currentCommunity$.pipe(
+		combineLatest([this._orgService.currentMarket$, this._orgService.currentCommunity$]).pipe(
 			this.takeUntilDestroyed(),
-			switchMap(financialCommunity => {
-				this.financialCommunity = financialCommunity;
-				if(this.financialCommunity.id)
-				{
-					this.checkRequiredFilesExist();
-				}
-				if (financialCommunity.salesCommunityId) {
-					return combineLatest(
-						[this._orgService.getWebsiteCommunity(financialCommunity?.salesCommunityId),
-						this._orgService.getSalesCommunity(financialCommunity?.salesCommunityId)]);
-				}
-				return of([null, null]);
-			}),
-		).subscribe(([websiteCommunity, salesCommunity]) => {
-			this.url = (environment.thoUrl && websiteCommunity?.webSiteIntegrationKey)
-				? environment.thoUrl + websiteCommunity.webSiteIntegrationKey
-				: null;
-			this.salesCommunity = salesCommunity;
-		});
-
-		this._orgService.currentMarket$.pipe(
-			this.takeUntilDestroyed(),
-			switchMap(mkt =>
+			switchMap(([mkt, comm]) =>
 			{
-				if (mkt)
+				this.currentMarket = mkt;
+				this.financialCommunity = comm;
+				// If we have both a current market and current financialCommunity get orgs needed to get FinancialCommunityinfo
+				if (mkt && comm)
 				{
-					this.currentMarket = mkt;
-					return combineLatest([this._orgService.getInternalOrgs(mkt.id), this._orgService.currentCommunity$]);
+					return combineLatest([this._orgService.getInternalOrgs(mkt.id), of(comm)]);
 				}
 				return of([null, null]);
 			}),
@@ -143,20 +123,31 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 			{
 				if (comm != null && (!this.selectedCommunity || this.selectedCommunity.id != comm.id))
 				{
+					if (comm.id)
+					{
+						this.checkRequiredFilesExist();
+					}
 					this.orgId = orgs?.find(o => o.edhFinancialCommunityId === comm.id)?.orgID;
 					this.selectedCommunity = new FinancialCommunityViewModel(comm);
 					this.loadPlansAndHomeSites();
 
-					if (this.orgId)
+					if (this.orgId && comm.salesCommunityId)
 					{
-						return this._orgService.getFinancialCommunityInfo(this.orgId);
+						// If we have an Org and salesCommunity we get FinancialCommunityInfo, WebsiteCommunity, and SalesCommunity
+						return combineLatest([this._orgService.getFinancialCommunityInfo(this.orgId),
+												this._orgService.getWebsiteCommunity(comm?.salesCommunityId),
+												this._orgService.getSalesCommunity(comm?.salesCommunityId)]);
 					}
 				}
-				return of(null);
+				return of([null, null, null]);
 			}),
-		).subscribe(finCommInfo =>
+		).subscribe(([finCommInfo, websiteCommunity, salesCommunity]) =>
 		{
 			this.financialCommunityInfo = finCommInfo;
+			this.url = (environment.thoUrl && websiteCommunity?.webSiteIntegrationKey)
+				? environment.thoUrl + websiteCommunity.webSiteIntegrationKey
+				: null;
+			this.salesCommunity = salesCommunity;
 			this.createForm();
 		}, error =>
 		{
