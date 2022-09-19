@@ -6,7 +6,7 @@ import
 {
 	DesignToolAttribute, SalesCommunity, PlanOption, TreeVersionRules, Scenario, TreeFilter,
 	Tree, Choice, Group, SubGroup, DecisionPoint, selectChoice, applyRules, setGroupStatus,
-	setPointStatus, setSubgroupStatus, checkReplacedOption, getChoiceToDeselect, TimeOfSaleOptionPrice
+	setPointStatus, setSubgroupStatus, checkReplacedOption, getChoiceToDeselect, TimeOfSaleOptionPrice, ChangeOrderHanding
 } from 'phd-common';
 import { ScenarioActions, ScenarioActionTypes } from './actions';
 
@@ -200,6 +200,9 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 					scenario.lotId = action.job.lotId;
 					scenario.planId = action.job.planId;
 					scenario.treeVersionId = action.tree ? action.tree.treeVersion.id : null;
+
+					scenario.handing = new ChangeOrderHanding();
+					scenario.handing.handing = action.job.handing;
 				}
 
 				newState = { ...newState, scenario: scenario, timeOfSaleOptionPrices: action.job.timeOfSaleOptionPrices };
