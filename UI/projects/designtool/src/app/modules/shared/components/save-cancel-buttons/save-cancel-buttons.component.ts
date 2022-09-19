@@ -32,6 +32,7 @@ export class SaveCancelButtonsComponent extends UnsubscribeOnDestroy implements 
 	state$: Observable<any>;
 	sub: Subscription;
 
+	isSaving: boolean;
 	buttonText: string;
 	deleting: boolean = false;
 
@@ -46,6 +47,8 @@ export class SaveCancelButtonsComponent extends UnsubscribeOnDestroy implements 
 	}
 
 	save() {
+		// Set isSaving = true to disable the save button
+		this.isSaving = true;
 		// Emit the save now, so it resets all "listener" properties in the state
 		this.onSave.emit();
 
@@ -70,6 +73,8 @@ export class SaveCancelButtonsComponent extends UnsubscribeOnDestroy implements 
 	resetButton() {
 		this.sub.unsubscribe();
 		this.buttonText = this.saveText;
+		// Set isSaving = false to enable the save button
+		this.isSaving = false;
 	}
 
 	formIsValid() {
