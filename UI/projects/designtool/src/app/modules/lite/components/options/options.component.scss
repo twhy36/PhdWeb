@@ -102,3 +102,9 @@
 		}
 	}
 }
+
+::ng-deep .phd-option-tooltip {
+	.tooltip-inner {
+		max-width: 420px;
+	}
+}

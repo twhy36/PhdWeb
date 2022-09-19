@@ -121,3 +121,9 @@
 		color: $dodger-blue;
 	}
 }
+
+::ng-deep .phd-card-tooltip {
+	.tooltip-inner {
+		max-width:720px;
+	}
+}
