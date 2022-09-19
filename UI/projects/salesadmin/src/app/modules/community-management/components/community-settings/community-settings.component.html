@@ -61,7 +61,13 @@
 				<div class="phd-box">
 					<div class="phd-line">
 						<div class="font-weight-bold">Enable THO Community Link for Sales Consultants Only</div>
-						<input class="form-control phd-ecoe-input" [ngClass]="{'phd-error': ecoeRequired}" id="ecoe-months" type="number" formControlName="ecoeMonths" min="1" max="15" />
+						<div class="col-md">
+							<button class="btn btn-sm btn-toggle btn-auto-approval"
+									[disabled]="!canToggleCommunitySettings"
+									[ngClass]="{'active': !isPreviewEnabled, 'btn-success': isPreviewEnabled, 'btn-secondary': !isPreviewEnabled}"
+									(click)="toggleCommunityLinkEnabled()">
+							</button>
+						</div>
 						<div class="phd-line">
 							<a class="btn-link" [href]="url" target="_blank" rel="noopener noreferrer">{{ url }}</a>
 						</div>
@@ -166,7 +172,13 @@
 				<div class="phd-box">
 					<div class="phd-line">
 						<div class="font-weight-bold">Enable THO Community Link for Sales Consultants Only</div>
-						<input class="form-control phd-ecoe-input" [ngClass]="{'phd-error': ecoeRequired}" id="ecoe-months" type="number" formControlName="ecoeMonths" min="1" max="15" />
+						<div class="col-md">
+							<button class="btn btn-sm btn-toggle btn-auto-approval"
+									[disabled]="!canToggleCommunitySettings"
+									[ngClass]="{'active': !isPreviewEnabled, 'btn-success': isPreviewEnabled, 'btn-secondary': !isPreviewEnabled}"
+									(click)="toggleCommunityLinkEnabled()">
+							</button>
+						</div>
 						<div class="phd-line">
 							<a class="btn-link" [href]="url" target="_blank" rel="noopener noreferrer">{{ url }}</a>
 						</div>
