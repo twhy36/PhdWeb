@@ -109,5 +109,17 @@ export const environment = {
 		41859,
 		41861,
 		41863
+	],
+	designPreviewMarketWhitelist: [
+		460, // Arizona Market
+		463, // Austin Market
+		104, // Houston Market
+		473, // Las Vegas Market
+		124, // Michigan Market
+		465, // New Mexico Market
+		122, // Northern California
+		40008, // Northeast Florida Market
+		448, // Pacific Northwest
+		151, // Southern California
 	]
 };

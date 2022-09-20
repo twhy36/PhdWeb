@@ -26,5 +26,13 @@ export const environment = {
 	},
 	selectedCommunityWhitelist: [
 		// Add markets here
+	],
+	designPreviewMarketWhitelist: [
+		460, // Arizona Market
+		473, // Las Vegas Market
+		465, // New Mexico Market
+		122, // Northern California Market
+		448, // Pacific Northwest Market
+		151, // Southern California Market
 	]
-	};
+};
