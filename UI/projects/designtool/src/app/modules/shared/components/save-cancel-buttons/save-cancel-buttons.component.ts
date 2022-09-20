@@ -6,14 +6,14 @@ import { FormGroup } from '@angular/forms';
 
 import { UnsubscribeOnDestroy } from 'phd-common';
 
-@Component( {
+@Component({
 	selector: 'save-cancel-buttons',
 	templateUrl: './save-cancel-buttons.component.html',
 	styleUrls: ['./save-cancel-buttons.component.scss']
-} )
+})
 
-export class SaveCancelButtonsComponent extends UnsubscribeOnDestroy implements OnInit {
-
+export class SaveCancelButtonsComponent extends UnsubscribeOnDestroy implements OnInit
+{
 	@Input() saveText: string = 'save';
 	@Input() savingText: string = 'saving...';
 	@Input() savedText: string = 'saved';
@@ -36,48 +36,66 @@ export class SaveCancelButtonsComponent extends UnsubscribeOnDestroy implements 
 	buttonText: string;
 	deleting: boolean = false;
 
-	constructor( private store: Store<fromRoot.State> ) {
+	constructor(private store: Store<fromRoot.State>)
+	{
 		super();
 	}
 
-	ngOnInit() {
+	ngOnInit()
+	{
 		this.buttonText = this.saveText;
+
 		// Create Observable, but don't subscribe yet.
-		this.state$ = this.store.pipe( this.takeUntilDestroyed(), select( state => state[this.fromState] ) );
+		this.state$ = this.store.pipe(this.takeUntilDestroyed(), select(state => state[this.fromState]));
 	}
 
-	save() {
+	save()
+	{
 		// Set isSaving = true to disable the save button
 		this.isSaving = true;
+
 		// Emit the save now, so it resets all "listener" properties in the state
 		this.onSave.emit();
 
-		this.sub = this.state$.subscribe( agreement => {
+		this.sub = this.state$.subscribe(agreement =>
+		{
 			const unsaved = agreement[this.unsavedProp];
 			const error = agreement[this.errorProp];
+
 			this.buttonText = this.savingText;
-			if ( unsaved && error ) {
+
+			if (unsaved && error)
+			{
 				this.buttonText = this.errorText;
-				setTimeout( ( { } ) => this.resetButton(), 3000 );
-			} else if ( !unsaved && !error ) {
-				this.buttonText = this.savedText;
-				setTimeout( ( { } ) => this.resetButton(), 3000 );
+
+				setTimeout(() => this.resetButton(), 3000);
 			}
-		} );
+			else if (!unsaved && !error)
+			{
+				this.buttonText = this.savedText;
+
+				setTimeout(() => this.resetButton(), 3000);
+			}
+		});
 	}
 
-	cancel() {
+	cancel()
+	{
 		this.onCancel.emit();
 	}
 
-	resetButton() {
+	resetButton()
+	{
 		this.sub.unsubscribe();
+
 		this.buttonText = this.saveText;
+
 		// Set isSaving = false to enable the save button
 		this.isSaving = false;
 	}
 
-	formIsValid() {
+	formIsValid()
+	{
 		return this.form && this.form.valid && this.form.dirty;
 	}
 }

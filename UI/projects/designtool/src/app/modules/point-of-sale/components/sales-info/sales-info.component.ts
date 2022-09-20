@@ -97,7 +97,7 @@ export class SalesInfoComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 	get canAddTnCs()
 	{
-		return this.agreement.status === 'Pending' || this.isChangingOrder;
+		return this.isChangingOrder && !this.editing && this.canSell && !this.cancelOrVoid && this.agreement.status !== 'Pending';
 	}
 
 	get canAddNotes()
@@ -483,27 +483,33 @@ export class SalesInfoComponent extends UnsubscribeOnDestroy implements OnInit, 
 		this.editing = item; // by setting editing to the item being edited, we hide all components except the one being edited.
 	}
 
-	add(type: string)
+	add(type: string, params: any = null)
 	{
 		let newItem: SalesAgreementContingency | SalesAgreementDeposit | SalesAgreementProgram | Note | SalesChangeOrderPriceAdjustment;
 
 		switch (type)
 		{
-			case "programs":
+			case 'programs':
 				newItem = new SalesAgreementProgram();
 				break;
-			case "deposits":
+			case 'deposits':
 				newItem = new SalesAgreementDeposit();
 				break;
-			case "contingencies":
+			case 'contingencies':
 				newItem = new SalesAgreementContingency();
 				break;
-			case "notes":
+			case 'notes':
 				newItem = new Note();
 				break;
-			case "priceAdjustments":
+			case 'priceAdjustments':
 				newItem = new SalesChangeOrderPriceAdjustment();
 				break;
+		}
+
+		// if dealing with notes and the subType is set, that means it should be a Terms & Conditions note.
+		if (newItem instanceof Note && params !== null)
+		{
+			newItem.noteSubCategoryId = params.subCategory;
 		}
 
 		this[type].push(newItem);
