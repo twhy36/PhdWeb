@@ -50,7 +50,7 @@ export class ChangeOrderTableComponent extends UnsubscribeOnDestroy implements O
 
 	canEditChangeOrder(changeOrder: any)
 	{
-		let canEditRejectedChangeOrder = (changeOrder.salesStatus !== 'Rejected' && changeOrder.constructionStatus !== 'Rejected') || this.changeOrders.length === 1;
+		let canEditRejectedChangeOrder = (changeOrder.salesStatus !== 'Rejected' && changeOrder.constructionStatusDescription !== 'Rejected') || this.changeOrders.length === 1;
 
 		if (!canEditRejectedChangeOrder && this.changeOrders.length > 1)
 		{
@@ -62,7 +62,7 @@ export class ChangeOrderTableComponent extends UnsubscribeOnDestroy implements O
 			return this.canApproveChangeOrder;
 		}
 
-		return (changeOrder.salesStatus !== 'Approved' || changeOrder.constructionStatus === 'Rejected')
+		return (changeOrder.salesStatus !== 'Approved' || changeOrder.constructionStatusDescription === 'Rejected')
 			&& canEditRejectedChangeOrder
 			&& changeOrder.isActiveChangeOrder
 			&& (this.canSell || this.canEdit || (this.canDesign && this.contactId === changeOrder.createdByContactId));

@@ -68,8 +68,8 @@
 			</td>
 			<td>
 				<span *ngIf="changeOrder.salesStatus === 'Approved' || changeOrder.salesStatus === 'Resolved'
-					  || changeOrder.salesStatus === 'Withdrawn' && changeOrder.constructionStatus === 'Rejected'">
-					{{changeOrder.constructionStatus === 'Pending' ? 'In Review' : changeOrder.constructionStatus}}
+					  || changeOrder.salesStatus === 'Withdrawn' && changeOrder.constructionStatusDescription === 'Rejected'">
+					{{changeOrder.constructionStatusDescription === 'Pending' ? 'In Review' : changeOrder.constructionStatusDescription}}
 				</span>
 			</td>
 			<td>{{changeOrder.createdBy}}</td>
