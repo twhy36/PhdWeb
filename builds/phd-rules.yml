@@ -53,10 +53,10 @@ jobs:
         
         if (($major -eq $prevMajor) -and ($minor -eq $prevMinor)){
           $packageVersion = "{0}.{1}.{2}" -f $major, $minor, ($prevBuild+1)
-          Write-Host "##vso[task.setvariable variable=packageVersion;isOutput=true]"$packageVersion
+          Write-Host "##vso[task.setvariable variable=packageVersion;isOutput=true]$packageVersion"
         }else{
           $packageVersion = "{0}.{1}.0" -f $major, $minor
-          Write-Host "##vso[task.setvariable variable=packageVersion;isOutput=true]"$packageVersion
+          Write-Host "##vso[task.setvariable variable=packageVersion;isOutput=true]$packageVersion"
         }
         Write-Host $packageVersion
       ScriptArguments: '-artifacts $(System.ArtifactsDirectory) -major $(MajorVersion) -minor $(MinorVersion)'
