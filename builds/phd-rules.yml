@@ -60,6 +60,12 @@ jobs:
         }
         Write-Host $packageVersion
       ScriptArguments: '-artifacts $(System.ArtifactsDirectory) -major $(MajorVersion) -minor $(MinorVersion)'
+- job: Test
+  dependsOn: SetVersion
+  variables:
+    packageVersion: $[dependencies.SetVersion.outputs['PS.packageVersion']]
+  steps:
+    - script: echo $(packageVersion)
 - job: Build
   dependsOn: SetVersion
   workspace:
