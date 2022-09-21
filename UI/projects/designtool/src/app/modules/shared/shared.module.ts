@@ -56,14 +56,15 @@ import { PriceRangePipe } from './pipes/priceRange.pipe';
 import { PhoneNumberDirective } from './directives';
 import { InputFilterDirective } from './directives/input-filter.directive';
 import { FloorPlanComponent } from './components/floor-plan/floor-plan.component';
+import { NewHomeService } from '../new-home/services/new-home.service';
 
 @NgModule({
-    exports: [
-        AttributeListComponent,
-        ChoiceCardComponent,
+	exports: [
+		AttributeListComponent,
+		ChoiceCardComponent,
 		ChoiceCardDetailComponent,
 		ChoiceIdToNamePipe,
-        DecisionBarComponent,
+		DecisionBarComponent,
 		DecisionPointFilterComponent,
 		QuantityInputComponent,
 		ContactAddressPipe,
@@ -101,16 +102,16 @@ import { FloorPlanComponent } from './components/floor-plan/floor-plan.component
 		FloorPlanComponent,
 		SummaryHeaderComponent,
 		PricingBreakdownComponent
-    ],
-    declarations: [
-        AttributeListComponent,
-        ChoiceCardComponent,
+	],
+	declarations: [
+		AttributeListComponent,
+		ChoiceCardComponent,
 		ChoiceCardDetailComponent,
 		ChoiceIdToNamePipe,
-        DecisionBarComponent,
-        DecisionPointFilterComponent,
-        QuantityInputComponent,
-	    ContactAddressPipe,
+		DecisionBarComponent,
+		DecisionPointFilterComponent,
+		QuantityInputComponent,
+		ContactAddressPipe,
 		ActionBarComponent,
 		AddCardComponent,
 		AttributeGroupComponent,
@@ -145,20 +146,20 @@ import { FloorPlanComponent } from './components/floor-plan/floor-plan.component
 		FloorPlanComponent,
 		SummaryHeaderComponent,
 		PricingBreakdownComponent
-    ],
-    imports: [
-        BrowserAnimationsModule,
-        CommonModule,
-        HttpClientModule,
-        RouterModule,
-	    ReactiveFormsModule,
+	],
+	imports: [
+		BrowserAnimationsModule,
+		CommonModule,
+		HttpClientModule,
+		RouterModule,
+		ReactiveFormsModule,
 		CloudinaryModule,
 		DragScrollModule,
 		CarouselModule,
 		FormsModule,
 		NgbModule,
 		PhdCommonModule
-    ],
-	providers: []
+	],
+	providers: [NewHomeService]
 })
 export class SharedModule { }

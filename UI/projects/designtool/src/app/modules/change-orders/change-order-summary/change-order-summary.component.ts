@@ -55,6 +55,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 	rejectedChangeOrder: ChangeOrderGroup = null;
 	buildMode: string;
 	constructionStageName: string;
+	canEdit$: Observable<boolean>;
 	canApprove$: Observable<boolean>;
 	canSell$: Observable<boolean>;
 	canDesign$: Observable<boolean>;
@@ -337,7 +338,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 					changeOrderNotes: o.note ? o.note.noteContent : '',
 					eSignEnvelopes: o.eSignEnvelopes,
 					salesStatus: o.salesStatusDescription === 'OutforSignature' ? 'Out For Signature' : o.salesStatusDescription,
-					constructionStatus: o.constructionStatusDescription,
+					constructionStatusDescription: o.constructionStatusDescription,
 					createdBy: o.contact ? o.contact.displayName : o.createdBy,
 					createdByContactId: o.createdByContactId,
 					actionTypes: actionTypes,
@@ -375,14 +376,14 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 				? this.changeOrders[this.changeOrders.length - 1].changeOrderGroupSequence
 				: 0;
 
-			this.activeChangeOrders = this.changeOrders.filter(t => ['Pending', 'Out For Signature', 'Signed', 'Rejected'].indexOf(t.salesStatus) !== -1).concat(this.changeOrders.filter(t => t.salesStatus === 'Approved' && t.constructionStatus !== 'Approved'));
+			this.activeChangeOrders = this.changeOrders.filter(t => ['Pending', 'Out For Signature', 'Signed', 'Rejected'].indexOf(t.salesStatus) !== -1).concat(this.changeOrders.filter(t => t.salesStatus === 'Approved' && t.constructionStatusDescription !== 'Approved'));
 			this.activeChangeOrders.forEach(co => co.isActiveChangeOrder = true);
 
-			this.pastChangeOrders = this.changeOrders.filter(t => t.salesStatus === 'Withdrawn' || t.salesStatus === 'Resolved' || (t.salesStatus === 'Approved' && t.constructionStatus === 'Approved'));
+			this.pastChangeOrders = this.changeOrders.filter(t => t.salesStatus === 'Withdrawn' || t.salesStatus === 'Resolved' || (t.salesStatus === 'Approved' && t.constructionStatusDescription === 'Approved'));
 
 			if (this.activeChangeOrders.length > 1)
 			{
-				let resubmittedChangeOrder = this.activeChangeOrders.find(t => !t.jobChangeOrderGroupSalesStatusHistories.find(c => c.salesStatusId === 4) && t.constructionStatus !== 'Rejected');
+				let resubmittedChangeOrder = this.activeChangeOrders.find(t => !t.jobChangeOrderGroupSalesStatusHistories.find(c => c.salesStatusId === 4) && t.constructionStatusDescription !== 'Rejected');
 
 				if (resubmittedChangeOrder)
 				{
@@ -425,6 +426,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 			this.envelopeID = changeOrder ? changeOrder.envelopeId : 0;
 		});
 
+		this.canEdit$ = this.store.pipe(select(fromRoot.canCreateChangeOrder));
 		this.canApprove$ = this.store.pipe(select(fromRoot.canApprove));
 		this.canSell$ = this.store.pipe(select(fromRoot.canSell));
 		this.contactId$ = this.store.pipe(select(fromUser.contactId));
@@ -691,7 +693,6 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 
 				break;
 			case this.ACTION_TYPES.APPROVE:
-
 				// Compare snapshots for spec approval
 				if (this.buildMode === 'spec' || this.buildMode === 'model')
 				{
@@ -1390,10 +1391,5 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 	toggleDesignComplete()
 	{
 		this.store.dispatch(new SalesAgreementActions.SetIsDesignComplete(!this.isDesignComplete));
-
-		if (!this.isDesignComplete)
-		{
-			this.store.dispatch(new FavoriteActions.DeleteMyFavorites());
-		}
 	}
 }

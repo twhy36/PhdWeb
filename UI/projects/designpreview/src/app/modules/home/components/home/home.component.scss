@@ -28,20 +28,26 @@
 	text-align: center;
 }
 
-.phd-start-reviewing-presale {
+.phd-start-reviewing-title {
 	font-size: 3.2vh;
 	color: var(--home-text-color);
 	margin-top: 30px;
 	text-align: center;
 }
 
+.phd-start-reviewing-heart {
+	font-size: 3.7vh;
+	vertical-align: middle;
+}
+
 .phd-start-reviewing-desc {
-	font-size: 2.2vh;
+	font-size: 2.4vh;
 	color: var(--home-text-color);
-	margin-top: 10px;
+	margin-top: 15px;
 	width: 40vw;
 	margin-bottom: 30px;
 	text-align: center;
+	line-height: .9;
 }
 
 .phd-design-list-button {

@@ -9,6 +9,7 @@ import { UnsubscribeOnDestroy, convertDateToUtcString } from 'phd-common';
 export class ChangeOrderTableComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	@Input() changeOrders: Array<any>;
+	@Input() canEdit: boolean;
 	@Input() canApprove: boolean;
 	@Input() canSell: boolean;
 	@Input() canDesign: boolean;
@@ -49,17 +50,22 @@ export class ChangeOrderTableComponent extends UnsubscribeOnDestroy implements O
 
 	canEditChangeOrder(changeOrder: any)
 	{
-		let canEditRejectedChangeOrder = (changeOrder.salesStatus !== 'Rejected' && changeOrder.constructionStatus !== 'Rejected') || this.changeOrders.length === 1;
+		let canEditRejectedChangeOrder = (changeOrder.salesStatus !== 'Rejected' && changeOrder.constructionStatusDescription !== 'Rejected') || this.changeOrders.length === 1;
 
 		if (!canEditRejectedChangeOrder && this.changeOrders.length > 1)
 		{
 			canEditRejectedChangeOrder = changeOrder.index === this.changeOrders[this.changeOrders.length - 1].index;
 		}
 
-		return (changeOrder.salesStatus !== 'Approved' || changeOrder.constructionStatus === 'Rejected')
+		if (changeOrder.salesStatus === 'Signed')
+		{
+			return this.canApproveChangeOrder;
+		}
+
+		return (changeOrder.salesStatus !== 'Approved' || changeOrder.constructionStatusDescription === 'Rejected')
 			&& canEditRejectedChangeOrder
 			&& changeOrder.isActiveChangeOrder
-			&& (this.canSell || this.canApproveChangeOrder || (this.canDesign && this.contactId === changeOrder.createdByContactId));
+			&& (this.canSell || this.canEdit || (this.canDesign && this.contactId === changeOrder.createdByContactId));
 	}
 
 	getChangeOrderType(changeOrder: any)

@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
 
 import { Location } from '../../../../../shared/models/location.model';
 
-import { difference } from "lodash";
+import { difference } from 'lodash';
 
 @Component({
 	selector: 'locations-details-tab',
@@ -155,7 +155,8 @@ export class LocationsDetailsTabComponent implements OnInit
 	{
 		return (control: AbstractControl): { [key: string]: boolean } =>
 		{
-			let existingTag = this.location.tags.find(t => t == control.value);
+			const tagsArray = this.locationForm?.get('tags') as FormArray;
+			const existingTag = tagsArray?.value.find(t => t?.toLowerCase() == control.value?.toLowerCase().trim());
 
 			return existingTag ? { duplicateTag: true } : null;
 		};

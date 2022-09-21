@@ -73,27 +73,48 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 		});
 
 		combineLatest([
-			this.store.select(state => state.lite.options),
+			this.store.select(state => state.lite),
 			this.store.pipe(select(fromLite.selectedOptionCategories))
-		]).pipe(
-			take(1)
-		).subscribe(([options, categories]) =>
-		{
-			const groups = _.groupBy(this.filteredOptions(options), o => o.optionCategoryId);
-			const subMenuitems = Object.keys(groups).map(key =>
+		])
+			.pipe(delay(0), take(1))
+			.subscribe(([lite, categories]) =>
 			{
-				const categoryName = categories.find(c => c.id.toString() === key).name;
+				const groups = _.groupBy(this.filteredOptions(lite.options), o => o.optionCategoryId);
 
-				return {
-					label: categoryName,
-					status: PointStatus.UNVIEWED,
-					id: Number.parseInt(key)
-				};
+				const subMenuitems = [];
+				Object.keys(groups).forEach(key =>
+				{
+					const category = _.cloneDeep(categories.find(c => c.id.toString() === key));
+
+					if (category)
+					{
+						const allCategoryRelatedOptions = this.filteredOptions(lite.options).filter(x => x.optionCategoryId === category.id);
+
+						category.optionSubCategories.forEach(subcategory =>
+						{
+							const subcategoryOptions = allCategoryRelatedOptions.filter(x => x.optionSubCategoryId === subcategory.id);
+
+							subcategory.planOptions = _.cloneDeep(subcategoryOptions).map(x => x as LitePlanOptionUI);
+						});
+
+						category.optionSubCategories = category.optionSubCategories.filter(x => x.planOptions.some(po => po.isActive));
+					}
+
+					if (category.optionSubCategories && category.optionSubCategories.length > 0 && category.optionSubCategories.some(osc => osc.planOptions))
+					{
+						subMenuitems.push({
+							label: category.name,
+							status: PointStatus.UNVIEWED,
+							id: Number.parseInt(key)
+						});
+					}
+				});
+
+				this.store.dispatch(new NavActions.SetSubNavItems(subMenuitems));
+
+				const firstCategory = subMenuitems && subMenuitems.length ? subMenuitems[0].id : 0;
+				this.store.dispatch(new NavActions.SetSelectedSubNavItem(firstCategory));
 			});
-
-			this.store.dispatch(new NavActions.SetSubNavItems(subMenuitems));
-			this.store.dispatch(new NavActions.SetSelectedSubNavItem(1));
-		});
 
 		this.store.select(state => state.lite)
 			.pipe(take(1))

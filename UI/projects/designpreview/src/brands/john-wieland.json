@@ -32,6 +32,7 @@
 		"popup-ribbon-background-color": "#002855",
 		"home-page-floorplan-background-color": "#E6E6E6",
 		"logo-margin-top": "2px",
-		"logo-max-height": "45px"
+		"logo-max-height": "45px",
+        "hamburger-menu-width": "335px"
 	}
 }

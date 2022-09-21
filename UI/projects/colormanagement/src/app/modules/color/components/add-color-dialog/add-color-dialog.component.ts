@@ -88,42 +88,45 @@ export class AddColorDialogComponent implements OnInit, OnChanges {
 			return;
 		}
 
-		let validEntries = this.colors.controls.filter(x => x.touched && x.dirty && x.valid);
+		const validEntries = this.colors.controls.filter(x => x.touched && x.dirty && x.valid);
 
-		const colorEntries = validEntries.map(control => 
-		{
-			return {
-				name: control.get('name').value.toString().toLowerCase().trim(),
-				sku: control.get('sku').value.toString().toLowerCase().trim()
-			};
-		}) || [];
-		
-		this._colorService.getColorsByNames(this.communityId, this.currentSubCategory.id, colorEntries)
-			.subscribe(colors =>
+		const colorsToSave: IColor[] = [];
+		validEntries.forEach(control => {
+			const colorName = control.value.name.toString().trim();
+			const colorSku = control.value.sku;
+			
+			if (!!colorName.length)
 			{
-				if (colors.length)
+				let duplicateColor = colorsToSave.find(color => color.name === colorName && color.sku === colorSku);
+				
+				if (duplicateColor)
 				{
-					this._modalService.showOkOnlyModal(`This color/SKU combination already exists for this subcategory. <br><br>Please use a different color name or SKU.`, 'Duplicate Color');
+					duplicateColor.isActive = control.value.isActive;
 				}
 				else
 				{
-					const colorsToSave: IColor[] = [];
-					validEntries.forEach(control => {
-						colorsToSave.push({
-							name:control.value.name.toString().trim(),
-							colorId: 0,
-							sku:control.value.sku,
-							edhOptionSubcategoryId: this.currentSubCategory.id,
-							edhFinancialCommunityId:this.communityId,
-							isActive: control.value.isActive
-						});
+					colorsToSave.push({
+						name:colorName,
+						colorId: 0,
+						sku:colorSku,
+						edhOptionSubcategoryId: this.currentSubCategory.id,
+						edhFinancialCommunityId:this.communityId,
+						isActive: control.value.isActive
 					});
-			
-					this._optionService.saveNewColors(colorsToSave).subscribe((savedColors) => {
-						this.newColorsWereSaved.emit(savedColors.length > 0);
-					});
-				}
-			});
+				}				
+			}
+		});
+
+		if (!!colorsToSave.length)
+		{
+			this._optionService.saveNewColors(colorsToSave).subscribe((savedColors) => {
+				this.newColorsWereSaved.emit(savedColors.length > 0);
+			});			
+		}
+		else
+		{
+			this.closeDialogWasRequested.emit();
+		}
 	}
 
 	isFormValid(): boolean

@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { DecisionPoint, Group, Tree } from 'phd-common';
-import { BlockedByItemList } from '../../../models/blocked-by.model';
+import { BlockedByItemObject } from '../../../models/blocked-by.model';
 import { getDisabledByList } from '../../../classes/tree.utils';
 import { ChoiceExt } from '../../../models/choice-ext.model';
 import { AdobeService } from '../../../../core/services/adobe.service';
@@ -26,7 +26,8 @@ export class DecisionBarChoiceComponent {
 	@ViewChild('blockedChoiceModal') blockedChoiceModal: any;
 	@ViewChild('hiddenChoicePriceModal') hiddenChoicePriceModal: any;
 
-	disabledByList: BlockedByItemList = null;
+	disabledByList: BlockedByItemObject
+		= { pointDisabledByList: null, choiceDisabledByList: null };
 	blockedChoiceModalRef: NgbModalRef;
 	hiddenChoicePriceModalRef: NgbModalRef;
 
@@ -50,7 +51,7 @@ export class DecisionBarChoiceComponent {
 	}
 
 	openBlockedChoiceModal() {
-		if (!this.disabledByList) {
+		if (!this.disabledByList.choiceDisabledByList && !this.disabledByList.pointDisabledByList) {
 			this.disabledByList = getDisabledByList(this.tree, this.groups, this.point, this.choice);
 		}
 		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { windowClass: 'phd-blocked-choice-modal' });

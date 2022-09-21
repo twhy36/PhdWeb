@@ -40,15 +40,15 @@
 </div>
 
 <form class="p-3" *ngIf="editing === note" [formGroup]="form">
-	<h6>New Note</h6>
+	<h6>{{noteTitle}}</h6>
 	<div class="w-100">
 		<label for="subCategory">Category *</label>
 		<select class="form-control" formControlName="subCategory" id="subCategory" name="subCategory" (change)="selectChange()">
 			<optgroup label="Internal">
 				<option *ngFor="let item of internalCategoryOptions"  [disabled]="!canEditInternalNotes"  [ngValue]="item.id">{{ item.value }}</option>
 			</optgroup>
-			<optgroup label="Public">
-				<option *ngFor="let item of externalCategoryOptions" [disabled]="!canEditExternalNotes || !isPendingOrInChangeOrder" [ngValue]="item.id">{{ item.value }}</option>
+			<optgroup label="Public" *ngIf="externalCategoryOptions.length > 0">
+				<option *ngFor="let item of externalCategoryOptions" [disabled]="!canEditExternalNotes || !inChangeOrder" [ngValue]="item.id">{{ item.value }}</option>
 			</optgroup>
 		</select>
 	</div>

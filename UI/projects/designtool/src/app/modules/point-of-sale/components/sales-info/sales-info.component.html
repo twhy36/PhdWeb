@@ -139,12 +139,12 @@
 				*ngFor="let note of notes; let i = index">
 	</sales-note>
 
-	<add-card *ngIf="!editing && canSell && !cancelOrVoid && canAddTnCs && agreement.status !== 'Pending'"
+	<add-card *ngIf="canAddTnCs"
 			  [hasNA]="!notes || notes.length === 0"
 			  [isNA]="isNoteNa"
 			  [label]="'Terms & Conditions'"
 			  [labels]="'Terms & Conditions'"
-			  (onAdd)="add('notes')"
+			  (onAdd)="add('notes', { subCategory: 10 })"
 			  (onNA)="setNA('notes')">
 	</add-card>
 

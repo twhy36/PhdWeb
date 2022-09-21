@@ -1,3 +1,17 @@
+export class BlockedByItemObject
+{
+	pointDisabledByList?: BlockedByItemList;
+	choiceDisabledByList?: BlockedByItemList;
+
+	constructor(dto = null) 
+	{
+		if (dto) 
+		{
+			Object.assign(this, dto);
+ 		}
+	}	
+}
+
 export class BlockedByItemList
 {
 	andPoints?: BlockedByItem[];

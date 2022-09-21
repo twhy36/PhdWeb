@@ -207,7 +207,7 @@ export function buildLiteOptionColors(option: LitePlanOption, scenarioOption: Sc
 	{
 		scenarioOption?.jobChangeOrderPlanOptionAttributes?.forEach(coPlanOption =>
 		{
-			const optionColor = createLiteDTAttribute(coPlanOption.attributeGroupLabel, coPlanOption.attributeName);
+			const optionColor = createLiteDTAttribute(coPlanOption.attributeGroupLabel, concatColorSku(coPlanOption.attributeName, coPlanOption.sku));
 
 			optionColors.push(optionColor);
 		})
@@ -221,7 +221,7 @@ export function buildLiteOptionColors(option: LitePlanOption, scenarioOption: Sc
 
 			if (colorItem && color)
 			{
-				const optionColor = createLiteDTAttribute(colorItem.name, color.name);
+				const optionColor = createLiteDTAttribute(colorItem.name, concatColorSku(color.name, color.sku));
 
 				optionColors.push(optionColor);
 			}
@@ -229,7 +229,6 @@ export function buildLiteOptionColors(option: LitePlanOption, scenarioOption: Sc
 	}
 
 	optionColors.sort((a, b) => a.attributeGroupLabel.localeCompare(b.attributeGroupLabel));
-
 	return optionColors;
 }
 
@@ -305,6 +304,11 @@ export const createLiteDTAttribute = (label: string, value: string): DesignToolA
 		scenarioChoiceLocationAttributeId: null
 	}
 );
+
+export function concatColorSku(color: string, sku: string): string
+{
+	return sku && sku.length > 0 ? `${color}/${sku}` : color;
+}
 
 export function getLiteChangeOrderGroupSelections(
 	jobChangeOrderPlanOptions: ChangeOrderPlanOption[],
@@ -528,7 +532,7 @@ export function getLiteConstructionChangeOrderPdfData(
 						attributeCommunityId: 0,
 						action: attr.action,
 						attributeGroupLabel: attr.attributeGroupLabel,
-						attributeName: attr.attributeName,
+						attributeName: concatColorSku(attr.attributeName, attr.sku),
 						manufacturer: attr.manufacturer ? attr.manufacturer : null,
 						sku: attr.sku ? attr.sku : null,
 					};

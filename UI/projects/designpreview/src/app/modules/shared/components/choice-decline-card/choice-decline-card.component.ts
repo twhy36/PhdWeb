@@ -1,7 +1,7 @@
 import { Component, Input, Output, OnChanges, SimpleChanges, EventEmitter, ViewChild } from '@angular/core';
 
 import { UnsubscribeOnDestroy, flipOver3, DecisionPoint, Group, Tree, MyFavoritesPointDeclined } from 'phd-common';
-import { BlockedByItemList } from '../../models/blocked-by.model';
+import { BlockedByItemObject } from '../../models/blocked-by.model';
 import { getDisabledByList } from '../../../shared/classes/tree.utils';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { BrandService } from '../../../core/services/brand.service';
@@ -26,14 +26,15 @@ export class ChoiceDeclineCardComponent extends UnsubscribeOnDestroy implements 
 	@Input() isPresale: boolean = false;
 
 	@Output() onDeclineDecisionPoint = new EventEmitter<DecisionPoint>();
-	@Output() onSelectDecisionPoint = new EventEmitter<number>();
+	@Output() onSelectDecisionPoint = new EventEmitter<any>();
 
 	@ViewChild('blockedChoiceModal') blockedChoiceModal: any;
 
 	point: DecisionPoint;
 	isDeclined: boolean = false;
 	blockedChoiceModalRef: NgbModalRef;
-	disabledByList: BlockedByItemList = null;
+	disabledByList: BlockedByItemObject
+		= { pointDisabledByList: null, choiceDisabledByList: null };
 	imageSrc: string = 'assets/nographicgrey-removebg-preview.png'
 
 	constructor(
@@ -73,7 +74,7 @@ export class ChoiceDeclineCardComponent extends UnsubscribeOnDestroy implements 
 	}
 
 	openBlockedChoiceModal() {
-		if (!this.disabledByList)
+		if (!this.disabledByList.choiceDisabledByList && !this.disabledByList.pointDisabledByList)
 		{
 			this.disabledByList = getDisabledByList(this.tree, this.groups, this.currentPoint, null);
 		}
@@ -87,6 +88,6 @@ export class ChoiceDeclineCardComponent extends UnsubscribeOnDestroy implements 
 	onBlockedItemClick(pointId: number) {
 		this.blockedChoiceModalRef?.close();
 		delete this.disabledByList;
-		this.onSelectDecisionPoint.emit(pointId);
+		this.onSelectDecisionPoint.emit({pointId: pointId, fromModal: true});
 	}
 }

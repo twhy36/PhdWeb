@@ -320,8 +320,11 @@ export class ColorsSearchHeaderComponent
 	{
 		const colorToSave = {
 			colorId: colorDto.colorId,
+			name: colorDto.name,
+			sku: colorDto.sku,
+			optionSubCategoryId: colorDto.optionSubCategoryId,
 			isActive: true
-		} as IColorDto;
+		} as IColorDto;		
 
 		let toast: IToastInfo;
 
@@ -380,6 +383,9 @@ export class ColorsSearchHeaderComponent
 
 				const colorToSave = {
 					colorId: colorDto.colorId,
+					name: colorDto.name,
+					sku: colorDto.sku,
+					optionSubCategoryId: colorDto.optionSubCategoryId,
 					isActive: false
 				} as IColorDto;
 

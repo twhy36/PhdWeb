@@ -38,7 +38,7 @@ export class TreeService
 		const utcNow = getDateWithUtcOffset();
 
 		const entity = 'dTreeVersions';
-		const expand = `dTree($select=dTreeID;$expand=plan($select=integrationKey),org($select = edhFinancialCommunityId)),baseHouseOptions($select=planOption;$expand=planOption($select=integrationKey))`;
+		const expand = `dTree($select=dTreeID;$expand=plan($select=planId,integrationKey),org($select = edhFinancialCommunityId)),baseHouseOptions($select=planOption;$expand=planOption($select=integrationKey))`;
 		const filter = `publishStartDate le ${utcNow} and (publishEndDate eq null or publishEndDate gt ${utcNow})${communityFilter}`;
 		const select = `dTreeVersionID,dTreeID,dTreeVersionName,dTreeVersionDescription,publishStartDate,publishEndDate,lastModifiedDate`;
 		const orderBy = `publishStartDate`;
@@ -55,6 +55,7 @@ export class TreeService
 						id: data['dTreeVersionID'],
 						name: data['dTreeVersionName'],
 						communityId: data['dTree']['org']['edhFinancialCommunityId'],
+						planId: data['dTree']['plan']['planID'],
 						planKey: data['dTree']['plan']['integrationKey'],
 						description: data['dTreeVersionDescription'],
 						treeId: data['dTreeID'],

@@ -29,4 +29,97 @@ export const environment = {
 	whatFix: {
 		scriptUrl: '//whatfix.com/01caf5e0-cb2f-11e8-b979-04013d24cd02/embed/embed.nocache.js'
 	},
+	selectedCommunityWhitelist: [
+		104,
+		106,
+		107,
+		110,
+		113,
+		114,
+		116,
+		118,
+		122,
+		// 123, Cleveland
+		124,
+		129,
+		130,
+		140,
+		151,
+		182,
+		448,
+		456,
+		457,
+		458,
+		460,
+		463,
+		464,
+		// 465, New Mexico
+		// 471, Columbus
+		473,
+		474,
+		479,
+		36773,
+		38419,
+		38519,
+		40008,
+		41138,
+		41141,
+		41207,
+		41249,
+		41262,
+		41282,
+		41295,
+		41315,
+		41316,
+		41335,
+		41364,
+		41366,
+		41399,
+		41470,
+		41506,
+		41508,
+		41510,
+		41512,
+		41579,
+		41597,
+		41598,
+		41624,
+		41637,
+		41657,
+		41670,
+		41686,
+		41694,
+		41698,
+		41699,
+		41700,
+		41701,
+		41717,
+		41725,
+		41732,
+		41734,
+		41736,
+		41750,
+		41758,
+		41762,
+		41774,
+		41776,
+		41778,
+		41799,
+		41816,
+		41859,
+		41861,
+		41863
+	],
+	designPreviewMarketWhitelist: [
+		460, // Arizona Market
+		463, // Austin Market
+		104, // Houston Market
+		473, // Las Vegas Market
+		124, // Michigan Market
+		465, // New Mexico Market
+		122, // Northern California
+		40008, // Northeast Florida Market
+		448, // Pacific Northwest
+		151, // Southern California
+	]
 };

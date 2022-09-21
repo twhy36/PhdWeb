@@ -25,31 +25,33 @@
 			<div class="phd-point-container">
 				<ng-container *ngFor="let group of filteredTree.groups">
 					<ng-container *ngFor="let subGroup of group.subGroups">
-						<div class="d-flex flex-row phd-group-subgroup-header" *ngIf="defaultChoicePresent(subGroup)" [attr.id]="'included-subgroup-' + subGroup.id">
-							<div class="phd-group-label">{{group.label}}:</div>
-							<div class="phd-subgroup-label">{{subGroup.label}}</div>
-						</div>
-						<div class="d-flex flex-wrap phd-choice-container">
-							<ng-container *ngFor="let point of subGroup.points">
-								<div *ngIf="displayDecisionPoint(point)">
-									<div class="phd-point-label" [attr.id]="'included-point-' + point.id" (click)="onViewDecisionPoint(point)">{{point?.label}}</div>
-									<div class="phd-choice-cards">
-										<ng-container *ngFor="let choice of displayedChoices(point.choices)">
-											<choice-card *ngIf="!choice.isHiddenFromBuyerView"
-													[currentChoice]="getChoiceExt(choice, point)"
-													[currentPoint]="point"
-													[groups]="filteredTree.groups"
-													[tree]="tree"
-													[isPresale]="buildMode === 'presale'"
-													(toggled)="choiceToggleHandler($event)"
-													(onSelectDecisionPoint)="selectDecisionPoint($event)"
-													(onViewChoiceDetail)="viewChoiceDetail($event)">
-											</choice-card>
-										</ng-container>
+						<ng-container *ngIf="defaultChoicePresent(subGroup)">
+							<div class="d-flex flex-row phd-group-subgroup-header" [attr.id]="'included-subgroup-' + subGroup.id">
+								<div class="phd-group-label">{{group.label}}:</div>
+								<div class="phd-subgroup-label">{{subGroup.label}}</div>
+							</div>
+							<div class="d-flex flex-wrap phd-choice-container">
+								<ng-container *ngFor="let point of subGroup.points">
+									<div *ngIf="displayDecisionPoint(point)">
+										<div class="phd-point-label" [attr.id]="'included-point-' + point.id" (click)="onViewDecisionPoint(point)">{{point?.label}}</div>
+										<div class="phd-choice-cards">
+											<ng-container *ngFor="let choice of displayedChoices(point.choices)">
+												<choice-card *ngIf="!choice.isHiddenFromBuyerView"
+														[currentChoice]="getChoiceExt(choice, point)"
+														[currentPoint]="point"
+														[groups]="filteredTree.groups"
+														[tree]="tree"
+														[isPresale]="buildMode === 'presale'"
+														(toggled)="choiceToggleHandler($event)"
+														(onSelectDecisionPoint)="selectDecisionPoint($event)"
+														(onViewChoiceDetail)="viewChoiceDetail($event)">
+												</choice-card>
+											</ng-container>
+										</div>
 									</div>
-								</div>
-							</ng-container>
-						</div>
+								</ng-container>
+							</div>
+						</ng-container>
 					</ng-container>
 				</ng-container>
 			</div>

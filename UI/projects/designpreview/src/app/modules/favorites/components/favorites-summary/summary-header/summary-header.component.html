@@ -15,7 +15,7 @@
 		<div class="phd-upper-header">
 			<div id="favoritesListName" class="phd-favorites-list">{{headerTitle}}</div>
 			<div [ngClass]="{'phd-name-group-presale': isPresale}">
-				<span class="phd-lot-label">{{summaryHeader.communityName}},</span>
+				<span class="phd-lot-label">{{summaryHeader.communityName + (isPresale ? '':',')}}</span>
 				<span class="phd-lot-details" [ngStyle]="{'margin-left': isPresale ? '0px' : '10px'}">{{getPlanName()}}</span>
 			</div>
 			<ng-container *ngIf="!isPresale">

@@ -4,7 +4,7 @@ import * as _ from 'lodash';
 
 import { UnsubscribeOnDestroy, flipOver3, OptionImage, DecisionPoint, Group, Tree } from 'phd-common';
 import { ChoiceExt } from '../../models/choice-ext.model';
-import { BlockedByItemList } from '../../models/blocked-by.model';
+import { BlockedByItemObject } from '../../models/blocked-by.model';
 import { getDisabledByList } from '../../../shared/classes/tree.utils';
 import { AdobeService } from '../../../core/services/adobe.service';
 
@@ -27,7 +27,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnChang
 
 	@Output() toggled = new EventEmitter<ChoiceExt>();
 	@Output() onViewChoiceDetail = new EventEmitter<ChoiceExt>();
-	@Output() onSelectDecisionPoint = new EventEmitter<number>();
+	@Output() onSelectDecisionPoint = new EventEmitter<any>();
 
 	@ViewChild('blockedChoiceModal') blockedChoiceModal: any;
 	@ViewChild('hiddenChoicePriceModal') hiddenChoicePriceModal: any;
@@ -38,7 +38,8 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnChang
 	imageUrl: string = '';
 	blockedChoiceModalRef: NgbModalRef;
 	hiddenChoicePriceModalRef: NgbModalRef;
-	disabledByList: BlockedByItemList = null;
+	disabledByList: BlockedByItemObject
+		= { pointDisabledByList: null, choiceDisabledByList: null };
 	choiceDisabledLabel: string;
 
 	constructor(
@@ -110,7 +111,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnChang
 	}
 
 	openBlockedChoiceModal() {
-		if (!this.disabledByList)
+		if (!this.disabledByList.choiceDisabledByList && !this.disabledByList.pointDisabledByList)
 		{
 			this.disabledByList = getDisabledByList(this.tree, this.groups, this.currentPoint, this.choice);
 		}
@@ -133,6 +134,6 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnChang
 	onBlockedItemClick(pointId: number) {
 		this.blockedChoiceModalRef?.close();
 		delete this.disabledByList;
-		this.onSelectDecisionPoint.emit(pointId);
+		this.onSelectDecisionPoint.emit({pointId: pointId, fromModal: true});
 	}
 }

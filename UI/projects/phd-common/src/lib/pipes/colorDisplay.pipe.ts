@@ -7,7 +7,7 @@ import { IColor } from '../models/color.model';
 export class ColorDisplayPipe implements PipeTransform {
 	transform(color: IColor): string {
 		return !!color?.sku 
-			? `${color?.name} / ${color?.sku}`
+			? `${color?.name}/${color?.sku}`
 			: color?.name;
 	}
 }
