@@ -105,7 +105,7 @@ jobs:
       filename: 'UI/dist/phd-common/package.json'
       numberOfLevels: '1'
       keyname1: 'version'
-      valueToSet: $(packageVersion)
+      valueToSet: '$(packageVersion)'
     displayName: 'set package version'
   - task: PublishPipelineArtifact@1
     inputs:
