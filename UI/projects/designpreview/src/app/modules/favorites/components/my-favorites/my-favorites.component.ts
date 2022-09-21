@@ -344,7 +344,6 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		{
 			this.groupName = newGroup.label;
 			this.selectedSubGroup = newSubGroup;
-			this.selectedSubgroupId = newSubGroup.id;
 
 			// If a new subgroup then get new images
 			if (this.selectedSubgroupId !== newSubGroup.id)
@@ -357,6 +356,8 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 						this.currentChoiceImages = choiceImages;
 					});
 			}
+
+			this.selectedSubgroupId = newSubGroup.id;
 		}
 	}
 
