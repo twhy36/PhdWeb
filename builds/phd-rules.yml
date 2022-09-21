@@ -69,7 +69,7 @@ jobs:
   - checkout: self
   - task: NodeTool@0
     inputs:
-      versionSpec: '12.20.x'
+      versionSpec: '16.10.x'
     displayName: 'Install Node.js'
   - task: Npm@1
     inputs:
@@ -144,7 +144,7 @@ jobs:
     - task: NodeTool@0
       displayName: Install Node.js
       inputs:
-        versionSpec: '12.x'
+        versionSpec: '16.10.x'
     - task: Npm@1
       displayName: Pack phd-common
       inputs:
