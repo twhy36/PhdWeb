@@ -100,13 +100,11 @@ jobs:
       prod: false
       DisableAnalytics: false
     displayName: 'build phd-common'
-  - task: setjsonvalue@1
+  - task: SetJsonProperty@1
     inputs:
-      filename: 'UI/dist/phd-common/package.json'
-      numberOfLevels: '1'
-      keyname1: 'version'
-      valueToSet: '$(packageVersion)'
-    displayName: 'set package version'
+      JsonFile: 'UI/dist/phd-common/package.json'
+      PropertyPath: 'version'
+      PropertyValue: '$(packageVersion)'
   - task: PublishPipelineArtifact@1
     inputs:
       targetPath: '$(Build.SourcesDirectory)/UI/dist/phd-common'
