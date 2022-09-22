@@ -11,7 +11,13 @@
   }
 
 .mat-toolbar {
-  .mat-raised-button:not(:last-child) {
-    margin-right: 5px;
-  }
+    background: #00334C;
+
+    .mat-raised-button:not(:last-child) {
+        margin-right: 5px;
+    }
+}
+
+.phd-logo {
+    height: 40px;
 }

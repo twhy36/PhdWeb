@@ -17,6 +17,7 @@ import { AttributeLocationComponent } from '../attribute-location/attribute-loca
 import { ModalOverrideSaveComponent } from '../../../core/components/modal-override-save/modal-override-save.component';
 import { MonotonyConflict } from '../../models/monotony-conflict.model';
 import { AttributeGroupComponent } from '../attribute-group/attribute-group.component';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
 	selector: 'choice-card-detail',
@@ -194,7 +195,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		// default to pultegroup image if no choice/option image is found
 		if (!this.choiceImages.length && !this.optionImages.length)
 		{
-			this.optionImages.push({ imageURL: 'assets/pultegroup_logo.jpg' });
+			this.optionImages.push({ imageURL: environment.defaultImageURL });
 		}
 	}
 
@@ -529,7 +530,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	{
 		this.imageLoading = false;
 
-		event.srcElement.src = 'assets/pultegroup_logo.jpg';
+		event.srcElement.src = environment.defaultImageURL;
 	}
 
 	onOverride()
