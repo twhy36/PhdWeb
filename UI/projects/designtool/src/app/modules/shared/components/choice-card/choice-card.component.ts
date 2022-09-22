@@ -30,6 +30,7 @@ import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 import * as _ from 'lodash';
 import { selectedPlanData } from '../../../ngrx-store/plan/reducer';
 import { TreeService } from '../../../core/services/tree.service';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
 	selector: 'choice-card',
@@ -498,7 +499,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 
 	getImagePath(): string
 	{
-		let imagePath = `${this._baseHref}assets/pultegroup_logo.jpg`;
+		let imagePath = this._baseHref + environment.defaultImageURL;
 
 		if (this.optionImages && this.optionImages.length)
 		{
@@ -517,7 +518,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 	 */
 	onLoadImageError(event: any)
 	{
-		event.srcElement.src = 'assets/pultegroup_logo.jpg';
+		event.srcElement.src = environment.defaultImageURL;
 	}
 
 	onOverride()

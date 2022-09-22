@@ -15,13 +15,12 @@
 	}
 
 	.phd-group-menu-header {
-		height: 70px;
-		padding-bottom: 7px;
-		padding-top: 7px;
-		background: $marine;
+		height: $nav-menu-height;
+		background: $pulte-blue;
+		text-align: center;
 
 		img {
-			width: 75px;
+			height: 40px;
 		}
 
 		.phd-site-button {
@@ -99,7 +98,7 @@
 
 	.phd-summary-link {
 		outline: none;
-		color:#fff;
+		color: #fff;
 
 		&.disabled {
 			opacity: 0.5;
