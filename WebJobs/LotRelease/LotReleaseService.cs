@@ -25,60 +25,76 @@ namespace LotRelease
 
         protected override async Task RunAsync()
         {
-            OAuthConfig oAuthConfig = new OAuthConfig();
-            _configuration.GetSection("AzureAD").Bind(oAuthConfig);
-            var tokenProvider = new OAuthTokenProvider(_httpClientFactory, oAuthConfig, _configuration["edhSettings:scope"]);
-            var edhToken = await tokenProvider.GetTokenAsync();
-
-            var phdClientSettings = new ODataClientSettings(new Uri(_configuration["phdSettings:url"]), new NetworkCredential(_configuration["phdSettings:user"], _configuration["phdSettings:password"]));
-            phdClientSettings.BeforeRequest = rq =>
-            {
-                rq.Headers.Add("Authorization", $"Basic {_configuration["phdSettings:apiKey"]}");
-            };
-
-            var edhClientSettings = new ODataClientSettings(new Uri(_configuration["edhSettings:url"]));
-            edhClientSettings.BeforeRequest = rq =>
-            {
-                rq.Headers.Add("Authorization", $"Bearer {edhToken.AccessToken}");
-            };
-
-            async Task logResponse(HttpResponseMessage rs)
-            {
-                try
-                {
-                    string requestBody = null;
-                    if (rs.RequestMessage.Method == HttpMethod.Patch)
-                    {
-                        requestBody = await rs.RequestMessage.Content.ReadAsStringAsync();
-                    }
-
-                    Console.Out.WriteLine($@"{rs.RequestMessage.Method} {rs.RequestMessage.RequestUri.AbsolutePath}
-    Request Path: {rs.RequestMessage.RequestUri.OriginalString}
-    Response Status: {rs.StatusCode}
-    Response Reason: {rs.ReasonPhrase}");
-                    if (requestBody != null)
-                    {
-                        Console.Out.WriteLine($"\tRequest Body: {requestBody}");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.Error.WriteLine(ex.ToString());
-                }
-            }
-
-            edhClientSettings.AfterResponseAsync = logResponse;
-            phdClientSettings.AfterResponseAsync = logResponse;
-
-            var _edhclient = new ODataClient(edhClientSettings);
-            var _phdclient = new ODataClient(phdClientSettings);
-
-            //Go back x days in case the job did not finish successfully
-            var today = DateTime.Now;
-            var prevDate = DateTime.Today.AddDays(-1 * int.Parse(_configuration["general:nbrDaysBack"]));
-
+            Console.Out.WriteLine("Begin RunAsync()");
             try
             {
+                OAuthConfig oAuthConfig = new OAuthConfig();
+                _configuration.GetSection("AzureAD").Bind(oAuthConfig);
+
+                Console.Out.WriteLine($@"After creating oAuthConfig - {oAuthConfig}");
+
+                var tokenProvider = new OAuthTokenProvider(_httpClientFactory, oAuthConfig, _configuration["edhSettings:scope"]);
+                Console.Out.WriteLine($@"After creating tokenProvider - {tokenProvider}");
+                
+                var edhToken = await tokenProvider.GetTokenAsync();
+                Console.Out.WriteLine($@"After creating edhToken - {edhToken}");
+
+                var phdClientSettings = new ODataClientSettings(new Uri(_configuration["phdSettings:url"]), new NetworkCredential(_configuration["phdSettings:user"], _configuration["phdSettings:password"]));
+                phdClientSettings.BeforeRequest = rq =>
+                {
+                    rq.Headers.Add("Authorization", $"Basic {_configuration["phdSettings:apiKey"]}");
+                };
+                Console.Out.WriteLine($@"After creating phdClientSettings - {phdClientSettings}");
+
+                var edhClientSettings = new ODataClientSettings(new Uri(_configuration["edhSettings:url"]));
+                edhClientSettings.BeforeRequest = rq =>
+                {
+                    rq.Headers.Add("Authorization", $"Bearer {edhToken.AccessToken}");
+                };
+                Console.Out.WriteLine($@"After creating edhClientSettings - {edhClientSettings}");
+
+                async Task logResponse(HttpResponseMessage rs)
+                {
+                    try
+                    {
+                        string requestBody = null;
+                        if (rs.RequestMessage.Method == HttpMethod.Patch)
+                        {
+                            requestBody = await rs.RequestMessage.Content.ReadAsStringAsync();
+                        }
+
+                        Console.Out.WriteLine($@"{rs.RequestMessage.Method} {rs.RequestMessage.RequestUri.AbsolutePath}
+        Request Path: {rs.RequestMessage.RequestUri.OriginalString}
+        Response Status: {rs.StatusCode}
+        Response Reason: {rs.ReasonPhrase}");
+                        if (requestBody != null)
+                        {
+                            Console.Out.WriteLine($"\tRequest Body: {requestBody}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.Error.WriteLine(ex.ToString());
+                    }
+                }
+
+                edhClientSettings.AfterResponseAsync = logResponse;
+                phdClientSettings.AfterResponseAsync = logResponse;
+                
+                Console.Out.WriteLine("After assigning edhClientSettings and phdClientSettings");
+
+                var _edhclient = new ODataClient(edhClientSettings);
+                Console.Out.WriteLine($@"After creating _edhclient - {_edhclient}");                
+                
+                var _phdclient = new ODataClient(phdClientSettings);
+                Console.Out.WriteLine($@"After creating _phdclient - {_phdclient}");
+
+                //Go back x days in case the job did not finish successfully
+                var today = DateTime.Now;
+                var prevDate = DateTime.Today.AddDays(-1 * int.Parse(_configuration["general:nbrDaysBack"]));
+                
+                Console.Out.WriteLine($@"After creating prevDate - {prevDate}");
+
                 var releases = await _phdclient.For<Release>()
                     .Expand(r => r.Release_LotAssoc)
                     .Filter(r => r.ReleaseDate >= prevDate && r.ReleaseDate <= DateTime.Now)
