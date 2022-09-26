@@ -25,7 +25,6 @@ export interface IEnvironment
 	cloudinary: CloudinaryConfiguration;
 	alphavision: { builderId: string };
 	pdfViewerBaseUrl: string;
-	defaultImageURL: string;
 	whatFix: { scriptUrl: string };
 	EBillUrl: string;
 }

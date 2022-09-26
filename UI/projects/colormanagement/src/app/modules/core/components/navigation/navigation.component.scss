@@ -14,25 +14,27 @@ header {
 	flex: 0 1 100px;
 	flex-direction: column;
 	min-height: 100px;
+	padding: 0 15px;
 
 	.phd-navigation-bar {
-		background: $pulte-blue;
+		background: $twilight-blue;
 		color: white;
+		height: 50px;
 		display: flex;
 		flex-direction: row;
 		align-items: center;
-		height: $nav-menu-height;
-		padding: 0 1rem; // fix logo dropping below header when screen is small
 
 		.phd-navigation-bar-header {
+			background: $marine;
 			display: inline-block;
+			height: 50px;
 			margin-left: -1rem;
 			margin-right: 15px;
 
-			.phd-logo {
+			.logo {
 				max-width: 100%;
-				height: 40px;
-				margin: 10px 15px;
+				max-height: 100%;
+				margin: 0 15px;
 			}
 		}
 
@@ -44,36 +46,36 @@ header {
 	}
 
 	aside {
+	  align-items: center;
+	  background-color: rgba(239, 239, 239, 0.78);
+	  border-bottom: 1px solid #ccc !important;
+	  color: #666;
+	  display: flex;
+	  flex-direction: row;
+	  font-size: 8pt;
+	  min-height: 35px;
+	  padding: 0 20px;
+	  justify-content: space-between;
+
+	  .color-nav{
+		  align-items: flex-start;
+		  align-self: flex-start;
+		  display: flex;
+		  font-size: 15px;
+	  }
+
+	  .user {
 		align-items: center;
-		background-color: rgba(239, 239, 239, 0.78);
-		border-bottom: 1px solid #ccc !important;
-		color: #666;
+		align-self: flex-end;
 		display: flex;
-		flex-direction: row;
-		font-size: 8pt;
 		min-height: 35px;
-		padding: 0 20px;
-		justify-content: space-between;
 
-		.color-nav {
-			align-items: flex-start;
-			align-self: flex-start;
-			display: flex;
-			font-size: 15px;
+		.fa-user {
+		  margin-right: .5em;
 		}
-
-		.user {
-			align-items: center;
-			align-self: flex-end;
-			display: flex;
-			min-height: 35px;
-
-			.fa-user {
-				margin-right: .5em;
-			}
-		}
+	  }
 	}
-}
+  }
 
 .tab-content{
 	padding: 15px;

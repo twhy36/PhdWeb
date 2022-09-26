@@ -6,8 +6,7 @@ import * as _ from 'lodash';
 import { UnsubscribeOnDestroy, Job, Plan } from 'phd-common';
 
 import { TreeService } from '../../../core/services/tree.service';
-import { of } from 'rxjs';
-import { environment } from '../../../../../environments/environment';
+import { of } from "rxjs";
 
 @Component({
 	selector: 'quick-move-in-card',
@@ -29,7 +28,7 @@ export class QuickMoveInCardComponent extends UnsubscribeOnDestroy
 	choices: { choiceId: number, overrideNote: string, quantity: number }[];
 	hasPendingChangeOrder: boolean = false;
 
-	private imagePath: string;
+	private imagePath : string;
 
 	constructor(
 		@Inject(APP_BASE_HREF) private _baseHref: string,
@@ -44,27 +43,26 @@ export class QuickMoveInCardComponent extends UnsubscribeOnDestroy
 			plan => plan.id === this.specJob.planId
 		);
 
-		let elevationPlanOptions = this.specJob.jobPlanOptions.filter(x => x.jobOptionTypeName === "Elevation");
+		let elevationPlanOptions = this.specJob.jobPlanOptions.filter( x => x.jobOptionTypeName === "Elevation");
 
-		let getImages = elevationPlanOptions?.length > 0 ?
-			this._treeService.getPlanOptionCommunityImageAssoc(elevationPlanOptions) : of(null);
+		let getImages = elevationPlanOptions?.length > 0 ? 
+		this._treeService.getPlanOptionCommunityImageAssoc(elevationPlanOptions) : of(null);
 
-		getImages.subscribe(jobPlanImages =>
-		{
-
-			if (jobPlanImages && jobPlanImages.length > 0)
+		getImages.subscribe(jobPlanImages =>{
+			
+			if( jobPlanImages && jobPlanImages.length > 0)
 			{
 				this.imagePath = jobPlanImages[0].imageUrl;
 			}
-			else if (this.plan && this.plan.baseHouseElevationImageUrl)
+			else if(this.plan && this.plan.baseHouseElevationImageUrl)
 			{
 				this.imagePath = this.plan.baseHouseElevationImageUrl;
 			}
 			else
 			{
-				this.imagePath = this._baseHref + environment.defaultImageURL;
+				this.imagePath =`${this._baseHref}assets/pultegroup_logo.jpg`;
 			}
-		});
+		}) ;
 
 		this.lot = {
 			id: this.specJob.lot.id,
@@ -96,7 +94,7 @@ export class QuickMoveInCardComponent extends UnsubscribeOnDestroy
 
 	loadImageError(event: any)
 	{
-		event.srcElement.src = this._baseHref + environment.defaultImageURL;
+		event.srcElement.src = `${this._baseHref}assets/pultegroup_logo.jpg`;
 	}
 
 	getButtonLabel(): string

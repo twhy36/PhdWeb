@@ -58,7 +58,6 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 	@ViewChild('optionMappingChangedModal') optionMappingChangedModal: TemplateRef<any>;
 	@ViewChild('impactedChoicesModal') impactedChoicesModal: TemplateRef<any>;
 	@ViewChild('optionPriceChangedModal') optionPriceChangedModal: TemplateRef<any>;
-	@ViewChild('optionMappingAdjustedModal') optionMappingAdjustedModal: TemplateRef<any>;
 
 	acknowledgedMonotonyConflict: boolean;
 	agreementStatus$: Observable<string>;
@@ -686,20 +685,9 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 			impactedOptionPriceChoices = this.getImpactedChoicesForReplacedOptionPrices(timeOfSaleOptionPrices, choice, choiceToDeselect);
 		}
 
-		// #366542 Find any choices with a replaced option that is no longer available on the current tree
-		let adjustedChoices = [];
-		if (choiceToDeselect?.id !== choice.id)
-		{
-			adjustedChoices = this.getAdjustedChoices(choiceToDeselect, choice);
-		}
-
 		let obs: Observable<boolean>;
 
-		if (adjustedChoices && adjustedChoices.length)
-		{
-			obs = this.showOptionMappingAdjustedModal(adjustedChoices);
-		}
-		else if (choiceToDeselect && impactedChoices && impactedChoices.length && ((choiceToDeselect.changedDependentChoiceIds && choiceToDeselect.changedDependentChoiceIds.length > 0) || choiceToDeselect.mappingChanged))
+		if (choiceToDeselect && impactedChoices && impactedChoices.length && ((choiceToDeselect.changedDependentChoiceIds && choiceToDeselect.changedDependentChoiceIds.length > 0) || choiceToDeselect.mappingChanged))
 		{
 			obs = this.showOptionMappingChangedModal(impactedChoices);
 		}
@@ -822,14 +810,6 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		return this.showConfirmModal(this.optionPriceChangedModal, 'Warning', primaryButton, secondaryButton);
 	}
 
-	private showOptionMappingAdjustedModal(choices: Array<Choice>): Observable<boolean>
-	{
-		this.impactedChoices = choices.map(c => c.label).sort().join(', ');
-		const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
-		const secondaryButton = { text: 'Cancel', result: false, cssClass: 'btn-secondary' };
-		return this.showConfirmModal(this.optionMappingAdjustedModal, 'Warning', primaryButton, secondaryButton);
-	}
-
 	loadPhdLite()
 	{
 		this.store.dispatch(new NavActions.SetSubNavItems(ExteriorSubNavItems));
@@ -946,64 +926,6 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 				}
 			}
 		}
-
-		return choices;
-	}
-
-	getAdjustedChoices(deselectedChoice: Choice, selectedChoice: Choice): Choice[]
-	{
-		let choices: Choice[] = [];
-
-		// By selecting this choice, see what options are associated
-		const selectedOptions = selectedChoice.options.map(o => o.financialOptionIntegrationKey);
-
-		// Determine which choices have options that these options replace
-		const replaceRules = this.treeVersionRules.optionRules.filter(o => selectedOptions.includes(o.optionId));
-
-		// Check to see if any rule is already satisfied, and if that choice has an option no longer available
-		replaceRules.forEach(rr =>
-		{
-			rr.choices.forEach(rrc =>
-			{
-				const existingChoice = _.flatMap(this.tree.treeVersion.groups,
-					g => _.flatMap(g.subGroups,
-						sg => _.flatMap(sg.points,
-							p => p.choices)))
-					.find(c => (rrc.mustHave && rrc.id === c.id && c.quantity) || (!rrc.mustHave && rrc.id === c.id && !c.quantity));
-
-				// Get all lockedInOptions from previous agreement
-				if (existingChoice)
-				{
-					if (!deselectedChoice)
-					{
-						if (existingChoice?.lockedInOptions?.length)
-						{
-							const existingOptions = existingChoice.lockedInOptions.map(lio => lio.optionId);
-
-							if (rr.replaceOptions.some(ro => !existingOptions.includes(ro)) && !choices.map(c => c.id).includes(existingChoice.id))
-							{
-								choices.push(existingChoice);
-							}
-						}
-					}
-					else if (deselectedChoice.lockedInOptions?.length)
-					{
-						// If a rule existed on the previous agreement for an option that no longer exists,
-						// on a choice that still satisifies the rule, mark this choice as adjusted
-						const adjustedChoice = deselectedChoice.lockedInOptions.find(lio => lio.choices.filter(ch =>
-							((ch.mustHave && existingChoice.quantity) || (!ch.mustHave && !existingChoice.quantity))
-							&& ch.id === existingChoice.lockedInChoice?.choice?.divChoiceCatalogId
-							&& !choices.map(chx => chx.id).includes(ch.id)
-							&& !lio.replaceOptions.includes(rr.optionId)).length);
-
-						if (adjustedChoice)
-						{
-							choices.push(existingChoice);
-						}
-					}
-				}
-			});
-		});
 
 		return choices;
 	}

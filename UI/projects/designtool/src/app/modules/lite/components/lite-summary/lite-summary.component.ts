@@ -6,13 +6,13 @@ import { Store, select } from '@ngrx/store';
 import * as _ from "lodash";
 
 import
-{
-	UnsubscribeOnDestroy, PriceBreakdown, ChangeTypeEnum,
-	ChangeOrderHanding, ModalService, SummaryData, BuyerInfo,
-	PDFViewerComponent, SDGroup, SDSubGroup, SDPoint,
-	SDChoice, ScenarioOption,
-	PriceBreakdownType
-} from 'phd-common';
+	{
+		UnsubscribeOnDestroy, PriceBreakdown, ChangeTypeEnum,
+		ChangeOrderHanding, ModalService, SummaryData, BuyerInfo,
+		PDFViewerComponent, SDGroup, SDSubGroup, SDPoint,
+		SDChoice, ScenarioOption,
+		PriceBreakdownType
+	} from 'phd-common';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
@@ -27,10 +27,10 @@ import { ModalOverrideSaveComponent } from '../../../core/components/modal-overr
 
 import { SummaryHeader, SummaryHeaderComponent } from '../../../shared/components/summary-header/summary-header.component';
 import
-{
-	LitePlanOption, IOptionSubCategory, LiteReportType, SummaryReportData,
-	SummaryReportGroup, SummaryReportSubGroup, SummaryReportOption, SummaryReportSubOption
-} from '../../../shared/models/lite.model';
+	{
+		LitePlanOption, IOptionSubCategory, LiteReportType, SummaryReportData,
+		SummaryReportGroup, SummaryReportSubGroup, SummaryReportOption, SummaryReportSubOption
+	} from '../../../shared/models/lite.model';
 import { OptionSummaryComponent } from '../option-summary/option-summary.component';
 import { environment } from '../../../../../environments/environment';
 import { ToastrService } from 'ngx-toastr';
@@ -492,10 +492,10 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 				pdfViewer.componentInstance.pdfData = pdfData;
 				pdfViewer.componentInstance.pdfBaseUrl = `${environment.pdfViewerBaseUrl}`;
 			},
-				error =>
-				{
-					this._toastr.error(`There was an issue generating ${reportType} configuration.`, 'Error - Print Configuration');
-				});
+			error =>
+			{
+				this._toastr.error(`There was an issue generating ${reportType} configuration.`, 'Error - Print Configuration');
+			});
 	}
 
 	getPriceListReportData(): SummaryData
@@ -627,9 +627,7 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 						isHiddenFromBuyerView: false,
 						priceHiddenFromBuyerView: false,
 						isRequired: false,
-						disabledByHomesite: false,
-						disabledByReplaceRules: [],
-						disabledByBadSetup: false
+						disabledByHomesite: false
 					}));
 				});
 
@@ -770,9 +768,7 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 										isHiddenFromBuyerView: false,
 										priceHiddenFromBuyerView: false,
 										isRequired: false,
-										disabledByHomesite: false,
-										disabledByReplaceRules: [],
-										disabledByBadSetup: false
+										disabledByHomesite: false
 									}));
 							});
 					});

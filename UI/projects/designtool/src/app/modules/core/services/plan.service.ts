@@ -70,7 +70,7 @@ export class PlanService
 												}
 
 												plan.baseHouseElevationImageUrl = optionImages && optionImages.length > 0
-													? optionImages[0].imageURL : environment.defaultImageURL;
+													? optionImages[0].imageURL : 'assets/pultegroup_logo.jpg';
 
 												return plan;
 											})

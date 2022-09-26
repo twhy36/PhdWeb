@@ -530,7 +530,7 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 	{
 		this.imageLoading = false;
 
-		event.srcElement.src = environment.defaultImageURL;
+		event.srcElement.src = 'assets/pultegroup_logo.jpg';
 	}
 
 	onPointTypeFilterChanged(pointTypeFilter: DecisionPointFilterType)

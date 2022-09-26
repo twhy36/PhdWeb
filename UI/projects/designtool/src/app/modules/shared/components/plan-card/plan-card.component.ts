@@ -1,6 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { flipOver, LotExt, Plan } from 'phd-common';
-import { environment } from '../../../../../environments/environment';
 
 @Component({
 	selector: 'plan-card',
@@ -22,7 +21,7 @@ export class PlanCardComponent implements OnInit
 
 	@Output() onTogglePlan = new EventEmitter<{ plan: Plan, lot: LotExt, isSelected: boolean }>();
 
-	noImageAvailable = environment.defaultImageURL;
+	noImageAvailable = 'assets/pultegroup_logo.jpg';
 
 	constructor() { }
 
@@ -55,7 +54,7 @@ export class PlanCardComponent implements OnInit
 	 */
 	loadImageError(event: any)
 	{
-		event.srcElement.src = environment.defaultImageURL;
+		event.srcElement.src = 'assets/pultegroup_logo.jpg';
 	}
 
 	getButtonLabel(): string
