@@ -19,6 +19,7 @@ import { CommunityService } from "../../../core/services/community.service";
 import { ContractService } from '../../../core/services/contract.service';
 import { HomeSiteService } from '../../../core/services/homesite.service';
 import { PlanService } from '../../../core/services/plan.service';
+import { FeatureSwitchService } from 'phd-common';
 
 @Component({
 	selector: 'community-settings',
@@ -56,6 +57,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 	requiredPdfs = [];
 	selectedOption = null;
 	loading: boolean = false;
+	isPhdLite = false;
 
 	get saveDisabled(): boolean
 	{
@@ -96,7 +98,8 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 		private _contractService: ContractService,
 		private _communityService: CommunityService,
 		private _msgService: MessageService,
-		private _route: ActivatedRoute) { super(); }
+		private _route: ActivatedRoute,
+		private _featureSwitchService: FeatureSwitchService) { super(); }
 
 
 	ngOnInit()
@@ -109,10 +112,21 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 
 		combineLatest([this._orgService.currentMarket$, this._orgService.currentCommunity$]).pipe(
 			this.takeUntilDestroyed(),
-			switchMap(([mkt, comm]) =>
+			switchMap(([mkt, comm]) => {
+				return this._featureSwitchService.isFeatureEnabled('Phd Lite', { edhMarketId: null, edhFinancialCommunityId: comm.id })
+					.pipe(
+						map((isFeatureEnabled) => {
+							const isPhdLite = !!isFeatureEnabled;
+							return ({ mkt, comm, isPhdLite});
+							})
+						);
+			 }),
+			switchMap(({ mkt, comm, isPhdLite }) =>
 			{
 				this.currentMarket = mkt;
 				this.financialCommunity = comm;
+				this.isPhdLite = isPhdLite;
+
 				// If we have both a current market and current financialCommunity get orgs needed to get FinancialCommunityinfo
 				if (mkt && comm)
 				{
@@ -384,4 +398,3 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 		return environment.selectedCommunityWhitelist.includes(this.currentMarket.id);
 	}
 }
-
