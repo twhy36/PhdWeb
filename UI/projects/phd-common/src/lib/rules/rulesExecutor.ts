@@ -801,31 +801,43 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 		const choiceOptionNumbers = choice.options?.map(o => o.financialOptionIntegrationKey) || [];
 		const mappedOptionRules = optionRules.filter(o => choiceOptionNumbers.includes(o.optionId));
 
+		// Find all other choices which must have this choice, and exclude those from affecting whether this choice is disabled
+		const excludedChoiceRules = _.flatMap(rules.choiceRules.filter(cr => _.flatMap(cr.rules.filter(r => r.ruleType === 1), r => r.choices).includes(choice.id)), cr => cr.choiceId);
+
+		const pointChoices = points.find(pt => pt.choices.some(c => c.id === choice.id)).choices.map(c => c.id);
+
 		// Find replaced options on the mapped options
 		const replacedOptions = _.flatMap(mappedOptionRules, r => r.replaceOptions);
 
-		// Determine if these replace options are on the configuration
-		replacedOptions.forEach(ro =>
+		// In the case of multiple replaced options, if any one option is already on the configuration, disregard this
+		if (!replacedOptions.some(ro =>
 		{
-			// Find all other choices which must have this choice, and exclude those from affecting whether this choice is disabled
-			const choiceRules = _.flatMap(rules.choiceRules.filter(cr => _.flatMap(cr.rules.filter(r => r.ruleType === 1), r => r.choices).includes(choice.id)), cr => cr.choiceId);
+			const mappedChoices = _.flatMap(rules.optionRules.filter(o => o.optionId === ro), r => r.choices).filter(c => !excludedChoiceRules.includes(c.id));
 
-			const mappedChoices = _.flatMap(rules.optionRules.filter(o => o.optionId === ro), r => r.choices).filter(c => !choiceRules.includes(c.id));
-
-			choice.disabledByReplaceRules = mappedChoices.filter(mc => (!mc.mustHave && find(mc.id).quantity) || (mc.mustHave && !find(mc.id).quantity)).map(mc => mc.id);
-
-			// If this choice becomes disabled, deselect it
-			if (choice.disabledByReplaceRules?.length)
+			return !mappedChoices.filter(mc => (pointChoices.includes(mc.id) && ((mc.mustHave && find(mc.id).quantity) || (!mc.mustHave && !find(mc.id).quantity)))
+				|| ((!mc.mustHave && find(mc.id).quantity) || (mc.mustHave && !find(mc.id).quantity))).length;
+		}))
+		{
+			replacedOptions.forEach(ro =>
 			{
-				choice.quantity = 0;
+				const mappedChoices = _.flatMap(rules.optionRules.filter(o => o.optionId === ro), r => r.choices).filter(c => !excludedChoiceRules.includes(c.id));
 
-				// If any choices with options being replaced exist within the same DP, there is a setup issue (user error)
-				if (points.find(pt => pt.choices.some(c => c.id === choice.id) && pt.choices.some(c => choice.disabledByReplaceRules.includes(c.id))))
+				choice.disabledByReplaceRules = mappedChoices.filter(mc => (pointChoices.includes(mc.id) && ((mc.mustHave && find(mc.id).quantity) || (!mc.mustHave && !find(mc.id).quantity)))
+					|| ((!mc.mustHave && find(mc.id).quantity) || (mc.mustHave && !find(mc.id).quantity))).map(mc => mc.id);
+
+				// If this choice becomes disabled, deselect it
+				if (choice.disabledByReplaceRules?.length)
 				{
-					choice.disabledByBadSetup = true;
+					choice.quantity = 0;
+
+					// If any choices with options being replaced exist within the same DP, there is a setup issue (user error)
+					if (points.find(pt => pt.choices.some(c => c.id === choice.id) && pt.choices.some(c => choice.disabledByReplaceRules.includes(c.id))))
+					{
+						choice.disabledByBadSetup = true;
+					}
 				}
-			}
-		});		
+			});
+		}
 
 		mapLocationAttributes(choice);
 	});
