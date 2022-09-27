@@ -64,7 +64,7 @@
 						<div class="col-md">
 							<button class="btn btn-sm btn-toggle btn-auto-approval"
 									[disabled]="!canToggleCommunitySettings"
-									[ngClass]="{'active': !isPreviewEnabled, 'btn-success': isPreviewEnabled, 'btn-secondary': !isPreviewEnabled}"
+									[ngClass]="{'active': !isCommunityLinkEnabled, 'btn-success': isCommunityLinkEnabled, 'btn-secondary': !isCommunityLinkEnabled}"
 									(click)="toggleCommunityLinkEnabled()">
 							</button>
 						</div>
@@ -175,7 +175,7 @@
 						<div class="col-md">
 							<button class="btn btn-sm btn-toggle btn-auto-approval"
 									[disabled]="!canToggleCommunitySettings"
-									[ngClass]="{'active': !isPreviewEnabled, 'btn-success': isPreviewEnabled, 'btn-secondary': !isPreviewEnabled}"
+									[ngClass]="{'active': !isCommunityLinkEnabled, 'btn-success': isCommunityLinkEnabled, 'btn-secondary': !isCommunityLinkEnabled}"
 									(click)="toggleCommunityLinkEnabled()">
 							</button>
 						</div>

@@ -168,6 +168,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 			this.url = (environment.thoUrl && websiteCommunity?.webSiteIntegrationKey)
 				? environment.thoUrl + websiteCommunity.webSiteIntegrationKey
 				: null;
+			this.canToggleCommunitySettings = true;	
 			this.salesCommunity = salesCommunity;
 			this.createForm();
 		}, error =>
@@ -179,69 +180,79 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 		});
 		this.checkRequiredFilesExist();
 	}
+	private disableCommunity()
+	{
+		if (this.salesCommunity.isOnlineSalesCommunityEnabled)
+		{
+			this.salesCommunity.isOnlineSalesCommunityEnabled = false;
+			this._orgService.saveSalesCommunity(this.salesCommunity)
+				.subscribe(salesCommunity => {
+					this.salesCommunity.isOnlineSalesCommunityEnabled = salesCommunity.isOnlineSalesCommunityEnabled;
+				});
+		}
+	}
 
 	checkRequiredFilesExist()
 	{
-		if (this.financialCommunity && this.currentMarket) 
+		if (this.financialCommunity && this.currentMarket)
 		{
-			this._communityService.getCommunityPdfsByFinancialCommunityId(this.financialCommunity.id).subscribe(pdfs => 
-			{
-				this.allCommunityPdfs = pdfs;
+			combineLatest([this._communityService.getCommunityPdfsByFinancialCommunityId(this.financialCommunity.id), this._contractService.getDraftOrInUseContractTemplates(this.currentMarket.id)])
+				.subscribe(([pdfs, templates]) => {
+					this.allCommunityPdfs = pdfs;
 
-				this.requiredPdfs = [
+					this.requiredPdfs = [
+						{
+							pdfs: pdfs.filter(x => x.sectionHeader === SectionHeader.HomeWarranty),
+							message: '*Include: Home Warranty Documents'
+						},
+						{
+							pdfs: pdfs.filter(x => x.sectionHeader === SectionHeader.AdditionalDocuments),
+							message: '*Include: Included Features Documents'
+						},
+						{
+							pdfs: pdfs.filter(x => x.sectionHeader === SectionHeader.CommunityAssociation),
+							message: '*Include: Community Association Documents'
+						},
+						{
+							pdfs: pdfs.filter(x => x.sectionHeader === SectionHeader.IncludedFeatures),
+							message: '*Include: Additional Documents'
+						}
+					];
+
+					this.allTemplates = templates;
+
+					let thoTemplates = this.allTemplates.filter(x => x.assignedCommunityIds.includes(this.financialCommunity.id)).filter(x => x.isTho == true).filter(x => x.status === 'InUse');
+
+					this.requiredThoTemplates = [
+						{
+							thoTemplate: thoTemplates.filter(x => x.templateTypeId == 1),
+							message: '*Include: Sales Agreement Contract'
+						},
+						{
+							thoTemplate: thoTemplates.filter(x => x.templateTypeId == 2),
+							message: '*Include: Addenda Contract',
+						},
+						{
+							thoTemplate: thoTemplates.filter(x => x.templateTypeId == 3),
+							message: '*Include: Cancel Form Contract',
+						},
+						{
+							thoTemplate: thoTemplates.filter(x => x.templateTypeId == 5),
+							message: '*Include: To Do Business Electronically Contract',
+						}
+					];
+
+					if (this.requiredPdfs.find(x => x.pdfs.length === 0) || this.requiredThoTemplates.find(x => x.thoTemplate.length === 0))
 					{
-						pdfs: pdfs.filter(x => x.sectionHeader === SectionHeader.HomeWarranty),
-						message: '*Include: Home Warranty Documents'
-					},
-					{
-						pdfs: pdfs.filter(x => x.sectionHeader === SectionHeader.AdditionalDocuments),
-						message: '*Include: Included Features Documents'
-					},
-					{
-						pdfs: pdfs.filter(x => x.sectionHeader === SectionHeader.CommunityAssociation),
-						message: '*Include: Community Association Documents'
-					},
-					{
-						pdfs: pdfs.filter(x => x.sectionHeader === SectionHeader.IncludedFeatures),
-						message: '*Include: Additional Documents'
+						this.canToggleCommunitySettings = false;
+						this.disableCommunity();
 					}
-				];
-			});
-
-			this._contractService.getDraftOrInUseContractTemplates(this.currentMarket.id).subscribe(templates => 
-			{
-				this.allTemplates = templates;
-
-				let thoTemplates = this.allTemplates.filter(x => x.assignedCommunityIds.includes(this.financialCommunity.id)).filter(x => x.isTho == true).filter(x => x.status == 'InUse');
-
-				this.requiredThoTemplates = [
+					else if (!this.communitySettingsForm.get('ecoeMonths').value || !this.communitySettingsForm.get('earnestMoney').value)
 					{
-						thoTemplate: thoTemplates.filter(x => x.templateTypeId == 1),
-						message: '*Sales Agreement Contract'
-					},
-					{
-						thoTemplate: thoTemplates.filter(x => x.templateTypeId == 2),
-						message: '*Include: Addenda Contract',
-					},
-					{
-						thoTemplate: thoTemplates.filter(x => x.templateTypeId == 3),
-						message: '*Include: Cancel Form Contract',
-					},
-					{
-						thoTemplate: thoTemplates.filter(x => x.templateTypeId == 4),
-						message: '*Include: JIO Contract',
-					},
-					{
-						thoTemplate: thoTemplates.filter(x => x.templateTypeId == 5),
-						message: '*Include: To Do Business Electronically Contract',
+						this.disableCommunity();
 					}
-				];
-			});
 
-			if (this.requiredPdfs.filter(x => x.pdfs.length > 0) && this.requiredThoTemplates.filter(x => x.thoTemplate.length > 0))
-			{
-				this.canToggleCommunitySettings = true;
-			}
+				})
 		}
 	}
 
