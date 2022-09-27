@@ -25,7 +25,6 @@
 		</div>
 		<div class="phd-change-order-table" *ngIf="activeChangeOrders.length > 0">
 			<change-order-table [changeOrders]="activeChangeOrders"
-								[canEdit]="canEdit$ | async"
 								[canApprove]="canApprove$ | async"
 								[canSell]="canSell$ | async"
 								[canDesign]="canDesign$ | async"

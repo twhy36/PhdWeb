@@ -9,7 +9,6 @@ import { UnsubscribeOnDestroy, convertDateToUtcString } from 'phd-common';
 export class ChangeOrderTableComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	@Input() changeOrders: Array<any>;
-	@Input() canEdit: boolean;
 	@Input() canApprove: boolean;
 	@Input() canSell: boolean;
 	@Input() canDesign: boolean;
@@ -57,15 +56,10 @@ export class ChangeOrderTableComponent extends UnsubscribeOnDestroy implements O
 			canEditRejectedChangeOrder = changeOrder.index === this.changeOrders[this.changeOrders.length - 1].index;
 		}
 
-		if (changeOrder.salesStatus === 'Signed')
-		{
-			return this.canApproveChangeOrder;
-		}
-
 		return (changeOrder.salesStatus !== 'Approved' || changeOrder.constructionStatusDescription === 'Rejected')
 			&& canEditRejectedChangeOrder
 			&& changeOrder.isActiveChangeOrder
-			&& (this.canSell || this.canEdit || (this.canDesign && this.contactId === changeOrder.createdByContactId));
+			&& (this.canSell || this.canApproveChangeOrder || (this.canDesign && this.contactId === changeOrder.createdByContactId));
 	}
 
 	getChangeOrderType(changeOrder: any)
