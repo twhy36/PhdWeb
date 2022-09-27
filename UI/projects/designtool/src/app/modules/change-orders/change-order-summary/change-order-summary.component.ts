@@ -1391,5 +1391,10 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 	toggleDesignComplete()
 	{
 		this.store.dispatch(new SalesAgreementActions.SetIsDesignComplete(!this.isDesignComplete));
+
+		if (!this.isDesignComplete)
+		{
+			this.store.dispatch(new FavoriteActions.DeleteMyFavorites());
+		}
 	}
 }
