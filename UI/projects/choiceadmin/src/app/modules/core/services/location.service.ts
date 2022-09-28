@@ -1,20 +1,21 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
-import { Observable ,  throwError as _throw } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { Observable, of, throwError as _throw } from 'rxjs';
+import { map, catchError, switchMap } from 'rxjs/operators';
 
 import { SettingsService } from '../../core/services/settings.service';
-import { LoggingService } from "../../core/services/logging.service";
+import { OrganizationService } from './organization.service';
 
 import { Settings } from '../../shared/models/settings.model';
 import { Location } from '../../shared/models/location.model';
 import { LocationGroupMarket } from '../../shared/models/location-group-market.model';
 import { Option, IOptionMarket } from '../../shared/models/option.model';
-import { IFinancialCommunity } from '../../shared/models/financial-community.model';
 import { LocationGroupCommunity } from '../../shared/models/location-group-community.model';
 import { GroupChoice } from '../../shared/models/group-choice.model';
 import { TableSort } from '../../../../../../phd-common/src/lib/components/table/phd-table.model';
+import { IFinancialCommunity } from '../../shared/models/financial-community.model';
+
 import { withSpinner } from 'phd-common';
 
 const settings: Settings = new SettingsService().getSettings();
@@ -24,7 +25,7 @@ export class LocationService
 {
 	private _ds: string = encodeURIComponent("$");
 
-	constructor(private _http: HttpClient, private _loggingService: LoggingService) { }
+	constructor(private _http: HttpClient, private _orgService: OrganizationService) { }
 
 	getLocationsByMarketId(marketId: number, status?: boolean, topRows?: number, skipRows?: number, filterName?: string, keywords?: string, tableSort?: TableSort): Observable<Array<Location>>
 	{
@@ -454,27 +455,30 @@ export class LocationService
 	}
 
 	/**
-	 * *Returns a list of associated Communities for the given LocationGroup
+	 * *Returns a list of Financial Communities for the given LocationGroup
 	 * @param group
 	 */
-	getLocationGroupCommunities(group: LocationGroupMarket): Observable<Array<IFinancialCommunity>>
+	getFinancialCommunitiesRelatedByLocationGroup(group: LocationGroupMarket): Observable<IFinancialCommunity[]>
 	{
 		let url = settings.apiUrl;
 
-		const expand = `locationGroupCommunities($filter=locationGroupMarketId eq ${group.id};$select=id, locationGroupMarketId)`;
-		const filter = `locationGroupCommunities/any(a: a/locationGroupMarketId eq ${group.id})`;
-		const select = `id, number, name`;
-		const orderby = `name`;
+		const filter = `locationGroupMarketId eq ${group.id}`;
+		const select = `id, financialCommunityId, locationGroupMarketId`;
 
-		const qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}orderby=${encodeURIComponent(orderby)}`;
+		const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
 
-		url += `financialCommunities?${qryStr}`;
+		url += `locationGroupCommunities?${qryStr}`;
 
 		return this._http.get(url).pipe(
-			map(response =>
+			switchMap(response =>
 			{
-				let communities = response['value'] as Array<IFinancialCommunity>;
-
+				let communities = response['value'] as LocationGroupCommunity[];
+				let financialCommunityIds = communities?.map(x => x.financialCommunityId);
+				
+				return financialCommunityIds.length ? this._orgService.getFinancialCommunitiesByIds(financialCommunityIds) : of([] as IFinancialCommunity[]);
+			}),
+			map(communities =>
+			{
 				return communities;
 			}),
 			catchError(this.handleError));
