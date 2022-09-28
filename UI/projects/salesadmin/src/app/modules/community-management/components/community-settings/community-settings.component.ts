@@ -221,7 +221,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 
 					this.allTemplates = templates;
 
-					let thoTemplates = this.allTemplates.filter(x => x.assignedCommunityIds.includes(this.financialCommunity.id)).filter(x => x.isTho == true).filter(x => x.status === 'InUse');
+					let thoTemplates = this.allTemplates.filter(x => x.assignedCommunityIds.includes(this.financialCommunity.id)).filter(x => x.isTho == true).filter(x => x.status === 'In Use');
 
 					this.requiredThoTemplates = [
 						{
