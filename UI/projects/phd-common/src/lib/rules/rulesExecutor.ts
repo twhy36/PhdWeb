@@ -694,18 +694,7 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 				}
 
 				return false;
-			}) || choice.lockedInOptions?.map(lio => lio.optionId)
-				.some(financialOptionIntegrationKey =>
-				{
-					// Find any active rules that replace this option
-					const replaceRules = rules.optionRules.filter(o => o.replaceOptions.includes(financialOptionIntegrationKey));
-
-					// Find any choices with locked in options that still replace this option
-					const existingChoices = choices.filter(ch => ch.id !== choice.id && _.flatMap(ch.lockedInOptions, lio => lio.replaceOptions).includes(financialOptionIntegrationKey));
-
-					// If no rules currently replace this option, and no locked in options replace this option, then this choice has a removed option
-					return !replaceRules.length && !existingChoices.length;
-				});
+			});
 
 		// Determine if any choices that currently affect this choice via replace rules are properly selected, etc.
 		const optionRuleChoices = rules.optionRules
