@@ -720,6 +720,16 @@ export class CommonEffects
 									selectedPlanPrice = { planId: result.selectedPlanId, listPrice: co.jobChangeOrderPlanOptions.find(po => po.action === 'Add' && po.integrationKey === '00001').listPrice };
 								}
 							}
+
+							// Update replaced option price if the option is tracked in the time of sales table but not in the job
+							const timeOfSaleOptions = result.job.timeOfSaleOptionPrices?.filter(tos => !result.job.jobPlanOptions?.find(jpo => jpo.planOptionId === tos.edhPlanOptionID));
+							timeOfSaleOptions?.forEach(tos => {
+								let option = result.options.find(opt => opt.id === tos.edhPlanOptionID);
+								if (option)
+								{
+									option.listPrice = tos.listPrice;
+								}
+							});
 						}
 
 						// #353697 Update tracked prices if they have changed while the agreement is pending
