@@ -721,8 +721,15 @@ export class CommonEffects
 								}
 							}
 
-							// Update replaced option price if the option is tracked in the time of sales table but not in the job
-							const timeOfSaleOptions = result.job.timeOfSaleOptionPrices?.filter(tos => !result.job.jobPlanOptions?.find(jpo => jpo.planOptionId === tos.edhPlanOptionID));
+							// Update replaced option price if 
+							// - the option is tracked in the time of sales table 
+							// - the option is linked to a choice in the job which means the option is locked in
+							// - the option does not exist in the job (an option no longer exists in the job when it is replaced by another option)
+							const timeOfSaleOptions = result.job.timeOfSaleOptionPrices?.filter(tos => {
+								return result.job.jobChoices?.find(jc => jc.divChoiceCatalogId === tos.divChoiceCatalogID)
+									&& !result.job.jobPlanOptions?.find(jpo => jpo.planOptionId === tos.edhPlanOptionID);
+							});
+
 							timeOfSaleOptions?.forEach(tos => {
 								let option = result.options.find(opt => opt.id === tos.edhPlanOptionID);
 								if (option)
