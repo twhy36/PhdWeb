@@ -50,6 +50,19 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 
 	ngOnInit()
 	{
+		if (this.isBuyer())
+		{
+			this.isPrimaryBuyer = (this.buyer as Buyer).isPrimaryBuyer;
+
+			if (!this.isPrimaryBuyer)
+			{
+				this.store.pipe(
+					this.takeUntilDestroyed(),
+					select(fromRoot.activePrimaryBuyer)
+				).subscribe(primaryBuyer => this.primaryBuyer = primaryBuyer);
+			}
+		}
+
 		if (typeof this.buyer === 'string')
 		{
 			this.createTrustForm(this.buyer);
@@ -66,6 +79,12 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 			const stateProvinceControl = addressFormGroup.get('stateProvince');
 			const postalCodeControl = addressFormGroup.get('postalCode');
 			const countryControl = addressFormGroup.get('country');
+
+			// primary buyer and has no country set then default to United States
+			if (this.isPrimaryBuyer && countryControl.value === null)
+			{
+				countryControl.setValue('United States');
+			}
 
 			// determine when address1 and city are required
 			// - if any address field has a value then both are required
@@ -106,20 +125,7 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 				addressFormArray.updateValueAndValidity({ onlySelf: true, emitEvent: false });
 			});
 		}
-
-		if (this.isBuyer())
-		{
-			this.isPrimaryBuyer = (this.buyer as Buyer).isPrimaryBuyer;
-
-			if (!this.isPrimaryBuyer)
-			{
-				this.store.pipe(
-					this.takeUntilDestroyed(),
-					select(fromRoot.activePrimaryBuyer)
-				).subscribe(primaryBuyer => this.primaryBuyer = primaryBuyer);
-			}
-		}
-
+		
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(state => state.changeOrder)
