@@ -83,6 +83,13 @@
 			margin-top: 4px;
 			font-size: 23px;
 		}
+
+		.phd-price-disclaimer {
+			margin-left: 20px;
+			margin-top: 3px;
+			font-size: 11px;
+			font-weight: bold;
+		}
 	}
 
 	.phd-price-right-justified {
@@ -137,6 +144,15 @@
 			padding-left: 10px;
 			padding-right: 15px;
 		}
+	}
+
+	.phd-descriptive-text {
+		font-size: 11px;
+		font-weight: bold;
+		margin-left: 10px;
+		position: fixed;
+		bottom: 74px;
+		padding: 5px 0px;
 	}
 
 	.phd-choice-desc-section-long {
@@ -231,6 +247,10 @@
 		}
 	}
 
+	.phd-info-section-presale {
+		height: calc(100vh - 208px - 40px) !important;
+	}
+
 	.phd-info-section {
 		width: calc(48vw);
 		height: calc(100vh - 208px);
@@ -314,6 +334,13 @@
 
 		.phd-attr-loc-group-container {
 			margin-bottom: 70px;
+		}
+
+		.phd-descriptive-text {
+			font-size: 11px;
+			font-weight: bold;
+			position: relative;
+			padding: 5px 0px;
 		}
 	}
 }
