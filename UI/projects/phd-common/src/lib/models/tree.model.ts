@@ -174,6 +174,7 @@ export class Choice
 	priceHiddenFromBuyerView?: boolean;
 	isRequired?: boolean = false;
 	disabledByHomesite?: boolean = false;
+	disabledByRelocatedMapping?: Array<number> = [];
 }
 
 export class MappedGroup

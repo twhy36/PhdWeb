@@ -627,7 +627,8 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 						isHiddenFromBuyerView: false,
 						priceHiddenFromBuyerView: false,
 						isRequired: false,
-						disabledByHomesite: false
+						disabledByHomesite: false,
+						disabledByRelocatedMapping: []
 					}));
 				});
 
@@ -768,7 +769,8 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 										isHiddenFromBuyerView: false,
 										priceHiddenFromBuyerView: false,
 										isRequired: false,
-										disabledByHomesite: false
+										disabledByHomesite: false,
+										disabledByRelocatedMapping: []
 									}));
 							});
 					});
