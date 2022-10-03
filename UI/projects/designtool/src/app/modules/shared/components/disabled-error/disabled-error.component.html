@@ -10,7 +10,7 @@
 		<!--The errors array adds choice errors and point errors together-->
 		<ul [class.phd-multi-error]="isMultiError">
 			<li
-				*ngIf="hasRequiredChoice && !choice?.isRequired && !choice?.disabledByHomesite && !choice?.disabledByReplaceRules?.length && !choice?.disabledByBadSetup">
+				*ngIf="hasRequiredChoice && !choice?.isRequired && !choice?.disabledByHomesite && !choice?.disabledByReplaceRules?.length && !choice?.disabledByBadSetup && !choice?.disabledByRelocatedMapping?.length">
 				<span>Disabled due to a Required choice</span>
 			</li>
 			<li *ngIf="choice?.isRequired">
@@ -34,6 +34,17 @@
 			<li *ngIf="choice?.disabledByBadSetup">
 				<span>This choice cannot be selected because the correct price cannot be calculated. This may be due to
 					improper setup. Please contact a Procurement agent for assistance.</span>
+			</li>
+
+			<li
+				*ngIf="choice?.disabledByRelocatedMapping?.length && !choice?.disabledByReplaceRules?.length && !choice?.disabledByBadSetup">
+				<span>Disabled due to option already on contract. Must deselect: </span>
+
+				<span *ngFor="let c of choice.disabledByRelocatedMapping; let i = index;">
+					<span *ngIf="i > 0"> and </span>
+					<a class="phd-clickable phd-link phd-choice" (click)="onChoiceNav(c)">{{c |
+						choiceIdToName | async }}</a>
+				</span>
 			</li>
 
 			<!--Within each type of error is the disabledBy array which makes up a single line -->

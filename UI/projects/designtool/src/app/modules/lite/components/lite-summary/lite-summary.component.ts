@@ -629,7 +629,8 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 						isRequired: false,
 						disabledByHomesite: false,
 						disabledByReplaceRules: [],
-						disabledByBadSetup: false
+						disabledByBadSetup: false,
+						disabledByRelocatedMapping: []
 					}));
 				});
 
@@ -772,7 +773,8 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 										isRequired: false,
 										disabledByHomesite: false,
 										disabledByReplaceRules: [],
-										disabledByBadSetup: false
+										disabledByBadSetup: false,
+										disabledByRelocatedMapping: []
 									}));
 							});
 					});

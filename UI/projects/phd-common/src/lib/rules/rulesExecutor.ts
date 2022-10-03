@@ -89,6 +89,7 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 		ch.mappingChanged = false;
 		ch.disabledByReplaceRules = [];
 		ch.disabledByBadSetup = false;
+		ch.disabledByRelocatedMapping = [];
 
 		// Deselect choice requirements when a user deselects/selects a new lot while creating a HC
 		// Don't want previous lot choice requirements to show up when a lot is toggled
@@ -827,6 +828,19 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 				}
 			});
 		}
+
+		// #367382
+		// If this choice has an option that is already on the config,
+		// as part of another choice, this choice needs to be disabled
+		choice.options.forEach(opt =>
+		{
+			const choicesWithLockedInOpt = choices.filter(ch => ch.lockedInOptions.find(lio => lio.optionId === opt.financialOptionIntegrationKey) && ch.id !== choice.id).map(ch => ch.id);
+
+			if (choicesWithLockedInOpt)
+			{
+				choice.disabledByRelocatedMapping = choice.disabledByRelocatedMapping.concat(choicesWithLockedInOpt);
+			}
+		});
 
 		mapLocationAttributes(choice);
 	});
