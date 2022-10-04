@@ -649,7 +649,6 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 
 	onBlockedItemClick(pointId: number) {
 		this.blockedChoiceModalRef?.close();
-		delete this.disabledByList;
 		this.onSelectDecisionPoint.emit(pointId);
 		this.onBack.emit();
 	}
