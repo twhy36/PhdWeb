@@ -82,7 +82,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 
 	get carouselImages(): OptionImage[] | ChoiceImageAssoc[]
 	{
-		return this.optionImages ?? this.choiceImages
+		return this.optionImages.length > 0 ? this.optionImages : this.choiceImages
 	}
 
 	constructor(private store: Store<fromRoot.State>,
@@ -123,6 +123,14 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		this.getImages();
 
 		this.override$.next((!!this.choice.overrideNote));
+	}
+
+	getImageUrl(image: any)
+	{
+		// instanceof didn't work, switched to hasOwnProperty.  Issue OptionImage vs ChoiceImageAssoc imageUrl are typed out differently.  TODO: Must change one of them so they match.
+		let url = image.hasOwnProperty('imageURL') ? image.imageURL : image.imageUrl;
+
+		return url;
 	}
 
 	choiceDescriptionToggle()
