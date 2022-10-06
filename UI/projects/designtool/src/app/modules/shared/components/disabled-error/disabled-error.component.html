@@ -21,7 +21,7 @@
 			</li>
 
 			<li
-				*ngIf="choice?.disabledByRelocatedMapping?.length && !choice?.disabledByReplaceRules?.length && !choice?.disabledByBadSetup">
+				*ngIf="choice?.disabledByRelocatedMapping?.length">
 				<span>Disabled due to option already on contract. Must deselect: </span>
 
 				<span *ngFor="let c of choice.disabledByRelocatedMapping; let i = index;">
