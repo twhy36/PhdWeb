@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpHeaders, HttpClient } from '@angular/common/http';
 
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, throwError } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import * as odataUtils from '../../shared/utils/odata.util';
 import { Settings } from '../../shared/models/settings.model';
 import { SettingsService } from "./settings.service";
@@ -91,13 +91,11 @@ export class CommunityService
 	deleteCommunityPdf(pdf: CommunityPdf): Observable<boolean>
 	{
 		let url = settings.apiUrl;
-		url += 'DeleteCommunityPdf';
-		let body = {
-			financialCommunityId: pdf.financialCommunityId,
-			fileName: pdf.fileName,
-		}
-		return this._http.patch<any>(url, body).pipe(
-			map(response => response.value as boolean)
+		const entity = `financialCommunityId(${pdf.financialCommunityId})/fileName(${pdf.fileName})`;
+		const endpoint = url + entity;
+		return this._http.delete<any>(endpoint).pipe(
+			map(response => response.value as boolean),
+			catchError(this.handleError)
 		);
 	}
 
@@ -197,5 +195,10 @@ export class CommunityService
 				return returnVal as Array<CommunityPdf>
 			})
 		);
+	}
+
+	private handleError(error: Response)
+	{
+		return throwError(error || 'Server error');
 	}
 }
