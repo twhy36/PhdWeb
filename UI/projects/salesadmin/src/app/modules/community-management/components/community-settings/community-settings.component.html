@@ -90,7 +90,6 @@
 						<div class="font-weight-bold">Enable Design Preview for Community</div>
 						<div class="col-md">
 							<button class="btn btn-sm btn-toggle btn-auto-approval"
-									[disabled]="!canToggleCommunitySettings"
 									[ngClass]="{'active': !isPreviewEnabled, 'btn-success': isPreviewEnabled, 'btn-secondary': !isPreviewEnabled}"
 									(click)="togglePreviewEnabled()">
 							</button>
@@ -205,7 +204,7 @@
 						<div class="font-weight-bold">Enable Design Preview Post-Contract</div>
 						<div class="col-md">
 							<button class="btn btn-sm btn-toggle btn-auto-approval"
-									[disabled]="!canToggleCommunitySettings || isPhdLite"
+									[disabled]="isPhdLite"
 									[ngClass]="{'active': !isPreviewEnabled, 'btn-success': isPreviewEnabled, 'btn-secondary': !isPreviewEnabled}"
 									(click)="togglePreviewEnabled()">
 							</button>
@@ -222,13 +221,13 @@
                             <option *ngFor="let plan of plans" [ngValue]="plan">{{ plan.displayName }}</option>
 						</select>
                         <br />
-						<button *ngIf="!!selectedOption" class="btn btn-primary phd-btn-save" (click)="save();" [disabled]="saveDisabled">
+						<button *ngIf="!!selectedOption" class="btn btn-primary phd-btn-save" (click)="generateDesignPreviewLink(selectedOption.id)">
 							Generate Link
 							<ng-container *ngIf="isSaving"><i class="fa fa-spinner fa-spin fa-fw"></i></ng-container>
 						</button>
 						<div class="phd-link-box phd-line">
 							<a class="btn-link" [href]="designPreviewUrl" target="_blank" rel="noopener noreferrer">{{ designPreviewUrl }}</a>
-                            <button class="phd-copy-image">
+                            <button class="phd-copy-image" (click)="copyToClipboard(designPreviewUrl)">
                                 <i class="fa fa-copy fa-thin"></i>
                             </button>
 						</div>

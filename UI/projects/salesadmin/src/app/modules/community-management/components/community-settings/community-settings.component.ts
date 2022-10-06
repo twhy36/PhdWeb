@@ -45,7 +45,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 	canEdit = false;
 	isSaving = false;
 	url?: string = null;
-	designPreviewUrl = 'www.example.com'; //TODO Make this the actual url in functionality story
+	designPreviewUrl?: string = null;
 	commmunityLinkEnabledDirty = false;
 	previewEnabledDirty = false;
 	canToggleCommunitySettings = false;
@@ -65,9 +65,9 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 			// Disables save if form is invalid and user is not trying to turn on preview
 			|| (!this.communitySettingsForm.valid && !this.previewEnabledDirty)
 			// Disables save if user trys to remove existing value for ecoeMonths
-			|| (this.communitySettingsForm.get('ecoeMonths').invalid && this.communitySettingsForm.get('ecoeMonths').dirty && this.financialCommunityInfo.defaultECOEMonths != null)
+			|| (this.communitySettingsForm.get('ecoeMonths').invalid && this.communitySettingsForm.get('ecoeMonths').dirty && this.financialCommunityInfo?.defaultECOEMonths != null)
 			// Disables save is user trys to remove existing value for earnest money
-			|| (this.communitySettingsForm.get('earnestMoney').invalid && this.communitySettingsForm.get('earnestMoney').dirty && this.financialCommunityInfo.earnestMoneyAmount != null)
+			|| (this.communitySettingsForm.get('earnestMoney').invalid && this.communitySettingsForm.get('earnestMoney').dirty && this.financialCommunityInfo?.earnestMoneyAmount != null)
 			// Disables save if form and toggles are pristine
 			|| (
 				this.communitySettingsForm.pristine
@@ -308,7 +308,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 	save()
 	{
 		this.isSaving = true;
-		if ((this.communitySettingsForm.dirty || this.commmunityLinkEnabledDirty || this.previewEnabledDirty) && this.communitySettingsForm.valid)
+		if ((this.communitySettingsForm.dirty || this.commmunityLinkEnabledDirty) && this.communitySettingsForm.valid)
 		{
 			let ecoeMonths = this.communitySettingsForm.get('ecoeMonths').value;
 			let earnestMoney = this.communitySettingsForm.get('earnestMoney').value;
@@ -329,7 +329,6 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 			combineLatest([
 				this._orgService.saveFinancialCommunityInfo(this.financialCommunityInfo, this.orgId),
 				this._orgService.saveSalesCommunity(this.salesCommunity),
-				this._orgService.saveFinancialCommunity(this.financialCommunity)
 			]).subscribe(() =>
 				{
 					this.isSaving = false;
@@ -345,7 +344,8 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 					this._msgService.add({ severity: 'error', summary: 'Error', detail: `Save failed. ${error}` });
 				});
 		}
-		else if (this.previewEnabledDirty)
+
+		if (this.previewEnabledDirty)
 		{
 			// Still want to be able to enable preview when the form is invalid
 			this._orgService.saveFinancialCommunity(this.financialCommunity).subscribe(() =>
@@ -364,6 +364,28 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 				});
 		}
 
+	}
+
+	enableDesignPreviewBox()
+	{
+		return environment.selectedCommunityWhitelist.includes(this.currentMarket.id);
+	}
+
+	generateDesignPreviewLink(planId: number) 
+	{
+		this._planService.getDesignPreviewLink(planId).pipe(
+			this.takeUntilDestroyed(),
+		).subscribe(link => {
+			this.designPreviewUrl = link;
+		},
+		error => {
+			const msg = 'Error: Unable to Generate link!';
+			this._msgService.add({ severity: 'error', summary: msg, detail: error });
+		});
+	}
+
+	copyToClipboard(text: string) {
+		navigator.clipboard.writeText(text);
 	}
 
 	private loadPlansAndHomeSites()
@@ -402,10 +424,5 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 				this.loading = false;
 			});
 		}
-	}
-
-	enableDesignPreviewBox()
-	{
-		return environment.selectedCommunityWhitelist.includes(this.currentMarket.id);
 	}
 }
