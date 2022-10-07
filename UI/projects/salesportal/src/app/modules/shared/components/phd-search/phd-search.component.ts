@@ -86,6 +86,7 @@ export class PHDSearchComponent
 	];
 
 	noRecordsMessage: string;
+	isPhdLiteEnabled: boolean;
 	resultsShown: boolean = false;
 	salesAgreementNumber: string = null;
 	search_button_label: string;
@@ -333,6 +334,11 @@ export class PHDSearchComponent
 	 *
 	 */
 
+	onPhdLiteChange(enabled: boolean)
+	{
+		this.isPhdLiteEnabled = enabled;
+	}
+
 	getFilterFromSelectItems(name: string, selections: Array<string | number>, collection?: string): IFilterItems
 	{
 		const filterItems: IFilterItems = { items: [], collection: collection };
@@ -467,7 +473,7 @@ export class PHDSearchComponent
 
 	getLotBuildType(lot: SearchResult): string
 	{
-		return this.isHslMigrated(lot.jobCreatedBy)
+		return this.isHslMigrated(lot.jobCreatedBy) && !this.isPhdLiteEnabled
 			? `${lot.buildType} - HS`
 			: lot.buildTypeDisplayName;
 	}
@@ -480,5 +486,11 @@ export class PHDSearchComponent
 		url += `/${lot.jobId}`;
 
 		return url;
+	}
+
+	getBuildTypeDisplay(lot): boolean
+	{
+		const lotCheck = (lot.lotStatusDescription.trim() === 'Available' || lot.lotStatusDescription.trim() === 'Unavailable') && (lot.buildType.trim() ==='Spec' || lot.buildType.trim() ==='Model');
+		return this.isPhdLiteEnabled ? lotCheck : !this.isHslMigrated(lot.jobCreatedBy) && lotCheck;
 	}
 }
