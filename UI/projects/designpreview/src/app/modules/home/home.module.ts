@@ -8,7 +8,7 @@ import { ExternalGuard } from '../core/guards/external.guard';
 import { InternalGuard } from '../core/guards/internal.guard';
 import { SharedModule } from '../shared/shared.module';
 import { HomeComponent } from './components/home/home.component';
-import { BannerComponent } from './components/home/banner/banner.component';
+import { CoreModule } from '../core/core.module';
 
 // Temporarily add salesAgreementId in the route to facilitate testing in QA environment.
 // This will be removed once the SSO code is incorporated.
@@ -47,23 +47,22 @@ const moduleRoutes: Routes = [
 		path: 'presale',
 		component: HomeComponent,
 		canActivate: [InternalGuard],
-		data: { isPreview: false, pageLoadEvent: 'Home', isPresale: false },
+		data: { isPreview: false, pageLoadEvent: 'Home', isPresale: true },
 	},
 ];
 
 @NgModule({
 	exports: [
-		HomeComponent,
-		BannerComponent
+		HomeComponent
 	],
 	declarations: [
-		HomeComponent,
-		BannerComponent
+		HomeComponent
 	],
 	imports: [
 		CommonModule,
 		CloudinaryModule,
 		SharedModule,
+		CoreModule,
 		PhdCommonModule,
 		RouterModule.forChild(moduleRoutes),
 	],

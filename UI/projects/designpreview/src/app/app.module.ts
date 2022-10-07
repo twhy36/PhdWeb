@@ -22,11 +22,14 @@ import { FavoritesModule } from './modules/favorites/favorites.module';
 import { AuthService } from './modules/core/services/auth.service';
 import { AuthConfigSelector } from './modules/shared/classes/auth-config-selector.class';
 import { BrandService } from './modules/core/services/brand.service';
+import { DefaultErrorComponent } from './modules/core/components/default-error/default-error.component';
 
 const appRoutes: Routes = [
 	{ path: 'home', component: HomeModule },
 	{ path: 'favorites', component: FavoritesModule },
-	{ path: '', pathMatch: 'full', redirectTo: 'home' }
+	{ path: '', pathMatch: 'full', redirectTo: 'home' },
+	{ path: 'error', component: DefaultErrorComponent },
+	{ path: '**', pathMatch: 'full', component: DefaultErrorComponent }
 ];
 
 export function getBaseHref(platformLocation: PlatformLocation): string

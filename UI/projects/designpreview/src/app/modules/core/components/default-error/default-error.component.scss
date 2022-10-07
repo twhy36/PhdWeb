@@ -1,0 +1,66 @@
+@import "../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
+@import "../../../../../../../phd-common/src/lib/scss/sizes.scss";
+
+.phd-home-images-container {
+	max-width: 100%;
+}
+
+.phd-error-row {
+	justify-content: space-between;
+	align-items: center;
+	margin: 5%;
+}
+
+.phd-logo-section {
+	width: 25%;
+}
+
+.phd-logo-image {
+	max-width: 100%;
+	max-height: 100%;
+	height: auto;
+	margin-top: auto;
+	margin-bottom: auto;
+}
+
+.phd-vertical-line {
+	border: 1px solid #d4d4d4;
+	height: 10rem;
+}
+
+.phd-message-section {
+	width: 70%;
+	padding: 4%
+}
+
+.phd-message-title {
+	font-size: 1.5rem;
+	color: var(--home-text-color);
+	margin-top: 1rem;
+	text-align: center;
+	font-weight: bold;
+}
+
+.phd-message-desc {
+	font-size: 1.2rem;
+	color: var(--home-text-color);
+	margin: 4%;
+	text-align: center;
+	line-height: 1.1;
+	font-weight: bold;
+}
+
+.phd-internal-error-message {
+	position: fixed;
+	left: 10px;
+	bottom: 10px;
+	color: #fff;
+	font-size: smaller;
+	z-index: 2;
+	background-color: #073e59;
+	border: 5px solid white;
+	border-radius: 5px;
+	padding: 5px;
+	min-width: 100px;
+	cursor: pointer;
+}
