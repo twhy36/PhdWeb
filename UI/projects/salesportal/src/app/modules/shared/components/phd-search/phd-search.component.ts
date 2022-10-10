@@ -398,6 +398,16 @@ export class PHDSearchComponent
 		return jobCreatedBy && (jobCreatedBy.toUpperCase().startsWith('PHCORP') || jobCreatedBy.toUpperCase().startsWith('PHBSSYNC'));
 	}
 
+	getLatestAgreementStatus(lot: SearchResult): string
+	{
+		if (lot.salesAgreements?.length)
+		{
+			return lot.salesAgreements[lot.salesAgreements.length - 1].status;
+		}
+
+		return null;
+	}
+
 	/*
 	 *
 	 * GETTERS AND SETTERS
@@ -490,7 +500,9 @@ export class PHDSearchComponent
 
 	getBuildTypeDisplay(lot): boolean
 	{
-		const lotCheck = (lot.lotStatusDescription.trim() === 'Available' || lot.lotStatusDescription.trim() === 'Unavailable') && (lot.buildType.trim() ==='Spec' || lot.buildType.trim() ==='Model');
+		const lotCheck = (lot.lotStatusDescription.trim() === 'Available' || lot.lotStatusDescription.trim() === 'Unavailable')
+			&& (lot.buildType.trim() === 'Spec' || lot.buildType.trim() === 'Model')
+			&& (this.getLatestAgreementStatus(lot) !== 'Signed');
 		return this.isPhdLiteEnabled ? lotCheck : !this.isHslMigrated(lot.jobCreatedBy) && lotCheck;
 	}
 }
