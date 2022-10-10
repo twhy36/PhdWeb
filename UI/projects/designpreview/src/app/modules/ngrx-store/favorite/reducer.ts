@@ -254,3 +254,8 @@ export const currentMyFavorite = createSelector(
 	favoriteState,
 	(state) => state && state.myFavorites ? state.myFavorites.find(x => x.id === state.selectedFavoritesId) : null
 );
+
+export const currentMyFavoriteChoices = createSelector(
+	favoriteState,
+	(state) => state && state.myFavorites ? state.myFavorites.find(x => x.id === state.selectedFavoritesId).myFavoritesChoice : null
+);

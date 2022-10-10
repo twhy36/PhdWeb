@@ -6,21 +6,28 @@ import { NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 import { environment } from '../environments/environment';
 import { default as build } from './build.json';
 
-import { ModalService, ModalRef, IdentityService } from 'phd-common';
+import { ModalService, ModalRef, IdentityService, UnsubscribeOnDestroy } from 'phd-common';
 import { IdleLogoutComponent } from './modules/core/components/idle-logout/idle-logout.component';
 import { BrandService } from './modules/core/services/brand.service';
 import { AdobeService } from './modules/core/services/adobe.service';
+import * as fromRoot from './modules/ngrx-store/reducers';
+import * as fromFavorite from './modules/ngrx-store/favorite/reducer';
+import { BuildMode } from './modules/shared/models/build-mode.model';
+import { select, Store } from '@ngrx/store';
+import { withLatestFrom } from 'rxjs/operators';
 
 @Component({
 	selector: 'app-root',
 	templateUrl: './app.component.html',
 	styleUrls: ['./app.component.css']
 })
-export class AppComponent
+export class AppComponent extends UnsubscribeOnDestroy
 {
 	title = 'Design Preview';
 
 	environment = environment;
+
+	buildMode: BuildMode;
 
 	logoutModal: ModalRef;
 
@@ -40,8 +47,11 @@ export class AppComponent
 		private identityService: IdentityService,
 		private brandService: BrandService,
 		private adobeService: AdobeService,
+		private store: Store<fromRoot.State>,
 		@Inject(DOCUMENT) private doc: any)
 	{
+		super();
+
 		// Start idle watch for user inactivities if an external user is logged in
 		if (sessionStorage.getItem('authProvider') === 'sitecoreSSO')
 		{
@@ -49,6 +59,19 @@ export class AppComponent
 		}
 
 		this.brandService.applyBrandStyles();
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromFavorite.currentMyFavoriteChoices),
+			withLatestFrom(this.store.pipe(select(state => state.scenario)))
+		).subscribe(([fav, scenario]) => {
+			this.buildMode = scenario.buildMode;
+			if ((this.buildMode === BuildMode.Presale || this.buildMode === BuildMode.Preview) && fav?.length > 0) {
+				window.addEventListener('beforeunload', this.createBeforeUnloadListener);
+			} else {
+				window.removeEventListener('beforeunload', this.createBeforeUnloadListener);
+			}
+		});
 	}
 
 	ngOnInit()
@@ -107,6 +130,10 @@ export class AppComponent
 		});
 
 		this.idle.watch();
+	}
+
+	createBeforeUnloadListener(e: BeforeUnloadEvent) {
+		e.returnValue = `This will delete your MY FAVORITES list, continue?`;
 	}
 
 	logout()
