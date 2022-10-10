@@ -20,6 +20,8 @@ import { ContractService } from '../../../core/services/contract.service';
 import { HomeSiteService } from '../../../core/services/homesite.service';
 import { PlanService } from '../../../core/services/plan.service';
 import { FeatureSwitchService } from 'phd-common';
+import { SalesService } from '../../../core/services/sales.service';
+import { SalesProgram } from '../../../shared/models/salesPrograms.model';
 
 @Component({
 	selector: 'community-settings',
@@ -58,6 +60,8 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 	selectedOption = null;
 	loading: boolean = false;
 	isPhdLite = false;
+	salesPrograms:  Array<SalesProgram>;
+	closingCostDisabled: boolean;
 
 	get saveDisabled(): boolean
 	{
@@ -93,6 +97,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 
 	constructor(
 		public _orgService: OrganizationService,
+		private _salesService: SalesService,
 		private _planService: PlanService,
 		private _homeSiteService: HomeSiteService,
 		private _contractService: ContractService,
@@ -196,8 +201,8 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 	{
 		if (this.financialCommunity && this.currentMarket)
 		{
-			combineLatest([this._communityService.getCommunityPdfsByFinancialCommunityId(this.financialCommunity.id), this._contractService.getDraftOrInUseContractTemplates(this.currentMarket.id)])
-				.subscribe(([pdfs, templates]) => {
+			combineLatest([this._communityService.getCommunityPdfsByFinancialCommunityId(this.financialCommunity.id), this._contractService.getDraftOrInUseContractTemplates(this.currentMarket.id), this._salesService.getSalesPrograms(this.financialCommunity.id) ])
+				.subscribe(([pdfs, templates, salesProgram]) => {
 					this.allCommunityPdfs = pdfs;
 
 					this.requiredPdfs = [
@@ -233,16 +238,16 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 							message: '*Include: Addenda Contract',
 						},
 						{
-							thoTemplate: thoTemplates.filter(x => x.templateTypeId == 3),
-							message: '*Include: Cancel Form Contract',
-						},
-						{
 							thoTemplate: thoTemplates.filter(x => x.templateTypeId == 5),
 							message: '*Include: To Do Business Electronically Contract',
 						}
 					];
 
-					if (this.requiredPdfs.find(x => x.pdfs.length === 0) || this.requiredThoTemplates.find(x => x.thoTemplate.length === 0))
+					this.salesPrograms = salesProgram;
+
+					this.closingCostDisabled = !this.salesPrograms.some(sp => sp.salesProgramType.toString() === 'BuyersClosingCost' && sp.isWebSaleable);
+
+					if (this.requiredPdfs.find(x => x.pdfs.length === 0) || this.requiredThoTemplates.find(x => x.thoTemplate.length === 0) || this.closingCostDisabled)
 					{
 						this.canToggleCommunitySettings = false;
 						this.disableCommunity();
@@ -251,8 +256,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 					{
 						this.disableCommunity();
 					}
-
-				})
+				});
 		}
 	}
 
