@@ -681,15 +681,12 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		// #353697 Prompt the user of affected choices with an adjusted price by deselecting this choice
 		let impactedOptionPriceChoices = [];
 
+		// #366542 Find any choices with a replaced option that is no longer available on the current tree
+		let adjustedChoices = [];
+
 		if (choiceToDeselect)
 		{
 			impactedOptionPriceChoices = this.getImpactedChoicesForReplacedOptionPrices(timeOfSaleOptionPrices, choice, choiceToDeselect);
-		}
-
-		// #366542 Find any choices with a replaced option that is no longer available on the current tree
-		let adjustedChoices = [];
-		if (choiceToDeselect?.id !== choice.id)
-		{
 			adjustedChoices = this.getAdjustedChoices(choiceToDeselect, choice);
 		}
 
@@ -1005,6 +1002,6 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 			});
 		});
 
-		return choices;
+		return choices.filter(ch => ch.id !== deselectedChoice.id);
 	}
 }
