@@ -62,11 +62,12 @@ export class LiteExperienceComponent extends UnsubscribeOnDestroy implements OnI
 			filter(evt => evt instanceof NavigationEnd),
 			withLatestFrom(
 				this.store.pipe(select(fromLite.selectedElevation)),
-				this.store.pipe(select(fromLite.selectedColorScheme))
+				this.store.pipe(select(fromLite.selectedColorScheme)),
+				this.store.pipe(select(fromRoot.legacyColorScheme))
 			),
 			this.takeUntilDestroyed()
 		)
-			.subscribe(([evt, elevation, colorScheme]) =>
+			.subscribe(([evt, elevation, colorScheme, legacyColorScheme]) =>
 			{
 				this.showStatusIndicator = !this.router.url.includes('options') && !this.router.url.includes('colors');
 
@@ -74,11 +75,11 @@ export class LiteExperienceComponent extends UnsubscribeOnDestroy implements OnI
 				{
 					this.store.dispatch(new NavActions.SetSubNavItems(ExteriorSubNavItems));
 					this.store.dispatch(new NavActions.SetSelectedSubNavItem(LiteSubMenu.Elevation));
-					this.setExteriorItemsStatus(elevation, colorScheme);
+					this.setExteriorItemsStatus(elevation, colorScheme, legacyColorScheme);
 				}
 				else if (this.router.url.includes('color-scheme')) 
 				{
-					this.setExteriorItemsStatus(elevation, colorScheme);
+					this.setExteriorItemsStatus(elevation, colorScheme, legacyColorScheme);
 				}
 			});
 	}
@@ -104,12 +105,14 @@ export class LiteExperienceComponent extends UnsubscribeOnDestroy implements OnI
 		);
 
 		combineLatest([
-			this.store.pipe(select(fromLite.selectedElevation), this.takeUntilDestroyed()),
-			this.store.pipe(select(fromLite.selectedColorScheme), this.takeUntilDestroyed())
+			this.store.pipe(select(fromLite.selectedElevation)),
+			this.store.pipe(select(fromLite.selectedColorScheme)),
+			this.store.pipe(select(fromRoot.legacyColorScheme))
 		])
-		.subscribe(([elevation, colorScheme]) =>
+		.pipe(this.takeUntilDestroyed())
+		.subscribe(([elevation, colorScheme, legacyColorScheme]) =>
 		{
-			this.setExteriorItemsStatus(elevation, colorScheme);
+			this.setExteriorItemsStatus(elevation, colorScheme, legacyColorScheme);
 		});
 
 		this.store.pipe(
@@ -187,12 +190,12 @@ export class LiteExperienceComponent extends UnsubscribeOnDestroy implements OnI
 		);
 	}
 
-	setExteriorItemsStatus(elevation: LitePlanOption, colorScheme: ScenarioOptionColor)
+	setExteriorItemsStatus(elevation: LitePlanOption, colorScheme: ScenarioOptionColor, legacyColorScheme: string)
 	{
 		const elevationStatus = !!elevation ? PointStatus.COMPLETED : PointStatus.REQUIRED;
 		this.store.dispatch(new NavActions.SetSubNavItemStatus(LiteSubMenu.Elevation, elevationStatus));
 
-		const colorSchemeStatus = !!colorScheme ? PointStatus.COMPLETED : PointStatus.REQUIRED;
+		const colorSchemeStatus = !!colorScheme || !!legacyColorScheme ? PointStatus.COMPLETED : PointStatus.REQUIRED;
 		this.store.dispatch(new NavActions.SetSubNavItemStatus(LiteSubMenu.ColorScheme, colorSchemeStatus));
 	}
 

@@ -1096,6 +1096,31 @@ export const liteMonotonyOptions = createSelector(
 	}
 );
 
+export const legacyColorScheme = createSelector(
+	fromJob.jobState, 
+	fromLite.liteState,
+	(job, lite) =>
+	{
+		let colorScheme: string = null;
+		
+		const jobOption = job.jobPlanOptions.find(jpo => jpo.integrationKey === '99999');
+
+		if (lite.isPhdLite && jobOption)
+		{
+			const scenarioOption = lite.scenarioOptions?.find(so => so.edhPlanOptionId === jobOption.planOptionId);
+			if (scenarioOption)
+			{
+				colorScheme =  !!jobOption?.jobPlanOptionAttributes?.length 
+					? jobOption.jobPlanOptionAttributes[0].attributeName
+					: null;					
+			}
+		}
+
+		return colorScheme;
+	}
+);
+
+
 // End PHD Lite
 
 function mapLocations(choice: Choice, jobElevationChoice: JobChoice, changeOrderElevationChoice: ChangeOrderChoice): Array<string>
