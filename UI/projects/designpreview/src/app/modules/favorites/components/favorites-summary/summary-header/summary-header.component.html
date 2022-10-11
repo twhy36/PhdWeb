@@ -1,7 +1,10 @@
 <div class="summary-header" [class.is-sticky]="isSticky">
 	<ng-container *ngIf="isPresale">
-		<cl-image *ngIf="summaryHeader.elevationImageUrl" public-id="{{summaryHeader.elevationImageUrl}}" type="fetch" style="width:calc(10vw);height:calc(10vh);margin:10px" crop="fill">
-		</cl-image>
+		<div class="phd-presale-elevation">
+			<cl-image *ngIf="summaryHeader.elevationImageUrl" public-id="{{summaryHeader.elevationImageUrl}}" type="fetch" style="width:auto;height:112px;border:'black'">
+				<cl-transformation width="900" height="500" background="white" crop="pad" color="grey" effect="outline:outer:4:1"></cl-transformation>
+			</cl-image>
+		</div>
 		<img class="phd-logo-image-sticky" [src]="getImageSrc()" *ngIf="!summaryHeader.elevationImageUrl">
 	</ng-container>
 	
