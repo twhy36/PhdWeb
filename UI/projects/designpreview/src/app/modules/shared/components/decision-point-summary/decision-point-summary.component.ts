@@ -111,7 +111,11 @@ export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implemen
 
 	getAttributeLabel(name: string) {
 		if (name) {
-			return name + ':';
+			if (name.charAt(name.length-1) === ':') {
+				return name;
+			} else {
+				return name + ':';
+			}
 		}
 	}
 	
