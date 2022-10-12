@@ -679,20 +679,19 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		});
 
 		// #353697 Prompt the user of affected choices with an adjusted price by deselecting this choice
-		let impactedOptionPriceChoices = [];
+		const impactedOptionPriceChoices = this.getImpactedChoicesForReplacedOptionPrices(timeOfSaleOptionPrices, choice, choiceToDeselect);
 
 		// #366542 Find any choices with a replaced option that is no longer available on the current tree
-		let adjustedChoices = [];
+		const adjustedChoices = this.getAdjustedChoices(choiceToDeselect, choice);
 
-		if (choiceToDeselect)
+		adjustedChoices.forEach(c =>
 		{
-			impactedOptionPriceChoices = this.getImpactedChoicesForReplacedOptionPrices(timeOfSaleOptionPrices, choice, choiceToDeselect);
-			adjustedChoices = this.getAdjustedChoices(choiceToDeselect, choice);
-		}
+			selectedChoices.push({ choiceId: c.id, overrideNote: c.overrideNote, quantity: 0, attributes: c.selectedAttributes, timeOfSaleOptionPrices: this.getReplacedOptionPrices(c) });
+		});
 
 		let obs: Observable<boolean>;
 
-		if (adjustedChoices && adjustedChoices.length)
+		if (choiceToDeselect && adjustedChoices && adjustedChoices.length)
 		{
 			obs = this.showOptionMappingAdjustedModal(adjustedChoices);
 		}
@@ -704,7 +703,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		{
 			obs = this.showChoiceImpactModal(impactedChoices);
 		}
-		else if (impactedOptionPriceChoices && impactedOptionPriceChoices.length)
+		else if (choiceToDeselect && impactedOptionPriceChoices && impactedOptionPriceChoices.length)
 		{
 			obs = this.showOptionPriceChangedModal(impactedOptionPriceChoices);
 		}
