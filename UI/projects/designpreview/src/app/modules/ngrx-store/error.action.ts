@@ -5,45 +5,54 @@ import { environment } from "../../../environments/environment";
 import { CommonActionTypes } from "./actions";
 
 export enum ErrorFrom {
-    HomeComponent = 'Home.Component',
+	HomeComponent = 'Home.Component',
 	LoadPresale = 'Scenario.LoadPresale',
-	PageNotFound = 'WildcardPath.error'
+	PageNotFound = 'WildcardPath.error',
+	LoadLots = 'Lots.LoadLots',
+	LoadSelectedPlan = 'Lots.LoadSelectedPlan',
+	LoadSalesAgreement = 'LoadSalesAgreement',
+	LoadPreview = 'Scenario.LoadPreview',
+	SetCurrentFavorites = 'Favorite.SetCurrentFavorites',
+	ResetFavorites = 'Favorite.ResetFavorites',
+	SaveMyFavoritesChoices = 'Favorite.SaveMyFavoritesChoices',
+	PushAdobeFavoriteEvent = 'Favorite.PushAdobeFavoriteEvent',
+	AddMyFavoritesPointDeclined = 'Favorite.AddMyFavoritesPointDeclined',
+	DeleteMyFavoritesPointDeclined = 'Favorite.DeleteMyFavoritesPointDeclined',
+	DeleteMyFavorites = 'Favorite.DeleteMyFavorites',
+	LoadMyFavorite = 'Favorite.LoadMyFavorite',
+	LoadDefaultFavorite = 'Favorite.LoadDefaultFavorite',
+	UpdateMyFavoritesChoicesOnInit = 'Favorite.UpdateMyFavoritesChoicesOnInit',
+	DeleteMyFavoritesChoiceAttributes = 'Favorite.DeleteMyFavoritesChoiceAttributes'
 };
 
-export class ErrorAction implements Action
-{
+export class ErrorAction implements Action {
 	type: string;
 
 	constructor(public error: Error, public friendlyMessage?: string, public errFrom?: string) { }
 }
 
-export class SetLatestError implements Action
-{
-	readonly type =CommonActionTypes.SetLatestError;
+export class SetLatestError implements Action {
+	readonly type = CommonActionTypes.SetLatestError;
 
 	constructor(
-				public occurredFrom: string,
-				public errorStack?: string, 
-				public friendlyMessage?: string,
-				public occurredAt = new Date(), )
-				{};
+		public occurredFrom: string,
+		public errorStack?: string,
+		public friendlyMessage?: string,
+		public occurredAt = new Date(),) { };
 }
 
-export class ClearLatestError implements Action
-{
-	readonly type =CommonActionTypes.ClearLatestError;
-	constructor( ){};
+export class ClearLatestError implements Action {
+	readonly type = CommonActionTypes.ClearLatestError;
+	constructor() { };
 }
 
-export class PageNotFound extends ErrorAction
-{
+export class PageNotFound extends ErrorAction {
 	readonly type = CommonActionTypes.PageNotFound;
 
-	constructor(public error: Error, public friendlyMessage?: string, public errFrom=ErrorFrom.PageNotFound) { super(error, friendlyMessage, errFrom); }
+	constructor(public error: Error, public friendlyMessage?: string, public errFrom = ErrorFrom.PageNotFound) { super(error, friendlyMessage, errFrom); }
 }
 
-export enum MapFunction
-{
+export enum MapFunction {
 	switchMap,
 	concatMap,
 	mergeMap
@@ -54,23 +63,20 @@ export function tryCatch<T, R, E extends ErrorAction>(project: OperatorFunction<
 	friendlyMessage?: (string | ((error: Error) => string)),
 	errFrom?: string,
 	mapFn: MapFunction = MapFunction.switchMap
-	): OperatorFunction<T, R | E>
-{
+): OperatorFunction<T, R | E> {
 	return (source: Observable<T>) => source.pipe(
 		[switchMap, concatMap, mergeMap][mapFn](data =>
 			of(data).pipe(
 				project,
-				catchError((err: Error) =>
-				{
-					if (!environment.production && err)
-					{
+				catchError((err: Error) => {
+					if (!environment.production && err) {
 						console.error(err);
 					}
 
-					return of(new errorType(err, 
-											(friendlyMessage ? (typeof friendlyMessage === 'string' ? friendlyMessage : friendlyMessage(err)) : null),
-											errFrom ? errFrom: '')
-							 )
+					return of(new errorType(err,
+						(friendlyMessage ? (typeof friendlyMessage === 'string' ? friendlyMessage : friendlyMessage(err)) : null),
+						errFrom ? errFrom : '')
+					)
 				})
 			)
 		)

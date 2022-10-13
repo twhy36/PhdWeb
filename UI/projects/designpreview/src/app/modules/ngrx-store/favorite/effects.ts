@@ -18,7 +18,7 @@ import
 
 import { CommonActionTypes, ResetFavorites, SalesAgreementLoaded, MyFavoritesChoiceAttributesDeleted } from '../actions';
 import { SelectChoices, SetStatusForPointsDeclined } from '../scenario/actions';
-import { tryCatch } from '../error.action';
+import { ErrorFrom, tryCatch } from '../error.action';
 
 import { FavoriteService } from '../../core/services/favorite.service';
 import { TreeService } from '../../core/services/tree.service';
@@ -141,7 +141,7 @@ export class FavoriteEffects
 						return new Observable<never>();
 					}
 				})
-			), SaveError, "Error setting current favorites!")
+			), SaveError, "Error setting current favorites!", ErrorFrom.SetCurrentFavorites)
 		)
 	);
 
@@ -184,7 +184,7 @@ export class FavoriteEffects
 						return new Observable<never>();
 					}
 				})
-			), SaveError, "Error resetting current favorites!")
+			), SaveError, "Error resetting current favorites!", ErrorFrom.ResetFavorites)
 		)
 	);
 
@@ -199,7 +199,7 @@ export class FavoriteEffects
 						: this.favoriteService.saveMyFavoritesChoices(store.scenario.tree, store.favorite.salesChoices, fav);
 				}),
 				switchMap(results => of(new MyFavoritesChoicesSaved(results)))
-			), SaveError, "Error saving my favorite choices!")
+			), SaveError, "Error saving my favorite choices!", ErrorFrom.SaveMyFavoritesChoices)
 		)
 	);
 
@@ -219,7 +219,7 @@ export class FavoriteEffects
 				switchMap(results => {
 					return new Observable<never>()
 				})
-			), SaveError, "Error pushing favorite to Adobe!")
+			), SaveError, "Error pushing favorite to Adobe!", ErrorFrom.PushAdobeFavoriteEvent)
 		)
 	);
 
@@ -252,7 +252,7 @@ export class FavoriteEffects
 						? of(new MyFavoritesPointDeclinedUpdated(results[0], false))
 						: new Observable<never>();
 				})
-			), SaveError, "Error adding my favorites point declined!")
+			), SaveError, "Error adding my favorites point declined!", ErrorFrom.AddMyFavoritesPointDeclined)
 		)
 	);
 
@@ -274,7 +274,7 @@ export class FavoriteEffects
 					}
 				}),
 				map(results => new MyFavoritesPointDeclinedUpdated(results, true))
-			), SaveError, "Error deleting my favorites point declined!")
+			), SaveError, "Error deleting my favorites point declined!", ErrorFrom.DeleteMyFavoritesPointDeclined)
 		)
 	);
 
@@ -286,7 +286,7 @@ export class FavoriteEffects
 					return this.favoriteService.deleteMyFavorite(action.myFavorite);
 				}),
 				switchMap(result => of(new MyFavoriteDeleted(result)))
-			), SaveError, "Error deleting my favorite!")
+			), SaveError, "Error deleting my favorite!", ErrorFrom.DeleteMyFavorites)
 		)
 	);
 
@@ -335,7 +335,7 @@ export class FavoriteEffects
 
 					return from(actions);
 				})
-			), SaveError, "Error loading my favorite!")
+			), SaveError, "Error loading my favorite!", ErrorFrom.LoadMyFavorite)
 		)
 	);
 
@@ -383,7 +383,7 @@ export class FavoriteEffects
 
 					return from(actions);
 				})
-			), SaveError, "Error loading my favorite!")
+			), SaveError, "Error loading my favorite!", ErrorFrom.LoadDefaultFavorite)
 		)
 	);
 
@@ -401,7 +401,7 @@ export class FavoriteEffects
 						: of([]);
 				}),
 				switchMap(results => of(new MyFavoritesChoicesDeleted(results)))
-			), SaveError, "Error updating my favorite choices on init!")
+			), SaveError, "Error updating my favorite choices on init!", ErrorFrom.UpdateMyFavoritesChoicesOnInit)
 		)
 	);	
 
@@ -417,7 +417,7 @@ export class FavoriteEffects
 					);
 				}),
 				switchMap(results => of(new MyFavoritesChoiceAttributesDeleted(results.attributes, results.locations, results.myFavoritesChoice)))
-			), SaveError, "Error deleting favorites choice attributes!")
+			), SaveError, "Error deleting favorites choice attributes!", ErrorFrom.DeleteMyFavoritesChoiceAttributes)
 		)
 	);		
 }

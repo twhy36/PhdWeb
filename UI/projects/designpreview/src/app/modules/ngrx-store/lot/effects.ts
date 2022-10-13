@@ -6,7 +6,7 @@ import { switchMap, withLatestFrom } from 'rxjs/operators';
 
 import { LotService } from '../../core/services/lot.service';
 import { LotActionTypes, LoadLots, LotsLoaded, LoadError } from './actions';
-import { tryCatch } from '../error.action';
+import { ErrorFrom, tryCatch } from '../error.action';
 
 import * as fromRoot from '../reducers';
 
@@ -30,7 +30,7 @@ export class LotEffects
 					return this.lotService.loadLots(action.salesCommunityId, selectedLotId, false);
 				}),
 				switchMap(results => of(new LotsLoaded(results)))
-			), LoadError, "Error loading lots!!")
+			), LoadError, "Error loading lots!!", ErrorFrom.LoadLots)
 		);
 	});
 }

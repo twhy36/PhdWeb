@@ -10,7 +10,7 @@ import { Router } from '@angular/router';
 import { SpinnerService, ChangeOrderChoice, ChangeOrderGroup, SalesAgreementInfo, MyFavoritesPointDeclined } from 'phd-common';
 
 import { CommonActionTypes, LoadError, LoadSalesAgreement, SalesAgreementLoaded } from './actions';
-import { ErrorAction, SetLatestError, tryCatch } from './error.action';
+import { ErrorAction, ErrorFrom, SetLatestError, tryCatch } from './error.action';
 import { LoadSelectedPlan } from './plan/actions';
 import { LoadLots } from './lot/actions';
 
@@ -246,7 +246,7 @@ export class CommonEffects
 					]);
 
 				})
-			), LoadError, "Error loading sales agreement!!")
+			), LoadError, "Error loading sales agreement!!", ErrorFrom.LoadSalesAgreement)
 		);
 	});
 

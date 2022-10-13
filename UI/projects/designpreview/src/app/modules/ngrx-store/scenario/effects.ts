@@ -105,7 +105,7 @@ export class ScenarioEffects
 						new LoadLots(salesCommunity.id),
 					]);
 				})
-			), LoadError, 'Error loading preview!!')
+			), LoadError, 'Error loading preview!!', ErrorFrom.LoadPreview)
 		)
 	);
 
