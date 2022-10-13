@@ -10,7 +10,7 @@ import * as fromLite from '../../../ngrx-store/lite/reducer';
 import * as LiteActions from '../../../ngrx-store/lite/actions';
 
 import { UnsubscribeOnDestroy, flipOver, ScenarioOption, ScenarioOptionColor } from 'phd-common';
-import { LitePlanOption, Color } from '../../../shared/models/lite.model';
+import { LitePlanOption, Color, LegacyColorScheme } from '../../../shared/models/lite.model';
 
 @Component({
 	selector: 'color-scheme',
@@ -25,7 +25,7 @@ export class ColorSchemeComponent extends UnsubscribeOnDestroy implements OnInit
 	selectedElevation: LitePlanOption;
 	selectedColorScheme: ScenarioOptionColor;
 	errorMessage: string = '';
-	legacyColorScheme: string;
+	legacyColorScheme: LegacyColorScheme;
 
 	constructor(private store: Store<fromRoot.State>) { super(); }
 
@@ -48,13 +48,13 @@ export class ColorSchemeComponent extends UnsubscribeOnDestroy implements OnInit
 			// If the color exists in both generic and elevation options, use the one from generic option 
 			if (legacyColorScheme)
 			{
-				const index = colorSchemes.findIndex(c => c.name.toLowerCase() === legacyColorScheme.toLowerCase());
+				const index = colorSchemes.findIndex(c => c.name.toLowerCase() === legacyColorScheme.colorName?.toLowerCase());
 				if (index > -1)
 				{
 					colorSchemes.splice(index, 1);					
 				}
 
-				colorSchemes.push({ name: legacyColorScheme } as Color);
+				colorSchemes.push({ name: legacyColorScheme.colorName } as Color);
 			}
 
 			this.colorSchemes = _.sortBy(colorSchemes, 'name');

@@ -17,7 +17,7 @@ import
 	} from 'phd-common';
 
 import { ActionBarCallType } from '../../../shared/classes/constants.class';
-import { ExteriorSubNavItems, LiteSubMenu, LitePlanOption } from '../../../shared/models/lite.model';
+import { ExteriorSubNavItems, LiteSubMenu, LitePlanOption, LegacyColorScheme } from '../../../shared/models/lite.model';
 import { MonotonyConflict } from '../../../shared/models/monotony-conflict.model';
 import { LiteService } from '../../../core/services/lite.service';
 import { PhdSubMenu } from '../../../new-home/subNavItems';
@@ -190,7 +190,7 @@ export class LiteExperienceComponent extends UnsubscribeOnDestroy implements OnI
 		);
 	}
 
-	setExteriorItemsStatus(elevation: LitePlanOption, colorScheme: ScenarioOptionColor, legacyColorScheme: string)
+	setExteriorItemsStatus(elevation: LitePlanOption, colorScheme: ScenarioOptionColor, legacyColorScheme: LegacyColorScheme)
 	{
 		const elevationStatus = !!elevation ? PointStatus.COMPLETED : PointStatus.REQUIRED;
 		this.store.dispatch(new NavActions.SetSubNavItemStatus(LiteSubMenu.Elevation, elevationStatus));

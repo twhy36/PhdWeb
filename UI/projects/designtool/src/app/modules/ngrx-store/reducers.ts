@@ -24,6 +24,7 @@ import * as fromFavorite from './favorite/reducer';
 import * as fromLite from './lite/reducer';
 
 import { MonotonyConflict } from '../shared/models/monotony-conflict.model';
+import { LegacyColorScheme } from '../shared/models/lite.model';
 
 import { DecisionPointFilterType } from '../shared/models/decisionPointFilter';
 
@@ -1101,18 +1102,19 @@ export const legacyColorScheme = createSelector(
 	fromLite.liteState,
 	(job, lite) =>
 	{
-		let colorScheme: string = null;
+		let colorScheme: LegacyColorScheme = null;
 		
 		const jobOption = job.jobPlanOptions.find(jpo => jpo.integrationKey === '99999');
 
 		if (lite.isPhdLite && jobOption)
 		{
 			const scenarioOption = lite.scenarioOptions?.find(so => so.edhPlanOptionId === jobOption.planOptionId);
-			if (scenarioOption)
+			if (scenarioOption && !!jobOption?.jobPlanOptionAttributes?.length)
 			{
-				colorScheme =  !!jobOption?.jobPlanOptionAttributes?.length 
-					? jobOption.jobPlanOptionAttributes[0].attributeName
-					: null;					
+				colorScheme = { 
+					colorItemName: jobOption.jobPlanOptionAttributes[0].attributeGroupLabel, 
+					colorName: jobOption.jobPlanOptionAttributes[0].attributeName 
+				};
 			}
 		}
 

@@ -71,6 +71,12 @@ export interface Color
     colorItemId: number;
 }
 
+export interface LegacyColorScheme
+{
+    colorItemName: string;
+    colorName: string;
+}
+
 export class OptionRelation
 {
     optionRelationId: number;
