@@ -1001,6 +1001,6 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 			});
 		});
 
-		return choices.filter(ch => ch.id !== deselectedChoice.id);
+		return choices.filter(ch => ch.id !== deselectedChoice?.id);
 	}
 }
