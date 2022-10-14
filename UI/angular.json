@@ -679,6 +679,13 @@
 								}
 							]
 						},
+						"dev": {
+							"optimization": true,
+							"namedChunks": false,
+							"extractLicenses": true,
+							"vendorChunk": false,
+							"buildOptimizer": true
+						},
 						"qa": {
 							"optimization": true,
 							"namedChunks": false,
