@@ -101,6 +101,8 @@ export class PHDSearchComponent
 	selectedSalesAgreementStatus: Array<string> = [];
 	firstName: string;
 	lastName: string;
+	searchActiveOnly: boolean = true;
+	pendingLotBlocks: Array<string> = [];
 
 	constructor(private cd: ChangeDetectorRef, private _searchService: SearchService) { }
 
@@ -128,6 +130,18 @@ export class PHDSearchComponent
 		if (this.homesiteNumber)
 		{
 			filters.push({ items: [{ name: 'lotBlock', value: this.homesiteNumber }] });
+		}
+		
+		if (this.pendingLotBlocks.length > 0)
+		{
+			let lotBlocks = []
+			this.pendingLotBlocks.forEach(lot => 
+			{
+				lotBlocks.push({ name: 'lotBlock', value: lot, andOr: 'or' });
+			});
+			lotBlocks[lotBlocks.length - 1].andOr = null;
+			filters.push({ items: lotBlocks });
+			this.pendingLotBlocks = [];
 		}
 
 		if (this.streetAddress)
@@ -226,6 +240,11 @@ export class PHDSearchComponent
 				filteredLots = filteredLots.filter(lot => lot.jobTypeName === 'Spec' && lot.buildType === 'Spec')
 			}
 
+			if (this.searchActiveOnly)
+			{
+				filteredLots = results.filter(lot => !!lot.activeChangeOrder);
+			}
+
 			this.searchResults = filteredLots ? filteredLots : results;
 		}, error =>
 		{
@@ -277,6 +296,22 @@ export class PHDSearchComponent
 		{
 			this.search();
 		}, 200);
+	}
+
+	searchPendingCOs()
+	{
+		this.clear();
+		this.searchActiveOnly = true;
+		const financialCommunityString = this.selectedFinancialCommunity && this.selectedFinancialCommunity.toString();
+		const salesCommunityString = this.selectedCommunity && this.selectedCommunity.toString();
+		this._searchService.searchActiveCOHomesites(financialCommunityString, salesCommunityString).subscribe(lots => 
+		{
+			this.pendingLotBlocks = lots.map(lot => lot.lot.lotBlock);
+			setTimeout(t =>
+			{
+				this.search();
+			}, 200);
+		});
 	}
 
 	clear()

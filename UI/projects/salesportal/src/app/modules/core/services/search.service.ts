@@ -113,7 +113,7 @@ export class SearchService
 
 		// top level expands
 		let expands = `${expandData.jobs},${expandData.financialCommunity},${expandData.planAssociations},${expandData.physicalLotTypes},${expandData.scenarios}`;
-
+		
 		// putting it all together - DO NOT encode since it will be encoded during the batch process
 		const qryStr = `$expand=${expands}` +
 			`&$select=${selectData.lots}` +
@@ -181,5 +181,38 @@ export class SearchService
 				return _throw(error);
 			})
 		);
+	}
+	
+	searchActiveCOHomesites(financialCommunityId?: string, salesCommunityId?: string)
+	{
+		let selectData: SearchEntities = new SearchEntities();
+		let filter: string = "financialCommunity/" + (financialCommunityId ? `id eq ${financialCommunityId}` : `salesCommunityId eq ${salesCommunityId}`);
+		filter += ` and (jobChangeOrderGroups/any(a: a/jobChangeOrderGroupDescription ne 'Pulte Home Designer Generated Job Initiation Change Order' and (a/salesStatusDescription eq 'Pending' or a/salesStatusDescription eq 'Signed' or a/salesStatusDescription eq 'OutforSignature' or a/constructionStatusDescription eq 'Pending')))`;
+		selectData.lots = `id,lotBlock`;
+		// Selects that are going to be included inside the expands below
+		selectData.jobs = 'id';
+		selectData.salesCommunity = 'id';
+		selectData.financialCommunity = 'id';
+		selectData.jobChangeOrderGroup = 'id,jobId,jobChangeOrderGroupDescription, constructionStatusDescription,salesStatusDescription';
+		selectData.salesCommunity = 'id';
+		
+		let expandData: SearchEntities = new SearchEntities();
+		expandData.lots = `lot($select=${selectData.lots})`;
+		expandData.salesCommunity = `salesCommunity($select=${selectData.salesCommunity})`;
+		expandData.financialCommunity = `financialCommunity($select=${selectData.financialCommunity};$expand=${expandData.salesCommunity})`;
+		expandData.jobChangeOrderGroup = `jobChangeOrderGroups($select=${selectData.jobChangeOrderGroup};$orderby=createdUtcDate desc;$top=1)`;
+		let expands = `${expandData.lots},${expandData.financialCommunity},${expandData.jobChangeOrderGroup}`;
+
+		const qryStr = `$expand=${expands}` +
+			`&$select=${selectData.jobs}` +
+			`&$filter=${filter}`;
+
+		let url = environment.apiUrl + `jobs?${qryStr}`;
+		return this._http.get<any>(url).pipe(
+			map(response =>
+			{
+				let lots = response.value.filter(lot => lot.jobChangeOrderGroups && lot.jobChangeOrderGroups.filter(cog => cog.salesStatusDescription === 'Signed' || cog.salesStatusDescription === 'Pending' || cog.salesStatusDescription === 'OutforSignature').length > 0);
+				return lots;
+			}));
 	}
 }
