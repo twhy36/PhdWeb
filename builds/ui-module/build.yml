@@ -42,10 +42,7 @@ steps:
     inputs:
       command: 'custom'
       workingDir: 'UI'
-      ${{ if eq(configuration, 'dev') }}:
-        customCommand: run build -- --project=$(module)
-      ${{ if ne(configuration, 'dev') }}:
-        customCommand: run build -- --project=$(module) --configuration=${{ configuration }}
+      customCommand: run build -- --project=$(module) --configuration=${{ configuration }}
   - task: PublishBuildArtifacts@1
     displayName: Publish ${{ configuration }}
     inputs:
