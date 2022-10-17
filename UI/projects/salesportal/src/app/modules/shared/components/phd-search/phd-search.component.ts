@@ -243,6 +243,7 @@ export class PHDSearchComponent
 			if (this.searchActiveOnly)
 			{
 				filteredLots = results.filter(lot => !!lot.activeChangeOrder);
+				this.searchActiveOnly = false;
 			}
 
 			this.searchResults = filteredLots ? filteredLots : results;
