@@ -31,7 +31,7 @@
 				<div class="display-4">N/A</div>
 			</ng-container>
 		</div>
-
+		
 		<div class="phd-people-card-body pl-3 pt-2" *ngSwitchCase="'Trust'" [ngClass]="{'text-center pt-5' : trustNA, 'pl-3 pt-2' : trust}">
 			<ng-container *ngIf="trust">
 				<div><strong>{{trust}}</strong></div>
@@ -78,7 +78,7 @@
 
 		<!-- allow setting Trust or Realtor to N/A -->
 		<ng-container *ngIf="personType === 'Trust' || personType === 'Realtor' || (personType === 'Buyer' && coBuyerNA && person == null)">
-			<ng-container *ngIf="(!coBuyerNA && !realtorNA && canEditAgreement) || (personType === 'Realtor' && !realtorNA) || (personType === 'Trust' && !trustNA)">
+			<ng-container *ngIf="(!trustNA && !coBuyerNA && !realtorNA && canEditAgreement) || (personType === 'Realtor' && !realtorNA) || (personType === 'Trust' && !trustNA)">
 				<div>
 					&nbsp; | &nbsp;
 				</div>
@@ -91,7 +91,7 @@
 					<a class="btn m-0 p-0" (click)="addCoBuyer()">Add Co-Buyer</a>
 				</div>
 			</ng-container>
-			<ng-container *ngIf="(trustNA && canEditAgreement) || (personType === 'Trust' && trustNA)">
+			<ng-container *ngIf="trustNA && canEditAgreement">
 				<div>
 					<a class="btn m-0 p-0" (click)="addTrust()">Add Trust</a>
 				</div>

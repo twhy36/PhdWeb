@@ -142,10 +142,13 @@ export class PeopleComponent extends UnsubscribeOnDestroy implements OnInit, Con
 			fromRoot.isSpecSalePending,
 			(co, sag, isSpecSalePending) =>
 			{
-				if (co.changeInput.trustName || sag.trustName)
+				const changeOrdertrustName = co?.changeInput?.trustName|| '';
+				const salesAgreementTrustName = sag?.trustName || '';
+				if (changeOrdertrustName || salesAgreementTrustName)
 				{
 					return false;
 				}
+				
 				return co.isChangingOrder || isSpecSalePending ? co.changeInput.isTrustNa : sag.isTrustNa;
 			}
 		);
