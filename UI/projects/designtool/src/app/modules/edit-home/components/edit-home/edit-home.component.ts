@@ -950,11 +950,8 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 	{
 		let choices: Choice[] = [];
 
-		// By selecting this choice, see what options are associated
-		const selectedOptions = selectedChoice.options.map(o => o.financialOptionIntegrationKey);
-
-		// Determine which choices have options that these options replace
-		const replaceRules = this.treeVersionRules.optionRules.filter(o => selectedOptions.includes(o.optionId));
+		// Using the latest rules, see what choices may be affected by options on this choice
+		const replaceRules = this.treeVersionRules.optionRules.filter(o => o.choices.map(oc => oc.id).includes(selectedChoice.id));
 
 		// Check to see if any rule is already satisfied, and if that choice has an option no longer available
 		replaceRules.forEach(rr =>
