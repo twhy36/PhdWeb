@@ -74,7 +74,7 @@ export class PeopleComponent extends UnsubscribeOnDestroy implements OnInit, Con
 					// if sales agreement is not in the store and the id has been passed in to the url
 					// or the passed in sales agreement id is different than that of the id in the store...
 					const salesAgreementId = +params.get('salesAgreementId');
-
+					
 					if (salesAgreementId > 0 && salesAgreementState.id !== salesAgreementId)
 					{
 						this.store.dispatch(new CommonActions.LoadSalesAgreement(salesAgreementId));
@@ -142,6 +142,13 @@ export class PeopleComponent extends UnsubscribeOnDestroy implements OnInit, Con
 			fromRoot.isSpecSalePending,
 			(co, sag, isSpecSalePending) =>
 			{
+				const changeOrdertrustName = co?.changeInput?.trustName|| '';
+				const salesAgreementTrustName = sag?.trustName || '';
+				if (changeOrdertrustName || salesAgreementTrustName)
+				{
+					return false;
+				}
+				
 				return co.isChangingOrder || isSpecSalePending ? co.changeInput.isTrustNa : sag.isTrustNa;
 			}
 		);

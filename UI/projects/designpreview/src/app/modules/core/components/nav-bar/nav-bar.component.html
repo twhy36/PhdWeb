@@ -9,7 +9,9 @@
 				<span class="phd-nav-bar-config">{{welcomeText}}</span>
 			</div>
 		</div>
-		<div class="col-6 d-flex ml-auto" [ngClass]="getBrandedMenuClass(false)">
+		
+		<div class="col-6 d-flex ml-auto" [ngClass]="getBrandedMenuClass(false)"
+				*ngIf="!(hasLatestError$ | async)">
 			<div>
 				<a *ngIf="showMyFavoritesLink"
 				   class="phd-nav-page phd-page-separator"
@@ -39,8 +41,8 @@
 				   Included Options
 				</a>
 			</div>
-		</div>
-		<div class="phd-menu-bars" [ngClass]="getBrandedMenuClass(true)">
+		</div>	
+		<div class="phd-menu-bars" [ngClass]="getBrandedMenuClass(true)" *ngIf="!(hasLatestError$ | async)">
 			<i *ngIf="isMenuCollapsed" class="fa fa-bars fa-2x" (click)="isMenuCollapsed = !isMenuCollapsed"></i>
 			<i *ngIf="!isMenuCollapsed" class="fa fa-times fa-2x" (click)="isMenuCollapsed = !isMenuCollapsed"></i>
 		</div>

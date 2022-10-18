@@ -29,7 +29,7 @@ import { SummaryHeader, SummaryHeaderComponent } from '../../../shared/component
 import
 {
 	LitePlanOption, IOptionSubCategory, LiteReportType, SummaryReportData,
-	SummaryReportGroup, SummaryReportSubGroup, SummaryReportOption, SummaryReportSubOption
+	SummaryReportGroup, SummaryReportSubGroup, SummaryReportOption, SummaryReportSubOption, LegacyColorScheme
 } from '../../../shared/models/lite.model';
 import { OptionSummaryComponent } from '../option-summary/option-summary.component';
 import { environment } from '../../../../../environments/environment';
@@ -158,13 +158,14 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 		combineLatest([
 			this.store.pipe(select(state => state.lite)),
 			this.store.pipe(select(fromLite.selectedElevation)),
-			this.store.pipe(select(fromRoot.selectedPlanPrice))
+			this.store.pipe(select(fromRoot.selectedPlanPrice)),
+			this.store.pipe(select(fromRoot.legacyColorScheme))
 		])
 			.pipe(this.takeUntilDestroyed())
-			.subscribe(([lite, selectedElevation, planPrice]) =>
+			.subscribe(([lite, selectedElevation, planPrice, legacyColorScheme]) =>
 			{
 				// Build the data list for UI display
-				this.buildOptionCategories(lite, selectedElevation, planPrice);
+				this.buildOptionCategories(lite, selectedElevation, planPrice, legacyColorScheme);
 			});
 
 		this.isLiteComplete$ = this.store.pipe(
@@ -231,7 +232,7 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 		);
 	}
 
-	private buildOptionCategories(lite: fromLite.State, selectedElevation: LitePlanOption, planPrice: number)
+	private buildOptionCategories(lite: fromLite.State, selectedElevation: LitePlanOption, planPrice: number, legacyColorScheme: LegacyColorScheme)
 	{
 		const baseHouseOptions = this.liteService.getSelectedBaseHouseOptions(
 			lite.scenarioOptions,
@@ -251,7 +252,9 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 				? this.buildOptionSubCategories(
 					[selectedElevation],
 					allSubCategories,
-					lite.scenarioOptions
+					lite.scenarioOptions,
+					null,
+					legacyColorScheme
 				)
 				: []
 		});
@@ -304,7 +307,8 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 		options: LitePlanOption[],
 		subCategories: IOptionSubCategory[],
 		scenarioOptions: ScenarioOption[],
-		planPrice?: number)
+		planPrice?: number,
+		legacylColorScheme?: LegacyColorScheme)
 	{
 		let optionSubCategories = [];
 
@@ -328,7 +332,7 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 							financialOptionIntegrationKey: option.financialOptionIntegrationKey,
 							listPrice: planPrice || option.listPrice,
 							quantity: scenarioOption?.planOptionQuantity || 0,
-							colors: this.buildOptionColors(option, scenarioOption),
+							colors: this.buildOptionColors(option, scenarioOption, legacylColorScheme),
 							showColors: false
 						};
 					}), 'name')
@@ -339,23 +343,33 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 		return optionSubCategories;
 	}
 
-	private buildOptionColors(option: LitePlanOption, scenarioOption: ScenarioOption)
+	private buildOptionColors(option: LitePlanOption, scenarioOption: ScenarioOption, legacylColorScheme: LegacyColorScheme)
 	{
 		let optionColors = [];
 
-		scenarioOption?.scenarioOptionColors?.forEach(scnOptColor =>
+		if (legacylColorScheme)
 		{
-			const colorItem = option.colorItems?.find(item => item.colorItemId === scnOptColor.colorItemId);
-			const color = colorItem?.color?.find(c => c.colorId === scnOptColor.colorId);
-
-			if (colorItem && color)
+			optionColors.push({
+				colorItemName: legacylColorScheme.colorItemName,
+				colorName: legacylColorScheme.colorName
+			});
+		}
+		else
+		{
+			scenarioOption?.scenarioOptionColors?.forEach(scnOptColor =>
 			{
-				optionColors.push({
-					colorItemName: colorItem.name,
-					colorName: color.sku ? color.name + "/" + color.sku : color.name
-				});
-			}
-		});
+				const colorItem = option.colorItems?.find(item => item.colorItemId === scnOptColor.colorItemId);
+				const color = colorItem?.color?.find(c => c.colorId === scnOptColor.colorId);
+
+				if (colorItem && color)
+				{
+					optionColors.push({
+						colorItemName: colorItem.name,
+						colorName: color.sku ? color.name + "/" + color.sku : color.name
+					});
+				}
+			});			
+		}
 
 		return optionColors;
 	}
@@ -629,7 +643,8 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 						isRequired: false,
 						disabledByHomesite: false,
 						disabledByReplaceRules: [],
-						disabledByBadSetup: false
+						disabledByBadSetup: false,
+						disabledByRelocatedMapping: []
 					}));
 				});
 
@@ -772,7 +787,8 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 										isRequired: false,
 										disabledByHomesite: false,
 										disabledByReplaceRules: [],
-										disabledByBadSetup: false
+										disabledByBadSetup: false,
+										disabledByRelocatedMapping: []
 									}));
 							});
 					});

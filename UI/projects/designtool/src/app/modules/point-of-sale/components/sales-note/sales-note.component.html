@@ -48,7 +48,7 @@
 				<option *ngFor="let item of internalCategoryOptions"  [disabled]="!canEditInternalNotes"  [ngValue]="item.id">{{ item.value }}</option>
 			</optgroup>
 			<optgroup label="Public" *ngIf="externalCategoryOptions.length > 0">
-				<option *ngFor="let item of externalCategoryOptions" [disabled]="!canEditExternalNotes || !inChangeOrder" [ngValue]="item.id">{{ item.value }}</option>
+				<option *ngFor="let item of externalCategoryOptions" [disabled]="!canEditExternalNotes || !isPendingOrInChangeOrder" [ngValue]="item.id">{{ item.value }}</option>
 			</optgroup>
 		</select>
 	</div>

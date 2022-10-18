@@ -1,7 +1,7 @@
 <ng-container>
-	<div class="modal-header">
+	<div class="modal-header" [class.modal-center-title]="isTitleCentered">
 		<span class="modal-title">{{title}}</span>
-		<button *ngIf="isCloseable" type="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
+		<button *ngIf="isCloseable" type="button" class="close" aria-label="Close" (click)="activeModal.close()">
 			<span aria-hidden="true">&times;</span>
 		</button>
 	</div>

@@ -19,11 +19,11 @@ export class GroupCommunitiesPipe implements PipeTransform
 		
 		if (group instanceof LocationGroupMarket)
 		{
-			communities = this._locationService.getLocationGroupCommunities(group);
+			communities = this._locationService.getFinancialCommunitiesRelatedByLocationGroup(group);
 		}
 		else if (group instanceof AttributeGroupMarket)
 		{
-			communities = this._attributeService.getAttributeGroupCommunities(group);
+			communities = this._attributeService.getFinancialCommunitiesRelatedByAttributeGroup(group);
 		}
 
 		return communities;

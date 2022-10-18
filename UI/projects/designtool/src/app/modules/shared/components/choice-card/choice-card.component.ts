@@ -30,6 +30,7 @@ import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 import * as _ from 'lodash';
 import { selectedPlanData } from '../../../ngrx-store/plan/reducer';
 import { TreeService } from '../../../core/services/tree.service';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
 	selector: 'choice-card',
@@ -115,7 +116,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 
 	get showDisabledButton(): boolean
 	{
-		return (this.choice && (!this.choice.enabled || this.choice.disabledByHomesite || this.choice.disabledByReplaceRules?.length || this.choice.disabledByBadSetup) || this.currentDecisionPoint && !this.currentDecisionPoint.enabled || this.optionDisabled) && !this.choice.lockedInChoice;
+		return (this.choice && (!this.choice.enabled || this.choice.disabledByHomesite || this.choice.disabledByReplaceRules?.length || this.choice.disabledByBadSetup || this.choice.disabledByRelocatedMapping?.length) || this.currentDecisionPoint && !this.currentDecisionPoint.enabled || this.optionDisabled) && !this.choice.lockedInChoice;
 	}
 
 	get showRequiredButton(): boolean
@@ -125,7 +126,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 
 	get showConfirmButton(): boolean
 	{
-		return ((this.choice && this.choice.enabled && this.currentDecisionPoint && this.currentDecisionPoint.enabled && !this.optionDisabled && !this.choice.isRequired && !this.choice.disabledByHomesite && !this.choice.disabledByReplaceRules?.length && !this.choice.disabledByBadSetup) || this.choice.lockedInChoice)
+		return ((this.choice && this.choice.enabled && this.currentDecisionPoint && this.currentDecisionPoint.enabled && !this.optionDisabled && !this.choice.isRequired && !this.choice.disabledByHomesite && !this.choice.disabledByReplaceRules?.length && !this.choice.disabledByBadSetup && !this.choice.disabledByRelocatedMapping?.length) || this.choice.lockedInChoice)
 			&& (!this.monotonyConflict.monotonyConflict || this.canOverride)
 			&& this.canConfigure;
 	}
@@ -498,7 +499,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 
 	getImagePath(): string
 	{
-		let imagePath = `${this._baseHref}assets/pultegroup_logo.jpg`;
+		let imagePath = this._baseHref + environment.defaultImageURL;
 
 		if (this.optionImages && this.optionImages.length)
 		{
@@ -517,7 +518,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 	 */
 	onLoadImageError(event: any)
 	{
-		event.srcElement.src = 'assets/pultegroup_logo.jpg';
+		event.srcElement.src = environment.defaultImageURL;
 	}
 
 	onOverride()

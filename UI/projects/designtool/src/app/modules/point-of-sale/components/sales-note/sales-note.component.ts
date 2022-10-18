@@ -54,7 +54,7 @@ export class SalesNoteComponent extends ComponentCanNavAway implements OnInit
 	get isTnC(): boolean
 	{
 		// if we are in a change order and the default is 10 which should be Terms & Conditions, then we are dealing with a TnC 
-		return this.inChangeOrder && this.note?.noteSubCategoryId === 10;
+		return this.isPendingOrInChangeOrder && this.note?.noteSubCategoryId === 10;
 	}
 
 	get internalCategoryOptions()
@@ -65,7 +65,7 @@ export class SalesNoteComponent extends ComponentCanNavAway implements OnInit
 	get externalCategoryOptions()
 	{
 		// returns external sub categories excluding Terms & conditions. Future proofing more than anything since this will return nothing at this time.
-		return this.subCategoryOptions.filter(cat => !cat.internal && ((cat.id === 10 && this.isTnC) || cat.id !== 10));
+		return this.subCategoryOptions.filter(cat => !cat.internal && ((cat.id === 10 && (this.isTnC || this.agreement.status === 'Pending')) || cat.id !== 10));
 	}
 
 	get isPendingOrInChangeOrder()
@@ -75,7 +75,7 @@ export class SalesNoteComponent extends ComponentCanNavAway implements OnInit
 
 	get subCategoryName()
 	{
-		return this.subCategoryOptions.find(category => category.id === this.note.noteSubCategoryId).value;
+		return this.subCategoryOptions.find(category => category.id === this.note.noteSubCategoryId)?.value;
 	}
 
 	get noteTitle(): string
@@ -108,7 +108,7 @@ export class SalesNoteComponent extends ComponentCanNavAway implements OnInit
 	setFormData()
 	{
 		// Setup form controls, only on component creation/init
-		this.subCategory = new FormControl({ value: this.note.noteSubCategoryId || null, disabled: this.isTnC }, [Validators.required]);
+		this.subCategory = new FormControl({ value: this.note.noteSubCategoryId || null, disabled: (this.isTnC && this.inChangeOrder) }, [Validators.required]);
 		this.noteContent = new FormControl(this.note.noteContent || '', [Validators.required, Validators.maxLength(this.maxDescriptionLength)]);
 
 		this.setSelectedSubCategory(this.note.noteSubCategoryId);
@@ -123,14 +123,14 @@ export class SalesNoteComponent extends ComponentCanNavAway implements OnInit
 
 	setSelectedSubCategory(id)
 	{
-		this.subCategory.setValue(id ? this.subCategoryOptions.find(item => item.id === id).id : null);
+		this.subCategory.setValue(id ? this.subCategoryOptions.find(item => item.id === id)?.id : null);
 	}
 
 	save()
 	{
 		const saveNote: Note = new Note({
 			noteSubCategoryId: this.subCategory.value,
-			noteType: this.subCategoryOptions.find(opt => opt.id === this.subCategory.value).internal ? 'Internal' : 'Public',
+			noteType: this.subCategoryOptions.find(opt => opt.id === this.subCategory.value)?.internal ? 'Internal' : 'Public',
 			noteContent: this.noteContent.value
 		});
 

@@ -23,7 +23,7 @@
 	<div *ngIf="canDisplay" class="summary-container d-flex align-items-onLoadImage flex-column">
 		<div class="position-relative phd-summary-header-image" *ngIf="summaryImages.length">
 			<ngb-carousel [interval]="0" (slide)="onSlide($event)" *ngIf="summaryImages.length > 1" [showNavigationIndicators]="false">
-				<ng-template ngbSlide *ngFor="let image of summaryImages; let currentIndex = index;" [id]="currentIndex">
+				<ng-template ngbSlide *ngFor="let image of summaryImages; let currentIndex = index;" id="{{currentIndex}}">
 					<cl-image public-id="{{image.imageUrl}}" (onLoad)="onLoadImage()" (onError)="onLoadImageError($event)" type="fetch" gravity="auto" crop="fill" *ngIf="activeIndex?.current == currentIndex && !image.hasDataUri"></cl-image>
 
 					<img [src]="image.imageUrl | safeUrl" *ngIf="activeIndex?.current == currentIndex && image.hasDataUri" class="phd-ifp-image">

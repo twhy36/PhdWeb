@@ -65,6 +65,20 @@ export class PlanService
 			catchError(this.handleError));
 	}
 
+	getDesignPreviewLink(planId: number): Observable<string>
+	{
+		// send org id 
+		let url = settings.apiUrl;
+		url += `GetDesignPreviewLink(planId=${planId})`;
+
+		return this._http.get(url).pipe(
+			map((response: any) =>
+			{
+				return response.value as string;
+			}),
+			catchError(this.handleError));
+	}
+
 	private mapPlans(data: any, financialCommunityId: number): IPlanDto
 	{
 		return {

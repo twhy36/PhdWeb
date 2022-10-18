@@ -679,23 +679,19 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		});
 
 		// #353697 Prompt the user of affected choices with an adjusted price by deselecting this choice
-		let impactedOptionPriceChoices = [];
-
-		if (choiceToDeselect)
-		{
-			impactedOptionPriceChoices = this.getImpactedChoicesForReplacedOptionPrices(timeOfSaleOptionPrices, choice, choiceToDeselect);
-		}
+		const impactedOptionPriceChoices = this.getImpactedChoicesForReplacedOptionPrices(timeOfSaleOptionPrices, choice, choiceToDeselect);
 
 		// #366542 Find any choices with a replaced option that is no longer available on the current tree
-		let adjustedChoices = [];
-		if (choiceToDeselect?.id !== choice.id)
+		const adjustedChoices = this.getAdjustedChoices(choiceToDeselect, choice);
+
+		adjustedChoices.forEach(c =>
 		{
-			adjustedChoices = this.getAdjustedChoices(choiceToDeselect, choice);
-		}
+			selectedChoices.push({ choiceId: c.id, overrideNote: c.overrideNote, quantity: 0, attributes: c.selectedAttributes, timeOfSaleOptionPrices: this.getReplacedOptionPrices(c) });
+		});
 
 		let obs: Observable<boolean>;
 
-		if (adjustedChoices && adjustedChoices.length)
+		if (choiceToDeselect && adjustedChoices && adjustedChoices.length)
 		{
 			obs = this.showOptionMappingAdjustedModal(adjustedChoices);
 		}
@@ -707,7 +703,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		{
 			obs = this.showChoiceImpactModal(impactedChoices);
 		}
-		else if (impactedOptionPriceChoices && impactedOptionPriceChoices.length)
+		else if (choiceToDeselect && impactedOptionPriceChoices && impactedOptionPriceChoices.length)
 		{
 			obs = this.showOptionPriceChangedModal(impactedOptionPriceChoices);
 		}
@@ -954,11 +950,8 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 	{
 		let choices: Choice[] = [];
 
-		// By selecting this choice, see what options are associated
-		const selectedOptions = selectedChoice.options.map(o => o.financialOptionIntegrationKey);
-
-		// Determine which choices have options that these options replace
-		const replaceRules = this.treeVersionRules.optionRules.filter(o => selectedOptions.includes(o.optionId));
+		// Using the latest rules, see what choices may be affected by options on this choice
+		const replaceRules = this.treeVersionRules.optionRules.filter(o => o.choices.map(oc => oc.id).includes(selectedChoice.id));
 
 		// Check to see if any rule is already satisfied, and if that choice has an option no longer available
 		replaceRules.forEach(rr =>
@@ -1005,6 +998,6 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 			});
 		});
 
-		return choices;
+		return choices.filter(ch => ch.id !== deselectedChoice?.id);
 	}
 }

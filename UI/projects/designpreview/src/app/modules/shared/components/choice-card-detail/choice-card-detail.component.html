@@ -51,7 +51,10 @@
 				</span>
 			</ng-container>
 			<ng-container *ngIf="!choice.priceHiddenFromBuyerView && !isPresale">
-				<strong class="phd-price-label">{{choice.price * (choice.quantity > 0 ? choice.quantity : 1) | currency:'USD':'symbol':'0.0-0'}}</strong>
+				<div class="d-flex flex-row align-items-center">
+					<strong class="phd-price-label">{{choice.price * (choice.quantity > 0 ? choice.quantity : 1) | currency:'USD':'symbol':'0.0-0'}}</strong>
+					<span class="phd-price-disclaimer">*Pricing Subject to change</span>
+				</div>
 			</ng-container>
 			<ng-container *ngIf="choice.choiceStatus === 'Contracted'">
 				<i class="fa fa-check phd-icon-selected phd-favorite-selector"></i>
@@ -69,7 +72,7 @@
 			</ng-container>
 		</div>
 	</div>
-	<div class="phd-info-section">
+	<div class="phd-info-section" [ngClass]="{'phd-info-section-presale' : isPresale}">
 		<div class="d-flex flex-column flex-1 phd-choice-desc-section" [ngClass]="{'phd-choice-desc-section-long' : !hasAttributes}">
 			<div class="phd-choice-label">{{choice?.label}}</div>
 			<div *ngIf="choiceDescriptions.length && !optionDisabled" class="phd-choice-desc">
@@ -116,6 +119,9 @@
 				</div>
 			</div>
 		</div>
+		<ng-container>
+			<div class="phd-descriptive-text">Options and any selections subject to change and are not final until placed under contract with Sales Representative and subject to the terms of the home purchase agreement.</div>
+		</ng-container>
 	</div>
 </div>
 

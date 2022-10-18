@@ -13,10 +13,11 @@ import * as CommonActions from '../../../ngrx-store/actions';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 import * as FavoriteActions from '../../../ngrx-store/favorite/actions';
 
-import { UnsubscribeOnDestroy, SalesAgreement, SDImage, SubGroup, FloorPlanImage } from 'phd-common';
+import { UnsubscribeOnDestroy, SalesAgreement, SDImage, SubGroup, FloorPlanImage, ModalService } from 'phd-common';
 import { JobService } from '../../../core/services/job.service';
 import { BrandService } from '../../../core/services/brand.service';
 import { BuildMode } from '../../../shared/models/build-mode.model';
+import { ErrorFrom } from '../../../ngrx-store/error.action';
 
 @Component({
 	selector: 'home',
@@ -74,12 +75,20 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 							return new Observable<never>();
 						}
 					} else if (routeData["isPresale"]) {
+						// todo: financialCommunityId and lawsonPlanId need to be re-assgined based on token parser
+						//to replace query string para reading
 						const financialCommunityId = +params.get('financialCommunityId');
 						const lawsonPlanId = +params.get('lawsonPlanId');
 						let lawsonPlanIdAsString = lawsonPlanId + '';
-						if (!scenarioState.tree || (scenarioState.tree.planKey !== lawsonPlanIdAsString || scenarioState.tree.financialCommunityId !== financialCommunityId)) {
+						if ( Number(financialCommunityId)>0 && Number(lawsonPlanId)>0 && 
+							(!scenarioState.tree || scenarioState.tree.planKey !== lawsonPlanIdAsString || scenarioState.tree.financialCommunityId !== financialCommunityId)) {
 							this.store.dispatch(new ScenarioActions.LoadPresale(financialCommunityId, lawsonPlanId));
+					
 							return new Observable<never>();
+						}	
+						else
+						{
+							this.store.dispatch(new CommonActions.LoadError(new Error('load presale error'), 'CommunityId and/or PlanId are missing or invalid IDs', ErrorFrom.HomeComponent));
 						}
 					} else {
 						// if sales agreement is not in the store and the id has been passed in to the url

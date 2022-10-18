@@ -664,7 +664,7 @@ export class FavoriteService
 							attributeCommunityId: la.attributeCommunityId,
 							attributeGroupCommunityId: la.attributeGroupCommunityId,
 							attributeName: la.attributeName,
-							attributeGroupLabel: la.attributeGroupLabel							
+							attributeGroupLabel: la.attributeGroupLabel
 						});							
 					})
 				}

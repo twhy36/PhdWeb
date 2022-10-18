@@ -176,6 +176,7 @@ export class Choice
 	disabledByHomesite?: boolean = false;
 	disabledByReplaceRules?: Array<number> = [];
 	disabledByBadSetup?: boolean = false;
+	disabledByRelocatedMapping?: Array<number> = [];
 }
 
 export class MappedGroup

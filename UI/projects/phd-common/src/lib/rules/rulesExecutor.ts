@@ -89,6 +89,7 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 		ch.mappingChanged = false;
 		ch.disabledByReplaceRules = [];
 		ch.disabledByBadSetup = false;
+		ch.disabledByRelocatedMapping = [];
 
 		// Deselect choice requirements when a user deselects/selects a new lot while creating a HC
 		// Don't want previous lot choice requirements to show up when a lot is toggled
@@ -131,34 +132,6 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 			}
 		}
 
-		// #368758
-		// If this choice has an option that replaces another,
-		// and that option is not currently on the configuration,
-		// this choice must be disabled
-		const replacedOptions = _.flatMap(rules.optionRules.filter(o => o.choices.map(c => c.id).includes(ch.id)), r => r.replaceOptions);
-
-		// Determine if these replace options are on the configuration
-		replacedOptions.forEach(ro =>
-		{
-			// Find all other choices which must have this choice, and exclude those from affecting whether this choice is disabled
-			const choiceRules = _.flatMap(rules.choiceRules.filter(cr => _.flatMap(cr.rules.filter(r => r.ruleType === 1), r => r.choices).includes(ch.id)), cr => cr.choiceId);
-
-			const mappedChoices = _.flatMap(rules.optionRules.filter(o => o.optionId === ro), r => r.choices).filter(c => !choiceRules.includes(c.id));
-
-			ch.disabledByReplaceRules = mappedChoices.filter(mc => (!mc.mustHave && find(mc.id).quantity) || (mc.mustHave && !find(mc.id).quantity)).map(mc => mc.id);
-
-			// If this choice becomes disabled, deselect it
-			if (ch.disabledByReplaceRules?.length)
-			{
-				ch.quantity = 0;
-
-				// If any choices with options being replaced exist within the same DP, there is a setup issue (user error)
-				if (points.find(pt => pt.choices.some(c => c.id === ch.id) && pt.choices.some(c => ch.disabledByReplaceRules.includes(c.id))))
-				{
-					ch.disabledByBadSetup = true;
-				}
-			}
-		});
 	});
 
 	points.forEach(pt =>
@@ -722,18 +695,7 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 				}
 
 				return false;
-			}) || choice.lockedInOptions?.map(lio => lio.optionId)
-				.some(financialOptionIntegrationKey =>
-				{
-					// Find any active rules that replace this option
-					const replaceRules = rules.optionRules.filter(o => o.replaceOptions.includes(financialOptionIntegrationKey));
-
-					// Find any choices with locked in options that still replace this option
-					const existingChoices = choices.filter(ch => ch.id !== choice.id && _.flatMap(ch.lockedInOptions, lio => lio.replaceOptions).includes(financialOptionIntegrationKey));
-
-					// If no rules currently replace this option, and no locked in options replace this option, then this choice has a removed option
-					return !replaceRules.length && !existingChoices.length;
-				});
+			});
 
 		// Determine if any choices that currently affect this choice via replace rules are properly selected, etc.
 		const optionRuleChoices = rules.optionRules
@@ -818,6 +780,70 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 				}
 			});
 		}
+
+		// #368758
+		// If this choice has an option that replaces another,
+		// and that option is not currently on the configuration,
+		// this choice must be disabled
+
+		// Find mapped options on this choice
+		const optionRules = rules.optionRules.filter(o => o.choices.map(c => c.id).includes(choice.id));
+		const choiceOptionNumbers = choice.options?.map(o => o.financialOptionIntegrationKey) || [];
+		const mappedOptionRules = optionRules.filter(o => choiceOptionNumbers.includes(o.optionId));
+
+		// Find all other choices which must have this choice, and exclude those from affecting whether this choice is disabled
+		const excludedChoiceRules = _.flatMap(rules.choiceRules.filter(cr => _.flatMap(cr.rules.filter(r => r.ruleType === 1), r => r.choices).includes(choice.id)), cr => cr.choiceId);
+
+		const pointChoices = points.find(pt => pt.choices.some(c => c.id === choice.id)).choices.map(c => c.id);
+
+		// Find replaced options on the mapped options
+		const replacedOptions = _.flatMap(mappedOptionRules, r => r.replaceOptions);
+
+		// In the case of multiple replaced options, if any one option is already on the configuration, disregard this
+		if (!replacedOptions.some(ro =>
+		{
+			const mappedChoices = _.flatMap(rules.optionRules.filter(o => o.optionId === ro), r => r.choices).filter(c => !excludedChoiceRules.includes(c.id));
+
+			return !mappedChoices.filter(mc => (pointChoices.includes(mc.id) && ((mc.mustHave && find(mc.id).quantity) || (!mc.mustHave && !find(mc.id).quantity)))
+				|| ((!mc.mustHave && find(mc.id).quantity) || (mc.mustHave && !find(mc.id).quantity))).length;
+		}))
+		{
+			replacedOptions.forEach(ro =>
+			{
+				const mappedChoices = _.flatMap(rules.optionRules.filter(o => o.optionId === ro), r => r.choices).filter(c => !excludedChoiceRules.includes(c.id));
+
+				choice.disabledByReplaceRules = mappedChoices.filter(mc => (pointChoices.includes(mc.id) && ((mc.mustHave && find(mc.id).quantity) || (!mc.mustHave && !find(mc.id).quantity)))
+					|| ((!mc.mustHave && find(mc.id).quantity) || (mc.mustHave && !find(mc.id).quantity))).map(mc => mc.id);
+
+				// If this choice becomes disabled, deselect it
+				if (choice.disabledByReplaceRules?.length)
+				{
+					choice.quantity = 0;
+
+					// If any choices with options being replaced exist within the same DP, there is a setup issue (user error)
+					if (points.find(pt => pt.choices.some(c => c.id === choice.id) && pt.choices.some(c => choice.disabledByReplaceRules.includes(c.id))))
+					{
+						choice.disabledByBadSetup = true;
+					}
+				}
+			});
+		}
+
+		// #367382
+		// If this choice has an option that is already on the config,
+		// as part of another choice, this choice needs to be disabled
+		choice.options.forEach(opt =>
+		{
+			if (opt)
+			{
+				const choicesWithLockedInOpt = choices.filter(ch => ch.lockedInOptions.find(lio => lio.optionId === opt.financialOptionIntegrationKey) && ch.id !== choice.id).map(ch => ch.id);
+
+				if (choicesWithLockedInOpt)
+				{
+					choice.disabledByRelocatedMapping = choice.disabledByRelocatedMapping.concat(choicesWithLockedInOpt);
+				}
+			}
+		});
 
 		mapLocationAttributes(choice);
 	});

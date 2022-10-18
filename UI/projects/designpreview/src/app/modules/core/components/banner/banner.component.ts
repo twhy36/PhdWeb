@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 
-import { BrandService } from '../../../../core/services/brand.service';
+import { BrandService } from '../../services/brand.service';
 
 @Component({
 	selector: 'banner',

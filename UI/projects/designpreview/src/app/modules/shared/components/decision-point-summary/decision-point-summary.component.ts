@@ -3,7 +3,8 @@ import { Router } from '@angular/router';
 
 import { NgbDropdownConfig } from '@ng-bootstrap/ng-bootstrap';
 
-import { DecisionPoint, Group, SubGroup, Choice, JobChoice, UnsubscribeOnDestroy, flipOver2, isChoiceAttributesComplete } from 'phd-common';
+import { DecisionPoint, Group, SubGroup, Choice, JobChoice, UnsubscribeOnDestroy, flipOver2 } from 'phd-common';
+import { isChoiceAttributesComplete } from '../../classes/utils.class';
 import { BuildMode } from '../../models/build-mode.model';
 
 @Component({
@@ -111,7 +112,11 @@ export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implemen
 
 	getAttributeLabel(name: string) {
 		if (name) {
-			return name + ':';
+			if (name.charAt(name.length-1) === ':') {
+				return name;
+			} else {
+				return name + ':';
+			}
 		}
 	}
 	

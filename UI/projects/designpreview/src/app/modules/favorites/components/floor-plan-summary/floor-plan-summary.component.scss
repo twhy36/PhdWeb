@@ -46,6 +46,15 @@ $detailed-point-panel-width: 300px;
 			height: 0;
 		}
 	}
+
+	.phd-descriptive-text {
+		font-size: 11px;
+		font-weight: bold;
+		position: fixed;
+		left: 20px;
+		bottom: 74px;
+		padding: 5px 0px;
+	}
 }
 
 .phd-default-ifp {

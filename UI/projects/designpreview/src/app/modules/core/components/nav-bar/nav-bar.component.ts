@@ -2,17 +2,20 @@ import { Component, HostListener, OnInit } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { select, Store } from '@ngrx/store';
 
-import { UnsubscribeOnDestroy} from 'phd-common';
+import { Observable } from 'rxjs';
+import { UnsubscribeOnDestroy } from 'phd-common';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
+import * as fromApp from '../../../ngrx-store/app/reducer';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 import { BuildMode } from '../../../shared/models/build-mode.model';
 import { BrandService } from '../../services/brand.service';
+import { ClearLatestError } from '../../../ngrx-store/error.action';
 
 @Component({
-	  selector: 'nav-bar',
-	  templateUrl: 'nav-bar.component.html',
-	  styleUrls: ['nav-bar.component.scss']
+	selector: 'nav-bar',
+	templateUrl: 'nav-bar.component.html',
+	styleUrls: ['nav-bar.component.scss']
 })
 
 export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
@@ -25,6 +28,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 	showIncludedOptionsLink: boolean = false;
 	buildMode: BuildMode;
 	welcomeText: string = 'Welcome To Your Home';
+	hasLatestError$: Observable<boolean>;
 
 	@HostListener("window:resize", ["$event"])
 	onResize(event) {
@@ -46,21 +50,25 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 	constructor(
 		private router: Router,
 		private store: Store<fromRoot.State>,
-		private brandService: BrandService
-	)
-    {
-			super();
-    }
+		private brandService: BrandService)
+	{
+		super();
+	}
 
 	ngOnInit()
 	{
 		this.router.events.subscribe(evt => {
 			if (evt instanceof NavigationEnd) {
 				this.currentRoute = evt.url.toLowerCase();
+				if(evt.url!='/error'){
+					this.store.dispatch(new ClearLatestError());
+				}
 				this.isMenuCollapsed = true;
 			}
 		});
-
+		
+		this.hasLatestError$ = this.store.select(fromApp.getAppLatestError);
+		
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(state => state.scenario),

@@ -170,7 +170,12 @@ export const selectedColorScheme = createSelector(
 			const scenarioOption = state.scenarioOptions?.find(opt => opt.edhPlanOptionId === elevation.id);
 			if (scenarioOption?.scenarioOptionColors?.length)
 			{
-				colorScheme = scenarioOption.scenarioOptionColors[0];
+				const optionColor = scenarioOption.scenarioOptionColors[0];
+				if (elevation.colorItems.some(ci => ci.colorItemId === optionColor.colorItemId && ci.color.some(cl => cl.colorId === optionColor.colorId)))
+				{
+					// Color scheme is selected when it is in scenario option color and the color item id and the color id exist in the selected elevation
+					colorScheme = optionColor;
+				}
 			}
 		}
 

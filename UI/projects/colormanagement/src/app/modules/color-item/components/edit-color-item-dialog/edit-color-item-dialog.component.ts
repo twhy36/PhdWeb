@@ -148,7 +148,16 @@ export class EditColorItemDialogComponent implements OnInit
 		//2) then search thru all color items (excluding the color item that is being edited) and compare the names
 		this.isDuplicateName = this.optionsWithColorItemInfo
 			.find(o => o.optionCommunityId === this.selectedOption.id)
-			.colorItem.some(ci => ci.colorItemId !== this.selectedColorItems[0].colorItemId && ci.name.toLowerCase() === colorItemName);
+			.colorItem.some(ci => {
+				let result = false;
+				this.selectedColorItems.forEach(sci => {
+					if (ci.edhPlanOptionId === sci.edhPlanOptionId && ci.colorItemId !== sci.colorItemId && ci.name.toLowerCase() === colorItemName)
+					{
+						result = true;
+					}
+				});
+				return result;
+			});
 
 		if (this.isDuplicateName)
 		{

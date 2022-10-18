@@ -28,33 +28,13 @@ export class LotService
 		const url = `${environment.apiUrl}lots?${encodeURIComponent('$')}expand=${encodeURIComponent(expand)}&${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}&${encodeURIComponent('$')}select=${encodeURIComponent(select)}`;
 
 		return (skipSpinner ? this._http : withSpinner(this._http)).get<any>(url).pipe(
-			combineLatest(this.getMonotonyRulesForSalesCommunity(salesCommunityId, false)),
-			map(([lotsResponse, monotonyRules]) =>
+			map((lotsResponse) =>
 			{
 				let lots = lotsResponse.value.map(l => new Lot(l));
-
-				lots.forEach(l =>
-				{
-					const rule = monotonyRules.find(r => r.edhLotId === l.id);
-					l.monotonyRules = rule ? rule.relatedLotsElevationColorScheme : [];
-				});
 
 				return lots;
 			}),
 			defaultOnNotFound("loadLots", [])
-		);
-	}
-
-	getMonotonyRulesForSalesCommunity(salesCommunityId: number, skipSpinner: boolean = true): Observable<Array<MonotonyRule>>
-	{
-		const url = `${environment.apiUrl}GetMonotonyRulesForSalesCommunity(id=${salesCommunityId})`;
-
-		return (skipSpinner ? this._http : withSpinner(this._http)).get<any>(url).pipe(
-			map(response =>
-			{
-				return response['value'] as Array<MonotonyRule>;
-			}),
-			defaultOnNotFound("getMonotonyRulesForSalesCommunity", [])
 		);
 	}
 

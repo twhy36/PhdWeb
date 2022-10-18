@@ -476,6 +476,9 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 							if (result !== 'Close')
 							{
 								this.toggleLot(lot, selected);
+
+								// 376203: if we have choices that are no longer required then we need to remove them.
+								this.newHomeService.unselectNoLongerRequiredChoices(noLongerRequiredSelections, this.currentChoices);
 							}
 							else
 							{

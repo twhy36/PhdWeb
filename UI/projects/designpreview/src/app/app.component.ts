@@ -2,26 +2,35 @@ import { Component, Inject } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { Idle, DEFAULT_INTERRUPTSOURCES } from '@ng-idle/core';
 import { NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
+import { select, Store } from '@ngrx/store';
+
+import { ModalService, ModalRef, IdentityService, UnsubscribeOnDestroy } from 'phd-common';
+import { combineLatest } from 'rxjs';
+import { withLatestFrom } from 'rxjs/operators';
 
 import { environment } from '../environments/environment';
 import { default as build } from './build.json';
 
-import { ModalService, ModalRef, IdentityService } from 'phd-common';
 import { IdleLogoutComponent } from './modules/core/components/idle-logout/idle-logout.component';
+import { TermsAndConditionsComponent } from './modules/core/components/terms-and-conditions/terms-and-conditions.component';
 import { BrandService } from './modules/core/services/brand.service';
 import { AdobeService } from './modules/core/services/adobe.service';
+import * as fromRoot from './modules/ngrx-store/reducers';
+import * as fromApp from './modules/ngrx-store/app/reducer';
+import * as fromFavorite from './modules/ngrx-store/favorite/reducer';
+import { ShowTermsAndConditionsModal } from './modules/ngrx-store/app/actions';
+import { BuildMode } from './modules/shared/models/build-mode.model';
 
 @Component({
 	selector: 'app-root',
 	templateUrl: './app.component.html',
 	styleUrls: ['./app.component.css']
 })
-export class AppComponent
+export class AppComponent extends UnsubscribeOnDestroy
 {
 	title = 'Design Preview';
-
 	environment = environment;
-
+	buildMode: BuildMode;
 	logoutModal: ModalRef;
 
 	get branch(): string
@@ -36,12 +45,15 @@ export class AppComponent
 
 	constructor(
 		private idle: Idle,
+		private store: Store<fromRoot.State>,
 		private modalService: ModalService,
 		private identityService: IdentityService,
 		private brandService: BrandService,
 		private adobeService: AdobeService,
 		@Inject(DOCUMENT) private doc: any)
 	{
+		super();
+
 		// Start idle watch for user inactivities if an external user is logged in
 		if (sessionStorage.getItem('authProvider') === 'sitecoreSSO')
 		{
@@ -49,10 +61,40 @@ export class AppComponent
 		}
 
 		this.brandService.applyBrandStyles();
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromFavorite.currentMyFavoriteChoices),
+			withLatestFrom(this.store.pipe(select(state => state.scenario)))
+		).subscribe(([fav, scenario]) => {
+			this.buildMode = scenario.buildMode;
+			if ((this.buildMode === BuildMode.Presale || this.buildMode === BuildMode.Preview) && fav?.length > 0) {
+				window.addEventListener('beforeunload', this.createBeforeUnloadListener);
+			} else {
+				window.removeEventListener('beforeunload', this.createBeforeUnloadListener);
+			}
+		});
 	}
 
 	ngOnInit()
 	{
+		combineLatest([
+			this.store.pipe(select(state => state.scenario), this.takeUntilDestroyed()),
+			this.store.pipe(select(fromApp.termsAndConditionsAcknowledged), this.takeUntilDestroyed()),
+			this.store.pipe(select(fromApp.showTermsAndConditionsModal), this.takeUntilDestroyed()),
+		])
+			.subscribe(([scenarioState, taca, showModal]) => {
+				if (!taca && scenarioState.buildMode == BuildMode.Presale && showModal) {
+					const ngbModalOptions: NgbModalOptions = {
+						centered: true,
+						backdrop: 'static',
+						keyboard: false
+					};
+					this.modalService.open(TermsAndConditionsComponent, ngbModalOptions)
+					this.store.dispatch(new ShowTermsAndConditionsModal(false))
+				}
+			});
+
 		window['appEventData'] = [];
 
 		this.setAdobeAnalytics();
@@ -107,6 +149,10 @@ export class AppComponent
 		});
 
 		this.idle.watch();
+	}
+
+	createBeforeUnloadListener(e: BeforeUnloadEvent) {
+		e.returnValue = `This will delete your MY FAVORITES list, continue?`;
 	}
 
 	logout()

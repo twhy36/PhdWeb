@@ -311,10 +311,15 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 
 					return confirm.result.then((result) =>
 					{
-						if (result === 'Close')
+						if (result !== 'Close')
+						{
+							// 376203: if we have choices that are no longer required then we need to remove them.
+							this.newHomeService.unselectNoLongerRequiredChoices(noLongerRequiredSelections, this.currentChoices);
+						}
+						else
 						{
 							// Didn't want to change so lets revert back to the previous selection
-							this.toggleSelectedPlan(this.prevSelectedPlan, lot, this.prevSelectedPlan === null);
+							this.toggleSelectedPlan(this.prevSelectedPlan, lot, this.prevSelectedPlan === null);							
 						}
 					});
 				}

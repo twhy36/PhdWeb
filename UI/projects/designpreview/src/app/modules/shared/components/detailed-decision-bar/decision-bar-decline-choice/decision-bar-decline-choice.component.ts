@@ -62,7 +62,6 @@ export class DecisionBarDeclineChoiceComponent implements OnInit {
 
 	onBlockedItemClick(pointId: number) {
 		this.blockedChoiceModalRef?.close();
-		delete this.disabledByList;
 		this.onSelectDecisionPoint.emit(pointId);
 	}
 }

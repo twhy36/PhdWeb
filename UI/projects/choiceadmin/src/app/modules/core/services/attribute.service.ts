@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
-import { Observable, throwError as _throw } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { Observable, of, throwError as _throw } from 'rxjs';
+import { catchError, map, switchMap } from 'rxjs/operators';
 
 import { SettingsService } from '../../core/services/settings.service';
-import { LoggingService } from "../../core/services/logging.service";
-import { Settings } from '../../shared/models/settings.model';
+import { OrganizationService } from './organization.service';
 
+import { Settings } from '../../shared/models/settings.model';
 import { Attribute } from '../../shared/models/attribute.model';
 import { AttributeGroupMarket } from '../../shared/models/attribute-group-market.model';
 import { AttributeGroupCommunity } from '../../shared/models/attribute-group-community.model';
@@ -15,10 +15,11 @@ import { Option, IOptionMarket, OptionMarket } from '../../shared/models/option.
 import { IFinancialCommunity } from '../../shared/models/financial-community.model';
 import { GroupChoice } from '../../shared/models/group-choice.model';
 import { TableSort } from '../../../../../../phd-common/src/lib/components/table/phd-table.model';
+
 import { withSpinner } from 'phd-common';
 
 import * as moment from 'moment';
-import { orderBy } from "lodash";
+import { orderBy } from 'lodash';
 
 const settings: Settings = new SettingsService().getSettings();
 
@@ -27,7 +28,7 @@ export class AttributeService
 {
 	private _ds: string = encodeURIComponent("$");
 
-	constructor(private _http: HttpClient, private _loggingService: LoggingService) { }
+	constructor(private _http: HttpClient, private _orgService: OrganizationService) { }
 
 	getAttributesByMarketId(marketId: number, status?: boolean, includeFutureDates?: boolean, topRows?: number, skipRows?: number, filterName?: string, keywords?: string, tableSort?: TableSort): Observable<Array<Attribute>>
 	{
@@ -560,27 +561,30 @@ export class AttributeService
 	}
 
 	/**
-	 * *Returns a list of associated Communities for the given AttributeGroup
+	 * *Returns a list of Financial Communities for the given AttributeGroup
 	 * @param group
 	 */
-	getAttributeGroupCommunities(group: AttributeGroupMarket): Observable<Array<IFinancialCommunity>>
+	getFinancialCommunitiesRelatedByAttributeGroup(group: AttributeGroupMarket): Observable<IFinancialCommunity[]>
 	{
 		let url = settings.apiUrl;
 
-		const expand = `attributeGroupCommunities($filter=attributeGroupMarketId eq ${group.id};$select=id, attributeGroupMarketId)`;
-		const filter = `attributeGroupCommunities/any(a: a/attributeGroupMarketId eq ${group.id})`;
-		const select = `id, number, name`;
-		const orderby = `name`;
+		const filter = `attributeGroupMarketId eq ${group.id}`;
+		const select = `id, financialCommunityId, attributeGroupMarketId`;
 
-		const qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}orderby=${encodeURIComponent(orderby)}`;
+		const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
 
-		url += `financialCommunities?${qryStr}`;
+		url += `attributeGroupCommunities?${qryStr}`;
 
 		return this._http.get(url).pipe(
-			map(response =>
+			switchMap(response =>
 			{
-				let communities = response['value'] as Array<IFinancialCommunity>;
+				let communities = response['value'] as AttributeGroupCommunity[];
+				let financialCommunityIds = communities?.map(x => x.financialCommunityId);
 
+				return financialCommunityIds.length ? this._orgService.getFinancialCommunitiesByIds(financialCommunityIds) : of([] as IFinancialCommunity[]);
+			}),
+			map(communities =>
+			{
 				return communities;
 			}),
 			catchError(this.handleError));

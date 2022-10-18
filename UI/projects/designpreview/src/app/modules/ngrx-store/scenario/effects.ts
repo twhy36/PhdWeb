@@ -11,7 +11,7 @@ import * as fromFavorite from '../favorite/reducer';
 import * as _ from 'lodash';
 import { DeleteMyFavoritesPointDeclined } from '../favorite/actions';
 import { from } from 'rxjs';
-import { tryCatch } from '../error.action';
+import { ErrorFrom, tryCatch } from '../error.action';
 import { TreeService } from '../../core/services/tree.service';
 import { OptionService } from '../../core/services/option.service';
 import { OrganizationService } from '../../core/services/organization.service';
@@ -105,7 +105,7 @@ export class ScenarioEffects
 						new LoadLots(salesCommunity.id),
 					]);
 				})
-			), LoadError, 'Error loading preview!!')
+			), LoadError, 'Error loading preview!!', ErrorFrom.LoadPreview)
 		)
 	);
 
@@ -168,7 +168,7 @@ export class ScenarioEffects
 						new LoadLots(salesCommunity.id),
 					]);
 				})
-			), LoadError, 'Error loading presale!!')
+			), LoadError, 'Error loading presale!!', ErrorFrom.LoadPresale)
 		)
 	);
 

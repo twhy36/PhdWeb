@@ -64,7 +64,7 @@
 						<div class="col-md">
 							<button class="btn btn-sm btn-toggle btn-auto-approval"
 									[disabled]="!canToggleCommunitySettings"
-									[ngClass]="{'active': !isPreviewEnabled, 'btn-success': isPreviewEnabled, 'btn-secondary': !isPreviewEnabled}"
+									[ngClass]="{'active': !isCommunityLinkEnabled, 'btn-success': isCommunityLinkEnabled, 'btn-secondary': !isCommunityLinkEnabled}"
 									(click)="toggleCommunityLinkEnabled()">
 							</button>
 						</div>
@@ -90,7 +90,6 @@
 						<div class="font-weight-bold">Enable Design Preview for Community</div>
 						<div class="col-md">
 							<button class="btn btn-sm btn-toggle btn-auto-approval"
-									[disabled]="!canToggleCommunitySettings"
 									[ngClass]="{'active': !isPreviewEnabled, 'btn-success': isPreviewEnabled, 'btn-secondary': !isPreviewEnabled}"
 									(click)="togglePreviewEnabled()">
 							</button>
@@ -175,7 +174,7 @@
 						<div class="col-md">
 							<button class="btn btn-sm btn-toggle btn-auto-approval"
 									[disabled]="!canToggleCommunitySettings"
-									[ngClass]="{'active': !isPreviewEnabled, 'btn-success': isPreviewEnabled, 'btn-secondary': !isPreviewEnabled}"
+									[ngClass]="{'active': !isCommunityLinkEnabled, 'btn-success': isCommunityLinkEnabled, 'btn-secondary': !isCommunityLinkEnabled}"
 									(click)="toggleCommunityLinkEnabled()">
 							</button>
 						</div>
@@ -192,6 +191,11 @@
 								{{ requiredThoTemplate.message }}
 							</div>
 						</div>
+						<div>
+							<div class="text-danger" *ngIf="closingCostDisabled">
+								<p>Please Add Closing cost</p>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -205,7 +209,7 @@
 						<div class="font-weight-bold">Enable Design Preview Post-Contract</div>
 						<div class="col-md">
 							<button class="btn btn-sm btn-toggle btn-auto-approval"
-									[disabled]="!canToggleCommunitySettings"
+									[disabled]="isPhdLite"
 									[ngClass]="{'active': !isPreviewEnabled, 'btn-success': isPreviewEnabled, 'btn-secondary': !isPreviewEnabled}"
 									(click)="togglePreviewEnabled()">
 							</button>
@@ -217,18 +221,18 @@
 				<div class="phd-box">
 					<div class="phd-line">
 						<div class="font-weight-bold">Design Preview Pre-Sale Link by Plan</div>
-						<select class="form-control ml-1" [(ngModel)]="selectedOption">
+						<select class="form-control ml-1" [(ngModel)]="selectedOption" [disabled]="isPhdLite">
 							<option [ngValue]="null" disabled="true" selected>Choose a Plan</option>
                             <option *ngFor="let plan of plans" [ngValue]="plan">{{ plan.displayName }}</option>
 						</select>
                         <br />
-						<button *ngIf="!!selectedOption" class="btn btn-primary phd-btn-save" (click)="save();" [disabled]="saveDisabled">
+						<button *ngIf="!!selectedOption" class="btn btn-primary phd-btn-save" (click)="generateDesignPreviewLink(selectedOption.id)">
 							Generate Link
 							<ng-container *ngIf="isSaving"><i class="fa fa-spinner fa-spin fa-fw"></i></ng-container>
 						</button>
 						<div class="phd-link-box phd-line">
 							<a class="btn-link" [href]="designPreviewUrl" target="_blank" rel="noopener noreferrer">{{ designPreviewUrl }}</a>
-                            <button class="phd-copy-image">
+                            <button class="phd-copy-image" (click)="copyToClipboard(designPreviewUrl)">
                                 <i class="fa fa-copy fa-thin"></i>
                             </button>
 						</div>

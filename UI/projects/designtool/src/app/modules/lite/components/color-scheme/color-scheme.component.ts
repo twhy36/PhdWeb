@@ -10,7 +10,7 @@ import * as fromLite from '../../../ngrx-store/lite/reducer';
 import * as LiteActions from '../../../ngrx-store/lite/actions';
 
 import { UnsubscribeOnDestroy, flipOver, ScenarioOption, ScenarioOptionColor } from 'phd-common';
-import { LitePlanOption, Color } from '../../../shared/models/lite.model';
+import { LitePlanOption, Color, LegacyColorScheme } from '../../../shared/models/lite.model';
 
 @Component({
 	selector: 'color-scheme',
@@ -25,24 +25,41 @@ export class ColorSchemeComponent extends UnsubscribeOnDestroy implements OnInit
 	selectedElevation: LitePlanOption;
 	selectedColorScheme: ScenarioOptionColor;
 	errorMessage: string = '';
+	legacyColorScheme: LegacyColorScheme;
 
 	constructor(private store: Store<fromRoot.State>) { super(); }
 
 	ngOnInit()
 	{
 		combineLatest([
-			this.store.pipe(select(fromLite.selectedElevation), this.takeUntilDestroyed()),
-			this.store.pipe(select(fromLite.selectedColorScheme), this.takeUntilDestroyed())
+			this.store.pipe(select(fromLite.selectedElevation)),
+			this.store.pipe(select(fromLite.selectedColorScheme)),
+			this.store.pipe(select(fromRoot.legacyColorScheme))
 		])
-		.subscribe(([elevation, colorScheme]) =>
+		.pipe(this.takeUntilDestroyed())
+		.subscribe(([elevation, colorScheme, legacyColorScheme]) =>
 		{
 			this.selectedElevation = elevation;
 			this.selectedColorScheme = colorScheme;
+			this.legacyColorScheme = legacyColorScheme;
 
-			const colorSchemes = _.flatMap(elevation?.colorItems, item => item.color);
+			let colorSchemes = _.flatMap(elevation?.colorItems, item => item.color);
+
+			// If the color exists in both generic and elevation options, use the one from generic option 
+			if (legacyColorScheme)
+			{
+				const index = colorSchemes.findIndex(c => c.name.toLowerCase() === legacyColorScheme.colorName?.toLowerCase());
+				if (index > -1)
+				{
+					colorSchemes.splice(index, 1);					
+				}
+
+				colorSchemes.push({ name: legacyColorScheme.colorName } as Color);
+			}
+
 			this.colorSchemes = _.sortBy(colorSchemes, 'name');
 
-			if (!this.selectedElevation)
+			if (!this.selectedElevation && !legacyColorScheme)
 			{
 				this.errorMessage = 'Seems that no elevation has been selected.  Please select an elevation to continue.';
 			}

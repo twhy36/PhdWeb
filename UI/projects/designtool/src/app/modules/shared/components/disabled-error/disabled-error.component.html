@@ -10,7 +10,7 @@
 		<!--The errors array adds choice errors and point errors together-->
 		<ul [class.phd-multi-error]="isMultiError">
 			<li
-				*ngIf="hasRequiredChoice && !choice?.isRequired && !choice?.disabledByHomesite && !choice?.disabledByReplaceRules?.length && !choice?.disabledByBadSetup">
+				*ngIf="hasRequiredChoice && !choice?.isRequired && !choice?.disabledByHomesite && !choice?.disabledByReplaceRules?.length && !choice?.disabledByBadSetup && !choice?.disabledByRelocatedMapping?.length">
 				<span>Disabled due to a Required choice</span>
 			</li>
 			<li *ngIf="choice?.isRequired">
@@ -36,6 +36,17 @@
 					improper setup. Please contact a Procurement agent for assistance.</span>
 			</li>
 
+			<li
+				*ngIf="choice?.disabledByRelocatedMapping?.length && !choice?.disabledByReplaceRules?.length && !choice?.disabledByBadSetup">
+				<span>Disabled due to option already on contract. Must deselect: </span>
+
+				<span *ngFor="let c of choice.disabledByRelocatedMapping; let i = index;">
+					<span *ngIf="i > 0"> and </span>
+					<a class="phd-clickable phd-link phd-choice" (click)="onChoiceNav(c)">{{c |
+						choiceIdToName | async }}</a>
+				</span>
+			</li>
+
 			<!--Within each type of error is the disabledBy array which makes up a single line -->
 			<li *ngFor="let e of errors; let i = index">
 
@@ -56,11 +67,13 @@
 					<ng-container *ngIf="d.mustHaves?.length > 0">
 						<span *ngFor="let mustHave of d.mustHaves; let mh = index">
 							<span *ngIf="mh > 0"> or </span>
+
 							<span *ngFor="let p of mustHave.points; let pi = index">
 								<span *ngIf="pi > 0"> and </span>
 								<a class="phd-clickable phd-link phd-point" (click)="onPointNav(p)">{{p | pointIdToName
 									| async }}</a>
 							</span>
+
 							<span *ngFor="let c of mustHave.choices; let ci = index">
 								<span *ngIf="ci > 0"> and </span>
 								<a class="phd-clickable phd-link phd-choice" (click)="onChoiceNav(c)">{{c |
@@ -75,19 +88,19 @@
 					<!-- Rules with both Must Have and Must Not Have would be treated as either-or -->
 					<span *ngIf="d.mustHaves?.length > 0 && d.mustNotHaves?.length > 0"> or </span>
 
-					<!-- For Must Not Have rules, we flip the "and"/"or" verbiage -->
+					<!-- Must Not Have rules -->
 					<ng-container *ngIf="d.mustNotHaves?.length > 0">
 						<span *ngFor="let mustNotHave of d.mustNotHaves; let mnh = index">
-							<span *ngIf="mnh > 0"> and </span>
+							<span *ngIf="mnh > 0"> or </span>
+
 							<span *ngFor="let p of mustNotHave.points; let pi = index">
-								<span *ngIf="pi > 0"> or </span>
-								<a class="phd-clickable phd-link phd-point" (click)="onPointNav(p)">{{p | pointIdToName
-									| async }}</a>
+								<span *ngIf="pi > 0"> and </span>
+								<a class="phd-clickable phd-link phd-point" (click)="onPointNav(p)">{{p | pointIdToName	| async }}</a>
 							</span>
+
 							<span *ngFor="let c of mustNotHave.choices; let ci = index">
-								<span *ngIf="ci > 0"> or </span>
-								<a class="phd-clickable phd-link phd-choice" (click)="onChoiceNav(c)">{{c |
-									choiceIdToName | async }}</a>
+								<span *ngIf="ci > 0"> and </span>
+								<a class="phd-clickable phd-link phd-choice" (click)="onChoiceNav(c)">{{c |	choiceIdToName | async }}</a>
 							</span>
 						</span>
 

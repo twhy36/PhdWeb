@@ -25,6 +25,9 @@
 			<option *ngFor="let floor of floors" [ngValue]="floor">{{ floor.name }}</option>
 		</select>
 	</div>
+	<ng-container>
+		<div class="phd-descriptive-text">*Floorplan Illustration may include both selected and previously contracted options</div>
+	</ng-container>
 </div>
 
 <action-bar [primaryAction]="'Back'"

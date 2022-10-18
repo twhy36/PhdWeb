@@ -4,6 +4,7 @@ import { Store } from '@ngrx/store';
 import * as fromRoot from '../../ngrx-store/reducers';
 
 import * as NavActions from '../../ngrx-store/nav/actions';
+import * as ScenarioActions from '../../ngrx-store/scenario/actions';
 
 import { Choice, ChoiceRules, Job, LotChoiceRuleAssoc, LotChoiceRules, PointRules, PointStatus, Scenario, updateLotChoiceRules } from 'phd-common';
 import { PhdSubMenu } from '../../new-home/subNavItems';
@@ -264,10 +265,40 @@ export class NewHomeService
 		{
 			body += body.length ? '<br />' : '';
 
-			body += `<b>The following choice(s) will no longer be required for Lot ${lotBlock}. You will be able to modify the choice(s) if you continue: </b><br />`;
+			body += `<b>The following choice(s) will no longer be required for Lot ${lotBlock} and will be removed from the home configuration. </b><br />`;
 			body += noLongerRequiredSelectionsSection;
 		}
 
 		return body;
+	}
+
+	/**
+	 * Find and unselect choices that are no longer required due to plan/lot changes
+	 * @param noLongerRequiredSelections
+	 * @param currentChoices
+	 */
+	unselectNoLongerRequiredChoices(noLongerRequiredSelections: any, currentChoices: Choice[])
+	{
+		// 376203: if we have choices that are no longer required then we need to remove them.
+		if (noLongerRequiredSelections.length)
+		{
+			let choiceList = [];
+
+			noLongerRequiredSelections.forEach(nlrChoice =>
+			{
+				const choice = currentChoices.find(x => x.divChoiceCatalogId === nlrChoice.divChoiceCatalogId);
+
+				if (choice)
+				{
+					choiceList.push({ choiceId: choice.id, overrideNote: null, quantity: 0 });
+				}
+			});
+
+			if (choiceList.length > 0)
+			{
+				// remove choices that are no longer required
+				this.store.dispatch(new ScenarioActions.SelectChoices(true, ...choiceList));
+			}
+		}
 	}
 }

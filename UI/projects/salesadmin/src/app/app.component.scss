@@ -1,8 +1,8 @@
 @import "../scss/sizes.scss";
 
 #phd-app {
-	height: calc(100vh - 54px);
-	display:flex;
+	height: calc(100vh - #{$nav-menu-height});
+	display: flex;
 }
 
 #phd-page-buttonbar {

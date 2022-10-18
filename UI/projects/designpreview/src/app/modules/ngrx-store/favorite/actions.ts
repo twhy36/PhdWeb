@@ -55,7 +55,7 @@ export class SaveError extends ErrorAction
 {
 	readonly type = FavoriteActionTypes.SaveError;
 
-	constructor(public error: Error, public friendlyMessage?: string) { super(error, friendlyMessage); }
+	constructor(public error: Error, public friendlyMessage?: string, public errFrom?: string) { super(error, friendlyMessage, errFrom); }
 }
 
 export class DeleteMyFavorite implements Action

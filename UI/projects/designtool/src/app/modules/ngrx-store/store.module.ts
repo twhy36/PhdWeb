@@ -32,7 +32,7 @@ import { LoggingService } from '../core/services/logging.service';
 @NgModule({
 	imports: [
 		NgrxStoreModule.forRoot(reducers, { metaReducers: [sessionStateReducer, stateReset] }),
-		environment.production ? [] : StoreDevtoolsModule.instrument({
+		StoreDevtoolsModule.instrument({
 			name: 'PHD Store DevTools',
 			logOnly: false
 		}),

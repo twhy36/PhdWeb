@@ -30,7 +30,8 @@
 						</ng-container>
 
 						<ng-container *ngIf="!point?.enabled && !point?.isPastCutOff;">
-							<div class="phd-disabled-link phd-link phd-clickable" (click)="showDisabledPointMessage(point);">
+							<div class="phd-disabled-link phd-link phd-clickable"
+								(click)="showDisabledPointMessage(point);">
 								<i class="fas fa-info-circle"></i> Disabled
 							</div>
 						</ng-container>
@@ -38,8 +39,11 @@
 						<!--End if not disabled-->
 						<ul>
 							<ng-template ngFor [ngForOf]="point.choices" let-choice>
-								<li [ngClass]="point?.isPastCutOff || !point.enabled || !choice.enabled || !canEditAgreement ? 'disabled' : 'enabled'">
-									<input type="checkbox" (ngModelChange)="onOptionToggled(choice)" [ngModel]="!!choice.quantity" [id]="'opt-'+choice.id" [disabled]="point?.isPastCutOff || !point.enabled || !choice.enabled || !canEditAgreement">
+								<li
+									[ngClass]="point?.isPastCutOff || !point.enabled || !choice.enabled || !canEditAgreement ? 'disabled' : 'enabled'">
+									<input type="checkbox" (ngModelChange)="onOptionToggled(choice)"
+										[ngModel]="!!choice.quantity" [id]="'opt-'+choice.id"
+										[disabled]="point?.isPastCutOff || !point.enabled || !choice.enabled || !canEditAgreement">
 
 									<div class="d-flex w-100 align-middle align-items-center">
 										<label [for]="'opt-'+choice.id">
@@ -51,24 +55,31 @@
 										<a (click)="$event.stopPropagation(); onChoiceModal.emit(choice);">
 											<span class="phd-btn-text">{{ choice.label }}</span><br>
 											<span *ngIf="hasAttributeOrLocationGroups(choice)" class="phd-circles">
-												<i class="fas fa-circle fa-xs phd-circle-one"></i><i class="fas fa-circle fa-xs phd-circle-two"></i><i class="fas fa-circle fa-xs phd-circle-three"></i>
+												<i class="fas fa-circle fa-xs phd-circle-one"></i><i
+													class="fas fa-circle fa-xs phd-circle-two"></i><i
+													class="fas fa-circle fa-xs phd-circle-three"></i>
 											</span>
 										</a>
 
-										<div [attr.for]="'opt-'+choice.id" class="flex-fill justify-content-end pr-2" [ngClass]="{'phd-non-favorite-price': !isFavorite(choice)}">
+										<div [attr.for]="'opt-'+choice.id" class="flex-fill justify-content-end pr-2"
+											[ngClass]="{'phd-non-favorite-price': !isFavorite(choice)}">
 											<div *ngIf="choice?.enabled" class="phd-choice-price phd-ifp-right">
 												{{ choice.price | currency : 'USD' : 'symbol' : '0.0-0'}}
 											</div>
 
-											<div *ngIf="choice && !choice.enabled" class="phd-choice-price phd-ifp-right">
+											<div *ngIf="choice && !choice.enabled"
+												class="phd-choice-price phd-ifp-right">
 												{{ choice.id | priceRange | async }}
 											</div>
 
-											<div *ngIf="choice.disabledBy.length || choice.disabledByHomesite" class="phd-disabled-link phd-link phd-clickable phd-ifp-choice-disabled" (click)="showDisabledChoiceMessage(choice);">
+											<div *ngIf="choice.disabledBy.length || choice.disabledByHomesite || choice?.disabledByReplaceRules?.length || choice?.disabledByBadSetup || choice?.disabledByRelocatedMapping?.length"
+												class="phd-disabled-link phd-link phd-clickable phd-ifp-choice-disabled"
+												(click)="showDisabledChoiceMessage(choice);">
 												<i class="fas fa-info-circle"></i> Disabled
 											</div>
 										</div>
-										<span *ngIf="isFavorite(choice)" class="phd-favorite-icon"><i class="fa fa-heart"></i></span>
+										<span *ngIf="isFavorite(choice)" class="phd-favorite-icon"><i
+												class="fa fa-heart"></i></span>
 									</div>
 									<hr *ngIf="hasAttributeOrLocationGroups(choice)" class="phd-next-line">
 								</li>
@@ -83,7 +94,8 @@
 			<div id="select-floor" class="d-flex flex-row align-items-end mb-2" *ngIf="fpLoaded && !useDefaultFP">
 				<div class="d-flex flex-column flex-fill mr-3" *ngIf="fpFloors.length > 1">
 					<label for="floor-select">Select a floor</label>
-					<select id="floor-select" class="form-control form-control-md flex-fill" [ngModel]="selectedFloor" (ngModelChange)="selectFloor($event)">
+					<select id="floor-select" class="form-control form-control-md flex-fill" [ngModel]="selectedFloor"
+						(ngModelChange)="selectFloor($event)">
 						<option *ngFor="let floor of fpFloors" [ngValue]="floor">{{ floor.name }}</option>
 					</select>
 				</div>
@@ -102,7 +114,8 @@
 
 			<div id="av-floor-plan" class="mt-auto" [style.width]="useDefaultFP ? '100%' : ''" #av_floor_plan>
 				<div *ngIf="useDefaultFP">
-					<cl-image public-id="https://pultegroup.picturepark.com/Go/O1buxqPH/V/164279/1" type="fetch" style="width:100%; max-width:800px;"></cl-image>
+					<cl-image public-id="https://pultegroup.picturepark.com/Go/O1buxqPH/V/164279/1" type="fetch"
+						style="width:100%; max-width:800px;"></cl-image>
 				</div>
 			</div>
 		</div>
@@ -110,17 +123,14 @@
 
 </div>
 
-<action-bar [actionBarStatus]='!complete ? "INCOMPLETE" : "COMPLETE"'
-			[primaryAction]='primaryAction'
-			[price]="priceBreakdown.totalPrice"
-            [changePrice]="priceBreakdown.changePrice"
-			(callToAction)="onCallToAction($event)"
-			[currentDecisionPoint]="subGroup.points[0]"
-			[inChangeOrder]="inChangeOrder"
-			[canChange]="canConfigure">
+<action-bar [actionBarStatus]='!complete ? "INCOMPLETE" : "COMPLETE"' [primaryAction]='primaryAction'
+	[price]="priceBreakdown.totalPrice" [changePrice]="priceBreakdown.changePrice"
+	(callToAction)="onCallToAction($event)" [currentDecisionPoint]="subGroup.points[0]" [inChangeOrder]="inChangeOrder"
+	[canChange]="canConfigure">
 	<ng-template #leftCellTemplate>
 		<div>
-			<experience-filter [selectedPointFilter]="selectedPointFilter" [enabledPointFilters]="enabledPointFilters" (pointTypeFilterChanged)="onPointTypeFilterChanged($event)"></experience-filter>
+			<experience-filter [selectedPointFilter]="selectedPointFilter" [enabledPointFilters]="enabledPointFilters"
+				(pointTypeFilterChanged)="onPointTypeFilterChanged($event)"></experience-filter>
 		</div>
 		<div class="flex-grow-1">
 			<scenario-status [scenarioStatus]="scenarioStatus"></scenario-status>
@@ -137,6 +147,7 @@
 		</div>
 	</header>
 
-	<disabled-error [choice]="currentChoice" [point]="currentDecisionPoint" (onLink)="disabledModalAction($event)" [errorOverride]="!canEditAgreement ? 'Disbaled Due to Locked Agreement' : ''"></disabled-error>
+	<disabled-error [choice]="currentChoice" [point]="currentDecisionPoint" (onLink)="disabledModalAction($event)"
+		[errorOverride]="!canEditAgreement ? 'Disbaled Due to Locked Agreement' : ''"></disabled-error>
 
 </ng-template>

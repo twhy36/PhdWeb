@@ -20,6 +20,9 @@ $generate-link-background-color: #E4E4E4;
 	border-radius: 5px;
 	background-color: $generate-link-background-color;
 	margin-top: 10px;
+	overflow: hidden;
+  	white-space: normal;
+  	text-overflow: ellipsis;
 }
 
 .phd-line {

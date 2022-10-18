@@ -7,6 +7,7 @@ import {
 	UnsubscribeOnDestroy, flipOver2, isChoiceAttributesComplete, DesignToolAttribute, PointStatus, DecisionPoint,
 	Group, SubGroup, Choice
 } from 'phd-common';
+import { environment } from '../../../../../environments/environment';
 
 import { TreeService } from '../../../core/services/tree.service';
 
@@ -77,7 +78,7 @@ export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implemen
 
 	getImagePath(attr: DesignToolAttribute): string
 	{
-		let imageUrl = 'assets/pultegroup_logo.jpg';
+		let imageUrl = environment.defaultImageURL;
 
 		if (attr.attributeImageUrl)
 		{
@@ -98,7 +99,7 @@ export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implemen
 	 */
 	onLoadImageError(event: any)
 	{
-		event.srcElement.src = 'assets/pultegroup_logo.jpg';
+		event.srcElement.src = environment.defaultImageURL;
 	}
 
 	toggleAttributes(toggleAttribute: boolean)

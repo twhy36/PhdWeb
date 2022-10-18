@@ -353,6 +353,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			// If a new subgroup then get new images
 			if (this.selectedSubgroupId !== newSubGroup.id)
 			{
+				this.selectedSubgroupId = newSubGroup.id;
 				const choiceIds = (_.flatMap(newSubGroup.points, pt => pt.choices) || []).map(c => c.id);
 
 				return this.treeService.getChoiceImageAssoc(choiceIds)
@@ -361,8 +362,6 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 						this.currentChoiceImages = choiceImages;
 					});
 			}
-
-			this.selectedSubgroupId = newSubGroup.id;
 		}
 	}
 

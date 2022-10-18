@@ -189,7 +189,7 @@ export class CommonEffects
 													map(res =>
 													{
 														//add selections from the job into the tree
-														res.job.jobChoices.filter(ch => !result.scenario.scenarioChoices.some(sc => sc.choiceId === ch.dpChoiceId)).forEach(choice =>
+														res.job.jobChoices.filter(ch => !result.scenario.scenarioChoices.some(sc => sc.choice?.choiceCatalogId === ch.divChoiceCatalogId)).forEach(choice =>
 														{
 															const c = _.flatMap(result.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)))
 																.find(ch => ch.divChoiceCatalogId === choice.divChoiceCatalogId);
@@ -720,6 +720,25 @@ export class CommonEffects
 									selectedPlanPrice = { planId: result.selectedPlanId, listPrice: co.jobChangeOrderPlanOptions.find(po => po.action === 'Add' && po.integrationKey === '00001').listPrice };
 								}
 							}
+
+							// Update replaced option price if 
+							// - the option is tracked in the time of sales table 
+							// - the option is linked to a choice in the job which means the option is locked in
+							// - the option does not exist in the job (an option no longer exists in the job when it is replaced by another option)
+							const timeOfSaleOptions = result.job.timeOfSaleOptionPrices?.filter(tos =>
+							{
+								return result.job.jobChoices?.find(jc => jc.divChoiceCatalogId === tos.divChoiceCatalogID)
+									&& !result.job.jobPlanOptions?.find(jpo => jpo.planOptionId === tos.edhPlanOptionID);
+							});
+
+							timeOfSaleOptions?.forEach(tos =>
+							{
+								let option = result.options.find(opt => opt.id === tos.edhPlanOptionID);
+								if (option)
+								{
+									option.listPrice = tos.listPrice;
+								}
+							});
 						}
 
 						// #353697 Update tracked prices if they have changed while the agreement is pending

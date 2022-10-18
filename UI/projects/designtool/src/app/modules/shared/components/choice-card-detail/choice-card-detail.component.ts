@@ -17,6 +17,7 @@ import { AttributeLocationComponent } from '../attribute-location/attribute-loca
 import { ModalOverrideSaveComponent } from '../../../core/components/modal-override-save/modal-override-save.component';
 import { MonotonyConflict } from '../../models/monotony-conflict.model';
 import { AttributeGroupComponent } from '../attribute-group/attribute-group.component';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
 	selector: 'choice-card-detail',
@@ -81,7 +82,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 
 	get carouselImages(): OptionImage[] | ChoiceImageAssoc[]
 	{
-		return this.optionImages ?? this.choiceImages
+		return this.optionImages.length > 0 ? this.optionImages : this.choiceImages
 	}
 
 	constructor(private store: Store<fromRoot.State>,
@@ -124,6 +125,14 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		this.override$.next((!!this.choice.overrideNote));
 	}
 
+	getImageUrl(image: any)
+	{
+		// instanceof didn't work, switched to hasOwnProperty.  Issue OptionImage vs ChoiceImageAssoc imageUrl are typed out differently.  TODO: Must change one of them so they match.
+		let url = image.hasOwnProperty('imageURL') ? image.imageURL : image.imageUrl;
+
+		return url;
+	}
+
 	choiceDescriptionToggle()
 	{
 		this.expandChoiceDescription = !this.expandChoiceDescription;
@@ -159,7 +168,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 
 	displayButton(): boolean
 	{
-		if (!this.choice.enabled || !this.canConfigure || this.optionDisabled || this.choice.isRequired || this.choice.disabledByHomesite || this.choice.disabledByReplaceRules?.length || this.choice.disabledByBadSetup)
+		if (!this.choice.enabled || !this.canConfigure || this.optionDisabled || this.choice.isRequired || this.choice.disabledByHomesite || this.choice.disabledByReplaceRules?.length || this.choice.disabledByBadSetup || this.choice.disabledByRelocatedMapping?.length)
 		{
 			return false;
 		}
@@ -194,7 +203,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		// default to pultegroup image if no choice/option image is found
 		if (!this.choiceImages.length && !this.optionImages.length)
 		{
-			this.optionImages.push({ imageURL: 'assets/pultegroup_logo.jpg' });
+			this.optionImages.push({ imageURL: environment.defaultImageURL });
 		}
 	}
 
@@ -497,7 +506,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 						scenarioChoiceLocationAttributeId: null,
 						sku: attribute.sku,
 						manufacturer: attribute.manufacturer
-					});					
+					});
 				}
 			}
 		});
@@ -529,7 +538,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	{
 		this.imageLoading = false;
 
-		event.srcElement.src = 'assets/pultegroup_logo.jpg';
+		event.srcElement.src = environment.defaultImageURL;
 	}
 
 	onOverride()
