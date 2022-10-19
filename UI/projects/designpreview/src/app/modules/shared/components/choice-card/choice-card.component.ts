@@ -131,8 +131,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnChang
 		this.hiddenChoicePriceModalRef?.close();
 	}
 
-	onBlockedItemClick(pointId: number) {
+	onBlockedItemClick() {
 		this.blockedChoiceModalRef?.close();
-		this.onSelectDecisionPoint.emit({pointId: pointId, fromModal: true});
 	}
 }

@@ -85,8 +85,7 @@ export class ChoiceDeclineCardComponent extends UnsubscribeOnDestroy implements 
 		this.blockedChoiceModalRef?.close();
 	}
 
-	onBlockedItemClick(pointId: number) {
+	onBlockedItemClick() {
 		this.blockedChoiceModalRef?.close();
-		this.onSelectDecisionPoint.emit({pointId: pointId, fromModal: true});
 	}
 }
