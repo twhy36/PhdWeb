@@ -691,7 +691,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 
 		let obs: Observable<boolean>;
 
-		if (choiceToDeselect && adjustedChoices && adjustedChoices.length)
+		if (adjustedChoices && adjustedChoices.length)
 		{
 			obs = this.showOptionMappingAdjustedModal(adjustedChoices);
 		}
