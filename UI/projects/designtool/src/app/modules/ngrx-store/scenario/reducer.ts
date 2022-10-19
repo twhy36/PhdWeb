@@ -333,7 +333,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 						{
 							let deselectedChoice = getChoiceToDeselect(newTree, c);
 
-							if (deselectedChoice)
+							if (deselectedChoice && !choice.cancellingChangeOrder)
 							{
 								deselectedChoice.lockedInOptions = [];
 								deselectedChoice.lockedInChoice = null;
@@ -421,7 +421,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 
 				points.forEach(pt => setPointStatus(pt));
 				subGroups.forEach(sg => setSubgroupStatus(sg));
-				newTree.treeVersion.groups.forEach(g => setGroupStatus(g));				
+				newTree.treeVersion.groups.forEach(g => setGroupStatus(g));
 			}
 
 			return { ...state, tree: newTree, rules: rules };
