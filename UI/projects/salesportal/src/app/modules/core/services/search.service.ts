@@ -211,7 +211,7 @@ export class SearchService
 		return this._http.get<any>(url).pipe(
 			map(response =>
 			{
-				let lots = response.value.filter(lot => lot.jobChangeOrderGroups && lot.jobChangeOrderGroups.filter(cog => cog.salesStatusDescription === 'Signed' || cog.salesStatusDescription === 'Pending' || cog.salesStatusDescription === 'OutforSignature').length > 0);
+				let lots = response.value.filter(lot => lot.jobChangeOrderGroups && lot.jobChangeOrderGroups.filter(cog => cog.salesStatusDescription === 'Signed' || cog.salesStatusDescription === 'Pending' || cog.salesStatusDescription === 'OutforSignature' || cog.salesStatusDescription === 'Rejected' || cog.constructionStatusDescription === 'Pending').length > 0);
 				return lots;
 			}));
 	}

@@ -132,6 +132,10 @@
 					<span>Agreement Status</span>
 					<span>{{ selectedSalesAgreementStatus.join(', ') }}</span>
 				</span>
+				<span class="phd-badge" *ngIf="searchActiveOnly"
+					(click)="edit('searchActiveOnly')">
+					<span>Pending CO</span>
+				</span>
 			</section>
 		</div>
 

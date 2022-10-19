@@ -101,7 +101,7 @@ export class PHDSearchComponent
 	selectedSalesAgreementStatus: Array<string> = [];
 	firstName: string;
 	lastName: string;
-	searchActiveOnly: boolean = true;
+	searchActiveOnly: boolean = false;
 	pendingLotBlocks: Array<string> = [];
 
 	constructor(private cd: ChangeDetectorRef, private _searchService: SearchService) { }
@@ -243,7 +243,6 @@ export class PHDSearchComponent
 			if (this.searchActiveOnly)
 			{
 				filteredLots = results.filter(lot => !!lot.activeChangeOrder);
-				this.searchActiveOnly = false;
 			}
 
 			this.searchResults = filteredLots ? filteredLots : results;
@@ -265,11 +264,18 @@ export class PHDSearchComponent
 
 			if (field && field.length > 0)
 			{
-				// Give it a moemnt to display before trying to set focus on it.
-				setTimeout(t =>
+				if (field === 'searchActiveOnly')
 				{
-					this[field].nativeElement.focus();
-				}, 100);
+					this.searchActiveOnly = false;
+				}
+				else
+				{
+					// Give it a moemnt to display before trying to set focus on it.
+					setTimeout(t =>
+					{
+						this[field].nativeElement.focus();
+					}, 100);
+				}
 			}
 		}
 	}
