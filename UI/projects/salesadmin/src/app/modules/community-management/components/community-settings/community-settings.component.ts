@@ -4,24 +4,16 @@ import { OrganizationService } from '../../../core/services/organization.service
 import { UnsubscribeOnDestroy } from '../../../shared/utils/unsubscribe-on-destroy';
 import { ActivatedRoute } from '@angular/router';
 import { environment } from '../../../../../environments/environment';
-import { FinancialCommunityViewModel, HomeSiteViewModel, PlanViewModel } from '../../../shared/models/plan-assignment.model';
+import { FinancialCommunityViewModel } from '../../../shared/models/plan-assignment.model';
 import { FinancialCommunity } from '../../../shared/models/financialCommunity.model';
-import { map, switchMap } from 'rxjs/operators';
+import { switchMap } from 'rxjs/operators';
 import { FinancialCommunityInfo } from '../../../shared/models/financialCommunity.model';
-import { combineLatest, forkJoin, of } from 'rxjs';
+import { combineLatest, of } from 'rxjs';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { FinancialMarket } from '../../../shared/models/financialMarket.model';
 import { SalesCommunity } from '../../../shared/models/salesCommunity.model';
-import { ContractTemplate } from '../../../shared/models/contracts.model';
-import { CommunityPdf, SectionHeader } from "../../../shared/models/communityPdf.model";
-import { CommunityService } from "../../../core/services/community.service";
-import { ContractService } from '../../../core/services/contract.service';
-import { HomeSiteService } from '../../../core/services/homesite.service';
-import { PlanService } from '../../../core/services/plan.service';
-import { FeatureSwitchService } from 'phd-common';
-import { SalesService } from '../../../core/services/sales.service';
-import { SalesProgram } from '../../../shared/models/salesPrograms.model';
+import { IdentityService, Permission } from 'phd-common';
 
 @Component({
 	selector: 'community-settings',
@@ -36,18 +28,10 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 	salesCommunity: SalesCommunity = null;
 	communitySettingsForm: FormGroup;
 	currentMarket: FinancialMarket;
-	allTemplates: Array<ContractTemplate> = [];
-	allCommunityPdfs: Array<CommunityPdf> = [];
-	homeWarrantyPdfs: Array<CommunityPdf> = [];
-	communityAssociationPdfs: Array<CommunityPdf> = [];
-	additionalDocumentPdfs: Array<CommunityPdf> = [];
-	includedFeaturesPdfs: Array<CommunityPdf> = [];
-	thoContract = null;
 	orgId: number;
 	canEdit = false;
 	isSaving = false;
 	url?: string = null;
-	designPreviewUrl?: string = null;
 	commmunityLinkEnabledDirty = false;
 	previewEnabledDirty = false;
 	canToggleCommunitySettings = false;
@@ -55,13 +39,6 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 	environment = environment;
 	ecoeRequired = false;
 	earnestMoneyRequired = false;
-	requiredThoTemplates = [];
-	requiredPdfs = [];
-	selectedOption = null;
-	loading: boolean = false;
-	isPhdLite = false;
-	salesPrograms:  Array<SalesProgram>;
-	closingCostDisabled: boolean;
 
 	get saveDisabled(): boolean
 	{
@@ -69,9 +46,9 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 			// Disables save if form is invalid and user is not trying to turn on preview
 			|| (!this.communitySettingsForm.valid && !this.previewEnabledDirty)
 			// Disables save if user trys to remove existing value for ecoeMonths
-			|| (this.communitySettingsForm.get('ecoeMonths').invalid && this.communitySettingsForm.get('ecoeMonths').dirty && this.financialCommunityInfo?.defaultECOEMonths != null)
+			|| (this.communitySettingsForm.get('ecoeMonths').invalid && this.communitySettingsForm.get('ecoeMonths').dirty && this.financialCommunityInfo.defaultECOEMonths != null)
 			// Disables save is user trys to remove existing value for earnest money
-			|| (this.communitySettingsForm.get('earnestMoney').invalid && this.communitySettingsForm.get('earnestMoney').dirty && this.financialCommunityInfo?.earnestMoneyAmount != null)
+			|| (this.communitySettingsForm.get('earnestMoney').invalid && this.communitySettingsForm.get('earnestMoney').dirty && this.financialCommunityInfo.earnestMoneyAmount != null)
 			// Disables save if form and toggles are pristine
 			|| (
 				this.communitySettingsForm.pristine
@@ -90,22 +67,11 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 		return this.financialCommunity?.isDesignPreviewEnabled;
 	}
 
-	get plans(): PlanViewModel[]
-	{
-		return this.selectedCommunity ? this.selectedCommunity.plans : [];
-	}
-
 	constructor(
 		public _orgService: OrganizationService,
-		private _salesService: SalesService,
-		private _planService: PlanService,
-		private _homeSiteService: HomeSiteService,
-		private _contractService: ContractService,
-		private _communityService: CommunityService,
 		private _msgService: MessageService,
-		private _route: ActivatedRoute,
-		private _featureSwitchService: FeatureSwitchService) { super(); }
-
+		private _identityService: IdentityService,
+		private _route: ActivatedRoute) { super(); }
 
 	ngOnInit()
 	{
@@ -115,23 +81,16 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 			this.takeUntilDestroyed(),
 		).subscribe(canEdit => this.canEdit = canEdit);
 
+		this._identityService.hasClaimWithPermission('EnableCommunity', Permission.Edit).pipe(
+			this.takeUntilDestroyed(),
+		).subscribe((hasClaim) => { this.canToggleCommunitySettings = hasClaim; });
+
 		combineLatest([this._orgService.currentMarket$, this._orgService.currentCommunity$]).pipe(
 			this.takeUntilDestroyed(),
-			switchMap(([mkt, comm]) => {
-				return this._featureSwitchService.isFeatureEnabled('Phd Lite', { edhMarketId: null, edhFinancialCommunityId: comm.id })
-					.pipe(
-						map((isFeatureEnabled) => {
-							const isPhdLite = !!isFeatureEnabled;
-							return ({ mkt, comm, isPhdLite});
-							})
-						);
-			 }),
-			switchMap(({ mkt, comm, isPhdLite }) =>
+			switchMap(([mkt, comm]) =>
 			{
 				this.currentMarket = mkt;
 				this.financialCommunity = comm;
-				this.isPhdLite = isPhdLite;
-
 				// If we have both a current market and current financialCommunity get orgs needed to get FinancialCommunityinfo
 				if (mkt && comm)
 				{
@@ -149,13 +108,8 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 			{
 				if (comm != null && (!this.selectedCommunity || this.selectedCommunity.id != comm.id))
 				{
-					if (comm.id)
-					{
-						this.checkRequiredFilesExist();
-					}
 					this.orgId = orgs?.find(o => o.edhFinancialCommunityId === comm.id)?.orgID;
 					this.selectedCommunity = new FinancialCommunityViewModel(comm);
-					this.loadPlansAndHomeSites();
 
 					if (this.orgId && comm.salesCommunityId)
 					{
@@ -173,7 +127,6 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 			this.url = (environment.thoUrl && websiteCommunity?.webSiteIntegrationKey)
 				? environment.thoUrl + websiteCommunity.webSiteIntegrationKey
 				: null;
-			this.canToggleCommunitySettings = true;	
 			this.salesCommunity = salesCommunity;
 			this.createForm();
 		}, error =>
@@ -183,84 +136,9 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 			this.createForm();
 			this._msgService.add({ severity: 'error', summary: 'Error', detail: error });
 		});
-		this.checkRequiredFilesExist();
-	}
-	private disableCommunity()
-	{
-		if (this.salesCommunity.isOnlineSalesCommunityEnabled)
-		{
-			this.salesCommunity.isOnlineSalesCommunityEnabled = false;
-			this._orgService.saveSalesCommunity(this.salesCommunity)
-				.subscribe(salesCommunity => {
-					this.salesCommunity.isOnlineSalesCommunityEnabled = salesCommunity.isOnlineSalesCommunityEnabled;
-				});
-		}
 	}
 
-	checkRequiredFilesExist()
-	{
-		if (this.financialCommunity && this.currentMarket)
-		{
-			combineLatest([this._communityService.getCommunityPdfsByFinancialCommunityId(this.financialCommunity.id), this._contractService.getDraftOrInUseContractTemplates(this.currentMarket.id), this._salesService.getSalesPrograms(this.financialCommunity.id) ])
-				.subscribe(([pdfs, templates, salesProgram]) => {
-					this.allCommunityPdfs = pdfs;
-
-					this.requiredPdfs = [
-						{
-							pdfs: pdfs.filter(x => x.sectionHeader === SectionHeader.HomeWarranty),
-							message: '*Include: Home Warranty Documents'
-						},
-						{
-							pdfs: pdfs.filter(x => x.sectionHeader === SectionHeader.AdditionalDocuments),
-							message: '*Include: Included Features Documents'
-						},
-						{
-							pdfs: pdfs.filter(x => x.sectionHeader === SectionHeader.CommunityAssociation),
-							message: '*Include: Community Association Documents'
-						},
-						{
-							pdfs: pdfs.filter(x => x.sectionHeader === SectionHeader.IncludedFeatures),
-							message: '*Include: Additional Documents'
-						}
-					];
-
-					this.allTemplates = templates;
-
-					let thoTemplates = this.allTemplates.filter(x => x.assignedCommunityIds.includes(this.financialCommunity.id)).filter(x => x.isTho == true).filter(x => x.status === 'In Use');
-
-					this.requiredThoTemplates = [
-						{
-							thoTemplate: thoTemplates.filter(x => x.templateTypeId == 1),
-							message: '*Include: Sales Agreement Contract'
-						},
-						{
-							thoTemplate: thoTemplates.filter(x => x.templateTypeId == 2),
-							message: '*Include: Addenda Contract',
-						},
-						{
-							thoTemplate: thoTemplates.filter(x => x.templateTypeId == 5),
-							message: '*Include: To Do Business Electronically Contract',
-						}
-					];
-
-					this.salesPrograms = salesProgram;
-
-					this.closingCostDisabled = !this.salesPrograms.some(sp => sp.salesProgramType.toString() === 'BuyersClosingCost' && sp.isWebSaleable);
-
-					if (this.requiredPdfs.find(x => x.pdfs.length === 0) || this.requiredThoTemplates.find(x => x.thoTemplate.length === 0) || this.closingCostDisabled)
-					{
-						this.canToggleCommunitySettings = false;
-						this.disableCommunity();
-					}
-					else if (!this.communitySettingsForm.get('ecoeMonths').value || !this.communitySettingsForm.get('earnestMoney').value)
-					{
-						this.disableCommunity();
-					}
-				});
-		}
-	}
-
-	toggleCommunityLinkEnabled() 
+	toggleCommunityLinkEnabled()
 	{
 		if (this.communitySettingsForm.get('ecoeMonths').value && this.communitySettingsForm.get('earnestMoney').value)
 		{
@@ -268,7 +146,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 			this.earnestMoneyRequired = false;
 			this.commmunityLinkEnabledDirty = !this.commmunityLinkEnabledDirty;
 			this.salesCommunity.isOnlineSalesCommunityEnabled = !this.salesCommunity.isOnlineSalesCommunityEnabled;
-		} 
+		}
 		else if (this.communitySettingsForm.get('earnestMoney').value)
 		{
 			this.ecoeRequired = true;
@@ -279,7 +157,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 			this.earnestMoneyRequired = true;
 			this.communitySettingsForm.get('earnestMoney').markAsDirty();
 		}
-		else 
+		else
 		{
 			this.ecoeRequired = true;
 			this.earnestMoneyRequired = true;
@@ -312,7 +190,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 	save()
 	{
 		this.isSaving = true;
-		if ((this.communitySettingsForm.dirty || this.commmunityLinkEnabledDirty) && this.communitySettingsForm.valid)
+		if ((this.communitySettingsForm.dirty || this.commmunityLinkEnabledDirty || this.previewEnabledDirty) && this.communitySettingsForm.valid)
 		{
 			let ecoeMonths = this.communitySettingsForm.get('ecoeMonths').value;
 			let earnestMoney = this.communitySettingsForm.get('earnestMoney').value;
@@ -333,6 +211,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 			combineLatest([
 				this._orgService.saveFinancialCommunityInfo(this.financialCommunityInfo, this.orgId),
 				this._orgService.saveSalesCommunity(this.salesCommunity),
+				this._orgService.saveFinancialCommunity(this.financialCommunity)
 			]).subscribe(() =>
 				{
 					this.isSaving = false;
@@ -348,8 +227,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 					this._msgService.add({ severity: 'error', summary: 'Error', detail: `Save failed. ${error}` });
 				});
 		}
-
-		if (this.previewEnabledDirty)
+		else if (this.previewEnabledDirty)
 		{
 			// Still want to be able to enable preview when the form is invalid
 			this._orgService.saveFinancialCommunity(this.financialCommunity).subscribe(() =>
@@ -367,66 +245,6 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 					this._msgService.add({ severity: 'error', summary: 'Error', detail: `Save failed. ${error}` });
 				});
 		}
-
-	}
-
-	enableDesignPreviewBox()
-	{
-		return environment.selectedCommunityWhitelist.includes(this.currentMarket.id);
-	}
-
-	generateDesignPreviewLink(planId: number) 
-	{
-		this._planService.getDesignPreviewLink(planId).pipe(
-			this.takeUntilDestroyed(),
-		).subscribe(link => {
-			this.designPreviewUrl = link;
-		},
-		error => {
-			const msg = 'Error: Unable to Generate link!';
-			this._msgService.add({ severity: 'error', summary: msg, detail: error });
-		});
-	}
-
-	copyToClipboard(text: string) {
-		navigator.clipboard.writeText(text);
-	}
-
-	private loadPlansAndHomeSites()
-	{
-		
-		let fc = this.selectedCommunity;
-		
-		if (!fc.inited)
-		{
-			this.loading = true;
-			const commId = fc.id;
-
-			// get promise of homesites for the financial community
-			const lotDtosObs = this._homeSiteService.getCommunityHomeSites(commId);
-
-			// get promise plans for the financial community
-			let plansObs = this._planService.getCommunityPlans(commId);
-
-			let obs = forkJoin(lotDtosObs, plansObs).pipe(map(([lotDto, plansDto]) =>
-			{
-
-				fc.lots = lotDto.filter(l => l.lotStatusDescription !== "Closed").map(l => new HomeSiteViewModel(l, fc.dto)).sort(HomeSiteViewModel.sorter);
-				fc.plans = plansDto.map(p => new PlanViewModel(p, fc)).sort(PlanViewModel.sorter);
-
-				// add lots to plans
-				fc.plans.forEach(p =>
-				{
-					p.lots = fc.lots.filter(l => l.plans.some(lp => lp === p.id))
-				});
-			}));
-
-			obs.subscribe(() =>
-			{
-				fc.inited = true;
-
-				this.loading = false;
-			});
-		}
 	}
 }
+

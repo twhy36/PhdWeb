@@ -6,7 +6,7 @@ import {
 	MyFavoritesChoice
 } from 'phd-common';
 
-import { ErrorAction, ErrorFrom } from './error.action';
+import { ErrorAction } from './error.action';
 import { Stopwatch } from './stopwatch';
 
 export enum CommonActionTypes {
@@ -14,11 +14,15 @@ export enum CommonActionTypes {
 	SalesAgreementLoaded = 'Sales Agreement Loaded',
 	ResetFavorites = 'Reset Favorites',
 	MyFavoritesChoiceAttributesDeleted = 'My Favorites Choices Attributes Deleted',
-    LoadError = 'Load Error',
-	PageNotFound = 'Page Not Found',
-	SetLatestError = 'Set Latest Error',
-	ClearLatestError = 'Clear Latest Error'
+    LoadError = 'Load Error'
 };
+
+export class LoadError extends ErrorAction
+{
+	readonly type = CommonActionTypes.LoadError;
+
+	constructor(public error: Error, public friendlyMessage?: string) { super(error, friendlyMessage); }
+}
 
 @Stopwatch([CommonActionTypes.SalesAgreementLoaded, CommonActionTypes.LoadError])
 export class LoadSalesAgreement implements Action
@@ -68,14 +72,4 @@ export class MyFavoritesChoiceAttributesDeleted implements Action
 	readonly type = CommonActionTypes.MyFavoritesChoiceAttributesDeleted;
 
 	constructor(public attributes: DesignToolAttribute[], public locations: DesignToolAttribute[], public myFavoritesChoice: MyFavoritesChoice) {	}
-}
-
-export class LoadError extends ErrorAction
-{
-	readonly type = CommonActionTypes.LoadError;
-
-	constructor(public error: Error, 
-		public friendlyMessage?: string,
-		public errFrom?: string) 
-	{ super(error, friendlyMessage, errFrom); }
 }

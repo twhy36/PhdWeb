@@ -1,15 +1,14 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Action, Store } from '@ngrx/store';
-import { from, Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { switchMap, withLatestFrom } from 'rxjs/operators';
 
 import { LotService } from '../../core/services/lot.service';
 import { LotActionTypes, LoadLots, LotsLoaded, LoadError } from './actions';
-import { ErrorFrom, tryCatch } from '../error.action';
+import { tryCatch } from '../error.action';
 
 import * as fromRoot from '../reducers';
-import { ShowTermsAndConditionsModal } from '../app/actions';
 
 @Injectable()
 export class LotEffects
@@ -30,10 +29,8 @@ export class LotEffects
 
 					return this.lotService.loadLots(action.salesCommunityId, selectedLotId, false);
 				}),
-				switchMap(results => <Observable<Action>>from([
-					new LotsLoaded(results), new ShowTermsAndConditionsModal(true)
-				]))
-			), LoadError, "Error loading lots!!", ErrorFrom.LoadLots)
+				switchMap(results => of(new LotsLoaded(results)))
+			), LoadError, "Error loading lots!!")
 		);
 	});
 }

@@ -1,5 +1,4 @@
-<!-- Current UI -->
-<div *ngIf="environment.production" class="phd-tab-container">
+<div class ="phd-tab-container">
 	<div class="phd-tab-body">
 		<div class="phd-settings-container" *ngIf="financialCommunity; else noCommunityMessage">
 			<form [formGroup]="communitySettingsForm">
@@ -33,7 +32,7 @@
 							<div class="font-weight-bold">Set THO Earnest Money amount here:</div>
 						</div>
 						<div class="phd-input-line">
-							<div class="form-group" [formGroup]="communitySettingsForm">
+							<div class="form-group">
 								<label class="font-weight-bold">$</label>
 								<input type="number" [inputFilter]="'^[0-9]*$'" class="form-control phd-earnest-money-input" [ngClass]="{'phd-error': earnestMoneyRequired}" id="earnest-money" formControlName="earnestMoney" maxlength="5" [required]="earnestMoneyRequired" />
 								<span class="text-danger"
@@ -57,7 +56,7 @@
 					</div>
 				</div>
 			</form>
-			<div class="phd-box-background" *ngIf="!!url" [formGroup]="communitySettingsForm">
+			<div class="phd-box-background" *ngIf="!!url">
 				<div class="phd-box">
 					<div class="phd-line">
 						<div class="font-weight-bold">Enable THO Community Link for Sales Consultants Only</div>
@@ -71,16 +70,6 @@
 						<div class="phd-line">
 							<a class="btn-link" [href]="url" target="_blank" rel="noopener noreferrer">{{ url }}</a>
 						</div>
-						<div *ngFor="let requiredPdf of requiredPdfs">
-							<div class="text-danger" *ngIf="requiredPdf.pdfs == 0">
-							   {{ requiredPdf.message }}
-							</div>
-						</div>
-						<div *ngFor="let requiredThoTemplate of requiredThoTemplates">
-							<div class="text-danger" *ngIf="requiredThoTemplate.thoTemplate == 0" >
-								{{ requiredThoTemplate.message }}
-							</div>
-						</div>
 					</div>
 				</div>
 			</div>
@@ -90,6 +79,7 @@
 						<div class="font-weight-bold">Enable Design Preview for Community</div>
 						<div class="col-md">
 							<button class="btn btn-sm btn-toggle btn-auto-approval"
+									[disabled]="!canToggleCommunitySettings"
 									[ngClass]="{'active': !isPreviewEnabled, 'btn-success': isPreviewEnabled, 'btn-secondary': !isPreviewEnabled}"
 									(click)="togglePreviewEnabled()">
 							</button>
@@ -104,152 +94,9 @@
 				</button>
 			</div>
 		</div>
+
+		<ng-template #noCommunityMessage>
+			<p class="phd-no-community">Please select a community.</p>
+		</ng-template>
 	</div>
 </div>
-
-<!-- New UI -->
-<div *ngIf="!environment.production" class="phd-tab-container">
-	<div class="phd-tab-body-beta">
-		<div class="phd-settings-container" *ngIf="financialCommunity; else noCommunityMessage">
-            <div class="phd-settings-header">THO Settings</div>
-			<form [formGroup]="communitySettingsForm">
-				<div class="phd-box-background phd-center">
-					<div class="phd-box">
-						<div class="phd-line">
-							<div class="font-weight-bold">THO ECOE date for Dirt Sale:</div>
-						</div>
-						<div class="phd-line">
-							<label class="font-weight-bold">Purchase Date +</label>
-							<input class="form-control phd-ecoe-input" [ngClass]="{'phd-error': ecoeRequired}" id="ecoe-months" type="number" formControlName="ecoeMonths" min="1" max="15" />
-							<label class="font-weight-bold">Months</label>
-							<span class="text-danger"
-								  *ngIf="communitySettingsForm.controls.ecoeMonths.invalid && communitySettingsForm.controls.ecoeMonths.dirty && communitySettingsForm.controls.ecoeMonths.errors.required">
-								Invalid: ECOE months required
-							</span>
-							<span class="text-danger"
-								  *ngIf="communitySettingsForm.controls.ecoeMonths.invalid && communitySettingsForm.controls.ecoeMonths.dirty && communitySettingsForm.controls.ecoeMonths.errors.min">
-								Invalid: ECOE Date must be at least 1 Month.
-							</span>
-							<span class="text-danger"
-								  *ngIf="communitySettingsForm.controls.ecoeMonths.invalid && communitySettingsForm.controls.ecoeMonths.dirty && communitySettingsForm.controls.ecoeMonths.errors.max">
-								Invalid: ECOE Date must be 15 Months or less.
-							</span>
-						</div>
-					</div>
-				</div>
-				<div class="phd-box-background phd-center">
-					<div class="phd-box">
-						<div class="phd-line">
-							<div class="font-weight-bold">Set THO Earnest Money amount here:</div>
-						</div>
-						<div class="phd-input-line">
-							<div class="form-group" [formGroup]="communitySettingsForm">
-								<label class="font-weight-bold">$</label>
-								<input type="number" [inputFilter]="'^[0-9]*$'" class="form-control phd-earnest-money-input" [ngClass]="{'phd-error': earnestMoneyRequired}" id="earnest-money" formControlName="earnestMoney" maxlength="5" [required]="earnestMoneyRequired" />
-								<span class="text-danger"
-									  *ngIf="communitySettingsForm.controls.earnestMoney.invalid && communitySettingsForm.controls.earnestMoney.dirty && communitySettingsForm.controls.earnestMoney.errors.required">
-									Invalid: Earnest Money required
-								</span>
-								<span class="text-danger"
-									  *ngIf="communitySettingsForm.controls.earnestMoney.invalid && communitySettingsForm.controls.earnestMoney.dirty && communitySettingsForm.controls.earnestMoney.errors.min">
-									Invalid: Earnest Money must be at least $0
-								</span>
-								<span class="text-danger"
-									  *ngIf="communitySettingsForm.controls.earnestMoney.invalid && communitySettingsForm.controls.earnestMoney.dirty && communitySettingsForm.controls.earnestMoney.errors.max">
-									Invalid: Earnest Money must be less than $100,000
-								</span>
-								<span class="text-danger"
-									  *ngIf="communitySettingsForm.controls.earnestMoney.invalid && communitySettingsForm.controls.earnestMoney.dirty && communitySettingsForm.controls.earnestMoney.errors.pattern">
-									Invalid: Earnest Money must use valid digits
-								</span>
-							</div>
-						</div>
-					</div>
-				</div>
-			</form>
-			<div class="phd-box-background" *ngIf="!!url" [formGroup]="communitySettingsForm">
-				<div class="phd-box">
-					<div class="phd-line">
-						<div class="font-weight-bold">Enable THO Community Link for Sales Consultants Only</div>
-						<div class="col-md">
-							<button class="btn btn-sm btn-toggle btn-auto-approval"
-									[disabled]="!canToggleCommunitySettings"
-									[ngClass]="{'active': !isCommunityLinkEnabled, 'btn-success': isCommunityLinkEnabled, 'btn-secondary': !isCommunityLinkEnabled}"
-									(click)="toggleCommunityLinkEnabled()">
-							</button>
-						</div>
-						<div class="phd-line">
-							<a class="btn-link" [href]="url" target="_blank" rel="noopener noreferrer">{{ url }}</a>
-						</div>
-						<div *ngFor="let requiredPdf of requiredPdfs">
-							<div class="text-danger" *ngIf="requiredPdf.pdfs == 0">
-							   {{ requiredPdf.message }}
-							</div>
-						</div>
-						<div *ngFor="let requiredThoTemplate of requiredThoTemplates">
-							<div class="text-danger" *ngIf="requiredThoTemplate.thoTemplate == 0" >
-								{{ requiredThoTemplate.message }}
-							</div>
-						</div>
-						<div>
-							<div class="text-danger" *ngIf="closingCostDisabled">
-								<p>Please Add Closing cost</p>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-
-        <div class="phd-settings-container" *ngIf="financialCommunity">
-            <div class="phd-settings-header">Design Preview Settings</div>
-			<div class="phd-box-background">
-				<div class="phd-box">
-					<div class="phd-line">
-						<div class="font-weight-bold">Enable Design Preview Post-Contract</div>
-						<div class="col-md">
-							<button class="btn btn-sm btn-toggle btn-auto-approval"
-									[disabled]="isPhdLite"
-									[ngClass]="{'active': !isPreviewEnabled, 'btn-success': isPreviewEnabled, 'btn-secondary': !isPreviewEnabled}"
-									(click)="togglePreviewEnabled()">
-							</button>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div class="phd-box-background" *ngIf="enableDesignPreviewBox()">
-				<div class="phd-box">
-					<div class="phd-line">
-						<div class="font-weight-bold">Design Preview Pre-Sale Link by Plan</div>
-						<select class="form-control ml-1" [(ngModel)]="selectedOption" [disabled]="isPhdLite">
-							<option [ngValue]="null" disabled="true" selected>Choose a Plan</option>
-                            <option *ngFor="let plan of plans" [ngValue]="plan">{{ plan.displayName }}</option>
-						</select>
-                        <br />
-						<button *ngIf="!!selectedOption" class="btn btn-primary phd-btn-save" (click)="generateDesignPreviewLink(selectedOption.id)">
-							Generate Link
-							<ng-container *ngIf="isSaving"><i class="fa fa-spinner fa-spin fa-fw"></i></ng-container>
-						</button>
-						<div class="phd-link-box phd-line">
-							<a class="btn-link" [href]="designPreviewUrl" target="_blank" rel="noopener noreferrer">{{ designPreviewUrl }}</a>
-                            <button class="phd-copy-image" (click)="copyToClipboard(designPreviewUrl)">
-                                <i class="fa fa-copy fa-thin"></i>
-                            </button>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-
-    <div class="phd-save-button phd-center" *ngIf="canEdit">
-        <button class="btn btn-primary phd-btn-save" (click)="save();" [disabled]="saveDisabled">
-            Save
-            <ng-container *ngIf="isSaving"><i class="fa fa-spinner fa-spin fa-fw"></i></ng-container>
-        </button>
-    </div>
-</div>
-
-<ng-template #noCommunityMessage>
-	<p class="phd-no-community">Please select a community.</p>
-</ng-template>

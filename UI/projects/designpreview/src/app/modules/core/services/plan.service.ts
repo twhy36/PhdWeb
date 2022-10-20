@@ -70,7 +70,7 @@ export class PlanService
 			{
 				let plan = this.mapPlan(resp.value[0]);
 
-				return this.optionService.getPlanOptions(plan.id, optionIds)
+				return this.optionService.getPlanOptions(plan.id, optionIds, true)
 					.pipe(
 						map(optionsResponse =>
 						{

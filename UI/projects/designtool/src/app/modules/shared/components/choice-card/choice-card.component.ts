@@ -8,10 +8,10 @@ import { combineLatest, switchMap, map, withLatestFrom, distinctUntilChanged } f
 import { Store, select } from '@ngrx/store';
 
 import
-{
-	UnsubscribeOnDestroy, flipOver3, ModalRef, LocationGroup, AttributeGroup, DesignToolAttribute, ChangeTypeEnum, ChangeOrderGroup,
-	LotExt, Plan, Choice, OptionImage, DecisionPoint, ChoiceImageAssoc, ModalService
-} from 'phd-common';
+	{
+		UnsubscribeOnDestroy, flipOver3, ModalRef, LocationGroup, AttributeGroup, DesignToolAttribute, ChangeTypeEnum, ChangeOrderGroup,
+		LotExt, Plan, Choice, OptionImage, DecisionPoint, ChoiceImageAssoc, ModalService
+	} from 'phd-common';
 
 import { MonotonyConflict } from '../../models/monotony-conflict.model';
 import { ModalOverrideSaveComponent } from '../../../core/components/modal-override-save/modal-override-save.component';
@@ -116,7 +116,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 
 	get showDisabledButton(): boolean
 	{
-		return (this.choice && (!this.choice.enabled || this.choice.disabledByHomesite || this.choice.disabledByReplaceRules?.length || this.choice.disabledByBadSetup || this.choice.disabledByRelocatedMapping?.length) || this.currentDecisionPoint && !this.currentDecisionPoint.enabled || this.optionDisabled) && !this.choice.lockedInChoice;
+		return (this.choice && (!this.choice.enabled || this.choice.disabledByHomesite || this.choice.disabledByRelocatedMapping?.length) || this.currentDecisionPoint && !this.currentDecisionPoint.enabled || this.optionDisabled) && !this.choice.lockedInChoice;
 	}
 
 	get showRequiredButton(): boolean
@@ -126,7 +126,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 
 	get showConfirmButton(): boolean
 	{
-		return ((this.choice && this.choice.enabled && this.currentDecisionPoint && this.currentDecisionPoint.enabled && !this.optionDisabled && !this.choice.isRequired && !this.choice.disabledByHomesite && !this.choice.disabledByReplaceRules?.length && !this.choice.disabledByBadSetup && !this.choice.disabledByRelocatedMapping?.length) || this.choice.lockedInChoice)
+		return ((this.choice && this.choice.enabled && this.currentDecisionPoint && this.currentDecisionPoint.enabled && !this.optionDisabled && !this.choice.isRequired && !this.choice.disabledByHomesite && !this.choice.disabledByRelocatedMapping?.length) || this.choice.lockedInChoice)
 			&& (!this.monotonyConflict.monotonyConflict || this.canOverride)
 			&& this.canConfigure;
 	}
@@ -249,10 +249,10 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 				});
 			}
 		},
-			error =>
-			{
-				this.loadingAttributeImage = false;
-			});
+		error =>
+		{
+			this.loadingAttributeImage = false;
+		});
 
 		this.override$.next((!!this.choice.overrideNote));
 
@@ -335,7 +335,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 		).subscribe(([choices, isDesignPreviewEnabled]) =>
 		{
 			this.isFavorite = isDesignPreviewEnabled
-				&& !!choices?.find(c => c.divChoiceCatalogId === this.choice.divChoiceCatalogId);
+					&& !!choices?.find(c => c.divChoiceCatalogId === this.choice.divChoiceCatalogId);
 		});
 
 		// trigger attributeGroups observable in the init.

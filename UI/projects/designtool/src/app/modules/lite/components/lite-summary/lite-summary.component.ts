@@ -6,13 +6,13 @@ import { Store, select } from '@ngrx/store';
 import * as _ from "lodash";
 
 import
-{
-	UnsubscribeOnDestroy, PriceBreakdown, ChangeTypeEnum,
-	ChangeOrderHanding, ModalService, SummaryData, BuyerInfo,
-	PDFViewerComponent, SDGroup, SDSubGroup, SDPoint,
-	SDChoice, ScenarioOption,
-	PriceBreakdownType
-} from 'phd-common';
+	{
+		UnsubscribeOnDestroy, PriceBreakdown, ChangeTypeEnum,
+		ChangeOrderHanding, ModalService, SummaryData, BuyerInfo,
+		PDFViewerComponent, SDGroup, SDSubGroup, SDPoint,
+		SDChoice, ScenarioOption,
+		PriceBreakdownType
+	} from 'phd-common';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
@@ -506,10 +506,10 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 				pdfViewer.componentInstance.pdfData = pdfData;
 				pdfViewer.componentInstance.pdfBaseUrl = `${environment.pdfViewerBaseUrl}`;
 			},
-				error =>
-				{
-					this._toastr.error(`There was an issue generating ${reportType} configuration.`, 'Error - Print Configuration');
-				});
+			error =>
+			{
+				this._toastr.error(`There was an issue generating ${reportType} configuration.`, 'Error - Print Configuration');
+			});
 	}
 
 	getPriceListReportData(): SummaryData
@@ -642,8 +642,6 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 						priceHiddenFromBuyerView: false,
 						isRequired: false,
 						disabledByHomesite: false,
-						disabledByReplaceRules: [],
-						disabledByBadSetup: false,
 						disabledByRelocatedMapping: []
 					}));
 				});
@@ -786,8 +784,6 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 										priceHiddenFromBuyerView: false,
 										isRequired: false,
 										disabledByHomesite: false,
-										disabledByReplaceRules: [],
-										disabledByBadSetup: false,
 										disabledByRelocatedMapping: []
 									}));
 							});

@@ -4,7 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable ,  throwError as _throw } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
-import { FinancialCommunity, SalesCommunity, withSpinner } from 'phd-common';
+import { FinancialCommunity, SalesCommunity } from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
 
@@ -27,7 +27,7 @@ export class OrganizationService
 
 		const url = `${environment.apiUrl}${entity}?${qryStr}`;
 
-		return withSpinner(this._http).get<any>(url).pipe(
+		return this._http.get<any>(url).pipe(
 			map(response =>
 			{
 				var value = response.value[0];
@@ -57,7 +57,7 @@ export class OrganizationService
 
 		const url = `${environment.apiUrl}${entity}?${qryStr}`;
 
-		return withSpinner(this._http).get<any>(url).pipe(
+		return this._http.get<any>(url).pipe(
 			map(response =>
 			{
 				var value = response.value[0];

@@ -38,8 +38,7 @@ import { SummaryHeader, SummaryHeaderComponent } from './summary-header/summary-
 import { GroupExt } from '../../../shared/models/group-ext.model';
 import { AdobeService } from '../../../core/services/adobe.service';
 import { BuildMode } from '../../../shared/models/build-mode.model';
-
-import { InfoModalComponent } from '../../../shared/components/info-modal/info-modal.component';
+import { EmptyFavoritesModalComponent } from '../../../shared/components/empty-favorites-modal/empty-favorites-modal.component';
 
 @Component({
 	selector: 'favorites-summary',
@@ -519,7 +518,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		};
 
 
-		let emptyFavoritesModal = this.modalService.open(InfoModalComponent, ngbModalOptions);
+		let emptyFavoritesModal = this.modalService.open(EmptyFavoritesModalComponent, ngbModalOptions);
 
 		emptyFavoritesModal.componentInstance.title = 'Ooops. No options have been selected';
 		emptyFavoritesModal.componentInstance.body = `

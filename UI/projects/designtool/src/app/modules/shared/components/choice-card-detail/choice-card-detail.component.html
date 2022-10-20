@@ -33,24 +33,17 @@
 			</div>
 
 			<div class="phd-choice-content">
-				<div *ngIf="choiceDescriptions.length && !optionDisabled" class="phd-choice-description"
-					[class.phd-choice-description-full]="!this.optionDisabled && !hasQuantityLocationsAttributes"
-					[class.phd-choice-description-half]="!this.optionDisabled && expandChoiceDescription && hasQuantityLocationsAttributes">
+				<div *ngIf="choiceDescriptions.length && !optionDisabled" class="phd-choice-description" [class.phd-choice-description-full]="!this.optionDisabled && !hasQuantityLocationsAttributes" [class.phd-choice-description-half]="!this.optionDisabled && expandChoiceDescription && hasQuantityLocationsAttributes">
 					<div *ngFor="let description of choiceDescriptions">{{ description }}</div>
 				</div>
 
-				<div *ngIf="!this.optionDisabled && showChoiceDescriptionExpand && hasQuantityLocationsAttributes"
-					class="phd-choice-description-expand" (click)="choiceDescriptionToggle()">{{ expandChoiceDescription
-					? 'Show Less' : 'Show More' }}...</div>
+				<div *ngIf="!this.optionDisabled && showChoiceDescriptionExpand && hasQuantityLocationsAttributes" class="phd-choice-description-expand" (click)="choiceDescriptionToggle()">{{ expandChoiceDescription ? 'Show Less' : 'Show More' }}...</div>
 
 				<ng-container *ngIf="choice?.maxQuantity > 1 && !optionDisabled">
 					<div class="mt-auto align-self-left">
 						<span class="text-right">
 							Qty
-							<quantity-input [min]="quantityMin" [max]="choice?.maxQuantity"
-								[quantity]="choice?.quantity" (quantityChange)="changeSelectedQuantity($event)"
-								[canEditAgreement]="canEditAgreement && (!isPastCutOff || overrideReason) && canConfigure && choice.enabled">
-							</quantity-input>
+							<quantity-input [min]="quantityMin" [max]="choice?.maxQuantity" [quantity]="choice?.quantity" (quantityChange)="changeSelectedQuantity($event)" [canEditAgreement]="canEditAgreement && (!isPastCutOff || overrideReason) && canConfigure && choice.enabled"></quantity-input>
 							Max {{choice?.maxQuantity}}
 						</span>
 					</div>
@@ -60,32 +53,38 @@
 					</div>
 				</ng-container>
 
-				<div class="phd-attr-loc-group-container"
-					*ngIf="!optionDisabled && (locationGroups?.length || (!locationGroups?.length && attributeGroups?.length))">
+				<div class="phd-attr-loc-group-container" *ngIf="!optionDisabled && (locationGroups?.length || (!locationGroups?.length && attributeGroups?.length))">
 					<div *ngIf="locationGroups?.length" class="d-flex flex-column w-100">
 						<ng-container *ngFor="let group of locationGroups">
 							<div *ngFor="let attributeLocation of group.locations" class="phd-attribute-location-body">
-								<attribute-location [choice]="choice" [attributeLocation]="attributeLocation"
-									[attributeLocationGroup]="group" [attributeGroups]="attributeGroups"
-									[canEditAgreement]="canEditAgreement && canConfigure"
-									[maxQuantity]="getLocationMaxQuantity(attributeLocation.id)"
-									[isPastCutOff]="isPastCutOff" [canOverride]="canOverride"
-									[overrideReason]="overrideReason" [monotonyConflict]="monotonyConflict"
-									[favoriteChoiceLocations]="favoriteChoiceLocations"
-									(onAttributeLocationChanged)="attributeLocationChanged($event)">
+								<attribute-location [choice]="choice"
+													[attributeLocation]="attributeLocation"
+													[attributeLocationGroup]="group"
+													[attributeGroups]="attributeGroups"
+													[canEditAgreement]="canEditAgreement && canConfigure"
+													[maxQuantity]="getLocationMaxQuantity(attributeLocation.id)"
+													[isPastCutOff]="isPastCutOff"
+													[canOverride]="canOverride"
+													[overrideReason]="overrideReason"
+													[monotonyConflict]="monotonyConflict"
+													[favoriteChoiceLocations]="favoriteChoiceLocations"
+													(onAttributeLocationChanged)="attributeLocationChanged($event)">
 								</attribute-location>
 							</div>
 						</ng-container>
 					</div>
 
-					<div *ngIf="!optionDisabled && (!locationGroups?.length && attributeGroups?.length)"
-						class="d-flex flex-column w-100">
+					<div *ngIf="!optionDisabled && (!locationGroups?.length && attributeGroups?.length)" class="d-flex flex-column w-100">
 						<attribute-group [selectedAttributes]="choice?.selectedAttributes"
-							[attributeGroups]="attributeGroups" [isActive]="true" [isPastCutOff]="isPastCutOff"
-							[canEditAgreement]="canEditAgreement" [canOverride]="canOverride"
-							[overrideReason]="overrideReason" [monotonyConflict]="monotonyConflict"
-							[favoriteChoiceAttributes]="favoriteChoiceAttributes"
-							(onAttributeGroupSelected)="attributeGroupSelected()">
+										 [attributeGroups]="attributeGroups"
+										 [isActive]="true"
+										 [isPastCutOff]="isPastCutOff"
+										 [canEditAgreement]="canEditAgreement"
+										 [canOverride]="canOverride"
+										 [overrideReason]="overrideReason"
+										 [monotonyConflict]="monotonyConflict"
+										 [favoriteChoiceAttributes]="favoriteChoiceAttributes"
+										 (onAttributeGroupSelected)="attributeGroupSelected()">
 						</attribute-group>
 					</div>
 				</div>
@@ -95,15 +94,13 @@
 
 	<div class="d-flex flex-column align-items-center phd-card-detail-footer">
 		<span *ngIf="isFavorite" class="phd-favorite-icon"><i class="fa fa-heart"></i></span>
-		<div class="d-flex flex-column justify-content-center align-items-center">
-			<button *ngIf="displayButton()" type="button"
-				class="btn phd-experience-btn-choice mt-auto align-self-center" [class.selected]="choice?.quantity > 0"
-				(click)="toggleSelection()" [disabled]="buttonDisabled" [class.phd-disable-hovering]="buttonDisabled">
+		<div class="d-flex flex-column justify-content-center align-items-center" >
+			<button *ngIf="displayButton()" type="button" class="btn phd-experience-btn-choice mt-auto align-self-center" [class.selected]="choice?.quantity > 0" (click)="toggleSelection()" [disabled]="buttonDisabled" [class.phd-disable-hovering]="buttonDisabled">
 				{{getButtonLabel()}}
 			</button>
 		</div>
 
-		<div *ngIf="optionDisabled"> Choice Is No Longer Available </div>
+		<div *ngIf="optionDisabled">  Choice Is No Longer Available </div>
 		<div class="phd-monotony-conflict-message" *ngIf="hasMonotonyConflict && !(override$ | async)">
 			Monotony Conflict
 		</div>
@@ -118,8 +115,7 @@
 			<i class="fas fa-info-circle fa-sm"></i> {{disabledMessage}}
 		</div>
 
-		<div *ngIf="((!isPastCutOff || canOverride) && !choice.enabled) || optionDisabled || choice?.disabledByHomesite || choice?.isRequired || choice?.disabledByReplaceRules?.length || choice?.disabledByBadSetup"
-			class="phd-past-cutt-off phd-clickable" (click)="!optionDisabled && onShowDisabledMessage()">
+		<div *ngIf="((!isPastCutOff || canOverride) && !choice.enabled) || optionDisabled || choice?.disabledByHomesite || choice?.isRequired" class="phd-past-cutt-off phd-clickable" (click)="!optionDisabled && onShowDisabledMessage()">
 			<i class="fas fa-info-circle fa-sm"></i> {{choice?.isRequired ? 'Required' : 'Disabled'}}
 		</div>
 	</div>

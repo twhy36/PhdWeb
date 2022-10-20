@@ -5,7 +5,7 @@ import { Observable, of } from 'rxjs';
 import { switchMap, map, combineLatest } from 'rxjs/operators';
 
 import { PlanActionTypes, LoadSelectedPlan, SelectedPlanLoaded, LoadError } from './actions';
-import { ErrorFrom, tryCatch } from '../error.action';
+import { tryCatch } from '../error.action';
 
 import { PlanService } from '../../core/services/plan.service';
 import { TreeService } from '../../core/services/tree.service';
@@ -74,7 +74,7 @@ export class PlanEffects
 				switchMap(plans => {
 					return <Observable<Action>>of(new SelectedPlanLoaded(plans));
 				})
-			), LoadError, "Error loading selected plan!!", ErrorFrom.LoadSelectedPlan)
+			), LoadError, "Error loading selected plan!!")
 		);
 	});
 }

@@ -42,7 +42,7 @@ export class TreeService
 
 		const endPoint = environment.apiUrl + `${entity}?${encodeURIComponent("$")}expand=${encodeURIComponent(expand)}&${encodeURIComponent("$")}filter=${encodeURIComponent(filter)}&${encodeURIComponent("$")}select=${encodeURIComponent(select)}&${encodeURIComponent("$")}orderby=${orderBy}`;
 
-		return withSpinner(this.http).get<any>(endPoint).pipe(
+		return this.http.get<any>(endPoint).pipe(
 			map(response =>
 			{
 				return response.value.map(data =>
@@ -118,7 +118,7 @@ export class TreeService
 
 		const endPoint = environment.apiUrl + `${entity}?${encodeURIComponent("$")}expand=${encodeURIComponent(expand)}&${encodeURIComponent("$")}filter=${encodeURIComponent(filter)}&${encodeURIComponent("$")}select=${encodeURIComponent(select)}`;
 
-		return withSpinner(this.http).get<any>(endPoint).pipe(
+		return this.http.get<any>(endPoint).pipe(
 			map(response =>
 			{
 				return response.value as TreeBaseHouseOption[];
@@ -208,7 +208,7 @@ export class TreeService
 				var headers = createBatchHeaders(guid, token);
 				var batch = createBatchBody(guid, requests);
 
-				return withSpinner(this.http).post(`${environment.apiUrl}$batch`, batch, { headers: headers });
+				return this.http.post(`${environment.apiUrl}$batch`, batch, { headers: headers });
 			}),
 			map((response: any) =>
 			{
@@ -311,7 +311,7 @@ export class TreeService
 				const select = 'dPointID,divDPointCatalogID';
 				const url = `${environment.apiUrl}dPoints?${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
 
-				return withSpinner(this.http).get<any>(url);
+				return this.http.get<any>(url);
 			}),
 			map((response: any) =>
 			{
@@ -339,7 +339,7 @@ export class TreeService
 				const select = 'dpChoiceID,divChoiceCatalogID';
 				const url = `${environment.apiUrl}dPChoices?${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
 
-				return withSpinner(this.http).get<any>(url);
+				return this.http.get<any>(url);
 			}),
 			map((response: any) =>
 			{
@@ -391,7 +391,7 @@ export class TreeService
 				let headers = createBatchHeaders(guid, token);
 				let batch = createBatchBody(guid, requests);
 
-				return withSpinner(this.http).post(`${environment.apiUrl}$batch`, batch, { headers: headers });
+				return this.http.post(`${environment.apiUrl}$batch`, batch, { headers: headers });
 			}),
 			map((response: any) =>
 			{
@@ -435,7 +435,7 @@ export class TreeService
 					var headers = createBatchHeaders(guid, token);
 					var batch = createBatchBody(guid, requests);
 
-					return withSpinner(this.http).post(`${environment.apiUrl}$batch`, batch, { headers: headers });
+					return this.http.post(`${environment.apiUrl}$batch`, batch, { headers: headers });
 				}),
 				map((response: any) =>
 				{
@@ -522,7 +522,7 @@ export class TreeService
 				let headers = createBatchHeaders(guid, token);
 				let batch = createBatchBody(guid, requests);
 
-				return withSpinner(this.http).post(`${environment.apiUrl}$batch`, batch, { headers: headers });
+				return this.http.post(`${environment.apiUrl}$batch`, batch, { headers: headers });
 			}),
 			map((response: any) =>
 			{

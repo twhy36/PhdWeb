@@ -1,7 +1,7 @@
 import { Action } from '@ngrx/store';
 
 import { TreeFilter, DesignToolAttribute, Tree, TreeVersionRules, PlanOption, OptionImage, LotExt, SalesCommunity } from 'phd-common';
-import { LoadSalesAgreement, SalesAgreementLoaded, MyFavoritesChoiceAttributesDeleted, LoadError } from '../actions';
+import { LoadSalesAgreement, SalesAgreementLoaded, MyFavoritesChoiceAttributesDeleted } from '../actions';
 
 export enum ScenarioActionTypes
 {
@@ -70,5 +70,4 @@ export type ScenarioActions =
 	SalesAgreementLoaded |
 	SetStatusForPointsDeclined |
 	TreeLoaded |
-	MyFavoritesChoiceAttributesDeleted |
-	LoadError;
+	MyFavoritesChoiceAttributesDeleted;

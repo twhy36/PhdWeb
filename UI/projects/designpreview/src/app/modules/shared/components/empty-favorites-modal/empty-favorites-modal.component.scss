@@ -5,18 +5,16 @@ $modal-font-size: 1.25em;
 
 
 .modal-header {
-	background: var(--popup-ribbon-background-color) !important;
+	background: $twilight-blue;
 	border-top-left-radius: 0.2rem;
 	border-top-right-radius: 0.2rem;
 	color: #fff;
-	
+
 	button {
 		color: #fff;
 	}
 }
-.modal-center-title{
-	justify-content: center;
-}
+
 .modal-title {
 	font-size: $modal-font-size;
 }
@@ -32,9 +30,4 @@ $modal-font-size: 1.25em;
 	span {
 		font-size: $modal-font-size;
 	}
-}
-
-.btn-primary {
-    background: var(--primary-button-color) !important;
-    border-radius: 35px;
 }

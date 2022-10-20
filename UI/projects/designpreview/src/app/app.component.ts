@@ -2,24 +2,19 @@ import { Component, Inject } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { Idle, DEFAULT_INTERRUPTSOURCES } from '@ng-idle/core';
 import { NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
-import { select, Store } from '@ngrx/store';
-
-import { ModalService, ModalRef, IdentityService, UnsubscribeOnDestroy } from 'phd-common';
-import { combineLatest } from 'rxjs';
-import { withLatestFrom } from 'rxjs/operators';
 
 import { environment } from '../environments/environment';
 import { default as build } from './build.json';
 
+import { ModalService, ModalRef, IdentityService, UnsubscribeOnDestroy } from 'phd-common';
 import { IdleLogoutComponent } from './modules/core/components/idle-logout/idle-logout.component';
-import { TermsAndConditionsComponent } from './modules/core/components/terms-and-conditions/terms-and-conditions.component';
 import { BrandService } from './modules/core/services/brand.service';
 import { AdobeService } from './modules/core/services/adobe.service';
 import * as fromRoot from './modules/ngrx-store/reducers';
-import * as fromApp from './modules/ngrx-store/app/reducer';
 import * as fromFavorite from './modules/ngrx-store/favorite/reducer';
-import { ShowTermsAndConditionsModal } from './modules/ngrx-store/app/actions';
 import { BuildMode } from './modules/shared/models/build-mode.model';
+import { select, Store } from '@ngrx/store';
+import { withLatestFrom } from 'rxjs/operators';
 
 @Component({
 	selector: 'app-root',
@@ -29,8 +24,11 @@ import { BuildMode } from './modules/shared/models/build-mode.model';
 export class AppComponent extends UnsubscribeOnDestroy
 {
 	title = 'Design Preview';
+
 	environment = environment;
+
 	buildMode: BuildMode;
+
 	logoutModal: ModalRef;
 
 	get branch(): string
@@ -45,11 +43,11 @@ export class AppComponent extends UnsubscribeOnDestroy
 
 	constructor(
 		private idle: Idle,
-		private store: Store<fromRoot.State>,
 		private modalService: ModalService,
 		private identityService: IdentityService,
 		private brandService: BrandService,
 		private adobeService: AdobeService,
+		private store: Store<fromRoot.State>,
 		@Inject(DOCUMENT) private doc: any)
 	{
 		super();
@@ -78,23 +76,6 @@ export class AppComponent extends UnsubscribeOnDestroy
 
 	ngOnInit()
 	{
-		combineLatest([
-			this.store.pipe(select(state => state.scenario), this.takeUntilDestroyed()),
-			this.store.pipe(select(fromApp.termsAndConditionsAcknowledged), this.takeUntilDestroyed()),
-			this.store.pipe(select(fromApp.showTermsAndConditionsModal), this.takeUntilDestroyed()),
-		])
-			.subscribe(([scenarioState, taca, showModal]) => {
-				if (!taca && scenarioState.buildMode == BuildMode.Presale && showModal) {
-					const ngbModalOptions: NgbModalOptions = {
-						centered: true,
-						backdrop: 'static',
-						keyboard: false
-					};
-					this.modalService.open(TermsAndConditionsComponent, ngbModalOptions)
-					this.store.dispatch(new ShowTermsAndConditionsModal(false))
-				}
-			});
-
 		window['appEventData'] = [];
 
 		this.setAdobeAnalytics();

@@ -4,7 +4,6 @@ import * as _ from 'lodash';
 
 import { PriceBreakdown, TreeVersion, PlanOption } from 'phd-common';
 
-import * as fromApp from './app/reducer';
 import * as fromScenario from './scenario/reducer';
 import * as fromLot from './lot/reducer';
 import * as fromPlan from './plan/reducer';
@@ -18,7 +17,6 @@ import { BuildMode } from '../shared/models/build-mode.model';
 
 export interface State
 {
-	app: fromApp.State;
 	scenario: fromScenario.State;
 	lot: fromLot.State;
 	plan: fromPlan.State;
@@ -31,7 +29,6 @@ export interface State
 }
 
 export const reducers: ActionReducerMap<State> = {
-	app: fromApp.reducer,
 	scenario: fromScenario.reducer,
 	lot: fromLot.reducer,
 	plan: fromPlan.reducer,
@@ -562,13 +559,3 @@ export const isBuyerMode = createSelector(
 		return scenario.buildMode === BuildMode.Buyer;
 	}
 );
-
-export const getScenarioLoadError = createSelector(
-	fromScenario.selectScenario,
-	(scenario) =>
-	{
-		return scenario.loadError;
-	}
-);
-
-

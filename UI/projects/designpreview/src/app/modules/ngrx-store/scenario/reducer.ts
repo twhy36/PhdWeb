@@ -341,9 +341,6 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 		case ScenarioActionTypes.LoadPresale:
 			return { ...state, treeLoading: true, buildMode: BuildMode.Presale, scenario: <any>{ scenarioId: 0, scenarioName: '--PRESALE--', scenarioInfo: null } };
 
-		case CommonActionTypes.LoadError:
-			return {...state, loadError: true };
-
 		case CommonActionTypes.LoadSalesAgreement:
 			let newBuildMode = state.buildMode;
 			if (action.isBuyerPreview)

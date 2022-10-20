@@ -6,9 +6,6 @@ import { SharedModule } from '../shared/shared.module';
 
 import { NavBarComponent } from './components/nav-bar/nav-bar.component';
 import { IdleLogoutComponent } from './components/idle-logout/idle-logout.component';
-import { DefaultErrorComponent } from './components/default-error/default-error.component';
-import { BannerComponent } from './components/banner/banner.component';
-import { TermsAndConditionsComponent } from './components/terms-and-conditions/terms-and-conditions.component';
 
 import { ChangeOrderService } from './services/change-order.service';
 import { FavoriteService } from './services/favorite.service';
@@ -33,16 +30,12 @@ import { ClickDirective } from './directives/click-directive.directive';
 	exports: [
 		NavBarComponent,
 		IdleLogoutComponent,
-		ClickDirective,
-		BannerComponent
+		ClickDirective
 	],
 	declarations: [
 		NavBarComponent,
 		IdleLogoutComponent,
-		ClickDirective,
-		DefaultErrorComponent,
-		BannerComponent,
-		TermsAndConditionsComponent
+		ClickDirective
 	],
 	imports: [
 		CommonModule,

@@ -2,15 +2,14 @@ import { Injectable } from '@angular/core';
 
 import { Action, Store, select } from '@ngrx/store';
 import { Actions, ofType, createEffect } from '@ngrx/effects';
-import { switchMap, combineLatest, map, scan, withLatestFrom, tap, filter } from 'rxjs/operators';
+import { switchMap, combineLatest, map, scan, withLatestFrom, tap } from 'rxjs/operators';
 import { Observable, of, forkJoin, from } from 'rxjs';;
 import * as _ from 'lodash';
-import { Router } from '@angular/router';
 
 import { SpinnerService, ChangeOrderChoice, ChangeOrderGroup, SalesAgreementInfo, MyFavoritesPointDeclined } from 'phd-common';
 
 import { CommonActionTypes, LoadError, LoadSalesAgreement, SalesAgreementLoaded } from './actions';
-import { ErrorAction, ErrorFrom, SetLatestError, tryCatch } from './error.action';
+import { tryCatch } from './error.action';
 import { LoadSelectedPlan } from './plan/actions';
 import { LoadLots } from './lot/actions';
 
@@ -246,7 +245,7 @@ export class CommonEffects
 					]);
 
 				})
-			), LoadError, "Error loading sales agreement!!", ErrorFrom.LoadSalesAgreement)
+			), LoadError, "Error loading sales agreement!!")
 		);
 	});
 
@@ -265,34 +264,6 @@ export class CommonEffects
 		{ dispatch: false }
 	);
 
-	hasError$: Observable<Action> = createEffect(
-		() => this.actions$.pipe(			
-			scan((prev, action) =>
-					({ prev: prev.action, 
-					   action: action instanceof(ErrorAction) ,
-					   err: action}),					
-					{ prev: false, action: false, err: <ErrorAction> null }
-			),			
-			filter( (errorScan: { prev: boolean; action: boolean; err: null }) => !errorScan.prev && errorScan.action),
-			map((errorScan: { prev: boolean; action: boolean; err: null }) => {	
-					//todo: implement logging for production ???
-					this.router.navigate(['error']);	
-							
-					if(errorScan.err)
-					{
-						let errStack = (<ErrorAction>errorScan.err).error?
-							((<ErrorAction>errorScan.err).error.stack?(<ErrorAction>errorScan.err).error.stack:JSON.stringify((<ErrorAction>errorScan.err).error))
-							: '';
-						let errMsg = (<ErrorAction>errorScan.err).friendlyMessage? (<ErrorAction>errorScan.err).friendlyMessage:'';
-						let errFrom = (<ErrorAction>errorScan.err).errFrom? (<ErrorAction>errorScan.err).errFrom:'';
-
-						return new SetLatestError(errFrom, errStack,errMsg);
-					}
-			})
-		)
-	);
-
-
 	constructor(
 		private actions$: Actions,
 		private store: Store<State>,
@@ -305,6 +276,5 @@ export class CommonEffects
 		private salesAgreementService: SalesAgreementService,
 		private changeOrderService: ChangeOrderService,
 		private favoriteService: FavoriteService,
-		private spinnerService: SpinnerService,
-		private router: Router) { }
+		private spinnerService: SpinnerService) { }
 }
