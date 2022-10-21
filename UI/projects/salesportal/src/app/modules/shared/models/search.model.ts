@@ -9,6 +9,8 @@ export class SearchResult
 	city: string;
 	country: string;
 	financialCommunity: string;
+	financialCommunityId: number;
+	isPhdLiteEnabled?: boolean;
 	foundationType: string;
 	homesiteNumber: string;
 	homesiteType: string;
@@ -41,6 +43,7 @@ export class SearchResult
 		this.city = dto.city || null;
 		this.country = dto.country || null;
 		this.financialCommunity = dto.financialCommunity && dto.financialCommunity.name || null;
+		this.financialCommunityId = dto.financialCommunity && dto.financialCommunity.id || null;
 		this.foundationType = dto.foundationType;
 		this.homesiteNumber = dto.lotBlock || null;
 		this.homesiteType = dto.lotPhysicalLotTypeAssocs &&

@@ -6,6 +6,7 @@ import { LinkAction } from '../../models/action.model';
 import { SearchResult, IFilterItem, IFilterItems, ISearchResultAgreement } from '../../models/search.model';
 import { SearchService } from '../../../core/services/search.service';
 import { IFinancialCommunity } from '../../models/community.model';
+import { FeatureSwitchService, IFeatureSwitchOrgAssoc } from 'phd-common';
 
 @Component({
 	encapsulation: ViewEncapsulation.None,
@@ -86,7 +87,6 @@ export class PHDSearchComponent
 	];
 
 	noRecordsMessage: string;
-	isPhdLiteEnabled: boolean;
 	resultsShown: boolean = false;
 	salesAgreementNumber: string = null;
 	search_button_label: string;
@@ -103,8 +103,13 @@ export class PHDSearchComponent
 	lastName: string;
 	searchActiveOnly: boolean = false;
 	pendingLotBlocks: Array<string> = [];
+	financialCommunities: IFinancialCommunity[];
+	featureSwitchOrgAssoc: IFeatureSwitchOrgAssoc[];
 
-	constructor(private cd: ChangeDetectorRef, private _searchService: SearchService) { }
+	constructor(
+		private cd: ChangeDetectorRef,
+		private _searchService: SearchService,
+		private _featureSwitchService: FeatureSwitchService) { }
 
 	/*
 	 *
@@ -246,6 +251,7 @@ export class PHDSearchComponent
 			}
 
 			this.searchResults = filteredLots ? filteredLots : results;
+			this.populateIsPhdLiteEnabled();
 		}, error =>
 		{
 			this.searchResults = [];
@@ -369,6 +375,24 @@ export class PHDSearchComponent
 		this.optionsShown = true;
 	}
 
+	onFinancialCommunitiesForMarket(financialCommunitiesForMarket)
+	{
+		this._featureSwitchService.getFeatureSwitchForCommunities('Phd Lite', financialCommunitiesForMarket)
+			.subscribe(featureSwitchOrgAssoc =>
+			{
+				this.featureSwitchOrgAssoc = featureSwitchOrgAssoc;
+				this.populateIsPhdLiteEnabled();
+			});
+	}
+
+	private populateIsPhdLiteEnabled()
+	{
+		this.searchResults?.forEach(sr =>
+		{
+			sr.isPhdLiteEnabled = this.featureSwitchOrgAssoc.find(r => sr.financialCommunityId === r.org.edhFinancialCommunityId) ? true : false;
+		});
+	}
+
 	/*
 	 *
 	 * HELPERS
@@ -376,10 +400,6 @@ export class PHDSearchComponent
 	 *
 	 */
 
-	onPhdLiteChange(enabled: boolean)
-	{
-		this.isPhdLiteEnabled = enabled;
-	}
 
 	getFilterFromSelectItems(name: string, selections: Array<string | number>, collection?: string): IFilterItems
 	{
@@ -525,7 +545,7 @@ export class PHDSearchComponent
 
 	getLotBuildType(lot: SearchResult): string
 	{
-		return this.isHslMigrated(lot.jobCreatedBy) && !this.isPhdLiteEnabled
+		return this.isHslMigrated(lot.jobCreatedBy) && !lot.isPhdLiteEnabled
 			? `${lot.buildType} - HS`
 			: lot.buildTypeDisplayName;
 	}
@@ -545,6 +565,6 @@ export class PHDSearchComponent
 		const lotCheck = (lot.lotStatusDescription.trim() === 'Available' || lot.lotStatusDescription.trim() === 'Unavailable')
 			&& (lot.buildType.trim() === 'Spec' || lot.buildType.trim() === 'Model')
 			&& (this.getLatestAgreementStatus(lot) !== 'Signed');
-		return this.isPhdLiteEnabled ? lotCheck : !this.isHslMigrated(lot.jobCreatedBy) && lotCheck;
+		return lot.isPhdLiteEnabled ? lotCheck : !this.isHslMigrated(lot.jobCreatedBy) && lotCheck;
 	}
 }

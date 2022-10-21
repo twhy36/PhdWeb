@@ -21,7 +21,7 @@ export class SalesCommunitySelectorComponent implements OnInit
 	@Output() onMarketChange: EventEmitter<number> = new EventEmitter(true);
 	@Output() onSalesCommunityChange: EventEmitter<number> = new EventEmitter(true);
 	@Output() onFinancialCommunityChange: EventEmitter<IFinancialCommunity> = new EventEmitter(true);
-	@Output() onPhdLiteChange: EventEmitter<boolean> = new EventEmitter(false);
+	@Output() onFinancialCommunitiesForMarketChange: EventEmitter<number[]> = new EventEmitter(false);
 
 	specHomesForm: FormGroup;
 	marketsControl = new FormControl(null, Validators.required);
@@ -88,7 +88,6 @@ export class SalesCommunitySelectorComponent implements OnInit
 			this.onMarketChange.emit(this.selectedMarket.id);
 
 			this.getCommunities();
-			this.getPhdLiteEnabled(this.selectedMarket?.id, this.selectedFinancialCommunity?.id);
 		});
 	}
 
@@ -134,18 +133,11 @@ export class SalesCommunitySelectorComponent implements OnInit
 				// enable controls for community selector
 				this.communitiesControl.enable();
 				this.setFinancialCommunity();
+				this.emitFinancialCommunitiesForMarketChange();
 			});
 		}
 	}
 
-	getPhdLiteEnabled(edhMarketId, edhFinancialCommunityId)
-	{
-		this._featureSwitchService.isFeatureEnabled('Phd Lite', { edhMarketId, edhFinancialCommunityId })
-			.subscribe((flag) =>
-			{
-				this.onPhdLiteChange.emit(flag);
-			});
-	}
 
 	onChangeMarket()
 	{
@@ -155,7 +147,7 @@ export class SalesCommunitySelectorComponent implements OnInit
 		this.getCommunities();
 		// send new market on up
 		this.onMarketChange.emit(this.selectedMarket.id);
-		this.getPhdLiteEnabled(this.selectedMarket?.id, this.selectedFinancialCommunity?.id);
+		this.emitFinancialCommunitiesForMarketChange();
 	}
 
 	onChangeCommunity()
@@ -165,6 +157,7 @@ export class SalesCommunitySelectorComponent implements OnInit
 		// send new community on up
 		this.onSalesCommunityChange.emit(this.selectedCommunity.id);
 		this.setFinancialCommunity();
+		this.emitFinancialCommunitiesForMarketChange();
 	}
 
 	onChangeFinancialCommunity()
@@ -180,7 +173,6 @@ export class SalesCommunitySelectorComponent implements OnInit
 			this._orgService.currentFinancialCommunity = this.selectedFinancialCommunity.number;
 			// send new community on up
 			this.onFinancialCommunityChange.emit(this.selectedFinancialCommunity);
-			this.getPhdLiteEnabled(this.selectedMarket?.id, this.selectedFinancialCommunity?.id);
 		}
 	}
 
@@ -244,5 +236,11 @@ export class SalesCommunitySelectorComponent implements OnInit
 				}
 			}
 		}
+	}
+
+	emitFinancialCommunitiesForMarketChange()
+	{
+		const financialCommunitiesForMarket = this.selectedCommunity?.financialCommunities.map(fc => fc.id) || [];
+		this.onFinancialCommunitiesForMarketChange.emit(financialCommunitiesForMarket);
 	}
 }
