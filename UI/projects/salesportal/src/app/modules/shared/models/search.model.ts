@@ -104,7 +104,7 @@ export class SearchResult
 					this.salesAgreements.push(jsa.salesAgreement);
 				}
 			});
-			if (job.jobChangeOrderGroups.some(cog => ['Pending', 'Signed', 'OutforSignature', 'Rejected'].indexOf(cog.salesStatusDescription) !== -1))
+			if (job.jobChangeOrderGroups.some(cog => ['Pending', 'Signed', 'OutforSignature', 'Rejected'].indexOf(cog.salesStatusDescription) !== -1 || ['Pending'].indexOf(cog.constructionStatusDescription) !== -1))
 			{
 				if (dto.lotBuildTypeDesc === 'Spec' || dto.lotBuildTypeDesc === 'Model')
 				{
@@ -127,7 +127,8 @@ export class SearchResult
 						}
 					}
 				}
-				const activeCOG = job.jobChangeOrderGroups.find(cog => ['Pending', 'Signed', 'OutforSignature', 'Rejected'].indexOf(cog.salesStatusDescription) !== -1
+				const activeCOG = job.jobChangeOrderGroups.find(cog => (['Pending', 'Signed', 'OutforSignature', 'Rejected'].indexOf(cog.salesStatusDescription) !== -1
+				|| (cog.salesStatusDescription === 'Approved' && cog.constructionStatusDescription === 'Pending'))
 					&& cog.jobChangeOrderGroupDescription !== 'Pulte Home Designer Generated Job Initiation Change Order'
 					&& cog.jobChangeOrderGroupDescription !== 'Pulte Home Designer Generated Spec Customer Change Order');
 					
@@ -140,9 +141,9 @@ export class SearchResult
 						SalesAgreementId: activeCOG.jobChangeOrderGroupSalesAgreementAssocs.length > 0 ? activeCOG.jobChangeOrderGroupSalesAgreementAssocs[0].salesAgreementId : null
 					};
 					this.activeChangeOrderText = 'CO# ' +
-						(activeCOG.jobChangeOrderGroupSalesAgreementAssocs.length > 0 ? (activeCOG.jobChangeOrderGroupSalesAgreementAssocs[0].changeOrderGroupSequence || '').toString() 
-						: activeCOG.changeOrderGroupSequence ? activeCOG.changeOrderGroupSequence.toString() : '0') +
-						' - ' + activeCOG.salesStatusDescription + ' - ' + activeCOG.jobChangeOrderGroupDescription;
+						(activeCOG.jobChangeOrderGroupSalesAgreementAssocs.length > 0 ? (activeCOG.jobChangeOrderGroupSalesAgreementAssocs[0].changeOrderGroupSequence + activeCOG.jobChangeOrderGroupSalesAgreementAssocs[0].changeOrderGroupSequenceSuffix || '').toString() 
+						: activeCOG.changeOrderGroupSequence ? activeCOG.changeOrderGroupSequence.toString() + activeCOG.changeOrderGroupSequenceSuffix : '0') +
+						' - ' + ((activeCOG.salesStatusDescription === 'Approved' && activeCOG.constructionStatusDescription === 'Pending') ? 'In Review' : activeCOG.salesStatusDescription) + ' - ' + activeCOG.jobChangeOrderGroupDescription;
 				}
 			}
 		});
@@ -238,10 +239,12 @@ export interface IJobChangeOrderGroup
 	id: number;
 	jobChangeOrderGroupDescription: string;
 	salesStatusDescription: string;
+	constructionStatusDescription: string;
 	jobChangeOrderGroupSalesAgreementAssocs: Array<ChangeOrderGroupSalesAgreementAssoc>;
 	jobChangeOrders: Array<JobChangeOrder>;
 	jobId: number;
 	changeOrderGroupSequence: number;
+	changeOrderGroupSequenceSuffix: string;
 }
 
 export interface ISearchResultAgreement
@@ -313,6 +316,7 @@ export class ActiveChangeOrder {
 
 export class ChangeOrderGroupSalesAgreementAssoc {
 	changeOrderGroupSequence: number;
+	changeOrderGroupSequenceSuffix: string;
 	salesAgreementId: number;
 }
 
