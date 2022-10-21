@@ -104,6 +104,17 @@ export class PeopleComponent extends UnsubscribeOnDestroy implements OnInit, Con
 			select(fromRoot.activePrimaryBuyer),
 			map(buyer =>
 			{
+				//Check if the primary buyer's country has a value. If not set default to "United States" and save buyer.
+				if (buyer?.opportunityContactAssoc?.contact?.addressAssocs?.length &&
+					!buyer.opportunityContactAssoc.contact.addressAssocs[0].address.country)
+				{
+					let buyerCountryCheck = _.cloneDeep(buyer);
+					buyerCountryCheck.opportunityContactAssoc.contact.addressAssocs[0].address.country = 'United States';
+					buyer = buyerCountryCheck;
+
+					this.saveBuyer(buyer);
+				}
+
 				this.primaryBuyer = buyer;
 
 				return buyer;
