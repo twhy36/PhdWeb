@@ -51,7 +51,6 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 	commmunityLinkEnabledDirty = false;
 	previewEnabledDirty = false;
 	canToggleCommunitySettings = false;
-	canAccessDesignPreview = false;
 	environment = environment;
 	ecoeRequired = false;
 	earnestMoneyRequired = false;
@@ -136,11 +135,6 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 				if (mkt && comm)
 				{
 					this.currentMarket = mkt;
-					if (environment.designPreviewMarketWhitelist.length === 0) {
-						this.canAccessDesignPreview = true;
-					} else {
-						this.canAccessDesignPreview = !!environment.designPreviewMarketWhitelist?.find(id => id === this.currentMarket.id);
-					}
 					return combineLatest([this._orgService.getInternalOrgs(mkt.id), of(comm)]);
 				}
 				return of([null, null]);
