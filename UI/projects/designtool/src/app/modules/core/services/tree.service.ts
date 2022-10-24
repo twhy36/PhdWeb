@@ -405,6 +405,12 @@ export class TreeService
 		const batchSize = 1;
 		let batchBundles: string[] = [];
 
+		if (options.length > 100)
+		{
+			//if options exceed a count of 100 then limit count to 100
+			options = options.slice(0, 100);
+		}
+
 		// create a batch request with a max of 100 options per request
 		for (var x = 0; x < options.length; x = x + batchSize)
 		{
@@ -421,7 +427,6 @@ export class TreeService
 				let guid = newGuid();
 				let headers = createBatchHeaders(guid, token);
 				let batch = createBatchBody(guid, requests);
-
 				return this.http.post(`${environment.apiUrl}$batch`, batch, { headers: headers });
 			}),
 			map((response: any) =>
