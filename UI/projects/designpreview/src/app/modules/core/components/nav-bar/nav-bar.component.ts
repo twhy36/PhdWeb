@@ -18,8 +18,7 @@ import { ClearLatestError } from '../../../ngrx-store/error.action';
 	styleUrls: ['nav-bar.component.scss']
 })
 
-export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
-{
+export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit {
 	currentRoute: string;
 	isMenuCollapsed: boolean = true;
 	showContractedOptionsLink: boolean = false;
@@ -55,27 +54,25 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 		super();
 	}
 
-	ngOnInit()
-	{
+	ngOnInit() {
 		this.router.events.subscribe(evt => {
 			if (evt instanceof NavigationEnd) {
 				this.currentRoute = evt.url.toLowerCase();
-				if(evt.url!='/error'){
+				if (evt.url != '/error') {
 					this.store.dispatch(new ClearLatestError());
 				}
 				this.isMenuCollapsed = true;
 			}
 		});
-		
+
 		this.hasLatestError$ = this.store.select(fromApp.getAppLatestError);
-		
+
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(state => state.scenario),
 		).subscribe((state) => {
 			this.buildMode = state.buildMode;
-			switch (state.buildMode)
-			{
+			switch (state.buildMode) {
 				case (BuildMode.Preview):
 					this.showContractedOptionsLink = false;
 					this.showFloorplanLink = true;
@@ -107,7 +104,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 		return this.currentRoute?.includes('favorites/preview') ? true : false;
 	}
 
-	getBrandedMenuClass (isCollapsedMenu: boolean) {
+	getBrandedMenuClass(isCollapsedMenu: boolean) {
 		let menuClass = '';
 		if (isCollapsedMenu) {
 			if (this.brandService.getBrandName() === 'johnWieland')
@@ -125,8 +122,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 
 	onHomePage() {
 		this.store.dispatch(new ScenarioActions.SetTreeFilter(null));
-		switch (this.buildMode)
-		{
+		switch (this.buildMode) {
 			case (BuildMode.Preview):
 				this.router.navigateByUrl('/preview');
 				break;
@@ -148,7 +144,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 		return this.brandService.getBrandImage('white_logo');
 	}
 
-	getBrandedTitle () {
+	getBrandedTitle() {
 		return 'phd-nav-bar-' + this.brandService.getBrandName();
 	}
 }

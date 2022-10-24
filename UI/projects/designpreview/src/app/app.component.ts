@@ -20,26 +20,24 @@ import * as fromApp from './modules/ngrx-store/app/reducer';
 import * as fromFavorite from './modules/ngrx-store/favorite/reducer';
 import { ShowTermsAndConditionsModal } from './modules/ngrx-store/app/actions';
 import { BuildMode } from './modules/shared/models/build-mode.model';
+import { InfoModalComponent } from './modules/shared/components/info-modal/info-modal.component';
 
 @Component({
 	selector: 'app-root',
 	templateUrl: './app.component.html',
 	styleUrls: ['./app.component.css']
 })
-export class AppComponent extends UnsubscribeOnDestroy
-{
+export class AppComponent extends UnsubscribeOnDestroy {
 	title = 'Design Preview';
 	environment = environment;
 	buildMode: BuildMode;
 	logoutModal: ModalRef;
 
-	get branch(): string
-	{
+	get branch(): string {
 		return build.branch.split('/').slice(2).join('/');
 	}
 
-	get version(): string
-	{
+	get version(): string {
 		return build.version;
 	}
 
@@ -50,13 +48,11 @@ export class AppComponent extends UnsubscribeOnDestroy
 		private identityService: IdentityService,
 		private brandService: BrandService,
 		private adobeService: AdobeService,
-		@Inject(DOCUMENT) private doc: any)
-	{
+		@Inject(DOCUMENT) private doc: any) {
 		super();
 
 		// Start idle watch for user inactivities if an external user is logged in
-		if (sessionStorage.getItem('authProvider') === 'sitecoreSSO')
-		{
+		if (sessionStorage.getItem('authProvider') === 'sitecoreSSO') {
 			this.watchIdle();
 		}
 
@@ -76,8 +72,7 @@ export class AppComponent extends UnsubscribeOnDestroy
 		});
 	}
 
-	ngOnInit()
-	{
+	ngOnInit() {
 		combineLatest([
 			this.store.pipe(select(state => state.scenario), this.takeUntilDestroyed()),
 			this.store.pipe(select(fromApp.termsAndConditionsAcknowledged), this.takeUntilDestroyed()),
@@ -98,10 +93,16 @@ export class AppComponent extends UnsubscribeOnDestroy
 		window['appEventData'] = [];
 
 		this.setAdobeAnalytics();
+
+		//popup warning only once when user browser is not supported
+		let needBrowserCheck = sessionStorage.getItem('supportedBrowserChecked') == null ||
+			(sessionStorage.getItem('supportedBrowserChecked') && sessionStorage.getItem('supportedBrowserChecked').toLowerCase() !== 'true');
+		if (needBrowserCheck && !this.isSupportedBrowser()) {
+			this.displayBrowserModal();
+		}
 	}
 
-	watchIdle()
-	{
+	watchIdle() {
 		// sets an idle timeout of 14 minutes (840 seconds)
 		this.idle.setIdle(840);
 		// sets a timeout period of 60 seconds. after 900 seconds of inactivity, the user will be considered timed out.
@@ -109,13 +110,11 @@ export class AppComponent extends UnsubscribeOnDestroy
 		// sets the default interrupts, in this case, things like clicks, scrolls, touches to the document
 		this.idle.setInterrupts(DEFAULT_INTERRUPTSOURCES);
 
-		this.idle.onTimeout.subscribe(() =>
-		{
+		this.idle.onTimeout.subscribe(() => {
 			this.logout();
 		});
 
-		this.idle.onIdleStart.subscribe(() =>
-		{
+		this.idle.onIdleStart.subscribe(() => {
 			this.idle.clearInterrupts();
 
 			let ngbModalOptions: NgbModalOptions = {
@@ -127,14 +126,11 @@ export class AppComponent extends UnsubscribeOnDestroy
 			this.logoutModal = this.modalService.open(IdleLogoutComponent, ngbModalOptions);
 			this.adobeService.setAlertEvent("You're About To Be Signed Out", 'Idle Logout Alert');
 
-			this.logoutModal.result.then((result) =>
-			{
-				if (result == 'Logout')
-				{
+			this.logoutModal.result.then((result) => {
+				if (result == 'Logout') {
 					this.logout();
 				}
-				else
-				{
+				else {
 					// stay signed in
 					this.idle.setInterrupts(DEFAULT_INTERRUPTSOURCES);
 					this.idle.watch();
@@ -143,8 +139,7 @@ export class AppComponent extends UnsubscribeOnDestroy
 			}, (reason) => { });
 		});
 
-		this.idle.onTimeoutWarning.subscribe((countdown) =>
-		{
+		this.idle.onTimeoutWarning.subscribe((countdown) => {
 			this.logoutModal.componentInstance.countdown = countdown;
 		});
 
@@ -155,15 +150,13 @@ export class AppComponent extends UnsubscribeOnDestroy
 		e.returnValue = `This will delete your MY FAVORITES list, continue?`;
 	}
 
-	logout()
-	{
+	logout() {
 		this.idle.stop();
 		this.logoutModal.dismiss();
 		this.identityService.logout();
 	}
 
-	setAdobeAnalytics()
-	{
+	setAdobeAnalytics() {
 		const script = this.doc.createElement('script');
 
 		script.type = 'text/javascript'
@@ -173,5 +166,42 @@ export class AppComponent extends UnsubscribeOnDestroy
 		const head = this.doc.getElementsByTagName('head')[0];
 
 		head.appendChild(script);
+	}
+
+	isSupportedBrowser(): boolean {
+		let isSupported = false;
+
+		if (typeof navigator !== 'undefined' && navigator.userAgent) {
+			const browserInfo = navigator.userAgent.toLowerCase();
+			const isEdge = /edg/.test(browserInfo);
+			const isChrome = /chrome/.test(browserInfo);
+			const isSafari = /safari/.test(browserInfo);
+
+			isSupported = (isChrome || isEdge || isSafari);
+		}
+
+		return isSupported;
+	}
+
+	displayBrowserModal(): void {
+		let ngbModalOptions: NgbModalOptions = {
+			centered: true,
+			backdrop: true,
+			beforeDismiss: () => false
+		};
+
+		let browserModal = this.modalService.open(InfoModalComponent, ngbModalOptions);
+		browserModal.componentInstance.title = 'Browser Not Supported';
+		browserModal.componentInstance.body = `
+			<p>We do not currently support this browser. Please use Safari or Chrome for the best experience.</p>
+		`;
+		browserModal.componentInstance.buttonText = 'Continue';
+		browserModal.componentInstance.isCloseable = true;
+		browserModal.componentInstance.isTitleCentered = true;
+
+		browserModal.result.then(() => {
+			sessionStorage.setItem('supportedBrowserChecked', 'true');
+		}
+		);
 	}
 }
