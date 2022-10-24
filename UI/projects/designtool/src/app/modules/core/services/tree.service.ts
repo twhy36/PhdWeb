@@ -402,44 +402,6 @@ export class TreeService
 			return `${environment.apiUrl}optionRules?${encodeURIComponent('$')}expand=${expand}&${encodeURIComponent('$')}filter=${filter}`;
 		}
 
-		const myClonedArray = [];
-		options.forEach(val => myClonedArray.push(Object.assign({}, val)));
-		const myClonedArray2 = [];
-		options.forEach(val => myClonedArray2.push(Object.assign({}, val)));
-		const myClonedArray3 = [];
-		options.forEach(val => myClonedArray3.push(Object.assign({}, val)));
-		const myClonedArray4 = [];
-		options.forEach(val => myClonedArray4.push(Object.assign({}, val)));
-		const myClonedArray5 = [];
-		options.forEach(val => myClonedArray5.push(Object.assign({}, val)));
-		const myClonedArray6 = [];
-		options.forEach(val => myClonedArray6.push(Object.assign({}, val)));
-		const myClonedArray7 = [];
-		options.forEach(val => myClonedArray7.push(Object.assign({}, val)));
-		const myClonedArray8 = [];
-		options.forEach(val => myClonedArray8.push(Object.assign({}, val)));
-		const myClonedArray9 = [];
-		options.forEach(val => myClonedArray9.push(Object.assign({}, val)));
-		const myClonedArray10 = [];
-		options.forEach(val => myClonedArray10.push(Object.assign({}, val)));
-
-		options = [
-			...myClonedArray,
-			...myClonedArray2,
-			...myClonedArray3,
-			...myClonedArray4,
-			...myClonedArray5,
-			...myClonedArray6,
-			...myClonedArray7,
-			...myClonedArray8,
-			...myClonedArray9,
-			...myClonedArray10,
-			...myClonedArray4,
-			...myClonedArray6,
-			...myClonedArray10,
-			...myClonedArray5,
-		];
-
 		const batchSize = 1;
 		let batchBundles: string[] = [];
 
