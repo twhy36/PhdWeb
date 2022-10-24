@@ -501,9 +501,15 @@ export class TreeService
 
 			return `${environment.apiUrl}optionRules?${encodeURIComponent('$')}expand=${expand}&${encodeURIComponent('$')}filter=${filter}`;
 		}
+		
 
-		const batchSize = 2;
+		const batchSize = 1;
 		let batchBundles: string[] = [];
+
+		if (options.length > 100)
+		{
+			options = options.slice(0, 100);
+		}
 
 		// create a batch request with a max of 100 options per request
 		for (var x = 0; x < options.length; x = x + batchSize)
