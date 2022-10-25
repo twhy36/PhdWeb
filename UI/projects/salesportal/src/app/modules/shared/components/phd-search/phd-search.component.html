@@ -12,7 +12,8 @@
 		<sales-community-selector (onMarketChange)="onMarketChange($event)"
 			(onSalesCommunityChange)="onCommunityChange($event)"
 			(onFinancialCommunityChange)="onFinancialCommunityChange($event)"
-			(onPhdLiteChange)="onPhdLiteChange($event)" showFinancialCommunity="true"></sales-community-selector>
+			(onFinancialCommunitiesForMarketChange)="onFinancialCommunitiesForMarket($event)"
+			showFinancialCommunity="true"></sales-community-selector>
 
 		<div class="phd-search-options">
 
@@ -131,6 +132,10 @@
 					(click)="edit()">
 					<span>Agreement Status</span>
 					<span>{{ selectedSalesAgreementStatus.join(', ') }}</span>
+				</span>
+				<span class="phd-badge" *ngIf="searchActiveOnly"
+					(click)="edit('searchActiveOnly')">
+					<span>Pending CO</span>
 				</span>
 			</section>
 		</div>

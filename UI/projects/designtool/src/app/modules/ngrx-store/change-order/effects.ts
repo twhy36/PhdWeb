@@ -252,7 +252,11 @@ export class ChangeOrderEffects
 				switchMap(([lockInChoices, data]) =>
 				{
 					const changeOrderId = data.currentChangeOrder?.id || 0;
-					const choices = this.changeOrderService.getOriginalChoicesAndAttributes(data.store.job, data.store.scenario.tree, data.currentChangeOrder);
+					const choices = this.changeOrderService.getOriginalChoicesAndAttributes(data.store.job, data.store.scenario.tree, data.currentChangeOrder).map(ch =>
+					{
+						ch.cancellingChangeOrder = true;
+						return ch;
+					});
 					const handing = this.changeOrderService.getSelectedHanding(data.store.job);
 
 					let actions: any[] = [

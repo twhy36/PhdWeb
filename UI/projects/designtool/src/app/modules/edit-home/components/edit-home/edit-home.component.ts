@@ -691,7 +691,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 
 		let obs: Observable<boolean>;
 
-		if (choiceToDeselect && adjustedChoices && adjustedChoices.length)
+		if (adjustedChoices && adjustedChoices.length)
 		{
 			obs = this.showOptionMappingAdjustedModal(adjustedChoices);
 		}
@@ -967,19 +967,17 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 				// Get all lockedInOptions from previous agreement
 				if (existingChoice)
 				{
-					if (!deselectedChoice)
+					if (existingChoice.lockedInOptions?.length)
 					{
-						if (existingChoice?.lockedInOptions?.length)
-						{
-							const existingOptions = existingChoice.lockedInOptions.map(lio => lio.optionId);
+						const existingOptions = existingChoice.lockedInOptions.map(lio => lio.optionId);
 
-							if (rr.replaceOptions.some(ro => !existingOptions.includes(ro)) && !choices.map(c => c.id).includes(existingChoice.id))
-							{
-								choices.push(existingChoice);
-							}
+						if (rr.replaceOptions.some(ro => !existingOptions.includes(ro)) && !choices.map(c => c.id).includes(existingChoice.id))
+						{
+							choices.push(existingChoice);
 						}
 					}
-					else if (deselectedChoice.lockedInOptions?.length)
+
+					if (deselectedChoice?.lockedInOptions?.length)
 					{
 						// If a rule existed on the previous agreement for an option that no longer exists,
 						// on a choice that still satisifies the rule, mark this choice as adjusted
@@ -989,7 +987,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 							&& !choices.map(chx => chx.id).includes(ch.id)
 							&& !lio.replaceOptions.includes(rr.optionId)).length);
 
-						if (adjustedChoice)
+						if (adjustedChoice && !choices.map(c => c.id).includes(existingChoice.id))
 						{
 							choices.push(existingChoice);
 						}

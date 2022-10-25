@@ -13,6 +13,10 @@ $modal-font-size: 1.25em;
 	button {
 		color: #fff;
 	}
+	
+	button:focus {
+    outline: none;
+}
 }
 .modal-center-title{
 	justify-content: center;
@@ -36,5 +40,6 @@ $modal-font-size: 1.25em;
 
 .btn-primary {
     background: var(--primary-button-color) !important;
+	border-color: var(--primary-button-color) !important;
     border-radius: 35px;
 }

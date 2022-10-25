@@ -1,23 +1,27 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { Store, select } from '@ngrx/store';
+
+import { combineLatest } from 'rxjs';
+import { debounceTime, filter, map, withLatestFrom } from 'rxjs/operators';
+import * as _ from 'lodash';
+import
+{
+	UnsubscribeOnDestroy, flipOver, DecisionPoint, SubGroup, Choice, ChoiceImageAssoc, TreeVersion, MyFavoritesChoice, getDependentChoices, Tree, TreeVersionRules, PlanOption, MyFavoritesPointDeclined, ModalService
+} from 'phd-common';
+
 import * as fromRoot from '../../../ngrx-store/reducers';
+import * as fromApp from '../../../ngrx-store/app/reducer';
 import * as fromPlan from '../../../ngrx-store/plan/reducer';
 import * as fromFavorite from '../../../ngrx-store/favorite/reducer';
+import * as AppActions from '../../../ngrx-store/app/actions';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 import * as FavoriteActions from '../../../ngrx-store/favorite/actions';
 import * as NavActions from '../../../ngrx-store/nav/actions';
-import * as _ from 'lodash';
-
-import
-{
-	UnsubscribeOnDestroy, flipOver, DecisionPoint, SubGroup, Choice, ChoiceImageAssoc, TreeVersion, MyFavoritesChoice, getDependentChoices, Tree, TreeVersionRules, PlanOption, MyFavoritesPointDeclined
-} from 'phd-common';
 
 import { ChoiceExt } from '../../../shared/models/choice-ext.model';
 import { BuildMode } from '../../../shared/models/build-mode.model';
 import { TreeService } from '../../../core/services/tree.service';
-import { Router } from '@angular/router';
-import { debounceTime, filter, map, withLatestFrom } from 'rxjs/operators';
 
 @Component({
 	selector: 'included-options',
@@ -48,6 +52,7 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 	myFavoritesPointsDeclined: MyFavoritesPointDeclined[];
 
 	constructor(private store: Store<fromRoot.State>,
+		private modalService: ModalService,
 		private treeService: TreeService,
 		private router: Router) { super(); }
 
@@ -66,14 +71,18 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 			this.communityName = communityName;
 		});
 
-		this.store.pipe(
-			select(state => state.scenario),
-		).subscribe(scenario =>
-		{
-			this.tree = scenario.tree;
-			this.treeVersionRules = _.cloneDeep(scenario.rules);
-			this.options = _.cloneDeep(scenario.options);
-			this.isReadonly = scenario.buildMode === BuildMode.BuyerPreview;
+		combineLatest([
+			this.store.pipe(select(state => state.scenario), this.takeUntilDestroyed()),
+			this.store.pipe(select(fromApp.termsAndConditionsAcknowledged), this.takeUntilDestroyed()),
+		]).subscribe(([scenarioState, taca]) => {
+			this.tree = scenarioState.tree;
+			this.treeVersionRules = _.cloneDeep(scenarioState.rules);
+			this.options = _.cloneDeep(scenarioState.options);
+			this.isReadonly = scenarioState.buildMode === BuildMode.BuyerPreview;
+
+			if (!taca && scenarioState.buildMode == BuildMode.Presale) {
+				this.store.dispatch(new AppActions.ShowTermsAndConditionsModal(true));
+			}
 		});
 
 		this.store.pipe(

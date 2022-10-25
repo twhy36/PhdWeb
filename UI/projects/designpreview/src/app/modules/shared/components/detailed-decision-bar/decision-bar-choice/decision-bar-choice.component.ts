@@ -62,9 +62,8 @@ export class DecisionBarChoiceComponent {
 		this.hiddenChoicePriceModalRef?.close();
 	}
 
-	onBlockedItemClick(pointId: number) {
+	onBlockedItemClick() {
 		this.blockedChoiceModalRef?.close();
-		this.onSelectDecisionPoint.emit(pointId);
 	}
 
 	openHiddenChoicePriceModal() {

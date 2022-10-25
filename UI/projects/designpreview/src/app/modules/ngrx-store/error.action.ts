@@ -8,7 +8,6 @@ export enum ErrorFrom {
 	HomeComponent = 'Home.Component',
 	LoadPresale = 'Scenario.LoadPresale',
 	PageNotFound = 'WildcardPath.error',
-	LoadLots = 'Lots.LoadLots',
 	LoadSelectedPlan = 'Lots.LoadSelectedPlan',
 	LoadSalesAgreement = 'LoadSalesAgreement',
 	LoadPreview = 'Scenario.LoadPreview',

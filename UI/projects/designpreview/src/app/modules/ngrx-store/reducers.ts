@@ -6,7 +6,6 @@ import { PriceBreakdown, TreeVersion, PlanOption } from 'phd-common';
 
 import * as fromApp from './app/reducer';
 import * as fromScenario from './scenario/reducer';
-import * as fromLot from './lot/reducer';
 import * as fromPlan from './plan/reducer';
 import * as fromNav from './nav/reducer';
 import * as fromOrg from './org/reducer';
@@ -20,7 +19,6 @@ export interface State
 {
 	app: fromApp.State;
 	scenario: fromScenario.State;
-	lot: fromLot.State;
 	plan: fromPlan.State;
 	nav: fromNav.State;
 	org: fromOrg.State;
@@ -33,7 +31,6 @@ export interface State
 export const reducers: ActionReducerMap<State> = {
 	app: fromApp.reducer,
 	scenario: fromScenario.reducer,
-	lot: fromLot.reducer,
 	plan: fromPlan.reducer,
 	nav: fromNav.reducer,
 	org: fromOrg.reducer,
@@ -267,7 +264,7 @@ export const contractedTree = createSelector(
 
 export const selectedPlanPrice = createSelector(
 	fromPlan.selectedPlanData,
-	fromLot.selectSelectedLot,
+	fromSalesAgreement.selectSelectedLot,
 	(selectedPlan, selectedLot) =>
 	{
 		let price = selectedPlan ? selectedPlan.price : 0;

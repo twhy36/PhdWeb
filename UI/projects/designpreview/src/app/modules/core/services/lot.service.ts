@@ -13,31 +13,6 @@ export class LotService
 {
 	constructor(private _http: HttpClient) { }
 
-	loadLots(salesCommunityId: number, selectedLot: number, skipSpinner: boolean = true): Observable<Array<Lot>>
-	{
-		const expand = `lotHandingAssocs($expand=handing($select=id,name)),planAssociations($select=id,isActive,planId,lotId),jobs($select=id,lotId,handing,planId)`;
-		const includeSelectedLot = selectedLot ? `or id eq ${selectedLot}` : '';
-
-		// get Available lots that are not Models
-		const filter =
-			`financialCommunity/salesCommunityId eq ${salesCommunityId} and ` +
-			`(lotStatusDescription eq 'Available' and (lotBuildTypeDesc eq 'Dirt' or lotBuildTypeDesc eq null or lotBuildTypeDesc eq 'Spec') ` +
-			`${includeSelectedLot}) and isMasterUnit eq false`;
-
-		const select = `id,lotBlock,premium,lotStatusDescription,foundationType,lotBuildTypeDesc,financialCommunityId,isMasterUnit`;
-		const url = `${environment.apiUrl}lots?${encodeURIComponent('$')}expand=${encodeURIComponent(expand)}&${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}&${encodeURIComponent('$')}select=${encodeURIComponent(select)}`;
-
-		return (skipSpinner ? this._http : withSpinner(this._http)).get<any>(url).pipe(
-			map((lotsResponse) =>
-			{
-				let lots = lotsResponse.value.map(l => new Lot(l));
-
-				return lots;
-			}),
-			defaultOnNotFound("loadLots", [])
-		);
-	}
-
 	getLot(lotId: number): Observable<LotExt>
 	{
 		if (!lotId)

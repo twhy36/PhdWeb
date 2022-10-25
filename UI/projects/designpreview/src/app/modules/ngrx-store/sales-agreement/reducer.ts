@@ -2,7 +2,7 @@ import { Action, createFeatureSelector, createSelector } from '@ngrx/store';
 
 import * as _ from "lodash";
 
-import { SalesAgreement } from 'phd-common';
+import { LotExt, SalesAgreement } from 'phd-common';
 
 import { RehydrateMap } from "../sessionStorage";
 import { CommonActionTypes, SalesAgreementLoaded } from "../actions";
@@ -12,7 +12,8 @@ export interface State extends SalesAgreement
 	isFloorplanFlipped: boolean,
 	isDesignComplete: boolean,
 	loadError: boolean,
-	salesAgreementLoading: boolean
+	salesAgreementLoading: boolean,
+	selectedLot?: LotExt
 }
 
 RehydrateMap.onRehydrate<State>("salesAgreement", state =>
@@ -29,7 +30,8 @@ export const initialState: State = {
 	isFloorplanFlipped: false,
 	isDesignComplete: false,
 	loadError: false,
-	salesAgreementLoading: false
+	salesAgreementLoading: false,
+	selectedLot: null
 };
 
 export function reducer(state: State = initialState, action: Action): State
@@ -47,7 +49,8 @@ export function reducer(state: State = initialState, action: Action): State
 					isFloorplanFlipped: saAction.info ? saAction.info.isFloorplanFlipped : false,
 					isDesignComplete: saAction.info ? saAction.info.isDesignComplete : false,
 					salesAgreementLoading: false,
-					loadError: false
+					loadError: false,
+					selectedLot: saAction.lot,
 				};
 			}
 		case CommonActionTypes.LoadError:
@@ -68,4 +71,9 @@ export const primaryBuyer = createSelector(
 export const salesAgreementId = createSelector(
 	salesAgreementState,
 	(state) => state?.id || 0
+);
+
+export const selectSelectedLot = createSelector(
+	salesAgreementState,
+	(state) => state ? state.selectedLot : null
 );

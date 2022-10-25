@@ -80,12 +80,6 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 			const postalCodeControl = addressFormGroup.get('postalCode');
 			const countryControl = addressFormGroup.get('country');
 
-			// primary buyer and has no country set then default to United States
-			if (this.isPrimaryBuyer && countryControl.value === null)
-			{
-				countryControl.setValue('United States');
-			}
-
 			// determine when address1 and city are required
 			// - if any address field has a value then both are required
 			// - if not then neither are required

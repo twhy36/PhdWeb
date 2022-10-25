@@ -94,10 +94,10 @@ export class LoadError extends ErrorAction
 export class SelectChoices implements Action
 {
 	readonly type = ScenarioActionTypes.SelectChoices;
-	public choices: { choiceId: number, overrideNote: string, quantity: number, attributes?: DesignToolAttribute[], timeOfSaleOptionPrices?: TimeOfSaleOptionPrice[], attributeOnly?: boolean }[];
+	public choices: { choiceId: number, overrideNote: string, quantity: number, attributes?: DesignToolAttribute[], timeOfSaleOptionPrices?: TimeOfSaleOptionPrice[], attributeOnly?: boolean, cancellingChangeOrder?: boolean }[];
 	public save: boolean;
 
-	constructor(save: boolean, ...choices: { choiceId: number, overrideNote: string, quantity: number, attributes?: DesignToolAttribute[], timeOfSaleOptionPrices?: TimeOfSaleOptionPrice[], attributeOnly?: boolean }[])
+	constructor(save: boolean, ...choices: { choiceId: number, overrideNote: string, quantity: number, attributes?: DesignToolAttribute[], timeOfSaleOptionPrices?: TimeOfSaleOptionPrice[], attributeOnly?: boolean, cancellingChangeOrder?: boolean }[])
 	{
 		this.choices = choices;
 		this.save = save;

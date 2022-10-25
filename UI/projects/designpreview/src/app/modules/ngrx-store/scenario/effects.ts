@@ -19,7 +19,6 @@ import { PlanService } from '../../core/services/plan.service';
 import { Plan } from 'phd-common';
 import { LoadError } from '../actions';
 import { PlansLoaded, SelectPlan, SetWebPlanMapping } from '../plan/actions';
-import { LoadLots } from '../lot/actions';
 import { AdobeService } from '../../core/services/adobe.service';
 
 @Injectable()
@@ -102,7 +101,6 @@ export class ScenarioEffects
 						new PlansLoaded(plans),
 						new SelectPlan(plan.id, plan.treeVersionId, plan.marketingPlanId),
 						new SetWebPlanMapping(result[1]),
-						new LoadLots(salesCommunity.id),
 					]);
 				})
 			), LoadError, 'Error loading preview!!', ErrorFrom.LoadPreview)
@@ -165,7 +163,6 @@ export class ScenarioEffects
 						new PlansLoaded(plans),
 						new SelectPlan(plan.id, plan.treeVersionId, plan.marketingPlanId),
 						new SetWebPlanMapping(result[1]),
-						new LoadLots(salesCommunity.id),
 					]);
 				})
 			), LoadError, 'Error loading presale!!', ErrorFrom.LoadPresale)

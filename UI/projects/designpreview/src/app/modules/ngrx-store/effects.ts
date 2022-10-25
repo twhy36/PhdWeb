@@ -12,7 +12,6 @@ import { SpinnerService, ChangeOrderChoice, ChangeOrderGroup, SalesAgreementInfo
 import { CommonActionTypes, LoadError, LoadSalesAgreement, SalesAgreementLoaded } from './actions';
 import { ErrorAction, ErrorFrom, SetLatestError, tryCatch } from './error.action';
 import { LoadSelectedPlan } from './plan/actions';
-import { LoadLots } from './lot/actions';
 
 import { TreeService } from '../core/services/tree.service';
 import { OptionService } from '../core/services/option.service';
@@ -241,7 +240,6 @@ export class CommonEffects
 
 					return <Observable<Action>>from([
 						new SalesAgreementLoaded(result.salesAgreement, result.salesAgreementInfo, result.job, result.sc, result.selectedChoices, result.selectedPlanId, result.selectedHanding, result.tree, result.rules, result.options, result.images, result.mappings, result.changeOrder, result.lot, result.myFavorites),
-						new LoadLots(result.sc.id),
 						new LoadSelectedPlan(result.selectedPlanId, selectedPlanPrice)
 					]);
 
