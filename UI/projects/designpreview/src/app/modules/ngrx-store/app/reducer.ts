@@ -24,13 +24,7 @@ export function reducer(state: State = initialState, action: AppActions): State 
 			return { ...state, pageNotFound: true };
 
 		case AppActionTypes.AcknowledgeTermsAndConditions:
-			return { ...state, termsAndConditionsAcknowledged: true }
-
-		case AppActionTypes.CloseTermsAndConditions:
-			return { ...state, termsAndConditionsAcknowledged: false }
-
-		case AppActionTypes.ShowTermsAndConditionsModal:
-			return { ...state, showTermsAndConditionsModal: action.showTermsAndConditionsModal }
+			return { ...state, termsAndConditionsAcknowledged: action.acknowledgeTermsAndConditions }
 
 		default:
 			return state;
@@ -45,12 +39,6 @@ export const getAppLatestError = createSelector(
 		return app.latestError;
 	}
 );
-export const showTermsAndConditionsModal = createSelector(
-	selectApp,
-	(app) => {
-		return app.showTermsAndConditionsModal;
-	}
-)
 export const termsAndConditionsAcknowledged = createSelector(
 	selectApp,
 	(app) => {

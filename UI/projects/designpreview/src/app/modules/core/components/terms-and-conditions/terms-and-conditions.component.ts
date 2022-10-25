@@ -4,7 +4,7 @@ import { Store } from '@ngrx/store';
 import { ModalContent } from 'phd-common';
 
 import * as fromRoot from '../../../../modules/ngrx-store/reducers';
-import { AcknowledgeTermsAndConditions, CloseTermsAndConditions, ShowTermsAndConditionsModal } from '../../../ngrx-store/app/actions';
+import { AcknowledgeTermsAndConditions } from '../../../ngrx-store/app/actions';
 
 @Component({
 	selector: 'lib-terms-and-conditions',
@@ -21,7 +21,7 @@ export class TermsAndConditionsComponent extends ModalContent {
 	close(result?: any)
 	{
 		if (result === 'Got It') {
-			this.store.dispatch(new AcknowledgeTermsAndConditions());
+			this.store.dispatch(new AcknowledgeTermsAndConditions(true));
 		}
 		this.modalRef.close(result);
 	}

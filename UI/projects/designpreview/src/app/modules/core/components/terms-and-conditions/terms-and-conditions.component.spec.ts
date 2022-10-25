@@ -36,7 +36,6 @@ fdescribe('TermsAndConditionsComponent', () => {
   it('should return the default state', () => {
     const state = fromApp.reducer(undefined, { type: null });
 
-    expect(state.showTermsAndConditionsModal).toBe(initialState.showTermsAndConditionsModal);
     expect(state.termsAndConditionsAcknowledged).toBe(initialState.termsAndConditionsAcknowledged);
   })
 });

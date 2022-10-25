@@ -18,7 +18,6 @@ import { AdobeService } from './modules/core/services/adobe.service';
 import * as fromRoot from './modules/ngrx-store/reducers';
 import * as fromApp from './modules/ngrx-store/app/reducer';
 import * as fromFavorite from './modules/ngrx-store/favorite/reducer';
-import { ShowTermsAndConditionsModal } from './modules/ngrx-store/app/actions';
 import { BuildMode } from './modules/shared/models/build-mode.model';
 import { InfoModalComponent } from './modules/shared/components/info-modal/info-modal.component';
 
@@ -76,17 +75,15 @@ export class AppComponent extends UnsubscribeOnDestroy {
 		combineLatest([
 			this.store.pipe(select(state => state.scenario), this.takeUntilDestroyed()),
 			this.store.pipe(select(fromApp.termsAndConditionsAcknowledged), this.takeUntilDestroyed()),
-			this.store.pipe(select(fromApp.showTermsAndConditionsModal), this.takeUntilDestroyed()),
 		])
-			.subscribe(([scenarioState, taca, showModal]) => {
-				if (!taca && scenarioState.buildMode == BuildMode.Presale && showModal) {
+			.subscribe(([scenarioState, taca]) => {
+				if (!taca && scenarioState.buildMode == BuildMode.Presale) {
 					const ngbModalOptions: NgbModalOptions = {
 						centered: true,
 						backdrop: 'static',
 						keyboard: false
 					};
 					this.modalService.open(TermsAndConditionsComponent, ngbModalOptions)
-					this.store.dispatch(new ShowTermsAndConditionsModal(false))
 				}
 			});
 

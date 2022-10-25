@@ -3,7 +3,6 @@ import { ActionReducer } from '@ngrx/store';
 import { LoadSalesAgreement } from './actions';
 
 import * as fromScenario from './scenario/reducer';
-import * as fromLot from './lot/reducer';
 import * as fromPlan from './plan/reducer';
 import * as fromNav from './nav/reducer';
 import * as fromOrg from './org/reducer';
@@ -24,7 +23,6 @@ export function stateReset(reducer: ActionReducer<any>): ActionReducer<any> {
 			newState = {
 				...state,
 				salesAgreement: fromSalesAgreement.initialState,
-				lot: fromLot.initialState,
 				plan: fromPlan.initialState,
 				nav: fromNav.initialState,
 				org: fromOrg.initialState,
