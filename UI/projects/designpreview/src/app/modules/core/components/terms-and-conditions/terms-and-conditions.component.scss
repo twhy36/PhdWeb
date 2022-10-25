@@ -5,7 +5,7 @@
 	background: var(--popup-ribbon-background-color) !important;
 	border-top-left-radius: 0.2rem;
 	border-top-right-radius: 0.2rem;
-	color: var(--nav-bar-text-color);
+	color: white;
 }
 
 .modal-title {
@@ -17,13 +17,13 @@
 }
 
 .phd-close-icon {
-    margin-bottom: auto;
-    margin-top: auto;
-    cursor: pointer;
+	margin-bottom: auto;
+	margin-top: auto;
+	cursor: pointer;
 }
 
 .modal-footer {
-    justify-content: center;
+	justify-content: center;
 }
 
 .modal-button {
@@ -36,5 +36,7 @@
 }
 
 .btn-primary {
-    border-radius: 35px;
+	border-radius: 35px;
+	background: var(--primary-button-color) !important;
+	border-color: var(--primary-button-color) !important;
 }

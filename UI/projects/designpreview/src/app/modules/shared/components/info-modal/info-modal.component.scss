@@ -40,5 +40,6 @@ $modal-font-size: 1.25em;
 
 .btn-primary {
     background: var(--primary-button-color) !important;
+	border-color: var(--primary-button-color) !important;
     border-radius: 35px;
 }

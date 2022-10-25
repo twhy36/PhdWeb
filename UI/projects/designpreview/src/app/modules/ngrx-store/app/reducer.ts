@@ -25,6 +25,9 @@ export function reducer(state: State = initialState, action: AppActions): State 
 
 		case AppActionTypes.AcknowledgeTermsAndConditions:
 			return { ...state, termsAndConditionsAcknowledged: action.acknowledgeTermsAndConditions }
+		
+		case AppActionTypes.ShowTermsAndConditionsModal:
+			return { ...state, showTermsAndConditionsModal: action.showTermsAndConditions }
 
 		default:
 			return state;
@@ -44,5 +47,10 @@ export const termsAndConditionsAcknowledged = createSelector(
 	(app) => {
 		return app.termsAndConditionsAcknowledged;
 	}
-)
-
+);
+export const showTermsAndConditions = createSelector(
+	selectApp,
+	(app) => {
+		return app.showTermsAndConditionsModal;
+	}
+);
