@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
-import { map, catchError, tap, switchMap } from 'rxjs/operators';
-import { Observable, combineLatest, EMPTY as empty, of, throwError } from 'rxjs';
+import { map, catchError, tap, switchMap, toArray, mergeMap } from 'rxjs/operators';
+import { Observable, combineLatest, EMPTY as empty, of, throwError, from } from 'rxjs';
 
 import
 {
@@ -521,62 +521,63 @@ export class TreeService
 			return resultArray;
 		}, []);
 
-		for (let item of splitArrayresult)
-		{
-			// create a batch request with a max of 100 options per request
-			for (var x = 0; x < item.length; x = x + batchSize)
-			{
-				let optionList = item.slice(x, x + batchSize);
+		return from(splitArrayresult).pipe(
 
-				batchBundles.push(buildRequestUrl(optionList));
-			}
+			mergeMap(item => {
 
-			return this.identityService.token.pipe(
-				switchMap((token: string) =>
+				let batchBundles: string[] = [];
+				for (var x = 0; x < item.length; x = x + batchSize)
 				{
-					let requests = batchBundles.map(req => createBatchGet(req));
+					let optionList = item.slice(x, x + batchSize);
 
-					let guid = newGuid();
-					let headers = createBatchHeaders(guid, token);
-					let batch = createBatchBody(guid, requests);
+					batchBundles.push(buildRequestUrl(optionList));
+				}
 
-				return this.http.post(`${environment.apiUrl}$batch`, batch, { headers: headers });
+				return this.identityService.token.pipe(
+					switchMap((token: string) => {
+						let requests = batchBundles.map(req => createBatchGet(req));
+
+						let guid = newGuid();
+						let headers = createBatchHeaders(guid, token);
+						let batch = createBatchBody(guid, requests);
+
+						return withSpinner(this.http).post(`${environment.apiUrl}$batch`, batch, { headers: headers });
+					}));
+
 			}),
-			map((response: any) =>
-			{
-				let bodyValue: any[] = response.responses.filter(r => r.body?.value?.length > 0).map(r => r.body.value);
+
+			toArray<any>(),
+			map(responses => {
+				let bodyValue: any[] = _.flatMap(responses, (response: any) => response.responses.filter(r => r.body?.value?.length > 0).map(r => r.body.value));
+				//logic here to recombine results	
 				let optionRules = _.flatten(bodyValue);
 
-					let mappings: { [optionNumber: string]: OptionRule } = {};
+				let mappings: { [optionNumber: string]: OptionRule } = {};
 
-					options.forEach(opt =>
-					{
-						let res = optionRules.find(or => or.planOption.integrationKey === opt.optionNumber && or.dpChoice_OptionRuleAssoc.some(r => r.dpChoiceID === opt.dpChoiceId));
+				options.forEach(opt => {
+					let res = optionRules.find(or => or.planOption.integrationKey === opt.optionNumber && or.dpChoice_OptionRuleAssoc.some(r => r.dpChoiceID === opt.dpChoiceId));
 
-						mappings[opt.optionNumber] = !!res ? <OptionRule>
-							{
-								optionId: opt.optionNumber, choices: res.dpChoice_OptionRuleAssoc.sort(sortChoices).map(c =>
-								{
-									return {
-										id: c.dpChoice.divChoiceCatalogID,
-										mustHave: c.mustHave,
-										attributeReassignments: c.attributeReassignments.map(ar =>
-										{
-											return {
-												id: ar.attributeReassignmentID,
-												choiceId: ar.todpChoiceID,
-												attributeGroupId: ar.attributeGroupID
-											};
-										})
-									};
-								}), ruleId: res.optionRuleID, replaceOptions: res.optionRuleReplaces.map(orr => orr.planOption.integrationKey)
-							} : null;
-					});
+					mappings[opt.optionNumber] = !!res ? <OptionRule>
+						{
+							optionId: opt.optionNumber, choices: res.dpChoice_OptionRuleAssoc.sort(sortChoices).map(c => {
+								return {
+									id: c.dpChoice.divChoiceCatalogID,
+									mustHave: c.mustHave,
+									attributeReassignments: c.attributeReassignments.map(ar => {
+										return {
+											id: ar.attributeReassignmentID,
+											choiceId: ar.todpChoiceID,
+											attributeGroupId: ar.attributeGroupID
+										};
+									})
+								};
+							}), ruleId: res.optionRuleID, replaceOptions: res.optionRuleReplaces.map(orr => orr.planOption.integrationKey)
+						} : null;
+				});
 
-					return mappings;
-				})
-			);
-		}
+				return mappings;
+			})
+		);
 	}
 
 	getChoiceImageAssoc(choices: Array<number>): Observable<Array<ChoiceImageAssoc>>
