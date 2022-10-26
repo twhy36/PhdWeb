@@ -509,7 +509,7 @@ export class TreeService
 		const chunk = 100;
 		const splitArrayresult = options.reduce((resultArray, item, index) =>
 		{
-			const chunkIndex = Math.floor(index / chunk)
+			const chunkIndex = Math.floor(index / chunk);
 			if (!resultArray[chunkIndex])
 			{
 				resultArray[chunkIndex] = []
