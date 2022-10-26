@@ -519,9 +519,9 @@ export class TreeService
 		for (let item of splitArrayresult)
 		{
 			// create a batch request with a max of 100 options per request
-			for (var x = 0; x < options.length; x = x + batchSize)
+			for (var x = 0; x < item.length; x = x + batchSize)
 			{
-				let optionList = options.slice(x, x + batchSize);
+				let optionList = item.slice(x, x + batchSize);
 
 				batchBundles.push(buildRequestUrl(optionList));
 			}
