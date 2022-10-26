@@ -405,60 +405,79 @@ export class TreeService
 		const batchSize = 1;
 		let batchBundles: string[] = [];
 
-		// create a batch request with a max of 100 options per request
-		for (var x = 0; x < options.length; x = x + batchSize)
+		const chunk = 100;
+		const splitArrayresult = options.reduce((resultArray, item, index) =>
 		{
-			let optionList = options.slice(x, x + batchSize);
+			const chunkIndex = Math.floor(index / chunk);
 
-			batchBundles.push(buildRequestUrl(optionList));
-		}
-
-		return this.identityService.token.pipe(
-			switchMap((token: string) =>
+			if (!resultArray[chunkIndex])
 			{
-				let requests = batchBundles.map(req => createBatchGet(req));
+				resultArray[chunkIndex] = [];
+			}
 
-				let guid = newGuid();
-				let headers = createBatchHeaders(guid, token);
-				let batch = createBatchBody(guid, requests);
+			resultArray[chunkIndex].push(item);
 
-				return this.http.post(`${environment.apiUrl}$batch`, batch, { headers: headers });
-			}),
-			map((response: any) =>
+			return resultArray;
+		}, []);
+
+		for (let item of splitArrayresult)
+		{
+			// create a batch request with a max of 100 options per request
+			for (var x = 0; x < item.length; x = x + batchSize)
 			{
-				let bodyValue: any[] = response.responses.filter(r => r.body?.value?.length > 0).map(r => r.body.value);
-				let optionRules = _.flatten(bodyValue);
+				let optionList = item.slice(x, x + batchSize);
 
-				let mappings: { [optionNumber: string]: OptionRule } = {};
-
-				options.forEach(opt =>
+				batchBundles.push(buildRequestUrl(optionList));
+			}
+			return this.identityService.token.pipe(
+				switchMap((token: string) =>
 				{
-					let res = optionRules.find(or => or.planOption.integrationKey === opt.optionNumber && or.dpChoice_OptionRuleAssoc.some(r => r.dpChoiceID === opt.dpChoiceId));
+					let requests = batchBundles.map(req => createBatchGet(req));
 
-					mappings[opt.optionNumber] = !!res ? <OptionRule>{
-						optionId: opt.optionNumber, choices: res.dpChoice_OptionRuleAssoc.sort(sortChoices).map(c =>
-						{
-							return {
-								id: c.dpChoice.divChoiceCatalogID,
-								mustHave: c.mustHave,
-								attributeReassignments: c.attributeReassignments.map(ar =>
-								{
+					let guid = newGuid();
+					let headers = createBatchHeaders(guid, token);
+					let batch = createBatchBody(guid, requests);
+					return this.http.post(`${environment.apiUrl}$batch`, batch, { headers: headers });
+				}),
+				map((response: any) =>
+				{
+					let bodyValue: any[] = response.responses.filter(r => r.body?.value?.length > 0).map(r => r.body.value);
+					let optionRules = _.flatten(bodyValue);
+
+					let mappings: { [optionNumber: string]: OptionRule } = {};
+
+					options.forEach(opt =>
+					{
+						let res = optionRules.find(or => or.planOption.integrationKey === opt.optionNumber && or.dpChoice_OptionRuleAssoc.some(r => r.dpChoiceID === opt.dpChoiceId));
+
+						mappings[opt.optionNumber] = !!res ? <OptionRule>
+							{
+								optionId: opt.optionNumber, choices: res.dpChoice_OptionRuleAssoc.sort(sortChoices).map(c => {
 									return {
-										id: ar.attributeReassignmentID,
-										choiceId: ar.todpChoiceID,
-										attributeGroupId: ar.attributeGroupID,
-										divChoiceCatalogId: ar.todpChoice.divChoiceCatalogID
+										id: c.dpChoice.divChoiceCatalogID,
+										mustHave: c.mustHave,
+										attributeReassignments: c.attributeReassignments.map(ar =>
+										{
+											return {
+												id: ar.attributeReassignmentID,
+												choiceId: ar.todpChoiceID,
+												attributeGroupId: ar.attributeGroupID,
+												divChoiceCatalogId: ar.todpChoice.divChoiceCatalogID
+											};
+										})
 									};
-								})
-							};
-						}), ruleId: res.optionRuleID, replaceOptions: res.optionRuleReplaces.map(orr => orr.planOption.integrationKey)
-					} : null;
-				});
+								}), ruleId: res.optionRuleID, replaceOptions: res.optionRuleReplaces.map(orr => orr.planOption.integrationKey)
+							} : null;
+					});
 
-				return mappings;
-			})
-		);
+					return mappings;
+				})
+			);
+		}    
+		
 	}
+
+	
 
 	// Retrieve the latest cutOffDays in case GetTreeDto returns cached tree data from API
 	getDivDPointCatalogs(tree: Tree, skipSpinner?: boolean): Observable<Tree>
