@@ -21,7 +21,7 @@ import * as fromJobs from '../../../ngrx-store/job/reducer';
 import
 {
 	UnsubscribeOnDestroy, ModalRef, ChangeTypeEnum, Job, TreeVersionRules, ScenarioStatusType, PriceBreakdown,
-	TreeFilter, Tree, SubGroup, Group, DecisionPoint, Choice, getDependentChoices, LotExt, getChoiceToDeselect,
+	TreeFilter, Tree, SubGroup, Group, DecisionPoint, Choice, getDependentChoices, getPointChoicesWithNewPricing, LotExt, getChoiceToDeselect,
 	PlanOption, ModalService, Plan, TimeOfSaleOptionPrice, ITimeOfSaleOptionPrice
 } from 'phd-common';
 
@@ -59,6 +59,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 	@ViewChild('impactedChoicesModal') impactedChoicesModal: TemplateRef<any>;
 	@ViewChild('optionPriceChangedModal') optionPriceChangedModal: TemplateRef<any>;
 	@ViewChild('optionMappingAdjustedModal') optionMappingAdjustedModal: TemplateRef<any>;
+	@ViewChild('pointChoicePricingChangedModal') pointChoicePricingChangedModal: TemplateRef<any>;
 
 	acknowledgedMonotonyConflict: boolean;
 	agreementStatus$: Observable<string>;
@@ -689,6 +690,9 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 			selectedChoices.push({ choiceId: c.id, overrideNote: c.overrideNote, quantity: 0, attributes: c.selectedAttributes, timeOfSaleOptionPrices: this.getReplacedOptionPrices(c) });
 		});
 
+		// #379028 Get any choice in the same DP that has had its pricing updated
+		const choicesWithNewPricing = getPointChoicesWithNewPricing(this.tree, this.treeVersionRules, this.options, choice);
+
 		let obs: Observable<boolean>;
 
 		if (adjustedChoices && adjustedChoices.length)
@@ -698,6 +702,10 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		else if (choiceToDeselect && impactedChoices && impactedChoices.length && ((choiceToDeselect.changedDependentChoiceIds && choiceToDeselect.changedDependentChoiceIds.length > 0) || choiceToDeselect.mappingChanged))
 		{
 			obs = this.showOptionMappingChangedModal(impactedChoices);
+		}
+		else if (choicesWithNewPricing && choicesWithNewPricing.length)
+		{
+			obs = this.showPointChoicePricingChangedModal(choicesWithNewPricing);
 		}
 		else if (this.isChangingOrder && impactedChoices && impactedChoices.length)
 		{
@@ -824,6 +832,14 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
 		const secondaryButton = { text: 'Cancel', result: false, cssClass: 'btn-secondary' };
 		return this.showConfirmModal(this.optionMappingAdjustedModal, 'Warning', primaryButton, secondaryButton);
+	}
+
+	private showPointChoicePricingChangedModal(choices: Array<Choice>): Observable<boolean>
+	{
+		this.impactedChoices = choices.map(c => c.label).sort().join(', ');
+		const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
+		const secondaryButton = { text: 'Cancel', result: false, cssClass: 'btn-secondary' };
+		return this.showConfirmModal(this.pointChoicePricingChangedModal, 'Warning', primaryButton, secondaryButton);
 	}
 
 	loadPhdLite()

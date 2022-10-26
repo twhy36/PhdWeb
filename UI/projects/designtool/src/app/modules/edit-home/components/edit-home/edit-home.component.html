@@ -131,6 +131,15 @@
 	</div>
 </ng-template>
 
+<ng-template #pointChoicePricingChangedModal>
+	<div class="modal-body">
+		<p>Option mapping has changed. Original pricing and offerings will no longer be
+			available for the following choices:
+			{{impactedChoices}}</p>
+		<p>Do you wish to continue?</p>
+	</div>
+</ng-template>
+
 <choice-card *ngIf="viewChoice" [currentChoice]="viewChoice" [canConfigure]="canConfigure$ | async"
 	[canOverride]="canOverride$ | async" [currentDecisionPoint]="viewPoint" (onChoiceChange)="onChoiceChange($event)"
 	(saveAttributes)="saveScenario($event)" (toggled)="toggleChoice($event)">

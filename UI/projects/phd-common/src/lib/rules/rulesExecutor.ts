@@ -1155,3 +1155,37 @@ export function checkReplacedOption(deselectedChoice: Choice, rules: TreeVersion
 		});
 	}
 }
+
+export function getPointChoicesWithNewPricing(tree: Tree, rules: TreeVersionRules, options: PlanOption[], choice: Choice)
+{
+	let newTree = _.cloneDeep(tree);
+
+	//deselecting choice
+	if (choice.quantity)
+	{
+		findChoice(newTree, ch => ch.id === choice.id).quantity = 0;
+	}
+	else 
+	{
+		selectChoice(newTree, choice.id); //this checks pick type and clears other choices if necessary
+		findChoice(newTree, ch => ch.id === choice.id).quantity = 1;
+	}
+
+	const newRules = exludeConflictedRules(rules, tree);
+
+	//clear locked in data on the cloned tree so we can see which choices "should"
+	//be disabled
+	_.flatMap(newTree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, p => p.choices)))
+		.forEach(ch =>
+		{
+			ch.lockedInChoice = null;
+			ch.lockedInOptions = [];
+		});
+
+	//apply rules to cloned tree
+	applyRules(newTree, newRules, options);
+
+	//return any choices that are locked in (i.e. previously sold), but are disabled on the new tree
+	return _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points.filter(p => p.choices.map(ch => ch.id).includes(choice.id)), p => p.choices)))
+		.filter(ch => ch.price !== findChoice(newTree, ch1 => ch1.id === ch.id)?.price);
+}
