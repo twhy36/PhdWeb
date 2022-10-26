@@ -16,8 +16,6 @@ import { environment } from '../../../../environments/environment';
 import { isChangeOrderChoice } from '../../shared/classes/tree.utils';
 
 import * as _ from 'lodash';
-import { newArray } from '@angular/compiler/src/util';
-import { forEach } from 'lodash';
 
 @Injectable()
 export class TreeService
