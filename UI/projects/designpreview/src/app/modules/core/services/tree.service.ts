@@ -557,7 +557,8 @@ export class TreeService
 									return {
 										id: c.dpChoice.divChoiceCatalogID,
 										mustHave: c.mustHave,
-										attributeReassignments: c.attributeReassignments.map(ar => {
+										attributeReassignments: c.attributeReassignments.map(ar =>
+										{
 											return {
 												id: ar.attributeReassignmentID,
 												choiceId: ar.todpChoiceID,
