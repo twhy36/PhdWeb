@@ -402,63 +402,87 @@ export class TreeService
 			return `${environment.apiUrl}optionRules?${encodeURIComponent('$')}expand=${expand}&${encodeURIComponent('$')}filter=${filter}`;
 		}
 
-		const batchSize = 1;		
-
+		const batchSize = 1;
 		const chunk = 100;
+
 		const splitArrayresult = options.reduce((resultArray, item, index) =>
 		{
 			const chunkIndex = Math.floor(index / chunk);
 
-			batchBundles.push(buildRequestUrl(optionList));
-		}
-
-		return this.identityService.token.pipe(
-			switchMap((token: string) =>
+			if (!resultArray[chunkIndex])
 			{
-				let requests = batchBundles.map(req => createBatchGet(req));
+				resultArray[chunkIndex] = [];
+			}
 
-				let guid = newGuid();
-				let headers = createBatchHeaders(guid, token);
-				let batch = createBatchBody(guid, requests);
+			resultArray[chunkIndex].push(item);
 
-				return this.http.post(`${environment.apiUrl}$batch`, batch, { headers: headers });
+			return resultArray;
+		}, []);
+
+		return from(splitArrayresult).pipe(
+
+			mergeMap(item =>
+			{
+
+				let batchBundles: string[] = [];
+
+				for (var x = 0; x < item.length; x = x + batchSize)
+				{
+					let optionList = item.slice(x, x + batchSize);
+
+					batchBundles.push(buildRequestUrl(optionList));
+				}
+
+				return this.identityService.token.pipe(
+					switchMap((token: string) =>
+					{
+						let requests = batchBundles.map(req => createBatchGet(req));
+
+						let guid = newGuid();
+						let headers = createBatchHeaders(guid, token);
+						let batch = createBatchBody(guid, requests);
+
+						return withSpinner(this.http).post(`${environment.apiUrl}$batch`, batch, { headers: headers });
+					}));
+
 			}),
-			map((response: any) =>
+
+			toArray<any>(),
+			map(responses =>
 			{
-				let bodyValue: any[] = response.responses.filter(r => r.body?.value?.length > 0).map(r => r.body.value);
+
+				let bodyValue: any[] = _.flatMap(responses, (response: any) => response.responses.filter(r => r.body?.value?.length > 0).map(r => r.body.value));
+				//logic here to recombine results	
 				let optionRules = _.flatten(bodyValue);
 
-					let mappings: { [optionNumber: string]: OptionRule } = {};
+				let mappings: { [optionNumber: string]: OptionRule } = {};
 
-				options.forEach(opt =>
-				{
+				options.forEach(opt => {
 					let res = optionRules.find(or => or.planOption.integrationKey === opt.optionNumber && or.dpChoice_OptionRuleAssoc.some(r => r.dpChoiceID === opt.dpChoiceId));
 
-					mappings[opt.optionNumber] = !!res ? <OptionRule>{
-						optionId: opt.optionNumber, choices: res.dpChoice_OptionRuleAssoc.sort(sortChoices).map(c =>
+					mappings[opt.optionNumber] = !!res ? <OptionRule>
 						{
-							return {
-								id: c.dpChoice.divChoiceCatalogID,
-								mustHave: c.mustHave,
-								attributeReassignments: c.attributeReassignments.map(ar =>
-								{
-									return {
-										id: ar.attributeReassignmentID,
-										choiceId: ar.todpChoiceID,
-										attributeGroupId: ar.attributeGroupID,
-										divChoiceCatalogId: ar.todpChoice.divChoiceCatalogID
-									};
-								})
-							};
-						}), ruleId: res.optionRuleID, replaceOptions: res.optionRuleReplaces.map(orr => orr.planOption.integrationKey)
-					} : null;
+							optionId: opt.optionNumber, choices: res.dpChoice_OptionRuleAssoc.sort(sortChoices).map(c => {
+								return {
+									id: c.dpChoice.divChoiceCatalogID,
+									mustHave: c.mustHave,
+									attributeReassignments: c.attributeReassignments.map(ar => {
+										return {
+											id: ar.attributeReassignmentID,
+											choiceId: ar.todpChoiceID,
+											attributeGroupId: ar.attributeGroupID
+										};
+									})
+								};
+							}), ruleId: res.optionRuleID, replaceOptions: res.optionRuleReplaces.map(orr => orr.planOption.integrationKey)
+						} : null;
 				});
 
 				return mappings;
 			})
 		);
-	}
 
+	}
 	
 
 	// Retrieve the latest cutOffDays in case GetTreeDto returns cached tree data from API
