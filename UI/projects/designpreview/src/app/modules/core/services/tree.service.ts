@@ -530,55 +530,53 @@ export class TreeService
 				{
 					let optionList = item.slice(x, x + batchSize);
 
-					batchBundles.push(buildRequestUrl(optionList));
-				}
+			batchBundles.push(buildRequestUrl(optionList));
+		}
 
-				return this.identityService.token.pipe(
-					switchMap((token: string) => {
-						let requests = batchBundles.map(req => createBatchGet(req));
+		return this.identityService.token.pipe(
+			switchMap((token: string) =>
+			{
+				let requests = batchBundles.map(req => createBatchGet(req));
 
-						let guid = newGuid();
-						let headers = createBatchHeaders(guid, token);
-						let batch = createBatchBody(guid, requests);
+				let guid = newGuid();
+				let headers = createBatchHeaders(guid, token);
+				let batch = createBatchBody(guid, requests);
 
-						return withSpinner(this.http).post(`${environment.apiUrl}$batch`, batch, { headers: headers });
-					}));
-
+				return withSpinner(this.http).post(`${environment.apiUrl}$batch`, batch, { headers: headers });
 			}),
-
-			toArray<any>(),
-			map(responses => {
-				let bodyValue: any[] = _.flatMap(responses, (response: any) => response.responses.filter(r => r.body?.value?.length > 0).map(r => r.body.value));
-				//logic here to recombine results	
+			map((response: any) =>
+			{
+				let bodyValue: any[] = response.responses.filter(r => r.body?.value?.length > 0).map(r => r.body.value);
 				let optionRules = _.flatten(bodyValue);
 
-				let mappings: { [optionNumber: string]: OptionRule } = {};
+					let mappings: { [optionNumber: string]: OptionRule } = {};
 
-				options.forEach(opt => {
+				options.forEach(opt =>
+				{
 					let res = optionRules.find(or => or.planOption.integrationKey === opt.optionNumber && or.dpChoice_OptionRuleAssoc.some(r => r.dpChoiceID === opt.dpChoiceId));
 
-					mappings[opt.optionNumber] = !!res ? <OptionRule>
+					mappings[opt.optionNumber] = !!res ? <OptionRule>{
+						optionId: opt.optionNumber, choices: res.dpChoice_OptionRuleAssoc.sort(sortChoices).map(c =>
 						{
-							optionId: opt.optionNumber, choices: res.dpChoice_OptionRuleAssoc.sort(sortChoices).map(c => {
-								return {
-									id: c.dpChoice.divChoiceCatalogID,
-									mustHave: c.mustHave,
-									attributeReassignments: c.attributeReassignments.map(ar => {
-										return {
-											id: ar.attributeReassignmentID,
-											choiceId: ar.todpChoiceID,
-											attributeGroupId: ar.attributeGroupID
-										};
-									})
-								};
-							}), ruleId: res.optionRuleID, replaceOptions: res.optionRuleReplaces.map(orr => orr.planOption.integrationKey)
-						} : null;
+							return {
+								id: c.dpChoice.divChoiceCatalogID,
+								mustHave: c.mustHave,
+								attributeReassignments: c.attributeReassignments.map(ar =>
+								{
+									return {
+										id: ar.attributeReassignmentID,
+										choiceId: ar.todpChoiceID,
+										attributeGroupId: ar.attributeGroupID
+									};
+								})
+							};
+						}), ruleId: res.optionRuleID, replaceOptions: res.optionRuleReplaces.map(orr => orr.planOption.integrationKey)
+					} : null;
 				});
 
 				return mappings;
 			})
 		);
-
 	}
 
 	getChoiceImageAssoc(choices: Array<number>): Observable<Array<ChoiceImageAssoc>>

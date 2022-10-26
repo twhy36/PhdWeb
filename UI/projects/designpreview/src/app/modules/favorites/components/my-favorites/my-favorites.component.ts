@@ -1,38 +1,41 @@
 import { Component, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BehaviorSubject } from 'rxjs';
-import { combineLatest, map, filter, distinctUntilChanged, withLatestFrom, debounceTime } from 'rxjs/operators';
-import { ReplaySubject } from 'rxjs';
-
-import * as _ from 'lodash';
-
 import { Store, select } from '@ngrx/store';
+
+import { BehaviorSubject } from 'rxjs';
+import { map, filter, distinctUntilChanged, withLatestFrom, debounceTime } from 'rxjs/operators';
+import { combineLatest, ReplaySubject } from 'rxjs';
+import * as _ from 'lodash';
+import
+{
+	UnsubscribeOnDestroy,
+	PriceBreakdown,
+	Group,
+	SubGroup,
+	Tree,
+	TreeVersionRules,
+	PlanOption,
+	JobChoice,
+	getDependentChoices,
+	DecisionPoint,
+	ChoiceImageAssoc,
+	MyFavoritesChoice,
+	MyFavoritesPointDeclined,
+	Choice,
+	PickType,
+	ModalService
+}
+from 'phd-common';
+
 import * as fromRoot from '../../../ngrx-store/reducers';
+import * as fromApp from '../../../ngrx-store/app/reducer';
 import * as fromPlan from '../../../ngrx-store/plan/reducer';
 import * as fromFavorite from '../../../ngrx-store/favorite/reducer';
+import * as AppActions from '../../../ngrx-store/app/actions';
 import * as NavActions from '../../../ngrx-store/nav/actions';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 import * as FavoriteActions from '../../../ngrx-store/favorite/actions';
 import * as fromSalesAgreement from '../../../ngrx-store/sales-agreement/reducer';
-
-import
-	{
-		UnsubscribeOnDestroy,
-		PriceBreakdown,
-		Group,
-		SubGroup,
-		Tree,
-		TreeVersionRules,
-		PlanOption,
-		JobChoice,
-		getDependentChoices,
-		DecisionPoint,
-		ChoiceImageAssoc,
-		MyFavoritesChoice,
-		MyFavoritesPointDeclined,
-		Choice,
-		PickType
-	} from 'phd-common';
 
 import { GroupBarComponent } from '../../../shared/components/group-bar/group-bar.component';
 import { NormalExperienceComponent } from './normal-experience/normal-experience.component';
@@ -86,6 +89,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		private route: ActivatedRoute,
 		private router: Router,
 		private cd: ChangeDetectorRef,
+		private modalService: ModalService,
 		private treeService: TreeService)
 	{
 		super();
@@ -144,12 +148,13 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			distinctUntilChanged()
 		).subscribe(params => this.params$.next(params));
 
-		this.store.pipe(
-			this.takeUntilDestroyed(),
-			select(state => state.scenario),
-			combineLatest(this.params$),
-			combineLatest(this.store.pipe(select(fromRoot.filteredTree)), this.store.pipe(select(state => state.salesAgreement)), this.store.pipe(select(fromFavorite.favoriteState)))
-		).subscribe(([[scenarioState, params], filteredTree, sag, fav]) =>
+		combineLatest([
+			this.store.pipe(select(state => state.scenario)),
+			this.params$,
+			this.store.pipe(select(fromRoot.filteredTree)),
+			this.store.pipe(select(state => state.salesAgreement)),
+			this.store.pipe(select(fromFavorite.favoriteState))
+		]).subscribe(([scenarioState, params, filteredTree, sag, fav]) =>
 		{
 			this.includeContractedOptions = fav && fav.includeContractedOptions;
 			this.salesChoices = fav && fav.salesChoices;
@@ -273,14 +278,18 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			select(fromRoot.priceBreakdown)
 		).subscribe(pb => this.priceBreakdown = pb);
 
-		this.store.pipe(
-			select(state => state.scenario),
-		).subscribe(scenario =>
-		{
-			this.tree = scenario.tree;
-			this.treeVersionRules = _.cloneDeep(scenario.rules);
-			this.options = _.cloneDeep(scenario.options);
-			this.isReadonly = scenario.buildMode === BuildMode.BuyerPreview;
+		combineLatest([
+			this.store.pipe(select(state => state.scenario), this.takeUntilDestroyed()),
+			this.store.pipe(select(fromApp.termsAndConditionsAcknowledged), this.takeUntilDestroyed()),
+		]).subscribe(([scenarioState, taca]) => {
+			this.tree = scenarioState.tree;
+			this.treeVersionRules = _.cloneDeep(scenarioState.rules);
+			this.options = _.cloneDeep(scenarioState.options);
+			this.isReadonly = scenarioState.buildMode === BuildMode.BuyerPreview;
+
+			if (!taca && scenarioState.buildMode == BuildMode.Presale) {
+				this.store.dispatch(new AppActions.ShowTermsAndConditionsModal(true));
+			}
 		});
 
 		this.store.pipe(

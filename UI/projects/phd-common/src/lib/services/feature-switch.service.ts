@@ -23,7 +23,7 @@ export class FeatureSwitchService
 	getFeatureSwitch(name: string, org: IOrg): Observable<IFeatureSwitch>
 	{
 		const entity = `featureSwitches`;
-		const filter = `name eq '${name}'`;
+		const filter = `tolower(name) eq tolower('${name}')`;
 		const select = `featureSwitchId, name, state`;
 
 		let expandFilter = ``;
@@ -136,7 +136,7 @@ export class FeatureSwitchService
 		}
 
 		const entity = `featureSwitches`;
-		const filter = `name eq '${name}'`;
+		const filter = `tolower(name) eq tolower('${name}')`;
 		const select = `featureSwitchId, name, state`;
 
 		const communityIds = financialCommunityIds.join(",");

@@ -95,7 +95,7 @@ export class SearchService
 		selectData.salesCommunity = 'id,name,number';
 		selectData.financialCommunity = 'id,name,number,marketId,salesCommunityId';
 		selectData.scenarios = 'id,name';
-		selectData.jobChangeOrderGroup = 'id,jobId,jobChangeOrderGroupDescription,salesStatusDescription';
+		selectData.jobChangeOrderGroup = 'id,jobId,jobChangeOrderGroupDescription,salesStatusDescription,constructionStatusDescription';
 
 		let expandData: SearchEntities = new SearchEntities();
 
@@ -108,7 +108,7 @@ export class SearchService
 		expandData.financialCommunity = `financialCommunity($select=${selectData.financialCommunity};$expand=${expandData.salesCommunity})`;
 		expandData.salesAgreement = `salesAgreement($select=${selectData.salesAgreement};$expand=jobSalesAgreementAssocs($select=jobId,isActive,salesAgreementId;$orderby=createdUtcDate desc;$top=1))`;
 		expandData.jobSalesAgreementAssocs = `jobSalesAgreementAssocs($select=${selectData.jobSalesAgreementAssocs};$expand=${expandData.salesAgreement})`;
-		expandData.jobChangeOrderGroup = `jobChangeOrderGroups($select=${selectData.jobChangeOrderGroup};$orderby=createdUtcDate desc;$top=1;$expand=jobChangeOrderGroupSalesAgreementAssocs($select=jobChangeOrderGroupId,salesAgreementId,changeOrderGroupSequence), jobChangeOrders($select=id,jobChangeOrderGroupId,jobChangeOrderTypeDescription;$expand=jobSalesChangeOrderBuyers($select=id,jobChangeOrderId,buyerName, firstName, lastName, isPrimaryBuyer, sortKey)))`;
+		expandData.jobChangeOrderGroup = `jobChangeOrderGroups($select=${selectData.jobChangeOrderGroup};$orderby=createdUtcDate desc;$top=1;$expand=jobChangeOrderGroupSalesAgreementAssocs($select=jobChangeOrderGroupId,salesAgreementId,changeOrderGroupSequence,changeOrderGroupSequenceSuffix), jobChangeOrders($select=id,jobChangeOrderGroupId,jobChangeOrderTypeDescription;$expand=jobSalesChangeOrderBuyers($select=id,jobChangeOrderId,buyerName, firstName, lastName, isPrimaryBuyer, sortKey)))`;
 		expandData.jobs = `jobs($select=${selectData.jobs};$expand=${expandData.jobSalesAgreementAssocs},${expandData.jobChangeOrderGroup},planCommunity($select=id,planSalesName);)`;
 
 		// top level expands
@@ -211,7 +211,7 @@ export class SearchService
 		return this._http.get<any>(url).pipe(
 			map(response =>
 			{
-				let lots = response.value.filter(lot => lot.jobChangeOrderGroups && lot.jobChangeOrderGroups.filter(cog => cog.salesStatusDescription === 'Signed' || cog.salesStatusDescription === 'Pending' || cog.salesStatusDescription === 'OutforSignature' || cog.salesStatusDescription === 'Rejected' || cog.constructionStatusDescription === 'Pending').length > 0);
+				let lots = response.value.filter(lot => lot.jobChangeOrderGroups && lot.jobChangeOrderGroups.filter(cog => cog.salesStatusDescription === 'Signed' || cog.salesStatusDescription === 'Pending' || cog.salesStatusDescription === 'OutforSignature' || cog.salesStatusDescription === 'Rejected' || (cog.salesStatusDescription === 'Approved' && cog.constructionStatusDescription === 'Pending')).length > 0);
 				return lots;
 			}));
 	}

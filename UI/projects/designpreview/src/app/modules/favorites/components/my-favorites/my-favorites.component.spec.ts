@@ -7,7 +7,6 @@ import { instance, mock, when } from 'ts-mockito';
 import { provideMockStore, MockStore } from '@ngrx/store/testing';
 
 import * as fromSalesAgreement from '../../../ngrx-store/sales-agreement/reducer';
-import * as fromLot from '../../../ngrx-store/lot/reducer';
 import * as fromPlan from '../../../ngrx-store/plan/reducer';
 import * as fromOrg from '../../../ngrx-store/org/reducer';
 import * as fromJob from '../../../ngrx-store/job/reducer';
@@ -24,7 +23,6 @@ describe('MyFavoritesComponent', () =>
 	let mockStore: MockStore;
 	const initialState = {
 		salesAgreement: fromSalesAgreement.initialState,
-		lot: fromLot.initialState,
 		plan: fromPlan.initialState,
 		org: fromOrg.initialState,
 		job: fromJob.initialState,

@@ -51,7 +51,6 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 	commmunityLinkEnabledDirty = false;
 	previewEnabledDirty = false;
 	canToggleCommunitySettings = false;
-	canAccessDesignPreview = false;
 	environment = environment;
 	ecoeRequired = false;
 	earnestMoneyRequired = false;
@@ -117,32 +116,27 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 
 		combineLatest([this._orgService.currentMarket$, this._orgService.currentCommunity$]).pipe(
 			this.takeUntilDestroyed(),
-			switchMap(([mkt, comm]) => {
-				return this._featureSwitchService.isFeatureEnabled('Phd Lite', { edhMarketId: null, edhFinancialCommunityId: comm.id })
-					.pipe(
-						map((isFeatureEnabled) => {
-							const isPhdLite = !!isFeatureEnabled;
-							return ({ mkt, comm, isPhdLite});
-							})
-						);
-			 }),
-			switchMap(({ mkt, comm, isPhdLite }) =>
+			switchMap(([ mkt, comm ]) =>
 			{
 				this.currentMarket = mkt;
 				this.financialCommunity = comm;
-				this.isPhdLite = isPhdLite;
 
 				// If we have both a current market and current financialCommunity get orgs needed to get FinancialCommunityinfo
-				if (mkt && comm)
+				if (mkt && comm && comm.marketId === mkt.id)
 				{
 					this.currentMarket = mkt;
-					if (environment.designPreviewMarketWhitelist.length === 0) {
-						this.canAccessDesignPreview = true;
-					} else {
-						this.canAccessDesignPreview = !!environment.designPreviewMarketWhitelist?.find(id => id === this.currentMarket.id);
-					}
-					return combineLatest([this._orgService.getInternalOrgs(mkt.id), of(comm)]);
+
+					return combineLatest([
+						this._orgService.getInternalOrgs(mkt.id),
+						of(comm),
+						this._featureSwitchService.isFeatureEnabled('Phd Lite', { edhMarketId: null, edhFinancialCommunityId: comm.id })]);
 				}
+				else
+				{
+					this.financialCommunity = null;
+					this.selectedCommunity = null;
+				}
+
 				return of([null, null]);
 			}),
 			switchMap(([orgs, comm]) =>
@@ -183,11 +177,21 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 			this.createForm();
 			this._msgService.add({ severity: 'error', summary: 'Error', detail: error });
 		});
+
+		this._orgService.currentCommunity$.pipe(
+			this.takeUntilDestroyed(),
+			switchMap(comm => {
+				return comm ? this._featureSwitchService.isFeatureEnabled('Phd Lite', { edhMarketId: null, edhFinancialCommunityId: comm.id }) : of(false);
+			})
+		).subscribe(isFeatureEnabled => {
+			this.isPhdLite = !!isFeatureEnabled;
+		});
+
 		this.checkRequiredFilesExist();
 	}
 	private disableCommunity()
 	{
-		if (this.salesCommunity.isOnlineSalesCommunityEnabled)
+		if (this.salesCommunity?.isOnlineSalesCommunityEnabled)
 		{
 			this.salesCommunity.isOnlineSalesCommunityEnabled = false;
 			this._orgService.saveSalesCommunity(this.salesCommunity)
