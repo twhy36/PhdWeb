@@ -512,10 +512,11 @@ export class TreeService
 			const chunkIndex = Math.floor(index / chunk);
 			if (!resultArray[chunkIndex])
 			{
-				resultArray[chunkIndex] = []
+				resultArray[chunkIndex] = [];
 			}
-			resultArray[chunkIndex].push(item)
-			return resultArray
+			resultArray[chunkIndex].push(item);
+
+			return resultArray;
 		}, []);
 
 		for (let item of splitArrayresult)
