@@ -507,9 +507,11 @@ export class TreeService
 		let batchBundles: string[] = [];
 
 		const chunk = 100;
-		const splitArrayresult = options.reduce((resultArray, item, index) => {
+		const splitArrayresult = options.reduce((resultArray, item, index) =>
+		{
 			const chunkIndex = Math.floor(index / chunk)
-			if (!resultArray[chunkIndex]) {
+			if (!resultArray[chunkIndex])
+			{
 				resultArray[chunkIndex] = []
 			}
 			resultArray[chunkIndex].push(item)
@@ -527,7 +529,8 @@ export class TreeService
 			}
 
 			return this.identityService.token.pipe(
-				switchMap((token: string) => {
+				switchMap((token: string) =>
+				{
 					let requests = batchBundles.map(req => createBatchGet(req));
 
 					let guid = newGuid();
@@ -536,30 +539,34 @@ export class TreeService
 
 					return withSpinner(this.http).post(`${environment.apiUrl}$batch`, batch, { headers: headers });
 				}),
-				map((response: any) => {
+				map((response: any) =>
+				{
 					let bodyValue: any[] = response.responses.filter(r => r.body?.value?.length > 0).map(r => r.body.value);
 					let optionRules = _.flatten(bodyValue);
 
 					let mappings: { [optionNumber: string]: OptionRule } = {};
 
-					options.forEach(opt => {
+					options.forEach(opt =>
+					{
 						let res = optionRules.find(or => or.planOption.integrationKey === opt.optionNumber && or.dpChoice_OptionRuleAssoc.some(r => r.dpChoiceID === opt.dpChoiceId));
 
-						mappings[opt.optionNumber] = !!res ? <OptionRule>{
-							optionId: opt.optionNumber, choices: res.dpChoice_OptionRuleAssoc.sort(sortChoices).map(c => {
-								return {
-									id: c.dpChoice.divChoiceCatalogID,
-									mustHave: c.mustHave,
-									attributeReassignments: c.attributeReassignments.map(ar => {
-										return {
-											id: ar.attributeReassignmentID,
-											choiceId: ar.todpChoiceID,
-											attributeGroupId: ar.attributeGroupID
-										};
-									})
-								};
-							}), ruleId: res.optionRuleID, replaceOptions: res.optionRuleReplaces.map(orr => orr.planOption.integrationKey)
-						} : null;
+						mappings[opt.optionNumber] = !!res ? <OptionRule>
+							{
+								optionId: opt.optionNumber, choices: res.dpChoice_OptionRuleAssoc.sort(sortChoices).map(c =>
+								{
+									return {
+										id: c.dpChoice.divChoiceCatalogID,
+										mustHave: c.mustHave,
+										attributeReassignments: c.attributeReassignments.map(ar => {
+											return {
+												id: ar.attributeReassignmentID,
+												choiceId: ar.todpChoiceID,
+												attributeGroupId: ar.attributeGroupID
+											};
+										})
+									};
+								}), ruleId: res.optionRuleID, replaceOptions: res.optionRuleReplaces.map(orr => orr.planOption.integrationKey)
+							} : null;
 					});
 
 					return mappings;
