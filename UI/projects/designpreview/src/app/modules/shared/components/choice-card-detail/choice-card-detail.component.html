@@ -72,7 +72,7 @@
 			</ng-container>
 		</div>
 	</div>
-	<div class="phd-info-section" [ngClass]="{'phd-info-section-presale' : isPresale}">
+	<div class="phd-info-section">
 		<div class="d-flex flex-column flex-1 phd-choice-desc-section" [ngClass]="{'phd-choice-desc-section-long' : !hasAttributes}">
 			<div class="phd-choice-label">{{choice?.label}}</div>
 			<div *ngIf="choiceDescriptions.length && !optionDisabled" class="phd-choice-desc">
@@ -118,10 +118,10 @@
 					</div>
 				</div>
 			</div>
+			<ng-container>
+				<div class="phd-descriptive-text">Options and any selections subject to change and are not final until placed under contract with Sales Representative and subject to the terms of the home purchase agreement.</div>
+			</ng-container>
 		</div>
-		<ng-container>
-			<div class="phd-descriptive-text">Options and any selections subject to change and are not final until placed under contract with Sales Representative and subject to the terms of the home purchase agreement.</div>
-		</ng-container>
 	</div>
 </div>
 

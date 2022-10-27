@@ -150,9 +150,7 @@
 		font-size: 11px;
 		font-weight: bold;
 		margin-left: 10px;
-		position: fixed;
-		bottom: 74px;
-		padding: 5px 0px;
+		margin-bottom: -10px;
 	}
 
 	.phd-choice-desc-section-long {
@@ -245,10 +243,6 @@
 				}
 			}
 		}
-	}
-
-	.phd-info-section-presale {
-		height: calc(100vh - 208px - 40px) !important;
 	}
 
 	.phd-info-section {
