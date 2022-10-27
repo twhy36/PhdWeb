@@ -1,4 +1,4 @@
-<div class="d-flex flex-column m-2 phd-buyer-box" *ngIf="person || trust || trustNA || realtor || realtorNA || coBuyerNA">
+<div class="d-flex flex-column m-2 phd-buyer-box" *ngIf="person || trust || trustNA || realtor || realtorNA || coBuyerNA" [class.phd-info-required]="isMissingRequiredFields">
 	<div class="pl-3 pt-2 pb-2 phd-buyer-box-title">
 		<ng-container [ngSwitch]="personType">
 			<ng-container *ngSwitchCase="'Buyer'">
