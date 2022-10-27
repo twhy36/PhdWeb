@@ -95,9 +95,13 @@ export class ChangeOrderEffects
 	{
 		return this.actions$.pipe(
 			ofType<CreateJobChangeOrders>(ChangeOrderActionTypes.CreateJobChangeOrders),
-			withLatestFrom(this.store, this.store.pipe(select(priceBreakdown))),
+			withLatestFrom(
+				this.store, 
+				this.store.pipe(select(priceBreakdown)),
+				this.store.pipe(select(fromRoot.legacyColorScheme))
+			),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store, priceBreakdown]) =>
+				switchMap(([action, store, priceBreakdown, legacyColorScheme]) =>
 				{
 					const isPhdLite = store.lite.isPhdLite || !store.scenario.tree;
 
@@ -115,6 +119,7 @@ export class ChangeOrderEffects
 							store.lite.scenarioOptions,
 							store.lite.options,
 							store.lite.elevationOverrideNote || store.lite.colorSchemeOverrideNote,
+							legacyColorScheme,
 							false
 						)
 						: this.changeOrderService.getJobChangeOrderInputData(
@@ -720,9 +725,13 @@ export class ChangeOrderEffects
 	{
 		return this.actions$.pipe(
 			ofType<SavePendingJio>(ChangeOrderActionTypes.SavePendingJio),
-			withLatestFrom(this.store, this.store.pipe(select(priceBreakdown))),
+			withLatestFrom(
+				this.store, 
+				this.store.pipe(select(priceBreakdown)),
+				this.store.pipe(select(fromRoot.legacyColorScheme))
+			),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store, priceBreakdown]) =>
+				switchMap(([action, store, priceBreakdown, legacyColorScheme]) =>
 				{
 					const isSpecSalePending = store.job.lot && store.job.lot.lotBuildTypeDesc === 'Spec' && store.salesAgreement.status === 'Pending';
 					const typeDescription = isSpecSalePending ? 'BuyerChangeOrder' : 'SalesJIO';
@@ -747,6 +756,7 @@ export class ChangeOrderEffects
 								store.lite.scenarioOptions,
 								store.lite.options,
 								store.lite.elevationOverrideNote || store.lite.colorSchemeOverrideNote,
+								legacyColorScheme,
 								!isSpecSalePending
 							)
 							: this.changeOrderService.getJobChangeOrderInputData(

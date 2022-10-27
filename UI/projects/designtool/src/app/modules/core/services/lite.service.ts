@@ -20,12 +20,13 @@ import
 } from 'phd-common';
 
 import * as fromRoot from '../../ngrx-store/reducers';
+import * as fromLite from '../../ngrx-store/lite/reducer';
 
 import
 	{
 		LitePlanOption, ColorItem, Color, ScenarioOptionColorDto, IOptionSubCategory, OptionRelation,
 		OptionRelationEnum, Elevation, IOptionCategory, LiteReportType, LiteMonotonyRule, SummaryReportData,
-		LitePlanOptionDto, LiteOptionColorDto, LiteChangeOrderPlanOptionDto
+		LitePlanOptionDto, LiteOptionColorDto, LiteChangeOrderPlanOptionDto, LegacyColorScheme
 	} from '../../shared/models/lite.model';
 import { LotService } from './lot.service';
 import { ChangeOrderService } from './change-order.service';
@@ -152,13 +153,23 @@ export class LiteService
 		);
 	}
 
-	saveScenarioOptions(scenarioId: number, scenarioOptions: ScenarioOption[], deletePhdFullData: boolean = false): Observable<ScenarioOption[]>
+	saveScenarioOptions(scenarioId: number, scenarioOptions: ScenarioOption[], optionColors: ScenarioOptionColorDto[], deletePhdFullData: boolean = false): Observable<ScenarioOption[]>
 	{
 		const endpoint = environment.apiUrl + `SaveScenarioOptions`;
 
 		let data = {
 			scenarioId,
 			scenarioOptions,
+			scenarioOptionColors: optionColors.map(color =>
+			{
+				return {
+					scenarioOptionColorId: color.scenarioOptionColorId,
+					scenarioOptionId: color.scenarioOptionId,
+					colorItemId: color.colorItemId,
+					colorId: color.colorId,
+					isDeleted: color.isDeleted
+				};
+			}),
 			deletePhdFullData
 		};
 
@@ -442,30 +453,30 @@ export class LiteService
 	}
 
 	createSalesAgreementForLiteScenario(
-		scenarioOptions: ScenarioOption[],
-		options: LitePlanOption[],
-		categories: IOptionCategory[],
+		lite: fromLite.State,
 		scenarioId: number,
 		salePrice: number,
 		baseHousePrice: number,
-		overrideNote: string,
 		jobPlanOptions: JobPlanOption[],
-		isSpecSale: boolean
+		isSpecSale: boolean,
+		legacyColorScheme: LegacyColorScheme
 	): Observable<SalesAgreement>
 	{
 		const action = `CreateSalesAgreementForLiteScenario`;
 		const url = `${environment.apiUrl}${action}`;
 
-		const elevations = options.filter(option => option.optionSubCategoryId === Elevation.Detached || option.optionSubCategoryId === Elevation.Attached);
-		const selectedElevation = elevations.find(elev => scenarioOptions?.find(opt => opt.edhPlanOptionId === elev.id && opt.planOptionQuantity > 0));
-		const baseHouseOptions = this.getSelectedBaseHouseOptions(scenarioOptions, options, categories);
-
+		const elevations = lite.options.filter(option => option.optionSubCategoryId === Elevation.Detached || option.optionSubCategoryId === Elevation.Attached);
+		const selectedElevation = elevations.find(elev => lite.scenarioOptions?.find(opt => opt.edhPlanOptionId === elev.id && opt.planOptionQuantity > 0));
+		const baseHouseOptions = this.getSelectedBaseHouseOptions(lite.scenarioOptions, lite.options, lite.categories);
+		const overrideNote = lite.elevationOverrideNote || lite.colorSchemeOverrideNote;
+		
 		const changedOptions = isSpecSale
 			? this.createJobChangeOrderOptions(
 				jobPlanOptions,
-				scenarioOptions,
-				options,
-				overrideNote)
+				lite.scenarioOptions,
+				lite.options,
+				overrideNote,
+				legacyColorScheme)
 			: [];
 
 		const data = {
@@ -473,8 +484,8 @@ export class LiteService
 			options: isSpecSale
 				? this.mapChangedOptions(changedOptions, false)
 				: this.mapScenarioOptions(
-					scenarioOptions,
-					options,
+					lite.scenarioOptions,
+					lite.options,
 					selectedElevation,
 					baseHouseOptions.selectedBaseHouseOptions,
 					baseHousePrice,
@@ -976,6 +987,7 @@ export class LiteService
 		currentOptions: ScenarioOption[],
 		options: LitePlanOption[],
 		overrideNote: string,
+		legacyColorScheme: LegacyColorScheme,
 		isJio: boolean = false): any
 	{
 		const origOptions = isJio ? [] : job.jobPlanOptions;
@@ -993,7 +1005,8 @@ export class LiteService
 				origOptions,
 				currentOptions,
 				options,
-				overrideNote
+				overrideNote,
+				legacyColorScheme
 			),
 			handings: this.changeOrderService.createJobChangeOrderHandings(handing, origHanding),
 			changeOrderGroupSequence: changeOrder.changeOrderGroupSequence,
@@ -1005,7 +1018,8 @@ export class LiteService
 		origOptions: JobPlanOption[],
 		currentOptions: ScenarioOption[],
 		options: LitePlanOption[],
-		overrideNote: string
+		overrideNote: string,
+		legacyColorScheme: LegacyColorScheme,
 	): LiteChangeOrderPlanOptionDto[]
 	{
 		const isElevationOption = function (planOptionId: number)
@@ -1014,7 +1028,13 @@ export class LiteService
 				(opt.optionSubCategoryId === Elevation.Detached || opt.optionSubCategoryId === Elevation.Attached));
 		};
 
+		const isGenericOption = function (planOptionId: number)
+		{
+			return legacyColorScheme ? legacyColorScheme.genericPlanOptionId === planOptionId : false;
+		};		
+
 		let optionsDto = [];
+		let legacyAttributes = null;
 
 		// Loop through selected options to find new or changed options
 		currentOptions.forEach(curr =>
@@ -1022,16 +1042,31 @@ export class LiteService
 			const origOption = origOptions.find(orig => orig.planOptionId === curr.edhPlanOptionId);
 			const option = options.find(option => option.id === curr.edhPlanOptionId);
 			const isElevation = isElevationOption(curr.edhPlanOptionId);
-			const optionType = isElevation ? 'Elevation' : (option.isBaseHouse ? 'BaseHouse' : 'Standard');
+			const isGeneric = isGenericOption(curr.edhPlanOptionId);
 
-			if (origOption)
+			let optionType = 'Standard';
+			if (isElevation)
+			{
+				optionType = 'Elevation'
+			}
+			else if (isGeneric)
+			{
+				optionType = 'Color Scheme';
+			}
+			else if (option?.isBaseHouse)
+			{
+				optionType = 'BaseHouse';
+			}
+
+			if (origOption && !isGeneric)
 			{
 				// change existing option
 				const currentAttributes = this.mapScenarioOptionColorsToAttributes(curr?.scenarioOptionColors, option, null);
 				const existingAttributes = this.mapJobPlanOptionAttributes(origOption?.jobPlanOptionAttributes, null);
 				const attributes = this.buildAttributeDifference(currentAttributes, existingAttributes);
+				const isElevationWithLegacyColorScheme = isElevation && legacyColorScheme;
 
-				if (attributes.length || option.listPrice !== origOption.listPrice || curr.planOptionQuantity !== origOption.optionQty)
+				if ((attributes.length && !isElevationWithLegacyColorScheme) || option.listPrice !== origOption.listPrice || curr.planOptionQuantity !== origOption.optionQty)
 				{
 					optionsDto.push({
 						planOptionId: curr.edhPlanOptionId,
@@ -1043,12 +1078,21 @@ export class LiteService
 						overrideNote: overrideNote,
 						action: 'Change',
 						isElevation: isElevation,
-						attributes: attributes
+						attributes: isElevationWithLegacyColorScheme ? [] : attributes
 					});
 				}
+
+				// Color scheme change will be linked to the generic option if it exists
+				if (attributes.length && isElevationWithLegacyColorScheme)
+				{
+					legacyAttributes = attributes;
+				}
+			
 			}
 			else if (option)
 			{
+				const addedAttributes = this.mapScenarioOptionColorsToAttributes(curr?.scenarioOptionColors, option, 'Add');
+
 				// add new option
 				optionsDto.push({
 					planOptionId: curr.edhPlanOptionId,
@@ -1060,8 +1104,14 @@ export class LiteService
 					overrideNote: overrideNote,
 					action: 'Add',
 					isElevation: isElevation,
-					attributes: this.mapScenarioOptionColorsToAttributes(curr?.scenarioOptionColors, option, 'Add')
+					attributes: isElevation && legacyColorScheme ? [] : addedAttributes
 				});
+
+				// Color scheme change will be linked to the generic option if it exists
+				if (isElevation && legacyColorScheme)
+				{
+					legacyAttributes = addedAttributes;
+				}				
 			}
 		});
 
@@ -1071,18 +1121,59 @@ export class LiteService
 
 			if (!currentOption)
 			{
-				// delete option if it is not currently selected
-				optionsDto.push({
-					planOptionId: orig.planOptionId,
-					price: orig.listPrice,
-					quantity: orig.optionQty,
-					optionSalesName: orig.optionSalesName,
-					optionDescription: orig.optionDescription,
-					jobOptionTypeName: orig.jobOptionTypeName,
-					action: 'Delete',
-					isElevation: isElevationOption(orig.planOptionId),
-					attributes: this.mapJobPlanOptionAttributes(orig.jobPlanOptionAttributes, 'Delete')
-				});
+				// Color scheme change will be linked to the generic option if there are generic option and legacy color scheme on the job
+				if (isGenericOption(orig.planOptionId))
+				{
+					let genericOptionattributes = [];					
+					const jobPlanOptionAttribute = orig.jobPlanOptionAttributes ? orig.jobPlanOptionAttributes[0] : null;
+					genericOptionattributes.push({
+						attributeName: jobPlanOptionAttribute?.attributeName,
+						attributeGroupLabel: jobPlanOptionAttribute?.attributeGroupLabel,
+						manufacturer: jobPlanOptionAttribute?.manufacturer,
+						sku: jobPlanOptionAttribute?.sku,
+						action: 'Delete'
+					});
+
+					// Add color item from the current selected elevation
+					if (!!legacyAttributes?.length)
+					{
+						genericOptionattributes.push({
+							attributeName: legacyAttributes[0].attributeName,
+							attributeGroupLabel: legacyAttributes[0].attributeGroupLabel,
+							manufacturer: legacyAttributes[0].manufacturer,
+							sku: legacyAttributes[0].sku,
+							action: 'Add'
+						});						
+					}
+					
+					optionsDto.push({
+						planOptionId: orig.planOptionId,
+						price: orig.listPrice,
+						quantity: orig.optionQty,
+						optionSalesName: orig.optionSalesName,
+						optionDescription: orig.optionDescription,
+						jobOptionTypeName: orig.jobOptionTypeName,
+						overrideNote: overrideNote,
+						action: 'Change',
+						isElevation: false,
+						attributes: genericOptionattributes
+					});
+				}
+				else
+				{
+					// delete option if it is not currently selected
+					optionsDto.push({
+						planOptionId: orig.planOptionId,
+						price: orig.listPrice,
+						quantity: orig.optionQty,
+						optionSalesName: orig.optionSalesName,
+						optionDescription: orig.optionDescription,
+						jobOptionTypeName: orig.jobOptionTypeName,
+						action: 'Delete',
+						isElevation: isElevationOption(orig.planOptionId),
+						attributes: this.mapJobPlanOptionAttributes(orig.jobPlanOptionAttributes, 'Delete')
+					});
+				}
 			}
 		});
 
@@ -1190,26 +1281,26 @@ export class LiteService
 	}
 
 	liteChangeOrderHasChanges(
-		isPhdLite: boolean,
+		lite: fromLite.State,
 		job: Job,
 		currentChangeOrder: ChangeOrderGroup,
 		changeInput: ChangeInput,
 		salesAgreement: SalesAgreement,
-		currentOptions: ScenarioOption[],
-		options: LitePlanOption[],
-		overrideNote: string
+		overrideNote: string,
+		legacyColorScheme: LegacyColorScheme
 	): boolean
 	{
-		if (isPhdLite && changeInput.type !== ChangeTypeEnum.SALES && changeInput.type !== ChangeTypeEnum.NON_STANDARD)
+		if (lite.isPhdLite && changeInput.type !== ChangeTypeEnum.SALES && changeInput.type !== ChangeTypeEnum.NON_STANDARD)
 		{
 			const inputData = this.getJobChangeOrderInputDataLite(
 				currentChangeOrder,
 				job,
 				changeInput.handing,
 				salesAgreement.id,
-				currentOptions,
-				options,
-				overrideNote
+				lite.scenarioOptions,
+				lite.options,
+				overrideNote,
+				legacyColorScheme
 			);
 
 			const data = this.changeOrderService.mergePosData(

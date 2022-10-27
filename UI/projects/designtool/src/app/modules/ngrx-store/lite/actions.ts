@@ -43,14 +43,14 @@ export class LiteOptionsLoaded implements Action {
 export class SelectOptions implements Action {
     readonly type = LiteActionTypes.SelectOptions;
 
-    constructor(public scenarioOptions: ScenarioOption[]) { }
+    constructor(public scenarioOptions: ScenarioOption[], public optionColors: ScenarioOptionColorDto[] = []) { }
 }
 
 @Log()
 export class SaveScenarioOptions implements Action {
     readonly type = LiteActionTypes.SaveScenarioOptions;
 
-    constructor(public scenarioOptions: ScenarioOption[]) { }
+    constructor(public scenarioOptions: ScenarioOption[], public optionColors: ScenarioOptionColorDto[] = []) { }
 }
 
 @Log()

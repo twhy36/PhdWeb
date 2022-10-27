@@ -472,7 +472,7 @@ export class LiteEffects
 				const scenarioId = store.scenario.scenario?.scenarioId;
 
 				return scenarioId
-					? this.liteService.saveScenarioOptions(scenarioId, action.scenarioOptions)
+					? this.liteService.saveScenarioOptions(scenarioId, action.scenarioOptions, action.optionColors)
 					: of([]);
 			}),
 			map(options => new ScenarioOptionsSaved(options))
@@ -753,7 +753,7 @@ export class LiteEffects
 				else if (savingScenario)
 				{
 					return action instanceof SelectOptions
-						? of(new SaveScenarioOptions(action.scenarioOptions))
+						? of(new SaveScenarioOptions(action.scenarioOptions, action.optionColors))
 						: of(new SaveScenarioOptionColors(action.optionColors));
 				}
 				else if (savingPendingJio)
@@ -1047,7 +1047,7 @@ export class LiteEffects
 				scenarioOptions = scenarioOptions.concat(optionsToAdd);
 
 				return scenarioId
-					? this.liteService.saveScenarioOptions(scenarioId, scenarioOptions, action.deletePhdFullData)
+					? this.liteService.saveScenarioOptions(scenarioId, scenarioOptions, [], action.deletePhdFullData)
 					: of([]);
 			}),
 			map(options => new ScenarioOptionsSaved(options))

@@ -71,6 +71,39 @@ export function reducer(state: State = initialState, action: LiteActions): State
 					}
 				});
 
+				if (!!action.optionColors?.length)
+				{
+					action.optionColors.forEach(color =>
+					{
+						let scenarioOption = newOptions.find(opt => opt.edhPlanOptionId === color.edhPlanOptionId);
+						if (scenarioOption)
+						{
+							const optionColorIndex = scenarioOption.scenarioOptionColors
+								? scenarioOption.scenarioOptionColors.findIndex(c => c.colorItemId === color.colorItemId && c.colorId === color.colorId)
+								: -1;
+	
+							if (optionColorIndex >= 0 && color.isDeleted)
+							{
+								scenarioOption.scenarioOptionColors.splice(optionColorIndex, 1);
+							}
+							else if (optionColorIndex < 0 && !color.isDeleted)
+							{
+								if (!scenarioOption.scenarioOptionColors)
+								{
+									scenarioOption.scenarioOptionColors = [];
+								}
+	
+								scenarioOption.scenarioOptionColors.push({
+									scenarioOptionColorId: color.scenarioOptionColorId,
+									scenarioOptionId: color.scenarioOptionId,
+									colorItemId: color.colorItemId,
+									colorId: color.colorId,
+								})
+							}
+						}
+					});				
+				}
+				
 				return { ...state, scenarioOptions: newOptions, isUnsaved: true };
 			}
 

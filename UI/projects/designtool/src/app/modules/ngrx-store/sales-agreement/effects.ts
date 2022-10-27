@@ -51,8 +51,12 @@ export class SalesAgreementEffects
 	createSalesAgreement$: Observable<Action> = createEffect(() => {
 		return this.actions$.pipe(
 			ofType<CreateSalesAgreementForScenario>(SalesAgreementActionTypes.CreateSalesAgreementForScenario),
-			withLatestFrom(this.store, this.store.pipe(select(fromRoot.priceBreakdown))),
-			exhaustMap(([action, store, priceBreakdown]) => {
+			withLatestFrom(
+				this.store, 
+				this.store.pipe(select(fromRoot.priceBreakdown)),
+				this.store.pipe(select(fromRoot.legacyColorScheme)),
+			),
+			exhaustMap(([action, store, priceBreakdown, legacyColorScheme]) => {
 				// start spinner
 				this.spinnerService.showSpinner(true);
 
@@ -67,15 +71,13 @@ export class SalesAgreementEffects
 
 				const createSalesAgreementForScenario = store.lite.isPhdLite
 					? this.liteService.createSalesAgreementForLiteScenario(
-						store.lite.scenarioOptions,
-						store.lite.options,
-						store.lite.categories,
+						store.lite,
 						store.scenario.scenario.scenarioId, 
 						salePrice,
 						priceBreakdown.baseHouse,
-						store.lite.elevationOverrideNote || store.lite.colorSchemeOverrideNote,
 						store.job.jobPlanOptions,
-						isSpecSale
+						isSpecSale,
+						legacyColorScheme
 					)
 					: this.salesAgreementService.createSalesAgreementForScenario(
 						store.scenario.scenario, 

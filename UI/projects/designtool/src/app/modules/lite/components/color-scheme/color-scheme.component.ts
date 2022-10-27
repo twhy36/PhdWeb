@@ -6,6 +6,7 @@ import * as _ from "lodash";
 
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromLite from '../../../ngrx-store/lite/reducer';
+import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 
 import * as LiteActions from '../../../ngrx-store/lite/actions';
 
@@ -26,6 +27,7 @@ export class ColorSchemeComponent extends UnsubscribeOnDestroy implements OnInit
 	selectedColorScheme: ScenarioOptionColor;
 	errorMessage: string = '';
 	legacyColorScheme: LegacyColorScheme;
+	scenarioId: number;
 
 	constructor(private store: Store<fromRoot.State>) { super(); }
 
@@ -45,19 +47,22 @@ export class ColorSchemeComponent extends UnsubscribeOnDestroy implements OnInit
 
 			let colorSchemes = _.flatMap(elevation?.colorItems, item => item.color);
 
-			// If the color exists in both generic and elevation options, use the one from generic option 
-			if (legacyColorScheme)
+			if (!this.colorSchemes || !this.colorSchemes.length)
 			{
-				const index = colorSchemes.findIndex(c => c.name.toLowerCase() === legacyColorScheme.colorName?.toLowerCase());
-				if (index > -1)
+				// If the color exists in both generic and elevation options, use the one from generic option 
+				if (legacyColorScheme)
 				{
-					colorSchemes.splice(index, 1);					
+					const index = colorSchemes.findIndex(c => c.name.toLowerCase() === legacyColorScheme.colorName?.toLowerCase());
+					if (index > -1)
+					{
+						colorSchemes.splice(index, 1);					
+					}
+
+					colorSchemes.push({ name: legacyColorScheme.colorName } as Color);
 				}
 
-				colorSchemes.push({ name: legacyColorScheme.colorName } as Color);
+				this.colorSchemes = _.sortBy(colorSchemes, 'name');				
 			}
-
-			this.colorSchemes = _.sortBy(colorSchemes, 'name');
 
 			if (!this.selectedElevation && !legacyColorScheme)
 			{
@@ -76,6 +81,14 @@ export class ColorSchemeComponent extends UnsubscribeOnDestroy implements OnInit
 		{
 			this.scenarioOptions = scenarioOptions;
 		});
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromScenario.selectScenario)
+		).subscribe(scenario =>
+		{
+			this.scenarioId = scenario?.scenario?.scenarioId;
+		});		
 	}
 
 	onToggleColorScheme(data: { option: LitePlanOption, color: Color })
@@ -84,11 +97,27 @@ export class ColorSchemeComponent extends UnsubscribeOnDestroy implements OnInit
 
 		if (scenarioOption)
 		{
+			let selectedOptions = [];
 			let optionColors = [];
 
+			const deselectLegacyColorScheme = this.legacyColorScheme?.isSelected && this.legacyColorScheme.colorName === data.color?.name;
+			const genericOption = this.scenarioOptions.find(opt => opt.edhPlanOptionId === this.legacyColorScheme.genericPlanOptionId);
 			const selectedColorScheme = scenarioOption.scenarioOptionColors?.find(c => c.colorItemId === data.color?.colorItemId && c.colorId === data.color?.colorId);
 
-			if (selectedColorScheme)
+			if (deselectLegacyColorScheme)
+			{
+				// De-select a legacy color scheme in generic option
+				if (genericOption)
+				{
+					selectedOptions.push({
+						scenarioOptionId: genericOption.scenarioOptionId,
+						scenarioId: genericOption.scenarioId,
+						edhPlanOptionId: genericOption.edhPlanOptionId,
+						planOptionQuantity: 0
+					});						
+				}
+			}
+			else if (selectedColorScheme)
 			{
 				// De-select a color scheme
 				optionColors.push({
@@ -102,36 +131,70 @@ export class ColorSchemeComponent extends UnsubscribeOnDestroy implements OnInit
 			}
 			else
 			{
-				// Deselect current selected color scheme
-				const currentColorScheme = scenarioOption.scenarioOptionColors?.length ? scenarioOption.scenarioOptionColors[0] : null;
-
-				if (currentColorScheme)
+				if (this.legacyColorScheme?.isSelected)
 				{
-					optionColors.push({
-						scenarioOptionColorId: currentColorScheme.scenarioOptionColorId,
-						scenarioOptionId: currentColorScheme.scenarioOptionId,
-						colorItemId: currentColorScheme.colorItemId,
-						colorId: currentColorScheme.colorId,
-						isDeleted: true,
-						edhPlanOptionId: scenarioOption.edhPlanOptionId
-					});
+					// Deselect current selected legacy color scheme
+					if (genericOption)
+					{
+						selectedOptions.push({
+							scenarioOptionId: genericOption.scenarioOptionId,
+							scenarioId: genericOption.scenarioId,
+							edhPlanOptionId: genericOption.edhPlanOptionId,
+							planOptionQuantity: 0
+						});						
+					}					
+				}
+				else
+				{
+					// Deselect current selected color scheme
+					const currentColorScheme = scenarioOption.scenarioOptionColors?.length ? scenarioOption.scenarioOptionColors[0] : null;
+
+					if (currentColorScheme)
+					{
+						optionColors.push({
+							scenarioOptionColorId: currentColorScheme.scenarioOptionColorId,
+							scenarioOptionId: currentColorScheme.scenarioOptionId,
+							colorItemId: currentColorScheme.colorItemId,
+							colorId: currentColorScheme.colorId,
+							isDeleted: true,
+							edhPlanOptionId: scenarioOption.edhPlanOptionId
+						});
+					}					
 				}
 
-				// Select color scheme
-				optionColors.push({
-					scenarioOptionColorId: 0,
-					scenarioOptionId: scenarioOption.scenarioOptionId,
-					colorItemId: data.color.colorItemId,
-					colorId: data.color.colorId,
-					isDeleted: false,
-					edhPlanOptionId: scenarioOption.edhPlanOptionId
-				});
+				if (this.legacyColorScheme && !this.legacyColorScheme.isSelected &&  !!data.color?.name && this.legacyColorScheme.colorName === data.color.name)
+				{
+					// Select generic option which is tied to a legacy color scheme
+					selectedOptions.push({
+						scenarioOptionId: 0,
+						scenarioId: this.scenarioId,
+						edhPlanOptionId: this.legacyColorScheme.genericPlanOptionId,
+						planOptionQuantity: 1,
+						scenarioOptionColors: []
+					});
+				}
+				else
+				{
+					// Select color scheme
+					optionColors.push({
+						scenarioOptionColorId: 0,
+						scenarioOptionId: scenarioOption.scenarioOptionId,
+						colorItemId: data.color.colorItemId,
+						colorId: data.color.colorId,
+						isDeleted: false,
+						edhPlanOptionId: scenarioOption.edhPlanOptionId
+					});					
+				}
 			}
 
-			if (!!optionColors.length)
+			if (!!selectedOptions.length)
+			{
+				this.store.dispatch(new LiteActions.SelectOptions(selectedOptions, optionColors));
+			}
+			else if (!!optionColors.length)
 			{
 				this.store.dispatch(new LiteActions.SelectOptionColors(optionColors));
-			}
+			}				
 		}
 
 	}

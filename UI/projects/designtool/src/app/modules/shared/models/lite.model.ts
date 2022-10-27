@@ -75,6 +75,8 @@ export interface LegacyColorScheme
 {
     colorItemName: string;
     colorName: string;
+    isSelected: boolean;
+    genericPlanOptionId: number;
 }
 
 export class OptionRelation
