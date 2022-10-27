@@ -74,7 +74,7 @@ export class QuickMoveInComponent extends UnsubscribeOnDestroy implements OnInit
 		{
 			if (jobs)
 			{
-			this.specJobs = _.cloneDeep(jobs);
+				this.specJobs = _.cloneDeep(jobs);
 				this.specJobs =  this.specJobs.filter(job => !job.isPhdLite ? !(job.createdBy.toUpperCase().startsWith('PHCORP') || job.createdBy.toUpperCase().startsWith('PHBSSYNC')) : true);
 				this.filteredSpecJobs = filter === 0
 					? this.specJobs
