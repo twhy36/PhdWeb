@@ -48,7 +48,7 @@ describe('JobEffects', () =>
 			const jobService = mock(JobService);
 			spyOn(jobService, 'updateSpecJobPricing');
 
-			const jobEffect = new JobEffects(actions, store, null, jobService, null, null);
+			const jobEffect = new JobEffects(actions, store, null, jobService, null, null, null);
 			jobEffect.updateSpecJobPricing$.subscribe();
 
 			expect(jobService.updateSpecJobPricing).toHaveBeenCalledTimes(0);
@@ -67,7 +67,7 @@ describe('JobEffects', () =>
 			const jobService = mock(JobService);
 			spyOn(jobService, 'updateSpecJobPricing');
 
-			const jobEffect = new JobEffects(actions, store, null, jobService, null, null);
+			const jobEffect = new JobEffects(actions, store, null, jobService, null, null, null);
 			jobEffect.updateSpecJobPricing$.subscribe();
 
 			expect(jobService.updateSpecJobPricing).toHaveBeenCalledTimes(0);
@@ -86,7 +86,7 @@ describe('JobEffects', () =>
 			const jobService = mock(JobService);
 			spyOn(jobService, 'updateSpecJobPricing');
 
-			const jobEffect = new JobEffects(actions, store, null, jobService, null, null);
+			const jobEffect = new JobEffects(actions, store, null, jobService, null, null, null);
 			jobEffect.updateSpecJobPricing$.subscribe();
 
 			expect(jobService.updateSpecJobPricing).toHaveBeenCalledTimes(0);
@@ -105,7 +105,7 @@ describe('JobEffects', () =>
 			const jobService = mock(JobService);
 			spyOn(jobService, 'updateSpecJobPricing');
 
-			const jobEffect = new JobEffects(actions, store, null, jobService, null, null);
+			const jobEffect = new JobEffects(actions, store, null, jobService, null, null, null);
 			jobEffect.updateSpecJobPricing$.subscribe();
 
 			expect(jobService.updateSpecJobPricing).toHaveBeenCalledTimes(0);
@@ -124,7 +124,7 @@ describe('JobEffects', () =>
 			const jobService = mock(JobService);
 			spyOn(jobService, 'updateSpecJobPricing').and.returnValue(of([<JobPlanOption>{ id: 10 }]));
 
-			const jobEffect = new JobEffects(actions, store, null, jobService, null, null);
+			const jobEffect = new JobEffects(actions, store, null, jobService, null, null, null);
 			jobEffect.updateSpecJobPricing$.subscribe(result =>
 			{
 				expect(result).toBeInstanceOf(JobPlanOptionsUpdated);
@@ -147,7 +147,7 @@ describe('JobEffects', () =>
 			const jobService = mock(JobService);
 			spyOn(jobService, 'updateSpecJobPricing').and.returnValue(of([<JobPlanOption>{ id: 10 }]));
 
-			const jobEffect = new JobEffects(actions, store, null, jobService, null, null);
+			const jobEffect = new JobEffects(actions, store, null, jobService, null, null, null);
 			jobEffect.updateSpecJobPricing$.subscribe(result =>
 			{
 				expect(result).toBeInstanceOf(JobPlanOptionsUpdated);
@@ -170,7 +170,7 @@ describe('JobEffects', () =>
 			const jobService = mock(JobService);
 			spyOn(jobService, 'updateSpecJobPricing').and.returnValue(of([<JobPlanOption>{ id: 10 }]));
 
-			const jobEffect = new JobEffects(actions, store, null, jobService, null, null);
+			const jobEffect = new JobEffects(actions, store, null, jobService, null, null, null);
 			jobEffect.updateSpecJobPricing$.subscribe(result =>
 			{
 				expect(result).toBeInstanceOf(JobPlanOptionsUpdated);
