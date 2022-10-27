@@ -683,15 +683,15 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		const impactedOptionPriceChoices = this.getImpactedChoicesForReplacedOptionPrices(timeOfSaleOptionPrices, choice, choiceToDeselect);
 
 		// #366542 Find any choices with a replaced option that is no longer available on the current tree
-		const adjustedChoices = this.getAdjustedChoices(choiceToDeselect, choice);
+		let adjustedChoices = this.getAdjustedChoices(choiceToDeselect, choice)
+			.concat(getPointChoicesWithNewPricing(this.tree, this.treeVersionRules, this.options, choice));
+
+		adjustedChoices = adjustedChoices.filter((o, i) => adjustedChoices.indexOf(o) === i);
 
 		adjustedChoices.forEach(c =>
 		{
 			selectedChoices.push({ choiceId: c.id, overrideNote: c.overrideNote, quantity: 0, attributes: c.selectedAttributes, timeOfSaleOptionPrices: this.getReplacedOptionPrices(c) });
 		});
-
-		// #379028 Get any choice in the same DP that has had its pricing updated
-		const choicesWithNewPricing = getPointChoicesWithNewPricing(this.tree, this.treeVersionRules, this.options, choice);
 
 		let obs: Observable<boolean>;
 
@@ -702,10 +702,6 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		else if (choiceToDeselect && impactedChoices && impactedChoices.length && ((choiceToDeselect.changedDependentChoiceIds && choiceToDeselect.changedDependentChoiceIds.length > 0) || choiceToDeselect.mappingChanged))
 		{
 			obs = this.showOptionMappingChangedModal(impactedChoices);
-		}
-		else if (choicesWithNewPricing && choicesWithNewPricing.length)
-		{
-			obs = this.showPointChoicePricingChangedModal(choicesWithNewPricing);
 		}
 		else if (this.isChangingOrder && impactedChoices && impactedChoices.length)
 		{

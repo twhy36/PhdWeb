@@ -1185,7 +1185,7 @@ export function getPointChoicesWithNewPricing(tree: Tree, rules: TreeVersionRule
 	//apply rules to cloned tree
 	applyRules(newTree, newRules, options);
 
-	//return any choices that are locked in (i.e. previously sold), but are disabled on the new tree
-	return _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points.filter(p => p.choices.map(ch => ch.id).includes(choice.id)), p => p.choices)))
-		.filter(ch => ch.price !== findChoice(newTree, ch1 => ch1.id === ch.id)?.price);
+	//return any choices on the configuration with new prices
+	return _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, p => p.choices)))
+		.filter(ch => ch.price !== findChoice(newTree, ch1 => ch1.id === ch.id)?.price && ch.quantity);
 }
