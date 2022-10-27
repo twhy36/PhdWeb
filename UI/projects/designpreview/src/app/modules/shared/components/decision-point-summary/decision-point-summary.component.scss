@@ -178,3 +178,9 @@
 a:hover {
 	background-color: #E6E6FA;
 }
+
+@media print {
+	.phd-hide-from-print {
+		display: none !important;
+	}
+}

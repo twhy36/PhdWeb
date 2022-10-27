@@ -1,6 +1,6 @@
 <div class="summary-header" [class.is-sticky]="isSticky">
 	<ng-container *ngIf="isPresale">
-		<div class="phd-presale-elevation">
+		<div class="phd-presale-elevation phd-hide-in-print">
 			<cl-image *ngIf="summaryHeader.elevationImageUrl" public-id="{{summaryHeader.elevationImageUrl}}" type="fetch" style="width:auto;height:112px;border:'black'">
 				<cl-transformation width="900" height="500" background="white" crop="pad" color="grey" effect="outline:outer:4:1"></cl-transformation>
 			</cl-image>
@@ -9,7 +9,7 @@
 	</ng-container>
 	
 	<ng-container *ngIf="!isPresale && !isSticky">
-		<div class="phd-postsale-elevation">
+		<div class="phd-hide-in-print phd-postsale-elevation">
 			<cl-image *ngIf="summaryHeader.elevationImageUrl" public-id="{{summaryHeader.elevationImageUrl}}" type="fetch" style="width:auto;height:360px;margin:10px" crop="fill">
 				<cl-transformation width="900" height="500" background="white" crop="pad" color="grey" effect="outline:outer:4:1"></cl-transformation>
 			</cl-image>
@@ -17,21 +17,27 @@
 		<img class="phd-logo-image" [src]="getImageSrc()" *ngIf="!summaryHeader.elevationImageUrl">
 	</ng-container>
 
+	<div class="phd-hidden-from-view phd-show-in-print">
+		<cl-image *ngIf="summaryHeader.elevationImageUrl" public-id="{{summaryHeader.elevationImageUrl}}" type="fetch" style="width:auto;height:calc(15vw);margin:10px" crop="fill">
+		</cl-image>
+		<img class="phd-logo-image phd-hide-in-print" [src]="getImageSrc()" *ngIf="!summaryHeader.elevationImageUrl">
+	</div>
+
 	<div class="phd-header-body">
 		<div class="phd-upper-header">
-			<div id="favoritesListName" class="phd-favorites-list">{{headerTitle}}</div>
+			<div id="favoritesListName" class="phd-favorites-list phd-favorites-list-on-print">{{headerTitle}}</div>
 			<div [ngClass]="{'phd-name-group-presale': isPresale}">
-				<span class="phd-lot-label">{{summaryHeader.communityName + (isPresale ? '':',')}}</span>
-				<span class="phd-lot-details" [ngStyle]="{'margin-left': isPresale ? '0px' : '10px'}">{{getPlanName()}}</span>
+				<span class="phd-lot-label phd-lot-label-on-print">{{summaryHeader.communityName}},</span>
+				<span class="phd-lot-details phd-lot-details-on-print" [ngStyle]="{'margin-left': isPresale ? '0px' : '10px'}">{{getPlanName()}}</span>
 			</div>
 			<ng-container *ngIf="!isPresale">
-				<span class="phd-lot-label">LOT </span>
-				<span class="phd-lot-label">{{summaryHeader.lot?.lotBlock}},</span>
-				<span class="phd-lot-details">{{address}}</span>
+				<span class="phd-lot-label phd-lot-label-on-print">LOT </span>
+				<span class="phd-lot-label phd-lot-label-on-print">{{summaryHeader.lot?.lotBlock}},</span>
+				<span class="phd-lot-details phd-lot-details-on-print">{{address}}</span>
 			</ng-container>
 		</div>
 		<div *ngIf="!isSticky && !isPresale" class="phd-divider"></div>
-		<div *ngIf="!isSticky && !isPresale" class="phd-price-breakdown">
+		<div *ngIf="!isSticky && !isPresale" class="phd-price-breakdown phd-hide-in-print">
 			<div class="d-flex">
 				<span class="phd-breakdown-label">Base Price:</span>
 				<span class="phd-breakdown-content">{{priceBreakdown?.baseHouse | currency:'USD':'symbol':'0.0-0'}}</span>

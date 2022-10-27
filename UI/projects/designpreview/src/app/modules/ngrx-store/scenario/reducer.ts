@@ -6,7 +6,7 @@ import
 	{
 		applyRules, getMaxSortOrderChoice, findChoice, findPoint, selectChoice,
 		DesignToolAttribute, SalesCommunity, PlanOption, TreeVersionRules, Scenario, TreeFilter,
-		Tree, Choice, Group, SubGroup, DecisionPoint, PickType, setPointStatus, setSubgroupStatus, setGroupStatus, PointStatus
+		Tree, Choice, Group, SubGroup, DecisionPoint, PickType, setPointStatus, setSubgroupStatus, setGroupStatus, PointStatus, FloorPlanImage
 	} from 'phd-common';
 
 import { checkSelectedAttributes, hideChoicesByStructuralItems, hidePointsByStructuralItems } from '../../shared/classes/tree.utils';
@@ -37,6 +37,7 @@ export interface State
 	overrideReason: string;
 	hiddenChoiceIds: number[];
 	hiddenPointIds: number[];
+	floorPlanImages: FloorPlanImage[];
 }
 
 export const initialState: State = {
@@ -44,7 +45,7 @@ export const initialState: State = {
 	savingScenario: false, saveError: false, isUnsaved: false, treeLoading: false, loadError: false, isGanked: false,
 	pointHasChanges: false, buildMode: BuildMode.Buyer,
 	monotonyAdvisementShown: false, financialCommunityFilter: 0, treeFilter: null, overrideReason: null,
-	hiddenChoiceIds: [], hiddenPointIds: []
+	hiddenChoiceIds: [], hiddenPointIds: [], floorPlanImages: []
 };
 
 RehydrateMap.onRehydrate<State>('scenario', state => { return { ...state, savingScenario: false, saveError: false, treeLoading: false, loadError: false }; });
@@ -71,7 +72,8 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 				treeLoading: false,
 				loadError: false,
 				hiddenChoiceIds: [],
-				hiddenPointIds: []
+				hiddenPointIds: [],
+				floorPlanImages: []
 			} as State;
 
 			if (action.type === CommonActionTypes.SalesAgreementLoaded)
@@ -340,6 +342,9 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 
 		case ScenarioActionTypes.LoadPresale:
 			return { ...state, treeLoading: true, buildMode: BuildMode.Presale, scenario: <any>{ scenarioId: 0, scenarioName: '--PRESALE--', scenarioInfo: null } };
+
+		case ScenarioActionTypes.SaveFloorPlanImages:
+			return { ...state, floorPlanImages: action.floorPlanImages };
 
 		case CommonActionTypes.LoadError:
 			return {...state, loadError: true };
@@ -958,3 +963,8 @@ export const choicePriceRanges = createSelector(
 		});
 	}
 );
+
+export const floorPlanImages = createSelector(
+	selectScenario,
+	(state) => state.floorPlanImages
+)

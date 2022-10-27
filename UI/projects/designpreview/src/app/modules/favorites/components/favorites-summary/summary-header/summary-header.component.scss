@@ -119,3 +119,46 @@
 		}
 	}
 }
+
+.phd-summary-header-on-print {
+	display: none;
+	height: 0px;
+}
+
+.phd-hidden-from-view {
+	display: none;
+	height: 0px;
+}
+
+@media print {
+	.phd-hide-in-print {
+		display: none !important;
+		height: 0px !important;
+		position: fixed;
+		top: 0px !important;
+	}
+
+	.phd-show-in-print {
+		display: inline !important;
+	}
+
+	.phd-summary-header-on-print {
+		display: flex !important;
+		height: auto;
+	}
+
+	.phd-favorites-list-on-print {
+		font-size: 42px !important;
+		// font-weight: 500 !important;
+		margin-top: 0px !important;
+	}
+
+	.phd-lot-label-on-print {
+		// text-transform: uppercase;
+		font-size: 26px !important;
+	}
+
+	.phd-lot-details-on-print {
+		font-size: 22px !important;
+	}
+}

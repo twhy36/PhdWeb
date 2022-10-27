@@ -9,6 +9,7 @@ import * as _ from 'lodash';
 import { Store, select } from '@ngrx/store';
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromPlan from '../../../ngrx-store/plan/reducer';
+import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 import * as CommonActions from '../../../ngrx-store/actions';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 import * as FavoriteActions from '../../../ngrx-store/favorite/actions';
@@ -29,12 +30,12 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 	communityName: string = '';
 	planName: string = '';
 	planImageUrl: string = '';
-	floorPlanImages: SDImage[] = [];
+	floorPlanImages: FloorPlanImage[] = [];
 	salesAgreement: SalesAgreement;
 	isPreview: boolean;
 	isPresale: boolean;
 	isLoadingMyFavorite: boolean = false;
-	hasFloorPlanImages: boolean = true;
+	hasFloorPlanImages: boolean = false;
 	marketingPlanId$ = new BehaviorSubject<number>(0);
 	isFloorplanFlipped: boolean;
 	floorplanSG: SubGroup;
@@ -117,29 +118,11 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 		});
 
 		this.store.pipe(
-			select(state => state.job),
-			withLatestFrom(this.store.select(state => state.changeOrder)),
-			switchMap(([job, changeOrder]) =>
-			{
-				if (job.id && changeOrder)
-				{
-					return this.jobService.getFloorPlanImages(job.id, (changeOrder.currentChangeOrder !== null) ? true : false);
-				}
-				else
-				{
-					return new Observable<never>();
-				}
-			}),
-			take(1)
-		).subscribe(images =>
-		{
-			this.hasFloorPlanImages = images && images.length > 0;
-			images && images.length && images.map(img =>
-			{
-				img.svg = `data:image/svg+xml;base64,${btoa(img.svg)}`;
-
-				this.floorPlanImages.push({ imageUrl: img.svg, hasDataUri: true, floorIndex: img.floorIndex, floorName: img.floorName } as SDImage);
-			});
+			take(1),
+			select(fromScenario.floorPlanImages)
+		).subscribe(ifpImages => {
+			this.floorPlanImages = ifpImages;
+			this.hasFloorPlanImages = ifpImages.length > 0;
 		});
 
 		this.store.pipe(
@@ -214,30 +197,6 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 		} else {
 			this.store.dispatch(new FavoriteActions.LoadMyFavorite());
 		}
-	}
-
-	/**
-	 * Handles a save event from the child floor plan component, in order to render the IFP report.
-	 * @param floorPlanImages The images that were saved.
-	 */
-	onFloorPlanSaved(floorPlanImages: FloorPlanImage[])
-	{
-		floorPlanImages.forEach(img =>
-		{
-			img.svg = `data:image/svg+xml;base64,${btoa(img.svg)}`;
-
-			const sdImg = { imageUrl: img.svg, hasDataUri: true, floorIndex: img.floorIndex, floorName: img.floorName } as SDImage;
-			const idx = this.floorPlanImages.findIndex(i => i.floorIndex === img.floorIndex);
-
-			if (idx === -1)
-			{
-				this.floorPlanImages.push(sdImg);
-			}
-			else
-			{
-				this.floorPlanImages[idx] = sdImg;
-			}
-		});
 	}
 
 	getImageSrc() {

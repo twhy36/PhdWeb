@@ -87,6 +87,10 @@
 	color: var(--home-text-color);
 }
 
+.phd-hidden-floorplan {
+	height: 0;
+}
+
 @media(max-width: $tablet-max-width) {
 	.phd-start-reviewing {
 		font-size: 20px;
