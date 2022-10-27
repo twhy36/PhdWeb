@@ -466,7 +466,8 @@ export class TreeService
 										return {
 											id: ar.attributeReassignmentID,
 											choiceId: ar.todpChoiceID,
-											attributeGroupId: ar.attributeGroupID
+											attributeGroupId: ar.attributeGroupID,
+											divChoiceCatalogId: ar.todpChoice.divChoiceCatalogID
 										};
 									})
 								};
