@@ -6,8 +6,10 @@ import { Observable, ReplaySubject, combineLatest } from "rxjs";
 import { take, withLatestFrom } from 'rxjs/operators';
 
 import * as _ from 'lodash';
+import * as rxjs from 'rxjs/index'
+import * as rxops from 'rxjs/operators'
 
-import { UnsubscribeOnDestroy, Job, Plan, Scenario, ScenarioOption } from 'phd-common';
+import { UnsubscribeOnDestroy, Job, Plan, Scenario, ScenarioOption, FeatureSwitchService } from 'phd-common';
 
 import * as fromJobs from '../../../ngrx-store/job/reducer';
 import * as fromRoot from '../../../ngrx-store/reducers';
@@ -50,7 +52,8 @@ export class QuickMoveInComponent extends UnsubscribeOnDestroy implements OnInit
 		private actions: ActionsSubject,
 		private changeOrderService: ChangeOrderService,
 		private newHomeService: NewHomeService,
-		private liteService: LiteService)
+		private liteService: LiteService,
+		private _featureSwitchService: FeatureSwitchService)
 	{
 		super();
 
@@ -67,17 +70,20 @@ export class QuickMoveInComponent extends UnsubscribeOnDestroy implements OnInit
 		combineLatest([
 			this.store.pipe(select(fromJobs.specJobs)),
 			this.selectedFilterBy$
+
 		])
 		.pipe(this.takeUntilDestroyed())		
 		.subscribe(([jobs, filter]) =>
 		{
 			if (jobs)
 			{
-				this.specJobs = _.cloneDeep(jobs);
-				this.specJobs = this.specJobs.filter(job => !(job.createdBy.toUpperCase().startsWith('PHCORP') || job.createdBy.toUpperCase().startsWith('PHBSSYNC')));
+				console.log(jobs);
+				console.log(filter);
+			this.specJobs = _.cloneDeep(jobs);
+				this.specJobs =  this.specJobs.filter(job => !job.isPhdLite ? !(job.createdBy.toUpperCase().startsWith('PHCORP') || job.createdBy.toUpperCase().startsWith('PHBSSYNC')) : true);
 				this.filteredSpecJobs = filter === 0
 					? this.specJobs
-					: this.specJobs.filter(job => job.lot.financialCommunityId === filter);
+					: this.specJobs.filter(job => job.financialCommunityId === filter);
 
 				this.filteredSpecJobs.sort(function (a, b)
 				{

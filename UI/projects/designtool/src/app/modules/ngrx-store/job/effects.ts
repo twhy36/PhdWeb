@@ -5,7 +5,7 @@ import { switchMap, withLatestFrom, exhaustMap, map, take, scan, skipWhile } fro
 import { NEVER, Observable, of, from, forkJoin } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
 
-import { ESignEnvelope, ESignStatusEnum, ESignTypeEnum, Job, TimeOfSaleOptionPrice } from 'phd-common';
+import { ESignEnvelope, ESignStatusEnum, ESignTypeEnum, FeatureSwitchService, Job, TimeOfSaleOptionPrice } from 'phd-common';
 
 import { JobActionTypes, CreateChangeOrderEnvelope, EnvelopeError, LoadSpecs, SpecsLoaded, LoadJobForJob, JobLoadedByJobId, LoadPulteInfo, PulteInfoLoaded, SavePulteInfo, PulteInfoSaved, JobPlanOptionsUpdated, SaveReplaceOptionPrice, ReplaceOptionPriceSaved, DeleteReplaceOptionPrice, ReplaceOptionPriceDeleted, SaveError, UpdateReplaceOptionPrice, ReplaceOptionPriceUpdated } from './actions';
 import { ContractService } from '../../core/services/contract.service';
@@ -28,7 +28,8 @@ export class JobEffects
 		private contractService: ContractService,
 		private jobService: JobService,
 		private toastr: ToastrService,
-		private changeOrderService: ChangeOrderService) { }
+		private changeOrderService: ChangeOrderService,
+		private _featureSwitchService: FeatureSwitchService) { }
 
 	loadSpecs$: Observable<Action> = createEffect(() => {
 		return this.actions$.pipe(
@@ -41,6 +42,18 @@ export class JobEffects
 
 					return (lotIDs?.length > 0) ? this.jobService.getSpecJobs(lotIDs) : of([]);
 				}),
+				switchMap(jobs => {
+					const fcIds = jobs.map(job => job.financialCommunityId);
+					return this._featureSwitchService.getFeatureSwitchForCommunities('Phd Lite', fcIds).pipe(
+						map(associations => {
+							return jobs.map(job => {
+								return {
+									...job, isPhdLite: associations.find(association => association.org.edhFinancialCommunityId == job.financialCommunityId) ? true : false
+								}
+							})
+						})
+					);
+				}),				
 				map(jobs => jobs.filter(job => this.showOnQuickMovin(job))),
 				map(jobs => new SpecsLoaded(jobs))
 			), LoadError, "Unable to load specs")
@@ -173,14 +186,17 @@ export class JobEffects
 		}
 	}
 
-	private showOnQuickMovin = (job: Job) =>
+	private showOnQuickMovin(job: Job)
 	{
+		if (job.isPhdLite){ return true; }
+
 		// assumes there will always be a JIO
 		const jio = job.changeOrderGroups
 			.filter(co => co.jobChangeOrderGroupDescription === 'JIO' || co.jobChangeOrderGroupDescription === 'Pulte Home Designer Generated Job Initiation Change Order')
 			.sort((a, b) => {
 				return new Date(b.createdUtcDate).getTime() - new Date(a.createdUtcDate).getTime();
 			})[0];
+
 
 		return jio ? jio.constructionStatusDescription === 'Approved' : false;
 	}
