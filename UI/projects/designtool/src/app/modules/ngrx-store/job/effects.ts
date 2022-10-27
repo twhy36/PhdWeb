@@ -188,7 +188,8 @@ export class JobEffects
 
 	private showOnQuickMovin(job: Job)
 	{
-		if (job.isPhdLite){ 
+		if (job.isPhdLite)
+		{ 
 			return true; 
 		}
 
