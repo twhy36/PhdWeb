@@ -389,7 +389,10 @@ export class PHDSearchComponent
 	{
 		this.searchResults?.forEach(sr =>
 		{
-			sr.isPhdLiteEnabled = this.featureSwitchOrgAssoc.find(r => sr.financialCommunityId === r.org.edhFinancialCommunityId) ? true : false;
+			sr.isPhdLiteEnabled = !!this.featureSwitchOrgAssoc.find(r =>
+				sr.financialCommunityId === r.org.edhFinancialCommunityId
+				&& r.state === true
+			);
 		});
 	}
 
