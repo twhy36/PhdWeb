@@ -109,7 +109,7 @@ export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implement
 		// For subgroups using the floorplan, a favorite selection can cause an update to the floorplan image
 		if (this.subGroup?.useInteractiveFloorplan && choice.options.length) {
 			const integrationKey = choice.options[0].financialOptionIntegrationKey;
-			const fpOption = this.fpOptions.find(x => x.id.includes(integrationKey));
+			const fpOption = this.fpOptions?.find(x => x.id.includes(integrationKey));
 
 			if (fpOption) {
 				const floor = this.floors.find(f => f.id === fpOption.floor);
