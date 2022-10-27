@@ -49,8 +49,8 @@ export class JobEffects
 							return jobs.map(job => {
 								return {
 									...job, isPhdLite: associations.find(association => association.org.edhFinancialCommunityId == job.financialCommunityId) ? true : false
-								}
-							})
+								};
+							});
 						})
 					);
 				}),				
@@ -188,7 +188,9 @@ export class JobEffects
 
 	private showOnQuickMovin(job: Job)
 	{
-		if (job.isPhdLite){ return true; }
+		if (job.isPhdLite){ 
+			return true; 
+		}
 
 		// assumes there will always be a JIO
 		const jio = job.changeOrderGroups
