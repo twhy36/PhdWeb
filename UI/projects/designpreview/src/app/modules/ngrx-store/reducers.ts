@@ -2,7 +2,7 @@ import { ActionReducerMap, createSelector } from '@ngrx/store';
 
 import * as _ from 'lodash';
 
-import { PriceBreakdown, TreeVersion, PlanOption } from 'phd-common';
+import { PriceBreakdown, TreeVersion, PlanOption, PickType } from 'phd-common';
 
 import * as fromApp from './app/reducer';
 import * as fromScenario from './scenario/reducer';
@@ -96,6 +96,20 @@ export const filteredTree = createSelector(
 										if (contractedChoices?.length)
 										{
 											isIncluded = !isContractedChoice;
+										}
+
+										if (p.choices.find(ch => contractedChoices?.includes(ch)))
+										{
+											switch (p.pointPickTypeId) {
+												case PickType.Pick1:
+													isIncluded = false;
+												case PickType.Pick1ormore:
+													isIncluded = true;
+												case PickType.Pick0ormore:
+													isIncluded = true;
+												case PickType.Pick0or1:
+													isIncluded = false;
+											}
 										}
 									}
 
