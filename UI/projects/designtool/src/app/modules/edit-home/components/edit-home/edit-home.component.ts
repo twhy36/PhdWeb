@@ -22,7 +22,7 @@ import
 {
 	UnsubscribeOnDestroy, ModalRef, ChangeTypeEnum, Job, TreeVersionRules, ScenarioStatusType, PriceBreakdown,
 	TreeFilter, Tree, SubGroup, Group, DecisionPoint, Choice, getDependentChoices, getPointChoicesWithNewPricing, LotExt, getChoiceToDeselect,
-	PlanOption, ModalService, Plan, TimeOfSaleOptionPrice, ITimeOfSaleOptionPrice
+	PlanOption, ModalService, Plan, TimeOfSaleOptionPrice, ITimeOfSaleOptionPrice, getChoicesWithNewPricing
 } from 'phd-common';
 
 import { LotService } from '../../../core/services/lot.service';
@@ -683,8 +683,12 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		const impactedOptionPriceChoices = this.getImpactedChoicesForReplacedOptionPrices(timeOfSaleOptionPrices, choice, choiceToDeselect);
 
 		// #366542 Find any choices with a replaced option that is no longer available on the current tree
-		let adjustedChoices = this.getAdjustedChoices(choiceToDeselect, choice)
-			.concat(getPointChoicesWithNewPricing(this.tree, this.treeVersionRules, this.options, choice));
+		let adjustedChoices = this.getAdjustedChoices(choiceToDeselect, choice);
+
+		if (choiceToDeselect && choice.id !== choiceToDeselect.id)
+		{
+			adjustedChoices = adjustedChoices.concat(getChoicesWithNewPricing(this.tree, this.treeVersionRules, this.options, choiceToDeselect));
+		}
 
 		adjustedChoices = adjustedChoices.filter((o, i) => adjustedChoices.indexOf(o) === i);
 

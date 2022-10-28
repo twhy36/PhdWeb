@@ -1189,3 +1189,34 @@ export function getPointChoicesWithNewPricing(tree: Tree, rules: TreeVersionRule
 	return _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, p => p.choices)))
 		.filter(ch => ch.price !== findChoice(newTree, ch1 => ch1.id === ch.id)?.price && ch.quantity);
 }
+
+export function getChoicesWithNewPricing(tree: Tree, rules: TreeVersionRules, options: PlanOption[], deselectedChoice: Choice)
+{
+	let affectedChoices = [];
+
+	if (deselectedChoice.lockedInOptions)
+	{
+		affectedChoices = _.flatMap(deselectedChoice.lockedInOptions.map(lio => lio.choices)).map(c => c.id);
+	}
+
+	let newTree = _.cloneDeep(tree);
+
+	findChoice(newTree, ch => ch.id === deselectedChoice.id).quantity = 0;
+
+	const newRules = exludeConflictedRules(rules, tree);
+
+	//clear locked in data on the cloned tree so we can see which choices "should"
+	//be disabled
+	_.flatMap(newTree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, p => p.choices)))
+		.forEach(ch =>
+		{
+			ch.lockedInChoice = null;
+			ch.lockedInOptions = [];
+		});
+
+	//apply rules to cloned tree
+	applyRules(newTree, newRules, options);
+
+	return _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, p => p.choices)))
+		.filter(ch => affectedChoices.includes(ch.divChoiceCatalogId) && ch.price !== findChoice(newTree, ch1 => ch1.id === ch.id)?.price);
+}
