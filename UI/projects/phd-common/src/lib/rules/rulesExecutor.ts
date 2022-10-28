@@ -684,6 +684,13 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 
 				if (financialOptionIntegrationKey)
 				{
+					const origMapping = (rules.optionRules || []).find(or => or.optionId === financialOptionIntegrationKey);
+					const origChoice = origMapping ? getMaxSortOrderChoice(tree, origMapping.choices.map(ch => ch.id)) : null;
+					if (!origChoice || origChoice !== choice.id)
+					{
+						choice.mappingChanged = true;
+					}
+
 					// Find any active rules that replace this option
 					const replaceRules = rules.optionRules.filter(o => o.replaceOptions.includes(financialOptionIntegrationKey));
 
@@ -692,6 +699,11 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 
 					// If no rules currently replace this option, and no locked in options replace this option, then this choice has a removed option
 					return !replaceRules.length && !existingChoices.length;
+				}
+				else 
+				{
+					// Replaced option is no longer mapped
+					choice.mappingChanged = true;
 				}
 
 				return false;
@@ -717,6 +729,20 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 		{
 			for (let i = choice.lockedInOptions.length - 1; i >= 0; i--)
 			{
+				for (let optionId of choice.lockedInOptions[i].replaceOptions)
+				{
+					let opt = options.find(o => o.financialOptionIntegrationKey === optionId);
+					let timeOfSalePrice: TimeOfSaleOptionPrice;
+					if (opt && (timeOfSalePrice = timeOfSaleOptionPrices.find(op => op.edhPlanOptionID === opt.id)))
+					{
+						const origChoice = choices.find(ch => ch.divChoiceCatalogId === timeOfSalePrice.divChoiceCatalogID);
+						if (origChoice && origChoice.mappingChanged)
+						{
+							choice.changedDependentChoiceIds = _.uniq([...choice.changedDependentChoiceIds, origChoice.id]);
+						}
+					}
+				}
+
 				const filteredOptRules = rules.optionRules.filter(optRule => optRule.replaceOptions && optRule.replaceOptions.length
 					&& optRule.replaceOptions.includes(choice.lockedInOptions[i].optionId)
 					&& optRule.choices.every(c => (c.mustHave && choices.find(ch => ch.id === c.id && ch.quantity) || (!c.mustHave && choices.find(ch => ch.id === c.id && !ch.quantity)))));
@@ -1156,26 +1182,20 @@ export function checkReplacedOption(deselectedChoice: Choice, rules: TreeVersion
 	}
 }
 
-export function getChoicesWithNewPricing(tree: Tree, rules: TreeVersionRules, options: PlanOption[], deselectedChoice: Choice)
+export function getPointChoicesWithNewPricing(tree: Tree, rules: TreeVersionRules, options: PlanOption[], choice: Choice)
 {
-	let affectedChoices = [];
-
-	if (deselectedChoice.lockedInOptions)
-	{
-		const affectedRules = _.flatMap(deselectedChoice.lockedInOptions.map(lio => lio.ruleId));
-
-		affectedRules.forEach(r =>
-		{
-			const optRule = rules.optionRules.find(optRule => optRule.ruleId === r);
-			console.log(optRule?.choices);
-		})
-
-		affectedChoices = _.flatMap(deselectedChoice.lockedInOptions.map(lio => lio.choices)).map(c => c.id);
-	}
-
 	let newTree = _.cloneDeep(tree);
 
-	findChoice(newTree, ch => ch.id === deselectedChoice.id).quantity = 0;
+	//deselecting choice
+	if (choice.quantity)
+	{
+		findChoice(newTree, ch => ch.id === choice.id).quantity = 0;
+	}
+	else 
+	{
+		selectChoice(newTree, choice.id); //this checks pick type and clears other choices if necessary
+		findChoice(newTree, ch => ch.id === choice.id).quantity = 1;
+	}
 
 	const newRules = exludeConflictedRules(rules, tree);
 
@@ -1191,6 +1211,7 @@ export function getChoicesWithNewPricing(tree: Tree, rules: TreeVersionRules, op
 	//apply rules to cloned tree
 	applyRules(newTree, newRules, options);
 
-	return _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, p => p.choices)))
-		.filter(ch => affectedChoices.includes(ch.divChoiceCatalogId) && ch.mappingChanged);
+	//return any choices that are locked in (i.e. previously sold), but are disabled on the new tree
+	return _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points.filter(p => p.choices.map(ch => ch.id).includes(choice.id)), p => p.choices)))
+		.filter(ch => ch.price !== findChoice(newTree, ch1 => ch1.id === ch.id)?.price);
 }

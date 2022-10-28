@@ -5,7 +5,7 @@ import { Store, select } from '@ngrx/store';
 import * as _ from 'lodash';
 
 import { map, filter, combineLatest, distinctUntilChanged, withLatestFrom, debounceTime, switchMap, take } from 'rxjs/operators';
-import { Observable, ReplaySubject, of, forkJoin } from 'rxjs';
+import { Observable, ReplaySubject, of } from 'rxjs';
 
 import * as fromLot from '../../../ngrx-store/lot/reducer';
 import * as fromPlan from '../../../ngrx-store/plan/reducer';
@@ -21,8 +21,8 @@ import * as fromJobs from '../../../ngrx-store/job/reducer';
 import
 {
 	UnsubscribeOnDestroy, ModalRef, ChangeTypeEnum, Job, TreeVersionRules, ScenarioStatusType, PriceBreakdown,
-	TreeFilter, Tree, SubGroup, Group, DecisionPoint, Choice, getDependentChoices, LotExt, getChoiceToDeselect,
-	PlanOption, ModalService, Plan, TimeOfSaleOptionPrice, ITimeOfSaleOptionPrice, getChoicesWithNewPricing, getMaxSortOrderChoice, findChoice
+	TreeFilter, Tree, SubGroup, Group, DecisionPoint, Choice, getDependentChoices, getPointChoicesWithNewPricing, LotExt, getChoiceToDeselect,
+	PlanOption, ModalService, Plan, TimeOfSaleOptionPrice, ITimeOfSaleOptionPrice
 } from 'phd-common';
 
 import { LotService } from '../../../core/services/lot.service';
@@ -34,7 +34,6 @@ import { MonotonyConflict } from '../../../shared/models/monotony-conflict.model
 // PHD Lite
 import { LiteService } from '../../../core/services/lite.service';
 import { ExteriorSubNavItems, LiteSubMenu } from '../../../shared/models/lite.model';
-import { TreeService } from '../../../core/services/tree.service';
 
 @Component({
 	selector: 'edit-home',
@@ -116,8 +115,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		private store: Store<fromRoot.State>,
 		private route: ActivatedRoute,
 		private router: Router,
-		private modalService: ModalService,
-		private treeService: TreeService) { super(); }
+		private modalService: ModalService) { super(); }
 
 	ngOnInit()
 	{
@@ -666,7 +664,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		this.subGroups = newGroup.subGroups;
 	}
 
-	async toggleChoice({ choice: choice, saveNow: saveNow, quantity: quantity }: { choice: Choice, saveNow: boolean, quantity?: number })
+	toggleChoice({ choice: choice, saveNow: saveNow, quantity: quantity }: { choice: Choice, saveNow: boolean, quantity?: number })
 	{
 		const choiceToDeselect = getChoiceToDeselect(this.tree, choice);
 
@@ -685,146 +683,92 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		const impactedOptionPriceChoices = this.getImpactedChoicesForReplacedOptionPrices(timeOfSaleOptionPrices, choice, choiceToDeselect);
 
 		// #366542 Find any choices with a replaced option that is no longer available on the current tree
-		let adjustedChoices = this.getAdjustedChoices(choiceToDeselect, choice);
+		let adjustedChoices = this.getAdjustedChoices(choiceToDeselect, choice)
+			.concat(getPointChoicesWithNewPricing(this.tree, this.treeVersionRules, this.options, choice));
 
-		let choiceObs: Observable<any>;
+		adjustedChoices = adjustedChoices.filter((o, i) => adjustedChoices.indexOf(o) === i);
 
-		if (choiceToDeselect && choice.id !== choiceToDeselect.id && choiceToDeselect.lockedInOptions)
+		adjustedChoices.forEach(c =>
 		{
-			// Find old tree version with a rule on it			
-			const affectedRules = _.flatMap(choiceToDeselect.lockedInOptions.map(lio => lio.ruleId));
+			selectedChoices.push({ choiceId: c.id, overrideNote: c.overrideNote, quantity: 0, attributes: c.selectedAttributes, timeOfSaleOptionPrices: this.getReplacedOptionPrices(c) });
+		});
 
-			if (affectedRules && affectedRules.length)
-			{
-				const getHistoricChoicesByRules$ = affectedRules.map(ruleId =>
-				{
-					return this.treeService.getHistoricChoicesByRule(ruleId);
-				});
+		let obs: Observable<boolean>;
 
-				choiceObs = forkJoin(getHistoricChoicesByRules$).pipe(
-					switchMap(
-						ids =>
-						{
-							if (ids && ids.filter(i => !!i).length)
-							{
-								const getHistoricOptionRulesByTreeVersions$ = ids.map(data =>
-								{
-									return this.treeService.getHistoricOptionRulesByTreeVersion(data.dTreeVersionID, data.planOptionID);
-								});
-
-								return forkJoin(getHistoricOptionRulesByTreeVersions$);
-							}
-
-							return of(null);
-						}));
-			}
-			else
-			{
-				choiceObs = of(null);
-			}
+		if (adjustedChoices && adjustedChoices.length)
+		{
+			obs = this.showOptionMappingAdjustedModal(adjustedChoices);
+		}
+		else if (choiceToDeselect && impactedChoices && impactedChoices.length && ((choiceToDeselect.changedDependentChoiceIds && choiceToDeselect.changedDependentChoiceIds.length > 0) || choiceToDeselect.mappingChanged))
+		{
+			obs = this.showOptionMappingChangedModal(impactedChoices);
+		}
+		else if (this.isChangingOrder && impactedChoices && impactedChoices.length)
+		{
+			obs = this.showChoiceImpactModal(impactedChoices);
+		}
+		else if (choiceToDeselect && impactedOptionPriceChoices && impactedOptionPriceChoices.length)
+		{
+			obs = this.showOptionPriceChangedModal(impactedOptionPriceChoices);
 		}
 		else
 		{
-			choiceObs = of(null);
+			obs = of(true);
 		}
 
-		choiceObs.subscribe(data =>
+		obs.subscribe(res =>
 		{
-			if (data)
+			if (res)
 			{
-				data.forEach(ch =>
+				this.store.dispatch(new ScenarioActions.SelectChoices(true, ...selectedChoices));
+
+				const pointRules = this.treeVersionRules.pointRules;
+				const choiceRules = this.treeVersionRules.choiceRules;
+
+				// Fetch point to point rules
+				const point2PointRules = pointRules.filter(pr => pr.rules.some(rule => rule.points.some(p => p === choice.treePointId)));
+
+				// Fetch point to choice rules
+				const point2ChoiceRules = pointRules.filter(pr => pr.rules.some(rule => rule.choices.some(c => c === choice.id)));
+
+				// Fetch choice to choice rules
+				const choice2choiceRules = choiceRules.filter(pr => pr.rules.some(rule => rule.choices.some(c => c === choice.id)));
+
+				// Check for any required choices that might be impacted by the point to point rule
+				const requiredChoicesP2P = _.flatMap(this.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices.filter(c => c.isRequired && c.enabled && point2PointRules.some(p => p.pointId === c.treePointId)))));
+
+				// Check for any required choices that might be impacted by the point to choice rule
+				const requiredChoiceP2C = _.flatMap(this.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices.filter(c => c.isRequired && c.enabled && point2ChoiceRules.some(ch => ch.pointId === c.treePointId)))));
+
+				// Check for any required choices that might be impacted by the choice to choice rule
+				const requiredChoiceC2C = _.flatMap(this.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices.filter(c => c.isRequired && c.enabled && choice2choiceRules.some(ch => ch.choiceId === c.id)))));
+
+
+				const impactedChoices = [...requiredChoicesP2P, ...requiredChoiceP2C, ...requiredChoiceC2C];
+
+				// Select required choice attributes for impacted choices
+				if (impactedChoices.length > 0)
 				{
-					const divChoiceCatalogIds = _.flatMap(ch, r => r.dpChoice_OptionRuleAssoc.map(dpc => dpc.dpChoice.divChoiceCatalogID));
-					const divChoiceCatalogId = getMaxSortOrderChoice(this.tree, divChoiceCatalogIds);
+					this.store.dispatch(new ScenarioActions.SelectRequiredChoiceAttributes(impactedChoices));
+				}
 
-					adjustedChoices = adjustedChoices.concat(findChoice(this.tree, ch => ch.divChoiceCatalogId === divChoiceCatalogId));
-				});
-			}
-
-			adjustedChoices = adjustedChoices.filter((o, i) => adjustedChoices.indexOf(o) === i);
-
-			adjustedChoices.forEach(c =>
-			{
-				selectedChoices.push({ choiceId: c.id, overrideNote: c.overrideNote, quantity: 0, attributes: c.selectedAttributes, timeOfSaleOptionPrices: this.getReplacedOptionPrices(c) });
-			});
-
-			let obs: Observable<boolean>;
-
-			if (adjustedChoices && adjustedChoices.length)
-			{
-				obs = this.showOptionMappingAdjustedModal(adjustedChoices);
-			}
-			else if (choiceToDeselect && impactedChoices && impactedChoices.length && ((choiceToDeselect.changedDependentChoiceIds && choiceToDeselect.changedDependentChoiceIds.length > 0) || choiceToDeselect.mappingChanged))
-			{
-				obs = this.showOptionMappingChangedModal(impactedChoices);
-			}
-			else if (this.isChangingOrder && impactedChoices && impactedChoices.length)
-			{
-				obs = this.showChoiceImpactModal(impactedChoices);
-			}
-			else if (choiceToDeselect && impactedOptionPriceChoices && impactedOptionPriceChoices.length)
-			{
-				obs = this.showOptionPriceChangedModal(impactedOptionPriceChoices);
-			}
-			else
-			{
-				obs = of(true);
-			}
-
-			obs.subscribe(res =>
-			{
-				if (res)
+				if (!choice.quantity && this.isChangingOrder && choice.overrideNote)
 				{
-					this.store.dispatch(new ScenarioActions.SelectChoices(true, ...selectedChoices));
+					this.store.dispatch(new ChangeOrderActions.SetChangeOrderOverrideNote(choice.overrideNote));
+				}
 
-					const pointRules = this.treeVersionRules.pointRules;
-					const choiceRules = this.treeVersionRules.choiceRules;
-
-					// Fetch point to point rules
-					const point2PointRules = pointRules.filter(pr => pr.rules.some(rule => rule.points.some(p => p === choice.treePointId)));
-
-					// Fetch point to choice rules
-					const point2ChoiceRules = pointRules.filter(pr => pr.rules.some(rule => rule.choices.some(c => c === choice.id)));
-
-					// Fetch choice to choice rules
-					const choice2choiceRules = choiceRules.filter(pr => pr.rules.some(rule => rule.choices.some(c => c === choice.id)));
-
-					// Check for any required choices that might be impacted by the point to point rule
-					const requiredChoicesP2P = _.flatMap(this.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices.filter(c => c.isRequired && c.enabled && point2PointRules.some(p => p.pointId === c.treePointId)))));
-
-					// Check for any required choices that might be impacted by the point to choice rule
-					const requiredChoiceP2C = _.flatMap(this.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices.filter(c => c.isRequired && c.enabled && point2ChoiceRules.some(ch => ch.pointId === c.treePointId)))));
-
-					// Check for any required choices that might be impacted by the choice to choice rule
-					const requiredChoiceC2C = _.flatMap(this.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices.filter(c => c.isRequired && c.enabled && choice2choiceRules.some(ch => ch.choiceId === c.id)))));
-
-
-					const impactedChoices = [...requiredChoicesP2P, ...requiredChoiceP2C, ...requiredChoiceC2C];
-
-					// Select required choice attributes for impacted choices
-					if (impactedChoices.length > 0)
+				if (saveNow && this.buildMode === 'buyer')
+				{
+					if (this.isChangingOrder)
 					{
-						this.store.dispatch(new ScenarioActions.SelectRequiredChoiceAttributes(impactedChoices));
+						this.store.dispatch(new ChangeOrderActions.SaveChangeOrderScenario());
 					}
-
-					if (!choice.quantity && this.isChangingOrder && choice.overrideNote)
+					else if (this.salesAgreementId === 0)
 					{
-						this.store.dispatch(new ChangeOrderActions.SetChangeOrderOverrideNote(choice.overrideNote));
-					}
-
-					if (saveNow && this.buildMode === 'buyer')
-					{
-						if (this.isChangingOrder)
-						{
-							this.store.dispatch(new ChangeOrderActions.SaveChangeOrderScenario());
-						}
-						else if (this.salesAgreementId === 0)
-						{
-							this.store.dispatch(new ScenarioActions.SaveScenario());
-						}
+						this.store.dispatch(new ScenarioActions.SaveScenario());
 					}
 				}
-			});
+			}
 		});
 	}
 
