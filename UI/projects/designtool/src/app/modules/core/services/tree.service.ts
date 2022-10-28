@@ -422,7 +422,8 @@ export class TreeService
 
 		return from(splitArrayresult).pipe(
 
-			mergeMap(item => {
+			mergeMap(item =>
+			{
 
 				let batchBundles: string[] = [];
 				for (var x = 0; x < item.length; x = x + batchSize)
@@ -433,7 +434,8 @@ export class TreeService
 				}
 
 				return this.identityService.token.pipe(
-					switchMap((token: string) => {
+					switchMap((token: string) =>
+					{
 						let requests = batchBundles.map(req => createBatchGet(req));
 
 						let guid = newGuid();
@@ -446,23 +448,27 @@ export class TreeService
 			}),
 
 			toArray<any>(),
-			map(responses => {
+			map(responses =>
+			{
 				let bodyValue: any[] = _.flatMap(responses, (response: any) => response.responses.filter(r => r.body?.value?.length > 0).map(r => r.body.value));
 				//logic here to recombine results	
 				let optionRules = _.flatten(bodyValue);
 
 				let mappings: { [optionNumber: string]: OptionRule } = {};
 
-				options.forEach(opt => {
+				options.forEach(opt =>
+				{
 					let res = optionRules.find(or => or.planOption.integrationKey === opt.optionNumber && or.dpChoice_OptionRuleAssoc.some(r => r.dpChoiceID === opt.dpChoiceId));
 
 					mappings[opt.optionNumber] = !!res ? <OptionRule>
 						{
-							optionId: opt.optionNumber, choices: res.dpChoice_OptionRuleAssoc.sort(sortChoices).map(c => {
+							optionId: opt.optionNumber, choices: res.dpChoice_OptionRuleAssoc.sort(sortChoices).map(c =>
+							{
 								return {
 									id: c.dpChoice.divChoiceCatalogID,
 									mustHave: c.mustHave,
-									attributeReassignments: c.attributeReassignments.map(ar => {
+									attributeReassignments: c.attributeReassignments.map(ar =>
+									{
 										return {
 											id: ar.attributeReassignmentID,
 											choiceId: ar.todpChoiceID,
@@ -477,11 +483,11 @@ export class TreeService
 
 				return mappings;
 			})
-		);  
-		
+		);
+
 	}
 
-	
+
 
 	// Retrieve the latest cutOffDays in case GetTreeDto returns cached tree data from API
 	getDivDPointCatalogs(tree: Tree, skipSpinner?: boolean): Observable<Tree>
@@ -525,4 +531,50 @@ export class TreeService
 		);
 	}
 
+	getHistoricChoicesByRule(ruleId: number): Observable<HistoricChoiceData>
+	{
+		const entity = `optionRuleReplaces`;
+
+		const filter = `optionRuleId eq (${ruleId})`
+
+		const select = `dTreeVersionId,planOptionId`;
+
+		const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
+		const endPoint = `${environment.apiUrl}${entity}?${qryStr}`;
+
+		return this.http.get(endPoint).pipe(
+			map(response =>
+			{
+				return response['value'][0] as HistoricChoiceData;
+			})
+		);
+	}
+
+	getHistoricOptionRulesByTreeVersion(dTreeVersionID: number, planOptionID: number)
+	{
+		const entity = `optionRules`;
+		const filter = `dTreeVersionID eq ${dTreeVersionID} and planOptionID eq ${planOptionID}`;
+		const expand = `dpChoice_OptionRuleAssoc(
+			$select=dpChoiceId,mustHave;
+			$expand=dpChoice(
+				$select=divChoiceCatalogId,dpChoiceSortOrder;
+			)
+		),planOption,optionRuleReplaces($expand=planOption($select=integrationKey))`;
+
+		const qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}`;
+		const endPoint = `${environment.apiUrl}${entity}?${qryStr}`;
+
+		return this.http.get(endPoint).pipe(
+			map(response =>
+			{
+				return response['value'];
+			})
+		);
+	}
+}
+
+export interface HistoricChoiceData
+{
+	dTreeVersionID: number;
+	planOptionID: number;
 }

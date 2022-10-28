@@ -1162,6 +1162,14 @@ export function getChoicesWithNewPricing(tree: Tree, rules: TreeVersionRules, op
 
 	if (deselectedChoice.lockedInOptions)
 	{
+		const affectedRules = _.flatMap(deselectedChoice.lockedInOptions.map(lio => lio.ruleId));
+
+		affectedRules.forEach(r =>
+		{
+			const optRule = rules.optionRules.find(optRule => optRule.ruleId === r);
+			console.log(optRule?.choices);
+		})
+
 		affectedChoices = _.flatMap(deselectedChoice.lockedInOptions.map(lio => lio.choices)).map(c => c.id);
 	}
 
@@ -1184,5 +1192,5 @@ export function getChoicesWithNewPricing(tree: Tree, rules: TreeVersionRules, op
 	applyRules(newTree, newRules, options);
 
 	return _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, p => p.choices)))
-		.filter(ch => affectedChoices.includes(ch.divChoiceCatalogId) && ch.price !== findChoice(newTree, ch1 => ch1.id === ch.id)?.price);
+		.filter(ch => affectedChoices.includes(ch.divChoiceCatalogId) && ch.mappingChanged);
 }
