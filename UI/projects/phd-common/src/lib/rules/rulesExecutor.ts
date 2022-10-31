@@ -1156,20 +1156,18 @@ export function checkReplacedOption(deselectedChoice: Choice, rules: TreeVersion
 	}
 }
 
-export function getPointChoicesWithNewPricing(tree: Tree, rules: TreeVersionRules, options: PlanOption[], choice: Choice)
+export function getChoicesWithNewPricing(tree: Tree, rules: TreeVersionRules, options: PlanOption[], deselectedChoice: Choice)
 {
+	let affectedChoices = [];
+
+	if (deselectedChoice.lockedInOptions)
+	{
+		affectedChoices = _.flatMap(deselectedChoice.lockedInOptions.map(lio => lio.choices)).map(c => c.id);
+	}
+
 	let newTree = _.cloneDeep(tree);
 
-	//deselecting choice
-	if (choice.quantity)
-	{
-		findChoice(newTree, ch => ch.id === choice.id).quantity = 0;
-	}
-	else 
-	{
-		selectChoice(newTree, choice.id); //this checks pick type and clears other choices if necessary
-		findChoice(newTree, ch => ch.id === choice.id).quantity = 1;
-	}
+	findChoice(newTree, ch => ch.id === deselectedChoice.id).quantity = 0;
 
 	const newRules = exludeConflictedRules(rules, tree);
 
@@ -1185,7 +1183,6 @@ export function getPointChoicesWithNewPricing(tree: Tree, rules: TreeVersionRule
 	//apply rules to cloned tree
 	applyRules(newTree, newRules, options);
 
-	//return any choices on the configuration with new prices
 	return _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, p => p.choices)))
-		.filter(ch => ch.price !== findChoice(newTree, ch1 => ch1.id === ch.id)?.price && ch.quantity);
+		.filter(ch => affectedChoices.includes(ch.divChoiceCatalogId) && ch.price !== findChoice(newTree, ch1 => ch1.id === ch.id)?.price);
 }
