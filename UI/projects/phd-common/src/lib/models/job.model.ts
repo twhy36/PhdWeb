@@ -57,7 +57,6 @@ export class Job
 	jobTypeName: string;
 	createdBy: string;
 	timeOfSaleOptionPrices: TimeOfSaleOptionPrice[] = [];
-	isPhdLite: boolean = false;
 
 	constructor(dto: IJob = null)
 	{

@@ -5,7 +5,7 @@ import { switchMap, withLatestFrom, exhaustMap, map, take, scan, skipWhile } fro
 import { NEVER, Observable, of, from, forkJoin } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
 
-import { ESignEnvelope, ESignStatusEnum, ESignTypeEnum, FeatureSwitchService, Job, TimeOfSaleOptionPrice } from 'phd-common';
+import { ESignEnvelope, ESignStatusEnum, ESignTypeEnum, FeatureSwitchService, IFeatureSwitchOrgAssoc, Job, TimeOfSaleOptionPrice } from 'phd-common';
 
 import { JobActionTypes, CreateChangeOrderEnvelope, EnvelopeError, LoadSpecs, SpecsLoaded, LoadJobForJob, JobLoadedByJobId, LoadPulteInfo, PulteInfoLoaded, SavePulteInfo, PulteInfoSaved, JobPlanOptionsUpdated, SaveReplaceOptionPrice, ReplaceOptionPriceSaved, DeleteReplaceOptionPrice, ReplaceOptionPriceDeleted, SaveError, UpdateReplaceOptionPrice, ReplaceOptionPriceUpdated } from './actions';
 import { ContractService } from '../../core/services/contract.service';
@@ -19,6 +19,7 @@ import { JobService } from '../../core/services/job.service';
 import { LoadError, LoadSpec, ChangeOrderEnvelopeCreated, SalesAgreementLoaded, ScenarioLoaded, CommonActionTypes, JobLoaded } from '../actions';
 import { SetPermissions, UserActionTypes } from '../user/actions';
 import { SnapShotData } from '../../shared/models/envelope-info.model';
+import { SetIsPhdLiteByFinancialCommunity } from '../lite/actions';
 
 @Injectable()
 export class JobEffects
@@ -42,20 +43,15 @@ export class JobEffects
 
 					return (lotIDs?.length > 0) ? this.jobService.getSpecJobs(lotIDs) : of([]);
 				}),
-				switchMap(jobs => {
+				switchMap(jobs =>
+				{
 					const fcIds = jobs.map(job => job.financialCommunityId);
+
 					return this._featureSwitchService.getFeatureSwitchForCommunities('Phd Lite', fcIds).pipe(
-						map(associations => {
-							return jobs.map(job => {
-								return {
-									...job, isPhdLite: associations.find(association => association.org.edhFinancialCommunityId == job.financialCommunityId) ? true : false
-								};
-							});
-						})
+						map(associations => ({ jobs, associations }))
 					);
-				}),				
-				map(jobs => jobs.filter(job => this.showOnQuickMovin(job))),
-				map(jobs => new SpecsLoaded(jobs))
+				}),
+				switchMap(result => from([new SpecsLoaded(result.jobs.filter(job => this.showOnQuickMovin(job, result.associations))), new SetIsPhdLiteByFinancialCommunity(result.associations)]))
 			), LoadError, "Unable to load specs")
 		);
 	});
@@ -186,9 +182,11 @@ export class JobEffects
 		}
 	}
 
-	private showOnQuickMovin(job: Job)
+	private showOnQuickMovin(job: Job, assoc: IFeatureSwitchOrgAssoc[])
 	{
-		if (job.isPhdLite)
+		const isPhdLite = !!assoc.find(a => a.org.edhFinancialCommunityId === job.financialCommunityId && a.state === true);
+
+		if (isPhdLite)
 		{ 
 			return true; 
 		}
@@ -199,7 +197,6 @@ export class JobEffects
 			.sort((a, b) => {
 				return new Date(b.createdUtcDate).getTime() - new Date(a.createdUtcDate).getTime();
 			})[0];
-
 
 		return jio ? jio.constructionStatusDescription === 'Approved' : false;
 	}

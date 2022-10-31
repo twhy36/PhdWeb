@@ -1,11 +1,12 @@
-import { Log, ScenarioOption, Scenario } from 'phd-common';
+import { Log, ScenarioOption, Scenario, IFeatureSwitchOrgAssoc } from 'phd-common';
 import { Action } from '@ngrx/store';
 import {
     IOptionCategory, LitePlanOption, ScenarioOptionColorDto, LiteMonotonyRule
 } from '../../shared/models/lite.model';
 
 export enum LiteActionTypes {
-    SetIsPhdLite = 'Set Is Phd Lite',
+	SetIsPhdLite = 'Set Is Phd Lite',
+	SetIsPhdLiteByFinancialCommunity = 'Set Is Phd Lite By Financial Community',
     LiteOptionsLoaded = 'Lite Options Loaded',
     SelectOptions = 'Select Options',
     SaveScenarioOptions = 'Save Scenario Options',
@@ -32,6 +33,12 @@ export class SetIsPhdLite implements Action {
     constructor(public isPhdLite: boolean) { }
 }
 
+@Log(true)
+export class SetIsPhdLiteByFinancialCommunity implements Action {
+    readonly type = LiteActionTypes.SetIsPhdLiteByFinancialCommunity;
+
+    constructor(public isPhdLiteByFinancialCommunity: IFeatureSwitchOrgAssoc[]) { }
+}
 @Log()
 export class LiteOptionsLoaded implements Action {
     readonly type = LiteActionTypes.LiteOptionsLoaded;
@@ -154,7 +161,8 @@ export class ResetLiteState implements Action {
 }
 
 export type LiteActions =
-    SetIsPhdLite |
+	SetIsPhdLite |
+	SetIsPhdLiteByFinancialCommunity |
     LiteOptionsLoaded |
     SelectOptions |
     SaveScenarioOptions |

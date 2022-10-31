@@ -11,6 +11,7 @@ import { UnsubscribeOnDestroy, Job, Plan, Scenario, ScenarioOption } from 'phd-c
 
 import * as fromJobs from '../../../ngrx-store/job/reducer';
 import * as fromRoot from '../../../ngrx-store/reducers';
+import * as fromLite from '../../../ngrx-store/lite/reducer';
 import * as CommonActions from '../../../ngrx-store/actions';
 import * as PlanActions from '../../../ngrx-store/plan/actions';
 import * as LotActions from '../../../ngrx-store/lot/actions';
@@ -66,16 +67,20 @@ export class QuickMoveInComponent extends UnsubscribeOnDestroy implements OnInit
 
 		combineLatest([
 			this.store.pipe(select(fromJobs.specJobs)),
+			this.store.pipe(select(fromLite.isPhdLiteByFinancialCommunity)),
 			this.selectedFilterBy$
-
 		])
-		.pipe(this.takeUntilDestroyed())		
-		.subscribe(([jobs, filter]) =>
+		.pipe(this.takeUntilDestroyed())
+		.subscribe(([jobs, assoc, filter]) =>
 		{
 			if (jobs)
 			{
 				this.specJobs = _.cloneDeep(jobs);
-				this.specJobs =  this.specJobs.filter(job => !job.isPhdLite ? !(job.createdBy.toUpperCase().startsWith('PHCORP') || job.createdBy.toUpperCase().startsWith('PHBSSYNC')) : true);
+				this.specJobs = this.specJobs.filter(job =>
+				{
+					const isPhdLite = !!assoc.find(a => a.org.edhFinancialCommunityId === job.financialCommunityId && a.state === true);
+					return isPhdLite ? true : !(job.createdBy.toUpperCase().startsWith('PHCORP') || job.createdBy.toUpperCase().startsWith('PHBSSYNC'));
+				});
 				this.filteredSpecJobs = filter === 0
 					? this.specJobs
 					: this.specJobs.filter(job => job.financialCommunityId === filter);
