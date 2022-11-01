@@ -101,7 +101,7 @@ export class ColorSchemeComponent extends UnsubscribeOnDestroy implements OnInit
 			let optionColors = [];
 
 			const deselectLegacyColorScheme = this.legacyColorScheme?.isSelected && this.legacyColorScheme.colorName === data.color?.name;
-			const genericOption = this.scenarioOptions.find(opt => opt.edhPlanOptionId === this.legacyColorScheme.genericPlanOptionId);
+			const genericOption = this.scenarioOptions.find(opt => opt.edhPlanOptionId === this.legacyColorScheme?.genericPlanOptionId);
 			const selectedColorScheme = scenarioOption.scenarioOptionColors?.find(c => c.colorItemId === data.color?.colorItemId && c.colorId === data.color?.colorId);
 
 			if (deselectLegacyColorScheme)
