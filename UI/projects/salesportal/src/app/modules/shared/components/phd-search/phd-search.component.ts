@@ -242,7 +242,7 @@ export class PHDSearchComponent
 			else if (this.selectedBuildTypes && !this.selectedBuildTypes.includes('Model') && this.selectedBuildTypes.includes('Spec'))
 			{
 				filteredLots = filteredLots ? filteredLots : results;
-				filteredLots = filteredLots.filter(lot => lot.jobTypeName === 'Spec' && lot.buildType === 'Spec')
+				filteredLots = filteredLots.filter(lot => (lot.jobTypeName === 'Spec' || lot.jobTypeName === 'House') && lot.buildType === 'Spec');
 			}
 
 			if (this.searchActiveOnly)
