@@ -31,7 +31,7 @@ import { TreeService } from '../../core/services/tree.service';
 import { _throw } from 'rxjs/observable/throw';
 
 // PHD Lite
-import { LitePlanOption } from '../../shared/models/lite.model';
+import { LegacyColorScheme, LitePlanOption } from '../../shared/models/lite.model';
 import { LiteService } from './lite.service';
 import * as fromLite from '../../ngrx-store/lite/reducer';
 
@@ -406,6 +406,7 @@ export class ContractService
 		coCoBuyers: Buyer[],
 		selectedLiteElevation: LitePlanOption,
 		selectedLiteColorScheme: ScenarioOptionColor,
+		legacyColorScheme: LegacyColorScheme,
 		planPrice: number)
 	{
 		// get selected templates and sort by display order
@@ -428,7 +429,7 @@ export class ContractService
 		if (templates.some(t => t.templateId === 0))
 		{
 			currentHouseSelections = store.lite.isPhdLite
-				? getLiteCurrentHouseSelections(store.lite, selectedLiteElevation, selectedLiteColorScheme, liteBaseHouseOptions, planPrice)
+				? getLiteCurrentHouseSelections(store.lite, selectedLiteElevation, selectedLiteColorScheme, legacyColorScheme, liteBaseHouseOptions, planPrice)
 				: getCurrentHouseSelections(store.scenario.tree.treeVersion.groups);
 		}
 
@@ -739,9 +740,10 @@ export class ContractService
 					this.store.select(fromChangeOrder.changeOrderPrimaryBuyer),
 					this.store.select(fromChangeOrder.changeOrderCoBuyers),
 					this.store.select(fromLite.selectedElevation),
-					this.store.select(fromLite.selectedColorScheme)
+					this.store.select(fromLite.selectedColorScheme),
+					this.store.select(fromRoot.legacyColorScheme)
 				),
-				map(([store, priceBreakdown, isSpecSalePending, selectLot, coPrimaryBuyer, coCoBuyers, selectedLiteElevation, selectedLiteColorScheme]) =>
+				map(([store, priceBreakdown, isSpecSalePending, selectLot, coPrimaryBuyer, coCoBuyers, selectedLiteElevation, selectedLiteColorScheme, legacyColorScheme]) =>
 				{
 					// Only display the CO#/JIO - Exclude any selected addenda's
 					const templates = [{ displayName: 'JIO', displayOrder: 2, documentName: 'JIO', templateId: 0, templateTypeId: 4, marketId: 0, version: 0 }];
@@ -759,6 +761,7 @@ export class ContractService
 							? getLiteCurrentHouseSelections(
 								store.lite, selectedLiteElevation,
 								selectedLiteColorScheme,
+								legacyColorScheme,
 								liteBaseHouseOptions,
 								priceBreakdown.baseHouse
 							)
