@@ -220,7 +220,7 @@ export class LiteService
 		{
 			const batchIds = optionIds.slice(i, i + batchSize);
 			const entity = `colorItems`;
-			const expand = `colorItemColorAssoc($expand=color)`
+			const expand = `colorItemColorAssoc($expand=color)`;
 			let filter = `(edhPlanOptionId in (${batchIds.join(',')})) and (isActive eq true)`;
 			const select = `colorItemId,name,edhPlanOptionId,isActive`;
 
@@ -284,6 +284,128 @@ export class LiteService
 
 		return colors;
 	}
+
+	getMissingColorItems(colorItems: { planOptionId: number, name: string }[]) : Observable<ColorItem[]>
+	{
+		const batchGuid = getNewGuid();
+		const batchSize = 50;
+
+		let requests = [];
+
+		for (let i = 0; i < colorItems.length; i = i + batchSize)
+		{
+			const batchItems = colorItems.slice(i, i + batchSize);
+			const entity = `colorItems`;
+
+			const batchFilter = batchItems.reduce((result, item) =>
+			{
+				const itemFilter = `(edhPlanOptionId eq ${item.planOptionId} and name eq '${item.name}')`;
+				result = !!result ? result + ` or ${itemFilter}` : itemFilter;
+				return result;
+			}, '');
+
+			let filter = `(${batchFilter})`;
+			const select = `colorItemId,name,edhPlanOptionId,isActive`;
+
+			let qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
+
+			const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
+
+			requests.push(createBatchGet(endpoint));
+		}
+
+		let headers = createBatchHeaders(batchGuid);
+		let batch = createBatchBody(batchGuid, requests);
+
+		return withSpinner(this._http).post(`${environment.apiUrl}$batch`, batch, { headers: headers }).pipe(
+			map((response: any) =>
+			{
+				let responseBodies = response.responses.map(res => res.body);
+				let colorItems: Array<ColorItem> = [];
+
+				responseBodies.forEach((result) =>
+				{
+					let resultItems = result.value as Array<ColorItem>;
+
+					resultItems.forEach(item =>
+					{
+						colorItems.push({
+							colorItemId: item.colorItemId,
+							name: item.name,
+							edhPlanOptionId: item.edhPlanOptionId,
+							isActive: item.isActive,
+							color: []
+						});
+					});
+				})
+
+				return colorItems;
+			}),
+			catchError(this.handleError)
+		)
+	}
+
+	getMissingColors(financialCommunityId: number, colors: { optionSubCategoryId: number, name: string }[]) : Observable<Color[]>
+	{
+		const batchGuid = getNewGuid();
+		const batchSize = 50;
+
+		let requests = [];
+
+		for (let i = 0; i < colors.length; i = i + batchSize)
+		{
+			const batchItems = colors.slice(i, i + batchSize);
+			const entity = `colors`;
+
+			const batchFilter = batchItems.reduce((result, item) =>
+			{
+				const itemFilter = `(edhOptionSubcategoryId eq ${item.optionSubCategoryId} and name eq '${item.name}')`;
+				result = !!result ? result + ` or ${itemFilter}` : itemFilter;
+				return result;
+			}, '');
+
+			let filter = `(edhFinancialCommunityId eq ${financialCommunityId} and (${batchFilter}))`;
+			const select = `colorId,name,sku,edhFinancialCommunityId,edhOptionSubcategoryId,isActive`;
+
+			let qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
+
+			const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
+
+			requests.push(createBatchGet(endpoint));
+		}
+
+		let headers = createBatchHeaders(batchGuid);
+		let batch = createBatchBody(batchGuid, requests);
+
+		return withSpinner(this._http).post(`${environment.apiUrl}$batch`, batch, { headers: headers }).pipe(
+			map((response: any) =>
+			{
+				let responseBodies = response.responses.map(res => res.body);
+				let colors: Array<Color> = [];
+
+				responseBodies.forEach((result) =>
+				{
+					let resultItems = result.value as Array<Color>;
+
+					resultItems.forEach(item =>
+					{
+						colors.push({
+							colorId: item.colorId,
+							name: item.name,
+							sku: item.sku,
+							edhFinancialCommunityId: item.edhFinancialCommunityId,
+							edhOptionSubcategoryId: item.edhOptionSubcategoryId,
+							isActive: item.isActive,
+							colorItemId: 0
+						});
+					});
+				})
+
+				return colors;
+			}),
+			catchError(this.handleError)
+		)
+	}	
 
 	getOptionRelations(optionCommunityIds: Array<number>): Observable<OptionRelation[]>
 	{
@@ -1523,4 +1645,47 @@ export class LiteService
 
 		return optionsDto;
 	}
+
+	mergeMissingColors(jobPlanOptions: JobPlanOption[], options: LitePlanOption[], missingColorItems: ColorItem[], missingColors: Color[])
+	{
+		const addColorToColorItem = function (colorItem: ColorItem, optionSubCategoryId: number, colorName: string)
+		{
+			const missingColor = missingColors.find(color => color.edhOptionSubcategoryId === optionSubCategoryId && color.name === colorName)
+			if (missingColor)
+			{
+				if (!colorItem.color)
+				{
+					colorItem.color = [];
+				}
+				missingColor.colorItemId = colorItem.colorItemId;
+				colorItem.color.push(missingColor);
+			}
+		};
+
+		jobPlanOptions?.forEach(jpo => {
+			jpo.jobPlanOptionAttributes?.forEach(jpoa => {
+				let option = options.find(o => o.id === jpo.planOptionId);
+				if (option)
+				{
+					let colorItem = option.colorItems?.find(ci => ci.name === jpoa.attributeGroupLabel);
+					const color = _.flatMap(option.colorItems, ci => ci.color)?.find(c => c.name === jpoa.attributeName);
+
+					if (!colorItem)
+					{
+						const missingColorItem = missingColorItems.find(item => item.edhPlanOptionId === option.id && item.name === jpoa.attributeGroupLabel);
+						if (missingColorItem)
+						{
+							option.colorItems.push(missingColorItem);
+							addColorToColorItem(missingColorItem, option.optionSubCategoryId, jpoa.attributeName);
+						}
+					}
+					else if (!color)
+					{
+						addColorToColorItem(colorItem, option.optionSubCategoryId, jpoa.attributeName);
+					}
+				}
+			})
+		});
+	}
+
 }

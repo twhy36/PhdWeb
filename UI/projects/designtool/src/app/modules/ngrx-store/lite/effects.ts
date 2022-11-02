@@ -424,7 +424,7 @@ export class LiteEffects
 									this.liteService.getColorItems(optionIds),
 									this.liteService.getOptionRelations(optionCommunityIds)
 								]).pipe(
-									map(([colorItems, optionRelations]) =>
+									switchMap(([colorItems, optionRelations]) =>
 									{
 										colorItems.forEach(colorItem =>
 										{
@@ -437,11 +437,63 @@ export class LiteEffects
 
 										this.liteService.applyOptionRelations(options, optionRelations);
 
-										const scenarioOptions = this.liteService.getSelectedOptions(options, action.job, action.changeOrder);
+										// Find color items and colors in the job which have been removed in color management
+										let missingColorItems = [];
+										let missingColors = [];
+										action.job.jobPlanOptions?.forEach(jpo => 
+										{
+											jpo.jobPlanOptionAttributes?.forEach(jpoa => 
+											{
+												const option = options.find(o => o.id === jpo.planOptionId);
+												if (option)
+												{
+													const colorItem = option.colorItems?.find(ci => ci.name === jpoa.attributeGroupLabel);
+													const color = _.flatMap(option.colorItems, ci => ci.color)?.find(c => c.name === jpoa.attributeName);
 
-										return { options, scenarioOptions, categories };
+													if (!colorItem)
+													{
+														missingColorItems.push(
+														{
+															planOptionId: option.id, 
+															name: jpoa.attributeGroupLabel
+														});
+													}
+
+													if (!color)
+													{
+														missingColors.push(
+														{
+															optionSubCategoryId: option.optionSubCategoryId, 
+															name: jpoa.attributeName
+														});
+													}
+												}
+											})
+										});
+
+										const getMissingColorItems = !!missingColorItems.length 
+											? this.liteService.getMissingColorItems(missingColorItems)
+											: of([]);
+										const getMissingColors = !!missingColors.length
+											? this.liteService.getMissingColors(action.job.financialCommunityId, missingColors)
+											: of([]);
+
+										return combineLatest([
+											getMissingColorItems,
+											getMissingColors
+										]).pipe(	
+											map(([allMissingColorItems, allMissingColors]) =>
+											{	
+												// Merge the missing color items and colors to the lite options
+												this.liteService.mergeMissingColors(action.job.jobPlanOptions, options, allMissingColorItems, allMissingColors);
+
+												const scenarioOptions = this.liteService.getSelectedOptions(options, action.job, action.changeOrder);
+
+												return { options, scenarioOptions, categories };
+											})										
+										);
 									})
-								)
+								);
 							})
 						);
 					}
