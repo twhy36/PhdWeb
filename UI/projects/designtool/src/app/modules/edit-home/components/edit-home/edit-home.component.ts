@@ -967,7 +967,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		let choices: Choice[] = [];
 
 		// Using the latest rules, see what choices may be affected by options on this choice
-		const replaceRules = this.treeVersionRules.optionRules.filter(o => o.choices.map(oc => oc.id).includes(selectedChoice.id));
+		const replaceRules = this.treeVersionRules.optionRules.filter(o => o.choices.map(oc => oc.id).some(id => [deselectedChoice?.id, selectedChoice?.id].includes(id)));
 
 		// Check to see if any rule is already satisfied, and if that choice has an option no longer available
 		replaceRules.forEach(rr =>
