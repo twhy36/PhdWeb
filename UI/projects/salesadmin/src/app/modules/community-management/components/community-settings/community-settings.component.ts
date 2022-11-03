@@ -139,8 +139,9 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 
 				return of([null, null]);
 			}),
-			switchMap(([orgs, comm]) =>
+			switchMap(([orgs, comm, isFeatureEnabled]) =>
 			{
+				this.isPhdLite = !!isFeatureEnabled;
 				if (comm != null && (!this.selectedCommunity || this.selectedCommunity.id != comm.id))
 				{
 					if (comm.id)
@@ -176,15 +177,6 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 			this.orgId = null;
 			this.createForm();
 			this._msgService.add({ severity: 'error', summary: 'Error', detail: error });
-		});
-
-		this._orgService.currentCommunity$.pipe(
-			this.takeUntilDestroyed(),
-			switchMap(comm => {
-				return comm ? this._featureSwitchService.isFeatureEnabled('Phd Lite', { edhMarketId: null, edhFinancialCommunityId: comm.id }) : of(false);
-			})
-		).subscribe(isFeatureEnabled => {
-			this.isPhdLite = !!isFeatureEnabled;
 		});
 
 		this.checkRequiredFilesExist();
