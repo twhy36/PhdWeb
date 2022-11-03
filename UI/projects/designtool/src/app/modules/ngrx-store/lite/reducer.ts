@@ -8,14 +8,16 @@ import
 	} from '../../shared/models/lite.model';
 
 import { LiteActions, LiteActionTypes } from './actions';
+import { IFeatureSwitchOrgAssoc } from 'phd-common';
 
 export interface State
 {
-	isPhdLite: boolean,
-	isSaving: boolean,
-	isScenarioLoaded: boolean,
+	isPhdLite: boolean;
+	isPhdLiteByFinancialCommunity: IFeatureSwitchOrgAssoc[];
+	isSaving: boolean;
+	isScenarioLoaded: boolean;
 	isUnsaved: boolean;
-	options: LitePlanOption[],
+	options: LitePlanOption[];
 	scenarioOptions: ScenarioOption[];
 	categories: IOptionCategory[];
 	liteMonotonyRules: LiteMonotonyRule[];
@@ -26,6 +28,7 @@ export interface State
 export const initialState: State =
 {
 	isPhdLite: false,
+	isPhdLiteByFinancialCommunity: [],
 	isScenarioLoaded: false,
 	isSaving: false,
 	isUnsaved: false,
@@ -43,6 +46,9 @@ export function reducer(state: State = initialState, action: LiteActions): State
 	{
 		case LiteActionTypes.SetIsPhdLite:
 			return { ...state, isPhdLite: action.isPhdLite };
+		
+		case LiteActionTypes.SetIsPhdLiteByFinancialCommunity:
+			return { ...state, isPhdLiteByFinancialCommunity: action.isPhdLiteByFinancialCommunity }
 
 		case LiteActionTypes.LiteOptionsLoaded:
 			return { ...state, options: action.options, scenarioOptions: action.scenarioOptions };
@@ -320,5 +326,13 @@ export const areColorSelectionsValid = createSelector(
 		});
 
 		return isValid;
+	}
+);
+
+export const isPhdLiteByFinancialCommunity = createSelector(
+	liteState,
+	(state) =>
+	{
+		return state?.isPhdLiteByFinancialCommunity;
 	}
 );
