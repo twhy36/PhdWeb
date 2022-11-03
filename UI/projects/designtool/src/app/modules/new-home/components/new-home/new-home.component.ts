@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router, NavigationEnd } from '@angular/router';
-import { Observable, ReplaySubject } from 'rxjs';
+import { BehaviorSubject, Observable, ReplaySubject } from 'rxjs';
 import
 {
 	take,
@@ -58,6 +58,7 @@ export class NewHomeComponent extends UnsubscribeOnDestroy implements OnInit
 	scenarioName: string = '';
 	job: Job;
 	isChangingOrder$: Observable<boolean>;
+	disableButtons$ = new BehaviorSubject<boolean>(true);
 
 	constructor(
 		private store: Store<fromRoot.State>,
@@ -271,6 +272,14 @@ export class NewHomeComponent extends UnsubscribeOnDestroy implements OnInit
 					: false;
 			})
 		);
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(state => state.scenario)
+			).subscribe(scenario => 
+			{
+				this.disableButtons$.next(!scenario.scenario)
+			});
 	}
 
 	onSubNavItemSelected(id: number)
