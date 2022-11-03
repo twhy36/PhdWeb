@@ -288,7 +288,7 @@ export class LiteService
 	getMissingColorItems(colorItems: { planOptionId: number, name: string }[]) : Observable<ColorItem[]>
 	{
 		const batchGuid = getNewGuid();
-		const batchSize = 50;
+		const batchSize = 5;
 
 		let requests = [];
 
@@ -325,9 +325,9 @@ export class LiteService
 
 				responseBodies.forEach((result) =>
 				{
-					let resultItems = result.value as Array<ColorItem>;
+					let resultItems = result?.value as Array<ColorItem>;
 
-					resultItems.forEach(item =>
+					resultItems?.forEach(item =>
 					{
 						colorItems.push({
 							colorItemId: item.colorItemId,
@@ -348,7 +348,7 @@ export class LiteService
 	getMissingColors(financialCommunityId: number, colors: { optionSubCategoryId: number, name: string }[]) : Observable<Color[]>
 	{
 		const batchGuid = getNewGuid();
-		const batchSize = 50;
+		const batchSize = 5;
 
 		let requests = [];
 
@@ -385,9 +385,9 @@ export class LiteService
 
 				responseBodies.forEach((result) =>
 				{
-					let resultItems = result.value as Array<Color>;
+					let resultItems = result?.value as Array<Color>;
 
-					resultItems.forEach(item =>
+					resultItems?.forEach(item =>
 					{
 						colors.push({
 							colorId: item.colorId,
