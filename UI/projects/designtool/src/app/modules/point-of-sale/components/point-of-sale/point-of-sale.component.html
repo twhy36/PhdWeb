@@ -25,8 +25,8 @@
 <ng-template #pdfViewerFooterTemplate>
 	<ng-container *ngIf="showPDFViewerFooter">
 		<div class="d-flex justify-content-end phd-hpa-footer-info">
-			<button type="button" class="btn btn-primary" (click)="eSign()" *ngIf="canSell$ | async" [ngbTooltip]="tooltipTemplate" tooltipClass="phd-button-tooltip">e-Sign</button>
-			<button type="button" class="btn btn-primary" (click)="print()" *ngIf="canSell$ | async" [ngbTooltip]="tooltipTemplate" tooltipClass="phd-button-tooltip">Print</button>
+			<button type="button" class="btn btn-primary" (click)="eSign()" *ngIf="isAddenda && (canSelectAddenda$ | async) || (canSell$ | async)" [ngbTooltip]="tooltipTemplate" tooltipClass="phd-button-tooltip">e-Sign</button>
+			<button type="button" class="btn btn-primary" (click)="print()" *ngIf="isAddenda && (canSelectAddenda$ | async) || (canSell$ | async)" [ngbTooltip]="tooltipTemplate" tooltipClass="phd-button-tooltip">Print</button>
 			<button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
 		</div>
 	</ng-container>
