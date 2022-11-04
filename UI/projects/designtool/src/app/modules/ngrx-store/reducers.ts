@@ -140,6 +140,12 @@ export const canCancelSalesAgreement = createSelector(
 	(market, user) => !!market && user.canCancel && user.assignedMarkets.some(m => m.number === market.number)
 )
 
+export const canSelectAddenda = createSelector(
+	fromOrg.market,
+	fromUser.selectUser,
+	(market, user) => !!market && user.canSelectAddenda && user.assignedMarkets.some(m => m.number === market.number)
+)
+
 export const canUpdateECOE = createSelector(
 	fromOrg.market,
 	fromUser.selectUser,

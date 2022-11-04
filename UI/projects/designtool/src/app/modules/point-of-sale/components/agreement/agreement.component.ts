@@ -37,6 +37,7 @@ export class AgreementComponent extends UnsubscribeOnDestroy implements OnInit
 	approvedDate: string;
 	projectedFinalDate: string;
 	canSell$: Observable<boolean>;
+	canSelectAddenda$: Observable<boolean>;
 	scarDateValues: ScarDate[] = [];
 
 	ConstructionStageTypes = ConstructionStageTypes;
@@ -133,6 +134,7 @@ export class AgreementComponent extends UnsubscribeOnDestroy implements OnInit
 		});
 
 		this.canSell$ = this.store.pipe(select(fromRoot.canSell));
+		this.canSelectAddenda$ = this.store.pipe(select(fromRoot.canSelectAddenda));
 	}
 
 	get isSalesAgreementCancelledOrVoided(): boolean
