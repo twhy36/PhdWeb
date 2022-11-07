@@ -459,7 +459,7 @@ export function getLiteConstructionChangeOrderPdfData(
 	const elevationPlanOptions = jobChangeOrderPlanOptions.filter(coPlanOption =>
 	{
 		const option = options.find(option => option.id === coPlanOption.planOptionId);
-		return option.optionSubCategoryId === Elevation.Detached || option.optionSubCategoryId === Elevation.Attached;
+		return option?.optionSubCategoryId === Elevation.Detached || option?.optionSubCategoryId === Elevation.Attached;
 	});
 
 	if (elevationPlanOptions?.length)
