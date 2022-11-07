@@ -828,8 +828,8 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 					|| ((!mc.mustHave && find(mc.id).quantity) || (mc.mustHave && !find(mc.id).quantity))).map(mc => mc.id)
 					.concat(otherChoices.map(ch => ch.id));
 
-				// If this choice becomes disabled, deselect it
-				if (choice.disabledByReplaceRules?.length)
+				// If this choice becomes disabled, deselect it, but only if the choice is not already locked in
+				if (choice.disabledByReplaceRules?.length && !choice.lockedInChoice)
 				{
 					choice.quantity = 0;
 
