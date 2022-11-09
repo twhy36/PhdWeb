@@ -110,27 +110,35 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 
 	checkIfHeaderSticky()
 	{
-		if (!this.isPrintHeader) {
-			const clientRect = this.summaryHeaderElement.nativeElement.getBoundingClientRect();
-			if (clientRect.top < 110)
+		if (this.isPresale)
+		{
+			this.isSticky = true;
+		}
+		else
+		{
+			if (!this.isPrintHeader)
 			{
-				if (!this.isSticky && document.body.scrollHeight > 1500) {
-					this.isSticky = true;
-					this.cd.detectChanges();
-					this.isStickyChanged.emit(this.isSticky);
+				const clientRect = this.summaryHeaderElement.nativeElement.getBoundingClientRect();
+				if (clientRect.top < 110)
+				{
+					if (!this.isSticky && document.body.scrollHeight > 1500) {
+						this.isSticky = true;
+						this.cd.detectChanges();
+						this.isStickyChanged.emit(this.isSticky);
+					}
 				}
-			}
-			else
-			{
-				if (this.isSticky) {
-					this.isSticky = false;
-					this.cd.detectChanges();
-					this.isStickyChanged.emit(this.isSticky);
+				else
+				{
+					if (this.isSticky) {
+						this.isSticky = false;
+						this.cd.detectChanges();
+						this.isStickyChanged.emit(this.isSticky);
+					}
 				}
+
+				this.scrolling = false;
 			}
-	
-			this.scrolling = false;
-		}	
+		}
 	}
 
 	toggleContractedOptions() {
@@ -142,6 +150,7 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 	getImageSrc() {
 		return this.brandService.getBrandImage('logo');
 	}
+
 }
 
 export class SummaryHeader {

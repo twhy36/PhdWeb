@@ -27,7 +27,7 @@
 							(contractedOptionsToggled)="onContractedOptionsToggled()">
 			</summary-header>
 
-			<div class="tree-view tree-view-on-print" [class.phd-is-sticky]="isSticky">
+			<div class="tree-view tree-view-on-print" [class.phd-is-sticky]="isSticky" [class.phd-tree-view-presale]="isPresale">
 				<ng-container *ngFor="let group of groups">
 					<div class="group" *ngIf="group.subGroups.length > 0">
 						<div class="label">
