@@ -409,7 +409,6 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		}
 		this.store.dispatch(new ScenarioActions.SelectChoices(this.isDesignComplete, ...selectedChoices));
 		this.store.dispatch(new FavoriteActions.SaveMyFavoritesChoices());
-
 	}
 
 	deselectDeclinedPoints(choice: ChoiceExt)
