@@ -201,11 +201,23 @@ export class LiteEffects
 				{
 					if (data?.isSpecScenarioLoaded)
 					{
+						// Find color items and colors in the job which have been removed in color management
+						const missingColorItemsAndColors = this.liteService.findMissingColorItemsAndColors(data.job, data.options);
+
+						const getMissingColorItems = !!missingColorItemsAndColors.missingColorItems.length 
+							? this.liteService.getMissingColorItems(missingColorItemsAndColors.missingColorItems)
+							: of([]);
+						const getMissingColors = !!missingColorItemsAndColors.missingColors.length
+							? this.liteService.getMissingColors(data.job.financialCommunityId, missingColorItemsAndColors.missingColors)
+							: of([]);
+
 						return combineLatest([
 							this.identityService.getClaims(),
-							this.identityService.getAssignedMarkets()
+							this.identityService.getAssignedMarkets(),
+							getMissingColorItems,
+							getMissingColors
 						]).pipe(
-							map(([claims, markets]) =>
+							map(([claims, markets, allMissingColorItems, allMissingColors]) =>
 							{
 								let needsOverride = false;
 								let canOverride = claims.SalesAgreements && !!(claims.SalesAgreements & Permission.Override) && markets.some(m => m.number === data.marketNumber);
@@ -225,9 +237,12 @@ export class LiteEffects
 									{
 										const jobOption = jobOptions.find(jo => jo.planOptionId === cutoffOption.id);
 										const scenarioOption = data.scenarioOptions.find(so => so.edhPlanOptionId === cutoffOption.id);
-										needsOverride = jobOption && jobOption.quantity !== scenarioOption.planOptionQuantity || !jobOption && scenarioOption.planOptionQuantity > 0;
+										needsOverride = jobOption && jobOption.quantity !== scenarioOption?.planOptionQuantity || !jobOption && scenarioOption?.planOptionQuantity > 0;
 									});
 								}
+
+								// Merge the missing color items and colors to the lite options
+								this.liteService.mergeMissingColors(data.job.jobPlanOptions, data.options, allMissingColorItems, allMissingColors);
 
 								return { ...data, needsOverride, canOverride, optionsPastCutoff, jobOptions };
 							})
@@ -438,44 +453,13 @@ export class LiteEffects
 										this.liteService.applyOptionRelations(options, optionRelations);
 
 										// Find color items and colors in the job which have been removed in color management
-										let missingColorItems = [];
-										let missingColors = [];
-										action.job.jobPlanOptions?.forEach(jpo => 
-										{
-											jpo.jobPlanOptionAttributes?.forEach(jpoa => 
-											{
-												const option = options.find(o => o.id === jpo.planOptionId);
-												if (option)
-												{
-													const colorItem = option.colorItems?.find(ci => ci.name === jpoa.attributeGroupLabel);
-													const color = _.flatMap(option.colorItems, ci => ci.color)?.find(c => c.name === jpoa.attributeName);
+										const missingColorItemsAndColors = this.liteService.findMissingColorItemsAndColors(action.job, options);
 
-													if (!colorItem)
-													{
-														missingColorItems.push(
-														{
-															planOptionId: option.id, 
-															name: jpoa.attributeGroupLabel
-														});
-													}
-
-													if (!color)
-													{
-														missingColors.push(
-														{
-															optionSubCategoryId: option.optionSubCategoryId, 
-															name: jpoa.attributeName
-														});
-													}
-												}
-											})
-										});
-
-										const getMissingColorItems = !!missingColorItems.length 
-											? this.liteService.getMissingColorItems(missingColorItems)
+										const getMissingColorItems = !!missingColorItemsAndColors.missingColorItems.length 
+											? this.liteService.getMissingColorItems(missingColorItemsAndColors.missingColorItems)
 											: of([]);
-										const getMissingColors = !!missingColors.length
-											? this.liteService.getMissingColors(action.job.financialCommunityId, missingColors)
+										const getMissingColors = !!missingColorItemsAndColors.missingColors.length
+											? this.liteService.getMissingColors(action.job.financialCommunityId, missingColorItemsAndColors.missingColors)
 											: of([]);
 
 										return combineLatest([
@@ -1079,7 +1063,8 @@ export class LiteEffects
 						jobOption.jobPlanOptionAttributes.forEach(attr =>
 						{
 							const colorItem = optionDetail.colorItems.find(ci => ci.name === attr.attributeGroupLabel);
-							if (colorItem) 
+							const colorId = colorItem.color?.find(c => c.name === attr.attributeName && c.sku === attr.sku)?.colorId;
+							if (colorItem && colorId) 
 							{
 								const option = optionsToAdd.find(x => x.edhPlanOptionId === optionDetail.id)
 								if (option)
@@ -1088,7 +1073,7 @@ export class LiteEffects
 										scenarioOptionColorId: 0,
 										scenarioOptionId: 0,
 										colorItemId: colorItem.colorItemId,
-										colorId: colorItem.color.find(c => c.name === attr.attributeName)?.colorId
+										colorId: colorId
 									});
 								}
 							}
