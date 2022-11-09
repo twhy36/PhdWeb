@@ -61,6 +61,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 	isPhdLite = false;
 	salesPrograms:  Array<SalesProgram>;
 	closingCostDisabled: boolean;
+	isUrlGenerationEnabled: boolean;
 
 	get saveDisabled(): boolean
 	{
@@ -128,8 +129,8 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 
 					return combineLatest([
 						this._orgService.getInternalOrgs(mkt.id),
-						of(comm),
-						this._featureSwitchService.isFeatureEnabled('Phd Lite', { edhMarketId: null, edhFinancialCommunityId: comm.id })]);
+						of(comm)
+					]);
 				}
 				else
 				{
@@ -157,10 +158,11 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 						// If we have an Org and salesCommunity we get FinancialCommunityInfo, WebsiteCommunity, and SalesCommunity
 						return combineLatest([this._orgService.getFinancialCommunityInfo(this.orgId),
 												this._orgService.getWebsiteCommunity(comm?.salesCommunityId),
-												this._orgService.getSalesCommunity(comm?.salesCommunityId)]);
+												this._orgService.getSalesCommunity(comm?.salesCommunityId)
+											]);
 					}
 				}
-				return of([null, null, null]);
+				return combineLatest([of(null), of(null), of(null)]);
 			}),
 		).subscribe(([finCommInfo, websiteCommunity, salesCommunity]) =>
 		{
@@ -177,6 +179,19 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 			this.orgId = null;
 			this.createForm();
 			this._msgService.add({ severity: 'error', summary: 'Error', detail: error });
+		});
+
+		this._orgService.currentCommunity$.pipe(
+			this.takeUntilDestroyed(),
+			switchMap(comm => {
+				return combineLatest(([
+					comm ? this._featureSwitchService.isFeatureEnabled('Phd Lite', { edhMarketId: null, edhFinancialCommunityId: comm.id }) : of(false),
+					this._featureSwitchService.isFeatureEnabled('Design Preview Presale', { edhMarketId: this.currentMarket.id, edhFinancialCommunityId: comm?.id ?? null}),
+				]));
+			})
+		).subscribe(([isPhdLiteEnabled, isUrlGenerationEnabled]) => {
+			this.isPhdLite = !!isPhdLiteEnabled;
+			this.isUrlGenerationEnabled = !!isUrlGenerationEnabled;
 		});
 
 		this.checkRequiredFilesExist();
@@ -364,11 +379,6 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 				});
 		}
 
-	}
-
-	enableDesignPreviewBox()
-	{
-		return environment.selectedCommunityWhitelist.includes(this.currentMarket.id);
 	}
 
 	generateDesignPreviewLink(planId: number) 

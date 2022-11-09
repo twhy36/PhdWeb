@@ -285,6 +285,48 @@ export class LiteService
 		return colors;
 	}
 
+	findMissingColorItemsAndColors(job: Job, options: LitePlanOption[])
+	{
+		let missingColorItems = [];
+		let missingColors = [];
+
+		job.jobPlanOptions?.forEach(jpo => 
+		{
+			jpo.jobPlanOptionAttributes?.forEach(jpoa => 
+			{
+				const option = options.find(o => o.id === jpo.planOptionId);
+				if (option)
+				{
+					const colorItem = option.colorItems?.find(ci => ci.name === jpoa.attributeGroupLabel);
+					const color = _.flatMap(option.colorItems, ci => ci.color)?.find(c => c.name === jpoa.attributeName);
+
+					if (!colorItem)
+					{
+						missingColorItems.push(
+						{
+							planOptionId: option.id, 
+							name: jpoa.attributeGroupLabel
+						});
+					}
+
+					if (!color)
+					{
+						missingColors.push(
+						{
+							optionSubCategoryId: option.optionSubCategoryId, 
+							name: jpoa.attributeName
+						});
+					}
+				}
+			})
+		});
+		
+		return {
+			missingColorItems: missingColorItems,
+			missingColors: missingColors
+		};
+	}
+
 	getMissingColorItems(colorItems: { planOptionId: number, name: string }[]) : Observable<ColorItem[]>
 	{
 		const batchGuid = getNewGuid();

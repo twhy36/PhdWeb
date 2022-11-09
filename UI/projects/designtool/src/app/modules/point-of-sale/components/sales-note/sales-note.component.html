@@ -34,8 +34,8 @@
 		</div>
 	</div>
 
-	<div class="phd-card-footer">
-		<a class="btn m-0 p-0" (click)="edit()" *ngIf="!cancelOrVoid && ((note.noteSubCategoryId !== 10 && canEditInternalNotes) || (note.noteSubCategoryId === 10 && canEditExternalNotes && isPendingOrInChangeOrder))">Edit</a>
+	<div class="phd-card-footer" *ngIf="!cancelOrVoid && ((note.noteSubCategoryId !== 10 && canEditInternalNotes) || (note.noteSubCategoryId === 10 && canEditExternalNotes && isPendingOrInChangeOrder))">
+		<a class="btn m-0 p-0" (click)="edit()">Edit</a>
 	</div>
 </div>
 

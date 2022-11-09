@@ -140,6 +140,12 @@ export const canCancelSalesAgreement = createSelector(
 	(market, user) => !!market && user.canCancel && user.assignedMarkets.some(m => m.number === market.number)
 )
 
+export const canSelectAddenda = createSelector(
+	fromOrg.market,
+	fromUser.selectUser,
+	(market, user) => !!market && user.canSelectAddenda && user.assignedMarkets.some(m => m.number === market.number)
+)
+
 export const canUpdateECOE = createSelector(
 	fromOrg.market,
 	fromUser.selectUser,
@@ -1036,7 +1042,8 @@ export const liteMonotonyConflict = createSelector(
 export const legacyColorScheme = createSelector(
 	fromJob.jobState, 
 	fromLite.liteState,
-	(job, lite) =>
+	fromChangeOrder.currentChangeOrder,
+	(job, lite, changeOrder) =>
 	{
 		let colorScheme: LegacyColorScheme = null;
 		
@@ -1044,9 +1051,35 @@ export const legacyColorScheme = createSelector(
 
 		if (lite.isPhdLite && !!jobOption?.jobPlanOptionAttributes?.length)
 		{
+			let colorItemName = jobOption.jobPlanOptionAttributes[0].attributeGroupLabel;
+			let colorName = jobOption.jobPlanOptionAttributes[0].attributeName;
+
+			// Apply generic option attribute change to legacy color scheme
+			if (changeOrder)
+			{
+				const changeOrderOptions = _.flatMap(changeOrder.jobChangeOrders, co => co.jobChangeOrderPlanOptions);
+				const genericChangeOrderOption = changeOrderOptions?.find(opt => opt.planOptionId === jobOption.planOptionId);
+				if (genericChangeOrderOption)
+				{
+					const deletedColorScheme = genericChangeOrderOption.jobChangeOrderPlanOptionAttributes?.find(att => att.action === 'Delete');
+					if (deletedColorScheme?.attributeGroupLabel === colorItemName && deletedColorScheme?.attributeName === colorName)
+					{
+						colorItemName = '';
+						colorName = '';
+					}
+
+					const addedColorScheme = genericChangeOrderOption.jobChangeOrderPlanOptionAttributes?.find(att => att.action === 'Add');
+					if (addedColorScheme)
+					{
+						colorItemName = addedColorScheme.attributeGroupLabel;
+						colorName = addedColorScheme.attributeName;
+					}					
+				}
+			}
+
 			colorScheme = { 
-				colorItemName: jobOption.jobPlanOptionAttributes[0].attributeGroupLabel, 
-				colorName: jobOption.jobPlanOptionAttributes[0].attributeName,
+				colorItemName: colorItemName, 
+				colorName: colorName,
 				isSelected: !!lite.scenarioOptions?.find(so => so.edhPlanOptionId === jobOption.planOptionId),
 				genericPlanOptionId: jobOption.planOptionId
 			};

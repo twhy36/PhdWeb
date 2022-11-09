@@ -804,24 +804,37 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 		{
 			const mappedChoices = _.flatMap(rules.optionRules.filter(o => o.optionId === ro), r => r.choices).filter(c => !excludedChoiceRules.includes(c.id));
 
+			// Determine if this option has been replaced by another selection/rule (issue 380127)
+			const replacedByOther = _.flatMap(rules.optionRules.filter(o => o.replaceOptions.includes(ro)), r => r.choices)
+				.filter(ch => choice.id !== ch.id && !mappedChoices.map(mc => mc.id).includes(ch.id))
+				.some(ch => (ch.mustHave && find(ch.id).quantity) || (!ch.mustHave && !find(ch.id).quantity));
+
 			return !mappedChoices.filter(mc => (pointChoices.includes(mc.id) && ((mc.mustHave && find(mc.id).quantity) || (!mc.mustHave && !find(mc.id).quantity)))
-				|| ((!mc.mustHave && find(mc.id).quantity) || (mc.mustHave && !find(mc.id).quantity))).length;
+				|| ((!mc.mustHave && find(mc.id).quantity) || (mc.mustHave && !find(mc.id).quantity))).length
+				&& !replacedByOther;
 		}))
 		{
 			replacedOptions.forEach(ro =>
 			{
 				const mappedChoices = _.flatMap(rules.optionRules.filter(o => o.optionId === ro), r => r.choices).filter(c => !excludedChoiceRules.includes(c.id));
 
-				choice.disabledByReplaceRules = mappedChoices.filter(mc => (pointChoices.includes(mc.id) && ((mc.mustHave && find(mc.id).quantity) || (!mc.mustHave && !find(mc.id).quantity)))
-					|| ((!mc.mustHave && find(mc.id).quantity) || (mc.mustHave && !find(mc.id).quantity))).map(mc => mc.id);
+				const otherChoices = _.flatMap(rules.optionRules.filter(o => o.replaceOptions.includes(ro)), r => r.choices)
+					.filter(ch => choice.id !== ch.id
+						&& !mappedChoices.map(mc => mc.id).includes(ch.id)
+						&& ((ch.mustHave && find(ch.id).quantity)
+							|| (!ch.mustHave && !find(ch.id).quantity)));
 
-				// If this choice becomes disabled, deselect it
-				if (choice.disabledByReplaceRules?.length)
+				choice.disabledByReplaceRules = mappedChoices.filter(mc => (pointChoices.includes(mc.id) && ((mc.mustHave && find(mc.id).quantity) || (!mc.mustHave && !find(mc.id).quantity)))
+					|| ((!mc.mustHave && find(mc.id).quantity) || (mc.mustHave && !find(mc.id).quantity))).map(mc => mc.id)
+					.concat(otherChoices.map(ch => ch.id));
+
+				// If this choice becomes disabled, deselect it, but only if the choice is not already locked in
+				if (choice.disabledByReplaceRules?.length && !choice.lockedInChoice)
 				{
 					choice.quantity = 0;
 
-					// If any choices with options being replaced exist within the same DP, there is a setup issue (user error)
-					if (points.find(pt => pt.choices.some(c => c.id === choice.id) && pt.choices.some(c => choice.disabledByReplaceRules.includes(c.id))))
+					// If any choices with options being replaced exist within the same DP or elsewhere, there is a setup issue (user error)
+					if (otherChoices.length || points.find(pt => pt.choices.some(c => c.id === choice.id) && pt.choices.some(c => choice.disabledByReplaceRules.includes(c.id))))
 					{
 						choice.disabledByBadSetup = true;
 					}

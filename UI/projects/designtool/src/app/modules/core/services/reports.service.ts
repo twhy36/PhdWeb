@@ -53,6 +53,8 @@ export class ReportsService
 				return 'GetChoiceList';
 			case SummaryReportType.DESIGN_CHOICE_LIST:
 				return 'GetDesignChoiceList';
+			case SummaryReportType.SALES_CHOICE_LIST:
+				return 'GetSalesChoiceList';
 		}
 	}
 }

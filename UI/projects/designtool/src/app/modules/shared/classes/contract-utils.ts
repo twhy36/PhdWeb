@@ -355,7 +355,7 @@ export function getLiteChangeOrderGroupSelections(
 				{
 					coPlanOption.jobChangeOrderPlanOptionAttributes.map(att =>
 					{
-						const colorSchemeChoice = createLiteSDChoice(att.attributeName, att.id, null, 0, 1);
+						const colorSchemeChoice = createLiteSDChoice(att.attributeName, att.id ?? 0, null, 0, 1);
 						colorSchemeChoices.push(colorSchemeChoice);
 					});
 				}
@@ -459,7 +459,7 @@ export function getLiteConstructionChangeOrderPdfData(
 	const elevationPlanOptions = jobChangeOrderPlanOptions.filter(coPlanOption =>
 	{
 		const option = options.find(option => option.id === coPlanOption.planOptionId);
-		return option.optionSubCategoryId === Elevation.Detached || option.optionSubCategoryId === Elevation.Attached;
+		return option?.optionSubCategoryId === Elevation.Detached || option?.optionSubCategoryId === Elevation.Attached;
 	});
 
 	if (elevationPlanOptions?.length)
@@ -507,7 +507,7 @@ export function getLiteConstructionChangeOrderPdfData(
 							options: [],
 							overrideNote: null,
 							dpChoiceId: 0,
-							divChoiceCatalogId: att.id, // used for option filtering in API
+							divChoiceCatalogId: att.id ?? 0, // used for option filtering in API
 							attributes: [],
 							action: att.action
 						});

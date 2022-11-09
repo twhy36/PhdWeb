@@ -103,10 +103,6 @@ export const filteredTree = createSelector(
 											switch (p.pointPickTypeId) {
 												case PickType.Pick1:
 													isIncluded = false;
-												case PickType.Pick1ormore:
-													isIncluded = true;
-												case PickType.Pick0ormore:
-													isIncluded = true;
 												case PickType.Pick0or1:
 													isIncluded = false;
 											}

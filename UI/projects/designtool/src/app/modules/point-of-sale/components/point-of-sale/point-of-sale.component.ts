@@ -71,6 +71,7 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 	showPricingLockText: boolean = true;
 	selectedAgreementType: ESignTypeEnum;
 	canSell$: Observable<boolean>;
+	canSelectAddenda$: Observable<boolean>;
 	canDesign$: Observable<boolean>;
 	canAddIncentive$: Observable<boolean>;
 	canLockSalesAgreement$: Observable<boolean>;
@@ -315,6 +316,7 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 		);
 
 		this.canSell$ = this.store.pipe(select(fromRoot.canSell));
+		this.canSelectAddenda$ = this.store.pipe(select(fromRoot.canSelectAddenda));
 		this.canDesign$ = this.store.pipe(select(fromRoot.canDesign));
 		this.canAddIncentive$ = this.store.pipe(select(fromRoot.canAddIncentive));
 		this.canLockSalesAgreement$ = this.store.pipe(select(fromRoot.canLockSalesAgreement));
