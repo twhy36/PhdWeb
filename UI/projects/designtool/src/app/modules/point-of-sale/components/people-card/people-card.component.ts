@@ -61,7 +61,8 @@ export class PeopleCardComponent implements OnInit, OnChanges
 
 	checkForMissingRequiredFields()
 	{
-		if (this.personType !== 'Trust')
+		// only run for Primary Buyer for now.  
+		if (this.personType == 'Buyer' && this.person?.isPrimaryBuyer && this.salesAgreementStatus === 'Pending')
 		{
 			// get the contact info which is buried for buyer
 			const contact: Contact = this.personType === 'Buyer' ? this.personContact : this.realtor?.contact;
