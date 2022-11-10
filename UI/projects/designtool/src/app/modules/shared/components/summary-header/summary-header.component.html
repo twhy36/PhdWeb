@@ -2,7 +2,8 @@
 	<div class="d-flex">
 		<div class="d-flex flex-column flex-grow-1">
 			<span class="phd-label">COMMUNITY:</span>
-			<h2>{{communityName}}</h2>
+			<h2 *ngIf="communityName.length < 25">{{communityName}}</h2>
+			<h4 *ngIf="communityName.length > 25">{{communityName}}</h4>
 
 			<span class="phd-label">PLAN:</span>
 			<span class="phd-content">{{planName}}</span>
