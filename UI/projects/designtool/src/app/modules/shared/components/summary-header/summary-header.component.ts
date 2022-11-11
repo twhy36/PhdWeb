@@ -44,7 +44,7 @@ export class SummaryHeaderComponent implements OnInit, OnDestroy
 	{
 		return this.summaryHeader.communitySalesName || 'N/A';
 	}
-	
+
 	get planName(): string
 	{
 		return this.summaryHeader.plan ? `${this.summaryHeader.plan.salesName}, ${this.summaryHeader.plan.integrationKey}` : 'N/A';
