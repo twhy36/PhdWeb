@@ -5,7 +5,7 @@ import { distinctUntilChanged, combineLatest, switchMap, map, take } from 'rxjs/
 import { Store, select } from '@ngrx/store';
 import * as _ from 'lodash';
 
-import { UnsubscribeOnDestroy, Buyer, SalesAgreement, Realtor, SalesAgreementInfo, ChangeOrderBuyer } from 'phd-common';
+import { UnsubscribeOnDestroy, Buyer, SalesAgreement, Realtor, SalesAgreementInfo, ChangeOrderBuyer, AddressAssoc } from 'phd-common';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromSalesAgreement from '../../../ngrx-store/sales-agreement/reducer';
@@ -104,11 +104,31 @@ export class PeopleComponent extends UnsubscribeOnDestroy implements OnInit, Con
 			select(fromRoot.activePrimaryBuyer),
 			map(buyer =>
 			{
-				//Check if the primary buyer's country has a value. If not set default to "United States" and save buyer.
-				if (buyer?.opportunityContactAssoc?.contact?.addressAssocs?.length &&
-					!buyer.opportunityContactAssoc.contact.addressAssocs[0].address.country)
+				
+				let buyerCountryCheck = _.cloneDeep(buyer);
+				if (!buyer?.opportunityContactAssoc?.contact?.addressAssocs?.length)
 				{
-					let buyerCountryCheck = _.cloneDeep(buyer);
+					let newAddressAssoc: AddressAssoc = {
+						id: 0,
+						doNotContact: false,
+						isPrimary:  true,
+						address: {
+							id: 0,
+							address1: '',
+							address2: '',
+							city: '',
+							stateProvince: '',
+							postalCode: '',
+							country: '',
+							county: ''
+						}
+					};
+					buyerCountryCheck.opportunityContactAssoc.contact.addressAssocs.push(newAddressAssoc);
+				}
+				
+				//Check if the primary buyer's country has a value. If not set default to "United States" and save buyer.
+				if (!buyerCountryCheck.opportunityContactAssoc.contact.addressAssocs[0].address.country)
+				{
 					buyerCountryCheck.opportunityContactAssoc.contact.addressAssocs[0].address.country = 'United States';
 					buyer = buyerCountryCheck;
 
