@@ -829,12 +829,14 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 		const primaryPhoneFormGroup = (phoneFormArray.controls as Array<FormGroup>)[0];
 		const primaryPhone = primaryPhoneFormGroup.value.phoneNumber || '';
 		const primaryPhoneExt = primaryPhoneFormGroup.value.phoneExt || '';
+		const primaryPhoneType = primaryPhoneFormGroup.value.phoneType || '';
 
 		const secondaryPhoneFormGroup = (phoneFormArray.controls as Array<FormGroup>)[1];
 		const secondaryPhone = secondaryPhoneFormGroup.value.phoneNumber || '';
 		const secondaryPhoneExt = secondaryPhoneFormGroup.value.phoneExt || '';
+		const secondaryPhoneType = secondaryPhoneFormGroup.value.phoneType || '';
 
-		if (primaryPhone && primaryPhone === secondaryPhone && primaryPhoneExt === secondaryPhoneExt)
+		if (primaryPhone && primaryPhone === secondaryPhone && primaryPhoneType === secondaryPhoneType && primaryPhoneExt === secondaryPhoneExt)
 		{
 			return {
 				duplicatePhones: true

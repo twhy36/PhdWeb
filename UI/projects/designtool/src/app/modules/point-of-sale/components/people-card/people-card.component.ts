@@ -95,8 +95,10 @@ export class PeopleCardComponent implements OnInit, OnChanges
 				// check to see if secondary phone is filled out, if so then phone type is now required and must be filled out as well.
 				const hasPhoneSecondary = (phoneSecondary === null || phoneSecondary === undefined) || (phoneSecondary?.phoneNumber?.length > 0 && phoneSecondary?.phoneType?.length > 0);
 
-				// check for duplicate phone numbers
+				// check for duplicate phone numbers, Ext, Type
 				const hasDifferentPhone = hasPhonePrimary && hasPhoneSecondary ? phonePrimary.phoneNumber !== phoneSecondary?.phoneNumber : true;
+				const hasDifferentExt = hasPhonePrimary && hasPhoneSecondary ? phonePrimary.phoneExt !== phoneSecondary?.phoneExt : true;
+				const hasDifferentPhoneTypes = hasPhonePrimary && hasPhoneSecondary ? phonePrimary.phoneType !== phoneSecondary?.phoneType : true;
 
 				const emailPrimary = contact?.emailAssocs?.find(a => a.isPrimary)?.email;
 				const emailSecondary = contact?.emailAssocs?.find(a => !a.isPrimary)?.email;
@@ -107,7 +109,7 @@ export class PeopleCardComponent implements OnInit, OnChanges
 				const hasDifferentEmail = hasEmailPrimary && hasEmailSecondary ? emailPrimary.emailAddress !== emailSecondary.emailAddress : true;
 
 				// if something is missing then lets flag the tile as required 
-				this.isMissingRequiredFields = !(hasFirstName && hasLastName && hasValidAddress && hasPhonePrimary && hasPhoneSecondary && hasEmailPrimary && hasDifferentEmail && hasDifferentPhone);
+				this.isMissingRequiredFields = !(hasFirstName && hasLastName && hasValidAddress && hasPhonePrimary && hasPhoneSecondary && hasEmailPrimary && hasDifferentEmail && (hasDifferentPhone || hasDifferentExt || hasDifferentPhoneTypes));
 			}
 		}
 	}
