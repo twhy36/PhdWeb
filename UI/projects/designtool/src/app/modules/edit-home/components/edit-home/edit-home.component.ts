@@ -685,10 +685,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		// #366542 Find any choices with a replaced option that is no longer available on the current tree
 		let adjustedChoices = this.getAdjustedChoices(choiceToDeselect, choice);
 
-		if (choiceToDeselect && choice.id !== choiceToDeselect.id)
-		{
-			adjustedChoices = adjustedChoices.concat(getChoicesWithNewPricing(this.tree, this.treeVersionRules, this.options, choiceToDeselect));
-		}
+		adjustedChoices = adjustedChoices.concat(getChoicesWithNewPricing(this.tree, this.treeVersionRules, this.options, choice, choiceToDeselect));
 
 		adjustedChoices = adjustedChoices.filter((o, i) => adjustedChoices.indexOf(o) === i);
 
@@ -978,7 +975,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 					g => _.flatMap(g.subGroups,
 						sg => _.flatMap(sg.points,
 							p => p.choices)))
-					.find(c => (rrc.mustHave && rrc.id === c.id && c.quantity) || (!rrc.mustHave && rrc.id === c.id && !c.quantity));
+					.find(c => rrc.id === c.id && ((rrc.mustHave && c.quantity) || (!rrc.mustHave && !c.quantity)));
 
 				// Get all lockedInOptions from previous agreement
 				if (existingChoice)

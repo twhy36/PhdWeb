@@ -1169,18 +1169,24 @@ export function checkReplacedOption(deselectedChoice: Choice, rules: TreeVersion
 	}
 }
 
-export function getChoicesWithNewPricing(tree: Tree, rules: TreeVersionRules, options: PlanOption[], deselectedChoice: Choice)
+export function getChoicesWithNewPricing(tree: Tree, rules: TreeVersionRules, options: PlanOption[], selectedChoice: Choice, deselectedChoice: Choice)
 {
-	let affectedChoices = [];
-
-	if (deselectedChoice.lockedInOptions)
-	{
-		affectedChoices = _.flatMap(deselectedChoice.lockedInOptions.map(lio => lio.choices)).map(c => c.id);
-	}
-
 	let newTree = _.cloneDeep(tree);
 
-	findChoice(newTree, ch => ch.id === deselectedChoice.id).quantity = 0;
+	let affectedChoices = [];
+
+	if (deselectedChoice && deselectedChoice.id !== selectedChoice.id && deselectedChoice.lockedInOptions)
+	{
+		affectedChoices = _.flatMap(deselectedChoice.lockedInOptions.map(lio => lio.choices)).map(c => c.id);
+
+		findChoice(newTree, ch => ch.id === deselectedChoice.id).quantity = 0;
+	}
+
+	// When selecting a choice, set the quantity to apply rules
+	if (selectedChoice.id !== deselectedChoice?.id)
+	{
+		findChoice(newTree, ch => ch.id === selectedChoice.id).quantity = 1;
+	}
 
 	const newRules = exludeConflictedRules(rules, tree);
 
@@ -1195,6 +1201,23 @@ export function getChoicesWithNewPricing(tree: Tree, rules: TreeVersionRules, op
 
 	//apply rules to cloned tree
 	applyRules(newTree, newRules, options);
+
+	// Re-check the tree in the case of selecting a choice
+	if (selectedChoice.id !== deselectedChoice?.id)
+	{
+		// Get the options mapped to this selected choice
+		const selectedOpts = selectedChoice.options.map(o => o.financialOptionIntegrationKey);
+
+		// Find what options are being replaced
+		const replacedOpts = _.flatMap(newRules.optionRules.filter(r => selectedOpts.includes(r.optionId)), r => r.replaceOptions);
+
+		// Find what choices are associated with these replaced options
+		const divChoiceCatalogIds = _.flatMap(newRules.optionRules.filter(r => replacedOpts.includes(r.optionId)), r => r.choices.map(c => c.id))
+			.map(c => findChoice(newTree, ch => ch.id === c)?.divChoiceCatalogId);
+
+		// Add them to the affected list
+		affectedChoices = affectedChoices.concat(divChoiceCatalogIds);
+	}
 
 	return _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, p => p.choices)))
 		.filter(ch => affectedChoices.includes(ch.divChoiceCatalogId) && ch.price !== findChoice(newTree, ch1 => ch1.id === ch.id)?.price);
