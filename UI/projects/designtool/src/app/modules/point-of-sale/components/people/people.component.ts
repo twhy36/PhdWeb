@@ -358,6 +358,7 @@ export class PeopleComponent extends UnsubscribeOnDestroy implements OnInit, Con
 			{
 				this.store.dispatch(new ChangeOrderActions.SetChangeOrderTrustName(buyer));
 				this.store.dispatch(new ChangeOrderActions.SavePendingJio());
+				this.store.dispatch(new SalesAgreementActions.SetTrustName(buyer));
 			}
 			else
 			{
