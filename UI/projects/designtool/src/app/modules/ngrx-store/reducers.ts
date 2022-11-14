@@ -947,17 +947,25 @@ export const changeOrderChoicesPastCutoff = createSelector(
 export const canCancelSpec = createSelector(
 	fromJob.jobState,
 	fromScenario.buildMode,
-	(job, buildMode) =>
+	fromLite.liteState,
+	(job, buildMode, lite) =>
 	{
-		return buildMode === 'spec' && job.constructionStageName === 'Configured' && job.jobTypeName === 'Spec' && !(job.jobSalesAgreementAssocs && job.jobSalesAgreementAssocs.length > 0);
+		return buildMode === 'spec' &&
+			job.constructionStageName === 'Configured' &&
+			(lite.isPhdLite ? (job.jobTypeName === 'Spec' || job.jobTypeName === 'House') : job.jobTypeName === 'Spec') &&
+			!(job.jobSalesAgreementAssocs && job.jobSalesAgreementAssocs.length > 0);
 	});
 
 export const canCancelModel = createSelector(
 	fromJob.jobState,
 	fromScenario.buildMode,
-	(job, buildMode) =>
+	fromLite.liteState,
+	(job, buildMode, lite) =>
 	{
-		return buildMode === 'model' && job.constructionStageName === 'Configured' && job.jobTypeName === 'Model' && !(job.jobSalesAgreementAssocs && job.jobSalesAgreementAssocs.length > 0);
+		return buildMode === 'model' &&
+			job.constructionStageName === 'Configured' &&
+			(lite.isPhdLite ? (job.jobTypeName === 'Model' || job.jobTypeName === 'House') : job.jobTypeName === 'Model') &&
+			!(job.jobSalesAgreementAssocs && job.jobSalesAgreementAssocs.length > 0);
 	});
 
 export const showSpinner = createSelector(

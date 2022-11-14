@@ -4710,6 +4710,9 @@ describe('Common reducer', function ()
 			},
 			scenario: {
 				buildMode: 'spec'
+			},
+			lite: {
+				isPhdLite: false
 			}
 		};
 
@@ -4729,6 +4732,9 @@ describe('Common reducer', function ()
 			},
 			scenario: {
 				buildMode: 'spec'
+			},
+			lite: {
+				isPhdLite: false
 			}
 		};
 
@@ -4748,6 +4754,9 @@ describe('Common reducer', function ()
 			},
 			scenario: {
 				buildMode: 'spec'
+			},
+			lite: {
+				isPhdLite: false
 			}
 		};
 
@@ -4768,6 +4777,9 @@ describe('Common reducer', function ()
 			scenario:
 			{
 				buildMode: 'spec'
+			},
+			lite: {
+				isPhdLite: false
 			}
 		};
 
@@ -4785,6 +4797,9 @@ describe('Common reducer', function ()
 			},
 			scenario: {
 				buildMode: 'buyer'
+			},
+			lite: {
+				isPhdLite: false
 			}
 		};
 
