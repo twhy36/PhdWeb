@@ -996,57 +996,6 @@ export const financialBrandId = createSelector(
 );
 
 // PHD Lite
-export const liteMonotonyConflict = createSelector(
-	fromLot.selectSelectedLot,
-	fromPlan.selectedPlanData,
-	fromLite.selectedElevation,
-	fromScenario.hasMonotonyAdvisement,
-	fromLite.selectedColorScheme,
-	fromLite.liteState,
-	(selectedLot, selectedPlan, elevation, advisement, colorScheme, lite) =>
-	{
-		let conflict = {
-			monotonyConflict: false,
-			conflictSeen: advisement,
-			colorSchemeConflict: false,
-			colorSchemeConflictOverride: false,
-			elevationConflict: false,
-			elevationConflictOverride: false
-		} as MonotonyConflict;
-
-		if (selectedLot !== null && lite.isPhdLite)
-		{
-			let isColorSchemePlanRuleEnabled = selectedLot.financialCommunity?.isColorSchemePlanRuleEnabled;
-			let planId = !!selectedPlan ? selectedPlan.id : 0;
-			const monotonyRules = lite.liteMonotonyRules?.find(rule => rule.edhLotId === selectedLot.id)?.relatedLotsElevationColorScheme || [];
-
-			if (elevation && colorScheme)
-			{
-				conflict.elevationConflict = !lite.elevationOverrideNote && monotonyRules.some(rule => rule.elevationPlanOptionId === elevation.id);
-
-				const colorItem = elevation.colorItems?.find(item => item.colorItemId === colorScheme.colorItemId);
-				const color = colorItem?.color?.find(c => c.colorId === colorScheme.colorId);
-
-				if (colorItem && color && !lite.colorSchemeOverrideNote)
-				{
-					conflict.colorSchemeConflict = isColorSchemePlanRuleEnabled
-						? monotonyRules.some(r =>
-							r.colorSchemeColorItemName === colorItem.name
-							&& r.colorSchemeColorName === color.name
-							&& r.edhPlanId === planId)
-						: monotonyRules.some(r =>
-							r.colorSchemeColorItemName === colorItem.name
-							&& r.colorSchemeColorName === color.name) ;
-				}
-			}
-
-			conflict.monotonyConflict = (conflict.colorSchemeConflict || conflict.elevationConflict);
-		}
-
-		return conflict;
-	}
-);
-
 export const legacyColorScheme = createSelector(
 	fromJob.jobState, 
 	fromLite.liteState,
@@ -1094,6 +1043,72 @@ export const legacyColorScheme = createSelector(
 		}
 
 		return colorScheme;
+	}
+);
+
+export const liteMonotonyConflict = createSelector(
+	fromLot.selectSelectedLot,
+	fromPlan.selectedPlanData,
+	fromLite.selectedElevation,
+	fromScenario.hasMonotonyAdvisement,
+	fromLite.selectedColorScheme,
+	legacyColorScheme,
+	fromLite.liteState,
+	(selectedLot, selectedPlan, elevation, advisement, colorScheme, legacyColorScheme, lite) =>
+	{
+		let conflict = {
+			monotonyConflict: false,
+			conflictSeen: advisement,
+			colorSchemeConflict: false,
+			colorSchemeConflictOverride: false,
+			elevationConflict: false,
+			elevationConflictOverride: false
+		} as MonotonyConflict;
+
+		if (selectedLot !== null && lite.isPhdLite)
+		{
+			let isColorSchemePlanRuleEnabled = selectedLot.financialCommunity?.isColorSchemePlanRuleEnabled;
+			let planId = !!selectedPlan ? selectedPlan.id : 0;
+			const monotonyRules = lite.liteMonotonyRules?.find(rule => rule.edhLotId === selectedLot.id)?.relatedLotsElevationColorScheme || [];
+
+			if (elevation && (legacyColorScheme || colorScheme))
+			{
+				conflict.elevationConflict = !lite.elevationOverrideNote && monotonyRules.some(rule => rule.elevationPlanOptionId === elevation.id);
+
+				let colorItemName: string = null;
+				let colorName: string = null;
+
+				if (legacyColorScheme?.isSelected)
+				{
+					colorItemName = legacyColorScheme.colorItemName;
+					colorName = legacyColorScheme.colorName;
+				}
+				else if (!legacyColorScheme && colorScheme)
+				{
+					const colorItem = elevation.colorItems?.find(item => item.colorItemId === colorScheme.colorItemId);
+					const color = colorItem?.color?.find(c => c.colorId === colorScheme.colorId);	
+					
+					colorItemName = colorItem?.name;
+					colorName = color?.name;
+				}
+
+				if (colorItemName && colorName && !lite.colorSchemeOverrideNote)
+				{
+					conflict.colorSchemeConflict = isColorSchemePlanRuleEnabled
+						? monotonyRules.some(r =>
+							r.colorSchemeColorItemName === colorItemName
+							&& r.colorSchemeColorName === colorName
+							&& r.edhPlanId === planId)
+						: monotonyRules.some(r =>
+							r.colorSchemeColorItemName === colorItemName
+							&& r.colorSchemeColorName === colorName) ;
+				}
+			}
+
+			conflict.monotonyConflict = (conflict.colorSchemeConflict || conflict.elevationConflict);
+		}
+
+		return conflict;
 	}
 );
 
