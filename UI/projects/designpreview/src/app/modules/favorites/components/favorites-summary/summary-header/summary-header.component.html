@@ -5,7 +5,7 @@
 				<cl-transformation width="900" height="500" background="white" crop="pad" color="grey" effect="outline:outer:4:1"></cl-transformation>
 			</cl-image>
 		</div>
-		<img class="phd-logo-image-sticky" [src]="getImageSrc()" *ngIf="!summaryHeader.elevationImageUrl">
+		<img class="phd-logo-image-sticky phd-hide-in-print" [src]="getImageSrc()" *ngIf="!summaryHeader.elevationImageUrl">
 	</ng-container>
 	
 	<ng-container *ngIf="!isPresale && !isSticky">
