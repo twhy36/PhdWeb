@@ -73,9 +73,9 @@ export class LotService
 		);
 	}
 
-	getMonotonyRulesForSalesCommunity(salesCommunityId: number, skipSpinner: boolean = true): Observable<Array<MonotonyRule>>
+	getMonotonyRulesForSalesCommunity(salesCommunityId: number, skipSpinner: boolean = true, useCache: boolean = true): Observable<Array<MonotonyRule>>
 	{
-		const url = `${environment.apiUrl}GetMonotonyRulesForSalesCommunity(id=${salesCommunityId})`;
+		const url = `${environment.apiUrl}GetMonotonyRulesForSalesCommunity(id=${salesCommunityId}, ${useCache})`;
 
 		return (skipSpinner ? this._http : withSpinner(this._http)).get<any>(url).pipe(
 			map(response =>
