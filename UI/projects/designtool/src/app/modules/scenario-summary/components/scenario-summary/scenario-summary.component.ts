@@ -195,10 +195,11 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
-			select(state => state.salesAgreement)
-		).subscribe(sag =>
+			select(state => state.salesAgreement),
+			combineLatest(this.store.pipe(select(fromRoot.canEstimateOnSummary))),
+		).subscribe(([sag, canEstimateOnSummary]) =>
 		{
-			this.allowEstimates = sag ? sag.id === 0 : true;
+			this.allowEstimates = canEstimateOnSummary;
 			this.salesAgreementId = sag && sag.id;
 		});
 
