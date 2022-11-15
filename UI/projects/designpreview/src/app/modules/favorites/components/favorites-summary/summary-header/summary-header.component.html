@@ -2,7 +2,7 @@
 	<ng-container *ngIf="isPresale">
 		<div class="phd-presale-elevation phd-hide-in-print">
 			<cl-image *ngIf="summaryHeader.elevationImageUrl" public-id="{{summaryHeader.elevationImageUrl}}" type="fetch" style="width:auto;height:112px;border:'black'">
-				<cl-transformation width="900" height="500" background="white" crop="pad" color="grey" effect="outline:outer:4:1"></cl-transformation>
+				<cl-transformation width="1920" height="1240" background="white" crop="pad" color="grey" effect="outline:outer:4:1"></cl-transformation>
 			</cl-image>
 		</div>
 		<img class="phd-logo-image-sticky phd-hide-in-print" [src]="getImageSrc()" *ngIf="!summaryHeader.elevationImageUrl">
@@ -11,7 +11,7 @@
 	<ng-container *ngIf="!isPresale && !isSticky">
 		<div class="phd-hide-in-print phd-postsale-elevation">
 			<cl-image *ngIf="summaryHeader.elevationImageUrl" public-id="{{summaryHeader.elevationImageUrl}}" type="fetch" style="width:auto;height:360px;margin:10px" crop="fill">
-				<cl-transformation width="900" height="500" background="white" crop="pad" color="grey" effect="outline:outer:4:1"></cl-transformation>
+				<cl-transformation width="1920" height="1240" background="white" crop="pad" color="grey" effect="outline:outer:4:1"></cl-transformation>
 			</cl-image>
 		</div>
 		<img class="phd-logo-image" [src]="getImageSrc()" *ngIf="!summaryHeader.elevationImageUrl">
