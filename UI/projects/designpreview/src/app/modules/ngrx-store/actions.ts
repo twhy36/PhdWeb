@@ -48,7 +48,6 @@ export class SalesAgreementLoaded implements Action
 		public rules: TreeVersionRules,
 		public options: PlanOption[],
 		public optionImages: OptionImage[],
-		public webPlanMappings: number[],
 		public changeOrder: ChangeOrderGroup,
 		public lot: LotExt,
 		public myFavorites: MyFavorite[]

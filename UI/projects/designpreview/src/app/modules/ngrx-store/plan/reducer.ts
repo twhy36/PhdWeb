@@ -33,7 +33,7 @@ export function reducer(state: State = initialState, action: PlanActions): State
 			return { ...state, selectedPlanLoading: true, hasError: false };
 
 		case PlanActionTypes.SelectedPlanLoaded:
-			return { ...state, selectedPlanLoading: false, hasError: false, plans: action.plans };
+			return { ...state, marketingPlanId: action.plans.flatMap(p => p.marketingPlanId), selectedPlanLoading: false, hasError: false, plans: action.plans };
 
 		case PlanActionTypes.LoadError:
 			return { ...state, selectedPlanLoading: false, hasError: true };
@@ -42,7 +42,7 @@ export function reducer(state: State = initialState, action: PlanActions): State
 			return { ...state, marketingPlanId: action.marketingPlanId };
 
 		case CommonActionTypes.SalesAgreementLoaded:
-			return { ...state, marketingPlanId: action.webPlanMappings, selectedPlan: action.selectedPlanId, selectedTree: action.tree && action.tree.treeVersion ? action.tree.treeVersion.id : null };
+			return { ...state, selectedPlan: action.selectedPlanId, selectedTree: action.tree && action.tree.treeVersion ? action.tree.treeVersion.id : null };
 		default:
 			return state;
 	}
