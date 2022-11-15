@@ -96,7 +96,7 @@
 				<strong>Color Scheme:</strong>
 			</div>
 			<div class="flex-column phd-flex-fill pl-1">
-				{{ !isSalesAgreementCancelledOrVoided ? colorScheme || liteColorSchemeName : ''}}
+				{{ !isSalesAgreementCancelledOrVoided ? colorScheme || liteColorSchemeName || legacyColorSchemeName : ''}}
 			</div>
 		</div>
 		<div class="d-flex flex-wrap py-2" *ngIf="status !== 'Void'">
