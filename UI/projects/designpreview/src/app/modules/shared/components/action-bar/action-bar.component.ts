@@ -107,7 +107,11 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit
 
 	onPrint() 
 	{
-		this.onPrintAction?.emit();
+		if (this.isPresale) {
+			window.print();
+		} else {
+			this.onPrintAction?.emit();
+		}
 	}
 
 	onViewFavorites() {

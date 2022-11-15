@@ -217,7 +217,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="phd-box-background" *ngIf="enableDesignPreviewBox()">
+			<div class="phd-box-background" *ngIf="isUrlGenerationEnabled">
 				<div class="phd-box">
 					<div class="phd-line">
 						<div class="font-weight-bold">Design Preview Pre-Sale Link by Plan</div>
@@ -226,7 +226,7 @@
                             <option *ngFor="let plan of plans" [ngValue]="plan">{{ plan.displayName }}</option>
 						</select>
                         <br />
-						<button *ngIf="!!selectedOption" class="btn btn-primary phd-btn-save" (click)="generateDesignPreviewLink(selectedOption.id)">
+						<button *ngIf="!!selectedOption" class="btn btn-primary phd-btn-save" (click)="generateDesignPreviewLink(selectedOption)">
 							Generate Link
 							<ng-container *ngIf="isSaving"><i class="fa fa-spinner fa-spin fa-fw"></i></ng-container>
 						</button>
@@ -234,7 +234,7 @@
 							<a class="btn-link" [href]="designPreviewUrl" target="_blank" rel="noopener noreferrer">{{ designPreviewUrl }}</a>
                             <button class="phd-copy-image" (click)="copyToClipboard(designPreviewUrl)">
                                 <i class="fa fa-copy fa-thin"></i>
-                            </button>
+                            </button>						
 						</div>
 					</div>
 				</div>
@@ -253,3 +253,5 @@
 <ng-template #noCommunityMessage>
 	<p class="phd-no-community">Please select a community.</p>
 </ng-template>
+
+<p-toast></p-toast>

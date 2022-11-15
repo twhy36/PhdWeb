@@ -30,3 +30,14 @@
 		</div>
 	</div>
 </div>
+
+<div *ngIf="!hasFloorPlanImages && isPresale" class="phd-hidden-floorplan">
+	<floor-plan
+		[height]="'0vh'"
+		[planId$]="marketingPlanId$"
+		[selectedFloor]="selectedFloor"
+		[subGroup]="floorplanSG"
+		[isFlipped]="isFloorplanFlipped"
+		(onFloorPlanLoaded)="loadFloorPlan($event)">
+	</floor-plan>
+</div>

@@ -189,7 +189,7 @@ export class AppComponent extends UnsubscribeOnDestroy {
 		let browserModal = this.modalService.open(InfoModalComponent, ngbModalOptions);
 		browserModal.componentInstance.title = 'Browser Not Supported';
 		browserModal.componentInstance.body = `
-			<p>We do not currently support this browser. Please use Safari or Chrome for the best experience.</p>
+			<p>The browser version you are currently using is not supported. Please use a recent version of Safari, Chrome or Edge for the best experience.</p>
 		`;
 		browserModal.componentInstance.buttonText = 'Continue';
 		browserModal.componentInstance.isCloseable = true;

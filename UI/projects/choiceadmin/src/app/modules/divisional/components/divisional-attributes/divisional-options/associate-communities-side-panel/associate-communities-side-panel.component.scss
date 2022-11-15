@@ -3,7 +3,7 @@
 .div-community-table {
 	margin-top: 20px;
 	height: calc(100vh - #{$nav-menu-height} - #{$side-panel-header-height} - #{$side-panel-action-bar-height});
-	overflow-y: scroll;
+	overflow-y: auto;
 }
 
 .div-error {

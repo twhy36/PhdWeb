@@ -38,9 +38,16 @@ export class AssociateCommunitiesSidePanelComponent extends UnsubscribeOnDestroy
 	origSelectedCommunities: Array<IFinancialCommunity> = [];
 	isAssociatingAttributeGroups: boolean;
 
+	public AssociatingType = AssociatingType;
+	associatingType: AssociatingType;
+
 	get saveDisabled(): boolean
 	{
-		let saveDisabled = this.isSaving || isEqual(this.selectedCommunities, this.origSelectedCommunities);
+		// Need to sort the arrays in order to properly compare
+		const sortedSelectedCommunities = this.selectedCommunities.sort((a, b) => { return a.id - b.id; });
+		const sortedOrigCommunities = this.origSelectedCommunities.sort((a, b) => { return a.id - b.id; });
+
+		const saveDisabled = this.isSaving || isEqual(sortedSelectedCommunities, sortedOrigCommunities);
 
 		if (this.sidePanel)
 		{
@@ -58,9 +65,10 @@ export class AssociateCommunitiesSidePanelComponent extends UnsubscribeOnDestroy
 		{
 			this.communities = communities;
 
-			if (this.groups.length)
+			if (this.groups && this.groups.length)
 			{
-				this.isAssociatingAttributeGroups = this.groups[0] instanceof AttributeGroupMarket;
+				this.associatingType = this.groups[0] instanceof AttributeGroupMarket ? AssociatingType.AttributeGroups : AssociatingType.LocationGroups;
+
 				this.selectCommunities();
 			}
 		});
@@ -71,20 +79,33 @@ export class AssociateCommunitiesSidePanelComponent extends UnsubscribeOnDestroy
 		// Select the communities if all groups are associated
 		this.communities.forEach(community =>
 		{
-			const nonAssociatedGroups = this.groups.filter(group =>
+			if (this.groups)
 			{
-				const groups = this.isAssociatingAttributeGroups
-					? community.attributeGroupCommunities.filter(attr => attr.attributeGroupMarketId === group.id)
-					: community.locationGroupCommunities.filter(loc => loc.locationGroupMarketId === group.id);
-				return !groups || !groups.length;
-			});
+				const nonAssociatedGroups = this.groups.filter(group =>
+				{
+					const groups = this.associatingType == AssociatingType.AttributeGroups
+						? community.attributeGroupCommunities.filter(attr => attr.attributeGroupMarketId === group.id)
+						: community.locationGroupCommunities.filter(loc => loc.locationGroupMarketId === group.id);
 
-			if (!nonAssociatedGroups || !nonAssociatedGroups.length)
-			{
-				this.origSelectedCommunities.push(community);
-				this.setCommunitySelected(community, true);
+					return !groups || !groups.length;
+				});
+
+				if (!nonAssociatedGroups || !nonAssociatedGroups.length)
+				{
+					this.setOriginallySelectedCommunity(community);
+				}
 			}
 		});
+	}
+
+	setOriginallySelectedCommunity(community: IFinancialCommunity)
+	{
+		if (!this.origSelectedCommunities.includes(community))
+		{
+			this.origSelectedCommunities.push(community);
+
+			this.setCommunitySelected(community, true);
+		}
 	}
 
 	onCloseSidePanel(status: boolean)
@@ -95,6 +116,7 @@ export class AssociateCommunitiesSidePanelComponent extends UnsubscribeOnDestroy
 		}
 
 		this.sidePanel.isDirty = false;
+
 		this.onSidePanelClose.emit(status);
 	}
 
@@ -118,9 +140,19 @@ export class AssociateCommunitiesSidePanelComponent extends UnsubscribeOnDestroy
 		const deSelectedCommunities = differenceBy(this.origSelectedCommunities, this.selectedCommunities, 'id');
 		const disassociatedCommunityIds = deSelectedCommunities.map(c => c.id);
 
-		const saveAssocs = this.isAssociatingAttributeGroups
-			? this.saveAttributeGroupsAssocs(associatedCommunityIds, disassociatedCommunityIds)
-			: this.saveLocationGroupsAssocs(associatedCommunityIds, disassociatedCommunityIds);
+		let saveAssocs: Observable<any>;
+
+		switch (this.associatingType)
+		{
+			case AssociatingType.AttributeGroups:
+				saveAssocs = this.saveAttributeGroupsAssocs(associatedCommunityIds, disassociatedCommunityIds);
+				break;
+			case AssociatingType.LocationGroups:
+				saveAssocs = this.saveLocationGroupsAssocs(associatedCommunityIds, disassociatedCommunityIds);
+				break;
+			default:
+				break;
+		}
 
 		saveAssocs.subscribe(data =>
 		{
@@ -128,33 +160,32 @@ export class AssociateCommunitiesSidePanelComponent extends UnsubscribeOnDestroy
 			{
 				this.callback();
 			}
+
 			this.errors = [{ severity: 'success', detail: `Communities associated.` }];
 			this.isSaving = false;
 			this.sidePanel.isDirty = false;
 
 			this.sidePanel.toggleSidePanel();
 		},
-			error =>
-			{
-				this.isSaving = false;
-				this.displayErrorMessage('Failed to associate communities.');
-			});
+		error =>
+		{
+			this.isSaving = false;
+			this.displayErrorMessage('Failed to associate communities.');
+		});
 	}
 
 	saveAttributeGroupsAssocs(associatedCommunityIds: number[], disassociatedCommunityIds: number[]): Observable<any>
 	{
 		const attrGroups = this.groups as AttributeGroupMarket[];
 
-		return this._attrService.updateAttributeGroupsCommunitiesAssocs(this.option.id,
-			associatedCommunityIds, disassociatedCommunityIds, attrGroups);
+		return this._attrService.updateAttributeGroupsCommunitiesAssocs(this.option.id,	associatedCommunityIds, disassociatedCommunityIds, attrGroups);
 	}
 
 	saveLocationGroupsAssocs(associatedCommunityIds: number[], disassociatedCommunityIds: number[]): Observable<any>
 	{
 		const locGroups = this.groups as LocationGroupMarket[];
 
-		return this._locService.updateLocationGroupsCommunitiesAssocs(this.option.id,
-			associatedCommunityIds, disassociatedCommunityIds, locGroups);
+		return this._locService.updateLocationGroupsCommunitiesAssocs(this.option.id, associatedCommunityIds, disassociatedCommunityIds, locGroups);
 	}
 
 	displayErrorMessage(message: string)
@@ -162,6 +193,7 @@ export class AssociateCommunitiesSidePanelComponent extends UnsubscribeOnDestroy
 		if (message)
 		{
 			this.errors = [];
+
 			this.errors.push({ severity: 'error', detail: message });
 		}
 	}
@@ -187,6 +219,7 @@ export class AssociateCommunitiesSidePanelComponent extends UnsubscribeOnDestroy
 		else if (!isSelected && index >= 0)
 		{
 			this.selectedCommunities.splice(index, 1);
+
 			this.selectedCommunities = [...this.selectedCommunities];
 		}
 	}
@@ -205,7 +238,7 @@ export class AssociateCommunitiesSidePanelComponent extends UnsubscribeOnDestroy
 
 	getLocationGroupName(community: IFinancialCommunity): string
 	{
-		if (!this.isAssociatingAttributeGroups)
+		if (this.associatingType === AssociatingType.LocationGroups)
 		{
 			return community.locationGroupCommunities && community.locationGroupCommunities.length
 				? ': ' + community.locationGroupCommunities[0].locationGroupName
@@ -214,4 +247,10 @@ export class AssociateCommunitiesSidePanelComponent extends UnsubscribeOnDestroy
 
 		return '';
 	}
+}
+
+export enum AssociatingType
+{
+	AttributeGroups,
+	LocationGroups
 }

@@ -1,5 +1,5 @@
 <ul class="list-unstyled">
-	<ng-container *ngFor="let point of points">
+	<ng-container *ngFor="let point of points; trackBy:pointById">
 		<li *ngIf="displayPoint(point)" class="d-flex align-items-top justify-content-start" [@slideOut]>
 			<div class="decision-point">
 				<div class="label" title="{{point.label}}">

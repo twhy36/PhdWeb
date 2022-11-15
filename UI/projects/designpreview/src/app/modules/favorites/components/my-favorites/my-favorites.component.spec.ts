@@ -77,7 +77,7 @@ describe('MyFavoritesComponent', () =>
 		it('should set the selected point id', () =>
 		{
 			component.selectedPointId = 0;
-			component.selectDecisionPoint({pointId: 1});
+			component.selectDecisionPoint(1);
 			expect(component.selectedPointId).toEqual(1);
 		});
 		describe('when the point id is a part of a different subGroup', () =>
@@ -174,7 +174,7 @@ describe('MyFavoritesComponent', () =>
 				component.groups = groups;
 				component.selectedSubGroup = groups[0].subGroups[0];
 
-				component.selectDecisionPoint({pointId: 11});
+				component.selectDecisionPoint(11);
 				expect(component.selectedPointId).toEqual(11);
 				expect(onStoreSpy).toHaveBeenCalled();
 			});

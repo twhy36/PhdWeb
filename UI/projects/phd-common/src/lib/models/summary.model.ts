@@ -33,7 +33,8 @@ export enum SummaryReportType
 	OPTION_DETAILS_IMAGES = 'Option Details w/Images',
 	FLOOR_PLAN = 'Floor Plan',
 	CHOICE_LIST = 'Choice List',
-	DESIGN_CHOICE_LIST = 'Design Choice List'
+	DESIGN_CHOICE_LIST = 'Design Choice List',
+	SALES_CHOICE_LIST = 'Sales Choice List'
 }
 
 export class SDGroup

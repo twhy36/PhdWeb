@@ -70,7 +70,7 @@ export class DecisionBarChoiceComponent {
 		if (this.choice.priceHiddenFromBuyerView)
 		{
 			this.hiddenChoicePriceModalRef = this.modalService.open(this.hiddenChoicePriceModal, { windowClass: 'phd-hidden-choice-price-modal' });
-			this.adobeService.setAlertEvent('Pricing Varies. Pricing TBD with Design', 'Pricing Varies Alert');
+			this.adobeService.setAlertEvent('Pricing Varies. Pricing will be determined during your meeting with your Design Consultant.', 'Pricing Varies Alert');
 		}
 	}
 }

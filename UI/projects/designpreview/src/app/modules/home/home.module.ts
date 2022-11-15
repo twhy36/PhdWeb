@@ -47,7 +47,7 @@ const moduleRoutes: Routes = [
 		path: 'presale',
 		component: HomeComponent,
 		canActivate: [InternalGuard],
-		data: { isPreview: false, pageLoadEvent: 'Home', isPresale: true },
+		data: { isPreview: false, pageLoadEvent: 'Home', isPresale: false },
 	},
 ];
 

@@ -7,6 +7,10 @@ import { ChoiceExt } from '../../models/choice-ext.model';
 import { BlockedByItemObject } from '../../models/blocked-by.model';
 import { getDisabledByList } from '../../../shared/classes/tree.utils';
 import { AdobeService } from '../../../core/services/adobe.service';
+import { Store } from '@ngrx/store';
+
+import * as fromRoot from '../../../ngrx-store/reducers';
+import * as NavActions from '../../../ngrx-store/nav/actions';
 
 @Component({
 	selector: 'choice-card',
@@ -24,6 +28,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnChang
 	@Input() tree: Tree;
 	@Input() isReadonly: boolean;
 	@Input() isPresale: boolean = false;
+	@Input() isIncludedOptions: boolean = false;
 
 	@Output() toggled = new EventEmitter<ChoiceExt>();
 	@Output() onViewChoiceDetail = new EventEmitter<ChoiceExt>();
@@ -43,6 +48,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnChang
 	choiceDisabledLabel: string;
 
 	constructor(
+		private store: Store<fromRoot.State>,
 		public modalService: NgbModal,
 		private adobeService: AdobeService
 	) {
@@ -111,6 +117,11 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnChang
 	}
 
 	openBlockedChoiceModal() {
+		if (!this.isIncludedOptions) {
+			const subGroup = _.flatMap(this.groups, g => _.flatMap(g.subGroups)).find(sg => !!sg.points.find(p => this.currentPoint.id === p.id)) || null;
+			this.store.dispatch(new NavActions.SetSelectedSubgroup(subGroup.id, this.currentPoint.id, null));
+		}
+		
 		if (!this.disabledByList.choiceDisabledByList && !this.disabledByList.pointDisabledByList)
 		{
 			this.disabledByList = getDisabledByList(this.tree, this.groups, this.currentPoint, this.choice);
@@ -122,7 +133,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnChang
 		if (this.choice.priceHiddenFromBuyerView)
 		{
 			this.hiddenChoicePriceModalRef = this.modalService.open(this.hiddenChoicePriceModal, { windowClass: 'phd-hidden-choice-price-modal' });
-			this.adobeService.setAlertEvent('Pricing Varies. Pricing TBD with Design', 'Pricing Varies Alert');
+			this.adobeService.setAlertEvent('Pricing Varies. Pricing will be determined during your meeting with your Design Consultant.', 'Pricing Varies Alert');
 		}
 	}
 

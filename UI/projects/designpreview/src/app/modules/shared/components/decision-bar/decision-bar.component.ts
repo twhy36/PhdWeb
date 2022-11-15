@@ -17,13 +17,13 @@ export class DecisionBarComponent extends UnsubscribeOnDestroy
 	@Input() points: DecisionPoint[];
 	@Input() currentPointId: number;
 
-	@Output() onSelectDecisionPoint = new EventEmitter<any>();
+	@Output() onSelectDecisionPoint = new EventEmitter<number>();
 
 	constructor() { super(); }
 
 	onDecisionPointClick(point: DecisionPoint)
 	{
-		this.onSelectDecisionPoint.emit({pointId: point.id, interval: 500});
+		this.onSelectDecisionPoint.emit(point.id);
 	}
 
 	displayDecisionPoint(point: DecisionPoint) {

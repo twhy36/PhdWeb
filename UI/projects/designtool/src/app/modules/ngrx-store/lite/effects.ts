@@ -201,11 +201,23 @@ export class LiteEffects
 				{
 					if (data?.isSpecScenarioLoaded)
 					{
+						// Find color items and colors in the job which have been removed in color management
+						const missingColorItemsAndColors = this.liteService.findMissingColorItemsAndColors(data.job, data.options);
+
+						const getMissingColorItems = !!missingColorItemsAndColors.missingColorItems.length 
+							? this.liteService.getMissingColorItems(missingColorItemsAndColors.missingColorItems)
+							: of([]);
+						const getMissingColors = !!missingColorItemsAndColors.missingColors.length
+							? this.liteService.getMissingColors(data.job.financialCommunityId, missingColorItemsAndColors.missingColors)
+							: of([]);
+
 						return combineLatest([
 							this.identityService.getClaims(),
-							this.identityService.getAssignedMarkets()
+							this.identityService.getAssignedMarkets(),
+							getMissingColorItems,
+							getMissingColors
 						]).pipe(
-							map(([claims, markets]) =>
+							map(([claims, markets, allMissingColorItems, allMissingColors]) =>
 							{
 								let needsOverride = false;
 								let canOverride = claims.SalesAgreements && !!(claims.SalesAgreements & Permission.Override) && markets.some(m => m.number === data.marketNumber);
@@ -225,9 +237,12 @@ export class LiteEffects
 									{
 										const jobOption = jobOptions.find(jo => jo.planOptionId === cutoffOption.id);
 										const scenarioOption = data.scenarioOptions.find(so => so.edhPlanOptionId === cutoffOption.id);
-										needsOverride = jobOption && jobOption.quantity !== scenarioOption.planOptionQuantity || !jobOption && scenarioOption.planOptionQuantity > 0;
+										needsOverride = jobOption && jobOption.quantity !== scenarioOption?.planOptionQuantity || !jobOption && scenarioOption?.planOptionQuantity > 0;
 									});
 								}
+
+								// Merge the missing color items and colors to the lite options
+								this.liteService.mergeMissingColors(data.job.jobPlanOptions, data.options, allMissingColorItems, allMissingColors);
 
 								return { ...data, needsOverride, canOverride, optionsPastCutoff, jobOptions };
 							})
@@ -424,7 +439,7 @@ export class LiteEffects
 									this.liteService.getColorItems(optionIds),
 									this.liteService.getOptionRelations(optionCommunityIds)
 								]).pipe(
-									map(([colorItems, optionRelations]) =>
+									switchMap(([colorItems, optionRelations]) =>
 									{
 										colorItems.forEach(colorItem =>
 										{
@@ -437,11 +452,32 @@ export class LiteEffects
 
 										this.liteService.applyOptionRelations(options, optionRelations);
 
-										const scenarioOptions = this.liteService.getSelectedOptions(options, action.job, action.changeOrder);
+										// Find color items and colors in the job which have been removed in color management
+										const missingColorItemsAndColors = this.liteService.findMissingColorItemsAndColors(action.job, options);
 
-										return { options, scenarioOptions, categories };
+										const getMissingColorItems = !!missingColorItemsAndColors.missingColorItems.length 
+											? this.liteService.getMissingColorItems(missingColorItemsAndColors.missingColorItems)
+											: of([]);
+										const getMissingColors = !!missingColorItemsAndColors.missingColors.length
+											? this.liteService.getMissingColors(action.job.financialCommunityId, missingColorItemsAndColors.missingColors)
+											: of([]);
+
+										return combineLatest([
+											getMissingColorItems,
+											getMissingColors
+										]).pipe(	
+											map(([allMissingColorItems, allMissingColors]) =>
+											{	
+												// Merge the missing color items and colors to the lite options
+												this.liteService.mergeMissingColors(action.job.jobPlanOptions, options, allMissingColorItems, allMissingColors);
+
+												const scenarioOptions = this.liteService.getSelectedOptions(options, action.job, action.changeOrder);
+
+												return { options, scenarioOptions, categories };
+											})										
+										);
 									})
-								)
+								);
 							})
 						);
 					}
@@ -472,7 +508,7 @@ export class LiteEffects
 				const scenarioId = store.scenario.scenario?.scenarioId;
 
 				return scenarioId
-					? this.liteService.saveScenarioOptions(scenarioId, action.scenarioOptions)
+					? this.liteService.saveScenarioOptions(scenarioId, action.scenarioOptions, action.optionColors)
 					: of([]);
 			}),
 			map(options => new ScenarioOptionsSaved(options))
@@ -753,7 +789,7 @@ export class LiteEffects
 				else if (savingScenario)
 				{
 					return action instanceof SelectOptions
-						? of(new SaveScenarioOptions(action.scenarioOptions))
+						? of(new SaveScenarioOptions(action.scenarioOptions, action.optionColors))
 						: of(new SaveScenarioOptionColors(action.optionColors));
 				}
 				else if (savingPendingJio)
@@ -1027,7 +1063,8 @@ export class LiteEffects
 						jobOption.jobPlanOptionAttributes.forEach(attr =>
 						{
 							const colorItem = optionDetail.colorItems.find(ci => ci.name === attr.attributeGroupLabel);
-							if (colorItem) 
+							const colorId = colorItem.color?.find(c => c.name === attr.attributeName && c.sku === attr.sku)?.colorId;
+							if (colorItem && colorId) 
 							{
 								const option = optionsToAdd.find(x => x.edhPlanOptionId === optionDetail.id)
 								if (option)
@@ -1036,7 +1073,7 @@ export class LiteEffects
 										scenarioOptionColorId: 0,
 										scenarioOptionId: 0,
 										colorItemId: colorItem.colorItemId,
-										colorId: colorItem.color.find(c => c.name === attr.attributeName)?.colorId
+										colorId: colorId
 									});
 								}
 							}
@@ -1047,7 +1084,7 @@ export class LiteEffects
 				scenarioOptions = scenarioOptions.concat(optionsToAdd);
 
 				return scenarioId
-					? this.liteService.saveScenarioOptions(scenarioId, scenarioOptions, action.deletePhdFullData)
+					? this.liteService.saveScenarioOptions(scenarioId, scenarioOptions, [], action.deletePhdFullData)
 					: of([]);
 			}),
 			map(options => new ScenarioOptionsSaved(options))

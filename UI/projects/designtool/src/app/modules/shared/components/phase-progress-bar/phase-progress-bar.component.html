@@ -2,7 +2,7 @@
 
 	<ul id="phase-items" [ngClass]="!(isTablet$ | async) ? 'list-unstyled d-flex flex-column align-items-center justify-content-around' : 'list-unstyled d-flex flex-row align-items-center justify-content-center responsive-phase-items'" *ngIf="showItems">
 		<li *ngFor="let phaseItem of items" (click)="onSubGroupClick(phaseItem)" [class.active-link]="selectedItem === phaseItem?.id"
-			class="d-flex align-items-center justify-content-center">
+			class="d-flex align-items-center justify-content-center" [ngClass]="{'disabled': this.disabled}">
 			<div *ngIf="showStatusIndicator" class="phd-status-container">
 				<status-indicator [pointStatus]="phaseItem.status"></status-indicator>
 			</div>

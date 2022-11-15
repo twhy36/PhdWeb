@@ -5,6 +5,7 @@ import { combineLatest, flatMap, map, switchMap } from 'rxjs/operators';
 import { Store, select } from '@ngrx/store';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
+import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 import { UnsubscribeOnDestroy, loadScript, unloadScript, SubGroup, Group, FloorPlanImage } from 'phd-common';
 import { environment } from '../../../../../environments/environment';
 import { JobService } from '../../../core/services/job.service';
@@ -41,6 +42,7 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 	jobId: number;
 	enabledOptions: number[] = [];
 	unfilteredGroups: Group[];
+	floorPlanImages: FloorPlanImage[] = [];
 
 	constructor(
 		private store: Store<fromRoot.State>,
@@ -69,8 +71,7 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 				{
 					this.fp = wd.fp = new AVFloorplan(environment.alphavision.builderId, '' + planId, document.querySelector('#' + this.ifpID), [], this.fpInitialized.bind(this));
 
-					if (this.isPresavedFloorplan)
-					{
+					if (this.floorPlanImages.length === 0) {
 						this.saveFloorPlanImages();
 					}
 				}
@@ -149,6 +150,8 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 		unloadScript('code.jquery.com', 'jQuery', '$');
 		unloadScript('alpha-vision.com', 'AVFloorplan');
 
+		this.saveFloorPlanImages();
+
 		let wd: any = window;
 
 		delete wd.message;
@@ -186,10 +189,21 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 		// floor plan image save functionality in here
 		timer(1000).subscribe(() =>
 		{
-			this.jobService.saveFloorPlanImages(this.jobId, this.fp?.floors, this.fp?.exportStaticSVG()).subscribe(images =>
-			{
-				this.onFloorPlanSaved.emit(images);
-			});
+			let floorPlanSvgs = this.fp?.exportStaticSVG();
+			let floorPlanImages = [];
+
+			this.fp.floors.forEach(floor => {
+				let image = new FloorPlanImage({
+					floorName: floor.name,
+					floorIndex: floor.index,
+					svg: floorPlanSvgs[floor.index]?.outerHTML
+				})
+				floorPlanImages.push(image);
+
+			})
+			this.floorPlanImages = floorPlanImages;
+
+			this.store.dispatch(new ScenarioActions.SaveFloorPlanImages(this.floorPlanImages));
 		});
 	}
 }

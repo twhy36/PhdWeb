@@ -19,6 +19,7 @@ import
 } from 'phd-common';
 
 import { JobService } from '../../../core/services/job.service';
+import { LegacyColorScheme } from '../../../shared/models/lite.model';
 
 @Component({
 	selector: 'app-agreement',
@@ -37,6 +38,7 @@ export class AgreementComponent extends UnsubscribeOnDestroy implements OnInit
 	approvedDate: string;
 	projectedFinalDate: string;
 	canSell$: Observable<boolean>;
+	canSelectAddenda$: Observable<boolean>;
 	scarDateValues: ScarDate[] = [];
 
 	ConstructionStageTypes = ConstructionStageTypes;
@@ -46,6 +48,9 @@ export class AgreementComponent extends UnsubscribeOnDestroy implements OnInit
 	// PHD Lite
 	liteElevationName: string;
 	liteColorSchemeName: string;
+
+	// HS
+	legacyColorSchemeName: string | null;
 
 	constructor(private activatedRoute: ActivatedRoute, private store: Store<fromRoot.State>, private _jobService: JobService) { super(); }
 
@@ -118,21 +123,24 @@ export class AgreementComponent extends UnsubscribeOnDestroy implements OnInit
 			select(state => state.lite),
 			withLatestFrom(
 				this.store.pipe(select(fromLite.selectedElevation)),
-				this.store.pipe(select(fromLite.selectedColorScheme))
+				this.store.pipe(select(fromLite.selectedColorScheme)),
+				this.store.pipe(select(fromRoot.legacyColorScheme))
 			)
-		).subscribe(([lite, liteElevation, liteColorScheme]) =>
+		).subscribe(([lite, liteElevation, liteColorScheme, legacyColorScheme]) =>
 		{
 			if (lite.isPhdLite)
 			{
 				this.liteElevationName = liteElevation?.name;
 
 				const colorSchemes = _.flatMap(liteElevation?.colorItems, item => item.color);
-				const color = colorSchemes?.find(c => c.colorItemId === liteColorScheme.colorItemId && c.colorId === liteColorScheme.colorId);
+				const color = colorSchemes?.find(c => c.colorItemId === liteColorScheme?.colorItemId && c.colorId === liteColorScheme?.colorId);
 				this.liteColorSchemeName = color?.name;
+				this.legacyColorSchemeName = legacyColorScheme?.isSelected ? legacyColorScheme.colorName : null;
 			}
 		});
 
 		this.canSell$ = this.store.pipe(select(fromRoot.canSell));
+		this.canSelectAddenda$ = this.store.pipe(select(fromRoot.canSelectAddenda));
 	}
 
 	get isSalesAgreementCancelledOrVoided(): boolean

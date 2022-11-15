@@ -3,12 +3,14 @@
 .phd-buyer-box {
 	height: 265px;
 	width: 340px;
-	border-width: 1px;
-	border-style: solid;
-	border-color: #C7C7C7;
+	border: 1px solid #C7C7C7;
 	border-radius: 4px;
 	box-shadow: 0 2px 1px 0 rgba(0,0,0,.16);
 	background-color: #fff;
+
+	&.phd-info-required {
+		border: 2px solid $darkish-pink;
+	}
 }
 
 .phd-buyer-box-title {

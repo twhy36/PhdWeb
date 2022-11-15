@@ -22,7 +22,7 @@ import
 {
 	UnsubscribeOnDestroy, ModalRef, ChangeTypeEnum, Job, TreeVersionRules, ScenarioStatusType, PriceBreakdown,
 	TreeFilter, Tree, SubGroup, Group, DecisionPoint, Choice, getDependentChoices, LotExt, getChoiceToDeselect,
-	PlanOption, ModalService, Plan, TimeOfSaleOptionPrice, ITimeOfSaleOptionPrice
+	PlanOption, ModalService, Plan, TimeOfSaleOptionPrice, ITimeOfSaleOptionPrice, getChoicesWithNewPricing
 } from 'phd-common';
 
 import { LotService } from '../../../core/services/lot.service';
@@ -59,6 +59,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 	@ViewChild('impactedChoicesModal') impactedChoicesModal: TemplateRef<any>;
 	@ViewChild('optionPriceChangedModal') optionPriceChangedModal: TemplateRef<any>;
 	@ViewChild('optionMappingAdjustedModal') optionMappingAdjustedModal: TemplateRef<any>;
+	@ViewChild('pointChoicePricingChangedModal') pointChoicePricingChangedModal: TemplateRef<any>;
 
 	acknowledgedMonotonyConflict: boolean;
 	agreementStatus$: Observable<string>;
@@ -682,7 +683,11 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		const impactedOptionPriceChoices = this.getImpactedChoicesForReplacedOptionPrices(timeOfSaleOptionPrices, choice, choiceToDeselect);
 
 		// #366542 Find any choices with a replaced option that is no longer available on the current tree
-		const adjustedChoices = this.getAdjustedChoices(choiceToDeselect, choice);
+		let adjustedChoices = this.getAdjustedChoices(choiceToDeselect, choice);
+
+		adjustedChoices = adjustedChoices.concat(getChoicesWithNewPricing(this.tree, this.treeVersionRules, this.options, choice, choiceToDeselect));
+
+		adjustedChoices = adjustedChoices.filter((o, i) => adjustedChoices.indexOf(o) === i);
 
 		adjustedChoices.forEach(c =>
 		{
@@ -826,6 +831,14 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		return this.showConfirmModal(this.optionMappingAdjustedModal, 'Warning', primaryButton, secondaryButton);
 	}
 
+	private showPointChoicePricingChangedModal(choices: Array<Choice>): Observable<boolean>
+	{
+		this.impactedChoices = choices.map(c => c.label).sort().join(', ');
+		const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
+		const secondaryButton = { text: 'Cancel', result: false, cssClass: 'btn-secondary' };
+		return this.showConfirmModal(this.pointChoicePricingChangedModal, 'Warning', primaryButton, secondaryButton);
+	}
+
 	loadPhdLite()
 	{
 		this.store.dispatch(new NavActions.SetSubNavItems(ExteriorSubNavItems));
@@ -951,7 +964,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		let choices: Choice[] = [];
 
 		// Using the latest rules, see what choices may be affected by options on this choice
-		const replaceRules = this.treeVersionRules.optionRules.filter(o => o.choices.map(oc => oc.id).includes(selectedChoice.id));
+		const replaceRules = this.treeVersionRules.optionRules.filter(o => o.choices.map(oc => oc.id).some(id => [deselectedChoice?.id, selectedChoice?.id].includes(id)));
 
 		// Check to see if any rule is already satisfied, and if that choice has an option no longer available
 		replaceRules.forEach(rr =>
@@ -962,7 +975,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 					g => _.flatMap(g.subGroups,
 						sg => _.flatMap(sg.points,
 							p => p.choices)))
-					.find(c => (rrc.mustHave && rrc.id === c.id && c.quantity) || (!rrc.mustHave && rrc.id === c.id && !c.quantity));
+					.find(c => rrc.id === c.id && ((rrc.mustHave && c.quantity) || (!rrc.mustHave && !c.quantity)));
 
 				// Get all lockedInOptions from previous agreement
 				if (existingChoice)

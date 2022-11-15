@@ -12,7 +12,7 @@
 			[option]="selectedElevation"
 			[color]="color"
 			[scenarioOptions]="scenarioOptions"
-			[isSelected]="color.colorId === selectedColorScheme?.colorId || color.name === legacyColorScheme?.colorName"
+			[isSelected]="color.colorId === selectedColorScheme?.colorId || legacyColorScheme?.isSelected && color.name === legacyColorScheme?.colorName"
 			(toggled)="onToggleColorScheme($event)">
 		</exterior-card>
 	</div>

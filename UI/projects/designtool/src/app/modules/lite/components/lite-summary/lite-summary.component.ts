@@ -347,7 +347,7 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 	{
 		let optionColors = [];
 
-		if (legacylColorScheme)
+		if (legacylColorScheme?.isSelected)
 		{
 			optionColors.push({
 				colorItemName: legacylColorScheme.colorItemName,

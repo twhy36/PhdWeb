@@ -5,7 +5,7 @@ import
 	OnDestroy, Output, EventEmitter, TemplateRef, ContentChild
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable } from 'rxjs';
+import { Observable, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Store, select } from '@ngrx/store';
 
@@ -171,9 +171,13 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 			this.errorInSavingChangeOrder = changeOrder.saveError;
 			});
 
-		this.store.pipe(
+		combineLatest([
+			this.store.pipe(select(state => state)),
+			this.store.pipe(select(fromRoot.legacyColorScheme))
+		])
+		.pipe(
 			this.takeUntilDestroyed(),
-			map(state => state.changeOrder.isChangingOrder 
+			map(([state, legacyColorScheme]) => state.changeOrder.isChangingOrder 
 					&& !this._changeOrderService.changeOrderHasChanges(
 						state.scenario.tree, 
 						state.job, 
@@ -182,14 +186,13 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 						state.salesAgreement,
 						state.scenario.rules?.optionRules)
 					&& !this.liteService.liteChangeOrderHasChanges(
-						state.lite.isPhdLite,
+						state.lite,
 						state.job, 
 						state.changeOrder.currentChangeOrder, 
 						state.changeOrder.changeInput, 
 						state.salesAgreement,
-						state.lite.scenarioOptions,
-						state.lite.options,
-						state.scenario.overrideReason
+						state.scenario.overrideReason,
+						legacyColorScheme
 					))
 		).subscribe(changeOrderIsEmpty => this.isChangeEmpty = changeOrderIsEmpty);
 

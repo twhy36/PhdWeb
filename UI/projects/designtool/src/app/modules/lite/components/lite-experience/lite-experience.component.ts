@@ -195,7 +195,7 @@ export class LiteExperienceComponent extends UnsubscribeOnDestroy implements OnI
 		const elevationStatus = !!elevation ? PointStatus.COMPLETED : PointStatus.REQUIRED;
 		this.store.dispatch(new NavActions.SetSubNavItemStatus(LiteSubMenu.Elevation, elevationStatus));
 
-		const colorSchemeStatus = !!colorScheme || !!legacyColorScheme ? PointStatus.COMPLETED : PointStatus.REQUIRED;
+		const colorSchemeStatus = !!colorScheme || legacyColorScheme?.isSelected ? PointStatus.COMPLETED : PointStatus.REQUIRED;
 		this.store.dispatch(new NavActions.SetSubNavItemStatus(LiteSubMenu.ColorScheme, colorSchemeStatus));
 	}
 

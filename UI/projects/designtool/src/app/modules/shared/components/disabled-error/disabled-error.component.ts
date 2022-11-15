@@ -75,6 +75,10 @@ export class DisabledErrorComponent extends UnsubscribeOnDestroy implements OnIn
 		if (this.choice && !!this.choice.disabledBy.length)
 		{
 			this.errors.push({ errorType: ErrorTypeEnum.C2C, disabledBy: this.choice.disabledBy });
+
+			// Prevent other disabled messages from duplicating choices
+			const disabledChoices = _.flatMap(this.choice.disabledBy, d => _.flatMap(d.rules, r => r.choices));
+			this.choice.disabledByReplaceRules = this.choice.disabledByReplaceRules.filter(ch => !disabledChoices.includes(ch));
 		}
 
 		this.isMultiError = this.errors && this.errors.length && this.errors.length > 1;

@@ -7,7 +7,7 @@ import
 import * as _ from 'lodash';
 import
 	{
-		IOptionCategory, IOptionSubCategory, LitePlanOption, Elevation, ExteriorLabel
+		IOptionCategory, IOptionSubCategory, LitePlanOption, Elevation, ExteriorLabel, LegacyColorScheme
 	} from '../models/lite.model';
 import * as fromLite from '../../ngrx-store/lite/reducer';
 
@@ -101,6 +101,7 @@ export function getLiteCurrentHouseSelections(
 	lite: fromLite.State,
 	selectedElevation: LitePlanOption,
 	selectedColorScheme: ScenarioOptionColor,
+	legacyColorScheme: LegacyColorScheme,
 	baseHouseOptions: { selectedBaseHouseOptions: LitePlanOption[], baseHouseCategory: IOptionCategory },
 	planPrice: number
 ): SDGroup[]
@@ -120,7 +121,8 @@ export function getLiteCurrentHouseSelections(
 	// Add color scheme
 	const colorSchemes = _.flatMap(selectedElevation?.colorItems, item => item.color);
 	const color = colorSchemes?.find(c => c.colorItemId === selectedColorScheme?.colorItemId && c.colorId === selectedColorScheme?.colorId);
-	const colorSchemeChoice = createLiteSDChoice(color?.name, selectedElevation.id, null, 0);
+	const colorName = legacyColorScheme?.isSelected ? legacyColorScheme?.colorName : color?.name;
+	const colorSchemeChoice = createLiteSDChoice(colorName, selectedElevation.id, null, 0);
 	const colorSchemePoint = createLiteSDPoint(ExteriorLabel.ColorScheme, [colorSchemeChoice]);
 
 	const blankSubGroup = createLiteSDSubGroup(ExteriorLabel.ExteriorSubGroup, [elevationPoint, colorSchemePoint]);
@@ -457,7 +459,7 @@ export function getLiteConstructionChangeOrderPdfData(
 	const elevationPlanOptions = jobChangeOrderPlanOptions.filter(coPlanOption =>
 	{
 		const option = options.find(option => option.id === coPlanOption.planOptionId);
-		return option.optionSubCategoryId === Elevation.Detached || option.optionSubCategoryId === Elevation.Attached;
+		return option?.optionSubCategoryId === Elevation.Detached || option?.optionSubCategoryId === Elevation.Attached;
 	});
 
 	if (elevationPlanOptions?.length)

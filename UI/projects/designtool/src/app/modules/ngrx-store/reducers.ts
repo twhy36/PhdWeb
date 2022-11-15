@@ -140,6 +140,12 @@ export const canCancelSalesAgreement = createSelector(
 	(market, user) => !!market && user.canCancel && user.assignedMarkets.some(m => m.number === market.number)
 )
 
+export const canSelectAddenda = createSelector(
+	fromOrg.market,
+	fromUser.selectUser,
+	(market, user) => !!market && user.canSelectAddenda && user.assignedMarkets.some(m => m.number === market.number)
+)
+
 export const canUpdateECOE = createSelector(
 	fromOrg.market,
 	fromUser.selectUser,
@@ -941,17 +947,25 @@ export const changeOrderChoicesPastCutoff = createSelector(
 export const canCancelSpec = createSelector(
 	fromJob.jobState,
 	fromScenario.buildMode,
-	(job, buildMode) =>
+	fromLite.liteState,
+	(job, buildMode, lite) =>
 	{
-		return buildMode === 'spec' && job.constructionStageName === 'Configured' && job.jobTypeName === 'Spec' && !(job.jobSalesAgreementAssocs && job.jobSalesAgreementAssocs.length > 0);
+		return buildMode === 'spec' &&
+			job.constructionStageName === 'Configured' &&
+			(lite.isPhdLite ? (job.jobTypeName === 'Spec' || job.jobTypeName === 'House') : job.jobTypeName === 'Spec') &&
+			!(job.jobSalesAgreementAssocs && job.jobSalesAgreementAssocs.length > 0);
 	});
 
 export const canCancelModel = createSelector(
 	fromJob.jobState,
 	fromScenario.buildMode,
-	(job, buildMode) =>
+	fromLite.liteState,
+	(job, buildMode, lite) =>
 	{
-		return buildMode === 'model' && job.constructionStageName === 'Configured' && job.jobTypeName === 'Model' && !(job.jobSalesAgreementAssocs && job.jobSalesAgreementAssocs.length > 0);
+		return buildMode === 'model' &&
+			job.constructionStageName === 'Configured' &&
+			(lite.isPhdLite ? (job.jobTypeName === 'Model' || job.jobTypeName === 'House') : job.jobTypeName === 'Model') &&
+			!(job.jobSalesAgreementAssocs && job.jobSalesAgreementAssocs.length > 0);
 	});
 
 export const showSpinner = createSelector(
@@ -982,14 +996,65 @@ export const financialBrandId = createSelector(
 );
 
 // PHD Lite
+export const legacyColorScheme = createSelector(
+	fromJob.jobState, 
+	fromLite.liteState,
+	fromChangeOrder.currentChangeOrder,
+	(job, lite, changeOrder) =>
+	{
+		let colorScheme: LegacyColorScheme = null;
+		
+		const jobOption = job.jobPlanOptions?.find(jpo => jpo.integrationKey === '99999');
+
+		if (lite.isPhdLite && !!jobOption?.jobPlanOptionAttributes?.length)
+		{
+			let colorItemName = jobOption.jobPlanOptionAttributes[0].attributeGroupLabel;
+			let colorName = jobOption.jobPlanOptionAttributes[0].attributeName;
+
+			// Apply generic option attribute change to legacy color scheme
+			if (changeOrder)
+			{
+				const changeOrderOptions = _.flatMap(changeOrder.jobChangeOrders, co => co.jobChangeOrderPlanOptions);
+				const genericChangeOrderOption = changeOrderOptions?.find(opt => opt.planOptionId === jobOption.planOptionId);
+				if (genericChangeOrderOption)
+				{
+					const deletedColorScheme = genericChangeOrderOption.jobChangeOrderPlanOptionAttributes?.find(att => att.action === 'Delete');
+					if (deletedColorScheme?.attributeGroupLabel === colorItemName && deletedColorScheme?.attributeName === colorName)
+					{
+						colorItemName = '';
+						colorName = '';
+					}
+
+					const addedColorScheme = genericChangeOrderOption.jobChangeOrderPlanOptionAttributes?.find(att => att.action === 'Add');
+					if (addedColorScheme)
+					{
+						colorItemName = addedColorScheme.attributeGroupLabel;
+						colorName = addedColorScheme.attributeName;
+					}					
+				}
+			}
+
+			colorScheme = { 
+				colorItemName: colorItemName, 
+				colorName: colorName,
+				isSelected: !!lite.scenarioOptions?.find(so => so.edhPlanOptionId === jobOption.planOptionId),
+				genericPlanOptionId: jobOption.planOptionId
+			};
+		}
+
+		return colorScheme;
+	}
+);
+
 export const liteMonotonyConflict = createSelector(
 	fromLot.selectSelectedLot,
 	fromPlan.selectedPlanData,
 	fromLite.selectedElevation,
 	fromScenario.hasMonotonyAdvisement,
 	fromLite.selectedColorScheme,
+	legacyColorScheme,
 	fromLite.liteState,
-	(selectedLot, selectedPlan, elevation, advisement, colorScheme, lite) =>
+	(selectedLot, selectedPlan, elevation, advisement, colorScheme, legacyColorScheme, lite) =>
 	{
 		let conflict = {
 			monotonyConflict: false,
@@ -1006,23 +1071,37 @@ export const liteMonotonyConflict = createSelector(
 			let planId = !!selectedPlan ? selectedPlan.id : 0;
 			const monotonyRules = lite.liteMonotonyRules?.find(rule => rule.edhLotId === selectedLot.id)?.relatedLotsElevationColorScheme || [];
 
-			if (elevation && colorScheme)
+			if (elevation && (legacyColorScheme || colorScheme))
 			{
 				conflict.elevationConflict = !lite.elevationOverrideNote && monotonyRules.some(rule => rule.elevationPlanOptionId === elevation.id);
 
-				const colorItem = elevation.colorItems?.find(item => item.colorItemId === colorScheme.colorItemId);
-				const color = colorItem?.color?.find(c => c.colorId === colorScheme.colorId);
+				let colorItemName: string = null;
+				let colorName: string = null;
 
-				if (colorItem && color && !lite.colorSchemeOverrideNote)
+				if (legacyColorScheme?.isSelected)
+				{
+					colorItemName = legacyColorScheme.colorItemName;
+					colorName = legacyColorScheme.colorName;
+				}
+				else if (!legacyColorScheme && colorScheme)
+				{
+					const colorItem = elevation.colorItems?.find(item => item.colorItemId === colorScheme.colorItemId);
+					const color = colorItem?.color?.find(c => c.colorId === colorScheme.colorId);	
+					
+					colorItemName = colorItem?.name;
+					colorName = color?.name;
+				}
+
+				if (colorItemName && colorName && !lite.colorSchemeOverrideNote)
 				{
 					conflict.colorSchemeConflict = isColorSchemePlanRuleEnabled
 						? monotonyRules.some(r =>
-							r.colorSchemeColorItemName === colorItem.name
-							&& r.colorSchemeColorName === color.name
+							r.colorSchemeColorItemName === colorItemName
+							&& r.colorSchemeColorName === colorName
 							&& r.edhPlanId === planId)
 						: monotonyRules.some(r =>
-							r.colorSchemeColorItemName === colorItem.name
-							&& r.colorSchemeColorName === color.name) ;
+							r.colorSchemeColorItemName === colorItemName
+							&& r.colorSchemeColorName === colorName) ;
 				}
 			}
 
@@ -1042,7 +1121,8 @@ export const isLiteComplete = createSelector(
 	fromLite.liteState,
 	fromLite.selectedElevation,
 	fromLite.selectedColorScheme,
-	(scenario, monotonyConflict, sag, needsPlanChange, hasSpecPlanId, lite, selectedElevation, selectedColorScheme) =>
+	legacyColorScheme,	
+	(scenario, monotonyConflict, sag, needsPlanChange, hasSpecPlanId, lite, selectedElevation, selectedColorScheme, legacyColorScheme) =>
 	{
 		let isLiteComplete = false;
 
@@ -1051,7 +1131,12 @@ export const isLiteComplete = createSelector(
 			const hasLot = !!sag.id || (scenario.scenario ? !!scenario.scenario.lotId : false);
 			const hasPlan = !!sag.id || (scenario.scenario ? !!scenario.scenario.planId : false) || hasSpecPlanId;
 
-			isLiteComplete = hasLot && hasPlan && !!selectedElevation && !!selectedColorScheme && !monotonyConflict.monotonyConflict && !needsPlanChange;
+			isLiteComplete = hasLot 
+				&& hasPlan 
+				&& !!selectedElevation 
+				&& (!!selectedColorScheme || legacyColorScheme?.isSelected) 
+				&& !monotonyConflict.monotonyConflict 
+				&& !needsPlanChange;
 		}
 
 		return isLiteComplete;
@@ -1096,32 +1181,6 @@ export const liteMonotonyOptions = createSelector(
 		return monotonyOptions;
 	}
 );
-
-export const legacyColorScheme = createSelector(
-	fromJob.jobState, 
-	fromLite.liteState,
-	(job, lite) =>
-	{
-		let colorScheme: LegacyColorScheme = null;
-		
-		const jobOption = job.jobPlanOptions.find(jpo => jpo.integrationKey === '99999');
-
-		if (lite.isPhdLite && jobOption)
-		{
-			const scenarioOption = lite.scenarioOptions?.find(so => so.edhPlanOptionId === jobOption.planOptionId);
-			if (scenarioOption && !!jobOption?.jobPlanOptionAttributes?.length)
-			{
-				colorScheme = { 
-					colorItemName: jobOption.jobPlanOptionAttributes[0].attributeGroupLabel, 
-					colorName: jobOption.jobPlanOptionAttributes[0].attributeName 
-				};
-			}
-		}
-
-		return colorScheme;
-	}
-);
-
 
 // End PHD Lite
 

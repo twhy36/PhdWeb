@@ -84,6 +84,6 @@ export class SummaryActionBarComponent extends UnsubscribeOnDestroy implements O
 
 	isReportDisabled(reportName: string): boolean
 	{
-		return !this.priceRangesCalculated && (reportName === SummaryReportType.CHOICE_LIST || reportName === SummaryReportType.DESIGN_CHOICE_LIST);
+		return !this.priceRangesCalculated && (reportName === SummaryReportType.CHOICE_LIST || reportName === SummaryReportType.DESIGN_CHOICE_LIST || reportName === SummaryReportType.SALES_CHOICE_LIST);
 	}
 }

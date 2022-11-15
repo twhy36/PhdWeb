@@ -14,7 +14,7 @@ import
 {
 	UnsubscribeOnDestroy, PriceBreakdown, SDGroup, SDSubGroup, SDPoint, SDChoice, SDAttributeReassignment, Group,
 	DecisionPoint, JobChoice, Tree, TreeVersionRules, SalesAgreement, getDependentChoices, ModalService, PDFViewerComponent,
-	SummaryData, BuyerInfo, PriceBreakdownType, PlanOption, Choice, ConfirmModalComponent, SubGroup
+	SummaryData, BuyerInfo, PriceBreakdownType, PlanOption, Choice, ConfirmModalComponent, SubGroup, FloorPlanImage
 } from 'phd-common';
 
 import { environment } from '../../../../../environments/environment';
@@ -37,6 +37,7 @@ import { SummaryHeader, SummaryHeaderComponent } from './summary-header/summary-
 import { GroupExt } from '../../../shared/models/group-ext.model';
 import { AdobeService } from '../../../core/services/adobe.service';
 import { BuildMode } from '../../../shared/models/build-mode.model';
+import { DomSanitizer } from '@angular/platform-browser';
 
 import { InfoModalComponent } from '../../../shared/components/info-modal/info-modal.component';
 
@@ -74,6 +75,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 	IFPsubGroup: SubGroup;
 	firstDisplayedFloor: any;
 	showNextIFP: number = 0;
+	floorPlanImages: FloorPlanImage[];
 
 	constructor(private store: Store<fromRoot.State>,
 		private activatedRoute: ActivatedRoute,
@@ -83,7 +85,8 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		private reportsService: ReportsService,
 		private location: Location,
 		private toastr: ToastrService,
-		private adobeService: AdobeService
+		private adobeService: AdobeService,
+		public sanitizer: DomSanitizer
 		)
 	{
 		super();
@@ -118,7 +121,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 					this.store.pipe(select(state => state.scenario)),
 					this.store.pipe(select(state => state.favorite)),
 					this.store.pipe(select(state => state.salesAgreement)),
-					this.store.pipe(select(fromRoot.favoriteTitle))
+					this.store.pipe(select(fromRoot.favoriteTitle)),
 				]).pipe(take(1))),
 				this.takeUntilDestroyed(),
 				distinctUntilChanged()
@@ -146,6 +149,13 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 			select(fromFavorite.currentMyFavorite)
 		).subscribe(favorites => {
 			this.favoritesId = favorites && favorites.id;
+		});
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromScenario.floorPlanImages)
+		).subscribe(ifpImages => {
+			this.floorPlanImages = ifpImages;
 		});
 
 		this.store.pipe(
@@ -581,6 +591,10 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		setTimeout(() => {
 			this.showNextIFP++;
 		}, 200);
+	}
+
+	getIfpId(image: FloorPlanImage) {
+		return `phd-ifp-${image.floorIndex}`;
 	}
 
 }

@@ -42,6 +42,7 @@
 														[groups]="filteredTree.groups"
 														[tree]="tree"
 														[isPresale]="buildMode === 'presale'"
+														[isIncludedOptions]="true"
 														(toggled)="choiceToggleHandler($event)"
 														(onSelectDecisionPoint)="selectDecisionPoint($event)"
 														(onViewChoiceDetail)="viewChoiceDetail($event)">

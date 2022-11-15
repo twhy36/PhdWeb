@@ -24,6 +24,7 @@ import { LoggingService, PhdErrorHandler } from './services/logging.service';
 import { PhdCommonModule } from 'phd-common';
 import { ReOrgService } from './services/re-org.service';
 import { CatalogService } from './services/catalog.service';
+import { TreeService } from './services/tree.service';
 
 @NgModule({
     exports: [
@@ -48,6 +49,7 @@ import { CatalogService } from './services/catalog.service';
         HomeSiteService,
         OrganizationService,
         PlanService,
+        TreeService,
         ReleasesService,
         SalesService,
         SettingsService,

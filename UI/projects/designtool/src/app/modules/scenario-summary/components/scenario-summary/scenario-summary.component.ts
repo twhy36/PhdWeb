@@ -195,10 +195,11 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
-			select(state => state.salesAgreement)
-		).subscribe(sag =>
+			select(state => state.salesAgreement),
+			combineLatest(this.store.pipe(select(fromRoot.canEstimateOnSummary))),
+		).subscribe(([sag, canEstimateOnSummary]) =>
 		{
-			this.allowEstimates = sag ? sag.id === 0 : true;
+			this.allowEstimates = canEstimateOnSummary;
 			this.salesAgreementId = sag && sag.id;
 		});
 
@@ -615,7 +616,7 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 		return of(reportType).pipe(
 			switchMap(rt =>
 			{
-				if (rt === SummaryReportType.CHOICE_LIST || rt === SummaryReportType.DESIGN_CHOICE_LIST)
+				if (rt === SummaryReportType.CHOICE_LIST || rt === SummaryReportType.DESIGN_CHOICE_LIST || rt === SummaryReportType.SALES_CHOICE_LIST)
 				{
 					return this.store.pipe(
 						select(fromScenario.choicePriceRanges),
@@ -652,7 +653,7 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 				let choiceFilter: (choice: Choice) => boolean;
 				let pointFilter: (point: DecisionPoint) => boolean;
 
-				if (reportType === SummaryReportType.CHOICE_LIST || reportType === SummaryReportType.DESIGN_CHOICE_LIST)
+				if (reportType === SummaryReportType.CHOICE_LIST || reportType === SummaryReportType.DESIGN_CHOICE_LIST || reportType === SummaryReportType.SALES_CHOICE_LIST)
 				{
 					choiceFilter = () => true;
 				}
@@ -664,6 +665,10 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 				if (reportType === SummaryReportType.DESIGN_CHOICE_LIST)
 				{
 					pointFilter = pt => !pt.isStructuralItem;
+				}
+				else if (reportType === SummaryReportType.SALES_CHOICE_LIST)
+				{
+					pointFilter = pt => pt.isStructuralItem;
 				}
 				else
 				{
@@ -732,7 +737,7 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 		{
 			const newHanding = new ChangeOrderHanding();
 
-			if (handing !== "NA")
+			if (handing !== 'NA')
 			{
 				newHanding.handing = handing;
 			}

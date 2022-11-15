@@ -1,5 +1,5 @@
 <div *ngIf="!(isChangingOrder$ | async)" class="phd-progress-bar">
-	<phase-progress-bar [items]="(subNavItems$ | async)" [selectedItem]="(selectedSubNavItem$ | async)"	(onItemSelected)="onSubNavItemSelected($event)" [showStatusIndicator]="true"></phase-progress-bar>
+	<phase-progress-bar [items]="(subNavItems$ | async)" [selectedItem]="(selectedSubNavItem$ | async)"	[disabled]="(disableButtons$ | async)" (onItemSelected)="onSubNavItemSelected($event)" [showStatusIndicator]="true"></phase-progress-bar>
 </div>
 
 <div class="phd-new-home">

@@ -96,7 +96,7 @@
 				<strong>Color Scheme:</strong>
 			</div>
 			<div class="flex-column phd-flex-fill pl-1">
-				{{ !isSalesAgreementCancelledOrVoided ? colorScheme || liteColorSchemeName : ''}}
+				{{ !isSalesAgreementCancelledOrVoided ? colorScheme || liteColorSchemeName || legacyColorSchemeName : ''}}
 			</div>
 		</div>
 		<div class="d-flex flex-wrap py-2" *ngIf="status !== 'Void'">
@@ -193,4 +193,4 @@
 	</div>
 </div>
 
-<agreement-documents [canEdit]="status !== 'Void' && (canSell$ | async)"></agreement-documents>
+<agreement-documents [canEdit]="status !== 'Void' && (canSelectAddenda$ | async)"></agreement-documents>

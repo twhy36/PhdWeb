@@ -31,7 +31,7 @@ import { NewHomeService } from '../../services/new-home.service';
 import * as _ from 'lodash';
 
 // PHD Lite
-import { ExteriorSubNavItems, LiteSubMenu, LiteMonotonyRule, LitePlanOption } from '../../../shared/models/lite.model';
+import { ExteriorSubNavItems, LiteSubMenu, LiteMonotonyRule, LitePlanOption, LegacyColorScheme } from '../../../shared/models/lite.model';
 import { LotService } from '../../../core/services/lot.service';
 
 
@@ -84,6 +84,7 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 	liteColorScheme: ScenarioOptionColor;
 	liteElevationOverrideNote: string;
 	liteColorSchemeOverrideNote: string;
+	legacyColorScheme: LegacyColorScheme;
 
 	totalPrice: number;
 
@@ -317,13 +318,15 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 
 		combineLatest([
 			this.store.pipe(select(fromLite.selectedElevation)),
-			this.store.pipe(select(fromLite.selectedColorScheme))
+			this.store.pipe(select(fromLite.selectedColorScheme)),
+			this.store.pipe(select(fromRoot.legacyColorScheme))
 		])
 		.pipe(this.takeUntilDestroyed())
-		.subscribe(([elevation, colorScheme]) =>
+		.subscribe(([elevation, colorScheme, legacyColorScheme]) =>
 		{
 			this.liteElevationOption = elevation;
 			this.liteColorScheme = colorScheme;
+			this.legacyColorScheme = legacyColorScheme;
 		});
 
 		this.store.pipe(
@@ -362,21 +365,34 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 
 				lot.elevationMonotonyConflict = lotLiteMonotonyRules.some(r => r.elevationPlanOptionId === this.liteElevationOption.id);
 
-				if (this.liteColorScheme && !this.liteColorSchemeOverrideNote)
+				if ((this.liteColorScheme || this.legacyColorScheme) && !this.liteColorSchemeOverrideNote)
 				{
-					const colorItem = this.liteElevationOption.colorItems?.find(item => item.colorItemId === this.liteColorScheme.colorItemId);
-					const color = colorItem?.color?.find(c => c.colorId === this.liteColorScheme.colorId);
+					let colorItemName: string = null;
+					let colorName: string = null;
+					if (this.legacyColorScheme?.isSelected)
+					{
+						colorItemName = this.legacyColorScheme.colorItemName;
+						colorName = this.legacyColorScheme.colorName;
+					}
+					else if (!this.legacyColorScheme && this.liteColorScheme)
+					{
+						const colorItem = this.liteElevationOption.colorItems?.find(item => item.colorItemId === this.liteColorScheme.colorItemId);
+						const color = colorItem?.color?.find(c => c.colorId === this.liteColorScheme.colorId);
+						
+						colorItemName = colorItem?.name;
+						colorName = color?.name;
+					}
 
-					if (colorItem && color)
+					if (colorItemName && colorName)
 					{
 						lot.colorSchemeMonotonyConflict = isColorSchemePlanRuleEnabled
 							? lotLiteMonotonyRules.some(r =>
-								r.colorSchemeColorItemName === colorItem.name
-								&& r.colorSchemeColorName === color.name
+								r.colorSchemeColorItemName === colorItemName
+								&& r.colorSchemeColorName === colorName
 								&& r.edhPlanId === planId)
 							: lotLiteMonotonyRules.some(r =>
-								r.colorSchemeColorItemName === colorItem.name
-								&& r.colorSchemeColorName === color.name);
+								r.colorSchemeColorItemName === colorItemName
+								&& r.colorSchemeColorName === colorName);
 					}
 				}
 			}
