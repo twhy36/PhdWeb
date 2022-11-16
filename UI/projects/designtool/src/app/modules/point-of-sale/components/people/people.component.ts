@@ -104,35 +104,41 @@ export class PeopleComponent extends UnsubscribeOnDestroy implements OnInit, Con
 			select(fromRoot.activePrimaryBuyer),
 			map(buyer =>
 			{
-				
-				let buyerCountryCheck = _.cloneDeep(buyer);
-				if (!buyer?.opportunityContactAssoc?.contact?.addressAssocs?.length)
+				if (buyer)
 				{
-					let newAddressAssoc: AddressAssoc = {
-						id: 0,
-						doNotContact: false,
-						isPrimary:  true,
-						address: {
-							id: 0,
-							address1: '',
-							address2: '',
-							city: '',
-							stateProvince: '',
-							postalCode: '',
-							country: '',
-							county: ''
-						}
-					};
-					buyerCountryCheck.opportunityContactAssoc.contact.addressAssocs.push(newAddressAssoc);
-				}
-				
-				//Check if the primary buyer's country has a value. If not set default to "United States" and save buyer.
-				if (!buyerCountryCheck.opportunityContactAssoc.contact.addressAssocs[0].address.country)
-				{
-					buyerCountryCheck.opportunityContactAssoc.contact.addressAssocs[0].address.country = 'United States';
-					buyer = buyerCountryCheck;
+					let buyerCountryCheck = _.cloneDeep(buyer);
+					let addresAssocs = buyerCountryCheck?.opportunityContactAssoc?.contact?.addressAssocs;
 
-					this.saveBuyer(buyer);
+					if (addresAssocs && !addresAssocs.length)
+					{
+						let newAddressAssoc: AddressAssoc = {
+							id: 0,
+							doNotContact: false,
+							isPrimary: true,
+							address: {
+								id: 0,
+								address1: '',
+								address2: '',
+								city: '',
+								stateProvince: '',
+								postalCode: '',
+								country: '',
+								county: ''
+							}
+						};
+
+						addresAssocs.push(newAddressAssoc);
+					}
+
+					//Check if the primary buyer's country has a value. If not set default to "United States" and save buyer.
+					if (addresAssocs && !addresAssocs[0].address.country)
+					{
+						addresAssocs[0].address.country = 'United States';
+
+						buyer = buyerCountryCheck;
+
+						this.saveBuyer(buyer);
+					}
 				}
 
 				this.primaryBuyer = buyer;
