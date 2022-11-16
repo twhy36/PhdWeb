@@ -794,7 +794,8 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 		// Find all other choices which must have this choice, and exclude those from affecting whether this choice is disabled
 		const excludedChoiceRules = _.flatMap(rules.choiceRules.filter(cr => _.flatMap(cr.rules.filter(r => r.ruleType === 1), r => r.choices).includes(choice.id)), cr => cr.choiceId);
 
-		const pointChoices = points.find(pt => pt.choices.some(c => c.id === choice.id)).choices.map(c => c.id);
+		const pointForChoice = points.find(pt => pt.choices.some(c => c.id === choice.id));
+		const pointChoices = pointForChoice.choices.map(c => c.id);
 
 		// Find replaced options on the mapped options
 		const replacedOptions = _.flatMap(mappedOptionRules, r => r.replaceOptions);
@@ -827,6 +828,29 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 				choice.disabledByReplaceRules = mappedChoices.filter(mc => (pointChoices.includes(mc.id) && ((mc.mustHave && find(mc.id).quantity) || (!mc.mustHave && !find(mc.id).quantity)))
 					|| ((!mc.mustHave && find(mc.id).quantity) || (mc.mustHave && !find(mc.id).quantity))).map(mc => mc.id)
 					.concat(otherChoices.map(ch => ch.id));
+
+				// #381876
+				// If this choice's point is a Pick1 and another choice is already selected,
+				// and multiple choices on this DP have options that replace the same option on another DP,
+				// ignore that "replaced" choice being disabled by replace rules
+				if ([PickType.Pick1, PickType.Pick1ormore].indexOf(pointForChoice.pointPickTypeId) !== -1)
+				{
+					const selectedChoices = pointForChoice.choices.filter(c => c.quantity > 0 && c.id !== choice.id);
+
+					if (selectedChoices && selectedChoices.length)
+					{
+						// Determine which choices have options being replaced by the selected choice,
+						// and remove any of those from the choices from this choice's disabledByReplaceRules list
+						selectedChoices.forEach(sc =>
+						{
+							const replacedOptionsForSelectedChoice = _.uniq(_.flatMap(rules.optionRules.filter(o => sc.options.map(sco => sco.financialOptionIntegrationKey.includes(o.optionId))), r => r.replaceOptions));
+							const replacedChoices = choices.filter(ch => ch.options.map(o => o.financialOptionIntegrationKey).some(cho => replacedOptionsForSelectedChoice.includes(cho))).map(ch => ch.id);
+
+							choice.disabledByReplaceRules = choice.disabledByReplaceRules.filter(rc => replacedChoices.includes(rc));
+						});
+					}
+				}
+
 
 				// If this choice becomes disabled, deselect it, but only if the choice is not already locked in
 				if (choice.disabledByReplaceRules?.length && !choice.lockedInChoice)
