@@ -7,7 +7,7 @@ import { debounceTime, filter, map, withLatestFrom } from 'rxjs/operators';
 import * as _ from 'lodash';
 import
 {
-	UnsubscribeOnDestroy, flipOver, DecisionPoint, SubGroup, Choice, ChoiceImageAssoc, TreeVersion, MyFavoritesChoice, getDependentChoices, Tree, TreeVersionRules, PlanOption, MyFavoritesPointDeclined, ModalService
+	UnsubscribeOnDestroy, flipOver, DecisionPoint, SubGroup, Choice, ChoiceImageAssoc, TreeVersion, MyFavoritesChoice, getDependentChoices, Tree, TreeVersionRules, PlanOption, MyFavoritesPointDeclined
 } from 'phd-common';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
@@ -52,7 +52,6 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 	myFavoritesPointsDeclined: MyFavoritesPointDeclined[];
 
 	constructor(private store: Store<fromRoot.State>,
-		private modalService: ModalService,
 		private treeService: TreeService,
 		private router: Router) { super(); }
 

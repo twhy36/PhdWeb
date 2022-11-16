@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ChangeDetectorRef, ViewChildren, QueryList } from '@angular/core';
-import { NgbCarousel, NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { NgbCarousel } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrService } from 'ngx-toastr';
 import { of, Observable } from 'rxjs';
 import { combineLatest, switchMap, map, withLatestFrom } from 'rxjs/operators';
@@ -10,7 +10,7 @@ import * as _ from 'lodash';
 import
 {
 	UnsubscribeOnDestroy, OptionImage, AttributeGroup, Attribute, LocationGroup, Location, DesignToolAttribute,
-	DecisionPoint, Group, Tree, MyFavoritesPointDeclined, MyFavorite
+	DecisionPoint, Group, Tree, MyFavoritesPointDeclined, MyFavorite, ModalRef, ModalService
 } from 'phd-common';
 import { mergeAttributes, mergeLocations, mergeAttributeImages } from '../../../shared/classes/tree.utils';
 import { AttributeService } from '../../../core/services/attribute.service';
@@ -69,7 +69,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	highlightedAttribute: {attributeId: number, attributeGroupId: number, locationId: number, locationGroupId: number};
 	choiceAttributeGroups: AttributeGroup[];
 	choiceLocationGroups: LocationGroup[];
-	blockedChoiceModalRef: NgbModalRef;
+	blockedChoiceModalRef: ModalRef;
 	disabledByList: BlockedByItemObject
 		= { pointDisabledByList: null, choiceDisabledByList: null };
 	isChoiceImageLoaded: boolean = false;
@@ -77,7 +77,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	constructor(private cd: ChangeDetectorRef,
 		private attributeService: AttributeService,
 		private toastr: ToastrService,
-		public modalService: NgbModal,
+		public modalService: ModalService,
 		private store: Store<fromRoot.State>,
 		private adobeService: AdobeService,
 		private treeService: TreeService)
@@ -640,7 +640,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		{
 			this.disabledByList = getDisabledByList(this.tree, this.groups, this.currentPoint, this.choice);
 		}
-		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { windowClass: 'phd-blocked-choice-modal' });
+		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { windowClass: 'phd-blocked-choice-modal' }, true);
 	}
 
 	onCloseClicked() {

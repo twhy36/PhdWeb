@@ -1,6 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { DecisionPoint, Group, Tree, MyFavoritesPointDeclined } from 'phd-common';
+import { DecisionPoint, Group, Tree, MyFavoritesPointDeclined, ModalRef, ModalService } from 'phd-common';
 import { BlockedByItemObject } from '../../../models/blocked-by.model';
 import { getDisabledByList } from '../../../classes/tree.utils';
 
@@ -22,11 +21,11 @@ export class DecisionBarDeclineChoiceComponent implements OnInit {
 	@ViewChild('blockedChoiceModal') blockedChoiceModal: any;
 
 	isDeclined: boolean = false;
-	blockedChoiceModalRef: NgbModalRef;
+	blockedChoiceModalRef: ModalRef;
 	disabledByList: BlockedByItemObject
 		= { pointDisabledByList: null, choiceDisabledByList: null };
 
-	constructor(public modalService: NgbModal) { }
+	constructor(public modalService: ModalService) { }
 
 	ngOnInit() {
 		this.updateIsDeclined();
@@ -53,14 +52,16 @@ export class DecisionBarDeclineChoiceComponent implements OnInit {
 		{
 			this.disabledByList = getDisabledByList(this.tree, this.groups, this.point, null);
 		}
-		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { windowClass: 'phd-blocked-choice-modal' });
+		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { windowClass: 'phd-blocked-choice-modal' }, true);
 	}
 
-	onCloseClicked() {
+	onCloseClicked()
+	{
 		this.blockedChoiceModalRef?.close();
 	}
 
-	onBlockedItemClick() {
+	onBlockedItemClick()
+	{
 		this.blockedChoiceModalRef?.close();
 	}
 }

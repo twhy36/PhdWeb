@@ -1,9 +1,8 @@
 import { Component, OnInit, Input, Output, EventEmitter, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
 import * as _ from 'lodash';
 
-import { Location, Attribute, AttributeGroup, LocationGroup, DesignToolAttribute } from 'phd-common';
+import { Location, Attribute, AttributeGroup, LocationGroup, DesignToolAttribute, ModalService, ModalRef } from 'phd-common';
 import { ChoiceExt } from '../../models/choice-ext.model';
 import { AttributeGroupExt } from '../../models/attribute-ext.model';
 import { AdobeService } from '../../../core/services/adobe.service';
@@ -36,10 +35,10 @@ export class AttributeLocationComponent implements OnInit, OnChanges
 	locationQuantityTotal = 0;
 	locationAttributGroups: AttributeGroupExt[];
 	attributeGroups: AttributeGroupExt[] = [];
-	maxQuantityModalRef: NgbModalRef;
+	maxQuantityModalRef: ModalRef;
 
 	constructor(
-		private modalService: NgbModal,
+		private modalService: ModalService,
 		private adobeService: AdobeService
 	) { }
 
@@ -134,7 +133,7 @@ export class AttributeLocationComponent implements OnInit, OnChanges
 				backdrop: true,
 				keyboard: false,
 			}
-			this.maxQuantityModalRef = this.modalService.open(this.maxQuantityModal, modalOptions);
+			this.maxQuantityModalRef = this.modalService.open(this.maxQuantityModal, modalOptions, true);
 			this.adobeService.setAlertEvent("You won't need that many for your home. Max quantity is " + (this.maxQuantity !== null ? this.maxQuantity : 0).toString() + ".", 'Max Quantity Alert');
 		}
 	}

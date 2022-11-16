@@ -22,8 +22,7 @@ import
 	MyFavoritesChoice,
 	MyFavoritesPointDeclined,
 	Choice,
-	PickType,
-	ModalService
+	PickType
 }
 from 'phd-common';
 
@@ -88,7 +87,6 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		private route: ActivatedRoute,
 		private router: Router,
 		private cd: ChangeDetectorRef,
-		private modalService: ModalService,
 		private treeService: TreeService)
 	{
 		super();

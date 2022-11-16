@@ -1,6 +1,5 @@
 import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { DecisionPoint, Group, Tree } from 'phd-common';
+import { DecisionPoint, Group, ModalRef, ModalService, Tree } from 'phd-common';
 import { BlockedByItemObject } from '../../../models/blocked-by.model';
 import { getDisabledByList } from '../../../classes/tree.utils';
 import { ChoiceExt } from '../../../models/choice-ext.model';
@@ -28,11 +27,11 @@ export class DecisionBarChoiceComponent {
 
 	disabledByList: BlockedByItemObject
 		= { pointDisabledByList: null, choiceDisabledByList: null };
-	blockedChoiceModalRef: NgbModalRef;
-	hiddenChoicePriceModalRef: NgbModalRef;
+	blockedChoiceModalRef: ModalRef;
+	hiddenChoicePriceModalRef: ModalRef;
 
   constructor(
-		public modalService: NgbModal,
+		public modalService: ModalService,
 		private adobeService: AdobeService
 	) {
 
@@ -54,7 +53,7 @@ export class DecisionBarChoiceComponent {
 		if (!this.disabledByList.choiceDisabledByList && !this.disabledByList.pointDisabledByList) {
 			this.disabledByList = getDisabledByList(this.tree, this.groups, this.point, this.choice);
 		}
-		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { windowClass: 'phd-blocked-choice-modal' });
+		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { windowClass: 'phd-blocked-choice-modal' }, true);
 	}
 
 	onCloseClicked() {
@@ -62,14 +61,16 @@ export class DecisionBarChoiceComponent {
 		this.hiddenChoicePriceModalRef?.close();
 	}
 
-	onBlockedItemClick() {
+	onBlockedItemClick()
+	{
 		this.blockedChoiceModalRef?.close();
 	}
 
-	openHiddenChoicePriceModal() {
+	openHiddenChoicePriceModal()
+	{
 		if (this.choice.priceHiddenFromBuyerView)
 		{
-			this.hiddenChoicePriceModalRef = this.modalService.open(this.hiddenChoicePriceModal, { windowClass: 'phd-hidden-choice-price-modal' });
+			this.hiddenChoicePriceModalRef = this.modalService.open(this.hiddenChoicePriceModal, { windowClass: 'phd-hidden-choice-price-modal' }, true);
 			this.adobeService.setAlertEvent('Pricing Varies. Pricing will be determined during your meeting with your Design Consultant.', 'Pricing Varies Alert');
 		}
 	}

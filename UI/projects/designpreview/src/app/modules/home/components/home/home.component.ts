@@ -14,7 +14,7 @@ import * as CommonActions from '../../../ngrx-store/actions';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 import * as FavoriteActions from '../../../ngrx-store/favorite/actions';
 
-import { UnsubscribeOnDestroy, SalesAgreement, SDImage, SubGroup, FloorPlanImage, ModalService } from 'phd-common';
+import { UnsubscribeOnDestroy, SalesAgreement, SubGroup, FloorPlanImage } from 'phd-common';
 import { JobService } from '../../../core/services/job.service';
 import { BrandService } from '../../../core/services/brand.service';
 import { BuildMode } from '../../../shared/models/build-mode.model';

@@ -14,7 +14,7 @@ import
 {
 	UnsubscribeOnDestroy, PriceBreakdown, SDGroup, SDSubGroup, SDPoint, SDChoice, SDAttributeReassignment, Group,
 	DecisionPoint, JobChoice, Tree, TreeVersionRules, SalesAgreement, getDependentChoices, ModalService, PDFViewerComponent,
-	SummaryData, BuyerInfo, PriceBreakdownType, PlanOption, Choice, ConfirmModalComponent, SubGroup, FloorPlanImage
+	SummaryData, BuyerInfo, PriceBreakdownType, PlanOption, Choice, ConfirmModalComponent, SubGroup, FloorPlanImage, ModalRef
 } from 'phd-common';
 
 import { environment } from '../../../../../environments/environment';
@@ -76,6 +76,8 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 	firstDisplayedFloor: any;
 	showNextIFP: number = 0;
 	floorPlanImages: FloorPlanImage[];
+	emptyFavoritesModal: ModalRef;
+	confirmModal: ModalRef;
 
 	constructor(private store: Store<fromRoot.State>,
 		private activatedRoute: ActivatedRoute,
@@ -339,15 +341,15 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 			keyboard: false,
 		};
 
-		let confirm = this.modalService.open(ConfirmModalComponent, ngbModalOptions);
+		this.confirmModal = this.modalService.open(ConfirmModalComponent, ngbModalOptions, true);
 
-		confirm.componentInstance.title = 'Are You Sure?';
-		confirm.componentInstance.body = 'This will delete this item from your list';
-		confirm.componentInstance.defaultOption = 'Continue';
+		this.confirmModal.componentInstance.title = 'Are You Sure?';
+		this.confirmModal.componentInstance.body = 'This will delete this item from your list';
+		this.confirmModal.componentInstance.defaultOption = 'Continue';
 
-		this.adobeService.setAlertEvent(confirm.componentInstance.title + " " + confirm.componentInstance.body, 'Remove Favorite Alert');
+		this.adobeService.setAlertEvent(this.confirmModal.componentInstance.title + " " + this.confirmModal.componentInstance.body, 'Remove Favorite Alert');
 
-		confirm.result.then((result) =>
+		this.confirmModal.result.then((result) =>
 		{
 
 			if (result == 'Continue')
@@ -528,19 +530,19 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		};
 
 
-		let emptyFavoritesModal = this.modalService.open(InfoModalComponent, ngbModalOptions);
+		this.emptyFavoritesModal = this.modalService.open(InfoModalComponent, ngbModalOptions, true);
 
-		emptyFavoritesModal.componentInstance.title = 'Ooops. No options have been selected';
-		emptyFavoritesModal.componentInstance.body = `
+		this.emptyFavoritesModal.componentInstance.title = 'Ooops. No options have been selected';
+		this.emptyFavoritesModal.componentInstance.body = `
 			<p>Select the <i class="fa fa-heart-o"></i> to add options to your favorites.</p>
 		`;
-		emptyFavoritesModal.componentInstance.buttonText = 'Back';
-		emptyFavoritesModal.componentInstance.defaultOption = 'Back';
+		this.emptyFavoritesModal.componentInstance.buttonText = 'Back';
+		this.emptyFavoritesModal.componentInstance.defaultOption = 'Back';
 
 
-		this.adobeService.setAlertEvent(emptyFavoritesModal.componentInstance.title + " " + emptyFavoritesModal.componentInstance.body, 'Empty Favorites Alert');
+		this.adobeService.setAlertEvent(this.emptyFavoritesModal.componentInstance.title + " " + this.emptyFavoritesModal.componentInstance.body, 'Empty Favorites Alert');
 
-		emptyFavoritesModal.result.then((result) =>
+		this.emptyFavoritesModal.result.then((result) =>
 		{
 
 			if (result === 'Back')
