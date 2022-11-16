@@ -1075,12 +1075,10 @@ export const liteMonotonyConflict = createSelector(
 			{
 				conflict.elevationConflict = !lite.elevationOverrideNote && monotonyRules.some(rule => rule.elevationPlanOptionId === elevation.id);
 
-				let colorItemName: string = null;
 				let colorName: string = null;
 
 				if (legacyColorScheme?.isSelected)
 				{
-					colorItemName = legacyColorScheme.colorItemName;
 					colorName = legacyColorScheme.colorName;
 				}
 				else if (!legacyColorScheme && colorScheme)
@@ -1088,20 +1086,14 @@ export const liteMonotonyConflict = createSelector(
 					const colorItem = elevation.colorItems?.find(item => item.colorItemId === colorScheme.colorItemId);
 					const color = colorItem?.color?.find(c => c.colorId === colorScheme.colorId);	
 					
-					colorItemName = colorItem?.name;
 					colorName = color?.name;
 				}
 
-				if (colorItemName && colorName && !lite.colorSchemeOverrideNote)
+				if (colorName && !lite.colorSchemeOverrideNote)
 				{
 					conflict.colorSchemeConflict = isColorSchemePlanRuleEnabled
-						? monotonyRules.some(r =>
-							r.colorSchemeColorItemName === colorItemName
-							&& r.colorSchemeColorName === colorName
-							&& r.edhPlanId === planId)
-						: monotonyRules.some(r =>
-							r.colorSchemeColorItemName === colorItemName
-							&& r.colorSchemeColorName === colorName) ;
+						? monotonyRules.some(r => r.colorSchemeColorName === colorName && r.edhPlanId === planId)
+						: monotonyRules.some(r => r.colorSchemeColorName === colorName);
 				}
 			}
 

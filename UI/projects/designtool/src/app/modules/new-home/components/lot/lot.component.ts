@@ -367,11 +367,9 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 
 				if ((this.liteColorScheme || this.legacyColorScheme) && !this.liteColorSchemeOverrideNote)
 				{
-					let colorItemName: string = null;
 					let colorName: string = null;
 					if (this.legacyColorScheme?.isSelected)
 					{
-						colorItemName = this.legacyColorScheme.colorItemName;
 						colorName = this.legacyColorScheme.colorName;
 					}
 					else if (!this.legacyColorScheme && this.liteColorScheme)
@@ -379,20 +377,14 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 						const colorItem = this.liteElevationOption.colorItems?.find(item => item.colorItemId === this.liteColorScheme.colorItemId);
 						const color = colorItem?.color?.find(c => c.colorId === this.liteColorScheme.colorId);
 						
-						colorItemName = colorItem?.name;
 						colorName = color?.name;
 					}
 
-					if (colorItemName && colorName)
+					if (colorName)
 					{
 						lot.colorSchemeMonotonyConflict = isColorSchemePlanRuleEnabled
-							? lotLiteMonotonyRules.some(r =>
-								r.colorSchemeColorItemName === colorItemName
-								&& r.colorSchemeColorName === colorName
-								&& r.edhPlanId === planId)
-							: lotLiteMonotonyRules.some(r =>
-								r.colorSchemeColorItemName === colorItemName
-								&& r.colorSchemeColorName === colorName);
+							? lotLiteMonotonyRules.some(r => r.colorSchemeColorName === colorName && r.edhPlanId === planId)
+							: lotLiteMonotonyRules.some(r => r.colorSchemeColorName === colorName);
 					}
 				}
 			}
