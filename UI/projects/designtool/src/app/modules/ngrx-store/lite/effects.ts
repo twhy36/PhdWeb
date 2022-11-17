@@ -591,7 +591,7 @@ export class LiteEffects
 				if (store.lite.options.length === 0 || store.lite.isPhdLite === false)
 				{
 					// Select plan in a new configuration
-					if (action instanceof SelectPlan)
+					if (action instanceof SelectPlan && store.scenario.buildMode !== 'preview')
 					{
 						const financialCommunityId = store.plan.plans?.find(plan => plan.id === action.planId)?.communityId;
 
