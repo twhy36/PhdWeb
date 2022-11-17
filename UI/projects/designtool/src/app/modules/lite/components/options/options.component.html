@@ -19,7 +19,7 @@
 									class="form-check-input"
 									#optionCheckbox
 									[checked]="option.isSelected"
-									[disabled]="option.isReadonly || cannotEditAgreement || (option.isPastCutOff && !canOverride)"
+									[disabled]="option.isReadonly || !canEditAgreementOrSpec || (option.isPastCutOff && !canOverride) || !canConfigure"
 									(click)="onSelectedOptionWasToggled($event, option)"
 								 />
 							</div>
@@ -33,7 +33,7 @@
 								[max]="option.maxOrderQuantity" 
 								[(quantity)]="option.selectedQuantity" 
 								(focusout)="saveSelectedOptionToStore(option)" 
-								[canEditAgreement]="optionCheckbox.checked === true && !option.isReadonly && !cannotEditAgreement && !(option.isPastCutOff && !canOverride)" 
+								[canEditAgreement]="optionCheckbox.checked === true && !option.isReadonly && canEditAgreementOrSpec && !(option.isPastCutOff && !canOverride) && canConfigure" 
 								class="phd-quantity"></quantity-input>
 							<span *ngIf="option.maxOrderQuantity === 0 || option.maxOrderQuantity === 1" class="phd-quantity">(1)</span>
 							<span class="phd-list-price"> {{option.listPrice | currency}} </span>
