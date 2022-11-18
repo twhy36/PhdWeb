@@ -6,6 +6,7 @@ export class Template {
 	marketId: number;
 	templateTypeId: TemplateTypeEnum;
 	displayOrder: number;
+	addendumTypeId?: number;
 
 	constructor(dto = null) {
 		if (dto) {
