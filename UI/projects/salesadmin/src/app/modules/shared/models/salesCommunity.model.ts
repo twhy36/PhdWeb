@@ -1,14 +1,24 @@
-export interface SalesCommunity {
+export interface SalesCommunity
+{
 	id: number;
 	name: string;
 	number: string;
 	marketId: number;
 	isOnlineSalesCommunityEnabled: boolean;
-	salesCommunityWebSiteCommunityAssocs?: Array<{webSiteCommunity: WebSiteCommunity}>;
+	salesCommunityWebSiteCommunityAssocs?: ISalesCommunityWebSiteCommunityAssoc[];
 }
 
-export interface WebSiteCommunity {
+export interface ISalesCommunityWebSiteCommunityAssoc
+{
+	salesCommunityId: number;
+	webSiteCommunity: IWebSiteCommunity;
+	webSiteCommunityId: number;
+}
+
+export interface IWebSiteCommunity
+{
 	id: number;
 	name: string;
+	orgStatusDescription: string;
 	webSiteIntegrationKey: string;
 }

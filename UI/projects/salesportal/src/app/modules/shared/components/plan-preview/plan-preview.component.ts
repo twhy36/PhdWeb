@@ -93,19 +93,23 @@ export class PlanPreviewComponent implements OnInit
 		if (!this.selectedMarket || !this.selectedSalesCommunity)
 		{
 			disabled = true;
-		} else
+		}
+		else
 		{
 			// For THO Preview, financial community doesn't matter.
 			if (this.selectedType === 2)
 			{
 				disabled = false;
-			} else if (!this.selectedFinancialCommunity)
+			}
+			else if (!this.selectedFinancialCommunity)
 			{
 				disabled = true;
-			} else if (this.selectedType === 0)
+			}
+			else if (this.selectedType === 0)
 			{
 				disabled = true;
-			} else
+			}
+			else
 			{
 				if (!this.selectedPlan || !this.selectedTreeVersion)
 				{
@@ -113,6 +117,7 @@ export class PlanPreviewComponent implements OnInit
 				}
 			}
 		}
+
 		return disabled;
 	}
 
@@ -125,6 +130,7 @@ export class PlanPreviewComponent implements OnInit
 			this.types = null;
 			this.treeVersions = null;
 		}
+
 		this.selectedMarket = market;
 	}
 
@@ -138,7 +144,7 @@ export class PlanPreviewComponent implements OnInit
 
 		if (this.selectedSalesCommunity)
 		{
-			this.organizationService.getWebSiteCommunity(this.selectedSalesCommunity).subscribe(wc =>
+			this.organizationService.getWebsiteCommunity(this.selectedSalesCommunity).subscribe(wc =>
 			{
 				this.webSiteCommunity = wc;
 
@@ -148,6 +154,7 @@ export class PlanPreviewComponent implements OnInit
 						typeId: 2,
 						typeName: 'THO Preview'
 					});
+
 					this.typeStatus = this.TYPE_STATUS.READY;
 				}
 			});
@@ -159,12 +166,16 @@ export class PlanPreviewComponent implements OnInit
 		// If financial community is not null, get plans
 		this.selectedFinancialCommunity = financialCommunity?.id;
 		this.designPreviewEnabled = financialCommunity?.isDesignPreviewEnabled;
-		if (this.designPreviewEnabled) {
+
+		if (this.designPreviewEnabled)
+		{
       		// Get the finacial brand if DP Enabled
       		this.brandService.getFinancialBrand(financialCommunity.financialBrandId, environment.apiUrl).subscribe(brand => {
         		this.currentFinancialBrand = brand;
       		});
-		} else {
+		}
+		else
+		{
 			this.currentFinancialBrand = null;
 		}
 
@@ -191,16 +202,23 @@ export class PlanPreviewComponent implements OnInit
 		let url = '';
 
 		if (this.selectedType === 1)
-		{ // Open in design Tool
+		{
+			// Open in design Tool
 			url = `${environment.baseUrl.designTool}${this.action.path}/${this.selectedTreeVersion}`;
-		} else if (this.selectedType === 2)
-		{ // Open in THO Preview
+		}
+		else if (this.selectedType === 2)
+		{
+			// Open in THO Preview
 			const webSiteIntegrationKey = this.webSiteCommunity.webSiteIntegrationKey;
+
 			url = `${environment.baseUrl.thoPreview}${webSiteIntegrationKey}?preview=true`;
-		} else if (this.selectedType === 3)
-		{ // Open in Design Preview
+		}
+		else if (this.selectedType === 3)
+		{
+			// Open in Design Preview
 			url = `${getBrandUrl(this.currentFinancialBrand.key, environment.baseUrl.designPreview)}preview/${this.selectedTreeVersion}`;
 		}
+
 		window.open(url, '_blank');
 	}
 
@@ -216,6 +234,7 @@ export class PlanPreviewComponent implements OnInit
 	{
 		// Get plans for selected financial community
 		this.selectedPlan = 0;
+
 		this.getPlans();
 	}
 
@@ -224,12 +243,14 @@ export class PlanPreviewComponent implements OnInit
 		// Get types for selected plan
 		this.selectedType = 0;
 		this.types = [];
+
 		this.getTypes();
 	}
 
 	setTreeVersion()
 	{
 		this.selectedTreeVersion = 0;
+
 		this.getTreeVersions();
 	}
 
@@ -331,11 +352,13 @@ export class PlanPreviewComponent implements OnInit
 							if ((tree.publishStartDate) && (new Date(tree.publishStartDate) < currentDate))
 							{
 								tree.displayName = 'Last Published';
+
 								this.treeVersions.push(tree);
 							}
 							else if ((!tree.publishStartDate) || (new Date(tree.publishStartDate) > currentDate))
 							{
 								tree.displayName = 'Draft';
+
 								this.treeVersions.push(tree);
 							}
 						}

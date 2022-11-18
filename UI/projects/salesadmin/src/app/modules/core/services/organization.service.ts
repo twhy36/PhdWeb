@@ -14,7 +14,7 @@ import { Settings } from '../../shared/models/settings.model';
 import { FinancialCommunity, FinancialCommunityInfo } from '../../shared/models/financialCommunity.model';
 import { Org } from '../../shared/models/org.model';
 import { IdentityService, ClaimTypes, Permission } from 'phd-common';
-import { SalesCommunity, WebSiteCommunity } from '../../shared/models/salesCommunity.model';
+import { SalesCommunity, IWebSiteCommunity, ISalesCommunityWebSiteCommunityAssoc } from '../../shared/models/salesCommunity.model';
 
 import * as _ from 'lodash';
 
@@ -74,12 +74,14 @@ export class OrganizationService
 		if (typeof market === 'number')
 		{
 			mktId = market;
-		} else
+		}
+		else
 		{
 			if (market)
 			{
 				mktId = market.id;
-			} else
+			}
+			else
 			{
 				return;
 			}
@@ -99,6 +101,7 @@ export class OrganizationService
 					this.getFinancialCommunities(mkt.id).subscribe(comms =>
 					{
 						const comm = comms.find(c => c.id === this.currentFinancialCommunityId);
+
 						this._currentComm.next(comm);
 					});
 				})
@@ -116,12 +119,14 @@ export class OrganizationService
 		if (typeof community === 'number')
 		{
 			commId = community;
-		} else
+		}
+		else
 		{
 			if (community)
 			{
 				commId = community.id;
-			} else
+			}
+			else
 			{
 				return;
 			}
@@ -284,6 +289,7 @@ export class OrganizationService
 		const select = `id, number, name`;
 
 		let qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
+
 		if (includeMarket)
 		{
 			qryStr += `&${this._ds}expand=${encodeURIComponent(expand)}`;
@@ -296,6 +302,7 @@ export class OrganizationService
 			{
 				const communities = response.value as Array<FinancialCommunity>;
 				const community = communities && communities.length > 0 ? communities[0] : null;
+
 				return community;
 			}),
 			catchError(this.handleError));
@@ -387,6 +394,7 @@ export class OrganizationService
 			map(response =>
 			{
 				const salesCommunities = response.value as Array<SalesCommunity>;
+
 				return salesCommunities.length > 0 ? salesCommunities[0] : null;
 			}),
 			catchError(this.handleError));
@@ -409,34 +417,35 @@ export class OrganizationService
 		}
 	}
 
-	getWebsiteCommunity(salesCommunityId: number): Observable<WebSiteCommunity>
+	getWebsiteCommunity(salesCommunityId: number): Observable<IWebSiteCommunity>
 	{
-		const entity = `salesCommunities`;
-		const expand = `salesCommunityWebSiteCommunityAssocs($select=webSiteCommunity;$expand=webSiteCommunity($select=id,name,websiteIntegrationKey))`;
-		const filter = `id eq ${salesCommunityId}`;
+		const entity = `salesCommunities(${salesCommunityId})`;
+		const expand = `salesCommunityWebSiteCommunityAssocs($select=webSiteCommunity;$expand=websiteCommunity($select=id,name,websiteIntegrationKey;$filter=(orgStatusDescription eq 'Active' or orgStatusDescription eq 'New') and webSiteIntegrationKey ne ''))`;
+		const select = `id`;
 
-		let qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}expand=${encodeURIComponent(expand)}`;
+		let qryStr = `${this._ds}select=${encodeURIComponent(select)}&${this._ds}expand=${encodeURIComponent(expand)}`;
 
 		const endpoint = `${settings.apiUrl}${entity}?${qryStr}`;
 
 		return this._http.get<any>(endpoint).pipe(
 			map(response =>
 			{
-				const salesCommunities = response.value as Array<SalesCommunity>;
+				const r = response.salesCommunityWebSiteCommunityAssocs as ISalesCommunityWebSiteCommunityAssoc[];
 
-				const websiteCommunities = _.flatMap(
-					salesCommunities,
-					salesCommunity => _.flatMap(
-						salesCommunity.salesCommunityWebSiteCommunityAssocs,
-						websiteCommunity => websiteCommunity.webSiteCommunity
-					)
-				);
-				const websiteIndex = (websiteCommunities?.length ?? 1) - 1;
-				const websiteCommunity = websiteCommunities && websiteCommunities.length > 0 ? websiteCommunities[websiteIndex] : null;
+				let websiteCommunities = r.map(x => x.webSiteCommunity).filter(x =>
+				{
+					if (x.webSiteIntegrationKey)
+					{
+						return true;
+					}
+				});
+
+				const websiteCommunity = websiteCommunities?.length > 0 ? websiteCommunities[websiteCommunities.length - 1] : null;
 
 				return websiteCommunity;
 			}),
-			catchError(this.handleError));
+			catchError(this.handleError)
+		);
 	}
 
 	getInternalOrgs(marketId: number): Observable<Array<Org>>
