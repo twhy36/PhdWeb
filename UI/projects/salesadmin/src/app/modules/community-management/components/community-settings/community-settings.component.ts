@@ -63,6 +63,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 	salesPrograms: Array<SalesProgram>;
 	closingCostDisabled: boolean;
 	isUrlGenerationEnabled: boolean;
+	isGenerateUrlButtonDisabled = true;
 
 	get saveDisabled(): boolean
 	{
@@ -155,6 +156,9 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 					this.selectedCommunity = new FinancialCommunityViewModel(comm);
 
 					this.loadPlansAndHomeSites();
+
+					//init generate url values
+					this.disableUrlGeneration();
 
 					if (this.orgId && comm.salesCommunityId)
 					{
@@ -404,18 +408,36 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 				this._msgService.add({ severity: 'error', summary: 'Error', detail: `Save failed. ${error}` });
 			});
 		}
+
+	}
+
+	onPlanSelectionChanged(selectedPlan: PlanViewModel): void
+	{
+		this.disableUrlGeneration();
+
+		//enable generate url button when plan is changed and valid plan is selected
+		if (selectedPlan && selectedPlan.id)
+		{
+			this.isGenerateUrlButtonDisabled = false;
+		}
+	}
+
+	disableUrlGeneration()
+	{
+		this.designPreviewUrl = '';
+		this.isGenerateUrlButtonDisabled = true;
 	}
 
 	generateDesignPreviewLink(plan: PlanViewModel) 
 	{
+		//clear previous results
 		this._msgService.clear();
+		this.disableUrlGeneration();
 
-		this.designPreviewUrl = '';
-
-		if (!plan || !plan.id || plan.id < 1)
+		//invalid input plan
+		if (!plan || !plan.id)
 		{
-			this._msgService.add({ severity: 'error', summary: 'Missing or Invalid Plan.', detail: 'No plan available or invalid plan id.' });
-
+			this._msgService.add({ severity: 'error', summary: 'Error: Missing or Invalid Plan.', detail: '' });
 			return;
 		}
 

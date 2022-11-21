@@ -221,12 +221,16 @@
 				<div class="phd-box">
 					<div class="phd-line">
 						<div class="font-weight-bold">Design Preview Pre-Sale Link by Plan</div>
-						<select class="form-control ml-1" [(ngModel)]="selectedOption" [disabled]="isPhdLite">
+						<select class="form-control ml-1" 
+							[(ngModel)]="selectedOption" 
+							[disabled]="isPhdLite"
+							(ngModelChange)="onPlanSelectionChanged($event)"
+							>
 							<option [ngValue]="null" disabled="true" selected>Choose a Plan</option>
                             <option *ngFor="let plan of plans" [ngValue]="plan">{{ plan.displayName }}</option>
 						</select>
                         <br />
-						<button *ngIf="!!selectedOption" class="btn btn-primary phd-btn-save" (click)="generateDesignPreviewLink(selectedOption)">
+						<button [disabled]="isGenerateUrlButtonDisabled" class="btn btn-primary phd-btn-save" (click)="generateDesignPreviewLink(selectedOption)">
 							Generate Link
 							<ng-container *ngIf="isSaving"><i class="fa fa-spinner fa-spin fa-fw"></i></ng-container>
 						</button>
