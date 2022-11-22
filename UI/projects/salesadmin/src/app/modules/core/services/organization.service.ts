@@ -420,7 +420,7 @@ export class OrganizationService
 	getWebsiteCommunity(salesCommunityId: number): Observable<IWebSiteCommunity>
 	{
 		const entity = `salesCommunities(${salesCommunityId})`;
-		const expand = `salesCommunityWebSiteCommunityAssocs($select=webSiteCommunity;$expand=websiteCommunity($select=id,name,websiteIntegrationKey;$filter=(orgStatusDescription eq 'Active' or orgStatusDescription eq 'New') and webSiteIntegrationKey ne ''))`;
+		const expand = `salesCommunityWebSiteCommunityAssocs($select=webSiteCommunity;$filter=(webSiteCommunity/orgStatusDescription eq 'Active' or webSiteCommunity/orgStatusDescription eq 'New') and websiteCommunity/webSiteIntegrationKey ne '';$expand=websiteCommunity($select=id,name,websiteIntegrationKey))`;
 		const select = `id`;
 
 		let qryStr = `${this._ds}select=${encodeURIComponent(select)}&${this._ds}expand=${encodeURIComponent(expand)}`;
