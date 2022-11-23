@@ -53,6 +53,11 @@
 					<span class="input-group-text">.00</span>
 				</div>
 			</div>
+			<div *ngIf="form.controls.discount.invalid && (form.controls.discount.dirty || form.controls.discount.touched) && form.controls.discount.errors.validTotal">
+				<span class="text-danger">
+					Invalid: Value cannot make purchase price fall below zero.
+				</span>
+			</div>
 		</div>
 
 		<div class="phd-margin">
@@ -66,16 +71,15 @@
 					<span class="input-group-text">.00</span>
 				</div>
 			</div>
-			<div>
-				<span class="text-danger"
-					  *ngIf="form.controls.buyersClosingCosts.invalid && (form.controls.buyersClosingCosts.dirty || form.controls.buyersClosingCosts.touched) && form.controls.buyersClosingCosts.errors.min">
+			<div *ngIf="form.controls.buyersClosingCosts.invalid && (form.controls.buyersClosingCosts.dirty || form.controls.buyersClosingCosts.touched) && form.controls.buyersClosingCosts.errors.min">
+				<span class="text-danger">
 					Invalid: Enter a value greater than {{minClosingCostIncentive}}.
 				</span>
 			</div>
 		</div>
 	</div>
+
 	<div class="mt-3 d-flex align-items-center justify-content-center">
 		<save-cancel-buttons (onSave)="save()" (onCancel)="cancel()" [form]="form"></save-cancel-buttons>
 	</div>
-
 </form>

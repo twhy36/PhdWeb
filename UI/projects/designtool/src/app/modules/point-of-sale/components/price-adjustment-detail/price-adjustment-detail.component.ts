@@ -1,7 +1,10 @@
 import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { FormGroup, FormControl, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
+import { Store, select } from '@ngrx/store';
 
-import { SalesChangeOrderPriceAdjustment, ModalService } from 'phd-common';
+import * as fromRoot from '../../../ngrx-store/reducers';
+
+import { SalesChangeOrderPriceAdjustment, ModalService, PriceBreakdown } from 'phd-common';
 
 import { ComponentCanNavAway } from '../../../shared/classes/component-can-nav-away.class';
 
@@ -26,6 +29,7 @@ export class PriceAdjustmentDetailComponent extends ComponentCanNavAway implemen
 
 	form: FormGroup;
 	minClosingCostIncentive: number;
+	priceBreakdown: PriceBreakdown;
 
 	get discountAmount(): number
 	{
@@ -79,20 +83,28 @@ export class PriceAdjustmentDetailComponent extends ComponentCanNavAway implemen
 		return this.priceAdjustments && this.priceAdjustments.length && this.editing === this.priceAdjustments[0];
 	}
 
-	constructor(private modalService: ModalService)
-	{ super(); }
+	constructor(private modalService: ModalService, private store: Store<fromRoot.State>)
+	{
+		super();
+	}
 
 	ngOnInit()
 	{
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromRoot.priceBreakdown)
+		).subscribe(priceBreakdown => this.priceBreakdown = priceBreakdown);
+
 		this.createForm();
 	}
 
 	createForm()
 	{
 		this.minClosingCostIncentive = this.totalCurrentClosingCostAmount > 0 ? -Math.abs(this.totalCurrentClosingCostAmount) : 0;
+
 		this.form = new FormGroup({
-			'discount': new FormControl(this.discountAmount ? this.discountAmount.toString() : null),
-			'buyersClosingCosts': new FormControl(this.closingCostAmount ? this.closingCostAmount.toString() : null, [Validators.min(this.minClosingCostIncentive)])
+			'discount': new FormControl(this.discountAmount ? this.discountAmount.toString() : null, [Validators.max(99999999999999), this.validatePriceAdjustmentAmount()]),
+			'buyersClosingCosts': new FormControl(this.closingCostAmount ? this.closingCostAmount.toString() : null, [Validators.max(99999999999999), Validators.min(this.minClosingCostIncentive)])
 		});
 	}
 
@@ -112,6 +124,7 @@ export class PriceAdjustmentDetailComponent extends ComponentCanNavAway implemen
 
 		this.onSavingPriceAdjustments.emit(salesChangeOrderPriceAdjustments);
 		this.onEdit.emit(null);
+
 		this.form.reset();
 	}
 
@@ -129,12 +142,12 @@ export class PriceAdjustmentDetailComponent extends ComponentCanNavAway implemen
 
 	canNavAway(): boolean
 	{
-		throw new Error("Method not implemented.");
+		throw new Error('Method not implemented.');
 	}
 
 	delete()
 	{
-		const content = "Sure you want to continue?";
+		const content = 'Sure you want to continue?';
 		const confirm = this.modalService.showWarningModal(content);
 
 		confirm.subscribe((result) =>
@@ -142,6 +155,7 @@ export class PriceAdjustmentDetailComponent extends ComponentCanNavAway implemen
 			if (result)
 			{
 				this.onDeletePriceAdjustment.emit();
+
 				this.form.reset();
 			}
 		});
@@ -160,5 +174,22 @@ export class PriceAdjustmentDetailComponent extends ComponentCanNavAway implemen
 		{
 			this.form.controls['buyersClosingCosts'].setValue(this.closingCostAmount);
 		}
+	}
+
+	private validatePriceAdjustmentAmount(): ValidatorFn
+	{		
+		return (control: AbstractControl): { [key: string]: any } =>
+		{
+			if (control.value)
+			{
+				// get starting price, then check the price adjustment amount
+				const newTotalPrice = (this.priceBreakdown.totalPrice - this.priceBreakdown.changePrice) + control?.value;
+				const isValid = newTotalPrice >= 0;
+
+				return isValid ? null : { validTotal: true };
+			}
+
+			return null;
+		};
 	}
 }
