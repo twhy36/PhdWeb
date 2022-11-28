@@ -1,8 +1,9 @@
 import { Action } from '@ngrx/store';
-import {
-	ChangeOrderGroup, ChangeInput, ChangeOrderNonStandardOption, ChangeOrderHanding, Note, SalesAgreement,
-	SalesChangeOrderPriceAdjustment, SalesChangeOrderSalesProgram, ChangeOrderBuyer, Log
-} from 'phd-common';
+import
+	{
+		ChangeOrderGroup, ChangeInput, ChangeOrderNonStandardOption, ChangeOrderHanding, Note, SalesAgreement,
+		SalesChangeOrderPriceAdjustment, SalesChangeOrderSalesProgram, ChangeOrderBuyer, Log
+	} from 'phd-common';
 import { ErrorAction } from '../error.action';
 import { SalesAgreementLoaded, JobLoaded, ESignEnvelopesLoaded, ChangeOrderEnvelopeCreated, ChangeOrdersUpdated } from '../actions';
 
@@ -228,7 +229,7 @@ export class CancelJobChangeOrder implements Action
 {
 	readonly type = ChangeOrderActionTypes.CancelJobChangeOrder;
 
-	constructor() { }
+	constructor(public isChangeDirty: boolean = true) { }
 }
 
 @Log(["handing"])
@@ -405,15 +406,16 @@ export class ChangeOrderOutForSignature implements Action
 	readonly type = ChangeOrderActionTypes.ChangeOrderOutForSignature;
 
 	constructor(
-		public changeOrder: any, 
-		public envelopeSent: boolean,		
+		public changeOrder: any,
+		public envelopeSent: boolean,
 		public isWetSign: boolean,
 		public setChangeOrder: boolean = false
 	) { }
 }
 
 @Log(true)
-export class SetChangeOrderPlanId implements Action {
+export class SetChangeOrderPlanId implements Action
+{
 	readonly type = ChangeOrderActionTypes.SetChangeOrderPlanId;
 
 	constructor(public planId: number) { }
