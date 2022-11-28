@@ -30,6 +30,8 @@ export class AppComponent extends UnsubscribeOnDestroy {
 	environment = environment;
 	buildMode: BuildMode;
 	logoutModal: ModalRef;
+	termsAndConditionsModal: ModalRef;
+	browserModal: ModalRef;
 
 	get branch(): string {
 		return build.branch.split('/').slice(2).join('/');
@@ -79,7 +81,7 @@ export class AppComponent extends UnsubscribeOnDestroy {
 					backdrop: 'static',
 					keyboard: false
 				};
-				this.modalService.open(TermsAndConditionsComponent, ngbModalOptions)
+				this.termsAndConditionsModal = this.modalService.open(TermsAndConditionsComponent, ngbModalOptions, true)
 			}
 		});
 	}
@@ -119,7 +121,7 @@ export class AppComponent extends UnsubscribeOnDestroy {
 				keyboard: false
 			};
 
-			this.logoutModal = this.modalService.open(IdleLogoutComponent, ngbModalOptions);
+			this.logoutModal = this.modalService.open(IdleLogoutComponent, ngbModalOptions, true);
 			this.adobeService.setAlertEvent("You're About To Be Signed Out", 'Idle Logout Alert');
 
 			this.logoutModal.result.then((result) => {
@@ -186,16 +188,16 @@ export class AppComponent extends UnsubscribeOnDestroy {
 			beforeDismiss: () => false
 		};
 
-		let browserModal = this.modalService.open(InfoModalComponent, ngbModalOptions);
-		browserModal.componentInstance.title = 'Browser Not Supported';
-		browserModal.componentInstance.body = `
+		this.browserModal = this.modalService.open(InfoModalComponent, ngbModalOptions, true);
+		this.browserModal.componentInstance.title = 'Browser Not Supported';
+		this.browserModal.componentInstance.body = `
 			<p>The browser version you are currently using is not supported. Please use a recent version of Safari, Chrome or Edge for the best experience.</p>
 		`;
-		browserModal.componentInstance.buttonText = 'Continue';
-		browserModal.componentInstance.isCloseable = true;
-		browserModal.componentInstance.isTitleCentered = true;
+		this.browserModal.componentInstance.buttonText = 'Continue';
+		this.browserModal.componentInstance.isCloseable = true;
+		this.browserModal.componentInstance.isTitleCentered = true;
 
-		browserModal.result.then(() => {
+		this.browserModal.result.then(() => {
 			sessionStorage.setItem('supportedBrowserChecked', 'true');
 		}
 		);

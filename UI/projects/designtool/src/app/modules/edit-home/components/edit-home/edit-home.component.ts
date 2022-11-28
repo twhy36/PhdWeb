@@ -59,7 +59,6 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 	@ViewChild('impactedChoicesModal') impactedChoicesModal: TemplateRef<any>;
 	@ViewChild('optionPriceChangedModal') optionPriceChangedModal: TemplateRef<any>;
 	@ViewChild('optionMappingAdjustedModal') optionMappingAdjustedModal: TemplateRef<any>;
-	@ViewChild('pointChoicePricingChangedModal') pointChoicePricingChangedModal: TemplateRef<any>;
 
 	acknowledgedMonotonyConflict: boolean;
 	agreementStatus$: Observable<string>;
@@ -685,9 +684,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		// #366542 Find any choices with a replaced option that is no longer available on the current tree
 		let adjustedChoices = this.getAdjustedChoices(choiceToDeselect, choice);
 
-		adjustedChoices = adjustedChoices.concat(getChoicesWithNewPricing(this.tree, this.treeVersionRules, this.options, choice, choiceToDeselect));
-
-		adjustedChoices = adjustedChoices.filter((o, i) => adjustedChoices.indexOf(o) === i);
+		adjustedChoices = _.uniq(adjustedChoices.concat(getChoicesWithNewPricing(this.tree, this.treeVersionRules, this.options, choice, choiceToDeselect)));
 
 		adjustedChoices.forEach(c =>
 		{
@@ -831,14 +828,6 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		return this.showConfirmModal(this.optionMappingAdjustedModal, 'Warning', primaryButton, secondaryButton);
 	}
 
-	private showPointChoicePricingChangedModal(choices: Array<Choice>): Observable<boolean>
-	{
-		this.impactedChoices = choices.map(c => c.label).sort().join(', ');
-		const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
-		const secondaryButton = { text: 'Cancel', result: false, cssClass: 'btn-secondary' };
-		return this.showConfirmModal(this.pointChoicePricingChangedModal, 'Warning', primaryButton, secondaryButton);
-	}
-
 	loadPhdLite()
 	{
 		this.store.dispatch(new NavActions.SetSubNavItems(ExteriorSubNavItems));
@@ -965,6 +954,22 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 
 		// Using the latest rules, see what choices may be affected by options on this choice
 		const replaceRules = this.treeVersionRules.optionRules.filter(o => o.choices.map(oc => oc.id).some(id => [deselectedChoice?.id, selectedChoice?.id].includes(id)));
+
+		// Determine if there are any other choices via separate rules that are already on the configuration
+		const moreChoices = _.flatMap(this.treeVersionRules.optionRules.filter(o => _.flatMap(replaceRules, rr => rr.replaceOptions).some(rro => o.optionId === rro)), r => r.choices);
+		moreChoices.forEach(mc =>
+		{
+			const existingChoice = _.flatMap(this.tree.treeVersion.groups,
+				g => _.flatMap(g.subGroups,
+					sg => _.flatMap(sg.points,
+						p => p.choices)))
+				.find(c => mc.id === c.id && ((mc.mustHave && c.quantity) || (!mc.mustHave && !c.quantity)));
+
+			if (existingChoice?.lockedInOptions?.length)
+			{
+				choices.push(existingChoice);
+			}
+		});
 
 		// Check to see if any rule is already satisfied, and if that choice has an option no longer available
 		replaceRules.forEach(rr =>

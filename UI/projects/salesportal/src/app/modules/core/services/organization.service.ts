@@ -12,13 +12,13 @@ import { IMarket, ISalesCommunity, IPlan, ITreeVersion, ISalesCommunityWebSiteCo
 @Injectable()
 export class OrganizationService
 {
-  private _ds: string = encodeURIComponent('$');
-  private _financialMarkets$: ConnectableObservable<Array<IMarket>>;
+	private _ds: string = encodeURIComponent('$');
+	private _financialMarkets$: ConnectableObservable<Array<IMarket>>;
 
-  // Used for storing communities per market by ID
-  marketCommunities = {};
+	// Used for storing communities per market by ID
+	marketCommunities = {};
 
-  currentFinancialMarket$: Subject<string>;
+	currentFinancialMarket$: Subject<string>;
 
 	get currentFinancialMarket(): string
 	{
@@ -75,12 +75,12 @@ export class OrganizationService
 	{
 		this.currentFinancialMarket$ = new Subject<string>();
 
-    // Get market if saved locally
+		// Get market if saved locally
 		const currFinancialMarket = this._storageService.getLocal<string>('CA_CURRENT_FM');
 		this.currentFinancialMarket$.next(currFinancialMarket);
 
-    // Get markets
-    let endPoint = environment.apiUrl;
+		// Get markets
+		let endPoint = environment.apiUrl;
 
 		const expandOnMarkets = `financialCommunities($top=1;$select=salesStatusDescription,id;$filter=salesStatusDescription eq 'Active')`;
 		const filterOnMarkets = `financialCommunities/any() and companyType eq 'HB' and salesStatusDescription eq 'Active'`;
@@ -89,100 +89,113 @@ export class OrganizationService
 
 		const qryStrOnMarkets = `${this._ds}expand=${encodeURIComponent(expandOnMarkets)}&${this._ds}filter=${encodeURIComponent(filterOnMarkets)}&${this._ds}select=${encodeURIComponent(selectOnMarkets)}&${this._ds}orderby=${encodeURIComponent(orderByOnMarkets)}`;
 
-    endPoint += `markets?${qryStrOnMarkets}`;
-    
+		endPoint += `markets?${qryStrOnMarkets}`;
+
 		this._financialMarkets$ = this._http.get<any>(endPoint).pipe(
 			map(response =>
-          {
-            let markets = response['value'] as Array<IMarket>;
+			{
+				let markets = response['value'] as Array<IMarket>;
 				return markets;
 			}),
 			catchError(this.handleError),
 			publishReplay(1)
-        ) as ConnectableObservable<Array<IMarket>>;
-    this._financialMarkets$.connect();
+		) as ConnectableObservable<Array<IMarket>>;
+		this._financialMarkets$.connect();
 	}
 
-  getSalesCommunity(id: number, includeMarket: boolean = false): Observable<ISalesCommunity>
-  {    
+	getSalesCommunity(id: number, includeMarket: boolean = false): Observable<ISalesCommunity>
+	{
 		const entity = `salesCommunities`;
 		const expand = `market($select = id, number, name)`;
 		const filter = `id eq ${id}`;
 		const select = `id, number, name`;
 
 		let qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
-		if (includeMarket) {
+
+		if (includeMarket)
+		{
 			qryStr += `&${this._ds}expand=${encodeURIComponent(expand)}`;
 		}
 
-    const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
+		const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
 
 		return this._http.get<any>(endpoint).pipe(
 			map(response =>
 			{
-        		const communities = response.value as Array<ISalesCommunity>;
-        		const community = communities && communities.length > 0 ? communities[0] : null;
+				const communities = response.value as Array<ISalesCommunity>;
+				const community = communities && communities.length > 0 ? communities[0] : null;
+
 				return community;
 			}),
 			catchError(this.handleError));
 	}
 
-	getWebSiteCommunity(salesCommunityId: number): Observable<IWebSiteCommunity>
-  	{    
+	getWebsiteCommunity(salesCommunityId: number): Observable<IWebSiteCommunity>
+	{
 		const entity = `salesCommunities(${salesCommunityId})`;
-		const expand = `salesCommunityWebSiteCommunityAssocs($expand=websiteCommunity($filter=orgStatusDescription eq 'Active' and webSiteIntegrationKey ne ''))`;
-		let qryStr = `${this._ds}expand=${encodeURIComponent(expand)}`;
+		const expand = `salesCommunityWebSiteCommunityAssocs($select=webSiteCommunity;$filter=(webSiteCommunity/orgStatusDescription eq 'Active' or webSiteCommunity/orgStatusDescription eq 'New') and websiteCommunity/webSiteIntegrationKey ne '';$expand=websiteCommunity($select=id,name,websiteIntegrationKey))`;
+		const select = `id`;
 
-    	const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
+		let qryStr = `${this._ds}select=${encodeURIComponent(select)}&${this._ds}expand=${encodeURIComponent(expand)}`;
+
+		const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
 
 		return this._http.get<any>(endpoint).pipe(
-			map(response => {
-				const r = response.salesCommunityWebSiteCommunityAssocs as Array<ISalesCommunityWebSiteCommunityAssoc>;
-				let websiteCommunities = r.map(x => x.webSiteCommunity).filter(x => {
-					if (x.webSiteIntegrationKey) {
+			map(response =>
+			{
+				const r = response.salesCommunityWebSiteCommunityAssocs as ISalesCommunityWebSiteCommunityAssoc[];
+
+				let websiteCommunities = r.map(x => x.webSiteCommunity).filter(x =>
+				{
+					if (x.webSiteIntegrationKey)
+					{
 						return true;
 					}
 				});
-				return websiteCommunities[0];
+
+				const websiteCommunity = websiteCommunities?.length > 0 ? websiteCommunities[websiteCommunities.length - 1] : null;
+
+				return websiteCommunity;
 			}),
 			catchError(this.handleError)
 		);
 	}
 
-  getFinancialMarkets(): Observable<Array<IMarket>>
+	getFinancialMarkets(): Observable<Array<IMarket>>
 	{
 		return this._financialMarkets$;
 	}
 
-  getSalesCommunities(marketId: number): Observable<Array<ISalesCommunity>>
-  {
-    // Check to see if we already stored communities for this market.
-    if (this.marketCommunities[marketId])
-    {
-      return of(this.marketCommunities[marketId]);
-    }
+	getSalesCommunities(marketId: number): Observable<Array<ISalesCommunity>>
+	{
+		// Check to see if we already stored communities for this market.
+		if (this.marketCommunities[marketId])
+		{
+			return of(this.marketCommunities[marketId]);
+		}
 
-    const filter = `marketId eq ${marketId} and (salesStatusDescription eq 'Active' or salesStatusDescription eq 'New')`;
-    const expand = `financialCommunities($select=id, name, number, isDesignPreviewEnabled, financialBrandId;$filter=salesStatusDescription eq 'Active' or salesStatusDescription eq 'New')`
-	const orderBy = `name`;
+		const filter = `marketId eq ${marketId} and (salesStatusDescription eq 'Active' or salesStatusDescription eq 'New')`;
+		const expand = `financialCommunities($select=id, name, number, isDesignPreviewEnabled, financialBrandId;$filter=salesStatusDescription eq 'Active' or salesStatusDescription eq 'New')`
+		const orderBy = `name`;
 
-    const qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}orderby=${encodeURIComponent(orderBy)}`;
-    let url = `${environment.apiUrl}salesCommunities?${qryStr}`;
+		const qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}orderby=${encodeURIComponent(orderBy)}`;
+		let url = `${environment.apiUrl}salesCommunities?${qryStr}`;
 
-	return this._http.get(url).pipe(
-	  map(response =>
-      {
-        const communities: Array<ISalesCommunity> = response['value'];
-        this.marketCommunities[marketId] = communities;
-        return communities;
-      }),
-      catchError(this.handleError)
-	 );
+		return this._http.get(url).pipe(
+			map(response =>
+			{
+				const communities: Array<ISalesCommunity> = response['value'];
+				this.marketCommunities[marketId] = communities;
+
+				return communities;
+			}),
+			catchError(this.handleError)
+		);
 	}
 
-  getMarkets(): Observable<Array<IMarket>>
-    {
-      let retMarkets: Observable<Array<IMarket>> = this.getFinancialMarkets().
+	getMarkets(): Observable<Array<IMarket>>
+	{
+		let retMarkets: Observable<Array<IMarket>> = this.getFinancialMarkets().
 			pipe(
 				map(markets =>
 				{
@@ -216,8 +229,10 @@ export class OrganizationService
 		let url = `${environment.apiUrl}${entity}?${qryStr}`;
 
 		return this._http.get<any>(url).pipe(
-			map(response => {
-				let plans = response.value.map(plan => {
+			map(response =>
+			{
+				let plans = response.value.map(plan =>
+				{
 					return {
 						id: plan.id,
 						planName: plan.planSalesName,
@@ -244,8 +259,10 @@ export class OrganizationService
 		url += `dTreeVersions?${qryStr}`;
 
 		return this._http.get<any>(url).pipe(
-			map(response => {
-				let treeVersions = response.value.map(tree => {
+			map(response =>
+			{
+				let treeVersions = response.value.map(tree =>
+				{
 					return {
 						dTreeVersionId: tree.dTreeVersionID,
 						dTreeVersionName: tree.dTreeVersionName,
@@ -263,7 +280,7 @@ export class OrganizationService
 	{
 		// In the future, we may send the server to some remote logging infrastructure.
 		console.error('Error message: ', error);
-		
+
 		return throwError(error || 'Server error');
 	}
 }

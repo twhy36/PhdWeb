@@ -25,7 +25,8 @@ export class ColorsComponent extends UnsubscribeOnDestroy implements OnInit {
 	selectedColorIds: { [id: number] : number } = {};
 	allOptions: LitePlanOptionUI[];
 	categories: IOptionCategory[] = [];
-	cannotEditAgreement: boolean;
+	canConfigure: boolean;
+	canEditAgreementOrSpec: boolean;
 	canOverride: boolean;
 	overrideReason: string;
 
@@ -39,10 +40,18 @@ export class ColorsComponent extends UnsubscribeOnDestroy implements OnInit {
 	{
 		this.store.pipe(
 			this.takeUntilDestroyed(),
+			select(fromRoot.canConfigure)
+		).subscribe(canConfigure =>
+		{
+			this.canConfigure = canConfigure;
+		});
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
 			select(fromRoot.canEditAgreementOrSpec)
 		)
-		.subscribe(canEditAgreement => {
-			this.cannotEditAgreement = !canEditAgreement;
+		.subscribe(canEditAgreementOrSpec => {
+			this.canEditAgreementOrSpec = canEditAgreementOrSpec;
 		});
 
 		this.store.pipe(

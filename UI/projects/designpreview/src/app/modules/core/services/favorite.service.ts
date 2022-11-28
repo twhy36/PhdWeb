@@ -6,14 +6,14 @@ import { catchError, map, tap } from 'rxjs/operators';
 import * as _ from 'lodash';
 
 import 
-{ 
+{
 	withSpinner, createBatch, getNewGuid, createBatchBody, createBatchHeaders, Tree, JobChoice, Choice,
 	MyFavorite, MyFavoritesChoice, MyFavoritesChoiceAttribute, MyFavoritesChoiceLocation, MyFavoritesPointDeclined, DesignToolAttribute
 } from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
 
-interface ChoiceExt { decisionPointLabel: string, subgroupLabel: string, groupLabel: string };
+interface ChoiceExt { decisionPointLabel: string, subgroupLabel: string, groupLabel: string; };
 
 @Injectable()
 export class FavoriteService
@@ -43,19 +43,19 @@ export class FavoriteService
 			{
 				console.error(error);
 				return _throw(error);
-			})		
+			})
 		);
 	}
 
 	saveMyFavorite(myFavoriteId: number, name: string, salesAgreementId: number): Observable<MyFavorite>
 	{
-        const url = environment.apiUrl + `myFavorites`;
-        
-        const data = {
-            id: myFavoriteId,
-            name: name,
-            salesAgreementId: salesAgreementId
-        };
+		const url = environment.apiUrl + `myFavorites`;
+
+		const data = {
+			id: myFavoriteId,
+			name: name,
+			salesAgreementId: salesAgreementId
+		};
 
 		return withSpinner(this._http).post(url, data, { headers: { 'Prefer': 'return=representation' } }).pipe(
 			tap(response => response['@odata.context'] = undefined),
@@ -65,7 +65,7 @@ export class FavoriteService
 			}),
 			catchError(error =>
 			{
-				console.log(error);
+				console.error(error);
 
 				return _throw(error);
 			})
@@ -82,7 +82,7 @@ export class FavoriteService
 		const data = {
 			myFavoriteId: favorites.id,
 			choices: savedChoices
-		}
+		};
 
 		const endPoint = environment.apiUrl + `SaveMyFavoritesChoices`;
 
@@ -92,7 +92,8 @@ export class FavoriteService
 				const responses = (results['value']) as any[];
 				const choices = [...updatedChoices, ...favoriteChoices];
 
-				return responses.map(res => {
+				return responses.map(res =>
+				{
 					let resChoice = res as MyFavoritesChoice;
 					if (resChoice)
 					{
@@ -104,55 +105,62 @@ export class FavoriteService
 			}),
 			catchError(error =>
 			{
-				console.log(error);
+				console.error(error);
 
 				return _throw(error);
-			})			
+			})
 		);
 	}
 
-	addMyFavoritesPointDeclined(myFavoriteId: number, pointId: number): Observable<MyFavoritesPointDeclined> {
+	addMyFavoritesPointDeclined(myFavoriteId: number, pointId: number): Observable<MyFavoritesPointDeclined>
+	{
 		const endPoint = environment.apiUrl + `myFavoritesPointsDeclined`;
-		
+
 		const data = {
 			myFavoriteId: myFavoriteId,
 			dPointId: pointId
 		};
 
-		return withSpinner(this._http).post(endPoint, data, { headers: { 'Prefer': 'return=representation'} }).pipe(
-			tap(response => response['@odata.context']=undefined),
-			map((response: any) => {
+		return withSpinner(this._http).post(endPoint, data, { headers: { 'Prefer': 'return=representation' } }).pipe(
+			tap(response => response['@odata.context'] = undefined),
+			map((response: any) =>
+			{
 				return new MyFavoritesPointDeclined(response);
 			}),
-			catchError(error => {
-				console.log(error);
+			catchError(error =>
+			{
+				console.error(error);
 				return _throw(error);
 			})
 		);
 	}
 
-	deleteMyFavoritesPointDeclined(myFavoriteId: number, myFavoritesPointDeclinedId: number): Observable<MyFavoritesPointDeclined> {
+	deleteMyFavoritesPointDeclined(myFavoriteId: number, myFavoritesPointDeclinedId: number): Observable<MyFavoritesPointDeclined>
+	{
 		const endPoint = environment.apiUrl + `myFavoritesPointsDeclined(${myFavoritesPointDeclinedId})`;
 		return withSpinner(this._http).delete(endPoint).pipe(
-			map((response: any) => {
+			map((response: any) =>
+			{
 				let result = new MyFavoritesPointDeclined();
 				result.id = myFavoritesPointDeclinedId;
 				result.myFavoriteId = myFavoriteId;
 				return result;
 			}),
-			catchError(error => {
+			catchError(error =>
+			{
 				return _throw(error);
 			})
 		);
 	}
 
-	getMyFavoritesChoices(tree: Tree, salesChoices: JobChoice[], favoriteChoices: MyFavoritesChoice[]) : any[]
+	getMyFavoritesChoices(tree: Tree, salesChoices: JobChoice[], favoriteChoices: MyFavoritesChoice[]): any[]
 	{
 		let choices = [];
 		const treeChoices = _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices.filter(ch => ch.quantity > 0)))) || [];
-		
+
 		const newFavoriteChoices = treeChoices.filter(c => salesChoices.findIndex(sc => sc.divChoiceCatalogId === c.divChoiceCatalogId) === -1);
-		newFavoriteChoices.forEach(nc => {
+		newFavoriteChoices.forEach(nc =>
+		{
 			const existingChoice = favoriteChoices.find(fav => fav.divChoiceCatalogId === nc.divChoiceCatalogId);
 			if (existingChoice)
 			{
@@ -172,7 +180,7 @@ export class FavoriteService
 						attributes: updatedAttributes,
 						locations: updatedLocations,
 						removed: false
-					});					
+					});
 				}
 			}
 			else
@@ -190,12 +198,13 @@ export class FavoriteService
 					attributes: this.getMyFavoritesChoiceAttributes(nc, null),
 					locations: this.getMyFavoritesChoiceLocations(nc, null),
 					removed: false
-				});				
+				});
 			}
 		});
 
 		const deletedFavoriteChoices = favoriteChoices.filter(fc => newFavoriteChoices.findIndex(nc => nc.divChoiceCatalogId === fc.divChoiceCatalogId) === -1);
-		deletedFavoriteChoices.forEach(dc => {
+		deletedFavoriteChoices.forEach(dc =>
+		{
 			const labels = this.getChoiceLabels(dc, tree);
 			choices.push({
 				id: dc.id,
@@ -209,8 +218,8 @@ export class FavoriteService
 				attributes: this.getMyFavoritesChoiceAttributes(null, dc),
 				locations: this.getMyFavoritesChoiceLocations(null, dc),
 				removed: true
-			});			
-		})
+			});
+		});
 
 		return choices;
 	}
@@ -223,10 +232,11 @@ export class FavoriteService
 
 		const newAttributes = selectedAttributes
 			.filter(a => favoriteAttributes
-				.findIndex(fa => fa.attributeGroupCommunityId === a.attributeGroupCommunityId 
+				.findIndex(fa => fa.attributeGroupCommunityId === a.attributeGroupCommunityId
 					&& fa.attributeCommunityId === a.attributeCommunityId) === -1);
-		
-		newAttributes.forEach(nc => {
+
+		newAttributes.forEach(nc =>
+		{
 			attributesDto.push({
 				id: 0,
 				attributeCommunityId: nc.attributeCommunityId,
@@ -241,8 +251,9 @@ export class FavoriteService
 			.filter(fa => selectedAttributes
 				.findIndex(sa => sa.attributeGroupCommunityId === fa.attributeGroupCommunityId
 					&& sa.attributeCommunityId === fa.attributeCommunityId) === -1);
-					
-		deletedAttributes.forEach(da => {
+
+		deletedAttributes.forEach(da =>
+		{
 			attributesDto.push({
 				id: da.id,
 				attributeCommunityId: da.attributeCommunityId,
@@ -262,7 +273,8 @@ export class FavoriteService
 		const selectedLocations = this.mapLocations(choice);
 		const favoriteLocations = (favoriteChoice ? favoriteChoice.myFavoritesChoiceLocations : null) || [];
 
-		selectedLocations.forEach(loc => {
+		selectedLocations.forEach(loc =>
+		{
 			const existingLocation = favoriteLocations.find(fl => fl.locationGroupCommunityId === loc.locationGroupCommunityId && fl.locationCommunityId === loc.locationCommunityId);
 			if (existingLocation)
 			{
@@ -278,7 +290,7 @@ export class FavoriteService
 						quantity: loc.quantity,
 						attributes: locAttributesDto,
 						removed: false
-					});					
+					});
 				}
 			}
 			else
@@ -286,7 +298,8 @@ export class FavoriteService
 				let locAttributesDto = [];
 				if (loc.attributes)
 				{
-					loc.attributes.forEach(la => {
+					loc.attributes.forEach(la =>
+					{
 						locAttributesDto.push({
 							id: 0,
 							attributeCommunityId: la.attributeCommunityId,
@@ -294,8 +307,8 @@ export class FavoriteService
 							attributeName: la.attributeName,
 							attributeGroupLabel: la.attributeGroupLabel,
 							removed: false
-						})
-					})
+						});
+					});
 				}
 				locationsDto.push({
 					id: 0,
@@ -315,11 +328,13 @@ export class FavoriteService
 				.findIndex(sl => sl.locationGroupCommunityId === fl.locationGroupCommunityId
 					&& sl.locationCommunityId === fl.locationCommunityId) === -1);
 
-		deletedLocations.forEach(dl => {
+		deletedLocations.forEach(dl =>
+		{
 			let locAttributesDto = [];
 			if (dl.myFavoritesChoiceLocationAttributes)
 			{
-				dl.myFavoritesChoiceLocationAttributes.forEach(la => {
+				dl.myFavoritesChoiceLocationAttributes.forEach(la =>
+				{
 					locAttributesDto.push({
 						id: la.id,
 						attributeCommunityId: la.attributeCommunityId,
@@ -327,8 +342,8 @@ export class FavoriteService
 						attributeName: la.attributeName,
 						attributeGroupLabel: la.attributeGroupLabel,
 						removed: true
-					})
-				})
+					});
+				});
 			}
 			locationsDto.push({
 				id: dl.id,
@@ -349,10 +364,11 @@ export class FavoriteService
 	{
 		let locAttributesDto = [];
 		const existingLocAttributes = existingLocation.myFavoritesChoiceLocationAttributes || [];
-		const newLocAttributes = selectedLocation.attributes.filter(la => 
+		const newLocAttributes = selectedLocation.attributes.filter(la =>
 			existingLocAttributes.findIndex(ea => ea.attributeGroupCommunityId === la.attributeGroupCommunityId
 				&& ea.attributeCommunityId === la.attributeCommunityId) === -1);
-		newLocAttributes.forEach(att => {
+		newLocAttributes.forEach(att =>
+		{
 			locAttributesDto.push({
 				id: 0,
 				attributeCommunityId: att.attributeCommunityId,
@@ -363,10 +379,11 @@ export class FavoriteService
 			});
 		});
 
-		const deletedLocAttriutes = existingLocAttributes.filter(ea => 
+		const deletedLocAttriutes = existingLocAttributes.filter(ea =>
 			selectedLocation.attributes.findIndex(la => la.attributeGroupCommunityId === ea.attributeGroupCommunityId
 				&& la.attributeCommunityId === ea.attributeCommunityId) === -1);
-		deletedLocAttriutes.forEach(att => {
+		deletedLocAttriutes.forEach(att =>
+		{
 			locAttributesDto.push({
 				id: att.id,
 				attributeCommunityId: att.attributeCommunityId,
@@ -375,11 +392,11 @@ export class FavoriteService
 				attributeGroupLabel: att.attributeGroupLabel,
 				removed: true
 			});
-		});	
-		
+		});
+
 		return locAttributesDto;
 	}
-	
+
 	private mapAttributes(choice: Choice): Array<any>
 	{
 		const attributes: Array<any> = [];
@@ -456,7 +473,7 @@ export class FavoriteService
 		}
 
 		return locationsDto;
-	}	
+	}
 
 	private getChoiceLabels(choice: Choice | MyFavoritesChoice, tree: Tree): ChoiceExt
 	{
@@ -505,14 +522,14 @@ export class FavoriteService
 		}, null);
 	}
 
-	public deleteMyFavorite(fav: MyFavorite) : Observable<number>
+	public deleteMyFavorite(fav: MyFavorite): Observable<number>
 	{
 		const endPoint = `${environment.apiUrl}${this._batch}`;
 
 		let locAttributes = _.flatMap(fav.myFavoritesChoice, c => _.flatMap(c.myFavoritesChoiceLocations, loc => loc.myFavoritesChoiceLocationAttributes));
 		locAttributes = locAttributes ? locAttributes.filter(c => !!c) : [];
 		const batchLocationAttributes = createBatch<MyFavoritesChoiceAttribute>(locAttributes, 'id', 'myFavoritesChoiceLocationAttributes', null, true);
-		
+
 		let choiceLocations = _.flatMap(fav.myFavoritesChoice, c => c.myFavoritesChoiceLocations);
 		choiceLocations = choiceLocations ? choiceLocations.filter(c => !!c) : [];
 		const batchChoiceLocations = createBatch<MyFavoritesChoiceLocation>(choiceLocations, 'id', 'myFavoritesChoiceLocations', null, true);
@@ -526,7 +543,7 @@ export class FavoriteService
 
 		const myFavorites = [fav];
 		const batchMyFavorites = createBatch<MyFavorite>(myFavorites, 'id', 'myFavorites', null, true);
-		
+
 		const batchGuid = getNewGuid();
 		const batchBody = createBatchBody(batchGuid, [batchLocationAttributes, batchChoiceLocations, batchChoiceAttributes, batchFavoritesChoices, batchMyFavorites]);
 		const headers = new HttpHeaders(createBatchHeaders(batchGuid));
@@ -538,11 +555,11 @@ export class FavoriteService
 			}),
 			catchError(error =>
 			{
-				console.log(error);
+				console.error(error);
 
 				return _throw(error);
-			})			
-		);		
+			})
+		);
 	}
 
 	saveMyFavoritesChoicesInPreviewAndPresale(tree: Tree, favorites: MyFavorite): Observable<MyFavoritesChoice[]>
@@ -552,7 +569,8 @@ export class FavoriteService
 		const newFavoriteChoices = _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices.filter(ch => ch.quantity > 0)))) || [];
 		const favoriteChoices = (favorites ? favorites.myFavoritesChoice : []) || [];
 
-		newFavoriteChoices.forEach(nc => {
+		newFavoriteChoices.forEach(nc =>
+		{
 			const existingChoice = favoriteChoices.find(fav => fav.divChoiceCatalogId === nc.divChoiceCatalogId);
 			if (existingChoice)
 			{
@@ -568,7 +586,7 @@ export class FavoriteService
 					divChoiceCatalogId: existingChoice.divChoiceCatalogId,
 					myFavoritesChoiceAttributes: this.getMyFavoritesChoiceAttributesInPreviewAndPresale(nc, existingChoice),
 					myFavoritesChoiceLocations: this.getMyFavoritesChoiceLocationsInPreviewAndPresale(nc, existingChoice)
-				});					
+				});
 			}
 			else
 			{
@@ -585,17 +603,18 @@ export class FavoriteService
 					divChoiceCatalogId: nc.divChoiceCatalogId,
 					myFavoritesChoiceAttributes: this.getMyFavoritesChoiceAttributesInPreviewAndPresale(nc, null),
 					myFavoritesChoiceLocations: this.getMyFavoritesChoiceLocationsInPreviewAndPresale(nc, null)
-				});				
+				});
 			}
 		});
 
 		const deletedFavoriteChoices = favoriteChoices.filter(fc => newFavoriteChoices.findIndex(nc => nc.divChoiceCatalogId === fc.divChoiceCatalogId) === -1);
-		deletedFavoriteChoices.forEach(dc => {
+		deletedFavoriteChoices.forEach(dc =>
+		{
 			choices.push({
 				id: 0,
 				dpChoiceId: dc.dpChoiceId,
 				divChoiceCatalogId: dc.divChoiceCatalogId
-			})
+			});
 		});
 
 		return of(choices);
@@ -609,10 +628,11 @@ export class FavoriteService
 
 		const newAttributes = selectedAttributes
 			.filter(a => favoriteAttributes
-				.findIndex(fa => fa.attributeGroupCommunityId === a.attributeGroupCommunityId 
+				.findIndex(fa => fa.attributeGroupCommunityId === a.attributeGroupCommunityId
 					&& fa.attributeCommunityId === a.attributeCommunityId) === -1);
-		
-		newAttributes.forEach(nc => {
+
+		newAttributes.forEach(nc =>
+		{
 			attributes.push({
 				id: 0,
 				attributeCommunityId: nc.attributeCommunityId,
@@ -626,9 +646,10 @@ export class FavoriteService
 			.filter(fa => selectedAttributes
 				.findIndex(sa => sa.attributeGroupCommunityId === fa.attributeGroupCommunityId
 					&& sa.attributeCommunityId === fa.attributeCommunityId) === -1);
-					
-		deletedAttributes.forEach(da => {
-			const deletedIndex = attributes.findIndex(att => 
+
+		deletedAttributes.forEach(da =>
+		{
+			const deletedIndex = attributes.findIndex(att =>
 				att.attributeGroupCommunityId === da.attributeGroupCommunityId
 				&& att.attributeCommunityId === da.attributeCommunityId);
 			if (deletedIndex > -1)
@@ -638,7 +659,7 @@ export class FavoriteService
 		});
 
 		return attributes;
-	}	
+	}
 
 	private getMyFavoritesChoiceLocationsInPreviewAndPresale(choice: Choice, favoriteChoice: MyFavoritesChoice): Array<any>
 	{
@@ -646,7 +667,8 @@ export class FavoriteService
 		const favoriteLocations = (favoriteChoice ? favoriteChoice.myFavoritesChoiceLocations : null) || [];
 		let locations = _.cloneDeep(favoriteLocations);
 
-		selectedLocations.forEach(loc => {
+		selectedLocations.forEach(loc =>
+		{
 			let existingLocation = locations.find(fl => fl.locationGroupCommunityId === loc.locationGroupCommunityId && fl.locationCommunityId === loc.locationCommunityId);
 			if (existingLocation)
 			{
@@ -658,15 +680,16 @@ export class FavoriteService
 				let locAttributesDto = [];
 				if (loc.attributes)
 				{
-					loc.attributes.forEach(la => {
+					loc.attributes.forEach(la =>
+					{
 						locAttributesDto.push({
 							id: 0,
 							attributeCommunityId: la.attributeCommunityId,
 							attributeGroupCommunityId: la.attributeGroupCommunityId,
 							attributeName: la.attributeName,
 							attributeGroupLabel: la.attributeGroupLabel
-						});							
-					})
+						});
+					});
 				}
 
 				locations.push({
@@ -686,8 +709,9 @@ export class FavoriteService
 				.findIndex(sl => sl.locationGroupCommunityId === fl.locationGroupCommunityId
 					&& sl.locationCommunityId === fl.locationCommunityId) === -1);
 
-		deletedLocations.forEach(dl => {
-			const deletedIndex = locations.findIndex(loc => 
+		deletedLocations.forEach(dl =>
+		{
+			const deletedIndex = locations.findIndex(loc =>
 				loc.locationGroupCommunityId === dl.locationGroupCommunityId
 				&& loc.locationCommunityId === dl.locationCommunityId);
 			if (deletedIndex > -1)
@@ -703,10 +727,11 @@ export class FavoriteService
 	{
 		let locAttributes = _.cloneDeep(existingLocation.myFavoritesChoiceLocationAttributes);
 
-		const newLocAttributes = selectedLocation.attributes.filter(la => 
+		const newLocAttributes = selectedLocation.attributes.filter(la =>
 			locAttributes.findIndex(ea => ea.attributeGroupCommunityId === la.attributeGroupCommunityId
 				&& ea.attributeCommunityId === la.attributeCommunityId) === -1);
-		newLocAttributes.forEach(att => {
+		newLocAttributes.forEach(att =>
+		{
 			locAttributes.push({
 				id: 0,
 				attributeCommunityId: att.attributeCommunityId,
@@ -716,30 +741,31 @@ export class FavoriteService
 			});
 		});
 
-		const deletedLocAttriutes = locAttributes.filter(ea => 
+		const deletedLocAttriutes = locAttributes.filter(ea =>
 			selectedLocation.attributes.findIndex(la => la.attributeGroupCommunityId === ea.attributeGroupCommunityId
 				&& la.attributeCommunityId === ea.attributeCommunityId) === -1);
-		deletedLocAttriutes.forEach(att => {
-			const deletedIndex = locAttributes.findIndex(locAtt => 
+		deletedLocAttriutes.forEach(att =>
+		{
+			const deletedIndex = locAttributes.findIndex(locAtt =>
 				locAtt.attributeGroupCommunityId === att.attributeGroupCommunityId
 				&& locAtt.attributeCommunityId === att.attributeCommunityId);
 			if (deletedIndex > -1)
 			{
 				locAttributes.splice(deletedIndex, 1);
 			}
-		});	
-		
+		});
+
 		return locAttributes;
 	}
-	
-	public deleteMyFavoritesChoices(choices: MyFavoritesChoice[]) : Observable<MyFavoritesChoice[]>
+
+	public deleteMyFavoritesChoices(choices: MyFavoritesChoice[]): Observable<MyFavoritesChoice[]>
 	{
 		const endPoint = `${environment.apiUrl}${this._batch}`;
 
 		let locAttributes = _.flatMap(choices, c => _.flatMap(c.myFavoritesChoiceLocations, loc => loc.myFavoritesChoiceLocationAttributes));
 		locAttributes = locAttributes ? locAttributes.filter(c => !!c) : [];
 		const batchLocationAttributes = createBatch<MyFavoritesChoiceAttribute>(locAttributes, 'id', 'myFavoritesChoiceLocationAttributes', null, true);
-		
+
 		let choiceLocations = _.flatMap(choices, c => c.myFavoritesChoiceLocations);
 		choiceLocations = choiceLocations ? choiceLocations.filter(c => !!c) : [];
 		const batchChoiceLocations = createBatch<MyFavoritesChoiceLocation>(choiceLocations, 'id', 'myFavoritesChoiceLocations', null, true);
@@ -762,29 +788,29 @@ export class FavoriteService
 			}),
 			catchError(error =>
 			{
-				console.log(error);
+				console.error(error);
 
 				return _throw(error);
-			})			
-		);		
+			})
+		);
 	}
-	
+
 	public deleteMyFavoritesAttributes(attributes: DesignToolAttribute[], locations: DesignToolAttribute[], myFavoritesChoice: MyFavoritesChoice)
 	{
 		const endPoint = `${environment.apiUrl}${this._batch}`;
 
-		const missingLocAttributes = [ ...attributes, ...locations ];
+		const missingLocAttributes = [...attributes, ...locations];
 		let locAttributes = _.flatMap(myFavoritesChoice?.myFavoritesChoiceLocations, loc => loc.myFavoritesChoiceLocationAttributes);
-		locAttributes = locAttributes?.filter(locAtt => 
+		locAttributes = locAttributes?.filter(locAtt =>
 			!!missingLocAttributes.find(att => locAtt.attributeGroupCommunityId === att.attributeGroupId
-								&& locAtt.attributeCommunityId === att.attributeId	
-								&& !!att.locationId)
-			) || [];
+				&& locAtt.attributeCommunityId === att.attributeId
+				&& !!att.locationId)
+		) || [];
 		const batchLocationAttributes = createBatch<MyFavoritesChoiceAttribute>(locAttributes, 'id', 'myFavoritesChoiceLocationAttributes', null, true);
-		
+
 		const locationIds = locations.map(loc => loc.locationId);
 		const locationGroupIds = locations.map(loc => loc.locationGroupId);
-		let choiceLocations = myFavoritesChoice.myFavoritesChoiceLocations?.filter(loc => 
+		let choiceLocations = myFavoritesChoice.myFavoritesChoiceLocations?.filter(loc =>
 			!!locationIds.find(locId => loc.locationCommunityId === locId)
 			&& !!locationGroupIds.find(locGrpId => loc.locationGroupCommunityId === locGrpId)
 		) || [];
@@ -792,8 +818,8 @@ export class FavoriteService
 
 		let choiceAttributes = myFavoritesChoice.myFavoritesChoiceAttributes?.filter(choiceAtt =>
 			!!attributes.find(att => choiceAtt.attributeGroupCommunityId === att.attributeGroupId
-								&& choiceAtt.attributeCommunityId === att.attributeId
-								&& !att.locationId
+				&& choiceAtt.attributeCommunityId === att.attributeId
+				&& !att.locationId
 			)) || [];
 		const batchChoiceAttributes = createBatch<MyFavoritesChoiceAttribute>(choiceAttributes, 'id', 'myFavoritesChoiceAttributes', null, true);
 
@@ -808,10 +834,10 @@ export class FavoriteService
 			}),
 			catchError(error =>
 			{
-				console.log(error);
+				console.error(error);
 
 				return _throw(error);
-			})			
+			})
 		);
 	}
 

@@ -96,7 +96,7 @@ export class ChangeOrderEffects
 		return this.actions$.pipe(
 			ofType<CreateJobChangeOrders>(ChangeOrderActionTypes.CreateJobChangeOrders),
 			withLatestFrom(
-				this.store, 
+				this.store,
 				this.store.pipe(select(priceBreakdown)),
 				this.store.pipe(select(fromRoot.legacyColorScheme))
 			),
@@ -250,11 +250,12 @@ export class ChangeOrderEffects
 					const currentChangeOrder = this.changeOrderService.getCurrentChangeOrder(store.job.changeOrderGroups);
 
 					return forkJoin(
+						of(action),
 						this.changeOrderService.getLockedInChoices(store.job, store.scenario.tree, currentChangeOrder),
 						of({ store: store, currentChangeOrder: currentChangeOrder })
 					);
 				}),
-				switchMap(([lockInChoices, data]) =>
+				switchMap(([action, lockInChoices, data]) =>
 				{
 					const changeOrderId = data.currentChangeOrder?.id || 0;
 					const choices = this.changeOrderService.getOriginalChoicesAndAttributes(data.store.job, data.store.scenario.tree, data.currentChangeOrder).map(ch =>
@@ -273,7 +274,7 @@ export class ChangeOrderEffects
 						actions.push(new SetLockedInChoices(lockInChoices));
 					}
 
-					if (choices && choices.length)
+					if (choices && choices.length && action.isChangeDirty)
 					{
 						actions.push(new SelectChoices(false, ...choices));
 					}
@@ -726,7 +727,7 @@ export class ChangeOrderEffects
 		return this.actions$.pipe(
 			ofType<SavePendingJio>(ChangeOrderActionTypes.SavePendingJio),
 			withLatestFrom(
-				this.store, 
+				this.store,
 				this.store.pipe(select(priceBreakdown)),
 				this.store.pipe(select(fromRoot.legacyColorScheme))
 			),

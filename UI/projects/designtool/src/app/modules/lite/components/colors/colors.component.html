@@ -11,7 +11,7 @@
 
 						<select
 							class="phd-color-select"
-							[disabled]="cannotEditAgreement || option.isPastCutOff && !canOverride"
+							[disabled]="!canEditAgreementOrSpec || (option.isPastCutOff && !canOverride) || !canConfigure"
 							[(ngModel)]="selectedColorIds[item.colorItemId]"
 							(change)="onColorWasChanged(option, item)"
 							(click)="onColorWasClicked($event, option)"
@@ -37,4 +37,3 @@
 		</ng-container>
 	</div>
 </div>
-

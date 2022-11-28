@@ -103,6 +103,7 @@ class AgreementTemplate implements Template
 	templateTypeId: TemplateTypeEnum;
 	displayOrder: number;
 	isSelected: boolean;
+	addendumTypeId?: number;
 
 	constructor(template: Template, selectedTemplates: Array<number>)
 	{

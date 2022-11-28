@@ -12,7 +12,7 @@ export interface State
 	selectedTree?: number,
 	marketingPlanId: number[],
 	selectedPlanLoading: boolean,
-	plansLoading: boolean
+	plansLoading: boolean;
 }
 
 export const initialState: State = { plans: null, hasError: false, selectedPlan: null, marketingPlanId: [], selectedPlanLoading: false, plansLoading: false };

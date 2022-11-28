@@ -36,14 +36,17 @@ export class ScenarioEffects
 					let disabledPoints = _.flatMap(subGroups, sg => sg.points).filter(p => !p.enabled);
 					let completedDeclinePoints = [];
 					let actions = [];
-					fav.myFavoritesPointDeclined.forEach(mfpd => {
+					fav.myFavoritesPointDeclined.forEach(mfpd =>
+					{
 						let disabledDeclinedPoint = disabledPoints.find(dp => dp.divPointCatalogId === mfpd.divPointCatalogId);
-						if (disabledDeclinedPoint) {
+						if (disabledDeclinedPoint)
+						{
 							actions.push(new DeleteMyFavoritesPointDeclined(fav.id, mfpd.id));
-						} else {
+						} else
+						{
 							completedDeclinePoints.push(mfpd.divPointCatalogId);
 						}
-					})
+					});
 					actions.push(new SetStatusForPointsDeclined(completedDeclinePoints, false));
 					return from(actions);
 				}
@@ -97,7 +100,7 @@ export class ScenarioEffects
 					const salesCommunity = result[3];
 
 					return from([
-						new TreeLoaded(result[0].tree, result[0].rules, result[0].opt, result[0].optionImages, salesCommunity ),
+						new TreeLoaded(result[0].tree, result[0].rules, result[0].opt, result[0].optionImages, salesCommunity),
 						new PlansLoaded(plans),
 						new SelectPlan(plan.id, plan.treeVersionId, plan.marketingPlanId),
 						new SetWebPlanMapping(result[1]),
@@ -112,25 +115,28 @@ export class ScenarioEffects
 			ofType<LoadPresale>(ScenarioActionTypes.LoadPresale),
 			tryCatch(source => source.pipe(
 				switchMap(action =>
-					{
-						return this.orgService.getFinancialCommunityByFinancialCommunityNumber(action.financialCommunityNumber).pipe(
-							switchMap(finComm => {
-								return this.treeService.getTreeVersions(action.lawsonPlanId, finComm.id).pipe(
-									switchMap(treeVersions => {
-										if (treeVersions && treeVersions.length) {
-											return this.treeService.getTree(treeVersions[0].id).pipe(
-												combineLatest(
-													this.treeService.getRules(treeVersions[0].id),
-													this.treeService.getOptionImages(treeVersions[0].id),
-													this.treeService.getTreeBaseHouseOptions(treeVersions[0].id)
-												)
-											);
-										}
-									})
-								)
-							})
-						)
-					}),
+				{
+					return this.orgService.getFinancialCommunityByFinancialCommunityNumber(action.financialCommunityNumber).pipe(
+						switchMap(finComm =>
+						{
+							return this.treeService.getTreeVersions(action.lawsonPlanId, finComm.id).pipe(
+								switchMap(treeVersions =>
+								{
+									if (treeVersions && treeVersions.length)
+									{
+										return this.treeService.getTree(treeVersions[0].id).pipe(
+											combineLatest(
+												this.treeService.getRules(treeVersions[0].id),
+												this.treeService.getOptionImages(treeVersions[0].id),
+												this.treeService.getTreeBaseHouseOptions(treeVersions[0].id)
+											)
+										);
+									}
+								})
+							);
+						})
+					);
+				}),
 				switchMap(([tree, rules, optionImages, baseHouseOptions]) =>
 				{
 					const optionIds = baseHouseOptions.map(bho => bho.planOption.integrationKey);
@@ -159,7 +165,7 @@ export class ScenarioEffects
 					const salesCommunity = result[3];
 
 					return from([
-						new TreeLoaded(result[0].tree, result[0].rules, result[0].opt, result[0].optionImages, salesCommunity ),
+						new TreeLoaded(result[0].tree, result[0].rules, result[0].opt, result[0].optionImages, salesCommunity),
 						new PlansLoaded(plans),
 						new SelectPlan(plan.id, plan.treeVersionId, plan.marketingPlanId),
 						new SetWebPlanMapping(result[1]),
@@ -169,11 +175,12 @@ export class ScenarioEffects
 		)
 	);
 
-	pushSearchEvent$ = createEffect(() => 
+	pushSearchEvent$ = createEffect(() =>
 		this.actions$.pipe(
 			ofType<SetTreeFilter>(ScenarioActionTypes.SetTreeFilter),
 			withLatestFrom(this.store.pipe(select(fromRoot.filteredTree))),
-			tap(([action, tree]) => {
+			tap(([action, tree]) =>
+			{
 				this.adobeService.setSearchEvent(action?.treeFilter?.keyword, tree);
 			})),
 		{ dispatch: false }

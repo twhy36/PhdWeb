@@ -13,7 +13,8 @@ import * as fromRoot from '../../../ngrx-store/reducers';
 
 import * as _ from 'lodash';
 
-import {
+import
+{
 	UnsubscribeOnDestroy, ModalRef, ESignTypeEnum, ESignStatusEnum, ChangeTypeEnum, ChangeOrderGroup, Job,
 	SalesAgreement, DecisionPoint, Permission, ModalService
 } from 'phd-common';
@@ -169,32 +170,32 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 			this.changeType = changeOrder.changeInput ? changeOrder.changeInput.type : null;
 			this.changeOrderId = changeOrder.currentChangeOrder ? changeOrder.currentChangeOrder.id : 0;
 			this.errorInSavingChangeOrder = changeOrder.saveError;
-			});
+		});
 
 		combineLatest([
 			this.store.pipe(select(state => state)),
 			this.store.pipe(select(fromRoot.legacyColorScheme))
 		])
-		.pipe(
-			this.takeUntilDestroyed(),
-			map(([state, legacyColorScheme]) => state.changeOrder.isChangingOrder 
+			.pipe(
+				this.takeUntilDestroyed(),
+				map(([state, legacyColorScheme]) => state.changeOrder.isChangingOrder
 					&& !this._changeOrderService.changeOrderHasChanges(
-						state.scenario.tree, 
-						state.job, 
-						state.changeOrder.currentChangeOrder, 
-						state.changeOrder.changeInput, 
+						state.scenario.tree,
+						state.job,
+						state.changeOrder.currentChangeOrder,
+						state.changeOrder.changeInput,
 						state.salesAgreement,
 						state.scenario.rules?.optionRules)
 					&& !this.liteService.liteChangeOrderHasChanges(
 						state.lite,
-						state.job, 
-						state.changeOrder.currentChangeOrder, 
-						state.changeOrder.changeInput, 
+						state.job,
+						state.changeOrder.currentChangeOrder,
+						state.changeOrder.changeInput,
 						state.salesAgreement,
 						state.scenario.overrideReason,
 						legacyColorScheme
 					))
-		).subscribe(changeOrderIsEmpty => this.isChangeEmpty = changeOrderIsEmpty);
+			).subscribe(changeOrderIsEmpty => this.isChangeEmpty = changeOrderIsEmpty);
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
@@ -241,7 +242,8 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(fromRoot.canSell)
-		).subscribe(canSell => {
+		).subscribe(canSell =>
+		{
 			this.canSell = canSell;
 		});
 
@@ -440,7 +442,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 	async onCancelSpecOrModel(isSpec: boolean)
 	{
 		const confirmMessage = isSpec ? 'You have opted to return this spec to dirt. Confirming to do so will result in the loss of the corresponding home configuration and the lot will return to dirt.<br/><br/> Do you wish to proceed with the cancellation?'
-									  : 'You have opted to return this model to dirt. Confirming to do so will result in the loss of the corresponding home configuration and the lot will return to dirt.<br/><br/>The lot status will remain ' + this.lotStatus + '. <br/><br/>Do you wish to proceed with the cancellation?'
+			: 'You have opted to return this model to dirt. Confirming to do so will result in the loss of the corresponding home configuration and the lot will return to dirt.<br/><br/>The lot status will remain ' + this.lotStatus + '. <br/><br/>Do you wish to proceed with the cancellation?'
 		const confirmTitle = isSpec ? 'Cancel Spec' : 'Cancel Model';
 		const confirmDefaultOption = 'Continue';
 		const primaryButton = { hide: false, text: 'Yes' };
@@ -564,7 +566,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 			{
 				this.isPhdLite
 					? this.store.dispatch(new LiteActions.CancelJobChangeOrderLite())
-					: this.store.dispatch(new ChangeOrderActions.CancelJobChangeOrder());
+					: this.store.dispatch(new ChangeOrderActions.CancelJobChangeOrder(!!this.isChangeDirty));
 			}
 			else if (this.changeType === ChangeTypeEnum.PLAN)
 			{

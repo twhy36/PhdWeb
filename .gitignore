@@ -2,5 +2,6 @@
 **/packages/*
 **/$tf/
 /.vscode/launch.json
+/.vscode/settings.json
 /UI/.vscode/launch.json
 /.idea/

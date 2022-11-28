@@ -1,10 +1,8 @@
 import { Component, Input, Output, OnChanges, SimpleChanges, EventEmitter, ViewChild } from '@angular/core';
 
-import { UnsubscribeOnDestroy, flipOver3, DecisionPoint, Group, Tree, MyFavoritesPointDeclined } from 'phd-common';
+import { UnsubscribeOnDestroy, flipOver3, DecisionPoint, Group, Tree, MyFavoritesPointDeclined, ModalRef, ModalService } from 'phd-common';
 import { BlockedByItemObject } from '../../models/blocked-by.model';
 import { getDisabledByList } from '../../../shared/classes/tree.utils';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { BrandService } from '../../../core/services/brand.service';
 
 import * as _ from 'lodash';
 
@@ -32,19 +30,19 @@ export class ChoiceDeclineCardComponent extends UnsubscribeOnDestroy implements 
 
 	point: DecisionPoint;
 	isDeclined: boolean = false;
-	blockedChoiceModalRef: NgbModalRef;
+	blockedChoiceModalRef: ModalRef;
 	disabledByList: BlockedByItemObject
 		= { pointDisabledByList: null, choiceDisabledByList: null };
 	imageSrc: string = 'assets/nographicgrey-removebg-preview.png'
 
 	constructor(
-		public modalService: NgbModal,
-		private brandService: BrandService
+		public modalService: ModalService
 	) {
 		super();
 	}
 
-	ngOnChanges(changes: SimpleChanges) {
+	ngOnChanges(changes: SimpleChanges)
+	{
 		if (changes['currentPoint'])
 		{
 			this.point = changes['currentPoint'].currentValue;
@@ -52,7 +50,8 @@ export class ChoiceDeclineCardComponent extends UnsubscribeOnDestroy implements 
 		}
 	}
 
-	getBodyHeight(): string {
+	getBodyHeight(): string
+	{
 		return this.isPresale ? '260px' : '285px';
 	}
 
@@ -73,19 +72,22 @@ export class ChoiceDeclineCardComponent extends UnsubscribeOnDestroy implements 
 		}
 	}
 
-	openBlockedChoiceModal() {
+	openBlockedChoiceModal()
+	{
 		if (!this.disabledByList.choiceDisabledByList && !this.disabledByList.pointDisabledByList)
 		{
 			this.disabledByList = getDisabledByList(this.tree, this.groups, this.currentPoint, null);
 		}
-		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { windowClass: 'phd-blocked-choice-modal' });
+		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { windowClass: 'phd-blocked-choice-modal' }, true);
 	}
 
-	onCloseClicked() {
+	onCloseClicked()
+	{
 		this.blockedChoiceModalRef?.close();
 	}
 
-	onBlockedItemClick() {
+	onBlockedItemClick()
+	{
 		this.blockedChoiceModalRef?.close();
 	}
 }

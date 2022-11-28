@@ -439,6 +439,18 @@ export class ViewContractsComponent extends UnsubscribeOnDestroy implements OnIn
 		}
 	}
 
+	getPreSelected(template: ContractTemplate)
+	{
+		if(template.templateTypeId === 2 && template.addendumTypeId)
+		{
+			return template.addendumTypeId === 7 ? 'Yes' : 'No';
+		}
+		else 
+		{
+			return false;
+		}
+	}
+
 	private updateSort(itemList: ContractTemplate[], oldIndex: number, newIndex: number)
 	{
 		// Make sure list is sorted by sortOrder

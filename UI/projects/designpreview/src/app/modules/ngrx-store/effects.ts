@@ -3,8 +3,7 @@ import { Injectable } from '@angular/core';
 import { Action, Store, select } from '@ngrx/store';
 import { Actions, ofType, createEffect } from '@ngrx/effects';
 import { switchMap, map, scan, withLatestFrom, tap, filter } from 'rxjs/operators';
-import { combineLatest } from 'rxjs';
-import { Observable, of, forkJoin, from } from 'rxjs';;
+import { combineLatest, Observable, of, forkJoin, from } from 'rxjs';;
 import * as _ from 'lodash';
 import { Router } from '@angular/router';
 
@@ -19,6 +18,7 @@ import { OptionService } from '../core/services/option.service';
 import { LotService } from '../core/services/lot.service';
 import { OrganizationService } from '../core/services/organization.service';
 import { JobService } from '../core/services/job.service';
+import { PlanService } from '../core/services/plan.service';
 import { SalesAgreementService } from '../core/services/sales-agreement.service';
 import { ChangeOrderService } from '../core/services/change-order.service';
 import { FavoriteService } from '../core/services/favorite.service';
@@ -56,7 +56,8 @@ export class CommonEffects
 					const currentChangeOrder = this.changeOrderService.getCurrentChangeOrder(result.job.changeOrderGroups);
 					let changeOrderChoices: ChangeOrderChoice[] = [];
 
-					if (currentChangeOrder) {
+					if (currentChangeOrder)
+					{
 						changeOrderChoices = this.changeOrderService.getJobChangeOrderChoices([currentChangeOrder]);
 					}
 
@@ -74,12 +75,14 @@ export class CommonEffects
 						{
 							const currentChangeOrderGroup = new ChangeOrderGroup(currentChangeOrder);
 
-							if (currentChangeOrderGroup) {
+							if (currentChangeOrderGroup)
+							{
 								_.flatMap(currentChangeOrderGroup.jobChangeOrders, co => co.jobChangeOrderChoices).forEach(ch =>
 								{
 									let ch1 = choices.find(c => c.dpChoiceId === ch.dpChoiceId);
 
-									if (ch1) {
+									if (ch1)
+									{
 										ch.divChoiceCatalogId = ch1.divChoiceCatalogId;
 									}
 								});
@@ -92,22 +95,26 @@ export class CommonEffects
 							{
 								const ch1 = choices.find(c => c.dpChoiceId === ch.dpChoiceId);
 
-								if (ch1) {
+								if (ch1)
+								{
 									changedChoices.push({ ...ch, divChoiceCatalogId: ch1.divChoiceCatalogId });
 								}
-								else {
+								else
+								{
 									changedChoices.push({ ...ch });
 								}
 							});
 
 							newResult.job.jobChoices = changedChoices;
 
-							if (newResult.myFavorites) {
+							if (newResult.myFavorites)
+							{
 								_.flatMap(newResult.myFavorites, fav => fav.myFavoritesChoice).forEach(ch =>
 								{
 									let ch1 = choices.find(c => c.dpChoiceId === ch.dpChoiceId);
 
-									if (ch1) {
+									if (ch1)
+									{
 										ch.divChoiceCatalogId = ch1.divChoiceCatalogId;
 									}
 								});
@@ -116,7 +123,8 @@ export class CommonEffects
 								{
 									let ptDeclined = pointsDeclined.find(p => p.dPointId === pt.dPointId);
 
-									if (ptDeclined) {
+									if (ptDeclined)
+									{
 										pt.divPointCatalogId = ptDeclined.divPointCatalogId;
 									}
 								});
@@ -128,7 +136,8 @@ export class CommonEffects
 				}),
 				map(result =>
 				{
-					if (result.currentChangeOrderGroup) {
+					if (result.currentChangeOrderGroup)
+					{
 						//change order stuff
 						const selectedChoices = this.changeOrderService.getSelectedChoices(result.job, result.currentChangeOrderGroup);
 						const selectedHanding = this.changeOrderService.getSelectedHanding(result.job);
@@ -146,7 +155,8 @@ export class CommonEffects
 							changeOrderPlanOptions
 						};
 					}
-					else {
+					else
+					{
 						return {
 							...result,
 							changeOrderGroup: null,
@@ -160,7 +170,8 @@ export class CommonEffects
 				}),
 				switchMap(result =>
 				{
-					if (result.selectedPlanId) {
+					if (result.selectedPlanId)
+					{
 						return this.changeOrderService.getTreeVersionIdByJobPlan(result.selectedPlanId).pipe(
 							switchMap(treeVersionId =>
 							{
@@ -169,9 +180,10 @@ export class CommonEffects
 									this.treeService.getRules(treeVersionId, true),
 									this.optionService.getPlanOptions(result.selectedPlanId, null, true),
 									this.treeService.getOptionImages(treeVersionId, [], null, true),
+									this.planService.getWebPlanMappingByPlanId(result.selectedPlanId),
 									this.lotService.getLot(result.selectedLotId)
 								])).pipe(
-									map(([tree, rules, options, images, lot]) =>
+									map(([tree, rules, options, images, mappings, lot]) =>
 									{
 										return {
 											tree,
@@ -179,6 +191,7 @@ export class CommonEffects
 											options,
 											images,
 											job: result.job,
+											mappings,
 											lot,
 											sc: result.sc,
 											changeOrder: result.changeOrderGroup,
@@ -205,7 +218,8 @@ export class CommonEffects
 							})
 						);
 					}
-					else {
+					else
+					{
 						return this.lotService.getLot(result.selectedLotId).pipe(
 							map(data =>
 							{
@@ -236,21 +250,25 @@ export class CommonEffects
 					let baseHouseOption = result.job.jobPlanOptions.find(o => o.jobOptionTypeName === 'BaseHouse');
 					let selectedPlanPrice: number = 0;
 
-					if (['OutforSignature', 'Signed', 'Approved'].indexOf(result.salesAgreement.status) !== -1) {
-						if (baseHouseOption) {
+					if (['OutforSignature', 'Signed', 'Approved'].indexOf(result.salesAgreement.status) !== -1)
+					{
+						if (baseHouseOption)
+						{
 							selectedPlanPrice = baseHouseOption ? baseHouseOption.listPrice : 0;
 						}
 
-						if (result.changeOrder && result.changeOrder.salesStatusDescription !== 'Pending') {
+						if (result.changeOrder && result.changeOrder.salesStatusDescription !== 'Pending')
+						{
 							let co = result.changeOrder.jobChangeOrders.find(co => co.jobChangeOrderPlanOptions && co.jobChangeOrderPlanOptions.some(po => po.integrationKey === '00001' && po.action === 'Add'));
-							if (co) {
+							if (co)
+							{
 								selectedPlanPrice = co.jobChangeOrderPlanOptions.find(po => po.action === 'Add' && po.integrationKey === '00001').listPrice;
 							}
 						}
 					}
 
 					return <Observable<Action>>from([
-						new SalesAgreementLoaded(result.salesAgreement, result.salesAgreementInfo, result.job, result.sc, result.selectedChoices, result.selectedPlanId, result.selectedHanding, result.tree, result.rules, result.options, result.images, result.changeOrder, result.lot, result.myFavorites),
+						new SalesAgreementLoaded(result.salesAgreement, result.salesAgreementInfo, result.job, result.sc, result.selectedChoices, result.selectedPlanId, result.selectedHanding, result.tree, result.rules, result.options, result.images, result.mappings, result.changeOrder, result.lot, result.myFavorites),
 						new LoadSelectedPlan(result.selectedPlanId, selectedPlanPrice)
 					]);
 				})
@@ -268,7 +286,8 @@ export class CommonEffects
 			scan((prev, current) => ({ prev: prev.current, current: current }), { prev: false, current: false }),
 			tap((showSpinnerScan: { prev: boolean; current: boolean; }) =>
 			{
-				if (showSpinnerScan.prev !== showSpinnerScan.current) {
+				if (showSpinnerScan.prev !== showSpinnerScan.current)
+				{
 					this.spinnerService.showSpinner(showSpinnerScan.current);
 				}
 			})),
@@ -291,7 +310,8 @@ export class CommonEffects
 				//todo: implement logging for production ???
 				this.router.navigate(['error']);
 
-				if (errorScan.err) {
+				if (errorScan.err)
+				{
 					let errStack = (<ErrorAction>errorScan.err).error ?
 						((<ErrorAction>errorScan.err).error.stack ? (<ErrorAction>errorScan.err).error.stack : JSON.stringify((<ErrorAction>errorScan.err).error))
 						: '';
@@ -312,6 +332,7 @@ export class CommonEffects
 		private lotService: LotService,
 		private orgService: OrganizationService,
 		private jobService: JobService,
+		private planService: PlanService,
 		private salesAgreementService: SalesAgreementService,
 		private changeOrderService: ChangeOrderService,
 		private favoriteService: FavoriteService,

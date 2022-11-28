@@ -1,8 +1,7 @@
 import { Component, Input, Output, OnChanges, SimpleChanges, EventEmitter, ViewChild } from '@angular/core';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import * as _ from 'lodash';
 
-import { UnsubscribeOnDestroy, flipOver3, OptionImage, DecisionPoint, Group, Tree } from 'phd-common';
+import { UnsubscribeOnDestroy, flipOver3, OptionImage, DecisionPoint, Group, Tree, ModalService, ModalRef } from 'phd-common';
 import { ChoiceExt } from '../../models/choice-ext.model';
 import { BlockedByItemObject } from '../../models/blocked-by.model';
 import { getDisabledByList } from '../../../shared/classes/tree.utils';
@@ -41,15 +40,15 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnChang
 	choiceMsg: object[] = [];
 	optionImages: OptionImage[];
 	imageUrl: string = '';
-	blockedChoiceModalRef: NgbModalRef;
-	hiddenChoicePriceModalRef: NgbModalRef;
+	blockedChoiceModalRef: ModalRef;
+	hiddenChoicePriceModalRef: ModalRef;
 	disabledByList: BlockedByItemObject
 		= { pointDisabledByList: null, choiceDisabledByList: null };
 	choiceDisabledLabel: string;
 
 	constructor(
 		private store: Store<fromRoot.State>,
-		public modalService: NgbModal,
+		public modalService: ModalService,
 		private adobeService: AdobeService
 	) {
 		super();
@@ -126,13 +125,13 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnChang
 		{
 			this.disabledByList = getDisabledByList(this.tree, this.groups, this.currentPoint, this.choice);
 		}
-		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { windowClass: 'phd-blocked-choice-modal' });
+		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { windowClass: 'phd-blocked-choice-modal' }, true);
 	}
 
 	openHiddenChoicePriceModal() {
 		if (this.choice.priceHiddenFromBuyerView)
 		{
-			this.hiddenChoicePriceModalRef = this.modalService.open(this.hiddenChoicePriceModal, { windowClass: 'phd-hidden-choice-price-modal' });
+			this.hiddenChoicePriceModalRef = this.modalService.open(this.hiddenChoicePriceModal, { windowClass: 'phd-hidden-choice-price-modal' }, true);
 			this.adobeService.setAlertEvent('Pricing Varies. Pricing will be determined during your meeting with your Design Consultant.', 'Pricing Varies Alert');
 		}
 	}
