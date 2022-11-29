@@ -281,11 +281,12 @@ export interface IJobChangeOrderGroup
 
 export interface ISearchResultAgreement
 {
-	id: number,
-	salesAgreementNumber: string,
+	id: number;
+	salesAgreementNumber: string;
 	status: string;
 	jobSalesAgreementAssocs: Array<IJobSalesAgreementAssocs>;
 	isOnFinalLot: boolean;
+	isLockedIn: boolean;
 }
 
 export class SearchEntities

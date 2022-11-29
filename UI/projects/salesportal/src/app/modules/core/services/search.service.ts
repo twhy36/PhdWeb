@@ -91,7 +91,7 @@ export class SearchService
 		selectData.jobSalesAgreementAssocs = 'id';
 		selectData.planAssociations = 'isActive';
 		selectData.planCommunity = 'id,planSalesName';
-		selectData.salesAgreement = 'id, salesAgreementNumber,status';
+		selectData.salesAgreement = 'id, salesAgreementNumber,status,isLockedIn';
 		selectData.salesCommunity = 'id,name,number';
 		selectData.financialCommunity = 'id,name,number,marketId,salesCommunityId';
 		selectData.scenarios = 'id,name';

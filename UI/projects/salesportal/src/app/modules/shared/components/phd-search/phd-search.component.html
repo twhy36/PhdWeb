@@ -122,19 +122,17 @@
 				</span>
 				<span class="phd-badge" *ngIf="selectedHomesiteStatus.length > 0" (click)="edit()">
 					<span>Lot Status</span>
-					<strong>{{selectedHomesiteStatus.join(', ')}}</strong>
+					<strong>{{ selectedHomesiteStatusList }}</strong>
 				</span>
 				<span class="phd-badge" *ngIf="!optionsShown && selectedBuildTypes.length > 0" (click)="edit()">
 					<span>Build Type</span>
 					<strong>{{selectedBuildTypes.join(', ')}}</strong>
 				</span>
-				<span class="phd-badge" *ngIf="!optionsShown && selectedSalesAgreementStatus.length > 0"
-					(click)="edit()">
+				<span class="phd-badge" *ngIf="!optionsShown && selectedSalesAgreementStatus.length > 0" (click)="edit()">
 					<span>Agreement Status</span>
-					<span>{{ selectedSalesAgreementStatus.join(', ') }}</span>
+					<strong>{{ selectedSalesAgreementStatusList }}</strong>
 				</span>
-				<span class="phd-badge" *ngIf="searchActiveOnly"
-					(click)="edit('searchActiveOnly')">
+				<span class="phd-badge" *ngIf="searchActiveOnly" (click)="edit('searchActiveOnly')">
 					<span>Pending CO</span>
 				</span>
 			</section>
@@ -148,11 +146,10 @@
 		<div class="px-4 justify-content-center phd-search-results bg-white" *ngIf="searchResults">
 			<div class="d-flex phd-search-results-holder">
 
-				<phd-table #dt [value]="searchResults" tableId="searchResults" sortMode="single"
-					[noRecordsMessage]="filterSpecs ? NO_RECORDS_MESSAGES.SPECS : NO_RECORDS_MESSAGES.SEARCH"
-					[nonOverflow]="false">
+				<phd-table #dt [value]="searchResults" tableId="searchResults" sortMode="single" [noRecordsMessage]="filterSpecs ? NO_RECORDS_MESSAGES.SPECS : NO_RECORDS_MESSAGES.SEARCH" [nonOverflow]="false">
 					<!--Homesite #-->
 					<phd-column field="homesiteNumber" header="Lot #"></phd-column>
+
 					<!--Address (street 1, 2, unit #, city, state, country, postal code)-->
 					<phd-column field="streetAddress1" header="Street Address" canSort="true">
 						<ng-template #body let-lot>
@@ -171,8 +168,10 @@
 							<div class="phd-zip" *ngIf="lot.postalCode">{{lot.postalCode}}</div>
 						</ng-template>
 					</phd-column>
+
 					<!--Buyers-->
 					<phd-column field="buyerString" header="Buyers"></phd-column>
+
 					<!--build type-->
 					<phd-column field="buildType" header="Build Type">
 						<ng-template #body let-lot>
@@ -185,23 +184,29 @@
 							</ng-template>
 						</ng-template>
 					</phd-column>
+
 					<!--Premium (cost)-->
 					<phd-column header="Premium" field="premium">
 						<ng-template #body let-lot>
 							{{lot.premium | currency:'USD':'symbol':'0.0-0'}}
 						</ng-template>
 					</phd-column>
+
 					<!--Homesite/Lot type-->
 					<phd-column field="homesiteType" header="Lot Type"></phd-column>
+
 					<phd-column field="lotStatusDescription" header="Lot Status"></phd-column>
+
 					<!--Plans available with lot-->
 					<phd-column header="Plans">
 						<ng-template #body let-lot>
 							<div *ngFor="let plan of lot.plans" [attr.title]="plan.name">{{plan.name}}</div>
 						</ng-template>
 					</phd-column>
+
 					<!--Financial Community-->
 					<phd-column field="financialCommunity" header="Financial Community" [canSort]="false"></phd-column>
+
 					<!--Scenarios/Configuartions-->
 					<phd-column header="Pre-Sale Configurations">
 						<ng-template #body let-lot>
@@ -213,29 +218,27 @@
 							</div>
 						</ng-template>
 					</phd-column>
+
 					<!--Every sales agreement within every change order group within one of the lot's jobs *whew* -->
 					<phd-column header="Agreements">
 						<ng-template #body let-lot>
 							<!--If sold in Home Selections-->
-							<em
-								*ngIf="lot.lotStatusDescription === 'Sold' && !!!lot.salesAgreements.length">{{SOLD_IN_HOMES}}</em>
+							<em	*ngIf="lot.lotStatusDescription === 'Sold' && !!!lot.salesAgreements.length">{{SOLD_IN_HOMES}}</em>
 
 							<!--Otherwise loop through sales agreements if any-->
 							<div *ngFor="let agreement of lot.salesAgreements">
-								<a href="{{getSalesAgreementLink(agreement)}}" target="_blank"
-									*ngIf="agreement && agreement.salesAgreementNumber && agreement.isOnFinalLot"
-									[attr.title]="agreement.salesAgreementNumber">
-									{{agreement.salesAgreementNumber}} - {{agreement.status}}
+								<a href="{{getSalesAgreementLink(agreement)}}" target="_blank" *ngIf="agreement && agreement.salesAgreementNumber && agreement.isOnFinalLot" [attr.title]="agreement.salesAgreementNumber">
+									{{agreement.salesAgreementNumber}} - {{ agreement.isLockedIn ? 'Ready to Close' : agreement.status }}
 								</a>
 							</div>
 						</ng-template>
 					</phd-column>
+
 					<phd-column header="Active Change Order">
 						<ng-template #body let-lot>
 							<!--If sold in Home Selections-->
 							<span *ngIf="lot.activeChangeOrderText" class="phd-active-change-order">
-								<a href="{{getChangeOrderLink(lot)}}" target="_blank"
-									[attr.title]="lot.activeChangeOrderText">{{lot.activeChangeOrderText}}</a>
+								<a href="{{getChangeOrderLink(lot)}}" target="_blank" [attr.title]="lot.activeChangeOrderText">{{lot.activeChangeOrderText}}</a>
 							</span>
 						</ng-template>
 					</phd-column>
