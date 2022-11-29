@@ -313,6 +313,7 @@ export function concatColorSku(color: string, sku: string): string
 }
 
 export function getLiteChangeOrderGroupSelections(
+	scenarioOptions: ScenarioOption[],
 	jobChangeOrderPlanOptions: ChangeOrderPlanOption[],
 	baseHouseOptions: { selectedBaseHouseOptions: LitePlanOption[], baseHouseCategory: IOptionCategory },
 	options: LitePlanOption[],
@@ -423,14 +424,17 @@ export function getLiteChangeOrderGroupSelections(
 	if (selectedBaseHouseOptions?.length)
 	{
 		let baseHousePoints: SDPoint[] = [];
-		selectedBaseHouseChangeOrderOptions?.forEach(baseHouseOption =>
+		selectedBaseHouseOptions?.forEach(baseHouseOption =>
 		{
-			const option = options.find(option => option.id === baseHouseOption.planOptionId);
+			const option = options.find(option => option.id === baseHouseOption.id);
+			const selectedOption = scenarioOptions.find(option => option.edhPlanOptionId === baseHouseOption.id);
+			const changeOrderPlanOption = selectedBaseHouseChangeOrderOptions.find(option => option.planOptionId === baseHouseOption.id);
 
-			if (option)
+			// Add the option to the payload only when it is in the change order
+			if (option && selectedOption && changeOrderPlanOption)
 			{
 				const category = categories?.find(category => category.id === option.optionCategoryId);
-				const optionChoice = createLiteSDChoice(option.name, option.id, option.description, option.listPrice, baseHouseOption.qty, buildLiteOptionColors(option, baseHouseOption));
+				const optionChoice = createLiteSDChoice(option.name, option.id, option.description, option.listPrice, selectedOption.planOptionQuantity, buildLiteOptionColors(option, selectedOption));
 
 				let optionPoint = createLiteSDPoint(option.financialOptionIntegrationKey, [optionChoice]);
 				optionPoint.groupName = category?.name;
@@ -440,8 +444,11 @@ export function getLiteChangeOrderGroupSelections(
 			}
 		});
 
-		baseHousePoints.sort((a, b) => a.groupName.localeCompare(b.groupName));
-		sDPoints = sDPoints.concat(baseHousePoints);
+		if (baseHousePoints.length)
+		{
+			baseHousePoints.sort((a, b) => a.groupName.localeCompare(b.groupName));
+			sDPoints = sDPoints.concat(baseHousePoints);			
+		}
 	}
 
 	return sDPoints;

@@ -892,6 +892,7 @@ export class ContractService
 						case 'Handing':
 							let constructionChangeOrderSelections = store.lite.isPhdLite
 								? getLiteChangeOrderGroupSelections(
+									store.lite.scenarioOptions,
 									changeOrder.jobChangeOrderPlanOptions,
 									liteBaseHouseOptions,
 									store.lite.options,
