@@ -15,11 +15,15 @@
 			<span class="align-self-center">My Favorites</span>
 		</div>
 		<div *ngIf="!isPreview && !hideContractedToggle && !isPresale" class="d-flex phd-contracted-options">
-			<div [ngClass]="{'phd-clickable' : !isContractedOptionsDisabled }"> 
-				<span class="phd-icon-selected"><i *ngIf="includeContractedOptions" class="fa fa-check-square fa-2x" (click)="toggleContractedOptions()"></i></span>
-				<div *ngIf="!includeContractedOptions" class="phd-empty-checkbox" [ngClass]="{'phd-disabled-checkbox' : isContractedOptionsDisabled }" (click)="toggleContractedOptions()"></div>
+			<div [ngClass]="{'phd-clickable' : !isContractedOptionsDisabled }">
+				<button 
+					class="btn btn-sm btn-toggle btn-auto-approval"
+					[ngClass]="{'active': includeContractedOptions, 'phd-toggle-on': includeContractedOptions, 'phd-toggle-off': !includeContractedOptions }"
+					(click)="toggleContractedOptions()">
+						<div class="handle"></div>
+				</button>
 			</div>
-			<span class="phd-contracted-options-label">Display Contracted Options</span>
+			<span class="phd-contracted-options-label">Display My Contracted Options</span>
 		</div>
 	</div>
 
