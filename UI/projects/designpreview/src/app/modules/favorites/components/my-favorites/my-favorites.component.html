@@ -74,7 +74,7 @@
 	</ng-container>
 </div>
 
-<action-bar [primaryAction]="showDetails ? 'Back' : 'Next'"
+<action-bar [primaryAction]="showDetails ? 'Back' : 'Next: ' + (nextSubGroup ? nextSubGroup.label : 'MY FAVORITES')"
 			[price]="priceBreakdown?.totalPrice"
 			[favoritesPrice]="priceBreakdown?.favoritesPrice"
 			[includeContractedOptions]="includeContractedOptions"
@@ -82,6 +82,7 @@
 			[isPreview]="isPreview"
 			[isPresale]="isPresale"
 			[hideContractedToggle]="showDetails"
+			[isFixedWidth]="nextSubGroup && nextSubGroup.label.length > 0"		
 			(callToAction)="showDetails ? hideDetails() : onNextClicked()"
 			(onToggleContractedOptions)="toggleContractedOptions()">
 </action-bar>

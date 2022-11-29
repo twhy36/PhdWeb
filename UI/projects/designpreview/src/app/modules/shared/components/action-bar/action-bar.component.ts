@@ -1,4 +1,4 @@
-import { Component, Input, Output, OnInit, ChangeDetectorRef, EventEmitter } from '@angular/core';
+import { Component, Input, Output, OnInit, ChangeDetectorRef, EventEmitter, ViewChild, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { UnsubscribeOnDestroy } from 'phd-common';
@@ -15,7 +15,7 @@ import { ActionBarCallType } from '../../classes/constants.class';
 	styleUrls: ['action-bar.component.scss']
 })
 
-export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit
+export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit 
 {
 	@Input() scrollListener: any = window;
 	@Input() primaryAction: string;
@@ -28,10 +28,13 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit
 	@Input() isPreview: boolean = false;
 	@Input() isPresale: boolean = false;
 	@Input() hideContractedToggle: boolean = false;
+	@Input() isFixedWidth: boolean = false;
 
 	@Output() callToAction = new EventEmitter<{ actionBarCallType: ActionBarCallType }>();
 	@Output() onPrintAction = new EventEmitter();
 	@Output() onToggleContractedOptions = new EventEmitter();
+
+	@ViewChild('btnActionBar') button: ElementRef;
 
 	autoHideTimer: any;
 	isActionBarHidden = false;
@@ -42,7 +45,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit
 	previousTopPosition = 0;
 	favoritesListIcon = '';
 
-	get isContractedOptionsDisabled() : boolean
+	get isContractedOptionsDisabled(): boolean
 	{
 		return this.isPreview || this.isDesignComplete;
 	}
@@ -54,26 +57,31 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit
 		private brandService: BrandService
 	) { super(); }
 
-	ngOnInit(){ 
+	ngOnInit()
+	{
 		this.favoritesListIcon = this.brandService.getBrandImage('favorites_list');
 	}
 
-	animateHeaderTransition(pageY) {
+	animateHeaderTransition(pageY)
+	{
 		this.currentTopPosition = pageY;
 
-		if (this.previousTopPosition - this.currentTopPosition > this.scrollDelta) {
+		if (this.previousTopPosition - this.currentTopPosition > this.scrollDelta)
+		{
 			this.isActionBarHidden = false;
 
 			this.cd.detectChanges();
 		}
-		else if (this.currentTopPosition - this.previousTopPosition > this.scrollDelta) {
+		else if (this.currentTopPosition - this.previousTopPosition > this.scrollDelta)
+		{
 			this.isActionBarHidden = true;
 
 			this.cd.detectChanges();
 
 			clearTimeout(this.autoHideTimer);
 
-			this.autoHideTimer = setTimeout(() => {
+			this.autoHideTimer = setTimeout(() =>
+			{
 				this.isActionBarHidden = false;
 
 				this.cd.detectChanges();
@@ -84,38 +92,58 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit
 		this.scrolling = false;
 	}
 
-	toggleContractedOptions() {
-		if (!this.isContractedOptionsDisabled) {
+	toggleContractedOptions()
+	{
+		if (!this.isContractedOptionsDisabled)
+		{
 			this.onToggleContractedOptions.emit();
 		}
 	}
 
-	onPrimaryCallToActionClick() {
+	onPrimaryCallToActionClick()
+	{
 		this.callToAction.emit({ actionBarCallType: ActionBarCallType.PRIMARY_CALL_TO_ACTION });
 	}
 
-	onHomePage() {
+	onHomePage()
+	{
 		this.store.dispatch(new ScenarioActions.SetTreeFilter(null));
-		if (this.isPresale) {
-			this.router.navigateByUrl('/presale');	
-		} else if (this.isPreview) {
+		if (this.isPresale)
+		{
+			this.router.navigateByUrl('/presale');
+		} else if (this.isPreview)
+		{
 			this.router.navigateByUrl('/preview');
-		} else {
+		} else
+		{
 			this.router.navigateByUrl('/home');
 		}
 	}
 
 	onPrint() 
 	{
-		if (this.isPresale) {
+		if (this.isPresale)
+		{
 			window.print();
-		} else {
+		} else
+		{
 			this.onPrintAction?.emit();
 		}
 	}
 
-	onViewFavorites() {
+	onViewFavorites()
+	{
 		this.store.dispatch(new ScenarioActions.SetTreeFilter(null));
 		this.router.navigateByUrl('/favorites/summary');
+	}
+
+	isEllipsisActive()
+	{
+		if (this.button && this.button.nativeElement)
+		{
+			return (this.button.nativeElement.offsetWidth < this.button.nativeElement.scrollWidth);
+		}
+
+		return false;
 	}
 }

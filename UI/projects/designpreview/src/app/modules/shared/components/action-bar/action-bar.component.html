@@ -42,6 +42,6 @@
 		</div>
 	</ng-container>
 	<div *ngIf="primaryAction">
-		<button class="btn btn-lg phd-action-bar-action-btn" (click)="onPrimaryCallToActionClick()">{{primaryAction}}</button>
+		<button #btnActionBar title="{{isEllipsisActive() ? primaryAction : null}}" [class.phd-btn-fixed-width]="isFixedWidth" class="btn btn-lg phd-action-bar-action-btn" (click)="onPrimaryCallToActionClick()">{{primaryAction}}</button>
 	</div>
 </div>

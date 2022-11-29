@@ -89,6 +89,13 @@
 		min-width: 120px;
 		margin: 0px 10px 0px 20px;
 	}
+	
+	.phd-btn-fixed-width{
+		width: 210px;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
 
 	.phd-price-label {
 		font-size: 14px;
