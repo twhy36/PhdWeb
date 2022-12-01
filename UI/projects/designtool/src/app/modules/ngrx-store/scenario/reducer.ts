@@ -56,7 +56,6 @@ RehydrateMap.onRehydrate<State>('scenario', state => { return { ...state, saving
 export function reducer(state: State = initialState, action: ScenarioActions): State
 {
 	let newTree: Tree;
-	let group: Group;
 	let subGroup: SubGroup;
 	let point: DecisionPoint;
 	let choices: Choice[];
@@ -104,6 +103,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 			if (action.type === CommonActionTypes.JobLoaded && !state.scenario)
 			{
 				const jobType = action.job.jobTypeName === 'Model' ? 'model' : 'spec';
+
 				newState = { ...newState, buildMode: jobType, scenario: { opportunityId: jobType, scenarioName: jobType, scenarioChoices: [], treeVersionId: 0, planId: 0, lotId: 0, handing: null, viewedDecisionPoints: [], scenarioInfo: null, scenarioOptions: [] }, enabledPointFilters: [], selectedPointFilter: DecisionPointFilterType.FULL };
 			}
 
@@ -406,7 +406,6 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 			newTree = _.cloneDeep(action.tree);
 			rules = _.cloneDeep(state.rules);
 			options = _.cloneDeep(state.options);
-			timeOfSaleOptionPrices = _.cloneDeep(state.timeOfSaleOptionPrices);
 
 			if (newTree)
 			{
@@ -524,17 +523,20 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 		case ScenarioActionTypes.SetLockedInChoices:
 			{
 				newTree = _.cloneDeep(state.tree);
+
 				let newChoices = _.flatMap(newTree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)));
 
 				for (let choice of action.choices)
 				{
 					let newChoice = newChoices.find(x => x.divChoiceCatalogId === choice.divChoiceCatalogId);
+
 					if (newChoice)
 					{
 						newChoice.lockedInChoice = choice.lockedInChoice;
 						newChoice.lockedInOptions = choice.lockedInOptions;
 					}
 				}
+
 				return { ...state, tree: newTree };
 			}
 		default:

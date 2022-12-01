@@ -261,7 +261,6 @@ export class ContractEffects
 
 					if (templates.length)
 					{
-						const marketId = store.org.salesCommunity.market.id;
 						const financialCommunityId = store.job.financialCommunityId;
 						const primBuyer = isSpecSalePending && store.changeOrder.changeInput.buyers ? store.changeOrder.changeInput.buyers.find(b => b.isPrimaryBuyer) : store.salesAgreement.buyers.find(b => b.isPrimaryBuyer);
 						const primaryBuyer = primBuyer ? primBuyer.opportunityContactAssoc.contact : new Contact();
@@ -292,7 +291,7 @@ export class ContractEffects
 							email: customerEmail ? isNull(customerEmail.email.emailAddress, '') : '',
 							address: customerAddress && customerAddress.address ? isNull(customerAddress.address.address1, '').trim() + ' ' + isNull(customerAddress.address.address2, '').trim() + ',' : '',
 							cityStateZip: customerAddress && customerAddress.address ? `${isNull(customerAddress.address.city, '').trim()}, ${isNull(customerAddress.address.stateProvince, '').trim()} ${isNull(customerAddress.address.postalCode, '').trim()}` : ''
-						}
+						};
 
 						let jobAgreementHeaderInfo = {
 							agreementNumber: store.salesAgreement.salesAgreementNumber,

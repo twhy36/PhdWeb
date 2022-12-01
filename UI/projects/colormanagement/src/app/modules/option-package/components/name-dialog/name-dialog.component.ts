@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Output, TemplateRef, ViewChild } from '@angular/core';
-import { FormControl, Validators, FormGroup, FormBuilder, FormControlStatus } from '@angular/forms';
+import { FormControl, Validators, FormGroup, FormBuilder } from '@angular/forms';
 import _ from 'lodash';
 import { ConfirmModalComponent, ModalRef, ModalService } from 'phd-common';
 import { from, Observable, throwError } from 'rxjs';
@@ -14,7 +14,8 @@ import { IOptionPackage } from '../../../shared/models/optionpackage.model';
 	templateUrl: './name-dialog.component.html',
 	styleUrls: ['./name-dialog.component.scss']
 })
-export class NameDialogComponent {
+export class NameDialogComponent
+{
 	optionPackage: IOptionPackage;
 	modalRef: ModalRef;
 
@@ -54,7 +55,7 @@ export class NameDialogComponent {
 		private modalService: ModalService,
 		private formBuilder: FormBuilder,
 		private optionPackageService: OptionPackageService
-	) {}
+	) { }
 
 	add(currentFinancialCommunityId: number): void
 	{
@@ -66,16 +67,20 @@ export class NameDialogComponent {
 			presentationOrder: 1,
 			isCommon: 0,
 			dragPlaceholder: undefined
-			
+
 		};
+
 		this.form.reset();
+
 		this.modalRef = this.modalService.open(this.content);
 	}
 
 	edit(optionPackage: IOptionPackage): void
 	{
 		this.optionPackage = _.clone(optionPackage);
+
 		this.name.setValue(this.optionPackage.name);
+
 		this.modalRef = this.modalService.open(this.content);
 	}
 
@@ -87,6 +92,7 @@ export class NameDialogComponent {
 		}
 
 		this.optionPackage.name = this.name.value;
+
 		const validate$ = UniqueOptionNameValidatorService.validate(this.optionPackageService, this.name, this.optionPackage.edhFinancialCommunityId);
 		const save$ = this.mode === 'add'
 			? this.optionPackageService.saveOptionPackage(this.optionPackage)
@@ -99,11 +105,14 @@ export class NameDialogComponent {
 			)
 		)
 		.subscribe({
-			next: () => {
+			next: () =>
+			{
 				this.change.emit(this.optionPackage);
+
 				this.modalRef.close();
 			},
-			error: (error) => {
+			error: (error) =>
+			{
 				this.name.setErrors(typeof error === 'string' ? { servererror: true } : error);
 			}
 		});
@@ -111,7 +120,8 @@ export class NameDialogComponent {
 
 	cancel() 
 	{
-		if (this.form.dirty && this.form.valid) {
+		if (this.form.dirty && this.form.valid)
+		{
 			this.showConfirmModal('Do you want to cancel without saving? If so, the data entered will be lost.')
 				.pipe(filter((result) => result === true))
 				.subscribe({

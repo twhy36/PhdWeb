@@ -92,12 +92,14 @@ export class TreeService
 				modPoints.map(x =>
 				{
 					let point = finalPoints.find(p => p.divPointCatalogId === x.divPointCatalogId);
+
 					if (point)
 					{
 						point.cutOffDays = x.cutOffDays;
 						point.isHiddenFromBuyerView = x.isHiddenFromBuyerView;
 					}
 				});
+
 				return new Tree(response[1]);
 			}),
 			catchError(error =>
@@ -153,6 +155,7 @@ export class TreeService
 					response['value'].map(x =>
 					{
 						let point = points.find(p => p.divPointCatalogId === x.divDpointCatalogID);
+
 						if (point)
 						{
 							point.cutOffDays = x.cutOffDays;
@@ -219,6 +222,7 @@ export class TreeService
 						response['body']['value'].map(x =>
 						{
 							let choice = choices.find(p => p.divChoiceCatalogId === x.divChoiceCatalogID);
+
 							if (choice)
 							{
 								choice.isHiddenFromBuyerView = x.isHiddenFromBuyerView;
@@ -227,6 +231,7 @@ export class TreeService
 						});
 					})
 				}
+
 				return tree;
 			})
 		)
@@ -316,14 +321,17 @@ export class TreeService
 			map((response: any) =>
 			{
 				let newPointsDeclined: MyFavoritesPointDeclined[] = [];
+
 				pointsDeclined.forEach(p =>
 				{
 					const respPoint = response.value.find(r => r.dPointID === p.dPointId);
+
 					if (respPoint)
 					{
 						newPointsDeclined.push({ ...p, divPointCatalogId: respPoint.divDPointCatalogID });
 					}
 				});
+
 				return newPointsDeclined;
 			})
 		)
@@ -376,6 +384,7 @@ export class TreeService
 						}
 					});
 				}
+
 				return updatedChoices;
 			})
 		);
@@ -451,6 +460,7 @@ export class TreeService
 				})
 			);
 		}
+
 		return of(null);
 	}
 
@@ -501,10 +511,8 @@ export class TreeService
 
 			return `${environment.apiUrl}optionRules?${encodeURIComponent('$')}expand=${expand}&${encodeURIComponent('$')}filter=${filter}`;
 		}
-		
 
 		const batchSize = 1;
-		let batchBundles: string[] = [];
 
 		const chunk = 100;
 		const splitArrayresult = options.reduce((resultArray, item, index) =>
@@ -523,9 +531,11 @@ export class TreeService
 
 		return from(splitArrayresult).pipe(
 
-			mergeMap(item => {
+			mergeMap(item =>
+			{
 
 				let batchBundles: string[] = [];
+
 				for (var x = 0; x < item.length; x = x + batchSize)
 				{
 					let optionList = item.slice(x, x + batchSize);
@@ -534,7 +544,8 @@ export class TreeService
 				}
 
 				return this.identityService.token.pipe(
-					switchMap((token: string) => {
+					switchMap((token: string) =>
+					{
 						let requests = batchBundles.map(req => createBatchGet(req));
 
 						let guid = newGuid();
@@ -547,23 +558,27 @@ export class TreeService
 			}),
 
 			toArray<any>(),
-			map(responses => {
+			map(responses =>
+			{
 				let bodyValue: any[] = _.flatMap(responses, (response: any) => response.responses.filter(r => r.body?.value?.length > 0).map(r => r.body.value));
 				//logic here to recombine results	
 				let optionRules = _.flatten(bodyValue);
 
 				let mappings: { [optionNumber: string]: OptionRule } = {};
 
-				options.forEach(opt => {
+				options.forEach(opt =>
+				{
 					let res = optionRules.find(or => or.planOption.integrationKey === opt.optionNumber && or.dpChoice_OptionRuleAssoc.some(r => r.dpChoiceID === opt.dpChoiceId));
 
 					mappings[opt.optionNumber] = !!res ? <OptionRule>
 						{
-							optionId: opt.optionNumber, choices: res.dpChoice_OptionRuleAssoc.sort(sortChoices).map(c => {
+							optionId: opt.optionNumber, choices: res.dpChoice_OptionRuleAssoc.sort(sortChoices).map(c =>
+							{
 								return {
 									id: c.dpChoice.divChoiceCatalogID,
 									mustHave: c.mustHave,
-									attributeReassignments: c.attributeReassignments.map(ar => {
+									attributeReassignments: c.attributeReassignments.map(ar =>
+									{
 										return {
 											id: ar.attributeReassignmentID,
 											choiceId: ar.todpChoiceID,
@@ -599,5 +614,4 @@ export class TreeService
 			})
 		);
 	}
-
 }

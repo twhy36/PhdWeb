@@ -3,9 +3,9 @@ import * as _ from 'lodash';
 
 import { ScenarioOption, ScenarioOptionColor } from 'phd-common'
 import
-	{
-		LitePlanOption, Elevation, IOptionCategory, LiteMonotonyRule, LitePlanOptionUI, IOptionSubCategory
-	} from '../../shared/models/lite.model';
+{
+	LitePlanOption, Elevation, IOptionCategory, LiteMonotonyRule, LitePlanOptionUI, IOptionSubCategory
+} from '../../shared/models/lite.model';
 
 import { LiteActions, LiteActionTypes } from './actions';
 import { IFeatureSwitchOrgAssoc } from 'phd-common';
@@ -46,9 +46,9 @@ export function reducer(state: State = initialState, action: LiteActions): State
 	{
 		case LiteActionTypes.SetIsPhdLite:
 			return { ...state, isPhdLite: action.isPhdLite };
-		
+
 		case LiteActionTypes.SetIsPhdLiteByFinancialCommunity:
-			return { ...state, isPhdLiteByFinancialCommunity: action.isPhdLiteByFinancialCommunity }
+			return { ...state, isPhdLiteByFinancialCommunity: action.isPhdLiteByFinancialCommunity };
 
 		case LiteActionTypes.LiteOptionsLoaded:
 			return { ...state, options: action.options, scenarioOptions: action.scenarioOptions };
@@ -60,6 +60,7 @@ export function reducer(state: State = initialState, action: LiteActions): State
 				action.scenarioOptions?.forEach(opt =>
 				{
 					const optionIndex = newOptions.findIndex(newOpt => newOpt.edhPlanOptionId === opt.edhPlanOptionId);
+
 					if (optionIndex > -1)
 					{
 						if (opt.planOptionQuantity === 0)
@@ -82,12 +83,13 @@ export function reducer(state: State = initialState, action: LiteActions): State
 					action.optionColors.forEach(color =>
 					{
 						let scenarioOption = newOptions.find(opt => opt.edhPlanOptionId === color.edhPlanOptionId);
+
 						if (scenarioOption)
 						{
 							const optionColorIndex = scenarioOption.scenarioOptionColors
 								? scenarioOption.scenarioOptionColors.findIndex(c => c.colorItemId === color.colorItemId && c.colorId === color.colorId)
 								: -1;
-	
+
 							if (optionColorIndex >= 0 && color.isDeleted)
 							{
 								scenarioOption.scenarioOptionColors.splice(optionColorIndex, 1);
@@ -98,18 +100,18 @@ export function reducer(state: State = initialState, action: LiteActions): State
 								{
 									scenarioOption.scenarioOptionColors = [];
 								}
-	
+
 								scenarioOption.scenarioOptionColors.push({
 									scenarioOptionColorId: color.scenarioOptionColorId,
 									scenarioOptionId: color.scenarioOptionId,
 									colorItemId: color.colorItemId,
 									colorId: color.colorId,
-								})
+								});
 							}
 						}
-					});				
+					});
 				}
-				
+
 				return { ...state, scenarioOptions: newOptions, isUnsaved: true };
 			}
 
@@ -120,6 +122,7 @@ export function reducer(state: State = initialState, action: LiteActions): State
 				action.optionColors.forEach(color =>
 				{
 					let scenarioOption = newOptions.find(opt => opt.edhPlanOptionId === color.edhPlanOptionId);
+
 					if (scenarioOption)
 					{
 						const optionColorIndex = scenarioOption.scenarioOptionColors
@@ -142,7 +145,7 @@ export function reducer(state: State = initialState, action: LiteActions): State
 								scenarioOptionId: color.scenarioOptionId,
 								colorItemId: color.colorItemId,
 								colorId: color.colorId,
-							})
+							});
 						}
 					}
 				});
@@ -185,6 +188,7 @@ export const elevationOptions = createSelector(
 	(state) =>
 	{
 		const elevations = state?.options?.filter(option => option.optionSubCategoryId === Elevation.Detached || option.optionSubCategoryId === Elevation.Attached) || [];
+
 		return _.sortBy(elevations, 'name');
 	});
 
@@ -207,9 +211,11 @@ export const selectedColorScheme = createSelector(
 		if (elevation)
 		{
 			const scenarioOption = state.scenarioOptions?.find(opt => opt.edhPlanOptionId === elevation.id);
+
 			if (scenarioOption?.scenarioOptionColors?.length)
 			{
 				const optionColor = scenarioOption.scenarioOptionColors[0];
+
 				if (elevation.colorItems.some(ci => ci.colorItemId === optionColor.colorItemId && ci.color.some(cl => cl.colorId === optionColor.colorId)))
 				{
 					// Color scheme is selected when it is in scenario option color and the color item id and the color id exist in the selected elevation
@@ -272,9 +278,9 @@ export const areColorSelectionsValid = createSelector(
 				{
 					ci.color = ci.color
 						.filter(c => c.isActive)
-						.sort((c1, c2) => c1.name > c2.name ? 1 : -1)
-				})
-			})
+						.sort((c1, c2) => c1.name > c2.name ? 1 : -1);
+				});
+			});
 		});
 
 		let subcategories: IOptionSubCategory[] = [];

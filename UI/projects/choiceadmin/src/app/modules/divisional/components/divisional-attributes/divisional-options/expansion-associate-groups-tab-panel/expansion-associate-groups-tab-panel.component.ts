@@ -80,6 +80,7 @@ export class ExpansionAssociateGroupsTabPanelComponent implements OnInit
 		{
 			this.selectedLocations = [];
 			selectedGroups = this.selectedLocations;
+
 			group = group as LocationGroupMarket;
 		}
 
@@ -92,7 +93,6 @@ export class ExpansionAssociateGroupsTabPanelComponent implements OnInit
 		else if (!isSelected && index >= 0)
 		{
 			selectedGroups.splice(index, 1);
-			selectedGroups = [...selectedGroups];
 		}
 
 		this.canAssociate = !isEqual(this.selectedAttributes, this.origSelectedAttributes) || !isEqual(this.selectedLocations, this.origSelectedLocations);

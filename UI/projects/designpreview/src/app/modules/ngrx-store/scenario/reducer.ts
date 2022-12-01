@@ -3,11 +3,11 @@ import { createSelector, createFeatureSelector } from '@ngrx/store';
 import * as _ from 'lodash';
 
 import
-	{
-		applyRules, getMaxSortOrderChoice, findChoice, findPoint, selectChoice,
-		DesignToolAttribute, SalesCommunity, PlanOption, TreeVersionRules, Scenario, TreeFilter,
-		Tree, Choice, Group, SubGroup, DecisionPoint, PickType, setPointStatus, setSubgroupStatus, setGroupStatus, PointStatus, FloorPlanImage
-	} from 'phd-common';
+{
+	applyRules, getMaxSortOrderChoice, findChoice, findPoint, selectChoice,
+	DesignToolAttribute, SalesCommunity, PlanOption, TreeVersionRules, Scenario, TreeFilter,
+	Tree, Choice, Group, SubGroup, DecisionPoint, PickType, setPointStatus, setSubgroupStatus, setGroupStatus, PointStatus, FloorPlanImage
+} from 'phd-common';
 
 import { checkSelectedAttributes, hideChoicesByStructuralItems, hidePointsByStructuralItems } from '../../shared/classes/tree.utils';
 import { RehydrateMap } from '../sessionStorage';
@@ -136,8 +136,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 					});
 				}
 
-				let scenario = _.cloneDeep(newState.scenario || state.scenario);
-				scenario = <any>{ scenarioId: 0, scenarioName: '--PREVIEW--', lotId: action.job.lotId, scenarioInfo: null };
+				let scenario = <any>{ scenarioId: 0, scenarioName: '--PREVIEW--', lotId: action.job.lotId, scenarioInfo: null };
 
 				newState = { ...newState, scenario: scenario };
 			}
@@ -175,6 +174,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 						pt.status = PointStatus.COMPLETED;
 						pt.completed = true;
 					});
+
 					subGroups.forEach(sg => sg.status = PointStatus.COMPLETED);
 				}
 				else
@@ -347,7 +347,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 			return { ...state, floorPlanImages: action.floorPlanImages };
 
 		case CommonActionTypes.LoadError:
-			return {...state, loadError: true };
+			return { ...state, loadError: true };
 
 		case CommonActionTypes.LoadSalesAgreement:
 			let newBuildMode = state.buildMode;
@@ -811,6 +811,7 @@ function getChoicePriceRange(choice: Choice, rules: TreeVersionRules, tree: Tree
 						let c2 = selections.find(s =>
 						{
 							let p2 = treePoints.find(p3 => p3.id === p1);
+
 							return p2 && p2.choices.some(c => c.id === s.choiceId) && s.selected;
 						});
 
@@ -967,4 +968,4 @@ export const choicePriceRanges = createSelector(
 export const floorPlanImages = createSelector(
 	selectScenario,
 	(state) => state.floorPlanImages
-)
+);

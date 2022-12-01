@@ -254,12 +254,13 @@ export class CommonEffects
 					{
 						if (baseHouseOption)
 						{
-							selectedPlanPrice = baseHouseOption ? baseHouseOption.listPrice : 0;
+							selectedPlanPrice = baseHouseOption.listPrice;
 						}
 
 						if (result.changeOrder && result.changeOrder.salesStatusDescription !== 'Pending')
 						{
 							let co = result.changeOrder.jobChangeOrders.find(co => co.jobChangeOrderPlanOptions && co.jobChangeOrderPlanOptions.some(po => po.integrationKey === '00001' && po.action === 'Add'));
+
 							if (co)
 							{
 								selectedPlanPrice = co.jobChangeOrderPlanOptions.find(po => po.action === 'Add' && po.integrationKey === '00001').listPrice;

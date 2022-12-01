@@ -35,9 +35,10 @@ export class ClickDirective
 			{
 				text = targetElement.className.substring(indexOfIcon);
 				text = text.substr(0, text.indexOf(' '));
-			} else
+			}
+			else
 			{
-				text = targetElement?.className
+				text = targetElement?.className;
 			}
 
 			element = 'button';
@@ -102,5 +103,4 @@ export class ClickDirective
 			return 'body';
 		}
 	}
-
 }

@@ -780,14 +780,11 @@ export class ChangeOrderService
 
 		if (currentHanding && currentHanding.handing !== jobHanding)
 		{
-			if (currentHanding)
-			{
-				handings.push({
-					handing: currentHanding.handing,
-					action: 'Add',
-					overrideNote: currentHanding.overrideNote
-				});
-			}
+			handings.push({
+				handing: currentHanding.handing,
+				action: 'Add',
+				overrideNote: currentHanding.overrideNote
+			});
 
 			if (jobHanding)
 			{

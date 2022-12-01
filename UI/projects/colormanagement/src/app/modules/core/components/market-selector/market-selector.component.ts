@@ -1,17 +1,18 @@
-import {Component, Input} from '@angular/core';
-import {combineLatest, Observable} from 'rxjs';
+import { Component, Input } from '@angular/core';
+import { combineLatest, Observable } from 'rxjs';
 import { filter, switchMap } from 'rxjs/operators';
 import { IFinancialCommunity, IMarket } from '../../../shared/models/community.model';
 import { OrganizationService } from '../../services/organization.service';
 import { ColorAdminService } from '../../services/color-admin.service';
-import {ActivatedRoute, NavigationEnd, Router, RouterEvent, UrlSegment} from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router';
 
 @Component({
 	selector: 'market-selector',
 	templateUrl: './market-selector.component.html',
 	styleUrls: ['./market-selector.component.scss']
 })
-export class MarketSelectorComponent {
+export class MarketSelectorComponent
+{
 	currentCommunity$: Observable<IFinancialCommunity>;
 	currentMarket$: Observable<IMarket>;
 	markets$: Observable<Array<IMarket>>;
@@ -24,8 +25,8 @@ export class MarketSelectorComponent {
 	constructor(
 		private orgService: OrganizationService,
 		private colorAdminService: ColorAdminService,
-		private router: Router,
-		private activatedRoute: ActivatedRoute) {
+		private router: Router)
+	{
 
 		this.markets$ = this.orgService.markets$;
 		this.currentMarket$ = this.orgService.currentMarket$;
@@ -48,7 +49,7 @@ export class MarketSelectorComponent {
 			this.orgService.currentCommunity$,
 			this.colorAdminService.optionPackagesEnabled$,
 		])
-		.subscribe(([_m, _c, isOptionPackagesEnabled]:[IMarket, IFinancialCommunity, boolean]) =>
+		.subscribe(([_m, _c, isOptionPackagesEnabled]: [IMarket, IFinancialCommunity, boolean]) =>
 		{
 			if (this.currentUrl?.includes("optionpackage") && !isOptionPackagesEnabled)
 			{
@@ -57,12 +58,13 @@ export class MarketSelectorComponent {
 		});
 	}
 
-	onSelectedMarketChange($event: IMarket){
+	onSelectedMarketChange($event: IMarket)
+	{
 		this.orgService.selectMarket($event);
 	}
 
-	onChangeCommunity($event: IFinancialCommunity){
+	onChangeCommunity($event: IFinancialCommunity)
+	{
 		this.orgService.selectCommunity($event);
-
 	}
 }

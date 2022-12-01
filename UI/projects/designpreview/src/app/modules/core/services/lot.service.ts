@@ -2,9 +2,9 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
 import { Observable ,  throwError as _throw ,  of } from 'rxjs';
-import { combineLatest, map, catchError } from 'rxjs/operators';
+import { map, catchError } from 'rxjs/operators';
 
-import { defaultOnNotFound, withSpinner, Lot, MonotonyRule, LotExt } from 'phd-common';
+import { LotExt } from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
 
@@ -40,5 +40,4 @@ export class LotService
 			})
 		);
 	}
-
 }

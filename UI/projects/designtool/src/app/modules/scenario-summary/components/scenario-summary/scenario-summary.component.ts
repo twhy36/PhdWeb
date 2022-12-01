@@ -844,10 +844,9 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 		}
 		else
 		{
-			const primaryButton = !canOverride ? { text: 'Okay', result: true, cssClass: 'btn-primary' } : { text: 'Continue', result: true, cssClass: 'btn-primary' };
-			const secondaryButton = canOverride ? { text: 'Cancel', result: false, cssClass: 'btn-secondary' } : null;
+			const primaryButton = { text: 'Okay', result: true, cssClass: 'btn-primary' };
 
-			this.showConfirmModal(body, title, primaryButton, secondaryButton).subscribe(result =>
+			this.showConfirmModal(body, title, primaryButton, null).subscribe(result =>
 			{
 				deselect = result;
 			});

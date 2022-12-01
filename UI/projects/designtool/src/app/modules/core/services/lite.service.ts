@@ -23,11 +23,11 @@ import * as fromRoot from '../../ngrx-store/reducers';
 import * as fromLite from '../../ngrx-store/lite/reducer';
 
 import
-	{
-		LitePlanOption, ColorItem, Color, ScenarioOptionColorDto, IOptionSubCategory, OptionRelation,
-		OptionRelationEnum, Elevation, IOptionCategory, LiteReportType, LiteMonotonyRule, SummaryReportData,
-		LitePlanOptionDto, LiteOptionColorDto, LiteChangeOrderPlanOptionDto, LegacyColorScheme
-	} from '../../shared/models/lite.model';
+{
+	LitePlanOption, ColorItem, Color, ScenarioOptionColorDto, IOptionSubCategory, OptionRelation,
+	OptionRelationEnum, Elevation, IOptionCategory, LiteReportType, LiteMonotonyRule, SummaryReportData,
+	LitePlanOptionDto, LiteOptionColorDto, LiteChangeOrderPlanOptionDto, LegacyColorScheme
+} from '../../shared/models/lite.model';
 import { LotService } from './lot.service';
 import { ChangeOrderService } from './change-order.service';
 import { MonotonyConflict } from '../../shared/models/monotony-conflict.model';
@@ -259,7 +259,7 @@ export class LiteService
 				return colorItems;
 			}),
 			catchError(this.handleError)
-		)
+		);
 	}
 
 	private mapColors(colorItemAssoc: any[], colorItemId: number): Color[]
@@ -295,6 +295,7 @@ export class LiteService
 			jpo.jobPlanOptionAttributes?.forEach(jpoa => 
 			{
 				const option = options.find(o => o.id === jpo.planOptionId);
+
 				if (option)
 				{
 					const colorItem = option.colorItems?.find(ci => ci.name === jpoa.attributeGroupLabel);
@@ -303,31 +304,31 @@ export class LiteService
 					if (!colorItem)
 					{
 						missingColorItems.push(
-						{
-							planOptionId: option.id, 
-							name: jpoa.attributeGroupLabel
-						});
+							{
+								planOptionId: option.id,
+								name: jpoa.attributeGroupLabel
+							});
 					}
 
 					if (!color)
 					{
 						missingColors.push(
-						{
-							optionSubCategoryId: option.optionSubCategoryId, 
-							name: jpoa.attributeName
-						});
+							{
+								optionSubCategoryId: option.optionSubCategoryId,
+								name: jpoa.attributeName
+							});
 					}
 				}
 			})
 		});
-		
+
 		return {
 			missingColorItems: missingColorItems,
 			missingColors: missingColors
 		};
 	}
 
-	getMissingColorItems(colorItems: { planOptionId: number, name: string }[]) : Observable<ColorItem[]>
+	getMissingColorItems(colorItems: { planOptionId: number, name: string }[]): Observable<ColorItem[]>
 	{
 		const batchGuid = getNewGuid();
 		const batchSize = 5;
@@ -384,10 +385,10 @@ export class LiteService
 				return colorItems;
 			}),
 			catchError(this.handleError)
-		)
+		);
 	}
 
-	getMissingColors(financialCommunityId: number, colors: { optionSubCategoryId: number, name: string }[]) : Observable<Color[]>
+	getMissingColors(financialCommunityId: number, colors: { optionSubCategoryId: number, name: string }[]): Observable<Color[]>
 	{
 		const batchGuid = getNewGuid();
 		const batchSize = 5;
@@ -446,8 +447,8 @@ export class LiteService
 				return colors;
 			}),
 			catchError(this.handleError)
-		)
-	}	
+		);
+	}
 
 	getOptionRelations(optionCommunityIds: Array<number>): Observable<OptionRelation[]>
 	{
@@ -633,7 +634,7 @@ export class LiteService
 		const selectedElevation = elevations.find(elev => lite.scenarioOptions?.find(opt => opt.edhPlanOptionId === elev.id && opt.planOptionQuantity > 0));
 		const baseHouseOptions = this.getSelectedBaseHouseOptions(lite.scenarioOptions, lite.options, lite.categories);
 		const overrideNote = lite.elevationOverrideNote || lite.colorSchemeOverrideNote;
-		
+
 		const changedOptions = isSpecSale
 			? this.createJobChangeOrderOptions(
 				jobPlanOptions,
@@ -941,8 +942,6 @@ export class LiteService
 					changedOption.optionQty = opt.qty;
 				}
 			});
-
-
 		}
 
 		return selectedOptions.map(planOption =>
@@ -1195,7 +1194,7 @@ export class LiteService
 		const isGenericOption = function (planOptionId: number)
 		{
 			return legacyColorScheme ? legacyColorScheme.genericPlanOptionId === planOptionId : false;
-		};		
+		};
 
 		let optionsDto = [];
 		let legacyAttributes = null;
@@ -1209,9 +1208,10 @@ export class LiteService
 			const isGeneric = isGenericOption(curr.edhPlanOptionId);
 
 			let optionType = 'Standard';
+
 			if (isElevation)
 			{
-				optionType = 'Elevation'
+				optionType = 'Elevation';
 			}
 			else if (isGeneric)
 			{
@@ -1251,7 +1251,7 @@ export class LiteService
 				{
 					legacyAttributes = attributes;
 				}
-			
+
 			}
 			else if (option)
 			{
@@ -1275,7 +1275,7 @@ export class LiteService
 				if (isElevation && legacyColorScheme)
 				{
 					legacyAttributes = addedAttributes;
-				}				
+				}
 			}
 		});
 
@@ -1288,7 +1288,7 @@ export class LiteService
 				// Color scheme change will be linked to the generic option if there are generic option and legacy color scheme on the job
 				if (isGenericOption(orig.planOptionId))
 				{
-					let genericOptionattributes = [];					
+					let genericOptionattributes = [];
 					const jobPlanOptionAttribute = orig.jobPlanOptionAttributes ? orig.jobPlanOptionAttributes[0] : null;
 					genericOptionattributes.push({
 						attributeName: jobPlanOptionAttribute?.attributeName,
@@ -1307,9 +1307,9 @@ export class LiteService
 							manufacturer: legacyAttributes[0].manufacturer,
 							sku: legacyAttributes[0].sku,
 							action: 'Add'
-						});						
+						});
 					}
-					
+
 					optionsDto.push({
 						planOptionId: orig.planOptionId,
 						price: orig.listPrice,
@@ -1559,6 +1559,7 @@ export class LiteService
 			})
 		);
 	}
+
 	getPlanChangeOrderDataLite(
 		changeOrder: ChangeOrderGroup,
 		job: Job,
@@ -1649,6 +1650,7 @@ export class LiteService
 		currentOptions.forEach(curr =>
 		{
 			const option = options.find(option => option.id === curr.edhPlanOptionId);
+
 			if (option)
 			{
 				const isElevation = isElevationOption(curr.edhPlanOptionId);
@@ -1692,21 +1694,27 @@ export class LiteService
 	{
 		const addColorToColorItem = function (colorItem: ColorItem, optionSubCategoryId: number, colorName: string)
 		{
-			const missingColor = missingColors.find(color => color.edhOptionSubcategoryId === optionSubCategoryId && color.name === colorName)
+			const missingColor = missingColors.find(color => color.edhOptionSubcategoryId === optionSubCategoryId && color.name === colorName);
+
 			if (missingColor)
 			{
 				if (!colorItem.color)
 				{
 					colorItem.color = [];
 				}
+
 				missingColor.colorItemId = colorItem.colorItemId;
+
 				colorItem.color.push(missingColor);
 			}
 		};
 
-		jobPlanOptions?.forEach(jpo => {
-			jpo.jobPlanOptionAttributes?.forEach(jpoa => {
+		jobPlanOptions?.forEach(jpo =>
+		{
+			jpo.jobPlanOptionAttributes?.forEach(jpoa =>
+			{
 				let option = options.find(o => o.id === jpo.planOptionId);
+
 				if (option)
 				{
 					let colorItem = option.colorItems?.find(ci => ci.name === jpoa.attributeGroupLabel);
@@ -1715,9 +1723,11 @@ export class LiteService
 					if (!colorItem)
 					{
 						const missingColorItem = missingColorItems.find(item => item.edhPlanOptionId === option.id && item.name === jpoa.attributeGroupLabel);
+
 						if (missingColorItem)
 						{
 							option.colorItems.push(missingColorItem);
+
 							addColorToColorItem(missingColorItem, option.optionSubCategoryId, jpoa.attributeName);
 						}
 					}
@@ -1726,8 +1736,7 @@ export class LiteService
 						addColorToColorItem(colorItem, option.optionSubCategoryId, jpoa.attributeName);
 					}
 				}
-			})
+			});
 		});
 	}
-
 }

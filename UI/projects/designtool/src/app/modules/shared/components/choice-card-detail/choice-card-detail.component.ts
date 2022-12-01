@@ -256,22 +256,13 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 			.map(loc => loc.locationQuantityTotal)
 			.reduce((a, b) => a + b, 0);
 
-		let locationMaxQty = choiceMaxQty;
+		// default to the location qty
+		let locationMaxQty = this.locationComponents.find(lc => lc.attributeLocation.id === locationId)?.locationQuantityTotal ?? 0;
 
-		const location = this.locationComponents.find(lc => lc.attributeLocation.id === locationId);
-
-		// if the choice max qty has been reached then set the max qty for the location to the location qty
-		if (totalQtyAllLocations === choiceMaxQty)
+		// if the choice max qty has not been reached then set the max qty for the location to the choice max qty minus the total choice qty plus the location qty
+		if (totalQtyAllLocations !== choiceMaxQty)
 		{
-			locationMaxQty = location?.locationQuantityTotal ?? 0;
-		}
-		else
-		{
-			// if the choice max qty has not been reached then set the max qty for the location to
-			// the choice max qty minus the total choice qty plus the location qty
-			const locationQty = location?.locationQuantityTotal ?? 0;
-
-			locationMaxQty = choiceMaxQty - totalQtyAllLocations + locationQty;
+			locationMaxQty = choiceMaxQty - totalQtyAllLocations + locationMaxQty;
 		}
 
 		this.totalQuantitySelected = this.getSelectedQuantity();
@@ -549,15 +540,15 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 
 			if (this.hasMonotonyConflict && this.isPastCutOff)
 			{
-				body = `Monotony Conflict and the Cut-off`;
+				body += `Monotony Conflict and the Cut-off`;
 			}
 			else if (this.hasMonotonyConflict)
 			{
-				body = `Monotony Conflict`;
+				body += `Monotony Conflict`;
 			}
 			else
 			{
-				body = `Cut-off`;
+				body += `Cut-off`;
 			}
 
 			const confirm = this.modalService.open(ModalOverrideSaveComponent, { backdropClass: 'phd-second-backdrop' });

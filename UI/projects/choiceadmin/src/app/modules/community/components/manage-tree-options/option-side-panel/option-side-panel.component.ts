@@ -164,7 +164,7 @@ export class OptionSidePanelComponent implements OnInit, OnChanges
 		//Check for Option 00001 (Base House) to make sure that it is not available for mapping and display message to make user aware.
 		if (this.option.id == '00001')
 		{
-			return message = 'Option 00001 (Base House) does not get mapped';
+			return 'Option 00001 (Base House) does not get mapped';
 		}
 
 		if (this.option.baseHouse)

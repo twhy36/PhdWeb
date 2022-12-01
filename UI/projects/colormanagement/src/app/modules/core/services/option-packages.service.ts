@@ -1,54 +1,54 @@
-import { HttpClient } from "@angular/common/http";
-import { Injectable } from "@angular/core";
-import { catchError, map } from "rxjs/operators";
-import { withSpinner } from "phd-common";
-import { Observable, of, throwError } from "rxjs";
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { catchError, map } from 'rxjs/operators';
+import { withSpinner } from 'phd-common';
+import { Observable, throwError } from 'rxjs';
 import { environment } from '../../../../environments/environment'
-import { IOptionPackage, OptionPackageDto } from "../../shared/models/optionpackage.model";
-
+import { IOptionPackage, OptionPackageDto } from '../../shared/models/optionpackage.model';
 
 @Injectable({
-	providedIn:"root"
+	providedIn: 'root'
 })
-
-export class OptionPackageService {
-
-	constructor( private _http: HttpClient){}
+export class OptionPackageService
+{
+	constructor(private _http: HttpClient) { }
 
 	private pulteApiUrl = `${environment.apiUrl}`;
 	private _ds: string = encodeURIComponent('$');
 
 	getCommonPackages()
 	{
-		const entity = "commonOptionPackages";
+		const entity = `commonOptionPackages`;
 		return withSpinner(this._http)
-		.get<any>(`${this.pulteApiUrl}${entity}`).pipe(
-			map((response) => {
-				return response.value as Array<IOptionPackage>
-			})
-		);
+			.get<any>(`${this.pulteApiUrl}${entity}`).pipe(
+				map((response) =>
+				{
+					return response.value as Array<IOptionPackage>
+				})
+			);
 	}
 
 	getOptionPackage(bundleId: number)
 	{
-		const entity = "optionPackages";
+		const entity = `optionPackages`;
 		let filter = `BundleId eq ${bundleId}`
 		const select = `bundleId,bundleCommonId,name,isCommon,presentationOrder,edhFinancialCommunityId`;
 		let qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
 		const endpoint = `${this.pulteApiUrl}${entity}?${qryStr}`;
-		
+
 		return withSpinner(this._http)
-		.get<any>(`${endpoint}`).pipe(
-			map((response) => {
-				return response.value[0] as IOptionPackage;
-			}),
-			catchError(this.handleError)
-		);
+			.get<any>(`${endpoint}`).pipe(
+				map((response) =>
+				{
+					return response.value[0] as IOptionPackage;
+				}),
+				catchError(this.handleError)
+			);
 	}
 
 	getCommunityPackages(communityId?: number)
 	{
-		const entity = "optionPackages";
+		const entity = `optionPackages`;
 		let filter = `edhFinancialCommunityId eq ${communityId}`;
 		const select = `bundleId,bundleCommonId,name,isCommon,presentationOrder,edhFinancialCommunityId`;
 		const orderBy = `presentationOrder`;
@@ -62,19 +62,20 @@ export class OptionPackageService {
 		const endpoint = `${this.pulteApiUrl}${entity}?${qryStr}`;
 
 		return withSpinner(this._http)
-		.get<any>(`${endpoint}`).pipe(
-			map((response) => {
-				return response.value as Array<IOptionPackage>
-			}),
-			catchError(this.handleError)
-		)
+			.get<any>(`${endpoint}`).pipe(
+				map((response) =>
+				{
+					return response.value as Array<IOptionPackage>
+				}),
+				catchError(this.handleError)
+			);
 	}
 
 	saveOptionPackage(optionPackage: IOptionPackage)
 	{
 		const action = `optionPackages`;
 		const endpoint = `${environment.apiUrl}${action}`;
-		
+
 		const optionPackageDto: Partial<OptionPackageDto> = {
 			name: optionPackage.name,
 			edhFinancialCommunityId: optionPackage.edhFinancialCommunityId,
@@ -95,7 +96,7 @@ export class OptionPackageService {
 	{
 		const action = `optionPackages(${optionPackage.bundleId})`;
 		const endpoint = `${environment.apiUrl}${action}`;
-		
+
 		const optionPackageDto: Partial<OptionPackageDto> = {
 			name: optionPackage.name,
 			edhFinancialCommunityId: optionPackage.edhFinancialCommunityId,
@@ -138,15 +139,21 @@ export class OptionPackageService {
 	private handleError(err: any): Observable<never>
 	{
 		let errorMessage: string;
-		if (err?.error instanceof ErrorEvent) {
+
+		if (err?.error instanceof ErrorEvent)
+		{
 			// A client-side or network error occurred. Handle it accordingly.
 			errorMessage = `An error occurred: ${err?.error?.message}`;
-		} else {
+		}
+		else
+		{
 			// The backend returned an unsuccessful response code.
 			// The response body may contain clues as to what went wrong,
 			errorMessage = `Backend returned code ${err?.status}: ${err?.body?.error}`;
 		}
+
 		console.error(err);
-			return throwError(errorMessage);
-		}
+
+		return throwError(errorMessage);
+	}
 }

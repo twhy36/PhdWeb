@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Store, select } from '@ngrx/store';
 import { distinctUntilChanged, combineLatest, switchMap, withLatestFrom } from 'rxjs/operators';
-import { of,  Observable } from 'rxjs';
+import { of, Observable } from 'rxjs';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromJob from '../../../ngrx-store/job/reducer';
@@ -14,12 +14,11 @@ import * as CommonActions from '../../../ngrx-store/actions';
 import * as _ from "lodash";
 
 import 
-{ 
-	UnsubscribeOnDestroy, Job, ConstructionStageTypes, SalesAgreement, Choice, convertDateToUtcString 
+{
+	UnsubscribeOnDestroy, Job, ConstructionStageTypes, SalesAgreement, Choice, convertDateToUtcString
 } from 'phd-common';
 
 import { JobService } from '../../../core/services/job.service';
-import { LegacyColorScheme } from '../../../shared/models/lite.model';
 
 @Component({
 	selector: 'app-agreement',

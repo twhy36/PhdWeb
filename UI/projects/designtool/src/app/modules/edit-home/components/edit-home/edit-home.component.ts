@@ -20,7 +20,7 @@ import * as fromJobs from '../../../ngrx-store/job/reducer';
 
 import
 {
-	UnsubscribeOnDestroy, ModalRef, ChangeTypeEnum, Job, TreeVersionRules, ScenarioStatusType, PriceBreakdown,
+	UnsubscribeOnDestroy, ModalRef, ChangeTypeEnum, TreeVersionRules, ScenarioStatusType, PriceBreakdown,
 	TreeFilter, Tree, SubGroup, Group, DecisionPoint, Choice, getDependentChoices, LotExt, getChoiceToDeselect,
 	PlanOption, ModalService, Plan, TimeOfSaleOptionPrice, ITimeOfSaleOptionPrice, getChoicesWithNewPricing
 } from 'phd-common';

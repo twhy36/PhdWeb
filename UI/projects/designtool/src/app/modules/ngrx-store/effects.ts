@@ -708,7 +708,7 @@ export class CommonEffects
 						{
 							if (baseHouseOption)
 							{
-								selectedPlanPrice = { planId: result.selectedPlanId, listPrice: baseHouseOption ? baseHouseOption.listPrice : 0 };
+								selectedPlanPrice = { planId: result.selectedPlanId, listPrice: baseHouseOption.listPrice };
 							}
 
 							if (result.changeOrder && result.changeOrder.salesStatusDescription !== 'Pending')
@@ -734,6 +734,7 @@ export class CommonEffects
 							timeOfSaleOptions?.forEach(tos =>
 							{
 								let option = result.options.find(opt => opt.id === tos.edhPlanOptionID);
+
 								if (option)
 								{
 									option.listPrice = tos.listPrice;

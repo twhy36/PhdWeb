@@ -109,7 +109,7 @@ export class SearchResult
 
 					if (jioIndex > -1)
 					{
-						job.jobChangeOrderGroups = job.jobChangeOrderGroups.slice(0, jioIndex + 1)
+						job.jobChangeOrderGroups = job.jobChangeOrderGroups.slice(0, jioIndex + 1);
 					}
 
 					for (let i = job.jobChangeOrderGroups.length - 1; i > -1; i--)

@@ -11,7 +11,7 @@ export class Alert
 	{
 		this.type = type;
 		this.message = message;
-		this.dismissible = dismissible && dismissible;
+		this.dismissible = dismissible;
 		this.hide = false;
 
 		if (autoClose)
@@ -38,7 +38,10 @@ export class Alert
 
 	dispose()
 	{
-		if (this._timer) clearTimeout(this._timer);
+		if (this._timer)
+		{
+			clearTimeout(this._timer);
+		}
 	}
 }
 

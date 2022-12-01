@@ -13,7 +13,6 @@ import { PhdCommonModule, SidePanelComponent } from 'phd-common';
 import { SettingsService } from './services/settings.service';
 import { CheckboxModule } from 'primeng/checkbox';
 import { PlanOptionService } from './services/plan-option.service';
-import { EditColorSidePanelComponent } from '../color/components/edit-color-side-panel/edit-color-side-panel.component';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { ColorAdminService } from './services/color-admin.service';
@@ -58,4 +57,5 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 		ColorAdminService
 	]
 })
+
 export class CoreModule {}

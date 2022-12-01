@@ -1,5 +1,5 @@
 import { Component, Input, Output, OnInit, ContentChild, TemplateRef, EventEmitter } from '@angular/core';
-import { Router, NavigationEnd } from '@angular/router';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'phd-action-buttons-item',

@@ -161,7 +161,10 @@ export class DivisionalAttributeWizardStep3Component
 			{
 				let plan = new DivAttributeWizPlan(community, pc);
 
-				this.selectedMapping === 'Remove' || pc.hasChoices ? this.selectedPlans.push(plan) : null;
+				if (this.selectedMapping === 'Remove' || pc.hasChoices)
+				{
+					this.selectedPlans.push(plan);
+				}
 			}
 			else if (!isChecked && index !== -1)
 			{
@@ -182,7 +185,10 @@ export class DivisionalAttributeWizardStep3Component
 				{
 					let plan = new DivAttributeWizPlan(c, p);
 
-					this.selectedMapping === 'Remove' || p.hasChoices ? this.selectedPlans.push(plan) : null;
+					if (this.selectedMapping === 'Remove' || p.hasChoices)
+					{
+						this.selectedPlans.push(plan);
+					}
 				});
 			});
 		}

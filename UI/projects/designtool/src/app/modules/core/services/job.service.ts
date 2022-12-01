@@ -291,7 +291,7 @@ export class JobService
 				const jobChoicesSelect = `id,choiceDescription,choiceLabel,decisionPointLabel,dpChoiceCalculatedPrice,dpChoiceId,dpChoiceQuantity,groupLabel,jobChoiceAttributes,jobChoiceJobPlanOptionAssocs,jobChoiceLocations,jobId,sortOrder,subGroupLabel`;
 
 				let expand = `jobChangeOrderGroups($select=${jobChangeOrderGroupsSelect};$expand=jobChangeOrders($select=id,jobChangeOrderTypeDescription)),`;
-				expand += `jobSalesInfos($select=${jobSalesInfosSelect}),`
+				expand += `jobSalesInfos($select=${jobSalesInfosSelect}),`;
 				expand += `lot($select=${lotSelect};$expand=lotPhysicalLotTypeAssocs($expand=physicalLotType),salesPhase($select=id,financialCommunityId,salesPhaseName),lotHandingAssocs($expand=handing($select=id,name))),`;
 				expand += `planCommunity($select=${planCommunitySelect}), jobNonStandardOptions($select=${jobNonStandardOptionsSelect}), jobConstructionStageHistories($select=id,constructionStageId,constructionStageStartDate),`;
 				expand += `projectedDates($select=jobId, projectedStartDate, projectedFrameDate, projectedSecondDate, projectedFinalDate)`;

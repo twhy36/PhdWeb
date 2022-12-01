@@ -2,7 +2,7 @@ import { Component, OnInit, ChangeDetectorRef, TemplateRef, ViewChild } from '@a
 
 import { DivDGroup } from '../../../../shared/models/group.model';
 import { DivDChoice } from '../../../../shared/models/choice.model';
-import { DivisionalCatalogWizardService, IDivCatWizChoice, DivCatWizChoice } from '../../../services/div-catalog-wizard.service';
+import { DivisionalCatalogWizardService, DivCatWizChoice } from '../../../services/div-catalog-wizard.service';
 
 @Component({
 	selector: 'divisional-catalog-wizard-step1',

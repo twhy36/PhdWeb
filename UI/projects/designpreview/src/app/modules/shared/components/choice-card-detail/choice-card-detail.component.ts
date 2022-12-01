@@ -55,7 +55,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 
 	@ViewChild('blockedChoiceModal') blockedChoiceModal: any;
 
-	isSelected : boolean = false;
+	isSelected: boolean = false;
 	activeIndex: any = { current: 0, direction: '', prev: 0 };
 	imageLoading: boolean = false;
 	choiceImages: OptionImage[] = [];
@@ -66,7 +66,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	choiceDescriptions: string[] = [];
 	attributeImageUrl: string;
 	currentPoint: DecisionPoint;
-	highlightedAttribute: {attributeId: number, attributeGroupId: number, locationId: number, locationGroupId: number};
+	highlightedAttribute: { attributeId: number, attributeGroupId: number, locationId: number, locationGroupId: number };
 	choiceAttributeGroups: AttributeGroup[];
 	choiceLocationGroups: LocationGroup[];
 	blockedChoiceModalRef: ModalRef;
@@ -81,11 +81,12 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		private store: Store<fromRoot.State>,
 		private adobeService: AdobeService,
 		private treeService: TreeService)
-    {
+	{
 		super();
 	}
 
-	ngOnInit() {
+	ngOnInit()
+	{
 		const getAttributeGroups: Observable<AttributeGroup[]> = this.choice.mappedAttributeGroups.length > 0 ? this.attributeService.getAttributeGroups(this.choice) : of([]);
 		const getLocationGroups: Observable<LocationGroup[]> = this.choice.mappedLocationGroups.length > 0 ? this.attributeService.getLocationGroups(this.choice.mappedLocationGroups.map(x => x.id)) : of([]);
 
@@ -145,12 +146,14 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 			this.takeUntilDestroyed(),
 			select(fromFavorite.currentMyFavorite),
 			withLatestFrom(this.store.pipe(select(fromRoot.filteredTree)))
-		).subscribe(([favorite, tree]) => {
+		).subscribe(([favorite, tree]) =>
+		{
 			if (tree)
 			{
 				const choices = _.flatMap(tree.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices))) || [];
 				const updatedChoice = choices.find(x => x.divChoiceCatalogId === this.choice.divChoiceCatalogId);
-				if ( updatedChoice)
+
+				if (updatedChoice)
 				{
 					this.choice.quantity = updatedChoice.quantity;
 					this.choice.selectedAttributes = updatedChoice.selectedAttributes;
@@ -159,13 +162,16 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 						: null;
 				}
 			}
+
 			this.updateChoiceAttributes();
 		});
 
 		let desc = this.choice.description ? [this.choice.description] : [];
+
 		this.choiceDescriptions = this.choice.options && this.choice.options.length > 0 ? this.choice.options.filter(o => o.description != null).map(o => o.description) : desc;
 
 		const dps = _.flatMap(this.groups, g => _.flatMap(g.subGroups, sg => sg.points));
+
 		this.currentPoint = dps.find(pt => pt.choices.find(ch => ch.id === this.choice.id));
 	}
 
@@ -174,7 +180,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		const myFavoritesChoice = favorite?.myFavoritesChoice?.find(c => c.divChoiceCatalogId === this.choice.divChoiceCatalogId);
 		const choiceAttributes = myFavoritesChoice?.myFavoritesChoiceAttributes?.filter(x =>
 			!!missingAttributes.find(att => att.attributeGroupId === x.attributeGroupCommunityId
-					&& att.attributeId === x.attributeCommunityId && !att.locationId));
+				&& att.attributeId === x.attributeCommunityId && !att.locationId));
 
 		let choiceLocAttributes = _.flatMap(myFavoritesChoice?.myFavoritesChoiceLocations, loc => loc.myFavoritesChoiceLocationAttributes);
 		choiceLocAttributes = choiceLocAttributes?.filter(x =>
@@ -240,20 +246,27 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	populateAttributeGroups(attributeGroups: AttributeGroup[])
 	{
 		this.attributeGroups = [];
+
 		if (attributeGroups)
 		{
 			const attGroups = _.orderBy(attributeGroups, 'sortOrder');
-			attGroups.forEach(attributeGroup => {
+
+			attGroups.forEach(attributeGroup =>
+			{
 				attributeGroup.choiceId = this.choice.id;
 
 				let attributes: AttributeExt[] = [];
+
 				if (attributeGroup.attributes)
 				{
-					attributeGroup.attributes.forEach(att => {
+					attributeGroup.attributes.forEach(att =>
+					{
 						let attritbuteStatus = this.choice.choiceStatus;
+
 						if (attritbuteStatus === 'Contracted')
 						{
 							const selectedAttribute = this.choice.selectedAttributes.find(x => x.attributeId === att.id && x.attributeGroupId === attributeGroup.id);
+
 							if (!selectedAttribute)
 							{
 								attritbuteStatus = this.choice.isPointStructural ? null : 'ViewOnly';
@@ -275,6 +288,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 						}
 					});
 				}
+
 				if (attributes.length)
 				{
 					this.attributeGroups.push(new AttributeGroupExt(attributeGroup, attributes));
@@ -286,15 +300,20 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	populateLocationGroups(locationGroups: LocationGroup[])
 	{
 		this.locationGroups = [];
+
 		if (locationGroups)
 		{
-			locationGroups.forEach(lg => {
+			locationGroups.forEach(lg =>
+			{
 				if (this.choice.choiceStatus === 'Contracted' && (this.choice.isPointStructural || this.isDesignComplete))
 				{
 					// Display selected locations and attributes for a contracted choice when it is structural or design complete
-					let selectedLocations : Location[] = [];
-					lg.locations.forEach(loc => {
+					let selectedLocations: Location[] = [];
+
+					lg.locations.forEach(loc =>
+					{
 						const selectedAttributes = this.choice.selectedAttributes.filter(x => x.locationGroupId === lg.id && x.locationId === loc.id);
+
 						if (selectedAttributes && selectedAttributes.length)
 						{
 							selectedLocations.push(loc);
@@ -304,7 +323,9 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 					if (selectedLocations.length)
 					{
 						let locationGroup = lg;
+
 						locationGroup.locations = selectedLocations;
+
 						this.locationGroups.push(locationGroup);
 					}
 				}
@@ -345,22 +366,23 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		if (!this.choiceImages.length)
 		{
 			return this.treeService.getChoiceImageAssoc([this.choice.id]).subscribe(choiceImages =>
+			{
+				if (choiceImages && choiceImages.length > 0)
 				{
-					if (choiceImages && choiceImages.length > 0)
-					{
-						choiceImages.forEach(i => this.choiceImages.push({ imageURL: i.imageUrl }));
-					}
-					else
-					{
-						// We need to triger the cloudinary error so that the elements image is set to
-						// noImageAvailable. This will trigger a cloudinary error, but isn't the most
-						// elegant. Removing this causes an indinite load or no image to appear.
-						this.choiceImages.push({ imageURL: 'this image does not exist' });
-					}
-					this.selectedImageUrl = this.choiceImages[0].imageURL;
+					choiceImages.forEach(i => this.choiceImages.push({ imageURL: i.imageUrl }));
+				}
+				else
+				{
+					// We need to triger the cloudinary error so that the elements image is set to
+					// noImageAvailable. This will trigger a cloudinary error, but isn't the most
+					// elegant. Removing this causes an indinite load or no image to appear.
+					this.choiceImages.push({ imageURL: 'this image does not exist' });
+				}
 
-					this.imageLoading = true;
-				});
+				this.selectedImageUrl = this.choiceImages[0].imageURL;
+
+				this.imageLoading = true;
+			});
 		}
 		else
 		{
@@ -388,26 +410,28 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		}
 	}
 
-	toggleAttribute(data: {attribute: Attribute, attributeGroup: AttributeGroup, location: Location, locationGroup: LocationGroup, quantity: number})
+	toggleAttribute(data: { attribute: Attribute, attributeGroup: AttributeGroup, location: Location, locationGroup: LocationGroup, quantity: number })
 	{
 		this.choice.selectedAttributes = this.getSelectedAttributes(data);
+
 		if (this.choice.selectedAttributes && this.choice.selectedAttributes.length && this.choice.quantity === 0)
 		{
 			this.choice.quantity = 1;
 		}
+
 		this.store.dispatch(
 			new ScenarioActions.SelectChoices(this.isDesignComplete,
-			{
-				choiceId: this.choice.id,
-				divChoiceCatalogId: this.choice.divChoiceCatalogId,
-				quantity: this.choice.quantity,
-				attributes: this.choice.selectedAttributes
-			}));
+				{
+					choiceId: this.choice.id,
+					divChoiceCatalogId: this.choice.divChoiceCatalogId,
+					quantity: this.choice.quantity,
+					attributes: this.choice.selectedAttributes
+				}));
 		this.store.dispatch(new ScenarioActions.SetStatusForPointsDeclined(this.myFavoritesPointsDeclined.map(dp => dp.divPointCatalogId), false));
 		this.store.dispatch(new FavoriteActions.SaveMyFavoritesChoices());
 	}
 
-	getSelectedAttributes(data: {attribute: Attribute, attributeGroup: AttributeGroup, location: Location, locationGroup: LocationGroup, quantity: number}): DesignToolAttribute[]
+	getSelectedAttributes(data: { attribute: Attribute, attributeGroup: AttributeGroup, location: Location, locationGroup: LocationGroup, quantity: number }): DesignToolAttribute[]
 	{
 		let selectedAttributes: DesignToolAttribute[] = [...this.choice.selectedAttributes];
 
@@ -454,6 +478,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	{
 		this.activeIndex = event;
 		this.imageLoading = true;
+
 		if (this.activeIndex)
 		{
 			this.selectedImageUrl = this.choiceImages[this.activeIndex.current].imageURL;
@@ -489,14 +514,16 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		this.selectedImageUrl = image.imageURL;
 
 		const imageIndex = this.choiceImages.findIndex(x => x.imageURL === image.imageURL);
+
 		if (imageIndex > -1)
 		{
 			this.cd.detectChanges();
+
 			this.imageCarousel.select(imageIndex.toString());
 		}
 	}
 
-	attributeClick(data: {attribute: Attribute, attributeGroup: AttributeGroup})
+	attributeClick(data: { attribute: Attribute, attributeGroup: AttributeGroup })
 	{
 		this.locationAttributeClick({
 			attribute: data.attribute,
@@ -506,7 +533,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		});
 	}
 
-	locationAttributeClick(data: {attribute: Attribute, attributeGroupId: number, locationId: number, locationGroupId: number})
+	locationAttributeClick(data: { attribute: Attribute, attributeGroupId: number, locationId: number, locationGroupId: number })
 	{
 		if (this.highlightedAttribute &&
 			this.highlightedAttribute.attributeGroupId === data.attributeGroupId &&
@@ -525,7 +552,9 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 				locationId: data.locationId,
 				locationGroupId: data.locationGroupId
 			};
+
 			const updatedImageUrl = data.attribute.imageUrl || 'assets/attribute-image-not-available.png';
+
 			if (this.attributeImageUrl !== updatedImageUrl)
 			{
 				this.attributeImageUrl = updatedImageUrl;
@@ -534,7 +563,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		}
 	}
 
-	getHighlightedAttributeId(attributeGroup: AttributeGroup) : number
+	getHighlightedAttributeId(attributeGroup: AttributeGroup): number
 	{
 		return this.highlightedAttribute && this.highlightedAttribute.attributeGroupId === attributeGroup.id
 			? this.highlightedAttribute.attributeId
@@ -546,15 +575,15 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		return this.highlightedAttribute
 			&& this.highlightedAttribute.locationId === location.id
 			&& this.highlightedAttribute.locationGroupId === locationGroup.id
-				? { attributeId: this.highlightedAttribute.attributeId, attributeGroupId: this.highlightedAttribute.attributeGroupId }
-				: null;
+			? { attributeId: this.highlightedAttribute.attributeId, attributeGroupId: this.highlightedAttribute.attributeGroupId }
+			: null;
 	}
 
 	getTotalQuantiy()
 	{
 		return this.locationComponents
-				.map(loc => loc.locationQuantityTotal ?? 0)
-				.reduce((a, b) => a + b, 0);
+			.map(loc => loc.locationQuantityTotal ?? 0)
+			.reduce((a, b) => a + b, 0);
 	}
 
 	getLocationMaxQuantity(locationId: number): number
@@ -565,37 +594,33 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		}
 
 		const totalQtyAllLocations = this.getTotalQuantiy();
-		let locationMaxQty = this.choice.maxQuantity;
 
-		// if the choice max qty has been reached then set the max qty for the location to the location qty
-		if (totalQtyAllLocations === this.choice.maxQuantity)
-		{
-			locationMaxQty = this.locationComponents.find(lc => lc.attributeLocation.id === locationId).locationQuantityTotal;
-		}
-		else
-		{
-			// if the choice max qty has not been reached then set the max qty for the location to
-			// the choice max qty minus the total choice qty plus the location qty
-			const locationQty = this.locationComponents.find(lc => lc.attributeLocation.id === locationId).locationQuantityTotal;
+		// default to the location qty
+		let locationMaxQty = this.locationComponents.find(lc => lc.attributeLocation.id === locationId)?.locationQuantityTotal ?? 0;
 
-			locationMaxQty = this.choice.maxQuantity - totalQtyAllLocations + locationQty;
+		// if the choice max qty has not been reached then set the max qty for the location to the choice max qty minus the total choice qty plus the location qty
+		if (totalQtyAllLocations !== this.choice.maxQuantity)
+		{			
+			locationMaxQty = this.choice.maxQuantity - totalQtyAllLocations + locationMaxQty;
 		}
 
 		return locationMaxQty;
 	}
 
-	changeQuantiy(data: {location: Location, locationGroup: LocationGroup, quantity: number, clearAttribute: boolean})
+	changeQuantiy(data: { location: Location, locationGroup: LocationGroup, quantity: number, clearAttribute: boolean })
 	{
 		if (data.clearAttribute)
 		{
-			this.choice.selectedAttributes = this.choice.selectedAttributes.filter(a => a.locationId !== data.location.id || a.locationGroupId !== data.locationGroup.id );
+			this.choice.selectedAttributes = this.choice.selectedAttributes.filter(a => a.locationId !== data.location.id || a.locationGroupId !== data.locationGroup.id);
 		}
 		else
 		{
 			let locationAttributes = this.choice.selectedAttributes.filter(a => a.locationId === data.location.id && a.locationGroupId === data.locationGroup.id);
+
 			if (locationAttributes && locationAttributes.length)
 			{
-				locationAttributes.forEach(att => {
+				locationAttributes.forEach(att =>
+				{
 					att.locationQuantity = data.quantity;
 				});
 			}
@@ -623,19 +648,22 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		}
 
 		const totalQuantity = this.getTotalQuantiy();
+
 		this.choice.quantity = this.choice.quantity > 0 && totalQuantity === 0 ? 1 : totalQuantity;
+
 		this.store.dispatch(
 			new ScenarioActions.SelectChoices(this.isDesignComplete,
-			{
-				choiceId: this.choice.id,
-				divChoiceCatalogId: this.choice.divChoiceCatalogId,
-				quantity: this.choice.quantity,
-				attributes: this.choice.selectedAttributes
-			}));
+				{
+					choiceId: this.choice.id,
+					divChoiceCatalogId: this.choice.divChoiceCatalogId,
+					quantity: this.choice.quantity,
+					attributes: this.choice.selectedAttributes
+				}));
 		this.store.dispatch(new FavoriteActions.SaveMyFavoritesChoices());
 	}
 
-	openBlockedChoiceModal() {
+	openBlockedChoiceModal()
+	{
 		if (!this.disabledByList.choiceDisabledByList && !this.disabledByList.pointDisabledByList)
 		{
 			this.disabledByList = getDisabledByList(this.tree, this.groups, this.currentPoint, this.choice);
@@ -643,11 +671,13 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { windowClass: 'phd-blocked-choice-modal' }, true);
 	}
 
-	onCloseClicked() {
+	onCloseClicked()
+	{
 		this.blockedChoiceModalRef?.close();
 	}
 
-	onBlockedItemClick() {
+	onBlockedItemClick()
+	{
 		this.blockedChoiceModalRef?.close();
 	}
 }

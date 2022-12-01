@@ -1,25 +1,39 @@
 export function formatPhone(phoneNumber: string)
 {
-	var formattedPhone = '';
-	var i;
-	var c;
+	let formattedPhone = '';
+	let i;
+	let c;
 
 	phoneNumber = stripInvalidDigitsFromUSPhone(stripPhoneNumber(phoneNumber));
 
 	// Search through number and append to unfiltered values to formattedNumber. //
 	if (phoneNumber.length)
 	{
-
 		for (i = 0; i < 10; i++)
 		{
 
 			c = phoneNumber.charAt(i);
 
-			if (i == 0) formattedPhone += '(';
-			if (i == 3 && phoneNumber.length > 3) formattedPhone += ')';
-			if (i == 3 && phoneNumber.length > 3) formattedPhone += ' ';
-			if (i == 6 && phoneNumber.length > 6) formattedPhone += '-';
-			//if (i == 10 && phoneNumber.length > 10) formattedPhone += ' #';
+			if (i == 0)
+			{
+				formattedPhone += '(';
+			}
+
+			if (i == 3 && phoneNumber.length > 3)
+			{
+				formattedPhone += ')';
+			}
+
+			if (i == 3 && phoneNumber.length > 3)
+			{
+				formattedPhone += ' ';
+			}
+
+			if (i == 6 && phoneNumber.length > 6)
+			{
+				formattedPhone += '-';
+			}
+
 			formattedPhone += c;
 		}
 	}
@@ -55,18 +69,6 @@ export function isValidUSPhoneLength(phoneNumber: string)
 	return true;
 }
 
-function stripInvalidChars(phoneNumber: string)
-{
-	if (!!phoneNumber)
-	{
-		phoneNumber = phoneNumber.replace(/[^0-9\s\#]/g, '');
-		phoneNumber = phoneNumber.replace(/(#)(?=.*\1)/g, "");
-		phoneNumber = phoneNumber.replace(/(#)/g, ' $1');
-	}
-
-	return phoneNumber;
-}
-
 function stripInvalidDigitsFromUSPhone(strippedPhoneNumber: string)
 {
 	if (!strippedPhoneNumber)
@@ -88,11 +90,6 @@ function stripInvalidDigitsFromUSPhone(strippedPhoneNumber: string)
 
 	return strippedPhoneNumber;
 }
-
-function hasWhiteSpace(s: string)
-{
-	return /\s/g.test(s);
-};
 
 function replaceAt(index: number, source: string, char: string)
 {

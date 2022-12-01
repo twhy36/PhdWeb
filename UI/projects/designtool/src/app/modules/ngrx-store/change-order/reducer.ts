@@ -2,10 +2,10 @@ import { createSelector, createFeatureSelector } from '@ngrx/store';
 import * as _ from 'lodash';
 
 import
-	{
-		Buyer, ESignStatusEnum, ChangeOrderGroup, ChangeInput, ChangeTypeEnum, ChangeOrder, ChangeOrderLot,
-		SalesStatusEnum, ChangeOrderGroupSalesStatusHistory, SalesNotesChangeOrders, Note, isSalesChangeOrder
-	} from 'phd-common';
+{
+	Buyer, ESignStatusEnum, ChangeOrderGroup, ChangeInput, ChangeTypeEnum, ChangeOrder, ChangeOrderLot,
+	SalesStatusEnum, ChangeOrderGroupSalesStatusHistory, SalesNotesChangeOrders, Note, isSalesChangeOrder
+} from 'phd-common';
 
 import { ChangeOrderActions, ChangeOrderActionTypes } from './actions';
 import { CommonActionTypes } from '../actions';
@@ -41,8 +41,7 @@ export function reducer(state: State = initialState, action: ChangeOrderActions)
 				let updatingChangeOrder = false;
 				let changeOrder = new ChangeOrderGroup(state.currentChangeOrder);
 
-				const hasActiveChangeOrder = changeOrder &&
-					changeOrder.jobChangeOrders &&
+				const hasActiveChangeOrder = changeOrder.jobChangeOrders &&
 					changeOrder.jobChangeOrders.length &&
 					changeOrder.jobChangeOrders[0].jobChangeOrderTypeDescription !== 'SalesJIO';
 
@@ -76,13 +75,14 @@ export function reducer(state: State = initialState, action: ChangeOrderActions)
 		case CommonActionTypes.ESignEnvelopesLoaded:
 			let changeOrder = new ChangeOrderGroup(state.currentChangeOrder);
 
-			if (action.jobChangeOrderEnvelopes && changeOrder)
+			if (action.jobChangeOrderEnvelopes)
 			{
 				action.jobChangeOrderEnvelopes.forEach(env =>
 				{
 					if (changeOrder.id === env.edhChangeOrderGroupId)
 					{
 						const existingEnvelope = changeOrder.eSignEnvelopes?.find(x => x.eSignEnvelopeId === env.eSignEnvelopeId);
+
 						if (!existingEnvelope)
 						{
 							changeOrder.eSignEnvelopes = [...(changeOrder.eSignEnvelopes || []), env];
@@ -98,23 +98,20 @@ export function reducer(state: State = initialState, action: ChangeOrderActions)
 			{
 				let changeOrder = new ChangeOrderGroup(state.currentChangeOrder);
 
-				if (changeOrder)
+				if (changeOrder.eSignEnvelopes && changeOrder.eSignEnvelopes.some(e => e.eSignStatusId === ESignStatusEnum.Created))
 				{
-					if (changeOrder.eSignEnvelopes && changeOrder.eSignEnvelopes.some(e => e.eSignStatusId === ESignStatusEnum.Created))
-					{
-						let eSignEnvelopes = changeOrder.eSignEnvelopes.filter(e => e.eSignStatusId !== ESignStatusEnum.Created);
+					let eSignEnvelopes = changeOrder.eSignEnvelopes.filter(e => e.eSignStatusId !== ESignStatusEnum.Created);
 
-						changeOrder.eSignEnvelopes = action.eSignEnvelope ? [...(eSignEnvelopes || []), action.eSignEnvelope] : [...(eSignEnvelopes || [])];
-					}
-					else
-					{
-						changeOrder.eSignEnvelopes = action.eSignEnvelope ? [...(changeOrder.eSignEnvelopes || []), action.eSignEnvelope] : [...(changeOrder.eSignEnvelopes || [])];
-					}
+					changeOrder.eSignEnvelopes = action.eSignEnvelope ? [...(eSignEnvelopes || []), action.eSignEnvelope] : [...(eSignEnvelopes || [])];
+				}
+				else
+				{
+					changeOrder.eSignEnvelopes = action.eSignEnvelope ? [...(changeOrder.eSignEnvelopes || []), action.eSignEnvelope] : [...(changeOrder.eSignEnvelopes || [])];
+				}
 
-					if (action.eSignEnvelope)
-					{
-						changeOrder.envelopeId = action.eSignEnvelope.envelopeGuid;
-					}
+				if (action.eSignEnvelope)
+				{
+					changeOrder.envelopeId = action.eSignEnvelope.envelopeGuid;
 				}
 
 				return { ...state, currentChangeOrder: changeOrder, saveError: false };
@@ -795,7 +792,7 @@ export function reducer(state: State = initialState, action: ChangeOrderActions)
 				let changeOrder = new ChangeOrderGroup(state.currentChangeOrder);
 				const updatedChangeOrder = action.changeOrders.find(x => x.id === changeOrder.id);
 
-				if (changeOrder && updatedChangeOrder)
+				if (updatedChangeOrder)
 				{
 					switch (updatedChangeOrder.salesStatusDescription)
 					{
@@ -934,7 +931,7 @@ export function reducer(state: State = initialState, action: ChangeOrderActions)
 						deleteAgreementNote.changeOrderId = salesChangeOrder.id;
 						deleteAgreementNote.action = 'Delete';
 
-						salesChangeOrder.salesNotesChangeOrders.push(deleteAgreementNote)
+						salesChangeOrder.salesNotesChangeOrders.push(deleteAgreementNote);
 					}
 				}
 

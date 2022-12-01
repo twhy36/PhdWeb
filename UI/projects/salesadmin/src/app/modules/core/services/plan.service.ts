@@ -26,17 +26,18 @@ export class PlanService
 		let filter = `financialCommunityId eq ${financialCommunityId} and isActive eq true and productType ne 'MultiUnit Shell'`;
 		let select = `id, financialPlanIntegrationKey, planSalesName, bedrooms, fullBaths, halfBaths, squareFeet`;
 		let orderby = 'planSalesName';
-		url += `planCommunities?${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}&${encodeURIComponent('$')}orderby=${encodeURIComponent(orderby)}`;
+
+		url += `planCommunities?${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}&${encodeURIComponent('$')}select=${encodeURIComponent(select)}&${encodeURIComponent('$')}orderby=${encodeURIComponent(orderby)}`;
 
 		return this._http.get(url).pipe(
 			map((response: any) =>
+			{
+				let retVal = response.value.map(data =>
 				{
-					let retVal = response.value.map(data =>
-					{
-						return this.mapPlans(data, financialCommunityId);
-					});
+					return this.mapPlans(data, financialCommunityId);
+				});
 
-					return retVal as Array<IPlanDto>;
+				return retVal as Array<IPlanDto>;
 			}),
 			catchError(this.handleError));
 	}
@@ -46,6 +47,7 @@ export class PlanService
 		let url = settings.apiUrl;
 
 		let filter = `communityId eq ${orgID}`;
+
 		url += `plans?${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}`;
 
 		return this._http.get(url).pipe(
@@ -69,6 +71,7 @@ export class PlanService
 	{
 		// send org id 
 		let url = settings.apiUrl;
+
 		url += `GetDesignPreviewLink(planId=${planId})`;
 
 		return this._http.get(url).pipe(
@@ -89,20 +92,6 @@ export class PlanService
 			numFullBath: data.fullBaths,
 			numHalfBath: data.halfBaths,
 			squareFeet: data.squareFeet,
-			communityId: financialCommunityId
-		} as IPlanDto;
-	}
-
-	private emptyPlan(financialCommunityId: number): IPlanDto
-	{
-		return {
-			id: 0,
-			salesName: '',
-			integrationKey: '',
-			numBed: 0,
-			numFullBath: 0,
-			numHalfBath: 0,
-			squareFeet: 0,
 			communityId: financialCommunityId
 		} as IPlanDto;
 	}

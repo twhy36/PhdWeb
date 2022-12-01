@@ -1,12 +1,4 @@
-import { CrmContact, Contact, IContact } from "./contact.model";
-
-export interface CrmOpportunity
-{
-	opportunityid: string;
-	name: string;
-	_pulte_communityid_value: string;
-	parentcontactid: CrmContact;
-}
+import { Contact, IContact } from './contact.model';
 
 export interface IOpportunity
 {

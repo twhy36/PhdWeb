@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Routes, RouterModule } from '@angular/router';
 
-import { NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
 import { CloudinaryModule } from '@cloudinary/angular-5.x';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
@@ -56,6 +55,7 @@ const moduleRoutes: Routes = [
 	providers: []
 })
 
-export class ChangeOrdersModule {
+export class ChangeOrdersModule
+{
 
 }

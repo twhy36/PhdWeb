@@ -7,7 +7,7 @@ import { cloneDeep, trim } from 'lodash'
 
 import
 {
-	Buyer, EmailAssoc, PhoneAssoc, AddressAssoc, Address, Contact, Phone,
+	Buyer, EmailAssoc, PhoneAssoc, AddressAssoc, Address, Contact,
 	MatchingContact, Realtor, ModalService
 } from 'phd-common';
 

@@ -313,7 +313,10 @@ export class ViewContractsComponent extends UnsubscribeOnDestroy implements OnIn
 
 					this.filteredContractTemplates = [...this.filteredContractTemplates, newTemplate];
 
-					this.allTemplates.indexOf(newTemplate) === -1 ? this.allTemplates = [...this.allTemplates, newTemplate] : null;
+					if (this.allTemplates.indexOf(newTemplate) === -1)
+					{
+						this.allTemplates = [...this.allTemplates, newTemplate];
+					}
 				}
 				else
 				{

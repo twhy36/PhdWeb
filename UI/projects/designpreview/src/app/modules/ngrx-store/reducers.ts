@@ -207,17 +207,9 @@ export const contractedTree = createSelector(
 							{
 								let isValid = treeMatched.point || filter(c.label);
 
-								let isIncluded = true;
 								const isContractedChoice = contractedChoices?.includes(c);
 
-								if (p.isStructuralItem)
-								{
-									isIncluded = c.quantity > 0;
-								}
-								else
-								{
-									isIncluded = isContractedChoice;
-								}
+								let isIncluded = p.isStructuralItem ? c.quantity > 0 : isContractedChoice;
 
 								if (scenario.hiddenChoiceIds.indexOf(c.id) > -1)
 								{

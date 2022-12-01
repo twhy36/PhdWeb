@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { OptionService } from '../../../core/services/option.service';
 import { IOptionSubCategory } from '../../../shared/models/option.model';
 import { OrganizationService } from '../../../core/services/organization.service';
-import { filter, map, switchMap, take } from 'rxjs/operators';
+import { filter, map, switchMap } from 'rxjs/operators';
 import { from, Observable, EMPTY } from 'rxjs';
 import { ConfirmModalComponent, ModalRef, ModalService, UnsubscribeOnDestroy, IColor, IColorDto } from 'phd-common';
 import { ColorService } from '../../../core/services/color.service';
@@ -324,7 +324,7 @@ export class ColorsSearchHeaderComponent
 			sku: colorDto.sku,
 			optionSubCategoryId: colorDto.optionSubCategoryId,
 			isActive: true
-		} as IColorDto;		
+		} as IColorDto;
 
 		let toast: IToastInfo;
 

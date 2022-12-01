@@ -176,7 +176,7 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 			const lotDtosObs = this._homeSiteService.getCommunityHomeSites(commId, this.settings.infiniteScrollPageSize, 0);
 			const releasesDtosObs = this._releaseService.getHomeSiteReleases(commId);
 
-			let obs = forkJoin(lotDtosObs, releasesDtosObs).pipe(map(([lotDto, rDto]) =>
+			forkJoin(lotDtosObs, releasesDtosObs).pipe(map(([lotDto, rDto]) =>
 			{
 				this.releaseDTOs = rDto;
 

@@ -301,11 +301,11 @@ export function reducer(state: State = initialState, action: SalesAgreementActio
 			}
 
 			return { ...state, notes: notes, isNoteNa: false, savingSalesAgreement: false };
-		case SalesAgreementActionTypes.VoidSalesAgreement,
-			SalesAgreementActionTypes.CancelSalesAgreement,
-			SalesAgreementActionTypes.SalesAgreementOutForSignature,
-			SalesAgreementActionTypes.SignSalesAgreement,
-			SalesAgreementActionTypes.ApproveSalesAgreement:
+		case SalesAgreementActionTypes.VoidSalesAgreement:
+		case SalesAgreementActionTypes.CancelSalesAgreement:
+		case SalesAgreementActionTypes.SalesAgreementOutForSignature:
+		case SalesAgreementActionTypes.SignSalesAgreement:
+		case SalesAgreementActionTypes.ApproveSalesAgreement:
 			return { ...state, savingSalesAgreement: true, saveError: false, isUnsaved: true };
 		case SalesAgreementActionTypes.CreateJIOForSpec:
 			return { ...state, savingSpecHome: true };

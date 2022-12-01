@@ -133,7 +133,6 @@ export class PHDSearchComponent
 
 		this.searchError = null;
 		this.searchResults = null;
-
 		this.optionsShown = false;
 
 		if (this.homesiteNumber)
@@ -143,13 +142,17 @@ export class PHDSearchComponent
 		
 		if (this.pendingLotBlocks.length > 0)
 		{
-			let lotBlocks = []
+			let lotBlocks = [];
+
 			this.pendingLotBlocks.forEach(lot => 
 			{
 				lotBlocks.push({ name: 'lotBlock', value: lot, andOr: 'or' });
 			});
+
 			lotBlocks[lotBlocks.length - 1].andOr = null;
+
 			filters.push({ items: lotBlocks });
+
 			this.pendingLotBlocks = [];
 		}
 
@@ -243,7 +246,7 @@ export class PHDSearchComponent
 			if (this.selectedBuildTypes && this.selectedBuildTypes.includes('Model') && !this.selectedBuildTypes.includes('Spec'))
 			{
 				filteredLots = filteredLots ? filteredLots : results;
-				filteredLots = filteredLots.filter(lot => lot.jobTypeName === 'Model' || lot.buildType === 'Model')
+				filteredLots = filteredLots.filter(lot => lot.jobTypeName === 'Model' || lot.buildType === 'Model');
 			}
 			else if (this.selectedBuildTypes && !this.selectedBuildTypes.includes('Model') && this.selectedBuildTypes.includes('Spec'))
 			{
@@ -321,9 +324,11 @@ export class PHDSearchComponent
 	searchPendingCOs()
 	{
 		this.clear();
+
 		this.searchActiveOnly = true;
 		const financialCommunityString = this.selectedFinancialCommunity && this.selectedFinancialCommunity.toString();
 		const salesCommunityString = this.selectedCommunity && this.selectedCommunity.toString();
+
 		this._searchService.searchActiveCOHomesites(financialCommunityString, salesCommunityString).subscribe(lots => 
 		{
 			this.pendingLotBlocks = lots.map(lot => lot.lot.lotBlock);
@@ -388,6 +393,7 @@ export class PHDSearchComponent
 			.subscribe(featureSwitchOrgAssoc =>
 			{
 				this.featureSwitchOrgAssoc = featureSwitchOrgAssoc;
+
 				this.populateIsPhdLiteEnabled();
 			});
 	}
@@ -409,7 +415,6 @@ export class PHDSearchComponent
 	 * Misc functions to prevent repeating code
 	 *
 	 */
-
 
 	getFilterFromSelectItems(name: string, selections: Array<string | number>, collection?: string): IFilterItems
 	{
@@ -575,6 +580,7 @@ export class PHDSearchComponent
 		const lotCheck = (lot.lotStatusDescription.trim() === 'Available' || lot.lotStatusDescription.trim() === 'Unavailable')
 			&& (lot.buildType.trim() === 'Spec' || lot.buildType.trim() === 'Model')
 			&& (this.getLatestAgreementStatus(lot) !== 'Signed');
+
 		return lot.isPhdLiteEnabled ? lotCheck : !this.isHslMigrated(lot.jobCreatedBy) && lotCheck;
 	}
 }

@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { select, Store } from '@ngrx/store';
 import { combineLatest } from 'rxjs';
 import { delay, take } from 'rxjs/operators';
-import * as _ from "lodash";
+import * as _ from 'lodash';
 
 import { UnsubscribeOnDestroy, ModalService, ScenarioOption, PointStatus, ConfirmModalComponent } from 'phd-common';
 import * as fromRoot from '../../../ngrx-store/reducers';
@@ -91,6 +91,7 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 				const groups = _.groupBy(this.filteredOptions(lite.options), o => o.optionCategoryId);
 
 				const subMenuitems = [];
+
 				Object.keys(groups).forEach(key =>
 				{
 					const category = _.cloneDeep(categories.find(c => c.id.toString() === key));
@@ -121,7 +122,8 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 
 				this.store.dispatch(new NavActions.SetSubNavItems(subMenuitems));
 
-				const firstCategory = subMenuitems && subMenuitems.length ? subMenuitems[0].id : 0;
+				const firstCategory = subMenuitems.length ? subMenuitems[0].id : 0;
+
 				this.store.dispatch(new NavActions.SetSelectedSubNavItem(firstCategory));
 			});
 
@@ -164,13 +166,15 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 							option.previousQuantity = 0;
 							option.isSelected = lite.scenarioOptions.some(so => so.edhPlanOptionId === option.id);
 							option.previouslySelected = this.originalScenarioOptions.some(so => so.edhPlanOptionId === option.id);
-							option.isReadonly = this.isReadonlyOption(option)
+							option.isReadonly = this.isReadonlyOption(option);
 
 							if (option.isSelected)
 							{
 								const selectedScenario = lite.scenarioOptions.find(so => so.edhPlanOptionId === option.id);
+
 								option.selectedQuantity = selectedScenario.planOptionQuantity;
 								option.previousQuantity = selectedScenario.planOptionQuantity;
+
 								subtotal += option.listPrice * option.selectedQuantity;
 							}
 						});
@@ -248,6 +252,7 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 			// Toggle the checkbox as normal
 			option.isSelected = !option.isSelected;
 			option.selectedQuantity = option.isSelected ? 1 : 0;
+
 			this.saveSelectedOptionToStore(option);
 		}
 	}
@@ -260,6 +265,7 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 		}
 
 		option.previousQuantity = option.selectedQuantity;
+
 		let selectedOptions: ScenarioOption[] = [];
 		const previousSelection = this.scenarioOptions.find(x => x.edhPlanOptionId === option.id);
 
@@ -399,6 +405,7 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 		if (scenarioOption)
 		{
 			let selectedOptions = [];
+
 			selectedOptions.push({
 				scenarioOptionId: scenarioOption.scenarioOptionId,
 				scenarioId: scenarioOption.scenarioId,

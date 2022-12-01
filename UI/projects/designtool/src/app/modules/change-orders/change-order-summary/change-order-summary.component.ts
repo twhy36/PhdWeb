@@ -17,7 +17,6 @@ import * as SalesAgreementActions from '../../ngrx-store/sales-agreement/actions
 import * as ChangeOrderActions from '../../ngrx-store/change-order/actions';
 import * as CommonActions from '../../ngrx-store/actions';
 import * as ContractActions from '../../ngrx-store/contract/actions';
-import * as FavoriteActions from '../../ngrx-store/favorite/actions';
 import * as fromScenario from '../../ngrx-store/scenario/reducer';
 import * as fromUser from '../../ngrx-store/user/reducer';
 import * as fromSalesAgreement from '../../ngrx-store/sales-agreement/reducer';
