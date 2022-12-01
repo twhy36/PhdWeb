@@ -695,6 +695,11 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 
 		if (adjustedChoices && adjustedChoices.length)
 		{
+			if (impactedChoices?.length)
+			{
+				adjustedChoices = _.uniq(adjustedChoices.concat(impactedChoices));
+			}
+
 			obs = this.showOptionMappingAdjustedModal(adjustedChoices);
 		}
 		else if (choiceToDeselect && impactedChoices && impactedChoices.length && ((choiceToDeselect.changedDependentChoiceIds && choiceToDeselect.changedDependentChoiceIds.length > 0) || choiceToDeselect.mappingChanged))
