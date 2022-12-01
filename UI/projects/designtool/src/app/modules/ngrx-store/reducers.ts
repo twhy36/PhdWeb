@@ -770,15 +770,12 @@ export const priceBreakdown = createSelector(
 export const filteredTree = createSelector(
 	fromScenario.selectScenario,
 	monotonyConflict,
-	fromChangeOrder.changeOrderState,
-	(state, monotonyConflict, changeOrder) =>
+	fromChangeOrder.inPlanChangeOrder,
+	(state, monotonyConflict, inPlanChangeOrder) =>
 	{
 		let tree = _.cloneDeep(state.tree);
 		const treeFilter = state.treeFilter;
 		let filteredTree: TreeVersion;
-
-		const inPlanChangeOrder = changeOrder && changeOrder.isChangingOrder &&
-			changeOrder.changeInput && changeOrder.changeInput.type === ChangeTypeEnum.PLAN;
 
 		// Set point status
 		if (tree && tree.treeVersion)

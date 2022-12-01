@@ -7,6 +7,7 @@ import * as _ from "lodash";
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromLite from '../../../ngrx-store/lite/reducer';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
+import * as fromChangeOrder from '../../../ngrx-store/change-order/reducer';
 
 import * as LiteActions from '../../../ngrx-store/lite/actions';
 
@@ -28,6 +29,7 @@ export class ColorSchemeComponent extends UnsubscribeOnDestroy implements OnInit
 	errorMessage: string = '';
 	legacyColorScheme: LegacyColorScheme;
 	scenarioId: number;
+	inPlanChangeOrder: boolean = false;
 
 	constructor(private store: Store<fromRoot.State>) { super(); }
 
@@ -36,10 +38,11 @@ export class ColorSchemeComponent extends UnsubscribeOnDestroy implements OnInit
 		combineLatest([
 			this.store.pipe(select(fromLite.selectedElevation)),
 			this.store.pipe(select(fromLite.selectedColorScheme)),
-			this.store.pipe(select(fromRoot.legacyColorScheme))
+			this.store.pipe(select(fromRoot.legacyColorScheme)),
+			this.store.pipe(select(fromChangeOrder.inPlanChangeOrder))
 		])
 		.pipe(this.takeUntilDestroyed())
-		.subscribe(([elevation, colorScheme, legacyColorScheme]) =>
+		.subscribe(([elevation, colorScheme, legacyColorScheme, inPlanChangeOrder]) =>
 		{
 			this.selectedElevation = elevation;
 			this.selectedColorScheme = colorScheme;
@@ -49,8 +52,10 @@ export class ColorSchemeComponent extends UnsubscribeOnDestroy implements OnInit
 
 			if (!this.colorSchemes || !this.colorSchemes.length)
 			{
-				// If the color exists in both generic and elevation options, use the one from generic option 
-				if (legacyColorScheme)
+				this.inPlanChangeOrder = inPlanChangeOrder;
+
+				// When it is not in plan change order, if the color exists in both generic and elevation options, use the one from generic option 
+				if (legacyColorScheme && !inPlanChangeOrder)
 				{
 					const index = colorSchemes.findIndex(c => c.name.toLowerCase() === legacyColorScheme.colorName?.toLowerCase());
 					if (index > -1)
@@ -100,7 +105,7 @@ export class ColorSchemeComponent extends UnsubscribeOnDestroy implements OnInit
 			let selectedOptions = [];
 			let optionColors = [];
 
-			const deselectLegacyColorScheme = this.legacyColorScheme?.isSelected && this.legacyColorScheme.colorName === data.color?.name;
+			const deselectLegacyColorScheme = this.legacyColorScheme?.isSelected && this.legacyColorScheme.colorName === data.color?.name && !this.inPlanChangeOrder;
 			const genericOption = this.scenarioOptions.find(opt => opt.edhPlanOptionId === this.legacyColorScheme?.genericPlanOptionId);
 			const selectedColorScheme = scenarioOption.scenarioOptionColors?.find(c => c.colorItemId === data.color?.colorItemId && c.colorId === data.color?.colorId);
 
@@ -131,7 +136,7 @@ export class ColorSchemeComponent extends UnsubscribeOnDestroy implements OnInit
 			}
 			else
 			{
-				if (this.legacyColorScheme?.isSelected)
+				if (this.legacyColorScheme?.isSelected && !this.inPlanChangeOrder)
 				{
 					// Deselect current selected legacy color scheme
 					if (genericOption)
@@ -162,7 +167,7 @@ export class ColorSchemeComponent extends UnsubscribeOnDestroy implements OnInit
 					}					
 				}
 
-				if (this.legacyColorScheme && !this.legacyColorScheme.isSelected &&  !!data.color?.name && this.legacyColorScheme.colorName === data.color.name)
+				if (this.legacyColorScheme && !this.legacyColorScheme.isSelected &&  !!data.color?.name && this.legacyColorScheme.colorName === data.color.name && !this.inPlanChangeOrder)
 				{
 					// Select generic option which is tied to a legacy color scheme
 					selectedOptions.push({

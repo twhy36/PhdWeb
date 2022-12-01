@@ -1050,3 +1050,8 @@ export const isChangingOrder = createSelector(
 	changeOrderState,
 	(state) => state.isChangingOrder
 );
+
+export const inPlanChangeOrder = createSelector(
+	changeOrderState,
+	(state) => state.isChangingOrder && state.changeInput?.type === ChangeTypeEnum.PLAN
+);

@@ -234,7 +234,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 		.pipe(this.takeUntilDestroyed())
 		.subscribe(([elevation, colorScheme, legacyColorScheme]) =>
 		{
-			const isColorSchemeCompleted = !!colorScheme || !!legacyColorScheme;
+			const isColorSchemeCompleted = !!colorScheme || legacyColorScheme?.isSelected;
 
 			if (!!elevation && isColorSchemeCompleted)
 			{
