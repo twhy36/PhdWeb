@@ -1390,12 +1390,13 @@ export class ContractService
 	{
 		let nsoDetails = nsoSummary ? nsoSummary.map(result =>
 		{
+			let nsoChangeOrder = result.jobChangeOrders.find(co => co.jobChangeOrderTypeDescription === 'NonStandard').jobChangeOrderNonStandardOptions[0];
 			return {
-				nonStandardOptionName: result.jobChangeOrders[0].jobChangeOrderNonStandardOptions[0].nonStandardOptionName,
-				nonStandardOptionDescription: result.jobChangeOrders[0].jobChangeOrderNonStandardOptions[0].nonStandardOptionDescription,
-				nonStandardOptionQuantity: result.jobChangeOrders[0].jobChangeOrderNonStandardOptions[0].qty,
-				nonStandardOptionUnitPrice: result.jobChangeOrders[0].jobChangeOrderNonStandardOptions[0].unitPrice,
-				nonStandardOptionAction: result.jobChangeOrders[0].jobChangeOrderNonStandardOptions[0].action
+				nonStandardOptionName: nsoChangeOrder.nonStandardOptionName,
+				nonStandardOptionDescription: nsoChangeOrder.nonStandardOptionDescription,
+				nonStandardOptionQuantity: nsoChangeOrder.qty,
+				nonStandardOptionUnitPrice: nsoChangeOrder.unitPrice,
+				nonStandardOptionAction: nsoChangeOrder.action
 			};
 		}) : [];
 

@@ -96,7 +96,7 @@ export class ChangeOrderEffects
 		return this.actions$.pipe(
 			ofType<CreateJobChangeOrders>(ChangeOrderActionTypes.CreateJobChangeOrders),
 			withLatestFrom(
-				this.store,
+				this.store, 
 				this.store.pipe(select(priceBreakdown)),
 				this.store.pipe(select(fromRoot.legacyColorScheme))
 			),
@@ -387,7 +387,7 @@ export class ChangeOrderEffects
 						? priceBreakdown.totalPrice - store.salesAgreement.salePrice
 						: 0;
 
-					const inputData = isPhdLite
+					let inputData = isPhdLite
 						? this.liteService.getPlanChangeOrderDataLite(
 							store.changeOrder.currentChangeOrder,
 							store.job,
@@ -404,7 +404,20 @@ export class ChangeOrderEffects
 							store.salesAgreement.id,
 							priceBreakdown.baseHouse,
 							store.scenario.rules.optionRules);
-
+					
+					const nonStandardOptions = store.job.jobNonStandardOptions.map(jnso =>
+					{
+						return {
+							id: jnso.id,
+							nonStandardOptionName: jnso.name,
+							nonStandardOptionDescription: jnso.description,
+							financialOptionNumber: jnso.financialOptionNumber,
+							action: 'Delete',
+							qty: jnso.quantity,
+							unitPrice: jnso.unitPrice
+						};
+					});
+					inputData.nonStandardOptions = nonStandardOptions;
 					const data = this.changeOrderService.mergePosData(
 						inputData,
 						store.changeOrder.currentChangeOrder,
@@ -727,7 +740,7 @@ export class ChangeOrderEffects
 		return this.actions$.pipe(
 			ofType<SavePendingJio>(ChangeOrderActionTypes.SavePendingJio),
 			withLatestFrom(
-				this.store,
+				this.store, 
 				this.store.pipe(select(priceBreakdown)),
 				this.store.pipe(select(fromRoot.legacyColorScheme))
 			),
