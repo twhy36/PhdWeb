@@ -137,7 +137,10 @@ export class PeopleComponent extends UnsubscribeOnDestroy implements OnInit, Con
 
 						buyer = buyerCountryCheck;
 
-						this.saveBuyer(buyer);
+						if (addresAssocs[0].address.address1.length && addresAssocs[0].address.city.length)
+						{
+							this.saveBuyer(buyer);
+						}
 					}
 				}
 
