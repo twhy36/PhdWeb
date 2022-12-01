@@ -6,7 +6,7 @@ import { ActivatedRoute } from '@angular/router';
 import { environment } from '../../../../../environments/environment';
 import { FinancialCommunityViewModel, HomeSiteViewModel, PlanViewModel } from '../../../shared/models/plan-assignment.model';
 import { FinancialCommunity } from '../../../shared/models/financialCommunity.model';
-import { map, switchMap } from 'rxjs/operators';
+import { finalize, map, switchMap } from 'rxjs/operators';
 import { FinancialCommunityInfo } from '../../../shared/models/financialCommunity.model';
 import { combineLatest, forkJoin, of } from 'rxjs';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
@@ -59,6 +59,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 	requiredPdfs = [];
 	selectedOption: PlanViewModel = null;
 	loading: boolean = false;
+	isGeneratingDesignPreviewLink: boolean = false;
 	isPhdLite = false;
 	salesPrograms: Array<SalesProgram>;
 	closingCostDisabled: boolean;
@@ -433,14 +434,15 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 		//clear previous results
 		this._msgService.clear();
 		this.disableUrlGeneration();
-
+		
 		//invalid input plan
 		if (!plan || !plan.id)
 		{
 			this._msgService.add({ severity: 'error', summary: 'Error: Missing or Invalid Plan.', detail: '' });
 			return;
 		}
-
+		
+		this.isGeneratingDesignPreviewLink = true;
 		const planId = plan.id;
 
 		//check if plan has tree
@@ -454,6 +456,9 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 				}
 
 				return this._planService.getDesignPreviewLink(planId);
+			}),
+			finalize(() => {
+				this.isGeneratingDesignPreviewLink = false;
 			})
 		).subscribe(
 			(link =>

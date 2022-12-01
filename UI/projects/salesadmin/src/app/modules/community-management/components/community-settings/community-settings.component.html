@@ -232,7 +232,7 @@
                         <br />
 						<button [disabled]="isGenerateUrlButtonDisabled" class="btn btn-primary phd-btn-save" (click)="generateDesignPreviewLink(selectedOption)">
 							Generate Link
-							<ng-container *ngIf="isSaving"><i class="fa fa-spinner fa-spin fa-fw"></i></ng-container>
+							<ng-container *ngIf="isGeneratingDesignPreviewLink"><i class="fa fa-spinner fa-spin fa-fw"></i></ng-container>
 						</button>
 						<div class="phd-link-box phd-line">
 							<a class="btn-link" [href]="designPreviewUrl" target="_blank" rel="noopener noreferrer">{{ designPreviewUrl }}</a>

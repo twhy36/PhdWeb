@@ -9,7 +9,6 @@ import { SettingsService } from './settings.service';
 
 import { IPlanDto, Plan } from '../../shared/models/plan.model';
 import { Settings } from '../../shared/models/settings.model';
-import { withSpinner } from 'phd-common';
 
 const settings: Settings = new SettingsService().getSettings();
 
@@ -72,7 +71,7 @@ export class PlanService
 		let url = settings.apiUrl;
 		url += `GetDesignPreviewLink(planId=${planId})`;
 
-		return withSpinner(this._http).get(url).pipe(
+		return this._http.get(url).pipe(
 			map((response: any) =>
 			{
 				return response.value as string;
