@@ -686,19 +686,23 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 
 		adjustedChoices = _.uniq(adjustedChoices.concat(getChoicesWithNewPricing(this.tree, this.treeVersionRules, this.options, choice, choiceToDeselect)));
 
-		adjustedChoices.forEach(c =>
-		{
-			selectedChoices.push({ choiceId: c.id, overrideNote: c.overrideNote, quantity: 0, attributes: c.selectedAttributes, timeOfSaleOptionPrices: this.getReplacedOptionPrices(c) });
-		});
-
 		let obs: Observable<boolean>;
 
 		if (adjustedChoices && adjustedChoices.length)
 		{
+			// Include impactedChoices in the list to display
 			if (impactedChoices?.length)
 			{
 				adjustedChoices = _.uniq(adjustedChoices.concat(impactedChoices));
 			}
+
+			// #382967 Find "second-tier" choices that are also affected
+			adjustedChoices = _.uniq(adjustedChoices.concat(this.getNextTierOfAffectedChoices(choiceToDeselect, adjustedChoices)));
+
+			adjustedChoices.forEach(c =>
+			{
+				selectedChoices.push({ choiceId: c.id, overrideNote: c.overrideNote, quantity: 0, attributes: c.selectedAttributes, timeOfSaleOptionPrices: this.getReplacedOptionPrices(c) });
+			});
 
 			obs = this.showOptionMappingAdjustedModal(adjustedChoices);
 		}
@@ -723,7 +727,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		{
 			if (res)
 			{
-				this.store.dispatch(new ScenarioActions.SelectChoices(true, ...selectedChoices));
+				this.store.dispatch(new ScenarioActions.SelectChoices(true, ..._.uniqBy(selectedChoices, ch => ch.choiceId)));
 
 				const pointRules = this.treeVersionRules.pointRules;
 				const choiceRules = this.treeVersionRules.choiceRules;
@@ -1020,5 +1024,24 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		});
 
 		return choices.filter(ch => ch.id !== deselectedChoice?.id);
+	}
+
+	/**
+	 * #382967
+	 * Navigates down the tree to find additional choices that would 
+	 * be removed from the configuration via C2C or P2P rules.
+	 * @param initialChoice The choice that was originally deselected.
+	 * @param removedChoices The choices initially removed from the configuration.
+	 * @returns The list of "second-tier" choices to be removed.
+	 */
+	getNextTierOfAffectedChoices(initialChoice: Choice, removedChoices: Choice[]): Choice[]
+	{
+		let choices: Choice[] = [];
+		removedChoices.forEach(ch =>
+		{
+			choices = choices.concat(getDependentChoices(this.tree, this.treeVersionRules, this.options, ch));
+		});
+
+		return choices.filter(ch => ch.id !== initialChoice?.id);
 	}
 }
