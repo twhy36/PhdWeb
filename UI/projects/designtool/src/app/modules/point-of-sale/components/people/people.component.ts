@@ -131,13 +131,13 @@ export class PeopleComponent extends UnsubscribeOnDestroy implements OnInit, Con
 					}
 
 					//Check if the primary buyer's country has a value. If not set default to "United States" and save buyer.
-					if (addresAssocs && !addresAssocs[0].address.country)
+					if (addresAssocs && !addresAssocs[0]?.address?.country?.length)
 					{
 						addresAssocs[0].address.country = 'United States';
 
 						buyer = buyerCountryCheck;
 
-						if (addresAssocs[0].address.address1.length && addresAssocs[0].address.city.length)
+						if (addresAssocs[0]?.address?.address1?.length && addresAssocs[0]?.address?.city?.length)
 						{
 							this.saveBuyer(buyer);
 						}
