@@ -162,7 +162,7 @@ export class PeopleComponent extends UnsubscribeOnDestroy implements OnInit, Con
 			fromRoot.isSpecSalePending,
 			(co, sag, isSpecSalePending) =>
 			{
-				return co.isChangingOrder || isSpecSalePending ? co.changeInput.trustName : sag.trustName;
+				return co.isChangingOrder || isSpecSalePending ? co?.changeInput?.trustName : sag.trustName;
 			}
 		);
 
@@ -188,8 +188,7 @@ export class PeopleComponent extends UnsubscribeOnDestroy implements OnInit, Con
 				{
 					return false;
 				}
-				
-				return co.isChangingOrder || isSpecSalePending ? co.changeInput.isTrustNa : sag.isTrustNa;
+				return co.isChangingOrder || isSpecSalePending ? co?.changeInput?.isTrustNa : sag.isTrustNa;
 			}
 		);
 
