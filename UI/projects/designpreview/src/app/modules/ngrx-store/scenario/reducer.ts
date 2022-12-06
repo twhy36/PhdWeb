@@ -297,9 +297,14 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 			{
 				points.forEach(pt => setPointStatus(pt));
 
-				if (state.buildMode !== BuildMode.Preview && state.buildMode !== BuildMode.Presale)
+				// For each point, if the user cannot select the DP in this tool, then the status should be complete
+				if (state.buildMode === BuildMode.Preview || state.buildMode === BuildMode.Presale)
 				{
-					// For each point, if the user cannot select the DP in this tool, then the status should be complete
+					points.filter(pt => pt.isHiddenFromBuyerView)
+						.forEach(pt => pt.status = PointStatus.COMPLETED);
+				}
+				else
+				{
 					points.filter(pt => pt.isStructuralItem || pt.isPastCutOff || pt.isHiddenFromBuyerView)
 						.forEach(pt => pt.status = PointStatus.COMPLETED);
 				}

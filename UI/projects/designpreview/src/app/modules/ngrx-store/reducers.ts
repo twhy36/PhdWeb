@@ -143,7 +143,7 @@ export const filteredTree = createSelector(
 							{
 								isIncluded = false;
 							}
-							else if (!isPreview && scenario.hiddenPointIds.indexOf(dp.id) > -1)
+							else if (!isPreview && !isPresale && scenario.hiddenPointIds.indexOf(dp.id) > -1)
 							{
 								isIncluded = false;
 							}
