@@ -230,11 +230,11 @@
                             <option *ngFor="let plan of plans" [ngValue]="plan">{{ plan.displayName }}</option>
 						</select>
                         <br />
-						<button [disabled]="isGenerateUrlButtonDisabled" class="btn btn-primary phd-btn-save" (click)="generateDesignPreviewLink(selectedOption)">
+						<button [disabled]="isGenerateUrlButtonDisabled" class="btn btn-primary phd-btn-generate-url" (click)="generateDesignPreviewLink(selectedOption)">
 							Generate Link
 							<ng-container *ngIf="isGeneratingDesignPreviewLink"><i class="fa fa-spinner fa-spin fa-fw"></i></ng-container>
 						</button>
-						<div class="phd-link-box phd-line">
+						<div class="phd-link-box phd-line" *ngIf="designPreviewUrl">
 							<a class="btn-link" [href]="designPreviewUrl" target="_blank" rel="noopener noreferrer">{{ designPreviewUrl }}</a>
                             <button class="phd-copy-image" (click)="copyToClipboard(designPreviewUrl)">
                                 <i class="fa fa-copy fa-thin"></i>

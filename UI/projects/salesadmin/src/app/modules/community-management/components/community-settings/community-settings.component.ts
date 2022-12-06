@@ -160,6 +160,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 
 					//init generate url values
 					this.disableUrlGeneration();
+					this.selectedOption = null;
 
 					if (this.orgId && comm.salesCommunityId)
 					{
