@@ -1,10 +1,12 @@
-import { Component, Input, Output, OnInit, ChangeDetectorRef, EventEmitter, ViewChild, ElementRef } from '@angular/core';
+import { Component, Input, Output, OnInit, ChangeDetectorRef, EventEmitter, HostListener, ViewChild, ElementRef } from '@angular/core';
+import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
-import { Store } from '@ngrx/store';
+import { select, Store } from '@ngrx/store';
 import { UnsubscribeOnDestroy } from 'phd-common';
 import { BrandService } from '../../../core/services/brand.service';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
+import * as fromPlan from '../../../ngrx-store/plan/reducer';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 
 import { ActionBarCallType } from '../../classes/constants.class';
@@ -44,6 +46,8 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit
 	currentTopPosition = 0;
 	previousTopPosition = 0;
 	favoritesListIcon = '';
+	communityName: string;
+	planName: string;
 
 	get isContractedOptionsDisabled(): boolean
 	{
@@ -54,12 +58,27 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit
 		private cd: ChangeDetectorRef,
 		private router: Router,
 		private store: Store<fromRoot.State>,
-		private brandService: BrandService
+		private brandService: BrandService,
+		private titleService: Title
 	) { super(); }
 
 	ngOnInit()
 	{
 		this.favoritesListIcon = this.brandService.getBrandImage('favorites_list');
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromRoot.financialCommunityName),
+		).subscribe(communityName => {
+			this.communityName = communityName;
+		});
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromPlan.selectedPlanData)
+		).subscribe(planData => {
+			this.planName = planData && planData.salesName;
+		});
 	}
 
 	animateHeaderTransition(pageY)
@@ -122,8 +141,8 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit
 
 	onPrint() 
 	{
-		if (this.isPresale)
-		{
+		if (this.isPresale) {
+			this.titleService.setTitle(`${this.communityName} ${this.planName}`);
 			window.print();
 		} else
 		{
@@ -131,8 +150,12 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit
 		}
 	}
 
-	onViewFavorites()
-	{
+	@HostListener("window:afterprint", [])
+	onWindowAfterPrint() {
+		this.titleService.setTitle('Design Preview');
+	}
+
+	onViewFavorites() {
 		this.store.dispatch(new ScenarioActions.SetTreeFilter(null));
 		this.router.navigateByUrl('/favorites/summary');
 	}
