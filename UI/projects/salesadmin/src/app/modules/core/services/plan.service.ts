@@ -67,17 +67,17 @@ export class PlanService
 			catchError(this.handleError));
 	}
 
-	getDesignPreviewLink(planId: number): Observable<string>
+	getDesignPreviewLink(planCommunityId: number): Observable<string>
 	{
 		// send org id 
 		let url = settings.apiUrl;
 
-		url += `GetDesignPreviewLink(planId=${planId})`;
+		url += `GetDesignPreviewLink(planCommunityId=${planCommunityId})`;
 
-		return this._http.get(url).pipe(
-			map((response: any) =>
+		return this._http.get(url, {responseType: 'text'}).pipe(
+			map((response: string) =>
 			{
-				return response.value as string;
+				return response;
 			}),
 			catchError(this.handleError));
 	}
