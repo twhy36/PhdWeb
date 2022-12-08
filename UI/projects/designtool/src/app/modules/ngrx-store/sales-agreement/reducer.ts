@@ -1,12 +1,12 @@
-import * as _ from "lodash";
+import * as _ from 'lodash';
 import { createFeatureSelector, createSelector } from '@ngrx/store';
 
 import { SalesAgreementActions, SalesAgreementActionTypes } from './actions';
 
-import { RehydrateMap } from "../sessionStorage";
+import { RehydrateMap } from '../sessionStorage';
 
-import { Buyer, Note, SalesAgreement, SalesAgreementProgram, SalesAgreementDeposit, SalesAgreementContingency, ISalesProgram } from "phd-common";
-import { CommonActionTypes } from "../actions";
+import { Buyer, Note, SalesAgreement, SalesAgreementProgram, SalesAgreementDeposit, SalesAgreementContingency, ISalesProgram } from 'phd-common';
+import { CommonActionTypes } from '../actions';
 
 export interface State extends SalesAgreement
 {
@@ -30,7 +30,7 @@ export interface State extends SalesAgreement
 	isDesignComplete: boolean
 }
 
-RehydrateMap.onRehydrate<State>("salesAgreement", state =>
+RehydrateMap.onRehydrate<State>('salesAgreement', state =>
 {
 	return {
 		...state,
@@ -376,7 +376,7 @@ export function reducer(state: State = initialState, action: SalesAgreementActio
 				{
 					if (changeOrder && changeOrder.salesStatusDescription === 'Approved')
 					{
-						let buyerCO = changeOrder.jobChangeOrders.find(t => t.jobChangeOrderTypeDescription === "BuyerChangeOrder");
+						let buyerCO = changeOrder.jobChangeOrders.find(t => t.jobChangeOrderTypeDescription === 'BuyerChangeOrder');
 
 						if (buyerCO)
 						{
@@ -384,7 +384,7 @@ export function reducer(state: State = initialState, action: SalesAgreementActio
 							{
 								const existingBuyer = salesAgreementBuyers.findIndex(t => t.opportunityContactAssoc.id === buyer.opportunityContactAssoc.id);
 
-								if (buyer.action === "Add")
+								if (buyer.action === 'Add')
 								{
 									if (existingBuyer > -1)
 									{
@@ -399,7 +399,7 @@ export function reducer(state: State = initialState, action: SalesAgreementActio
 										sortKey: buyer.sortKey
 									});
 								}
-								else if (buyer.action === "Delete")
+								else if (buyer.action === 'Delete')
 								{
 									if (existingBuyer > -1)
 									{
@@ -408,26 +408,26 @@ export function reducer(state: State = initialState, action: SalesAgreementActio
 								}
 							});
 
-							let deletedTrust = buyerCO.jobSalesChangeOrderTrusts.find(t => t.action === "Delete");
-							let addedTrust = buyerCO.jobSalesChangeOrderTrusts.find(t => t.action === "Add");
+							let deletedTrust = buyerCO.jobSalesChangeOrderTrusts.find(t => t.action === 'Delete');
+							let addedTrust = buyerCO.jobSalesChangeOrderTrusts.find(t => t.action === 'Add');
 
 							if (addedTrust)
 							{
 								trustName = addedTrust.trustName;
 							}
-							else if (deletedTrust && !addedTrust)
+							else if (deletedTrust)
 							{
 								trustName = null;
 							}
 						}
 
-						let priceAdjustmentCO = changeOrder.jobChangeOrders.find(t => t.jobChangeOrderTypeDescription === "PriceAdjustment");
+						let priceAdjustmentCO = changeOrder.jobChangeOrders.find(t => t.jobChangeOrderTypeDescription === 'PriceAdjustment');
 
 						if (priceAdjustmentCO)
 						{
 							priceAdjustmentCO.jobSalesChangeOrderSalesPrograms.forEach(program =>
 							{
-								if (program.action === "Add")
+								if (program.action === 'Add')
 								{
 									const existingProgram = salesAgreementPrograms.findIndex(t => t.salesProgramId === program.salesProgramId);
 
@@ -448,7 +448,7 @@ export function reducer(state: State = initialState, action: SalesAgreementActio
 										salesProgram: salesProgram
 									});
 								}
-								else if (program.action === "Delete")
+								else if (program.action === 'Delete')
 								{
 									const existingProgram = salesAgreementPrograms.findIndex(t => t.salesProgramId === program.salesProgramId);
 
@@ -470,7 +470,7 @@ export function reducer(state: State = initialState, action: SalesAgreementActio
 }
 
 //selectors
-export const salesAgreementState = createFeatureSelector<State>("salesAgreement");
+export const salesAgreementState = createFeatureSelector<State>('salesAgreement');
 
 export const programs = createSelector(
 	salesAgreementState,

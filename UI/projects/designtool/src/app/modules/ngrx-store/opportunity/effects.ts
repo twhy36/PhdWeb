@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Action } from '@ngrx/store';
-import { Observable, of, from } from 'rxjs';
-import { switchMap, map } from 'rxjs/operators';
+import { Observable, from } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 
 import { OpportunityService } from '../../core/services/opportunity.service';
 import { OpportunityActionTypes, LoadOpportunity, OpportunityLoaded } from './actions';

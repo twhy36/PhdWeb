@@ -403,7 +403,6 @@ export class TreeService
 		}
 
 		const batchSize = 1;
-		let batchBundles: string[] = [];
 
 		const chunk = 100;
 		const splitArrayresult = options.reduce((resultArray, item, index) =>

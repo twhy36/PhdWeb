@@ -3,9 +3,8 @@ import { ActionReducerMap, createSelector } from '@ngrx/store';
 import * as _ from 'lodash';
 
 import {
-	isChoiceComplete, isChoiceAttributesComplete, ChangeOrderChoice, ChangeOrderChoiceAttribute,
-	ChangeOrderChoiceLocation, ChangeTypeEnum, JobChoice, JobChoiceAttribute, JobChoiceLocation, Lot, PointStatus,
-	isSalesChangeOrder, setPriceBreakdown, ScenarioStatusType, PriceBreakdown, PickType, TreeVersion, Choice
+	isChoiceComplete, isChoiceAttributesComplete, ChangeTypeEnum, Lot, PointStatus,
+	isSalesChangeOrder, setPriceBreakdown, ScenarioStatusType, PriceBreakdown, PickType, TreeVersion
 } from 'phd-common';
 
 import * as fromScenario from './scenario/reducer';

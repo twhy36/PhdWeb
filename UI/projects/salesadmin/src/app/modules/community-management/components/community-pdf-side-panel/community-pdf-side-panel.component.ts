@@ -1,10 +1,10 @@
-import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from "@angular/core";
-import { AbstractControl, FormControl, FormGroup, ValidatorFn, Validators } from "@angular/forms";
-import { SidePanelComponent } from "phd-common";
-import { CommunityPdf, ISectionHeader, SectionHeader } from "../../../shared/models/communityPdf.model";
-import { FinancialCommunityViewModel } from "../../../shared/models/plan-assignment.model";
+import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { AbstractControl, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
+import { SidePanelComponent } from 'phd-common';
+import { CommunityPdf, ISectionHeader, SectionHeader } from '../../../shared/models/communityPdf.model';
+import { FinancialCommunityViewModel } from '../../../shared/models/plan-assignment.model';
 
-import * as moment from "moment";
+import * as moment from 'moment';
 
 @Component({
 	selector: 'community-pdf-side-panel-component',
@@ -42,7 +42,7 @@ export class CommunityPdfSidePanelComponent implements OnInit
 		{ label: 'Community Association', id: 1 },
 		{ label: 'Additional Documents', id: 2 },
 		{ label: 'Included Features', id: 3 }
-	]
+	];
 
 	get isDirty(): boolean
 	{
@@ -64,12 +64,13 @@ export class CommunityPdfSidePanelComponent implements OnInit
 			If you choose to Continue, the existing PDF will be<br>
 			expired. If you choose to Cancel, no changes will be<br>
 			made.`;
+
 		this.createForm();
 	}
 
 	convertDate(date)
 	{
-		return moment.parseZone(date).format("M/DD/YYYY");
+		return moment.parseZone(date).format('M/DD/YYYY');
 	}
 
 	handleSave()
@@ -78,7 +79,8 @@ export class CommunityPdfSidePanelComponent implements OnInit
 		{
 			this.sidePanel.showCustomConfirm();
 		}
-		else{
+		else
+		{
 			this.save();
 		}
 	}
@@ -109,11 +111,12 @@ export class CommunityPdfSidePanelComponent implements OnInit
 		else
 		{
 			const formData = new FormData();
+
 			for (const key of Object.keys(this.communityPdfForm.value))
 			{
 				if (key === 'effectiveDate' || key == 'expirationDate')
 				{
-					formData.set(key, this.communityPdfForm.get(key).value !== null ? new Date(this.communityPdfForm.get(key).value).toISOString() : null)
+					formData.set(key, this.communityPdfForm.get(key).value !== null ? new Date(this.communityPdfForm.get(key).value).toISOString() : null);
 				}
 				else
 				{
@@ -216,6 +219,7 @@ export class CommunityPdfSidePanelComponent implements OnInit
 		return (control: AbstractControl): { [key: string]: boolean } =>
 		{
 			const existingName = this.communityPdfs.some(pdf => pdf.fileName.replace(/\.[^/.]+$/, "") === control.value as string);
+
 			return existingName && !this.selected ? { duplicateName: true } : null;
 		};
 	}
@@ -253,16 +257,20 @@ export class CommunityPdfSidePanelComponent implements OnInit
 		if (this.communityPdfForm.get('sectionHeader').value as SectionHeader === SectionHeader.IncludedFeatures)
 		{
 			this.includedFeaturesSelected = true;
+
 			this.communityPdfForm.get('linkText').setValue('Included Features');
 			this.communityPdfForm.get('linkText').disable();
+
 			// TODO: 335674 - make this effective date when date logic is added
 			const fileName = `${this.selectedCommunity.name}-Included Features-${new Date().toISOString().split('T')[0]}`;
+
 			this.communityPdfForm.get('fileName').setValue(fileName);
 			this.communityPdfForm.get('fileName').disable();
 		}
 		else
 		{
 			this.includedFeaturesSelected = false;
+
 			this.communityPdfForm.get('linkText').setValue(null);
 			this.communityPdfForm.get('linkText').enable();
 			this.communityPdfForm.get('fileName').setValue(null);
