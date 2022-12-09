@@ -31,7 +31,7 @@
 				</span>
 			</li>
 
-			<li *ngIf="choice?.disabledByBadSetup">
+			<li *ngIf="choice?.disabledByBadSetup && (!errors || !errors.length)">
 				<span>This choice cannot be selected because the correct price cannot be calculated. This may be due to
 					improper setup. Please contact a Procurement agent for assistance.</span>
 			</li>
@@ -70,12 +70,14 @@
 
 							<span *ngFor="let p of mustHave.points; let pi = index">
 								<span *ngIf="pi > 0"> and </span>
-								<a class="phd-clickable phd-link phd-point" (click)="onPointNav(p)">{{p | pointIdToName | async }}</a>
+								<a class="phd-clickable phd-link phd-point" (click)="onPointNav(p)">{{p | pointIdToName
+									| async }}</a>
 							</span>
 
 							<span *ngFor="let c of mustHave.choices; let ci = index">
 								<span *ngIf="ci > 0"> and </span>
-								<a class="phd-clickable phd-link phd-choice" (click)="onChoiceNav(c)">{{c | choiceIdToName | async }}</a>
+								<a class="phd-clickable phd-link phd-choice" (click)="onChoiceNav(c)">{{c |
+									choiceIdToName | async }}</a>
 							</span>
 						</span>
 
@@ -93,12 +95,14 @@
 
 							<span *ngFor="let p of mustNotHave.points; let pi = index">
 								<span *ngIf="pi > 0"> and </span>
-								<a class="phd-clickable phd-link phd-point" (click)="onPointNav(p)">{{p | pointIdToName	| async }}</a>
+								<a class="phd-clickable phd-link phd-point" (click)="onPointNav(p)">{{p | pointIdToName
+									| async }}</a>
 							</span>
 
 							<span *ngFor="let c of mustNotHave.choices; let ci = index">
 								<span *ngIf="ci > 0"> and </span>
-								<a class="phd-clickable phd-link phd-choice" (click)="onChoiceNav(c)">{{c |	choiceIdToName | async }}</a>
+								<a class="phd-clickable phd-link phd-choice" (click)="onChoiceNav(c)">{{c |
+									choiceIdToName | async }}</a>
 							</span>
 						</span>
 
