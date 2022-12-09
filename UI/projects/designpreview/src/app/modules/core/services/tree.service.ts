@@ -392,19 +392,42 @@ export class TreeService
 
 	getChoiceDetails(choices: Array<number>): Observable<Array<any>>
 	{
-		return this.identityService.token.pipe(
-			switchMap((token: string) =>
-			{
-				let guid = newGuid();
-				let requests = choices.map(choice => createBatchGet(`${environment.apiUrl}GetChoiceDetails(DPChoiceID=${choice})`));
-				let headers = createBatchHeaders(guid, token);
-				let batch = createBatchBody(guid, requests);
+		const chunk = 5;
+		const splitArrayresult = choices.reduce((resultArray, item, index) =>
+		{
+			const chunkIndex = Math.floor(index / chunk);
 
-				return withSpinner(this.http).post(`${environment.apiUrl}$batch`, batch, { headers: headers });
-			}),
-			map((response: any) =>
+			if (!resultArray[chunkIndex])
 			{
-				return response.responses.map(r => r.body);
+				resultArray[chunkIndex] = [];
+			}
+
+			resultArray[chunkIndex].push(item);
+
+			return resultArray;
+		}, []);
+
+		return from(splitArrayresult).pipe(
+			mergeMap(item =>
+			{
+				return this.identityService.token.pipe(
+					switchMap((token: string) =>
+					{
+						let requests = item.map(choice => createBatchGet(`${environment.apiUrl}GetChoiceDetails(DPChoiceID=${choice})`));
+
+						let guid = newGuid();
+						let headers = createBatchHeaders(guid, token);
+						let batch = createBatchBody(guid, requests);
+
+						return withSpinner(this.http).post(`${environment.apiUrl}$batch`, batch, { headers: headers });
+					}));
+			}),
+			toArray<any>(),
+			map(responses =>
+			{
+				let choiceDetailList: any[] = _.flatMap(responses, (response: any) => response.responses.filter(r => r.body).map(r => r.body));
+
+				return choiceDetailList;
 			})
 		);
 	}
