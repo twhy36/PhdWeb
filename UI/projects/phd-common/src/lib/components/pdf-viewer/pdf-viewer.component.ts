@@ -68,6 +68,7 @@ export class PDFViewerComponent extends ModalContent implements OnInit
 			this.onAfterPrint.emit();
 		});
 
-		this.pdfIframe.nativeElement.contentWindow.PDFViewerApplication.toolbar.items.print.dispatchEvent(new Event("click"));
+		// use the pdf-viewer print functionality
+		this.pdfIframe.nativeElement.contentWindow.PDFViewerApplication.toolbar.buttons.find(a => a.eventName === 'print').element.dispatchEvent(new Event('click'));
 	}
 }
