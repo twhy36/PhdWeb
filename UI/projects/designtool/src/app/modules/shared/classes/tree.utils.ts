@@ -241,7 +241,7 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 										}).filter(o => !!o);
 
 										let maxQuantity = 1;
-										let choiceMaxQuantity = ch.choiceMaxQuantity as number;
+										let choiceMaxQuantity = ch.maxQuantity as number;
 
 										if (choiceMaxQuantity != null && opt.length > 0)
 										{

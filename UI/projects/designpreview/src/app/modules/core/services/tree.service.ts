@@ -390,44 +390,51 @@ export class TreeService
 		);
 	}
 
-	getChoiceDetails(choices: Array<number>): Observable<Array<any>>
+	getChoiceDetails(choices: number[]): Observable<any[]>
 	{
-		const chunk = 5;
-		const splitArrayresult = choices.reduce((resultArray, item, index) =>
-		{
-			const chunkIndex = Math.floor(index / chunk);
-
-			if (!resultArray[chunkIndex])
+		return this.identityService.token.pipe(
+			switchMap((token: string) =>
 			{
-				resultArray[chunkIndex] = [];
-			}
+				const guid = newGuid();
 
-			resultArray[chunkIndex].push(item);
+				let buildRequestUrl = (choices: number[]) =>
+				{
+					const filter = `dpChoiceId in (${choices.join(',')})`;
+					const select = `dTreeVersionID,dpChoiceSortOrder,maxQuantity,divChoiceCatalogID,dpChoiceID,imagePath,isDecisionDefault`;
 
-			return resultArray;
-		}, []);
+					let pointExpands = `divDPointCatalog($select=dPointLabel,isQuickQuoteItem,isStructuralItem;$expand=dPointCatalog($select=dPointTypeId)),`;
+					pointExpands += `dSubGroup($select=dSubGroupCatalogID,dSubGroupSortOrder;$expand=dSubGroupCatalog($select=dSubGroupLabel),dGroup($select=dGroupID,dGroupCatalogID,dGroupSortOrder;$expand=dGroupCatalog($select=dGroupLabel)))`;
 
-		return from(splitArrayresult).pipe(
-			mergeMap(item =>
-			{
-				return this.identityService.token.pipe(
-					switchMap((token: string) =>
-					{
-						let requests = item.map(choice => createBatchGet(`${environment.apiUrl}GetChoiceDetails(DPChoiceID=${choice})`));
+					let expand = `divChoiceCatalog($select=choiceLabel),`;
+					expand += `dPoint($select=dPointID,divDPointCatalogID,dSubGroupID,dPointSortOrder;$expand=${pointExpands})`;
 
-						let guid = newGuid();
-						let headers = createBatchHeaders(guid, token);
-						let batch = createBatchBody(guid, requests);
+					return `${environment.apiUrl}dPChoices?${encodeURIComponent('$')}select=${select}&${encodeURIComponent('$')}filter=${filter}&${encodeURIComponent('$')}expand=${expand}`;
+				};
 
-						return withSpinner(this.http).post(`${environment.apiUrl}$batch`, batch, { headers: headers });
-					}));
+				const batchSize = 50;
+				let batchBundles: string[] = [];
+
+				for (var x = 0; x < choices.length; x = x + batchSize)
+				{
+					let choiceList = choices.slice(x, x + batchSize);
+
+					batchBundles.push(buildRequestUrl(choiceList));
+				}
+
+				let requests = batchBundles.map(req => createBatchGet(req));
+				let headers = createBatchHeaders(guid, token);
+				let batch = createBatchBody(guid, requests);
+
+				return this.http.post(`${environment.apiUrl}$batch`, batch, { headers: headers });
 			}),
-			toArray<any>(),
-			map(responses =>
+			map((response: any) =>
 			{
-				let choiceDetailList: any[] = _.flatMap(responses, (response: any) => response.responses.filter(r => r.body).map(r => r.body));
+				let bodies: any[] = response.responses.map(r => r.body);
 
-				return choiceDetailList;
+				return _.flatten(bodies.map(body =>
+				{
+					return body.value?.length > 0 ? body.value : null;
+				}).filter(res => res));
 			})
 		);
 	}
