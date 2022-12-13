@@ -630,8 +630,9 @@ export class TreeService
 		let url = environment.apiUrl;
 		const filter = `dpChoiceId in (${choices.join(',')})`;
 		const select = 'dpChoiceId, imageUrl, sortKey';
+		const orderBy = 'sortKey';
 
-		const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${select}`;
+		const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${select}&${this._ds}orderBy=${orderBy}`;
 
 		url += `dPChoiceImageAssocs?${qryStr}`;
 
