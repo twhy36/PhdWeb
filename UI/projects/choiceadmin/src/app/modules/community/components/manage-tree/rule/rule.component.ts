@@ -320,7 +320,7 @@ export class RuleComponent implements OnInit
 
 	keywordSearch(event: any)
 	{
-		this.keyword = event['keyword'].trim() || '';
+		this.keyword = event['keyword']?.trim() || '';
 		this.selectedSearchFilter = event['searchFilter'];
 
 		// reset everything to unmatched.
