@@ -7,7 +7,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
 import { CloudinaryModule } from '@cloudinary/angular-5.x';
 import { CarouselModule } from 'primeng/carousel';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModule, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { PhdCommonModule } from 'phd-common';
 
@@ -33,6 +33,7 @@ import { BlockedChoiceModalComponent } from './components/blocked-choice-modal/b
 import { HiddenChoicePriceModalComponent } from './components/hidden-choice-price-modal/hidden-choice-price-modal.component';
 import { BlockedItemComponent } from './components/blocked-item/blocked-item.component';
 import { InfoModalComponent } from './components/info-modal/info-modal.component';
+import { InfoTooltipComponent } from './components/info-tooltip/info-tooltip.component';
 
 @NgModule({
 	exports: [
@@ -75,6 +76,7 @@ import { InfoModalComponent } from './components/info-modal/info-modal.component
 		BlockedChoiceModalComponent,
 		HiddenChoicePriceModalComponent,
 		InfoModalComponent,
+		InfoTooltipComponent,
 		BlockedItemComponent
     ],
 	imports: [
@@ -86,6 +88,7 @@ import { InfoModalComponent } from './components/info-modal/info-modal.component
 		CloudinaryModule,
 		CarouselModule,
 		NgbModule,
+		NgbTooltipModule,
 		MatMenuModule,
 		MatButtonModule,
 		PhdCommonModule

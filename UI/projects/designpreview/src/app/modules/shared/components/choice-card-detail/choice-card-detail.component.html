@@ -48,6 +48,7 @@
 			<ng-container *ngIf="choice.priceHiddenFromBuyerView && !isPresale">
 				<span container="body">
 					<strong class="phd-price-label">Pricing Varies</strong>
+					<info-tooltip-component [template]="infoContent"></info-tooltip-component>
 				</span>
 			</ng-container>
 			<ng-container *ngIf="!choice.priceHiddenFromBuyerView && !isPresale">
@@ -130,4 +131,11 @@
 						  [choiceLabel]="choice?.label"
 						  (closeModal)="onCloseClicked()"
 						  (blockedItemClick)="onBlockedItemClick()"></blocked-choice-modal>
+</ng-template>
+
+<ng-template #infoContent>
+	<div>
+		<p><strong>Pricing Varies:</strong> Pricing will be determined during your meeting with your Design Consultant.</p>
+	</div>
+	<button class="btn btn-outline-primary">x</button>
 </ng-template>

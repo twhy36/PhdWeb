@@ -67,7 +67,9 @@
 							<span *ngIf="selections?.length > 0">{{choice.price * choice.quantity | currency:'USD':'symbol':'0.0-0'}}</span>
 						</ng-container>
 						<ng-container *ngIf="choice.priceHiddenFromBuyerView && !isPresale">
-							<span>Pricing Varies</span>
+							<span>Pricing Varies
+								<info-tooltip-component [template]="infoContent"></info-tooltip-component>
+							</span>
 						</ng-container>
 						<div *ngIf="!contractedOptionsPage" class="actions actionLinks phd-hide-from-print">
 							<a (click)="onViewOrEdit()" class="phd-choice-action-label">{{actionLabel}}</a>
@@ -79,3 +81,10 @@
 		</div>
 	</div>
 </div>
+
+<ng-template #infoContent>
+	<div>
+		<p><strong>Pricing Varies:</strong> Pricing will be determined during your meeting with your Design Consultant.</p>
+	</div>
+	<button class="btn btn-outline-primary">x</button>
+</ng-template>

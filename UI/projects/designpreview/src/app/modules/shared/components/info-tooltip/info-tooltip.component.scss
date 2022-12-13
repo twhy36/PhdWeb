@@ -1,0 +1,51 @@
+.phd-info-button {
+    border: none;
+    background-color: transparent;
+}
+
+.phd-info-tooltip .tooltip-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    background-color: #FFFFFF;
+    border-radius: 0;
+    min-width: 650px;
+    box-shadow: 1px 1px 3px 4px rgba(100, 100, 100, 0.5);
+    transform: translate(30px, -30px);
+    
+    p {
+        color: #000000;
+        text-align: left;
+    }
+
+    button {
+        max-width: 1%;
+        max-height: 1%;
+        border: none;
+        transform: translate(.5rem, -1rem);
+        background-color: transparent;
+        color:rgba(100, 100, 100, 0.5);
+    }
+}
+
+.phd-info-tooltip .arrow::before {
+    display: none;
+}
+
+@media (max-width: 992px) { //laptops and desktops
+    .phd-info-tooltip .tooltip-inner {
+        min-width: 500px;
+    }
+}
+
+@media (max-width: 768px) { //tablets
+    .phd-info-tooltip .tooltip-inner {
+        min-width: 400px;
+    }
+}
+
+@media (max-width: 600px) { //phones and small devices
+    .phd-info-tooltip .tooltip-inner {
+        min-width: auto;
+    }
+}

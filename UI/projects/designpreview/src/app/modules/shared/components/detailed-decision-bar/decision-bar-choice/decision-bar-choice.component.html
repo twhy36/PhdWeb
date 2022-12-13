@@ -19,7 +19,7 @@
 		</ng-container>
 		<ng-container *ngIf='choice.priceHiddenFromBuyerView' (click)="$event.stopPropagation()">
 			<div class="phd-hidden-price">Pricing Varies
-				<i class="fa fa-info-circle" (click)="openHiddenChoicePriceModal()"></i>
+				<info-tooltip-component [template]="infoContent"></info-tooltip-component>
 			</div>
 		</ng-container>
 	</ng-container>
@@ -38,4 +38,11 @@
 	<hidden-choice-price-modal
 		(closeModal)="onCloseClicked()">
 	</hidden-choice-price-modal>
+</ng-template>
+
+<ng-template #infoContent>
+	<div>
+		<p><strong>Pricing Varies:</strong> Pricing will be determined during your meeting with your Design Consultant.</p>
+	</div>
+	<button class="btn btn-outline-primary">x</button>
 </ng-template>

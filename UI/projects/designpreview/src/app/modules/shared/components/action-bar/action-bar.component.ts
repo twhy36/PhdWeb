@@ -119,6 +119,16 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit
 		}
 	}
 
+	displayTooltipText() {
+		return `
+			<p>Estimated Favorites Total: Estimated total price of all options selected in this application.</p>
+
+			<p>Estimated Total Purchase Price: Total price of all options under contract plus your Estimated Favorites Total.</p>
+
+			<p>(Option pricing is subject to change until placed under contract with a Sales Representative.)</p>
+		`
+	}
+
 	onPrimaryCallToActionClick()
 	{
 		this.callToAction.emit({ actionBarCallType: ActionBarCallType.PRIMARY_CALL_TO_ACTION });

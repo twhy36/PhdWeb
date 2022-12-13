@@ -33,10 +33,13 @@
 				<span class="phd-price-label">{{isDesignComplete ? 'Total Purchase Price' : 'Estimated Total Purchase Price :' }}</span>
 			</div>
 		</div>
-		<div *ngIf="primaryAction" class="d-flex flex-row align-items-end">
-			<div class="d-flex flex-column align-items-end">
+		<div *ngIf="primaryAction" class="d-flex flex-row align-items-end justify-content-left">
+			<div class="d-flex flex-column">
 				<span *ngIf="!isDesignComplete" class="phd-price">{{ favoritesPrice | currency:'USD':'symbol':'0.0-0' }}</span>
-				<span class="phd-price">{{ price | currency:'USD':'symbol':'0.0-0' }}</span>
+				<div>
+					<span class="phd-price">{{ price | currency:'USD':'symbol':'0.0-0' }}</span>
+					<info-tooltip-component *ngIf="!isDesignComplete" [template]="infoContent"></info-tooltip-component>
+				</div>
 			</div>
 		</div>
 	</ng-container>
@@ -44,3 +47,13 @@
 		<button #btnActionBar title="{{isEllipsisActive() ? primaryAction : null}}" [class.phd-btn-fixed-width]="isFixedWidth" class="btn btn-lg phd-action-bar-action-btn" (click)="onPrimaryCallToActionClick()">{{primaryAction}}</button>
 	</div>
 </div>
+
+
+<ng-template #infoContent>
+	<div>
+		<p><strong>Estimated Favorites Total:</strong> Estimated total price of all options selected in this application.</p>
+		<p><strong>Estimated Total Purchase Price:</strong> Total price of all options under contract plus your Estimated Favorites Total.</p>
+		<p><em>(Option pricing is subject to change until placed under contract with a Sales Representative.)</em></p>
+	</div>
+	<button class="btn btn-outline-primary">x</button>
+</ng-template>
