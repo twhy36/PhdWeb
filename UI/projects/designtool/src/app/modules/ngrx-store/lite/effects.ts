@@ -1048,7 +1048,7 @@ export class LiteEffects
 			{
 				const scenarioId = store.scenario.scenario?.scenarioId;
 				const optionsToAdd = _.cloneDeep(action.optionsToAdd);
-				const optionDetails = store.lite.options.filter(x => optionsToAdd.some(o => o.edhPlanOptionId === x.id));
+				const optionDetails = store.lite.options.filter(x => optionsToAdd.some(o => o.edhPlanOptionId === x.id)) || [];
 				const jobOptionsWithColors = store.job.jobPlanOptions.filter(jpo => jpo.jobPlanOptionAttributes?.length > 0);
 
 				let scenarioOptions: ScenarioOption[] = _.cloneDeep(action.optionsToDelete);
@@ -1062,8 +1062,8 @@ export class LiteEffects
 					{
 						jobOption.jobPlanOptionAttributes.forEach(attr =>
 						{
-							const colorItem = optionDetail.colorItems.find(ci => ci.name === attr.attributeGroupLabel);
-							const colorId = colorItem.color?.find(c => c.name === attr.attributeName && c.sku === attr.sku)?.colorId;
+							const colorItem = optionDetail.colorItems?.find(ci => ci.name === attr.attributeGroupLabel);
+							const colorId = colorItem?.color?.find(c => c.name === attr.attributeName && c.sku === attr.sku)?.colorId;
 							if (colorItem && colorId) 
 							{
 								const option = optionsToAdd.find(x => x.edhPlanOptionId === optionDetail.id)
