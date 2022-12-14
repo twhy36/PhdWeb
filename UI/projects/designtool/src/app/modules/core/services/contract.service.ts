@@ -898,7 +898,8 @@ export class ContractService
 									changeOrder.jobChangeOrderPlanOptions,
 									liteBaseHouseOptions,
 									store.lite.options,
-									store.lite.categories
+									store.lite.categories,
+									legacyColorScheme
 								)
 								: getChangeOrderGroupSelections(store.scenario.tree.treeVersion.groups, <ChangeOrderChoice[]>changeOrderChoices);
 
@@ -1156,7 +1157,8 @@ export class ContractService
 									store.lite.options,
 									store.lite.categories,
 									changeOrder.jobChangeOrderPlanOptions,
-									selectedLiteElevation
+									selectedLiteElevation,
+									legacyColorScheme
 								)
 								: this.getConstructionChangeOrderPdfData(constructionChangeOrderSelectionsDto.changeOrderChoices);
 

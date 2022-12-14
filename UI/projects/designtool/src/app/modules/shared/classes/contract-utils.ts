@@ -317,7 +317,8 @@ export function getLiteChangeOrderGroupSelections(
 	jobChangeOrderPlanOptions: ChangeOrderPlanOption[],
 	baseHouseOptions: { selectedBaseHouseOptions: LitePlanOption[], baseHouseCategory: IOptionCategory },
 	options: LitePlanOption[],
-	categories: IOptionCategory[]
+	categories: IOptionCategory[],
+	legacyColorScheme: LegacyColorScheme
 ): SDPoint[] 
 {
 	let sDPoints: SDPoint[] = [];
@@ -386,11 +387,47 @@ export function getLiteChangeOrderGroupSelections(
 		sDPoints = sDPoints.concat(elevationColorPoints);
 	}
 
+	// Add legacy color scheme
+	if (legacyColorScheme)
+	{
+		const genericPlanOptions = jobChangeOrderPlanOptions.filter(coPlanOption => coPlanOption.planOptionId === legacyColorScheme.genericPlanOptionId);
+	
+		if (genericPlanOptions?.length)
+		{
+			let legacyColorSchemePoints: SDPoint[] = [];
+			let legacyColorSchemeChoices: SDChoice[] = [];
+
+			genericPlanOptions.forEach(coPlanOption =>
+			{
+				if (coPlanOption.jobChangeOrderPlanOptionAttributes?.length)
+				{
+					coPlanOption.jobChangeOrderPlanOptionAttributes.map(att =>
+					{
+						const legacyColorSchemeChoice = createLiteSDChoice(att.attributeName, att.id, null, 0, 1);
+						legacyColorSchemeChoices.push(legacyColorSchemeChoice);
+					});
+				}
+			});
+
+			if (!!legacyColorSchemeChoices.length)
+			{
+				const legacyColorSchemePoint = createLiteSDPoint(ExteriorLabel.ColorScheme, legacyColorSchemeChoices);
+				legacyColorSchemePoint.groupName = ExteriorLabel.Exterior;
+				legacyColorSchemePoint.subGroupName = ExteriorLabel.ExteriorSubGroup;
+	
+				legacyColorSchemePoints.push(legacyColorSchemePoint);
+			}
+	
+			sDPoints = sDPoints.concat(legacyColorSchemePoints);
+		}
+	}
+
 	// Add other selected options FIRST
 	const nonElevationPlanOptions = jobChangeOrderPlanOptions.filter(coPlanOption =>
 	{
 		return !elevationPlanOptions.find(option => option.planOptionId === coPlanOption.planOptionId)
-			&& !selectedBaseHouseOptions?.find(opt => opt.id === coPlanOption.planOptionId);
+			&& !selectedBaseHouseOptions?.find(opt => opt.id === coPlanOption.planOptionId)
+			&& coPlanOption.planOptionId !== legacyColorScheme?.genericPlanOptionId;
 	});
 
 	if (nonElevationPlanOptions?.length)
@@ -458,7 +495,8 @@ export function getLiteConstructionChangeOrderPdfData(
 	options: LitePlanOption[],
 	categories: IOptionCategory[],
 	jobChangeOrderPlanOptions: ChangeOrderPlanOption[],
-	selectedElevation: LitePlanOption
+	selectedElevation: LitePlanOption,
+	legacyColorScheme: LegacyColorScheme
 )
 {
 	let pdfData: any[] = [];
@@ -524,9 +562,45 @@ export function getLiteConstructionChangeOrderPdfData(
 		});
 	}
 
+	// Add legacy color scheme
+	if (legacyColorScheme)
+	{
+		const genericPlanOptions = jobChangeOrderPlanOptions.filter(coPlanOption => coPlanOption.planOptionId === legacyColorScheme.genericPlanOptionId);
+
+		if (genericPlanOptions?.length)
+		{
+			genericPlanOptions.forEach(coPlanOption =>
+			{
+				if (coPlanOption.jobChangeOrderPlanOptionAttributes?.length)
+				{
+					coPlanOption.jobChangeOrderPlanOptionAttributes.forEach(att =>
+					{
+						pdfData.push({
+							choiceLabel: att.attributeName,
+							decisionPointLabel: ExteriorLabel.ColorScheme,
+							dpChoiceCalculatedPrice: 0,
+							dpChoiceQuantity: 1,
+							groupLabel: ExteriorLabel.Exterior,
+							subgroupLabel: ExteriorLabel.ExteriorSubGroup,
+							isColorScheme: true,
+							isElevation: false,
+							locations: [],
+							options: [],
+							overrideNote: null,
+							dpChoiceId: 0,
+							divChoiceCatalogId: att.id, // used for option filtering in API
+							attributes: [],
+							action: att.action
+						});
+					});
+				}
+			});
+		}
+	}
+
 	const nonElevationPlanOptions = jobChangeOrderPlanOptions.filter(coPlanOption =>
 	{
-		return !elevationPlanOptions.find(option => option.planOptionId === coPlanOption.planOptionId);
+		return !elevationPlanOptions.find(option => option.planOptionId === coPlanOption.planOptionId && option.planOptionId !== legacyColorScheme?.genericPlanOptionId);
 	});
 
 	if (nonElevationPlanOptions?.length)

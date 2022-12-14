@@ -416,7 +416,7 @@ export class LiteEffects
 										});
 									}
 								}
-								else if (store.salesAgreement.status === 'Pending')
+								else if (store.salesAgreement.status === 'Pending' || !!store.job.id)
 								{
 									// Update the base house price if phase pricing is set up for the plan
 									if (action.lot.salesPhase?.salesPhasePlanPriceAssocs?.length)
