@@ -13,14 +13,16 @@ export class InternalGuard implements CanActivate
 
 	canActivate()
 	{
-        if (!sessionStorage.getItem('authProvider')){
+        if (!sessionStorage.getItem('authProvider'))
+		{
 			sessionStorage.setItem('authProvider', 'azureAD');
         	this.authService.setAuthConfig(environment.authConfigs["azureAD"]);
 		}
 
         return this.identityService.isLoggedIn.pipe(
 			map(loggedIn => {
-				if (!loggedIn) {
+				if (!loggedIn)
+				{
 					this.identityService.login({ provider: "azureAD" });
 					return false; //redirect to access denied if error?
 				}

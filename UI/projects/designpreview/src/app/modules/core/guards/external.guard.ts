@@ -25,14 +25,16 @@ export class ExternalGuard implements CanActivate
 
 	canActivate()
 	{
-		if (!sessionStorage.getItem('authProvider')){
+		if (!sessionStorage.getItem('authProvider'))
+		{
 			sessionStorage.setItem('authProvider', 'sitecoreSSO');
         	this.authService.setAuthConfig(environment.authConfigs["sitecoreSSO"]);
 		}
 
         return combineLatest([ this.identityService.isLoggedIn.pipe(
 				map(loggedIn => {
-					if (!loggedIn) {
+					if (!loggedIn)
+					{
 						this.identityService.login({ provider: "sitecoreSSO" });
 						return false; //redirect to access denied if error?
 					}
@@ -44,13 +46,17 @@ export class ExternalGuard implements CanActivate
 			this.store.pipe(select(fromScenario.selectScenario), take(1))
 		]).pipe(
 			switchMap(([isLoggedIn, sag, selectScenario]) => {
-				if (!isLoggedIn){
+				if (!isLoggedIn)
+				{
 					return NEVER;
 				}
 
-				if (!!sag?.id || !!selectScenario?.tree?.id) {
+				if (!!sag?.id || !!selectScenario?.tree?.id)
+				{
 					return of(true);
-				} else {
+				}
+				else
+				{
 					return this.salesAgreementService.getSalesAgreement().pipe(
 						tap(salesAgreement => this.store.dispatch(new CommonActions.LoadSalesAgreement(salesAgreement.id))),
 						map(() => true)

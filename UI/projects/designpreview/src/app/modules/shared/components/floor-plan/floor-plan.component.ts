@@ -192,14 +192,15 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 			let floorPlanSvgs = this.fp?.exportStaticSVG();
 			let floorPlanImages = [];
 
-			this.fp.floors.forEach(floor => {
+			this.fp.floors.forEach(floor =>
+				{
 				let image = new FloorPlanImage({
 					floorName: floor.name,
 					floorIndex: floor.index,
 					svg: floorPlanSvgs[floor.index]?.outerHTML
-				})
-				floorPlanImages.push(image);
+				});
 
+				floorPlanImages.push(image);
 			})
 			this.floorPlanImages = floorPlanImages;
 

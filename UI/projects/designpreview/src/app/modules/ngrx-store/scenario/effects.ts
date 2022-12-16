@@ -115,28 +115,28 @@ export class ScenarioEffects
 			ofType<LoadPresale>(ScenarioActionTypes.LoadPresale),
 			tryCatch(source => source.pipe(
 				switchMap(action =>
-				{
-					return this.orgService.getFinancialCommunityByFinancialCommunityNumber(action.financialCommunityNumber).pipe(
-						switchMap(finComm =>
-						{
-							return this.treeService.getTreeVersions(action.lawsonPlanId, finComm.id).pipe(
-								switchMap(treeVersions =>
-								{
-									if (treeVersions && treeVersions.length)
+					{
+						return this.planService.getSelectedPlan(action.planCommunityId).pipe(
+							switchMap(planComm => 
+							{
+								return this.treeService.getTreeVersions(planComm[0].integrationKey, planComm[0].communityId).pipe(
+									switchMap(treeVersions => 
 									{
-										return this.treeService.getTree(treeVersions[0].id).pipe(
-											combineLatest(
-												this.treeService.getRules(treeVersions[0].id),
-												this.treeService.getOptionImages(treeVersions[0].id),
-												this.treeService.getTreeBaseHouseOptions(treeVersions[0].id)
-											)
-										);
-									}
-								})
-							);
-						})
-					);
-				}),
+										if (treeVersions && treeVersions.length)
+										{
+											return this.treeService.getTree(treeVersions[0].id).pipe(
+												combineLatest(
+													this.treeService.getRules(treeVersions[0].id),
+													this.treeService.getOptionImages(treeVersions[0].id),
+													this.treeService.getTreeBaseHouseOptions(treeVersions[0].id)
+												)
+											);
+										}
+									})
+								);
+							})
+						);
+					}),
 				switchMap(([tree, rules, optionImages, baseHouseOptions]) =>
 				{
 					const optionIds = baseHouseOptions.map(bho => bho.planOption.integrationKey);

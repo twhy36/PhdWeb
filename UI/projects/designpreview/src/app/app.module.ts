@@ -23,6 +23,8 @@ import { AuthService } from './modules/core/services/auth.service';
 import { AuthConfigSelector } from './modules/shared/classes/auth-config-selector.class';
 import { BrandService } from './modules/core/services/brand.service';
 import { DefaultErrorComponent } from './modules/core/components/default-error/default-error.component';
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { PresaleInterceptor } from './modules/core/http-interceptors/presale-interceptor';
 
 const appRoutes: Routes = [
 	{ path: 'home', component: HomeModule },
@@ -89,6 +91,7 @@ const tryInitAuth = (authService: AuthService, identityService: IdentityService)
 		{ provide: AUTH_CONFIG, useClass: AuthConfigSelector, deps: [AuthService, BrandService] },
 		{ provide: APP_INSIGHTS_CONFIG, useValue: environment.appInsights },
 		{ provide: TELEMETRY_INIT, useValue: setClientApp("Design Preview") },
+		{ provide: HTTP_INTERCEPTORS, useClass: PresaleInterceptor, multi: true }
 	],
 	bootstrap: [AppComponent]
 })

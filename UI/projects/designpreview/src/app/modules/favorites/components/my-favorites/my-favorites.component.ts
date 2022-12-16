@@ -215,7 +215,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 								}
 							}
 						}
-						this.router.navigate(['..', subGroupCatalogId], { relativeTo: this.route, replaceUrl: true });
+						this.router.navigate(['..', subGroupCatalogId], { relativeTo: this.route, replaceUrl: true, queryParams: { presale: sessionStorage.getItem('presale_token')} });
 					}
 					else
 					{
@@ -251,7 +251,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			{
 				const subGroup = filteredTree.groups[0].subGroups[0];
 
-				this.router.navigate([subGroup.subGroupCatalogId], { relativeTo: this.route, replaceUrl: true });
+				this.router.navigate([subGroup.subGroupCatalogId], { relativeTo: this.route, replaceUrl: true, queryParams: { presale: sessionStorage.getItem('presale_token')}  });
 			}
 		});
 
@@ -276,10 +276,10 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			{
 				if (!!this.selectedSubGroup)
 				{
-					this.router.navigate(['..', this.selectedSubGroup?.subGroupCatalogId], { relativeTo: this.route, replaceUrl: true });
+					this.router.navigate(['..', this.selectedSubGroup?.subGroupCatalogId], { relativeTo: this.route, replaceUrl: true, queryParams: { presale: sessionStorage.getItem('presale_token')}  });
 				} else
 				{
-					this.router.navigate(['..', subGroup?.subGroupCatalogId], { relativeTo: this.route, replaceUrl: true });
+					this.router.navigate(['..', subGroup?.subGroupCatalogId], { relativeTo: this.route, replaceUrl: true, queryParams: { presale: sessionStorage.getItem('presale_token')} });
 				}
 			}
 		});
@@ -400,7 +400,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		} else
 		{
 			this.store.dispatch(new ScenarioActions.SetTreeFilter(null));
-			this.router.navigateByUrl('/favorites/summary');
+			this.router.navigate(['favorites', 'summary'], { queryParams: { presale: sessionStorage.getItem('presale_token')} });
 		}
 	}
 
@@ -474,7 +474,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 
 	viewChoiceDetail(choice: ChoiceExt)
 	{
-		this.router.navigateByUrl(`/favorites/my-favorites/${this.myFavoriteId}/${this.selectedSubGroup.subGroupCatalogId}/${choice.divChoiceCatalogId}`);
+		this.router.navigate(['..', this.selectedSubGroup.subGroupCatalogId, choice.divChoiceCatalogId], { relativeTo: this.route, queryParams: { presale: sessionStorage.getItem('presale_token')} });
 	}
 
 	hideDetails(sgId?: number)
@@ -484,7 +484,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			const newSubgroup = _.flatMap(this.groups, g => g.subGroups).find(sg => sg.id === sgId);
 			const firstPoint = newSubgroup?.points[0] || null;
 
-			this.router.navigateByUrl(`/favorites/my-favorites/${this.myFavoriteId}/${newSubgroup.subGroupCatalogId}`);
+			this.router.navigate(['favorites', 'my-favorites', this.myFavoriteId, newSubgroup.subGroupCatalogId], { queryParams: { presale: sessionStorage.getItem('presale_token')} });
 			this.showDetails = false;
 			this.selectedChoice = null;
 
@@ -492,7 +492,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		} 
 		else
 		{
-			this.router.navigateByUrl(`/favorites/my-favorites/${this.myFavoriteId}/${this.selectedSubGroup.subGroupCatalogId}`);
+			this.router.navigate(['favorites', 'my-favorites', this.myFavoriteId, this.selectedSubGroup.subGroupCatalogId], { queryParams: { presale: sessionStorage.getItem('presale_token')} });
 			this.showDetails = false;
 			this.selectedChoice = null;
 

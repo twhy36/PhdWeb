@@ -8,7 +8,6 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { SharedModule } from '../shared/shared.module';
 import { PhdCommonModule } from 'phd-common';
-import { ExternalGuard } from '../core/guards/external.guard';
 import { InternalGuard } from '../core/guards/internal.guard';
 import { ManageFavoritesComponent } from './components/manage-favorites/manage-favorites.component';
 import { MyFavoritesComponent } from './components/my-favorites/my-favorites.component';
@@ -19,6 +18,7 @@ import { ContractedSummaryComponent } from './components/contracted-summary/cont
 import { FloorPlanSummaryComponent } from './components/floor-plan-summary/floor-plan-summary.component';
 import { SummaryHeaderComponent } from './components/favorites-summary/summary-header/summary-header.component';
 import { FloorPlanExperienceComponent } from './components/my-favorites/floor-plan-experience/floor-plan-experience.component';
+import { LoggedInGuard } from '../core/guards/logged-in.guard';
 
 const moduleRoutes: Routes = [
 	{
@@ -28,7 +28,7 @@ const moduleRoutes: Routes = [
 			{ 
 				path: 'favorites', 
 				component: ManageFavoritesComponent, 
-				canActivate: [ExternalGuard] 
+				canActivate: [LoggedInGuard] 
 			},
 			{ 
 				path: 'favorites/preview/:salesAgreementId', 
@@ -38,43 +38,43 @@ const moduleRoutes: Routes = [
 			{ 
 				path: 'favorites/summary', 
 				component: FavoritesSummaryComponent, 
-				canActivate: [ExternalGuard],
+				canActivate: [LoggedInGuard],
 				data: { pageLoadEvent: 'FavoritesSummary' }
 			},
 			{ 
 				path: 'contracted', 
 				component: ContractedSummaryComponent, 
-				canActivate: [ExternalGuard],
+				canActivate: [LoggedInGuard],
 				data: { pageLoadEvent: 'ContractedSummary' }
 			},
 			{ 
 				path: 'floorplan', 
 				component: FloorPlanSummaryComponent, 
-				canActivate: [ExternalGuard],
+				canActivate: [LoggedInGuard],
 				data: { pageLoadEvent: 'FloorplanSummary' }
 			},
 			{ 
 				path: 'included', 
 				component: IncludedOptionsComponent, 
-				canActivate: [ExternalGuard],
+				canActivate: [LoggedInGuard],
 				data: { pageLoadEvent: 'IncludedOptions' }
 			},
 			{ 
 				path: 'favorites/my-favorites/:favoritesId/:subGroupCatalogId', 
 				component: MyFavoritesComponent, 
-				canActivate: [ExternalGuard],
+				canActivate: [LoggedInGuard],
 				data: { pageLoadEvent: 'ChoiceCard' }
 			},
 			{ 
 				path: 'favorites/my-favorites/:favoritesId/:subGroupCatalogId/:divChoiceCatalogId', 
 				component: MyFavoritesComponent, 
-				canActivate: [ExternalGuard],
+				canActivate: [LoggedInGuard],
 				data: { pageLoadEvent: 'ChoiceDetail' }
 			},
 			{ 
 				path: 'favorites/my-favorites/:favoritesId', 
 				component: MyFavoritesComponent, 
-				canActivate: [ExternalGuard],
+				canActivate: [LoggedInGuard],
 				data: { pageLoadEvent: 'ChoiceCard' }
 			}
 		]

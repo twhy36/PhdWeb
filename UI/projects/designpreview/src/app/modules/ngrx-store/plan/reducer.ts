@@ -3,6 +3,7 @@ import { Plan } from 'phd-common';
 
 import { PlanActions, PlanActionTypes } from './actions';
 import { CommonActionTypes } from '../actions';
+import _ from 'lodash';
 
 export interface State
 {
@@ -33,7 +34,7 @@ export function reducer(state: State = initialState, action: PlanActions): State
 			return { ...state, selectedPlanLoading: true, hasError: false };
 
 		case PlanActionTypes.SelectedPlanLoaded:
-			return { ...state, marketingPlanId: action.plans.flatMap(p => p.marketingPlanId), selectedPlanLoading: false, hasError: false, plans: action.plans };
+			return { ...state, marketingPlanId: _.flatMap(action.plans, p => p.marketingPlanId), selectedPlanLoading: false, hasError: false, plans: action.plans };
 
 		case PlanActionTypes.LoadError:
 			return { ...state, selectedPlanLoading: false, hasError: true };

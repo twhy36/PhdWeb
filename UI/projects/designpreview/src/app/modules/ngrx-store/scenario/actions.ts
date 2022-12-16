@@ -25,7 +25,7 @@ export class LoadPresale implements Action
 {
 	readonly type = ScenarioActionTypes.LoadPresale;
 
-	constructor(public financialCommunityNumber: number, public lawsonPlanId: number) { }
+	constructor(public planCommunityId: number) { }
 }
 
 export class SelectChoices implements Action

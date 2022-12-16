@@ -17,6 +17,7 @@
 				   class="phd-nav-page phd-page-separator"
 				   [class.phd-active-link-full]="isLaunchedInBuyerPreview"
 				   [routerLink]="['/favorites/summary']"
+				   [queryParams]="{ presale: sessionStorage.getItem('presale_token') }"
 				   [routerLinkActive]="['phd-active-link-full']"
 				   (click)="toFavoritesPage ? onViewFavorites() : false">
 				   My Favorites
@@ -37,6 +38,7 @@
 				<a *ngIf="showIncludedOptionsLink"
 				   class="phd-nav-page"
 				   [routerLink]="['/included']"
+				   [queryParams]="{ presale: sessionStorage.getItem('presale_token') }"
 				   [routerLinkActive]="['phd-active-link-full']">
 				   Included Options
 				</a>

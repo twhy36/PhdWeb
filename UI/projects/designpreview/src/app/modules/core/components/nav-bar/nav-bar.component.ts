@@ -28,6 +28,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit {
 	buildMode: BuildMode;
 	welcomeText: string = 'Welcome To Your Home';
 	hasLatestError$: Observable<boolean>;
+	sessionStorage: Storage = sessionStorage;
 
 	@HostListener("window:resize", ["$event"])
 	onResize(event) {
@@ -127,7 +128,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit {
 				this.router.navigateByUrl('/preview');
 				break;
 			case (BuildMode.Presale):
-				this.router.navigateByUrl('/presale');
+				this.router.navigate(['presale'], { queryParams: { presale: sessionStorage.getItem('presale_token')} });
 				break;
 			default:
 				this.router.navigateByUrl('/home');
@@ -137,7 +138,6 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit {
 
 	onViewFavorites() {
 		this.store.dispatch(new ScenarioActions.SetTreeFilter(null));
-		this.router.navigateByUrl('/favorites/summary');
 	}
 
 	getImageSrc() {

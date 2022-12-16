@@ -48,7 +48,7 @@ export class BlockedItemComponent  extends UnsubscribeOnDestroy implements OnIni
 		const subGroup = this.subGroups.find(sg => !!sg.points.find(p => p.id === pointId))
 
 		this.store.dispatch(new NavActions.SetSelectedSubgroup(subGroup.id, pointId, null));
-		this.router.navigateByUrl(`/favorites/my-favorites/${this.myFavoriteId}/${subGroup.subGroupCatalogId}`);
+		this.router.navigate(['favorites', 'my-favorites', this.myFavoriteId, subGroup.subGroupCatalogId], { queryParams: { presale: sessionStorage.getItem('presale_token')} })
 	}
 
 	displayBlockedItems() {

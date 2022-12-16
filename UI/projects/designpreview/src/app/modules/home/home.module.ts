@@ -9,6 +9,7 @@ import { InternalGuard } from '../core/guards/internal.guard';
 import { SharedModule } from '../shared/shared.module';
 import { HomeComponent } from './components/home/home.component';
 import { CoreModule } from '../core/core.module';
+import { PresaleGuard } from '../core/guards/presale.guard';
 
 // Temporarily add salesAgreementId in the route to facilitate testing in QA environment.
 // This will be removed once the SSO code is incorporated.
@@ -38,16 +39,10 @@ const moduleRoutes: Routes = [
 		data: { isPreview: false, isPresale: false },
 	},
 	{
-		path: 'presale/:financialCommunityId/:lawsonPlanId',
-		component: HomeComponent,
-		canActivate: [InternalGuard],
-		data: { isPreview: false, pageLoadEvent: 'Home', isPresale: true },
-	},
-	{
 		path: 'presale',
 		component: HomeComponent,
-		canActivate: [InternalGuard],
-		data: { isPreview: false, pageLoadEvent: 'Home', isPresale: false },
+		canActivate: [PresaleGuard],
+		data: { isPreview: false, pageLoadEvent: 'Home', isPresale: true },
 	},
 ];
 

@@ -27,7 +27,9 @@ import { AdobeService } from './services/adobe.service';
 import { LoggedInGuard } from './guards/logged-in.guard';
 import { InternalGuard } from './guards/internal.guard';
 import { ExternalGuard } from './guards/external.guard';
+import { PresaleGuard } from './guards/presale.guard';
 import { ClickDirective } from './directives/click-directive.directive';
+import { TokenService } from './services/token.service';
 
 @NgModule({
 	exports: [
@@ -62,12 +64,14 @@ import { ClickDirective } from './directives/click-directive.directive';
 		TreeService,
 		AttributeService,
 		AuthService,
+		TokenService,
 		ReportsService,
 		BrandService,
 		AdobeService,
 		LoggedInGuard,
 		InternalGuard,
-		ExternalGuard
+		ExternalGuard,
+		PresaleGuard
 	]
 })
 export class CoreModule { }

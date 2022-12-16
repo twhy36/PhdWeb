@@ -19,6 +19,8 @@ import { JobService } from '../../../core/services/job.service';
 import { BrandService } from '../../../core/services/brand.service';
 import { BuildMode } from '../../../shared/models/build-mode.model';
 import { ErrorFrom } from '../../../ngrx-store/error.action';
+import { Buffer } from 'buffer';
+import { PresalePayload } from '../../../shared/models/presale-payload.model';
 
 @Component({
 	selector: 'home',
@@ -57,9 +59,10 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 			.pipe(
 				combineLatest(this.store.pipe(select(state => state.salesAgreement))),
 				withLatestFrom(this.activatedRoute.data,
-					this.store.pipe(select(state => state.scenario))
+					this.store.pipe(select(state => state.scenario)),
+					this.store.pipe(select(state => state.plan))
 				),
-				switchMap(([[params, salesAgreementState], routeData, scenarioState]) => {
+				switchMap(([[params, salesAgreementState], routeData, scenarioState, planState]) => {
 					if (salesAgreementState.salesAgreementLoading || salesAgreementState.loadError) {
 						return new Observable<never>();
 					}
@@ -69,33 +72,50 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 					this.isPresale = scenarioState.buildMode === BuildMode.Presale || routeData["isPresale"];
 
 					// we only want to fetch on treeVersion during first load of home page
-					if (routeData["isPreview"]) {
+					if (routeData["isPreview"])
+					{
 						const treeVersionId = +params.get('treeVersionId');
-						if (!scenarioState.tree || scenarioState.tree.treeVersion.id !== treeVersionId) {
+						if (!scenarioState.tree || scenarioState.tree.treeVersion.id !== treeVersionId)
+						{
 							this.store.dispatch(new ScenarioActions.LoadPreview(treeVersionId));
 							return new Observable<never>();
 						}
-					} else if (routeData["isPresale"]) {
-						// todo: financialCommunityId and lawsonPlanId need to be re-assgined based on token parser
-						//to replace query string para reading
-						const financialCommunityId = +params.get('financialCommunityId');
-						const lawsonPlanId = +params.get('lawsonPlanId');
-						let lawsonPlanIdAsString = lawsonPlanId + '';
-						if ( Number(financialCommunityId)>0 && Number(lawsonPlanId)>0 && 
-							(!scenarioState.tree || scenarioState.tree.planKey !== lawsonPlanIdAsString || scenarioState.tree.financialCommunityId !== financialCommunityId)) {
-							this.store.dispatch(new ScenarioActions.LoadPresale(financialCommunityId, lawsonPlanId));
-					
-							return new Observable<never>();
-						}	
-						else
+					}
+					else if (routeData["isPresale"])
+					{
+						if (!planState.selectedPlan)
 						{
-							this.store.dispatch(new CommonActions.LoadError(new Error('load presale error'), 'CommunityId and/or PlanId are missing or invalid IDs', ErrorFrom.HomeComponent));
+							const token = sessionStorage.getItem('presale_token');
+							const tokenParts = token.split('.');
+							const payload = new PresalePayload(JSON.parse(Buffer.from(tokenParts[1], 'base64').toString()));
+
+							if (!sessionStorage.getItem('presale_issuer'))
+							{
+								sessionStorage.setItem('presale_issuer', payload.iss);
+							}
+
+							const planCommunityId = payload.planCommunityId;
+
+							if (planCommunityId && (!planState.selectedPlan || planState.selectedPlan !== planCommunityId))
+							{
+								this.store.dispatch(new ScenarioActions.LoadPresale(planCommunityId));
+	
+								return new Observable<never>();
+							}
+							else
+							{
+								this.store.dispatch(new CommonActions.LoadError(new Error('load presale error'), 'CommunityId and/or PlanId are missing or invalid IDs', ErrorFrom.HomeComponent));
+							}
 						}
-					} else {
+					}
+					else
+					{
 						// if sales agreement is not in the store and the id has been passed in to the url
 						// or the passed in sales agreement id is different than that of the id in the store...
 						const salesAgreementId = +params.get('salesAgreementId');
-						if (salesAgreementId > 0 && salesAgreementState.id !== salesAgreementId) {
+
+						if (salesAgreementId > 0 && salesAgreementState.id !== salesAgreementId)
+						{
 							this.store.dispatch(new CommonActions.LoadSalesAgreement(salesAgreementId));
 							return new Observable<never>();
 						}
@@ -176,14 +196,16 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 				{
 					this.isLoadingMyFavorite = false;
 
-					let url = `/favorites/my-favorites/${fav.selectedFavoritesId}`;
 					const subGroups = _.flatMap(tree.groups, g => _.flatMap(g.subGroups)) || [];
 					const selectedSubGroup = subGroups.find(sg => sg.id === nav.selectedSubGroup);
 					if (selectedSubGroup)
 					{
-						url += `/${selectedSubGroup.subGroupCatalogId}`;
+						this.router.navigate(['favorites', 'my-favorites', fav.selectedFavoritesId, selectedSubGroup.subGroupCatalogId], { queryParams: { presale: sessionStorage.getItem('presale_token')} })
 					}
-					this.router.navigateByUrl(url);
+					else
+					{
+						this.router.navigate(['favorites', 'my-favorites', fav.selectedFavoritesId], { queryParams: { presale: sessionStorage.getItem('presale_token')} })
+					}
 				}
 			}
 		});

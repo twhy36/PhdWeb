@@ -306,7 +306,7 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 		const pointId = this.points?.length ? this.points.find(p => p.choices.find(c => c.id === choice.id))?.id || this.points[0].id : 0;
 		const selectedSubGroup = this.subGroups.find(sg => !!sg.points.find(p => p.id === pointId));
 		this.selectDecisionPoint(pointId);
-		this.router.navigateByUrl(`/favorites/my-favorites/${this.myFavoriteId}/${selectedSubGroup.subGroupCatalogId}/${choice.divChoiceCatalogId}`);
+		this.router.navigate(['favorites', 'my-favorites', this.myFavoriteId, selectedSubGroup.subGroupCatalogId, choice.divChoiceCatalogId], { queryParams: { presale: sessionStorage.getItem('presale_token')} });
 	}
 
 	defaultChoicePresent(subGroup: SubGroup) {
@@ -334,7 +334,7 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 	}
 
 	onNextClicked() {
-		this.router.navigateByUrl(`/favorites/my-favorites/${this.myFavoriteId}`);
+		this.router.navigate(['favorites', 'my-favorites', this.myFavoriteId], { queryParams: { presale: sessionStorage.getItem('presale_token')} });
 	}
 
 	onViewDecisionPoint(point: DecisionPoint) {
@@ -342,7 +342,7 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 		this.selectDecisionPoint(point.id);
 
 		this.store.dispatch(new NavActions.SetSelectedSubgroup(sg.id, point.id));
-		this.router.navigateByUrl(`/favorites/my-favorites/${this.myFavoriteId}/${sg.subGroupCatalogId}`);
+		this.router.navigate(['favorites', 'my-favorites', this.myFavoriteId, sg.subGroupCatalogId], { queryParams: { presale: sessionStorage.getItem('presale_token')} });
 
 	}
 }
