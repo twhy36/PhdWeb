@@ -24,17 +24,24 @@
 	</div>
 
 	<div class="phd-header-body">
-		<div class="phd-upper-header">
-			<div id="favoritesListName" class="phd-favorites-list phd-favorites-list-on-print">{{headerTitle}}</div>
-			<div [ngClass]="{'phd-name-group-presale': isPresale}">
-				<span class="phd-lot-label phd-lot-label-on-print">{{summaryHeader.communityName}},</span>
-				<span class="phd-lot-details phd-lot-details-on-print" [ngStyle]="{'margin-left': isPresale ? '0px' : '10px'}">{{getPlanName()}}</span>
+		<div class="phd-upper-header" [ngClass]="{ 'phd-print-description': isPresale }">
+			<div class="phd-name-group">
+				<div id="favoritesListName" class="phd-favorites-list phd-favorites-list-on-print">{{headerTitle}}</div>
+				<div [ngClass]="{'phd-name-group-presale': isPresale}">
+					<span class="phd-lot-label phd-lot-label-on-print">{{summaryHeader.communityName}},</span>
+					<span class="phd-lot-details phd-lot-details-on-print" [ngStyle]="{'margin-left': isPresale ? '0px' : '10px'}">{{getPlanName()}}</span>
+				</div>
+				<ng-container *ngIf="!isPresale">
+					<span class="phd-lot-label phd-lot-label-on-print">LOT </span>
+					<span class="phd-lot-label phd-lot-label-on-print">{{summaryHeader.lot?.lotBlock}},</span>
+					<span class="phd-lot-details phd-lot-details-on-print">{{address}}</span>
+				</ng-container>
 			</div>
-			<ng-container *ngIf="!isPresale">
-				<span class="phd-lot-label phd-lot-label-on-print">LOT </span>
-				<span class="phd-lot-label phd-lot-label-on-print">{{summaryHeader.lot?.lotBlock}},</span>
-				<span class="phd-lot-details phd-lot-details-on-print">{{address}}</span>
-			</ng-container>
+			<div *ngIf="isPresale && !isSticky" class="phd-vertical-divider phd-hide-in-print"></div>
+			<div *ngIf="isPresale && !isSticky" class="phd-print-description-items phd-hide-in-print">
+				<i class="fa fa-solid fa-print fa-3x"></i>
+				<span class="phd-print-text">Print or save a copy of your favorite options to share. Your selections will not be saved when this window is closed.</span>
+			</div>
 		</div>
 		<div *ngIf="!isSticky && !isPresale" class="phd-divider"></div>
 		<div *ngIf="!isSticky && !isPresale" class="phd-price-breakdown phd-hide-in-print">
@@ -75,6 +82,9 @@
 				<span class="phd-breakdown-content">{{(priceBreakdown?.closingIncentive + priceBreakdown.closingCostAdjustment) | currency:'USD':'symbol':'0.0-0'}}</span>
 			</div>
 		</div>
-		<div *ngIf="!isSticky" class="phd-divider"></div>
+		<ng-container *ngIf="!isSticky">
+			<div class="phd-divider"></div>
+			<span class="phd-favorites-disclaimer phd-hide-in-print">Options made are subject to change and are not final until placed under contract with Sales Representative and are subject to the terms of the Home Purchase Agreement</span>
+		</ng-container>
 	</div>
 </div>

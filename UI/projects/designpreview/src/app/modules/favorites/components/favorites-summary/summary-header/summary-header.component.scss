@@ -1,4 +1,5 @@
-@import "../../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
+@import '../../../../../../scss/styles.scss';
+$headerTextPadding: 15px;
 
 .phd-logo-image {
 	width: calc(40vw);
@@ -18,10 +19,30 @@
 	display: flex;
 	flex-direction: column;
 	justify-content: space-around;
-	width: calc(55vw);
+	width: calc(85vw);
 
 	.phd-upper-header {
-		padding-left: 15px;
+		padding-left: $headerTextPadding;
+	}
+
+	.phd-print-description {
+		display: flex;
+		flex-direction: row;
+	}
+
+	.phd-name-group {
+		margin-right: 175px;
+	}
+
+	.phd-print-description-items {
+		display: flex;
+		transform: translateY(30px);
+		color: var(--action-icon-color);
+	}
+
+	.phd-print-text {
+		font-size: 14px;
+		margin: 5px;
 	}
 
 	.phd-name-group-presale span {
@@ -90,6 +111,19 @@
 		height: 1px;
 		min-height: 1px;
 		background-color: $mid_gray;
+		transform: translateX(15px);
+	}
+
+	.phd-vertical-divider {
+		border: 1px solid $mid_gray;
+		height: 8vh;
+		transform: translateY(15px);
+		margin: 0 30px;
+	}
+
+	.phd-favorites-disclaimer {
+		font-size: 14px;
+		padding-left: $headerTextPadding;
 	}
 }
 
