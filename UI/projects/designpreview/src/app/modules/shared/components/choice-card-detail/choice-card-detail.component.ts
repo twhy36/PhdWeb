@@ -85,6 +85,12 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		super();
 	}
 
+	get disclaimerText() {
+		return this.isPresale ?
+				"Option selections are not final until purchased via a signed agreement or change order."
+				: "Options and any selections subject to change and are not final until placed under contract with Sales Representative and subject to the terms of the home purchase agreement."
+	}
+
 	ngOnInit()
 	{
 		const getAttributeGroups: Observable<AttributeGroup[]> = this.choice.mappedAttributeGroups.length > 0 ? this.attributeService.getAttributeGroups(this.choice) : of([]);

@@ -6,10 +6,11 @@ export interface State {
 	latestError: any;
 	pageNotFound: boolean;
 	showTermsAndConditionsModal: boolean;
+	showWelcomeModal: boolean;
 	termsAndConditionsAcknowledged: boolean;
 }
 
-export const initialState: State = { latestError: null, pageNotFound: false, showTermsAndConditionsModal: false, termsAndConditionsAcknowledged: false };
+export const initialState: State = { latestError: null, pageNotFound: false, showTermsAndConditionsModal: false, termsAndConditionsAcknowledged: false, showWelcomeModal: false };
 
 export function reducer(state: State = initialState, action: AppActions): State {
 	switch (action.type) {
@@ -28,6 +29,9 @@ export function reducer(state: State = initialState, action: AppActions): State 
 		
 		case AppActionTypes.ShowTermsAndConditionsModal:
 			return { ...state, showTermsAndConditionsModal: action.showTermsAndConditions }
+
+		case AppActionTypes.ShowWelcomeModal:
+			return { ...state, showWelcomeModal: action.showWelcomeMessage }
 
 		default:
 			return state;
@@ -54,3 +58,10 @@ export const showTermsAndConditions = createSelector(
 		return app.showTermsAndConditionsModal;
 	}
 );
+export const showWelcomeMessage = createSelector(
+	selectApp,
+	(app) => {
+		return app.showWelcomeModal;
+	}
+);
+

@@ -4,7 +4,8 @@ import { ClearLatestError, SetLatestError, PageNotFound } from '../error.action'
 
 export enum AppActionTypes {
 	AcknowledgeTermsAndConditions = 'Acknowledge Terms And Conditions',
-	ShowTermsAndConditionsModal = 'Show Terms and Conditions Modal'
+	ShowTermsAndConditionsModal = 'Show Terms and Conditions Modal',
+	ShowWelcomeModal = 'Show Welcome Modal'
 }
 
 export class AcknowledgeTermsAndConditions implements Action
@@ -21,9 +22,17 @@ export class ShowTermsAndConditionsModal implements Action
 	constructor(public showTermsAndConditions: boolean) {};
 }
 
+export class ShowWelcomeModal implements Action
+{
+	readonly type = AppActionTypes.ShowWelcomeModal;
+
+	constructor(public showWelcomeMessage: boolean) {};
+}
+
 export type AppActions = 
 	ClearLatestError |
 	SetLatestError |
 	PageNotFound |
 	AcknowledgeTermsAndConditions |
-	ShowTermsAndConditionsModal;
+	ShowTermsAndConditionsModal |
+	ShowWelcomeModal;
