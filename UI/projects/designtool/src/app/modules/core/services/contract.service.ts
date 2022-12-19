@@ -24,7 +24,7 @@ import
 import * as _ from 'lodash';
 import { Store } from '@ngrx/store';
 import * as fromRoot from '../../../modules/ngrx-store/reducers';
-import { isNull } from "../../shared/classes/string-utils.class";
+import { isNull } from '../../shared/classes/string-utils.class';
 import * as fromLot from '../../ngrx-store/lot/reducer';
 import * as fromChangeOrder from '../../ngrx-store/change-order/reducer';
 import { TreeService } from '../../core/services/tree.service';
@@ -38,7 +38,7 @@ import * as fromLite from '../../ngrx-store/lite/reducer';
 @Injectable()
 export class ContractService
 {
-	private _ds: string = encodeURIComponent("$");
+	private _ds: string = encodeURIComponent('$');
 
 	constructor(private _http: HttpClient,
 		private store: Store<fromRoot.State>,
@@ -50,7 +50,7 @@ export class ContractService
 		const entity = `contractTemplates`;
 		const filter = `org/edhMarketId eq ${marketId} and templateFinancialCommunityAssocs/any(c: c/org/edhFinancialCommunityId eq ${financialCommunityId}) and status eq 'In Use' and isPhd eq true`;
 		const orderBy = `displayOrder`;
-		const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${encodeURIComponent("$")}orderby=${orderBy}`;
+		const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${encodeURIComponent('$')}orderby=${orderBy}`;
 		const url = `${environment.apiUrl}${entity}?${qryStr}`;
 
 		return this._http.get(url).pipe(
@@ -110,7 +110,7 @@ export class ContractService
 			'Accept': 'application/pdf'
 		});
 
-		return withSpinner(this._http).get(url, { headers: headers, responseType: "blob" }).pipe(
+		return withSpinner(this._http).get(url, { headers: headers, responseType: 'blob' }).pipe(
 			map(response =>
 			{
 				return window.URL.createObjectURL(response);
@@ -131,7 +131,7 @@ export class ContractService
 
 		return this._http.get<IFinancialCommunityESign>(url).pipe(
 			map(dto => new FinancialCommunityESign(dto)),
-			defaultOnNotFound("getFinancialCommunityESign")
+			defaultOnNotFound('getFinancialCommunityESign')
 		);
 	}
 
@@ -153,7 +153,7 @@ export class ContractService
 
 		return this._http.post<string>(url, data).pipe(
 			map(response => response['value']),
-			defaultOnNotFound("SendEnvelope")
+			defaultOnNotFound('SendEnvelope')
 		);
 	}
 
@@ -413,10 +413,10 @@ export class ContractService
 		const templates = store.contract.selectedTemplates.length ? store.contract.selectedTemplates.map(id =>
 		{
 			return store.contract.templates.find(t => t.templateId === id);
-		}).sort((a, b) => a.displayOrder < b.displayOrder ? -1 : a.displayOrder > b.displayOrder ? 1 : 0) : [{ displayName: "JIO", displayOrder: 2, documentName: "JIO", templateId: 0, templateTypeId: 4, marketId: 0, version: 0 }];
+		}).sort((a, b) => a.displayOrder < b.displayOrder ? -1 : a.displayOrder > b.displayOrder ? 1 : 0) : [{ displayName: 'JIO', displayOrder: 2, documentName: 'JIO', templateId: 0, templateTypeId: 4, marketId: 0, version: 0 }];
 
-		let salesAgreementNotes = !!store.salesAgreement.notes && store.salesAgreement.notes.length ? store.salesAgreement.notes.filter(n => n.targetAudiences.find(x => x.name === "Public") && n.noteSubCategoryId !== 10).map(n => n.noteContent).join(", ") : '';
-		let termsAndConditions = !!store.salesAgreement.notes && store.salesAgreement.notes.length ? store.salesAgreement.notes.filter(n => n.targetAudiences.find(x => x.name === "Public") && n.noteSubCategoryId === 10).map(n => n.noteContent).join() : '';
+		let salesAgreementNotes = !!store.salesAgreement.notes && store.salesAgreement.notes.length ? store.salesAgreement.notes.filter(n => n.targetAudiences.find(x => x.name === 'Public') && n.noteSubCategoryId !== 10).map(n => n.noteContent).join(', ') : '';
+		let termsAndConditions = !!store.salesAgreement.notes && store.salesAgreement.notes.length ? store.salesAgreement.notes.filter(n => n.targetAudiences.find(x => x.name === 'Public') && n.noteSubCategoryId === 10).map(n => n.noteContent).join('*') : '';
 
 		const liteBaseHouseOptions = this.liteService.getSelectedBaseHouseOptions(
 			store.lite.scenarioOptions,
@@ -447,7 +447,7 @@ export class ContractService
 			const primBuyer = isSpecSalePending && store.changeOrder.changeInput.buyers ? store.changeOrder.changeInput.buyers.find(b => b.isPrimaryBuyer) : store.salesAgreement.buyers.find(b => b.isPrimaryBuyer);
 			const primaryBuyer = primBuyer ? primBuyer.opportunityContactAssoc.contact : new Contact();
 			const coBuyers = isSpecSalePending && store.changeOrder.changeInput.buyers ? store.changeOrder.changeInput.buyers.filter(b => !b.isPrimaryBuyer).sort((a, b) => a.sortKey === b.sortKey ? 0 : a.sortKey < b.sortKey ? -1 : 1) : store.salesAgreement.buyers ? store.salesAgreement.buyers.filter(b => !b.isPrimaryBuyer).sort((a, b) => a.sortKey === b.sortKey ? 0 : a.sortKey < b.sortKey ? -1 : 1) : [] as Buyer[];
-			const nsoSummary = store.job.changeOrderGroups ? store.job.changeOrderGroups.filter(x => x.jobChangeOrders.find(y => y.jobChangeOrderTypeDescription == "NonStandard") && (x.salesStatusDescription === "Pending")) : [];
+			const nsoSummary = store.job.changeOrderGroups ? store.job.changeOrderGroups.filter(x => x.jobChangeOrders.find(y => y.jobChangeOrderTypeDescription == 'NonStandard') && (x.salesStatusDescription === 'Pending')) : [];
 
 			const customerAddress = primaryBuyer.addressAssocs.find(a => a.isPrimary);
 			const customerHomePhone = primaryBuyer.phoneAssocs.find(p => p.isPrimary);
@@ -470,11 +470,11 @@ export class ContractService
 
 			let jobBuyerHeaderInfo =
 			{
-				homePhone: customerHomePhone ? isNull(formatPhoneNumber(customerHomePhone.phone.phoneNumber), "") : "",
-				workPhone: customerWorkPhone ? isNull(formatPhoneNumber(customerWorkPhone.phone.phoneNumber), "") : "",
-				email: customerEmail ? isNull(customerEmail.email.emailAddress, "") : "",
-				address: customerAddress && customerAddress.address ? isNull(customerAddress.address.address1, "").trim() + " " + isNull(customerAddress.address.address2, "").trim() : "",
-				cityStateZip: customerAddress && customerAddress.address ? `${isNull(customerAddress.address.city, "").trim()}, ${isNull(customerAddress.address.stateProvince, "").trim()} ${isNull(customerAddress.address.postalCode, "").trim()}` : ""
+				homePhone: customerHomePhone ? isNull(formatPhoneNumber(customerHomePhone.phone.phoneNumber), '') : '',
+				workPhone: customerWorkPhone ? isNull(formatPhoneNumber(customerWorkPhone.phone.phoneNumber), '') : '',
+				email: customerEmail ? isNull(customerEmail.email.emailAddress, '') : '',
+				address: customerAddress && customerAddress.address ? isNull(customerAddress.address.address1, '').trim() + ' ' + isNull(customerAddress.address.address2, '').trim() : '',
+				cityStateZip: customerAddress && customerAddress.address ? `${isNull(customerAddress.address.city, '').trim()}, ${isNull(customerAddress.address.stateProvince, '').trim()} ${isNull(customerAddress.address.postalCode, '').trim()}` : ''
 			};
 
 			const elevationName = store.lite.isPhdLite
@@ -484,30 +484,30 @@ export class ContractService
 			let jobAgreementHeaderInfo =
 			{
 				agreementNumber: store.salesAgreement.salesAgreementNumber,
-				agreementCreatedDate: new Date(createdDate).toLocaleDateString('en-US', { month: "2-digit", day: "2-digit", year: "numeric" }),
-				agreementApprovedDate: !!store.salesAgreement.approvedDate ? (new Date(store.salesAgreement.approvedDate.toString().replace(/-/g, '\/').replace(/T.+/, ''))).toLocaleDateString('en-US', { month: "2-digit", day: "2-digit", year: "numeric" }) : null,
-				agreementSignedDate: !!store.salesAgreement.signedDate ? (new Date(store.salesAgreement.signedDate.toString().replace(/-/g, '\/').replace(/T.+/, ''))).toLocaleDateString('en-US', { month: "2-digit", day: "2-digit", year: "numeric" }) : null,
+				agreementCreatedDate: new Date(createdDate).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }),
+				agreementApprovedDate: !!store.salesAgreement.approvedDate ? (new Date(store.salesAgreement.approvedDate.toString().replace(/-/g, '\/').replace(/T.+/, ''))).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }) : null,
+				agreementSignedDate: !!store.salesAgreement.signedDate ? (new Date(store.salesAgreement.signedDate.toString().replace(/-/g, '\/').replace(/T.+/, ''))).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }) : null,
 				communityName: selectLot.selectedLot.financialCommunity.name,
 				communityMarketingName: store.org.salesCommunity.name,
-				phaseName: !!store.job.lot.salesPhase && !!store.job.lot.salesPhase.salesPhaseName ? store.job.lot.salesPhase.salesPhaseName : "",
-				garage: isNull(store.job.handing, ""),
+				phaseName: !!store.job.lot.salesPhase && !!store.job.lot.salesPhase.salesPhaseName ? store.job.lot.salesPhase.salesPhaseName : '',
+				garage: isNull(store.job.handing, ''),
 				planName: store.job.plan.planSalesName,
 				planID: store.job.plan.masterPlanNumber,
 				elevation: elevationName,
 				lotBlock: isNull(store.job.lot.alternateLotBlock, ''),
-				lotAddress: isNull(store.job.lot.streetAddress1, "").trim() + " " + isNull(store.job.lot.streetAddress2, "").trim(),
-				cityStateZip: store.job.lot.city ? `${isNull(store.job.lot.city, "").trim()}, ${isNull(store.job.lot.stateProvince, "").trim()} ${isNull(store.job.lot.postalCode, "").trim()}` : "",
+				lotAddress: isNull(store.job.lot.streetAddress1, '').trim() + ' ' + isNull(store.job.lot.streetAddress2, '').trim(),
+				cityStateZip: store.job.lot.city ? `${isNull(store.job.lot.city, '').trim()}, ${isNull(store.job.lot.stateProvince, '').trim()} ${isNull(store.job.lot.postalCode, '').trim()}` : '',
 				lotBlockFullNumber: store.job.lot.lotBlock,
-				salesAssociate: store.salesAgreement.consultants && store.salesAgreement.consultants.length ? store.salesAgreement.consultants[0].contact.firstName + " " + store.salesAgreement.consultants[0].contact.lastName :
-					jio && jio.contact ? jio.contact.displayName : "",
-				salesDescription: jio ? jio.jobChangeOrderGroupDescription : ""
+				salesAssociate: store.salesAgreement.consultants && store.salesAgreement.consultants.length ? store.salesAgreement.consultants[0].contact.firstName + ' ' + store.salesAgreement.consultants[0].contact.lastName :
+					jio && jio.contact ? jio.contact.displayName : '',
+				salesDescription: jio ? jio.jobChangeOrderGroupDescription : ''
 			};
 
 			var envelopeInfo =
 			{
 				oldHanding: store.job.handing,
 				newHanding: store.changeOrder && store.changeOrder.changeInput && store.changeOrder.changeInput.handing ? store.changeOrder.changeInput.handing.handing : null,
-				buildType: store.job.lot ? store.job.lot.lotBuildTypeDesc : "",
+				buildType: store.job.lot ? store.job.lot.lotBuildTypeDesc : '',
 				primaryBuyerName: isNull(store.changeOrder && store.changeOrder.changeInput ? store.changeOrder.changeInput.trustName : null, `${primaryBuyer.firstName ? primaryBuyer.firstName : ''}${primaryBuyer.middleName ? ' ' + primaryBuyer.middleName : ''} ${primaryBuyer.lastName ? ' ' + primaryBuyer.lastName : ''}${primaryBuyer.suffix ? ' ' + primaryBuyer.suffix : ''}`),
 				primaryBuyerTrustName: isNull(store.changeOrder && store.changeOrder.changeInput && store.changeOrder.changeInput.trustName && store.changeOrder.changeInput.trustName.length > 20 ? `${store.changeOrder.changeInput.trustName.substring(0, 20)}...` : store.changeOrder && store.changeOrder.changeInput ? store.changeOrder.changeInput.trustName : null, `${primaryBuyer.firstName ? primaryBuyer.firstName : ''}${primaryBuyer.middleName ? ' ' + primaryBuyer.middleName : ''} ${primaryBuyer.lastName ? ' ' + primaryBuyer.lastName : ''}${primaryBuyer.suffix ? ' ' + primaryBuyer.suffix : ''}`),
 				salesAgreementNotes: salesAgreementNotes,
@@ -572,7 +572,7 @@ export class ContractService
 			}
 
 			let lot = store.lot.selectedLot;
-			let lotAddress = (lot.streetAddress1 ? lot.streetAddress1 : "") + " " + (lot.streetAddress2 ? lot.streetAddress2 : "") + "," + (lot.city ? lot.city : "") + "," + (lot.stateProvince ? lot.stateProvince : "") + " " + (lot.postalCode ? lot.postalCode : "");
+			let lotAddress = (lot.streetAddress1 ? lot.streetAddress1 : '') + ' ' + (lot.streetAddress2 ? lot.streetAddress2 : '') + ',' + (lot.city ? lot.city : '') + ',' + (lot.stateProvince ? lot.stateProvince : '') + ' ' + (lot.postalCode ? lot.postalCode : '');
 
 			const inChangeOrderOrSpecSale = store.changeOrder.isChangingOrder || isSpecSalePending;
 			let buyer = inChangeOrderOrSpecSale ? coPrimaryBuyer : store.salesAgreement.buyers.find(t => t.isPrimaryBuyer === true);
@@ -599,10 +599,10 @@ export class ContractService
 				};
 			}) : [];
 
-			let salesConsultant = store.salesAgreement.consultants.length > 0 ? (store.salesAgreement.consultants[0].contact.firstName + " " + store.salesAgreement.consultants[0].contact.lastName) : "";
-			let homePhone = "";
-			let workPhone = "";
-			let buyerCurrentAddress = "";
+			let salesConsultant = store.salesAgreement.consultants.length > 0 ? (store.salesAgreement.consultants[0].contact.firstName + ' ' + store.salesAgreement.consultants[0].contact.lastName) : '';
+			let homePhone = '';
+			let workPhone = '';
+			let buyerCurrentAddress = '';
 
 			if (buyer && buyer.opportunityContactAssoc && buyer.opportunityContactAssoc.contact.phoneAssocs.length > 0)
 			{
@@ -623,7 +623,7 @@ export class ContractService
 
 			if (buyerAddressAssoc)
 			{
-				buyerCurrentAddress = (buyerAddressAssoc.address.address1 ? buyerAddressAssoc.address.address1 : "") + " " + (buyerAddressAssoc.address.address2 ? buyerAddressAssoc.address.address2 : "") + "," + (buyerAddressAssoc.address.city ? buyerAddressAssoc.address.city : "") + "," + (buyerAddressAssoc.address.stateProvince ? buyerAddressAssoc.address.stateProvince : "") + " " + (buyerAddressAssoc.address.postalCode ? buyerAddressAssoc.address.postalCode : "");
+				buyerCurrentAddress = (buyerAddressAssoc.address.address1 ? buyerAddressAssoc.address.address1 : '') + ' ' + (buyerAddressAssoc.address.address2 ? buyerAddressAssoc.address.address2 : '') + ',' + (buyerAddressAssoc.address.city ? buyerAddressAssoc.address.city : '') + ',' + (buyerAddressAssoc.address.stateProvince ? buyerAddressAssoc.address.stateProvince : '') + ' ' + (buyerAddressAssoc.address.postalCode ? buyerAddressAssoc.address.postalCode : '');
 			}
 
 			let financialCommunity = store.org.salesCommunity.financialCommunities[0];
@@ -681,7 +681,7 @@ export class ContractService
 				agreementId: store.salesAgreement.id,
 				createdUtcDate: store.salesAgreement.createdUtcDate,
 				approvedDate: store.salesAgreement.approvedDate,
-				communityName: financialCommunity.name.trim() + " - " + financialCommunity.number,
+				communityName: financialCommunity.name.trim() + ' - ' + financialCommunity.number,
 				lotAddress: lotAddress,
 				lotBlock: lot.lotBlock,
 				phase: lot.salesPhase ? lot.salesPhase.salesPhaseName : '',
@@ -695,11 +695,11 @@ export class ContractService
 				currentCoBuyers: currentCoBuyers,
 				homePhone: homePhone,
 				workPhone: workPhone,
-				email: buyer && buyer.opportunityContactAssoc.contact.emailAssocs.length > 0 ? buyer.opportunityContactAssoc.contact.emailAssocs.find(t => t.isPrimary === true).email.emailAddress : "",
+				email: buyer && buyer.opportunityContactAssoc.contact.emailAssocs.length > 0 ? buyer.opportunityContactAssoc.contact.emailAssocs.find(t => t.isPrimary === true).email.emailAddress : '',
 				currentAddress: buyerCurrentAddress,
 				salesConsultant: salesConsultant,
 				salesAgreementNotes: salesAgreementNotes,
-				changeOrderCreatedDate: new Date(activeChangeOrderGroup.createdUtcDate).toLocaleDateString('en-US', { month: "2-digit", day: "2-digit", year: "numeric" }),
+				changeOrderCreatedDate: new Date(activeChangeOrderGroup.createdUtcDate).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }),
 				changeOrderId: activeChangeOrderGroup.id,
 				changeOrderNumber: activeChangeOrderGroup.index.toString(),
 				changeOrderType: activeChangeOrderGroup.changeOrderTypeDescription,
@@ -775,7 +775,7 @@ export class ContractService
 
 					previousTermsAndConditions.push(...addedTermsAndConditions);
 
-					let termsAndConditions = previousTermsAndConditions.map(tcs => tcs.noteContent).join(', ');
+					let termsAndConditions = previousTermsAndConditions.map(tcs => tcs.noteContent).join('*');
 					let jioSelections = {
 						currentHouseSelections: currentHouseSelections,
 						salesAgreementNotes: salesAgreementNotes
@@ -934,7 +934,7 @@ export class ContractService
 					}
 
 					let lot = store.lot.selectedLot;
-					let lotAddress = (lot.streetAddress1 ? lot.streetAddress1 : "") + " " + (lot.streetAddress2 ? lot.streetAddress2 : "") + "," + (lot.city ? lot.city : "") + "," + (lot.stateProvince ? lot.stateProvince : "") + " " + (lot.postalCode ? lot.postalCode : "");
+					let lotAddress = (lot.streetAddress1 ? lot.streetAddress1 : '') + ' ' + (lot.streetAddress2 ? lot.streetAddress2 : '') + ',' + (lot.city ? lot.city : '') + ',' + (lot.stateProvince ? lot.stateProvince : '') + ' ' + (lot.postalCode ? lot.postalCode : '');
 
 					const inChangeOrderOrSpecSale = store.changeOrder.isChangingOrder || isSpecSalePending;
 					let buyer = inChangeOrderOrSpecSale ? coPrimaryBuyer : store.salesAgreement.buyers.find(t => t.isPrimaryBuyer === true);
@@ -960,10 +960,10 @@ export class ContractService
 						};
 					}) : [];
 
-					let salesConsultant = store.salesAgreement.consultants.length > 0 ? (store.salesAgreement.consultants[0].contact.firstName + " " + store.salesAgreement.consultants[0].contact.lastName) : "";
-					let homePhone = "";
-					let workPhone = "";
-					let buyerCurrentAddress = "";
+					let salesConsultant = store.salesAgreement.consultants.length > 0 ? (store.salesAgreement.consultants[0].contact.firstName + ' ' + store.salesAgreement.consultants[0].contact.lastName) : '';
+					let homePhone = '';
+					let workPhone = '';
+					let buyerCurrentAddress = '';
 
 					if (buyer && buyer.opportunityContactAssoc.contact.phoneAssocs.length > 0)
 					{
@@ -984,7 +984,7 @@ export class ContractService
 
 					if (buyerAddressAssoc)
 					{
-						buyerCurrentAddress = (buyerAddressAssoc.address.address1 ? buyerAddressAssoc.address.address1 : "") + " " + (buyerAddressAssoc.address.address2 ? buyerAddressAssoc.address.address2 : "") + "," + (buyerAddressAssoc.address.city ? buyerAddressAssoc.address.city : "") + "," + (buyerAddressAssoc.address.stateProvince ? buyerAddressAssoc.address.stateProvince : "") + " " + (buyerAddressAssoc.address.postalCode ? buyerAddressAssoc.address.postalCode : "");
+						buyerCurrentAddress = (buyerAddressAssoc.address.address1 ? buyerAddressAssoc.address.address1 : '') + ' ' + (buyerAddressAssoc.address.address2 ? buyerAddressAssoc.address.address2 : '') + ',' + (buyerAddressAssoc.address.city ? buyerAddressAssoc.address.city : '') + ',' + (buyerAddressAssoc.address.stateProvince ? buyerAddressAssoc.address.stateProvince : '') + ' ' + (buyerAddressAssoc.address.postalCode ? buyerAddressAssoc.address.postalCode : '');
 					}
 
 					let planId = 0;
@@ -1014,7 +1014,7 @@ export class ContractService
 						agreementId: store.salesAgreement.id,
 						createdUtcDate: store.salesAgreement.createdUtcDate,
 						approvedDate: store.salesAgreement.approvedDate,
-						communityName: financialCommunity.name.trim() + " - " + financialCommunity.number,
+						communityName: financialCommunity.name.trim() + ' - ' + financialCommunity.number,
 						lotAddress: lotAddress,
 						lotBlock: lot.lotBlock,
 						phase: lot.salesPhase ? lot.salesPhase.salesPhaseName : '',
@@ -1028,11 +1028,11 @@ export class ContractService
 						currentCoBuyers: currentCoBuyers,
 						homePhone: homePhone,
 						workPhone: workPhone,
-						email: buyer && buyer.opportunityContactAssoc.contact.emailAssocs.length > 0 ? buyer.opportunityContactAssoc.contact.emailAssocs.find(t => t.isPrimary === true).email.emailAddress : "",
+						email: buyer && buyer.opportunityContactAssoc.contact.emailAssocs.length > 0 ? buyer.opportunityContactAssoc.contact.emailAssocs.find(t => t.isPrimary === true).email.emailAddress : '',
 						currentAddress: buyerCurrentAddress,
 						salesConsultant: salesConsultant,
 						salesAgreementNotes: salesAgreementNotes,
-						changeOrderCreatedDate: new Date(changeOrder.createdUtcDate).toLocaleDateString('en-US', { month: "2-digit", day: "2-digit", year: "numeric" }),
+						changeOrderCreatedDate: new Date(changeOrder.createdUtcDate).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }),
 						changeOrderId: changeOrder.id,
 						changeOrderNumber: changeOrder.index.toString(),
 						changeOrderType: changeOrder.changeOrderTypeDescription,
@@ -1050,7 +1050,7 @@ export class ContractService
 						const primBuyer = isSpecSalePending && store.changeOrder.changeInput.buyers ? store.changeOrder.changeInput.buyers.find(b => b.isPrimaryBuyer) : store.salesAgreement.buyers.find(b => b.isPrimaryBuyer);
 						const primaryBuyer = primBuyer ? primBuyer.opportunityContactAssoc.contact : new Contact();
 						const coBuyers = store.salesAgreement.buyers ? store.salesAgreement.buyers.filter(b => !b.isPrimaryBuyer).sort((a, b) => a.sortKey === b.sortKey ? 0 : a.sortKey < b.sortKey ? -1 : 1) : [] as Buyer[];
-						const nsoSummary = store.job.changeOrderGroups ? store.job.changeOrderGroups.filter(x => x.jobChangeOrders.find(y => y.jobChangeOrderTypeDescription == "NonStandard") && (x.salesStatusDescription === "Pending")) : [];
+						const nsoSummary = store.job.changeOrderGroups ? store.job.changeOrderGroups.filter(x => x.jobChangeOrders.find(y => y.jobChangeOrderTypeDescription == 'NonStandard') && (x.salesStatusDescription === 'Pending')) : [];
 						const salesAgreement = store.salesAgreement;
 
 						const customerAddress = primaryBuyer.addressAssocs.find(a => a.isPrimary);
@@ -1067,11 +1067,11 @@ export class ContractService
 						const buyerClosingCosts = (priceBreakdown.closingIncentive || 0) + (priceBreakdown.closingCostAdjustment || 0);
 
 						let jobBuyerHeaderInfo = {
-							homePhone: customerHomePhone ? isNull(formatPhoneNumber(customerHomePhone.phone.phoneNumber), "") : "",
-							workPhone: customerWorkPhone ? isNull(formatPhoneNumber(customerWorkPhone.phone.phoneNumber), "") : "",
-							email: customerEmail ? isNull(customerEmail.email.emailAddress, "") : "",
-							address: customerAddress && customerAddress.address ? isNull(customerAddress.address.address1, "").trim() + " " + isNull(customerAddress.address.address2, "").trim() : "",
-							cityStateZip: customerAddress && customerAddress.address ? `${isNull(customerAddress.address.city, "").trim()}, ${isNull(customerAddress.address.stateProvince, "").trim()} ${isNull(customerAddress.address.postalCode, "").trim()}` : ""
+							homePhone: customerHomePhone ? isNull(formatPhoneNumber(customerHomePhone.phone.phoneNumber), '') : '',
+							workPhone: customerWorkPhone ? isNull(formatPhoneNumber(customerWorkPhone.phone.phoneNumber), '') : '',
+							email: customerEmail ? isNull(customerEmail.email.emailAddress, '') : '',
+							address: customerAddress && customerAddress.address ? isNull(customerAddress.address.address1, '').trim() + ' ' + isNull(customerAddress.address.address2, '').trim() : '',
+							cityStateZip: customerAddress && customerAddress.address ? `${isNull(customerAddress.address.city, '').trim()}, ${isNull(customerAddress.address.stateProvince, '').trim()} ${isNull(customerAddress.address.postalCode, '').trim()}` : ''
 						};
 
 						const elevationName = store.lite.isPhdLite
@@ -1080,29 +1080,29 @@ export class ContractService
 
 						let jobAgreementHeaderInfo = {
 							agreementNumber: store.salesAgreement.salesAgreementNumber,
-							agreementCreatedDate: new Date(store.salesAgreement.createdUtcDate).toLocaleDateString('en-US', { month: "2-digit", day: "2-digit", year: "numeric" }),
-							agreementApprovedDate: !!store.salesAgreement.approvedDate ? (new Date(store.salesAgreement.approvedDate.toString().replace(/-/g, '\/').replace(/T.+/, ''))).toLocaleDateString('en-US', { month: "2-digit", day: "2-digit", year: "numeric" }) : null,
-							agreementSignedDate: !!store.salesAgreement.signedDate ? (new Date(store.salesAgreement.signedDate.toString().replace(/-/g, '\/').replace(/T.+/, ''))).toLocaleDateString('en-US', { month: "2-digit", day: "2-digit", year: "numeric" }) : null,
+							agreementCreatedDate: new Date(store.salesAgreement.createdUtcDate).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }),
+							agreementApprovedDate: !!store.salesAgreement.approvedDate ? (new Date(store.salesAgreement.approvedDate.toString().replace(/-/g, '\/').replace(/T.+/, ''))).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }) : null,
+							agreementSignedDate: !!store.salesAgreement.signedDate ? (new Date(store.salesAgreement.signedDate.toString().replace(/-/g, '\/').replace(/T.+/, ''))).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }) : null,
 							communityName: selectLot.selectedLot.financialCommunity.name,
 							communityMarketingName: store.org.salesCommunity.name,
-							phaseName: !!store.job.lot.salesPhase && !!store.job.lot.salesPhase.salesPhaseName ? store.job.lot.salesPhase.salesPhaseName : "",
-							garage: isNull(store.job.handing, ""),
+							phaseName: !!store.job.lot.salesPhase && !!store.job.lot.salesPhase.salesPhaseName ? store.job.lot.salesPhase.salesPhaseName : '',
+							garage: isNull(store.job.handing, ''),
 							planName: store.job.plan.planSalesName,
 							planID: store.job.plan.masterPlanNumber,
 							elevation: elevationName,
-							lotBlock: isNull(store.job.lot.alternateLotBlock, ""),
-							lotAddress: isNull(store.job.lot.streetAddress1, "").trim() + " " + isNull(store.job.lot.streetAddress2, "").trim(),
-							cityStateZip: store.job.lot.city ? `${isNull(store.job.lot.city, "").trim()}, ${isNull(store.job.lot.stateProvince, "").trim()} ${isNull(store.job.lot.postalCode, "").trim()}` : "",
+							lotBlock: isNull(store.job.lot.alternateLotBlock, ''),
+							lotAddress: isNull(store.job.lot.streetAddress1, '').trim() + ' ' + isNull(store.job.lot.streetAddress2, '').trim(),
+							cityStateZip: store.job.lot.city ? `${isNull(store.job.lot.city, '').trim()}, ${isNull(store.job.lot.stateProvince, '').trim()} ${isNull(store.job.lot.postalCode, '').trim()}` : '',
 							lotBlockFullNumber: store.job.lot.lotBlock,
-							salesAssociate: store.salesAgreement.consultants && store.salesAgreement.consultants.length ? store.salesAgreement.consultants[0].contact.firstName + " " + store.salesAgreement.consultants[0].contact.lastName :
-								changeOrder.createdBy ? changeOrder.createdBy : "",
-							salesDescription: changeOrder ? changeOrder.jobChangeOrderGroupDescription : ""
+							salesAssociate: store.salesAgreement.consultants && store.salesAgreement.consultants.length ? store.salesAgreement.consultants[0].contact.firstName + ' ' + store.salesAgreement.consultants[0].contact.lastName :
+								changeOrder.createdBy ? changeOrder.createdBy : '',
+							salesDescription: changeOrder ? changeOrder.jobChangeOrderGroupDescription : ''
 						};
 
 						var envelopeInfo = {
 							oldHanding: store.job.handing,
 							newHanding: store.changeOrder && store.changeOrder.changeInput && store.changeOrder.changeInput.handing ? store.changeOrder.changeInput.handing.handing : null,
-							buildType: store.job.lot ? store.job.lot.lotBuildTypeDesc : "",
+							buildType: store.job.lot ? store.job.lot.lotBuildTypeDesc : '',
 							primaryBuyerName: isNull(store.salesAgreement.trustName, `${primaryBuyer.firstName ? primaryBuyer.firstName : ''}${primaryBuyer.middleName ? ' ' + primaryBuyer.middleName : ''} ${primaryBuyer.lastName ? ' ' + primaryBuyer.lastName : ''}${primaryBuyer.suffix ? ' ' + primaryBuyer.suffix : ''}`),
 							primaryBuyerTrustName: isNull(store.salesAgreement.trustName && store.salesAgreement.trustName.length > 20 ? `${store.salesAgreement.trustName.substring(0, 20)}...` : store.salesAgreement.trustName, `${primaryBuyer.firstName ? primaryBuyer.firstName : ''}${primaryBuyer.middleName ? ' ' + primaryBuyer.middleName : ''} ${primaryBuyer.lastName ? ' ' + primaryBuyer.lastName : ''}${primaryBuyer.suffix ? ' ' + primaryBuyer.suffix : ''}`),
 							salesAgreementNotes: salesAgreementNotes,
@@ -1294,7 +1294,7 @@ export class ContractService
 			'Accept': 'application/pdf'
 		});
 
-		return withSpinner(this._http).get(url, { headers: headers, responseType: "blob" }).pipe(
+		return withSpinner(this._http).get(url, { headers: headers, responseType: 'blob' }).pipe(
 			map(response =>
 			{
 				return window.URL.createObjectURL(response);
@@ -1345,8 +1345,8 @@ export class ContractService
 
 					var clonedSnapshot = _.cloneDeep(lockedSnapshot);
 
-					clonedSnapshot.envelopeInfo.jobAgreementHeaderInfo.agreementApprovedDate = approvedDate ? new Date(approvedDate.toString().replace(/-/g, '\/').replace(/T.+/, '')).toLocaleDateString('en-US', { month: "2-digit", day: "2-digit", year: "numeric" }) : null;
-					clonedSnapshot.envelopeInfo.jobAgreementHeaderInfo.agreementSignedDate = signedDate ? new Date(signedDate.toString().replace(/-/g, '\/').replace(/T.+/, '')).toLocaleDateString('en-US', { month: "2-digit", day: "2-digit", year: "numeric" }) : null;
+					clonedSnapshot.envelopeInfo.jobAgreementHeaderInfo.agreementApprovedDate = approvedDate ? new Date(approvedDate.toString().replace(/-/g, '\/').replace(/T.+/, '')).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }) : null;
+					clonedSnapshot.envelopeInfo.jobAgreementHeaderInfo.agreementSignedDate = signedDate ? new Date(signedDate.toString().replace(/-/g, '\/').replace(/T.+/, '')).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }) : null;
 
 					if (JSON.stringify(lockedSnapshot) !== JSON.stringify(clonedSnapshot))
 					{
