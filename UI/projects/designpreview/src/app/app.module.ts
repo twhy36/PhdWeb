@@ -57,7 +57,8 @@ const tryInitAuth = (authService: AuthService, identityService: IdentityService)
 			return identityService.init().toPromise();
 		}
 
-		if (sessionStorage.getItem('authProvider'))
+		// presale design preview does not use OIDC
+		if (sessionStorage.getItem('authProvider') && sessionStorage.getItem('authProvider') !== 'presale')
 		{
 			authService.setAuthConfig(environment.authConfigs[sessionStorage.getItem('authProvider')]);
 		}
