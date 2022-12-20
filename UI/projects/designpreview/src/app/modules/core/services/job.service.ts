@@ -87,9 +87,9 @@ export class JobService
 				iJob.jobChoices.map(jobChoice =>
 				{
 					// get matching location/attributes/planOptionAssocs for the current jobChoice
-					const attributes = _.flatMap(jobChoicesWithAttributes?.jobChoices, x => x.jobChoiceAttributes);
-					const locations = _.flatMap(jobChoicesWithLocations?.jobChoices, x => x.jobChoiceLocations);
-					const planOptionsAssocs = _.flatMap(jobChoiceWithJobPlanOptionsAssocs?.jobChoices, x => x.jobChoiceJobPlanOptionAssocs);
+					const attributes = _.flatMap(jobChoicesWithAttributes?.jobChoices.filter(jc=>jc.id === jobChoice.id), x => x.jobChoiceAttributes);
+					const locations = _.flatMap(jobChoicesWithLocations?.jobChoices.filter(jc=>jc.id === jobChoice.id), x => x.jobChoiceLocations);
+					const planOptionsAssocs = _.flatMap(jobChoiceWithJobPlanOptionsAssocs?.jobChoices.filter(jc=>jc.id === jobChoice.id), x => x.jobChoiceJobPlanOptionAssocs);
 
 					jobChoice.jobChoiceAttributes = attributes ?? [];
 					jobChoice.jobChoiceLocations = locations ?? [];
@@ -102,9 +102,9 @@ export class JobService
 				iJob.jobPlanOptions.map(jobPlanOption =>
 				{
 					// get matching location/attributes for the current jobPlanOption
-					const attributes = _.flatMap(jobPlanOptionsWithAttributes?.jobPlanOptions, x => x.jobPlanOptionAttributes);
-					const locations = _.flatMap(jobPlanOptionsWithLocations?.jobPlanOptions, x => x.jobPlanOptionLocations);
-					const integrationKey = (jobPlanOptionsWithPlanOptionCommunity?.jobPlanOptions.find(x => (x as any)?.planOptionCommunity?.optionCommunity?.option?.financialOptionIntegrationKey) as any).planOptionCommunity?.optionCommunity?.option?.financialOptionIntegrationKey;
+					const attributes = _.flatMap(jobPlanOptionsWithAttributes?.jobPlanOptions.filter(jpo=>jpo.id === jobPlanOption.id), x => x.jobPlanOptionAttributes);
+					const locations = _.flatMap(jobPlanOptionsWithLocations?.jobPlanOptions.filter(jpo=>jpo.id === jobPlanOption.id), x => x.jobPlanOptionLocations);
+					const integrationKey = (jobPlanOptionsWithPlanOptionCommunity?.jobPlanOptions.filter(jpo=>jpo.id === jobPlanOption.id).find(x => (x as any)?.planOptionCommunity?.optionCommunity?.option?.financialOptionIntegrationKey) as any).planOptionCommunity?.optionCommunity?.option?.financialOptionIntegrationKey;
 
 					jobPlanOption.jobPlanOptionAttributes = attributes ?? [];
 					jobPlanOption.jobPlanOptionLocations = locations ?? [];
