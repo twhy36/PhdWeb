@@ -32,7 +32,7 @@ export const environment: IEnvironment = {
 			strictDiscoveryDocumentValidation: false
 		},
 		presale: {
-			issuer: 'https://phdapi.dev.pulte.com/',
+			issuer: 'https://phdapi.dev.pulte.com',
 		}
 	},
 	authQueryParams: 'domain_hint=pulte.com',
