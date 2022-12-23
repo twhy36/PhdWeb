@@ -174,7 +174,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit
 	{
 		if (this.button && this.button.nativeElement)
 		{
-			return (this.button.nativeElement.offsetWidth < this.button.nativeElement.scrollWidth);
+			return (this.button.nativeElement.offsetWidth <= this.button.nativeElement.scrollWidth);
 		}
 
 		return false;
