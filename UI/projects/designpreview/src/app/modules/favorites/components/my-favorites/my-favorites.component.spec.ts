@@ -1,11 +1,12 @@
 import { ChangeDetectorRef } from '@angular/core';
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MockComponent } from 'ng2-mock-component';
 import { Observable } from 'rxjs';
 import { instance, mock, when } from 'ts-mockito';
 import { provideMockStore, MockStore } from '@ngrx/store/testing';
 
+import * as fromApp from '../../../ngrx-store/app/reducer';
 import * as fromSalesAgreement from '../../../ngrx-store/sales-agreement/reducer';
 import * as fromPlan from '../../../ngrx-store/plan/reducer';
 import * as fromOrg from '../../../ngrx-store/org/reducer';
@@ -22,6 +23,7 @@ describe('MyFavoritesComponent', () =>
 	let fixture: ComponentFixture<MyFavoritesComponent>;
 	let mockStore: MockStore;
 	const initialState = {
+		app: fromApp.initialState,
 		salesAgreement: fromSalesAgreement.initialState,
 		plan: fromPlan.initialState,
 		org: fromOrg.initialState,
@@ -36,16 +38,16 @@ describe('MyFavoritesComponent', () =>
 	const mockChangeDetectorRef = mock(ChangeDetectorRef);
 	const mockTreeService = mock(TreeService);
 
-	beforeEach(async(() =>
+	beforeEach(fakeAsync(() =>
 	{
 		TestBed.configureTestingModule({
 			declarations: [
 				MyFavoritesComponent,
 				MockComponent({ selector: 'group-bar', inputs: ['communityName', 'planName', 'groups', 'selectedSubGroupId'], outputs: ['onSubgroupSelected', 'onSetTreeFilter'] }),
-				MockComponent({ selector: 'normal-experience', inputs: ['groupName', 'currentSubgroup', 'errorMessage', 'myFavoritesChoices', 'decisionPointId', 'includeContractedOptions', 'salesChoices', 'groups', 'myFavoritesPointsDeclined', 'choiceImages', 'unfilteredPoints'], outputs: ['onToggleChoice', 'onToggleContractedOptions', 'onViewChoiceDetail', 'onSelectDecisionPoint', 'onDeclineDecisionPoint'] }),
+				MockComponent({ selector: 'normal-experience', inputs: ['groupName', 'currentSubgroup', 'errorMessage', 'myFavoritesChoices', 'myFavoritesPointsDeclined', 'decisionPointId', 'includeContractedOptions', 'salesChoices', 'groups', 'tree', 'choiceImages', 'isReadonly', 'isPresale', 'noVisibleGroups', 'unfilteredPoints'], outputs: ['onToggleChoice', 'onToggleContractedOptions', 'onViewChoiceDetail', 'onSelectDecisionPoint', 'onDeclineDecisionPoint'] }),
 				MockComponent({ selector: 'floor-plan-experience', inputs: ['groupName', 'currentSubgroup', 'errorMessage', 'myFavoritesChoices', 'decisionPointId', 'includeContractedOptions', 'salesChoices', 'marketingPlanId', 'isFloorplanFlipped', 'noVisibleFP', 'unfilteredPoints'], outputs: ['onToggleChoice', 'onToggleContractedOptions', 'onViewChoiceDetail', 'onSelectDecisionPoint'] }),
 				MockComponent({ selector: 'choice-card-detail', inputs: ['choice', 'path', 'myFavoritesPointsDeclined'], outputs: ['onBack', 'onToggleChoice'] }),
-				MockComponent({ selector: 'action-bar', inputs: ['primaryAction', 'price', 'favoritesPrice'], outputs: ['callToAction'] })
+				MockComponent({ selector: 'action-bar', inputs: ['scrollListener', 'primaryAction', 'price', 'favoritesPrice', 'showPrint', 'showFavorites', 'includeContractedOptions', 'isDesignComplete', 'isPreview', 'isPresale', 'hideContractedToggle', 'isFixedWidth'], outputs: ['callToAction', 'onPrintAction', 'onToggleContractedOptions'] })
 			],
 			providers: [
 				provideMockStore({ initialState }),

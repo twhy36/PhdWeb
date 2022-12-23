@@ -1,12 +1,14 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MockStore, provideMockStore } from '@ngrx/store/testing';
 import { Router } from '@angular/router';
+
 import { instance, mock } from 'ts-mockito';
+import * as fromApp from '../../../ngrx-store/app/reducer';
+import * as ErrorActions from '../../../ngrx-store/error.action';
 
 import { DefaultErrorComponent } from './default-error.component';
-import * as fromApp from '../../../ngrx-store/app/reducer';
+import { BannerComponent } from '../banner/banner.component';
 import { BrandService } from '../../../core/services/brand.service';
-import { ClearLatestError } from '../../../ngrx-store/error.action';
 
 describe('DefaultErrorComponent', () => {
 	let component: DefaultErrorComponent;
@@ -22,7 +24,8 @@ describe('DefaultErrorComponent', () => {
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
 			declarations: [
-				DefaultErrorComponent
+				DefaultErrorComponent,
+				BannerComponent,
 			],
 			providers: [
 				provideMockStore({ initialState }),
@@ -58,10 +61,7 @@ describe('DefaultErrorComponent', () => {
 
 	it('should dispatch error message when no error in store', () => {
 		const onStoreSpy = spyOn(mockStore, 'dispatch');
-		const newState = {
-			app: { latestError: null }
-		};
-		mockStore.dispatch(new ClearLatestError());
+		mockStore.dispatch(new ErrorActions.ClearLatestError());
 		component.ngOnInit();
 		expect(onStoreSpy).toHaveBeenCalled();
 	});

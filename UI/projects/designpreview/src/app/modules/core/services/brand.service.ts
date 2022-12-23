@@ -11,11 +11,13 @@ import * as johnWieland from '../../../../brands/john-wieland.json';
 import { applyBrand, getBrandImageSrc, getBannerImageSrc } from 'phd-common';
 
 @Injectable()
-export class BrandService {
+export class BrandService
+{
 	environment = environment;
 	brandMap = {};
 
-	constructor() {
+	constructor()
+	{
 		this.brandMap[environment.brandMap.pulte] = (pulte as any).default;
 		this.brandMap[environment.brandMap.delwebb] = (delwebb as any).default;
 		this.brandMap[environment.brandMap.americanWest] = (americanWest as any).default;
@@ -24,47 +26,73 @@ export class BrandService {
 		this.brandMap[environment.brandMap.johnWieland] = (johnWieland as any).default;
 	}
 
-	applyBrandStyles(): void {
+	applyBrandStyles(): void
+	{
 		applyBrand(this.brandMap);
 	}
 
-	getBrandImage(imageProperty: string): string {
+	getBrandImage(imageProperty: string): string
+	{
 		return getBrandImageSrc(this.brandMap, imageProperty);
 	}
 
-	getBannerImage(bannerPos: number): string {
-		return getBannerImageSrc(this.brandMap, bannerPos)
+	getBannerImage(bannerPos: number): string
+	{
+		return getBannerImageSrc(this.brandMap, bannerPos);
 	}
 
-	getBrandedLogoutUrl() {
+	getBrandedLogoutUrl()
+	{
 		const baseUrl = window.location.host;
-		if (environment.brandMap.pulte === baseUrl) {
+		if (environment.brandMap.pulte === baseUrl)
+		{
 			return environment.brandLogoutMap.pulte;
-		} else if (environment.brandMap.delwebb === baseUrl) {
+		} else if (environment.brandMap.delwebb === baseUrl)
+		{
 			return environment.brandLogoutMap.delwebb;
-		} else if (environment.brandMap.americanWest === baseUrl) {
+		} else if (environment.brandMap.americanWest === baseUrl)
+		{
 			return environment.brandLogoutMap.americanWest;
-		} else if (environment.brandMap.divosta === baseUrl) {
+		} else if (environment.brandMap.divosta === baseUrl)
+		{
 			return environment.brandLogoutMap.divosta;
-		} else if (environment.brandMap.johnWieland === baseUrl) {
+		} else if (environment.brandMap.johnWieland === baseUrl)
+		{
 			return environment.brandLogoutMap.johnWieland;
 		}
 	}
 
-	getBrandName() {
+	getBrandName()
+	{
 		const baseUrl = window.location.host;
-		if (environment.brandMap.pulte === baseUrl) {
-			return 'pulte';
-		} else if (environment.brandMap.delwebb === baseUrl) {
-			return 'delwebb';
-		} else if (environment.brandMap.americanWest === baseUrl) {
-			return 'americanWest'
-		} else if (environment.brandMap.centex === baseUrl) {
-			return 'centex'
-		} else if (environment.brandMap.divosta === baseUrl) {
-			return 'divosta'
-		} else if (environment.brandMap.johnWieland === baseUrl) {
-			return 'johnWieland'
+		if (environment.brandMap.pulte === baseUrl)
+		{
+			return Brands.Pulte;
+		} else if (environment.brandMap.delwebb === baseUrl)
+		{
+			return Brands.DelWebb;
+		} else if (environment.brandMap.americanWest === baseUrl)
+		{
+			return Brands.AmericanWest;
+		} else if (environment.brandMap.centex === baseUrl)
+		{
+			return Brands.Centex;
+		} else if (environment.brandMap.divosta === baseUrl)
+		{
+			return Brands.Divosta;
+		} else if (environment.brandMap.johnWieland === baseUrl)
+		{
+			return Brands.JohnWieland;
 		}
 	}
+}
+
+export enum Brands
+{
+	Pulte = 'pulte',
+	DelWebb = 'delwebb',
+	AmericanWest = 'americanWest',
+	Centex = 'centex',
+	Divosta = 'divosta',
+	JohnWieland = 'johnWieland'
 }
