@@ -1,12 +1,20 @@
 <div class="modal-header">
-	<span class="modal-title">Welcome!</span>
+	<span class="modal-title">{{ headerText }}</span>
 </div>
 <div class="modal-body">
-	<div>
+	<div *ngIf="!isPresale">
 		This site is to assist potential buyers with a general<br>
 		understanding of options. Actual option selections<br>
 		will be determined when buyer and seller execute<br>
 		a Home Purchase Agreement.
+	</div>
+	<div *ngIf="isPresale" class="presale-message">
+		<p class="presale-message-introduction">To get started:</p>
+			<ul>
+				<li>Explore our collection of included features and upgrade options available for this home and collect your Favorites.</li>
+				<li>Reach out to your Sales Consultant to discuss your options and learn more.</li>
+			</ul>
+		<p>You may change your favorites at any time prior to purchasing them via a signed agreement.</p>
 	</div>
 </div>
 <div class="modal-footer">

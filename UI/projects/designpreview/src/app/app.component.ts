@@ -85,33 +85,6 @@ export class AppComponent extends UnsubscribeOnDestroy {
 				this.termsAndConditionsModal = this.modalService.open(TermsAndConditionsComponent, ngbModalOptions, true)
 			}
 		});
-
-		this.store.pipe(
-			this.takeUntilDestroyed(),
-			select(fromApp.showWelcomeMessage)
-		).subscribe(showWelcomeMessage => {
-			if (showWelcomeMessage) {
-				let ngbModalOptions: NgbModalOptions = {
-					centered: true,
-					backdrop: true,
-					beforeDismiss: () => false
-				};
-		
-				this.welcomeModal = this.modalService.open(InfoModalComponent, ngbModalOptions, true);
-				this.welcomeModal.componentInstance.title = 'Welcome and we hope you enjoy personalizing your future home!';
-				this.welcomeModal.componentInstance.body = `
-					<p>To get started:</p>
-					<ul>
-						<li>Explore our collection of included features and upgrade options available for this home and collect your Favorites.</li>
-						<li>Reach out to your Sales Consultant to discuss your options and learn more.</li>
-					</ul>
-					<p>You may change your favorites at any time prior to purchasing them via a signed agreement.</p>
-				`;
-		
-				this.welcomeModal.componentInstance.buttonText = 'Got it!'
-				this.welcomeModal.componentInstance.isCloseable = true;
-			}
-		});
 	}
 
 	ngOnInit()

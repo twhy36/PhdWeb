@@ -40,3 +40,14 @@
 	background: var(--primary-button-color) !important;
 	border-color: var(--primary-button-color) !important;
 }
+
+.presale-message {
+
+	.presale-message-introduction {
+		color: var(--primary-button-color);
+	}
+
+	li {
+		text-align: left;
+	}
+}
