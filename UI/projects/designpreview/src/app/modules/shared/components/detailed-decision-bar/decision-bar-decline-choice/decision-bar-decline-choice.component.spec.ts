@@ -1,22 +1,35 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { PointStatus } from 'phd-common';
+import { ComponentFixture, fakeAsync, TestBed } from '@angular/core/testing';
+
+import { ModalService, PointStatus } from 'phd-common';
 
 import { DecisionBarDeclineChoiceComponent } from './decision-bar-decline-choice.component';
+import { ActionBarComponent } from '../../action-bar/action-bar.component';
 
-describe('DecisionBarDeclineChoiceComponent', () => {
-  let component: DecisionBarDeclineChoiceComponent;
-  let fixture: ComponentFixture<DecisionBarDeclineChoiceComponent>;
+describe('DecisionBarDeclineChoiceComponent', () =>
+{
+	let component: DecisionBarDeclineChoiceComponent;
+	let fixture: ComponentFixture<DecisionBarDeclineChoiceComponent>;
+	let modalService: ModalService;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [ DecisionBarDeclineChoiceComponent ]
-    })
-    .compileComponents();
-  }));
+	beforeEach(fakeAsync(() => {
+		TestBed.configureTestingModule({
+		declarations: [
+				DecisionBarDeclineChoiceComponent,
+				ActionBarComponent
+			],
+			providers: [
+				{
+					provide: ModalService,
+					useValue: modalService
+				},
+			]
+		})
+		.compileComponents();
+	}));
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(DecisionBarDeclineChoiceComponent);
-    component = fixture.componentInstance;
+	beforeEach(() => {
+	fixture = TestBed.createComponent(DecisionBarDeclineChoiceComponent);
+	component = fixture.componentInstance;
 		component.point = {
 			id: 10,
 			hasPointToPointRules: false,
@@ -74,12 +87,12 @@ describe('DecisionBarDeclineChoiceComponent', () => {
 			isPastCutOff: false
 		};
 		component.myFavoritesPointsDeclined = [];
-    fixture.detectChanges();
-  });
+		fixture.detectChanges();
+	});
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+	it('should create', () => {
+		expect(component).toBeTruthy();
+	});
 
 	describe('isDeclined', () => {
 		describe('when the point is not in the myFavoritesPointsDeclined array', () => {

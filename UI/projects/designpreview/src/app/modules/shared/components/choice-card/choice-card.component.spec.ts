@@ -1,33 +1,59 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import {  ComponentFixture, fakeAsync, TestBed } from '@angular/core/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { PointStatus } from 'phd-common';
+import { provideMockStore } from '@ngrx/store/testing';
+
+import { ModalService, PointStatus } from 'phd-common';
 import { instance, mock } from 'ts-mockito';
-import { AdobeService } from '../../../core/services/adobe.service';
+
+import * as fromApp from '../../../ngrx-store/app/reducer';
+import * as fromChangeOrder from '../../../ngrx-store/change-order/reducer';
+import * as fromJob from '../../../ngrx-store/job/reducer';
+import * as fromOrg from '../../../ngrx-store/org/reducer';
+import * as fromPlan from '../../../ngrx-store/plan/reducer';
+import * as fromSalesAgreement from '../../../ngrx-store/sales-agreement/reducer';
+import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 
 import { ChoiceCardComponent } from './choice-card.component';
+import { ActionBarComponent } from '../action-bar/action-bar.component';
+import { AdobeService } from '../../../core/services/adobe.service';
 
 describe('ChoiceCardComponent', () => {
-  let component: ChoiceCardComponent;
-  let fixture: ComponentFixture<ChoiceCardComponent>;
+	let component: ChoiceCardComponent;
+	let fixture: ComponentFixture<ChoiceCardComponent>;
+
 	const mockNgbModal = mock(NgbModal);
 	const mockAdobeService = mock(AdobeService);
+	const mockModalService = mock(ModalService);
+	const initialState = {
+		app: fromApp.initialState,
+		salesAgreement: fromSalesAgreement.initialState,
+		plan: fromPlan.initialState,
+		org: fromOrg.initialState,
+		job: fromJob.initialState,
+		changeOrder: fromChangeOrder.initialState,
+		scenario: fromScenario.initialState
+	};
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [ ChoiceCardComponent ],
+  	beforeEach(fakeAsync(() => {
+		TestBed.configureTestingModule({
+			declarations: [
+				ChoiceCardComponent,
+				ActionBarComponent
+			],
 			imports: [ BrowserAnimationsModule ],
 			providers: [
 				{ provide: NgbModal, useFactory: () => instance(mockNgbModal) },
 				{ provide: AdobeService, useFactory: () => instance(mockAdobeService) },
+				{ provide: ModalService, useFactor: () => instance(mockModalService) },
+				provideMockStore({ initialState })
 			]
-    })
-    .compileComponents();
-  }));
+		}).compileComponents();
+	}));
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(ChoiceCardComponent);
-    component = fixture.componentInstance;
+	beforeEach(() => {
+		fixture = TestBed.createComponent(ChoiceCardComponent);
+		component = fixture.componentInstance;
 		component.choice = {
 			mappedAttributeGroups: [],
 			mappedLocationGroups: [],
@@ -66,11 +92,11 @@ describe('ChoiceCardComponent', () => {
 			favoriteAttributes: [],
 			choiceImages: []
 		};
-    fixture.detectChanges();
+	fixture.detectChanges();
   });
 
   it('should create', () => {
-    expect(component).toBeTruthy();
+	expect(component).toBeTruthy();
   });
 
 	describe('openBlockedChoiceModal', () => {
@@ -192,10 +218,10 @@ describe('ChoiceCardComponent', () => {
 				status: PointStatus.REQUIRED
 			}];
 			component.currentPoint = component.groups[0].subGroups[0].points[0];
-      component.tree = {
-        id: 15, orgId: 22, marketKey: 'e', planId: 24, planKey: 'abc', communityId: 25, communityKey: 'f', marketId: 26, financialCommunityId: 27,
-        treeVersion: {id: 16, name: 'testing tree', treeId: 15, planKey: 'abc', groups: component.groups}
-      };
+			component.tree = {
+				id: 15, orgId: 22, marketKey: 'e', planId: 24, planKey: 'abc', communityId: 25, communityKey: 'f', marketId: 26, financialCommunityId: 27,
+				treeVersion: {id: 16, name: 'testing tree', treeId: 15, planKey: 'abc', groups: component.groups}
+			};
 		});
 		it('should open the modal', () => {
 			const modalServiceSpy = spyOn(component.modalService, 'open');
@@ -204,6 +230,7 @@ describe('ChoiceCardComponent', () => {
 			expect(modalServiceSpy).toHaveBeenCalled();
 		});
 		it('should set up disabledByList for Choice-to-Choice rules', () => {
+			spyOn(component.modalService, 'open');
 			component.choice.disabledBy = [{
 				choiceId: 4,
 				executed: true,
@@ -219,6 +246,7 @@ describe('ChoiceCardComponent', () => {
 			expect(component.disabledByList.choiceDisabledByList.orChoices[0].pointId).toEqual(11);
 		});
 		it('should set up disabledByList for DP-to-Choice rules', () => {
+			spyOn(component.modalService, 'open');
 			component.currentPoint.disabledBy = [{
 				pointId: 10,
 				executed: true,
@@ -234,6 +262,7 @@ describe('ChoiceCardComponent', () => {
 			expect(component.disabledByList.pointDisabledByList.orChoices[0].pointId).toEqual(11);
 		});
 		it('should set up disabledByList for DP-to-DP rules', () => {
+			spyOn(component.modalService, 'open');
 			component.currentPoint.disabledBy = [{
 				pointId: 10,
 				executed: true,

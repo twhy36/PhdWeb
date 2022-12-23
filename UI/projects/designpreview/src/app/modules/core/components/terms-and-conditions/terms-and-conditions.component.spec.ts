@@ -5,7 +5,7 @@ import { TermsAndConditionsComponent } from './terms-and-conditions.component';
 import * as fromApp from '../../../ngrx-store/app/reducer';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
-fdescribe('TermsAndConditionsComponent', () => {
+describe('TermsAndConditionsComponent', () => {
   let component: TermsAndConditionsComponent;
   let fixture: ComponentFixture<TermsAndConditionsComponent>;
 
