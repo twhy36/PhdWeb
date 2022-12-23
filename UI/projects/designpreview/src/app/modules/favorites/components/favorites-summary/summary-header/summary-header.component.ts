@@ -1,7 +1,9 @@
 import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef, ElementRef, Renderer2, NgZone } from '@angular/core';
+import { Title } from '@angular/platform-browser';
 import { select, Store } from '@ngrx/store';
 
 import * as fromRoot from '../../../../ngrx-store/reducers';
+import * as fromPlan from '../../../../ngrx-store/plan/reducer';
 import { UnsubscribeOnDestroy, LotExt, PriceBreakdown } from 'phd-common';
 import { BrandService } from '../../../../core/services/brand.service';
 import { BuildMode } from '../../../../shared/models/build-mode.model';
@@ -21,12 +23,15 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 	
 	@Output() isStickyChanged = new EventEmitter<boolean>();
 	@Output() contractedOptionsToggled = new EventEmitter<boolean>();
+	@Output() onPrintAction = new EventEmitter();
 	
 	scrolling: boolean = false;
 	isSticky: boolean = false;
 	isPreview: boolean = false;
 	isPresale: boolean = false;
 	headerTitle: string;
+	communityName: string;
+	planName: string;
 	listener: () => void;
 
 	constructor(
@@ -35,7 +40,8 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 		private store: Store<fromRoot.State>,
 		private cd: ChangeDetectorRef,
 		private summaryHeaderElement: ElementRef,
-		private brandService: BrandService)
+		private brandService: BrandService,
+		private titleService: Title)
 	{
 		super();
 	}
@@ -51,6 +57,20 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 		this.ngZone.runOutsideAngular(() =>
 		{
 			this.listener = this.renderer.listen('window', 'scroll', () => { this.scrollHandler.bind(this)(); });
+		});
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromRoot.financialCommunityName),
+		).subscribe(communityName => {
+			this.communityName = communityName;
+		});
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromPlan.selectedPlanData)
+		).subscribe(planData => {
+			this.planName = planData?.salesName;
 		});
 
 		this.store.pipe(
@@ -155,6 +175,17 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 
 	getImageSrc() {
 		return this.brandService.getBrandImage('logo');
+	}
+
+	onPrint() 
+	{
+		if (this.isPresale) {
+			this.titleService.setTitle(`${this.communityName} ${this.planName}`);
+			window.print();
+		} else
+		{
+			this.onPrintAction?.emit();
+		}
 	}
 
 }
