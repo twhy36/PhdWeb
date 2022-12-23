@@ -96,14 +96,14 @@ export class ViewContractsComponent extends UnsubscribeOnDestroy implements OnIn
 	updateTemplates(): void
 	{
 		this._contractService.getDraftOrInUseContractTemplates(this.currentMktId).subscribe(templates =>
+		{
+			this.allTemplates = templates;
+			this.allTemplates.forEach(template =>
 			{
-				this.allTemplates = templates;
-				this.allTemplates.forEach(template =>
-					{
-						template.application = this.getApplication(template);
-					})
-				this.getTemplatesToBedisplayed();
-				this.resetSearchBar();
+				template.application = this.getApplication(template);
+			});
+			this.getTemplatesToBedisplayed();
+			this.resetSearchBar();
 		});
 	}
 
@@ -279,7 +279,9 @@ export class ViewContractsComponent extends UnsubscribeOnDestroy implements OnIn
 		if (contractTemplateDto.templateTypeId != 1)
 		{
 			// Set display order to the max display order of all the templates + 1
-			contractTemplateDto.displayOrder = this.allTemplates.length > 0 ? this.allTemplates.reduce((a, b) => a.displayOrder > b.displayOrder ? a : b).displayOrder + 1 : 3;
+			contractTemplateDto.displayOrder = this.allTemplates.length > 0 ?
+				(this.allTemplates.find(t => t.templateId === contractTemplateDto.parentTemplateId)?.displayOrder ??
+					this.allTemplates.reduce((a, b) => a.displayOrder > b.displayOrder ? a : b).displayOrder + 1) : 3;
 		}
 		else
 		{
@@ -364,10 +366,10 @@ export class ViewContractsComponent extends UnsubscribeOnDestroy implements OnIn
 
 				this._msgService.add({ severity: 'success', summary: 'Contract Document', detail: `has been saved!` });
 			},
-			error =>
-			{
-				this._msgService.add({ severity: 'error', summary: 'Error', detail: error.message });
-			});
+				error =>
+				{
+					this._msgService.add({ severity: 'error', summary: 'Error', detail: error.message });
+				});
 	}
 
 	previewFile(templateId: number)
@@ -383,10 +385,10 @@ export class ViewContractsComponent extends UnsubscribeOnDestroy implements OnIn
 
 				this._msgService.add({ severity: 'success', summary: 'Document', detail: `has been downloaded` });
 			},
-			error =>
-			{
-				this._msgService.add({ severity: 'info', summary: `Document not found` });
-			});
+				error =>
+				{
+					this._msgService.add({ severity: 'info', summary: `Document not found` });
+				});
 	}
 
 	sort()
@@ -444,7 +446,7 @@ export class ViewContractsComponent extends UnsubscribeOnDestroy implements OnIn
 
 	getPreSelected(template: ContractTemplate)
 	{
-		if(template.templateTypeId === 2 && template.addendumTypeId)
+		if (template.templateTypeId === 2 && template.addendumTypeId)
 		{
 			return template.addendumTypeId === 7 ? 'Yes' : 'No';
 		}
