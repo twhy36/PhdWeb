@@ -1301,9 +1301,10 @@ export class LiteService
 					// Add color item from the current selected elevation
 					if (!!legacyAttributes?.length)
 					{
+						// Keep the attribute group label for legacy color scheme
 						genericOptionattributes.push({
 							attributeName: legacyAttributes[0].attributeName,
-							attributeGroupLabel: legacyAttributes[0].attributeGroupLabel,
+							attributeGroupLabel: jobPlanOptionAttribute?.attributeGroupLabel,
 							manufacturer: legacyAttributes[0].manufacturer,
 							sku: legacyAttributes[0].sku,
 							action: 'Add'
