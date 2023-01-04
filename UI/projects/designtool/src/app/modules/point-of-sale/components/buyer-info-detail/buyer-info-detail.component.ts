@@ -529,7 +529,7 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 
 		if (this.isRealtor())
 		{
-			this.buyerForm.addControl('brokerName', this.fb.control((buyer as Realtor).brokerName, Validators.compose([noWhiteSpaceValidator])));
+			this.buyerForm.addControl('brokerName', this.fb.control((buyer as Realtor).brokerName, Validators.compose([Validators.required, noWhiteSpaceValidator])));
 		}
 
 		this.buyerForm.validator = Validators.compose([this.validateEmails, this.validatePhones]);
