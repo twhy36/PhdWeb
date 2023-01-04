@@ -56,13 +56,13 @@ export class PeopleCardComponent implements OnInit, OnChanges
 		if (person && !person.firstChange)
 		{
 			this.checkForMissingRequiredFields();
-		}
+		}		
 	}
 
 	checkForMissingRequiredFields()
 	{
 		// only run for Primary Buyer for now.  
-		if (this.personType == 'Buyer' && this.person?.isPrimaryBuyer && this.salesAgreementStatus === 'Pending')
+		if (this.personType === 'Realtor' || (this.personType === 'Buyer' && this.person?.isPrimaryBuyer) && this.salesAgreementStatus === 'Pending')
 		{
 			// get the contact info which is buried for buyer
 			const contact: Contact = this.personType === 'Buyer' ? this.personContact : this.realtor?.contact;
@@ -108,11 +108,15 @@ export class PeopleCardComponent implements OnInit, OnChanges
 				// check for duplicate emails
 				const hasDifferentEmail = hasEmailPrimary && hasEmailSecondary ? emailPrimary.emailAddress !== emailSecondary.emailAddress : true;
 
+				// check for realtor broker name
+				const hasBrokerName = this.personType === 'Realtor' ? this.realtor?.brokerName?.length > 0 : true;
+
 				// if something is missing then lets flag the tile as required 
-				this.isMissingRequiredFields = !(hasFirstName && hasLastName && hasValidAddress && hasPhonePrimary && hasPhoneSecondary && hasEmailPrimary && hasDifferentEmail && (hasDifferentPhone || hasDifferentExt || hasDifferentPhoneTypes));
+				this.isMissingRequiredFields = !(hasFirstName && hasLastName && hasValidAddress && hasPhonePrimary && hasPhoneSecondary && hasEmailPrimary && hasDifferentEmail && hasBrokerName && (hasDifferentPhone || hasDifferentExt || hasDifferentPhoneTypes));
 			}
 		}
 	}
+	
 
 	addTrust()
 	{
