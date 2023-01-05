@@ -212,8 +212,8 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 			this.isUrlGenerationEnabled = !!isUrlGenerationEnabled;
 		});
 
-		this._identityService.hasClaimWithPermission('SalesAdmin', Permission.Read)
-			.subscribe(isReadOnly => this.isSalesAdminReadOnly = isReadOnly);
+		this._identityService.hasClaimWithPermission('SalesAdmin', Permission.Edit)
+			.subscribe(canEdit => this.isSalesAdminReadOnly = !canEdit);
 
 		this.checkRequiredFilesExist();
 	}
