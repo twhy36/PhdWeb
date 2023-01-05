@@ -62,29 +62,30 @@ export class BrandService
 		}
 	}
 
-	getBrandName()
+	getBrandName(useTitleFormat?: boolean)
 	{
 		const baseUrl = window.location.host;
 		if (environment.brandMap.pulte === baseUrl)
 		{
-			return Brands.Pulte;
+			return useTitleFormat ? BrandTitles.Pulte : Brands.Pulte;
 		} else if (environment.brandMap.delwebb === baseUrl)
 		{
-			return Brands.DelWebb;
+			return  useTitleFormat ? BrandTitles.DelWebb : Brands.DelWebb;
 		} else if (environment.brandMap.americanWest === baseUrl)
 		{
-			return Brands.AmericanWest;
+			return  useTitleFormat ? BrandTitles.AmericanWest : Brands.AmericanWest;
 		} else if (environment.brandMap.centex === baseUrl)
 		{
-			return Brands.Centex;
+			return  useTitleFormat ? BrandTitles.Centex : Brands.Centex;
 		} else if (environment.brandMap.divosta === baseUrl)
 		{
-			return Brands.Divosta;
+			return  useTitleFormat ? BrandTitles.Divosta : Brands.Divosta;
 		} else if (environment.brandMap.johnWieland === baseUrl)
 		{
-			return Brands.JohnWieland;
+			return  useTitleFormat ? BrandTitles.JohnWieland : Brands.JohnWieland;
 		}
 	}
+
 }
 
 export enum Brands
@@ -95,4 +96,14 @@ export enum Brands
 	Centex = 'centex',
 	Divosta = 'divosta',
 	JohnWieland = 'johnWieland'
+}
+
+export enum BrandTitles
+{
+	Pulte = 'Pulte',
+	DelWebb = 'Del Webb',
+	AmericanWest = 'Aamerican West',
+	Centex = 'Centex',
+	Divosta = 'DiVosta',
+	JohnWieland = 'John Wieland'
 }
