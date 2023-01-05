@@ -25,4 +25,5 @@ export class Contract {
 
 export class User {
     authType: string = sessionStorage.getItem('authProvider');
+    saleStatus: string;
 }
