@@ -1,30 +1,25 @@
 import { Injectable } from '@angular/core';
-
-import { combineLatest } from 'rxjs/operators';
+import { Router, RouterStateSnapshot, RoutesRecognized } from '@angular/router';
+import { select, Store } from '@ngrx/store';
 
 import * as _ from 'lodash';
-
-import { select, Store } from '@ngrx/store';
+import { combineLatest } from 'rxjs';
+import { Choice, Group, JobChoice, MyFavorite, MyFavoritesChoice, Tree, TreeVersion, UnsubscribeOnDestroy } from 'phd-common';
 
 import * as fromRoot from '../../ngrx-store/reducers';
 import * as fromPlan from '../../ngrx-store/plan/reducer';
 import * as fromSalesAgreement from '../../ngrx-store/sales-agreement/reducer';
 
-import { Choice, Group, JobChoice, MyFavorite, MyFavoritesChoice, Tree, TreeVersion, UnsubscribeOnDestroy } from 'phd-common';
-
 import { BrandService } from './brand.service';
 import { FavoriteService } from './favorite.service';
-import { environment } from '../../../../environments/environment';
-
 import { PageLoadEvent } from '../../shared/models/adobe/page-load-event';
 import { SearchEvent } from '../../shared/models/adobe/search-event';
 import { AlertEvent } from '../../shared/models/adobe/alert-event';
 import { AdobeChoice, FavoriteEvent, FavoriteUpdateEvent } from '../../shared/models/adobe/favorite-event';
-import { Router, RouterStateSnapshot, RoutesRecognized } from '@angular/router';
 import { ClickEvent } from '../../shared/models/adobe/click-event';
 import { ErrorEvent } from '../../shared/models/adobe/error-event';
 import { BuildMode } from '../../shared/models/build-mode.model';
-
+import { environment } from '../../../../environments/environment';
 
 @Injectable()
 export class AdobeService extends UnsubscribeOnDestroy
@@ -87,14 +82,11 @@ export class AdobeService extends UnsubscribeOnDestroy
 	{
 		if (!this.pageLoadExecuted && !!page)
 		{
-			this.store.pipe(
-				this.takeUntilDestroyed(),
-				select(state => state?.favorite),
-				combineLatest(
-					this.store.pipe(select(fromRoot.filteredTree)),
+			combineLatest([
+				this.store.pipe(select(state => state?.favorite)),
+				this.store.pipe(select(fromRoot.filteredTree)),
 					this.store.pipe(select(state => state.nav)),
-				)
-			).subscribe(([fav, tree, nav]) =>
+			]).subscribe(([fav, tree, nav]) =>
 			{
 				if (fav && tree && !this.pageLoadExecuted)
 				{
@@ -156,22 +148,17 @@ export class AdobeService extends UnsubscribeOnDestroy
 	setPageLoadEvent(adobeLoadInitialized: boolean, pageType: string, pageName: string, groupName: string, subGroupName: string)
 	{
 		window['appEventData'] = window['appEventData'] || [];
-
-		if (!adobeLoadInitialized && this.buildMode === BuildMode.Buyer)
+		if (!adobeLoadInitialized && (this.buildMode === BuildMode.Buyer || this.buildMode === BuildMode.Presale))
 		{
-			this.store.pipe(
-				this.takeUntilDestroyed(),
-				select(state => state.org),
-				combineLatest(
-					this.store.pipe(select(fromRoot.financialCommunityName)),
-					this.store.pipe(select(fromRoot.financialCommunityId)),
-					this.store.pipe(select(fromPlan.selectedPlanData)),
-					this.store.pipe(select(fromSalesAgreement.salesAgreementId)),
-					this.store.pipe(select(fromRoot.isBuyerMode))
-				)
-			).subscribe(([org, communityName, communityId, planData, sagId, isBuyerMode]) =>
+			combineLatest([
+				this.store.pipe(select(state => state.org)),
+				this.store.pipe(select(fromRoot.financialCommunityName)),
+				this.store.pipe(select(fromRoot.financialCommunityId)),
+				this.store.pipe(select(fromPlan.selectedPlanData)),
+				this.store.pipe(select(fromSalesAgreement.salesAgreementId)),
+			]).subscribe(([org, communityName, communityId, planData, sagId]) =>
 			{
-				if (isBuyerMode && !adobeLoadInitialized && org?.salesCommunity?.market?.name && communityName && communityId && planData && sagId)
+				if (!adobeLoadInitialized && org?.salesCommunity?.market?.name && communityName && communityId && planData)
 				{
 					let pageLoadEvent = new PageLoadEvent();
 					let baseUrl = window.location.host;
@@ -189,6 +176,8 @@ export class AdobeService extends UnsubscribeOnDestroy
 					pageLoadEvent.contract.market = org?.salesCommunity?.market?.name;
 					pageLoadEvent.contract.salesAgreementNumber = sagId;
 
+					pageLoadEvent.user.saleStatus = this.buildMode === BuildMode.Presale ? 'Presale' : 'Post Contract';
+
 					adobeLoadInitialized = true;
 
 					if ((window['appEventData'][window['appEventData'].length - 1]?.page?.pageName !== pageLoadEvent?.page?.pageName) || !!!window['appEventData'][window['appEventData'].length - 1]?.page)
@@ -204,7 +193,7 @@ export class AdobeService extends UnsubscribeOnDestroy
 
 	setSearchEvent(term: string, tree: TreeVersion)
 	{
-		if (this.buildMode === BuildMode.Buyer)
+		if (this.buildMode === BuildMode.Buyer || this.buildMode === BuildMode.Presale)
 		{
 			window['appEventData'] = window['appEventData'] || [];
 
@@ -220,7 +209,7 @@ export class AdobeService extends UnsubscribeOnDestroy
 
 	setAlertEvent(message: string, type: string)
 	{
-		if (this.buildMode === BuildMode.Buyer)
+		if (this.buildMode === BuildMode.Buyer || this.buildMode === BuildMode.Presale)
 		{
 			window['appEventData'] = window['appEventData'] || [];
 
@@ -232,7 +221,7 @@ export class AdobeService extends UnsubscribeOnDestroy
 
 	setClickEvent(container: string, element: string, text: string)
 	{
-		if (this.buildMode === BuildMode.Buyer)
+		if (this.buildMode === BuildMode.Buyer || this.buildMode === BuildMode.Presale)
 		{
 			window['appEventData'] = window['appEventData'] || [];
 
@@ -244,7 +233,7 @@ export class AdobeService extends UnsubscribeOnDestroy
 
 	packageFavoriteEventData(postSaveFavoriteChoices: MyFavoritesChoice[], myFavorite: MyFavorite, tree: Tree, groups: Group[], salesChoices: JobChoice[])
 	{
-		if (this.buildMode === BuildMode.Buyer)
+		if (this.buildMode === BuildMode.Buyer || this.buildMode === BuildMode.Presale)
 		{
 			const favoriteChoices = (myFavorite ? myFavorite.myFavoritesChoice : []) || [];
 			const updatedChoices = this.favoriteService.getMyFavoritesChoices(tree, salesChoices, favoriteChoices);
@@ -274,7 +263,7 @@ export class AdobeService extends UnsubscribeOnDestroy
 
 		window['appEventData'] = window['appEventData'] || [];
 
-		if (choice && !choice.removed && groups && this.buildMode === BuildMode.Buyer)
+		if (choice && !choice.removed && groups && (this.buildMode === BuildMode.Buyer || this.buildMode === BuildMode.Presale))
 		{
 			const choices = _.flatMap(groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices.filter(ch => ch.quantity > 0)))) || [];
 			const treeChoice = choices.find(c => choice.divChoiceCatalogId === c.divChoiceCatalogId);
@@ -333,7 +322,7 @@ export class AdobeService extends UnsubscribeOnDestroy
 
 	setErrorEvent(error: string)
 	{
-		if (this.buildMode === BuildMode.Buyer)
+		if (this.buildMode === BuildMode.Buyer || this.buildMode === BuildMode.Presale)
 		{
 			let errorEvent = new ErrorEvent(error);
 

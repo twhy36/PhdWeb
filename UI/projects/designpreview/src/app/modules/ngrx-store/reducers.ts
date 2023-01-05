@@ -554,14 +554,6 @@ export const favoriteTitle = createSelector(
 	}
 );
 
-export const isBuyerMode = createSelector(
-	fromScenario.selectScenario,
-	(scenario) =>
-	{
-		return scenario.buildMode === BuildMode.Buyer;
-	}
-);
-
 export const getScenarioLoadError = createSelector(
 	fromScenario.selectScenario,
 	(scenario) =>
