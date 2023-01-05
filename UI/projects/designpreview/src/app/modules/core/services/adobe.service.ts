@@ -179,7 +179,7 @@ export class AdobeService extends UnsubscribeOnDestroy
 					pageLoadEvent.page.pageType = pageType;
 					pageLoadEvent.page.pageURL = baseUrl + window.location.pathname;
 					pageLoadEvent.page.pageName = pageName;
-					pageLoadEvent.page.brandName = this.brandService.getBrandName();
+					pageLoadEvent.page.brandName = this.brandService.getBrandName(true);
 					pageLoadEvent.page.group = groupName;
 					pageLoadEvent.page.subGroup = subGroupName;
 
