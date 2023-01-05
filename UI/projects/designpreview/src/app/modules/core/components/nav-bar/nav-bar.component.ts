@@ -150,6 +150,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 	onViewFavorites()
 	{
 		this.store.dispatch(new ScenarioActions.SetTreeFilter(null));
+		this.router.navigate(['favorites', 'summary'], { queryParams: { presale: sessionStorage.getItem('presale_token')} })
 	}
 
 	getImageSrc()
