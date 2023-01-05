@@ -59,6 +59,12 @@ const moduleRoutes: Routes = [
 				canActivate: [LoggedInGuard],
 				data: { pageLoadEvent: 'IncludedOptions' }
 			},
+			{
+				path: 'included/options/:favoritesId/:subGroupCatalogId/:divChoiceCatalogId',
+				component: MyFavoritesComponent, 
+				canActivate: [LoggedInGuard],
+				data: { pageLoadEvent: 'ChoiceCard' }
+			},
 			{ 
 				path: 'favorites/my-favorites/:favoritesId/:subGroupCatalogId', 
 				component: MyFavoritesComponent, 
