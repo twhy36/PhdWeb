@@ -479,26 +479,29 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 
 	hideDetails(sgId?: number)
 	{
+		this.showDetails = false;
+		this.selectedChoice = null;
+
 		if (!!sgId && sgId !== this.selectedSubgroupId)
 		{
 			const newSubgroup = _.flatMap(this.groups, g => g.subGroups).find(sg => sg.id === sgId);
 			const firstPoint = newSubgroup?.points[0] || null;
 
 			this.router.navigate(['favorites', 'my-favorites', this.myFavoriteId, newSubgroup.subGroupCatalogId], { queryParams: { presale: sessionStorage.getItem('presale_token')} });
-			this.showDetails = false;
-			this.selectedChoice = null;
-
 			this.store.dispatch(new NavActions.SetSelectedSubgroup(sgId, firstPoint.id, null));
-		} 
+		}
 		else
 		{
-			this.router.navigate(['favorites', 'my-favorites', this.myFavoriteId, this.selectedSubGroup.subGroupCatalogId], { queryParams: { presale: sessionStorage.getItem('presale_token')} });
-			this.showDetails = false;
-			this.selectedChoice = null;
-
+			if (this.router.url.includes('included/options/'))
+			{
+				this.router.navigate(['included'], { queryParams: { presale: sessionStorage.getItem('presale_token')} });
+			}
+			else
+			{
+				this.router.navigate(['favorites', 'my-favorites', this.myFavoriteId, this.selectedSubGroup.subGroupCatalogId], { queryParams: { presale: sessionStorage.getItem('presale_token')} });
+			}
 			this.store.dispatch(new NavActions.SetSelectedSubgroup(this.selectedSubgroupId, this.selectedPointId, null));
 		}
-
 
 		this.cd.detectChanges();
 		setTimeout(() =>

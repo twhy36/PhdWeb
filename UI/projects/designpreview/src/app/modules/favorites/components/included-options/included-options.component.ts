@@ -306,7 +306,7 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 		const pointId = this.points?.length ? this.points.find(p => p.choices.find(c => c.id === choice.id))?.id || this.points[0].id : 0;
 		const selectedSubGroup = this.subGroups.find(sg => !!sg.points.find(p => p.id === pointId));
 		this.selectDecisionPoint(pointId);
-		this.router.navigate(['favorites', 'my-favorites', this.myFavoriteId, selectedSubGroup.subGroupCatalogId, choice.divChoiceCatalogId], { queryParams: { presale: sessionStorage.getItem('presale_token')} });
+		this.router.navigate(['included', 'options', this.myFavoriteId, selectedSubGroup.subGroupCatalogId, choice.divChoiceCatalogId], { queryParams: { presale: sessionStorage.getItem('presale_token')} });
 	}
 
 	defaultChoicePresent(subGroup: SubGroup) {
