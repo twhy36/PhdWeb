@@ -19,7 +19,7 @@ import { CommunityService } from "../../../core/services/community.service";
 import { ContractService } from '../../../core/services/contract.service';
 import { HomeSiteService } from '../../../core/services/homesite.service';
 import { PlanService } from '../../../core/services/plan.service';
-import { FeatureSwitchService } from 'phd-common';
+import { FeatureSwitchService, IdentityService, Permission } from 'phd-common';
 import { SalesService } from '../../../core/services/sales.service';
 import { SalesProgram } from '../../../shared/models/salesPrograms.model';
 import { TreeService } from '../../../core/services/tree.service';
@@ -65,6 +65,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 	closingCostDisabled: boolean;
 	isUrlGenerationEnabled: boolean;
 	isGenerateUrlButtonDisabled = true;
+	isSalesAdminReadOnly = false;
 
 	get saveDisabled(): boolean
 	{
@@ -108,7 +109,8 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 		private _communityService: CommunityService,
 		private _msgService: MessageService,
 		private _route: ActivatedRoute,
-		private _featureSwitchService: FeatureSwitchService) { super(); }
+		private _featureSwitchService: FeatureSwitchService,
+		private _identityService: IdentityService) { super(); }
 
 
 	ngOnInit()
@@ -209,6 +211,9 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 			this.isPhdLite = !!isPhdLiteEnabled;
 			this.isUrlGenerationEnabled = !!isUrlGenerationEnabled;
 		});
+
+		this._identityService.hasClaimWithPermission('SalesAdmin', Permission.Read)
+			.subscribe(isReadOnly => this.isSalesAdminReadOnly = isReadOnly);
 
 		this.checkRequiredFilesExist();
 	}
@@ -435,14 +440,14 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 		//clear previous results
 		this._msgService.clear();
 		this.disableUrlGeneration();
-		
+
 		//invalid input plan
 		if (!plan || !plan.id)
 		{
 			this._msgService.add({ severity: 'error', summary: 'Error: Missing or Invalid Plan.', detail: '' });
 			return;
 		}
-		
+
 		this.isGeneratingDesignPreviewLink = true;
 		const planId = plan.id;
 
@@ -458,7 +463,8 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 
 				return this._planService.getDesignPreviewLink(planId);
 			}),
-			finalize(() => {
+			finalize(() =>
+			{
 				this.isGeneratingDesignPreviewLink = false;
 			})
 		).subscribe(
