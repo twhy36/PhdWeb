@@ -29,8 +29,8 @@ export class AdobeChoice {
         this.groupLabel = dto.groupLabel;
         this.divChoiceCatalogId = dto.divChoiceCatalogId;
         this.removed = dto.removed;
-        this.attributes = dto.attributes as AdobeAttribute[];
-        this.locations = dto.locations as AdobeLocation[];
+        this.attributes = dto.attributes as AdobeAttribute[] ?? [];
+        this.locations = dto.locations as AdobeLocation[] ?? [];
     }
     id: number;
     dpChoiceId: number;

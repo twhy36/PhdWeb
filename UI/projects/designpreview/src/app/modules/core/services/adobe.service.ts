@@ -236,7 +236,7 @@ export class AdobeService extends UnsubscribeOnDestroy
 		if (this.buildMode === BuildMode.Buyer || this.buildMode === BuildMode.Presale)
 		{
 			const favoriteChoices = (myFavorite ? myFavorite.myFavoritesChoice : []) || [];
-			const updatedChoices = this.favoriteService.getMyFavoritesChoices(tree, salesChoices, favoriteChoices);
+			const updatedChoices = salesChoices ? this.favoriteService.getMyFavoritesChoices(tree, salesChoices, favoriteChoices) : [];
 			const choices = [...updatedChoices, ...favoriteChoices];
 
 			postSaveFavoriteChoices.forEach(res =>
