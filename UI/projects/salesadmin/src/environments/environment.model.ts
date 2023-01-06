@@ -17,5 +17,6 @@ export interface IEnvironment {
 	alphavision: { builderId: string };
 	pdfViewerBaseUrl: string;
 	whatFix: { scriptUrl: string };
+	thoUrls: { pulte: string, delwebb: string, americanWest: string, divosta: string, johnWieland: string, centex: string };
 	EBillUrl: string;
 }

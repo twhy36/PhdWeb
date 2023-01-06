@@ -19,7 +19,7 @@ import { CommunityService } from "../../../core/services/community.service";
 import { ContractService } from '../../../core/services/contract.service';
 import { HomeSiteService } from '../../../core/services/homesite.service';
 import { PlanService } from '../../../core/services/plan.service';
-import { FeatureSwitchService, IdentityService, Permission } from 'phd-common';
+import { FeatureSwitchService, IdentityService, Permission, BrandService, FinancialBrand, getBrandUrl } from 'phd-common';
 import { SalesService } from '../../../core/services/sales.service';
 import { SalesProgram } from '../../../shared/models/salesPrograms.model';
 import { TreeService } from '../../../core/services/tree.service';
@@ -47,6 +47,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 	orgId: number;
 	canEdit = false;
 	isSaving = false;
+	financialBrand: FinancialBrand;
 	url?: string = null;
 	designPreviewUrl?: string = null;
 	commmunityLinkEnabledDirty = false;
@@ -110,7 +111,8 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 		private _msgService: MessageService,
 		private _route: ActivatedRoute,
 		private _featureSwitchService: FeatureSwitchService,
-		private _identityService: IdentityService) { super(); }
+		private _identityService: IdentityService,
+		private _brandService: BrandService) { super(); }
 
 
 	ngOnInit()
@@ -166,23 +168,28 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 
 					if (this.orgId && comm.salesCommunityId)
 					{
-						// If we have an Org and salesCommunity we get FinancialCommunityInfo, WebsiteCommunity, and SalesCommunity
+						// If we have an Org and salesCommunity we get FinancialCommunityInfo, WebsiteCommunity, SalesCommunity and FinancialBrand
 						return combineLatest([
 							this._orgService.getFinancialCommunityInfo(this.orgId),
 							this._orgService.getWebsiteCommunity(comm?.salesCommunityId),
-							this._orgService.getSalesCommunity(comm?.salesCommunityId)
+							this._orgService.getSalesCommunity(comm?.salesCommunityId),
+							this._brandService.getFinancialBrand(this.financialCommunity.financialBrandId, this.environment.apiUrl)
 						]);
 					}
 				}
 
 				return combineLatest([of(null), of(null), of(null)]);
 			}),
-		).subscribe(([finCommInfo, websiteCommunity, salesCommunity]) =>
+		).subscribe(([finCommInfo, websiteCommunity, salesCommunity, financialBrand]) =>
 		{
 			this.financialCommunityInfo = finCommInfo;
-			this.url = (environment.thoUrl && websiteCommunity?.webSiteIntegrationKey)
-				? environment.thoUrl + websiteCommunity.webSiteIntegrationKey
+
+			this.financialBrand = financialBrand;
+			const brandUrl = getBrandUrl(financialBrand.key, environment.thoUrls);
+			this.url = (brandUrl && websiteCommunity?.webSiteIntegrationKey)
+				? `${brandUrl}${websiteCommunity.webSiteIntegrationKey}`
 				: null;
+
 			this.canToggleCommunitySettings = true;
 			this.salesCommunity = salesCommunity;
 
@@ -440,7 +447,6 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 		//clear previous results
 		this._msgService.clear();
 		this.disableUrlGeneration();
-
 		//invalid input plan
 		if (!plan || !plan.id)
 		{
