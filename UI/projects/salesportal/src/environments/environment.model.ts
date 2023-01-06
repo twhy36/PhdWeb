@@ -19,7 +19,14 @@ export interface IEnvironment {
 			centex: string;
 			johnWieland: string;
 		};
-        thoPreview: string;
+		thoPreview: {
+			pulte: string;
+			delWebb: string;
+			americanWest: string;
+			diVosta: string;
+			centex: string;
+			johnWieland: string;
+		};
         reports: string;
 		homeSelections: string;
 		salesTally: string;

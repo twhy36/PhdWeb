@@ -165,19 +165,12 @@ export class PlanPreviewComponent implements OnInit
 	{
 		// If financial community is not null, get plans
 		this.selectedFinancialCommunity = financialCommunity?.id;
-		this.designPreviewEnabled = financialCommunity?.isDesignPreviewEnabled;
 
-		if (this.designPreviewEnabled)
+      		// Get the finacial brand
+		this.brandService.getFinancialBrand(financialCommunity.financialBrandId, environment.apiUrl).subscribe(brand =>
 		{
-      		// Get the finacial brand if DP Enabled
-      		this.brandService.getFinancialBrand(financialCommunity.financialBrandId, environment.apiUrl).subscribe(brand => {
-        		this.currentFinancialBrand = brand;
-      		});
-		}
-		else
-		{
-			this.currentFinancialBrand = null;
-		}
+        	this.currentFinancialBrand = brand;
+      	});
 
 		this.setType();
 	}
@@ -211,7 +204,7 @@ export class PlanPreviewComponent implements OnInit
 			// Open in THO Preview
 			const webSiteIntegrationKey = this.webSiteCommunity.webSiteIntegrationKey;
 
-			url = `${environment.baseUrl.thoPreview}${webSiteIntegrationKey}?preview=true`;
+			url = `${getBrandUrl(this.currentFinancialBrand.key, environment.baseUrl.thoPreview)}${webSiteIntegrationKey}?preview=true`;
 		}
 		else if (this.selectedType === 3)
 		{
