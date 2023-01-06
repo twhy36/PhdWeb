@@ -1235,7 +1235,7 @@ export class ContractService
 
 		mappedPrograms.forEach(p =>
 		{
-			p.amount -= _.sum(coPrograms.filter(cop => cop.approved && cop.salesAgreementProgram.salesProgramId === p.salesProgramId).map(cop => cop.salesAgreementProgram.amount));
+			p.amount += _.sum(coPrograms.filter(cop => cop.approved && cop.salesAgreementProgram.salesProgramId === p.salesProgramId).map(cop => cop.salesAgreementProgram.amount));
 
 			for (let cog of clonedCOs)
 			{
@@ -1254,8 +1254,40 @@ export class ContractService
 		});
 
 		return mappedPrograms.filter(p => p.salesProgram.salesProgramType === salesProgramType && p.amount > 0)
-			.concat(coPrograms.map(p => p.salesAgreementProgram))
-			.map(sap => { return { salesProgramDescription: sap.salesProgramDescription, amount: sap.amount, name: sap.salesProgram.name, salesProgramId: sap.salesProgramId }; });
+			.map(mp => { return { approved: true, salesAgreementProgram: mp } })
+			.concat(coPrograms)
+			// #382452 Combine sales programs by ID and get the total sum of their values	
+			// We need to include the `approved` value to determine if the amount 
+			// has already been factored into the sum from the preceding logic.
+			.reduce((arr, prog) =>
+			{
+				const existing = arr.find(obj => obj.salesAgreementProgram.salesProgramId === prog.salesAgreementProgram.salesProgramId);
+				if (existing)
+				{
+					// Only add amount if the sales program hasn't been approved
+					if (!prog.approved)
+					{
+						existing.salesAgreementProgram.amount += prog.salesAgreementProgram.amount;
+					}
+
+					// Join together every description for each instance of the sales program
+					// Ensure an ID doesn't exist to prevent duplicates
+					if (!prog.salesAgreementProgram.id && prog.salesAgreementProgram.salesProgramDescription)
+					{
+						existing.salesAgreementProgram.salesProgramDescription = (existing.salesAgreementProgram.salesProgramDescription ? existing.salesAgreementProgram.salesProgramDescription + '; ' : '') + prog.salesAgreementProgram.salesProgramDescription;
+					}
+				}
+				else
+				{
+					arr.push(prog);
+				}
+
+				return arr;
+			}, [])
+			.map(sap =>
+			{
+				return { salesProgramDescription: sap?.salesAgreementProgram?.salesProgramDescription, amount: sap?.salesAgreementProgram?.amount, name: sap?.salesAgreementProgram?.salesProgram.name, salesProgramId: sap?.salesAgreementProgram?.salesProgramId };
+			});
 	}
 
 	getSnapShot(jobId: number, changeOrderId: number): Observable<any>
