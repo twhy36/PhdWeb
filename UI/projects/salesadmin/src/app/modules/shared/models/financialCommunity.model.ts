@@ -13,6 +13,7 @@ export interface FinancialCommunity
 	isColorSchemeMonotonyRuleEnabled: boolean;
 	isDesignPreviewEnabled: boolean;
 	salesCommunityId: number;
+	financialBrandId: number;
 	isColorSchemePlanRuleEnabled: boolean;
 }
 
