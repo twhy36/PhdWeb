@@ -248,10 +248,10 @@ export class PHDSearchComponent
 				filteredLots = filteredLots ? filteredLots : results;
 				filteredLots = filteredLots.filter(lot => lot.jobTypeName === 'Model' || lot.buildType === 'Model');
 			}
-			else if (this.selectedBuildTypes && !this.selectedBuildTypes.includes('Model') && this.selectedBuildTypes.includes('Spec'))
+			else if (this.selectedBuildTypes && !this.selectedBuildTypes.includes('Model') && (this.selectedBuildTypes.includes('Spec') || this.selectedBuildTypes.includes('Dirt')))
 			{
 				filteredLots = filteredLots ? filteredLots : results;
-				filteredLots = filteredLots.filter(lot => (lot.jobTypeName === 'Spec' || lot.jobTypeName === 'House') && lot.buildType === 'Spec');
+				filteredLots = filteredLots.filter(lot => (lot.jobTypeName === 'Spec' || lot.jobTypeName === 'House') && (lot.buildType === 'Spec' || lot.buildType === 'Dirt'));
 			}
 
 			if (this.searchActiveOnly)
