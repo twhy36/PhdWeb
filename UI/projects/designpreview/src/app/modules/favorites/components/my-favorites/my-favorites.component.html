@@ -83,6 +83,6 @@
 			[isPresale]="isPresale"
 			[hideContractedToggle]="showDetails"
 			[isFixedWidth]="nextSubGroup && nextSubGroup.label.length > 0"		
-			(callToAction)="showDetails ? hideDetails() : onNextClicked()"
+			(callToAction)="showDetails ? onBackClicked() : onNextClicked()"
 			(onToggleContractedOptions)="toggleContractedOptions()">
 </action-bar>
