@@ -46,7 +46,7 @@
 		</div>
 		<div class="phd-price" [ngClass]="{'phd-price-right-justified' : isPresale}">
 			<ng-container *ngIf="choice.priceHiddenFromBuyerView && !isPresale">
-				<span container="body">
+				<span>
 					<strong class="phd-price-label">Pricing Varies</strong>
 					<info-tooltip-component [template]="infoContent"></info-tooltip-component>
 				</span>
@@ -137,5 +137,4 @@
 	<div>
 		<p><strong>Pricing Varies:</strong> Pricing will be determined during your meeting with your Design Consultant.</p>
 	</div>
-	<button class="btn btn-outline-primary">x</button>
 </ng-template>
