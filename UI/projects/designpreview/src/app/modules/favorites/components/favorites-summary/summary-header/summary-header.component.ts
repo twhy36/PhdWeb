@@ -46,7 +46,8 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 		super();
 	}
 
-	get disclaimerText() {
+	get disclaimerText()
+	{
 		return this.isPresale ?
 				"Option selections are not final until purchased via a signed agreement or change order."
 				: "Options made are subject to change and are not final until placed under contract with Sales Representative and are subject to the terms of the Home Purchase Agreement"
@@ -62,21 +63,24 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(fromRoot.financialCommunityName),
-		).subscribe(communityName => {
+		).subscribe(communityName =>
+		{
 			this.communityName = communityName;
 		});
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(fromPlan.selectedPlanData)
-		).subscribe(planData => {
+		).subscribe(planData =>
+		{
 			this.planName = planData?.salesName;
 		});
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(state => state.scenario),
-		).subscribe((state) => {
+		).subscribe((state) =>
+		{
 			switch (state.buildMode)
 			{
 				case (BuildMode.Preview):
@@ -96,13 +100,16 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 		});
 	}
 
-	get address(): string {
+	get address(): string
+	{
 		let address = 'N/A';
 
-		if (this.summaryHeader.lot) {
+		if (this.summaryHeader.lot)
+		{
 			let lot = this.summaryHeader.lot;
 
-			if ((lot.streetAddress1 && lot.streetAddress1.length) && (lot.city && lot.city.length) && (lot.stateProvince && lot.stateProvince.length) && (lot.postalCode && lot.postalCode.length)) {
+			if ((lot.streetAddress1 && lot.streetAddress1.length) && (lot.city && lot.city.length) && (lot.stateProvince && lot.stateProvince.length) && (lot.postalCode && lot.postalCode.length))
+			{
 				let address2 = lot.streetAddress2 ? ' ' + lot.streetAddress2 : '';
 
 				address = `${lot.streetAddress1}${address2}, ${lot.city}, ${lot.stateProvince} ${lot.postalCode}`;
@@ -112,7 +119,8 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 		return address;
 	}
 
-	getPlanName() : string {
+	getPlanName() : string
+	{
 		return this.isPresale ? this.summaryHeader.planName + ' Floorplan' : this.summaryHeader.planName;
 	}
 
@@ -136,61 +144,65 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 
 	checkIfHeaderSticky()
 	{
-		if (this.isPresale)
+		if (!this.isPrintHeader)
 		{
-			this.isSticky = true;
+			const clientRect = this.summaryHeaderElement.nativeElement.getBoundingClientRect();
+			if (clientRect.top < 110)
+			{
+				if (!this.isSticky && document.body.scrollHeight > 1500)
+				{
+					this.isSticky = true;
+					this.cd.detectChanges();
+					this.isStickyChanged.emit(this.isSticky);
+				}
+			}
+			else
+			{
+				if (this.isSticky)
+				{
+					this.isSticky = false;
+					this.cd.detectChanges();
+					this.isStickyChanged.emit(this.isSticky);
+				}
+			}
+
+			this.scrolling = false;
 		}
 		else
 		{
-			if (!this.isPrintHeader)
-			{
-				const clientRect = this.summaryHeaderElement.nativeElement.getBoundingClientRect();
-				if (clientRect.top < 110)
-				{
-					if (!this.isSticky && document.body.scrollHeight > 1500) {
-						this.isSticky = true;
-						this.cd.detectChanges();
-						this.isStickyChanged.emit(this.isSticky);
-					}
-				}
-				else
-				{
-					if (this.isSticky) {
-						this.isSticky = false;
-						this.cd.detectChanges();
-						this.isStickyChanged.emit(this.isSticky);
-					}
-				}
-
-				this.scrolling = false;
-			}
+			this.isSticky = false;
 		}
 	}
 
-	toggleContractedOptions() {
-		if (!this.isContractedOptionsDisabled) {
+	toggleContractedOptions()
+	{
+		if (!this.isContractedOptionsDisabled)
+		{
 			this.contractedOptionsToggled.emit();
 		}
 	}
 
-	getImageSrc() {
+	getImageSrc()
+	{
 		return this.brandService.getBrandImage('logo');
 	}
 
 	onPrint() 
 	{
-		if (this.isPresale) {
+		if (this.isPresale)
+		{
 			this.titleService.setTitle(`${this.communityName} ${this.planName}`);
 			window.print();
-		} else
+		}
+		else
 		{
 			this.onPrintAction?.emit();
 		}
 	}
-
 }
 
-export class SummaryHeader {
+export class SummaryHeader
+{
 	favoritesListName: string;
 	communityName: string;
 	planName: string;

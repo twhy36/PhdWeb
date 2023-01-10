@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 
 import { NgbDropdownConfig } from '@ng-bootstrap/ng-bootstrap';
 
-import { DecisionPoint, Group, SubGroup, Choice, JobChoice, UnsubscribeOnDestroy, flipOver2 } from 'phd-common';
+import { DecisionPoint, Group, SubGroup, Choice, JobChoice, UnsubscribeOnDestroy, flipOver2, DesignToolAttribute } from 'phd-common';
 import { isChoiceAttributesComplete } from '../../classes/utils.class';
 import { BuildMode } from '../../models/build-mode.model';
 
@@ -27,6 +27,7 @@ export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implemen
 	@Input() isDesignComplete: boolean = false;
 	@Input() isPresale: boolean = false;
 	@Input() contractedOptionsPage: boolean = false;
+	@Input() favoritesId: number;
 
 	@Output() onViewFavorites = new EventEmitter<DecisionPoint>();
 	@Output() onRemoveFavorites = new EventEmitter<Choice>();
@@ -96,8 +97,9 @@ export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implemen
 		this.cd.detectChanges();
 	}
 
-	get actionLabel() {
-		return this.isReadonly ? 'VIEW' : 'EDIT';
+	get actionLabel()
+	{
+		return this.isReadonly ? 'View' : 'Edit';
 	}
 
 	onViewOrEdit()
@@ -110,16 +112,72 @@ export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implemen
 		this.onRemoveFavorites.emit(choice);
 	}
 
-	getAttributeLabel(name: string) {
-		if (name) {
-			if (name.charAt(name.length-1) === ':') {
+	getAttributeLabel(name: string)
+	{
+		if (name)
+		{
+			if (name.charAt(name.length-1) === ':')
+			{
 				return name;
-			} else {
+			}
+			else
+			{
 				return name + ':';
 			}
 		}
 	}
+
+	getAttributeList(names: string[])
+	{
+		return names.join(', ');
+	}
+
+	consolidateAttributes(attributes: DesignToolAttribute[])
+	{
+		let attributeGroupLabels: string[] = [];
+
+		attributes.forEach(a => 
+		{
+			if (!attributeGroupLabels.find(label => a.attributeGroupLabel === label))
+			{
+				attributeGroupLabels.push(a.attributeGroupLabel);
+			}
+		})
+
+		let consolidatedAttributeGroups = [];
+
+		attributeGroupLabels.forEach(label =>
+		{
+			consolidatedAttributeGroups.push(new ConsolidatedAttributeGroup(attributes, label));
+		})
+
+		return consolidatedAttributeGroups;
+	}
+
+	onAdditionalSelections(choice: ChoiceCustom)
+	{
+		this.router.navigate(['favorites', 'my-favorites', this.favoritesId, this.subGroup.subGroupCatalogId, choice.divChoiceCatalogId], { queryParams: { presale: sessionStorage.getItem('presale_token')} });
+	}
 	
+}
+
+class ConsolidatedAttributeGroup
+{
+	attributeGroupLabel: string;
+	attributeGroupNames: string[] = [];
+
+	constructor(attributes: DesignToolAttribute[], label: string)
+	{
+		this.attributeGroupLabel = label;
+
+		attributes.forEach(a =>
+		{
+			if (a.attributeGroupLabel === label)
+			{
+				this.attributeGroupNames.push(a.attributeName);
+			}
+		})
+	}
 }
 
 class ChoiceCustom extends Choice
@@ -138,8 +196,11 @@ class ChoiceCustom extends Choice
 
 		this.showAttributes = this.hasMappedAttributes;
 		this.mappedSelectedAttributes = this.selectedAttributes.filter(attr => attr.attributeId === null).map(attr => ({...attr, attributes: []}));
-		this.selectedAttributes.filter(attr => attr.attributeId !== null).forEach(selectedAttribute => {
+
+		this.selectedAttributes.filter(attr => attr.attributeId !== null).forEach(selectedAttribute =>
+		{
 			let mappedSelectedAttribute = this.mappedSelectedAttributes.find(mappedAttr => mappedAttr.locationId === selectedAttribute.locationId);
+
 			if (mappedSelectedAttribute)
 			{
 				mappedSelectedAttribute.attributes.push(selectedAttribute);

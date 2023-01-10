@@ -69,14 +69,16 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(fromRoot.financialCommunityName),
-		).subscribe(communityName => {
+		).subscribe(communityName =>
+		{
 			this.communityName = communityName;
 		});
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(fromPlan.selectedPlanData)
-		).subscribe(planData => {
+		).subscribe(planData =>
+		{
 			this.planName = planData && planData.salesName;
 		});
 	}
@@ -119,7 +121,8 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit
 		}
 	}
 
-	displayTooltipText() {
+	displayTooltipText()
+	{
 		return `
 			<p>Estimated Favorites Total: Estimated total price of all options selected in this application.</p>
 
@@ -137,13 +140,16 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit
 	onHomePage()
 	{
 		this.store.dispatch(new ScenarioActions.SetTreeFilter(null));
+
 		if (this.isPresale)
 		{
 			this.router.navigate(['presale'], { queryParams: { presale: sessionStorage.getItem('presale_token')} })
-		} else if (this.isPreview)
+		}
+		else if (this.isPreview)
 		{
 			this.router.navigateByUrl('/preview');
-		} else
+		}
+		else
 		{
 			this.router.navigateByUrl('/home');
 		}
@@ -151,21 +157,18 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit
 
 	onPrint() 
 	{
-		if (this.isPresale) {
-			this.titleService.setTitle(`${this.communityName} ${this.planName}`);
-			window.print();
-		} else
-		{
-			this.onPrintAction?.emit();
-		}
+		this.titleService.setTitle(`${this.communityName} ${this.planName}`);
+		window.print();
 	}
 
 	@HostListener("window:afterprint", [])
-	onWindowAfterPrint() {
+	onWindowAfterPrint()
+	{
 		this.titleService.setTitle('Design Preview');
 	}
 
-	onViewFavorites() {
+	onViewFavorites()
+	{
 		this.store.dispatch(new ScenarioActions.SetTreeFilter(null));
 		this.router.navigate(['favorites', 'summary'], { queryParams: { presale: sessionStorage.getItem('presale_token')} })
 	}

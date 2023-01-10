@@ -41,6 +41,7 @@ import { NormalExperienceComponent } from './normal-experience/normal-experience
 import { ChoiceExt } from '../../../shared/models/choice-ext.model';
 import { TreeService } from '../../../core/services/tree.service';
 import { BuildMode } from '../../../shared/models/build-mode.model';
+import { Location } from '@angular/common';
 
 @Component({
 	selector: 'my-favorites',
@@ -103,7 +104,8 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		private route: ActivatedRoute,
 		private router: Router,
 		private cd: ChangeDetectorRef,
-		private treeService: TreeService)
+		private treeService: TreeService,
+		private location: Location)
 	{
 		super();
 	}
@@ -390,6 +392,11 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 	onSubgroupSelected(id: number)
 	{
 		this.hideDetails(id);
+	}
+
+	onBackClicked()
+	{
+		this.location.back();
 	}
 
 	onNextClicked()
