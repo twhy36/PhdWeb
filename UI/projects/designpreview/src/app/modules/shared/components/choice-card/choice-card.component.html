@@ -18,7 +18,7 @@
 					<strong>{{choice.price * (choice.quantity > 0 ? choice.quantity : 1) | currency:'USD':'symbol':'0.0-0'}}</strong>
 				</ng-container>
 				<ng-container *ngIf="choice.priceHiddenFromBuyerView">
-					<span class="phd-hidden-price" container="body" (click)="$event.stopPropagation()">
+					<span class="phd-hidden-price" (click)="$event.stopPropagation()">
 						<strong>Pricing Varies</strong>
 						<info-tooltip-component [template]="infoContent"></info-tooltip-component>
 					</span>
@@ -85,5 +85,4 @@
 	<div>
 		<p><strong>Pricing Varies:</strong> Pricing will be determined during your meeting with your Design Consultant.</p>
 	</div>
-	<button class="btn btn-outline-primary">x</button>
 </ng-template>

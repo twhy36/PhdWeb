@@ -13,6 +13,6 @@ export class InfoTooltipComponent {
     
 	constructor(config: NgbTooltipConfig) {
 		// customize default values of tooltips used by this component tree
-		config.triggers = 'click';
+		config.openDelay = 600;
 	}
 }
