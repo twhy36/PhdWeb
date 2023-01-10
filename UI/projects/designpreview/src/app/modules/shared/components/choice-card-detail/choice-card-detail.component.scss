@@ -146,13 +146,6 @@
 		}
 	}
 
-	.phd-descriptive-text {
-		font-size: 11px;
-		font-weight: bold;
-		margin-left: 10px;
-		margin-bottom: -10px;
-	}
-
 	.phd-choice-desc-section-long {
 		max-height: calc(100vh - 197px);
 	}
@@ -169,6 +162,15 @@
 			}
 		}
 	}
+}
+
+.phd-descriptive-text {
+	font-size: 11px;
+	font-weight: bold;
+	margin-left: 10px;
+	margin-bottom: -10px;
+	position: absolute;
+	bottom: 85px;
 }
 
 ::ng-deep .carousel-item {
@@ -247,7 +249,7 @@
 
 	.phd-info-section {
 		width: calc(48vw);
-		height: calc(100vh - 208px);
+		height: calc(100vh - 208px - 25px);
 
 		.phd-selections-section {
 			min-height: calc((100vh - 248px) / 2);
@@ -329,13 +331,12 @@
 		.phd-attr-loc-group-container {
 			margin-bottom: 70px;
 		}
-
-		.phd-descriptive-text {
-			font-size: 11px;
-			font-weight: bold;
-			position: relative;
-			padding: 5px 0px;
-		}
+	}
+	.phd-descriptive-text {
+		font-size: 11px;
+		font-weight: bold;
+		position: relative;
+		padding: 5px 0px;
 	}
 }
 
