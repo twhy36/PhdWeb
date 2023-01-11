@@ -23,13 +23,5 @@ export const environment = {
 	},
 	whatFix: {
 		scriptUrl: '//cdn.whatfix.com/prod/01caf5e0-cb2f-11e8-b979-04013d24cd02/embed/embed.nocache.js'
-	},
-	thoUrls: {
-		pulte: 'tho.pulte.com/',
-		delWebb: 'tho.delwebb.com/',
-		americanWest: 'tho.americanwesthomes.com/',
-		diVosta: 'tho.divosta.com/',
-		centex: 'tho.centex.com/',
-		johnWieland: 'tho.jwhomes.com/'
-	},
+	}
 };

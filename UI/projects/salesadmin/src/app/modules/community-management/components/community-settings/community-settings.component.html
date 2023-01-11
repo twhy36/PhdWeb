@@ -69,22 +69,12 @@
 						<div class="col-md">
 							<button class="btn btn-sm btn-toggle btn-auto-approval"
 								[disabled]="!canToggleCommunitySettings || isSalesAdminReadOnly"
-								[ngClass]="{'active': !isCommunityLinkEnabled, 'btn-success': isCommunityLinkEnabled, 'btn-secondary': !isCommunityLinkEnabled}"
+								[ngClass]="{'active': !isPreviewEnabled, 'btn-success': isPreviewEnabled, 'btn-secondary': !isPreviewEnabled}"
 								(click)="toggleCommunityLinkEnabled()">
 							</button>
 						</div>
 						<div class="phd-line">
 							<a class="btn-link" [href]="url" target="_blank" rel="noopener noreferrer">{{ url }}</a>
-						</div>
-						<div *ngFor="let requiredPdf of requiredPdfs">
-							<div class="text-danger" *ngIf="requiredPdf.pdfs == 0">
-								{{ requiredPdf.message }}
-							</div>
-						</div>
-						<div *ngFor="let requiredThoTemplate of requiredThoTemplates">
-							<div class="text-danger" *ngIf="requiredThoTemplate.thoTemplate == 0">
-								{{ requiredThoTemplate.message }}
-							</div>
 						</div>
 					</div>
 				</div>
@@ -183,8 +173,8 @@
 						<div class="font-weight-bold">Enable THO Community Link for Sales Consultants Only</div>
 						<div class="col-md">
 							<button class="btn btn-sm btn-toggle btn-auto-approval"
-								[disabled]="!canToggleCommunitySettings || isSalesAdminReadOnly" [ngClass]=" {'active': !isCommunityLinkEnabled, 'btn-success' : isCommunityLinkEnabled, 'btn-secondary' :
-								!isCommunityLinkEnabled}" (click)="toggleCommunityLinkEnabled()">
+								[disabled]="!canToggleCommunitySettings || isSalesAdminReadOnly" [ngClass]=" {'active': !isPreviewEnabled, 'btn-success' : isPreviewEnabled, 'btn-secondary' :
+								!isPreviewEnabled}" (click)="toggleCommunityLinkEnabled()">
 							</button>
 						</div>
 						<div class="phd-line">
@@ -198,11 +188,6 @@
 						<div *ngFor="let requiredThoTemplate of requiredThoTemplates">
 							<div class="text-danger" *ngIf="requiredThoTemplate.thoTemplate == 0">
 								{{ requiredThoTemplate.message }}
-							</div>
-						</div>
-						<div>
-							<div class="text-danger" *ngIf="closingCostDisabled">
-								<p>Please Add Closing cost</p>
 							</div>
 						</div>
 					</div>
