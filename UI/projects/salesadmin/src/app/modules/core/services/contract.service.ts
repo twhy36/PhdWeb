@@ -415,6 +415,7 @@ export class ContractService
 				marketId: t.marketId,
 				templateTypeId: t.templateTypeId,
 				addendumTypeId: t.addendumTypeId,
+				isDefaultDocument: t.isDefaultDocument,
 				effectiveDate: t.effectiveDate,
 				expirationDate: t.expirationDate,
 				status: t.status,
