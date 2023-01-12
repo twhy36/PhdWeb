@@ -42,6 +42,18 @@
 				   [routerLinkActive]="['phd-active-link-full']">
 				   Included Options
 				</a>
+				<a class="phd-nav-page"
+					[routerLink]="['/visualization/exterior']"
+					[routerLinkActive]="['phd-active-link-full']"
+				>
+					Exterior
+				</a>
+				<a class="phd-nav-page"
+					[routerLink]="['/visualization/kitchen']"
+					[routerLinkActive]="['phd-active-link-full']"
+				>
+					Kitchen
+				</a>
 			</div>
 		</div>	
 		<div class="phd-menu-bars" [ngClass]="getBrandedMenuClass(true)" *ngIf="!(hasLatestError$ | async)">

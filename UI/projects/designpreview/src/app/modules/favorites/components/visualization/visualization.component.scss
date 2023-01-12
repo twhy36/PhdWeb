@@ -1,0 +1,190 @@
+ul {
+    list-style: none;
+    margin: 0;
+    max-width: 400px;
+    min-width: 210px;
+    padding: 0;
+
+    > li {
+        margin-bottom: 1.5em;
+
+        header {
+            h4 {
+                font-size: 0.9em;
+                font-weight: bold;
+                margin-bottom: 0;
+                text-transform: uppercase;
+            }
+
+            div {
+                padding: 0;
+                line-height: .75;
+                margin-bottom: .5em;
+                font-size: 10px;
+            }
+        }
+    }
+
+    ul {
+        border-bottom: 1px solid #ccc;
+        border-top: 1px solid #ccc;
+        list-style: none;
+        margin-top: .15em;
+
+        > li {
+            align-items: center;
+            border-bottom: 1px solid #ccc;
+            display: flex;
+            font-size: 14px;
+            justify-content: center;
+            margin: -1px 0 0;
+            padding: .5em 0;
+            position: relative;
+            z-index: 1;
+
+            .phd-btn-text {
+                border-bottom: 1px dotted #ccc;
+                cursor: pointer;
+                text-decoration: none;
+
+                &:hover {
+                    border-bottom: 1px solid #999;
+                }
+            }
+
+
+            .phd-next-line {
+                clear: both;
+            }
+
+            .phd-circles {
+                display: flex;
+                justify-content: flex-start;
+
+                .phd-circle-one {
+                    color: #f5a623;
+                }
+
+                .phd-circle-two {
+                    color: #50e3c2;
+                }
+
+                .phd-circle-three {
+                    color: #0d4b6b;
+                }
+            }
+
+            &.disabled {
+                cursor: pointer;
+                opacity: .5;
+
+                label {
+                    cursor: default;
+                }
+
+                .phd-icon {
+                    border-color: #ccc;
+                    color: #ccc;
+                }
+
+                .phd-disabled-link {
+                    cursor: pointer;
+                    font-size: 10px;
+                    white-space: nowrap;
+                }
+            }
+
+            .phd-icon-checkbox {
+                align-items: center;
+                background: #aaa;
+                border-radius: 50%;
+                height: 18px;
+                justify-content: center;
+                margin-right: 1em;
+                overflow: hidden;
+                width: 18px;
+                z-index: 900;
+
+                span {
+                    background: #fff;
+                    border: 1px solid #aaa;
+                    border-radius: 50%;
+                    color: #343434;
+                    display: block;
+                    height: 16px;
+                    margin-left: 1px;
+                    margin-top: 1px;
+                    width: 16px;
+
+                    &.phd-on {
+                        background: #aaa;
+                        border: 1px solid #fff;
+                    }
+                }
+            }
+
+            input {
+                height: 10px;
+                left: 3px;
+                margin: -5px 0 0 0;
+                outline: 0 !important;
+                position: absolute;
+                top: 50%;
+                width: 10px;
+                z-index: 1;
+            }
+
+            label {
+                border: none;
+                border-radius: 0;
+                color: #333;
+                cursor: pointer;
+                display: flex;
+                font-size: 13px;
+                margin: 0;
+                padding: 0;
+                z-index: 2;
+
+                div {
+                    flex: 1 1 auto;
+                    padding-right: 1em;
+                    text-overflow: ellipsis;
+                    white-space: normal;
+                }
+            }
+
+            > label {
+                width: 100%;
+
+                > :last-child {
+                    flex-shrink: 1;
+                }
+            }
+        }
+    }
+}
+
+.container {
+    display: flex;
+    width: 100%;
+    max-height: 800px;
+    margin: 0;
+    padding: 0;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+}
+
+.choice-bar {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: none;
+    margin: none;
+}
+
+.image-container {
+    flex-grow: 3;
+
+    img {
+        max-width: 800px;
+    }
+}

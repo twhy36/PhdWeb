@@ -30,6 +30,7 @@ import { ExternalGuard } from './guards/external.guard';
 import { PresaleGuard } from './guards/presale.guard';
 import { ClickDirective } from './directives/click-directive.directive';
 import { TokenService } from './services/token.service';
+import { AVImageService } from './services/avimage.service';
 
 @NgModule({
 	exports: [
@@ -71,7 +72,8 @@ import { TokenService } from './services/token.service';
 		LoggedInGuard,
 		InternalGuard,
 		ExternalGuard,
-		PresaleGuard
+		PresaleGuard,
+		AVImageService
 	]
 })
 export class CoreModule { }

@@ -19,6 +19,7 @@ import { FloorPlanSummaryComponent } from './components/floor-plan-summary/floor
 import { SummaryHeaderComponent } from './components/favorites-summary/summary-header/summary-header.component';
 import { FloorPlanExperienceComponent } from './components/my-favorites/floor-plan-experience/floor-plan-experience.component';
 import { LoggedInGuard } from '../core/guards/logged-in.guard';
+import { VisualizationComponent } from './components/visualization/visualization.component';
 
 const moduleRoutes: Routes = [
 	{
@@ -76,6 +77,16 @@ const moduleRoutes: Routes = [
 				component: MyFavoritesComponent, 
 				canActivate: [LoggedInGuard],
 				data: { pageLoadEvent: 'ChoiceCard' }
+			},
+			{
+				path: 'visualization/exterior',
+				component: VisualizationComponent,
+				data: { type: 'Exterior' }
+			},
+			{
+				path: 'visualization/kitchen',
+				component: VisualizationComponent,
+				data: { type: 'Kitchen' }
 			}
 		]
 	}
@@ -91,7 +102,8 @@ const moduleRoutes: Routes = [
 		ContractedSummaryComponent,
 		FloorPlanSummaryComponent,
 		SummaryHeaderComponent,
-		FloorPlanExperienceComponent
+		FloorPlanExperienceComponent,
+		VisualizationComponent
     ],
     declarations: [
 		ManageFavoritesComponent,
@@ -102,7 +114,8 @@ const moduleRoutes: Routes = [
 		ContractedSummaryComponent,
 		FloorPlanSummaryComponent,
 		SummaryHeaderComponent,
-		FloorPlanExperienceComponent
+		FloorPlanExperienceComponent,
+		VisualizationComponent
     ],
 	imports: [
 		CommonModule,

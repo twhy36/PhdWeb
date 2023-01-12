@@ -1,0 +1,88 @@
+<div class="container">
+<div class="choice-bar">
+<ng-container *ngIf="scene === 'Exterior'">
+    <ul>
+        <li>
+            <h3>Elevation</h3>
+
+            <ul>
+                <li *ngFor="let choice of tree.treeVersion.groups[0].subGroups[0].points[0].choices">
+                    <a (click)="selectChoice(choice);">
+                        <span class="phd-btn-text">{{ choice.label }}</span><br>
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <li>
+            <h3>Color Scheme</h3>
+
+            <ul>
+                <ng-container *ngFor="let choice of tree.treeVersion.groups[0].subGroups[0].points[1].choices">
+                <li *ngIf="choice.enabled">
+                    <a (click)="selectChoice(choice);" *ngIf="choice.enabled">
+                        <span class="phd-btn-text">{{ choice.label }}</span><br>
+                    </a>
+                </li>
+                </ng-container>
+            </ul>
+        </li>
+    </ul>
+</ng-container>
+
+
+<ng-container *ngIf="scene === 'Kitchen'">
+    <!-- Kitchen package setup -->
+    <ng-container *ngIf="tree.treeVersion.groups[1].subGroups[1].points[0].label === 'Additional Fixtures'">
+        <ul>
+            <li *ngFor="let choice of tree.treeVersion.groups[1].subGroups[1].points[0].choices">
+                <h3 class="phd-btn-text">                    
+                    <a (click)="selectChoice(choice);" *ngIf="choice.enabled">{{choice.label}}</a>
+                </h3>
+                <div *ngIf="choice.quantity && choice.mappedAttributeGroups?.length" class="d-flex flex-column w-100">
+					<div *ngFor="let attributeGroup of choiceAttributes[0].attributeGroups" class="phd-attribute-group-container">
+						<attribute-group [attributeGroup]="attributeGroup"
+										 [isBlocked]="false"
+										 [isReadonly]="false"
+										 [isDesignComplete]="false"
+										 (onAttributeClick)="attributeClick($event)">
+						</attribute-group>
+					</div>
+				</div>
+            </li>
+        </ul>
+    </ng-container>
+
+    <ng-container *ngIf="tree.treeVersion.groups[1].subGroups[1].points[0].label !== 'Additional Fixtures'">
+        <ul>
+            <li *ngFor="let point of kitchenDPs">
+                <h3>{{point.label}}</h3>
+    
+                <ul>
+                    <ng-container *ngFor="let choice of point.choices">
+                    <li *ngIf="choice.enabled">
+                        <a (click)="selectChoice(choice);" *ngIf="choice.enabled">
+                            <span class="phd-btn-text">{{ choice.label }}</span><br>
+                        </a>
+                        <div *ngIf="choice.quantity && choice.mappedAttributeGroups?.length" class="d-flex flex-column w-100">
+                            <div *ngFor="let attributeGroup of getChoiceAttributes(choice)" class="phd-attribute-group-container">
+                                <attribute-group [attributeGroup]="attributeGroup"
+                                                 [isBlocked]="false"
+                                                 [isReadonly]="false"
+                                                 [isDesignComplete]="false"
+                                                 (onAttributeClick)="attributeClick($event, choice)">
+                                </attribute-group>
+                            </div>
+                        </div>
+                    </li>
+                    </ng-container>
+                </ul>
+            </li>
+        </ul>
+    </ng-container>
+</ng-container>
+</div>
+
+<div class="image-container">
+    <img *ngIf="!!imageUrl" [src]="imageUrl">
+</div>
+</div>
