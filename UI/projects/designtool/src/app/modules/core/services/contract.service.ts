@@ -1265,14 +1265,10 @@ export class ContractService
 				if (existing)
 				{
 					// Only add amount if the sales program hasn't been approved
-					if (!prog.approved)
-					{
-						existing.salesAgreementProgram.amount += prog.salesAgreementProgram.amount;
-					}
+					existing.salesAgreementProgram.amount = !prog.approved ? existing.salesAgreementProgram.amount + prog.salesAgreementProgram.amount : prog.salesAgreementProgram.amount;
 
 					// Join together every description for each instance of the sales program
-					// Ensure an ID doesn't exist to prevent duplicates
-					if (!prog.salesAgreementProgram.id && prog.salesAgreementProgram.salesProgramDescription)
+					if (!prog.approved && prog.salesAgreementProgram.salesProgramDescription)
 					{
 						existing.salesAgreementProgram.salesProgramDescription = (existing.salesAgreementProgram.salesProgramDescription ? existing.salesAgreementProgram.salesProgramDescription + '; ' : '') + prog.salesAgreementProgram.salesProgramDescription;
 					}
