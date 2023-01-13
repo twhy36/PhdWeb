@@ -58,7 +58,7 @@
 				<span class="phd-breakdown-content">{{priceBreakdown?.selections | currency:'USD':'symbol':'0.0-0'}}</span>
 			</div>
 			<div *ngIf="priceBreakdown.salesProgram" class="d-flex">
-				<span class="phd-breakdown-label">Sales Incentive:</span>
+				<span class="phd-breakdown-label">Adjustments to Price:</span>
 				<span class="phd-breakdown-content">({{priceBreakdown?.salesProgram | currency:'USD':'symbol':'0.0-0'}})</span>
 			</div>
 			<div *ngIf="priceBreakdown.priceAdjustments" class="d-flex">
