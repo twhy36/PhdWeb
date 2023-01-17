@@ -165,12 +165,16 @@ export class PlanPreviewComponent implements OnInit
 	{
 		// If financial community is not null, get plans
 		this.selectedFinancialCommunity = financialCommunity?.id;
+		this.designPreviewEnabled = financialCommunity?.isDesignPreviewEnabled;
 
       		// Get the finacial brand
-		this.brandService.getFinancialBrand(financialCommunity.financialBrandId, environment.apiUrl).subscribe(brand =>
+		if (financialCommunity?.financialBrandId)
 		{
-        	this.currentFinancialBrand = brand;
-      	});
+			this.brandService.getFinancialBrand(financialCommunity?.financialBrandId, environment.apiUrl).subscribe(brand =>
+			{
+				this.currentFinancialBrand = brand;
+			});
+		}
 
 		this.setType();
 	}
