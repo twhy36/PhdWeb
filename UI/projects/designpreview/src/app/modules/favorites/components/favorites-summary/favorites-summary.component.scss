@@ -1,8 +1,8 @@
 @import "../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
 
 .phd-favorites-summary {
-	padding-bottom: 100px;
-	margin-top: 59px;
+	padding-bottom: 70px; // height of the action bar
+	margin-top: 56px; // Has to be one px larger than group-bar so sticky header works
 	width: 100%;
 
 	.phd-is-sticky {
@@ -101,12 +101,10 @@
 }
 
 @media print {
-	// My attempt at setting a height for the content of the page
-	// It didn't seem to take
-	.phd-summary-section {
-		max-height: 10vh;
-		
+	.phd-favorites-summary {
+		margin-top: 0;
 	}
+
 	.phd-show-on-print {
 		display: table !important;
 		width: calc(100%);
@@ -127,41 +125,31 @@
 		}
 	}
 
-	.phd-favorites-summary-on-print {
-		margin-top: 2cm !important;
-		margin-bottom: 5cm !important;
-		overflow: visible;
-	}
-
-	.group {
+	.point {
 		page-break-inside: avoid;
 	}
 
 	.ifp-group {
-		page-break-inside: auto !important;
+		page-break-inside: avoid !important;
 	}
 
 	.sub-group {
+		print-color-adjust: exact; // Needs both to support most browsers
 		-webkit-print-color-adjust: exact; 
 		display: block !important;
-		page-break-inside: avoid;
+		page-break-inside: avoid !important;
 
 		.header {
 			page-break-inside: avoid;
 		}
-
-		.phd-ifp {
-			height: 75vh;
-		}
 	}
 
-	.phd-floorplan-image-section {
-		page-break-inside: avoid;
-		page-break-after: always;
+	.phd-print-content-space {
+		height: 9in;
 	}
 
 	.phd-print-footer, .phd-print-footer-space {
-		height: 100px;
+		height: 1.5in;
 	}
 
 	.phd-print-footer {
