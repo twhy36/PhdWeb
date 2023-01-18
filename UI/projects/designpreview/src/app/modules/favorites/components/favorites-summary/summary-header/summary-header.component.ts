@@ -48,9 +48,7 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 
 	get disclaimerText()
 	{
-		return this.isPresale ?
-				"Option selections are not final until purchased via a signed agreement or change order."
-				: "Options made are subject to change and are not final until placed under contract with Sales Representative and are subject to the terms of the Home Purchase Agreement"
+		return "Option selections are not final until purchased via a signed agreement or change order.";
 	}
 
 	ngOnInit()
