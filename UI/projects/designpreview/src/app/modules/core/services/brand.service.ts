@@ -102,7 +102,7 @@ export enum BrandTitles
 {
 	Pulte = 'Pulte',
 	DelWebb = 'Del Webb',
-	AmericanWest = 'Aamerican West',
+	AmericanWest = 'American West',
 	Centex = 'Centex',
 	Divosta = 'DiVosta',
 	JohnWieland = 'John Wieland'
