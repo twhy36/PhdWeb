@@ -7,7 +7,6 @@ export const environment = {
 	production: false,
 	apiUrl: 'http://localhost:2845/odata/',
 	hubUrl: 'http://localhost:5000/hub',
-	thoUrl: 'http://localhost:4001/',
 	alphaVisionBuilderGuid: '8D676CB9-C011-429D-8D71-87D34A87494B',
 	tenant: "pulte.onmicrosoft.com",
 	clientId: "9d498056-e6cd-4e53-b89b-cf2f5e60adf7",
@@ -31,10 +30,10 @@ export const environment = {
 	},
 	thoUrls: {
 		pulte: 'localhost:4001/',
-		delWebb: '',
-		americanWest: '',
-		diVosta: '',
-		johnWieland: '',
-		centex: '',
+		delWebb: 'localhost:4001/',
+		americanWest: 'localhost:4001/',
+		diVosta: 'localhost:4001/',
+		johnWieland: 'localhost:4001/',
+		centex: 'localhost:4001/',
 	},
 };

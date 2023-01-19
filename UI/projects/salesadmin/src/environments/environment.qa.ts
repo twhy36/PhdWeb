@@ -7,7 +7,6 @@ export const environment = {
 	production: false,
 	apiUrl: 'https://phdapi.qa.pulte.com/odata/',
 	hubUrl: 'https://phdhub.qa.pulte.com/hub',
-	thoUrl: 'https://tho.qa.centex.com/',
 	alphaVisionBuilderGuid: '8D676CB9-C011-429D-8D71-87D34A87494B',
 	tenant: "pulte.onmicrosoft.com",
 	clientId: "9d433c6a-9bfc-4d5e-917b-3bfe08942b6e",
