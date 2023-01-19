@@ -1,5 +1,4 @@
-export class Template
-{
+export class Template {
 	templateId: number;
 	documentName: string;
 	displayName: string;
@@ -8,19 +7,15 @@ export class Template
 	templateTypeId: TemplateTypeEnum;
 	displayOrder: number;
 	addendumTypeId?: number;
-	isDefaultDocument?: boolean;
 
-	constructor(dto = null)
-	{
-		if (dto)
-		{
+	constructor(dto = null) {
+		if (dto) {
 			Object.assign(this, dto);
-		}
+ 		}
 	}
 }
 
-export enum TemplateTypeEnum
-{
+export enum TemplateTypeEnum {
 	"Sales Agreement" = 1,
 	"Addendum" = 2,
 	"Cancel Form" = 3,
@@ -28,8 +23,7 @@ export enum TemplateTypeEnum
 	"Consent to do Business Electronically" = 5
 }
 
-export interface ITemplateInfo
-{
+export interface ITemplateInfo {
 	templateId: number;
 	displayOrder: number;
 	documentName: string;

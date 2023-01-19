@@ -10,7 +10,6 @@ export class ContractTemplate
 	marketId: number;
 	templateTypeId: number;
 	addendumTypeId?: number;
-	isDefaultDocument: boolean;
 	displayOrder?: number;
 	effectiveDate?: string;
 	expirationDate?: string;
