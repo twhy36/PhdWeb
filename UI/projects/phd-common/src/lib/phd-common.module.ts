@@ -40,7 +40,6 @@ import { ColorDisplayPipe } from './pipes/colorDisplay.pipe';
 import { EllipsisPipe } from './pipes/ellipsis.pipe';
 import { SafeUrlPipe } from './pipes/safe-url.pipe';
 import { MinusSignToParens } from './pipes/minusSignToParens.pipe';
-import { YesNoPipe } from './pipes/yesNo.pipe';
 import { PrimeNGCorrectionService } from './services/primeng.service';
 import { initAppInsights, TELEMETRY_INIT } from './utils/appInsights';
 
@@ -90,8 +89,7 @@ export function getOrigin()
 		EllipsisPipe,
 		SafeUrlPipe,
 		ColorDisplayPipe,
-		MinusSignToParens,
-		YesNoPipe
+		MinusSignToParens
 	],
 	exports: [
 		PhdTableComponent,
@@ -111,8 +109,7 @@ export function getOrigin()
 		EllipsisPipe,
 		SafeUrlPipe,
 		ColorDisplayPipe,
-		MinusSignToParens,
-		YesNoPipe
+		MinusSignToParens
 	],
 })
 export class PhdCommonModule

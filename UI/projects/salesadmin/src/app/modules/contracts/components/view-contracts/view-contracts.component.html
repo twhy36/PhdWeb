@@ -1,14 +1,11 @@
-<view-contracts-side-panel-component *ngIf="sidePanelOpen" [sidePanelOpen]="sidePanelOpen"
-	(onSidePanelClose)="onSidePanelClose($event)" (onSave)="save($event)" [currentMktId]="currentMktId"
-	[selected]="selected" [contracts]="filteredContractTemplates"></view-contracts-side-panel-component>
+<view-contracts-side-panel-component *ngIf="sidePanelOpen" [sidePanelOpen]="sidePanelOpen" (onSidePanelClose)="onSidePanelClose($event)" (onSave)="save($event)" [currentMktId]="currentMktId" [selected]="selected" [contracts]="filteredContractTemplates"></view-contracts-side-panel-component>
 
 <div class="phd-page-container" [class.phd-side-panel-open]="sidePanelOpen">
 	<page-header mainTitle="Sales Contract Setup">
 		<ng-template>
 			<div class="col">
 				<ng-template [ngIf]="canEdit">
-					<button type="button" class="btn btn-md btn-link" (click)="addDocument()"
-						[disabled]="!canManageDocument">Add Document</button>|
+					<button type="button" class="btn btn-md btn-link" (click)="addDocument()" [disabled]="!canManageDocument">Add Document</button>|
 					<button type="button" class="btn btn-md btn-link" (click)="addendumOrder()">Addendum Order</button>
 				</ng-template>
 
@@ -20,8 +17,7 @@
 	<div class="phd-page-body">
 		<div class="mx-auto phd-filter-body">
 			<div class="col my-3">
-				<search-bar selectedSearchFilter="Display Name" *ngIf="!isSorting" (onClearFilter)="clearFilter()"
-					(onKeywordSearch)="keywordSearch($event)"></search-bar>
+				<search-bar selectedSearchFilter="Display Name" *ngIf="!isSorting" (onClearFilter)="clearFilter()" (onKeywordSearch)="keywordSearch($event)"></search-bar>
 
 				<div class="btn-group" *ngIf="isSorting">
 					<button type="button" class="btn btn-secondary" (click)="cancelSort()">Cancel</button>
@@ -33,54 +29,38 @@
 			</div>
 		</div>
 
-		<div class="phd-table-container mx-2" id="contract-table">
-			<phd-table #dt [value]="filteredContractTemplates" sortMode="single"
-				[sortField]="isSorting ? 'displayOrder' : 'documentName'" [nonOverflow]="false"
-				canReorderRows="isSorting" (onRowReorder)="onRowReorder($event)">
+		<div class="phd-table-container mx-2" id="contract-table">	
+			<phd-table #dt [value]="filteredContractTemplates" sortMode="single" [sortField]="isSorting ? 'displayOrder' : 'documentName'" [nonOverflow]="false" canReorderRows="isSorting" (onRowReorder)="onRowReorder($event)">
 				<phd-column header="Addenda Order" field="displayOrder" width="150px" [canSort]="!isSorting">
 					<ng-template #header *ngIf="!isSorting"></ng-template>
 					<ng-template #body let-template *ngIf="!isSorting">
 						<div class="phd-icon-container">
-							<i *ngIf="template.status !== 'In Use' && canEdit" class="fa fa-fw fa-trash-o"
-								title="Delete Draft" (click)="deleteDraft(template)"></i>
-							<i *ngIf="canEdit" class="fa fa-pencil fa-fw" title="Edit Document"
-								(click)="editTemplate(template)"></i>
-							<i *ngIf="template.status === 'In Use' && canEdit" class="fa fa-files-o" title="New Draft"
-								(click)="newDraft(template)"></i>
-							<i class="fa fa-search-plus fa-fw" title="Preview Document"
-								(click)="previewFile(template.templateId)"></i>
+							<i *ngIf="template.status !== 'In Use' && canEdit" class="fa fa-fw fa-trash-o" title="Delete Draft" (click)="deleteDraft(template)"></i>
+							<i *ngIf="canEdit" class="fa fa-pencil fa-fw" title="Edit Document" (click)="editTemplate(template)"></i>
+							<i *ngIf="template.status === 'In Use' && canEdit" class="fa fa-files-o" title="New Draft" (click)="newDraft(template)"></i>
+							<i class="fa fa-search-plus fa-fw" title="Preview Document" (click)="previewFile(template.templateId)"></i>
 						</div>
 						<div *ngIf="template.childContractTemplate !== undefined" class="phd-icon-container mt-3">
-							<i *ngIf="template.childContractTemplate.status !== 'In Use' && canEdit"
-								class="fa fa-fw fa-trash-o" title="Delete Draft"
-								(click)="deleteDraft(template.childContractTemplate)"></i>
-							<i class="fa fa-pencil fa-fw" title="Edit Document" (click)="editDraft(template)"
-								*ngIf="canEdit"></i>
-							<i class="fa fa-search-plus fa-fw" title="Preview Document"
-								(click)="previewFile(template.childContractTemplate.templateId)"></i>
+							<i *ngIf="template.childContractTemplate.status !== 'In Use' && canEdit" class="fa fa-fw fa-trash-o" title="Delete Draft" (click)="deleteDraft(template.childContractTemplate)"></i>
+							<i class="fa fa-pencil fa-fw" title="Edit Document" (click)="editDraft(template)" *ngIf="canEdit"></i>
+							<i class="fa fa-search-plus fa-fw" title="Preview Document" (click)="previewFile(template.childContractTemplate.templateId)"></i>
 						</div>
 					</ng-template>
 					<ng-template #body let-template *ngIf="isSorting">
-						<i class="fa fa-lg fa-bars reorder-icon move pr-3" pReorderableRowHandle
-							isDragHandler="isSorting"></i>
-						<span (mouseenter)="showTooltip($event, template.displayOrder, dt)"
-							(mouseleave)="hideTooltip(dt)">{{ template.displayOrder }}</span>
+						<i class="fa fa-lg fa-bars reorder-icon move pr-3" pReorderableRowHandle isDragHandler="isSorting"></i>
+						<span (mouseenter)="showTooltip($event, template.displayOrder, dt)" (mouseleave)="hideTooltip(dt)">{{ template.displayOrder }}</span>
 					</ng-template>
 				</phd-column>
-
+				
 				<phd-column header="Document Name" field="documentName" [canSort]="!isSorting">
 					<ng-template #body let-template>
 						<span>
 							<ng-container *ngIf="template.documentName; let formattedValue">
-								<span (mouseenter)="showTooltip($event, formattedValue, dt)"
-									(mouseleave)="hideTooltip(dt)" class="phd-template-span">{{ formattedValue }}</span>
+								<span (mouseenter)="showTooltip($event, formattedValue, dt)" (mouseleave)="hideTooltip(dt)" class="phd-template-span">{{ formattedValue }}</span>
 							</ng-container>
 
-							<ng-container
-								*ngIf="template.childContractTemplate !== undefined && template.childContractTemplate.documentName; let formattedValue">
-								<span (mouseenter)="showTooltip($event, formattedValue, dt)"
-									(mouseleave)="hideTooltip(dt)"
-									class="phd-new-draft phd-template-child-span">{{formattedValue}}</span>
+							<ng-container *ngIf="template.childContractTemplate !== undefined && template.childContractTemplate.documentName; let formattedValue">
+								<span (mouseenter)="showTooltip($event, formattedValue, dt)" (mouseleave)="hideTooltip(dt)" class="phd-new-draft phd-template-child-span">{{ formattedValue }}</span>
 							</ng-container>
 						</span>
 					</ng-template>
@@ -89,15 +69,11 @@
 					<ng-template #body let-template>
 						<span>
 							<ng-container *ngIf="template.displayName; let formattedValue">
-								<span (mouseenter)="showTooltip($event, formattedValue, dt)"
-									(mouseleave)="hideTooltip(dt)" class="phd-template-span">{{formattedValue}}</span>
+								<span (mouseenter)="showTooltip($event, formattedValue, dt)" (mouseleave)="hideTooltip(dt)" class="phd-template-span">{{ formattedValue }}</span>
 							</ng-container>
 
-							<ng-container
-								*ngIf="template.childContractTemplate !== undefined && template.childContractTemplate.displayName; let formattedValue">
-								<span (mouseenter)="showTooltip($event, formattedValue, dt)"
-									(mouseleave)="hideTooltip(dt)"
-									class="phd-template-child-span">{{formattedValue}}</span>
+							<ng-container *ngIf="template.childContractTemplate !== undefined && template.childContractTemplate.displayName; let formattedValue">
+								<span (mouseenter)="showTooltip($event, formattedValue, dt)" (mouseleave)="hideTooltip(dt)" class="phd-template-child-span">{{ formattedValue }}</span>
 							</ng-container>
 						</span>
 					</ng-template>
@@ -106,33 +82,25 @@
 					<ng-template #body let-template>
 						<span>
 							<ng-container *ngIf="template.status; let formattedValue">
-								<span (mouseenter)="showTooltip($event, formattedValue, dt)"
-									(mouseleave)="hideTooltip(dt)" class="phd-template-span">{{formattedValue}}</span>
+								<span (mouseenter)="showTooltip($event, formattedValue, dt)" (mouseleave)="hideTooltip(dt)" class="phd-template-span">{{ formattedValue }}</span>
 							</ng-container>
 
-							<ng-container
-								*ngIf="template.childContractTemplate !== undefined && template.childContractTemplate.status; let formattedValue">
-								<span (mouseenter)="showTooltip($event, formattedValue, dt)"
-									(mouseleave)="hideTooltip(dt)"
-									class="phd-template-child-span">{{formattedValue}}</span>
+							<ng-container *ngIf="template.childContractTemplate !== undefined && template.childContractTemplate.status; let formattedValue">
+								<span (mouseenter)="showTooltip($event, formattedValue, dt)" (mouseleave)="hideTooltip(dt)" class="phd-template-child-span">{{ formattedValue }}</span>
 							</ng-container>
 						</span>
 					</ng-template>
 				</phd-column>
-
+				
 				<phd-column header="Pre-Selected" field="addendumTypeId" [canSort]="!isSorting">
 					<ng-template #body let-template>
 						<span>
 							<ng-container *ngIf="getPreSelected(template); let formattedValue">
-								<span (mouseenter)="showTooltip($event, formattedValue, dt)"
-									(mouseleave)="hideTooltip(dt)" class="phd-template-span">{{formattedValue}}</span>
+								<span (mouseenter)="showTooltip($event, formattedValue, dt)" (mouseleave)="hideTooltip(dt)" class="phd-template-span">{{ formattedValue }}</span>
 							</ng-container>
 
-							<ng-container
-								*ngIf="template.childContractTemplate !== undefined && getPreSelected(template.childContractTemplate); let formattedValue">
-								<span (mouseenter)="showTooltip($event, formattedValue, dt)"
-									(mouseleave)="hideTooltip(dt)"
-									class="phd-template-child-span">{{formattedValue}}</span>
+							<ng-container *ngIf="template.childContractTemplate !== undefined && getPreSelected(template.childContractTemplate); let formattedValue">
+								<span (mouseenter)="showTooltip($event, formattedValue, dt)" (mouseleave)="hideTooltip(dt)" class="phd-template-child-span">{{ formattedValue }}</span>
 							</ng-container>
 						</span>
 					</ng-template>
@@ -140,18 +108,13 @@
 				<phd-column header="Effective Date" field="effectiveDate" [canSort]="!isSorting">
 					<ng-template #body let-template>
 						<div>
-							<ng-container
-								*ngIf="template.effectiveDate && template.effectiveDate | date:'L/dd/yyyy'; let formattedValue">
-								<span (mouseenter)="showTooltip($event, formattedValue, dt)"
-									(mouseleave)="hideTooltip(dt)" class="phd-template-span">{{formattedValue}}</span>
+							<ng-container *ngIf="template.effectiveDate && template.effectiveDate | date:'L/dd/yyyy'; let formattedValue">
+								<span (mouseenter)="showTooltip($event, formattedValue, dt)" (mouseleave)="hideTooltip(dt)" class="phd-template-span">{{ formattedValue }}</span>
 							</ng-container>
 
-							<ng-container
-								*ngIf="template.childContractTemplate !== undefined && (template.childContractTemplate.effectiveDate !== null ? (template.childContractTemplate.effectiveDate | date:'L/dd/yyyy') : null); let formattedValue">
+							<ng-container *ngIf="template.childContractTemplate !== undefined && (template.childContractTemplate.effectiveDate !== null ? (template.childContractTemplate.effectiveDate | date:'L/dd/yyyy') : null); let formattedValue">
 								<span *ngIf="formattedValue === null" style="color:white">.</span>
-								<span (mouseenter)="showTooltip($event, formattedValue, dt)"
-									(mouseleave)="hideTooltip(dt)"
-									class="phd-template-child-span">{{formattedValue}}</span>
+								<span (mouseenter)="showTooltip($event, formattedValue, dt)" (mouseleave)="hideTooltip(dt)" class="phd-template-child-span">{{ formattedValue }}</span>
 							</ng-container>
 						</div>
 					</ng-template>
@@ -160,16 +123,12 @@
 					<ng-template #body let-template>
 						<span>
 							<ng-container *ngIf="template.expirationDate | date:'L/dd/yyyy'; let formattedValue">
-								<span (mouseenter)="showTooltip($event, formattedValue, dt)"
-									(mouseleave)="hideTooltip(dt)" class="phd-template-span">{{formattedValue}}</span>
+								<span (mouseenter)="showTooltip($event, formattedValue, dt)" (mouseleave)="hideTooltip(dt)" class="phd-template-span">{{ formattedValue }}</span>
 							</ng-container>
 
-							<ng-container
-								*ngIf="template.childContractTemplate !== undefined && template.childContractTemplate.expirationDate !== null ? (template.childContractTemplate.expirationDate | date:'L/dd/yyyy') : null; let formattedValue">
+							<ng-container *ngIf="template.childContractTemplate !== undefined && template.childContractTemplate.expirationDate !== null ? (template.childContractTemplate.expirationDate | date:'L/dd/yyyy') : null; let formattedValue">
 								<span *ngIf="formattedValue === null" style="color:white">.</span>
-								<span (mouseenter)="showTooltip($event, formattedValue, dt)"
-									(mouseleave)="hideTooltip(dt)"
-									class="phd-template-child-span">{{formattedValue}}</span>
+								<span (mouseenter)="showTooltip($event, formattedValue, dt)" (mouseleave)="hideTooltip(dt)" class="phd-template-child-span">{{ formattedValue }}</span>
 							</ng-container>
 						</span>
 					</ng-template>
@@ -178,32 +137,11 @@
 					<ng-template #body let-template>
 						<span>
 							<ng-container *ngIf="template.version; let formattedValue">
-								<span (mouseenter)="showTooltip($event, formattedValue, dt)"
-									(mouseleave)="hideTooltip(dt)" class="phd-template-span">{{formattedValue}}</span>
+								<span (mouseenter)="showTooltip($event, formattedValue, dt)" (mouseleave)="hideTooltip(dt)" class="phd-template-span">{{ formattedValue }}</span>
 							</ng-container>
 
-							<ng-container
-								*ngIf="template.childContractTemplate !== undefined && template.childContractTemplate.version; let formattedValue">
-								<span (mouseenter)="showTooltip($event, formattedValue, dt)"
-									(mouseleave)="hideTooltip(dt)"
-									class="phd-template-child-span">{{formattedValue}}</span>
-							</ng-container>
-						</span>
-					</ng-template>
-				</phd-column>
-				<phd-column header="Default Document" field="isDefaultDocument" [canSort]="!isSorting">
-					<ng-template #body let-template>
-						<span>
-							<ng-container *ngIf="template.isDefaultDocument | yesNo; let formattedValue">
-								<span (mouseenter)="showTooltip($event, formattedValue, dt)"
-									(mouseleave)="hideTooltip(dt)" class="phd-template-span">{{formattedValue}}</span>
-							</ng-container>
-
-							<ng-container
-								*ngIf="template.childContractTemplate !== undefined && (template.childContractTemplate.isDefaultDocument | yesNo); let formattedValue">
-								<span (mouseenter)="showTooltip($event, formattedValue, dt)"
-									(mouseleave)="hideTooltip(dt)"
-									class="phd-template-child-span">{{formattedValue}}</span>
+							<ng-container *ngIf="template.childContractTemplate !== undefined && template.childContractTemplate.version; let formattedValue">
+								<span (mouseenter)="showTooltip($event, formattedValue, dt)" (mouseleave)="hideTooltip(dt)" class="phd-template-child-span">{{ formattedValue }}</span>
 							</ng-container>
 						</span>
 					</ng-template>
@@ -212,15 +150,11 @@
 					<ng-template #body let-template>
 						<span>
 							<ng-container *ngIf="template.application; let formattedValue">
-								<span (mouseenter)="showTooltip($event, formattedValue, dt)"
-									(mouseleave)="hideTooltip(dt)" class="phd-template-span">{{formattedValue}}</span>
+								<span (mouseenter)="showTooltip($event, formattedValue, dt)" (mouseleave)="hideTooltip(dt)" class="phd-template-span">{{ formattedValue }}</span>
 							</ng-container>
 
-							<ng-container
-								*ngIf="template.childContractTemplate !== undefined && template.childContractTemplate.application; let formattedValue">
-								<span (mouseenter)="showTooltip($event, formattedValue, dt)"
-									(mouseleave)="hideTooltip(dt)"
-									class="phd-template-child-span">{{formattedValue}}</span>
+							<ng-container *ngIf="template.childContractTemplate !== undefined && template.childContractTemplate.application; let formattedValue">
+								<span (mouseenter)="showTooltip($event, formattedValue, dt)" (mouseleave)="hideTooltip(dt)" class="phd-template-child-span">{{ formattedValue }}</span>
 							</ng-container>
 						</span>
 					</ng-template>

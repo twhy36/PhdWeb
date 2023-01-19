@@ -154,7 +154,6 @@ export class ViewContractsSidePanelComponent implements OnInit
 		let displayName = this.selected ? this.selected.displayName : null;
 		let templateTypeId = this.selected ? this.selected.templateTypeId : null;
 		let addendumTypeId = this.selected ? this.selected.addendumTypeId : null;
-		let isDefaultDocument = this.selected ? this.selected.isDefaultDocument : false;
 		let assignedCommunityIds = this.selected ? this.selected.assignedCommunityIds : null;
 		let parentTemplateId = this.selected ? this.selected.parentTemplateId : null;
 		let templateId = this.selected ? this.selected.templateId : null;
@@ -168,7 +167,6 @@ export class ViewContractsSidePanelComponent implements OnInit
 			'displayName': new FormControl({ value: displayName, disabled: (this.selected && this.selected.status === "In Use") }, [Validators.required, this.whiteSpaceValidator()]),
 			'templateTypeId': new FormControl(templateTypeId),
 			'addendumTypeId': new FormControl(addendumTypeId),
-			'isDefaultDocument': new FormControl(isDefaultDocument),
 			'effectiveDate': new FormControl({ value: this.effectiveDate ? this.effectiveDate.toISOString() : null, disabled: (this.selected && this.selected.status === "In Use") }),
 			'expirationDate': new FormControl(this.expirationDate ? this.expirationDate.toISOString() : null),
 			'assignedCommunityIds': new FormControl(assignedCommunityIds),
@@ -241,11 +239,11 @@ export class ViewContractsSidePanelComponent implements OnInit
 
 			this.onSave.emit(this.viewContractsForm.value as ContractTemplate);
 		},
-			error =>
-			{
-				this._msgService.add({ severity: 'error', summary: 'Error', detail: error.message });
-				this.saving = false;
-			});
+		error =>
+		{
+			this._msgService.add({ severity: 'error', summary: 'Error', detail: error.message });
+			this.saving = false;
+		});
 	}
 
 	onCloseSidePanel(status: boolean)
@@ -442,7 +440,7 @@ export class ViewContractsSidePanelComponent implements OnInit
 			this.communitiesForSelectedTemplate.push(tag);
 		}
 	}
-
+		
 	checkForDocument(templateId: number)
 	{
 		this._contractService.getTemplateUrl(templateId)
@@ -450,9 +448,9 @@ export class ViewContractsSidePanelComponent implements OnInit
 			{
 				this.documentAssociated = true;
 			},
-				error =>
-				{
-					this.documentAssociated = false;
-				});
+			error =>
+			{
+				this.documentAssociated = false;
+			});
 	}
 }

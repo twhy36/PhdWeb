@@ -104,7 +104,6 @@ class AgreementTemplate implements Template
 	displayOrder: number;
 	isSelected: boolean;
 	addendumTypeId?: number;
-	isDefaultDocument: boolean;
 
 	constructor(template: Template, selectedTemplates: Array<number>)
 	{
