@@ -767,6 +767,15 @@
 							"projects/designpreview/src/assets"
 						]
 					}
+				},
+				"lint": {
+					"builder": "@angular-eslint/builder:lint",
+					"options": {
+						"lintFilePatterns": [
+							"projects/designpreview/src/**/*.ts",
+							"projects/designpreview/src/**/*.html"
+						]
+					}
 				}
 			}
 		},
