@@ -825,9 +825,12 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 						&& ((ch.mustHave && find(ch.id).quantity)
 							|| (!ch.mustHave && !find(ch.id).quantity)));
 
-				choice.disabledByReplaceRules = mappedChoices.filter(mc => (pointChoices.includes(mc.id) && ((mc.mustHave && find(mc.id).quantity) || (!mc.mustHave && !find(mc.id).quantity)))
-					|| ((!mc.mustHave && find(mc.id).quantity) || (mc.mustHave && !find(mc.id).quantity))).map(mc => mc.id)
-					.concat(otherChoices.map(ch => ch.id));
+				choice.disabledByReplaceRules = _.uniq(mappedChoices.filter(mc => (pointChoices.includes(mc.id) && ((mc.mustHave && find(mc.id).quantity) || (!mc.mustHave && !find(mc.id).quantity)))
+					|| ((!mc.mustHave && find(mc.id).quantity) || (mc.mustHave && !find(mc.id).quantity)))
+					.concat(otherChoices))
+					// Filter out any choices that are about to be selected/deselected
+					.filter(ch => ((!ch.mustHave && find(ch.id).quantity)
+						|| (ch.mustHave && !find(ch.id).quantity))).map(ch => ch.id);
 
 				// #381876
 				// If this choice's point is a Pick1 and another choice is already selected,
@@ -858,7 +861,7 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 					choice.quantity = 0;
 
 					// If any choices with options being replaced exist within the same DP or elsewhere, there is a setup issue (user error)
-					if (otherChoices.length || points.find(pt => pt.choices.some(c => c.id === choice.id) && pt.choices.some(c => choice.disabledByReplaceRules.includes(c.id))))
+					if (otherChoices.filter(oc => !choice.disabledByReplaceRules.includes(oc.id)).length || points.find(pt => pt.choices.some(c => c.id === choice.id) && pt.choices.some(c => choice.disabledByReplaceRules.includes(c.id))))
 					{
 						choice.disabledByBadSetup = true;
 					}
