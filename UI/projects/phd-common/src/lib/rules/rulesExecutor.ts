@@ -790,88 +790,65 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 		// If this choice has an option that replaces another,
 		// and that option is not currently on the configuration,
 		// this choice must be disabled
-
-		// Find mapped options on this choice
-		const optionRules = rules.optionRules.filter(o => o.choices.map(c => c.id).includes(choice.id));
-		const choiceOptionNumbers = choice.options?.map(o => o.financialOptionIntegrationKey) || [];
-		const mappedOptionRules = optionRules.filter(o => choiceOptionNumbers.includes(o.optionId));
-
-		// Find all other choices which must have this choice, and exclude those from affecting whether this choice is disabled
-		const excludedChoiceRules = _.flatMap(rules.choiceRules.filter(cr => _.flatMap(cr.rules.filter(r => r.ruleType === 1), r => r.choices).includes(choice.id)), cr => cr.choiceId);
-
-		const pointForChoice = points.find(pt => pt.choices.some(c => c.id === choice.id));
-		const pointChoices = pointForChoice.choices.map(c => c.id);
-
-		// Find replaced options on the mapped options
-		const replacedOptions = _.flatMap(mappedOptionRules, r => r.replaceOptions);
-
-		// In the case of multiple replaced options, if any one option is already on the configuration, disregard this
-		if (!replacedOptions.some(ro =>
+		if (!choice.lockedInChoice && !choice.quantity)
 		{
-			const mappedChoices = _.flatMap(rules.optionRules.filter(o => o.optionId === ro), r => r.choices).filter(c => !excludedChoiceRules.includes(c.id));
+			const optionRules = rules.optionRules.filter(or => or.replaceOptions?.length > 0 && getMaxSortOrderChoice(tree, or.choices.filter(c => c.mustHave).map(c => c.id)) === choice.id)
+				.filter(or => choice.options.some(o => o.financialOptionIntegrationKey === or.optionId));
+			const pointForChoice = points.find(pt => pt.choices.some(c => c.id === choice.id));
+			const pointChoices = pointForChoice.choices.map(ch => ch.id);
 
-			// Determine if this option has been replaced by another selection/rule (issue 380127)
-			const replacedByOther = _.flatMap(rules.optionRules.filter(o => o.replaceOptions.includes(ro)), r => r.choices)
-				.filter(ch => choice.id !== ch.id && !mappedChoices.map(mc => mc.id).includes(ch.id))
-				.some(ch => (ch.mustHave && find(ch.id).quantity) || (!ch.mustHave && !find(ch.id).quantity));
-
-			return !mappedChoices.filter(mc => (pointChoices.includes(mc.id) && ((mc.mustHave && find(mc.id).quantity) || (!mc.mustHave && !find(mc.id).quantity)))
-				|| ((!mc.mustHave && find(mc.id).quantity) || (mc.mustHave && !find(mc.id).quantity))).length
-				&& !replacedByOther;
-		}))
-		{
-			replacedOptions.forEach(ro =>
+			//if an option replaces another option from the same DP, this is an invalid setup
+			if (optionRules.some(or => or.replaceOptions.some(replaceOption => {
+				const origOptionRule = rules.optionRules.find(or2 => or2.optionId === replaceOption);
+				const origChoice = getMaxSortOrderChoice(tree, origOptionRule.choices.filter(ch => ch.mustHave).map(ch => ch.id));
+				return pointChoices.some(pc => pc === origChoice);
+			})))
 			{
-				const mappedChoices = _.flatMap(rules.optionRules.filter(o => o.optionId === ro), r => r.choices).filter(c => !excludedChoiceRules.includes(c.id));
+				choice.disabledByBadSetup = true;
+			}
 
-				const otherChoices = _.flatMap(rules.optionRules.filter(o => o.replaceOptions.includes(ro)), r => r.choices)
-					.filter(ch => choice.id !== ch.id
-						&& !mappedChoices.map(mc => mc.id).includes(ch.id)
-						&& ((ch.mustHave && find(ch.id).quantity)
-							|| (!ch.mustHave && !find(ch.id).quantity)));
-
-				choice.disabledByReplaceRules = _.uniq(mappedChoices.filter(mc => (pointChoices.includes(mc.id) && ((mc.mustHave && find(mc.id).quantity) || (!mc.mustHave && !find(mc.id).quantity)))
-					|| ((!mc.mustHave && find(mc.id).quantity) || (mc.mustHave && !find(mc.id).quantity)))
-					.concat(otherChoices))
-					// Filter out any choices that are about to be selected/deselected
-					.filter(ch => ((!ch.mustHave && find(ch.id).quantity)
-						|| (ch.mustHave && !find(ch.id).quantity))).map(ch => ch.id);
-
-				// #381876
-				// If this choice's point is a Pick1 and another choice is already selected,
-				// and multiple choices on this DP have options that replace the same option on another DP,
-				// ignore that "replaced" choice being disabled by replace rules
-				if ([PickType.Pick1, PickType.Pick1ormore].indexOf(pointForChoice.pointPickTypeId) !== -1)
-				{
-					const selectedChoices = pointForChoice.choices.filter(c => c.quantity > 0 && c.id !== choice.id);
-
-					if (selectedChoices && selectedChoices.length)
+			function replaceRuleSatisfied(optionRule: OptionRule)
+			{
+				return optionRule.replaceOptions.every(replaceOption => {
+					//if we have a selected choice with the replaced option, we're good
+					if (choices.some(ch => ch.quantity && (ch.options.some(o => o.financialOptionIntegrationKey === replaceOption) || ch.lockedInOptions?.some(o => o.optionId === replaceOption))))
 					{
-						// Determine which choices have options being replaced by the selected choice,
-						// and remove any of those from the choices from this choice's disabledByReplaceRules list
-						selectedChoices.forEach(sc =>
-						{
-							const replacedOptionsForSelectedChoice = _.uniq(_.flatMap(rules.optionRules.filter(o => sc.options.map(sco => sco.financialOptionIntegrationKey.includes(o.optionId))), r => r.replaceOptions));
-							const replacedChoices = choices.filter(ch => ch.options.map(o => o.financialOptionIntegrationKey).some(cho => replacedOptionsForSelectedChoice.includes(cho))).map(ch => ch.id);
+						return true;
+					}
 
-							choice.disabledByReplaceRules = choice.disabledByReplaceRules.filter(rc => replacedChoices.includes(rc));
+					//if it's a pick 1 scenario, check if the replaced option was replaced by 
+					//something else in the same DP
+					if ([PickType.Pick1, PickType.Pick1ormore].indexOf(pointForChoice.pointPickTypeId) !== -1)
+					{
+						return pointForChoice.choices.some(ch => {
+							if (!ch.quantity)
+							{
+								return false;
+							}
+
+							const replaceOptions = choice.lockedInOptions && choice.lockedInOptions.length 
+								? _.flatten(choice.lockedInOptions.filter(o => o.replaceOptions?.length).map(o => o.replaceOptions))
+								: _.flatten(choice.options.map(o => rules.optionRules.find(or => or.optionId === o.financialOptionIntegrationKey))
+									.filter(or => or.replaceOptions && or.replaceOptions.length)
+									.map(o => o.replaceOptions));
+							return replaceOptions.some(o => o === replaceOption);
 						});
 					}
-				}
 
+					return false;
+				});
+			}
 
-				// If this choice becomes disabled, deselect it, but only if the choice is not already locked in
-				if (choice.disabledByReplaceRules?.length && !choice.lockedInChoice)
-				{
-					choice.quantity = 0;
+			var unsatisfiedReplaceRules = optionRules.filter(or => !replaceRuleSatisfied(or));
 
-					// If any choices with options being replaced exist within the same DP or elsewhere, there is a setup issue (user error)
-					if (otherChoices.filter(oc => !choice.disabledByReplaceRules.includes(oc.id)).length || points.find(pt => pt.choices.some(c => c.id === choice.id) && pt.choices.some(c => choice.disabledByReplaceRules.includes(c.id))))
-					{
-						choice.disabledByBadSetup = true;
-					}
-				}
-			});
+			choice.disabledByReplaceRules = _.flatten(unsatisfiedReplaceRules.map(rr => rr.replaceOptions))
+				.map(rr => rules.optionRules.find(or => or.optionId === rr))
+				.map(or => getMaxSortOrderChoice(tree, or.choices.filter(ch => ch.mustHave).map(ch => ch.id)));
+
+			if (!choice.lockedInChoice && (choice.disabledByReplaceRules?.length || choice.disabledByBadSetup))
+			{
+				choice.quantity = 0;
+			}
 		}
 
 		// #367382
