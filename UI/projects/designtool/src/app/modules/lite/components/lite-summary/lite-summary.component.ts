@@ -368,7 +368,7 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 						colorName: color.sku ? color.name + "/" + color.sku : color.name
 					});
 				}
-			});			
+			});
 		}
 
 		return optionColors;
