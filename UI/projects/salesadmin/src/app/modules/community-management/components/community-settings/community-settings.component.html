@@ -188,7 +188,7 @@
 							</button>
 						</div>
 						<div class="phd-line">
-							<a class="btn-link" [href]="'https://' + url" target="_blank" rel="noopener noreferrer">{{ url }}</a>
+							<a class="btn-link" [href]="url" target="_blank" rel="noopener noreferrer">{{ url }}</a>
 						</div>
 						<div *ngFor="let requiredPdf of requiredPdfs">
 							<div class="text-danger" *ngIf="requiredPdf.pdfs == 0">
@@ -244,7 +244,7 @@
 									class="fa fa-spinner fa-spin fa-fw"></i></ng-container>
 						</button>
 						<div class="phd-link-box phd-line" *ngIf="designPreviewUrl">
-							<a class="btn-link" [href]="designPreviewUrl" target="_blank" rel="noopener noreferrer">{{ designPreviewUrl }}</a>
+							<a class="btn-link" [href]="'https://' + designPreviewUrl" target="_blank" rel="noopener noreferrer">{{ designPreviewUrl }}</a>
 							<button class="phd-copy-image" (click)="copyToClipboard(designPreviewUrl)">
 								<i class="fa fa-copy fa-thin"></i>
 							</button>
