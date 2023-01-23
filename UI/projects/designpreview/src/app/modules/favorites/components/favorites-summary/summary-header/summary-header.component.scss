@@ -192,6 +192,96 @@ $headerTextPadding: 15px;
 }
 
 @media print {
+	.phd-top-price-spacer {
+		padding-top: 1.3cm;
+	}
+
+	.phd-bottom-price-spacer {
+		padding-top: 0.6cm;
+	}
+
+	.phd-divider {
+		width: 29.5cm !important;
+		height: 1px !important;
+		margin-left: 0.5cm !important;
+		border: 1px solid $mid_gray !important;
+		print-color-adjust: exact;
+	}
+
+	.phd-price-breakdown {
+		padding-left: 15px !important;
+		margin-left: 20px !important;
+		font-size: 14px;
+		margin-top: 20px !important;
+
+		.phd-print-indent {
+			margin-left: 0.5cm;
+		}
+	}
+
+	.phd-price-section-print {
+		margin-top: 100cm !important;
+		margin-left: 20px;
+		transform: translateY(300px);
+	}
+
+	.phd-print-description {
+		display: flex;
+		flex-direction: row;
+	}
+
+	.phd-name-group {
+		margin-right: 175px;
+	}
+
+	.phd-print-description-items {
+		display: flex;
+		transform: translateY(30px);
+		color: var(--action-icon-color);
+	}
+
+	.phd-print-text {
+		font-size: 14px;
+		margin: 5px;
+	}
+
+	.phd-name-group-presale span {
+		display: block;
+	}
+
+	.phd-favorites-list {
+		font-size: 28px;
+		font-weight: 500;
+		margin-top: 5px;
+	}
+
+	.phd-lot-label {
+		text-transform: uppercase;
+		font-size: 16px;
+	}
+
+	.phd-lot-details {
+		font-size: 15px;
+	}
+
+	.phd-price-breakdown {
+		padding-left: 30px;
+		font-size: 14px;
+	}
+
+	.phd-breakdown-label {
+		flex-basis: 50%;
+	}
+
+	.phd-breakdown-content {
+		flex-basis: 50%;
+	}
+
+	.phd-estimate {
+		display: flex;
+		font-weight: bold;
+	}
+
 	.phd-hide-in-print {
 		display: none !important;
 		height: 0px !important;

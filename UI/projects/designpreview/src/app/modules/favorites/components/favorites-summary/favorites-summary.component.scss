@@ -101,8 +101,13 @@
 }
 
 @media print {
-	.phd-favorites-summary {
-		margin-top: 0;
+	.phd-is-sticky {
+		margin-top: 0px !important;
+	}
+
+	.phd-summary-section {
+		max-height: 10vh;
+		
 	}
 
 	.phd-show-on-print {
@@ -123,6 +128,11 @@
 		.label {
 			display: block !important;
 		}
+	}
+
+	.phd-print-header {
+		top: 0px;
+		margin-top: 0cm;
 	}
 
 	.point {
