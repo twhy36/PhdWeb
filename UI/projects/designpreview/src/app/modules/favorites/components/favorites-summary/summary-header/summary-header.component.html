@@ -43,7 +43,7 @@
 				<span class="phd-print-text">Print or save a copy of your favorite options to share. Your selections will not be saved when this window is closed.</span>
 			</div>
 		</div>
-		<div *ngIf="!isSticky && !isPresale" class="phd-divider"></div>
+		<div *ngIf="!isSticky && !isPresale" class="phd-divider phd-hide-in-print"></div>
 		<div *ngIf="!isSticky && !isPresale" class="phd-price-breakdown phd-hide-in-print">
 			<div class="d-flex">
 				<span class="phd-breakdown-label">Base Price:</span>
@@ -83,8 +83,52 @@
 			</div>
 		</div>
 		<ng-container *ngIf="!isSticky">
-			<div class="phd-divider"></div>
+			<div class="phd-divider phd-hide-in-print"></div>
 			<span class="phd-favorites-disclaimer phd-hide-in-print">{{ disclaimerText }}</span>
 		</ng-container>
 	</div>
+</div>
+<div *ngIf="!isPresale" class="phd-show-in-print">
+	<div class="phd-top-price-spacer"></div>
+	<div class="phd-divider"></div>
+	<div class="phd-price-breakdown phd-hidden-from-view phd-show-in-print">
+		<div class="d-flex phd-print-indent">
+			<span class="phd-breakdown-label">Base Price:</span>
+			<span class="phd-breakdown-content">{{priceBreakdown?.baseHouse | currency:'USD':'symbol':'0.0-0'}}</span>
+		</div>
+		<div class="d-flex phd-print-indent">
+			<span class="phd-breakdown-label">Lot Premium:</span>
+			<span class="phd-breakdown-content">{{priceBreakdown?.homesite | currency:'USD':'symbol':'0.0-0'}}</span>
+		</div>
+		<div *ngIf="!isPreview" class="d-flex phd-print-indent">
+			<span class="phd-breakdown-label">{{isDesignComplete ? 'Options Total:' : 'Contracted Options:'}}</span>
+			<span class="phd-breakdown-content">{{priceBreakdown?.selections | currency:'USD':'symbol':'0.0-0'}}</span>
+		</div>
+		<div *ngIf="priceBreakdown.salesProgram" class="d-flex phd-print-indent">
+			<span class="phd-breakdown-label">Sales Incentive:</span>
+			<span class="phd-breakdown-content">({{priceBreakdown?.salesProgram | currency:'USD':'symbol':'0.0-0'}})</span>
+		</div>
+		<div *ngIf="priceBreakdown.priceAdjustments" class="d-flex phd-print-indent">
+			<span class="phd-breakdown-label">Price Adjustments:</span>
+			<span class="phd-breakdown-content">{{priceBreakdown?.priceAdjustments | currency:'USD':'symbol':'0.0-0' | minusSignToParens}}</span>
+		</div>
+		<div *ngIf="priceBreakdown.nonStandardSelections" class="d-flex phd-print-indent">
+			<span class="phd-breakdown-label">Non-Standard Options:</span>
+			<span class="phd-breakdown-content">{{priceBreakdown?.nonStandardSelections | currency:'USD':'symbol':'0.0-0'}}</span>
+		</div>
+		<div *ngIf="!isDesignComplete" class="phd-estimate phd-print-indent">
+			<span class="phd-breakdown-label">Estimated Favorites Total:</span>
+			<span class="phd-breakdown-content">{{priceBreakdown?.favoritesPrice | currency:'USD':'symbol':'0.0-0'}}</span>
+		</div>
+		<div class="phd-estimate phd-print-indent">
+			<span class="phd-breakdown-label">{{isDesignComplete ? 'Total Purchase Price:' : 'Estimated Total Purchase Price:'}}</span>
+			<span class="phd-breakdown-content">{{priceBreakdown?.totalPrice | currency:'USD':'symbol':'0.0-0'}}</span>
+		</div>
+		<div *ngIf="priceBreakdown.closingIncentive" class="d-flex phd-print-indent">
+			<span class="phd-breakdown-label">Closing Cost Incentive:</span>
+			<span class="phd-breakdown-content">{{(priceBreakdown?.closingIncentive + priceBreakdown.closingCostAdjustment) | currency:'USD':'symbol':'0.0-0'}}</span>
+		</div>
+	</div>
+	<div class="phd-bottom-price-spacer"></div>
+	<div class="phd-divider"></div>
 </div>
