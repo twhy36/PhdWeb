@@ -78,6 +78,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 	floorPlanImages: FloorPlanImage[];
 	emptyFavoritesModal: ModalRef;
 	confirmModal: ModalRef;
+	showFloorplan: boolean = true;
 
 	constructor(private store: Store<fromRoot.State>,
 		private activatedRoute: ActivatedRoute,
@@ -137,6 +138,10 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 			{
 				this.isPreview = scenario.buildMode === BuildMode.Preview;
 				this.isPresale = scenario.buildMode === BuildMode.Presale;
+				if (this.isPresale)
+				{
+					this.showFloorplan = true
+				}
 				this.isDesignComplete = sag?.isDesignComplete || false;
 				this.buildMode = scenario.buildMode;
 				this.summaryHeader.favoritesListName = this.isPreview ? 'Preview Favorites' : title;
@@ -604,4 +609,9 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		return `phd-ifp-${image.floorIndex}`;
 	}
 
+	toggleCollapsed()
+	{
+		this.showFloorplan = !this.showFloorplan;
+		this.cd.detectChanges();
+	}
 }
