@@ -49,9 +49,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	@Input() subGroupName: string;
 	@Input() isPresale: boolean = false;
 
-	@Output() onBack = new EventEmitter();
-	@Output() onToggleChoice = new EventEmitter<ChoiceExt>();
-	@Output() onSelectDecisionPoint = new EventEmitter<number>();
+	@Output() toggleChoice = new EventEmitter<ChoiceExt>();
 
 	@ViewChild('blockedChoiceModal') blockedChoiceModal: any;
 
@@ -406,11 +404,11 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		history.back();
 	}
 
-	toggleChoice()
+	toggleChoiceClicked()
 	{
 		if (!this.isReadonly)
 		{
-			this.onToggleChoice.emit(this.choice);
+			this.toggleChoice.emit(this.choice);
 		}
 	}
 
@@ -672,7 +670,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		{
 			this.disabledByList = getDisabledByList(this.tree, this.groups, this.currentPoint, this.choice);
 		}
-		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { windowClass: 'phd-blocked-choice-modal' }, true);
+		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { backdrop: true, windowClass: 'phd-blocked-choice-modal' }, true);
 	}
 
 	onCloseClicked()

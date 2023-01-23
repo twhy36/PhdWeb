@@ -16,7 +16,7 @@
 					<div *ngIf="!highlightedAttribute">
 						<ngb-carousel #imageCarousel [interval]="0" [showNavigationArrows]="choiceImages?.length > 1" (slide)="onSlide($event)">
 							<ng-template ngbSlide *ngFor="let image of choiceImages; let currentIndex = index;" id="{{currentIndex}}">
-								<cl-image public-id="{{image.imageURL}}" (onLoad)="onLoadImage()" (onError)="onLoadImageError($event)" type="fetch" background="#ffffff" crop="lpad" class="phd-image-content" *ngIf="activeIndex?.current == currentIndex"></cl-image>
+								<cl-image public-id="{{image.imageURL}}" (onLoad)="onLoadImage()" (onError)="onLoadImageError($event)" type="fetch" background="#ffffff" crop="lpad" class="phd-image-content" *ngIf="activeIndex?.current === currentIndex"></cl-image>
 							</ng-template>
 						</ngb-carousel>
 					</div>
@@ -62,8 +62,10 @@
 			</ng-container>
 			<ng-container *ngIf="choice.choiceStatus === 'Available' && choice.enabled">
 				<div [class.phd-clickable]="!isReadonly" class="phd-favorite-selector">
-					<span class="phd-icon-selected"><i *ngIf="choice.isFavorite" class="fa fa-heart" (click)="toggleChoice()"></i></span>
-					<i *ngIf="!choice.isFavorite" class="fa fa-heart-o" (click)="toggleChoice()"></i>
+					<span class="phd-icon-selected">
+						<i *ngIf="choice.isFavorite" class="fa fa-heart" (click)="toggleChoiceClicked()"></i>
+						<i *ngIf="!choice.isFavorite" class="fa fa-heart-o" (click)="toggleChoiceClicked()"></i>
+					</span>
 				</div>
 			</ng-container>
 			<ng-container *ngIf="choice.choiceStatus === 'Available' && !choice.enabled">
