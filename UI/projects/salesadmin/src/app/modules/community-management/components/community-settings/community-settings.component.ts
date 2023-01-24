@@ -13,15 +13,9 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { FinancialMarket } from '../../../shared/models/financialMarket.model';
 import { SalesCommunity } from '../../../shared/models/salesCommunity.model';
-import { ContractTemplate } from '../../../shared/models/contracts.model';
-import { CommunityPdf, SectionHeader } from "../../../shared/models/communityPdf.model";
-import { CommunityService } from "../../../core/services/community.service";
-import { ContractService } from '../../../core/services/contract.service';
 import { HomeSiteService } from '../../../core/services/homesite.service';
 import { PlanService } from '../../../core/services/plan.service';
 import { FeatureSwitchService, IdentityService, Permission, BrandService, FinancialBrand, getBrandUrl } from 'phd-common';
-import { SalesService } from '../../../core/services/sales.service';
-import { SalesProgram } from '../../../shared/models/salesPrograms.model';
 import { TreeService } from '../../../core/services/tree.service';
 
 @Component({
@@ -37,13 +31,6 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 	salesCommunity: SalesCommunity = null;
 	communitySettingsForm: FormGroup;
 	currentMarket: FinancialMarket;
-	allTemplates: Array<ContractTemplate> = [];
-	allCommunityPdfs: Array<CommunityPdf> = [];
-	homeWarrantyPdfs: Array<CommunityPdf> = [];
-	communityAssociationPdfs: Array<CommunityPdf> = [];
-	additionalDocumentPdfs: Array<CommunityPdf> = [];
-	includedFeaturesPdfs: Array<CommunityPdf> = [];
-	thoContract = null;
 	orgId: number;
 	canEdit = false;
 	isSaving = false;
@@ -56,14 +43,10 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 	environment = environment;
 	ecoeRequired = false;
 	earnestMoneyRequired = false;
-	requiredThoTemplates = [];
-	requiredPdfs = [];
 	selectedOption: PlanViewModel = null;
 	loading: boolean = false;
 	isGeneratingDesignPreviewLink: boolean = false;
 	isPhdLite = false;
-	salesPrograms: Array<SalesProgram>;
-	closingCostDisabled: boolean;
 	isUrlGenerationEnabled: boolean;
 	isGenerateUrlButtonDisabled = true;
 	isSalesAdminReadOnly = false;
@@ -102,18 +85,14 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 
 	constructor(
 		public _orgService: OrganizationService,
-		private _salesService: SalesService,
 		private _planService: PlanService,
 		private _treeService: TreeService,
 		private _homeSiteService: HomeSiteService,
-		private _contractService: ContractService,
-		private _communityService: CommunityService,
 		private _msgService: MessageService,
 		private _route: ActivatedRoute,
 		private _featureSwitchService: FeatureSwitchService,
 		private _identityService: IdentityService,
 		private _brandService: BrandService) { super(); }
-
 
 	ngOnInit()
 	{
@@ -152,11 +131,6 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 			{
 				if (comm != null && (!this.selectedCommunity || this.selectedCommunity.id != comm.id))
 				{
-					if (comm.id)
-					{
-						this.checkRequiredFilesExist();
-					}
-
 					this.orgId = orgs?.find(o => o.edhFinancialCommunityId === comm.id)?.orgID;
 					this.selectedCommunity = new FinancialCommunityViewModel(comm);
 
@@ -178,7 +152,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 					}
 				}
 
-				return combineLatest([of(null), of(null), of(null)]);
+				return combineLatest([of(null), of(null), of(null), of(null)]);
 			}),
 		).subscribe(([finCommInfo, websiteCommunity, salesCommunity, financialBrand]) =>
 		{
@@ -221,86 +195,6 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 
 		this._identityService.hasClaimWithPermission('SalesAdmin', Permission.Edit)
 			.subscribe(canEdit => this.isSalesAdminReadOnly = !canEdit);
-
-		this.checkRequiredFilesExist();
-	}
-	private disableCommunity()
-	{
-		if (this.salesCommunity?.isOnlineSalesCommunityEnabled)
-		{
-			this.salesCommunity.isOnlineSalesCommunityEnabled = false;
-
-			this._orgService.saveSalesCommunity(this.salesCommunity)
-				.subscribe(salesCommunity =>
-				{
-					this.salesCommunity.isOnlineSalesCommunityEnabled = salesCommunity.isOnlineSalesCommunityEnabled;
-				});
-		}
-	}
-
-	checkRequiredFilesExist()
-	{
-		if (this.financialCommunity && this.currentMarket)
-		{
-			combineLatest([this._communityService.getCommunityPdfsByFinancialCommunityId(this.financialCommunity.id), this._contractService.getDraftOrInUseContractTemplates(this.currentMarket.id), this._salesService.getSalesPrograms(this.financialCommunity.id)])
-				.subscribe(([pdfs, templates, salesProgram]) =>
-				{
-					this.allCommunityPdfs = pdfs;
-
-					this.requiredPdfs = [
-						{
-							pdfs: pdfs.filter(x => x.sectionHeader === SectionHeader.HomeWarranty),
-							message: '*Include: Home Warranty Documents'
-						},
-						{
-							pdfs: pdfs.filter(x => x.sectionHeader === SectionHeader.AdditionalDocuments),
-							message: '*Include: Included Features Documents'
-						},
-						{
-							pdfs: pdfs.filter(x => x.sectionHeader === SectionHeader.CommunityAssociation),
-							message: '*Include: Community Association Documents'
-						},
-						{
-							pdfs: pdfs.filter(x => x.sectionHeader === SectionHeader.IncludedFeatures),
-							message: '*Include: Additional Documents'
-						}
-					];
-
-					this.allTemplates = templates;
-
-					let thoTemplates = this.allTemplates.filter(x => x.assignedCommunityIds.includes(this.financialCommunity.id)).filter(x => x.isTho == true).filter(x => x.status === 'In Use');
-
-					this.requiredThoTemplates = [
-						{
-							thoTemplate: thoTemplates.filter(x => x.templateTypeId == 1),
-							message: '*Include: Sales Agreement Contract'
-						},
-						{
-							thoTemplate: thoTemplates.filter(x => x.templateTypeId == 2),
-							message: '*Include: Addenda Contract',
-						},
-						{
-							thoTemplate: thoTemplates.filter(x => x.templateTypeId == 5),
-							message: '*Include: To Do Business Electronically Contract',
-						}
-					];
-
-					this.salesPrograms = salesProgram;
-
-					this.closingCostDisabled = !this.salesPrograms.some(sp => sp.salesProgramType.toString() === 'BuyersClosingCost' && sp.isWebSaleable);
-
-					if (this.requiredPdfs.find(x => x.pdfs.length === 0) || this.requiredThoTemplates.find(x => x.thoTemplate.length === 0) || this.closingCostDisabled)
-					{
-						this.canToggleCommunitySettings = false;
-
-						this.disableCommunity();
-					}
-					else if (!this.communitySettingsForm.get('ecoeMonths').value || !this.communitySettingsForm.get('earnestMoney').value)
-					{
-						this.disableCommunity();
-					}
-				});
-		}
 	}
 
 	toggleCommunityLinkEnabled()
@@ -422,7 +316,6 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 				this._msgService.add({ severity: 'error', summary: 'Error', detail: `Save failed. ${error}` });
 			});
 		}
-
 	}
 
 	onPlanSelectionChanged(selectedPlan: PlanViewModel): void
