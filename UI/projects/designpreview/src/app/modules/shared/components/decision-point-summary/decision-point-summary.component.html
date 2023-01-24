@@ -19,16 +19,16 @@
 								<ng-container *ngIf="choice.selectedAttributes.length || isDesignComplete">
 									<div class="phd-choice-attributes-body" *ngFor="let attr of choice.mappedSelectedAttributes">
 										<div class="phd-choice-attributes-labels">
-											<div class="phd-location" *ngIf="attr.locationGroupId != null || attr.locationId != null">
+											<div class="phd-location" *ngIf="!!attr.locationGroupId || !!attr.locationId">
 												<span class="phd-label">{{ attr.locationGroupLabel }}:</span>
 												<span class="phd-content">{{ attr.locationName }}</span>
 											</div>
-											<div class="phd-location" *ngIf="attr.locationGroupId != null || attr.locationId != null">
+											<div class="phd-location" *ngIf="!!attr.locationGroupId || !!attr.locationId">
 												<span class="phd-label">Quantity:</span>
 												<span class="phd-content">{{ attr.locationQuantity }}</span>
 											</div>
 											<ng-container *ngIf="attr.attributes.length > 0">
-												<div [ngClass]="attr.locationGroupId != null || attr.locationId != null ? 'phd-attribute-indent' : ''"
+												<div [ngClass]="!!attr.locationGroupId || !!attr.locationId ? 'phd-attribute-indent' : ''"
 													class="phd-attribute" *ngFor="let consolidatedAttribute of consolidateAttributes(attr.attributes)">
 													<span class="phd-label">{{ getAttributeLabel(consolidatedAttribute.attributeGroupLabel) }}</span>
 													<span class="phd-content">{{ getAttributeList(consolidatedAttribute.attributeGroupNames) }}</span>

@@ -4,7 +4,15 @@
 	"overrides": [
 		{
 			"files": [
-				"*.ts"
+				"*.action.ts",
+				"*.class.ts",
+				"*.directive.ts",
+				"*.component.ts",
+				"*.model.ts",
+				"*.module.ts",
+				"*.pipe.ts",
+				"*.service.ts",
+				"*.util.ts"
 			],
 			"parserOptions": {
 				"project": [
@@ -17,6 +25,11 @@
 				"plugin:@angular-eslint/template/process-inline-templates"
 			],
 			"rules": {
+				"brace-style": ["error", "allman", { "allowSingleLine": true }],
+				"camelcase": ["error", { "properties": "always" }],
+				"indent": ["error", "tab"],
+				"quotes": ["error", "single"],
+				"prefer-const": "error",
 				"@angular-eslint/component-selector": [
 					"error",
 					{
@@ -30,12 +43,13 @@
 						"style": "camelCase",
 						"type": "attribute"
 					}
-				]
+				],
+				"@typescript-eslint/no-explicit-any": "warn"
 			}
 		},
 		{
 			"files": [
-				"*.html"
+				"*.component.html"
 			],
 			"extends": [
 				"plugin:@angular-eslint/template/recommended"

@@ -3,7 +3,6 @@ import { Router, NavigationEnd } from '@angular/router';
 import { select, Store } from '@ngrx/store';
 
 import { UnsubscribeOnDestroy } from 'phd-common';
-import { Observable } from 'rxjs';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromApp from '../../../ngrx-store/app/reducer';
@@ -22,6 +21,7 @@ import { BuildMode } from '../../../shared/models/build-mode.model';
 export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	currentRoute: string;
+	displayBrandedMenu: boolean = true;
 	isMenuCollapsed: boolean = true;
 	showContractedOptionsLink: boolean = false;
 	showMyFavoritesLink: boolean = false;
@@ -29,10 +29,9 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 	showIncludedOptionsLink: boolean = false;
 	buildMode: BuildMode;
 	welcomeText: string = 'Welcome To Your Home';
-	hasLatestError$: Observable<boolean>;
 	sessionStorage: Storage = sessionStorage;
 
-	@HostListener("window:resize", ["$event"])
+	@HostListener('window:resize', ['$event'])
 	onResize(event)
 	{
 		if (this.brandService.getBrandName() === 'johnWieland')
@@ -86,7 +85,13 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 			}
 		});
 
-		this.hasLatestError$ = this.store.select(fromApp.getAppLatestError);
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromApp.getAppLatestError)
+		).subscribe(latestError =>
+		{
+			this.displayBrandedMenu = latestError ? false : true;	
+		})
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
@@ -96,25 +101,25 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 			this.buildMode = state.buildMode;
 			switch (state.buildMode)
 			{
-				case (BuildMode.Preview):
-					this.showContractedOptionsLink = false;
-					this.showFloorplanLink = true;
-					this.showIncludedOptionsLink = false;
-					this.showMyFavoritesLink = true;
-					break;
-				case (BuildMode.Presale):
-					this.showContractedOptionsLink = false;
-					this.showFloorplanLink = false;
-					this.showIncludedOptionsLink = true;
-					this.showMyFavoritesLink = true;
-					this.welcomeText = 'Welcome To Your Future Home';
-					break;
-				default:
-					this.showContractedOptionsLink = true;
-					this.showFloorplanLink = true;
-					this.showIncludedOptionsLink = false;
-					this.showMyFavoritesLink = true;
-					break;
+			case (BuildMode.Preview):
+				this.showContractedOptionsLink = false;
+				this.showFloorplanLink = true;
+				this.showIncludedOptionsLink = false;
+				this.showMyFavoritesLink = true;
+				break;
+			case (BuildMode.Presale):
+				this.showContractedOptionsLink = false;
+				this.showFloorplanLink = false;
+				this.showIncludedOptionsLink = true;
+				this.showMyFavoritesLink = true;
+				this.welcomeText = 'Welcome To Your Future Home';
+				break;
+			default:
+				this.showContractedOptionsLink = true;
+				this.showFloorplanLink = true;
+				this.showIncludedOptionsLink = false;
+				this.showMyFavoritesLink = true;
+				break;
 			}
 		});
 	}
@@ -135,15 +140,15 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 		this.store.dispatch(new ScenarioActions.SetTreeFilter(null));
 		switch (this.buildMode)
 		{
-			case (BuildMode.Preview):
-				this.router.navigateByUrl('/preview');
-				break;
-			case (BuildMode.Presale):
-				this.router.navigate(['presale'], { queryParams: { presale: sessionStorage.getItem('presale_token')} });
-				break;
-			default:
-				this.router.navigateByUrl('/home');
-				break;
+		case (BuildMode.Preview):
+			this.router.navigateByUrl('/preview');
+			break;
+		case (BuildMode.Presale):
+			this.router.navigate(['presale'], { queryParams: { presale: sessionStorage.getItem('presale_token')} });
+			break;
+		default:
+			this.router.navigateByUrl('/home');
+			break;
 		}
 	}
 
