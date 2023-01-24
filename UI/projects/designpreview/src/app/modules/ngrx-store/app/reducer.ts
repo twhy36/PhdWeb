@@ -1,9 +1,10 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store';
 import { CommonActionTypes } from '../actions';
 import { AppActions, AppActionTypes } from './actions';
+import { DesignPreviewError } from '../../shared/models/error.model';
 
 export interface State {
-	latestError: any;
+	latestError: DesignPreviewError;
 	pageNotFound: boolean;
 	showTermsAndConditionsModal: boolean;
 	showWelcomeModal: boolean;
@@ -12,29 +13,30 @@ export interface State {
 
 export const initialState: State = { latestError: null, pageNotFound: false, showTermsAndConditionsModal: false, termsAndConditionsAcknowledged: false, showWelcomeModal: false };
 
-export function reducer(state: State = initialState, action: AppActions): State {
-	switch (action.type) {
-		case CommonActionTypes.ClearLatestError:
-			return { ...state, latestError: null, pageNotFound: false };
+export function reducer(state: State = initialState, action: AppActions): State 
+{
+	switch (action.type) 
+	{
+	case CommonActionTypes.ClearLatestError:
+		return { ...state, latestError: null, pageNotFound: false };
 
-		case CommonActionTypes.SetLatestError:
-			let err = { 'stack': action.errorStack, 'friendlyMessage': action.friendlyMessage, 'errFrom': action.occurredFrom, 'errorAt': action.occurredAt };
-			return { ...state, latestError: err }
+	case CommonActionTypes.SetLatestError:
+		return { ...state, latestError: action.error }
 
-		case CommonActionTypes.PageNotFound:
-			return { ...state, pageNotFound: true };
+	case CommonActionTypes.PageNotFound:
+		return { ...state, pageNotFound: true };
 
-		case AppActionTypes.AcknowledgeTermsAndConditions:
-			return { ...state, termsAndConditionsAcknowledged: action.acknowledgeTermsAndConditions }
+	case AppActionTypes.AcknowledgeTermsAndConditions:
+		return { ...state, termsAndConditionsAcknowledged: action.acknowledgeTermsAndConditions }
 		
-		case AppActionTypes.ShowTermsAndConditionsModal:
-			return { ...state, showTermsAndConditionsModal: action.showTermsAndConditions }
+	case AppActionTypes.ShowTermsAndConditionsModal:
+		return { ...state, showTermsAndConditionsModal: action.showTermsAndConditions }
 
-		case AppActionTypes.ShowWelcomeModal:
-			return { ...state, showWelcomeModal: action.showWelcomeMessage }
+	case AppActionTypes.ShowWelcomeModal:
+		return { ...state, showWelcomeModal: action.showWelcomeMessage }
 
-		default:
-			return state;
+	default:
+		return state;
 	}
 }
 
@@ -42,25 +44,29 @@ export const selectApp = createFeatureSelector<State>('app');
 
 export const getAppLatestError = createSelector(
 	selectApp,
-	(app) => {
+	(app) => 
+	{
 		return app.latestError;
 	}
 );
 export const termsAndConditionsAcknowledged = createSelector(
 	selectApp,
-	(app) => {
+	(app) => 
+	{
 		return app.termsAndConditionsAcknowledged;
 	}
 );
 export const showTermsAndConditions = createSelector(
 	selectApp,
-	(app) => {
+	(app) => 
+	{
 		return app.showTermsAndConditionsModal;
 	}
 );
 export const showWelcomeMessage = createSelector(
 	selectApp,
-	(app) => {
+	(app) => 
+	{
 		return app.showWelcomeModal;
 	}
 );

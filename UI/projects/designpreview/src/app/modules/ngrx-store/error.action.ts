@@ -1,8 +1,9 @@
-import { Action } from "@ngrx/store";
-import { Observable, of, OperatorFunction } from "rxjs";
-import { switchMap, concatMap, mergeMap, catchError } from "rxjs/operators";
-import { environment } from "../../../environments/environment";
-import { CommonActionTypes } from "./actions";
+import { Action } from '@ngrx/store';
+import { Observable, of, OperatorFunction } from 'rxjs';
+import { switchMap, concatMap, mergeMap, catchError } from 'rxjs/operators';
+import { environment } from '../../../environments/environment';
+import { DesignPreviewError } from '../shared/models/error.model';
+import { CommonActionTypes } from './actions';
 
 export enum ErrorFrom {
 	HomeComponent = 'Home.Component',
@@ -24,28 +25,28 @@ export enum ErrorFrom {
 	DeleteMyFavoritesChoiceAttributes = 'Favorite.DeleteMyFavoritesChoiceAttributes'
 };
 
-export class ErrorAction implements Action {
+export class ErrorAction implements Action 
+{
 	type: string;
 
 	constructor(public error: Error, public friendlyMessage?: string, public errFrom?: string) { }
 }
 
-export class SetLatestError implements Action {
+export class SetLatestError implements Action 
+{
 	readonly type = CommonActionTypes.SetLatestError;
 
-	constructor(
-		public occurredFrom: string,
-		public errorStack?: string,
-		public friendlyMessage?: string,
-		public occurredAt = new Date(),) { };
+	constructor(public error: DesignPreviewError) { };
 }
 
-export class ClearLatestError implements Action {
+export class ClearLatestError implements Action 
+{
 	readonly type = CommonActionTypes.ClearLatestError;
 	constructor() { };
 }
 
-export class PageNotFound extends ErrorAction {
+export class PageNotFound extends ErrorAction 
+{
 	readonly type = CommonActionTypes.PageNotFound;
 
 	constructor(public error: Error, public friendlyMessage?: string, public errFrom = ErrorFrom.PageNotFound) { super(error, friendlyMessage, errFrom); }
@@ -62,13 +63,16 @@ export function tryCatch<T, R, E extends ErrorAction>(project: OperatorFunction<
 	friendlyMessage?: (string | ((error: Error) => string)),
 	errFrom?: string,
 	mapFn: MapFunction = MapFunction.switchMap
-): OperatorFunction<T, R | E> {
+): OperatorFunction<T, R | E> 
+{
 	return (source: Observable<T>) => source.pipe(
 		[switchMap, concatMap, mergeMap][mapFn](data =>
 			of(data).pipe(
 				project,
-				catchError((err: Error) => {
-					if (!environment.production && err) {
+				catchError((err: Error) => 
+				{
+					if (!environment.production && err) 
+					{
 						console.error(err);
 					}
 

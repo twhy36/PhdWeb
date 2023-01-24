@@ -7,7 +7,7 @@
 	</div>
 	<div class="modal-body">
 		<div [innerHTML]="body"></div>
-		<button type="button" class="btn btn-md modal-button" (click)="activeModal.close('Back')" [class.btn-secondary]="defaultOption != 'Back'" [class.btn-primary]="defaultOption == 'Back'">
+		<button type="button" class="btn btn-md modal-button" (click)="activeModal.close('Back')" [class.btn-secondary]="defaultOption !== 'Back'" [class.btn-primary]="defaultOption === 'Back'">
 			<span>{{ buttonText }}</span>
 		</button>
 	</div>

@@ -25,6 +25,7 @@ import { FavoriteService } from '../core/services/favorite.service';
 
 import { State, showSpinner } from './reducers';
 import { setTreePointsPastCutOff, mergeIntoTree } from '../shared/classes/tree.utils';
+import { DesignPreviewError } from '../shared/models/error.model';
 
 @Injectable()
 export class CommonEffects
@@ -273,7 +274,7 @@ export class CommonEffects
 						new LoadSelectedPlan(result.selectedPlanId, selectedPlanPrice)
 					]);
 				})
-			), LoadError, "Error loading sales agreement!!", ErrorFrom.LoadSalesAgreement)
+			), LoadError, 'Error loading sales agreement!!', ErrorFrom.LoadSalesAgreement)
 		);
 	});
 
@@ -298,12 +299,12 @@ export class CommonEffects
 	hasError$: Observable<Action> = createEffect(
 		() => this.actions$.pipe(
 			scan((prev, action) =>
-			({
-				prev: prev.action,
-				action: action instanceof (ErrorAction),
-				err: action
-			}),
-				{ prev: false, action: false, err: <ErrorAction>null }
+				({
+					prev: prev.action,
+					action: action instanceof (ErrorAction),
+					err: action
+				}),
+			{ prev: false, action: false, err: <ErrorAction>null }
 			),
 			filter((errorScan: { prev: boolean; action: boolean; err: null; }) => !errorScan.prev && errorScan.action),
 			map((errorScan: { prev: boolean; action: boolean; err: null; }) =>
@@ -319,7 +320,7 @@ export class CommonEffects
 					let errMsg = (<ErrorAction>errorScan.err).friendlyMessage ? (<ErrorAction>errorScan.err).friendlyMessage : '';
 					let errFrom = (<ErrorAction>errorScan.err).errFrom ? (<ErrorAction>errorScan.err).errFrom : '';
 
-					return new SetLatestError(errFrom, errStack, errMsg);
+					return new SetLatestError(new DesignPreviewError(errFrom, errStack, errMsg));
 				}
 			})
 		)

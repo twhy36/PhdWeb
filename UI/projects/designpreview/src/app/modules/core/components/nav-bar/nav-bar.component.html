@@ -10,7 +10,7 @@
 			</div>
 		</div>
 
-		<div class="col-6 d-flex ml-auto" [ngClass]="getBrandedMenuClass(false)" *ngIf="!(hasLatestError$ | async)">
+		<div class="col-6 d-flex ml-auto" [ngClass]="getBrandedMenuClass(false)" *ngIf="displayBrandedMenu">
 			<div>
 				<a *ngIf="showMyFavoritesLink"
 					id="myFavoritesLink"
@@ -47,7 +47,7 @@
 				</a>
 			</div>
 		</div>
-		<div class="phd-menu-bars" [ngClass]="getBrandedMenuClass(true)" *ngIf="!(hasLatestError$ | async)">
+		<div class="phd-menu-bars" [ngClass]="getBrandedMenuClass(true)" *ngIf="displayBrandedMenu">
 			<i *ngIf="isMenuCollapsed" class="fa fa-bars fa-2x" (click)="isMenuCollapsed = !isMenuCollapsed"></i>
 			<i *ngIf="!isMenuCollapsed" class="fa fa-times fa-2x" (click)="isMenuCollapsed = !isMenuCollapsed"></i>
 		</div>

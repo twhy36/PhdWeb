@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { select, Store } from '@ngrx/store';
 
 import { ModalContent } from 'phd-common';
@@ -12,7 +12,8 @@ import { BuildMode } from '../../../shared/models/build-mode.model';
 	templateUrl: './terms-and-conditions.component.html',
 	styleUrls: ['./terms-and-conditions.component.scss']
 })
-export class TermsAndConditionsComponent extends ModalContent {
+export class TermsAndConditionsComponent extends ModalContent implements OnInit 
+{
 	isPresale: boolean = false;
 
 	constructor(private store: Store<fromRoot.State>)
@@ -20,8 +21,9 @@ export class TermsAndConditionsComponent extends ModalContent {
 		super();
 	}
 
-	get headerText(): string {
-		return this.isPresale ? "Welcome and we hope you enjoy personalizing your future home!" : "Welcome!" 
+	get headerText(): string 
+	{
+		return this.isPresale ? 'Welcome and we hope you enjoy personalizing your future home!' : 'Welcome!' 
 	}
 
 	ngOnInit()
@@ -29,10 +31,14 @@ export class TermsAndConditionsComponent extends ModalContent {
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(state => state.scenario),
-		).subscribe((state) => {
-			if (state.buildMode === BuildMode.Presale) {
+		).subscribe((state) => 
+		{
+			if (state.buildMode === BuildMode.Presale) 
+			{
 				this.isPresale = true;
-			} else {
+			}
+			else 
+			{
 				this.isPresale = false;
 			}
 		});
@@ -40,7 +46,8 @@ export class TermsAndConditionsComponent extends ModalContent {
 
 	close(result?: any)
 	{
-		if (result === 'Got It') {
+		if (result === 'Got It') 
+		{
 			this.store.dispatch(new AppActions.AcknowledgeTermsAndConditions(true));
 		}
 		this.store.dispatch(new AppActions.ShowTermsAndConditionsModal(false));
