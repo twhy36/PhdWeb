@@ -92,7 +92,6 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 		private _featureSwitchService: FeatureSwitchService,
 		private _identityService: IdentityService) { super(); }
 
-
 	ngOnInit()
 	{
 		this.createForm();
@@ -154,7 +153,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 					}
 				}
 
-				return combineLatest([of(null), of(null), of(null)]);
+				return combineLatest([of(null), of(null), of(null), of(null)]);
 			}),
 		).subscribe(([finCommInfo, websiteCommunity, salesCommunity]) =>
 		{
@@ -193,7 +192,6 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 		this._identityService.hasClaimWithPermission('SalesAdmin', Permission.Edit)
 			.subscribe(canEdit => this.isSalesAdminReadOnly = !canEdit);
 	}
-
 
 	toggleCommunityLinkEnabled()
 	{
@@ -314,7 +312,6 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 				this._msgService.add({ severity: 'error', summary: 'Error', detail: `Save failed. ${error}` });
 			});
 		}
-
 	}
 
 	onPlanSelectionChanged(selectedPlan: PlanViewModel): void
