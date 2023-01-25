@@ -26,7 +26,7 @@
 		</div>
 	</div>
 
-	<ng-container *ngIf="!isPresale">
+	<ng-container *ngIf="!isPresale && !isContractedPage">
 		<div *ngIf="primaryAction" class="d-flex flex-row align-items-end">
 			<div class="d-flex flex-column align-items-end align-content-center">
 				<span *ngIf="!isDesignComplete" class="phd-price-label">Estimated Favorites Total : </span>
