@@ -31,6 +31,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit
 	@Input() isPresale: boolean = false;
 	@Input() hideContractedToggle: boolean = false;
 	@Input() isFixedWidth: boolean = false;
+	@Input() isContractedPage: boolean = false;
 
 	@Output() callToAction = new EventEmitter<{ actionBarCallType: ActionBarCallType }>();
 	@Output() onPrintAction = new EventEmitter();
@@ -143,7 +144,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit
 
 		if (this.isPresale)
 		{
-			this.router.navigate(['presale'], { queryParams: { presale: sessionStorage.getItem('presale_token')} })
+			this.router.navigate(['presale'], { queryParams: { presale: sessionStorage.getItem('presale_token') } })
 		}
 		else if (this.isPreview)
 		{
@@ -170,7 +171,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit
 	onViewFavorites()
 	{
 		this.store.dispatch(new ScenarioActions.SetTreeFilter(null));
-		this.router.navigate(['favorites', 'summary'], { queryParams: { presale: sessionStorage.getItem('presale_token')} })
+		this.router.navigate(['favorites', 'summary'], { queryParams: { presale: sessionStorage.getItem('presale_token') } })
 	}
 
 	isEllipsisActive()
