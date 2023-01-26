@@ -88,15 +88,6 @@ export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implemen
 		return isChoiceAttributesComplete(choice) || this.isDesignComplete;
 	}
 
-	toggleAttributes(toggleAttribute: boolean)
-	{
-		this.choicesCustom
-			.filter(c => c.hasMappedAttributes)
-			.forEach(c => c.showAttributes = toggleAttribute);
-
-		this.cd.detectChanges();
-	}
-
 	get actionLabel()
 	{
 		return this.isReadonly ? 'View' : 'Edit';
