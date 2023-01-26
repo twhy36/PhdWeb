@@ -15,8 +15,8 @@
 					<div [ngClass]="{'phd-choice-header': !isPresale, 'phd-choice-header-presale phd-choice-header-presale-print': isPresale}">
 						<span>{{ choice.label }}</span>
 						<div class="phd-choice-body">
-							<div class="my-3 phd-choice-attributes" *ngIf="choice.showAttributes">
-								<ng-container *ngIf="choice.selectedAttributes.length || isDesignComplete">
+							<div class="my-3 phd-choice-attributes">
+								<ng-container *ngIf="choice.showAttributes && (choice.selectedAttributes.length || isDesignComplete)">
 									<div class="phd-choice-attributes-body" *ngFor="let attr of choice.mappedSelectedAttributes">
 										<div class="phd-choice-attributes-labels">
 											<div class="phd-location" *ngIf="!!attr.locationGroupId || !!attr.locationId">
@@ -37,7 +37,7 @@
 										</div>
 									</div>
 								</ng-container>
-								<ng-container *ngIf="!isChoiceComplete(choice) || (!choice.selectedAttributes.length && !isDesignComplete)">
+								<ng-container *ngIf="choice.hasMappedAttributes && (!isChoiceComplete(choice) || (!choice.selectedAttributes.length && !isDesignComplete))">
 									<a class="phd-additional-selections" (click)="onAdditionalSelections(choice)">Additional Selections Required</a>
 								</ng-container>
 							</div>
