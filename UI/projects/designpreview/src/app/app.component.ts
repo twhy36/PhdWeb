@@ -71,7 +71,7 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 		).subscribe(([fav, scenario]) => 
 		{
 			this.buildMode = scenario.buildMode;
-			if ((this.buildMode === BuildMode.Presale || this.buildMode === BuildMode.Preview) && fav?.length > 0) 
+			if ((this.buildMode === BuildMode.Presale) && fav?.length > 0) 
 			{
 				window.addEventListener('beforeunload', this.createBeforeUnloadListener);
 			}
