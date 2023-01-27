@@ -414,12 +414,10 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 	{
 		// floor plan image save functionality in here
 		timer(1000).pipe(
-			switchMap(() => this.store.select(state => state.scenario.scenario.scenarioId).pipe(
-				withLatestFrom(this.store.select(state => state.scenario.buildMode)),
-			))
-		).subscribe(([scenarioId, buildMode]) =>
+			switchMap(() => this.store.select(state => state.scenario.scenario.scenarioId))
+		).subscribe(scenarioId =>
 		{
-			if (buildMode !== 'preview' && buildMode !== 'spec' && buildMode !== 'model' && !this.useDefaultFP && (this.canForceSave || this.canEditAgreement))
+			if (!this.useDefaultFP && (this.canForceSave || this.canEditAgreement))
 			{
 				if (!this.jobId && !!scenarioId)
 				{
