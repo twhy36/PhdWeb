@@ -115,28 +115,34 @@ export class ScenarioEffects
 			ofType<LoadPresale>(ScenarioActionTypes.LoadPresale),
 			tryCatch(source => source.pipe(
 				switchMap(action =>
-					{
-						return this.planService.getSelectedPlan(action.planCommunityId).pipe(
-							switchMap(planComm => 
+				{
+					return this.planService.getPlanCommunityDetail(action.planCommunityId).pipe(
+						switchMap(planComm => 
+						{
+							const friendlyMsg = 'The ' + planComm.planName + ' plan at the ' + planComm.communityName + ' community is currently unavailable for personalization. Please browse our collection of available homes at ';
+							if (!planComm.isActive)
 							{
-								return this.treeService.getTreeVersions(planComm[0].integrationKey, planComm[0].communityId).pipe(
-									switchMap(treeVersions => 
-									{
-										if (treeVersions && treeVersions.length)
-										{
-											return this.treeService.getTree(treeVersions[0].id).pipe(
-												combineLatest(
-													this.treeService.getRules(treeVersions[0].id),
-													this.treeService.getOptionImages(treeVersions[0].id),
-													this.treeService.getTreeBaseHouseOptions(treeVersions[0].id)
-												)
-											);
-										}
-									})
-								);
-							})
-						);
-					}),
+								this.store.dispatch(new LoadError(new Error('Inactive for presale plan community!'), friendlyMsg, ErrorFrom.LoadPresaleInactive));
+								return new Observable<never>();
+							}
+							else if (planComm.dTreeVersionId === 0)
+							{
+								this.store.dispatch(new LoadError(new Error('No published tree for presale plan community!'), friendlyMsg, ErrorFrom.LoadPresaleNoPubleshed));
+								return new Observable<never>();
+							}
+
+							const treeversionId = planComm.dTreeVersionId;
+
+							return this.treeService.getTree(treeversionId).pipe(
+								combineLatest(
+									this.treeService.getRules(treeversionId),
+									this.treeService.getOptionImages(treeversionId),
+									this.treeService.getTreeBaseHouseOptions(treeversionId)
+								)
+							);
+						})
+					);
+				}),
 				switchMap(([tree, rules, optionImages, baseHouseOptions]) =>
 				{
 					const optionIds = baseHouseOptions.map(bho => bho.planOption.integrationKey);

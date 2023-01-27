@@ -8,6 +8,8 @@ import { CommonActionTypes } from './actions';
 export enum ErrorFrom {
 	HomeComponent = 'Home.Component',
 	LoadPresale = 'Scenario.LoadPresale',
+	LoadPresaleInactive = 'Scenario.LoadPresale.Inactive',
+	LoadPresaleNoPubleshed = 'Scenario.LoadPresale.NoPublished',
 	PageNotFound = 'WildcardPath.error',
 	LoadSelectedPlan = 'Lots.LoadSelectedPlan',
 	LoadSalesAgreement = 'LoadSalesAgreement',

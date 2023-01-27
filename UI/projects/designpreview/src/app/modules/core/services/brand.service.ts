@@ -41,51 +41,65 @@ export class BrandService
 		return getBannerImageSrc(this.brandMap, bannerPos);
 	}
 
-	getBrandedLogoutUrl()
+	getBrandName(displayMode?: BrandDisplayMode)
 	{
-		const baseUrl = window.location.host;
-		if (environment.brandMap.pulte === baseUrl)
+		if (typeof window === 'undefined' && typeof document === 'undefined')
 		{
-			return environment.brandLogoutMap.pulte;
-		} else if (environment.brandMap.delwebb === baseUrl)
-		{
-			return environment.brandLogoutMap.delwebb;
-		} else if (environment.brandMap.americanWest === baseUrl)
-		{
-			return environment.brandLogoutMap.americanWest;
-		} else if (environment.brandMap.divosta === baseUrl)
-		{
-			return environment.brandLogoutMap.divosta;
-		} else if (environment.brandMap.johnWieland === baseUrl)
-		{
-			return environment.brandLogoutMap.johnWieland;
+			return '';
 		}
+
+		let brandName = '';
+		const baseUrl = window.location.host;
+
+		switch (baseUrl) {
+			case (environment.brandMap.americanWest):
+				brandName = displayMode===BrandDisplayMode.Title ? BrandTitles.AmericanWest : 
+					(displayMode===BrandDisplayMode.LogoutUrl ? environment.brandLogoutMap.americanWest : Brands.AmericanWest);
+				break;			
+			case (environment.brandMap.centex):
+				brandName = displayMode===BrandDisplayMode.Title ? BrandTitles.Centex : 
+					(displayMode===BrandDisplayMode.LogoutUrl ? environment.brandLogoutMap.centex : Brands.Centex);
+				break;			
+			case (environment.brandMap.delwebb):
+				brandName = displayMode===BrandDisplayMode.Title ? BrandTitles.DelWebb : 
+					(displayMode===BrandDisplayMode.LogoutUrl ? environment.brandLogoutMap.delwebb : Brands.DelWebb);
+				break;
+			case (environment.brandMap.divosta):
+				brandName = displayMode===BrandDisplayMode.Title ? BrandTitles.Divosta : 
+					(displayMode===BrandDisplayMode.LogoutUrl ? environment.brandLogoutMap.divosta : Brands.Divosta);
+				break;
+			case (environment.brandMap.johnWieland):
+				brandName = displayMode===BrandDisplayMode.Title ? BrandTitles.JohnWieland : 
+					(displayMode===BrandDisplayMode.LogoutUrl ? environment.brandLogoutMap.johnWieland : Brands.JohnWieland);
+				break;
+			case (environment.brandMap.pulte):
+				brandName = displayMode===BrandDisplayMode.Title ? BrandTitles.Pulte : 
+					(displayMode===BrandDisplayMode.LogoutUrl ? environment.brandLogoutMap.pulte : Brands.Pulte);
+				break;
+		}
+
+		return brandName;
 	}
 
-	getBrandName(useTitleFormat?: boolean)
+	//read host only with https from config logoutUrl
+	getBrandHomeUrl()
 	{
-		const baseUrl = window.location.host;
-		if (environment.brandMap.pulte === baseUrl)
+		let url = this.getBrandName(BrandDisplayMode.LogoutUrl);
+		if (url?.length)
 		{
-			return useTitleFormat ? BrandTitles.Pulte : Brands.Pulte;
-		} else if (environment.brandMap.delwebb === baseUrl)
-		{
-			return  useTitleFormat ? BrandTitles.DelWebb : Brands.DelWebb;
-		} else if (environment.brandMap.americanWest === baseUrl)
-		{
-			return  useTitleFormat ? BrandTitles.AmericanWest : Brands.AmericanWest;
-		} else if (environment.brandMap.centex === baseUrl)
-		{
-			return  useTitleFormat ? BrandTitles.Centex : Brands.Centex;
-		} else if (environment.brandMap.divosta === baseUrl)
-		{
-			return  useTitleFormat ? BrandTitles.Divosta : Brands.Divosta;
-		} else if (environment.brandMap.johnWieland === baseUrl)
-		{
-			return  useTitleFormat ? BrandTitles.JohnWieland : Brands.JohnWieland;
+			url = url.toLowerCase();
+			if (url.indexOf('https://') > -1)
+			{
+				url = url.substring(0, url.split('/', 3).join('/').length);
+			}
+			else
+			{
+				url = 'https://' + url.substring(0, url.indexOf('/'));
+			}
 		}
-	}
 
+		return url;
+	}
 }
 
 export enum Brands
@@ -106,4 +120,14 @@ export enum BrandTitles
 	Centex = 'Centex',
 	Divosta = 'DiVosta',
 	JohnWieland = 'John Wieland'
+}
+
+//displayMode: 
+//	title: display brand in title case 
+//	logoutUrl: display brand logout page url
+//	null or default: display brand name in one word
+export enum BrandDisplayMode
+{
+	Title = 'title',
+	LogoutUrl = 'logoutUrl'
 }

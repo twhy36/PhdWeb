@@ -3,10 +3,11 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, throwError as _throw } from 'rxjs';
 import { map, catchError, switchMap } from 'rxjs/operators';
 
-import { Plan, withSpinner } from 'phd-common';
+import { getDateWithUtcOffset, Plan, withSpinner } from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
 import { OptionService } from './option.service';
+import { PlanCommunity } from '../../shared/models/plan-community.model';
 
 
 @Injectable()
@@ -14,7 +15,8 @@ export class PlanService
 {
 	constructor(private _http: HttpClient, private optionService: OptionService) { }
 
-	getSelectedPlan(planId: number): Observable<Plan[]> {
+	getSelectedPlan(planId: number): Observable<Plan[]>
+	{
 		const entity = 'planCommunities';
 		const expand = `webSitePlanCommunityAssocs($expand=webSitePlan($select=webSitePlanIntegrationKey))`;
 		const filter = `id eq ${planId}`;
@@ -23,15 +25,76 @@ export class PlanService
 		const endPoint = environment.apiUrl + `${entity}?${encodeURIComponent("$")}expand=${encodeURIComponent(expand)}&${encodeURIComponent("$")}filter=${encodeURIComponent(filter)}&${encodeURIComponent("$")}select=${encodeURIComponent(select)}`;
 
 		return this._http.get<any>(endPoint).pipe(
-			map(response => {
-				return response.value.map(data => {
+			map(response =>
+			{
+				return response.value.map(data =>
+				{
 					const plan = this.mapPlan(data);
 					plan.marketingPlanId = data['webSitePlanCommunityAssocs'].map(p => p.webSitePlan.webSitePlanIntegrationKey);
 
 					return plan;
 				}) as Plan[];
 			}),
-			catchError(error => {
+			catchError(error =>
+			{
+				console.error(error);
+
+				return _throw(error);
+			})
+		);
+	}
+
+	getPublishedTree(commId: number, planKey: number): Observable<number> 
+	{
+		let url = environment.apiUrl;
+		const utcNow = getDateWithUtcOffset();
+
+		const filter = `publishStartDate le ${utcNow} and (publishEndDate eq null or publishEndDate gt ${utcNow}) and dTree/plan/org/edhFinancialCommunityId eq ${commId} and dTree/plan/integrationKey eq '${planKey}'`;
+		const select = `dTreeVersionID`;
+
+		const qryStr = `${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}&${encodeURIComponent('$')}select=${encodeURIComponent(select)}`;
+
+		url += `dTreeVersions?${qryStr}`;
+
+		return this._http.get<any>(url).pipe(
+			map(response =>
+			{
+				return !!response.value.length ? response.value[0].dTreeVersionID : 0;
+			}),
+			catchError(error =>
+			{
+				console.error(error);
+
+				return _throw(error);
+			}));
+	}
+
+	getPlanCommunityDetail(planCommunityId: number): Observable<PlanCommunity>
+	{
+
+		const entity = 'planCommunities';
+		const filter = `id eq ${planCommunityId}`;
+		const expand = `financialCommunity($select=id, name, number, financialBrandId)`
+		const select = `id, financialPlanIntegrationKey,  financialCommunityId, planSalesName, isActive`;
+
+		const endPoint = environment.apiUrl + `${entity}?${encodeURIComponent("$")}expand=${encodeURIComponent(expand)}&${encodeURIComponent("$")}filter=${encodeURIComponent(filter)}&${encodeURIComponent("$")}select=${encodeURIComponent(select)}`;
+
+		return this._http.get<any>(endPoint).pipe(
+			switchMap(resp =>
+			{
+				let planComm = this.mapPlanCommunity(resp.value[0]);
+
+				return this.getPublishedTree(planComm.communityId, planComm.planKey)
+					.pipe(
+						map(treeChk =>
+						{
+							planComm.dTreeVersionId = treeChk;
+							return planComm;
+						})
+					);
+			}),
+			catchError(error =>
+			{
 				console.error(error);
 
 				return _throw(error);
@@ -128,5 +191,21 @@ export class PlanService
 			integrationKey: data['financialPlanIntegrationKey'],
 			communityId: data['financialCommunityId']
 		} as Plan;
+	}
+
+	private mapPlanCommunity(data): PlanCommunity
+	{
+		return {
+			planCommunityId: data['id'],
+			dTreeVersionId: 0,
+			planKey: data['financialPlanIntegrationKey'],
+			planName: data['planSalesName'],
+			communityName: data['financialCommunity'].name,
+			communityId: data['financialCommunity'].id,
+			isActive: data['isActive'],
+			hasPublishedTree: false,
+			communityKey: data['financialCommunity'].number,
+			brandId: data['financialCommunity'].financialBrandId
+		} as PlanCommunity;
 	}
 }

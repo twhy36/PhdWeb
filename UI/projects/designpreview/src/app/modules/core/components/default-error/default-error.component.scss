@@ -41,11 +41,27 @@
 	font-weight: bold;
 }
 
+.phd-message-title-big {
+	font-size: 2rem;
+	color: var(--home-text-color);
+	margin-top: 1rem;
+	text-align: center;
+	font-weight: bold;
+}
+
 .phd-message-desc {
 	font-size: 1.2rem;
 	color: var(--home-text-color);
 	margin: 4%;
 	text-align: center;
+	line-height: 1.1;
+	font-weight: bold;
+}
+
+.phd-link-text {
+	cursor: pointer;
+	color: var(--link-color);
+	text-decoration: underline;
 	line-height: 1.1;
 	font-weight: bold;
 }
