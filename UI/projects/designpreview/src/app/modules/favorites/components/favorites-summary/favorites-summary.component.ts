@@ -1,7 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from "@angular/router";
 import { Location } from '@angular/common';
-import { ToastrService } from 'ngx-toastr';
 import { NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 
 import { combineLatest as combineLatestOperator, take, distinctUntilChanged, switchMap, withLatestFrom } from 'rxjs/operators';
@@ -12,12 +11,9 @@ import * as _ from 'lodash';
 
 import
 {
-	UnsubscribeOnDestroy, PriceBreakdown, SDGroup, SDSubGroup, SDPoint, SDChoice, SDAttributeReassignment, Group,
-	DecisionPoint, JobChoice, Tree, TreeVersionRules, SalesAgreement, getDependentChoices, ModalService, PDFViewerComponent,
-	SummaryData, BuyerInfo, PriceBreakdownType, PlanOption, Choice, ConfirmModalComponent, SubGroup, FloorPlanImage, ModalRef
+	UnsubscribeOnDestroy, PriceBreakdown, Group, DecisionPoint, JobChoice, Tree, TreeVersionRules, SalesAgreement, 
+	getDependentChoices, ModalService, PlanOption, Choice, ConfirmModalComponent, SubGroup, FloorPlanImage, ModalRef
 } from 'phd-common';
-
-import { environment } from '../../../../../environments/environment';
 
 import { Store, select } from '@ngrx/store';
 import * as fromRoot from '../../../ngrx-store/reducers';
@@ -30,8 +26,6 @@ import * as NavActions from '../../../ngrx-store/nav/actions';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 import * as FavoriteActions from '../../../ngrx-store/favorite/actions';
 import * as CommonActions from '../../../ngrx-store/actions';
-
-import { ReportsService } from '../../../core/services/reports.service';
 
 import { SummaryHeader, SummaryHeaderComponent } from './summary-header/summary-header.component';
 import { GroupExt } from '../../../shared/models/group-ext.model';
@@ -85,9 +79,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		private router: Router,
 		private cd: ChangeDetectorRef,
 		private modalService: ModalService,
-		private reportsService: ReportsService,
 		private location: Location,
-		private toastr: ToastrService,
 		private adobeService: AdobeService,
 		public sanitizer: DomSanitizer
 		)
@@ -399,127 +391,6 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 			});
 	}
 
-	onPrint()
-	{
-		const summaryData = this.compileSummaryData();
-		this.reportsService.getFavoritesSummary(summaryData).subscribe(pdfData =>
-		{
-			let pdfViewer = this.modalService.open(PDFViewerComponent, { backdrop: 'static', windowClass: 'phd-pdf-modal', size: 'lg' });
-			this.adobeService.setAlertEvent('Favorites Summary - PDF', 'PDF Summary Report Alert');
-
-			pdfViewer.componentInstance.pdfModalTitle = this.summaryHeader.favoritesListName;
-			pdfViewer.componentInstance.pdfData = pdfData;
-			pdfViewer.componentInstance.pdfBaseUrl = `${environment.pdfViewerBaseUrl}`;
-		},
-		error =>
-		{
-			const msg = `There was an issue generating the favorites summary report.`;
-			this.toastr.error(msg, 'Error - Print');
-			this.adobeService.setErrorEvent(msg);
-		});
-	}
-
-	compileSummaryData(): SummaryData
-	{
-		let summaryData = {} as SummaryData;
-		let buyerInfo = {} as BuyerInfo;
-		let summaryHeader = this.summaryHeaderComponent;
-
-		summaryData.title = summaryHeader.headerTitle;
-		summaryData.images = [{ imageUrl: this.summaryHeader.elevationImageUrl }];
-		summaryData.hasHomesite = false;
-		summaryData.allowEstimates = false;
-		summaryData.priceBreakdown = this.priceBreakdown;
-		summaryData.priceBreakdownTypes = this.compilePriceBreakdownTypes();
-		summaryData.includeImages = false;
-
-		buyerInfo.communityName = this.summaryHeader.communityName;
-		buyerInfo.homesite = `LOT ${this.summaryHeader.lot?.lotBlock || ''}`;
-		buyerInfo.planName = this.summaryHeader.planName;
-		buyerInfo.address = summaryHeader.address;
-
-		summaryData.buyerInfo = buyerInfo;
-
-		summaryData.groups = this.tree?.treeVersion?.groups?.map(g =>
-		{
-			let group = new SDGroup(g);
-
-			group.subGroups = g.subGroups.map(sg =>
-			{
-				let subGroup = new SDSubGroup(sg);
-
-				subGroup.points = sg.points.filter(p => {
-					return !p.isHiddenFromBuyerView;
-				}).map(p =>
-				{
-					let point = new SDPoint(p);
-
-					point.choices = p.choices.filter(ch => {
-						const isContracted = !!this.salesChoices?.find(x => x.divChoiceCatalogId === ch.divChoiceCatalogId);
-						return ch.quantity > 0 && (!isContracted || this.includeContractedOptions) && !ch.isHiddenFromBuyerView;
-					}).map(c => new SDChoice(c));
-
-					return point;
-				}).filter(dp => !!dp.choices.length);
-
-				return subGroup;
-			}).filter(sg => !!sg.points.length);
-
-			return group;
-		}).filter(g => !!g.subGroups.length);
-
-		let subGroups = _.flatMap(summaryData.groups, g => g.subGroups);
-		let points = _.flatMap(subGroups, sg => sg.points);
-		let choices = _.flatMap(points, p => p.choices);
-
-		// filter down to just choices with reassignments
-		let choicesWithReassignments = choices.filter(c => c.selectedAttributes && c.selectedAttributes.length > 0 && c.selectedAttributes.some(sa => sa.attributeReassignmentFromChoiceId != null));
-
-		choicesWithReassignments.forEach(choice =>
-		{
-			// return only those selected attributes that are reassignments
-			let selectedAttributes = choice.selectedAttributes.filter(sa => sa.attributeReassignmentFromChoiceId != null);
-
-			selectedAttributes.forEach(sa =>
-			{
-				// find the parent the attribute originally came from
-				let parentChoice = choices.find(c => c.id === sa.attributeReassignmentFromChoiceId);
-
-				// Add where the reassignment landed
-				parentChoice.attributeReassignments.push({ id: choice.id, label: choice.label } as SDAttributeReassignment);
-			});
-		});
-
-		return summaryData;
-	}
-
-	compilePriceBreakdownTypes(): string[]
-	{
-		let types = [];
-
-		if (!this.isPreview)
-		{
-			types.push(PriceBreakdownType.SELECTIONS.toString());
-		}
-
-		if (this.priceBreakdown?.salesProgram)
-		{
-			types.push(PriceBreakdownType.DISCOUNT.toString());
-		}
-
-		if (this.priceBreakdown?.nonStandardSelections)
-		{
-			types.push(PriceBreakdownType.NONSTANDARD.toString());
-		}
-
-		if (this.priceBreakdown?.closingIncentive)
-		{
-			types.push(PriceBreakdownType.CLOSING.toString());
-		}
-
-		return types;
-	}
-
 	getGroupExts(groups: Group[]) : GroupExt[]
 	{
 		return groups.map(g => {
@@ -594,12 +465,6 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		}
 
 		//There needs to be a short delay between displaying floorplans, or the floorplan.component gets confused
-		setTimeout(() => {
-			this.showNextIFP++;
-		}, 200);
-	}
-
-	delayBetweenFloorPlans() {
 		setTimeout(() => {
 			this.showNextIFP++;
 		}, 200);

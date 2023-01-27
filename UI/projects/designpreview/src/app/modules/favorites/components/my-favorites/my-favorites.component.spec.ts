@@ -47,7 +47,7 @@ describe('MyFavoritesComponent', () =>
 				MockComponent({ selector: 'normal-experience', inputs: ['groupName', 'currentSubgroup', 'errorMessage', 'myFavoritesChoices', 'myFavoritesPointsDeclined', 'decisionPointId', 'includeContractedOptions', 'salesChoices', 'groups', 'tree', 'choiceImages', 'isReadonly', 'isPresale', 'noVisibleGroups', 'unfilteredPoints'], outputs: ['onToggleChoice', 'onToggleContractedOptions', 'onViewChoiceDetail', 'onSelectDecisionPoint', 'onDeclineDecisionPoint'] }),
 				MockComponent({ selector: 'floor-plan-experience', inputs: ['groupName', 'currentSubgroup', 'errorMessage', 'myFavoritesChoices', 'decisionPointId', 'includeContractedOptions', 'salesChoices', 'marketingPlanId', 'isFloorplanFlipped', 'noVisibleFP', 'unfilteredPoints'], outputs: ['onToggleChoice', 'onToggleContractedOptions', 'onViewChoiceDetail', 'onSelectDecisionPoint'] }),
 				MockComponent({ selector: 'choice-card-detail', inputs: ['choice', 'path', 'myFavoritesPointsDeclined'], outputs: ['onBack', 'onToggleChoice'] }),
-				MockComponent({ selector: 'action-bar', inputs: ['scrollListener', 'primaryAction', 'price', 'favoritesPrice', 'showPrint', 'showFavorites', 'includeContractedOptions', 'isDesignComplete', 'isPreview', 'isPresale', 'hideContractedToggle', 'isFixedWidth'], outputs: ['callToAction', 'onPrintAction', 'onToggleContractedOptions'] })
+				MockComponent({ selector: 'action-bar', inputs: ['scrollListener', 'primaryAction', 'price', 'favoritesPrice', 'showPrint', 'showFavorites', 'includeContractedOptions', 'isDesignComplete', 'isPreview', 'isPresale', 'hideContractedToggle', 'isFixedWidth'], outputs: ['callToAction', 'onToggleContractedOptions'] })
 			],
 			providers: [
 				provideMockStore({ initialState }),
