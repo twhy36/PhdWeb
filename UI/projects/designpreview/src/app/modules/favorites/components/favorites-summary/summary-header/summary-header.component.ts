@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef, ElementRef, Renderer2, NgZone } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef, ElementRef, Renderer2, NgZone, HostListener } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { select, Store } from '@ngrx/store';
 
@@ -23,7 +23,6 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 	
 	@Output() isStickyChanged = new EventEmitter<boolean>();
 	@Output() contractedOptionsToggled = new EventEmitter<boolean>();
-	@Output() onPrintAction = new EventEmitter();
 	
 	scrolling: boolean = false;
 	isSticky: boolean = false;
@@ -187,15 +186,14 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 
 	onPrint() 
 	{
-		if (this.isPresale)
-		{
-			this.titleService.setTitle(`${this.communityName} ${this.planName}`);
-			window.print();
-		}
-		else
-		{
-			this.onPrintAction?.emit();
-		}
+		this.titleService.setTitle(`${this.communityName} ${this.planName}`);
+		window.print();
+	}
+
+	@HostListener("window:afterprint", [])
+	onWindowAfterPrint()
+	{
+		this.titleService.setTitle('Design Preview');
 	}
 }
 

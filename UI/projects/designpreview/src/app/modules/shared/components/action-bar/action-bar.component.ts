@@ -34,7 +34,6 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit
 	@Input() isContractedPage: boolean = false;
 
 	@Output() callToAction = new EventEmitter<{ actionBarCallType: ActionBarCallType }>();
-	@Output() onPrintAction = new EventEmitter();
 	@Output() onToggleContractedOptions = new EventEmitter();
 
 	@ViewChild('btnActionBar') button: ElementRef;
