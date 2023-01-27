@@ -2,7 +2,7 @@ import { Observable } from 'rxjs';
 import { AuthConfig } from 'angular-oauth2-oidc';
 
 import { AuthService } from '../../core/services/auth.service';
-import { BrandService } from '../../core/services/brand.service';
+import { BrandDisplayMode, BrandService } from '../../core/services/brand.service';
 
 export class AuthConfigSelector extends Observable<AuthConfig> 
 {
@@ -10,7 +10,7 @@ export class AuthConfigSelector extends Observable<AuthConfig>
     {
         super(subscriber => {
             this.authService.getAuthConfig().subscribe(config => {
-                config.logoutUrl = this.brandService.getBrandedLogoutUrl();
+                config.logoutUrl = this.brandService.getBrandName(BrandDisplayMode.LogoutUrl);
                 subscriber.next(config);
                 subscriber.complete();
             })

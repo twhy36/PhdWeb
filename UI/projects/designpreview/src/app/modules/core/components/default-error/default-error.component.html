@@ -5,12 +5,13 @@
 			<img class="phd-logo-image" [src]="getImageSrc()">
 		</div>
 		<div class="phd-vertical-line"></div>
-		<div class="d-flex flex-column align-items-center phd-message-section">
-			<div class="phd-message-title">
-				...Something went wrong...
+		<div *ngIf="isLoadPresaleInactiveNoPublish; else defaultErrorSection"
+			class="d-flex flex-column align-items-center phd-message-section">
+			<div class="phd-message-title-big">
+				...We're Sorry...
 			</div>
 			<div class="phd-message-desc">
-				We had an issue attempting to load the page. Please try again later.
+				{{errMessage}} <a class="phd-link-text" href="{{defaultUrl}}">{{defaultUrl}}</a>
 			</div>
 		</div>
 	</div>
@@ -18,3 +19,14 @@
 		{{internalMessage}}
 	</div>
 </div>
+
+<ng-template #defaultErrorSection>
+	<div class="d-flex flex-column align-items-center phd-message-section">
+		<div class="phd-message-title">
+			...Something went wrong...
+		</div>
+		<div class="phd-message-desc">
+			{{errMessage}}
+		</div>
+	</div>
+</ng-template>

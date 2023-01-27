@@ -10,7 +10,7 @@ import * as fromRoot from '../../ngrx-store/reducers';
 import * as fromPlan from '../../ngrx-store/plan/reducer';
 import * as fromSalesAgreement from '../../ngrx-store/sales-agreement/reducer';
 
-import { BrandService } from './brand.service';
+import { BrandDisplayMode, BrandService } from './brand.service';
 import { FavoriteService } from './favorite.service';
 import { PageLoadEvent } from '../../shared/models/adobe/page-load-event';
 import { SearchEvent } from '../../shared/models/adobe/search-event';
@@ -166,7 +166,7 @@ export class AdobeService extends UnsubscribeOnDestroy
 					pageLoadEvent.page.pageType = pageType;
 					pageLoadEvent.page.pageURL = baseUrl + window.location.pathname;
 					pageLoadEvent.page.pageName = pageName;
-					pageLoadEvent.page.brandName = this.brandService.getBrandName(true);
+					pageLoadEvent.page.brandName = this.brandService.getBrandName(BrandDisplayMode.Title);
 					pageLoadEvent.page.group = groupName;
 					pageLoadEvent.page.subGroup = subGroupName;
 
