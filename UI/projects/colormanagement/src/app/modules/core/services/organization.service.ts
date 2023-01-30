@@ -44,22 +44,22 @@ export class OrganizationService
 
 	private get currentMarketId(): number
 	{
-		return this._storageService.getLocal<number>('DT_CURRENT_SM');
+		return this._storageService.getLocal<number>('COLOR_CURRENT_SM');
 	}
 
 	private set currentMarketId(id: number)
 	{
-		this._storageService.setLocal('DT_CURRENT_SM', id);
+		this._storageService.setLocal('COLOR_CURRENT_SM', id);
 	}
 
 	private get currentFinancialCommunityId(): number
 	{
-		return this._storageService.getLocal<number>('DT_CURRENT_FC');
+		return this._storageService.getLocal<number>('COLOR_CURRENT_FC');
 	}
 
 	private set currentFinancialCommunityId(id: number)
 	{
-		this._storageService.setLocal('DT_CURRENT_FC', id);
+		this._storageService.setLocal('COLOR_CURRENT_FC', id);
 	}
 
 	constructor(private _http: HttpClient, private _storageService: StorageService)
