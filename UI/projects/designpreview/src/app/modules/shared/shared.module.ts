@@ -34,6 +34,7 @@ import { HiddenChoicePriceModalComponent } from './components/hidden-choice-pric
 import { BlockedItemComponent } from './components/blocked-item/blocked-item.component';
 import { InfoModalComponent } from './components/info-modal/info-modal.component';
 import { InfoTooltipComponent } from './components/info-tooltip/info-tooltip.component';
+import { FooterBarComponent } from './components/footer-bar/footer-bar.component';
 
 @NgModule({
 	exports: [
@@ -52,7 +53,8 @@ import { InfoTooltipComponent } from './components/info-tooltip/info-tooltip.com
 		AttributeLocationComponent,
 		QuantityInputComponent,
 		DetailedDecisionBarComponent,
-		IncludedDecisionBarComponent
+		IncludedDecisionBarComponent,
+		FooterBarComponent
     ],
 	declarations: [
 		ActionBarComponent,
@@ -77,7 +79,8 @@ import { InfoTooltipComponent } from './components/info-tooltip/info-tooltip.com
 		HiddenChoicePriceModalComponent,
 		InfoModalComponent,
 		InfoTooltipComponent,
-		BlockedItemComponent
+		BlockedItemComponent,
+  		FooterBarComponent
     ],
 	imports: [
 		BrowserModule,

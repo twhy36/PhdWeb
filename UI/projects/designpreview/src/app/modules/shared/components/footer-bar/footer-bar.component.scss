@@ -1,0 +1,21 @@
+@import "../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
+@import "../../../../../../../phd-common/src/lib/scss/sizes.scss";
+
+.phd-footer {
+	display: flex;
+	height: 80px;
+	background: var(--primary-ribbon-background-color);
+	font-size: 15px;
+	color: var(--nav-bar-text-color);
+	padding: 5px 20px;
+	align-items: center;
+	justify-content: flex-end;
+}
+
+.phd-footer a:hover {
+	font-weight: bold;
+}
+
+.phd-hspacer {
+	width: 10px;
+}
