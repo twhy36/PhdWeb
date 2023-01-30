@@ -72,8 +72,7 @@ export class PHDSearchComponent
 		{ label: 'Approved', value: 'Approved' },
 		{ label: 'Closed', value: 'Closed' },
 		{ label: 'Void', value: 'Void' },
-		{ label: 'Cancel', value: 'Cancel' },
-		{ label: 'Ready to Close', value: 'ReadyToClose' }
+		{ label: 'Cancel', value: 'Cancel' }
 	];
 
 	homesiteTypeOptions: Array<SelectItem> = [
@@ -130,7 +129,7 @@ export class PHDSearchComponent
 	search()
 	{
 		const filters: Array<IFilterItems> = [];
-
+		
 		this.searchError = null;
 		this.searchResults = null;
 		this.optionsShown = false;
@@ -319,6 +318,46 @@ export class PHDSearchComponent
 		{
 			this.search();
 		}, 200);
+	}
+
+	searchReadyToClose()
+	{
+		this.clear();
+
+		this.searchActiveOnly = true;
+		const filters: Array<IFilterItems> = [];
+		this.selectedSalesAgreementStatus = ['Approved'];
+		const financialCommunityString = this.selectedFinancialCommunity && this.selectedFinancialCommunity.toString();
+		const salesCommunityString = this.selectedCommunity && this.selectedCommunity.toString();
+
+		this.search_button_label = this.SEARCH_STATUS.SEARCHING;
+		this._searchService.searchHomeSites(filters, financialCommunityString, salesCommunityString).subscribe(results =>
+		{
+			
+			let filteredLots = [];
+
+			if (filteredLots && results && results.length > 0)
+			{
+				results.map(result =>
+				{
+					// filter the results for a sales agreement id that contains the sales agreement # string if needed
+					if (result.salesAgreements && result.salesAgreements.length > 0 && (this.salesAgreementNumber || this.selectedSalesAgreementStatus.length > 0))
+					{
+						result.salesAgreements.map(agreement =>
+						{
+							
+							// if the agreement.status is 'Approved' and agreement.isLockedIn is true
+							if (agreement.status === 'Approved' && agreement.isLockedIn)
+							{	
+								filteredLots.push(result);
+							}
+						});
+					}
+				});
+			}
+			
+			this.searchResults = filteredLots ? filteredLots : results;			
+		});
 	}
 
 	searchPendingCOs()
