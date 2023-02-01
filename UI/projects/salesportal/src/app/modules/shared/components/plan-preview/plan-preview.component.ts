@@ -208,12 +208,12 @@ export class PlanPreviewComponent implements OnInit
 			// Open in THO Preview
 			const webSiteIntegrationKey = this.webSiteCommunity.webSiteIntegrationKey;
 
-			url = `${getBrandUrl(this.currentFinancialBrand.key, environment.baseUrl.thoPreview)}${webSiteIntegrationKey}?preview=true`;
+			url = `${getBrandUrl(this?.currentFinancialBrand?.key, environment.baseUrl.thoPreview)}${webSiteIntegrationKey}?preview=true`;
 		}
 		else if (this.selectedType === 3)
 		{
 			// Open in Design Preview
-			url = `${getBrandUrl(this.currentFinancialBrand.key, environment.baseUrl.designPreview)}preview/${this.selectedTreeVersion}`;
+			url = `${getBrandUrl(this?.currentFinancialBrand?.key, environment.baseUrl.designPreview)}preview/${this.selectedTreeVersion}`;
 		}
 
 		window.open(url, '_blank');
