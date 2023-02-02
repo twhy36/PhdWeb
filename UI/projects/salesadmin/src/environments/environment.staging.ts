@@ -30,9 +30,9 @@ export const environment = {
 	},
 	thoUrls: {
 		pulte: 'tho.staging.pulte.com/',
-		delwebb: 'tho.staging.delWebb.com/',
+		delWebb: 'tho.staging.delWebb.com/',
 		americanWest: 'tho.staging.americanwesthomes.com/',
-		divosta: 'tho.staging.diVosta.com/',
+		diVosta: 'tho.staging.diVosta.com/',
 		centex: 'tho.staging.centex.com/',
 		johnWieland: 'tho.staging.jwhomes.com/'
 	},
