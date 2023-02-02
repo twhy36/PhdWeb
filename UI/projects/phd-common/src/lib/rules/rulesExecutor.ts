@@ -798,7 +798,8 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 			const pointChoices = pointForChoice.choices.map(ch => ch.id);
 
 			//if an option replaces another option from the same DP, this is an invalid setup
-			if (optionRules.some(or => or.replaceOptions.some(replaceOption => {
+			if (optionRules.some(or => or.replaceOptions.some(replaceOption =>
+			{
 				const origOptionRule = rules.optionRules.find(or2 => or2.optionId === replaceOption);
 				const origChoice = getMaxSortOrderChoice(tree, origOptionRule.choices.filter(ch => ch.mustHave).map(ch => ch.id));
 				return pointChoices.some(pc => pc === origChoice);
@@ -809,41 +810,44 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 
 			function replaceRuleSatisfied(optionRule: OptionRule)
 			{
-				return optionRule.replaceOptions.every(replaceOption => {
+				return optionRule.replaceOptions.every(replaceOption =>
+				{
 					//if we have a selected choice with the replaced option, we're good
 					if (choices.some(ch => ch.quantity && (ch.options.some(o => o.financialOptionIntegrationKey === replaceOption) || ch.lockedInOptions?.some(o => o.optionId === replaceOption))))
 					{
 						return true;
 					}
 
-					//if it's a pick 1 scenario, check if the replaced option was replaced by 
-					//something else in the same DP
-					if ([PickType.Pick1, PickType.Pick1ormore].indexOf(pointForChoice.pointPickTypeId) !== -1)
+					const replaceChoice = choices.find(ch =>
+						ch.quantity
+						&& (
+							ch.lockedInOptions && ch.lockedInOptions.length
+								? _.flatten(ch.lockedInOptions.filter(o => o.replaceOptions?.length).map(o => o.replaceOptions)).some(ro => ro === replaceOption)
+								: _.flatten(ch.options.map(o => rules.optionRules.find(or => or.optionId === o.financialOptionIntegrationKey && or.replaceOptions.some(ro => ro === replaceOption)))
+								)));
+					if (replaceChoice)
 					{
-						return pointForChoice.choices.some(ch => {
-							if (!ch.quantity)
-							{
-								return false;
-							}
+						const pointIsInPick1 = [PickType.Pick1, PickType.Pick1ormore].indexOf(pointForChoice.pointPickTypeId) !== -1;
+						const replaceChoiceInSameDP = pointChoices.includes(replaceChoice.id);
 
-							const replaceOptions = choice.lockedInOptions && choice.lockedInOptions.length 
-								? _.flatten(choice.lockedInOptions.filter(o => o.replaceOptions?.length).map(o => o.replaceOptions))
-								: _.flatten(choice.options.map(o => rules.optionRules.find(or => or.optionId === o.financialOptionIntegrationKey))
-									.filter(or => or.replaceOptions && or.replaceOptions.length)
-									.map(o => o.replaceOptions));
-							return replaceOptions.some(o => o === replaceOption);
-						});
+						if (!pointIsInPick1 && !replaceChoiceInSameDP)
+						{
+							choice.disabledByBadSetup = true;
+						}
+
+						return true;
 					}
 
 					return false;
 				});
 			}
 
-			var unsatisfiedReplaceRules = optionRules.filter(or => !replaceRuleSatisfied(or));
+			const unsatisfiedReplaceRules = optionRules.filter(or => !replaceRuleSatisfied(or));
 
 			choice.disabledByReplaceRules = _.flatten(unsatisfiedReplaceRules.map(rr => rr.replaceOptions))
 				.map(rr => rules.optionRules.find(or => or.optionId === rr))
-				.map(or => getMaxSortOrderChoice(tree, or.choices.filter(ch => ch.mustHave).map(ch => ch.id)));
+				.map(or => getMaxSortOrderChoice(tree, or.choices.filter(ch => ch.mustHave && !find(ch.id).quantity).map(ch => ch.id)))
+				.filter(ch => !!ch);
 
 			if (!choice.lockedInChoice && (choice.disabledByReplaceRules?.length || choice.disabledByBadSetup))
 			{
