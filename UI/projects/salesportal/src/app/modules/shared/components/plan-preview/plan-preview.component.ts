@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewEncapsulation } from '@angular/core';
 
-import { IFinancialCommunity, IPlan, ITreeVersion, IWebSiteCommunity } from '../../models/community.model';
+import { IFinancialCommunity, IPlan, ISalesCommunity, ITreeVersion, IWebSiteCommunity } from '../../models/community.model';
 import { LinkAction } from '../../models/action.model';
 import { OrganizationService } from '../../../core/services/organization.service';
 import { environment } from '../../../../../environments/environment';
@@ -20,12 +20,12 @@ export class PlanPreviewComponent implements OnInit
 	@Output() onClose = new EventEmitter<void>();
 
 	selectedMarket: number = null;
-	selectedSalesCommunity: number = null;
+	selectedSalesCommunity: ISalesCommunity = null;
 	selectedFinancialCommunity: number = null;
 	selectedPlan: number = 0;
 	selectedType: number = 0;
 	selectedTreeVersion: number = 0;
-	
+
 	currentFinancialBrand: FinancialBrand;
 
 	types: Array<{
@@ -144,7 +144,7 @@ export class PlanPreviewComponent implements OnInit
 
 		if (this.selectedSalesCommunity)
 		{
-			this.organizationService.getWebsiteCommunity(this.selectedSalesCommunity).subscribe(wc =>
+			this.organizationService.getWebsiteCommunity(this.selectedSalesCommunity.id).subscribe(wc =>
 			{
 				this.webSiteCommunity = wc;
 
@@ -156,6 +156,14 @@ export class PlanPreviewComponent implements OnInit
 					});
 
 					this.typeStatus = this.TYPE_STATUS.READY;
+				}
+
+				if (this.selectedSalesCommunity.financialCommunities.length > 0 && !this?.currentFinancialBrand?.key)
+				{
+					this.brandService.getFinancialBrand(this.selectedSalesCommunity.financialCommunities[0].financialBrandId, environment.apiUrl).subscribe(brand =>
+					{
+						this.currentFinancialBrand = brand;
+					});
 				}
 			});
 		}
