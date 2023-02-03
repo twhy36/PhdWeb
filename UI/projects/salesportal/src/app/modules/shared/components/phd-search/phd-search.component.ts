@@ -5,7 +5,7 @@ import { environment } from '../../../../../environments/environment';
 import { LinkAction } from '../../models/action.model';
 import { SearchResult, IFilterItem, IFilterItems, ISearchResultAgreement } from '../../models/search.model';
 import { SearchService } from '../../../core/services/search.service';
-import { IFinancialCommunity } from '../../models/community.model';
+import { IFinancialCommunity, ISalesCommunity } from '../../models/community.model';
 import { FeatureSwitchService, IFeatureSwitchOrgAssoc } from 'phd-common';
 
 @Component({
@@ -92,7 +92,7 @@ export class PHDSearchComponent
 	search_button_label: string;
 	searchError: string;
 	selectedBuildTypes: Array<string> = [];
-	selectedCommunity: number;
+	selectedCommunity: ISalesCommunity;
 	selectedFinancialCommunity: number;
 	selectedHomesiteStatus: Array<string | number> = [];
 	selectedHomesiteTypes: Array<string> = [];
@@ -190,8 +190,8 @@ export class PHDSearchComponent
 			filters.push(this.getFilterFromSelectItems('lotBuildTypeDesc', buildTypesCopy));
 		}
 
-		const financialCommunityString = this.selectedFinancialCommunity && this.selectedFinancialCommunity.toString();
-		const salesCommunityString = this.selectedCommunity && this.selectedCommunity.toString();
+		const financialCommunityString = this.selectedFinancialCommunity && this.selectedFinancialCommunity?.toString();
+		const salesCommunityString = this.selectedCommunity && this.selectedCommunity.id.toString();
 
 		this.search_button_label = this.SEARCH_STATUS.SEARCHING;
 
@@ -327,8 +327,8 @@ export class PHDSearchComponent
 		this.searchActiveOnly = true;
 		const filters: Array<IFilterItems> = [];
 		this.selectedSalesAgreementStatus = ['Approved'];
-		const financialCommunityString = this.selectedFinancialCommunity && this.selectedFinancialCommunity.toString();
-		const salesCommunityString = this.selectedCommunity && this.selectedCommunity.toString();
+		const financialCommunityString = this.selectedFinancialCommunity && this.selectedFinancialCommunity?.toString();
+		const salesCommunityString = this.selectedCommunity && this.selectedCommunity.id.toString();
 
 		this.search_button_label = this.SEARCH_STATUS.SEARCHING;
 		this._searchService.searchHomeSites(filters, financialCommunityString, salesCommunityString).subscribe(results =>
