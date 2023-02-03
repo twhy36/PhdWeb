@@ -10,7 +10,7 @@ import * as _ from 'lodash';
 import
 {
 	UnsubscribeOnDestroy, OptionImage, AttributeGroup, Attribute, LocationGroup, Location, DesignToolAttribute,
-	DecisionPoint, Group, Tree, MyFavoritesPointDeclined, MyFavorite, ModalRef, ModalService
+	DecisionPoint, Group, Tree, MyFavoritesPointDeclined, MyFavorite, ModalRef, ModalService, getChoiceImageList
 } from 'phd-common';
 import { mergeAttributes, mergeLocations, mergeAttributeImages } from '../../../shared/classes/tree.utils';
 import { AttributeService } from '../../../core/services/attribute.service';
@@ -83,7 +83,8 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		super();
 	}
 
-	get disclaimerText() {
+	get disclaimerText()
+	{
 		return "Option selections are not final until purchased via a signed agreement or change order.";
 	}
 
@@ -137,12 +138,12 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 			this.updateChoiceAttributes();
 			this.getImages();
 		},
-		error =>
-		{
-			const msg = 'Failed to load choice attributes!';
-			this.toastr.error(msg, 'Error');
-			this.adobeService.setErrorEvent(msg);
-		});
+			error =>
+			{
+				const msg = 'Failed to load choice attributes!';
+				this.toastr.error(msg, 'Error');
+				this.adobeService.setErrorEvent(msg);
+			});
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
@@ -346,52 +347,17 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 			return;
 		}
 
-		// look for images on the tree option first
-		this.choice?.options?.forEach(option =>
-		{
-			option?.optionImages?.forEach(x =>
-			{
-				this.choiceImages.push(x);
-			});
-		});
-
-		// look for choice images if there is no option image
-		if (!this.choiceImages.length && this.choice?.hasImage)
-		{
-			this.choice?.choiceImages?.forEach(x =>
-			{
-				this.choiceImages.push({ imageURL: x.imageUrl });
-			});
-		}
-
-		// default image
+		this.choiceImages = getChoiceImageList(this.choice);
 		if (!this.choiceImages.length)
 		{
-			return this.treeService.getChoiceImageAssoc([this.choice.id]).subscribe(choiceImages =>
-			{
-				if (choiceImages && choiceImages.length > 0)
-				{
-					choiceImages.forEach(i => this.choiceImages.push({ imageURL: i.imageUrl }));
-				}
-				else
-				{
-					// We need to triger the cloudinary error so that the elements image is set to
-					// noImageAvailable. This will trigger a cloudinary error, but isn't the most
-					// elegant. Removing this causes an indinite load or no image to appear.
-					this.choiceImages.push({ imageURL: 'this image does not exist' });
-				}
-
-				this.selectedImageUrl = this.choiceImages[0].imageURL;
-
-				this.imageLoading = true;
-			});
+			this.choiceImages.push({ imageURL: 'this image does not exist' });
 		}
 		else
 		{
 			this.selectedImageUrl = this.choiceImages[0].imageURL;
-
-			this.imageLoading = true;
 		}
+
+		this.imageLoading = true;
 	}
 
 	get optionDisabled(): boolean
@@ -602,7 +568,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 
 		// if the choice max qty has not been reached then set the max qty for the location to the choice max qty minus the total choice qty plus the location qty
 		if (totalQtyAllLocations !== this.choice.maxQuantity)
-		{			
+		{
 			locationMaxQty = this.choice.maxQuantity - totalQtyAllLocations + locationMaxQty;
 		}
 

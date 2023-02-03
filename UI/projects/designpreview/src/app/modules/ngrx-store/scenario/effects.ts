@@ -16,7 +16,7 @@ import { TreeService } from '../../core/services/tree.service';
 import { OptionService } from '../../core/services/option.service';
 import { OrganizationService } from '../../core/services/organization.service';
 import { PlanService } from '../../core/services/plan.service';
-import { Plan } from 'phd-common';
+import { Plan, mergeTreeChoiceImages, getChoiceIdsHasChoiceImages } from 'phd-common';
 import { LoadError } from '../actions';
 import { PlansLoaded, SelectPlan, SetWebPlanMapping } from '../plan/actions';
 import { AdobeService } from '../../core/services/adobe.service';
@@ -95,6 +95,24 @@ export class ScenarioEffects
 				}),
 				switchMap(result =>
 				{
+					//get all choice images with hasImage flag true
+					const choiceIds = getChoiceIdsHasChoiceImages(result[0].tree, false);
+
+					return this.treeService.getChoiceImageAssoc(choiceIds).pipe(
+						map(data =>
+						{
+							return {
+								...result,
+								choiceImages: data
+							};
+						})
+					);
+				}),
+				switchMap(result =>
+				{
+					//map choice level images
+					mergeTreeChoiceImages(result.choiceImages, result[0].tree);
+
 					const plan: Plan = result[2];
 					const plans: Plan[] = [plan];
 					const salesCommunity = result[3];
@@ -166,6 +184,24 @@ export class ScenarioEffects
 				}),
 				switchMap(result =>
 				{
+					//get all choice images with hasImage flag true
+					const choiceIds = getChoiceIdsHasChoiceImages(result[0].tree, false);
+
+					return this.treeService.getChoiceImageAssoc(choiceIds).pipe(
+						map(data =>
+						{
+							return {
+								...result,
+								choiceImages: data
+							};
+						})
+					);
+				}),
+				switchMap(result =>
+				{
+					//map choice level images
+					mergeTreeChoiceImages(result.choiceImages, result[0].tree);
+
 					const plan: Plan = result[2];
 					const plans: Plan[] = [plan];
 					const salesCommunity = result[3];

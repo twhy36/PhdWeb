@@ -1,7 +1,7 @@
 import { Component, Input, Output, OnChanges, SimpleChanges, EventEmitter, ViewChild } from '@angular/core';
 import * as _ from 'lodash';
 
-import { UnsubscribeOnDestroy, flipOver3, OptionImage, DecisionPoint, Group, Tree, ModalService, ModalRef } from 'phd-common';
+import { UnsubscribeOnDestroy, flipOver3, DecisionPoint, Group, Tree, ModalService, ModalRef, getChoiceImage } from 'phd-common';
 import { ChoiceExt } from '../../models/choice-ext.model';
 import { BlockedByItemObject } from '../../models/blocked-by.model';
 import { getDisabledByList } from '../../../shared/classes/tree.utils';
@@ -38,7 +38,6 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnChang
 
 	choice: ChoiceExt;
 	choiceMsg: object[] = [];
-	optionImages: OptionImage[];
 	imageUrl: string = '';
 	blockedChoiceModalRef: ModalRef;
 	hiddenChoicePriceModalRef: ModalRef;
@@ -50,7 +49,8 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnChang
 		private store: Store<fromRoot.State>,
 		public modalService: ModalService,
 		private adobeService: AdobeService
-	) {
+	)
+	{
 		super();
 	}
 
@@ -60,37 +60,13 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnChang
 		{
 			this.choice = changes['currentChoice'].currentValue;
 
-			const options = this.choice ? this.choice.options : null;
-			if (options && options.length) {
-				let option = options.find(x => x.optionImages && x.optionImages.length > 0);
-
-				if (option) {
-					this.optionImages = option.optionImages;
-				}
-			}
-
-			this.imageUrl = this.getImagePath();
+			this.imageUrl = getChoiceImage(this.choice);
 		}
 	}
 
-	getBodyHeight(): string {
-		return this.isPresale ? '260px' : '285px';
-	}
-
-	getImagePath(): string
+	getBodyHeight(): string
 	{
-		let imagePath = '';
-
-		if (this.optionImages && this.optionImages.length)
-		{
-			imagePath = this.optionImages[0].imageURL;
-		}
-		else if ( this.choice?.hasImage && this.choice?.choiceImages?.length)
-		{
-			imagePath = this.choice.choiceImages[0].imageUrl;
-		}
-
-		return imagePath;
+		return this.isPresale ? '260px' : '285px';
 	}
 
 	/**
@@ -115,12 +91,14 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnChang
 		this.onViewChoiceDetail.emit(this.choice);
 	}
 
-	openBlockedChoiceModal() {
-		if (!this.isIncludedOptions) {
+	openBlockedChoiceModal()
+	{
+		if (!this.isIncludedOptions)
+		{
 			const subGroup = _.flatMap(this.groups, g => _.flatMap(g.subGroups)).find(sg => !!sg.points.find(p => this.currentPoint.id === p.id)) || null;
 			this.store.dispatch(new NavActions.SetSelectedSubgroup(subGroup.id, this.currentPoint.id, null));
 		}
-		
+
 		if (!this.disabledByList.choiceDisabledByList && !this.disabledByList.pointDisabledByList)
 		{
 			this.disabledByList = getDisabledByList(this.tree, this.groups, this.currentPoint, this.choice);
@@ -128,7 +106,8 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnChang
 		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { backdrop: true, windowClass: 'phd-blocked-choice-modal' }, true);
 	}
 
-	openHiddenChoicePriceModal() {
+	openHiddenChoicePriceModal()
+	{
 		if (this.choice.priceHiddenFromBuyerView)
 		{
 			this.hiddenChoicePriceModalRef = this.modalService.open(this.hiddenChoicePriceModal, { windowClass: 'phd-hidden-choice-price-modal' }, true);
@@ -136,12 +115,14 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnChang
 		}
 	}
 
-	onCloseClicked() {
+	onCloseClicked()
+	{
 		this.blockedChoiceModalRef?.close();
 		this.hiddenChoicePriceModalRef?.close();
 	}
 
-	onBlockedItemClick() {
+	onBlockedItemClick()
+	{
 		this.blockedChoiceModalRef?.close();
 	}
 }

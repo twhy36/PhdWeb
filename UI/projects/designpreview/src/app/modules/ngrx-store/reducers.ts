@@ -2,7 +2,7 @@ import { ActionReducerMap, createSelector } from '@ngrx/store';
 
 import * as _ from 'lodash';
 
-import { PriceBreakdown, TreeVersion, PlanOption, PickType } from 'phd-common';
+import { PriceBreakdown, TreeVersion, PlanOption, PickType, getChoiceImage } from 'phd-common';
 
 import * as fromApp from './app/reducer';
 import * as fromScenario from './scenario/reducer';
@@ -100,7 +100,8 @@ export const filteredTree = createSelector(
 
 										if (p.choices.find(ch => contractedChoices?.includes(ch)))
 										{
-											switch (p.pointPickTypeId) {
+											switch (p.pointPickTypeId)
+											{
 												case PickType.Pick1:
 													isIncluded = false;
 												case PickType.Pick0or1:
@@ -490,7 +491,8 @@ export const elevationImageUrl = createSelector(
 	{
 		let imageUrl = '';
 		let elevationOption = scenario && scenario.options ? scenario.options.find(x => x.isBaseHouseElevation) : null;
-		if (!!!elevationOption) {
+		if (!!!elevationOption)
+		{
 			elevationOption = scenario && scenario.options ? scenario.options.find(x => x.isBaseHouse) : null;
 		}
 
@@ -499,24 +501,14 @@ export const elevationImageUrl = createSelector(
 			const selectedChoice = dp.choices.find(x => x.quantity > 0);
 			let option: PlanOption = null;
 
-			if (selectedChoice && selectedChoice.options && selectedChoice.options.length)
+			if (selectedChoice)
 			{
-				// look for a selected choice to pull the image from
-				option = selectedChoice.options.find(x => x && x.optionImages != null);
+				imageUrl = getChoiceImage(selectedChoice);
 			}
-			else if (!selectedChoice && elevationOption)
+			else if (elevationOption)
 			{
 				// if a choice hasn't been selected then get the default option
-				option = elevationOption;
-			}
-
-			if (option && option.optionImages.length > 0)
-			{
-				imageUrl = option.optionImages[0].imageURL;
-			}
-			else if (selectedChoice && selectedChoice.imagePath)
-			{
-				imageUrl = selectedChoice.imagePath;
+				imageUrl = elevationOption?.optionImages[0]?.imageURL;
 			}
 		}
 

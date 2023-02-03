@@ -177,6 +177,7 @@ export class Choice
 	disabledByReplaceRules?: Array<number> = [];
 	disabledByBadSetup?: boolean = false;
 	disabledByRelocatedMapping?: Array<number> = [];
+	choiceImages?: Array<ChoiceImageAssoc> = [];
 }
 
 export class MappedGroup
@@ -235,10 +236,10 @@ export class OptionImage
 
 export class ChoiceImageAssoc
 {
-	dpChoiceId: number;
-	dpChoiceImageAssocId: number;
+	dpChoiceId?: number;
+	dpChoiceImageAssocId?: number;
 	imageUrl: string;
-	sortKey: number;
+	sortKey?: number;
 }
 
 export class PlanOptionCommunityImageAssoc

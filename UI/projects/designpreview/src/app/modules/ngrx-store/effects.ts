@@ -7,7 +7,7 @@ import { combineLatest, Observable, of, forkJoin, from } from 'rxjs';;
 import * as _ from 'lodash';
 import { Router } from '@angular/router';
 
-import { SpinnerService, ChangeOrderChoice, ChangeOrderGroup, SalesAgreementInfo, MyFavoritesPointDeclined } from 'phd-common';
+import { SpinnerService, ChangeOrderChoice, ChangeOrderGroup, SalesAgreementInfo, MyFavoritesPointDeclined, mergeTreeChoiceImages, getChoiceIdsHasChoiceImages } from 'phd-common';
 
 import { CommonActionTypes, LoadError, LoadSalesAgreement, SalesAgreementLoaded } from './actions';
 import { ErrorAction, ErrorFrom, SetLatestError, tryCatch } from './error.action';
@@ -247,6 +247,23 @@ export class CommonEffects
 				}),
 				switchMap(result =>
 				{
+					//get all choice images with hasImage flag true
+					const choiceIds = getChoiceIdsHasChoiceImages(result.tree, true);
+					return this.treeService.getChoiceImageAssoc(choiceIds).pipe(
+						map(data =>
+						{
+							return {
+								...result,
+								choiceImages: data
+							};
+						})
+					);
+				}),
+				switchMap(result =>
+				{
+					//map choice level images
+					mergeTreeChoiceImages(result.choiceImages, result.tree);
+
 					//make sure base price is locked in.
 					let baseHouseOption = result.job.jobPlanOptions.find(o => o.jobOptionTypeName === 'BaseHouse');
 					let selectedPlanPrice: number = 0;
@@ -299,12 +316,12 @@ export class CommonEffects
 	hasError$: Observable<Action> = createEffect(
 		() => this.actions$.pipe(
 			scan((prev, action) =>
-				({
-					prev: prev.action,
-					action: action instanceof (ErrorAction),
-					err: action
-				}),
-			{ prev: false, action: false, err: <ErrorAction>null }
+			({
+				prev: prev.action,
+				action: action instanceof (ErrorAction),
+				err: action
+			}),
+				{ prev: false, action: false, err: <ErrorAction>null }
 			),
 			filter((errorScan: { prev: boolean; action: boolean; err: null; }) => !errorScan.prev && errorScan.action),
 			map((errorScan: { prev: boolean; action: boolean; err: null; }) =>

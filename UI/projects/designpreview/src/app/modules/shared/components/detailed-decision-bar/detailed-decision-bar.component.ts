@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 
 import 
-{ 
+{
 	UnsubscribeOnDestroy, slideOut, DecisionPoint, JobChoice, PickType, Choice, ChoiceImageAssoc, Group,
 	PointStatus, Tree, MyFavoritesChoice, MyFavoritesPointDeclined
 } from 'phd-common';
@@ -20,7 +20,6 @@ export class DetailedDecisionBarComponent extends UnsubscribeOnDestroy
 	@Input() points: DecisionPoint[];
 	@Input() salesChoices: JobChoice[];
 	@Input() myFavoritesChoices: MyFavoritesChoice[];
-	@Input() choiceImages: ChoiceImageAssoc[];
 	@Input() myFavoritesPointsDeclined?: MyFavoritesPointDeclined[];
 	@Input() groups: Group[];
 	@Input() tree: Tree;
@@ -37,12 +36,15 @@ export class DetailedDecisionBarComponent extends UnsubscribeOnDestroy
 
 	constructor() { super(); }
 
-	getSubTitle(point: DecisionPoint): string {
-		if (point) {
+	getSubTitle(point: DecisionPoint): string
+	{
+		if (point)
+		{
 			const contractedChoices = point.choices.filter(c => this.salesChoices?.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1);
 			const isPreviouslyContracted = contractedChoices && contractedChoices.length;
 
-			switch (point.pointPickTypeId) {
+			switch (point.pointPickTypeId)
+			{
 				case PickType.Pick1:
 					return isPreviouslyContracted ? 'Previously Contracted Option' : 'Please select one of the choices below';
 				case PickType.Pick1ormore:
@@ -59,25 +61,29 @@ export class DetailedDecisionBarComponent extends UnsubscribeOnDestroy
 		return '';
 	}
 
-	getChoiceExt(choice: Choice, point: DecisionPoint) : ChoiceExt {
+	getChoiceExt(choice: Choice, point: DecisionPoint): ChoiceExt
+	{
 		let unfilteredPoint = this.unfilteredPoints.find(up => up.divPointCatalogId === point.divPointCatalogId);
 		let choiceStatus = 'Available';
-		if (point.isPastCutOff || this.salesChoices?.findIndex(c => c.divChoiceCatalogId === choice.divChoiceCatalogId) > -1) {
+		if (point.isPastCutOff || this.salesChoices?.findIndex(c => c.divChoiceCatalogId === choice.divChoiceCatalogId) > -1)
+		{
 			choiceStatus = 'Contracted';
-		}	else {
+		} else
+		{
 			const contractedChoices = unfilteredPoint.choices.filter(c => this.salesChoices?.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1);
-			if (contractedChoices && contractedChoices.length && (point.pointPickTypeId === PickType.Pick1 || point.pointPickTypeId === PickType.Pick0or1)) {
+			if (contractedChoices && contractedChoices.length && (point.pointPickTypeId === PickType.Pick1 || point.pointPickTypeId === PickType.Pick0or1))
+			{
 				choiceStatus = 'ViewOnly';
 			}
 		}
 
 		const myFavoritesChoice = this.myFavoritesChoices ? this.myFavoritesChoices.find(x => x.divChoiceCatalogId === choice.divChoiceCatalogId) : null;
-		const images = this.choiceImages?.filter(x => x.dpChoiceId === choice.id);
 
-		return new ChoiceExt(choice, choiceStatus, myFavoritesChoice, point.isStructuralItem, images);
+		return new ChoiceExt(choice, choiceStatus, myFavoritesChoice, point.isStructuralItem);
 	}
 
-	showDeclineChoice(point: DecisionPoint): boolean {
+	showDeclineChoice(point: DecisionPoint): boolean
+	{
 		let unfilteredPoint = this.unfilteredPoints.find(up => up.divPointCatalogId === point.divPointCatalogId);
 		return (unfilteredPoint.pointPickTypeId === 2 || point.pointPickTypeId === 4)
 			&& !unfilteredPoint.isStructuralItem
@@ -85,21 +91,27 @@ export class DetailedDecisionBarComponent extends UnsubscribeOnDestroy
 			&& unfilteredPoint.choices.filter(c => this.salesChoices?.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1)?.length === 0;
 	}
 
-	toggleChoice (choice) {
+	toggleChoice(choice)
+	{
 		this.onToggleChoice.emit(choice);
 	}
 
-	viewChoiceDetail (choice) {
+	viewChoiceDetail(choice)
+	{
 		this.onViewChoiceDetail.emit(choice);
 	}
 
-	declineDecisionPoint(point: DecisionPoint) {
+	declineDecisionPoint(point: DecisionPoint)
+	{
 		this.onDeclineDecisionPoint.emit(point);
 	}
 
-	selectDecisionPoint(pointId: number) {
-		if (pointId) {
-			setTimeout(() => {
+	selectDecisionPoint(pointId: number)
+	{
+		if (pointId)
+		{
+			setTimeout(() =>
+			{
 				const firstPointId = this.points && this.points.length ? this.points[0].id : 0;
 				this.scrollPointIntoView(pointId, pointId === firstPointId);
 			}, 500);
@@ -107,13 +119,17 @@ export class DetailedDecisionBarComponent extends UnsubscribeOnDestroy
 		this.onSelectDecisionPoint.emit(pointId);
 	}
 
-	scrollPointIntoView(pointId: number, isFirstPoint: boolean) {
+	scrollPointIntoView(pointId: number, isFirstPoint: boolean)
+	{
 		const decision = document.getElementById(pointId?.toString());
-		if (decision) {
-			if (isFirstPoint) {
+		if (decision)
+		{
+			if (isFirstPoint)
+			{
 				decision.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
-			} else {
-				decision.scrollIntoView({behavior: 'smooth', block: 'start'});
+			} else
+			{
+				decision.scrollIntoView({ behavior: 'smooth', block: 'start' });
 			}
 		}
 	}
@@ -125,8 +141,10 @@ export class DetailedDecisionBarComponent extends UnsubscribeOnDestroy
 			: point.isStructuralItem || point.isPastCutOff || point.status === PointStatus.COMPLETED;
 	}
 
-	displayPoint(point: DecisionPoint) {
-		if (point.isHiddenFromBuyerView) {
+	displayPoint(point: DecisionPoint)
+	{
+		if (point.isHiddenFromBuyerView)
+		{
 			return false;
 		}
 		const choices = point && point.choices ? point.choices.filter(c => !c.isHiddenFromBuyerView) : [];

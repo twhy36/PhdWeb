@@ -75,7 +75,6 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 	priceBreakdown: PriceBreakdown;
 	marketingPlanId$ = new BehaviorSubject<number>(0);
 	isFloorplanFlipped: boolean;
-	currentChoiceImages: ChoiceImageAssoc[];
 	isPreview: boolean;
 	isPresale: boolean;
 	isDesignComplete: boolean;
@@ -99,7 +98,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 
 		return null;
 	}
-	
+
 	constructor(private store: Store<fromRoot.State>,
 		private route: ActivatedRoute,
 		private router: Router,
@@ -217,7 +216,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 								}
 							}
 						}
-						this.router.navigate(['..', subGroupCatalogId], { relativeTo: this.route, replaceUrl: true, queryParams: { presale: sessionStorage.getItem('presale_token')} });
+						this.router.navigate(['..', subGroupCatalogId], { relativeTo: this.route, replaceUrl: true, queryParams: { presale: sessionStorage.getItem('presale_token') } });
 					}
 					else
 					{
@@ -253,7 +252,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			{
 				const subGroup = filteredTree.groups[0].subGroups[0];
 
-				this.router.navigate([subGroup.subGroupCatalogId], { relativeTo: this.route, replaceUrl: true, queryParams: { presale: sessionStorage.getItem('presale_token')}  });
+				this.router.navigate([subGroup.subGroupCatalogId], { relativeTo: this.route, replaceUrl: true, queryParams: { presale: sessionStorage.getItem('presale_token') } });
 			}
 		});
 
@@ -278,10 +277,10 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			{
 				if (!!this.selectedSubGroup)
 				{
-					this.router.navigate(['..', this.selectedSubGroup?.subGroupCatalogId], { relativeTo: this.route, replaceUrl: true, queryParams: { presale: sessionStorage.getItem('presale_token')}  });
+					this.router.navigate(['..', this.selectedSubGroup?.subGroupCatalogId], { relativeTo: this.route, replaceUrl: true, queryParams: { presale: sessionStorage.getItem('presale_token') } });
 				} else
 				{
-					this.router.navigate(['..', subGroup?.subGroupCatalogId], { relativeTo: this.route, replaceUrl: true, queryParams: { presale: sessionStorage.getItem('presale_token')} });
+					this.router.navigate(['..', subGroup?.subGroupCatalogId], { relativeTo: this.route, replaceUrl: true, queryParams: { presale: sessionStorage.getItem('presale_token') } });
 				}
 			}
 		});
@@ -373,19 +372,6 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		{
 			this.groupName = newGroup.label;
 			this.selectedSubGroup = newSubGroup;
-
-			// If a new subgroup then get new images
-			if (this.selectedSubgroupId !== newSubGroup.id)
-			{
-				this.selectedSubgroupId = newSubGroup.id;
-				const choiceIds = (_.flatMap(newSubGroup.points, pt => pt.choices) || []).map(c => c.id);
-
-				return this.treeService.getChoiceImageAssoc(choiceIds)
-					.subscribe(choiceImages =>
-					{
-						this.currentChoiceImages = choiceImages;
-					});
-			}
 		}
 	}
 
@@ -407,7 +393,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		} else
 		{
 			this.store.dispatch(new ScenarioActions.SetTreeFilter(null));
-			this.router.navigate(['favorites', 'summary'], { queryParams: { presale: sessionStorage.getItem('presale_token')} });
+			this.router.navigate(['favorites', 'summary'], { queryParams: { presale: sessionStorage.getItem('presale_token') } });
 		}
 	}
 
@@ -481,7 +467,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 
 	viewChoiceDetail(choice: ChoiceExt)
 	{
-		this.router.navigate(['..', this.selectedSubGroup.subGroupCatalogId, choice.divChoiceCatalogId], { relativeTo: this.route, queryParams: { presale: sessionStorage.getItem('presale_token')} });
+		this.router.navigate(['..', this.selectedSubGroup.subGroupCatalogId, choice.divChoiceCatalogId], { relativeTo: this.route, queryParams: { presale: sessionStorage.getItem('presale_token') } });
 	}
 
 	hideDetails(sgId?: number)
@@ -494,18 +480,18 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			const newSubgroup = _.flatMap(this.groups, g => g.subGroups).find(sg => sg.id === sgId);
 			const firstPoint = newSubgroup?.points[0] || null;
 
-			this.router.navigate(['favorites', 'my-favorites', this.myFavoriteId, newSubgroup.subGroupCatalogId], { queryParams: { presale: sessionStorage.getItem('presale_token')} });
+			this.router.navigate(['favorites', 'my-favorites', this.myFavoriteId, newSubgroup.subGroupCatalogId], { queryParams: { presale: sessionStorage.getItem('presale_token') } });
 			this.store.dispatch(new NavActions.SetSelectedSubgroup(sgId, firstPoint.id, null));
 		}
 		else
 		{
 			if (this.router.url.includes('included/options/'))
 			{
-				this.router.navigate(['included'], { queryParams: { presale: sessionStorage.getItem('presale_token')} });
+				this.router.navigate(['included'], { queryParams: { presale: sessionStorage.getItem('presale_token') } });
 			}
 			else
 			{
-				this.router.navigate(['favorites', 'my-favorites', this.myFavoriteId, this.selectedSubGroup.subGroupCatalogId], { queryParams: { presale: sessionStorage.getItem('presale_token')} });
+				this.router.navigate(['favorites', 'my-favorites', this.myFavoriteId, this.selectedSubGroup.subGroupCatalogId], { queryParams: { presale: sessionStorage.getItem('presale_token') } });
 			}
 			this.store.dispatch(new NavActions.SetSelectedSubgroup(this.selectedSubgroupId, this.selectedPointId, null));
 		}
@@ -618,8 +604,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		}
 
 		const myFavoritesChoice = this.myFavoritesChoices ? this.myFavoritesChoices.find(x => x.divChoiceCatalogId === choice.divChoiceCatalogId) : null;
-		const images = this.currentChoiceImages?.filter(x => x.dpChoiceId === choice.id);
 
-		return new ChoiceExt(choice, choiceStatus, myFavoritesChoice, point.isStructuralItem, images);
+		return new ChoiceExt(choice, choiceStatus, myFavoritesChoice, point.isStructuralItem);
 	}
 }

@@ -1,4 +1,4 @@
-import { Choice } from '../models/tree.model';
+import { Choice, ChoiceImageAssoc, OptionImage, Tree } from '../models/tree.model';
 import { Buyer } from '../models/buyer.model';
 import { ChangeOrderGroup } from '../models/job-change-order.model';
 
@@ -93,61 +93,61 @@ function checkLocationAttributeSelections(choice: Choice, locationGroups: number
 }
 
 export function mergeSalesChangeOrderBuyers(salesAgreementBuyers: Array<Buyer>, currentChangeOrder: ChangeOrderGroup): Array<Buyer>
+{
+	let buyers = _.cloneDeep(salesAgreementBuyers);
+	const buyerChangeOrder = currentChangeOrder && currentChangeOrder.jobChangeOrders
+		? currentChangeOrder.jobChangeOrders.find(x => x.jobChangeOrderTypeDescription === 'BuyerChangeOrder')
+		: null;
+
+	if (buyerChangeOrder && buyerChangeOrder.jobSalesChangeOrderBuyers)
 	{
-		let buyers = _.cloneDeep(salesAgreementBuyers);
-		const buyerChangeOrder = currentChangeOrder && currentChangeOrder.jobChangeOrders
-			? currentChangeOrder.jobChangeOrders.find(x => x.jobChangeOrderTypeDescription === 'BuyerChangeOrder')
-			: null;
+		const deletedBuyers = buyerChangeOrder.jobSalesChangeOrderBuyers.filter(x => x.action === 'Delete');
 
-		if (buyerChangeOrder && buyerChangeOrder.jobSalesChangeOrderBuyers)
+		deletedBuyers.forEach(b =>
 		{
-			const deletedBuyers = buyerChangeOrder.jobSalesChangeOrderBuyers.filter(x => x.action === 'Delete');
+			const deletedBuyer = buyers.findIndex(x => x.opportunityContactAssoc.id === b.opportunityContactAssoc.id);
 
-			deletedBuyers.forEach(b =>
+			if (deletedBuyer > -1)
 			{
-				const deletedBuyer = buyers.findIndex(x => x.opportunityContactAssoc.id === b.opportunityContactAssoc.id);
+				buyers.splice(deletedBuyer, 1);
+			}
+		});
 
-				if (deletedBuyer > -1)
-				{
-					buyers.splice(deletedBuyer, 1);
-				}
-			});
+		const addedBuyers = buyerChangeOrder.jobSalesChangeOrderBuyers.filter(x => x.action === 'Add');
 
-			const addedBuyers = buyerChangeOrder.jobSalesChangeOrderBuyers.filter(x => x.action === 'Add');
+		addedBuyers.forEach(b =>
+		{
+			let buyer = _.cloneDeep(b);
 
-			addedBuyers.forEach(b =>
+			if (buyer.opportunityContactAssoc && buyer.opportunityContactAssoc.contact)
 			{
-				let buyer = _.cloneDeep(b);
+				buyer.opportunityContactAssoc.contact.firstName = b.firstName;
+				buyer.opportunityContactAssoc.contact.middleName = b.middleName;
+				buyer.opportunityContactAssoc.contact.lastName = b.lastName;
+				buyer.opportunityContactAssoc.contact.suffix = b.suffix;
+			}
+			buyers.push(buyer);
+		});
 
-				if (buyer.opportunityContactAssoc && buyer.opportunityContactAssoc.contact)
-				{
-					buyer.opportunityContactAssoc.contact.firstName = b.firstName;
-					buyer.opportunityContactAssoc.contact.middleName = b.middleName;
-					buyer.opportunityContactAssoc.contact.lastName = b.lastName;
-					buyer.opportunityContactAssoc.contact.suffix = b.suffix;
-				}
-				buyers.push(buyer);
-			});
+		const updatedBuyers = buyerChangeOrder.jobSalesChangeOrderBuyers.filter(x => x.action === 'Change');
+		updatedBuyers.forEach(updatedBuyer =>
+		{
+			let buyer = buyers.find(x => x.opportunityContactAssoc.id === updatedBuyer.opportunityContactAssoc.id);
 
-			const updatedBuyers = buyerChangeOrder.jobSalesChangeOrderBuyers.filter(x => x.action === 'Change');
-			updatedBuyers.forEach(updatedBuyer =>
+			if (buyer && buyer.opportunityContactAssoc && buyer.opportunityContactAssoc.contact)
 			{
-				let buyer = buyers.find(x => x.opportunityContactAssoc.id === updatedBuyer.opportunityContactAssoc.id);
-
-				if (buyer && buyer.opportunityContactAssoc && buyer.opportunityContactAssoc.contact)
+				if (buyer.opportunityContactAssoc.contact)
 				{
-					if (buyer.opportunityContactAssoc.contact)
-					{
-						buyer.opportunityContactAssoc.contact.firstName = updatedBuyer.firstName;
-						buyer.opportunityContactAssoc.contact.middleName = updatedBuyer.middleName;
-						buyer.opportunityContactAssoc.contact.lastName = updatedBuyer.lastName;
-						buyer.opportunityContactAssoc.contact.suffix = updatedBuyer.suffix;
-					}
+					buyer.opportunityContactAssoc.contact.firstName = updatedBuyer.firstName;
+					buyer.opportunityContactAssoc.contact.middleName = updatedBuyer.middleName;
+					buyer.opportunityContactAssoc.contact.lastName = updatedBuyer.lastName;
+					buyer.opportunityContactAssoc.contact.suffix = updatedBuyer.suffix;
 				}
-			});
-		}
+			}
+		});
+	}
 
-		return buyers;
+	return buyers;
 }
 
 export function updateLotChoiceRules(lotChoiceRulesAssoc: LotChoiceRuleAssoc[], lotChoiceRules: LotChoiceRules[]): LotChoiceRules[]
@@ -198,4 +198,90 @@ export function removeProperty(obj, propertyName)
 	let { [propertyName]: _, ...result } = obj
 
 	return result
+}
+
+//update the passing store tree with passing choice images
+export function mergeTreeChoiceImages(choiceImages: Array<ChoiceImageAssoc>, tree: Tree)
+{
+	if (choiceImages && choiceImages.length > 0)
+	{
+		const choices = _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices))) || [];
+		// Map image URLs to choiceImages only if no choice options
+		choices.map(choice =>
+		{
+			if (!choice.options || !choice.options.length)
+			{
+				const imgs = choiceImages.filter(img => img.dpChoiceId === choice.id);
+
+				if (imgs && imgs.length)
+				{
+					choice.choiceImages = imgs;
+				}
+			}
+		})
+	}
+}
+
+//get single choice image for a passing Choice
+export function getChoiceImage(choice: Choice): string
+{
+	const options = choice ? choice.options : null;
+	if (options && options.length) 
+	{
+		return options.find(x => x.optionImages && x.optionImages.length)?.optionImages[0]?.imageURL;
+	}
+	else
+	{
+		return choice?.choiceImages[0]?.imageUrl;
+	}
+}
+
+//get choice images from option images, or choice images when no mapped options
+export function getChoiceImageList(choice: Choice): OptionImage[]
+{
+	const options = choice ? choice.options : null;
+	let images: OptionImage[] = [];
+	if (options && options.length) 
+	{
+		options.forEach(option =>
+		{
+			option?.optionImages?.forEach(x =>
+			{
+				images.push(x);
+			});
+		});
+	}
+	else
+	{
+		choice?.choiceImages?.forEach(x =>
+		{
+			images.push({ imageURL: x.imageUrl });
+		});
+	}
+
+	return images;
+}
+
+export function getChoiceIdsHasChoiceImages(tree: Tree, hasAgreement: boolean): Array<number>
+{
+	return hasAgreement ?
+		(_.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices))) || [])
+			.filter(c => c.hasImage)
+			.map(c =>
+			{
+				//display contracted choice images only
+				if (c.lockedInChoice?.choice)
+				{
+					return c.lockedInChoice.choice.dpChoiceId;
+				}
+				else
+				{
+					return c.id;
+				}
+			})
+		:
+		(_.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices))) || [])
+			.filter(c => c.hasImage)
+			.map(c => c.id)
+		;
 }

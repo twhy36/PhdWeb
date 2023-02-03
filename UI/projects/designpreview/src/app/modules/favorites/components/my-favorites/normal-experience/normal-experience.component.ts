@@ -28,7 +28,6 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	@Input() salesChoices: JobChoice[];
 	@Input() groups: Group[];
 	@Input() tree: Tree;
-	@Input() choiceImages: ChoiceImageAssoc[];
 	@Input() isReadonly: boolean;
 	@Input() isPresale: boolean = false;
 	@Input() noVisibleGroups: boolean = false;
@@ -57,7 +56,8 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 				// Prevent from reloading the page
 				const newChoices = _.flatMap(newSubGroup.points, pt => pt.choices);
 				let choices = _.flatMap(this.subGroup.points, pt => pt.choices);
-				newChoices.forEach(nc => {
+				newChoices.forEach(nc =>
+				{
 					let choice = choices.find(x => x.divChoiceCatalogId === nc.divChoiceCatalogId);
 					if (choice)
 					{
@@ -94,20 +94,20 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 			{
 				case PickType.Pick1:
 					return isPreviouslyContracted
-							? 'Previously Contracted Option'
-							: 'Please select one of the choices below';
+						? 'Previously Contracted Option'
+						: 'Please select one of the choices below';
 				case PickType.Pick1ormore:
 					return isPreviouslyContracted
-							? 'Previously Contracted Options'
-							: 'Please select at least one of the Choices below';
+						? 'Previously Contracted Options'
+						: 'Please select at least one of the Choices below';
 				case PickType.Pick0ormore:
 					return isPreviouslyContracted
-							? 'Previously Contracted Options'
-							: 'Please select at least one of the Choices below';
+						? 'Previously Contracted Options'
+						: 'Please select at least one of the Choices below';
 				case PickType.Pick0or1:
 					return isPreviouslyContracted
-							? 'Previously Contracted Option'
-							: 'Please select one of the choices below';
+						? 'Previously Contracted Option'
+						: 'Please select one of the choices below';
 				default:
 					return '';
 			}
@@ -116,11 +116,13 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 		return '';
 	}
 
-	togglePointPanel() {
+	togglePointPanel()
+	{
 		this.isPointPanelCollapsed = !this.isPointPanelCollapsed;
 	}
 
-	selectDecisionPoint(pointId: number, interval?: number) {
+	selectDecisionPoint(pointId: number, interval?: number)
+	{
 		if (pointId)
 		{
 			setTimeout(() =>
@@ -135,21 +137,24 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 		this.currentPointId = pointId;
 	}
 
-	declineDecisionPoint(point: DecisionPoint) {
+	declineDecisionPoint(point: DecisionPoint)
+	{
 		this.currentPointId = point.id;
 		this.onDeclineDecisionPoint.emit(point);
 	}
 
-	choiceToggleHandler(choice: ChoiceExt) {
+	choiceToggleHandler(choice: ChoiceExt)
+	{
 		const point = this.points.find(p => p.choices.some(c => c.id === choice.id));
-		if (point && this.currentPointId != point.id) {
+		if (point && this.currentPointId != point.id)
+		{
 			this.currentPointId = point.id;
 		}
 		this.choiceToggled = true;
 		this.onToggleChoice.emit(choice);
 	}
 
-	getChoiceExt(choice: Choice, point: DecisionPoint) : ChoiceExt
+	getChoiceExt(choice: Choice, point: DecisionPoint): ChoiceExt
 	{
 		let unfilteredPoint = this.unfilteredPoints.find(up => up.divPointCatalogId === point.divPointCatalogId);
 		let choiceStatus = 'Available';
@@ -168,12 +173,12 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 		}
 
 		const myFavoritesChoice = this.myFavoritesChoices ? this.myFavoritesChoices.find(x => x.divChoiceCatalogId === choice.divChoiceCatalogId) : null;
-		const images = this.choiceImages?.filter(x => x.dpChoiceId === choice.id);
 
-		return new ChoiceExt(choice, choiceStatus, myFavoritesChoice, point.isStructuralItem, images);
+		return new ChoiceExt(choice, choiceStatus, myFavoritesChoice, point.isStructuralItem);
 	}
 
-	showDeclineCard(point: DecisionPoint): boolean {
+	showDeclineCard(point: DecisionPoint): boolean
+	{
 		let unfilteredPoint = this.unfilteredPoints.find(up => up.divPointCatalogId === point.divPointCatalogId);
 		return (unfilteredPoint.pointPickTypeId === 2 || unfilteredPoint.pointPickTypeId === 4)
 			&& !unfilteredPoint.isStructuralItem
@@ -188,19 +193,21 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 		{
 			if (isFirstPoint)
 			{
-				setTimeout(() => {
+				setTimeout(() =>
+				{
 					pointCardElement.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
 				}, 250);
 			}
 			else
 			{
 				// Workaround to display the element moved under the nav bar
-				setTimeout(() => {
+				setTimeout(() =>
+				{
 					const pos = pointCardElement.style.position;
 					const top = pointCardElement.style.top;
 					pointCardElement.style.position = 'relative';
 					pointCardElement.style.top = '-200px';
-					pointCardElement.scrollIntoView({behavior: 'smooth', block: 'start'});
+					pointCardElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
 					pointCardElement.style.top = top;
 					pointCardElement.style.position = pos;
 				}, 250);
@@ -208,7 +215,8 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 		}
 
 		const decisionBarElement = document.getElementById('decision-bar-' + pointId?.toString());
-		if (decisionBarElement) {
+		if (decisionBarElement)
+		{
 			decisionBarElement.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
 		}
 	}
@@ -220,14 +228,19 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 		this.onViewChoiceDetail.emit(choice);
 	}
 
-	displayDecisionPoint(point: DecisionPoint) {
-		if (point.isHiddenFromBuyerView) {
+	displayDecisionPoint(point: DecisionPoint)
+	{
+		if (point.isHiddenFromBuyerView)
+		{
 			return false;
-		} else {
+		} else
+		{
 			const choices = _.flatMap(point.choices);
 			let aChoiceExists = false;
-			choices.forEach(c => {
-				if (!c.isHiddenFromBuyerView) {
+			choices.forEach(c =>
+			{
+				if (!c.isHiddenFromBuyerView)
+				{
 					aChoiceExists = true;
 				}
 			})
@@ -235,7 +248,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 		}
 	}
 
-	isInputChanged(input: any) : boolean
+	isInputChanged(input: any): boolean
 	{
 		let isValueChanged = false;
 

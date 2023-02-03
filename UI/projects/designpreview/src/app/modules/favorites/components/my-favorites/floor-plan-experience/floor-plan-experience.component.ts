@@ -12,9 +12,9 @@ import { BrandService } from '../../../../core/services/brand.service';
 import { ChoiceExt } from '../../../../shared/models/choice-ext.model';
 
 @Component({
-  selector: 'floor-plan-experience',
-  templateUrl: './floor-plan-experience.component.html',
-  styleUrls: ['./floor-plan-experience.component.scss']
+	selector: 'floor-plan-experience',
+	templateUrl: './floor-plan-experience.component.html',
+	styleUrls: ['./floor-plan-experience.component.scss']
 })
 export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implements OnChanges
 {
@@ -29,7 +29,6 @@ export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implement
 	@Input() isFloorplanFlipped: boolean;
 	@Input() groups: Group[];
 	@Input() tree: Tree;
-	@Input() choiceImages: ChoiceImageAssoc[];
 	@Input() myFavoritesPointsDeclined?: MyFavoritesPointDeclined[];
 	@Input() isReadonly: boolean;
 	@Input() isPreview: boolean = false;
@@ -54,20 +53,26 @@ export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implement
 	fpOptions: any[];
 	selectedFloor: any;
 
-	constructor(private brandService: BrandService) {
+	constructor(private brandService: BrandService)
+	{
 		super();
 	}
 
-	ngOnChanges(changes: SimpleChanges) {
-		if (changes['currentSubgroup']) {
+	ngOnChanges(changes: SimpleChanges)
+	{
+		if (changes['currentSubgroup'])
+		{
 			const newSubGroup = (changes['currentSubgroup'].currentValue) as SubGroup;
-			if (this.choiceToggled) {
+			if (this.choiceToggled)
+			{
 				// Prevent from reloading the page
 				const newChoices = _.flatMap(newSubGroup.points, pt => pt.choices);
 				let choices = _.flatMap(this.subGroup.points, pt => pt.choices);
-				newChoices.forEach(nc => {
+				newChoices.forEach(nc =>
+				{
 					let choice = choices.find(x => x.divChoiceCatalogId === nc.divChoiceCatalogId);
-					if (choice) {
+					if (choice)
+					{
 						choice.quantity = nc.quantity;
 					}
 				});
@@ -77,16 +82,19 @@ export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implement
 			this.points = this.subGroup ? this.subGroup.points : null;
 		}
 
-		if (changes['decisionPointId']) {
+		if (changes['decisionPointId'])
+		{
 			this.selectDecisionPoint(changes['decisionPointId'].currentValue);
 		}
 	}
 
-	togglePointPanel() {
+	togglePointPanel()
+	{
 		this.isPointPanelCollapsed = !this.isPointPanelCollapsed;
 	}
 
-	selectDecisionPoint(pointId: number) {
+	selectDecisionPoint(pointId: number)
+	{
 		if (pointId)
 		{
 			setTimeout(() =>
@@ -100,18 +108,22 @@ export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implement
 		this.currentPointId = pointId;
 	}
 
-	choiceToggleHandler(choice: ChoiceExt) {
+	choiceToggleHandler(choice: ChoiceExt)
+	{
 		const point = this.points.find(p => p.choices.some(c => c.id === choice.id));
-		if (point && this.currentPointId != point.id) {
+		if (point && this.currentPointId != point.id)
+		{
 			this.currentPointId = point.id;
 		}
 
 		// For subgroups using the floorplan, a favorite selection can cause an update to the floorplan image
-		if (this.subGroup?.useInteractiveFloorplan && choice.options.length) {
+		if (this.subGroup?.useInteractiveFloorplan && choice.options.length)
+		{
 			const integrationKey = choice.options[0].financialOptionIntegrationKey;
 			const fpOption = this.fpOptions?.find(x => x.id.includes(integrationKey));
 
-			if (fpOption) {
+			if (fpOption)
+			{
 				const floor = this.floors.find(f => f.id === fpOption.floor);
 				this.selectedFloor = floor;
 			}
@@ -121,20 +133,26 @@ export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implement
 		this.onToggleChoice.emit(choice);
 	}
 
-	viewChoiceDetail(choice: ChoiceExt) {
-		setTimeout(() => {
+	viewChoiceDetail(choice: ChoiceExt)
+	{
+		setTimeout(() =>
+		{
 			this.onViewChoiceDetail.emit(choice);
 		}, 50);
 	}
 
-	loadFloorPlan(fp) {
+	loadFloorPlan(fp)
+	{
 		// load floors
 		this.floors = fp.floors;
-		if (!this.selectedFloor) {
+		if (!this.selectedFloor)
+		{
 			const floor1 = this.floors.find(floor => floor.name === 'Floor 1');
-			if (floor1) {
+			if (floor1)
+			{
 				this.selectedFloor = floor1;
-			} else {
+			} else
+			{
 				this.selectedFloor = this.floors[0];
 			}
 		}
@@ -142,11 +160,13 @@ export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implement
 		this.fpOptions = fp.options;
 	}
 
-	selectFloor(floor: any) {
+	selectFloor(floor: any)
+	{
 		this.selectedFloor = floor;
 	}
 
-	declineDecisionPoint(point: DecisionPoint) {
+	declineDecisionPoint(point: DecisionPoint)
+	{
 		this.onDeclineDecisionPoint.emit(point);
 	}
 
@@ -159,8 +179,8 @@ export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implement
 		}
 	}
 
-	getDefaultFPImageSrc() {
+	getDefaultFPImageSrc()
+	{
 		return this.brandService.getBrandImage('logo');
 	}
 }
-
