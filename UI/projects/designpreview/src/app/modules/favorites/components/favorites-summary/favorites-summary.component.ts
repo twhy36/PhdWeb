@@ -11,7 +11,7 @@ import * as _ from 'lodash';
 
 import
 {
-	UnsubscribeOnDestroy, PriceBreakdown, Group, DecisionPoint, JobChoice, Tree, TreeVersionRules, SalesAgreement, 
+	UnsubscribeOnDestroy, PriceBreakdown, Group, DecisionPoint, JobChoice, Tree, TreeVersionRules, SalesAgreement,
 	getDependentChoices, ModalService, PlanOption, Choice, ConfirmModalComponent, SubGroup, FloorPlanImage, ModalRef
 } from 'phd-common';
 
@@ -73,6 +73,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 	emptyFavoritesModal: ModalRef;
 	confirmModal: ModalRef;
 	showFloorplan: boolean = true;
+	isInitScrollTop: boolean = false;
 
 	constructor(private store: Store<fromRoot.State>,
 		private activatedRoute: ActivatedRoute,
@@ -82,7 +83,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		private location: Location,
 		private adobeService: AdobeService,
 		public sanitizer: DomSanitizer
-		)
+	)
 	{
 		super();
 	}
@@ -151,21 +152,24 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(fromFavorite.currentMyFavorite)
-		).subscribe(favorites => {
+		).subscribe(favorites =>
+		{
 			this.favoritesId = favorites && favorites.id;
 		});
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(fromScenario.floorPlanImages)
-		).subscribe(ifpImages => {
+		).subscribe(ifpImages =>
+		{
 			this.floorPlanImages = ifpImages;
 		});
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(fromPlan.selectedPlanData)
-		).subscribe(planData => {
+		).subscribe(planData =>
+		{
 			this.planName = planData && planData.salesName;
 			this.summaryHeader.planName = this.planName;
 		});
@@ -173,7 +177,8 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(fromRoot.financialCommunityName),
-		).subscribe(communityName => {
+		).subscribe(communityName =>
+		{
 			this.communityName = communityName;
 			this.summaryHeader.communityName = communityName;
 		});
@@ -181,22 +186,26 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(fromRoot.elevationImageUrl)
-		).subscribe(imageUrl => {
+		).subscribe(imageUrl =>
+		{
 			this.summaryHeader.elevationImageUrl = imageUrl;
 		});
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(fromSalesAgreement.selectSelectedLot)
-		).subscribe(lot => {
+		).subscribe(lot =>
+		{
 			this.summaryHeader.lot = lot
 		});
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(fromRoot.filteredTree)
-		).subscribe(tree => {
-			if (tree) {
+		).subscribe(tree =>
+		{
+			if (tree)
+			{
 				this.groups = this.getGroupExts(tree.groups);
 			}
 		});
@@ -209,7 +218,8 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(fromFavorite.favoriteState)
-		).subscribe(fav => {
+		).subscribe(fav =>
+		{
 			this.salesChoices = fav && fav.salesChoices;
 			this.includeContractedOptions = fav && fav.includeContractedOptions;
 			this.myFavorites = fav && fav.myFavorites;
@@ -218,7 +228,8 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(fromScenario.selectScenario)
-		).subscribe(scenario => {
+		).subscribe(scenario =>
+		{
 			this.tree = scenario.tree;
 			this.treeVersionRules = _.cloneDeep(scenario.rules);
 			this.options = _.cloneDeep(scenario.options);
@@ -226,7 +237,8 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 
 		this.checkForEmptyFavorites();
 
-		if (this.isPresale && this.isEmptyFavorites) {
+		if (this.isPresale && this.isEmptyFavorites)
+		{
 			this.displayEmptyFavoritesModal();
 		}
 
@@ -269,6 +281,14 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		{
 			this.isFloorplanFlipped = sag.isFloorplanFlipped;
 		});
+
+		//scroll to top on inital load when previous scroll is not top
+		const scrollPosition = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+		if (scrollPosition > 0)
+		{
+			this.isInitScrollTop = true;
+			window.scrollTo(0, 0);
+		}
 	}
 
 	onBack()
@@ -278,29 +298,31 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 
 	displayPoint(dp: DecisionPoint)
 	{
-		if (dp.isHiddenFromBuyerView) {
+		if (dp.isHiddenFromBuyerView)
+		{
 			return false;
 		}
 		const choices = dp && dp.choices ? dp.choices.filter(c => c.quantity > 0 && !c.isHiddenFromBuyerView) : [];
 		const favoriteChoices = choices.filter(c => !this.salesChoices || this.salesChoices.findIndex(sc => sc.divChoiceCatalogId === c.divChoiceCatalogId) === -1);
 
 		return this.includeContractedOptions
-					? choices && !!choices.length
-					: favoriteChoices && !!favoriteChoices.length;
+			? choices && !!choices.length
+			: favoriteChoices && !!favoriteChoices.length;
 	}
 
-	onSubgroupSelected(id: number) {
+	onSubgroupSelected(id: number)
+	{
 		this.store.dispatch(new NavActions.SetSelectedSubgroup(id));
 
 		const subGroups = _.flatMap(this.groups, g => _.flatMap(g.subGroups)) || [];
 		const selectedSubGroup = subGroups.find(sg => sg.id === id);
 		if (selectedSubGroup)
 		{
-			this.router.navigate(['favorites', 'my-favorites', this.favoritesId, selectedSubGroup.subGroupCatalogId], { queryParams: { presale: sessionStorage.getItem('presale_token')} });
+			this.router.navigate(['favorites', 'my-favorites', this.favoritesId, selectedSubGroup.subGroupCatalogId], { queryParams: { presale: sessionStorage.getItem('presale_token') } });
 		}
 		else
 		{
-			this.router.navigate(['favorites', 'my-favorites', this.favoritesId], { queryParams: { presale: sessionStorage.getItem('presale_token')} });
+			this.router.navigate(['favorites', 'my-favorites', this.favoritesId], { queryParams: { presale: sessionStorage.getItem('presale_token') } });
 		}
 	}
 
@@ -310,6 +332,14 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 	 */
 	onIsStickyChanged(isSticky: boolean)
 	{
+		//skip initial load sticky set
+		if (this.isInitScrollTop)
+		{
+			this.isSticky = false;
+			this.isInitScrollTop = false;
+			return;
+		}
+
 		this.isSticky = isSticky;
 
 		this.cd.detectChanges();
@@ -319,9 +349,10 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 	{
 		this.store.dispatch(new FavoriteActions.ToggleContractedOptions());
 
-		setTimeout(() => {
-            this.cd.detectChanges();
-        }, 50);
+		setTimeout(() =>
+		{
+			this.cd.detectChanges();
+		}, 50);
 	}
 
 	onViewFavorites(point: DecisionPoint)
@@ -331,7 +362,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		if (subGroup)
 		{
 			this.store.dispatch(new NavActions.SetSelectedSubgroup(point.subGroupId, point.id));
-			this.router.navigate(['favorites', 'my-favorites', this.favoritesId, subGroup.subGroupCatalogId], { queryParams: { presale: sessionStorage.getItem('presale_token')} });
+			this.router.navigate(['favorites', 'my-favorites', this.favoritesId, subGroup.subGroupCatalogId], { queryParams: { presale: sessionStorage.getItem('presale_token') } });
 		}
 	}
 
@@ -376,34 +407,39 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 
 				this.checkForEmptyFavorites();
 
-				if (this.isPresale && this.isEmptyFavorites) {
+				if (this.isPresale && this.isEmptyFavorites)
+				{
 					this.displayEmptyFavoritesModal();
 				}
 
-				setTimeout(() => {
+				setTimeout(() =>
+				{
 					this.cd.detectChanges();
 				}, 50);
 			}
 
 		}, (reason) =>
-			{
+		{
 
-			});
+		});
 	}
 
-	getGroupExts(groups: Group[]) : GroupExt[]
+	getGroupExts(groups: Group[]): GroupExt[]
 	{
-		return groups.map(g => {
+		return groups.map(g =>
+		{
 			return new GroupExt(g);
 		})
 	}
 
-	checkForEmptyFavorites() {
+	checkForEmptyFavorites()
+	{
 		let favorites = _.flatMap(this.myFavorites, fav => fav.myFavoritesChoice);
 		this.isEmptyFavorites = favorites.length === 0;
 	}
 
-	displayEmptyFavoritesModal() {
+	displayEmptyFavoritesModal()
+	{
 		let ngbModalOptions: NgbModalOptions = {
 			centered: true,
 			backdrop: true,
@@ -430,47 +466,55 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 			{
 				this.location.back();
 
-				setTimeout(() => {
+				setTimeout(() =>
+				{
 					this.cd.detectChanges();
 				}, 50);
 			}
 
 		}, (reason) =>
-			{
+		{
 
-			});
+		});
 
 	}
 
-	loadFloorPlan(fp) {
+	loadFloorPlan(fp)
+	{
 		// load floors
 		this.floors = fp.floors;
 
 		//Decide the first floor to display
 		let floorIndex = this.floors.findIndex(floor => floor.name === 'Basement');
-		if (floorIndex > -1) {
+		if (floorIndex > -1)
+		{
 			this.firstDisplayedFloor = this.floors[floorIndex];
-			this.floors.splice(floorIndex , 1);
+			this.floors.splice(floorIndex, 1);
 		}
-		else {
+		else
+		{
 			floorIndex = this.floors.findIndex(floor => floor.name === 'Floor 1');
-			if (floorIndex > -1) {
+			if (floorIndex > -1)
+			{
 				this.firstDisplayedFloor = this.floors[floorIndex];
-				this.floors.splice(floorIndex , 1);
+				this.floors.splice(floorIndex, 1);
 			}
-			else {
+			else
+			{
 				this.firstDisplayedFloor = this.floors[0];
-				this.floors.splice(0,1);
+				this.floors.splice(0, 1);
 			}
 		}
 
 		//There needs to be a short delay between displaying floorplans, or the floorplan.component gets confused
-		setTimeout(() => {
+		setTimeout(() =>
+		{
 			this.showNextIFP++;
 		}, 200);
 	}
 
-	getIfpId(image: FloorPlanImage) {
+	getIfpId(image: FloorPlanImage)
+	{
 		return `phd-ifp-${image.floorIndex}`;
 	}
 
