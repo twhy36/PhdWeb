@@ -1705,7 +1705,7 @@ export class ChangeOrderService
 		{
 			if (changeOrderGroup && changeOrderGroup.jobChangeOrders && changeOrderGroup.jobChangeOrders.length)
 			{
-				const salesJIOChangeOrder = changeOrderGroup.jobChangeOrders.find(x => x.jobChangeOrderTypeDescription === 'SalesJIO');
+				const salesJIOChangeOrder = changeOrderGroup.jobChangeOrders.find(x => x.jobChangeOrderTypeDescription === 'SalesJIO' || x.jobChangeOrderTypeDescription === 'SpecJIO');
 
 				if (salesJIOChangeOrder)
 				{
@@ -1750,6 +1750,13 @@ export class ChangeOrderService
 			if (jioChangeOrder)
 			{
 				jobChangeOrderPlanOptions = [...jioChangeOrder.jobChangeOrderPlanOptions];
+			}
+
+			const specJioChangeOrder = changeOrderGroup.jobChangeOrders.find(x => x.jobChangeOrderTypeDescription === 'SpecJIO');
+
+			if (specJioChangeOrder)
+			{
+				jobChangeOrderPlanOptions = [...specJioChangeOrder.jobChangeOrderPlanOptions];
 			}
 
 			const choiceChangeOrder = changeOrderGroup.jobChangeOrders.find(x => x.jobChangeOrderTypeDescription === 'ChoiceAttribute');
