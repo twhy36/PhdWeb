@@ -23,14 +23,7 @@ export const environment: IEnvironment = {
 			centex: 'http://localhost:14769/',
 			johnWieland: 'http://localhost:14769/',
 		},
-		thoPreview: {
-			pulte: 'https://tho.dev.pulte.com/',
-			delWebb: 'https://tho.dev.delwebb.com/',
-			americanWest: 'https://tho.dev.americanwesthomes.com/',
-			diVosta: 'https://tho.dev.divosta.com/',
-			centex: 'https://tho.dev.centex.com/',
-			johnWieland: 'https://tho.dev.jwhomes.com/',
-		},
+		thoPreview: 'https://tho.dev.centex.com/',
 		reports: 'http://powerbi.dev.pulte.com/Reports/browse/IDEA/Sales/PHD',
 		homeSelections: 'https://homebuilder.dev.pulte.com/HomeSelections/',
 		salesTally: 'https://salesportal.dev.pulte.com/salesportal/salestally'

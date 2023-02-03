@@ -19,7 +19,7 @@ export class SalesCommunitySelectorComponent implements OnInit
 	@Input() showLabels: boolean = false;
 	@Input() optionalFinancialCommunity = true;
 	@Output() onMarketChange: EventEmitter<number> = new EventEmitter(true);
-	@Output() onSalesCommunityChange: EventEmitter<ISalesCommunity> = new EventEmitter(true);
+	@Output() onSalesCommunityChange: EventEmitter<number> = new EventEmitter(true);
 	@Output() onFinancialCommunityChange: EventEmitter<IFinancialCommunity> = new EventEmitter(true);
 	@Output() onFinancialCommunitiesForMarketChange: EventEmitter<number[]> = new EventEmitter(false);
 
@@ -128,7 +128,7 @@ export class SalesCommunitySelectorComponent implements OnInit
 				}
 
 				// SALES COMMUNITY UPDATES
-				this.onSalesCommunityChange.emit(this.selectedCommunity);
+				this.onSalesCommunityChange.emit(this.selectedCommunity.id);
 				this.communityStatus = this.SALES_COMMUNITY_STATUS.LOADED;
 				// enable controls for community selector
 				this.communitiesControl.enable();
@@ -155,7 +155,7 @@ export class SalesCommunitySelectorComponent implements OnInit
 		// set local storage
 		this._orgService.currentSalesCommunity = this.selectedCommunity.number;
 		// send new community on up
-		this.onSalesCommunityChange.emit(this.selectedCommunity);
+		this.onSalesCommunityChange.emit(this.selectedCommunity.id);
 		this.setFinancialCommunity();
 		this.emitFinancialCommunitiesForMarketChange();
 	}

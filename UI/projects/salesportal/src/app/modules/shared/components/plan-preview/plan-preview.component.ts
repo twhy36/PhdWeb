@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewEncapsulation } from '@angular/core';
 
-import { IFinancialCommunity, IPlan, ISalesCommunity, ITreeVersion, IWebSiteCommunity } from '../../models/community.model';
+import { IFinancialCommunity, IPlan, ITreeVersion, IWebSiteCommunity } from '../../models/community.model';
 import { LinkAction } from '../../models/action.model';
 import { OrganizationService } from '../../../core/services/organization.service';
 import { environment } from '../../../../../environments/environment';
@@ -20,12 +20,12 @@ export class PlanPreviewComponent implements OnInit
 	@Output() onClose = new EventEmitter<void>();
 
 	selectedMarket: number = null;
-	selectedSalesCommunity: ISalesCommunity = null;
+	selectedSalesCommunity: number = null;
 	selectedFinancialCommunity: number = null;
 	selectedPlan: number = 0;
 	selectedType: number = 0;
 	selectedTreeVersion: number = 0;
-
+	
 	currentFinancialBrand: FinancialBrand;
 
 	types: Array<{
@@ -144,7 +144,7 @@ export class PlanPreviewComponent implements OnInit
 
 		if (this.selectedSalesCommunity)
 		{
-			this.organizationService.getWebsiteCommunity(this.selectedSalesCommunity.id).subscribe(wc =>
+			this.organizationService.getWebsiteCommunity(this.selectedSalesCommunity).subscribe(wc =>
 			{
 				this.webSiteCommunity = wc;
 
@@ -157,14 +157,6 @@ export class PlanPreviewComponent implements OnInit
 
 					this.typeStatus = this.TYPE_STATUS.READY;
 				}
-
-				if (this.selectedSalesCommunity.financialCommunities.length > 0 && !this?.currentFinancialBrand?.key)
-				{
-					this.brandService.getFinancialBrand(this.selectedSalesCommunity.financialCommunities[0].financialBrandId, environment.apiUrl).subscribe(brand =>
-					{
-						this.currentFinancialBrand = brand;
-					});
-				}
 			});
 		}
 	}
@@ -175,13 +167,16 @@ export class PlanPreviewComponent implements OnInit
 		this.selectedFinancialCommunity = financialCommunity?.id;
 		this.designPreviewEnabled = financialCommunity?.isDesignPreviewEnabled;
 
-      		// Get the finacial brand
-		if (financialCommunity?.financialBrandId)
+		if (this.designPreviewEnabled)
 		{
-			this.brandService.getFinancialBrand(financialCommunity?.financialBrandId, environment.apiUrl).subscribe(brand =>
-			{
-				this.currentFinancialBrand = brand;
-			});
+      		// Get the finacial brand if DP Enabled
+      		this.brandService.getFinancialBrand(financialCommunity.financialBrandId, environment.apiUrl).subscribe(brand => {
+        		this.currentFinancialBrand = brand;
+      		});
+		}
+		else
+		{
+			this.currentFinancialBrand = null;
 		}
 
 		this.setType();
@@ -216,7 +211,7 @@ export class PlanPreviewComponent implements OnInit
 			// Open in THO Preview
 			const webSiteIntegrationKey = this.webSiteCommunity.webSiteIntegrationKey;
 
-			url = `${getBrandUrl(this?.currentFinancialBrand?.key, environment.baseUrl.thoPreview)}${webSiteIntegrationKey}?preview=true`;
+			url = `${environment.baseUrl.thoPreview}${webSiteIntegrationKey}?preview=true`;
 		}
 		else if (this.selectedType === 3)
 		{
