@@ -1000,9 +1000,9 @@ export const legacyColorScheme = createSelector(
 	{
 		let colorScheme: LegacyColorScheme = null;
 		
-		const jobOption = job.jobPlanOptions?.find(jpo => jpo.integrationKey === '99999');
+		const jobOption = job?.jobPlanOptions?.find(jpo => jpo.integrationKey === '99999');
 
-		if (lite.isPhdLite && !!jobOption?.jobPlanOptionAttributes?.length)
+		if (lite?.isPhdLite && !!jobOption?.jobPlanOptionAttributes?.length)
 		{
 			let colorItemName = jobOption.jobPlanOptionAttributes[0].attributeGroupLabel;
 			let colorName = jobOption.jobPlanOptionAttributes[0].attributeName;
