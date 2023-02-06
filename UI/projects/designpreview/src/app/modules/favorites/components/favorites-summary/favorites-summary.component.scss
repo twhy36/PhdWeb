@@ -78,6 +78,13 @@
 	height: 80vh;
 }
 
+.phd-floorplan-disclaimer {
+	text-transform: none !important;
+	font-weight: bold;
+	font-size: 10px;
+	margin-top: 6px;
+}
+
 ::ng-deep .modal-header {
 	background: var(--popup-ribbon-background-color) !important;
 }
