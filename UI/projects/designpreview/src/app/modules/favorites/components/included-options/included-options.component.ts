@@ -7,7 +7,7 @@ import { debounceTime, filter, map, withLatestFrom } from 'rxjs/operators';
 import * as _ from 'lodash';
 import
 {
-	UnsubscribeOnDestroy, flipOver, DecisionPoint, SubGroup, Choice, ChoiceImageAssoc, TreeVersion, MyFavoritesChoice, getDependentChoices, Tree, TreeVersionRules, PlanOption, MyFavoritesPointDeclined
+	UnsubscribeOnDestroy, flipOver, DecisionPoint, SubGroup, Choice, TreeVersion, MyFavoritesChoice, getDependentChoices, Tree, TreeVersionRules, PlanOption, MyFavoritesPointDeclined
 } from 'phd-common';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
@@ -85,6 +85,21 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 			if (!taca && scenarioState.buildMode == BuildMode.Presale)
 			{
 				this.store.dispatch(new AppActions.ShowTermsAndConditionsModal(true));
+			}
+		});
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromRoot.filteredTree)
+		).subscribe(tree =>
+		{
+			if (tree)
+			{
+				this.filteredTree = tree;
+				this.noVisibleGroups = !this.filteredTree.groups.length ? true : false;
+
+				this.subGroups = _.flatMap(this.filteredTree.groups, g => g.subGroups) || [];
+				this.points = _.flatMap(this.filteredTree.groups, g => _.flatMap(g.subGroups, sg => sg.points)) || [];
 			}
 		});
 
