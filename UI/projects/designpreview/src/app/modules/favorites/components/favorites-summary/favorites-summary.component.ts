@@ -449,7 +449,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 
 		this.emptyFavoritesModal = this.modalService.open(InfoModalComponent, ngbModalOptions, true);
 
-		this.emptyFavoritesModal.componentInstance.title = 'Oops. No options have been selected';
+		this.emptyFavoritesModal.componentInstance.title = 'Oops. No options have been selected.';
 		this.emptyFavoritesModal.componentInstance.body = `
 			<p>Select the <i class="fa fa-heart-o"></i> to add options to your favorites.</p>
 		`;
