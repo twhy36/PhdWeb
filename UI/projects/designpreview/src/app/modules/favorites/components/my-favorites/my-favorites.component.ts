@@ -372,6 +372,11 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		{
 			this.groupName = newGroup.label;
 			this.selectedSubGroup = newSubGroup;
+
+			if (this.selectedSubgroupId !== newSubGroup.id)
+			{
+				this.selectedSubgroupId = newSubGroup.id;
+			}
 		}
 	}
 
