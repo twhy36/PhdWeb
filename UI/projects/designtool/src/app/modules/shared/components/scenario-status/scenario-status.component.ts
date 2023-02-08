@@ -1,20 +1,23 @@
 import { Component, OnInit, Input, SimpleChanges } from '@angular/core';
+import * as fromRoot from '../../../ngrx-store/reducers';
 
-import { ScenarioStatusType } from 'phd-common';
+import { ScenarioStatusType, UnsubscribeOnDestroy } from 'phd-common';
+import { select, Store } from '@ngrx/store';
 
 @Component({
 	selector: 'scenario-status',
 	templateUrl: './scenario-status.component.html',
 	styleUrls: ['./scenario-status.component.scss']
 })
-export class ScenarioStatusComponent implements OnInit
+export class ScenarioStatusComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	@Input() scenarioStatus: ScenarioStatusType;
 
 	statusClass: string;
 	statusText: string;
+	approvedStatus: string;
 
-	constructor() { }
+	constructor(private store: Store<fromRoot.State>) { super() }
 
 	ngOnInit()
 	{
@@ -23,6 +26,13 @@ export class ScenarioStatusComponent implements OnInit
 
 	ngOnChanges(changes: SimpleChanges)
 	{
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(state => state.salesAgreement)
+		).subscribe(sag => {
+			this.approvedStatus = sag.status;
+		});
+
 		if (changes['scenarioStatus'])
 		{
 			let statusCurrent = changes['scenarioStatus'].currentValue as ScenarioStatusType;
@@ -50,7 +60,7 @@ export class ScenarioStatusComponent implements OnInit
 
 				break;
 			case (ScenarioStatusType.READY_FOR_DESIGN):
-				this.statusText = 'Ready for Design';
+				this.statusText = this.approvedStatus === 'Approved' ? 'Ready To Close' : 'Ready for Design';
 				this.statusClass = 'phd-design';
 
 				break;

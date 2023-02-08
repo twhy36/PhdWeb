@@ -68,8 +68,7 @@
 					Agreement Status:
 					<br>
 					<strong>
-						<ng-container *ngIf="!isLockedIn">{{salesAgreementStatus | capitalCaseSpace}}</ng-container>
-						<ng-container *ngIf="isLockedIn">READY TO CLOSE</ng-container>
+						{{salesAgreementStatus | capitalCaseSpace}}
 					</strong>
 				</p>
 			</div>
