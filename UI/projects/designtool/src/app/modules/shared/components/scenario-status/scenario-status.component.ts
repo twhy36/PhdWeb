@@ -55,7 +55,7 @@ export class ScenarioStatusComponent extends UnsubscribeOnDestroy implements OnI
 
 				break;
 			case (ScenarioStatusType.READY_FOR_STRUCTURAL):
-				this.statusText = 'Ready for Sales';
+				this.statusText = this.approvedStatus === 'Approved' ? 'Ready To Close' : 'Ready for Sales';
 				this.statusClass = 'phd-structural';
 
 				break;
