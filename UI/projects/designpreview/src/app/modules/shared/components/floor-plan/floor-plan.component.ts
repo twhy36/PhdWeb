@@ -71,7 +71,8 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 				{
 					this.fp = wd.fp = new AVFloorplan(environment.alphavision.builderId, '' + planId, document.querySelector('#' + this.ifpID), [], this.fpInitialized.bind(this));
 
-					if (this.floorPlanImages.length === 0) {
+					if (this.floorPlanImages.length === 0) 
+					{
 						this.saveFloorPlanImages();
 					}
 				}
@@ -122,19 +123,28 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 					}
 				});
 
+				let changed = false;
+
 				_.difference(previousEnabled, this.enabledOptions).forEach(opt =>
 				{
+					changed = true;
 					this.fp.disableOption(opt);
 				});
 
 				_.difference(this.enabledOptions, previousEnabled).forEach(opt =>
 				{
+					changed = true;
 					this.fp.enableOption(opt);
 				});
 
 				if (this.selectedFloor && this.selectedFloor.id)
 				{
 					this.fp.setFloor(this.selectedFloor?.id); //AlphaVision automatically changes the floor if you select an option on a different floor
+				}
+
+				if (changed)
+				{
+					this.saveFloorPlanImages();
 				}
 			}
 		});
@@ -149,8 +159,6 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 	{
 		unloadScript('code.jquery.com', 'jQuery', '$');
 		unloadScript('alpha-vision.com', 'AVFloorplan');
-
-		this.saveFloorPlanImages();
 
 		let wd: any = window;
 
@@ -186,14 +194,24 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 	saveFloorPlanImages()
 	{
-		// floor plan image save functionality in here
+		if (!this.fp)
+		{
+			return;
+		}
+
+		// save floorplan images to onFloorPlanSaved event
 		timer(1000).subscribe(() =>
 		{
-			let floorPlanSvgs = this.fp?.exportStaticSVG();
+			let floorPlanSvgs = this.fp.exportStaticSVG();
 			let floorPlanImages = [];
 
 			this.fp.floors.forEach(floor =>
+			{
+				if (!floorPlanSvgs[floor.index]?.outerHTML)
 				{
+					return;
+				}
+
 				let image = new FloorPlanImage({
 					floorName: floor.name,
 					floorIndex: floor.index,
@@ -202,9 +220,14 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 				floorPlanImages.push(image);
 			})
-			this.floorPlanImages = floorPlanImages;
 
-			this.store.dispatch(new ScenarioActions.SaveFloorPlanImages(this.floorPlanImages));
+			if (!floorPlanImages.length)
+			{
+				return;
+			}
+
+			this.floorPlanImages = floorPlanImages;
+			this.onFloorPlanSaved.emit(floorPlanImages);
 		});
 	}
 }

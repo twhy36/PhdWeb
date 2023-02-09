@@ -69,7 +69,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 	IFPsubGroup: SubGroup;
 	firstDisplayedFloor: any;
 	showNextIFP: number = 0;
-	floorPlanImages: FloorPlanImage[];
+	floorPlanImages: FloorPlanImage[] = [];
 	emptyFavoritesModal: ModalRef;
 	confirmModal: ModalRef;
 	showFloorplan: boolean = true;
@@ -155,14 +155,6 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		).subscribe(favorites =>
 		{
 			this.favoritesId = favorites && favorites.id;
-		});
-
-		this.store.pipe(
-			this.takeUntilDestroyed(),
-			select(fromScenario.floorPlanImages)
-		).subscribe(ifpImages =>
-		{
-			this.floorPlanImages = ifpImages;
 		});
 
 		this.store.pipe(
@@ -417,7 +409,6 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 					this.cd.detectChanges();
 				}, 50);
 			}
-
 		}, (reason) =>
 		{
 
@@ -479,38 +470,14 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 
 	}
 
-	loadFloorPlan(fp)
+	onFloorPlanSaved(images: FloorPlanImage[])
 	{
-		// load floors
-		this.floors = fp.floors;
-
-		//Decide the first floor to display
-		let floorIndex = this.floors.findIndex(floor => floor.name === 'Basement');
-		if (floorIndex > -1)
+		if (!images || !images.length)
 		{
-			this.firstDisplayedFloor = this.floors[floorIndex];
-			this.floors.splice(floorIndex, 1);
-		}
-		else
-		{
-			floorIndex = this.floors.findIndex(floor => floor.name === 'Floor 1');
-			if (floorIndex > -1)
-			{
-				this.firstDisplayedFloor = this.floors[floorIndex];
-				this.floors.splice(floorIndex, 1);
-			}
-			else
-			{
-				this.firstDisplayedFloor = this.floors[0];
-				this.floors.splice(0, 1);
-			}
+			return;
 		}
 
-		//There needs to be a short delay between displaying floorplans, or the floorplan.component gets confused
-		setTimeout(() =>
-		{
-			this.showNextIFP++;
-		}, 200);
+		this.floorPlanImages = images;
 	}
 
 	getIfpId(image: FloorPlanImage)

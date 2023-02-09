@@ -2,14 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { BehaviorSubject, Observable, of } from 'rxjs';
-import { distinctUntilChanged, combineLatest, switchMap, withLatestFrom, take } from 'rxjs/operators';
+import { distinctUntilChanged, combineLatest, switchMap, withLatestFrom } from 'rxjs/operators';
 
 import * as _ from 'lodash';
 
 import { Store, select } from '@ngrx/store';
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromPlan from '../../../ngrx-store/plan/reducer';
-import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 import * as CommonActions from '../../../ngrx-store/actions';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 import * as FavoriteActions from '../../../ngrx-store/favorite/actions';
@@ -135,14 +134,6 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 			select(fromRoot.elevationImageUrl)
 		).subscribe(imageUrl => {
 			this.planImageUrl = imageUrl;
-		});
-
-		this.store.pipe(
-			take(1),
-			select(fromScenario.floorPlanImages)
-		).subscribe(ifpImages => {
-			this.floorPlanImages = ifpImages;
-			this.hasFloorPlanImages = ifpImages.length > 0;
 		});
 
 		this.store.pipe(

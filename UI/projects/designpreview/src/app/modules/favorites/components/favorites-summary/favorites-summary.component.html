@@ -1,59 +1,62 @@
 <div class="phd-hide-from-print">
-	<group-bar [communityName]="communityName"
-			   [planName]="planName"
-			   [groups]="groups"
-			   (onSubgroupSelected)="onSubgroupSelected($event)">
+	<group-bar [communityName]="communityName" 
+		[planName]="planName" 
+		[groups]="groups"
+		(onSubgroupSelected)="onSubgroupSelected($event)">
 	</group-bar>
 </div>
 
 <ng-template #content>
 	<div class="d-flex">
 		<div ngClass="phd-favorites-summary">
-			<summary-header class="phd-hide-from-print"
-							[summaryHeader]="summaryHeader"
-							[priceBreakdown]="priceBreakdown"
-							[includeContractedOptions]="includeContractedOptions"
-							[isDesignComplete]="isDesignComplete"
-							(isStickyChanged)="onIsStickyChanged($event)"
-							(contractedOptionsToggled)="onContractedOptionsToggled()">
+			<summary-header class="phd-hide-from-print" 
+				[summaryHeader]="summaryHeader"
+				[priceBreakdown]="priceBreakdown" 
+				[includeContractedOptions]="includeContractedOptions"
+				[isDesignComplete]="isDesignComplete" 
+				(isStickyChanged)="onIsStickyChanged($event)"
+				(contractedOptionsToggled)="onContractedOptionsToggled()">
 			</summary-header>
-			<summary-header class="phd-show-on-print phd-print-header"
-							[summaryHeader]="summaryHeader"
-							[priceBreakdown]="priceBreakdown"
-							[includeContractedOptions]="includeContractedOptions"
-							[isDesignComplete]="isDesignComplete"
-							[isPrintHeader]="true"
-							(isStickyChanged)="onIsStickyChanged($event)"
-							(contractedOptionsToggled)="onContractedOptionsToggled()">
+			<summary-header class="phd-show-on-print phd-print-header" 
+				[summaryHeader]="summaryHeader"
+				[priceBreakdown]="priceBreakdown" 
+				[includeContractedOptions]="includeContractedOptions"
+				[isDesignComplete]="isDesignComplete" 
+				[isPrintHeader]="true"
+				(isStickyChanged)="onIsStickyChanged($event)" 
+				(contractedOptionsToggled)="onContractedOptionsToggled()">
 			</summary-header>
 
-			<div class="tree-view tree-view-on-print" [class.phd-is-sticky]="isSticky" [class.phd-tree-view-presale]="isPresale">
+			<div class="tree-view tree-view-on-print" [class.phd-is-sticky]="isSticky"
+				[class.phd-tree-view-presale]="isPresale">
 				<ng-container *ngFor="let group of groups">
 					<div class="group" *ngIf="group.subGroups.length > 0">
 						<div class="label">
 							<span>{{group.label}}</span>
-							<div *ngIf="!isPresale" class="phd-group-detail"> 
+							<div *ngIf="!isPresale" class="phd-group-detail">
 								<span class="phd-group-subtotal-label">Subtotal : </span>
-								<span class="phd-group-subtotal-amount"> {{group.price | currency:'USD':'symbol':'0.0-0'}} </span>
+								<span class="phd-group-subtotal-amount"> {{group.price |
+									currency:'USD':'symbol':'0.0-0'}} </span>
 							</div>
 						</div>
-						<div class="sub-group d-flex flex-column justify-content-between" *ngFor="let subGroup of group.subGroups">
+						<div class="sub-group d-flex flex-column justify-content-between"
+							*ngFor="let subGroup of group.subGroups">
 							<div class="header d-flex justify-content-between align-items-center">
 								<span>{{subGroup.label}}</span>
 							</div>
 							<ng-container *ngFor="let dp of subGroup.points">
-								<decision-point-summary *ngIf="displayPoint(dp)"
-													[decisionPoint]="dp"
-													[subGroup]="subGroup"
-													[group]="group"
-													[salesChoices]="salesChoices"
-													[includeContractedOptions]="includeContractedOptions"
-													[buildMode]="buildMode"
-													[isDesignComplete]="isDesignComplete"
-													[isPresale]="isPresale"
-													[favoritesId]="favoritesId"
-													(onViewFavorites)="onViewFavorites($event)"
-													(onRemoveFavorites)="onRemoveFavorites($event)">
+								<decision-point-summary *ngIf="displayPoint(dp)" 
+									[decisionPoint]="dp"
+									[subGroup]="subGroup" 
+									[group]="group" 
+									[salesChoices]="salesChoices"
+									[includeContractedOptions]="includeContractedOptions" 
+									[buildMode]="buildMode"
+									[isDesignComplete]="isDesignComplete" 
+									[isPresale]="isPresale"
+									[favoritesId]="favoritesId" 
+									(onViewFavorites)="onViewFavorites($event)"
+									(onRemoveFavorites)="onRemoveFavorites($event)">
 								</decision-point-summary>
 							</ng-container>
 						</div>
@@ -61,13 +64,15 @@
 				</ng-container>
 
 				<!-- Show Floorplan(s) -->
-				<ng-container *ngIf="!noVisibleFP && floorPlanImages.length > 0">
+				<ng-container *ngIf="!noVisibleFP">
 					<div class="group ifp-group">
 						<div class="phd-floorplan-image-section">
 							<div *ngIf="!isPresale" class="phd-choice-expand d-flex flex-row">
 								<div (click)="toggleCollapsed()">
-									<span *ngIf="!showFloorplan"><i class="fa fa-fw phd-clickable fa-chevron-circle-right"></i></span>
-									<span *ngIf="showFloorplan"><i class="fa fa-fw phd-clickable fa-chevron-circle-down"></i></span>
+									<span *ngIf="!showFloorplan"><i
+											class="fa fa-fw phd-clickable fa-chevron-circle-right"></i></span>
+									<span *ngIf="showFloorplan"><i
+											class="fa fa-fw phd-clickable fa-chevron-circle-down"></i></span>
 								</div>
 								<div class="label">floorplan image</div>
 							</div>
@@ -78,10 +83,27 @@
 										<div class="header d-flex justify-content-between align-items-center">
 											<span>{{ fpImage.floorName }}</span>
 										</div>
-										<span *ngIf="fpImage.floorIndex === 0" class="phd-floorplan-disclaimer">*Floorplan may show options you selected as well as previously contracted options. Floorplans are for illustrative purposes only and may differ from actual available floor plans and actual features and measurements of completed home.</span>
-										<div class="d-flex flex-row phd-ifp" id="{{ getIfpId(fpImage) }}" [innerHTML]="sanitizer.bypassSecurityTrustHtml(fpImage.svg)"></div>
+										<span *ngIf="fpImage.floorIndex === 0"
+											class="phd-floorplan-disclaimer">*Floorplan may show options you selected as
+											well as previously contracted options. Floorplans are for illustrative
+											purposes only and may differ from actual available floor plans and actual
+											features and measurements of completed home.</span>
+										<div class="d-flex flex-row phd-ifp" id="{{ getIfpId(fpImage) }}"
+											[innerHTML]="sanitizer.bypassSecurityTrustHtml(fpImage.svg)"></div>
 									</div>
 								</ng-container>
+								<div class="phd-hide-from-print">
+									<!-- hidden instance necessary for floorplan images and interactions with choice removal -->
+									<floor-plan
+										[height]="'0'"
+										[planId$]="marketingPlanId"
+										[selectedFloor]="firstDisplayedFloor"
+										[subGroup]="IFPsubGroup"
+										[isFlipped]="isFloorplanFlipped"
+										[ifpID]="'firstDisplayedFloor'"
+										(onFloorPlanSaved)="onFloorPlanSaved($event)"
+									></floor-plan>
+								</div>
 							</ng-container>
 						</div>
 					</div>
@@ -97,28 +119,36 @@
 </div>
 
 <table class="phd-show-on-print">
-	<tbody><tr><td>
-		<div class="phd-print-content">
-			<ng-container *ngTemplateOutlet="content"></ng-container>
-		</div>
-	</td></tr></tbody>
-	<tfoot><tr><td>
-		<div class="phd-print-footer-space">&nbsp;</div>
-	</td></tr></tfoot>
+	<tbody>
+		<tr>
+			<td>
+				<div class="phd-print-content">
+					<ng-container *ngTemplateOutlet="content"></ng-container>
+				</div>
+			</td>
+		</tr>
+	</tbody>
+	<tfoot>
+		<tr>
+			<td>
+				<div class="phd-print-footer-space">&nbsp;</div>
+			</td>
+		</tr>
+	</tfoot>
 </table>
 
-<action-bar class="phd-hide-from-print"
-			[primaryAction]="'Back'"
-			[favoritesPrice]="priceBreakdown.favoritesPrice"
-			[price]="priceBreakdown.totalPrice"
-			[showPrint]="true"
-			[showFavorites]="false"
-			[isDesignComplete]="isDesignComplete"
-			[isPreview]="isPreview"
-			[isPresale]="isPresale"
-			[includeContractedOptions]="includeContractedOptions"
-			(callToAction)="onBack()"
-			(onToggleContractedOptions)="onContractedOptionsToggled()">
+<action-bar class="phd-hide-from-print" 
+	[primaryAction]="'Back'" 
+	[favoritesPrice]="priceBreakdown.favoritesPrice"
+	[price]="priceBreakdown.totalPrice" 
+	[showPrint]="true" 
+	[showFavorites]="false" 
+	[isDesignComplete]="isDesignComplete"
+	[isPreview]="isPreview" 
+	[isPresale]="isPresale" 
+	[includeContractedOptions]="includeContractedOptions"
+	(callToAction)="onBack()" 
+	(onToggleContractedOptions)="onContractedOptionsToggled()">
 </action-bar>
 
 <div class="phd-print-footer phd-show-on-print">{{ disclaimerText }}</div>

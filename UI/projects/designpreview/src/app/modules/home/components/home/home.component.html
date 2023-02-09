@@ -31,15 +31,5 @@
 	</div>
 </div>
 
-<div *ngIf="!hasFloorPlanImages" class="phd-hidden-floorplan">
-	<floor-plan
-		[height]="'0vh'"
-		[planId$]="marketingPlanId$"
-		[selectedFloor]="selectedFloor"
-		[subGroup]="floorplanSG"
-		[isFlipped]="isFloorplanFlipped"
-		(onFloorPlanLoaded)="loadFloorPlan($event)">
-	</floor-plan>
-</div>
 <p>&nbsp;</p>
 <footer-bar></footer-bar>
