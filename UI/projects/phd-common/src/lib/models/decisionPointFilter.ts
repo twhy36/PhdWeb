@@ -1,4 +1,4 @@
-import { PointStatus } from 'phd-common';
+import { PointStatus } from '../models/point.model';
 
 export class PointStatusFilter
 {

@@ -1,9 +1,8 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { UnsubscribeOnDestroy, PriceBreakdown, ScenarioStatusType, SummaryReportType } from 'phd-common';
+import { UnsubscribeOnDestroy, PriceBreakdown, ScenarioStatusType, SummaryReportType, DecisionPointFilterType } from 'phd-common';
 
-import { DecisionPointFilterType } from '../../../shared/models/decisionPointFilter';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 import { Store, select } from '@ngrx/store';
 import * as fromRoot from '../../../ngrx-store/reducers';

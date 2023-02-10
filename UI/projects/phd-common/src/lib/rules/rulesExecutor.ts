@@ -9,6 +9,7 @@ import { isChoiceAttributesComplete } from '../utils/utils.class';
 
 import * as _ from 'lodash';
 import { TimeOfSaleOptionPrice } from '../models/time-of-sale-option-price.model';
+import { DecisionPointFilterType } from '../models/decisionPointFilter';
 
 export function findPoint(tree: Tree, predicate: (point: DecisionPoint) => boolean)
 {
@@ -1020,25 +1021,40 @@ export function setPointStatus(point: DecisionPoint)
 	}
 }
 
-export function setSubgroupStatus(subGroup: SubGroup)
+function getFilteredPoint(p: DecisionPoint, selectedPointFilter: DecisionPointFilterType)
 {
-	if (!subGroup.points || subGroup.points.every(p => !p.enabled))
+	switch (selectedPointFilter)
+	{
+		case DecisionPointFilterType.QUICKQUOTE:
+			return p.isQuickQuoteItem;
+		case DecisionPointFilterType.DESIGN:
+			return !p.isStructuralItem;
+		case DecisionPointFilterType.STRUCTURAL:
+			return p.isStructuralItem;
+		default: // if filter type not provided, assume FULL
+			return p;
+	}
+}
+
+export function setSubgroupStatus(subGroup: SubGroup, selectedPointFilter?: DecisionPointFilterType)
+{
+	if (!subGroup.points || subGroup.points.filter(p => getFilteredPoint(p, selectedPointFilter)).every(p => !p.enabled))
 	{
 		subGroup.status = PointStatus.CONFLICTED;
 	}
-	else if (subGroup.points.some(p => p.status === PointStatus.REQUIRED))
+	else if (subGroup.points.filter(p => getFilteredPoint(p, selectedPointFilter)).some(p => p.status === PointStatus.REQUIRED))
 	{
 		subGroup.status = PointStatus.REQUIRED;
 	}
-	else if (subGroup.points.some(p => p.status === PointStatus.PARTIALLY_COMPLETED))
+	else if (subGroup.points.filter(p => getFilteredPoint(p, selectedPointFilter)).some(p => p.status === PointStatus.PARTIALLY_COMPLETED))
 	{
 		subGroup.status = PointStatus.PARTIALLY_COMPLETED;
 	}
-	else if (subGroup.points.every(p => p.status === (PointStatus.COMPLETED) || p.status === (PointStatus.CONFLICTED)))
+	else if (subGroup.points.filter(p => getFilteredPoint(p, selectedPointFilter)).every(p => p.status === (PointStatus.COMPLETED) || p.status === (PointStatus.CONFLICTED)))
 	{
 		subGroup.status = PointStatus.COMPLETED;
 	}
-	else if (subGroup.points.every(p => p.viewed || p.status === (PointStatus.CONFLICTED)))
+	else if (subGroup.points.filter(p => getFilteredPoint(p, selectedPointFilter)).every(p => p.viewed || p.status === (PointStatus.CONFLICTED)))
 	{
 		subGroup.status = PointStatus.VIEWED;
 	}

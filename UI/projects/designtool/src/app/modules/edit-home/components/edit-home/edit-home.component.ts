@@ -22,13 +22,12 @@ import
 {
 	UnsubscribeOnDestroy, ModalRef, ChangeTypeEnum, TreeVersionRules, ScenarioStatusType, PriceBreakdown,
 	TreeFilter, Tree, SubGroup, Group, DecisionPoint, Choice, getDependentChoices, LotExt, getChoiceToDeselect,
-	PlanOption, ModalService, Plan, TimeOfSaleOptionPrice, ITimeOfSaleOptionPrice, getChoicesWithNewPricing, findChoice
+	PlanOption, ModalService, Plan, TimeOfSaleOptionPrice, ITimeOfSaleOptionPrice, getChoicesWithNewPricing, findChoice, DecisionPointFilterType
 } from 'phd-common';
 
 import { LotService } from '../../../core/services/lot.service';
 
 import { ChoiceCardComponent } from '../../../shared/components/choice-card/choice-card.component';
-import { DecisionPointFilterType } from '../../../shared/models/decisionPointFilter';
 import { MonotonyConflict } from '../../../shared/models/monotony-conflict.model';
 
 // PHD Lite
