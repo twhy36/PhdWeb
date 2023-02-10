@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Action, Store, select } from '@ngrx/store';
 import { Actions, ofType, createEffect } from '@ngrx/effects';
 import { switchMap, map, scan, withLatestFrom, tap, filter } from 'rxjs/operators';
-import { combineLatest, Observable, of, forkJoin, from } from 'rxjs';;
+import { combineLatest, Observable, of, forkJoin, from, TimeoutError } from 'rxjs';;
 import * as _ from 'lodash';
 import { Router } from '@angular/router';
 
@@ -331,11 +331,16 @@ export class CommonEffects
 
 				if (errorScan.err)
 				{
+					let err = errorScan.err as LoadError
 					let errStack = (<ErrorAction>errorScan.err).error ?
 						((<ErrorAction>errorScan.err).error.stack ? (<ErrorAction>errorScan.err).error.stack : JSON.stringify((<ErrorAction>errorScan.err).error))
 						: '';
 					let errMsg = (<ErrorAction>errorScan.err).friendlyMessage ? (<ErrorAction>errorScan.err).friendlyMessage : '';
 					let errFrom = (<ErrorAction>errorScan.err).errFrom ? (<ErrorAction>errorScan.err).errFrom : '';
+					if (TimeoutError.name.includes(err.error.name))
+					{
+						errFrom = TimeoutError.name;
+					}
 
 					return new SetLatestError(new DesignPreviewError(errFrom, errStack, errMsg));
 				}

@@ -107,7 +107,7 @@ export class TreeService
 			{
 				console.error(error);
 
-				return empty;
+				return throwError(error);
 			})
 		);
 	}
@@ -170,7 +170,7 @@ export class TreeService
 			{
 				console.error(error);
 
-				return empty;
+				return throwError(error);
 			})
 		);
 	}
@@ -248,7 +248,7 @@ export class TreeService
 			{
 				console.error(error);
 
-				return empty;
+				return throwError(error);
 			})
 		);
 	}
