@@ -56,12 +56,12 @@ export class ScenarioStatusComponent extends UnsubscribeOnDestroy implements OnI
 				break;
 			case (ScenarioStatusType.READY_FOR_STRUCTURAL):
 				this.statusText = this.approvedStatus === 'Approved' ? 'Ready To Close' : 'Ready for Sales';
-				this.statusClass = 'phd-structural';
-
+				this.statusClass = this.approvedStatus === 'Approved' ? 'phd-ready-to-close' : 'phd-structural';
+			
 				break;
 			case (ScenarioStatusType.READY_FOR_DESIGN):
 				this.statusText = this.approvedStatus === 'Approved' ? 'Ready To Close' : 'Ready for Design';
-				this.statusClass = 'phd-design';
+				this.statusClass = this.approvedStatus === 'Approved' ? 'phd-ready-to-close' : 'phd-design';			
 
 				break;
 			case (ScenarioStatusType.READY_TO_BUILD):
