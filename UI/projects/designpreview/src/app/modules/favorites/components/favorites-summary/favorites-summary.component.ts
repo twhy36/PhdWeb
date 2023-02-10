@@ -360,7 +360,8 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 
 	onRemoveFavorites(choice: Choice)
 	{
-		let ngbModalOptions: NgbModalOptions = {
+		let ngbModalOptions: NgbModalOptions =
+		{
 			centered: true,
 			backdrop: true,
 			keyboard: false,
@@ -431,7 +432,8 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 
 	displayEmptyFavoritesModal()
 	{
-		let ngbModalOptions: NgbModalOptions = {
+		let ngbModalOptions: NgbModalOptions =
+		{
 			centered: true,
 			backdrop: true,
 			beforeDismiss: () => false

@@ -18,11 +18,12 @@ import
 	JobChoice,
 	getDependentChoices,
 	DecisionPoint,
-	ChoiceImageAssoc,
 	MyFavoritesChoice,
 	MyFavoritesPointDeclined,
 	Choice,
-	PickType
+	PickType,
+	ModalRef,
+	ModalService
 }
 	from 'phd-common';
 
@@ -39,9 +40,10 @@ import * as fromSalesAgreement from '../../../ngrx-store/sales-agreement/reducer
 import { GroupBarComponent } from '../../../shared/components/group-bar/group-bar.component';
 import { NormalExperienceComponent } from './normal-experience/normal-experience.component';
 import { ChoiceExt } from '../../../shared/models/choice-ext.model';
-import { TreeService } from '../../../core/services/tree.service';
 import { BuildMode } from '../../../shared/models/build-mode.model';
 import { Location } from '@angular/common';
+import { NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
+import { TermsAndConditionsComponent } from '../../../core/components/terms-and-conditions/terms-and-conditions.component';
 
 @Component({
 	selector: 'my-favorites',
@@ -82,6 +84,8 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 	noVisibleGroups: boolean = false;
 	noVisibleFP: boolean = false;
 	unfilteredPoints: DecisionPoint[] = [];
+	termsAndConditionsModal: ModalRef;
+	showTermsAndConditionsModal: boolean = true;
 
 	get nextSubGroup(): SubGroup
 	{
@@ -103,7 +107,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		private route: ActivatedRoute,
 		private router: Router,
 		private cd: ChangeDetectorRef,
-		private treeService: TreeService,
+		private modalService: ModalService,
 		private location: Location)
 	{
 		super();
@@ -126,6 +130,26 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		{
 			this.communityName = communityName;
 		});
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			distinctUntilChanged(),
+			select(fromApp.showTermsAndConditions),
+		).subscribe(showTermsAndConditions => 
+		{
+			this.showTermsAndConditionsModal = showTermsAndConditions;
+		});
+
+		if (this.showTermsAndConditionsModal) 
+		{
+			const ngbModalOptions: NgbModalOptions =
+			{
+				centered: true,
+				backdrop: 'static',
+				keyboard: false
+			};
+			this.termsAndConditionsModal = this.modalService.open(TermsAndConditionsComponent, ngbModalOptions, true)
+		}
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),

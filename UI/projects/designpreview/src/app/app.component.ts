@@ -12,11 +12,9 @@ import { default as build } from './build.json';
 
 import { IdleLogoutComponent } from './modules/core/components/idle-logout/idle-logout.component';
 import { InfoModalComponent } from './modules/shared/components/info-modal/info-modal.component';
-import { TermsAndConditionsComponent } from './modules/core/components/terms-and-conditions/terms-and-conditions.component';
 import { BrandService } from './modules/core/services/brand.service';
 import { AdobeService } from './modules/core/services/adobe.service';
 import * as fromRoot from './modules/ngrx-store/reducers';
-import * as fromApp from './modules/ngrx-store/app/reducer';
 import * as fromFavorite from './modules/ngrx-store/favorite/reducer';
 import { BuildMode } from './modules/shared/models/build-mode.model';
 
@@ -80,22 +78,6 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 				window.removeEventListener('beforeunload', this.createBeforeUnloadListener);
 			}
 		});
-
-		this.store.pipe(
-			this.takeUntilDestroyed(),
-			select(fromApp.showTermsAndConditions)
-		).subscribe(showTermsAndConditions => 
-		{
-			if (showTermsAndConditions) 
-			{
-				const ngbModalOptions: NgbModalOptions = {
-					centered: true,
-					backdrop: 'static',
-					keyboard: false
-				};
-				this.termsAndConditionsModal = this.modalService.open(TermsAndConditionsComponent, ngbModalOptions, true)
-			}
-		});
 	}
 
 	ngOnInit()
@@ -131,7 +113,8 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 		{
 			this.idle.clearInterrupts();
 
-			let ngbModalOptions: NgbModalOptions = {
+			let ngbModalOptions: NgbModalOptions =
+			{
 				centered: true,
 				backdrop: 'static',
 				keyboard: false
@@ -208,7 +191,8 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 
 	displayBrowserModal(): void 
 	{
-		let ngbModalOptions: NgbModalOptions = {
+		let ngbModalOptions: NgbModalOptions =
+		{
 			centered: true,
 			backdrop: true,
 			beforeDismiss: () => false

@@ -14,7 +14,7 @@ import * as fromJob from '../../../ngrx-store/job/reducer';
 import * as fromChangeOrder from '../../../ngrx-store/change-order/reducer';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 import { MyFavoritesComponent } from './my-favorites.component';
-import { PointStatus } from 'phd-common';
+import { ModalService, PointStatus } from 'phd-common';
 import { TreeService } from '../../../core/services/tree.service';
 
 describe('MyFavoritesComponent', () =>
@@ -37,6 +37,7 @@ describe('MyFavoritesComponent', () =>
 	when(mockActivatedRoute.data).thenCall(() => new Observable());
 	const mockChangeDetectorRef = mock(ChangeDetectorRef);
 	const mockTreeService = mock(TreeService);
+	const mockModalService = mock(ModalService);
 
 	beforeEach(fakeAsync(() =>
 	{
@@ -55,6 +56,7 @@ describe('MyFavoritesComponent', () =>
 				{ provide: Router, useFactory: () => instance(mockRouter) },
 				{ provide: ChangeDetectorRef, useFactory: () => instance(mockChangeDetectorRef) },
 				{ provide: TreeService, useFactory: () => instance(mockTreeService) },
+				{ provide: ModalService, useFactory: () => instance(mockModalService) },
 			]
 		})
 			.compileComponents();
