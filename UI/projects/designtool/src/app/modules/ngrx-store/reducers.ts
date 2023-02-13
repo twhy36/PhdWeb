@@ -849,13 +849,16 @@ export const filteredTree = createSelector(
 			} as TreeVersion;
 		}
 
-		const filteredGroups = filteredTree.groups;
-		const filteredSubGroups = _.flatMap(filteredGroups, g => g.subGroups);
-		const filteredPoints = _.flatMap(filteredSubGroups, sg => sg.points);
+		if (filteredTree)
+		{
+			const filteredGroups = filteredTree.groups;
+			const filteredSubGroups = _.flatMap(filteredGroups, g => g.subGroups);
+			const filteredPoints = _.flatMap(filteredSubGroups, sg => sg.points);
 
-		filteredPoints.forEach(pt => setPointStatus(pt));
-		filteredSubGroups.forEach(sg => setSubgroupStatus(sg, state.selectedPointFilter));
-		filteredGroups.forEach(g => setGroupStatus(g));
+			filteredPoints.forEach(pt => setPointStatus(pt));
+			filteredSubGroups.forEach(sg => setSubgroupStatus(sg, state.selectedPointFilter));
+			filteredGroups.forEach(g => setGroupStatus(g));
+		}
 
 		return filteredTree ? new TreeVersion(filteredTree) : null;
 	}
