@@ -181,7 +181,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	{
 		let unfilteredPoint = this.unfilteredPoints.find(up => up.divPointCatalogId === point.divPointCatalogId);
 		return (unfilteredPoint.pointPickTypeId === 2 || unfilteredPoint.pointPickTypeId === 4)
-			&& !unfilteredPoint.isStructuralItem
+			&& (this.isPresale || !unfilteredPoint.isStructuralItem)
 			&& !unfilteredPoint.isPastCutOff
 			&& unfilteredPoint.choices.filter(c => this.salesChoices?.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1)?.length === 0;
 	}
