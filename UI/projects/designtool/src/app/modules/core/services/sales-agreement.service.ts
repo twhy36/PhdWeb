@@ -818,6 +818,19 @@ export class SalesAgreementService
 		{
 			optionsDto = choice.options.map(o =>
 			{
+				const selectedAttributes = choice.selectedAttributes.filter(att => !att.locationGroupId && o.attributeGroups.some(g => g === att.attributeGroupId))
+											.map(att =>
+											{
+												return {
+													attributeCommunityId: att.attributeId,
+													attributeGroupCommunityId: att.attributeGroupId,
+													action: 'Add'
+												};
+											});
+
+				const treeChoices = tree ? _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices))) : [];
+				const reassignedAttributes = this.mapReassignedAttributes(o, choice, treeChoices);
+
 				return {
 					planOptionId: o.id,
 					price: o.listPrice,
@@ -825,15 +838,7 @@ export class SalesAgreementService
 					optionSalesName: o.name,
 					optionDescription: o.description,
 					jobOptionTypeName: getJobOptionType(o, elevationDP, isDPElevation, isColorScheme, tree, optionRules),
-					attributes: choice.selectedAttributes.filter(att => !att.locationGroupId && o.attributeGroups.some(g => g === att.attributeGroupId))
-						.map(att =>
-						{
-							return {
-								attributeCommunityId: att.attributeId,
-								attributeGroupCommunityId: att.attributeGroupId,
-								action: 'Add'
-							};
-						}),
+					attributes: [...selectedAttributes, ...reassignedAttributes],
 					locations: choice.selectedAttributes.filter(att => att.locationGroupId && o.locationGroups.some(g => g === att.locationGroupId))
 						.reduce((prev, curr) =>
 						{
@@ -936,6 +941,32 @@ export class SalesAgreementService
 
 		return attributesDto;
 	}
+
+	mapReassignedAttributes(option: PlanOption, fromChoice: Choice, treeChoices: Choice[])
+	{
+		const reassignedAttributesDto: Array<any> = [];
+
+		if (fromChoice)
+		{
+			option.attributeGroups?.forEach(attributeGroup => {
+				// Find the choice that an attribute is reassigned to
+				const choicesWithReassignments = treeChoices.find(c => c.mappedAttributeGroups?.find(mappedGroup => mappedGroup.attributeReassignmentFromChoiceId === fromChoice.id && mappedGroup.id === attributeGroup));
+				
+				// Find the selected attributes in the choice with reassignments
+				const selectedAttribute = choicesWithReassignments?.selectedAttributes?.find(sa => sa.attributeGroupId === attributeGroup);
+				if (selectedAttribute && !selectedAttribute.locationGroupId)
+				{
+					reassignedAttributesDto.push({
+						attributeCommunityId: selectedAttribute.attributeId,
+						attributeGroupCommunityId: selectedAttribute.attributeGroupId,
+						action: 'Add'
+					});
+				}
+			});
+		}
+
+		return reassignedAttributesDto;
+	}	
 
 	createJIOForSpec(tree: Tree, scenario: Scenario, communityId: number, buildMode: string, baseHouseOption: PlanOption, optionRules: OptionRule[], skipSpinner: boolean = true): Observable<Job>
 	{
