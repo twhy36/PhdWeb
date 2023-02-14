@@ -131,7 +131,7 @@ export class SearchResult
 					&& cog.jobChangeOrderGroupDescription !== 'Pulte Home Designer Generated Job Initiation Change Order'
 					&& cog.jobChangeOrderGroupDescription !== 'Pulte Home Designer Generated Spec Customer Change Order');
 
-				if (activeCOG)
+				if (activeCOG && !this.isHSL(job.createdBy))
 				{
 					this.activeChangeOrder = {
 						changeOrderDescription: activeCOG.jobChangeOrderGroupDescription,
@@ -152,6 +152,16 @@ export class SearchResult
 		this.streetAddress1 = dto.streetAddress1 || null;
 		this.streetAddress2 = dto.streetAddress2 || null;
 		this.unitNumber = dto.unitNumber || null;
+	}
+
+	isHslMigrated(jobCreatedBy: string): boolean
+	{
+		return jobCreatedBy && (jobCreatedBy.toUpperCase().startsWith('PHCORP') || jobCreatedBy.toUpperCase().startsWith('PHBSSYNC'));
+	}
+
+	isHSL(jobCreatedBy: string): boolean
+	{
+		return this.isHslMigrated(jobCreatedBy) && !this.isPhdLiteEnabled;
 	}
 
 	private getPlans(dto: ISearchResult)
