@@ -22,7 +22,7 @@ import
 {
 	UnsubscribeOnDestroy, ModalRef, ChangeTypeEnum, TreeVersionRules, ScenarioStatusType, PriceBreakdown,
 	TreeFilter, Tree, SubGroup, Group, DecisionPoint, Choice, getDependentChoices, LotExt, getChoiceToDeselect,
-	PlanOption, ModalService, Plan, TimeOfSaleOptionPrice, ITimeOfSaleOptionPrice, getChoicesWithNewPricing, findChoice
+	PlanOption, ModalService, Plan, TimeOfSaleOptionPrice, ITimeOfSaleOptionPrice, getChoicesWithNewPricing
 } from 'phd-common';
 
 import { LotService } from '../../../core/services/lot.service';
@@ -962,12 +962,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		let choices: Choice[] = [];
 
 		// Using the latest rules, see what choices may be affected by options on this choice
-		const replaceRules = this.treeVersionRules.optionRules.filter(o => o.choices.map(oc => oc.id).some(id => [deselectedChoice?.id, selectedChoice?.id].includes(id))
-			&& o.choices
-				.filter(c => c.id !== selectedChoice?.id || c.id !== deselectedChoice?.id)
-				.every(c => (c.mustHave && findChoice(this.tree, tc => tc.id === c.id).quantity)
-					|| (!c.mustHave && !findChoice(this.tree, tc => tc.id === c.id).quantity)));
-
+		const replaceRules = this.treeVersionRules.optionRules.filter(o => o.choices.map(oc => oc.id).some(id => [deselectedChoice?.id, selectedChoice?.id].includes(id)));
 
 		// Determine if there are any other choices via separate rules that are already on the configuration
 		const moreChoices = _.flatMap(this.treeVersionRules.optionRules.filter(o => _.flatMap(replaceRules, rr => rr.replaceOptions).some(rro => o.optionId === rro)), r => r.choices);
