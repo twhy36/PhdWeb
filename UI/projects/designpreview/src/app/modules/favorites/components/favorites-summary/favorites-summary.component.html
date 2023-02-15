@@ -76,7 +76,7 @@
 								</div>
 								<div class="label">floorplan image</div>
 							</div>
-							<div *ngIf="isPresale" class="label">floorplan</div>
+							<div *ngIf="isPresale" class="label">floorplan image</div>
 							<ng-container *ngIf="showFloorplan || isPresale">
 								<ng-container *ngFor="let fpImage of floorPlanImages">
 									<div class="sub-group d-flex flex-column justify-content-between">
@@ -84,10 +84,7 @@
 											<span>{{ fpImage.floorName }}</span>
 										</div>
 										<span *ngIf="fpImage.floorIndex === 0"
-											class="phd-floorplan-disclaimer">*Floorplan may show options you selected as
-											well as previously contracted options. Floorplans are for illustrative
-											purposes only and may differ from actual available floor plans and actual
-											features and measurements of completed home.</span>
+											class="phd-floorplan-disclaimer">{{ floorPlanDisclaimer }}</span>
 										<div class="d-flex flex-row phd-ifp" id="{{ getIfpId(fpImage) }}"
 											[innerHTML]="sanitizer.bypassSecurityTrustHtml(fpImage.svg)"></div>
 									</div>
