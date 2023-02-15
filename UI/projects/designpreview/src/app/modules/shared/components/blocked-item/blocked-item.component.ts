@@ -53,19 +53,22 @@ export class BlockedItemComponent extends UnsubscribeOnDestroy implements OnInit
 
 	onBlockedItemClick(pointId: number)
 	{
-		this.blockedItemClick.emit();
-		const subGroup = this.subGroups.find(sg => !!sg.points.find(p => p.id === pointId))
-
-		this.store.dispatch(new NavActions.SetSelectedSubgroup(subGroup.id, pointId, null));
-		this.router.navigate(['favorites', 'my-favorites', this.myFavoriteId, subGroup.subGroupCatalogId], { queryParams: { presale: sessionStorage.getItem('presale_token') } })
-
-		//Scroll to selected blocked point if same blocked point selected and change event not triggered
-		if (this.currentSelectedPointId && this.currentSelectedPointId === pointId)
+		if (!this.isHiddenChoiceItem)
 		{
-			const decisionBarElement = <HTMLElement><any>document.getElementById('decision-bar-' + pointId?.toString());
-			if (decisionBarElement)
+			this.blockedItemClick.emit();
+			const subGroup = this.subGroups.find(sg => !!sg.points.find(p => p.id === pointId))
+	
+			this.store.dispatch(new NavActions.SetSelectedSubgroup(subGroup.id, pointId, null));
+			this.router.navigate(['favorites', 'my-favorites', this.myFavoriteId, subGroup.subGroupCatalogId], { queryParams: { presale: sessionStorage.getItem('presale_token') } })
+	
+			//Scroll to selected blocked point if same blocked point selected and change event not triggered
+			if (this.currentSelectedPointId && this.currentSelectedPointId === pointId)
 			{
-				decisionBarElement.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+				const decisionBarElement = <HTMLElement><any>document.getElementById('decision-bar-' + pointId?.toString());
+				if (decisionBarElement)
+				{
+					decisionBarElement.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+				}
 			}
 		}
 	}
