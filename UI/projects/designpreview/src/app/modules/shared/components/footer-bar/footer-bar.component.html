@@ -9,6 +9,9 @@
 	<div class="phd-hspacer"></div>
 	<img src="{{equalHousingImgSrc}}" alt="">
 	<div class="phd-hspacer"></div>
-	<a href="https://allyant.com"><img src="assets/Logo_Allyant_small.png"
-			alt="Reviewed by Allant for accessibility"></a>
+	<ng-container *ngIf="!isPresale">
+		<a href="https://allyant.com">
+			<img src="assets/Logo_Allyant_small.png" alt="Reviewed by Allyant for accessibility">
+		</a>
+	</ng-container>
 </div>

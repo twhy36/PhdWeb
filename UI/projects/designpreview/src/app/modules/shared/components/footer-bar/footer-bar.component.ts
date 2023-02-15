@@ -1,8 +1,12 @@
 import { Component, OnInit } from '@angular/core';
+import { select, Store } from '@ngrx/store';
 
 import { UnsubscribeOnDestroy } from 'phd-common';
 import { environment } from '../../../../../environments/environment';
 import { BrandService } from '../../../core/services/brand.service';
+import { BuildMode } from '../../models/build-mode.model';
+
+import * as fromRoot from '../../../../modules/ngrx-store/reducers';
 
 @Component({
 	selector: 'footer-bar',
@@ -16,8 +20,10 @@ export class FooterBarComponent extends UnsubscribeOnDestroy implements OnInit
 	brandUrl = '';
 	accessibilityImgSrc = "assets/icon_accessibility.png";
 	equalHousingImgSrc = "assets/icon_equalHousing.png";
+	isPresale: boolean = false;
 
-	constructor(private brandService: BrandService) 
+	constructor(private brandService: BrandService,
+		private store: Store<fromRoot.State>) 
 	{
 		super();
 	}
@@ -31,5 +37,13 @@ export class FooterBarComponent extends UnsubscribeOnDestroy implements OnInit
 		}
 
 		this.brandUrl = this.brandService.getBrandHomeUrl();
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(state => state.scenario),
+		).subscribe((state) => 
+		{
+			this.isPresale = state.buildMode === BuildMode.Presale
+		});
 	}
 }
