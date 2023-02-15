@@ -114,6 +114,10 @@ export class AdobeService extends UnsubscribeOnDestroy
 					{
 						this.setPageLoadEvent(this.pageLoadExecuted, 'Favorites Summary Page', 'Favorites Summary', '', '');
 					}
+					else if (page === 'IncludedOptions')
+					{
+						this.setPageLoadEvent(this.pageLoadExecuted, 'Included Options Page', 'Included Options', '', '');
+					}
 					else if (page === 'ChoiceDetail')
 					{
 						const group = tree.groups.find(g => g.subGroups.find(sg => sg.id === selectedSubGroup?.id));
