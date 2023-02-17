@@ -1,12 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { select, Store } from '@ngrx/store';
 
-import { UnsubscribeOnDestroy } from 'phd-common';
+import { ModalRef, ModalService, UnsubscribeOnDestroy } from 'phd-common';
 import { environment } from '../../../../../environments/environment';
 import { BrandService } from '../../../core/services/brand.service';
 import { BuildMode } from '../../models/build-mode.model';
 
 import * as fromRoot from '../../../../modules/ngrx-store/reducers';
+
+import { NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
+import { InfoDisclaimerComponent } from '../../../core/components/info-disclaimer/info-disclaimer.component';
 
 @Component({
 	selector: 'footer-bar',
@@ -20,10 +23,12 @@ export class FooterBarComponent extends UnsubscribeOnDestroy implements OnInit
 	brandUrl = '';
 	accessibilityImgSrc = "assets/icon_accessibility.png";
 	equalHousingImgSrc = "assets/icon_equalHousing.png";
+	disclaimerModal: ModalRef;
 	isPresale: boolean = false;
 
 	constructor(private brandService: BrandService,
-		private store: Store<fromRoot.State>) 
+		private modalService: ModalService,
+		private store: Store<fromRoot.State>)
 	{
 		super();
 	}
@@ -45,5 +50,17 @@ export class FooterBarComponent extends UnsubscribeOnDestroy implements OnInit
 		{
 			this.isPresale = state.buildMode === BuildMode.Presale
 		});
+	}
+
+	onDisclaimerClick()
+	{
+		let ngbModalOptions: NgbModalOptions =
+			{
+				centered: true,
+				backdrop: true, 
+				keyboard: false,
+			};
+
+		this.disclaimerModal = this.modalService.open(InfoDisclaimerComponent, ngbModalOptions, true);
 	}
 }

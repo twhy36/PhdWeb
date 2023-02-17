@@ -30,6 +30,7 @@ import { ExternalGuard } from './guards/external.guard';
 import { PresaleGuard } from './guards/presale.guard';
 import { ClickDirective } from './directives/click-directive.directive';
 import { TokenService } from './services/token.service';
+import { InfoDisclaimerComponent } from './components/info-disclaimer/info-disclaimer.component';
 
 @NgModule({
 	exports: [
@@ -44,7 +45,8 @@ import { TokenService } from './services/token.service';
 		ClickDirective,
 		DefaultErrorComponent,
 		BannerComponent,
-		TermsAndConditionsComponent
+		TermsAndConditionsComponent,
+		InfoDisclaimerComponent
 	],
 	imports: [
 		CommonModule,

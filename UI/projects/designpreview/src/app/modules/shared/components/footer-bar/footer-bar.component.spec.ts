@@ -12,6 +12,7 @@ import * as fromOrg from '../../../ngrx-store/org/reducer';
 import * as fromJob from '../../../ngrx-store/job/reducer';
 import * as fromChangeOrder from '../../../ngrx-store/change-order/reducer';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
+import { ModalService } from 'phd-common';
 
 describe('FooterBarComponent', () =>
 {
@@ -35,6 +36,7 @@ describe('FooterBarComponent', () =>
 			providers: [
 				provideMockStore({ initialState }),
 				{ provide: BrandService, useFactory: () => instance(mockBrandService) },
+				{ provide: ModalService, useFactory: () => instance(mockModalService) },
 			]
 		})
 			.compileComponents();
@@ -43,6 +45,7 @@ describe('FooterBarComponent', () =>
 	});
 
 	const mockBrandService = mock(BrandService);
+	const mockModalService = mock(ModalService);
 
 	beforeEach(() =>
 	{
