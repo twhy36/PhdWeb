@@ -49,7 +49,8 @@ export class DefaultErrorComponent extends UnsubscribeOnDestroy implements OnIni
 			else
 			{
 				//display different error for presale inactive or no published tree
-				if (latestError?.occuredFrom?.includes(TimeoutError.name))
+				const timeoutErrName = TimeoutError?.name?.toLowerCase().replace('impl', '');
+				if (latestError?.occuredFrom?.includes(timeoutErrName))
 				{
 					this.isTimeout = true;
 					this.errMessage = 'The connection timed out and we are unable to load the page right now.  Please try again later.';

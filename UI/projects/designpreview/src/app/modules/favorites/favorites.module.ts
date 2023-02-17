@@ -19,70 +19,72 @@ import { FloorPlanSummaryComponent } from './components/floor-plan-summary/floor
 import { SummaryHeaderComponent } from './components/favorites-summary/summary-header/summary-header.component';
 import { FloorPlanExperienceComponent } from './components/my-favorites/floor-plan-experience/floor-plan-experience.component';
 import { LoggedInGuard } from '../core/guards/logged-in.guard';
+import { BuildMode } from '../shared/models/build-mode.model';
 
 const moduleRoutes: Routes = [
 	{
 		path: '',
 		children:
-		[
-			{ 
-				path: 'favorites', 
-				component: ManageFavoritesComponent, 
-				canActivate: [LoggedInGuard] 
-			},
-			{ 
-				path: 'favorites/preview/:salesAgreementId', 
-				component: FavoritesSummaryComponent,
-				canActivate: [InternalGuard] 
-			},
-			{ 
-				path: 'favorites/summary', 
-				component: FavoritesSummaryComponent, 
-				canActivate: [LoggedInGuard],
-				data: { pageLoadEvent: 'FavoritesSummary' }
-			},
-			{ 
-				path: 'contracted', 
-				component: ContractedSummaryComponent, 
-				canActivate: [LoggedInGuard],
-				data: { pageLoadEvent: 'ContractedSummary' }
-			},
-			{ 
-				path: 'floorplan', 
-				component: FloorPlanSummaryComponent, 
-				canActivate: [LoggedInGuard],
-				data: { pageLoadEvent: 'FloorplanSummary' }
-			},
-			{ 
-				path: 'included', 
-				component: IncludedOptionsComponent, 
-				canActivate: [LoggedInGuard],
-				data: { pageLoadEvent: 'IncludedOptions' }
-			},
-			{ 
-				path: 'favorites/my-favorites/:favoritesId/:subGroupCatalogId', 
-				component: MyFavoritesComponent, 
-				canActivate: [LoggedInGuard],
-				data: { pageLoadEvent: 'ChoiceCard' }
-			},
-			{ 
-				path: 'favorites/my-favorites/:favoritesId/:subGroupCatalogId/:divChoiceCatalogId', 
-				component: MyFavoritesComponent, 
-				canActivate: [LoggedInGuard],
-				data: { pageLoadEvent: 'ChoiceDetail' }
-			},
-			{ 
-				path: 'favorites/my-favorites/:favoritesId', 
-				component: MyFavoritesComponent, 
-				canActivate: [LoggedInGuard],
-				data: { pageLoadEvent: 'ChoiceCard' }
-			}
-		]
+			[
+				{
+					path: 'favorites',
+					component: ManageFavoritesComponent,
+					canActivate: [LoggedInGuard]
+				},
+				{
+					path: 'favorites/preview/:salesAgreementId',
+					component: FavoritesSummaryComponent,
+					canActivate: [InternalGuard],
+					data: { buildMode: BuildMode.BuyerPreview }
+				},
+				{
+					path: 'favorites/summary',
+					component: FavoritesSummaryComponent,
+					canActivate: [LoggedInGuard],
+					data: { pageLoadEvent: 'FavoritesSummary' }
+				},
+				{
+					path: 'contracted',
+					component: ContractedSummaryComponent,
+					canActivate: [LoggedInGuard],
+					data: { pageLoadEvent: 'ContractedSummary' }
+				},
+				{
+					path: 'floorplan',
+					component: FloorPlanSummaryComponent,
+					canActivate: [LoggedInGuard],
+					data: { pageLoadEvent: 'FloorplanSummary' }
+				},
+				{
+					path: 'included',
+					component: IncludedOptionsComponent,
+					canActivate: [LoggedInGuard],
+					data: { pageLoadEvent: 'IncludedOptions' }
+				},
+				{
+					path: 'favorites/my-favorites/:favoritesId/:subGroupCatalogId',
+					component: MyFavoritesComponent,
+					canActivate: [LoggedInGuard],
+					data: { pageLoadEvent: 'ChoiceCard' }
+				},
+				{
+					path: 'favorites/my-favorites/:favoritesId/:subGroupCatalogId/:divChoiceCatalogId',
+					component: MyFavoritesComponent,
+					canActivate: [LoggedInGuard],
+					data: { pageLoadEvent: 'ChoiceDetail' }
+				},
+				{
+					path: 'favorites/my-favorites/:favoritesId',
+					component: MyFavoritesComponent,
+					canActivate: [LoggedInGuard],
+					data: { pageLoadEvent: 'ChoiceCard' }
+				}
+			]
 	}
 ];
 
 @NgModule({
-    exports: [
+	exports: [
 		ManageFavoritesComponent,
 		MyFavoritesComponent,
 		NormalExperienceComponent,
@@ -92,8 +94,8 @@ const moduleRoutes: Routes = [
 		FloorPlanSummaryComponent,
 		SummaryHeaderComponent,
 		FloorPlanExperienceComponent
-    ],
-    declarations: [
+	],
+	declarations: [
 		ManageFavoritesComponent,
 		MyFavoritesComponent,
 		NormalExperienceComponent,
@@ -103,18 +105,18 @@ const moduleRoutes: Routes = [
 		FloorPlanSummaryComponent,
 		SummaryHeaderComponent,
 		FloorPlanExperienceComponent
-    ],
+	],
 	imports: [
 		CommonModule,
 		FormsModule,
 		ReactiveFormsModule,
 		CloudinaryModule,
-        SharedModule,
+		SharedModule,
 		PhdCommonModule,
 		RouterModule.forChild(moduleRoutes),
 		ToastrModule,
 		NgbModule
-    ],
-    providers: []
+	],
+	providers: []
 })
 export class FavoritesModule { }

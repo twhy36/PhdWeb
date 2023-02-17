@@ -352,7 +352,8 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 			return { ...state, loadError: true };
 
 		case CommonActionTypes.LoadSalesAgreement:
-			let newBuildMode = state.buildMode;
+			//default to Buyer mode when loading
+			let newBuildMode = BuildMode.Buyer;
 			if (action.isBuyerPreview)
 			{
 				newBuildMode = BuildMode.BuyerPreview;

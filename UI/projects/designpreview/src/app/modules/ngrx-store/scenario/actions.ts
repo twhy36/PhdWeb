@@ -17,14 +17,14 @@ export class LoadPreview implements Action
 {
 	readonly type = ScenarioActionTypes.LoadPreview;
 
-	constructor(public treeVersionId: number) { }
+	constructor(public treeVersionId: number, public clearState: boolean = true) { }
 }
 
 export class LoadPresale implements Action
 {
 	readonly type = ScenarioActionTypes.LoadPresale;
 
-	constructor(public planCommunityId: number) { }
+	constructor(public planCommunityId: number, public clearState: boolean = true) { }
 }
 
 export class SelectChoices implements Action

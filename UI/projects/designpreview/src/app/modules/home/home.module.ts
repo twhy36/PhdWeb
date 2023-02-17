@@ -10,6 +10,7 @@ import { SharedModule } from '../shared/shared.module';
 import { HomeComponent } from './components/home/home.component';
 import { CoreModule } from '../core/core.module';
 import { PresaleGuard } from '../core/guards/presale.guard';
+import { BuildMode } from '../shared/models/build-mode.model';
 
 // Temporarily add salesAgreementId in the route to facilitate testing in QA environment.
 // This will be removed once the SSO code is incorporated.
@@ -18,31 +19,31 @@ const moduleRoutes: Routes = [
 		path: 'home/:salesAgreementId',
 		canActivate: [InternalGuard],
 		component: HomeComponent,
-		data: { isPreview: false, pageLoadEvent: 'Home', isPresale: false },
+		data: { pageLoadEvent: 'Home', buildMode: BuildMode.Buyer },
 	},
 	{
 		path: 'home',
 		canActivate: [ExternalGuard],
 		component: HomeComponent,
-		data: { isPreview: false, pageLoadEvent: 'Home', isPresale: false },
+		data: { pageLoadEvent: 'Home', buildMode: BuildMode.Buyer },
 	},
 	{
 		path: 'preview/:treeVersionId',
 		component: HomeComponent,
 		canActivate: [InternalGuard],
-		data: { isPreview: true, isPresale: false },
+		data: { buildMode: BuildMode.Preview },
 	},
 	{
 		path: 'preview',
 		component: HomeComponent,
 		canActivate: [InternalGuard],
-		data: { isPreview: false, isPresale: false },
+		data: { buildMode: BuildMode.Buyer },
 	},
 	{
 		path: 'presale',
 		component: HomeComponent,
 		canActivate: [PresaleGuard],
-		data: { isPreview: false, pageLoadEvent: 'Home', isPresale: true },
+		data: { pageLoadEvent: 'Home', buildMode: BuildMode.Presale },
 	},
 ];
 

@@ -1,26 +1,34 @@
 import { Injectable } from '@angular/core';
-import { CanActivate } from '@angular/router';
+import { ActivatedRouteSnapshot, CanActivate } from '@angular/router';
 import { map } from 'rxjs/operators';
 
 import { IdentityService } from 'phd-common';
 import { AuthService } from '../services/auth.service';
 import { environment } from '../../../../environments/environment';
+import { clearPresaleSessions } from '../../shared/classes/utils.class';
 
 @Injectable()
 export class InternalGuard implements CanActivate
 {
 	constructor(private identityService: IdentityService, private authService: AuthService) { }
 
-	canActivate()
+	canActivate(route: ActivatedRouteSnapshot)
 	{
-        if (!sessionStorage.getItem('authProvider'))
+		//clear presale sessions when switching from presale to others mode internal access
+		if (sessionStorage.getItem('authProvider')?.includes('presale') && !route.url.toString().includes('presale'))
 		{
-			sessionStorage.setItem('authProvider', 'azureAD');
-        	this.authService.setAuthConfig(environment.authConfigs["azureAD"]);
+			clearPresaleSessions();
 		}
 
-        return this.identityService.isLoggedIn.pipe(
-			map(loggedIn => {
+		if (!sessionStorage.getItem('authProvider'))
+		{
+			sessionStorage.setItem('authProvider', 'azureAD');
+			this.authService.setAuthConfig(environment.authConfigs["azureAD"]);
+		}
+
+		return this.identityService.isLoggedIn.pipe(
+			map(loggedIn =>
+			{
 				if (!loggedIn)
 				{
 					this.identityService.login({ provider: "azureAD" });

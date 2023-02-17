@@ -105,7 +105,9 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		this.activatedRoute.paramMap
 			.pipe(
 				combineLatestOperator(this.store.pipe(select(state => state.salesAgreement))),
-				switchMap(([params, salesAgreementState]) =>
+				withLatestFrom(this.store.pipe(select(state => state.scenario))
+				),
+				switchMap(([[params, salesAgreementState], scenarioState]) =>
 				{
 					if (salesAgreementState.salesAgreementLoading || salesAgreementState.loadError)
 					{
@@ -116,7 +118,13 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 					// or the passed in sales agreement id is different than that of the id in the store...
 					const salesAgreementId = +params.get('salesAgreementId');
 
-					if (salesAgreementId > 0 && salesAgreementState.id !== salesAgreementId)
+					//reload data in BuyerPreview mode when valid passing querystring sales agreement ID changes, 
+					//or current store buildMode is not BuyerPreview (assuming BuyerPreview entry with FavoritesSummary)
+					if (salesAgreementId > 0 &&
+						(salesAgreementState.id !== salesAgreementId
+							|| !scenarioState.buildMode
+							|| scenarioState.buildMode !== BuildMode.BuyerPreview)
+					)
 					{
 						this.store.dispatch(new CommonActions.LoadSalesAgreement(salesAgreementId, true, true));
 

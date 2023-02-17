@@ -5,12 +5,14 @@ import { environment } from '../../../environments/environment';
 import { DesignPreviewError } from '../shared/models/error.model';
 import { CommonActionTypes } from './actions';
 
-export enum ErrorFrom {
+export enum ErrorFrom
+{
 	HomeComponent = 'Home.Component',
 	LoadPresale = 'Scenario.LoadPresale',
 	LoadPresaleInactive = 'Scenario.LoadPresale.Inactive',
 	LoadPresaleNoPubleshed = 'Scenario.LoadPresale.NoPublished',
 	PageNotFound = 'WildcardPath.error',
+	GuardError = 'Guard',
 	LoadSelectedPlan = 'Lots.LoadSelectedPlan',
 	LoadSalesAgreement = 'LoadSalesAgreement',
 	LoadPreview = 'Scenario.LoadPreview',
@@ -54,7 +56,15 @@ export class PageNotFound extends ErrorAction
 	constructor(public error: Error, public friendlyMessage?: string, public errFrom = ErrorFrom.PageNotFound) { super(error, friendlyMessage, errFrom); }
 }
 
-export enum MapFunction {
+export class GuardError extends ErrorAction 
+{
+	readonly type = CommonActionTypes.GuardError;
+
+	constructor(public error: Error, public friendlyMessage?: string, public errFrom = ErrorFrom.GuardError) { super(error, friendlyMessage, errFrom); }
+}
+
+export enum MapFunction
+{
 	switchMap,
 	concatMap,
 	mergeMap

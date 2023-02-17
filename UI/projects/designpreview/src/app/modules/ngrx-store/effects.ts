@@ -331,15 +331,18 @@ export class CommonEffects
 
 				if (errorScan.err)
 				{
-					let err = errorScan.err as LoadError
-					let errStack = (<ErrorAction>errorScan.err).error ?
+					const err = errorScan.err as LoadError
+					const errStack = (<ErrorAction>errorScan.err).error ?
 						((<ErrorAction>errorScan.err).error.stack ? (<ErrorAction>errorScan.err).error.stack : JSON.stringify((<ErrorAction>errorScan.err).error))
 						: '';
-					let errMsg = (<ErrorAction>errorScan.err).friendlyMessage ? (<ErrorAction>errorScan.err).friendlyMessage : '';
+					const errMsg = (<ErrorAction>errorScan.err).friendlyMessage ? (<ErrorAction>errorScan.err).friendlyMessage : '';
 					let errFrom = (<ErrorAction>errorScan.err).errFrom ? (<ErrorAction>errorScan.err).errFrom : '';
-					if (TimeoutError.name.includes(err.error.name))
+					const errName = err.error?.name?.toLowerCase();
+					const timeoutErrName = TimeoutError?.name?.toLowerCase().replace('impl', '');
+
+					if (errName && timeoutErrName && errName.includes(timeoutErrName))
 					{
-						errFrom = TimeoutError.name;
+						errFrom = timeoutErrName;
 					}
 
 					return new SetLatestError(new DesignPreviewError(errFrom, errStack, errMsg));

@@ -14,17 +14,15 @@ import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 import * as FavoriteActions from '../../../ngrx-store/favorite/actions';
 
 import { UnsubscribeOnDestroy, SalesAgreement, SubGroup, FloorPlanImage } from 'phd-common';
-import { JobService } from '../../../core/services/job.service';
 import { BrandService } from '../../../core/services/brand.service';
 import { BuildMode } from '../../../shared/models/build-mode.model';
 import { ErrorFrom } from '../../../ngrx-store/error.action';
-import { Buffer } from 'buffer';
-import { PresalePayload } from '../../../shared/models/presale-payload.model';
+import { setPresaleToken } from '../../../shared/classes/utils.class';
 
 @Component({
 	selector: 'home',
-    templateUrl: 'home.component.html',
-    styleUrls: ['home.component.scss']
+	templateUrl: 'home.component.html',
+	styleUrls: ['home.component.scss']
 })
 export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 {
@@ -47,13 +45,19 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 		private activatedRoute: ActivatedRoute,
 		private store: Store<fromRoot.State>,
 		private router: Router,
-		private jobService: JobService,
 		private brandService: BrandService)
-    {
-        super();
-    }
+	{
+		super();
+	}
 
-	ngOnInit() {
+	ngOnInit()
+	{
+		const presaleToken = this.activatedRoute.snapshot.queryParamMap.get('presale');
+		if (presaleToken && presaleToken.length)
+		{
+			setPresaleToken(presaleToken, true);
+		}
+
 		this.activatedRoute.paramMap
 			.pipe(
 				combineLatest(this.store.pipe(select(state => state.salesAgreement))),
@@ -61,63 +65,72 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 					this.store.pipe(select(state => state.scenario)),
 					this.store.pipe(select(state => state.plan))
 				),
-				switchMap(([[params, salesAgreementState], routeData, scenarioState, planState]) => {
-					if (salesAgreementState.salesAgreementLoading || salesAgreementState.loadError) {
+				switchMap(([[params, salesAgreementState], routeData, scenarioState, planState]) =>
+				{
+					if (salesAgreementState.salesAgreementLoading || salesAgreementState.loadError)
+					{
 						return new Observable<never>();
 					}
-
 					this.isFloorplanFlipped = salesAgreementState?.isFloorplanFlipped;
-					this.isPreview = scenarioState.buildMode === BuildMode.Preview || routeData["isPreview"];
-					this.isPresale = scenarioState.buildMode === BuildMode.Presale || routeData["isPresale"];
+					//flags for loading favorites or UI display
+					// reading existing store buildmode or url buildmode
+					this.isPreview = scenarioState.buildMode === BuildMode.Preview || routeData["buildMode"] === BuildMode.Preview;
+					this.isPresale = scenarioState.buildMode === BuildMode.Presale || routeData["buildMode"] === BuildMode.Presale;
 
-					// we only want to fetch on treeVersion during first load of home page
-					if (routeData["isPreview"])
+					//Load Store data on first home load if not loaded based on URL route
+					const urlBuildMode = routeData["buildMode"];
+					switch (urlBuildMode)
 					{
-						const treeVersionId = +params.get('treeVersionId');
-						if (!scenarioState.tree || scenarioState.tree.treeVersion.id !== treeVersionId)
-						{
-							this.store.dispatch(new ScenarioActions.LoadPreview(treeVersionId));
-							return new Observable<never>();
-						}
-					}
-					else if (routeData["isPresale"])
-					{
-						if (!planState.selectedPlan)
-						{
-							const token = sessionStorage.getItem('presale_token');
-							const tokenParts = token.split('.');
-							const payload = new PresalePayload(JSON.parse(Buffer.from(tokenParts[1], 'base64').toString()));
+						case BuildMode.Preview:
+							//set current buildmode to preview for Preview URL path
+							this.isPreview = true;
 
-							if (!sessionStorage.getItem('presale_issuer'))
+							const treeVersionId = +params.get('treeVersionId');
+
+							if (!scenarioState.tree ||
+								scenarioState.tree.treeVersion.id !== treeVersionId
+								|| scenarioState.buildMode != BuildMode.Preview)
 							{
-								sessionStorage.setItem('presale_issuer', payload.iss);
+								this.store.dispatch(new ScenarioActions.LoadPreview(treeVersionId));
+								return new Observable<never>();
 							}
+							break;
+						
+						case BuildMode.Presale:
+							//set current buildmode to presale for presale URL path
+							this.isPresale = true;
 
-							const planCommunityId = payload.planCommunityId;
-
-							if (planCommunityId && (!planState.selectedPlan || planState.selectedPlan !== planCommunityId))
+							const planCommunityId = Number(sessionStorage.getItem('presale_plan_community_id'));
+	
+							if (planCommunityId === 0)
+							{
+								this.store.dispatch(new CommonActions.LoadError(new Error('load presale error'), 'CommunityId and/or PlanId are missing or invalid IDs', ErrorFrom.HomeComponent));
+							}
+	
+							//plan not loaded before, or plan changed, or build mode changed 
+							if (!planState.selectedPlan || planState.selectedPlan !== planCommunityId || scenarioState.buildMode !== BuildMode.Presale)
 							{
 								this.store.dispatch(new ScenarioActions.LoadPresale(planCommunityId));
 	
 								return new Observable<never>();
 							}
-							else
-							{
-								this.store.dispatch(new CommonActions.LoadError(new Error('load presale error'), 'CommunityId and/or PlanId are missing or invalid IDs', ErrorFrom.HomeComponent));
-							}
-						}
-					}
-					else
-					{
-						// if sales agreement is not in the store and the id has been passed in to the url
-						// or the passed in sales agreement id is different than that of the id in the store...
-						const salesAgreementId = +params.get('salesAgreementId');
+							break;
+						
+						default:
+							// if sales agreement is not in the store and the id has been passed in to the url
+							// or the passed in sales agreement id is different than that of the id in the store...
+							const salesAgreementId = +params.get('salesAgreementId');
 
-						if (salesAgreementId > 0 && salesAgreementState.id !== salesAgreementId)
-						{
-							this.store.dispatch(new CommonActions.LoadSalesAgreement(salesAgreementId));
-							return new Observable<never>();
-						}
+							if (salesAgreementId > 0 &&
+								(salesAgreementState.id !== salesAgreementId
+									|| scenarioState.buildMode !== BuildMode.Buyer)
+							)
+							{
+								//load store data in Buyer mode with pass querystring ID
+								this.store.dispatch(new CommonActions.LoadSalesAgreement(salesAgreementId));
+								return new Observable<never>();
+							}
+							break;
 					}
 
 					return of(_.pick(salesAgreementState, _.keys(new SalesAgreement())));
@@ -125,28 +138,32 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 				this.takeUntilDestroyed(),
 				distinctUntilChanged()
 			)
-			.subscribe((salesAgreement: SalesAgreement) => {
+			.subscribe((salesAgreement: SalesAgreement) =>
+			{
 				this.salesAgreement = salesAgreement;
-		});
+			});
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(fromRoot.elevationImageUrl)
-		).subscribe(imageUrl => {
+		).subscribe(imageUrl =>
+		{
 			this.planImageUrl = imageUrl;
 		});
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(fromPlan.selectedPlanData)
-		).subscribe(planData => {
+		).subscribe(planData =>
+		{
 			this.planName = planData && planData.salesName;
 		});
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(fromRoot.financialCommunityName),
-		).subscribe(communityName => {
+		).subscribe(communityName =>
+		{
 			this.communityName = communityName;
 		});
 
@@ -154,24 +171,31 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 			this.takeUntilDestroyed(),
 			select(fromRoot.contractedTree),
 			combineLatest(this.store.pipe(select(state => state.scenario)), this.store.pipe(select(fromPlan.planState)))
-		).subscribe(([contractedTree, scenarioState, plan]) => {
+		).subscribe(([contractedTree, scenarioState, plan]) =>
+		{
 			const tree = scenarioState?.tree?.treeVersion;
 			const contractedSgs = _.flatMap(contractedTree?.groups, g => g.subGroups.filter(sg => sg.useInteractiveFloorplan));
 			const sgs = _.flatMap(tree?.groups, g => g.subGroups.filter(sg => sg.useInteractiveFloorplan));
-			if ((tree || contractedTree) && plan && plan.marketingPlanId && plan.marketingPlanId.length) {
+			if ((tree || contractedTree) && plan && plan.marketingPlanId && plan.marketingPlanId.length)
+			{
 				let fpSubGroup;
-				if (contractedSgs?.length) {
+				if (contractedSgs?.length)
+				{
 					fpSubGroup = contractedSgs.pop();
-				} else if (sgs?.length) {
+				} else if (sgs?.length)
+				{
 					fpSubGroup = sgs.pop();
 				}
-				if (fpSubGroup) {
+				if (fpSubGroup)
+				{
 					this.floorplanSG = fpSubGroup;
 					this.marketingPlanId$.next(plan.marketingPlanId[0]);
-				} else {
+				} else
+				{
 					this.noVisibleFP = true;
 				}
-			} else {
+			} else
+			{
 				this.noVisibleFP = true;
 			}
 		});
@@ -180,7 +204,8 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 			this.takeUntilDestroyed(),
 			select(fromRoot.filteredTree),
 			withLatestFrom(this.store.select(state => state.favorite), this.store.select(state => state.nav)),
-		).subscribe(([tree, fav, nav]) => {
+		).subscribe(([tree, fav, nav]) =>
+		{
 			if (fav)
 			{
 				if (this.isLoadingMyFavorite && !fav.isLoading)
@@ -191,11 +216,11 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 					const selectedSubGroup = subGroups.find(sg => sg.id === nav.selectedSubGroup);
 					if (selectedSubGroup)
 					{
-						this.router.navigate(['favorites', 'my-favorites', fav.selectedFavoritesId, selectedSubGroup.subGroupCatalogId], { queryParams: { presale: sessionStorage.getItem('presale_token')} })
+						this.router.navigate(['favorites', 'my-favorites', fav.selectedFavoritesId, selectedSubGroup.subGroupCatalogId], { queryParams: { presale: sessionStorage.getItem('presale_token') } })
 					}
 					else
 					{
-						this.router.navigate(['favorites', 'my-favorites', fav.selectedFavoritesId], { queryParams: { presale: sessionStorage.getItem('presale_token')} })
+						this.router.navigate(['favorites', 'my-favorites', fav.selectedFavoritesId], { queryParams: { presale: sessionStorage.getItem('presale_token') } })
 					}
 				}
 			}
@@ -205,27 +230,35 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 	viewOptions()
 	{
 		this.isLoadingMyFavorite = true;
-		if (this.isPreview || this.isPresale) {
+		if (this.isPreview || this.isPresale)
+		{
 			this.store.dispatch(new FavoriteActions.LoadDefaultFavorite());
-		} else {
+		} else
+		{
 			this.store.dispatch(new FavoriteActions.LoadMyFavorite());
 		}
 	}
 
-	getImageSrc() {
+	getImageSrc()
+	{
 		return this.brandService.getBrandImage('logo');
 	}
 
-	getBannerImage(position: number) {
+	getBannerImage(position: number)
+	{
 		return this.brandService.getBannerImage(position);
 	}
 
-	loadFloorPlan(fp) {
-		if (!this.selectedFloor) {
+	loadFloorPlan(fp)
+	{
+		if (!this.selectedFloor)
+		{
 			const floor1 = fp.floors.find(floor => floor.name === 'Floor 1');
-			if (floor1) {
+			if (floor1)
+			{
 				this.selectedFloor = floor1;
-			} else {
+			} else
+			{
 				this.selectedFloor = fp.floors[0];
 			}
 		}
