@@ -63,9 +63,8 @@
 			</ng-container>
 			<ng-container *ngIf="choice.choiceStatus === 'Available' && choice.enabled">
 				<div [class.phd-clickable]="!isReadonly" class="phd-favorite-selector">
-					<span class="phd-icon-selected">
-						<i *ngIf="choice.isFavorite" class="fa fa-heart" (click)="toggleChoiceClicked()"></i>
-						<i *ngIf="!choice.isFavorite" class="fa fa-heart-o" (click)="toggleChoiceClicked()"></i>
+					<span>
+						<i [ngClass]="choice.isFavorite ? 'fa fa-heart phd-icon-selected' : 'fa fa-heart-o'" (click)="toggleChoiceClicked()"></i>
 					</span>
 				</div>
 			</ng-container>
