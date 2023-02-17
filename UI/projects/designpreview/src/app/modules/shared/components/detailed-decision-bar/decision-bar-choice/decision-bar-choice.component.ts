@@ -53,7 +53,7 @@ export class DecisionBarChoiceComponent {
 		if (!this.disabledByList.choiceDisabledByList && !this.disabledByList.pointDisabledByList) {
 			this.disabledByList = getDisabledByList(this.tree, this.groups, this.point, this.choice);
 		}
-		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { windowClass: 'phd-blocked-choice-modal' }, true);
+		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { backdrop: true, windowClass: 'phd-blocked-choice-modal' }, true);
 	}
 
 	onCloseClicked() {
