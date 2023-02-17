@@ -62,7 +62,7 @@
 					<div class="input-group-prepend">
 						<span class="input-group-text">$</span>
 					</div>
-					<input class="form-control" type="textbox" formControlName="amount" id="amount" name="amount" [attr.readonly]="deposit.paidDate" [inputFilter]="'^\\d{1,19}(\\.?\\d{0,2})$'">
+					<input class="form-control" type="number" formControlName="amount" id="amount" name="amount" [attr.readonly]="deposit.paidDate" [inputFilter]="'^\\d{1,19}(\\.?\\d{0,2})$'">
 				</div>
 			</div>
 		</div>
