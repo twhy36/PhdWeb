@@ -127,14 +127,7 @@ export class AttributeLocationComponent implements OnInit, OnChanges
 		else
 		{
 			this.locationQuantityTotal = null;
-			let modalOptions = {
-				windowClass: 'phd-max-quantity-modal',
-				centered: true,
-				backdrop: true,
-				keyboard: false,
-			}
-			this.maxQuantityModalRef = this.modalService.open(this.maxQuantityModal, modalOptions, true);
-			this.adobeService.setAlertEvent("You won't need that many for your home. Max quantity is " + (this.maxQuantity !== null ? this.maxQuantity : 0).toString() + ".", 'Max Quantity Alert');
+			this.displayMaxQuantityModal();
 		}
 	}
 
@@ -160,18 +153,26 @@ export class AttributeLocationComponent implements OnInit, OnChanges
 		const existingAttribute = this.selectedLocationAttributes.find(a =>
 			a.attributeId === data.attribute.id && a.attributeGroupId === data.attributeGroup.id);
 
-		if (!this.locationQuantityTotal && !existingAttribute)
+		if (this.maxQuantity === 0)
 		{
-			this.locationQuantityTotal = 1;
+			this.locationQuantityTotal = null;
+			this.displayMaxQuantityModal();
 		}
+		else
+		{
+			if (!this.locationQuantityTotal && !existingAttribute)
+			{
+				this.locationQuantityTotal = 1;
+			}
 
-		this.onToggleAttribute.emit({
-			attribute: data.attribute,
-			attributeGroup: data.attributeGroup,
-			location: this.attributeLocation,
-			locationGroup: this.attributeLocationGroup,
-			quantity: this.locationQuantityTotal
-		});
+			this.onToggleAttribute.emit({
+				attribute: data.attribute,
+				attributeGroup: data.attributeGroup,
+				location: this.attributeLocation,
+				locationGroup: this.attributeLocationGroup,
+				quantity: this.locationQuantityTotal
+			});
+		}
 	}
 
 	closeClicked()
@@ -180,5 +181,17 @@ export class AttributeLocationComponent implements OnInit, OnChanges
 		{
 			this.maxQuantityModalRef.close();
 		}
+	}
+
+	displayMaxQuantityModal()
+	{
+		const modalOptions = {
+			windowClass: 'phd-max-quantity-modal',
+			centered: true,
+			backdrop: true,
+			keyboard: false,
+		}
+		this.maxQuantityModalRef = this.modalService.open(this.maxQuantityModal, modalOptions, true);
+		this.adobeService.setAlertEvent('You won\'t need that many for your home. Max quantity is ' + (this.maxQuantity !== null ? this.maxQuantity : 0).toString() + '.', 'Max Quantity Alert');
 	}
 }

@@ -50,5 +50,4 @@ export class QuantityInputComponent
 			this.cd.detectChanges();
 		}
 	}
-
 }
