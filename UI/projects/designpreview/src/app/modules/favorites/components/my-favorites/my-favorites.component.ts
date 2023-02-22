@@ -23,7 +23,8 @@ import
 	Choice,
 	PickType,
 	ModalRef,
-	ModalService
+	ModalService,
+	NavigationService
 }
 	from 'phd-common';
 
@@ -86,6 +87,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 	unfilteredPoints: DecisionPoint[] = [];
 	termsAndConditionsModal: ModalRef;
 	showTermsAndConditionsModal: boolean = true;
+	previousUrl: string;
 
 	get nextSubGroup(): SubGroup
 	{
@@ -108,13 +110,16 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		private router: Router,
 		private cd: ChangeDetectorRef,
 		private modalService: ModalService,
-		private location: Location)
+		private location: Location,
+		private navService: NavigationService)
 	{
 		super();
 	}
 
 	ngOnInit()
 	{
+		this.previousUrl = this.navService.getPreviousUrl();
+
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(fromPlan.selectedPlanData)
@@ -538,6 +543,18 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 	{
 		let subGroupName = '';
 		let pointName = '';
+		if (this.previousUrl && this.previousUrl.length)
+		{
+			if (this.previousUrl.includes('favorites/summary'))
+			{
+				return 'My Favorites';
+			}
+
+			if (this.previousUrl.includes('/included'))
+			{
+				return 'Included Options';
+			}
+		}
 
 		if (this.selectedSubGroup)
 		{

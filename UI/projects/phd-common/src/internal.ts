@@ -65,6 +65,7 @@ export * from './lib/services/interceptors/spinner.interceptor';
 export * from './lib/services/spinner.service';
 export * from './lib/services/modal.service';
 export * from './lib/services/feature-switch.service';
+export * from './lib/services/navigation.service';
 
 //utils
 export * from './lib/utils/animations.class';

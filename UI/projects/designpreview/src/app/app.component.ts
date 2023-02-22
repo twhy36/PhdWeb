@@ -4,7 +4,7 @@ import { Idle, DEFAULT_INTERRUPTSOURCES } from '@ng-idle/core';
 import { NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 import { select, Store } from '@ngrx/store';
 
-import { ModalService, ModalRef, IdentityService, UnsubscribeOnDestroy } from 'phd-common';
+import { ModalService, ModalRef, IdentityService, UnsubscribeOnDestroy, NavigationService } from 'phd-common';
 import { withLatestFrom } from 'rxjs/operators';
 
 import { environment } from '../environments/environment';
@@ -42,7 +42,8 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 	{
 		return build.version;
 	}
-
+	
+	//navService is needed here to initalize the routing history, please do not remove
 	constructor(
 		private idle: Idle,
 		private store: Store<fromRoot.State>,
@@ -50,6 +51,7 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 		private identityService: IdentityService,
 		private brandService: BrandService,
 		private adobeService: AdobeService,
+		private navService: NavigationService,
 		@Inject(DOCUMENT) private doc: any) 
 	{
 		super();

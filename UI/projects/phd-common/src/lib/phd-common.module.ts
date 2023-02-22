@@ -42,6 +42,7 @@ import { SafeUrlPipe } from './pipes/safe-url.pipe';
 import { MinusSignToParens } from './pipes/minusSignToParens.pipe';
 import { PrimeNGCorrectionService } from './services/primeng.service';
 import { initAppInsights, TELEMETRY_INIT } from './utils/appInsights';
+import { NavigationService } from './services/navigation.service';
 
 export function oAuthModuleConfigFactory(apiUrl: string)
 {
@@ -144,7 +145,8 @@ export class PhdCommonModule
 				FeatureSwitchService,
 				ClaimGuard,
 				PrimeNGCorrectionService,
-				ModalService
+				ModalService,
+				NavigationService
 			]
 		};
 	}
