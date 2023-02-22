@@ -299,6 +299,8 @@ export const priceBreakdown = createSelector(
 
 		if (salesAgreement && scenario)
 		{
+			const isDesignComplete = salesAgreement.isDesignComplete;
+
 			breakdown.baseHouse = planPrice;
 			breakdown.homesite = scenario.lotPremium;
 
@@ -433,7 +435,7 @@ export const priceBreakdown = createSelector(
 				}
 			});
 
-			breakdown.totalPrice = salesPrice + changePrice + breakdown.favoritesPrice;
+			breakdown.totalPrice = salesPrice + changePrice + (!isDesignComplete ? breakdown.favoritesPrice : 0);
 		}
 
 		return breakdown;
