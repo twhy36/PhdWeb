@@ -31,7 +31,7 @@ export class ExternalGuard implements CanActivate
 		if (!sessionStorage.getItem('authProvider'))
 		{
 			sessionStorage.setItem('authProvider', 'sitecoreSSO');
-			this.authService.setAuthConfig(environment.authConfigs["sitecoreSSO"]);
+			this.authService.setAuthConfig(environment.authConfigs['sitecoreSSO']);
 		}
 
 		return combineLatest([this.identityService.isLoggedIn.pipe(
@@ -39,7 +39,7 @@ export class ExternalGuard implements CanActivate
 			{
 				if (!loggedIn)
 				{
-					this.identityService.login({ provider: "sitecoreSSO" });
+					this.identityService.login({ provider: 'sitecoreSSO' });
 					return false; //redirect to access denied if error?
 				}
 

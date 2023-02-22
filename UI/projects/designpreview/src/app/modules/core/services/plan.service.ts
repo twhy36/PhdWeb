@@ -7,6 +7,7 @@ import { getDateWithUtcOffset, Plan, withSpinner } from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
 import { OptionService } from './option.service';
+import { DTreeVersionDto, ODataResponse, PlanCommunityDto } from '../../shared/models/odata-response.model';
 import { PlanCommunity } from '../../shared/models/plan-community.model';
 
 
@@ -18,16 +19,16 @@ export class PlanService
 	getSelectedPlan(planId: number): Observable<Plan[]>
 	{
 		const entity = 'planCommunities';
-		const expand = `webSitePlanCommunityAssocs($expand=webSitePlan($select=webSitePlanIntegrationKey))`;
+		const expand = 'webSitePlanCommunityAssocs($expand=webSitePlan($select=webSitePlanIntegrationKey))';
 		const filter = `id eq ${planId}`;
-		const select = `id, financialPlanIntegrationKey, financialCommunityId, planSalesName, bedrooms, fullBaths, halfBaths, squareFeet, productType, foundation, garageConfiguration, masterBedLocation, productConfiguration, planSalesDescription`;
+		const select = 'id, financialPlanIntegrationKey, financialCommunityId, planSalesName, bedrooms, fullBaths, halfBaths, squareFeet, productType, foundation, garageConfiguration, masterBedLocation, productConfiguration, planSalesDescription';
 
-		const endPoint = environment.apiUrl + `${entity}?${encodeURIComponent("$")}expand=${encodeURIComponent(expand)}&${encodeURIComponent("$")}filter=${encodeURIComponent(filter)}&${encodeURIComponent("$")}select=${encodeURIComponent(select)}`;
+		const endPoint = environment.apiUrl + `${entity}?${encodeURIComponent('$')}expand=${encodeURIComponent(expand)}&${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}&${encodeURIComponent('$')}select=${encodeURIComponent(select)}`;
 
-		return this._http.get<any>(endPoint).pipe(
-			map(response =>
+		return this._http.get<ODataResponse<PlanCommunityDto[]>>(endPoint).pipe(
+			map(response => 
 			{
-				return response.value.map(data =>
+				return response.value.map(data => 
 				{
 					const plan = this.mapPlan(data);
 					plan.marketingPlanId = data['webSitePlanCommunityAssocs'].map(p => p.webSitePlan.webSitePlanIntegrationKey);
@@ -50,13 +51,13 @@ export class PlanService
 		const utcNow = getDateWithUtcOffset();
 
 		const filter = `publishStartDate le ${utcNow} and (publishEndDate eq null or publishEndDate gt ${utcNow}) and dTree/plan/org/edhFinancialCommunityId eq ${commId} and dTree/plan/integrationKey eq '${planKey}'`;
-		const select = `dTreeVersionID`;
+		const select = 'dTreeVersionID';
 
 		const qryStr = `${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}&${encodeURIComponent('$')}select=${encodeURIComponent(select)}`;
 
 		url += `dTreeVersions?${qryStr}`;
 
-		return this._http.get<any>(url).pipe(
+		return this._http.get<ODataResponse<DTreeVersionDto[]>>(url).pipe(
 			map(response =>
 			{
 				return !!response.value.length ? response.value[0].dTreeVersionID : 0;
@@ -74,15 +75,15 @@ export class PlanService
 
 		const entity = 'planCommunities';
 		const filter = `id eq ${planCommunityId}`;
-		const expand = `financialCommunity($select=id, name, number, financialBrandId)`
-		const select = `id, financialPlanIntegrationKey,  financialCommunityId, planSalesName, isActive`;
+		const expand = 'financialCommunity($select=id, name, number, financialBrandId)';
+		const select = 'id, financialPlanIntegrationKey,  financialCommunityId, planSalesName, isActive';
 
-		const endPoint = environment.apiUrl + `${entity}?${encodeURIComponent("$")}expand=${encodeURIComponent(expand)}&${encodeURIComponent("$")}filter=${encodeURIComponent(filter)}&${encodeURIComponent("$")}select=${encodeURIComponent(select)}`;
+		const endPoint = environment.apiUrl + `${entity}?${encodeURIComponent('$')}expand=${encodeURIComponent(expand)}&${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}&${encodeURIComponent('$')}select=${encodeURIComponent(select)}`;
 
-		return this._http.get<any>(endPoint).pipe(
+		return this._http.get<ODataResponse<PlanCommunityDto[]>>(endPoint).pipe(
 			switchMap(resp =>
 			{
-				let planComm = this.mapPlanCommunity(resp.value[0]);
+				const planComm = this.mapPlanCommunity(resp.value[0]);
 
 				return this.getPublishedTree(planComm.communityId, planComm.planKey)
 					.pipe(
@@ -105,13 +106,13 @@ export class PlanService
 	getWebPlanMappingByPlanId(planId: number): Observable<Array<number>>
 	{
 		const filter = `id eq ${planId}`;
-		const expand = `webSitePlanCommunityAssocs($expand=webSitePlan($select=webSitePlanIntegrationKey))`;
-		const select = `id,webSitePlanCommunityAssocs`;
+		const expand = 'webSitePlanCommunityAssocs($expand=webSitePlan($select=webSitePlanIntegrationKey))';
+		const select = 'id,webSitePlanCommunityAssocs';
 
 		const url = `${environment.apiUrl}planCommunities?${encodeURIComponent('$')}expand=${encodeURIComponent(expand)}&${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}&${encodeURIComponent('$')}select=${encodeURIComponent(select)}`;
 
-		return this._http.get<any>(url).pipe(
-			map(resp => !!resp.value.length ? resp.value[0]['webSitePlanCommunityAssocs'].map(p => p.webSitePlan.webSitePlanIntegrationKey) : []),
+		return this._http.get<ODataResponse<PlanCommunityDto[]>>(url).pipe(
+			map(resp => !!resp.value.length ? resp.value[0].webSitePlanCommunityAssocs.map(p => p.webSitePlan.webSitePlanIntegrationKey) : []),
 			catchError(error =>
 			{
 				console.error(error);
@@ -128,10 +129,10 @@ export class PlanService
 		const filter = `financialPlanIntegrationKey eq '${planKey}' and financialCommunityId eq ${financialCommunityId}`;
 		const url = `${environment.apiUrl}planCommunities?${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}`;
 
-		return this._http.get<any>(url).pipe(
+		return this._http.get<ODataResponse<PlanCommunityDto[]>>(url).pipe(
 			switchMap(resp =>
 			{
-				let plan = this.mapPlan(resp.value[0]);
+				const plan = this.mapPlan(resp.value[0]);
 
 				return this.optionService.getPlanOptions(plan.id, optionIds)
 					.pipe(
@@ -158,12 +159,12 @@ export class PlanService
 	getWebPlanMapping(planKey: string, financialCommunityId: number): Observable<Array<number>>
 	{
 		const filter = `financialPlanIntegrationKey eq '${planKey}' and financialCommunityId eq ${financialCommunityId}`;
-		const expand = `webSitePlanCommunityAssocs($expand=webSitePlan($select=webSitePlanIntegrationKey))`;
-		const select = `id,webSitePlanCommunityAssocs`;
+		const expand = 'webSitePlanCommunityAssocs($expand=webSitePlan($select=webSitePlanIntegrationKey))';
+		const select = 'id,webSitePlanCommunityAssocs';
 
 		const url = `${environment.apiUrl}planCommunities?${encodeURIComponent('$')}expand=${encodeURIComponent(expand)}&${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}&${encodeURIComponent('$')}select=${encodeURIComponent(select)}`;
 
-		return withSpinner(this._http).get<any>(url).pipe(
+		return withSpinner(this._http).get<ODataResponse<PlanCommunityDto[]>>(url).pipe(
 			map(resp => !!resp.value.length ? resp.value[0]['webSitePlanCommunityAssocs'].map(p => p.webSitePlan.webSitePlanIntegrationKey) : []),
 			catchError(error =>
 			{

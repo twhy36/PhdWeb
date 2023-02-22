@@ -1,24 +1,25 @@
-import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, ViewChild } from '@angular/core';
 import { DecisionPoint, Group, Tree, MyFavoritesPointDeclined, ModalRef, ModalService } from 'phd-common';
 import { BlockedByItemObject } from '../../../models/blocked-by.model';
 import { getDisabledByList } from '../../../classes/tree.utils';
 
 @Component({
-  selector: 'decision-bar-decline-choice',
-  templateUrl: './decision-bar-decline-choice.component.html',
-  styleUrls: ['./decision-bar-decline-choice.component.scss']
+	selector: 'decision-bar-decline-choice',
+	templateUrl: './decision-bar-decline-choice.component.html',
+	styleUrls: ['./decision-bar-decline-choice.component.scss']
 })
-export class DecisionBarDeclineChoiceComponent implements OnInit {
+export class DecisionBarDeclineChoiceComponent implements OnInit, OnChanges 
+{
 	@Input() point: DecisionPoint;
 	@Input() myFavoritesPointsDeclined?: MyFavoritesPointDeclined[];
 	@Input() groups: Group[];
 	@Input() tree: Tree;
 	@Input() isReadonly: boolean;
 
-	@Output() onDeclineDecisionPoint = new EventEmitter<DecisionPoint>();
-	@Output() onSelectDecisionPoint = new EventEmitter<number>();
+	@Output() declineDecisionPoint = new EventEmitter<DecisionPoint>();
+	@Output() selectDecisionPoint = new EventEmitter<number>();
 
-	@ViewChild('blockedChoiceModal') blockedChoiceModal: any;
+	@ViewChild('blockedChoiceModal') blockedChoiceModal;
 
 	isDeclined: boolean = false;
 	blockedChoiceModalRef: ModalRef;
@@ -27,15 +28,18 @@ export class DecisionBarDeclineChoiceComponent implements OnInit {
 
 	constructor(public modalService: ModalService) { }
 
-	ngOnInit() {
+	ngOnInit() 
+	{
 		this.updateIsDeclined();
 	}
 
-	ngOnChanges() {
+	ngOnChanges() 
+	{
 		this.updateIsDeclined();
 	}
 
-	updateIsDeclined() {
+	updateIsDeclined() 
+	{
 		this.isDeclined = !!this.myFavoritesPointsDeclined?.find(p => p.divPointCatalogId === this.point.divPointCatalogId);
 	}
 
@@ -43,11 +47,12 @@ export class DecisionBarDeclineChoiceComponent implements OnInit {
 	{
 		if (!this.isReadonly)
 		{
-			this.onDeclineDecisionPoint.emit(this.point);
+			this.declineDecisionPoint.emit(this.point);
 		}
 	}
 
-	openBlockedChoiceModal() {
+	openBlockedChoiceModal() 
+	{
 		if (!this.disabledByList.choiceDisabledByList && !this.disabledByList.pointDisabledByList)
 		{
 			this.disabledByList = getDisabledByList(this.tree, this.groups, this.point, null);

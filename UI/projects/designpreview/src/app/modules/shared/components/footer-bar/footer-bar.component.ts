@@ -21,8 +21,8 @@ export class FooterBarComponent extends UnsubscribeOnDestroy implements OnInit
 
 	currentYear = new Date().getFullYear();
 	brandUrl = '';
-	accessibilityImgSrc = "assets/icon_accessibility.png";
-	equalHousingImgSrc = "assets/icon_equalHousing.png";
+	accessibilityImgSrc = 'assets/icon_accessibility.png';
+	equalHousingImgSrc = 'assets/icon_equalHousing.png';
 	disclaimerModal: ModalRef;
 	isPresale: boolean = false;
 
@@ -37,8 +37,8 @@ export class FooterBarComponent extends UnsubscribeOnDestroy implements OnInit
 	{
 		if (environment.brandMap.americanWest === window.location.host)
 		{
-			this.accessibilityImgSrc = "assets/Icon_Accessibility_AmWest.svg";
-			this.equalHousingImgSrc = "assets/Icon_Equal Housing_AmWest.svg";
+			this.accessibilityImgSrc = 'assets/Icon_Accessibility_AmWest.svg';
+			this.equalHousingImgSrc = 'assets/Icon_Equal Housing_AmWest.svg';
 		}
 
 		this.brandUrl = this.brandService.getBrandHomeUrl();
@@ -54,7 +54,7 @@ export class FooterBarComponent extends UnsubscribeOnDestroy implements OnInit
 
 	onDisclaimerClick()
 	{
-		let ngbModalOptions: NgbModalOptions =
+		const ngbModalOptions: NgbModalOptions =
 			{
 				centered: true,
 				backdrop: true, 

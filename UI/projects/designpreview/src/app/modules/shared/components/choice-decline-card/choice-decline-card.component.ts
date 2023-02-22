@@ -23,10 +23,9 @@ export class ChoiceDeclineCardComponent extends UnsubscribeOnDestroy implements 
 	@Input() isReadonly: boolean;
 	@Input() isPresale: boolean = false;
 
-	@Output() onDeclineDecisionPoint = new EventEmitter<DecisionPoint>();
-	@Output() onSelectDecisionPoint = new EventEmitter<any>();
+	@Output() declineDecisionPoint = new EventEmitter<DecisionPoint>();
 
-	@ViewChild('blockedChoiceModal') blockedChoiceModal: any;
+	@ViewChild('blockedChoiceModal') blockedChoiceModal;
 
 	point: DecisionPoint;
 	isDeclined: boolean = false;
@@ -37,7 +36,8 @@ export class ChoiceDeclineCardComponent extends UnsubscribeOnDestroy implements 
 
 	constructor(
 		public modalService: ModalService
-	) {
+	) 
+	{
 		super();
 	}
 
@@ -59,7 +59,7 @@ export class ChoiceDeclineCardComponent extends UnsubscribeOnDestroy implements 
 	 * Used to set a default image if Cloudinary can't load an image
 	 * @param event
 	 */
-	onLoadImageError(event: any)
+	onLoadImageError(event)
 	{
 		event.srcElement.src = this.imageSrc;
 	}
@@ -68,7 +68,7 @@ export class ChoiceDeclineCardComponent extends UnsubscribeOnDestroy implements 
 	{
 		if (!this.isReadonly)
 		{
-			this.onDeclineDecisionPoint.emit(this.point);
+			this.declineDecisionPoint.emit(this.point);
 		}
 	}
 

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { INIT } from '@ngrx/store';
 
 import { ActionReducer } from '@ngrx/store';
@@ -15,7 +16,7 @@ export class RehydrateMap
 	{
 		if (state)
 		{
-			for (let feature of Object.keys(state))
+			for (const feature of Object.keys(state))
 			{
 				const featureState = state[feature];
 				if (this.featureMap[feature])
@@ -35,12 +36,12 @@ export function sessionStateReducer(reducer: ActionReducer<any>): ActionReducer<
 	{
 		if (action.type === INIT)
 		{
-			let rehydratedState = JSON.parse(sessionStorage.getItem('phd_design_preview_state'));
+			const rehydratedState = JSON.parse(sessionStorage.getItem('phd_design_preview_state'));
 			state = Object.assign({}, state, RehydrateMap.rehydrate(rehydratedState));
 			return state;
 		}
 
-		let nextState = reducer(state, action);
+		const nextState = reducer(state, action);
 		try
 		{
 			sessionStorage.setItem('phd_design_preview_state', JSON.stringify(nextState));

@@ -1,15 +1,18 @@
 {
 	"extends": "../../tsconfig.json",
 	"compilerOptions": {
+		"lib":[
+			"ES2019",
+			"DOM"
+		],
 		"outDir": "./out-tsc/app",
 		"baseUrl": "./",
-    "module": "es2015",
 		"experimentalDecorators": true,
 		"strict": false,
 		"noImplicitUseStrict": true,
 		"alwaysStrict": false,
 		"strictPropertyInitialization": false,
-		"types": [],
+		"types": ["node"],
 		"paths": {
 			"phd-common": [ "../phd-common/src/internal" ]
 		}

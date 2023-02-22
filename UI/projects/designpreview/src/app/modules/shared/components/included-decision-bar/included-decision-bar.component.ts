@@ -1,7 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
+
 import * as _ from 'lodash';
-
-
 import { UnsubscribeOnDestroy, flipOver2, slideOut, DecisionPoint, TreeVersion, SubGroup } from 'phd-common';
 
 @Component({
@@ -18,8 +17,8 @@ export class IncludedDecisionBarComponent extends UnsubscribeOnDestroy
 	@Input() points: DecisionPoint[];
 	@Input() tree: TreeVersion;
 
-	@Output() onSelectDecisionPoint = new EventEmitter<number>();
-	@Output() onSelectSubGroup = new EventEmitter<number>();
+	@Output() selectDecisionPoint = new EventEmitter<number>();
+	@Output() selectSubGroup = new EventEmitter<number>();
 	
 	currentPointId: number;
 	currentSubGroupId: number;
@@ -30,35 +29,45 @@ export class IncludedDecisionBarComponent extends UnsubscribeOnDestroy
 	{
 		this.currentPointId = point.id;
 		this.currentSubGroupId = null;
-		this.onSelectDecisionPoint.emit(point.id);
-		this.onSelectSubGroup.emit(null);
+		this.selectSubGroup.emit(null);
+		this.selectDecisionPoint.emit(point.id);
 	}
 
-	onSubGroupClick(subGroup: SubGroup) {
+	onSubGroupClick(subGroup: SubGroup) 
+	{
 		this.currentSubGroupId = subGroup.id;
 		this.currentPointId = null;
-		this.onSelectSubGroup.emit(subGroup.id);
-		this.onSelectDecisionPoint.emit(null);
+		this.selectDecisionPoint.emit(null);
+		this.selectSubGroup.emit(subGroup.id);
 	}
 
-	displaySubGroup(subGroup: SubGroup) {
+	displaySubGroup(subGroup: SubGroup) 
+	{
 		let display = false;
-		subGroup.points.forEach(p => {
-			if (this.displayDecisionPoint(p)) {
+		subGroup.points.forEach(p => 
+		{
+			if (this.displayDecisionPoint(p)) 
+			{
 				display = true;
 			}
 		})
 		return display;
 	}
 
-	displayDecisionPoint(point: DecisionPoint) {
-		if (point.isHiddenFromBuyerView) {
+	displayDecisionPoint(point: DecisionPoint) 
+	{
+		if (point.isHiddenFromBuyerView) 
+		{
 			return false;
-		} else {
+		}
+		else 
+		{
 			const choices = _.flatMap(point.choices);
 			let aChoiceExists = false;
-			choices.forEach(c => {
-				if (!c.isHiddenFromBuyerView && c.isDecisionDefault) {
+			choices.forEach(c => 
+			{
+				if (!c.isHiddenFromBuyerView && c.isDecisionDefault) 
+				{
 					aChoiceExists = true;
 				}
 			})

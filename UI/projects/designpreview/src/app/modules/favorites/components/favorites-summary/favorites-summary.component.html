@@ -2,7 +2,7 @@
 	<group-bar [communityName]="communityName" 
 		[planName]="planName" 
 		[groups]="groups"
-		(onSubgroupSelected)="onSubgroupSelected($event)">
+		(subgroupSelected)="onSubgroupSelected($event)">
 	</group-bar>
 </div>
 
@@ -55,8 +55,8 @@
 									[isDesignComplete]="isDesignComplete" 
 									[isPresale]="isPresale"
 									[favoritesId]="favoritesId" 
-									(onViewFavorites)="onViewFavorites($event)"
-									(onRemoveFavorites)="onRemoveFavorites($event)">
+									(viewFavorites)="onViewFavorites($event)"
+									(removeFavorites)="onRemoveFavorites($event)">
 								</decision-point-summary>
 							</ng-container>
 						</div>
@@ -98,7 +98,7 @@
 										[subGroup]="IFPsubGroup"
 										[isFlipped]="isFloorplanFlipped"
 										[ifpID]="'firstDisplayedFloor'"
-										(onFloorPlanSaved)="onFloorPlanSaved($event)"
+										(floorPlanSaved)="onFloorPlanSaved($event)"
 									></floor-plan>
 								</div>
 							</ng-container>
@@ -145,7 +145,7 @@
 	[isPresale]="isPresale" 
 	[includeContractedOptions]="includeContractedOptions"
 	(callToAction)="onBack()" 
-	(onToggleContractedOptions)="onContractedOptionsToggled()">
+	(toggleContractedOptions)="onContractedOptionsToggled()">
 </action-bar>
 
 <div class="phd-print-footer phd-show-on-print">{{ disclaimerText }}</div>

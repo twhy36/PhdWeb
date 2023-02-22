@@ -1,25 +1,25 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
+import { withSpinner, PlanOption, OptionImage } from 'phd-common';
 import { Observable, throwError as _throw } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 
-import { withSpinner, PlanOption, OptionCommunityImage, OptionImage } from 'phd-common';
-
 import { environment } from '../../../../environments/environment';
+import { ODataResponse, PlanOptionCommunityDto } from '../../shared/models/odata-response.model';
 
 @Injectable()
 export class OptionService
 {
-	private mapOptions = () => (source: Observable<any>) =>
+	private mapOptions = () => (source: Observable<ODataResponse<PlanOptionCommunityDto[]>>) =>
 		source.pipe(
-			map((response: any) =>
+			map((response: ODataResponse<PlanOptionCommunityDto[]>) =>
 			{
 				return response.value.map(data =>
 				{
-					let locationGroups = data['optionCommunity']['locationGroupOptionCommunityAssocs'];
-					let attributeGroups = data['optionCommunity']['attributeGroupOptionCommunityAssocs'];
-					let optionCommunityImages: OptionCommunityImage[] = data['optionCommunity']['optionCommunityImages'];
+					const locationGroups = data.optionCommunity.locationGroupOptionCommunityAssocs;
+					const attributeGroups = data.optionCommunity.attributeGroupOptionCommunityAssocs;
+					const optionCommunityImages = data.optionCommunity.optionCommunityImages;
 					let optionImages: OptionImage[] = [];
 
 					if (optionCommunityImages.length > 0)
@@ -33,21 +33,20 @@ export class OptionService
 					}
 
 					return {
-						// DEVNOTE: will change late bound to object if these mappings are repeated.
-						id: data['id'],
-						name: data['optionCommunity']['optionSalesName'],
-						isActive: data['isActive'],
-						listPrice: data['listPrice'] || 0,
-						maxOrderQuantity: data['maxOrderQty'],
-						isBaseHouse: data['isBaseHouse'],
-						isBaseHouseElevation: data['isBaseHouseElevation'],
+						id: data.id,
+						name: data.optionCommunity.optionSalesName,
+						isActive: data.isActive,
+						listPrice: data.listPrice || 0,
+						maxOrderQuantity: data.maxOrderQty,
+						isBaseHouse: data.isBaseHouse,
+						isBaseHouseElevation: data.isBaseHouseElevation,
 						attributeGroups: attributeGroups.length > 0 ? attributeGroups.map(x => x.attributeGroupCommunityId) : [],
 						locationGroups: locationGroups.length > 0 ? locationGroups.map(x => x.locationGroupCommunityId) : [],
-						financialOptionIntegrationKey: data['optionCommunity']['option']['financialOptionIntegrationKey'],
-						description: data['optionCommunity']['optionDescription'],
+						financialOptionIntegrationKey: data.optionCommunity.option.financialOptionIntegrationKey,
+						description: data.optionCommunity.optionDescription,
 						optionImages: optionImages,
-						planId: data['planId'] ? data['planId'] : 0,
-						communityId: data['communityId'] ? data['communityId'] : 0
+						planId: data.planId ?? 0,
+						communityId: data.communityId ?? 0
 					} as PlanOption;
 				}) as PlanOption[];
 			})
@@ -61,17 +60,17 @@ export class OptionService
 
 		if (optionIds != null)
 		{
-			filterOptions = " and (" + optionIds.map(id => `optionCommunity/option/financialOptionIntegrationKey eq '${id}'`).join(' or ') + ")";
+			filterOptions = ' and (' + optionIds.map(id => `optionCommunity/option/financialOptionIntegrationKey eq '${id}'`).join(' or ') + ')';
 		}
 
 		const entity = 'planOptionCommunities';
-		const expand = `optionCommunity($expand=optionCommunityImages($select=id,imageUrl,sortKey),attributeGroupOptionCommunityAssocs($select=attributeGroupCommunityId),locationGroupOptionCommunityAssocs($select=locationGroupCommunityId),option($select=financialOptionIntegrationKey,id); $select=optionSalesName,optionDescription,option,id)`;
+		const expand = 'optionCommunity($expand=optionCommunityImages($select=id,imageUrl,sortKey),attributeGroupOptionCommunityAssocs($select=attributeGroupCommunityId),locationGroupOptionCommunityAssocs($select=locationGroupCommunityId),option($select=financialOptionIntegrationKey,id); $select=optionSalesName,optionDescription,option,id)';
 		const filter = `planId eq ${planId}${filterOptions}`;
-		const select = `id, planId, optionCommunity, maxOrderQty, listPrice, isActive, isBaseHouse, isBaseHouseElevation`;
+		const select = 'id, planId, optionCommunity, maxOrderQty, listPrice, isActive, isBaseHouse, isBaseHouseElevation';
 
-		const endPoint = environment.apiUrl + `${entity}?${encodeURIComponent("$")}expand=${encodeURIComponent(expand)}&${encodeURIComponent("$")}filter=${encodeURIComponent(filter)}&${encodeURIComponent("$")}select=${encodeURIComponent(select)}`;
+		const endPoint = environment.apiUrl + `${entity}?${encodeURIComponent('$')}expand=${encodeURIComponent(expand)}&${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}&${encodeURIComponent('$')}select=${encodeURIComponent(select)}`;
 
-		return (skipSpinner ? this._http : withSpinner(this._http)).get(endPoint).pipe(
+		return (skipSpinner ? this._http : withSpinner(this._http)).get<ODataResponse<PlanOptionCommunityDto[]>>(endPoint).pipe(
 			this.mapOptions(),
 			catchError(error =>
 			{
@@ -85,13 +84,13 @@ export class OptionService
 	getPlanOptionsByPlanKey(communityId: number, planKey: string): Observable<PlanOption[]>
 	{
 		const entity = 'planOptionCommunities';
-		const expand = `optionCommunity($expand=optionCommunityImages($select=id,imageUrl,sortKey),attributeGroupOptionCommunityAssocs($select=attributeGroupCommunityId),locationGroupOptionCommunityAssocs($select=locationGroupCommunityId), option($select=financialOptionIntegrationKey,id); $select=optionSalesName,optionDescription,option,id)`;
+		const expand = 'optionCommunity($expand=optionCommunityImages($select=id,imageUrl,sortKey),attributeGroupOptionCommunityAssocs($select=attributeGroupCommunityId),locationGroupOptionCommunityAssocs($select=locationGroupCommunityId), option($select=financialOptionIntegrationKey,id); $select=optionSalesName,optionDescription,option,id)';
 		const filter = `planCommunity/financialCommunityId eq ${communityId} and planCommunity/financialPlanIntegrationKey eq '${planKey}'`;
-		const select = `id, planId, optionCommunity, maxOrderQty, listPrice, isActive, isBaseHouse, isBaseHouseElevation`;
+		const select = 'id, planId, optionCommunity, maxOrderQty, listPrice, isActive, isBaseHouse, isBaseHouseElevation';
 
-		const endPoint = environment.apiUrl + `${entity}?${encodeURIComponent("$")}expand=${encodeURIComponent(expand)}&${encodeURIComponent("$")}filter=${encodeURIComponent(filter)}&${encodeURIComponent("$")}select=${encodeURIComponent(select)}`;
+		const endPoint = environment.apiUrl + `${entity}?${encodeURIComponent('$')}expand=${encodeURIComponent(expand)}&${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}&${encodeURIComponent('$')}select=${encodeURIComponent(select)}`;
 
-		return this._http.get<any>(endPoint).pipe(
+		return this._http.get<ODataResponse<PlanOptionCommunityDto[]>>(endPoint).pipe(
 			this.mapOptions(),
 			catchError(error =>
 			{

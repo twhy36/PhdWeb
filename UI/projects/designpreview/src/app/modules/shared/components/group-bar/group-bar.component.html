@@ -5,7 +5,7 @@
 			<div class="phd-plan-name">{{planName}}</div>
 		</div>
 
-		<!--Group menu-->
+		<!-- Group menu -->
 		<div class="phd-primary-menu">
 			<ng-container *ngFor="let group of groups">
 				<button mat-button [matMenuTriggerFor]="group_menu"
@@ -26,7 +26,7 @@
 			</ng-container>
 		</div>
 
-		<!--Group menu in mobile view -->
+		<!-- Group menu in mobile view -->
 		<div class="phd-hamburger-menu">
 			<button mat-button [matMenuTriggerFor]="main_menu" class="phd-menu-bars" #hamburgerMenuTrigger="matMenuTrigger">
 				<i class="fa fa-bars fa-2x"></i>
@@ -52,7 +52,7 @@
 		</div>
 
 		<div class="phd-tree-filter">
-			<tree-filter (onSetTreeFilter)="setTreeFilter()"></tree-filter>
+			<tree-filter (setTreeFilter)="clickSetTreeFilter()"></tree-filter>
 		</div>
 	</div>
 </nav>

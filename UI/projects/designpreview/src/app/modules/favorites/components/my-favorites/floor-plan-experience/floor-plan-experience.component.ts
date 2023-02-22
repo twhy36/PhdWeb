@@ -38,20 +38,20 @@ export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implement
 	@Input() noVisibleFP: boolean = false;
 	@Input() unfilteredPoints: DecisionPoint[] = [];
 
-	@Output() onToggleChoice = new EventEmitter<ChoiceExt>();
-	@Output() onToggleContractedOptions = new EventEmitter();
-	@Output() onViewChoiceDetail = new EventEmitter<ChoiceExt>();
-	@Output() onSelectDecisionPoint = new EventEmitter<number>();
-	@Output() onDeclineDecisionPoint = new EventEmitter<DecisionPoint>();
+	@Output() toggleChoice = new EventEmitter<ChoiceExt>();
+	@Output() toggleContractedOptions = new EventEmitter();
+	@Output() viewChoiceDetail = new EventEmitter<ChoiceExt>();
+	@Output() selectDecisionPoint = new EventEmitter<number>();
+	@Output() declineDecisionPoint = new EventEmitter<DecisionPoint>();
 
 	isPointPanelCollapsed: boolean = false;
 	points: DecisionPoint[];
 	currentPointId: number;
 	subGroup: SubGroup;
 	choiceToggled: boolean = false;
-	floors: any[];
-	fpOptions: any[];
-	selectedFloor: any;
+	floors;
+	fpOptions;
+	selectedFloor;
 
 	constructor(private brandService: BrandService)
 	{
@@ -67,10 +67,10 @@ export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implement
 			{
 				// Prevent from reloading the page
 				const newChoices = _.flatMap(newSubGroup.points, pt => pt.choices);
-				let choices = _.flatMap(this.subGroup.points, pt => pt.choices);
+				const choices = _.flatMap(this.subGroup.points, pt => pt.choices);
 				newChoices.forEach(nc =>
 				{
-					let choice = choices.find(x => x.divChoiceCatalogId === nc.divChoiceCatalogId);
+					const choice = choices.find(x => x.divChoiceCatalogId === nc.divChoiceCatalogId);
 					if (choice)
 					{
 						choice.quantity = nc.quantity;
@@ -84,7 +84,7 @@ export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implement
 
 		if (changes['decisionPointId'])
 		{
-			this.selectDecisionPoint(changes['decisionPointId'].currentValue);
+			this.selectDecisionPointHandler(changes['decisionPointId'].currentValue);
 		}
 	}
 
@@ -93,7 +93,7 @@ export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implement
 		this.isPointPanelCollapsed = !this.isPointPanelCollapsed;
 	}
 
-	selectDecisionPoint(pointId: number)
+	selectDecisionPointHandler(pointId: number)
 	{
 		if (pointId)
 		{
@@ -102,7 +102,7 @@ export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implement
 				this.scrollPointIntoView(pointId);
 			}, 500);
 
-			this.onSelectDecisionPoint.emit(pointId);
+			this.selectDecisionPoint.emit(pointId);
 		}
 
 		this.currentPointId = pointId;
@@ -130,28 +130,29 @@ export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implement
 		}
 
 		this.choiceToggled = true;
-		this.onToggleChoice.emit(choice);
+		this.toggleChoice.emit(choice);
 	}
 
-	viewChoiceDetail(choice: ChoiceExt)
+	viewChoiceDetailHandler(choice: ChoiceExt) 
 	{
-		setTimeout(() =>
+		setTimeout(() => 
 		{
-			this.onViewChoiceDetail.emit(choice);
+			this.viewChoiceDetail.emit(choice);
 		}, 50);
 	}
 
-	loadFloorPlan(fp)
+	loadFloorPlan(fp) 
 	{
 		// load floors
 		this.floors = fp.floors;
-		if (!this.selectedFloor)
+		if (!this.selectedFloor) 
 		{
 			const floor1 = this.floors.find(floor => floor.name === 'Floor 1');
-			if (floor1)
+			if (floor1) 
 			{
 				this.selectedFloor = floor1;
-			} else
+			}
+			else 
 			{
 				this.selectedFloor = this.floors[0];
 			}
@@ -160,19 +161,19 @@ export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implement
 		this.fpOptions = fp.options;
 	}
 
-	selectFloor(floor: any)
+	selectFloor(floor) 
 	{
 		this.selectedFloor = floor;
 	}
 
-	declineDecisionPoint(point: DecisionPoint)
+	declineDecisionPointHandler(point: DecisionPoint)
 	{
-		this.onDeclineDecisionPoint.emit(point);
+		this.declineDecisionPoint.emit(point);
 	}
 
 	scrollPointIntoView(pointId: number)
 	{
-		const decisionBarElement = <HTMLElement><any>document.getElementById('decision-bar-' + pointId?.toString());
+		const decisionBarElement = <HTMLElement>document.getElementById('decision-bar-' + pointId?.toString());
 		if (decisionBarElement)
 		{
 			decisionBarElement.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });

@@ -17,23 +17,29 @@ export class DecisionBarComponent extends UnsubscribeOnDestroy
 	@Input() points: DecisionPoint[];
 	@Input() currentPointId: number;
 
-	@Output() onSelectDecisionPoint = new EventEmitter<number>();
+	@Output() selectDecisionPoint = new EventEmitter<number>();
 
 	constructor() { super(); }
 
 	onDecisionPointClick(point: DecisionPoint)
 	{
-		this.onSelectDecisionPoint.emit(point.id);
+		this.selectDecisionPoint.emit(point.id);
 	}
 
-	displayDecisionPoint(point: DecisionPoint) {
-		if (point.isHiddenFromBuyerView) {
+	displayDecisionPoint(point: DecisionPoint) 
+	{
+		if (point.isHiddenFromBuyerView) 
+		{
 			return false;
-		} else {
+		}
+		else 
+		{
 			const choices = _.flatMap(point.choices);
 			let aChoiceExists = false;
-			choices.forEach(c => {
-				if (!c.isHiddenFromBuyerView) {
+			choices.forEach(c => 
+			{
+				if (!c.isHiddenFromBuyerView) 
+				{
 					aChoiceExists = true;
 				}
 			})

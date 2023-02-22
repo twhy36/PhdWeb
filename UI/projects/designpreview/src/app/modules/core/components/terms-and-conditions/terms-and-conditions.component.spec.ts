@@ -5,37 +5,42 @@ import { TermsAndConditionsComponent } from './terms-and-conditions.component';
 import * as fromApp from '../../../ngrx-store/app/reducer';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
-describe('TermsAndConditionsComponent', () => {
-  let component: TermsAndConditionsComponent;
-  let fixture: ComponentFixture<TermsAndConditionsComponent>;
+describe('TermsAndConditionsComponent', () => 
+{
+	let component: TermsAndConditionsComponent;
+	let fixture: ComponentFixture<TermsAndConditionsComponent>;
 
-  let mockStore: MockStore;
-  const { initialState } = fromApp;
+	let mockStore: MockStore;
+	const { initialState } = fromApp;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      declarations: [ TermsAndConditionsComponent ],
-      providers: [ NgbModal, NgbActiveModal, provideMockStore({ initialState }), ]
-    })
-    .compileComponents();
+	beforeEach(async () => 
+	{
+		await TestBed.configureTestingModule({
+			declarations: [ TermsAndConditionsComponent ],
+			providers: [ NgbModal, NgbActiveModal, provideMockStore({ initialState }), ]
+		})
+			.compileComponents();
 
-    mockStore = TestBed.inject(MockStore);
-  });
+		mockStore = TestBed.inject(MockStore);
+	});
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(TermsAndConditionsComponent);
-    component = fixture.componentInstance;
+	beforeEach(() => 
+	{
+		fixture = TestBed.createComponent(TermsAndConditionsComponent);
+		component = fixture.componentInstance;
 
-    fixture.detectChanges();
-  });
+		fixture.detectChanges();
+	});
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+	it('should create', () => 
+	{
+		expect(component).toBeTruthy();
+	});
 
-  it('should return the default state', () => {
-    const state = fromApp.reducer(undefined, { type: null });
+	it('should return the default state', () => 
+	{
+		const state = fromApp.reducer(undefined, { type: null });
 
-    expect(state.termsAndConditionsAcknowledged).toBe(initialState.termsAndConditionsAcknowledged);
-  })
+		expect(state.termsAndConditionsAcknowledged).toBe(initialState.termsAndConditionsAcknowledged);
+	})
 });

@@ -14,8 +14,8 @@ export function isChoiceAttributesComplete(choice: Choice): boolean
 	}
 	else
 	{
-		let locations = choice.mappedLocationGroups ? choice.mappedLocationGroups.map(x => x.id) : [];
-		let attributes = choice.mappedAttributeGroups ? choice.mappedAttributeGroups.map(x => x.id) : [];
+		const locations = choice.mappedLocationGroups ? choice.mappedLocationGroups.map(x => x.id) : [];
+		const attributes = choice.mappedAttributeGroups ? choice.mappedAttributeGroups.map(x => x.id) : [];
 
 		isComplete = checkLocationAttributeSelections(choice, locations, attributes);
 	}
@@ -36,12 +36,12 @@ function checkLocationAttributeSelections(choice: Choice, locationGroups: number
 		locationGroups.forEach(lg =>
 		{
 			// find all selectedAttributes based on the locationGroup
-			let selectedLocations = selectedAttributes.length > 0 ? selectedAttributes.filter(sa => sa.locationGroupId === lg) : [];
+			const selectedLocations = selectedAttributes.length > 0 ? selectedAttributes.filter(sa => sa.locationGroupId === lg) : [];
 
 			if (selectedLocations.length)
 			{
 				// get a distinct list of locationId and locationQuantity.
-				let distinctLocations = _.uniqBy(selectedLocations.map(l => { return { locationId: l.locationId, locationQuantity: l.locationQuantity }; }), 'locationId');
+				const distinctLocations = _.uniqBy(selectedLocations.map(l => { return { locationId: l.locationId, locationQuantity: l.locationQuantity }; }), 'locationId');
 
 				if (hasAttributes)
 				{
@@ -67,8 +67,8 @@ function checkLocationAttributeSelections(choice: Choice, locationGroups: number
 	}
 	else if (hasAttributes)
 	{
-		let distinctSelectedAttributeIds = selectedAttributes.map(a => a.attributeGroupId).filter((value, index, self) => self.indexOf(value) === index);
-		let distinctAttributeIds = attributeGroups.filter((value, index, self) => self.indexOf(value) === index);
+		const distinctSelectedAttributeIds = selectedAttributes.map(a => a.attributeGroupId).filter((value, index, self) => self.indexOf(value) === index);
+		const distinctAttributeIds = attributeGroups.filter((value, index, self) => self.indexOf(value) === index);
 
 		// check attributes to make a value has been selected for each attributeGroup
 		allAttrSelected = distinctSelectedAttributeIds.length === distinctAttributeIds.length;
@@ -119,7 +119,7 @@ export function setPresaleToken(queryToken: string = '', resetToken = false)
 }
 
 //only set the session value when it does not exist or value changes
-export function setSessionItem(itemName: string, itemValue: any)
+export function setSessionItem(itemName: string, itemValue)
 {
 	if (!itemName || itemName === '')
 	{

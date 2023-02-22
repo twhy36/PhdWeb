@@ -44,7 +44,7 @@ export class TermsAndConditionsComponent extends ModalContent implements OnInit
 		});
 	}
 
-	close(result?: any)
+	close(result?: string)
 	{
 		if (result === 'Got It') 
 		{

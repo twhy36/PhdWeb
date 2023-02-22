@@ -14,7 +14,7 @@
 			<img class="phd-favorites-list" [src]="favoritesListIcon">
 			<span class="align-self-center">My Favorites</span>
 		</div>
-		<div *ngIf="!isPreview && !hideContractedToggle && !isPresale" class="d-flex phd-contracted-options" (click)="toggleContractedOptions()">
+		<div *ngIf="!isPreview && !hideContractedToggle && !isPresale" class="d-flex phd-contracted-options" (click)="clickToggleContractedOptions()">
 			<div [ngClass]="{'phd-clickable' : !isContractedOptionsDisabled }">
 				<button 
 					class="btn btn-sm btn-toggle btn-auto-approval"

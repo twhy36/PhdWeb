@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Routes, RouterModule } from '@angular/router';
-import { APP_BASE_HREF, PlatformLocation } from "@angular/common";
+import { APP_BASE_HREF, PlatformLocation } from '@angular/common';
 
 import { CloudinaryModule } from '@cloudinary/angular-5.x';
 import { Cloudinary } from 'cloudinary-core';
@@ -24,7 +24,7 @@ import { AuthConfigSelector } from './modules/shared/classes/auth-config-selecto
 import { BrandService } from './modules/core/services/brand.service';
 import { DefaultErrorComponent } from './modules/core/components/default-error/default-error.component';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
-import { PresaleInterceptor } from './modules/core/http-interceptors/presale-interceptor';
+import { PresaleInterceptor } from './modules/core/interceptors/presale.interceptor';
 
 const appRoutes: Routes = [
 	{ path: 'home', component: HomeModule },
@@ -91,7 +91,7 @@ const tryInitAuth = (authService: AuthService, identityService: IdentityService)
 		{ provide: APP_BASE_HREF, useFactory: getBaseHref, deps: [PlatformLocation] },
 		{ provide: AUTH_CONFIG, useClass: AuthConfigSelector, deps: [AuthService, BrandService] },
 		{ provide: APP_INSIGHTS_CONFIG, useValue: environment.appInsights },
-		{ provide: TELEMETRY_INIT, useValue: setClientApp("Design Preview") },
+		{ provide: TELEMETRY_INIT, useValue: setClientApp('Design Preview') },
 		{ provide: HTTP_INTERCEPTORS, useClass: PresaleInterceptor, multi: true }
 	],
 	bootstrap: [AppComponent]

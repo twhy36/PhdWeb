@@ -1,8 +1,8 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ChangeDetectorRef, ViewChildren, QueryList } from '@angular/core';
 import { NgbCarousel } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrService } from 'ngx-toastr';
-import { of, Observable } from 'rxjs';
-import { combineLatest, switchMap, map, withLatestFrom } from 'rxjs/operators';
+import { combineLatest, of, Observable } from 'rxjs';
+import { switchMap, map, withLatestFrom } from 'rxjs/operators';
 import { Store, select } from '@ngrx/store';
 
 import * as _ from 'lodash';
@@ -51,10 +51,10 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 
 	@Output() toggleChoice = new EventEmitter<ChoiceExt>();
 
-	@ViewChild('blockedChoiceModal') blockedChoiceModal: any;
+	@ViewChild('blockedChoiceModal') blockedChoiceModal;
 
 	isSelected: boolean = false;
-	activeIndex: any = { current: 0, direction: '', prev: 0 };
+	activeIndex = { current: 0, direction: '', prev: 0 };
 	imageLoading: boolean = false;
 	choiceImages: OptionImage[] = [];
 	selectedImageUrl: string;
@@ -85,7 +85,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 
 	get disclaimerText()
 	{
-		return "Option selections are not final until purchased via a signed agreement or change order.";
+		return 'Option selections are not final until purchased via a signed agreement or change order.';
 	}
 
 	ngOnInit()
@@ -93,44 +93,46 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		const getAttributeGroups: Observable<AttributeGroup[]> = this.choice.mappedAttributeGroups.length > 0 ? this.attributeService.getAttributeGroups(this.choice) : of([]);
 		const getLocationGroups: Observable<LocationGroup[]> = this.choice.mappedLocationGroups.length > 0 ? this.attributeService.getLocationGroups(this.choice.mappedLocationGroups.map(x => x.id)) : of([]);
 
-		getAttributeGroups.pipe(
-			combineLatest(getLocationGroups, this.store.pipe(select(fromFavorite.currentMyFavorite))),
-			switchMap(([attributeGroups, locationGroups, favorite]) =>
+		combineLatest([
+			getAttributeGroups,
+			getLocationGroups,
+			this.store.pipe(select(fromFavorite.currentMyFavorite))
+		]).pipe(switchMap(([attributeGroups, locationGroups, favorite]) =>
+		{
+			const attributeIds = _.flatMap(attributeGroups, gp => _.flatMap(gp.attributes, att => att.id));
+			const missingAttributes = this.choice.selectedAttributes.filter(x => x.attributeId && !attributeIds.some(att => att === x.attributeId));
+			const locationIds = _.flatMap(locationGroups, gp => _.flatMap(gp.locations, loc => loc.id));
+			const missingLocations = this.choice.selectedAttributes.filter(x => x.locationId && !locationIds.some(loc => loc === x.locationId));
+
+			// Get missing attributes / locations when the choice is contracted
+			const getMissingAttributes = this.choice.choiceStatus === 'Contracted' && missingAttributes?.length
+				? this.attributeService.getAttributeCommunities(missingAttributes.map(x => x.attributeId))
+				: of([]);
+			const getMissingLocations = this.choice.choiceStatus === 'Contracted' && missingLocations?.length
+				? this.attributeService.getLocationCommunities(missingLocations.map(x => x.locationId))
+				: of([]);
+
+			// If the choice is not contracted, delete favorited attributes / locations if they
+			// are not found in the attribute groups / location groups
+			if (this.choice.choiceStatus !== 'Contracted' && (missingAttributes?.length || missingLocations?.length))
 			{
-				const attributeIds = _.flatMap(attributeGroups, gp => _.flatMap(gp.attributes, att => att.id));
-				const missingAttributes = this.choice.selectedAttributes.filter(x => x.attributeId && !attributeIds.some(att => att === x.attributeId));
-				const locationIds = _.flatMap(locationGroups, gp => _.flatMap(gp.locations, loc => loc.id));
-				const missingLocations = this.choice.selectedAttributes.filter(x => x.locationId && !locationIds.some(loc => loc === x.locationId));
+				this.deleteMyFavoritesChoiceAttributes(missingAttributes, missingLocations, favorite);
+			}
 
-				// Get missing attributes / locations when the choice is contracted
-				const getMissingAttributes = this.choice.choiceStatus === 'Contracted' && missingAttributes?.length
-					? this.attributeService.getAttributeCommunities(missingAttributes.map(x => x.attributeId))
-					: of([]);
-				const getMissingLocations = this.choice.choiceStatus === 'Contracted' && missingLocations?.length
-					? this.attributeService.getLocationCommunities(missingLocations.map(x => x.locationId))
-					: of([]);
-
-				// If the choice is not contracted, delete favorited attributes / locations if they
-				// are not found in the attribute groups / location groups
-				if (this.choice.choiceStatus !== 'Contracted' && (missingAttributes?.length || missingLocations?.length))
+			return combineLatest([
+				getMissingAttributes,
+				getMissingLocations,
+				this.attributeService.getAttributeCommunityImageAssoc(attributeIds, this.choice.lockedInChoice ? this.choice.lockedInChoice.choice.outForSignatureDate : null)
+			]).pipe(
+				map(([attributes, locations, attributeCommunityImageAssocs]) =>
 				{
-					this.deleteMyFavoritesChoiceAttributes(missingAttributes, missingLocations, favorite);
-				}
+					mergeAttributes(attributes, missingAttributes, attributeGroups);
+					mergeLocations(locations, missingLocations, locationGroups);
+					mergeAttributeImages(attributeGroups, attributeCommunityImageAssocs);
 
-				return (getMissingAttributes).pipe(combineLatest(
-					getMissingLocations,
-					this.attributeService.getAttributeCommunityImageAssoc(attributeIds, this.choice.lockedInChoice ? this.choice.lockedInChoice.choice.outForSignatureDate : null)
-				)).pipe(
-					map(([attributes, locations, attributeCommunityImageAssocs]) =>
-					{
-						mergeAttributes(attributes, missingAttributes, attributeGroups);
-						mergeLocations(locations, missingLocations, locationGroups);
-						mergeAttributeImages(attributeGroups, attributeCommunityImageAssocs);
-
-						return { attributeGroups, locationGroups };
-					}));
-			})
-		).subscribe(data =>
+					return { attributeGroups, locationGroups };
+				}))
+		})).subscribe(data =>
 		{
 			this.choiceAttributeGroups = data.attributeGroups;
 			this.choiceLocationGroups = data.locationGroups;
@@ -138,12 +140,12 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 			this.updateChoiceAttributes();
 			this.getImages();
 		},
-			error =>
-			{
-				const msg = 'Failed to load choice attributes!';
-				this.toastr.error(msg, 'Error');
-				this.adobeService.setErrorEvent(msg);
-			});
+		error =>
+		{
+			const msg = 'Failed to load choice attributes!';
+			this.toastr.error(msg, 'Error');
+			this.adobeService.setErrorEvent(msg);
+		});
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
@@ -169,7 +171,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 			this.updateChoiceAttributes();
 		});
 
-		let desc = this.choice.description ? [this.choice.description] : [];
+		const desc = this.choice.description ? [this.choice.description] : [];
 
 		this.choiceDescriptions = this.choice.options && this.choice.options.length > 0 ? this.choice.options.filter(o => o.description != null).map(o => o.description) : desc;
 
@@ -258,7 +260,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 			{
 				attributeGroup.choiceId = this.choice.id;
 
-				let attributes: AttributeExt[] = [];
+				const attributes: AttributeExt[] = [];
 
 				if (attributeGroup.attributes)
 				{
@@ -311,7 +313,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 				if (this.choice.choiceStatus === 'Contracted' && (this.choice.isPointStructural || this.isDesignComplete))
 				{
 					// Display selected locations and attributes for a contracted choice when it is structural or design complete
-					let selectedLocations: Location[] = [];
+					const selectedLocations: Location[] = [];
 
 					lg.locations.forEach(loc =>
 					{
@@ -325,7 +327,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 
 					if (selectedLocations.length)
 					{
-						let locationGroup = lg;
+						const locationGroup = lg;
 
 						locationGroup.locations = selectedLocations;
 
@@ -401,7 +403,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 
 	getSelectedAttributes(data: { attribute: Attribute, attributeGroup: AttributeGroup, location: Location, locationGroup: LocationGroup, quantity: number }): DesignToolAttribute[]
 	{
-		let selectedAttributes: DesignToolAttribute[] = [...this.choice.selectedAttributes];
+		const selectedAttributes: DesignToolAttribute[] = [...this.choice.selectedAttributes];
 
 		const attributeIndex = this.choice.selectedAttributes.findIndex(x =>
 			x.attributeId === data.attribute.id &&
@@ -442,7 +444,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	 * Runs when the carousel moves to a new image
 	 * @param event
 	 */
-	onSlide(event: any)
+	onSlide(event)
 	{
 		this.activeIndex = event;
 		this.imageLoading = true;
@@ -468,7 +470,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	 * Used to set a default image if Cloudinary can't load an image
 	 * @param event
 	 */
-	onLoadImageError(event: any)
+	onLoadImageError(event)
 	{
 		this.imageLoading = false;
 
@@ -583,7 +585,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		}
 		else
 		{
-			let locationAttributes = this.choice.selectedAttributes.filter(a => a.locationId === data.location.id && a.locationGroupId === data.locationGroup.id);
+			const locationAttributes = this.choice.selectedAttributes.filter(a => a.locationId === data.location.id && a.locationGroupId === data.locationGroup.id);
 
 			if (locationAttributes && locationAttributes.length)
 			{

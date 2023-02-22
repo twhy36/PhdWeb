@@ -1,15 +1,14 @@
 export class PresalePayload
 {
-	dTreeId: number;
 	financialPlanIntegrationKey: string;
 	iss: string;
 	planCommunityId: number;
 
-	constructor(dto: any)
+	constructor(dto = null)
 	{
-		this.dTreeId = dto.dTreeId;
-		this.financialPlanIntegrationKey = dto.financialPlanIntegrationKey;
-		this.iss = dto.iss;
-		this.planCommunityId = dto.planCommunityId;
+		if (dto)
+		{
+			Object.assign(this, dto);
+ 		}
 	}
 }

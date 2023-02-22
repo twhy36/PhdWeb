@@ -19,9 +19,9 @@
 						[tree]="tree"
             			[isReadonly]="isReadonly"
 						[isPresale]="isPresale"
-						(onToggleChoice)="toggleChoice($event)"
-						(onViewChoiceDetail)="viewChoiceDetail($event)"
-						(onSelectDecisionPoint)="selectDecisionPoint($event)">
+						(toggleChoice)="clickToggleChoice($event)"
+						(viewChoiceDetail)="clickViewChoiceDetail($event)"
+						(selectDecisionPoint)="clickSelectDecisionPoint($event)">
 					</decision-bar-choice>
 				</ng-container>
 				<decision-bar-decline-choice *ngIf="showDeclineChoice(point)"
@@ -29,8 +29,8 @@
 							[myFavoritesPointsDeclined]="myFavoritesPointsDeclined"
 							[tree]="tree"
               				[isReadonly]="isReadonly"
-							(onDeclineDecisionPoint)="declineDecisionPoint($event)"
-							(onSelectDecisionPoint)="selectDecisionPoint($event)">
+							(declineDecisionPoint)="clickDeclineDecisionPoint($event)"
+							(selectDecisionPoint)="clickSelectDecisionPoint($event)">
 				</decision-bar-decline-choice>
 			</div>
 		</li>

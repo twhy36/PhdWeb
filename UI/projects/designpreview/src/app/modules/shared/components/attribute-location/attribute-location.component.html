@@ -21,8 +21,8 @@
 							[highlightedAttributeId]="getHighlightedAttributeId(attributeGroup)"
 							[isReadonly]="isReadonly"
 							[isDesignComplete]="isDesignComplete"
-							(onAttributeClick)="attributeClick($event)"
-							(onToggleAttribute)="attributeGroupSelected($event)">
+							(attributeClick)="attributeClick($event)"
+							(toggleAttribute)="attributeGroupSelected($event)">
 			</attribute-group>
 		</ng-container>
 	</div>

@@ -226,7 +226,7 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 
 	toggleChoice(choice: ChoiceExt)
 	{
-		let selectedChoices = [{ choiceId: choice.id, divChoiceCatalogId: choice.divChoiceCatalogId, quantity: !choice.quantity ? 1 : 0, attributes: choice.selectedAttributes }];
+		const selectedChoices = [{ choiceId: choice.id, divChoiceCatalogId: choice.divChoiceCatalogId, quantity: !choice.quantity ? 1 : 0, attributes: choice.selectedAttributes }];
 		const impactedChoices = getDependentChoices(this.tree, this.treeVersionRules, this.options, choice);
 
 		impactedChoices.forEach(c =>
@@ -258,7 +258,7 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 
 	getChoiceExt(choice: Choice, point: DecisionPoint): ChoiceExt
 	{
-		let choiceStatus = 'Available';
+		const choiceStatus = 'Available';
 
 		const myFavoritesChoice = this.myFavoritesChoices ? this.myFavoritesChoices.find(x => x.divChoiceCatalogId === choice.divChoiceCatalogId) : null;
 
@@ -267,7 +267,7 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 
 	scrollPointIntoView(pointId: number, isFirstPoint: boolean)
 	{
-		const pointCardElement = <HTMLElement><any>document?.getElementById(`included-point-${pointId?.toString()}`);
+		const pointCardElement = <HTMLElement>document?.getElementById(`included-point-${pointId?.toString()}`);
 		if (pointCardElement)
 		{
 			if (isFirstPoint)
@@ -302,7 +302,7 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 
 	scrollSubGroupIntoView(subGroupId: number, isFirstSubGroup: boolean)
 	{
-		const subGroupElement = <HTMLElement><any>document?.getElementById(`included-subgroup-${subGroupId?.toString()}`);
+		const subGroupElement = <HTMLElement>document?.getElementById(`included-subgroup-${subGroupId?.toString()}`);
 		if (subGroupElement)
 		{
 			if (isFirstSubGroup)
@@ -359,7 +359,8 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 		if (point.isHiddenFromBuyerView)
 		{
 			return false;
-		} else
+		}
+		else
 		{
 			const choices = _.flatMap(point.choices).filter(c => c.isDecisionDefault);
 			let displayChoice = false;

@@ -6,11 +6,12 @@ import { ChoiceExt } from '../../../models/choice-ext.model';
 import { AdobeService } from '../../../../core/services/adobe.service';
 
 @Component({
-  selector: 'decision-bar-choice',
-  templateUrl: './decision-bar-choice.component.html',
-  styleUrls: ['./decision-bar-choice.component.scss']
+	selector: 'decision-bar-choice',
+	templateUrl: './decision-bar-choice.component.html',
+	styleUrls: ['./decision-bar-choice.component.scss']
 })
-export class DecisionBarChoiceComponent {
+export class DecisionBarChoiceComponent 
+{
 	@Input() choice: ChoiceExt;
 	@Input() point: DecisionPoint;
 	@Input() groups: Group[];
@@ -18,60 +19,50 @@ export class DecisionBarChoiceComponent {
 	@Input() isReadonly: boolean;
 	@Input() isPresale: boolean;
 
-	@Output() onToggleChoice = new EventEmitter<ChoiceExt>();
-	@Output() onViewChoiceDetail = new EventEmitter<ChoiceExt>();
-	@Output() onSelectDecisionPoint = new EventEmitter<number>();
+	@Output() toggleChoice = new EventEmitter<ChoiceExt>();
+	@Output() viewChoiceDetail = new EventEmitter<ChoiceExt>();
+	@Output() selectDecisionPoint = new EventEmitter<number>();
 
-	@ViewChild('blockedChoiceModal') blockedChoiceModal: any;
-	@ViewChild('hiddenChoicePriceModal') hiddenChoicePriceModal: any;
+	@ViewChild('blockedChoiceModal') blockedChoiceModal;
+	@ViewChild('hiddenChoicePriceModal') hiddenChoicePriceModal;
 
-	disabledByList: BlockedByItemObject
-		= { pointDisabledByList: null, choiceDisabledByList: null };
+	disabledByList: BlockedByItemObject = { pointDisabledByList: null, choiceDisabledByList: null };
 	blockedChoiceModalRef: ModalRef;
-	hiddenChoicePriceModalRef: ModalRef;
 
-  constructor(
+	constructor(
 		public modalService: ModalService,
 		private adobeService: AdobeService
-	) {
+	) { }
 
-	}
-
-	toggleChoice()
+	clickToggleChoice()
 	{
 		if (!this.isReadonly)
 		{
-			this.onToggleChoice.emit(this.choice);
+			this.toggleChoice.emit(this.choice);
 		}
 	}
 
-	viewChoiceDetail() {
-		this.onViewChoiceDetail.emit(this.choice);
+	clickViewChoiceDetail()
+	{
+		this.viewChoiceDetail.emit(this.choice);
 	}
 
-	openBlockedChoiceModal() {
-		if (!this.disabledByList.choiceDisabledByList && !this.disabledByList.pointDisabledByList) {
+	openBlockedChoiceModal() 
+	{
+		if (!this.disabledByList.choiceDisabledByList && !this.disabledByList.pointDisabledByList) 
+		{
 			this.disabledByList = getDisabledByList(this.tree, this.groups, this.point, this.choice);
 		}
 		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { backdrop: true, windowClass: 'phd-blocked-choice-modal' }, true);
 	}
 
-	onCloseClicked() {
+	onCloseClicked() 
+	{
 		this.blockedChoiceModalRef?.close();
-		this.hiddenChoicePriceModalRef?.close();
 	}
 
 	onBlockedItemClick()
 	{
 		this.blockedChoiceModalRef?.close();
-	}
-
-	openHiddenChoicePriceModal()
-	{
-		if (this.choice.priceHiddenFromBuyerView)
-		{
-			this.hiddenChoicePriceModalRef = this.modalService.open(this.hiddenChoicePriceModal, { windowClass: 'phd-hidden-choice-price-modal' }, true);
-			this.adobeService.setAlertEvent('Pricing Varies. Pricing will be determined during your meeting with your Design Consultant.', 'Pricing Varies Alert');
-		}
 	}
 }

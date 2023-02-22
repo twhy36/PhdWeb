@@ -47,7 +47,7 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 
 	get disclaimerText()
 	{
-		return "Option selections are not final until purchased via a signed agreement or change order.";
+		return 'Option selections are not final until purchased via a signed agreement or change order.';
 	}
 
 	ngOnInit()
@@ -80,19 +80,19 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 		{
 			switch (state.buildMode)
 			{
-				case (BuildMode.Preview):
-					this.isPreview = true;
-					this.headerTitle = 'Preview Favorites';
-					break;
-				case (BuildMode.Presale):
-					this.isPresale = true;
-					this.headerTitle = 'My Favorites';
-					break;
-				default:
-					this.isPreview = false;
-					this.isPresale = false;
-					this.headerTitle = this.summaryHeader.favoritesListName;
-					break;
+			case (BuildMode.Preview):
+				this.isPreview = true;
+				this.headerTitle = 'Preview Favorites';
+				break;
+			case (BuildMode.Presale):
+				this.isPresale = true;
+				this.headerTitle = 'My Favorites';
+				break;
+			default:
+				this.isPreview = false;
+				this.isPresale = false;
+				this.headerTitle = this.summaryHeader.favoritesListName;
+				break;
 			}
 		});
 	}
@@ -103,11 +103,11 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 
 		if (this.summaryHeader.lot)
 		{
-			let lot = this.summaryHeader.lot;
+			const lot = this.summaryHeader.lot;
 
 			if ((lot.streetAddress1 && lot.streetAddress1.length) && (lot.city && lot.city.length) && (lot.stateProvince && lot.stateProvince.length) && (lot.postalCode && lot.postalCode.length))
 			{
-				let address2 = lot.streetAddress2 ? ' ' + lot.streetAddress2 : '';
+				const address2 = lot.streetAddress2 ? ' ' + lot.streetAddress2 : '';
 
 				address = `${lot.streetAddress1}${address2}, ${lot.city}, ${lot.stateProvince} ${lot.postalCode}`;
 			}
@@ -190,7 +190,7 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 		window.print();
 	}
 
-	@HostListener("window:afterprint", [])
+	@HostListener('window:afterprint', [])
 	onWindowAfterPrint()
 	{
 		this.titleService.setTitle('Design Preview');

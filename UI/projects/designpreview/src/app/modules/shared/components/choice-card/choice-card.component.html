@@ -1,4 +1,4 @@
-<div class="phd-choice-card" [class.active]="choice?.quantity" [class.selected]="choice?.quantity" [@flipOver] (click)="viewChoiceDetail()">
+<div class="phd-choice-card" [class.active]="choice?.quantity" [class.selected]="choice?.quantity" [@flipOver] (click)="clickViewChoiceDetail()">
 	<div class="phd-header">
 		<div class="phd-choice-image"*ngIf="imageUrl">
 			<cl-image public-id="{{imageUrl}}" type="fetch" background="#ffffff" crop="lpad" height="190" width="270"
@@ -73,12 +73,6 @@
 		(closeModal)="onCloseClicked()"
 		(blockedItemClick)="onBlockedItemClick()">
 	</blocked-choice-modal>
-</ng-template>
-
-<ng-template #hiddenChoicePriceModal let-c="close" let-d="dismiss">
-	<hidden-choice-price-modal
-		(closeModal)="onCloseClicked()">
-	</hidden-choice-price-modal>
 </ng-template>
 
 <ng-template #infoContent>

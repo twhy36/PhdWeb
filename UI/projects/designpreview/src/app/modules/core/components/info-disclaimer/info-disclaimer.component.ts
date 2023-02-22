@@ -16,7 +16,7 @@ export class InfoDisclaimerComponent extends ModalContent
 		return 'Disclaimer'
 	}
 
-	close(result?: any)
+	close(result?: string)
 	{
 		this.modalRef.close(result);
 	}

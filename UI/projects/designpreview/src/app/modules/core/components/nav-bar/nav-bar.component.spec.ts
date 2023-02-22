@@ -80,7 +80,8 @@ describe('NavBarComponent', () =>
 
 		router.initialNavigation();
 		router.navigateByUrl('/home');
-		router.events.subscribe(evt => {
+		router.events.subscribe(evt => 
+		{
 			if (evt instanceof NavigationEnd)
 			{
 				component.currentRoute = evt.url.toLowerCase();
@@ -91,12 +92,14 @@ describe('NavBarComponent', () =>
 		advance();
 	}));
 
-	it('should create', () => {
+	it('should create', () => 
+	{
 		expect(fixture).toBeDefined();
 		expect(component).toBeDefined();
 	});
 
-	it('should be configured for buyer build mode', () => {
+	it('should be configured for buyer build mode', () => 
+	{
 		// Build Mode by Default is Buyer
 		expect(component.currentRoute).toEqual('/home');
 		expect(component.buildMode).toEqual('buyer');
@@ -108,7 +111,7 @@ describe('NavBarComponent', () =>
 		expect(component.welcomeText).toEqual('Welcome To Your Home');
 
 		// Goes to buyer home page
-		let img = fixture.debugElement.nativeElement.querySelector('img');
+		const img = fixture.debugElement.nativeElement.querySelector('img');
 		spyOn(component, 'onHomePage');
 
 		img.click();
@@ -196,7 +199,8 @@ describe('NavBarComponent', () =>
 		expect(location.path()).toEqual('/included');
 	}));
 
-	it('should return correct brand image when #getBrandImage is called', () => {
+	it('should return correct brand image when #getBrandImage is called', () => 
+	{
 		// Accounts for initial calls during component creation
 		const initialCalls = brandService.getBrandImage.calls.count();
 		brandService.getBrandImage.withArgs('white_logo').and.returnValue(brandImage);
@@ -214,7 +218,8 @@ describe('NavBarComponent', () =>
 			.toBe(brandImage);
 	});
 
-	it('should return correct css class when #getBrandedTitle is called', () => {
+	it('should return correct css class when #getBrandedTitle is called', () => 
+	{
 		// Accounts for initial calls during component creation
 		const initialCalls = brandService.getBrandName.calls.count();
 		brandService.getBrandName.and.returnValue(brandName);
@@ -232,7 +237,8 @@ describe('NavBarComponent', () =>
 			.toBe(brandName);
 	});
 
-	it('should dispatch action to store on #onViewFavoritesCalled', () => {
+	it('should dispatch action to store on #onViewFavoritesCalled', () => 
+	{
 		const onStoreSpy = spyOn(mockStore, 'dispatch');
 		component.onViewFavorites();
 		expect(onStoreSpy)
@@ -240,7 +246,8 @@ describe('NavBarComponent', () =>
 			.toHaveBeenCalledWith(new ScenarioActions.SetTreeFilter(null));
 	});
 
-	it ('should return correct branded menu class', () => {
+	it ('should return correct branded menu class', () => 
+	{
 		const initialCalls = brandService.getBrandName.calls.count();
 		expect(component.getBrandedMenuClass(false))
 			.withContext('menu not collapsed')

@@ -30,7 +30,6 @@ import { DetailedDecisionBarComponent } from './components/detailed-decision-bar
 import { DecisionBarChoiceComponent } from './components/detailed-decision-bar/decision-bar-choice/decision-bar-choice.component';
 import { DecisionBarDeclineChoiceComponent } from './components/detailed-decision-bar/decision-bar-decline-choice/decision-bar-decline-choice.component';
 import { BlockedChoiceModalComponent } from './components/blocked-choice-modal/blocked-choice-modal.component';
-import { HiddenChoicePriceModalComponent } from './components/hidden-choice-price-modal/hidden-choice-price-modal.component';
 import { BlockedItemComponent } from './components/blocked-item/blocked-item.component';
 import { InfoModalComponent } from './components/info-modal/info-modal.component';
 import { InfoTooltipComponent } from './components/info-tooltip/info-tooltip.component';
@@ -55,7 +54,7 @@ import { FooterBarComponent } from './components/footer-bar/footer-bar.component
 		DetailedDecisionBarComponent,
 		IncludedDecisionBarComponent,
 		FooterBarComponent
-    ],
+	],
 	declarations: [
 		ActionBarComponent,
 		FloorPlanComponent,
@@ -76,12 +75,11 @@ import { FooterBarComponent } from './components/footer-bar/footer-bar.component
 		DecisionBarChoiceComponent,
 		DecisionBarDeclineChoiceComponent,
 		BlockedChoiceModalComponent,
-		HiddenChoicePriceModalComponent,
 		InfoModalComponent,
 		InfoTooltipComponent,
 		BlockedItemComponent,
   		FooterBarComponent
-    ],
+	],
 	imports: [
 		BrowserModule,
 		BrowserAnimationsModule,
@@ -96,6 +94,6 @@ import { FooterBarComponent } from './components/footer-bar/footer-bar.component
 		MatButtonModule,
 		PhdCommonModule
 	],
-    providers: []
+	providers: []
 })
 export class SharedModule { }

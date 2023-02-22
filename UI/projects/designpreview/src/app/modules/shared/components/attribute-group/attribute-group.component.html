@@ -27,8 +27,8 @@
 							[isBlocked]="isBlocked"
 							[isLocationAttribute]="isLocationAttribute"
 							[isReadonly]="isReadonly"
-							(onAttributeClick)="attributeClick($event)"
-							(onToggleAttribute)="toggleAttribute($event)">
+							(attributeClick)="handleAttributeClick($event)"
+							(toggleAttribute)="handleToggleAttribute($event)">
 			</attribute-list>
 		</div>	
 	</div>

@@ -16,7 +16,7 @@ export class LoggedInGuard implements CanActivate
 	{
 		if (sessionStorage.getItem('presale_issuer') && route.queryParams.presale)
 		{
-			return sessionStorage.getItem('presale_issuer') === environment.authConfigs["presale"].issuer;
+			return sessionStorage.getItem('presale_issuer') === environment.authConfigs['presale'].issuer;
 		}
 		else if (!route.queryParams.presale)
 		{

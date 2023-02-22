@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ActionReducer } from '@ngrx/store';
 
 import { LoadSalesAgreement } from './actions';

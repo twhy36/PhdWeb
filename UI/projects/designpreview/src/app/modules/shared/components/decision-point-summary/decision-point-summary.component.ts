@@ -29,8 +29,8 @@ export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implemen
 	@Input() contractedOptionsPage: boolean = false;
 	@Input() favoritesId: number;
 
-	@Output() onViewFavorites = new EventEmitter<DecisionPoint>();
-	@Output() onRemoveFavorites = new EventEmitter<Choice>();
+	@Output() viewFavorites = new EventEmitter<DecisionPoint>();
+	@Output() removeFavorites = new EventEmitter<Choice>();
 
 	selections: Choice[] = [];
 	choicesCustom: ChoiceCustom[] = [];
@@ -72,8 +72,8 @@ export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implemen
 	setPointChoices()
 	{
 		const choices = this.includeContractedOptions || this.contractedOptionsPage
-							? this.decisionPoint.choices
-							: this.decisionPoint.choices.filter(c => !this.salesChoices || this.salesChoices.findIndex(sc => sc.divChoiceCatalogId === c.divChoiceCatalogId) === -1);
+			? this.decisionPoint.choices
+			: this.decisionPoint.choices.filter(c => !this.salesChoices || this.salesChoices.findIndex(sc => sc.divChoiceCatalogId === c.divChoiceCatalogId) === -1);
 		this.choicesCustom = choices.map(c => new ChoiceCustom(c));
 	}
 
@@ -95,12 +95,12 @@ export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implemen
 
 	onViewOrEdit()
 	{
-		this.onViewFavorites.emit(this.decisionPoint);
+		this.viewFavorites.emit(this.decisionPoint);
 	}
 
 	onRemove(choice: Choice)
 	{
-		this.onRemoveFavorites.emit(choice);
+		this.removeFavorites.emit(choice);
 	}
 
 	getAttributeLabel(name: string)
@@ -125,7 +125,7 @@ export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implemen
 
 	consolidateAttributes(attributes: DesignToolAttribute[])
 	{
-		let attributeGroupLabels: string[] = [];
+		const attributeGroupLabels: string[] = [];
 
 		attributes.forEach(a => 
 		{
@@ -135,7 +135,7 @@ export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implemen
 			}
 		})
 
-		let consolidatedAttributeGroups = [];
+		const consolidatedAttributeGroups = [];
 
 		attributeGroupLabels.forEach(label =>
 		{
@@ -174,7 +174,7 @@ class ConsolidatedAttributeGroup
 class ChoiceCustom extends Choice
 {
 	showAttributes: boolean;
-	mappedSelectedAttributes: any[];
+	mappedSelectedAttributes = [];
 
 	get hasMappedAttributes(): boolean
 	{
@@ -190,7 +190,7 @@ class ChoiceCustom extends Choice
 
 		this.selectedAttributes.filter(attr => attr.attributeId !== null).forEach(selectedAttribute =>
 		{
-			let mappedSelectedAttribute = this.mappedSelectedAttributes.find(mappedAttr => mappedAttr.locationId === selectedAttribute.locationId);
+			const mappedSelectedAttribute = this.mappedSelectedAttributes.find(mappedAttr => mappedAttr.locationId === selectedAttribute.locationId);
 
 			if (mappedSelectedAttribute)
 			{
@@ -203,3 +203,4 @@ class ChoiceCustom extends Choice
 		})
 	}
 }
+

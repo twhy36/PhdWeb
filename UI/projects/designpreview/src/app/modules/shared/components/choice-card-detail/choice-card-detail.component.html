@@ -101,9 +101,9 @@
 													[highlightedAttribute]="getHighlightedLocationAttribute(attributeLocation, group)"
 													[isReadonly]="isReadonly"
 													[isDesignComplete]="isDesignComplete"
-													(onLocationAttributeClick)="locationAttributeClick($event)"
-													(onToggleAttribute)="toggleAttribute($event)"
-													(onQuantiyChange)="changeQuantiy($event)">
+													(locationAttributeClick)="locationAttributeClick($event)"
+													(toggleAttribute)="toggleAttribute($event)"
+													(quantityChange)="changeQuantiy($event)">
 								</attribute-location>
 							</div>
 						</ng-container>
@@ -116,8 +116,8 @@
 											[isBlocked]="choice.choiceStatus === 'Available' && !choice.enabled"
 											[isReadonly]="isReadonly"
 											[isDesignComplete]="isDesignComplete"
-											(onAttributeClick)="attributeClick($event)"
-											(onToggleAttribute)="toggleAttribute($event)">
+											(attributeClick)="attributeClick($event)"
+											(toggleAttribute)="toggleAttribute($event)">
 							</attribute-group>
 						</div>
 					</div>

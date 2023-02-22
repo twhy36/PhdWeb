@@ -2,8 +2,8 @@
 	<div class="icon" (click)="$event.stopPropagation()">
 		<ng-container *ngIf="choice.choiceStatus === 'Available' && choice.enabled">
 			<div [class.phd-clickable]="!isReadonly">
-				<span class="phd-icon-selected"><i *ngIf="choice.isFavorite" class="fa fa-heart" (click)="toggleChoice()"></i></span>
-				<i *ngIf="!choice.isFavorite" class="fa fa-heart-o" (click)="toggleChoice()"></i>
+				<span class="phd-icon-selected"><i *ngIf="choice.isFavorite" class="fa fa-heart" (click)="clickToggleChoice()"></i></span>
+				<i *ngIf="!choice.isFavorite" class="fa fa-heart-o" (click)="clickToggleChoice()"></i>
 			</div>
 		</ng-container>
 		<ng-container *ngIf="choice.choiceStatus === 'Available' && !choice.enabled">
@@ -12,7 +12,7 @@
 			</div>
 		</ng-container>
 	</div>
-	<div class="choice-label phd-clickable" (click)="viewChoiceDetail()">{{choice?.label}}</div>
+	<div class="choice-label phd-clickable" (click)="clickViewChoiceDetail()">{{choice?.label}}</div>
 	<ng-container *ngIf="!isPresale">
 		<ng-container *ngIf='!choice.priceHiddenFromBuyerView'>
 			<div class="choice-price">{{choice?.price | currency:'USD':'symbol':'0.0-0'}}</div>
@@ -32,12 +32,6 @@
 		(closeModal)="onCloseClicked()"
 		(blockedItemClick)="onBlockedItemClick()"
 	></blocked-choice-modal>
-</ng-template>
-
-<ng-template #hiddenChoicePriceModal let-c="close" let-d="dismiss">
-	<hidden-choice-price-modal
-		(closeModal)="onCloseClicked()">
-	</hidden-choice-price-modal>
 </ng-template>
 
 <ng-template #infoContent>

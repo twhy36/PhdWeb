@@ -30,17 +30,15 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnChang
 	@Input() isIncludedOptions: boolean = false;
 
 	@Output() toggled = new EventEmitter<ChoiceExt>();
-	@Output() onViewChoiceDetail = new EventEmitter<ChoiceExt>();
-	@Output() onSelectDecisionPoint = new EventEmitter<any>();
+	@Output() viewChoiceDetail = new EventEmitter<ChoiceExt>();
 
-	@ViewChild('blockedChoiceModal') blockedChoiceModal: any;
-	@ViewChild('hiddenChoicePriceModal') hiddenChoicePriceModal: any;
+	@ViewChild('blockedChoiceModal') blockedChoiceModal;
+	@ViewChild('hiddenChoicePriceModal') hiddenChoicePriceModal;
 
 	choice: ChoiceExt;
 	choiceMsg: object[] = [];
 	imageUrl: string = '';
 	blockedChoiceModalRef: ModalRef;
-	hiddenChoicePriceModalRef: ModalRef;
 	disabledByList: BlockedByItemObject
 		= { pointDisabledByList: null, choiceDisabledByList: null };
 	choiceDisabledLabel: string;
@@ -73,7 +71,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnChang
 	 * Used to set a default image if Cloudinary can't load an image
 	 * @param event
 	 */
-	onLoadImageError(event: any)
+	onLoadImageError(event)
 	{
 		event.srcElement.src = 'assets/NoImageAvailable.png';
 	}
@@ -86,9 +84,9 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnChang
 		}
 	}
 
-	viewChoiceDetail()
+	clickViewChoiceDetail()
 	{
-		this.onViewChoiceDetail.emit(this.choice);
+		this.viewChoiceDetail.emit(this.choice);
 	}
 
 	openBlockedChoiceModal()
@@ -106,19 +104,9 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnChang
 		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { backdrop: true, windowClass: 'phd-blocked-choice-modal' }, true);
 	}
 
-	openHiddenChoicePriceModal()
-	{
-		if (this.choice.priceHiddenFromBuyerView)
-		{
-			this.hiddenChoicePriceModalRef = this.modalService.open(this.hiddenChoicePriceModal, { windowClass: 'phd-hidden-choice-price-modal' }, true);
-			this.adobeService.setAlertEvent('Pricing Varies. Pricing will be determined during your meeting with your Design Consultant.', 'Pricing Varies Alert');
-		}
-	}
-
 	onCloseClicked()
 	{
 		this.blockedChoiceModalRef?.close();
-		this.hiddenChoicePriceModalRef?.close();
 	}
 
 	onBlockedItemClick()

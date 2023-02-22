@@ -1,19 +1,21 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
-import { Observable, throwError as _throw, of } from 'rxjs';
-import { map, catchError, combineLatest } from 'rxjs/operators';
+import { Observable, throwError as _throw, of, combineLatest } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 
 import * as _ from 'lodash';
 
 import { environment } from '../../../../environments/environment';
 
 import { withSpinner, AttributeGroup, LocationGroup, Location, Attribute, Choice, AttributeCommunityImageAssoc } from 'phd-common';
+import { AttributeCommunityDto, AttributeGroupDto, DPChoiceAttributeGroupCommunityAssocDto, LocationDto, LocationGroupCommunityDto, ODataResponse } from '../../shared/models/odata-response.model';
+import { AttributeExt, AttributeGroupExt, ChoiceAttributeGroup } from '../../shared/models/attribute-ext.model';
 
 @Injectable()
 export class AttributeService
 {
-	private _ds: string = encodeURIComponent("$");
+	private _ds: string = encodeURIComponent('$');
 
 	constructor(private _http: HttpClient) { }
 
@@ -21,25 +23,25 @@ export class AttributeService
 	{
 		const filterAttributeGroupIds = choice.mappedAttributeGroups.map(ag => `id eq ${ag.id}`).join(' or ');
 
-		const entity = `attributeGroupCommunities`;
-		const expand = `attributeGroupOptionCommunityAssocs($expand=optionCommunity($expand=option($select=id,financialOptionIntegrationKey);$select=id)),attributeGroupAttributeCommunityAssocs($expand=attributeCommunity($select=id,name,attributeDescription,manufacturer,sku,imageUrl,startDate,endDate);$filter=attributeCommunity/endDate gt now())`;
+		const entity = 'attributeGroupCommunities';
+		const expand = 'attributeGroupOptionCommunityAssocs($expand=optionCommunity($expand=option($select=id,financialOptionIntegrationKey);$select=id)),attributeGroupAttributeCommunityAssocs($expand=attributeCommunity($select=id,name,attributeDescription,manufacturer,sku,imageUrl,startDate,endDate);$filter=attributeCommunity/endDate gt now())';
 		const filter = `(${filterAttributeGroupIds})`;
-		const select = `id,groupName,groupLabel,description,isActive`;
+		const select = 'id,groupName,groupLabel,description,isActive';
 		const qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
 		const url = `${environment.apiUrl}${entity}?${qryStr}`;
 
 		// Get attribute group sort order for the included choice in PHD
-		const getChoiceAttributeGroups: Observable<any[]> = (!choice.options || choice.options.length < 1)
+		const getChoiceAttributeGroups: Observable<ChoiceAttributeGroup[]> = (!choice.options || choice.options.length < 1)
 			? this.getChoiceAttributeGroups(choice.id)
 			: of([]);
 
-		return withSpinner(this._http).get<any>(`${url}`).pipe(
-			combineLatest(getChoiceAttributeGroups),
+		return combineLatest([
+			withSpinner(this._http).get<ODataResponse<AttributeGroupDto[]>>(`${url}`),
+			getChoiceAttributeGroups
+		]).pipe(
 			map(([response, choiceAttributeGroups]) =>
 			{
-				const attributeGroupsDto = response.value as any[];
-
-				const attributeGroups = attributeGroupsDto.map<AttributeGroup>(g =>
+				const attributeGroups = response.value.map<AttributeGroup>(g =>
 				{
 					var sortOrder = 0;
 
@@ -60,13 +62,24 @@ export class AttributeService
 						}
 					}
 
+					const attributes = g.attributeGroupAttributeCommunityAssocs.map(a => a.attributeCommunity).map(ac => 
+					{
+						return {
+							id: ac.id,
+							imageUrl: ac.imageUrl,
+							manufacturer: ac.manufacturer,
+							name: ac.name,
+							sku: ac.sku
+						} as Attribute;
+					})
+
 					return {
 						id: g.id,
 						name: g.groupName,
 						label: g.groupLabel,
 						choiceId: null,
 						sortOrder: sortOrder,
-						attributes: _.orderBy(g.attributeGroupAttributeCommunityAssocs.map(a => a.attributeCommunity as Attribute[]), [attr => attr.name.toLowerCase()])
+						attributes: _.orderBy(attributes, [attr => attr.name.toLowerCase()])
 					};
 				});
 
@@ -85,19 +98,17 @@ export class AttributeService
 	{
 		const filterLocationGroupIds = locationGroupIds.map(id => `id eq ${id}`).join(' or ');
 
-		const entity = `locationGroupCommunities`;
-		const expand = `locationGroupLocationCommunityAssocs($expand=locationCommunity($select=id,locationName,locationDescription,isActive);$filter=locationCommunity/isActive eq true)`;
+		const entity = 'locationGroupCommunities';
+		const expand = 'locationGroupLocationCommunityAssocs($expand=locationCommunity($select=id,locationName,locationDescription,isActive);$filter=locationCommunity/isActive eq true)';
 		const filter = `(${filterLocationGroupIds})`;
-		const select = `id,locationGroupName,groupLabel,locationGroupDescription,isActive`;
+		const select = 'id,locationGroupName,groupLabel,locationGroupDescription,isActive';
 		const qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
 		const url = `${environment.apiUrl}${entity}?${qryStr}`;
 
-		return withSpinner(this._http).get<any>(`${url}`).pipe(
+		return withSpinner(this._http).get<ODataResponse<LocationGroupCommunityDto[]>>(`${url}`).pipe(
 			map(response =>
 			{
-				const locationGroupsDto = response.value as any[];
-
-				return locationGroupsDto.map<LocationGroup>(g =>
+				return response.value.map<LocationGroup>(g =>
 				{
 					return {
 						id: g.id,
@@ -120,38 +131,43 @@ export class AttributeService
 				return _throw(error);
 			})
 		);
-    }
+	}
     
-	getAttributeCommunities(attributeCommunityIds: number[]): Observable<any[]>
+	getAttributeCommunities(attributeCommunityIds: number[]): Observable<AttributeExt[]>
 	{
-		const expand = `attributeGroupAttributeCommunityAssocs($expand=attributeGroupCommunity)`;
-		const filter = attributeCommunityIds.map(x => `id eq ${x}`).join(" or ");
+		const expand = 'attributeGroupAttributeCommunityAssocs($expand=attributeGroupCommunity)';
+		const filter = attributeCommunityIds.map(x => `id eq ${x}`).join(' or ');
 
 		const url = `${environment.apiUrl}attributeCommunities?${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}`;
 
-		return withSpinner(this._http).get<any>(`${url}`).pipe(
+		return withSpinner(this._http).get<ODataResponse<AttributeCommunityDto[]>>(`${url}`).pipe(
 			map(response =>
 			{
-				const attributes = response.value as any[];
+				const attributes = response.value;
 
 				return attributes.map(a =>
 				{
 					return {
+						attributeStatus: 'Contracted',
 						id: a.id,
 						imageUrl: a.imageUrl,
+						isFavorite: true,
 						manufacturer: a.manufacturer,
+						monotonyConflict: false,
 						name: a.name,
 						sku: a.sku,
 						attributeGroups: a.attributeGroupAttributeCommunityAssocs.map(g =>
 						{
 							return {
+								choiceId: 0,
 								id: g.attributeGroupCommunity.id,
 								label: g.attributeGroupCommunity.groupLabel,
 								name: g.attributeGroupCommunity.groupName,
+								sortOrder: 0,
 								attributes: []
-							};
+							} as AttributeGroupExt;
 						})
-					};
+					} as AttributeExt;
 				});
 			}),
 			catchError(error =>
@@ -175,8 +191,9 @@ export class AttributeService
 			url += `attributeCommunityImageAssocs?${qryStr}`;
 
 			return withSpinner(this._http).get(url).pipe(
-				map(response => {
-					let acImageAssoc = response['value'] as Array<AttributeCommunityImageAssoc>;
+				map(response => 
+				{
+					const acImageAssoc = response['value'] as Array<AttributeCommunityImageAssoc>;
 
 					return acImageAssoc;
 				})
@@ -186,19 +203,17 @@ export class AttributeService
 		return of(null);
 	}
 
-	getLocationCommunities(locationCommunityIds: number[]): Observable<any[]>
+	getLocationCommunities(locationCommunityIds: number[]): Observable<Location[]>
 	{
-		const expand = `locationGroupLocationCommunityAssocs($expand=locationGroupCommunity)`;
-		const filter = locationCommunityIds.map(x => `id eq ${x}`).join(" or ");
+		const expand = 'locationGroupLocationCommunityAssocs($expand=locationGroupCommunity)';
+		const filter = locationCommunityIds.map(x => `id eq ${x}`).join(' or ');
 
 		const url = `${environment.apiUrl}locationCommunities?${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}`;
 
-		return withSpinner(this._http).get<any>(`${url}`).pipe(
+		return withSpinner(this._http).get<ODataResponse<LocationDto[]>>(`${url}`).pipe(
 			map(response =>
 			{
-				const locations = response.value as any[];
-
-				return locations.map(loc =>
+				return response.value.map(loc =>
 				{
 					return {
 						id: loc.id,
@@ -210,9 +225,9 @@ export class AttributeService
 								label: g.locationGroupCommunity.groupLabel,
 								name: g.locationGroupCommunity.locationGroupName,
 								locations: []
-							};
+							} as LocationGroup;
 						})
-					};
+					} as Location;
 				});
 			}),
 			catchError(error =>
@@ -222,18 +237,18 @@ export class AttributeService
 				return _throw(error);
 			})
 		);
-    }
+	}
         
 	// Get attribute group sort order for the included choice in PHD
-	getChoiceAttributeGroups(choiceId: number): Observable<any[]>
+	getChoiceAttributeGroups(choiceId: number): Observable<ChoiceAttributeGroup[]>
 	{
-		const entity = `dPChoiceAttributeGroupCommunityAssocs`;
+		const entity = 'dPChoiceAttributeGroupCommunityAssocs';
 		const filter = `dPChoiceID eq ${choiceId}`;
-		const select = `attributeGroupCommunityId,sortOrder`;
+		const select = 'attributeGroupCommunityId,sortOrder';
 		const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
 		const url = `${environment.apiUrl}${entity}?${qryStr}`;
 
-		return withSpinner(this._http).get<any>(`${url}`).pipe(
+		return withSpinner(this._http).get<ODataResponse<DPChoiceAttributeGroupCommunityAssocDto[]>>(`${url}`).pipe(
 			map(response =>
 			{
 				const attributeGroups = response.value.map(g =>

@@ -29,10 +29,10 @@ export class DetailedDecisionBarComponent extends UnsubscribeOnDestroy
 	@Input() isDesignComplete: boolean = false;
 	@Input() unfilteredPoints: DecisionPoint[] = [];
 
-	@Output() onToggleChoice = new EventEmitter<ChoiceExt>();
-	@Output() onViewChoiceDetail = new EventEmitter<ChoiceExt>();
-	@Output() onDeclineDecisionPoint = new EventEmitter<DecisionPoint>();
-	@Output() onSelectDecisionPoint = new EventEmitter<number>();
+	@Output() toggleChoice = new EventEmitter<ChoiceExt>();
+	@Output() viewChoiceDetail = new EventEmitter<ChoiceExt>();
+	@Output() declineDecisionPoint = new EventEmitter<DecisionPoint>();
+	@Output() selectDecisionPoint = new EventEmitter<number>();
 
 	constructor() { super(); }
 
@@ -45,33 +45,34 @@ export class DetailedDecisionBarComponent extends UnsubscribeOnDestroy
 
 			switch (point.pointPickTypeId)
 			{
-				case PickType.Pick1:
-					return isPreviouslyContracted ? 'Previously Contracted Option' : 'Please select one of the choices below';
-				case PickType.Pick1ormore:
-					return isPreviouslyContracted ? 'Previously Contracted Options' : 'Please select at least one of the Choices below';
-				case PickType.Pick0ormore:
-					return isPreviouslyContracted ? 'Previously Contracted Options' : 'Please select at least one of the Choices below';
-				case PickType.Pick0or1:
-					return isPreviouslyContracted ? 'Previously Contracted Option' : 'Please select one of the choices below';
-				default:
-					return '';
+			case PickType.Pick1:
+				return isPreviouslyContracted ? 'Previously Contracted Option' : 'Please select one of the choices below';
+			case PickType.Pick1ormore:
+				return isPreviouslyContracted ? 'Previously Contracted Options' : 'Please select at least one of the Choices below';
+			case PickType.Pick0ormore:
+				return isPreviouslyContracted ? 'Previously Contracted Options' : 'Please select at least one of the Choices below';
+			case PickType.Pick0or1:
+				return isPreviouslyContracted ? 'Previously Contracted Option' : 'Please select one of the choices below';
+			default:
+				return '';
 			}
 		}
 
 		return '';
 	}
 
-	getChoiceExt(choice: Choice, point: DecisionPoint): ChoiceExt
+	getChoiceExt(choice: Choice, point: DecisionPoint) : ChoiceExt 
 	{
-		let unfilteredPoint = this.unfilteredPoints.find(up => up.divPointCatalogId === point.divPointCatalogId);
+		const unfilteredPoint = this.unfilteredPoints.find(up => up.divPointCatalogId === point.divPointCatalogId);
 		let choiceStatus = 'Available';
-		if (point.isPastCutOff || this.salesChoices?.findIndex(c => c.divChoiceCatalogId === choice.divChoiceCatalogId) > -1)
+		if (point.isPastCutOff || this.salesChoices?.findIndex(c => c.divChoiceCatalogId === choice.divChoiceCatalogId) > -1) 
 		{
 			choiceStatus = 'Contracted';
-		} else
+		}
+		else 
 		{
 			const contractedChoices = unfilteredPoint.choices.filter(c => this.salesChoices?.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1);
-			if (contractedChoices && contractedChoices.length && (point.pointPickTypeId === PickType.Pick1 || point.pointPickTypeId === PickType.Pick0or1))
+			if (contractedChoices && contractedChoices.length && (point.pointPickTypeId === PickType.Pick1 || point.pointPickTypeId === PickType.Pick0or1)) 
 			{
 				choiceStatus = 'ViewOnly';
 			}
@@ -82,54 +83,55 @@ export class DetailedDecisionBarComponent extends UnsubscribeOnDestroy
 		return new ChoiceExt(choice, choiceStatus, myFavoritesChoice, point.isStructuralItem);
 	}
 
-	showDeclineChoice(point: DecisionPoint): boolean
+	showDeclineChoice(point: DecisionPoint): boolean 
 	{
-		let unfilteredPoint = this.unfilteredPoints.find(up => up.divPointCatalogId === point.divPointCatalogId);
+		const unfilteredPoint = this.unfilteredPoints.find(up => up.divPointCatalogId === point.divPointCatalogId);
 		return (unfilteredPoint.pointPickTypeId === 2 || point.pointPickTypeId === 4)
 			&& (this.isPresale || !unfilteredPoint.isStructuralItem)
 			&& !unfilteredPoint.isPastCutOff
 			&& unfilteredPoint.choices.filter(c => this.salesChoices?.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1)?.length === 0;
 	}
 
-	toggleChoice(choice)
+	clickToggleChoice (choice) 
 	{
-		this.onToggleChoice.emit(choice);
+		this.toggleChoice.emit(choice);
 	}
 
-	viewChoiceDetail(choice)
+	clickViewChoiceDetail (choice) 
 	{
-		this.onViewChoiceDetail.emit(choice);
+		this.viewChoiceDetail.emit(choice);
 	}
 
-	declineDecisionPoint(point: DecisionPoint)
+	clickDeclineDecisionPoint(point: DecisionPoint) 
 	{
-		this.onDeclineDecisionPoint.emit(point);
+		this.declineDecisionPoint.emit(point);
 	}
 
-	selectDecisionPoint(pointId: number)
+	clickSelectDecisionPoint(pointId: number) 
 	{
-		if (pointId)
+		if (pointId) 
 		{
-			setTimeout(() =>
+			setTimeout(() => 
 			{
 				const firstPointId = this.points && this.points.length ? this.points[0].id : 0;
 				this.scrollPointIntoView(pointId, pointId === firstPointId);
 			}, 500);
 		}
-		this.onSelectDecisionPoint.emit(pointId);
+		this.selectDecisionPoint.emit(pointId);
 	}
 
-	scrollPointIntoView(pointId: number, isFirstPoint: boolean)
+	scrollPointIntoView(pointId: number, isFirstPoint: boolean) 
 	{
 		const decision = document.getElementById(pointId?.toString());
-		if (decision)
+		if (decision) 
 		{
-			if (isFirstPoint)
+			if (isFirstPoint) 
 			{
 				decision.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
-			} else
+			}
+			else 
 			{
-				decision.scrollIntoView({ behavior: 'smooth', block: 'start' });
+				decision.scrollIntoView({behavior: 'smooth', block: 'start'});
 			}
 		}
 	}
@@ -141,9 +143,9 @@ export class DetailedDecisionBarComponent extends UnsubscribeOnDestroy
 			: point.isStructuralItem || point.isPastCutOff || point.status === PointStatus.COMPLETED;
 	}
 
-	displayPoint(point: DecisionPoint)
+	displayPoint(point: DecisionPoint) 
 	{
-		if (point.isHiddenFromBuyerView)
+		if (point.isHiddenFromBuyerView) 
 		{
 			return false;
 		}

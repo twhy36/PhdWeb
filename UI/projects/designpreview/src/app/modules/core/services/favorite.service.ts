@@ -19,19 +19,19 @@ interface ChoiceExt { decisionPointLabel: string, subgroupLabel: string, groupLa
 export class FavoriteService
 {
 	private _ds: string = encodeURIComponent('$');
-	private _batch = "$batch";
+	private _batch = '$batch';
 
 	constructor(private _http: HttpClient) { }
 
 	loadMyFavorites(salesAgreementId: number): Observable<Array<MyFavorite>>
 	{
-		const expandChoiceLocAttribute = `myFavoritesChoiceLocationAttributes($select=id,attributeGroupCommunityId,attributeCommunityId,attributeName,attributeGroupLabel)`;
+		const expandChoiceLocAttribute = 'myFavoritesChoiceLocationAttributes($select=id,attributeGroupCommunityId,attributeCommunityId,attributeName,attributeGroupLabel)';
 		const expandChoiceLocations = `myFavoritesChoiceLocations($expand=${expandChoiceLocAttribute};$select=id,locationGroupCommunityId,locationCommunityId,locationName,locationGroupLabel,quantity)`;
-		const expandChoiceAttributes = `myFavoritesChoiceAttributes($select=id,attributeGroupCommunityId,attributeCommunityId,attributeName,attributeGroupLabel)`;
+		const expandChoiceAttributes = 'myFavoritesChoiceAttributes($select=id,attributeGroupCommunityId,attributeCommunityId,attributeName,attributeGroupLabel)';
 		const expand = `myFavoritesPointDeclined,myFavoritesChoice($expand=${expandChoiceAttributes},${expandChoiceLocations};$select=id,choiceDescription,dpChoiceId,dpChoiceQuantity,decisionPointLabel,groupLabel,subGroupLabel,sortOrder)`;
 		const filter = `salesAgreementId eq ${salesAgreementId}`;
-		const select = `id,name,salesAgreementId`;
-		const orderBy = `id`;
+		const select = 'id,name,salesAgreementId';
+		const orderBy = 'id';
 		const url = `${environment.apiUrl}myFavorites?${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}orderby=${encodeURIComponent(orderBy)}`;
 
 		return this._http.get(url).pipe(
@@ -49,7 +49,7 @@ export class FavoriteService
 
 	saveMyFavorite(myFavoriteId: number, name: string, salesAgreementId: number): Observable<MyFavorite>
 	{
-		const url = environment.apiUrl + `myFavorites`;
+		const url = environment.apiUrl + 'myFavorites';
 
 		const data = {
 			id: myFavoriteId,
@@ -59,7 +59,7 @@ export class FavoriteService
 
 		return withSpinner(this._http).post(url, data, { headers: { 'Prefer': 'return=representation' } }).pipe(
 			tap(response => response['@odata.context'] = undefined),
-			map((response: any) =>
+			map((response: MyFavorite) =>
 			{
 				return new MyFavorite(response);
 			}),
@@ -78,27 +78,25 @@ export class FavoriteService
 		const updatedChoices = this.getMyFavoritesChoices(tree, salesChoices, favoriteChoices);
 		const savedChoices = updatedChoices.map(c => _.omit(c, ['divChoiceCatalogId']));
 
-
 		const data = {
 			myFavoriteId: favorites.id,
 			choices: savedChoices
 		};
 
-		const endPoint = environment.apiUrl + `SaveMyFavoritesChoices`;
+		const endPoint = environment.apiUrl + 'SaveMyFavoritesChoices';
 
 		return withSpinner(this._http).post(endPoint, data, { headers: { 'Prefer': 'return=representation' } }).pipe(
 			map(results =>
 			{
-				const responses = (results['value']) as any[];
+				const responses = (results['value']) as MyFavoritesChoice[];
 				const choices = [...updatedChoices, ...favoriteChoices];
 
 				return responses.map(res =>
 				{
-					let resChoice = res as MyFavoritesChoice;
-					if (resChoice)
+					if (res)
 					{
-						const choice = choices.find(x => x.dpChoiceId === resChoice.dpChoiceId);
-						resChoice.divChoiceCatalogId = (choice ? choice.divChoiceCatalogId : 0) || 0;
+						const choice = choices.find(x => x.dpChoiceId === res.dpChoiceId);
+						res.divChoiceCatalogId = (choice ? choice.divChoiceCatalogId : 0) || 0;
 					}
 					return res;
 				});
@@ -114,7 +112,7 @@ export class FavoriteService
 
 	addMyFavoritesPointDeclined(myFavoriteId: number, pointId: number): Observable<MyFavoritesPointDeclined>
 	{
-		const endPoint = environment.apiUrl + `myFavoritesPointsDeclined`;
+		const endPoint = environment.apiUrl + 'myFavoritesPointsDeclined';
 
 		const data = {
 			myFavoriteId: myFavoriteId,
@@ -123,7 +121,7 @@ export class FavoriteService
 
 		return withSpinner(this._http).post(endPoint, data, { headers: { 'Prefer': 'return=representation' } }).pipe(
 			tap(response => response['@odata.context'] = undefined),
-			map((response: any) =>
+			map((response: MyFavoritesPointDeclined) =>
 			{
 				return new MyFavoritesPointDeclined(response);
 			}),
@@ -139,9 +137,9 @@ export class FavoriteService
 	{
 		const endPoint = environment.apiUrl + `myFavoritesPointsDeclined(${myFavoritesPointDeclinedId})`;
 		return withSpinner(this._http).delete(endPoint).pipe(
-			map((response: any) =>
+			map(() =>
 			{
-				let result = new MyFavoritesPointDeclined();
+				const result = new MyFavoritesPointDeclined();
 				result.id = myFavoritesPointDeclinedId;
 				result.myFavoriteId = myFavoriteId;
 				return result;
@@ -153,9 +151,9 @@ export class FavoriteService
 		);
 	}
 
-	getMyFavoritesChoices(tree: Tree, salesChoices: JobChoice[], favoriteChoices: MyFavoritesChoice[]): any[]
+	getMyFavoritesChoices(tree: Tree, salesChoices: JobChoice[], favoriteChoices: MyFavoritesChoice[])
 	{
-		let choices = [];
+		const choices = [];
 		const treeChoices = _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices.filter(ch => ch.quantity > 0)))) || [];
 
 		const newFavoriteChoices = treeChoices.filter(c => salesChoices.findIndex(sc => sc.divChoiceCatalogId === c.divChoiceCatalogId) === -1);
@@ -224,9 +222,9 @@ export class FavoriteService
 		return choices;
 	}
 
-	private getMyFavoritesChoiceAttributes(choice: Choice, favoriteChoice: MyFavoritesChoice): Array<any>
+	private getMyFavoritesChoiceAttributes(choice: Choice, favoriteChoice: MyFavoritesChoice)
 	{
-		const attributesDto: Array<any> = [];
+		const attributesDto = [];
 		const selectedAttributes = this.mapAttributes(choice);
 		const favoriteAttributes = (favoriteChoice ? favoriteChoice.myFavoritesChoiceAttributes : null) || [];
 
@@ -267,9 +265,9 @@ export class FavoriteService
 		return attributesDto;
 	}
 
-	private getMyFavoritesChoiceLocations(choice: Choice, favoriteChoice: MyFavoritesChoice): Array<any>
+	private getMyFavoritesChoiceLocations(choice: Choice, favoriteChoice: MyFavoritesChoice)
 	{
-		const locationsDto: Array<any> = [];
+		const locationsDto = [];
 		const selectedLocations = this.mapLocations(choice);
 		const favoriteLocations = (favoriteChoice ? favoriteChoice.myFavoritesChoiceLocations : null) || [];
 
@@ -295,7 +293,7 @@ export class FavoriteService
 			}
 			else
 			{
-				let locAttributesDto = [];
+				const locAttributesDto = [];
 				if (loc.attributes)
 				{
 					loc.attributes.forEach(la =>
@@ -330,7 +328,7 @@ export class FavoriteService
 
 		deletedLocations.forEach(dl =>
 		{
-			let locAttributesDto = [];
+			const locAttributesDto = [];
 			if (dl.myFavoritesChoiceLocationAttributes)
 			{
 				dl.myFavoritesChoiceLocationAttributes.forEach(la =>
@@ -360,9 +358,9 @@ export class FavoriteService
 		return locationsDto;
 	}
 
-	private mapExistingLocationAttributes(selectedLocation: any, existingLocation: MyFavoritesChoiceLocation): Array<any>
+	private mapExistingLocationAttributes(selectedLocation, existingLocation: MyFavoritesChoiceLocation)
 	{
-		let locAttributesDto = [];
+		const locAttributesDto = [];
 		const existingLocAttributes = existingLocation.myFavoritesChoiceLocationAttributes || [];
 		const newLocAttributes = selectedLocation.attributes.filter(la =>
 			existingLocAttributes.findIndex(ea => ea.attributeGroupCommunityId === la.attributeGroupCommunityId
@@ -397,9 +395,9 @@ export class FavoriteService
 		return locAttributesDto;
 	}
 
-	private mapAttributes(choice: Choice): Array<any>
+	private mapAttributes(choice: Choice)
 	{
-		const attributes: Array<any> = [];
+		const attributes = [];
 
 		if (choice && choice.selectedAttributes)
 		{
@@ -407,7 +405,7 @@ export class FavoriteService
 			{
 				if (!a.locationGroupId)
 				{
-					let attribute = {
+					const attribute = {
 						attributeCommunityId: a.attributeId,
 						attributeGroupCommunityId: a.attributeGroupId,
 						attributeName: a.attributeName,
@@ -421,9 +419,9 @@ export class FavoriteService
 		return attributes;
 	}
 
-	private mapLocations(choice: Choice): Array<any>
+	private mapLocations(choice: Choice)
 	{
-		const locationsDto: Array<any> = [];
+		const locationsDto = [];
 
 		if (choice && choice.selectedAttributes)
 		{
@@ -437,7 +435,7 @@ export class FavoriteService
 					{
 						if (a.attributeId)
 						{
-							let attribute = {
+							const attribute = {
 								attributeCommunityId: a.attributeId,
 								attributeGroupCommunityId: a.attributeGroupId,
 								attributeName: a.attributeName,
@@ -448,7 +446,7 @@ export class FavoriteService
 					}
 					else
 					{
-						let location = {
+						const location = {
 							locationCommunityId: a.locationId,
 							locationGroupCommunityId: a.locationGroupId,
 							locationName: a.locationName,
@@ -497,9 +495,9 @@ export class FavoriteService
 
 		return tree.treeVersion.groups.reduce((val: ChoiceExt, g) =>
 		{
-			let result = g.subGroups.reduce((sgVal: ChoiceExt, sg) =>
+			const result = g.subGroups.reduce((sgVal: ChoiceExt, sg) =>
 			{
-				let p = sg.points.find(p => p.id === pointId);
+				const p = sg.points.find(p => p.id === pointId);
 
 				if (!!p)
 				{
@@ -564,7 +562,7 @@ export class FavoriteService
 
 	saveMyFavoritesChoicesInPreviewAndPresale(tree: Tree, favorites: MyFavorite): Observable<MyFavoritesChoice[]>
 	{
-		let choices = [];
+		const choices = [];
 
 		const newFavoriteChoices = _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices.filter(ch => ch.quantity > 0)))) || [];
 		const favoriteChoices = (favorites ? favorites.myFavoritesChoice : []) || [];
@@ -620,11 +618,11 @@ export class FavoriteService
 		return of(choices);
 	}
 
-	private getMyFavoritesChoiceAttributesInPreviewAndPresale(choice: Choice, favoriteChoice: MyFavoritesChoice): Array<any>
+	private getMyFavoritesChoiceAttributesInPreviewAndPresale(choice: Choice, favoriteChoice: MyFavoritesChoice)
 	{
 		const selectedAttributes = this.mapAttributes(choice);
 		const favoriteAttributes = (favoriteChoice ? favoriteChoice.myFavoritesChoiceAttributes : null) || [];
-		let attributes = _.cloneDeep(favoriteAttributes);
+		const attributes = _.cloneDeep(favoriteAttributes);
 
 		const newAttributes = selectedAttributes
 			.filter(a => favoriteAttributes
@@ -661,15 +659,15 @@ export class FavoriteService
 		return attributes;
 	}
 
-	private getMyFavoritesChoiceLocationsInPreviewAndPresale(choice: Choice, favoriteChoice: MyFavoritesChoice): Array<any>
+	private getMyFavoritesChoiceLocationsInPreviewAndPresale(choice: Choice, favoriteChoice: MyFavoritesChoice)
 	{
 		const selectedLocations = this.mapLocations(choice);
 		const favoriteLocations = (favoriteChoice ? favoriteChoice.myFavoritesChoiceLocations : null) || [];
-		let locations = _.cloneDeep(favoriteLocations);
+		const locations = _.cloneDeep(favoriteLocations);
 
 		selectedLocations.forEach(loc =>
 		{
-			let existingLocation = locations.find(fl => fl.locationGroupCommunityId === loc.locationGroupCommunityId && fl.locationCommunityId === loc.locationCommunityId);
+			const existingLocation = locations.find(fl => fl.locationGroupCommunityId === loc.locationGroupCommunityId && fl.locationCommunityId === loc.locationCommunityId);
 			if (existingLocation)
 			{
 				existingLocation.quantity = loc.quantity;
@@ -677,7 +675,7 @@ export class FavoriteService
 			}
 			else
 			{
-				let locAttributesDto = [];
+				const locAttributesDto = [];
 				if (loc.attributes)
 				{
 					loc.attributes.forEach(la =>
@@ -723,9 +721,9 @@ export class FavoriteService
 		return locations;
 	}
 
-	private mapExistingLocationAttributesInPreviewAndPresale(selectedLocation: any, existingLocation: MyFavoritesChoiceLocation): Array<any>
+	private mapExistingLocationAttributesInPreviewAndPresale(selectedLocation, existingLocation: MyFavoritesChoiceLocation)
 	{
-		let locAttributes = _.cloneDeep(existingLocation.myFavoritesChoiceLocationAttributes);
+		const locAttributes = _.cloneDeep(existingLocation.myFavoritesChoiceLocationAttributes);
 
 		const newLocAttributes = selectedLocation.attributes.filter(la =>
 			locAttributes.findIndex(ea => ea.attributeGroupCommunityId === la.attributeGroupCommunityId
@@ -810,13 +808,13 @@ export class FavoriteService
 
 		const locationIds = locations.map(loc => loc.locationId);
 		const locationGroupIds = locations.map(loc => loc.locationGroupId);
-		let choiceLocations = myFavoritesChoice.myFavoritesChoiceLocations?.filter(loc =>
+		const choiceLocations = myFavoritesChoice.myFavoritesChoiceLocations?.filter(loc =>
 			!!locationIds.find(locId => loc.locationCommunityId === locId)
 			&& !!locationGroupIds.find(locGrpId => loc.locationGroupCommunityId === locGrpId)
 		) || [];
 		const batchChoiceLocations = createBatch<MyFavoritesChoiceLocation>(choiceLocations, 'id', 'myFavoritesChoiceLocations', null, true);
 
-		let choiceAttributes = myFavoritesChoice.myFavoritesChoiceAttributes?.filter(choiceAtt =>
+		const choiceAttributes = myFavoritesChoice.myFavoritesChoiceAttributes?.filter(choiceAtt =>
 			!!attributes.find(att => choiceAtt.attributeGroupCommunityId === att.attributeGroupId
 				&& choiceAtt.attributeCommunityId === att.attributeId
 				&& !att.locationId

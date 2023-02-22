@@ -28,11 +28,11 @@ export class ChoiceExt extends Choice
 	get favoriteAttributes(): DesignToolAttribute[]
 	{
 		let favoriteAttributes = [];
-		if (this.myFavoritesChoice)
+		if (this.myFavoritesChoice) 
 		{
-			favoriteAttributes = this.myFavoritesChoice.myFavoritesChoiceLocations ? _.flatten(this.myFavoritesChoice.myFavoritesChoiceLocations.map(l =>
+			favoriteAttributes = this.myFavoritesChoice.myFavoritesChoiceLocations ? _.flatten(this.myFavoritesChoice.myFavoritesChoiceLocations.map(l => 
 			{
-				return l.myFavoritesChoiceLocationAttributes && l.myFavoritesChoiceLocationAttributes.length ? l.myFavoritesChoiceLocationAttributes.map(a =>
+				return l.myFavoritesChoiceLocationAttributes && l.myFavoritesChoiceLocationAttributes.length ? l.myFavoritesChoiceLocationAttributes.map(a => 
 				{
 					return <DesignToolAttribute>{
 						attributeId: a.attributeCommunityId,
@@ -59,7 +59,7 @@ export class ChoiceExt extends Choice
 			})) : [];
 
 			// gets the attributes
-			this.myFavoritesChoice.myFavoritesChoiceAttributes && this.myFavoritesChoice.myFavoritesChoiceAttributes.forEach(a =>
+			this.myFavoritesChoice.myFavoritesChoiceAttributes && this.myFavoritesChoice.myFavoritesChoiceAttributes.forEach(a => 
 			{
 				favoriteAttributes.push({
 					attributeId: a.attributeCommunityId,

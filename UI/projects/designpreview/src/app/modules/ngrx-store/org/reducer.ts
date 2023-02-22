@@ -16,19 +16,19 @@ export function reducer(state: State = initialState, action: Action): State
 {
 	switch (action.type)
 	{
-		case CommonActionTypes.SalesAgreementLoaded:
-			{
-				const saAction = action as SalesAgreementLoaded;
-				return { ...state, salesCommunity: saAction.salesCommunity };
-			}
-		case ScenarioActionTypes.TreeLoaded:
-			{
-				const treeAction = action as TreeLoaded;
-				return { ...state, salesCommunity: treeAction.salesCommunity };
-			}
+	case CommonActionTypes.SalesAgreementLoaded:
+	{
+		const saAction = action as SalesAgreementLoaded;
+		return { ...state, salesCommunity: saAction.salesCommunity };
+	}
+	case ScenarioActionTypes.TreeLoaded:
+	{
+		const treeAction = action as TreeLoaded;
+		return { ...state, salesCommunity: treeAction.salesCommunity };
+	}
 
-		default:
-			return state;
+	default:
+		return state;
 	}
 }
 

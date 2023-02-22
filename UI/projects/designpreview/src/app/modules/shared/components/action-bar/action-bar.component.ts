@@ -19,7 +19,7 @@ import { ActionBarCallType } from '../../classes/constants.class';
 
 export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit 
 {
-	@Input() scrollListener: any = window;
+	@Input() scrollListener = window;
 	@Input() primaryAction: string;
 	@Input() price: number = 0;
 	@Input() favoritesPrice: number = 0;
@@ -34,11 +34,11 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit
 	@Input() isContractedPage: boolean = false;
 
 	@Output() callToAction = new EventEmitter<{ actionBarCallType: ActionBarCallType }>();
-	@Output() onToggleContractedOptions = new EventEmitter();
+	@Output() toggleContractedOptions = new EventEmitter();
 
 	@ViewChild('btnActionBar') button: ElementRef;
 
-	autoHideTimer: any;
+	autoHideTimer;
 	isActionBarHidden = false;
 	listener: () => void;
 	scrollDelta = 5;
@@ -113,11 +113,11 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit
 		this.scrolling = false;
 	}
 
-	toggleContractedOptions()
+	clickToggleContractedOptions()
 	{
 		if (!this.isContractedOptionsDisabled)
 		{
-			this.onToggleContractedOptions.emit();
+			this.toggleContractedOptions.emit();
 		}
 	}
 
@@ -161,7 +161,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit
 		window.print();
 	}
 
-	@HostListener("window:afterprint", [])
+	@HostListener('window:afterprint', [])
 	onWindowAfterPrint()
 	{
 		this.titleService.setTitle('Design Preview');

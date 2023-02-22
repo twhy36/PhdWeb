@@ -17,7 +17,7 @@ export class PresaleGuard implements CanActivate
 		setPresaleToken(route.queryParams.presale);
 
 		//can activate when passing issuer match configuration
-		if (sessionStorage.getItem('presale_issuer') !== environment.authConfigs["presale"].issuer)
+		if (sessionStorage.getItem('presale_issuer') !== environment.authConfigs['presale'].issuer)
 		{
 			this.store.dispatch(new GuardError(new Error('Presale issuer does not match configuration!'), 'Config issue in Presale Guard', ErrorFrom.GuardError));
 			return false;

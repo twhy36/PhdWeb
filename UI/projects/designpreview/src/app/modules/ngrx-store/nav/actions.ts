@@ -6,16 +6,18 @@ export enum NavActionTypes {
 	SetIncludedSubgroup = 'Set Included Subgroup'
 }
 
-export class SetSelectedSubgroup implements Action {
+export class SetSelectedSubgroup implements Action 
+{
 	readonly type = NavActionTypes.SetSelectedSubgroup;
 
-    constructor(public selectedSubGroup: number, public selectedPoint?: number, public selectedChoice?: number) { }
+	constructor(public selectedSubGroup: number, public selectedPoint?: number, public selectedChoice?: number) { }
 }
 
-export class SetIncludedSubgroup implements Action {
+export class SetIncludedSubgroup implements Action 
+{
 	readonly type = NavActionTypes.SetIncludedSubgroup;
 
-    constructor(public includedSubGroup?: number, public includedPoint?: number) { }
+	constructor(public includedSubGroup?: number, public includedPoint?: number) { }
 }
 
 export type NavActions = 

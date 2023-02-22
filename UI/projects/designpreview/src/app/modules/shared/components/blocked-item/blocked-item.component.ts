@@ -64,7 +64,7 @@ export class BlockedItemComponent extends UnsubscribeOnDestroy implements OnInit
 			//Scroll to selected blocked point if same blocked point selected and change event not triggered
 			if (this.currentSelectedPointId && this.currentSelectedPointId === pointId)
 			{
-				const decisionBarElement = <HTMLElement><any>document.getElementById('decision-bar-' + pointId?.toString());
+				const decisionBarElement = <HTMLElement>document.getElementById('decision-bar-' + pointId?.toString());
 				if (decisionBarElement)
 				{
 					decisionBarElement.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });

@@ -18,7 +18,8 @@ import { ChoiceCardComponent } from './choice-card.component';
 import { ActionBarComponent } from '../action-bar/action-bar.component';
 import { AdobeService } from '../../../core/services/adobe.service';
 
-describe('ChoiceCardComponent', () => {
+describe('ChoiceCardComponent', () => 
+{
 	let component: ChoiceCardComponent;
 	let fixture: ComponentFixture<ChoiceCardComponent>;
 
@@ -35,7 +36,8 @@ describe('ChoiceCardComponent', () => {
 		scenario: fromScenario.initialState
 	};
 
-  	beforeEach(fakeAsync(() => {
+  	beforeEach(fakeAsync(() => 
+	{
 		TestBed.configureTestingModule({
 			declarations: [
 				ChoiceCardComponent,
@@ -51,7 +53,8 @@ describe('ChoiceCardComponent', () => {
 		}).compileComponents();
 	}));
 
-	beforeEach(() => {
+	beforeEach(() => 
+	{
 		fixture = TestBed.createComponent(ChoiceCardComponent);
 		component = fixture.componentInstance;
 		component.choice = {
@@ -92,15 +95,18 @@ describe('ChoiceCardComponent', () => {
 			favoriteAttributes: [],
 			choiceImages: []
 		};
-	fixture.detectChanges();
-  });
+		fixture.detectChanges();
+	});
 
-  it('should create', () => {
-	expect(component).toBeTruthy();
-  });
+	it('should create', () => 
+	{
+		expect(component).toBeTruthy();
+	});
 
-	describe('openBlockedChoiceModal', () => {
-		beforeEach(() => {
+	describe('openBlockedChoiceModal', () => 
+	{
+		beforeEach(() => 
+		{
 			component.groups = [{
 				id: 1,
 				groupCatalogId: 1,
@@ -223,13 +229,15 @@ describe('ChoiceCardComponent', () => {
 				treeVersion: {id: 16, name: 'testing tree', treeId: 15, planKey: 'abc', groups: component.groups}
 			};
 		});
-		it('should open the modal', () => {
+		it('should open the modal', () => 
+		{
 			const modalServiceSpy = spyOn(component.modalService, 'open');
 
 			component.openBlockedChoiceModal();
 			expect(modalServiceSpy).toHaveBeenCalled();
 		});
-		it('should set up disabledByList for Choice-to-Choice rules', () => {
+		it('should set up disabledByList for Choice-to-Choice rules', () => 
+		{
 			spyOn(component.modalService, 'open');
 			component.choice.disabledBy = [{
 				choiceId: 4,
@@ -245,7 +253,8 @@ describe('ChoiceCardComponent', () => {
 			expect(component.disabledByList.choiceDisabledByList.orChoices[0].choiceId).toEqual(6);
 			expect(component.disabledByList.choiceDisabledByList.orChoices[0].pointId).toEqual(11);
 		});
-		it('should set up disabledByList for DP-to-Choice rules', () => {
+		it('should set up disabledByList for DP-to-Choice rules', () => 
+		{
 			spyOn(component.modalService, 'open');
 			component.currentPoint.disabledBy = [{
 				pointId: 10,
@@ -261,7 +270,8 @@ describe('ChoiceCardComponent', () => {
 			expect(component.disabledByList.pointDisabledByList.orChoices[0].choiceId).toEqual(6);
 			expect(component.disabledByList.pointDisabledByList.orChoices[0].pointId).toEqual(11);
 		});
-		it('should set up disabledByList for DP-to-DP rules', () => {
+		it('should set up disabledByList for DP-to-DP rules', () => 
+		{
 			spyOn(component.modalService, 'open');
 			component.currentPoint.disabledBy = [{
 				pointId: 10,

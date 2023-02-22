@@ -52,7 +52,7 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 		private brandService: BrandService,
 		private adobeService: AdobeService,
 		private navService: NavigationService,
-		@Inject(DOCUMENT) private doc: any) 
+		@Inject(DOCUMENT) private doc: Document) 
 	{
 		super();
 
@@ -89,7 +89,7 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 		this.setAdobeAnalytics();
 
 		//popup warning only once when user browser is not supported
-		let needBrowserCheck = sessionStorage.getItem('supportedBrowserChecked') == null ||
+		const needBrowserCheck = sessionStorage.getItem('supportedBrowserChecked') == null ||
 			(sessionStorage.getItem('supportedBrowserChecked') && sessionStorage.getItem('supportedBrowserChecked').toLowerCase() !== 'true');
 		if (needBrowserCheck && !this.isSupportedBrowser() && !this.isDevEnvironment()) 
 		{
@@ -115,7 +115,7 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 		{
 			this.idle.clearInterrupts();
 
-			let ngbModalOptions: NgbModalOptions =
+			const ngbModalOptions: NgbModalOptions =
 			{
 				centered: true,
 				backdrop: 'static',
@@ -193,7 +193,7 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 
 	displayBrowserModal(): void 
 	{
-		let ngbModalOptions: NgbModalOptions =
+		const ngbModalOptions: NgbModalOptions =
 		{
 			centered: true,
 			backdrop: true,

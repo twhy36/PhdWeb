@@ -1,6 +1,8 @@
+import { Location } from '@angular/common';
 import { Component, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store, select } from '@ngrx/store';
+import { NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 
 import { BehaviorSubject } from 'rxjs';
 import { map, filter, distinctUntilChanged, withLatestFrom, debounceTime } from 'rxjs/operators';
@@ -42,8 +44,7 @@ import { GroupBarComponent } from '../../../shared/components/group-bar/group-ba
 import { NormalExperienceComponent } from './normal-experience/normal-experience.component';
 import { ChoiceExt } from '../../../shared/models/choice-ext.model';
 import { BuildMode } from '../../../shared/models/build-mode.model';
-import { Location } from '@angular/common';
-import { NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
+
 import { TermsAndConditionsComponent } from '../../../core/components/terms-and-conditions/terms-and-conditions.component';
 
 @Component({
@@ -167,7 +168,8 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 				if (!this.groups.length)
 				{
 					this.noVisibleGroups = true;
-				} else
+				}
+				else
 				{
 					this.noVisibleGroups = false;
 				}
@@ -229,11 +231,11 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 						//this happens if the subgroup has been filtered out of the tree - find a new subgroup to navigate to
 						if (!!this.selectedSubgroupId)
 						{
-							let origGroup = groups.find(g => g.subGroups.some(sg => sg.id === this.selectedSubgroupId));
+							const origGroup = groups.find(g => g.subGroups.some(sg => sg.id === this.selectedSubgroupId));
 
 							if (origGroup)
 							{
-								let origSg = origGroup.subGroups.find(sg => sg.id === this.selectedSubgroupId);
+								const origSg = origGroup.subGroups.find(sg => sg.id === this.selectedSubgroupId);
 
 								if (origSg)
 								{
@@ -307,7 +309,8 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 				if (!!this.selectedSubGroup)
 				{
 					this.router.navigate(['..', this.selectedSubGroup?.subGroupCatalogId], { relativeTo: this.route, replaceUrl: true, queryParams: { presale: sessionStorage.getItem('presale_token') } });
-				} else
+				}
+				else
 				{
 					this.router.navigate(['..', subGroup?.subGroupCatalogId], { relativeTo: this.route, replaceUrl: true, queryParams: { presale: sessionStorage.getItem('presale_token') } });
 				}
@@ -371,15 +374,18 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 					if (fpSubGroup)
 					{
 						this.marketingPlanId$.next(plan.marketingPlanId[0]);
-					} else
+					}
+					else
 					{
 						this.noVisibleFP = true;
 					}
-				} else
+				}
+				else
 				{
 					this.noVisibleFP = true;
 				}
-			} else
+			}
+			else
 			{
 				this.noVisibleFP = true;
 			}
@@ -424,7 +430,8 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		if (!!this.nextSubGroup)
 		{
 			this.groupBar.selectSubgroup(this.nextSubGroup.id);
-		} else
+		}
+		else
 		{
 			this.store.dispatch(new ScenarioActions.SetTreeFilter(null));
 			this.router.navigate(['favorites', 'summary'], { queryParams: { presale: sessionStorage.getItem('presale_token') } });
@@ -433,7 +440,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 
 	toggleChoice(choice: ChoiceExt)
 	{
-		let selectedChoices = [{ choiceId: choice.id, divChoiceCatalogId: choice.divChoiceCatalogId, quantity: !choice.quantity ? 1 : 0, attributes: choice.selectedAttributes }];
+		const selectedChoices = [{ choiceId: choice.id, divChoiceCatalogId: choice.divChoiceCatalogId, quantity: !choice.quantity ? 1 : 0, attributes: choice.selectedAttributes }];
 		const impactedChoices = getDependentChoices(this.tree, this.treeVersionRules, this.options, choice);
 
 		impactedChoices.forEach(c =>
@@ -464,7 +471,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 
 	deselectPointChoices(declinedPointCatalogId: number)
 	{
-		let deselectedChoices = [];
+		const deselectedChoices = [];
 
 		const points = _.flatMap(this.groups, g => _.flatMap(g.subGroups, sg => sg.points)) || [];
 		const pointDeclined = points.find(p => p.divPointCatalogId === declinedPointCatalogId);
@@ -631,7 +638,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 
 	getChoiceExt(choice: Choice, point: DecisionPoint): ChoiceExt
 	{
-		let unfilteredPoint = this.unfilteredPoints.find(up => up.divPointCatalogId === point.divPointCatalogId);
+		const unfilteredPoint = this.unfilteredPoints.find(up => up.divPointCatalogId === point.divPointCatalogId);
 		let choiceStatus = 'Available';
 
 		if (point.isPastCutOff || this.salesChoices?.findIndex(c => c.divChoiceCatalogId === choice.divChoiceCatalogId) > -1)

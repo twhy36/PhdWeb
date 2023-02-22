@@ -10,7 +10,8 @@ import { DefaultErrorComponent } from './default-error.component';
 import { BannerComponent } from '../banner/banner.component';
 import { BrandService } from '../../../core/services/brand.service';
 
-describe('DefaultErrorComponent', () => {
+describe('DefaultErrorComponent', () => 
+{
 	let component: DefaultErrorComponent;
 	let fixture: ComponentFixture<DefaultErrorComponent>;
 
@@ -21,7 +22,8 @@ describe('DefaultErrorComponent', () => {
 	const mockRouter = mock(Router);
 	const mockBrandService = mock(BrandService);
 
-	beforeEach(async () => {
+	beforeEach(async () => 
+	{
 		await TestBed.configureTestingModule({
 			declarations: [
 				DefaultErrorComponent,
@@ -37,29 +39,34 @@ describe('DefaultErrorComponent', () => {
 		mockStore = TestBed.inject(MockStore);
 	});
 
-	beforeEach(() => {
+	beforeEach(() => 
+	{
 		fixture = TestBed.createComponent(DefaultErrorComponent);
 		component = fixture.componentInstance;
 		fixture.detectChanges();
 	});
 
-	it('should create', () => {
+	it('should create', () => 
+	{
 		expect(component).toBeTruthy();
 	});
 
-	it('should hide message on click', () => {
+	it('should hide message on click', () => 
+	{
 		expect(component.showInternalMessage).toBeTruthy();
 		component.hideInternalMessage();
 		expect(component.showInternalMessage).toBeFalsy();
 	});
 
-	it('should has error message when error in store', () => {
+	it('should has error message when error in store', () => 
+	{
 		component.ngOnInit();
 		mockStore.select(fromApp.getAppLatestError).subscribe(s => expect(s.length > 0).toBeTruthy());
 		expect(component.internalMessage.length > 0).toBeTruthy();
 	});
 
-	it('should dispatch error message when no error in store', () => {
+	it('should dispatch error message when no error in store', () => 
+	{
 		const onStoreSpy = spyOn(mockStore, 'dispatch');
 		mockStore.dispatch(new ErrorActions.ClearLatestError());
 		component.ngOnInit();

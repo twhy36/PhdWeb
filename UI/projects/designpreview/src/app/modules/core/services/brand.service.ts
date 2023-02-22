@@ -18,12 +18,12 @@ export class BrandService
 
 	constructor()
 	{
-		this.brandMap[environment.brandMap.pulte] = (pulte as any).default;
-		this.brandMap[environment.brandMap.delwebb] = (delwebb as any).default;
-		this.brandMap[environment.brandMap.americanWest] = (americanWest as any).default;
-		this.brandMap[environment.brandMap.divosta] = (divosta as any).default;
-		this.brandMap[environment.brandMap.centex] = (centex as any).default;
-		this.brandMap[environment.brandMap.johnWieland] = (johnWieland as any).default;
+		this.brandMap[environment.brandMap.pulte] = pulte['default'];
+		this.brandMap[environment.brandMap.delwebb] = delwebb['default'];
+		this.brandMap[environment.brandMap.americanWest] = americanWest['default'];
+		this.brandMap[environment.brandMap.divosta] = divosta['default'];
+		this.brandMap[environment.brandMap.centex] = centex['default'];
+		this.brandMap[environment.brandMap.johnWieland] = johnWieland['default'];
 	}
 
 	applyBrandStyles(): void
@@ -51,31 +51,32 @@ export class BrandService
 		let brandName = '';
 		const baseUrl = window.location.host;
 
-		switch (baseUrl) {
-			case (environment.brandMap.americanWest):
-				brandName = displayMode===BrandDisplayMode.Title ? BrandTitles.AmericanWest : 
-					(displayMode===BrandDisplayMode.LogoutUrl ? environment.brandLogoutMap.americanWest : Brands.AmericanWest);
-				break;			
-			case (environment.brandMap.centex):
-				brandName = displayMode===BrandDisplayMode.Title ? BrandTitles.Centex : 
-					(displayMode===BrandDisplayMode.LogoutUrl ? environment.brandLogoutMap.centex : Brands.Centex);
-				break;			
-			case (environment.brandMap.delwebb):
-				brandName = displayMode===BrandDisplayMode.Title ? BrandTitles.DelWebb : 
-					(displayMode===BrandDisplayMode.LogoutUrl ? environment.brandLogoutMap.delwebb : Brands.DelWebb);
-				break;
-			case (environment.brandMap.divosta):
-				brandName = displayMode===BrandDisplayMode.Title ? BrandTitles.Divosta : 
-					(displayMode===BrandDisplayMode.LogoutUrl ? environment.brandLogoutMap.divosta : Brands.Divosta);
-				break;
-			case (environment.brandMap.johnWieland):
-				brandName = displayMode===BrandDisplayMode.Title ? BrandTitles.JohnWieland : 
-					(displayMode===BrandDisplayMode.LogoutUrl ? environment.brandLogoutMap.johnWieland : Brands.JohnWieland);
-				break;
-			case (environment.brandMap.pulte):
-				brandName = displayMode===BrandDisplayMode.Title ? BrandTitles.Pulte : 
-					(displayMode===BrandDisplayMode.LogoutUrl ? environment.brandLogoutMap.pulte : Brands.Pulte);
-				break;
+		switch (baseUrl) 
+		{
+		case (environment.brandMap.americanWest):
+			brandName = displayMode===BrandDisplayMode.Title ? BrandTitles.AmericanWest : 
+				(displayMode === BrandDisplayMode.LogoutUrl ? environment.brandLogoutMap.americanWest : Brands.AmericanWest);
+			break;			
+		case (environment.brandMap.centex):
+			brandName = displayMode === BrandDisplayMode.Title ? BrandTitles.Centex : 
+				(displayMode === BrandDisplayMode.LogoutUrl ? environment.brandLogoutMap.centex : Brands.Centex);
+			break;			
+		case (environment.brandMap.delwebb):
+			brandName = displayMode === BrandDisplayMode.Title ? BrandTitles.DelWebb : 
+				(displayMode === BrandDisplayMode.LogoutUrl ? environment.brandLogoutMap.delwebb : Brands.DelWebb);
+			break;
+		case (environment.brandMap.divosta):
+			brandName = displayMode === BrandDisplayMode.Title ? BrandTitles.Divosta : 
+				(displayMode === BrandDisplayMode.LogoutUrl ? environment.brandLogoutMap.divosta : Brands.Divosta);
+			break;
+		case (environment.brandMap.johnWieland):
+			brandName = displayMode === BrandDisplayMode.Title ? BrandTitles.JohnWieland : 
+				(displayMode === BrandDisplayMode.LogoutUrl ? environment.brandLogoutMap.johnWieland : Brands.JohnWieland);
+			break;
+		case (environment.brandMap.pulte):
+			brandName = displayMode === BrandDisplayMode.Title ? BrandTitles.Pulte : 
+				(displayMode === BrandDisplayMode.LogoutUrl ? environment.brandLogoutMap.pulte : Brands.Pulte);
+			break;
 		}
 
 		return brandName;
@@ -122,10 +123,10 @@ export enum BrandTitles
 	JohnWieland = 'John Wieland'
 }
 
-//displayMode: 
-//	title: display brand in title case 
-//	logoutUrl: display brand logout page url
-//	null or default: display brand name in one word
+// DisplayMode: 
+// title: display brand in title case 
+// logoutUrl: display brand logout page url
+// null or default: display brand name in one word
 export enum BrandDisplayMode
 {
 	Title = 'title',
