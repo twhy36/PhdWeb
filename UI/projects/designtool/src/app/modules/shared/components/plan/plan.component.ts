@@ -146,27 +146,15 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 			this.store.pipe(select(state => state.plan.plans), filter(plans => !!plans)),
 			this.store.pipe(select(state => state.lot.selectedLot ? state.lot.selectedLot.id : null)),
 			this.selectedFilterBy$, 
-			this.selectedSortBy$, 
-			this.selectedPlan$,
-			combineLatest([
-				this.store.pipe(select(state => state.lite?.isPhdLite)),
-				this.store.pipe(select(fromChangeOrder.inPlanChangeOrder))
-			])
+			this.selectedSortBy$
 		]).pipe(
 			this.takeUntilDestroyed(),
-			map(([plans, selectedLot, financialCommunity, sortBy, selectedPlan, [isPhdLite, inPlanChangeOrder]]) =>
+			map(([plans, selectedLot, financialCommunity, sortBy]) =>
 			{
-				this.isPhdLite = isPhdLite;
-
 				return plans
 					.filter(p => {
-						let displayPlan = inPlanChangeOrder 
-							? isPhdLite && !p.treeVersionId || !isPhdLite && !!p.treeVersionId 
-							: true;
-
 						return (financialCommunity === 0 || p.communityId === financialCommunity) 
-							&& p.lotAssociations.length > 0
-							&& (displayPlan || p.id === selectedPlan.id);
+							&& p.lotAssociations.length > 0;
 					})
 					.sort(function (a, b)
 					{
@@ -227,6 +215,11 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 				return this.inChangeOrder;
 			})
 		);
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(state => state.lite)
+		).subscribe(lite => this.isPhdLite = lite?.isPhdLite);
 
 		combineLatest([
 			this.store.pipe(select(fromSalesAgreement.salesAgreementState)),
@@ -452,5 +445,14 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 		{
 			this.router.navigate(['/edit-home', (state.scenarioId || ''), state.divDPointCatalogId]);
 		});
+	}
+
+	isLitePlanDisabled(plan: Plan) : boolean
+	{
+		const planDisabled = this.inChangeOrder
+			? this.isPhdLite && !!plan.treeVersionId || !this.isPhdLite && !plan.treeVersionId
+			: false;
+
+		return planDisabled && plan.id !== this.jobPlanId;
 	}
 }
