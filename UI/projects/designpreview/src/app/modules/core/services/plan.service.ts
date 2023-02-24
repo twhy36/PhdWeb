@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, throwError as _throw } from 'rxjs';
 import { map, catchError, switchMap } from 'rxjs/operators';
 
-import { getDateWithUtcOffset, Plan, withSpinner } from 'phd-common';
+import { Plan, withSpinner } from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
 import { OptionService } from './option.service';
@@ -45,15 +45,18 @@ export class PlanService
 		);
 	}
 
+	//get treeversion ID per passing FinancialCommunityId and plan integration key
+	//return 0 if error our no published tree found, otherwise get ID per top 1 latest published tree
 	getPublishedTree(commId: number, planKey: number): Observable<number> 
 	{
 		let url = environment.apiUrl;
-		const utcNow = getDateWithUtcOffset();
+		const utcNow = new Date().toISOString();
 
 		const filter = `publishStartDate le ${utcNow} and (publishEndDate eq null or publishEndDate gt ${utcNow}) and dTree/plan/org/edhFinancialCommunityId eq ${commId} and dTree/plan/integrationKey eq '${planKey}'`;
 		const select = 'dTreeVersionID';
+		const orderBy = 'publishStartDate desc'
 
-		const qryStr = `${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}&${encodeURIComponent('$')}select=${encodeURIComponent(select)}`;
+		const qryStr = `${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}&${encodeURIComponent('$')}select=${encodeURIComponent(select)}&${encodeURIComponent('$')}orderBy=${encodeURIComponent(orderBy)}`;
 
 		url += `dTreeVersions?${qryStr}`;
 

@@ -2,14 +2,14 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
 import { map, catchError, tap, switchMap, toArray, mergeMap } from 'rxjs/operators';
-import { Observable, combineLatest, EMPTY as empty, of, throwError, from } from 'rxjs';
+import { Observable, combineLatest, of, throwError, from } from 'rxjs';
 
 import
 {
 	withSpinner, newGuid, createBatchGet, createBatchHeaders, createBatchBody,JobChoice,
 	ChangeOrderChoice, TreeVersionRules, OptionRule, Tree, OptionImage, JobPlanOption, 
 	ChangeOrderPlanOption, PlanOptionCommunityImageAssoc, ChoiceImageAssoc, TreeBaseHouseOption,
-	Choice, MyFavoritesChoice, MyFavoritesPointDeclined, getDateWithUtcOffset
+	Choice, MyFavoritesChoice, MyFavoritesPointDeclined
 } from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
@@ -35,15 +35,15 @@ export class TreeService
 	{
 		const communityFilter = ` and (dTree/plan/org/edhFinancialCommunityId eq ${communityId}) and (dTree/plan/integrationKey eq '${planKey}')`;
 
-		const utcNow = getDateWithUtcOffset();
+		const utcNow = new Date().toISOString();
 
 		const entity = 'dTreeVersions';
 		const expand = 'dTree($select=dTreeID;$expand=plan($select=integrationKey),org($select = edhFinancialCommunityId)),baseHouseOptions($select=planOption;$expand=planOption($select=integrationKey))';
 		const filter = `publishStartDate le ${utcNow} and (publishEndDate eq null or publishEndDate gt ${utcNow})${communityFilter}`;
 		const select = 'dTreeVersionID,dTreeID,dTreeVersionName,dTreeVersionDescription,publishStartDate,publishEndDate,lastModifiedDate';
-		const orderBy = 'publishStartDate';
+		const orderBy = 'publishStartDate desc';
 
-		const endPoint = environment.apiUrl + `${entity}?${encodeURIComponent('$')}expand=${encodeURIComponent(expand)}&${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}&${encodeURIComponent('$')}select=${encodeURIComponent(select)}&${encodeURIComponent('$')}orderby=${orderBy}`;
+		const endPoint = environment.apiUrl + `${entity}?${encodeURIComponent('$')}expand=${encodeURIComponent(expand)}&${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}&${encodeURIComponent('$')}select=${encodeURIComponent(select)}&${encodeURIComponent('$')}orderby=${encodeURIComponent(orderBy)}`;
 
 		return withSpinner(this.http).get<ODataResponse<DTreeVersionDto[]>>(endPoint).pipe(
 			map(response =>
