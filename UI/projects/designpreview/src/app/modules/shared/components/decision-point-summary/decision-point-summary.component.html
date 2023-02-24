@@ -38,7 +38,8 @@
 									</div>
 								</ng-container>
 								<ng-container *ngIf="choice.hasMappedAttributes && (!isChoiceComplete(choice) || (!choice.selectedAttributes.length && !isDesignComplete))">
-									<a class="phd-additional-selections" (click)="onAdditionalSelections(choice)">Additional Selections Required</a>
+									<a [ngClass]="contractedOptionsPage ? 'phd-contracted-additional-selections' : 'phd-summary-additional-selections'"
+										(click)="onAdditionalSelections(choice)">Additional Selections Required</a>
 								</ng-container>
 							</div>
 						</div>

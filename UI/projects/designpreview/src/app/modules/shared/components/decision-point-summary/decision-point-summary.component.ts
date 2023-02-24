@@ -147,7 +147,10 @@ export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implemen
 
 	onAdditionalSelections(choice: ChoiceCustom)
 	{
-		this.router.navigate(['favorites', 'my-favorites', this.favoritesId, this.subGroup.subGroupCatalogId, choice.divChoiceCatalogId], { queryParams: { presale: sessionStorage.getItem('presale_token')} });
+		if (!this.contractedOptionsPage)
+		{
+			this.router.navigate(['favorites', 'my-favorites', this.favoritesId, this.subGroup.subGroupCatalogId, choice.divChoiceCatalogId], { queryParams: { presale: sessionStorage.getItem('presale_token')} });
+		}
 	}
 	
 }
