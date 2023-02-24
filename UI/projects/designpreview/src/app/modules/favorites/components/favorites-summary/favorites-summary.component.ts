@@ -364,7 +364,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 
 	onViewFavorites(point: DecisionPoint)
 	{
-		const subGroup = _.flatMap(this.groups, g => g.subGroups).find(sg => sg.id === point.subGroupId);
+		const subGroup = _.flatMap(this.groups, g => g.subGroups).find(sg => (sg.subGroupCatalogId === point.subGroupCatalogId || sg.id === point.subGroupId));
 
 		if (subGroup)
 		{
