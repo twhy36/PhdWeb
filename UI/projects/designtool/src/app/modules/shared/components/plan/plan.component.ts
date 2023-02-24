@@ -449,10 +449,8 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 
 	isLitePlanDisabled(plan: Plan) : boolean
 	{
-		const planDisabled = this.inChangeOrder
+		return this.inChangeOrder
 			? this.isPhdLite && !!plan.treeVersionId || !this.isPhdLite && !plan.treeVersionId
 			: false;
-
-		return planDisabled && plan.id !== this.jobPlanId;
 	}
 }
