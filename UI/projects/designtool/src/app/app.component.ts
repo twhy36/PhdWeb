@@ -3,12 +3,11 @@ import { Router, NavigationEnd } from '@angular/router';
 
 import { filter } from 'rxjs/operators';
 
-import { loadScript, TimeOfSaleOptionPrice, UnsubscribeOnDestroy } from 'phd-common';
+import { IdentityService, loadScript, TimeOfSaleOptionPrice, UnsubscribeOnDestroy } from 'phd-common';
 
 import { environment } from '../environments/environment';
 import { default as build } from './build.json';
 import { NotificationService } from './modules/core/services/notification.service';
-import { JobService } from './modules/core/services/job.service';
 import { select, Store } from '@ngrx/store';
 import * as fromRoot from './modules/ngrx-store/reducers';
 
@@ -17,10 +16,11 @@ import * as fromRoot from './modules/ngrx-store/reducers';
 	templateUrl: './app.component.html',
 	styleUrls: ['./app.component.scss']
 })
-export class AppComponent extends UnsubscribeOnDestroy implements OnDestroy 
+export class AppComponent extends UnsubscribeOnDestroy
 {
 	environment = environment;
 	timeOfSaleOptionPrices: TimeOfSaleOptionPrice[];
+	token: string;
 
 	get branch(): string
 	{
@@ -35,7 +35,7 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnDestroy
 	constructor(
 		private router: Router,
 		private notificationService: NotificationService,
-		private jobService: JobService,
+		private identityService: IdentityService,
 		private store: Store<fromRoot.State>)
 	{
 		super();
@@ -62,6 +62,11 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnDestroy
 		{
 			this.timeOfSaleOptionPrices = job?.timeOfSaleOptionPrices;
 		});
+
+		this.identityService.token.subscribe(token =>
+		{
+			this.token = token;
+		});
 	}
 
 	// #388662
@@ -69,11 +74,24 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnDestroy
 	// that are attached to an active, unapproved CO. The API logic will automatically 
 	// determine what prices to delete based on the latest CO.
 	@HostListener('window:beforeunload')
-	async ngOnDestroy()
+	onBeforeUnload()
 	{
 		if (this.timeOfSaleOptionPrices?.length)
 		{
-			await this.jobService.deleteTimeOfSaleOptionPrices(this.timeOfSaleOptionPrices, true).toPromise();
+			const body = {
+				'timeOfSaleOptionPrices': this.timeOfSaleOptionPrices,
+				'isRevertChangeOrder': true,
+			};
+
+			fetch(`${environment.apiUrl}DeleteTimeOfSaleOptionPrices`, {
+				keepalive: true,
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': `Bearer ${this.token}`,
+				},
+				body: JSON.stringify(body),
+			});
 		}
 	}
 }
