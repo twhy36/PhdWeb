@@ -31,6 +31,7 @@ export class SalesProgramsSidePanelComponent implements OnInit
 
 	releaseForm: FormGroup;
 	agreementLocked: boolean;
+	isQMIIncentive: boolean = false;
 
 	// Is the side panel open...
 	isOpen: boolean = true;
@@ -59,6 +60,7 @@ export class SalesProgramsSidePanelComponent implements OnInit
 	ngOnInit()
 	{
 		this.agreementLocked = this.selectedSalesProgram ? this.selectedSalesProgram.agreementLocked : false;
+		this.isQMIIncentive = this?.selectedSalesProgram?.name === 'Quick Move-in Incentive';
 		this.createForm();
 	}
 
@@ -69,7 +71,7 @@ export class SalesProgramsSidePanelComponent implements OnInit
 
 	get canSave(): boolean
 	{
-		return this.releaseForm.pristine || !this.releaseForm.valid || this.saving;
+		return this.releaseForm.pristine || !this.releaseForm.valid || this.saving || this.releaseForm.get('name')?.value?.indexOf('Quick Move-in Incentive') > -1 ;
 	}
 
 	convertDate(date)
@@ -113,6 +115,15 @@ export class SalesProgramsSidePanelComponent implements OnInit
 			this.releaseForm.get('salesProgramType').disable();
 			this.releaseForm.get('maximumAmount').disable();
 			this.releaseForm.get('name').disable();
+		}
+		else if (this.isQMIIncentive)
+		{
+			this.releaseForm.get('salesProgramType').disable();
+			this.releaseForm.get('maximumAmount').disable();
+			this.releaseForm.get('name').disable();
+			this.releaseForm.get('startDate').disable();
+			this.releaseForm.get('endDate').disable();
+			this.releaseForm.get('isPMCAffiliate').disable();
 		}
 
 		// we have to set the min date AFTER creating the form controls,
