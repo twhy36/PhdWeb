@@ -792,13 +792,14 @@ export class SalesAgreementService
 		);
 	}
 
-	approveSalesAgreement(salesAgreementId: number, isAutoApproval): Observable<SalesAgreement>
+	approveSalesAgreement(salesAgreementId: number, isAutoApproval, jobId: number): Observable<SalesAgreement>
 	{
 		const action = `approveSalesAgreement`;
 		const endpoint = environment.apiUrl + action;
 		const data = {
 			id: salesAgreementId,
-			isAutoApproval: isAutoApproval
+			isAutoApproval: isAutoApproval,
+			jobId: jobId
 		};
 
 		return withSpinner(this._http).patch(endpoint, data, { headers: { 'Prefer': 'return=representation' } }).pipe(

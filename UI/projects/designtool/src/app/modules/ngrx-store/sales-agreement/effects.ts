@@ -865,6 +865,7 @@ export class SalesAgreementEffects
 				}),
 				switchMap(([action, store, communityAutoApprovals]) => {
 					const co = store.job.changeOrderGroups.reduce((r, a) => r.createdUtcDate > a.createdUtcDate ? r : a);
+					const jobId = store.job.id;
 					let autoApproval = true;
 
 					if (co.jobChangeOrders.some(changeOrder => changeOrder.jobChangeOrderTypeDescription === 'BuyerChangeOrder')) {
