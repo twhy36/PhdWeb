@@ -887,7 +887,7 @@ export class SalesAgreementEffects
 						autoApproval = communityAutoApprovals.find(aa => aa.edhChangeOrderTypeId === 0).isAutoApproval;
 					}
 
-					return forkJoin(of(store.job), of(autoApproval), this.salesAgreementService.approveSalesAgreement(store.salesAgreement.id || null, autoApproval));
+					return forkJoin(of(store.job), of(autoApproval), this.salesAgreementService.approveSalesAgreement(store.salesAgreement.id || null, autoApproval, jobId));
 				}),
 				switchMap(([jobState, isAutoApproval, salesAgreement]) => {
 					if (isAutoApproval) {
