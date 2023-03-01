@@ -4,7 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, throwError as _throw, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 
-import { LotExt } from 'phd-common';
+import { LotExt, withSpinner } from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
 
@@ -25,7 +25,7 @@ export class LotService
 		const select = 'id,lotBlock,premium,lotStatusDescription,streetAddress1,streetAddress2,city,stateProvince,postalCode,facing,foundationType,lotBuildTypeDesc,unitNumber,salesBldgNbr,alternateLotBlock,constructionPhaseNbr,closeOfEscrow';
 		const url = `${environment.apiUrl}lots?${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}&${encodeURIComponent('$')}select=${encodeURIComponent(select)}&${encodeURIComponent('$')}expand=${encodeURIComponent(expand)}`;
 
-		return this._http.get(url).pipe(
+		return withSpinner(this._http).get(url).pipe(
 			map(response =>
 			{
 				const lotsDto = (response['value'] as Array<LotExt>);

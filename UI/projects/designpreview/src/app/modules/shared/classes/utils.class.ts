@@ -104,7 +104,7 @@ export function setPresaleToken(queryToken: string = '', resetToken = false)
 		try
 		{
 			const tokenParts = token.split('.');
-			const payload = new PresalePayload(JSON.parse(Buffer.from(tokenParts[1], 'base64').toString()));
+			const payload = new PresalePayload(JSON.parse(Buffer.from(tokenParts[1], 'base64').toString('ascii')));
 
 			setSessionItem('presale_token', token);
 			setSessionItem('authProvider', 'presale');

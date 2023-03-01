@@ -25,7 +25,7 @@ export class PlanService
 
 		const endPoint = environment.apiUrl + `${entity}?${encodeURIComponent('$')}expand=${encodeURIComponent(expand)}&${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}&${encodeURIComponent('$')}select=${encodeURIComponent(select)}`;
 
-		return this._http.get<ODataResponse<PlanCommunityDto[]>>(endPoint).pipe(
+		return withSpinner(this._http).get<ODataResponse<PlanCommunityDto[]>>(endPoint).pipe(
 			map(response => 
 			{
 				return response.value.map(data => 
@@ -60,7 +60,7 @@ export class PlanService
 
 		url += `dTreeVersions?${qryStr}`;
 
-		return this._http.get<ODataResponse<DTreeVersionDto[]>>(url).pipe(
+		return withSpinner(this._http).get<ODataResponse<DTreeVersionDto[]>>(url).pipe(
 			map(response =>
 			{
 				return !!response.value.length ? response.value[0].dTreeVersionID : 0;
@@ -83,7 +83,7 @@ export class PlanService
 
 		const endPoint = environment.apiUrl + `${entity}?${encodeURIComponent('$')}expand=${encodeURIComponent(expand)}&${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}&${encodeURIComponent('$')}select=${encodeURIComponent(select)}`;
 
-		return this._http.get<ODataResponse<PlanCommunityDto[]>>(endPoint).pipe(
+		return withSpinner(this._http).get<ODataResponse<PlanCommunityDto[]>>(endPoint).pipe(
 			switchMap(resp =>
 			{
 				const planComm = this.mapPlanCommunity(resp.value[0]);
@@ -114,7 +114,7 @@ export class PlanService
 
 		const url = `${environment.apiUrl}planCommunities?${encodeURIComponent('$')}expand=${encodeURIComponent(expand)}&${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}&${encodeURIComponent('$')}select=${encodeURIComponent(select)}`;
 
-		return this._http.get<ODataResponse<PlanCommunityDto[]>>(url).pipe(
+		return withSpinner(this._http).get<ODataResponse<PlanCommunityDto[]>>(url).pipe(
 			map(resp => !!resp.value.length ? resp.value[0].webSitePlanCommunityAssocs.map(p => p.webSitePlan.webSitePlanIntegrationKey) : []),
 			catchError(error =>
 			{
@@ -132,7 +132,7 @@ export class PlanService
 		const filter = `financialPlanIntegrationKey eq '${planKey}' and financialCommunityId eq ${financialCommunityId}`;
 		const url = `${environment.apiUrl}planCommunities?${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}`;
 
-		return this._http.get<ODataResponse<PlanCommunityDto[]>>(url).pipe(
+		return withSpinner(this._http).get<ODataResponse<PlanCommunityDto[]>>(url).pipe(
 			switchMap(resp =>
 			{
 				const plan = this.mapPlan(resp.value[0]);

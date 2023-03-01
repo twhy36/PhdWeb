@@ -8,7 +8,8 @@ import * as _ from 'lodash';
 
 import {
 	Job, JobChoice, JobChoiceAttribute, JobChoiceLocation,
-	ChangeOrderGroup, ChangeOrderChoice, ChangeOrderPlanOption, ChangeOrderChoiceLocation, ChangeOrderHanding
+	ChangeOrderGroup, ChangeOrderChoice, ChangeOrderPlanOption,
+	ChangeOrderChoiceLocation, ChangeOrderHanding, withSpinner
 } from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
@@ -22,7 +23,7 @@ export class ChangeOrderService
 	{
 		const url = environment.apiUrl + `GetTreeVersionIdByJobPlan(planId=${planId})`;
 
-		return this._http.get(url).pipe(
+		return withSpinner(this._http).get(url).pipe(
 			map(response =>
 			{
 				return response['value'] as number;

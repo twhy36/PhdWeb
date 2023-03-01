@@ -90,7 +90,7 @@ export class OptionService
 
 		const endPoint = environment.apiUrl + `${entity}?${encodeURIComponent('$')}expand=${encodeURIComponent(expand)}&${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}&${encodeURIComponent('$')}select=${encodeURIComponent(select)}`;
 
-		return this._http.get<ODataResponse<PlanOptionCommunityDto[]>>(endPoint).pipe(
+		return withSpinner(this._http).get<ODataResponse<PlanOptionCommunityDto[]>>(endPoint).pipe(
 			this.mapOptions(),
 			catchError(error =>
 			{

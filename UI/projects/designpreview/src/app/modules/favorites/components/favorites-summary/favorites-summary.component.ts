@@ -325,11 +325,11 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		const selectedSubGroup = subGroups.find(sg => sg.id === id);
 		if (selectedSubGroup)
 		{
-			this.router.navigate(['favorites', 'my-favorites', this.favoritesId, selectedSubGroup.subGroupCatalogId], { queryParams: { presale: sessionStorage.getItem('presale_token') } });
+			this.router.navigate(['favorites', 'my-favorites', this.favoritesId, selectedSubGroup.subGroupCatalogId], { queryParamsHandling: 'merge' });
 		}
 		else
 		{
-			this.router.navigate(['favorites', 'my-favorites', this.favoritesId], { queryParams: { presale: sessionStorage.getItem('presale_token') } });
+			this.router.navigate(['favorites', 'my-favorites', this.favoritesId], { queryParamsHandling: 'merge' });
 		}
 	}
 
@@ -369,7 +369,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		if (subGroup)
 		{
 			this.store.dispatch(new NavActions.SetSelectedSubgroup(point.subGroupId, point.id));
-			this.router.navigate(['favorites', 'my-favorites', this.favoritesId, subGroup.subGroupCatalogId], { queryParams: { presale: sessionStorage.getItem('presale_token') } });
+			this.router.navigate(['favorites', 'my-favorites', this.favoritesId, subGroup.subGroupCatalogId], { queryParamsHandling: 'merge' });
 		}
 	}
 

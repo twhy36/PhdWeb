@@ -14,25 +14,25 @@ export class LoggedInGuard implements CanActivate
 
 	canActivate(route: ActivatedRouteSnapshot)
 	{
-		if (sessionStorage.getItem('presale_issuer') && route.queryParams.presale)
+		if (route.queryParams.plan)
 		{
-			return sessionStorage.getItem('presale_issuer') === environment.authConfigs['presale'].issuer;
-		}
-		else if (!route.queryParams.presale)
-		{
-			//not presale, clear presale sessions
-			clearPresaleSessions();
-		}
-		if (!sessionStorage.getItem('authProvider'))
-		{
-			if (route.queryParams.presale)
+			if (sessionStorage.getItem('presale_issuer'))
 			{
-				return this.router.navigate(['presale'], { queryParams: { presale: route.queryParams.presale } });
+				return sessionStorage.getItem('presale_issuer') === environment.authConfigs['presale'].issuer;
 			}
 			else
 			{
-				return this.externalGuard.canActivate();
+				return this.router.navigate(['presale'], { queryParams: { plan: route.queryParams.plan } });
 			}
+		}
+		else
+		{
+			clearPresaleSessions();
+		}
+
+		if (!sessionStorage.getItem('authProvider'))
+		{
+			return this.externalGuard.canActivate();
 		}
 		return this.identityService.isLoggedIn;
 	}

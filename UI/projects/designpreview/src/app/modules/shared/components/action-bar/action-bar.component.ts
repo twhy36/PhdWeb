@@ -143,7 +143,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit
 
 		if (this.isPresale)
 		{
-			this.router.navigate(['presale'], { queryParams: { presale: sessionStorage.getItem('presale_token') } })
+			this.router.navigate(['presale'], { queryParamsHandling: 'merge' })
 		}
 		else if (this.isPreview)
 		{
@@ -170,7 +170,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit
 	onViewFavorites()
 	{
 		this.store.dispatch(new ScenarioActions.SetTreeFilter(null));
-		this.router.navigate(['favorites', 'summary'], { queryParams: { presale: sessionStorage.getItem('presale_token') } })
+		this.router.navigate(['favorites', 'summary'], { queryParamsHandling: 'merge' })
 	}
 
 	isEllipsisActive()

@@ -12,3 +12,15 @@ export class PresalePayload
  		}
 	}
 }
+
+export class PresaleAuthToken
+{
+	token: string;
+	type: string;
+}
+
+export class PresaleAuthTokenBody
+{
+	code: string;
+	source: string;
+}

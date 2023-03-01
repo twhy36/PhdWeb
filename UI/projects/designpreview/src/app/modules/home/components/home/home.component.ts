@@ -17,7 +17,6 @@ import { UnsubscribeOnDestroy, SalesAgreement, SubGroup, FloorPlanImage } from '
 import { BrandService } from '../../../core/services/brand.service';
 import { BuildMode } from '../../../shared/models/build-mode.model';
 import { ErrorFrom } from '../../../ngrx-store/error.action';
-import { setPresaleToken } from '../../../shared/classes/utils.class';
 
 @Component({
 	selector: 'home',
@@ -52,12 +51,6 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 
 	ngOnInit()
 	{
-		const presaleToken = this.activatedRoute.snapshot.queryParamMap.get('presale');
-		if (presaleToken && presaleToken.length)
-		{
-			setPresaleToken(presaleToken, true);
-		}
-
 		combineLatest([
 			this.activatedRoute.paramMap,
 			this.store.pipe(select(state => state.salesAgreement)),
@@ -218,11 +211,11 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 					const selectedSubGroup = subGroups.find(sg => sg.id === nav.selectedSubGroup);
 					if (selectedSubGroup)
 					{
-						this.router.navigate(['favorites', 'my-favorites', fav.selectedFavoritesId, selectedSubGroup.subGroupCatalogId], { queryParams: { presale: sessionStorage.getItem('presale_token') } })
+						this.router.navigate(['favorites', 'my-favorites', fav.selectedFavoritesId, selectedSubGroup.subGroupCatalogId], { queryParamsHandling: 'merge' })
 					}
 					else
 					{
-						this.router.navigate(['favorites', 'my-favorites', fav.selectedFavoritesId], { queryParams: { presale: sessionStorage.getItem('presale_token') } })
+						this.router.navigate(['favorites', 'my-favorites', fav.selectedFavoritesId], { queryParamsHandling: 'merge' })
 					}
 				}
 			}

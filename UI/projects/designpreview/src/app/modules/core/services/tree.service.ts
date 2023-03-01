@@ -149,7 +149,7 @@ export class TreeService
 		const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
 		const endPoint = `${environment.apiUrl}${entity}?${qryStr}`;
 
-		return this.http.get<Tree>(endPoint).pipe(
+		return withSpinner(this.http).get<Tree>(endPoint).pipe(
 			map(response =>
 			{
 				if (response)
@@ -412,7 +412,7 @@ export class TreeService
 				const headers = createBatchHeaders(guid, token);
 				const batch = createBatchBody(guid, requests);
 
-				return this.http.post(`${environment.apiUrl}$batch`, batch, { headers: headers });
+				return withSpinner(this.http).post(`${environment.apiUrl}$batch`, batch, { headers: headers });
 			}),
 			map((response: BatchResponse<DPChoiceDto[]>) =>
 			{

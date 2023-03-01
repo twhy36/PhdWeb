@@ -51,7 +51,7 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 		private identityService: IdentityService,
 		private brandService: BrandService,
 		private adobeService: AdobeService,
-		private navService: NavigationService,
+		private navService: NavigationService, // This needs to be initialized here to properly trace browser history
 		@Inject(DOCUMENT) private doc: Document) 
 	{
 		super();

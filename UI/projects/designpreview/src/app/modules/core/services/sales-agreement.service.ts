@@ -23,7 +23,7 @@ export class SalesAgreementService
 			//use access token to get sales agreement
 			const url = `${environment.apiUrl}GetUserSalesAgreement?${this._ds}select=id,status`;
 
-			return this._http.get<ODataResponse<SalesAgreement[]>>(url).pipe(
+			return withSpinner(this._http).get<ODataResponse<SalesAgreement[]>>(url).pipe(
 				map(dto => new SalesAgreement(dto.value[0])),
 				catchError(error =>
 				{
@@ -62,7 +62,7 @@ export class SalesAgreementService
 		const entity = `salesAgreementInfos(${salesAgreementId})`;
 		const endpoint = environment.apiUrl + entity;
 
-		return this._http.get<ISalesAgreementInfo>(endpoint).pipe(
+		return withSpinner(this._http).get<ISalesAgreementInfo>(endpoint).pipe(
 			map(dto => new SalesAgreementInfo(dto)),
 			defaultOnNotFound('getSalesAgreementInfo', new SalesAgreementInfo())
 		);

@@ -59,7 +59,7 @@ export class BlockedItemComponent extends UnsubscribeOnDestroy implements OnInit
 			const subGroup = this.subGroups.find(sg => !!sg.points.find(p => p.id === pointId))
 	
 			this.store.dispatch(new NavActions.SetSelectedSubgroup(subGroup.id, pointId, null));
-			this.router.navigate(['favorites', 'my-favorites', this.myFavoriteId, subGroup.subGroupCatalogId], { queryParams: { presale: sessionStorage.getItem('presale_token') } })
+			this.router.navigate(['favorites', 'my-favorites', this.myFavoriteId, subGroup.subGroupCatalogId], { queryParamsHandling: 'merge' })
 	
 			//Scroll to selected blocked point if same blocked point selected and change event not triggered
 			if (this.currentSelectedPointId && this.currentSelectedPointId === pointId)

@@ -14,8 +14,8 @@ export class InternalGuard implements CanActivate
 
 	canActivate(route: ActivatedRouteSnapshot)
 	{
-		//clear presale sessions when switching from presale to others mode internal access
-		if (sessionStorage.getItem('authProvider')?.includes('presale') && !route.url.toString().includes('presale'))
+		// clear presale sessions when switching from presale to others mode internal access
+		if (sessionStorage.getItem('authProvider')?.includes('presale') && !route.url.toString().includes('plan'))
 		{
 			clearPresaleSessions();
 		}
@@ -32,7 +32,7 @@ export class InternalGuard implements CanActivate
 				if (!loggedIn)
 				{
 					this.identityService.login({ provider: 'azureAD' });
-					return false; //redirect to access denied if error?
+					return false; // redirect to access denied if error?
 				}
 
 				return true;
