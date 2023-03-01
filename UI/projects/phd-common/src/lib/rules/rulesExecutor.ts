@@ -9,7 +9,6 @@ import { isChoiceAttributesComplete } from '../utils/utils.class';
 
 import * as _ from 'lodash';
 import { TimeOfSaleOptionPrice } from '../models/time-of-sale-option-price.model';
-import { DecisionPointFilterType } from '../models/decisionPointFilter';
 
 export function findPoint(tree: Tree, predicate: (point: DecisionPoint) => boolean)
 {
@@ -74,13 +73,8 @@ export function selectChoice(tree: Tree, selectedChoice: number)
 export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOption[], lotId: number = 0, timeOfSaleOptionPrices: TimeOfSaleOptionPrice[] = [])
 {
 	let points = _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points)).filter(x => x.treeVersionId === tree.treeVersion.id);
-
-	// #384993 Find any selected choices as part of a removed DP
-	// Any DP with a TreeVersionId that does not match the current tree is considered removed
-	let oldPoints = _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points)).filter(x => x.treeVersionId !== tree.treeVersion.id);
-
 	let choices = _.flatMap(points, p => p.choices).filter(x => x.treeVersionId === tree.treeVersion.id);
-	let treeChoices = _.flatMap(points.concat(oldPoints), p => p.choices);
+	let treeChoices = _.flatMap(points, p => p.choices);
 
 	let find = id => choices.find(ch => ch.id === id);
 
@@ -723,18 +717,12 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 		{
 			for (let i = choice.lockedInOptions.length - 1; i >= 0; i--)
 			{
-				const filteredOptRules = rules.optionRules.filter(optRule => optRule.replaceOptions?.length
+				const filteredOptRules = rules.optionRules.filter(optRule => optRule.replaceOptions && optRule.replaceOptions.length
 					&& optRule.replaceOptions.includes(choice.lockedInOptions[i].optionId)
-					&& optRule.choices.every(c => (c.mustHave && choices.find(ch => ch.id === c.id && ch.quantity))
-						|| (!c.mustHave && choices.find(ch => ch.id === c.id && !ch.quantity)))
-					// #389738
-					// If a replacing option is locked in to a choice, disregard this replace rule
-					// since the rule may have been added to the tree after the agreement
-					&& optRule.choices.some(c => !find(c.id)?.lockedInOptions?.map(lio => lio.optionId).includes(optRule.optionId))
-				);
+					&& optRule.choices.every(c => (c.mustHave && choices.find(ch => ch.id === c.id && ch.quantity) || (!c.mustHave && choices.find(ch => ch.id === c.id && !ch.quantity)))));
 
 				// If the entire option rule is satisfied (Must Have's are all selected, Must Not Have's are all deselected), then remove the lockedInOption
-				if (filteredOptRules?.length) 
+				if (filteredOptRules && filteredOptRules.length) 
 				{
 					const removedMapping = choice.lockedInOptions.splice(i, 1);
 
@@ -797,69 +785,88 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 		// If this choice has an option that replaces another,
 		// and that option is not currently on the configuration,
 		// this choice must be disabled
-		if (!choice.lockedInChoice && !choice.quantity)
+
+		// Find mapped options on this choice
+		const optionRules = rules.optionRules.filter(o => o.choices.map(c => c.id).includes(choice.id));
+		const choiceOptionNumbers = choice.options?.map(o => o.financialOptionIntegrationKey) || [];
+		const mappedOptionRules = optionRules.filter(o => choiceOptionNumbers.includes(o.optionId));
+
+		// Find all other choices which must have this choice, and exclude those from affecting whether this choice is disabled
+		const excludedChoiceRules = _.flatMap(rules.choiceRules.filter(cr => _.flatMap(cr.rules.filter(r => r.ruleType === 1), r => r.choices).includes(choice.id)), cr => cr.choiceId);
+
+		const pointForChoice = points.find(pt => pt.choices.some(c => c.id === choice.id));
+		const pointChoices = pointForChoice.choices.map(c => c.id);
+
+		// Find replaced options on the mapped options
+		const replacedOptions = _.flatMap(mappedOptionRules, r => r.replaceOptions);
+
+		// In the case of multiple replaced options, if any one option is already on the configuration, disregard this
+		if (!replacedOptions.some(ro =>
 		{
-			const optionRules = rules.optionRules.filter(or => or.replaceOptions?.length > 0 && getMaxSortOrderChoice(tree, or.choices.filter(c => c.mustHave).map(c => c.id)) === choice.id)
-				.filter(or => choice.options.some(o => o.financialOptionIntegrationKey === or.optionId));
-			const pointForChoice = points.find(pt => pt.choices.some(c => c.id === choice.id));
-			const pointChoices = pointForChoice.choices.map(ch => ch.id);
+			const mappedChoices = _.flatMap(rules.optionRules.filter(o => o.optionId === ro), r => r.choices).filter(c => !excludedChoiceRules.includes(c.id));
 
-			//if an option replaces another option from the same DP, this is an invalid setup
-			if (optionRules.some(or => or.replaceOptions.some(replaceOption =>
-			{
-				const origOptionRule = rules.optionRules.find(or2 => or2.optionId === replaceOption);
-				const origChoice = getMaxSortOrderChoice(tree, origOptionRule.choices.filter(ch => ch.mustHave).map(ch => ch.id));
-				return pointChoices.some(pc => pc === origChoice);
-			})))
-			{
-				choice.disabledByBadSetup = true;
-			}
+			// Determine if this option has been replaced by another selection/rule (issue 380127)
+			const replacedByOther = _.flatMap(rules.optionRules.filter(o => o.replaceOptions.includes(ro)), r => r.choices)
+				.filter(ch => choice.id !== ch.id && !mappedChoices.map(mc => mc.id).includes(ch.id))
+				.some(ch => (ch.mustHave && find(ch.id).quantity) || (!ch.mustHave && !find(ch.id).quantity));
 
-			function replaceRuleSatisfied(optionRule: OptionRule)
+			return !mappedChoices.filter(mc => (pointChoices.includes(mc.id) && ((mc.mustHave && find(mc.id).quantity) || (!mc.mustHave && !find(mc.id).quantity)))
+				|| ((!mc.mustHave && find(mc.id).quantity) || (mc.mustHave && !find(mc.id).quantity))).length
+				&& !replacedByOther;
+		}))
+		{
+			replacedOptions.forEach(ro =>
 			{
-				return optionRule.replaceOptions.every(replaceOption =>
+				const mappedChoices = _.flatMap(rules.optionRules.filter(o => o.optionId === ro), r => r.choices).filter(c => !excludedChoiceRules.includes(c.id));
+
+				const otherChoices = _.flatMap(rules.optionRules.filter(o => o.replaceOptions.includes(ro)), r => r.choices)
+					.filter(ch => choice.id !== ch.id
+						&& !mappedChoices.map(mc => mc.id).includes(ch.id)
+						&& ((ch.mustHave && find(ch.id).quantity)
+							|| (!ch.mustHave && !find(ch.id).quantity)));
+
+				choice.disabledByReplaceRules = _.uniq(mappedChoices.filter(mc => (pointChoices.includes(mc.id) && ((mc.mustHave && find(mc.id).quantity) || (!mc.mustHave && !find(mc.id).quantity)))
+					|| ((!mc.mustHave && find(mc.id).quantity) || (mc.mustHave && !find(mc.id).quantity)))
+					.concat(otherChoices))
+					// Filter out any choices that are about to be selected/deselected
+					.filter(ch => ((!ch.mustHave && find(ch.id).quantity)
+						|| (ch.mustHave && !find(ch.id).quantity))).map(ch => ch.id);
+
+				// #381876
+				// If this choice's point is a Pick1 and another choice is already selected,
+				// and multiple choices on this DP have options that replace the same option on another DP,
+				// ignore that "replaced" choice being disabled by replace rules
+				if ([PickType.Pick1, PickType.Pick1ormore].indexOf(pointForChoice.pointPickTypeId) !== -1)
 				{
-					//if we have a selected choice with the replaced option, we're good
-					if (choices.some(ch => ch.quantity && (ch.options.some(o => o.financialOptionIntegrationKey === replaceOption) || ch.lockedInOptions?.some(o => o.optionId === replaceOption))))
-					{
-						return true;
-					}
+					const selectedChoices = pointForChoice.choices.filter(c => c.quantity > 0 && c.id !== choice.id);
 
-					const replaceChoice = choices.find(ch =>
-						ch.quantity
-						&& (
-							ch.lockedInOptions && ch.lockedInOptions.length
-								? _.flatten(ch.lockedInOptions.filter(o => o.replaceOptions?.length).map(o => o.replaceOptions)).some(ro => ro === replaceOption)
-								: _.flatten(ch.options.map(o => rules.optionRules.find(or => or.optionId === o.financialOptionIntegrationKey && or.replaceOptions.some(ro => ro === replaceOption)))
-								)));
-					if (replaceChoice)
+					if (selectedChoices && selectedChoices.length)
 					{
-						const pointIsInPick1 = [PickType.Pick1, PickType.Pick1ormore].indexOf(pointForChoice.pointPickTypeId) !== -1;
-						const replaceChoiceInSameDP = pointChoices.includes(replaceChoice.id);
-
-						if (!pointIsInPick1 && !replaceChoiceInSameDP)
+						// Determine which choices have options being replaced by the selected choice,
+						// and remove any of those from the choices from this choice's disabledByReplaceRules list
+						selectedChoices.forEach(sc =>
 						{
-							choice.disabledByBadSetup = true;
-						}
+							const replacedOptionsForSelectedChoice = _.uniq(_.flatMap(rules.optionRules.filter(o => sc.options.map(sco => sco.financialOptionIntegrationKey.includes(o.optionId))), r => r.replaceOptions));
+							const replacedChoices = choices.filter(ch => ch.options.map(o => o.financialOptionIntegrationKey).some(cho => replacedOptionsForSelectedChoice.includes(cho))).map(ch => ch.id);
 
-						return true;
+							choice.disabledByReplaceRules = choice.disabledByReplaceRules.filter(rc => replacedChoices.includes(rc));
+						});
 					}
+				}
 
-					return false;
-				});
-			}
 
-			const unsatisfiedReplaceRules = optionRules.filter(or => !replaceRuleSatisfied(or));
+				// If this choice becomes disabled, deselect it, but only if the choice is not already locked in
+				if (choice.disabledByReplaceRules?.length && !choice.lockedInChoice)
+				{
+					choice.quantity = 0;
 
-			choice.disabledByReplaceRules = _.flatten(unsatisfiedReplaceRules.map(rr => rr.replaceOptions))
-				.map(rr => rules.optionRules.find(or => or.optionId === rr))
-				.map(or => getMaxSortOrderChoice(tree, or.choices.filter(ch => ch.mustHave && !find(ch.id).quantity).map(ch => ch.id)))
-				.filter(ch => !!ch);
-
-			if (!choice.lockedInChoice && (choice.disabledByReplaceRules?.length || choice.disabledByBadSetup))
-			{
-				choice.quantity = 0;
-			}
+					// If any choices with options being replaced exist within the same DP or elsewhere, there is a setup issue (user error)
+					if (otherChoices.filter(oc => !choice.disabledByReplaceRules.includes(oc.id)).length || points.find(pt => pt.choices.some(c => c.id === choice.id) && pt.choices.some(c => choice.disabledByReplaceRules.includes(c.id))))
+					{
+						choice.disabledByBadSetup = true;
+					}
+				}
+			});
 		}
 
 		// #367382
@@ -871,34 +878,10 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 			{
 				const choicesWithLockedInOpt = choices.filter(ch => ch.lockedInOptions.find(lio => lio.optionId === opt.financialOptionIntegrationKey) && ch.id !== choice.id).map(ch => ch.id);
 
-				if (choicesWithLockedInOpt?.length)
+				if (choicesWithLockedInOpt)
 				{
 					choice.disabledByRelocatedMapping = choice.disabledByRelocatedMapping.concat(choicesWithLockedInOpt);
 				}
-
-				// #384993
-				// Handles a mapping change on a replace option, between tree versions
-				const optionsReplacedByThisOpt = _.flatMap(choice.lockedInOptions.filter(lio => lio.optionId === opt.financialOptionIntegrationKey), lio => lio.replaceOptions);
-				const choicesWithReplacedOpt = choices.filter(ch => ch.options.find(chOpt => optionsReplacedByThisOpt.includes(chOpt.financialOptionIntegrationKey)));
-				choicesWithReplacedOpt.forEach(ch =>
-				{
-					const optionsOnChoice = ch.options.map(o => o.id);
-					optionsOnChoice.forEach(chOpt =>
-					{
-						// Get the choice from the previous tree
-						const timeOfSaleDivChoiceCatalogId = timeOfSaleOptionPrices.find(tos => chOpt === tos.edhPlanOptionID).divChoiceCatalogID;
-
-						if (timeOfSaleDivChoiceCatalogId)
-						{
-							const oldChoice = treeChoices.find(tc => tc.divChoiceCatalogId === timeOfSaleDivChoiceCatalogId)?.id;
-
-							// Find the current version of the choice to disable it until the "old" choice is deselected
-							const choiceToDisable = choices.find(c => ch.divChoiceCatalogId === c.divChoiceCatalogId);
-
-							choiceToDisable.disabledByRelocatedMapping = choiceToDisable.disabledByRelocatedMapping.concat(oldChoice);
-						}
-					});
-				});
 			}
 		});
 
@@ -1027,40 +1010,25 @@ export function setPointStatus(point: DecisionPoint)
 	}
 }
 
-function getFilteredPoint(p: DecisionPoint, selectedPointFilter: DecisionPointFilterType)
+export function setSubgroupStatus(subGroup: SubGroup)
 {
-	switch (selectedPointFilter)
-	{
-		case DecisionPointFilterType.QUICKQUOTE:
-			return p.isQuickQuoteItem;
-		case DecisionPointFilterType.DESIGN:
-			return !p.isStructuralItem;
-		case DecisionPointFilterType.STRUCTURAL:
-			return p.isStructuralItem;
-		default: // if filter type not provided, assume FULL
-			return p;
-	}
-}
-
-export function setSubgroupStatus(subGroup: SubGroup, selectedPointFilter?: DecisionPointFilterType)
-{
-	if (!subGroup.points || subGroup.points.filter(p => getFilteredPoint(p, selectedPointFilter)).every(p => !p.enabled))
+	if (!subGroup.points || subGroup.points.every(p => !p.enabled))
 	{
 		subGroup.status = PointStatus.CONFLICTED;
 	}
-	else if (subGroup.points.filter(p => getFilteredPoint(p, selectedPointFilter)).some(p => p.status === PointStatus.REQUIRED))
+	else if (subGroup.points.some(p => p.status === PointStatus.REQUIRED))
 	{
 		subGroup.status = PointStatus.REQUIRED;
 	}
-	else if (subGroup.points.filter(p => getFilteredPoint(p, selectedPointFilter)).some(p => p.status === PointStatus.PARTIALLY_COMPLETED))
+	else if (subGroup.points.some(p => p.status === PointStatus.PARTIALLY_COMPLETED))
 	{
 		subGroup.status = PointStatus.PARTIALLY_COMPLETED;
 	}
-	else if (subGroup.points.filter(p => getFilteredPoint(p, selectedPointFilter)).every(p => p.status === (PointStatus.COMPLETED) || p.status === (PointStatus.CONFLICTED)))
+	else if (subGroup.points.every(p => p.status === (PointStatus.COMPLETED) || p.status === (PointStatus.CONFLICTED)))
 	{
 		subGroup.status = PointStatus.COMPLETED;
 	}
-	else if (subGroup.points.filter(p => getFilteredPoint(p, selectedPointFilter)).every(p => p.viewed || p.status === (PointStatus.CONFLICTED)))
+	else if (subGroup.points.every(p => p.viewed || p.status === (PointStatus.CONFLICTED)))
 	{
 		subGroup.status = PointStatus.VIEWED;
 	}

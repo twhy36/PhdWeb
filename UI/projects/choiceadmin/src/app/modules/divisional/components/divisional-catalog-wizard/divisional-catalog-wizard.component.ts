@@ -10,10 +10,8 @@ import { DivisionalCatalogWizardService, IDivCatWizChoice } from '../../services
 import { WizardTemplateComponent } from '../../../shared/components/wizard-template/wizard-template.component';
 import { TreeService } from '../../../core/services/tree.service';
 import { flatMap } from 'rxjs/operators';
-import { of, combineLatest } from 'rxjs';
+import { of } from 'rxjs';
 import { bind } from '../../../shared/classes/decorators.class';
-
-import * as _ from 'lodash';
 
 @Component({
 	selector: 'divisional-catalog-wizard',
@@ -141,22 +139,15 @@ export class DivisionalCatalogWizardComponent implements OnInit, OnDestroy
 	@bind
 	complete()
 	{
-		// split data into a max of 6 calls, 6 being the max concurrent requests to the same domain allowed. 
-		let planGroups = _.chunk(this.wizardService.selectedPlans, Math.ceil(this.wizardService.selectedPlans.length / 6));
-
-		let requests = planGroups.map(planGroup => this._treeService.muChoiceUpdate(planGroup, this.wizardService.selectedChoices));
-
-		return combineLatest(requests).pipe(
+		return this._treeService.muChoiceUpdate(this.wizardService.selectedPlans, this.wizardService.selectedChoices).pipe(
 			flatMap(selectedPlans =>
 			{
-				// combine results into one array
-				this.wizardService.selectedPlans = _.flatMap(selectedPlans, sp => sp);
+				this.wizardService.selectedPlans = selectedPlans;
 
 				this.wizardService.saveSelectedPlans();
 
 				return of(true);
-			})
-		);
+			}));
 	}
 
 	error($event)

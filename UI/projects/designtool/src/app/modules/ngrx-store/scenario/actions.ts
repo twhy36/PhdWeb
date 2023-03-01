@@ -3,8 +3,10 @@ import { Action } from '@ngrx/store';
 import
 {
 	DesignToolAttribute, SalesCommunity, ChangeOrderHanding, JobChoice, Job, LotExt, PlanOption,
-	TreeVersionRules, Scenario, DtoScenarioInfo, TreeFilter, Tree, OptionImage, Choice, Log, TimeOfSaleOptionPrice, LotChoiceRules, DecisionPointFilterType
+	TreeVersionRules, Scenario, DtoScenarioInfo, TreeFilter, Tree, OptionImage, Choice, Log, TimeOfSaleOptionPrice, LotChoiceRules
 } from 'phd-common';
+
+import { DecisionPointFilterType } from '../../shared/models/decisionPointFilter';
 
 import { ErrorAction } from '../error.action';
 import { LoadScenario, ScenarioLoaded, SalesAgreementLoaded, JobLoaded } from '../actions';

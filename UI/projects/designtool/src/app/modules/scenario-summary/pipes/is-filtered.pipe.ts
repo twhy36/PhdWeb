@@ -1,6 +1,7 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
-import { DecisionPoint, PointStatusFilter } from 'phd-common';
+import { DecisionPoint } from 'phd-common';
+import { PointStatusFilter } from '../../shared/models/decisionPointFilter';
 
 @Pipe({
 	name: 'isFiltered',

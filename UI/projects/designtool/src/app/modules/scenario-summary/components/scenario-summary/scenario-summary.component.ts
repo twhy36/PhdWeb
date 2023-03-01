@@ -10,12 +10,12 @@ import { ToastrService } from 'ngx-toastr';
 import * as _ from 'lodash';
 
 import
-{
-	UnsubscribeOnDestroy, blink, ChangeOrderHanding, ChangeTypeEnum, ChangeOrderChoice, PlanOption,
-	PointStatus, SelectedChoice, PriceBreakdown, ScenarioStatusType, SummaryData, BuyerInfo, SummaryReportType,
-	SDGroup, SDSubGroup, SDPoint, SDChoice, SDImage, SDAttributeReassignment, Group, Choice, DecisionPoint,
-	PDFViewerComponent, ModalService, SubGroup, TreeFilter, FloorPlanImage, PointStatusFilter, DecisionPointFilterType
-} from 'phd-common';
+	{
+		UnsubscribeOnDestroy, blink, ChangeOrderHanding, ChangeTypeEnum, ChangeOrderChoice, PlanOption,
+		PointStatus, SelectedChoice, PriceBreakdown, ScenarioStatusType, SummaryData, BuyerInfo, SummaryReportType,
+		SDGroup, SDSubGroup, SDPoint, SDChoice, SDImage, SDAttributeReassignment, Group, Choice, DecisionPoint,
+		PDFViewerComponent, ModalService, SubGroup, TreeFilter, FloorPlanImage
+	} from 'phd-common';
 
 import { environment } from '../../../../../environments/environment';
 
@@ -32,6 +32,8 @@ import { ScenarioService } from '../../../core/services/scenario.service';
 import { JobService } from '../../../core/services/job.service';
 import { ChangeOrderService } from '../../../core/services/change-order.service';
 import { ModalOverrideSaveComponent } from '../../../core/components/modal-override-save/modal-override-save.component';
+
+import { PointStatusFilter, DecisionPointFilterType } from '../../../shared/models/decisionPointFilter';
 
 import * as JobActions from '../../../ngrx-store/job/actions';
 
