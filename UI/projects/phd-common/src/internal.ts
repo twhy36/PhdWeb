@@ -46,7 +46,6 @@ export * from './lib/models/tree.model';
 export * from './lib/models/feature-switch.model';
 export * from './lib/models/org.model';
 export * from './lib/models/color.model';
-export * from './lib/models/decisionPointFilter';
 
 export * from './lib/extensions/withSpinner.extension';
 
