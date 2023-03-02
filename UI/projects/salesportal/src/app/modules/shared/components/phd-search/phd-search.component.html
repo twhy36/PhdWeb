@@ -232,7 +232,7 @@
 
 							<!--Otherwise loop through sales agreements if any-->
 							<div *ngFor="let agreement of lot.salesAgreements">
-								<a href="{{getSalesAgreementLink(agreement)}}" target="_blank" *ngIf="agreement && agreement.salesAgreementNumber && agreement.isOnFinalLot" [attr.title]="agreement.salesAgreementNumber">
+								<a href="{{getSalesAgreementLink(agreement)}}" target="_blank" *ngIf="shouldDisplayAgreement(lot, agreement)" [attr.title]="agreement.salesAgreementNumber">
 									{{agreement.salesAgreementNumber}} - {{ agreement.isLockedIn ? 'Ready to Close' : agreement.status }}
 								</a>
 							</div>
