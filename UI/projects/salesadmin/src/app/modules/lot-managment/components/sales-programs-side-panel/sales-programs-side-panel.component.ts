@@ -71,7 +71,18 @@ export class SalesProgramsSidePanelComponent implements OnInit
 
 	get canSave(): boolean
 	{
-		return this.releaseForm.pristine || !this.releaseForm.valid || this.saving || this.releaseForm.get('name')?.value?.indexOf('Quick Move-in Incentive') > -1 ;
+		return this.releaseForm.pristine || !this.releaseForm.valid || this.saving || this.validateIfSpecDiscount();
+	}
+
+	//Check to see if the name of the Sales Program contains 'Quick Move In Incentive'
+	validateIfSpecDiscount(): boolean
+	{
+		const hasQuick = this.releaseForm.get('name')?.value?.toLowerCase()?.indexOf('quick') > -1;
+		const hasMove = this.releaseForm.get('name')?.value?.toLowerCase()?.indexOf('move') > -1;
+		const hasIn = this.releaseForm.get('name')?.value?.toLowerCase()?.indexOf('in') > -1;
+		const hasIncentive = this.releaseForm.get('name')?.value?.toLowerCase()?.indexOf('incentive') > -1;
+
+		return hasQuick && hasMove && hasIn && hasIncentive;
 	}
 
 	convertDate(date)
@@ -119,7 +130,6 @@ export class SalesProgramsSidePanelComponent implements OnInit
 		else if (this.isQMIIncentive)
 		{
 			this.releaseForm.get('salesProgramType').disable();
-			this.releaseForm.get('maximumAmount').disable();
 			this.releaseForm.get('name').disable();
 			this.releaseForm.get('startDate').disable();
 			this.releaseForm.get('endDate').disable();
