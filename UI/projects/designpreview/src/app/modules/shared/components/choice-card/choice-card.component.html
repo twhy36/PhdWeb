@@ -27,15 +27,15 @@
 					<i class="fa fa-check phd-icon-selected"></i>
 				</ng-container>
 				<ng-container *ngIf="choice.choiceStatus === 'Available' && choice.enabled">
-					<div class="phd-clickable" (click)="$event.stopPropagation()">
+					<button class="phd-clickable" (click)="$event.stopPropagation()">
 						<span class="phd-icon-selected"><i *ngIf="choice.isFavorite" class="fa fa-heart" (click)="toggleChoice()"></i></span>
 						<i *ngIf="!choice.isFavorite" class="fa fa-heart-o" (click)="toggleChoice()"></i>
-					</div>
+					</button>
 				</ng-container>
 				<ng-container *ngIf="choice.choiceStatus === 'Available' && !choice.enabled">
-					<div class="phd-clickable" (click)="$event.stopPropagation()">
+					<button class="phd-clickable" (click)="$event.stopPropagation()">
 						<i class="fa fa-ban" (click)="openBlockedChoiceModal()"></i>
-					</div>
+					</button>
 				</ng-container>
 			</div>
 		</div>
