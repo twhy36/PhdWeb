@@ -128,7 +128,6 @@ export class AttributeLocationComponent implements OnInit, OnChanges
 		}
 		else
 		{
-			this.locationQuantityTotal = null;
 			this.displayMaxQuantityModal();
 		}
 	}
