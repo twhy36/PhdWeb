@@ -341,10 +341,9 @@ export class CommonEffects
 						: '';
 					const errMsg = (<ErrorAction>errorScan.err).friendlyMessage ? (<ErrorAction>errorScan.err).friendlyMessage : '';
 					let errFrom = (<ErrorAction>errorScan.err).errFrom ? (<ErrorAction>errorScan.err).errFrom : '';
-					const errName = err.error?.name?.toLowerCase();
 					const timeoutErrName = TimeoutError?.name?.toLowerCase().replace('impl', '');
 
-					if ((errName && timeoutErrName && errName.includes(timeoutErrName)) || httpError.status === 408)
+					if (httpError.status === 408)
 					{
 						errFrom = timeoutErrName;
 					}
