@@ -26,6 +26,7 @@ import { FavoriteService } from '../core/services/favorite.service';
 import { State, showSpinner } from './reducers';
 import { setTreePointsPastCutOff, mergeIntoTree } from '../shared/classes/tree.utils';
 import { DesignPreviewError } from '../shared/models/error.model';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Injectable()
 export class CommonEffects
@@ -334,6 +335,7 @@ export class CommonEffects
 				if (errorScan.err)
 				{
 					const err = errorScan.err as LoadError
+					const httpError = err.error as HttpErrorResponse;
 					const errStack = (<ErrorAction>errorScan.err).error ?
 						((<ErrorAction>errorScan.err).error.stack ? (<ErrorAction>errorScan.err).error.stack : JSON.stringify((<ErrorAction>errorScan.err).error))
 						: '';
@@ -342,7 +344,7 @@ export class CommonEffects
 					const errName = err.error?.name?.toLowerCase();
 					const timeoutErrName = TimeoutError?.name?.toLowerCase().replace('impl', '');
 
-					if (errName && timeoutErrName && errName.includes(timeoutErrName))
+					if ((errName && timeoutErrName && errName.includes(timeoutErrName)) || httpError.status === 408)
 					{
 						errFrom = timeoutErrName;
 					}
