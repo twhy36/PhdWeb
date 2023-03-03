@@ -28,9 +28,18 @@ export class LotService
 		return withSpinner(this._http).get(url).pipe(
 			map(response =>
 			{
-				const lotsDto = (response['value'] as Array<LotExt>);
+				let lotsDto = (response['value'] as Array<LotExt>);
+				lotsDto.forEach(lot => {
+					lot.city = lot.city.trim();
+					lot.postalCode = lot.postalCode.trim();
+					lot.stateProvince = lot.stateProvince.trim();
+					lot.streetAddress1 = lot.streetAddress1.trim();
+					lot.streetAddress2 = lot.streetAddress2.trim();
+				})
 
-				return lotsDto.length ? new LotExt(lotsDto[0]) : null;
+				const lotsDtoFormatted = lotsDto;
+
+				return lotsDtoFormatted.length ? new LotExt(lotsDtoFormatted[0]) : null;
 			}),
 			catchError(error =>
 			{
