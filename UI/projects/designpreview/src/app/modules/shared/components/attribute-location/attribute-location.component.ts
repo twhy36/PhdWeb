@@ -165,6 +165,7 @@ export class AttributeLocationComponent implements OnInit, OnChanges
 			if (!this.locationQuantityTotal && !existingAttribute)
 			{
 				this.locationQuantityTotal = 1;
+				this.quantityChangeHandler(1);
 			}
 
 			this.toggleAttribute.emit({
