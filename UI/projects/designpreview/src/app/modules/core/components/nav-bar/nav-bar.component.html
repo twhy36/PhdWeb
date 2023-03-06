@@ -1,9 +1,9 @@
 <nav (window:resize)="onResize($event)" id="phd-nav-bar" class="navbar fixed-top navbar-expand-md">
 	<div class="d-flex container-fluid phd-mobile-header">
 		<div class="d-flex flex-row align-items-flex-start justify-content-space-between">
-			<div class="phd-nav-bar-header phd-clickable">
+			<a class="phd-nav-bar-header phd-clickable">
 				<img id="homeLogo" class="phd-logo" [src]="getImageSrc()" alt="Pulte Homes" (click)="onHomePage()">
-			</div>
+			</a>
 			<h1 class="d-flex flex-column phd-nav-bar-title" [ngClass]="getBrandedTitle()">
 				<span class="phd-nav-bar-label">Design Preview</span>
 				<span class="phd-nav-bar-config">{{welcomeText}}</span>
@@ -49,10 +49,10 @@
 				</a>
 			</ul>
 		</div>
-		<div class="phd-menu-bars" [ngClass]="getBrandedMenuClass(true)" *ngIf="displayBrandedMenu">
+		<button class="phd-menu-bars" [ngClass]="getBrandedMenuClass(true)" *ngIf="displayBrandedMenu">
 			<i *ngIf="isMenuCollapsed" class="fa fa-bars fa-2x" (click)="isMenuCollapsed = !isMenuCollapsed"></i>
 			<i *ngIf="!isMenuCollapsed" class="fa fa-times fa-2x" (click)="isMenuCollapsed = !isMenuCollapsed"></i>
-		</div>
+		</button>
 	</div>
 </nav>
 

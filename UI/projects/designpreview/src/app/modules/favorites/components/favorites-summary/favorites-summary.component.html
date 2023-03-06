@@ -68,12 +68,12 @@
 					<div class="group ifp-group">
 						<div class="phd-floorplan-image-section">
 							<div *ngIf="!isPresale" class="phd-choice-expand d-flex flex-row">
-								<div (click)="toggleCollapsed()">
+								<button class="phd-expendable-circle" (click)="toggleCollapsed()">
 									<span *ngIf="!showFloorplan"><i
 											class="fa fa-fw phd-clickable fa-chevron-circle-right"></i></span>
 									<span *ngIf="showFloorplan"><i
 											class="fa fa-fw phd-clickable fa-chevron-circle-down"></i></span>
-								</div>
+								</button>
 								<div class="label">floorplan image</div>
 							</div>
 							<div *ngIf="isPresale" class="label">floorplan image</div>

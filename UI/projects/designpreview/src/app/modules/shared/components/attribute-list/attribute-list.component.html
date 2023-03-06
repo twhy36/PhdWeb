@@ -1,6 +1,6 @@
 <div class="phd-attribute-list" [style.padding-top]="isBlocked && isLocationAttribute ? '15px': '0px'">
 	<ng-container *ngFor="let attribute of attributes">
-		<div class="phd-attribute-item">
+		<button class="phd-attribute-item">
 			<cl-image public-id="{{getImageSrc(attribute)}}" title="{{attribute.name}}" type="fetch"
 				crop="fill" height="80" width="80" (click)="clickAttributeClick(attribute)" (onError)="onLoadImageError($event)" 
 				class="phd-attribute-item-image"
@@ -9,7 +9,7 @@
 			<span class="phd-attribute-name" title="{{attribute.name}}" (click)="clickAttributeClick(attribute)">
 				{{attribute.name}}
 			</span>
-			<div class="phd-attribute-selector">
+			<button class="phd-attribute-selector">
 				<ng-container *ngIf="attribute.attributeStatus === 'Contracted'">
 					<i class="fa fa-check phd-icon-selected"></i>
 				</ng-container>
@@ -19,7 +19,7 @@
 						<i *ngIf="!attribute.isFavorite" class="fa fa-heart-o" (click)="clickToggleAttribute(attribute)"></i>
 					</div>			
 				</ng-container>	
-			</div>		
-		</div>
+			</button>		
+		</button>
 	</ng-container>
 </div>

@@ -4,6 +4,11 @@
 	color: var(--primary-icon-color);
 	font-size: 16px;
 	margin-right: 8px;
+	display: inline-flex;
+	align-items: flex-start;
+	background: none;
+	border: none;
+	padding: 0;
 
 	i::before {
 		font-weight: 1000 !important;

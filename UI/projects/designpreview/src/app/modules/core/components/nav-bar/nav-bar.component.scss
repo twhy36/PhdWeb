@@ -10,6 +10,7 @@
 	.phd-nav-bar-header {
 		display: inline-block;
 		height: 50px;
+		padding: 0;
 
 		.phd-logo {
 			margin-top: var(--logo-margin-top);
@@ -70,6 +71,10 @@
 	.phd-menu-bars {
 		display: inline;
 		color: var(--nav-bar-text-color);
+		background: none;
+		border: none;
+		margin: 0;
+		padding: 0;	
 
 		.fa-bars {
 			margin-right: 0px;

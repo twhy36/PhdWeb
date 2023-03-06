@@ -5,12 +5,12 @@
 		<div class="phd-choice">
 			<ng-container *ngFor="let choice of choicesCustom">
 				<div class="phd-choice-detail phd-choice-detail-presale-print" *ngIf="choice.quantity > 0">
-					<div class="phd-choice-expand">
+					<button class="phd-choice-expand">
 						<div (click)="toggleCollapsed(choice)" *ngIf="choice.hasMappedAttributes">
 							<span *ngIf="!choice.showAttributes"><i class="fa fa-fw phd-clickable fa-chevron-circle-right"></i></span>
 							<span *ngIf="choice.showAttributes"><i class="fa fa-fw phd-clickable fa-chevron-circle-down"></i></span>
 						</div>
-					</div>
+					</button>
 
 					<div [ngClass]="{'phd-choice-header': !isPresale, 'phd-choice-header-presale phd-choice-header-presale-print': isPresale}">
 						<span>{{ choice.label }}</span>
@@ -59,9 +59,9 @@
 							</span>
 						</ng-container>
 						<div *ngIf="!contractedOptionsPage" class="actions actionLinks phd-hide-from-print">
-							<button type="button" class="btn ml-auto btn-secondary phd-view-button" (click)="onViewOrEdit()">
+							<a class="btn ml-auto btn-secondary phd-view-button" (click)="onViewOrEdit()">
 								<span class="phd-choice-action-label">{{actionLabel}}</span>
-							</button>
+							</a>
 							<button *ngIf="!isReadonly" type="button" class="btn ml-auto btn-secondary phd-remove-button" (click)="onRemove(choice)">
 								<span class="phd-choice-action-label">Remove</span>
 							</button>

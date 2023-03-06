@@ -1,9 +1,9 @@
 <div class="d-flex">
 	<ng-container *ngIf="!isDesignComplete">
-		<div class="phd-attribute-group-toggle phd-clickable">
+		<button class="phd-attribute-group-toggle phd-clickable">
 			<i class="fa fa-angle-up" *ngIf="!isCollapsed" (click)="onToggleAttributeGroup()"></i>
 			<i class="fa fa-angle-down" *ngIf="isCollapsed" (click)="onToggleAttributeGroup()"></i>
-		</div>
+		</button>
 	</ng-container>
 	<div [class.phd-attribute-group-complete]="isDesignComplete">
 		<ng-container *ngIf="!isDesignComplete">

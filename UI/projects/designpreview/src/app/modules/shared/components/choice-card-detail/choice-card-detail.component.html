@@ -1,9 +1,9 @@
 <div class="phd-choice-card-detail">
 	<div class="phd-image-section">
-		<div class="phd-choice-path">
+		<a class="phd-choice-path">
 			<i class="fa fa-arrow-left phd-clickable" (click)="onClickBack()"></i>
 			<span>{{path}}</span>
-		</div>
+		</a>
 		<div class="phd-image-container">
 			<div class="phd-image-card">
 				<div class="phd-card-detail-image-body">
@@ -26,12 +26,12 @@
 			</div>
 			<div class="phd-image-carousel">
 				<ng-container *ngIf="choiceImages.length <= 10">
-					<span *ngFor="let image of choiceImages" class="phd-image-thumbnail phd-clickable">
+					<button *ngFor="let image of choiceImages" class="phd-image-thumbnail phd-clickable">
 						<cl-image public-id="{{image.imageURL}}" type="fetch" background="#ffffff" crop="lpad"
 								  class="phd-choice-image" [class.phd-choice-image-selected]="!highlightedAttribute && selectedImageUrl === image.imageURL"
 								  (onError)="onLoadImageError($event)" (click)="imageClick(image)">
 						</cl-image>
-					</span>
+					</button>
 				</ng-container>
 				<ng-container *ngIf="choiceImages.length > 10">
 					<p-carousel [value]="choiceImages" [numVisible]="10" [numScroll]="1">
@@ -59,19 +59,21 @@
 				</div>
 			</ng-container>
 			<ng-container *ngIf="choice.choiceStatus === 'Contracted'">
-				<i class="fa fa-check phd-icon-selected phd-favorite-selector"></i>
+				<button class="phd-favorite-selector">
+					<i class="fa fa-check phd-icon-selected "></i>
+				</button>
 			</ng-container>
 			<ng-container *ngIf="choice.choiceStatus === 'Available' && choice.enabled">
-				<div [class.phd-clickable]="!isReadonly" class="phd-favorite-selector">
+				<button [class.phd-clickable]="!isReadonly" class="phd-favorite-selector">
 					<span>
 						<i [ngClass]="choice.isFavorite ? 'fa fa-heart phd-icon-selected' : 'fa fa-heart-o'" (click)="toggleChoiceClicked()"></i>
 					</span>
-				</div>
+				</button>
 			</ng-container>
 			<ng-container *ngIf="choice.choiceStatus === 'Available' && !choice.enabled">
-				<div class="phd-clickable phd-favorite-selector">
+				<button class="phd-clickable phd-favorite-selector">
 					<i class="fa fa-ban" (click)="openBlockedChoiceModal()"></i>
-				</div>
+				</button>
 			</ng-container>
 		</div>
 	</div>

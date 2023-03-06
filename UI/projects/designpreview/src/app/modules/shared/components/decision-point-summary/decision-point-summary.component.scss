@@ -53,6 +53,10 @@
 
 				.phd-choice-expand {
 					width: 1.5em;
+					background: none;
+					border: none;
+					margin: 0;
+					padding: 0;
 				}
 
 				.phd-choice-quantity {
@@ -71,7 +75,7 @@
 				}
 
 				.phd-pricing-varies {
-					margin-left: 100px;	
+					margin-left: 100px;
 				}
 
 				.phd-choice-body {
@@ -156,6 +160,7 @@
 
 	.actions {
 		min-width: 60px;
+
 		a {
 			font-size: 14px;
 			color: $bluish;
@@ -167,10 +172,21 @@
 	.actionLinks {
 		margin-top: 5px;
 
+		a {
+			font-size: 10px;
+			border-radius: 35px;
+			min-width: 75px;
+			height: 18px;
+			margin: 0 10px 0 20px;
+			padding: 0;
+			text-align: center;
+		}
+
 		.phd-view-button {
 			background: var(--primary-button-color);
 			color: white;
 		}
+
 		.phd-remove-button {
 			background: white;
 			border-width: 2px;
@@ -218,16 +234,20 @@
 	.phd-hide-from-print {
 		display: none !important;
 	}
+
 	.phd-price {
 		font-weight: bold;
 		margin-left: 295px !important;
 	}
+
 	.phd-pricing-varies {
-		margin-left: 295px !important;	
+		margin-left: 295px !important;
 	}
+
 	.phd-choice-detail-presale-print {
 		margin-left: 60px;
 	}
+
 	.phd-choice-header-presale-print {
 		flex-basis: 250% !important;
 	}
