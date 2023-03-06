@@ -1,24 +1,26 @@
-<div class="modal-header">
-	<span class="modal-title">{{ headerText }}</span>
-</div>
-<div class="modal-body">
-	<div *ngIf="!isPresale">
-		This site is to assist potential buyers with a general<br>
-		understanding of options. Actual option selections<br>
-		will be determined when buyer and seller execute<br>
-		a Home Purchase Agreement.
+<div aria-label="Terms And Conditions Modal">
+	<div class="modal-header">
+		<h1 class="modal-title">{{ headerText }}</h1>
 	</div>
-	<div *ngIf="isPresale" class="phd-presale-message">
-		<p class="phd-presale-message-introduction">To get started:</p>
-			<ul>
-				<li>Explore our collection of included features and upgrade options available for this home and collect your Favorites.</li>
-				<li>Reach out to your Sales Consultant to discuss your options and learn more.</li>
-			</ul>
-		<p class="phd-presale-message-disclaimer">Options are subject to change until purchased via a signed agreement.</p>
+	<div class="modal-body">
+		<div *ngIf="!isPresale">
+			This site is to assist potential buyers with a general<br>
+			understanding of options. Actual option selections<br>
+			will be determined when buyer and seller execute<br>
+			a Home Purchase Agreement.
+		</div>
+		<div *ngIf="isPresale" class="phd-presale-message">
+			<p class="phd-presale-message-introduction">To get started:</p>
+				<ul>
+					<li>Explore our collection of included features and upgrade options available for this home and collect your Favorites.</li>
+					<li>Reach out to your Sales Consultant to discuss your options and learn more.</li>
+				</ul>
+			<p class="phd-presale-message-disclaimer">Options are subject to change until purchased via a signed agreement.</p>
+		</div>
 	</div>
-</div>
-<div class="modal-footer">
-	<button type="button" class="btn btn-sm btn-primary modal-button"(click)="close('Got It')">
-		<span class="modal-button">Got It!</span>
-	</button>
+	<div class="modal-footer">
+		<button type="button" class="btn btn-sm btn-primary modal-button"(click)="close('Got It')">
+			<span class="modal-button">Got It!</span>
+		</button>
+	</div>
 </div>
